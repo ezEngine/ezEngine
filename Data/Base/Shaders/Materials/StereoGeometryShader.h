@@ -54,22 +54,22 @@
     output.Color1 = input[i].Color1;
 #  endif
 
-#if defined(USE_DEBUG_INTERPOLATOR)
-  output.DebugInterpolator = input[i].DebugInterpolator;
-#endif
+#  if defined(USE_DEBUG_INTERPOLATOR)
+    output.DebugInterpolator = input[i].DebugInterpolator;
+#  endif
 
-#if defined(CUSTOM_INTERPOLATOR)
-  output.CUSTOM_INTERPOLATOR_NAME = input[i].CUSTOM_INTERPOLATOR_NAME;
-#endif
+#  if defined(CUSTOM_INTERPOLATOR)
+    output.CUSTOM_INTERPOLATOR_NAME = input[i].CUSTOM_INTERPOLATOR_NAME;
+#  endif
 
     output.InstanceID = input[i].InstanceID;
     output.RenderTargetArrayIndex = input[i].InstanceID % 2;
 
-#if defined(TWO_SIDED)
-  #if TWO_SIDED == TRUE
+#  if defined(TWO_SIDED)
+#    if TWO_SIDED == TRUE
     output.FrontFace : input[i].FrontFace;
-  #endif
-#endif
+#    endif
+#  endif
 
     outStream.Append(output);
   }

@@ -351,8 +351,7 @@ namespace
     const ezUInt32 uiMask = 1 << (uiLightIndex - uiBlockIndex * 32);
 
     FillCluster(screenSpaceBounds, uiBlockIndex, uiMask, clusters,
-      [&](ezUInt32 uiClusterIndex)
-      { return pointLightSphere.Overlaps(clusterBoundingSpheres[uiClusterIndex]); });
+      [&](ezUInt32 uiClusterIndex) { return pointLightSphere.Overlaps(clusterBoundingSpheres[uiClusterIndex]); });
   }
 
   struct BoundingCone
@@ -393,22 +392,21 @@ namespace
     const ezUInt32 uiBlockIndex = uiLightIndex / 32;
     const ezUInt32 uiMask = 1 << (uiLightIndex - uiBlockIndex * 32);
 
-    FillCluster(screenSpaceBounds, uiBlockIndex, uiMask, clusters, [&](ezUInt32 uiClusterIndex)
-      {
-        ezSimdBSphere clusterSphere = clusterBoundingSpheres[uiClusterIndex];
-        ezSimdFloat clusterRadius = clusterSphere.GetRadius();
+    FillCluster(screenSpaceBounds, uiBlockIndex, uiMask, clusters, [&](ezUInt32 uiClusterIndex) {
+      ezSimdBSphere clusterSphere = clusterBoundingSpheres[uiClusterIndex];
+      ezSimdFloat clusterRadius = clusterSphere.GetRadius();
 
-        ezSimdVec4f toConePos = clusterSphere.m_CenterAndRadius - position;
-        ezSimdFloat projected = forwardDir.Dot<3>(toConePos);
-        ezSimdFloat distToConeSq = toConePos.Dot<3>(toConePos);
-        ezSimdFloat distClosestP = cosAngle * (distToConeSq - projected * projected).GetSqrt() - projected * sinAngle;
+      ezSimdVec4f toConePos = clusterSphere.m_CenterAndRadius - position;
+      ezSimdFloat projected = forwardDir.Dot<3>(toConePos);
+      ezSimdFloat distToConeSq = toConePos.Dot<3>(toConePos);
+      ezSimdFloat distClosestP = cosAngle * (distToConeSq - projected * projected).GetSqrt() - projected * sinAngle;
 
-        bool angleCull = distClosestP > clusterRadius;
-        bool frontCull = projected > clusterRadius + range;
-        bool backCull = projected < -clusterRadius;
+      bool angleCull = distClosestP > clusterRadius;
+      bool frontCull = projected > clusterRadius + range;
+      bool backCull = projected < -clusterRadius;
 
-        return !(angleCull || frontCull || backCull);
-      });
+      return !(angleCull || frontCull || backCull);
+    });
   }
 
   template <typename Cluster>
@@ -463,12 +461,11 @@ namespace
     const ezUInt32 uiBlockIndex = uiDecalIndex / 32;
     const ezUInt32 uiMask = 1 << (uiDecalIndex - uiBlockIndex * 32);
 
-    FillCluster(screenSpaceBounds, uiBlockIndex, uiMask, clusters, [&](ezUInt32 uiClusterIndex)
-      {
-        ezSimdBSphere clusterSphere = clusterBoundingSpheres[uiClusterIndex];
-        clusterSphere.Transform(worldToDecal);
+    FillCluster(screenSpaceBounds, uiBlockIndex, uiMask, clusters, [&](ezUInt32 uiClusterIndex) {
+      ezSimdBSphere clusterSphere = clusterBoundingSpheres[uiClusterIndex];
+      clusterSphere.Transform(worldToDecal);
 
-        return localDecalBounds.Overlaps(clusterSphere);
-      });
+      return localDecalBounds.Overlaps(clusterSphere);
+    });
   }
 } // namespace

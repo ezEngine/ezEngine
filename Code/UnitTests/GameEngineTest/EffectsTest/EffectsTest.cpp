@@ -3,9 +3,9 @@
 #include "EffectsTest.h"
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
-#include <ParticlePlugin/Components/ParticleComponent.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <ParticlePlugin/Components/ParticleComponent.h>
 
 static ezGameEngineTestEffects s_GameEngineTestEffects;
 

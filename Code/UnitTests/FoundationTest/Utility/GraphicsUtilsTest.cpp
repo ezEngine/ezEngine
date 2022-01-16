@@ -137,7 +137,7 @@ EZ_CREATE_SIMPLE_TEST(Utility, GraphicsUtils)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ExtractPerspectiveMatrixFieldOfView")
   {
-    DepthRange depthRanges[] = {{1.0f, 1000.0f}, {1000.0f, 1.0f} , {0.5f, 20.0f}, {20.0f, 0.5f}};
+    DepthRange depthRanges[] = {{1.0f, 1000.0f}, {1000.0f, 1.0f}, {0.5f, 20.0f}, {20.0f, 0.5f}};
     ezClipSpaceDepthRange::Enum clipRanges[] = {ezClipSpaceDepthRange::ZeroToOne, ezClipSpaceDepthRange::MinusOneToOne};
     ezHandedness::Enum handednesses[] = {ezHandedness::LeftHanded, ezHandedness::RightHanded};
     ezClipSpaceYMode::Enum clipSpaceYModes[] = {ezClipSpaceYMode::Regular, ezClipSpaceYMode::Flipped};
