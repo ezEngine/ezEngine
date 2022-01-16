@@ -7,6 +7,7 @@ RENDER_PASS
 GIZMO_CONSTANT_SIZE
 PREPARE_DEPTH
 CAMERA_MODE
+GIZMO_FACE_CAMERA
 
 [RENDERSTATE]
 
@@ -55,6 +56,7 @@ VS_OUT main(VS_IN Input)
 			float scale = 1.0f;
 		#else
 			float scale = length(centerPosition - GetCameraPosition()) * GizmoScale;
+
 		#endif
 	#else
 		float scale = 1.0f;
@@ -65,9 +67,19 @@ VS_OUT main(VS_IN Input)
 	expand = 0.04;
 #endif
 
-	//expand = 0.04;
+	float3 inpos = Input.Position.xyz + (Input.Normal.xyz * 2 - 1) * expand;
 
-	float4 worldSpacePos = mul(ObjectToWorldMatrix, float4((Input.Position + (Input.Normal * 2 - 1) * expand) * scale, 1.0f));
+	#if GIZMO_FACE_CAMERA == 1
+		float3 localCamPos = mul(WorldToObjectMatrix, float4(GetCameraPosition().xyz, 1)).xyz;
+		if (localCamPos.x < 0)
+			inpos.x = -inpos.x;
+		if (localCamPos.y < 0)
+			inpos.y = -inpos.y;
+		if (localCamPos.z < 0)
+			inpos.z = -inpos.z;
+	#endif
+
+	float4 worldSpacePos = mul(ObjectToWorldMatrix, float4(inpos * scale, 1.0f));
 
 	VS_OUT RetVal;
 	RetVal.Position = mul(GetWorldToScreenMatrix(), worldSpacePos);

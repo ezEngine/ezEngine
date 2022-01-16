@@ -86,6 +86,7 @@ void ezGizmoRenderer::RenderBatch(
 
     ezGizmoConstants& cb = pGizmoConstantBuffer->GetDataForWriting();
     cb.ObjectToWorldMatrix = pRenderData->m_GlobalTransform.GetAsMat4();
+    cb.WorldToObjectMatrix = cb.ObjectToWorldMatrix.GetInverse();
     cb.GizmoColor = pRenderData->m_GizmoColor;
     cb.GizmoScale = fGizmoScale;
     cb.GameObjectID = pRenderData->m_uiUniqueID;

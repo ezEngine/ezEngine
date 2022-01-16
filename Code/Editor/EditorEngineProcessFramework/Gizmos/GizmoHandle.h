@@ -70,6 +70,7 @@ struct ezGizmoFlags
     Visualizer = EZ_BIT(2),
     ShowInOrtho = EZ_BIT(3),
     Pickable = EZ_BIT(4),
+    FaceCamera = EZ_BIT(5),
   };
 
   struct Bits
@@ -79,6 +80,7 @@ struct ezGizmoFlags
     StorageType Visualizer : 1;
     StorageType ShowInOrtho : 1;
     StorageType Pickable : 1;
+    StorageType FaceCamera : 1;
   };
 };
 
@@ -105,6 +107,7 @@ protected:
   bool m_bVisualizer = false;
   bool m_bShowInOrtho = false;
   bool m_bIsPickable = true;
+  bool m_bFaceCamera = false;
   ezInt32 m_iHandleType = -1;
   ezString m_sGizmoHandleMesh;
   ezGameObjectHandle m_hGameObject;

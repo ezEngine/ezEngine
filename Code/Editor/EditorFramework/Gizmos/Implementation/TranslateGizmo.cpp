@@ -29,9 +29,9 @@ ezTranslateGizmo::ezTranslateGizmo()
     m_AxisY.ConfigureHandle(this, ezEngineGizmoHandleType::FromFile, colg, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable, "Editor/Meshes/TranslateArrowY.obj");
     m_AxisZ.ConfigureHandle(this, ezEngineGizmoHandleType::FromFile, colb, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable, "Editor/Meshes/TranslateArrowZ.obj");
 
-    m_PlaneYZ.ConfigureHandle(this, ezEngineGizmoHandleType::FromFile, colr, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable, "Editor/Meshes/TranslatePlaneX.obj");
-    m_PlaneXZ.ConfigureHandle(this, ezEngineGizmoHandleType::FromFile, colg, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable, "Editor/Meshes/TranslatePlaneY.obj");
-    m_PlaneXY.ConfigureHandle(this, ezEngineGizmoHandleType::FromFile, colb, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable, "Editor/Meshes/TranslatePlaneZ.obj");
+    m_PlaneYZ.ConfigureHandle(this, ezEngineGizmoHandleType::FromFile, colr, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable | ezGizmoFlags::FaceCamera, "Editor/Meshes/TranslatePlaneX.obj");
+    m_PlaneXZ.ConfigureHandle(this, ezEngineGizmoHandleType::FromFile, colg, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable | ezGizmoFlags::FaceCamera, "Editor/Meshes/TranslatePlaneY.obj");
+    m_PlaneXY.ConfigureHandle(this, ezEngineGizmoHandleType::FromFile, colb, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable | ezGizmoFlags::FaceCamera, "Editor/Meshes/TranslatePlaneZ.obj");
   }
   else
   {

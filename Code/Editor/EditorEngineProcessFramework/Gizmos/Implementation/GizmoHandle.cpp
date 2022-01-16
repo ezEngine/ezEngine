@@ -29,6 +29,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEngineGizmoHandle, 1, ezRTTIDefaultAllocator<e
     EZ_MEMBER_PROPERTY("Visualizer", m_bVisualizer),
     EZ_MEMBER_PROPERTY("Ortho", m_bShowInOrtho),
     EZ_MEMBER_PROPERTY("Pickable", m_bIsPickable),
+    EZ_MEMBER_PROPERTY("FaceCam", m_bFaceCamera),
   }
   EZ_END_PROPERTIES;
 }
@@ -517,6 +518,7 @@ void ezEngineGizmoHandle::ConfigureHandle(ezGizmo* pParentGizmo, ezEngineGizmoHa
   m_bVisualizer = flags.IsSet(ezGizmoFlags::Visualizer);
   m_bShowInOrtho = flags.IsSet(ezGizmoFlags::ShowInOrtho);
   m_bIsPickable = flags.IsSet(ezGizmoFlags::Pickable);
+  m_bFaceCamera = flags.IsSet(ezGizmoFlags::FaceCamera);
 }
 
 bool ezEngineGizmoHandle::SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextComponentPickingID)
@@ -674,7 +676,14 @@ bool ezEngineGizmoHandle::SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextCompone
   }
   else if (m_bConstantSize)
   {
-    hMesh = CreateMeshResource(szMeshGuid, hMeshBuffer, "Editor/Materials/GizmoHandleConstantSize.ezMaterial");
+    if (m_bFaceCamera)
+    {
+      hMesh = CreateMeshResource(szMeshGuid, hMeshBuffer, "Editor/Materials/GizmoHandleConstantSizeCamFacing.ezMaterial");
+    }
+    else
+    {
+      hMesh = CreateMeshResource(szMeshGuid, hMeshBuffer, "Editor/Materials/GizmoHandleConstantSize.ezMaterial");
+    }
   }
   else
   {
