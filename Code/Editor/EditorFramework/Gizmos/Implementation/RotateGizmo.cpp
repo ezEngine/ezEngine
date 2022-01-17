@@ -14,7 +14,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezRotateGizmo::ezRotateGizmo()
 {
   ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
-  m_bUseExperimentalGizmo = pPreferences->m_bExperimentalGizmos;
+  m_bUseExperimentalGizmo = !pPreferences->m_bOldGizmos;
 
   if (m_bUseExperimentalGizmo)
   {

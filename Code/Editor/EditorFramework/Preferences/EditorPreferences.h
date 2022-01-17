@@ -18,8 +18,8 @@ public:
   void SetAsDefaultValues(const ezEngineViewLightSettings& settings);
 
   float m_fPerspectiveFieldOfView = 70.0f;
-  float m_fGizmoScale = 1.0f;
-  bool m_bExperimentalGizmos = false;
+  float m_fGizmoSize = 1.5f;
+  bool m_bOldGizmos = false;
   bool m_bUsePrecompiledTools = true;
   bool m_bLoadLastProjectAtStartup = true;
   bool m_bShowSplashscreen = true;
