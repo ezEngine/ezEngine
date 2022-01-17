@@ -39,8 +39,9 @@ o
 			Uuid{u4{2981470921729318042,5237516996304400940}}
 			Uuid{u4{584814330201002909,5374553803461751913}}
 		}
-		Vec3 %GlobalPosRO{f{0,0,0}}
-		Quat %LimitOrientation{f{0,0,0,0x0000803F}}
+		Quat %GizmoOffsetRotationRO{f{0x0000003F,0x000000BF,0x000000BF,0x0000003F}}
+		Vec3 %GizmoOffsetTranslationRO{f{0,0,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		s %Name{"Armature"}
 		Angle %SwingLimitY{f{0}}
 		Angle %SwingLimitZ{f{0}}
@@ -64,8 +65,9 @@ o
 		{
 			Uuid{u4{2230797400637783481,4915257224812588691}}
 		}
-		Vec3 %GlobalPosRO{f{0,0,0xCCCCCC3E}}
-		Quat %LimitOrientation{f{0,0,0,0x0000803F}}
+		Quat %GizmoOffsetRotationRO{f{0x0000003F,0x000000BF,0x000000BF,0x0000003F}}
+		Vec3 %GizmoOffsetTranslationRO{f{0,0,0xCCCCCC3E}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		s %Name{"Bone.002"}
 		Angle %SwingLimitY{f{0x920A063F}}
 		Angle %SwingLimitZ{f{0x920A063F}}
@@ -89,8 +91,9 @@ o
 		{
 			Uuid{u4{12602369667154411966,5404313663310040456}}
 		}
-		Vec3 %GlobalPosRO{f{0,0,0x9999193F}}
-		Quat %LimitOrientation{f{0,0,0,0x0000803F}}
+		Quat %GizmoOffsetRotationRO{f{0x0000003F,0x000000BF,0x000000BF,0x0000003F}}
+		Vec3 %GizmoOffsetTranslationRO{f{0,0,0x9999193F}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		s %Name{"Bone.003"}
 		Angle %SwingLimitY{f{0x920A063F}}
 		Angle %SwingLimitZ{f{0x920A063F}}
@@ -114,8 +117,9 @@ o
 		{
 			Uuid{u4{7956801960757341835,4859933553894084809}}
 		}
-		Vec3 %GlobalPosRO{f{0,0,0xCCCC4C3E}}
-		Quat %LimitOrientation{f{0,0,0,0x0000803F}}
+		Quat %GizmoOffsetRotationRO{f{0x0000003F,0x000000BF,0x000000BF,0x0000003F}}
+		Vec3 %GizmoOffsetTranslationRO{f{0,0,0xCCCC4C3E}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		s %Name{"Bone.001"}
 		Angle %SwingLimitY{f{0x920A063F}}
 		Angle %SwingLimitZ{f{0x920A063F}}
@@ -136,8 +140,9 @@ o
 			Uuid{u4{2880783773827932851,5285820652054220737}}
 		}
 		VarArray %Children{}
-		Vec3 %GlobalPosRO{f{0,0,0xFFFF7F3F}}
-		Quat %LimitOrientation{f{0,0,0,0x0000803F}}
+		Quat %GizmoOffsetRotationRO{f{0x0000003F,0x000000BF,0x000000BF,0x0000003F}}
+		Vec3 %GizmoOffsetTranslationRO{f{0,0,0xFFFF7F3F}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		s %Name{"Bone.005"}
 		Angle %SwingLimitY{f{0x920A063F}}
 		Angle %SwingLimitZ{f{0x920A063F}}
@@ -260,8 +265,9 @@ o
 	{
 		VarArray %BoneShapes{}
 		VarArray %Children{}
-		Vec3 %GlobalPosRO{f{0,0,0}}
-		Quat %LimitOrientation{f{0,0,0,0x0000803F}}
+		Quat %GizmoOffsetRotationRO{f{0x0000003F,0x000000BF,0x000000BF,0x0000003F}}
+		Vec3 %GizmoOffsetTranslationRO{f{0,0,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		s %Name{"Cube"}
 		Angle %SwingLimitY{f{0}}
 		Angle %SwingLimitZ{f{0}}
@@ -327,8 +333,9 @@ o
 		{
 			Uuid{u4{17289789174179426995,4976415427262041894}}
 		}
-		Vec3 %GlobalPosRO{f{0,0,0}}
-		Quat %LimitOrientation{f{0,0,0,0x0000803F}}
+		Quat %GizmoOffsetRotationRO{f{0x0000003F,0x000000BF,0x000000BF,0x0000003F}}
+		Vec3 %GizmoOffsetTranslationRO{f{0,0,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		s %Name{"Bone"}
 		Angle %SwingLimitY{f{0x920A063F}}
 		Angle %SwingLimitZ{f{0x920A063F}}
@@ -352,8 +359,9 @@ o
 		{
 			Uuid{u4{4763831207258959026,4976937619890453246}}
 		}
-		Vec3 %GlobalPosRO{f{0,0,0xCCCC4C3F}}
-		Quat %LimitOrientation{f{0,0,0,0x0000803F}}
+		Quat %GizmoOffsetRotationRO{f{0x0000003F,0x000000BF,0x000000BF,0x0000003F}}
+		Vec3 %GizmoOffsetTranslationRO{f{0,0,0xCCCC4C3F}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		s %Name{"Bone.004"}
 		Angle %SwingLimitY{f{0x920A063F}}
 		Angle %SwingLimitZ{f{0x920A063F}}
@@ -429,7 +437,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezEditableSkeletonJoint"}
-		u3 %TypeSize{376}
+		u3 %TypeSize{392}
 		u3 %TypeVersion{1}
 	}
 }

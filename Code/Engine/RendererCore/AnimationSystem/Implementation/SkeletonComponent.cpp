@@ -239,7 +239,8 @@ void ezSkeletonComponent::BuildSkeletonVisualization(ezMsgAnimationPoseUpdated& 
 
   const ezVec3 vBoneDir = ezBasisAxis::GetBasisVector(msg.m_pSkeleton->m_BoneDirection);
 
-  auto renderBone = [&](int currentBone, int parentBone) {
+  auto renderBone = [&](int currentBone, int parentBone)
+  {
     if (parentBone == ozz::animation::Skeleton::kNoParent)
       return;
 
@@ -466,6 +467,9 @@ void ezSkeletonComponent::BuildJointVisualization(ezMsgAnimationPoseUpdated& msg
   if (m_sBonesToHighlight == "*")
     bonesToHighlight.Clear();
 
+  const ezQuat qBoneDir = ezBasisAxis::GetBasisRotation_PosX(pSkeleton->GetDescriptor().m_Skeleton.m_BoneDirection);
+  const ezVec3 vBoneDir = qBoneDir * ezVec3(1, 0, 0);
+
   for (ezUInt16 uiJointIdx = 0; uiJointIdx < skel.GetJointCount(); ++uiJointIdx)
   {
     const auto& thisJoint = skel.GetJointByIndex(uiJointIdx);
@@ -491,19 +495,19 @@ void ezSkeletonComponent::BuildJointVisualization(ezMsgAnimationPoseUpdated& msg
     // main direction
     {
       const ezColor hlM = ezMath::Lerp(ezColor::BlueViolet, ezColor::DimGrey, bHighlight ? 0 : 0.8f);
-      AddLine(vJointPos, vJointPos + qLimitRot * ezVec3(0.12f, 0, 0), hlM);
+      AddLine(vJointPos, vJointPos + qLimitRot * (vBoneDir * 0.12f), hlM);
     }
 
     // swing limit
     {
       ezQuat qRotY, qRotZ;
-      qRotY.SetFromAxisAndAngle(ezVec3::UnitYAxis(), thisJoint.GetHalfSwingLimitY());
-      qRotZ.SetFromAxisAndAngle(ezVec3::UnitZAxis(), thisJoint.GetHalfSwingLimitZ());
+      qRotY.SetFromAxisAndAngle(qBoneDir * ezVec3::UnitYAxis(), thisJoint.GetHalfSwingLimitY());
+      qRotZ.SetFromAxisAndAngle(qBoneDir * ezVec3::UnitZAxis(), thisJoint.GetHalfSwingLimitZ());
 
-      const ezVec3 endY1 = vJointPos + qLimitRot * qRotY * ezVec3(0.1f, 0, 0);
-      const ezVec3 endY2 = vJointPos + qLimitRot * -qRotY * ezVec3(0.1f, 0, 0);
-      const ezVec3 endZ1 = vJointPos + qLimitRot * qRotZ * ezVec3(0.1f, 0, 0);
-      const ezVec3 endZ2 = vJointPos + qLimitRot * -qRotZ * ezVec3(0.1f, 0, 0);
+      const ezVec3 endY1 = vJointPos + qLimitRot * qRotY * (vBoneDir * 0.1f);
+      const ezVec3 endY2 = vJointPos + qLimitRot * -qRotY * (vBoneDir * 0.1f);
+      const ezVec3 endZ1 = vJointPos + qLimitRot * qRotZ * (vBoneDir * 0.1f);
+      const ezVec3 endZ2 = vJointPos + qLimitRot * -qRotZ * (vBoneDir * 0.1f);
 
       const ezColor hlY = ezMath::Lerp(ezColor::Lime, ezColor::DimGrey, bHighlight ? 0 : 0.8f);
       const ezColor hlZ = ezMath::Lerp(ezColor::Blue, ezColor::DimGrey, bHighlight ? 0 : 0.8f);

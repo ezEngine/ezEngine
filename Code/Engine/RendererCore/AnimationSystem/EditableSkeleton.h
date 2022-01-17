@@ -63,17 +63,15 @@ public:
   ezHashedString m_sName;
   ezTransform m_LocalTransform = ezTransform::IdentityTransform();
 
-  ezVec3 GetGlobalJointPosition() const;
-  ezQuat GetGlobalJointOrientation() const;
-  void SetGlobalJointOrientation(ezQuat val);
-
   ezAngle m_TwistLimitLow;
   ezAngle m_TwistLimitHigh;
   ezAngle m_SwingLimitY;
   ezAngle m_SwingLimitZ;
 
-  ezQuat m_qGlobalJointOrientation = ezQuat::IdentityQuaternion();
-  ezVec3 m_vGlobalJointPosition = ezVec3::ZeroVector();
+  ezVec3 m_vGizmoOffsetPositionRO = ezVec3::ZeroVector();
+  ezQuat m_qGizmoOffsetRotationRO = ezQuat::IdentityQuaternion();
+
+  ezQuat m_qLocalJointRotation = ezQuat::IdentityQuaternion();
 
   ezHybridArray<ezEditableSkeletonJoint*, 4> m_Children;
   ezHybridArray<ezEditableSkeletonBoneShape, 1> m_BoneShapes;

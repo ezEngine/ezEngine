@@ -501,8 +501,8 @@ ezTransformManipulatorAttribute::ezTransformManipulatorAttribute()
 }
 
 ezTransformManipulatorAttribute::ezTransformManipulatorAttribute(
-  const char* szTranslateProperty, const char* szRotateProperty, const char* szScaleProperty)
-  : ezManipulatorAttribute(szTranslateProperty, szRotateProperty, szScaleProperty)
+  const char* szTranslateProperty, const char* szRotateProperty, const char* szScaleProperty, const char* szOffsetTranslation, const char* szOffsetRotation)
+  : ezManipulatorAttribute(szTranslateProperty, szRotateProperty, szScaleProperty, szOffsetTranslation, szOffsetRotation)
 {
 }
 

@@ -207,7 +207,8 @@ void ezSkeletonAssetDocument::MergeWithNewSkeleton(ezEditableSkeleton& newSkelet
 
   // map all old joints by name
   {
-    auto TraverseJoints = [&prevJoints](const auto& self, ezEditableSkeletonJoint* pJoint) -> void {
+    auto TraverseJoints = [&prevJoints](const auto& self, ezEditableSkeletonJoint* pJoint) -> void
+    {
       prevJoints[pJoint->GetName()] = pJoint;
 
       for (ezEditableSkeletonJoint* pChild : pJoint->m_Children)
@@ -224,15 +225,21 @@ void ezSkeletonAssetDocument::MergeWithNewSkeleton(ezEditableSkeleton& newSkelet
 
   // copy old properties to new skeleton
   {
-    auto TraverseJoints = [&prevJoints](const auto& self, ezEditableSkeletonJoint* pJoint, const ezTransform& tRoot, ezTransform origin) -> void {
+    auto TraverseJoints = [&prevJoints](const auto& self, ezEditableSkeletonJoint* pJoint, const ezTransform& tRoot, ezTransform origin) -> void
+    {
       auto it = prevJoints.Find(pJoint->GetName());
       if (it.IsValid())
       {
         pJoint->CopyPropertiesFrom(it.Value());
       }
 
+      // use the parent rotation as the gizmo base rotation
+      ezMat4 modelTransform, fullTransform;
+      modelTransform = origin.GetAsMat4();
+      ezMsgAnimationPoseUpdated::ComputeFullBoneTransform(tRoot.GetAsMat4(), modelTransform, fullTransform, pJoint->m_qGizmoOffsetRotationRO);
+
       origin.SetGlobalTransform(origin, pJoint->m_LocalTransform);
-      pJoint->m_vGlobalJointPosition = tRoot.TransformPosition(origin.m_vPosition);
+      pJoint->m_vGizmoOffsetPositionRO = tRoot.TransformPosition(origin.m_vPosition);
 
       for (ezEditableSkeletonJoint* pChild : pJoint->m_Children)
       {

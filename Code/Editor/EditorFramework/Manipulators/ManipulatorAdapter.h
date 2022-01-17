@@ -28,6 +28,7 @@ private:
   void DocumentObjectMetaDataEventHandler(const ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>::EventData& e);
 
 protected:
+  virtual ezTransform GetOffsetTransform() const;
   virtual ezTransform GetObjectTransform() const;
   ezObjectAccessorBase* GetObjectAccessor() const;
   const ezAbstractProperty* GetProperty(const char* szProperty) const;

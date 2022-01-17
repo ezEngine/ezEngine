@@ -16,8 +16,6 @@ using namespace physx;
 
 /* TODO
 * angular momentum preservation
-* joint limit config
-* joint limit frame positioning
 * materials
 * force application
 * mass distribution
@@ -453,7 +451,8 @@ void ezPxRagdollComponent::CreateShapesFromBindPose()
 
   m_JointPoses.SetCountUninitialized(desc.m_Skeleton.GetJointCount());
 
-  auto getBone = [&](ezUInt32 i, auto f) -> ezMat4 {
+  auto getBone = [&](ezUInt32 i, auto f) -> ezMat4
+  {
     const auto& j = desc.m_Skeleton.GetJointByIndex(i);
     const ezMat4 bm = j.GetBindPoseLocalTransform().GetAsMat4();
 
@@ -596,7 +595,7 @@ void ezPxRagdollComponent::CreateBoneLink(ezUInt16 uiBoneIdx, const ezSkeletonJo
 
     ezTransform parentFrameJoint;
     parentFrameJoint.SetLocalTransform(parentLink.m_GlobalTransform, thisLink.m_GlobalTransform);
-    parentFrameJoint.m_qRotation = parentFrameJoint.m_qRotation * qBoneDirAdjustment; // TODO: custom bone rotation
+    parentFrameJoint.m_qRotation = joint.GetLocalOrientation() * qBoneDirAdjustment;
 
     ezTransform childFrameJoint;
     childFrameJoint.SetIdentity();
