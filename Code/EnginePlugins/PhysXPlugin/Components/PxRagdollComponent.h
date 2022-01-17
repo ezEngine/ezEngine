@@ -42,6 +42,15 @@ struct ezPxRagdollStart
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_PHYSXPLUGIN_DLL, ezPxRagdollStart);
 
+//////////////////////////////////////////////////////////////////////////
+
+struct EZ_PHYSXPLUGIN_DLL ezPxRagdollConstraint : public ezReflectedClass
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezPxRagdollConstraint, ezReflectedClass);
+
+  ezString m_sBone;
+  ezVec3 m_vRelativePosition;
+};
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -106,6 +115,12 @@ protected:
     ezTransform m_GlobalTransform;
   };
 
+  struct BoneData
+  {
+    physx::PxArticulationLink* m_pLink = nullptr;
+    ezHashedString m_sBoneName;
+  };
+
   void CreatePhysicsShapes(const ezSkeletonResourceHandle& hSkeleton, ezMsgAnimationPoseUpdated& poseMsg);
   void DestroyPhysicsShapes();
   void UpdatePose();
@@ -114,6 +129,7 @@ protected:
   void AddArticulationToScene();
   void CreateBoneShape(const ezTransform& rootTransform, ezBasisAxis::Enum srcBoneDir, physx::PxRigidActor& actor, const ezSkeletonResourceGeometry& geo, const physx::PxMaterial& pxMaterial, const physx::PxFilterData& pxFilterData, ezPxUserData* pPxUserData);
   void CreateBoneLink(ezUInt16 uiBoneIdx, const ezSkeletonJoint& bone, ezBasisAxis::Enum srcBoneDir, ezPxUserData* pPxUserData, LinkData& thisLink, const LinkData& parentLink, ezMsgAnimationPoseUpdated& poseMsg);
+  void CreateConstraints();
 
   physx::PxMaterial* GetPxMaterial();
   physx::PxFilterData CreateFilterData();
@@ -133,11 +149,12 @@ protected:
   };
 
   ezHybridArray<Impulse, 8> m_Impulses;
+  ezDynamicArray<ezPxRagdollConstraint> m_Constraints;
 
   ezEnum<ezPxRagdollStart> m_Start;
   physx::PxArticulationLink* m_pRootLink = nullptr;
   ezTransform m_RootLinkLocalTransform;
-  ezDynamicArray<physx::PxArticulationLink*> m_ArticulationLinks;
+  ezDynamicArray<BoneData> m_ArticulationLinks;
   ezDynamicArray<ezMat4> m_JointPoses;
 
   ezSkeletonResourceHandle m_hSkeleton;
