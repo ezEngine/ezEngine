@@ -168,3 +168,26 @@ ezVec3 ezTransformManipulatorAdapter::GetScale()
 
   return ezVec3(1);
 }
+
+ezTransform ezTransformManipulatorAdapter::GetOffsetTransform() const
+{
+  ezTransform offset;
+  offset.SetIdentity();
+
+  if (const ezTransformManipulatorAttribute* pAttr = ezDynamicCast<const ezTransformManipulatorAttribute*>(m_pManipulatorAttr))
+  {
+    if (!pAttr->GetGetOffsetTranslationProperty().IsEmpty())
+    {
+      ezObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
+      offset.m_vPosition = pObjectAccessor->Get<ezVec3>(m_pObject, GetProperty(pAttr->GetGetOffsetTranslationProperty()));
+    }
+
+    if (!pAttr->GetGetOffsetRotationProperty().IsEmpty())
+    {
+      ezObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
+      offset.m_qRotation = pObjectAccessor->Get<ezQuat>(m_pObject, GetProperty(pAttr->GetGetOffsetRotationProperty()));
+    }
+  }
+
+  return offset;
+}

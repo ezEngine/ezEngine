@@ -79,12 +79,22 @@ void ezManipulatorAdapter::DocumentObjectMetaDataEventHandler(const ezObjectMeta
   }
 }
 
+ezTransform ezManipulatorAdapter::GetOffsetTransform() const
+{
+  return ezTransform::IdentityTransform();
+}
+
 ezTransform ezManipulatorAdapter::GetObjectTransform() const
 {
-  ezTransform t;
-  m_pObject->GetDocumentObjectManager()->GetDocument()->ComputeObjectTransformation(m_pObject, t).IgnoreResult();
+  ezTransform tObj;
+  m_pObject->GetDocumentObjectManager()->GetDocument()->ComputeObjectTransformation(m_pObject, tObj).IgnoreResult();
 
-  return t;
+  const ezTransform offset = GetOffsetTransform();
+
+  ezTransform tGlobal;
+  tGlobal.SetGlobalTransform(tObj, offset);
+
+  return tGlobal;
 }
 
 ezObjectAccessorBase* ezManipulatorAdapter::GetObjectAccessor() const

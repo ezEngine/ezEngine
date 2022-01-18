@@ -16,8 +16,6 @@ using namespace physx;
 
 /* TODO
 * angular momentum preservation
-* joint limit config
-* joint limit frame positioning
 * materials
 * force application
 * mass distribution
@@ -31,6 +29,22 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezPxRagdollStart, 1)
   EZ_ENUM_CONSTANTS(ezPxRagdollStart::BindPose, ezPxRagdollStart::WaitForPose, ezPxRagdollStart::WaitForPoseAndVelocity, ezPxRagdollStart::Wait)
 EZ_END_STATIC_REFLECTED_ENUM;
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPxRagdollConstraint, 1, ezRTTIDefaultAllocator<ezPxRagdollConstraint>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Bone", m_sBone),
+    EZ_MEMBER_PROPERTY("Position", m_vRelativePosition)
+  }
+  EZ_END_PROPERTIES;
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezTransformManipulatorAttribute("Position")
+  }
+  EZ_END_ATTRIBUTES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
 EZ_BEGIN_COMPONENT_TYPE(ezPxRagdollComponent, 1, ezComponentMode::Dynamic)
 {
   EZ_BEGIN_PROPERTIES
@@ -40,6 +54,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxRagdollComponent, 1, ezComponentMode::Dynamic)
     EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
     EZ_ACCESSOR_PROPERTY("DisableGravity", GetDisableGravity, SetDisableGravity),
     EZ_MEMBER_PROPERTY("SelfCollision", m_bSelfCollision),
+    EZ_ARRAY_MEMBER_PROPERTY("Constraints", m_Constraints),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
@@ -71,6 +86,7 @@ void ezPxRagdollComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_uiCollisionLayer;
   s << m_bSelfCollision;
   s << m_hSurface;
+  // TODO m_Constraints
 }
 
 void ezPxRagdollComponent::DeserializeComponent(ezWorldReader& stream)
@@ -84,6 +100,7 @@ void ezPxRagdollComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_uiCollisionLayer;
   s >> m_bSelfCollision;
   s >> m_hSurface;
+  // TODO m_Constraints
 }
 
 void ezPxRagdollComponent::SetSurfaceFile(const char* szFile)
@@ -288,6 +305,8 @@ void ezPxRagdollComponent::CreatePhysicsShapes(const ezSkeletonResourceHandle& h
   // probably just move all the ragdoll stuff into an animation graph node and then use different messages to input and forward poses
   poseMsg.m_bContinueAnimating = false;
   AddArticulationToScene();
+
+  CreateConstraints();
 }
 
 void ezPxRagdollComponent::DestroyPhysicsShapes()
@@ -358,13 +377,13 @@ void ezPxRagdollComponent::UpdatePose()
 
   for (ezUInt32 i = 0; i < m_ArticulationLinks.GetCount(); ++i)
   {
-    if (m_ArticulationLinks[i] == nullptr)
+    if (m_ArticulationLinks[i].m_pLink == nullptr)
     {
       // no need to do anything, just pass the original pose through
     }
     else
     {
-      const ezTransform linkGlobalPose = ezPxConversionUtils::ToTransform(m_ArticulationLinks[i]->getGlobalPose());
+      const ezTransform linkGlobalPose = ezPxConversionUtils::ToTransform(m_ArticulationLinks[i].m_pLink->getGlobalPose());
 
       ezTransform pose = linkGlobalPose;
       pose.m_qRotation = pose.m_qRotation * qBoneDirAdjustment;
@@ -571,7 +590,8 @@ void ezPxRagdollComponent::CreateBoneLink(ezUInt16 uiBoneIdx, const ezSkeletonJo
   thisLink.m_pLink = m_pArticulation->createLink(parentLink.m_pLink, ezPxConversionUtils::ToTransform(thisLink.m_GlobalTransform));
   EZ_ASSERT_DEV(thisLink.m_pLink != nullptr, "Ragdoll shape creation failed. Too many bones? (max 64)");
 
-  m_ArticulationLinks[uiBoneIdx] = thisLink.m_pLink;
+  m_ArticulationLinks[uiBoneIdx].m_sBoneName = joint.GetName();
+  m_ArticulationLinks[uiBoneIdx].m_pLink = thisLink.m_pLink;
   thisLink.m_pLink->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, m_bDisableGravity);
   thisLink.m_pLink->setLinearVelocity(ezPxConversionUtils::ToVec3(GetOwner()->GetVelocity()));
   //thisLink.m_pLink->setAngularVelocity(ezPxConversionUtils::ToVec3(GetOwner()->GetVelocity())); // TODO
@@ -596,7 +616,7 @@ void ezPxRagdollComponent::CreateBoneLink(ezUInt16 uiBoneIdx, const ezSkeletonJo
 
     ezTransform parentFrameJoint;
     parentFrameJoint.SetLocalTransform(parentLink.m_GlobalTransform, thisLink.m_GlobalTransform);
-    parentFrameJoint.m_qRotation = parentFrameJoint.m_qRotation * qBoneDirAdjustment; // TODO: custom bone rotation
+    parentFrameJoint.m_qRotation = joint.GetLocalOrientation() * qBoneDirAdjustment;
 
     ezTransform childFrameJoint;
     childFrameJoint.SetIdentity();
@@ -641,6 +661,31 @@ void ezPxRagdollComponent::CreateBoneLink(ezUInt16 uiBoneIdx, const ezSkeletonJo
     inb->setTangentialDamping(25.0f);
 
     inb->setDamping(25.0f);
+  }
+}
+
+void ezPxRagdollComponent::CreateConstraints()
+{
+  if (m_Constraints.IsEmpty())
+    return;
+
+  ezPhysXWorldModule* pPhysModule = GetWorld()->GetOrCreateModule<ezPhysXWorldModule>();
+
+  EZ_PX_WRITE_LOCK(*pPhysModule->GetPxScene());
+
+  for (auto& constraint : m_Constraints)
+  {
+    for (const auto& link : m_ArticulationLinks)
+    {
+      if (link.m_sBoneName == constraint.m_sBone)
+      {
+        const ezTransform pos(GetOwner()->GetGlobalTransform().TransformPosition(constraint.m_vRelativePosition));
+
+        auto pJoint = PxSphericalJointCreate(*(ezPhysX::GetSingleton()->GetPhysXAPI()), nullptr, ezPxConversionUtils::ToTransform(pos), link.m_pLink, ezPxConversionUtils::ToTransform(ezTransform::IdentityTransform()));
+
+        break;
+      }
+    }
   }
 }
 

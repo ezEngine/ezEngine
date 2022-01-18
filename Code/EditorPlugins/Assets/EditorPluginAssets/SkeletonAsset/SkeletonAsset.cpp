@@ -231,8 +231,13 @@ void ezSkeletonAssetDocument::MergeWithNewSkeleton(ezEditableSkeleton& newSkelet
         pJoint->CopyPropertiesFrom(it.Value());
       }
 
+      // use the parent rotation as the gizmo base rotation
+      ezMat4 modelTransform, fullTransform;
+      modelTransform = origin.GetAsMat4();
+      ezMsgAnimationPoseUpdated::ComputeFullBoneTransform(tRoot.GetAsMat4(), modelTransform, fullTransform, pJoint->m_qGizmoOffsetRotationRO);
+
       origin.SetGlobalTransform(origin, pJoint->m_LocalTransform);
-      pJoint->m_vGlobalJointPosition = tRoot.TransformPosition(origin.m_vPosition);
+      pJoint->m_vGizmoOffsetPositionRO = tRoot.TransformPosition(origin.m_vPosition);
 
       for (ezEditableSkeletonJoint* pChild : pJoint->m_Children)
       {
