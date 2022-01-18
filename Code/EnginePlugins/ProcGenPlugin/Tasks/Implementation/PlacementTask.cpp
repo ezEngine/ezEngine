@@ -5,7 +5,7 @@
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/SimdMath/SimdConversion.h>
 #include <Foundation/SimdMath/SimdRandom.h>
-#include <GameEngine/Physics/SurfaceResource.h>
+#include <Core/Physics/SurfaceResource.h>
 #include <ProcGenPlugin/Tasks/PlacementData.h>
 #include <ProcGenPlugin/Tasks/PlacementTask.h>
 #include <ProcGenPlugin/Tasks/Utils.h>

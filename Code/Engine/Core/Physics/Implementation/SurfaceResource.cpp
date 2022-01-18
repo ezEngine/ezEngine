@@ -1,10 +1,10 @@
-#include <GameEngine/GameEnginePCH.h>
+#include <Core/CorePCH.h>
 
 #include <Core/Assets/AssetFileHeader.h>
 #include <Core/Messages/ApplyOnlyToMessage.h>
 #include <Core/Messages/CommonMessages.h>
+#include <Core/Physics/SurfaceResource.h>
 #include <Core/Prefabs/PrefabResource.h>
-#include <GameEngine/Physics/SurfaceResource.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSurfaceResource, 1, ezRTTIDefaultAllocator<ezSurfaceResource>)
@@ -84,12 +84,13 @@ ezResourceLoadDesc ezSurfaceResource::UpdateContent(ezStreamReader* Stream)
       item.m_pInteraction = &i;
     }
 
-    m_Interactions.Sort([](const SurfInt& lhs, const SurfInt& rhs) -> bool {
-      if (lhs.m_uiInteractionTypeHash != rhs.m_uiInteractionTypeHash)
-        return lhs.m_uiInteractionTypeHash < rhs.m_uiInteractionTypeHash;
+    m_Interactions.Sort([](const SurfInt& lhs, const SurfInt& rhs) -> bool
+      {
+        if (lhs.m_uiInteractionTypeHash != rhs.m_uiInteractionTypeHash)
+          return lhs.m_uiInteractionTypeHash < rhs.m_uiInteractionTypeHash;
 
-      return lhs.m_pInteraction->m_fImpulseThreshold > rhs.m_pInteraction->m_fImpulseThreshold;
-    });
+        return lhs.m_pInteraction->m_fImpulseThreshold > rhs.m_pInteraction->m_fImpulseThreshold;
+      });
   }
 
   res.m_State = ezResourceState::Loaded;
@@ -342,5 +343,3 @@ bool ezSurfaceResource::IsBasedOn(const ezSurfaceResourceHandle hThisOrBaseSurfa
 
   return IsBasedOn(pThisOrBaseSurface.GetPointer());
 }
-
-EZ_STATICLINK_FILE(GameEngine, GameEngine_Physics_Implementation_SurfaceResource);

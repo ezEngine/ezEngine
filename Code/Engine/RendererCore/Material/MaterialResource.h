@@ -43,7 +43,7 @@ struct ezMaterialResourceDescriptor
   EZ_FORCE_INLINE bool operator!=(const ezMaterialResourceDescriptor& other) const { return !(*this == other); }
 
   ezMaterialResourceHandle m_hBaseMaterial;
-  // ezSurfaceResource is not linked into this project
+  // ezSurfaceResource is not linked into this project (not true anymore -> could be changed)
   // this is not used for game purposes but rather for automatic collision mesh generation, so we only store the asset ID here
   ezHashedString m_sSurface;
   ezShaderResourceHandle m_hShader;
