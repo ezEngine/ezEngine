@@ -1,5 +1,6 @@
 #include <RendererCore/RendererCorePCH.h>
 
+#include <Core/Physics/SurfaceResource.h>
 #include <RendererCore/AnimationSystem/EditableSkeleton.h>
 #include <RendererCore/AnimationSystem/Implementation/OzzUtils.h>
 #include <RendererCore/AnimationSystem/SkeletonBuilder.h>
@@ -110,7 +111,7 @@ void ezEditableSkeleton::CreateJointsRecursive(ezSkeletonBuilder& sb, ezSkeleton
     geo.m_Transform.m_vScale.Set(shape.m_fLength, shape.m_fWidth, shape.m_fThickness);
     geo.m_Transform.m_vPosition = shape.m_vOffset;
     geo.m_Transform.m_qRotation = shape.m_qRotation;
-    geo.m_sSurface.Assign(m_sSurfaceFile);
+    geo.m_hSurface = ezResourceManager::LoadResource<ezSurfaceResource>(m_sSurfaceFile);
     geo.m_uiCollisionLayer = m_uiCollisionLayer;
 
     if (shape.m_bOverrideName)
@@ -118,7 +119,7 @@ void ezEditableSkeleton::CreateJointsRecursive(ezSkeletonBuilder& sb, ezSkeleton
     if (shape.m_bOverrideCollisionLayer)
       geo.m_uiCollisionLayer = shape.m_uiCollisionLayerOverride;
     if (shape.m_bOverrideSurface)
-      geo.m_sSurface.Assign(shape.m_sSurfaceOverride);
+      geo.m_hSurface = ezResourceManager::LoadResource<ezSurfaceResource>(shape.m_sSurfaceOverride);
   }
 
   EZ_ASSERT_DEBUG(pThisJoint->m_LocalTransform.m_vScale.IsEqual(ezVec3(1), 0.1f), "fuck");

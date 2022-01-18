@@ -42,14 +42,13 @@ public:
 
   ezUInt8 m_uiCollisionLayer = 0;           // [ property ]
   ezBitflags<ezOnPhysXContact> m_OnContact; // [ property ]
+  ezSurfaceResourceHandle m_hSurface;
 
 protected:
   virtual void CreateShapes(ezDynamicArray<physx::PxShape*>& out_Shapes, physx::PxRigidActor* pActor, physx::PxTransform& out_ShapeTransform) = 0;
 
   ezUInt32 m_uiShapeId = ezInvalidIndex;
   ezUInt32 m_uiUserDataIndex = ezInvalidIndex;
-
-  ezSurfaceResourceHandle m_hSurface;
 
   friend class ezPxActorComponent;
   void AddToActor(physx::PxRigidActor* pActor, const ezSimdTransform& parentTransform);

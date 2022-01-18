@@ -1,17 +1,17 @@
 #pragma once
 
-#include <GameEngine/GameEngineDLL.h>
+#include <Core/CoreDLL.h>
 
+#include <Core/Physics/SurfaceResourceDescriptor.h>
 #include <Core/ResourceManager/Resource.h>
 #include <Core/World/Declarations.h>
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Reflection/Reflection.h>
-#include <GameEngine/Physics/SurfaceResourceDescriptor.h>
 
 class ezWorld;
 class ezUuid;
 
-class EZ_GAMEENGINE_DLL ezSurfaceResource : public ezResource
+class EZ_CORE_DLL ezSurfaceResource : public ezResource
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezSurfaceResource, ezResource);
   EZ_RESOURCE_DECLARE_COMMON_CODE(ezSurfaceResource);

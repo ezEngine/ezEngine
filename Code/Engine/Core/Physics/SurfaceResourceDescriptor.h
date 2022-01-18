@@ -1,6 +1,6 @@
 #pragma once
 
-#include <GameEngine/GameEngineDLL.h>
+#include <Core/CoreDLL.h>
 
 #include <Core/ResourceManager/Resource.h>
 #include <Foundation/Containers/ArrayMap.h>
@@ -30,10 +30,10 @@ struct ezSurfaceInteractionAlignment
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezSurfaceInteractionAlignment);
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezSurfaceInteractionAlignment);
 
 
-struct EZ_GAMEENGINE_DLL ezSurfaceInteraction
+struct EZ_CORE_DLL ezSurfaceInteraction
 {
   void SetPrefab(const char* szPrefab);
   const char* GetPrefab() const;
@@ -54,9 +54,9 @@ struct EZ_GAMEENGINE_DLL ezSurfaceInteraction
   ezArrayMap<ezHashedString, ezVariant> m_Parameters;
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezSurfaceInteraction);
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezSurfaceInteraction);
 
-struct EZ_GAMEENGINE_DLL ezSurfaceResourceDescriptor : public ezReflectedClass
+struct EZ_CORE_DLL ezSurfaceResourceDescriptor : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezSurfaceResourceDescriptor, ezReflectedClass);
 

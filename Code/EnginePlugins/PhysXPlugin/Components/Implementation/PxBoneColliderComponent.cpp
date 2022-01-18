@@ -227,7 +227,7 @@ void ezPxBoneColliderComponent::CreatePhysicsShapes(const ezSkeletonResourceHand
 
     pShape->SetInitialShapeId(m_uiShapeID);
     pShape->m_uiCollisionLayer = geo.m_uiCollisionLayer;
-    pShape->SetSurfaceFile(geo.m_sSurface);
+    pShape->m_hSurface = geo.m_hSurface;
   }
 }
 

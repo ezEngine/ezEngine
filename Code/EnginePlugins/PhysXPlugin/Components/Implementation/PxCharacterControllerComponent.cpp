@@ -2,11 +2,11 @@
 
 #include <Core/Messages/CollisionMessage.h>
 #include <Core/Messages/TriggerMessage.h>
+#include <Core/Physics/SurfaceResource.h>
 #include <Core/ResourceManager/Implementation/Declarations.h>
 #include <Core/ResourceManager/Implementation/ResourceLock.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
-#include <GameEngine/Physics/SurfaceResource.h>
 #include <PhysXPlugin/Components/PxCharacterControllerComponent.h>
 #include <PhysXPlugin/Components/PxCharacterShapeComponent.h>
 #include <PhysXPlugin/Components/PxDynamicActorComponent.h>

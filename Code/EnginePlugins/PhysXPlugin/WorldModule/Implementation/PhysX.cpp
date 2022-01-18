@@ -314,8 +314,7 @@ ezAllocatorBase* ezPhysX::GetAllocator()
   return &(m_pAllocatorCallback->m_Allocator);
 }
 
-PxFilterData ezPhysX::CreateFilterData(
-  ezUInt32 uiCollisionLayer, ezUInt32 uiShapeId /*= ezInvalidIndex*/, ezBitflags<ezOnPhysXContact> flags /*= ezOnPhysXContact::None*/)
+PxFilterData ezPhysX::CreateFilterData(ezUInt32 uiCollisionLayer, ezUInt32 uiShapeId /*= ezInvalidIndex*/, ezBitflags<ezOnPhysXContact> flags /*= ezOnPhysXContact::None*/)
 {
   PxFilterData filter;
   filter.word0 = EZ_BIT(uiCollisionLayer);

@@ -5,7 +5,7 @@
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/Memory/CommonAllocators.h>
 #include <GameEngine/Physics/CollisionFilter.h>
-#include <GameEngine/Physics/SurfaceResource.h>
+#include <Core/Physics/SurfaceResource.h>
 #include <PhysXPlugin/PhysXInterface.h>
 
 #include <PxPhysicsAPI.h>

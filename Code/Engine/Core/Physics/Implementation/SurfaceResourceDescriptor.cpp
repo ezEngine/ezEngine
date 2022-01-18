@@ -1,8 +1,8 @@
-#include <GameEngine/GameEnginePCH.h>
+#include <Core/CorePCH.h>
 
+#include <Core/Physics/SurfaceResource.h>
 #include <Core/Prefabs/PrefabResource.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
-#include <GameEngine/Physics/SurfaceResource.h>
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezSurfaceInteractionAlignment, 2)
@@ -67,9 +67,12 @@ const char* ezSurfaceInteraction::GetPrefab() const
 
 const ezRangeView<const char*, ezUInt32> ezSurfaceInteraction::GetParameters() const
 {
-  return ezRangeView<const char*, ezUInt32>([]() -> ezUInt32 { return 0; },
-    [this]() -> ezUInt32 { return m_Parameters.GetCount(); },
-    [](ezUInt32& it) { ++it; },
+  return ezRangeView<const char*, ezUInt32>([]() -> ezUInt32
+    { return 0; },
+    [this]() -> ezUInt32
+    { return m_Parameters.GetCount(); },
+    [](ezUInt32& it)
+    { ++it; },
     [this](const ezUInt32& it) -> const char* { return m_Parameters.GetKey(it).GetString().GetData(); });
 }
 
@@ -290,7 +293,3 @@ public:
 };
 
 ezSurfaceResourceDescriptorPatch_1_2 g_ezSurfaceResourceDescriptorPatch_1_2;
-
-
-
-EZ_STATICLINK_FILE(GameEngine, GameEngine_Physics_Implementation_SurfaceResourceDescriptor);
