@@ -480,17 +480,27 @@ void ezShaderParser::ParsePermutationVarConfig(ezStringView s, ezVariant& out_De
 {
   SkipWhitespace(s);
 
+  ezStringBuilder name;
+
   if (s.StartsWith("bool"))
   {
     bool bDefaultValue = false;
 
     const char* szDefaultValue = s.FindSubString("=");
-    if (!ezStringUtils::IsNullOrEmpty(szDefaultValue))
+    if (szDefaultValue != nullptr)
     {
+      name.SetSubString_FromTo(s.GetStartPointer() + 4, szDefaultValue);
+
       ++szDefaultValue;
       ezConversionUtils::StringToBool(szDefaultValue, bDefaultValue).IgnoreResult();
     }
+    else
+    {
+      name.SetSubString_FromTo(s.GetStartPointer() + 4, s.GetEndPointer());
+    }
 
+    name.Trim(" \t\r\n");
+    out_EnumDefinition.m_sName = name;
     out_DefaultValue = bDefaultValue;
   }
   else if (s.StartsWith("enum"))

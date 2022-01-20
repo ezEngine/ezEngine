@@ -5,7 +5,7 @@
 
 namespace ezShaderHelper
 {
-  class ezTextSectionizer
+  class EZ_RENDERERCORE_DLL ezTextSectionizer
   {
   public:
     void Clear();
@@ -57,11 +57,12 @@ namespace ezShaderHelper
       DOMAINSHADER,
       GEOMETRYSHADER,
       PIXELSHADER,
-      COMPUTESHADER
+      COMPUTESHADER,
+      TEMPLATE_VARS
     };
   };
 
-  void GetShaderSections(const char* szContent, ezTextSectionizer& out_Sections);
+  void EZ_RENDERERCORE_DLL GetShaderSections(const char* szContent, ezTextSectionizer& out_Sections);
 
   ezUInt32 CalculateHash(const ezArrayPtr<ezPermutationVar>& vars);
 } // namespace ezShaderHelper

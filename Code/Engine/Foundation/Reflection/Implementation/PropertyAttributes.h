@@ -290,18 +290,21 @@ class EZ_FOUNDATION_DLL ezFileBrowserAttribute : public ezTypeWidgetAttribute
 
 public:
   ezFileBrowserAttribute() = default;
-  ezFileBrowserAttribute(const char* szDialogTitle, const char* szTypeFilter)
+  ezFileBrowserAttribute(const char* szDialogTitle, const char* szTypeFilter, const char* szCustomAction = nullptr)
   {
     m_sDialogTitle = szDialogTitle;
     m_sTypeFilter = szTypeFilter;
+    m_sCustomAction = szCustomAction;
   }
 
   const char* GetDialogTitle() const { return m_sDialogTitle; }
   const char* GetTypeFilter() const { return m_sTypeFilter; }
+  const char* GetCustomAction() const { return m_sCustomAction; }
 
 private:
   ezUntrackedString m_sDialogTitle;
   ezUntrackedString m_sTypeFilter;
+  ezUntrackedString m_sCustomAction;
 };
 
 /// \brief A property attribute that indicates that the string property is actually an asset reference.

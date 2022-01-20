@@ -88,38 +88,53 @@ ezMaterialData FillMaterialData()
     matData.worldPosition = float3(0.0, 0.0, 0.0);
   #endif
 
-  float3 worldNormal = normalize(GetNormal());
-  #if TWO_SIDED == TRUE && defined(USE_TWO_SIDED_LIGHTING)
-    #if FLIP_WINDING == TRUE
-      matData.worldNormal = G.Input.FrontFace ? -worldNormal : worldNormal;
-    #else
-      matData.worldNormal = G.Input.FrontFace ? worldNormal : -worldNormal;
-    #endif
-  #else
+#if SHADING_MODE == SHADING_MODE_FULLBRIGHT
+    matData.worldNormal = float3(0, 0, 1);
+#else
+    float3 worldNormal = normalize(GetNormal());
+#  if TWO_SIDED == TRUE && defined(USE_TWO_SIDED_LIGHTING)
+#    if FLIP_WINDING == TRUE
+    matData.worldNormal = G.Input.FrontFace ? -worldNormal : worldNormal;
+#    else
+    matData.worldNormal = G.Input.FrontFace ? worldNormal : -worldNormal;
+#    endif
+#  else
     matData.worldNormal = worldNormal;
-  #endif
+#  endif
+#endif
 
-  #if defined(USE_NORMAL)
+#if defined(USE_NORMAL)
     matData.vertexNormal = normalize(G.Input.Normal);
-  #else
+#else
     matData.vertexNormal = float3(0, 0, 1);
-  #endif
+#endif
 
-  #if defined(USE_SIMPLE_MATERIAL_MODEL)
+#if defined(USE_SIMPLE_MATERIAL_MODEL)
     float3 baseColor = GetBaseColor();
+
+#  if SHADING_MODE == SHADING_MODE_FULLBRIGHT
+    matData.diffuseColor = baseColor;
+    matData.specularColor = float3(0, 0, 0);
+#  else
     float metallic = GetMetallic();
     float reflectance = GetReflectance();
     float f0 = 0.16f * reflectance * reflectance;
 
     matData.diffuseColor = lerp(baseColor, 0.0f, metallic);
     matData.specularColor = lerp(float3(f0, f0, f0), baseColor, metallic);
+#  endif
 
-  #else
+#else
     matData.diffuseColor = GetDiffuseColor();
-    matData.specularColor = GetSpecularColor();
-  #endif
 
-  #if defined(USE_MATERIAL_EMISSIVE)
+#  if SHADING_MODE == SHADING_MODE_FULLBRIGHT
+    matData.specularColor = float3(0, 0, 0);
+#  else
+    matData.specularColor = GetSpecularColor();
+#  endif
+#endif
+
+#if defined(USE_MATERIAL_EMISSIVE)
     matData.emissiveColor = GetEmissiveColor();
   #else
     matData.emissiveColor = 0.0f;
@@ -131,16 +146,21 @@ ezMaterialData FillMaterialData()
     matData.refractionColor = float4(0, 0, 0, 1);
   #endif
 
-  matData.perceptualRoughness = max(GetRoughness(), MIN_PERCEPTUAL_ROUGHNESS);
-  matData.roughness = RoughnessFromPerceptualRoughness(matData.perceptualRoughness);
+#if SHADING_MODE == SHADING_MODE_FULLBRIGHT
+    matData.perceptualRoughness = MIN_PERCEPTUAL_ROUGHNESS;
+#else
+    matData.perceptualRoughness = max(GetRoughness(), MIN_PERCEPTUAL_ROUGHNESS);
+#endif
 
-  #if defined(USE_MATERIAL_OCCLUSION)
-    #if defined(USE_NORMAL)
-      float3 viewVector = normalize(GetCameraPosition() - matData.worldPosition);
-      float occlusionFade = saturate(dot(matData.vertexNormal, viewVector));
-    #else
-      float occlusionFade = 1.0f;
-    #endif
+    matData.roughness = RoughnessFromPerceptualRoughness(matData.perceptualRoughness);
+
+#if defined(USE_MATERIAL_OCCLUSION)
+#  if defined(USE_NORMAL)
+    float3 viewVector = normalize(GetCameraPosition() - matData.worldPosition);
+    float occlusionFade = saturate(dot(matData.vertexNormal, viewVector));
+#  else
+    float occlusionFade = 1.0f;
+#  endif
     matData.occlusion = lerp(1.0f, GetOcclusion(), occlusionFade);
   #else
     matData.occlusion = 1.0f;
