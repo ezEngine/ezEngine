@@ -70,7 +70,7 @@ ezQtShaderTemplateDlg::ezQtShaderTemplateDlg(QWidget* parent, const ezDocument* 
 void ezQtShaderTemplateDlg::on_Buttons_accepted()
 {
   int idx = ShaderTemplate->currentIndex();
-  if (idx < 0 || idx >= m_Templates.GetCount())
+  if (idx < 0 || idx >= (int)m_Templates.GetCount())
   {
     ezQtUiServices::GetSingleton()->MessageBoxWarning("No shader template selected.");
     return;
