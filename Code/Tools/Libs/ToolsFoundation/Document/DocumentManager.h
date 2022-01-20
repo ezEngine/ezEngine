@@ -104,7 +104,7 @@ public:
 
   void GetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const;
 
-  using CustomAction = ezVariant(*)(const ezDocument*);
+  using CustomAction = ezVariant (*)(const ezDocument*);
   static ezMap<ezString, CustomAction> s_CustomActions;
 
 private:
