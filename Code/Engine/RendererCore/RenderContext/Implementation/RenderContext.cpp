@@ -125,7 +125,7 @@ ezRenderContext::Statistics ezRenderContext::GetAndResetStatistics()
   return ret;
 }
 
-ezGALRenderCommandEncoder* ezRenderContext::BeginRendering(ezGALPass* pGALPass, const ezGALRenderingSetup& renderingSetup, const ezRectFloat& viewport, const char* szName /*= ""*/)
+ezGALRenderCommandEncoder* ezRenderContext::BeginRendering(ezGALPass* pGALPass, const ezGALRenderingSetup& renderingSetup, const ezRectFloat& viewport, const char* szName, bool bStereoSupport)
 {
   ezGALMSAASampleCount::Enum msaaSampleCount = ezGALMSAASampleCount::None;
 
@@ -160,6 +160,7 @@ ezGALRenderCommandEncoder* ezRenderContext::BeginRendering(ezGALPass* pGALPass, 
   m_pGALPass = pGALPass;
   m_pGALCommandEncoder = pGALCommandEncoder;
   m_bCompute = false;
+  m_bStereoRendering = bStereoSupport;
 
   return pGALCommandEncoder;
 }
@@ -170,6 +171,7 @@ void ezRenderContext::EndRendering()
 
   m_pGALPass = nullptr;
   m_pGALCommandEncoder = nullptr;
+  m_bStereoRendering = false;
 
   // TODO: The render context needs to reset its state after every encoding block if we want to record to separate command buffers.
   // Although this is currently not possible since a lot of high level code binds stuff only once per frame on the render context.
@@ -510,6 +512,10 @@ ezResult ezRenderContext::DrawMeshBuffer(ezUInt32 uiPrimitiveCount, ezUInt32 uiF
 
   uiPrimitiveCount *= uiVertsPerPrimitive;
   uiFirstPrimitive *= uiVertsPerPrimitive;
+  if (m_bStereoRendering)
+  {
+    uiInstanceCount *= 2;
+  }
 
   if (uiInstanceCount > 1)
   {

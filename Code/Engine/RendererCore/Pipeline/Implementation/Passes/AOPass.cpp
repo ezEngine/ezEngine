@@ -180,8 +180,6 @@ void ezAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezArr
     tempSSAOTexture = ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(uiWidth, uiHeight, ezGALResourceFormat::RGHalf, ezGALMSAASampleCount::None, pOutput->m_Desc.m_uiArraySize);
   }
 
-  const ezUInt32 uiRenderedInstances = renderViewContext.m_pCamera->IsStereoscopic() ? 2 : 1;
-
   // Mip map passes
   {
     CreateSamplerState();
@@ -207,7 +205,7 @@ void ezAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezArr
 
       ezGALRenderingSetup renderingSetup;
       renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, hOutputView);
-      renderViewContext.m_pRenderContext->BeginRendering(pGALPass, renderingSetup, ezRectFloat(targetSize.x, targetSize.y));
+      renderViewContext.m_pRenderContext->BeginRendering(pGALPass, renderingSetup, ezRectFloat(targetSize.x, targetSize.y), "SSAOMipMaps", renderViewContext.m_pCamera->IsStereoscopic());
 
       ezDownscaleDepthConstants* constants = ezRenderContext::GetConstantBufferData<ezDownscaleDepthConstants>(m_hDownscaleConstantBuffer);
       constants->PixelSize = pixelSize;
@@ -221,7 +219,7 @@ void ezAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezArr
 
       renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
 
-      renderViewContext.m_pRenderContext->DrawMeshBuffer(1, 0, uiRenderedInstances).IgnoreResult();
+      renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
 
       renderViewContext.m_pRenderContext->EndRendering();
     }
@@ -248,7 +246,7 @@ void ezAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezArr
   {
     ezGALRenderingSetup renderingSetup;
     renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(tempSSAOTexture));
-    auto pCommandEncoder = renderViewContext.m_pRenderContext->BeginRenderingScope(pGALPass, renderViewContext, renderingSetup, "SSAO");
+    auto pCommandEncoder = renderViewContext.m_pRenderContext->BeginRenderingScope(pGALPass, renderViewContext, renderingSetup, "SSAO", renderViewContext.m_pCamera->IsStereoscopic());
 
     renderViewContext.m_pRenderContext->BindConstantBuffer("ezSSAOConstants", m_hSSAOConstantBuffer);
     renderViewContext.m_pRenderContext->BindShader(m_hSSAOShader);
@@ -261,14 +259,14 @@ void ezAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezArr
 
     renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
 
-    renderViewContext.m_pRenderContext->DrawMeshBuffer(1, 0, uiRenderedInstances).IgnoreResult();
+    renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
   }
 
   // Blur pass
   {
     ezGALRenderingSetup renderingSetup;
     renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(pOutput->m_TextureHandle));
-    auto pCommandEncoder = renderViewContext.m_pRenderContext->BeginRenderingScope(pGALPass, renderViewContext, renderingSetup, "Blur");
+    auto pCommandEncoder = renderViewContext.m_pRenderContext->BeginRenderingScope(pGALPass, renderViewContext, renderingSetup, "Blur", renderViewContext.m_pCamera->IsStereoscopic());
 
     renderViewContext.m_pRenderContext->BindConstantBuffer("ezSSAOConstants", m_hSSAOConstantBuffer);
     renderViewContext.m_pRenderContext->BindShader(m_hBlurShader);
@@ -277,7 +275,7 @@ void ezAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezArr
 
     renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
 
-    renderViewContext.m_pRenderContext->DrawMeshBuffer(1, 0, uiRenderedInstances).IgnoreResult();
+    renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
   }
 
   // Return temp targets

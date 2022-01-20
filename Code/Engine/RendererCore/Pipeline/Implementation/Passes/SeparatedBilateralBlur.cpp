@@ -124,7 +124,7 @@ void ezSeparatedBilateralBlurPass::Execute(const ezRenderViewContext& renderView
     // Horizontal
     {
       renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(tempTexture));
-      auto pCommandEncoder = ezRenderContext::BeginRenderingScope(pGALPass, renderViewContext, renderingSetup);
+      auto pCommandEncoder = ezRenderContext::BeginRenderingScope(pGALPass, renderViewContext, renderingSetup, "", renderViewContext.m_pCamera->IsStereoscopic());
 
       renderViewContext.m_pRenderContext->SetShaderPermutationVariable("BLUR_DIRECTION", "BLUR_DIRECTION_HORIZONTAL");
       renderViewContext.m_pRenderContext->BindTexture2D("BlurSource", hBlurSourceInputView);
@@ -134,7 +134,7 @@ void ezSeparatedBilateralBlurPass::Execute(const ezRenderViewContext& renderView
     // Vertical
     {
       renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(outputs[m_PinOutput.m_uiOutputIndex]->m_TextureHandle));
-      auto pCommandEncoder = ezRenderContext::BeginRenderingScope(pGALPass, renderViewContext, renderingSetup);
+      auto pCommandEncoder = ezRenderContext::BeginRenderingScope(pGALPass, renderViewContext, renderingSetup, "", renderViewContext.m_pCamera->IsStereoscopic());
 
       renderViewContext.m_pRenderContext->SetShaderPermutationVariable("BLUR_DIRECTION", "BLUR_DIRECTION_VERTICAL");
       renderViewContext.m_pRenderContext->BindTexture2D("BlurSource", hTempTextureRView);

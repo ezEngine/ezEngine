@@ -132,8 +132,6 @@ void ezBloomPass::Execute(const ezRenderViewContext& renderViewContext, const ez
   renderViewContext.m_pRenderContext->BindConstantBuffer("ezBloomConstants", m_hConstantBuffer);
   renderViewContext.m_pRenderContext->BindShader(m_hShader);
 
-  const ezUInt32 uiRenderedInstances = renderViewContext.m_pCamera->IsStereoscopic() ? 2 : 1;
-
   renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
 
   // Downscale passes
@@ -162,13 +160,13 @@ void ezBloomPass::Execute(const ezRenderViewContext& renderViewContext, const ez
 
       ezGALRenderingSetup renderingSetup;
       renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(hOutput));
-      renderViewContext.m_pRenderContext->BeginRendering(pGALPass, renderingSetup, ezRectFloat(targetSize.x, targetSize.y));
+      renderViewContext.m_pRenderContext->BeginRendering(pGALPass, renderingSetup, ezRectFloat(targetSize.x, targetSize.y), "Downscale", renderViewContext.m_pCamera->IsStereoscopic());
 
       ezColor tintColor = (i == uiNumBlurPasses - 1) ? ezColor(m_outerTintColor) : ezColor::White;
       UpdateConstantBuffer(ezVec2(1.0f).CompDiv(targetSize), tintColor);
 
       renderViewContext.m_pRenderContext->BindTexture2D("ColorTexture", pDevice->GetDefaultResourceView(hInput));
-      renderViewContext.m_pRenderContext->DrawMeshBuffer(1, 0, uiRenderedInstances).IgnoreResult();
+      renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
 
       renderViewContext.m_pRenderContext->EndRendering();
 
@@ -210,7 +208,7 @@ void ezBloomPass::Execute(const ezRenderViewContext& renderViewContext, const ez
 
       ezGALRenderingSetup renderingSetup;
       renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(hOutput));
-      renderViewContext.m_pRenderContext->BeginRendering(pGALPass, renderingSetup, ezRectFloat(targetSize.x, targetSize.y));
+      renderViewContext.m_pRenderContext->BeginRendering(pGALPass, renderingSetup, ezRectFloat(targetSize.x, targetSize.y), "Upscale", renderViewContext.m_pCamera->IsStereoscopic());
 
       ezColor tintColor;
       float fPass = (float)i;
@@ -227,7 +225,7 @@ void ezBloomPass::Execute(const ezRenderViewContext& renderViewContext, const ez
 
       renderViewContext.m_pRenderContext->BindTexture2D("NextColorTexture", pDevice->GetDefaultResourceView(hNextInput));
       renderViewContext.m_pRenderContext->BindTexture2D("ColorTexture", pDevice->GetDefaultResourceView(hInput));
-      renderViewContext.m_pRenderContext->DrawMeshBuffer(1, 0, uiRenderedInstances).IgnoreResult();
+      renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
 
       renderViewContext.m_pRenderContext->EndRendering();
     }

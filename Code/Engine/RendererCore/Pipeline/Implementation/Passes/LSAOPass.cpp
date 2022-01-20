@@ -135,8 +135,6 @@ void ezLSAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezA
   if (outputs[m_PinOutput.m_uiOutputIndex] == nullptr)
     return;
 
-  const ezUInt32 uiRenderedInstances = renderViewContext.m_pCamera->IsStereoscopic() ? 2 : 1;
-
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   ezGALPass* pGALPass = pDevice->BeginPass(GetName());
   EZ_SCOPE_EXIT(pDevice->EndPass(pGALPass));
@@ -167,13 +165,14 @@ void ezLSAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezA
     renderViewContext.m_pRenderContext->BindUAV("LineSweepOutputBuffer", m_hLineSweepOutputUAV);
 
     const ezUInt32 dispatchSize = m_numSweepLines / SSAO_LINESWEEP_THREAD_GROUP + (m_numSweepLines % SSAO_LINESWEEP_THREAD_GROUP != 0 ? 1 : 0);
+    const ezUInt32 uiRenderedInstances = renderViewContext.m_pCamera->IsStereoscopic() ? 2 : 1;
     renderViewContext.m_pRenderContext->Dispatch(dispatchSize, uiRenderedInstances).IgnoreResult();
   }
 
   // Gather samples.
   {
     EZ_PROFILE_SCOPE("Gather");
-    auto pCommandEncoder = renderViewContext.m_pRenderContext->BeginRenderingScope(pGALPass, renderViewContext, renderingSetup, "Gather Samples");
+    auto pCommandEncoder = renderViewContext.m_pRenderContext->BeginRenderingScope(pGALPass, renderViewContext, renderingSetup, "Gather Samples", renderViewContext.m_pCamera->IsStereoscopic());
 
     if (m_bDistributedGathering)
       renderViewContext.m_pRenderContext->SetShaderPermutationVariable("DISTRIBUTED_SSAO_GATHERING", "TRUE");
@@ -199,7 +198,7 @@ void ezLSAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezA
     renderViewContext.m_pRenderContext->BindBuffer("LineInstructions", m_hLineSweepInfoSRV);
     renderViewContext.m_pRenderContext->BindBuffer("LineSweepOutputBuffer", m_hLineSweepOutputSRV);
     renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
-    renderViewContext.m_pRenderContext->DrawMeshBuffer(1, 0, uiRenderedInstances).IgnoreResult();
+    renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
   }
 
   // If enabled, average distributed gather samples and write to output.
@@ -222,7 +221,7 @@ void ezLSAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezA
 
     renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(outputs[m_PinOutput.m_uiOutputIndex]->m_TextureHandle));
 
-    auto pCommandEncoder = renderViewContext.m_pRenderContext->BeginRenderingScope(pGALPass, renderViewContext, renderingSetup, "Averaging");
+    auto pCommandEncoder = renderViewContext.m_pRenderContext->BeginRenderingScope(pGALPass, renderViewContext, renderingSetup, "Averaging", renderViewContext.m_pCamera->IsStereoscopic());
 
     renderViewContext.m_pRenderContext->BindConstantBuffer("ezLSAOConstants", m_hLineSweepCB);
     renderViewContext.m_pRenderContext->BindTexture2D("DepthBuffer", pDevice->GetDefaultResourceView(inputs[m_PinDepthInput.m_uiInputIndex]->m_TextureHandle));
@@ -230,7 +229,7 @@ void ezLSAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezA
     renderViewContext.m_pRenderContext->BindTexture2D("SSAOGatherOutput", pDevice->GetDefaultResourceView(tempTexture));
 
     renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
-    renderViewContext.m_pRenderContext->DrawMeshBuffer(1, 0, uiRenderedInstances).IgnoreResult();
+    renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
 
     // Give back temp texture.
     ezGPUResourcePool::GetDefaultInstance()->ReturnRenderTarget(tempTexture);

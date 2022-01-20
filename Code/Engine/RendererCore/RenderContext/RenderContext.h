@@ -53,7 +53,7 @@ public:
 
   Statistics GetAndResetStatistics();
 
-  ezGALRenderCommandEncoder* BeginRendering(ezGALPass* pGALPass, const ezGALRenderingSetup& renderingSetup, const ezRectFloat& viewport, const char* szName = "");
+  ezGALRenderCommandEncoder* BeginRendering(ezGALPass* pGALPass, const ezGALRenderingSetup& renderingSetup, const ezRectFloat& viewport, const char* szName = "", bool bStereoRendering = false);
   void EndRendering();
 
   ezGALComputeCommandEncoder* BeginCompute(ezGALPass* pGALPass, const char* szName = "");
@@ -95,16 +95,16 @@ public:
   };
 
   using RenderingScope = CommandEncoderScope<ezGALRenderCommandEncoder>;
-  EZ_ALWAYS_INLINE static RenderingScope BeginRenderingScope(ezGALPass* pGALPass, const ezRenderViewContext& viewContext, const ezGALRenderingSetup& renderingSetup, const char* szName = "")
+  EZ_ALWAYS_INLINE static RenderingScope BeginRenderingScope(ezGALPass* pGALPass, const ezRenderViewContext& viewContext, const ezGALRenderingSetup& renderingSetup, const char* szName = "", bool bStereoRendering = false)
   {
-    return RenderingScope(*viewContext.m_pRenderContext, nullptr, viewContext.m_pRenderContext->BeginRendering(pGALPass, renderingSetup, viewContext.m_pViewData->m_ViewPortRect, szName));
+    return RenderingScope(*viewContext.m_pRenderContext, nullptr, viewContext.m_pRenderContext->BeginRendering(pGALPass, renderingSetup, viewContext.m_pViewData->m_ViewPortRect, szName, bStereoRendering));
   }
 
-  EZ_ALWAYS_INLINE static RenderingScope BeginPassAndRenderingScope(const ezRenderViewContext& viewContext, const ezGALRenderingSetup& renderingSetup, const char* szName)
+  EZ_ALWAYS_INLINE static RenderingScope BeginPassAndRenderingScope(const ezRenderViewContext& viewContext, const ezGALRenderingSetup& renderingSetup, const char* szName, bool bStereoRendering = false)
   {
     ezGALPass* pGALPass = ezGALDevice::GetDefaultDevice()->BeginPass(szName);
 
-    return RenderingScope(*viewContext.m_pRenderContext, pGALPass, viewContext.m_pRenderContext->BeginRendering(pGALPass, renderingSetup, viewContext.m_pViewData->m_ViewPortRect));
+    return RenderingScope(*viewContext.m_pRenderContext, pGALPass, viewContext.m_pRenderContext->BeginRendering(pGALPass, renderingSetup, viewContext.m_pViewData->m_ViewPortRect, "", bStereoRendering));
   }
 
   using ComputeScope = CommandEncoderScope<ezGALComputeCommandEncoder>;
@@ -289,6 +289,7 @@ private:
   ezUInt32 m_uiMeshBufferPrimitiveCount;
   ezEnum<ezTextureFilterSetting> m_DefaultTextureFilter;
   bool m_bAllowAsyncShaderLoading;
+  bool m_bStereoRendering = false;
 
   ezHashTable<ezUInt64, ezGALResourceViewHandle> m_BoundTextures2D;
   ezHashTable<ezUInt64, ezGALResourceViewHandle> m_BoundTextures3D;

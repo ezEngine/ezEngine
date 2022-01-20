@@ -343,13 +343,6 @@ ezUniquePtr<ezWindow> ezGameState::CreateMainWindow()
   ezWindowCreationDesc wndDesc;
   wndDesc.LoadFromDDL(sWndCfg).IgnoreResult();
 
-  if (m_bXREnabled)
-  {
-    wndDesc.m_bClipMouseCursor = false;
-    wndDesc.m_bShowMouseCursor = true;
-    wndDesc.m_WindowMode = ezWindowMode::WindowResizable;
-  }
-
   ezUniquePtr<ezGameStateWindow> pWindow = EZ_DEFAULT_NEW(ezGameStateWindow, wndDesc, [] {});
   pWindow->ResetOnClickClose([this]() { this->RequestQuit(); });
   if (pWindow->GetInputDevice())

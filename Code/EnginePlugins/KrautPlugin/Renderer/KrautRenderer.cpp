@@ -83,12 +83,7 @@ void ezKrautRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, 
     {
       pInstanceData->UpdateInstanceData(pRenderContext, uiFilteredCount);
 
-      ezUInt32 uiRenderedInstances = uiFilteredCount;
-
-      if (renderViewContext.m_pCamera->IsStereoscopic())
-        uiRenderedInstances *= 2;
-
-      if (pRenderContext->DrawMeshBuffer(subMesh.m_uiPrimitiveCount, subMesh.m_uiFirstPrimitive, uiRenderedInstances).Failed())
+      if (pRenderContext->DrawMeshBuffer(subMesh.m_uiPrimitiveCount, subMesh.m_uiFirstPrimitive, uiFilteredCount).Failed())
       {
         for (auto it = batch.GetIterator<ezKrautRenderData>(uiStartIndex, instanceData.GetCount()); it.IsValid(); ++it)
         {

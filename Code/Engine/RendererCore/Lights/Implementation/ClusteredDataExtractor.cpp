@@ -75,7 +75,7 @@ namespace
 
             float lightCount = (float)GET_LIGHT_INDEX(clusterData.counts);
             float decalCount = (float)GET_DECAL_INDEX(clusterData.counts);
-            float r = lightCount == 0 ? 0 : 0.5f; // ezMath::Clamp(lightCount / 16.0f, 0.0f, 1.0f);
+            float r = ezMath::Clamp(lightCount / 16.0f, 0.0f, 1.0f);
             float g = ezMath::Clamp(decalCount / 16.0f, 0.0f, 1.0f);
 
             ezDebugRenderer::Triangle tris[12];

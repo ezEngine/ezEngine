@@ -109,7 +109,7 @@ void ezParticleTrailRenderer::RenderBatch(const ezRenderViewContext& renderViewC
       pParticlePointsData += uiNumParticlesInBatch * uiBucketSize;
 
       // do one drawcall
-      pRenderContext->DrawMeshBuffer(uiNumParticlesInBatch * uiMaxTrailSegments * uiPrimFactor, 0, renderViewContext.m_pCamera->IsStereoscopic() ? 2 : 1).IgnoreResult();
+      pRenderContext->DrawMeshBuffer(uiNumParticlesInBatch * uiMaxTrailSegments * uiPrimFactor).IgnoreResult();
     }
   }
 }

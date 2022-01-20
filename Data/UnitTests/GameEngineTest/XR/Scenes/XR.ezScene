@@ -11,18 +11,18 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{10742901808789612930,5454057602560174561}}
-		u4 %Hash{10048111526934838553}
+		u4 %Hash{6097386794363264782}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
 		{
 			s{"{ 0b202e08-a64f-465d-b38e-15b81d161822 }"}
+			s{"{ 1c47ee4c-0379-4280-85f5-b8cda61941d2 }"}
 			s{"{ 29d5bcf8-3903-4d66-85f6-1297f7c01c52 }"}
 			s{"{ 30dabc6a-e1d7-486f-9a41-4b6745d83db3 }"}
-			s{"{ 3eeba959-a8f2-42fd-b742-6e9b9174b365 }"}
 			s{"{ 618ee743-ed04-4fac-bf5f-572939db2f1d }"}
+			s{"{ 619296ae-6802-41e3-8842-d99bfd9bace0 }"}
 			s{"{ 623110a5-942a-49fc-a684-7e19543468e1 }"}
-			s{"{ 6bd5e7e6-b7be-9801-e032-14226cba1e96 }"}
 			s{"{ a63e1dcc-d938-4e8c-bb6a-af05bde4f56f }"}
 			s{"{ d16f8af4-ee4f-41f7-b0ef-c4d7e3c5f36d }"}
 			s{"{ eb1b7c7d-236f-4601-a92e-4903567d7ad3 }"}
@@ -298,7 +298,7 @@ o
 		u3 %Detail{16}
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
-		s %Material{"{ 6bd5e7e6-b7be-9801-e032-14226cba1e96 }"}
+		s %Material{"{ 619296ae-6802-41e3-8842-d99bfd9bace0 }"}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x0000803F}
 		f %SizeNegY{0x0000803F}
@@ -924,7 +924,7 @@ o
 		u3 %Detail{16}
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
-		s %Material{"{ 3eeba959-a8f2-42fd-b742-6e9b9174b365 }"}
+		s %Material{"{ 1c47ee4c-0379-4280-85f5-b8cda61941d2 }"}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0xCDCC4C3E}
 		f %SizeNegY{0xCDCC4C3E}
@@ -1105,7 +1105,7 @@ o
 		u3 %Detail{16}
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
-		s %Material{""}
+		s %Material{"{ 619296ae-6802-41e3-8842-d99bfd9bace0 }"}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0xCDCC4C3E}
 		f %SizeNegY{0xCDCC4C3E}
@@ -1302,7 +1302,7 @@ o
 		u3 %Detail{16}
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
-		s %Material{""}
+		s %Material{"{ 619296ae-6802-41e3-8842-d99bfd9bace0 }"}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x0000803F}
 		f %SizeNegY{0x0000803F}
@@ -1448,7 +1448,7 @@ o
 		u3 %Detail{16}
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
-		s %Material{""}
+		s %Material{"{ 619296ae-6802-41e3-8842-d99bfd9bace0 }"}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0xCDCC4C3E}
 		f %SizeNegY{0xCDCC4C3E}
