@@ -2,6 +2,7 @@
 
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/PropertyGrid/FileBrowserPropertyWidget.moc.h>
+#include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 
 
 ezQtFilePropertyWidget::ezQtFilePropertyWidget()
@@ -32,7 +33,8 @@ ezQtFilePropertyWidget::ezQtFilePropertyWidget()
     QAction* pDocAction = pMenu->addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Document16.png")), QLatin1String("Open File"), this, SLOT(OnOpenFile())) /*->setEnabled(!m_pWidget->text().isEmpty())*/;
     pMenu->addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/OpenFolder16.png")), QLatin1String("Open in Explorer"), this, SLOT(OnOpenExplorer()));
 
-    connect(pMenu, &QMenu::aboutToShow, pMenu, [=]() { pDocAction->setEnabled(!m_pWidget->text().isEmpty()); });
+    connect(pMenu, &QMenu::aboutToShow, pMenu, [=]()
+      { pDocAction->setEnabled(!m_pWidget->text().isEmpty()); });
 
     m_pButton->setMenu(pMenu);
   }
