@@ -2,8 +2,7 @@
 
 enum TEMPLATE_BLEND_MODE { TEMPLATE_BLEND_MODE_OPAQUE, TEMPLATE_BLEND_MODE_SELECTABLE };
 enum TEMPLATE_TWO_SIDED { TEMPLATE_TWO_SIDED_OFF, TEMPLATE_TWO_SIDED_ON, TEMPLATE_TWO_SIDED_SELECTABLE };
-enum TEMPLATE_VERTEX_COLORS { TEMPLATE_VERTEX_COLORS_NONE, TEMPLATE_VERTEX_COLORS_0, TEMPLATE_VERTEX_COLORS_0_AND_1 };
-// TODO: TEMPLATE_VERTEX_COLORS_PROCEDURAL
+enum TEMPLATE_VERTEX_COLORS { TEMPLATE_VERTEX_COLORS_NONE, TEMPLATE_VERTEX_COLORS_0, TEMPLATE_VERTEX_COLORS_0_AND_1, TEMPLATE_VERTEX_COLORS_PROCEDURAL };
 
 [PLATFORMS]
 // This section lists the platforms on which this shader is supported.
@@ -109,6 +108,10 @@ Color EmissiveColor @Default(Color(0.0, 0.0, 0.0));
 // It is up to you to decide what to do with the vertex colors.
 #define USE_COLOR0
 #define USE_COLOR1
+%elif TEMPLATE_VERTEX_COLORS == TEMPLATE_VERTEX_COLORS_PROCEDURAL
+// This shader uses procedural generated vertex colors.
+// It is up to you to decide what to do with the vertex colors.
+#define CUSTOM_INTERPOLATOR float4 ProcColor : PROC_COLOR;
 %endif
 
 #include <Shaders/Common/GlobalConstants.h>
@@ -137,10 +140,16 @@ VS_OUT main(VS_IN Input)
 {
   // You could insert custom vertex animation code here.
   // Search for USE_OBJECT_POSITION_OFFSET and USE_WORLD_POSITION_OFFSET to inject custom offsets,
-  // or manipulate the Input or output structures directly.
-  VS_OUT output = FillVertexData(Input);
+  // or manipulate the Input or Output structures directly.
+  VS_OUT Output = FillVertexData(Input);
+  
+%if TEMPLATE_VERTEX_COLORS == TEMPLATE_VERTEX_COLORS_PROCEDURAL
+  // Fetch the procedural vertex colors from the per instance vertex color buffer
+  float4 instanceVertexColor0 = RGBA8ToFloat4(GetInstanceVertexColors(0));  
+  Output.ProcColor = instanceVertexColor0;
+%endif
 
-  return output;
+  return Output;
 }
 
 
@@ -206,6 +215,10 @@ float3 GetDiffuseColor()
   // two vertex color streams are available (and required)
   // of course the colors can be used for many different purposes, this is just an example
   baseColor *= G.Input.Color0.rgb * G.Input.Color1.rgb;
+%elif TEMPLATE_VERTEX_COLORS == TEMPLATE_VERTEX_COLORS_PROCEDURAL
+  // procedural vertex colors are available
+  // of course the color can be used for many different purposes, this is just an example
+  baseColor *= G.Input.ProcColor.rgb;
 %endif
 
   [branch]
