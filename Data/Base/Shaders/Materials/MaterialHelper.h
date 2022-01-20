@@ -106,7 +106,7 @@ ezMaterialData FillMaterialData()
     matData.worldNormal = float3(0, 0, 1);
 #endif
 
-  #if defined(USE_SIMPLE_MATERIAL_MODEL)
+#if defined(USE_SIMPLE_MATERIAL_MODEL)
     float3 baseColor = GetBaseColor();
 
 #  if SHADING_MODE == SHADING_MODE_FULLBRIGHT
@@ -131,7 +131,7 @@ ezMaterialData FillMaterialData()
 #  endif
 #endif
 
-  #if defined(USE_MATERIAL_EMISSIVE)
+#if defined(USE_MATERIAL_EMISSIVE)
     matData.emissiveColor = GetEmissiveColor();
   #else
     matData.emissiveColor = 0.0f;
