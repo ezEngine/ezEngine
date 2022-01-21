@@ -176,6 +176,10 @@ void ezProjectileComponent::Update()
               {
                 msg.m_sHitObjectName = pHitShape->GetName();
               }
+              else
+              {
+                msg.m_sHitObjectName = pObject->GetName();
+              }
 
               pObject->SendEventMessage(msg, this);
             }
