@@ -1,11 +1,11 @@
 #pragma once
 
 #include <Core/Interfaces/PhysicsWorldModule.h>
+#include <Core/Physics/SurfaceResource.h>
 #include <Foundation/Configuration/Plugin.h>
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/Memory/CommonAllocators.h>
 #include <GameEngine/Physics/CollisionFilter.h>
-#include <Core/Physics/SurfaceResource.h>
 #include <PhysXPlugin/PhysXInterface.h>
 
 #include <PxPhysicsAPI.h>

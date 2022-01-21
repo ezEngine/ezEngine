@@ -1,7 +1,7 @@
 #pragma once
 
-#include <EditorFramework/Assets/SimpleAssetDocument.h>
 #include <Core/Physics/SurfaceResource.h>
+#include <EditorFramework/Assets/SimpleAssetDocument.h>
 
 class ezSurfaceAssetDocument : public ezSimpleAssetDocument<ezSurfaceResourceDescriptor>
 {
