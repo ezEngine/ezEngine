@@ -1,10 +1,10 @@
 #include <PhysXPlugin/PhysXPluginPCH.h>
 
 #include <Core/Messages/CollisionMessage.h>
+#include <Core/Physics/SurfaceResource.h>
 #include <Core/Prefabs/PrefabResource.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Foundation/Configuration/CVar.h>
-#include <Core/Physics/SurfaceResource.h>
 #include <PhysXPlugin/Components/PxTriggerComponent.h>
 #include <PhysXPlugin/Utilities/PxConversionUtils.h>
 #include <PhysXPlugin/WorldModule/Implementation/PhysXSimulationEvents.h>
