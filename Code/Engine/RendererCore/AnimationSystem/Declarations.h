@@ -66,6 +66,16 @@ struct EZ_RENDERERCORE_DLL ezMsgAnimationPoseUpdated : public ezMessage
   bool m_bContinueAnimating = true;
 };
 
+struct EZ_RENDERERCORE_DLL ezMsgAnimationPoseProposal : public ezMessage
+{
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgAnimationPoseProposal, ezMessage);
+
+  const ezTransform* m_pRootTransform = nullptr;
+  const ezSkeleton* m_pSkeleton = nullptr;
+  ezArrayPtr<const ezMat4> m_ModelTransforms;
+  bool m_bContinueAnimating = true;
+};
+
 /// \brief Used by components that do rope simulation and rendering.
 ///
 /// The rope simulation component sends this message to components attached to the same game object,

@@ -14,7 +14,7 @@ o
 			s{"Animations/Pete/Pete.glb"}
 		}
 		Uuid %DocumentID{u4{14480472025422740414,4881933244452828737}}
-		u4 %Hash{17192323923880495735}
+		u4 %Hash{662634585132635323}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -329,27 +329,6 @@ o
 }
 o
 {
-	Uuid %id{u4{7913674118434537644,5071670806857356411}}
-	s %t{"ezEditableSkeletonBoneShape"}
-	u3 %v{1}
-	p
-	{
-		u1 %CollisionLayer{0}
-		s %Geometry{"ezSkeletonJointGeometryType::Box"}
-		f %Length{0xCDCCCC3D}
-		s %Name{""}
-		Vec3 %Offset{f{0xB81E053E,0x8FC2F53C,0x0AD7A33C}}
-		b %OverrideCollisionLayer{0}
-		b %OverrideName{0}
-		b %OverrideSurface{0}
-		Quat %Rotation{f{0,0,0,0x0000803F}}
-		s %Surface{""}
-		f %Thickness{0xCDCC4C3D}
-		f %Width{0xCDCC4C3D}
-	}
-}
-o
-{
 	Uuid %id{u4{16522771169228055992,5085700989591407179}}
 	s %t{"ezEditableSkeletonJoint"}
 	u3 %v{1}
@@ -537,7 +516,6 @@ o
 		VarArray %BoneShapes
 		{
 			Uuid{u4{258609841376569745,4955757144606515989}}
-			Uuid{u4{7913674118434537644,5071670806857356411}}
 		}
 		VarArray %Children{}
 		Quat %GizmoOffsetRotationRO{f{0xB64C05BF,0xB74C053F,0x49F1F43E,0x45F1F4BE}}
@@ -568,7 +546,7 @@ o
 		}
 		Quat %GizmoOffsetRotationRO{f{0x010000BF,0x0000003F,0x0000003F,0x000000BF}}
 		Vec3 %GizmoOffsetTranslationRO{f{0x00CFFC3B,0x501A46BE,0x516DCB3F}}
-		Quat %LocalRotation{f{0x000000B3,0x00004033,0xF40435BF,0xF404353F}}
+		Quat %LocalRotation{f{0xB6673BBE,0xB3673B3E,0xEDD92EBF,0xECD92E3F}}
 		s %Name{"UpperArm.L"}
 		Angle %SwingLimitY{f{0x0BBEF53F}}
 		Angle %SwingLimitZ{f{0x0BBEF53F}}
@@ -615,7 +593,7 @@ o
 		}
 		Quat %GizmoOffsetRotationRO{f{0x010000BF,0x0000003F,0x0000003F,0x000000BF}}
 		Vec3 %GizmoOffsetTranslationRO{f{0x80CFFC3B,0x501A463E,0x526DCB3F}}
-		Quat %LocalRotation{f{0x72C41C3F,0x72C41CBF,0xF504B53E,0xF004B53E}}
+		Quat %LocalRotation{f{0xF104B53E,0x74C41CBF,0x73C41C3F,0xED04B53E}}
 		s %Name{"UpperArm.R"}
 		Angle %SwingLimitY{f{0x0BBEF53F}}
 		Angle %SwingLimitZ{f{0x0BBEF53F}}
