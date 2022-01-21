@@ -194,9 +194,6 @@ void ezRaycastComponent::Update()
   const ezVec3 rayStartPosition = GetOwner()->GetGlobalPosition();
   const ezVec3 rayDir = GetOwner()->GetGlobalDirForwards().GetNormalized(); // PhysX is very picky about normalized vectors
 
-  // ezDebugRenderer::Line lines[] = { {rayStartPosition, rayStartPosition + rayDir * m_fMaxDistance} };
-  // ezDebugRenderer::DrawLines(GetWorld(), lines, ezColor::RebeccaPurple);
-
   float fHitDistance = m_fMaxDistance;
   ezPhysicsCastResult hit;
 
@@ -227,6 +224,12 @@ void ezRaycastComponent::Update()
         }
       }
     }
+  }
+
+  if (false)
+  {
+    ezDebugRenderer::Line lines[] = {{rayStartPosition, rayStartPosition + rayDir * fHitDistance}};
+    ezDebugRenderer::DrawLines(GetWorld(), lines, ezColor::GreenYellow);
   }
 
   if (!m_sTriggerMessage.IsEmpty() && m_uiCollisionLayerEndPoint != m_uiCollisionLayerTrigger)
