@@ -4,6 +4,7 @@
 #include <Core/Messages/TriggerMessage.h>
 #include <Core/Prefabs/PrefabResource.h>
 #include <Core/World/World.h>
+#include <Foundation/Configuration/CVar.h>
 #include <Foundation/Memory/FrameAllocator.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <PhysXPlugin/Components/PxDynamicActorComponent.h>
@@ -21,6 +22,7 @@
 #include <RendererCore/AnimationSystem/AnimationPose.h>
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
 #include <RendererCore/Components/CameraComponent.h>
+#include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <pvd/PxPvdSceneClient.h>
@@ -30,6 +32,10 @@ EZ_IMPLEMENT_WORLD_MODULE(ezPhysXWorldModule);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPhysXWorldModule, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 // clang-format on
+
+ezCVarBool cvar_PhysicsSimulationPause("Physics.Simulation.Pause", false, ezCVarFlags::None, "Pauses the physics simulation.");
+ezCVarBool cvar_PhysicsDebugDrawEnable("Physics.DebugDraw.Enable", false, ezCVarFlags::None, "Enables physics debug visualizations.");
+ezCVarFloat cvar_PhysicsDebugDrawSize("Physics.DebugDraw.Size", 0.2f, ezCVarFlags::Save, "Adjusts the size of physics debug visualizations (normals).");
 
 namespace
 {
@@ -70,7 +76,8 @@ namespace
         }
       }
 
-      pTask->ConfigureTask(task.getName(), ezTaskNesting::Never, [this](const ezSharedPtr<ezTask>& pTask) { FinishTask(pTask); });
+      pTask->ConfigureTask(task.getName(), ezTaskNesting::Never, [this](const ezSharedPtr<ezTask>& pTask)
+        { FinishTask(pTask); });
       static_cast<ezPxTask*>(pTask.Borrow())->m_pTask = &task;
       ezTaskSystem::StartSingleTask(pTask, ezTaskPriority::EarlyThisFrame);
     }
@@ -671,7 +678,6 @@ void ezPhysXWorldModule::QueryShapesInSphere(ezPhysicsOverlapResultArray& out_Re
   }
 }
 
-
 void ezPhysXWorldModule::AddStaticCollisionBox(ezGameObject* pObject, ezVec3 boxSize)
 {
   ezPxStaticActorComponent* pActor = nullptr;
@@ -690,6 +696,9 @@ void ezPhysXWorldModule::FreeUserDataAfterSimulationStep()
 
 void ezPhysXWorldModule::StartSimulation(const ezWorldModule::UpdateContext& context)
 {
+  if (cvar_PhysicsSimulationPause)
+    return;
+
   ezPxDynamicActorComponentManager* pDynamicActorManager = GetWorld()->GetComponentManager<ezPxDynamicActorComponentManager>();
   ezPxTriggerComponentManager* pTriggerManager = GetWorld()->GetComponentManager<ezPxTriggerComponentManager>();
   ezPxQueryShapeActorComponentManager* pQueryShapesManager = GetWorld()->GetComponentManager<ezPxQueryShapeActorComponentManager>();
@@ -767,6 +776,35 @@ void ezPhysXWorldModule::FetchResults(const ezWorldModule::UpdateContext& contex
     if (numActiveActors > 0)
     {
       pDynamicActorManager->UpdateDynamicActors(ezMakeArrayPtr(pActiveActors, numActiveActors));
+    }
+  }
+
+  // debug draw
+  {
+    EZ_PX_WRITE_LOCK(*m_pPxScene);
+    m_pPxScene->setVisualizationParameter(PxVisualizationParameter::eSCALE, cvar_PhysicsDebugDrawEnable ? cvar_PhysicsDebugDrawSize : 0.0f);
+
+    if (cvar_PhysicsDebugDrawEnable)
+    {
+      m_pPxScene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_SHAPES, 1);
+      m_pPxScene->setVisualizationParameter(PxVisualizationParameter::eCONTACT_POINT, 1);
+      m_pPxScene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_DYNAMIC, 1);
+
+      ezHybridArray<ezDebugRenderer::Line, 64> lines;
+
+      const PxRenderBuffer& rb = m_pPxScene->getRenderBuffer();
+      for (PxU32 i = 0; i < rb.getNbLines(); i++)
+      {
+        const PxDebugLine& line = rb.getLines()[i];
+
+        auto& l = lines.ExpandAndGetRef();
+        l.m_start = ezPxConversionUtils::ToVec3(line.pos0);
+        l.m_end = ezPxConversionUtils::ToVec3(line.pos1);
+        l.m_startColor = reinterpret_cast<const ezColorGammaUB&>(line.color0);
+        l.m_endColor = reinterpret_cast<const ezColorGammaUB&>(line.color1);
+      }
+
+      ezDebugRenderer::DrawLines(GetWorld(), lines, ezColor::White);
     }
   }
 
@@ -892,7 +930,8 @@ void ezPhysXWorldModule::SimulateStep(ezTime deltaTime)
     EZ_PROFILE_SCOPE("FetchResult");
 
     // Help executing tasks while we wait for the simulation to finish
-    ezTaskSystem::WaitForCondition([&] { return m_pPxScene->checkResults(false); });
+    ezTaskSystem::WaitForCondition([&]
+      { return m_pPxScene->checkResults(false); });
 
     EZ_PX_WRITE_LOCK(*m_pPxScene);
 
