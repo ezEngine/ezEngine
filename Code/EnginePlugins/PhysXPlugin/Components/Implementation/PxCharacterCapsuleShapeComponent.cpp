@@ -219,6 +219,9 @@ ezBitflags<ezPxCharacterShapeCollisionFlags> ezPxCharacterCapsuleShapeComponent:
   const float fElapsedTime = (float)GetWorld()->GetClock().GetTimeDiff().GetSeconds();
 
   EZ_PX_WRITE_LOCK(*(m_pController->getScene()));
+
+  // TODO: this call will crash, if the CC stands on an object that gets deleted during this frame
+  // maybe have to do this update at some other time?
   PxControllerCollisionFlags collisionFlags = m_pController->move(ezPxConversionUtils::ToVec3(vMoveDeltaGlobal), 0.0f, fElapsedTime, m_Data->m_ControllerFilter);
 
   const ezVec3 vNewFootPos = ezPxConversionUtils::ToVec3(m_pController->getFootPosition());
