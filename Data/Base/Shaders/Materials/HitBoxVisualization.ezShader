@@ -91,7 +91,6 @@ void main( triangle GS_IN input[3], inout TriangleStream<GS_OUT> outputStream )
 #endif
 
 #define CUSTOM_INTERPOLATOR float3 Barycentric : TEXCOORD0;
-#define CUSTOM_INTERPOLATOR_NAME Barycentric
 
 #include <Shaders/Materials/DefaultMaterialCB.h>
 #include <Shaders/Materials/MaterialPixelShader.h>

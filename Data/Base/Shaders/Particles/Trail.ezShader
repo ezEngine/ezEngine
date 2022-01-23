@@ -37,7 +37,6 @@ CullMode = CullMode_None
 [SHADER]
 
 #define CUSTOM_INTERPOLATOR float FogAmount : FOG;
-#define CUSTOM_INTERPOLATOR_NAME FogAmount
 #define USE_TEXCOORD0
 #define USE_COLOR0
 
@@ -133,6 +132,11 @@ VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
 }
 
 [GEOMETRYSHADER]
+
+void CopyCustomInterpolators(GS_OUT output, VS_OUT input)
+{
+  output.FogAmount = input.FogAmount;
+}
 
 #include <Shaders/Materials/MaterialStereoGeometryShader.h>
 

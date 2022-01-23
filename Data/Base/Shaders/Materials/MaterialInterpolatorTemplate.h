@@ -38,9 +38,6 @@ struct STAGE_TEMPLATE
 #endif
 
 #if defined(CUSTOM_INTERPOLATOR)
-#  ifndef CUSTOM_INTERPOLATOR_NAME
-#    error Need to define CUSTOM_INTERPOLATOR_NAME which holds the variable name of the CUSTOM_INTERPOLATOR.
-#  endif
   CUSTOM_INTERPOLATOR
 #endif
 

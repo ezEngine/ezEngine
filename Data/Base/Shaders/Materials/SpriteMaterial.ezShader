@@ -27,7 +27,6 @@ WireFrame = false
 
 #if defined(USE_GAME_OBJECT_ID)
   #define CUSTOM_INTERPOLATOR uint GameObjectID : GAME_OBJECT_ID;
-  #define CUSTOM_INTERPOLATOR_NAME GameObjectID
 #endif
 
 [VERTEXSHADER]
@@ -115,6 +114,11 @@ VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
 }
 
 [GEOMETRYSHADER]
+
+void CopyCustomInterpolators(GS_OUT output, VS_OUT input)
+{
+  output.GameObjectID = input.GameObjectID;
+}
 
 #include <Shaders/Materials/MaterialStereoGeometryShader.h>
 

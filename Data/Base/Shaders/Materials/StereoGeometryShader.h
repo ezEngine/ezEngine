@@ -59,7 +59,7 @@
 #  endif
 
 #  if defined(CUSTOM_INTERPOLATOR)
-    output.CUSTOM_INTERPOLATOR_NAME = input[i].CUSTOM_INTERPOLATOR_NAME;
+    CopyCustomInterpolators(output, input);
 #  endif
 
     output.InstanceID = input[i].InstanceID;

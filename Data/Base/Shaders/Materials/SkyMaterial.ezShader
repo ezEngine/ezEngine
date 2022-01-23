@@ -33,7 +33,6 @@ DepthWrite = false
 [VERTEXSHADER]
 
 #define CUSTOM_INTERPOLATOR float3 ViewDirection : TEXCOORD0;
-#define CUSTOM_INTERPOLATOR_NAME ViewDirection
 
 #include <Shaders/Materials/SkyMaterialCB.h>
 #include <Shaders/Materials/MaterialVertexShader.h>
@@ -58,14 +57,17 @@ VS_OUT main(VS_IN Input)
 [GEOMETRYSHADER]
 
 #define CUSTOM_INTERPOLATOR float3 ViewDirection : TEXCOORD0;
-#define CUSTOM_INTERPOLATOR_NAME ViewDirection
+
+void CopyCustomInterpolators(GS_OUT output, VS_OUT input)
+{
+  output.ViewDirection = input.ViewDirection;
+}
 
 #include <Shaders/Materials/MaterialStereoGeometryShader.h>
 
 [PIXELSHADER]
 
 #define CUSTOM_INTERPOLATOR float3 ViewDirection : TEXCOORD0;
-#define CUSTOM_INTERPOLATOR_NAME ViewDirection
 
 #include <Shaders/Materials/SkyMaterialCB.h>
 #include <Shaders/Materials/MaterialPixelShader.h>
