@@ -409,40 +409,43 @@ void ezGreyBoxComponent::BuildGeometry(ezGeometry& geom) const
   offset.y = (m_fSizePosY - m_fSizeNegY) * 0.5f;
   offset.z = (m_fSizePosZ - m_fSizeNegZ) * 0.5f;
 
-  ezMat4 t, t2, t3;
-  t.SetTranslationMatrix(offset);
+  ezMat4 t2, t3;
+
+  ezGeometry::GeoOptions opt;
+  opt.m_Color = m_Color;
+  opt.m_Transform.SetTranslationMatrix(offset);
 
   switch (m_Shape)
   {
     case ezGreyBoxShape::Box:
-      geom.AddTexturedBox(size, m_Color, t);
+      geom.AddBox(size, true, opt);
       break;
 
     case ezGreyBoxShape::RampX:
-      geom.AddTexturedRamp(size, m_Color, t);
+      geom.AddTexturedRamp(size, opt);
       break;
 
     case ezGreyBoxShape::RampY:
       ezMath::Swap(size.x, size.y);
-      t.SetRotationMatrixZ(ezAngle::Degree(-90.0f));
-      t.SetTranslationVector(offset);
-      geom.AddTexturedRamp(size, m_Color, t);
+      opt.m_Transform.SetRotationMatrixZ(ezAngle::Degree(-90.0f));
+      opt.m_Transform.SetTranslationVector(offset);
+      geom.AddTexturedRamp(size, opt);
       break;
 
     case ezGreyBoxShape::Column:
-      t.SetScalingFactors(size).IgnoreResult();
-      geom.AddCylinder(0.5f, 0.5f, 0.5f, 0.5f, true, true, static_cast<ezUInt16>(m_uiDetail), m_Color, t);
+      opt.m_Transform.SetScalingFactors(size).IgnoreResult();
+      geom.AddCylinder(0.5f, 0.5f, 0.5f, 0.5f, true, true, static_cast<ezUInt16>(m_uiDetail), opt);
       break;
 
     case ezGreyBoxShape::StairsX:
-      geom.AddStairs(size, m_uiDetail, m_Curvature, m_bSlopedTop, m_Color, t);
+      geom.AddStairs(size, m_uiDetail, m_Curvature, m_bSlopedTop, opt);
       break;
 
     case ezGreyBoxShape::StairsY:
       ezMath::Swap(size.x, size.y);
-      t.SetRotationMatrixZ(ezAngle::Degree(-90.0f));
-      t.SetTranslationVector(offset);
-      geom.AddStairs(size, m_uiDetail, m_Curvature, m_bSlopedTop, m_Color, t);
+      opt.m_Transform.SetRotationMatrixZ(ezAngle::Degree(-90.0f));
+      opt.m_Transform.SetTranslationVector(offset);
+      geom.AddStairs(size, m_uiDetail, m_Curvature, m_bSlopedTop, opt);
       break;
 
     case ezGreyBoxShape::ArchX:
@@ -451,28 +454,29 @@ void ezGreyBoxComponent::BuildGeometry(ezGeometry& geom) const
       size.z = size.x;
       size.x = size.y;
       size.y = tmp;
-      t.SetRotationMatrixY(ezAngle::Degree(-90));
+      opt.m_Transform.SetRotationMatrixY(ezAngle::Degree(-90));
       t2.SetRotationMatrixX(ezAngle::Degree(90));
-      t = t2 * t;
-      t.SetTranslationVector(offset);
-      geom.AddArch(size, m_uiDetail, m_fThickness, m_Curvature, false, false, false, m_Color, t);
+      opt.m_Transform = t2 * opt.m_Transform;
+      opt.m_Transform.SetTranslationVector(offset);
+      geom.AddArch(size, m_uiDetail, m_fThickness, m_Curvature, false, false, false, opt);
     }
     break;
 
     case ezGreyBoxShape::ArchY:
     {
-      t.SetRotationMatrixY(ezAngle::Degree(-90));
+      opt.m_Transform.SetRotationMatrixY(ezAngle::Degree(-90));
       t2.SetRotationMatrixX(ezAngle::Degree(90));
       t3.SetRotationMatrixZ(ezAngle::Degree(90));
       ezMath::Swap(size.y, size.z);
-      t = t3 * t2 * t;
-      t.SetTranslationVector(offset);
-      geom.AddArch(size, m_uiDetail, m_fThickness, m_Curvature, false, false, false, m_Color, t);
+      opt.m_Transform = t3 * t2 * opt.m_Transform;
+      opt.m_Transform.SetTranslationVector(offset);
+
+      geom.AddArch(size, m_uiDetail, m_fThickness, m_Curvature, false, false, false, opt);
     }
     break;
 
     case ezGreyBoxShape::SpiralStairs:
-      geom.AddArch(size, m_uiDetail, m_fThickness, m_Curvature, true, m_bSlopedBottom, m_bSlopedTop, m_Color, t);
+      geom.AddArch(size, m_uiDetail, m_fThickness, m_Curvature, true, m_bSlopedBottom, m_bSlopedTop, opt);
       break;
 
     default:

@@ -69,7 +69,7 @@ void ezTextureCubeContext::OnInitialize()
     {
       // Build geometry
       ezGeometry geom;
-      geom.AddSphere(0.5f, 64, 64, ezColor::White);
+      geom.AddSphere(0.5f, 64, 64);
       geom.ComputeTangents();
 
       ezMeshBufferResourceDescriptor desc;
@@ -95,7 +95,7 @@ void ezTextureCubeContext::OnInitialize()
   if (!m_hMaterial.IsValid())
   {
     ezMaterialResourceDescriptor md;
-    md.m_hBaseMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Materials/Editor/TextureCubePreview.ezMaterial");
+    md.m_hBaseMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Editor/Materials/TextureCubePreview.ezMaterial");
 
     auto& tb = md.m_TextureCubeBindings.ExpandAndGetRef();
     tb.m_Name.Assign("BaseTexture");

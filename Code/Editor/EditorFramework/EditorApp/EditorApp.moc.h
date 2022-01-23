@@ -111,8 +111,11 @@ public:
   /// \brief Can be set via the command line option '-safe'. In this mode the editor will not automatically load recent documents
   bool IsInSafeMode() const { return m_StartupFlags.IsSet(StartupFlags::SafeMode); }
 
-  /// \brief Returns true if StartupEditor was called with true. This is the case in an EditorProcessor.
+  /// \brief Returns true if the the app shouldn't display anything. This is the case in an EditorProcessor.
   bool IsInHeadlessMode() const { return m_StartupFlags.IsSet(StartupFlags::Headless); }
+
+  /// \brief Returns true if the editor is started is run in test mode.
+  bool IsInUnitTestMode() const { return m_StartupFlags.IsSet(StartupFlags::UnitTest); }
 
   const ezPluginSet& GetEditorPlugins() const { return s_EditorPlugins; }
   const ezPluginSet& GetEnginePlugins() const { return s_EnginePlugins; }
@@ -161,6 +164,7 @@ public:
   void GuiOpenDocument();
 
   void GuiOpenDashboard();
+  void GuiOpenDocsAndCommunity();
   bool GuiCreateProject(bool bImmediate = false);
   bool GuiOpenProject(bool bImmediate = false);
 
@@ -206,7 +210,6 @@ Q_SIGNALS:
 private:
   ezString BuildDocumentTypeFileFilter(bool bForCreation);
 
-  void InternalGuiOpenDashboard();
   void GuiCreateOrOpenDocument(bool bCreate);
   bool GuiCreateOrOpenProject(bool bCreate);
 
@@ -216,6 +219,7 @@ private Q_SLOTS:
   void SlotQueuedOpenProject(QString sProject);
   void SlotQueuedOpenDocument(QString sProject, void* pOpenContext);
   void SlotQueuedGuiOpenDashboard();
+  void SlotQueuedGuiOpenDocsAndCommunity();
   void SlotQueuedGuiCreateOrOpenProject(bool bCreate);
   void SlotSaveSettings();
   void SlotVersionCheckCompleted(bool bNewVersionReleased, bool bForced);

@@ -233,7 +233,7 @@ void ezCustomMeshComponent::OnActivated()
   if (false)
   {
     ezGeometry geo;
-    geo.AddTorus(1.0f, 1.5f, 32, 16, ezColor::White);
+    geo.AddTorus(1.0f, 1.5f, 32, 16, false);
     geo.TriangulatePolygons();
     geo.ComputeTangents();
 

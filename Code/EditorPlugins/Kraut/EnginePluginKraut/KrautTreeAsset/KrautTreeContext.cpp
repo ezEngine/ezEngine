@@ -119,11 +119,11 @@ void ezKrautTreeContext::OnInitialize()
       if (!hMeshBuffer.IsValid())
       {
         // Build geometry
-        ezMat4 t;
-        t.SetTranslationMatrix(ezVec3(0, 0, -0.05f));
+        ezGeometry::GeoOptions opt;
+        opt.m_Transform.SetTranslationMatrix(ezVec3(0, 0, -0.05f));
 
         ezGeometry geom;
-        geom.AddCylinder(8.0f, 7.9f, 0.05f, 0.05f, true, true, 32, ezColor::White, t);
+        geom.AddCylinder(8.0f, 7.9f, 0.05f, 0.05f, true, true, 32, opt);
         geom.TriangulatePolygons();
         geom.ComputeTangents();
 

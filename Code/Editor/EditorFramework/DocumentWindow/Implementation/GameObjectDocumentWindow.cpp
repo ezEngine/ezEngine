@@ -30,7 +30,7 @@ ezGameObjectDocument* ezQtGameObjectDocumentWindow::GetGameObjectDocument() cons
 ezGlobalSettingsMsgToEngine ezQtGameObjectDocumentWindow::GetGlobalSettings() const
 {
   ezGlobalSettingsMsgToEngine msg;
-  msg.m_fGizmoScale = ezPreferences::QueryPreferences<ezEditorPreferencesUser>()->m_fGizmoScale;
+  msg.m_fGizmoScale = ezPreferences::QueryPreferences<ezEditorPreferencesUser>()->m_fGizmoSize;
   return msg;
 }
 

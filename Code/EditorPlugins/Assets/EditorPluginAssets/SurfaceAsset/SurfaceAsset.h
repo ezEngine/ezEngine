@@ -1,7 +1,7 @@
 #pragma once
 
+#include <Core/Physics/SurfaceResource.h>
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
-#include <GameEngine/Physics/SurfaceResource.h>
 
 class ezSurfaceAssetDocument : public ezSimpleAssetDocument<ezSurfaceResourceDescriptor>
 {

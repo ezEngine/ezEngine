@@ -84,6 +84,7 @@ namespace ezShaderHelper
     out_Sections.AddSection("[GEOMETRYSHADER]");
     out_Sections.AddSection("[PIXELSHADER]");
     out_Sections.AddSection("[COMPUTESHADER]");
+    out_Sections.AddSection("[TEMPLATE_VARS]");
 
     out_Sections.Process(szContent);
   }

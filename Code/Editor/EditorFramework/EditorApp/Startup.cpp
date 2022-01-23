@@ -76,8 +76,8 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
     ezCommonAssetActions::RegisterActions();
 
     ezActionMapManager::RegisterActionMap("SettingsTabMenuBar").IgnoreResult();
+    ezStandardMenus::MapActions("SettingsTabMenuBar", ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
     ezProjectActions::MapActions("SettingsTabMenuBar");
-    ezStandardMenus::MapActions("SettingsTabMenuBar", ezStandardMenuTypes::Panels);
 
     ezActionMapManager::RegisterActionMap("AssetBrowserToolBar").IgnoreResult();
     ezAssetActions::MapActions("AssetBrowserToolBar", false);
@@ -414,6 +414,9 @@ ezCommandLineOptionBool opt_NoSplashScreen("_Editor", "-NoSplash", "Disables the
 void ezQtEditorApp::SetupAndShowSplashScreen()
 {
   EZ_ASSERT_DEV(m_pSplashScreen == nullptr, "Splash screen shouldn't exist already.");
+
+  if (m_StartupFlags.IsAnySet(ezQtEditorApp::StartupFlags::UnitTest))
+    return;
 
   if (opt_NoSplashScreen.GetOptionValue(ezCommandLineOption::LogMode::Never))
     return;

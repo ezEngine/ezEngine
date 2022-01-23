@@ -16,8 +16,10 @@
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezMaterialAssetPreview, 1)
+  EZ_ENUM_CONSTANT(ezMaterialAssetPreview::Ball),
   EZ_ENUM_CONSTANT(ezMaterialAssetPreview::Sphere),
   EZ_ENUM_CONSTANT(ezMaterialAssetPreview::Box),
+  EZ_ENUM_CONSTANT(ezMaterialAssetPreview::Plane),
 EZ_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
@@ -33,7 +35,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialAssetProperties, 4, ezRTTIDefaultAlloc
     EZ_ENUM_ACCESSOR_PROPERTY("ShaderMode", ezMaterialShaderMode, GetShaderMode, SetShaderMode),
     EZ_ACCESSOR_PROPERTY("BaseMaterial", GetBaseMaterial, SetBaseMaterial)->AddAttributes(new ezAssetBrowserAttribute("Material")),
     EZ_ACCESSOR_PROPERTY("Surface", GetSurface, SetSurface)->AddAttributes(new ezAssetBrowserAttribute("Surface")),
-    EZ_ACCESSOR_PROPERTY("Shader", GetShader, SetShader)->AddAttributes(new ezFileBrowserAttribute("Select Shader", "*.ezShader")),
+    EZ_ACCESSOR_PROPERTY("Shader", GetShader, SetShader)->AddAttributes(new ezFileBrowserAttribute("Select Shader", "*.ezShader", "CustomAction_CreateShaderFromTemplate")),
     // This property holds the phantom shader properties type so it is only used in the object graph but not actually in the instance of this object.
     EZ_ACCESSOR_PROPERTY("ShaderProperties", GetShaderProperties, SetShaderProperties)->AddFlags(ezPropertyFlags::PointerOwner)->AddAttributes(new ezContainerAttribute(false, false, false)),
   }

@@ -46,9 +46,10 @@ public:
   ~ezSkinnedMeshComponent();
 
 protected:
+  /// \brief Makes a temporary copy of the provided skinning data for later upload to the GPU.
   void UpdateSkinningTransformBuffer(ezArrayPtr<const ezShaderTransform> skinningTransforms);
 
 private:
   ezGALBufferHandle m_hSkinningTransformsBuffer;
-  ezArrayPtr<const ezShaderTransform> m_SkinningTransforms;
+  mutable ezArrayPtr<const ezShaderTransform> m_SkinningTransforms;
 };

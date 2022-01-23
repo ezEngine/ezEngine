@@ -1,8 +1,8 @@
 #include <ParticlePlugin/ParticlePluginPCH.h>
 
+#include <Core/Physics/SurfaceResourceDescriptor.h>
 #include <Core/Prefabs/PrefabResource.h>
 #include <Core/World/World.h>
-#include <GameEngine/Physics/SurfaceResourceDescriptor.h>
 #include <ParticlePlugin/Components/ParticleComponent.h>
 #include <ParticlePlugin/Events/ParticleEvent.h>
 #include <ParticlePlugin/Events/ParticleEventReaction_Prefab.h>

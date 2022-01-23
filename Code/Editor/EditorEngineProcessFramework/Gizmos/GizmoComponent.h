@@ -31,7 +31,7 @@ class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezGizmoComponent : public ezMeshCompon
 
 protected:
   virtual ezMeshRenderData* CreateRenderData() const override;
-
+  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible) override;
 
   //////////////////////////////////////////////////////////////////////////
   // ezGizmoComponent

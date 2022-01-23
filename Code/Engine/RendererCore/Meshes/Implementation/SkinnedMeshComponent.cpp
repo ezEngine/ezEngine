@@ -66,6 +66,9 @@ ezMeshRenderData* ezSkinnedMeshComponent::CreateRenderData() const
   pRenderData->m_hSkinningTransforms = m_hSkinningTransformsBuffer;
   pRenderData->m_pNewSkinningTransformData = m_SkinningTransforms.ToByteArray();
 
+  // TODO: this (potentially) creates jitter due to some kind of threading issue, but unclear how to fix, all attempts to double buffer data have failed
+  m_SkinningTransforms = {}; // reset, so it's not used again next frame, unless there is new data
+
   return pRenderData;
 }
 

@@ -290,18 +290,21 @@ class EZ_FOUNDATION_DLL ezFileBrowserAttribute : public ezTypeWidgetAttribute
 
 public:
   ezFileBrowserAttribute() = default;
-  ezFileBrowserAttribute(const char* szDialogTitle, const char* szTypeFilter)
+  ezFileBrowserAttribute(const char* szDialogTitle, const char* szTypeFilter, const char* szCustomAction = nullptr)
   {
     m_sDialogTitle = szDialogTitle;
     m_sTypeFilter = szTypeFilter;
+    m_sCustomAction = szCustomAction;
   }
 
   const char* GetDialogTitle() const { return m_sDialogTitle; }
   const char* GetTypeFilter() const { return m_sTypeFilter; }
+  const char* GetCustomAction() const { return m_sCustomAction; }
 
 private:
   ezUntrackedString m_sDialogTitle;
   ezUntrackedString m_sTypeFilter;
+  ezUntrackedString m_sCustomAction;
 };
 
 /// \brief A property attribute that indicates that the string property is actually an asset reference.
@@ -488,11 +491,13 @@ class EZ_FOUNDATION_DLL ezTransformManipulatorAttribute : public ezManipulatorAt
 
 public:
   ezTransformManipulatorAttribute();
-  ezTransformManipulatorAttribute(const char* szTranslateProperty, const char* szRotateProperty = nullptr, const char* szScaleProperty = nullptr);
+  ezTransformManipulatorAttribute(const char* szTranslateProperty, const char* szRotateProperty = nullptr, const char* szScaleProperty = nullptr, const char* szOffsetTranslation = nullptr, const char* szOffsetRotation = nullptr);
 
   const ezUntrackedString& GetTranslateProperty() const { return m_sProperty1; }
   const ezUntrackedString& GetRotateProperty() const { return m_sProperty2; }
   const ezUntrackedString& GetScaleProperty() const { return m_sProperty3; }
+  const ezUntrackedString& GetGetOffsetTranslationProperty() const { return m_sProperty4; }
+  const ezUntrackedString& GetGetOffsetRotationProperty() const { return m_sProperty5; }
 };
 
 //////////////////////////////////////////////////////////////////////////

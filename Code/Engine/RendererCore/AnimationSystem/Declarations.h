@@ -56,8 +56,19 @@ struct EZ_RENDERERCORE_DLL ezMsgAnimationPoseUpdated : public ezMessage
 {
   EZ_DECLARE_MESSAGE_TYPE(ezMsgAnimationPoseUpdated, ezMessage);
 
+  static void ComputeFullBoneTransform(const ezMat4& rootTransform, const ezMat4& modelTransform, ezMat4& fullTransform, ezQuat& rotationOnly);
   void ComputeFullBoneTransform(ezUInt32 uiJointIndex, ezMat4& fullTransform) const;
   void ComputeFullBoneTransform(ezUInt32 uiJointIndex, ezMat4& fullTransform, ezQuat& rotationOnly) const;
+
+  const ezTransform* m_pRootTransform = nullptr;
+  const ezSkeleton* m_pSkeleton = nullptr;
+  ezArrayPtr<const ezMat4> m_ModelTransforms;
+  bool m_bContinueAnimating = true;
+};
+
+struct EZ_RENDERERCORE_DLL ezMsgAnimationPoseProposal : public ezMessage
+{
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgAnimationPoseProposal, ezMessage);
 
   const ezTransform* m_pRootTransform = nullptr;
   const ezSkeleton* m_pSkeleton = nullptr;

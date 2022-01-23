@@ -53,6 +53,19 @@ public:
     ezUInt32 m_uiEndVertex;
   };
 
+  /// \brief Options shared among all geometry creation functions
+  struct GeoOptions
+  {
+    EZ_DECLARE_POD_TYPE();
+
+    GeoOptions() {}
+    ezColor m_Color = ezColor(1, 1, 1, 1);         ///< The color of the entire geometric object
+    ezMat4 m_Transform = ezMat4::IdentityMatrix(); ///< An additional transform to apply to the geometry while adding it
+    ezUInt16 m_uiBoneIndex = 0;                    ///< Which bone should influence this geometry, for single-bone skinning.
+
+    bool IsFlipWindingNecessary() const;
+  };
+
   /// \brief Returns the entire vertex data.
   ezDeque<Vertex>& GetVertices() { return m_Vertices; }
 
@@ -87,6 +100,12 @@ public:
   ezUInt32 AddVertex(const ezVec3& vPos, const ezVec3& vNormal, const ezVec2& vTexCoord, const ezColor& color, const ezUInt16 boneIndex, const ezMat4& mTransform)
   {
     return AddVertex(mTransform.TransformPosition(vPos), mTransform.TransformDirection(vNormal).GetNormalized(), vTexCoord, color, ezVec4U16(boneIndex, 0, 0, 0), ezColorLinearUB(255, 0, 0, 0));
+  }
+
+  /// \brief Adds a vertex with a single bone index, returns the index to the added vertex. Position and normal are transformed with the given matrix.
+  ezUInt32 AddVertex(const ezVec3& vPos, const ezVec3& vNormal, const ezVec2& vTexCoord, const GeoOptions& options)
+  {
+    return AddVertex(options.m_Transform.TransformPosition(vPos), options.m_Transform.TransformDirection(vNormal).GetNormalized(), vTexCoord, options.m_Color, ezVec4U16(options.m_uiBoneIndex, 0, 0, 0), ezColorLinearUB(255, 0, 0, 0));
   }
 
   /// \brief Adds a polygon that consists of all the referenced vertices. No face normal is computed at this point.
@@ -145,29 +164,26 @@ public:
 
   /// \brief Adds a rectangle shape in the XY plane, with the front in positive Z direction.
   /// It is centered at the origin, extending half size.x and half size.y into direction +X, -X, +Y and -Y.
-  void AddRectXY(const ezVec2& size, const ezColor& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezUInt16 boneIndex = 0);
+  /// Optionally tessellates the rectangle for more detail.
+  void AddRectXY(const ezVec2& size, ezUInt32 uiTesselationX = 1, ezUInt32 uiTesselationY = 1, const GeoOptions& options = GeoOptions());
 
-  /// \brief Same as AddRectXY but additionally tessellates the plane. Tessellation factors must be larger than zero.
-  void AddTesselatedRectXY(const ezVec2& size, const ezColor& color, ezUInt32 uiTesselationX, ezUInt32 uiTesselationY, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezUInt16 boneIndex = 0);
-
-  /// \brief Adds an untextured box (8 vertices).
-  void AddBox(const ezVec3& size, const ezColor& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezUInt16 boneIndex = 0);
+  /// \brief Adds a box.
+  /// If bExtraVerticesForTexturing is false, 8 shared vertices are added.
+  /// If bExtraVerticesForTexturing is true, 24 separate vertices with UV coordinates are added.
+  void AddBox(const ezVec3& size, bool bExtraVerticesForTexturing, const GeoOptions& options = GeoOptions());
 
   /// \brief Adds box out of lines (8 vertices).
-  void AddLineBox(const ezVec3& size, const ezColor& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezUInt16 boneIndex = 0);
+  void AddLineBox(const ezVec3& size, const GeoOptions& options = GeoOptions());
 
   /// \brief Adds the 8 corners of a box as lines.
   ///
   /// fCornerFraction must be between 1.0 and 0.0, with 1 making it a completely closed box and 0 no lines at all.
-  void AddLineBoxCorners(const ezVec3& size, float fCornerFraction, const ezColor& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezUInt16 boneIndex = 0);
-
-  /// \brief Adds a box that has UV coordinates set (24 vertices).
-  void AddTexturedBox(const ezVec3& size, const ezColor& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezUInt16 boneIndex = 0);
+  void AddLineBoxCorners(const ezVec3& size, float fCornerFraction, const GeoOptions& options = GeoOptions());
 
   /// \brief Adds a pyramid. This is different to a low-res cone in that the corners are placed differently (like on a box).
   ///
   /// The origin is at the center of the base quad.size.z is the height of the pyramid.
-  void AddPyramid(const ezVec3& size, bool bCap, const ezColor& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezUInt16 boneIndex = 0);
+  void AddPyramid(const ezVec3& size, bool bCap, const GeoOptions& options = GeoOptions());
 
   /// \brief Adds a geodesic sphere with radius 1 at the origin.
   ///
@@ -179,7 +195,7 @@ public:
   /// 3 = 1280 triangles,  642 vertices\n
   /// 4 = 5120 triangles, 2562 vertices\n
   /// ...\n
-  void AddGeodesicSphere(float fRadius, ezUInt8 uiSubDivisions, const ezColor& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezUInt16 boneIndex = 0);
+  void AddGeodesicSphere(float fRadius, ezUInt8 uiSubDivisions, const GeoOptions& options = GeoOptions());
 
   /// \brief Adds a cylinder.
   ///
@@ -189,31 +205,30 @@ public:
   /// uiSegments is the detail around the up axis, must be at least 3.
   /// The top or bottom caps can be removed using \a bCapTop and \a bCapBottom.
   /// When \a fraction is set to any value below 360 degree, a pie / pacman shaped cylinder is created.
-  void AddCylinder(
-    float fRadiusTop, float fRadiusBottom, float fPositiveLength, float fNegativeLength, bool bCapTop, bool bCapBottom, ezUInt16 uiSegments, const ezColor& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezUInt16 boneIndex = 0, ezAngle fraction = ezAngle::Degree(360.0f));
+  void AddCylinder(float fRadiusTop, float fRadiusBottom, float fPositiveLength, float fNegativeLength, bool bCapTop, bool bCapBottom, ezUInt16 uiSegments, const GeoOptions& options = GeoOptions(), ezAngle fraction = ezAngle::Degree(360.0f));
 
   /// \brief Same as AddCylinder(), but always adds caps and does not generate separate vertices for the caps.
   ///
   /// This is a more compact representation, but does not allow as good texturing.
-  void AddCylinderOnePiece(float fRadiusTop, float fRadiusBottom, float fPositiveLength, float fNegativeLength, ezUInt16 uiSegments, const ezColor& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezUInt16 boneIndex = 0);
+  void AddCylinderOnePiece(float fRadiusTop, float fRadiusBottom, float fPositiveLength, float fNegativeLength, ezUInt16 uiSegments, const GeoOptions& options = GeoOptions());
 
   /// \brief Adds a cone. The origin is at the center of the bottom.
   ///
   /// uiSegments is the detail around the up axis, must be at least 3.
-  void AddCone(float fRadius, float fHeight, bool bCap, ezUInt16 uiSegments, const ezColor& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezUInt16 boneIndex = 0);
+  void AddCone(float fRadius, float fHeight, bool bCap, ezUInt16 uiSegments, const GeoOptions& options = GeoOptions());
 
   /// \brief Adds a sphere.
   ///
   /// uiSegments is the detail around the up axis, must be at least 3.
   /// uiStacks is the detail of the rounded top and bottom, must be at least 2.
-  void AddSphere(float fRadius, ezUInt16 uiSegments, ezUInt16 uiStacks, const ezColor& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezUInt16 boneIndex = 0);
+  void AddSphere(float fRadius, ezUInt16 uiSegments, ezUInt16 uiStacks, const GeoOptions& options = GeoOptions());
 
   /// \brief Adds half a sphere.
   ///
   /// The origin is at the 'full sphere center', ie. at the center of the cap.
   /// uiSegments is the detail around the up axis, must be at least 3.
   /// uiStacks is the detail of the rounded top and bottom, must be at least 1.
-  void AddHalfSphere(float fRadius, ezUInt16 uiSegments, ezUInt16 uiStacks, bool bCap, const ezColor& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezUInt16 boneIndex = 0);
+  void AddHalfSphere(float fRadius, ezUInt16 uiSegments, ezUInt16 uiStacks, bool bCap, const GeoOptions& options = GeoOptions());
 
   /// \brief Adds a capsule.
   ///
@@ -221,24 +236,25 @@ public:
   /// Radius and height are added to get the total height of the capsule.
   /// uiSegments is the detail around the up axis, must be at least 3.
   /// uiStacks is the detail of the rounded top and bottom, must be at least 1.
-  void AddCapsule(float fRadius, float fHeight, ezUInt16 uiSegments, ezUInt16 uiStacks, const ezColor& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezUInt16 boneIndex = 0);
+  void AddCapsule(float fRadius, float fHeight, ezUInt16 uiSegments, ezUInt16 uiStacks, const GeoOptions& options = GeoOptions());
 
   /// \brief Adds a full torus.
   ///
   /// The origin is at the center of the torus.
-  /// fInnerRadius is the radius from the center to where the torus ring starts.
-  /// fOuterRadius is the radius to where the torus ring stops.
-  /// uiSegments is the detail around the up axis.
-  /// uiSegmentDetail is the number of segments around the torus ring (ie. the cylinder detail)
-  void AddTorus(float fInnerRadius, float fOuterRadius, ezUInt16 uiSegments, ezUInt16 uiSegmentDetail, const ezColor& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezUInt16 boneIndex = 0);
+  /// \param fInnerRadius is the radius from the center to where the torus ring starts.
+  /// \param fOuterRadius is the radius to where the torus ring stops.
+  /// \param uiSegments is the detail around the up (Z) axis.
+  /// \param uiSegmentDetail is the number of segments around the torus ring (ie. the cylinder detail)
+  /// \param bExtraVerticesForTexturing specifies whether the torus should be one closed piece or have additional vertices at the seams, such that texturing works better.
+  void AddTorus(float fInnerRadius, float fOuterRadius, ezUInt16 uiSegments, ezUInt16 uiSegmentDetail, bool bExtraVerticesForTexturing, const GeoOptions& options = GeoOptions());
 
   /// \brief Adds a ramp that has UV coordinates set.
-  void AddTexturedRamp(const ezVec3& size, const ezColor& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezUInt16 boneIndex = 0);
+  void AddTexturedRamp(const ezVec3& size, const GeoOptions& options = GeoOptions());
 
   /// \brief Generates a straight stair mesh along the X axis. The number of steps determines the step height and depth.
-  void AddStairs(const ezVec3& size, ezUInt32 uiNumSteps, ezAngle curvature, bool bSmoothSloped, const ezColor& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezUInt16 boneIndex = 0);
+  void AddStairs(const ezVec3& size, ezUInt32 uiNumSteps, ezAngle curvature, bool bSmoothSloped, const GeoOptions& options = GeoOptions());
 
-  void AddArch(const ezVec3& size, ezUInt32 uiNumSegments, float fThickness, ezAngle angle, bool bMakeSteps, bool bSmoothBottom, bool bSmoothTop, const ezColor& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezUInt16 boneIndex = 0);
+  void AddArch(const ezVec3& size, ezUInt32 uiNumSegments, float fThickness, ezAngle angle, bool bMakeSteps, bool bSmoothBottom, bool bSmoothTop, const GeoOptions& options = GeoOptions());
 
   /// \todo GeomUtils improvements:
   // ThickLine

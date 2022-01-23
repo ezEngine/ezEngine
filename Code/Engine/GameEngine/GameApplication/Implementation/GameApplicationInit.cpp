@@ -3,12 +3,12 @@
 #include <Core/Collection/CollectionResource.h>
 #include <Core/Curves/ColorGradientResource.h>
 #include <Core/Curves/Curve1DResource.h>
+#include <Core/Physics/SurfaceResource.h>
 #include <Core/Prefabs/PrefabResource.h>
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
 #include <Foundation/Utilities/CommandLineOptions.h>
 #include <GameEngine/Animation/PropertyAnimResource.h>
 #include <GameEngine/GameApplication/GameApplication.h>
-#include <GameEngine/Physics/SurfaceResource.h>
 #include <GameEngine/Utils/ImageDataResource.h>
 #include <GameEngine/VisualScript/VisualScriptResource.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraphResource.h>
@@ -121,8 +121,8 @@ void ezGameApplication::Init_SetupDefaultResources()
   {
     ezResourceManager::AllowResourceTypeAcquireDuringUpdateContent<ezMaterialResource, ezMaterialResource>();
 
-    ezMaterialResourceHandle hMissingMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Materials/BaseMaterials/MissingMaterial.ezMaterial");
-    ezMaterialResourceHandle hFallbackMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Materials/BaseMaterials/LoadingMaterial.ezMaterial");
+    ezMaterialResourceHandle hMissingMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Materials/Common/MissingMaterial.ezMaterial");
+    ezMaterialResourceHandle hFallbackMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Materials/Common/LoadingMaterial.ezMaterial");
 
     ezResourceManager::SetResourceTypeLoadingFallback<ezMaterialResource>(hFallbackMaterial);
     ezResourceManager::SetResourceTypeMissingFallback<ezMaterialResource>(hMissingMaterial);

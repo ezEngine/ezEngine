@@ -249,6 +249,9 @@ ezPlaySequenceAnimNode;Play Clip Sequence
 Common;Common
 MiddleClips;Middle Clips
 ezLogAnimNode;Log
+CustomAction_CreateShaderFromTemplate;Create Shader From Template...
 MaterialAsset.Model;Preview Model
+ezMaterialAssetPreview::Ball;Ball
 ezMaterialAssetPreview::Sphere;Sphere
 ezMaterialAssetPreview::Box;Box
+ezMaterialAssetPreview::Plane;Plane

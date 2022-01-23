@@ -5,6 +5,7 @@
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <EditorFramework/Gizmos/RotateGizmo.h>
 #include <EditorFramework/Gizmos/SnapProvider.h>
+#include <EditorFramework/Preferences/EditorPreferences.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRotateGizmo, 1, ezRTTINoAllocator)
@@ -12,9 +13,25 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezRotateGizmo::ezRotateGizmo()
 {
-  m_AxisX.ConfigureHandle(this, ezEngineGizmoHandleType::Ring, ezColorLinearUB(128, 0, 0), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
-  m_AxisY.ConfigureHandle(this, ezEngineGizmoHandleType::Ring, ezColorLinearUB(0, 128, 0), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
-  m_AxisZ.ConfigureHandle(this, ezEngineGizmoHandleType::Ring, ezColorLinearUB(0, 0, 128), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
+  ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
+  m_bUseExperimentalGizmo = !pPreferences->m_bOldGizmos;
+
+  if (m_bUseExperimentalGizmo)
+  {
+    const ezColor colr = ezColorGammaUB(206, 0, 46);
+    const ezColor colg = ezColorGammaUB(101, 206, 0);
+    const ezColor colb = ezColorGammaUB(0, 125, 206);
+
+    m_AxisX.ConfigureHandle(this, ezEngineGizmoHandleType::FromFile, colr, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable, "Editor/Meshes/RotatePlaneX.obj");
+    m_AxisY.ConfigureHandle(this, ezEngineGizmoHandleType::FromFile, colg, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable, "Editor/Meshes/RotatePlaneY.obj");
+    m_AxisZ.ConfigureHandle(this, ezEngineGizmoHandleType::FromFile, colb, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable, "Editor/Meshes/RotatePlaneZ.obj");
+  }
+  else
+  {
+    m_AxisX.ConfigureHandle(this, ezEngineGizmoHandleType::Ring, ezColorLinearUB(128, 0, 0), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
+    m_AxisY.ConfigureHandle(this, ezEngineGizmoHandleType::Ring, ezColorLinearUB(0, 128, 0), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
+    m_AxisZ.ConfigureHandle(this, ezEngineGizmoHandleType::Ring, ezColorLinearUB(0, 0, 128), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
+  }
 
   SetVisible(false);
   SetTransformation(ezTransform::IdentityTransform());
@@ -41,17 +58,26 @@ void ezRotateGizmo::OnVisibleChanged(bool bVisible)
 
 void ezRotateGizmo::OnTransformationChanged(const ezTransform& transform)
 {
-  ezTransform m;
-  m.SetIdentity();
+  if (m_bUseExperimentalGizmo)
+  {
+    m_AxisX.SetTransformation(transform);
+    m_AxisY.SetTransformation(transform);
+    m_AxisZ.SetTransformation(transform);
+  }
+  else
+  {
+    ezTransform m;
+    m.SetIdentity();
 
-  m.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(-90));
-  m_AxisX.SetTransformation(transform * m);
+    m.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(-90));
+    m_AxisX.SetTransformation(transform * m);
 
-  m.m_qRotation.SetFromAxisAndAngle(ezVec3(1, 0, 0), ezAngle::Degree(90));
-  m_AxisY.SetTransformation(transform * m);
+    m.m_qRotation.SetFromAxisAndAngle(ezVec3(1, 0, 0), ezAngle::Degree(90));
+    m_AxisY.SetTransformation(transform * m);
 
-  m.SetIdentity();
-  m_AxisZ.SetTransformation(transform * m);
+    m.SetIdentity();
+    m_AxisZ.SetTransformation(transform * m);
+  }
 }
 
 void ezRotateGizmo::DoFocusLost(bool bCancel)
@@ -79,17 +105,19 @@ ezEditorInput ezRotateGizmo::DoMousePressEvent(QMouseEvent* e)
   if (e->button() != Qt::MouseButton::LeftButton)
     return ezEditorInput::MayBeHandledByOthers;
 
+  const ezQuat gizmoRot = GetTransformation().m_qRotation;
+
   if (m_pInteractionGizmoHandle == &m_AxisX)
   {
-    m_vRotationAxis = m_AxisX.GetTransformation().m_qRotation * ezVec3(0, 0, 1);
+    m_vRotationAxis = gizmoRot * ezVec3(1, 0, 0);
   }
   else if (m_pInteractionGizmoHandle == &m_AxisY)
   {
-    m_vRotationAxis = m_AxisY.GetTransformation().m_qRotation * ezVec3(0, 0, 1);
+    m_vRotationAxis = gizmoRot * ezVec3(0, 1, 0);
   }
   else if (m_pInteractionGizmoHandle == &m_AxisZ)
   {
-    m_vRotationAxis = m_AxisZ.GetTransformation().m_qRotation * ezVec3(0, 0, 1);
+    m_vRotationAxis = gizmoRot * ezVec3(0, 0, 1);
   }
   else
     return ezEditorInput::MayBeHandledByOthers;

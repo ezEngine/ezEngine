@@ -5,6 +5,7 @@
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <EditorFramework/Gizmos/SnapProvider.h>
 #include <EditorFramework/Gizmos/TranslateGizmo.h>
+#include <EditorFramework/Preferences/EditorPreferences.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTranslateGizmo, 1, ezRTTINoAllocator)
@@ -15,13 +16,33 @@ ezTranslateGizmo::ezTranslateGizmo()
   m_vStartPosition.SetZero();
   m_fCameraSpeed = 0.2f;
 
-  m_AxisX.ConfigureHandle(this, ezEngineGizmoHandleType::Arrow, ezColorLinearUB(128, 0, 0), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
-  m_AxisY.ConfigureHandle(this, ezEngineGizmoHandleType::Arrow, ezColorLinearUB(0, 128, 0), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
-  m_AxisZ.ConfigureHandle(this, ezEngineGizmoHandleType::Arrow, ezColorLinearUB(0, 0, 128), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
+  ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
+  m_bUseExperimentalGizmo = !pPreferences->m_bOldGizmos;
 
-  m_PlaneXY.ConfigureHandle(this, ezEngineGizmoHandleType::Rect, ezColorLinearUB(128, 128, 255), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
-  m_PlaneXZ.ConfigureHandle(this, ezEngineGizmoHandleType::Rect, ezColorLinearUB(128, 255, 128), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
-  m_PlaneYZ.ConfigureHandle(this, ezEngineGizmoHandleType::Rect, ezColorLinearUB(255, 128, 128), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
+  if (m_bUseExperimentalGizmo)
+  {
+    const ezColor colr = ezColorGammaUB(206, 0, 46);
+    const ezColor colg = ezColorGammaUB(101, 206, 0);
+    const ezColor colb = ezColorGammaUB(0, 125, 206);
+
+    m_AxisX.ConfigureHandle(this, ezEngineGizmoHandleType::FromFile, colr, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable, "Editor/Meshes/TranslateArrowX.obj");
+    m_AxisY.ConfigureHandle(this, ezEngineGizmoHandleType::FromFile, colg, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable, "Editor/Meshes/TranslateArrowY.obj");
+    m_AxisZ.ConfigureHandle(this, ezEngineGizmoHandleType::FromFile, colb, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable, "Editor/Meshes/TranslateArrowZ.obj");
+
+    m_PlaneYZ.ConfigureHandle(this, ezEngineGizmoHandleType::FromFile, colr, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable | ezGizmoFlags::FaceCamera, "Editor/Meshes/TranslatePlaneX.obj");
+    m_PlaneXZ.ConfigureHandle(this, ezEngineGizmoHandleType::FromFile, colg, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable | ezGizmoFlags::FaceCamera, "Editor/Meshes/TranslatePlaneY.obj");
+    m_PlaneXY.ConfigureHandle(this, ezEngineGizmoHandleType::FromFile, colb, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable | ezGizmoFlags::FaceCamera, "Editor/Meshes/TranslatePlaneZ.obj");
+  }
+  else
+  {
+    m_AxisX.ConfigureHandle(this, ezEngineGizmoHandleType::Arrow, ezColorLinearUB(128, 0, 0), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
+    m_AxisY.ConfigureHandle(this, ezEngineGizmoHandleType::Arrow, ezColorLinearUB(0, 128, 0), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
+    m_AxisZ.ConfigureHandle(this, ezEngineGizmoHandleType::Arrow, ezColorLinearUB(0, 0, 128), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
+
+    m_PlaneXY.ConfigureHandle(this, ezEngineGizmoHandleType::Rect, ezColorLinearUB(128, 128, 255), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
+    m_PlaneXZ.ConfigureHandle(this, ezEngineGizmoHandleType::Rect, ezColorLinearUB(128, 255, 128), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
+    m_PlaneYZ.ConfigureHandle(this, ezEngineGizmoHandleType::Rect, ezColorLinearUB(255, 128, 128), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
+  }
 
   SetVisible(false);
   SetTransformation(ezTransform::IdentityTransform());
@@ -55,26 +76,38 @@ void ezTranslateGizmo::OnVisibleChanged(bool bVisible)
 
 void ezTranslateGizmo::OnTransformationChanged(const ezTransform& transform)
 {
-  ezTransform m;
-  m.SetIdentity();
+  if (m_bUseExperimentalGizmo)
+  {
+    m_AxisX.SetTransformation(transform);
+    m_AxisY.SetTransformation(transform);
+    m_AxisZ.SetTransformation(transform);
+    m_PlaneXY.SetTransformation(transform);
+    m_PlaneYZ.SetTransformation(transform);
+    m_PlaneXZ.SetTransformation(transform);
+  }
+  else
+  {
+    ezTransform m;
+    m.SetIdentity();
 
-  m.m_vScale.Set(2.0f);
-  m_AxisX.SetTransformation(transform * m);
+    m.m_vScale.Set(2.0f);
+    m_AxisX.SetTransformation(transform * m);
 
-  m.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(90));
-  m_AxisY.SetTransformation(transform * m);
+    m.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(90));
+    m_AxisY.SetTransformation(transform * m);
 
-  m.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(-90));
-  m_AxisZ.SetTransformation(transform * m);
+    m.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(-90));
+    m_AxisZ.SetTransformation(transform * m);
 
-  m.SetIdentity();
-  m_PlaneXY.SetTransformation(transform * m);
+    m.SetIdentity();
+    m_PlaneXY.SetTransformation(transform * m);
 
-  m.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(90));
-  m_PlaneYZ.SetTransformation(transform * m);
+    m.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(90));
+    m_PlaneYZ.SetTransformation(transform * m);
 
-  m.m_qRotation.SetFromAxisAndAngle(ezVec3(1, 0, 0), ezAngle::Degree(90));
-  m_PlaneXZ.SetTransformation(transform * m);
+    m.m_qRotation.SetFromAxisAndAngle(ezVec3(1, 0, 0), ezAngle::Degree(90));
+    m_PlaneXZ.SetTransformation(transform * m);
+  }
 
   if (!IsActiveInputContext())
   {
@@ -121,42 +154,44 @@ ezEditorInput ezTranslateGizmo::DoMousePressEvent(QMouseEvent* e)
 
   m_vLastMoveDiff.SetZero();
 
+  const ezQuat gizmoRot = GetTransformation().m_qRotation;
+
   if (m_pInteractionGizmoHandle == &m_AxisX)
   {
-    m_vMoveAxis = m_AxisX.GetTransformation().m_qRotation * ezVec3(1, 0, 0);
+    m_vMoveAxis = gizmoRot * ezVec3(1, 0, 0);
     m_Mode = TranslateMode::Axis;
   }
   else if (m_pInteractionGizmoHandle == &m_AxisY)
   {
-    m_vMoveAxis = m_AxisY.GetTransformation().m_qRotation * ezVec3(1, 0, 0);
+    m_vMoveAxis = gizmoRot * ezVec3(0, 1, 0);
     m_Mode = TranslateMode::Axis;
   }
   else if (m_pInteractionGizmoHandle == &m_AxisZ)
   {
-    m_vMoveAxis = m_AxisZ.GetTransformation().m_qRotation * ezVec3(1, 0, 0);
+    m_vMoveAxis = gizmoRot * ezVec3(0, 0, 1);
     m_Mode = TranslateMode::Axis;
   }
   else if (m_pInteractionGizmoHandle == &m_PlaneXY)
   {
-    m_vMoveAxis = m_PlaneXY.GetTransformation().m_qRotation * ezVec3(0, 0, 1);
-    m_vPlaneAxis[0] = m_PlaneXY.GetTransformation().m_qRotation * ezVec3(1, 0, 0);
-    m_vPlaneAxis[1] = m_PlaneXY.GetTransformation().m_qRotation * ezVec3(0, 1, 0);
+    m_vMoveAxis = gizmoRot * ezVec3(0, 0, 1);
+    m_vPlaneAxis[0] = gizmoRot * ezVec3(1, 0, 0);
+    m_vPlaneAxis[1] = gizmoRot * ezVec3(0, 1, 0);
     m_Mode = TranslateMode::Plane;
     m_LastPlaneInteraction = PlaneInteraction::PlaneZ;
   }
   else if (m_pInteractionGizmoHandle == &m_PlaneXZ)
   {
-    m_vMoveAxis = m_PlaneXZ.GetTransformation().m_qRotation * ezVec3(0, 0, 1);
-    m_vPlaneAxis[0] = m_PlaneXZ.GetTransformation().m_qRotation * ezVec3(1, 0, 0);
-    m_vPlaneAxis[1] = m_PlaneXZ.GetTransformation().m_qRotation * ezVec3(0, 1, 0);
+    m_vMoveAxis = gizmoRot * ezVec3(0, 1, 0);
+    m_vPlaneAxis[0] = gizmoRot * ezVec3(1, 0, 0);
+    m_vPlaneAxis[1] = gizmoRot * ezVec3(0, 0, 1);
     m_Mode = TranslateMode::Plane;
     m_LastPlaneInteraction = PlaneInteraction::PlaneY;
   }
   else if (m_pInteractionGizmoHandle == &m_PlaneYZ)
   {
-    m_vMoveAxis = m_PlaneYZ.GetTransformation().m_qRotation * ezVec3(0, 0, 1);
-    m_vPlaneAxis[0] = m_PlaneYZ.GetTransformation().m_qRotation * ezVec3(1, 0, 0);
-    m_vPlaneAxis[1] = m_PlaneYZ.GetTransformation().m_qRotation * ezVec3(0, 1, 0);
+    m_vMoveAxis = gizmoRot * ezVec3(1, 0, 0);
+    m_vPlaneAxis[0] = gizmoRot * ezVec3(0, 1, 0);
+    m_vPlaneAxis[1] = gizmoRot * ezVec3(0, 0, 1);
     m_Mode = TranslateMode::Plane;
     m_LastPlaneInteraction = PlaneInteraction::PlaneX;
   }

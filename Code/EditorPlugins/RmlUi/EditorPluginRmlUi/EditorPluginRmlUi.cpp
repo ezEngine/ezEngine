@@ -20,8 +20,8 @@ void OnLoadPlugin()
     // Menu Bar
     {
       ezActionMapManager::RegisterActionMap("RmlUiAssetMenuBar").IgnoreResult();
-      ezProjectActions::MapActions("RmlUiAssetMenuBar");
       ezStandardMenus::MapActions("RmlUiAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+      ezProjectActions::MapActions("RmlUiAssetMenuBar");
       ezDocumentActions::MapActions("RmlUiAssetMenuBar", "Menu.File", false);
       ezCommandHistoryActions::MapActions("RmlUiAssetMenuBar", "Menu.Edit");
     }

@@ -312,7 +312,7 @@ void ezReflectionPool::Data::CreateReflectionViewsAndResources()
   if (!m_hDebugSphere.IsValid())
   {
     ezGeometry geom;
-    geom.AddSphere(s_fDebugSphereRadius, 32, 16, ezColor::White);
+    geom.AddSphere(s_fDebugSphereRadius, 32, 16);
 
     const char* szBufferResourceName = "ReflectionProbeDebugSphereBuffer";
     ezMeshBufferResourceHandle hMeshBuffer = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szBufferResourceName);

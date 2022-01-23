@@ -72,7 +72,7 @@ namespace ezModelImporter2
     }
   }
 
-  static void SetMeshBoneData(ezMeshBufferResourceDescriptor& mb, ezMeshResourceDescriptor& mrd, const aiMesh* pMesh, ezUInt32 uiVertexIndexOffset, const StreamIndices& streams, bool b8BitBoneIndices)
+  static void SetMeshBoneData(ezMeshBufferResourceDescriptor& mb, ezMeshResourceDescriptor& mrd, float& inout_fMaxBoneOffset, const aiMesh* pMesh, ezUInt32 uiVertexIndexOffset, const StreamIndices& streams, bool b8BitBoneIndices)
   {
     if (!pMesh->HasBones())
       return;
@@ -126,24 +126,71 @@ namespace ezModelImporter2
     // if we come across meshes where normalization breaks them, we may need to add a user-option to select whether bone weights should be normalized
     for (ezUInt32 vtx = 0; vtx < mb.GetVertexCount(); ++vtx)
     {
+      const ezVec3 vVertexPos = *reinterpret_cast<const ezVec3*>(mb.GetVertexData(streams.uiPositions, vtx).GetPtr());
+      const ezUInt8* pBoneIndices8 = reinterpret_cast<const ezUInt8*>(mb.GetVertexData(streams.uiBoneIdx, vtx).GetPtr());
+      const ezUInt16* pBoneIndices16 = reinterpret_cast<const ezUInt16*>(mb.GetVertexData(streams.uiBoneIdx, vtx).GetPtr());
       ezUInt8* pBoneWeights = reinterpret_cast<ezUInt8*>(mb.GetVertexData(streams.uiBoneWgt, vtx).GetPtr());
 
       const ezUInt32 len = pBoneWeights[0] + pBoneWeights[1] + pBoneWeights[2] + pBoneWeights[3];
 
+      ezVec4 wgt;
+      wgt.x = ezMath::ColorByteToFloat(pBoneWeights[0]);
+      wgt.y = ezMath::ColorByteToFloat(pBoneWeights[1]);
+      wgt.z = ezMath::ColorByteToFloat(pBoneWeights[2]);
+      wgt.w = ezMath::ColorByteToFloat(pBoneWeights[3]);
+
       if (len > 255)
       {
-        ezVec4 wgt;
-        wgt.x = ezMath::ColorByteToFloat(pBoneWeights[0]);
-        wgt.y = ezMath::ColorByteToFloat(pBoneWeights[1]);
-        wgt.z = ezMath::ColorByteToFloat(pBoneWeights[2]);
-        wgt.w = ezMath::ColorByteToFloat(pBoneWeights[3]);
-
         wgt /= (len / 255.0f);
 
         pBoneWeights[0] = ezMath::ColorFloatToByte(wgt.x);
         pBoneWeights[1] = ezMath::ColorFloatToByte(wgt.y);
         pBoneWeights[2] = ezMath::ColorFloatToByte(wgt.z);
         pBoneWeights[3] = ezMath::ColorFloatToByte(wgt.w);
+      }
+
+      // also find the maximum distance of any vertex to its influencing bones
+      // this is used to adjust the bounding box for culling at runtime
+      // ie. we can compute the bounding box from a pose, but that only covers the skeleton, not the full mesh
+      // so we then grow the bbox by this maximum distance
+      // that usually creates a far larger bbox than necessary, but means there are no culling artifacts
+
+      ezUInt16 uiBoneId[4] = {0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF};
+
+      if (b8BitBoneIndices)
+      {
+        uiBoneId[0] = pBoneIndices8[0];
+        uiBoneId[1] = pBoneIndices8[1];
+        uiBoneId[2] = pBoneIndices8[2];
+        uiBoneId[3] = pBoneIndices8[3];
+      }
+      else
+      {
+        uiBoneId[0] = pBoneIndices16[0];
+        uiBoneId[1] = pBoneIndices16[1];
+        uiBoneId[2] = pBoneIndices16[2];
+        uiBoneId[3] = pBoneIndices16[3];
+      }
+
+      for (const auto& bone : mrd.m_Bones)
+      {
+        for (int b = 0; b < 4; ++b)
+        {
+          if (wgt.GetData()[b] < 0.2f) // only look at bones that have a proper weight
+            continue;
+
+          if (bone.Value().m_uiBoneIndex == uiBoneId[b])
+          {
+            // move the vertex into local space of the bone, then determine how far it is away from the bone
+            const ezVec3 vOffPos = bone.Value().m_GlobalInverseBindPoseMatrix * vVertexPos;
+            const float len = vOffPos.GetLength();
+
+            if (len > inout_fMaxBoneOffset)
+            {
+              inout_fMaxBoneOffset = len;
+            }
+          }
+        }
       }
     }
   }
@@ -508,7 +555,7 @@ namespace ezModelImporter2
 
         if (m_Options.m_bImportSkinningData)
         {
-          SetMeshBoneData(mb, *m_Options.m_pMeshOutput, mi.m_pMesh, uiMeshCurVertexIdx, streams, b8BitBoneIndices);
+          SetMeshBoneData(mb, *m_Options.m_pMeshOutput, m_Options.m_pMeshOutput->m_fMaxBoneVertexOffset, mi.m_pMesh, uiMeshCurVertexIdx, streams, b8BitBoneIndices);
         }
 
         SetMeshTriangleIndices(mb, mi.m_pMesh, uiMeshCurTriangleIdx, uiMeshCurVertexIdx, bFlipTriangles);

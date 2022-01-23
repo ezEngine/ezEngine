@@ -9,6 +9,7 @@
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererFoundation/Device/Device.h>
 
+#include <RendererCore/RenderWorld/RenderWorld.h>
 #include <ozz/animation/runtime/local_to_model_job.h>
 #include <ozz/animation/runtime/skeleton.h>
 #include <ozz/base/containers/vector.h>
@@ -73,6 +74,8 @@ void ezAnimatedMeshComponent::OnDeactivated()
 
 void ezAnimatedMeshComponent::InitializeAnimationPose()
 {
+  m_MaxBounds.SetInvalid();
+
   if (!m_hMesh.IsValid())
     return;
 
@@ -97,7 +100,7 @@ void ezAnimatedMeshComponent::InitializeAnimationPose()
 
     {
       ozz::animation::LocalToModelJob job;
-      job.input = pOzzSkeleton->joint_bind_poses();
+      job.input = pOzzSkeleton->joint_rest_poses();
       job.output = ozz::span<ozz::math::Float4x4>(reinterpret_cast<ozz::math::Float4x4*>(pPoseMatrices.GetPtr()), reinterpret_cast<ozz::math::Float4x4*>(pPoseMatrices.GetEndPtr()));
       job.skeleton = pOzzSkeleton;
       job.Run();
@@ -131,7 +134,20 @@ void ezAnimatedMeshComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& 
 
   ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::BlockTillLoaded);
 
-  m_SkinningSpacePose.MapModelSpacePoseToSkinningSpace(pMesh->m_Bones, *msg.m_pSkeleton, msg.m_ModelTransforms);
+  ezBoundingBox poseBounds;
+  poseBounds.SetInvalid();
+  m_SkinningSpacePose.MapModelSpacePoseToSkinningSpace(pMesh->m_Bones, *msg.m_pSkeleton, msg.m_ModelTransforms, &poseBounds);
+
+  if (!m_MaxBounds.IsValid() || !m_MaxBounds.Contains(poseBounds))
+  {
+    m_MaxBounds.ExpandToInclude(poseBounds);
+    TriggerLocalBoundsUpdate();
+  }
+  else if (((ezRenderWorld::GetFrameCounter() + GetUniqueIdForRendering()) & (EZ_BIT(10) - 1)) == 0) // reset the bbox every once in a while
+  {
+    m_MaxBounds = poseBounds;
+    TriggerLocalBoundsUpdate();
+  }
 
   UpdateSkinningTransformBuffer(m_SkinningSpacePose.m_Transforms);
 }
@@ -152,27 +168,18 @@ void ezAnimatedMeshComponent::OnQueryAnimationSkeleton(ezMsgQueryAnimationSkelet
 
 ezResult ezAnimatedMeshComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
 {
-  if (m_hMesh.IsValid())
-  {
-    ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::AllowLoadingFallback);
-    bounds = pMesh->GetBounds();
+  if (!m_MaxBounds.IsValid())
+    return EZ_FAILURE;
 
-    const auto hSkeleton = pMesh->m_hDefaultSkeleton;
+  ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::BlockTillLoaded);
+  if (pMesh.GetAcquireResult() != ezResourceAcquireResult::Final)
+    return EZ_FAILURE;
 
-    if (hSkeleton.IsValid())
-    {
-      ezResourceLock<ezSkeletonResource> pSkeleton(hSkeleton, ezResourceAcquireMode::BlockTillLoaded);
-      if (pSkeleton.GetAcquireResult() == ezResourceAcquireResult::Final)
-      {
-        m_RootTransform = pSkeleton->GetDescriptor().m_RootTransform;
-      }
-    }
-
-    bounds.Transform(m_RootTransform.GetAsMat4());
-    return EZ_SUCCESS;
-  }
-
-  return EZ_FAILURE;
+  ezBoundingBox bbox = m_MaxBounds;
+  bbox.Grow(ezVec3(pMesh->m_fMaxBoneVertexOffset));
+  bounds = bbox;
+  bounds.Transform(m_RootTransform.GetAsMat4());
+  return EZ_SUCCESS;
 }
 
 void ezRootMotionMode::Apply(ezRootMotionMode::Enum mode, ezGameObject* pObject, const ezVec3& translation, ezAngle rotationX, ezAngle rotationY, ezAngle rotationZ)

@@ -41,6 +41,8 @@ private:
   ezTime m_LastInteraction;
   ezVec3 m_vMoveAxis;
   ezMat4 m_InvViewProj;
+
+  bool m_bUseExperimentalGizmo = false;
 };
 
 /// \brief Scale gizmo version that only uses boxes that can be composited with

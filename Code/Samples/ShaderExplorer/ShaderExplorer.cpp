@@ -387,7 +387,9 @@ void ezShaderExplorerApp::BeforeHighLevelSystemsShutdown()
 void ezShaderExplorerApp::CreateScreenQuad()
 {
   ezGeometry geom;
-  geom.AddRectXY(ezVec2(2, 2), ezColor::Black);
+  ezGeometry::GeoOptions opt;
+  opt.m_Color = ezColor::Black;
+  geom.AddRectXY(ezVec2(2, 2), 1, 1, opt);
 
   ezMeshBufferResourceDescriptor desc;
   desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);

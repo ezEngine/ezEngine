@@ -30,11 +30,24 @@ Color BaseColor @Default(Color(1.0, 1.0, 1.0));
 
 DepthWrite = false
 
+[SHADER]
+
+#include <Shaders/Common/GlobalConstants.h>
+
+CONSTANT_BUFFER(ezMaterialConstants, 1)
+{
+  COLOR4F(BaseColor);
+  FLOAT1(MaskThreshold);
+  FLOAT1(ExposureBias);
+  BOOL1(InverseTonemap);
+  BOOL1(UseFog);
+  FLOAT1(VirtualDistance);
+};
+
 [VERTEXSHADER]
 
 #define CUSTOM_INTERPOLATOR float3 ViewDirection : TEXCOORD0;
 
-#include <Shaders/Materials/SkyMaterialCB.h>
 #include <Shaders/Materials/MaterialVertexShader.h>
 
 VS_OUT main(VS_IN Input)
@@ -69,7 +82,6 @@ void CopyCustomInterpolators(GS_OUT output, VS_OUT input)
 
 #define CUSTOM_INTERPOLATOR float3 ViewDirection : TEXCOORD0;
 
-#include <Shaders/Materials/SkyMaterialCB.h>
 #include <Shaders/Materials/MaterialPixelShader.h>
 
 TextureCube CubeMap;

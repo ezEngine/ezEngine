@@ -1,8 +1,8 @@
-#include <GameEngine/GameEnginePCH.h>
+#include <Core/CorePCH.h>
 
+#include <Core/Physics/SurfaceResource.h>
 #include <Core/Prefabs/PrefabResource.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
-#include <GameEngine/Physics/SurfaceResource.h>
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezSurfaceInteractionAlignment, 2)
@@ -290,7 +290,3 @@ public:
 };
 
 ezSurfaceResourceDescriptorPatch_1_2 g_ezSurfaceResourceDescriptorPatch_1_2;
-
-
-
-EZ_STATICLINK_FILE(GameEngine, GameEngine_Physics_Implementation_SurfaceResourceDescriptor);

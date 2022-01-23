@@ -156,8 +156,7 @@ void ezPxRevoluteJointComponent::SetDriveTorque(float f)
   QueueApplySettings();
 }
 
-void ezPxRevoluteJointComponent::CreateJointType(
-  PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1, const PxTransform& localFrame1)
+void ezPxRevoluteJointComponent::CreateJointType(PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1, const PxTransform& localFrame1)
 {
   m_pJoint = PxRevoluteJointCreate(*(ezPhysX::GetSingleton()->GetPhysXAPI()), actor0, localFrame0, actor1, localFrame1);
 }

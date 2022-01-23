@@ -25,6 +25,8 @@ protected:
   ezQuat GetRotation();
   ezVec3 GetScale();
 
+  virtual ezTransform GetOffsetTransform() const override;
+
   ezTranslateGizmo m_TranslateGizmo;
   ezRotateGizmo m_RotateGizmo;
   ezManipulatorScaleGizmo m_ScaleGizmo;

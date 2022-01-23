@@ -25,6 +25,16 @@ int ReflectionProbeIndex @Default(0);
 
 #define USE_NORMAL
 
+[SHADER]
+
+#include <Shaders/Common/GlobalConstants.h>
+
+CONSTANT_BUFFER(ezMaterialConstants, 1)
+{
+  INT1(MipLevel);
+  INT1(ReflectionProbeIndex);
+};
+
 [VERTEXSHADER]
 
 #include <Shaders/Materials/MaterialVertexShader.h>
@@ -40,7 +50,6 @@ VS_OUT main(VS_IN Input)
 
 [PIXELSHADER]
 
-#include <Shaders/Materials/ReflectionProbeVisualizationCB.h>
 #include <Shaders/Materials/MaterialPixelShader.h>
 
 float3 GetNormal()

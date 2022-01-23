@@ -4,18 +4,18 @@
 #include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Types/Status.h>
 
-void ezResult::AssertSuccess(const char* msg /*= nullptr*/) const
+void ezResult::AssertSuccess(const char* msg /*= nullptr*/, const char* details /*= nullptr*/) const
 {
   if (Succeeded())
     return;
 
   if (msg)
   {
-    EZ_REPORT_FAILURE("An operation failed unexpectedly.");
+    EZ_REPORT_FAILURE(msg, details);
   }
   else
   {
-    EZ_REPORT_FAILURE("An operation failed unexpectedly: {}", msg);
+    EZ_REPORT_FAILURE("An operation failed unexpectedly.");
   }
 }
 

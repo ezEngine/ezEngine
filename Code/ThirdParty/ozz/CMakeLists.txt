@@ -18,6 +18,8 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE OZZ_BUILD_ANIMATION_LIB)
 target_compile_definitions(${PROJECT_NAME} PRIVATE OZZ_BUILD_GEOMETRY_LIB)
 target_compile_definitions(${PROJECT_NAME} PRIVATE OZZ_BUILD_ANIMOFFLINE_LIB)
 target_compile_definitions(${PROJECT_NAME} PRIVATE OZZ_BUILD_ANIMATIONTOOLS_LIB)
+target_compile_definitions(${PROJECT_NAME} PRIVATE OZZ_BUILD_ANIMATIONFBX_LIB)
+target_compile_definitions(${PROJECT_NAME} PRIVATE OZZ_BUILD_OPTIONS_LIB)
 
 if(EZ_CMAKE_PLATFORM_WINDOWS)
   target_compile_options(${PROJECT_NAME} PRIVATE /wd4661)

@@ -189,16 +189,26 @@ void ezSimpleAnimationComponent::Update()
 
   // inform child nodes/components that a new pose is available
   {
-    ezMsgAnimationPoseUpdated msg;
+    ezMsgAnimationPoseProposal msg;
     msg.m_pRootTransform = &pSkeleton->GetDescriptor().m_RootTransform;
     msg.m_pSkeleton = &pSkeleton->GetDescriptor().m_Skeleton;
     msg.m_ModelTransforms = pose;
 
     GetOwner()->SendMessageRecursive(msg);
 
-    if (msg.m_bContinueAnimating == false)
+    if (msg.m_bContinueAnimating)
     {
-      SetActiveFlag(false);
+      ezMsgAnimationPoseUpdated msg;
+      msg.m_pRootTransform = &pSkeleton->GetDescriptor().m_RootTransform;
+      msg.m_pSkeleton = &pSkeleton->GetDescriptor().m_Skeleton;
+      msg.m_ModelTransforms = pose;
+
+      GetOwner()->SendMessageRecursive(msg);
+
+      if (msg.m_bContinueAnimating == false)
+      {
+        SetActiveFlag(false);
+      }
     }
   }
 }

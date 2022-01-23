@@ -70,8 +70,8 @@ void ezSkeleton::Save(ezStreamWriter& stream) const
     stream << m_Joints[i].m_uiParentIndex;
     stream << m_Joints[i].m_BindPoseLocal;
 
-    stream << m_Joints[i].m_LimitRotation;
-    stream << m_Joints[i].m_HalfSwingLimitX;
+    stream << m_Joints[i].m_qLocalJointOrientation;
+    stream << m_Joints[i].m_HalfSwingLimitZ;
     stream << m_Joints[i].m_HalfSwingLimitY;
     stream << m_Joints[i].m_TwistLimitLow;
     stream << m_Joints[i].m_TwistLimitHigh;
@@ -103,8 +103,8 @@ void ezSkeleton::Load(ezStreamReader& stream)
 
     if (version >= 5)
     {
-      stream >> m_Joints[i].m_LimitRotation;
-      stream >> m_Joints[i].m_HalfSwingLimitX;
+      stream >> m_Joints[i].m_qLocalJointOrientation;
+      stream >> m_Joints[i].m_HalfSwingLimitZ;
       stream >> m_Joints[i].m_HalfSwingLimitY;
       stream >> m_Joints[i].m_TwistLimitLow;
       stream >> m_Joints[i].m_TwistLimitHigh;

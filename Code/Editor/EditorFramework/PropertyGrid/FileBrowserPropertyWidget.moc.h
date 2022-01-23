@@ -18,6 +18,7 @@ protected slots:
   void on_TextFinished_triggered();
   void on_TextChanged_triggered(const QString& value);
   void OnOpenExplorer();
+  void OnCustomAction();
   void OnOpenFile();
 
 protected:

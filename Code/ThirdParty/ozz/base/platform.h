@@ -41,59 +41,12 @@
 #include <cassert>
 #include <cstddef>
 
-#ifdef OZZ_USE_DYNAMIC_LINKING
-    #ifdef OZZ_BUILD_BASE_LIB
-        // export for dynamic linking while building ozz
-        #define OZZ_BASE_DLL __declspec(dllexport)
-    #else
-        // import for dynamic linking when just using ozz
-        #define OZZ_BASE_DLL __declspec(dllimport)
-    #endif()
-#else
-    // static linking
-    #define OZZ_BASE_DLL
-#endif
-
-#ifdef OZZ_USE_DYNAMIC_LINKING
-    #ifdef OZZ_BUILD_ANIMATION_LIB
-        // export for dynamic linking while building ozz
-        #define OZZ_ANIMATION_DLL __declspec(dllexport)
-    #else
-        // import for dynamic linking when just using ozz
-        #define OZZ_ANIMATION_DLL __declspec(dllimport)
-    #endif()
-#else
-    // static linking
-    #define OZZ_ANIMATION_DLL
-#endif
-
-#ifdef OZZ_USE_DYNAMIC_LINKING
-    #ifdef OZZ_BUILD_ANIMOFFLINE_LIB
-        // export for dynamic linking while building ozz
-        #define OZZ_ANIMOFFLINE_DLL __declspec(dllexport)
-    #else
-        // import for dynamic linking when just using ozz
-        #define OZZ_ANIMOFFLINE_DLL __declspec(dllimport)
-    #endif()
-#else
-    // static linking
-    #define OZZ_ANIMOFFLINE_DLL
-#endif
-
-#ifdef OZZ_USE_DYNAMIC_LINKING
-    #ifdef OZZ_BUILD_ANIMATIONTOOLS_LIB
-        // export for dynamic linking while building ozz
-        #define OZZ_ANIMTOOLS_DLL __declspec(dllexport)
-    #else
-        // import for dynamic linking when just using ozz
-        #define OZZ_ANIMTOOLS_DLL __declspec(dllimport)
-    #endif()
-#else
-    // static linking
-    #define OZZ_ANIMTOOLS_DLL
-#endif
+#include "ozz/base/export.h"
 
 namespace ozz {
+
+// Defines a byte type, unsigned so right shift  doesn't propagate sign bit.
+typedef uint8_t byte;
 
 // Finds the number of elements of a statically allocated array.
 #define OZZ_ARRAY_SIZE(_array) (sizeof(_array) / sizeof(_array[0]))

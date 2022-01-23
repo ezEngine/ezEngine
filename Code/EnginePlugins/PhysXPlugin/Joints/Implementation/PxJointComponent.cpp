@@ -202,8 +202,7 @@ void ezPxJointComponent::SetChildActorAnchor(ezGameObjectHandle hActor)
   m_hActorBAnchor = hActor;
 }
 
-void ezPxJointComponent::SetActors(
-  ezGameObjectHandle hActorA, const ezTransform& localFrameA, ezGameObjectHandle hActorB, const ezTransform& localFrameB)
+void ezPxJointComponent::SetActors(ezGameObjectHandle hActorA, const ezTransform& localFrameA, ezGameObjectHandle hActorB, const ezTransform& localFrameB)
 {
   m_hActorA = hActorA;
   m_hActorB = hActorB;

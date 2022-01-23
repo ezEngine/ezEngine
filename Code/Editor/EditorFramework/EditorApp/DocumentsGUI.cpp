@@ -3,13 +3,6 @@
 #include <EditorFramework/Dialogs/DashboardDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 
-void ezQtEditorApp::InternalGuiOpenDashboard()
-{
-  ezQtDashboardDlg dlg(nullptr);
-
-  dlg.exec();
-}
-
 void ezQtEditorApp::GuiCreateOrOpenDocument(bool bCreate)
 {
   const ezString sAllFilters = BuildDocumentTypeFileFilter(bCreate);

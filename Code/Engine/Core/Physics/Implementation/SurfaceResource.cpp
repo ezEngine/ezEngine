@@ -1,10 +1,10 @@
-#include <GameEngine/GameEnginePCH.h>
+#include <Core/CorePCH.h>
 
 #include <Core/Assets/AssetFileHeader.h>
 #include <Core/Messages/ApplyOnlyToMessage.h>
 #include <Core/Messages/CommonMessages.h>
+#include <Core/Physics/SurfaceResource.h>
 #include <Core/Prefabs/PrefabResource.h>
-#include <GameEngine/Physics/SurfaceResource.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSurfaceResource, 1, ezRTTIDefaultAllocator<ezSurfaceResource>)
@@ -342,5 +342,3 @@ bool ezSurfaceResource::IsBasedOn(const ezSurfaceResourceHandle hThisOrBaseSurfa
 
   return IsBasedOn(pThisOrBaseSurface.GetPointer());
 }
-
-EZ_STATICLINK_FILE(GameEngine, GameEngine_Physics_Implementation_SurfaceResource);

@@ -10,6 +10,7 @@ struct ezMsgPhysicsAddForce;
 struct ezSkeletonResourceGeometry;
 class ezPxUserData;
 class ezSkeletonJoint;
+struct ezMsgAnimationPoseProposal;
 
 namespace physx
 {
@@ -24,7 +25,7 @@ namespace physx
 using ezSkeletonResourceHandle = ezTypedResourceHandle<class ezSkeletonResource>;
 using ezSurfaceResourceHandle = ezTypedResourceHandle<class ezSurfaceResource>;
 
-using ezPxRagdollComponentManager = ezComponentManagerSimple<class ezPxRagdollComponent, ezComponentUpdateType::WhenSimulating, ezBlockStorageType::Compact>;
+//using ezPxRagdollComponentManager = ezComponentManagerSimple<class ezPxRagdollComponent, ezComponentUpdateType::WhenSimulating, ezBlockStorageType::Compact>;
 
 struct ezPxRagdollStart
 {
@@ -34,13 +35,40 @@ struct ezPxRagdollStart
   {
     BindPose,
     WaitForPose,
-    WaitForPoseAndVelocity,
     Wait,
     Default = BindPose
   };
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_PHYSXPLUGIN_DLL, ezPxRagdollStart);
+
+//////////////////////////////////////////////////////////////////////////
+
+struct EZ_PHYSXPLUGIN_DLL ezPxRagdollConstraint : public ezReflectedClass
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezPxRagdollConstraint, ezReflectedClass);
+
+  ezString m_sBone;
+  ezVec3 m_vRelativePosition;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+class EZ_PHYSXPLUGIN_DLL ezPxRagdollComponentManager : public ezComponentManager<class ezPxRagdollComponent, ezBlockStorageType::FreeList>
+{
+public:
+  ezPxRagdollComponentManager(ezWorld* pWorld);
+  ~ezPxRagdollComponentManager();
+
+  virtual void Initialize() override;
+
+private:
+  friend class ezPhysXWorldModule;
+
+  void UpdateRagdolls(const ezWorldModule::UpdateContext& context);
+};
+
+//////////////////////////////////////////////////////////////////////////
 
 class EZ_PHYSXPLUGIN_DLL ezPxRagdollComponent : public ezPxComponent
 {
@@ -66,16 +94,13 @@ public:
 
   ezUInt32 GetShapeId() const { return m_uiShapeID; } // [ scriptable ]
 
-  void OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& msg); // [ msg handler ]
+  void OnAnimationPoseProposal(ezMsgAnimationPoseProposal& msg); // [ msg handler ]
+  void OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& msg);   // [ msg handler ]
 
   bool GetDisableGravity() const { return m_bDisableGravity; } // [ property ]
   void SetDisableGravity(bool b);                              // [ property ]
 
-  void SetSurfaceFile(const char* szFile); // [ property ]
-  const char* GetSurfaceFile() const;      // [ property ]
-
-  ezUInt8 m_uiCollisionLayer = 0; // [ property ]
-  bool m_bSelfCollision = false;  // [ property ]
+  bool m_bSelfCollision = false; // [ property ]
 
   void AddImpulseAtPos(ezMsgPhysicsAddImpulse& msg); // [ message ]
   void AddForceAtPos(ezMsgPhysicsAddForce& msg);     // [ message ]
@@ -87,44 +112,42 @@ protected:
     ezTransform m_GlobalTransform;
   };
 
+  struct BoneData
+  {
+    physx::PxArticulationLink* m_pLink = nullptr;
+    ezHashedString m_sBoneName;
+  };
+
   void CreatePhysicsShapes(const ezSkeletonResourceHandle& hSkeleton, ezMsgAnimationPoseUpdated& poseMsg);
   void DestroyPhysicsShapes();
   void UpdatePose();
   void Update();
   void CreateShapesFromBindPose();
   void AddArticulationToScene();
-  void CreateBoneShape(const ezTransform& rootTransform, physx::PxRigidActor& actor, const ezSkeletonResourceGeometry& geo, const physx::PxMaterial& pxMaterial, const physx::PxFilterData& pxFilterData, ezPxUserData* pPxUserData);
-  void CreateBoneLink(ezUInt16 uiBoneIdx, const ezSkeletonJoint& bone, ezPxUserData* pPxUserData, LinkData& thisLink, const LinkData& parentLink, ezMsgAnimationPoseUpdated& poseMsg);
-
-  physx::PxMaterial* GetPxMaterial();
-  physx::PxFilterData CreateFilterData();
-
-  ezSurfaceResourceHandle m_hSurface;
+  void CreateBoneShape(const ezTransform& rootTransform, ezBasisAxis::Enum srcBoneDir, physx::PxRigidActor& actor, const ezSkeletonResourceGeometry& geo, ezPxUserData* pPxUserData);
+  void CreateBoneLink(ezUInt16 uiBoneIdx, const ezSkeletonJoint& bone, ezBasisAxis::Enum srcBoneDir, ezPxUserData* pPxUserData, LinkData& thisLink, const LinkData& parentLink, ezMsgAnimationPoseUpdated& poseMsg);
+  void CreateConstraints();
 
   bool m_bShapesCreated = false;
-  bool m_bHasFirstState = false;
   bool m_bDisableGravity = false;
   ezUInt32 m_uiShapeID = ezInvalidIndex;
   ezUInt32 m_uiUserDataIndex = ezInvalidIndex;
 
-  struct ArtLink
-  {
-    physx::PxArticulationLink* m_pLink = nullptr;
-  };
-
   struct Impulse
   {
-    ezVec3 m_vPos;
-    ezVec3 m_vImpulse;
+    ezVec3 m_vPos = ezVec3::ZeroVector();
+    ezVec3 m_vImpulse = ezVec3::ZeroVector();
+    physx::PxArticulationLink* m_pTargetLink = nullptr;
   };
 
-
-  ezHybridArray<Impulse, 8> m_Impulses;
+  Impulse m_NextImpulse;
+  ezDynamicArray<ezPxRagdollConstraint> m_Constraints;
 
   ezEnum<ezPxRagdollStart> m_Start;
   physx::PxArticulationLink* m_pRootLink = nullptr;
-  ezDynamicArray<ArtLink> m_ArticulationLinks;
-  //ezDynamicArray<ezVec3> m_vLastPos;
+  ezTransform m_RootLinkLocalTransform;
+  ezDynamicArray<BoneData> m_ArticulationLinks;
+  ezDynamicArray<ezMat4> m_JointPoses;
 
   ezSkeletonResourceHandle m_hSkeleton;
   physx::PxAggregate* m_pAggregate = nullptr;

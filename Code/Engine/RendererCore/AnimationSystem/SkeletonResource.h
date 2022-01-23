@@ -1,9 +1,12 @@
 #pragma once
 
 #include <Core/ResourceManager/Resource.h>
+#include <Core/ResourceManager/ResourceHandle.h>
 #include <RendererCore/AnimationSystem/Declarations.h>
 #include <RendererCore/AnimationSystem/Skeleton.h>
 #include <RendererCore/RendererCoreDLL.h>
+
+using ezSurfaceResourceHandle = ezTypedResourceHandle<class ezSurfaceResource>;
 
 struct ezSkeletonResourceGeometry
 {
@@ -12,7 +15,7 @@ struct ezSkeletonResourceGeometry
   ezUInt16 m_uiAttachedToJoint = 0;
   ezEnum<ezSkeletonJointGeometryType> m_Type;
   ezHashedString m_sName;
-  ezHashedString m_sSurface;
+  ezSurfaceResourceHandle m_hSurface;
   ezUInt8 m_uiCollisionLayer = 0;
 };
 

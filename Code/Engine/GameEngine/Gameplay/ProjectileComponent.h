@@ -1,9 +1,9 @@
 #pragma once
 
+#include <Core/Physics/SurfaceResource.h>
 #include <Core/World/Component.h>
 #include <Core/World/World.h>
 #include <GameEngine/GameEngineDLL.h>
-#include <GameEngine/Physics/SurfaceResource.h>
 
 struct ezMsgComponentInternalTrigger;
 

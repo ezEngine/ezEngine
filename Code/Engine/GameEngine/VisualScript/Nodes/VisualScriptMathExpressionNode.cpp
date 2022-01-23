@@ -48,7 +48,7 @@ void ezVisualScriptNode_MathExpression::Execute(ezVisualScriptInstance* pInstanc
         {s_sD, static_cast<float>(m_ValueD)},
       };
 
-    const float result = m_MathExpression.Evaluate(inputs);
+    const double result = m_MathExpression.Evaluate(inputs);
     pInstance->SetOutputPinValue(this, 0, &result);
   }
 }

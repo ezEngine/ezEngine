@@ -161,7 +161,7 @@ void ezMsgExtractGeometry::AddBox(const ezTransform& transform, ezVec3 vExtents)
   if (hBoxMesh.IsValid() == false)
   {
     ezGeometry geom;
-    geom.AddBox(ezVec3(1), ezColor::White);
+    geom.AddBox(ezVec3(1), false);
     geom.TriangulatePolygons();
     geom.ComputeTangents();
 

@@ -319,7 +319,7 @@ ezResult ezKrautTreeComponent::CreateGeometry(ezGeometry& geo, ezWorldGeoExtract
     // TODO: instead of triangle geometry it would maybe be better to use actual physics capsules
 
     // due to 'transform' this will already include the tree scale
-    geo.AddCylinderOnePiece(details.m_fStaticColliderRadius, details.m_fStaticColliderRadius, fTreeHeight, 0.0f, 8, ezColor::White);
+    geo.AddCylinderOnePiece(details.m_fStaticColliderRadius, details.m_fStaticColliderRadius, fTreeHeight, 0.0f, 8);
 
     geo.TriangulatePolygons();
   }
