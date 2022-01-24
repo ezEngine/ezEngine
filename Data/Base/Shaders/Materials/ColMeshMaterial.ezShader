@@ -10,7 +10,7 @@ TWO_SIDED = FALSE
 FLIP_WINDING = FALSE
 SHADING_MODE = SHADING_MODE_FULLBRIGHT
 SHADING_QUALITY = SHADING_QUALITY_NORMAL
-CAMERA_MODE = CAMERA_MODE_PERSPECTIVE
+CAMERA_MODE
 
 [RENDERSTATE]
 
@@ -44,6 +44,9 @@ struct GS_OUT
   float3 Normal : NORMAL;
   float3 Barycentric : TEXCOORD0;
   uint InstanceID : SV_InstanceID;
+#if CAMERA_MODE == CAMERA_MODE_STEREO
+  uint RenderTargetArrayIndex : SV_RenderTargetArrayIndex;
+#endif
 };
 
 [maxvertexcount(3)]
@@ -62,7 +65,9 @@ void main( triangle GS_IN input[3], inout TriangleStream<GS_OUT> outputStream )
     output.Normal = normal;
     output.Barycentric = float3(i==0, i==1, i==2);
     output.InstanceID = input[i].InstanceID;
-
+#if CAMERA_MODE == CAMERA_MODE_STEREO
+    output.RenderTargetArrayIndex = input[i].InstanceID % 2;
+#endif
     outputStream.Append(output);
   }
 

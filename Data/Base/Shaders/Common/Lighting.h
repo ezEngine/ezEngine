@@ -9,7 +9,7 @@
 #include <Shaders/Common/AmbientCubeBasis.h>
 #include <Shaders/Common/BRDF.h>
 
-Texture2D SSAOTexture;
+Texture2DArray SSAOTexture;
 
 Texture2D ShadowAtlasTexture;
 SamplerComparisonState ShadowSampler;
@@ -23,8 +23,8 @@ TextureCubeArray ReflectionSpecularTexture;
 Texture2D SkyIrradianceTexture;
 #define NUM_REFLECTION_MIPS 6
 
-Texture2D SceneDepth;
-Texture2D SceneColor;
+Texture2DArray SceneDepth;
+Texture2DArray SceneColor;
 SamplerState SceneColorSampler;
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -68,20 +68,20 @@ float MicroShadow(float occlusion, float3 normal, float3 lightDir)
 
 float3 SampleSceneColor(float2 screenPosition)
 {
-  float3 sceneColor = SceneColor.SampleLevel(SceneColorSampler, screenPosition.xy * ViewportSize.zw, 0.0f).rgb;
+  float3 sceneColor = SceneColor.SampleLevel(SceneColorSampler, float3(screenPosition.xy * ViewportSize.zw, s_ActiveCameraEyeIndex), 0.0f).rgb;
   return sceneColor;
 }
 
 float SampleSceneDepth(float2 screenPosition)
 {
-  float depthFromZBuffer = SceneDepth.SampleLevel(PointClampSampler, screenPosition.xy * ViewportSize.zw, 0.0f).r;
+  float depthFromZBuffer = SceneDepth.SampleLevel(PointClampSampler, float3(screenPosition.xy * ViewportSize.zw, s_ActiveCameraEyeIndex), 0.0f).r;
   return LinearizeZBufferDepth(depthFromZBuffer);
 }
 
 float3 SampleScenePosition(float2 screenPosition)
 {
   float2 normalizedScreenPosition = screenPosition.xy * ViewportSize.zw;
-  float depthFromZBuffer = SceneDepth.SampleLevel(PointClampSampler, normalizedScreenPosition, 0.0f).r;
+  float depthFromZBuffer = SceneDepth.SampleLevel(PointClampSampler, float3(normalizedScreenPosition, s_ActiveCameraEyeIndex), 0.0f).r;
   float4 fullScreenPosition = float4(normalizedScreenPosition * float2(2.0f, -2.0f) + float2(-1.0f, 1.0f), depthFromZBuffer, 1.0f);
   float4 scenePosition = mul(GetScreenToWorldMatrix(), fullScreenPosition);
   return scenePosition.xyz / scenePosition.w;
@@ -107,7 +107,7 @@ float SampleSSAO(float3 screenPosition)
   };
 
 #if 0
-  return SSAOTexture.SampleLevel(PointClampSampler, screenPosition.xy * ViewportSize.zw, 0.0f).r;
+  return SSAOTexture.SampleLevel(PointClampSampler, float3(screenPosition.xy * ViewportSize.zw, s_ActiveCameraEyeIndex), 0.0f).r;
 #else
   float totalSSAO = 0.0f;
   float totalWeight = 0.0f;
@@ -116,7 +116,7 @@ float SampleSSAO(float3 screenPosition)
   for (int i = 0; i < 5; ++i)
   {
     float2 samplePos = (screenPosition.xy + offsets[i]) * ViewportSize.zw;
-    float2 ssaoAndDepth = SSAOTexture.SampleLevel(PointClampSampler, samplePos, 0.0f).rg;
+    float2 ssaoAndDepth = SSAOTexture.SampleLevel(PointClampSampler, float3(samplePos, s_ActiveCameraEyeIndex), 0.0f).rg;
     float weight = saturate(1 - abs(screenPosition.z - ssaoAndDepth.y) * 2.0f);
 
     totalSSAO += ssaoAndDepth.x * weight;
@@ -699,7 +699,7 @@ float4 CalculateRefraction(float3 worldPosition, float3 worldNormal, float IoR, 
   projectedRefractVector.xy /= projectedRefractVector.w;
 
   float2 refractCoords = projectedRefractVector.xy * float2(0.5f, -0.5f) + 0.5f;
-  float3 refractionColor = SceneColor.SampleLevel(SceneColorSampler, refractCoords, 0.0f).rgb;
+  float3 refractionColor = SceneColor.SampleLevel(SceneColorSampler, float3(refractCoords, s_ActiveCameraEyeIndex), 0.0f).rgb;
 
   float fresnel = pow(1.0f - NdotV, 5.0f);
   refractionColor *= tintColor * (1.0f - fresnel);

@@ -35,7 +35,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezTonemapPass::ezTonemapPass()
-  : ezRenderPipelinePass("TonemapPass")
+  : ezRenderPipelinePass("TonemapPass", true)
 {
   m_hVignettingTexture = ezResourceManager::LoadResource<ezTexture2DResource>("White.color");
   m_hNoiseTexture = ezResourceManager::LoadResource<ezTexture2DResource>("Textures/BlueNoise.dds");
@@ -78,6 +78,7 @@ bool ezTonemapPass::GetRenderTargetDescriptions(const ezView& view, const ezArra
       //}
 
       outputs[m_PinOutput.m_uiOutputIndex].SetAsRenderTarget(pColorInput->m_uiWidth, pColorInput->m_uiHeight, desc.m_Format);
+      outputs[m_PinOutput.m_uiOutputIndex].m_uiArraySize = pColorInput->m_uiArraySize;
     }
     else
     {
@@ -110,7 +111,7 @@ void ezTonemapPass::Execute(const ezRenderViewContext& renderViewContext, const 
   renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(pColorOutput->m_TextureHandle));
 
   // Bind render target and viewport
-  auto pCommandEncoder = ezRenderContext::BeginPassAndRenderingScope(renderViewContext, renderingSetup, GetName());
+  auto pCommandEncoder = ezRenderContext::BeginPassAndRenderingScope(renderViewContext, renderingSetup, GetName(), renderViewContext.m_pCamera->IsStereoscopic());
 
   // Determine how many LUTs are active
   ezUInt32 numLUTs = 0;

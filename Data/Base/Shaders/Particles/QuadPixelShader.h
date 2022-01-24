@@ -1,6 +1,4 @@
 // clang-format off
-#define CUSTOM_INTERPOLATOR float FogAmount : FOG;
-
 #include <Shaders/Particles/ParticleCommonPS.h>
 
 Texture2D ParticleTexture;
@@ -15,6 +13,10 @@ SamplerState ParticleTexture_AutoSampler;
 
 float4 main(PS_IN Input) : SV_Target
 {
+#if CAMERA_MODE == CAMERA_MODE_STEREO
+  s_ActiveCameraEyeIndex = Input.RenderTargetArrayIndex;
+#endif
+
   float4 texCol = ParticleTexture.Sample(ParticleTexture_AutoSampler, Input.TexCoord0.xy);
 
   float proximityFadeOut = 1.0;

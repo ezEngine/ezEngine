@@ -28,7 +28,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezBloomPass::ezBloomPass()
-  : ezRenderPipelinePass("BloomPass")
+  : ezRenderPipelinePass("BloomPass", true)
   , m_fRadius(0.2f)
   , m_fThreshold(1.0f)
   , m_fIntensity(0.3f)
@@ -131,6 +131,7 @@ void ezBloomPass::Execute(const ezRenderViewContext& renderViewContext, const ez
 
   renderViewContext.m_pRenderContext->BindConstantBuffer("ezBloomConstants", m_hConstantBuffer);
   renderViewContext.m_pRenderContext->BindShader(m_hShader);
+
   renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
 
   // Downscale passes
@@ -159,7 +160,7 @@ void ezBloomPass::Execute(const ezRenderViewContext& renderViewContext, const ez
 
       ezGALRenderingSetup renderingSetup;
       renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(hOutput));
-      renderViewContext.m_pRenderContext->BeginRendering(pGALPass, renderingSetup, ezRectFloat(targetSize.x, targetSize.y));
+      renderViewContext.m_pRenderContext->BeginRendering(pGALPass, renderingSetup, ezRectFloat(targetSize.x, targetSize.y), "Downscale", renderViewContext.m_pCamera->IsStereoscopic());
 
       ezColor tintColor = (i == uiNumBlurPasses - 1) ? ezColor(m_outerTintColor) : ezColor::White;
       UpdateConstantBuffer(ezVec2(1.0f).CompDiv(targetSize), tintColor);
@@ -207,7 +208,7 @@ void ezBloomPass::Execute(const ezRenderViewContext& renderViewContext, const ez
 
       ezGALRenderingSetup renderingSetup;
       renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(hOutput));
-      renderViewContext.m_pRenderContext->BeginRendering(pGALPass, renderingSetup, ezRectFloat(targetSize.x, targetSize.y));
+      renderViewContext.m_pRenderContext->BeginRendering(pGALPass, renderingSetup, ezRectFloat(targetSize.x, targetSize.y), "Upscale", renderViewContext.m_pCamera->IsStereoscopic());
 
       ezColor tintColor;
       float fPass = (float)i;

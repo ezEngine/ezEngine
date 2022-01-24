@@ -9,6 +9,7 @@ TWO_SIDED = TRUE
 SHADING_MODE = SHADING_MODE_FULLBRIGHT
 CAMERA_MODE
 SHADING_QUALITY
+VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX
 
 [MATERIALPARAMETER]
 
@@ -65,6 +66,17 @@ VS_OUT main(VS_IN Input)
 
   return Output;
 }
+
+[GEOMETRYSHADER]
+
+#define CUSTOM_INTERPOLATOR float3 ViewDirection : TEXCOORD0;
+
+void CopyCustomInterpolators(GS_OUT output, VS_OUT input)
+{
+  output.ViewDirection = input.ViewDirection;
+}
+
+#include <Shaders/Materials/MaterialStereoGeometryShader.h>
 
 [PIXELSHADER]
 

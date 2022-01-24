@@ -13,6 +13,7 @@ CAMERA_MODE
 SHADING_QUALITY
 FORWARD_PASS_WRITE_DEPTH
 MATERIAL_PREVIEW
+VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX
 
 [MATERIALPARAMETER]
 
@@ -39,7 +40,7 @@ int KrautTreeMode; // 0 == regular mesh, 1 == frond, 2 == leaf, 3 == static impo
 
 #include <Shaders/Materials/MaterialState.h>
 
-[VERTEXSHADER]
+[SHADER]
 
 #define USE_COLOR0
 #define USE_COLOR1
@@ -53,6 +54,8 @@ int KrautTreeMode; // 0 == regular mesh, 1 == frond, 2 == leaf, 3 == static impo
 #if RENDER_PASS == RENDER_PASS_EDITOR
   #define USE_DEBUG_INTERPOLATOR
 #endif
+
+[VERTEXSHADER]
 
 #include <Shaders/Common/GlobalConstants.h>
 
@@ -246,35 +249,19 @@ VS_OUT main(VS_IN Input)
 
 [GEOMETRYSHADER]
 
-#define USE_COLOR0
-#define USE_COLOR1
-#define USE_NORMAL
-#define USE_TANGENT
-#define USE_TEXCOORD0
-#define USE_TEXCOORD1
-#define CUSTOM_INTERPOLATOR float3 LeafNormal : TEXCOORD2;
-#define USE_MATERIAL_SUBSURFACE_COLOR
+void CopyCustomInterpolators(GS_OUT output, VS_OUT input)
+{
+  output.LeafNormal = input.LeafNormal;
+}
 
 #include <Shaders/Materials/MaterialStereoGeometryShader.h>
 
 [PIXELSHADER]
 
-#define USE_COLOR0
-#define USE_COLOR1
-#define USE_NORMAL
-#define USE_TANGENT
-#define USE_TEXCOORD0
-#define USE_TEXCOORD1
 #define USE_SIMPLE_MATERIAL_MODEL
 #define USE_MATERIAL_OCCLUSION
 #define USE_TWO_SIDED_LIGHTING
 #define USE_FOG
-#define CUSTOM_INTERPOLATOR float3 LeafNormal : TEXCOORD2;
-#define USE_MATERIAL_SUBSURFACE_COLOR
-
-#if RENDER_PASS == RENDER_PASS_EDITOR
-  #define USE_DEBUG_INTERPOLATOR
-#endif
 
 #include <Shaders/Common/GlobalConstants.h>
 

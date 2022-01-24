@@ -27,6 +27,7 @@ struct EZ_RENDERERFOUNDATION_DLL ezGALDeviceCapabilities
   bool m_bIndirectDraw;
   bool m_bStreamOut;
   bool m_bConservativeRasterization;
+  bool m_bVertexShaderRenderTargetArrayIndex = false;
   ezUInt16 m_uiMaxConstantBuffers;
 
 

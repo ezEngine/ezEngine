@@ -4,7 +4,8 @@ ALL
 [PERMUTATIONS]
 
 BLUR_DIRECTION
-CAMERA_MODE = CAMERA_MODE_PERSPECTIVE
+CAMERA_MODE
+VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX
 
 [RENDERSTATE]
 
@@ -17,27 +18,26 @@ CullMode = CullMode_None
 
 #include <Shaders/Pipeline/FullscreenTriangleVertexShader.h>
 
+[GEOMETRYSHADER]
+
+#include <Shaders/Pipeline/FullscreenTriangleStereoGeometryShader.h>
+
 [PIXELSHADER]
 
-struct PS_IN
-{
-  float4 Position : SV_Position;
-  float2 TexCoord0 : TEXCOORD0;
-};
-
+#include <Shaders/Pipeline/FullscreenTriangleInterpolator.h>
 #include <Shaders/Common/GlobalConstants.h>
 #include <Shaders/Common/ObjectConstants.h>
 #include <Shaders/Materials/DefaultMaterialCB.h>
 #include "BilateralBlurConstants.h"
 #include "Utils.h"
 
-Texture2D BlurSource;
-Texture2D DepthBuffer;
+Texture2DArray BlurSource;
+Texture2DArray DepthBuffer;
 
 
 float LoadLinearDepth(int2 texelCoord)
 {
-  return LinearizeZBufferDepth(DepthBuffer.Load(int3(texelCoord, 0)).r);
+  return LinearizeZBufferDepth(DepthBuffer.Load(int4(texelCoord, s_ActiveCameraEyeIndex, 0)).r);
 }
 
 
@@ -51,18 +51,21 @@ float4 BlurFunction(int2 texelCoord, float gaussianExp, float centerDepth, inout
   float w = exp(gaussianExp - ddiff * ddiff * Sharpness);
   totalWeights += w;
 
-  return w * BlurSource.Load(int3(texelCoord, 0));
+  return w * BlurSource.Load(int4(texelCoord, s_ActiveCameraEyeIndex, 0));
 }
 
 float4 main(PS_IN input) : SV_Target
 {
+#if CAMERA_MODE == CAMERA_MODE_STEREO
+  s_ActiveCameraEyeIndex = Input.RenderTargetArrayIndex;
+#endif
   float width, height, levels;
   BlurSource.GetDimensions(0, width, height, levels);
 
   int2 texelCoord = int2(input.TexCoord0 * float2(width, height));
 
   float centerDepth = LoadLinearDepth(texelCoord);
-  float4 accum = BlurSource.Load(int3(texelCoord, 0));
+  float4 accum = BlurSource.Load(int4(texelCoord, s_ActiveCameraEyeIndex, 0));
   float totalWeights = 1.0f;
 
   int2 texelCoordPos = texelCoord;

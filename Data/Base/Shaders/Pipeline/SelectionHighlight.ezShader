@@ -4,7 +4,8 @@ ALL
 [PERMUTATIONS]
 
 MSAA
-CAMERA_MODE = CAMERA_MODE_PERSPECTIVE
+CAMERA_MODE
+VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX
 
 [RENDERSTATE]
 
@@ -21,6 +22,10 @@ DestBlendAlpha0 = Blend_InvSrcAlpha
 [VERTEXSHADER]
 
 #include <Shaders/Pipeline/FullscreenTriangleVertexShader.h>
+
+[GEOMETRYSHADER]
+
+#include <Shaders/Pipeline/FullscreenTriangleStereoGeometryShader.h>
 
 [PIXELSHADER]
 
@@ -39,14 +44,14 @@ struct PS_IN
 };
 
 #if MSAA
-  Texture2DMS<float> SelectionDepthTexture;
-  Texture2DMS<float> SceneDepthTexture;
+  Texture2DMSArray<float> SelectionDepthTexture;
+  Texture2DMSArray<float> SceneDepthTexture;
 
   #define SampleDepth(texture, coords, input) texture.Load(int3(coords.xy, 0), input.SampleIndex).r
 
 #else
-  Texture2D SelectionDepthTexture;
-  Texture2D SceneDepthTexture;
+  Texture2DArray SelectionDepthTexture;
+  Texture2DArray SceneDepthTexture;
 
   #define SampleDepth(texture, coords, input) texture.Load(int3(coords.xy, 0)).r
 
@@ -54,8 +59,12 @@ struct PS_IN
 
 float4 main(PS_IN Input) : SV_Target
 {
+#if CAMERA_MODE == CAMERA_MODE_STEREO
+  s_ActiveCameraEyeIndex = Input.RenderTargetArrayIndex;
+#endif
+
   int2 coords = Input.Position.xy;
-  float depth = SampleDepth(SelectionDepthTexture, coords, Input);
+  float depth = SampleDepth(SelectionDepthTexture, int3(coords, s_ActiveCameraEyeIndex), Input);
 
   if (depth == 1.0f)
   {
@@ -79,7 +88,7 @@ float4 main(PS_IN Input) : SV_Target
           continue;
 
         int2 currentCoords = coords + int2(x, y);
-        float currentDepth = SampleDepth(SelectionDepthTexture, currentCoords, Input);
+        float currentDepth = SampleDepth(SelectionDepthTexture, int3(currentCoords, s_ActiveCameraEyeIndex), Input);
 
         if (currentDepth > 0.0f && currentDepth < 1.0f)
         {
@@ -101,7 +110,7 @@ float4 main(PS_IN Input) : SV_Target
   }
   else
   {
-    float sceneDepth = SampleDepth(SceneDepthTexture, coords, Input);
+    float sceneDepth = SampleDepth(SceneDepthTexture, int3(coords, s_ActiveCameraEyeIndex), Input);
     if (sceneDepth < depth)
     {
       discard;

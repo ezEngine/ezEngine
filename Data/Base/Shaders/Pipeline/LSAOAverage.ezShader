@@ -4,7 +4,8 @@ ALL
 [PERMUTATIONS]
 
 LSAO_DEPTH_COMPARE
-CAMERA_MODE = CAMERA_MODE_PERSPECTIVE
+CAMERA_MODE
+VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX
 
 [RENDERSTATE]
 
@@ -17,29 +18,33 @@ CullMode = CullMode_None
 
 #include <Shaders/Pipeline/FullscreenTriangleVertexShader.h>
 
+[GEOMETRYSHADER]
+
+#include <Shaders/Pipeline/FullscreenTriangleStereoGeometryShader.h>
+
 [PIXELSHADER]
 
-struct PS_IN
-{
-  float4 Position : SV_Position;
-  float2 TexCoord0 : TEXCOORD0;
-};
-
+#include <Shaders/Pipeline/FullscreenTriangleInterpolator.h>
 #include <Shaders/Common/GlobalConstants.h>
 #include <Shaders/Common/Common.h>
 #include <Shaders/Pipeline/Utils.h>
 #include "LSAOConstants.h"
 
-Texture2D DepthBuffer : register(t0);
-Texture2D SSAOGatherOutput : register(t1);
+Texture2DArray DepthBuffer : register(t0);
+Texture2DArray SSAOGatherOutput : register(t1);
 
 float4 main(PS_IN input) : SV_Target
 {
+#if CAMERA_MODE == CAMERA_MODE_STEREO
+  s_ActiveCameraEyeIndex = input.RenderTargetArrayIndex;
+#endif
+
   float2 pixelSize = ViewportSize.zw;
 
-  float centerDepth = DepthBuffer.Sample(PointClampSampler, input.TexCoord0).r;
+
+  float centerDepth = DepthBuffer.Sample(PointClampSampler, float3(input.TexCoord0, s_ActiveCameraEyeIndex)).r;
   float centerLinearDepth = LinearizeZBufferDepth(centerDepth);
-  float totalSSAO = SSAOGatherOutput.Sample(PointClampSampler, input.TexCoord0).r;
+  float totalSSAO = SSAOGatherOutput.Sample(PointClampSampler, float3(input.TexCoord0, s_ActiveCameraEyeIndex)).r;
   float totalWeight = 1.0f;
 
 #if LSAO_DEPTH_COMPARE == LSAO_DEPTH_COMPARE_DEPTH
@@ -57,10 +62,10 @@ float4 main(PS_IN input) : SV_Target
 
   [unroll] for(int i=0; i<8; ++i)
   {
-    float depth = LinearizeZBufferDepth(DepthBuffer.Sample(PointClampSampler, texcoords[i]).r);
+    float depth = LinearizeZBufferDepth(DepthBuffer.Sample(PointClampSampler, float3(texcoords[i], s_ActiveCameraEyeIndex)).r);
     if (abs(centerLinearDepth - depth) < DepthCutoffDistance)
     {
-      totalSSAO += SSAOGatherOutput.Sample(PointClampSampler, texcoords[i]).r;
+      totalSSAO += SSAOGatherOutput.Sample(PointClampSampler, float3(texcoords[i], s_ActiveCameraEyeIndex)).r;
       totalWeight += 1.0f;
     }
   }
@@ -75,10 +80,10 @@ float4 main(PS_IN input) : SV_Target
   };
   float depthCross[4] =
   {
-    DepthBuffer.Sample(PointClampSampler, texcoords[0]).r, // left
-    DepthBuffer.Sample(PointClampSampler, texcoords[1]).r, // right
-    DepthBuffer.Sample(PointClampSampler, texcoords[2]).r, // top
-    DepthBuffer.Sample(PointClampSampler, texcoords[3]).r, // bottom
+    DepthBuffer.Sample(PointClampSampler, float3(texcoords[0], s_ActiveCameraEyeIndex)).r, // left
+    DepthBuffer.Sample(PointClampSampler, float3(texcoords[1], s_ActiveCameraEyeIndex)).r, // right
+    DepthBuffer.Sample(PointClampSampler, float3(texcoords[2], s_ActiveCameraEyeIndex)).r, // top
+    DepthBuffer.Sample(PointClampSampler, float3(texcoords[3], s_ActiveCameraEyeIndex)).r, // bottom
   };
 
   float2 normalizedCoords = input.TexCoord0 * 2.0f - 1.0f;
@@ -93,7 +98,7 @@ float4 main(PS_IN input) : SV_Target
     float3 samplePos = FastScreenCoordToViewSpaceLinear(normalizedCoords, sampleLinearDepth);
   
     float weight = ComputeNormalWeight(viewSpaceNormal, centerPos, samplePos, DepthCutoffDistance);
-    totalSSAO += SSAOGatherOutput.Sample(PointClampSampler, texcoords[i]).r * weight;
+    totalSSAO += SSAOGatherOutput.Sample(PointClampSampler, float3(texcoords[i], s_ActiveCameraEyeIndex)).r * weight;
     totalWeight += weight;
   }
   
@@ -108,12 +113,12 @@ float4 main(PS_IN input) : SV_Target
   
   [unroll] for(int j=0; j<4; ++j)
   {
-    float sampleLinearDepth = LinearizeZBufferDepth(DepthBuffer.Sample(PointClampSampler, texcoordsDiag[j]).r);
+    float sampleLinearDepth = LinearizeZBufferDepth(DepthBuffer.Sample(PointClampSampler, float3(texcoordsDiag[j], s_ActiveCameraEyeIndex)).r);
     float2 normalizedCoords = texcoordsDiag[j] * 2.0f - 1.0f;
     float3 samplePos = FastScreenCoordToViewSpaceLinear(normalizedCoords, sampleLinearDepth);
   
     float weight = ComputeNormalWeight(viewSpaceNormal, centerPos, samplePos, DepthCutoffDistance);
-    totalSSAO += SSAOGatherOutput.Sample(PointClampSampler, texcoordsDiag[j]).r * weight;
+    totalSSAO += SSAOGatherOutput.Sample(PointClampSampler, float3(texcoordsDiag[j], s_ActiveCameraEyeIndex)).r * weight;
     totalWeight += weight;
   }
 #endif

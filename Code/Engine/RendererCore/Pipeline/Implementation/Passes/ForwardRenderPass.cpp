@@ -96,7 +96,7 @@ void ezForwardRenderPass::SetupResources(ezGALPass* pGALPass, const ezRenderView
     renderingSetup.m_RenderTargetSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(inputs[m_PinDepthStencil.m_uiInputIndex]->m_TextureHandle));
   }
 
-  renderViewContext.m_pRenderContext->BeginRendering(pGALPass, std::move(renderingSetup), renderViewContext.m_pViewData->m_ViewPortRect);
+  renderViewContext.m_pRenderContext->BeginRendering(pGALPass, std::move(renderingSetup), renderViewContext.m_pViewData->m_ViewPortRect, "", renderViewContext.m_pCamera->IsStereoscopic());
 }
 
 void ezForwardRenderPass::SetupPermutationVars(const ezRenderViewContext& renderViewContext)

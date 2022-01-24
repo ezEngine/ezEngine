@@ -14,6 +14,16 @@ Texture2D SkyIrradianceTexture;
 
 ///////////////////////////////////////////////////////////////////////////////////
 
+float GetFogAmount(float3 worldPosition)
+{
+  return 1.0f;
+}
+
+float DepthFade(float3 screenPosition, float fadeDistance)
+{
+  return 1.0f;
+}
+
 AccumulatedLight CalculateLightingSimplified(ezMaterialData matData)
 {
   float3 viewVector = normalize(GetCameraPosition() - matData.worldPosition);

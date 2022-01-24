@@ -4,7 +4,8 @@ ALL
 [PERMUTATIONS]
 
 MSAA_SAMPLES
-CAMERA_MODE = CAMERA_MODE_PERSPECTIVE
+CAMERA_MODE
+VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX
 
 [RENDERSTATE]
 
@@ -16,14 +17,13 @@ CullMode = CullMode_None
 
 #include <Shaders/Pipeline/FullscreenTriangleVertexShader.h>
 
+[GEOMETRYSHADER]
+
+#include <Shaders/Pipeline/FullscreenTriangleStereoGeometryShader.h>
+
 [PIXELSHADER]
 
-struct PS_IN
-{
-  float4 Position : SV_Position;
-  float2 TexCoord0 : TEXCOORD0;
-};
-
+#include <Shaders/Pipeline/FullscreenTriangleInterpolator.h>
 #include <Shaders/Common/Common.h>
 #include <Shaders/Common/GlobalConstants.h>
 
@@ -54,10 +54,14 @@ float Filter(in float x)
   return FilterBSpline(x);
 }
 
-Texture2DMS<float4> ColorTexture;
+Texture2DMSArray<float4> ColorTexture;
 
 float4 main(PS_IN Input) : SV_Target
 {
+#if CAMERA_MODE == CAMERA_MODE_STEREO
+  s_ActiveCameraEyeIndex = Input.RenderTargetArrayIndex;
+#endif
+
   const float FilterSize = 2.0f; // 2 Pixels wide kernel
   const int SampleRadius = 1;
 
@@ -116,7 +120,7 @@ float4 main(PS_IN Input) : SV_Target
 
         if (sampleDist <= 1.0f)
         {
-          float4 sample = max(ColorTexture.Load(currentCoords, subSampleIdx).rgba, 0.0f);
+          float4 sample = max(ColorTexture.Load(int3(currentCoords, s_ActiveCameraEyeIndex), subSampleIdx).rgba, 0.0f);
 
           float weight = Filter(sampleDist);
           float luminance = GetLuminance(sample.rgb);

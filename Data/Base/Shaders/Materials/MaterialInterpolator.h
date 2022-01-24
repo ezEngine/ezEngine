@@ -13,6 +13,7 @@
 // USE_SKINNING
 // USE_DEBUG_INTERPOLATOR
 // CUSTOM_INTERPOLATOR
+// VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX
 
 struct VS_IN
 {
@@ -51,67 +52,39 @@ struct VS_IN
   uint VertexID : SV_VertexID;
 };
 
-struct VS_OUT
-{
-  float4 Position : SV_Position;
+#if defined(VERTEX_SHADER)
+#  if defined(CAMERA_MODE)
+#    if CAMERA_MODE == CAMERA_MODE_STEREO && defined(VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX)
+#      define RENDER_TARGET_ARRAY_INDEX
+#    endif
+#  endif
+#  define STAGE_TEMPLATE VS_OUT
+#  include <Shaders/Materials/MaterialInterpolatorTemplate.h>
+#  undef STAGE_TEMPLATE
 
-  #if defined(USE_WORLDPOS)
-    float3 WorldPosition : WORLDPOS;
-  #endif
+#elif defined(GEOMETRY_SHADER)
+#  if defined(CAMERA_MODE)
+#    if CAMERA_MODE == CAMERA_MODE_STEREO && !defined(VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX)
+#      define STAGE_TEMPLATE VS_OUT
+#      include <Shaders/Materials/MaterialInterpolatorTemplate.h>
+#      undef STAGE_TEMPLATE
 
-  #if defined(USE_NORMAL)
-    float3 Normal : NORMAL;
-  #endif
+#      define RENDER_TARGET_ARRAY_INDEX
+#      define STAGE_TEMPLATE GS_OUT
+#      include <Shaders/Materials/MaterialInterpolatorTemplate.h>
+#      undef STAGE_TEMPLATE
+#    endif
+#  endif
 
-  #if defined(USE_TANGENT)
-    float3 Tangent : TANGENT;
-    float3 BiTangent : BITANGENT;
-  #endif
+#elif defined(PIXEL_SHADER)
+#  if defined(CAMERA_MODE)
+#    if CAMERA_MODE == CAMERA_MODE_STEREO
+#      define RENDER_TARGET_ARRAY_INDEX
+#    endif
+#  endif
+#  define STAGE_TEMPLATE PS_IN
+#  include <Shaders/Materials/MaterialInterpolatorTemplate.h>
+#  undef STAGE_TEMPLATE
+#endif
 
-  #if defined(USE_TEXCOORD0)
-    float2 TexCoord0 : TEXCOORD0;
-
-    #if defined(USE_TEXCOORD1)
-      float2 TexCoord1 : TEXCOORD1;
-    #endif
-  #endif
-
-  #if defined(USE_COLOR0)
-    float4 Color0 : COLOR0;
-    
-    #if defined(USE_COLOR1)
-      float4 Color1 : COLOR1;
-    #endif
-  #endif
-  
-  #if defined(USE_DEBUG_INTERPOLATOR)
-    float4 DebugInterpolator : DEBUG_INTERPOLATOR;
-  #endif
-
-  #if defined(CUSTOM_INTERPOLATOR)
-    CUSTOM_INTERPOLATOR
-  #endif
-
-  // If CAMERA_MODE is CAMERA_MODE_STEREO, every even instance is for the left eye and every odd is for the right eye.
-    uint InstanceID : SV_InstanceID;
-
-  #if defined(PIXEL_SHADER) && defined(CAMERA_MODE)
-    #if CAMERA_MODE == CAMERA_MODE_STEREO
-      uint RenderTargetArrayIndex : SV_RenderTargetArrayIndex;
-    #endif
-  #endif
-
-  #if defined(PIXEL_SHADER) && defined(TWO_SIDED)
-    #if TWO_SIDED == TRUE
-	
-	  #ifdef VULKAN
-	    // uint type is not supported by DXC/SPIR-V for SV_IsFrontFace
-		bool FrontFace : SV_IsFrontFace;
-	  #else
-		uint FrontFace : SV_IsFrontFace;
-	  #endif
-    #endif
-  #endif
-};
-
-typedef VS_OUT PS_IN;
+//typedef VS_OUT PS_IN;

@@ -569,6 +569,13 @@ void ezGALCommandEncoderImplDX11::BeginRendering(const ezGALRenderingSetup& rend
   ClearPlatform(renderingSetup.m_ClearColor, renderingSetup.m_uiRenderTargetClearMask, renderingSetup.m_bClearDepth, renderingSetup.m_bClearStencil, renderingSetup.m_fDepthClear, renderingSetup.m_uiStencilClear);
 }
 
+void ezGALCommandEncoderImplDX11::BeginCompute()
+{
+  // We need to unbind all render targets as otherwise using them in a compute shader as input will fail:
+  // DEVICE_CSSETSHADERRESOURCES_HAZARD: Resource being set to CS shader resource slot 0 is still bound on output!
+  m_pDXContext->OMSetRenderTargets(0, nullptr, nullptr);
+}
+
 // Draw functions
 
 void ezGALCommandEncoderImplDX11::ClearPlatform(const ezColor& ClearColor, ezUInt32 uiRenderTargetClearMask, bool bClearDepth, bool bClearStencil, float fDepthClear, ezUInt8 uiStencilClear)

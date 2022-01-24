@@ -16,6 +16,7 @@ class ezView;
 struct ezActorEvent;
 class ezWindowOutputTargetGAL;
 class ezActor;
+class ezDummyXR;
 
 using ezRenderPipelineResourceHandle = ezTypedResourceHandle<class ezRenderPipelineResource>;
 
@@ -125,4 +126,5 @@ protected:
   bool m_bStateWantsToQuit = false;
   bool m_bXREnabled = false;
   bool m_bXRRemotingEnabled = false;
+  ezUniquePtr<ezDummyXR> m_dummyXR;
 };
