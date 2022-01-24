@@ -24,9 +24,6 @@ int ReflectionProbeIndex @Default(0);
 [SHADER]
 
 #define USE_NORMAL
-
-[SHADER]
-
 #include <Shaders/Common/GlobalConstants.h>
 
 CONSTANT_BUFFER(ezMaterialConstants, 1)

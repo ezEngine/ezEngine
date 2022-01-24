@@ -70,8 +70,9 @@ void main( triangle GS_IN input[3], inout TriangleStream<GS_OUT> outputStream )
     output.Normal = normal;
     output.Barycentric = float3(i==0, i==1, i==2);
     output.InstanceID = input[i].InstanceID;
+#if CAMERA_MODE == CAMERA_MODE_STEREO
     output.RenderTargetArrayIndex = input[i].InstanceID % 2;
-    
+#endif
     outputStream.Append(output);
   }
 
