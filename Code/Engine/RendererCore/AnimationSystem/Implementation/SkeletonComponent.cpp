@@ -61,7 +61,11 @@ void ezSkeletonComponent::Update()
 {
   if (m_hSkeleton.IsValid() && (m_bVisualizeBones || m_bVisualizeColliders || m_bVisualizeJoints || m_bVisualizeSwingLimits || m_bVisualizeTwistLimits))
   {
-    ezResourceLock<ezSkeletonResource> pSkeleton(m_hSkeleton, ezResourceAcquireMode::PointerOnly);
+    ezResourceLock<ezSkeletonResource> pSkeleton(m_hSkeleton, ezResourceAcquireMode::AllowLoadingFallback_NeverFail);
+
+    if (pSkeleton.GetAcquireResult() != ezResourceAcquireResult::Final)
+      return;
+
     if (m_uiSkeletonChangeCounter != pSkeleton->GetCurrentResourceChangeCounter())
     {
       VisualizeSkeletonDefaultState();

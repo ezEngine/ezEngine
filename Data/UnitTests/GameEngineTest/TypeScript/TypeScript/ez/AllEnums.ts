@@ -11,7 +11,7 @@ export enum ProcGenBlendMode {  Add = 0, Subtract = 1, Multiply = 2, Divide = 3,
 export enum PropertyAnimMode {  Once = 0, Loop = 1, BackAndForth = 2 }
 export enum PxJointDriveMode {  NoDrive = 0, DriveAndSpin = 1, DriveAndBrake = 2 }
 export enum PxJointLimitMode {  NoLimit = 0, HardLimit = 1, SoftLimit = 2 }
-export enum PxRagdollStart {  BindPose = 0, WaitForPose = 1, WaitForPoseAndVelocity = 2, Wait = 3 }
+export enum PxRagdollStart {  BindPose = 0, WaitForPose = 1, Wait = 2 }
 export enum PxSteppingMode {  Variable = 0, Fixed = 1, SemiFixed = 2 }
 export enum ReflectionProbeMode {  Static = 0, Dynamic = 1 }
 export enum RootMotionMode {  Ignore = 0, ApplyToOwner = 1, SendMoveCharacterMsg = 2 }
