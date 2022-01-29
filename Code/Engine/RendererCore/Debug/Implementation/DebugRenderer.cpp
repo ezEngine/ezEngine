@@ -988,7 +988,7 @@ void ezDebugRenderer::DrawAngle(const ezDebugRendererContext& context, ezAngle s
 
   const ezAngle range = endAngle - startAngle;
   const ezUInt32 uiTesselation = ezMath::Max(1u, (ezUInt32)(range / ezAngle::Degree(5)));
-  const ezAngle step = range / uiTesselation;
+  const ezAngle step = range / (float)uiTesselation;
 
   ezQuat qStart;
   qStart.SetFromAxisAndAngle(rotationAxis, startAngle);
@@ -1056,7 +1056,7 @@ void ezDebugRenderer::DrawOpeningCone(const ezDebugRendererContext& context, ezA
   tilt.SetFromAxisAndAngle(tangentAxis, halfAngle);
 
   ezQuat step;
-  step.SetFromAxisAndAngle(forwardAxis, ezAngle::Degree(360) / uiTesselation);
+  step.SetFromAxisAndAngle(forwardAxis, ezAngle::Degree(360) / (float)uiTesselation);
 
   ezVec3 vCurDir = tilt * forwardAxis;
 
