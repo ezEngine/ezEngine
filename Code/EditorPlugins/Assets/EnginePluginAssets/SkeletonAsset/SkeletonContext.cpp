@@ -44,10 +44,61 @@ void ezSkeletonContext::HandleMessage(const ezEditorEngineDocumentMsg* pDocMsg)
     {
       EZ_LOCK(m_pWorld->GetWriteMarker());
 
-      ezSkeletonComponent* pSkeleton;
+      ezSkeletonComponent* pSkeleton = nullptr;
       if (m_pWorld->TryGetComponent(m_hSkeletonComponent, pSkeleton))
       {
         pSkeleton->SetBonesToHighlight(pMsg->m_sPayload);
+      }
+    }
+    else if (pMsg->m_sWhatToDo == "RenderBones")
+    {
+      EZ_LOCK(m_pWorld->GetWriteMarker());
+
+      ezSkeletonComponent* pSkeleton = nullptr;
+      if (m_pWorld->TryGetComponent(m_hSkeletonComponent, pSkeleton))
+      {
+        pSkeleton->m_bVisualizeBones = (pMsg->m_fPayload != 0);
+        //pSkeleton->VisualizeSkeletonDefaultState();
+      }
+    }
+    else if (pMsg->m_sWhatToDo == "RenderColliders")
+    {
+      EZ_LOCK(m_pWorld->GetWriteMarker());
+
+      ezSkeletonComponent* pSkeleton = nullptr;
+      if (m_pWorld->TryGetComponent(m_hSkeletonComponent, pSkeleton))
+      {
+        pSkeleton->m_bVisualizeColliders = (pMsg->m_fPayload != 0);
+      }
+    }
+    else if (pMsg->m_sWhatToDo == "RenderJoints")
+    {
+      EZ_LOCK(m_pWorld->GetWriteMarker());
+
+      ezSkeletonComponent* pSkeleton = nullptr;
+      if (m_pWorld->TryGetComponent(m_hSkeletonComponent, pSkeleton))
+      {
+        pSkeleton->m_bVisualizeJoints = (pMsg->m_fPayload != 0);
+      }
+    }
+    else if (pMsg->m_sWhatToDo == "RenderSwingLimits")
+    {
+      EZ_LOCK(m_pWorld->GetWriteMarker());
+
+      ezSkeletonComponent* pSkeleton = nullptr;
+      if (m_pWorld->TryGetComponent(m_hSkeletonComponent, pSkeleton))
+      {
+        pSkeleton->m_bVisualizeSwingLimits = (pMsg->m_fPayload != 0);
+      }
+    }
+    else if (pMsg->m_sWhatToDo == "RenderTwistLimits")
+    {
+      EZ_LOCK(m_pWorld->GetWriteMarker());
+
+      ezSkeletonComponent* pSkeleton = nullptr;
+      if (m_pWorld->TryGetComponent(m_hSkeletonComponent, pSkeleton))
+      {
+        pSkeleton->m_bVisualizeTwistLimits = (pMsg->m_fPayload != 0);
       }
     }
   }
@@ -73,9 +124,6 @@ void ezSkeletonContext::OnInitialize()
     ezConversionUtils::ToString(GetDocumentGuid(), sSkeletonGuid);
     m_hSkeleton = ezResourceManager::LoadResource<ezSkeletonResource>(sSkeletonGuid);
     pVisSkeleton->SetSkeleton(m_hSkeleton);
-    pVisSkeleton->m_bVisualizeSkeleton = true;
-    pVisSkeleton->m_bVisualizeColliders = true;
-    pVisSkeleton->m_bVisualizeJoints = true;
   }
 }
 

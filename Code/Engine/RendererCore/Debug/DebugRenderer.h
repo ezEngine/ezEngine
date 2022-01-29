@@ -9,13 +9,18 @@
 
 template <typename Type>
 class ezRectTemplate;
-
 using ezRectFloat = ezRectTemplate<float>;
 
 class ezFormatString;
 class ezFrustum;
 struct ezRenderViewContext;
 
+/// \brief Draws simple shapes into the scene or view.
+///
+/// Shapes can be rendered for a single frame, or 'persistent' for a certain duration.
+/// The 'context' specifies whether shapes are generally visible in a scene, from all views,
+/// or specific to a single view. See the ezDebugRendererContext constructors for what can be implicitly
+/// used as a context.
 class EZ_RENDERERCORE_DLL ezDebugRenderer
 {
 public:
@@ -25,6 +30,7 @@ public:
 
     Line();
     Line(const ezVec3& start, const ezVec3& end);
+    Line(const ezVec3& start, const ezVec3& end, const ezColor& color);
 
     ezVec3 m_start;
     ezVec3 m_end;
@@ -155,6 +161,28 @@ public:
 
   /// \brief Renders a wireframe box at the given location for as many frames until \a duration has passed.
   static void AddPersistentLineBox(const ezDebugRendererContext& context, const ezVec3& halfSize, const ezColor& color, const ezTransform& transform, ezTime duration);
+
+  /// \brief Renders a solid 2D cone in a plane with a given angle.
+  ///
+  /// The rotation goes around the given \a rotationAxis.
+  /// An angle of zero is pointing into forwardAxis direction.
+  /// Both angles may be negative.
+  static void DrawAngle(const ezDebugRendererContext& context, ezAngle startAngle, ezAngle endAngle, const ezColor& solidColor, const ezColor& lineColor, const ezTransform& transform, ezVec3 forwardAxis = ezVec3::UnitXAxis(), ezVec3 rotationAxis = ezVec3::UnitZAxis());
+
+  /// \brief Renders a cone with the tip at the center position, opening up with the given angle.
+  static void DrawOpeningCone(const ezDebugRendererContext& context, ezAngle halfAngle, const ezColor& colorInside, const ezColor& colorOutside, const ezTransform& transform, ezVec3 forwardAxis = ezVec3::UnitXAxis());
+
+  /// \brief Renders a bent cone with the tip at the center position, pointing into the +X direction opening up with halfAngle1 and halfAngle2 along the Y and Z axis.
+  ///
+  /// If solidColor.a > 0, the cone is rendered with as solid triangles.
+  /// If lineColor.a > 0, the cone is rendered as lines.
+  /// Both can be combined.
+  static void DrawLimitCone(const ezDebugRendererContext& context, ezAngle halfAngle1, ezAngle halfAngle2, const ezColor& solidColor, const ezColor& lineColor, const ezTransform& transform);
+
+  /// \brief Renders a cylinder starting at the center position, along the +X axis.
+  ///
+  /// If the start and end radius are different, a cone or arrow can be created.
+  static void DrawCylinder(const ezDebugRendererContext& context, float radiusStart, float radiusEnd, float length, const ezColor& solidColor, const ezColor& lineColor, const ezTransform& transform, bool capStart = false, bool capEnd = false);
 
 private:
   friend class ezSimpleRenderPass;

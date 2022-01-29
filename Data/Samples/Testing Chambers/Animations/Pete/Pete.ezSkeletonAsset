@@ -14,12 +14,12 @@ o
 			s{"Animations/Pete/Pete.glb"}
 		}
 		Uuid %DocumentID{u4{14480472025422740414,4881933244452828737}}
-		u4 %Hash{662634585132635323}
+		u4 %Hash{1014072452629222633}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
 		{
-			s{"{ ac49f52b-70b6-468e-b934-af2373a806bc }"}
+			s{"{ 73b2bf79-7803-43de-9647-117773d05b87 }"}
 		}
 	}
 }
@@ -139,7 +139,7 @@ o
 		s %File{"Animations/Pete/Pete.glb"}
 		b %FlipForwardDir{0}
 		s %RightDir{"ezBasisAxis::NegativeX"}
-		s %Surface{"{ ac49f52b-70b6-468e-b934-af2373a806bc }"}
+		s %Surface{"{ 73b2bf79-7803-43de-9647-117773d05b87 }"}
 		f %UniformScaling{0x0000803F}
 		s %UpDir{"ezBasisAxis::PositiveY"}
 	}
@@ -551,8 +551,8 @@ o
 		Angle %SwingLimitY{f{0x0BBEF53F}}
 		Angle %SwingLimitZ{f{0x0BBEF53F}}
 		Transform %Transform{f{0x511A463E,0x16CE383E,0x0EF85F3B,0x76DD563F,0xC4E0EF3C,0x2554063F,0x67780EBE,0xFDFF7F3F,0x0000803F,0xFCFF7F3F}}
-		Angle %TwistLimitHigh{f{0}}
-		Angle %TwistLimitLow{f{0}}
+		Angle %TwistLimitHigh{f{0xDC0FC93F}}
+		Angle %TwistLimitLow{f{0xDC0FC93F}}
 	}
 }
 o
@@ -598,8 +598,8 @@ o
 		Angle %SwingLimitY{f{0x0BBEF53F}}
 		Angle %SwingLimitZ{f{0x0BBEF53F}}
 		Transform %Transform{f{0x4E1A46BE,0x18CE383E,0x21F85F3B,0x51DE563F,0xA2A1EFBC,0x085406BF,0x16670EBE,0x0000803F,0x0000803F,0x0100803F}}
-		Angle %TwistLimitHigh{f{0}}
-		Angle %TwistLimitLow{f{0}}
+		Angle %TwistLimitHigh{f{0xDC0FC93F}}
+		Angle %TwistLimitLow{f{0xDC0FC93F}}
 	}
 }
 o
@@ -712,8 +712,8 @@ o
 		Angle %SwingLimitY{f{0x0BBE753F}}
 		Angle %SwingLimitZ{f{0xC2B8323E}}
 		Transform %Transform{f{0x0F3A91B3,0x33D7AE3E,0x446001B4,0x7DA873BE,0x8B10BEBC,0x64263DBE,0x7609743F,0xFEFF7F3F,0xFEFF7F3F,0xFFFF7F3F}}
-		Angle %TwistLimitHigh{f{0xC2B8323E}}
-		Angle %TwistLimitLow{f{0xC2B8323E}}
+		Angle %TwistLimitHigh{f{0x36FA8E3D}}
+		Angle %TwistLimitLow{f{0x36FA8E3D}}
 	}
 }
 o
@@ -759,8 +759,8 @@ o
 		Angle %SwingLimitY{f{0x0BBE753F}}
 		Angle %SwingLimitZ{f{0xC2B8323E}}
 		Transform %Transform{f{0x30651533,0xF0D4AE3E,0x26FEA633,0x768D73BE,0xB80FBE3C,0x951B3D3E,0xAC0B743F,0xFEFF7F3F,0xFCFF7F3F,0xFFFF7F3F}}
-		Angle %TwistLimitHigh{f{0xC2B8323E}}
-		Angle %TwistLimitLow{f{0xC2B8323E}}
+		Angle %TwistLimitHigh{f{0x36FA8E3D}}
+		Angle %TwistLimitLow{f{0x36FA8E3D}}
 	}
 }
 o

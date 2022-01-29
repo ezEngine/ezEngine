@@ -4,9 +4,9 @@
 #include <RendererCore/RendererCoreDLL.h>
 
 class ezWorld;
-class ezView;
 class ezViewHandle;
 
+/// \brief Used in ezDebugRenderer to determine where debug geometry should be rendered
 class EZ_RENDERERCORE_DLL ezDebugRendererContext
 {
 public:
@@ -15,7 +15,10 @@ public:
   {
   }
 
+  /// \brief If this constructor is used, the geometry is rendered in all views for that scene.
   ezDebugRendererContext(const ezWorld* pWorld);
+
+  /// \brief If this constructor is used, the geometry is only rendered in this view.
   ezDebugRendererContext(const ezViewHandle& hView);
 
   EZ_ALWAYS_INLINE bool operator==(const ezDebugRendererContext& other) const { return m_Id == other.m_Id; }

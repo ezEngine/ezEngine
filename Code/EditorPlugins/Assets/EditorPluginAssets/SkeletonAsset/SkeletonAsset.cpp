@@ -9,7 +9,7 @@
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSkeletonAssetDocument, 6, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSkeletonAssetDocument, 7, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
@@ -145,6 +145,71 @@ ezStatus ezSkeletonAssetDocument::WriteResource(ezStreamWriter& stream) const
   return ezStatus(EZ_SUCCESS);
 }
 
+void ezSkeletonAssetDocument::SetRenderBones(bool enable)
+{
+  if (m_bRenderBones == enable)
+    return;
+
+  m_bRenderBones = enable;
+
+  ezSkeletonAssetEvent e;
+  e.m_pDocument = this;
+  e.m_Type = ezSkeletonAssetEvent::RenderStateChanged;
+  m_Events.Broadcast(e);
+}
+
+void ezSkeletonAssetDocument::SetRenderColliders(bool enable)
+{
+  if (m_bRenderColliders == enable)
+    return;
+
+  m_bRenderColliders = enable;
+
+  ezSkeletonAssetEvent e;
+  e.m_pDocument = this;
+  e.m_Type = ezSkeletonAssetEvent::RenderStateChanged;
+  m_Events.Broadcast(e);
+}
+
+void ezSkeletonAssetDocument::SetRenderJoints(bool enable)
+{
+  if (m_bRenderJoints == enable)
+    return;
+
+  m_bRenderJoints = enable;
+
+  ezSkeletonAssetEvent e;
+  e.m_pDocument = this;
+  e.m_Type = ezSkeletonAssetEvent::RenderStateChanged;
+  m_Events.Broadcast(e);
+}
+
+void ezSkeletonAssetDocument::SetRenderSwingLimits(bool enable)
+{
+  if (m_bRenderSwingLimits == enable)
+    return;
+
+  m_bRenderSwingLimits = enable;
+
+  ezSkeletonAssetEvent e;
+  e.m_pDocument = this;
+  e.m_Type = ezSkeletonAssetEvent::RenderStateChanged;
+  m_Events.Broadcast(e);
+}
+
+void ezSkeletonAssetDocument::SetRenderTwistLimits(bool enable)
+{
+  if (m_bRenderTwistLimits == enable)
+    return;
+
+  m_bRenderTwistLimits = enable;
+
+  ezSkeletonAssetEvent e;
+  e.m_pDocument = this;
+  e.m_Type = ezSkeletonAssetEvent::RenderStateChanged;
+  m_Events.Broadcast(e);
+}
+
 ezStatus ezSkeletonAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   m_bIsTransforming = true;
@@ -207,7 +272,8 @@ void ezSkeletonAssetDocument::MergeWithNewSkeleton(ezEditableSkeleton& newSkelet
 
   // map all old joints by name
   {
-    auto TraverseJoints = [&prevJoints](const auto& self, ezEditableSkeletonJoint* pJoint) -> void {
+    auto TraverseJoints = [&prevJoints](const auto& self, ezEditableSkeletonJoint* pJoint) -> void
+    {
       prevJoints[pJoint->GetName()] = pJoint;
 
       for (ezEditableSkeletonJoint* pChild : pJoint->m_Children)
@@ -224,7 +290,8 @@ void ezSkeletonAssetDocument::MergeWithNewSkeleton(ezEditableSkeleton& newSkelet
 
   // copy old properties to new skeleton
   {
-    auto TraverseJoints = [&prevJoints](const auto& self, ezEditableSkeletonJoint* pJoint, const ezTransform& tRoot, ezTransform origin) -> void {
+    auto TraverseJoints = [&prevJoints](const auto& self, ezEditableSkeletonJoint* pJoint, const ezTransform& tRoot, ezTransform origin) -> void
+    {
       auto it = prevJoints.Find(pJoint->GetName());
       if (it.IsValid())
       {

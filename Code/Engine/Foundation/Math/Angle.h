@@ -114,9 +114,9 @@ constexpr ezAngle operator*(ezAngle a, float f); // [tested]
 /// \brief Returns f times angle a.
 constexpr ezAngle operator*(float f, ezAngle a); // [tested]
 
-/// \brief Returns f fraction of angle a.
+/// \brief Returns the angle a divided by f.
 constexpr ezAngle operator/(ezAngle a, float f); // [tested]
-/// \brief Returns f fraction of angle a.
-constexpr ezAngle operator/(float f, ezAngle a); // [tested]
+/// \brief Returns the fraction of angle a divided by angle b.
+constexpr float operator/(ezAngle a, ezAngle b); // [tested]
 
 #include <Foundation/Math/Implementation/Angle_inl.h>
