@@ -18,6 +18,7 @@
 #include <EditorPluginAssets/MaterialAsset/MaterialAsset.h>
 #include <EditorPluginAssets/MaterialAsset/MaterialAssetWindow.moc.h>
 #include <EditorPluginAssets/MeshAsset/MeshAssetObjects.h>
+#include <EditorPluginAssets/SkeletonAsset/SkeletonActions.h>
 #include <EditorPluginAssets/SkeletonAsset/SkeletonAsset.h>
 #include <EditorPluginAssets/TextureAsset/TextureAssetObjects.h>
 #include <EditorPluginAssets/TextureAsset/TextureAssetWindow.moc.h>
@@ -430,6 +431,8 @@ static void ConfigureSkeletonAsset()
 {
   ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezSkeletonAssetDocument::PropertyMetaStateEventHandler);
 
+  ezSkeletonActions::RegisterActions();
+
   // Menu Bar
   {
     ezActionMapManager::RegisterActionMap("SkeletonAssetMenuBar").IgnoreResult();
@@ -446,6 +449,7 @@ static void ConfigureSkeletonAsset()
     ezCommandHistoryActions::MapActions("SkeletonAssetToolBar", "");
     ezAssetActions::MapActions("SkeletonAssetToolBar", true);
     ezCommonAssetActions::MapActions("SkeletonAssetToolBar", "", ezCommonAssetUiState::Grid);
+    ezSkeletonActions::MapActions("SkeletonAssetToolBar", "");
   }
 
   // View Tool Bar
@@ -566,6 +570,7 @@ void OnUnloadPlugin()
   ezVisualShaderActions::UnregisterActions();
   ezVisualScriptActions::UnregisterActions();
   ezMaterialAssetActions::UnregisterActions();
+  ezSkeletonActions::UnregisterActions();
 
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezMeshAssetProperties::PropertyMetaStateEventHandler);
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezTextureAssetProperties::PropertyMetaStateEventHandler);

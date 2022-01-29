@@ -4,6 +4,7 @@
 #include <EditorFramework/DocumentWindow/OrbitCamViewWidget.moc.h>
 #include <EditorFramework/InputContexts/OrbitCameraContext.h>
 #include <EditorFramework/InputContexts/SelectionContext.h>
+#include <EditorPluginAssets/SkeletonAsset/SkeletonAsset.h>
 #include <EditorPluginAssets/SkeletonAsset/SkeletonAssetWindow.moc.h>
 #include <EditorPluginAssets/SkeletonAsset/SkeletonPanel.moc.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
@@ -101,6 +102,43 @@ void ezQtSkeletonAssetDocumentWindow::SendRedrawMsg()
   // do not try to redraw while the process is crashed, it is obviously futile
   if (ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
     return;
+
+  auto* pDoc = GetSkeletonDocument();
+
+  {
+    ezSimpleDocumentConfigMsgToEngine msg;
+    msg.m_sWhatToDo = "RenderBones";
+    msg.m_fPayload = pDoc->GetRenderBones() ? 1.0f : 0.0f;
+    pDoc->SendMessageToEngine(&msg);
+  }
+
+  {
+    ezSimpleDocumentConfigMsgToEngine msg;
+    msg.m_sWhatToDo = "RenderColliders";
+    msg.m_fPayload = pDoc->GetRenderColliders() ? 1.0f : 0.0f;
+    pDoc->SendMessageToEngine(&msg);
+  }
+
+  {
+    ezSimpleDocumentConfigMsgToEngine msg;
+    msg.m_sWhatToDo = "RenderJoints";
+    msg.m_fPayload = pDoc->GetRenderJoints() ? 1.0f : 0.0f;
+    pDoc->SendMessageToEngine(&msg);
+  }
+
+  {
+    ezSimpleDocumentConfigMsgToEngine msg;
+    msg.m_sWhatToDo = "RenderSwingLimits";
+    msg.m_fPayload = pDoc->GetRenderSwingLimits() ? 1.0f : 0.0f;
+    pDoc->SendMessageToEngine(&msg);
+  }
+
+  {
+    ezSimpleDocumentConfigMsgToEngine msg;
+    msg.m_sWhatToDo = "RenderTwistLimits";
+    msg.m_fPayload = pDoc->GetRenderTwistLimits() ? 1.0f : 0.0f;
+    pDoc->SendMessageToEngine(&msg);
+  }
 
   for (auto pView : m_ViewWidgets)
   {

@@ -35,6 +35,11 @@
     <file>CurveY.png</file>
     <file>CurveZ.png</file>
     <file>CurveW.png</file>
+    <file>SkeletonBones.png</file>
+    <file>SkeletonJoints.png</file>
+    <file>SkeletonColliders.png</file>
+    <file>JointSwingLimits.png</file>
+    <file>JointTwistLimits.png</file>
   </qresource>
 </RCC>
 

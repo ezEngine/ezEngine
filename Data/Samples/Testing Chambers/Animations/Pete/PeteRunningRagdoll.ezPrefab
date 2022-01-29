@@ -21,7 +21,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{15005843891432020620,4803701267875656960}}
-		u4 %Hash{12202217981428184139}
+		u4 %Hash{1840088483201334591}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{9512092322397286256,2078912507272247961}}
@@ -75,6 +75,20 @@ o
 }
 o
 {
+	Uuid %id{u4{15216081569110971567,4895068153847556524}}
+	s %t{"ezPxSimulatedRagdollComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Constraints{}
+		b %DisableGravity{0}
+		b %SelfCollision{1}
+		s %Start{"ezPxRagdollStart::Wait"}
+	}
+}
+o
+{
 	Uuid %id{u4{2878284519907603265,5258017049847043305}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -87,9 +101,9 @@ o
 			Uuid{u4{7866628651591254077,5617479321211143590}}
 			Uuid{u4{10365178101646708331,5551010631603340110}}
 			Uuid{u4{14050660773700107935,491685227538168198}}
-			Uuid{u4{11860160368718569974,14213809641742035532}}
 			Uuid{u4{3670086557483209742,13875581353722707927}}
 			Uuid{u4{10506568787699518770,46810808549842588}}
+			Uuid{u4{15216081569110971567,4895068153847556524}}
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0,0,0}}
@@ -160,21 +174,6 @@ o
 		s %Script{"{ 021eebb9-3c61-4aab-847c-ca9c283b7f31 }"}
 	}
 }
-o
-{
-	Uuid %id{u4{11860160368718569974,14213809641742035532}}
-	s %t{"ezPxRagdollComponent"}
-	u3 %v{1}
-	p
-	{
-		b %Active{1}
-		u1 %CollisionLayer{0}
-		b %DisableGravity{0}
-		b %SelfCollision{0}
-		s %Start{"ezPxRagdollStart::Wait"}
-		s %Surface{""}
-	}
-}
 }
 Types
 {
@@ -192,7 +191,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSimpleAnimationComponent"}
-		u3 %TypeSize{120}
+		u3 %TypeSize{112}
 		u3 %TypeVersion{1}
 	}
 }
@@ -338,6 +337,24 @@ o
 		s %TypeName{"ezEventMessageHandlerComponent"}
 		u3 %TypeSize{56}
 		u3 %TypeVersion{3}
+	}
+}
+o
+{
+	Uuid %id{u4{5807348353254272091,6374188688657174388}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezPxRagdollComponent"}
+		s %PluginName{"ezPhysXPlugin"}
+		VarArray %Properties{}
+		s %TypeName{"ezPxSimulatedRagdollComponent"}
+		u3 %TypeSize{264}
+		u3 %TypeVersion{1}
 	}
 }
 o
@@ -504,6 +521,24 @@ o
 }
 o
 {
+	Uuid %id{u4{6764458183086182345,11838992975817578850}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezPhysXPlugin"}
+		VarArray %Properties{}
+		s %TypeName{"ezPxRagdollConstraint"}
+		u3 %TypeSize{88}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{16777871838542487558,12116962178824346014}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -582,14 +617,14 @@ o
 	p
 	{
 		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
 		VarArray %Functions{}
 		s %ParentTypeName{"ezPxComponent"}
 		s %PluginName{"ezPhysXPlugin"}
 		VarArray %Properties{}
 		s %TypeName{"ezPxRagdollComponent"}
-		u3 %TypeSize{424}
-		u3 %TypeVersion{1}
+		u3 %TypeSize{256}
+		u3 %TypeVersion{2}
 	}
 }
 o

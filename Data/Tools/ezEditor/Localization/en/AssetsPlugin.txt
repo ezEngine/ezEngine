@@ -255,3 +255,8 @@ ezMaterialAssetPreview::Ball;Ball
 ezMaterialAssetPreview::Sphere;Sphere
 ezMaterialAssetPreview::Box;Box
 ezMaterialAssetPreview::Plane;Plane
+Skeleton.RenderBones;Render Bones
+Skeleton.RenderColliders;Render Colliders
+Skeleton.RenderJoints;Render Joints
+Skeleton.RenderSwingLimits;Render Swing Limits
+Skeleton.RenderTwistLimits;Render Twist Limits

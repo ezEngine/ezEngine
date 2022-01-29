@@ -7,6 +7,14 @@ EZ_ALWAYS_INLINE ezDebugRenderer::Line::Line(const ezVec3& start, const ezVec3& 
 {
 }
 
+EZ_ALWAYS_INLINE ezDebugRenderer::Line::Line(const ezVec3& start, const ezVec3& end, const ezColor& color)
+  : m_start(start)
+  , m_end(end)
+  , m_startColor(color)
+  , m_endColor(color)
+{
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 EZ_ALWAYS_INLINE ezDebugRenderer::Triangle::Triangle() = default;
