@@ -121,7 +121,7 @@ void ezPxControlledRagdollComponent::CreateLimbJoint(physx::PxPhysics* pPxApi, c
     //const float damping = 0;
 
     //const physx::PxSpring spring(stiffness, damping);
-    physx::PxJointAngularLimitPair limit(low.GetRadian(), high.GetRadian()/*, spring*/);
+    physx::PxJointAngularLimitPair limit(low.GetRadian(), high.GetRadian() /*, spring*/);
     limit.restitution = 0;
     limit.bounceThreshold = 1.0f;
 

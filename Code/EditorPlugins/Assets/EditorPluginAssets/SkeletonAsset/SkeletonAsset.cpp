@@ -272,8 +272,7 @@ void ezSkeletonAssetDocument::MergeWithNewSkeleton(ezEditableSkeleton& newSkelet
 
   // map all old joints by name
   {
-    auto TraverseJoints = [&prevJoints](const auto& self, ezEditableSkeletonJoint* pJoint) -> void
-    {
+    auto TraverseJoints = [&prevJoints](const auto& self, ezEditableSkeletonJoint* pJoint) -> void {
       prevJoints[pJoint->GetName()] = pJoint;
 
       for (ezEditableSkeletonJoint* pChild : pJoint->m_Children)
@@ -290,8 +289,7 @@ void ezSkeletonAssetDocument::MergeWithNewSkeleton(ezEditableSkeleton& newSkelet
 
   // copy old properties to new skeleton
   {
-    auto TraverseJoints = [&prevJoints](const auto& self, ezEditableSkeletonJoint* pJoint, const ezTransform& tRoot, ezTransform origin) -> void
-    {
+    auto TraverseJoints = [&prevJoints](const auto& self, ezEditableSkeletonJoint* pJoint, const ezTransform& tRoot, ezTransform origin) -> void {
       auto it = prevJoints.Find(pJoint->GetName());
       if (it.IsValid())
       {

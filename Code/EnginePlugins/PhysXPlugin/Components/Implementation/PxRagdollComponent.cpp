@@ -444,8 +444,7 @@ void ezPxRagdollComponent::SetupLimbsFromBindPose()
 
   m_LimbPoses.SetCountUninitialized(desc.m_Skeleton.GetJointCount());
 
-  auto getBone = [&](ezUInt32 i, auto f) -> ezMat4
-  {
+  auto getBone = [&](ezUInt32 i, auto f) -> ezMat4 {
     const auto& j = desc.m_Skeleton.GetJointByIndex(i);
     const ezMat4 bm = j.GetBindPoseLocalTransform().GetAsMat4();
 
