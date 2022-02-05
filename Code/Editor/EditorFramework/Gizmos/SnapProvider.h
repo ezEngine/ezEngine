@@ -55,4 +55,5 @@ private:
   static ezAngle s_RotationSnapValue;
   static float s_fScaleSnapValue;
   static float s_fTranslationSnapValue;
+  static ezEventSubscriptionID s_UserPreferencesChanged;
 };

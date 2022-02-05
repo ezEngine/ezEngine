@@ -110,53 +110,52 @@ void ezSceneDocumentManager::InternalCloneDocument(const char* szPath, const cha
     return;
 
   // Fix up scene layers during cloning
-  pObjects->ModifyNodeViaNativeCounterpart(pSettings, [&](void* pNativeObject, const ezRTTI* pType)
+  pObjects->ModifyNodeViaNativeCounterpart(pSettings, [&](void* pNativeObject, const ezRTTI* pType) {
+    ezSceneDocumentSettings* pObject = static_cast<ezSceneDocumentSettings*>(pNativeObject);
+
+    for (ezSceneLayerBase* pLayerBase : pObject->m_Layers)
     {
-      ezSceneDocumentSettings* pObject = static_cast<ezSceneDocumentSettings*>(pNativeObject);
-
-      for (ezSceneLayerBase* pLayerBase : pObject->m_Layers)
+      if (auto pLayer = ezDynamicCast<ezSceneLayer*>(pLayerBase))
       {
-        if (auto pLayer = ezDynamicCast<ezSceneLayer*>(pLayerBase))
+        if (pLayer->m_Layer == documentId)
         {
-          if (pLayer->m_Layer == documentId)
+          // Fix up main layer reference in layer list
+          pLayer->m_Layer = cloneGuid;
+        }
+        else
+        {
+          // Clone layer.
+          ezStringBuilder sLayerPath;
           {
-            // Fix up main layer reference in layer list
-            pLayer->m_Layer = cloneGuid;
+            auto assetInfo = ezAssetCurator::GetSingleton()->GetSubAsset(pLayer->m_Layer);
+            if (assetInfo.isValid())
+            {
+              sLayerPath = assetInfo->m_pAssetInfo->m_sAbsolutePath;
+            }
+            else
+            {
+              ezLog::Error("Failed to resolve layer: {}. Cloned Layer will be invalid.");
+              pLayer->m_Layer.SetInvalid();
+            }
           }
-          else
+          if (!sLayerPath.IsEmpty())
           {
-            // Clone layer.
-            ezStringBuilder sLayerPath;
-            {
-              auto assetInfo = ezAssetCurator::GetSingleton()->GetSubAsset(pLayer->m_Layer);
-              if (assetInfo.isValid())
-              {
-                sLayerPath = assetInfo->m_pAssetInfo->m_sAbsolutePath;
-              }
-              else
-              {
-                ezLog::Error("Failed to resolve layer: {}. Cloned Layer will be invalid.");
-                pLayer->m_Layer.SetInvalid();
-              }
-            }
-            if (!sLayerPath.IsEmpty())
-            {
-              ezUuid newLayerGuid = pLayer->m_Layer;
-              newLayerGuid.CombineWithSeed(seedGuid);
+            ezUuid newLayerGuid = pLayer->m_Layer;
+            newLayerGuid.CombineWithSeed(seedGuid);
 
-              ezStringBuilder sLayerClonePath = szClonePath;
-              sLayerClonePath.RemoveFileExtension();
-              sLayerClonePath.Append("_data");
-              ezStringBuilder sCloneFleName = ezPathUtils::GetFileNameAndExtension(sLayerPath.GetData());
-              sLayerClonePath.AppendPath(sCloneFleName);
-              // We assume that all layers are handled by the same document manager, i.e. this.
-              CloneDocument(sLayerPath, sLayerClonePath, newLayerGuid).LogFailure();
-              pLayer->m_Layer = newLayerGuid;
-            }
+            ezStringBuilder sLayerClonePath = szClonePath;
+            sLayerClonePath.RemoveFileExtension();
+            sLayerClonePath.Append("_data");
+            ezStringBuilder sCloneFleName = ezPathUtils::GetFileNameAndExtension(sLayerPath.GetData());
+            sLayerClonePath.AppendPath(sCloneFleName);
+            // We assume that all layers are handled by the same document manager, i.e. this.
+            CloneDocument(sLayerPath, sLayerClonePath, newLayerGuid).LogFailure();
+            pLayer->m_Layer = newLayerGuid;
           }
         }
       }
-    });
+    }
+  });
 }
 
 void ezSceneDocumentManager::SetupDefaultScene(ezDocument* pDocument)

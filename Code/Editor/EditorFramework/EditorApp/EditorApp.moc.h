@@ -75,7 +75,7 @@ public:
   ezQtEditorApp();
   ~ezQtEditorApp();
 
-  ezEvent<const ezEditorAppEvent&> m_Events;
+  static ezEvent<const ezEditorAppEvent&> m_Events;
 
   //
   // External Tools
