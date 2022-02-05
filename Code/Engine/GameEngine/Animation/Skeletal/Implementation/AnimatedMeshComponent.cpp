@@ -138,7 +138,7 @@ void ezAnimatedMeshComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& 
   poseBounds.SetInvalid();
   m_SkinningSpacePose.MapModelSpacePoseToSkinningSpace(pMesh->m_Bones, *msg.m_pSkeleton, msg.m_ModelTransforms, &poseBounds);
 
-  if (!m_MaxBounds.IsValid() || !m_MaxBounds.Contains(poseBounds))
+  if (poseBounds.IsValid() && (!m_MaxBounds.IsValid() || !m_MaxBounds.Contains(poseBounds)))
   {
     m_MaxBounds.ExpandToInclude(poseBounds);
     TriggerLocalBoundsUpdate();

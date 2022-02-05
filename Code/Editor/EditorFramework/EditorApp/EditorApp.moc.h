@@ -36,6 +36,7 @@ struct EZ_EDITORFRAMEWORK_DLL ezEditorAppEvent
     BeforeApplyDataDirectories, ///< Sent after data directory config was loaded, but before it is applied. Allows to add custom
                                 ///< dependencies at the right moment.
     ReloadResources,            ///< Sent when 'ReloadResources' has been triggered (and a message was sent to the engine)
+    EditorStarted,              ///< Editor has finished all initialization code and will now load the recent project.
   };
 
   Type m_Type;

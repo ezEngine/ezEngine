@@ -278,6 +278,12 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
 
   LoadEditorPlugins();
 
+  {
+    ezEditorAppEvent e;
+    e.m_Type = ezEditorAppEvent::Type::EditorStarted;
+    m_Events.Broadcast(e);
+  }
+
   ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
 
   if (pCmd->GetStringOptionArguments("-project") > 0)
@@ -455,8 +461,12 @@ void ezQtEditorApp::SetupAndShowSplashScreen()
 
   m_pSplashScreen = new QSplashScreen(splashPixmap);
   m_pSplashScreen->setMask(splashPixmap.mask());
-  m_pSplashScreen->setWindowFlag(Qt::WindowStaysOnTopHint, true);
 
+  // Don't set always on top if a debugger is attached to prevent it being stuck over the debugger.
+  if (!ezSystemInformation::IsDebuggerAttached())
+  {
+    m_pSplashScreen->setWindowFlag(Qt::WindowStaysOnTopHint, true);
+  }
   m_pSplashScreen->show();
 }
 
@@ -465,11 +475,9 @@ void ezQtEditorApp::CloseSplashScreen()
   if (!m_pSplashScreen)
     return;
 
-  m_pSplashScreen->deleteLater();
-  m_pSplashScreen = nullptr;
-
+  m_pSplashScreen->finish(ezQtContainerWindow::GetContainerWindow());
   // if the deletion is done 'later', the splashscreen can end up as the parent window of other things
   // like messageboxes, and then the deletion will make the app crash
-  // therefore, we force a processEvents() here, to ensure the splashscreen is cleaned up right now
-  qApp->processEvents();
+  delete m_pSplashScreen;
+  m_pSplashScreen = nullptr;
 }

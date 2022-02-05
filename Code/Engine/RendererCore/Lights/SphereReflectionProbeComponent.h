@@ -43,6 +43,9 @@ public:
   void SetFalloff(float fFalloff);                // [ property ]
   float GetFalloff() const { return m_fFalloff; } // [ property ]
 
+  void SetSphereProjection(bool bSphereProjection);                // [ property ]
+  bool GetSphereProjection() const { return m_bSphereProjection; } // [ property ]
+
 protected:
   //////////////////////////////////////////////////////////////////////////
   // Editor
@@ -54,4 +57,5 @@ protected:
   void OnTransformChanged(ezMsgTransformChanged& msg);
   float m_fRadius = 5.0f;
   float m_fFalloff = 0.1f;
+  bool m_bSphereProjection = true;
 };

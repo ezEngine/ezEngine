@@ -689,6 +689,11 @@ ezStatus ezScene2Document::SetLayerLoaded(const ezUuid& layerGuid, bool bLoaded)
   if (bLoaded)
   {
     ezStringBuilder sAbsPath;
+    if (layerGuid == GetGuid())
+    {
+      sAbsPath = GetDocumentPath();
+    }
+    else
     {
       auto assetInfo = ezAssetCurator::GetSingleton()->GetSubAsset(layerGuid);
       if (assetInfo.isValid())

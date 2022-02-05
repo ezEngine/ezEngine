@@ -44,6 +44,7 @@ public:
   // \sa EZ_DEFINE_CUSTOM_VARIANT_TYPE, EZ_DECLARE_CUSTOM_VARIANT_TYPE
   ezResult InlineProperty(const char* szName);
 
+  const ezAbstractObjectGraph* GetOwner() const { return m_pOwner; }
   const ezUuid& GetGuid() const { return m_Guid; }
   ezUInt32 GetTypeVersion() const { return m_uiTypeVersion; }
   void SetTypeVersion(ezUInt32 uiTypeVersion) { m_uiTypeVersion = uiTypeVersion; }
@@ -121,7 +122,7 @@ public:
   ~ezAbstractObjectGraph();
 
   void Clear();
-  void Clone(ezAbstractObjectGraph& cloneTarget) const;
+  ezAbstractObjectNode* Clone(ezAbstractObjectGraph& cloneTarget, ezAbstractObjectNode* pRootNode = nullptr) const;
 
   const char* RegisterString(const char* szString);
 
@@ -150,8 +151,14 @@ public:
   ///  applying native side changes to the original ezDocumentObject hierarchy using diffs.
   void ReMapNodeGuidsToMatchGraph(ezAbstractObjectNode* root, const ezAbstractObjectGraph& rhsGraph, const ezAbstractObjectNode* rhsRoot);
 
+  /// \brief Finds everything accessible by the given root node.
+  void FindTransitiveHull(const ezUuid& rootGuid, ezSet<ezUuid>& out_reachableNodes) const;
   /// \brief Deletes everything not accessible by the given root node.
   void PruneGraph(const ezUuid& rootGuid);
+
+  /// \brief Allows for a given node to be modified as a native object.
+  /// Once the callback exits any changes to the sub-hierarchy of the given root node will be written back to the node objects.
+  void ModifyNodeViaNativeCounterpart(ezAbstractObjectNode* pRootNode, ezDelegate<void(void*, const ezRTTI*)> callback);
 
   /// \brief Allows to copy a node from another graph into this graph.
   ezAbstractObjectNode* CopyNodeIntoGraph(const ezAbstractObjectNode* pNode);

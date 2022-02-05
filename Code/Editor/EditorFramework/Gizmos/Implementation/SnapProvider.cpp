@@ -1,12 +1,64 @@
 #include <EditorFramework/EditorFrameworkPCH.h>
 
+#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Gizmos/SnapProvider.h>
+#include <EditorFramework/Preferences/EditorPreferences.h>
 
 ezAngle ezSnapProvider::s_RotationSnapValue = ezAngle::Degree(15.0f);
 float ezSnapProvider::s_fScaleSnapValue = 0.125f;
 float ezSnapProvider::s_fTranslationSnapValue = 0.25f;
 ezEvent<const ezSnapProviderEvent&> ezSnapProvider::s_Events;
 
+// clang-format off
+EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, SnapProvider)
+
+  BEGIN_SUBSYSTEM_DEPENDENCIES
+    "EditorFrameworkMain"
+  END_SUBSYSTEM_DEPENDENCIES
+
+  ON_CORESYSTEMS_STARTUP
+  {
+    ezSnapProvider::Startup();
+  }
+
+  ON_CORESYSTEMS_SHUTDOWN
+  {
+    ezSnapProvider::Shutdown();
+  }
+
+EZ_END_SUBSYSTEM_DECLARATION;
+// clang-format on
+
+void ezSnapProvider::Startup()
+{
+  ezQtEditorApp::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&ezSnapProvider::EditorEventHandler));
+}
+
+void ezSnapProvider::Shutdown()
+{
+  ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
+  pPreferences->m_ChangedEvent.RemoveEventHandler(ezMakeDelegate(&ezSnapProvider::PreferenceChangedEventHandler));
+
+  ezQtEditorApp::GetSingleton()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezSnapProvider::EditorEventHandler));
+}
+
+void ezSnapProvider::EditorEventHandler(const ezEditorAppEvent& e)
+{
+  if (e.m_Type == ezEditorAppEvent::Type::EditorStarted)
+  {
+    ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
+    PreferenceChangedEventHandler(pPreferences);
+    pPreferences->m_ChangedEvent.AddEventHandler(ezMakeDelegate(&ezSnapProvider::PreferenceChangedEventHandler));
+  }
+}
+
+void ezSnapProvider::PreferenceChangedEventHandler(ezPreferences* pPreferenceBase)
+{
+  auto* pPreferences = static_cast<ezEditorPreferencesUser*>(pPreferenceBase);
+  SetRotationSnapValue(pPreferences->m_RotationSnapValue);
+  SetScaleSnapValue(pPreferences->m_fScaleSnapValue);
+  SetTranslationSnapValue(pPreferences->m_fTranslationSnapValue);
+}
 
 ezAngle ezSnapProvider::GetRotationSnapValue()
 {
@@ -30,6 +82,10 @@ void ezSnapProvider::SetRotationSnapValue(ezAngle angle)
 
   s_RotationSnapValue = angle;
 
+  ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
+  pPreferences->m_RotationSnapValue = angle;
+  pPreferences->TriggerPreferencesChangedEvent();
+
   ezSnapProviderEvent e;
   e.m_Type = ezSnapProviderEvent::Type::RotationSnapChanged;
   s_Events.Broadcast(e);
@@ -42,6 +98,10 @@ void ezSnapProvider::SetScaleSnapValue(float fPercentage)
 
   s_fScaleSnapValue = fPercentage;
 
+  ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
+  pPreferences->m_fScaleSnapValue = fPercentage;
+  pPreferences->TriggerPreferencesChangedEvent();
+
   ezSnapProviderEvent e;
   e.m_Type = ezSnapProviderEvent::Type::ScaleSnapChanged;
   s_Events.Broadcast(e);
@@ -53,6 +113,10 @@ void ezSnapProvider::SetTranslationSnapValue(float fUnits)
     return;
 
   s_fTranslationSnapValue = fUnits;
+
+  ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
+  pPreferences->m_fTranslationSnapValue = fUnits;
+  pPreferences->TriggerPreferencesChangedEvent();
 
   ezSnapProviderEvent e;
   e.m_Type = ezSnapProviderEvent::Type::TranslationSnapChanged;

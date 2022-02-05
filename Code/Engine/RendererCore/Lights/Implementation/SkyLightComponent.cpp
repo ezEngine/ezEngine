@@ -36,6 +36,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSkyLightComponent, 3, ezComponentMode::Static)
     EZ_ACCESSOR_PROPERTY("NearPlane", GetNearPlane, SetNearPlane)->AddAttributes(new ezDefaultValueAttribute(0.0f), new ezClampValueAttribute(0.0f, {}), new ezMinValueTextAttribute("Auto")),
     EZ_ACCESSOR_PROPERTY("FarPlane", GetFarPlane, SetFarPlane)->AddAttributes(new ezDefaultValueAttribute(100.0f), new ezClampValueAttribute(0.01f, 10000.0f)),
     EZ_ACCESSOR_PROPERTY("ShowDebugInfo", GetShowDebugInfo, SetShowDebugInfo),
+    EZ_ACCESSOR_PROPERTY("ShowMipMaps", GetShowMipMaps, SetShowMipMaps),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
@@ -154,6 +155,18 @@ bool ezSkyLightComponent::GetShowDebugInfo() const
 {
   return m_desc.m_bShowDebugInfo;
 }
+
+void ezSkyLightComponent::SetShowMipMaps(bool bShowMipMaps)
+{
+  m_desc.m_bShowMipMaps = bShowMipMaps;
+  m_bStatesDirty = true;
+}
+
+bool ezSkyLightComponent::GetShowMipMaps() const
+{
+  return m_desc.m_bShowMipMaps;
+}
+
 
 void ezSkyLightComponent::SetCubeMapFile(const char* szFile)
 {

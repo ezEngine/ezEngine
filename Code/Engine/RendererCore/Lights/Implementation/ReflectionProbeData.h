@@ -30,6 +30,8 @@ struct EZ_RENDERERCORE_DLL ezReflectionProbeDesc
   ezEnum<ezReflectionProbeMode> m_Mode;
 
   bool m_bShowDebugInfo = false;
+  bool m_bShowMipMaps = false;
+
   float m_fIntensity = 1.0f;
   float m_fSaturation = 1.0f;
   float m_fNearPlane = 0.0f;

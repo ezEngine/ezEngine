@@ -338,9 +338,7 @@ float3 ComputeReflection(inout ezMaterialData matData, float3 viewVector, ezPerC
     const float3 probeProjectionPosition = mul(worldToProbeProjectionMatrix, float4(matData.worldPosition, 1.0f)).xyz;
 
     float alpha;
-    float roughness = matData.roughness;
-    float3 reflectionDir;
-
+    float3 intersectPositionWS;
     if (bIsSphere)
     {
       // Boundary clamp. For spheres projection and influence space are identical.
@@ -351,8 +349,25 @@ float3 ComputeReflection(inout ezMaterialData matData, float3 viewVector, ezPerC
       // Compute falloff alpha
       alpha = saturate((1.0f - dist) / probeData.PositiveFalloff.x);
 
-      // Rotate ray into probe cube map space.
-      reflectionDir = CubeMapDirection(mul(worldToProbeCubeMapNormalMatrix, reflDirectionWS));
+      {
+        // Intersection with sphere, convert to unit sphere space
+        // Transform in local unit parallax sphere (scaled and rotated)
+        float3 probeProjectionReflDirection = mul(worldToProbeNormalMatrix, reflDirectionWS);
+        float reflDirectionLength = length(probeProjectionReflDirection);
+        probeProjectionReflDirection /= reflDirectionLength;
+
+        // https://en.wikipedia.org/wiki/Line%E2%80%93sphere_intersection
+        // As the ray dir is normalized and the sphere is radius 1 and at pos 0,0,0 - we can optimize the quadratic equation ad^2 + bd + c = 0.
+        const float b = dot(probeProjectionReflDirection, probeProjectionPosition);
+        const float c = dot(probeProjectionPosition, probeProjectionPosition) - 1;
+        // We ignore the determinant sign check (determinant >= 0 for hits) as we know that we are always within the sphere and thus always hit.
+        const float determinant = b * b - c;
+
+        // The optimized ray-sphere intersection above only works with the normalized probeProjectionReflDirection.
+        // Thus, we need to adjust the length when applying in world space.
+        const float distance = (sqrt(determinant) - b) / reflDirectionLength;
+        intersectPositionWS = matData.worldPosition + distance * reflDirectionWS;
+      }
     }
     else
     {
@@ -383,7 +398,6 @@ float3 ComputeReflection(inout ezMaterialData matData, float3 viewVector, ezPerC
       }
 
       // Box projection taken from: https://seblagarde.wordpress.com/2012/09/29/image-based-lighting-approaches-and-parallax-corrected-cubemap/
-      float3 intersectPositionWS;
       {
         // Intersection with OBB convert to unit box space
         // Transform in local unit parallax cube space (scaled and rotated)
@@ -400,17 +414,17 @@ float3 ComputeReflection(inout ezMaterialData matData, float3 viewVector, ezPerC
         // Use Distance in WS directly to recover intersection.
         intersectPositionWS = positionWS + reflDirectionWS * distance;
       }
-      // The blob post above assumes that the cube maps are always rendered from world space without any rotation
-      // in the rendering of the cube map itself. However, we do rotate the rendering of the cube maps so we can
-      // correctly clamp the far plane for each side of the cube. Thus, we can't take the world space dir and use
-      // it as a reflection lookup. We need to transform it into the cube map space. However, the image in the cube
-      // map is not squished according to the AABB so we ONLY need to apply the rotational part of the transform,
-      // ignoring scale.
-      float3 cubemapPositionWS = probeData.ProbePosition.xyz;
-      reflectionDir = CubeMapDirection(mul(worldToProbeCubeMapNormalMatrix, intersectPositionWS - cubemapPositionWS).xyz);
-      roughness = computeDistanceBaseRoughness(length(intersectPositionWS - matData.worldPosition), length(intersectPositionWS - cubemapPositionWS), matData.roughness);
     }
 
+    // The blob post above assumes that the cube maps are always rendered from world space without any rotation
+    // in the rendering of the cube map itself. However, we do rotate the rendering of the cube maps so we can
+    // correctly clamp the far plane for each side of the cube. Thus, we can't take the world space dir and use
+    // it as a reflection lookup. We need to transform it into the cube map space. However, the image in the cube
+    // map is not squished according to the AABB so we ONLY need to apply the rotational part of the transform,
+    // ignoring scale.
+    const float3 cubemapPositionWS = probeData.ProbePosition.xyz;
+    const float3 reflectionDir = CubeMapDirection(mul(worldToProbeCubeMapNormalMatrix, intersectPositionWS - cubemapPositionWS).xyz);
+    const float roughness = computeDistanceBaseRoughness(length(intersectPositionWS - matData.worldPosition), length(intersectPositionWS - cubemapPositionWS), matData.roughness);
     // Sample the cube map
     const float4 coord = float4(reflectionDir, index);
     const float mipLevel = MipLevelFromRoughness(roughness, NUM_REFLECTION_MIPS);

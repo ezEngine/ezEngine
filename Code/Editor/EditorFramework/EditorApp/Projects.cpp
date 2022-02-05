@@ -203,6 +203,11 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProjectEvent& r)
         m_bSavePreferencesAfterOpenProject = false;
         SaveSettings();
       }
+      else
+      {
+        // Save recent project list on project open in case of crashes or stopping the debugger.
+        SaveRecentFiles();
+      }
       break;
     }
 

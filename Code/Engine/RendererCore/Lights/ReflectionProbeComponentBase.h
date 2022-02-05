@@ -40,6 +40,9 @@ public:
   void SetShowDebugInfo(bool bShowDebugInfo); // [ property ]
   bool GetShowDebugInfo() const;              // [ property ]
 
+  void SetShowMipMaps(bool bShowMipMaps); // [ property ]
+  bool GetShowMipMaps() const;            // [ property ]
+
   //////////////////////////////////////////////////////////////////////////
   // ezComponent
 

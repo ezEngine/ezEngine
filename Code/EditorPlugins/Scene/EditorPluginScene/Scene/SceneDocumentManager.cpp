@@ -5,6 +5,8 @@
 #include <EditorPluginScene/Scene/SceneDocument.h>
 #include <EditorPluginScene/Scene/SceneDocumentManager.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
+#include <EditorFramework/Assets/SimpleAssetDocument.h>
+#include <Foundation/Strings/PathUtils.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneDocumentManager, 1, ezRTTIDefaultAllocator<ezSceneDocumentManager>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -93,6 +95,67 @@ void ezSceneDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<co
   {
     inout_DocumentTypes.PushBack(&docTypeDesc);
   }
+}
+
+void ezSceneDocumentManager::InternalCloneDocument(const char* szPath, const char* szClonePath, const ezUuid& documentId, const ezUuid& seedGuid, const ezUuid& cloneGuid, ezAbstractObjectGraph* pHeader, ezAbstractObjectGraph* pObjects, ezAbstractObjectGraph* pTypes)
+{
+  ezAssetDocumentManager::InternalCloneDocument(szPath, szClonePath, documentId, seedGuid, cloneGuid, pHeader, pObjects, pTypes);
+
+
+  auto pRoot = pObjects->GetNodeByName("ObjectTree");
+  ezUuid settingsGuid = pRoot->FindProperty("Settings")->m_Value.Get<ezUuid>();
+  auto pSettings = pObjects->GetNode(settingsGuid);
+  if (ezRTTI::FindTypeByName(pSettings->GetType()) != ezGetStaticRTTI<ezSceneDocumentSettings>())
+    return;
+
+  // Fix up scene layers during cloning
+  pObjects->ModifyNodeViaNativeCounterpart(pSettings, [&](void* pNativeObject, const ezRTTI* pType)
+    {
+      ezSceneDocumentSettings* pObject = static_cast<ezSceneDocumentSettings*>(pNativeObject);
+
+      for (ezSceneLayerBase* pLayerBase : pObject->m_Layers)
+      {
+        if (auto pLayer = ezDynamicCast<ezSceneLayer*>(pLayerBase))
+        {
+          if (pLayer->m_Layer == documentId)
+          {
+            // Fix up main layer reference in layer list
+            pLayer->m_Layer = cloneGuid;
+          }
+          else
+          {
+            // Clone layer.
+            ezStringBuilder sLayerPath;
+            {
+              auto assetInfo = ezAssetCurator::GetSingleton()->GetSubAsset(pLayer->m_Layer);
+              if (assetInfo.isValid())
+              {
+                sLayerPath = assetInfo->m_pAssetInfo->m_sAbsolutePath;
+              }
+              else
+              {
+                ezLog::Error("Failed to resolve layer: {}. Cloned Layer will be invalid.");
+                pLayer->m_Layer.SetInvalid();
+              }
+            }
+            if (!sLayerPath.IsEmpty())
+            {
+              ezUuid newLayerGuid = pLayer->m_Layer;
+              newLayerGuid.CombineWithSeed(seedGuid);
+
+              ezStringBuilder sLayerClonePath = szClonePath;
+              sLayerClonePath.RemoveFileExtension();
+              sLayerClonePath.Append("_data");
+              ezStringBuilder sCloneFleName = ezPathUtils::GetFileNameAndExtension(sLayerPath.GetData());
+              sLayerClonePath.AppendPath(sCloneFleName);
+              // We assume that all layers are handled by the same document manager, i.e. this.
+              CloneDocument(sLayerPath, sLayerClonePath, newLayerGuid).LogFailure();
+              pLayer->m_Layer = newLayerGuid;
+            }
+          }
+        }
+      }
+    });
 }
 
 void ezSceneDocumentManager::SetupDefaultScene(ezDocument* pDocument)

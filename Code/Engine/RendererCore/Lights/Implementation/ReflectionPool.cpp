@@ -126,7 +126,9 @@ void ezReflectionPool::ExtractReflectionProbe(const ezComponent* pComponent, ezM
 
     const ezGameObject* pOwner = pComponent->GetOwner();
     const ezTransform ownerTransform = pOwner->GetGlobalTransform();
-    for (ezUInt32 i = 0; i < uiMipLevels; i++)
+
+    ezUInt32 uiMipLevelsToRender = probeData.m_desc.m_bShowMipMaps ? uiMipLevels : 1;
+    for (ezUInt32 i = 0; i < uiMipLevelsToRender; i++)
     {
       ezMeshRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezMeshRenderData>(pOwner);
       pRenderData->m_GlobalTransform.m_vPosition = ownerTransform * probeData.m_desc.m_vCaptureOffset;
