@@ -54,8 +54,8 @@ public:
   void SetShowDebugInfo(bool bShowDebugInfo); // [ property ]
   bool GetShowDebugInfo() const;              // [ property ]
 
-  void SetShowMipMaps(bool bShowMipMaps);  // [ property ]
-  bool GetShowMipMaps() const;             // [ property ]
+  void SetShowMipMaps(bool bShowMipMaps); // [ property ]
+  bool GetShowMipMaps() const;            // [ property ]
 
   void SetCubeMapFile(const char* szFile); // [ property ]
   const char* GetCubeMapFile() const;      // [ property ]

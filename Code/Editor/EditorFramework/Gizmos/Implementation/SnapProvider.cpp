@@ -3,6 +3,7 @@
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Gizmos/SnapProvider.h>
 #include <EditorFramework/Preferences/EditorPreferences.h>
+#include <Foundation/Configuration/SubSystem.h>
 
 ezAngle ezSnapProvider::s_RotationSnapValue = ezAngle::Degree(15.0f);
 float ezSnapProvider::s_fScaleSnapValue = 0.125f;

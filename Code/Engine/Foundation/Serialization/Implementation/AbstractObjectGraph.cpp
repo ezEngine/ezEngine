@@ -2,8 +2,8 @@
 
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
-#include <Foundation/Serialization/RttiConverter.h>
 #include <Foundation/Serialization/ApplyNativePropertyChangesContext.h>
+#include <Foundation/Serialization/RttiConverter.h>
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezObjectChangeType, 1)
