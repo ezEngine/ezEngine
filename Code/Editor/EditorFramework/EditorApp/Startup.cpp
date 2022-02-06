@@ -277,6 +277,7 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
   }
 
   LoadEditorPlugins();
+  CloseSplashScreen();
 
   {
     ezEditorAppEvent e;
