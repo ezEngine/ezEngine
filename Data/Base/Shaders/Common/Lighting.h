@@ -556,7 +556,7 @@ AccumulatedLight CalculateLighting(ezMaterialData matData, ezPerClusterData clus
   // indirect specular
   totalLight.specularLight += matData.specularColor * ComputeReflection(matData, viewVector, clusterData) * occlusion;
   //totalLight.specularLight += ComputeReflection(matData, viewVector, clusterData);
- 
+
   // enable once we have proper sky visibility
   /*#if defined(USE_MATERIAL_SUBSURFACE_COLOR)
     skyLight = EvaluateAmbientCube(SkyIrradianceTexture, SkyIrradianceIndex, -matData.worldNormal).rgb;
