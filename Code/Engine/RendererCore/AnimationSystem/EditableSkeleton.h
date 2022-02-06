@@ -63,6 +63,9 @@ public:
   ezHashedString m_sName;
   ezTransform m_LocalTransform = ezTransform::IdentityTransform();
 
+  bool m_bLimitTwist = false;
+  bool m_bLimitSwing = false;
+
   ezAngle m_TwistLimitLow;
   ezAngle m_TwistLimitHigh;
   ezAngle m_SwingLimitY;

@@ -6,6 +6,7 @@
 #include <RendererCore/Components/RenderComponent.h>
 #include <RendererCore/Material/MaterialResource.h>
 #include <RendererCore/Meshes/MeshResource.h>
+#include <RendererCore/Meshes/SkinnedMeshComponent.h>
 
 typedef ezComponentManagerSimple<class ezBreakableSheetComponent, ezComponentUpdateType::Always /* TODO: When simulating */>
   ezBreakableSheetComponentManager;
@@ -130,10 +131,8 @@ protected:
   // State
   ezUInt32 m_uiRandomSeedUsed = 0;
   bool m_bBroken = false;
-  bool m_bPiecesMovedThisFrame = false;
   ezMeshResourceHandle m_hUnbrokenMesh;
   ezMeshResourceHandle m_hPiecesMesh;
-  ezDynamicArray<ezShaderTransform, ezAlignedAllocatorWrapper> m_PieceTransforms;
   ezDynamicArray<ezBoundingBox> m_PieceBoundingBoxes;
   ezBoundingSphere m_BrokenPiecesBoundingSphere;
   ezUInt32 m_uiNumActiveBrokenPieceActors = 0;
@@ -141,7 +140,7 @@ protected:
 
   ezVec3 m_vExtents;
 
-  ezGALBufferHandle m_hPieceTransformsBuffer;
+  ezSkinningState m_SkinningState;
 
   void BreakNow(const ezMsgCollision* pMessage = nullptr);
   void CreateMeshes();

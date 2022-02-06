@@ -18,7 +18,7 @@ public:
   /// so that child joints always come after their parent joints
   ezUInt32 AddJoint(const char* szName, const ezTransform& localBindPose, ezUInt32 uiParentIndex = ezInvalidIndex);
 
-  void SetJointLimit(ezUInt32 uiJointIndex, const ezQuat& localOrientation, ezAngle halfSwingLimitY, ezAngle halfSwingLimitZ, ezAngle twistLimitLow, ezAngle twistLimitHigh);
+  void SetJointLimit(ezUInt32 uiJointIndex, const ezQuat& localOrientation, bool bLimitSwing, ezAngle halfSwingLimitY, ezAngle halfSwingLimitZ, bool bLimitTwist, ezAngle twistLimitLow, ezAngle twistLimitHigh);
 
   /// \brief Creates a skeleton from the accumulated data.
   void BuildSkeleton(ezSkeleton& skeleton) const;
@@ -39,6 +39,8 @@ protected:
     ezAngle m_HalfSwingLimitY;
     ezAngle m_TwistLimitLow;
     ezAngle m_TwistLimitHigh;
+    bool m_bLimitTwist = false;
+    bool m_bLimitSwing = false;
   };
 
   ezDeque<BuilderJoint> m_Joints;

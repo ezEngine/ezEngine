@@ -61,6 +61,12 @@ void ezPxControlledRagdollComponent::WakeUp()
   ((physx::PxRigidDynamic*)m_pPxRootBody)->wakeUp();
 }
 
+bool ezPxControlledRagdollComponent::IsSleeping() const
+{
+  // TODO: is this good enough ?
+  return ((physx::PxRigidDynamic*)m_pPxRootBody)->isSleeping();
+}
+
 void ezPxControlledRagdollComponent::CreateLimbBody(physx::PxPhysics* pPxApi, const LimbConfig& parentLimb, LimbConfig& thisLimb)
 {
   physx::PxRigidDynamic* pBody = pPxApi->createRigidDynamic(ezPxConversionUtils::ToTransform(thisLimb.m_GlobalTransform));

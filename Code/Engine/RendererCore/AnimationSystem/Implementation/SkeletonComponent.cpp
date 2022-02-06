@@ -224,7 +224,7 @@ void ezSkeletonComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& msg)
     poseBounds.ExpandToInclude(bone.GetTranslationVector());
   }
 
-  if (!m_MaxBounds.IsValid() || !m_MaxBounds.Contains(poseBounds))
+  if (poseBounds.IsValid() && (!m_MaxBounds.IsValid() || !m_MaxBounds.Contains(poseBounds)))
   {
     m_MaxBounds.ExpandToInclude(poseBounds);
     TriggerLocalBoundsUpdate();
@@ -601,10 +601,6 @@ void ezSkeletonComponent::VisualizeSkeletonDefaultState()
   if (!IsActiveAndInitialized())
     return;
 
-  m_LinesSkeleton.Clear();
-  m_SpheresShapes.Clear();
-  m_BoxShapes.Clear();
-  m_CapsuleShapes.Clear();
   m_uiSkeletonChangeCounter = 0;
 
   if (m_hSkeleton.IsValid())

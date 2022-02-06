@@ -309,6 +309,8 @@ void ezPxRagdollComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& pos
   if (m_Start == ezPxRagdollStart::Wait)
     return;
 
+  poseMsg.m_bContinueAnimating = false; // TODO: change this
+
   if (m_bLimbsSetup)
   {
     // TODO: if at some point we can layer ragdolls with detail animations, we should
@@ -319,7 +321,6 @@ void ezPxRagdollComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& pos
   m_LimbPoses = poseMsg.m_ModelTransforms;
 
   SetupLimbs(poseMsg);
-  poseMsg.m_bContinueAnimating = false; // TODO: change this
 }
 
 #if JOINT_DEBUG_DRAW
@@ -341,9 +342,8 @@ void ezPxRagdollComponent::RetrievePhysicsPose()
   ezPhysXWorldModule* pPxModule = GetWorld()->GetOrCreateModule<ezPhysXWorldModule>();
   EZ_PX_READ_LOCK(*pPxModule->GetPxScene());
 
-  // TODO
-  //if (m_pArticulation->isSleeping())
-  //  return;
+  if (IsSleeping())
+    return;
 
   ezResourceLock<ezSkeletonResource> pSkeleton(m_hSkeleton, ezResourceAcquireMode::BlockTillLoaded);
 

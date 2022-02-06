@@ -1528,7 +1528,7 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
         const ezUInt32 uiNumLineBoxesInBatch = ezMath::Min<ezUInt32>(uiNumLineBoxes, BOXES_PER_BATCH);
         pGALCommandEncoder->UpdateBuffer(s_hDataBuffer[BufferType::LineBoxes], 0, ezMakeArrayPtr(pLineBoxData, uiNumLineBoxesInBatch).ToByteArray());
 
-        renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
+        renderViewContext.m_pRenderContext->DrawMeshBuffer(0xFFFFFFFF, 0, uiNumLineBoxesInBatch).IgnoreResult();
 
         uiNumLineBoxes -= uiNumLineBoxesInBatch;
         pLineBoxData += BOXES_PER_BATCH;

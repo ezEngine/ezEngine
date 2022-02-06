@@ -2,6 +2,8 @@
 
 #include <RendererCore/Components/RenderComponent.h>
 #include <RendererCore/Meshes/MeshResource.h>
+#include <RendererCore/Meshes/SkinnedMeshComponent.h>
+#include <memory>
 
 struct ezMsgExtractRenderData;
 struct ezMsgSetColor;
@@ -72,9 +74,7 @@ private:
 
   ezBoundingBoxSphere m_LocalBounds;
 
-  ezGALBufferHandle m_hSkinningTransformsBuffer;
-  ezDynamicArray<ezShaderTransform> m_SkinningTransforms;
-  mutable ezUInt64 m_uiSkinningTransformsExtractedFrame = -1;
+  ezSkinningState m_SkinningState;
 
   ezMeshResourceHandle m_hMesh;
   ezMaterialResourceHandle m_hMaterial;

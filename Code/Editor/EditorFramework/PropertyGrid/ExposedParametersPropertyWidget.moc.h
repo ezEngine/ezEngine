@@ -12,13 +12,10 @@ class QAction;
 class EZ_EDITORFRAMEWORK_DLL ezExposedParameterCommandAccessor : public ezObjectProxyAccessor
 {
 public:
-  ezExposedParameterCommandAccessor(
-    ezObjectAccessorBase* pSource, const ezAbstractProperty* pParameterProp, const ezAbstractProperty* m_pParameterSourceProp);
+  ezExposedParameterCommandAccessor(ezObjectAccessorBase* pSource, const ezAbstractProperty* pParameterProp, const ezAbstractProperty* m_pParameterSourceProp);
 
-  virtual ezStatus GetValue(
-    const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant& out_value, ezVariant index = ezVariant()) override;
-  virtual ezStatus SetValue(
-    const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezVariant& newValue, ezVariant index = ezVariant()) override;
+  virtual ezStatus GetValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant& out_value, ezVariant index = ezVariant()) override;
+  virtual ezStatus SetValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezVariant& newValue, ezVariant index = ezVariant()) override;
   virtual ezStatus RemoveValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index = ezVariant()) override;
   virtual ezStatus GetCount(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezInt32& out_iCount) override;
   virtual ezStatus GetKeys(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezDynamicArray<ezVariant>& out_keys) override;
@@ -78,4 +75,3 @@ private:
   QAction* m_pRemoveUnusedAction = nullptr;
   QAction* m_pFixTypesAction = nullptr;
 };
-

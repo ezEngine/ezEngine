@@ -78,18 +78,13 @@ export class MeshComponentBase extends RenderComponent
   public static GetTypeNameHash(): number { return 3838468365; }
 }
 
-export class SkinnedMeshComponent extends MeshComponentBase
-{
-  public static GetTypeNameHash(): number { return 1464511153; }
-  get Mesh(): string { return __CPP_ComponentProperty_get(this, 2274268843); }
-  set Mesh(value: string) { __CPP_ComponentProperty_set(this, 2274268843, value); }
-  get Color(): Color { return __CPP_ComponentProperty_get(this, 3981214309); }
-  set Color(value: Color) { __CPP_ComponentProperty_set(this, 3981214309, value); }
-}
-
-export class AnimatedMeshComponent extends SkinnedMeshComponent
+export class AnimatedMeshComponent extends MeshComponentBase
 {
   public static GetTypeNameHash(): number { return 1356608274; }
+  get Mesh(): string { return __CPP_ComponentProperty_get(this, 946325768); }
+  set Mesh(value: string) { __CPP_ComponentProperty_set(this, 946325768, value); }
+  get Color(): Color { return __CPP_ComponentProperty_get(this, 1787449362); }
+  set Color(value: Color) { __CPP_ComponentProperty_set(this, 1787449362, value); }
 }
 
 export class AnimationControllerComponent extends Component

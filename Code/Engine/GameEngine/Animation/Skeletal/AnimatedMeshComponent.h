@@ -9,9 +9,9 @@ using ezSkeletonResourceHandle = ezTypedResourceHandle<class ezSkeletonResource>
 
 typedef ezComponentManager<class ezAnimatedMeshComponent, ezBlockStorageType::FreeList> ezAnimatedMeshComponentManager;
 
-class EZ_GAMEENGINE_DLL ezAnimatedMeshComponent : public ezSkinnedMeshComponent
+class EZ_GAMEENGINE_DLL ezAnimatedMeshComponent : public ezMeshComponentBase
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezAnimatedMeshComponent, ezSkinnedMeshComponent, ezAnimatedMeshComponentManager);
+  EZ_DECLARE_COMPONENT_TYPE(ezAnimatedMeshComponent, ezMeshComponentBase, ezAnimatedMeshComponentManager);
 
 
   //////////////////////////////////////////////////////////////////////////
@@ -45,9 +45,11 @@ protected:
 
   void InitializeAnimationPose();
 
+  void MapModelSpacePoseToSkinningSpace(const ezHashTable<ezHashedString, ezMeshResourceDescriptor::BoneData>& bones, const ezSkeleton& skeleton, ezArrayPtr<const ezMat4> modelSpaceTransforms, ezBoundingBox* bounds);
+
   ezTransform m_RootTransform = ezTransform::IdentityTransform();
-  ezSkinningSpaceAnimationPose m_SkinningSpacePose;
   ezBoundingBox m_MaxBounds;
+  ezSkinningState m_SkinningState;
 };
 
 

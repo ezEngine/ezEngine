@@ -148,4 +148,5 @@ protected:
   void ComputeLimbGlobalTransform(ezTransform& transform, const ezMsgAnimationPoseUpdated& pose, ezUInt32 uiIndex);
   void RetrievePhysicsPose();
   virtual void WakeUp() = 0;
+  virtual bool IsSleeping() const = 0;
 };
