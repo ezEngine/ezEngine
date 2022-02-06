@@ -166,7 +166,7 @@ EZ_CREATE_SIMPLE_TEST(00_Init, TransformEffects)
 
 EZ_CREATE_SIMPLE_TEST(00_Init, TransformAnimations)
 {
-  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/Animations/ezProject", 4).Succeeded());
+  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/Animations/ezProject", 5).Succeeded());
 }
 
 EZ_CREATE_SIMPLE_TEST(00_Init, TransformPlatformWin)
