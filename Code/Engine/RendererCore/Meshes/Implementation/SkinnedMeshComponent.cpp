@@ -3,6 +3,7 @@
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <RendererCore/Meshes/SkinnedMeshComponent.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererCore/Shader/Types.h>
 #include <RendererFoundation/Device/Device.h>
 
@@ -16,83 +17,66 @@ void ezSkinnedMeshRenderData::FillBatchIdAndSortingKey()
   FillBatchIdAndSortingKeyInternal(m_uiUniqueID);
 }
 
-//////////////////////////////////////////////////////////////////////////
+ezSkinningState::ezSkinningState() = default;
 
-// clang-format off
-EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezSkinnedMeshComponent, 1);
+ezSkinningState::~ezSkinningState()
 {
-  EZ_BEGIN_PROPERTIES
+  Clear();
+}
+
+void ezSkinningState::Clear()
+{
+  if (!m_hGpuBuffer.IsInvalidated())
   {
-    EZ_ACCESSOR_PROPERTY("Mesh", GetMeshFile, SetMeshFile)->AddAttributes(new ezAssetBrowserAttribute("Animated Mesh")),
-    EZ_ACCESSOR_PROPERTY("Color", GetColor, SetColor)->AddAttributes(new ezExposeColorAlphaAttribute()),
-    EZ_ARRAY_ACCESSOR_PROPERTY("Materials", Materials_GetCount, Materials_GetValue, Materials_SetValue, Materials_Insert, Materials_Remove)->AddAttributes(new ezAssetBrowserAttribute("Material")),
-  }
-  EZ_END_PROPERTIES;
-}
-EZ_END_COMPONENT_TYPE
-// clang-format on
-
-ezSkinnedMeshComponent::ezSkinnedMeshComponent() = default;
-ezSkinnedMeshComponent::~ezSkinnedMeshComponent() = default;
-
-void ezSkinnedMeshComponent::SerializeComponent(ezWorldWriter& stream) const
-{
-  SUPER::SerializeComponent(stream);
-  auto& s = stream.GetStream();
-}
-
-void ezSkinnedMeshComponent::DeserializeComponent(ezWorldReader& stream)
-{
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  auto& s = stream.GetStream();
-}
-
-void ezSkinnedMeshComponent::OnDeactivated()
-{
-  if (!m_hSkinningTransformsBuffer.IsInvalidated())
-  {
-    ezGALDevice::GetDefaultDevice()->DestroyBuffer(m_hSkinningTransformsBuffer);
-    m_hSkinningTransformsBuffer.Invalidate();
+    ezGALDevice::GetDefaultDevice()->DestroyBuffer(m_hGpuBuffer);
+    m_hGpuBuffer.Invalidate();
   }
 
-  SUPER::OnDeactivated();
+  m_bTransformsUpdated[0] = nullptr;
+  m_bTransformsUpdated[1] = nullptr;
+  m_Transforms.Clear();
 }
 
-ezMeshRenderData* ezSkinnedMeshComponent::CreateRenderData() const
+void ezSkinningState::TransformsChanged()
 {
-  auto pRenderData = ezCreateRenderDataForThisFrame<ezSkinnedMeshRenderData>(GetOwner());
-
-  pRenderData->m_hSkinningTransforms = m_hSkinningTransformsBuffer;
-  pRenderData->m_pNewSkinningTransformData = m_SkinningTransforms.ToByteArray();
-
-  // TODO: this (potentially) creates jitter due to some kind of threading issue, but unclear how to fix, all attempts to double buffer data have failed
-  m_SkinningTransforms = {}; // reset, so it's not used again next frame, unless there is new data
-
-  return pRenderData;
-}
-
-void ezSkinnedMeshComponent::UpdateSkinningTransformBuffer(ezArrayPtr<const ezShaderTransform> skinningTransforms)
-{
-  if (m_hSkinningTransformsBuffer.IsInvalidated())
+  if (m_hGpuBuffer.IsInvalidated())
   {
+    if (m_Transforms.GetCount() == 0)
+      return;
+
     ezGALBufferCreationDescription BufferDesc;
     BufferDesc.m_uiStructSize = sizeof(ezShaderTransform);
-    BufferDesc.m_uiTotalSize = BufferDesc.m_uiStructSize * skinningTransforms.GetCount();
+    BufferDesc.m_uiTotalSize = BufferDesc.m_uiStructSize * m_Transforms.GetCount();
     BufferDesc.m_bUseAsStructuredBuffer = true;
     BufferDesc.m_bAllowShaderResourceView = true;
     BufferDesc.m_ResourceAccess.m_bImmutable = false;
 
-    m_hSkinningTransformsBuffer = ezGALDevice::GetDefaultDevice()->CreateBuffer(BufferDesc, skinningTransforms.ToByteArray());
+    m_hGpuBuffer = ezGALDevice::GetDefaultDevice()->CreateBuffer(BufferDesc, m_Transforms.GetArrayPtr().ToByteArray());
+
+    m_bTransformsUpdated[0] = std::make_shared<bool>(true);
+    m_bTransformsUpdated[1] = std::make_shared<bool>(true);
   }
   else
   {
-    auto transformsCopy = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezShaderTransform, skinningTransforms.GetCount());
-    transformsCopy.CopyFrom(skinningTransforms);
-
-    m_SkinningTransforms = transformsCopy;
+    const ezUInt32 uiRenIdx = ezRenderWorld::GetDataIndexForExtraction();
+    *m_bTransformsUpdated[uiRenIdx] = false;
   }
 }
 
+void ezSkinningState::FillSkinnedMeshRenderData(ezSkinnedMeshRenderData& renderData) const
+{
+  renderData.m_hSkinningTransforms = m_hGpuBuffer;
+
+  const ezUInt32 uiExIdx = ezRenderWorld::GetDataIndexForExtraction();
+
+  if (*m_bTransformsUpdated[uiExIdx] == false)
+  {
+    auto pSkinningMatrices = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezShaderTransform, m_Transforms.GetCount());
+    pSkinningMatrices.CopyFrom(m_Transforms);
+
+    renderData.m_pNewSkinningTransformData = pSkinningMatrices.ToByteArray();
+    renderData.m_bTransformsUpdated = m_bTransformsUpdated[uiExIdx];
+  }
+}
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Meshes_Implementation_SkinnedMeshComponent);

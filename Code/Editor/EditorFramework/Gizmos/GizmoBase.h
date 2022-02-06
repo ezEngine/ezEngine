@@ -17,7 +17,7 @@ struct ezGizmoEvent
     CancelInteractions,
   };
 
-  const ezEditorInputContext* m_pGizmo;
+  const ezEditorInputContext* m_pGizmo = nullptr;
   Type m_Type;
 };
 

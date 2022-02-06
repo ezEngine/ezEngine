@@ -436,20 +436,21 @@ bool ezQtExposedParametersPropertyWidget::FixKeyTypes(bool bTestOnly)
         if (const auto* pParam = pParams->Find(key.Get<ezString>()))
         {
           ezVariant value;
-          const ezVariantType::Enum type = pParam->m_DefaultValue.GetType();
+          const ezRTTI* pType = pParam->m_DefaultValue.GetReflectedType();
           EZ_VERIFY(m_pSourceObjectAccessor->GetValue(item.m_pObject, m_pProp, value, key).Succeeded(), "");
-          if (value.GetType() != type)
+          if (value.GetReflectedType() != pType)
           {
             if (!bTestOnly)
             {
               bStuffDone = true;
+              ezVariantType::Enum type = pParam->m_DefaultValue.GetType();
               if (value.CanConvertTo(type))
               {
                 m_pObjectAccessor->SetValue(item.m_pObject, m_pProp, value.ConvertTo(type), key).LogFailure();
               }
               else
               {
-                m_pObjectAccessor->SetValue(item.m_pObject, m_pProp, ezReflectionUtils::GetDefaultVariantFromType(type), key).LogFailure();
+                m_pObjectAccessor->SetValue(item.m_pObject, m_pProp, pParam->m_DefaultValue, key).LogFailure();
               }
             }
             else

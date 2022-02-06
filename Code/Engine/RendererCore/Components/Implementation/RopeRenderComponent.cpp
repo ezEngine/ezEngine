@@ -85,11 +85,7 @@ void ezRopeRenderComponent::OnActivated()
 
 void ezRopeRenderComponent::OnDeactivated()
 {
-  if (!m_hSkinningTransformsBuffer.IsInvalidated())
-  {
-    ezGALDevice::GetDefaultDevice()->DestroyBuffer(m_hSkinningTransformsBuffer);
-    m_hSkinningTransformsBuffer.Invalidate();
-  }
+  m_SkinningState.Clear();
 
   SUPER::OnDeactivated();
 }
@@ -125,15 +121,7 @@ void ezRopeRenderComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) 
 
     pRenderData->m_uiUniqueID = GetUniqueIdForRendering();
 
-    pRenderData->m_hSkinningTransforms = m_hSkinningTransformsBuffer;
-    if (ezRenderWorld::GetFrameCounter() <= m_uiSkinningTransformsExtractedFrame)
-    {
-      auto pSkinningMatrices = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezShaderTransform, m_SkinningTransforms.GetCount());
-      pSkinningMatrices.CopyFrom(m_SkinningTransforms);
-
-      pRenderData->m_pNewSkinningTransformData = pSkinningMatrices.ToByteArray();
-      m_uiSkinningTransformsExtractedFrame = ezRenderWorld::GetFrameCounter();
-    }
+    m_SkinningState.FillSkinnedMeshRenderData(*pRenderData);
 
     pRenderData->FillBatchIdAndSortingKey();
   }
@@ -165,15 +153,15 @@ void ezRopeRenderComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) 
   if (cvar_FeatureRopesVisBones)
   {
     ezHybridArray<ezDebugRenderer::Line, 128> lines(ezFrameAllocator::GetCurrentAllocator());
-    lines.Reserve(m_SkinningTransforms.GetCount() * 3);
+    lines.Reserve(m_SkinningState.m_Transforms.GetCount() * 3);
 
     ezMat4 offsetMat;
     offsetMat.SetIdentity();
 
-    for (ezUInt32 i = 0; i < m_SkinningTransforms.GetCount(); ++i)
+    for (ezUInt32 i = 0; i < m_SkinningState.m_Transforms.GetCount(); ++i)
     {
       offsetMat.SetTranslationVector(ezVec3(static_cast<float>(i), 0, 0));
-      ezMat4 skinningMat = m_SkinningTransforms[i].GetAsMat4() * offsetMat;
+      ezMat4 skinningMat = m_SkinningState.m_Transforms[i].GetAsMat4() * offsetMat;
 
       ezVec3 pos = skinningMat.GetTranslationVector();
 
@@ -226,18 +214,18 @@ void ezRopeRenderComponent::SetThickness(float fThickness)
   {
     m_fThickness = fThickness;
 
-    if (IsActiveAndInitialized() && !m_SkinningTransforms.IsEmpty())
+    if (IsActiveAndInitialized() && !m_SkinningState.m_Transforms.IsEmpty())
     {
       ezHybridArray<ezTransform, 128> transforms;
-      transforms.SetCountUninitialized(m_SkinningTransforms.GetCount());
+      transforms.SetCountUninitialized(m_SkinningState.m_Transforms.GetCount());
 
       ezMat4 offsetMat;
       offsetMat.SetIdentity();
 
-      for (ezUInt32 i = 0; i < m_SkinningTransforms.GetCount(); ++i)
+      for (ezUInt32 i = 0; i < m_SkinningState.m_Transforms.GetCount(); ++i)
       {
         offsetMat.SetTranslationVector(ezVec3(static_cast<float>(i), 0, 0));
-        ezMat4 skinningMat = m_SkinningTransforms[i].GetAsMat4() * offsetMat;
+        ezMat4 skinningMat = m_SkinningState.m_Transforms[i].GetAsMat4() * offsetMat;
 
         transforms[i].SetFromMat4(skinningMat);
       }
@@ -253,9 +241,9 @@ void ezRopeRenderComponent::SetDetail(ezUInt32 uiDetail)
   {
     m_uiDetail = uiDetail;
 
-    if (IsActiveAndInitialized() && !m_SkinningTransforms.IsEmpty())
+    if (IsActiveAndInitialized() && !m_SkinningState.m_Transforms.IsEmpty())
     {
-      GenerateRenderMesh(m_SkinningTransforms.GetCount());
+      GenerateRenderMesh(m_SkinningState.m_Transforms.GetCount());
     }
   }
 }
@@ -266,9 +254,9 @@ void ezRopeRenderComponent::SetSubdivide(bool bSubdivide)
   {
     m_bSubdivide = bSubdivide;
 
-    if (IsActiveAndInitialized() && !m_SkinningTransforms.IsEmpty())
+    if (IsActiveAndInitialized() && !m_SkinningState.m_Transforms.IsEmpty())
     {
-      GenerateRenderMesh(m_SkinningTransforms.GetCount());
+      GenerateRenderMesh(m_SkinningState.m_Transforms.GetCount());
     }
   }
 }
@@ -279,9 +267,9 @@ void ezRopeRenderComponent::SetUScale(float fUScale)
   {
     m_fUScale = fUScale;
 
-    if (IsActiveAndInitialized() && !m_SkinningTransforms.IsEmpty())
+    if (IsActiveAndInitialized() && !m_SkinningState.m_Transforms.IsEmpty())
     {
-      GenerateRenderMesh(m_SkinningTransforms.GetCount());
+      GenerateRenderMesh(m_SkinningState.m_Transforms.GetCount());
     }
   }
 }
@@ -301,15 +289,11 @@ void ezRopeRenderComponent::OnRopePoseUpdated(ezMsgRopePoseUpdated& msg)
   if (msg.m_LinkTransforms.IsEmpty())
     return;
 
-  if (m_SkinningTransforms.GetCount() != msg.m_LinkTransforms.GetCount())
+  if (m_SkinningState.m_Transforms.GetCount() != msg.m_LinkTransforms.GetCount())
   {
-    GenerateRenderMesh(msg.m_LinkTransforms.GetCount());
+    m_SkinningState.Clear();
 
-    if (!m_hSkinningTransformsBuffer.IsInvalidated())
-    {
-      ezGALDevice::GetDefaultDevice()->DestroyBuffer(m_hSkinningTransformsBuffer);
-      m_hSkinningTransformsBuffer.Invalidate();
-    }
+    GenerateRenderMesh(msg.m_LinkTransforms.GetCount());
   }
 
   UpdateSkinningTransformBuffer(msg.m_LinkTransforms);
@@ -340,7 +324,8 @@ void ezRopeRenderComponent::GenerateRenderMesh(ezUInt32 uiNumRopePieces)
   const ezAngle fDegStep = ezAngle::Degree(360.0f / m_uiDetail);
   const float fVStep = 1.0f / m_uiDetail;
 
-  auto addCap = [&](float x, const ezVec3& normal, ezUInt16 boneIndex, bool flipWinding) {
+  auto addCap = [&](float x, const ezVec3& normal, ezUInt16 boneIndex, bool flipWinding)
+  {
     ezVec4U16 boneIndices(boneIndex, 0, 0, 0);
 
     ezUInt32 centerIndex = geom.AddVertex(ezVec3(x, 0, 0), normal, ezVec2(0.5f, 0.5f), ezColor::White, boneIndices);
@@ -367,7 +352,8 @@ void ezRopeRenderComponent::GenerateRenderMesh(ezUInt32 uiNumRopePieces)
     }
   };
 
-  auto addPiece = [&](float x, const ezVec4U16& boneIndices, const ezColorLinearUB& boneWeights, bool createPolygons) {
+  auto addPiece = [&](float x, const ezVec4U16& boneIndices, const ezColorLinearUB& boneWeights, bool createPolygons)
+  {
     ezAngle deg = ezAngle::Radian(0);
     float fU = x * m_fUScale;
     float fV = 0;
@@ -477,7 +463,7 @@ void ezRopeRenderComponent::UpdateSkinningTransformBuffer(ezArrayPtr<const ezTra
 {
   ezMat4 bindPoseMat;
   bindPoseMat.SetIdentity();
-  m_SkinningTransforms.SetCountUninitialized(skinningTransforms.GetCount());
+  m_SkinningState.m_Transforms.SetCountUninitialized(skinningTransforms.GetCount());
 
   const ezVec3 newScale = ezVec3(1.0f, m_fThickness * 0.5f, m_fThickness * 0.5f);
   for (ezUInt32 i = 0; i < skinningTransforms.GetCount(); ++i)
@@ -493,23 +479,8 @@ void ezRopeRenderComponent::UpdateSkinningTransformBuffer(ezArrayPtr<const ezTra
 
     bindPoseMat.SetTranslationVector(ezVec3(-static_cast<float>(i), 0, 0));
 
-    m_SkinningTransforms[i] = t.GetAsMat4() * bindPoseMat;
+    m_SkinningState.m_Transforms[i] = t.GetAsMat4() * bindPoseMat;
   }
 
-  if (m_hSkinningTransformsBuffer.IsInvalidated())
-  {
-    ezGALBufferCreationDescription BufferDesc;
-    BufferDesc.m_uiStructSize = sizeof(ezShaderTransform);
-    BufferDesc.m_uiTotalSize = BufferDesc.m_uiStructSize * m_SkinningTransforms.GetCount();
-    BufferDesc.m_bUseAsStructuredBuffer = true;
-    BufferDesc.m_bAllowShaderResourceView = true;
-    BufferDesc.m_ResourceAccess.m_bImmutable = false;
-
-    m_hSkinningTransformsBuffer = ezGALDevice::GetDefaultDevice()->CreateBuffer(BufferDesc, m_SkinningTransforms.GetByteArrayPtr());
-    m_uiSkinningTransformsExtractedFrame = 0;
-  }
-  else
-  {
-    m_uiSkinningTransformsExtractedFrame = -1;
-  }
+  m_SkinningState.TransformsChanged();
 }

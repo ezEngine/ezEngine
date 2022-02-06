@@ -123,6 +123,8 @@ void ezExposedParametersTypeRegistry::UpdateExposedParametersType(ParamData& dat
       flags |= ezPropertyFlags::Bitflags;
     if (ezReflectionUtils::IsBasicType(pType))
       flags |= ezPropertyFlags::StandardType;
+    else
+      flags |= ezPropertyFlags::Class;
 
     ezReflectedPropertyDescriptor propDesc(ezPropertyCategory::Member, parameter->m_sName, pType->GetTypeName(), flags);
     for (auto attrib : parameter->m_Attributes)

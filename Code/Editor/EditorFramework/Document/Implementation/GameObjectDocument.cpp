@@ -412,9 +412,6 @@ void ezGameObjectDocument::SetGlobalTransform(const ezDocumentObject* pObject, c
     vLocalScale.Set(1.0f);
   }
 
-  ezSetObjectPropertyCommand cmd;
-  cmd.m_Object = pObject->GetGuid();
-
   // unfortunately when we are dragging an object the 'temporary' transaction is undone every time before the new commands are sent
   // that means the values that we read here, are always the original values before the object was modified at all
   // therefore when the original position and the new position are identical, that means the user dragged the object to the previous

@@ -20,6 +20,14 @@
 // clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezAnimatedMeshComponent, 13, ezComponentMode::Dynamic); // TODO: why dynamic ? (I guess because the overridden CreateRenderData() has to be called every frame)
 {
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_ACCESSOR_PROPERTY("Mesh", GetMeshFile, SetMeshFile)->AddAttributes(new ezAssetBrowserAttribute("Animated Mesh")),
+    EZ_ACCESSOR_PROPERTY("Color", GetColor, SetColor)->AddAttributes(new ezExposeColorAlphaAttribute()),
+    EZ_ARRAY_ACCESSOR_PROPERTY("Materials", Materials_GetCount, Materials_GetValue, Materials_SetValue, Materials_Insert, Materials_Remove)->AddAttributes(new ezAssetBrowserAttribute("Material")),
+  }
+  EZ_END_PROPERTIES;
+
   EZ_BEGIN_ATTRIBUTES
   {
       new ezCategoryAttribute("Animation"),
@@ -67,7 +75,7 @@ void ezAnimatedMeshComponent::OnActivated()
 
 void ezAnimatedMeshComponent::OnDeactivated()
 {
-  m_SkinningSpacePose.Clear();
+  m_SkinningState.Clear();
 
   SUPER::OnDeactivated();
 }
@@ -117,12 +125,46 @@ void ezAnimatedMeshComponent::InitializeAnimationPose()
   TriggerLocalBoundsUpdate();
 }
 
+
+void ezAnimatedMeshComponent::MapModelSpacePoseToSkinningSpace(const ezHashTable<ezHashedString, ezMeshResourceDescriptor::BoneData>& bones, const ezSkeleton& skeleton, ezArrayPtr<const ezMat4> modelSpaceTransforms, ezBoundingBox* bounds)
+{
+  m_SkinningState.m_Transforms.SetCountUninitialized(bones.GetCount());
+
+  if (bounds)
+  {
+    for (auto itBone : bones)
+    {
+      const ezUInt16 uiJointIdx = skeleton.FindJointByName(itBone.Key());
+
+      if (uiJointIdx == ezInvalidJointIndex)
+        continue;
+
+      bounds->ExpandToInclude(modelSpaceTransforms[uiJointIdx].GetTranslationVector());
+      m_SkinningState.m_Transforms[itBone.Value().m_uiBoneIndex] = modelSpaceTransforms[uiJointIdx] * itBone.Value().m_GlobalInverseBindPoseMatrix;
+    }
+  }
+  else
+  {
+    for (auto itBone : bones)
+    {
+      const ezUInt16 uiJointIdx = skeleton.FindJointByName(itBone.Key());
+
+      if (uiJointIdx == ezInvalidJointIndex)
+        continue;
+
+      m_SkinningState.m_Transforms[itBone.Value().m_uiBoneIndex] = modelSpaceTransforms[uiJointIdx] * itBone.Value().m_GlobalInverseBindPoseMatrix;
+    }
+  }
+}
+
 ezMeshRenderData* ezAnimatedMeshComponent::CreateRenderData() const
 {
-  ezMeshRenderData* pData = SUPER::CreateRenderData();
-  pData->m_GlobalTransform = m_RootTransform;
+  auto pRenderData = ezCreateRenderDataForThisFrame<ezSkinnedMeshRenderData>(GetOwner());
+  pRenderData->m_GlobalTransform = m_RootTransform;
 
-  return pData;
+  m_SkinningState.FillSkinnedMeshRenderData(*pRenderData);
+
+  return pRenderData;
 }
 
 void ezAnimatedMeshComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& msg)
@@ -136,9 +178,9 @@ void ezAnimatedMeshComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& 
 
   ezBoundingBox poseBounds;
   poseBounds.SetInvalid();
-  m_SkinningSpacePose.MapModelSpacePoseToSkinningSpace(pMesh->m_Bones, *msg.m_pSkeleton, msg.m_ModelTransforms, &poseBounds);
+  MapModelSpacePoseToSkinningSpace(pMesh->m_Bones, *msg.m_pSkeleton, msg.m_ModelTransforms, &poseBounds);
 
-  if (!m_MaxBounds.IsValid() || !m_MaxBounds.Contains(poseBounds))
+  if (poseBounds.IsValid() && (!m_MaxBounds.IsValid() || !m_MaxBounds.Contains(poseBounds)))
   {
     m_MaxBounds.ExpandToInclude(poseBounds);
     TriggerLocalBoundsUpdate();
@@ -149,7 +191,7 @@ void ezAnimatedMeshComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& 
     TriggerLocalBoundsUpdate();
   }
 
-  UpdateSkinningTransformBuffer(m_SkinningSpacePose.m_Transforms);
+  m_SkinningState.TransformsChanged();
 }
 
 void ezAnimatedMeshComponent::OnQueryAnimationSkeleton(ezMsgQueryAnimationSkeleton& msg)

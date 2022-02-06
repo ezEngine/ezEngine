@@ -59,6 +59,11 @@ void ezPxSimulatedRagdollComponent::WakeUp()
   m_pPxArticulation->wakeUp();
 }
 
+bool ezPxSimulatedRagdollComponent::IsSleeping() const
+{
+  return m_pPxArticulation->isSleeping();
+}
+
 void ezPxSimulatedRagdollComponent::ClearPhysicsObjects()
 {
   if (m_pPxArticulation)

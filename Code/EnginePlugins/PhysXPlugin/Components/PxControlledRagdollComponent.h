@@ -30,4 +30,5 @@ protected:
   virtual void CreateLimbBody(physx::PxPhysics* pPxApi, const LimbConfig& parentLimb, LimbConfig& thisLimb) override;
   virtual void CreateLimbJoint(physx::PxPhysics* pPxApi, const ezSkeletonJoint& thisJoint, physx::PxRigidBody* pPxParentBody, const ezTransform& parentFrame, physx::PxRigidBody* pPxThisBody, const ezTransform& thisFrame) override;
   virtual void WakeUp() override;
+  virtual bool IsSleeping() const override;
 };

@@ -76,7 +76,8 @@ namespace
         }
       }
 
-      pTask->ConfigureTask(task.getName(), ezTaskNesting::Never, [this](const ezSharedPtr<ezTask>& pTask) { FinishTask(pTask); });
+      pTask->ConfigureTask(task.getName(), ezTaskNesting::Never, [this](const ezSharedPtr<ezTask>& pTask)
+        { FinishTask(pTask); });
       static_cast<ezPxTask*>(pTask.Borrow())->m_pTask = &task;
       ezTaskSystem::StartSingleTask(pTask, ezTaskPriority::EarlyThisFrame);
     }
@@ -747,6 +748,11 @@ void ezPhysXWorldModule::StartSimulation(const ezWorldModule::UpdateContext& con
   m_SimulateTaskGroupId = ezTaskSystem::StartSingleTask(m_pSimulateTask, ezTaskPriority::EarlyThisFrame);
 }
 
+ezColorGammaUB FromARGB(ezUInt32 col)
+{
+  return ezColorGammaUB((col & 0x00FF0000) >> 16, (col & 0x0000FF00) >> 8, (col & 0x000000FF));
+}
+
 void ezPhysXWorldModule::FetchResults(const ezWorldModule::UpdateContext& context)
 {
   EZ_PROFILE_SCOPE("FetchResults");
@@ -785,9 +791,11 @@ void ezPhysXWorldModule::FetchResults(const ezWorldModule::UpdateContext& contex
 
     if (cvar_PhysicsDebugDrawEnable)
     {
-      m_pPxScene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_SHAPES, 1);
-      m_pPxScene->setVisualizationParameter(PxVisualizationParameter::eCONTACT_POINT, 1);
-      m_pPxScene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_DYNAMIC, 1);
+      //m_pPxScene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_SHAPES, 1);
+      //m_pPxScene->setVisualizationParameter(PxVisualizationParameter::eCONTACT_POINT, 1);
+      //m_pPxScene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_DYNAMIC, 1);
+      //m_pPxScene->setVisualizationParameter(PxVisualizationParameter::eJOINT_LIMITS, 1);
+      m_pPxScene->setVisualizationParameter(PxVisualizationParameter::eBODY_AXES, 1);
 
       ezHybridArray<ezDebugRenderer::Line, 64> lines;
 
@@ -799,8 +807,8 @@ void ezPhysXWorldModule::FetchResults(const ezWorldModule::UpdateContext& contex
         auto& l = lines.ExpandAndGetRef();
         l.m_start = ezPxConversionUtils::ToVec3(line.pos0);
         l.m_end = ezPxConversionUtils::ToVec3(line.pos1);
-        l.m_startColor = reinterpret_cast<const ezColorGammaUB&>(line.color0);
-        l.m_endColor = reinterpret_cast<const ezColorGammaUB&>(line.color1);
+        l.m_startColor = FromARGB(line.color0);
+        l.m_endColor = FromARGB(line.color1);
       }
 
       ezDebugRenderer::DrawLines(GetWorld(), lines, ezColor::White);
@@ -929,7 +937,8 @@ void ezPhysXWorldModule::SimulateStep(ezTime deltaTime)
     EZ_PROFILE_SCOPE("FetchResult");
 
     // Help executing tasks while we wait for the simulation to finish
-    ezTaskSystem::WaitForCondition([&] { return m_pPxScene->checkResults(false); });
+    ezTaskSystem::WaitForCondition([&]
+      { return m_pPxScene->checkResults(false); });
 
     EZ_PX_WRITE_LOCK(*m_pPxScene);
 
