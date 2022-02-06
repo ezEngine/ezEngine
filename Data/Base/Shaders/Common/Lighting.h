@@ -321,6 +321,7 @@ float3 ComputeReflection(inout ezMaterialData matData, float3 viewVector, ezPerC
     const ezPerReflectionProbeData probeData = perPerReflectionProbeDataBuffer[probeIndex];
     const uint index = GET_REFLECTION_PROBE_INDEX(probeData.Index);
     const bool bIsSphere = (probeData.Index & REFLECTION_PROBE_IS_SPHERE) > 0;
+    const bool bIsProjected = (probeData.Index & REFLECTION_PROBE_IS_PROJECTED) > 0;
 
     // There are three spaces here:
     // CubeMap space: The space in which we can sample the cube map. This space is unscaled compared to world space. We are just rotating and moving to the location the cube map was captured.
@@ -341,8 +342,12 @@ float3 ComputeReflection(inout ezMaterialData matData, float3 viewVector, ezPerC
     float3 intersectPositionWS;
     if (bIsSphere)
     {
+      float3 probeInfluencePosition = probeProjectionPosition;
+      probeInfluencePosition -= probeData.InfluenceShift.xyz;
+      probeInfluencePosition /= probeData.InfluenceScale.xyz;
+      //return probeInfluencePosition;
       // Boundary clamp. For spheres projection and influence space are identical.
-      float dist = length(probeProjectionPosition);
+      float dist = length(probeInfluencePosition);
       if (dist > 1.0f)
         continue;
 
@@ -423,7 +428,7 @@ float3 ComputeReflection(inout ezMaterialData matData, float3 viewVector, ezPerC
     // map is not squished according to the AABB so we ONLY need to apply the rotational part of the transform,
     // ignoring scale.
     const float3 cubemapPositionWS = probeData.ProbePosition.xyz;
-    const float3 reflectionDir = CubeMapDirection(mul(worldToProbeCubeMapNormalMatrix, intersectPositionWS - cubemapPositionWS).xyz);
+    const float3 reflectionDir = bIsProjected ? CubeMapDirection(mul(worldToProbeCubeMapNormalMatrix, intersectPositionWS - cubemapPositionWS).xyz) : CubeMapDirection(reflDirectionWS);
     const float roughness = computeDistanceBaseRoughness(length(intersectPositionWS - matData.worldPosition), length(intersectPositionWS - cubemapPositionWS), matData.roughness);
     // Sample the cube map
     const float4 coord = float4(reflectionDir, index);
@@ -550,7 +555,8 @@ AccumulatedLight CalculateLighting(ezMaterialData matData, ezPerClusterData clus
   
   // indirect specular
   totalLight.specularLight += matData.specularColor * ComputeReflection(matData, viewVector, clusterData) * occlusion;
-
+  //totalLight.specularLight += ComputeReflection(matData, viewVector, clusterData);
+ 
   // enable once we have proper sky visibility
   /*#if defined(USE_MATERIAL_SUBSURFACE_COLOR)
     skyLight = EvaluateAmbientCube(SkyIrradianceTexture, SkyIrradianceIndex, -matData.worldNormal).rgb;

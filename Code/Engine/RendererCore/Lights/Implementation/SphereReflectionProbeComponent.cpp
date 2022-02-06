@@ -118,17 +118,12 @@ void ezSphereReflectionProbeComponent::OnMsgExtractRenderData(ezMsgExtractRender
   pRenderData->m_vHalfExtents = ezVec3(m_fRadius);
   pRenderData->m_vInfluenceScale = ezVec3(1.0f);
   pRenderData->m_vInfluenceShift = ezVec3(0.0f);
-  if (!m_bSphereProjection)
-  {
-    // We fake disabling projection by projecting to a very far place.
-    pRenderData->m_vHalfExtents *= 1000.0f;
-    pRenderData->m_vInfluenceScale /= 1000.0f;
-    // m_vInfluenceShift is always 0 so no need to scale.
-  }
   pRenderData->m_vPositiveFalloff = ezVec3(m_fFalloff);
   pRenderData->m_vNegativeFalloff = ezVec3(m_fFalloff);
   pRenderData->m_Id = m_Id;
   pRenderData->m_uiIndex = REFLECTION_PROBE_IS_SPHERE;
+  if (m_bSphereProjection)
+    pRenderData->m_uiIndex |= REFLECTION_PROBE_IS_PROJECTED;
 
   const ezVec3 vScale = pRenderData->m_GlobalTransform.m_vScale * m_fRadius;
   constexpr float fSphereConstant = (4.0f / 3.0f) * ezMath::Pi<float>();

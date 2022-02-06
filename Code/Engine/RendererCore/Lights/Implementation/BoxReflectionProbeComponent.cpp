@@ -2,6 +2,7 @@
 
 #include <RendererCore/Lights/BoxReflectionProbeComponent.h>
 
+#include <../../Data/Base/Shaders/Common/LightData.h>
 #include <Core/Messages/TransformChangedMessage.h>
 #include <Core/Messages/UpdateLocalBoundsMessage.h>
 #include <Core/WorldSerializer/WorldReader.h>
@@ -157,17 +158,12 @@ void ezBoxReflectionProbeComponent::OnMsgExtractRenderData(ezMsgExtractRenderDat
   pRenderData->m_vHalfExtents = m_vExtents / 2.0f;
   pRenderData->m_vInfluenceScale = m_vInfluenceScale;
   pRenderData->m_vInfluenceShift = m_vInfluenceShift;
-  if (!m_bBoxProjection)
-  {
-    // We fake disabling projection by projecting to a very far place.
-    pRenderData->m_vHalfExtents *= 1000.0f;
-    pRenderData->m_vInfluenceScale /= 1000.0f;
-    pRenderData->m_vInfluenceShift /= 1000.0f;
-  }
   pRenderData->m_vPositiveFalloff = m_vPositiveFalloff;
   pRenderData->m_vNegativeFalloff = m_vNegativeFalloff;
   pRenderData->m_Id = m_Id;
   pRenderData->m_uiIndex = 0;
+  if (m_bBoxProjection)
+    pRenderData->m_uiIndex |= REFLECTION_PROBE_IS_PROJECTED;
 
   const ezVec3 vScale = pRenderData->m_GlobalTransform.m_vScale.CompMul(m_vExtents);
   const float fVolume = ezMath::Abs(vScale.x * vScale.y * vScale.z);

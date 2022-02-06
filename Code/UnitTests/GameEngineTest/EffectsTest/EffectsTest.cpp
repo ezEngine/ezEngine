@@ -65,7 +65,7 @@ ezResult ezGameEngineTestEffects::InitializeSubTest(ezInt32 iIdentifier)
   }
   if (iIdentifier == SubTests::Reflections)
   {
-    m_ImgCompFrames.PushBack(100);
+    m_ImgCompFrames.PushBack(30);
 
     EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("Effects/AssetCache/Common/Scenes/Reflections.ezObjectGraph"));
     return EZ_SUCCESS;
