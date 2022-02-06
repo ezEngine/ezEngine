@@ -69,7 +69,6 @@ export import AlwaysVisibleComponent = __AllComponents.AlwaysVisibleComponent;
 export import SettingsComponent = __AllComponents.SettingsComponent;
 export import AmbientLightComponent = __AllComponents.AmbientLightComponent;
 export import MeshComponentBase = __AllComponents.MeshComponentBase;
-export import SkinnedMeshComponent = __AllComponents.SkinnedMeshComponent;
 export import AnimatedMeshComponent = __AllComponents.AnimatedMeshComponent;
 export import AnimationControllerComponent = __AllComponents.AnimationControllerComponent;
 export import AreaDamageComponent = __AllComponents.AreaDamageComponent;
