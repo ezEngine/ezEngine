@@ -47,6 +47,8 @@ public:
   void SetNegativeFalloff(const ezVec3& vFalloff);                        // [ property ]
   const ezVec3& GetNegativeFalloff() const { return m_vNegativeFalloff; } // [ property ]
 
+  void SetBoxProjection(bool bBoxProjection);                // [ property ]
+  bool GetBoxProjection() const { return m_bBoxProjection; } // [ property ]
 
 protected:
   //////////////////////////////////////////////////////////////////////////
@@ -64,6 +66,7 @@ protected:
   ezVec3 m_vInfluenceShift = ezVec3(0.0f);
   ezVec3 m_vPositiveFalloff = ezVec3(0.1f, 0.1f, 0.0f);
   ezVec3 m_vNegativeFalloff = ezVec3(0.1f, 0.1f, 0.0f);
+  bool m_bBoxProjection = true;
 };
 
 /// \brief A special visualizer attribute for box reflection probes

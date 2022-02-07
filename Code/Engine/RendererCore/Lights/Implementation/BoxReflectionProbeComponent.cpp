@@ -2,6 +2,7 @@
 
 #include <RendererCore/Lights/BoxReflectionProbeComponent.h>
 
+#include <../../Data/Base/Shaders/Common/LightData.h>
 #include <Core/Messages/TransformChangedMessage.h>
 #include <Core/Messages/UpdateLocalBoundsMessage.h>
 #include <Core/WorldSerializer/WorldReader.h>
@@ -11,7 +12,7 @@
 #include <RendererCore/Pipeline/View.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezBoxReflectionProbeComponent, 1, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezBoxReflectionProbeComponent, 2, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -20,6 +21,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezBoxReflectionProbeComponent, 1, ezComponentMode::Stati
     EZ_ACCESSOR_PROPERTY("InfluenceShift", GetInfluenceShift, SetInfluenceShift)->AddAttributes(new ezClampValueAttribute(ezVec3(-1.0f), ezVec3(1.0f)), new ezDefaultValueAttribute(ezVec3(0.0f))),
     EZ_ACCESSOR_PROPERTY("PositiveFalloff", GetPositiveFalloff, SetPositiveFalloff)->AddAttributes(new ezClampValueAttribute(ezVec3(0.0f), ezVec3(1.0f)), new ezDefaultValueAttribute(ezVec3(0.1f, 0.1f, 0.0f))),
     EZ_ACCESSOR_PROPERTY("NegativeFalloff", GetNegativeFalloff, SetNegativeFalloff)->AddAttributes(new ezClampValueAttribute(ezVec3(0.0f), ezVec3(1.0f)), new ezDefaultValueAttribute(ezVec3(0.1f, 0.1f, 0.0f))),
+    EZ_ACCESSOR_PROPERTY("BoxProjection", GetBoxProjection, SetBoxProjection)->AddAttributes(new ezDefaultValueAttribute(true)),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_FUNCTIONS
@@ -103,6 +105,11 @@ void ezBoxReflectionProbeComponent::SetNegativeFalloff(const ezVec3& vFalloff)
   m_vNegativeFalloff = vFalloff.CompClamp(ezVec3(ezMath::DefaultEpsilon<float>()), ezVec3(1.0f));
 }
 
+void ezBoxReflectionProbeComponent::SetBoxProjection(bool bBoxProjection)
+{
+  m_bBoxProjection = bBoxProjection;
+}
+
 const ezVec3& ezBoxReflectionProbeComponent::GetExtents() const
 {
   return m_vExtents;
@@ -155,6 +162,8 @@ void ezBoxReflectionProbeComponent::OnMsgExtractRenderData(ezMsgExtractRenderDat
   pRenderData->m_vNegativeFalloff = m_vNegativeFalloff;
   pRenderData->m_Id = m_Id;
   pRenderData->m_uiIndex = 0;
+  if (m_bBoxProjection)
+    pRenderData->m_uiIndex |= REFLECTION_PROBE_IS_PROJECTED;
 
   const ezVec3 vScale = pRenderData->m_GlobalTransform.m_vScale.CompMul(m_vExtents);
   const float fVolume = ezMath::Abs(vScale.x * vScale.y * vScale.z);
@@ -179,12 +188,13 @@ void ezBoxReflectionProbeComponent::SerializeComponent(ezWorldWriter& stream) co
   s << m_vInfluenceShift;
   s << m_vPositiveFalloff;
   s << m_vNegativeFalloff;
+  s << m_bBoxProjection;
 }
 
 void ezBoxReflectionProbeComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
-  //const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   ezStreamReader& s = stream.GetStream();
 
   s >> m_vExtents;
@@ -192,6 +202,10 @@ void ezBoxReflectionProbeComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_vInfluenceShift;
   s >> m_vPositiveFalloff;
   s >> m_vNegativeFalloff;
+  if (uiVersion >= 2)
+  {
+    s >> m_bBoxProjection;
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////

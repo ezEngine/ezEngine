@@ -31,6 +31,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezReflectionProbeComponentBase, 2, ezRTTINoAlloc
     EZ_ACCESSOR_PROPERTY("FarPlane", GetFarPlane, SetFarPlane)->AddAttributes(new ezDefaultValueAttribute(100.0f), new ezClampValueAttribute(0.01f, 10000.0f)),
     EZ_ACCESSOR_PROPERTY("CaptureOffset", GetCaptureOffset, SetCaptureOffset),
     EZ_ACCESSOR_PROPERTY("ShowDebugInfo", GetShowDebugInfo, SetShowDebugInfo),
+    EZ_ACCESSOR_PROPERTY("ShowMipMaps", GetShowMipMaps, SetShowMipMaps),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
@@ -124,6 +125,17 @@ void ezReflectionProbeComponentBase::SetShowDebugInfo(bool bShowDebugInfo)
 bool ezReflectionProbeComponentBase::GetShowDebugInfo() const
 {
   return m_desc.m_bShowDebugInfo;
+}
+
+void ezReflectionProbeComponentBase::SetShowMipMaps(bool bShowMipMaps)
+{
+  m_desc.m_bShowMipMaps = bShowMipMaps;
+  m_bStatesDirty = true;
+}
+
+bool ezReflectionProbeComponentBase::GetShowMipMaps() const
+{
+  return m_desc.m_bShowMipMaps;
 }
 
 void ezReflectionProbeComponentBase::SerializeComponent(ezWorldWriter& stream) const

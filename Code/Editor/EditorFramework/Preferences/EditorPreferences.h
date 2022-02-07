@@ -20,6 +20,9 @@ public:
   float m_fPerspectiveFieldOfView = 70.0f;
   float m_fGizmoSize = 1.5f;
   bool m_bOldGizmos = false;
+  ezAngle m_RotationSnapValue = ezAngle::Degree(15.0f);
+  float m_fScaleSnapValue = 0.125f;
+  float m_fTranslationSnapValue = 0.25f;
   bool m_bUsePrecompiledTools = true;
   bool m_bLoadLastProjectAtStartup = true;
   bool m_bShowSplashscreen = true;

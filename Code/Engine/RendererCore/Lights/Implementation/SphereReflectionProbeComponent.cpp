@@ -12,12 +12,13 @@
 #include <RendererCore/Pipeline/View.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezSphereReflectionProbeComponent, 1, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezSphereReflectionProbeComponent, 2, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("Radius", GetRadius, SetRadius)->AddAttributes(new ezClampValueAttribute(0.0f, {}), new ezDefaultValueAttribute(5.0f)),
     EZ_ACCESSOR_PROPERTY("Falloff", GetFalloff, SetFalloff)->AddAttributes(new ezClampValueAttribute(0.0f, 1.0f), new ezDefaultValueAttribute(0.1f)),
+    EZ_ACCESSOR_PROPERTY("SphereProjection", GetSphereProjection, SetSphereProjection)->AddAttributes(new ezDefaultValueAttribute(true)),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_FUNCTIONS
@@ -69,6 +70,11 @@ void ezSphereReflectionProbeComponent::SetFalloff(float fFalloff)
   m_fFalloff = ezMath::Clamp(fFalloff, ezMath::DefaultEpsilon<float>(), 1.0f);
 }
 
+void ezSphereReflectionProbeComponent::SetSphereProjection(bool bSphereProjection)
+{
+  m_bSphereProjection = bSphereProjection;
+}
+
 void ezSphereReflectionProbeComponent::OnActivated()
 {
   GetOwner()->EnableStaticTransformChangesNotifications();
@@ -111,11 +117,13 @@ void ezSphereReflectionProbeComponent::OnMsgExtractRenderData(ezMsgExtractRender
   pRenderData->m_vProbePosition = pRenderData->m_GlobalTransform * m_desc.m_vCaptureOffset;
   pRenderData->m_vHalfExtents = ezVec3(m_fRadius);
   pRenderData->m_vInfluenceScale = ezVec3(1.0f);
-  pRenderData->m_vInfluenceShift = ezVec3(0.5f);
+  pRenderData->m_vInfluenceShift = ezVec3(0.0f);
   pRenderData->m_vPositiveFalloff = ezVec3(m_fFalloff);
   pRenderData->m_vNegativeFalloff = ezVec3(m_fFalloff);
   pRenderData->m_Id = m_Id;
   pRenderData->m_uiIndex = REFLECTION_PROBE_IS_SPHERE;
+  if (m_bSphereProjection)
+    pRenderData->m_uiIndex |= REFLECTION_PROBE_IS_PROJECTED;
 
   const ezVec3 vScale = pRenderData->m_GlobalTransform.m_vScale * m_fRadius;
   constexpr float fSphereConstant = (4.0f / 3.0f) * ezMath::Pi<float>();
@@ -138,16 +146,48 @@ void ezSphereReflectionProbeComponent::SerializeComponent(ezWorldWriter& stream)
 
   s << m_fRadius;
   s << m_fFalloff;
+  s << m_bSphereProjection;
 }
 
 void ezSphereReflectionProbeComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
-  //const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   ezStreamReader& s = stream.GetStream();
 
   s >> m_fRadius;
   s >> m_fFalloff;
+  if (uiVersion >= 2)
+  {
+    s >> m_bSphereProjection;
+  }
+  else
+  {
+    m_bSphereProjection = false;
+  }
 }
+
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+#include <Foundation/Serialization/GraphPatch.h>
+
+class ezSphereReflectionProbeComponent_1_2 : public ezGraphPatch
+{
+public:
+  ezSphereReflectionProbeComponent_1_2()
+    : ezGraphPatch("ezSphereReflectionProbeComponent", 2)
+  {
+  }
+
+  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    pNode->AddProperty("SphereProjection", false);
+  }
+};
+
+ezSphereReflectionProbeComponent_1_2 g_ezSphereReflectionProbeComponent_1_2;
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Lights_Implementation_SphereReflectionProbeComponent);

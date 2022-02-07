@@ -4,6 +4,9 @@
 #include <Foundation/Communication/Event.h>
 #include <Foundation/Math/Declarations.h>
 
+struct ezEditorAppEvent;
+class ezPreferences;
+
 struct ezSnapProviderEvent
 {
   enum class Type
@@ -19,6 +22,9 @@ struct ezSnapProviderEvent
 class EZ_EDITORFRAMEWORK_DLL ezSnapProvider
 {
 public:
+  static void Startup();
+  static void Shutdown();
+
   static ezAngle GetRotationSnapValue();
   static float GetScaleSnapValue();
   static float GetTranslationSnapValue();
@@ -43,7 +49,11 @@ public:
   static ezEvent<const ezSnapProviderEvent&> s_Events;
 
 private:
+  static void EditorEventHandler(const ezEditorAppEvent& e);
+  static void PreferenceChangedEventHandler(ezPreferences* pPreferenceBase);
+
   static ezAngle s_RotationSnapValue;
   static float s_fScaleSnapValue;
   static float s_fTranslationSnapValue;
+  static ezEventSubscriptionID s_UserPreferencesChanged;
 };

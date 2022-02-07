@@ -14,6 +14,17 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezAssetDocumentManager::ezAssetDocumentManager() = default;
 ezAssetDocumentManager::~ezAssetDocumentManager() = default;
 
+ezStatus ezAssetDocumentManager::CloneDocument(const char* szPath, const char* szClonePath, ezUuid& inout_cloneGuid)
+{
+  ezStatus res = SUPER::CloneDocument(szPath, szClonePath, inout_cloneGuid);
+  if (res.Succeeded())
+  {
+    // Cloned documents are usually opened right after cloning. To make sure this does not fail we need to inform the asset curator of the newly added asset document.
+    ezAssetCurator::GetSingleton()->NotifyOfFileChange(szClonePath);
+  }
+  return res;
+}
+
 void ezAssetDocumentManager::ComputeAssetProfileHash(const ezPlatformProfile* pAssetProfile)
 {
   m_uiAssetProfileHash = ComputeAssetProfileHashImpl(DetermineFinalTargetProfile(pAssetProfile));

@@ -172,7 +172,12 @@ void ezComponentDragDropHandler::OnDragUpdate(const ezDragDropInfo* pInfo)
   if (vPos.IsNaN() || !pInfo->m_TargetObject.IsValid())
     vPos.SetZero();
 
-  MoveDraggedObjectsToPosition(vPos, !pInfo->m_bCtrlKeyDown, pInfo->m_vDropNormal);
+  ezVec3 vNormal = pInfo->m_vDropNormal;
+
+  if (!vNormal.IsValid() || vNormal.IsZero())
+    vNormal = ezVec3(1, 0, 0);
+
+  MoveDraggedObjectsToPosition(vPos, !pInfo->m_bCtrlKeyDown, vNormal);
 }
 
 void ezComponentDragDropHandler::OnDragCancel()

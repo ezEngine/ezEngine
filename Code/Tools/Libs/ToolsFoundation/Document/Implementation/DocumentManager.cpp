@@ -350,8 +350,6 @@ ezStatus ezDocumentManager::CloneDocument(const char* szPath, const char* szClon
   ezUuid documentId;
   ezAbstractObjectNode::Property* documentIdProp = nullptr;
   {
-    ezRttiConverterContext context;
-    ezRttiConverterReader rttiConverter(header.Borrow(), &context);
     auto* pHeaderNode = header->GetNodeByName("Header");
     EZ_ASSERT_DEV(pHeaderNode, "No header found, document '{0}' is corrupted.", szPath);
     documentIdProp = pHeaderNode->FindProperty("DocumentID");
@@ -376,27 +374,7 @@ ezStatus ezDocumentManager::CloneDocument(const char* szPath, const char* szClon
     inout_cloneGuid.CombineWithSeed(seedGuid);
   }
 
-  {
-    // Remap
-    header->ReMapNodeGuids(seedGuid);
-    objects->ReMapNodeGuids(seedGuid);
-    documentIdProp->m_Value = inout_cloneGuid;
-
-    // Fix cloning of docs containing prefabs.
-    // TODO: generalize this for other doc features?
-    auto& AllNodes = objects->GetAllNodes();
-    for (auto it = AllNodes.GetIterator(); it.IsValid(); ++it)
-    {
-      auto* pNode = it.Value();
-      ezAbstractObjectNode::Property* pProp = pNode->FindProperty("MetaPrefabSeed");
-      if (pProp && pProp->m_Value.IsA<ezUuid>())
-      {
-        ezUuid prefabSeed = pProp->m_Value.Get<ezUuid>();
-        prefabSeed.CombineWithSeed(seedGuid);
-        pProp->m_Value = prefabSeed;
-      }
-    }
-  }
+  InternalCloneDocument(szPath, szClonePath, documentId, seedGuid, inout_cloneGuid, header.Borrow(), objects.Borrow(), types.Borrow());
 
   {
     ezDeferredFileWriter file;
@@ -408,6 +386,32 @@ ezStatus ezDocumentManager::CloneDocument(const char* szPath, const char* szClon
     }
   }
   return ezStatus(EZ_SUCCESS);
+}
+
+void ezDocumentManager::InternalCloneDocument(const char* szPath, const char* szClonePath, const ezUuid& documentId, const ezUuid& seedGuid, const ezUuid& cloneGuid, ezAbstractObjectGraph* header, ezAbstractObjectGraph* objects, ezAbstractObjectGraph* types)
+{
+  // Remap
+  header->ReMapNodeGuids(seedGuid);
+  objects->ReMapNodeGuids(seedGuid);
+
+  auto* pHeaderNode = header->GetNodeByName("Header");
+  auto* documentIdProp = pHeaderNode->FindProperty("DocumentID");
+  documentIdProp->m_Value = cloneGuid;
+
+  // Fix cloning of docs containing prefabs.
+  // TODO: generalize this for other doc features?
+  auto& AllNodes = objects->GetAllNodes();
+  for (auto it = AllNodes.GetIterator(); it.IsValid(); ++it)
+  {
+    auto* pNode = it.Value();
+    ezAbstractObjectNode::Property* pProp = pNode->FindProperty("MetaPrefabSeed");
+    if (pProp && pProp->m_Value.IsA<ezUuid>())
+    {
+      ezUuid prefabSeed = pProp->m_Value.Get<ezUuid>();
+      prefabSeed.CombineWithSeed(seedGuid);
+      pProp->m_Value = prefabSeed;
+    }
+  }
 }
 
 void ezDocumentManager::CloseDocument(ezDocument* pDocument)
