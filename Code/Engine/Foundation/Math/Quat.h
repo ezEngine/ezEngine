@@ -66,6 +66,19 @@ public:
   /// \brief Creates a quaternion from the given matrix.
   void SetFromMat3(const ezMat3Template<Type>& m); // [tested]
 
+  /// \brief Reconstructs a rotation quaternion from a matrix that may contain scaling and mirroring.
+  ///
+  /// In skeletal animation it is possible that matrices with mirroring are used, that need to be converted to a
+  /// proper quaternion, even though a rotation with mirroring can't be represented by a quaternion.
+  /// This function reconstructs a valid quaternion from such matrices. Obviously the mirroring information gets lost,
+  /// but it is typically not needed any further anway.
+  void ReconstructFromMat3(const ezMat3Template<Type>& m);
+
+  /// \brief Reconstructs a rotation quaternion from a matrix that may contain scaling and mirroring.
+  ///
+  /// \sa ReconstructFromMat3()
+  void ReconstructFromMat4(const ezMat4Template<Type>& m);
+
   /// \brief Sets this quaternion to be the spherical linear interpolation of the other two.
   void SetSlerp(const ezQuatTemplate& qFrom, const ezQuatTemplate& qTo, Type t); // [tested]
 

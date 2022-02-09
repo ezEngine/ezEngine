@@ -20,8 +20,8 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, ProcGen)
   {
     const ezRTTI* pBaseType = ezGetStaticRTTI<ezProcGenNodeBase>();
 
-    ezQtNodeScene::GetPinFactory().RegisterCreator(ezGetStaticRTTI<ezProcGenPin>(), [](const ezRTTI* pRtti)->ezQtPin* { return new ezQtProcGenPin(); }).IgnoreResult();
-    ezQtNodeScene::GetNodeFactory().RegisterCreator(pBaseType, [](const ezRTTI* pRtti)->ezQtNode* { return new ezQtProcGenNode(); }).IgnoreResult();
+    ezQtNodeScene::GetPinFactory().RegisterCreator(ezGetStaticRTTI<ezProcGenPin>(), [](const ezRTTI* pRtti)->ezQtPin* { return new ezQtProcGenPin(); });
+    ezQtNodeScene::GetNodeFactory().RegisterCreator(pBaseType, [](const ezRTTI* pRtti)->ezQtNode* { return new ezQtProcGenNode(); });
   }
 
   ON_CORESYSTEMS_SHUTDOWN

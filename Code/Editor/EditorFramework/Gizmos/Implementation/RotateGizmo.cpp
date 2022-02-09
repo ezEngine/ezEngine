@@ -93,8 +93,6 @@ void ezRotateGizmo::DoFocusLost(bool bCancel)
   m_AxisX.SetVisible(true);
   m_AxisY.SetVisible(true);
   m_AxisZ.SetVisible(true);
-
-  QApplication::restoreOverrideCursor();
 }
 
 ezEditorInput ezRotateGizmo::DoMousePressEvent(QMouseEvent* e)

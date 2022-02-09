@@ -160,9 +160,9 @@ void OnLoadPlugin()
   ezQuadViewActions::MapActions("EditorPluginScene_ViewToolBar", "");
 
   // Visualizers
-  ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezPointLightVisualizerAttribute>(), [](const ezRTTI* pRtti) -> ezVisualizerAdapter* { return EZ_DEFAULT_NEW(ezPointLightVisualizerAdapter); }).IgnoreResult();
-  ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezSpotLightVisualizerAttribute>(), [](const ezRTTI* pRtti) -> ezVisualizerAdapter* { return EZ_DEFAULT_NEW(ezSpotLightVisualizerAdapter); }).IgnoreResult();
-  ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezBoxReflectionProbeVisualizerAttribute>(), [](const ezRTTI* pRtti) -> ezVisualizerAdapter* { return EZ_DEFAULT_NEW(ezBoxReflectionProbeVisualizerAdapter); }).IgnoreResult();
+  ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezPointLightVisualizerAttribute>(), [](const ezRTTI* pRtti) -> ezVisualizerAdapter* { return EZ_DEFAULT_NEW(ezPointLightVisualizerAdapter); });
+  ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezSpotLightVisualizerAttribute>(), [](const ezRTTI* pRtti) -> ezVisualizerAdapter* { return EZ_DEFAULT_NEW(ezSpotLightVisualizerAdapter); });
+  ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezBoxReflectionProbeVisualizerAttribute>(), [](const ezRTTI* pRtti) -> ezVisualizerAdapter* { return EZ_DEFAULT_NEW(ezBoxReflectionProbeVisualizerAdapter); });
 
   // SceneGraph Context Menu
   ezActionMapManager::RegisterActionMap("EditorPluginScene_ScenegraphContextMenu").IgnoreResult();

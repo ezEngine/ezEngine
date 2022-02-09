@@ -284,6 +284,36 @@ void ezQuatTemplate<Type>::SetFromMat3(const ezMat3Template<Type>& m)
   w = val[3];
 }
 
+template <typename Type>
+void ezQuatTemplate<Type>::ReconstructFromMat3(const ezMat3Template<Type>& mat)
+{
+  const ezVec3 x = (mat * ezVec3(1, 0, 0)).GetNormalized();
+  const ezVec3 y = (mat * ezVec3(0, 1, 0)).GetNormalized();
+  const ezVec3 z = x.CrossRH(y);
+
+  ezMat3 m;
+  m.SetColumn(0, x);
+  m.SetColumn(1, y);
+  m.SetColumn(2, z);
+
+  SetFromMat3(m);
+}
+
+template <typename Type>
+void ezQuatTemplate<Type>::ReconstructFromMat4(const ezMat4Template<Type>& mat)
+{
+  const ezVec3 x = mat.TransformDirection(ezVec3(1, 0, 0)).GetNormalized();
+  const ezVec3 y = mat.TransformDirection(ezVec3(0, 1, 0)).GetNormalized();
+  const ezVec3 z = x.CrossRH(y);
+
+  ezMat3 m;
+  m.SetColumn(0, x);
+  m.SetColumn(1, y);
+  m.SetColumn(2, z);
+
+  SetFromMat3(m);
+}
+
 /*! \note This function will ALWAYS return a quaternion that rotates from one direction to another.
   If both directions are identical, it is the unit rotation (none). If they are exactly opposing, this will be
   ANY 180.0 degree rotation. That means the vectors will align perfectly, but there is no determine rotation for other points

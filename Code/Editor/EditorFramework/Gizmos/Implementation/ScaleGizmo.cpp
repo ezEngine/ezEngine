@@ -104,8 +104,6 @@ void ezScaleGizmo::DoFocusLost(bool bCancel)
   m_AxisY.SetVisible(true);
   m_AxisZ.SetVisible(true);
   m_AxisXYZ.SetVisible(true);
-
-  QApplication::restoreOverrideCursor();
 }
 
 ezEditorInput ezScaleGizmo::DoMousePressEvent(QMouseEvent* e)

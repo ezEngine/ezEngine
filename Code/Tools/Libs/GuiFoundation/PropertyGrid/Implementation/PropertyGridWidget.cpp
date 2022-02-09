@@ -137,41 +137,41 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, PropertyGrid)
   {
     ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezQtPropertyGridWidget::PropertyMetaStateEventHandler);
 
-    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<bool>(), StandardTypeCreator).IgnoreResult();
-    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<float>(), StandardTypeCreator).IgnoreResult();
-    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<double>(), StandardTypeCreator).IgnoreResult();
-    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezVec2>(), StandardTypeCreator).IgnoreResult();
-    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezVec3>(), StandardTypeCreator).IgnoreResult();
-    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezVec4>(), StandardTypeCreator).IgnoreResult();
-    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezVec2I32>(), StandardTypeCreator).IgnoreResult();
-    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezVec3I32>(), StandardTypeCreator).IgnoreResult();
-    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezVec4I32>(), StandardTypeCreator).IgnoreResult();
-    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezVec2U32>(), StandardTypeCreator).IgnoreResult();
-    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezVec3U32>(), StandardTypeCreator).IgnoreResult();
-    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezVec4U32>(), StandardTypeCreator).IgnoreResult();
-    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezQuat>(), StandardTypeCreator).IgnoreResult();
-    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezInt8>(), StandardTypeCreator).IgnoreResult();
-    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezUInt8>(), StandardTypeCreator).IgnoreResult();
-    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezInt16>(), StandardTypeCreator).IgnoreResult();
-    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezUInt16>(), StandardTypeCreator).IgnoreResult();
-    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezInt32>(), StandardTypeCreator).IgnoreResult();
-    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezUInt32>(), StandardTypeCreator).IgnoreResult();
-    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezInt64>(), StandardTypeCreator).IgnoreResult();
-    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezUInt64>(), StandardTypeCreator).IgnoreResult();
-    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezConstCharPtr>(), StandardTypeCreator).IgnoreResult();
-    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezString>(), StandardTypeCreator).IgnoreResult();
-    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezTime>(), StandardTypeCreator).IgnoreResult();
-    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezColor>(), StandardTypeCreator).IgnoreResult();
-    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezColorGammaUB>(), StandardTypeCreator).IgnoreResult();
-    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezAngle>(), StandardTypeCreator).IgnoreResult();
-    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezVariant>(), StandardTypeCreator).IgnoreResult();
+    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<bool>(), StandardTypeCreator);
+    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<float>(), StandardTypeCreator);
+    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<double>(), StandardTypeCreator);
+    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezVec2>(), StandardTypeCreator);
+    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezVec3>(), StandardTypeCreator);
+    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezVec4>(), StandardTypeCreator);
+    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezVec2I32>(), StandardTypeCreator);
+    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezVec3I32>(), StandardTypeCreator);
+    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezVec4I32>(), StandardTypeCreator);
+    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezVec2U32>(), StandardTypeCreator);
+    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezVec3U32>(), StandardTypeCreator);
+    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezVec4U32>(), StandardTypeCreator);
+    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezQuat>(), StandardTypeCreator);
+    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezInt8>(), StandardTypeCreator);
+    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezUInt8>(), StandardTypeCreator);
+    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezInt16>(), StandardTypeCreator);
+    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezUInt16>(), StandardTypeCreator);
+    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezInt32>(), StandardTypeCreator);
+    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezUInt32>(), StandardTypeCreator);
+    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezInt64>(), StandardTypeCreator);
+    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezUInt64>(), StandardTypeCreator);
+    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezConstCharPtr>(), StandardTypeCreator);
+    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezString>(), StandardTypeCreator);
+    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezTime>(), StandardTypeCreator);
+    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezColor>(), StandardTypeCreator);
+    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezColorGammaUB>(), StandardTypeCreator);
+    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezAngle>(), StandardTypeCreator);
+    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezVariant>(), StandardTypeCreator);
 
     // TODO: ezMat3, ezMat4, ezTransform, ezUuid, ezVariant
-    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezEnumBase>(), EnumCreator).IgnoreResult();
-    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezBitflagsBase>(), BitflagsCreator).IgnoreResult();
+    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezEnumBase>(), EnumCreator);
+    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezBitflagsBase>(), BitflagsCreator);
 
-    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezTagSetWidgetAttribute>(), TagSetCreator).IgnoreResult();
-    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezVarianceTypeBase>(), VarianceTypeCreator).IgnoreResult();
+    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezTagSetWidgetAttribute>(), TagSetCreator);
+    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezVarianceTypeBase>(), VarianceTypeCreator);
   }
 
   ON_CORESYSTEMS_SHUTDOWN

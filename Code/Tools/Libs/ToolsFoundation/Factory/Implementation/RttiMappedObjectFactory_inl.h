@@ -11,32 +11,27 @@ ezRttiMappedObjectFactory<Object>::~ezRttiMappedObjectFactory()
 }
 
 template <typename Object>
-ezResult ezRttiMappedObjectFactory<Object>::RegisterCreator(const ezRTTI* pType, CreateObjectFunc creator)
+void ezRttiMappedObjectFactory<Object>::RegisterCreator(const ezRTTI* pType, CreateObjectFunc creator)
 {
-  if (m_Creators.Contains(pType))
-    return EZ_FAILURE;
+  EZ_ASSERT_DEV(!m_Creators.Contains(pType), "Type already registered.");
 
   m_Creators.Insert(pType, creator);
   Event e;
   e.m_Type = Event::Type::CreatorAdded;
   e.m_pRttiType = pType;
   m_Events.Broadcast(e);
-  return EZ_SUCCESS;
 }
 
 template <typename Object>
-ezResult ezRttiMappedObjectFactory<Object>::UnregisterCreator(const ezRTTI* pType)
+void ezRttiMappedObjectFactory<Object>::UnregisterCreator(const ezRTTI* pType)
 {
-  if (!m_Creators.Remove(pType))
-  {
-    return EZ_FAILURE;
-  }
+  EZ_ASSERT_DEV(m_Creators.Contains(pType), "Type was never registered.");
+  m_Creators.Remove(pType);
 
   Event e;
   e.m_Type = Event::Type::CreatorRemoved;
   e.m_pRttiType = pType;
   m_Events.Broadcast(e);
-  return EZ_SUCCESS;
 }
 
 template <typename Object>

@@ -21,9 +21,9 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorPluginAssets, AnimationController)
 
   ON_CORESYSTEMS_STARTUP
   {
-    //ezQtNodeScene::GetPinFactory().RegisterCreator(ezGetStaticRTTI<ezVisualScriptPin>(), [](const ezRTTI* pRtti)->ezQtPin* { return new ezQtVisualScriptPin(); }).IgnoreResult();
-    //ezQtNodeScene::GetConnectionFactory().RegisterCreator(ezGetStaticRTTI<ezVisualScriptConnection>(), [](const ezRTTI* pRtti)->ezQtConnection* { return new ezQtVisualScriptConnection(); }).IgnoreResult();
-    ezQtNodeScene::GetNodeFactory().RegisterCreator(ezGetStaticRTTI<ezAnimGraphNode>(), [](const ezRTTI* pRtti)->ezQtNode* { return new ezQtAnimationControllerNode(); }).IgnoreResult();
+    //ezQtNodeScene::GetPinFactory().RegisterCreator(ezGetStaticRTTI<ezVisualScriptPin>(), [](const ezRTTI* pRtti)->ezQtPin* { return new ezQtVisualScriptPin(); });
+    //ezQtNodeScene::GetConnectionFactory().RegisterCreator(ezGetStaticRTTI<ezVisualScriptConnection>(), [](const ezRTTI* pRtti)->ezQtConnection* { return new ezQtVisualScriptConnection(); });
+    ezQtNodeScene::GetNodeFactory().RegisterCreator(ezGetStaticRTTI<ezAnimGraphNode>(), [](const ezRTTI* pRtti)->ezQtNode* { return new ezQtAnimationControllerNode(); });
   }
 
 EZ_END_SUBSYSTEM_DECLARATION;
@@ -314,9 +314,8 @@ void ezAnimationControllerAssetDocument::SortNodesByPriority(ezDynamicArray<cons
     }
   }
 
-  allNodes.Sort([&](auto lhs, auto rhs) -> bool {
-    return prios[lhs] < prios[rhs];
-  });
+  allNodes.Sort([&](auto lhs, auto rhs) -> bool
+    { return prios[lhs] < prios[rhs]; });
 }
 
 void ezAnimationControllerAssetDocument::SetOutputPinIndices(const ezDynamicArray<ezAnimGraphNode*>& newNodes, const ezDynamicArray<const ezDocumentObject*>& allNodes, const ezDocumentNodeManager* pNodeManager, ezMap<ezUInt8, PinCount>& pinCounts, ezAnimGraph& animController, ezAbstractMemberProperty* pIdxProperty, const ezMap<const ezPin*, ezUInt16>& inputPinIndices) const
@@ -404,9 +403,8 @@ void ezAnimationControllerAssetDocument::CreateOutputGraphNodes(const ezDynamicA
     auto pNewNode = animController.m_Nodes.PeekBack().Borrow();
 
     // copy all the non-hidden properties
-    ezToolsSerializationUtils::CopyProperties(pNode, GetObjectManager(), pNewNode, pNewNode->GetDynamicRTTI(), [](const ezAbstractProperty* p) {
-      return p->GetAttributeByType<ezHiddenAttribute>() == nullptr;
-    });
+    ezToolsSerializationUtils::CopyProperties(pNode, GetObjectManager(), pNewNode, pNewNode->GetDynamicRTTI(), [](const ezAbstractProperty* p)
+      { return p->GetAttributeByType<ezHiddenAttribute>() == nullptr; });
   }
 }
 
@@ -457,8 +455,8 @@ void ezAnimationControllerAssetDocument::InternalGetMetaDataHash(const ezDocumen
 {
   // without this, changing connections only (no property value) may not result in a different asset document hash and therefore no transform
 
-   const ezDocumentNodeManager* pManager = static_cast<const ezDocumentNodeManager*>(GetObjectManager());
-   if (pManager->IsNode(pObject))
+  const ezDocumentNodeManager* pManager = static_cast<const ezDocumentNodeManager*>(GetObjectManager());
+  if (pManager->IsNode(pObject))
   {
     auto outputs = pManager->GetOutputPins(pObject);
     for (const ezPin* pPinSource : outputs)
