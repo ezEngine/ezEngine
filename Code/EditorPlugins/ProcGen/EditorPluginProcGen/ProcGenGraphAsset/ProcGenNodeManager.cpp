@@ -26,6 +26,10 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, ProcGen)
 
   ON_CORESYSTEMS_SHUTDOWN
   {
+    const ezRTTI* pBaseType = ezGetStaticRTTI<ezProcGenNodeBase>();
+
+    ezQtNodeScene::GetPinFactory().UnregisterCreator(ezGetStaticRTTI<ezProcGenPin>());
+    ezQtNodeScene::GetNodeFactory().UnregisterCreator(pBaseType);
   }
 
 EZ_END_SUBSYSTEM_DECLARATION;

@@ -502,6 +502,19 @@ public:
 
 //////////////////////////////////////////////////////////////////////////
 
+class EZ_FOUNDATION_DLL ezBoneManipulatorAttribute : public ezManipulatorAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezBoneManipulatorAttribute, ezManipulatorAttribute);
+
+public:
+  ezBoneManipulatorAttribute();
+  ezBoneManipulatorAttribute(const char* szTransformProperty, const char* szBindTo);
+
+  const ezUntrackedString& GetTransformProperty() const { return m_sProperty1; }
+};
+
+//////////////////////////////////////////////////////////////////////////
+
 struct ezVisualizerAnchor
 {
   using StorageType = ezUInt8;

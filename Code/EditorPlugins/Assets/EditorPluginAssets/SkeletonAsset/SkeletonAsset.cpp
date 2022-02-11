@@ -1,5 +1,6 @@
 #include <EditorPluginAssets/EditorPluginAssetsPCH.h>
 
+#include <EditorFramework/GUI/ExposedParameters.h>
 #include <EditorPluginAssets/SkeletonAsset/SkeletonAsset.h>
 #include <Foundation/Utilities/Progress.h>
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
@@ -9,7 +10,7 @@
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSkeletonAssetDocument, 7, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSkeletonAssetDocument, 8, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
@@ -208,6 +209,57 @@ void ezSkeletonAssetDocument::SetRenderTwistLimits(bool enable)
   e.m_pDocument = this;
   e.m_Type = ezSkeletonAssetEvent::RenderStateChanged;
   m_Events.Broadcast(e);
+}
+
+void ezSkeletonAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
+{
+  SUPER::UpdateAssetDocumentInfo(pInfo);
+
+  // expose all the bones as parameters
+  // such that we can create components that modify these bones
+
+  auto* desc = GetProperties();
+  ezExposedParameters* pExposedParams = EZ_DEFAULT_NEW(ezExposedParameters);
+
+
+  {
+    ezExposedBone bone;
+    bone.m_sName = "<root-transform>";
+    bone.m_Transform = CalculateTransformationMatrix(desc);
+
+    ezExposedParameter* param = EZ_DEFAULT_NEW(ezExposedParameter);
+    param->m_sName = "<root-transform>";
+    param->m_DefaultValue.CopyTypedObject(&bone, ezGetStaticRTTI<ezExposedBone>());
+
+    pExposedParams->m_Parameters.PushBack(param);
+  }
+
+  auto Traverse = [&](ezEditableSkeletonJoint* pJoint, const char* szParent, auto Recurse) -> void
+  {
+    ezExposedBone bone;
+    bone.m_sName = pJoint->GetName();
+    bone.m_sParent = szParent;
+    bone.m_Transform = pJoint->m_LocalTransform;
+
+    ezExposedParameter* param = EZ_DEFAULT_NEW(ezExposedParameter);
+    param->m_sName = pJoint->GetName();
+    param->m_DefaultValue.CopyTypedObject(&bone, ezGetStaticRTTI<ezExposedBone>());
+
+    pExposedParams->m_Parameters.PushBack(param);
+
+    for (auto pChild : pJoint->m_Children)
+    {
+      Recurse(pChild, pJoint->GetName(), Recurse);
+    }
+  };
+
+  for (auto ptr : desc->m_Children)
+  {
+    Traverse(ptr, "", Traverse);
+  }
+
+  // Info takes ownership of meta data.
+  pInfo->m_MetaInfo.PushBack(pExposedParams);
 }
 
 ezStatus ezSkeletonAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)

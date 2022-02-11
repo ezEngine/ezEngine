@@ -4,6 +4,7 @@
 
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Strings/HashedString.h>
+#include <Foundation/Types/VariantTypeRegistry.h>
 #include <RendererCore/AnimationSystem/Declarations.h>
 
 class ezSkeletonBuilder;
@@ -107,3 +108,30 @@ public:
 
   ezHybridArray<ezEditableSkeletonJoint*, 4> m_Children;
 };
+
+struct EZ_RENDERERCORE_DLL ezExposedBone
+{
+  ezString m_sName;
+  ezString m_sParent;
+  ezTransform m_Transform;
+  // when adding new values, the hash function below has to be adjusted
+};
+
+EZ_DECLARE_CUSTOM_VARIANT_TYPE(ezExposedBone);
+
+EZ_RENDERERCORE_DLL void operator<<(ezStreamWriter& stream, const ezExposedBone& bone);
+EZ_RENDERERCORE_DLL void operator>>(ezStreamReader& stream, ezExposedBone& bone);
+EZ_RENDERERCORE_DLL bool operator==(const ezExposedBone& lhs, const ezExposedBone& rhs);
+
+template <>
+struct ezHashHelper<ezExposedBone>
+{
+  EZ_ALWAYS_INLINE static ezUInt32 Hash(const ezExposedBone& value)
+  {
+    return ezHashingUtils::xxHash32String(value.m_sName) + ezHashingUtils::xxHash32String(value.m_sParent) + ezHashingUtils::xxHash32(&value, sizeof(ezTransform));
+  }
+
+  EZ_ALWAYS_INLINE static bool Equal(const ezExposedBone& a, const ezExposedBone& b) { return a == b; }
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezExposedBone);

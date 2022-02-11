@@ -47,7 +47,7 @@ void ezQtFilePropertyWidget::OnInit()
   auto pAttr = m_pProp->GetAttributeByType<ezFileBrowserAttribute>();
   EZ_ASSERT_DEV(pAttr != nullptr, "ezQtFilePropertyWidget was created without a ezFileBrowserAttribute!");
 
-  if (pAttr->GetCustomAction() != nullptr)
+  if (!ezStringUtils::IsNullOrEmpty(pAttr->GetCustomAction()))
   {
     m_pButton->menu()->addAction(QIcon(), ezTranslate(pAttr->GetCustomAction()), this, SLOT(OnCustomAction()));
   }

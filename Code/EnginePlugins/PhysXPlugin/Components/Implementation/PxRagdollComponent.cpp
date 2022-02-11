@@ -8,6 +8,7 @@
 #include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
 #include <PhysXPlugin/WorldModule/PhysXWorldModule.h>
 #include <RendererCore/AnimationSystem/Declarations.h>
+#include <RendererCore/AnimationSystem/SkeletonPoseComponent.h>
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <foundation/Px.h>
@@ -59,6 +60,7 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezPxRagdollComponent, 4)
     EZ_MESSAGE_HANDLER(ezMsgAnimationPoseProposal, OnAnimationPoseProposal),
     EZ_MESSAGE_HANDLER(ezMsgPhysicsAddForce, AddForceAtPos),
     EZ_MESSAGE_HANDLER(ezMsgPhysicsAddImpulse, AddImpulseAtPos),
+    EZ_MESSAGE_HANDLER(ezMsgRetrieveBoneState, OnRetrieveBoneState),
   }
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_ATTRIBUTES
@@ -323,6 +325,35 @@ void ezPxRagdollComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& pos
   SetupLimbs(poseMsg);
 }
 
+void ezPxRagdollComponent::OnRetrieveBoneState(ezMsgRetrieveBoneState& msg) const
+{
+  if (!m_bLimbsSetup)
+    return;
+
+  ezResourceLock<ezSkeletonResource> pSkeleton(m_hSkeleton, ezResourceAcquireMode::BlockTillLoaded);
+  const auto& skeleton = pSkeleton->GetDescriptor().m_Skeleton;
+
+  for (ezUInt32 uiJointIdx = 0; uiJointIdx < skeleton.GetJointCount(); ++uiJointIdx)
+  {
+    ezMat4 mJoint = m_LimbPoses[uiJointIdx];
+
+    const auto& joint = skeleton.GetJointByIndex(uiJointIdx);
+    const ezUInt16 uiParentIdx = joint.GetParentIndex();
+    if (uiParentIdx != ezInvalidJointIndex)
+    {
+      // remove the parent transform to get the pure local transform
+      const ezMat4 mParent = m_LimbPoses[uiParentIdx].GetInverse();
+
+      mJoint = mParent * mJoint;
+    }
+
+    auto& t = msg.m_BoneTransforms[joint.GetName().GetString()];
+    t.m_vPosition = mJoint.GetTranslationVector();
+    t.m_qRotation.ReconstructFromMat4(mJoint);
+    t.m_vScale.Set(1.0f);
+  }
+}
+
 #if JOINT_DEBUG_DRAW
 static void AddLine(ezHybridArray<ezDebugRenderer::Line, 32>& lines, const ezTransform& transform, const ezVec3& dir, const ezColor& color)
 {
@@ -444,7 +475,8 @@ void ezPxRagdollComponent::SetupLimbsFromBindPose()
 
   m_LimbPoses.SetCountUninitialized(desc.m_Skeleton.GetJointCount());
 
-  auto getBone = [&](ezUInt32 i, auto f) -> ezMat4 {
+  auto getBone = [&](ezUInt32 i, auto f) -> ezMat4
+  {
     const auto& j = desc.m_Skeleton.GetJointByIndex(i);
     const ezMat4 bm = j.GetBindPoseLocalTransform().GetAsMat4();
 

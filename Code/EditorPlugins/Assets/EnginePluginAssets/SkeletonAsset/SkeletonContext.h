@@ -31,4 +31,5 @@ private:
   ezGameObject* m_pGameObject = nullptr;
   ezSkeletonResourceHandle m_hSkeleton;
   ezComponentHandle m_hSkeletonComponent;
+  ezComponentHandle m_hPoseComponent;
 };

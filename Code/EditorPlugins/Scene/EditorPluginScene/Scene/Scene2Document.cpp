@@ -2,12 +2,15 @@
 
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <EditorFramework/PropertyGrid/ExposedParametersPropertyWidget.moc.h>
 #include <EditorPluginScene/Objects/SceneObjectManager.h>
 #include <EditorPluginScene/Scene/LayerDocument.h>
 #include <EditorPluginScene/Scene/Scene2Document.h>
 #include <Foundation/IO/OSFile.h>
 #include <GuiFoundation/PropertyGrid/ManipulatorManager.h>
 #include <GuiFoundation/PropertyGrid/VisualizerManager.h>
+#include <RendererCore/AnimationSystem/SkeletonPoseComponent.h>
+#include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/Object/ObjectCommandAccessor.h>
 
 // clang-format off
@@ -341,9 +344,70 @@ void ezScene2Document::HandleObjectStateFromEngineMsg2(const ezPushObjectStateMs
     {
       auto pObject = GetObjectManager()->GetObject(pState->m_ObjectGuid);
 
-      if (pObject)
+      if (!pObject)
+        continue;
+
+      // set the general transform of the object
+      SetGlobalTransform(pObject, ezTransform(pState->m_vPosition, pState->m_qRotation), TransformationChanges::Translation | TransformationChanges::Rotation);
+
+      // if we also have bone transforms, attempt to set them as well
+      if (pState->m_BoneTransforms.IsEmpty())
+        continue;
+
+      auto pAccessor = GetObjectAccessor();
+
+      // check all components
+      for (auto pComponent : pObject->GetChildren())
       {
-        SetGlobalTransform(pObject, ezTransform(pState->m_vPosition, pState->m_qRotation), TransformationChanges::Translation | TransformationChanges::Rotation);
+        auto pComponentType = pComponent->GetType();
+
+        const auto* pBoneManipAttr = pComponentType->GetAttributeByType<ezBoneManipulatorAttribute>();
+
+        // we can only apply bone transforms on components that have the ezBoneManipulatorAttribute attribute
+        if (pBoneManipAttr == nullptr)
+          continue;
+
+        auto pBonesProperty = pComponentType->FindPropertyByName(pBoneManipAttr->GetTransformProperty());
+        EZ_ASSERT_DEBUG(pBonesProperty, "Invalid transform property set on ezBoneManipulatorAttribute");
+
+        const ezExposedParametersAttribute* pExposedParamsAttr = pBonesProperty->GetAttributeByType<ezExposedParametersAttribute>();
+        EZ_ASSERT_DEBUG(pExposedParamsAttr, "Expected exposed parameters on ezBoneManipulatorAttribute property");
+
+        const ezAbstractProperty* pParameterSourceProp = pComponentType->FindPropertyByName(pExposedParamsAttr->GetParametersSource());
+        EZ_ASSERT_DEBUG(pParameterSourceProp, "The exposed parameter source '{0}' does not exist on type '{1}'", pExposedParamsAttr->GetParametersSource(), pComponentType->GetTypeName());
+
+        // retrieve all the bone keys and values, these will contain the exposed default values, in case a bone has never been overridden before
+        ezVariantArray boneValues, boneKeys;
+        ezExposedParameterCommandAccessor proxy(pAccessor, pBonesProperty, pParameterSourceProp);
+        proxy.GetValues(pComponent, pBonesProperty, boneValues);
+        proxy.GetKeys(pComponent, pBonesProperty, boneKeys);
+
+        // apply all the new bone transforms
+        for (const auto& bone : pState->m_BoneTransforms)
+        {
+          // ignore bones that are unknown (not exposed somehow)
+          ezUInt32 idx = boneKeys.IndexOf(bone.Key());
+          if (idx == ezInvalidIndex)
+            continue;
+
+          EZ_ASSERT_DEBUG(boneValues[idx].GetReflectedType() == ezGetStaticRTTI<ezExposedBone>(), "Expected an ezExposedBone in variant");
+
+          // retrieve the default/previous value of the bone
+          const ezExposedBone* pDefVal = reinterpret_cast<const ezExposedBone*>(boneValues[idx].GetData());
+
+          ezExposedBone b;
+          b.m_sName = pDefVal->m_sName;     // same as the key
+          b.m_sParent = pDefVal->m_sParent; // this is what we don't have and therefore needed to retrieve the default values
+          b.m_Transform = bone.Value();
+
+          ezVariant var;
+          var.CopyTypedObject(&b, ezGetStaticRTTI<ezExposedBone>());
+
+          proxy.SetValue(pComponent, pBonesProperty, var, bone.Key());
+        }
+
+        // found a component/property to apply bones to, so we can stop
+        break;
       }
     }
 

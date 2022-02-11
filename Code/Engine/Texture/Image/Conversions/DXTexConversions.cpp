@@ -155,9 +155,10 @@ namespace
     };
 
     UINT createDeviceFlags = 0;
-#  ifdef _DEBUG
-    createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
-#  endif
+//#  ifdef _DEBUG
+//    don't do this (especially not without a fallback for failure), not needed for texture conversion
+//    createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
+//#  endif
 
     D3D_FEATURE_LEVEL fl;
     HRESULT hr = s_DynamicD3D11CreateDevice(pAdapter.Get(), D3D_DRIVER_TYPE_UNKNOWN, nullptr, createDeviceFlags, featureLevels,

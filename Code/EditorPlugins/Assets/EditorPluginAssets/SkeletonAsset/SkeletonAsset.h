@@ -57,6 +57,7 @@ public:
   bool GetRenderTwistLimits() const { return m_bRenderTwistLimits; }
 
 protected:
+  virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
     const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
   virtual ezStatus InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo) override;

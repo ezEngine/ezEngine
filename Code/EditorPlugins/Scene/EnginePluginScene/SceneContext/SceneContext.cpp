@@ -14,6 +14,7 @@
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/VisualScript/VisualScriptComponent.h>
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
+#include <RendererCore/AnimationSystem/Declarations.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Lights/DirectionalLightComponent.h>
 #include <RendererCore/Lights/Implementation/ShadowPool.h>
@@ -919,7 +920,8 @@ void ezSceneContext::ExportExposedParameters(const ezWorldWriter& ww, ezDeferred
     paramdesc.m_sProperty.Assign(esp.m_sPropertyPath.GetData());
   }
 
-  exposedParams.Sort([](const ezExposedPrefabParameterDesc& lhs, const ezExposedPrefabParameterDesc& rhs) -> bool { return lhs.m_sExposeName.GetHash() < rhs.m_sExposeName.GetHash(); });
+  exposedParams.Sort([](const ezExposedPrefabParameterDesc& lhs, const ezExposedPrefabParameterDesc& rhs) -> bool
+    { return lhs.m_sExposeName.GetHash() < rhs.m_sExposeName.GetHash(); });
 
   file << exposedParams.GetCount();
 
@@ -1210,6 +1212,11 @@ void ezSceneContext::HandlePullObjectStateMsg(const ezPullObjectStateMsgToEngine
       state.m_bAdjustFromPrefabRootChild = bAdjust;
       state.m_vPosition = pObject->GetGlobalPosition();
       state.m_qRotation = pObject->GetGlobalRotation();
+
+      ezMsgRetrieveBoneState msg;
+      pObject->SendMessage(msg);
+
+      state.m_BoneTransforms = msg.m_BoneTransforms;
     }
   }
 

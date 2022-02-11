@@ -44,6 +44,7 @@ struct ezPushObjectStateData
   ezVec3 m_vPosition;
   ezQuat m_qRotation;
   bool m_bAdjustFromPrefabRootChild = false; // only used internally, not synchronized
+  ezMap<ezString, ezTransform> m_BoneTransforms;
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_SHAREDPLUGINSCENE_DLL, ezPushObjectStateData);
