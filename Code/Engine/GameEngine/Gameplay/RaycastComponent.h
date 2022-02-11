@@ -32,7 +32,7 @@ public:
 /// Sample setup:
 ///   m_uiCollisionLayerEndPoint = Default
 ///   m_uiCollisionLayerTrigger = Player
-///   m_sTrggerMessage = "APlayerEnteredTheBeam"
+///   m_sTriggerMessage = "APlayerEnteredTheBeam"
 ///
 /// This will lead to trigger messages being sent when a physics actor on the 'Player' layer comes between
 /// the original hit on the default layer and the ray cast origin.
