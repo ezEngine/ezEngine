@@ -234,8 +234,7 @@ void ezSkeletonAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo
     pExposedParams->m_Parameters.PushBack(param);
   }
 
-  auto Traverse = [&](ezEditableSkeletonJoint* pJoint, const char* szParent, auto Recurse) -> void
-  {
+  auto Traverse = [&](ezEditableSkeletonJoint* pJoint, const char* szParent, auto Recurse) -> void {
     ezExposedBone bone;
     bone.m_sName = pJoint->GetName();
     bone.m_sParent = szParent;

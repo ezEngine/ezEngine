@@ -29,4 +29,3 @@ protected:
   QHBoxLayout* m_pLayout = nullptr;
   ezQtDoubleSpinBox* m_pRotWidget[3];
 };
-

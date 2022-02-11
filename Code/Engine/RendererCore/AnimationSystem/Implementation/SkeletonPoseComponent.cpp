@@ -169,12 +169,9 @@ void ezSkeletonPoseComponent::ResendPose()
 
 const ezRangeView<const char*, ezUInt32> ezSkeletonPoseComponent::GetBones() const
 {
-  return ezRangeView<const char*, ezUInt32>([]() -> ezUInt32
-    { return 0; },
-    [this]() -> ezUInt32
-    { return m_Bones.GetCount(); },
-    [](ezUInt32& it)
-    { ++it; },
+  return ezRangeView<const char*, ezUInt32>([]() -> ezUInt32 { return 0; },
+    [this]() -> ezUInt32 { return m_Bones.GetCount(); },
+    [](ezUInt32& it) { ++it; },
     [this](const ezUInt32& it) -> const char* { return m_Bones.GetKey(it).GetString().GetData(); });
 }
 
