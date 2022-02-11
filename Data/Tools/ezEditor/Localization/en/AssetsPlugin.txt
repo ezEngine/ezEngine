@@ -260,3 +260,6 @@ Skeleton.RenderColliders;Render Colliders
 Skeleton.RenderJoints;Render Joints
 Skeleton.RenderSwingLimits;Render Swing Limits
 Skeleton.RenderTwistLimits;Render Twist Limits
+BoneShapes;Shapes
+ezEditableSkeletonBoneShape;Shape
+Radius;Radius

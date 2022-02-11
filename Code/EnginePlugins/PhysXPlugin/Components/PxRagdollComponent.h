@@ -12,6 +12,7 @@ class ezPxUserData;
 class ezSkeletonJoint;
 struct ezMsgAnimationPoseProposal;
 class ezPhysXWorldModule;
+struct ezMsgRetrieveBoneState;
 
 namespace physx
 {
@@ -85,6 +86,7 @@ public:
 
   void OnAnimationPoseProposal(ezMsgAnimationPoseProposal& msg); // [ msg handler ]
   void OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& msg);   // [ msg handler ]
+  void OnRetrieveBoneState(ezMsgRetrieveBoneState& msg) const;   // [ msg handler ]
 
   bool GetDisableGravity() const { return m_bDisableGravity; } // [ property ]
   void SetDisableGravity(bool b);                              // [ property ]

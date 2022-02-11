@@ -38,6 +38,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgApplyRootMotion, 1, ezRTTIDefaultAllocator<
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgRetrieveBoneState);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgRetrieveBoneState, 1, ezRTTIDefaultAllocator<ezMsgRetrieveBoneState>)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 void ezMsgAnimationPoseUpdated::ComputeFullBoneTransform(ezUInt32 uiJointIndex, ezMat4& fullTransform) const

@@ -112,3 +112,14 @@ struct EZ_RENDERERCORE_DLL ezMsgApplyRootMotion : public ezMessage
   ezAngle m_RotationY;
   ezAngle m_RotationZ;
 };
+
+/// \brief Queries the local transforms of each bone in an object with a skeleton
+///
+/// Used to retrieve the pose of a ragdoll after simulation.
+struct EZ_RENDERERCORE_DLL ezMsgRetrieveBoneState : public ezMessage
+{
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgRetrieveBoneState, ezMessage);
+
+  // maps from bone name to its local transform
+  ezMap<ezString, ezTransform> m_BoneTransforms;
+};

@@ -1,6 +1,8 @@
 #include <RendererCore/RendererCorePCH.h>
 
 #include <Core/Physics/SurfaceResource.h>
+#include <Foundation/IO/Stream.h>
+#include <Foundation/Types/VariantTypeRegistry.h>
 #include <RendererCore/AnimationSystem/EditableSkeleton.h>
 #include <RendererCore/AnimationSystem/Implementation/OzzUtils.h>
 #include <RendererCore/AnimationSystem/SkeletonBuilder.h>
@@ -82,7 +84,47 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditableSkeleton, 1, ezRTTIDefaultAllocator<ez
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezExposedBone, ezNoBase, 1, ezRTTIDefaultAllocator<ezExposedBone>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Name", m_sName),
+    EZ_MEMBER_PROPERTY("Parent", m_sParent),
+    EZ_MEMBER_PROPERTY("Transform", m_Transform),
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_STATIC_REFLECTED_TYPE;
+
+EZ_DEFINE_CUSTOM_VARIANT_TYPE(ezExposedBone);
 // clang-format on
+
+
+void operator<<(ezStreamWriter& stream, const ezExposedBone& bone)
+{
+  stream << bone.m_sName;
+  stream << bone.m_sParent;
+  stream << bone.m_Transform;
+}
+
+void operator>>(ezStreamReader& stream, ezExposedBone& bone)
+{
+  stream >> bone.m_sName;
+  stream >> bone.m_sParent;
+  stream >> bone.m_Transform;
+}
+
+bool operator==(const ezExposedBone& lhs, const ezExposedBone& rhs)
+{
+  if (lhs.m_sName != rhs.m_sName)
+    return false;
+  if (lhs.m_sParent != rhs.m_sParent)
+    return false;
+  if (lhs.m_Transform != rhs.m_Transform)
+    return false;
+  return true;
+}
 
 ezEditableSkeleton::ezEditableSkeleton() = default;
 ezEditableSkeleton::~ezEditableSkeleton()

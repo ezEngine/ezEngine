@@ -26,6 +26,11 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorPluginAssets, AnimationController)
     ezQtNodeScene::GetNodeFactory().RegisterCreator(ezGetStaticRTTI<ezAnimGraphNode>(), [](const ezRTTI* pRtti)->ezQtNode* { return new ezQtAnimationControllerNode(); });
   }
 
+  ON_CORESYSTEMS_SHUTDOWN
+  {
+    ezQtNodeScene::GetNodeFactory().UnregisterCreator(ezGetStaticRTTI<ezAnimGraphNode>());
+  }
+
 EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 

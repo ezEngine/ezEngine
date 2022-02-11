@@ -81,6 +81,12 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, VisualScript)
 
   ON_CORESYSTEMS_SHUTDOWN
   {
+    const ezRTTI* pBaseType = ezVisualScriptTypeRegistry::GetSingleton()->GetNodeBaseType();
+    ezQtNodeScene::GetNodeFactory().UnregisterCreator(pBaseType);
+
+    ezQtNodeScene::GetPinFactory().UnregisterCreator(ezGetStaticRTTI<ezVisualScriptPin>());
+    ezQtNodeScene::GetConnectionFactory().UnregisterCreator(ezGetStaticRTTI<ezVisualScriptConnection>());
+
     ezVisualScriptTypeRegistry* pDummy = ezVisualScriptTypeRegistry::GetSingleton();
     EZ_DEFAULT_DELETE(pDummy);
   }

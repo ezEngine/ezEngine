@@ -14,6 +14,7 @@
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/VisualScript/VisualScriptComponent.h>
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
+#include <RendererCore/AnimationSystem/Declarations.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Lights/DirectionalLightComponent.h>
 #include <RendererCore/Lights/Implementation/ShadowPool.h>
@@ -1210,6 +1211,11 @@ void ezSceneContext::HandlePullObjectStateMsg(const ezPullObjectStateMsgToEngine
       state.m_bAdjustFromPrefabRootChild = bAdjust;
       state.m_vPosition = pObject->GetGlobalPosition();
       state.m_qRotation = pObject->GetGlobalRotation();
+
+      ezMsgRetrieveBoneState msg;
+      pObject->SendMessage(msg);
+
+      state.m_BoneTransforms = msg.m_BoneTransforms;
     }
   }
 

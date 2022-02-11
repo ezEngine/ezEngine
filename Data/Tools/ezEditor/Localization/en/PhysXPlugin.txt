@@ -57,3 +57,10 @@ ezPxActorLockingFlags::FreezePositionZ;Freeze Position Z
 ezPxActorLockingFlags::FreezeRotationX;Freeze Rotation X
 ezPxActorLockingFlags::FreezeRotationY;Freeze Rotation Y
 ezPxActorLockingFlags::FreezeRotationZ;Freeze Rotation Z
+ezPxControlledRagdollComponent;Controlled Ragdoll
+ezPxSimulatedRagdollComponent;Simulated Ragdoll
+ezPxRagdollStart::BindPose;Bind Pose
+ezPxRagdollStart::WaitForPose;Wait for Pose
+ezPxRagdollStart::Wait;Wait
+Constraints;Constraints
+ezPxRagdollConstraint;Constraint

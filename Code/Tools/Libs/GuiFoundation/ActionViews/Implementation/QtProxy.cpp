@@ -72,6 +72,12 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, QtProxies)
 
   ON_CORESYSTEMS_SHUTDOWN
   {
+    ezQtProxy::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezMenuAction>());
+    ezQtProxy::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezCategoryAction>());
+    ezQtProxy::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezDynamicMenuAction>());
+    ezQtProxy::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezDynamicActionAndMenuAction>());
+    ezQtProxy::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezButtonAction>());
+    ezQtProxy::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezSliderAction>());
     ezQtProxy::s_GlobalActions.Clear();
     ezQtProxy::s_DocumentActions.Clear();
     ezQtProxy::s_WindowActions.Clear();

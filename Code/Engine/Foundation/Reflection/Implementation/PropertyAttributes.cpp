@@ -509,6 +509,30 @@ ezTransformManipulatorAttribute::ezTransformManipulatorAttribute(
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezBoneManipulatorAttribute, 1, ezRTTIDefaultAllocator<ezBoneManipulatorAttribute>)
+{
+  EZ_BEGIN_FUNCTIONS
+  {
+    EZ_CONSTRUCTOR_PROPERTY(const char*, const char*),
+  }
+  EZ_END_FUNCTIONS;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+ezBoneManipulatorAttribute::ezBoneManipulatorAttribute()
+  : ezManipulatorAttribute(nullptr)
+{
+}
+
+ezBoneManipulatorAttribute::ezBoneManipulatorAttribute(const char* szTransformProperty, const char* szBindTo)
+  : ezManipulatorAttribute(szTransformProperty, szBindTo)
+{
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
 EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(ezVisualizerAnchor, 1)
   EZ_BITFLAGS_CONSTANTS(ezVisualizerAnchor::Center, ezVisualizerAnchor::PosX, ezVisualizerAnchor::NegX, ezVisualizerAnchor::PosY, ezVisualizerAnchor::NegY, ezVisualizerAnchor::PosZ, ezVisualizerAnchor::NegZ)
 EZ_END_STATIC_REFLECTED_BITFLAGS;

@@ -4,6 +4,7 @@
 #include <EnginePluginAssets/SkeletonAsset/SkeletonView.h>
 
 #include <RendererCore/AnimationSystem/SkeletonComponent.h>
+#include <RendererCore/AnimationSystem/SkeletonPoseComponent.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSkeletonContext, 1, ezRTTIDefaultAllocator<ezSkeletonContext>)
@@ -58,7 +59,15 @@ void ezSkeletonContext::HandleMessage(const ezEditorEngineDocumentMsg* pDocMsg)
       if (m_pWorld->TryGetComponent(m_hSkeletonComponent, pSkeleton))
       {
         pSkeleton->m_bVisualizeBones = (pMsg->m_fPayload != 0);
-        //pSkeleton->VisualizeSkeletonDefaultState();
+      }
+
+      // resend the pose every frame (this config message is send every frame)
+      // this ensures that changing any of the visualization states in the skeleton component displays correctly
+      // a bit hacky and should be cleaned up, but this way the skeleton component doesn't need to keep a copy of the last pose (maybe it should)
+      ezSkeletonPoseComponent* pPoseSkeleton;
+      if (m_pWorld->TryGetComponent(m_hPoseComponent, pPoseSkeleton))
+      {
+        pPoseSkeleton->ResendPose();
       }
     }
     else if (pMsg->m_sWhatToDo == "RenderColliders")
@@ -113,6 +122,7 @@ void ezSkeletonContext::OnInitialize()
 
   ezGameObjectDesc obj;
   ezSkeletonComponent* pVisSkeleton;
+  ezSkeletonPoseComponent* pPoseSkeleton;
 
   // Preview Mesh
   {
@@ -124,6 +134,10 @@ void ezSkeletonContext::OnInitialize()
     ezConversionUtils::ToString(GetDocumentGuid(), sSkeletonGuid);
     m_hSkeleton = ezResourceManager::LoadResource<ezSkeletonResource>(sSkeletonGuid);
     pVisSkeleton->SetSkeleton(m_hSkeleton);
+
+    m_hPoseComponent = ezSkeletonPoseComponent::CreateComponent(m_pGameObject, pPoseSkeleton);
+    pPoseSkeleton->SetSkeleton(m_hSkeleton);
+    pPoseSkeleton->SetPoseMode(ezSkeletonPoseMode::RestPose);
   }
 }
 

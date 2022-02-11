@@ -13,24 +13,29 @@ EZ_IMPLEMENT_SINGLETON(ezVisualShaderTypeRegistry);
 EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, VisualShader)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
-  "PluginAssets", "ReflectedTypeManager"
+    "PluginAssets", "ReflectedTypeManager"
   END_SUBSYSTEM_DEPENDENCIES
 
   ON_CORESYSTEMS_STARTUP
   {
-  EZ_DEFAULT_NEW(ezVisualShaderTypeRegistry);
+    EZ_DEFAULT_NEW(ezVisualShaderTypeRegistry);
 
-  ezVisualShaderTypeRegistry::GetSingleton()->LoadNodeData();
-  const ezRTTI* pBaseType = ezVisualShaderTypeRegistry::GetSingleton()->GetNodeBaseType();
+    ezVisualShaderTypeRegistry::GetSingleton()->LoadNodeData();
+    const ezRTTI* pBaseType = ezVisualShaderTypeRegistry::GetSingleton()->GetNodeBaseType();
 
-  ezQtNodeScene::GetPinFactory().RegisterCreator(ezGetStaticRTTI<ezVisualShaderPin>(), [](const ezRTTI* pRtti)->ezQtPin* { return new ezQtVisualShaderPin(); });
-  ezQtNodeScene::GetNodeFactory().RegisterCreator(pBaseType, [](const ezRTTI* pRtti)->ezQtNode* { return new ezQtVisualShaderNode(); });
+    ezQtNodeScene::GetPinFactory().RegisterCreator(ezGetStaticRTTI<ezVisualShaderPin>(), [](const ezRTTI* pRtti)->ezQtPin* { return new ezQtVisualShaderPin(); });
+    ezQtNodeScene::GetNodeFactory().RegisterCreator(pBaseType, [](const ezRTTI* pRtti)->ezQtNode* { return new ezQtVisualShaderNode(); });
   }
 
   ON_CORESYSTEMS_SHUTDOWN
   {
-  ezVisualShaderTypeRegistry* pDummy = ezVisualShaderTypeRegistry::GetSingleton();
-  EZ_DEFAULT_DELETE(pDummy);
+    const ezRTTI* pBaseType = ezVisualShaderTypeRegistry::GetSingleton()->GetNodeBaseType();
+
+    ezQtNodeScene::GetPinFactory().UnregisterCreator(ezGetStaticRTTI<ezVisualShaderPin>());
+    ezQtNodeScene::GetNodeFactory().UnregisterCreator(pBaseType);
+
+    ezVisualShaderTypeRegistry* pDummy = ezVisualShaderTypeRegistry::GetSingleton();
+    EZ_DEFAULT_DELETE(pDummy);
   }
 
   ON_HIGHLEVELSYSTEMS_STARTUP

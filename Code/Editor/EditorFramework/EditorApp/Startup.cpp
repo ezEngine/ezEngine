@@ -11,6 +11,7 @@
 #include <EditorFramework/Actions/ViewActions.h>
 #include <EditorFramework/Actions/ViewLightActions.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <EditorFramework/Manipulators/BoneManipulatorAdapter.h>
 #include <EditorFramework/Manipulators/BoxManipulatorAdapter.h>
 #include <EditorFramework/Manipulators/CapsuleManipulatorAdapter.h>
 #include <EditorFramework/Manipulators/ConeAngleManipulatorAdapter.h>
@@ -28,6 +29,7 @@
 #include <EditorFramework/PropertyGrid/AssetBrowserPropertyWidget.moc.h>
 #include <EditorFramework/PropertyGrid/DynamicEnumPropertyWidget.moc.h>
 #include <EditorFramework/PropertyGrid/DynamicStringEnumPropertyWidget.moc.h>
+#include <EditorFramework/PropertyGrid/ExposedBoneWidget.moc.h>
 #include <EditorFramework/PropertyGrid/ExposedParametersPropertyWidget.moc.h>
 #include <EditorFramework/PropertyGrid/FileBrowserPropertyWidget.moc.h>
 #include <EditorFramework/PropertyGrid/GameObjectReferencePropertyWidget.moc.h>
@@ -43,6 +45,7 @@
 #include <Foundation/Logging/ConsoleWriter.h>
 #include <Foundation/Logging/VisualStudioWriter.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <Foundation/Reflection/Implementation/PropertyAttributes.h>
 #include <Foundation/Utilities/CommandLineOptions.h>
 #include <GuiFoundation/Action/StandardMenus.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
@@ -88,6 +91,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
     ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezDynamicStringEnumAttribute>(), [](const ezRTTI* pRtti)->ezQtPropertyWidget* { return new ezQtDynamicStringEnumPropertyWidget(); });
     ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezExposedParametersAttribute>(), [](const ezRTTI* pRtti)->ezQtPropertyWidget* { return new ezQtExposedParametersPropertyWidget(); });
     ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezGameObjectReferenceAttribute>(), [](const ezRTTI* pRtti)->ezQtPropertyWidget* { return new ezQtGameObjectReferencePropertyWidget(); });
+    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezExposedBone>(), [](const ezRTTI* pRtti)->ezQtPropertyWidget* { return new ezQtExposedBoneWidget(); });
 
     ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezSphereManipulatorAttribute>(), [](const ezRTTI* pRtti)->ezManipulatorAdapter* { return EZ_DEFAULT_NEW(ezSphereManipulatorAdapter); });
     ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezCapsuleManipulatorAttribute>(), [](const ezRTTI* pRtti)->ezManipulatorAdapter* { return EZ_DEFAULT_NEW(ezCapsuleManipulatorAdapter); });
@@ -96,6 +100,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
     ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezConeLengthManipulatorAttribute>(), [](const ezRTTI* pRtti)->ezManipulatorAdapter* { return EZ_DEFAULT_NEW(ezConeLengthManipulatorAdapter); });
     ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezNonUniformBoxManipulatorAttribute>(), [](const ezRTTI* pRtti)->ezManipulatorAdapter* { return EZ_DEFAULT_NEW(ezNonUniformBoxManipulatorAdapter); });
     ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezTransformManipulatorAttribute>(), [](const ezRTTI* pRtti)->ezManipulatorAdapter* { return EZ_DEFAULT_NEW(ezTransformManipulatorAdapter); });
+    ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezBoneManipulatorAttribute>(), [](const ezRTTI* pRtti)->ezManipulatorAdapter* { return EZ_DEFAULT_NEW(ezBoneManipulatorAdapter); });
 
     ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezBoxVisualizerAttribute>(), [](const ezRTTI* pRtti)->ezVisualizerAdapter* { return EZ_DEFAULT_NEW(ezBoxVisualizerAdapter); });
     ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezSphereVisualizerAttribute>(), [](const ezRTTI* pRtti)->ezVisualizerAdapter* { return EZ_DEFAULT_NEW(ezSphereVisualizerAdapter); });
@@ -126,6 +131,25 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
     ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezDynamicEnumAttribute>());
     ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezDynamicStringEnumAttribute>());
     ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezGameObjectReferenceAttribute>());
+    ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezExposedParametersAttribute>());
+    ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezExposedBone>());
+
+    ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(ezGetStaticRTTI<ezSphereManipulatorAttribute>());
+    ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(ezGetStaticRTTI<ezCapsuleManipulatorAttribute>());
+    ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(ezGetStaticRTTI<ezBoxManipulatorAttribute>());
+    ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(ezGetStaticRTTI<ezConeAngleManipulatorAttribute>());
+    ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(ezGetStaticRTTI<ezConeLengthManipulatorAttribute>());
+    ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(ezGetStaticRTTI<ezNonUniformBoxManipulatorAttribute>());
+    ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(ezGetStaticRTTI<ezTransformManipulatorAttribute>());
+    ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(ezGetStaticRTTI<ezBoneManipulatorAttribute>());
+
+    ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(ezGetStaticRTTI<ezBoxVisualizerAttribute>());
+    ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(ezGetStaticRTTI<ezSphereVisualizerAttribute>());
+    ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(ezGetStaticRTTI<ezCapsuleVisualizerAttribute>());
+    ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(ezGetStaticRTTI<ezCylinderVisualizerAttribute>());
+    ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(ezGetStaticRTTI<ezDirectionVisualizerAttribute>());
+    ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(ezGetStaticRTTI<ezConeVisualizerAttribute>());
+    ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(ezGetStaticRTTI<ezCameraVisualizerAttribute>());
   }
 
 EZ_END_SUBSYSTEM_DECLARATION;
@@ -270,7 +294,7 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
 
     ShowSettingsDocument();
 
-    connect(&m_VersionChecker, &ezQtVersionChecker::VersionCheckCompleted, this, &ezQtEditorApp::SlotVersionCheckCompleted);
+    connect(&m_VersionChecker, &ezQtVersionChecker::VersionCheckCompleted, this, &ezQtEditorApp::SlotVersionCheckCompleted, Qt::QueuedConnection);
 
     m_VersionChecker.Initialize();
     m_VersionChecker.Check(false);
@@ -476,9 +500,12 @@ void ezQtEditorApp::CloseSplashScreen()
   if (!m_pSplashScreen)
     return;
 
-  m_pSplashScreen->finish(ezQtContainerWindow::GetContainerWindow());
+  EZ_ASSERT_DEBUG(QThread::currentThread() == this->thread(), "CloseSplashScreen must be called from the main thread");
+  QSplashScreen* pLocalSplashScreen = m_pSplashScreen;
+  m_pSplashScreen = nullptr;
+
+  pLocalSplashScreen->finish(ezQtContainerWindow::GetContainerWindow());
   // if the deletion is done 'later', the splashscreen can end up as the parent window of other things
   // like messageboxes, and then the deletion will make the app crash
-  delete m_pSplashScreen;
-  m_pSplashScreen = nullptr;
+  delete pLocalSplashScreen;
 }
