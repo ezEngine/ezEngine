@@ -112,6 +112,16 @@ ezStatus ezObjectAccessorBase::GetValues(const ezDocumentObject* pObject, const 
   return GetValues(pObject, pProp, out_values);
 }
 
+const ezDocumentObject* ezObjectAccessorBase::GetChildObject(const ezDocumentObject* pObject, const char* szProp, ezVariant index)
+{
+  ezVariant value;
+  if (GetValue(pObject, szProp, value, index).Succeeded() && value.IsA<ezUuid>())
+  {
+    return GetObject(value.Get<ezUuid>());
+  }
+  return nullptr;
+}
+
 ezStatus ezObjectAccessorBase::Clear(const ezDocumentObject* pObject, const char* szProp)
 {
   const ezAbstractProperty* pProp = pObject->GetType()->FindPropertyByName(szProp);

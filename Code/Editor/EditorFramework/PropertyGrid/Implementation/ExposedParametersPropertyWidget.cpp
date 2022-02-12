@@ -22,7 +22,24 @@ ezStatus ezExposedParameterCommandAccessor::GetValue(
     pProp = m_pParameterProp;
 
   ezStatus res = ezObjectProxyAccessor::GetValue(pObject, pProp, out_value, index);
-  if (res.Failed() && m_pParameterProp == pProp && index.IsA<ezString>())
+  if (res.Succeeded() && !index.IsValid() && m_pParameterProp == pProp)
+  {
+    ezVariantDictionary defaultDict;
+    if (const ezExposedParameters* pParams = GetExposedParams(pObject))
+    {
+      for (ezExposedParameter* pParam : pParams->m_Parameters)
+      {
+        defaultDict.Insert(pParam->m_sName, pParam->m_DefaultValue);
+      }
+    }
+    const ezVariantDictionary& overwrittenDict = out_value.Get<ezVariantDictionary>();
+    for (auto it : overwrittenDict)
+    {
+      defaultDict[it.Key()] = it.Value();
+    }
+    out_value = defaultDict;
+  }
+  else if (res.Failed() && m_pParameterProp == pProp && index.IsA<ezString>())
   {
     // If the actual GetValue fails but the key is an exposed param, return its default value instead.
     if (const ezExposedParameter* pParam = GetExposedParam(pObject, index.Get<ezString>()))
@@ -195,7 +212,8 @@ bool ezExposedParameterCommandAccessor::IsExposedProperty(const ezDocumentObject
   if (auto type = GetExposedParamsType(pObject))
   {
     auto props = type->GetProperties();
-    return std::any_of(cbegin(props), cend(props), [pProp](const ezAbstractProperty* prop) { return prop == pProp; });
+    return std::any_of(cbegin(props), cend(props), [pProp](const ezAbstractProperty* prop)
+      { return prop == pProp; });
   }
   return false;
 }
@@ -289,11 +307,13 @@ void ezQtExposedParametersPropertyWidget::OnInit()
       m_pRemoveUnusedAction = pFixMeMenu->addAction(QStringLiteral("Remove unused keys"));
       m_pRemoveUnusedAction->setToolTip(
         QStringLiteral("The map contains keys that are no longer used by the asset's exposed parameters and thus can be removed."));
-      connect(m_pRemoveUnusedAction, &QAction::triggered, this, [this](bool checked) { RemoveUnusedKeys(false); });
+      connect(m_pRemoveUnusedAction, &QAction::triggered, this, [this](bool checked)
+        { RemoveUnusedKeys(false); });
     }
     {
       m_pFixTypesAction = pFixMeMenu->addAction(QStringLiteral("Fix keys with wrong types"));
-      connect(m_pFixTypesAction, &QAction::triggered, this, [this](bool checked) { FixKeyTypes(false); });
+      connect(m_pFixTypesAction, &QAction::triggered, this, [this](bool checked)
+        { FixKeyTypes(false); });
     }
     m_pFixMeButton->setMenu(pFixMeMenu);
 
@@ -311,23 +331,33 @@ ezQtPropertyWidget* ezQtExposedParametersPropertyWidget::CreateWidget(ezUInt32 i
 void ezQtExposedParametersPropertyWidget::UpdateElement(ezUInt32 index)
 {
   ezQtPropertyStandardTypeContainerWidget::UpdateElement(index);
-  Element& elem = m_Elements[index];
-  const auto& selection = elem.m_pWidget->GetSelection();
-  bool isDefault = true;
-  for (const auto& item : selection)
+}
+
+void ezQtExposedParametersPropertyWidget::UpdatePropertyMetaState()
+{
+  ezQtPropertyStandardTypeContainerWidget::UpdatePropertyMetaState();
+  return;
+
+  for (ezUInt32 i = 0; i < m_Elements.GetCount(); i++)
   {
-    ezVariant value;
-    ezStatus res = m_pSourceObjectAccessor->GetValue(item.m_pObject, m_pProp, value, item.m_Index);
-    if (res.Succeeded())
+    Element& elem = m_Elements[i];
+    const auto& selection = elem.m_pWidget->GetSelection();
+    bool isDefault = true;
+    for (const auto& item : selection)
     {
-      // In case we successfully read the value from the source accessor (not the proxy that pretends all exposed params exist)
-      // we now the value is overwritten as in the default case the map index would not exist.
-      isDefault = false;
-      break;
+      ezVariant value;
+      ezStatus res = m_pSourceObjectAccessor->GetValue(item.m_pObject, m_pProp, value, item.m_Index);
+      if (res.Succeeded())
+      {
+        // In case we successfully read the value from the source accessor (not the proxy that pretends all exposed params exist)
+        // we now the value is overwritten as in the default case the map index would not exist.
+        isDefault = false;
+        break;
+      }
     }
+    elem.m_pWidget->SetIsDefault(isDefault);
+    elem.m_pSubGroup->SetBoldTitle(!isDefault);
   }
-  elem.m_pWidget->SetIsDefault(isDefault);
-  elem.m_pSubGroup->SetBoldTitle(!isDefault);
 }
 
 void ezQtExposedParametersPropertyWidget::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
@@ -335,7 +365,8 @@ void ezQtExposedParametersPropertyWidget::PropertyEventHandler(const ezDocumentO
   if (IsUndead())
     return;
 
-  if (std::none_of(cbegin(m_Items), cend(m_Items), [=](const ezPropertySelection& sel) { return e.m_pObject == sel.m_pObject; }))
+  if (std::none_of(cbegin(m_Items), cend(m_Items), [=](const ezPropertySelection& sel)
+        { return e.m_pObject == sel.m_pObject; }))
     return;
 
   if (!m_bNeedsUpdate && m_sExposedParamProperty == e.m_sProperty)

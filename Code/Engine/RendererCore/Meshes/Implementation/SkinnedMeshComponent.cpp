@@ -69,7 +69,7 @@ void ezSkinningState::FillSkinnedMeshRenderData(ezSkinnedMeshRenderData& renderD
 
   const ezUInt32 uiExIdx = ezRenderWorld::GetDataIndexForExtraction();
 
-  if (*m_bTransformsUpdated[uiExIdx] == false)
+  if (m_bTransformsUpdated[uiExIdx] && *m_bTransformsUpdated[uiExIdx] == false)
   {
     auto pSkinningMatrices = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezShaderTransform, m_Transforms.GetCount());
     pSkinningMatrices.CopyFrom(m_Transforms);

@@ -115,7 +115,7 @@ void ezQtCollapsibleGroupBox::paintEvent(QPaintEvent* event)
     crAdjusted.adjust(0.5, 0.5, Rounding, -0.5);
     QPainterPath path;
     path.addRoundedRect(crAdjusted, Rounding, Rounding);
-    p.fillPath(path, pal.window());
+    p.fillPath(path, m_FillColor);
   }
 
   if (!Header->isHidden())

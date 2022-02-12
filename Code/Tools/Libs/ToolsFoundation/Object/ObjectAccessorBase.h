@@ -62,6 +62,7 @@ public:
 
   ezStatus GetKeys(const ezDocumentObject* pObject, const char* szProp, ezDynamicArray<ezVariant>& out_keys);
   ezStatus GetValues(const ezDocumentObject* pObject, const char* szProp, ezDynamicArray<ezVariant>& out_values);
+  const ezDocumentObject* GetChildObject(const ezDocumentObject* pObject, const char* szProp, ezVariant index);
 
   ezStatus Clear(const ezDocumentObject* pObject, const char* szProp);
 

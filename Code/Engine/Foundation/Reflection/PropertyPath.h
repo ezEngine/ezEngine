@@ -36,16 +36,16 @@ public:
   ezResult InitializeFromPath(const ezRTTI& rootObjectRtti, const ezArrayPtr<const ezPropertyPathStep> path);
 
   ///\brief Applies the entire path and allows writing to the target object.
-  void WriteToLeafObject(void* pRootObject, const ezRTTI& pType, ezDelegate<void(void* pLeaf, const ezRTTI& pType)> func) const;
+  ezResult WriteToLeafObject(void* pRootObject, const ezRTTI& pType, ezDelegate<void(void* pLeaf, const ezRTTI& pType)> func) const;
   ///\brief Applies the entire path and allows reading from the target object.
-  void ReadFromLeafObject(void* pRootObject, const ezRTTI& pType, ezDelegate<void(void* pLeaf, const ezRTTI& pType)> func) const;
+  ezResult ReadFromLeafObject(void* pRootObject, const ezRTTI& pType, ezDelegate<void(void* pLeaf, const ezRTTI& pType)> func) const;
 
   ///\brief Applies the path up to the last step and allows a functor to write to the final property.
-  void WriteProperty(
-    void* pRootObject, const ezRTTI& pType, ezDelegate<void(void* pLeaf, ezAbstractProperty* pProp, const ezVariant& index)> func) const;
+  ezResult WriteProperty(
+    void* pRootObject, const ezRTTI& pType, ezDelegate<void(void* pLeafObject, const ezRTTI& pLeafType, ezAbstractProperty* pProp, const ezVariant& index)> func) const;
   ///\brief Applies the path up to the last step and allows a functor to read from the final property.
-  void ReadProperty(
-    void* pRootObject, const ezRTTI& pType, ezDelegate<void(void* pLeaf, const ezAbstractProperty* pProp, const ezVariant& index)> func) const;
+  ezResult ReadProperty(
+    void* pRootObject, const ezRTTI& pType, ezDelegate<void(void* pLeafObject, const ezRTTI& pLeafType, const ezAbstractProperty* pProp, const ezVariant& index)> func) const;
 
   ///\brief Convenience function that writes 'value' to the 'pRootObject' at the current path.
   void SetValue(void* pRootObject, const ezRTTI& pType, const ezVariant& value) const;
@@ -72,7 +72,7 @@ private:
     ezVariant m_Index;
   };
 
-  static void ResolvePath(void* pCurrentObject, const ezRTTI* pType, const ezArrayPtr<const ResolvedStep> path, bool bWriteToObject,
+  static ezResult ResolvePath(void* pCurrentObject, const ezRTTI* pType, const ezArrayPtr<const ResolvedStep> path, bool bWriteToObject,
     const ezDelegate<void(void* pLeaf, const ezRTTI& pType)>& func);
 
   bool m_bIsValid = false;

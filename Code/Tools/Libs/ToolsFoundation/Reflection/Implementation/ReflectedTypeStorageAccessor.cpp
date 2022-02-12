@@ -59,6 +59,11 @@ const ezVariant ezReflectedTypeStorageAccessor::GetValue(const char* szProperty,
       case ezPropertyCategory::Array:
       case ezPropertyCategory::Set:
       {
+        if (!index.IsValid())
+        {
+          return m_Data[storageInfo->m_uiIndex];
+        }
+
         const ezVariantArray& values = m_Data[storageInfo->m_uiIndex].Get<ezVariantArray>();
         if (index.CanConvertTo<ezUInt32>())
         {
@@ -74,6 +79,11 @@ const ezVariant ezReflectedTypeStorageAccessor::GetValue(const char* szProperty,
       break;
       case ezPropertyCategory::Map:
       {
+        if (!index.IsValid())
+        {
+          return m_Data[storageInfo->m_uiIndex];
+        }
+
         const ezVariantDictionary& values = m_Data[storageInfo->m_uiIndex].Get<ezVariantDictionary>();
         if (index.IsA<ezString>())
         {

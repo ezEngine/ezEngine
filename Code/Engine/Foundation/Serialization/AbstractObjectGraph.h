@@ -40,6 +40,8 @@ public:
 
   void RenameProperty(const char* szOldName, const char* szNewName);
 
+  void ClearProperties();
+
   // \brief Inlines a custom variant type. Use to patch properties that have been turned into custom variant type.
   // \sa EZ_DEFINE_CUSTOM_VARIANT_TYPE, EZ_DECLARE_CUSTOM_VARIANT_TYPE
   ezResult InlineProperty(const char* szName);
@@ -122,7 +124,9 @@ public:
   ~ezAbstractObjectGraph();
 
   void Clear();
-  ezAbstractObjectNode* Clone(ezAbstractObjectGraph& cloneTarget, ezAbstractObjectNode* pRootNode = nullptr) const;
+
+  using FilterFunction = ezDelegate<bool(const ezAbstractObjectNode*, const ezAbstractObjectNode::Property*)>;
+  ezAbstractObjectNode* Clone(ezAbstractObjectGraph& cloneTarget, const ezAbstractObjectNode* pRootNode = nullptr, FilterFunction filter = FilterFunction()) const;
 
   const char* RegisterString(const char* szString);
 
@@ -162,6 +166,8 @@ public:
 
   /// \brief Allows to copy a node from another graph into this graph.
   ezAbstractObjectNode* CopyNodeIntoGraph(const ezAbstractObjectNode* pNode);
+
+  ezAbstractObjectNode* CopyNodeIntoGraph(const ezAbstractObjectNode* pNode, FilterFunction& filter);
 
   void CreateDiffWithBaseGraph(const ezAbstractObjectGraph& base, ezDeque<ezAbstractGraphDiffOperation>& out_DiffResult) const;
 

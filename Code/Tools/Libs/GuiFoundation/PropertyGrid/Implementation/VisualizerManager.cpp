@@ -22,6 +22,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, VisualizerManager)
     }
   }
 
+
 EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 

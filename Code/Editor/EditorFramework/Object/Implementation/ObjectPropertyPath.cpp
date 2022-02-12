@@ -116,15 +116,16 @@ ezStatus ezObjectPropertyPath::ResolvePath(const ezObjectPropertyPathContext& co
   {
     for (const ezDocumentObject* pObj : input)
     {
-      visitor.Visit(pContext, false, [&output, &sName](const ezDocumentObject* pObject) -> bool {
-        const auto& sObjectName = pObject->GetTypeAccessor().GetValue("Name").Get<ezString>();
-        if (sObjectName == sName)
+      visitor.Visit(pContext, false, [&output, &sName](const ezDocumentObject* pObject) -> bool
         {
-          output.PushBack(pObject);
-          return false;
-        }
-        return true;
-      });
+          const auto& sObjectName = pObject->GetTypeAccessor().GetValue("Name").Get<ezString>();
+          if (sObjectName == sName)
+          {
+            output.PushBack(pObject);
+            return false;
+          }
+          return true;
+        });
     }
     input.Clear();
     input.Swap(output);
@@ -268,7 +269,10 @@ ezStatus ezObjectPropertyPath::PrependProperty(
     {
       if (!out_sPropertyPath.IsEmpty())
         out_sPropertyPath.Prepend("/");
-      out_sPropertyPath.PrependFormat("{0}[{1}]", pProperty->GetPropertyName(), index);
+      if (index.IsValid())
+        out_sPropertyPath.PrependFormat("{0}[{1}]", pProperty->GetPropertyName(), index);
+      else
+        out_sPropertyPath.PrependFormat("{0}", pProperty->GetPropertyName());
       return ezStatus(EZ_SUCCESS);
     }
     default:

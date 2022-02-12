@@ -232,6 +232,41 @@ private:
   ezUntrackedString m_sParametersSource;
 };
 
+/// \brief Add this attribute to an embedded class or container property to make it retrieve its default values from a dynamic meta info object on an asset.
+///
+/// The default values are retrieved from the asset meta data of the currently set asset on that property.
+///
+/// Usage:
+/// EZ_ACCESSOR_PROPERTY("Skeleton", GetSkeletonFile, SetSkeletonFile)->AddAttributes(new ezAssetBrowserAttribute("Skeleton")),
+///
+/// // Use this if the embedded class m_SkeletonMetaData is of type ezSkeletonMetaData.
+/// EZ_MEMBER_PROPERTY("SkeletonMetaData", m_SkeletonMetaData)->AddAttributes(new ezDynamicDefaultValueAttribute("Skeleton", "ezSkeletonMetaData")),
+///
+/// // Use this if you don't want embed the entire meta object but just some container of it. In this case the LocalBones container must match in type to the property 'BonesArrayNameInMetaData' in the meta data type 'ezSkeletonMetaData'.
+/// EZ_MAP_MEMBER_PROPERTY("LocalBones", m_Bones)->AddAttributes(new ezDynamicDefaultValueAttribute("Skeleton", "ezSkeletonMetaData", "BonesArrayNameInMetaData")),
+  class EZ_FOUNDATION_DLL ezDynamicDefaultValueAttribute : public ezTypeWidgetAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezDynamicDefaultValueAttribute, ezTypeWidgetAttribute);
+
+public:
+  ezDynamicDefaultValueAttribute() = default;
+  ezDynamicDefaultValueAttribute(const char* szClassSource, const char* szClassType, const char* szClassProperty = nullptr)
+  {
+    m_sClassSource = szClassSource;
+    m_sClassType = szClassType;
+    m_sClassProperty = szClassProperty;
+  }
+
+  const char* GetClassSource() const { return m_sClassSource; }
+  const char* GetClassType() const { return m_sClassType; }
+  const char* GetClassProperty() const { return m_sClassProperty; }
+
+private:
+  ezUntrackedString m_sClassSource;
+  ezUntrackedString m_sClassType;
+  ezUntrackedString m_sClassProperty;
+};
+
 
 /// \brief Sets the allowed actions on a container.
 class EZ_FOUNDATION_DLL ezContainerAttribute : public ezPropertyAttribute

@@ -54,6 +54,7 @@ protected:
   virtual void OnInit() override;
   virtual ezQtPropertyWidget* CreateWidget(ezUInt32 index) override;
   virtual void UpdateElement(ezUInt32 index) override;
+  virtual void UpdatePropertyMetaState() override;
 
 private:
   void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);

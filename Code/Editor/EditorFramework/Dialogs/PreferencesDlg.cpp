@@ -106,7 +106,8 @@ void ezQtPreferencesDlg::ObjectToNative(ezUuid objectGuid, const ezDocument* pPr
 
   // Write object to graph.
   ezAbstractObjectGraph graph;
-  auto filter = [](const ezAbstractProperty* pProp) -> bool {
+  auto filter = [](const ezDocumentObject*, const ezAbstractProperty* pProp) -> bool
+  {
     if (pProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly))
       return false;
     return true;

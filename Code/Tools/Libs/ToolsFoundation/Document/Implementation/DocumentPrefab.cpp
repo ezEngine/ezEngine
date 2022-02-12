@@ -165,7 +165,7 @@ ezStatus ezDocument::CreatePrefabDocument(const char* szFile, ezArrayPtr<const e
     rootGuid.RevertCombinationWithSeed(invPrefabSeed);
 
     ezDocumentObject* pPrefabSceneMainObject = pSceneDocument->GetObjectManager()->CreateObject(pRootType, rootGuid);
-    pSceneDocument->GetObjectManager()->AddObject(pPrefabSceneMainObject, pPrefabSceneRoot, "Children", 0);
+    pSceneDocument->GetObjectManager()->AddObject(pPrefabSceneMainObject, pPrefabSceneRoot, "Children", -1);
 
     reader.ApplyPropertiesToObject(graphRootNodes[i], pPrefabSceneMainObject);
   }

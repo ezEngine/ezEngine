@@ -11,6 +11,8 @@
 #include <EditorFramework/Actions/ViewActions.h>
 #include <EditorFramework/Actions/ViewLightActions.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <EditorFramework/GUI/DynamicDefaultStateProvider.h>
+#include <EditorFramework/GUI/ExposedParametersDefaultStateProvider.h>
 #include <EditorFramework/Manipulators/BoneManipulatorAdapter.h>
 #include <EditorFramework/Manipulators/BoxManipulatorAdapter.h>
 #include <EditorFramework/Manipulators/CapsuleManipulatorAdapter.h>
@@ -48,11 +50,14 @@
 #include <Foundation/Reflection/Implementation/PropertyAttributes.h>
 #include <Foundation/Utilities/CommandLineOptions.h>
 #include <GuiFoundation/Action/StandardMenus.h>
+#include <GuiFoundation/PropertyGrid/DefaultState.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
 #include <GuiFoundation/UIServices/QtProgressbar.h>
 #include <QSvgRenderer>
 #include <ToolsFoundation/Application/ApplicationServices.h>
+#include <ToolsFoundation/Document/PrefabCache.h>
+#include <ToolsFoundation/Document/PrefabUtils.h>
 #include <ads/DockManager.h>
 
 // clang-format off
@@ -61,11 +66,14 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
   BEGIN_SUBSYSTEM_DEPENDENCIES
     "GuiFoundation",
     "PropertyGrid",
-    "ManipulatorAdapterRegistry"
+    "ManipulatorAdapterRegistry",
+    "DefaultState"
   END_SUBSYSTEM_DEPENDENCIES
 
   ON_CORESYSTEMS_STARTUP
   {
+    ezDefaultState::RegisterDefaultStateProvider(ezExposedParametersDefaultStateProvider::CreateProvider);
+    ezDefaultState::RegisterDefaultStateProvider(ezDynamicDefaultStateProvider::CreateProvider);
     ezProjectActions::RegisterActions();
     ezAssetActions::RegisterActions();
     ezViewActions::RegisterActions();
@@ -114,6 +122,8 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
 
   ON_CORESYSTEMS_SHUTDOWN
   {
+    ezDefaultState::UnregisterDefaultStateProvider(ezExposedParametersDefaultStateProvider::CreateProvider);
+    ezDefaultState::UnregisterDefaultStateProvider(ezDynamicDefaultStateProvider::CreateProvider);
     ezProjectActions::UnregisterActions();
     ezAssetActions::UnregisterActions();
     ezViewActions::UnregisterActions();

@@ -17,10 +17,10 @@ public:
 
   static void GetRootNodes(ezAbstractObjectGraph& graph, ezHybridArray<ezAbstractObjectNode*, 4>& out_Nodes);
 
-  static ezUuid GetPrefabRoot(const ezDocumentObject* pObject, const ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>& documentObjectMetaData);
+  static ezUuid GetPrefabRoot(const ezDocumentObject* pObject, const ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>& documentObjectMetaData, ezInt32* pDepth = nullptr);
 
   static ezVariant GetDefaultValue(
-    const ezAbstractObjectGraph& graph, const ezUuid& objectGuid, const char* szProperty, ezVariant index = ezVariant());
+    const ezAbstractObjectGraph& graph, const ezUuid& objectGuid, const char* szProperty, ezVariant index = ezVariant(), bool* pValueFound = nullptr);
 
   static void WriteDiff(const ezDeque<ezAbstractGraphDiffOperation>& mergedDiff, ezStringBuilder& out_sText);
 

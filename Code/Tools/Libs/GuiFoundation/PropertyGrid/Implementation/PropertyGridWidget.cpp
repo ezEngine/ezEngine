@@ -135,8 +135,6 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, PropertyGrid)
 
   ON_CORESYSTEMS_STARTUP
   {
-    ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezQtPropertyGridWidget::PropertyMetaStateEventHandler);
-
     ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<bool>(), StandardTypeCreator);
     ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<float>(), StandardTypeCreator);
     ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<double>(), StandardTypeCreator);
@@ -172,12 +170,12 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, PropertyGrid)
 
     ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezTagSetWidgetAttribute>(), TagSetCreator);
     ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezVarianceTypeBase>(), VarianceTypeCreator);
+
+
   }
 
   ON_CORESYSTEMS_SHUTDOWN
   {
-    ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezQtPropertyGridWidget::PropertyMetaStateEventHandler);
-
     ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<bool>());
     ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<float>());
     ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<double>());
@@ -472,52 +470,6 @@ void ezQtPropertyGridWidget::OnCollapseStateChanged(bool bCollapsed)
   ezUInt32 uiHash = GetGroupBoxHash(pBox);
   m_CollapseState[uiHash] = pBox->GetCollapseState();
 }
-
-
-void GetDefaultValues(const ezRTTI* pType, const ezDocument* pDocument, ezPropertyMetaStateEvent& e)
-{
-  const ezRTTI* pParentType = pType->GetParentType();
-  if (pParentType != nullptr)
-    GetDefaultValues(pParentType, pDocument, e);
-
-  for (ezUInt32 i = 0; i < pType->GetProperties().GetCount(); ++i)
-  {
-    const ezAbstractProperty* pProp = pType->GetProperties()[i];
-    if (pProp->GetFlags().IsSet(ezPropertyFlags::Hidden))
-      continue;
-
-    if (pProp->GetAttributeByType<ezHiddenAttribute>() != nullptr)
-      continue;
-
-    if (pProp->GetSpecificType()->GetAttributeByType<ezHiddenAttribute>() != nullptr)
-      continue;
-
-    switch (pProp->GetCategory())
-    {
-
-      case ezPropertyCategory::Member:
-      {
-        const bool bIsValueType = ezReflectionUtils::IsValueType(pProp) || pProp->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags);
-        if (bIsValueType)
-        {
-          (*e.m_pPropertyStates)[pProp->GetPropertyName()].m_bIsDefaultValue = pDocument->IsDefaultValue(e.m_pObject, pProp->GetPropertyName(), true);
-        }
-      }
-      break;
-
-      default:
-        break;
-    }
-  }
-}
-
-void ezQtPropertyGridWidget::PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
-{
-  const ezDocument* pDocument = e.m_pObject->GetDocumentObjectManager()->GetDocument();
-  const ezRTTI* pType = e.m_pObject->GetTypeAccessor().GetType();
-  GetDefaultValues(pType, pDocument, e);
-}
-
 
 void ezQtPropertyGridWidget::ObjectAccessorChangeEventHandler(const ezObjectAccessorChangeEvent& e)
 {
