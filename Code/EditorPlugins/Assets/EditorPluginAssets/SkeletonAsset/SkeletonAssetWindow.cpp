@@ -74,9 +74,11 @@ ezQtSkeletonAssetDocumentWindow::ezQtSkeletonAssetDocumentWindow(ezSkeletonAsset
     addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, pPanelTree);
   }
 
+  pDocument->Events().AddEventHandler(ezMakeDelegate(&ezQtSkeletonAssetDocumentWindow::SkeletonAssetEventHandler, this));
+
   GetDocument()->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtSkeletonAssetDocumentWindow::SelectionEventHandler, this));
   GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtSkeletonAssetDocumentWindow::PropertyEventHandler, this));
-  GetDocument()->GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezQtSkeletonAssetDocumentWindow::StructureEventHandler, this));
+  GetDocument()->GetCommandHistory()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtSkeletonAssetDocumentWindow::CommandEventHandler, this));
 
   FinishWindowCreation();
 
@@ -85,9 +87,11 @@ ezQtSkeletonAssetDocumentWindow::ezQtSkeletonAssetDocumentWindow(ezSkeletonAsset
 
 ezQtSkeletonAssetDocumentWindow::~ezQtSkeletonAssetDocumentWindow()
 {
+  static_cast<ezSkeletonAssetDocument*>(GetDocument())->Events().RemoveEventHandler(ezMakeDelegate(&ezQtSkeletonAssetDocumentWindow::SkeletonAssetEventHandler, this));
+
+  GetDocument()->GetCommandHistory()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtSkeletonAssetDocumentWindow::CommandEventHandler, this));
   GetDocument()->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtSkeletonAssetDocumentWindow::SelectionEventHandler, this));
   GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezQtSkeletonAssetDocumentWindow::PropertyEventHandler, this));
-  GetDocument()->GetObjectManager()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezQtSkeletonAssetDocumentWindow::StructureEventHandler, this));
 
   RestoreResource();
 }
@@ -191,20 +195,31 @@ void ezQtSkeletonAssetDocumentWindow::SelectionEventHandler(const ezSelectionMan
   }
 }
 
-void ezQtSkeletonAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
+void ezQtSkeletonAssetDocumentWindow::SkeletonAssetEventHandler(const ezSkeletonAssetEvent& e)
 {
-  // it looks like it's not necessary to for specific properties
-  //if (e.m_sProperty == "Thickness" || e.m_sProperty == "Radius" || e.m_sProperty == "Length" || e.m_sProperty == "Width" || e.m_sProperty == "Height" || e.m_sProperty == "Offset" || e.m_sProperty == "Rotation" || e.m_sProperty == "Geometry")
+  if (e.m_Type == ezSkeletonAssetEvent::Transformed)
   {
     SendLiveResourcePreview();
   }
 }
 
-void ezQtSkeletonAssetDocumentWindow::StructureEventHandler(const ezDocumentObjectStructureEvent& e)
+void ezQtSkeletonAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
 {
-  if (e.m_EventType == ezDocumentObjectStructureEvent::Type::AfterObjectAdded ||
-      e.m_EventType == ezDocumentObjectStructureEvent::Type::AfterObjectRemoved ||
-      e.m_EventType == ezDocumentObjectStructureEvent::Type::AfterObjectMoved2)
+  // additionally do live updates for these specific properties
+  if (
+    e.m_sProperty == "Offset" || e.m_sProperty == "Rotation" || // all shapes
+    e.m_sProperty == "Radius" || e.m_sProperty == "Length" ||   // sphere and capsule
+    e.m_sProperty == "Width" || e.m_sProperty == "Thickness" || // box
+    e.m_sProperty == "SwingLimitY" || e.m_sProperty == "SwingLimitZ" ||
+    e.m_sProperty == "TwistLimitLow" || e.m_sProperty == "TwistLimitHigh")
+  {
+    SendLiveResourcePreview();
+  }
+}
+
+void ezQtSkeletonAssetDocumentWindow::CommandEventHandler(const ezCommandHistoryEvent& e)
+{
+  if (e.m_Type == ezCommandHistoryEvent::Type::TransactionEnded || e.m_Type == ezCommandHistoryEvent::Type::UndoEnded || e.m_Type == ezCommandHistoryEvent::Type::RedoEnded)
   {
     SendLiveResourcePreview();
   }

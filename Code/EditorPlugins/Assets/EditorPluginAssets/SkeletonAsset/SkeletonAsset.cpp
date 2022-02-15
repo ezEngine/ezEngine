@@ -263,49 +263,56 @@ void ezSkeletonAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo
 
 ezStatus ezSkeletonAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
-  m_bIsTransforming = true;
-  EZ_SCOPE_EXIT(m_bIsTransforming = false);
-
-  ezProgressRange range("Transforming Asset", 3, false);
-
-  ezEditableSkeleton* pProp = GetProperties();
-
-  ezStringBuilder sAbsFilename = pProp->m_sSourceFile;
-
-  if (!sAbsFilename.IsEmpty())
   {
-    if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sAbsFilename))
+    m_bIsTransforming = true;
+    EZ_SCOPE_EXIT(m_bIsTransforming = false);
+
+    ezProgressRange range("Transforming Asset", 3, false);
+
+    ezEditableSkeleton* pProp = GetProperties();
+
+    ezStringBuilder sAbsFilename = pProp->m_sSourceFile;
+
+    if (!sAbsFilename.IsEmpty())
     {
-      return ezStatus(ezFmt("Couldn't make path absolute: '{0};", sAbsFilename));
+      if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sAbsFilename))
+      {
+        return ezStatus(ezFmt("Couldn't make path absolute: '{0};", sAbsFilename));
+      }
+
+      ezUniquePtr<ezModelImporter2::Importer> pImporter = ezModelImporter2::RequestImporterForFileType(sAbsFilename);
+      if (pImporter == nullptr)
+        return ezStatus("No known importer for this file type.");
+
+      range.BeginNextStep("Importing Source File");
+
+      ezEditableSkeleton newSkeleton;
+
+      ezModelImporter2::ImportOptions opt;
+      opt.m_sSourceFile = sAbsFilename;
+      opt.m_pSkeletonOutput = &newSkeleton;
+
+      if (pImporter->Import(opt).Failed())
+        return ezStatus("Model importer was unable to read this asset.");
+
+      range.BeginNextStep("Importing Skeleton Data");
+
+      // synchronize the old data (collision geometry etc.) with the new hierarchy
+      MergeWithNewSkeleton(newSkeleton);
+
+      // merge the new data with the actual asset document
+      ApplyNativePropertyChangesToObjectManager(true);
     }
 
-    ezUniquePtr<ezModelImporter2::Importer> pImporter = ezModelImporter2::RequestImporterForFileType(sAbsFilename);
-    if (pImporter == nullptr)
-      return ezStatus("No known importer for this file type.");
+    range.BeginNextStep("Writing Result");
 
-    range.BeginNextStep("Importing Source File");
-
-    ezEditableSkeleton newSkeleton;
-
-    ezModelImporter2::ImportOptions opt;
-    opt.m_sSourceFile = sAbsFilename;
-    opt.m_pSkeletonOutput = &newSkeleton;
-
-    if (pImporter->Import(opt).Failed())
-      return ezStatus("Model importer was unable to read this asset.");
-
-    range.BeginNextStep("Importing Skeleton Data");
-
-    // synchronize the old data (collision geometry etc.) with the new hierarchy
-    MergeWithNewSkeleton(newSkeleton);
-
-    // merge the new data with the actual asset document
-    ApplyNativePropertyChangesToObjectManager(true);
+    EZ_SUCCEED_OR_RETURN(WriteResource(stream));
   }
 
-  range.BeginNextStep("Writing Result");
-
-  EZ_SUCCEED_OR_RETURN(WriteResource(stream));
+  ezSkeletonAssetEvent e;
+  e.m_pDocument = this;
+  e.m_Type = ezSkeletonAssetEvent::Transformed;
+  m_Events.Broadcast(e);
 
   return ezStatus(EZ_SUCCESS);
 }

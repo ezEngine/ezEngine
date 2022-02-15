@@ -14,9 +14,10 @@ struct ezSkeletonAssetEvent
   enum Type
   {
     RenderStateChanged,
+    Transformed,
   };
 
-  ezSkeletonAssetDocument* m_pDocument;
+  ezSkeletonAssetDocument* m_pDocument = nullptr;
   Type m_Type;
 };
 
