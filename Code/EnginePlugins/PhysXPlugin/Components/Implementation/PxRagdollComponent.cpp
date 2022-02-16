@@ -162,8 +162,11 @@ void ezPxRagdollComponent::ClearPhysicsObjects()
   ezPhysXWorldModule* pPxModule = GetWorld()->GetOrCreateModule<ezPhysXWorldModule>();
   EZ_PX_WRITE_LOCK(*pPxModule->GetPxScene());
 
-  m_pPxAggregate->release();
-  m_pPxAggregate = nullptr;
+  if (m_pPxAggregate)
+  {
+    m_pPxAggregate->release();
+    m_pPxAggregate = nullptr;
+  }
 
   pPxModule->DeallocateUserData(m_uiPxUserDataIndex);
 
@@ -186,7 +189,7 @@ void ezPxRagdollComponent::SetDisableGravity(bool b)
 
   m_bDisableGravity = b;
 
-  if (m_pPxAggregate)
+  if (m_pPxRootBody != nullptr)
   {
     EZ_PX_WRITE_LOCK(*(m_pPxAggregate->getScene()));
 
@@ -207,7 +210,7 @@ void ezPxRagdollComponent::SetDisableGravity(bool b)
 
 void ezPxRagdollComponent::AddForceAtPos(ezMsgPhysicsAddForce& msg)
 {
-  if (m_pPxAggregate != nullptr)
+  if (m_pPxRootBody != nullptr)
   {
     EZ_PX_WRITE_LOCK(*m_pPxAggregate->getScene());
 
@@ -367,7 +370,7 @@ static void AddLine(ezHybridArray<ezDebugRenderer::Line, 32>& lines, const ezTra
 
 void ezPxRagdollComponent::RetrievePhysicsPose()
 {
-  if (!m_bLimbsSetup)
+  if (m_pPxRootBody == nullptr)
     return;
 
   ezPhysXWorldModule* pPxModule = GetWorld()->GetOrCreateModule<ezPhysXWorldModule>();
@@ -542,6 +545,8 @@ void ezPxRagdollComponent::SetupPxBasics(physx::PxPhysics* pPxApi, ezPhysXWorldM
 
 void ezPxRagdollComponent::SetupLimbs(const ezMsgAnimationPoseUpdated& pose)
 {
+  EZ_ASSERT_DEBUG(!m_bLimbsSetup, "Limbs already set up.");
+
   m_bLimbsSetup = true;
 
   if (!EnsureSkeletonIsKnown())
@@ -569,6 +574,13 @@ void ezPxRagdollComponent::SetupLimbs(const ezMsgAnimationPoseUpdated& pose)
   SetupLimbJoints(pSkeletonResource.GetPointer());
 
   FinishSetupLimbs();
+
+  if (m_pPxRootBody == nullptr)
+  {
+    m_pPxAggregate->release();
+    m_pPxAggregate = nullptr;
+    return;
+  }
 
   pPxModule->GetPxScene()->addAggregate(*m_pPxAggregate);
 

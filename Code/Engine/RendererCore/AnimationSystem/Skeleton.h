@@ -34,8 +34,10 @@ public:
 
   ezAngle GetHalfSwingLimitY() const { return m_HalfSwingLimitY; }
   ezAngle GetHalfSwingLimitZ() const { return m_HalfSwingLimitZ; }
-  ezAngle GetTwistLimitLow() const { return m_TwistLimitLow; }
-  ezAngle GetTwistLimitHigh() const { return m_TwistLimitHigh; }
+  ezAngle GetTwistLimitHalfAngle() const { return m_TwistLimitHalfAngle; }
+  ezAngle GetTwistLimitCenterAngle() const { return m_TwistLimitCenterAngle; }
+  ezAngle GetTwistLimitLow() const;
+  ezAngle GetTwistLimitHigh() const;
 
   ezQuat GetLocalOrientation() const { return m_qLocalJointOrientation; }
 
@@ -50,8 +52,8 @@ protected:
   ezQuat m_qLocalJointOrientation = ezQuat::IdentityQuaternion();
   ezAngle m_HalfSwingLimitY;
   ezAngle m_HalfSwingLimitZ;
-  ezAngle m_TwistLimitLow;
-  ezAngle m_TwistLimitHigh;
+  ezAngle m_TwistLimitHalfAngle;
+  ezAngle m_TwistLimitCenterAngle;
 };
 
 /// \brief The skeleton class encapsulates the information about the joint structure for a model.

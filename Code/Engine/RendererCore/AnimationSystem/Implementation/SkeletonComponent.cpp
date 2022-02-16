@@ -259,7 +259,8 @@ void ezSkeletonComponent::BuildSkeletonVisualization(ezMsgAnimationPoseUpdated& 
 
   const ezVec3 vBoneDir = ezBasisAxis::GetBasisVector(msg.m_pSkeleton->m_BoneDirection);
 
-  auto renderBone = [&](int currentBone, int parentBone) {
+  auto renderBone = [&](int currentBone, int parentBone)
+  {
     if (parentBone == ozz::animation::Skeleton::kNoParent)
       return;
 
@@ -572,10 +573,10 @@ void ezSkeletonComponent::BuildJointVisualization(ezMsgAnimationPoseUpdated& msg
     }
 
     // twist limit
-    if (m_bVisualizeTwistLimits && (thisJoint.GetTwistLimitLow() != ezAngle() || thisJoint.GetTwistLimitHigh() != ezAngle()))
+    if (m_bVisualizeTwistLimits && thisJoint.GetTwistLimitHalfAngle() > ezAngle::Degree(0))
     {
       auto& shape = m_AngleShapes.ExpandAndGetRef();
-      shape.m_StartAngle = -thisJoint.GetTwistLimitLow();
+      shape.m_StartAngle = thisJoint.GetTwistLimitLow();
       shape.m_EndAngle = thisJoint.GetTwistLimitHigh();
       shape.m_Color = ezMath::Lerp(ezColor::DimGrey, ezColor::LightPink, bHighlight ? 1.0f : 0.2f);
       shape.m_Transform.m_vScale.Set(0.04f);

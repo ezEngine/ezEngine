@@ -207,11 +207,11 @@ void ezQtSkeletonAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjec
 {
   // additionally do live updates for these specific properties
   if (
-    e.m_sProperty == "Offset" || e.m_sProperty == "Rotation" || // all shapes
-    e.m_sProperty == "Radius" || e.m_sProperty == "Length" ||   // sphere and capsule
-    e.m_sProperty == "Width" || e.m_sProperty == "Thickness" || // box
-    e.m_sProperty == "SwingLimitY" || e.m_sProperty == "SwingLimitZ" ||
-    e.m_sProperty == "TwistLimitLow" || e.m_sProperty == "TwistLimitHigh")
+    e.m_sProperty == "Offset" || e.m_sProperty == "Rotation" ||                         // all shapes
+    e.m_sProperty == "Radius" || e.m_sProperty == "Length" ||                           // sphere and capsule
+    e.m_sProperty == "Width" || e.m_sProperty == "Thickness" ||                         // box
+    e.m_sProperty == "SwingLimitY" || e.m_sProperty == "SwingLimitZ" ||                 // joint swing limit
+    e.m_sProperty == "TwistLimitHalfAngle" || e.m_sProperty == "TwistLimitCenterAngle") // joint twist limit
   {
     SendLiveResourcePreview();
   }

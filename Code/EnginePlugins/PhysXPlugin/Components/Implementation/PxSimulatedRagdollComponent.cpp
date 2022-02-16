@@ -122,13 +122,10 @@ void ezPxSimulatedRagdollComponent::CreateLimbJoint(physx::PxPhysics* pPxApi, co
     pJoint->setSwingLimitEnabled(false);
   }
 
-  if (thisJoint.GetTwistLimitLow() >= ezAngle::Degree(1) || thisJoint.GetTwistLimitHigh() >= ezAngle::Degree(1))
+  if (thisJoint.GetTwistLimitHalfAngle() > ezAngle::Degree(0))
   {
-    ezAngle low = -thisJoint.GetTwistLimitLow();
-    ezAngle high = thisJoint.GetTwistLimitHigh();
-
-    low = ezMath::Max(ezAngle::Degree(-179), low);
-    high = ezMath::Min(ezAngle::Degree(+179), high);
+    const ezAngle low = thisJoint.GetTwistLimitLow();
+    const ezAngle high = thisJoint.GetTwistLimitHigh();
 
     pJoint->setTwistLimitEnabled(true);
     pJoint->setTwistLimit(low.GetRadian(), high.GetRadian());
