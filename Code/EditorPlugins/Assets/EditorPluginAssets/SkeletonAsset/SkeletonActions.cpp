@@ -46,7 +46,7 @@ void ezSkeletonActions::MapActions(const char* szMapping, const char* szPath)
 
   pMap->MapAction(s_hRenderBones, szSubPath, 1.0f);
   pMap->MapAction(s_hRenderColliders, szSubPath, 2.0f);
-  pMap->MapAction(s_hRenderJoints, szSubPath, 3.0f);
+  //pMap->MapAction(s_hRenderJoints, szSubPath, 3.0f);
   pMap->MapAction(s_hRenderSwingLimits, szSubPath, 4.0f);
   pMap->MapAction(s_hRenderTwistLimits, szSubPath, 5.0f);
 }
