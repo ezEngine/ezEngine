@@ -264,6 +264,47 @@ Node %VertexColor
   }
 }
 
+Node %VertexColor2
+{
+  string %Category { "Input" }
+  unsigned_int8 %Color { 38, 105, 0 }
+  
+  string %CodeVertexShader { "
+#ifndef USE_COLOR0
+  #define USE_COLOR0
+#endif
+#ifndef USE_COLOR1
+  #define USE_COLOR1
+#endif
+" }
+
+  string %CodeGeometryShader { "
+#ifndef USE_COLOR0
+  #define USE_COLOR0
+#endif
+#ifndef USE_COLOR1
+  #define USE_COLOR1
+#endif
+" }
+  
+  string %CodePixelDefines { "
+#ifndef USE_COLOR0
+  #define USE_COLOR0
+#endif
+#ifndef USE_COLOR1
+  #define USE_COLOR1
+#endif
+" }
+
+  OutputPin %Color
+  {
+    string %Type { "float4" }
+    unsigned_int8 %Color { 255, 128, 128 }
+    string %Inline { "G.Input.Color1" }
+    string %Tooltip { "The second vertex color" }
+  }
+}
+
 Node %InstanceData
 {
   string %Category { "Input" }

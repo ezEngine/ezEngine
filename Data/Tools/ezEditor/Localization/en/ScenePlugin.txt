@@ -331,6 +331,7 @@ VertexWorldPosition;Vertex WorldPosition
 VertexNormal;Vertex Normal
 VertexTangent;Vertex Tangent
 VertexColor;Vertex Color
+VertexColor2;Vertex Color 2
 Camera;Camera
 Lerp;Lerp
 Add;Add
