@@ -195,14 +195,12 @@ void ezQtTypeWidget::BuildUI(const ezRTTI* pType, const char* szIncludePropertie
   PropertyGroup* pCurrentGroup = nullptr;
   float fOrder = -1.0f;
 
-  auto AddProperty = [&](const ezAbstractProperty* pProp)
-  {
+  auto AddProperty = [&](const ezAbstractProperty* pProp) {
     const ezGroupAttribute* pGroup = pProp->GetAttributeByType<ezGroupAttribute>();
     if (pGroup != nullptr)
     {
       ezUniquePtr<PropertyGroup>* pFound =
-        std::find_if(begin(groups), end(groups), [&](const ezUniquePtr<PropertyGroup>& g)
-          { return g->m_sGroup == pGroup->GetGroup(); });
+        std::find_if(begin(groups), end(groups), [&](const ezUniquePtr<PropertyGroup>& g) { return g->m_sGroup == pGroup->GetGroup(); });
       if (pFound != end(groups))
       {
         pCurrentGroup = pFound->Borrow();
@@ -218,8 +216,7 @@ void ezQtTypeWidget::BuildUI(const ezRTTI* pType, const char* szIncludePropertie
     if (pCurrentGroup == nullptr)
     {
       ezUniquePtr<PropertyGroup>* pFound =
-        std::find_if(begin(groups), end(groups), [&](const ezUniquePtr<PropertyGroup>& g)
-          { return g->m_sGroup.IsEmpty(); });
+        std::find_if(begin(groups), end(groups), [&](const ezUniquePtr<PropertyGroup>& g) { return g->m_sGroup.IsEmpty(); });
       if (pFound != end(groups))
       {
         pCurrentGroup = pFound->Borrow();
@@ -304,8 +301,7 @@ void ezQtTypeWidget::BuildUI(const ezRTTI* pType, const char* szIncludePropertie
     pCurrentGroup = nullptr;
   }
 
-  groups.Sort([](const ezUniquePtr<PropertyGroup>& lhs, const ezUniquePtr<PropertyGroup>& rhs) -> bool
-    { return lhs->m_fOrder < rhs->m_fOrder; });
+  groups.Sort([](const ezUniquePtr<PropertyGroup>& lhs, const ezUniquePtr<PropertyGroup>& rhs) -> bool { return lhs->m_fOrder < rhs->m_fOrder; });
 
   BuildUI(pType, manipulatorMap, groups, szIncludeProperties, szExcludeProperties);
 }
@@ -368,8 +364,7 @@ void ezQtTypeWidget::ManipulatorManagerEventHandler(const ezManipulatorManagerEv
 
 void ezQtTypeWidget::UpdateProperty(const ezDocumentObject* pObject, const ezString& sProperty)
 {
-  if (std::none_of(cbegin(m_Items), cend(m_Items), [=](const ezPropertySelection& sel)
-        { return pObject == sel.m_pObject; }))
+  if (std::none_of(cbegin(m_Items), cend(m_Items), [=](const ezPropertySelection& sel) { return pObject == sel.m_pObject; }))
     return;
 
 

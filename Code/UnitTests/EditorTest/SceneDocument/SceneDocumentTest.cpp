@@ -98,8 +98,7 @@ void ezEditorSceneDocumentTest::CloseSimpleScene()
   {
     bool bSaved = false;
     ezTaskGroupID id = m_pDoc->SaveDocumentAsync(
-      [&bSaved](ezDocument* doc, ezStatus res)
-      {
+      [&bSaved](ezDocument* doc, ezStatus res) {
         bSaved = true;
       },
       true);
@@ -127,8 +126,7 @@ void ezEditorSceneDocumentTest::LayerOperations()
   ezUuid layer1Guid;
   ezLayerDocument* pLayer1 = nullptr;
 
-  auto TestLayerEvents = [&expectedEvents](const ezScene2LayerEvent& e)
-  {
+  auto TestLayerEvents = [&expectedEvents](const ezScene2LayerEvent& e) {
     if (EZ_TEST_BOOL(!expectedEvents.IsEmpty()))
     {
       // If we pass in an invalid guid it's considered fine as we might not know the ID, e.g. when creating a layer.
@@ -197,8 +195,7 @@ void ezEditorSceneDocumentTest::LayerOperations()
   {
     bool bSaved = false;
     ezTaskGroupID id = pDoc->SaveDocumentAsync(
-      [&bSaved](ezDocument* doc, ezStatus res)
-      {
+      [&bSaved](ezDocument* doc, ezStatus res) {
         bSaved = true;
       },
       true);
@@ -291,8 +288,7 @@ void ezEditorSceneDocumentTest::LayerOperations()
   {
     bool bSaved = false;
     ezTaskGroupID id = pDoc->SaveDocumentAsync(
-      [&bSaved](ezDocument* doc, ezStatus res)
-      {
+      [&bSaved](ezDocument* doc, ezStatus res) {
         bSaved = true;
       },
       true);
@@ -360,8 +356,7 @@ void ezEditorSceneDocumentTest::PrefabOperations()
       EZ_TEST_BOOL(!defaultState.IsDefaultValue("Components"));
 
       // Does default state match that of pSphere2 which is unmodified?
-      auto MatchesDefaultValue = [&](ezDefaultObjectState& defaultState, const char* szProperty)
-      {
+      auto MatchesDefaultValue = [&](ezDefaultObjectState& defaultState, const char* szProperty) {
         ezVariant defaultValue = defaultState.GetDefaultValue(szProperty);
         ezVariant sphere2value;
         EZ_TEST_STATUS(pAccessor->GetValue(pSphere2, szProperty, sphere2value));
@@ -534,8 +529,7 @@ void ezEditorSceneDocumentTest::PrefabOperations()
     }
   }
 
-  auto IsObjectDefault = [&](const ezDocumentObject* pChild)
-  {
+  auto IsObjectDefault = [&](const ezDocumentObject* pChild) {
     ezHybridArray<ezPropertySelection, 1> selection;
     selection.PushBack({pChild, ezVariant()});
     ezDefaultObjectState defaultState(pAccessor, selection);
@@ -616,7 +610,7 @@ void ezEditorSceneDocumentTest::PrefabOperations()
       EZ_TEST_STATUS(pAccessor->AddObject(pChild0, "Components", -1, ezRTTI::FindTypeByName("ezBeamComponent"), compGuid));
       const ezDocumentObject* pComp = pAccessor->GetObject(compGuid);
 
-      const ezDocumentObject * pChild1Comp = pAccessor->GetChildObject(pChild1, "Components", 0);
+      const ezDocumentObject* pChild1Comp = pAccessor->GetChildObject(pChild1, "Components", 0);
       EZ_TEST_STATUS(pAccessor->RemoveObject(pChild1Comp));
       pAccessor->FinishTransaction();
 
@@ -704,15 +698,13 @@ void ezEditorSceneDocumentTest::ComponentOperations()
   selection.PushBack(pRoot);
   m_pDoc->GetSelectionManager()->SetSelection(selection);
 
-  auto CreateComponent = [&](const ezRTTI* pType, const ezDocumentObject* pParent) -> const ezDocumentObject*
-  {
+  auto CreateComponent = [&](const ezRTTI* pType, const ezDocumentObject* pParent) -> const ezDocumentObject* {
     ezUuid compGuid;
     EZ_TEST_STATUS(pAccessor->AddObject(pParent, "Components", -1, pType, compGuid));
     return pAccessor->GetObject(compGuid);
   };
 
-  auto IsObjectDefault = [&](const ezDocumentObject* pChild)
-  {
+  auto IsObjectDefault = [&](const ezDocumentObject* pChild) {
     ezHybridArray<ezPropertySelection, 1> selection;
     selection.PushBack({pChild, ezVariant()});
     ezDefaultObjectState defaultState(pAccessor, selection);

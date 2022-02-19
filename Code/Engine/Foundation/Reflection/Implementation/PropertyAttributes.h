@@ -244,7 +244,7 @@ private:
 ///
 /// // Use this if you don't want embed the entire meta object but just some container of it. In this case the LocalBones container must match in type to the property 'BonesArrayNameInMetaData' in the meta data type 'ezSkeletonMetaData'.
 /// EZ_MAP_MEMBER_PROPERTY("LocalBones", m_Bones)->AddAttributes(new ezDynamicDefaultValueAttribute("Skeleton", "ezSkeletonMetaData", "BonesArrayNameInMetaData")),
-  class EZ_FOUNDATION_DLL ezDynamicDefaultValueAttribute : public ezTypeWidgetAttribute
+class EZ_FOUNDATION_DLL ezDynamicDefaultValueAttribute : public ezTypeWidgetAttribute
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezDynamicDefaultValueAttribute, ezTypeWidgetAttribute);
 

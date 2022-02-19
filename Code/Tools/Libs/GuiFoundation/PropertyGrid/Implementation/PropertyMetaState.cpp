@@ -82,4 +82,3 @@ void ezPropertyMetaState::GetContainerElementsState(const ezHybridArray<ezProper
     }
   }
 }
-

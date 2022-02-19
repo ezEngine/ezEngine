@@ -96,127 +96,126 @@ ezVariant ezDynamicDefaultStateProvider::GetDefaultValue(SuperArray superPtr, ez
     }
 
     ezVariant defaultValue;
-    ezResult res = propertyPath.ReadProperty(const_cast<ezReflectedClass*>(pMeta), *pMeta->GetDynamicRTTI(), [&](void* pLeaf, const ezRTTI& pType, const ezAbstractProperty* pNativeProp, const ezVariant& index)
+    ezResult res = propertyPath.ReadProperty(const_cast<ezReflectedClass*>(pMeta), *pMeta->GetDynamicRTTI(), [&](void* pLeaf, const ezRTTI& pType, const ezAbstractProperty* pNativeProp, const ezVariant& index) {
+      EZ_ASSERT_DEBUG(pProp->GetCategory() == pNativeProp->GetCategory(), "While properties don't need to match exactly, they need to be of the same category and type.");
+
+      switch (pNativeProp->GetCategory())
       {
-        EZ_ASSERT_DEBUG(pProp->GetCategory() == pNativeProp->GetCategory(), "While properties don't need to match exactly, they need to be of the same category and type.");
-
-        switch (pNativeProp->GetCategory())
+        case ezPropertyCategory::Member:
+          defaultValue = ezReflectionUtils::GetMemberPropertyValue(static_cast<const ezAbstractMemberProperty*>(pNativeProp), pLeaf);
+          break;
+        case ezPropertyCategory::Array:
         {
-          case ezPropertyCategory::Member:
-            defaultValue = ezReflectionUtils::GetMemberPropertyValue(static_cast<const ezAbstractMemberProperty*>(pNativeProp), pLeaf);
-            break;
-          case ezPropertyCategory::Array:
-          {
-            ezVariant currentValue;
-            pAccessor->GetValue(pObject, pProp, currentValue).LogFailure();
-            const ezVariantArray& currentArray = currentValue.Get<ezVariantArray>();
+          ezVariant currentValue;
+          pAccessor->GetValue(pObject, pProp, currentValue).LogFailure();
+          const ezVariantArray& currentArray = currentValue.Get<ezVariantArray>();
 
-            auto* pArrayProp = static_cast<const ezAbstractArrayProperty*>(pNativeProp);
-            if (!index.IsValid())
-            {
-              ezVariantArray varArray;
-              varArray.SetCount(pArrayProp->GetCount(pLeaf));
-              for (ezUInt32 i = 0; i < pArrayProp->GetCount(pLeaf); i++)
-              {
-                if (bIsValueType)
-                {
-                  varArray[i] = ezReflectionUtils::GetArrayPropertyValue(pArrayProp, pLeaf, i);
-                }
-                else
-                {
-                  // We don't have any guid on the native object. Thus we just match the count basically and fill everything we can't find on our current object with 'nullptr', i.e. an invalid guid.
-                  if (i < currentArray.GetCount())
-                  {
-                    varArray[i] = currentArray[i];
-                  }
-                  else
-                  {
-                    varArray[i] = ezUuid();
-                  }
-                }
-              }
-              defaultValue = std::move(varArray);
-            }
-            else
+          auto* pArrayProp = static_cast<const ezAbstractArrayProperty*>(pNativeProp);
+          if (!index.IsValid())
+          {
+            ezVariantArray varArray;
+            varArray.SetCount(pArrayProp->GetCount(pLeaf));
+            for (ezUInt32 i = 0; i < pArrayProp->GetCount(pLeaf); i++)
             {
               if (bIsValueType)
               {
-                defaultValue = ezReflectionUtils::GetArrayPropertyValue(pArrayProp, pLeaf, index.ConvertTo<ezInt32>());
+                varArray[i] = ezReflectionUtils::GetArrayPropertyValue(pArrayProp, pLeaf, i);
               }
               else
               {
-                ezInt32 iIndex = index.ConvertTo<ezInt32>();
-                if (iIndex < currentArray.GetCount())
+                // We don't have any guid on the native object. Thus we just match the count basically and fill everything we can't find on our current object with 'nullptr', i.e. an invalid guid.
+                if (i < currentArray.GetCount())
                 {
-                  defaultValue = currentArray[iIndex];
+                  varArray[i] = currentArray[i];
                 }
                 else
                 {
-                  defaultValue = ezUuid();
+                  varArray[i] = ezUuid();
                 }
               }
             }
+            defaultValue = std::move(varArray);
           }
-          break;
-          case ezPropertyCategory::Map:
+          else
           {
-            auto* pMapProp = static_cast<const ezAbstractMapProperty*>(pNativeProp);
-
-            ezVariant currentValue;
-            pAccessor->GetValue(pObject, pProp, currentValue).LogFailure();
-            const ezVariantDictionary& currentDict = currentValue.Get<ezVariantDictionary>();
-
-            if (!index.IsValid())
+            if (bIsValueType)
             {
-              ezHybridArray<ezString, 16> keys;
-              pMapProp->GetKeys(pLeaf, keys);
-
-              ezVariantDictionary varDict;
-              for (auto& key : keys)
-              {
-                if (bIsValueType)
-                {
-                  varDict.Insert(key, ezReflectionUtils::GetMapPropertyValue(pMapProp, pLeaf, key));
-                }
-                else
-                {
-                  if (auto* pValue = currentDict.GetValue(key))
-                  {
-                    varDict.Insert(key, *pValue);
-                  }
-                  else
-                  {
-                    varDict.Insert(key, ezUuid());
-                  }
-                }
-              }
-              defaultValue = std::move(varDict);
+              defaultValue = ezReflectionUtils::GetArrayPropertyValue(pArrayProp, pLeaf, index.ConvertTo<ezInt32>());
             }
             else
             {
-              if (bIsValueType)
+              ezInt32 iIndex = index.ConvertTo<ezInt32>();
+              if (iIndex < currentArray.GetCount())
               {
-                defaultValue = ezReflectionUtils::GetMapPropertyValue(pMapProp, pLeaf, index.Get<ezString>());
+                defaultValue = currentArray[iIndex];
               }
               else
               {
-                if (auto* pValue = currentDict.GetValue(index.Get<ezString>()))
-                {
-                  defaultValue = *pValue;
-                }
-                else
-                {
-                  defaultValue = ezUuid();
-                }
+                defaultValue = ezUuid();
               }
             }
           }
-          break;
-          default:
-            EZ_ASSERT_NOT_IMPLEMENTED;
-            break;
         }
-      });
+        break;
+        case ezPropertyCategory::Map:
+        {
+          auto* pMapProp = static_cast<const ezAbstractMapProperty*>(pNativeProp);
+
+          ezVariant currentValue;
+          pAccessor->GetValue(pObject, pProp, currentValue).LogFailure();
+          const ezVariantDictionary& currentDict = currentValue.Get<ezVariantDictionary>();
+
+          if (!index.IsValid())
+          {
+            ezHybridArray<ezString, 16> keys;
+            pMapProp->GetKeys(pLeaf, keys);
+
+            ezVariantDictionary varDict;
+            for (auto& key : keys)
+            {
+              if (bIsValueType)
+              {
+                varDict.Insert(key, ezReflectionUtils::GetMapPropertyValue(pMapProp, pLeaf, key));
+              }
+              else
+              {
+                if (auto* pValue = currentDict.GetValue(key))
+                {
+                  varDict.Insert(key, *pValue);
+                }
+                else
+                {
+                  varDict.Insert(key, ezUuid());
+                }
+              }
+            }
+            defaultValue = std::move(varDict);
+          }
+          else
+          {
+            if (bIsValueType)
+            {
+              defaultValue = ezReflectionUtils::GetMapPropertyValue(pMapProp, pLeaf, index.Get<ezString>());
+            }
+            else
+            {
+              if (auto* pValue = currentDict.GetValue(index.Get<ezString>()))
+              {
+                defaultValue = *pValue;
+              }
+              else
+              {
+                defaultValue = ezUuid();
+              }
+            }
+          }
+        }
+        break;
+        default:
+          EZ_ASSERT_NOT_IMPLEMENTED;
+          break;
+      }
+    });
 
     if (res.Succeeded())
     {
@@ -293,15 +292,13 @@ ezStatus ezDynamicDefaultStateProvider::CreateRevertContainerDiff(SuperArray sup
       }
 
       void* pNativeRootObject = nullptr;
-      ezRttiConverterWriter rttiConverter(&prefabSubGraph, &context, [&](const void* pObject, const ezAbstractProperty* pCurrentProp)
-        {
-          if (pNativeRootObject == pObject && pCurrentProp->GetPropertyName() != sRootPropertyName)
-            return false;
-          return true;
-        });
+      ezRttiConverterWriter rttiConverter(&prefabSubGraph, &context, [&](const void* pObject, const ezAbstractProperty* pCurrentProp) {
+        if (pNativeRootObject == pObject && pCurrentProp->GetPropertyName() != sRootPropertyName)
+          return false;
+        return true;
+      });
 
-      auto WriteObject = [&](void* pLeafObject, const ezRTTI& pLeafType, const ezAbstractProperty* pLeafProp, const ezVariant& index)
-      {
+      auto WriteObject = [&](void* pLeafObject, const ezRTTI& pLeafType, const ezAbstractProperty* pLeafProp, const ezVariant& index) {
         pNativeRootObject = pLeafObject;
         context.RegisterObject(pObject->GetGuid(), &pLeafType, pLeafObject);
         pPrefabSubRoot = rttiConverter.AddObjectToGraph(&pLeafType, pLeafObject);
@@ -320,12 +317,11 @@ ezStatus ezDynamicDefaultStateProvider::CreateRevertContainerDiff(SuperArray sup
     ezAbstractObjectGraph instanceSubGraph;
     ezAbstractObjectNode* pInstanceSubRoot = nullptr;
     {
-      ezDocumentObjectConverterWriter writer(&instanceSubGraph, pObject->GetDocumentObjectManager(), [pRootObject = pObject, pRootProp = pProp](const ezDocumentObject* pObject, const ezAbstractProperty* pProp)
-        {
-          if (pObject == pRootObject && pProp != pRootProp)
-            return false;
-          return true;
-        });
+      ezDocumentObjectConverterWriter writer(&instanceSubGraph, pObject->GetDocumentObjectManager(), [pRootObject = pObject, pRootProp = pProp](const ezDocumentObject* pObject, const ezAbstractProperty* pProp) {
+        if (pObject == pRootObject && pProp != pRootProp)
+          return false;
+        return true;
+      });
       pInstanceSubRoot = writer.AddObjectToGraph(pObject);
     }
 

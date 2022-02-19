@@ -289,7 +289,6 @@ void ezPrefabUtils::Merge(const char* szBase, const char* szLeft, ezDocumentObje
       // The root node should always have a property 'children' where all the root objects are attached to. We need to replace that property's value as the prefab instance graph can have less or more objects than the template.
       ezAbstractObjectNode::Property* pChildrenProp = pRightObjectTree->FindProperty("Children");
       pChildrenProp->m_Value = children;
-
     }
 
     // Merge diffs relative to base
