@@ -421,7 +421,7 @@ void ezQtAddSubElementButton::OnAction(const ezRTTI* pRtti)
         break;
 
       ezHybridArray<ezPropertySelection, 1> selection;
-      selection.PushBack(item);
+      selection.PushBack({m_pObjectAccessor->GetObject(guid), ezVariant()});
       ezDefaultObjectState defaultState(m_pObjectAccessor, selection);
       defaultState.RevertObject();
     }

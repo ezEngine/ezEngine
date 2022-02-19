@@ -21,6 +21,12 @@ public:
   /// \brief Const iterator.
   struct ConstIterator
   {
+    typedef std::forward_iterator_tag iterator_category;
+    using value_type = ConstIterator;
+    using difference_type = ptrdiff_t;
+    using pointer = ConstIterator*;
+    using reference = ConstIterator&;
+
     EZ_DECLARE_POD_TYPE();
 
     /// \brief Checks whether this iterator points to a valid element.

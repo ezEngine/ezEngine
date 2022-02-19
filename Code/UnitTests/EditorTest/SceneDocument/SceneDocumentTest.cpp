@@ -682,7 +682,9 @@ void ezEditorSceneDocumentTest::PrefabOperations()
       CheckHierarchy(pAccessor, pPrefab3, IsObjectDefault);
     }
   }
-  //ProcessEvents(999999999);
+
+  ProcessEvents(10);
+  CloseSimpleScene();
 }
 
 void ezEditorSceneDocumentTest::ComponentOperations()
@@ -748,6 +750,7 @@ void ezEditorSceneDocumentTest::ComponentOperations()
   pAccessor->FinishTransaction();
 
   ProcessEvents(10);
+  CloseSimpleScene();
 }
 
 
