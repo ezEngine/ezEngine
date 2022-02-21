@@ -3,13 +3,39 @@
 #include <Core/Utils/IntervalScheduler.h>
 #include <Foundation/SimdMath/SimdRandom.h>
 
+// clang-format off
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezUpdateRate, 1)
+  EZ_ENUM_CONSTANTS(ezUpdateRate::EveryFrame)
+  EZ_ENUM_CONSTANTS(ezUpdateRate::Max30fps, ezUpdateRate::Max20fps, ezUpdateRate::Max10fps)
+  EZ_ENUM_CONSTANTS(ezUpdateRate::Max5fps, ezUpdateRate::Max2fps, ezUpdateRate::Max1fps)
+EZ_END_STATIC_REFLECTED_ENUM;
+// clang-format on
+
+static ezTime s_Intervals[] = {
+  ezTime::Zero(),              // EveryFrame
+  ezTime::Seconds(1.0 / 30.0), // Max30fps
+  ezTime::Seconds(1.0 / 20.0), // Max20fps
+  ezTime::Seconds(1.0 / 10.0), // Max10fps
+  ezTime::Seconds(1.0 / 5.0),  // Max5fps
+  ezTime::Seconds(1.0 / 2.0),  // Max2fps
+  ezTime::Seconds(1.0 / 1.0),  // Max1fps
+};
+
+static_assert(EZ_ARRAY_SIZE(s_Intervals) == ezUpdateRate::Max1fps + 1);
+
+ezTime ezUpdateRate::GetInterval(Enum updateRate)
+{
+  return s_Intervals[updateRate];
+}
+
+//////////////////////////////////////////////////////////////////////////
+
 EZ_ALWAYS_INLINE float GetRandomZeroToOne(int pos, ezUInt32& seed)
 {
   return ezSimdRandom::FloatZeroToOne(ezSimdVec4i(pos), ezSimdVec4u(seed++)).x();
 }
 
 constexpr ezTime s_JitterRange = ezTime::Microseconds(10);
-constexpr ezTime s_HalfJitterRange = s_JitterRange * 0.5;
 
 EZ_ALWAYS_INLINE ezTime GetRandomTimeJitter(int pos, ezUInt32& seed)
 {
@@ -117,7 +143,7 @@ void ezIntervalSchedulerBase::Update(ezTime deltaTime, ezDelegate<void(ezUInt64,
       {
         auto& data = it.Value();
         runWorkCallback(data.m_WorkId, m_CurrentTime - data.m_LastScheduledTime);
-        
+
         // add a little bit of random jitter so we don't end up with perfect timings that might collide with other work
         data.m_DueTime = m_CurrentTime + ezMath::Max(data.m_Interval, deltaTime) + GetRandomTimeJitter(i, m_uiSeed);
         data.m_LastScheduledTime = m_CurrentTime;

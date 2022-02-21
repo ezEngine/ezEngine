@@ -123,10 +123,9 @@ void ezProcVertexColorComponentManager::UpdateComponentVertexColors(ezProcVertex
 
     for (auto& outputDesc : pComponent->m_OutputDescs)
     {
-      bool bOutputFound = false;
-
       if (!outputDesc.m_sName.IsEmpty())
       {
+        bool bOutputFound = false;
         for (auto& pOutput : outputs)
         {
           if (pOutput->m_sName == outputDesc.m_sName)
@@ -136,9 +135,14 @@ void ezProcVertexColorComponentManager::UpdateComponentVertexColors(ezProcVertex
             break;
           }
         }
-      }
 
-      if (!bOutputFound)
+        if (!bOutputFound)
+        {
+          pComponent->m_Outputs.PushBack(nullptr);
+          ezLog::Error("Vertex Color Output with name '{}' not found in Proc Gen Graph '{}'", outputDesc.m_sName, pResource->GetResourceID());
+        }
+      }
+      else
       {
         pComponent->m_Outputs.PushBack(nullptr);
       }

@@ -2,6 +2,30 @@
 
 #include <Core/CoreDLL.h>
 
+struct EZ_CORE_DLL ezUpdateRate
+{
+  using StorageType = ezUInt8;
+
+  enum Enum
+  {
+    EveryFrame,
+    Max30fps,
+    Max20fps,
+    Max10fps,
+    Max5fps,
+    Max2fps,
+    Max1fps,
+
+    Default = Max30fps
+  };
+
+  static ezTime GetInterval(Enum updateRate);
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezUpdateRate);
+
+//////////////////////////////////////////////////////////////////////////
+
 class EZ_CORE_DLL ezIntervalSchedulerBase
 {
 protected:
@@ -47,6 +71,8 @@ private:
   DataMap::Iterator InsertData(Data& data);
   ezDynamicArray<DataMap::Iterator> m_ScheduledWork;
 };
+
+//////////////////////////////////////////////////////////////////////////
 
 template <typename T>
 class ezIntervalScheduler : public ezIntervalSchedulerBase
