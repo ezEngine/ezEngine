@@ -42,6 +42,7 @@ void TestVariant(ezVariant& v, ezVariantType::Enum type)
 
   ezTypedPointer ptr = v.GetWriteAccess();
   EZ_TEST_BOOL(ptr.m_pObject == &v.Get<T>());
+  EZ_TEST_BOOL(ptr.m_pObject == &v.GetWritable<T>());
   EZ_TEST_BOOL(ptr.m_pType == ezGetStaticRTTI<T>());
 
   EZ_TEST_BOOL(ptr.m_pObject == v.GetData());
@@ -49,6 +50,8 @@ void TestVariant(ezVariant& v, ezVariantType::Enum type)
   ezVariant vCopy = v;
   ezTypedPointer ptr2 = vCopy.GetWriteAccess();
   EZ_TEST_BOOL(ptr2.m_pObject == &vCopy.Get<T>());
+  EZ_TEST_BOOL(ptr2.m_pObject == &vCopy.GetWritable<T>());
+
   EZ_TEST_BOOL(ptr2.m_pObject != ptr.m_pObject);
   EZ_TEST_BOOL(ptr2.m_pType == ezGetStaticRTTI<T>());
 
@@ -83,6 +86,7 @@ inline void TestIntegerVariant(ezVariant::Type::Enum type)
 
   EZ_TEST_BOOL(b.IsNumber());
   EZ_TEST_BOOL(b.IsFloatingPoint() == false);
+  EZ_TEST_BOOL(!b.IsString());
 }
 
 inline void TestNumberCanConvertTo(const ezVariant& v)
@@ -255,6 +259,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(!b[0].IsValid());
 
     EZ_TEST_BOOL(b.IsNumber());
+    EZ_TEST_BOOL(!b.IsString());
     EZ_TEST_BOOL(b.IsFloatingPoint() == false);
   }
 
@@ -302,6 +307,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(b == 19.0f);
 
     EZ_TEST_BOOL(b.IsNumber());
+    EZ_TEST_BOOL(!b.IsString());
     EZ_TEST_BOOL(b.IsFloatingPoint());
   }
 
@@ -332,6 +338,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(b == 19.0);
 
     EZ_TEST_BOOL(b.IsNumber());
+    EZ_TEST_BOOL(!b.IsString());
     EZ_TEST_BOOL(b.IsFloatingPoint());
   }
 
@@ -369,6 +376,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(!v["x"].IsValid());
 
     EZ_TEST_BOOL(v.IsNumber() == false);
+    EZ_TEST_BOOL(!v.IsString());
     EZ_TEST_BOOL(v.IsFloatingPoint() == false);
   }
 
@@ -405,6 +413,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(!v["x"].IsValid());
 
     EZ_TEST_BOOL(v.IsNumber() == false);
+    EZ_TEST_BOOL(!v.IsString());
     EZ_TEST_BOOL(v.IsFloatingPoint() == false);
   }
 
@@ -432,6 +441,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(v["y"] == 9);
 
     EZ_TEST_BOOL(v.IsNumber() == false);
+    EZ_TEST_BOOL(!v.IsString());
     EZ_TEST_BOOL(v.IsFloatingPoint() == false);
   }
 
@@ -461,6 +471,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(v["z"] == 8);
 
     EZ_TEST_BOOL(v.IsNumber() == false);
+    EZ_TEST_BOOL(!v.IsString());
     EZ_TEST_BOOL(v.IsFloatingPoint() == false);
   }
 
@@ -492,6 +503,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(v["w"] == 4);
 
     EZ_TEST_BOOL(v.IsNumber() == false);
+    EZ_TEST_BOOL(!v.IsString());
     EZ_TEST_BOOL(v.IsFloatingPoint() == false);
   }
 
@@ -519,6 +531,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(v["y"] == 9);
 
     EZ_TEST_BOOL(v.IsNumber() == false);
+    EZ_TEST_BOOL(!v.IsString());
     EZ_TEST_BOOL(v.IsFloatingPoint() == false);
   }
 
@@ -548,6 +561,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(v["z"] == 8);
 
     EZ_TEST_BOOL(v.IsNumber() == false);
+    EZ_TEST_BOOL(!v.IsString());
     EZ_TEST_BOOL(v.IsFloatingPoint() == false);
   }
 
@@ -579,6 +593,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(v["w"] == 4);
 
     EZ_TEST_BOOL(v.IsNumber() == false);
+    EZ_TEST_BOOL(!v.IsString());
     EZ_TEST_BOOL(v.IsFloatingPoint() == false);
   }
 
@@ -610,10 +625,12 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(v["w"] == 4);
 
     EZ_TEST_BOOL(v.IsNumber() == false);
+    EZ_TEST_BOOL(!v.IsString());
     EZ_TEST_BOOL(v.IsFloatingPoint() == false);
 
     ezTypedPointer ptr = v.GetWriteAccess();
     EZ_TEST_BOOL(ptr.m_pObject == &v.Get<ezQuat>());
+    EZ_TEST_BOOL(ptr.m_pObject == &v.GetWritable<ezQuat>());
     EZ_TEST_BOOL(ptr.m_pType == ezGetStaticRTTI<ezQuat>());
   }
 
@@ -637,6 +654,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(v == ezMat3(5, 8, 9, 3, 1, 2, 3, 4, 4));
 
     EZ_TEST_BOOL(v.IsNumber() == false);
+    EZ_TEST_BOOL(!v.IsString());
     EZ_TEST_BOOL(v.IsFloatingPoint() == false);
   }
 
@@ -660,6 +678,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(v == ezMat4(5, 8, 9, 3, 1, 2, 1, 4, 5, 3, 7, 3, 6, 8, 6, 8));
 
     EZ_TEST_BOOL(v.IsNumber() == false);
+    EZ_TEST_BOOL(!v.IsString());
     EZ_TEST_BOOL(v.IsFloatingPoint() == false);
   }
 
@@ -677,6 +696,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(v == ezTransform(ezVec3(5, 8, 9), ezQuat(3, 1, 2, 3), ezVec3(4, 5, 3)));
 
     EZ_TEST_BOOL(v.IsNumber() == false);
+    EZ_TEST_BOOL(!v.IsString());
     EZ_TEST_BOOL(v.IsFloatingPoint() == false);
   }
 
@@ -708,6 +728,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(v == ezString("blärg!"));
 
     EZ_TEST_BOOL(v.IsNumber() == false);
+    EZ_TEST_BOOL(v.IsString());
     EZ_TEST_BOOL(v.IsFloatingPoint() == false);
   }
 
@@ -731,6 +752,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(v == ezString("blärg!"));
 
     EZ_TEST_BOOL(v.IsNumber() == false);
+    EZ_TEST_BOOL(v.IsString());
     EZ_TEST_BOOL(v.IsFloatingPoint() == false);
   }
 
@@ -754,6 +776,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(v == ezStringView("blurg!"));
 
     EZ_TEST_BOOL(v.IsNumber() == false);
+    EZ_TEST_BOOL(v.IsString());
     EZ_TEST_BOOL(v.IsFloatingPoint() == false);
   }
 
@@ -779,6 +802,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(va != a2);
 
     EZ_TEST_BOOL(va.IsNumber() == false);
+    EZ_TEST_BOOL(!va.IsString());
     EZ_TEST_BOOL(va.IsFloatingPoint() == false);
   }
 
@@ -802,6 +826,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(v == ezTime::Seconds(13));
 
     EZ_TEST_BOOL(v.IsNumber() == false);
+    EZ_TEST_BOOL(!v.IsString());
     EZ_TEST_BOOL(v.IsFloatingPoint() == false);
   }
 
@@ -823,6 +848,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(ezVariant(uuid) != ezVariant(uuid2));
 
     EZ_TEST_BOOL(v.IsNumber() == false);
+    EZ_TEST_BOOL(!v.IsString());
     EZ_TEST_BOOL(v.IsFloatingPoint() == false);
   }
 
@@ -846,6 +872,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(v == ezAngle::Degree(13));
 
     EZ_TEST_BOOL(v.IsNumber() == false);
+    EZ_TEST_BOOL(!v.IsString());
     EZ_TEST_BOOL(v.IsFloatingPoint() == false);
   }
 
@@ -880,6 +907,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(!va[4].IsValid());
 
     EZ_TEST_BOOL(va.IsNumber() == false);
+    EZ_TEST_BOOL(!va.IsString());
     EZ_TEST_BOOL(va.IsFloatingPoint() == false);
   }
 
@@ -913,6 +941,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(!va["x"].IsValid());
 
     EZ_TEST_BOOL(va.IsNumber() == false);
+    EZ_TEST_BOOL(!va.IsString());
     EZ_TEST_BOOL(va.IsFloatingPoint() == false);
   }
 
@@ -962,6 +991,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(v == v3);
 
     EZ_TEST_BOOL(v.IsNumber() == false);
+    EZ_TEST_BOOL(!v.IsString());
     EZ_TEST_BOOL(v.IsFloatingPoint() == false);
   }
 
@@ -1047,6 +1077,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
     ezTypedPointer ptr = v.GetWriteAccess();
     EZ_TEST_BOOL(ptr.m_pObject == &v.Get<ezTypedObjectStruct>());
+    EZ_TEST_BOOL(ptr.m_pObject == &v.GetWritable<ezTypedObjectStruct>());
     EZ_TEST_BOOL(ptr.m_pObject != &v2.Get<ezTypedObjectStruct>());
     EZ_TEST_BOOL(ptr.m_pType == ezGetStaticRTTI<ezTypedObjectStruct>());
 

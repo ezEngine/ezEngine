@@ -96,7 +96,7 @@ void ezPrefabUtils::GetRootNodes(ezAbstractObjectGraph& graph, ezHybridArray<ezA
   }
 }
 
-ezUuid ezPrefabUtils::GetPrefabRoot(const ezDocumentObject* pObject, const ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>& documentObjectMetaData)
+ezUuid ezPrefabUtils::GetPrefabRoot(const ezDocumentObject* pObject, const ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>& documentObjectMetaData, ezInt32* pDepth)
 {
   auto pMeta = documentObjectMetaData.BeginReadMetaData(pObject->GetGuid());
   ezUuid source = pMeta->m_CreateFromPrefab;
@@ -109,14 +109,19 @@ ezUuid ezPrefabUtils::GetPrefabRoot(const ezDocumentObject* pObject, const ezObj
 
   if (pObject->GetParent() != nullptr)
   {
+    if (pDepth)
+      *pDepth += 1;
     return GetPrefabRoot(pObject->GetParent(), documentObjectMetaData);
   }
   return ezUuid();
 }
 
 
-ezVariant ezPrefabUtils::GetDefaultValue(const ezAbstractObjectGraph& graph, const ezUuid& objectGuid, const char* szProperty, ezVariant index)
+ezVariant ezPrefabUtils::GetDefaultValue(const ezAbstractObjectGraph& graph, const ezUuid& objectGuid, const char* szProperty, ezVariant index, bool* pValueFound)
 {
+  if (pValueFound)
+    *pValueFound = false;
+
   const ezAbstractObjectNode* pNode = graph.GetNode(objectGuid);
   if (!pNode)
     return ezVariant();
@@ -132,10 +137,27 @@ ezVariant ezPrefabUtils::GetDefaultValue(const ezAbstractObjectGraph& graph, con
       const ezVariantArray& valueArray = value.Get<ezVariantArray>();
       if (uiIndex < valueArray.GetCount())
       {
+        if (pValueFound)
+          *pValueFound = true;
         return valueArray[uiIndex];
       }
       return ezVariant();
     }
+    else if (value.IsA<ezVariantDictionary>() && index.CanConvertTo<ezString>())
+    {
+      ezString sKey = index.ConvertTo<ezString>();
+      const ezVariantDictionary& valueDict = value.Get<ezVariantDictionary>();
+      auto it = valueDict.Find(sKey);
+      if (it.IsValid())
+      {
+        if (pValueFound)
+          *pValueFound = true;
+        return it.Value();
+      }
+      return ezVariant();
+    }
+    if (pValueFound)
+      *pValueFound = true;
     return value;
   }
 
@@ -246,21 +268,27 @@ void ezPrefabUtils::Merge(const char* szBase, const char* szLeft, ezDocumentObje
     {
       ezDocumentObjectConverterWriter writer(&rightGraph, pRight->GetDocumentObjectManager());
 
+      ezVariantArray children;
       if (bRightIsNotPartOfPrefab)
       {
         for (ezDocumentObject* pChild : pRight->GetChildren())
         {
           writer.AddObjectToGraph(pChild);
+          children.PushBack(pChild->GetGuid());
         }
       }
       else
       {
         writer.AddObjectToGraph(pRight);
+        children.PushBack(pRight->GetGuid());
       }
 
       rightGraph.ReMapNodeGuids(PrefabSeed, true);
       // just take the entire ObjectTree node as is TODO: this may cause a crash if the root object is replaced
-      rightGraph.CopyNodeIntoGraph(leftGraph.GetNodeByName("ObjectTree"));
+      ezAbstractObjectNode* pRightObjectTree = rightGraph.CopyNodeIntoGraph(leftGraph.GetNodeByName("ObjectTree"));
+      // The root node should always have a property 'children' where all the root objects are attached to. We need to replace that property's value as the prefab instance graph can have less or more objects than the template.
+      ezAbstractObjectNode::Property* pChildrenProp = pRightObjectTree->FindProperty("Children");
+      pChildrenProp->m_Value = children;
     }
 
     // Merge diffs relative to base

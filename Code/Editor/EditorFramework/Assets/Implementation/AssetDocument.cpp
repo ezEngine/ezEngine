@@ -9,6 +9,8 @@
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Serialization/ReflectionSerializer.h>
+#include <GuiFoundation/PropertyGrid/PrefabDefaultStateProvider.h>
+#include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
 #include <Texture/Image/ImageConversion.h>
 
@@ -208,9 +210,13 @@ void ezAssetDocument::AddReferences(const ezDocumentObject* pObject, ezAssetDocu
         {
           if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) && pProp->GetSpecificType()->GetVariantType() == ezVariantType::String)
           {
-            if (bInsidePrefab && IsDefaultValue(pObject, pProp->GetPropertyName(), false))
+            if (bInsidePrefab)
             {
-              continue;
+              ezHybridArray<ezPropertySelection, 1> selection;
+              selection.PushBack({pObject, ezVariant()});
+              ezDefaultObjectState defaultState(GetObjectAccessor(), selection.GetArrayPtr());
+              if (defaultState.GetStateProviderName() == "Prefab" && defaultState.IsDefaultValue(pProp))
+                continue;
             }
 
             const ezVariant& var = pObject->GetTypeAccessor().GetValue(pProp->GetPropertyName());
@@ -232,21 +238,73 @@ void ezAssetDocument::AddReferences(const ezDocumentObject* pObject, ezAssetDocu
           {
             const ezInt32 iCount = pObject->GetTypeAccessor().GetCount(pProp->GetPropertyName());
 
-            for (ezInt32 i = 0; i < iCount; ++i)
+            if (bInsidePrefab)
             {
-              ezVariant value = pObject->GetTypeAccessor().GetValue(pProp->GetPropertyName(), i);
-              if (bInsidePrefab && IsDefaultValue(pObject, pProp->GetPropertyName(), false, i))
+              ezHybridArray<ezPropertySelection, 1> selection;
+              selection.PushBack({pObject, ezVariant()});
+              ezDefaultContainerState defaultState(GetObjectAccessor(), selection.GetArrayPtr(), pProp->GetPropertyName());
+              for (ezInt32 i = 0; i < iCount; ++i)
               {
-                continue;
+                ezVariant value = pObject->GetTypeAccessor().GetValue(pProp->GetPropertyName(), i);
+                if (defaultState.GetStateProviderName() == "Prefab" && defaultState.IsDefaultElement(i))
+                {
+                  continue;
+                }
+                if (bIsDependency)
+                  pInfo->m_AssetTransformDependencies.Insert(value.Get<ezString>());
+                else
+                  pInfo->m_RuntimeDependencies.Insert(value.Get<ezString>());
               }
-              if (bIsDependency)
-                pInfo->m_AssetTransformDependencies.Insert(value.Get<ezString>());
-              else
-                pInfo->m_RuntimeDependencies.Insert(value.Get<ezString>());
+            }
+            else
+            {
+              for (ezInt32 i = 0; i < iCount; ++i)
+              {
+                ezVariant value = pObject->GetTypeAccessor().GetValue(pProp->GetPropertyName(), i);
+                if (bIsDependency)
+                  pInfo->m_AssetTransformDependencies.Insert(value.Get<ezString>());
+                else
+                  pInfo->m_RuntimeDependencies.Insert(value.Get<ezString>());
+              }
             }
           }
         }
         break;
+        case ezPropertyCategory::Map:
+          //#TODO Search for exposed params that reference assets.
+          if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) && pProp->GetSpecificType()->GetVariantType() == ezVariantType::String)
+          {
+            ezVariant value = pObject->GetTypeAccessor().GetValue(pProp->GetPropertyName());
+            const ezVariantDictionary& varDict = value.Get<ezVariantDictionary>();
+            if (bInsidePrefab)
+            {
+              ezHybridArray<ezPropertySelection, 1> selection;
+              selection.PushBack({pObject, ezVariant()});
+              ezDefaultContainerState defaultState(GetObjectAccessor(), selection.GetArrayPtr(), pProp->GetPropertyName());
+              for (auto it : varDict)
+              {
+                if (defaultState.GetStateProviderName() == "Prefab" && defaultState.IsDefaultElement(it.Key()))
+                {
+                  continue;
+                }
+                if (bIsDependency)
+                  pInfo->m_AssetTransformDependencies.Insert(it.Value().Get<ezString>());
+                else
+                  pInfo->m_RuntimeDependencies.Insert(it.Value().Get<ezString>());
+              }
+            }
+            else
+            {
+              for (auto it : varDict)
+              {
+                if (bIsDependency)
+                  pInfo->m_AssetTransformDependencies.Insert(it.Value().Get<ezString>());
+                else
+                  pInfo->m_RuntimeDependencies.Insert(it.Value().Get<ezString>());
+              }
+            }
+          }
+          break;
         default:
           break;
       }

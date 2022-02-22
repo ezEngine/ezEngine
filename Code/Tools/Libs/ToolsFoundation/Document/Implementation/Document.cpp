@@ -189,7 +189,7 @@ ezTaskGroupID ezDocument::InternalSaveDocument(AfterSaveCallback callback)
     }
     {
       // Do not serialize any temporary properties into the document.
-      auto filter = [](const ezAbstractProperty* pProp) -> bool {
+      auto filter = [](const ezDocumentObject*, const ezAbstractProperty* pProp) -> bool {
         if (pProp->GetAttributeByType<ezTemporaryAttribute>() != nullptr)
           return false;
         return true;
@@ -421,53 +421,4 @@ ezResult ezDocument::ComputeObjectTransformation(const ezDocumentObject* pObject
 ezObjectAccessorBase* ezDocument::GetObjectAccessor() const
 {
   return m_ObjectAccessor.Borrow();
-}
-
-ezVariant ezDocument::GetDefaultValue(const ezDocumentObject* pObject, const char* szProperty, ezVariant index) const
-{
-  ezUuid rootObjectGuid = ezPrefabUtils::GetPrefabRoot(pObject, *m_DocumentObjectMetaData);
-
-  const ezAbstractProperty* pProp = pObject->GetTypeAccessor().GetType()->FindPropertyByName(szProperty);
-  if (pProp && rootObjectGuid.IsValid())
-  {
-    auto pMeta = m_DocumentObjectMetaData->BeginReadMetaData(rootObjectGuid);
-    const ezAbstractObjectGraph* pGraph = ezPrefabCache::GetSingleton()->GetCachedPrefabGraph(pMeta->m_CreateFromPrefab);
-    ezUuid objectPrefabGuid = pObject->GetGuid();
-    objectPrefabGuid.RevertCombinationWithSeed(pMeta->m_PrefabSeedGuid);
-    m_DocumentObjectMetaData->EndReadMetaData();
-
-    if (pGraph)
-    {
-      ezVariant defaultValue = ezPrefabUtils::GetDefaultValue(*pGraph, objectPrefabGuid, szProperty, index);
-      if (pProp->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags) && defaultValue.IsA<ezString>())
-      {
-        ezInt64 iValue = 0;
-        if (ezReflectionUtils::StringToEnumeration(pProp->GetSpecificType(), defaultValue.Get<ezString>(), iValue))
-        {
-          defaultValue = iValue;
-        }
-        else
-        {
-          defaultValue = ezVariant();
-        }
-      }
-      if (defaultValue.IsValid())
-      {
-        return defaultValue;
-      }
-    }
-  }
-
-  ezVariant defaultValue = ezReflectionUtils::GetDefaultValue(pProp);
-  return defaultValue;
-}
-
-bool ezDocument::IsDefaultValue(const ezDocumentObject* pObject, const char* szProperty, bool bReturnOnInvalid, ezVariant index) const
-{
-  const ezVariant def = GetDefaultValue(pObject, szProperty, index);
-
-  if (!def.IsValid())
-    return bReturnOnInvalid;
-
-  return pObject->GetTypeAccessor().GetValue(szProperty, index) == def;
 }

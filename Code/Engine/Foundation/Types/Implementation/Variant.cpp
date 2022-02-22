@@ -331,6 +331,12 @@ bool ezVariant::operator==(const ezVariant& other) const
   {
     return ConvertNumber<ezInt64>() == other.ConvertNumber<ezInt64>();
   }
+  else if (IsString() && other.IsString())
+  {
+    const ezStringView a = IsA<ezStringView>() ? Get<ezStringView>() : ezStringView(Get<ezString>().GetData());
+    const ezStringView b = other.IsA<ezStringView>() ? other.Get<ezStringView>() : ezStringView(other.Get<ezString>().GetData());
+    return a.IsEqual(b);
+  }
   else if (m_Type == other.m_Type)
   {
     CompareFunc compareFunc;

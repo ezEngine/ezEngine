@@ -2,15 +2,17 @@
 
 #include <Foundation/Strings/TranslationLookup.h>
 #include <Foundation/Types/VariantTypeRegistry.h>
+#include <GuiFoundation/PropertyGrid/DefaultState.h>
 #include <GuiFoundation/PropertyGrid/Implementation/AddSubElementButton.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <GuiFoundation/Widgets/SearchableMenu.moc.h>
+#include <ToolsFoundation/Object/ObjectAccessorBase.h>
+
 #include <QHBoxLayout>
 #include <QInputDialog>
 #include <QMenu>
 #include <QPushButton>
-#include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
 ezString ezQtAddSubElementButton::s_sLastMenuSearch;
 
@@ -404,7 +406,7 @@ void ezQtAddSubElementButton::OnAction(const ezRTTI* pRtti)
   {
     for (auto& item : m_Items)
     {
-      res = m_pObjectAccessor->InsertValue(item.m_pObject, m_pProp, ezReflectionUtils::GetDefaultValue(GetProperty()), index);
+      res = m_pObjectAccessor->InsertValue(item.m_pObject, m_pProp, ezReflectionUtils::GetDefaultValue(GetProperty(), index), index);
       if (res.m_Result.Failed())
         break;
     }
@@ -417,6 +419,11 @@ void ezQtAddSubElementButton::OnAction(const ezRTTI* pRtti)
       res = m_pObjectAccessor->AddObject(item.m_pObject, m_pProp, index, pRtti, guid);
       if (res.m_Result.Failed())
         break;
+
+      ezHybridArray<ezPropertySelection, 1> selection;
+      selection.PushBack({m_pObjectAccessor->GetObject(guid), ezVariant()});
+      ezDefaultObjectState defaultState(m_pObjectAccessor, selection);
+      defaultState.RevertObject();
     }
   }
 

@@ -24,7 +24,7 @@ ezAbstractObjectNode* ezDocumentObjectConverterWriter::AddObjectToGraph(const ez
 
 void ezDocumentObjectConverterWriter::AddProperty(ezAbstractObjectNode* pNode, const ezAbstractProperty* pProp, const ezDocumentObject* pObject)
 {
-  if (m_Filter.IsValid() && !m_Filter(pProp))
+  if (m_Filter.IsValid() && !m_Filter(pObject, pProp))
     return;
 
   const ezRTTI* pPropType = pProp->GetSpecificType();

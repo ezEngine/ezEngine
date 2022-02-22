@@ -210,7 +210,7 @@ void ezAnimatedMeshComponent::OnQueryAnimationSkeleton(ezMsgQueryAnimationSkelet
 
 ezResult ezAnimatedMeshComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
 {
-  if (!m_MaxBounds.IsValid())
+  if (!m_MaxBounds.IsValid() || !m_hMesh.IsValid())
     return EZ_FAILURE;
 
   ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::BlockTillLoaded);

@@ -268,7 +268,10 @@ ezStatus ezObjectPropertyPath::PrependProperty(
     {
       if (!out_sPropertyPath.IsEmpty())
         out_sPropertyPath.Prepend("/");
-      out_sPropertyPath.PrependFormat("{0}[{1}]", pProperty->GetPropertyName(), index);
+      if (index.IsValid())
+        out_sPropertyPath.PrependFormat("{0}[{1}]", pProperty->GetPropertyName(), index);
+      else
+        out_sPropertyPath.PrependFormat("{0}", pProperty->GetPropertyName());
       return ezStatus(EZ_SUCCESS);
     }
     default:

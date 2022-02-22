@@ -194,6 +194,22 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezExposedParametersAttribute, 1, ezRTTIDefaultAl
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDynamicDefaultValueAttribute, 1, ezRTTIDefaultAllocator<ezDynamicDefaultValueAttribute>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("ClassSource", m_sClassSource),
+    EZ_MEMBER_PROPERTY("ClassType", m_sClassType),
+  }
+  EZ_END_PROPERTIES;
+  EZ_BEGIN_FUNCTIONS
+  {
+    EZ_CONSTRUCTOR_PROPERTY(const char*, const char*),
+  }
+  EZ_END_FUNCTIONS;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezContainerAttribute, 1, ezRTTIDefaultAllocator<ezContainerAttribute>)
 {
   EZ_BEGIN_PROPERTIES

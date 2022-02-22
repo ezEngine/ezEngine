@@ -22,6 +22,8 @@ class ezObjectAccessorBase;
 struct ezDocumentObjectPropertyEvent;
 struct ezPropertyMetaStateEvent;
 struct ezObjectAccessorChangeEvent;
+struct ezPropertyDefaultEvent;
+struct ezContainerElementMetaStateEvent;
 
 class EZ_GUIFOUNDATION_DLL ezQtPropertyGridWidget : public QWidget
 {
@@ -57,8 +59,6 @@ private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(GuiFoundation, PropertyGrid);
 
 private:
-  static void PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
-
   void ObjectAccessorChangeEventHandler(const ezObjectAccessorChangeEvent& e);
   void SelectionEventHandler(const ezSelectionManagerEvent& e);
   void FactoryEventHandler(const ezRttiMappedObjectFactory<ezQtPropertyWidget>::Event& e);

@@ -173,6 +173,9 @@ public:
   /// \brief Returns whether the stored type is floating point (float or double).
   bool IsFloatingPoint() const; // [tested]
 
+  /// \brief Returns whether the stored type is a string (ezString or ezStringView).
+  bool IsString() const; // [tested]
+
   /// \brief Returns whether the stored type is exactly the given type.
   ///
   /// \note This explicitly also differentiates between the different integer types.
@@ -214,6 +217,16 @@ public:
   /// \brief Returns an writable ezTypedPointer to the internal data.
   /// If the data is currently shared a clone will be made to ensure we hold the only reference.
   ezTypedPointer GetWriteAccess(); // [tested]
+
+  template <typename T, typename std::enable_if_t<ezVariantTypeDeduction<T>::classification == ezVariantClass::DirectCast, int> = 0>
+  T& GetWritable(); // [tested]
+
+  template <typename T, typename std::enable_if_t<ezVariantTypeDeduction<T>::classification == ezVariantClass::PointerCast, int> = 0>
+  T GetWritable(); // [tested]
+
+  template <typename T, typename std::enable_if_t<ezVariantTypeDeduction<T>::classification == ezVariantClass::CustomTypeCast, int> = 0>
+  T& GetWritable(); // [tested]
+
 
   /// \brief Returns a const void* to the internal data.
   /// For TypedPointer and TypedObject this will return a pointer to the target object.
@@ -369,6 +382,7 @@ private:
 
   static bool IsNumberStatic(ezUInt32 type);
   static bool IsFloatingPointStatic(ezUInt32 type);
+  static bool IsStringStatic(ezUInt32 type);
   static bool IsVector2Static(ezUInt32 type);
   static bool IsVector3Static(ezUInt32 type);
   static bool IsVector4Static(ezUInt32 type);
@@ -380,7 +394,6 @@ private:
   template <typename T>
   T ConvertNumber() const;
 };
-
 
 /// \brief An overload of ezDynamicCast for dynamic casting a variant to a pointer type.
 ///

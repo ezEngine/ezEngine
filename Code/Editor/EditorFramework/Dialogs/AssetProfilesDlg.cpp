@@ -159,7 +159,7 @@ void ezQtAssetProfilesDlg::ObjectToNative(ezUuid objectGuid, ezPlatformProfile* 
 
   // Write object to graph.
   ezAbstractObjectGraph graph;
-  auto filter = [](const ezAbstractProperty* pProp) -> bool {
+  auto filter = [](const ezDocumentObject*, const ezAbstractProperty* pProp) -> bool {
     if (pProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly))
       return false;
     return true;

@@ -29,9 +29,7 @@ void ezToolsSerializationUtils::SerializeTypes(const ezSet<const ezRTTI*>& types
 void ezToolsSerializationUtils::CopyProperties(const ezDocumentObject* pSource, const ezDocumentObjectManager* pSourceManager, void* pTarget, const ezRTTI* pTargetType, FilterFunction PropertFilter)
 {
   ezAbstractObjectGraph graph;
-  ezDocumentObjectConverterWriter writer(&graph, pSourceManager, [](const ezAbstractProperty* p) {
-    return p->GetAttributeByType<ezHiddenAttribute>() == nullptr;
-  });
+  ezDocumentObjectConverterWriter writer(&graph, pSourceManager, [](const ezDocumentObject*, const ezAbstractProperty* p) { return p->GetAttributeByType<ezHiddenAttribute>() == nullptr; });
   ezAbstractObjectNode* pAbstractObj = writer.AddObjectToGraph(pSource);
 
   ezRttiConverterContext context;

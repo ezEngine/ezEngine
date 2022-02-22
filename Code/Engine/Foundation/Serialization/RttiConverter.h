@@ -60,13 +60,10 @@ protected:
 class EZ_FOUNDATION_DLL ezRttiConverterWriter
 {
 public:
-  ezRttiConverterWriter(ezAbstractObjectGraph* pGraph, ezRttiConverterContext* pContext, bool bSerializeReadOnly, bool bSerializeOwnerPtrs)
-  {
-    m_pGraph = pGraph;
-    m_pContext = pContext;
-    m_bSerializeReadOnly = bSerializeReadOnly;
-    m_bSerializeOwnerPtrs = bSerializeOwnerPtrs;
-  }
+  using FilterFunction = ezDelegate<bool(const void* pObject, const ezAbstractProperty* pProp)>;
+
+  ezRttiConverterWriter(ezAbstractObjectGraph* pGraph, ezRttiConverterContext* pContext, bool bSerializeReadOnly, bool bSerializeOwnerPtrs);
+  ezRttiConverterWriter(ezAbstractObjectGraph* pGraph, ezRttiConverterContext* pContext, FilterFunction filter);
 
   ezAbstractObjectNode* AddObjectToGraph(ezReflectedClass* pObject, const char* szNodeName = nullptr)
   {
@@ -82,6 +79,7 @@ public:
 private:
   ezRttiConverterContext* m_pContext;
   ezAbstractObjectGraph* m_pGraph;
+  FilterFunction m_Filter;
   bool m_bSerializeReadOnly;
   bool m_bSerializeOwnerPtrs;
 };

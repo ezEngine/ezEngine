@@ -415,3 +415,15 @@ const ezDocumentObject* ezEditorTest::DropAsset(ezScene2Document* pDoc, const ch
   }
   return {};
 }
+
+const ezDocumentObject* ezEditorTest::CreateGameObject(ezScene2Document* pDoc)
+{
+  auto pAccessor = pDoc->GetObjectAccessor();
+  pAccessor->StartTransaction("Add Game Object");
+
+  ezUuid guid;
+  EZ_TEST_STATUS(pAccessor->AddObject(pDoc->GetObjectManager()->GetRootObject(), "Children", -1, ezRTTI::FindTypeByName("ezGameObject"), guid));
+  pAccessor->FinishTransaction();
+
+  return pAccessor->GetObject(guid);
+}

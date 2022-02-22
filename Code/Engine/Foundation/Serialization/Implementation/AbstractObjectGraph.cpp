@@ -46,16 +46,22 @@ void ezAbstractObjectGraph::Clear()
 }
 
 
-ezAbstractObjectNode* ezAbstractObjectGraph::Clone(ezAbstractObjectGraph& cloneTarget, ezAbstractObjectNode* pRootNode) const
+ezAbstractObjectNode* ezAbstractObjectGraph::Clone(ezAbstractObjectGraph& cloneTarget, const ezAbstractObjectNode* pRootNode, FilterFunction filter) const
 {
   cloneTarget.Clear();
 
   if (pRootNode == nullptr)
   {
-
     for (auto it = m_Nodes.GetIterator(); it.IsValid(); ++it)
     {
-      cloneTarget.CopyNodeIntoGraph(it.Value());
+      if (filter.IsValid())
+      {
+        cloneTarget.CopyNodeIntoGraph(it.Value(), filter);
+      }
+      else
+      {
+        cloneTarget.CopyNodeIntoGraph(it.Value());
+      }
     }
     return nullptr;
   }
@@ -69,7 +75,14 @@ ezAbstractObjectNode* ezAbstractObjectGraph::Clone(ezAbstractObjectGraph& cloneT
     {
       if (auto* pNode = GetNode(guid))
       {
-        cloneTarget.CopyNodeIntoGraph(pNode);
+        if (filter.IsValid())
+        {
+          cloneTarget.CopyNodeIntoGraph(pNode, filter);
+        }
+        else
+        {
+          cloneTarget.CopyNodeIntoGraph(pNode);
+        }
       }
     }
 
@@ -179,6 +192,11 @@ void ezAbstractObjectNode::RenameProperty(const char* szOldName, const char* szN
       return;
     }
   }
+}
+
+void ezAbstractObjectNode::ClearProperties()
+{
+  m_Properties.Clear();
 }
 
 ezResult ezAbstractObjectNode::InlineProperty(const char* szName)
@@ -474,6 +492,21 @@ void ezAbstractObjectGraph::FindTransitiveHull(const ezUuid& rootGuid, ezSet<ezU
             }
           }
         }
+        else if (prop.m_Value.IsA<ezVariantDictionary>())
+        {
+          const ezVariantDictionary& values = prop.m_Value.Get<ezVariantDictionary>();
+          for (auto& subValue : values)
+          {
+            if (subValue.Value().IsA<ezUuid>())
+            {
+              const ezUuid& guid = subValue.Value().Get<ezUuid>();
+              if (!reachableNodes.Contains(guid))
+              {
+                inProgress.Insert(guid);
+              }
+            }
+          }
+        }
       }
     }
     // Even if 'current' is not in the graph add it anyway to early out if it is found again.
@@ -551,9 +584,31 @@ ezAbstractObjectNode* ezAbstractObjectGraph::CopyNodeIntoGraph(const ezAbstractO
 
   for (const auto& props : pNode->GetProperties())
     pNewNode->AddProperty(props.m_szPropertyName, props.m_Value);
+
   return pNewNode;
 }
 
+ezAbstractObjectNode* ezAbstractObjectGraph::CopyNodeIntoGraph(const ezAbstractObjectNode* pNode, FilterFunction& filter)
+{
+  auto pNewNode = AddNode(pNode->GetGuid(), pNode->GetType(), pNode->GetTypeVersion(), pNode->GetNodeName());
+
+  if (filter.IsValid())
+  {
+    for (const auto& props : pNode->GetProperties())
+    {
+      if (!filter(pNode, &props))
+        continue;
+      pNewNode->AddProperty(props.m_szPropertyName, props.m_Value);
+    }
+  }
+  else
+  {
+    for (const auto& props : pNode->GetProperties())
+      pNewNode->AddProperty(props.m_szPropertyName, props.m_Value);
+  }
+
+  return pNewNode;
+}
 
 void ezAbstractObjectGraph::CreateDiffWithBaseGraph(const ezAbstractObjectGraph& base, ezDeque<ezAbstractGraphDiffOperation>& out_DiffResult) const
 {

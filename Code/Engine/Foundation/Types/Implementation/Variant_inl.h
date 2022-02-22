@@ -257,6 +257,11 @@ EZ_ALWAYS_INLINE bool ezVariant::IsFloatingPoint() const
   return IsFloatingPointStatic(m_Type);
 }
 
+EZ_ALWAYS_INLINE bool ezVariant::IsString() const
+{
+  return IsStringStatic(m_Type);
+}
+
 template <typename T, typename std::enable_if_t<ezVariantTypeDeduction<T>::classification == ezVariantClass::DirectCast, int>>
 EZ_ALWAYS_INLINE bool ezVariant::IsA() const
 {
@@ -340,6 +345,27 @@ EZ_ALWAYS_INLINE const T& ezVariant::Get() const
 {
   EZ_ASSERT_DEV(m_Type == TypeDeduction<T>::value, "Stored type '{0}' does not match requested type '{1}'", m_Type, TypeDeduction<T>::value);
   return Cast<T>();
+}
+
+template <typename T, typename std::enable_if_t<ezVariantTypeDeduction<T>::classification == ezVariantClass::DirectCast, int>>
+EZ_ALWAYS_INLINE T& ezVariant::GetWritable()
+{
+  GetWriteAccess();
+  return const_cast<T&>(Get<T>());
+}
+
+template <typename T, typename std::enable_if_t<ezVariantTypeDeduction<T>::classification == ezVariantClass::PointerCast, int>>
+EZ_ALWAYS_INLINE T ezVariant::GetWritable()
+{
+  GetWriteAccess();
+  return const_cast<T>(Get<T>());
+}
+
+template <typename T, typename std::enable_if_t<ezVariantTypeDeduction<T>::classification == ezVariantClass::CustomTypeCast, int>>
+EZ_ALWAYS_INLINE T& ezVariant::GetWritable()
+{
+  GetWriteAccess();
+  return const_cast<T&>(Get<T>());
 }
 
 EZ_ALWAYS_INLINE const void* ezVariant::GetData() const
@@ -514,6 +540,11 @@ EZ_ALWAYS_INLINE bool ezVariant::IsNumberStatic(ezUInt32 type)
 EZ_ALWAYS_INLINE bool ezVariant::IsFloatingPointStatic(ezUInt32 type)
 {
   return type == Type::Float || type == Type::Double;
+}
+
+EZ_ALWAYS_INLINE bool ezVariant::IsStringStatic(ezUInt32 type)
+{
+  return type == Type::String || type == Type::StringView;
 }
 
 EZ_ALWAYS_INLINE bool ezVariant::IsVector2Static(ezUInt32 type)

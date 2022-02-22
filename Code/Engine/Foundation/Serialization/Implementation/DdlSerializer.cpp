@@ -302,11 +302,13 @@ ezResult ezAbstractGraphDdlSerializer::ReadDocument(ezStreamReader& stream, ezUn
     sHeaderVersion.Format("HeaderV{0}", iVersion);
     pHB = GetOrCreateBlock(blocks, sHeaderVersion);
     ezAbstractObjectGraph& graph = *pOB->m_Graph.Borrow();
-    auto* pHeaderNode = graph.GetNodeByName("Header");
-    ezAbstractObjectGraph& headerGraph = *pHB->m_Graph.Borrow();
-    /*auto* pNewHeaderNode =*/headerGraph.CopyNodeIntoGraph(pHeaderNode);
-    // pNewHeaderNode->AddProperty("DocVersion", iVersion);
-    graph.RemoveNode(pHeaderNode->GetGuid());
+    if (auto* pHeaderNode = graph.GetNodeByName("Header"))
+    {
+      ezAbstractObjectGraph& headerGraph = *pHB->m_Graph.Borrow();
+      /*auto* pNewHeaderNode =*/headerGraph.CopyNodeIntoGraph(pHeaderNode);
+      // pNewHeaderNode->AddProperty("DocVersion", iVersion);
+      graph.RemoveNode(pHeaderNode->GetGuid());
+    }
   }
 
   if (bApplyPatches && pTB)

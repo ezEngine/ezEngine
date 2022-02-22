@@ -1,6 +1,7 @@
 #include <GuiFoundation/GuiFoundationPCH.h>
 
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
+#include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
 // clang-format off
 EZ_IMPLEMENT_SINGLETON(ezPropertyMetaState);
@@ -29,7 +30,7 @@ ezPropertyMetaState::ezPropertyMetaState()
 {
 }
 
-void ezPropertyMetaState::GetPropertyState(const ezDocumentObject* pObject, ezMap<ezString, ezPropertyUiState>& out_PropertyStates)
+void ezPropertyMetaState::GetTypePropertiesState(const ezDocumentObject* pObject, ezMap<ezString, ezPropertyUiState>& out_PropertyStates)
 {
   ezPropertyMetaStateEvent eventData;
   eventData.m_pPropertyStates = &out_PropertyStates;
@@ -38,12 +39,12 @@ void ezPropertyMetaState::GetPropertyState(const ezDocumentObject* pObject, ezMa
   m_Events.Broadcast(eventData);
 }
 
-void ezPropertyMetaState::GetPropertyState(const ezHybridArray<ezPropertySelection, 8>& items, ezMap<ezString, ezPropertyUiState>& out_PropertyStates)
+void ezPropertyMetaState::GetTypePropertiesState(const ezHybridArray<ezPropertySelection, 8>& items, ezMap<ezString, ezPropertyUiState>& out_PropertyStates)
 {
   for (const auto& sel : items)
   {
     m_Temp.Clear();
-    GetPropertyState(sel.m_pObject, m_Temp);
+    GetTypePropertiesState(sel.m_pObject, m_Temp);
 
     for (auto it = m_Temp.GetIterator(); it.IsValid(); ++it)
     {
@@ -51,7 +52,33 @@ void ezPropertyMetaState::GetPropertyState(const ezHybridArray<ezPropertySelecti
 
       curState.m_Visibility = ezMath::Max(curState.m_Visibility, it.Value().m_Visibility);
       curState.m_sNewLabelText = it.Value().m_sNewLabelText;
-      curState.m_bIsDefaultValue &= it.Value().m_bIsDefaultValue;
+    }
+  }
+}
+
+void ezPropertyMetaState::GetContainerElementsState(const ezDocumentObject* pObject, const char* szProperty, ezHashTable<ezVariant, ezPropertyUiState>& out_PropertyStates)
+{
+  ezContainerElementMetaStateEvent eventData;
+  eventData.m_pContainerElementStates = &out_PropertyStates;
+  eventData.m_pObject = pObject;
+  eventData.m_szProperty = szProperty;
+
+  m_ContainerEvents.Broadcast(eventData);
+}
+
+void ezPropertyMetaState::GetContainerElementsState(const ezHybridArray<ezPropertySelection, 8>& items, const char* szProperty, ezHashTable<ezVariant, ezPropertyUiState>& out_PropertyStates)
+{
+  for (const auto& sel : items)
+  {
+    m_Temp2.Clear();
+    GetContainerElementsState(sel.m_pObject, szProperty, m_Temp2);
+
+    for (auto it = m_Temp2.GetIterator(); it.IsValid(); ++it)
+    {
+      auto& curState = out_PropertyStates[it.Key()];
+
+      curState.m_Visibility = ezMath::Max(curState.m_Visibility, it.Value().m_Visibility);
+      curState.m_sNewLabelText = it.Value().m_sNewLabelText;
     }
   }
 }

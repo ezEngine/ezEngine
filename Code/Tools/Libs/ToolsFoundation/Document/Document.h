@@ -74,9 +74,6 @@ public:
   ezCommandHistory* GetCommandHistory() const { return m_CommandHistory.Borrow(); }
   virtual ezObjectAccessorBase* GetObjectAccessor() const;
 
-  virtual ezVariant GetDefaultValue(const ezDocumentObject* pObject, const char* szProperty, ezVariant index = ezVariant()) const;
-  virtual bool IsDefaultValue(const ezDocumentObject* pObject, const char* szProperty, bool bReturnOnInvalid, ezVariant index = ezVariant()) const;
-
   ///@}
   /// \name Main / Sub-Document Functions
   ///@{

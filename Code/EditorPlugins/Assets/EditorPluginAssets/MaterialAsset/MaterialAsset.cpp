@@ -5,6 +5,7 @@
 #include <EditorPluginAssets/MaterialAsset/ShaderTypeRegistry.h>
 #include <EditorPluginAssets/VisualShader/VsCodeGenerator.h>
 #include <GuiFoundation/NodeEditor/NodeScene.moc.h>
+#include <GuiFoundation/PropertyGrid/DefaultState.h>
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 #include <RendererCore/Material/MaterialResource.h>
 #include <ToolsFoundation/Document/PrefabCache.h>
@@ -842,9 +843,13 @@ ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& stream0, co
       ezHybridArray<ezAbstractProperty*, 32> properties;
       pType->GetAllProperties(properties);
 
+      ezHybridArray<ezPropertySelection, 1> selection;
+      selection.PushBack({pObject, ezVariant()});
+      ezDefaultObjectState defaultState(GetObjectAccessor(), selection.GetArrayPtr());
+
       for (auto* pProp : properties)
       {
-        if (hasBaseMaterial && IsDefaultValue(pObject, pProp->GetPropertyName(), false))
+        if (hasBaseMaterial && defaultState.IsDefaultValue(pProp))
           continue;
 
         const ezCategoryAttribute* pCategory = pProp->GetAttributeByType<ezCategoryAttribute>();
