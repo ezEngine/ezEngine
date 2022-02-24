@@ -23,7 +23,7 @@ ezColorGammaUB ezAttributeDefaultStateProvider::GetBackgroundColor() const
 
 ezVariant ezAttributeDefaultStateProvider::GetDefaultValue(SuperArray superPtr, ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index)
 {
-  if (!pProp->GetFlags().IsSet(ezPropertyFlags::Pointer) && pProp->GetCategory() == ezPropertyCategory::Member && !ezReflectionUtils::IsValueType(pProp))
+  if (!pProp->GetFlags().IsSet(ezPropertyFlags::Pointer) && pProp->GetFlags().IsSet(ezPropertyFlags::Class) && pProp->GetCategory() == ezPropertyCategory::Member && !ezReflectionUtils::IsValueType(pProp))
   {
     // An embedded class that is not a value type can never change its value.
     ezVariant value;
