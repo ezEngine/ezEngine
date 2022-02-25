@@ -1,6 +1,6 @@
 param 
 (
-	[Parameter(Mandatory = $True)] [ValidateSet('Win64vs2019', 'Uwp64vs2019')][string] $Target,
+	[Parameter(Mandatory = $True)] [ValidateSet('Win64vs2019', 'Uwp64vs2019', 'Win64vs2022', 'Uwp64vs2022')][string] $Target,
     [switch]$NoUnityBuild
 )
 
@@ -38,6 +38,27 @@ elseif ($Target -eq "Uwp64vs2019") {
     $CMAKE_ARGS += "x64"
     $CMAKE_ARGS += "-B"
     $CMAKE_ARGS += "$PSScriptRoot\Workspace\vs2019x64uwp"
+    $CMAKE_ARGS += "-DCMAKE_TOOLCHAIN_FILE=$PSScriptRoot\Code\BuildSystem\CMake\toolchain-winstore.cmake"
+}
+elseif ($Target -eq "Win64vs2022") {
+
+    Write-Host "=== Generating Solution for Visual Studio 2022 x64 ==="
+
+    $CMAKE_ARGS += "Visual Studio 17 2022"
+    $CMAKE_ARGS += "-A"
+    $CMAKE_ARGS += "x64"
+    $CMAKE_ARGS += "-B"
+    $CMAKE_ARGS += "$PSScriptRoot\Workspace\vs2022x64"
+}
+elseif ($Target -eq "Uwp64vs2022") {
+
+    Write-Host "=== Generating Solution for Visual Studio 2022 x64 UWP ==="
+
+    $CMAKE_ARGS += "Visual Studio 17 2022"
+    $CMAKE_ARGS += "-A"
+    $CMAKE_ARGS += "x64"
+    $CMAKE_ARGS += "-B"
+    $CMAKE_ARGS += "$PSScriptRoot\Workspace\vs2022x64uwp"
     $CMAKE_ARGS += "-DCMAKE_TOOLCHAIN_FILE=$PSScriptRoot\Code\BuildSystem\CMake\toolchain-winstore.cmake"
 }
 else {
