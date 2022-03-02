@@ -73,8 +73,8 @@ void ezSkeleton::Save(ezStreamWriter& stream) const
     stream << m_Joints[i].m_qLocalJointOrientation;
     stream << m_Joints[i].m_HalfSwingLimitZ;
     stream << m_Joints[i].m_HalfSwingLimitY;
-    stream << m_Joints[i].m_TwistLimitLow;
-    stream << m_Joints[i].m_TwistLimitHigh;
+    stream << m_Joints[i].m_TwistLimitHalfAngle;
+    stream << m_Joints[i].m_TwistLimitCenterAngle;
   }
 
   stream << m_BoneDirection;
@@ -106,8 +106,8 @@ void ezSkeleton::Load(ezStreamReader& stream)
       stream >> m_Joints[i].m_qLocalJointOrientation;
       stream >> m_Joints[i].m_HalfSwingLimitZ;
       stream >> m_Joints[i].m_HalfSwingLimitY;
-      stream >> m_Joints[i].m_TwistLimitLow;
-      stream >> m_Joints[i].m_TwistLimitHigh;
+      stream >> m_Joints[i].m_TwistLimitHalfAngle;
+      stream >> m_Joints[i].m_TwistLimitCenterAngle;
     }
   }
 
@@ -204,5 +204,14 @@ ezUInt64 ezSkeleton::GetHeapMemoryUsage() const
   return m_Joints.GetHeapMemoryUsage(); // TODO: + ozz skeleton
 }
 
+ezAngle ezSkeletonJoint::GetTwistLimitLow() const
+{
+  return ezMath::Max(ezAngle::Degree(-179), m_TwistLimitCenterAngle - m_TwistLimitHalfAngle);
+}
+
+ezAngle ezSkeletonJoint::GetTwistLimitHigh() const
+{
+  return ezMath::Min(ezAngle::Degree(179), m_TwistLimitCenterAngle + m_TwistLimitHalfAngle);
+}
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_Implementation_Skeleton);

@@ -48,7 +48,6 @@ ezResult ezSkeletonComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& 
   if (m_MaxBounds.IsValid())
   {
     ezBoundingBox bbox = m_MaxBounds;
-    //bbox.Grow(ezVec3(pMesh->m_fMaxBoneVertexOffset));
     bounds = bbox;
     bounds.Transform(m_RootTransform.GetAsMat4());
     return EZ_SUCCESS;
@@ -489,6 +488,7 @@ void ezSkeletonComponent::BuildJointVisualization(ezMsgAnimationPoseUpdated& msg
   const ezQuat qBoneDir = ezBasisAxis::GetBasisRotation_PosX(pSkeleton->GetDescriptor().m_Skeleton.m_BoneDirection);
   const ezQuat qBoneDirT = ezBasisAxis::GetBasisRotation(ezBasisAxis::PositiveY, pSkeleton->GetDescriptor().m_Skeleton.m_BoneDirection);
   const ezQuat qBoneDirBT = ezBasisAxis::GetBasisRotation(ezBasisAxis::PositiveZ, pSkeleton->GetDescriptor().m_Skeleton.m_BoneDirection);
+  const ezQuat qBoneDirT2 = ezBasisAxis::GetBasisRotation(ezBasisAxis::NegativeY, pSkeleton->GetDescriptor().m_Skeleton.m_BoneDirection);
 
   for (ezUInt16 uiJointIdx = 0; uiJointIdx < skel.GetJointCount(); ++uiJointIdx)
   {
@@ -517,13 +517,8 @@ void ezSkeletonComponent::BuildJointVisualization(ezMsgAnimationPoseUpdated& msg
     if (m_bVisualizeJoints)
     {
       const ezColor hlM = ezMath::Lerp(ezColor::OrangeRed, ezColor::DimGrey, bHighlight ? 0 : 0.8f);
-      //AddLine(vJointPos, vJointPos + qLimitRot * (vBoneDir * 0.12f), hlM);
-
       const ezColor hlT = ezMath::Lerp(ezColor::LawnGreen, ezColor::DimGrey, bHighlight ? 0 : 0.8f);
-      //AddLine(vJointPos, vJointPos + qLimitRot * (vBoneTangent * 0.12f), hlT);
-
       const ezColor hlBT = ezMath::Lerp(ezColor::BlueViolet, ezColor::DimGrey, bHighlight ? 0 : 0.8f);
-      //AddLine(vJointPos, vJointPos + qLimitRot * (vBoneBiTangent * 0.12f), hlBT);
 
       {
         auto& cyl = m_CylinderShapes.ExpandAndGetRef();
@@ -560,7 +555,7 @@ void ezSkeletonComponent::BuildJointVisualization(ezMsgAnimationPoseUpdated& msg
     }
 
     // swing limit
-    if (m_bVisualizeSwingLimits)
+    if (m_bVisualizeSwingLimits && (thisJoint.GetHalfSwingLimitY() > ezAngle() || thisJoint.GetHalfSwingLimitZ() > ezAngle()))
     {
       auto& shape = m_ConeLimitShapes.ExpandAndGetRef();
       shape.m_Angle1 = thisJoint.GetHalfSwingLimitY();
@@ -569,28 +564,60 @@ void ezSkeletonComponent::BuildJointVisualization(ezMsgAnimationPoseUpdated& msg
       shape.m_Transform.m_vScale.Set(0.05f);
       shape.m_Transform.m_vPosition = vJointPos;
       shape.m_Transform.m_qRotation = qLimitRot * qBoneDir;
+
+      const ezColor hlM = ezMath::Lerp(ezColor::OrangeRed, ezColor::DimGrey, bHighlight ? 0 : 0.8f);
+
+      {
+        auto& cyl = m_CylinderShapes.ExpandAndGetRef();
+        cyl.m_Color = hlM;
+        cyl.m_fLength = 0.07f;
+        cyl.m_fRadius1 = 0.002f;
+        cyl.m_fRadius2 = 0.0f;
+        cyl.m_Transform.m_vPosition = vJointPos;
+        cyl.m_Transform.m_qRotation = thisRot * qBoneDir;
+        cyl.m_Transform.m_vScale.Set(1);
+      }
     }
 
     // twist limit
-    if (m_bVisualizeTwistLimits && (thisJoint.GetTwistLimitLow() != ezAngle() || thisJoint.GetTwistLimitHigh() != ezAngle()))
+    if (m_bVisualizeTwistLimits && thisJoint.GetTwistLimitHalfAngle() > ezAngle::Degree(0))
     {
       auto& shape = m_AngleShapes.ExpandAndGetRef();
-      shape.m_StartAngle = -thisJoint.GetTwistLimitLow();
+      shape.m_StartAngle = thisJoint.GetTwistLimitLow();
       shape.m_EndAngle = thisJoint.GetTwistLimitHigh();
-      shape.m_Color = ezMath::Lerp(ezColor::DimGrey, ezColor::LightPink, bHighlight ? 1.0f : 0.2f);
+      shape.m_Color = ezMath::Lerp(ezColor::DimGrey, ezColor::LightPink, bHighlight ? 0.8f : 0.2f);
       shape.m_Transform.m_vScale.Set(0.04f);
       shape.m_Transform.m_vPosition = vJointPos;
       shape.m_Transform.m_qRotation = qLimitRot;
 
+      const ezColor hlT = ezMath::Lerp(ezColor::DimGrey, ezColor::LightPink, bHighlight ? 1.0f : 0.4f);
+
       {
         auto& cyl = m_CylinderShapes.ExpandAndGetRef();
-        cyl.m_Color = shape.m_Color * 1.2f;
-        cyl.m_fLength = 0.08f;
-        cyl.m_fRadius1 = 0.003f;
-        cyl.m_fRadius2 = 0.0005f;
+        cyl.m_Color = hlT;
+        cyl.m_fLength = 0.07f;
+        cyl.m_fRadius1 = 0.002f;
+        cyl.m_fRadius2 = 0.0f;
         cyl.m_Transform.m_vPosition = vJointPos;
-        cyl.m_Transform.m_qRotation = qLimitRot * qBoneDir;
+        cyl.m_Transform.m_qRotation = thisRot * qBoneDirT2;
         cyl.m_Transform.m_vScale.Set(1);
+
+        ezVec3 vDir = cyl.m_Transform.m_qRotation * ezVec3(1, 0, 0);
+        vDir.Normalize();
+
+        ezVec3 vDirRef = shape.m_Transform.m_qRotation * qBoneDir * ezVec3(0, 1, 0);
+        vDirRef.Normalize();
+
+        const ezVec3 vRotDir = shape.m_Transform.m_qRotation * qBoneDir * ezVec3(1, 0, 0);
+        ezQuat qRotRef;
+        qRotRef.SetFromAxisAndAngle(vRotDir, thisJoint.GetTwistLimitCenterAngle());
+        vDirRef = qRotRef * vDirRef;
+
+        // if the current twist is outside the twist limit range, highlight the bone
+        if (vDir.GetAngleBetween(vDirRef) > thisJoint.GetTwistLimitHalfAngle())
+        {
+          cyl.m_Color = ezColor::Orange;
+        }
       }
     }
   }

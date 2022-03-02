@@ -83,6 +83,7 @@ void ezMaterialContext::OnInitialize()
         ezGeometry geom;
 
         ezGeometry::GeoOptions opt;
+        opt.m_Color = ezColor::Red;
         opt.m_Transform.SetRotationMatrixZ(ezAngle::Degree(90));
         geom.AddSphere(0.1f, 64, 64, opt);
         geom.ComputeTangents();
@@ -123,10 +124,13 @@ void ezMaterialContext::OnInitialize()
 
       if (!hMeshBuffer.IsValid())
       {
+        ezGeometry::GeoOptions opt;
+        opt.m_Color = ezColor::Red;
+
         // Build geometry
         ezGeometry geom;
 
-        geom.AddBox(ezVec3(0.12f), true);
+        geom.AddBox(ezVec3(0.12f), true, opt);
         geom.ComputeTangents();
 
         ezMeshBufferResourceDescriptor desc;
@@ -169,6 +173,7 @@ void ezMaterialContext::OnInitialize()
         ezGeometry geom;
 
         ezGeometry::GeoOptions opt;
+        opt.m_Color = ezColor::Red;
         opt.m_Transform.SetRotationMatrixZ(ezAngle::Degree(-90));
         geom.AddRectXY(ezVec2(0.2f), 64, 64, opt);
         geom.ComputeTangents();

@@ -14,9 +14,10 @@ struct ezSkeletonAssetEvent
   enum Type
   {
     RenderStateChanged,
+    Transformed,
   };
 
-  ezSkeletonAssetDocument* m_pDocument;
+  ezSkeletonAssetDocument* m_pDocument = nullptr;
   Type m_Type;
 };
 
@@ -67,7 +68,7 @@ protected:
   ezEvent<const ezSkeletonAssetEvent&> m_Events;
   bool m_bRenderBones = true;
   bool m_bRenderColliders = true;
-  bool m_bRenderJoints = true;
+  bool m_bRenderJoints = false; // currently not exposed
   bool m_bRenderSwingLimits = true;
   bool m_bRenderTwistLimits = true;
 };

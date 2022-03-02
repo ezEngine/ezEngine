@@ -52,8 +52,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditableSkeletonJoint, 2, ezRTTIDefaultAllocat
     EZ_MEMBER_PROPERTY("SwingLimitY", m_SwingLimitY)->AddAttributes(new ezClampValueAttribute(ezAngle(), ezAngle::Degree(170)), new ezDefaultValueAttribute(ezAngle::Degree(30))),
     EZ_MEMBER_PROPERTY("SwingLimitZ", m_SwingLimitZ)->AddAttributes(new ezClampValueAttribute(ezAngle(), ezAngle::Degree(170)), new ezDefaultValueAttribute(ezAngle::Degree(30))),
     EZ_MEMBER_PROPERTY("LimitTwist", m_bLimitTwist),
-    EZ_MEMBER_PROPERTY("TwistLimitLow", m_TwistLimitLow)->AddAttributes(new ezClampValueAttribute(ezAngle(), ezAngle::Degree(180)), new ezDefaultValueAttribute(ezAngle::Degree(15))),
-    EZ_MEMBER_PROPERTY("TwistLimitHigh", m_TwistLimitHigh)->AddAttributes(new ezClampValueAttribute(ezAngle(), ezAngle::Degree(180)), new ezDefaultValueAttribute(ezAngle::Degree(15))),
+    EZ_MEMBER_PROPERTY("TwistLimitHalfAngle", m_TwistLimitHalfAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::Degree(10), ezAngle::Degree(170)), new ezDefaultValueAttribute(ezAngle::Degree(30))),
+    EZ_MEMBER_PROPERTY("TwistLimitCenterAngle", m_TwistLimitCenterAngle)->AddAttributes(new ezClampValueAttribute(-ezAngle::Degree(170), ezAngle::Degree(170))),
     EZ_ARRAY_MEMBER_PROPERTY("Children", m_Children)->AddFlags(ezPropertyFlags::PointerOwner | ezPropertyFlags::Hidden),
     EZ_ARRAY_MEMBER_PROPERTY("BoneShapes", m_BoneShapes),
   }
@@ -180,7 +180,7 @@ void ezEditableSkeleton::CreateJointsRecursive(ezSkeletonBuilder& sb, ezSkeleton
     ezMsgAnimationPoseUpdated::ComputeFullBoneTransform(rootTransform, qParentAccuRot.GetAsMat4(), full, qParentGlobalRot);
   }
 
-  sb.SetJointLimit(uiThisJointIdx, pThisJoint->m_qLocalJointRotation, pThisJoint->m_bLimitSwing, pThisJoint->m_SwingLimitY, pThisJoint->m_SwingLimitZ, pThisJoint->m_bLimitTwist, pThisJoint->m_TwistLimitLow, pThisJoint->m_TwistLimitHigh);
+  sb.SetJointLimit(uiThisJointIdx, pThisJoint->m_qLocalJointRotation, pThisJoint->m_bLimitSwing, pThisJoint->m_SwingLimitY, pThisJoint->m_SwingLimitZ, pThisJoint->m_bLimitTwist, pThisJoint->m_TwistLimitHalfAngle, pThisJoint->m_TwistLimitCenterAngle);
 
   for (const auto* pChildJoint : pThisJoint->m_Children)
   {
@@ -286,8 +286,8 @@ void ezEditableSkeletonJoint::CopyPropertiesFrom(const ezEditableSkeletonJoint* 
   m_qLocalJointRotation = pJoint->m_qLocalJointRotation;
   m_SwingLimitY = pJoint->m_SwingLimitY;
   m_SwingLimitZ = pJoint->m_SwingLimitZ;
-  m_TwistLimitLow = pJoint->m_TwistLimitLow;
-  m_TwistLimitHigh = pJoint->m_TwistLimitHigh;
+  m_TwistLimitHalfAngle = pJoint->m_TwistLimitHalfAngle;
+  m_TwistLimitCenterAngle = pJoint->m_TwistLimitCenterAngle;
   m_bLimitSwing = pJoint->m_bLimitSwing;
   m_bLimitTwist = pJoint->m_bLimitTwist;
 }

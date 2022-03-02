@@ -67,8 +67,8 @@ public:
   bool m_bLimitTwist = false;
   bool m_bLimitSwing = false;
 
-  ezAngle m_TwistLimitLow;
-  ezAngle m_TwistLimitHigh;
+  ezAngle m_TwistLimitHalfAngle;
+  ezAngle m_TwistLimitCenterAngle;
   ezAngle m_SwingLimitY;
   ezAngle m_SwingLimitZ;
 

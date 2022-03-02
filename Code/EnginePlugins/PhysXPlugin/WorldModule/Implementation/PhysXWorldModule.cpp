@@ -793,8 +793,9 @@ void ezPhysXWorldModule::FetchResults(const ezWorldModule::UpdateContext& contex
       //m_pPxScene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_SHAPES, 1);
       //m_pPxScene->setVisualizationParameter(PxVisualizationParameter::eCONTACT_POINT, 1);
       //m_pPxScene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_DYNAMIC, 1);
-      //m_pPxScene->setVisualizationParameter(PxVisualizationParameter::eJOINT_LIMITS, 1);
-      m_pPxScene->setVisualizationParameter(PxVisualizationParameter::eBODY_AXES, 1);
+      m_pPxScene->setVisualizationParameter(PxVisualizationParameter::eJOINT_LIMITS, 1);
+      //m_pPxScene->setVisualizationParameter(PxVisualizationParameter::eJOINT_LOCAL_FRAMES, 1);
+      //m_pPxScene->setVisualizationParameter(PxVisualizationParameter::eBODY_AXES, 1);
 
       ezHybridArray<ezDebugRenderer::Line, 64> lines;
 

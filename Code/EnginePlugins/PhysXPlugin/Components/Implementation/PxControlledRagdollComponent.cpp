@@ -113,15 +113,12 @@ void ezPxControlledRagdollComponent::CreateLimbJoint(physx::PxPhysics* pPxApi, c
     pJoint->setMotion(PxD6Axis::eSWING2, PxD6Motion::eFREE);
   }
 
-  if (thisJoint.GetTwistLimitLow() >= ezAngle::Degree(1) || thisJoint.GetTwistLimitHigh() >= ezAngle::Degree(1))
+  if (thisJoint.GetTwistLimitHalfAngle() >= ezAngle::Degree(0))
   {
     pJoint->setMotion(PxD6Axis::eTWIST, PxD6Motion::eLIMITED);
 
-    ezAngle low = -thisJoint.GetTwistLimitLow();
-    ezAngle high = thisJoint.GetTwistLimitHigh();
-
-    low = ezMath::Max(ezAngle::Degree(-179), low);
-    high = ezMath::Min(ezAngle::Degree(+179), high);
+    const ezAngle low = thisJoint.GetTwistLimitLow();
+    const ezAngle high = thisJoint.GetTwistLimitHigh();
 
     //const float stiffness = 1000;
     //const float damping = 0;
