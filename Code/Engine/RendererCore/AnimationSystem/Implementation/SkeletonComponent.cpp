@@ -258,8 +258,7 @@ void ezSkeletonComponent::BuildSkeletonVisualization(ezMsgAnimationPoseUpdated& 
 
   const ezVec3 vBoneDir = ezBasisAxis::GetBasisVector(msg.m_pSkeleton->m_BoneDirection);
 
-  auto renderBone = [&](int currentBone, int parentBone)
-  {
+  auto renderBone = [&](int currentBone, int parentBone) {
     if (parentBone == ozz::animation::Skeleton::kNoParent)
       return;
 
