@@ -6,12 +6,11 @@
 
 class ezPhysicsWorldModuleInterface;
 
-struct EZ_GAMEENGINE_DLL ezSensorVisibleObjectsChanged : public ezEventMessage
+struct EZ_GAMEENGINE_DLL ezMsgSensorVisibleObjectsChanged : public ezEventMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezSensorVisibleObjectsChanged, ezEventMessage);
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgSensorVisibleObjectsChanged, ezEventMessage);
 
   ezArrayPtr<ezGameObjectHandle> m_VisibleObjects;
-  ezArrayPtr<ezUInt32> m_TEst;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -46,6 +45,8 @@ public:
 
   ezEnum<ezUpdateRate> m_UpdateRate; // [ property ]
 
+  ezArrayPtr<ezGameObjectHandle> GetLastVisibleObjects() const { return m_LastVisibleObjects; }
+
 protected:
   void UpdateSpatialCategory();
 
@@ -53,7 +54,7 @@ protected:
   ezSpatialData::Category m_SpatialCategory = ezInvalidSpatialDataCategory;
 
   friend class ezSensorWorldModule;
-  ezDynamicArray<ezGameObjectHandle> m_LastVisibleObjects;
+  mutable ezDynamicArray<ezGameObjectHandle> m_LastVisibleObjects;
 };
 
 //////////////////////////////////////////////////////////////////////////

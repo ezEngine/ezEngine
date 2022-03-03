@@ -6,8 +6,8 @@
 #include <GameEngine/AI/SensorComponent.h>
 
 // clang-format off
-EZ_IMPLEMENT_MESSAGE_TYPE(ezSensorVisibleObjectsChanged);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSensorVisibleObjectsChanged, 1, ezRTTIDefaultAllocator<ezSensorVisibleObjectsChanged>)
+EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgSensorVisibleObjectsChanged);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgSensorVisibleObjectsChanged, 1, ezRTTIDefaultAllocator<ezMsgSensorVisibleObjectsChanged>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -195,8 +195,9 @@ void ezSensorWorldModule::UpdateSensors(const ezWorldModule::UpdateContext& cont
   const ezTime deltaTime = GetWorld()->GetClock().GetTimeDiff();
   m_Scheduler.Update(deltaTime, [this](const ezComponentHandle& hComponent, ezTime deltaTime)
     {
-      ezSensorComponent* pSensorComponent = nullptr;
-      EZ_VERIFY(GetWorld()->TryGetComponent(hComponent, pSensorComponent), "Invalid component handle");
+      const ezWorld* pWorld = GetWorld();
+      const ezSensorComponent* pSensorComponent = nullptr;
+      EZ_VERIFY(pWorld->TryGetComponent(hComponent, pSensorComponent), "Invalid component handle");
 
       pSensorComponent->GetObjectsInSensorVolume(m_ObjectsInSensorVolume);
       const ezGameObject* pSensorOwner = pSensorComponent->GetOwner();
@@ -211,6 +212,7 @@ void ezSensorWorldModule::UpdateSensors(const ezWorldModule::UpdateContext& cont
 
         ezPhysicsCastResult hitResult;
         ezPhysicsQueryParameters params(pSensorComponent->m_uiCollisionLayer);
+        params.m_bIgnoreInitialOverlap = true;
         if (m_pPhysicsWorldModule->Raycast(hitResult, rayStart, rayDir, fDistance, params))
         {
           // hit something in between -> not visible
@@ -225,7 +227,7 @@ void ezSensorWorldModule::UpdateSensors(const ezWorldModule::UpdateContext& cont
       {
         m_VisibleObjects.Swap(pSensorComponent->m_LastVisibleObjects);
 
-        ezSensorVisibleObjectsChanged msg;
+        ezMsgSensorVisibleObjectsChanged msg;
         msg.m_VisibleObjects = pSensorComponent->m_LastVisibleObjects;
 
         pSensorOwner->PostEventMessage(msg, pSensorComponent, ezTime::Zero(), ezObjectMsgQueueType::PostAsync);
