@@ -82,6 +82,13 @@ struct ezHashHelper<ezGameObjectHandle>
   EZ_ALWAYS_INLINE static bool Equal(ezGameObjectHandle a, ezGameObjectHandle b) { return a == b; }
 };
 
+/// \brief Currently not implemented as it is not needed for game object handles.
+EZ_CORE_DLL void operator<<(ezStreamWriter& Stream, const ezGameObjectHandle& Value);
+EZ_CORE_DLL void operator>>(ezStreamReader& Stream, ezGameObjectHandle& Value);
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezGameObjectHandle);
+EZ_DECLARE_CUSTOM_VARIANT_TYPE(ezGameObjectHandle);
+
 /// \brief Internal component id used by ezComponentHandle.
 struct ezComponentId
 {
@@ -138,6 +145,13 @@ struct ezHashHelper<ezComponentHandle>
 
   EZ_ALWAYS_INLINE static bool Equal(ezComponentHandle a, ezComponentHandle b) { return a == b; }
 };
+
+/// \brief Currently not implemented as it is not needed for component handles.
+EZ_CORE_DLL void operator<<(ezStreamWriter& Stream, const ezComponentHandle& Value);
+EZ_CORE_DLL void operator>>(ezStreamReader& Stream, ezComponentHandle& Value);
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezComponentHandle);
+EZ_DECLARE_CUSTOM_VARIANT_TYPE(ezComponentHandle);
 
 /// \brief Internal flags of game objects or components.
 struct ezObjectFlags
