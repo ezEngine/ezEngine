@@ -144,7 +144,7 @@ ezVariant ezDynamicDefaultStateProvider::GetDefaultValue(SuperArray superPtr, ez
             }
             else
             {
-              ezInt32 iIndex = index.ConvertTo<ezInt32>();
+              ezUInt32 iIndex = index.ConvertTo<ezUInt32>();
               if (iIndex < currentArray.GetCount())
               {
                 defaultValue = currentArray[iIndex];
