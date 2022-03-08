@@ -46,6 +46,8 @@ ezApplication::Execution ezComputeShaderHistogramApp::Run()
     // Before starting to render in a frame call this function
     device->BeginFrame();
 
+    device->BeginPipeline("ComputeShaderHistogramSample", m_hSwapChain);
+
     ezGALPass* pGALPass = device->BeginPass("ezComputeShaderHistogram");
 
     ezRenderContext& renderContext = *ezRenderContext::GetDefaultInstance();
@@ -76,7 +78,7 @@ ezApplication::Execution ezComputeShaderHistogramApp::Run()
 
       // Copy screentexture contents to backbuffer.
       // (Is drawing better? Don't care, this is a one liner and needs no shader!)
-      renderContext.GetCommandEncoder()->CopyTexture(device->GetBackBufferTextureFromSwapChain(device->GetPrimarySwapChain()), m_hScreenTexture);
+      renderContext.GetCommandEncoder()->CopyTexture(device->GetBackBufferTextureFromSwapChain(m_hSwapChain), m_hScreenTexture);
 
       renderContext.EndRendering();
     }
@@ -120,7 +122,7 @@ ezApplication::Execution ezComputeShaderHistogramApp::Run()
 
     device->EndPass(pGALPass);
 
-    device->Present(device->GetPrimarySwapChain(), true);
+    device->EndPipeline(m_hSwapChain);
 
     device->EndFrame();
     ezRenderContext::GetDefaultInstance()->ResetContextState();
@@ -143,14 +145,6 @@ void ezComputeShaderHistogramApp::AfterCoreSystemsStartup()
 
   m_directoryWatcher = EZ_DEFAULT_NEW(ezDirectoryWatcher);
   EZ_VERIFY(m_directoryWatcher->OpenDirectory(FindProjectDirectory(), ezDirectoryWatcher::Watch::Writes | ezDirectoryWatcher::Watch::Subdirectories).Succeeded(), "Failed to watch project directory");
-
-#ifdef BUILDSYSTEM_ENABLE_VULKAN_SUPPORT
-  ezShaderManager::Configure("VULKAN", true);
-  EZ_VERIFY(ezPlugin::LoadPlugin("ezShaderCompilerDXC").Succeeded(), "DXC compiler plugin not found");
-#else
-  ezShaderManager::Configure("DX11_SM50", true);
-  EZ_VERIFY(ezPlugin::LoadPlugin("ezShaderCompilerHLSL").Succeeded(), "HLSL compiler plugin not found");
-#endif
 
   auto device = ezGALDevice::GetDefaultDevice();
 
@@ -185,7 +179,7 @@ void ezComputeShaderHistogramApp::AfterCoreSystemsStartup()
       swd.m_bAllowScreenshots = true;
       pOutput->CreateSwapchain(swd);
 
-      device->SetPrimarySwapChain(pOutput->m_hSwapChain);
+      m_hSwapChain = pOutput->m_hSwapChain;
       // Get back-buffer render target view.
       const ezGALSwapChain* pPrimarySwapChain = device->GetSwapChain(pOutput->m_hSwapChain);
       m_hBackbufferRTV = device->GetDefaultRenderTargetView(pPrimarySwapChain->GetBackBufferTexture());
@@ -255,6 +249,7 @@ void ezComputeShaderHistogramApp::BeforeHighLevelSystemsShutdown()
   m_hScreenSRV.Invalidate();
   device->DestroyTexture(m_hScreenTexture);
   m_hScreenTexture.Invalidate();
+  device->DestroySwapChain(m_hSwapChain);
 
   device->DestroyUnorderedAccessView(m_hHistogramUAV);
   m_hHistogramUAV.Invalidate();

@@ -59,6 +59,16 @@ void ezView::SetWorld(ezWorld* pWorld)
   }
 }
 
+void ezView::SetSwapChain(ezGALSwapChainHandle hSwapChain)
+{
+  m_Data.m_hSwapChain = hSwapChain;
+}
+
+ezGALSwapChainHandle ezView::GetSwapChain() const
+{
+  return m_Data.m_hSwapChain;
+}
+
 void ezView::SetRenderTargetSetup(ezGALRenderTargetSetup& renderTargetSetup)
 {
   if (m_RenderTargetSetup != renderTargetSetup)

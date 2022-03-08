@@ -573,6 +573,7 @@ void ezGALCommandEncoderImplDX11::BeginCompute()
 {
   // We need to unbind all render targets as otherwise using them in a compute shader as input will fail:
   // DEVICE_CSSETSHADERRESOURCES_HAZARD: Resource being set to CS shader resource slot 0 is still bound on output!
+  m_RenderTargetSetup = ezGALRenderTargetSetup();
   m_pDXContext->OMSetRenderTargets(0, nullptr, nullptr);
 }
 

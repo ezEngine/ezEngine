@@ -1,5 +1,6 @@
 #include <GameEngine/GameEnginePCH.h>
 
+#include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/GameApplication/WindowOutputTarget.h>
 #include <RendererFoundation/CommandEncoder/RenderCommandEncoder.h>
 #include <RendererFoundation/Device/Device.h>
@@ -7,27 +8,51 @@
 #include <RendererFoundation/Resources/Texture.h>
 #include <Texture/Image/Image.h>
 
-ezWindowOutputTargetGAL::ezWindowOutputTargetGAL() {}
+ezWindowOutputTargetGAL::ezWindowOutputTargetGAL(OnSwapChainChanged onSwapChainChanged)
+  : m_OnSwapChainChanged(onSwapChainChanged)
+{
+}
 
 ezWindowOutputTargetGAL::~ezWindowOutputTargetGAL()
 {
-  // do not try to destroy the primary swapchain, that is handled by the device
-  if (ezGALDevice::GetDefaultDevice()->GetPrimarySwapChain() != m_hSwapChain)
-  {
-    ezGALDevice::GetDefaultDevice()->DestroySwapChain(m_hSwapChain);
-  }
-
+  ezGALDevice::GetDefaultDevice()->DestroySwapChain(m_hSwapChain);
   m_hSwapChain.Invalidate();
 }
 
 void ezWindowOutputTargetGAL::CreateSwapchain(const ezGALSwapChainCreationDescription& desc)
 {
-  m_hSwapChain = ezGALDevice::GetDefaultDevice()->CreateSwapChain(desc);
+  const bool bSwapChainExisted = !m_hSwapChain.IsInvalidated();
+  if (bSwapChainExisted)
+  {
+    ezGALDevice::GetDefaultDevice()->DestroySwapChain(m_hSwapChain);
+    m_hSwapChain.Invalidate();
+  }
+
+  m_currentDesc = desc;
+  // ezWindowOutputTargetGAL takes over the present mode and keeps it up to date with cvar_AppVSync.
+  m_Size = desc.m_pWindow->GetClientAreaSize();
+  m_currentDesc.m_PresentMode = ezGameApplication::cvar_AppVSync ? ezGALPresentMode::VSync : ezGALPresentMode::Immediate;
+  m_hSwapChain = ezGALDevice::GetDefaultDevice()->CreateSwapChain(m_currentDesc);
+  if (bSwapChainExisted && m_OnSwapChainChanged.IsValid())
+  {
+    m_OnSwapChainChanged(m_hSwapChain, m_Size);
+  }
 }
 
 void ezWindowOutputTargetGAL::Present(bool bEnableVSync)
 {
-  ezGALDevice::GetDefaultDevice()->Present(m_hSwapChain, bEnableVSync);
+  // Only re-create the swapchain if somebody is listening to changes.
+  if (m_OnSwapChainChanged.IsValid())
+  {
+    ezEnum<ezGALPresentMode> presentMode = ezGameApplication::cvar_AppVSync ? ezGALPresentMode::VSync : ezGALPresentMode::Immediate;
+
+    // The actual present call is done by setting the swapchain to an ezView.
+    // This call is only used to recreate the swapchain at a safe location.
+    if (m_Size != m_currentDesc.m_pWindow->GetClientAreaSize() || presentMode != m_currentDesc.m_PresentMode)
+    {
+      CreateSwapchain(m_currentDesc);
+    }
+  }
 }
 
 ezResult ezWindowOutputTargetGAL::CaptureImage(ezImage& out_Image)

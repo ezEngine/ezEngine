@@ -1067,7 +1067,7 @@ void ezRenderPipeline::Render(ezRenderContext* pRenderContext)
     ezRenderWorld::s_RenderEvent.Broadcast(renderEvent);
   }
 
-  ezGALDevice::GetDefaultDevice()->BeginPipeline(m_sName);
+  ezGALDevice::GetDefaultDevice()->BeginPipeline(m_sName, renderViewContext.m_pViewData->m_hSwapChain);
 
   ezUInt32 uiCurrentFirstUsageIdx = 0;
   ezUInt32 uiCurrentLastUsageIdx = 0;
@@ -1136,7 +1136,7 @@ void ezRenderPipeline::Render(ezRenderContext* pRenderContext)
   EZ_ASSERT_DEV(uiCurrentFirstUsageIdx == m_TextureUsageIdxSortedByFirstUsage.GetCount(), "Rendering all passes should have moved us through all texture usage blocks!");
   EZ_ASSERT_DEV(uiCurrentLastUsageIdx == m_TextureUsageIdxSortedByLastUsage.GetCount(), "Rendering all passes should have moved us through all texture usage blocks!");
 
-  ezGALDevice::GetDefaultDevice()->EndPipeline();
+  ezGALDevice::GetDefaultDevice()->EndPipeline(renderViewContext.m_pViewData->m_hSwapChain);
 
   renderEvent.m_Type = ezRenderWorldRenderEvent::Type::AfterPipelineExecution;
   {

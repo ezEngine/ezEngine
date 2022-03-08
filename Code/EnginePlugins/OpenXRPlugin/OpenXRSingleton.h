@@ -40,7 +40,7 @@ public:
 
   virtual ezGALTextureHandle Present() override;
   virtual ezUniquePtr<ezActor> CreateActor(ezView* pView, ezGALMSAASampleCount::Enum msaaCount = ezGALMSAASampleCount::None,
-    ezUniquePtr<ezWindowBase> companionWindow = nullptr, ezUniquePtr<ezWindowOutputTargetBase> companionWindowOutput = nullptr) override;
+    ezUniquePtr<ezWindowBase> companionWindow = nullptr, ezUniquePtr<ezWindowOutputTargetGAL> companionWindowOutput = nullptr) override;
   virtual void OnActorDestroyed() override;
   virtual bool SupportsCompanionView() override;
 

@@ -112,19 +112,6 @@ void ezShaderCompilerApplication::AfterCoreSystemsStartup()
   ezStartup::StartupHighLevelSystems();
 }
 
-void ezShaderCompilerApplication::Init_LoadRequiredPlugins()
-{
-  ezPlugin::InitializeStaticallyLinkedPlugins();
-
-#ifdef BUILDSYSTEM_ENABLE_VULKAN_SUPPORT
-  ezShaderManager::Configure("VULKAN", true);
-  EZ_VERIFY(ezPlugin::LoadPlugin("ezShaderCompilerDXC").Succeeded(), "DXC compiler plugin not found");
-#else
-  ezShaderManager::Configure("DX11_SM50", true);
-  EZ_VERIFY(ezPlugin::LoadPlugin("ezShaderCompilerHLSL").Succeeded(), "HLSL compiler plugin not found");
-#endif
-}
-
 ezResult ezShaderCompilerApplication::CompileShader(const char* szShaderFile)
 {
   EZ_LOG_BLOCK("Compiling Shader", szShaderFile);

@@ -122,6 +122,15 @@ ezResult ezGALSwapChainDX11::InitPlatform(ezGALDevice* pDevice)
   else
 #endif
   {
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+    // Make window association
+    //#TODO This was moved from ezGALDeviceDX11::SetPrimarySwapChainPlatform.
+    // The code allows for alt+enter to move the window into exclusive full-screen mode. There are multiple problems with this:
+    // A: It crashes in dxgi.
+    // B: It uses exclusive full-screen which is worse than border-less full-screen in every way if we can use DXGI_SWAP_EFFECT_FLIP_DISCARD.
+    //pDXDevice->GetDXGIFactory()->MakeWindowAssociation(ezMinWindows::ToNative(GetDescription().m_pWindow->GetNativeWindowHandle()), 0);
+#endif
+
     // Get texture of the swap chain
     ID3D11Texture2D* pNativeBackBufferTexture = nullptr;
     HRESULT result = m_pDXSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&pNativeBackBufferTexture));

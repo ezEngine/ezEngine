@@ -137,6 +137,8 @@ ezApplication::Execution ezShaderExplorerApp::Run()
     // Before starting to render in a frame call this function
     m_pDevice->BeginFrame();
 
+    m_pDevice->BeginPipeline("ShaderExplorer", m_hSwapChain);
+
     ezGALPass* pGALPass = m_pDevice->BeginPass("ezShaderExplorerMainPass");
 
     ezGALRenderingSetup renderingSetup;
@@ -166,7 +168,7 @@ ezApplication::Execution ezShaderExplorerApp::Run()
     ezRenderContext::GetDefaultInstance()->EndRendering();
     m_pDevice->EndPass(pGALPass);
 
-    m_pDevice->Present(m_pDevice->GetPrimarySwapChain(), true);
+    m_pDevice->EndPipeline(m_hSwapChain);
 
     m_pDevice->EndFrame();
     ezRenderContext::GetDefaultInstance()->ResetContextState();
@@ -314,12 +316,8 @@ void ezShaderExplorerApp::AfterCoreSystemsStartup()
   // Create a device
   {
     ezGALDeviceCreationDescription DeviceInit;
-    DeviceInit.m_bCreatePrimarySwapChain = true;
     DeviceInit.m_bDebugDevice = true;
-    DeviceInit.m_PrimarySwapChainDescription.m_pWindow = m_pWindow;
-    DeviceInit.m_PrimarySwapChainDescription.m_SampleCount = ezGALMSAASampleCount::None;
-    DeviceInit.m_PrimarySwapChainDescription.m_bAllowScreenshots = true;
-
+    
     m_pDevice = ezGALDeviceFactory::CreateDevice(szRendererName, ezFoundation::GetDefaultAllocator(), DeviceInit);
     EZ_ASSERT_DEV(m_pDevice != nullptr, "Device implemention for '{}' not found", szRendererName);
     EZ_VERIFY(m_pDevice->Init() == EZ_SUCCESS, "Device init failed!");
@@ -330,11 +328,15 @@ void ezShaderExplorerApp::AfterCoreSystemsStartup()
   // now that we have a window and device, tell the engine to initialize the rendering infrastructure
   ezStartup::StartupHighLevelSystems();
 
-  // Get the primary swapchain (this one will always be created by device init except if the user instructs no swap chain creation
-  // explicitly)
+  // Create a Swapchain
   {
-    ezGALSwapChainHandle hPrimarySwapChain = m_pDevice->GetPrimarySwapChain();
-    const ezGALSwapChain* pPrimarySwapChain = m_pDevice->GetSwapChain(hPrimarySwapChain);
+    ezGALSwapChainCreationDescription swapChainDesc;
+    swapChainDesc.m_pWindow = m_pWindow;
+    swapChainDesc.m_SampleCount = ezGALMSAASampleCount::None;
+    swapChainDesc.m_bAllowScreenshots = true;
+    m_hSwapChain = m_pDevice->CreateSwapChain(swapChainDesc);
+
+    const ezGALSwapChain* pPrimarySwapChain = m_pDevice->GetSwapChain(m_hSwapChain);
 
     ezGALTextureCreationDescription texDesc;
     texDesc.m_uiWidth = g_uiWindowWidth;
@@ -366,6 +368,7 @@ void ezShaderExplorerApp::BeforeHighLevelSystemsShutdown()
 
   m_hMaterial.Invalidate();
   m_hQuadMeshBuffer.Invalidate();
+  m_pDevice->DestroySwapChain(m_hSwapChain);
 
   // tell the engine that we are about to destroy window and graphics device,
   // and that it therefore needs to cleanup anything that depends on that

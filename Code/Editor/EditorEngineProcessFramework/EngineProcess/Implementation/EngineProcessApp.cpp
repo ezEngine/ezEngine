@@ -117,10 +117,12 @@ ezViewHandle ezEditorEngineProcessApp::CreateRemoteWindowAndView(ezCamera* pCame
     }
 
     // create render target
+    ezGALSwapChainHandle hSwapChain;
     ezGALRenderTargetSetup BackBufferRenderTargetSetup;
     {
       ezWindowOutputTargetGAL* pOutputTarget = static_cast<ezWindowOutputTargetGAL*>(pWindowPlugin->m_pWindowOutputTarget.Borrow());
-      const ezGALSwapChain* pPrimarySwapChain = pDevice->GetSwapChain(pOutputTarget->m_hSwapChain);
+      hSwapChain = pOutputTarget->m_hSwapChain;
+      const ezGALSwapChain* pPrimarySwapChain = pDevice->GetSwapChain(hSwapChain);
       EZ_ASSERT_DEV(pPrimarySwapChain != nullptr, "Failed to init swapchain");
 
       auto hSwapChainRTV = pDevice->GetDefaultRenderTargetView(pPrimarySwapChain->GetBackBufferTexture());
@@ -138,6 +140,7 @@ ezViewHandle ezEditorEngineProcessApp::CreateRemoteWindowAndView(ezCamera* pCame
 
       const ezSizeU32 wndSize = pWindowPlugin->m_pWindow->GetClientAreaSize();
 
+      pView->SetSwapChain(hSwapChain);
       pView->SetRenderTargetSetup(BackBufferRenderTargetSetup);
       pView->SetViewport(ezRectFloat(0.0f, 0.0f, (float)wndSize.width, (float)wndSize.height));
       pView->SetCamera(pCamera);

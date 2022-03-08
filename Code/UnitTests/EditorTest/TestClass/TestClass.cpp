@@ -116,7 +116,6 @@ ezResult ezEditorTest::InitializeTest()
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
     ezUniquePtr<ezGALDevice> pDevice;
     ezGALDeviceCreationDescription DeviceInit;
-    DeviceInit.m_bCreatePrimarySwapChain = false;
 
     pDevice = ezGALDeviceFactory::CreateDevice("DX11", ezFoundation::GetDefaultAllocator(), DeviceInit);
 

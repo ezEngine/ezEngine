@@ -76,25 +76,25 @@ ezResult ezGraphicsTest::SetupRenderer(ezUInt32 uiResolutionX, ezUInt32 uiResolu
   EZ_VERIFY(ezPlugin::LoadPlugin(szShaderCompiler).Succeeded(), "Shader compiler '{}' plugin not found", szShaderCompiler);
 
   // Create a window for rendering
-  ezWindowCreationDesc WindowCreationDesc;
-  WindowCreationDesc.m_Resolution.width = uiResolutionX;
-  WindowCreationDesc.m_Resolution.height = uiResolutionY;
-  m_pWindow = EZ_DEFAULT_NEW(ezWindow);
-  if (m_pWindow->Initialize(WindowCreationDesc).Failed())
-    return EZ_FAILURE;
+  {
+    ezWindowCreationDesc WindowCreationDesc;
+    WindowCreationDesc.m_Resolution.width = uiResolutionX;
+    WindowCreationDesc.m_Resolution.height = uiResolutionY;
+    m_pWindow = EZ_DEFAULT_NEW(ezWindow);
+    if (m_pWindow->Initialize(WindowCreationDesc).Failed())
+      return EZ_FAILURE;
+  }
 
   // Create a device
-  ezGALDeviceCreationDescription DeviceInit;
-  DeviceInit.m_bCreatePrimarySwapChain = true;
-  DeviceInit.m_bDebugDevice = false;
-  DeviceInit.m_PrimarySwapChainDescription.m_pWindow = m_pWindow;
-  DeviceInit.m_PrimarySwapChainDescription.m_SampleCount = ezGALMSAASampleCount::None;
-  DeviceInit.m_PrimarySwapChainDescription.m_bAllowScreenshots = true;
+  {
+    ezGALDeviceCreationDescription DeviceInit;
+    DeviceInit.m_bDebugDevice = false;
+    m_pDevice = ezGALDeviceFactory::CreateDevice(szRendererName, ezFoundation::GetDefaultAllocator(), DeviceInit);
+    if (m_pDevice->Init().Failed())
+      return EZ_FAILURE;
 
-  m_pDevice = ezGALDeviceFactory::CreateDevice(szRendererName, ezFoundation::GetDefaultAllocator(), DeviceInit);
-
-  if (m_pDevice->Init().Failed())
-    return EZ_FAILURE;
+    ezGALDevice::SetDefaultDevice(m_pDevice);
+  }
 
   if (m_pDevice->GetCapabilities().m_sAdapterName == "Microsoft Basic Render Driver" || m_pDevice->GetCapabilities().m_sAdapterName.StartsWith_NoCase("Intel(R) UHD Graphics"))
   {
@@ -111,11 +111,15 @@ ezResult ezGraphicsTest::SetupRenderer(ezUInt32 uiResolutionX, ezUInt32 uiResolu
     ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("");
   }
 
-  ezGALSwapChainHandle hPrimarySwapChain = m_pDevice->GetPrimarySwapChain();
-  const ezGALSwapChain* pPrimarySwapChain = m_pDevice->GetSwapChain(hPrimarySwapChain);
-  EZ_ASSERT_DEV(pPrimarySwapChain != nullptr, "Failed to init swapchain");
 
-  ezGALDevice::SetDefaultDevice(m_pDevice);
+  // Create a Swapchain
+  {
+    ezGALSwapChainCreationDescription swapChainDesc;
+    swapChainDesc.m_pWindow = m_pWindow;
+    swapChainDesc.m_SampleCount = ezGALMSAASampleCount::None;
+    swapChainDesc.m_bAllowScreenshots = true;
+    m_hSwapChain = m_pDevice->CreateSwapChain(swapChainDesc);
+  }
 
   {
     m_hObjectTransformCB = ezRenderContext::CreateConstantBufferStorage<ObjectCB>();
@@ -149,6 +153,9 @@ void ezGraphicsTest::ShutdownRenderer()
 
   if (m_pDevice)
   {
+    m_pDevice->DestroySwapChain(m_hSwapChain);
+    m_hSwapChain.Invalidate();
+
     m_pDevice->DestroyTexture(m_hDepthStencilTexture);
     m_hDepthStencilTexture.Invalidate();
 
@@ -168,6 +175,7 @@ void ezGraphicsTest::ShutdownRenderer()
 void ezGraphicsTest::BeginFrame()
 {
   m_pDevice->BeginFrame();
+  m_pDevice->BeginPipeline("GraphicsTest", m_hSwapChain);
 }
 
 void ezGraphicsTest::EndFrame()
@@ -178,7 +186,7 @@ void ezGraphicsTest::EndFrame()
   m_pDevice->EndPass(m_pPass);
   m_pPass = nullptr;
 
-  m_pDevice->Present(m_pDevice->GetPrimarySwapChain(), false);
+  m_pDevice->EndPipeline(m_hSwapChain);
 
   m_pDevice->EndFrame();
 
@@ -189,7 +197,7 @@ ezResult ezGraphicsTest::GetImage(ezImage& img)
 {
   auto pCommandEncoder = ezRenderContext::GetDefaultInstance()->GetCommandEncoder();
 
-  ezGALTextureHandle hBBTexture = m_pDevice->GetSwapChain(m_pDevice->GetPrimarySwapChain())->GetBackBufferTexture();
+  ezGALTextureHandle hBBTexture = m_pDevice->GetSwapChain(m_hSwapChain)->GetBackBufferTexture();
   pCommandEncoder->ReadbackTexture(hBBTexture);
 
   ezImageHeader header;
@@ -215,8 +223,7 @@ void ezGraphicsTest::ClearScreen(const ezColor& color)
 {
   m_pPass = m_pDevice->BeginPass("RendererTest");
 
-  ezGALSwapChainHandle hPrimarySwapChain = m_pDevice->GetPrimarySwapChain();
-  const ezGALSwapChain* pPrimarySwapChain = m_pDevice->GetSwapChain(hPrimarySwapChain);
+  const ezGALSwapChain* pPrimarySwapChain = m_pDevice->GetSwapChain(m_hSwapChain);
 
   ezGALRenderingSetup renderingSetup;
   renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, m_pDevice->GetDefaultRenderTargetView(pPrimarySwapChain->GetBackBufferTexture())).SetDepthStencilTarget(m_pDevice->GetDefaultRenderTargetView(m_hDepthStencilTexture));

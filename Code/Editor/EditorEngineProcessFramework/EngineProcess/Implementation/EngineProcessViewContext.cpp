@@ -132,7 +132,7 @@ void ezEngineProcessViewContext::HandleWindowUpdate(ezWindowHandle hWnd, ezUInt1
       BackBufferRenderTargetSetup.SetRenderTarget(0, hSwapChainRTV);
 
       const ezSizeU32 wndSize = pWindowPlugin->m_pWindow->GetClientAreaSize();
-      SetupRenderTarget(BackBufferRenderTargetSetup, wndSize.width, wndSize.height);
+      SetupRenderTarget(pOutput->m_hSwapChain, BackBufferRenderTargetSetup, wndSize.width, wndSize.height);
     }
 
     pActor->AddPlugin(std::move(pWindowPlugin));
@@ -140,7 +140,7 @@ void ezEngineProcessViewContext::HandleWindowUpdate(ezWindowHandle hWnd, ezUInt1
   }
 }
 
-void ezEngineProcessViewContext::SetupRenderTarget(ezGALRenderTargetSetup& renderTargetSetup, ezUInt16 uiWidth, ezUInt16 uiHeight)
+void ezEngineProcessViewContext::SetupRenderTarget(ezGALSwapChainHandle hSwapChain, ezGALRenderTargetSetup& renderTargetSetup, ezUInt16 uiWidth, ezUInt16 uiHeight)
 {
   EZ_LOG_BLOCK("ezEngineProcessViewContext::SetupRenderTarget");
 
@@ -154,6 +154,7 @@ void ezEngineProcessViewContext::SetupRenderTarget(ezGALRenderTargetSetup& rende
     ezView* pView = nullptr;
     if (ezRenderWorld::TryGetView(m_hView, pView))
     {
+      pView->SetSwapChain(hSwapChain);
       pView->SetRenderTargetSetup(renderTargetSetup);
       pView->SetViewport(ezRectFloat(0.0f, 0.0f, (float)uiWidth, (float)uiHeight));
     }

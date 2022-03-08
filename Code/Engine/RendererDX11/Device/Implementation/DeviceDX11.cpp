@@ -3,6 +3,8 @@
 #include <Core/System/Window.h>
 #include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 #include <Foundation/Configuration/Startup.h>
+#include <RendererCore/Pipeline/Declarations.h>
+#include <RendererCore/Pipeline/ViewData.h>
 #include <RendererDX11/CommandEncoder/CommandEncoderImplDX11.h>
 #include <RendererDX11/Device/DeviceDX11.h>
 #include <RendererDX11/Device/PassDX11.h>
@@ -343,13 +345,17 @@ ezResult ezGALDeviceDX11::ShutdownPlatform()
 
 // Pipeline & Pass functions
 
-void ezGALDeviceDX11::BeginPipelinePlatform(const char* szName)
+void ezGALDeviceDX11::BeginPipelinePlatform(const char* szName, ezGALSwapChainHandle hSwapChain)
 {
   m_pDefaultPass->m_pRenderCommandEncoder->PushMarker(szName);
 }
 
-void ezGALDeviceDX11::EndPipelinePlatform()
+void ezGALDeviceDX11::EndPipelinePlatform(ezGALSwapChainHandle hSwapChain)
 {
+  if (const ezGALSwapChainDX11* pSwapChain = static_cast<const ezGALSwapChainDX11*>(GetSwapChain(hSwapChain)))
+  {
+    PresentPlatform(pSwapChain, pSwapChain->GetDescription().m_PresentMode == ezGALPresentMode::VSync);
+  }
   m_pDefaultPass->m_pRenderCommandEncoder->PopMarker();
 }
 
@@ -713,9 +719,9 @@ ezResult ezGALDeviceDX11::GetTimestampResultPlatform(ezGALTimestampHandle hTimes
 
 // Swap chain functions
 
-void ezGALDeviceDX11::PresentPlatform(ezGALSwapChain* pSwapChain, bool bVSync)
+void ezGALDeviceDX11::PresentPlatform(const ezGALSwapChain* pSwapChain, bool bVSync)
 {
-  auto pDXSwapChain = static_cast<ezGALSwapChainDX11*>(pSwapChain);
+  auto pDXSwapChain = static_cast<const ezGALSwapChainDX11*>(pSwapChain);
   IDXGISwapChain* pDXGISwapChain = pDXSwapChain->GetDXSwapChain();
 
   // If there is a "actual backbuffer" (see it's documentation for detailed explanation), copy to it.
@@ -840,15 +846,6 @@ void ezGALDeviceDX11::EndFramePlatform()
 
   ++m_uiFrameCounter;
 }
-
-void ezGALDeviceDX11::SetPrimarySwapChainPlatform(ezGALSwapChain* pSwapChain)
-{
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-  // Make window association
-  m_pDXGIFactory->MakeWindowAssociation(ezMinWindows::ToNative(pSwapChain->GetDescription().m_pWindow->GetNativeWindowHandle()), 0);
-#endif
-}
-
 
 void ezGALDeviceDX11::FillCapabilitiesPlatform()
 {

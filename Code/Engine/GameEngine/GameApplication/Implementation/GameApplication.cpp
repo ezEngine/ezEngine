@@ -31,8 +31,8 @@
 ezGameApplication* ezGameApplication::s_pGameApplicationInstance = nullptr;
 ezDelegate<ezGALDevice*(const ezGALDeviceCreationDescription&)> ezGameApplication::s_DefaultDeviceCreator;
 
-ezCVarBool cvar_AppVSync("App.VSync", false, ezCVarFlags::Save, "Enables V-Sync");
-ezCVarBool cvar_AppShowFPS("App.ShowFPS", false, ezCVarFlags::Save, "Show frames per second counter");
+ezCVarBool ezGameApplication::cvar_AppVSync("App.VSync", false, ezCVarFlags::Save, "Enables V-Sync");
+ezCVarBool ezGameApplication::cvar_AppShowFPS("App.ShowFPS", false, ezCVarFlags::Save, "Show frames per second counter");
 
 ezGameApplication::ezGameApplication(const char* szAppName, const char* szProjectPath /*= nullptr*/)
   : ezGameApplicationBase(szAppName)

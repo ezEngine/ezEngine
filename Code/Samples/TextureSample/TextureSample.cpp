@@ -171,11 +171,7 @@ public:
     // Create a device
     {
       ezGALDeviceCreationDescription DeviceInit;
-      DeviceInit.m_bCreatePrimarySwapChain = true;
       DeviceInit.m_bDebugDevice = true;
-      DeviceInit.m_PrimarySwapChainDescription.m_pWindow = m_pWindow;
-      DeviceInit.m_PrimarySwapChainDescription.m_SampleCount = ezGALMSAASampleCount::None;
-      DeviceInit.m_PrimarySwapChainDescription.m_bAllowScreenshots = true;
 
       m_pDevice = ezGALDeviceFactory::CreateDevice(szRendererName, ezFoundation::GetDefaultAllocator(), DeviceInit);
       EZ_ASSERT_DEV(m_pDevice != nullptr, "Device implemention for '{}' not found", szRendererName);
@@ -187,12 +183,15 @@ public:
     // now that we have a window and device, tell the engine to initialize the rendering infrastructure
     ezStartup::StartupHighLevelSystems();
 
-
-    // Get the primary swapchain (this one will always be created by device init except if the user instructs no swap chain creation
-    // explicitly)
+    // Create a Swapchain
     {
-      ezGALSwapChainHandle hPrimarySwapChain = m_pDevice->GetPrimarySwapChain();
-      const ezGALSwapChain* pPrimarySwapChain = m_pDevice->GetSwapChain(hPrimarySwapChain);
+      ezGALSwapChainCreationDescription swapChainDesc;
+      swapChainDesc.m_pWindow = m_pWindow;
+      swapChainDesc.m_SampleCount = ezGALMSAASampleCount::None;
+      swapChainDesc.m_bAllowScreenshots = true;
+      m_hSwapChain = m_pDevice->CreateSwapChain(swapChainDesc);
+
+      const ezGALSwapChain* pPrimarySwapChain = m_pDevice->GetSwapChain(m_hSwapChain);
 
       ezGALTextureCreationDescription texDesc;
       texDesc.m_uiWidth = g_uiWindowWidth;
@@ -308,6 +307,7 @@ public:
       // Before starting to render in a frame call this function
       m_pDevice->BeginFrame();
 
+      m_pDevice->BeginPipeline("TextureSample", m_hSwapChain);
       ezGALPass* pGALPass = m_pDevice->BeginPass("ezTextureSampleMainPass");
 
       ezGALRenderingSetup renderingSetup;
@@ -369,7 +369,7 @@ public:
       ezRenderContext::GetDefaultInstance()->EndRendering();
       m_pDevice->EndPass(pGALPass);
 
-      m_pDevice->Present(m_pDevice->GetPrimarySwapChain(), true);
+      m_pDevice->EndPipeline(m_hSwapChain);
 
       m_pDevice->EndFrame();
     }
@@ -407,6 +407,7 @@ public:
 
     m_pDevice->DestroyRasterizerState(m_hRasterizerState);
     m_pDevice->DestroyDepthStencilState(m_hDepthStencilState);
+    m_pDevice->DestroySwapChain(m_hSwapChain);
 
     // now we can destroy the graphics device
     m_pDevice->Shutdown().IgnoreResult();
@@ -473,6 +474,7 @@ private:
   TextureSampleWindow* m_pWindow;
   ezGALDevice* m_pDevice;
 
+  ezGALSwapChainHandle m_hSwapChain;
   ezGALRenderTargetViewHandle m_hBBRTV;
   ezGALRenderTargetViewHandle m_hBBDSV;
   ezGALTextureHandle m_hDepthStencilTexture;

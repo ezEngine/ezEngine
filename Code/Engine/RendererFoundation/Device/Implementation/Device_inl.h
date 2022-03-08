@@ -19,11 +19,6 @@ EZ_ALWAYS_INLINE ezGALTimestampHandle ezGALDevice::GetTimestamp()
   return GetTimestampPlatform();
 }
 
-EZ_ALWAYS_INLINE ezGALSwapChainHandle ezGALDevice::GetPrimarySwapChain() const
-{
-  return m_hPrimarySwapChain;
-}
-
 template <typename IdTableType, typename ReturnType>
 EZ_ALWAYS_INLINE ReturnType* ezGALDevice::Get(typename IdTableType::TypeOfId hHandle, const IdTableType& IdTable) const
 {

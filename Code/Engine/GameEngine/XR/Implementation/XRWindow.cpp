@@ -60,7 +60,7 @@ const ezWindowBase* ezWindowXR::GetCompanionWindow() const
 
 //////////////////////////////////////////////////////////////////////////
 
-ezWindowOutputTargetXR::ezWindowOutputTargetXR(ezXRInterface* pXrInterface, ezUniquePtr<ezWindowOutputTargetBase> pCompanionWindowOutputTarget)
+ezWindowOutputTargetXR::ezWindowOutputTargetXR(ezXRInterface* pXrInterface, ezUniquePtr<ezWindowOutputTargetGAL> pCompanionWindowOutputTarget)
   : m_pXrInterface(pXrInterface)
   , m_pCompanionWindowOutputTarget(std::move(pCompanionWindowOutputTarget))
 {
@@ -88,7 +88,7 @@ ezWindowOutputTargetXR::~ezWindowOutputTargetXR()
 void ezWindowOutputTargetXR::Present(bool bEnableVSync)
 {
   ezGALTextureHandle m_hColorRT = m_pXrInterface->Present();
-  if (m_hColorRT.IsInvalidated())
+  if (m_hColorRT.IsInvalidated() || !m_pCompanionWindowOutputTarget)
     return;
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
@@ -96,7 +96,9 @@ void ezWindowOutputTargetXR::Present(bool bEnableVSync)
 
   if (const ezGALTexture* tex = pDevice->GetTexture(m_hCompanionRenderTarget))
   {
-    auto pPass = pDevice->BeginPass("VR CompanionView");
+    pDevice->BeginPipeline("VR CompanionView", m_pCompanionWindowOutputTarget->m_hSwapChain);
+
+    auto pPass = pDevice->BeginPass("Blit CompanionView");
 
     auto hRenderTargetView = ezGALDevice::GetDefaultDevice()->GetDefaultRenderTargetView(m_hCompanionRenderTarget);
     ezVec2 targetSize = ezVec2((float)tex->GetDescription().m_uiWidth, (float)tex->GetDescription().m_uiHeight);
@@ -120,10 +122,8 @@ void ezWindowOutputTargetXR::Present(bool bEnableVSync)
     m_pRenderContext->EndRendering();
 
     pDevice->EndPass(pPass);
-  }
-  if (m_pCompanionWindowOutputTarget)
-  {
-    m_pCompanionWindowOutputTarget->Present(false);
+
+    pDevice->EndPipeline(m_pCompanionWindowOutputTarget->m_hSwapChain);
   }
 }
 
@@ -143,7 +143,7 @@ const ezWindowOutputTargetBase* ezWindowOutputTargetXR::GetCompanionWindowOutput
 
 //////////////////////////////////////////////////////////////////////////
 
-ezActorPluginWindowXR::ezActorPluginWindowXR(ezXRInterface* pVrInterface, ezUniquePtr<ezWindowBase> companionWindow, ezUniquePtr<ezWindowOutputTargetBase> companionWindowOutput)
+ezActorPluginWindowXR::ezActorPluginWindowXR(ezXRInterface* pVrInterface, ezUniquePtr<ezWindowBase> companionWindow, ezUniquePtr<ezWindowOutputTargetGAL> companionWindowOutput)
   : m_pVrInterface(pVrInterface)
 {
   m_pWindow = EZ_DEFAULT_NEW(ezWindowXR, pVrInterface, std::move(companionWindow));

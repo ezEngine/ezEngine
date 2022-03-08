@@ -233,7 +233,7 @@ ezXRInputDevice& ezOpenXR::GetXRInput() const
   return *(m_Input.Borrow());
 }
 
-ezUniquePtr<ezActor> ezOpenXR::CreateActor(ezView* pView, ezGALMSAASampleCount::Enum msaaCount, ezUniquePtr<ezWindowBase> companionWindow, ezUniquePtr<ezWindowOutputTargetBase> companionWindowOutput)
+ezUniquePtr<ezActor> ezOpenXR::CreateActor(ezView* pView, ezGALMSAASampleCount::Enum msaaCount, ezUniquePtr<ezWindowBase> companionWindow, ezUniquePtr<ezWindowOutputTargetGAL> companionWindowOutput)
 {
   EZ_ASSERT_DEV(IsInitialized(), "Need to call 'Initialize' first.");
 
