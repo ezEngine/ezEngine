@@ -241,8 +241,8 @@ protected:
 
   // Pipeline & Pass functions
 
-  virtual void BeginPipelinePlatform(const char* szName, ezGALSwapChainHandle hSwapChain) = 0;
-  virtual void EndPipelinePlatform(ezGALSwapChainHandle hSwapChain) = 0;
+  virtual void BeginPipelinePlatform(const char* szName, ezGALSwapChain* pSwapChain) = 0;
+  virtual void EndPipelinePlatform(ezGALSwapChain* pSwapChain) = 0;
 
   virtual ezGALPass* BeginPassPlatform(const char* szName) = 0;
   virtual void EndPassPlatform(ezGALPass* pPass) = 0;

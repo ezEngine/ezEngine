@@ -175,7 +175,9 @@ void ezGALDevice::BeginPipeline(const char* szName, ezGALSwapChainHandle hSwapCh
   EZ_ASSERT_DEV(!m_bBeginPipelineCalled, "Nested Pipelines are not allowed: You must call ezGALDevice::EndPipeline before you can call ezGALDevice::BeginPipeline again");
   m_bBeginPipelineCalled = true;
 
-  BeginPipelinePlatform(szName, hSwapChain);
+  ezGALSwapChain* pSwapChain = nullptr;
+  m_SwapChains.TryGetValue(hSwapChain, pSwapChain);
+  BeginPipelinePlatform(szName, pSwapChain);
 }
 
 void ezGALDevice::EndPipeline(ezGALSwapChainHandle hSwapChain)
@@ -185,7 +187,9 @@ void ezGALDevice::EndPipeline(ezGALSwapChainHandle hSwapChain)
   EZ_ASSERT_DEV(m_bBeginPipelineCalled, "You must have called ezGALDevice::BeginPipeline before you can call ezGALDevice::EndPipeline");
   m_bBeginPipelineCalled = false;
 
-  EndPipelinePlatform(hSwapChain);
+  ezGALSwapChain* pSwapChain = nullptr;
+  m_SwapChains.TryGetValue(hSwapChain, pSwapChain);
+  EndPipelinePlatform(pSwapChain);
 }
 
 ezGALPass* ezGALDevice::BeginPass(const char* szName)

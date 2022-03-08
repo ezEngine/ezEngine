@@ -3,8 +3,6 @@
 #include <Core/System/Window.h>
 #include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 #include <Foundation/Configuration/Startup.h>
-#include <RendererCore/Pipeline/Declarations.h>
-#include <RendererCore/Pipeline/ViewData.h>
 #include <RendererDX11/CommandEncoder/CommandEncoderImplDX11.h>
 #include <RendererDX11/Device/DeviceDX11.h>
 #include <RendererDX11/Device/PassDX11.h>
@@ -345,16 +343,16 @@ ezResult ezGALDeviceDX11::ShutdownPlatform()
 
 // Pipeline & Pass functions
 
-void ezGALDeviceDX11::BeginPipelinePlatform(const char* szName, ezGALSwapChainHandle hSwapChain)
+void ezGALDeviceDX11::BeginPipelinePlatform(const char* szName, ezGALSwapChain* pSwapChain)
 {
   m_pDefaultPass->m_pRenderCommandEncoder->PushMarker(szName);
 }
 
-void ezGALDeviceDX11::EndPipelinePlatform(ezGALSwapChainHandle hSwapChain)
+void ezGALDeviceDX11::EndPipelinePlatform(ezGALSwapChain* pSwapChain)
 {
-  if (const ezGALSwapChainDX11* pSwapChain = static_cast<const ezGALSwapChainDX11*>(GetSwapChain(hSwapChain)))
+  if (const ezGALSwapChainDX11* pSwapChainDX11 = static_cast<const ezGALSwapChainDX11*>(pSwapChain))
   {
-    PresentPlatform(pSwapChain, pSwapChain->GetDescription().m_PresentMode == ezGALPresentMode::VSync);
+    PresentPlatform(pSwapChainDX11, pSwapChain->GetDescription().m_PresentMode == ezGALPresentMode::VSync);
   }
   m_pDefaultPass->m_pRenderCommandEncoder->PopMarker();
 }
