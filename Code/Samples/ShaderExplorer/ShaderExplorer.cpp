@@ -317,7 +317,7 @@ void ezShaderExplorerApp::AfterCoreSystemsStartup()
   {
     ezGALDeviceCreationDescription DeviceInit;
     DeviceInit.m_bDebugDevice = true;
-    
+
     m_pDevice = ezGALDeviceFactory::CreateDevice(szRendererName, ezFoundation::GetDefaultAllocator(), DeviceInit);
     EZ_ASSERT_DEV(m_pDevice != nullptr, "Device implemention for '{}' not found", szRendererName);
     EZ_VERIFY(m_pDevice->Init() == EZ_SUCCESS, "Device init failed!");

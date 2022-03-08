@@ -364,9 +364,9 @@ ezUniquePtr<ezWindow> ezGameState::CreateMainWindow()
 
 ezUniquePtr<ezWindowOutputTargetGAL> ezGameState::CreateMainOutputTarget(ezWindow* pMainWindow)
 {
-  ezUniquePtr<ezWindowOutputTargetGAL> pOutput = EZ_DEFAULT_NEW(ezWindowOutputTargetGAL, [this](ezGALSwapChainHandle hSwapChain, ezSizeU32 size)
-    { SetupMainView(hSwapChain, size);
-    });
+  ezUniquePtr<ezWindowOutputTargetGAL> pOutput = EZ_DEFAULT_NEW(ezWindowOutputTargetGAL, [this](ezGALSwapChainHandle hSwapChain, ezSizeU32 size) {
+    SetupMainView(hSwapChain, size);
+  });
 
   ezGALSwapChainCreationDescription desc;
   desc.m_pWindow = pMainWindow;

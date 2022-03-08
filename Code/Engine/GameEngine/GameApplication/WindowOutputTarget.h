@@ -3,9 +3,9 @@
 #include <Core/GameApplication/WindowOutputTargetBase.h>
 #include <GameEngine/GameEngineDLL.h>
 
-#include <RendererFoundation/RendererFoundationDLL.h>
 #include <Foundation/Math/Size.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>
+#include <RendererFoundation/RendererFoundationDLL.h>
 
 struct ezGALSwapChainCreationDescription;
 
