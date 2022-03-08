@@ -20,8 +20,6 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezShaderCompilerDXC, 1, ezRTTIDefaultAllocator<e
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezPlugin g_Plugin(false);
-
 CComPtr<IDxcUtils> s_pDxcUtils;
 CComPtr<IDxcCompiler3> s_pDxcCompiler;
 

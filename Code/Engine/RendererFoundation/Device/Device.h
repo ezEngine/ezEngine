@@ -27,8 +27,8 @@ public:
 
   // Pipeline & Pass functions
 
-  void BeginPipeline(const char* szName);
-  void EndPipeline();
+  void BeginPipeline(const char* szName, ezGALSwapChainHandle hSwapChain);
+  void EndPipeline(ezGALSwapChainHandle hSwapChain);
 
   ezGALPass* BeginPass(const char* szName);
   void EndPass(ezGALPass* pPass);
@@ -108,7 +108,6 @@ public:
 
   // Swap chain functions
 
-  void Present(ezGALSwapChainHandle hSwapChain, bool bVSync);
   ezGALTextureHandle GetBackBufferTextureFromSwapChain(ezGALSwapChainHandle hSwapChain);
 
 
@@ -116,9 +115,6 @@ public:
 
   void BeginFrame();
   void EndFrame();
-
-  void SetPrimarySwapChain(ezGALSwapChainHandle hSwapChain);
-  ezGALSwapChainHandle GetPrimarySwapChain() const;
 
   ezGALTimestampHandle GetTimestamp();
 
@@ -229,8 +225,6 @@ protected:
 
   ezGALDeviceCreationDescription m_Description;
 
-  ezGALSwapChainHandle m_hPrimarySwapChain;
-
   ezGALDeviceCapabilities m_Capabilities;
 
   // Deactivate Doxygen document generation for the following block. (API abstraction only)
@@ -247,8 +241,8 @@ protected:
 
   // Pipeline & Pass functions
 
-  virtual void BeginPipelinePlatform(const char* szName) = 0;
-  virtual void EndPipelinePlatform() = 0;
+  virtual void BeginPipelinePlatform(const char* szName, ezGALSwapChain* pSwapChain) = 0;
+  virtual void EndPipelinePlatform(ezGALSwapChain* pSwapChain) = 0;
 
   virtual ezGALPass* BeginPassPlatform(const char* szName) = 0;
   virtual void EndPassPlatform(ezGALPass* pPass) = 0;
@@ -306,16 +300,10 @@ protected:
   virtual ezGALTimestampHandle GetTimestampPlatform() = 0;
   virtual ezResult GetTimestampResultPlatform(ezGALTimestampHandle hTimestamp, ezTime& result) = 0;
 
-  // Swap chain functions
-
-  virtual void PresentPlatform(ezGALSwapChain* pSwapChain, bool bVSync) = 0;
-
   // Misc functions
 
   virtual void BeginFramePlatform() = 0;
   virtual void EndFramePlatform() = 0;
-
-  virtual void SetPrimarySwapChainPlatform(ezGALSwapChain* pSwapChain) = 0;
 
   virtual void FillCapabilitiesPlatform() = 0;
 

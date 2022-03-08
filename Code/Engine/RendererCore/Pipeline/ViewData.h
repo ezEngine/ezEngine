@@ -24,6 +24,7 @@ struct EZ_RENDERERCORE_DLL ezViewData
     }
   }
 
+  ezGALSwapChainHandle m_hSwapChain;
   ezRectFloat m_ViewPortRect;
   ezEnum<ezViewRenderMode> m_ViewRenderMode;
   ezEnum<ezCameraUsageHint> m_CameraUsageHint;

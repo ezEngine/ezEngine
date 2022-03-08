@@ -132,21 +132,6 @@ ezResult ezGALDevice::Init()
 
   EZ_GALDEVICE_LOCK_AND_CHECK();
 
-  // Create primary swapchain if requested
-  if (m_Description.m_bCreatePrimarySwapChain)
-  {
-    ezGALSwapChainHandle hSwapChain = CreateSwapChain(m_Description.m_PrimarySwapChainDescription);
-
-    if (hSwapChain.IsInvalidated())
-    {
-      ezLog::Error("Primary swap chain couldn't be created!");
-      return EZ_FAILURE;
-    }
-
-    // And make it the primary swap chain
-    SetPrimarySwapChain(hSwapChain);
-  }
-
   ezProfilingSystem::InitializeGPUData();
 
   {
@@ -172,15 +157,6 @@ ezResult ezGALDevice::Shutdown()
     m_Events.Broadcast(e);
   }
 
-  // If we created a primary swap chain, release it
-  if (!m_hPrimarySwapChain.IsInvalidated())
-  {
-    // DestroySwapChain usually warns for destroying the primary swap chain.
-    auto handle = m_hPrimarySwapChain;
-    m_hPrimarySwapChain.Invalidate();
-    DestroySwapChain(handle);
-  }
-
   DestroyDeadObjects();
 
   // make sure we are not listed as the default device anymore
@@ -192,24 +168,28 @@ ezResult ezGALDevice::Shutdown()
   return ShutdownPlatform();
 }
 
-void ezGALDevice::BeginPipeline(const char* szName)
+void ezGALDevice::BeginPipeline(const char* szName, ezGALSwapChainHandle hSwapChain)
 {
   EZ_GALDEVICE_LOCK_AND_CHECK();
 
   EZ_ASSERT_DEV(!m_bBeginPipelineCalled, "Nested Pipelines are not allowed: You must call ezGALDevice::EndPipeline before you can call ezGALDevice::BeginPipeline again");
   m_bBeginPipelineCalled = true;
 
-  BeginPipelinePlatform(szName);
+  ezGALSwapChain* pSwapChain = nullptr;
+  m_SwapChains.TryGetValue(hSwapChain, pSwapChain);
+  BeginPipelinePlatform(szName, pSwapChain);
 }
 
-void ezGALDevice::EndPipeline()
+void ezGALDevice::EndPipeline(ezGALSwapChainHandle hSwapChain)
 {
   EZ_GALDEVICE_LOCK_AND_CHECK();
 
   EZ_ASSERT_DEV(m_bBeginPipelineCalled, "You must have called ezGALDevice::BeginPipeline before you can call ezGALDevice::EndPipeline");
   m_bBeginPipelineCalled = false;
 
-  EndPipelinePlatform();
+  ezGALSwapChain* pSwapChain = nullptr;
+  m_SwapChains.TryGetValue(hSwapChain, pSwapChain);
+  EndPipelinePlatform(pSwapChain);
 }
 
 ezGALPass* ezGALDevice::BeginPass(const char* szName)
@@ -1113,12 +1093,6 @@ void ezGALDevice::DestroySwapChain(ezGALSwapChainHandle hSwapChain)
 
   ezGALSwapChain* pSwapChain = nullptr;
 
-  if (hSwapChain == m_hPrimarySwapChain)
-  {
-    ezLog::Warning("DestroySwapChain called on primary swap chain!");
-    m_hPrimarySwapChain.Invalidate();
-  }
-
   if (m_SwapChains.TryGetValue(hSwapChain, pSwapChain))
   {
     AddDeadObject(GALObjectType::SwapChain, hSwapChain);
@@ -1253,24 +1227,6 @@ void ezGALDevice::DestroyVertexDeclaration(ezGALVertexDeclarationHandle hVertexD
   }
 }
 
-// Swap chain functions
-
-void ezGALDevice::Present(ezGALSwapChainHandle hSwapChain, bool bVSync)
-{
-  EZ_ASSERT_DEV(m_bBeginFrameCalled, "You must have called ezGALDevice::Begin before you can call this function");
-
-  ezGALSwapChain* pSwapChain = nullptr;
-
-  if (m_SwapChains.TryGetValue(hSwapChain, pSwapChain))
-  {
-    PresentPlatform(pSwapChain, bVSync);
-  }
-  else
-  {
-    EZ_REPORT_FAILURE("Swap chain handle invalid");
-  }
-}
-
 ezGALTextureHandle ezGALDevice::GetBackBufferTextureFromSwapChain(ezGALSwapChainHandle hSwapChain)
 {
   ezGALSwapChain* pSwapChain = nullptr;
@@ -1344,23 +1300,6 @@ void ezGALDevice::EndFrame()
     e.m_pDevice = this;
     e.m_Type = ezGALDeviceEvent::AfterEndFrame;
     m_Events.Broadcast(e);
-  }
-}
-
-void ezGALDevice::SetPrimarySwapChain(ezGALSwapChainHandle hSwapChain)
-{
-  EZ_GALDEVICE_LOCK_AND_CHECK();
-
-  ezGALSwapChain* pSwapChain = nullptr;
-
-  if (m_SwapChains.TryGetValue(hSwapChain, pSwapChain))
-  {
-    SetPrimarySwapChainPlatform(pSwapChain); // Needs a return value?
-    m_hPrimarySwapChain = hSwapChain;
-  }
-  else
-  {
-    ezLog::Error("Invalid swap chain handle given to SetPrimarySwapChain!");
   }
 }
 

@@ -3,6 +3,7 @@
 #include <GameEngine/GameEngineDLL.h>
 
 #include <Foundation/Configuration/Singleton.h>
+#include <GameEngine/GameApplication/WindowOutputTarget.h>
 #include <GameEngine/XR/Declarations.h>
 #include <GameEngine/XR/XRInputDevice.h>
 #include <GameEngine/XR/XRInterface.h>
@@ -48,7 +49,7 @@ public:
   const ezHMDInfo& GetHmdInfo() const override;
   ezXRInputDevice& GetXRInput() const override;
   bool SupportsCompanionView() override;
-  ezUniquePtr<ezActor> CreateActor(ezView* pView, ezGALMSAASampleCount::Enum msaaCount = ezGALMSAASampleCount::None, ezUniquePtr<ezWindowBase> companionWindow = nullptr, ezUniquePtr<ezWindowOutputTargetBase> companionWindowOutput = nullptr) override;
+  ezUniquePtr<ezActor> CreateActor(ezView* pView, ezGALMSAASampleCount::Enum msaaCount = ezGALMSAASampleCount::None, ezUniquePtr<ezWindowBase> companionWindow = nullptr, ezUniquePtr<ezWindowOutputTargetGAL> companionWindowOutput = nullptr) override;
   ezGALTextureHandle Present() override;
   void OnActorDestroyed() override;
   void GALDeviceEventHandler(const ezGALDeviceEvent& e);

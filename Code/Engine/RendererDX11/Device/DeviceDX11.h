@@ -62,8 +62,8 @@ protected:
 
   // Pipeline & Pass functions
 
-  virtual void BeginPipelinePlatform(const char* szName) override;
-  virtual void EndPipelinePlatform() override;
+  virtual void BeginPipelinePlatform(const char* szName, ezGALSwapChain* pSwapChain) override;
+  virtual void EndPipelinePlatform(ezGALSwapChain* pSwapChain) override;
 
   virtual ezGALPass* BeginPassPlatform(const char* szName) override;
   virtual void EndPassPlatform(ezGALPass* pPass) override;
@@ -125,14 +125,12 @@ protected:
 
   // Swap chain functions
 
-  virtual void PresentPlatform(ezGALSwapChain* pSwapChain, bool bVSync) override;
+  void PresentPlatform(const ezGALSwapChain* pSwapChain, bool bVSync);
 
   // Misc functions
 
   virtual void BeginFramePlatform() override;
   virtual void EndFramePlatform() override;
-
-  virtual void SetPrimarySwapChainPlatform(ezGALSwapChain* pSwapChain) override;
 
   virtual void FillCapabilitiesPlatform() override;
 

@@ -102,6 +102,10 @@ ezResult TranformProject(const char* szProjectPath, ezUInt32 uiCleanVersion)
   opt.m_Arguments.PushBack("-debug");
   opt.m_Arguments.PushBack("-AssetThumbnails");
   opt.m_Arguments.PushBack("never");
+  opt.m_Arguments.PushBack("-renderer");
+  opt.m_Arguments.PushBack(ezGameApplication::GetActiveRenderer());
+
+
 
   ezProcess proc;
   ezLog::Info("Launching: '{0}'", sBinPath);

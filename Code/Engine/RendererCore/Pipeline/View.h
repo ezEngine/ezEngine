@@ -35,6 +35,10 @@ public:
   ezWorld* GetWorld();
   const ezWorld* GetWorld() const;
 
+  /// \brief Sets the swapchain that this view will be rendering into. Can be invalid in case the render target is an off-screen buffer.
+  /// Setting the swap-chain is necessary in order to acquire and present the image to the display.
+  void SetSwapChain(ezGALSwapChainHandle hSwapChain);
+  ezGALSwapChainHandle GetSwapChain() const;
 
   void SetRenderTargetSetup(ezGALRenderTargetSetup& renderTargetSetup);
   const ezGALRenderTargetSetup& GetRenderTargetSetup() const;

@@ -24,12 +24,17 @@ public:
   /// \brief Constructor to set all values.
   ezSizeTemplate(Type Width, Type Height);
 
-
   // *** Common Functions ***
 public:
   /// \brief Returns true if the area described by the size is non zero
   bool HasNonZeroArea() const;
 };
+
+template <typename Type>
+bool operator==(const ezSizeTemplate<Type>& v1, const ezSizeTemplate<Type>& v2);
+
+template <typename Type>
+bool operator!=(const ezSizeTemplate<Type>& v1, const ezSizeTemplate<Type>& v2);
 
 #include <Foundation/Math/Implementation/Size_inl.h>
 

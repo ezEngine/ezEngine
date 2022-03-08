@@ -4,6 +4,7 @@
 #include <EditorFramework/Assets/AssetProcessor.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/Configuration/SubSystem.h>
+#include <GameEngine/GameApplication/GameApplication.h>
 
 EZ_IMPLEMENT_SINGLETON(ezAssetProcessor);
 
@@ -229,6 +230,8 @@ void ezProcessTask::StartProcess()
   args << QString::number(m_uiProcessorID);
   args << "-project";
   args << ezToolsProject::GetSingleton()->GetProjectFile().GetData();
+  args << "-renderer";
+  args << ezGameApplication::GetActiveRenderer().GetData();
 
   if (m_pIPC->StartClientProcess("EditorProcessor.exe", args, false, pFirstAllowedMessageType).Failed())
   {

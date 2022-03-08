@@ -34,6 +34,7 @@ private:
   ezShaderExplorerWindow* m_pWindow = nullptr;
   ezGALDevice* m_pDevice = nullptr;
 
+  ezGALSwapChainHandle m_hSwapChain;
   ezGALRenderTargetViewHandle m_hBBRTV;
   ezGALRenderTargetViewHandle m_hBBDSV;
   ezGALTextureHandle m_hDepthStencilTexture;

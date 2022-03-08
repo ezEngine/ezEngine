@@ -52,6 +52,7 @@ protected:
 
   ezWindow* m_pWindow = nullptr;
   ezGALDevice* m_pDevice = nullptr;
+  ezGALSwapChainHandle m_hSwapChain;
   ezGALPass* m_pPass = nullptr;
 
   ezConstantBufferStorageHandle m_hObjectTransformCB;

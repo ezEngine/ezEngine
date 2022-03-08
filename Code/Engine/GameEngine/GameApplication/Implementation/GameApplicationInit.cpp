@@ -227,11 +227,15 @@ ezString GetRendererNameFromCommandLine()
   return opt_Renderer.GetOptionValue(ezCommandLineOption::LogMode::FirstTimeIfSpecified);
 }
 
+ezString ezGameApplication::GetActiveRenderer()
+{
+  return GetRendererNameFromCommandLine();
+}
+
 void ezGameApplication::Init_SetupGraphicsDevice()
 {
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   ezGALDeviceCreationDescription DeviceInit;
-  DeviceInit.m_bCreatePrimarySwapChain = false;
 
 #  if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   DeviceInit.m_bDebugDevice = true;

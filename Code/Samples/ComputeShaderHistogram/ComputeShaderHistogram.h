@@ -36,6 +36,7 @@ private:
   ezGALUnorderedAccessViewHandle m_hHistogramUAV;
   ezGALResourceViewHandle m_hHistogramSRV;
 
+  ezGALSwapChainHandle m_hSwapChain;
   ezGALRenderTargetViewHandle m_hBackbufferRTV;
 
   ezShaderResourceHandle m_hScreenShader;
