@@ -11,9 +11,9 @@ public:
   EZ_ALWAYS_INLINE vk::Buffer GetVkBuffer() const;
 
   EZ_ALWAYS_INLINE vk::IndexType GetIndexType() const;
+  EZ_ALWAYS_INLINE ezVulkanAllocation GetAllocation() const;
+  EZ_ALWAYS_INLINE const ezVulkanAllocationInfo& GetAllocationInfo() const;
 
-  EZ_ALWAYS_INLINE vk::DeviceMemory GetMemory() const;
-  EZ_ALWAYS_INLINE vk::DeviceSize GetMemoryOffset() const;
 
 protected:
   friend class ezGALDeviceVulkan;
@@ -28,9 +28,12 @@ protected:
 
   virtual void SetDebugNamePlatform(const char* szName) const override;
 
+  ezGALDeviceVulkan* m_pDeviceVulkan = nullptr;
+
   vk::Buffer m_buffer;
-  vk::DeviceMemory m_memory;
-  vk::DeviceSize m_memoryOffset;
+  ezVulkanAllocation m_alloc;
+  ezVulkanAllocationInfo m_allocInfo;
+
   vk::Device m_device;
 
   vk::IndexType m_indexType; // Only applicable for index buffers

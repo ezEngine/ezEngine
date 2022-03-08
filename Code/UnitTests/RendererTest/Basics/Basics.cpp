@@ -10,12 +10,15 @@ ezResult ezRendererTestBasics::InitializeSubTest(ezInt32 iIdentifier)
   if (ezGraphicsTest::InitializeSubTest(iIdentifier).Failed())
     return EZ_FAILURE;
 
+  if (SetupRenderer().Failed())
+    return EZ_FAILURE;
+
   if (iIdentifier == SubTests::ST_ClearScreen)
   {
-    return SetupRenderer(320, 240);
+    return CreateWindow(320, 240);
   }
 
-  if (SetupRenderer().Failed())
+  if (CreateWindow().Failed())
     return EZ_FAILURE;
 
   m_hSphere = CreateSphere(3, 1.0f);
@@ -39,6 +42,7 @@ ezResult ezRendererTestBasics::DeInitializeSubTest(ezInt32 iIdentifier)
   m_hTexture2D.Invalidate();
   m_hTextureCube.Invalidate();
 
+  DestroyWindow();
   ShutdownRenderer();
 
   if (ezGraphicsTest::DeInitializeSubTest(iIdentifier).Failed())

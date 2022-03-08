@@ -40,7 +40,7 @@ ezSizeU32 ezGraphicsTest::GetResolution() const
   return m_pWindow->GetClientAreaSize();
 }
 
-ezResult ezGraphicsTest::SetupRenderer(ezUInt32 uiResolutionX, ezUInt32 uiResolutionY)
+ezResult ezGraphicsTest::SetupRenderer()
 {
   {
     ezFileSystem::SetSpecialDirectory("testout", ezTestFramework::GetInstance()->GetAbsOutputPath());
@@ -75,17 +75,7 @@ ezResult ezGraphicsTest::SetupRenderer(ezUInt32 uiResolutionX, ezUInt32 uiResolu
   ezShaderManager::Configure(szShaderModel, true);
   EZ_VERIFY(ezPlugin::LoadPlugin(szShaderCompiler).Succeeded(), "Shader compiler '{}' plugin not found", szShaderCompiler);
 
-  // Create a window for rendering
-  {
-    ezWindowCreationDesc WindowCreationDesc;
-    WindowCreationDesc.m_Resolution.width = uiResolutionX;
-    WindowCreationDesc.m_Resolution.height = uiResolutionY;
-    m_pWindow = EZ_DEFAULT_NEW(ezWindow);
-    if (m_pWindow->Initialize(WindowCreationDesc).Failed())
-      return EZ_FAILURE;
-  }
-
-  // Create a device
+    // Create a device
   {
     ezGALDeviceCreationDescription DeviceInit;
     DeviceInit.m_bDebugDevice = false;
@@ -111,6 +101,24 @@ ezResult ezGraphicsTest::SetupRenderer(ezUInt32 uiResolutionX, ezUInt32 uiResolu
     ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("");
   }
 
+  m_hObjectTransformCB = ezRenderContext::CreateConstantBufferStorage<ObjectCB>();
+  m_hShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/Default.ezShader");
+
+  ezStartup::StartupHighLevelSystems();
+  return EZ_SUCCESS;
+}
+
+ezResult ezGraphicsTest::CreateWindow(ezUInt32 uiResolutionX, ezUInt32 uiResolutionY)
+{
+  // Create a window for rendering
+  {
+    ezWindowCreationDesc WindowCreationDesc;
+    WindowCreationDesc.m_Resolution.width = uiResolutionX;
+    WindowCreationDesc.m_Resolution.height = uiResolutionY;
+    m_pWindow = EZ_DEFAULT_NEW(ezWindow);
+    if (m_pWindow->Initialize(WindowCreationDesc).Failed())
+      return EZ_FAILURE;
+  }
 
   // Create a Swapchain
   {
@@ -122,10 +130,6 @@ ezResult ezGraphicsTest::SetupRenderer(ezUInt32 uiResolutionX, ezUInt32 uiResolu
   }
 
   {
-    m_hObjectTransformCB = ezRenderContext::CreateConstantBufferStorage<ObjectCB>();
-
-    m_hShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/Default.ezShader");
-
     ezGALTextureCreationDescription texDesc;
     texDesc.m_uiWidth = uiResolutionX;
     texDesc.m_uiHeight = uiResolutionY;
@@ -135,13 +139,12 @@ ezResult ezGraphicsTest::SetupRenderer(ezUInt32 uiResolutionX, ezUInt32 uiResolu
     m_hDepthStencilTexture = m_pDevice->CreateTexture(texDesc);
   }
 
-  ezStartup::StartupHighLevelSystems();
-
   return EZ_SUCCESS;
 }
 
 void ezGraphicsTest::ShutdownRenderer()
 {
+  EZ_ASSERT_DEV(m_pWindow == nullptr, "DestroyWindow needs to be called before ShutdownRenderer");
   m_hShader.Invalidate();
 
   ezRenderContext::DeleteConstantBufferStorage(m_hObjectTransformCB);
@@ -153,14 +156,28 @@ void ezGraphicsTest::ShutdownRenderer()
 
   if (m_pDevice)
   {
-    m_pDevice->DestroySwapChain(m_hSwapChain);
-    m_hSwapChain.Invalidate();
-
-    m_pDevice->DestroyTexture(m_hDepthStencilTexture);
-    m_hDepthStencilTexture.Invalidate();
-
     m_pDevice->Shutdown().IgnoreResult();
     EZ_DEFAULT_DELETE(m_pDevice);
+  }
+
+  ezFileSystem::RemoveDataDirectoryGroup("ImageComparisonDataDir");
+}
+
+void ezGraphicsTest::DestroyWindow()
+{
+  if (m_pDevice)
+  {
+    if (!m_hSwapChain.IsInvalidated())
+    {
+      m_pDevice->DestroySwapChain(m_hSwapChain);
+      m_hSwapChain.Invalidate();
+    }
+
+    if (!m_hDepthStencilTexture.IsInvalidated())
+    {
+      m_pDevice->DestroyTexture(m_hDepthStencilTexture);
+      m_hDepthStencilTexture.Invalidate();
+    }
   }
 
   if (m_pWindow)
@@ -168,8 +185,6 @@ void ezGraphicsTest::ShutdownRenderer()
     m_pWindow->Destroy().IgnoreResult();
     EZ_DEFAULT_DELETE(m_pWindow);
   }
-
-  ezFileSystem::RemoveDataDirectoryGroup("ImageComparisonDataDir");
 }
 
 void ezGraphicsTest::BeginFrame()

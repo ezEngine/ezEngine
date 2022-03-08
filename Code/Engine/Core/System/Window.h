@@ -212,6 +212,10 @@ public:
   /// \brief Destroys the window.
   ezResult Destroy();
 
+  /// \brief Tries to resize the window.
+  /// Override OnResize to get the actual new window size.
+  ezResult Resize(const ezSizeU32& newWindowSize);
+
   /// \brief Called on window resize messages.
   ///
   /// \param newWindowSize

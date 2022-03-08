@@ -1,4 +1,4 @@
-#include <RendererVulkanPCH.h>
+#include <RendererVulkan/RendererVulkanPCH.h>
 
 #include <RendererVulkan/Device/DeviceVulkan.h>
 #include <RendererVulkan/RendererVulkanDLL.h>
@@ -239,6 +239,12 @@ ezResult ezGALSamplerStateVulkan::InitPlatform(ezGALDevice* pDevice)
 
 ezResult ezGALSamplerStateVulkan::DeInitPlatform(ezGALDevice* pDevice)
 {
+  if (m_sampler)
+  {
+    ezGALDeviceVulkan* pVulkanDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
+    pVulkanDevice->DeleteLater(m_sampler);
+  }
+
   return EZ_SUCCESS;
 }
 

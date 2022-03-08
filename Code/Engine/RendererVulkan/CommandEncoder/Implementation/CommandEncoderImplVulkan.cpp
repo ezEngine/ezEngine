@@ -1,5 +1,6 @@
-#include <RendererVulkanPCH.h>
+#include <RendererVulkan/RendererVulkanPCH.h>
 
+#include <RendererVulkan/Cache/ResourceCacheVulkan.h>
 #include <RendererVulkan/CommandEncoder/CommandEncoderImplVulkan.h>
 #include <RendererVulkan/Device/DeviceVulkan.h>
 #include <RendererVulkan/Resources/BufferVulkan.h>
@@ -109,6 +110,12 @@ void ezGALCommandEncoderImplVulkan::WaitForFencePlatform(const ezGALFence* pFenc
   m_vkDevice.waitForFences(1, &pVulkanFence, true, 1000000000ui64);
 }
 
+void ezGALCommandEncoderImplVulkan::ResetFencePlatform(const ezGALFence* pFence)
+{
+  auto pVulkanFence = static_cast<const ezGALFenceVulkan*>(pFence)->GetFence();
+  m_vkDevice.resetFences(1, &pVulkanFence);
+}
+
 void ezGALCommandEncoderImplVulkan::BeginQueryPlatform(const ezGALQuery* pQuery)
 {
   auto pVulkanQuery = static_cast<const ezGALQueryVulkan*>(pQuery);
@@ -204,15 +211,17 @@ void ezGALCommandEncoderImplVulkan::UpdateBufferPlatform(const ezGALBuffer* pDes
     {
       if (ezGALBufferVulkan* tmpBuffer = m_GALDeviceVulkan.FindTempBuffer(pSourceData.GetCount()))
       {
-        EZ_ASSERT_DEV(tmpBuffer->GetSize() >= pSourceData.GetCount(), "Source data is too big to copy staged!");
+        EZ_ASSERT_DEV(tmpBuffer->GetAllocationInfo().m_size >= pSourceData.GetCount(), "Source data is too big to copy staged!");
 
-        void* pData = m_vkDevice.mapMemory(tmpBuffer->GetMemory(), tmpBuffer->GetMemoryOffset(), tmpBuffer->GetSize());
+        ezVulkanAllocation alloc = tmpBuffer->GetAllocation();
+        void* pData = nullptr;
 
+        VK_ASSERT_DEV(ezMemoryAllocatorVulkan::MapMemory(alloc, &pData));
         EZ_ASSERT_DEV(pData, "Implementation error");
 
         ezMemoryUtils::Copy((ezUInt8*)pData, pSourceData.GetPtr(), pSourceData.GetCount());
 
-        m_vkDevice.unmapMemory(tmpBuffer->GetMemory());
+        ezMemoryAllocatorVulkan::UnmapMemory(alloc);
 
         CopyBufferRegionPlatform(pDestination, uiDestOffset, tmpBuffer, 0, pSourceData.GetCount());
       }
@@ -228,14 +237,16 @@ void ezGALCommandEncoderImplVulkan::UpdateBufferPlatform(const ezGALBuffer* pDes
       // TODO is this behavior available on Vulkan?
       //D3D11_MAP mapType = (updateMode == ezGALUpdateMode::Discard) ? D3D11_MAP_WRITE_DISCARD : D3D11_MAP_WRITE_NO_OVERWRITE;
 
-      void* pData = m_vkDevice.mapMemory(pVulkanDestination->GetMemory(), pVulkanDestination->GetMemoryOffset(), pVulkanDestination->GetSize());
+      EZ_ASSERT_DEV(pVulkanDestination->GetAllocationInfo().m_size >= pSourceData.GetCount(), "Source data is too big to copy staged!");
+      ezVulkanAllocation alloc = pVulkanDestination->GetAllocation();
+      void* pData = nullptr;
 
-      if (pData)
-      {
-        ezMemoryUtils::Copy((ezUInt8*)pData, pSourceData.GetPtr(), pSourceData.GetCount());
+      VK_ASSERT_DEV(ezMemoryAllocatorVulkan::MapMemory(alloc, &pData));
+      EZ_ASSERT_DEV(pData, "Implementation error");
 
-        m_vkDevice.unmapMemory(pVulkanDestination->GetMemory());
-      }
+      ezMemoryUtils::Copy((ezUInt8*)pData, pSourceData.GetPtr(), pSourceData.GetCount());
+
+      ezMemoryAllocatorVulkan::UnmapMemory(alloc);
     }
   }
 }
@@ -329,7 +340,10 @@ void ezGALCommandEncoderImplVulkan::UpdateTexturePlatform(const ezGALTexture* pD
 
   if (ezGALTextureVulkan* pTempTexture = m_GALDeviceVulkan.FindTempTexture(uiWidth, uiHeight, uiDepth, format))
   {
-    void* pData = m_vkDevice.mapMemory(pTempTexture->GetMemory(), pTempTexture->GetMemoryOffset(), pTempTexture->GetMemorySize());
+    ezVulkanAllocation alloc = pTempTexture->GetAllocation();
+    void* pData = nullptr;
+
+    VK_ASSERT_DEV(ezMemoryAllocatorVulkan::MapMemory(alloc, &pData));
     EZ_ASSERT_DEV(pData, "Implementation error");
 
     ezUInt32 uiRowPitch = uiWidth * ezGALResourceFormat::GetBitsPerElement(format) / 8;
@@ -340,7 +354,7 @@ void ezGALCommandEncoderImplVulkan::UpdateTexturePlatform(const ezGALTexture* pD
 
     ezMemoryUtils::RawByteCopy(pData, pSourceData.m_pData, uiSlicePitch * uiDepth);
 
-    m_vkDevice.unmapMemory(pTempTexture->GetMemory());
+    ezMemoryAllocatorVulkan::UnmapMemory(alloc);
 
     ezGALTextureSubresource sourceSubResource;
     sourceSubResource.m_uiArraySlice = 0;
@@ -425,24 +439,35 @@ void ezGALCommandEncoderImplVulkan::ReadbackTexturePlatform(const ezGALTexture* 
   }
 }
 
-void ezGALCommandEncoderImplVulkan::CopyTextureReadbackResultPlatform(const ezGALTexture* pTexture,
-  const ezArrayPtr<ezGALSystemMemoryDescription>* pData)
+void ezGALCommandEncoderImplVulkan::CopyTextureReadbackResultPlatform(const ezGALTexture* pTexture, ezArrayPtr<ezGALTextureSubresource> SourceSubResource, ezArrayPtr<ezGALSystemMemoryDescription> TargetData)
 {
+  //#TODO_VULKAN changed interface
   auto pVulkanTexture = static_cast<const ezGALTextureVulkan*>(pTexture);
 
   const ezGALBufferVulkan* pStagingBuffer = pVulkanTexture->GetStagingBuffer();
 
   EZ_ASSERT_DEV(pStagingBuffer, "No staging resource available for read-back");
 
-  // Data should be tightly packed in the staging buffer already, so
-  // just map the memory and copy it over
-  void* pSrcData = m_vkDevice.mapMemory(pStagingBuffer->GetMemory(), pStagingBuffer->GetMemoryOffset(), pStagingBuffer->GetSize());
-  if (pSrcData)
+  const ezUInt32 uiSubResources = SourceSubResource.GetCount();
+  for (ezUInt32 i = 0; i < uiSubResources; i++)
   {
-    // TODO size of the buffer could missmatch the texture data size necessary
-    ezMemoryUtils::RawByteCopy(pData->GetPtr()->m_pData, pSrcData, pStagingBuffer->GetSize());
+    const ezGALTextureSubresource& subRes = SourceSubResource[i];
+    const ezGALSystemMemoryDescription& memDesc = TargetData[i];
 
-    m_vkDevice.unmapMemory(pStagingBuffer->GetMemory());
+    //vkGetImageSubresourceLayout(m_vkDevice, )
+    //
+    //pStagingBuffer->
+
+    //// Data should be tightly packed in the staging buffer already, so
+    //// just map the memory and copy it over
+    //void* pSrcData = m_vkDevice.mapMemory(pStagingBuffer->GetMemory(), pStagingBuffer->GetMemoryOffset(), pStagingBuffer->GetSize());
+    //if (pSrcData)
+    //{
+    //  // TODO size of the buffer could missmatch the texture data size necessary
+    //  ezMemoryUtils::RawByteCopy(pData->GetPtr()->m_pData, pSrcData, pStagingBuffer->GetSize());
+
+    //  m_vkDevice.unmapMemory(pStagingBuffer->GetMemory());
+    //}
   }
 }
 
@@ -491,23 +516,59 @@ void ezGALCommandEncoderImplVulkan::BeginRendering(vk::CommandBuffer& commandBuf
 {
   m_pCommandBuffer = &commandBuffer;
 
-  vk::RenderPassCreateInfo renderPassCreateInfo;
-  renderPassCreateInfo.attachmentCount = 0;
-  // TODO: fill render pass create info
-  // TODO: caching
+  ezResourceCacheVulkan::RenderPassDesc renderPassDesc;
+  ezResourceCacheVulkan::GetRenderPassDesc(renderingSetup, renderPassDesc);
+  vk::RenderPass renderPass = ezResourceCacheVulkan::RequestRenderPass(renderPassDesc);
 
-  vk::RenderPass renderPass = m_vkDevice.createRenderPass(renderPassCreateInfo);
+  ezResourceCacheVulkan::FramebufferDesc framebufferDesc;
+  ezResourceCacheVulkan::GetFrameBufferDesc(renderPass, renderingSetup, framebufferDesc);
+  vk::Framebuffer frameBuffer = ezResourceCacheVulkan::RequestFrameBuffer(framebufferDesc);
 
   vk::RenderPassBeginInfo renderPassBeginInfo;
-  renderPassBeginInfo.renderPass = renderPass;
+  {
+    renderPassBeginInfo.renderPass = renderPass;
+    renderPassBeginInfo.framebuffer = frameBuffer;
+    renderPassBeginInfo.renderArea.offset.setX(0).setY(0);
+    renderPassBeginInfo.renderArea.extent.setHeight(framebufferDesc.height).setWidth(framebufferDesc.width);
+
+    ezHybridArray<vk::ClearValue, EZ_GAL_MAX_RENDERTARGET_COUNT> clearValues;
+
+    const bool bHasDepth = !renderingSetup.m_RenderTargetSetup.GetDepthStencilTarget().IsInvalidated();
+    const ezUInt32 uiColorCount = renderingSetup.m_RenderTargetSetup.HasRenderTargets() ? renderingSetup.m_RenderTargetSetup.GetMaxRenderTargetIndex() + 1 : 0;
+    if (bHasDepth)
+    {
+      vk::ClearValue& depthClear = clearValues.ExpandAndGetRef();
+      depthClear.depthStencil.setDepth(1.0f).setStencil(0);
+    }
+    for (ezUInt32 i = 0; i < uiColorCount; i++)
+    {
+      vk::ClearValue& colorClear = clearValues.ExpandAndGetRef();
+      ezColor col = renderingSetup.m_ClearColor;
+      colorClear.color.setFloat32({col.r, col.g, col.b, col.a});
+    }
+
+    renderPassBeginInfo.clearValueCount = clearValues.GetCount();
+    renderPassBeginInfo.pClearValues = clearValues.GetData();
+  }
 
   m_pCommandBuffer->beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
+
+  vk::Viewport viewport;
+  viewport.x = 0.0f;
+  viewport.y = 0.0f;
+  viewport.width = static_cast<float>(framebufferDesc.width);
+  viewport.height = static_cast<float>(framebufferDesc.height);
+  viewport.minDepth = 0.0f;
+  viewport.maxDepth = 1.0f;
+  vk::Rect2D scissor{{0, 0}, {framebufferDesc.width, framebufferDesc.height}};
+
+  m_pCommandBuffer->setViewport(0, 1, &viewport);
+  m_pCommandBuffer->setScissor(0, 1, &scissor);
 }
 
 void ezGALCommandEncoderImplVulkan::EndRendering()
 {
   m_pCommandBuffer->endRenderPass();
-
   m_pCommandBuffer = nullptr;
 }
 

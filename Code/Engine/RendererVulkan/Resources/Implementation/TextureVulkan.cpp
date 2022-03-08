@@ -1,15 +1,13 @@
-#include <RendererVulkanPCH.h>
+#include <RendererVulkan/RendererVulkanPCH.h>
 
 #include <RendererVulkan/Device/DeviceVulkan.h>
 #include <RendererVulkan/Resources/TextureVulkan.h>
 
+
 ezGALTextureVulkan::ezGALTextureVulkan(const ezGALTextureCreationDescription& Description)
   : ezGALTexture(Description)
   , m_image(nullptr)
-  , m_memory(nullptr)
-  , m_memoryOffset(0)
-  , m_memorySize(0)
-  , m_pExisitingNativeObject(nullptr)
+  , m_pExisitingNativeObject(Description.m_pExisitingNativeObject)
 {
   // TODO existing native object in descriptor?
 }
@@ -22,10 +20,10 @@ ezResult ezGALTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGAL
 {
   ezGALDeviceVulkan* pVulkanDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
 
-  if (m_Description.m_pExisitingNativeObject != nullptr)
+  if (m_pExisitingNativeObject != nullptr)
   {
     /// \todo Validation if interface of corresponding texture object exists
-    m_image = static_cast<VkImage>(m_Description.m_pExisitingNativeObject);
+    m_image = static_cast<VkImage>(m_pExisitingNativeObject);
     if (!m_Description.m_ResourceAccess.IsImmutable() || m_Description.m_ResourceAccess.m_bReadBack)
     {
       ezResult res = CreateStagingBuffer(pVulkanDevice);
@@ -41,7 +39,8 @@ ezResult ezGALTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGAL
   vk::ImageCreateInfo createInfo = {};
   createInfo.flags |= vk::ImageCreateFlagBits::eMutableFormat;
   createInfo.format = pVulkanDevice->GetFormatLookupTable().GetFormatInfo(m_Description.m_Format).m_eStorage;
-  createInfo.initialLayout = vk::ImageLayout::eGeneral; // TODO optimize;
+
+  createInfo.initialLayout = pInitialData.IsEmpty() ? vk::ImageLayout::eUndefined : vk::ImageLayout::ePreinitialized;
   createInfo.pQueueFamilyIndices = pVulkanDevice->GetQueueFamilyIndices().GetPtr();
   createInfo.queueFamilyIndexCount = pVulkanDevice->GetQueueFamilyIndices().GetCount();
   createInfo.sharingMode = vk::SharingMode::eExclusive;
@@ -109,7 +108,9 @@ ezResult ezGALTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGAL
         }
       }*/
 
-      m_image = pVulkanDevice->GetVulkanDevice().createImage(createInfo);
+      ezVulkanAllocationCreateInfo allocInfo;
+      allocInfo.m_usage = ezVulkanMemoryUsage::Auto;
+      VK_SUCCEED_OR_RETURN_EZ_FAILURE(ezMemoryAllocatorVulkan::CreateImage(createInfo, allocInfo, m_image, m_alloc));
 
       if (!m_image)
       {
@@ -158,26 +159,6 @@ ezResult ezGALTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGAL
       return EZ_FAILURE;
   }
 
-  vk::MemoryPropertyFlags imageMemoryProperties = vk::MemoryPropertyFlagBits::eDeviceLocal;
-  vk::MemoryRequirements imageMemoryRequirements = pVulkanDevice->GetVulkanDevice().getImageMemoryRequirements(m_image);
-
-  vk::MemoryAllocateInfo memoryAllocateInfo = {};
-  memoryAllocateInfo.allocationSize = imageMemoryRequirements.size;
-  memoryAllocateInfo.memoryTypeIndex = pVulkanDevice->GetMemoryIndex(imageMemoryProperties, imageMemoryRequirements);
-  EZ_ASSERT_DEV(memoryAllocateInfo.memoryTypeIndex != -1, "No valid memory index found for image to allocate from!");
-
-  m_memory = pVulkanDevice->GetVulkanDevice().allocateMemory(memoryAllocateInfo); // TODO suballocations
-  if (!m_memory)
-  {
-    pVulkanDevice->GetVulkanDevice().destroyImage(m_image);
-    m_image = nullptr;
-
-    return EZ_FAILURE;
-  }
-
-  m_memorySize = imageMemoryRequirements.size; // TODO save the allocation size of the packed image data size here? (allocation size will almost always be larger)
-  m_memoryOffset = 0;
-
   if (!m_Description.m_ResourceAccess.IsImmutable() || m_Description.m_ResourceAccess.m_bReadBack)
     return CreateStagingBuffer(pVulkanDevice);
 
@@ -188,17 +169,12 @@ ezResult ezGALTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGAL
 
 ezResult ezGALTextureVulkan::DeInitPlatform(ezGALDevice* pDevice)
 {
+  ezGALDeviceVulkan* pVulkanDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
   if (m_image && !m_pExisitingNativeObject)
   {
-    ezGALDeviceVulkan* pVulkanDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
-
-    pVulkanDevice->GetVulkanDevice().destroyImage(m_image);
-    pVulkanDevice->GetVulkanDevice().freeMemory(m_memory);
-    m_image = nullptr;
-    m_memory = nullptr;
-    m_memoryOffset = 0;
-    m_memorySize = 0;
+    pVulkanDevice->DeleteLater(m_image, m_alloc);
   }
+  m_image = nullptr;
 
   if (m_pStagingBuffer)
   {
@@ -217,26 +193,31 @@ ezResult ezGALTextureVulkan::ReplaceExisitingNativeObject(void* pExisitingNative
     "New existing native object must exist.");
 
   m_pExisitingNativeObject = pExisitingNativeObject;
+  m_image = static_cast<VkImage>(m_pExisitingNativeObject);
+
   return EZ_SUCCESS;
 }
 
 void ezGALTextureVulkan::SetDebugNamePlatform(const char* szName) const
 {
-  ezUInt32 uiLength = ezStringUtils::GetStringElementCount(szName);
-
   if (m_image)
   {
-    vk::DebugMarkerObjectNameInfoEXT nameInfo = {};
-    nameInfo.object = (uint64_t)(VkImage)m_image;
-    nameInfo.objectType = vk::DebugReportObjectTypeEXT::eImage;
+    vk::DebugUtilsObjectNameInfoEXT nameInfo;
+    nameInfo.objectType = m_image.objectType;
+    nameInfo.objectHandle = (uint64_t)(VkImage)m_image;
     nameInfo.pObjectName = szName;
-    m_device.debugMarkerSetObjectNameEXT(nameInfo);
+
+    m_device.setDebugUtilsObjectNameEXT(nameInfo);
+    if (m_alloc)
+      ezMemoryAllocatorVulkan::SetAllocationUserData(m_alloc, szName);
   }
 }
 
 ezResult ezGALTextureVulkan::CreateStagingBuffer(ezGALDeviceVulkan* pDevice)
 {
-  ezGALBufferCreationDescription bufferDescription;
+  //#TODO_VULKAN staging buffer needs to be a texture so we can transition into linear layout and access sub elements. A simple buffer thus won't cut it.
+
+  /*ezGALBufferCreationDescription bufferDescription;
   bufferDescription.m_BufferType = ezGALBufferType::Generic;
   bufferDescription.m_uiStructSize = 1;
   bufferDescription.m_uiTotalSize = static_cast<ezUInt32>(m_memorySize);
@@ -244,7 +225,7 @@ ezResult ezGALTextureVulkan::CreateStagingBuffer(ezGALDeviceVulkan* pDevice)
   m_stagingBufferHandle = pDevice->CreateBuffer(bufferDescription);
   const ezGALBuffer* pStagingBuffer = pDevice->GetBuffer(m_stagingBufferHandle);
   EZ_ASSERT_DEV(pStagingBuffer, "Expected valid buffer handle here!");
-  m_pStagingBuffer = static_cast<const ezGALBufferVulkan*>(pStagingBuffer);
+  m_pStagingBuffer = static_cast<const ezGALBufferVulkan*>(pStagingBuffer);*/
 
   return EZ_SUCCESS;
 }

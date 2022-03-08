@@ -1,4 +1,4 @@
-#include <RendererVulkanPCH.h>
+#include <RendererVulkan/RendererVulkanPCH.h>
 
 #include <RendererVulkan/Device/DeviceVulkan.h>
 #include <RendererVulkan/RendererVulkanDLL.h>
@@ -17,7 +17,7 @@ ezGALBufferVulkan::~ezGALBufferVulkan() {}
 
 ezResult ezGALBufferVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const ezUInt8> pInitialData)
 {
-  ezGALDeviceVulkan* pVulkanDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
+  m_pDeviceVulkan = static_cast<ezGALDeviceVulkan*>(pDevice);
 
   vk::BufferCreateInfo bufferCreateInfo = {};
 
@@ -54,8 +54,8 @@ ezResult ezGALBufferVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const 
 
   bufferCreateInfo.usage |= vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eTransferDst; // TODO optimize this
 
-  bufferCreateInfo.pQueueFamilyIndices = pVulkanDevice->GetQueueFamilyIndices().GetPtr();
-  bufferCreateInfo.queueFamilyIndexCount = pVulkanDevice->GetQueueFamilyIndices().GetCount();
+  bufferCreateInfo.pQueueFamilyIndices = m_pDeviceVulkan->GetQueueFamilyIndices().GetPtr();
+  bufferCreateInfo.queueFamilyIndexCount = m_pDeviceVulkan->GetQueueFamilyIndices().GetCount();
   bufferCreateInfo.sharingMode = vk::SharingMode::eExclusive;
   bufferCreateInfo.size = m_Description.m_uiTotalSize;
   //BufferDesc.CPUAccessFlags = 0;
@@ -78,68 +78,11 @@ ezResult ezGALBufferVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const 
 
   //BufferDesc.StructureByteStride = m_Description.m_uiStructSize;
 
-  m_buffer = pVulkanDevice->GetVulkanDevice().createBuffer(bufferCreateInfo);
+  ezVulkanAllocationCreateInfo allocInfo;
+  allocInfo.m_usage = ezVulkanMemoryUsage::Auto;
+  VK_SUCCEED_OR_RETURN_EZ_FAILURE(ezMemoryAllocatorVulkan::CreateBuffer(bufferCreateInfo, allocInfo, m_buffer, m_alloc, &m_allocInfo));
 
-  if (!m_buffer)
-  {
-    return EZ_FAILURE;
-  }
-
-  vk::MemoryPropertyFlags bufferMemoryProperties = {};
-
-  if (m_Description.m_BufferType == ezGALBufferType::ConstantBuffer)
-  {
-    bufferMemoryProperties |= vk::MemoryPropertyFlagBits::eDeviceLocal;
-
-    // TODO do we need to use this for vulkan?
-    // If constant buffer: Patch size to be aligned to 64 bytes for easier usability
-    // BufferDesc.ByteWidth = ezMemoryUtils::AlignSize(BufferDesc.ByteWidth, 64u);
-  }
-  else
-  {
-    // TODO is this flag relevant to Vulkan?
-    /*if (m_Description.m_ResourceAccess.IsImmutable())
-    {
-      // TODO vulkan
-      //BufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
-    }
-    else*/
-    {
-      // for performance reasons we'll require shader accessed buffers to reside in device
-      // memory.
-      if (m_Description.m_bAllowUAV ||
-          m_Description.m_bAllowShaderResourceView ||
-          m_Description.m_bStreamOutputTarget ||
-          m_Description.m_ResourceAccess.m_bReadBack)
-      {
-        bufferMemoryProperties |= vk::MemoryPropertyFlagBits::eDeviceLocal;
-      }
-      else
-      {
-        bufferMemoryProperties |= vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent;
-      }
-    }
-  }
-
-  vk::MemoryRequirements bufferMemoryRequirements = pVulkanDevice->GetVulkanDevice().getBufferMemoryRequirements(m_buffer);
-
-  vk::MemoryAllocateInfo memoryAllocateInfo = {};
-  memoryAllocateInfo.allocationSize = bufferMemoryRequirements.size;
-  memoryAllocateInfo.memoryTypeIndex = pVulkanDevice->GetMemoryIndex(bufferMemoryProperties, bufferMemoryRequirements);
-
-  m_memory = pVulkanDevice->GetVulkanDevice().allocateMemory(memoryAllocateInfo);
-  m_memoryOffset = 0; // TODO suballocations
-
-  if (!m_memory)
-  {
-    pVulkanDevice->GetVulkanDevice().destroyBuffer(m_buffer);
-    m_buffer = nullptr;
-
-    return EZ_FAILURE;
-  }
-
-  pVulkanDevice->GetVulkanDevice().bindBufferMemory(m_buffer, m_memory, m_memoryOffset);
-  m_device = pVulkanDevice->GetVulkanDevice(); // TODO remove this
+  m_device = m_pDeviceVulkan->GetVulkanDevice(); // TODO remove this
 
   // TODO initial data upload
   return EZ_SUCCESS;
@@ -150,15 +93,8 @@ ezResult ezGALBufferVulkan::DeInitPlatform(ezGALDevice* pDevice)
   if (m_buffer)
   {
     ezGALDeviceVulkan* pVulkanDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
-
-    pVulkanDevice->GetVulkanDevice().destroyBuffer(m_buffer);
-    pVulkanDevice->GetVulkanDevice().freeMemory(m_memory);
-
-    m_buffer = nullptr;
-    m_memory = nullptr;
-    m_memoryOffset = 0;
+    pVulkanDevice->DeleteLater(m_buffer, m_alloc);
   }
-
 
   return EZ_SUCCESS;
 }
@@ -169,12 +105,14 @@ void ezGALBufferVulkan::SetDebugNamePlatform(const char* szName) const
 
   if (m_buffer)
   {
-    vk::DebugMarkerObjectNameInfoEXT nameInfo = {};
-    nameInfo.object = (uint64_t)(VkBuffer)m_buffer;
-    nameInfo.objectType = vk::DebugReportObjectTypeEXT::eBuffer;
+    vk::DebugUtilsObjectNameInfoEXT nameInfo;
+    nameInfo.objectType = m_buffer.objectType;
+    nameInfo.objectHandle = (uint64_t)(VkBuffer)m_buffer;
     nameInfo.pObjectName = szName;
 
-    m_device.debugMarkerSetObjectNameEXT(nameInfo);
+    m_device.setDebugUtilsObjectNameEXT(nameInfo);
+    if (m_alloc)
+      ezMemoryAllocatorVulkan::SetAllocationUserData(m_alloc, szName);
   }
 }
 

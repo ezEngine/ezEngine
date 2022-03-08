@@ -265,6 +265,13 @@ ezResult ezWindow::Destroy()
   return Res;
 }
 
+ezResult ezWindow::Resize(const ezSizeU32& newWindowSize)
+{
+  auto windowHandle = ezMinWindows::ToNative(m_WindowHandle);
+  BOOL res = ::SetWindowPos(windowHandle, HWND_NOTOPMOST, 0, 0, newWindowSize.width, newWindowSize.height, SWP_NOSENDCHANGING | SWP_NOOWNERZORDER | SWP_NOMOVE | SWP_NOZORDER);
+  return res == TRUE ? EZ_SUCCESS : EZ_FAILURE;
+}
+
 void ezWindow::ProcessWindowMessages()
 {
   if (!m_bInitialized)

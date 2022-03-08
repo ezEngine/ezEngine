@@ -6,7 +6,7 @@
 class EZ_CORE_DLL ezGameStateWindow : public ezWindow
 {
 public:
-  ezGameStateWindow(const ezWindowCreationDesc& windowdesc, ezDelegate<void()> onClickClose = nullptr);
+  ezGameStateWindow(const ezWindowCreationDesc& windowdesc, ezDelegate<void()> onClickClose = {});
   ~ezGameStateWindow();
 
   void ResetOnClickClose(ezDelegate<void()> onClickClose);

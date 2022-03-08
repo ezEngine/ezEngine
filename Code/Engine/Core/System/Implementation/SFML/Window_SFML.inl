@@ -67,6 +67,12 @@ ezResult ezWindow::Destroy()
   return EZ_SUCCESS;
 }
 
+ezResult ezWindow::Resize(const ezSizeU32& newWindowSize)
+{
+  EZ_ASSERT_NOT_IMPLEMENTED;
+  return EZ_FAILURE;
+}
+
 void ezWindow::ProcessWindowMessages()
 {
   if (!m_bInitialized)
