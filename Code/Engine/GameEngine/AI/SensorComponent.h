@@ -28,6 +28,7 @@ public:
 
 protected:
   virtual void OnActivated() override;
+  virtual void OnDeactivated() override;
 
   //////////////////////////////////////////////////////////////////////////
   // ezSensorComponent
@@ -37,24 +38,42 @@ public:
   ~ezSensorComponent();
 
   virtual void GetObjectsInSensorVolume(ezDynamicArray<ezGameObject*>& out_Objects) const = 0;
+  virtual void DebugDrawSensorShape() const = 0;
 
   void SetSpatialCategory(const char* szCategory); // [ property ]
   const char* GetSpatialCategory() const;          // [ property ]
 
   ezUInt8 m_uiCollisionLayer = 0; // [ property ]
 
-  ezEnum<ezUpdateRate> m_UpdateRate; // [ property ]
+  void SetUpdateRate(const ezEnum<ezUpdateRate>& updateRate); // [ property ]
+  const ezEnum<ezUpdateRate>& GetUpdateRate() const;          // [ property ]
+
+  void SetShowDebugInfo(bool bShow); // [ property ]
+  bool GetShowDebugInfo() const;     // [ property ]
+
+  void SetColor(ezColorGammaUB color); // [ property ]
+  ezColorGammaUB GetColor() const;     // [ property ]
 
   ezArrayPtr<ezGameObjectHandle> GetLastVisibleObjects() const { return m_LastVisibleObjects; }
 
 protected:
   void UpdateSpatialCategory();
+  void UpdateScheduling();
+  void UpdateDebugInfo();
+
+  ezEnum<ezUpdateRate> m_UpdateRate;
+  bool m_bShowDebugInfo = false;
+  ezColorGammaUB m_Color = ezColor::DarkOrange;
 
   ezHashedString m_sSpatialCategory;
   ezSpatialData::Category m_SpatialCategory = ezInvalidSpatialDataCategory;
 
   friend class ezSensorWorldModule;
   mutable ezDynamicArray<ezGameObjectHandle> m_LastVisibleObjects;
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  mutable ezDynamicArray<ezVec3> m_LastOccludedObjectPositions;
+#endif
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -72,14 +91,11 @@ public:
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
-protected:
-  virtual void OnActivated() override;
-  virtual void OnDeactivated() override;
-
   //////////////////////////////////////////////////////////////////////////
   // ezSensorComponent
 
-  virtual void GetObjectsInSensorVolume(ezDynamicArray<ezGameObject*>& out_Objects) const;
+  virtual void GetObjectsInSensorVolume(ezDynamicArray<ezGameObject*>& out_Objects) const override;
+  virtual void DebugDrawSensorShape() const override;
 
   //////////////////////////////////////////////////////////////////////////
   // ezSensorSphereComponent
@@ -97,6 +113,7 @@ class ezSensorWorldModule : public ezWorldModule
 {
   EZ_DECLARE_WORLD_MODULE();
   EZ_ADD_DYNAMIC_REFLECTION(ezSensorWorldModule, ezWorldModule);
+
 public:
   ezSensorWorldModule(ezWorld* pWorld);
 
@@ -105,12 +122,18 @@ public:
   void AddComponentToSchedule(ezSensorComponent* pComponent, ezUpdateRate::Enum updateRate);
   void RemoveComponentToSchedule(ezSensorComponent* pComponent);
 
+  void AddComponentForDebugRendering(ezSensorComponent* pComponent);
+  void RemoveComponentForDebugRendering(ezSensorComponent* pComponent);
+
 private:
   void UpdateSensors(const ezWorldModule::UpdateContext& context);
+  void DebugDrawSensors(const ezWorldModule::UpdateContext& context);
 
   ezIntervalScheduler<ezComponentHandle> m_Scheduler;
   ezPhysicsWorldModuleInterface* m_pPhysicsWorldModule = nullptr;
 
   ezDynamicArray<ezGameObject*> m_ObjectsInSensorVolume;
   ezDynamicArray<ezGameObjectHandle> m_VisibleObjects;
+
+  ezDynamicArray<ezComponentHandle> m_DebugComponents;
 };
