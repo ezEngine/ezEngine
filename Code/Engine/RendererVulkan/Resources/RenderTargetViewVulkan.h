@@ -10,7 +10,6 @@ struct ID3D11UnorderedAccessView;
 class ezGALRenderTargetViewVulkan : public ezGALRenderTargetView
 {
 public:
-
   EZ_ALWAYS_INLINE vk::ImageView GetImageView() const;
 
 protected:

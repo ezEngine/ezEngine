@@ -70,7 +70,7 @@ public:
   ezInt32 GetMemoryIndex(vk::MemoryPropertyFlags properties, const vk::MemoryRequirements& requirements) const;
 
   void DeleteLater(const PendingDeletion& deletion);
-  template<typename T>
+  template <typename T>
   void DeleteLater(T& object, ezVulkanAllocation& allocation)
   {
     DeleteLater({object.objectType, (void*)object, allocation});

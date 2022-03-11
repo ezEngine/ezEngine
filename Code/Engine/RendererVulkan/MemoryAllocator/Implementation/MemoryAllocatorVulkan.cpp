@@ -33,7 +33,7 @@ EZ_CHECK_AT_COMPILETIME(VMA_ALLOCATION_CREATE_NEVER_ALLOCATE_BIT == ezVulkanAllo
 EZ_CHECK_AT_COMPILETIME(VMA_ALLOCATION_CREATE_MAPPED_BIT == ezVulkanAllocationCreateFlags::Mapped);
 EZ_CHECK_AT_COMPILETIME(VMA_ALLOCATION_CREATE_CAN_ALIAS_BIT == ezVulkanAllocationCreateFlags::CanAlias);
 EZ_CHECK_AT_COMPILETIME(VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT == ezVulkanAllocationCreateFlags::HostAccessSequentialWrite);
-EZ_CHECK_AT_COMPILETIME(VMA_ALLOCATION_CREATE_HOST_ACCESS_RANDOM_BIT== ezVulkanAllocationCreateFlags::HostAccessRandom);
+EZ_CHECK_AT_COMPILETIME(VMA_ALLOCATION_CREATE_HOST_ACCESS_RANDOM_BIT == ezVulkanAllocationCreateFlags::HostAccessRandom);
 EZ_CHECK_AT_COMPILETIME(VMA_ALLOCATION_CREATE_STRATEGY_MIN_MEMORY_BIT == ezVulkanAllocationCreateFlags::StrategyMinMemory);
 EZ_CHECK_AT_COMPILETIME(VMA_ALLOCATION_CREATE_STRATEGY_MIN_TIME_BIT == ezVulkanAllocationCreateFlags::StrategyMinTime);
 
@@ -71,7 +71,7 @@ vk::Result ezMemoryAllocatorVulkan::Initialize(vk::PhysicalDevice physicalDevice
   allocatorCreateInfo.device = device;
   allocatorCreateInfo.instance = instance;
   allocatorCreateInfo.pVulkanFunctions = &vulkanFunctions;
-  
+
   vk::Result res = (vk::Result)vmaCreateAllocator(&allocatorCreateInfo, &m_pImpl->m_allocator);
   if (res != vk::Result::eSuccess)
   {

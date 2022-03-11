@@ -43,7 +43,7 @@ private:
     {
       case SubTests::ST_ResizeWindow:
         ResizeTest(uiInvocationCount);
-       [[fallthrough]];
+        [[fallthrough]];
       case SubTests::ST_ColorOnly:
       case SubTests::ST_D16:
       case SubTests::ST_D24S8:

@@ -75,7 +75,7 @@ ezResult ezGraphicsTest::SetupRenderer()
   ezShaderManager::Configure(szShaderModel, true);
   EZ_VERIFY(ezPlugin::LoadPlugin(szShaderCompiler).Succeeded(), "Shader compiler '{}' plugin not found", szShaderCompiler);
 
-    // Create a device
+  // Create a device
   {
     ezGALDeviceCreationDescription DeviceInit;
     DeviceInit.m_bDebugDevice = false;

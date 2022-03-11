@@ -6,7 +6,7 @@ namespace
   {
     return texDesc.m_uiArraySize > 1 || viewDesc.m_uiFirstArraySlice > 0;
   }
-}
+} // namespace
 
 EZ_ALWAYS_INLINE vk::SampleCountFlagBits ezConversionUtilsVulkan::GetSamples(ezEnum<ezGALMSAASampleCount> samples)
 {
@@ -70,8 +70,8 @@ EZ_ALWAYS_INLINE vk::ImageSubresourceRange ezConversionUtilsVulkan::GetSubresour
     case ezGALTextureType::Texture2DProxy:
       if (bIsArrayView)
       {
-       range.baseArrayLayer = viewDesc.m_uiFirstArraySlice;
-       range.baseMipLevel = viewDesc.m_uiMostDetailedMipLevel;
+        range.baseArrayLayer = viewDesc.m_uiFirstArraySlice;
+        range.baseMipLevel = viewDesc.m_uiMostDetailedMipLevel;
       }
       break;
     case ezGALTextureType::TextureCube:
