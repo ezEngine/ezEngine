@@ -9,6 +9,8 @@
 #include <RendererFoundation/Device/Device.h>
 #include <TestFramework/Framework/TestBaseClass.h>
 
+#undef CreateWindow
+
 class ezImage;
 
 struct ObjectCB
