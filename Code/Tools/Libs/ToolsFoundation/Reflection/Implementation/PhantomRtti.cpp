@@ -128,6 +128,7 @@ void ezPhantomRTTI::UpdateType(ezReflectedTypeDescriptor& desc)
   SetProperties(desc.m_Properties);
   SetFunctions(desc.m_Functions);
   SetAttributes(desc.m_Attributes);
+  SetupParentHierarchy();
 }
 
 bool ezPhantomRTTI::IsEqualToDescriptor(const ezReflectedTypeDescriptor& desc)
