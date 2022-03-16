@@ -175,13 +175,14 @@ function(ez_detect_generator)
 	
 		
 	message (STATUS "CMAKE_VERSION is '${CMAKE_VERSION}'")
+	message (STATUS "CMAKE_BUILD_TYPE is '${CMAKE_BUILD_TYPE}'")
+
 	string(FIND ${CMAKE_VERSION} "MSVC" VERSION_CONTAINS_MSVC)
 	if(${VERSION_CONTAINS_MSVC} GREATER -1)
-		message(STATUS "cmake was called from visual studio open folder workflow")
+		message(STATUS "CMake was called from Visual Studio Open Folder workflow")
 		set_property(GLOBAL PROPERTY EZ_CMAKE_INSIDE_VS ON)
 	endif()
-	
-	
+
 	message (STATUS "CMAKE_GENERATOR is '${CMAKE_GENERATOR}'")
 
 	if (EZ_CMAKE_PLATFORM_WINDOWS) # Supported windows generators
