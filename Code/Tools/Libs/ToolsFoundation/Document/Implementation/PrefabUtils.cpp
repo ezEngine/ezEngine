@@ -300,12 +300,12 @@ void ezPrefabUtils::Merge(const char* szBase, const char* szLeft, ezDocumentObje
       // Apply merged diff to base.
       baseGraph.ApplyDiff(mergedDiff);
 
-      ezMemoryStreamStorage stor;
+      ezContiguousMemoryStreamStorage stor;
       ezMemoryStreamWriter sw(&stor);
 
       ezAbstractGraphDdlSerializer::Write(sw, &baseGraph, nullptr, true, ezOpenDdlWriter::TypeStringMode::Shortest);
 
-      out_sNewGraph.SetSubString_ElementCount((const char*)stor.GetData(), stor.GetStorageSize());
+      out_sNewGraph.SetSubString_ElementCount((const char*)stor.GetData(), stor.GetStorageSize32());
     }
 
     // debug output
