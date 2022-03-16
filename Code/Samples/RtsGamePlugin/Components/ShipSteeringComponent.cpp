@@ -70,8 +70,8 @@ void RtsShipSteeringComponent::OnMsgStopNavigation(RtsMsgStopNavigation& msg)
   {
     m_Mode = RtsShipSteeringComponent::Mode::Stop;
 
-    RtsMsgArrivedAtLocation msg;
-    GetOwner()->SendMessage(msg);
+    RtsMsgArrivedAtLocation msg2;
+    GetOwner()->SendMessage(msg2);
   }
 }
 
