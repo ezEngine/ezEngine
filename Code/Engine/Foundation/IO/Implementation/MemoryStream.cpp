@@ -104,8 +104,8 @@ ezResult ezMemoryStreamWriter::WriteBytes(const void* pWriteBuffer, ezUInt64 uiB
 
   EZ_ASSERT_DEBUG(pWriteBuffer != nullptr, "No valid buffer containing data given!");
 
-  // Reserve the memory in the storage object
-  m_pStreamStorage->SetInternalSize(m_uiWritePosition + uiBytesToWrite);
+  // Reserve the memory in the storage object, grow size if appending data (don't shrink)
+  m_pStreamStorage->SetInternalSize(ezMath::Max(m_pStreamStorage->GetStorageSize64(), m_uiWritePosition + uiBytesToWrite));
 
   {
     ezUInt64 uiBytesLeft = uiBytesToWrite;
