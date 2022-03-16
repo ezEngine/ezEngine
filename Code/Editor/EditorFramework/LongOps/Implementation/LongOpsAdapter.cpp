@@ -139,14 +139,15 @@ void ezLongOpsAdapter::ObjectAdded(const ezDocumentObject* pObject)
         {
           if (auto pOpAttr = ezDynamicCast<ezLongOpAttribute*>(pAttr))
           {
-            ezLongOpControllerManager::GetSingleton()->RegisterLongOp(
-              pObject->GetDocumentObjectManager()->GetDocument()->GetGuid(), pObject->GetGuid(), pOpAttr->m_sOpTypeName);
+            ezLongOpControllerManager::GetSingleton()->RegisterLongOp(pObject->GetDocumentObjectManager()->GetDocument()->GetGuid(), pObject->GetGuid(), pOpAttr->m_sOpTypeName);
           }
         }
 
         pRtti = pRtti->GetParentType();
       }
     }
+
+    return;
   }
 
   if (pRtti->IsDerivedFrom<ezGameObject>() || pObject->GetParent() == nullptr /*document root object*/)

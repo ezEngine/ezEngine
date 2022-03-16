@@ -222,6 +222,12 @@ export class MsgQueryAnimationSkeleton extends Message
   constructor() { super(); this.TypeNameHash = 4103519367; }
 }
 
+export class MsgRetrieveBoneState extends Message
+{
+  public static GetTypeNameHash(): number { return 2483229000; }
+  constructor() { super(); this.TypeNameHash = 2483229000; }
+}
+
 export class MsgRmlUiReload extends Message
 {
   public static GetTypeNameHash(): number { return 1859392301; }
