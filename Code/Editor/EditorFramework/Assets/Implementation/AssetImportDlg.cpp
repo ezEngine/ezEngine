@@ -57,9 +57,9 @@ ezQtAssetImportDlg::~ezQtAssetImportDlg() {}
 void ezQtAssetImportDlg::InitRow(ezUInt32 uiRow)
 {
   QTableWidget* table = AssetTable;
-  const auto& data = m_allImports[uiRow];
+  const auto& data2 = m_allImports[uiRow];
 
-  table->setItem(uiRow, Columns::InputFile, new QTableWidgetItem(data.m_sInputFileParentRelative.GetData()));
+  table->setItem(uiRow, Columns::InputFile, new QTableWidgetItem(data2.m_sInputFileParentRelative.GetData()));
   table->setItem(uiRow, Columns::Status, new QTableWidgetItem());
   table->item(uiRow, Columns::InputFile)->setFlags(Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable);
   table->item(uiRow, Columns::Status)->setFlags(Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable);
@@ -68,14 +68,14 @@ void ezQtAssetImportDlg::InitRow(ezUInt32 uiRow)
   table->setCellWidget(uiRow, Columns::Method, pCombo);
 
   pCombo->addItem(ezQtUiServices::GetSingleton()->GetCachedIconResource(":/GuiFoundation/Icons/No16.png"), "No Import");
-  for (const auto& option : data.m_ImportOptions)
+  for (const auto& option : data2.m_ImportOptions)
   {
     QIcon icon = ezQtUiServices::GetSingleton()->GetCachedIconResource(option.m_sIcon);
     pCombo->addItem(icon, ezTranslate(option.m_sName.GetData()));
   }
 
   pCombo->setProperty("row", uiRow);
-  pCombo->setCurrentIndex(data.m_iSelectedOption + 1);
+  pCombo->setCurrentIndex(data2.m_iSelectedOption + 1);
   connect(pCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(SelectedOptionChanged(int)));
   connect(table, &QTableWidget::cellChanged, this, &ezQtAssetImportDlg::TableCellChanged);
 
@@ -96,23 +96,23 @@ void ezQtAssetImportDlg::UpdateRow(ezUInt32 uiRow)
   QTableWidget* table = AssetTable;
   ezQtScopedBlockSignals _1(table);
 
-  const auto& data = m_allImports[uiRow];
+  const auto& data2 = m_allImports[uiRow];
 
   QTableWidgetItem* pOutputItem = table->item(uiRow, Columns::GeneratedDoc);
   QTableWidgetItem* pStatusItem = table->item(uiRow, Columns::Status);
 
-  if (data.m_iSelectedOption < 0)
+  if (data2.m_iSelectedOption < 0)
     pOutputItem->setText(QString());
   else
-    pOutputItem->setText(data.m_ImportOptions[data.m_iSelectedOption].m_sOutputFileParentRelative.GetData());
+    pOutputItem->setText(data2.m_ImportOptions[data2.m_iSelectedOption].m_sOutputFileParentRelative.GetData());
 
   QToolButton* pBrowse = qobject_cast<QToolButton*>(table->cellWidget(uiRow, Columns::Browse));
-  pBrowse->setEnabled(data.m_iSelectedOption >= 0);
+  pBrowse->setEnabled(data2.m_iSelectedOption >= 0);
 
   pStatusItem->setForeground(QColor::fromRgba(qRgb(200, 0, 0)));
-  pStatusItem->setText(data.m_sImportMessage.GetData());
+  pStatusItem->setText(data2.m_sImportMessage.GetData());
 
-  if (data.m_bDoNotImport)
+  if (data2.m_bDoNotImport)
   {
     pOutputItem->setFlags(Qt::ItemFlag::ItemIsSelectable);
     pBrowse->setEnabled(false);
@@ -123,7 +123,7 @@ void ezQtAssetImportDlg::UpdateRow(ezUInt32 uiRow)
     pBrowse->setText("Open");
     pStatusItem->setForeground(QColor::fromRgba(qRgb(0, 200, 0)));
 
-    if (data.m_sImportMessage.IsEmpty())
+    if (data2.m_sImportMessage.IsEmpty())
     {
       pStatusItem->setText("Asset Imported");
     }
@@ -143,12 +143,12 @@ void ezQtAssetImportDlg::SelectedOptionChanged(int index)
 void ezQtAssetImportDlg::QueryRow(ezUInt32 uiRow)
 {
   QTableWidget* table = AssetTable;
-  auto& data = m_allImports[uiRow];
+  auto& data2 = m_allImports[uiRow];
 
-  if (data.m_iSelectedOption < 0)
+  if (data2.m_iSelectedOption < 0)
     return;
 
-  auto& option = data.m_ImportOptions[data.m_iSelectedOption];
+  auto& option = data2.m_ImportOptions[data2.m_iSelectedOption];
 
   ezStringBuilder file = table->item(uiRow, Columns::GeneratedDoc)->text().toUtf8().data();
   file.ChangeFileExtension(option.m_pGenerator->GetDocumentExtension());
@@ -184,13 +184,13 @@ void ezQtAssetImportDlg::BrowseButtonClicked(bool)
   QToolButton* pButton = qobject_cast<QToolButton*>(sender());
   const ezUInt32 uiRow = pButton->property("row").toInt();
 
-  auto& data = m_allImports[uiRow];
-  if (data.m_iSelectedOption < 0)
+  auto& data2 = m_allImports[uiRow];
+  if (data2.m_iSelectedOption < 0)
     return;
 
-  auto& option = data.m_ImportOptions[data.m_iSelectedOption];
+  auto& option = data2.m_ImportOptions[data2.m_iSelectedOption];
 
-  if (data.m_bDoNotImport)
+  if (data2.m_bDoNotImport)
   {
     // asset was already imported
 

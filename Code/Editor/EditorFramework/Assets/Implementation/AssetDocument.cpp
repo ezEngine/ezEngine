@@ -586,7 +586,7 @@ ezStatus ezAssetDocument::SaveThumbnail(const QImage& qimg0, const ThumbnailInfo
 
 void ezAssetDocument::AppendThumbnailInfo(const char* szThumbnailFile, const ThumbnailInfo& thumbnailInfo) const
 {
-  ezMemoryStreamStorage storage;
+  ezContiguousMemoryStreamStorage storage;
   {
     ezFileReader reader;
     if (reader.Open(szThumbnailFile).Failed())
@@ -598,7 +598,7 @@ void ezAssetDocument::AppendThumbnailInfo(const char* szThumbnailFile, const Thu
 
   ezDeferredFileWriter writer;
   writer.SetOutput(szThumbnailFile);
-  writer.WriteBytes(storage.GetData(), storage.GetStorageSize()).IgnoreResult();
+  writer.WriteBytes(storage.GetData(), storage.GetStorageSize64()).IgnoreResult();
 
   thumbnailInfo.Serialize(writer).IgnoreResult();
 
@@ -823,12 +823,12 @@ void ezAssetDocument::SyncObjectsToEngine() const
     msg.m_ObjectGuid = pObject->m_SyncObjectGuid;
     msg.m_sObjectType = pObject->GetDynamicRTTI()->GetTypeName();
 
-    ezMemoryStreamStorage storage;
+    ezContiguousMemoryStreamStorage storage;
     ezMemoryStreamWriter writer(&storage);
     ezMemoryStreamReader reader(&storage);
 
     ezReflectionSerializer::WriteObjectToBinary(writer, pObject->GetDynamicRTTI(), pObject);
-    msg.m_ObjectData = ezArrayPtr<const ezUInt8>(storage.GetData(), storage.GetStorageSize());
+    msg.m_ObjectData = ezArrayPtr<const ezUInt8>(storage.GetData(), storage.GetStorageSize32());
 
     SendMessageToEngine(&msg);
 

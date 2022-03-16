@@ -146,7 +146,8 @@ void ezAssetCurator::StartInitialize(const ezApplicationFileSystemConfig& cfg)
 
   m_Watcher = EZ_DEFAULT_NEW(ezAssetWatcher, m_FileSystemConfig);
 
-  ezSharedPtr<ezDelegateTask<void>> pInitTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "", [this]() {
+  ezSharedPtr<ezDelegateTask<void>> pInitTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "", [this]()
+    {
     EZ_LOCK(m_CuratorMutex);
     LoadCaches();
 
@@ -170,8 +171,7 @@ void ezAssetCurator::StartInitialize(const ezApplicationFileSystemConfig& cfg)
         it.Value()->m_ExistanceState = ezAssetExistanceState::FileUnchanged;
       }
     }
-    SaveCaches();
-  });
+    SaveCaches(); });
   pInitTask->ConfigureTask("Initialize Curator", ezTaskNesting::Never);
   m_initializeCuratorTaskID = ezTaskSystem::StartSingleTask(pInitTask, ezTaskPriority::FileAccessHighPriority);
 
@@ -621,7 +621,8 @@ const ezAssetCurator::ezLockedSubAsset ezAssetCurator::FindSubAsset(const char* 
   // TODO: This is the old slow code path that will find the longest substring match.
   // Should be removed or folded into FindBestMatchForFile once it's surely not needed anymore.
 
-  auto FindAsset = [this](ezStringView path) -> ezAssetInfo* {
+  auto FindAsset = [this](ezStringView path) -> ezAssetInfo*
+  {
     // try to find the 'exact' relative path
     // otherwise find the shortest possible path
     ezUInt32 uiMinLength = 0xFFFFFFFF;
@@ -664,18 +665,18 @@ const ezAssetCurator::ezLockedSubAsset ezAssetCurator::FindSubAsset(const char* 
   szSeparator = ezStringUtils::FindSubString(szPathOrGuid, "|");
   if (szSeparator != nullptr)
   {
-    ezStringBuilder mainAsset;
-    mainAsset.SetSubString_FromTo(szPathOrGuid, szSeparator);
+    ezStringBuilder mainAsset2;
+    mainAsset2.SetSubString_FromTo(szPathOrGuid, szSeparator);
 
-    ezStringView subAsset(szSeparator + 1);
-    if (ezAssetInfo* pAssetInfo = FindAsset(mainAsset))
+    ezStringView subAsset2(szSeparator + 1);
+    if (ezAssetInfo* pAssetInfo = FindAsset(mainAsset2))
     {
       for (const ezUuid& sub : pAssetInfo->m_SubAssets)
       {
-        auto it = m_KnownSubAssets.Find(sub);
-        if (it.IsValid() && subAsset.IsEqual_NoCase(it.Value().GetName()))
+        auto subIt = m_KnownSubAssets.Find(sub);
+        if (subIt.IsValid() && subAsset2.IsEqual_NoCase(subIt.Value().GetName()))
         {
-          return ezLockedSubAsset(m_CuratorMutex, &it.Value());
+          return ezLockedSubAsset(m_CuratorMutex, &subIt.Value());
         }
       }
     }
@@ -937,7 +938,8 @@ ezResult ezAssetCurator::FindBestMatchForFile(ezStringBuilder& sFile, ezArrayPtr
 
   EZ_LOCK(m_CuratorMutex);
 
-  auto SearchFile = [this](ezStringBuilder& name) -> bool {
+  auto SearchFile = [this](ezStringBuilder& name) -> bool
+  {
     for (auto it = m_ReferencedFiles.GetIterator(); it.IsValid(); ++it)
     {
       if (it.Value().m_Status != ezFileStatus::Status::Valid)
@@ -987,7 +989,8 @@ void ezAssetCurator::FindAllUses(ezUuid assetGuid, ezSet<ezUuid>& uses, bool tra
   ezSet<ezUuid> todoList;
   todoList.Insert(assetGuid);
 
-  auto GatherReferences = [&](const ezMap<ezString, ezHybridArray<ezUuid, 1>>& inverseTracker, const ezStringBuilder& sAsset) {
+  auto GatherReferences = [&](const ezMap<ezString, ezHybridArray<ezUuid, 1>>& inverseTracker, const ezStringBuilder& sAsset)
+  {
     auto it = inverseTracker.Find(sAsset);
     if (it.IsValid())
     {
@@ -1298,12 +1301,12 @@ void ezAssetCurator::HandleSingleFile(const ezString& sAbsolutePath)
       pFileStatus->m_uiHash = 0;
       pFileStatus->m_Status = ezFileStatus::Status::Unknown;
 
-      ezUuid guid = pFileStatus->m_AssetGuid;
-      if (guid.IsValid())
+      ezUuid guid0 = pFileStatus->m_AssetGuid;
+      if (guid0.IsValid())
       {
-        ezAssetInfo* pAssetInfo = m_KnownAssets[guid];
+        ezAssetInfo* pAssetInfo = m_KnownAssets[guid0];
         UntrackDependencies(pAssetInfo);
-        RemoveAssetTransformState(guid);
+        RemoveAssetTransformState(guid0);
         SetAssetExistanceState(*pAssetInfo, ezAssetExistanceState::FileRemoved);
         pFileStatus->m_AssetGuid = ezUuid();
       }
@@ -1455,7 +1458,8 @@ ezResult ezAssetCurator::WriteAssetTable(const char* szDataDirectory, const ezPl
 
     ezAssetDocumentManager* pManager = it.Value()->GetManager();
 
-    auto WriteEntry = [this, &sDataDir, &pAssetProfile, &GuidToPath, pManager, &sTemp, &sTemp2](const ezUuid& guid) {
+    auto WriteEntry = [this, &sDataDir, &pAssetProfile, &GuidToPath, pManager, &sTemp, &sTemp2](const ezUuid& guid)
+    {
       ezSubAsset* pSub = GetSubAssetInternal(guid);
       ezString sEntry = pManager->GetAssetTableEntry(pSub, sDataDir, pAssetProfile);
 

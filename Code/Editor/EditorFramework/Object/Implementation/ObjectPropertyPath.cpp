@@ -88,9 +88,9 @@ ezStatus ezObjectPropertyPath::CreatePropertyPath(
 
   while (pObject != context.m_pContextObject)
   {
-    ezStatus res = PrependProperty(pObject->GetParent(), pObject->GetParentPropertyType(), pObject->GetPropertyIndex(), out_sPropertyPath);
-    if (res.Failed())
-      return res;
+    ezStatus result = PrependProperty(pObject->GetParent(), pObject->GetParentPropertyType(), pObject->GetPropertyIndex(), out_sPropertyPath);
+    if (result.Failed())
+      return result;
 
     pObject = pObject->GetParent();
   }
