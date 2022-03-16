@@ -303,6 +303,8 @@ public:
   /// \brief Mark the world for writing by using EZ_LOCK(world.GetWriteMarker()). Only one thread can write at a time.
   ezInternal::WorldData::WriteMarker& GetWriteMarker();
 
+  /// \brief Allows re-setting the maximum time that is spent on component initialization per frame, which is first configured on construction.
+  void SetMaxInitializationTimePerFrame(ezTime maxInitTime);
 
   /// \brief Associates the given user data with the world. The user is responsible for the life time of user data.
   void SetUserData(void* pUserData);

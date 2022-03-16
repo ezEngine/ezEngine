@@ -84,7 +84,7 @@ public:
 
   ezString m_sResourceDescription;
   ezTimestamp m_ModificationTimestamp;
-  ezMemoryStreamStorage m_CustomData;
+  ezDefaultMemoryStreamStorage m_CustomData;
 
 private:
   ezMemoryStreamReader m_Reader;

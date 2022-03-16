@@ -170,6 +170,16 @@ ezUInt32 ezWorldReader::GetChildObjectCount() const
   return m_ChildObjectsToCreate.GetCount();
 }
 
+void ezWorldReader::SetMaxStepTime(InstantiationContextBase* context, ezTime maxStepTime)
+{
+  return static_cast<InstantiationContext*>(context)->SetMaxStepTime(maxStepTime);
+}
+
+ezTime ezWorldReader::GetMaxStepTime(InstantiationContextBase* context)
+{
+  return static_cast<InstantiationContext*>(context)->GetMaxStepTime();
+}
+
 void ezWorldReader::ReadGameObjectDesc(GameObjectToCreate& godesc)
 {
   ezGameObjectDesc& desc = godesc.m_Desc;
@@ -391,7 +401,7 @@ ezWorldReader::InstantiationContext::StepResult ezWorldReader::InstantiationCont
 
   if (m_Phase == Phase::CreateComponents)
   {
-    if (m_WorldReader.m_ComponentCreationStream.GetStorageSize() > 0)
+    if (m_WorldReader.m_ComponentCreationStream.GetStorageSize64() > 0)
     {
       m_WorldReader.m_pStringDedupReadContext->SetActive(true);
 
@@ -411,7 +421,7 @@ ezWorldReader::InstantiationContext::StepResult ezWorldReader::InstantiationCont
 
   if (m_Phase == Phase::DeserializeComponents)
   {
-    if (m_WorldReader.m_ComponentDataStream.GetStorageSize() > 0)
+    if (m_WorldReader.m_ComponentDataStream.GetStorageSize64() > 0)
     {
       m_WorldReader.m_pStringDedupReadContext->SetActive(true);
 
@@ -639,19 +649,18 @@ bool ezWorldReader::InstantiationContext::DeserializeComponents(ezTime endTime)
     while (m_uiCurrentIndex < compTypeInfo.m_ComponentIndexToHandle.GetCount())
     {
       ezComponent* pComponent = nullptr;
-      if (m_WorldReader.m_pWorld->TryGetComponent(compTypeInfo.m_ComponentIndexToHandle[m_uiCurrentIndex], pComponent))
+      if (m_WorldReader.m_pWorld->TryGetComponent(compTypeInfo.m_ComponentIndexToHandle[m_uiCurrentIndex++], pComponent))
       {
         pComponent->DeserializeComponent(m_WorldReader);
-      }
 
-      ++m_uiCurrentIndex;
-      ++m_uiCurrentNumComponentsProcessed;
+        ++m_uiCurrentNumComponentsProcessed;
 
-      // exit here to ensure that we at least did some work
-      if (ezTime::Now() >= endTime)
-      {
-        SetSubProgressCompletion((double)m_uiCurrentNumComponentsProcessed / m_WorldReader.m_uiTotalNumComponents);
-        return false;
+        // exit here to ensure that we at least did some work
+        if (ezTime::Now() >= endTime)
+        {
+          SetSubProgressCompletion((double)m_uiCurrentNumComponentsProcessed / m_WorldReader.m_uiTotalNumComponents);
+          return false;
+        }
       }
     }
 
@@ -685,25 +694,24 @@ bool ezWorldReader::InstantiationContext::AddComponentsToBatch(ezTime endTime)
     while (m_uiCurrentIndex < compTypeInfo.m_ComponentIndexToHandle.GetCount())
     {
       ezComponent* pComponent = nullptr;
-      if (m_WorldReader.m_pWorld->TryGetComponent(compTypeInfo.m_ComponentIndexToHandle[m_uiCurrentIndex], pComponent))
+      if (m_WorldReader.m_pWorld->TryGetComponent(compTypeInfo.m_ComponentIndexToHandle[m_uiCurrentIndex++], pComponent))
       {
         pComponent->GetOwningManager()->InitializeComponent(pComponent);
         ++uiInitializedComponents;
-      }
 
-      ++m_uiCurrentIndex;
-      ++m_uiCurrentNumComponentsProcessed;
+        ++m_uiCurrentNumComponentsProcessed;
 
-      // exit here to ensure that we at least did some work
-      if (ezTime::Now() >= endTime)
-      {
-        SetSubProgressCompletion((double)m_uiCurrentNumComponentsProcessed / m_WorldReader.m_uiTotalNumComponents);
-
-        if (!m_hComponentInitBatch.IsInvalidated())
+        // exit here to ensure that we at least did some work
+        if (ezTime::Now() >= endTime)
         {
-          m_WorldReader.m_pWorld->EndAddingComponentsToInitBatch(m_hComponentInitBatch);
+          SetSubProgressCompletion((double)m_uiCurrentNumComponentsProcessed / m_WorldReader.m_uiTotalNumComponents);
+
+          if (!m_hComponentInitBatch.IsInvalidated())
+          {
+            m_WorldReader.m_pWorld->EndAddingComponentsToInitBatch(m_hComponentInitBatch);
+          }
+          return false;
         }
-        return false;
       }
     }
 
@@ -720,6 +728,16 @@ bool ezWorldReader::InstantiationContext::AddComponentsToBatch(ezTime endTime)
   m_uiCurrentNumComponentsProcessed = 0;
 
   return true;
+}
+
+void ezWorldReader::InstantiationContext::SetMaxStepTime(ezTime stepTime)
+{
+  m_Options.m_MaxStepTime = stepTime;
+}
+
+ezTime ezWorldReader::InstantiationContext::GetMaxStepTime() const
+{
+  return m_Options.m_MaxStepTime;
 }
 
 void ezWorldReader::InstantiationContext::BeginNextProgressStep(const char* szName)
