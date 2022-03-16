@@ -57,11 +57,6 @@ void ezSoldierComponent::Deinitialize()
   SUPER::Deinitialize();
 }
 
-static float frand()
-{
-  return (float)rand() / (float)RAND_MAX;
-}
-
 void ezSoldierComponent::Update()
 {
   if (!IsActiveAndSimulating())

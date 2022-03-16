@@ -41,14 +41,14 @@ void ezParticleInitializerFactory_RandomColor::CopyInitializerProperties(ezParti
 
 void ezParticleInitializerFactory_RandomColor::SetColorGradientFile(const char* szFile)
 {
-  ezColorGradientResourceHandle m_hGradient;
+  ezColorGradientResourceHandle hGradient;
 
   if (!ezStringUtils::IsNullOrEmpty(szFile))
   {
-    m_hGradient = ezResourceManager::LoadResource<ezColorGradientResource>(szFile);
+    hGradient = ezResourceManager::LoadResource<ezColorGradientResource>(szFile);
   }
 
-  SetColorGradient(m_hGradient);
+  SetColorGradient(hGradient);
 }
 
 

@@ -733,7 +733,7 @@ static int __CPP_GameObject_SetTeamID(duk_context* pDuk)
 
   ezGameObject* pGameObject = ezTypeScriptBinding::ExpectGameObject(duk, 0 /*this*/);
 
-  pGameObject->SetTeamID(duk.GetUIntValue(1));
+  pGameObject->SetTeamID(static_cast<ezUInt16>(duk.GetUIntValue(1)));
 
   return duk.ReturnVoid();
 }

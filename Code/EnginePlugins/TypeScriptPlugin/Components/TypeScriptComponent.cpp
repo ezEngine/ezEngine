@@ -50,7 +50,7 @@ void ezTypeScriptComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_TypeScriptComponentGuid;
 
   // version 3
-  ezUInt16 uiNumParams = m_Parameters.GetCount();
+  ezUInt16 uiNumParams = static_cast<ezUInt16>(m_Parameters.GetCount());
   s << uiNumParams;
 
   for (ezUInt32 p = 0; p < uiNumParams; ++p)
@@ -357,7 +357,14 @@ void ezTypeScriptComponent::OnMsgTypeScriptMsgProxy(ezMsgTypeScriptMsgProxy& msg
 
 const ezRangeView<const char*, ezUInt32> ezTypeScriptComponent::GetParameters() const
 {
-  return ezRangeView<const char*, ezUInt32>([]() -> ezUInt32 { return 0; }, [this]() -> ezUInt32 { return m_Parameters.GetCount(); }, [](ezUInt32& it) { ++it; }, [this](const ezUInt32& it) -> const char* { return m_Parameters.GetKey(it).GetString().GetData(); });
+  return ezRangeView<const char*, ezUInt32>([]() -> ezUInt32
+    { return 0; },
+    [this]() -> ezUInt32
+    { return m_Parameters.GetCount(); },
+    [](ezUInt32& it)
+    { ++it; },
+    [this](const ezUInt32& it) -> const char*
+    { return m_Parameters.GetKey(it).GetString().GetData(); });
 }
 
 void ezTypeScriptComponent::SetParameter(const char* szKey, const ezVariant& value)

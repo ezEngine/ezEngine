@@ -230,7 +230,7 @@ int __CPP_Physics_QueryShapesInSphere(duk_context* pDuk)
 
   const float fRadius = duk.GetFloatValue(0);
   const ezVec3 vPos = ezTypeScriptBinding::GetVec3(duk, 1);
-  const ezUInt8 uiCollisionLayer = duk.GetUIntValue(2);
+  const ezUInt8 uiCollisionLayer = static_cast<ezUInt8>(duk.GetUIntValue(2));
   const ezUInt32 uiIgnoreShapeID = duk.GetIntValue(3);
 
   ezPhysicsOverlapResultArray result;
