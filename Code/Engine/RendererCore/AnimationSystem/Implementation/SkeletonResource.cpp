@@ -111,7 +111,7 @@ ezResult ezSkeletonResourceDescriptor::Serialize(ezStreamWriter& stream) const
   m_Skeleton.Save(stream);
   stream << m_RootTransform;
 
-  const ezUInt16 uiNumGeom = m_Geometry.GetCount();
+  const ezUInt16 uiNumGeom = static_cast<ezUInt16>(m_Geometry.GetCount());
   stream << uiNumGeom;
 
   for (ezUInt32 i = 0; i < uiNumGeom; ++i)

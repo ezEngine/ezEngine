@@ -198,7 +198,6 @@ void ezSimpleAnimationComponent::Update()
 
     if (msg.m_bContinueAnimating)
     {
-      ezMsgAnimationPoseUpdated msg;
       msg.m_pRootTransform = &pSkeleton->GetDescriptor().m_RootTransform;
       msg.m_pSkeleton = &pSkeleton->GetDescriptor().m_Skeleton;
       msg.m_ModelTransforms = pose;

@@ -179,7 +179,7 @@ struct ShaderPermutationResourceLoadData
   {
   }
 
-  ezMemoryStreamStorage m_Storage;
+  ezContiguousMemoryStreamStorage m_Storage;
   ezMemoryStreamReader m_Reader;
 };
 

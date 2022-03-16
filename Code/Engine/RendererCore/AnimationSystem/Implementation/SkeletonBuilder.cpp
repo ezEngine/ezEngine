@@ -5,7 +5,7 @@
 ezSkeletonBuilder::ezSkeletonBuilder() = default;
 ezSkeletonBuilder::~ezSkeletonBuilder() = default;
 
-ezUInt32 ezSkeletonBuilder::AddJoint(const char* szName, const ezTransform& localBindPose, ezUInt32 uiParentIndex /*= ezInvalidIndex*/)
+ezUInt16 ezSkeletonBuilder::AddJoint(const char* szName, const ezTransform& localBindPose, ezUInt16 uiParentIndex /*= ezInvalidJointIndex*/)
 {
   EZ_ASSERT_DEV(uiParentIndex == ezInvalidIndex || uiParentIndex < m_Joints.GetCount(), "Invalid parent index for joint");
 
@@ -23,10 +23,10 @@ ezUInt32 ezSkeletonBuilder::AddJoint(const char* szName, const ezTransform& loca
 
   joint.m_InverseBindPoseGlobal = joint.m_BindPoseGlobal.GetInverse();
 
-  return m_Joints.GetCount() - 1;
+  return static_cast<ezUInt16>(m_Joints.GetCount() - 1);
 }
 
-void ezSkeletonBuilder::SetJointLimit(ezUInt32 uiJointIndex, const ezQuat& localOrientation, bool bLimitSwing, ezAngle halfSwingLimitY, ezAngle halfSwingLimitZ, bool bLimitTwist, ezAngle twistLimitHalfAngle, ezAngle twistLimitCenterAngle)
+void ezSkeletonBuilder::SetJointLimit(ezUInt16 uiJointIndex, const ezQuat& localOrientation, bool bLimitSwing, ezAngle halfSwingLimitY, ezAngle halfSwingLimitZ, bool bLimitTwist, ezAngle twistLimitHalfAngle, ezAngle twistLimitCenterAngle)
 {
   auto& j = m_Joints[uiJointIndex];
   j.m_qLocalJointOrientation = localOrientation;
@@ -40,7 +40,7 @@ void ezSkeletonBuilder::SetJointLimit(ezUInt32 uiJointIndex, const ezQuat& local
 
 void ezSkeletonBuilder::BuildSkeleton(ezSkeleton& skeleton) const
 {
-  //EZ_ASSERT_DEV(HasJoints(), "Can't build a skeleton with no joints!");
+  // EZ_ASSERT_DEV(HasJoints(), "Can't build a skeleton with no joints!");
 
   const ezUInt32 numJoints = m_Joints.GetCount();
 

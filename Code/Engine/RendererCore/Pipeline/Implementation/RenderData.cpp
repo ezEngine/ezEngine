@@ -53,7 +53,7 @@ ezRenderData::Category ezRenderData::RegisterCategory(const char* szCategoryName
   if (oldCategory != ezInvalidRenderDataCategory)
     return oldCategory;
 
-  Category newCategory = Category(s_CategoryData.GetCount());
+  Category newCategory = Category(static_cast<ezUInt16>(s_CategoryData.GetCount()));
 
   auto& data = s_CategoryData.ExpandAndGetRef();
   data.m_sName.Assign(szCategoryName);
@@ -70,7 +70,7 @@ ezRenderData::Category ezRenderData::FindCategory(const char* szCategoryName)
   for (ezUInt32 uiCategoryIndex = 0; uiCategoryIndex < s_CategoryData.GetCount(); ++uiCategoryIndex)
   {
     if (s_CategoryData[uiCategoryIndex].m_sName == categoryName)
-      return Category(uiCategoryIndex);
+      return Category(static_cast<ezUInt16>(uiCategoryIndex));
   }
 
   return ezInvalidRenderDataCategory;

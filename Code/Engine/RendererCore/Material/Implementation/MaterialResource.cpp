@@ -664,7 +664,7 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
         ezTextureResourceLoader::LoadTexFile(s, embedded).IgnoreResult();
         embedded.m_bIsFallback = true;
 
-        ezMemoryStreamStorage storage;
+        ezDefaultMemoryStreamStorage storage;
         ezMemoryStreamWriter loadStreamWriter(&storage);
         ezTextureResourceLoader::WriteTextureLoadStream(loadStreamWriter, embedded);
 

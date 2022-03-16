@@ -142,7 +142,7 @@ void ezEditableSkeleton::ClearJoints()
   m_Children.Clear();
 }
 
-void ezEditableSkeleton::CreateJointsRecursive(ezSkeletonBuilder& sb, ezSkeletonResourceDescriptor& desc, const ezEditableSkeletonJoint* pParentJoint, const ezEditableSkeletonJoint* pThisJoint, ezUInt32 uiThisJointIdx, const ezQuat& qParentAccuRot, const ezMat4& rootTransform) const
+void ezEditableSkeleton::CreateJointsRecursive(ezSkeletonBuilder& sb, ezSkeletonResourceDescriptor& desc, const ezEditableSkeletonJoint* pParentJoint, const ezEditableSkeletonJoint* pThisJoint, ezUInt16 uiThisJointIdx, const ezQuat& qParentAccuRot, const ezMat4& rootTransform) const
 {
   for (auto& shape : pThisJoint->m_BoneShapes)
   {
@@ -184,7 +184,7 @@ void ezEditableSkeleton::CreateJointsRecursive(ezSkeletonBuilder& sb, ezSkeleton
 
   for (const auto* pChildJoint : pThisJoint->m_Children)
   {
-    const ezUInt32 uiChildJointIdx = sb.AddJoint(pChildJoint->GetName(), pChildJoint->m_LocalTransform, uiThisJointIdx);
+    const ezUInt16 uiChildJointIdx = sb.AddJoint(pChildJoint->GetName(), pChildJoint->m_LocalTransform, uiThisJointIdx);
 
     CreateJointsRecursive(sb, desc, pThisJoint, pChildJoint, uiChildJointIdx, qThisAccuRot, rootTransform);
   }
@@ -197,7 +197,7 @@ void ezEditableSkeleton::FillResourceDescriptor(ezSkeletonResourceDescriptor& de
   ezSkeletonBuilder sb;
   for (const auto* pJoint : m_Children)
   {
-    const ezUInt32 idx = sb.AddJoint(pJoint->GetName(), pJoint->m_LocalTransform);
+    const ezUInt16 idx = sb.AddJoint(pJoint->GetName(), pJoint->m_LocalTransform);
 
     CreateJointsRecursive(sb, desc, nullptr, pJoint, idx, ezQuat::IdentityQuaternion(), desc.m_RootTransform.GetAsMat4());
   }

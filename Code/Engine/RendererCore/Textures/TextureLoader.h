@@ -18,7 +18,7 @@ public:
     {
     }
 
-    ezMemoryStreamStorage m_Storage;
+    ezContiguousMemoryStreamStorage m_Storage;
     ezMemoryStreamReader m_Reader;
     ezImage m_Image;
 

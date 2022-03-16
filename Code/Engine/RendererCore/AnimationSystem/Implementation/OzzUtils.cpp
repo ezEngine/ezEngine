@@ -40,7 +40,7 @@ ezResult ezOzzArchiveData::FetchEmbeddedArchive(ezStreamReader& stream)
   m_Storage.Reserve(uiArchiveSize);
   m_Storage.ReadAll(stream, uiArchiveSize);
 
-  if (m_Storage.GetStorageSize() != uiArchiveSize)
+  if (m_Storage.GetStorageSize64() != uiArchiveSize)
     return EZ_FAILURE;
 
   return EZ_SUCCESS;
@@ -54,11 +54,11 @@ ezResult ezOzzArchiveData::StoreEmbeddedArchive(ezStreamWriter& stream) const
 
   stream.WriteVersion(1);
 
-  const ezUInt64 uiArchiveSize = m_Storage.GetStorageSize();
+  const ezUInt64 uiArchiveSize = m_Storage.GetStorageSize64();
 
   stream << uiArchiveSize;
 
-  return stream.WriteBytes(m_Storage.GetData(), uiArchiveSize);
+  return m_Storage.CopyToStream(stream);
 }
 
 ezOzzStreamReader::ezOzzStreamReader(const ezOzzArchiveData& data)
@@ -90,7 +90,7 @@ int ezOzzStreamReader::Seek(int _offset, Origin _origin)
       m_Reader.SetReadPosition(m_Reader.GetReadPosition() + _offset);
       break;
     case ozz::io::Stream::kEnd:
-      m_Reader.SetReadPosition(m_Reader.GetByteCount() - _offset);
+      m_Reader.SetReadPosition(m_Reader.GetByteCount64() - _offset);
       break;
     case ozz::io::Stream::kSet:
       m_Reader.SetReadPosition(_offset);
@@ -104,12 +104,12 @@ int ezOzzStreamReader::Seek(int _offset, Origin _origin)
 
 int ezOzzStreamReader::Tell() const
 {
-  return m_Reader.GetReadPosition();
+  return static_cast<int>(m_Reader.GetReadPosition());
 }
 
 size_t ezOzzStreamReader::Size() const
 {
-  return static_cast<size_t>(m_Reader.GetByteCount());
+  return static_cast<size_t>(m_Reader.GetByteCount64());
 }
 
 ezOzzStreamWriter::ezOzzStreamWriter(ezOzzArchiveData& data)
@@ -144,7 +144,7 @@ int ezOzzStreamWriter::Seek(int _offset, Origin _origin)
       m_Writer.SetWritePosition(m_Writer.GetWritePosition() + _offset);
       break;
     case ozz::io::Stream::kEnd:
-      m_Writer.SetWritePosition(m_Writer.GetByteCount() - _offset);
+      m_Writer.SetWritePosition(m_Writer.GetByteCount64() - _offset);
       break;
     case ozz::io::Stream::kSet:
       m_Writer.SetWritePosition(_offset);
@@ -158,12 +158,12 @@ int ezOzzStreamWriter::Seek(int _offset, Origin _origin)
 
 int ezOzzStreamWriter::Tell() const
 {
-  return m_Writer.GetWritePosition();
+  return static_cast<int>(m_Writer.GetWritePosition());
 }
 
 size_t ezOzzStreamWriter::Size() const
 {
-  return static_cast<size_t>(m_Writer.GetByteCount());
+  return static_cast<size_t>(m_Writer.GetByteCount64());
 }
 
 void ezOzzUtils::CopyAnimation(ozz::animation::Animation* pDst, const ozz::animation::Animation* pSrc)

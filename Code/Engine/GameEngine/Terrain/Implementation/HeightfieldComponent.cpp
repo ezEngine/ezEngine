@@ -283,13 +283,13 @@ void ezHeightfieldComponent::OnBuildStaticMesh(ezMsgBuildStaticMesh& msg) const
   auto& subMesh = pDesc->m_SubMeshes.ExpandAndGetRef();
   subMesh.m_uiFirstTriangle = pDesc->m_Triangles.GetCount();
 
-  const ezTransform t = GetOwner()->GetGlobalTransform();
+  const ezTransform trans = GetOwner()->GetGlobalTransform();
 
   const ezUInt32 uiTriOffset = pDesc->m_Vertices.GetCount();
 
   for (const auto& verts : geom.GetVertices())
   {
-    pDesc->m_Vertices.PushBack(t * verts.m_vPosition);
+    pDesc->m_Vertices.PushBack(trans * verts.m_vPosition);
   }
 
   for (const auto& polys : geom.GetPolygons())
@@ -329,7 +329,7 @@ void ezHeightfieldComponent::OnBuildStaticMesh(ezMsgBuildStaticMesh& msg) const
           pDesc->m_Surfaces.PushBack(surface);
         }
 
-        subMesh.m_uiSurfaceIndex = idx;
+        subMesh.m_uiSurfaceIndex = static_cast<ezUInt16>(idx);
       }
     }
   }

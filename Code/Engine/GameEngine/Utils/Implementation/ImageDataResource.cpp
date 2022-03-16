@@ -77,7 +77,7 @@ ezResourceLoadDesc ezImageDataResource::UpdateContent(ezStreamReader* Stream)
     }
 
     ezStbImageFileFormats fmt;
-    if (fmt.ReadImage(*Stream, desc.m_Image, ezLog::GetThreadLocalLogSystem(), "png").Failed())
+    if (fmt.ReadImage(*Stream, desc.m_Image, "png").Failed())
     {
       res.m_State = ezResourceState::LoadedResourceMissing;
       return res;
@@ -88,7 +88,7 @@ ezResourceLoadDesc ezImageDataResource::UpdateContent(ezStreamReader* Stream)
     ezStringBuilder ext;
     ext = sAbsFilePath.GetFileExtension();
 
-    if (ezImageFileFormat::GetReaderFormat(ext)->ReadImage(*Stream, desc.m_Image, ezLog::GetThreadLocalLogSystem(), ext).Failed())
+    if (ezImageFileFormat::GetReaderFormat(ext)->ReadImage(*Stream, desc.m_Image, ext).Failed())
     {
       res.m_State = ezResourceState::LoadedResourceMissing;
       return res;
@@ -134,14 +134,14 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezImageDataResource, ezImageDataResourceDescrip
 
 // ezResult ezImageDataResourceDescriptor::Serialize(ezStreamWriter& stream) const
 //{
-//  EZ_SUCCEED_OR_RETURN(ezImageFileFormat::GetWriterFormat("png")->WriteImage(stream, m_Image, ezLog::GetThreadLocalLogSystem(), "png"));
+//  EZ_SUCCEED_OR_RETURN(ezImageFileFormat::GetWriterFormat("png")->WriteImage(stream, m_Image, "png"));
 //
 //  return EZ_SUCCESS;
 //}
 //
 // ezResult ezImageDataResourceDescriptor::Deserialize(ezStreamReader& stream)
 //{
-//  EZ_SUCCEED_OR_RETURN(ezImageFileFormat::GetReaderFormat("png")->ReadImage(stream, m_Image, ezLog::GetThreadLocalLogSystem(), "png"));
+//  EZ_SUCCEED_OR_RETURN(ezImageFileFormat::GetReaderFormat("png")->ReadImage(stream, m_Image, "png"));
 //
 //  return EZ_SUCCESS;
 //}

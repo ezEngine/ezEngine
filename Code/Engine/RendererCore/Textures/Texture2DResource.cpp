@@ -391,13 +391,13 @@ const ezDynamicArray<ezViewHandle>& ezRenderToTexture2DResource::GetAllRenderVie
   return m_RenderViews;
 }
 
-static int GetNextBestResolution(float res)
+static ezUInt16 GetNextBestResolution(float res)
 {
   res = ezMath::Clamp(res, 8.0f, 4096.0f);
 
   int mulEight = (int)ezMath::Floor((res + 7.9f) / 8.0f);
 
-  return mulEight * 8;
+  return static_cast<ezUInt16>(mulEight * 8);
 }
 
 ezResourceLoadDesc ezRenderToTexture2DResource::UpdateContent(ezStreamReader* Stream)

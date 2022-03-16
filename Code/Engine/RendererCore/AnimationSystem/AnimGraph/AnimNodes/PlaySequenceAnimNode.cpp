@@ -189,7 +189,7 @@ void ezPlaySequenceAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkel
 
   if (uiNextClip >= m_hMiddleClips.GetCount())
   {
-    uiNextClip = pTarget->GetWorld()->GetRandomNumberGenerator().UIntInRange(m_hMiddleClips.GetCount());
+    uiNextClip = static_cast<ezUInt8>(pTarget->GetWorld()->GetRandomNumberGenerator().UIntInRange(m_hMiddleClips.GetCount()));
   }
 
   m_uiNextClipToPlay = uiNextClip;

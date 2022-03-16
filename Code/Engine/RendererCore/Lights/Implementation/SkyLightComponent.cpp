@@ -278,11 +278,11 @@ public:
   virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
     // Inline ReflectionData sub-object into the sky light itself.
-    if (const ezAbstractObjectNode::Property* pProp = pNode->FindProperty("ReflectionData"))
+    if (const ezAbstractObjectNode::Property* pProp0 = pNode->FindProperty("ReflectionData"))
     {
-      if (pProp->m_Value.IsA<ezUuid>())
+      if (pProp0->m_Value.IsA<ezUuid>())
       {
-        if (ezAbstractObjectNode* pSubNode = pGraph->GetNode(pProp->m_Value.Get<ezUuid>()))
+        if (ezAbstractObjectNode* pSubNode = pGraph->GetNode(pProp0->m_Value.Get<ezUuid>()))
         {
           for (auto pProp : pSubNode->GetProperties())
           {

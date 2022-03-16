@@ -473,7 +473,7 @@ bool ezRenderPipeline::CreateRenderTargetUsage(const ezView& view)
   m_ConnectionToTextureIndex.Clear();
 
   // Gather all connections that share the same path-through texture and their first and last usage pass index.
-  for (ezUInt32 i = 0; i < m_Passes.GetCount(); i++)
+  for (ezUInt16 i = 0; i < static_cast<ezUInt16>(m_Passes.GetCount()); i++)
   {
     const auto& pPass = m_Passes[i].Borrow();
     ConnectionData& data = m_Connections[pPass];
@@ -971,7 +971,7 @@ void ezRenderPipeline::FindVisibleObjects(const ezView& view)
 
 void ezRenderPipeline::Render(ezRenderContext* pRenderContext)
 {
-  //EZ_PROFILE_AND_MARKER(pRenderContext->GetGALContext(), m_sName.GetData());
+  // EZ_PROFILE_AND_MARKER(pRenderContext->GetGALContext(), m_sName.GetData());
   EZ_PROFILE_SCOPE(m_sName.GetData());
 
   EZ_ASSERT_DEV(m_PipelineState != PipelineState::Uninitialized, "Pipeline must be rebuild before rendering.");

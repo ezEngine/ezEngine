@@ -137,7 +137,7 @@ static void BuildRawOzzSkeleton(const ezSkeleton& skeleton, ezUInt16 uiExpectedP
 {
   ezHybridArray<ezUInt16, 6> children;
 
-  for (ezUInt32 i = 0; i < skeleton.GetJointCount(); ++i)
+  for (ezUInt16 i = 0; i < skeleton.GetJointCount(); ++i)
   {
     if (skeleton.GetJointByIndex(i).GetParentIndex() == uiExpectedParent)
     {
@@ -147,7 +147,7 @@ static void BuildRawOzzSkeleton(const ezSkeleton& skeleton, ezUInt16 uiExpectedP
 
   dstBones.resize((size_t)children.GetCount());
 
-  for (ezUInt32 i = 0; i < children.GetCount(); ++i)
+  for (ezUInt16 i = 0; i < children.GetCount(); ++i)
   {
     const auto& srcJoint = skeleton.GetJointByIndex(children[i]);
     const auto& srcTransform = srcJoint.GetBindPoseLocalTransform();

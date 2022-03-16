@@ -46,7 +46,7 @@ public:
   virtual void Reserve(ezUInt64 uiBytes) = 0;
 
   /// \brief Writes the entire content of the storage to the provided stream.
-  virtual ezResult CopyToStream(ezStreamWriter& stream) = 0;
+  virtual ezResult CopyToStream(ezStreamWriter& stream) const = 0;
 
   /// \brief Returns a read-only ezArrayPtr that represents a contiguous area in memory which starts at the given first byte.
   ///
@@ -97,7 +97,7 @@ public:
     m_Storage.Reserve(static_cast<ezUInt32>(uiBytes));
   }
 
-  virtual ezResult CopyToStream(ezStreamWriter& stream) override
+  virtual ezResult CopyToStream(ezStreamWriter& stream) const override
   {
     return stream.WriteBytes(m_Storage.GetData(), m_Storage.GetCount());
   }
@@ -169,7 +169,7 @@ public:
   virtual void Clear() override;
   virtual void Compact() override;
   virtual ezUInt64 GetHeapMemoryUsage() const override;
-  virtual ezResult CopyToStream(ezStreamWriter& stream) override;
+  virtual ezResult CopyToStream(ezStreamWriter& stream) const override;
   virtual ezArrayPtr<const ezUInt8> GetContiguousMemoryRange(ezUInt64 uiStartByte) const override; // [tested]
   virtual ezArrayPtr<ezUInt8> GetContiguousMemoryRange(ezUInt64 uiStartByte) override;             // [tested]
 
@@ -215,7 +215,7 @@ public:
     m_pStorage->Reserve(static_cast<ezUInt32>(uiBytes));
   }
 
-  virtual ezResult CopyToStream(ezStreamWriter& stream) override
+  virtual ezResult CopyToStream(ezStreamWriter& stream) const override
   {
     return stream.WriteBytes(m_pStorage->GetData(), m_pStorage->GetCount());
   }

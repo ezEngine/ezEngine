@@ -15,6 +15,7 @@ target_link_libraries(${PROJECT_NAME}
   PUBLIC
   RendererCore
   ozz
+  Utilities
 )
 
 if (EZ_3RDPARTY_IMGUI_SUPPORT)

@@ -354,7 +354,7 @@ ezUInt64 ezDefaultMemoryStreamStorage::GetHeapMemoryUsage() const
   return m_Chunks.GetHeapMemoryUsage() + m_uiCapacity - m_Chunks[0].m_Bytes.GetCount();
 }
 
-ezResult ezDefaultMemoryStreamStorage::CopyToStream(ezStreamWriter& stream)
+ezResult ezDefaultMemoryStreamStorage::CopyToStream(ezStreamWriter& stream) const
 {
   ezUInt64 uiBytesLeft = m_uiInternalSize;
   ezUInt64 uiReadPosition = 0;

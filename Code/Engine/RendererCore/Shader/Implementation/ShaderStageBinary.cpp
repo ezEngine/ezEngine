@@ -106,7 +106,7 @@ ezResult ezShaderConstantBufferLayout::Write(ezStreamWriter& stream) const
 {
   stream << m_uiTotalSize;
 
-  ezUInt16 uiConstants = m_Constants.GetCount();
+  ezUInt16 uiConstants = static_cast<ezUInt16>(m_Constants.GetCount());
   stream << uiConstants;
 
   for (auto& constant : m_Constants)
@@ -204,7 +204,7 @@ ezResult ezShaderStageBinary::Write(ezStreamWriter& stream) const
   if (!m_ByteCode.IsEmpty() && stream.WriteBytes(&m_ByteCode[0], uiByteCodeSize).Failed())
     return EZ_FAILURE;
 
-  ezUInt16 uiResources = m_ShaderResourceBindings.GetCount();
+  ezUInt16 uiResources = static_cast<ezUInt16>(m_ShaderResourceBindings.GetCount());
   stream << uiResources;
 
   for (const auto& r : m_ShaderResourceBindings)

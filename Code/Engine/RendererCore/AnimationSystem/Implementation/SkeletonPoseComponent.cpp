@@ -70,9 +70,10 @@ void ezSkeletonPoseComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_PoseMode;
 
   m_Bones.Sort();
-  ezUInt16 numBones = m_Bones.GetCount();
+  ezUInt16 numBones = static_cast<ezUInt16>(m_Bones.GetCount());
   s << numBones;
-  for (ezUInt32 i = 0; i < numBones; ++i)
+
+  for (ezUInt16 i = 0; i < numBones; ++i)
   {
     s << m_Bones.GetKey(i);
     s << m_Bones.GetValue(i).m_sName;
@@ -97,7 +98,8 @@ void ezSkeletonPoseComponent::DeserializeComponent(ezWorldReader& stream)
   ezUInt16 numBones = 0;
   s >> numBones;
   m_Bones.Reserve(numBones);
-  for (ezUInt32 i = 0; i < numBones; ++i)
+
+  for (ezUInt16 i = 0; i < numBones; ++i)
   {
     s >> sKey;
     s >> bone.m_sName;
@@ -169,10 +171,14 @@ void ezSkeletonPoseComponent::ResendPose()
 
 const ezRangeView<const char*, ezUInt32> ezSkeletonPoseComponent::GetBones() const
 {
-  return ezRangeView<const char*, ezUInt32>([]() -> ezUInt32 { return 0; },
-    [this]() -> ezUInt32 { return m_Bones.GetCount(); },
-    [](ezUInt32& it) { ++it; },
-    [this](const ezUInt32& it) -> const char* { return m_Bones.GetKey(it).GetString().GetData(); });
+  return ezRangeView<const char*, ezUInt32>([]() -> ezUInt32
+    { return 0; },
+    [this]() -> ezUInt32
+    { return m_Bones.GetCount(); },
+    [](ezUInt32& it)
+    { ++it; },
+    [this](const ezUInt32& it) -> const char*
+    { return m_Bones.GetKey(it).GetString().GetData(); });
 }
 
 void ezSkeletonPoseComponent::SetBone(const char* szKey, const ezVariant& value)
@@ -186,7 +192,7 @@ void ezSkeletonPoseComponent::SetBone(const char* szKey, const ezVariant& value)
   }
 
   // TODO
-  //if (IsActiveAndInitialized())
+  // if (IsActiveAndInitialized())
   //{
   //  // only add to update list, if not yet activated,
   //  // since OnActivate will do the instantiation anyway
@@ -200,7 +206,7 @@ void ezSkeletonPoseComponent::RemoveBone(const char* szKey)
   if (m_Bones.RemoveAndCopy(ezTempHashedString(szKey)))
   {
     // TODO
-    //if (IsActiveAndInitialized())
+    // if (IsActiveAndInitialized())
     //{
     //  // only add to update list, if not yet activated,
     //  // since OnActivate will do the instantiation anyway

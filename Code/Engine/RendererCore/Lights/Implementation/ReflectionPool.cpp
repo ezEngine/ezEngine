@@ -71,7 +71,7 @@ void ezReflectionPool::UpdateReflectionProbe(const ezWorld* pWorld, ezReflection
   data.m_mapping.UpdateProbe(id, probeData.m_Flags);
 }
 
-void ezReflectionPool::ExtractReflectionProbe(const ezComponent* pComponent, ezMsgExtractRenderData& msg, ezReflectionProbeRenderData* pRenderData, const ezWorld* pWorld, ezReflectionProbeId id, float fPriority)
+void ezReflectionPool::ExtractReflectionProbe(const ezComponent* pComponent, ezMsgExtractRenderData& msg, ezReflectionProbeRenderData* pRenderData0, const ezWorld* pWorld, ezReflectionProbeId id, float fPriority)
 {
   EZ_LOCK(s_pData->m_Mutex);
   s_pData->m_ReflectionProbeUpdater.ScheduleUpdateSteps();
@@ -94,11 +94,11 @@ void ezReflectionPool::ExtractReflectionProbe(const ezComponent* pComponent, ezM
   }
 
   // The sky light is always active and not added to the render data (always passes in nullptr as pRenderData).
-  if (pRenderData && iMappedIndex > 0)
+  if (pRenderData0 && iMappedIndex > 0)
   {
     // Index and flags are stored in m_uiIndex so we can't just overwrite it.
-    pRenderData->m_uiIndex |= (ezUInt32)iMappedIndex;
-    msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::ReflectionProbe, ezRenderData::Caching::Never);
+    pRenderData0->m_uiIndex |= (ezUInt32)iMappedIndex;
+    msg.AddRenderData(pRenderData0, ezDefaultRenderDataCategories::ReflectionProbe, ezRenderData::Caching::Never);
   }
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
@@ -187,7 +187,7 @@ void ezReflectionPool::UpdateSkyLight(const ezWorld* pWorld, ezReflectionProbeId
   Data::ProbeData& probeData = data.m_Probes.GetValueUnchecked(id.m_InstanceIndex);
   if (s_pData->UpdateSkyLightData(probeData, desc, pComponent))
   {
-    //s_pData->UnmapProbe(pWorld->GetIndex(), data, id);
+    // s_pData->UnmapProbe(pWorld->GetIndex(), data, id);
   }
   data.m_mapping.UpdateProbe(id, probeData.m_Flags);
 }
@@ -309,49 +309,53 @@ void ezReflectionPool::OnRenderEvent(const ezRenderWorldRenderEvent& e)
   auto pGALPass = pDevice->BeginPass("Sky Irradiance Texture Update");
   ezHybridArray<ezGALTextureHandle, 4> atlasToClear;
 
-  auto pGALCommandEncoder = pGALPass->BeginCompute();
-  for (ezUInt32 i = 0; i < skyIrradianceStorage.GetCount(); ++i)
   {
-    if ((uiWorldHasSkyLight & EZ_BIT(i)) == 0 && (uiSkyIrradianceChanged & EZ_BIT(i)) != 0)
+    auto pGALCommandEncoder = pGALPass->BeginCompute();
+    for (ezUInt32 i = 0; i < skyIrradianceStorage.GetCount(); ++i)
     {
-      ezBoundingBoxu32 destBox;
-      destBox.m_vMin.Set(0, i, 0);
-      destBox.m_vMax.Set(6, i + 1, 1);
-      ezGALSystemMemoryDescription memDesc;
-      memDesc.m_pData = &skyIrradianceStorage[i].m_Values[0];
-      memDesc.m_uiRowPitch = sizeof(ezAmbientCube<ezColorLinear16f>);
-      pGALCommandEncoder->UpdateTexture(s_pData->m_hSkyIrradianceTexture, ezGALTextureSubresource(), destBox, memDesc);
-
-      uiSkyIrradianceChanged &= ~EZ_BIT(i);
-
-      if (i < s_pData->m_WorldReflectionData.GetCount() && s_pData->m_WorldReflectionData[i] != nullptr)
+      if ((uiWorldHasSkyLight & EZ_BIT(i)) == 0 && (uiSkyIrradianceChanged & EZ_BIT(i)) != 0)
       {
-        ezReflectionPool::Data::WorldReflectionData& data = *s_pData->m_WorldReflectionData[i];
-        atlasToClear.PushBack(data.m_mapping.GetTexture());
+        ezBoundingBoxu32 destBox;
+        destBox.m_vMin.Set(0, i, 0);
+        destBox.m_vMax.Set(6, i + 1, 1);
+        ezGALSystemMemoryDescription memDesc;
+        memDesc.m_pData = &skyIrradianceStorage[i].m_Values[0];
+        memDesc.m_uiRowPitch = sizeof(ezAmbientCube<ezColorLinear16f>);
+        pGALCommandEncoder->UpdateTexture(s_pData->m_hSkyIrradianceTexture, ezGALTextureSubresource(), destBox, memDesc);
+
+        uiSkyIrradianceChanged &= ~EZ_BIT(i);
+
+        if (i < s_pData->m_WorldReflectionData.GetCount() && s_pData->m_WorldReflectionData[i] != nullptr)
+        {
+          ezReflectionPool::Data::WorldReflectionData& data = *s_pData->m_WorldReflectionData[i];
+          atlasToClear.PushBack(data.m_mapping.GetTexture());
+        }
       }
     }
+    pGALPass->EndCompute(pGALCommandEncoder);
   }
-  pGALPass->EndCompute(pGALCommandEncoder);
 
-  // Clear specular sky reflection to black.
-  const ezUInt32 uiNumMipMaps = GetMipLevels();
-  for (ezGALTextureHandle atlas : atlasToClear)
   {
-    for (ezUInt32 uiMipMapIndex = 0; uiMipMapIndex < uiNumMipMaps; ++uiMipMapIndex)
+    // Clear specular sky reflection to black.
+    const ezUInt32 uiNumMipMaps = GetMipLevels();
+    for (ezGALTextureHandle atlas : atlasToClear)
     {
-      for (ezUInt32 uiFaceIndex = 0; uiFaceIndex < 6; ++uiFaceIndex)
+      for (ezUInt32 uiMipMapIndex = 0; uiMipMapIndex < uiNumMipMaps; ++uiMipMapIndex)
       {
-        ezGALRenderingSetup renderingSetup;
-        ezGALRenderTargetViewCreationDescription desc;
-        desc.m_hTexture = atlas;
-        desc.m_uiMipLevel = uiMipMapIndex;
-        desc.m_uiFirstSlice = uiFaceIndex;
-        desc.m_uiSliceCount = 1;
-        renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, pDevice->CreateRenderTargetView(desc));
+        for (ezUInt32 uiFaceIndex = 0; uiFaceIndex < 6; ++uiFaceIndex)
+        {
+          ezGALRenderingSetup renderingSetup;
+          ezGALRenderTargetViewCreationDescription desc;
+          desc.m_hTexture = atlas;
+          desc.m_uiMipLevel = uiMipMapIndex;
+          desc.m_uiFirstSlice = uiFaceIndex;
+          desc.m_uiSliceCount = 1;
+          renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, pDevice->CreateRenderTargetView(desc));
 
-        auto pGALCommandEncoder = pGALPass->BeginRendering(renderingSetup, "ClearSkySpecular");
-        pGALCommandEncoder->Clear(ezColor::Black);
-        pGALPass->EndRendering(pGALCommandEncoder);
+          auto pGALCommandEncoder = pGALPass->BeginRendering(renderingSetup, "ClearSkySpecular");
+          pGALCommandEncoder->Clear(ezColor::Black);
+          pGALPass->EndRendering(pGALCommandEncoder);
+        }
       }
     }
   }
