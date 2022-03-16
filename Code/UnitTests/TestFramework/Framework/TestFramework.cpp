@@ -323,19 +323,19 @@ void ezTestFramework::GetTestSettingsFromCommandLine(const ezCommandLineUtils& c
     }
   }
 
-  opt_HTML.SetDefault(m_Settings.m_bOpenHtmlOutputOnError);
+  opt_HTML.SetDefaultValue(m_Settings.m_bOpenHtmlOutputOnError);
   m_Settings.m_bOpenHtmlOutputOnError = opt_HTML.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified, &cmd);
 
-  opt_Console.SetDefault(m_Settings.m_bKeepConsoleOpen);
+  opt_Console.SetDefaultValue(m_Settings.m_bKeepConsoleOpen);
   m_Settings.m_bKeepConsoleOpen = opt_Console.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified, &cmd);
 
-  opt_Timestamps.SetDefault(m_Settings.m_bShowTimestampsInLog);
+  opt_Timestamps.SetDefaultValue(m_Settings.m_bShowTimestampsInLog);
   m_Settings.m_bShowTimestampsInLog = opt_Timestamps.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified, &cmd);
 
-  opt_MsgBox.SetDefault(m_Settings.m_bShowMessageBox);
+  opt_MsgBox.SetDefaultValue(m_Settings.m_bShowMessageBox);
   m_Settings.m_bShowMessageBox = opt_MsgBox.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified, &cmd);
 
-  opt_DisableSuccessful.SetDefault(m_Settings.m_bAutoDisableSuccessfulTests);
+  opt_DisableSuccessful.SetDefaultValue(m_Settings.m_bAutoDisableSuccessfulTests);
   m_Settings.m_bAutoDisableSuccessfulTests = opt_DisableSuccessful.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified, &cmd);
 
   m_Settings.m_iRevision = opt_Revision.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified, &cmd);
@@ -377,7 +377,7 @@ void ezTestFramework::GetTestSettingsFromCommandLine(const ezCommandLineUtils& c
   {
     m_sAbsTestSettingsFilePath = m_sAbsTestOutputDir + std::string("/TestSettings.txt");
   }
-  opt_NoSave.SetDefault(bNoAutoSave);
+  opt_NoSave.SetDefaultValue(bNoAutoSave);
   m_Settings.m_bNoAutomaticSaving = opt_NoSave.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified, &cmd);
 
   m_uiPassesLeft = m_Settings.m_uiFullPasses;
@@ -1257,7 +1257,7 @@ static void AppendImageData(ezStringBuilder& output, ezImage& img)
   ezDynamicArray<ezUInt8> imgData;
   ezMemoryStreamContainerWrapperStorage<ezDynamicArray<ezUInt8>> storage(&imgData);
   ezMemoryStreamWriter writer(&storage);
-  format->WriteImage(writer, img, ezLog::GetThreadLocalLogSystem(), "png").IgnoreResult();
+  format->WriteImage(writer, img, "png").IgnoreResult();
 
   ezDynamicArray<char> imgDataBase64 = ArrayToBase64(imgData.GetArrayPtr());
   ezStringView imgDataBase64StringView(imgDataBase64.GetArrayPtr().GetPtr(), imgDataBase64.GetArrayPtr().GetEndPtr());
