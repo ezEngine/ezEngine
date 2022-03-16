@@ -1,0 +1,6 @@
+set_property(GLOBAL PROPERTY EZ_BUILD_FILTER_FoundationOnly
+    Foundation
+    enet
+    zstd
+    zlib
+)

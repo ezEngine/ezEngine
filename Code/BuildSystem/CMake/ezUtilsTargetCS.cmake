@@ -2,7 +2,9 @@
 ### ez_create_target_cs(<LIBRARY | APPLICATION> <target-name>)
 ######################################
 
-function(ez_create_target_cs TYPE TARGET_NAME)
+macro(ez_create_target_cs TYPE TARGET_NAME)
+
+    ez_apply_build_filter(${TARGET_NAME})
 
     set(ARG_OPTIONS NO_EZ_PREFIX)
     set(ARG_ONEVALUEARGS DOTNET_VERSION)
@@ -55,7 +57,10 @@ function(ez_create_target_cs TYPE TARGET_NAME)
 
     # default C# settings
     target_compile_options(${TARGET_NAME} PRIVATE "/langversion:default")
-    set_property(TARGET ${TARGET_NAME} PROPERTY WIN32_EXECUTABLE TRUE)
+
+    # setting this turns the app into a "Windows" application, not a "Console" application
+    # use ez_make_winmain_executable if this is desired
+    #set_property(TARGET ${TARGET_NAME} PROPERTY WIN32_EXECUTABLE TRUE)
     
     if (ARG_DOTNET_VERSION)
         #message(STATUS "Custom .NET version: ${ARG_DOTNET_VERSION}")
@@ -67,4 +72,5 @@ function(ez_create_target_cs TYPE TARGET_NAME)
     ez_set_default_target_output_dirs(${TARGET_NAME})
     ez_set_project_ide_folder(${TARGET_NAME} ${CMAKE_CURRENT_SOURCE_DIR})
 
-endfunction()
+
+endmacro()
