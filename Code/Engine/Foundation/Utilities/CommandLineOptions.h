@@ -113,7 +113,7 @@ public:
   virtual void GetLongDesc(ezStringBuilder& out) const override; // [tested]
 
   /// \brief Returns "Doc"
-  virtual const char* GetType() { return "Doc"; }
+  virtual const char* GetType() override { return "Doc"; }
 
   /// \brief Checks whether any of the option variants is set on the command line, and returns which one. For example '-h' or '-help'.
   bool IsOptionSpecified(ezStringBuilder* out_which = nullptr, const ezCommandLineUtils* pUtils = ezCommandLineUtils::GetGlobalInstance()) const; // [tested]
@@ -153,7 +153,7 @@ public:
   bool GetDefaultValue() const { return m_bDefaultValue; }
 
   /// \brief Returns "Bool"
-  virtual const char* GetType() { return "Bool"; }
+  virtual const char* GetType() override { return "Bool"; }
 
 protected:
   bool m_bDefaultValue = false;
@@ -186,7 +186,7 @@ public:
   }
 
   /// \brief Returns "Int"
-  virtual const char* GetType() { return "Int"; }
+  virtual const char* GetType() override { return "Int"; }
 
   /// \brief Returns the minimum value.
   ezInt32 GetMinValue() const { return m_iMinValue; }
@@ -230,7 +230,7 @@ public:
   }
 
   /// \brief Returns "Float"
-  virtual const char* GetType() { return "Float"; }
+  virtual const char* GetType() override { return "Float"; }
 
   /// \brief Returns the minimum value.
   float GetMinValue() const { return m_fMinValue; }
@@ -270,7 +270,7 @@ public:
   const char* GetDefaultValue() const { return m_szDefaultValue; }
 
   /// \brief Returns "String"
-  virtual const char* GetType() { return "String"; }
+  virtual const char* GetType() override { return "String"; }
 
 protected:
   const char* m_szDefaultValue = "";
@@ -299,7 +299,7 @@ public:
   const char* GetDefaultValue() const { return m_szDefaultValue; }
 
   /// \brief Returns "Path"
-  virtual const char* GetType() { return "Path"; }
+  virtual const char* GetType() override { return "Path"; }
 
 protected:
   const char* m_szDefaultValue = "";
@@ -349,7 +349,7 @@ public:
   ezInt32 GetDefaultValue() const { return m_iDefaultValue; }
 
   /// \brief Returns "Enum"
-  virtual const char* GetType() { return "Enum"; }
+  virtual const char* GetType() override { return "Enum"; }
 
 protected:
   ezInt32 m_iDefaultValue = 0;

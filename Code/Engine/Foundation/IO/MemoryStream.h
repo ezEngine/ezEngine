@@ -163,7 +163,7 @@ public:
   ezDefaultMemoryStreamStorage(ezUInt32 uiInitialCapacity = 0, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator());
   ~ezDefaultMemoryStreamStorage();
 
-  void Reserve(ezUInt64 bytes); // [tested]
+  virtual void Reserve(ezUInt64 bytes) override; // [tested]
 
   virtual ezUInt64 GetStorageSize64() const override; // [tested]
   virtual void Clear() override;

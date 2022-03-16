@@ -53,35 +53,32 @@ ezResult ezArchiveTOC::Serialize(ezStreamWriter& stream) const
   return EZ_SUCCESS;
 }
 
-namespace
+struct ezOldTempHashedString
 {
-  struct ezOldTempHashedString
+  ezUInt32 m_uiHash = 0;
+
+  ezResult Deserialize(ezStreamReader& r)
   {
-    ezUInt32 m_uiHash = 0;
+    r >> m_uiHash;
+    return EZ_SUCCESS;
+  }
 
-    ezResult Deserialize(ezStreamReader& r)
-    {
-      r >> m_uiHash;
-      return EZ_SUCCESS;
-    }
-
-    bool operator==(const ezOldTempHashedString& rhs) const
-    {
-      return m_uiHash == rhs.m_uiHash;
-    }
-  };
-
-  template <>
-  struct ezHashHelper<ezOldTempHashedString>
+  bool operator==(const ezOldTempHashedString& rhs) const
   {
-    static ezUInt32 Hash(const ezOldTempHashedString& value)
-    {
-      return value.m_uiHash;
-    }
+    return m_uiHash == rhs.m_uiHash;
+  }
+};
 
-    static bool Equal(const ezOldTempHashedString& a, const ezOldTempHashedString& b) { return a == b; }
-  };
-}
+template <>
+struct ezHashHelper<ezOldTempHashedString>
+{
+  static ezUInt32 Hash(const ezOldTempHashedString& value)
+  {
+    return value.m_uiHash;
+  }
+
+  static bool Equal(const ezOldTempHashedString& a, const ezOldTempHashedString& b) { return a == b; }
+};
 
 ezResult ezArchiveTOC::Deserialize(ezStreamReader& stream, ezUInt8 uiArchiveVersion)
 {
