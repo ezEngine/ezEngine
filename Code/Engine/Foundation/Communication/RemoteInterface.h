@@ -160,6 +160,8 @@ public:
   /// If it is a client, the message is only sent to the server.
   void Send(ezRemoteTransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, const ezArrayPtr<const ezUInt8>& data);
 
+  void Send(ezRemoteTransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, const ezContiguousMemoryStreamStorage& data);
+
   /// \brief Sends a message, appends the given array of data
   /// If it is a server, the message is broadcast to all clients.
   /// If it is a client, the message is only sent to the server.

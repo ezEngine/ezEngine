@@ -143,6 +143,16 @@ void ezRTTI::GatherDynamicMessageHandlers()
   }
 }
 
+void ezRTTI::SetupParentHierarchy()
+{
+  m_ParentHierarchy.Clear();
+
+  for (const ezRTTI* rtti = this; rtti != nullptr; rtti = rtti->m_pParentType)
+  {
+    m_ParentHierarchy.PushBack(rtti);
+  }
+}
+
 void ezRTTI::VerifyCorrectness() const
 {
   if (m_fnVerifyParent != nullptr)
@@ -199,6 +209,7 @@ void ezRTTI::UpdateType(const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32
   m_uiTypeSize = uiTypeSize;
   m_uiTypeVersion = uiTypeVersion;
   m_TypeFlags = flags;
+  m_ParentHierarchy.Clear();
 }
 
 void ezRTTI::RegisterType()
@@ -215,21 +226,6 @@ void ezRTTI::UnregisterType()
   auto pTable = GetTypeHashTable();
   EZ_LOCK(pTable->m_Mutex);
   pTable->m_Table.Remove(m_szTypeName);
-}
-
-bool ezRTTI::IsDerivedFrom(const ezRTTI* pBaseType) const
-{
-  const ezRTTI* pThis = this;
-
-  while (pThis != nullptr)
-  {
-    if (pThis == pBaseType)
-      return true;
-
-    pThis = pThis->m_pParentType;
-  }
-
-  return false;
 }
 
 void ezRTTI::GetAllProperties(ezHybridArray<ezAbstractProperty*, 32>& out_Properties) const
@@ -404,6 +400,7 @@ void ezRTTI::AssignPlugin(const char* szPluginName)
       pInstance->m_szPluginName = szPluginName;
       SanityCheckType(pInstance);
 
+      pInstance->SetupParentHierarchy();
       pInstance->GatherDynamicMessageHandlers();
     }
     pInstance = pInstance->GetNextInstance();

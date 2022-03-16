@@ -32,6 +32,6 @@ private:
   bool m_bOnlyWriteIfDifferent = false;
   bool m_bAlreadyClosed = false;
   ezString m_sOutputFile;
-  ezMemoryStreamStorage m_Storage;
+  ezDefaultMemoryStreamStorage m_Storage;
   ezMemoryStreamWriter m_Writer;
 };

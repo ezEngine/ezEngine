@@ -63,9 +63,9 @@ void ezIpcChannelEnet::InternalSend()
 
     while (!m_OutputQueue.IsEmpty())
     {
-      ezMemoryStreamStorage& storage = m_OutputQueue.PeekFront();
+      ezContiguousMemoryStreamStorage& storage = m_OutputQueue.PeekFront();
 
-      m_Network->Send(ezRemoteTransmitMode::Reliable, 0, 0, storage.GetData(), storage.GetStorageSize());
+      m_Network->Send(ezRemoteTransmitMode::Reliable, 0, 0, storage);
 
       m_OutputQueue.PopFront();
     }
@@ -90,11 +90,8 @@ void ezIpcChannelEnet::Tick()
 
 void ezIpcChannelEnet::NetworkMessageHandler(ezRemoteMessage& msg)
 {
-  ezArrayPtr<const ezUInt8> data(msg.GetMessageData(), msg.GetMessageSize());
-
-  ReceiveMessageData(data);
+  ReceiveMessageData(msg.GetMessageData());
 }
-
 
 void ezIpcChannelEnet::EnetEventHandler(const ezRemoteEvent& e)
 {

@@ -93,6 +93,12 @@ public:
   void SetIntersection(const ezRectTemplate<Type>& r0, const ezRectTemplate<Type>& r1);
 
   void SetUnion(const ezRectTemplate<Type>& r0, const ezRectTemplate<Type>& r1);
+
+  /// \brief Moves the rectangle
+  void Translate(Type tX, Type tY);
+
+  /// \brief Scales width and height, and moves the position as well.
+  void Scale(Type sX, Type sY);
 };
 
 #include <Foundation/Math/Implementation/Rect_inl.h>

@@ -39,8 +39,10 @@ void ezCrashHandler::SetCrashHandler(ezCrashHandler* pHandler)
 bool ezCrashHandler_WriteMiniDump::WriteOwnProcessMiniDump(void* pOsSpecificData)
 {
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-  ezMiniDumpUtils::WriteOwnProcessMiniDump(m_sDumpFilePath, (_EXCEPTION_POINTERS*)pOsSpecificData);
-  return true;
+  ezStatus res = ezMiniDumpUtils::WriteOwnProcessMiniDump(m_sDumpFilePath, (_EXCEPTION_POINTERS*)pOsSpecificData);
+  if (res.Failed())
+    ezLog::Printf("WriteOwnProcessMiniDump failed: %s\n", res.m_sMessage.GetData());
+  return res.Succeeded();
 #else
   return false;
 #endif

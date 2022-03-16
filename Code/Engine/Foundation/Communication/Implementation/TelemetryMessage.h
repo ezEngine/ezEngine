@@ -23,7 +23,7 @@ public:
     m_uiMsgID = uiMessageID;
   }
 
-  ezUInt64 GetMessageSize() const { return m_Storage.GetStorageSize(); }
+  //ezUInt64 GetMessageSize() const { return m_Storage.GetStorageSize64(); }
 
 private:
   friend class ezTelemetry;
@@ -31,7 +31,7 @@ private:
   ezUInt32 m_uiSystemID;
   ezUInt32 m_uiMsgID;
 
-  ezMemoryStreamStorage m_Storage;
+  ezContiguousMemoryStreamStorage m_Storage;
   ezMemoryStreamReader m_Reader;
   ezMemoryStreamWriter m_Writer;
 };

@@ -234,6 +234,35 @@ public:
     ::ezMath::Swap(m_uiCount, other.m_uiCount);
   }
 
+  /// \brief Checks whether the given value can be found in the array. O(n) complexity.
+  EZ_ALWAYS_INLINE bool Contains(const T& value) const // [tested]
+  {
+    return IndexOf(value) != ezInvalidIndex;
+  }
+
+  /// \brief Searches for the first occurrence of the given value and returns its index or ezInvalidIndex if not found.
+  inline ezUInt32 IndexOf(const T& value, ezUInt32 uiStartIndex = 0) const // [tested]
+  {
+    for (ezUInt32 i = uiStartIndex; i < m_uiCount; ++i)
+    {
+      if (ezMemoryUtils::IsEqual(m_ptr + i, &value))
+        return i;
+    }
+
+    return ezInvalidIndex;
+  }
+
+  /// \brief Searches for the last occurrence of the given value and returns its index or ezInvalidIndex if not found.
+  inline ezUInt32 LastIndexOf(const T& value, ezUInt32 uiStartIndex = ezInvalidIndex) const // [tested]
+  {
+    for (ezUInt32 i = ::ezMath::Min(uiStartIndex, m_uiCount); i-- > 0;)
+    {
+      if (ezMemoryUtils::IsEqual(m_ptr + i, &value))
+        return i;
+    }
+    return ezInvalidIndex;
+  }
+
   using const_iterator = const T*;
   using const_reverse_iterator = const_reverse_pointer_iterator<T>;
   using iterator = T*;

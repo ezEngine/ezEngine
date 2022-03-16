@@ -3,9 +3,16 @@
 #include <Foundation/Basics.h>
 #include <Foundation/ThirdParty/utf8/utf8.h>
 
+
+
 /// \brief Helper functions to work with Unicode.
 class EZ_FOUNDATION_DLL ezUnicodeUtils
 {
+public:
+  /// \brief [internal] Returns the max string end pointer for the given type
+  template <typename T>
+  static constexpr T* GetMaxStringEnd();
+
 public:
   /// \brief Byte Order Mark for Little Endian Utf16 strings.
   static const ezUInt16 Utf16BomLE = 0xfffe;
@@ -105,10 +112,6 @@ public:
 
     Container* m_pContainer;
   };
-
-  /// \brief [internal] Returns the max string end pointer for the given type
-  template <typename T>
-  static constexpr T* GetMaxStringEnd();
 };
 
 

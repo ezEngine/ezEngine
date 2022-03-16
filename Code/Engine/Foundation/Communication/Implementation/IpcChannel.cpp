@@ -69,15 +69,18 @@ bool ezIpcChannel::Send(ezProcessMessage* pMsg)
 {
   {
     EZ_LOCK(m_OutputQueueMutex);
-    ezMemoryStreamStorage& storage = m_OutputQueue.ExpandAndGetRef();
+    ezMemoryStreamStorageInterface& storage = m_OutputQueue.ExpandAndGetRef();
     ezMemoryStreamWriter writer(&storage);
-    ezUInt32 iSize = 0;
-    ezUInt32 iMagic = MAGIC_VALUE;
-    writer << iMagic;
-    writer << iSize;
-    EZ_ASSERT_DEBUG(storage.GetStorageSize() == HEADER_SIZE, "Magic value and size should have written HEADER_SIZE bytes.");
+    ezUInt32 uiSize = 0;
+    ezUInt32 uiMagic = MAGIC_VALUE;
+    writer << uiMagic;
+    writer << uiSize;
+    EZ_ASSERT_DEBUG(storage.GetStorageSize32() == HEADER_SIZE, "Magic value and size should have written HEADER_SIZE bytes.");
     ezReflectionSerializer::WriteObjectToBinary(writer, pMsg->GetDynamicRTTI(), pMsg);
-    *reinterpret_cast<ezUInt32*>((ezUInt8*)storage.GetData() + 4) = storage.GetStorageSize();
+
+    // reset to the beginning and write the stored size again
+    writer.SetWritePosition(4);
+    writer << storage.GetStorageSize32();
   }
   if (m_Connected)
   {
