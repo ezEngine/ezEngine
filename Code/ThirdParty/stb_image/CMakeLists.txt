@@ -4,3 +4,4 @@ ez_cmake_init()
 get_filename_component(PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
 
 ez_create_target(SHARED_LIBRARY ${PROJECT_NAME} NO_EZ_PREFIX)
+

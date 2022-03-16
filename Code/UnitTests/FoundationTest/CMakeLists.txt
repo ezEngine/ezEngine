@@ -1,5 +1,7 @@
 ez_cmake_init()
 
+
+
 # Get the name of this folder as the project name
 get_filename_component(PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
 
@@ -17,11 +19,11 @@ target_link_libraries(${PROJECT_NAME}
   Texture
 )
 
-ez_build_filter_get_index(BUILD_FILTER)
-
 add_dependencies(${PROJECT_NAME}
   FoundationTest_Plugin1
   FoundationTest_Plugin2
 )
 
 ez_ci_add_test(${PROJECT_NAME})
+
+target_compile_options(${PROJECT_NAME} PRIVATE /wd4244)

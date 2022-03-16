@@ -24,3 +24,5 @@ if(EZ_CMAKE_PLATFORM_WINDOWS)
 
   endif()
 endif()
+
+target_compile_options(${PROJECT_NAME} PRIVATE /wd4232 /wd4206 /wd4701)
