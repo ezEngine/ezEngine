@@ -2,6 +2,7 @@
 
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Memory/CommonAllocators.h>
+#include <Foundation/Time/Stopwatch.h>
 #include <Foundation/Types/UniquePtr.h>
 
 namespace DynamicArrayTestDetail

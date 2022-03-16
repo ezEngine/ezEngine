@@ -16,4 +16,6 @@ if(EZ_CMAKE_PLATFORM_POSIX)
   target_compile_definitions(${PROJECT_NAME} PRIVATE LUA_USE_POSIX)
 endif()
 
-target_compile_options(${PROJECT_NAME} PRIVATE /wd4701 /wd4702)
+if(EZ_CMAKE_PLATFORM_WINDOWS)
+  target_compile_options(${PROJECT_NAME} PRIVATE /wd4701 /wd4702)
+endif()

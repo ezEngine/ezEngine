@@ -1,5 +1,7 @@
 #include <Texture/TexturePCH.h>
 
+#include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/Profiling/Profiling.h>
 #include <Texture/Image/Formats/ImageFileFormat.h>
 
 EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezImageFileFormat);

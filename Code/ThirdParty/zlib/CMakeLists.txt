@@ -25,7 +25,7 @@ if(MSVC)
 
   endif()
 
+  target_compile_options(${PROJECT_NAME} PRIVATE /wd4131)
 endif()
 
-target_compile_options(${PROJECT_NAME} PRIVATE /wd4131)
 

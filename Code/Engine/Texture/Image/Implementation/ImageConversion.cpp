@@ -2,7 +2,7 @@
 
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Math/Math.h>
-
+#include <Foundation/Profiling/Profiling.h>
 #include <Texture/Image/ImageConversion.h>
 
 EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezImageConversionStep);

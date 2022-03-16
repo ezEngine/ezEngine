@@ -1,7 +1,5 @@
 ez_cmake_init()
 
-
-
 ez_requires_rmlui()
 
 set (PROJECT_NAME "lunasvg")
@@ -20,4 +18,6 @@ target_include_directories(${PROJECT_NAME}
   "Include"
 )
 
-target_compile_options(${PROJECT_NAME} PRIVATE /wd4456 /wd4458 /wd4701)
+if(EZ_CMAKE_PLATFORM_WINDOWS)
+  target_compile_options(${PROJECT_NAME} PRIVATE /wd4456 /wd4458 /wd4701)
+endif()

@@ -2,6 +2,7 @@
 
 #include <Texture/Image/ImageUtils.h>
 
+#include <Foundation/Profiling/Profiling.h>
 #include <Foundation/SimdMath/SimdVec4f.h>
 #include <Texture/Image/ImageConversion.h>
 #include <Texture/Image/ImageEnums.h>

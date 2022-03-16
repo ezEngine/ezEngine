@@ -1,5 +1,6 @@
 #include <Texture/TexturePCH.h>
 
+#include <Foundation/Profiling/Profiling.h>
 #include <Texture/TexConv/TexConvProcessor.h>
 
 ezResult ezTexConvProcessor::Assemble2DTexture(const ezImageHeader& refImg, ezImage& dst) const

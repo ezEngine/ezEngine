@@ -1,5 +1,6 @@
 #include <Texture/TexturePCH.h>
 
+#include <Foundation/Profiling/Profiling.h>
 #include <Texture/TexConv/TexConvProcessor.h>
 
 static ezImageFormat::Enum DetermineOutputFormatPC(

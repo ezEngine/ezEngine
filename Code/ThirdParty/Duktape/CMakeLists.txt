@@ -11,4 +11,6 @@ ez_create_target(LIBRARY ${PROJECT_NAME} NO_EZ_PREFIX)
 
 target_compile_definitions(${PROJECT_NAME} PUBLIC BUILDSYSTEM_ENABLE_DUKTAPE_SUPPORT)
 
-target_compile_options(${PROJECT_NAME} PRIVATE /wd4702)
+if(MSVC)
+    target_compile_options(${PROJECT_NAME} PRIVATE /wd4702)
+endif()

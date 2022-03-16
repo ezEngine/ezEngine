@@ -1,5 +1,6 @@
 #include <Texture/TexturePCH.h>
 
+#include <Foundation/Profiling/Profiling.h>
 #include <Texture/Image/ImageUtils.h>
 #include <Texture/TexConv/TexConvProcessor.h>
 
@@ -152,13 +153,15 @@ ezResult ezTexConvProcessor::ConvertToNormalMap(ezImage& bumpMap) const
   EZ_ASSERT_DEV(bumpMap.GetImageFormat() == ezImageFormat::R32G32B32A32_FLOAT && bumpMap.GetRowPitch() % sizeof(ezColor) == 0, "");
 
   const ezColor* bumpPixels = bumpMap.GetPixelPointer<ezColor>(0, 0, 0, 0, 0, 0);
-  const auto getBumpPixel = [&](ezUInt32 x, ezUInt32 y) -> float {
+  const auto getBumpPixel = [&](ezUInt32 x, ezUInt32 y) -> float
+  {
     const ezColor* ptr = bumpPixels + y * bumpMap.GetWidth() + x;
     return ptr->r;
   };
 
   ezColor* newPixels = newImage.GetPixelPointer<ezColor>(0, 0, 0, 0, 0, 0);
-  auto getNewPixel = [&](ezUInt32 x, ezUInt32 y) -> ezColor& {
+  auto getNewPixel = [&](ezUInt32 x, ezUInt32 y) -> ezColor&
+  {
     ezColor* ptr = newPixels + y * newImage.GetWidth() + x;
     return *ptr;
   };
@@ -166,7 +169,8 @@ ezResult ezTexConvProcessor::ConvertToNormalMap(ezImage& bumpMap) const
   switch (m_Descriptor.m_BumpMapFilter)
   {
     case ezTexConvBumpMapFilter::Finite:
-      filterKernel = [&](ezUInt32 x, ezUInt32 y) {
+      filterKernel = [&](ezUInt32 x, ezUInt32 y)
+      {
         constexpr float linearKernel[3] = {-1, 0, 1};
 
         Accum accum;
@@ -186,7 +190,8 @@ ezResult ezTexConvProcessor::ConvertToNormalMap(ezImage& bumpMap) const
       };
       break;
     case ezTexConvBumpMapFilter::Sobel:
-      filterKernel = [&](ezUInt32 x, ezUInt32 y) {
+      filterKernel = [&](ezUInt32 x, ezUInt32 y)
+      {
         constexpr float kernel[3][3] = {{-1, 0, 1}, {-2, 0, 2}, {-1, 0, 1}};
         constexpr float weight = 1.f / 4.f;
 
@@ -212,7 +217,8 @@ ezResult ezTexConvProcessor::ConvertToNormalMap(ezImage& bumpMap) const
       };
       break;
     case ezTexConvBumpMapFilter::Scharr:
-      filterKernel = [&](ezUInt32 x, ezUInt32 y) {
+      filterKernel = [&](ezUInt32 x, ezUInt32 y)
+      {
         constexpr float kernel[3][3] = {{-3, 0, 3}, {-10, 0, 10}, {-3, 0, 3}};
         constexpr float weight = 1.f / 16.f;
 

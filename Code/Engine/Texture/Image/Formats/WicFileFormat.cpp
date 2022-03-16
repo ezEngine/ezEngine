@@ -10,6 +10,7 @@
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 
+#  include <Foundation/IO/StreamUtils.h>
 #  include <Foundation/Profiling/Profiling.h>
 #  include <Texture/DirectXTex/DirectXTex.h>
 
