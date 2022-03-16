@@ -151,7 +151,7 @@ void RtsEditLevelMode::OnProcessInput(const RtsMouseInputState& MouseInput)
   {
     ezGameObject* pSpawned = nullptr;
 
-    ezUInt16 uiTeam = m_pBlackboard->GetEntryValue(s_sTeam).Get<ezUInt16>();
+    ezUInt16 uiTeam = static_cast<ezUInt16>(m_pBlackboard->GetEntryValue(s_sTeam).Get<int>());
     int iShipType = m_pBlackboard->GetEntryValue(s_sShipType).Get<int>();
     pSpawned = m_pGameState->SpawnNamedObjectAt(ezTransform(vPickedGroundPlanePos, ezQuat::IdentityQuaternion()), g_BuildItemTypes[iShipType], uiTeam);
 

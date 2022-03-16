@@ -7,7 +7,7 @@ ezSkeletonBuilder::~ezSkeletonBuilder() = default;
 
 ezUInt16 ezSkeletonBuilder::AddJoint(const char* szName, const ezTransform& localBindPose, ezUInt16 uiParentIndex /*= ezInvalidJointIndex*/)
 {
-  EZ_ASSERT_DEV(uiParentIndex == ezInvalidIndex || uiParentIndex < m_Joints.GetCount(), "Invalid parent index for joint");
+  EZ_ASSERT_DEV(uiParentIndex == ezInvalidJointIndex || uiParentIndex < m_Joints.GetCount(), "Invalid parent index for joint");
 
   auto& joint = m_Joints.ExpandAndGetRef();
 
@@ -16,7 +16,7 @@ ezUInt16 ezSkeletonBuilder::AddJoint(const char* szName, const ezTransform& loca
   joint.m_sName.Assign(szName);
   joint.m_uiParentIndex = uiParentIndex;
 
-  if (uiParentIndex != ezInvalidIndex)
+  if (uiParentIndex != ezInvalidJointIndex)
   {
     joint.m_BindPoseGlobal = m_Joints[joint.m_uiParentIndex].m_BindPoseGlobal * joint.m_BindPoseLocal;
   }
