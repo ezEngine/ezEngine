@@ -48,21 +48,27 @@ function(ez_set_target_output_dirs TARGET_NAME LIB_OUTPUT_DIR DLL_OUTPUT_DIR)
             set(ARCH "arm64")
         endif()
 
-	    set (OUTPUT_LIB_DEBUG       "${LIB_OUTPUT_DIR}/${EZ_CMAKE_PLATFORM_PREFIX}${EZ_CMAKE_GENERATOR_PREFIX}${EZ_CMAKE_COMPILER_POSTFIX}Debug${EZ_CMAKE_ARCHITECTURE_POSTFIX}${SUB_DIR}")
-	    set (OUTPUT_LIB_SHIPPING     "${LIB_OUTPUT_DIR}/${EZ_CMAKE_PLATFORM_PREFIX}${EZ_CMAKE_GENERATOR_PREFIX}${EZ_CMAKE_COMPILER_POSTFIX}Shipping${EZ_CMAKE_ARCHITECTURE_POSTFIX}${SUB_DIR}")
-	    set (OUTPUT_LIB_DEV  "${LIB_OUTPUT_DIR}/${EZ_CMAKE_PLATFORM_PREFIX}${EZ_CMAKE_GENERATOR_PREFIX}${EZ_CMAKE_COMPILER_POSTFIX}Dev${EZ_CMAKE_ARCHITECTURE_POSTFIX}${SUB_DIR}")
-
     elseif(EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP)
-        set(WIN10_POSTFIX "_win10")
+        #set(WIN10_POSTFIX "_win10")
     endif()
 
 
     string(TOLOWER ${EZ_CMAKE_GENERATOR_PREFIX} LOWER_GENERATOR_PREFIX)
 
+    set(PRE_PATH "${UWP_PREFIX}${ARCH}_${LOWER_GENERATOR_PREFIX}${EZ_CMAKE_COMPILER_POSTFIX}${WIN10_POSTFIX}")
 
-	set (OUTPUT_DLL_DEBUG       "${DLL_OUTPUT_DIR}/${EZ_CMAKE_PLATFORM_PREFIX}${EZ_CMAKE_GENERATOR_PREFIX}${EZ_CMAKE_COMPILER_POSTFIX}Debug${EZ_CMAKE_ARCHITECTURE_POSTFIX}${SUB_DIR}")
-	set (OUTPUT_DLL_SHIPPING     "${DLL_OUTPUT_DIR}/${EZ_CMAKE_PLATFORM_PREFIX}${EZ_CMAKE_GENERATOR_PREFIX}${EZ_CMAKE_COMPILER_POSTFIX}Shipping${EZ_CMAKE_ARCHITECTURE_POSTFIX}${SUB_DIR}")
-	set (OUTPUT_DLL_DEV  "${DLL_OUTPUT_DIR}/${EZ_CMAKE_PLATFORM_PREFIX}${EZ_CMAKE_GENERATOR_PREFIX}${EZ_CMAKE_COMPILER_POSTFIX}Dev${EZ_CMAKE_ARCHITECTURE_POSTFIX}${SUB_DIR}")
+    set(OUTPUT_DEBUG    "${PRE_PATH}/Debug${SUB_DIR}")
+    set(OUTPUT_DEV      "${PRE_PATH}/Dev${SUB_DIR}")
+    set(OUTPUT_SHIPPING "${PRE_PATH}/Shipping${SUB_DIR}")
+
+    set(OUTPUT_DLL_DEBUG "${DLL_OUTPUT_DIR}/${OUTPUT_DEBUG}")
+    set(OUTPUT_LIB_DEBUG "${LIB_OUTPUT_DIR}/${OUTPUT_DEBUG}")
+    
+    set(OUTPUT_DLL_DEV "${DLL_OUTPUT_DIR}/${OUTPUT_DEV}")
+    set(OUTPUT_LIB_DEV "${LIB_OUTPUT_DIR}/${OUTPUT_DEV}")
+
+    set(OUTPUT_DLL_SHIPPING "${DLL_OUTPUT_DIR}/${OUTPUT_SHIPPING}")
+    set(OUTPUT_LIB_SHIPPING "${LIB_OUTPUT_DIR}/${OUTPUT_SHIPPING}")
 
     # If we can't use generator expressions the non-generator expression version of the
     # output directory should point to the version matching CMAKE_BUILD_TYPE. This is the case for
@@ -86,7 +92,7 @@ function(ez_set_target_output_dirs TARGET_NAME LIB_OUTPUT_DIR DLL_OUTPUT_DIR)
 			ARCHIVE_OUTPUT_DIRECTORY "${OUTPUT_LIB_DEV}"
         )
     else()
-        message(WARNING "Unknown CMAKE_BUILD_TYPE: '${CMAKE_BUILD_TYPE}')
+        message(WARNING "Unknown CMAKE_BUILD_TYPE: '${CMAKE_BUILD_TYPE}'")
     endif()	
 
     set_target_properties(${TARGET_NAME} PROPERTIES
@@ -204,7 +210,7 @@ function(ez_set_project_ide_folder TARGET_NAME PROJECT_SOURCE_DIR)
 
     get_filename_component (PARENT_FOLDER ${PROJECT_SOURCE_DIR} PATH)
     get_filename_component (FOLDER_NAME ${PARENT_FOLDER} NAME)
-
+    
     set(IDE_FOLDER "${FOLDER_NAME}")
     
     if (${PROJECT_SOURCE_DIR} MATCHES "${CMAKE_SOURCE_DIR}/")
@@ -212,7 +218,7 @@ function(ez_set_project_ide_folder TARGET_NAME PROJECT_SOURCE_DIR)
         set(IDE_FOLDER "")
         string(REPLACE "${CMAKE_SOURCE_DIR}/" "" PARENT_FOLDER ${PROJECT_SOURCE_DIR})
 
-
+        
 		get_filename_component (PARENT_FOLDER "${PARENT_FOLDER}" PATH)
 		get_filename_component (FOLDER_NAME "${PARENT_FOLDER}" NAME)
 		
@@ -224,7 +230,7 @@ function(ez_set_project_ide_folder TARGET_NAME PROJECT_SOURCE_DIR)
             
 		get_filename_component (PARENT_FOLDER "${PARENT_FOLDER}" PATH)
 		get_filename_component (FOLDER_NAME "${PARENT_FOLDER}" NAME)
-		
+            
 		get_filename_component (PARENT_FOLDER2 "${PARENT_FOLDER}" PATH)
         
         endwhile()
