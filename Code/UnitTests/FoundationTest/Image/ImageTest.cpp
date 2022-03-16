@@ -15,8 +15,6 @@ EZ_CREATE_SIMPLE_TEST_GROUP(Image);
 
 EZ_CREATE_SIMPLE_TEST(Image, Image)
 {
-  ezMuteLog LogIgnore;
-
   const ezStringBuilder sReadDir(">sdk/", ezTestFramework::GetInstance()->GetRelTestDataPath());
   const ezStringBuilder sWriteDir = ezTestFramework::GetInstance()->GetAbsOutputPath();
 
@@ -75,7 +73,9 @@ EZ_CREATE_SIMPLE_TEST(Image, Image)
         fileName.Format("{0}.bmp", testImagesBad[i]);
 
         EZ_TEST_BOOL_MSG(ezFileSystem::ExistsFile(fileName), "File does not exist: '%s'", fileName.GetData());
-        EZ_TEST_BOOL_MSG(image.LoadFrom(fileName, &LogIgnore) == EZ_FAILURE, "Reading image should have failed: '%s'", fileName.GetData());
+
+        EZ_LOG_BLOCK_MUTE();
+        EZ_TEST_BOOL_MSG(image.LoadFrom(fileName) == EZ_FAILURE, "Reading image should have failed: '%s'", fileName.GetData());
       }
     }
   }

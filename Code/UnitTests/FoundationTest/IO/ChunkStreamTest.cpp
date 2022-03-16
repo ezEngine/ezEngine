@@ -6,7 +6,7 @@
 
 EZ_CREATE_SIMPLE_TEST(IO, ChunkStream)
 {
-  ezMemoryStreamStorage StreamStorage;
+  ezDefaultMemoryStreamStorage StreamStorage;
 
   ezMemoryStreamWriter MemoryWriter(&StreamStorage);
   ezMemoryStreamReader MemoryReader(&StreamStorage);

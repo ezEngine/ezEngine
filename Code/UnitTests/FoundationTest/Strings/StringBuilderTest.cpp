@@ -1404,7 +1404,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ReadAll")
   {
-    ezMemoryStreamStorage StreamStorage;
+    ezDefaultMemoryStreamStorage StreamStorage;
 
     ezMemoryStreamWriter MemoryWriter(&StreamStorage);
     ezMemoryStreamReader MemoryReader(&StreamStorage);
