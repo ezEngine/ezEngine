@@ -250,9 +250,9 @@ struct ezObjectMsgQueueType
 /// \brief Certain components may delete themselves or their owner when they are finished with their main purpose
 struct EZ_CORE_DLL ezOnComponentFinishedAction
 {
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
 
-  enum Enum
+  enum Enum : StorageType
   {
     None,
     DeleteComponent,

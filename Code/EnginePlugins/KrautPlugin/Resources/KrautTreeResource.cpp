@@ -208,7 +208,7 @@ void ezKrautTreeResourceDescriptor::Save(ezStreamWriter& stream0) const
 
   stream0 << uiCompressionMode;
 
-  const ezUInt8 uiNumLods = m_Lods.GetCount();
+  const ezUInt8 uiNumLods = static_cast<ezUInt8>(m_Lods.GetCount());
   stream << uiNumLods;
 
   for (ezUInt8 lodIdx = 0; lodIdx < uiNumLods; ++lodIdx)
@@ -252,7 +252,7 @@ void ezKrautTreeResourceDescriptor::Save(ezStreamWriter& stream0) const
     }
   }
 
-  const ezUInt8 uiNumMats = m_Materials.GetCount();
+  const ezUInt8 uiNumMats = static_cast<ezUInt8>(m_Materials.GetCount());
   stream << uiNumMats;
 
   for (const auto& mat : m_Materials)

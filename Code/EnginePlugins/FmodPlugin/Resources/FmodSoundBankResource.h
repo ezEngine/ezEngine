@@ -40,7 +40,7 @@ public:
     {
     }
 
-    ezMemoryStreamStorage m_Storage;
+    ezDefaultMemoryStreamStorage m_Storage;
     ezMemoryStreamReader m_Reader;
     FMOD::Studio::Bank* m_pSoundBank = nullptr;
     ezDataBuffer* m_pSoundbankData = nullptr;

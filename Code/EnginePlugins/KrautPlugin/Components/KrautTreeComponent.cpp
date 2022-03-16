@@ -204,8 +204,8 @@ void ezKrautTreeComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) c
 
   ezResourceLock<ezKrautTreeResource> pTree(m_hKrautTree, ezResourceAcquireMode::AllowLoadingFallback);
 
-  //if (pTree.GetAcquireResult() != ezResourceAcquireResult::Final)
-  //  return;
+  // if (pTree.GetAcquireResult() != ezResourceAcquireResult::Final)
+  //   return;
 
   ComputeWind();
 
@@ -263,7 +263,7 @@ void ezKrautTreeComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) c
         pRenderData->m_GlobalTransform = tOwner;
         pRenderData->m_GlobalBounds = bounds;
         pRenderData->m_hMesh = lodData.m_hMesh;
-        pRenderData->m_uiSubMeshIndex = subMeshIdx;
+        pRenderData->m_uiSubMeshIndex = static_cast<ezUInt8>(subMeshIdx);
         pRenderData->m_uiUniqueID = GetUniqueIdForRendering(uiMaterialIndex);
         pRenderData->m_bCastShadows = (lodData.m_LodType == ezKrautLodType::Mesh);
 
@@ -347,7 +347,7 @@ void ezKrautTreeComponent::EnsureTreeIsGenerated()
   {
     if (m_uiVariationIndex == 0xFFFF)
     {
-      hNewTree = pResource->GenerateTreeWithGoodSeed(GetOwner()->GetStableRandomSeed());
+      hNewTree = pResource->GenerateTreeWithGoodSeed(GetOwner()->GetStableRandomSeed() & 0xFFFF);
     }
     else
     {
@@ -497,7 +497,7 @@ void ezKrautTreeComponent::OnBuildStaticMesh(ezMsgBuildStaticMesh& msg) const
 
     if (!details.m_sSurfaceResource.IsEmpty())
     {
-      subMesh.m_uiSurfaceIndex = desc.m_Surfaces.GetCount();
+      subMesh.m_uiSurfaceIndex = static_cast<ezUInt16>(desc.m_Surfaces.GetCount());
       desc.m_Surfaces.PushBack(details.m_sSurfaceResource);
     }
   }

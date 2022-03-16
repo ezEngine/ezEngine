@@ -149,7 +149,7 @@ public:
     {
     }
 
-    ezMemoryStreamStorage m_Storage;
+    ezDefaultMemoryStreamStorage m_Storage;
     ezMemoryStreamReader m_Reader;
   };
 
@@ -255,7 +255,8 @@ void ezKrautGeneratorResource::GenerateTreeDescriptor(ezKrautTreeResourceDescrip
   // store spheres for a 'cheap' ambient occlusion computation
   GenerateAmbientOcclusionSpheres(octree, bbox2, occlusionSpheres, treeStructure);
 
-  auto CheckOcclusion = [&](ezUInt32 uiBranch, const ezVec3& pos) -> float {
+  auto CheckOcclusion = [&](ezUInt32 uiBranch, const ezVec3& pos) -> float
+  {
     constexpr float fCluster = 4.0f;
     constexpr float fDivCluster = 1.0f / fCluster;
 
@@ -493,8 +494,8 @@ void ezKrautGeneratorResource::GenerateTreeDescriptor(ezKrautTreeResourceDescrip
         }
 
         auto& subMesh = dstMesh.m_SubMeshes.ExpandAndGetRef();
-        subMesh.m_uiFirstTriangle = uiFirstTriangleIdx;
-        subMesh.m_uiNumTriangles = dstMesh.m_Triangles.GetCount() - uiFirstTriangleIdx;
+        subMesh.m_uiFirstTriangle = static_cast<ezUInt16>(uiFirstTriangleIdx);
+        subMesh.m_uiNumTriangles = static_cast<ezUInt16>(dstMesh.m_Triangles.GetCount() - uiFirstTriangleIdx);
 
         uiTriangleInSubmeshes += subMesh.m_uiNumTriangles;
 
@@ -504,7 +505,7 @@ void ezKrautGeneratorResource::GenerateTreeDescriptor(ezKrautTreeResourceDescrip
           {
             if (srcMat.m_hMaterial.IsValid())
             {
-              subMesh.m_uiMaterialIndex = dstDesc.m_Materials.GetCount();
+              subMesh.m_uiMaterialIndex = static_cast<ezUInt8>(dstDesc.m_Materials.GetCount());
 
               auto& mat = dstDesc.m_Materials.ExpandAndGetRef();
               mat.m_MaterialType = static_cast<ezKrautMaterialType>(geometryType);
@@ -645,9 +646,9 @@ void ezKrautGeneratorResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage
   }
 }
 
-static ezUInt32 GetBranchLevel(const Kraut::TreeStructure& treeStructure, ezUInt32 branchIdx)
+static ezUInt8 GetBranchLevel(const Kraut::TreeStructure& treeStructure, ezUInt32 branchIdx)
 {
-  ezUInt32 uiLevel = 0;
+  ezUInt8 uiLevel = 0;
 
   while (treeStructure.m_BranchStructures[branchIdx].m_iParentBranchID >= 0)
   {
@@ -674,7 +675,7 @@ void ezKrautGeneratorResource::InitializeExtraData(TreeStructureExtraData& extra
     dstData.m_uiRandomNumber = rng.GetRandomNumber();
 
     dstData.m_iParentBranch = srcBranch.m_iParentBranchID;
-    dstData.m_uiParentBranchNodeID = srcBranch.m_uiParentBranchNodeID;
+    dstData.m_uiParentBranchNodeID = static_cast<ezUInt16>(srcBranch.m_uiParentBranchNodeID);
     dstData.m_uiBranchLevel = GetBranchLevel(treeStructure, branchIdx);
 
     dstData.m_Nodes.SetCount(srcBranch.m_Nodes.size());
@@ -804,7 +805,7 @@ ezResult ezKrautGeneratorResourceDescriptor::Serialize(ezStreamWriter& stream) c
 
   ts.Serialize(kstream);
 
-  const ezUInt8 uiNumMaterials = m_Materials.GetCount();
+  const ezUInt8 uiNumMaterials = static_cast<ezUInt8>(m_Materials.GetCount());
   stream << uiNumMaterials;
 
   for (const auto& mat : m_Materials)

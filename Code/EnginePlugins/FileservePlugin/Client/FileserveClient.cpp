@@ -270,7 +270,7 @@ void ezFileserveClient::FillFileStatusCache(const char* szFile)
   auto it = m_FileDataDir.FindOrAdd(szFile);
   it.Value() = 0xffff; // does not exist
 
-  for (ezUInt32 i = m_MountedDataDirs.GetCount(); i > 0; --i)
+  for (ezUInt16 i = static_cast<ezUInt16>(m_MountedDataDirs.GetCount()); i > 0; --i)
   {
     const ezUInt16 dd = i - 1;
 
@@ -371,7 +371,7 @@ void ezFileserveClient::NetworkMsgHandler(ezRemoteMessage& msg)
     return;
   }
 
-  ezLog::Error("Unknown FSRV message: '{0}' - {1} bytes", msg.GetMessageID(), msg.GetMessageSize());
+  ezLog::Error("Unknown FSRV message: '{0}' - {1} bytes", msg.GetMessageID(), msg.GetMessageData().GetCount());
 }
 
 ezUInt16 ezFileserveClient::MountDataDirectory(const char* szDataDirectory, const char* szRootName)
@@ -386,7 +386,7 @@ ezUInt16 ezFileserveClient::MountDataDirectory(const char* szDataDirectory, cons
   ezStringBuilder sMountPoint;
   ComputeDataDirMountPoint(szDataDirectory, sMountPoint);
 
-  const ezUInt16 uiDataDirID = m_MountedDataDirs.GetCount();
+  const ezUInt16 uiDataDirID = static_cast<ezUInt16>(m_MountedDataDirs.GetCount());
 
   ezRemoteMessage msg('FSRV', ' MNT');
   msg.GetWriter() << szDataDirectory;
