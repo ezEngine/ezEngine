@@ -28,6 +28,8 @@ ezResult ezTexConvProcessor::ForceSRGBFormats()
 
 ezResult ezTexConvProcessor::GenerateMipmaps(ezImage& img, ezUInt32 uiNumMips, MipmapChannelMode channelMode /*= MipmapChannelMode::AllChannels*/) const
 {
+  EZ_PROFILE_SCOPE("GenerateMipmaps");
+
   ezImageUtils::MipMapOptions opt;
   opt.m_numMipMaps = uiNumMips;
 
@@ -96,6 +98,8 @@ ezResult ezTexConvProcessor::GenerateMipmaps(ezImage& img, ezUInt32 uiNumMips, M
 
 ezResult ezTexConvProcessor::PremultiplyAlpha(ezImage& image) const
 {
+  EZ_PROFILE_SCOPE("PremultiplyAlpha");
+
   if (!m_Descriptor.m_bPremultiplyAlpha)
     return EZ_SUCCESS;
 
@@ -111,12 +115,16 @@ ezResult ezTexConvProcessor::PremultiplyAlpha(ezImage& image) const
 
 ezResult ezTexConvProcessor::AdjustHdrExposure(ezImage& img) const
 {
+  EZ_PROFILE_SCOPE("AdjustHdrExposure");
+
   ezImageUtils::ChangeExposure(img, m_Descriptor.m_fHdrExposureBias);
   return EZ_SUCCESS;
 }
 
 ezResult ezTexConvProcessor::ConvertToNormalMap(ezArrayPtr<ezImage> imgs) const
 {
+  EZ_PROFILE_SCOPE("ConvertToNormalMap");
+
   for (ezImage& img : imgs)
   {
     EZ_SUCCEED_OR_RETURN(ConvertToNormalMap(img));
@@ -393,6 +401,8 @@ ezResult ezTexConvProcessor::DilateColor2D(ezImage& img) const
 {
   if (m_Descriptor.m_uiDilateColor == 0)
     return EZ_SUCCESS;
+
+  EZ_PROFILE_SCOPE("DilateColor2D");
 
   if (!FillAvgImageColor(img))
     return EZ_SUCCESS;

@@ -2,6 +2,7 @@
 
 #include <Texture/TexConv/TexConvProcessor.h>
 
+#include <Foundation/Profiling/Profiling.h>
 #include <Texture/Image/Image.h>
 #include <Texture/Image/ImageConversion.h>
 
@@ -163,6 +164,8 @@ static ezTexConvUsage::Enum DetectUsageFromImage(const ezImage& image)
 
 ezResult ezTexConvProcessor::AdjustUsage(const char* szFilename, const ezImage& srcImg, ezEnum<ezTexConvUsage>& inout_Usage)
 {
+  EZ_PROFILE_SCOPE("AdjustUsage");
+
   if (inout_Usage == ezTexConvUsage::Auto)
   {
     inout_Usage = DetectUsageFromFilename(szFilename);

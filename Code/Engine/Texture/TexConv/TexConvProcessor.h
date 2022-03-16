@@ -20,7 +20,7 @@ public:
   ezImage m_OutputImage;
   ezImage m_LowResOutputImage;
   ezImage m_ThumbnailOutputImage;
-  ezMemoryStreamStorage m_TextureAtlas;
+  ezDefaultMemoryStreamStorage m_TextureAtlas;
 
 private:
   //////////////////////////////////////////////////////////////////////////

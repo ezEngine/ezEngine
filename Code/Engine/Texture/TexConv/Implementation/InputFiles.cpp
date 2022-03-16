@@ -1,10 +1,13 @@
 #include <Texture/TexturePCH.h>
 
+#include <Foundation/Profiling/Profiling.h>
 #include <Texture/Image/ImageUtils.h>
 #include <Texture/TexConv/TexConvProcessor.h>
 
 ezResult ezTexConvProcessor::LoadInputImages()
 {
+  EZ_PROFILE_SCOPE("Load Images");
+
   if (m_Descriptor.m_InputImages.IsEmpty() && m_Descriptor.m_InputFiles.IsEmpty())
   {
     ezLog::Error("No input images have been specified.");
@@ -90,6 +93,8 @@ ezResult ezTexConvProcessor::ConvertAndScaleImage(const char* szImageName, ezIma
 
 ezResult ezTexConvProcessor::ConvertAndScaleInputImages(ezUInt32 uiResolutionX, ezUInt32 uiResolutionY, ezEnum<ezTexConvUsage> usage)
 {
+  EZ_PROFILE_SCOPE("ConvertAndScaleInputImages");
+
   for (ezUInt32 idx = 0; idx < m_Descriptor.m_InputImages.GetCount(); ++idx)
   {
     auto& img = m_Descriptor.m_InputImages[idx];

@@ -5,6 +5,8 @@
 
 ezResult ezTexConvProcessor::AssembleCubemap(ezImage& dst) const
 {
+  EZ_PROFILE_SCOPE("AssembleCubemap");
+
   const auto& cm = m_Descriptor.m_ChannelMappings;
   const auto& images = m_Descriptor.m_InputImages;
 

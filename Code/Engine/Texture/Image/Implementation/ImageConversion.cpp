@@ -363,6 +363,8 @@ void ezImageConversion::RebuildConversionTable()
 
 ezResult ezImageConversion::Convert(const ezImageView& source, ezImage& target, ezImageFormat::Enum targetFormat)
 {
+  EZ_PROFILE_SCOPE("ezImageConversion::Convert");
+
   ezImageFormat::Enum sourceFormat = source.GetImageFormat();
 
   // Trivial copy

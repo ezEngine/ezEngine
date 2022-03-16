@@ -95,6 +95,8 @@ static ezImageFormat::Enum DetermineOutputFormatPC(
 
 ezResult ezTexConvProcessor::ChooseOutputFormat(ezEnum<ezImageFormat>& out_Format, ezEnum<ezTexConvUsage> usage, ezUInt32 uiNumChannels) const
 {
+  EZ_PROFILE_SCOPE("ChooseOutputFormat");
+
   EZ_ASSERT_DEV(out_Format == ezImageFormat::UNKNOWN, "Output format already set");
 
   switch (m_Descriptor.m_TargetPlatform)
