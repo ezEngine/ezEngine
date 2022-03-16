@@ -177,10 +177,10 @@ void RecursiveModifyProperty(const ezDocumentObject* pObject, const ezAbstractPr
   }
   else if (pProp->GetCategory() == ezPropertyCategory::Array || pProp->GetCategory() == ezPropertyCategory::Set)
   {
-    ezInt32 iCurrentCount = pObjectAccessor->GetCount(pObject, pProp);
     if (pProp->GetFlags().IsAnySet(ezPropertyFlags::StandardType | ezPropertyFlags::Pointer) &&
         !pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
     {
+      ezInt32 iCurrentCount = pObjectAccessor->GetCount(pObject, pProp);
       for (ezInt32 i = iCurrentCount - 1; i >= 0; --i)
       {
         pObjectAccessor->RemoveValue(pObject, pProp, i);
@@ -211,10 +211,10 @@ void RecursiveModifyProperty(const ezDocumentObject* pObject, const ezAbstractPr
   }
   else if (pProp->GetCategory() == ezPropertyCategory::Map)
   {
-    ezInt32 iCurrentCount = pObjectAccessor->GetCount(pObject, pProp);
     if (pProp->GetFlags().IsAnySet(ezPropertyFlags::StandardType | ezPropertyFlags::Pointer) &&
         !pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
     {
+      ezInt32 iCurrentCount = pObjectAccessor->GetCount(pObject, pProp);
       ezHybridArray<ezVariant, 16> keys;
       pObjectAccessor->GetKeys(pObject, pProp, keys);
       for (const ezVariant& key : keys)
