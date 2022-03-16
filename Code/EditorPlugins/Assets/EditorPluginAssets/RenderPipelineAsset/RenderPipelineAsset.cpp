@@ -129,14 +129,13 @@ ezStatus ezRenderPipelineAssetDocument::InternalTransformAsset(ezStreamWriter& s
   ezDocumentNodeManager* pManager = static_cast<ezDocumentNodeManager*>(GetObjectManager());
   pManager->AttachMetaDataBeforeSaving(graph);
 
-  ezMemoryStreamStorage storage;
+  ezDefaultMemoryStreamStorage storage;
   ezMemoryStreamWriter writer(&storage);
   ezAbstractGraphBinarySerializer::Write(writer, &graph);
 
-  ezUInt32 uiSize = storage.GetStorageSize();
+  ezUInt32 uiSize = storage.GetStorageSize32();
   stream << uiSize;
-  EZ_SUCCEED_OR_RETURN(stream.WriteBytes(storage.GetData(), uiSize));
-  return ezStatus(EZ_SUCCESS);
+  return storage.CopyToStream(stream);
 }
 
 void ezRenderPipelineAssetDocument::InternalGetMetaDataHash(const ezDocumentObject* pObject, ezUInt64& inout_uiHash) const

@@ -120,14 +120,14 @@ ezStatus ezDecalAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& Unus
 
     if (!pProp->m_sAlphaMask.IsEmpty())
     {
-      ezStringBuilder sAbsPath = pProp->m_sAlphaMask;
-      if (!pEditorApp->MakeDataDirectoryRelativePathAbsolute(sAbsPath))
+      ezStringBuilder sAbsPath2 = pProp->m_sAlphaMask;
+      if (!pEditorApp->MakeDataDirectoryRelativePathAbsolute(sAbsPath2))
       {
-        return ezStatus(ezFmt("Failed to make path absolute: '{}'", sAbsPath));
+        return ezStatus(ezFmt("Failed to make path absolute: '{}'", sAbsPath2));
       }
 
       arguments << "-in1";
-      arguments << QString(sAbsPath.GetData());
+      arguments << QString(sAbsPath2.GetData());
 
       arguments << "-rgb";
       arguments << "in0.rgb";

@@ -60,7 +60,7 @@ function(ez_set_build_flags_msvc TARGET_NAME)
 	target_compile_options(${TARGET_NAME} PRIVATE "/utf-8")
 
 	# set high warning level
-	target_compile_options(${TARGET_NAME} PRIVATE "/W4")
+	#target_compile_options(${TARGET_NAME} PRIVATE "/W4") # too much work to fix all warnings in ez
 	
 	# /WX: treat warnings as errors
 	if (NOT ${ARG_NO_WARNINGS_AS_ERRORS} AND NOT CMAKE_CXX_COMPILER_ID MATCHES "Clang")

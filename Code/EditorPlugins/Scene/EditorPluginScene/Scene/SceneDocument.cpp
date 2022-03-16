@@ -169,7 +169,7 @@ void ezSceneDocument::DuplicateSpecial()
   }
 
   // Serialize to string
-  ezMemoryStreamStorage streamStorage;
+  ezContiguousMemoryStreamStorage streamStorage;
   ezMemoryStreamWriter memoryWriter(&streamStorage);
 
   ezAbstractGraphDdlSerializer::Write(memoryWriter, &graph);
@@ -439,7 +439,7 @@ void ezSceneDocument::DuplicateSelection()
   }
 
   // Serialize to string
-  ezMemoryStreamStorage streamStorage;
+  ezContiguousMemoryStreamStorage streamStorage;
   ezMemoryStreamWriter memoryWriter(&streamStorage);
 
   ezAbstractGraphDdlSerializer::Write(memoryWriter, &graph);
