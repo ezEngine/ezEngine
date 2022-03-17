@@ -253,7 +253,7 @@ private:
 
   PerFrameData m_PerFrameData[4];
   ezUInt8 m_uiCurrentPerFrameData = 0;
-  ezUInt8 m_uiNextPerFrameData = 0;
+  ezUInt8 m_uiNextPerFrameData = 1;
 
   ezUInt64 m_uiFrameCounter = 0;
 

@@ -399,18 +399,15 @@ ezResult ezGALDeviceVulkan::ShutdownPlatform()
   {
     // First, we wait for all fences for all submit calls. This is necessary to make sure no resources of the frame are still in use by the GPU.
     auto& perFrameData = m_PerFrameData[i];
-    if (perFrameData.m_uiFrame != ((ezUInt64)-1))
+    for (vk::Fence fence : perFrameData.m_CommandBufferFences)
     {
-      for (vk::Fence fence : perFrameData.m_CommandBufferFences)
+      vk::Result fenceStatus = m_device.getFenceStatus(fence);
+      if (fenceStatus == vk::Result::eNotReady)
       {
-        vk::Result fenceStatus = m_device.getFenceStatus(fence);
-        if (fenceStatus == vk::Result::eNotReady)
-        {
-          m_device.waitForFences(1, &fence, true, 1000000000ui64);
-        }
+        m_device.waitForFences(1, &fence, true, 1000000000ui64);
       }
-      perFrameData.m_CommandBufferFences.Clear();
     }
+    perFrameData.m_CommandBufferFences.Clear();
   }
 
   for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_PerFrameData); ++i)
@@ -941,32 +938,23 @@ void ezGALDeviceVulkan::BeginFramePlatform()
   // check if fence is reached and wait if the disjoint timer is about to be re-used
   {
     auto& perFrameData = m_PerFrameData[m_uiCurrentPerFrameData];
-    if (perFrameData.m_uiFrame != ((ezUInt64)-1))
+    for (vk::Fence fence : perFrameData.m_CommandBufferFences)
     {
-      for (vk::Fence fence : perFrameData.m_CommandBufferFences)
+      vk::Result fenceStatus = m_device.getFenceStatus(fence);
+      if (fenceStatus == vk::Result::eNotReady)
       {
-        vk::Result fenceStatus = m_device.getFenceStatus(fence);
-        if (fenceStatus == vk::Result::eNotReady)
-        {
-          m_device.waitForFences(1, &fence, true, 1000000000ui64);
-        }
-      }
-      perFrameData.m_CommandBufferFences.Clear();
-
-      {
-        EZ_LOCK(m_PerFrameData[m_uiCurrentPerFrameData].m_pendingDeletionsMutex);
-        DeletePendingResources(m_PerFrameData[m_uiCurrentPerFrameData].m_pendingDeletions);
-      }
-      {
-        EZ_LOCK(m_PerFrameData[m_uiCurrentPerFrameData].m_reclaimResourcesMutex);
-        ReclaimResources(m_PerFrameData[m_uiCurrentPerFrameData].m_reclaimResources);
+        m_device.waitForFences(1, &fence, true, 1000000000ui64);
       }
     }
-    else
+    perFrameData.m_CommandBufferFences.Clear();
+
     {
-      // First frame, not fence to wait for
-      m_uiCurrentPerFrameData = 0;
-      m_uiNextPerFrameData = 1;
+      EZ_LOCK(m_PerFrameData[m_uiCurrentPerFrameData].m_pendingDeletionsMutex);
+      DeletePendingResources(m_PerFrameData[m_uiCurrentPerFrameData].m_pendingDeletions);
+    }
+    {
+      EZ_LOCK(m_PerFrameData[m_uiCurrentPerFrameData].m_reclaimResourcesMutex);
+      ReclaimResources(m_PerFrameData[m_uiCurrentPerFrameData].m_reclaimResources);
     }
   }
   {
@@ -977,6 +965,7 @@ void ezGALDeviceVulkan::BeginFramePlatform()
     perFrameData.m_fInvTicksPerSecond = -1.0f;
   }
 
+  m_PerFrameData[m_uiCurrentPerFrameData].m_uiFrame = m_uiFrameCounter;
   m_PerFrameData[m_uiCurrentPerFrameData].m_currentCommandBuffer = ezCommandBufferPoolVulkan::RequestCommandBuffer();
   vk::CommandBufferBeginInfo beginInfo;
   m_PerFrameData[m_uiCurrentPerFrameData].m_currentCommandBuffer.begin(&beginInfo);
@@ -1056,7 +1045,6 @@ void ezGALDeviceVulkan::EndFramePlatform()
     }
   }
 */
-
   m_uiCurrentPerFrameData = (m_uiCurrentPerFrameData + 1) % EZ_ARRAY_SIZE(m_PerFrameData);
   m_uiNextPerFrameData = (m_uiCurrentPerFrameData + 1) % EZ_ARRAY_SIZE(m_PerFrameData);
   ++m_uiFrameCounter;

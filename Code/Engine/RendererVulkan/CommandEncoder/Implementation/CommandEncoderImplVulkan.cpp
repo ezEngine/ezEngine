@@ -552,18 +552,6 @@ void ezGALCommandEncoderImplVulkan::BeginRendering(vk::CommandBuffer& commandBuf
   }
 
   m_pCommandBuffer->beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
-
-  vk::Viewport viewport;
-  viewport.x = 0.0f;
-  viewport.y = 0.0f;
-  viewport.width = static_cast<float>(framebufferDesc.width);
-  viewport.height = static_cast<float>(framebufferDesc.height);
-  viewport.minDepth = 0.0f;
-  viewport.maxDepth = 1.0f;
-  vk::Rect2D scissor{{0, 0}, {framebufferDesc.width, framebufferDesc.height}};
-
-  m_pCommandBuffer->setViewport(0, 1, &viewport);
-  m_pCommandBuffer->setScissor(0, 1, &scissor);
 }
 
 void ezGALCommandEncoderImplVulkan::EndRendering()
