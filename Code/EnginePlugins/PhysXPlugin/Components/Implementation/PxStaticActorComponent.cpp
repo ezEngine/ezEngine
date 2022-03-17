@@ -159,13 +159,13 @@ void ezPxStaticActorComponent::OnSimulationStarted()
 
     if (pMesh->GetTriangleMesh() != nullptr)
     {
-      shapes.PushBack(PxRigidActorExt::createExclusiveShape(*m_pActor, PxTriangleMeshGeometry(pMesh->GetTriangleMesh(), scale), pxMaterials.GetData(), pxMaterials.GetCount()));
+      shapes.PushBack(PxRigidActorExt::createExclusiveShape(*m_pActor, PxTriangleMeshGeometry(pMesh->GetTriangleMesh(), scale), pxMaterials.GetData(), static_cast<ezUInt16>(pxMaterials.GetCount())));
     }
     else if (!pMesh->GetConvexParts().IsEmpty())
     {
       for (auto pShape : pMesh->GetConvexParts())
       {
-        shapes.PushBack(PxRigidActorExt::createExclusiveShape(*m_pActor, PxConvexMeshGeometry(pShape, scale), pxMaterials.GetData(), pxMaterials.GetCount()));
+        shapes.PushBack(PxRigidActorExt::createExclusiveShape(*m_pActor, PxConvexMeshGeometry(pShape, scale), pxMaterials.GetData(), static_cast<ezUInt16>(pxMaterials.GetCount())));
       }
     }
     else

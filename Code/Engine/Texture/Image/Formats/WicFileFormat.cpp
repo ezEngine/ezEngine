@@ -10,7 +10,11 @@
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 
+#  include <Foundation/IO/StreamUtils.h>
+#  include <Foundation/Profiling/Profiling.h>
 #  include <Texture/DirectXTex/DirectXTex.h>
+
+using namespace DirectX;
 
 EZ_DEFINE_AS_POD_TYPE(DirectX::Image); // Allow for storing this struct in ez containers
 
@@ -53,7 +57,7 @@ ezWicFileFormat::~ezWicFileFormat()
   }
 }
 
-ezResult ezWicFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLogInterface* pLog, const char* szFileExtension) const
+ezResult ezWicFileFormat::ReadFileData(ezStreamReader& stream, ezDynamicArray<ezUInt8>& storage) const
 {
   if (m_bTryCoInit)
   {
@@ -61,63 +65,110 @@ ezResult ezWicFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
     m_bTryCoInit = false;
   }
 
-  using namespace DirectX;
-
-  // Read image data into local storage for further processing
-  constexpr int tempStorageSize = 4096;
-  ezDynamicArray<ezUInt8> storage;
-  ezUInt8 tempStorage[tempStorageSize];
-
-  while (ezUInt64 bytesRead = stream.ReadBytes(tempStorage, tempStorageSize))
-  {
-    storage.PushBackRange(ezArrayPtr<ezUInt8>(tempStorage, static_cast<ezUInt32>(bytesRead)));
-  }
+  ezStreamUtils::ReadAllAndAppend(stream, storage);
 
   if (storage.IsEmpty())
   {
-    ezLog::Error(pLog, "Failure to retrieve image data.");
+    ezLog::Error("Failure to retrieve image data.");
     return EZ_FAILURE;
   }
 
-  // Read WIC data from local storage
+  return EZ_SUCCESS;
+}
+
+static void SetHeader(ezImageHeader& header, ezImageFormat::Enum imageFormat, const TexMetadata& metadata)
+{
+  header.SetImageFormat(imageFormat);
+
+  header.SetWidth(ezUInt32(metadata.width));
+  header.SetHeight(ezUInt32(metadata.height));
+  header.SetDepth(ezUInt32(metadata.depth));
+
+  header.SetNumMipLevels(1);
+  header.SetNumArrayIndices(ezUInt32(metadata.IsCubemap() ? (metadata.arraySize / 6) : metadata.arraySize));
+  header.SetNumFaces(metadata.IsCubemap() ? 6 : 1);
+}
+
+ezResult ezWicFileFormat::ReadImageHeader(ezStreamReader& stream, ezImageHeader& header, const char* szFileExtension) const
+{
+  EZ_PROFILE_SCOPE("ezWicFileFormat::ReadImageHeader");
+
+  ezDynamicArray<ezUInt8> storage;
+  EZ_SUCCEED_OR_RETURN(ReadFileData(stream, storage));
+
+  TexMetadata metadata;
   ScratchImage scratchImage;
-  WIC_FLAGS flags = WIC_FLAGS_ALL_FRAMES | WIC_FLAGS_IGNORE_SRGB /* just treat PNG, JPG etc as non-sRGB, we determine this through our 'Usage' later */;
-  HRESULT loadResult = LoadFromWICMemory(storage.GetData(), storage.GetCount(), flags, nullptr, scratchImage);
+  WIC_FLAGS wicFlags = WIC_FLAGS_ALL_FRAMES | WIC_FLAGS_IGNORE_SRGB /* just treat PNG, JPG etc as non-sRGB, we determine this through our 'Usage' later */;
+
+  HRESULT loadResult = GetMetadataFromWICMemory(storage.GetData(), storage.GetCount(), wicFlags, metadata);
   if (FAILED(loadResult))
   {
-    ezLog::Error(pLog, "Failure to process image data. HRESULT:{}", ezArgErrorCode(loadResult));
+    ezLog::Error("Failure to load image metadata. HRESULT:{}", ezArgErrorCode(loadResult));
     return EZ_FAILURE;
   }
 
-  // Determine image format, re-reading image data if necessary
-  const TexMetadata& metadata = scratchImage.GetMetadata();
   ezImageFormat::Enum imageFormat = ezImageFormatMappings::FromDxgiFormat(metadata.format);
 
   if (imageFormat == ezImageFormat::UNKNOWN)
   {
-    ezLog::Warning(pLog, "Unable to use image format from TIFF file - trying conversion.");
-    flags |= WIC_FLAGS_FORCE_RGB;
-    LoadFromWICMemory(storage.GetData(), storage.GetCount(), flags, nullptr, scratchImage);
+    ezLog::Warning("Unable to use image format from '{}' file - trying conversion.", szFileExtension);
+    wicFlags |= WIC_FLAGS_FORCE_RGB;
+    GetMetadataFromWICMemory(storage.GetData(), storage.GetCount(), wicFlags, metadata);
     imageFormat = ezImageFormatMappings::FromDxgiFormat(metadata.format);
   }
 
   if (imageFormat == ezImageFormat::UNKNOWN)
   {
-    ezLog::Error(pLog, "Unable to use image format from TIFF file.");
+    ezLog::Error("Unable to use image format from '{}' file.", szFileExtension);
+    return EZ_FAILURE;
+  }
+
+  SetHeader(header, imageFormat, metadata);
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezWicFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, const char* szFileExtension) const
+{
+  EZ_PROFILE_SCOPE("ezWicFileFormat::ReadImage");
+
+  ezDynamicArray<ezUInt8> storage;
+  EZ_SUCCEED_OR_RETURN(ReadFileData(stream, storage));
+
+  TexMetadata metadata;
+  ScratchImage scratchImage;
+  WIC_FLAGS wicFlags = WIC_FLAGS_ALL_FRAMES | WIC_FLAGS_IGNORE_SRGB /* just treat PNG, JPG etc as non-sRGB, we determine this through our 'Usage' later */;
+
+  // Read WIC data from local storage
+  HRESULT loadResult = LoadFromWICMemory(storage.GetData(), storage.GetCount(), wicFlags, nullptr, scratchImage);
+  if (FAILED(loadResult))
+  {
+    ezLog::Error("Failure to load image data. HRESULT:{}", ezArgErrorCode(loadResult));
+    return EZ_FAILURE;
+  }
+
+  // Determine image format, re-reading image data if necessary
+  metadata = scratchImage.GetMetadata();
+
+  ezImageFormat::Enum imageFormat = ezImageFormatMappings::FromDxgiFormat(metadata.format);
+
+  if (imageFormat == ezImageFormat::UNKNOWN)
+  {
+    ezLog::Warning("Unable to use image format from '{}' file - trying conversion.", szFileExtension);
+    wicFlags |= WIC_FLAGS_FORCE_RGB;
+    LoadFromWICMemory(storage.GetData(), storage.GetCount(), wicFlags, nullptr, scratchImage);
+    imageFormat = ezImageFormatMappings::FromDxgiFormat(metadata.format);
+  }
+
+  if (imageFormat == ezImageFormat::UNKNOWN)
+  {
+    ezLog::Error("Unable to use image format from '{}' file.", szFileExtension);
     return EZ_FAILURE;
   }
 
   // Prepare destination image header and allocate storage
   ezImageHeader imageHeader;
-  imageHeader.SetImageFormat(imageFormat);
-
-  imageHeader.SetWidth(ezUInt32(metadata.width));
-  imageHeader.SetHeight(ezUInt32(metadata.height));
-  imageHeader.SetDepth(ezUInt32(metadata.depth));
-
-  imageHeader.SetNumMipLevels(1);
-  imageHeader.SetNumArrayIndices(ezUInt32(metadata.IsCubemap() ? (metadata.arraySize / 6) : metadata.arraySize));
-  imageHeader.SetNumFaces(metadata.IsCubemap() ? 6 : 1);
+  SetHeader(imageHeader, imageFormat, metadata);
 
   image.ResetAndAlloc(imageHeader);
 
@@ -161,7 +212,7 @@ ezResult ezWicFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
   return EZ_SUCCESS;
 }
 
-ezResult ezWicFileFormat::WriteImage(ezStreamWriter& stream, const ezImageView& image, ezLogInterface* pLog, const char* szFileExtension) const
+ezResult ezWicFileFormat::WriteImage(ezStreamWriter& stream, const ezImageView& image, const char* szFileExtension) const
 {
   if (m_bTryCoInit)
   {
@@ -187,7 +238,7 @@ ezResult ezWicFileFormat::WriteImage(ezStreamWriter& stream, const ezImageView& 
 
   if (format == ezImageFormat::UNKNOWN)
   {
-    ezLog::Error(pLog, "No conversion from format '{0}' to a format suitable for TIFF files known.", ezImageFormat::GetName(image.GetImageFormat()));
+    ezLog::Error("No conversion from format '{0}' to a format suitable for '{}' files known.", ezImageFormat::GetName(image.GetImageFormat()), szFileExtension);
     return EZ_FAILURE;
   }
 
@@ -202,7 +253,7 @@ ezResult ezWicFileFormat::WriteImage(ezStreamWriter& stream, const ezImageView& 
       return EZ_FAILURE;
     }
 
-    return WriteImage(stream, convertedImage, pLog, szFileExtension);
+    return WriteImage(stream, convertedImage, szFileExtension);
   }
 
   // Store ezImage data in DirectXTex images
@@ -233,14 +284,14 @@ ezResult ezWicFileFormat::WriteImage(ezStreamWriter& stream, const ezImageView& 
     HRESULT res = SaveToWICMemory(outputImages.GetData(), outputImages.GetCount(), flags, GetWICCodec(WIC_CODEC_TIFF), targetBlob);
     if (FAILED(res))
     {
-      ezLog::Error(pLog, "Failed to save image data to local memory blob - result: {}!", ezHRESULTtoString(res));
+      ezLog::Error("Failed to save image data to local memory blob - result: {}!", ezHRESULTtoString(res));
       return EZ_FAILURE;
     }
 
     // Push blob into output stream
     if (stream.WriteBytes(targetBlob.GetBufferPointer(), targetBlob.GetBufferSize()) != EZ_SUCCESS)
     {
-      ezLog::Error(pLog, "Failed to write image data!");
+      ezLog::Error("Failed to write image data!");
       return EZ_FAILURE;
     }
   }

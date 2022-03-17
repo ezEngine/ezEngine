@@ -9,7 +9,7 @@
 template <typename T>
 void TestSerialization(const T& source)
 {
-  ezMemoryStreamStorage StreamStorage;
+  ezDefaultMemoryStreamStorage StreamStorage;
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "WriteObjectToDDL")
   {
@@ -44,7 +44,7 @@ void TestSerialization(const T& source)
     }
   }
 
-  ezMemoryStreamStorage StreamStorageBinary;
+  ezDefaultMemoryStreamStorage StreamStorageBinary;
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "WriteObjectToBinary")
   {
     ezMemoryStreamWriter FileOut(&StreamStorageBinary);
@@ -99,7 +99,6 @@ void TestSerialization(const T& source)
 
 EZ_CREATE_SIMPLE_TEST_GROUP(Reflection);
 
-
 EZ_CREATE_SIMPLE_TEST(Reflection, Types)
 {
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Iterate All")
@@ -127,6 +126,39 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Types)
     EZ_TEST_BOOL(bFoundStruct);
     EZ_TEST_BOOL(bFoundClass1);
     EZ_TEST_BOOL(bFoundClass2);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsDerivedFrom")
+  {
+    ezDynamicArray<const ezRTTI*> allTypes;
+    for (const ezRTTI* pRtti = ezRTTI::GetFirstInstance(); pRtti; pRtti = pRtti->GetNextInstance())
+    {
+      allTypes.PushBack(pRtti);
+    }
+
+    // ground truth - traversing up the parent list
+    auto ManualIsDerivedFrom = [](const ezRTTI* t, const ezRTTI* baseType) -> bool {
+      while (t != nullptr)
+      {
+        if (t == baseType)
+          return true;
+
+        t = t->GetParentType();
+      }
+
+      return false;
+    };
+
+    // test each type against every other:
+    for (const ezRTTI* typeA : allTypes)
+    {
+      for (const ezRTTI* typeB : allTypes)
+      {
+        bool derived = typeA->IsDerivedFrom(typeB);
+        bool manualCheck = ManualIsDerivedFrom(typeA, typeB);
+        EZ_TEST_BOOL(derived == manualCheck);
+      }
+    }
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "PropertyFlags")
@@ -1244,7 +1276,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Pointer)
   }
 
   ezTestPtr containers;
-  ezMemoryStreamStorage StreamStorage;
+  ezDefaultMemoryStreamStorage StreamStorage;
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Serialize Property Ptr")
   {

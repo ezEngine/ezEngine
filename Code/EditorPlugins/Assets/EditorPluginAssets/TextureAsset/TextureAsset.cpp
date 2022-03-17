@@ -635,66 +635,65 @@ void ezTextureAssetDocumentGenerator::GetImportModes(const char* szParentDirRela
 
   if (tt != TextureType::Diffuse)
   {
-    ezAssetDocumentGenerator::Info& info = out_Modes.ExpandAndGetRef();
-    info.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
-    info.m_sOutputFileParentRelative = baseOutputFile;
-    info.m_sName = "TextureImport.Diffuse";
-    info.m_sIcon = ":/AssetIcons/Texture_2D.png";
+    ezAssetDocumentGenerator::Info& info2 = out_Modes.ExpandAndGetRef();
+    info2.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
+    info2.m_sOutputFileParentRelative = baseOutputFile;
+    info2.m_sName = "TextureImport.Diffuse";
+    info2.m_sIcon = ":/AssetIcons/Texture_2D.png";
   }
 
   if (tt != TextureType::Linear)
   {
-    ezAssetDocumentGenerator::Info& info = out_Modes.ExpandAndGetRef();
-    info.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
-    info.m_sOutputFileParentRelative = baseOutputFile;
-    info.m_sName = "TextureImport.Linear";
-    info.m_sIcon = ":/AssetIcons/Texture_Linear.png";
+    ezAssetDocumentGenerator::Info& info2 = out_Modes.ExpandAndGetRef();
+    info2.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
+    info2.m_sOutputFileParentRelative = baseOutputFile;
+    info2.m_sName = "TextureImport.Linear";
+    info2.m_sIcon = ":/AssetIcons/Texture_Linear.png";
   }
-
 
   if (tt != TextureType::Normal)
   {
-    ezAssetDocumentGenerator::Info& info = out_Modes.ExpandAndGetRef();
-    info.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
-    info.m_sOutputFileParentRelative = baseOutputFile;
-    info.m_sName = "TextureImport.Normal";
-    info.m_sIcon = ":/AssetIcons/Texture_Normals.png";
+    ezAssetDocumentGenerator::Info& info2 = out_Modes.ExpandAndGetRef();
+    info2.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
+    info2.m_sOutputFileParentRelative = baseOutputFile;
+    info2.m_sName = "TextureImport.Normal";
+    info2.m_sIcon = ":/AssetIcons/Texture_Normals.png";
   }
 
   if (tt != TextureType::Metalness)
   {
-    ezAssetDocumentGenerator::Info& info = out_Modes.ExpandAndGetRef();
-    info.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
-    info.m_sOutputFileParentRelative = baseOutputFile;
-    info.m_sName = "TextureImport.Metalness";
-    info.m_sIcon = ":/AssetIcons/Texture_Linear.png";
+    ezAssetDocumentGenerator::Info& info2 = out_Modes.ExpandAndGetRef();
+    info2.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
+    info2.m_sOutputFileParentRelative = baseOutputFile;
+    info2.m_sName = "TextureImport.Metalness";
+    info2.m_sIcon = ":/AssetIcons/Texture_Linear.png";
   }
 
   if (tt != TextureType::Roughness)
   {
-    ezAssetDocumentGenerator::Info& info = out_Modes.ExpandAndGetRef();
-    info.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
-    info.m_sOutputFileParentRelative = baseOutputFile;
-    info.m_sName = "TextureImport.Roughness";
-    info.m_sIcon = ":/AssetIcons/Texture_Linear.png";
+    ezAssetDocumentGenerator::Info& info2 = out_Modes.ExpandAndGetRef();
+    info2.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
+    info2.m_sOutputFileParentRelative = baseOutputFile;
+    info2.m_sName = "TextureImport.Roughness";
+    info2.m_sIcon = ":/AssetIcons/Texture_Linear.png";
   }
 
   if (tt != TextureType::AO)
   {
-    ezAssetDocumentGenerator::Info& info = out_Modes.ExpandAndGetRef();
-    info.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
-    info.m_sOutputFileParentRelative = baseOutputFile;
-    info.m_sName = "TextureImport.AO";
-    info.m_sIcon = ":/AssetIcons/Texture_Linear.png";
+    ezAssetDocumentGenerator::Info& info2 = out_Modes.ExpandAndGetRef();
+    info2.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
+    info2.m_sOutputFileParentRelative = baseOutputFile;
+    info2.m_sName = "TextureImport.AO";
+    info2.m_sIcon = ":/AssetIcons/Texture_Linear.png";
   }
 
   if (tt != TextureType::Height)
   {
-    ezAssetDocumentGenerator::Info& info = out_Modes.ExpandAndGetRef();
-    info.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
-    info.m_sOutputFileParentRelative = baseOutputFile;
-    info.m_sName = "TextureImport.Height";
-    info.m_sIcon = ":/AssetIcons/Texture_Linear.png";
+    ezAssetDocumentGenerator::Info& info2 = out_Modes.ExpandAndGetRef();
+    info2.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
+    info2.m_sOutputFileParentRelative = baseOutputFile;
+    info2.m_sName = "TextureImport.Height";
+    info2.m_sIcon = ":/AssetIcons/Texture_Linear.png";
   }
 }
 

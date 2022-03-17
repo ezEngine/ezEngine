@@ -164,7 +164,7 @@ namespace
 
       for (ezUInt32 i = 0; i < 4; ++i)
       {
-        pCell->m_uiChildIndices[i] = uiCellIndex + i;
+        pCell->m_uiChildIndices[i] = static_cast<ezUInt16>(uiCellIndex + i);
       }
 
       AtlasCell* pChildCell = &s_AtlasCells[pCell->m_uiChildIndices[0]];

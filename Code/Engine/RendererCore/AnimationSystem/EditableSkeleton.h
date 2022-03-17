@@ -93,7 +93,7 @@ public:
   void FillResourceDescriptor(ezSkeletonResourceDescriptor& desc) const;
   void GenerateRawOzzSkeleton(ozz::animation::offline::RawSkeleton& out_Skeleton) const;
   void GenerateOzzSkeleton(ozz::animation::Skeleton& out_Skeleton) const;
-  void CreateJointsRecursive(ezSkeletonBuilder& sb, ezSkeletonResourceDescriptor& desc, const ezEditableSkeletonJoint* pParentJoint, const ezEditableSkeletonJoint* pThisJoint, ezUInt32 uiThisJointIdx, const ezQuat& qParentAccuRot, const ezMat4& rootTransform) const;
+  void CreateJointsRecursive(ezSkeletonBuilder& sb, ezSkeletonResourceDescriptor& desc, const ezEditableSkeletonJoint* pParentJoint, const ezEditableSkeletonJoint* pThisJoint, ezUInt16 uiThisJointIdx, const ezQuat& qParentAccuRot, const ezMat4& rootTransform) const;
 
   ezString m_sSourceFile;
   ezString m_sSurfaceFile;

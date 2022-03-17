@@ -258,7 +258,8 @@ void ezSkeletonComponent::BuildSkeletonVisualization(ezMsgAnimationPoseUpdated& 
 
   const ezVec3 vBoneDir = ezBasisAxis::GetBasisVector(msg.m_pSkeleton->m_BoneDirection);
 
-  auto renderBone = [&](int currentBone, int parentBone) {
+  auto renderBone = [&](int currentBone, int parentBone)
+  {
     if (parentBone == ozz::animation::Skeleton::kNoParent)
       return;
 
@@ -299,7 +300,7 @@ void ezSkeletonComponent::BuildSkeletonVisualization(ezMsgAnimationPoseUpdated& 
   {
     const ezStringBuilder mask(";", m_sBonesToHighlight, ";");
 
-    for (ezUInt32 b = 0; b < bones.GetCount(); ++b)
+    for (ezUInt16 b = 0; b < static_cast<ezUInt16>(bones.GetCount()); ++b)
     {
       const ezString currentName = msg.m_pSkeleton->GetJointByIndex(b).GetName().GetString();
 

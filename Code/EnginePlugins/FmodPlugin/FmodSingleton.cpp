@@ -179,7 +179,7 @@ ezUInt8 ezFmod::GetNumListeners()
 {
   int i = 0;
   m_pStudioSystem->getNumListeners(&i);
-  return i;
+  return static_cast<ezUInt8>(i);
 }
 
 void ezFmod::LoadConfiguration(const char* szFile)

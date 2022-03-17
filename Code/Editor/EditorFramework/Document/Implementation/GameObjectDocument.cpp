@@ -718,13 +718,13 @@ ezStatus ezGameObjectDocument::CreateGameObjectHere()
 
   // Add a dummy shape icon component, which enables picking
   {
-    ezAddObjectCommand cmdAdd;
-    cmdAdd.m_pType = ezRTTI::FindTypeByName("ezShapeIconComponent");
-    cmdAdd.m_sParentProperty = "Components";
-    cmdAdd.m_Index = -1;
-    cmdAdd.m_Parent = NewNode;
+    ezAddObjectCommand cmdAdd2;
+    cmdAdd2.m_pType = ezRTTI::FindTypeByName("ezShapeIconComponent");
+    cmdAdd2.m_sParentProperty = "Components";
+    cmdAdd2.m_Index = -1;
+    cmdAdd2.m_Parent = NewNode;
 
-    auto res = history->AddCommand(cmdAdd);
+    auto result = history->AddCommand(cmdAdd2);
   }
 
   history->FinishTransaction();

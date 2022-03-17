@@ -193,12 +193,12 @@ namespace AE_NS_FOUNDATION
 
   inline char aeStringFunctions::ToUpperCase (char cChar)
   {
-    return (toupper (cChar));
+    return static_cast<char>(toupper (cChar));
   }
 
   inline char aeStringFunctions::ToLowerCase (char cChar)
   {
-    return (tolower (cChar));
+    return static_cast<char>(tolower (cChar));
   }
 }
 

@@ -162,9 +162,32 @@ void ezRemoteInterface::Send(ezRemoteTransmitMode tm, ezUInt32 uiSystemID, ezUIn
 
 void ezRemoteInterface::Send(ezRemoteTransmitMode tm, ezRemoteMessage& msg)
 {
-  Send(tm, msg.GetSystemID(), msg.GetMessageID(), ezArrayPtr<const ezUInt8>(msg.GetMessageData(), msg.GetMessageSize()));
+  Send(tm, msg.GetSystemID(), msg.GetMessageID(), msg.m_Storage);
 }
 
+void ezRemoteInterface::Send(ezRemoteTransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, const ezContiguousMemoryStreamStorage& data)
+{
+  if (m_RemoteMode == ezRemoteMode::None)
+    return;
+
+  // if (!IsConnectedToOther())
+  //  return;
+
+  ezArrayPtr<const ezUInt8> range = {data.GetData(), data.GetStorageSize32()};
+
+  m_TempSendBuffer.SetCountUninitialized(12 + range.GetCount());
+  *((ezUInt32*)&m_TempSendBuffer[0]) = m_uiApplicationID;
+  *((ezUInt32*)&m_TempSendBuffer[4]) = uiSystemID;
+  *((ezUInt32*)&m_TempSendBuffer[8]) = uiMsgID;
+
+  if (!range.IsEmpty())
+  {
+    ezUInt8* pCopyDst = &m_TempSendBuffer[12];
+    ezMemoryUtils::Copy(pCopyDst, range.GetPtr(), range.GetCount());
+  }
+
+  Transmit(tm, m_TempSendBuffer).IgnoreResult();
+}
 
 void ezRemoteInterface::SetMessageHandler(ezUInt32 uiSystemID, ezRemoteMessageHandler messageHandler)
 {

@@ -53,10 +53,10 @@ function(ez_pch_use PCH_H TARGET_CPPS)
 
   # exclude files named 'PCH.cpp'
   list(FILTER TARGET_CPPS EXCLUDE REGEX ".*PCH.cpp$")
-
+  
   foreach(CPP_FILE ${TARGET_CPPS})
 
-    set_source_files_properties (${CPP_FILE} PROPERTIES COMPILE_FLAGS "/Yu${PCH_H}")
+    set_source_files_properties(${CPP_FILE} PROPERTIES COMPILE_FLAGS "/Yu\"${PCH_H}\" /FI\"${PCH_H}\"")
 
   endforeach()
 
@@ -75,8 +75,8 @@ function(ez_pch_create PCH_H TARGET_CPP)
   if (NOT EZ_USE_PCH)
     return()
   endif()
-
-  set_source_files_properties(${TARGET_CPP} PROPERTIES COMPILE_FLAGS "/Yc${PCH_H}")
+  
+  set_source_files_properties(${TARGET_CPP} PROPERTIES COMPILE_FLAGS "/Yc\"${PCH_H}\" /FI\"${PCH_H}\"")
 
 endfunction()
 

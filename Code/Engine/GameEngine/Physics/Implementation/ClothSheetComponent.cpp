@@ -22,8 +22,8 @@
 #include <RendererFoundation/Device/Device.h>
 
 /* TODO:
-* cache render category
-*/
+ * cache render category
+ */
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezClothSheetRenderData, 1, ezRTTINoAllocator)
@@ -146,8 +146,8 @@ void ezClothSheetComponent::SetupCloth()
     m_uiSleepCounter = 0;
     m_uiVisibleCounter = 5;
 
-    m_Simulator.m_uiWidth = m_vSegments.x + 1;
-    m_Simulator.m_uiHeight = m_vSegments.y + 1;
+    m_Simulator.m_uiWidth = static_cast<ezUInt8>(m_vSegments.x + 1);
+    m_Simulator.m_uiHeight = static_cast<ezUInt8>(m_vSegments.y + 1);
     m_Simulator.m_vAcceleration.Set(0, 0, -10);
     m_Simulator.m_vSegmentLength = m_vSize.CompMul(ezVec2(1.0f) + m_vSlack);
     m_Simulator.m_vSegmentLength.x /= (float)m_vSegments.x;
@@ -314,7 +314,7 @@ void ezClothSheetComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) 
 
     {
       ezUInt32 tidx = 0;
-      ezUInt32 vidx = 0;
+      ezUInt16 vidx = 0;
       for (ezUInt16 y = 0; y < pRenderData->m_uiVerticesY - 1; ++y)
       {
         for (ezUInt16 x = 0; x < pRenderData->m_uiVerticesX - 1; ++x, ++vidx)
@@ -446,7 +446,7 @@ void ezClothSheetComponent::Update()
       SetUserFlag(0, true); // flag 0 => requires local bounds update
 
       // can't call this here in the async phase
-      //TriggerLocalBoundsUpdate();
+      // TriggerLocalBoundsUpdate();
     }
 
     ++m_uiCheckEquilibriumCounter;

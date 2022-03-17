@@ -34,27 +34,28 @@ ezResult ezDeferredFileWriter::Close()
   if (m_bOnlyWriteIfDifferent)
   {
     ezFileReader fileIn;
-    if (fileIn.Open(m_sOutputFile).Succeeded() && fileIn.GetFileSize() == m_Storage.GetStorageSize())
+    if (fileIn.Open(m_sOutputFile).Succeeded() && fileIn.GetFileSize() == m_Storage.GetStorageSize64())
     {
-      ezUInt8 tmp[1024 * 8];
+      ezUInt8 tmp1[1024 * 4];
+      ezUInt8 tmp2[1024 * 4];
 
-      const ezUInt8* pData = m_Storage.GetData();
-      ezUInt64 readLeft = m_Storage.GetStorageSize();
+      ezUInt64 readLeft = m_Storage.GetStorageSize64();
 
-      while (readLeft > 0)
+      ezMemoryStreamReader storageReader(&m_Storage);
+
+      while (true)
       {
-        const ezUInt64 toRead = ezMath::Min<ezUInt64>(readLeft, EZ_ARRAY_SIZE(tmp));
-        const ezUInt64 readBytes = fileIn.ReadBytes(tmp, toRead);
+        const ezUInt64 readBytes1 = fileIn.ReadBytes(tmp1, EZ_ARRAY_SIZE(tmp1));
+        const ezUInt64 readBytes2 = storageReader.ReadBytes(tmp2, EZ_ARRAY_SIZE(tmp2));
 
-        if (toRead != readBytes)
-          return EZ_FAILURE;
-
-        readLeft -= toRead;
-
-        if (ezMemoryUtils::RawByteCompare(tmp, pData, ezMath::SafeConvertToSizeT(readBytes)) != 0)
+        if (readBytes1 != readBytes2)
           goto write_data;
 
-        pData += readBytes;
+        if (readBytes1 == 0)
+          break;
+
+        if (ezMemoryUtils::RawByteCompare(tmp1, tmp2, ezMath::SafeConvertToSizeT(readBytes1)) != 0)
+          goto write_data;
       }
 
       // content is already the same as what we would write -> skip the write (do not modify file write date)
@@ -64,11 +65,10 @@ ezResult ezDeferredFileWriter::Close()
 
 write_data:
   ezFileWriter file;
-  if (file.Open(m_sOutputFile).Failed())
-    return EZ_FAILURE;
+  EZ_SUCCEED_OR_RETURN(file.Open(m_sOutputFile));
 
   m_sOutputFile.Clear();
-  return file.WriteBytes(m_Storage.GetData(), m_Storage.GetStorageSize());
+  return m_Storage.CopyToStream(file);
 }
 
 void ezDeferredFileWriter::Discard()

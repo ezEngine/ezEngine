@@ -334,6 +334,31 @@ EZ_CREATE_SIMPLE_TEST(Basics, ArrayPtr)
     EZ_TEST_BOOL(*lb == ptr2[1000 - 400 - 1]);
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Contains / IndexOf / LastIndexOf")
+  {
+    ezDynamicArray<ezInt32> a0;
+    ezArrayPtr<ezInt32> a1 = a0;
+
+    for (ezInt32 i = -100; i < 100; ++i)
+      EZ_TEST_BOOL(!a1.Contains(i));
+
+    for (ezInt32 i = 0; i < 100; ++i)
+      a0.PushBack(i);
+    for (ezInt32 i = 0; i < 100; ++i)
+      a0.PushBack(i);
+
+    a1 = a0;
+
+    for (ezInt32 i = 0; i < 100; ++i)
+    {
+      EZ_TEST_BOOL(a1.Contains(i));
+      EZ_TEST_INT(a1.IndexOf(i), i);
+      EZ_TEST_INT(a1.IndexOf(i, 100), i + 100);
+      EZ_TEST_INT(a1.LastIndexOf(i), i + 100);
+      EZ_TEST_INT(a1.LastIndexOf(i, 100), i);
+    }
+  }
+
   // "Implicit Conversions"
   //{
   //  {

@@ -147,6 +147,9 @@ public:
   ezUInt32 GetRootObjectCount() const;
   ezUInt32 GetChildObjectCount() const;
 
+  static void SetMaxStepTime(InstantiationContextBase* context, ezTime maxStepTime);
+  static ezTime GetMaxStepTime(InstantiationContextBase* context);
+
 private:
   struct GameObjectToCreate
   {
@@ -179,8 +182,8 @@ private:
 
   ezDynamicArray<ComponentTypeInfo> m_ComponentTypes;
   ezHashTable<const ezRTTI*, ezUInt32> m_ComponentTypeVersions;
-  ezMemoryStreamStorage m_ComponentCreationStream;
-  ezMemoryStreamStorage m_ComponentDataStream;
+  ezDefaultMemoryStreamStorage m_ComponentCreationStream;
+  ezDefaultMemoryStreamStorage m_ComponentDataStream;
   ezUInt64 m_uiTotalNumComponents = 0;
 
   ezUniquePtr<ezStringDeduplicationReadContext> m_pStringDedupReadContext;
@@ -200,6 +203,9 @@ private:
     bool CreateComponents(ezTime endTime);
     bool DeserializeComponents(ezTime endTime);
     bool AddComponentsToBatch(ezTime endTime);
+
+    void SetMaxStepTime(ezTime stepTime);
+    ezTime GetMaxStepTime() const;
 
   private:
     void BeginNextProgressStep(const char* szName);

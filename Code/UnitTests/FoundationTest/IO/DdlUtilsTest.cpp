@@ -553,7 +553,7 @@ Angle $v12 { float { 45.23 } }\
     {
       const ezVariant var = CreateVariant((ezVariant::Type::Enum)t, rawData);
 
-      ezMemoryStreamStorage storage;
+      ezDefaultMemoryStreamStorage storage;
       ezMemoryStreamWriter writer(&storage);
       ezMemoryStreamReader reader(&storage);
 

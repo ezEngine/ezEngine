@@ -1,4 +1,19 @@
 
+######################################
+### ez_check_build_type()
+######################################
+
+function(ez_check_build_type)
+
+	# set the default build type
+
+	if (NOT CMAKE_BUILD_TYPE)
+		
+		set (CMAKE_BUILD_TYPE Dev CACHE STRING "Choose the type of build, options are: None Debug Dev Shipping." FORCE)
+	
+	endif()
+
+endfunction()
 
 ######################################
 ### ez_set_build_flags_msvc(<target>)
@@ -44,6 +59,9 @@ function(ez_set_build_flags_msvc TARGET_NAME)
 	# force the compiler to interpret code as utf8.
 	target_compile_options(${TARGET_NAME} PRIVATE "/utf-8")
 
+	# set high warning level
+	#target_compile_options(${TARGET_NAME} PRIVATE "/W4") # too much work to fix all warnings in ez
+	
 	# /WX: treat warnings as errors
 	if (NOT ${ARG_NO_WARNINGS_AS_ERRORS} AND NOT CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 		target_compile_options(${TARGET_NAME} PRIVATE "/WX")

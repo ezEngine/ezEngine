@@ -41,6 +41,12 @@ export class MsgAnimationPosePreparing extends Message
   constructor() { super(); this.TypeNameHash = 2419062254; }
 }
 
+export class MsgAnimationPoseProposal extends Message
+{
+  public static GetTypeNameHash(): number { return 3713362936; }
+  constructor() { super(); this.TypeNameHash = 3713362936; }
+}
+
 export class MsgAnimationPoseUpdated extends Message
 {
   public static GetTypeNameHash(): number { return 1062497747; }
@@ -214,6 +220,12 @@ export class MsgQueryAnimationSkeleton extends Message
 {
   public static GetTypeNameHash(): number { return 4103519367; }
   constructor() { super(); this.TypeNameHash = 4103519367; }
+}
+
+export class MsgRetrieveBoneState extends Message
+{
+  public static GetTypeNameHash(): number { return 2483229000; }
+  constructor() { super(); this.TypeNameHash = 2483229000; }
 }
 
 export class MsgRmlUiReload extends Message

@@ -94,7 +94,7 @@ void ezPlayClipAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeleton
 
   if (uiNextClip >= m_Clips.GetCount())
   {
-    uiNextClip = pTarget->GetWorld()->GetRandomNumberGenerator().UIntInRange(m_Clips.GetCount());
+    uiNextClip = static_cast<ezUInt8>(pTarget->GetWorld()->GetRandomNumberGenerator().UIntInRange(m_Clips.GetCount()));
   }
 
   if (m_uiNextClipToPlay != uiNextClip)

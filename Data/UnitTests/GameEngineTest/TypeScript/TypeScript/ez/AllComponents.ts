@@ -173,6 +173,8 @@ export class ReflectionProbeComponentBase extends Component
   set CaptureOffset(value: Vec3) { __CPP_ComponentProperty_set(this, 995831503, value); }
   get ShowDebugInfo(): boolean { return __CPP_ComponentProperty_get(this, 2987052367); }
   set ShowDebugInfo(value: boolean) { __CPP_ComponentProperty_set(this, 2987052367, value); }
+  get ShowMipMaps(): boolean { return __CPP_ComponentProperty_get(this, 2694283106); }
+  set ShowMipMaps(value: boolean) { __CPP_ComponentProperty_set(this, 2694283106, value); }
 }
 
 export class BoxReflectionProbeComponent extends ReflectionProbeComponentBase
@@ -188,6 +190,8 @@ export class BoxReflectionProbeComponent extends ReflectionProbeComponentBase
   set PositiveFalloff(value: Vec3) { __CPP_ComponentProperty_set(this, 4154728610, value); }
   get NegativeFalloff(): Vec3 { return __CPP_ComponentProperty_get(this, 639334809); }
   set NegativeFalloff(value: Vec3) { __CPP_ComponentProperty_set(this, 639334809, value); }
+  get BoxProjection(): boolean { return __CPP_ComponentProperty_get(this, 2435504746); }
+  set BoxProjection(value: boolean) { __CPP_ComponentProperty_set(this, 2435504746, value); }
 }
 
 export class BreakableSheetComponent extends RenderComponent
@@ -1411,6 +1415,17 @@ export class SkeletonComponent extends RenderComponent
   set BonesToHighlight(value: string) { __CPP_ComponentProperty_set(this, 2710454113, value); }
 }
 
+export class SkeletonPoseComponent extends Component
+{
+  public static GetTypeNameHash(): number { return 4060488408; }
+  get Skeleton(): string { return __CPP_ComponentProperty_get(this, 2576807777); }
+  set Skeleton(value: string) { __CPP_ComponentProperty_set(this, 2576807777, value); }
+  get Mode(): Enum.SkeletonPoseMode { return __CPP_ComponentProperty_get(this, 501630531); }
+  set Mode(value: Enum.SkeletonPoseMode) { __CPP_ComponentProperty_set(this, 501630531, value); }
+  get EditBones(): number { return __CPP_ComponentProperty_get(this, 4116987872); }
+  set EditBones(value: number) { __CPP_ComponentProperty_set(this, 4116987872, value); }
+}
+
 export class SkyBoxComponent extends RenderComponent
 {
   public static GetTypeNameHash(): number { return 1806701530; }
@@ -1443,6 +1458,8 @@ export class SkyLightComponent extends SettingsComponent
   set FarPlane(value: number) { __CPP_ComponentProperty_set(this, 268875995, value); }
   get ShowDebugInfo(): boolean { return __CPP_ComponentProperty_get(this, 3344849363); }
   set ShowDebugInfo(value: boolean) { __CPP_ComponentProperty_set(this, 3344849363, value); }
+  get ShowMipMaps(): boolean { return __CPP_ComponentProperty_get(this, 895237282); }
+  set ShowMipMaps(value: boolean) { __CPP_ComponentProperty_set(this, 895237282, value); }
 }
 
 export class SliderComponent extends TransformComponent
@@ -1499,6 +1516,8 @@ export class SphereReflectionProbeComponent extends ReflectionProbeComponentBase
   set Radius(value: number) { __CPP_ComponentProperty_set(this, 7676970, value); }
   get Falloff(): number { return __CPP_ComponentProperty_get(this, 562629380); }
   set Falloff(value: number) { __CPP_ComponentProperty_set(this, 562629380, value); }
+  get SphereProjection(): boolean { return __CPP_ComponentProperty_get(this, 3697861663); }
+  set SphereProjection(value: boolean) { __CPP_ComponentProperty_set(this, 3697861663, value); }
 }
 
 export class SpotLightComponent extends LightComponent

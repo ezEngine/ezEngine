@@ -121,8 +121,6 @@ ezResult ezGameEngineTestParticles::InitializeSubTest(ezInt32 iIdentifier)
     m_pOwnApplication->SetupParticleSubTest(szEffects[iIdentifier]);
     return EZ_SUCCESS;
   }
-
-  return EZ_FAILURE;
 }
 
 ezTestAppRun ezGameEngineTestParticles::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount)

@@ -10,7 +10,7 @@ EZ_CREATE_SIMPLE_TEST(IO, MemoryStream)
 {
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Memory Stream Reading / Writing")
   {
-    ezMemoryStreamStorage StreamStorage;
+    ezDefaultMemoryStreamStorage StreamStorage;
 
     // Create reader
     ezMemoryStreamReader StreamReader(&StreamStorage);
@@ -38,8 +38,9 @@ EZ_CREATE_SIMPLE_TEST(IO, MemoryStream)
     // Write the data
     EZ_TEST_BOOL(StreamWriter.WriteBytes(reinterpret_cast<const ezUInt8*>(uiData), sizeof(ezUInt32) * 1024) == EZ_SUCCESS);
 
-    EZ_TEST_BOOL(StreamWriter.GetByteCount() == sizeof(ezUInt32) * 1024);
-    EZ_TEST_BOOL(StreamWriter.GetByteCount() == StreamReader.GetByteCount());
+    EZ_TEST_BOOL(StreamWriter.GetByteCount64() == sizeof(ezUInt32) * 1024);
+    EZ_TEST_BOOL(StreamWriter.GetByteCount64() == StreamReader.GetByteCount64());
+    EZ_TEST_BOOL(StreamWriter.GetByteCount64() == StreamStorage.GetStorageSize64());
 
 
     // Clear the array for the read back
@@ -178,5 +179,77 @@ EZ_CREATE_SIMPLE_TEST(IO, MemoryStream)
       EZ_TEST_INT(writer2.GetNumWrittenBytes(), 0);
       EZ_TEST_INT(writer2.GetStorageSize(), 1000);
     }
+  }
+}
+
+EZ_CREATE_SIMPLE_TEST(IO, LargeMemoryStream)
+{
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Large Memory Stream Reading / Writing")
+  {
+    ezDefaultMemoryStreamStorage storage;
+    ezMemoryStreamWriter writer(&storage);
+    ezMemoryStreamReader reader(&storage);
+
+    const ezUInt8 pattern[] = {11, 10, 27, 4, 14, 3, 21, 6};
+
+    ezUInt64 uiSize = 0;
+    constexpr ezUInt64 bytesToTest = 0x8000000llu; // tested with up to 8 GB, but that just takes too long
+
+    // writes n gigabyte
+    for (ezUInt32 n = 0; n < 8; ++n)
+    {
+      // writes one gigabyte
+      for (ezUInt32 gb = 0; gb < 1024; ++gb)
+      {
+        // writes one megabyte
+        for (ezUInt32 mb = 0; mb < 1024 * 1024 / EZ_ARRAY_SIZE(pattern); ++mb)
+        {
+          writer.WriteBytes(pattern, EZ_ARRAY_SIZE(pattern)).IgnoreResult();
+          uiSize += EZ_ARRAY_SIZE(pattern);
+
+          if (uiSize == bytesToTest)
+            goto check;
+        }
+      }
+    }
+
+  check:
+    EZ_TEST_BOOL(uiSize == bytesToTest);
+    EZ_TEST_BOOL(writer.GetWritePosition() == bytesToTest);
+    uiSize = 0;
+
+    // reads n gigabyte
+    for (ezUInt32 n = 0; n < 8; ++n)
+    {
+      // reads one gigabyte
+      for (ezUInt32 gb = 0; gb < 1024; ++gb)
+      {
+        // reads one megabyte
+        for (ezUInt32 mb = 0; mb < 1024 * 1024 / EZ_ARRAY_SIZE(pattern); ++mb)
+        {
+          ezUInt8 pattern2[EZ_ARRAY_SIZE(pattern)];
+
+          const ezUInt64 uiRead = reader.ReadBytes(pattern2, EZ_ARRAY_SIZE(pattern));
+
+          if (uiRead != EZ_ARRAY_SIZE(pattern))
+          {
+            EZ_TEST_BOOL(uiRead == 0);
+            EZ_TEST_BOOL(uiSize == bytesToTest);
+            goto endTest;
+          }
+
+          uiSize += uiRead;
+
+          if (ezMemoryUtils::RawByteCompare(pattern, pattern2, EZ_ARRAY_SIZE(pattern)) != 0)
+          {
+            EZ_TEST_BOOL_MSG(false, "Memory read comparison failed.");
+            goto endTest;
+          }
+        }
+      }
+    }
+
+  endTest:;
+    EZ_TEST_BOOL(reader.GetReadPosition() == bytesToTest);
   }
 }

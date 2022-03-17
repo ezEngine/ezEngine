@@ -69,7 +69,7 @@ public:
   void operator=(ezSkeleton&& rhs);
 
   /// \brief Returns the number of joints in the skeleton.
-  ezUInt16 GetJointCount() const { return m_Joints.GetCount(); }
+  ezUInt16 GetJointCount() const { return static_cast<ezUInt16>(m_Joints.GetCount()); }
 
   /// \brief Returns the nth joint.
   const ezSkeletonJoint& GetJointByIndex(ezUInt16 uiIndex) const { return m_Joints[uiIndex]; }
@@ -78,7 +78,7 @@ public:
   ezUInt16 FindJointByName(const ezTempHashedString& sName) const;
 
   /// \brief Checks if two skeletons are compatible (same joint count and hierarchy)
-  //bool IsCompatibleWith(const ezSkeleton& other) const;
+  // bool IsCompatibleWith(const ezSkeleton& other) const;
 
   /// \brief Saves the skeleton in a given stream.
   void Save(ezStreamWriter& stream) const;

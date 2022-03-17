@@ -133,7 +133,7 @@ void ezMeshComponentBase::DeserializeComponent(ezWorldReader& stream)
 
   ezUInt32 uiCategory = 0;
   s >> uiCategory;
-  m_RenderDataCategory.m_uiValue = uiCategory;
+  m_RenderDataCategory.m_uiValue = static_cast<ezUInt16>(uiCategory);
 
   ezUInt32 uiMaterials = 0;
   s >> uiMaterials;

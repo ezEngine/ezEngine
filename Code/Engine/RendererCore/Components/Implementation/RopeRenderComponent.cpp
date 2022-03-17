@@ -324,7 +324,8 @@ void ezRopeRenderComponent::GenerateRenderMesh(ezUInt32 uiNumRopePieces)
   const ezAngle fDegStep = ezAngle::Degree(360.0f / m_uiDetail);
   const float fVStep = 1.0f / m_uiDetail;
 
-  auto addCap = [&](float x, const ezVec3& normal, ezUInt16 boneIndex, bool flipWinding) {
+  auto addCap = [&](float x, const ezVec3& normal, ezUInt16 boneIndex, bool flipWinding)
+  {
     ezVec4U16 boneIndices(boneIndex, 0, 0, 0);
 
     ezUInt32 centerIndex = geom.AddVertex(ezVec3(x, 0, 0), normal, ezVec2(0.5f, 0.5f), ezColor::White, boneIndices);
@@ -351,7 +352,8 @@ void ezRopeRenderComponent::GenerateRenderMesh(ezUInt32 uiNumRopePieces)
     }
   };
 
-  auto addPiece = [&](float x, const ezVec4U16& boneIndices, const ezColorLinearUB& boneWeights, bool createPolygons) {
+  auto addPiece = [&](float x, const ezVec4U16& boneIndices, const ezColorLinearUB& boneWeights, bool createPolygons)
+  {
     ezAngle deg = ezAngle::Radian(0);
     float fU = x * m_fUScale;
     float fV = 0;
@@ -402,7 +404,7 @@ void ezRopeRenderComponent::GenerateRenderMesh(ezUInt32 uiNumRopePieces)
     // first ring full weight to first bone
     addPiece(0.0f, ezVec4U16(0, 0, 0, 0), ezColorLinearUB(255, 0, 0, 0), false);
 
-    ezUInt32 p = 1;
+    ezUInt16 p = 1;
 
     if (m_bSubdivide)
     {
@@ -434,7 +436,7 @@ void ezRopeRenderComponent::GenerateRenderMesh(ezUInt32 uiNumRopePieces)
   // cap
   {
     const ezVec3 normal = ezVec3(1, 0, 0);
-    addCap(static_cast<float>(uiNumRopePieces - 1), normal, uiNumRopePieces - 1, false);
+    addCap(static_cast<float>(uiNumRopePieces - 1), normal, static_cast<ezUInt16>(uiNumRopePieces - 1), false);
   }
 
   geom.ComputeTangents();

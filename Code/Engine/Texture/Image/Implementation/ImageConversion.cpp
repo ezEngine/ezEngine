@@ -2,7 +2,7 @@
 
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Math/Math.h>
-
+#include <Foundation/Profiling/Profiling.h>
 #include <Texture/Image/ImageConversion.h>
 
 EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezImageConversionStep);
@@ -363,6 +363,8 @@ void ezImageConversion::RebuildConversionTable()
 
 ezResult ezImageConversion::Convert(const ezImageView& source, ezImage& target, ezImageFormat::Enum targetFormat)
 {
+  EZ_PROFILE_SCOPE("ezImageConversion::Convert");
+
   ezImageFormat::Enum sourceFormat = source.GetImageFormat();
 
   // Trivial copy

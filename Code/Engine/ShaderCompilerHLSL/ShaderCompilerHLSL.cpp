@@ -222,7 +222,7 @@ ezShaderConstantBufferLayout* ezShaderCompilerHLSL::ReflectConstantBufferLayout(
 
     ezShaderConstantBufferLayout::Constant constant;
     constant.m_uiArrayElements = static_cast<ezUInt8>(ezMath::Max(std.Elements, 1u));
-    constant.m_uiOffset = svd.StartOffset;
+    constant.m_uiOffset = static_cast<ezUInt16>(svd.StartOffset);
     constant.m_sName.Assign(svd.Name);
 
     if (std.Class == D3D_SVC_SCALAR || std.Class == D3D_SVC_VECTOR)

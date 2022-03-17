@@ -41,7 +41,7 @@ EZ_CREATE_SIMPLE_TEST(IO, StreamOperation)
 {
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Binary Stream Basic Operations (built-in types)")
   {
-    ezMemoryStreamStorage StreamStorage(4096);
+    ezDefaultMemoryStreamStorage StreamStorage(4096);
 
     // Create writer
     ezMemoryStreamWriter StreamWriter(&StreamStorage);
@@ -147,7 +147,7 @@ EZ_CREATE_SIMPLE_TEST(IO, StreamOperation)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Binary Stream Arrays of Structs")
   {
-    ezMemoryStreamStorage StreamStorage(4096);
+    ezDefaultMemoryStreamStorage StreamStorage(4096);
 
     // Create writer
     ezMemoryStreamWriter StreamWriter(&StreamStorage);
@@ -184,7 +184,7 @@ EZ_CREATE_SIMPLE_TEST(IO, StreamOperation)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezSet Stream Operators")
   {
-    ezMemoryStreamStorage StreamStorage(4096);
+    ezDefaultMemoryStreamStorage StreamStorage(4096);
 
     // Create writer
     ezMemoryStreamWriter StreamWriter(&StreamStorage);
@@ -213,7 +213,7 @@ EZ_CREATE_SIMPLE_TEST(IO, StreamOperation)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezMap Stream Operators")
   {
-    ezMemoryStreamStorage StreamStorage(4096);
+    ezDefaultMemoryStreamStorage StreamStorage(4096);
 
     // Create writer
     ezMemoryStreamWriter StreamWriter(&StreamStorage);
@@ -246,7 +246,7 @@ EZ_CREATE_SIMPLE_TEST(IO, StreamOperation)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezHashTable Stream Operators")
   {
-    ezMemoryStreamStorage StreamStorage(4096);
+    ezDefaultMemoryStreamStorage StreamStorage(4096);
 
     // Create writer
     ezMemoryStreamWriter StreamWriter(&StreamStorage);
@@ -279,8 +279,8 @@ EZ_CREATE_SIMPLE_TEST(IO, StreamOperation)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "String Deduplication")
   {
-    ezMemoryStreamStorage StreamStorageNonDeduplicated(4096);
-    ezMemoryStreamStorage StreamStorageDeduplicated(4096);
+    ezDefaultMemoryStreamStorage StreamStorageNonDeduplicated(4096);
+    ezDefaultMemoryStreamStorage StreamStorageDeduplicated(4096);
 
     ezHybridString<4> str1 = "Hello World";
     ezDynamicString str2 = "Hello World 2";
@@ -317,7 +317,7 @@ EZ_CREATE_SIMPLE_TEST(IO, StreamOperation)
       EZ_TEST_INT(StringDeduplicationContext.GetUniqueStringCount(), 3);
     }
 
-    EZ_TEST_BOOL(StreamStorageDeduplicated.GetStorageSize() < StreamStorageNonDeduplicated.GetStorageSize());
+    EZ_TEST_BOOL(StreamStorageDeduplicated.GetStorageSize64() < StreamStorageNonDeduplicated.GetStorageSize64());
 
     // Read the deduplicated strings back
     {

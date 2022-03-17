@@ -2,6 +2,7 @@
 
 #include <Foundation/IO/Archive/ArchiveUtils.h>
 
+#include <Foundation/Algorithm/HashStream.h>
 #include <Foundation/IO/CompressedStreamZlib.h>
 #include <Foundation/IO/CompressedStreamZstd.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
@@ -173,7 +174,7 @@ ezResult ezArchiveUtils::WriteEntryOptimal(ezStreamWriter& stream, const char* s
   }
   else
   {
-    ezMemoryStreamStorage storage;
+    ezDefaultMemoryStreamStorage storage;
     ezMemoryStreamWriter writer(&storage);
 
     ezUInt64 streamPos = inout_uiCurrentStreamPosition;
@@ -186,7 +187,7 @@ ezResult ezArchiveUtils::WriteEntryOptimal(ezStreamWriter& stream, const char* s
     }
     else
     {
-      auto res = stream.WriteBytes(storage.GetData(), storage.GetStorageSize());
+      auto res = storage.CopyToStream(stream);
       inout_uiCurrentStreamPosition = streamPos;
 
       return res;
@@ -288,18 +289,21 @@ struct TocMetaData
 
 ezResult ezArchiveUtils::AppendTOC(ezStreamWriter& stream, const ezArchiveTOC& toc)
 {
-  ezMemoryStreamStorage storage;
+  ezDefaultMemoryStreamStorage storage;
   ezMemoryStreamWriter writer(&storage);
 
   EZ_SUCCEED_OR_RETURN(toc.Serialize(writer));
 
-  EZ_SUCCEED_OR_RETURN(stream.WriteBytes(storage.GetData(), storage.GetStorageSize()));
+  EZ_SUCCEED_OR_RETURN(storage.CopyToStream(stream));
 
   TocMetaData tocMeta;
 
+  ezHashStreamWriter64 hashStream(tocMeta.m_uiSize);
+  EZ_SUCCEED_OR_RETURN(storage.CopyToStream(hashStream));
+
   // Added in file version 2: hash of the TOC
-  tocMeta.m_uiSize = storage.GetStorageSize();
-  tocMeta.m_uiHash = ezHashingUtils::xxHash64(storage.GetData(), tocMeta.m_uiSize);
+  tocMeta.m_uiSize = storage.GetStorageSize32();
+  tocMeta.m_uiHash = hashStream.GetHashValue();
 
   // append the TOC meta data
   stream << tocMeta.m_uiSize;

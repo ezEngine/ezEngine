@@ -163,6 +163,14 @@ namespace
     D3D_FEATURE_LEVEL fl;
     HRESULT hr = s_DynamicD3D11CreateDevice(pAdapter.Get(), D3D_DRIVER_TYPE_UNKNOWN, nullptr, createDeviceFlags, featureLevels,
       _countof(featureLevels), D3D11_SDK_VERSION, &pDevice, &fl, nullptr);
+
+    if (FAILED(hr) && (createDeviceFlags & D3D11_CREATE_DEVICE_DEBUG))
+    {
+      createDeviceFlags = createDeviceFlags & ~D3D11_CREATE_DEVICE_DEBUG;
+      hr = s_DynamicD3D11CreateDevice(pAdapter.Get(), D3D_DRIVER_TYPE_UNKNOWN, nullptr, createDeviceFlags, featureLevels,
+        _countof(featureLevels), D3D11_SDK_VERSION, &pDevice, &fl, nullptr);
+    }
+
     if (SUCCEEDED(hr))
     {
       if (fl < D3D_FEATURE_LEVEL_11_0)

@@ -13,7 +13,7 @@ struct ezAnimationClipResourceDescriptor;
 
 using ezSkeletonResourceHandle = ezTypedResourceHandle<class ezSkeletonResource>;
 
-#define ezInvalidJointIndex 0xFFFFu
+#define ezInvalidJointIndex static_cast<ezUInt16>(0xFFFFu)
 
 namespace ozz::animation
 {

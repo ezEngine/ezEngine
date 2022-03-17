@@ -116,8 +116,8 @@ EZ_CREATE_SIMPLE_TEST(Scripting, TypeScript)
     TranspileString("class X{}", duk, sTranspiled).IgnoreResult();
 
     // validate that the transpiled code can be executed by Duktape
-    ezDuktapeContext duk("duk");
-    EZ_TEST_RESULT(duk.ExecuteString(sTranspiled));
+    ezDuktapeContext duk2("duk");
+    EZ_TEST_RESULT(duk2.ExecuteString(sTranspiled));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Transpile File")

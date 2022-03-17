@@ -116,9 +116,9 @@ void ezQtModifiedDocumentsDlg::SlotSaveDocument()
 
   // Check if now all documents are saved and close the dialog if so
   bool anyDocumentModified = false;
-  for (ezDocument* pDoc : m_ModifiedDocs)
+  for (ezDocument* pDoc2 : m_ModifiedDocs)
   {
-    if (pDoc->IsModified())
+    if (pDoc2->IsModified())
     {
       anyDocumentModified = true;
       break;

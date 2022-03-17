@@ -163,13 +163,13 @@ void ezDummyXR::GameApplicationEventHandler(const ezGameApplicationExecutionEven
 {
   if (e.m_Type == ezGameApplicationExecutionEvent::Type::BeforeUpdatePlugins)
   {
-    ezView* pView = nullptr;
-    if (ezRenderWorld::TryGetView(m_hView, pView))
+    ezView* pView0 = nullptr;
+    if (ezRenderWorld::TryGetView(m_hView, pView0))
     {
-      if (ezWorld* pWorld = pView->GetWorld())
+      if (ezWorld* pWorld0 = pView0->GetWorld())
       {
-        EZ_LOCK(pWorld->GetWriteMarker());
-        ezCameraComponent* pCameraComponent = pWorld->GetComponentManager<ezCameraComponentManager>()->GetCameraByUsageHint(ezCameraUsageHint::MainView);
+        EZ_LOCK(pWorld0->GetWriteMarker());
+        ezCameraComponent* pCameraComponent = pWorld0->GetComponentManager<ezCameraComponentManager>()->GetCameraByUsageHint(ezCameraUsageHint::MainView);
         if (!pCameraComponent)
           return;
 

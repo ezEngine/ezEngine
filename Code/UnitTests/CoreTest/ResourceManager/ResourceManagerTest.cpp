@@ -86,7 +86,7 @@ namespace
   public:
     struct LoadedData
     {
-      ezMemoryStreamStorage m_StreamData;
+      ezDefaultMemoryStreamStorage m_StreamData;
       ezMemoryStreamReader m_Reader;
     };
 

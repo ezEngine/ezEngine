@@ -98,7 +98,7 @@ namespace
 
 EZ_CREATE_SIMPLE_TEST(IO, DeduplicationContext)
 {
-  ezMemoryStreamStorage streamStorage;
+  ezDefaultMemoryStreamStorage streamStorage;
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Writer")
   {

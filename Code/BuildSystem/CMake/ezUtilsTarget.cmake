@@ -2,7 +2,9 @@
 ### ez_create_target(<LIBRARY | APPLICATION> <target-name> [NO_PCH] [NO_UNITY] [NO_QT] [EXCLUDE_FOLDER_FOR_UNITY <relative-folder>...])
 ######################################
 
-function(ez_create_target TYPE TARGET_NAME)
+macro(ez_create_target TYPE TARGET_NAME)
+
+    ez_apply_build_filter(${TARGET_NAME})
 
     set(ARG_OPTIONS NO_PCH NO_UNITY NO_QT NO_EZ_PREFIX ENABLE_RTTI NO_WARNINGS_AS_ERRORS NO_CONTROLFLOWGUARD)
     set(ARG_ONEVALUEARGS "")
@@ -34,7 +36,7 @@ function(ez_create_target TYPE TARGET_NAME)
         else ()
 
             message (STATUS "Static Library: ${TARGET_NAME}")
-            add_library (${TARGET_NAME} "${ALL_SOURCE_FILES}")
+            add_library (${TARGET_NAME} STATIC "${ALL_SOURCE_FILES}")
 
         endif ()
 
@@ -132,6 +134,7 @@ function(ez_create_target TYPE TARGET_NAME)
     endif()
 	
 	get_property(GATHER_EXTERNAL_PROJECTS GLOBAL PROPERTY "GATHER_EXTERNAL_PROJECTS")
+	
 	if (GATHER_EXTERNAL_PROJECTS)
 		set_property(GLOBAL APPEND PROPERTY "EXTERNAL_PROJECTS" ${TARGET_NAME})
     endif()
@@ -141,4 +144,4 @@ function(ez_create_target TYPE TARGET_NAME)
         set_property(GLOBAL APPEND PROPERTY "EXPORT_PROJECTS" ${TARGET_NAME})
     endif()
 
-endfunction()
+endmacro()

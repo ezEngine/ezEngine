@@ -1357,4 +1357,11 @@ void ezWorld::RecreateHierarchyData(ezGameObject* pObject, bool bWasDynamic)
   }
 }
 
+void ezWorld::SetMaxInitializationTimePerFrame(ezTime maxInitTime)
+{
+  CheckForWriteAccess();
+
+  m_Data.m_MaxInitializationTimePerFrame = maxInitTime;
+}
+
 EZ_STATICLINK_FILE(Core, Core_World_Implementation_World);

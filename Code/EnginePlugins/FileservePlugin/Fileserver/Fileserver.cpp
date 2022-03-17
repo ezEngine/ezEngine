@@ -16,7 +16,7 @@ ezFileserver::ezFileserver()
   ezFileserveClient::DisabledFileserveClient();
 
   // check whether the fileserve port was reconfigured through the command line
-  m_uiPort = ezCommandLineUtils::GetGlobalInstance()->GetIntOption("-fs_port", m_uiPort);
+  m_uiPort = static_cast<ezUInt16>(ezCommandLineUtils::GetGlobalInstance()->GetIntOption("-fs_port", m_uiPort));
 }
 
 void ezFileserver::StartServer()
@@ -138,7 +138,7 @@ void ezFileserver::NetworkMsgHandler(ezRemoteMessage& msg)
     return;
   }
 
-  ezLog::Error("Unknown FSRV message: '{0}' - {1} bytes", msg.GetMessageID(), msg.GetMessageSize());
+  ezLog::Error("Unknown FSRV message: '{0}' - {1} bytes", msg.GetMessageID(), msg.GetMessageData().GetCount());
 }
 
 
@@ -467,7 +467,7 @@ ezResult ezFileserver::SendConnectionInfo(const char* szClientAddress, ezUInt16 
     return EZ_FAILURE;
   }
 
-  const ezUInt8 uiCount = MyIPs.GetCount();
+  const ezUInt8 uiCount = static_cast<ezUInt8>(MyIPs.GetCount());
 
   ezRemoteMessage msg('FSRV', 'MYIP');
   msg.GetWriter() << uiMyPort;

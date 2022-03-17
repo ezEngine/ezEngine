@@ -14,7 +14,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleTrailRenderData final : public ezRenderDat
 
 public:
   ezTexture2DResourceHandle m_hTexture;
-  ezUInt32 m_uiMaxTrailPoints;
+  ezUInt16 m_uiMaxTrailPoints;
   float m_fSnapshotFraction;
   ezArrayPtr<ezBaseParticleShaderData> m_BaseParticleData;
   ezArrayPtr<ezTrailParticleShaderData> m_TrailParticleData;

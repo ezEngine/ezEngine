@@ -138,7 +138,7 @@ static void WriteToDDL(const ezOpenDdlReader& doc, ezStreamWriter& output)
 
 static void WriteToString(const ezOpenDdlReader& doc, ezStringBuilder& string)
 {
-  ezMemoryStreamStorage storage;
+  ezContiguousMemoryStreamStorage storage;
   ezMemoryStreamWriter writer(&storage);
 
   WriteToDDL(doc, writer);

@@ -78,14 +78,14 @@ void ezParticleBehaviorFactory_ColorGradient::Load(ezStreamReader& stream)
 
 void ezParticleBehaviorFactory_ColorGradient::SetColorGradientFile(const char* szFile)
 {
-  ezColorGradientResourceHandle m_hGradient;
+  ezColorGradientResourceHandle hGradient;
 
   if (!ezStringUtils::IsNullOrEmpty(szFile))
   {
-    m_hGradient = ezResourceManager::LoadResource<ezColorGradientResource>(szFile);
+    hGradient = ezResourceManager::LoadResource<ezColorGradientResource>(szFile);
   }
 
-  SetColorGradient(m_hGradient);
+  SetColorGradient(hGradient);
 }
 
 const char* ezParticleBehaviorFactory_ColorGradient::GetColorGradientFile() const

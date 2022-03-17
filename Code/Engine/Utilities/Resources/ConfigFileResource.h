@@ -104,7 +104,7 @@ public:
     {
     }
 
-    ezMemoryStreamStorage m_Storage;
+    ezDefaultMemoryStreamStorage m_Storage;
     ezMemoryStreamReader m_Reader;
     ezDependencyFile m_RequiredFiles;
 

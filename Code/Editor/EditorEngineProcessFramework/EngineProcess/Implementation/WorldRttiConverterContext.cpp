@@ -201,6 +201,9 @@ ezRttiConverterObject ezWorldRttiConverterContext::GetObjectByGUID(const ezUuid&
 {
   ezRttiConverterObject object = ezRttiConverterContext::GetObjectByGUID(guid);
 
+  if (!guid.IsValid())
+    return object;
+
   // We can't look up the ptr via the base class map as it keeps changing, we we need to use the handle.
   if (object.m_pType == ezGetStaticRTTI<ezGameObject>())
   {

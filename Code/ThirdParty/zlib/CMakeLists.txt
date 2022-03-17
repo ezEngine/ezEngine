@@ -6,9 +6,9 @@ ez_requires(EZ_3RDPARTY_ZLIB_SUPPORT)
 get_filename_component(PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
 
 if(EZ_CMAKE_PLATFORM_WINDOWS_UWP)
-  ez_create_target(STATIC_LIBRARY ${PROJECT_NAME} NO_EZ_PREFIX)
+  ez_create_target(STATIC_LIBRARY ${PROJECT_NAME} NO_EZ_PREFIX NO_WARNINGS_AS_ERRORS)
 else()
-  ez_create_target(LIBRARY ${PROJECT_NAME} NO_EZ_PREFIX)
+  ez_create_target(LIBRARY ${PROJECT_NAME} NO_EZ_PREFIX NO_WARNINGS_AS_ERRORS)
 endif()
 
 
@@ -25,7 +25,7 @@ if(MSVC)
 
   endif()
 
+  target_compile_options(${PROJECT_NAME} PRIVATE /wd4131)
 endif()
-
 
 

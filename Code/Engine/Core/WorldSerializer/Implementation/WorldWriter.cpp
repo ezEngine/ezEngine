@@ -298,7 +298,7 @@ void ezWorldWriter::WriteComponentTypeInfo(const ezRTTI* pRtti)
 
 void ezWorldWriter::WriteComponentCreationData(const ezDeque<const ezComponent*>& components)
 {
-  ezMemoryStreamStorage storage;
+  ezDefaultMemoryStreamStorage storage;
   ezMemoryStreamWriter memWriter(&storage);
 
   ezStreamWriter* pPrevStream = m_pStream;
@@ -336,15 +336,17 @@ void ezWorldWriter::WriteComponentCreationData(const ezDeque<const ezComponent*>
   // write result to actual stream
   {
     ezStreamWriter& s = *m_pStream;
-    s << storage.GetStorageSize();
+    s << storage.GetStorageSize32();
 
-    s.WriteBytes(storage.GetData(), storage.GetStorageSize()).IgnoreResult();
+    EZ_ASSERT_ALWAYS(storage.GetStorageSize64() <= ezMath::MaxValue<ezUInt32>(), "Slight file format change and version increase needed to support > 4GB worlds.");
+
+    storage.CopyToStream(s).IgnoreResult();
   }
 }
 
 void ezWorldWriter::WriteComponentSerializationData(const ezDeque<const ezComponent*>& components)
 {
-  ezMemoryStreamStorage storage;
+  ezDefaultMemoryStreamStorage storage;
   ezMemoryStreamWriter memWriter(&storage);
 
   ezStreamWriter* pPrevStream = m_pStream;
@@ -361,9 +363,11 @@ void ezWorldWriter::WriteComponentSerializationData(const ezDeque<const ezCompon
   // write result to actual stream
   {
     ezStreamWriter& s = *m_pStream;
-    s << storage.GetStorageSize();
+    s << storage.GetStorageSize32();
 
-    s.WriteBytes(storage.GetData(), storage.GetStorageSize()).IgnoreResult();
+    EZ_ASSERT_ALWAYS(storage.GetStorageSize64() <= ezMath::MaxValue<ezUInt32>(), "Slight file format change and version increase needed to support > 4GB worlds.");
+
+    storage.CopyToStream(s).IgnoreResult();
   }
 }
 

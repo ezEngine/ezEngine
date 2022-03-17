@@ -27,7 +27,7 @@ public:
   ezResult FetchEmbeddedArchive(ezStreamReader& stream);
   ezResult StoreEmbeddedArchive(ezStreamWriter& stream) const;
 
-  ezMemoryStreamStorage m_Storage;
+  ezDefaultMemoryStreamStorage m_Storage;
 };
 
 /// \brief Implements the ozz::io::Stream interface for reading. The data has to be present in an ezOzzArchiveData object.

@@ -1,5 +1,6 @@
 #include <Texture/TexturePCH.h>
 
+#include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
 #include <Texture/Image/ImageUtils.h>
 #include <Texture/TexConv/TexConvProcessor.h>
@@ -24,6 +25,8 @@ ezTexConvProcessor::ezTexConvProcessor() = default;
 
 ezResult ezTexConvProcessor::Process()
 {
+  EZ_PROFILE_SCOPE("ezTexConvProcessor::Process");
+
   if (m_Descriptor.m_OutputType == ezTexConvOutputType::Atlas)
   {
     ezMemoryStreamWriter stream(&m_TextureAtlas);
@@ -86,8 +89,7 @@ ezResult ezTexConvProcessor::Process()
 
     EZ_SUCCEED_OR_RETURN(AdjustHdrExposure(assembledImg));
 
-    EZ_SUCCEED_OR_RETURN(
-      GenerateMipmaps(assembledImg, 0, uiNumChannelsUsed == 1 ? MipmapChannelMode::SingleChannel : MipmapChannelMode::AllChannels));
+    EZ_SUCCEED_OR_RETURN(GenerateMipmaps(assembledImg, 0, uiNumChannelsUsed == 1 ? MipmapChannelMode::SingleChannel : MipmapChannelMode::AllChannels));
 
     EZ_SUCCEED_OR_RETURN(PremultiplyAlpha(assembledImg));
 
@@ -103,6 +105,8 @@ ezResult ezTexConvProcessor::Process()
 
 ezResult ezTexConvProcessor::DetectNumChannels(ezArrayPtr<const ezTexConvSliceChannelMapping> channelMapping, ezUInt32& uiNumChannels)
 {
+  EZ_PROFILE_SCOPE("DetectNumChannels");
+
   uiNumChannels = 0;
 
   for (const auto& mapping : channelMapping)
@@ -184,6 +188,8 @@ ezResult ezTexConvProcessor::DetectNumChannels(ezArrayPtr<const ezTexConvSliceCh
 
 ezResult ezTexConvProcessor::GenerateOutput(ezImage&& src, ezImage& dst, ezEnum<ezImageFormat> format)
 {
+  EZ_PROFILE_SCOPE("GenerateOutput");
+
   dst.ResetAndMove(std::move(src));
 
   if (dst.Convert(format).Failed())
@@ -199,6 +205,8 @@ ezResult ezTexConvProcessor::GenerateThumbnailOutput(const ezImage& srcImg, ezIm
 {
   if (uiTargetRes == 0)
     return EZ_SUCCESS;
+
+  EZ_PROFILE_SCOPE("GenerateThumbnailOutput");
 
   ezUInt32 uiBestMip = 0;
 
@@ -303,6 +311,8 @@ ezResult ezTexConvProcessor::GenerateLowResOutput(const ezImage& srcImg, ezImage
 {
   if (uiLowResMip == 0)
     return EZ_SUCCESS;
+
+  EZ_PROFILE_SCOPE("GenerateLowResOutput");
 
   if (srcImg.GetNumMipLevels() <= uiLowResMip)
   {

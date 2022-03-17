@@ -343,6 +343,12 @@ public:
   /// \sa ezLog::Print
   static void Printf(const char* szFormat, ...);
 
+  /// \brief Signature of the custom print function used by ezLog::SetCustomPrintFunction.
+  using PrintFunction = void (*)(const char* szText);
+
+  /// \brief Sets a custom function that is called in addition to the default behavior of ezLog::Print.
+  static void SetCustomPrintFunction(PrintFunction func);
+
   /// \brief Shows a simple message box using the OS functionality.
   ///
   /// This should only be used for critical information that can't be conveyed in another way.
@@ -370,6 +376,8 @@ private:
   static void EndLogBlock(ezLogInterface* pInterface, ezLogBlock* pBlock);
 
   static void WriteBlockHeader(ezLogInterface* pInterface, ezLogBlock* pBlock);
+
+  static PrintFunction s_CustomPrintFunction;
 };
 
 

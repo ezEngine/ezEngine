@@ -4,6 +4,8 @@
 #include <Texture/Image/Image.h>
 
 #include <Foundation/IO/MemoryStream.h>
+#include <Foundation/IO/StreamUtils.h>
+#include <Foundation/Profiling/Profiling.h>
 #include <Texture/Image/ImageConversion.h>
 #include <stb_image/stb_image.h>
 #include <stb_image/stb_image_write.h>
@@ -49,69 +51,94 @@ namespace
     writer->WriteBytes(data, size).IgnoreResult();
   }
 
+  void* ReadImageData(ezStreamReader& stream, ezDynamicArray<ezUInt8>& fileBuffer, ezImageHeader& imageHeader, bool& isHDR)
+  {
+    ezStreamUtils::ReadAllAndAppend(stream, fileBuffer);
+
+    int width, height, numComp;
+
+    isHDR = !!stbi_is_hdr_from_memory(fileBuffer.GetData(), fileBuffer.GetCount());
+
+    void* sourceImageData = nullptr;
+    if (isHDR)
+    {
+      sourceImageData = stbi_loadf_from_memory(fileBuffer.GetData(), fileBuffer.GetCount(), &width, &height, &numComp, 0);
+    }
+    else
+    {
+      sourceImageData = stbi_load_from_memory(fileBuffer.GetData(), fileBuffer.GetCount(), &width, &height, &numComp, 0);
+    }
+    if (!sourceImageData)
+    {
+      ezLog::Error("stb_image failed to load: {0}", stbi_failure_reason());
+      return nullptr;
+    }
+    fileBuffer.Clear();
+
+    ezImageFormat::Enum format = ezImageFormat::UNKNOWN;
+    switch (numComp)
+    {
+      case 1:
+        format = (isHDR) ? ezImageFormat::R32_FLOAT : ezImageFormat::R8_UNORM;
+        break;
+      case 2:
+        format = (isHDR) ? ezImageFormat::R32G32_FLOAT : ezImageFormat::R8G8_UNORM;
+        break;
+      case 3:
+        format = (isHDR) ? ezImageFormat::R32G32B32_FLOAT : ezImageFormat::R8G8B8_UNORM;
+        break;
+      case 4:
+        format = (isHDR) ? ezImageFormat::R32G32B32A32_FLOAT : ezImageFormat::R8G8B8A8_UNORM;
+        break;
+    }
+
+    // Set properties and allocate.
+    imageHeader.SetImageFormat(format);
+    imageHeader.SetNumMipLevels(1);
+    imageHeader.SetNumArrayIndices(1);
+    imageHeader.SetNumFaces(1);
+
+    imageHeader.SetWidth(width);
+    imageHeader.SetHeight(height);
+    imageHeader.SetDepth(1);
+
+    return sourceImageData;
+  }
+
 } // namespace
 
-ezResult ezStbImageFileFormats::ReadImage(ezStreamReader& stream, ezImage& image, ezLogInterface* pLog, const char* szFileExtension) const
+ezResult ezStbImageFileFormats::ReadImageHeader(ezStreamReader& stream, ezImageHeader& header, const char* szFileExtension) const
 {
-  // stbi_io_callbacks callbacks;
-  // callbacks.read = &read;
-  // callbacks.skip = &skip;
-  // callbacks.eof = &eof;
+  EZ_PROFILE_SCOPE("ezStbImageFileFormats::ReadImageHeader");
 
-  ezMemoryStreamStorage fileBuffer;
-  fileBuffer.ReadAll(stream);
+  bool isHDR = false;
+  ezDynamicArray<ezUInt8> fileBuffer;
+  void* sourceImageData = ReadImageData(stream, fileBuffer, header, isHDR);
 
-  int width, height, numComp;
-
-  bool isHDR = !!stbi_is_hdr_from_memory(fileBuffer.GetData(), fileBuffer.GetStorageSize());
-
-  const void* sourceImageData = nullptr;
-  if (isHDR)
-  {
-    sourceImageData = stbi_loadf_from_memory(fileBuffer.GetData(), fileBuffer.GetStorageSize(), &width, &height, &numComp, 0);
-  }
-  else
-  {
-    sourceImageData = stbi_load_from_memory(fileBuffer.GetData(), fileBuffer.GetStorageSize(), &width, &height, &numComp, 0);
-  }
-  if (!sourceImageData)
-  {
-    ezLog::Error(pLog, "stb_image failed to load: {0}", stbi_failure_reason());
+  if (sourceImageData == nullptr)
     return EZ_FAILURE;
-  }
-  fileBuffer.Clear();
 
-  ezImageFormat::Enum format = ezImageFormat::UNKNOWN;
-  switch (numComp)
-  {
-    case 1:
-      format = (isHDR) ? ezImageFormat::R32_FLOAT : ezImageFormat::R8_UNORM;
-      break;
-    case 2:
-      format = (isHDR) ? ezImageFormat::R32G32_FLOAT : ezImageFormat::R8G8_UNORM;
-      break;
-    case 3:
-      format = (isHDR) ? ezImageFormat::R32G32B32_FLOAT : ezImageFormat::R8G8B8_UNORM;
-      break;
-    case 4:
-      format = (isHDR) ? ezImageFormat::R32G32B32A32_FLOAT : ezImageFormat::R8G8B8A8_UNORM;
-      break;
-  }
+  stbi_image_free(sourceImageData);
+  return EZ_SUCCESS;
+}
 
-  // Set properties and allocate.
+ezResult ezStbImageFileFormats::ReadImage(ezStreamReader& stream, ezImage& image, const char* szFileExtension) const
+{
+  EZ_PROFILE_SCOPE("ezStbImageFileFormats::ReadImage");
+
+  bool isHDR = false;
+  ezDynamicArray<ezUInt8> fileBuffer;
   ezImageHeader imageHeader;
-  imageHeader.SetImageFormat(format);
-  imageHeader.SetNumMipLevels(1);
-  imageHeader.SetNumArrayIndices(1);
-  imageHeader.SetNumFaces(1);
+  void* sourceImageData = ReadImageData(stream, fileBuffer, imageHeader, isHDR);
 
-  imageHeader.SetWidth(width);
-  imageHeader.SetHeight(height);
-  imageHeader.SetDepth(1);
+  if (sourceImageData == nullptr)
+    return EZ_FAILURE;
 
   image.ResetAndAlloc(imageHeader);
 
-  const size_t elementsToCopy = static_cast<size_t>(width) * static_cast<size_t>(height) * static_cast<size_t>(numComp);
+  const size_t numComp = ezImageFormat::GetNumChannels(imageHeader.GetImageFormat());
+
+  const size_t elementsToCopy = static_cast<size_t>(imageHeader.GetWidth()) * static_cast<size_t>(imageHeader.GetHeight()) * numComp;
 
   // Set pixels. Different strategies depending on component count.
   if (isHDR)
@@ -126,11 +153,10 @@ ezResult ezStbImageFileFormats::ReadImage(ezStreamReader& stream, ezImage& image
   }
 
   stbi_image_free((void*)sourceImageData);
-
   return EZ_SUCCESS;
 }
 
-ezResult ezStbImageFileFormats::WriteImage(ezStreamWriter& stream, const ezImageView& image, ezLogInterface* pLog, const char* szFileExtension) const
+ezResult ezStbImageFileFormats::WriteImage(ezStreamWriter& stream, const ezImageView& image, const char* szFileExtension) const
 {
   ezImageFormat::Enum compatibleFormats[] = {ezImageFormat::R8_UNORM, ezImageFormat::R8G8B8_UNORM, ezImageFormat::R8G8B8A8_UNORM};
 
@@ -139,7 +165,7 @@ ezResult ezStbImageFileFormats::WriteImage(ezStreamWriter& stream, const ezImage
 
   if (format == ezImageFormat::UNKNOWN)
   {
-    ezLog::Error(pLog, "No conversion from format '{0}' to a format suitable for PNG files known.", ezImageFormat::GetName(image.GetImageFormat()));
+    ezLog::Error("No conversion from format '{0}' to a format suitable for PNG files known.", ezImageFormat::GetName(image.GetImageFormat()));
     return EZ_FAILURE;
   }
 
@@ -154,7 +180,7 @@ ezResult ezStbImageFileFormats::WriteImage(ezStreamWriter& stream, const ezImage
       return EZ_FAILURE;
     }
 
-    return WriteImage(stream, convertedImage, pLog, szFileExtension);
+    return WriteImage(stream, convertedImage, szFileExtension);
   }
 
   if (ezStringUtils::IsEqual_NoCase(szFileExtension, "png"))

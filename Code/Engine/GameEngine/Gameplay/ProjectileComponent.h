@@ -12,9 +12,9 @@ typedef ezComponentManagerSimple<class ezProjectileComponent, ezComponentUpdateT
 /// \brief Defines what a projectile will do when it hits a surface
 struct EZ_GAMEENGINE_DLL ezProjectileReaction
 {
-  typedef ezInt8 StorageType;
+  using StorageType = ezInt8;
 
-  enum Enum
+  enum Enum : StorageType
   {
     Absorb,      ///< The projectile simply stops and is deleted
     Reflect,     ///< Bounces away along the reflected direction

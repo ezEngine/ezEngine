@@ -263,12 +263,12 @@ ezStatus ezAnimationControllerAssetDocument::InternalTransformAsset(ezStreamWrit
   SetInputPinIndices(newNodes, allNodes, pNodeManager, pinCounts, inputPinIndices, pIdxProperty, pNumProperty);
   SetOutputPinIndices(newNodes, allNodes, pNodeManager, pinCounts, animController, pIdxProperty, inputPinIndices);
 
-  ezMemoryStreamStorage storage;
+  ezDefaultMemoryStreamStorage storage;
   ezMemoryStreamWriter writer(&storage);
   EZ_SUCCEED_OR_RETURN(animController.Serialize(writer));
 
-  stream << storage.GetStorageSize();
-  return stream.WriteBytes(storage.GetData(), storage.GetStorageSize());
+  stream << storage.GetStorageSize32();
+  return storage.CopyToStream(stream);
 }
 
 static void AssignNodePriority(const ezDocumentObject* pNode, ezUInt16 curPrio, ezMap<const ezDocumentObject*, ezUInt16>& prios, const ezDocumentNodeManager* pNodeManager)

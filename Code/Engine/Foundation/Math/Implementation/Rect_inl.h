@@ -159,3 +159,23 @@ void ezRectTemplate<Type>::SetUnion(const ezRectTemplate<Type>& r0, const ezRect
   width = x2 - x1;
   height = y2 - y1;
 }
+
+template <typename Type>
+void ezRectTemplate<Type>::Translate(Type tX, Type tY)
+{
+  /// \test This is new
+
+  x += tX;
+  y += tY;
+}
+
+template <typename Type>
+void ezRectTemplate<Type>::Scale(Type sX, Type sY)
+{
+  /// \test This is new
+
+  x *= sX;
+  y *= sY;
+  width *= sX;
+  height *= sY;
+}

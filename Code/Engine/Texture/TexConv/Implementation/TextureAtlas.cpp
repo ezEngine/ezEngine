@@ -42,7 +42,7 @@ ezResult ezTexConvProcessor::GenerateTextureAtlas(ezMemoryStreamWriter& stream)
   {
     EZ_SUCCEED_OR_RETURN(CreateAtlasLayerTexture(atlasDesc, atlasItems, layerIdx, atlasImg));
 
-    if (ddsWriter.WriteImage(stream, atlasImg, ezLog::GetThreadLocalLogSystem(), "dds").Failed())
+    if (ddsWriter.WriteImage(stream, atlasImg, "dds").Failed())
     {
       ezLog::Error("Failed to write DDS image to texture atlas file.");
       return EZ_FAILURE;
@@ -57,7 +57,7 @@ ezResult ezTexConvProcessor::GenerateTextureAtlas(ezMemoryStreamWriter& stream)
       ezFileWriter fOut;
       if (fOut.Open(sOut).Succeeded())
       {
-        EZ_SUCCEED_OR_RETURN(ddsWriter.WriteImage(fOut, atlasImg, ezLog::GetThreadLocalLogSystem(), "dds"));
+        EZ_SUCCEED_OR_RETURN(ddsWriter.WriteImage(fOut, atlasImg, "dds"));
       }
     }
   }

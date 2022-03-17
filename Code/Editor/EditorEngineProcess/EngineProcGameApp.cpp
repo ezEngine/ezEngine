@@ -155,9 +155,6 @@ bool ezEngineProcessGameApplication::ProcessIPCMessages(bool bPendingOpInProgres
     // Our code might assert on destruction, so make sure our assert handler doesn't show anything.
     ezSetAssertHandler(EmptyAssertHandler);
     std::abort();
-
-    RequestQuit();
-    return false;
   }
   else
   {
@@ -272,80 +269,80 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
     SendProjectReadyMessage();
     return;
   }
-  else if (const auto* pMsg = ezDynamicCast<const ezSimpleConfigMsgToEngine*>(e.m_pMessage))
+  else if (const auto* pMsg1 = ezDynamicCast<const ezSimpleConfigMsgToEngine*>(e.m_pMessage))
   {
-    if (pMsg->m_sWhatToDo == "ChangeActivePlatform")
+    if (pMsg1->m_sWhatToDo == "ChangeActivePlatform")
     {
-      ezStringBuilder sRedirFile("AssetCache/", pMsg->m_sPayload, ".ezAidlt");
+      ezStringBuilder sRedirFile("AssetCache/", pMsg1->m_sPayload, ".ezAidlt");
 
       ezDataDirectory::FolderType::s_sRedirectionFile = sRedirFile;
 
       ezFileSystem::ReloadAllExternalDataDirectoryConfigs();
 
-      m_PlatformProfile.m_sName = pMsg->m_sPayload;
+      m_PlatformProfile.m_sName = pMsg1->m_sPayload;
       Init_PlatformProfile_LoadForRuntime();
 
       ezResourceManager::ReloadAllResources(false);
       ezRenderWorld::DeleteAllCachedRenderData();
     }
-    else if (pMsg->m_sWhatToDo == "ReloadAssetLUT")
+    else if (pMsg1->m_sWhatToDo == "ReloadAssetLUT")
     {
       ezFileSystem::ReloadAllExternalDataDirectoryConfigs();
     }
-    else if (pMsg->m_sWhatToDo == "ReloadResources")
+    else if (pMsg1->m_sWhatToDo == "ReloadResources")
     {
       ezResourceManager::ReloadAllResources(false);
       ezRenderWorld::DeleteAllCachedRenderData();
     }
     else
-      ezLog::Warning("Unknown ezSimpleConfigMsgToEngine '{0}'", pMsg->m_sWhatToDo);
+      ezLog::Warning("Unknown ezSimpleConfigMsgToEngine '{0}'", pMsg1->m_sWhatToDo);
   }
-  else if (const auto* pMsg = ezDynamicCast<const ezResourceUpdateMsgToEngine*>(e.m_pMessage))
+  else if (const auto* pMsg2 = ezDynamicCast<const ezResourceUpdateMsgToEngine*>(e.m_pMessage))
   {
-    HandleResourceUpdateMsg(*pMsg);
+    HandleResourceUpdateMsg(*pMsg2);
   }
-  else if (const auto* pMsg = ezDynamicCast<const ezRestoreResourceMsgToEngine*>(e.m_pMessage))
+  else if (const auto* pMsg2a = ezDynamicCast<const ezRestoreResourceMsgToEngine*>(e.m_pMessage))
   {
-    HandleResourceRestoreMsg(*pMsg);
+    HandleResourceRestoreMsg(*pMsg2a);
   }
-  else if (const auto* pMsg = ezDynamicCast<const ezChangeCVarMsgToEngine*>(e.m_pMessage))
+  else if (const auto* pMsg3 = ezDynamicCast<const ezChangeCVarMsgToEngine*>(e.m_pMessage))
   {
-    if (ezCVar* pCVar = ezCVar::FindCVarByName(pMsg->m_sCVarName))
+    if (ezCVar* pCVar = ezCVar::FindCVarByName(pMsg3->m_sCVarName))
     {
-      if (pCVar->GetType() == ezCVarType::Int && pMsg->m_NewValue.CanConvertTo<ezInt32>())
+      if (pCVar->GetType() == ezCVarType::Int && pMsg3->m_NewValue.CanConvertTo<ezInt32>())
       {
-        *static_cast<ezCVarInt*>(pCVar) = pMsg->m_NewValue.ConvertTo<ezInt32>();
+        *static_cast<ezCVarInt*>(pCVar) = pMsg3->m_NewValue.ConvertTo<ezInt32>();
       }
-      else if (pCVar->GetType() == ezCVarType::Float && pMsg->m_NewValue.CanConvertTo<float>())
+      else if (pCVar->GetType() == ezCVarType::Float && pMsg3->m_NewValue.CanConvertTo<float>())
       {
-        *static_cast<ezCVarFloat*>(pCVar) = pMsg->m_NewValue.ConvertTo<float>();
+        *static_cast<ezCVarFloat*>(pCVar) = pMsg3->m_NewValue.ConvertTo<float>();
       }
-      else if (pCVar->GetType() == ezCVarType::Bool && pMsg->m_NewValue.CanConvertTo<bool>())
+      else if (pCVar->GetType() == ezCVarType::Bool && pMsg3->m_NewValue.CanConvertTo<bool>())
       {
-        *static_cast<ezCVarBool*>(pCVar) = pMsg->m_NewValue.ConvertTo<bool>();
+        *static_cast<ezCVarBool*>(pCVar) = pMsg3->m_NewValue.ConvertTo<bool>();
       }
-      else if (pCVar->GetType() == ezCVarType::String && pMsg->m_NewValue.CanConvertTo<ezString>())
+      else if (pCVar->GetType() == ezCVarType::String && pMsg3->m_NewValue.CanConvertTo<ezString>())
       {
-        *static_cast<ezCVarString*>(pCVar) = pMsg->m_NewValue.ConvertTo<ezString>();
+        *static_cast<ezCVarString*>(pCVar) = pMsg3->m_NewValue.ConvertTo<ezString>();
       }
       else
       {
-        ezLog::Warning("ezChangeCVarMsgToEngine: New value for CVar '{0}' is incompatible with CVar type", pMsg->m_sCVarName);
+        ezLog::Warning("ezChangeCVarMsgToEngine: New value for CVar '{0}' is incompatible with CVar type", pMsg3->m_sCVarName);
       }
     }
     else
-      ezLog::Warning("ezChangeCVarMsgToEngine: Unknown CVar '{0}'", pMsg->m_sCVarName);
+      ezLog::Warning("ezChangeCVarMsgToEngine: Unknown CVar '{0}'", pMsg3->m_sCVarName);
   }
-  else if (const auto* pMsg = ezDynamicCast<const ezConsoleCmdMsgToEngine*>(e.m_pMessage))
+  else if (const auto* pMsg4 = ezDynamicCast<const ezConsoleCmdMsgToEngine*>(e.m_pMessage))
   {
     if (m_pConsole->GetCommandInterpreter())
     {
       ezCommandInterpreterState s;
-      s.m_sInput = pMsg->m_sCommand;
+      s.m_sInput = pMsg4->m_sCommand;
 
       ezStringBuilder tmp;
 
-      if (pMsg->m_iType == 1)
+      if (pMsg4->m_iType == 1)
       {
         m_pConsole->GetCommandInterpreter()->AutoComplete(s);
         tmp.AppendFormat(";;00||<{}", s.m_sInput);
@@ -373,12 +370,12 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
 
   ezEngineProcessDocumentContext* pDocumentContext = ezEngineProcessDocumentContext::GetDocumentContext(pDocMsg->m_DocumentGuid);
 
-  if (const auto* pMsg = ezDynamicCast<const ezDocumentOpenMsgToEngine*>(e.m_pMessage)) // Document was opened or closed
+  if (const auto* pMsg5 = ezDynamicCast<const ezDocumentOpenMsgToEngine*>(e.m_pMessage)) // Document was opened or closed
   {
-    if (pMsg->m_bDocumentOpen)
+    if (pMsg5->m_bDocumentOpen)
     {
-      pDocumentContext = CreateDocumentContext(pMsg);
-      EZ_ASSERT_DEV(pDocumentContext != nullptr, "Could not create a document context for document type '{0}'", pMsg->m_sDocumentType);
+      pDocumentContext = CreateDocumentContext(pMsg5);
+      EZ_ASSERT_DEV(pDocumentContext != nullptr, "Could not create a document context for document type '{0}'", pMsg5->m_sDocumentType);
     }
     else
     {
@@ -388,9 +385,10 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
     return;
   }
 
-  if (const auto* pMsg = ezDynamicCast<const ezDocumentClearMsgToEngine*>(e.m_pMessage))
+  if (const auto* pMsg6 = ezDynamicCast<const ezDocumentClearMsgToEngine*>(e.m_pMessage))
   {
-    ezEngineProcessDocumentContext* pDocumentContext = ezEngineProcessDocumentContext::GetDocumentContext(pMsg->m_DocumentGuid);
+    pDocumentContext = ezEngineProcessDocumentContext::GetDocumentContext(pMsg6->m_DocumentGuid);
+
     if (pDocumentContext)
     {
       pDocumentContext->ClearExistingObjects();

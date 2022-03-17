@@ -1,4 +1,4 @@
-ez_build_filter_everything()
+
 
 set (EZ_BUILD_TOOLS ON CACHE BOOL "Whether tool projects should be added to the solution")
 

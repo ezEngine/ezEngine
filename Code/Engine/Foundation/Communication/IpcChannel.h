@@ -118,7 +118,7 @@ protected:
 
   // Mutex locked
   ezMutex m_OutputQueueMutex;
-  ezDeque<ezMemoryStreamStorage> m_OutputQueue;
+  ezDeque<ezContiguousMemoryStreamStorage> m_OutputQueue;
 
   // Only accessed from worker thread
   ezDynamicArray<ezUInt8> m_MessageAccumulator; ///< Message is assembled in here

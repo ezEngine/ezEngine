@@ -251,12 +251,12 @@ void ezQtShaderTemplateDlg::on_ShaderTemplate_currentIndexChanged(int idx)
 
       ezInt32 iDefItem = -1;
 
-      for (ezUInt32 idx = 0; idx < enumDef.m_Values.GetCount(); ++idx)
+      for (ezUInt32 idx2 = 0; idx2 < enumDef.m_Values.GetCount(); ++idx2)
       {
-        const auto& e = enumDef.m_Values[idx];
+        const auto& e = enumDef.m_Values[idx2];
 
         if (e.m_iValueValue == enumDef.m_uiDefaultValue)
-          iDefItem = idx;
+          iDefItem = idx2;
 
         varName = e.m_sValueName.GetString();
         varName.TrimWordStart(enumDef.m_sName);

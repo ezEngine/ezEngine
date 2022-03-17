@@ -214,14 +214,6 @@ ezEditorInput ezDragToPositionGizmo::DoMouseReleaseEvent(QMouseEvent* e)
   return ezEditorInput::WasExclusivelyHandled;
 }
 
-static const ezVec3 GetOrthogonalVector(const ezVec3& vDir)
-{
-  if (ezMath::Abs(vDir.Dot(ezVec3(0, 0, 1))) < 0.999f)
-    return -vDir.CrossRH(ezVec3(0, 0, 1));
-
-  return -vDir.CrossRH(ezVec3(1, 0, 0));
-}
-
 ezEditorInput ezDragToPositionGizmo::DoMouseMoveEvent(QMouseEvent* e)
 {
   if (!IsActiveInputContext())

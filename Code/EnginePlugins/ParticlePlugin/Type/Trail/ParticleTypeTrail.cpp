@@ -359,7 +359,7 @@ ezUInt16 ezParticleTypeTrail::GetIndexForTrailPoints()
 
     // if (m_uiMaxPoints > 32)
     //{
-    res = m_TrailPoints64.GetCount();
+    res = static_cast<ezUInt16>(m_TrailPoints64.GetCount());
     m_TrailPoints64.ExpandAndGetRef();
     //}
     // else if (m_uiMaxPoints > 16)
@@ -423,7 +423,7 @@ const ezVec4* ezParticleTypeTrail::GetTrailPointsPositions(ezUInt32 index) const
 }
 
 
-ezUInt32 ezParticleTypeTrail::ComputeTrailPointBucketSize(ezUInt32 uiMaxTrailPoints)
+ezUInt16 ezParticleTypeTrail::ComputeTrailPointBucketSize(ezUInt16 uiMaxTrailPoints)
 {
   if (uiMaxTrailPoints > 32)
   {

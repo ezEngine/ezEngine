@@ -16,7 +16,7 @@ ezStringDeduplicationWriteContext::~ezStringDeduplicationWriteContext() = defaul
 
 ezStreamWriter& ezStringDeduplicationWriteContext::Begin()
 {
-  EZ_ASSERT_DEV(m_TempStreamStorage.GetStorageSize() == 0, "Begin() can only be called once on a string deduplication context.");
+  EZ_ASSERT_DEV(m_TempStreamStorage.GetStorageSize64() == 0, "Begin() can only be called once on a string deduplication context.");
 
   m_TempStreamWriter.SetStorage(&m_TempStreamStorage);
 
@@ -50,7 +50,7 @@ ezResult ezStringDeduplicationWriteContext::End()
   }
 
   // Now append the original stream
-  EZ_SUCCEED_OR_RETURN(m_OriginalStream.WriteBytes(m_TempStreamStorage.GetData(), m_TempStreamStorage.GetStorageSize()));
+  EZ_SUCCEED_OR_RETURN(m_TempStreamStorage.CopyToStream(m_OriginalStream));
 
   return EZ_SUCCESS;
 }

@@ -311,6 +311,13 @@ T& ezArrayBase<T, Derived>::ExpandAndGetRef()
 }
 
 template <typename T, typename Derived>
+T* ezArrayBase<T, Derived>::ExpandBy(ezUInt32 numNewItems)
+{
+  this->SetCount(this->GetCount() + numNewItems);
+  return GetArrayPtr().GetEndPtr() - numNewItems;
+}
+
+template <typename T, typename Derived>
 void ezArrayBase<T, Derived>::PushBack(const T& value)
 {
   static_cast<Derived*>(this)->Reserve(m_uiCount + 1);

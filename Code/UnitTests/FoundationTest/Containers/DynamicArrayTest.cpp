@@ -2,6 +2,7 @@
 
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Memory/CommonAllocators.h>
+#include <Foundation/Time/Stopwatch.h>
 #include <Foundation/Types/UniquePtr.h>
 
 namespace DynamicArrayTestDetail
@@ -371,12 +372,16 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
 
     for (ezInt32 i = 0; i < 100; ++i)
       a1.PushBack(i);
+    for (ezInt32 i = 0; i < 100; ++i)
+      a1.PushBack(i);
 
     for (ezInt32 i = 0; i < 100; ++i)
     {
       EZ_TEST_BOOL(a1.Contains(i));
       EZ_TEST_INT(a1.IndexOf(i), i);
-      EZ_TEST_INT(a1.LastIndexOf(i), i);
+      EZ_TEST_INT(a1.IndexOf(i, 100), i + 100);
+      EZ_TEST_INT(a1.LastIndexOf(i), i + 100);
+      EZ_TEST_INT(a1.LastIndexOf(i, 100), i);
     }
   }
 
@@ -1125,4 +1130,119 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
     }
   }
 #endif
+
+
+  const ezUInt32 uiNumSortItems = 1'000'000;
+
+  struct Item
+  {
+    bool operator<(const Item& rhs) const { return m_iKey < rhs.m_iKey; }
+
+    ezInt32 m_iKey = 0;
+    ezInt32 m_iIndex = 0;
+  };
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SortLargeArray (ez-sort)")
+  {
+    ezDynamicArray<Item> list;
+    list.Reserve(uiNumSortItems);
+
+    for (ezUInt32 i = 0; i < uiNumSortItems; i++)
+    {
+      auto& item = list.ExpandAndGetRef();
+      item.m_iIndex = i;
+      item.m_iKey = std::rand();
+    }
+
+    ezStopwatch sw;
+    list.Sort();
+
+    ezTime t = sw.GetRunningTotal();
+    ezStringBuilder s;
+    s.Format("ez-sort (random keys): {}", t);
+    ezTestFramework::Output(ezTestOutput::Details, s);
+
+    for (ezUInt32 i = 1; i < list.GetCount(); i++)
+    {
+      EZ_TEST_BOOL(list[i - 1].m_iKey <= list[i].m_iKey);
+    }
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SortLargeArray (std::sort)")
+  {
+    ezDynamicArray<Item> list;
+    list.Reserve(uiNumSortItems);
+
+    for (ezUInt32 i = 0; i < uiNumSortItems; i++)
+    {
+      auto& item = list.ExpandAndGetRef();
+      item.m_iIndex = i;
+      item.m_iKey = std::rand();
+    }
+
+    ezStopwatch sw;
+    std::sort(begin(list), end(list));
+
+    ezTime t = sw.GetRunningTotal();
+    ezStringBuilder s;
+    s.Format("std::sort (random keys): {}", t);
+    ezTestFramework::Output(ezTestOutput::Details, s);
+
+    for (ezUInt32 i = 1; i < list.GetCount(); i++)
+    {
+      EZ_TEST_BOOL(list[i - 1].m_iKey <= list[i].m_iKey);
+    }
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SortLargeArray (equal keys) (ez-sort)")
+  {
+    ezDynamicArray<Item> list;
+    list.Reserve(uiNumSortItems);
+
+    for (ezUInt32 i = 0; i < uiNumSortItems; i++)
+    {
+      auto& item = list.ExpandAndGetRef();
+      item.m_iIndex = i;
+      item.m_iKey = 42;
+    }
+
+    ezStopwatch sw;
+    list.Sort();
+
+    ezTime t = sw.GetRunningTotal();
+    ezStringBuilder s;
+    s.Format("ez-sort (equal keys): {}", t);
+    ezTestFramework::Output(ezTestOutput::Details, s);
+
+    for (ezUInt32 i = 1; i < list.GetCount(); i++)
+    {
+      EZ_TEST_BOOL(list[i - 1].m_iKey <= list[i].m_iKey);
+    }
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SortLargeArray (equal keys) (std::sort)")
+  {
+    ezDynamicArray<Item> list;
+    list.Reserve(uiNumSortItems);
+
+    for (ezUInt32 i = 0; i < uiNumSortItems; i++)
+    {
+      auto& item = list.ExpandAndGetRef();
+      item.m_iIndex = i;
+      item.m_iKey = 42;
+    }
+
+    ezStopwatch sw;
+    std::sort(begin(list), end(list));
+
+    ezTime t = sw.GetRunningTotal();
+    ezStringBuilder s;
+    s.Format("std::sort (equal keys): {}", t);
+    ezTestFramework::Output(ezTestOutput::Details, s);
+
+    for (ezUInt32 i = 1; i < list.GetCount(); i++)
+    {
+      EZ_TEST_BOOL(list[i - 1].m_iKey <= list[i].m_iKey);
+    }
+  }
 }

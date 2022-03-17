@@ -67,8 +67,8 @@ void ezReflectionProbeMapping::UpdateProbe(ezReflectionProbeId probe, ezBitflags
 
 void ezReflectionProbeMapping::ProbeUpdateFinished(ezReflectionProbeId probe)
 {
-  ProbeDataInternal& probeData = m_RegisteredProbes[probe.m_InstanceIndex];
-  if (m_SkyLight == probe && probeData.m_Flags.IsSet(ezProbeMappingFlags::Dirty))
+  ProbeDataInternal& probeData0 = m_RegisteredProbes[probe.m_InstanceIndex];
+  if (m_SkyLight == probe && probeData0.m_Flags.IsSet(ezProbeMappingFlags::Dirty))
   {
     // If the sky irradiance changed all other probes are no longer valid and need to be marked as dirty.
     for (ProbeDataInternal& probeData : m_RegisteredProbes)
@@ -79,8 +79,8 @@ void ezReflectionProbeMapping::ProbeUpdateFinished(ezReflectionProbeId probe)
       }
     }
   }
-  probeData.m_Flags.Add(ezProbeMappingFlags::Usable);
-  probeData.m_Flags.Remove(ezProbeMappingFlags::Dirty);
+  probeData0.m_Flags.Add(ezProbeMappingFlags::Usable);
+  probeData0.m_Flags.Remove(ezProbeMappingFlags::Dirty);
 }
 
 void ezReflectionProbeMapping::RemoveProbe(ezReflectionProbeId probe)

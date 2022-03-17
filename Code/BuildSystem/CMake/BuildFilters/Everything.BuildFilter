@@ -1,0 +1,2 @@
+# special case, having a single item (no matter what) means 'everything'
+set_property(GLOBAL PROPERTY EZ_BUILD_FILTER_Everything "*")

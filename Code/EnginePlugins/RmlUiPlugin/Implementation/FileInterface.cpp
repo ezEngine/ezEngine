@@ -39,7 +39,7 @@ namespace ezRmlUiInternal
     auto& pOpenFile = m_OpenFiles[FileId::FromRml(file)];
 
     int iNewReadPosition = 0;
-    int iEndPosition = pOpenFile->m_Reader.GetByteCount();
+    int iEndPosition = static_cast<int>(pOpenFile->m_Reader.GetByteCount32());
 
     if (origin == SEEK_SET)
     {
@@ -47,7 +47,7 @@ namespace ezRmlUiInternal
     }
     else if (origin == SEEK_CUR)
     {
-      iNewReadPosition = pOpenFile->m_Reader.GetReadPosition() + offset;
+      iNewReadPosition = static_cast<int>(pOpenFile->m_Reader.GetReadPosition() + offset);
     }
     else if (origin == SEEK_END)
     {
@@ -75,7 +75,7 @@ namespace ezRmlUiInternal
   {
     auto& pOpenFile = m_OpenFiles[FileId::FromRml(file)];
 
-    return pOpenFile->m_Reader.GetByteCount();
+    return pOpenFile->m_Reader.GetByteCount64();
   }
 
 } // namespace ezRmlUiInternal

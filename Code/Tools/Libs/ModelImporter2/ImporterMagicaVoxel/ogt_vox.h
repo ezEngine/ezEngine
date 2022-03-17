@@ -24,8 +24,8 @@
 
     HOW TO READ A VOX SCENE (See demo_vox.cpp)
 
-    1. load a .vox file off disk into a memory buffer. 
-       
+    1. load a .vox file off disk into a memory buffer.
+
     2. construct a scene from the memory buffer:
        ogt_vox_scene* scene = ogt_vox_read_scene(buffer, buffer_size);
 
@@ -34,10 +34,10 @@
 
     4. destroy the scene:
        ogt_vox_destroy_scene(scene);
-    
+
     HOW TO MERGE MULTIPLE VOX SCENES (See merge_vox.cpp)
 
-    1. construct multiple scenes from files you want to merge. 
+    1. construct multiple scenes from files you want to merge.
 
         // read buffer1/buffer_size1 from "test1.vox"
         // read buffer2/buffer_size2 from "test2.vox"
@@ -109,7 +109,7 @@
     to an RGB-distance matched color when all 256 colors in the merged
     scene palette has been allocated.
 
-    You can explicitly control up to 255 merge palette colors by providing 
+    You can explicitly control up to 255 merge palette colors by providing
     those colors to ogt_vox_merge_scenes in the required_colors parameters eg.
 
         const ogt_vox_palette palette;  // load this via .vox or procedurally or whatever
@@ -1842,7 +1842,8 @@ static int _vox_ordered_compare_instance(const void* _lhs, const void* _rhs)
 {
   const ogt_vox_instance* lhs = (const ogt_vox_instance*)_lhs;
   const ogt_vox_instance* rhs = (const ogt_vox_instance*)_rhs;
-  return lhs->model_index < rhs->model_index ? -1 : lhs->model_index > rhs->model_index ? 1 : 0;
+  return lhs->model_index < rhs->model_index ? -1 : lhs->model_index > rhs->model_index ? 1
+                                                                                        : 0;
 }
 
 // returns true if the 2 models are content-wise identical.
@@ -2447,7 +2448,7 @@ static uint8_t _vox_make_packed_rotation_from_transform(const ogt_vox_transform*
   bool row1_negative = _vox_get_vec3_rotation_bits(row1, row1_index);
   bool row2_negative = _vox_get_vec3_rotation_bits(row2, row2_index);
   assert(((1 << row0_index) | (1 << row1_index) | (1 << row2_index)) == 7); // check that rows are orthogonal. There must be a non-zero entry in column 0, 1 and 2 across these 3 rows.
-  return (row0_index) | (row1_index << 2) | (row0_negative ? 1 << 4 : 0) | (row1_negative ? 1 << 5 : 0) | (row2_negative ? 1 << 6 : 0);
+  return static_cast<uint8_t>((row0_index) | (row1_index << 2) | (row0_negative ? 1 << 4 : 0) | (row1_negative ? 1 << 5 : 0) | (row2_negative ? 1 << 6 : 0));
 }
 
 struct _vox_file_writeable
@@ -2807,7 +2808,9 @@ static void compute_scene_bounding_box_x(const ogt_vox_scene* scene, int32_t& ou
       // model's local x, y or z size is aligned along the world x axis.
       // One of the column vectors of the transform must have a non-zero in its
       // x field and the dimension associated with that column is the correct choice of rus.
-      int32_t max_dim = instance_transform.m00 != 0.0f ? model->size_x : instance_transform.m10 != 0.0f ? model->size_y : instance_transform.m20 != 0.0f ? model->size_z : model->size_x;
+      int32_t max_dim = instance_transform.m00 != 0.0f ? model->size_x : instance_transform.m10 != 0.0f ? model->size_y
+                                                                       : instance_transform.m20 != 0.0f ? model->size_z
+                                                                                                        : model->size_x;
       int32_t half_dim = max_dim / 2;
       int32_t min_x = (int32_t)instance_transform.m30 - half_dim;
       int32_t max_x = (int32_t)instance_transform.m30 + half_dim;

@@ -11,11 +11,12 @@ export enum ProcGenBlendMode {  Add = 0, Subtract = 1, Multiply = 2, Divide = 3,
 export enum PropertyAnimMode {  Once = 0, Loop = 1, BackAndForth = 2 }
 export enum PxJointDriveMode {  NoDrive = 0, DriveAndSpin = 1, DriveAndBrake = 2 }
 export enum PxJointLimitMode {  NoLimit = 0, HardLimit = 1, SoftLimit = 2 }
-export enum PxRagdollStart {  BindPose = 0, WaitForPose = 1, WaitForPoseAndVelocity = 2, Wait = 3 }
+export enum PxRagdollStart {  BindPose = 0, WaitForPose = 1, Wait = 2 }
 export enum PxSteppingMode {  Variable = 0, Fixed = 1, SemiFixed = 2 }
 export enum ReflectionProbeMode {  Static = 0, Dynamic = 1 }
 export enum RootMotionMode {  Ignore = 0, ApplyToOwner = 1, SendMoveCharacterMsg = 2 }
 export enum SetColorMode {  SetRGBA = 0, SetRGB = 1, SetAlpha = 2, AlphaBlend = 3, Additive = 4, Modulate = 5 }
+export enum SkeletonPoseMode {  CustomPose = 0, RestPose = 1, Disabled = 2 }
 export enum SpriteBlendMode {  Masked = 0, Transparent = 1, Additive = 2 }
 export enum TriggerState {  Activated = 0, Continuing = 1, Deactivated = 2 }
 export enum WindStrength {  Calm = 0, LightBreeze = 1, GentleBreeze = 2, ModerateBreeze = 3, StrongBreeze = 4, Storm = 5, WeakShockwave = 6, MediumShockwave = 7, StrongShockwave = 8, ExtremeShockwave = 9 }

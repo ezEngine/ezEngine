@@ -1,6 +1,6 @@
 ez_cmake_init()
 
-ez_build_filter_renderer()
+
 ez_requires_vulkan()
 ez_requires_dxc()
 

@@ -69,7 +69,7 @@ ezUInt32 ezMeshBufferResourceDescriptor::AddStream(ezGALVertexAttributeSemantic:
   si.m_Semantic = Semantic;
   si.m_Format = Format;
   si.m_uiOffset = 0;
-  si.m_uiElementSize = ezGALResourceFormat::GetBitsPerElement(Format) / 8;
+  si.m_uiElementSize = static_cast<ezUInt16>(ezGALResourceFormat::GetBitsPerElement(Format) / 8);
   m_uiVertexSize += si.m_uiElementSize;
 
   EZ_ASSERT_DEV(si.m_uiElementSize > 0, "Invalid Element Size. Format not supported?");
@@ -335,7 +335,7 @@ void ezMeshBufferResourceDescriptor::SetPointIndices(ezUInt32 uiPoint, ezUInt32 
   else
   {
     ezUInt16* pIndices = reinterpret_cast<ezUInt16*>(&m_IndexBufferData[uiPoint * sizeof(ezUInt16) * 1]);
-    pIndices[0] = uiVertex0;
+    pIndices[0] = static_cast<ezUInt16>(uiVertex0);
   }
 }
 
@@ -352,8 +352,8 @@ void ezMeshBufferResourceDescriptor::SetLineIndices(ezUInt32 uiLine, ezUInt32 ui
   else
   {
     ezUInt16* pIndices = reinterpret_cast<ezUInt16*>(&m_IndexBufferData[uiLine * sizeof(ezUInt16) * 2]);
-    pIndices[0] = uiVertex0;
-    pIndices[1] = uiVertex1;
+    pIndices[0] = static_cast<ezUInt16>(uiVertex0);
+    pIndices[1] = static_cast<ezUInt16>(uiVertex1);
   }
 }
 
@@ -371,9 +371,9 @@ void ezMeshBufferResourceDescriptor::SetTriangleIndices(ezUInt32 uiTriangle, ezU
   else
   {
     ezUInt16* pIndices = reinterpret_cast<ezUInt16*>(&m_IndexBufferData[uiTriangle * sizeof(ezUInt16) * 3]);
-    pIndices[0] = uiVertex0;
-    pIndices[1] = uiVertex1;
-    pIndices[2] = uiVertex2;
+    pIndices[0] = static_cast<ezUInt16>(uiVertex0);
+    pIndices[1] = static_cast<ezUInt16>(uiVertex1);
+    pIndices[2] = static_cast<ezUInt16>(uiVertex2);
   }
 }
 
@@ -427,7 +427,7 @@ ezResult ezMeshBufferResourceDescriptor::RecomputeNormals()
   const ezUInt32 uiVertexSize = m_uiVertexSize;
   const ezUInt8* pPositions = nullptr;
   ezUInt8* pNormals = nullptr;
-  ezGALResourceFormat::Enum normalsFormat;
+  ezGALResourceFormat::Enum normalsFormat = ezGALResourceFormat::XYZFloat;
 
   for (ezUInt32 i = 0; i < m_VertexDeclaration.m_VertexStreams.GetCount(); ++i)
   {

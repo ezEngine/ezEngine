@@ -100,9 +100,9 @@ bool ezQtProxy::TriggerDocumentAction(ezDocument* pDocument, QKeyEvent* event)
         {
           pQAction = pActionProxy->GetQAction();
         }
-        else if (auto pActionProxy = qobject_cast<ezQtDynamicActionAndMenuProxy*>(pProxy))
+        else if (auto pActionProxy2 = qobject_cast<ezQtDynamicActionAndMenuProxy*>(pProxy))
         {
-          pQAction = pActionProxy->GetQAction();
+          pQAction = pActionProxy2->GetQAction();
         }
 
         if (pQAction)

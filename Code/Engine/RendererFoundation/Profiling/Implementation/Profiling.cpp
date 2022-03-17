@@ -89,7 +89,7 @@ ezDeque<GPUTimingScope, ezStaticAllocatorWrapper> GPUProfilingSystem::m_TimingSc
 //////////////////////////////////////////////////////////////////////////
 
 ezProfilingScopeAndMarker::ezProfilingScopeAndMarker(ezGALCommandEncoder* pCommandEncoder, const char* szName)
-  : ezProfilingScope(szName, nullptr)
+  : ezProfilingScope(szName, nullptr, ezTime::Zero())
   , m_pCommandEncoder(pCommandEncoder)
 {
   pCommandEncoder->PushMarker(m_szName);

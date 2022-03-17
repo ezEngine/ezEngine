@@ -183,11 +183,11 @@ namespace ezModelImporter2
           {
             // move the vertex into local space of the bone, then determine how far it is away from the bone
             const ezVec3 vOffPos = bone.Value().m_GlobalInverseBindPoseMatrix * vVertexPos;
-            const float len = vOffPos.GetLength();
+            const float length = vOffPos.GetLength();
 
-            if (len > inout_fMaxBoneOffset)
+            if (length > inout_fMaxBoneOffset)
             {
-              inout_fMaxBoneOffset = len;
+              inout_fMaxBoneOffset = length;
             }
           }
         }

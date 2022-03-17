@@ -242,7 +242,7 @@ int __CPP_ComponentFunction_Call(duk_context* pDuk)
 
   const ezUInt32 uiNumArgs = pBinding->m_pFunc->GetArgumentCount();
 
-  ezVariant ret;
+  ezVariant ret0;
   ezStaticArray<ezVariant, 16> args;
   args.SetCount(uiNumArgs);
 
@@ -251,11 +251,11 @@ int __CPP_ComponentFunction_Call(duk_context* pDuk)
     args[arg] = ezTypeScriptBinding::GetVariant(duk, 2 + arg, pBinding->m_pFunc->GetArgumentType(arg));
   }
 
-  pBinding->m_pFunc->Execute(pComponent, args, ret);
+  pBinding->m_pFunc->Execute(pComponent, args, ret0);
 
   if (pBinding->m_pFunc->GetReturnType() != nullptr)
   {
-    ezTypeScriptBinding::PushVariant(duk, ret);
+    ezTypeScriptBinding::PushVariant(duk, ret0);
     EZ_DUK_RETURN_AND_VERIFY_STACK(duk, duk.ReturnCustom(), +1);
   }
   else

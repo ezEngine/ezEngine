@@ -76,7 +76,8 @@ namespace
         }
       }
 
-      pTask->ConfigureTask(task.getName(), ezTaskNesting::Never, [this](const ezSharedPtr<ezTask>& pTask) { FinishTask(pTask); });
+      pTask->ConfigureTask(task.getName(), ezTaskNesting::Never, [this](const ezSharedPtr<ezTask>& pTask)
+        { FinishTask(pTask); });
       static_cast<ezPxTask*>(pTask.Borrow())->m_pTask = &task;
       ezTaskSystem::StartSingleTask(pTask, ezTaskPriority::EarlyThisFrame);
     }
@@ -115,7 +116,7 @@ namespace
     // the only way to prevent this, seems to be to disable ALL self-collision, unfortunately this also disables collisions with all other
     // articulations
     // TODO: this needs to be revisited with later PhysX versions
-    //if (PxGetFilterObjectType(attributes0) == PxFilterObjectType::eARTICULATION && PxGetFilterObjectType(attributes1) == PxFilterObjectType::eARTICULATION)
+    // if (PxGetFilterObjectType(attributes0) == PxFilterObjectType::eARTICULATION && PxGetFilterObjectType(attributes1) == PxFilterObjectType::eARTICULATION)
     //{
     //  return PxFilterFlag::eSUPPRESS;
     //}
@@ -281,9 +282,9 @@ void ezPhysXWorldModule::Initialize()
     physx::PxPvdSceneClient* pvdClient = m_pPxScene->getScenePvdClient();
     if (pvdClient)
     {
-      //pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONSTRAINTS, true);
-      //pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONTACTS, true);
-      //pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
+      // pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONSTRAINTS, true);
+      // pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONTACTS, true);
+      // pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
     }
 #endif
   }
@@ -749,7 +750,7 @@ void ezPhysXWorldModule::StartSimulation(const ezWorldModule::UpdateContext& con
 
 ezColorGammaUB FromARGB(ezUInt32 col)
 {
-  return ezColorGammaUB((col & 0x00FF0000) >> 16, (col & 0x0000FF00) >> 8, (col & 0x000000FF));
+  return ezColorGammaUB(static_cast<ezUInt8>((col & 0x00FF0000) >> 16), static_cast<ezUInt8>((col & 0x0000FF00) >> 8), static_cast<ezUInt8>((col & 0x000000FF)));
 }
 
 void ezPhysXWorldModule::FetchResults(const ezWorldModule::UpdateContext& context)
@@ -790,12 +791,12 @@ void ezPhysXWorldModule::FetchResults(const ezWorldModule::UpdateContext& contex
 
     if (cvar_PhysicsDebugDrawEnable)
     {
-      //m_pPxScene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_SHAPES, 1);
-      //m_pPxScene->setVisualizationParameter(PxVisualizationParameter::eCONTACT_POINT, 1);
-      //m_pPxScene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_DYNAMIC, 1);
+      // m_pPxScene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_SHAPES, 1);
+      // m_pPxScene->setVisualizationParameter(PxVisualizationParameter::eCONTACT_POINT, 1);
+      // m_pPxScene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_DYNAMIC, 1);
       m_pPxScene->setVisualizationParameter(PxVisualizationParameter::eJOINT_LIMITS, 1);
-      //m_pPxScene->setVisualizationParameter(PxVisualizationParameter::eJOINT_LOCAL_FRAMES, 1);
-      //m_pPxScene->setVisualizationParameter(PxVisualizationParameter::eBODY_AXES, 1);
+      // m_pPxScene->setVisualizationParameter(PxVisualizationParameter::eJOINT_LOCAL_FRAMES, 1);
+      // m_pPxScene->setVisualizationParameter(PxVisualizationParameter::eBODY_AXES, 1);
 
       ezHybridArray<ezDebugRenderer::Line, 64> lines;
 
@@ -937,7 +938,8 @@ void ezPhysXWorldModule::SimulateStep(ezTime deltaTime)
     EZ_PROFILE_SCOPE("FetchResult");
 
     // Help executing tasks while we wait for the simulation to finish
-    ezTaskSystem::WaitForCondition([&] { return m_pPxScene->checkResults(false); });
+    ezTaskSystem::WaitForCondition([&]
+      { return m_pPxScene->checkResults(false); });
 
     EZ_PX_WRITE_LOCK(*m_pPxScene);
 

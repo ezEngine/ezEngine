@@ -16,12 +16,12 @@
 using namespace physx;
 
 /* TODO
-* max force clamping ?
-* mass distribution
-* communication with anim controller
-* drive to pose
-* shape scale
-*/
+ * max force clamping ?
+ * mass distribution
+ * communication with anim controller
+ * drive to pose
+ * shape scale
+ */
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezPxRagdollStart, 1)
@@ -233,10 +233,10 @@ void ezPxRagdollComponent::AddImpulseAtPos(ezMsgPhysicsAddImpulse& msg)
     m_NextImpulse.m_vImpulse = msg.m_vImpulse;
     m_NextImpulse.m_pRigidBody = static_cast<PxRigidDynamic*>(msg.m_pInternalPhysicsActor);
 
-    //if (m_NextImpulse.m_pRigidBody)
+    // if (m_NextImpulse.m_pRigidBody)
     //{
-    //  EZ_ASSERT_DEBUG(ezStringUtils::IsEqual(m_NextImpulse.m_pRigidBody->getConcreteTypeName(), "PxRigidDynamic"), "Expected PxRigidDynamic, got {}", m_NextImpulse.m_pRigidBody->getConcreteTypeName());
-    //}
+    //   EZ_ASSERT_DEBUG(ezStringUtils::IsEqual(m_NextImpulse.m_pRigidBody->getConcreteTypeName(), "PxRigidDynamic"), "Expected PxRigidDynamic, got {}", m_NextImpulse.m_pRigidBody->getConcreteTypeName());
+    // }
   }
 }
 
@@ -276,26 +276,26 @@ void ezPxRagdollComponent::ApplyImpulse()
 
 void ezPxRagdollComponent::OnAnimationPoseProposal(ezMsgAnimationPoseProposal& msg)
 {
-  //if (!m_bShapesCreated)
-  //  return;
+  // if (!m_bShapesCreated)
+  //   return;
 
-  //msg.m_bContinueAnimating = false;
+  // msg.m_bContinueAnimating = false;
 
-  //ezPhysXWorldModule* pModule = GetWorld()->GetOrCreateModule<ezPhysXWorldModule>();
-  //EZ_PX_WRITE_LOCK(*pModule->GetPxScene());
+  // ezPhysXWorldModule* pModule = GetWorld()->GetOrCreateModule<ezPhysXWorldModule>();
+  // EZ_PX_WRITE_LOCK(*pModule->GetPxScene());
 
-  //for (ezUInt32 i = 0; i < m_ArticulationLinks.GetCount(); ++i)
+  // for (ezUInt32 i = 0; i < m_ArticulationLinks.GetCount(); ++i)
   //{
-  //  if (m_ArticulationLinks[i].m_pLink == nullptr)
-  //  {
-  //    // no need to do anything, just pass the original pose through
-  //  }
-  //  else
-  //  {
-  //    if (PxArticulationJoint* pJoint = (PxArticulationJoint*)m_ArticulationLinks[i].m_pLink->getInboundJoint())
-  //    {
-  //      ezQuat rot;
-  //      rot.SetIdentity();
+  //   if (m_ArticulationLinks[i].m_pLink == nullptr)
+  //   {
+  //     // no need to do anything, just pass the original pose through
+  //   }
+  //   else
+  //   {
+  //     if (PxArticulationJoint* pJoint = (PxArticulationJoint*)m_ArticulationLinks[i].m_pLink->getInboundJoint())
+  //     {
+  //       ezQuat rot;
+  //       rot.SetIdentity();
 
   //      pJoint->setDriveType(PxArticulationJointDriveType::eTARGET);
   //      pJoint->setTargetOrientation(ezPxConversionUtils::ToQuat(rot));
@@ -336,7 +336,7 @@ void ezPxRagdollComponent::OnRetrieveBoneState(ezMsgRetrieveBoneState& msg) cons
   ezResourceLock<ezSkeletonResource> pSkeleton(m_hSkeleton, ezResourceAcquireMode::BlockTillLoaded);
   const auto& skeleton = pSkeleton->GetDescriptor().m_Skeleton;
 
-  for (ezUInt32 uiJointIdx = 0; uiJointIdx < skeleton.GetJointCount(); ++uiJointIdx)
+  for (ezUInt16 uiJointIdx = 0; uiJointIdx < skeleton.GetJointCount(); ++uiJointIdx)
   {
     ezMat4 mJoint = m_LimbPoses[uiJointIdx];
 
@@ -478,7 +478,8 @@ void ezPxRagdollComponent::SetupLimbsFromBindPose()
 
   m_LimbPoses.SetCountUninitialized(desc.m_Skeleton.GetJointCount());
 
-  auto getBone = [&](ezUInt32 i, auto f) -> ezMat4 {
+  auto getBone = [&](ezUInt16 i, auto f) -> ezMat4
+  {
     const auto& j = desc.m_Skeleton.GetJointByIndex(i);
     const ezMat4 bm = j.GetBindPoseLocalTransform().GetAsMat4();
 
@@ -492,7 +493,7 @@ void ezPxRagdollComponent::SetupLimbsFromBindPose()
     return bm;
   };
 
-  for (ezUInt32 i = 0; i < m_LimbPoses.GetCount(); ++i)
+  for (ezUInt16 i = 0; i < static_cast<ezUInt16>(m_LimbPoses.GetCount()); ++i)
   {
     m_LimbPoses[i] = getBone(i, getBone);
   }
@@ -669,7 +670,7 @@ void ezPxRagdollComponent::SetupLimbJoints(const ezSkeletonResource* pSkeleton)
 
   const auto& skeleton = pSkeleton->GetDescriptor().m_Skeleton;
 
-  for (ezUInt32 uiLimbIdx = 0; uiLimbIdx < m_Limbs.GetCount(); ++uiLimbIdx)
+  for (ezUInt16 uiLimbIdx = 0; uiLimbIdx < static_cast<ezUInt16>(m_Limbs.GetCount()); ++uiLimbIdx)
   {
     const auto& thisLimb = m_Limbs[uiLimbIdx];
 

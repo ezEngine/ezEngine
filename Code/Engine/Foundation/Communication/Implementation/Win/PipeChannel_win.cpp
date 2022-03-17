@@ -268,7 +268,7 @@ bool ezPipeChannel_win::ProcessOutgoingMessages(DWORD uiBytesWritten)
     m_OutputState.IsPending = false;
     return false;
   }
-  const ezMemoryStreamStorage* storage = nullptr;
+  const ezMemoryStreamStorageInterface* storage = nullptr;
   {
     EZ_LOCK(m_OutputQueueMutex);
     if (m_OutputQueue.IsEmpty())
@@ -279,19 +279,30 @@ bool ezPipeChannel_win::ProcessOutgoingMessages(DWORD uiBytesWritten)
     storage = &m_OutputQueue.PeekFront();
   }
 
-  BOOL res = WriteFile(m_PipeHandle, storage->GetData(), storage->GetStorageSize(), &uiBytesWritten, &m_OutputState.Context.Overlapped);
-
-  if (!res)
+  ezUInt64 uiToWrite = storage->GetStorageSize64();
+  ezUInt64 uiNextOffset = 0;
+  while (uiToWrite > 0)
   {
-    ezUInt32 error = GetLastError();
-    if (error == ERROR_IO_PENDING)
+    const ezArrayPtr<const ezUInt8> range = storage->GetContiguousMemoryRange(uiNextOffset);
+    uiToWrite -= range.GetCount();
+
+    BOOL res = WriteFile(m_PipeHandle, range.GetPtr(), range.GetCount(), &uiBytesWritten, &m_OutputState.Context.Overlapped);
+
+    if (!res)
     {
-      m_OutputState.IsPending = true;
-      return true;
+      ezUInt32 error = GetLastError();
+      if (error == ERROR_IO_PENDING)
+      {
+        m_OutputState.IsPending = true;
+        return true;
+      }
+      ezLog::Error("Write to pipe failed: {0}", ezArgErrorCode(error));
+      return false;
     }
-    ezLog::Error("Write to pipe failed: {0}", ezArgErrorCode(error));
-    return false;
+
+    uiNextOffset += range.GetCount();
   }
+
 
   m_OutputState.IsPending = true;
   return true;

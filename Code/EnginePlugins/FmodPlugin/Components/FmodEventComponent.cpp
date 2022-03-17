@@ -166,7 +166,7 @@ void ezFmodEventComponentManager::ShootOcclusionRays(OcclusionState& state, ezVe
     }
 
     state.m_uiNextRayIndex = (state.m_uiNextRayIndex + 1) % 32;
-    state.m_uiNumUsedRays = ezMath::Min(state.m_uiNumUsedRays + 1, 32);
+    state.m_uiNumUsedRays = ezMath::Min<ezUInt8>(state.m_uiNumUsedRays + 1, 32);
   }
 
   float fNewOcclusionValue = (float)ezMath::CountBits(state.m_uiRaycastHits) / state.m_uiNumUsedRays;

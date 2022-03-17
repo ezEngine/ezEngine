@@ -16,6 +16,7 @@ export enum PxSteppingMode {  Variable = 0, Fixed = 1, SemiFixed = 2 }
 export enum ReflectionProbeMode {  Static = 0, Dynamic = 1 }
 export enum RootMotionMode {  Ignore = 0, ApplyToOwner = 1, SendMoveCharacterMsg = 2 }
 export enum SetColorMode {  SetRGBA = 0, SetRGB = 1, SetAlpha = 2, AlphaBlend = 3, Additive = 4, Modulate = 5 }
+export enum SkeletonPoseMode {  CustomPose = 0, RestPose = 1, Disabled = 2 }
 export enum SpriteBlendMode {  Masked = 0, Transparent = 1, Additive = 2 }
 export enum TriggerState {  Activated = 0, Continuing = 1, Deactivated = 2 }
 export enum WindStrength {  Calm = 0, LightBreeze = 1, GentleBreeze = 2, ModerateBreeze = 3, StrongBreeze = 4, Storm = 5, WeakShockwave = 6, MediumShockwave = 7, StrongShockwave = 8, ExtremeShockwave = 9 }

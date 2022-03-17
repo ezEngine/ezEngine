@@ -636,7 +636,7 @@ void ezQtParticleEffectAssetDocumentWindow::SendLiveResourcePreview()
   ezStringBuilder tmp;
   msg.m_sResourceID = ezConversionUtils::ToString(GetDocument()->GetGuid(), tmp);
 
-  ezMemoryStreamStorage streamStorage;
+  ezContiguousMemoryStreamStorage streamStorage;
   ezMemoryStreamWriter memoryWriter(&streamStorage);
 
   // Write Path
@@ -652,7 +652,7 @@ void ezQtParticleEffectAssetDocumentWindow::SendLiveResourcePreview()
 
   // Write Asset Data
   GetParticleDocument()->WriteResource(memoryWriter);
-  msg.m_Data = ezArrayPtr<const ezUInt8>(streamStorage.GetData(), streamStorage.GetStorageSize());
+  msg.m_Data = ezArrayPtr<const ezUInt8>(streamStorage.GetData(), streamStorage.GetStorageSize32());
 
   ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
 }

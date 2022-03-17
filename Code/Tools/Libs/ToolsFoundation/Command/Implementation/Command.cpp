@@ -136,7 +136,7 @@ ezStatus ezCommand::AddSubCommand(ezCommand& command)
   if (pCommand->HasReturnValues())
   {
     // Write properties back so any return values get written.
-    ezMemoryStreamStorage storage;
+    ezDefaultMemoryStreamStorage storage;
     ezMemoryStreamWriter writer(&storage);
     ezMemoryStreamReader reader(&storage);
 

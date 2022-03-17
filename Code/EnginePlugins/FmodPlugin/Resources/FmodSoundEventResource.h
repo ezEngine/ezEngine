@@ -48,7 +48,7 @@ public:
     {
     }
 
-    ezMemoryStreamStorage m_Storage;
+    ezDefaultMemoryStreamStorage m_Storage;
     ezMemoryStreamReader m_Reader;
     ezFmodSoundBankResourceHandle m_hSoundBank;
     FMOD::Studio::EventDescription* m_pEventDescription;

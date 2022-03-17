@@ -11,8 +11,9 @@ public:
   ezWicFileFormat();
   virtual ~ezWicFileFormat();
 
-  virtual ezResult ReadImage(ezStreamReader& stream, ezImage& image, ezLogInterface* pLog, const char* szFileExtension) const override;
-  virtual ezResult WriteImage(ezStreamWriter& stream, const ezImageView& image, ezLogInterface* pLog, const char* szFileExtension) const override;
+  virtual ezResult ReadImageHeader(ezStreamReader& stream, ezImageHeader& header, const char* szFileExtension) const override;
+  virtual ezResult ReadImage(ezStreamReader& stream, ezImage& image, const char* szFileExtension) const override;
+  virtual ezResult WriteImage(ezStreamWriter& stream, const ezImageView& image, const char* szFileExtension) const override;
 
   virtual bool CanReadFileType(const char* szExtension) const override;
   virtual bool CanWriteFileType(const char* szExtension) const override;
@@ -21,6 +22,8 @@ private:
   mutable bool m_bTryCoInit = true; // Helper for keeping track of whether we have tried to init COM exactly once
   mutable bool m_bCoUninitOnShutdown =
     false; // Helper for keeping track of whether we have to uninitialize COM (because we were the first to initialize it)
+
+  ezResult ReadFileData(ezStreamReader& stream, ezDynamicArray<ezUInt8>& storage) const;
 };
 
 #endif

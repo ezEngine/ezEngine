@@ -146,7 +146,8 @@ ezStatus ezDocument::SaveDocument(bool bForce)
     ezTaskSystem::WaitForGroup(m_activeSaveTask);
   }
   ezStatus result;
-  m_activeSaveTask = InternalSaveDocument([&result](ezDocument* doc, ezStatus res) { result = res; });
+  m_activeSaveTask = InternalSaveDocument([&result](ezDocument* doc, ezStatus res)
+    { result = res; });
   ezTaskSystem::WaitForGroup(m_activeSaveTask);
   return result;
 }
@@ -189,7 +190,8 @@ ezTaskGroupID ezDocument::InternalSaveDocument(AfterSaveCallback callback)
     }
     {
       // Do not serialize any temporary properties into the document.
-      auto filter = [](const ezDocumentObject*, const ezAbstractProperty* pProp) -> bool {
+      auto filter = [](const ezDocumentObject*, const ezAbstractProperty* pProp) -> bool
+      {
         if (pProp->GetAttributeByType<ezTemporaryAttribute>() != nullptr)
           return false;
         return true;
@@ -227,7 +229,7 @@ ezTaskGroupID ezDocument::InternalSaveDocument(AfterSaveCallback callback)
 ezStatus ezDocument::ReadDocument(const char* sDocumentPath, ezUniquePtr<ezAbstractObjectGraph>& header, ezUniquePtr<ezAbstractObjectGraph>& objects,
   ezUniquePtr<ezAbstractObjectGraph>& types)
 {
-  ezMemoryStreamStorage storage;
+  ezDefaultMemoryStreamStorage storage;
   ezMemoryStreamReader memreader(&storage);
 
   {

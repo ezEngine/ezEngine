@@ -5,6 +5,7 @@
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Logging/Log.h>
 
+#include <Texture/Image/Formats/ImageFileFormat.h>
 #include <Texture/Image/ImageHeader.h>
 
 /// \brief A class referencing image data and holding metadata about the image.
@@ -27,7 +28,7 @@ public:
   void ResetAndViewExternalStorage(const ezImageHeader& header, ezConstByteBlobPtr imageData);
 
   /// \brief Convenience function to save the image to the given file.
-  ezResult SaveTo(const char* szFileName, ezLogInterface* pLog = ezLog::GetThreadLocalLogSystem()) const;
+  ezResult SaveTo(const char* szFileName) const;
 
   /// \brief Returns the header this image was constructed from.
   const ezImageHeader& GetHeader() const;
@@ -148,7 +149,7 @@ public:
   void ResetAndCopy(const ezImageView& other);
 
   /// \brief Convenience function to load the image from the given file.
-  ezResult LoadFrom(const char* szFileName, ezLogInterface* pLog = ezLog::GetThreadLocalLogSystem());
+  ezResult LoadFrom(const char* szFileName);
 
   /// \brief Convenience function to convert the image to the given format.
   ezResult Convert(ezImageFormat::Enum targetFormat);

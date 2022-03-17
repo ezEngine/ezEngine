@@ -70,7 +70,7 @@ static void ClampValueTest(T tooSmall, T tooBig, T min, T max)
 
 EZ_CREATE_SIMPLE_TEST(Reflection, Utils)
 {
-  ezMemoryStreamStorage StreamStorage;
+  ezDefaultMemoryStreamStorage StreamStorage;
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "WriteObjectToDDL")
   {

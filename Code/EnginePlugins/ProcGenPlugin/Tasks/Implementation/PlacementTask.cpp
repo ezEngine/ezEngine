@@ -126,7 +126,7 @@ void PlacementTask::FindPlacementPoints()
       placementPoint.m_vNormal = hitResult.m_vNormal;
       placementPoint.m_uiColorIndex = 0;
       placementPoint.m_uiObjectIndex = 0;
-      placementPoint.m_uiPointIndex = i;
+      placementPoint.m_uiPointIndex = static_cast<ezUInt16>(i);
     }
   }
 }

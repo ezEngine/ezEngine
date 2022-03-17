@@ -38,9 +38,6 @@ function(ez_prepare_find_qt)
             set (EZ_SDK_URL "https://github.com/ezEngine/thirdparty/releases/download/Qt-5.13.0-vs141-x64/Qt-5.13.0-vs141-x64.zip")
         endif()
 
-        set (EZ_SDK_LOCAL_ZIP "${CMAKE_BINARY_DIR}/${EZ_SDK_VERSION}.zip")
-        set (QT_LOCAL_MARKER "${EZ_SDK_LOCAL_ZIP}.extracted")
-
         if ((EZ_QT_DIR STREQUAL "EZ_QT_DIR-NOTFOUND") OR (EZ_QT_DIR STREQUAL ""))
 
             ez_download_and_extract("${EZ_SDK_URL}" "${CMAKE_BINARY_DIR}" "${EZ_SDK_VERSION}" "zip")

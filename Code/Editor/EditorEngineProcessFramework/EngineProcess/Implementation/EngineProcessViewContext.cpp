@@ -132,7 +132,7 @@ void ezEngineProcessViewContext::HandleWindowUpdate(ezWindowHandle hWnd, ezUInt1
       BackBufferRenderTargetSetup.SetRenderTarget(0, hSwapChainRTV);
 
       const ezSizeU32 wndSize = pWindowPlugin->m_pWindow->GetClientAreaSize();
-      SetupRenderTarget(pOutput->m_hSwapChain, BackBufferRenderTargetSetup, wndSize.width, wndSize.height);
+      SetupRenderTarget(pOutput->m_hSwapChain, BackBufferRenderTargetSetup, static_cast<ezUInt16>(wndSize.width), static_cast<ezUInt16>(wndSize.height));
     }
 
     pActor->AddPlugin(std::move(pWindowPlugin));
