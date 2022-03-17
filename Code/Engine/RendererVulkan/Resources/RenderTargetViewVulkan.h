@@ -10,11 +10,7 @@ struct ID3D11UnorderedAccessView;
 class ezGALRenderTargetViewVulkan : public ezGALRenderTargetView
 {
 public:
-  EZ_ALWAYS_INLINE ID3D11RenderTargetView* GetRenderTargetView() const;
-
-  EZ_ALWAYS_INLINE ID3D11DepthStencilView* GetDepthStencilView() const;
-
-  EZ_ALWAYS_INLINE ID3D11UnorderedAccessView* GetUnorderedAccessView() const;
+  EZ_ALWAYS_INLINE vk::ImageView GetImageView() const;
 
 protected:
   friend class ezGALDeviceVulkan;
@@ -28,11 +24,7 @@ protected:
 
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
 
-  ID3D11RenderTargetView* m_pRenderTargetView;
-
-  ID3D11DepthStencilView* m_pDepthStencilView;
-
-  ID3D11UnorderedAccessView* m_pUnorderedAccessView;
+  vk::ImageView m_imageView;
 };
 
 #include <RendererVulkan/Resources/Implementation/RenderTargetViewVulkan_inl.h>

@@ -11,6 +11,9 @@ class ezGALSwapChainVulkan : public ezGALSwapChain
 {
 public:
   EZ_ALWAYS_INLINE vk::SwapchainKHR GetVulkanSwapChain() const;
+  void AcquireNextImage(vk::Semaphore imageAvailable) const;
+  void PresentMemoryBarrier(vk::CommandBuffer commandBuffer) const;
+  void PresentNextImage(vk::Semaphore renderFinished, vk::Fence renderFinishedFence) const;
 
 protected:
   friend class ezGALDeviceVulkan;
@@ -24,10 +27,13 @@ protected:
 
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
 
-  virtual ezResult Present(int, int) { return EZ_FAILURE; } // TODO impl
+  mutable ezGALDeviceVulkan* m_pVulkanDevice = nullptr;
 
-  vk::SurfaceKHR m_vulkanSurface;
-  vk::SwapchainKHR m_vulkanSwapChain;
+  mutable vk::SurfaceKHR m_vulkanSurface;
+  mutable vk::SwapchainKHR m_vulkanSwapChain;
+  mutable ezHybridArray<vk::Image, 3> m_swapChainImages;
+  mutable ezHybridArray<vk::Fence, 3> m_swapChainImageInUseFences;
+  mutable ezUInt32 m_uiCurrentSwapChainImage = 0;
 
   // We can't do screenshots if we're using any of the FLIP swap effects.
   // If the user requests screenshots anyways, we need to put another buffer in between.

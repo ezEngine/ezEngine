@@ -156,6 +156,12 @@ ezResult ezWindow::Destroy()
   return EZ_SUCCESS;
 }
 
+ezResult ezWindow::Resize(const ezSizeU32& newWindowSize)
+{
+  //#TODO Resizing fails on UWP already via the init code.
+  return EZ_FAILURE;
+}
+
 void ezWindow::ProcessWindowMessages()
 {
   EZ_ASSERT_RELEASE(s_uwpWindowData != nullptr, "No uwp window data available.");

@@ -9,12 +9,12 @@ vk::IndexType ezGALBufferVulkan::GetIndexType() const
   return m_indexType;
 }
 
-vk::DeviceMemory ezGALBufferVulkan::GetMemory() const
+ezVulkanAllocation ezGALBufferVulkan::GetAllocation() const
 {
-  return m_memory;
+  return m_alloc;
 }
 
-vk::DeviceSize ezGALBufferVulkan::GetMemoryOffset() const
+const ezVulkanAllocationInfo& ezGALBufferVulkan::GetAllocationInfo() const
 {
-  return m_memoryOffset;
+  return m_allocInfo;
 }

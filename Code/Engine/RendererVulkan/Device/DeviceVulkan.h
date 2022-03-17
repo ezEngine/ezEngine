@@ -26,10 +26,41 @@ public:
   virtual ~ezGALDeviceVulkan();
 
 public:
+  struct PendingDeletion
+  {
+    EZ_DECLARE_POD_TYPE();
+    vk::ObjectType m_type;
+    void* m_pObject;
+    ezVulkanAllocation m_allocation;
+  };
+
+  struct ReclaimResource
+  {
+    EZ_DECLARE_POD_TYPE();
+    vk::ObjectType m_type;
+    void* m_pObject;
+  };
+
+  struct Extensions
+  {
+    bool m_bSurface = false;
+    bool m_bWin32Surface = false;
+
+    bool m_bDebugUtils = false;
+    PFN_vkCreateDebugUtilsMessengerEXT pfn_vkCreateDebugUtilsMessengerEXT;
+    PFN_vkDestroyDebugUtilsMessengerEXT pfn_vkDestroyDebugUtilsMessengerEXT;
+    PFN_vkSetDebugUtilsObjectNameEXT pfn_vkSetDebugUtilsObjectNameEXT;
+
+    bool m_bDeviceSwapChain = false;
+  };
+
   vk::Instance GetVulkanInstance() const;
   vk::Device GetVulkanDevice() const;
+  vk::Queue GetVulkanQueue() const;
+  vk::PhysicalDevice GetVulkanPhysicalDevice() const;
+  const Extensions& GetExtensions() const { return m_extensions; }
 
-  vk::CommandBuffer& GetPrimaryCommandBuffer();
+  vk::CommandBuffer& GetCurrentCommandBuffer();
 
   ezArrayPtr<const ezUInt32> GetQueueFamilyIndices() const;
   vk::Queue GetQueue();
@@ -37,6 +68,31 @@ public:
   const ezGALFormatLookupTableVulkan& GetFormatLookupTable() const;
 
   ezInt32 GetMemoryIndex(vk::MemoryPropertyFlags properties, const vk::MemoryRequirements& requirements) const;
+
+  void DeleteLater(const PendingDeletion& deletion);
+  template <typename T>
+  void DeleteLater(T& object, ezVulkanAllocation& allocation)
+  {
+    DeleteLater({object.objectType, (void*)object, allocation});
+    object = nullptr;
+    allocation = nullptr;
+  }
+
+  template <typename T>
+  void DeleteLater(T& object)
+  {
+    DeleteLater({object.objectType, (void*)object, nullptr});
+    object = nullptr;
+  }
+
+  void ReclaimLater(const ReclaimResource& reclaim);
+
+  template <typename T>
+  void ReclaimLater(T& object)
+  {
+    ReclaimLater({object.objectType, (void*)object});
+    object = nullptr;
+  }
 
   void ReportLiveGpuObjects();
 
@@ -53,13 +109,16 @@ protected:
   ///   Null means default adapter.
   //ezResult InitPlatform(DWORD flags, IDXGIAdapter* pUsedAdapter);
 
+  vk::Result SelectInstanceExtensions(ezHybridArray<const char*, 6>& extensions);
+  vk::Result SelectDeviceExtensions(ezHybridArray<const char*, 6>& extensions);
+
   virtual ezResult InitPlatform() override;
   virtual ezResult ShutdownPlatform() override;
 
   // Pipeline & Pass functions
 
-  virtual void BeginPipelinePlatform(const char* szName) override;
-  virtual void EndPipelinePlatform() override;
+  virtual void BeginPipelinePlatform(const char* szName, ezGALSwapChain* pSwapChain) override;
+  virtual void EndPipelinePlatform(ezGALSwapChain* pSwapChain) override;
 
   virtual ezGALPass* BeginPassPlatform(const char* szName) override;
   virtual void EndPassPlatform(ezGALPass* pPass) override;
@@ -119,16 +178,10 @@ protected:
   virtual ezGALTimestampHandle GetTimestampPlatform() override;
   virtual ezResult GetTimestampResultPlatform(ezGALTimestampHandle hTimestamp, ezTime& result) override;
 
-  // Swap chain functions
-
-  virtual void PresentPlatform(ezGALSwapChain* pSwapChain, bool bVSync) override;
-
   // Misc functions
 
   virtual void BeginFramePlatform() override;
   virtual void EndFramePlatform() override;
-
-  virtual void SetPrimarySwapChainPlatform(ezGALSwapChain* pSwapChain) override;
 
   virtual void FillCapabilitiesPlatform() override;
 
@@ -149,16 +202,35 @@ private:
   struct PerFrameData
   {
     ezGALFence* m_pFence = nullptr;
+
+    /// \brief These are all fences passed into submit calls. For some reason waiting for the fence of the last submit is not enough. At least I can't get it to work (neither semaphores nor barriers make it past the validation layer).
+    ezHybridArray<vk::Fence, 2> m_CommandBufferFences;
+
+    vk::CommandBuffer m_currentCommandBuffer;
     //ID3D11Query* m_pDisjointTimerQuery = nullptr;
     double m_fInvTicksPerSecond = -1.0;
     ezUInt64 m_uiFrame = -1;
+
+    ezMutex m_pendingDeletionsMutex;
+    ezDeque<PendingDeletion> m_pendingDeletions;
+
+    ezMutex m_reclaimResourcesMutex;
+    ezDeque<ReclaimResource> m_reclaimResources;
   };
+
+  void DeletePendingResources(ezDeque<PendingDeletion>& pendingDeletions);
+  void ReclaimResources(ezDeque<ReclaimResource>& resources);
 
   void FreeTempResources(ezUInt64 uiFrame);
 
   //ID3D11Query* GetTimestamp(ezGALTimestampHandle hTimestamp);
 
   void FillFormatLookupTable();
+
+  Extensions m_extensions;
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  VkDebugUtilsMessengerEXT m_debugMessenger;
+#endif
 
   vk::Instance m_instance;
   vk::PhysicalDevice m_physicalDevice;
@@ -170,18 +242,18 @@ private:
 
   vk::PhysicalDeviceMemoryProperties m_memoryProperties;
 
-  vk::CommandPool m_commandPool;
-
-  static constexpr ezUInt32 NUM_CMD_BUFFERS = 4;
-  vk::CommandBuffer m_commandBuffers[NUM_CMD_BUFFERS];
-  vk::Fence m_commandBufferFences[NUM_CMD_BUFFERS];
-  ezUInt32 m_uiCurrentCmdBufferIndex = 0;
-
   ezUniquePtr<ezGALPassVulkan> m_pDefaultPass;
+
+  // Current active pipeline swap-chain synchronization primitives.
+  vk::Semaphore m_currentPipelineImageAvailableSemaphore;
+  vk::Semaphore m_currentPipelineRenderFinishedSemaphore;
+
+  // We daisy-chain all command buffers in a frame in sequential order via this semaphore for now.
+  vk::Semaphore m_lastCommandBufferFinished;
 
   PerFrameData m_PerFrameData[4];
   ezUInt8 m_uiCurrentPerFrameData = 0;
-  ezUInt8 m_uiNextPerFrameData = 0;
+  ezUInt8 m_uiNextPerFrameData = 1;
 
   ezUInt64 m_uiFrameCounter = 0;
 

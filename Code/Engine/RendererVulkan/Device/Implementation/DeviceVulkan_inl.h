@@ -5,14 +5,25 @@ EZ_ALWAYS_INLINE vk::Device ezGALDeviceVulkan::GetVulkanDevice() const
   return m_device;
 }
 
+
+EZ_ALWAYS_INLINE vk::Queue ezGALDeviceVulkan::GetVulkanQueue() const
+{
+  return m_queue;
+}
+
+EZ_ALWAYS_INLINE vk::PhysicalDevice ezGALDeviceVulkan::GetVulkanPhysicalDevice() const
+{
+  return m_physicalDevice;
+}
+
 EZ_ALWAYS_INLINE vk::Instance ezGALDeviceVulkan::GetVulkanInstance() const
 {
   return m_instance;
 }
 
-EZ_ALWAYS_INLINE vk::CommandBuffer& ezGALDeviceVulkan::GetPrimaryCommandBuffer()
+EZ_ALWAYS_INLINE vk::CommandBuffer& ezGALDeviceVulkan::GetCurrentCommandBuffer()
 {
-  return m_commandBuffers[m_uiCurrentCmdBufferIndex];
+  return m_PerFrameData[m_uiCurrentPerFrameData].m_currentCommandBuffer;
 }
 
 EZ_ALWAYS_INLINE ezArrayPtr<const ezUInt32> ezGALDeviceVulkan::GetQueueFamilyIndices() const

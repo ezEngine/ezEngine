@@ -4,17 +4,17 @@
 
 #include <vulkan/vulkan.hpp>
 
+class ezGALBufferVulkan;
+
 class ezGALTextureVulkan : public ezGALTexture
 {
 public:
   EZ_ALWAYS_INLINE vk::Image GetImage() const;
 
+  EZ_ALWAYS_INLINE ezVulkanAllocation GetAllocation() const;
+  EZ_ALWAYS_INLINE const ezVulkanAllocationInfo& GetAllocationInfo() const;
+
   EZ_ALWAYS_INLINE const ezGALBufferVulkan* GetStagingBuffer() const;
-
-  EZ_ALWAYS_INLINE vk::DeviceMemory GetMemory() const;
-
-  EZ_ALWAYS_INLINE vk::DeviceSize GetMemoryOffset() const;
-  EZ_ALWAYS_INLINE vk::DeviceSize GetMemorySize() const;
 
 protected:
   friend class ezGALDeviceVulkan;
@@ -33,14 +33,13 @@ protected:
   ezResult CreateStagingBuffer(ezGALDeviceVulkan* pDevice);
 
   vk::Image m_image;
+  ezVulkanAllocation m_alloc;
+  ezVulkanAllocationInfo m_allocInfo;
 
   // TODO can we hold a pointer to the buffer indefinitely?
   ezGALBufferHandle m_stagingBufferHandle;
-  const ezGALBufferVulkan* m_pStagingBuffer;
+  const ezGALBufferVulkan* m_pStagingBuffer = nullptr;
 
-  vk::DeviceMemory m_memory;
-  vk::DeviceSize m_memoryOffset;
-  vk::DeviceSize m_memorySize;
   vk::Device m_device;
 
   void* m_pExisitingNativeObject;

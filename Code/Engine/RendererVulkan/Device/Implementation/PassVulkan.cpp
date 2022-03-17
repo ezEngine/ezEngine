@@ -1,4 +1,4 @@
-#include <RendererVulkanPCH.h>
+#include <RendererVulkan/RendererVulkanPCH.h>
 
 #include <RendererFoundation/CommandEncoder/CommandEncoderState.h>
 #include <RendererFoundation/CommandEncoder/ComputeCommandEncoder.h>
@@ -20,7 +20,7 @@ ezGALPassVulkan::~ezGALPassVulkan() = default;
 
 ezGALRenderCommandEncoder* ezGALPassVulkan::BeginRenderingPlatform(const ezGALRenderingSetup& renderingSetup, const char* szName)
 {
-  vk::CommandBuffer& commandBuffer = static_cast<ezGALDeviceVulkan&>(m_Device).GetPrimaryCommandBuffer();
+  vk::CommandBuffer& commandBuffer = static_cast<ezGALDeviceVulkan&>(m_Device).GetCurrentCommandBuffer();
 
   m_pCommandEncoderImpl->BeginRendering(commandBuffer, renderingSetup);
 
@@ -36,7 +36,7 @@ void ezGALPassVulkan::EndRenderingPlatform(ezGALRenderCommandEncoder* pCommandEn
 
 ezGALComputeCommandEncoder* ezGALPassVulkan::BeginComputePlatform(const char* szName)
 {
-  vk::CommandBuffer& commandBuffer = static_cast<ezGALDeviceVulkan&>(m_Device).GetPrimaryCommandBuffer();
+  vk::CommandBuffer& commandBuffer = static_cast<ezGALDeviceVulkan&>(m_Device).GetCurrentCommandBuffer();
 
   m_pCommandEncoderImpl->BeginCompute(commandBuffer);
 

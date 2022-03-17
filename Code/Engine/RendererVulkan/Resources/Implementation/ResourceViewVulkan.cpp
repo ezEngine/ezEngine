@@ -1,10 +1,11 @@
-#include <RendererVulkanPCH.h>
+#include <RendererVulkan/RendererVulkanPCH.h>
 
 #include <RendererVulkan/Device/DeviceVulkan.h>
 #include <RendererVulkan/Resources/BufferVulkan.h>
 #include <RendererVulkan/Resources/ResourceViewVulkan.h>
 #include <RendererVulkan/Resources/TextureVulkan.h>
 #include <RendererVulkan/State/StateVulkan.h>
+#include <RendererVulkan/Utils/ConversionUtilsVulkan.h>
 
 bool IsArrayView(const ezGALTextureCreationDescription& texDesc, const ezGALResourceViewCreationDescription& viewDesc)
 {
@@ -77,45 +78,23 @@ ezResult ezGALResourceViewVulkan::InitPlatform(ezGALDevice* pDevice)
     vk::ImageViewCreateInfo viewCreateInfo = {};
     viewCreateInfo.format = pVulkanDevice->GetFormatLookupTable().GetFormatInfo(viewFormat).m_eResourceViewType;
     viewCreateInfo.image = image;
-    viewCreateInfo.subresourceRange.aspectMask = ezGALResourceFormat::IsDepthFormat(viewFormat) ? vk::ImageAspectFlagBits::eDepth : vk::ImageAspectFlagBits::eColor;
-    viewCreateInfo.subresourceRange.layerCount = m_Description.m_uiArraySize;
-    viewCreateInfo.subresourceRange.levelCount = m_Description.m_uiMipLevelsToUse;
+
+    viewCreateInfo.subresourceRange = ezConversionUtilsVulkan::GetSubresourceRange(texDesc, m_Description);
 
     switch (texDesc.m_Type)
     {
       case ezGALTextureType::Texture2D:
       case ezGALTextureType::Texture2DProxy:
-
         if (!bIsArrayView)
         {
-          // TODO what to to about multisampled textures in vulkan
-          // views/descriptors?
-          //if (texDesc.m_SampleCount == ezGALMSAASampleCount::None)
-          //{
           viewCreateInfo.viewType = vk::ImageViewType::e2D;
-          //}
-          //else
-          //{
-          //
-          //}
         }
         else
         {
-          //if (texDesc.m_SampleCount == ezGALMSAASampleCount::None)
-          //{
           viewCreateInfo.viewType = vk::ImageViewType::e2DArray;
-          viewCreateInfo.subresourceRange.baseArrayLayer = m_Description.m_uiFirstArraySlice;
-          viewCreateInfo.subresourceRange.baseMipLevel = m_Description.m_uiMostDetailedMipLevel;
-          //}
-          //else
-          //{
-          //}
         }
-
         break;
-
       case ezGALTextureType::TextureCube:
-
         if (!bIsArrayView)
         {
           viewCreateInfo.viewType = vk::ImageViewType::eCube;
@@ -123,16 +102,10 @@ ezResult ezGALResourceViewVulkan::InitPlatform(ezGALDevice* pDevice)
         else
         {
           viewCreateInfo.viewType = vk::ImageViewType::eCubeArray;
-          viewCreateInfo.subresourceRange.baseArrayLayer = m_Description.m_uiFirstArraySlice;
-          viewCreateInfo.subresourceRange.baseMipLevel = m_Description.m_uiMostDetailedMipLevel;
         }
-
         break;
-
       case ezGALTextureType::Texture3D:
-
         viewCreateInfo.viewType = vk::ImageViewType::e3D;
-
         break;
 
       default:
@@ -166,7 +139,7 @@ ezResult ezGALResourceViewVulkan::DeInitPlatform(ezGALDevice* pDevice)
   ezGALDeviceVulkan* pVulkanDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
   if (m_imageView)
   {
-    pVulkanDevice->GetVulkanDevice().destroyImageView(m_imageView);
+    pVulkanDevice->DeleteLater(m_imageView);
   }
 
   return EZ_SUCCESS;

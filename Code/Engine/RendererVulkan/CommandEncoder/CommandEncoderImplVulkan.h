@@ -39,6 +39,8 @@ public:
   virtual void InsertFencePlatform(const ezGALFence* pFence) override;
   virtual bool IsFenceReachedPlatform(const ezGALFence* pFence) override;
   virtual void WaitForFencePlatform(const ezGALFence* pFence) override;
+  void ResetFencePlatform(const ezGALFence* pFence);
+
 
   virtual void BeginQueryPlatform(const ezGALQuery* pQuery) override;
   virtual void EndQueryPlatform(const ezGALQuery* pQuery) override;
@@ -67,7 +69,7 @@ public:
 
   virtual void ReadbackTexturePlatform(const ezGALTexture* pTexture) override;
 
-  virtual void CopyTextureReadbackResultPlatform(const ezGALTexture* pTexture, const ezArrayPtr<ezGALSystemMemoryDescription>* pData) override;
+  virtual void CopyTextureReadbackResultPlatform(const ezGALTexture* pTexture, ezArrayPtr<ezGALTextureSubresource> SourceSubResource, ezArrayPtr<ezGALSystemMemoryDescription> TargetData) override;
 
   virtual void GenerateMipMapsPlatform(const ezGALResourceView* pResourceView) override;
 
