@@ -43,6 +43,7 @@ public:
   void SetSpatialCategory(const char* szCategory); // [ property ]
   const char* GetSpatialCategory() const;          // [ property ]
 
+  bool m_bTestVisibility = true;  // [ property ]
   ezUInt8 m_uiCollisionLayer = 0; // [ property ]
 
   void SetUpdateRate(const ezEnum<ezUpdateRate>& updateRate); // [ property ]
@@ -105,6 +106,38 @@ public:
   ~ezSensorSphereComponent();
 
   float m_fRadius = 10.0f; // [ property ]
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+using ezSensorCylinderComponentManager = ezComponentManager<class ezSensorCylinderComponent, ezBlockStorageType::Compact>;
+
+class EZ_GAMEENGINE_DLL ezSensorCylinderComponent : public ezSensorComponent
+{
+  EZ_DECLARE_COMPONENT_TYPE(ezSensorCylinderComponent, ezSensorComponent, ezSensorCylinderComponentManager);
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezComponent
+
+public:
+  virtual void SerializeComponent(ezWorldWriter& stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& stream) override;
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezSensorComponent
+
+  virtual void GetObjectsInSensorVolume(ezDynamicArray<ezGameObject*>& out_Objects) const override;
+  virtual void DebugDrawSensorShape() const override;
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezSensorCylinderComponent
+
+public:
+  ezSensorCylinderComponent();
+  ~ezSensorCylinderComponent();
+
+  float m_fRadius = 10.0f; // [ property ]
+  float m_fHeight = 10.0f; // [ property ]
 };
 
 //////////////////////////////////////////////////////////////////////////
