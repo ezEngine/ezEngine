@@ -86,6 +86,9 @@ bool ezGameObjectDocument::IsActiveEditTool(const ezRTTI* pEditToolType) const
   if (m_pActiveEditTool == nullptr)
     return pEditToolType == nullptr;
 
+  if (pEditToolType == nullptr)
+    return false;
+
   return m_pActiveEditTool->IsInstanceOf(pEditToolType);
 }
 
