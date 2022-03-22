@@ -333,8 +333,8 @@ void ezSensorCylinderComponent::DebugDrawSensorShape() const
   ezTransform pt = GetOwner()->GetGlobalTransform();
 
   ezQuat r;
-  r.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(-90));
-  ezTransform t = ezTransform(ezVec3(0, 0, -0.5 * m_fHeight * pt.m_vScale.z), r, ezVec3(pt.m_vScale.z, pt.m_vScale.y, pt.m_vScale.x));
+  r.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(-90.0f));
+  ezTransform t = ezTransform(ezVec3(0, 0, -0.5f * m_fHeight * pt.m_vScale.z), r, ezVec3(pt.m_vScale.z, pt.m_vScale.y, pt.m_vScale.x));
 
   pt.m_vScale.Set(1);
   t = pt * t;
@@ -417,6 +417,8 @@ void ezSensorWorldModule::UpdateSensors(const ezWorldModule::UpdateContext& cont
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
       pSensorComponent->m_LastOccludedObjectPositions.Clear();
 #endif
+
+      m_ObjectsInSensorVolume.Clear();
 
       pSensorComponent->GetObjectsInSensorVolume(m_ObjectsInSensorVolume);
       const ezGameObject* pSensorOwner = pSensorComponent->GetOwner();

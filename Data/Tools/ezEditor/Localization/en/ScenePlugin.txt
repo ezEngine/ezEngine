@@ -413,3 +413,12 @@ ezSkeletonPoseMode::CustomPose;Custom Pose
 ezSkeletonPoseMode::RestPose;Rest Pose
 ezSkeletonPoseMode::Disabled;Disabled
 Bones;Bones
+ezSensorCylinderComponent;Cylinder Sensor
+ezSensorSphereComponent;Sphere Sensor
+ezUpdateRate::EveryFrame;Every Frame
+ezUpdateRate::Max30fps;Max 30 FPS
+ezUpdateRate::Max20fps;Max 20 FPS
+ezUpdateRate::Max10fps;Max 10 FPS
+ezUpdateRate::Max5fps;Max 5 FPS
+ezUpdateRate::Max2fps;Max 2 FPS
+ezUpdateRate::Max1fps;Max 1 FPS
