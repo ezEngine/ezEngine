@@ -140,9 +140,12 @@ ezApplication::Execution ezShaderExplorerApp::Run()
     m_pDevice->BeginPipeline("ShaderExplorer", m_hSwapChain);
 
     ezGALPass* pGALPass = m_pDevice->BeginPass("ezShaderExplorerMainPass");
+    const ezGALSwapChain* pPrimarySwapChain = m_pDevice->GetSwapChain(m_hSwapChain);
+    ezGALRenderTargetViewHandle hBBRTV = m_pDevice->GetDefaultRenderTargetView(pPrimarySwapChain->GetRenderTargets().m_hRTs[0]);
+    ezGALRenderTargetViewHandle hBBDSV = m_pDevice->GetDefaultRenderTargetView(m_hDepthStencilTexture);
 
     ezGALRenderingSetup renderingSetup;
-    renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, m_hBBRTV).SetDepthStencilTarget(m_hBBDSV);
+    renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, hBBRTV).SetDepthStencilTarget(hBBDSV);
     renderingSetup.m_uiRenderTargetClearMask = 0xFFFFFFFF;
     renderingSetup.m_bClearDepth = true;
     renderingSetup.m_bClearStencil = true;
@@ -330,13 +333,12 @@ void ezShaderExplorerApp::AfterCoreSystemsStartup()
 
   // Create a Swapchain
   {
-    ezGALSwapChainCreationDescription swapChainDesc;
+    ezGALWindowSwapChainCreationDescription swapChainDesc;
     swapChainDesc.m_pWindow = m_pWindow;
     swapChainDesc.m_SampleCount = ezGALMSAASampleCount::None;
     swapChainDesc.m_bAllowScreenshots = true;
-    m_hSwapChain = m_pDevice->CreateSwapChain(swapChainDesc);
-
-    const ezGALSwapChain* pPrimarySwapChain = m_pDevice->GetSwapChain(m_hSwapChain);
+    swapChainDesc.m_PresentMode = ezGALPresentMode::VSync;
+    m_hSwapChain = ezGALWindowSwapChain::Create(swapChainDesc);
 
     ezGALTextureCreationDescription texDesc;
     texDesc.m_uiWidth = g_uiWindowWidth;
@@ -345,9 +347,6 @@ void ezShaderExplorerApp::AfterCoreSystemsStartup()
     texDesc.m_bCreateRenderTarget = true;
 
     m_hDepthStencilTexture = m_pDevice->CreateTexture(texDesc);
-
-    m_hBBRTV = m_pDevice->GetDefaultRenderTargetView(pPrimarySwapChain->GetBackBufferTexture());
-    m_hBBDSV = m_pDevice->GetDefaultRenderTargetView(m_hDepthStencilTexture);
   }
 
   // Setup Shaders and Materials
