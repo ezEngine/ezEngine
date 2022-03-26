@@ -8,8 +8,8 @@
 #include <RendererCore/Pipeline/RenderPipelineNode.h>
 #include <RendererCore/Pipeline/RenderPipelineResource.h>
 #include <RendererCore/Pipeline/ViewData.h>
-#include <RendererFoundation/Resources/RenderTargetSetup.h>
 #include <RendererFoundation/Device/SwapChain.h>
+#include <RendererFoundation/Resources/RenderTargetSetup.h>
 
 class ezFrustum;
 class ezWorld;

@@ -125,7 +125,7 @@ void ezEngineProcessViewContext::HandleWindowUpdate(ezWindowHandle hWnd, ezUInt1
     {
       ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
       ezWindowOutputTargetGAL* pOutput = static_cast<ezWindowOutputTargetGAL*>(pWindowPlugin->m_pWindowOutputTarget.Borrow());
- 
+
       const ezSizeU32 wndSize = pWindowPlugin->m_pWindow->GetClientAreaSize();
       SetupRenderTarget(pOutput->m_hSwapChain, nullptr, static_cast<ezUInt16>(wndSize.width), static_cast<ezUInt16>(wndSize.height));
     }
@@ -139,7 +139,7 @@ void ezEngineProcessViewContext::SetupRenderTarget(ezGALSwapChainHandle hSwapCha
 {
   EZ_LOG_BLOCK("ezEngineProcessViewContext::SetupRenderTarget");
   EZ_ASSERT_DEV(hSwapChain.IsInvalidated() || renderTargets == nullptr, "hSwapChain and renderTargetSetup are mutually exclusive.");
-  
+
   // setup view
   {
     if (m_hView.IsInvalidated())

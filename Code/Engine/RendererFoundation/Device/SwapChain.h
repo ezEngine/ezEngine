@@ -16,6 +16,7 @@ public:
   virtual void PresentNextImage(ezGALDevice* pDevice) = 0;
 
   virtual ~ezGALSwapChain();
+
 protected:
   friend class ezGALDevice;
 

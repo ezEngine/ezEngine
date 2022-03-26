@@ -5,9 +5,9 @@
 #include <RendererFoundation/CommandEncoder/RenderCommandEncoder.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Device/Pass.h>
+#include <RendererFoundation/Device/SwapChain.h>
 #include <RendererFoundation/Resources/Texture.h>
 #include <Texture/Image/Image.h>
-#include <RendererFoundation/Device/SwapChain.h>
 
 ezWindowOutputTargetGAL::ezWindowOutputTargetGAL(OnSwapChainChanged onSwapChainChanged)
   : m_OnSwapChainChanged(onSwapChainChanged)

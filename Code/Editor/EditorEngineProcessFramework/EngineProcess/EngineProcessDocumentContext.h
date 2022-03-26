@@ -3,8 +3,8 @@
 #include <EditorEngineProcessFramework/EditorEngineProcessFrameworkDLL.h>
 #include <EditorEngineProcessFramework/EngineProcess/WorldRttiConverterContext.h>
 #include <Foundation/Types/Uuid.h>
-#include <RendererFoundation/Resources/RenderTargetSetup.h>
 #include <RendererFoundation/Device/SwapChain.h>
+#include <RendererFoundation/Resources/RenderTargetSetup.h>
 
 class ezEditorEngineSyncObjectMsg;
 class ezEditorEngineSyncObject;

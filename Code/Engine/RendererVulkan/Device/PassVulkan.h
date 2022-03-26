@@ -1,8 +1,8 @@
 
 #pragma once
 
-#include <RendererFoundation/Device/Pass.h>
 #include <Foundation/Types/UniquePtr.h>
+#include <RendererFoundation/Device/Pass.h>
 
 struct ezGALCommandEncoderRenderState;
 class ezGALRenderCommandEncoder;

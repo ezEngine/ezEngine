@@ -5,7 +5,7 @@
 
 struct GPUTimingScope;
 
-  /// Sets profiling marker and GPU timings for the current scope.
+/// Sets profiling marker and GPU timings for the current scope.
 class EZ_RENDERERFOUNDATION_DLL ezProfilingScopeAndMarker : public ezProfilingScope
 {
 public:

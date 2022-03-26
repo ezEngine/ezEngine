@@ -1,17 +1,17 @@
 #include <RendererCore/RendererCorePCH.h>
 
+#include <Core/Console/ConsoleFunction.h>
 #include <Core/World/World.h>
+#include <Foundation/Application/Application.h>
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Memory/CommonAllocators.h>
+#include <Foundation/Utilities/DGMLWriter.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Profiling/Profiling.h>
-#include <Core/Console/ConsoleFunction.h>
-#include <Foundation/Utilities/DGMLWriter.h>
-#include <Foundation/Application/Application.h>
 
 ezCVarBool cvar_RenderingMultithreading("Rendering.Multithreading", true, ezCVarFlags::Default, "Enables multi-threaded update and rendering");
 ezCVarBool cvar_RenderingCachingStaticObjects("Rendering.Caching.StaticObjects", true, ezCVarFlags::Default, "Enables render data caching of static objects");
@@ -69,8 +69,7 @@ namespace
   };
 
   static bool s_bWriteRenderPipelineDgml = false;
-  static ezConsoleFunction<void()> s_ConFunc_WriteRenderPipelineDgml("WriteRenderPipelineDgml", "()", []()
-    { s_bWriteRenderPipelineDgml = true; });
+  static ezConsoleFunction<void()> s_ConFunc_WriteRenderPipelineDgml("WriteRenderPipelineDgml", "()", []() { s_bWriteRenderPipelineDgml = true; });
 } // namespace
 
 namespace ezInternal

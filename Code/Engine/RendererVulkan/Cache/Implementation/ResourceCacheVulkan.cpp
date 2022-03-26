@@ -22,7 +22,7 @@ namespace
     Stream << reinterpret_cast<const ezUInt32&>(Value);
     return Stream;
   }
-}
+} // namespace
 
 void ezResourceCacheVulkan::Initialize(ezGALDeviceVulkan* pDevice, vk::Device device)
 {
@@ -264,7 +264,7 @@ vk::Framebuffer ezResourceCacheVulkan::RequestFrameBuffer(vk::RenderPass renderP
     return pFrameBuffer->m_frameBuffer;
   }
 
-  #ifdef EZ_LOG_VULKAN_RESOURCES
+#ifdef EZ_LOG_VULKAN_RESOURCES
   ezLog::Info("Creating FrameBuffer #{}", s_frameBuffers.GetCount());
 #endif // EZ_LOG_VULKAN_RESOURCES
 

@@ -98,4 +98,3 @@ bool ezGALRenderingSetup::operator!=(const ezGALRenderingSetup& other) const
 }
 
 EZ_STATICLINK_FILE(RendererFoundation, RendererFoundation_Resources_Implementation_RenderTargetSetup);
-

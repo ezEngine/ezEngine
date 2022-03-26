@@ -58,8 +58,6 @@ public:
   XrSpace GetBaseSpace() const;
 
 private:
-  
-
   XrResult SelectExtensions(ezHybridArray<const char*, 6>& extensions);
   XrResult InitSystem();
   void DeinitSystem();
@@ -67,7 +65,7 @@ private:
   void DeinitSession();
   XrResult InitGraphicsPlugin();
   void DeinitGraphicsPlugin();
- 
+
 
   void GameApplicationEventHandler(const ezGameApplicationExecutionEvent& e);
   void GALDeviceEventHandler(const ezGALDeviceEvent& e);

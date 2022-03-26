@@ -253,8 +253,7 @@ ezUniquePtr<ezActor> ezOpenXR::CreateActor(ezView* pView, ezGALMSAASampleCount::
     return {};
   }
 
-  ezGALXRSwapChain::SetFactoryMethod([this, msaaCount](ezXRInterface* pXrInterface) -> ezGALSwapChainHandle
-    { return ezGALDevice::GetDefaultDevice()->CreateSwapChain([this, pXrInterface, msaaCount](ezAllocatorBase* pAllocator) -> ezGALSwapChain* { return EZ_NEW(pAllocator, ezGALOpenXRSwapChain, this, msaaCount); }); });
+  ezGALXRSwapChain::SetFactoryMethod([this, msaaCount](ezXRInterface* pXrInterface) -> ezGALSwapChainHandle { return ezGALDevice::GetDefaultDevice()->CreateSwapChain([this, pXrInterface, msaaCount](ezAllocatorBase* pAllocator) -> ezGALSwapChain* { return EZ_NEW(pAllocator, ezGALOpenXRSwapChain, this, msaaCount); }); });
   EZ_SCOPE_EXIT(ezGALXRSwapChain::SetFactoryMethod({}););
 
   m_hSwapChain = ezGALXRSwapChain::Create(this);

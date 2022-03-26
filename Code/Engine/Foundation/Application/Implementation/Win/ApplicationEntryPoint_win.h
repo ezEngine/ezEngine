@@ -33,8 +33,7 @@ namespace ezApplicationDetails
 
     // This handler overrides the default handler
     // (which would call ExitProcess, which leads to disorderly engine shutdowns)
-    const auto consoleHandler = [](ezMinWindows::DWORD dwCtrlType) -> ezMinWindows::BOOL
-    {
+    const auto consoleHandler = [](ezMinWindows::DWORD dwCtrlType) -> ezMinWindows::BOOL {
       // We have to wait until the application has shut down orderly
       // since Windows will kill everything after this handler returns
       pApp->SetReturnCode(dwCtrlType);
