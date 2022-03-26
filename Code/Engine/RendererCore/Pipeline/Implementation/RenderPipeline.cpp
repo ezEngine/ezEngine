@@ -12,6 +12,8 @@
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererFoundation/Profiling/Profiling.h>
+#include <Foundation/Utilities/DGMLWriter.h>
+#include <Foundation/Application/Application.h>
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
 ezCVarBool ezRenderPipeline::cvar_SpatialCullingVis("Spatial.Culling.Vis", false, ezCVarFlags::Default, "Enables debug visualization of visibility culling");
@@ -105,6 +107,10 @@ ezRenderPipelinePass* ezRenderPipeline::GetPassByName(const ezStringView& sPassN
   return nullptr;
 }
 
+ezHashedString ezRenderPipeline::GetViewName() const
+{
+  return m_sName;
+}
 
 bool ezRenderPipeline::Connect(ezRenderPipelinePass* pOutputNode, const char* szOutputPinName, ezRenderPipelinePass* pInputNode, const char* szInputPinName)
 {
@@ -506,7 +512,7 @@ bool ezRenderPipeline::CreateRenderTargetUsage(const ezView& view)
           m_ConnectionToTextureIndex[pConn] = m_TextureUsage.GetCount();
           TextureUsageData& texData = m_TextureUsage.ExpandAndGetRef();
 
-          texData.m_bTargetTexture = false;
+          texData.m_iTargetTextureIndex = -1;
           texData.m_uiFirstUsageIdx = i;
           texData.m_uiLastUsageIdx = i;
           texData.m_UsedBy.PushBack(pConn);
@@ -522,6 +528,8 @@ bool ezRenderPipeline::CreateRenderTargetUsage(const ezView& view)
     const auto& pPass = m_Passes[i].Borrow();
     if (pPass->IsInstanceOf<ezTargetPass>())
     {
+      const ezGALRenderTargets& renderTargets = view.GetActiveRenderTargets();
+
       ezTargetPass* pTargetPass = static_cast<ezTargetPass*>(pPass);
       ConnectionData& data = m_Connections[pPass];
       for (ezUInt32 j = 0; j < data.m_Inputs.GetCount(); j++)
@@ -529,17 +537,18 @@ bool ezRenderPipeline::CreateRenderTargetUsage(const ezView& view)
         ezRenderPipelinePassConnection* pConn = data.m_Inputs[j];
         if (pConn != nullptr)
         {
-          ezGALTextureHandle hTexture = pTargetPass->GetTextureHandle(view, pPass->GetInputPins()[j]);
+          const ezGALTextureHandle* hTexture = pTargetPass->GetTextureHandle(renderTargets, pPass->GetInputPins()[j]);
           EZ_ASSERT_DEV(m_ConnectionToTextureIndex.Contains(pConn), "");
 
-          if (!hTexture.IsInvalidated() || pConn->m_Desc.CalculateHash() == defaultTextureDescHash)
+          if (!hTexture || !hTexture->IsInvalidated() || pConn->m_Desc.CalculateHash() == defaultTextureDescHash)
           {
             ezUInt32 uiDataIdx = m_ConnectionToTextureIndex[pConn];
-            m_TextureUsage[uiDataIdx].m_bTargetTexture = true;
+            m_TextureUsage[uiDataIdx].m_iTargetTextureIndex = static_cast<ezInt32>(hTexture - reinterpret_cast<const ezGALTextureHandle*>(&renderTargets));
+            EZ_ASSERT_DEV(reinterpret_cast<const ezGALTextureHandle*>(&renderTargets)[m_TextureUsage[uiDataIdx].m_iTargetTextureIndex] == *hTexture, "Offset computation broken.");
 
             for (auto pUsedByConn : m_TextureUsage[uiDataIdx].m_UsedBy)
             {
-              pUsedByConn->m_TextureHandle = hTexture;
+              pUsedByConn->m_TextureHandle = *hTexture;
             }
           }
           else
@@ -555,7 +564,7 @@ bool ezRenderPipeline::CreateRenderTargetUsage(const ezView& view)
   for (ezUInt32 i = 0; i < m_TextureUsage.GetCount(); i++)
   {
     TextureUsageData& data = m_TextureUsage[i];
-    if (data.m_bTargetTexture)
+    if (data.m_iTargetTextureIndex != -1)
       continue;
 
     m_TextureUsageIdxSortedByFirstUsage.PushBack((ezUInt16)i);
@@ -971,7 +980,7 @@ void ezRenderPipeline::FindVisibleObjects(const ezView& view)
 
 void ezRenderPipeline::Render(ezRenderContext* pRenderContext)
 {
-  // EZ_PROFILE_AND_MARKER(pRenderContext->GetGALContext(), m_sName.GetData());
+  //EZ_PROFILE_AND_MARKER(pRenderContext->GetGALContext(), m_sName.GetData());
   EZ_PROFILE_SCOPE(m_sName.GetData());
 
   EZ_ASSERT_DEV(m_PipelineState != PipelineState::Uninitialized, "Pipeline must be rebuild before rendering.");
@@ -1067,7 +1076,27 @@ void ezRenderPipeline::Render(ezRenderContext* pRenderContext)
     ezRenderWorld::s_RenderEvent.Broadcast(renderEvent);
   }
 
-  ezGALDevice::GetDefaultDevice()->BeginPipeline(m_sName, renderViewContext.m_pViewData->m_hSwapChain);
+  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+
+  pDevice->BeginPipeline(m_sName, renderViewContext.m_pViewData->m_hSwapChain);
+
+  if (const ezGALSwapChain* pSwapChain = pDevice->GetSwapChain(renderViewContext.m_pViewData->m_hSwapChain))
+  {
+    const ezGALRenderTargets& renderTargets = pSwapChain->GetRenderTargets();
+    // Update target textures after the swap chain acquired new textures.
+    for (ezUInt32 i = 0; i < m_TextureUsage.GetCount(); i++)
+    {
+      TextureUsageData& textureUsageData = m_TextureUsage[i];
+      if (textureUsageData.m_iTargetTextureIndex != -1)
+      {
+        ezGALTextureHandle hTexture = reinterpret_cast<const ezGALTextureHandle*>(&renderTargets)[textureUsageData.m_iTargetTextureIndex];
+        for (auto pUsedByConn : textureUsageData.m_UsedBy)
+        {
+          pUsedByConn->m_TextureHandle = hTexture;
+        }
+      }
+    }
+  }
 
   ezUInt32 uiCurrentFirstUsageIdx = 0;
   ezUInt32 uiCurrentLastUsageIdx = 0;
@@ -1136,7 +1165,7 @@ void ezRenderPipeline::Render(ezRenderContext* pRenderContext)
   EZ_ASSERT_DEV(uiCurrentFirstUsageIdx == m_TextureUsageIdxSortedByFirstUsage.GetCount(), "Rendering all passes should have moved us through all texture usage blocks!");
   EZ_ASSERT_DEV(uiCurrentLastUsageIdx == m_TextureUsageIdxSortedByLastUsage.GetCount(), "Rendering all passes should have moved us through all texture usage blocks!");
 
-  ezGALDevice::GetDefaultDevice()->EndPipeline(renderViewContext.m_pViewData->m_hSwapChain);
+  pDevice->EndPipeline(renderViewContext.m_pViewData->m_hSwapChain);
 
   renderEvent.m_Type = ezRenderWorldRenderEvent::Type::AfterPipelineExecution;
   {
@@ -1160,6 +1189,46 @@ ezRenderDataBatchList ezRenderPipeline::GetRenderDataBatchesWithCategory(ezRende
 {
   auto& data = m_Data[ezRenderWorld::GetDataIndexForRendering()];
   return data.GetRenderDataBatchesWithCategory(category, filter);
+}
+
+void ezRenderPipeline::CreateDgmlGraph(ezDGMLGraph& graph)
+{
+  ezStringBuilder sTmp;
+  ezHashTable<const ezRenderPipelineNode*, ezUInt32> nodeMap;
+  nodeMap.Reserve(m_Passes.GetCount() + m_TextureUsage.GetCount() * 3);
+  for (ezUInt32 p = 0; p < m_Passes.GetCount(); ++p)
+  {
+    const auto& pPass = m_Passes[p];
+    sTmp.Format("#{}: {}", p, ezStringUtils::IsNullOrEmpty(pPass->GetName()) ? pPass->GetDynamicRTTI()->GetTypeName() : pPass->GetName());
+
+    ezDGMLGraph::NodeDesc nd;
+    nd.m_Color = ezColor::Gray;
+    nd.m_Shape = ezDGMLGraph::NodeShape::Rectangle;
+    ezUInt32 uiGraphNode = graph.AddNode(sTmp, &nd);
+    nodeMap.Insert(pPass.Borrow(), uiGraphNode);
+  }
+
+  for (ezUInt32 i = 0; i < m_TextureUsage.GetCount(); ++i)
+  {
+    const TextureUsageData& data = m_TextureUsage[i];
+
+    for (const ezRenderPipelinePassConnection* pCon : data.m_UsedBy)
+    {
+      ezDGMLGraph::NodeDesc nd;
+      nd.m_Color = data.m_iTargetTextureIndex != -1 ? ezColor::Black : ezColor::GetPaletteColor(i, 64);
+      nd.m_Shape = ezDGMLGraph::NodeShape::RoundedRectangle;
+      sTmp.Format("{} #{}: {}x{}:{}, MSAA:{}, {}Format: {}", data.m_iTargetTextureIndex != -1 ? "RenderTarget" : "PoolTexture", i, pCon->m_Desc.m_uiWidth, pCon->m_Desc.m_uiHeight, pCon->m_Desc.m_uiArraySize, (int)pCon->m_Desc.m_SampleCount, ezGALResourceFormat::IsDepthFormat(pCon->m_Desc.m_Format) ? "Depth" : "Color", (int)pCon->m_Desc.m_Format);
+      ezUInt32 uiTextureNode = graph.AddNode(sTmp, &nd);
+
+      ezUInt32 uiOutputNode = *nodeMap.GetValue(pCon->m_pOutput->m_pParent);
+      graph.AddConnection(uiOutputNode, uiTextureNode, pCon->m_pOutput->m_pParent->GetPinName(pCon->m_pOutput));
+      for (const ezRenderPipelineNodePin* pInput : pCon->m_Inputs)
+      {
+        ezUInt32 uiInputNode = *nodeMap.GetValue(pInput->m_pParent);
+        graph.AddConnection(uiTextureNode, uiInputNode, pInput->m_pParent->GetPinName(pInput));
+      }
+    }
+  }
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_RenderPipeline);

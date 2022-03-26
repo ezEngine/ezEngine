@@ -14,7 +14,7 @@
 class ezWindowBase;
 
 /// \brief Defines a swap chain's present mode.
-/// \sa ezGALSwapChainCreationDescription
+/// \sa ezGALWindowSwapChainCreationDescription
 struct EZ_RENDERERFOUNDATION_DLL ezGALPresentMode
 {
   typedef ezUInt8 StorageType;
@@ -23,11 +23,12 @@ struct EZ_RENDERERFOUNDATION_DLL ezGALPresentMode
   {
     Immediate,
     VSync,
-    ENUM_COUNT
+    ENUM_COUNT,
+    Default = VSync
   };
 };
 
-struct ezGALSwapChainCreationDescription : public ezHashableStruct<ezGALSwapChainCreationDescription>
+struct ezGALWindowSwapChainCreationDescription : public ezHashableStruct<ezGALWindowSwapChainCreationDescription>
 {
   ezWindowBase* m_pWindow = nullptr;
 
@@ -39,6 +40,11 @@ struct ezGALSwapChainCreationDescription : public ezHashableStruct<ezGALSwapChai
 
   bool m_bDoubleBuffered = true;
   bool m_bAllowScreenshots = false;
+};
+
+struct ezGALSwapChainCreationDescription : public ezHashableStruct<ezGALSwapChainCreationDescription>
+{
+  const ezRTTI* m_pSwapChainType = nullptr;
 };
 
 struct ezGALDeviceCreationDescription

@@ -63,7 +63,7 @@ public:
   void AddNodeToGroup(NodeId node, NodeId group);
 
   /// \brief Adds a directed connection to the graph (an arrow pointing from source to target node).
-  ConnectionId AddConnection(NodeId Source, NodeId Target);
+  ConnectionId AddConnection(NodeId Source, NodeId Target, const char* szLabel = nullptr);
 
   /// \brief Adds a property type. All properties currently use the data type 'string'
   PropertyId AddPropertyType(const char* szName);
@@ -78,8 +78,7 @@ protected:
   {
     NodeId m_Source;
     NodeId m_Target;
-
-    EZ_DECLARE_POD_TYPE();
+    ezString m_sLabel;
   };
 
   struct PropertyType

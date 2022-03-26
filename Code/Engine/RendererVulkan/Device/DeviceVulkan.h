@@ -69,6 +69,8 @@ public:
 
   ezInt32 GetMemoryIndex(vk::MemoryPropertyFlags properties, const vk::MemoryRequirements& requirements) const;
 
+  vk::Fence Submit(vk::Semaphore waitSemaphore, vk::PipelineStageFlags waitStage, vk::Semaphore signalSemaphore);
+
   void DeleteLater(const PendingDeletion& deletion);
   template <typename T>
   void DeleteLater(T& object, ezVulkanAllocation& allocation)
@@ -161,12 +163,6 @@ protected:
 
   // Other rendering creation functions
 
-  virtual ezGALSwapChain* CreateSwapChainPlatform(const ezGALSwapChainCreationDescription& Description) override;
-  virtual void DestroySwapChainPlatform(ezGALSwapChain* pSwapChain) override;
-
-  virtual ezGALFence* CreateFencePlatform() override;
-  virtual void DestroyFencePlatform(ezGALFence* pFence) override;
-
   virtual ezGALQuery* CreateQueryPlatform(const ezGALQueryCreationDescription& Description) override;
   virtual void DestroyQueryPlatform(ezGALQuery* pQuery) override;
 
@@ -180,7 +176,7 @@ protected:
 
   // Misc functions
 
-  virtual void BeginFramePlatform() override;
+  virtual void BeginFramePlatform(const ezUInt64 uiRenderFrame) override;
   virtual void EndFramePlatform() override;
 
   virtual void FillCapabilitiesPlatform() override;
@@ -201,8 +197,6 @@ private:
 
   struct PerFrameData
   {
-    ezGALFence* m_pFence = nullptr;
-
     /// \brief These are all fences passed into submit calls. For some reason waiting for the fence of the last submit is not enough. At least I can't get it to work (neither semaphores nor barriers make it past the validation layer).
     ezHybridArray<vk::Fence, 2> m_CommandBufferFences;
 
@@ -243,10 +237,6 @@ private:
   vk::PhysicalDeviceMemoryProperties m_memoryProperties;
 
   ezUniquePtr<ezGALPassVulkan> m_pDefaultPass;
-
-  // Current active pipeline swap-chain synchronization primitives.
-  vk::Semaphore m_currentPipelineImageAvailableSemaphore;
-  vk::Semaphore m_currentPipelineRenderFinishedSemaphore;
 
   // We daisy-chain all command buffers in a frame in sequential order via this semaphore for now.
   vk::Semaphore m_lastCommandBufferFinished;

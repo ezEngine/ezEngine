@@ -4,7 +4,6 @@
 #include <RendererVulkan/CommandEncoder/CommandEncoderImplVulkan.h>
 #include <RendererVulkan/Device/DeviceVulkan.h>
 #include <RendererVulkan/Resources/BufferVulkan.h>
-#include <RendererVulkan/Resources/FenceVulkan.h>
 #include <RendererVulkan/Resources/QueryVulkan.h>
 #include <RendererVulkan/Resources/RenderTargetViewVulkan.h>
 #include <RendererVulkan/Resources/ResourceViewVulkan.h>
@@ -73,48 +72,7 @@ void ezGALCommandEncoderImplVulkan::SetUnorderedAccessViewPlatform(ezUInt32 uiSl
   m_bDescriptorsDirty = true;
 }
 
-// Fence & Query functions
-
-void ezGALCommandEncoderImplVulkan::InsertFencePlatform(const ezGALFence* pFence)
-{
-  auto pVulkanFence = static_cast<const ezGALFenceVulkan*>(pFence);
-
-  vk::Queue queue = m_GALDeviceVulkan.GetQueue();
-
-  m_pCommandBuffer->end();
-  vk::SubmitInfo submitInfo = {};
-  submitInfo.commandBufferCount = 1;
-  submitInfo.pCommandBuffers = m_pCommandBuffer;
-
-  queue.submit(1, &submitInfo, pVulkanFence->GetFence());
-}
-
-bool ezGALCommandEncoderImplVulkan::IsFenceReachedPlatform(const ezGALFence* pFence)
-{
-  auto pVulkanFence = static_cast<const ezGALFenceVulkan*>(pFence);
-  vk::Result fenceStatus = m_vkDevice.getFenceStatus(pVulkanFence->GetFence());
-
-  EZ_ASSERT_DEV(fenceStatus != vk::Result::eErrorDeviceLost, "Device lost during fence status query!");
-
-  return fenceStatus == vk::Result::eSuccess;
-}
-
-void ezGALCommandEncoderImplVulkan::WaitForFencePlatform(const ezGALFence* pFence)
-{
-  /*while (!IsFenceReachedPlatform(pFence))
-  {
-    ezThreadUtils::YieldTimeSlice();
-  }*/
-
-  auto pVulkanFence = static_cast<const ezGALFenceVulkan*>(pFence)->GetFence();
-  m_vkDevice.waitForFences(1, &pVulkanFence, true, 1000000000ui64);
-}
-
-void ezGALCommandEncoderImplVulkan::ResetFencePlatform(const ezGALFence* pFence)
-{
-  auto pVulkanFence = static_cast<const ezGALFenceVulkan*>(pFence)->GetFence();
-  m_vkDevice.resetFences(1, &pVulkanFence);
-}
+// Query functions
 
 void ezGALCommandEncoderImplVulkan::BeginQueryPlatform(const ezGALQuery* pQuery)
 {
@@ -516,25 +474,21 @@ void ezGALCommandEncoderImplVulkan::BeginRendering(vk::CommandBuffer& commandBuf
 {
   m_pCommandBuffer = &commandBuffer;
 
-  ezResourceCacheVulkan::RenderPassDesc renderPassDesc;
-  ezResourceCacheVulkan::GetRenderPassDesc(renderingSetup, renderPassDesc);
-  vk::RenderPass renderPass = ezResourceCacheVulkan::RequestRenderPass(renderPassDesc);
-
-  ezResourceCacheVulkan::FramebufferDesc framebufferDesc;
-  ezResourceCacheVulkan::GetFrameBufferDesc(renderPass, renderingSetup, framebufferDesc);
-  vk::Framebuffer frameBuffer = ezResourceCacheVulkan::RequestFrameBuffer(framebufferDesc);
+  vk::RenderPass renderPass = ezResourceCacheVulkan::RequestRenderPass(renderingSetup);
+  ezSizeU32 size;
+  vk::Framebuffer frameBuffer = ezResourceCacheVulkan::RequestFrameBuffer(renderPass, renderingSetup.m_RenderTargetSetup, size);
 
   vk::RenderPassBeginInfo renderPassBeginInfo;
   {
     renderPassBeginInfo.renderPass = renderPass;
     renderPassBeginInfo.framebuffer = frameBuffer;
     renderPassBeginInfo.renderArea.offset.setX(0).setY(0);
-    renderPassBeginInfo.renderArea.extent.setHeight(framebufferDesc.height).setWidth(framebufferDesc.width);
+    renderPassBeginInfo.renderArea.extent.setHeight(size.height).setWidth(size.width);
 
-    ezHybridArray<vk::ClearValue, EZ_GAL_MAX_RENDERTARGET_COUNT> clearValues;
+    ezHybridArray<vk::ClearValue, EZ_GAL_MAX_RENDERTARGET_COUNT + 1> clearValues;
 
     const bool bHasDepth = !renderingSetup.m_RenderTargetSetup.GetDepthStencilTarget().IsInvalidated();
-    const ezUInt32 uiColorCount = renderingSetup.m_RenderTargetSetup.HasRenderTargets() ? renderingSetup.m_RenderTargetSetup.GetMaxRenderTargetIndex() + 1 : 0;
+    const ezUInt32 uiColorCount = renderingSetup.m_RenderTargetSetup.GetRenderTargetCount();
     if (bHasDepth)
     {
       vk::ClearValue& depthClear = clearValues.ExpandAndGetRef();

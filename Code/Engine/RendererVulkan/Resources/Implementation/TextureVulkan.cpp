@@ -14,8 +14,6 @@ ezGALTextureVulkan::ezGALTextureVulkan(const ezGALTextureCreationDescription& De
 
 ezGALTextureVulkan::~ezGALTextureVulkan() {}
 
-EZ_DEFINE_AS_POD_TYPE(D3D11_SUBRESOURCE_DATA);
-
 ezResult ezGALTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData)
 {
   ezGALDeviceVulkan* pVulkanDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
@@ -181,19 +179,6 @@ ezResult ezGALTextureVulkan::DeInitPlatform(ezGALDevice* pDevice)
     m_pStagingBuffer = nullptr;
     pDevice->DestroyBuffer(m_stagingBufferHandle);
   }
-
-  return EZ_SUCCESS;
-}
-
-ezResult ezGALTextureVulkan::ReplaceExisitingNativeObject(void* pExisitingNativeObject)
-{
-  EZ_ASSERT_DEV(m_pExisitingNativeObject != nullptr,
-    "Only textures created with an existing native object are allowed to call ReplaceExisitingNativeObject.");
-  EZ_ASSERT_DEV(pExisitingNativeObject != nullptr,
-    "New existing native object must exist.");
-
-  m_pExisitingNativeObject = pExisitingNativeObject;
-  m_image = static_cast<VkImage>(m_pExisitingNativeObject);
 
   return EZ_SUCCESS;
 }

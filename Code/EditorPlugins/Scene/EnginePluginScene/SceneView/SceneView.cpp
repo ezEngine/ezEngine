@@ -64,9 +64,9 @@ void ezSceneViewContext::HandleViewMessage(const ezEditorEngineViewMsg* pMsg)
   }
 }
 
-void ezSceneViewContext::SetupRenderTarget(ezGALSwapChainHandle hSwapChain, ezGALRenderTargetSetup& renderTargetSetup, ezUInt16 uiWidth, ezUInt16 uiHeight)
+void ezSceneViewContext::SetupRenderTarget(ezGALSwapChainHandle hSwapChain, const ezGALRenderTargets* renderTargets, ezUInt16 uiWidth, ezUInt16 uiHeight)
 {
-  ezEngineProcessViewContext::SetupRenderTarget(hSwapChain, renderTargetSetup, uiWidth, uiHeight);
+  ezEngineProcessViewContext::SetupRenderTarget(hSwapChain, renderTargets, uiWidth, uiHeight);
   ezView* pView = nullptr;
   if (ezRenderWorld::TryGetView(m_hView, pView))
   {

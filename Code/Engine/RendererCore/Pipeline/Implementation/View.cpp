@@ -7,6 +7,7 @@
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
+#include <RendererFoundation/Device/Device.h>
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezCameraUsageHint, 1)
@@ -61,25 +62,39 @@ void ezView::SetWorld(ezWorld* pWorld)
 
 void ezView::SetSwapChain(ezGALSwapChainHandle hSwapChain)
 {
-  m_Data.m_hSwapChain = hSwapChain;
-}
-
-ezGALSwapChainHandle ezView::GetSwapChain() const
-{
-  return m_Data.m_hSwapChain;
-}
-
-void ezView::SetRenderTargetSetup(ezGALRenderTargetSetup& renderTargetSetup)
-{
-  if (m_RenderTargetSetup != renderTargetSetup)
+  if (m_Data.m_hSwapChain != hSwapChain)
   {
-    m_RenderTargetSetup = renderTargetSetup;
-
+    // Swap chain and render target setup are mutually exclusive.
+    m_Data.m_hSwapChain = hSwapChain;
+    m_Data.m_renderTargets = ezGALRenderTargets();
     if (m_pRenderPipeline)
     {
       ezRenderWorld::AddRenderPipelineToRebuild(m_pRenderPipeline, GetHandle());
     }
   }
+}
+
+void ezView::SetRenderTargets(const ezGALRenderTargets& renderTargets)
+{
+  if (m_Data.m_renderTargets != renderTargets)
+  {
+    // Swap chain and render target setup are mutually exclusive.
+    m_Data.m_hSwapChain = ezGALSwapChainHandle();
+    m_Data.m_renderTargets = renderTargets;
+    if (m_pRenderPipeline)
+    {
+      ezRenderWorld::AddRenderPipelineToRebuild(m_pRenderPipeline, GetHandle());
+    }
+  }
+}
+
+const ezGALRenderTargets& ezView::GetActiveRenderTargets() const
+{
+  if (const ezGALSwapChain* pSwapChain = ezGALDevice::GetDefaultDevice()->GetSwapChain(m_Data.m_hSwapChain))
+  {
+    return pSwapChain->GetRenderTargets();
+  }
+  return m_Data.m_renderTargets;
 }
 
 void ezView::SetRenderPipelineResource(ezRenderPipelineResourceHandle hPipeline)

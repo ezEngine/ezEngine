@@ -2,11 +2,11 @@
 #pragma once
 
 #include <RendererFoundation/Device/Pass.h>
+#include <Foundation/Types/UniquePtr.h>
 
 struct ezGALCommandEncoderRenderState;
 class ezGALRenderCommandEncoder;
 class ezGALComputeCommandEncoder;
-
 class ezGALCommandEncoderImplVulkan;
 
 class ezGALPassVulkan : public ezGALPass

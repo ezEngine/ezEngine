@@ -46,10 +46,8 @@ void ezGALPassDX11::EndComputePlatform(ezGALComputeCommandEncoder* pCommandEncod
 
 void ezGALPassDX11::BeginPass(const char* szName)
 {
-  m_pCommandEncoderImpl->PushMarkerPlatform(szName);
 }
 
 void ezGALPassDX11::EndPass()
 {
-  m_pCommandEncoderImpl->PopMarkerPlatform();
 }

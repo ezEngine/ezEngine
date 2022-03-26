@@ -185,11 +185,11 @@ public:
 
     // Create a Swapchain
     {
-      ezGALSwapChainCreationDescription swapChainDesc;
+      ezGALWindowSwapChainCreationDescription swapChainDesc;
       swapChainDesc.m_pWindow = m_pWindow;
       swapChainDesc.m_SampleCount = ezGALMSAASampleCount::None;
       swapChainDesc.m_bAllowScreenshots = true;
-      m_hSwapChain = m_pDevice->CreateSwapChain(swapChainDesc);
+      m_hSwapChain = ezGALWindowSwapChain::Create(swapChainDesc);
 
       const ezGALSwapChain* pPrimarySwapChain = m_pDevice->GetSwapChain(m_hSwapChain);
 

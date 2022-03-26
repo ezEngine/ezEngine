@@ -5,6 +5,7 @@
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
+#include <RendererFoundation/Device/SwapChain.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorSelectedObjectsExtractor, 1, ezRTTIDefaultAllocator<ezEditorSelectedObjectsExtractor>)
@@ -127,9 +128,9 @@ void ezEditorSelectedObjectsExtractor::CreateRenderTargetView(const ezView& view
 
   m_RenderTargetCamera.SetCameraMode(ezCameraMode::PerspectiveFixedFovY, 45, 0.1f, 100.0f);
 
-  ezGALRenderTargetSetup renderTargetSetup;
-  renderTargetSetup.SetRenderTarget(0, pRenderTarget->GetRenderTargetView());
-  pRenderTargetView->SetRenderTargetSetup(renderTargetSetup);
+  ezGALRenderTargets renderTargets;
+  renderTargets.m_hRTs[0] = pRenderTarget->GetGALTexture();
+  pRenderTargetView->SetRenderTargets(renderTargets);
 
   const float resX = (float)pRenderTarget->GetWidth();
   const float resY = (float)pRenderTarget->GetHeight();

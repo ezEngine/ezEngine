@@ -40,6 +40,7 @@ public:
   ~ezWindowOutputTargetXR();
 
   virtual void Present(bool bEnableVSync) override;
+  void RenderCompanionView();
   virtual ezResult CaptureImage(ezImage& out_Image) override;
 
   /// \brief Returns the companion window output target if present.
@@ -47,6 +48,7 @@ public:
 
 private:
   ezXRInterface* m_pXrInterface = nullptr;
+  ezTime m_lastPresent;
   ezUniquePtr<ezWindowOutputTargetGAL> m_pCompanionWindowOutputTarget;
   ezGALTextureHandle m_hCompanionRenderTarget;
   ezConstantBufferStorageHandle m_hCompanionConstantBuffer;

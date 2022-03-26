@@ -26,6 +26,7 @@
 
 struct ezGALDeviceCreationDescription;
 struct ezGALSwapChainCreationDescription;
+struct ezGALWindowSwapChainCreationDescription;
 struct ezGALShaderCreationDescription;
 struct ezGALTextureCreationDescription;
 struct ezGALBufferCreationDescription;
@@ -49,7 +50,6 @@ class ezGALBlendState;
 class ezGALRasterizerState;
 class ezGALRenderTargetSetup;
 class ezGALVertexDeclaration;
-class ezGALFence;
 class ezGALQuery;
 class ezGALSamplerState;
 class ezGALResourceView;
@@ -392,13 +392,6 @@ class ezGALSamplerStateHandle
 class ezGALVertexDeclarationHandle
 {
   EZ_DECLARE_HANDLE_TYPE(ezGALVertexDeclarationHandle, ezGAL::ez18_14Id);
-
-  friend class ezGALDevice;
-};
-
-class ezGALFenceHandle
-{
-  EZ_DECLARE_HANDLE_TYPE(ezGALFenceHandle, ezGAL::ez20_12Id);
 
   friend class ezGALDevice;
 };

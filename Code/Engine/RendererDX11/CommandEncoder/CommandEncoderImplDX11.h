@@ -35,11 +35,7 @@ public:
   virtual void SetResourceViewPlatform(ezGALShaderStage::Enum Stage, ezUInt32 uiSlot, const ezGALResourceView* pResourceView) override;
   virtual void SetUnorderedAccessViewPlatform(ezUInt32 uiSlot, const ezGALUnorderedAccessView* pUnorderedAccessView) override;
 
-  // Fence & Query functions
-
-  virtual void InsertFencePlatform(const ezGALFence* pFence) override;
-  virtual bool IsFenceReachedPlatform(const ezGALFence* pFence) override;
-  virtual void WaitForFencePlatform(const ezGALFence* pFence) override;
+  // Query functions
 
   virtual void BeginQueryPlatform(const ezGALQuery* pQuery) override;
   virtual void EndQueryPlatform(const ezGALQuery* pQuery) override;

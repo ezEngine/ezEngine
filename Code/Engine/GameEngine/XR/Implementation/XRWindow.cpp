@@ -87,7 +87,19 @@ ezWindowOutputTargetXR::~ezWindowOutputTargetXR()
 
 void ezWindowOutputTargetXR::Present(bool bEnableVSync)
 {
-  ezGALTextureHandle m_hColorRT = m_pXrInterface->Present();
+  // Swapchain present is handled by the rendering of the view automatically and RenderCompanionView is called by the ezXRInterface now.
+}
+
+void ezWindowOutputTargetXR::RenderCompanionView()
+{
+  ezTime currentTime = ezTime::Now();
+  if (currentTime < (m_lastPresent + ezTime::Milliseconds(16)))
+    return;
+
+  m_lastPresent = currentTime;
+
+  EZ_PROFILE_SCOPE("RenderCompanionView");
+  ezGALTextureHandle m_hColorRT = m_pXrInterface->GetCurrentTexture();
   if (m_hColorRT.IsInvalidated() || !m_pCompanionWindowOutputTarget)
     return;
 

@@ -4,6 +4,7 @@
 #include <EditorEngineProcessFramework/EngineProcess/WorldRttiConverterContext.h>
 #include <Foundation/Types/Uuid.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
+#include <RendererFoundation/Device/SwapChain.h>
 
 class ezEditorEngineSyncObjectMsg;
 class ezEditorEngineSyncObject;
@@ -176,7 +177,7 @@ private:
   ezUInt16 m_uiThumbnailWidth = 0;
   ezUInt16 m_uiThumbnailHeight = 0;
   ezEngineProcessViewContext* m_pThumbnailViewContext = nullptr;
-  ezGALRenderTargetSetup m_ThumbnailRenderTargetSetup;
+  ezGALRenderTargets m_ThumbnailRenderTargets;
   ezGALTextureHandle m_hThumbnailColorRT;
   ezGALTextureHandle m_hThumbnailDepthRT;
   bool m_bWorldSimStateBeforeThumbnail = false;

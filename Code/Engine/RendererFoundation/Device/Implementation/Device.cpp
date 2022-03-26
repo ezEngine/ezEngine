@@ -29,7 +29,6 @@ namespace
       RenderTargetView,
       UnorderedAccessView,
       SwapChain,
-      Fence,
       Query,
       VertexDeclaration
     };
@@ -46,7 +45,6 @@ namespace
   EZ_CHECK_AT_COMPILETIME(sizeof(ezGALRenderTargetViewHandle) == sizeof(ezUInt32));
   EZ_CHECK_AT_COMPILETIME(sizeof(ezGALUnorderedAccessViewHandle) == sizeof(ezUInt32));
   EZ_CHECK_AT_COMPILETIME(sizeof(ezGALSwapChainHandle) == sizeof(ezUInt32));
-  EZ_CHECK_AT_COMPILETIME(sizeof(ezGALFenceHandle) == sizeof(ezUInt32));
   EZ_CHECK_AT_COMPILETIME(sizeof(ezGALQueryHandle) == sizeof(ezUInt32));
   EZ_CHECK_AT_COMPILETIME(sizeof(ezGALVertexDeclarationHandle) == sizeof(ezUInt32));
 } // namespace
@@ -96,9 +94,6 @@ ezGALDevice::~ezGALDevice()
 
     if (!m_SwapChains.IsEmpty())
       ezLog::Warning("{0} swap chains have not been cleaned up", m_SwapChains.GetCount());
-
-    if (!m_Fences.IsEmpty())
-      ezLog::Warning("{0} fences have not been cleaned up", m_Fences.GetCount());
 
     if (!m_Queries.IsEmpty())
       ezLog::Warning("{0} queries have not been cleaned up", m_Queries.GetCount());
@@ -660,84 +655,6 @@ ezGALTextureHandle ezGALDevice::CreateTexture(const ezGALTextureCreationDescript
   return ezGALTextureHandle();
 }
 
-ezResult ezGALDevice::ReplaceExisitingNativeObject(ezGALTextureHandle hTexture, void* pExisitingNativeObject)
-{
-  ezGALTexture* pTexture = nullptr;
-  if (m_Textures.TryGetValue(hTexture, pTexture))
-  {
-    for (auto it = pTexture->m_ResourceViews.GetIterator(); it.IsValid(); ++it)
-    {
-      ezGALResourceView* pResourceView = nullptr;
-
-      if (m_ResourceViews.TryGetValue(it.Value(), pResourceView))
-      {
-        EZ_VERIFY(pResourceView->DeInitPlatform(this).Succeeded(), "DeInitPlatform should never fail.");
-      }
-    }
-    for (auto it = pTexture->m_RenderTargetViews.GetIterator(); it.IsValid(); ++it)
-    {
-      ezGALRenderTargetView* pRenderTargetView = nullptr;
-
-      if (m_RenderTargetViews.TryGetValue(it.Value(), pRenderTargetView))
-      {
-        EZ_VERIFY(pRenderTargetView->DeInitPlatform(this).Succeeded(), "DeInitPlatform should never fail.");
-      }
-    }
-    for (auto it = pTexture->m_UnorderedAccessViews.GetIterator(); it.IsValid(); ++it)
-    {
-      ezGALUnorderedAccessView* pUnorderedAccessView = nullptr;
-
-      if (m_UnorderedAccessViews.TryGetValue(it.Value(), pUnorderedAccessView))
-      {
-        EZ_VERIFY(pUnorderedAccessView->DeInitPlatform(this).Succeeded(), "DeInitPlatform should never fail.");
-      }
-    }
-
-    EZ_VERIFY(pTexture->DeInitPlatform(this).Succeeded(), "DeInitPlatform should never fail.");
-    EZ_VERIFY(
-      pTexture->ReplaceExisitingNativeObject(pExisitingNativeObject).Succeeded(), "Failed to replace native texture, make sure the input is valid.");
-    EZ_VERIFY(pTexture->InitPlatform(this, {}).Succeeded(),
-      "InitPlatform failed on a texture the previously succeded in the same call, is the new native object valid?");
-
-    for (auto it = pTexture->m_ResourceViews.GetIterator(); it.IsValid(); ++it)
-    {
-      ezGALResourceView* pResourceView = nullptr;
-
-      if (m_ResourceViews.TryGetValue(it.Value(), pResourceView))
-      {
-        EZ_VERIFY(pResourceView->InitPlatform(this).Succeeded(),
-          "InitPlatform failed on a resource view that previously succeded in the same call, is the new native object valid?");
-      }
-    }
-    for (auto it = pTexture->m_RenderTargetViews.GetIterator(); it.IsValid(); ++it)
-    {
-      ezGALRenderTargetView* pRenderTargetView = nullptr;
-
-      if (m_RenderTargetViews.TryGetValue(it.Value(), pRenderTargetView))
-      {
-        EZ_VERIFY(pRenderTargetView->InitPlatform(this).Succeeded(),
-          "InitPlatform failed on a render target view that previously succeded in the same call, is the new native object valid?");
-      }
-    }
-    for (auto it = pTexture->m_UnorderedAccessViews.GetIterator(); it.IsValid(); ++it)
-    {
-      ezGALUnorderedAccessView* pUnorderedAccessView = nullptr;
-
-      if (m_UnorderedAccessViews.TryGetValue(it.Value(), pUnorderedAccessView))
-      {
-        EZ_VERIFY(pUnorderedAccessView->InitPlatform(this).Succeeded(),
-          "InitPlatform failed on a unordered access view that previously succeded in the same call, is the new native object valid?");
-      }
-    }
-    return EZ_SUCCESS;
-  }
-  else
-  {
-    ezLog::Warning("ReplaceExisitingNativeObject called on invalid handle");
-    return EZ_FAILURE;
-  }
-}
-
 void ezGALDevice::DestroyTexture(ezGALTextureHandle hTexture)
 {
   EZ_GALDEVICE_LOCK_AND_CHECK();
@@ -1063,28 +980,27 @@ void ezGALDevice::DestroyUnorderedAccessView(ezGALUnorderedAccessViewHandle hUno
   }
 }
 
-ezGALSwapChainHandle ezGALDevice::CreateSwapChain(const ezGALSwapChainCreationDescription& desc)
+ezGALSwapChainHandle ezGALDevice::CreateSwapChain(const SwapChainFactoryFunction& func)
 {
   EZ_GALDEVICE_LOCK_AND_CHECK();
 
-  /// \todo Platform independent validation
-  if (desc.m_pWindow == nullptr)
+  ///// \todo Platform independent validation
+  //if (desc.m_pWindow == nullptr)
+  //{
+  //  ezLog::Error("The desc for the swap chain creation contained an invalid (nullptr) window handle!");
+  //  return ezGALSwapChainHandle();
+  //}
+
+  ezGALSwapChain* pSwapChain = func(&m_Allocator);
+  //ezGALSwapChainDX11* pSwapChain = EZ_NEW(&m_Allocator, ezGALSwapChainDX11, Description);
+
+  if (!pSwapChain->InitPlatform(this).Succeeded())
   {
-    ezLog::Error("The desc for the swap chain creation contained an invalid (nullptr) window handle!");
+    EZ_DELETE(&m_Allocator, pSwapChain);
     return ezGALSwapChainHandle();
   }
 
-
-  ezGALSwapChain* pSwapChain = CreateSwapChainPlatform(desc);
-
-  if (pSwapChain == nullptr)
-  {
-    return ezGALSwapChainHandle();
-  }
-  else
-  {
-    return ezGALSwapChainHandle(m_SwapChains.Insert(pSwapChain));
-  }
+  return ezGALSwapChainHandle(m_SwapChains.Insert(pSwapChain));
 }
 
 void ezGALDevice::DestroySwapChain(ezGALSwapChainHandle hSwapChain)
@@ -1100,38 +1016,6 @@ void ezGALDevice::DestroySwapChain(ezGALSwapChainHandle hSwapChain)
   else
   {
     ezLog::Warning("DestroySwapChain called on invalid handle (double free?)");
-  }
-}
-
-ezGALFenceHandle ezGALDevice::CreateFence()
-{
-  EZ_GALDEVICE_LOCK_AND_CHECK();
-
-  ezGALFence* pFence = CreateFencePlatform();
-
-  if (pFence == nullptr)
-  {
-    return ezGALFenceHandle();
-  }
-  else
-  {
-    return ezGALFenceHandle(m_Fences.Insert(pFence));
-  }
-}
-
-void ezGALDevice::DestroyFence(ezGALFenceHandle& hFence)
-{
-  EZ_GALDEVICE_LOCK_AND_CHECK();
-
-  ezGALFence* pFence = nullptr;
-
-  if (m_Fences.TryGetValue(hFence, pFence))
-  {
-    AddDeadObject(GALObjectType::Fence, hFence);
-  }
-  else
-  {
-    ezLog::Warning("DestroyFence called on invalid handle (double free?)");
   }
 }
 
@@ -1246,7 +1130,7 @@ ezGALTextureHandle ezGALDevice::GetBackBufferTextureFromSwapChain(ezGALSwapChain
 
 // Misc functions
 
-void ezGALDevice::BeginFrame()
+void ezGALDevice::BeginFrame(const ezUInt64 uiRenderFrame)
 {
   {
     EZ_PROFILE_SCOPE("BeforeBeginFrame");
@@ -1261,7 +1145,7 @@ void ezGALDevice::BeginFrame()
     EZ_ASSERT_DEV(!m_bBeginFrameCalled, "You must call ezGALDevice::EndFrame before you can call ezGALDevice::BeginFrame again");
     m_bBeginFrameCalled = true;
 
-    BeginFramePlatform();
+    BeginFramePlatform(uiRenderFrame);
   }
 
   // TODO: move to beginrendering/compute calls
@@ -1527,19 +1411,9 @@ void ezGALDevice::DestroyDeadObjects()
 
         if (pSwapChain != nullptr)
         {
-          DestroySwapChainPlatform(pSwapChain);
+          pSwapChain->DeInitPlatform(this).IgnoreResult();
+          EZ_DELETE(&m_Allocator, pSwapChain);
         }
-
-        break;
-      }
-      case GALObjectType::Fence:
-      {
-        ezGALFenceHandle hFence(ezGAL::ez20_12Id(deadObject.m_uiHandle));
-        ezGALFence* pFence = nullptr;
-
-        m_Fences.Remove(hFence, &pFence);
-
-        DestroyFencePlatform(pFence);
 
         break;
       }
@@ -1572,6 +1446,17 @@ void ezGALDevice::DestroyDeadObjects()
   }
 
   m_DeadObjects.Clear();
+}
+
+const ezGALSwapChain* ezGALDevice::GetSwapChainInternal(ezGALSwapChainHandle hSwapChain, const ezRTTI* pRequestedType) const
+{
+  const ezGALSwapChain* pSwapChain = GetSwapChain(hSwapChain);
+  if (pSwapChain)
+  {
+    if (!pSwapChain->GetDescription().m_pSwapChainType->IsDerivedFrom(pRequestedType))
+      return nullptr;
+  }
+  return pSwapChain;
 }
 
 EZ_STATICLINK_FILE(RendererFoundation, RendererFoundation_Device_Implementation_Device);

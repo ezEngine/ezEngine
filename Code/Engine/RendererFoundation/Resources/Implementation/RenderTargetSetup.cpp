@@ -3,8 +3,25 @@
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
 
+bool ezGALRenderTargets::operator==(const ezGALRenderTargets& other) const
+{
+  if (m_hDSTarget != other.m_hDSTarget)
+    return false;
+
+  for (ezUInt8 uiRTIndex = 0; uiRTIndex < EZ_GAL_MAX_RENDERTARGET_COUNT; ++uiRTIndex)
+  {
+    if (m_hRTs[uiRTIndex] != other.m_hRTs[uiRTIndex])
+      return false;
+  }
+  return true;
+}
+
+bool ezGALRenderTargets::operator!=(const ezGALRenderTargets& other) const
+{
+  return !(*this == other);
+}
+
 ezGALRenderTargetSetup::ezGALRenderTargetSetup()
-  : m_uiMaxRTIndex(0xFFu)
 {
 }
 
@@ -14,14 +31,7 @@ ezGALRenderTargetSetup& ezGALRenderTargetSetup::SetRenderTarget(ezUInt8 uiIndex,
 
   m_hRTs[uiIndex] = hRenderTarget;
 
-  if (!HasRenderTargets())
-  {
-    m_uiMaxRTIndex = uiIndex;
-  }
-  else
-  {
-    m_uiMaxRTIndex = ezMath::Max(m_uiMaxRTIndex, uiIndex);
-  }
+  m_uiRTCount = ezMath::Max(m_uiRTCount, static_cast<ezUInt8>(uiIndex + 1u));
 
   return *this;
 }
@@ -38,10 +48,10 @@ bool ezGALRenderTargetSetup::operator==(const ezGALRenderTargetSetup& other) con
   if (m_hDSTarget != other.m_hDSTarget)
     return false;
 
-  if (m_uiMaxRTIndex != other.m_uiMaxRTIndex)
+  if (m_uiRTCount != other.m_uiRTCount)
     return false;
 
-  for (ezUInt8 uiRTIndex = 0; uiRTIndex <= m_uiMaxRTIndex; ++uiRTIndex)
+  for (ezUInt8 uiRTIndex = 0; uiRTIndex < m_uiRTCount; ++uiRTIndex)
   {
     if (m_hRTs[uiRTIndex] != other.m_hRTs[uiRTIndex])
       return false;
@@ -74,7 +84,18 @@ void ezGALRenderTargetSetup::DestroyAllAttachedViews()
     pDevice->DestroyRenderTargetView(m_hDSTarget);
     m_hDSTarget.Invalidate();
   }
-  m_uiMaxRTIndex = 0xFFu;
+  m_uiRTCount = 0;
+}
+
+bool ezGALRenderingSetup::operator==(const ezGALRenderingSetup& other) const
+{
+  return m_RenderTargetSetup == other.m_RenderTargetSetup && m_ClearColor == other.m_ClearColor && m_uiRenderTargetClearMask == other.m_uiRenderTargetClearMask && m_fDepthClear == other.m_fDepthClear && m_uiStencilClear == other.m_uiStencilClear && m_bClearDepth == other.m_bClearDepth && m_bClearStencil == other.m_bClearStencil && m_bDiscardColor == other.m_bDiscardColor && m_bDiscardDepth == other.m_bDiscardDepth;
+}
+
+bool ezGALRenderingSetup::operator!=(const ezGALRenderingSetup& other) const
+{
+  return !(*this == other);
 }
 
 EZ_STATICLINK_FILE(RendererFoundation, RendererFoundation_Resources_Implementation_RenderTargetSetup);
+

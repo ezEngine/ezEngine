@@ -62,14 +62,14 @@ ezTonemapPass::~ezTonemapPass()
 bool ezTonemapPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  const ezGALRenderTargets& renderTargets = view.GetActiveRenderTargets();
 
   // Color
   auto pColorInput = inputs[m_PinColorInput.m_uiInputIndex];
   if (pColorInput != nullptr)
   {
-    if (const ezGALRenderTargetView* pTargetView = pDevice->GetRenderTargetView(view.GetRenderTargetSetup().GetRenderTarget(0)))
+    if (const ezGALTexture* pTexture = pDevice->GetTexture(renderTargets.m_hRTs[0]))
     {
-      const ezGALTexture* pTexture = pTargetView->GetTexture();
       const ezGALTextureCreationDescription& desc = pTexture->GetDescription();
       // if (desc.m_uiWidth != pColorInput->m_uiWidth || desc.m_uiHeight != pColorInput->m_uiHeight)
       //{

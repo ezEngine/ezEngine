@@ -115,7 +115,8 @@ void ezGameApplication::Run_WorldUpdateAndRender()
   // On most platforms it doesn't matter that much how early this happens.
   // But on HoloLens this executes something that needs to be done at the right time,
   // for the reprojection to work properly.
-  pDevice->BeginFrame();
+  const ezUInt64 uiRenderFrame = ezRenderWorld::GetUseMultithreadedRendering() ? ezRenderWorld::GetFrameCounter() - 1 : ezRenderWorld::GetFrameCounter();
+  pDevice->BeginFrame(uiRenderFrame);
 
   ezTaskGroupID updateTaskID;
   if (ezRenderWorld::GetUseMultithreadedRendering())

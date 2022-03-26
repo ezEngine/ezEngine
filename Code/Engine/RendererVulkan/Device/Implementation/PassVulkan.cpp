@@ -3,7 +3,9 @@
 #include <RendererFoundation/CommandEncoder/CommandEncoderState.h>
 #include <RendererFoundation/CommandEncoder/ComputeCommandEncoder.h>
 #include <RendererFoundation/CommandEncoder/RenderCommandEncoder.h>
+#include <RendererFoundation/Device/Device.h>
 #include <RendererVulkan/CommandEncoder/CommandEncoderImplVulkan.h>
+#include <RendererVulkan/Device/DeviceVulkan.h>
 #include <RendererVulkan/Device/PassVulkan.h>
 
 ezGALPassVulkan::ezGALPassVulkan(ezGALDevice& device)

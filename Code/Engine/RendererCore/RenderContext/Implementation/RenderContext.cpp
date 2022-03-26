@@ -129,7 +129,11 @@ ezGALRenderCommandEncoder* ezRenderContext::BeginRendering(ezGALPass* pGALPass, 
 {
   ezGALMSAASampleCount::Enum msaaSampleCount = ezGALMSAASampleCount::None;
 
-  ezGALRenderTargetViewHandle hRTV = renderingSetup.m_RenderTargetSetup.GetRenderTarget(0);
+  ezGALRenderTargetViewHandle hRTV;
+  if (renderingSetup.m_RenderTargetSetup.GetRenderTargetCount() > 0)
+  {
+    hRTV = renderingSetup.m_RenderTargetSetup.GetRenderTarget(0);
+  }
   if (hRTV.IsInvalidated())
   {
     hRTV = renderingSetup.m_RenderTargetSetup.GetDepthStencilTarget();

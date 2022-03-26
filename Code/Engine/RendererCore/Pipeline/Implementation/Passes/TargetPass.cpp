@@ -32,36 +32,26 @@ ezTargetPass::ezTargetPass(const char* szName)
 
 ezTargetPass::~ezTargetPass() {}
 
-ezGALTextureHandle ezTargetPass::GetTextureHandle(const ezView& view, const ezRenderPipelineNodePin* pPin)
+const ezGALTextureHandle* ezTargetPass::GetTextureHandle(const ezGALRenderTargets& renderTargets, const ezRenderPipelineNodePin* pPin)
 {
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-  const ezGALRenderTargetSetup& setup = view.GetRenderTargetSetup();
-
   // auto inputs = GetInputPins();
   if (pPin->m_pParent != this)
   {
     ezLog::Error("ezTargetPass::GetTextureHandle: The given pin is not part of this pass!");
-    return ezGALTextureHandle();
+    return nullptr;
   }
 
-  ezGALRenderTargetViewHandle hTarget;
+  ezGALTextureHandle hTarget;
   if (pPin->m_uiInputIndex == 8)
   {
-    hTarget = setup.GetDepthStencilTarget();
+    return &renderTargets.m_hDSTarget;
   }
-  else if (pPin->m_uiInputIndex <= setup.GetMaxRenderTargetIndex())
+  else
   {
-    hTarget = setup.GetRenderTarget(pPin->m_uiInputIndex);
+    return &renderTargets.m_hRTs[pPin->m_uiInputIndex];
   }
 
-  const ezGALRenderTargetView* pTarget = pDevice->GetRenderTargetView(hTarget);
-  if (pTarget)
-  {
-    const ezGALRenderTargetViewCreationDescription& desc = pTarget->GetDescription();
-    return desc.m_hTexture;
-  }
-
-  return ezGALTextureHandle();
+  return nullptr;
 }
 
 bool ezTargetPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
@@ -96,12 +86,16 @@ bool ezTargetPass::VerifyInput(const ezView& view, const ezArrayPtr<ezGALTexture
   const ezRenderPipelineNodePin* pPin = GetPinByName(szPinName);
   if (inputs[pPin->m_uiInputIndex])
   {
-    const ezGALTexture* pTexture = pDevice->GetTexture(GetTextureHandle(view, pPin));
-    if (pTexture)
+    const ezGALTextureHandle* pHandle = GetTextureHandle(view.GetActiveRenderTargets(), pPin);
+    if (pHandle)
     {
-      // TODO: Need a more sophisticated check here what is considered 'matching'
-      // if (inputs[pPin->m_uiInputIndex]->CalculateHash() != pTexture->GetDescription().CalculateHash())
-      //  return false;
+      const ezGALTexture* pTexture = pDevice->GetTexture(*pHandle);
+      if (pTexture)
+      {
+        // TODO: Need a more sophisticated check here what is considered 'matching'
+        // if (inputs[pPin->m_uiInputIndex]->CalculateHash() != pTexture->GetDescription().CalculateHash())
+        //  return false;
+      }
     }
   }
 

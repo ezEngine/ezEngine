@@ -19,9 +19,14 @@ EZ_ALWAYS_INLINE const ezWorld* ezView::GetWorld() const
   return m_pWorld;
 }
 
-EZ_ALWAYS_INLINE const ezGALRenderTargetSetup& ezView::GetRenderTargetSetup() const
+EZ_ALWAYS_INLINE ezGALSwapChainHandle ezView::GetSwapChain() const
 {
-  return m_RenderTargetSetup;
+  return m_Data.m_hSwapChain;
+}
+
+EZ_ALWAYS_INLINE const ezGALRenderTargets& ezView::GetRenderTargets() const
+{
+  return m_Data.m_renderTargets;
 }
 
 EZ_ALWAYS_INLINE void ezView::SetCamera(ezCamera* pCamera)

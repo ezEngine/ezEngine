@@ -71,9 +71,9 @@ public:
   /// \name Internal
   ///@{
 
-  /// \brief Called by ezWindowOutputTargetXR::Present
+  /// \brief Called by ezWindowOutputTargetXR::RenderCompanionView
   /// Returns the color texture to be used by the companion view if enabled, otherwise an invalid handle.
-  virtual ezGALTextureHandle Present() = 0;
+  virtual ezGALTextureHandle GetCurrentTexture() = 0;
 
   /// \brief Called when the actor created by 'CreateActor' is destroyed.
   virtual void OnActorDestroyed() = 0;

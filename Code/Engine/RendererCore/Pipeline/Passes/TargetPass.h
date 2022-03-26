@@ -2,6 +2,8 @@
 
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
 
+struct ezGALRenderTargets;
+
 class EZ_RENDERERCORE_DLL ezTargetPass : public ezRenderPipelinePass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezTargetPass, ezRenderPipelinePass);
@@ -10,7 +12,7 @@ public:
   ezTargetPass(const char* szName = "TargetPass");
   ~ezTargetPass();
 
-  ezGALTextureHandle GetTextureHandle(const ezView& view, const ezRenderPipelineNodePin* pPin);
+  const ezGALTextureHandle* GetTextureHandle(const ezGALRenderTargets& renderTargets, const ezRenderPipelineNodePin* pPin);
 
   virtual bool GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs) override;
   virtual void Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) override;

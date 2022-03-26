@@ -89,11 +89,6 @@ inline const ezGALUnorderedAccessView* ezGALDevice::GetUnorderedAccessView(ezGAL
   return Get<UnorderedAccessViewTable, ezGALUnorderedAccessView>(hUnorderedAccessView, m_UnorderedAccessViews);
 }
 
-inline const ezGALFence* ezGALDevice::GetFence(ezGALFenceHandle hFence) const
-{
-  return Get<FenceTable, ezGALFence>(hFence, m_Fences);
-}
-
 inline const ezGALQuery* ezGALDevice::GetQuery(ezGALQueryHandle hQuery) const
 {
   return Get<QueryTable, ezGALQuery>(hQuery, m_Queries);

@@ -122,11 +122,11 @@ ezResult ezGraphicsTest::CreateWindow(ezUInt32 uiResolutionX, ezUInt32 uiResolut
 
   // Create a Swapchain
   {
-    ezGALSwapChainCreationDescription swapChainDesc;
+    ezGALWindowSwapChainCreationDescription swapChainDesc;
     swapChainDesc.m_pWindow = m_pWindow;
     swapChainDesc.m_SampleCount = ezGALMSAASampleCount::None;
     swapChainDesc.m_bAllowScreenshots = true;
-    m_hSwapChain = m_pDevice->CreateSwapChain(swapChainDesc);
+    m_hSwapChain = ezGALWindowSwapChain::Create(swapChainDesc);
   }
 
   {

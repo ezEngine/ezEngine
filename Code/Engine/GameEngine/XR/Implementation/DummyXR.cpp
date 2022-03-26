@@ -104,23 +104,26 @@ ezUniquePtr<ezActor> ezDummyXR::CreateActor(ezView* pView, ezGALMSAASampleCount:
   EZ_ASSERT_DEV((companionWindow != nullptr) == (companionWindowOutput != nullptr), "Both companionWindow and companionWindowOutput must either be null or valid.");
 
   ezUniquePtr<ezActorPluginWindowXR> pActorPlugin = EZ_DEFAULT_NEW(ezActorPluginWindowXR, this, std::move(companionWindow), std::move(companionWindowOutput));
+  m_pCompanion = static_cast<ezWindowOutputTargetXR*>(pActorPlugin->GetOutputTarget());
+
   pActor->AddPlugin(std::move(pActorPlugin));
 
   m_hView = pView->GetHandle();
   m_pWorld = pView->GetWorld();
   EZ_ASSERT_DEV(m_pWorld != nullptr, "");
 
-  m_RenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(m_hColorRT));
-  m_RenderTargetSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(m_hDepthRT));
 
-  pView->SetRenderTargetSetup(m_RenderTargetSetup);
+  ezGALRenderTargets renderTargets;
+  renderTargets.m_hRTs[0] = m_hColorRT;
+  renderTargets.m_hDSTarget = m_hDepthRT;
+  pView->SetRenderTargets(renderTargets);
 
   pView->SetViewport(ezRectFloat((float)m_Info.m_vEyeRenderTargetSize.width, (float)m_Info.m_vEyeRenderTargetSize.height));
 
   return std::move(pActor);
 }
 
-ezGALTextureHandle ezDummyXR::Present()
+ezGALTextureHandle ezDummyXR::GetCurrentTexture()
 {
   return m_hColorRT;
 }
@@ -130,12 +133,11 @@ void ezDummyXR::OnActorDestroyed()
   if (m_hView.IsInvalidated())
     return;
 
+  m_pCompanion = nullptr;
   m_pWorld = nullptr;
   m_pCameraToSynchronize = nullptr;
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-
-  m_RenderTargetSetup.DestroyAllAttachedViews();
 
   if (!m_hColorRT.IsInvalidated())
   {
@@ -156,6 +158,13 @@ void ezDummyXR::GALDeviceEventHandler(const ezGALDeviceEvent& e)
 {
   if (e.m_Type == ezGALDeviceEvent::Type::BeforeBeginFrame)
   {
+  }
+  else if (e.m_Type == ezGALDeviceEvent::Type::BeforeEndFrame)
+  {
+    if (m_pCompanion)
+    {
+      m_pCompanion->RenderCompanionView();
+    }
   }
 }
 
