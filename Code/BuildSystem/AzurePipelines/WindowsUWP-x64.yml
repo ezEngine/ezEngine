@@ -12,7 +12,7 @@ jobs:
 - job: Job_2
   displayName: StartVM
   pool:
-    name: Hosted VS2017
+    vmImage: 'windows-2019'
   steps:
   - checkout: self
     submodules: true
