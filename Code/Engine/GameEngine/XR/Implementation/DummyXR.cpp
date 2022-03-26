@@ -161,16 +161,20 @@ void ezDummyXR::GALDeviceEventHandler(const ezGALDeviceEvent& e)
   }
   else if (e.m_Type == ezGALDeviceEvent::Type::BeforeEndFrame)
   {
-    if (m_pCompanion)
-    {
-      m_pCompanion->RenderCompanionView();
-    }
   }
 }
 
 void ezDummyXR::GameApplicationEventHandler(const ezGameApplicationExecutionEvent& e)
 {
-  if (e.m_Type == ezGameApplicationExecutionEvent::Type::BeforeUpdatePlugins)
+  if (e.m_Type == ezGameApplicationExecutionEvent::Type::BeforePresent)
+  {
+    // Screenshots are taken during present callback so we need to render the companion view before that for backwards compatibility. This will change once read back API is refactored and becomes async at which point this code can be moved back to ezGALDeviceEvent::Type::BeforeEndFrame to match OpenXR implementation.
+    if (m_pCompanion)
+    {
+      m_pCompanion->RenderCompanionView();
+    }
+  }
+  else if (e.m_Type == ezGameApplicationExecutionEvent::Type::BeforeUpdatePlugins)
   {
     ezView* pView0 = nullptr;
     if (ezRenderWorld::TryGetView(m_hView, pView0))
