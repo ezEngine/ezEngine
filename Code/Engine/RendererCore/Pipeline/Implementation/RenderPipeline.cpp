@@ -2,6 +2,7 @@
 
 #include <Core/World/World.h>
 #include <Foundation/Application/Application.h>
+#include <Foundation/Reflection/ReflectionUtils.h>
 #include <Foundation/Time/Clock.h>
 #include <Foundation/Utilities/DGMLWriter.h>
 #include <RendererCore/Debug/DebugRenderer.h>
@@ -14,7 +15,6 @@
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererFoundation/Profiling/Profiling.h>
-#include <Foundation/Reflection/ReflectionUtils.h>
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
 ezCVarBool ezRenderPipeline::cvar_SpatialCullingVis("Spatial.Culling.Vis", false, ezCVarFlags::Default, "Enables debug visualization of visibility culling");
