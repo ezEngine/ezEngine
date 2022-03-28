@@ -15,9 +15,9 @@ public:
   XrSwapchain GetColorSwapchain() const { return m_colorSwapchain.handle; }
   XrSwapchain GetDepthSwapchain() const { return m_depthSwapchain.handle; }
 
-  virtual void AcquireNextImage(ezGALDevice* pDevice) override;
-  virtual void PresentNextImage(ezGALDevice* pDevice) override;
-  void PresentNextImage() const;
+  virtual void AcquireNextRenderTarget(ezGALDevice* pDevice) override;
+  virtual void PresentRenderTarget(ezGALDevice* pDevice) override;
+  void PresentRenderTarget() const;
 
 protected:
   virtual ezResult InitPlatform(ezGALDevice* pDevice) override;

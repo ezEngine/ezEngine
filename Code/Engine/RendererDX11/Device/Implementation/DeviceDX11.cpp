@@ -356,7 +356,7 @@ void ezGALDeviceDX11::BeginPipelinePlatform(const char* szName, ezGALSwapChain* 
 
   if (pSwapChain)
   {
-    pSwapChain->AcquireNextImage(this);
+    pSwapChain->AcquireNextRenderTarget(this);
   }
 }
 
@@ -364,7 +364,7 @@ void ezGALDeviceDX11::EndPipelinePlatform(ezGALSwapChain* pSwapChain)
 {
   if (pSwapChain)
   {
-    pSwapChain->PresentNextImage(this);
+    pSwapChain->PresentRenderTarget(this);
   }
 
   ezProfilingScopeAndMarker::Stop(m_pDefaultPass->m_pRenderCommandEncoder.Borrow(), m_pPipelineTimingScope);

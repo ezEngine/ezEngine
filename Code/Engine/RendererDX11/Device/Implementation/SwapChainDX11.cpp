@@ -14,11 +14,11 @@
 #  include <dxgi1_3.h>
 #endif
 
-void ezGALSwapChainDX11::AcquireNextImage(ezGALDevice* pDevice)
+void ezGALSwapChainDX11::AcquireNextRenderTarget(ezGALDevice* pDevice)
 {
 }
 
-void ezGALSwapChainDX11::PresentNextImage(ezGALDevice* pDevice)
+void ezGALSwapChainDX11::PresentRenderTarget(ezGALDevice* pDevice)
 {
   ezGALDeviceDX11* pDXDevice = static_cast<ezGALDeviceDX11*>(pDevice);
 

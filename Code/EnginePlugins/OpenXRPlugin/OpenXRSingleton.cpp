@@ -783,7 +783,7 @@ void ezOpenXR::Present()
   if (m_pCompanion)
   {
     m_pCompanion->RenderCompanionView();
-    pSwapChain->PresentNextImage();
+    pSwapChain->PresentRenderTarget();
   }
 }
 

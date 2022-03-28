@@ -494,7 +494,7 @@ void ezGALDeviceVulkan::BeginPipelinePlatform(const char* szName, ezGALSwapChain
 
   if (pSwapChain)
   {
-    pSwapChain->AcquireNextImage(this);
+    pSwapChain->AcquireNextRenderTarget(this);
   }
 }
 
@@ -504,7 +504,7 @@ void ezGALDeviceVulkan::EndPipelinePlatform(ezGALSwapChain* pSwapChain)
 
   if (pSwapChain)
   {
-    pSwapChain->PresentNextImage(this);
+    pSwapChain->PresentRenderTarget(this);
   }
 
   // Restart new command buffer

@@ -12,8 +12,8 @@ public:
   const ezGALRenderTargets& GetRenderTargets() const { return m_RenderTargets; }
   ezGALTextureHandle GetBackBufferTexture() const { return m_RenderTargets.m_hRTs[0]; }
 
-  virtual void AcquireNextImage(ezGALDevice* pDevice) = 0;
-  virtual void PresentNextImage(ezGALDevice* pDevice) = 0;
+  virtual void AcquireNextRenderTarget(ezGALDevice* pDevice) = 0;
+  virtual void PresentRenderTarget(ezGALDevice* pDevice) = 0;
 
   virtual ~ezGALSwapChain();
 

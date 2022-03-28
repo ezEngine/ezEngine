@@ -7,10 +7,10 @@
 #include <RendererFoundation/Device/Device.h>
 #include <vector>
 
-void ezGALOpenXRSwapChain::AcquireNextImage(ezGALDevice* pDevice)
+void ezGALOpenXRSwapChain::AcquireNextRenderTarget(ezGALDevice* pDevice)
 {
-  EZ_PROFILE_SCOPE("AcquireNextImage");
-  EZ_ASSERT_DEBUG(m_bImageAcquired == false, "PresentNextImage was not called.");
+  EZ_PROFILE_SCOPE("AcquireNextRenderTarget");
+  EZ_ASSERT_DEBUG(m_bImageAcquired == false, "PresentRenderTarget was not called.");
   m_bImageAcquired = true;
   auto pOpenXR = static_cast<ezOpenXR*>(m_pXrInterface);
 
@@ -40,24 +40,24 @@ void ezGALOpenXRSwapChain::AcquireNextImage(ezGALDevice* pDevice)
   }
 }
 
-void ezGALOpenXRSwapChain::PresentNextImage(ezGALDevice* pDevice)
+void ezGALOpenXRSwapChain::PresentRenderTarget(ezGALDevice* pDevice)
 {
-  EZ_PROFILE_SCOPE("PresentNextImage");
+  EZ_PROFILE_SCOPE("PresentRenderTarget");
   auto pOpenXR = static_cast<ezOpenXR*>(m_pXrInterface);
   // If we have a companion view we can't let go of the current swap chain image yet as we need to use it as the input to render to the companion window.
-  // Thus, we delay PresentNextImage here and ezOpenXR will call PresentNextImage instead after the companion window was updated.
+  // Thus, we delay PresentRenderTarget here and ezOpenXR will call PresentRenderTarget instead after the companion window was updated.
   if (pOpenXR->m_pCompanion)
   {
     pOpenXR->DelayPresent();
   }
   else
   {
-    PresentNextImage();
+    PresentRenderTarget();
   }
   m_bImageAcquired = false;
 }
 
-void ezGALOpenXRSwapChain::PresentNextImage() const
+void ezGALOpenXRSwapChain::PresentRenderTarget() const
 {
   auto pOpenXR = static_cast<ezOpenXR*>(m_pXrInterface);
   EZ_PROFILE_SCOPE("xrReleaseSwapchainImage");

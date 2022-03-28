@@ -12,8 +12,8 @@ class ezGALDeviceVulkan;
 class ezGALSwapChainVulkan : public ezGALWindowSwapChain
 {
 public:
-  virtual void AcquireNextImage(ezGALDevice* pDevice) override;
-  virtual void PresentNextImage(ezGALDevice* pDevice) override;
+  virtual void AcquireNextRenderTarget(ezGALDevice* pDevice) override;
+  virtual void PresentRenderTarget(ezGALDevice* pDevice) override;
 
   EZ_ALWAYS_INLINE vk::SwapchainKHR GetVulkanSwapChain() const;
 

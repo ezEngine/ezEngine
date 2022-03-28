@@ -14,6 +14,7 @@
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererFoundation/Profiling/Profiling.h>
+#include <Foundation/Reflection/ReflectionUtils.h>
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
 ezCVarBool ezRenderPipeline::cvar_SpatialCullingVis("Spatial.Culling.Vis", false, ezCVarFlags::Default, "Enables debug visualization of visibility culling");
@@ -1217,7 +1218,13 @@ void ezRenderPipeline::CreateDgmlGraph(ezDGMLGraph& graph)
       ezDGMLGraph::NodeDesc nd;
       nd.m_Color = data.m_iTargetTextureIndex != -1 ? ezColor::Black : ezColor::GetPaletteColor(i, 64);
       nd.m_Shape = ezDGMLGraph::NodeShape::RoundedRectangle;
-      sTmp.Format("{} #{}: {}x{}:{}, MSAA:{}, {}Format: {}", data.m_iTargetTextureIndex != -1 ? "RenderTarget" : "PoolTexture", i, pCon->m_Desc.m_uiWidth, pCon->m_Desc.m_uiHeight, pCon->m_Desc.m_uiArraySize, (int)pCon->m_Desc.m_SampleCount, ezGALResourceFormat::IsDepthFormat(pCon->m_Desc.m_Format) ? "Depth" : "Color", (int)pCon->m_Desc.m_Format);
+
+      ezStringBuilder sFormat;
+      if (!ezReflectionUtils::EnumerationToString(ezGetStaticRTTI<ezGALResourceFormat>(), pCon->m_Desc.m_Format, sFormat, ezReflectionUtils::EnumConversionMode::ValueNameOnly))
+      {
+        sFormat.Format("Unknown Format {}", (int)pCon->m_Desc.m_Format);
+      }
+      sTmp.Format("{} #{}: {}x{}:{}, MSAA:{}, {}Format: {}", data.m_iTargetTextureIndex != -1 ? "RenderTarget" : "PoolTexture", i, pCon->m_Desc.m_uiWidth, pCon->m_Desc.m_uiHeight, pCon->m_Desc.m_uiArraySize, (int)pCon->m_Desc.m_SampleCount, ezGALResourceFormat::IsDepthFormat(pCon->m_Desc.m_Format) ? "Depth" : "Color", sFormat);
       ezUInt32 uiTextureNode = graph.AddNode(sTmp, &nd);
 
       ezUInt32 uiOutputNode = *nodeMap.GetValue(pCon->m_pOutput->m_pParent);
