@@ -413,6 +413,7 @@ ezSkeletonPoseMode::CustomPose;Custom Pose
 ezSkeletonPoseMode::RestPose;Rest Pose
 ezSkeletonPoseMode::Disabled;Disabled
 Bones;Bones
+ezSensorConeComponent;Cone Sensor
 ezSensorCylinderComponent;Cylinder Sensor
 ezSensorSphereComponent;Sphere Sensor
 ezUpdateRate::EveryFrame;Every Frame

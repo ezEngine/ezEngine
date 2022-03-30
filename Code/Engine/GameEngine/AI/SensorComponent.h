@@ -142,6 +142,39 @@ public:
 
 //////////////////////////////////////////////////////////////////////////
 
+using ezSensorConeComponentManager = ezComponentManager<class ezSensorConeComponent, ezBlockStorageType::Compact>;
+
+class EZ_GAMEENGINE_DLL ezSensorConeComponent : public ezSensorComponent
+{
+  EZ_DECLARE_COMPONENT_TYPE(ezSensorConeComponent, ezSensorComponent, ezSensorConeComponentManager);
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezComponent
+
+public:
+  virtual void SerializeComponent(ezWorldWriter& stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& stream) override;
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezSensorComponent
+
+  virtual void GetObjectsInSensorVolume(ezDynamicArray<ezGameObject*>& out_Objects) const override;
+  virtual void DebugDrawSensorShape() const override;
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezSensorConeComponent
+
+public:
+  ezSensorConeComponent();
+  ~ezSensorConeComponent();
+
+  float m_fNearDistance = 0.0f;             // [ property ]
+  float m_fFarDistance = 10.0f;             // [ property ]
+  ezAngle m_Angle = ezAngle::Degree(90.0f); // [ property ]
+};
+
+//////////////////////////////////////////////////////////////////////////
+
 class ezSensorWorldModule : public ezWorldModule
 {
   EZ_DECLARE_WORLD_MODULE();

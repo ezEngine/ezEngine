@@ -346,6 +346,186 @@ void ezSensorCylinderComponent::DebugDrawSensorShape() const
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
+EZ_BEGIN_COMPONENT_TYPE(ezSensorConeComponent, 1, ezComponentMode::Static)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("NearDistance", m_fNearDistance)->AddAttributes(new ezDefaultValueAttribute(0.0f), new ezClampValueAttribute(0.0f, ezVariant())),
+    EZ_MEMBER_PROPERTY("FarDistance", m_fFarDistance)->AddAttributes(new ezDefaultValueAttribute(10.0f), new ezClampValueAttribute(0.0f, ezVariant())),
+    EZ_MEMBER_PROPERTY("Angle", m_Angle)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(90.0f)), new ezClampValueAttribute(0.0f, ezAngle::Degree(180.0f))),
+  }
+  EZ_END_PROPERTIES;
+
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("AI"),
+  }
+  EZ_END_ATTRIBUTES;
+}
+EZ_END_COMPONENT_TYPE
+// clang-format on
+
+ezSensorConeComponent::ezSensorConeComponent() = default;
+ezSensorConeComponent::~ezSensorConeComponent() = default;
+
+void ezSensorConeComponent::SerializeComponent(ezWorldWriter& stream) const
+{
+  SUPER::SerializeComponent(stream);
+  auto& s = stream.GetStream();
+
+  s << m_fNearDistance;
+  s << m_fFarDistance;
+  s << m_Angle;
+}
+
+void ezSensorConeComponent::DeserializeComponent(ezWorldReader& stream)
+{
+  SUPER::DeserializeComponent(stream);
+  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  auto& s = stream.GetStream();
+
+  s >> m_fNearDistance;
+  s >> m_fFarDistance;
+  s >> m_Angle;
+}
+
+void ezSensorConeComponent::GetObjectsInSensorVolume(ezDynamicArray<ezGameObject*>& out_Objects) const
+{
+  const ezGameObject* pOwner = GetOwner();
+
+  const float scale = pOwner->GetGlobalTransformSimd().GetMaxScale();
+  ezBoundingSphere sphere = ezBoundingSphere(pOwner->GetGlobalPosition(), m_fFarDistance * scale);
+
+  ezSpatialSystem::QueryParams params;
+  params.m_uiCategoryBitmask = m_SpatialCategory.GetBitmask();
+
+  ezSimdMat4f toLocalSpace = pOwner->GetGlobalTransformSimd().GetAsMat4().GetInverse();
+  const ezSimdFloat nearSquared = m_fNearDistance * m_fNearDistance;
+  const ezSimdFloat farSquared = m_fFarDistance * m_fFarDistance;
+  const ezSimdFloat cosAngle = ezMath::Cos(m_Angle * 0.5f);
+
+  GetWorld()->GetSpatialSystem()->FindObjectsInSphere(sphere, params, [&](ezGameObject* pObject)
+    {
+      ezSimdVec4f localSpacePos = toLocalSpace.TransformPosition(pObject->GetGlobalPositionSimd());
+      const ezSimdFloat fDistanceSquared = localSpacePos.GetLengthSquared<3>();
+      const bool bInDistance = fDistanceSquared >= nearSquared && fDistanceSquared <= farSquared;
+
+      const ezSimdVec4f normalizedPos = localSpacePos * fDistanceSquared.GetInvSqrt();
+      const bool bInAngle = normalizedPos.x() >= cosAngle;
+
+      if (bInDistance && bInAngle)
+      {
+        out_Objects.PushBack(pObject);
+      }
+
+      return ezVisitorExecution::Continue;
+    });
+}
+
+void ezSensorConeComponent::DebugDrawSensorShape() const
+{
+  enum
+  {
+    MIN_SEGMENTS = 3,
+    MAX_SEGMENTS = 16,
+    CIRCLE_SEGMENTS = MAX_SEGMENTS * 2,
+    NUM_LINES = MAX_SEGMENTS * 4 + CIRCLE_SEGMENTS * 2 + 4
+  };
+
+  ezDebugRenderer::Line lines[NUM_LINES];
+  ezUInt32 curLine = 0;
+
+  const ezUInt32 numSegments = ezMath::Clamp<ezUInt32>((m_Angle / ezAngle::Degree(180)) * MAX_SEGMENTS, MIN_SEGMENTS, MAX_SEGMENTS);
+  const ezAngle stepAngle = m_Angle / numSegments;
+  const ezAngle circleStepAngle = ezAngle::Degree(360.0f / CIRCLE_SEGMENTS);
+
+  for (ezUInt32 i = 0; i < 2; ++i)
+  {
+    ezAngle curAngle = m_Angle * -0.5f;
+
+    ezQuat q;
+    float fX = ezMath::Cos(curAngle);
+    float fCircleRadius = ezMath::Sin(curAngle);
+
+    if (i == 0)
+    {
+      q.SetIdentity();
+      fX *= m_fNearDistance;
+      fCircleRadius *= m_fNearDistance;
+    }
+    else
+    {
+      q.SetFromAxisAndAngle(ezVec3::UnitXAxis(), ezAngle::Degree(90));
+      fX *= m_fFarDistance;
+      fCircleRadius *= m_fFarDistance;
+    }
+
+    for (ezUInt32 s = 0; s < numSegments; ++s)
+    {
+      const ezAngle nextAngle = curAngle + stepAngle;
+
+      const float fCos1 = ezMath::Cos(curAngle);
+      const float fCos2 = ezMath::Cos(nextAngle);
+
+      const float fSin1 = ezMath::Sin(curAngle);
+      const float fSin2 = ezMath::Sin(nextAngle);
+
+      curAngle = nextAngle;
+
+      const ezVec3 p1 = q * ezVec3(fCos1, fSin1, 0.0f);
+      const ezVec3 p2 = q * ezVec3(fCos2, fSin2, 0.0f);
+
+      lines[curLine].m_start = p1 * m_fNearDistance;
+      lines[curLine].m_end = p2 * m_fNearDistance;
+      ++curLine;
+
+      lines[curLine].m_start = p1 * m_fFarDistance;
+      lines[curLine].m_end = p2 * m_fFarDistance;
+      ++curLine;
+
+      if (s == 0)
+      {
+        lines[curLine].m_start = p1 * m_fNearDistance;
+        lines[curLine].m_end = p1 * m_fFarDistance;
+        ++curLine;
+      }
+      else if (s == numSegments - 1)
+      {
+        lines[curLine].m_start = p2 * m_fNearDistance;
+        lines[curLine].m_end = p2 * m_fFarDistance;
+        ++curLine;
+      }
+    }
+
+    curAngle = ezAngle::Degree(0.0f);
+    for (ezUInt32 s = 0; s < CIRCLE_SEGMENTS; ++s)
+    {
+      const ezAngle nextAngle = curAngle + circleStepAngle;
+
+      const float fCos1 = ezMath::Cos(curAngle);
+      const float fCos2 = ezMath::Cos(nextAngle);
+
+      const float fSin1 = ezMath::Sin(curAngle);
+      const float fSin2 = ezMath::Sin(nextAngle);
+
+      curAngle = nextAngle;
+
+      const ezVec3 p1 = ezVec3(fX, fCos1 * fCircleRadius, fSin1 * fCircleRadius);
+      const ezVec3 p2 = ezVec3(fX, fCos2 * fCircleRadius, fSin2 * fCircleRadius);
+
+      lines[curLine].m_start = p1;
+      lines[curLine].m_end = p2;
+      ++curLine;
+    }
+  }
+
+  EZ_ASSERT_DEV(curLine <= NUM_LINES, "");
+  ezDebugRenderer::DrawLines(GetWorld(), ezMakeArrayPtr(lines, curLine), m_Color, GetOwner()->GetGlobalTransform());
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
 EZ_IMPLEMENT_WORLD_MODULE(ezSensorWorldModule);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSensorWorldModule, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;

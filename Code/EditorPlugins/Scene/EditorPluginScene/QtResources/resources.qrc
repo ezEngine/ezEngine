@@ -79,6 +79,7 @@
     <file>ezClothSheetComponent.png</file>
     <file>ezBoxReflectionProbeComponent.png</file>
     <file>ezSphereReflectionProbeComponent.png</file>
+    <file>ezSensorConeComponent.svg</file>
     <file>ezSensorCylinderComponent.svg</file>
     <file>ezSensorSphereComponent.svg</file>
   </qresource>
