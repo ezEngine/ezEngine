@@ -106,12 +106,11 @@ public:
 
   EZ_ALWAYS_INLINE void Update(ezTime deltaTime, RunWorkCallback runWorkCallback)
   {
-    SUPER::Update(deltaTime, [&](ezUInt64 workId, ezTime deltaTime)
+    SUPER::Update(deltaTime, [&](ezUInt64 workId, ezTime deltaTime) {
+      if (runWorkCallback.IsValid())
       {
-        if (runWorkCallback.IsValid())
-        {
-          runWorkCallback(*reinterpret_cast<T*>(&workId), deltaTime);
-        }
-      });
+        runWorkCallback(*reinterpret_cast<T*>(&workId), deltaTime);
+      }
+    });
   }
 };

@@ -39,30 +39,29 @@ EZ_CREATE_SIMPLE_TEST(Utils, IntervalScheduler)
     for (ezUInt32 i = 0; i < 60; ++i)
     {
       float fNumWorks = 0;
-      scheduler.Update(ezTime::Milliseconds(10), [&](TestWork* pWork, ezTime deltaTime)
+      scheduler.Update(ezTime::Milliseconds(10), [&](TestWork* pWork, ezTime deltaTime) {
+        if (i > 10)
         {
-          if (i > 10)
+          const double deltaMs = deltaTime.GetMilliseconds();
+          const double variance = pWork->m_IntervalMs * 0.3;
+          const double midValue = pWork->m_IntervalMs + 1.0 - variance;
+          if (ezMath::IsEqual<double>(deltaMs, midValue, variance) == false)
           {
-            const double deltaMs = deltaTime.GetMilliseconds();
-            const double variance = pWork->m_IntervalMs * 0.3;
-            const double midValue = pWork->m_IntervalMs + 1.0 - variance;
-            if (ezMath::IsEqual<double>(deltaMs, midValue, variance) == false)
-            {
-              ++wrongDelta;
-            }
+            ++wrongDelta;
           }
+        }
 
-          if (pWork->m_IntervalMs <= 10.0f)
-          {
-            EZ_TEST_INT(static_cast<ezUInt32>(pWork->m_Counter), i);
-          }
+        if (pWork->m_IntervalMs <= 10.0f)
+        {
+          EZ_TEST_INT(static_cast<ezUInt32>(pWork->m_Counter), i);
+        }
 
-          pWork->Run();
-          ++fNumWorks;
-        });
+        pWork->Run();
+        ++fNumWorks;
+      });
 
       EZ_TEST_FLOAT(fNumWorks, 2.5f, 0.5f);
-      
+
       for (auto& work : works)
       {
         EZ_TEST_BOOL(scheduler.GetInterval(&work) == ezTime::Milliseconds(work.m_IntervalMs));
@@ -100,27 +99,26 @@ EZ_CREATE_SIMPLE_TEST(Utils, IntervalScheduler)
     for (ezUInt32 i = 0; i < 60; ++i)
     {
       float fNumWorks = 0;
-      scheduler.Update(ezTime::Milliseconds(20), [&](TestWork* pWork, ezTime deltaTime)
+      scheduler.Update(ezTime::Milliseconds(20), [&](TestWork* pWork, ezTime deltaTime) {
+        if (i > 10)
         {
-          if (i > 10)
+          const double deltaMs = deltaTime.GetMilliseconds();
+          const double variance = ezMath::Max(pWork->m_IntervalMs, 20.0f) * 0.3;
+          const double midValue = ezMath::Max(pWork->m_IntervalMs, 20.0f) + 1.0 - variance;
+          if (ezMath::IsEqual<double>(deltaMs, midValue, variance) == false)
           {
-            const double deltaMs = deltaTime.GetMilliseconds();
-            const double variance = ezMath::Max(pWork->m_IntervalMs, 20.0f) * 0.3;
-            const double midValue = ezMath::Max(pWork->m_IntervalMs, 20.0f) + 1.0 - variance;
-            if (ezMath::IsEqual<double>(deltaMs, midValue, variance) == false)
-            {
-              ++wrongDelta;
-            }
+            ++wrongDelta;
           }
+        }
 
-          if (pWork->m_IntervalMs <= 20.0f)
-          {
-            EZ_TEST_INT(static_cast<ezUInt32>(pWork->m_Counter), i);
-          }
+        if (pWork->m_IntervalMs <= 20.0f)
+        {
+          EZ_TEST_INT(static_cast<ezUInt32>(pWork->m_Counter), i);
+        }
 
-          pWork->Run();
-          ++fNumWorks;
-        });
+        pWork->Run();
+        ++fNumWorks;
+      });
 
       EZ_TEST_FLOAT(fNumWorks, 3.5f, 0.5f);
 
@@ -157,11 +155,10 @@ EZ_CREATE_SIMPLE_TEST(Utils, IntervalScheduler)
     for (ezUInt32 i = 0; i < 60; ++i)
     {
       float fNumWorks = 0;
-      scheduler.Update(ezTime::Milliseconds(10), [&](TestWork* pWork, ezTime deltaTime)
-        {
-          pWork->Run();
-          ++fNumWorks;
-        });
+      scheduler.Update(ezTime::Milliseconds(10), [&](TestWork* pWork, ezTime deltaTime) {
+        pWork->Run();
+        ++fNumWorks;
+      });
 
       EZ_TEST_FLOAT(fNumWorks, 15.5f, 0.5f);
     }
@@ -176,11 +173,10 @@ EZ_CREATE_SIMPLE_TEST(Utils, IntervalScheduler)
     for (ezUInt32 i = 0; i < 60; ++i)
     {
       float fNumWorks = 0.0f;
-      scheduler.Update(ezTime::Milliseconds(10), [&](TestWork* pWork, ezTime deltaTime)
-        {
-          pWork->Run();
-          ++fNumWorks;
-        });
+      scheduler.Update(ezTime::Milliseconds(10), [&](TestWork* pWork, ezTime deltaTime) {
+        pWork->Run();
+        ++fNumWorks;
+      });
 
       // fNumWork will slowly ramp up until it reaches the new workload of 22 or 23 per update
       EZ_TEST_BOOL(fNumWorks + 1.0f >= fPrevNumWorks);
