@@ -11,6 +11,18 @@
 class ezWorld;
 class ezUuid;
 
+struct ezSurfaceResourceEvent
+{
+  enum class Type
+  {
+    Created,
+    Destroyed
+  };
+
+  Type m_Type;
+  ezSurfaceResource* m_pSurface;
+};
+
 class EZ_CORE_DLL ezSurfaceResource : public ezResource
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezSurfaceResource, ezResource);
@@ -23,19 +35,7 @@ public:
 
   const ezSurfaceResourceDescriptor& GetDescriptor() const { return m_Descriptor; }
 
-  struct Event
-  {
-    enum class Type
-    {
-      Created,
-      Destroyed
-    };
-
-    Type m_Type;
-    ezSurfaceResource* m_pSurface;
-  };
-
-  static ezEvent<const Event&, ezMutex> s_Events;
+  static ezEvent<const ezSurfaceResourceEvent&, ezMutex> s_Events;
 
   void* m_pPhysicsMaterial = nullptr;
 

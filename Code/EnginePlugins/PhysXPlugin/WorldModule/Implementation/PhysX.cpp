@@ -325,9 +325,9 @@ PxFilterData ezPhysX::CreateFilterData(ezUInt32 uiCollisionLayer, ezUInt32 uiSha
   return filter;
 }
 
-void ezPhysX::SurfaceResourceEventHandler(const ezSurfaceResource::Event& e)
+void ezPhysX::SurfaceResourceEventHandler(const ezSurfaceResourceEvent& e)
 {
-  if (e.m_Type == ezSurfaceResource::Event::Type::Created)
+  if (e.m_Type == ezSurfaceResourceEvent::Type::Created)
   {
     const auto& desc = e.m_pSurface->GetDescriptor();
 
@@ -338,7 +338,7 @@ void ezPhysX::SurfaceResourceEventHandler(const ezSurfaceResource::Event& e)
 
     e.m_pSurface->m_pPhysicsMaterial = pMaterial;
   }
-  else if (e.m_Type == ezSurfaceResource::Event::Type::Destroyed)
+  else if (e.m_Type == ezSurfaceResourceEvent::Type::Destroyed)
   {
     if (e.m_pSurface->m_pPhysicsMaterial != nullptr)
     {
