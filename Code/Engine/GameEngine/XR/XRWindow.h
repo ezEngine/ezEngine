@@ -40,7 +40,7 @@ public:
   ~ezWindowOutputTargetXR();
 
   virtual void Present(bool bEnableVSync) override;
-  void RenderCompanionView();
+  void RenderCompanionView(bool bThrottleCompanionView = true);
   virtual ezResult CaptureImage(ezImage& out_Image) override;
 
   /// \brief Returns the companion window output target if present.

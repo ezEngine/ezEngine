@@ -161,6 +161,14 @@ void ezDummyXR::GALDeviceEventHandler(const ezGALDeviceEvent& e)
   }
   else if (e.m_Type == ezGALDeviceEvent::Type::BeforeEndFrame)
   {
+    // Screenshots are taken during present callback so ideally we need to render the companion view before that to capture the current XR frame.
+    // For backwards compatibility draw the companion view here (after present) which means that if We are in frame 100, we just rendered frame 99 (due to multi-threaded rendering) but due to this bug here we captured frame 98 for image comparison.
+    // This will change once read back API is refactored to be async and will be executed at a different point in time.
+    if (m_pCompanion)
+    {
+      // We capture the companion view in unit tests so we don't want to skip any frames.
+      m_pCompanion->RenderCompanionView(false);
+    }
   }
 }
 
@@ -168,11 +176,6 @@ void ezDummyXR::GameApplicationEventHandler(const ezGameApplicationExecutionEven
 {
   if (e.m_Type == ezGameApplicationExecutionEvent::Type::BeforePresent)
   {
-    // Screenshots are taken during present callback so we need to render the companion view before that for backwards compatibility. This will change once read back API is refactored and becomes async at which point this code can be moved back to ezGALDeviceEvent::Type::BeforeEndFrame to match OpenXR implementation.
-    if (m_pCompanion)
-    {
-      m_pCompanion->RenderCompanionView();
-    }
   }
   else if (e.m_Type == ezGameApplicationExecutionEvent::Type::BeforeUpdatePlugins)
   {

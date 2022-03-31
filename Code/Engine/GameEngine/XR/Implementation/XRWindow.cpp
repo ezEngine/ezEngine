@@ -90,10 +90,10 @@ void ezWindowOutputTargetXR::Present(bool bEnableVSync)
   // Swapchain present is handled by the rendering of the view automatically and RenderCompanionView is called by the ezXRInterface now.
 }
 
-void ezWindowOutputTargetXR::RenderCompanionView()
+void ezWindowOutputTargetXR::RenderCompanionView(bool bThrottleCompanionView)
 {
   ezTime currentTime = ezTime::Now();
-  if (currentTime < (m_lastPresent + ezTime::Milliseconds(16)))
+  if (bThrottleCompanionView && currentTime < (m_lastPresent + ezTime::Milliseconds(16)))
     return;
 
   m_lastPresent = currentTime;
