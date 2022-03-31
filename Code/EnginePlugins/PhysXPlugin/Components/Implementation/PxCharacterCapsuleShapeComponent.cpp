@@ -241,7 +241,6 @@ bool ezPxCharacterCapsuleShapeComponent::TestShapeSweep(ezPhysicsCastResult& out
   t.m_vPosition.z += 0.01f;
 
   ezPhysicsQueryParameters params(m_uiCollisionLayer, ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic, GetShapeId());
-  params.m_bIncludeQueryShapes = false;
 
   return pModule->SweepTestCapsule(out_sweepResult, m_fCapsuleRadius, GetCurrentHeightValue(), t, vDirGlobal, fDistance, params);
 }
@@ -259,7 +258,6 @@ bool ezPxCharacterCapsuleShapeComponent::TestShapeOverlap(const ezVec3& vGlobalF
   fNewHeightValue += 0.005f;
 
   ezPhysicsQueryParameters params(m_uiCollisionLayer, ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic, GetShapeId());
-  params.m_bIncludeQueryShapes = false;
 
   return pModule->OverlapTestCapsule(m_fCapsuleRadius, fNewHeightValue, ezTransform(vCenterPos), params);
 }

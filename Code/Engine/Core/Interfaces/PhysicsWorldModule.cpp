@@ -13,7 +13,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgPhysicsAddImpulse, 1, ezRTTIDefaultAllocato
   {
     EZ_MEMBER_PROPERTY("GlobalPosition", m_vGlobalPosition),
     EZ_MEMBER_PROPERTY("Impulse", m_vImpulse),
-    EZ_MEMBER_PROPERTY("ShapeID", m_uiShapeId),
+    EZ_MEMBER_PROPERTY("ObjectFilterID", m_uiObjectFilterID),
   }
   EZ_END_PROPERTIES;
 }

@@ -332,7 +332,7 @@ void ezBreakableSheetComponent::OnCollision(ezMsgCollision& msg)
 
 void ezBreakableSheetComponent::AddImpulseAtPos(ezMsgPhysicsAddImpulse& msg)
 {
-  if (msg.m_uiShapeId == ezInvalidIndex)
+  if (msg.m_uiObjectFilterID == ezInvalidIndex)
     return;
 
   if (!m_bBroken)
@@ -348,7 +348,7 @@ void ezBreakableSheetComponent::AddImpulseAtPos(ezMsgPhysicsAddImpulse& msg)
   }
   else
   {
-    physx::PxRigidDynamic* pActor = m_ShapeIDsToActors.GetValueOrDefault(msg.m_uiShapeId, nullptr);
+    physx::PxRigidDynamic* pActor = m_ShapeIDsToActors.GetValueOrDefault(msg.m_uiObjectFilterID, nullptr);
 
     if (pActor != nullptr)
     {

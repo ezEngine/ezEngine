@@ -208,7 +208,7 @@ namespace
     if (ezComponent* pShapeComponent = ezPxUserData::GetComponent(pHitShape->userData))
     {
       out_Result.m_hShapeObject = pShapeComponent->GetOwner()->GetHandle();
-      out_Result.m_uiShapeId = pHitShape->getQueryFilterData().word2;
+      out_Result.m_uiObjectFilterID = pHitShape->getQueryFilterData().word2;
     }
 
     if (ezComponent* pActorComponent = ezPxUserData::GetComponent(pHitShape->getActor()->userData))
@@ -411,7 +411,7 @@ bool ezPhysXWorldModule::Raycast(ezPhysicsCastResult& out_Result, const ezVec3& 
     return false;
 
   PxQueryFilterData filterData;
-  filterData.data = ezPhysX::CreateFilterData(params.m_uiCollisionLayer, params.m_uiIgnoreShapeId);
+  filterData.data = ezPhysX::CreateFilterData(params.m_uiCollisionLayer, params.m_uiIgnoreObjectFilterID);
   filterData.flags = PxQueryFlag::ePREFILTER;
 
   if (params.m_bIgnoreInitialOverlap)
@@ -437,7 +437,7 @@ bool ezPhysXWorldModule::Raycast(ezPhysicsCastResult& out_Result, const ezVec3& 
 
   ezPxRaycastCallback closestHit;
   ezPxQueryFilter queryFilter;
-  queryFilter.m_bIncludeQueryShapes = params.m_bIncludeQueryShapes;
+  queryFilter.m_bIncludeQueryShapes = params.m_ShapeTypes.IsSet(ezPhysicsShapeType::Query);
 
   EZ_PX_READ_LOCK(*m_pPxScene);
 
@@ -457,7 +457,7 @@ bool ezPhysXWorldModule::RaycastAll(ezPhysicsCastResultArray& out_Results, const
     return false;
 
   PxQueryFilterData filterData;
-  filterData.data = ezPhysX::CreateFilterData(params.m_uiCollisionLayer, params.m_uiIgnoreShapeId);
+  filterData.data = ezPhysX::CreateFilterData(params.m_uiCollisionLayer, params.m_uiIgnoreObjectFilterID);
 
   // PxQueryFlag::eNO_BLOCK : All hits are reported as touching. Overrides eBLOCK returned from user filters with eTOUCH.
   filterData.flags = PxQueryFlag::ePREFILTER | PxQueryFlag::eNO_BLOCK;
@@ -476,7 +476,7 @@ bool ezPhysXWorldModule::RaycastAll(ezPhysicsCastResultArray& out_Results, const
   PxRaycastBuffer allHits(raycastHits.GetPtr(), raycastHits.GetCount());
 
   ezPxQueryFilter queryFilter;
-  queryFilter.m_bIncludeQueryShapes = params.m_bIncludeQueryShapes;
+  queryFilter.m_bIncludeQueryShapes = params.m_ShapeTypes.IsSet(ezPhysicsShapeType::Query);
 
   EZ_PX_READ_LOCK(*m_pPxScene);
 
@@ -533,7 +533,7 @@ bool ezPhysXWorldModule::SweepTestCapsule(ezPhysicsCastResult& out_Result, float
 bool ezPhysXWorldModule::SweepTest(ezPhysicsCastResult& out_Result, const physx::PxGeometry& geometry, const physx::PxTransform& transform, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection) const
 {
   PxQueryFilterData filterData;
-  filterData.data = ezPhysX::CreateFilterData(params.m_uiCollisionLayer, params.m_uiIgnoreShapeId);
+  filterData.data = ezPhysX::CreateFilterData(params.m_uiCollisionLayer, params.m_uiIgnoreObjectFilterID);
 
   filterData.flags = PxQueryFlag::ePREFILTER;
 
@@ -554,7 +554,7 @@ bool ezPhysXWorldModule::SweepTest(ezPhysicsCastResult& out_Result, const physx:
 
   ezPxSweepCallback closestHit;
   ezPxQueryFilter queryFilter;
-  queryFilter.m_bIncludeQueryShapes = params.m_bIncludeQueryShapes;
+  queryFilter.m_bIncludeQueryShapes = params.m_ShapeTypes.IsSet(ezPhysicsShapeType::Query);
 
   EZ_PX_READ_LOCK(*m_pPxScene);
 
@@ -598,7 +598,7 @@ bool ezPhysXWorldModule::OverlapTestCapsule(float fCapsuleRadius, float fCapsule
 bool ezPhysXWorldModule::OverlapTest(const physx::PxGeometry& geometry, const physx::PxTransform& transform, const ezPhysicsQueryParameters& params) const
 {
   PxQueryFilterData filterData;
-  filterData.data = ezPhysX::CreateFilterData(params.m_uiCollisionLayer, params.m_uiIgnoreShapeId);
+  filterData.data = ezPhysX::CreateFilterData(params.m_uiCollisionLayer, params.m_uiIgnoreObjectFilterID);
 
   filterData.flags = PxQueryFlag::ePREFILTER | PxQueryFlag::eANY_HIT;
 
@@ -614,7 +614,7 @@ bool ezPhysXWorldModule::OverlapTest(const physx::PxGeometry& geometry, const ph
 
   ezPxOverlapCallback closestHit;
   ezPxQueryFilter queryFilter;
-  queryFilter.m_bIncludeQueryShapes = params.m_bIncludeQueryShapes;
+  queryFilter.m_bIncludeQueryShapes = params.m_ShapeTypes.IsSet(ezPhysicsShapeType::Query);
 
   EZ_PX_READ_LOCK(*m_pPxScene);
 
@@ -628,7 +628,7 @@ void ezPhysXWorldModule::QueryShapesInSphere(ezPhysicsOverlapResultArray& out_Re
   out_Results.m_Results.Clear();
 
   PxQueryFilterData filterData;
-  filterData.data = ezPhysX::CreateFilterData(params.m_uiCollisionLayer, params.m_uiIgnoreShapeId);
+  filterData.data = ezPhysX::CreateFilterData(params.m_uiCollisionLayer, params.m_uiIgnoreObjectFilterID);
 
   // PxQueryFlag::eNO_BLOCK : All hits are reported as touching. Overrides eBLOCK returned from user filters with eTOUCH.
   filterData.flags = PxQueryFlag::ePREFILTER | PxQueryFlag::eNO_BLOCK;
@@ -644,7 +644,7 @@ void ezPhysXWorldModule::QueryShapesInSphere(ezPhysicsOverlapResultArray& out_Re
   }
 
   ezPxQueryFilter queryFilter;
-  queryFilter.m_bIncludeQueryShapes = params.m_bIncludeQueryShapes;
+  queryFilter.m_bIncludeQueryShapes = params.m_ShapeTypes.IsSet(ezPhysicsShapeType::Query);
 
   PxSphereGeometry sphere;
   sphere.radius = fSphereRadius;
@@ -668,7 +668,7 @@ void ezPhysXWorldModule::QueryShapesInSphere(ezPhysicsOverlapResultArray& out_Re
     if (ezComponent* pShapeComponent = ezPxUserData::GetComponent(overlapHit.shape->userData))
     {
       overlapResult.m_hShapeObject = pShapeComponent->GetOwner()->GetHandle();
-      overlapResult.m_uiShapeId = overlapHit.shape->getQueryFilterData().word2;
+      overlapResult.m_uiObjectFilterID = overlapHit.shape->getQueryFilterData().word2;
     }
 
     if (ezComponent* pActorComponent = ezPxUserData::GetComponent(overlapHit.actor->userData))

@@ -10,17 +10,17 @@ struct ezSkeletonResourceDescriptor;
 
 using ezSurfaceResourceHandle = ezTypedResourceHandle<class ezSurfaceResource>;
 
-/// \brief Used for raycast and seep tests
+/// \brief Used for raycast and sweep tests
 struct ezPhysicsCastResult
 {
   ezVec3 m_vPosition;
   ezVec3 m_vNormal;
   float m_fDistance;
 
-  ezGameObjectHandle m_hShapeObject;     ///< The game object to which the hit physics shape is attached.
-  ezGameObjectHandle m_hActorObject;     ///< The game object to which the parent actor of the hit physics shape is attached.
-  ezSurfaceResourceHandle m_hSurface;    ///< The type of surface that was hit (if available)
-  ezUInt32 m_uiShapeId = ezInvalidIndex; ///< The shape id of the hit physics shape
+  ezGameObjectHandle m_hShapeObject;            ///< The game object to which the hit physics shape is attached.
+  ezGameObjectHandle m_hActorObject;            ///< The game object to which the parent actor of the hit physics shape is attached.
+  ezSurfaceResourceHandle m_hSurface;           ///< The type of surface that was hit (if available)
+  ezUInt32 m_uiObjectFilterID = ezInvalidIndex; ///< An ID either per object (rigid-body / ragdoll) or per shape (implementation specific) that can be used to ignore this object during raycasts and shape queries.
 
   // Physics-engine specific information, may be available or not.
   void* m_pInternalPhysicsShape = nullptr;
@@ -37,9 +37,9 @@ struct ezPhysicsOverlapResult
 {
   EZ_DECLARE_POD_TYPE();
 
-  ezGameObjectHandle m_hShapeObject;     ///< The game object to which the hit physics shape is attached.
-  ezGameObjectHandle m_hActorObject;     ///< The game object to which the parent actor of the hit physics shape is attached.
-  ezUInt32 m_uiShapeId = ezInvalidIndex; ///< The shape id of the hit physics shape
+  ezGameObjectHandle m_hShapeObject;            ///< The game object to which the hit physics shape is attached.
+  ezGameObjectHandle m_hActorObject;            ///< The game object to which the parent actor of the hit physics shape is attached.
+  ezUInt32 m_uiObjectFilterID = ezInvalidIndex; ///< The shape id of the hit physics shape
 };
 
 struct ezPhysicsOverlapResultArray
@@ -47,24 +47,23 @@ struct ezPhysicsOverlapResultArray
   ezHybridArray<ezPhysicsOverlapResult, 16> m_Results;
 };
 
-EZ_DECLARE_FLAGS(ezUInt32, ezPhysicsShapeType, Static, Dynamic);
+EZ_DECLARE_FLAGS(ezUInt32, ezPhysicsShapeType, Static, Dynamic, Query);
 
 struct ezPhysicsQueryParameters
 {
   ezPhysicsQueryParameters() = default;
   explicit ezPhysicsQueryParameters(ezUInt32 uiCollisionLayer,
-    ezBitflags<ezPhysicsShapeType> shapeTypes = ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic, ezUInt32 uiIgnoreShapeId = ezInvalidIndex)
+    ezBitflags<ezPhysicsShapeType> shapeTypes = ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic | ezPhysicsShapeType::Query, ezUInt32 uiIgnoreObjectFilterID = ezInvalidIndex)
     : m_uiCollisionLayer(uiCollisionLayer)
     , m_ShapeTypes(shapeTypes)
-    , m_uiIgnoreShapeId(uiIgnoreShapeId)
+    , m_uiIgnoreObjectFilterID(uiIgnoreObjectFilterID)
   {
   }
 
   ezUInt32 m_uiCollisionLayer = 0;
-  ezBitflags<ezPhysicsShapeType> m_ShapeTypes = ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic;
-  ezUInt32 m_uiIgnoreShapeId = ezInvalidIndex;
+  ezBitflags<ezPhysicsShapeType> m_ShapeTypes = ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic | ezPhysicsShapeType::Query;
+  ezUInt32 m_uiIgnoreObjectFilterID = ezInvalidIndex;
   bool m_bIgnoreInitialOverlap = false;
-  bool m_bIncludeQueryShapes = true;
 };
 
 enum class ezPhysicsHitCollection
@@ -112,7 +111,7 @@ struct EZ_CORE_DLL ezMsgPhysicsAddImpulse : public ezMessage
 
   ezVec3 m_vGlobalPosition;
   ezVec3 m_vImpulse;
-  ezUInt32 m_uiShapeId = ezInvalidIndex;
+  ezUInt32 m_uiObjectFilterID = ezInvalidIndex;
 
   // Physics-engine specific information, may be available or not.
   void* m_pInternalPhysicsShape = nullptr;

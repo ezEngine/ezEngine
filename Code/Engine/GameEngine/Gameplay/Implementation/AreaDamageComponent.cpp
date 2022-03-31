@@ -90,7 +90,7 @@ void ezAreaDamageComponent::ApplyAreaDamage()
           ezMsgPhysicsAddImpulse msg;
           msg.m_vGlobalPosition = vTargetPos;
           msg.m_vImpulse = vDirToTarget * m_fImpulse * fScale;
-          msg.m_uiShapeId = hit.m_uiShapeId;
+          msg.m_uiObjectFilterID = hit.m_uiObjectFilterID;
 
           pObject->SendMessage(msg);
         }
