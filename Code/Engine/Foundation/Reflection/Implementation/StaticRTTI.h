@@ -457,10 +457,10 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
     &ezArrayPropertyAccessor<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), &OwnType::MemberName>::GetConstContainer,                        \
     &ezArrayPropertyAccessor<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), &OwnType::MemberName>::GetContainer))
 
-/// \brief Same as EZ_MEMBER_PROPERTY, but the property is a read-only array (ezHybridArray, ezDynamicArray or ezDeque).
-#define EZ_ARRAY_MEMBER_PROPERTY_READ_ONLY(PropertyName, MemberName)                                                           \
-  (new ezMemberArrayProperty<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), EZ_MEMBER_CONTAINER_SUB_TYPE(OwnType, MemberName)>( \
-    PropertyName, &ezArrayPropertyAccessor<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), &OwnType::MemberName>::GetConstContainer, nullptr))
+/// \brief Same as EZ_MEMBER_PROPERTY, but the property is a read-only array (ezArrayPtr, ezHybridArray, ezDynamicArray or ezDeque).
+#define EZ_ARRAY_MEMBER_PROPERTY_READ_ONLY(PropertyName, MemberName)                                                                   \
+  (new ezMemberArrayReadOnlyProperty<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), EZ_MEMBER_CONTAINER_SUB_TYPE(OwnType, MemberName)>( \
+    PropertyName, &ezArrayPropertyAccessor<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), &OwnType::MemberName>::GetConstContainer))
 
 /// \brief Same as EZ_MEMBER_PROPERTY, but the property is a set (ezSet, ezHashSet).
 #define EZ_SET_MEMBER_PROPERTY(PropertyName, MemberName)                                                                                  \

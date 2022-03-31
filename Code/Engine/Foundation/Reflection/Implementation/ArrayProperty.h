@@ -207,3 +207,57 @@ private:
   GetConstContainerFunc m_ConstGetter;
   GetContainerFunc m_Getter;
 };
+
+/// \brief Read only version of ezMemberArrayProperty that does not call any functions that modify the array. This is needed to reflect ezArrayPtr members.
+template <typename Class, typename Container, typename Type>
+class ezMemberArrayReadOnlyProperty : public ezTypedArrayProperty<typename ezTypeTraits<Type>::NonConstReferenceType>
+{
+public:
+  using RealType = typename ezTypeTraits<Type>::NonConstReferenceType;
+  using GetConstContainerFunc = const Container& (*)(const Class* pInstance);
+
+  ezMemberArrayReadOnlyProperty(const char* szPropertyName, GetConstContainerFunc constGetter)
+    : ezTypedArrayProperty<RealType>(szPropertyName)
+  {
+    EZ_ASSERT_DEBUG(constGetter != nullptr, "The const get count function of an array property cannot be nullptr.");
+
+    m_ConstGetter = constGetter;
+    ezAbstractArrayProperty::m_Flags.Add(ezPropertyFlags::ReadOnly);
+  }
+
+  virtual ezUInt32 GetCount(const void* pInstance) const override { return m_ConstGetter(static_cast<const Class*>(pInstance)).GetCount(); }
+
+  virtual void GetValue(const void* pInstance, ezUInt32 uiIndex, void* pObject) const override
+  {
+    EZ_ASSERT_DEBUG(uiIndex < GetCount(pInstance), "GetValue: uiIndex ('{0}') is out of range ('{1}')", uiIndex, GetCount(pInstance));
+    *static_cast<RealType*>(pObject) = m_ConstGetter(static_cast<const Class*>(pInstance))[uiIndex];
+  }
+
+  virtual void SetValue(void* pInstance, ezUInt32 uiIndex, const void* pObject) override
+  {
+    EZ_REPORT_FAILURE("The property '{0}' is read-only.", ezAbstractProperty::GetPropertyName());
+  }
+
+  virtual void Insert(void* pInstance, ezUInt32 uiIndex, const void* pObject) override
+  {
+    EZ_REPORT_FAILURE("The property '{0}' is read-only.", ezAbstractProperty::GetPropertyName());
+  }
+
+  virtual void Remove(void* pInstance, ezUInt32 uiIndex) override
+  {
+    EZ_REPORT_FAILURE("The property '{0}' is read-only.", ezAbstractProperty::GetPropertyName());
+  }
+
+  virtual void Clear(void* pInstance) override
+  {
+    EZ_REPORT_FAILURE("The property '{0}' is read-only.", ezAbstractProperty::GetPropertyName());
+  }
+
+  virtual void SetCount(void* pInstance, ezUInt32 uiCount) override
+  {
+    EZ_REPORT_FAILURE("The property '{0}' is read-only.", ezAbstractProperty::GetPropertyName());
+  }
+
+private:
+  GetConstContainerFunc m_ConstGetter;
+};

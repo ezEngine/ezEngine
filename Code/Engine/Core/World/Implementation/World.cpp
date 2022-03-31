@@ -995,12 +995,13 @@ void ezWorld::UpdateAsynchronous()
     if (updateFunction.m_bOnlyUpdateWhenSimulating && !m_Data.m_bSimulateWorld)
       continue;
 
-    ezComponentManagerBase* pManager = static_cast<ezComponentManagerBase*>(updateFunction.m_Function.GetClassInstance());
+    ezWorldModule* pModule = static_cast<ezWorldModule*>(updateFunction.m_Function.GetClassInstance());
+    ezComponentManagerBase* pManager = ezDynamicCast<ezComponentManagerBase*>(pModule);
 
-    const ezUInt32 uiTotalCount = pManager->GetComponentCount();
+    const ezUInt32 uiTotalCount = pManager != nullptr ? pManager->GetComponentCount() : 1;
+    const ezUInt32 uiGranularity = (updateFunction.m_uiGranularity != 0) ? updateFunction.m_uiGranularity : uiTotalCount;
+
     ezUInt32 uiStartIndex = 0;
-    ezUInt32 uiGranularity = (updateFunction.m_uiGranularity != 0) ? updateFunction.m_uiGranularity : uiTotalCount;
-
     while (uiStartIndex < uiTotalCount)
     {
       ezSharedPtr<ezInternal::WorldData::UpdateTask> pTask;

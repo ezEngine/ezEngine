@@ -21,6 +21,8 @@ void ezSpatialSystem::StartNewFrame()
 
 void ezSpatialSystem::FindObjectsInSphere(const ezBoundingSphere& sphere, const QueryParams& queryParams, ezDynamicArray<ezGameObject*>& out_Objects) const
 {
+  out_Objects.Clear();
+
   FindObjectsInSphere(
     sphere, queryParams,
     [&](ezGameObject* pObject) {
@@ -32,6 +34,8 @@ void ezSpatialSystem::FindObjectsInSphere(const ezBoundingSphere& sphere, const 
 
 void ezSpatialSystem::FindObjectsInBox(const ezBoundingBox& box, const QueryParams& queryParams, ezDynamicArray<ezGameObject*>& out_Objects) const
 {
+  out_Objects.Clear();
+
   FindObjectsInBox(
     box, queryParams,
     [&](ezGameObject* pObject) {
