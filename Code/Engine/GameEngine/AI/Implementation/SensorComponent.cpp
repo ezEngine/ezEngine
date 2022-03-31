@@ -7,12 +7,12 @@
 #include <RendererCore/Debug/DebugRenderer.h>
 
 // clang-format off
-EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgSensorVisibleObjectsChanged);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgSensorVisibleObjectsChanged, 1, ezRTTIDefaultAllocator<ezMsgSensorVisibleObjectsChanged>)
+EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgSensorDetectedObjectsChanged);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgSensorDetectedObjectsChanged, 1, ezRTTIDefaultAllocator<ezMsgSensorDetectedObjectsChanged>)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ARRAY_MEMBER_PROPERTY_READ_ONLY("VisibleObjects", m_VisibleObjects),
+    EZ_ARRAY_MEMBER_PROPERTY_READ_ONLY("DetectedObjects", m_DetectedObjects),
   }
   EZ_END_PROPERTIES;
 }
@@ -32,6 +32,12 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezSensorComponent, 1)
     EZ_ACCESSOR_PROPERTY("Color", GetColor, SetColor)->AddAttributes(new ezDefaultValueAttribute(ezColor::DarkOrange)),
   }
   EZ_END_PROPERTIES;
+
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("AI/Sensors"),
+  }
+  EZ_END_ATTRIBUTES;
 }
 EZ_END_ABSTRACT_COMPONENT_TYPE
 // clang-format on
@@ -188,7 +194,6 @@ EZ_BEGIN_COMPONENT_TYPE(ezSensorSphereComponent, 1, ezComponentMode::Static)
 
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("AI"),
     new ezSphereManipulatorAttribute("Radius"),
     new ezSphereVisualizerAttribute("Radius", ezColor::White, "Color"),
   }
@@ -263,7 +268,6 @@ EZ_BEGIN_COMPONENT_TYPE(ezSensorCylinderComponent, 1, ezComponentMode::Static)
 
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("AI"),
     new ezCylinderVisualizerAttribute(ezBasisAxis::PositiveZ, "Height", "Radius", ezColor::White, "Color"),
   }
   EZ_END_ATTRIBUTES;
@@ -353,12 +357,6 @@ EZ_BEGIN_COMPONENT_TYPE(ezSensorConeComponent, 1, ezComponentMode::Static)
     EZ_MEMBER_PROPERTY("Angle", m_Angle)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(90.0f)), new ezClampValueAttribute(0.0f, ezAngle::Degree(180.0f))),
   }
   EZ_END_PROPERTIES;
-
-  EZ_BEGIN_ATTRIBUTES
-  {
-    new ezCategoryAttribute("AI"),
-  }
-  EZ_END_ATTRIBUTES;
 }
 EZ_END_COMPONENT_TYPE
 // clang-format on
@@ -599,7 +597,7 @@ void ezSensorWorldModule::UpdateSensors(const ezWorldModule::UpdateContext& cont
     pSensorComponent->GetObjectsInSensorVolume(m_ObjectsInSensorVolume);
     const ezGameObject* pSensorOwner = pSensorComponent->GetOwner();
 
-    m_VisibleObjects.Clear();
+    m_DetectedObjects.Clear();
 
     if (pSensorComponent->m_bTestVisibility)
     {
@@ -623,24 +621,24 @@ void ezSensorWorldModule::UpdateSensors(const ezWorldModule::UpdateContext& cont
           continue;
         }
 
-        m_VisibleObjects.PushBack(pObject->GetHandle());
+        m_DetectedObjects.PushBack(pObject->GetHandle());
       }
     }
     else
     {
       for (auto pObject : m_ObjectsInSensorVolume)
       {
-        m_VisibleObjects.PushBack(pObject->GetHandle());
+        m_DetectedObjects.PushBack(pObject->GetHandle());
       }
     }
 
-    m_VisibleObjects.Sort();
-    if (m_VisibleObjects != pSensorComponent->m_LastVisibleObjects)
+    m_DetectedObjects.Sort();
+    if (m_DetectedObjects != pSensorComponent->m_LastDetectedObjects)
     {
-      m_VisibleObjects.Swap(pSensorComponent->m_LastVisibleObjects);
+      m_DetectedObjects.Swap(pSensorComponent->m_LastDetectedObjects);
 
-      ezMsgSensorVisibleObjectsChanged msg;
-      msg.m_VisibleObjects = pSensorComponent->m_LastVisibleObjects;
+      ezMsgSensorDetectedObjectsChanged msg;
+      msg.m_DetectedObjects = pSensorComponent->m_LastDetectedObjects;
 
       pSensorOwner->PostEventMessage(msg, pSensorComponent, ezTime::Zero(), ezObjectMsgQueueType::PostAsync);
     }
@@ -662,7 +660,7 @@ void ezSensorWorldModule::DebugDrawSensors(const ezWorldModule::UpdateContext& c
     pSensorComponent->DebugDrawSensorShape();
 
     const ezVec3 sensorPos = pSensorComponent->GetOwner()->GetGlobalPosition();
-    for (ezGameObjectHandle hObject : pSensorComponent->m_LastVisibleObjects)
+    for (ezGameObjectHandle hObject : pSensorComponent->m_LastDetectedObjects)
     {
       const ezGameObject* pObject = nullptr;
       if (pWorld->TryGetObject(hObject, pObject) == false)

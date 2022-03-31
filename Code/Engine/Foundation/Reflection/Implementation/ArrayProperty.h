@@ -208,6 +208,7 @@ private:
   GetContainerFunc m_Getter;
 };
 
+/// \brief Read only version of ezMemberArrayProperty that does not call any functions that modify the array. This is needed to reflect ezArrayPtr members.
 template <typename Class, typename Container, typename Type>
 class ezMemberArrayReadOnlyProperty : public ezTypedArrayProperty<typename ezTypeTraits<Type>::NonConstReferenceType>
 {

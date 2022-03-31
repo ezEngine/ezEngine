@@ -6,15 +6,22 @@
 
 class ezPhysicsWorldModuleInterface;
 
-struct EZ_GAMEENGINE_DLL ezMsgSensorVisibleObjectsChanged : public ezEventMessage
+struct EZ_GAMEENGINE_DLL ezMsgSensorDetectedObjectsChanged : public ezEventMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgSensorVisibleObjectsChanged, ezEventMessage);
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgSensorDetectedObjectsChanged, ezEventMessage);
 
-  ezArrayPtr<ezGameObjectHandle> m_VisibleObjects;
+  ezArrayPtr<ezGameObjectHandle> m_DetectedObjects;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
+/// \brief Base class for sensor components that can be used for AI perception like vision or hearing.
+///
+/// Derived component classes implemented different shapes like sphere cylinder or cone.
+/// All sensors do a query with the specified spatial category in the world's spatial system first, therefore it is necessary to have objects
+/// with matching spatial category for the sensors to detect them. This can be achieved with components like e.g. ezMarkerComponent.
+/// Visibility tests via raycasts are done afterwards by default but can be disabled.
+/// The components store an array of all their currently detected objects and send an ezMsgSensorDetectedObjectsChanged message if this array changes.
 class EZ_GAMEENGINE_DLL ezSensorComponent : public ezComponent
 {
   EZ_DECLARE_ABSTRACT_COMPONENT_TYPE(ezSensorComponent, ezComponent);
@@ -55,7 +62,8 @@ public:
   void SetColor(ezColorGammaUB color); // [ property ]
   ezColorGammaUB GetColor() const;     // [ property ]
 
-  ezArrayPtr<ezGameObjectHandle> GetLastVisibleObjects() const { return m_LastVisibleObjects; }
+  /// \brief Returns the list of objects that this sensor has detected during its last update
+  ezArrayPtr<ezGameObjectHandle> GetLastDetectedObjects() const { return m_LastDetectedObjects; }
 
 protected:
   void UpdateSpatialCategory();
@@ -70,7 +78,7 @@ protected:
   ezSpatialData::Category m_SpatialCategory = ezInvalidSpatialDataCategory;
 
   friend class ezSensorWorldModule;
-  mutable ezDynamicArray<ezGameObjectHandle> m_LastVisibleObjects;
+  mutable ezDynamicArray<ezGameObjectHandle> m_LastDetectedObjects;
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   mutable ezDynamicArray<ezVec3> m_LastOccludedObjectPositions;
@@ -199,7 +207,7 @@ private:
   ezPhysicsWorldModuleInterface* m_pPhysicsWorldModule = nullptr;
 
   ezDynamicArray<ezGameObject*> m_ObjectsInSensorVolume;
-  ezDynamicArray<ezGameObjectHandle> m_VisibleObjects;
+  ezDynamicArray<ezGameObjectHandle> m_DetectedObjects;
 
   ezDynamicArray<ezComponentHandle> m_DebugComponents;
 };
