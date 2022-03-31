@@ -47,6 +47,7 @@ public:
     Triangle(const ezVec3& p0, const ezVec3& p1, const ezVec3& p2);
 
     ezVec3 m_position[3];
+    ezColor m_color = ezColor::White;
   };
 
   struct TexturedTriangle
@@ -55,6 +56,7 @@ public:
 
     ezVec3 m_position[3];
     ezVec2 m_texcoord[3];
+    ezColor m_color = ezColor::White;
   };
 
   enum class HorizontalAlignment : ezUInt8
