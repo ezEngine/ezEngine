@@ -226,7 +226,7 @@ void ezWorldModuleFactory::FillBaseTypeIds()
         if (*pParentTypeId != uiTypeId)
         {
           ezLog::Error("Interface '{}' is already implemented by '{}'. Specify which implementation should be used via "
-                       "RegisterInterfaceImplementation() or WorldModules.dll config file.",
+                       "RegisterInterfaceImplementation() or WorldModules.ddl config file.",
             pParentRtti->GetTypeName(), m_CreatorFuncs[*pParentTypeId].m_pRtti->GetTypeName());
         }
       }

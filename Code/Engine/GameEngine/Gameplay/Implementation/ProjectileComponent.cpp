@@ -152,7 +152,7 @@ void ezProjectileComponent::Update()
               ezMsgPhysicsAddImpulse msg;
               msg.m_vGlobalPosition = castResult.m_vPosition;
               msg.m_vImpulse = vCurDirection * interaction.m_fImpulse;
-              msg.m_uiShapeId = castResult.m_uiShapeId;
+              msg.m_uiObjectFilterID = castResult.m_uiObjectFilterID;
               msg.m_pInternalPhysicsShape = castResult.m_pInternalPhysicsShape;
               msg.m_pInternalPhysicsActor = castResult.m_pInternalPhysicsActor;
 

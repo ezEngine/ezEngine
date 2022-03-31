@@ -27,11 +27,11 @@ void ezBoxVisualizerAdapter::Update()
   ezObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
   m_Gizmo.SetVisible(m_bVisualizerIsVisible);
 
-  m_Scale.Set(1.0f);
+  m_Scale.Set(pAttr->m_fSizeScale);
 
   if (!pAttr->GetSizeProperty().IsEmpty())
   {
-    m_Scale = pObjectAccessor->Get<ezVec3>(m_pObject, GetProperty(pAttr->GetSizeProperty()));
+    m_Scale *= pObjectAccessor->Get<ezVec3>(m_pObject, GetProperty(pAttr->GetSizeProperty()));
   }
 
   if (!pAttr->GetColorProperty().IsEmpty())

@@ -13,7 +13,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezSurfaceResource);
 // clang-format on
 
-ezEvent<const ezSurfaceResource::Event&, ezMutex> ezSurfaceResource::s_Events;
+ezEvent<const ezSurfaceResourceEvent&, ezMutex> ezSurfaceResource::s_Events;
 
 ezSurfaceResource::ezSurfaceResource()
   : ezResource(DoUpdate::OnAnyThread, 1)
@@ -32,9 +32,9 @@ ezResourceLoadDesc ezSurfaceResource::UnloadData(Unload WhatToUnload)
   res.m_uiQualityLevelsLoadable = 0;
   res.m_State = ezResourceState::Unloaded;
 
-  Event e;
+  ezSurfaceResourceEvent e;
   e.m_pSurface = this;
-  e.m_Type = Event::Type::Destroyed;
+  e.m_Type = ezSurfaceResourceEvent::Type::Destroyed;
   s_Events.Broadcast(e);
 
   return res;
@@ -106,9 +106,9 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezSurfaceResource, ezSurfaceResourceDescriptor)
 {
   m_Descriptor = descriptor;
 
-  Event e;
+  ezSurfaceResourceEvent e;
   e.m_pSurface = this;
-  e.m_Type = Event::Type::Created;
+  e.m_Type = ezSurfaceResourceEvent::Type::Created;
   s_Events.Broadcast(e);
 
   ezResourceLoadDesc res;

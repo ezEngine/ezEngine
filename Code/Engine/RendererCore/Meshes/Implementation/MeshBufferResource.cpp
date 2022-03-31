@@ -577,10 +577,16 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezMeshBufferResource, ezMeshBufferResourceDescr
 
     sName.Format("{0} Index Buffer", GetResourceDescription());
     pDevice->GetBuffer(m_hIndexBuffer)->SetDebugName(sName);
+
+    // we only know the memory usage here, so we write it back to the internal variable directly and then read it in UpdateMemoryUsage() again
+    ModifyMemoryUsage().m_uiMemoryGPU = descriptor.GetVertexBufferData().GetCount() + descriptor.GetIndexBufferData().GetCount();
+  }
+  else
+  {
+    // we only know the memory usage here, so we write it back to the internal variable directly and then read it in UpdateMemoryUsage() again
+    ModifyMemoryUsage().m_uiMemoryGPU = descriptor.GetVertexBufferData().GetCount();
   }
 
-  // we only know the memory usage here, so we write it back to the internal variable directly and then read it in UpdateMemoryUsage() again
-  ModifyMemoryUsage().m_uiMemoryGPU = descriptor.GetVertexBufferData().GetCount() + descriptor.GetIndexBufferData().GetCount();
 
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;

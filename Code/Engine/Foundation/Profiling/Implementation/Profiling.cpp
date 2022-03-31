@@ -857,9 +857,9 @@ void ezProfilingSystem::SetThreadName(const char* szThreadName) {}
 
 void ezProfilingSystem::RemoveThread() {}
 
-void ezProfilingSystem::InitializeGPUData() {}
+void ezProfilingSystem::InitializeGPUData(ezUInt32 gpuCount) {}
 
-void ezProfilingSystem::AddGPUScope(const char* szName, ezTime beginTime, ezTime endTime) {}
+void ezProfilingSystem::AddGPUScope(const char* szName, ezTime beginTime, ezTime endTime, ezUInt32 gpuIndex) {}
 
 void ezProfilingSystem::ProfilingData::Merge(ProfilingData& out_Merged, ezArrayPtr<const ProfilingData*> inputs) {}
 

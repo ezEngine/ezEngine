@@ -808,11 +808,13 @@ void ezDebugRenderer::DrawSolidTriangles(const ezDebugRendererContext& context, 
 
   for (auto& triangle : triangles)
   {
+    const ezColorLinearUB col = triangle.m_color * color;
+
     for (ezUInt32 i = 0; i < 3; ++i)
     {
       auto& vertex = data.m_triangleVertices.ExpandAndGetRef();
       vertex.m_position = triangle.m_position[i];
-      vertex.m_color = color;
+      vertex.m_color = col;
     }
   }
 }
@@ -831,12 +833,14 @@ void ezDebugRenderer::DrawTexturedTriangles(const ezDebugRendererContext& contex
 
   for (auto& triangle : triangles)
   {
+    const ezColorLinearUB col = triangle.m_color * color;
+
     for (ezUInt32 i = 0; i < 3; ++i)
     {
       auto& vertex = data.ExpandAndGetRef();
       vertex.m_position = triangle.m_position[i];
       vertex.m_texCoord = triangle.m_texcoord[i];
-      vertex.m_color = color;
+      vertex.m_color = col;
     }
   }
 }

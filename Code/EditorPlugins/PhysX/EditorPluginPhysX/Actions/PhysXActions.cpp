@@ -13,8 +13,7 @@ ezActionDescriptorHandle ezPhysXActions::s_hProjectSettings;
 void ezPhysXActions::RegisterActions()
 {
   s_hCategoryPhysX = EZ_REGISTER_CATEGORY("PhysX");
-  s_hProjectSettings =
-    EZ_REGISTER_ACTION_1("PhysX.Settings.Project", ezActionScope::Document, "PhysX", "", ezPhysXAction, ezPhysXAction::ActionType::ProjectSettings);
+  s_hProjectSettings = EZ_REGISTER_ACTION_1("PhysX.Settings.Project", ezActionScope::Document, "PhysX", "", ezPhysXAction, ezPhysXAction::ActionType::ProjectSettings);
 }
 
 void ezPhysXActions::UnregisterActions()
@@ -26,7 +25,7 @@ void ezPhysXActions::UnregisterActions()
 void ezPhysXActions::MapMenuActions()
 {
   /// \todo Is there a way to integrate into ALL document types in a specific menu (ie. project settings)
-  ezActionMap* pMap = ezActionMapManager::GetActionMap("EditorPluginScene_DocumentMenuBar");
+  ezActionMap* pMap = ezActionMapManager::GetActionMap("EditorPluginScene_Scene2MenuBar");
   EZ_ASSERT_DEV(pMap != nullptr, "Mapping the actions failed!");
 
   pMap->MapAction(s_hCategoryPhysX, "Menu.Editor/ProjectCategory/Menu.ProjectSettings", 10.0f);
