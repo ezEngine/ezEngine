@@ -419,19 +419,16 @@ void ezSensorConeComponent::GetObjectsInSensorVolume(ezDynamicArray<ezGameObject
 
 void ezSensorConeComponent::DebugDrawSensorShape() const
 {
-  enum
-  {
-    MIN_SEGMENTS = 3,
-    MAX_SEGMENTS = 16,
-    CIRCLE_SEGMENTS = MAX_SEGMENTS * 2,
-    NUM_LINES = MAX_SEGMENTS * 4 + CIRCLE_SEGMENTS * 2 + 4
-  };
+  constexpr ezUInt32 MIN_SEGMENTS = 3;
+  constexpr ezUInt32 MAX_SEGMENTS = 16;
+  constexpr ezUInt32 CIRCLE_SEGMENTS = MAX_SEGMENTS * 2;
+  constexpr ezUInt32 NUM_LINES = MAX_SEGMENTS * 4 + CIRCLE_SEGMENTS * 2 + 4;
 
   ezDebugRenderer::Line lines[NUM_LINES];
   ezUInt32 curLine = 0;
 
-  const ezUInt32 numSegments = ezMath::Clamp<ezUInt32>((m_Angle / ezAngle::Degree(180)) * MAX_SEGMENTS, MIN_SEGMENTS, MAX_SEGMENTS);
-  const ezAngle stepAngle = m_Angle / numSegments;
+  const ezUInt32 numSegments = ezMath::Clamp(static_cast<ezUInt32>(m_Angle / ezAngle::Degree(180)) * MAX_SEGMENTS, MIN_SEGMENTS, MAX_SEGMENTS);
+  const ezAngle stepAngle = m_Angle / static_cast<float>(numSegments);
   const ezAngle circleStepAngle = ezAngle::Degree(360.0f / CIRCLE_SEGMENTS);
 
   for (ezUInt32 i = 0; i < 2; ++i)
