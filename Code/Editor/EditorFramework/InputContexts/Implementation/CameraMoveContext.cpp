@@ -221,10 +221,10 @@ ezEditorInput ezCameraMoveContext::DoKeyReleaseEvent(QKeyEvent* e)
       m_bMoveRight = false;
       return ezEditorInput::WasExclusivelyHandled;
     case Qt::Key_Q:
-      m_bMoveUp = false;
+      m_bMoveDown = false;
       return ezEditorInput::WasExclusivelyHandled;
     case Qt::Key_E:
-      m_bMoveDown = false;
+      m_bMoveUp = false;
       return ezEditorInput::WasExclusivelyHandled;
     case Qt::Key_Left:
       m_bMoveLeft = false;
@@ -311,10 +311,10 @@ ezEditorInput ezCameraMoveContext::DoKeyPressEvent(QKeyEvent* e)
       m_bMoveRight = true;
       return ezEditorInput::WasExclusivelyHandled;
     case Qt::Key_Q:
-      m_bMoveUp = true;
+      m_bMoveDown = true;
       return ezEditorInput::WasExclusivelyHandled;
     case Qt::Key_E:
-      m_bMoveDown = true;
+      m_bMoveUp = true;
       return ezEditorInput::WasExclusivelyHandled;
   }
 
