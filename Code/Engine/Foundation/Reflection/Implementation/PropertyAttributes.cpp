@@ -596,12 +596,13 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezBoxVisualizerAttribute, 1, ezRTTIDefaultAlloca
   EZ_END_PROPERTIES;
   EZ_BEGIN_FUNCTIONS
   {
-    EZ_CONSTRUCTOR_PROPERTY(const char*, const ezColor&, const char*, ezBitflags<ezVisualizerAnchor>, ezVec3, const char*, const char*),
-    EZ_CONSTRUCTOR_PROPERTY(const char*, const ezColor&, const char*, ezBitflags<ezVisualizerAnchor>, ezVec3, const char*),
-    EZ_CONSTRUCTOR_PROPERTY(const char*, const ezColor&, const char*, ezBitflags<ezVisualizerAnchor>, ezVec3),
-    EZ_CONSTRUCTOR_PROPERTY(const char*, const ezColor&, const char*, ezBitflags<ezVisualizerAnchor>),
-    EZ_CONSTRUCTOR_PROPERTY(const char*, const ezColor&, const char*),
-    EZ_CONSTRUCTOR_PROPERTY(const char*, const ezColor&),
+    EZ_CONSTRUCTOR_PROPERTY(const char*, float, const ezColor&, const char*, ezBitflags<ezVisualizerAnchor>, ezVec3, const char*, const char*),
+    EZ_CONSTRUCTOR_PROPERTY(const char*, float, const ezColor&, const char*, ezBitflags<ezVisualizerAnchor>, ezVec3, const char*),
+    EZ_CONSTRUCTOR_PROPERTY(const char*, float, const ezColor&, const char*, ezBitflags<ezVisualizerAnchor>, ezVec3),
+    EZ_CONSTRUCTOR_PROPERTY(const char*, float, const ezColor&, const char*, ezBitflags<ezVisualizerAnchor>),
+    EZ_CONSTRUCTOR_PROPERTY(const char*, float, const ezColor&, const char*),
+    EZ_CONSTRUCTOR_PROPERTY(const char*, float, const ezColor&),
+    EZ_CONSTRUCTOR_PROPERTY(const char*, float),
     EZ_CONSTRUCTOR_PROPERTY(const char*),
   }
   EZ_END_FUNCTIONS;
@@ -614,12 +615,13 @@ ezBoxVisualizerAttribute::ezBoxVisualizerAttribute()
 {
 }
 
-ezBoxVisualizerAttribute::ezBoxVisualizerAttribute(const char* szSizeProperty, const ezColor& fixedColor /*= ezColor::MediumVioletRed*/, const char* szColorProperty /*= nullptr*/, ezBitflags<ezVisualizerAnchor> anchor /*= ezVisualizerAnchor::Center*/, ezVec3 offsetOrScale /*= ezVec3::ZeroVector*/, const char* szOffsetProperty /*= nullptr*/, const char* szRotationProperty /*= nullptr*/)
+ezBoxVisualizerAttribute::ezBoxVisualizerAttribute(const char* szSizeProperty, float fSizeScale, const ezColor& fixedColor /*= ezColor::MediumVioletRed*/, const char* szColorProperty /*= nullptr*/, ezBitflags<ezVisualizerAnchor> anchor /*= ezVisualizerAnchor::Center*/, ezVec3 offsetOrScale /*= ezVec3::ZeroVector*/, const char* szOffsetProperty /*= nullptr*/, const char* szRotationProperty /*= nullptr*/)
   : ezVisualizerAttribute(szSizeProperty, szColorProperty, szOffsetProperty, szRotationProperty)
 {
   m_Color = fixedColor;
   m_vOffsetOrScale = offsetOrScale;
   m_Anchor = anchor;
+  m_fSizeScale = fSizeScale;
 }
 
 //////////////////////////////////////////////////////////////////////////
