@@ -7,16 +7,17 @@
 
 struct IDXGISwapChain;
 
-class ezGALSwapChainDX11 : public ezGALSwapChain
+class ezGALSwapChainDX11 : public ezGALWindowSwapChain
 {
 public:
-  EZ_ALWAYS_INLINE IDXGISwapChain* GetDXSwapChain() const;
+  virtual void AcquireNextRenderTarget(ezGALDevice* pDevice) override;
+  virtual void PresentRenderTarget(ezGALDevice* pDevice) override;
 
 protected:
   friend class ezGALDeviceDX11;
   friend class ezMemoryUtils;
 
-  ezGALSwapChainDX11(const ezGALSwapChainCreationDescription& Description);
+  ezGALSwapChainDX11(const ezGALWindowSwapChainCreationDescription& Description);
 
   virtual ~ezGALSwapChainDX11();
 
@@ -26,6 +27,8 @@ protected:
 
 
   IDXGISwapChain* m_pDXSwapChain;
+
+  ezGALTextureHandle m_hBackBufferTexture;
 
   // We can't do screenshots if we're using any of the FLIP swap effects.
   // If the user requests screenshots anyways, we need to put another buffer in between.

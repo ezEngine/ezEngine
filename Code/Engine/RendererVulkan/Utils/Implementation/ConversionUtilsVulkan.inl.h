@@ -26,14 +26,21 @@ EZ_ALWAYS_INLINE vk::SampleCountFlagBits ezConversionUtilsVulkan::GetSamples(ezE
   }
 }
 
-EZ_ALWAYS_INLINE vk::PresentModeKHR ezConversionUtilsVulkan::GetPresentMode(ezEnum<ezGALPresentMode> presentMode)
+EZ_ALWAYS_INLINE vk::PresentModeKHR ezConversionUtilsVulkan::GetPresentMode(ezEnum<ezGALPresentMode> presentMode, const ezDynamicArray<vk::PresentModeKHR>& supportedModes)
 {
   switch (presentMode)
   {
     case ezGALPresentMode::Immediate:
-      return vk::PresentModeKHR::eImmediate;
+    {
+      if (supportedModes.Contains(vk::PresentModeKHR::eImmediate))
+        return vk::PresentModeKHR::eImmediate;
+      else if (supportedModes.Contains(vk::PresentModeKHR::eMailbox))
+        return vk::PresentModeKHR::eMailbox;
+      else
+        return vk::PresentModeKHR::eFifo;
+    }
     case ezGALPresentMode::VSync:
-      return vk::PresentModeKHR::eFifo;
+      return vk::PresentModeKHR::eFifo; // FIFO must be supported according to the standard.
     default:
       EZ_ASSERT_NOT_IMPLEMENTED;
       return vk::PresentModeKHR::eFifo;

@@ -183,27 +183,6 @@ bool ezGALCommandEncoder::UnsetUnorderedAccessViews(const ezGALResourceBase* pRe
   return bResult;
 }
 
-void ezGALCommandEncoder::InsertFence(ezGALFenceHandle hFence)
-{
-  AssertRenderingThread();
-
-  m_CommonImpl.InsertFencePlatform(m_Device.GetFence(hFence));
-}
-
-bool ezGALCommandEncoder::IsFenceReached(ezGALFenceHandle hFence)
-{
-  AssertRenderingThread();
-
-  return m_CommonImpl.IsFenceReachedPlatform(m_Device.GetFence(hFence));
-}
-
-void ezGALCommandEncoder::WaitForFence(ezGALFenceHandle hFence)
-{
-  AssertRenderingThread();
-
-  m_CommonImpl.WaitForFencePlatform(m_Device.GetFence(hFence));
-}
-
 void ezGALCommandEncoder::BeginQuery(ezGALQueryHandle hQuery)
 {
   AssertRenderingThread();

@@ -4,6 +4,7 @@
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <RendererFoundation/Device/DeviceFactory.h>
+#include <RendererFoundation/Device/SwapChain.h>
 #include <RendererVulkan/Cache/ResourceCacheVulkan.h>
 #include <RendererVulkan/CommandEncoder/CommandEncoderImplVulkan.h>
 #include <RendererVulkan/Device/DeviceVulkan.h>
@@ -13,7 +14,6 @@
 #include <RendererVulkan/Pools/FencePoolVulkan.h>
 #include <RendererVulkan/Pools/SemaphorePoolVulkan.h>
 #include <RendererVulkan/Resources/BufferVulkan.h>
-#include <RendererVulkan/Resources/FenceVulkan.h>
 #include <RendererVulkan/Resources/QueryVulkan.h>
 #include <RendererVulkan/Resources/RenderTargetViewVulkan.h>
 #include <RendererVulkan/Resources/ResourceViewVulkan.h>
@@ -342,7 +342,6 @@ ezResult ezGALDeviceVulkan::InitPlatform()
   for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_PerFrameData); ++i)
   {
     auto& perFrameData = m_PerFrameData[i];
-    perFrameData.m_pFence = CreateFencePlatform();
 
     //if (FAILED(m_pDevice->CreateQuery(&disjointQueryDesc, &perFrameData.m_pDisjointTimerQuery)))
     //{
@@ -369,6 +368,9 @@ ezResult ezGALDeviceVulkan::InitPlatform()
   ezSemaphorePoolVulkan::Initialize(m_device);
   ezFencePoolVulkan::Initialize(m_device);
   ezResourceCacheVulkan::Initialize(this, m_device);
+
+  ezGALWindowSwapChain::SetFactoryMethod([this](const ezGALWindowSwapChainCreationDescription& desc) -> ezGALSwapChainHandle { return CreateSwapChain([this, &desc](ezAllocatorBase* pAllocator) -> ezGALSwapChain* { return EZ_NEW(pAllocator, ezGALSwapChainVulkan, desc); }); });
+
   return EZ_SUCCESS;
 }
 
@@ -393,6 +395,8 @@ void ezGALDeviceVulkan::ReportLiveGpuObjects()
 
 ezResult ezGALDeviceVulkan::ShutdownPlatform()
 {
+  ezGALWindowSwapChain::SetFactoryMethod({});
+
   auto& pCommandEncoder = m_pDefaultPass->m_pCommandEncoderImpl;
 
   for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_PerFrameData); ++i)
@@ -457,9 +461,6 @@ ezResult ezGALDeviceVulkan::ShutdownPlatform()
   {
     auto& perFrameData = m_PerFrameData[i];
 
-    DestroyFencePlatform(perFrameData.m_pFence);
-    perFrameData.m_pFence = nullptr;
-
     //EZ_GAL_VULKAN_RELEASE(perFrameData.m_pDisjointTimerQuery);
   }
 
@@ -491,13 +492,9 @@ void ezGALDeviceVulkan::BeginPipelinePlatform(const char* szName, ezGALSwapChain
     m_PerFrameData[m_uiCurrentPerFrameData].m_currentCommandBuffer.begin(&beginInfo);
   }
 
-  EZ_ASSERT_DEV(!m_currentPipelineImageAvailableSemaphore && !m_currentPipelineRenderFinishedSemaphore, "Pipeline semaphores leaked");
-
-  if (const ezGALSwapChainVulkan* pSwapChainVulkan = static_cast<const ezGALSwapChainVulkan*>(pSwapChain))
+  if (pSwapChain)
   {
-    m_currentPipelineImageAvailableSemaphore = ezSemaphorePoolVulkan::RequestSemaphore();
-
-    pSwapChainVulkan->AcquireNextImage(m_currentPipelineImageAvailableSemaphore);
+    pSwapChain->AcquireNextRenderTarget(this);
   }
 }
 
@@ -505,14 +502,19 @@ void ezGALDeviceVulkan::EndPipelinePlatform(ezGALSwapChain* pSwapChain)
 {
   EZ_PROFILE_SCOPE("EndPipelinePlatform");
 
-  EZ_ASSERT_DEV(pSwapChain == nullptr || m_currentPipelineImageAvailableSemaphore, "BeginPipelinePlatform and EndPipelinePlatform must be called with the same value for pSwapChain.");
-
-  auto& pCommandEncoder = m_pDefaultPass->m_pCommandEncoderImpl;
-
-  if (auto* pSwapChainVulkan = static_cast<const ezGALSwapChainVulkan*>(pSwapChain))
+  if (pSwapChain)
   {
-    pSwapChainVulkan->PresentMemoryBarrier(m_PerFrameData[m_uiCurrentPerFrameData].m_currentCommandBuffer);
+    pSwapChain->PresentRenderTarget(this);
   }
+
+  // Restart new command buffer
+  m_PerFrameData[m_uiCurrentPerFrameData].m_currentCommandBuffer = ezCommandBufferPoolVulkan::RequestCommandBuffer();
+  vk::CommandBufferBeginInfo beginInfo;
+  m_PerFrameData[m_uiCurrentPerFrameData].m_currentCommandBuffer.begin(&beginInfo);
+}
+
+vk::Fence ezGALDeviceVulkan::Submit(vk::Semaphore waitSemaphore, vk::PipelineStageFlags waitStage, vk::Semaphore signalSemaphore)
+{
   m_PerFrameData[m_uiCurrentPerFrameData].m_currentCommandBuffer.end();
 
   vk::SubmitInfo submitInfo = {};
@@ -532,17 +534,18 @@ void ezGALDeviceVulkan::EndPipelinePlatform(ezGALSwapChain* pSwapChain)
     ReclaimLater(m_lastCommandBufferFinished);
   }
 
-  if (pSwapChain)
+  if (waitSemaphore)
   {
-    waitSemaphores.PushBack(m_currentPipelineImageAvailableSemaphore);
-    waitStages.PushBack(vk::PipelineStageFlagBits::eColorAttachmentOutput);
-    ReclaimLater(m_currentPipelineImageAvailableSemaphore);
-
-    m_currentPipelineRenderFinishedSemaphore = ezSemaphorePoolVulkan::RequestSemaphore();
-    signalSemaphores.PushBack(m_currentPipelineRenderFinishedSemaphore);
-    m_lastCommandBufferFinished = ezSemaphorePoolVulkan::RequestSemaphore();
-    signalSemaphores.PushBack(m_lastCommandBufferFinished);
+    waitSemaphores.PushBack(waitSemaphore);
+    waitStages.PushBack(waitStage);
   }
+
+  if (signalSemaphore)
+  {
+    signalSemaphores.PushBack(signalSemaphore);
+  }
+  m_lastCommandBufferFinished = ezSemaphorePoolVulkan::RequestSemaphore();
+  signalSemaphores.PushBack(m_lastCommandBufferFinished);
 
   submitInfo.waitSemaphoreCount = waitSemaphores.GetCount();
   submitInfo.pWaitSemaphores = waitSemaphores.GetData();
@@ -555,18 +558,10 @@ void ezGALDeviceVulkan::EndPipelinePlatform(ezGALSwapChain* pSwapChain)
     m_queue.submit(1, &submitInfo, renderFence);
   }
 
-  if (auto* pSwapChainVulkan = static_cast<const ezGALSwapChainVulkan*>(pSwapChain))
-  {
-    pSwapChainVulkan->PresentNextImage(m_currentPipelineRenderFinishedSemaphore, renderFence);
-    ReclaimLater(m_currentPipelineRenderFinishedSemaphore);
-  }
   ReclaimLater(renderFence);
   ReclaimLater(m_PerFrameData[m_uiCurrentPerFrameData].m_currentCommandBuffer);
 
-  // Restart new command buffer
-  m_PerFrameData[m_uiCurrentPerFrameData].m_currentCommandBuffer = ezCommandBufferPoolVulkan::RequestCommandBuffer();
-  vk::CommandBufferBeginInfo beginInfo;
-  m_PerFrameData[m_uiCurrentPerFrameData].m_currentCommandBuffer.begin(&beginInfo);
+  return renderFence;
 }
 
 ezGALPass* ezGALDeviceVulkan::BeginPassPlatform(const char* szName)
@@ -799,46 +794,6 @@ void ezGALDeviceVulkan::DestroyUnorderedAccessViewPlatform(ezGALUnorderedAccessV
 
 
 // Other rendering creation functions
-ezGALSwapChain* ezGALDeviceVulkan::CreateSwapChainPlatform(const ezGALSwapChainCreationDescription& Description)
-{
-  ezGALSwapChainVulkan* pSwapChain = EZ_NEW(&m_Allocator, ezGALSwapChainVulkan, Description);
-
-  if (!pSwapChain->InitPlatform(this).Succeeded())
-  {
-    EZ_DELETE(&m_Allocator, pSwapChain);
-    return nullptr;
-  }
-
-  return pSwapChain;
-}
-
-void ezGALDeviceVulkan::DestroySwapChainPlatform(ezGALSwapChain* pSwapChain)
-{
-  ezGALSwapChainVulkan* pSwapChainVulkan = static_cast<ezGALSwapChainVulkan*>(pSwapChain);
-  pSwapChainVulkan->DeInitPlatform(this).IgnoreResult();
-  EZ_DELETE(&m_Allocator, pSwapChainVulkan);
-}
-
-ezGALFence* ezGALDeviceVulkan::CreateFencePlatform()
-{
-  ezGALFenceVulkan* pFence = EZ_NEW(&m_Allocator, ezGALFenceVulkan);
-
-  if (!pFence->InitPlatform(this).Succeeded())
-  {
-    EZ_DELETE(&m_Allocator, pFence);
-    return nullptr;
-  }
-
-  return pFence;
-}
-
-void ezGALDeviceVulkan::DestroyFencePlatform(ezGALFence* pFence)
-{
-  ezGALFenceVulkan* pFenceVulkan = static_cast<ezGALFenceVulkan*>(pFence);
-  pFenceVulkan->DeInitPlatform(this).IgnoreResult();
-  EZ_DELETE(&m_Allocator, pFenceVulkan);
-}
-
 ezGALQuery* ezGALDeviceVulkan::CreateQueryPlatform(const ezGALQueryCreationDescription& Description)
 {
   ezGALQueryVulkan* pQuery = EZ_NEW(&m_Allocator, ezGALQueryVulkan, Description);
@@ -931,7 +886,7 @@ ezResult ezGALDeviceVulkan::GetTimestampResultPlatform(ezGALTimestampHandle hTim
 
 // Misc functions
 
-void ezGALDeviceVulkan::BeginFramePlatform()
+void ezGALDeviceVulkan::BeginFramePlatform(const ezUInt64 uiRenderFrame)
 {
   auto& pCommandEncoder = m_pDefaultPass->m_pCommandEncoderImpl;
 

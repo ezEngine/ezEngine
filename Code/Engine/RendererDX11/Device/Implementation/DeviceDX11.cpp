@@ -8,7 +8,6 @@
 #include <RendererDX11/Device/PassDX11.h>
 #include <RendererDX11/Device/SwapChainDX11.h>
 #include <RendererDX11/Resources/BufferDX11.h>
-#include <RendererDX11/Resources/FenceDX11.h>
 #include <RendererDX11/Resources/QueryDX11.h>
 #include <RendererDX11/Resources/RenderTargetViewDX11.h>
 #include <RendererDX11/Resources/ResourceViewDX11.h>
@@ -19,6 +18,7 @@
 #include <RendererDX11/State/StateDX11.h>
 #include <RendererFoundation/CommandEncoder/RenderCommandEncoder.h>
 #include <RendererFoundation/Device/DeviceFactory.h>
+#include <RendererFoundation/Profiling/Profiling.h>
 
 #include <d3d11.h>
 #include <d3d11_3.h>
@@ -210,13 +210,17 @@ retry:
   for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_PerFrameData); ++i)
   {
     auto& perFrameData = m_PerFrameData[i];
-    perFrameData.m_pFence = CreateFencePlatform();
 
-    if (FAILED(m_pDevice->CreateQuery(&disjointQueryDesc, &perFrameData.m_pDisjointTimerQuery)))
-    {
-      ezLog::Error("Creation of native DirectX query for disjoint query has failed!");
-      return EZ_FAILURE;
-    }
+    D3D11_QUERY_DESC QueryDesc;
+    QueryDesc.Query = D3D11_QUERY_EVENT;
+    QueryDesc.MiscFlags = 0;
+    if (SUCCEEDED(GetDXDevice()->CreateQuery(&QueryDesc, &perFrameData.m_pFence)))
+
+      if (FAILED(m_pDevice->CreateQuery(&disjointQueryDesc, &perFrameData.m_pDisjointTimerQuery)))
+      {
+        ezLog::Error("Creation of native DirectX query for disjoint query has failed!");
+        return EZ_FAILURE;
+      }
   }
 
   m_Timestamps.SetCountUninitialized(1024);
@@ -230,6 +234,8 @@ retry:
   }
 
   m_SyncTimeDiff.SetZero();
+
+  ezGALWindowSwapChain::SetFactoryMethod([this](const ezGALWindowSwapChainCreationDescription& desc) -> ezGALSwapChainHandle { return CreateSwapChain([this, &desc](ezAllocatorBase* pAllocator) -> ezGALSwapChain* { return EZ_NEW(pAllocator, ezGALSwapChainDX11, desc); }); });
 
   return EZ_SUCCESS;
 }
@@ -278,6 +284,7 @@ void ezGALDeviceDX11::ReportLiveGpuObjects()
 
 ezResult ezGALDeviceDX11::ShutdownPlatform()
 {
+  ezGALWindowSwapChain::SetFactoryMethod({});
   for (ezUInt32 type = 0; type < TempResourceType::ENUM_COUNT; ++type)
   {
     for (auto it = m_FreeTempResources[type].GetIterator(); it.IsValid(); ++it)
@@ -307,7 +314,7 @@ ezResult ezGALDeviceDX11::ShutdownPlatform()
   {
     auto& perFrameData = m_PerFrameData[i];
 
-    DestroyFencePlatform(perFrameData.m_pFence);
+    EZ_GAL_DX11_RELEASE(perFrameData.m_pFence);
     perFrameData.m_pFence = nullptr;
 
     EZ_GAL_DX11_RELEASE(perFrameData.m_pDisjointTimerQuery);
@@ -345,20 +352,27 @@ ezResult ezGALDeviceDX11::ShutdownPlatform()
 
 void ezGALDeviceDX11::BeginPipelinePlatform(const char* szName, ezGALSwapChain* pSwapChain)
 {
-  m_pDefaultPass->m_pRenderCommandEncoder->PushMarker(szName);
+  m_pPipelineTimingScope = ezProfilingScopeAndMarker::Start(m_pDefaultPass->m_pRenderCommandEncoder.Borrow(), szName);
+
+  if (pSwapChain)
+  {
+    pSwapChain->AcquireNextRenderTarget(this);
+  }
 }
 
 void ezGALDeviceDX11::EndPipelinePlatform(ezGALSwapChain* pSwapChain)
 {
-  if (const ezGALSwapChainDX11* pSwapChainDX11 = static_cast<const ezGALSwapChainDX11*>(pSwapChain))
+  if (pSwapChain)
   {
-    PresentPlatform(pSwapChainDX11, pSwapChain->GetDescription().m_PresentMode == ezGALPresentMode::VSync);
+    pSwapChain->PresentRenderTarget(this);
   }
-  m_pDefaultPass->m_pRenderCommandEncoder->PopMarker();
+
+  ezProfilingScopeAndMarker::Stop(m_pDefaultPass->m_pRenderCommandEncoder.Borrow(), m_pPipelineTimingScope);
 }
 
 ezGALPass* ezGALDeviceDX11::BeginPassPlatform(const char* szName)
 {
+  m_pPassTimingScope = ezProfilingScopeAndMarker::Start(m_pDefaultPass->m_pRenderCommandEncoder.Borrow(), szName);
   m_pDefaultPass->BeginPass(szName);
 
   return m_pDefaultPass.Borrow();
@@ -368,6 +382,7 @@ void ezGALDeviceDX11::EndPassPlatform(ezGALPass* pPass)
 {
   EZ_ASSERT_DEV(m_pDefaultPass.Borrow() == pPass, "Invalid pass");
 
+  ezProfilingScopeAndMarker::Stop(m_pDefaultPass->m_pRenderCommandEncoder.Borrow(), m_pPassTimingScope);
   m_pDefaultPass->EndPass();
 }
 
@@ -587,45 +602,6 @@ void ezGALDeviceDX11::DestroyUnorderedAccessViewPlatform(ezGALUnorderedAccessVie
 
 
 // Other rendering creation functions
-ezGALSwapChain* ezGALDeviceDX11::CreateSwapChainPlatform(const ezGALSwapChainCreationDescription& Description)
-{
-  ezGALSwapChainDX11* pSwapChain = EZ_NEW(&m_Allocator, ezGALSwapChainDX11, Description);
-
-  if (!pSwapChain->InitPlatform(this).Succeeded())
-  {
-    EZ_DELETE(&m_Allocator, pSwapChain);
-    return nullptr;
-  }
-
-  return pSwapChain;
-}
-
-void ezGALDeviceDX11::DestroySwapChainPlatform(ezGALSwapChain* pSwapChain)
-{
-  ezGALSwapChainDX11* pSwapChainDX11 = static_cast<ezGALSwapChainDX11*>(pSwapChain);
-  pSwapChainDX11->DeInitPlatform(this).IgnoreResult();
-  EZ_DELETE(&m_Allocator, pSwapChainDX11);
-}
-
-ezGALFence* ezGALDeviceDX11::CreateFencePlatform()
-{
-  ezGALFenceDX11* pFence = EZ_NEW(&m_Allocator, ezGALFenceDX11);
-
-  if (!pFence->InitPlatform(this).Succeeded())
-  {
-    EZ_DELETE(&m_Allocator, pFence);
-    return nullptr;
-  }
-
-  return pFence;
-}
-
-void ezGALDeviceDX11::DestroyFencePlatform(ezGALFence* pFence)
-{
-  ezGALFenceDX11* pFenceDX11 = static_cast<ezGALFenceDX11*>(pFence);
-  pFenceDX11->DeInitPlatform(this).IgnoreResult();
-  EZ_DELETE(&m_Allocator, pFenceDX11);
-}
 
 ezGALQuery* ezGALDeviceDX11::CreateQueryPlatform(const ezGALQueryCreationDescription& Description)
 {
@@ -719,58 +695,28 @@ ezResult ezGALDeviceDX11::GetTimestampResultPlatform(ezGALTimestampHandle hTimes
 
 void ezGALDeviceDX11::PresentPlatform(const ezGALSwapChain* pSwapChain, bool bVSync)
 {
-  auto pDXSwapChain = static_cast<const ezGALSwapChainDX11*>(pSwapChain);
-  IDXGISwapChain* pDXGISwapChain = pDXSwapChain->GetDXSwapChain();
-
-  // If there is a "actual backbuffer" (see it's documentation for detailed explanation), copy to it.
-  if (!pDXSwapChain->m_hActualBackBufferTexture.IsInvalidated())
-  {
-    m_pDefaultPass->m_pRenderCommandEncoder->CopyTexture(pDXSwapChain->m_hActualBackBufferTexture, pDXSwapChain->m_hBackBufferTexture);
-  }
-
-  HRESULT result = pDXGISwapChain->Present(bVSync ? 1 : 0, 0);
-  if (FAILED(result))
-  {
-    ezLog::Error("Swap chain Present failed with {0}", (ezUInt32)result);
-    return;
-  }
-
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-  // Since the swap chain can't be in discard mode, we do the discarding ourselves.
-  ID3D11DeviceContext1* deviceContext1 = nullptr;
-  if (FAILED(m_pImmediateContext->QueryInterface(&deviceContext1)))
-  {
-    ezLog::Error("Failed to query ID3D11DeviceContext1.");
-    return;
-  }
-
-  auto backBuffer = pSwapChain->GetBackBufferTexture();
-  if (!backBuffer.IsInvalidated())
-  {
-    const ezGALRenderTargetViewDX11* renderTargetView = static_cast<const ezGALRenderTargetViewDX11*>(GetRenderTargetView(GetDefaultRenderTargetView(backBuffer)));
-    if (renderTargetView)
-    {
-      deviceContext1->DiscardView(renderTargetView->GetRenderTargetView());
-    }
-  }
-#endif
 }
 
 // Misc functions
 
-void ezGALDeviceDX11::BeginFramePlatform()
+void ezGALDeviceDX11::BeginFramePlatform(const ezUInt64 uiRenderFrame)
 {
   auto& pCommandEncoder = m_pDefaultPass->m_pCommandEncoderImpl;
+
+  ezStringBuilder sb;
+  sb.Format("Frame {}", uiRenderFrame);
+  m_pFrameTimingScope = ezProfilingScopeAndMarker::Start(m_pDefaultPass->m_pRenderCommandEncoder.Borrow(), sb);
 
   // check if fence is reached and wait if the disjoint timer is about to be re-used
   {
     auto& perFrameData = m_PerFrameData[m_uiCurrentPerFrameData];
     if (perFrameData.m_uiFrame != ((ezUInt64)-1))
     {
-      bool bFenceReached = pCommandEncoder->IsFenceReachedPlatform(perFrameData.m_pFence);
+
+      bool bFenceReached = IsFenceReachedPlatform(GetDXImmediateContext(), perFrameData.m_pFence);
       if (!bFenceReached && m_uiNextPerFrameData == m_uiCurrentPerFrameData)
       {
-        pCommandEncoder->WaitForFencePlatform(perFrameData.m_pFence);
+        WaitForFencePlatform(GetDXImmediateContext(), perFrameData.m_pFence);
       }
     }
   }
@@ -786,6 +732,7 @@ void ezGALDeviceDX11::BeginFramePlatform()
 void ezGALDeviceDX11::EndFramePlatform()
 {
   auto& pCommandEncoder = m_pDefaultPass->m_pCommandEncoderImpl;
+  ezProfilingScopeAndMarker::Stop(m_pDefaultPass->m_pRenderCommandEncoder.Borrow(), m_pFrameTimingScope);
 
   // end disjoint query
   {
@@ -798,7 +745,7 @@ void ezGALDeviceDX11::EndFramePlatform()
     auto& perFrameData = m_PerFrameData[m_uiCurrentPerFrameData];
     if (perFrameData.m_uiFrame != ((ezUInt64)-1))
     {
-      if (pCommandEncoder->IsFenceReachedPlatform(perFrameData.m_pFence))
+      if (IsFenceReachedPlatform(GetDXImmediateContext(), perFrameData.m_pFence))
       {
         FreeTempResources(perFrameData.m_uiFrame);
 
@@ -837,7 +784,7 @@ void ezGALDeviceDX11::EndFramePlatform()
     perFrameData.m_uiFrame = m_uiFrameCounter;
 
     // insert fence
-    pCommandEncoder->InsertFencePlatform(perFrameData.m_pFence);
+    InsertFencePlatform(GetDXImmediateContext(), perFrameData.m_pFence);
 
     m_uiNextPerFrameData = (m_uiNextPerFrameData + 1) % EZ_ARRAY_SIZE(m_PerFrameData);
   }
@@ -1229,6 +1176,37 @@ void ezGALDeviceDX11::FillFormatLookupTable()
   m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::BC7UNormalizedsRGB, ezGALFormatLookupEntryDX11(DXGI_FORMAT_BC7_TYPELESS).RV(DXGI_FORMAT_BC7_UNORM_SRGB));
 }
 
+ezGALRenderCommandEncoder* ezGALDeviceDX11::GetRenderCommandEncoder() const
+{
+  return m_pDefaultPass->m_pRenderCommandEncoder.Borrow();
+}
 
+void ezGALDeviceDX11::InsertFencePlatform(ID3D11DeviceContext* pContext, ID3D11Query* pFence)
+{
+  pContext->End(pFence);
+}
+
+bool ezGALDeviceDX11::IsFenceReachedPlatform(ID3D11DeviceContext* pContext, ID3D11Query* pFence)
+{
+  BOOL data = FALSE;
+  if (pContext->GetData(pFence, &data, sizeof(data), 0) == S_OK)
+  {
+    EZ_ASSERT_DEV(data == TRUE, "Implementation error");
+    return true;
+  }
+
+  return false;
+}
+
+void ezGALDeviceDX11::WaitForFencePlatform(ID3D11DeviceContext* pContext, ID3D11Query* pFence)
+{
+  BOOL data = FALSE;
+  while (pContext->GetData(pFence, &data, sizeof(data), 0) != S_OK)
+  {
+    ezThreadUtils::YieldTimeSlice();
+  }
+
+  EZ_ASSERT_DEV(data == TRUE, "Implementation error");
+}
 
 EZ_STATICLINK_FILE(RendererDX11, RendererDX11_Device_Implementation_DeviceDX11);

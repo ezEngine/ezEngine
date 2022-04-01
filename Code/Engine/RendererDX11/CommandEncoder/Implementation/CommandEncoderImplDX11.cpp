@@ -3,7 +3,6 @@
 #include <RendererDX11/CommandEncoder/CommandEncoderImplDX11.h>
 #include <RendererDX11/Device/DeviceDX11.h>
 #include <RendererDX11/Resources/BufferDX11.h>
-#include <RendererDX11/Resources/FenceDX11.h>
 #include <RendererDX11/Resources/QueryDX11.h>
 #include <RendererDX11/Resources/RenderTargetViewDX11.h>
 #include <RendererDX11/Resources/ResourceViewDX11.h>
@@ -127,35 +126,7 @@ void ezGALCommandEncoderImplDX11::SetUnorderedAccessViewPlatform(ezUInt32 uiSlot
   m_pBoundUnoderedAccessViewsRange.SetToIncludeValue(uiSlot);
 }
 
-// Fence & Query functions
-
-void ezGALCommandEncoderImplDX11::InsertFencePlatform(const ezGALFence* pFence)
-{
-  m_pDXContext->End(static_cast<const ezGALFenceDX11*>(pFence)->GetDXFence());
-}
-
-bool ezGALCommandEncoderImplDX11::IsFenceReachedPlatform(const ezGALFence* pFence)
-{
-  BOOL data = FALSE;
-  if (m_pDXContext->GetData(static_cast<const ezGALFenceDX11*>(pFence)->GetDXFence(), &data, sizeof(data), 0) == S_OK)
-  {
-    EZ_ASSERT_DEV(data == TRUE, "Implementation error");
-    return true;
-  }
-
-  return false;
-}
-
-void ezGALCommandEncoderImplDX11::WaitForFencePlatform(const ezGALFence* pFence)
-{
-  BOOL data = FALSE;
-  while (m_pDXContext->GetData(static_cast<const ezGALFenceDX11*>(pFence)->GetDXFence(), &data, sizeof(data), 0) != S_OK)
-  {
-    ezThreadUtils::YieldTimeSlice();
-  }
-
-  EZ_ASSERT_DEV(data == TRUE, "Implementation error");
-}
+// Query functions
 
 void ezGALCommandEncoderImplDX11::BeginQueryPlatform(const ezGALQuery* pQuery)
 {
@@ -495,27 +466,22 @@ void ezGALCommandEncoderImplDX11::BeginRendering(const ezGALRenderingSetup& rend
     const ezGALRenderTargetView* pRenderTargetViews[EZ_GAL_MAX_RENDERTARGET_COUNT] = {nullptr};
     const ezGALRenderTargetView* pDepthStencilView = nullptr;
 
-    ezUInt32 uiRenderTargetCount = 0;
+    const ezUInt32 uiRenderTargetCount = m_RenderTargetSetup.GetRenderTargetCount();
 
     bool bFlushNeeded = false;
 
-    if (m_RenderTargetSetup.HasRenderTargets())
+    for (ezUInt8 uiIndex = 0; uiIndex < uiRenderTargetCount; ++uiIndex)
     {
-      for (ezUInt8 uiIndex = 0; uiIndex <= m_RenderTargetSetup.GetMaxRenderTargetIndex(); ++uiIndex)
+      const ezGALRenderTargetView* pRenderTargetView = m_GALDeviceDX11.GetRenderTargetView(m_RenderTargetSetup.GetRenderTarget(uiIndex));
+      if (pRenderTargetView != nullptr)
       {
-        const ezGALRenderTargetView* pRenderTargetView = m_GALDeviceDX11.GetRenderTargetView(m_RenderTargetSetup.GetRenderTarget(uiIndex));
-        if (pRenderTargetView != nullptr)
-        {
-          const ezGALResourceBase* pTexture = pRenderTargetView->GetTexture()->GetParentResource();
+        const ezGALResourceBase* pTexture = pRenderTargetView->GetTexture()->GetParentResource();
 
-          bFlushNeeded |= m_pOwner->UnsetResourceViews(pTexture);
-          bFlushNeeded |= m_pOwner->UnsetUnorderedAccessViews(pTexture);
-        }
-
-        pRenderTargetViews[uiIndex] = pRenderTargetView;
+        bFlushNeeded |= m_pOwner->UnsetResourceViews(pTexture);
+        bFlushNeeded |= m_pOwner->UnsetUnorderedAccessViews(pTexture);
       }
 
-      uiRenderTargetCount = m_RenderTargetSetup.GetMaxRenderTargetIndex() + 1;
+      pRenderTargetViews[uiIndex] = pRenderTargetView;
     }
 
     pDepthStencilView = m_GALDeviceDX11.GetRenderTargetView(m_RenderTargetSetup.GetDepthStencilTarget());

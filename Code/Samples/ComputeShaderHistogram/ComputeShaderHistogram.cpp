@@ -174,7 +174,7 @@ void ezComputeShaderHistogramApp::AfterCoreSystemsStartup()
     {
       ezUniquePtr<ezWindowOutputTargetGAL> pOutput = EZ_DEFAULT_NEW(ezWindowOutputTargetGAL);
 
-      ezGALSwapChainCreationDescription swd;
+      ezGALWindowSwapChainCreationDescription swd;
       swd.m_pWindow = pWindowPlugin->m_pWindow.Borrow();
       swd.m_bAllowScreenshots = true;
       pOutput->CreateSwapchain(swd);

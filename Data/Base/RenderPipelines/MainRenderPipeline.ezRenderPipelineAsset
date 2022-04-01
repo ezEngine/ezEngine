@@ -11,7 +11,7 @@ o
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{12099190295688988325,5711173786673602835}}
-		u4 %Hash{7060614606698042978}
+		u4 %Hash{9876895587678988631}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -344,6 +344,7 @@ o
 		{
 			Uuid{u4{3163596115887693552,1854170765256263771}}
 			Uuid{u4{14326911008637729734,9526502125951558066}}
+			Uuid{u4{874149613327829957,15201990485421087736}}
 		}
 		Vec2 %Node::Pos{f{0xC236BA43,0x57CD55C3}}
 	}
@@ -441,7 +442,7 @@ o
 		{
 			Uuid{u4{4342855751771783431,6480420821369398702}}
 		}
-		Vec2 %Node::Pos{f{0x0FE21744,0xE13E56C3}}
+		Vec2 %Node::Pos{f{0x8E281D44,0x4E465CC3}}
 		f %OverlayOpacity{0xCDCCCC3D}
 	}
 }
@@ -835,6 +836,18 @@ o
 }
 o
 {
+	Uuid %id{u4{874149613327829957,15201990485421087736}}
+	s %t{"DocumentNodeManagerConnectionInternal"}
+	u3 %v{1}
+	p
+	{
+		s %SourcePin{"DepthStencil"}
+		Uuid %Target{u4{5890894492341910667,5683842914295571854}}
+		s %TargetPin{"DepthStencil"}
+	}
+}
+o
+{
 	Uuid %id{u4{5233610053507958213,16274612698207700970}}
 	s %t{"ezRenderPipelineNodeInputPin"}
 	u3 %v{1}
@@ -1199,7 +1212,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezClusteredDataExtractor"}
-		u3 %TypeSize{232}
+		u3 %TypeSize{280}
 		u3 %TypeVersion{1}
 	}
 }

@@ -398,15 +398,15 @@ void ezReflectionProbeUpdater::AddViewToRender(const ProbeUpdateInfo::Step& step
     ezWorld* pWorld = ezWorld::GetWorld(updateInfo.m_probe.m_uiWorldIndex);
     pView->SetWorld(pWorld);
 
-    ezGALRenderTargetSetup renderTargetSetup;
+    ezGALRenderTargets renderTargets;
     if (step.m_UpdateStep == UpdateStep::Filter)
     {
       const ezUInt32 uiWorldIndex = pWorld->GetIndex();
-      renderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(updateInfo.m_TargetSlot.m_hSpecularOutputTexture));
+      renderTargets.m_hRTs[0] = updateInfo.m_TargetSlot.m_hSpecularOutputTexture;
 
       if (updateInfo.m_flags.IsSet(ezReflectionProbeUpdaterFlags::SkyLight))
       {
-        renderTargetSetup.SetRenderTarget(2, pDevice->GetDefaultRenderTargetView(updateInfo.m_TargetSlot.m_hIrradianceOutputTexture));
+        renderTargets.m_hRTs[2] = updateInfo.m_TargetSlot.m_hIrradianceOutputTexture;
       }
       pView->SetRenderPassProperty("ReflectionFilterPass", "Intensity", updateInfo.m_desc.m_fIntensity);
       pView->SetRenderPassProperty("ReflectionFilterPass", "Saturation", updateInfo.m_desc.m_fSaturation);
@@ -431,9 +431,9 @@ void ezReflectionProbeUpdater::AddViewToRender(const ProbeUpdateInfo::Step& step
     }
     else
     {
-      renderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(updateInfo.m_hCubemapProxies[uiFaceIndex]));
+      renderTargets.m_hRTs[0] = updateInfo.m_hCubemapProxies[uiFaceIndex];
     }
-    pView->SetRenderTargetSetup(renderTargetSetup);
+    pView->SetRenderTargets(renderTargets);
 
     ezVec3 vPosition = updateInfo.m_globalTransform * updateInfo.m_desc.m_vCaptureOffset;
     ezVec3 vForward2 = updateInfo.m_globalTransform.TransformDirection(vForward[uiFaceIndex]);

@@ -292,9 +292,9 @@ struct ezShadowPool::Data
 
     pView->SetCameraUsageHint(ezCameraUsageHint::Shadow);
 
-    ezGALRenderTargetSetup renderTargetSetup;
-    renderTargetSetup.SetDepthStencilTarget(ezGALDevice::GetDefaultDevice()->GetDefaultRenderTargetView(m_hShadowAtlasTexture));
-    pView->SetRenderTargetSetup(renderTargetSetup);
+    ezGALRenderTargets renderTargets;
+    renderTargets.m_hDSTarget = m_hShadowAtlasTexture;
+    pView->SetRenderTargets(renderTargets);
 
     // ShadowMapRenderPipeline.ezRenderPipelineAsset
     pView->SetRenderPipelineResource(ezResourceManager::LoadResource<ezRenderPipelineResource>("{ 4f4d9f16-3d47-4c67-b821-a778f11dcaf5 }"));

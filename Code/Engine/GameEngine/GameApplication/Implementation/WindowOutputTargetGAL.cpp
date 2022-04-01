@@ -5,6 +5,7 @@
 #include <RendererFoundation/CommandEncoder/RenderCommandEncoder.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Device/Pass.h>
+#include <RendererFoundation/Device/SwapChain.h>
 #include <RendererFoundation/Resources/Texture.h>
 #include <Texture/Image/Image.h>
 
@@ -19,7 +20,7 @@ ezWindowOutputTargetGAL::~ezWindowOutputTargetGAL()
   m_hSwapChain.Invalidate();
 }
 
-void ezWindowOutputTargetGAL::CreateSwapchain(const ezGALSwapChainCreationDescription& desc)
+void ezWindowOutputTargetGAL::CreateSwapchain(const ezGALWindowSwapChainCreationDescription& desc)
 {
   const bool bSwapChainExisted = !m_hSwapChain.IsInvalidated();
   if (bSwapChainExisted)
@@ -32,7 +33,7 @@ void ezWindowOutputTargetGAL::CreateSwapchain(const ezGALSwapChainCreationDescri
   // ezWindowOutputTargetGAL takes over the present mode and keeps it up to date with cvar_AppVSync.
   m_Size = desc.m_pWindow->GetClientAreaSize();
   m_currentDesc.m_PresentMode = ezGameApplication::cvar_AppVSync ? ezGALPresentMode::VSync : ezGALPresentMode::Immediate;
-  m_hSwapChain = ezGALDevice::GetDefaultDevice()->CreateSwapChain(m_currentDesc);
+  m_hSwapChain = ezGALWindowSwapChain::Create(m_currentDesc);
   if (bSwapChainExisted && m_OnSwapChainChanged.IsValid())
   {
     m_OnSwapChainChanged(m_hSwapChain, m_Size);
@@ -65,7 +66,8 @@ ezResult ezWindowOutputTargetGAL::CaptureImage(ezImage& out_Image)
   auto pGALCommandEncoder = pGALPass->BeginRendering(ezGALRenderingSetup());
   EZ_SCOPE_EXIT(pGALPass->EndRendering(pGALCommandEncoder));
 
-  ezGALTextureHandle hBackbuffer = pDevice->GetBackBufferTextureFromSwapChain(m_hSwapChain);
+  const ezGALSwapChain* pSwapChain = pDevice->GetSwapChain(m_hSwapChain);
+  ezGALTextureHandle hBackbuffer = pSwapChain ? pSwapChain->GetRenderTargets().m_hRTs[0] : ezGALTextureHandle();
 
   pGALCommandEncoder->ReadbackTexture(hBackbuffer);
 

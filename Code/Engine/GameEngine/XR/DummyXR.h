@@ -8,10 +8,10 @@
 #include <GameEngine/XR/XRInputDevice.h>
 #include <GameEngine/XR/XRInterface.h>
 #include <RendererCore/Pipeline/Declarations.h>
-#include <RendererFoundation/Resources/RenderTargetSetup.h>
 
 struct ezGALDeviceEvent;
 struct ezGameApplicationExecutionEvent;
+class ezWindowOutputTargetXR;
 
 class EZ_GAMEENGINE_DLL ezDummyXRInput : public ezXRInputDevice
 {
@@ -50,7 +50,7 @@ public:
   ezXRInputDevice& GetXRInput() const override;
   bool SupportsCompanionView() override;
   ezUniquePtr<ezActor> CreateActor(ezView* pView, ezGALMSAASampleCount::Enum msaaCount = ezGALMSAASampleCount::None, ezUniquePtr<ezWindowBase> companionWindow = nullptr, ezUniquePtr<ezWindowOutputTargetGAL> companionWindowOutput = nullptr) override;
-  ezGALTextureHandle Present() override;
+  ezGALTextureHandle GetCurrentTexture() override;
   void OnActorDestroyed() override;
   void GALDeviceEventHandler(const ezGALDeviceEvent& e);
   void GameApplicationEventHandler(const ezGameApplicationExecutionEvent& e);
@@ -72,7 +72,8 @@ protected:
   ezEnum<ezXRStageSpace> m_StageSpace = ezXRStageSpace::Seated;
 
   ezViewHandle m_hView;
-  ezGALRenderTargetSetup m_RenderTargetSetup;
   ezGALTextureHandle m_hColorRT;
   ezGALTextureHandle m_hDepthRT;
+
+  ezWindowOutputTargetXR* m_pCompanion = nullptr;
 };

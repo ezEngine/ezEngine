@@ -62,7 +62,6 @@ public:
   ezGALBufferHandle CreateConstantBuffer(ezUInt32 uiBufferSize);
 
   ezGALTextureHandle CreateTexture(const ezGALTextureCreationDescription& Description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData = ezArrayPtr<ezGALSystemMemoryDescription>());
-  ezResult ReplaceExisitingNativeObject(ezGALTextureHandle hTexture, void* pExisitingNativeObject);
   void DestroyTexture(ezGALTextureHandle hTexture);
 
   ezGALTextureHandle CreateProxyTexture(ezGALTextureHandle hParentTexture, ezUInt32 uiSlice);
@@ -88,11 +87,9 @@ public:
 
   // Other rendering creation functions
 
-  ezGALSwapChainHandle CreateSwapChain(const ezGALSwapChainCreationDescription& Description);
+  using SwapChainFactoryFunction = ezDelegate<ezGALSwapChain*(ezAllocatorBase*)>;
+  ezGALSwapChainHandle CreateSwapChain(const SwapChainFactoryFunction& func);
   void DestroySwapChain(ezGALSwapChainHandle hSwapChain);
-
-  ezGALFenceHandle CreateFence();
-  void DestroyFence(ezGALFenceHandle& hFence);
 
   ezGALQueryHandle CreateQuery(const ezGALQueryCreationDescription& Description);
   void DestroyQuery(ezGALQueryHandle hQuery);
@@ -113,15 +110,20 @@ public:
 
   // Misc functions
 
-  void BeginFrame();
+  void BeginFrame(const ezUInt64 uiRenderFrame = 0);
   void EndFrame();
 
   ezGALTimestampHandle GetTimestamp();
 
   const ezGALDeviceCreationDescription* GetDescription() const;
 
-
   const ezGALSwapChain* GetSwapChain(ezGALSwapChainHandle hSwapChain) const;
+  template <typename T>
+  const T* GetSwapChain(ezGALSwapChainHandle hSwapChain) const
+  {
+    return static_cast<const T*>(GetSwapChainInternal(hSwapChain, ezGetStaticRTTI<T>()));
+  }
+
   const ezGALShader* GetShader(ezGALShaderHandle hShader) const;
   const ezGALTexture* GetTexture(ezGALTextureHandle hTexture) const;
   const ezGALBuffer* GetBuffer(ezGALBufferHandle hBuffer) const;
@@ -133,7 +135,6 @@ public:
   const ezGALResourceView* GetResourceView(ezGALResourceViewHandle hResourceView) const;
   const ezGALRenderTargetView* GetRenderTargetView(ezGALRenderTargetViewHandle hRenderTargetView) const;
   const ezGALUnorderedAccessView* GetUnorderedAccessView(ezGALUnorderedAccessViewHandle hUnorderedAccessView) const;
-  const ezGALFence* GetFence(ezGALFenceHandle hFence) const;
   const ezGALQuery* GetQuery(ezGALQueryHandle hQuery) const;
 
   const ezGALDeviceCapabilities& GetCapabilities() const;
@@ -172,6 +173,8 @@ protected:
   /// \brief Asserts that either this device supports multi-threaded resource creation, or that this function is executed on the main thread.
   void VerifyMultithreadedAccess() const;
 
+  const ezGALSwapChain* GetSwapChainInternal(ezGALSwapChainHandle hSwapChain, const ezRTTI* pRequestedType) const;
+
   ezProxyAllocator m_Allocator;
   ezLocalAllocatorWrapper m_AllocatorWrapper;
 
@@ -186,7 +189,6 @@ protected:
   using RenderTargetViewTable = ezIdTable<ezGALRenderTargetViewHandle::IdType, ezGALRenderTargetView*, ezLocalAllocatorWrapper>;
   using UnorderedAccessViewTable = ezIdTable<ezGALUnorderedAccessViewHandle::IdType, ezGALUnorderedAccessView*, ezLocalAllocatorWrapper>;
   using SwapChainTable = ezIdTable<ezGALSwapChainHandle::IdType, ezGALSwapChain*, ezLocalAllocatorWrapper>;
-  using FenceTable = ezIdTable<ezGALFenceHandle::IdType, ezGALFence*, ezLocalAllocatorWrapper>;
   using QueryTable = ezIdTable<ezGALQueryHandle::IdType, ezGALQuery*, ezLocalAllocatorWrapper>;
   using VertexDeclarationTable = ezIdTable<ezGALVertexDeclarationHandle::IdType, ezGALVertexDeclaration*, ezLocalAllocatorWrapper>;
 
@@ -201,7 +203,6 @@ protected:
   RenderTargetViewTable m_RenderTargetViews;
   UnorderedAccessViewTable m_UnorderedAccessViews;
   SwapChainTable m_SwapChains;
-  FenceTable m_Fences;
   QueryTable m_Queries;
   VertexDeclarationTable m_VertexDeclarations;
 
@@ -283,12 +284,6 @@ protected:
 
   // Other rendering creation functions
 
-  virtual ezGALSwapChain* CreateSwapChainPlatform(const ezGALSwapChainCreationDescription& Description) = 0;
-  virtual void DestroySwapChainPlatform(ezGALSwapChain* pSwapChain) = 0;
-
-  virtual ezGALFence* CreateFencePlatform() = 0;
-  virtual void DestroyFencePlatform(ezGALFence* pFence) = 0;
-
   virtual ezGALQuery* CreateQueryPlatform(const ezGALQueryCreationDescription& Description) = 0;
   virtual void DestroyQueryPlatform(ezGALQuery* pQuery) = 0;
 
@@ -302,7 +297,7 @@ protected:
 
   // Misc functions
 
-  virtual void BeginFramePlatform() = 0;
+  virtual void BeginFramePlatform(const ezUInt64 uiRenderFrame) = 0;
   virtual void EndFramePlatform() = 0;
 
   virtual void FillCapabilitiesPlatform() = 0;

@@ -8,6 +8,7 @@
 #include <RendererCore/Pipeline/RenderPipelineNode.h>
 #include <RendererCore/Pipeline/RenderPipelineResource.h>
 #include <RendererCore/Pipeline/ViewData.h>
+#include <RendererFoundation/Device/SwapChain.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
 
 class ezFrustum;
@@ -35,13 +36,19 @@ public:
   ezWorld* GetWorld();
   const ezWorld* GetWorld() const;
 
-  /// \brief Sets the swapchain that this view will be rendering into. Can be invalid in case the render target is an off-screen buffer.
-  /// Setting the swap-chain is necessary in order to acquire and present the image to the display.
+  /// \brief Sets the swapchain that this view will be rendering into. Can be invalid in case the render target is an off-screen buffer in which case SetRenderTargets needs to be called.
+  /// Setting the swap-chain is necessary in order to acquire and present the image to the window.
+  /// SetSwapChain and SetRenderTargets are mutually exclusive. Calling this function will reset the render targets.
   void SetSwapChain(ezGALSwapChainHandle hSwapChain);
   ezGALSwapChainHandle GetSwapChain() const;
 
-  void SetRenderTargetSetup(ezGALRenderTargetSetup& renderTargetSetup);
-  const ezGALRenderTargetSetup& GetRenderTargetSetup() const;
+  /// \brief Sets the off-screen render targets. Use SetSwapChain if rendering to a window.
+  /// SetSwapChain and SetRenderTargets are mutually exclusive. Calling this function will reset the swap chain.
+  void SetRenderTargets(const ezGALRenderTargets& renderTargets);
+  const ezGALRenderTargets& GetRenderTargets() const;
+
+  /// \brief Returns the render targets that were either set via the swapchain or via the manually set render targets.
+  const ezGALRenderTargets& GetActiveRenderTargets() const;
 
   void SetRenderPipelineResource(ezRenderPipelineResourceHandle hPipeline);
   ezRenderPipelineResourceHandle GetRenderPipelineResource() const;
@@ -137,7 +144,6 @@ private:
 
   ezWorld* m_pWorld = nullptr;
 
-  ezGALRenderTargetSetup m_RenderTargetSetup;
   ezRenderPipelineResourceHandle m_hRenderPipeline;
   ezUInt32 m_uiRenderPipelineResourceDescriptionCounter = 0;
   ezSharedPtr<ezRenderPipeline> m_pRenderPipeline;

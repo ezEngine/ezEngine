@@ -111,7 +111,7 @@ void ezEngineProcessViewContext::HandleWindowUpdate(ezWindowHandle hWnd, ezUInt1
     {
       ezUniquePtr<ezWindowOutputTargetGAL> pOutput = EZ_DEFAULT_NEW(ezWindowOutputTargetGAL);
 
-      ezGALSwapChainCreationDescription desc;
+      ezGALWindowSwapChainCreationDescription desc;
       desc.m_pWindow = pWindowPlugin->m_pWindow.Borrow();
       desc.m_BackBufferFormat = ezGALResourceFormat::RGBAUByteNormalizedsRGB;
       desc.m_bAllowScreenshots = true;
@@ -125,14 +125,9 @@ void ezEngineProcessViewContext::HandleWindowUpdate(ezWindowHandle hWnd, ezUInt1
     {
       ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
       ezWindowOutputTargetGAL* pOutput = static_cast<ezWindowOutputTargetGAL*>(pWindowPlugin->m_pWindowOutputTarget.Borrow());
-      const ezGALSwapChain* pPrimarySwapChain = pDevice->GetSwapChain(pOutput->m_hSwapChain);
-      auto hSwapChainRTV = pDevice->GetDefaultRenderTargetView(pPrimarySwapChain->GetBackBufferTexture());
-
-      ezGALRenderTargetSetup BackBufferRenderTargetSetup;
-      BackBufferRenderTargetSetup.SetRenderTarget(0, hSwapChainRTV);
 
       const ezSizeU32 wndSize = pWindowPlugin->m_pWindow->GetClientAreaSize();
-      SetupRenderTarget(pOutput->m_hSwapChain, BackBufferRenderTargetSetup, static_cast<ezUInt16>(wndSize.width), static_cast<ezUInt16>(wndSize.height));
+      SetupRenderTarget(pOutput->m_hSwapChain, nullptr, static_cast<ezUInt16>(wndSize.width), static_cast<ezUInt16>(wndSize.height));
     }
 
     pActor->AddPlugin(std::move(pWindowPlugin));
@@ -140,9 +135,10 @@ void ezEngineProcessViewContext::HandleWindowUpdate(ezWindowHandle hWnd, ezUInt1
   }
 }
 
-void ezEngineProcessViewContext::SetupRenderTarget(ezGALSwapChainHandle hSwapChain, ezGALRenderTargetSetup& renderTargetSetup, ezUInt16 uiWidth, ezUInt16 uiHeight)
+void ezEngineProcessViewContext::SetupRenderTarget(ezGALSwapChainHandle hSwapChain, const ezGALRenderTargets* renderTargets, ezUInt16 uiWidth, ezUInt16 uiHeight)
 {
   EZ_LOG_BLOCK("ezEngineProcessViewContext::SetupRenderTarget");
+  EZ_ASSERT_DEV(hSwapChain.IsInvalidated() || renderTargets == nullptr, "hSwapChain and renderTargetSetup are mutually exclusive.");
 
   // setup view
   {
@@ -154,8 +150,10 @@ void ezEngineProcessViewContext::SetupRenderTarget(ezGALSwapChainHandle hSwapCha
     ezView* pView = nullptr;
     if (ezRenderWorld::TryGetView(m_hView, pView))
     {
-      pView->SetSwapChain(hSwapChain);
-      pView->SetRenderTargetSetup(renderTargetSetup);
+      if (!hSwapChain.IsInvalidated())
+        pView->SetSwapChain(hSwapChain);
+      else
+        pView->SetRenderTargets(*renderTargets);
       pView->SetViewport(ezRectFloat(0.0f, 0.0f, (float)uiWidth, (float)uiHeight));
     }
   }

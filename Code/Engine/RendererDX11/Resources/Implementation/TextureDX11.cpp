@@ -202,16 +202,6 @@ ezResult ezGALTextureDX11::DeInitPlatform(ezGALDevice* pDevice)
   return EZ_SUCCESS;
 }
 
-ezResult ezGALTextureDX11::ReplaceExisitingNativeObject(void* pExisitingNativeObject)
-{
-  EZ_ASSERT_DEV(
-    m_pExisitingNativeObject != nullptr, "Only textures created with an existing native object are allowed to call ReplaceExisitingNativeObject.");
-  EZ_ASSERT_DEV(pExisitingNativeObject != nullptr, "New existing native object must exist.");
-
-  m_pExisitingNativeObject = pExisitingNativeObject;
-  return EZ_SUCCESS;
-}
-
 void ezGALTextureDX11::SetDebugNamePlatform(const char* szName) const
 {
   ezUInt32 uiLength = ezStringUtils::GetStringElementCount(szName);

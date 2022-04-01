@@ -40,8 +40,8 @@ public:
   ID3D11Device* GetDXDevice() const;
   ID3D11Device3* GetDXDevice3() const;
   ID3D11DeviceContext* GetDXImmediateContext() const;
-
   IDXGIFactory1* GetDXGIFactory() const;
+  ezGALRenderCommandEncoder* GetRenderCommandEncoder() const;
 
   const ezGALFormatLookupTableDX11& GetFormatLookupTable() const;
 
@@ -106,12 +106,6 @@ protected:
 
   // Other rendering creation functions
 
-  virtual ezGALSwapChain* CreateSwapChainPlatform(const ezGALSwapChainCreationDescription& Description) override;
-  virtual void DestroySwapChainPlatform(ezGALSwapChain* pSwapChain) override;
-
-  virtual ezGALFence* CreateFencePlatform() override;
-  virtual void DestroyFencePlatform(ezGALFence* pFence) override;
-
   virtual ezGALQuery* CreateQueryPlatform(const ezGALQueryCreationDescription& Description) override;
   virtual void DestroyQueryPlatform(ezGALQuery* pQuery) override;
 
@@ -129,7 +123,7 @@ protected:
 
   // Misc functions
 
-  virtual void BeginFramePlatform() override;
+  virtual void BeginFramePlatform(const ezUInt64 uiRenderFrame) override;
   virtual void EndFramePlatform() override;
 
   virtual void FillCapabilitiesPlatform() override;
@@ -158,6 +152,13 @@ private:
 
   void FillFormatLookupTable();
 
+
+  void InsertFencePlatform(ID3D11DeviceContext* pContext, ID3D11Query* pFence);
+
+  bool IsFenceReachedPlatform(ID3D11DeviceContext* pContext, ID3D11Query* pFence);
+
+  void WaitForFencePlatform(ID3D11DeviceContext* pContext, ID3D11Query* pFence);
+
   ID3D11Device* m_pDevice;
   ID3D11Device3* m_pDevice3;
   ID3D11DeviceContext* m_pImmediateContext;
@@ -178,7 +179,7 @@ private:
 
   struct PerFrameData
   {
-    ezGALFence* m_pFence = nullptr;
+    ID3D11Query* m_pFence = nullptr;
     ID3D11Query* m_pDisjointTimerQuery = nullptr;
     double m_fInvTicksPerSecond = -1.0;
     ezUInt64 m_uiFrame = -1;
@@ -205,6 +206,10 @@ private:
   ezDynamicArray<ID3D11Query*, ezLocalAllocatorWrapper> m_Timestamps;
   ezUInt32 m_uiCurrentTimestamp = 0;
   ezUInt32 m_uiNextTimestamp = 0;
+
+  struct GPUTimingScope* m_pFrameTimingScope = nullptr;
+  struct GPUTimingScope* m_pPipelineTimingScope = nullptr;
+  struct GPUTimingScope* m_pPassTimingScope = nullptr;
 
   ezTime m_SyncTimeDiff;
   bool m_bSyncTimeNeeded = true;

@@ -656,9 +656,9 @@ void ezCameraComponent::ActivateRenderToTexture()
 
   pRenderTarget->m_ResourceEvents.AddEventHandler(ezMakeDelegate(&ezCameraComponent::ResourceChangeEventHandler, this));
 
-  ezGALRenderTargetSetup renderTargetSetup;
-  renderTargetSetup.SetRenderTarget(0, pRenderTarget->GetRenderTargetView());
-  pRenderTargetView->SetRenderTargetSetup(renderTargetSetup);
+  ezGALRenderTargets renderTargets;
+  renderTargets.m_hRTs[0] = pRenderTarget->GetGALTexture();
+  pRenderTargetView->SetRenderTargets(renderTargets);
 
   const float maxSizeX = 1.0f - m_RenderTargetRectOffset.x;
   const float maxSizeY = 1.0f - m_RenderTargetRectOffset.y;

@@ -4,6 +4,7 @@
 #include <Foundation/Math/Rect.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
 #include <RendererCore/Pipeline/ViewRenderMode.h>
+#include <RendererFoundation/Device/SwapChain.h>
 
 /// \brief Holds view data like the viewport, view and projection matrices
 struct EZ_RENDERERCORE_DLL ezViewData
@@ -24,6 +25,7 @@ struct EZ_RENDERERCORE_DLL ezViewData
     }
   }
 
+  ezGALRenderTargets m_renderTargets;
   ezGALSwapChainHandle m_hSwapChain;
   ezRectFloat m_ViewPortRect;
   ezEnum<ezViewRenderMode> m_ViewRenderMode;

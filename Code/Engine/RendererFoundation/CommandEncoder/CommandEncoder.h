@@ -24,11 +24,7 @@ public:
   // Returns whether a unordered access view has been unset for the given resource
   bool UnsetUnorderedAccessViews(const ezGALResourceBase* pResource);
 
-  // Fence & Query functions
-
-  void InsertFence(ezGALFenceHandle hFence);
-  bool IsFenceReached(ezGALFenceHandle hFence);
-  void WaitForFence(ezGALFenceHandle hFence);
+  // Query functions
 
   void BeginQuery(ezGALQueryHandle hQuery);
   void EndQuery(ezGALQueryHandle hQuery);

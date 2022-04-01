@@ -28,12 +28,12 @@ ezResult ezRendererTestSwapChain::InitializeSubTest(ezInt32 iIdentifier)
 
   // SwapChain
   {
-    ezGALSwapChainCreationDescription swapChainDesc;
+    ezGALWindowSwapChainCreationDescription swapChainDesc;
     swapChainDesc.m_pWindow = m_pWindow;
     swapChainDesc.m_SampleCount = ezGALMSAASampleCount::None;
     swapChainDesc.m_bAllowScreenshots = true;
     swapChainDesc.m_PresentMode = SubTests::ST_NoVSync ? ezGALPresentMode::Immediate : ezGALPresentMode::VSync;
-    m_hSwapChain = m_pDevice->CreateSwapChain(swapChainDesc);
+    m_hSwapChain = ezGALWindowSwapChain::Create(swapChainDesc);
   }
 
   // Depth Texture
@@ -94,12 +94,12 @@ void ezRendererTestSwapChain::ResizeTest(ezUInt32 uiInvocationCount)
 
     // Swap Chain
     {
-      ezGALSwapChainCreationDescription swapChainDesc;
+      ezGALWindowSwapChainCreationDescription swapChainDesc;
       swapChainDesc.m_pWindow = m_pWindow;
       swapChainDesc.m_SampleCount = ezGALMSAASampleCount::None;
       swapChainDesc.m_bAllowScreenshots = true;
       swapChainDesc.m_PresentMode = SubTests::ST_NoVSync ? ezGALPresentMode::Immediate : ezGALPresentMode::VSync;
-      m_hSwapChain = m_pDevice->CreateSwapChain(swapChainDesc);
+      m_hSwapChain = ezGALWindowSwapChain::Create(swapChainDesc);
     }
 
     // Depth Texture

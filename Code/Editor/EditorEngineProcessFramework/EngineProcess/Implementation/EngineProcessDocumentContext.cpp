@@ -533,8 +533,9 @@ void ezEngineProcessDocumentContext::CreateThumbnailViewContext(const ezCreateTh
 
   m_hThumbnailDepthRT = pDevice->CreateTexture(tcd);
 
-  m_ThumbnailRenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(m_hThumbnailColorRT)).SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(m_hThumbnailDepthRT));
-  m_pThumbnailViewContext->SetupRenderTarget({}, m_ThumbnailRenderTargetSetup, m_uiThumbnailWidth, m_uiThumbnailHeight);
+  m_ThumbnailRenderTargets.m_hRTs[0] = m_hThumbnailColorRT;
+  m_ThumbnailRenderTargets.m_hDSTarget = m_hThumbnailDepthRT;
+  m_pThumbnailViewContext->SetupRenderTarget({}, &m_ThumbnailRenderTargets, m_uiThumbnailWidth, m_uiThumbnailHeight);
 
   ezResourceManager::ForceNoFallbackAcquisition(3);
   OnThumbnailViewContextRequested();
@@ -570,7 +571,6 @@ void ezEngineProcessDocumentContext::DestroyThumbnailViewContext()
   DestroyViewContext(m_pThumbnailViewContext);
   m_pThumbnailViewContext = nullptr;
 
-  m_ThumbnailRenderTargetSetup.DestroyAllAttachedViews();
   if (!m_hThumbnailColorRT.IsInvalidated())
   {
     pDevice->DestroyTexture(m_hThumbnailColorRT);

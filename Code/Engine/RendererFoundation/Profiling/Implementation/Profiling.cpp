@@ -88,23 +88,34 @@ ezDeque<GPUTimingScope, ezStaticAllocatorWrapper> GPUProfilingSystem::m_TimingSc
 
 //////////////////////////////////////////////////////////////////////////
 
+GPUTimingScope* ezProfilingScopeAndMarker::Start(ezGALCommandEncoder* pCommandEncoder, const char* szName)
+{
+  pCommandEncoder->PushMarker(szName);
+
+  auto& timingScope = GPUProfilingSystem::AllocateScope();
+  timingScope.m_BeginTimestamp = pCommandEncoder->InsertTimestamp();
+  ezStringUtils::Copy(timingScope.m_szName, EZ_ARRAY_SIZE(timingScope.m_szName), szName);
+
+  return &timingScope;
+}
+
+void ezProfilingScopeAndMarker::Stop(ezGALCommandEncoder* pCommandEncoder, GPUTimingScope*& pTimingScope)
+{
+  pCommandEncoder->PopMarker();
+  pTimingScope->m_EndTimestamp = pCommandEncoder->InsertTimestamp();
+  pTimingScope = nullptr;
+}
+
 ezProfilingScopeAndMarker::ezProfilingScopeAndMarker(ezGALCommandEncoder* pCommandEncoder, const char* szName)
   : ezProfilingScope(szName, nullptr, ezTime::Zero())
   , m_pCommandEncoder(pCommandEncoder)
 {
-  pCommandEncoder->PushMarker(m_szName);
-
-  auto& timingScope = GPUProfilingSystem::AllocateScope();
-  timingScope.m_BeginTimestamp = pCommandEncoder->InsertTimestamp();
-  ezStringUtils::Copy(timingScope.m_szName, EZ_ARRAY_SIZE(timingScope.m_szName), m_szName);
-
-  m_pTimingScope = &timingScope;
+  m_pTimingScope = Start(pCommandEncoder, szName);
 }
 
 ezProfilingScopeAndMarker::~ezProfilingScopeAndMarker()
 {
-  m_pCommandEncoder->PopMarker();
-  m_pTimingScope->m_EndTimestamp = m_pCommandEncoder->InsertTimestamp();
+  Stop(m_pCommandEncoder, m_pTimingScope);
 }
 
 #endif

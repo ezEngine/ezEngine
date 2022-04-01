@@ -4,6 +4,16 @@
 #include <Foundation/Basics.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
 
+// \brief This class can be used to define the render targets to be used by an ezView.
+struct EZ_RENDERERFOUNDATION_DLL ezGALRenderTargets
+{
+  bool operator==(const ezGALRenderTargets& other) const;
+  bool operator!=(const ezGALRenderTargets& other) const;
+
+  ezGALTextureHandle m_hRTs[EZ_GAL_MAX_RENDERTARGET_COUNT];
+  ezGALTextureHandle m_hDSTarget;
+};
+
 // \brief This class can be used to construct render target setups on the stack.
 class EZ_RENDERERFOUNDATION_DLL ezGALRenderTargetSetup
 {
@@ -16,9 +26,7 @@ public:
   bool operator==(const ezGALRenderTargetSetup& other) const;
   bool operator!=(const ezGALRenderTargetSetup& other) const;
 
-  inline bool HasRenderTargets() const;
-
-  inline ezUInt8 GetMaxRenderTargetIndex() const;
+  inline ezUInt8 GetRenderTargetCount() const;
 
   inline ezGALRenderTargetViewHandle GetRenderTarget(ezUInt8 uiIndex) const;
   inline ezGALRenderTargetViewHandle GetDepthStencilTarget() const;
@@ -29,11 +37,14 @@ protected:
   ezGALRenderTargetViewHandle m_hRTs[EZ_GAL_MAX_RENDERTARGET_COUNT];
   ezGALRenderTargetViewHandle m_hDSTarget;
 
-  ezUInt8 m_uiMaxRTIndex;
+  ezUInt8 m_uiRTCount = 0;
 };
 
-struct ezGALRenderingSetup
+struct EZ_RENDERERFOUNDATION_DLL ezGALRenderingSetup
 {
+  bool operator==(const ezGALRenderingSetup& other) const;
+  bool operator!=(const ezGALRenderingSetup& other) const;
+
   ezGALRenderTargetSetup m_RenderTargetSetup;
   ezColor m_ClearColor = ezColor(0, 0, 0, 0);
   ezUInt32 m_uiRenderTargetClearMask = 0x0;

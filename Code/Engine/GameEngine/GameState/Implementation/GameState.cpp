@@ -212,17 +212,10 @@ void ezGameState::SetupMainView(ezGALSwapChainHandle hSwapChain, ezSizeU32 viewp
   {
     // Render target setup
     {
-      const ezGALSwapChain* pSwapChain = ezGALDevice::GetDefaultDevice()->GetSwapChain(hSwapChain);
-      ezGALRenderTargetViewHandle hBackBuffer = ezGALDevice::GetDefaultDevice()->GetDefaultRenderTargetView(pSwapChain->GetBackBufferTexture());
-      ezGALRenderTargetSetup renderTargetSetup;
-      renderTargetSetup.SetRenderTarget(0, hBackBuffer);
-      pView->SetSwapChain(hSwapChain);
-
       const auto* pConfig = ezGameApplicationBase::GetGameApplicationBaseInstance()->GetPlatformProfile().GetTypeConfig<ezRenderPipelineProfileConfig>();
       auto renderPipeline = ezResourceManager::LoadResource<ezRenderPipelineResource>(pConfig->m_sMainRenderPipeline);
       pView->SetRenderPipelineResource(renderPipeline);
-
-      pView->SetRenderTargetSetup(renderTargetSetup);
+      pView->SetSwapChain(hSwapChain);
       pView->SetViewport(ezRectFloat(0.0f, 0.0f, (float)viewportSize.width, (float)viewportSize.height));
     }
   }
@@ -368,7 +361,7 @@ ezUniquePtr<ezWindowOutputTargetGAL> ezGameState::CreateMainOutputTarget(ezWindo
     SetupMainView(hSwapChain, size);
   });
 
-  ezGALSwapChainCreationDescription desc;
+  ezGALWindowSwapChainCreationDescription desc;
   desc.m_pWindow = pMainWindow;
   desc.m_BackBufferFormat = ezGALResourceFormat::RGBAUByteNormalizedsRGB;
   desc.m_bAllowScreenshots = true;
