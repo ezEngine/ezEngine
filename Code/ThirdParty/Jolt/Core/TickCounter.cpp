@@ -22,17 +22,23 @@ namespace JPH {
 
 static const uint64 sProcessorTicksPerSecond = []() {
 #if defined(JPH_PLATFORM_WINDOWS)
+
+	uint mhz = 0;
+
+#if WINAPI_FAMILY == WINAPI_FAMILY_APP
+  mhz = 1000;
+#else
 	// Open the key where the processor speed is stored
 	HKEY hkey;
 	RegOpenKeyExA(HKEY_LOCAL_MACHINE, "HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0", 0, 1, &hkey);
 
 	// Query the speed in MHz
-	uint mhz = 0;
 	DWORD mhz_size = sizeof(uint);
 	RegQueryValueExA(hkey, "~MHz", nullptr, nullptr, (LPBYTE)&mhz, &mhz_size);
 
 	// Close key
 	RegCloseKey(hkey);
+#endif
 
 	// Initialize amount of cycles per second
 	return uint64(mhz) * 1000000UL;
