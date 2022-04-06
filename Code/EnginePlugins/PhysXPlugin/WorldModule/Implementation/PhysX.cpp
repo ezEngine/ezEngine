@@ -336,20 +336,20 @@ void ezPhysX::SurfaceResourceEventHandler(const ezSurfaceResourceEvent& e)
     pxUserData->Init(e.m_pSurface);
     pMaterial->userData = pxUserData;
 
-    e.m_pSurface->m_pPhysicsMaterial = pMaterial;
+    e.m_pSurface->m_pPhysicsMaterialPhysX = pMaterial;
   }
   else if (e.m_Type == ezSurfaceResourceEvent::Type::Destroyed)
   {
-    if (e.m_pSurface->m_pPhysicsMaterial != nullptr)
+    if (e.m_pSurface->m_pPhysicsMaterialPhysX != nullptr)
     {
-      PxMaterial* pMaterial = static_cast<PxMaterial*>(e.m_pSurface->m_pPhysicsMaterial);
+      PxMaterial* pMaterial = static_cast<PxMaterial*>(e.m_pSurface->m_pPhysicsMaterialPhysX);
 
       ezPxUserData* pUserData = static_cast<ezPxUserData*>(pMaterial->userData);
       EZ_DEFAULT_DELETE(pUserData);
 
       pMaterial->release();
 
-      e.m_pSurface->m_pPhysicsMaterial = nullptr;
+      e.m_pSurface->m_pPhysicsMaterialPhysX = nullptr;
     }
   }
 }

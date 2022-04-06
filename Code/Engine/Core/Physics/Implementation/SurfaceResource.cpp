@@ -22,7 +22,8 @@ ezSurfaceResource::ezSurfaceResource()
 
 ezSurfaceResource::~ezSurfaceResource()
 {
-  EZ_ASSERT_DEV(m_pPhysicsMaterial == nullptr, "Physics material has not been cleaned up properly");
+  EZ_ASSERT_DEV(m_pPhysicsMaterialPhysX == nullptr, "Physics material has not been cleaned up properly");
+  EZ_ASSERT_DEV(m_pPhysicsMaterialJolt == nullptr, "Physics material has not been cleaned up properly");
 }
 
 ezResourceLoadDesc ezSurfaceResource::UnloadData(Unload WhatToUnload)
@@ -84,12 +85,13 @@ ezResourceLoadDesc ezSurfaceResource::UpdateContent(ezStreamReader* Stream)
       item.m_pInteraction = &i;
     }
 
-    m_Interactions.Sort([](const SurfInt& lhs, const SurfInt& rhs) -> bool {
-      if (lhs.m_uiInteractionTypeHash != rhs.m_uiInteractionTypeHash)
-        return lhs.m_uiInteractionTypeHash < rhs.m_uiInteractionTypeHash;
+    m_Interactions.Sort([](const SurfInt& lhs, const SurfInt& rhs) -> bool
+      {
+        if (lhs.m_uiInteractionTypeHash != rhs.m_uiInteractionTypeHash)
+          return lhs.m_uiInteractionTypeHash < rhs.m_uiInteractionTypeHash;
 
-      return lhs.m_pInteraction->m_fImpulseThreshold > rhs.m_pInteraction->m_fImpulseThreshold;
-    });
+        return lhs.m_pInteraction->m_fImpulseThreshold > rhs.m_pInteraction->m_fImpulseThreshold;
+      });
   }
 
   res.m_State = ezResourceState::Loaded;
@@ -106,15 +108,15 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezSurfaceResource, ezSurfaceResourceDescriptor)
 {
   m_Descriptor = descriptor;
 
-  ezSurfaceResourceEvent e;
-  e.m_pSurface = this;
-  e.m_Type = ezSurfaceResourceEvent::Type::Created;
-  s_Events.Broadcast(e);
-
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
   res.m_State = ezResourceState::Loaded;
+
+  ezSurfaceResourceEvent e;
+  e.m_pSurface = this;
+  e.m_Type = ezSurfaceResourceEvent::Type::Created;
+  s_Events.Broadcast(e);
 
   return res;
 }

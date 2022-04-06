@@ -74,7 +74,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxCharacterControllerComponent, 6, ezComponentMode::Dy
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Physics/Special"),
+    new ezCategoryAttribute("Physics/PhysX/Character"),
   }
   EZ_END_ATTRIBUTES;
 }

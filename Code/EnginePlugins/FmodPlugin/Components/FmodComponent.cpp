@@ -8,7 +8,7 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezFmodComponent, 1)
 {
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Sound"),
+    new ezCategoryAttribute("Sound/FMOD"),
   }
   EZ_END_ATTRIBUTES;
 }

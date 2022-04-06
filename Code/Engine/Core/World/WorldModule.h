@@ -144,6 +144,7 @@ private:
   static void PluginEventHandler(const ezPluginEvent& EventData);
   void FillBaseTypeIds();
   void ClearUnloadedTypeToIDs();
+  void AdjustBaseTypeId(const ezRTTI* pParentRtti, const ezRTTI* pRtti, ezUInt16 uiParentTypeId);
 
   ezHashTable<const ezRTTI*, ezWorldModuleTypeId> m_TypeToId;
 

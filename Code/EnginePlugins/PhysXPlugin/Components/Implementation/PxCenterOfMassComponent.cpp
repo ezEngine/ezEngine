@@ -9,7 +9,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxCenterOfMassComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Physics/Shapes"),
+    new ezCategoryAttribute("Physics/PhysX/Misc"),
   }
   EZ_END_ATTRIBUTES;
 }

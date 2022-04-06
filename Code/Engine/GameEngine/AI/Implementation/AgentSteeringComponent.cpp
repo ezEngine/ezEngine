@@ -9,7 +9,7 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezAgentSteeringComponent, 1)
 {
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("AI"),
+    new ezCategoryAttribute("AI/Experimental"),
   }
   EZ_END_ATTRIBUTES;
   EZ_BEGIN_FUNCTIONS

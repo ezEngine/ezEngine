@@ -23,7 +23,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezFakeRopeComponent, 2, ezComponentMode::Static)
     EZ_END_PROPERTIES;
     EZ_BEGIN_ATTRIBUTES
     {
-      new ezCategoryAttribute("Effects"),
+      new ezCategoryAttribute("Effects/Ropes"),
     }
     EZ_END_ATTRIBUTES;
   }

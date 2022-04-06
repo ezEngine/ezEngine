@@ -64,7 +64,7 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezPxCharacterShapeComponent, 1)
   EZ_END_FUNCTIONS;
   EZ_BEGIN_ATTRIBUTES
   {
-      new ezCategoryAttribute("Physics/Special"),
+      new ezCategoryAttribute("Physics/PhysX/Character"),
   }
   EZ_END_ATTRIBUTES;
 }

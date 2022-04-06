@@ -36,7 +36,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxBoneColliderComponent, 1, ezComponentMode::Dynamic)
   EZ_END_FUNCTIONS;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Physics/Animation"),
+    new ezCategoryAttribute("Physics/PhysX/Animation"),
   }
   EZ_END_ATTRIBUTES;
 }
