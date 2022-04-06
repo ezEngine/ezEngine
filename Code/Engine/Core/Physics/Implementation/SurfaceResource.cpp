@@ -85,13 +85,12 @@ ezResourceLoadDesc ezSurfaceResource::UpdateContent(ezStreamReader* Stream)
       item.m_pInteraction = &i;
     }
 
-    m_Interactions.Sort([](const SurfInt& lhs, const SurfInt& rhs) -> bool
-      {
-        if (lhs.m_uiInteractionTypeHash != rhs.m_uiInteractionTypeHash)
-          return lhs.m_uiInteractionTypeHash < rhs.m_uiInteractionTypeHash;
+    m_Interactions.Sort([](const SurfInt& lhs, const SurfInt& rhs) -> bool {
+      if (lhs.m_uiInteractionTypeHash != rhs.m_uiInteractionTypeHash)
+        return lhs.m_uiInteractionTypeHash < rhs.m_uiInteractionTypeHash;
 
-        return lhs.m_pInteraction->m_fImpulseThreshold > rhs.m_pInteraction->m_fImpulseThreshold;
-      });
+      return lhs.m_pInteraction->m_fImpulseThreshold > rhs.m_pInteraction->m_fImpulseThreshold;
+    });
   }
 
   res.m_State = ezResourceState::Loaded;

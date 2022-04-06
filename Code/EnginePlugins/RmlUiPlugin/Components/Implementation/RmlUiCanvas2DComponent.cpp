@@ -374,8 +374,7 @@ void ezRmlUiCanvas2DComponent::UpdateCachedValues()
       ezResourceLock pResource(m_hResource, ezResourceAcquireMode::PointerOnly);
 
       pResource->m_ResourceEvents.AddEventHandler(
-        [hComponent = GetHandle(), pWorld = GetWorld()](const ezResourceEvent& e)
-        {
+        [hComponent = GetHandle(), pWorld = GetWorld()](const ezResourceEvent& e) {
           if (e.m_Type == ezResourceEvent::Type::ResourceContentUnloading)
           {
             pWorld->PostMessage(hComponent, ezMsgRmlUiReload(), ezTime::Zero());
