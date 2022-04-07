@@ -15,7 +15,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxStaticActorComponent, 2, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("CollisionMesh", GetMeshFile, SetMeshFile)->AddAttributes(new ezAssetBrowserAttribute("Collision Mesh;Collision Mesh (Convex)")),
+    EZ_ACCESSOR_PROPERTY("CollisionMesh", GetMeshFile, SetMeshFile)->AddAttributes(new ezAssetBrowserAttribute("Collision Mesh (PhysX);Collision Mesh (Convex) (PhysX)")),
     EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
     EZ_MEMBER_PROPERTY("IncludeInNavmesh", m_bIncludeInNavmesh)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_MEMBER_PROPERTY("PullSurfacesFromGraphicsMesh", m_bPullSurfacesFromGraphicsMesh)->AddAttributes(new ezDefaultValueAttribute(true)),
@@ -135,7 +135,7 @@ void ezPxStaticActorComponent::OnSimulationStarted()
           ezResourceLock<ezSurfaceResource> pSurface(surfaces[i], ezResourceAcquireMode::BlockTillLoaded);
           if (pSurface)
           {
-            pxMaterials[i] = static_cast<PxMaterial*>(pSurface->m_pPhysicsMaterial);
+            pxMaterials[i] = static_cast<PxMaterial*>(pSurface->m_pPhysicsMaterialPhysX);
 
             continue;
           }
@@ -250,8 +250,8 @@ void ezPxStaticActorComponent::PullSurfacesFromGraphicsMesh(ezHybridArray<physx:
     if (pSurface.GetAcquireResult() != ezResourceAcquireResult::Final)
       continue;
 
-    EZ_ASSERT_DEV(pSurface->m_pPhysicsMaterial != nullptr, "Invalid PhysX material pointer on surface");
-    pxMaterials[s] = static_cast<PxMaterial*>(pSurface->m_pPhysicsMaterial);
+    EZ_ASSERT_DEV(pSurface->m_pPhysicsMaterialPhysX != nullptr, "Invalid PhysX material pointer on surface");
+    pxMaterials[s] = static_cast<PxMaterial*>(pSurface->m_pPhysicsMaterialPhysX);
   }
 }
 

@@ -24,6 +24,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezApplicationPluginConfig_PluginConfig, ezNoBase,
   {
     EZ_MEMBER_PROPERTY("RelativePath", m_sAppDirRelativePath),
     EZ_MEMBER_PROPERTY("LoadCopy", m_bLoadCopy),
+    EZ_SET_MEMBER_PROPERTY("Dependencies", m_sDependecyOf),
   }
   EZ_END_PROPERTIES;
 }
@@ -218,6 +219,7 @@ void ezApplicationPluginConfig::Apply()
 
     ezBitflags<ezPluginLoadFlags> flags;
     flags.AddOrRemove(ezPluginLoadFlags::LoadCopy, var.m_bLoadCopy);
+    flags.AddOrRemove(ezPluginLoadFlags::CustomDependency, !var.m_sDependecyOf.Contains("<manual>"));
 
     ezPlugin::LoadPlugin(var.m_sAppDirRelativePath, flags).IgnoreResult();
   }

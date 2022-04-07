@@ -24,7 +24,7 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezPxJointComponent, 3)
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Physics/Joints"),
+    new ezCategoryAttribute("Physics/PhysX/Constraints"),
   }
   EZ_END_ATTRIBUTES;
 }

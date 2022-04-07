@@ -19,7 +19,7 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezPxShapeComponent, 5)
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Physics/Shapes"),
+    new ezCategoryAttribute("Physics/PhysX/Shapes"),
   }
   EZ_END_ATTRIBUTES;
   EZ_BEGIN_FUNCTIONS
@@ -183,9 +183,9 @@ PxMaterial* ezPxShapeComponent::GetPxMaterial()
   {
     ezResourceLock<ezSurfaceResource> pSurface(m_hSurface, ezResourceAcquireMode::BlockTillLoaded);
 
-    if (pSurface->m_pPhysicsMaterial != nullptr)
+    if (pSurface->m_pPhysicsMaterialPhysX != nullptr)
     {
-      return static_cast<PxMaterial*>(pSurface->m_pPhysicsMaterial);
+      return static_cast<PxMaterial*>(pSurface->m_pPhysicsMaterialPhysX);
     }
   }
 

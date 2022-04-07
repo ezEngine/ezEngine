@@ -65,7 +65,7 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezPxRagdollComponent, 4)
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Physics/Animation"),
+    new ezCategoryAttribute("Physics/PhysX/Animation"),
   }
   EZ_END_ATTRIBUTES;
 }
@@ -730,9 +730,9 @@ void ezPxRagdollComponent::AddLimbGeometry(ezBasisAxis::Enum srcBoneDir, physx::
   {
     ezResourceLock<ezSurfaceResource> pSurface(geo.m_hSurface, ezResourceAcquireMode::BlockTillLoaded);
 
-    if (pSurface->m_pPhysicsMaterial != nullptr)
+    if (pSurface->m_pPhysicsMaterialPhysX != nullptr)
     {
-      pxMaterial = static_cast<physx::PxMaterial*>(pSurface->m_pPhysicsMaterial);
+      pxMaterial = static_cast<physx::PxMaterial*>(pSurface->m_pPhysicsMaterialPhysX);
     }
   }
   else

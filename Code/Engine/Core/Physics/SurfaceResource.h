@@ -37,7 +37,8 @@ public:
 
   static ezEvent<const ezSurfaceResourceEvent&, ezMutex> s_Events;
 
-  void* m_pPhysicsMaterial = nullptr;
+  void* m_pPhysicsMaterialPhysX = nullptr;
+  void* m_pPhysicsMaterialJolt = nullptr;
 
   /// \brief Spawns the prefab that was defined for the given interaction at the given position and using the configured orientation.
   /// Returns false, if the interaction type was not defined in this surface or any of its base surfaces

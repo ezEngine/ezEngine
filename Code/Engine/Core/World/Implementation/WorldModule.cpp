@@ -175,6 +175,45 @@ namespace
   };
 } // namespace
 
+void ezWorldModuleFactory::AdjustBaseTypeId(const ezRTTI* pParentRtti, const ezRTTI* pRtti, ezUInt16 uiParentTypeId)
+{
+  ezDynamicArray<ezPlugin::PluginInfo> infos;
+  ezPlugin::GetAllPluginInfos(infos);
+
+  auto HasManualDependency = [&](const char* szPluginName) -> bool {
+    for (const auto& p : infos)
+    {
+      if (p.m_sName == szPluginName)
+      {
+        return !p.m_LoadFlags.IsSet(ezPluginLoadFlags::CustomDependency);
+      }
+    }
+
+    return false;
+  };
+
+  const char* szPlugin1 = m_CreatorFuncs[uiParentTypeId].m_pRtti->GetPluginName();
+  const char* szPlugin2 = pRtti->GetPluginName();
+
+  const bool bPrio1 = HasManualDependency(szPlugin1);
+  const bool bPrio2 = HasManualDependency(szPlugin2);
+
+  if (bPrio1 && !bPrio2)
+  {
+    // keep the previous one
+    return;
+  }
+
+  if (!bPrio1 && bPrio2)
+  {
+    // take the new one
+    m_TypeToId[pParentRtti] = m_TypeToId[pRtti];
+    return;
+  }
+
+  ezLog::Error("Interface '{}' is already implemented by '{}'. Specify which implementation should be used via RegisterInterfaceImplementation() or WorldModules.ddl config file.", pParentRtti->GetTypeName(), m_CreatorFuncs[uiParentTypeId].m_pRtti->GetTypeName());
+}
+
 void ezWorldModuleFactory::FillBaseTypeIds()
 {
   // m_TypeToId contains RTTI types for ezWorldModules and ezComponents
@@ -225,9 +264,7 @@ void ezWorldModuleFactory::FillBaseTypeIds()
       {
         if (*pParentTypeId != uiTypeId)
         {
-          ezLog::Error("Interface '{}' is already implemented by '{}'. Specify which implementation should be used via "
-                       "RegisterInterfaceImplementation() or WorldModules.ddl config file.",
-            pParentRtti->GetTypeName(), m_CreatorFuncs[*pParentTypeId].m_pRtti->GetTypeName());
+          AdjustBaseTypeId(pParentRtti, pRtti, *pParentTypeId);
         }
       }
       else

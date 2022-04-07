@@ -15,7 +15,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxShapeConvexComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("CollisionMesh", GetMeshFile, SetMeshFile)->AddAttributes(new ezAssetBrowserAttribute("Collision Mesh (Convex)")),
+    EZ_ACCESSOR_PROPERTY("CollisionMesh", GetMeshFile, SetMeshFile)->AddAttributes(new ezAssetBrowserAttribute("Collision Mesh (Convex) (PhysX)")),
   }
   EZ_END_PROPERTIES;
 }
@@ -89,7 +89,7 @@ void ezPxShapeConvexComponent::CreateShapes(ezDynamicArray<physx::PxShape*>& out
     if (!surfaces.IsEmpty() && surfaces[0].IsValid())
     {
       ezResourceLock<ezSurfaceResource> pSurface(surfaces[0], ezResourceAcquireMode::BlockTillLoaded);
-      pMaterial = static_cast<PxMaterial*>(pSurface->m_pPhysicsMaterial);
+      pMaterial = static_cast<PxMaterial*>(pSurface->m_pPhysicsMaterialPhysX);
     }
   }
 

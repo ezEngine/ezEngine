@@ -246,8 +246,11 @@ void ezGameApplicationBase::Deinit_UnloadPlugins()
 
 void ezGameApplicationBase::Deinit_ShutdownLogging()
 {
+#if EZ_DISABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  // during development, keep these loggers active
   ezGlobalLog::RemoveLogWriter(m_LogToConsoleID);
   ezGlobalLog::RemoveLogWriter(m_LogToVsID);
+#endif
 }
 
 

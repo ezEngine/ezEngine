@@ -60,7 +60,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezBreakableSheetComponent, 1, ezComponentMode::Dynamic)
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Physics/Special"),
+    new ezCategoryAttribute("Physics/PhysX/Misc"),
     new ezNonUniformBoxManipulatorAttribute("Width", "Thickness", "Height"),
   }
   EZ_END_ATTRIBUTES;
@@ -884,9 +884,9 @@ static PxMaterial* GetPxMaterial(const ezMaterialResourceHandle& hMaterial)
       if (hSurface.IsValid())
       {
         ezResourceLock<ezSurfaceResource> pSurface(hSurface, ezResourceAcquireMode::BlockTillLoaded);
-        if (pSurface->m_pPhysicsMaterial != nullptr)
+        if (pSurface->m_pPhysicsMaterialPhysX != nullptr)
         {
-          pPxMaterial = static_cast<PxMaterial*>(pSurface->m_pPhysicsMaterial);
+          pPxMaterial = static_cast<PxMaterial*>(pSurface->m_pPhysicsMaterialPhysX);
         }
       }
     }

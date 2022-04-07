@@ -22,7 +22,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxVisColMeshComponent, 1, ezComponentMode::Static)
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Physics/Shapes"),
+    new ezCategoryAttribute("Physics/PhysX/Misc"),
   }
   EZ_END_ATTRIBUTES;
 }
@@ -120,7 +120,7 @@ void ezPxVisColMeshComponent::CreateCollisionRenderMesh()
     return;
 
   ezStringBuilder sColMeshName = pMesh->GetResourceID();
-  sColMeshName.AppendFormat("_{0}_VisColMesh",
+  sColMeshName.AppendFormat("_{0}_PhysXVisColMesh",
     pMesh->GetCurrentResourceChangeCounter()); // the change counter allows to react to resource updates
 
   m_hMesh = ezResourceManager::GetExistingResource<ezMeshResource>(sColMeshName);

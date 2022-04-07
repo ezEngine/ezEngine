@@ -15,7 +15,7 @@ ezQtCollisionMeshAssetDocumentWindow::ezQtCollisionMeshAssetDocumentWindow(ezAss
   {
     ezQtMenuBarActionMapView* pMenuBar = static_cast<ezQtMenuBarActionMapView*>(menuBar());
     ezActionContext context;
-    context.m_sMapping = "CollisionMeshAssetMenuBar";
+    context.m_sMapping = "PxCollisionMeshAssetMenuBar";
     context.m_pDocument = pDocument;
     context.m_pWindow = this;
     pMenuBar->SetActionContext(context);
@@ -25,11 +25,11 @@ ezQtCollisionMeshAssetDocumentWindow::ezQtCollisionMeshAssetDocumentWindow(ezAss
   {
     ezQtToolBarActionMapView* pToolBar = new ezQtToolBarActionMapView("Toolbar", this);
     ezActionContext context;
-    context.m_sMapping = "CollisionMeshAssetToolBar";
+    context.m_sMapping = "PxCollisionMeshAssetToolBar";
     context.m_pDocument = pDocument;
     context.m_pWindow = this;
     pToolBar->SetActionContext(context);
-    pToolBar->setObjectName("CollisionMeshAssetWindowToolBar");
+    pToolBar->setObjectName("PxCollisionMeshAssetWindowToolBar");
     addToolBar(pToolBar);
   }
 
@@ -51,7 +51,7 @@ ezQtCollisionMeshAssetDocumentWindow::ezQtCollisionMeshAssetDocumentWindow(ezAss
   // Property Grid
   {
     ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
-    pPropertyPanel->setObjectName("CollisionMeshAssetDockWidget");
+    pPropertyPanel->setObjectName("PxCollisionMeshAssetDockWidget");
     pPropertyPanel->setWindowTitle("Collision Mesh Properties");
     pPropertyPanel->show();
 

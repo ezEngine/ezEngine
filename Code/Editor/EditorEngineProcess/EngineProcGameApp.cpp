@@ -467,6 +467,22 @@ ezEngineProcessDocumentContext* ezEngineProcessGameApplication::CreateDocumentCo
 
 void ezEngineProcessGameApplication::Init_LoadProjectPlugins()
 {
+  m_CustomPluginConfig.m_Plugins.Sort([](const ezApplicationPluginConfig::PluginConfig& lhs, const ezApplicationPluginConfig::PluginConfig& rhs) -> bool {
+    const bool isEnginePluginLhs = lhs.m_sAppDirRelativePath.FindSubString_NoCase("EnginePlugin") != nullptr;
+    const bool isEnginePluginRhs = rhs.m_sAppDirRelativePath.FindSubString_NoCase("EnginePlugin") != nullptr;
+
+    if (isEnginePluginLhs != isEnginePluginRhs)
+    {
+      // make sure the "engine plugins" end up at the back of the list
+      // the reason for this is, that the engine plugins often have a link dependency on runtime plugins and pull their reflection data in right away
+      // but then the ezPlugin system doesn't know that certain reflected types actually come from some runtime plugin
+      // by loading the editor engine plugins last, this solves that problem
+      return isEnginePluginRhs;
+    }
+
+    return lhs.m_sAppDirRelativePath.Compare_NoCase(rhs.m_sAppDirRelativePath) < 0;
+  });
+
   m_CustomPluginConfig.SetOnlyLoadManualPlugins(false); // we also want to load editor plugin dependencies
   m_CustomPluginConfig.Apply();
 }

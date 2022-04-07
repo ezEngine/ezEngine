@@ -33,7 +33,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezRmlUiCanvas2DComponent, 2, ezComponentMode::Static)
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("RmlUi"),
+    new ezCategoryAttribute("Gui/RmlUi"),
   }
   EZ_END_ATTRIBUTES;
 }

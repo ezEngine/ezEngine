@@ -24,6 +24,7 @@ struct ModuleData
   ezHybridArray<ezPluginInitCallback, 2> m_OnLoadCB;
   ezHybridArray<ezPluginInitCallback, 2> m_OnUnloadCB;
   ezHybridArray<ezString, 2> m_sPluginDependencies;
+  ezBitflags<ezPluginLoadFlags> m_LoadFlags;
 
   void Initialize();
   void Uninitialize();
@@ -59,6 +60,7 @@ void ezPlugin::GetAllPluginInfos(ezDynamicArray<PluginInfo>& infos)
     auto& pi = infos.ExpandAndGetRef();
     pi.m_sName = mod.Key();
     pi.m_sDependencies = mod.Value().m_sPluginDependencies;
+    pi.m_LoadFlags = mod.Value().m_LoadFlags;
   }
 }
 
@@ -223,6 +225,7 @@ success:
 
   auto& thisMod = g_LoadedModules[szPluginFile];
   thisMod.m_uiFileNumber = uiFileNumber;
+  thisMod.m_LoadFlags = flags;
 
   ezPlugin::BeginPluginChanges();
   EZ_SCOPE_EXIT(ezPlugin::EndPluginChanges());

@@ -39,7 +39,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezRopeRenderComponent, 2, ezComponentMode::Static)
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Effects"),
+    new ezCategoryAttribute("Effects/Ropes"),
   }
   EZ_END_ATTRIBUTES;
 }

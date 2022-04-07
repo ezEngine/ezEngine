@@ -12,7 +12,7 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezPxActorComponent, 1)
 {
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Physics/Actors"),
+    new ezCategoryAttribute("Physics/PhysX/Actors"),
   }
   EZ_END_ATTRIBUTES;
 }

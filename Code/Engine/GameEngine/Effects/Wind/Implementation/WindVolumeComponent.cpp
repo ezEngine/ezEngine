@@ -29,7 +29,7 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezWindVolumeComponent, 2)
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Effects"),
+    new ezCategoryAttribute("Effects/Wind"),
   }
   EZ_END_ATTRIBUTES;
 }
