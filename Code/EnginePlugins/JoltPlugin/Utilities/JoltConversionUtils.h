@@ -23,7 +23,7 @@ namespace ezJoltConversionUtils
     return reinterpret_cast<const ezColor&>(v4);
   }
 
-  EZ_ALWAYS_INLINE ezSimdVec4f ToSimdVec3(const JPH::Vec3& v) { return ezSimdVec4f(ezSimdFloat(v.mValue)); }
+  EZ_ALWAYS_INLINE ezSimdVec4f ToSimdVec3(const JPH::Vec3& v) { return ezSimdVec4f(ezSimdFloat(ezInternal::QuadFloat(v.mValue))); }
 
   EZ_ALWAYS_INLINE JPH::Vec3 ToVec3(const ezVec3& v) { return JPH::Vec3(v.x, v.y, v.z); }
 
