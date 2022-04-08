@@ -1,19 +1,19 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Jolt.h>
+#include <Jolt/Jolt.h>
 
-#include <Physics/Collision/CastSphereVsTriangles.h>
-#include <Physics/Collision/TransformedShape.h>
-#include <Physics/Collision/Shape/ScaleHelpers.h>
-#include <Physics/Collision/Shape/SphereShape.h>
-#include <Physics/Collision/ActiveEdges.h>
-#include <Physics/Collision/NarrowPhaseStats.h>
-#include <Geometry/ClosestPoint.h>
-#include <Geometry/RaySphere.h>
-#include <Core/Profiler.h>
+#include <Jolt/Physics/Collision/CastSphereVsTriangles.h>
+#include <Jolt/Physics/Collision/TransformedShape.h>
+#include <Jolt/Physics/Collision/Shape/ScaleHelpers.h>
+#include <Jolt/Physics/Collision/Shape/SphereShape.h>
+#include <Jolt/Physics/Collision/ActiveEdges.h>
+#include <Jolt/Physics/Collision/NarrowPhaseStats.h>
+#include <Jolt/Geometry/ClosestPoint.h>
+#include <Jolt/Geometry/RaySphere.h>
+#include <Jolt/Core/Profiler.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 CastSphereVsTriangles::CastSphereVsTriangles(const ShapeCast &inShapeCast, const ShapeCastSettings &inShapeCastSettings, const Vec3 &inScale, const ShapeFilter &inShapeFilter, const Mat44 &inCenterOfMassTransform2, const SubShapeIDCreator &inSubShapeIDCreator1, CastShapeCollector &ioCollector) :
 	mStart(inShapeCast.mCenterOfMassStart.GetTranslation()),
@@ -215,4 +215,4 @@ void CastSphereVsTriangles::Cast(Vec3Arg inV0, Vec3Arg inV1, Vec3Arg inV2, uint8
 	}
 }
 
-} // JPH
+JPH_NAMESPACE_END

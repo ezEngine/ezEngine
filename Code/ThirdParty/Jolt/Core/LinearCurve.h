@@ -3,9 +3,9 @@
 
 #pragma once
 
-#include <ObjectStream/SerializableObject.h>
+#include <Jolt/ObjectStream/SerializableObject.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 class StreamOut;
 class StreamIn;
@@ -62,4 +62,4 @@ public:
 	Points				mPoints;
 };
 
-} // JPH
+JPH_NAMESPACE_END

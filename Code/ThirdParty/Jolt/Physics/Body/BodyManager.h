@@ -3,11 +3,11 @@
 
 #pragma once
 
-#include <Physics/Body/Body.h>
-#include <Core/Mutex.h>
-#include <Core/MutexArray.h>
+#include <Jolt/Physics/Body/Body.h>
+#include <Jolt/Core/Mutex.h>
+#include <Jolt/Core/MutexArray.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 // Classes
 class BodyCreationSettings;
@@ -283,4 +283,4 @@ private:
 #endif
 };
 
-} // JPH
+JPH_NAMESPACE_END

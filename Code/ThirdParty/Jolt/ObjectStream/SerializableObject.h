@@ -3,9 +3,9 @@
 
 #pragma once
 
-#include <ObjectStream/SerializableAttribute.h>
+#include <Jolt/ObjectStream/SerializableAttribute.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Helper macros
@@ -164,7 +164,7 @@ void OSVisitCompounds(const void *inObject, const RTTI *inRTTI, const CompoundVi
 	inline void OSVisitCompounds(const name &inObject, const CompoundVisitor &inVisitor) { }
 
 // This file uses the JPH_DECLARE_PRIMITIVE macro to define all types
-#include <ObjectStream/ObjectStreamTypes.h>
+#include <Jolt/ObjectStream/ObjectStreamTypes.h>
 
 /// Define visitor templates
 template <class T>
@@ -218,4 +218,4 @@ public:
 	virtual void				OnLoaded()																			{ }
 };
 
-} // JPH
+JPH_NAMESPACE_END

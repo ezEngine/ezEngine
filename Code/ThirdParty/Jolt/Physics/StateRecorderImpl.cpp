@@ -1,11 +1,11 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Jolt.h>
+#include <Jolt/Jolt.h>
 
-#include <Physics/StateRecorderImpl.h>
+#include <Jolt/Physics/StateRecorderImpl.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 void StateRecorderImpl::WriteBytes(const void *inData, size_t inNumBytes)
 {
@@ -80,4 +80,4 @@ bool StateRecorderImpl::IsEqual(StateRecorderImpl &inReference)
 	return true;
 }
 
-} // JPH
+JPH_NAMESPACE_END

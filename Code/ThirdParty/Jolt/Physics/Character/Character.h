@@ -3,10 +3,10 @@
 
 #pragma once
 
-#include <Core/Reference.h>
-#include <Physics/EActivation.h>
+#include <Jolt/Core/Reference.h>
+#include <Jolt/Physics/EActivation.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 class Character;
 class PhysicsSystem;
@@ -179,4 +179,4 @@ private:
 	RefConst<PhysicsMaterial>			mGroundMaterial;
 };
 
-} // JPH
+JPH_NAMESPACE_END

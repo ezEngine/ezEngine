@@ -1,18 +1,18 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Jolt.h>
+#include <Jolt/Jolt.h>
 
-#include <Physics/Collision/Shape/RotatedTranslatedShape.h>
-#include <Physics/Collision/CollisionDispatch.h>
-#include <Physics/Collision/RayCast.h>
-#include <Physics/Collision/ShapeCast.h>
-#include <Physics/Collision/TransformedShape.h>
-#include <Core/StreamIn.h>
-#include <Core/StreamOut.h>
-#include <ObjectStream/TypeDeclarations.h>
+#include <Jolt/Physics/Collision/Shape/RotatedTranslatedShape.h>
+#include <Jolt/Physics/Collision/CollisionDispatch.h>
+#include <Jolt/Physics/Collision/RayCast.h>
+#include <Jolt/Physics/Collision/ShapeCast.h>
+#include <Jolt/Physics/Collision/TransformedShape.h>
+#include <Jolt/Core/StreamIn.h>
+#include <Jolt/Core/StreamOut.h>
+#include <Jolt/ObjectStream/TypeDeclarations.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 JPH_IMPLEMENT_SERIALIZABLE_VIRTUAL(RotatedTranslatedShapeSettings)
 {
@@ -178,7 +178,7 @@ void RotatedTranslatedShape::sCastRotatedTranslatedVsShape(const ShapeCast &inSh
 	Vec3 scale = shape1->TransformScale(inShapeCast.mScale);
 	ShapeCast shape_cast(shape1->mInnerShape, scale, transform, inShapeCast.mDirection);
 
-	CollisionDispatch::sCastShapeVsShape(shape_cast, inShapeCastSettings, inShape, inScale, inShapeFilter, inCenterOfMassTransform2, inSubShapeIDCreator1, inSubShapeIDCreator2, ioCollector);
+	CollisionDispatch::sCastShapeVsShapeLocalSpace(shape_cast, inShapeCastSettings, inShape, inScale, inShapeFilter, inCenterOfMassTransform2, inSubShapeIDCreator1, inSubShapeIDCreator2, ioCollector);
 }
 
 void RotatedTranslatedShape::sCastShapeVsRotatedTranslated(const ShapeCast &inShapeCast, const ShapeCastSettings &inShapeCastSettings, const Shape *inShape, Vec3Arg inScale, const ShapeFilter &inShapeFilter, Mat44Arg inCenterOfMassTransform2, const SubShapeIDCreator &inSubShapeIDCreator1, const SubShapeIDCreator &inSubShapeIDCreator2, CastShapeCollector &ioCollector)
@@ -192,7 +192,7 @@ void RotatedTranslatedShape::sCastShapeVsRotatedTranslated(const ShapeCast &inSh
 	// Transform the shape cast
 	ShapeCast shape_cast = inShapeCast.PostTransformed(local_transform.Transposed3x3());
 
-	CollisionDispatch::sCastShapeVsShape(shape_cast, inShapeCastSettings, shape->mInnerShape, shape->TransformScale(inScale), inShapeFilter, inCenterOfMassTransform2 * local_transform, inSubShapeIDCreator1, inSubShapeIDCreator2, ioCollector);
+	CollisionDispatch::sCastShapeVsShapeLocalSpace(shape_cast, inShapeCastSettings, shape->mInnerShape, shape->TransformScale(inScale), inShapeFilter, inCenterOfMassTransform2 * local_transform, inSubShapeIDCreator1, inSubShapeIDCreator2, ioCollector);
 }
 
 void RotatedTranslatedShape::SaveBinaryState(StreamOut &inStream) const
@@ -241,4 +241,4 @@ void RotatedTranslatedShape::sRegister()
 	}
 }
 
-} // JPH
+JPH_NAMESPACE_END

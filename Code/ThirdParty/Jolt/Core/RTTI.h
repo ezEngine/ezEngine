@@ -3,10 +3,10 @@
 
 #pragma once
 
-#include <Core/Reference.h>
-#include <Core/StaticArray.h>
+#include <Jolt/Core/Reference.h>
+#include <Jolt/Core/StaticArray.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // RTTI
@@ -464,4 +464,4 @@ private:
 	const char *				mName;
 };
 
-} // JPH
+JPH_NAMESPACE_END

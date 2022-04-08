@@ -1,18 +1,18 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Jolt.h>
+#include <Jolt/Jolt.h>
 
-#include <Physics/Collision/Shape/ScaledShape.h>
-#include <Physics/Collision/RayCast.h>
-#include <Physics/Collision/ShapeCast.h>
-#include <Physics/Collision/TransformedShape.h>
-#include <Physics/Collision/CollisionDispatch.h>
-#include <ObjectStream/TypeDeclarations.h>
-#include <Core/StreamIn.h>
-#include <Core/StreamOut.h>
+#include <Jolt/Physics/Collision/Shape/ScaledShape.h>
+#include <Jolt/Physics/Collision/RayCast.h>
+#include <Jolt/Physics/Collision/ShapeCast.h>
+#include <Jolt/Physics/Collision/TransformedShape.h>
+#include <Jolt/Physics/Collision/CollisionDispatch.h>
+#include <Jolt/ObjectStream/TypeDeclarations.h>
+#include <Jolt/Core/StreamIn.h>
+#include <Jolt/Core/StreamOut.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 JPH_IMPLEMENT_SERIALIZABLE_VIRTUAL(ScaledShapeSettings)
 {
@@ -174,7 +174,7 @@ void ScaledShape::sCastScaledVsShape(const ShapeCast &inShapeCast, const ShapeCa
 	const ScaledShape *shape = static_cast<const ScaledShape *>(inShapeCast.mShape);
 
 	ShapeCast scaled_cast(shape->GetInnerShape(), inShapeCast.mScale * shape->GetScale(), inShapeCast.mCenterOfMassStart, inShapeCast.mDirection);
-	CollisionDispatch::sCastShapeVsShape(scaled_cast, inShapeCastSettings, inShape, inScale, inShapeFilter, inCenterOfMassTransform2, inSubShapeIDCreator1, inSubShapeIDCreator2, ioCollector);
+	CollisionDispatch::sCastShapeVsShapeLocalSpace(scaled_cast, inShapeCastSettings, inShape, inScale, inShapeFilter, inCenterOfMassTransform2, inSubShapeIDCreator1, inSubShapeIDCreator2, ioCollector);
 }
 
 void ScaledShape::sCastShapeVsScaled(const ShapeCast &inShapeCast, const ShapeCastSettings &inShapeCastSettings, const Shape *inShape, Vec3Arg inScale, const ShapeFilter &inShapeFilter, Mat44Arg inCenterOfMassTransform2, const SubShapeIDCreator &inSubShapeIDCreator1, const SubShapeIDCreator &inSubShapeIDCreator2, CastShapeCollector &ioCollector)
@@ -182,7 +182,7 @@ void ScaledShape::sCastShapeVsScaled(const ShapeCast &inShapeCast, const ShapeCa
 	JPH_ASSERT(inShape->GetSubType() == EShapeSubType::Scaled);
 	const ScaledShape *shape = static_cast<const ScaledShape *>(inShape);
 
-	CollisionDispatch::sCastShapeVsShape(inShapeCast, inShapeCastSettings, shape->mInnerShape, inScale * shape->mScale, inShapeFilter, inCenterOfMassTransform2, inSubShapeIDCreator1, inSubShapeIDCreator2, ioCollector);
+	CollisionDispatch::sCastShapeVsShapeLocalSpace(inShapeCast, inShapeCastSettings, shape->mInnerShape, inScale * shape->mScale, inShapeFilter, inCenterOfMassTransform2, inSubShapeIDCreator1, inSubShapeIDCreator2, ioCollector);
 }
 
 void ScaledShape::sRegister()
@@ -200,4 +200,4 @@ void ScaledShape::sRegister()
 	}
 }
 
-} // JPH
+JPH_NAMESPACE_END

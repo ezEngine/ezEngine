@@ -3,9 +3,11 @@
 
 #pragma once
 
+JPH_SUPPRESS_WARNINGS_STD_BEGIN
 #include <atomic>
+JPH_SUPPRESS_WARNINGS_STD_END
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 // Forward declares
 template <class T> class Ref;
@@ -186,7 +188,10 @@ private:
 	const T *				mPtr;											///< Pointer to object that we are reference counting
 };						
 
-} // JPH
+JPH_NAMESPACE_END
+
+JPH_SUPPRESS_WARNING_PUSH
+JPH_CLANG_SUPPRESS_WARNING("-Wc++98-compat")
 
 namespace std
 {
@@ -210,3 +215,5 @@ namespace std
 		}
 	};
 }
+
+JPH_SUPPRESS_WARNING_POP

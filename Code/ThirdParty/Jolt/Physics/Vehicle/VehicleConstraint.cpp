@@ -1,17 +1,17 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Jolt.h>
+#include <Jolt/Jolt.h>
 
-#include <Physics/Vehicle/VehicleConstraint.h>
-#include <Physics/Vehicle/VehicleController.h>
-#include <Physics/PhysicsSystem.h>
-#include <ObjectStream/TypeDeclarations.h>
-#include <Core/StreamIn.h>
-#include <Core/StreamOut.h>
-#include <Core/Factory.h>
+#include <Jolt/Physics/Vehicle/VehicleConstraint.h>
+#include <Jolt/Physics/Vehicle/VehicleController.h>
+#include <Jolt/Physics/PhysicsSystem.h>
+#include <Jolt/ObjectStream/TypeDeclarations.h>
+#include <Jolt/Core/StreamIn.h>
+#include <Jolt/Core/StreamOut.h>
+#include <Jolt/Core/Factory.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 JPH_IMPLEMENT_SERIALIZABLE_VIRTUAL(VehicleConstraintSettings)
 {
@@ -481,4 +481,4 @@ void VehicleConstraint::RestoreState(StateRecorder &inStream)
 	mPitchRollPart.RestoreState(inStream);
 }
 
-} // JPH
+JPH_NAMESPACE_END

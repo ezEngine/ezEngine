@@ -1,15 +1,18 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Math/Vec4.h>
-#include <Math/UVec4.h>
-#include <Core/HashCombine.h>
+#include <Jolt/Math/Vec4.h>
+#include <Jolt/Math/UVec4.h>
+#include <Jolt/Core/HashCombine.h>
+
+JPH_SUPPRESS_WARNINGS_STD_BEGIN
 #include <random>
+JPH_SUPPRESS_WARNINGS_STD_END
 
 // Create a std::hash for Vec3
 JPH_MAKE_HASHABLE(JPH::Vec3, t.GetX(), t.GetY(), t.GetZ())
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 void Vec3::CheckW() const
 { 
@@ -223,14 +226,21 @@ Vec3 Vec3::sFusedMultiplyAdd(Vec3Arg inMul1, Vec3Arg inMul2, Vec3Arg inAdd)
 
 Vec3 Vec3::sSelect(Vec3Arg inV1, Vec3Arg inV2, UVec4Arg inControl)
 {
-#if defined(JPH_USE_SSE)
+#if defined(JPH_USE_SSE4_1)
 	Type v = _mm_blendv_ps(inV1.mValue, inV2.mValue, _mm_castsi128_ps(inControl.mValue));
+	return sFixW(v);
 #elif defined(JPH_USE_NEON)
 	Type v = vbslq_f32(vshrq_n_s32(inControl.mValue, 31), inV2.mValue, inV1.mValue);
-#else
-	#error Unsupported CPU architecture
-#endif
 	return sFixW(v);
+#else
+	Vec3 result;
+	for (int i = 0; i < 3; i++)
+		result.mF32[i] = inControl.mU32[i] ? inV2.mF32[i] : inV1.mF32[i];
+#ifdef JPH_FLOATING_POINT_EXCEPTIONS_ENABLED
+	result.mF32[3] = result.mF32[2];
+#endif // JPH_FLOATING_POINT_EXCEPTIONS_ENABLED
+	return result;
+#endif
 }
 
 Vec3 Vec3::sOr(Vec3Arg inV1, Vec3Arg inV2)
@@ -527,59 +537,71 @@ Vec3 Vec3::Cross(Vec3Arg inV2) const
 
 Vec3 Vec3::DotV(Vec3Arg inV2) const
 {
-#if defined(JPH_USE_SSE)
+#if defined(JPH_USE_SSE4_1)
 	return _mm_dp_ps(mValue, inV2.mValue, 0x7f);
 #elif defined(JPH_USE_NEON)
     float32x4_t mul = vmulq_f32(mValue, inV2.mValue);
 	mul = vsetq_lane_f32(0, mul, 3);
     return vdupq_n_f32(vaddvq_f32(mul));
 #else
-	#error Unsupported CPU architecture
+	float dot = 0.0f;
+	for (int i = 0; i < 3; i++)
+		dot += mF32[i] * inV2.mF32[i];
+	return Vec3::sReplicate(dot);
 #endif
 }
 
 Vec4 Vec3::DotV4(Vec3Arg inV2) const
 {
-#if defined(JPH_USE_SSE)
+#if defined(JPH_USE_SSE4_1)
 	return _mm_dp_ps(mValue, inV2.mValue, 0x7f);
 #elif defined(JPH_USE_NEON)
     float32x4_t mul = vmulq_f32(mValue, inV2.mValue);
 	mul = vsetq_lane_f32(0, mul, 3);
     return vdupq_n_f32(vaddvq_f32(mul));
 #else
-	#error Unsupported CPU architecture
+	float dot = 0.0f;
+	for (int i = 0; i < 3; i++)
+		dot += mF32[i] * inV2.mF32[i];
+	return Vec4::sReplicate(dot);
 #endif
 }
 
 float Vec3::Dot(Vec3Arg inV2) const
 {
-#if defined(JPH_USE_SSE)
+#if defined(JPH_USE_SSE4_1)
 	return _mm_cvtss_f32(_mm_dp_ps(mValue, inV2.mValue, 0x7f));
 #elif defined(JPH_USE_NEON)
     float32x4_t mul = vmulq_f32(mValue, inV2.mValue);
 	mul = vsetq_lane_f32(0, mul, 3);
     return vaddvq_f32(mul);
 #else
-	#error Unsupported CPU architecture
+	float dot = 0.0f;
+	for (int i = 0; i < 3; i++)
+		dot += mF32[i] * inV2.mF32[i];
+	return dot;
 #endif
 }
 
 float Vec3::LengthSq() const
 {
-#if defined(JPH_USE_SSE)
+#if defined(JPH_USE_SSE4_1)
 	return _mm_cvtss_f32(_mm_dp_ps(mValue, mValue, 0x7f));
 #elif defined(JPH_USE_NEON)
     float32x4_t mul = vmulq_f32(mValue, mValue);
 	mul = vsetq_lane_f32(0, mul, 3);
     return vaddvq_f32(mul);
 #else
-	#error Unsupported CPU architecture
+	float len_sq = 0.0f;
+	for (int i = 0; i < 3; i++)
+		len_sq += mF32[i] * mF32[i];
+	return len_sq;
 #endif
 }
 
 float Vec3::Length() const
 {
-#if defined(JPH_USE_SSE)
+#if defined(JPH_USE_SSE4_1)
 	return _mm_cvtss_f32(_mm_sqrt_ss(_mm_dp_ps(mValue, mValue, 0x7f)));
 #elif defined(JPH_USE_NEON)
     float32x4_t mul = vmulq_f32(mValue, mValue);
@@ -587,7 +609,7 @@ float Vec3::Length() const
     float32x2_t sum = vdup_n_f32(vaddvq_f32(mul));
     return vget_lane_f32(vsqrt_f32(sum), 0);
 #else
-	#error Unsupported CPU architecture
+	return sqrt(LengthSq());
 #endif
 }
 
@@ -604,7 +626,7 @@ Vec3 Vec3::Sqrt() const
 
 Vec3 Vec3::Normalized() const
 {
-#if defined(JPH_USE_SSE)
+#if defined(JPH_USE_SSE4_1)
 	return _mm_div_ps(mValue, _mm_sqrt_ps(_mm_dp_ps(mValue, mValue, 0x7f)));
 #elif defined(JPH_USE_NEON)
     float32x4_t mul = vmulq_f32(mValue, mValue);
@@ -612,13 +634,13 @@ Vec3 Vec3::Normalized() const
     float32x4_t sum = vdupq_n_f32(vaddvq_f32(mul));
     return vdivq_f32(mValue, vsqrtq_f32(sum));
 #else
-	#error Unsupported CPU architecture
+	return *this / Length();
 #endif
 }
 
 Vec3 Vec3::NormalizedOr(Vec3Arg inZeroValue) const
 {
-#if defined(JPH_USE_SSE)
+#if defined(JPH_USE_SSE4_1)
 	Type len_sq = _mm_dp_ps(mValue, mValue, 0x7f);
 	Type is_zero = _mm_cmpeq_ps(len_sq, _mm_setzero_ps());
 #ifdef JPH_FLOATING_POINT_EXCEPTIONS_ENABLED
@@ -637,7 +659,11 @@ Vec3 Vec3::NormalizedOr(Vec3Arg inZeroValue) const
 	float32x4_t is_zero = vceqq_f32(len, vdupq_n_f32(0));
     return vbslq_f32(is_zero, inZeroValue.mValue, vdivq_f32(mValue, len));
 #else
-	#error Unsupported CPU architecture
+	float len_sq = LengthSq();
+	if (len_sq == 0.0f)
+		return inZeroValue;
+	else
+		return *this / sqrt(len_sq);
 #endif
 }
 
@@ -741,4 +767,4 @@ Vec3 Vec3::GetSign() const
 #endif
 }
 
-} // JPH
+JPH_NAMESPACE_END

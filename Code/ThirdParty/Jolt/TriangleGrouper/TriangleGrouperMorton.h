@@ -3,9 +3,9 @@
 
 #pragma once
 
-#include <TriangleGrouper/TriangleGrouper.h>
+#include <Jolt/TriangleGrouper/TriangleGrouper.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 /// A class that groups triangles in batches of N according to morton code of centroid.
 /// Time complexity: O(N log(N))
@@ -16,4 +16,4 @@ public:
 	virtual void			Group(const VertexList &inVertices, const IndexedTriangleList &inTriangles, int inGroupSize, vector<uint> &outGroupedTriangleIndices) override;
 };
 
-} // JPH
+JPH_NAMESPACE_END

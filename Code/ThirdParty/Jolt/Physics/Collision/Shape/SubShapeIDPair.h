@@ -3,11 +3,11 @@
 
 #pragma once
 
-#include <Physics/Body/BodyID.h>
-#include <Physics/Collision/Shape/SubShapeID.h>
-#include <Core/HashCombine.h>
+#include <Jolt/Physics/Body/BodyID.h>
+#include <Jolt/Physics/Collision/Shape/SubShapeID.h>
+#include <Jolt/Core/HashCombine.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 /// A pair of bodies and their sub shape ID's. Can be used as a key in a map to find a contact point.
 class SubShapeIDPair
@@ -54,6 +54,6 @@ private:
 static_assert(sizeof(SubShapeIDPair) == 16, "Unexpected size"); 
 static_assert(alignof(SubShapeIDPair) == 4, "Assuming 4 byte aligned");
 
-} // JPH
+JPH_NAMESPACE_END
 
 JPH_MAKE_HASHABLE(JPH::SubShapeIDPair, t.GetBody1ID().GetIndexAndSequenceNumber(), t.GetSubShapeID1().GetValue(), t.GetBody2ID().GetIndexAndSequenceNumber(), t.GetSubShapeID2().GetValue())

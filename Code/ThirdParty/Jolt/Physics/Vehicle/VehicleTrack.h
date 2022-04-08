@@ -3,13 +3,13 @@
 
 #pragma once
 
-#include <ObjectStream/SerializableObject.h>
-#include <Core/LinearCurve.h>
-#include <Core/StreamIn.h>
-#include <Core/StreamOut.h>
-#include <Physics/StateRecorder.h>
+#include <Jolt/ObjectStream/SerializableObject.h>
+#include <Jolt/Core/LinearCurve.h>
+#include <Jolt/Core/StreamIn.h>
+#include <Jolt/Core/StreamOut.h>
+#include <Jolt/Physics/StateRecorder.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 /// On which side of the vehicle the track is located (for steering)
 enum class ETrackSide : uint
@@ -52,4 +52,4 @@ public:
 
 using VehicleTracks = VehicleTrack[(int)ETrackSide::Num];
 
-} // JPH
+JPH_NAMESPACE_END

@@ -1,14 +1,14 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Jolt.h>
+#include <Jolt/Jolt.h>
 
-#include <Skeleton/Skeleton.h>
-#include <ObjectStream/TypeDeclarations.h>
-#include <Core/StreamIn.h>
-#include <Core/StreamOut.h>
+#include <Jolt/Skeleton/Skeleton.h>
+#include <Jolt/ObjectStream/TypeDeclarations.h>
+#include <Jolt/Core/StreamIn.h>
+#include <Jolt/Core/StreamOut.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 JPH_IMPLEMENT_SERIALIZABLE_NON_VIRTUAL(Skeleton::Joint)
 {
@@ -69,4 +69,4 @@ Skeleton::SkeletonResult Skeleton::sRestoreFromBinaryState(StreamIn &inStream)
 	return result;
 }
 
-} // JPH
+JPH_NAMESPACE_END

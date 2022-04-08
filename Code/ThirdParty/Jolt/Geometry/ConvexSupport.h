@@ -3,9 +3,9 @@
 
 #pragma once
 
-#include <Math/Mat44.h>
+#include <Jolt/Math/Mat44.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 /// Helper functions to get the support point for a convex object
 /// Structure that transforms a convex object (supports only uniform scaling)
@@ -184,4 +184,4 @@ struct PolygonConvexSupport
 	const VERTEX_ARRAY &	mVertices;
 };
 
-} // JPH
+JPH_NAMESPACE_END

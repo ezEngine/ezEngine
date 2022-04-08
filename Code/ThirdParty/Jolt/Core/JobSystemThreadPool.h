@@ -3,13 +3,16 @@
 
 #pragma once
 
-#include <Core/JobSystem.h>
-#include <Core/FixedSizeFreeList.h>
+#include <Jolt/Core/JobSystem.h>
+#include <Jolt/Core/FixedSizeFreeList.h>
+
+JPH_SUPPRESS_WARNINGS_STD_BEGIN
 #include <thread>
 #include <mutex>
 #include <condition_variable>
+JPH_SUPPRESS_WARNINGS_STD_END
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 /// Implementation of a JobSystem using a thread pool
 /// 
@@ -147,4 +150,4 @@ private:
 	atomic<bool>			mQuit = false;
 };
 
-} // JPH
+JPH_NAMESPACE_END

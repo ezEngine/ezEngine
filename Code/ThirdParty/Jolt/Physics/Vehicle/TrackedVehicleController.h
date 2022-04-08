@@ -3,13 +3,13 @@
 
 #pragma once
 
-#include <Physics/Vehicle/VehicleConstraint.h>
-#include <Physics/Vehicle/VehicleController.h>
-#include <Physics/Vehicle/VehicleEngine.h>
-#include <Physics/Vehicle/VehicleTransmission.h>
-#include <Physics/Vehicle/VehicleTrack.h>
+#include <Jolt/Physics/Vehicle/VehicleConstraint.h>
+#include <Jolt/Physics/Vehicle/VehicleController.h>
+#include <Jolt/Physics/Vehicle/VehicleEngine.h>
+#include <Jolt/Physics/Vehicle/VehicleTransmission.h>
+#include <Jolt/Physics/Vehicle/VehicleTrack.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 class PhysicsSystem;
 
@@ -141,4 +141,4 @@ protected:
 #endif // JPH_DEBUG_RENDERER
 };
 
-} // JPH
+JPH_NAMESPACE_END

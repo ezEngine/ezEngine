@@ -3,12 +3,12 @@
 
 #pragma once
 
-#include <Physics/Vehicle/VehicleConstraint.h>
-#include <ObjectStream/SerializableObject.h>
-#include <Core/StreamIn.h>
-#include <Core/StreamOut.h>
+#include <Jolt/Physics/Vehicle/VehicleConstraint.h>
+#include <Jolt/ObjectStream/SerializableObject.h>
+#include <Jolt/Core/StreamIn.h>
+#include <Jolt/Core/StreamOut.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 class VehicleController;
 
@@ -64,4 +64,4 @@ protected:
 	VehicleConstraint &			mConstraint;								///< The vehicle constraint we belong to
 };
 
-} // JPH
+JPH_NAMESPACE_END

@@ -1,16 +1,16 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Jolt.h>
+#include <Jolt/Jolt.h>
 
-#include <Core/TickCounter.h>
+#include <Jolt/Core/TickCounter.h>
 
 #if defined(JPH_PLATFORM_WINDOWS)
-	#pragma warning (push, 0)
-	#pragma warning (disable : 5039) // winbase.h(13179): warning C5039: 'TpSetCallbackCleanupGroup': pointer or reference to potentially throwing function passed to 'extern "C"' function under -EHc. Undefined behavior may occur if this function throws an exception.
+	JPH_SUPPRESS_WARNING_PUSH
+	JPH_MSVC_SUPPRESS_WARNING(5039) // winbase.h(13179): warning C5039: 'TpSetCallbackCleanupGroup': pointer or reference to potentially throwing function passed to 'extern "C"' function under -EHc. Undefined behavior may occur if this function throws an exception.
 	#define WIN32_LEAN_AND_MEAN
-	#include <windows.h>
-	#pragma warning (pop)
+	#include <Windows.h>
+	JPH_SUPPRESS_WARNING_POP
 #elif defined(JPH_PLATFORM_LINUX) || defined(JPH_PLATFORM_ANDROID)
 	#include <fstream>
 #elif defined(JPH_PLATFORM_MACOS) || defined(JPH_PLATFORM_IOS)
@@ -18,27 +18,36 @@
 	#include <sys/sysctl.h>
 #endif
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
+
+#ifdef JPH_PLATFORM_WINDOWS_UWP
+
+uint64 GetProcessorTickCount()
+{
+	LARGE_INTEGER count;
+	QueryPerformanceCounter(&count);
+	return uint64(count.QuadPart);
+}
+
+#endif // JPH_PLATFORM_WINDOWS_UWP
 
 static const uint64 sProcessorTicksPerSecond = []() {
-#if defined(JPH_PLATFORM_WINDOWS)
-
-	uint mhz = 0;
-
-#if WINAPI_FAMILY == WINAPI_FAMILY_APP
-  mhz = 1000;
-#else
+#if defined(JPH_PLATFORM_WINDOWS_UWP)
+	LARGE_INTEGER frequency { };
+	QueryPerformanceFrequency(&frequency);
+	return uint64(frequency.QuadPart);
+#elif defined(JPH_PLATFORM_WINDOWS)
 	// Open the key where the processor speed is stored
 	HKEY hkey;
 	RegOpenKeyExA(HKEY_LOCAL_MACHINE, "HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0", 0, 1, &hkey);
 
 	// Query the speed in MHz
+	uint mhz = 0;
 	DWORD mhz_size = sizeof(uint);
 	RegQueryValueExA(hkey, "~MHz", nullptr, nullptr, (LPBYTE)&mhz, &mhz_size);
 
 	// Close key
 	RegCloseKey(hkey);
-#endif
 
 	// Initialize amount of cycles per second
 	return uint64(mhz) * 1000000UL;
@@ -101,4 +110,4 @@ uint64 GetProcessorTicksPerSecond()
 	return sProcessorTicksPerSecond;
 }
 
-} // JPH
+JPH_NAMESPACE_END

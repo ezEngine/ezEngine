@@ -1,11 +1,11 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Jolt.h>
+#include <Jolt/Jolt.h>
 
-#include <ObjectStream/ObjectStreamBinaryIn.h>
+#include <Jolt/ObjectStream/ObjectStreamBinaryIn.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 ObjectStreamBinaryIn::ObjectStreamBinaryIn(istream &inStream) :
 	ObjectStreamIn(inStream),
@@ -189,4 +189,4 @@ bool ObjectStreamBinaryIn::ReadPrimitiveData(Mat44 &outPrimitive)
 	return true;
 }
 
-} // JPH
+JPH_NAMESPACE_END

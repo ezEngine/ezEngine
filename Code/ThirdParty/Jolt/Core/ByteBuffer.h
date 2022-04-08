@@ -3,9 +3,9 @@
 
 #pragma once
 
-#include <Core/AlignedAllocator.h>
+#include <Jolt/Core/AlignedAllocator.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 /// Underlying data type for ByteBuffer
 using ByteBufferVector = vector<uint8, AlignedAllocator<uint8, JPH_CACHE_LINE_SIZE>>;
@@ -70,4 +70,4 @@ public:
 	}
 };
 
-} // JPH
+JPH_NAMESPACE_END

@@ -9,14 +9,14 @@
 // Define to draw the building of the hull for debugging purposes
 //#define JPH_EPA_CONVEX_BUILDER_DRAW
 
-#include <Core/NonCopyable.h>
+#include <Jolt/Core/NonCopyable.h>
 
 #ifdef JPH_EPA_CONVEX_BUILDER_DRAW
-	#include <Renderer/DebugRenderer.h>
-	#include <Core/StringTools.h>
+	#include <Jolt/Renderer/DebugRenderer.h>
+	#include <Jolt/Core/StringTools.h>
 #endif
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 /// A convex hull builder specifically made for the EPA penetration depth calculation. It trades accuracy for speed and will simply abort of the hull forms defects due to numerical precision problems.
 class EPAConvexHullBuilder : public NonCopyable
@@ -823,4 +823,4 @@ EPAConvexHullBuilder::Triangle::Triangle(int inIdx0, int inIdx1, int inIdx2, con
 
 JPH_PRECISE_MATH_OFF
 
-} // JPH
+JPH_NAMESPACE_END

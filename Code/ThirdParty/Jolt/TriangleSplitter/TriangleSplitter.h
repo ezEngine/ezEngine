@@ -3,9 +3,9 @@
 
 #pragma once
 
-#include <Geometry/IndexedTriangle.h>
+#include <Jolt/Geometry/IndexedTriangle.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 /// A class that splits a triangle list into two parts for building a tree
 class TriangleSplitter
@@ -79,4 +79,4 @@ protected:
 	vector<uint>				mSortedTriangleIdx;		///< Indices to sort triangles
 };
 
-} // JPH
+JPH_NAMESPACE_END

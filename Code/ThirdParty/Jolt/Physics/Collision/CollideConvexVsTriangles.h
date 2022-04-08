@@ -3,12 +3,12 @@
 
 #pragma once
 
-#include <Geometry/AABox.h>
-#include <Physics/Collision/Shape/Shape.h>
-#include <Physics/Collision/Shape/SubShapeID.h>
-#include <Physics/Collision/Shape/ConvexShape.h>
+#include <Jolt/Geometry/AABox.h>
+#include <Jolt/Physics/Collision/Shape/Shape.h>
+#include <Jolt/Physics/Collision/Shape/SubShapeID.h>
+#include <Jolt/Physics/Collision/Shape/ConvexShape.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 class CollideShapeSettings;
 
@@ -52,4 +52,4 @@ protected:
 	const ConvexShape::Support *	mShape1IncCvxRadius = nullptr;			///< Actual support function object including convex radius
 };
 
-} // JPH
+JPH_NAMESPACE_END

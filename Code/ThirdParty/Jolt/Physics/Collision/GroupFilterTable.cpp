@@ -1,14 +1,14 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Jolt.h>
+#include <Jolt/Jolt.h>
 
-#include <Physics/Collision/GroupFilterTable.h>
-#include <ObjectStream/TypeDeclarations.h>
-#include <Core/StreamIn.h>
-#include <Core/StreamOut.h>
+#include <Jolt/Physics/Collision/GroupFilterTable.h>
+#include <Jolt/ObjectStream/TypeDeclarations.h>
+#include <Jolt/Core/StreamIn.h>
+#include <Jolt/Core/StreamOut.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 JPH_IMPLEMENT_SERIALIZABLE_VIRTUAL(GroupFilterTable)
 {
@@ -34,4 +34,4 @@ void GroupFilterTable::RestoreBinaryState(StreamIn &inStream)
 	inStream.Read(mTable);
 }
 
-} // JPH
+JPH_NAMESPACE_END

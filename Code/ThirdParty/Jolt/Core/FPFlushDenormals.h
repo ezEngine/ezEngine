@@ -3,9 +3,9 @@
 
 #pragma once
 
-#include <Core/FPControlWord.h>
+#include <Jolt/Core/FPControlWord.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 #if defined(JPH_USE_SSE)
 
@@ -28,4 +28,4 @@ class FPFlushDenormals : public FPControlWord<FP_FZ, FP_FZ> { };
 
 #endif
 
-} // JPH
+JPH_NAMESPACE_END

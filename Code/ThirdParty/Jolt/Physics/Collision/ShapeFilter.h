@@ -3,10 +3,10 @@
 
 #pragma once
 
-#include <Physics/Body/BodyID.h>
-#include <Core/NonCopyable.h>
+#include <Jolt/Physics/Body/BodyID.h>
+#include <Jolt/Core/NonCopyable.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 class SubShapeID;
 
@@ -27,4 +27,4 @@ public:
 	mutable BodyID			mBodyID2;
 };
 
-} // JPH
+JPH_NAMESPACE_END

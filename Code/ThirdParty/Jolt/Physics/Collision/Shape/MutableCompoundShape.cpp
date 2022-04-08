@@ -1,16 +1,16 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Jolt.h>
+#include <Jolt/Jolt.h>
 
-#include <Physics/Collision/Shape/MutableCompoundShape.h>
-#include <Physics/Collision/Shape/CompoundShapeVisitors.h>
-#include <Core/Profiler.h>
-#include <Core/StreamIn.h>
-#include <Core/StreamOut.h>
-#include <ObjectStream/TypeDeclarations.h>
+#include <Jolt/Physics/Collision/Shape/MutableCompoundShape.h>
+#include <Jolt/Physics/Collision/Shape/CompoundShapeVisitors.h>
+#include <Jolt/Core/Profiler.h>
+#include <Jolt/Core/StreamIn.h>
+#include <Jolt/Core/StreamOut.h>
+#include <Jolt/ObjectStream/TypeDeclarations.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 JPH_IMPLEMENT_SERIALIZABLE_VIRTUAL(MutableCompoundShapeSettings)
 {
@@ -554,4 +554,4 @@ void MutableCompoundShape::sRegister()
 	}
 }
 
-} // JPH
+JPH_NAMESPACE_END

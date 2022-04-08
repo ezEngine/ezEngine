@@ -3,13 +3,13 @@
 
 #pragma once
 
-#include <Physics/PhysicsSettings.h>
-#include <Physics/Body/Body.h>
-#include <Physics/StateRecorder.h>
-#include <Math/Vector.h>
-#include <Math/Matrix.h>
+#include <Jolt/Physics/PhysicsSettings.h>
+#include <Jolt/Physics/Body/Body.h>
+#include <Jolt/Physics/StateRecorder.h>
+#include <Jolt/Math/Vector.h>
+#include <Jolt/Math/Matrix.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 /// Constrains movement on 2 axis
 ///
@@ -274,4 +274,4 @@ private:
 	Vec2						mTotalLambda { Vec2::sZero() };
 };
 
-} // JPH
+JPH_NAMESPACE_END

@@ -3,10 +3,10 @@
 
 #pragma once
 
-#include <Skeleton/Skeleton.h>
-#include <Skeleton/SkeletalAnimation.h>
+#include <Jolt/Skeleton/Skeleton.h>
+#include <Jolt/Skeleton/SkeletalAnimation.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 #ifdef JPH_DEBUG_RENDERER
 class DebugRenderer;
@@ -62,4 +62,4 @@ private:
 	Mat44Vector					mJointMatrices;															///< Local joint matrices (local to world matrix)
 };
 
-} // JPH
+JPH_NAMESPACE_END

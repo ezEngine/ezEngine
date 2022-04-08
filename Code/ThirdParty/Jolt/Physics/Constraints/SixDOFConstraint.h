@@ -3,15 +3,15 @@
 
 #pragma once
 
-#include <Physics/Constraints/TwoBodyConstraint.h>
-#include <Physics/Constraints/MotorSettings.h>
-#include <Physics/Constraints/ConstraintPart/PointConstraintPart.h>
-#include <Physics/Constraints/ConstraintPart/AxisConstraintPart.h>
-#include <Physics/Constraints/ConstraintPart/AngleConstraintPart.h>
-#include <Physics/Constraints/ConstraintPart/RotationEulerConstraintPart.h>
-#include <Physics/Constraints/ConstraintPart/SwingTwistConstraintPart.h>
+#include <Jolt/Physics/Constraints/TwoBodyConstraint.h>
+#include <Jolt/Physics/Constraints/MotorSettings.h>
+#include <Jolt/Physics/Constraints/ConstraintPart/PointConstraintPart.h>
+#include <Jolt/Physics/Constraints/ConstraintPart/AxisConstraintPart.h>
+#include <Jolt/Physics/Constraints/ConstraintPart/AngleConstraintPart.h>
+#include <Jolt/Physics/Constraints/ConstraintPart/RotationEulerConstraintPart.h>
+#include <Jolt/Physics/Constraints/ConstraintPart/SwingTwistConstraintPart.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 /// 6 Degree Of Freedom Constraint setup structure. Allows control over each of the 6 degrees of freedom.
 class SixDOFConstraintSettings final : public TwoBodyConstraintSettings
@@ -119,6 +119,10 @@ public:
 	/// Update the rotational limits for this constraint, note that this won't change if axis are free or not.
 	void						SetRotationLimits(Vec3Arg inLimitMin, Vec3Arg inLimitMax);
 
+	/// Set the max friction for each axis
+	void						SetMaxFriction(EAxis inAxis, float inFriction);
+	float						GetMaxFriction(EAxis inAxis) const							{ return mMaxFriction[inAxis]; }
+
 	/// Get rotation of constraint in constraint space
 	inline Quat					GetRotationInConstraintSpace() const;
 
@@ -159,6 +163,12 @@ private:
 	// Propagate the rotation limits to the constraint part
 	inline void					UpdateRotationLimits();
 
+	// Cache the state of mTranslationMotorActive
+	void						CacheTranslationMotorActive();
+
+	// Cache the state of mRotationMotorActive
+	void						CacheRotationMotorActive();
+
 	// Constraint settings helper functions
 	inline bool					IsAxisFixed(EAxis inAxis) const								{ return (mFixedAxis & (1 << inAxis)) != 0; }
 	inline bool					IsAxisFree(EAxis inAxis) const								{ return (mFreeAxis & (1 << inAxis)) != 0; }
@@ -166,6 +176,7 @@ private:
 	inline bool					IsTranslationFullyConstrained() const						{ return (mFixedAxis & 0b111) == 0b111; }
 	inline bool					IsRotationConstrained() const								{ return (mFreeAxis & 0b111000) != 0b111000; }
 	inline bool					IsRotationFullyConstrained() const							{ return (mFixedAxis & 0b111000) == 0b111000; }
+	inline bool					HasFriction(EAxis inAxis) const								{ return !IsAxisFixed(inAxis) && mMaxFriction[inAxis] > 0.0f; }
 
 	// CONFIGURATION PROPERTIES FOLLOW
 
@@ -221,4 +232,4 @@ private:
 	AngleConstraintPart			mMotorRotationConstraintPart[3];
 };
 
-} // JPH
+JPH_NAMESPACE_END

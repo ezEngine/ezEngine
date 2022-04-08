@@ -1,11 +1,11 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Jolt.h>
+#include <Jolt/Jolt.h>
 
-#include <ObjectStream/TypeDeclarations.h>
+#include <Jolt/ObjectStream/TypeDeclarations.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 JPH_IMPLEMENT_RTTI_OUTSIDE_CLASS(uint8)			{ }
 JPH_IMPLEMENT_RTTI_OUTSIDE_CLASS(uint16)		{ }
@@ -47,4 +47,4 @@ JPH_IMPLEMENT_SERIALIZABLE_OUTSIDE_CLASS(IndexedTriangle)
 	JPH_ADD_ATTRIBUTE(IndexedTriangle, mMaterialIndex)
 }
 
-} // JPH
+JPH_NAMESPACE_END

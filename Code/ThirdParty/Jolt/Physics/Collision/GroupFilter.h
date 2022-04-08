@@ -3,10 +3,10 @@
 
 #pragma once
 
-#include <Core/Result.h>
-#include <ObjectStream/SerializableObject.h>
+#include <Jolt/Core/Result.h>
+#include <Jolt/ObjectStream/SerializableObject.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 class CollisionGroup;
 class StreamIn;
@@ -37,4 +37,4 @@ protected:
 	virtual void				RestoreBinaryState(StreamIn &inStream);
 };
 
-} // JPH
+JPH_NAMESPACE_END

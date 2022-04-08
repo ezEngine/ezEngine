@@ -3,8 +3,10 @@
 
 #pragma once
 
-#include <Physics/Collision/BroadPhase/BroadPhaseQuery.h>
-#include <Physics/Collision/BroadPhase/BroadPhaseLayer.h>
+#include <Jolt/Physics/Collision/BroadPhase/BroadPhaseQuery.h>
+#include <Jolt/Physics/Collision/BroadPhase/BroadPhaseLayer.h>
+
+JPH_NAMESPACE_BEGIN
 
 // Shorthand function to ifdef out code if broadphase stats tracking is off
 #ifdef JPH_TRACK_BROADPHASE_STATS
@@ -12,8 +14,6 @@
 #else
 	#define JPH_IF_TRACK_BROADPHASE_STATS(...)
 #endif // JPH_TRACK_BROADPHASE_STATS
-
-namespace JPH {
 
 class BodyManager;
 struct BodyPair;
@@ -105,4 +105,4 @@ protected:
 	BodyManager *		mBodyManager = nullptr;
 };
 
-} // JPH
+JPH_NAMESPACE_END

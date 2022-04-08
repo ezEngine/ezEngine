@@ -3,9 +3,9 @@
 
 #pragma once
 
-#include <Physics/StateRecorder.h>
+#include <Jolt/Physics/StateRecorder.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 /// Implementation of the StateRecorder class that uses a stringstream as underlying store and that implements checking if the state doesn't change upon reading
 class StateRecorderImpl final : public StateRecorder
@@ -37,4 +37,4 @@ private:
 	stringstream		mStream;
 };
 
-} // JPH
+JPH_NAMESPACE_END

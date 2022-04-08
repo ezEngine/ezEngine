@@ -3,10 +3,10 @@
 
 #pragma once
 
-#include <Math/Vector.h>
-#include <Math/GaussianElimination.h>
+#include <Jolt/Math/Vector.h>
+#include <Jolt/Math/GaussianElimination.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 /// Templatized matrix class
 template <uint Rows, uint Cols>
@@ -250,4 +250,4 @@ inline bool Matrix<2, 2>::SetInversed(const Matrix<2, 2> &inM)
 	return true;
 }
 
-} // JPH
+JPH_NAMESPACE_END

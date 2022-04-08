@@ -1,13 +1,13 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Jolt.h>
+#include <Jolt/Jolt.h>
 
 #ifdef JPH_DEBUG_RENDERER
 
-#include <Renderer/DebugRendererRecorder.h>
+#include <Jolt/Renderer/DebugRendererRecorder.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 void DebugRendererRecorder::DrawLine(const Float3 &inFrom, const Float3 &inTo, ColorArg inColor) 
 { 
@@ -151,6 +151,6 @@ void DebugRendererRecorder::EndFrame()
 	mCurrentFrame.mGeometries.clear();
 }
 
-} // JPH
+JPH_NAMESPACE_END
 
 #endif // JPH_DEBUG_RENDERER

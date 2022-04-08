@@ -1,14 +1,14 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Jolt.h>
+#include <Jolt/Jolt.h>
 
-#include <Physics/Collision/CollisionGroup.h>
-#include <ObjectStream/TypeDeclarations.h>
-#include <Core/StreamIn.h>
-#include <Core/StreamOut.h>
+#include <Jolt/Physics/Collision/CollisionGroup.h>
+#include <Jolt/ObjectStream/TypeDeclarations.h>
+#include <Jolt/Core/StreamIn.h>
+#include <Jolt/Core/StreamOut.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 JPH_IMPLEMENT_SERIALIZABLE_NON_VIRTUAL(CollisionGroup)
 {
@@ -29,4 +29,4 @@ void CollisionGroup::RestoreBinaryState(StreamIn &inStream)
 	inStream.Read(mSubGroupID);
 }
 
-} // JPH
+JPH_NAMESPACE_END

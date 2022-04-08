@@ -1,14 +1,14 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Jolt.h>
+#include <Jolt/Jolt.h>
 
-#include <Core/LinearCurve.h>
-#include <Core/StreamIn.h>
-#include <Core/StreamOut.h>
-#include <ObjectStream/TypeDeclarations.h>
+#include <Jolt/Core/LinearCurve.h>
+#include <Jolt/Core/StreamIn.h>
+#include <Jolt/Core/StreamOut.h>
+#include <Jolt/ObjectStream/TypeDeclarations.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 JPH_IMPLEMENT_SERIALIZABLE_NON_VIRTUAL(LinearCurve::Point)
 {
@@ -47,4 +47,4 @@ void LinearCurve::RestoreBinaryState(StreamIn &inStream)
 	inStream.Read(mPoints);
 }
 
-} // JPH
+JPH_NAMESPACE_END

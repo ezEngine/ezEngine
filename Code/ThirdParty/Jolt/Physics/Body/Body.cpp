@@ -1,20 +1,20 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Jolt.h>
+#include <Jolt/Jolt.h>
 
-#include <Physics/Body/Body.h>
-#include <Physics/Body/BodyCreationSettings.h>
-#include <Physics/PhysicsSettings.h>
-#include <Physics/StateRecorder.h>
-#include <Physics/Collision/Shape/SphereShape.h>
-#include <Core/StringTools.h>
-#include <Core/Profiler.h>
+#include <Jolt/Physics/Body/Body.h>
+#include <Jolt/Physics/Body/BodyCreationSettings.h>
+#include <Jolt/Physics/PhysicsSettings.h>
+#include <Jolt/Physics/StateRecorder.h>
+#include <Jolt/Physics/Collision/Shape/SphereShape.h>
+#include <Jolt/Core/StringTools.h>
+#include <Jolt/Core/Profiler.h>
 #ifdef JPH_DEBUG_RENDERER
-	#include <Renderer/DebugRenderer.h>
+	#include <Jolt/Renderer/DebugRenderer.h>
 #endif // JPH_DEBUG_RENDERER
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 Body Body::sFixedToWorld(false);
 
@@ -319,11 +319,11 @@ BodyCreationSettings Body::GetBodyCreationSettings() const
 	result.mMaxAngularVelocity = mMotionProperties != nullptr? mMotionProperties->GetMaxAngularVelocity() : 0.0f;
 	result.mGravityFactor = mMotionProperties != nullptr? mMotionProperties->GetGravityFactor() : 1.0f;
 	result.mOverrideMassProperties = EOverrideMassProperties::MassAndInertiaProvided;
-	result.mMassPropertiesOverride.mMass = mMotionProperties != nullptr? 1.0f / mMotionProperties->GetInverseMass() : FLT_MAX;
-	result.mMassPropertiesOverride.mInertia = mMotionProperties != nullptr? mMotionProperties->GetLocalSpaceInverseInertia().Inversed3x3() : Mat44::sIdentity();
+	result.mMassPropertiesOverride.mMass = mMotionProperties != nullptr? 1.0f / mMotionProperties->GetInverseMassUnchecked() : FLT_MAX;
+	result.mMassPropertiesOverride.mInertia = mMotionProperties != nullptr? mMotionProperties->GetLocalSpaceInverseInertiaUnchecked().Inversed3x3() : Mat44::sIdentity();
 	result.SetShape(GetShape());
 
 	return result;
 }
 
-} // JPH
+JPH_NAMESPACE_END

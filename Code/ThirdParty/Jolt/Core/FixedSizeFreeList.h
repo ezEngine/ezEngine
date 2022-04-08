@@ -3,12 +3,15 @@
 
 #pragma once
 
-#include <Core/NonCopyable.h>
-#include <Core/Mutex.h>
-#include <Core/Memory.h>
-#include <atomic>
+#include <Jolt/Core/NonCopyable.h>
+#include <Jolt/Core/Mutex.h>
+#include <Jolt/Core/Memory.h>
 
-namespace JPH {
+JPH_SUPPRESS_WARNINGS_STD_BEGIN
+#include <atomic>
+JPH_SUPPRESS_WARNINGS_STD_END
+
+JPH_NAMESPACE_BEGIN
 
 /// Class that allows lock free creation / destruction of objects (unless a new page of objects needs to be allocated)
 /// It contains a fixed pool of objects and also allows batching up a lot of objects to be destroyed
@@ -119,6 +122,6 @@ public:
 	inline const Object &	Get(uint32 inObjectIndex) const			{ return reinterpret_cast<const Object &>(GetStorage(inObjectIndex).mData); }
 };
 
-} // JPH
+JPH_NAMESPACE_END
 
-#include <Core/FixedSizeFreeList.inl>
+#include "FixedSizeFreeList.inl"

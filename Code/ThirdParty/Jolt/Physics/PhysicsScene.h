@@ -3,10 +3,10 @@
 
 #pragma once
 
-#include <Core/Reference.h>
-#include <Physics/Body/BodyCreationSettings.h>
+#include <Jolt/Core/Reference.h>
+#include <Jolt/Physics/Body/BodyCreationSettings.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 class PhysicsSystem;
 
@@ -49,4 +49,4 @@ private:
 	vector<BodyCreationSettings>			mBodies;
 };
 
-} // JPH
+JPH_NAMESPACE_END

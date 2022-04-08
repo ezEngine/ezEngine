@@ -3,7 +3,7 @@
 
 #pragma once
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 /// Simple variable length array backed by a fixed size buffer
 template <class T, uint N>
@@ -279,7 +279,10 @@ protected:
 	Storage				mElements[N];
 };
 
-} // JPH
+JPH_NAMESPACE_END
+
+JPH_SUPPRESS_WARNING_PUSH
+JPH_CLANG_SUPPRESS_WARNING("-Wc++98-compat")
 
 namespace std
 {
@@ -302,3 +305,5 @@ namespace std
 		}
 	};
 }
+
+JPH_SUPPRESS_WARNING_POP

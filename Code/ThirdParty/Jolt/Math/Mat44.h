@@ -3,9 +3,9 @@
 
 #pragma once
 
-#include <Math/MathTypes.h>
+#include <Jolt/Math/MathTypes.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 /// Holds a 4x4 matrix of floats, but supports also operations on the 3x3 upper left part of the matrix.
 class [[nodiscard]] Mat44
@@ -182,6 +182,12 @@ public:
 	/// Get matrix that transforms a direction with the same transform as this matrix (length is not preserved)
 	JPH_INLINE const Mat44		GetDirectionPreservingMatrix() const					{ return GetRotation().Inversed3x3().Transposed3x3(); }
 
+	/// Pre multiply by translation matrix: result = this * Mat44::sTranslation(inTranslation)
+	JPH_INLINE Mat44			PreTranslated(Vec3Arg inTranslation) const;
+
+	/// Post multiply by translation matrix: result = Mat44::sTranslation(inTranslation) * this (i.e. add inTranslation to the 4-th column)
+	JPH_INLINE Mat44			PostTranslated(Vec3Arg inTranslation) const;
+
 	/// Scale a matrix: result = this * Mat44::sScale(inScale)
 	JPH_INLINE Mat44			PreScaled(Vec3Arg inScale) const;
 
@@ -207,6 +213,6 @@ private:
 
 static_assert(is_trivial<Mat44>(), "Is supposed to be a trivial type!");
 
-} // JPH
+JPH_NAMESPACE_END
 
 #include "Mat44.inl"

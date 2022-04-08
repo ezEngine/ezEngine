@@ -3,13 +3,13 @@
 
 #pragma once
 
-#include <Physics/Body/Body.h>
-#include <Physics/Constraints/ConstraintPart/AxisConstraintPart.h>
-#include <ObjectStream/SerializableObject.h>
-#include <Core/StreamIn.h>
-#include <Core/StreamOut.h>
+#include <Jolt/Physics/Body/Body.h>
+#include <Jolt/Physics/Constraints/ConstraintPart/AxisConstraintPart.h>
+#include <Jolt/ObjectStream/SerializableObject.h>
+#include <Jolt/Core/StreamIn.h>
+#include <Jolt/Core/StreamOut.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 class VehicleConstraint;
 
@@ -138,4 +138,4 @@ protected:
 
 using Wheels = vector<Wheel *>;
 
-} // JPH
+JPH_NAMESPACE_END

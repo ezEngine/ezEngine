@@ -1,24 +1,27 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Jolt.h>
+#include <Jolt/Jolt.h>
 
-#include <Physics/Collision/Shape/ConvexHullShape.h>
-#include <Physics/Collision/Shape/ScaleHelpers.h>
-#include <Physics/Collision/Shape/PolyhedronSubmergedVolumeCalculator.h>
-#include <Physics/Collision/RayCast.h>
-#include <Physics/Collision/CastResult.h>
-#include <Physics/Collision/CollidePointResult.h>
-#include <Physics/Collision/TransformedShape.h>
-#include <Geometry/ConvexHullBuilder.h>
-#include <ObjectStream/TypeDeclarations.h>
-#include <Core/StringTools.h>
-#include <Core/StreamIn.h>
-#include <Core/StreamOut.h>
+#include <Jolt/Physics/Collision/Shape/ConvexHullShape.h>
+#include <Jolt/Physics/Collision/Shape/ScaleHelpers.h>
+#include <Jolt/Physics/Collision/Shape/PolyhedronSubmergedVolumeCalculator.h>
+#include <Jolt/Physics/Collision/RayCast.h>
+#include <Jolt/Physics/Collision/CastResult.h>
+#include <Jolt/Physics/Collision/CollidePointResult.h>
+#include <Jolt/Physics/Collision/TransformedShape.h>
+#include <Jolt/Geometry/ConvexHullBuilder.h>
+#include <Jolt/ObjectStream/TypeDeclarations.h>
+#include <Jolt/Core/StringTools.h>
+#include <Jolt/Core/StreamIn.h>
+#include <Jolt/Core/StreamOut.h>
+
+JPH_SUPPRESS_WARNINGS_STD_BEGIN
 #include <unordered_set>
 #include <unordered_map>
+JPH_SUPPRESS_WARNINGS_STD_END
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 JPH_IMPLEMENT_SERIALIZABLE_VIRTUAL(ConvexHullShapeSettings)
 {
@@ -1177,4 +1180,4 @@ void ConvexHullShape::sRegister()
 	f.mColor = Color::sGreen;
 }
 
-} // JPH
+JPH_NAMESPACE_END

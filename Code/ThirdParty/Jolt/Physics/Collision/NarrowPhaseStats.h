@@ -3,8 +3,11 @@
 
 #pragma once
 
-#include <Core/TickCounter.h>
-#include <Physics/Collision/Shape/Shape.h>
+#include <Jolt/Core/TickCounter.h>
+#include <Jolt/Physics/Collision/Shape/Shape.h>
+
+JPH_SUPPRESS_WARNING_PUSH
+JPH_CLANG_SUPPRESS_WARNING("-Wc++98-compat-pedantic")
 
 // Shorthand function to ifdef out code if narrow phase stats tracking is off
 #ifdef JPH_TRACK_NARROWPHASE_STATS
@@ -13,9 +16,11 @@
 	#define JPH_IF_TRACK_NARROWPHASE_STATS(...)
 #endif // JPH_TRACK_NARROWPHASE_STATS
 
+JPH_SUPPRESS_WARNING_POP
+
 #ifdef JPH_TRACK_NARROWPHASE_STATS
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 /// Structure that tracks narrow phase timing information for a particular combination of shapes
 class NarrowPhaseStat
@@ -99,6 +104,6 @@ private:
 	uint64					mStart;
 };
 
-} // JPH
+JPH_NAMESPACE_END
 
 #endif // JPH_TRACK_NARROWPHASE_STATS

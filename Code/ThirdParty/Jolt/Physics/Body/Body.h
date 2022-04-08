@@ -3,19 +3,19 @@
 
 #pragma once
 
-#include <Core/NonCopyable.h>
-#include <Geometry/AABox.h>
-#include <Physics/Collision/Shape/Shape.h>
-#include <Physics/Collision/BroadPhase/BroadPhaseLayer.h>
-#include <Physics/Collision/ObjectLayer.h>
-#include <Physics/Collision/CollisionGroup.h>
-#include <Physics/Collision/TransformedShape.h>
-#include <Physics/Body/MotionProperties.h>
-#include <Physics/Body/BodyID.h>
-#include <Physics/Body/BodyAccess.h>
-#include <Core/StringTools.h>
+#include <Jolt/Core/NonCopyable.h>
+#include <Jolt/Geometry/AABox.h>
+#include <Jolt/Physics/Collision/Shape/Shape.h>
+#include <Jolt/Physics/Collision/BroadPhase/BroadPhaseLayer.h>
+#include <Jolt/Physics/Collision/ObjectLayer.h>
+#include <Jolt/Physics/Collision/CollisionGroup.h>
+#include <Jolt/Physics/Collision/TransformedShape.h>
+#include <Jolt/Physics/Body/MotionProperties.h>
+#include <Jolt/Physics/Body/BodyID.h>
+#include <Jolt/Physics/Body/BodyAccess.h>
+#include <Jolt/Core/StringTools.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 class StateRecorder;
 class BodyCreationSettings;
@@ -322,6 +322,6 @@ private:
 	static_assert(alignof(Body) == 16, "Body should align to 16 bytes");
 #endif
 
-} // JPH
+JPH_NAMESPACE_END
 
 #include "Body.inl"

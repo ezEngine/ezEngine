@@ -3,11 +3,11 @@
 
 #pragma once
 
-#include <Geometry/AABox.h>
-#include <Physics/Collision/CollideShape.h>
-#include <Physics/Collision/Shape/Shape.h>
+#include <Jolt/Geometry/AABox.h>
+#include <Jolt/Physics/Collision/CollideShape.h>
+#include <Jolt/Physics/Collision/Shape/Shape.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 /// Structure that holds a single shape cast (a shape moving along a linear path in 3d space with no rotation)
 struct ShapeCast
@@ -28,6 +28,12 @@ struct ShapeCast
 	{
 	}
 
+	/// Construct a shape cast using a world transform for a shape instead of a center of mass transform
+	static inline ShapeCast		sFromWorldTransform(const Shape *inShape, Vec3Arg inScale, Mat44Arg inWorldTransform, Vec3Arg inDirection)
+	{
+		return ShapeCast(inShape, inScale, inWorldTransform.PreTranslated(inShape->GetCenterOfMass()), inDirection);
+	}
+
 	/// Transform this shape cast using inTransform. Multiply transform on the left left hand side.
 	ShapeCast					PostTransformed(Mat44Arg inTransform) const
 	{
@@ -38,7 +44,7 @@ struct ShapeCast
 
 	const Shape *				mShape;								///< Shape that's being cast (cannot be mesh shape). Note that this structure does not assume ownership over the shape for performance reasons.
 	const Vec3					mScale;								///< Scale in local space of the shape being cast
-	const Mat44					mCenterOfMassStart;					///< Start position and orientation of the center of mass of the shape (i.e. mCenterOfMassStart = Start * Mat44::sTranslation(mShape->GetCenterOfMass()) if you want to cast the shape in the space it was created)
+	const Mat44					mCenterOfMassStart;					///< Start position and orientation of the center of mass of the shape (construct using sFromWorldTransform if you have a world transform for your shape)
 	const Vec3					mDirection;							///< Direction and length of the cast (anything beyond this length will not be reported as a hit)
 	const AABox					mShapeWorldBounds;					///< Cached shape's world bounds, calculated in constructor
 };
@@ -90,4 +96,4 @@ public:
 	bool						mIsBackFaceHit;						///< True if the shape was hit from the back side
 };
 
-} // JPH
+JPH_NAMESPACE_END

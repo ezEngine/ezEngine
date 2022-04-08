@@ -3,13 +3,16 @@
 
 #pragma once
 
+#include <Jolt/Core/Profiler.h>
+#include <Jolt/Core/NonCopyable.h>
+
+JPH_SUPPRESS_WARNINGS_STD_BEGIN
 #include <mutex>
 #include <shared_mutex>
 #include <thread>
-#include <Core/Profiler.h>
-#include <Core/NonCopyable.h>
+JPH_SUPPRESS_WARNINGS_STD_END
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 #ifdef JPH_PLATFORM_BLUE
 
@@ -208,4 +211,4 @@ using SharedMutex = SharedMutexBase;
 
 #endif
 
-} // JPH
+JPH_NAMESPACE_END

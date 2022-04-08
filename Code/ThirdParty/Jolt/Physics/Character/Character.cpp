@@ -1,16 +1,21 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Jolt.h>
+#include <Jolt/Jolt.h>
 
-#include <Physics/Body/BodyCreationSettings.h>
-#include <Physics/Body/BodyLock.h>
-#include <Physics/Collision/CollideShape.h>
-#include <Physics/Character/Character.h>
-#include <Physics/PhysicsSystem.h>
-#include <ObjectStream/TypeDeclarations.h>
+#include <Jolt/Physics/Body/BodyCreationSettings.h>
+#include <Jolt/Physics/Body/BodyLock.h>
+#include <Jolt/Physics/Collision/CollideShape.h>
+#include <Jolt/Physics/Character/Character.h>
+#include <Jolt/Physics/PhysicsSystem.h>
+#include <Jolt/ObjectStream/TypeDeclarations.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
+
+static inline const BodyLockInterface &sGetBodyLockInterface(const PhysicsSystem *inSystem, bool inLockBodies)
+{
+	return inLockBodies? static_cast<const BodyLockInterface &>(inSystem->GetBodyLockInterface()) : static_cast<const BodyLockInterface &>(inSystem->GetBodyLockInterfaceNoLock());
+}
 
 static inline BodyInterface &sGetBodyInterface(PhysicsSystem *inSystem, bool inLockBodies)
 {
@@ -79,18 +84,26 @@ void Character::CheckCollision(const Shape *inShape, float inMaxSeparationDistan
 	// Ignore my own body
 	IgnoreSingleBodyFilter body_filter(mBodyID);
 
-	// Determine position to test
-	Vec3 position;
-	Quat rotation;
-	BodyInterface &bi = sGetBodyInterface(mSystem, inLockBodies);
-	bi.GetPositionAndRotation(mBodyID, position, rotation);
-	Mat44 query_transform = Mat44::sRotationTranslation(rotation, position + rotation * inShape->GetCenterOfMass());
+	// Determine position and velocity of body
+	Mat44 query_transform;
+	Vec3 velocity;
+	{
+		BodyLockRead lock(sGetBodyLockInterface(mSystem, inLockBodies), mBodyID);
+		if (!lock.Succeeded())
+			return;
+
+		const Body &body = lock.GetBody();
+
+		// Correct the center of mass transform for the difference between the old and new center of mass shape
+		query_transform = body.GetCenterOfMassTransform().PreTranslated(inShape->GetCenterOfMass() - mShape->GetCenterOfMass());
+		velocity = body.GetLinearVelocity();
+	}
 
 	// Settings for collide shape
 	CollideShapeSettings settings;
 	settings.mMaxSeparationDistance = inMaxSeparationDistance;
 	settings.mActiveEdgeMode = EActiveEdgeMode::CollideOnlyWithActive;
-	settings.mActiveEdgeMovementDirection = bi.GetLinearVelocity(mBodyID);
+	settings.mActiveEdgeMovementDirection = velocity;
 	settings.mBackFaceMode = EBackFaceMode::IgnoreBackFaces;
 
 	sGetNarrowPhaseQuery(mSystem, inLockBodies).CollideShape(inShape, Vec3::sReplicate(1.0f), query_transform, settings, ioCollector, broadphase_layer_filter, object_layer_filter, body_filter);
@@ -268,4 +281,4 @@ Vec3 Character::GetGroundVelocity(bool inLockBodies) const
 	return sGetBodyInterface(mSystem, inLockBodies).GetPointVelocity(mGroundBodyID, mGroundPosition);
 }
 
-} // JPH
+JPH_NAMESPACE_END
