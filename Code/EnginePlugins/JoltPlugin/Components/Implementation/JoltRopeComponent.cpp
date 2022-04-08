@@ -542,7 +542,7 @@ void ezJoltRopeComponent::Update()
     return;
 
   ezHybridArray<ezTransform, 32> poses(ezFrameAllocator::GetCurrentAllocator());
-  poses.SetCountUninitialized(m_pRagdoll->GetBodyCount() + 1);
+  poses.SetCountUninitialized(static_cast<ezUInt32>(m_pRagdoll->GetBodyCount()) + 1);
 
   ezMsgRopePoseUpdated poseMsg;
   poseMsg.m_LinkTransforms = poses;
@@ -576,7 +576,7 @@ void ezJoltRopeComponent::Update()
 
   // last pose
   {
-    const ezUInt32 uiLastIdx = m_pRagdoll->GetBodyCount();
+    const ezUInt32 uiLastIdx = static_cast<ezUInt32>(m_pRagdoll->GetBodyCount());
 
     ezTransform tLocal;
     tLocal.SetIdentity();
