@@ -51,7 +51,7 @@ public:
   ~ezJoltRopeComponent();
 
   float GetGravityFactor() const { return m_fGravityFactor; } // [ property ]
-  void SetGravityFactor(float fGravity);                       // [ property ]
+  void SetGravityFactor(float fGravity);                      // [ property ]
 
   void SetSurfaceFile(const char* szFile); // [ property ]
   const char* GetSurfaceFile() const;      // [ property ]

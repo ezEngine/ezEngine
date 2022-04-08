@@ -16,12 +16,12 @@ public:
   }
 
   float m_fDensity = 1.0f;
-  ezHybridArray< JPH::RefConst<JPH::PhysicsMaterial>, 1> m_CustomMaterials;
+  ezHybridArray<JPH::RefConst<JPH::PhysicsMaterial>, 1> m_CustomMaterials;
 
   virtual const JPH::PhysicsMaterial* GetMaterial(const JPH::SubShapeID& inSubShapeID) const override;
   virtual JPH::uint64 GetSubShapeUserData(const JPH::SubShapeID& inSubShapeID) const override;
   virtual JPH::MassProperties GetMassProperties() const override;
-  virtual JPH::Vec3	GetCenterOfMass() const override;
+  virtual JPH::Vec3 GetCenterOfMass() const override;
 
   // all these just pass through to the inner shape
   virtual JPH::AABox GetLocalBounds() const override;

@@ -30,4 +30,3 @@ private:
   ezCollisionFilterConfig m_Config;
   ezCollisionFilterConfig m_ConfigReset;
 };
-
