@@ -3,12 +3,12 @@
 
 #pragma once
 
-#include <Physics/PhysicsSettings.h>
-#include <Physics/Body/Body.h>
-#include <Physics/Constraints/ConstraintPart/SpringPart.h>
-#include <Physics/StateRecorder.h>
+#include <Jolt/Physics/PhysicsSettings.h>
+#include <Jolt/Physics/Body/Body.h>
+#include <Jolt/Physics/Constraints/ConstraintPart/SpringPart.h>
+#include <Jolt/Physics/StateRecorder.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 /// Constraint that constrains rotation along 1 axis
 ///
@@ -193,4 +193,4 @@ private:
 	float						mTotalLambda = 0.0f;
 };
 
-} // JPH
+JPH_NAMESPACE_END

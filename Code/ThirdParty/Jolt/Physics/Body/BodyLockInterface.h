@@ -4,12 +4,12 @@
 
 #pragma once
 
-#include <Physics/Body/Body.h>
-#include <Physics/Body/BodyManager.h>
-#include <Physics/PhysicsLock.h>
-#include <Core/Mutex.h>
+#include <Jolt/Physics/Body/Body.h>
+#include <Jolt/Physics/Body/BodyManager.h>
+#include <Jolt/Physics/PhysicsLock.h>
+#include <Jolt/Core/Mutex.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 /// Base class interface for locking a body. Usually you will use BodyLockRead / BodyLockWrite / BodyLockMultiRead / BodyLockMultiWrite instead.
 class BodyLockInterface
@@ -130,4 +130,4 @@ public:
 	}
 };
 
-} // JPH
+JPH_NAMESPACE_END

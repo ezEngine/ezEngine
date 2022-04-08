@@ -3,10 +3,10 @@
 
 #pragma once
 
-#include <Core/StaticArray.h>
-#include <Core/Reference.h>
+#include <Jolt/Core/StaticArray.h>
+#include <Jolt/Core/Reference.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 /// Base class for object stream input and output streams.
 class ObjectStream
@@ -33,7 +33,7 @@ public:
 		#define JPH_DECLARE_PRIMITIVE(name)	T_##name,
 
 		// This file uses the JPH_DECLARE_PRIMITIVE macro to define all types
-		#include <ObjectStream/ObjectStreamTypes.h>
+		#include <Jolt/ObjectStream/ObjectStreamTypes.h>
 
 		// Error values for read functions
 		Invalid,																		///< Next token on the stream was not a valid data type
@@ -56,7 +56,7 @@ protected:
 	bool						OSIsType(name *inNull, int inArrayDepth, ObjectStream::EDataType inDataType, const char *inClassName);
 
 // This file uses the JPH_DECLARE_PRIMITIVE macro to define all types
-#include <ObjectStream/ObjectStreamTypes.h>
+#include <Jolt/ObjectStream/ObjectStreamTypes.h>
 
 // Define serialization templates
 template <class T>
@@ -89,4 +89,4 @@ bool OSIsType(RefConst<T> *inNull, int inArrayDepth, ObjectStream::EDataType inD
 	return OSIsType((T *)nullptr, inArrayDepth, inDataType, inClassName);
 }
 
-} // JPH
+JPH_NAMESPACE_END

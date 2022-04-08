@@ -3,15 +3,15 @@
 
 #pragma once
 
-#include <Physics/Body/BodyInterface.h>
-#include <Physics/Collision/NarrowPhaseQuery.h>
-#include <Physics/Collision/ContactListener.h>
-#include <Physics/Constraints/ContactConstraintManager.h>
-#include <Physics/Constraints/ConstraintManager.h>
-#include <Physics/IslandBuilder.h>
-#include <Physics/PhysicsUpdateContext.h>
+#include <Jolt/Physics/Body/BodyInterface.h>
+#include <Jolt/Physics/Collision/NarrowPhaseQuery.h>
+#include <Jolt/Physics/Collision/ContactListener.h>
+#include <Jolt/Physics/Constraints/ContactConstraintManager.h>
+#include <Jolt/Physics/Constraints/ConstraintManager.h>
+#include <Jolt/Physics/IslandBuilder.h>
+#include <Jolt/Physics/PhysicsUpdateContext.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 class JobSystem;
 class StateRecorder;
@@ -58,7 +58,9 @@ public:
 	const PhysicsSettings &		GetPhysicsSettings() const									{ return mPhysicsSettings; }
 
 	/// Access to the body interface. This interface allows to to create / remove bodies and to change their properties.
+	const BodyInterface &		GetBodyInterface() const									{ return mBodyInterfaceLocking; }
 	BodyInterface &				GetBodyInterface() 											{ return mBodyInterfaceLocking; }
+	const BodyInterface &		GetBodyInterfaceNoLock() const								{ return mBodyInterfaceNoLock; } ///< Version that does not lock the bodies, use with great care!
 	BodyInterface & 			GetBodyInterfaceNoLock()									{ return mBodyInterfaceNoLock; } ///< Version that does not lock the bodies, use with great care!
 
 	/// Access to the broadphase interface that allows coarse collision queries
@@ -258,4 +260,4 @@ private:
 	PhysicsSettings				mPhysicsSettings;
 };
 
-} // JPH
+JPH_NAMESPACE_END

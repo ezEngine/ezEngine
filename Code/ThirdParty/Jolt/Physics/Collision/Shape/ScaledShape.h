@@ -3,9 +3,9 @@
 
 #pragma once
 
-#include <Physics/Collision/Shape/DecoratedShape.h>
+#include <Jolt/Physics/Collision/Shape/DecoratedShape.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 class SubShapeIDCreator;
 class CollideShapeSettings;
@@ -124,4 +124,4 @@ private:
 	Vec3							mScale = Vec3(1, 1, 1);
 };
 
-} // JPH
+JPH_NAMESPACE_END

@@ -1,12 +1,12 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Jolt.h>
+#include <Jolt/Jolt.h>
 
-#include <TriangleSplitter/TriangleSplitterMorton.h>
-#include <Geometry/MortonCode.h>
+#include <Jolt/TriangleSplitter/TriangleSplitterMorton.h>
+#include <Jolt/Geometry/MortonCode.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 TriangleSplitterMorton::TriangleSplitterMorton(const VertexList &inVertices, const IndexedTriangleList &inTriangles) :
 	TriangleSplitter(inVertices, inTriangles)
@@ -58,4 +58,4 @@ bool TriangleSplitterMorton::Split(const Range &inTriangles, Range &outLeft, Ran
 	return outLeft.Count() > 0 && outRight.Count() > 0;
 }
 
-} // JPH
+JPH_NAMESPACE_END

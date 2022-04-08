@@ -3,10 +3,10 @@
 
 #pragma once
 
-#include <Physics/Collision/BroadPhase/QuadTree.h>
-#include <Physics/Collision/BroadPhase/BroadPhase.h>
+#include <Jolt/Physics/Collision/BroadPhase/QuadTree.h>
+#include <Jolt/Physics/Collision/BroadPhase/BroadPhase.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 /// Fast SIMD based quad tree BroadPhase that is multithreading aware and tries to do a minimal amount of locking.
 class BroadPhaseQuadTree final : public BroadPhase
@@ -93,4 +93,4 @@ private:
 	uint32					mNextLayerToUpdate = 0;
 };
 
-} // JPH
+JPH_NAMESPACE_END

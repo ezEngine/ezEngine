@@ -3,13 +3,16 @@
 
 #pragma once
 
-#include <ObjectStream/ObjectStream.h>
-#include <Core/Reference.h>
-#include <Core/RTTI.h>
+#include <Jolt/ObjectStream/ObjectStream.h>
+#include <Jolt/Core/Reference.h>
+#include <Jolt/Core/RTTI.h>
+
+JPH_SUPPRESS_WARNINGS_STD_BEGIN
 #include <fstream>
 #include <unordered_map>
+JPH_SUPPRESS_WARNINGS_STD_END
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 /// ObjectStreamIn contains all logic for reading an object from disk. It is the base
 /// class for the text and binary input streams (ObjectStreamTextIn and ObjectStreamBinaryIn).
@@ -163,7 +166,7 @@ private:
 	bool	OSReadData(ObjectStreamIn &ioStream, name &outPrimitive);
 
 // This file uses the JPH_DECLARE_PRIMITIVE macro to define all types
-#include <ObjectStream/ObjectStreamTypes.h>
+#include <Jolt/ObjectStream/ObjectStreamTypes.h>
 
 /// Define serialization templates for dynamic arrays
 template <class T>
@@ -243,4 +246,4 @@ bool OSReadData(ObjectStreamIn &ioStream, RefConst<T> &inRef)
 	return ioStream.ReadPointerData(JPH_RTTI(T), inRef.InternalGetPointer(), T::sInternalGetRefCountOffset());
 }
 
-} // JPH
+JPH_NAMESPACE_END

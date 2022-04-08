@@ -1,11 +1,11 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 Quat Quat::operator * (QuatArg inRHS) const
 { 
-#if defined(JPH_USE_SSE)
+#if defined(JPH_USE_SSE4_1)
 	// Taken from: http://momchil-velikov.blogspot.nl/2013/10/fast-sse-quternion-multiplication.html
 	__m128 abcd = mValue.mValue;
 	__m128 xyzw = inRHS.mValue.mValue;
@@ -311,4 +311,4 @@ Quat Quat::sLoadFloat3Unsafe(const Float3 &inV)
 	return Quat(Vec4(v, w));
 }
 
-} // JPH
+JPH_NAMESPACE_END

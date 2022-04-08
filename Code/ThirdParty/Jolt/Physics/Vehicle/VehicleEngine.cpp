@@ -1,15 +1,15 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Jolt.h>
+#include <Jolt/Jolt.h>
 
-#include <Physics/Vehicle/VehicleEngine.h>
-#include <ObjectStream/TypeDeclarations.h>
+#include <Jolt/Physics/Vehicle/VehicleEngine.h>
+#include <Jolt/ObjectStream/TypeDeclarations.h>
 #ifdef JPH_DEBUG_RENDERER
-	#include <Renderer/DebugRenderer.h>
+	#include <Jolt/Renderer/DebugRenderer.h>
 #endif // JPH_DEBUG_RENDERER
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 JPH_IMPLEMENT_SERIALIZABLE_NON_VIRTUAL(VehicleEngineSettings)
 {
@@ -116,4 +116,4 @@ void VehicleEngine::RestoreState(StateRecorder &inStream)
 	inStream.Read(mCurrentRPM);
 }
 
-} // JPH
+JPH_NAMESPACE_END

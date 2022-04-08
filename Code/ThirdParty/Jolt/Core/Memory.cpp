@@ -1,13 +1,16 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Jolt.h>
+#include <Jolt/Jolt.h>
 
-#include <Core/Memory.h>
+#include <Jolt/Core/Memory.h>
+
+JPH_SUPPRESS_WARNINGS_STD_BEGIN
 #include <cstdlib>
+JPH_SUPPRESS_WARNINGS_STD_END
 #include <stdlib.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 void *AlignedAlloc(size_t inSize, size_t inAlignment)
 {
@@ -32,4 +35,4 @@ void AlignedFree(void *inBlock)
 #endif
 }
 
-} // JPH
+JPH_NAMESPACE_END

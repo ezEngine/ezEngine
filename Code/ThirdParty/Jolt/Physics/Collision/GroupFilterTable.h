@@ -3,10 +3,10 @@
 
 #pragma once
 
-#include <Physics/Collision/GroupFilter.h>
-#include <Physics/Collision/CollisionGroup.h>
+#include <Jolt/Physics/Collision/GroupFilter.h>
+#include <Jolt/Physics/Collision/CollisionGroup.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 /// Implementation of GroupFilter that stores a bit table with one bit per sub shape ID pair to determine if they collide or not
 /// 
@@ -126,4 +126,4 @@ private:
 	vector<uint8>			mTable;											///< The table of bits that indicates which pairs collide
 };
 
-} // JPH
+JPH_NAMESPACE_END

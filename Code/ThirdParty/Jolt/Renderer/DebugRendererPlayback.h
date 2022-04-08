@@ -7,11 +7,14 @@
 	#error This file should only be included when JPH_DEBUG_RENDERER is defined
 #endif // !JPH_DEBUG_RENDERER
 
-#include <Renderer/DebugRendererRecorder.h>
-#include <Core/StreamIn.h>
-#include <map>
+#include <Jolt/Renderer/DebugRendererRecorder.h>
+#include <Jolt/Core/StreamIn.h>
 
-namespace JPH {
+JPH_SUPPRESS_WARNINGS_STD_BEGIN
+#include <map>
+JPH_SUPPRESS_WARNINGS_STD_END
+
+JPH_NAMESPACE_BEGIN
 
 /// Class that can read a recorded stream from DebugRendererRecorder and plays it back trough a DebugRenderer
 class DebugRendererPlayback
@@ -44,4 +47,4 @@ private:
 	vector<Frame>						mFrames;
 };
 
-} // JPH
+JPH_NAMESPACE_END

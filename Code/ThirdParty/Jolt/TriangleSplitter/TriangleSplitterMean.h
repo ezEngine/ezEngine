@@ -3,9 +3,9 @@
 
 #pragma once
 
-#include <TriangleSplitter/TriangleSplitter.h>
+#include <Jolt/TriangleSplitter/TriangleSplitter.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 /// Splitter using mean of axis with biggest centroid deviation
 class TriangleSplitterMean : public TriangleSplitter
@@ -24,4 +24,4 @@ public:
 	virtual bool			Split(const Range &inTriangles, Range &outLeft, Range &outRight) override;
 };
 
-} // JPH
+JPH_NAMESPACE_END

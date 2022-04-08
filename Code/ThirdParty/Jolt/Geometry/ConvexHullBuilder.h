@@ -7,13 +7,13 @@
 //#define JPH_CONVEX_BUILDER_DUMP_SHAPE
 
 #ifdef JPH_CONVEX_BUILDER_DEBUG
-	#include <Core/Color.h>
+	#include <Jolt/Core/Color.h>
 #endif
 
-#include <Core/StaticArray.h>
-#include <Core/NonCopyable.h>
+#include <Jolt/Core/StaticArray.h>
+#include <Jolt/Core/NonCopyable.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 /// A convex hull builder that tries to create hulls as accurately as possible. Used for offline processing.
 class ConvexHullBuilder : public NonCopyable
@@ -240,4 +240,4 @@ private:
 #endif
 };
 
-} // JPH
+JPH_NAMESPACE_END

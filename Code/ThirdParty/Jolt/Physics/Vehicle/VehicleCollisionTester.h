@@ -3,9 +3,9 @@
 
 #pragma once
 
-#include <Physics/Body/Body.h>
+#include <Jolt/Physics/Body/Body.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 class PhysicsSystem;
 
@@ -72,4 +72,4 @@ private:
 	float						mCosMaxSlopeAngle;
 };
 
-} // JPH
+JPH_NAMESPACE_END

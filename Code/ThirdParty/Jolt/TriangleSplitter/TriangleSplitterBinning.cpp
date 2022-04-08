@@ -1,11 +1,11 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Jolt.h>
+#include <Jolt/Jolt.h>
 
-#include <TriangleSplitter/TriangleSplitterBinning.h>
+#include <Jolt/TriangleSplitter/TriangleSplitterBinning.h>
 
- namespace JPH {
+ JPH_NAMESPACE_BEGIN
 
 TriangleSplitterBinning::TriangleSplitterBinning(const VertexList &inVertices, const IndexedTriangleList &inTriangles, uint inMinNumBins, uint inMaxNumBins, uint inNumTrianglesPerBin) :
 	TriangleSplitter(inVertices, inTriangles),
@@ -108,4 +108,4 @@ bool TriangleSplitterBinning::Split(const Range &inTriangles, Range &outLeft, Ra
 	return SplitInternal(inTriangles, best_dim, best_split, outLeft, outRight);
 }
 
-} // JPH
+JPH_NAMESPACE_END

@@ -3,13 +3,13 @@
 
 #pragma once
 
-#include <Physics/Collision/Shape/Shape.h>
-#include <Physics/Collision/PhysicsMaterial.h>
+#include <Jolt/Physics/Collision/Shape/Shape.h>
+#include <Jolt/Physics/Collision/PhysicsMaterial.h>
 #ifdef JPH_DEBUG_RENDERER
-	#include <Renderer/DebugRenderer.h>
+	#include <Jolt/Renderer/DebugRenderer.h>
 #endif // JPH_DEBUG_RENDERER
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 class ConvexShape;
 class CollideShapeSettings;
@@ -263,4 +263,4 @@ private:
 #endif // JPH_DEBUG_RENDERER
 };
 
-} // JPH
+JPH_NAMESPACE_END

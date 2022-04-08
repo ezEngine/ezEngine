@@ -1,13 +1,13 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Jolt.h>
+#include <Jolt/Jolt.h>
 
-#include <Skeleton/SkeletalAnimation.h>
-#include <Skeleton/SkeletonPose.h>
-#include <ObjectStream/TypeDeclarations.h>
+#include <Jolt/Skeleton/SkeletalAnimation.h>
+#include <Jolt/Skeleton/SkeletonPose.h>
+#include <Jolt/ObjectStream/TypeDeclarations.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 JPH_IMPLEMENT_SERIALIZABLE_NON_VIRTUAL(SkeletalAnimation::JointState)
 {
@@ -111,4 +111,4 @@ void SkeletalAnimation::Sample(float inTime, SkeletonPose &ioPose) const
 	}
 }
 
-} // JPH
+JPH_NAMESPACE_END

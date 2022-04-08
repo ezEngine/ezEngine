@@ -1,14 +1,14 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Jolt.h>
+#include <Jolt/Jolt.h>
 
-#include <Skeleton/SkeletonPose.h>
+#include <Jolt/Skeleton/SkeletonPose.h>
 #ifdef JPH_DEBUG_RENDERER
-	#include <Renderer/DebugRenderer.h>
+	#include <Jolt/Renderer/DebugRenderer.h>
 #endif // JPH_DEBUG_RENDERER
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 void SkeletonPose::SetSkeleton(const Skeleton *inSkeleton)
 {
@@ -56,4 +56,4 @@ void SkeletonPose::Draw(const DrawSettings &inDrawSettings, DebugRenderer *inRen
 }
 #endif // JPH_DEBUG_RENDERER
 
-} // JPH
+JPH_NAMESPACE_END

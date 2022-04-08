@@ -1,12 +1,15 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Jolt.h>
+#include <Jolt/Jolt.h>
 
-#include <Core/StringTools.h>
+#include <Jolt/Core/StringTools.h>
+
+JPH_SUPPRESS_WARNINGS_STD_BEGIN
 #include <cstdarg>
+JPH_SUPPRESS_WARNINGS_STD_END
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 string StringFormat(const char *inFMT, ...)
 {
@@ -93,4 +96,4 @@ const char *NibbleToBinary(uint32 inNibble)
 	return nibbles[inNibble & 0xf];
 }
 
-} // JPH
+JPH_NAMESPACE_END

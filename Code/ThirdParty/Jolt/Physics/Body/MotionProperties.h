@@ -3,13 +3,13 @@
 
 #pragma once
 
-#include <Geometry/Sphere.h>
-#include <Physics/Body/MotionQuality.h>
-#include <Physics/Body/BodyAccess.h>
-#include <Physics/Body/MotionType.h>
-#include <Physics/Body/MassProperties.h>
+#include <Jolt/Geometry/Sphere.h>
+#include <Jolt/Physics/Body/MotionQuality.h>
+#include <Jolt/Physics/Body/BodyAccess.h>
+#include <Jolt/Physics/Body/MotionType.h>
+#include <Jolt/Physics/Body/MassProperties.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 class StateRecorder;
 
@@ -75,6 +75,7 @@ public:
 
 	/// Get inverse mass (1 / mass). Should only be called on a dynamic object (static or kinematic bodies have infinite mass so should be treated as 1 / mass = 0)
 	inline float			GetInverseMass() const											{ JPH_ASSERT(mCachedMotionType == EMotionType::Dynamic); return mInvMass; }
+	inline float			GetInverseMassUnchecked() const									{ return mInvMass; }
 	void					SetInverseMass(float inInverseMass)								{ mInvMass = inInverseMass; }
 
 	/// Diagonal of inverse inertia matrix: D. Should only be called on a dynamic object (static or kinematic bodies have infinite mass so should be treated as D = 0)
@@ -88,6 +89,9 @@ public:
 
 	/// Get inverse inertia matrix (\f$I_{body}^{-1}\f$). Will be a matrix of zeros for a static or kinematic object.
 	inline Mat44 			GetLocalSpaceInverseInertia() const;
+
+	/// Same as GetLocalSpaceInverseInertia() but doesn't check if the body is dynamic
+	inline Mat44 			GetLocalSpaceInverseInertiaUnchecked() const;
 
 	/// Get inverse inertia matrix (\f$I^{-1}\f$) for a given object rotation (translation will be ignored). Zero if object is static or kinematic.
 	inline Mat44			GetInverseInertiaForRotation(Mat44Arg inRotation) const;
@@ -170,6 +174,6 @@ private:
 #endif
 };
 
-} // JPH
+JPH_NAMESPACE_END
 
 #include "MotionProperties.inl"

@@ -1,13 +1,13 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Jolt.h>
+#include <Jolt/Jolt.h>
 
-#include <Physics/Collision/NarrowPhaseStats.h>
+#include <Jolt/Physics/Collision/NarrowPhaseStats.h>
 
 #ifdef JPH_TRACK_NARROWPHASE_STATS
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 NarrowPhaseStat	NarrowPhaseStat::sCollideShape[NumSubShapeTypes][NumSubShapeTypes];
 NarrowPhaseStat	NarrowPhaseStat::sCastShape[NumSubShapeTypes][NumSubShapeTypes];
@@ -47,6 +47,6 @@ void NarrowPhaseStat::sReportStats()
 		}
 }
 
-} // JPH
+JPH_NAMESPACE_END
 
 #endif // JPH_TRACK_NARROWPHASE_STATS

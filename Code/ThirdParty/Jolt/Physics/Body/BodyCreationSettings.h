@@ -3,14 +3,14 @@
 
 #pragma once
 
-#include <Physics/Collision/Shape/Shape.h>
-#include <Physics/Collision/ObjectLayer.h>
-#include <Physics/Collision/CollisionGroup.h>
-#include <Physics/Body/MotionType.h>
-#include <Physics/Body/MotionQuality.h>
-#include <ObjectStream/SerializableObject.h>
+#include <Jolt/Physics/Collision/Shape/Shape.h>
+#include <Jolt/Physics/Collision/ObjectLayer.h>
+#include <Jolt/Physics/Collision/CollisionGroup.h>
+#include <Jolt/Physics/Body/MotionType.h>
+#include <Jolt/Physics/Body/MotionQuality.h>
+#include <Jolt/ObjectStream/SerializableObject.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 class StreamIn;
 class StreamOut;
@@ -112,4 +112,4 @@ private:
 	RefConst<Shape>			mShapePtr;														///< Actual shape, cannot be serialized. Mutually exclusive with mShape
 };
 
-} // JPH
+JPH_NAMESPACE_END

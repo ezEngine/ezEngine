@@ -3,16 +3,16 @@
 
 #pragma once
 
-#include <Physics/Body/MassProperties.h>
-#include <Physics/Collision/BackFaceMode.h>
-#include <Physics/Collision/CollisionCollector.h>
-#include <Geometry/AABox.h>
-#include <Core/Reference.h>
-#include <Core/Color.h>
-#include <Core/Result.h>
-#include <ObjectStream/SerializableObject.h>
+#include <Jolt/Physics/Body/MassProperties.h>
+#include <Jolt/Physics/Collision/BackFaceMode.h>
+#include <Jolt/Physics/Collision/CollisionCollector.h>
+#include <Jolt/Geometry/AABox.h>
+#include <Jolt/Core/Reference.h>
+#include <Jolt/Core/Color.h>
+#include <Jolt/Core/Result.h>
+#include <Jolt/ObjectStream/SerializableObject.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 struct RayCast;
 class RayCastSettings;
@@ -199,7 +199,8 @@ public:
 	/// Get the material assigned to a particular sub shape ID
 	virtual const PhysicsMaterial *	GetMaterial(const SubShapeID &inSubShapeID) const = 0;
 
-	/// Get the surface normal of a particular sub shape ID and point on surface (all vectors are relative to center of mass for this shape)
+	/// Get the surface normal of a particular sub shape ID and point on surface (all vectors are relative to center of mass for this shape).
+	/// Note: When you have a CollideShapeResult or ShapeCastResult you should use -mPenetrationAxis.Normalized() as contact normal as GetSurfaceNormal will only return face normals (and not vertex or edge normals).
 	virtual Vec3					GetSurfaceNormal(const SubShapeID &inSubShapeID, Vec3Arg inLocalSurfacePosition) const = 0;
 
 	/// Get the user data of a particular sub shape ID
@@ -364,4 +365,4 @@ private:
 	EShapeSubType					mShapeSubType;
 };
 
-} // JPH
+JPH_NAMESPACE_END

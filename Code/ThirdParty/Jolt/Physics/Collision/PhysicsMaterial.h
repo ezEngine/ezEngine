@@ -3,12 +3,12 @@
 
 #pragma once
 
-#include <Core/Reference.h>
-#include <Core/Color.h>
-#include <Core/Result.h>
-#include <ObjectStream/SerializableObject.h>
+#include <Jolt/Core/Reference.h>
+#include <Jolt/Core/Color.h>
+#include <Jolt/Core/Result.h>
+#include <Jolt/ObjectStream/SerializableObject.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 class StreamIn;
 class StreamOut;
@@ -48,4 +48,4 @@ protected:
 
 using PhysicsMaterialList = vector<RefConst<PhysicsMaterial>>;
 
-} // JPH
+JPH_NAMESPACE_END

@@ -1,12 +1,16 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Jolt.h>
+#include <Jolt/Jolt.h>
 
-#include <Math/Vec3.h>
+#include <Jolt/Math/Vec3.h>
+
+JPH_SUPPRESS_WARNINGS_STD_BEGIN
 #include <unordered_set>
+JPH_SUPPRESS_WARNINGS_STD_END
 
-namespace JPH {
+
+JPH_NAMESPACE_BEGIN
 
 static void sCreateVertices(unordered_set<Vec3> &ioVertices, Vec3Arg inDir1, Vec3Arg inDir2, Vec3Arg inDir3, int inLevel)
 {
@@ -55,4 +59,4 @@ const vector<Vec3> Vec3::sUnitSphere = []() {
 	return vector<Vec3>(verts.begin(), verts.end());
 }();
 
-} // JPH
+JPH_NAMESPACE_END

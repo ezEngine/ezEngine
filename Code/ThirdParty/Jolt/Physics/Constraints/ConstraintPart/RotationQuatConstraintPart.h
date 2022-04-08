@@ -3,11 +3,11 @@
 
 #pragma once
 
-#include <Physics/PhysicsSettings.h>
-#include <Physics/Body/Body.h>
-#include <Physics/StateRecorder.h>
+#include <Jolt/Physics/PhysicsSettings.h>
+#include <Jolt/Physics/Body/Body.h>
+#include <Jolt/Physics/StateRecorder.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 /// Quaternion based constraint that constrains rotation around all axis so that only translation is allowed.
 ///
@@ -227,4 +227,4 @@ private:
 	Vec3						mTotalLambda { Vec3::sZero() };
 };
 
-} // JPH
+JPH_NAMESPACE_END

@@ -1,20 +1,20 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Jolt.h>
+#include <Jolt/Jolt.h>
 
-#include <Physics/PhysicsSettings.h>
-#include <Physics/Body/BodyManager.h>
-#include <Physics/Body/BodyCreationSettings.h>
-#include <Physics/Body/BodyLock.h>
-#include <Physics/Body/BodyActivationListener.h>
-#include <Physics/StateRecorder.h>
-#include <Core/StringTools.h>
+#include <Jolt/Physics/PhysicsSettings.h>
+#include <Jolt/Physics/Body/BodyManager.h>
+#include <Jolt/Physics/Body/BodyCreationSettings.h>
+#include <Jolt/Physics/Body/BodyLock.h>
+#include <Jolt/Physics/Body/BodyActivationListener.h>
+#include <Jolt/Physics/StateRecorder.h>
+#include <Jolt/Core/StringTools.h>
 #ifdef JPH_DEBUG_RENDERER
-	#include <Renderer/DebugRenderer.h>
+	#include <Jolt/Renderer/DebugRenderer.h>
 #endif // JPH_DEBUG_RENDERER
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 #ifdef JPH_ENABLE_ASSERTS
 	thread_local bool BodyManager::sOverrideAllowActivation = false;
@@ -771,4 +771,4 @@ void BodyManager::ValidateActiveBodyBounds()
 }
 #endif // _DEBUG
 
-} // JPH
+JPH_NAMESPACE_END

@@ -1,21 +1,21 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Jolt.h>
+#include <Jolt/Jolt.h>
 
-#include <Physics/Constraints/SwingTwistConstraint.h>
-#include <Physics/Ragdoll/Ragdoll.h>
-#include <Physics/PhysicsSystem.h>
-#include <Physics/Body/BodyLockMulti.h>
-#include <Physics/Collision/GroupFilterTable.h>
-#include <Physics/Collision/CollisionCollectorImpl.h>
-#include <Physics/Collision/CollideShape.h>
-#include <Physics/Collision/CollisionDispatch.h>
-#include <ObjectStream/TypeDeclarations.h>
-#include <Core/StreamIn.h>
-#include <Core/StreamOut.h>
+#include <Jolt/Physics/Constraints/SwingTwistConstraint.h>
+#include <Jolt/Physics/Ragdoll/Ragdoll.h>
+#include <Jolt/Physics/PhysicsSystem.h>
+#include <Jolt/Physics/Body/BodyLockMulti.h>
+#include <Jolt/Physics/Collision/GroupFilterTable.h>
+#include <Jolt/Physics/Collision/CollisionCollectorImpl.h>
+#include <Jolt/Physics/Collision/CollideShape.h>
+#include <Jolt/Physics/Collision/CollisionDispatch.h>
+#include <Jolt/ObjectStream/TypeDeclarations.h>
+#include <Jolt/Core/StreamIn.h>
+#include <Jolt/Core/StreamOut.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 JPH_IMPLEMENT_SERIALIZABLE_NON_VIRTUAL(RagdollSettings::Part)
 {
@@ -205,7 +205,7 @@ void RagdollSettings::DisableParentChildCollisions(const Mat44 *inJointMatrices,
 			const Part &part1 = mParts[j1];
 			const Shape *shape1 = part1.GetShape();
 			Vec3 scale1;
-			Mat44 com1 = (inJointMatrices[j1] * Mat44::sTranslation(shape1->GetCenterOfMass())).Decompose(scale1);
+			Mat44 com1 = (inJointMatrices[j1].PreTranslated(shape1->GetCenterOfMass())).Decompose(scale1);
 
 			// Loop over all other joints
 			for (int j2 = j1 + 1; j2 < joint_count; ++j2)
@@ -215,7 +215,7 @@ void RagdollSettings::DisableParentChildCollisions(const Mat44 *inJointMatrices,
 					const Part &part2 = mParts[j2];
 					const Shape *shape2 = part2.GetShape();
 					Vec3 scale2;
-					Mat44 com2 = (inJointMatrices[j2] * Mat44::sTranslation(shape2->GetCenterOfMass())).Decompose(scale2);
+					Mat44 com2 = (inJointMatrices[j2].PreTranslated(shape2->GetCenterOfMass())).Decompose(scale2);
 					
 					// Collision settings
 					CollideShapeSettings settings;
@@ -591,4 +591,4 @@ const AABox Ragdoll::GetWorldSpaceBounds(bool inLockBodies) const
 	return bounds;
 }
 
-} // JPH
+JPH_NAMESPACE_END

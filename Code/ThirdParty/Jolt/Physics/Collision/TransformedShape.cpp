@@ -1,17 +1,17 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Jolt.h>
+#include <Jolt/Jolt.h>
 
-#include <Physics/Collision/TransformedShape.h>
-#include <Physics/Collision/RayCast.h>
-#include <Physics/Collision/ShapeCast.h>
-#include <Physics/Collision/CastResult.h>
-#include <Physics/Collision/Shape/SubShapeID.h>
-#include <Physics/Collision/CollisionDispatch.h>
-#include <Geometry/OrientedBox.h>
+#include <Jolt/Physics/Collision/TransformedShape.h>
+#include <Jolt/Physics/Collision/RayCast.h>
+#include <Jolt/Physics/Collision/ShapeCast.h>
+#include <Jolt/Physics/Collision/CastResult.h>
+#include <Jolt/Physics/Collision/Shape/SubShapeID.h>
+#include <Jolt/Physics/Collision/CollisionDispatch.h>
+#include <Jolt/Geometry/OrientedBox.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 bool TransformedShape::CastRay(const RayCast &inRay, RayCastResult &ioHit) const
 {
@@ -99,11 +99,8 @@ void TransformedShape::CastShape(const ShapeCast &inShapeCast, const ShapeCastSe
 		// Get center of mass of object we're casting against
 		Mat44 center_of_mass_transform2 = GetCenterOfMassTransform();
 
-		// Transform the shape cast to local space
-		ShapeCast local_shape = inShapeCast.PostTransformed(center_of_mass_transform2.InversedRotationTranslation());
-				
 		SubShapeIDCreator sub_shape_id1, sub_shape_id2(mSubShapeIDCreator);
-		CollisionDispatch::sCastShapeVsShape(local_shape, inShapeCastSettings, mShape, GetShapeScale(), inShapeFilter, center_of_mass_transform2, sub_shape_id1, sub_shape_id2, ioCollector);
+		CollisionDispatch::sCastShapeVsShapeWorldSpace(inShapeCast, inShapeCastSettings, mShape, GetShapeScale(), inShapeFilter, center_of_mass_transform2, sub_shape_id1, sub_shape_id2, ioCollector);
 	}
 }
 
@@ -132,4 +129,4 @@ int TransformedShape::GetTrianglesNext(GetTrianglesContext &ioContext, int inMax
 		return 0;
 }
 
-} // JPH
+JPH_NAMESPACE_END

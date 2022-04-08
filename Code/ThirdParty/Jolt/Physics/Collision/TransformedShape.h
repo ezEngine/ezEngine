@@ -3,14 +3,14 @@
 
 #pragma once
 
-#include <Physics/Collision/ObjectLayer.h>
-#include <Physics/Collision/ShapeFilter.h>
-#include <Physics/Collision/Shape/Shape.h>
-#include <Physics/Collision/Shape/SubShapeID.h>
-#include <Physics/Collision/BackFaceMode.h>
-#include <Physics/Body/BodyID.h>
+#include <Jolt/Physics/Collision/ObjectLayer.h>
+#include <Jolt/Physics/Collision/ShapeFilter.h>
+#include <Jolt/Physics/Collision/Shape/Shape.h>
+#include <Jolt/Physics/Collision/Shape/SubShapeID.h>
+#include <Jolt/Physics/Collision/BackFaceMode.h>
+#include <Jolt/Physics/Body/BodyID.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 struct RayCast;
 class CollideShapeSettings;
@@ -116,7 +116,8 @@ public:
 		return sub_shape_id;
 	}
 
-	/// Get surface normal of a particular sub shape and its world space surface position on this body
+	/// Get surface normal of a particular sub shape and its world space surface position on this body.
+	/// Note: When you have a CollideShapeResult or ShapeCastResult you should use -mPenetrationAxis.Normalized() as contact normal as GetWorldSpaceSurfaceNormal will only return face normals (and not vertex or edge normals).
 	inline Vec3					GetWorldSpaceSurfaceNormal(const SubShapeID &inSubShapeID, Vec3Arg inPosition) const
 	{
 		Mat44 inv_com = GetInverseCenterOfMassTransform();
@@ -159,4 +160,4 @@ public:
 static_assert(sizeof(TransformedShape) == 64, "Not properly packed");
 static_assert(alignof(TransformedShape) == 16, "Not properly aligned");
 
-} // JPH
+JPH_NAMESPACE_END

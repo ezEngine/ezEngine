@@ -3,11 +3,11 @@
 
 #pragma once
 
-#include <Core/FixedSizeFreeList.h>
-#include <Core/Atomics.h>
-#include <Core/NonCopyable.h>
-#include <Physics/Body/BodyManager.h>
-#include <Physics/Collision/BroadPhase/BroadPhase.h>
+#include <Jolt/Core/FixedSizeFreeList.h>
+#include <Jolt/Core/Atomics.h>
+#include <Jolt/Core/NonCopyable.h>
+#include <Jolt/Physics/Body/BodyManager.h>
+#include <Jolt/Physics/Collision/BroadPhase/BroadPhase.h>
 
 #ifdef JPH_TRACK_BROADPHASE_STATS
 	#include <map>
@@ -15,7 +15,7 @@
 
 //#define JPH_DUMP_BROADPHASE_TREE
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 /// Internal tree structure in broadphase, is essentially a quad AABB tree.
 /// Tree is lockless (except for UpdatePrepare/Finalize() function), modifying objects in the tree will widen the aabbs of parent nodes to make the node fit.
@@ -372,4 +372,4 @@ private:
 	atomic<bool>				mIsDirty = false;
 };
 
-} // JPH
+JPH_NAMESPACE_END

@@ -3,9 +3,9 @@
 
 #pragma once
 
-#include <Core/RTTI.h>
+#include <Jolt/Core/RTTI.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 /// Helper functions to get the underlying RTTI type of a type (so e.g. vector<sometype> will return sometype)
 template <class T>				
@@ -50,4 +50,4 @@ RTTI *GetPrimitiveTypeOfType(T (*)[N])
 	return GetPrimitiveTypeOfType((T *)nullptr);
 }
 
-} // JPH
+JPH_NAMESPACE_END

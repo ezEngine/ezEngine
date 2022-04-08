@@ -1,19 +1,19 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Jolt.h>
+#include <Jolt/Jolt.h>
 
-#include <Physics/Collision/BroadPhase/BroadPhase.h>
-#include <Physics/Body/Body.h>
-#include <Physics/Body/BodyManager.h>
-#include <Physics/Body/BodyInterface.h>
-#include <Physics/Body/BodyCreationSettings.h>
-#include <Physics/Body/BodyLock.h>
-#include <Physics/Body/BodyLockMulti.h>
-#include <Physics/Collision/PhysicsMaterial.h>
-#include <Physics/Constraints/TwoBodyConstraint.h>
+#include <Jolt/Physics/Collision/BroadPhase/BroadPhase.h>
+#include <Jolt/Physics/Body/Body.h>
+#include <Jolt/Physics/Body/BodyManager.h>
+#include <Jolt/Physics/Body/BodyInterface.h>
+#include <Jolt/Physics/Body/BodyCreationSettings.h>
+#include <Jolt/Physics/Body/BodyLock.h>
+#include <Jolt/Physics/Body/BodyLockMulti.h>
+#include <Jolt/Physics/Collision/PhysicsMaterial.h>
+#include <Jolt/Physics/Constraints/TwoBodyConstraint.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 Body *BodyInterface::CreateBody(const BodyCreationSettings &inSettings)
 {
@@ -142,6 +142,13 @@ void BodyInterface::DeactivateBody(const BodyID &inBodyID)
 		if (body.IsActive())
 			mBodyManager->DeactivateBodies(&inBodyID, 1);
 	}
+}
+
+void BodyInterface::DeactivateBodies(const BodyID *inBodyIDs, int inNumber)
+{
+	BodyLockMultiWrite lock(*mBodyLockInterface, inBodyIDs, inNumber);
+
+	mBodyManager->DeactivateBodies(inBodyIDs, inNumber);
 }
 
 bool BodyInterface::IsActive(const BodyID &inBodyID) const
@@ -811,4 +818,11 @@ const PhysicsMaterial *BodyInterface::GetMaterial(const BodyID &inBodyID, const 
 		return PhysicsMaterial::sDefault;
 }
 
-} // JPH
+void BodyInterface::InvalidateContactCache(const BodyID &inBodyID)
+{
+	BodyLockWrite lock(*mBodyLockInterface, inBodyID);
+	if (lock.Succeeded())
+		mBodyManager->InvalidateContactCacheForBody(lock.GetBody());
+}
+
+JPH_NAMESPACE_END

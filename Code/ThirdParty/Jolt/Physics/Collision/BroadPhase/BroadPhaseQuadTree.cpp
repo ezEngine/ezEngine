@@ -1,14 +1,14 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Jolt.h>
-#include <Physics/Collision/BroadPhase/BroadPhaseQuadTree.h>
-#include <Physics/Collision/RayCast.h>
-#include <Physics/Collision/AABoxCast.h>
-#include <Physics/Collision/CastResult.h>
-#include <Physics/PhysicsLock.h>
+#include <Jolt/Jolt.h>
+#include <Jolt/Physics/Collision/BroadPhase/BroadPhaseQuadTree.h>
+#include <Jolt/Physics/Collision/RayCast.h>
+#include <Jolt/Physics/Collision/AABoxCast.h>
+#include <Jolt/Physics/Collision/CastResult.h>
+#include <Jolt/Physics/PhysicsLock.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 BroadPhaseQuadTree::~BroadPhaseQuadTree()
 {
@@ -584,4 +584,4 @@ void BroadPhaseQuadTree::ReportStats()
 
 #endif // JPH_TRACK_BROADPHASE_STATS
 
-} // JPH
+JPH_NAMESPACE_END

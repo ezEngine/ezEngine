@@ -3,11 +3,11 @@
 
 #pragma once
 
-#include <Math/Float4.h>
-#include <Math/Swizzle.h>
-#include <Math/MathTypes.h>
+#include <Jolt/Math/Float4.h>
+#include <Jolt/Math/Swizzle.h>
+#include <Jolt/Math/MathTypes.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 class [[nodiscard]] Vec4
 {
@@ -248,6 +248,6 @@ public:
 
 static_assert(is_trivial<Vec4>(), "Is supposed to be a trivial type!");
 
-} // JPH
+JPH_NAMESPACE_END
 
 #include "Vec4.inl"

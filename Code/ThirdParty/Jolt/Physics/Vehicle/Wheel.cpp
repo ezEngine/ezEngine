@@ -1,13 +1,13 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Jolt.h>
+#include <Jolt/Jolt.h>
 
-#include <Physics/Vehicle/Wheel.h>
-#include <Physics/Vehicle/VehicleConstraint.h>
-#include <ObjectStream/TypeDeclarations.h>
+#include <Jolt/Physics/Vehicle/Wheel.h>
+#include <Jolt/Physics/Vehicle/VehicleConstraint.h>
+#include <Jolt/ObjectStream/TypeDeclarations.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 JPH_IMPLEMENT_SERIALIZABLE_VIRTUAL(WheelSettings)
 {
@@ -72,4 +72,4 @@ bool Wheel::SolveLateralConstraintPart(const VehicleConstraint &inConstraint, fl
 	return mLateralPart.SolveVelocityConstraint(*inConstraint.GetVehicleBody(), *mContactBody, -mContactLateral, inMinImpulse, inMaxImpulse); 
 }
 
-} // JPH
+JPH_NAMESPACE_END

@@ -3,13 +3,13 @@
 
 #pragma once
 
-#include <Physics/Body/BodyID.h>
-#include <Physics/EActivation.h>
-#include <Physics/Collision/ObjectLayer.h>
-#include <Physics/Body/MotionType.h>
-#include <Core/Reference.h>
+#include <Jolt/Physics/Body/BodyID.h>
+#include <Jolt/Physics/EActivation.h>
+#include <Jolt/Physics/Collision/ObjectLayer.h>
+#include <Jolt/Physics/Body/MotionType.h>
+#include <Jolt/Core/Reference.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 class Body;
 class BodyCreationSettings;
@@ -72,6 +72,7 @@ public:
 	void						ActivateBody(const BodyID &inBodyID);
 	void						ActivateBodies(const BodyID *inBodyIDs, int inNumber);
 	void						DeactivateBody(const BodyID &inBodyID);
+	void						DeactivateBodies(const BodyID *inBodyIDs, int inNumber);
 	bool						IsActive(const BodyID &inBodyID) const;
 	///@}
 
@@ -186,10 +187,13 @@ public:
 	/// Get the material for a particular sub shape
 	const PhysicsMaterial *		GetMaterial(const BodyID &inBodyID, const SubShapeID &inSubShapeID) const;
 
+	/// Set the Body::EFlags::InvalidateContactCache flag for the specified body. This means that the collision cache is invalid for any body pair involving that body until the next physics step.
+	void						InvalidateContactCache(const BodyID &inBodyID);
+
 private:
 	BodyLockInterface *			mBodyLockInterface = nullptr;
 	BodyManager *				mBodyManager = nullptr;
 	BroadPhase *				mBroadPhase = nullptr;
 };
 
-} // JPH
+JPH_NAMESPACE_END

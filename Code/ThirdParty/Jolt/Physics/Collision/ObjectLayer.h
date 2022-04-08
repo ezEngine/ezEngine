@@ -3,9 +3,9 @@
 
 #pragma once
 
-#include <Core/NonCopyable.h>
+#include <Jolt/Core/NonCopyable.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 /// Layer that objects can be in, determines which other objects it can collide with
 using ObjectLayer = uint16;
@@ -87,4 +87,4 @@ private:
 	ObjectLayer				mLayer;
 };
 
-} // JPH
+JPH_NAMESPACE_END

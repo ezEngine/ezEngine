@@ -1,17 +1,17 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Jolt.h>
+#include <Jolt/Jolt.h>
 
-#include <Physics/Body/MassProperties.h>
-#include <Math/Matrix.h>
-#include <Math/Vector.h>
-#include <Math/EigenValueSymmetric.h>
-#include <ObjectStream/TypeDeclarations.h>
-#include <Core/StreamIn.h>
-#include <Core/StreamOut.h>
+#include <Jolt/Physics/Body/MassProperties.h>
+#include <Jolt/Math/Matrix.h>
+#include <Jolt/Math/Vector.h>
+#include <Jolt/Math/EigenValueSymmetric.h>
+#include <Jolt/ObjectStream/TypeDeclarations.h>
+#include <Jolt/Core/StreamIn.h>
+#include <Jolt/Core/StreamOut.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 JPH_IMPLEMENT_SERIALIZABLE_NON_VIRTUAL(MassProperties)
 {
@@ -180,4 +180,4 @@ void MassProperties::RestoreBinaryState(StreamIn &inStream)
 	inStream.Read(mInertia);
 }
 
-} // JPH
+JPH_NAMESPACE_END

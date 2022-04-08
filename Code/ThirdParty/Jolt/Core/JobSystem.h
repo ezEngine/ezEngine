@@ -3,14 +3,17 @@
 
 #pragma once
 
-#include <Core/Reference.h>
-#include <Core/Color.h>
-#include <Core/Profiler.h>
-#include <Core/NonCopyable.h>
-#include <Core/StaticArray.h>
-#include <atomic>
+#include <Jolt/Core/Reference.h>
+#include <Jolt/Core/Color.h>
+#include <Jolt/Core/Profiler.h>
+#include <Jolt/Core/NonCopyable.h>
+#include <Jolt/Core/StaticArray.h>
 
-namespace JPH {
+JPH_SUPPRESS_WARNINGS_STD_BEGIN
+#include <atomic>
+JPH_SUPPRESS_WARNINGS_STD_END
+
+JPH_NAMESPACE_BEGIN
 
 /// A class that allows units of work (Jobs) to be scheduled across multiple threads.
 /// It allows dependencies between the jobs so that the jobs form a graph.
@@ -250,6 +253,6 @@ private:
 
 using JobHandle = JobSystem::JobHandle;
 
-} // JPH
+JPH_NAMESPACE_END
 
-#include <Core/JobSystem.inl>
+#include "JobSystem.inl"

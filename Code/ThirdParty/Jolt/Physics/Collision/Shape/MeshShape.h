@@ -3,16 +3,16 @@
 
 #pragma once
 
-#include <Physics/Collision/Shape/Shape.h>
-#include <Physics/Collision/PhysicsMaterial.h>
-#include <Core/ByteBuffer.h>
-#include <Geometry/Triangle.h>
-#include <Geometry/IndexedTriangle.h>
+#include <Jolt/Physics/Collision/Shape/Shape.h>
+#include <Jolt/Physics/Collision/PhysicsMaterial.h>
+#include <Jolt/Core/ByteBuffer.h>
+#include <Jolt/Geometry/Triangle.h>
+#include <Jolt/Geometry/IndexedTriangle.h>
 #ifdef JPH_DEBUG_RENDERER
-	#include <Renderer/DebugRenderer.h>
+	#include <Jolt/Renderer/DebugRenderer.h>
 #endif // JPH_DEBUG_RENDERER
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 class ConvexShape;
 class CollideShapeSettings;
@@ -73,6 +73,13 @@ public:
 	
 	// See Shape::GetMaterial
 	virtual const PhysicsMaterial *	GetMaterial(const SubShapeID &inSubShapeID) const override;
+
+	/// Get the list of all materials
+	const PhysicsMaterialList &		GetMaterialList() const										{ return mMaterials; }
+
+	/// Determine which material index a particular sub shape uses (note that if there are no materials this function will return 0 so check the array size)
+	/// Note: This could for example be used to create a decorator shape around a mesh shape that overrides the GetMaterial call to replace a material with another material.
+	uint							GetMaterialIndex(const SubShapeID &inSubShapeID) const;
 
 	// See Shape::GetSurfaceNormal
 	virtual Vec3					GetSurfaceNormal(const SubShapeID &inSubShapeID, Vec3Arg inLocalSurfacePosition) const override;
@@ -175,4 +182,4 @@ private:
 #endif // JPH_DEBUG_RENDERER
 };
 
-} // JPH
+JPH_NAMESPACE_END

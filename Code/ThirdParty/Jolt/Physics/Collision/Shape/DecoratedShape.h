@@ -3,9 +3,9 @@
 
 #pragma once
 
-#include <Physics/Collision/Shape/Shape.h>
+#include <Jolt/Physics/Collision/Shape/Shape.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 /// Class that constructs a DecoratedShape
 class DecoratedShapeSettings : public ShapeSettings
@@ -38,6 +38,9 @@ public:
 	// See Shape::MustBeStatic
 	virtual bool					MustBeStatic() const override							{ return mInnerShape->MustBeStatic(); }
 
+	// See Shape::GetCenterOfMass
+	virtual Vec3					GetCenterOfMass() const override						{ return mInnerShape->GetCenterOfMass(); }
+
 	// See Shape::GetSubShapeIDBitsRecursive
 	virtual uint					GetSubShapeIDBitsRecursive() const override				{ return mInnerShape->GetSubShapeIDBitsRecursive(); }
 
@@ -58,4 +61,4 @@ protected:
 	RefConst<Shape>					mInnerShape;
 };
 
-} // JPH
+JPH_NAMESPACE_END

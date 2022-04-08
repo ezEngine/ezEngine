@@ -3,10 +3,10 @@
 
 #pragma once
 
-#include <Core/NonCopyable.h>
-#include <Physics/Body/BodyID.h>
+#include <Jolt/Core/NonCopyable.h>
+#include <Jolt/Physics/Body/BodyID.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 class Body;
 
@@ -82,4 +82,4 @@ private:
 	vector<BodyID>			mBodyIDs;
 };
 
-} // JPH
+JPH_NAMESPACE_END

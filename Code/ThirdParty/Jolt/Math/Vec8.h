@@ -3,9 +3,9 @@
 
 #pragma once
 
-#include <Math/MathTypes.h>
+#include <Jolt/Math/MathTypes.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 class [[nodiscard]] Vec8
 {
@@ -104,6 +104,6 @@ public:
 
 static_assert(is_trivial<Vec8>(), "Is supposed to be a trivial type!");
 
-} // JPH
+JPH_NAMESPACE_END
 
 #include "Vec8.inl"

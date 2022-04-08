@@ -3,9 +3,9 @@
 
 #pragma once
 
-#include <Physics/PhysicsSettings.h>
+#include <Jolt/Physics/PhysicsSettings.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 /// Helper functions to get properties of a scaling vector
 namespace ScaleHelpers
@@ -64,4 +64,4 @@ namespace ScaleHelpers
 	}
 }
 
-} // JPH
+JPH_NAMESPACE_END

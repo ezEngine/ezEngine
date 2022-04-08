@@ -1,12 +1,12 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Jolt.h>
+#include <Jolt/Jolt.h>
 
-#include <TriangleGrouper/TriangleGrouperClosestCentroid.h>
-#include <Geometry/MortonCode.h>
+#include <Jolt/TriangleGrouper/TriangleGrouperClosestCentroid.h>
+#include <Jolt/Geometry/MortonCode.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 void TriangleGrouperClosestCentroid::Group(const VertexList &inVertices, const IndexedTriangleList &inTriangles, int inGroupSize, vector<uint> &outGroupedTriangleIndices)
 {
@@ -90,4 +90,4 @@ void TriangleGrouperClosestCentroid::Group(const VertexList &inVertices, const I
 	}
 }
 
-} // JPH
+JPH_NAMESPACE_END

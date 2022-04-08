@@ -1,12 +1,12 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Jolt.h>
+#include <Jolt/Jolt.h>
 
-#include <TriangleSplitter/TriangleSplitterFixedLeafSize.h>
-#include <TriangleGrouper/TriangleGrouperClosestCentroid.h>
+#include <Jolt/TriangleSplitter/TriangleSplitterFixedLeafSize.h>
+#include <Jolt/TriangleGrouper/TriangleGrouperClosestCentroid.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 TriangleSplitterFixedLeafSize::TriangleSplitterFixedLeafSize(const VertexList &inVertices, const IndexedTriangleList &inTriangles, uint inLeafSize, uint inMinNumBins, uint inMaxNumBins, uint inNumTrianglesPerBin) :
 	TriangleSplitter(inVertices, inTriangles),
@@ -166,4 +166,4 @@ bool TriangleSplitterFixedLeafSize::Split(const Range &inTriangles, Range &outLe
 	return true;
 }
 
-} // JPH
+JPH_NAMESPACE_END
