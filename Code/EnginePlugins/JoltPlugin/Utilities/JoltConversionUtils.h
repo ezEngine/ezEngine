@@ -3,7 +3,9 @@
 #include <Foundation/SimdMath/SimdTransform.h>
 #include <JoltPlugin/JoltPluginDLL.h>
 
+#include <Foundation/Math/Color.h>
 #include <Foundation/Math/Vec3.h>
+#include <Foundation/SimdMath/SimdVec4f.h>
 #include <Jolt/Core/Color.h>
 #include <Jolt/Math/Float3.h>
 #include <Jolt/Math/Vec3.h>
@@ -15,9 +17,13 @@ namespace ezJoltConversionUtils
 
   EZ_ALWAYS_INLINE ezVec3 ToVec3(const JPH::Float3& v) { return reinterpret_cast<const ezVec3&>(v); }
 
-  EZ_ALWAYS_INLINE ezColor ToColor(const JPH::ColorArg& c) { return reinterpret_cast<const ezColor&>(c.ToVec4()); }
+  EZ_ALWAYS_INLINE ezColor ToColor(const JPH::ColorArg& c)
+  {
+    const JPH::Vec4 v4 = c.ToVec4();
+    return reinterpret_cast<const ezColor&>(v4);
+  }
 
-  EZ_ALWAYS_INLINE ezSimdVec4f ToSimdVec3(const JPH::Vec3& v) { return ezSimdVec4f(v.mValue); }
+  EZ_ALWAYS_INLINE ezSimdVec4f ToSimdVec3(const JPH::Vec3& v) { return ezSimdVec4f(ezSimdFloat(v.mValue)); }
 
   EZ_ALWAYS_INLINE JPH::Vec3 ToVec3(const ezVec3& v) { return JPH::Vec3(v.x, v.y, v.z); }
 
