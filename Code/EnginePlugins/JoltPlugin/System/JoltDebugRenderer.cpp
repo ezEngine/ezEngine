@@ -59,10 +59,6 @@ JPH::DebugRenderer::Batch ezJoltDebugRenderer::CreateTriangleBatch(const JPH::De
     t.m_position[1] = ezJoltConversionUtils::ToVec3(inTriangles[i].mV[1].mPosition);
     t.m_position[2] = ezJoltConversionUtils::ToVec3(inTriangles[i].mV[2].mPosition);
     t.m_color = ezJoltConversionUtils::ToColor(inTriangles[i].mV[0].mColor);
-
-    t.m_position[0].AssertNotNaN();
-    t.m_position[1].AssertNotNaN();
-    t.m_position[2].AssertNotNaN();
   }
 
   return pBatch;

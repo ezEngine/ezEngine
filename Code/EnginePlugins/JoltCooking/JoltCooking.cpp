@@ -126,7 +126,7 @@ ezResult ezJoltCooking::CookTriangleMesh(const ezJoltCookingMesh& mesh, ezStream
     OutputStream << storage.GetStorageSize32();
     storage.CopyToStream(OutputStream).AssertSuccess();
 
-    const ezUInt32 uiNumVertices = vertexList.size();
+    const ezUInt32 uiNumVertices = static_cast<ezUInt32>(vertexList.size());
     OutputStream << uiNumVertices;
 
     const ezUInt32 uiNumTriangles = shapeRes.Get()->GetStats().mNumTriangles;

@@ -44,7 +44,7 @@ namespace ezJoltCollisionFiltering
 }; // namespace ezJoltCollisionFiltering
 
 
-class EZ_JOLTPLUGIN_DLL ezJoltObjectToBroadphaseLayer final : public JPH::BroadPhaseLayerInterface
+class ezJoltObjectToBroadphaseLayer final : public JPH::BroadPhaseLayerInterface
 {
 public:
   virtual ezUInt32 GetNumBroadPhaseLayers() const override;
