@@ -81,13 +81,28 @@ void ezCylinderVisualizerAdapter::Update()
       m_vPositionOffset = m_vPositionOffset.CompMul(value.ConvertTo<ezVec3>());
   }
 
+  if (!pAttr->GetAxisProperty().IsEmpty())
+  {
+    ezVariant value;
+    pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetAxisProperty()), value);
+
+    EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<ezInt32>(), "Invalid property bound to ezCylinderVisualizerAttribute 'axis'");
+
+    m_Axis = static_cast<ezBasisAxis::Enum>(value.ConvertTo<ezInt32>());
+  }
+  else
+  {
+    m_Axis = pAttr->m_Axis;
+  }
+
   m_Anchor = pAttr->m_Anchor;
 }
 
 void ezCylinderVisualizerAdapter::UpdateGizmoTransform()
 {
   const ezCylinderVisualizerAttribute* pAttr = static_cast<const ezCylinderVisualizerAttribute*>(m_pVisualizerAttr);
-  const ezQuat axisRotation = ezBasisAxis::GetBasisRotation(ezBasisAxis::PositiveZ, pAttr->m_Axis);
+
+  const ezQuat axisRotation = ezBasisAxis::GetBasisRotation(ezBasisAxis::PositiveZ, m_Axis);
 
   ezTransform t;
   t.m_qRotation = axisRotation;

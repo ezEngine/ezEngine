@@ -22,6 +22,7 @@ protected:
   float m_fHeight;
   ezVec3 m_vPositionOffset;
   ezBitflags<ezVisualizerAnchor> m_Anchor;
+  ezBasisAxis::Enum m_Axis;
 
   ezEngineGizmoHandle m_Cylinder;
 };

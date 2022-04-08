@@ -6,6 +6,12 @@ Plugin
 }
 Plugin
 {
+	string %Path{"ezEnginePluginJolt"}
+	bool %LoadCopy{false}
+	string %DependencyOf{"EditorPluginJolt"}
+}
+Plugin
+{
 	string %Path{"ezEnginePluginKraut"}
 	bool %LoadCopy{false}
 	string %DependencyOf{"EditorPluginKraut"}
@@ -45,6 +51,12 @@ Plugin
 	string %Path{"ezFmodPlugin"}
 	bool %LoadCopy{false}
 	string %DependencyOf{"<manual>","EditorPluginFmod"}
+}
+Plugin
+{
+	string %Path{"ezJoltPlugin"}
+	bool %LoadCopy{false}
+	string %DependencyOf{"EditorPluginJolt"}
 }
 Plugin
 {
