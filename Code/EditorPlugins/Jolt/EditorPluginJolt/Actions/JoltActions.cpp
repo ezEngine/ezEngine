@@ -1,0 +1,61 @@
+#include <EditorPluginJolt/EditorPluginJoltPCH.h>
+
+#include <EditorPluginJolt/Actions/JoltActions.h>
+#include <EditorPluginJolt/Dialogs/JoltProjectSettingsDlg.moc.h>
+#include <GuiFoundation/Action/ActionMapManager.h>
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezJoltAction, 0, ezRTTINoAllocator)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+ezActionDescriptorHandle ezJoltActions::s_hCategoryJolt;
+ezActionDescriptorHandle ezJoltActions::s_hProjectSettings;
+
+void ezJoltActions::RegisterActions()
+{
+  s_hCategoryJolt = EZ_REGISTER_CATEGORY("Jolt");
+  s_hProjectSettings =
+    EZ_REGISTER_ACTION_1("Jolt.Settings.Project", ezActionScope::Document, "Jolt", "", ezJoltAction, ezJoltAction::ActionType::ProjectSettings);
+}
+
+void ezJoltActions::UnregisterActions()
+{
+  ezActionManager::UnregisterAction(s_hCategoryJolt);
+  ezActionManager::UnregisterAction(s_hProjectSettings);
+}
+
+void ezJoltActions::MapMenuActions()
+{
+  /// \todo Is there a way to integrate into ALL document types in a specific menu (ie. project settings)
+  ezActionMap* pMap = ezActionMapManager::GetActionMap("EditorPluginScene_Scene2MenuBar");
+  EZ_ASSERT_DEV(pMap != nullptr, "Mapping the actions failed!");
+
+  pMap->MapAction(s_hCategoryJolt, "Menu.Editor/ProjectCategory/Menu.ProjectSettings", 10.0f);
+  pMap->MapAction(s_hProjectSettings, "Menu.Editor/ProjectCategory/Menu.ProjectSettings/Jolt", 1.0f);
+}
+
+ezJoltAction::ezJoltAction(const ezActionContext& context, const char* szName, ActionType type)
+  : ezButtonAction(context, szName, false, "")
+{
+  m_Type = type;
+
+  switch (m_Type)
+  {
+    case ActionType::ProjectSettings:
+      // SetIconPath(":/EditorPluginScene/Icons/GizmoNone24.png"); /// \todo Icon
+      break;
+  }
+}
+
+ezJoltAction::~ezJoltAction() {}
+
+void ezJoltAction::Execute(const ezVariant& value)
+{
+  if (m_Type == ActionType::ProjectSettings)
+  {
+    ezQtJoltProjectSettingsDlg dlg(nullptr);
+    if (dlg.exec() == QDialog::Accepted)
+    {
+      ezToolsProject::BroadcastConfigChanged();
+    }
+  }
+}
