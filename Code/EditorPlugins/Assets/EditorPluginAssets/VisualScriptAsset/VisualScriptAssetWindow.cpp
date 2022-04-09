@@ -41,7 +41,7 @@ ezQtVisualScriptAssetDocumentWindow::ezQtVisualScriptAssetDocumentWindow(ezDocum
   {
     ezQtMenuBarActionMapView* pMenuBar = static_cast<ezQtMenuBarActionMapView*>(menuBar());
     ezActionContext context;
-    context.m_sMapping = "VisualScriptAssetMenuBar";
+    context.m_sMapping = "VisualScriptAssetMenuBar_Legacy";
     context.m_pDocument = pDocument;
     context.m_pWindow = this;
     pMenuBar->SetActionContext(context);
@@ -51,7 +51,7 @@ ezQtVisualScriptAssetDocumentWindow::ezQtVisualScriptAssetDocumentWindow(ezDocum
   {
     ezQtToolBarActionMapView* pToolBar = new ezQtToolBarActionMapView("Toolbar", this);
     ezActionContext context;
-    context.m_sMapping = "VisualScriptAssetToolBar";
+    context.m_sMapping = "VisualScriptAssetToolBar_Legacy";
     context.m_pDocument = pDocument;
     context.m_pWindow = this;
     pToolBar->SetActionContext(context);

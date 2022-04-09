@@ -126,7 +126,7 @@ EZ_ALWAYS_INLINE ezUInt64 ComputeHashFunc::operator()<ezString>(const ezVariant&
 {
   auto pString = static_cast<const ezString*>(pData);
 
-  return ezHashingUtils::xxHash64(pString->GetData(), pString->GetElementCount(), uiSeed);
+  return ezHashingUtils::xxHash64String(*pString, uiSeed);
 }
 
 template <>

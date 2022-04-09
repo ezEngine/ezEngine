@@ -74,7 +74,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptAssetDocument, 6, ezRTTINoAllocato
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezVisualScriptAssetDocument::ezVisualScriptAssetDocument(const char* szDocumentPath)
-  : ezSimpleAssetDocument<ezVisualScriptAssetProperties>(EZ_DEFAULT_NEW(ezVisualScriptNodeManager), szDocumentPath, ezAssetDocEngineConnection::None)
+  : ezSimpleAssetDocument<ezVisualScriptAssetProperties>(EZ_DEFAULT_NEW(ezVisualScriptNodeManager_Legacy), szDocumentPath, ezAssetDocEngineConnection::None)
 {
   ezVisualScriptTypeRegistry::GetSingleton()->UpdateNodeTypes();
 }
@@ -154,7 +154,7 @@ void ezVisualScriptAssetDocument::RestoreMetaDataAfterLoading(const ezAbstractOb
 
 ezResult ezVisualScriptAssetDocument::GenerateVisualScriptDescriptor(ezVisualScriptResourceDescriptor& desc)
 {
-  ezVisualScriptNodeManager* pNodeManager = static_cast<ezVisualScriptNodeManager*>(GetObjectManager());
+  ezVisualScriptNodeManager_Legacy* pNodeManager = static_cast<ezVisualScriptNodeManager_Legacy*>(GetObjectManager());
   ezVisualScriptTypeRegistry* pTypeRegistry = ezVisualScriptTypeRegistry::GetSingleton();
 
   ezDynamicArray<const ezDocumentObject*> allNodes;
@@ -215,8 +215,8 @@ ezResult ezVisualScriptAssetDocument::GenerateVisualScriptDescriptor(ezVisualScr
 
       for (const ezConnection* pCon : connections)
       {
-        const ezVisualScriptPin& vsPinSource = static_cast<const ezVisualScriptPin&>(pCon->GetSourcePin());
-        const ezVisualScriptPin& vsPinTarget = static_cast<const ezVisualScriptPin&>(pCon->GetTargetPin());
+        const ezVisualScriptPin_Legacy& vsPinSource = static_cast<const ezVisualScriptPin_Legacy&>(pCon->GetSourcePin());
+        const ezVisualScriptPin_Legacy& vsPinTarget = static_cast<const ezVisualScriptPin_Legacy&>(pCon->GetTargetPin());
 
         if (vsPinSource.GetDescriptor()->m_PinType == ezVisualScriptPinDescriptor::PinType::Execution)
         {

@@ -239,6 +239,12 @@ ezTransformStatus ezTypeScriptAssetDocument::InternalTransformAsset(ezStreamWrit
   EZ_SUCCEED_OR_RETURN(ValidateScriptCode());
   EZ_SUCCEED_OR_RETURN(AutoGenerateVariablesCode());
 
+  ezStringBuilder sTypeName = ezPathUtils::GetFileName(GetDocumentPath());
+  stream << sTypeName;
+
+  const ezUuid& docGuid = GetGuid();
+  stream << docGuid;
+
   {
     ezTypeScriptAssetDocumentEvent e;
     e.m_Type = ezTypeScriptAssetDocumentEvent::Type::ScriptTransformed;

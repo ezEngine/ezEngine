@@ -362,22 +362,22 @@ static void ConfigureVisualScriptAsset()
 
   // Menu Bar
   {
-    ezActionMapManager::RegisterActionMap("VisualScriptAssetMenuBar").IgnoreResult();
-    ezStandardMenus::MapActions("VisualScriptAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
-    ezProjectActions::MapActions("VisualScriptAssetMenuBar");
-    ezDocumentActions::MapActions("VisualScriptAssetMenuBar", "Menu.File", false);
-    ezAssetActions::MapMenuActions("VisualScriptAssetMenuBar", "Menu.File");
-    ezCommandHistoryActions::MapActions("VisualScriptAssetMenuBar", "Menu.Edit");
-    ezEditActions::MapActions("VisualScriptAssetMenuBar", "Menu.Edit", false, false);
+    ezActionMapManager::RegisterActionMap("VisualScriptAssetMenuBar_Legacy").IgnoreResult();
+    ezStandardMenus::MapActions("VisualScriptAssetMenuBar_Legacy", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+    ezProjectActions::MapActions("VisualScriptAssetMenuBar_Legacy");
+    ezDocumentActions::MapActions("VisualScriptAssetMenuBar_Legacy", "Menu.File", false);
+    ezAssetActions::MapMenuActions("VisualScriptAssetMenuBar_Legacy", "Menu.File");
+    ezCommandHistoryActions::MapActions("VisualScriptAssetMenuBar_Legacy", "Menu.Edit");
+    ezEditActions::MapActions("VisualScriptAssetMenuBar_Legacy", "Menu.Edit", false, false);
   }
 
   // Tool Bar
   {
-    ezActionMapManager::RegisterActionMap("VisualScriptAssetToolBar").IgnoreResult();
-    ezDocumentActions::MapActions("VisualScriptAssetToolBar", "", true);
-    ezCommandHistoryActions::MapActions("VisualScriptAssetToolBar", "");
-    ezAssetActions::MapToolBarActions("VisualScriptAssetToolBar", true);
-    ezVisualScriptActions::MapActions("VisualScriptAssetToolBar", "");
+    ezActionMapManager::RegisterActionMap("VisualScriptAssetToolBar_Legacy").IgnoreResult();
+    ezDocumentActions::MapActions("VisualScriptAssetToolBar_Legacy", "", true);
+    ezCommandHistoryActions::MapActions("VisualScriptAssetToolBar_Legacy", "");
+    ezAssetActions::MapToolBarActions("VisualScriptAssetToolBar_Legacy", true);
+    ezVisualScriptActions::MapActions("VisualScriptAssetToolBar_Legacy", "");
   }
 }
 
