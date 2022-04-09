@@ -66,7 +66,11 @@ ezDocument::ezDocument(const char* szPath, ezDocumentObjectManager* pDocumentObj
   m_pObjectManager->SetDocument(this);
   m_pCommandHistory = EZ_DEFAULT_NEW(ezCommandHistory, this);
   m_pSelectionManager = EZ_DEFAULT_NEW(ezSelectionManager, m_pObjectManager.Borrow());
-  m_pObjectAccessor = EZ_DEFAULT_NEW(ezObjectCommandAccessor, m_pCommandHistory.Borrow());
+
+  if (m_pObjectAccessor == nullptr)
+  {
+    m_pObjectAccessor = EZ_DEFAULT_NEW(ezObjectCommandAccessor, m_pCommandHistory.Borrow());
+  }
 
   m_bWindowRequested = false;
   m_bModified = true;
@@ -143,7 +147,8 @@ ezStatus ezDocument::SaveDocument(bool bForce)
     m_ActiveSaveTask.Invalidate();
   }
   ezStatus result;
-  m_ActiveSaveTask = InternalSaveDocument([&result](ezDocument* pDoc, ezStatus res) { result = res; });
+  m_ActiveSaveTask = InternalSaveDocument([&result](ezDocument* pDoc, ezStatus res)
+    { result = res; });
   ezTaskSystem::WaitForGroup(m_ActiveSaveTask);
   m_ActiveSaveTask.Invalidate();
   return result;

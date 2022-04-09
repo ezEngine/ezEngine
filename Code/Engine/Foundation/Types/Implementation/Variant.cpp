@@ -124,7 +124,7 @@ struct ComputeHashFunc
 template <>
 EZ_ALWAYS_INLINE ezUInt64 ComputeHashFunc::operator()<ezString>(const ezVariant& v, const void* pData, ezUInt64 uiSeed)
 {
-  ezString* pString = (ezString*)pData;
+  auto pString = static_cast<const ezString*>(pData);
 
   return ezHashingUtils::xxHash64(pString->GetData(), pString->GetElementCount(), uiSeed);
 }
@@ -150,7 +150,7 @@ EZ_ALWAYS_INLINE ezUInt64 ComputeHashFunc::operator()<ezTransform>(const ezVaria
 template <>
 EZ_ALWAYS_INLINE ezUInt64 ComputeHashFunc::operator()<ezDataBuffer>(const ezVariant& v, const void* pData, ezUInt64 uiSeed)
 {
-  ezDataBuffer* pDataBuffer = (ezDataBuffer*)pData;
+  auto pDataBuffer = static_cast<const ezDataBuffer*>(pData);
 
   return ezHashingUtils::xxHash64(pDataBuffer->GetData(), pDataBuffer->GetCount(), uiSeed);
 }
@@ -158,19 +158,34 @@ EZ_ALWAYS_INLINE ezUInt64 ComputeHashFunc::operator()<ezDataBuffer>(const ezVari
 template <>
 EZ_FORCE_INLINE ezUInt64 ComputeHashFunc::operator()<ezVariantArray>(const ezVariant& v, const void* pData, ezUInt64 uiSeed)
 {
-  EZ_IGNORE_UNUSED(pData);
+  auto pVariantArray = static_cast<const ezVariantArray*>(pData);
 
-  EZ_ASSERT_NOT_IMPLEMENTED;
-  return 0;
+  ezUInt64 uiHash = uiSeed;
+  for (const ezVariant& var : *pVariantArray)
+  {
+    uiHash = var.ComputeHash(uiHash);
+  }
+
+  return uiHash;
 }
 
 template <>
-EZ_FORCE_INLINE ezUInt64 ComputeHashFunc::operator()<ezVariantDictionary>(const ezVariant& v, const void* pData, ezUInt64 uiSeed)
+ezUInt64 ComputeHashFunc::operator()<ezVariantDictionary>(const ezVariant& v, const void* pData, ezUInt64 uiSeed)
 {
-  EZ_IGNORE_UNUSED(pData);
+  auto pVariantDictionary = static_cast<const ezVariantDictionary*>(pData);
 
-  EZ_ASSERT_NOT_IMPLEMENTED;
-  return 0;
+  ezHybridArray<ezUInt64, 128> hashes;
+  hashes.Reserve(pVariantDictionary->GetCount() * 2);
+
+  for (auto& it : *pVariantDictionary)
+{
+    hashes.PushBack(ezHashingUtils::xxHash64String(it.Key(), uiSeed));
+    hashes.PushBack(it.Value().ComputeHash(uiSeed));
+  }
+
+  hashes.Sort();
+
+  return ezHashingUtils::xxHash64(hashes.GetData(), hashes.GetCount() * sizeof(ezUInt64), uiSeed);
 }
 
 template <>
@@ -422,7 +437,15 @@ bool ezVariant::CanConvertTo(Type::Enum type) const
   if (m_uiType == type)
     return true;
 
-  if (!IsValid() || type == Type::Invalid)
+  if (type == Type::Invalid)
+    return false;
+
+  if (type == Type::String && m_uiType < Type::LastStandardType && m_uiType != Type::DataBuffer)
+    return true;
+  if (type == Type::String && m_uiType == Type::VariantArray || m_uiType == Type::VariantDictionary)
+    return true;
+
+  if (!IsValid())
     return false;
 
   if (IsNumberStatic(type) && (IsNumber() || m_uiType == Type::String))
@@ -437,18 +460,9 @@ bool ezVariant::CanConvertTo(Type::Enum type) const
   if (IsVector4Static(type) && (IsVector4Static(m_uiType)))
     return true;
 
-  if (type == Type::String && m_uiType < Type::LastStandardType && m_uiType != Type::DataBuffer)
-    return true;
-  if (type == Type::String && m_uiType == Type::VariantArray)
-    return true;
   if (type == Type::Color && m_uiType == Type::ColorGamma)
     return true;
   if (type == Type::ColorGamma && m_uiType == Type::Color)
-    return true;
-
-  if (type == Type::TypedPointer && m_uiType == Type::TypedPointer)
-    return true;
-  if (type == Type::TypedObject && m_uiType == Type::TypedObject)
     return true;
 
   return false;

@@ -311,7 +311,7 @@ private:
 
   // *** Dynamic Enum Strings ***
   ezSet<ezString> m_DynamicEnumStringsToClear;
-  void OnDemandDynamicStringEnumLoad(const char* szEnum, ezDynamicStringEnum& e);
+  void OnDemandDynamicStringEnumLoad(ezStringView sEnumName, ezDynamicStringEnum& e);
 
   ezQtVersionChecker m_VersionChecker;
 };

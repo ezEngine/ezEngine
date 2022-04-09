@@ -264,5 +264,6 @@ struct EZ_FOUNDATION_DLL ezComparisonOperator
     Default = Equal
   };
 
-  static bool Compare(ezComparisonOperator::Enum cmp, double f1, double f2);
+  template <typename T>
+  static bool Compare(ezComparisonOperator::Enum cmp, const T& a, const T& b);
 };

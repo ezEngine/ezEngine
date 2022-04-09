@@ -252,7 +252,8 @@ ezStatus ezDocumentObjectManager::MoveValue(ezDocumentObject* pObject, const cha
     e.m_NewIndex = newIndex;
     e.m_sProperty = szProperty;
     e.m_NewValue = accessor.GetValue(szProperty, e.getInsertIndex());
-    EZ_ASSERT_DEV(e.m_NewValue.IsValid(), "Value at new pos should be valid now, index missmatch?");
+    // NewValue can be invalid if an invalid variant in a variant array is moved
+    //EZ_ASSERT_DEV(e.m_NewValue.IsValid(), "Value at new pos should be valid now, index missmatch?");
     m_pObjectStorage->m_PropertyEvents.Broadcast(e);
   }
 
@@ -523,6 +524,16 @@ bool ezDocumentObjectManager::IsUnderRootProperty(const char* szRootProperty, co
     return ezStringUtils::IsEqual(szParentProperty, szRootProperty);
   }
   return IsUnderRootProperty(szRootProperty, pParent);
+}
+
+bool ezDocumentObjectManager::IsTemporary(const ezDocumentObject* pObject) const
+{
+  return IsUnderRootProperty("TempObjects", pObject);
+}
+
+bool ezDocumentObjectManager::IsTemporary(const ezDocumentObject* pParent, const char* szParentProperty) const
+{
+  return IsUnderRootProperty("TempObjects", pParent, szParentProperty);
 }
 
 ezSharedPtr<ezDocumentObjectManager::Storage> ezDocumentObjectManager::SwapStorage(ezSharedPtr<ezDocumentObjectManager::Storage> pNewStorage)

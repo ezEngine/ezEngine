@@ -324,3 +324,30 @@ ezResult ezMat4Template<Type>::Invert(Type fEpsilon)
   *this = Inverse;
   return EZ_SUCCESS;
 }
+
+//////////////////////////////////////////////////////////////////////////
+
+// static
+template <typename T>
+bool ezComparisonOperator::Compare(ezComparisonOperator::Enum cmp, const T& a, const T& b)
+{
+  switch (cmp)
+  {
+    case ezComparisonOperator::Equal:
+      return a == b;
+    case ezComparisonOperator::NotEqual:
+      return !(a == b);
+    case ezComparisonOperator::Less:
+      return a < b;
+    case ezComparisonOperator::LessEqual:
+      return !(b < a);
+    case ezComparisonOperator::Greater:
+      return b < a;
+    case ezComparisonOperator::GreaterEqual:
+      return !(a < b);
+
+      EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
+  }
+
+  return false;
+}

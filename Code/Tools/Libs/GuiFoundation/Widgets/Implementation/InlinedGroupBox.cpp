@@ -28,6 +28,7 @@ ezQtInlinedGroupBox::ezQtInlinedGroupBox(QWidget* pParent)
   QHBoxLayout* pHeaderLayout = new QHBoxLayout(m_pHeader);
   pHeaderLayout->setSpacing(0);
   pHeaderLayout->setContentsMargins(0, 0, 0, 0);
+  pHeaderLayout->setAlignment(Qt::AlignTop);
 
   pRootLayout->addSpacerItem(new QSpacerItem(0, 0));
   pRootLayout->setStretch(0, 1);

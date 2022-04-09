@@ -1,12 +1,24 @@
 #include <GameEngine/GameEnginePCH.h>
 
+#include <Core/Scripting/ScriptAttributes.h>
 #include <Core/Utils/Blackboard.h>
+#include <Core/World/Component.h>
 #include <Foundation/IO/StringDeduplicationContext.h>
 #include <Foundation/IO/TypeVersionContext.h>
 #include <GameEngine/StateMachine/StateMachine.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStateMachineState, 1, ezRTTINoAllocator)
+{
+  EZ_BEGIN_FUNCTIONS
+  {
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetName),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_OnEnter, In, "StateMachineInstance", In, "FromState")->AddAttributes(new ezScriptBaseClassFunctionAttribute(ezStateMachineState_ScriptBaseClassFunctions::OnEnter)),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_OnExit, In, "StateMachineInstance", In, "ToState")->AddAttributes(new ezScriptBaseClassFunctionAttribute(ezStateMachineState_ScriptBaseClassFunctions::OnExit)),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_Update, In, "StateMachineInstance", In, "DeltaTime")->AddAttributes(new ezScriptBaseClassFunctionAttribute(ezStateMachineState_ScriptBaseClassFunctions::Update)),
+  }
+  EZ_END_FUNCTIONS;
+}
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
@@ -46,6 +58,18 @@ ezResult ezStateMachineState::Deserialize(ezStreamReader& inout_stream)
 bool ezStateMachineState::GetInstanceDataDesc(ezStateMachineInstanceDataDesc& out_desc)
 {
   return false;
+}
+
+void ezStateMachineState::Reflection_OnEnter(ezStateMachineInstance* pStateMachineInstance, const ezStateMachineState* pFromState)
+{
+}
+
+void ezStateMachineState::Reflection_OnExit(ezStateMachineInstance* pStateMachineInstance, const ezStateMachineState* pToState)
+{
+}
+
+void ezStateMachineState::Reflection_Update(ezStateMachineInstance* pStateMachineInstance, ezTime deltaTime)
+{
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -161,7 +185,8 @@ ezResult ezStateMachineDescription::Serialize(ezStreamWriter& ref_originalStream
   {
     stream << uiNumTransitions;
 
-    auto SerializeTransitions = [&](const TransitionArray& transitions, ezUInt32 uiFromStateIndex) -> ezResult {
+    auto SerializeTransitions = [&](const TransitionArray& transitions, ezUInt32 uiFromStateIndex) -> ezResult
+    {
       for (auto& transitionContext : transitions)
       {
         const ezUInt32 uiToStateIndex = transitionContext.m_uiToStateIndex;
@@ -261,6 +286,22 @@ ezResult ezStateMachineDescription::Deserialize(ezStreamReader& inout_stream)
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezStateMachineInstance, ezNoBase, 1, ezRTTINoAllocator)
+{
+  EZ_BEGIN_FUNCTIONS
+  {
+    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_SetState, In, "StateName"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetCurrentState),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetTimeInCurrentState),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_GetOwnerComponent),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_GetBlackboard),
+  }
+  EZ_END_FUNCTIONS;
+}
+EZ_END_STATIC_REFLECTED_TYPE;
+// clang-format on
+
 ezStateMachineInstance::ezStateMachineInstance(ezReflectedClass& ref_owner, const ezSharedPtr<const ezStateMachineDescription>& pDescription /*= nullptr*/)
   : m_Owner(ref_owner)
   , m_pDescription(pDescription)
@@ -359,9 +400,32 @@ void ezStateMachineInstance::Update(ezTime deltaTime)
   m_TimeInCurrentState += deltaTime;
 }
 
+ezWorld* ezStateMachineInstance::GetOwnerWorld()
+{
+  if (auto pComponent = ezDynamicCast<ezComponent*>(&m_Owner))
+  {
+    return pComponent->GetWorld();
+  }
+
+  return nullptr;
+}
+
 void ezStateMachineInstance::SetBlackboard(const ezSharedPtr<ezBlackboard>& pBlackboard)
 {
   m_pBlackboard = pBlackboard;
+}
+
+bool ezStateMachineInstance::Reflection_SetState(ezStringView sStateName)
+{
+  ezHashedString sStateNameHashed;
+  sStateNameHashed.Assign(sStateName);
+
+  return SetState(sStateNameHashed).Succeeded();
+}
+
+ezComponent* ezStateMachineInstance::Reflection_GetOwnerComponent() const
+{
+  return ezDynamicCast<ezComponent*>(&m_Owner);
 }
 
 void ezStateMachineInstance::SetStateInternal(ezUInt32 uiStateIndex)

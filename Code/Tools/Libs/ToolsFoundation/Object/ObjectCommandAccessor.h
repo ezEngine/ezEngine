@@ -31,6 +31,6 @@ public:
   virtual ezStatus MoveObject(
     const ezDocumentObject* pObject, const ezDocumentObject* pNewParent, const ezAbstractProperty* pParentProp, const ezVariant& index) override;
 
-private:
+protected:
   ezCommandHistory* m_pHistory;
 };

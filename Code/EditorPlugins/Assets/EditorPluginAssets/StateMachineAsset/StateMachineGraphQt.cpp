@@ -42,8 +42,7 @@ QRectF ezQtStateMachinePin::GetPinRect() const
 
 //////////////////////////////////////////////////////////////////////////
 
-ezQtStateMachineConnection::ezQtStateMachineConnection(QGraphicsItem* pParent /*= nullptr*/)
-  : ezQtConnection(pParent)
+ezQtStateMachineConnection::ezQtStateMachineConnection()
 {
   setFlag(QGraphicsItem::ItemIsSelectable);
 }
@@ -63,7 +62,7 @@ void ezQtStateMachineNode::UpdateGeometry()
 {
   prepareGeometryChange();
 
-  auto labelRect = m_pLabel->boundingRect();
+  auto labelRect = m_pTitleLabel->boundingRect();
 
   constexpr int padding = 5;
   const int headerWidth = labelRect.width();
@@ -107,7 +106,7 @@ void ezQtStateMachineNode::UpdateState()
 
   if (IsAnyState())
   {
-    m_pLabel->setPlainText("Any State");
+    m_pTitleLabel->setPlainText("Any State");
   }
   else
   {
@@ -130,7 +129,7 @@ void ezQtStateMachineNode::UpdateState()
       sName.Append(" [Initial State]");
     }
 
-    m_pLabel->setPlainText(sName.GetData());
+    m_pTitleLabel->setPlainText(sName.GetData());
   }
 }
 

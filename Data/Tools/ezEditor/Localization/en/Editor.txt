@@ -56,7 +56,7 @@ Project.WindowConfig;&Window Configuration...
 Project.AssetProfiles;Asset Profiles...
 Project.ClearAssetCaches;Clear Asset Caches...
 
-# Document 
+# Document
 
 Document.Create;&Create Document...
 Document.Open;&Open Document...
@@ -228,3 +228,38 @@ ezSceneViewPerspective::Orthogonal_Front;Ortho Front
 ezSceneViewPerspective::Orthogonal_Right;Ortho Right
 ezSceneViewPerspective::Orthogonal_Top;Ortho Top
 ezSceneViewPerspective::Perspective;Perspective
+
+# VariantType
+
+ezVariantType::Bool;Bool
+ezVariantType::Int8;Int8
+ezVariantType::UInt8;UInt8
+ezVariantType::Int16;Int16
+ezVariantType::UInt16;UInt16
+ezVariantType::Int32;Int32
+ezVariantType::UInt32;UInt32
+ezVariantType::Int64;Int64
+ezVariantType::UInt64;UInt64
+ezVariantType::Float;Float
+ezVariantType::Double;Double
+ezVariantType::Color;Color
+ezVariantType::Vector2;Vector2
+ezVariantType::Vector3;Vector3
+ezVariantType::Vector4;Vector4
+ezVariantType::Vector2I;Vector2I
+ezVariantType::Vector3I;Vector3I
+ezVariantType::Vector4I;Vector4I
+ezVariantType::Vector2U;Vector2U
+ezVariantType::Vector3U;Vector3U
+ezVariantType::Vector4U;Vector4U
+ezVariantType::Quaternion;Quaternion
+ezVariantType::Matrix3;Matrix3
+ezVariantType::Matrix4;Matrix4
+ezVariantType::Transform;Transform
+ezVariantType::String;String
+ezVariantType::StringView;StringView
+ezVariantType::DataBuffer;DataBuffer
+ezVariantType::Time;Time
+ezVariantType::Uuid;Uuid
+ezVariantType::Angle;Angle
+ezVariantType::ColorGamma;ColorGamma

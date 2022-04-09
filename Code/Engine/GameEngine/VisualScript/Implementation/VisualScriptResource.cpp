@@ -326,6 +326,8 @@ void ezVisualScriptResourceDescriptor::PrecomputeMessageHandlers()
   {
     auto& node = m_Nodes[uiNode];
     const ezRTTI* pType = node.m_pType;
+    if (pType == nullptr)
+      continue;
 
     if (!pType)
       continue;

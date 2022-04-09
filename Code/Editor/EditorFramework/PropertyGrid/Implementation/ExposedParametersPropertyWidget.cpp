@@ -250,6 +250,8 @@ void ezQtExposedParameterPropertyWidget::InternalSetValue(const ezVariant& value
           m_pWidget->setParent(this);
           m_pLayout->addWidget(m_pWidget);
           m_pWidget->Init(m_pGrid, m_pObjectAccessor, type, prop);
+
+          UpdateTypeListSelection(commonType);
         }
         m_pWidget->SetSelection(m_Items);
         return;

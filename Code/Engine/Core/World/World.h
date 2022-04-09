@@ -408,4 +408,6 @@ private:
   static ezStaticArray<ezWorld*, EZ_MAX_WORLDS> s_Worlds;
 };
 
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezWorld);
+
 #include <Core/World/Implementation/World_inl.h>

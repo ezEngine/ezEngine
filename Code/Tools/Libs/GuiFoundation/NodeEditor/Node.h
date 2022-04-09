@@ -73,7 +73,8 @@ protected:
 
   QColor m_HeaderColor;
   QRectF m_HeaderRect;
-  QGraphicsTextItem* m_pLabel = nullptr;
+  QGraphicsTextItem* m_pTitleLabel = nullptr;
+  QGraphicsTextItem* m_pSubtitleLabel = nullptr;
 
 private:
   const ezDocumentNodeManager* m_pManager = nullptr;

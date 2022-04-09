@@ -78,12 +78,6 @@ ezQtPropertyEditorDoubleSpinboxWidget::ezQtPropertyEditorDoubleSpinboxWidget(ezI
   EZ_ASSERT_DEBUG(iNumComponents <= 4, "Only up to 4 components are supported");
 
   m_iNumComponents = iNumComponents;
-  m_bTemporaryCommand = false;
-
-  m_pWidget[0] = nullptr;
-  m_pWidget[1] = nullptr;
-  m_pWidget[2] = nullptr;
-  m_pWidget[3] = nullptr;
 
   m_pLayout = new QHBoxLayout(this);
   m_pLayout->setContentsMargins(0, 0, 0, 0);
@@ -112,11 +106,10 @@ ezQtPropertyEditorDoubleSpinboxWidget::ezQtPropertyEditorDoubleSpinboxWidget(ezI
 
 void ezQtPropertyEditorDoubleSpinboxWidget::OnInit()
 {
-  const ezClampValueAttribute* pClamp = m_pProp->GetAttributeByType<ezClampValueAttribute>();
-  const ezDefaultValueAttribute* pDefault = m_pProp->GetAttributeByType<ezDefaultValueAttribute>();
-  const ezSuffixAttribute* pSuffix = m_pProp->GetAttributeByType<ezSuffixAttribute>();
+  auto pNoTemporaryTransactions = m_pProp->GetAttributeByType<ezNoTemporaryTransactionsAttribute>();
+  m_bUseTemporaryTransaction = (pNoTemporaryTransactions == nullptr);
 
-  if (pClamp)
+  if (const ezClampValueAttribute* pClamp = m_pProp->GetAttributeByType<ezClampValueAttribute>())
   {
     switch (m_iNumComponents)
     {
@@ -190,7 +183,7 @@ void ezQtPropertyEditorDoubleSpinboxWidget::OnInit()
     }
   }
 
-  if (pDefault)
+  if (const ezDefaultValueAttribute* pDefault = m_pProp->GetAttributeByType<ezDefaultValueAttribute>())
   {
     switch (m_iNumComponents)
     {
@@ -210,8 +203,9 @@ void ezQtPropertyEditorDoubleSpinboxWidget::OnInit()
 
         if (pDefault->GetValue().CanConvertTo<ezVec2>())
         {
-          m_pWidget[0]->setDefaultValue(pDefault->GetValue().ConvertTo<ezVec2>().x);
-          m_pWidget[1]->setDefaultValue(pDefault->GetValue().ConvertTo<ezVec2>().y);
+          ezVec2 value = pDefault->GetValue().ConvertTo<ezVec2>();
+          m_pWidget[0]->setDefaultValue(value.x);
+          m_pWidget[1]->setDefaultValue(value.y);
         }
         break;
       }
@@ -221,9 +215,10 @@ void ezQtPropertyEditorDoubleSpinboxWidget::OnInit()
 
         if (pDefault->GetValue().CanConvertTo<ezVec3>())
         {
-          m_pWidget[0]->setDefaultValue(pDefault->GetValue().ConvertTo<ezVec3>().x);
-          m_pWidget[1]->setDefaultValue(pDefault->GetValue().ConvertTo<ezVec3>().y);
-          m_pWidget[2]->setDefaultValue(pDefault->GetValue().ConvertTo<ezVec3>().z);
+          ezVec3 value = pDefault->GetValue().ConvertTo<ezVec3>();
+          m_pWidget[0]->setDefaultValue(value.x);
+          m_pWidget[1]->setDefaultValue(value.y);
+          m_pWidget[2]->setDefaultValue(value.z);
         }
         break;
       }
@@ -233,17 +228,18 @@ void ezQtPropertyEditorDoubleSpinboxWidget::OnInit()
 
         if (pDefault->GetValue().CanConvertTo<ezVec4>())
         {
-          m_pWidget[0]->setDefaultValue(pDefault->GetValue().ConvertTo<ezVec4>().x);
-          m_pWidget[1]->setDefaultValue(pDefault->GetValue().ConvertTo<ezVec4>().y);
-          m_pWidget[2]->setDefaultValue(pDefault->GetValue().ConvertTo<ezVec4>().z);
-          m_pWidget[3]->setDefaultValue(pDefault->GetValue().ConvertTo<ezVec4>().w);
+          ezVec4 value = pDefault->GetValue().ConvertTo<ezVec4>();
+          m_pWidget[0]->setDefaultValue(value.x);
+          m_pWidget[1]->setDefaultValue(value.y);
+          m_pWidget[2]->setDefaultValue(value.z);
+          m_pWidget[3]->setDefaultValue(value.w);
         }
         break;
       }
     }
   }
 
-  if (pSuffix)
+  if (const ezSuffixAttribute* pSuffix = m_pProp->GetAttributeByType<ezSuffixAttribute>())
   {
     for (int i = 0; i < m_iNumComponents; ++i)
     {
@@ -251,8 +247,7 @@ void ezQtPropertyEditorDoubleSpinboxWidget::OnInit()
     }
   }
 
-  const ezMinValueTextAttribute* pMinValueText = m_pProp->GetAttributeByType<ezMinValueTextAttribute>();
-  if (pMinValueText)
+  if (const ezMinValueTextAttribute* pMinValueText = m_pProp->GetAttributeByType<ezMinValueTextAttribute>())
   {
     for (int i = 0; i < m_iNumComponents; ++i)
     {
@@ -264,6 +259,8 @@ void ezQtPropertyEditorDoubleSpinboxWidget::OnInit()
 void ezQtPropertyEditorDoubleSpinboxWidget::InternalSetValue(const ezVariant& value)
 {
   ezQtScopedBlockSignals bs(m_pWidget[0], m_pWidget[1], m_pWidget[2], m_pWidget[3]);
+
+  m_OriginalType = value.GetType();
 
   if (value.IsValid())
   {
@@ -317,7 +314,7 @@ void ezQtPropertyEditorDoubleSpinboxWidget::InternalSetValue(const ezVariant& va
 
 void ezQtPropertyEditorDoubleSpinboxWidget::on_EditingFinished_triggered()
 {
-  if (m_bTemporaryCommand)
+  if (m_bUseTemporaryTransaction && m_bTemporaryCommand)
     Broadcast(ezPropertyEvent::Type::EndTemporary);
 
   m_bTemporaryCommand = false;
@@ -325,7 +322,7 @@ void ezQtPropertyEditorDoubleSpinboxWidget::on_EditingFinished_triggered()
 
 void ezQtPropertyEditorDoubleSpinboxWidget::SlotValueChanged()
 {
-  if (!m_bTemporaryCommand)
+  if (m_bUseTemporaryTransaction && !m_bTemporaryCommand)
     Broadcast(ezPropertyEvent::Type::BeginTemporary);
 
   m_bTemporaryCommand = true;
@@ -333,7 +330,7 @@ void ezQtPropertyEditorDoubleSpinboxWidget::SlotValueChanged()
   switch (m_iNumComponents)
   {
     case 1:
-      BroadcastValueChanged(m_pWidget[0]->value());
+      BroadcastValueChanged(ezVariant(m_pWidget[0]->value()).ConvertTo(m_OriginalType));
       break;
     case 2:
       BroadcastValueChanged(ezVec2(m_pWidget[0]->value(), m_pWidget[1]->value()));
@@ -521,12 +518,6 @@ ezQtPropertyEditorIntSpinboxWidget::ezQtPropertyEditorIntSpinboxWidget(ezInt8 iN
   : ezQtStandardPropertyWidget()
 {
   m_iNumComponents = iNumComponents;
-  m_bTemporaryCommand = false;
-
-  m_pWidget[0] = nullptr;
-  m_pWidget[1] = nullptr;
-  m_pWidget[2] = nullptr;
-  m_pWidget[3] = nullptr;
 
   m_pLayout = new QHBoxLayout(this);
   m_pLayout->setContentsMargins(0, 0, 0, 0);
@@ -558,6 +549,9 @@ ezQtPropertyEditorIntSpinboxWidget::~ezQtPropertyEditorIntSpinboxWidget() = defa
 
 void ezQtPropertyEditorIntSpinboxWidget::OnInit()
 {
+  auto pNoTemporaryTransactions = m_pProp->GetAttributeByType<ezNoTemporaryTransactionsAttribute>();
+  m_bUseTemporaryTransaction = (pNoTemporaryTransactions == nullptr);
+
   if (const ezClampValueAttribute* pClamp = m_pProp->GetAttributeByType<ezClampValueAttribute>())
   {
     switch (m_iNumComponents)
@@ -571,7 +565,7 @@ void ezQtPropertyEditorIntSpinboxWidget::OnInit()
         m_pWidget[0]->setMinimum(pClamp->GetMinValue());
         m_pWidget[0]->setMaximum(pClamp->GetMaxValue());
 
-        if (pClamp->GetMinValue().IsValid() && pClamp->GetMaxValue().IsValid() && (iMaxValue - iMinValue) < 256)
+        if (pClamp->GetMinValue().IsValid() && pClamp->GetMaxValue().IsValid() && (iMaxValue - iMinValue) < 256 && m_bUseTemporaryTransaction)
         {
           ezQtScopedBlockSignals bs2(m_pSlider);
 
@@ -678,8 +672,9 @@ void ezQtPropertyEditorIntSpinboxWidget::OnInit()
 
         if (pDefault->GetValue().CanConvertTo<ezVec2I32>())
         {
-          m_pWidget[0]->setDefaultValue(pDefault->GetValue().ConvertTo<ezVec2I32>().x);
-          m_pWidget[1]->setDefaultValue(pDefault->GetValue().ConvertTo<ezVec2I32>().y);
+          ezVec2I32 value = pDefault->GetValue().ConvertTo<ezVec2I32>();
+          m_pWidget[0]->setDefaultValue(value.x);
+          m_pWidget[1]->setDefaultValue(value.y);
         }
         break;
       }
@@ -689,9 +684,10 @@ void ezQtPropertyEditorIntSpinboxWidget::OnInit()
 
         if (pDefault->GetValue().CanConvertTo<ezVec3I32>())
         {
-          m_pWidget[0]->setDefaultValue(pDefault->GetValue().ConvertTo<ezVec3I32>().x);
-          m_pWidget[1]->setDefaultValue(pDefault->GetValue().ConvertTo<ezVec3I32>().y);
-          m_pWidget[2]->setDefaultValue(pDefault->GetValue().ConvertTo<ezVec3I32>().z);
+          ezVec3I32 value = pDefault->GetValue().ConvertTo<ezVec3I32>();
+          m_pWidget[0]->setDefaultValue(value.x);
+          m_pWidget[1]->setDefaultValue(value.y);
+          m_pWidget[2]->setDefaultValue(value.z);
         }
         break;
       }
@@ -701,10 +697,11 @@ void ezQtPropertyEditorIntSpinboxWidget::OnInit()
 
         if (pDefault->GetValue().CanConvertTo<ezVec4I32>())
         {
-          m_pWidget[0]->setDefaultValue(pDefault->GetValue().ConvertTo<ezVec4I32>().x);
-          m_pWidget[1]->setDefaultValue(pDefault->GetValue().ConvertTo<ezVec4I32>().y);
-          m_pWidget[2]->setDefaultValue(pDefault->GetValue().ConvertTo<ezVec4I32>().z);
-          m_pWidget[3]->setDefaultValue(pDefault->GetValue().ConvertTo<ezVec4I32>().w);
+          ezVec4I32 value = pDefault->GetValue().ConvertTo<ezVec4I32>();
+          m_pWidget[0]->setDefaultValue(value.x);
+          m_pWidget[1]->setDefaultValue(value.y);
+          m_pWidget[2]->setDefaultValue(value.z);
+          m_pWidget[3]->setDefaultValue(value.w);
         }
         break;
       }
@@ -731,6 +728,8 @@ void ezQtPropertyEditorIntSpinboxWidget::OnInit()
 void ezQtPropertyEditorIntSpinboxWidget::InternalSetValue(const ezVariant& value)
 {
   ezQtScopedBlockSignals bs(m_pWidget[0], m_pWidget[1], m_pWidget[2], m_pWidget[3], m_pSlider);
+
+  m_OriginalType = value.GetType();
 
   switch (m_iNumComponents)
   {
@@ -763,15 +762,16 @@ void ezQtPropertyEditorIntSpinboxWidget::InternalSetValue(const ezVariant& value
 
 void ezQtPropertyEditorIntSpinboxWidget::SlotValueChanged()
 {
-  if (!m_bTemporaryCommand)
+  if (m_bUseTemporaryTransaction && !m_bTemporaryCommand)
     Broadcast(ezPropertyEvent::Type::BeginTemporary);
 
   m_bTemporaryCommand = true;
 
+  ezVariant newValue;
   switch (m_iNumComponents)
   {
     case 1:
-      BroadcastValueChanged((ezInt32)m_pWidget[0]->value());
+      newValue = m_pWidget[0]->value();
 
       if (m_pSlider)
       {
@@ -781,20 +781,22 @@ void ezQtPropertyEditorIntSpinboxWidget::SlotValueChanged()
 
       break;
     case 2:
-      BroadcastValueChanged(ezVec2I32(m_pWidget[0]->value(), m_pWidget[1]->value()));
+      newValue = ezVec2I32(m_pWidget[0]->value(), m_pWidget[1]->value());
       break;
     case 3:
-      BroadcastValueChanged(ezVec3I32(m_pWidget[0]->value(), m_pWidget[1]->value(), m_pWidget[2]->value()));
+      newValue = ezVec3I32(m_pWidget[0]->value(), m_pWidget[1]->value(), m_pWidget[2]->value());
       break;
     case 4:
-      BroadcastValueChanged(ezVec4I32(m_pWidget[0]->value(), m_pWidget[1]->value(), m_pWidget[2]->value(), m_pWidget[3]->value()));
+      newValue = ezVec4I32(m_pWidget[0]->value(), m_pWidget[1]->value(), m_pWidget[2]->value(), m_pWidget[3]->value());
       break;
   }
+
+  BroadcastValueChanged(newValue.ConvertTo(m_OriginalType));
 }
 
 void ezQtPropertyEditorIntSpinboxWidget::SlotSliderValueChanged(int value)
 {
-  if (!m_bTemporaryCommand)
+  if (m_bUseTemporaryTransaction && !m_bTemporaryCommand)
     Broadcast(ezPropertyEvent::Type::BeginTemporary);
 
   m_bTemporaryCommand = true;
@@ -804,12 +806,12 @@ void ezQtPropertyEditorIntSpinboxWidget::SlotSliderValueChanged(int value)
     m_pWidget[0]->setValue(value);
   }
 
-  BroadcastValueChanged((ezInt32)m_pSlider->value());
+  BroadcastValueChanged(ezVariant(m_pSlider->value()).ConvertTo(m_OriginalType));
 }
 
 void ezQtPropertyEditorIntSpinboxWidget::on_EditingFinished_triggered()
 {
-  if (m_bTemporaryCommand)
+  if (m_bUseTemporaryTransaction && m_bTemporaryCommand)
     Broadcast(ezPropertyEvent::Type::EndTemporary);
 
   m_bTemporaryCommand = false;
@@ -1010,6 +1012,20 @@ void ezQtColorButtonWidget::mouseReleaseEvent(QMouseEvent* event)
   Q_EMIT clicked();
 }
 
+QSize ezQtColorButtonWidget::sizeHint() const
+{
+  return minimumSizeHint();
+}
+
+QSize ezQtColorButtonWidget::minimumSizeHint() const
+{
+  QFontMetrics fm(font());
+
+  QStyleOptionFrame opt;
+  initStyleOption(&opt);
+  return style()->sizeFromContents(QStyle::CT_LineEdit, &opt, QSize(20, fm.height()), this);
+}
+
 ezQtPropertyEditorColorWidget::ezQtPropertyEditorColorWidget()
   : ezQtStandardPropertyWidget()
 {
@@ -1109,12 +1125,10 @@ ezQtPropertyEditorEnumWidget::ezQtPropertyEditorEnumWidget()
 
 void ezQtPropertyEditorEnumWidget::OnInit()
 {
-  const ezRTTI* enumType = m_pProp->GetSpecificType();
+  const ezRTTI* pType = m_pProp->GetSpecificType();
 
   ezQtScopedBlockSignals bs(m_pWidget);
 
-  ezStringBuilder sTemp;
-  const ezRTTI* pType = enumType;
   ezUInt32 uiCount = pType->GetProperties().GetCount();
   // Start at 1 to skip default value.
   for (ezUInt32 i = 1; i < uiCount; ++i)
@@ -1325,7 +1339,8 @@ void ezQtCurve1DButtonWidget::UpdatePreview(ezObjectAccessorBase* pObjectAccesso
 
   if (!points.IsEmpty())
   {
-    points.Sort([](const ezVec2d& lhs, const ezVec2d& rhs) -> bool { return lhs.x < rhs.x; });
+    points.Sort([](const ezVec2d& lhs, const ezVec2d& rhs) -> bool
+      { return lhs.x < rhs.x; });
 
     const double normX = 1.0 / (maxX - minX);
     const double normY = 1.0 / (maxY - minY);
@@ -1438,7 +1453,7 @@ void ezQtPropertyEditorCurve1DWidget::on_Button_triggered()
 
   // TODO: would like to have one transaction open to finish/cancel at the end
   // but also be able to undo individual steps while editing
-  //m_pObjectAccessor->GetObjectManager()->GetDocument()->GetCommandHistory()->StartTransaction("Edit Curve");
+  // m_pObjectAccessor->GetObjectManager()->GetDocument()->GetCommandHistory()->StartTransaction("Edit Curve");
 
   ezQtCurveEditDlg* pDlg = new ezQtCurveEditDlg(m_pObjectAccessor, pCurve, this);
   pDlg->restoreGeometry(ezQtCurveEditDlg::GetLastDialogGeometry());
@@ -1463,13 +1478,13 @@ void ezQtPropertyEditorCurve1DWidget::on_Button_triggered()
 
   if (pDlg->exec() == QDialog::Accepted)
   {
-    //m_pObjectAccessor->GetObjectManager()->GetDocument()->GetCommandHistory()->FinishTransaction();
+    // m_pObjectAccessor->GetObjectManager()->GetDocument()->GetCommandHistory()->FinishTransaction();
 
     UpdatePreview();
   }
   else
   {
-    //m_pObjectAccessor->GetObjectManager()->GetDocument()->GetCommandHistory()->CancelTransaction();
+    // m_pObjectAccessor->GetObjectManager()->GetDocument()->GetCommandHistory()->CancelTransaction();
   }
 
   delete pDlg;

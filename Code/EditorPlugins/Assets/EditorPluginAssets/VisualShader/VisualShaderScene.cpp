@@ -106,5 +106,5 @@ void ezQtVisualShaderNode::UpdateState()
   if (temp.StartsWith_NoCase("ShaderNode::"))
     temp.Shrink(12, 0);
 
-  m_pLabel->setPlainText(temp.GetData());
+  m_pTitleLabel->setPlainText(temp.GetData());
 }

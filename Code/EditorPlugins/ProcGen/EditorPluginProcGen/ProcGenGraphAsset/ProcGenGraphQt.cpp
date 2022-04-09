@@ -131,7 +131,7 @@ void ezQtProcGenNode::UpdateState()
     }
   }
 
-  m_pLabel->setPlainText(sTitle.GetData());
+  m_pTitleLabel->setPlainText(sTitle.GetData());
 }
 
 //////////////////////////////////////////////////////////////////////////

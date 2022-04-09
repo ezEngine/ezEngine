@@ -37,7 +37,7 @@ public:
   ezOpenDdlParser();
   virtual ~ezOpenDdlParser() = default;
 
-  /// \brief Whether an error occured during parsing that resulted in cancelation of further parsing.
+  /// \brief Whether an error occurred during parsing that resulted in cancellation of further parsing.
   bool HadFatalParsingError() const { return m_bHadFatalParsingError; } // [tested]
 
 protected:

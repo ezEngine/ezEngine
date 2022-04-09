@@ -177,7 +177,7 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
     static AllocatorType Allocator;                                                \
     static ezBitflags<ezTypeFlags> flags = ezInternal::DetermineTypeFlags<Type>(); \
     static ezArrayPtr<ezAbstractProperty*> Properties;                             \
-    static ezArrayPtr<ezAbstractProperty*> Functions;                              \
+    static ezArrayPtr<ezAbstractFunctionProperty*> Functions;                      \
     static ezArrayPtr<ezPropertyAttribute*> Attributes;                            \
     static ezArrayPtr<ezAbstractMessageHandler*> MessageHandlers;                  \
     static ezArrayPtr<ezMessageSenderInfo> MessageSenders;
@@ -222,7 +222,7 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
   Properties = PropertyList
 
 /// \brief Within a EZ_BEGIN_REFLECTED_TYPE / EZ_END_REFLECTED_TYPE block, use this to start the block that declares all the functions.
-#define EZ_BEGIN_FUNCTIONS static ezAbstractProperty* FunctionList[] =
+#define EZ_BEGIN_FUNCTIONS static ezAbstractFunctionProperty* FunctionList[] =
 
 
 

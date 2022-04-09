@@ -5,11 +5,39 @@
 #include <GuiFoundation/UIServices/DynamicStringEnum.h>
 
 ezMap<ezString, ezDynamicStringEnum> ezDynamicStringEnum::s_DynamicEnums;
-ezDelegate<void(const char* szEnumName, ezDynamicStringEnum& e)> ezDynamicStringEnum::s_RequestUnknownCallback;
+ezDelegate<void(ezStringView sEnumName, ezDynamicStringEnum& e)> ezDynamicStringEnum::s_RequestUnknownCallback;
 
-void ezDynamicStringEnum::RemoveEnum(const char* szEnumName)
+// static
+ezDynamicStringEnum& ezDynamicStringEnum::GetDynamicEnum(ezStringView sEnumName)
 {
-  s_DynamicEnums.Remove(szEnumName);
+  bool bExisted = false;
+  auto it = s_DynamicEnums.FindOrAdd(sEnumName, &bExisted);
+
+  if (!bExisted && s_RequestUnknownCallback.IsValid())
+  {
+    s_RequestUnknownCallback(sEnumName, it.Value());
+  }
+
+  return it.Value();
+}
+
+// static
+ezDynamicStringEnum& ezDynamicStringEnum::CreateDynamicEnum(ezStringView sEnumName)
+{
+  bool bExisted = false;
+  auto it = s_DynamicEnums.FindOrAdd(sEnumName, &bExisted);
+
+  ezDynamicStringEnum& e = it.Value();
+  e.Clear();
+  e.SetStorageFile(nullptr);
+
+  return e;
+}
+
+// static
+void ezDynamicStringEnum::RemoveEnum(ezStringView sEnumName)
+{
+  s_DynamicEnums.Remove(sEnumName);
 }
 
 void ezDynamicStringEnum::Clear()
@@ -17,55 +45,30 @@ void ezDynamicStringEnum::Clear()
   m_ValidValues.Clear();
 }
 
-void ezDynamicStringEnum::AddValidValue(const char* szNewName, bool bSortValues /*= false*/)
+void ezDynamicStringEnum::AddValidValue(ezStringView sValue, bool bSortValues /*= false*/)
 {
-  ezString sName = szNewName;
+  ezString sNewValue = sValue;
 
-  if (!m_ValidValues.Contains(sName))
-    m_ValidValues.PushBack(sName);
+  if (!m_ValidValues.Contains(sNewValue))
+    m_ValidValues.PushBack(sNewValue);
 
   if (bSortValues)
     SortValues();
 }
 
-void ezDynamicStringEnum::RemoveValue(const char* szValue)
+void ezDynamicStringEnum::RemoveValue(ezStringView sValue)
 {
-  m_ValidValues.RemoveAndCopy(szValue);
+  m_ValidValues.RemoveAndCopy(sValue);
 }
 
-bool ezDynamicStringEnum::IsValueValid(const char* szValue) const
+bool ezDynamicStringEnum::IsValueValid(ezStringView sValue) const
 {
-  return m_ValidValues.Contains(szValue);
+  return m_ValidValues.Contains(sValue);
 }
 
 void ezDynamicStringEnum::SortValues()
 {
   m_ValidValues.Sort();
-}
-
-ezDynamicStringEnum& ezDynamicStringEnum::GetDynamicEnum(const char* szEnumName)
-{
-  bool bExisted = false;
-  auto it = s_DynamicEnums.FindOrAdd(szEnumName, &bExisted);
-
-  if (!bExisted && s_RequestUnknownCallback.IsValid())
-  {
-    s_RequestUnknownCallback(szEnumName, it.Value());
-  }
-
-  return it.Value();
-}
-
-ezDynamicStringEnum& ezDynamicStringEnum::CreateDynamicEnum(const char* szEnumName)
-{
-  bool bExisted = false;
-  auto it = s_DynamicEnums.FindOrAdd(szEnumName, &bExisted);
-
-  ezDynamicStringEnum& e = it.Value();
-  e.Clear();
-  e.SetStorageFile(nullptr);
-
-  return e;
 }
 
 void ezDynamicStringEnum::ReadFromStorage()

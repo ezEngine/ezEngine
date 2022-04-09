@@ -243,4 +243,7 @@ namespace ezOpenDdlUtils
 
   /// \brief Writes a primitives list with a single value and an optional name.
   EZ_FOUNDATION_DLL void StoreUInt64(ezOpenDdlWriter& ref_writer, ezUInt64 value, const char* szName = nullptr, bool bGlobalName = false); // [tested]
+
+  /// \brief Writes an invalid variant and an optional name.
+  EZ_FOUNDATION_DLL void StoreInvalid(ezOpenDdlWriter& ref_writer, const char* szName = nullptr, bool bGlobalName = false);
 } // namespace ezOpenDdlUtils

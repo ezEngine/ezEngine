@@ -313,7 +313,8 @@ void ezDocumentObjectMirror::TreePropertyEventHandler(const ezDocumentObjectProp
     {
       ezUInt32 uiOldIndex = e.m_OldIndex.ConvertTo<ezUInt32>();
       ezUInt32 uiNewIndex = e.m_NewIndex.ConvertTo<ezUInt32>();
-      EZ_ASSERT_DEBUG(e.m_NewValue.IsValid(), "Value must be valid");
+      // NewValue can be invalid if an invalid variant in a variant array is moved
+      // EZ_ASSERT_DEBUG(e.m_NewValue.IsValid(), "Value must be valid");
 
       {
         ezObjectChange change;
@@ -445,7 +446,8 @@ void ezDocumentObjectMirror::ApplyOp(ezObjectChange& change)
     return;
   }
   propPath.WriteToLeafObject(
-            object.m_pObject, *object.m_pType, [this, &change](void* pLeaf, const ezRTTI& type) { ApplyOp(ezRttiConverterObject(&type, pLeaf), change); })
+            object.m_pObject, *object.m_pType, [this, &change](void* pLeaf, const ezRTTI& type)
+            { ApplyOp(ezRttiConverterObject(&type, pLeaf), change); })
     .IgnoreResult();
 }
 

@@ -34,6 +34,13 @@ static ezGameObjectHandle DefaultGameObjectReferenceResolver(const void* pData, 
   return ezGameObjectHandle();
 }
 
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezWorld, ezNoBase, 1, ezRTTINoAllocator)
+EZ_END_STATIC_REFLECTED_TYPE;
+// clang-format on
+
 ezWorld::ezWorld(ezWorldDesc& ref_desc)
   : m_Data(ref_desc)
 {

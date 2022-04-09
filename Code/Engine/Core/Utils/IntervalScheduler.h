@@ -37,18 +37,11 @@ protected:
   ezIntervalSchedulerBase(ezTime minInterval, ezTime maxInterval);
   ~ezIntervalSchedulerBase();
 
-  void AddOrUpdateWork(ezUInt64 workId, ezTime interval);
-  void RemoveWork(ezUInt64 workId);
-
-  ezTime GetInterval(ezUInt64 workId) const;
-
-  /// \brief Advances the scheduler by deltaTime and triggers runWorkCallback for each work that should be run during this update step.
-  /// Since it is not possible to maintain the exact interval all the time the actual delta time for the work is also passed to runWorkCallback.
-  void Update(ezTime deltaTime, ezDelegate<void(ezUInt64, ezTime)> runWorkCallback);
-
-private:
   ezUInt32 GetHistogramIndex(ezTime value);
   ezTime GetHistogramSlotValue(ezUInt32 uiIndex);
+
+  static float GetRandomZeroToOne(int pos, ezUInt32& seed);
+  static ezTime GetRandomTimeJitter(int pos, ezUInt32& seed);
 
   ezTime m_MinInterval;
   ezTime m_MaxInterval;
@@ -62,21 +55,6 @@ private:
   static constexpr ezUInt32 HistogramSize = 32;
   ezUInt32 m_Histogram[HistogramSize] = {};
   ezTime m_HistogramSlotValues[HistogramSize] = {};
-
-  struct Data
-  {
-    ezUInt64 m_WorkId = 0;
-    ezTime m_Interval;
-    ezTime m_DueTime;
-    ezTime m_LastScheduledTime;
-  };
-
-  using DataMap = ezMap<ezTime, Data>;
-  DataMap m_Data;
-  ezHashTable<ezUInt64, DataMap::Iterator> m_WorkIdToData;
-
-  DataMap::Iterator InsertData(Data& data);
-  ezDynamicArray<DataMap::Iterator> m_ScheduledWork;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -91,34 +69,35 @@ public:
   EZ_ALWAYS_INLINE ezIntervalScheduler(ezTime minInterval = ezTime::Milliseconds(1), ezTime maxInterval = ezTime::Seconds(1))
     : SUPER(minInterval, maxInterval)
   {
-    static_assert(sizeof(T) <= sizeof(ezUInt64), "sizeof T must be smaller or equal to 8 bytes");
   }
 
-  EZ_ALWAYS_INLINE void AddOrUpdateWork(const T& work, ezTime interval)
-  {
-    SUPER::AddOrUpdateWork(*reinterpret_cast<const ezUInt64*>(&work), interval);
-  }
+  void AddOrUpdateWork(const T& work, ezTime interval);
+  void RemoveWork(const T& work);
 
-  EZ_ALWAYS_INLINE void RemoveWork(const T& work)
-  {
-    SUPER::RemoveWork(*reinterpret_cast<const ezUInt64*>(&work));
-  }
-
-  EZ_ALWAYS_INLINE ezTime GetInterval(const T& work) const
-  {
-    return SUPER::GetInterval(*reinterpret_cast<const ezUInt64*>(&work));
-  }
+  ezTime GetInterval(const T& work) const;
 
   // reference to the work that should be run and time passed since this work has been last run.
   using RunWorkCallback = ezDelegate<void(const T&, ezTime)>;
 
-  EZ_ALWAYS_INLINE void Update(ezTime deltaTime, RunWorkCallback runWorkCallback)
+  /// \brief Advances the scheduler by deltaTime and triggers runWorkCallback for each work that should be run during this update step.
+  /// Since it is not possible to maintain the exact interval all the time the actual delta time for the work is also passed to runWorkCallback.
+  void Update(ezTime deltaTime, RunWorkCallback runWorkCallback);
+
+private:
+  struct Data
   {
-    SUPER::Update(deltaTime, [&](ezUInt64 uiWorkId, ezTime deltaTime) {
-      if (runWorkCallback.IsValid())
-      {
-        runWorkCallback(*reinterpret_cast<T*>(&uiWorkId), deltaTime);
-      }
-    });
-  }
+    T m_Work;
+    ezTime m_Interval;
+    ezTime m_DueTime;
+    ezTime m_LastScheduledTime;
+  };
+
+  using DataMap = ezMap<ezTime, Data>;
+  DataMap m_Data;
+  ezHashTable<T, typename DataMap::Iterator> m_WorkIdToData;
+
+  typename DataMap::Iterator InsertData(Data& data);
+  ezDynamicArray<typename DataMap::Iterator> m_ScheduledWork;
 };
+
+#include <Core/Utils/Implementation/IntervalScheduler_inl.h>

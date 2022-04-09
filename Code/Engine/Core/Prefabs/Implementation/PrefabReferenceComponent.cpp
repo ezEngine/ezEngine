@@ -3,25 +3,6 @@
 #include <Core/Prefabs/PrefabReferenceComponent.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 
-namespace
-{
-  static void SetUniqueIDRecursive(ezGameObject* pObject, ezUInt32 uiUniqueID, const ezTag& tag)
-  {
-    pObject->SetTag(tag);
-
-    for (auto pComponent : pObject->GetComponents())
-    {
-      pComponent->SetUniqueID(uiUniqueID);
-    }
-
-
-    for (auto itChild = pObject->GetChildren(); itChild.IsValid(); itChild.Next())
-    {
-      SetUniqueIDRecursive(itChild, uiUniqueID, tag);
-    }
-  }
-} // namespace
-
 // clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezPrefabReferenceComponent, 4, ezComponentMode::Static)
 {

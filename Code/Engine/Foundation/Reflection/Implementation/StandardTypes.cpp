@@ -56,11 +56,13 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezTime, ezNoBase, 1, ezRTTINoAllocator)
 {
   EZ_BEGIN_FUNCTIONS
   {
-    EZ_FUNCTION_PROPERTY(Nanoseconds),
-    EZ_FUNCTION_PROPERTY(Microseconds),
-    EZ_FUNCTION_PROPERTY(Milliseconds),
-    EZ_FUNCTION_PROPERTY(Seconds),
-    EZ_FUNCTION_PROPERTY(Zero),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Nanoseconds, In, "Nanoseconds")->AddFlags(ezPropertyFlags::Const),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Microseconds, In, "Microseconds")->AddFlags(ezPropertyFlags::Const),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Milliseconds, In, "Milliseconds")->AddFlags(ezPropertyFlags::Const),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Seconds, In, "Seconds")->AddFlags(ezPropertyFlags::Const),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Minutes, In, "Minutes")->AddFlags(ezPropertyFlags::Const),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Hours, In, "Hours")->AddFlags(ezPropertyFlags::Const),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Zero)->AddFlags(ezPropertyFlags::Const),
   }
   EZ_END_FUNCTIONS;
 }
@@ -345,6 +347,12 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezUuid, ezNoBase, 1, ezRTTINoAllocator)
 EZ_END_STATIC_REFLECTED_TYPE;
 
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezVariant, ezNoBase, 3, ezRTTINoAllocator)
+EZ_END_STATIC_REFLECTED_TYPE;
+
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezVariantArray, ezNoBase, 1, ezRTTINoAllocator)
+EZ_END_STATIC_REFLECTED_TYPE;
+
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezVariantDictionary, ezNoBase, 1, ezRTTINoAllocator)
 EZ_END_STATIC_REFLECTED_TYPE;
 
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezString, ezNoBase, 1, ezRTTINoAllocator)
