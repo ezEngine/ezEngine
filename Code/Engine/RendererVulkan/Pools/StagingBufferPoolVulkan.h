@@ -1,7 +1,7 @@
 #pragma once
 
-#include <RendererVulkan/RendererVulkanDLL.h>
 #include <RendererVulkan/MemoryAllocator/MemoryAllocatorVulkan.h>
+#include <RendererVulkan/RendererVulkanDLL.h>
 
 #include <vulkan/vulkan.hpp>
 

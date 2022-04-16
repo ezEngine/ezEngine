@@ -30,7 +30,7 @@ void ezGALCommandEncoderImplVulkan::Reset()
   m_bIndexBufferDirty = true;
   m_bDescriptorsDirty = true;
   m_BoundVertexBuffersRange.Reset();
-  
+
   m_PipelineDesc = {};
   m_frameBuffer = nullptr;
 
@@ -563,7 +563,6 @@ void ezGALCommandEncoderImplVulkan::BeginRendering(vk::CommandBuffer& commandBuf
 
   m_bPipelineStateDirty = true;
   m_bViewportDirty = true;
-
 }
 
 void ezGALCommandEncoderImplVulkan::EndRendering()

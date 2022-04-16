@@ -158,7 +158,7 @@ void ezRendererTestPipelineStates::ViewportScissorTest()
   const ezUInt32 uiColumns = 2;
   const ezUInt32 uiRows = 2;
   const float fElementWidth = fWidth / uiColumns;
-  const float fElementHeight =  fHeight / uiRows;
+  const float fElementHeight = fHeight / uiRows;
 
   ezRectFloat viewport = ezRectFloat(0, 0, fElementWidth, fElementHeight);
   RenderBlock({}, ezColor::CornflowerBlue, 0xFFFFFFFF, &viewport);
