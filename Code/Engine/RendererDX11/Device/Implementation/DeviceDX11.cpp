@@ -197,6 +197,7 @@ retry:
   FillFormatLookupTable();
 
   ezClipSpaceDepthRange::Default = ezClipSpaceDepthRange::ZeroToOne;
+  ezClipSpaceYMode::RenderToTextureDefault = ezClipSpaceYMode::Regular;
 
   // Per frame data & timer data
   D3D11_QUERY_DESC disjointQueryDesc;

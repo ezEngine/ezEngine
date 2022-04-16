@@ -1,10 +1,9 @@
 #include <RendererVulkan/RendererVulkanPCH.h>
 
+#include <Foundation/Memory/MemoryUtils.h>
 #include <RendererVulkan/Device/DeviceVulkan.h>
 #include <RendererVulkan/RendererVulkanDLL.h>
 #include <RendererVulkan/Resources/BufferVulkan.h>
-
-#include <d3d11.h>
 
 ezGALBufferVulkan::ezGALBufferVulkan(const ezGALBufferCreationDescription& Description)
   : ezGALBuffer(Description)
@@ -19,24 +18,31 @@ ezResult ezGALBufferVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const 
 {
   m_pDeviceVulkan = static_cast<ezGALDeviceVulkan*>(pDevice);
 
+  m_stages = vk::PipelineStageFlagBits::eTransfer;
   vk::BufferCreateInfo bufferCreateInfo = {};
 
   switch (m_Description.m_BufferType)
   {
     case ezGALBufferType::ConstantBuffer:
       bufferCreateInfo.usage = vk::BufferUsageFlagBits::eUniformBuffer;
+      m_stages |= m_pDeviceVulkan->GetSupportedStages();
+      m_access |= vk::AccessFlagBits::eUniformRead;
       break;
     case ezGALBufferType::IndexBuffer:
       bufferCreateInfo.usage = vk::BufferUsageFlagBits::eIndexBuffer;
-
+      m_stages |= vk::PipelineStageFlagBits::eVertexInput;
+      m_access |= vk::AccessFlagBits::eIndexRead;
       m_indexType = m_Description.m_uiStructSize == 2 ? vk::IndexType::eUint16 : vk::IndexType::eUint32;
 
       break;
     case ezGALBufferType::VertexBuffer:
       bufferCreateInfo.usage = vk::BufferUsageFlagBits::eVertexBuffer;
+      m_stages |= vk::PipelineStageFlagBits::eVertexInput;
+      m_access |= vk::AccessFlagBits::eVertexAttributeRead;
       break;
     case ezGALBufferType::Generic:
-      //bufferCreateInfo.usage = 0; // TODO Is this correct for Vulkan?
+      m_stages |= m_pDeviceVulkan->GetSupportedStages();
+      //bufferCreateInfo.usage = 0; //#TODO_VULKAN Is this correct for Vulkan?
       break;
     default:
       ezLog::Error("Unknown buffer type supplied to CreateBuffer()!");
@@ -44,27 +50,52 @@ ezResult ezGALBufferVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const 
   }
 
   if (m_Description.m_bAllowShaderResourceView)
+  {
     bufferCreateInfo.usage |= vk::BufferUsageFlagBits::eStorageBuffer;
+    m_stages |= m_pDeviceVulkan->GetSupportedStages();
+    m_access |= vk::AccessFlagBits::eShaderRead;
+  }
 
   if (m_Description.m_bAllowUAV)
+  {
     bufferCreateInfo.usage |= vk::BufferUsageFlagBits::eStorageBuffer;
+    m_stages |= m_pDeviceVulkan->GetSupportedStages();
+    m_access |= vk::AccessFlagBits::eShaderRead | vk::AccessFlagBits::eShaderWrite;
+  }
 
   if (m_Description.m_bStreamOutputTarget)
-    bufferCreateInfo.usage |= vk::BufferUsageFlagBits::eStorageBuffer; // TODO is this correct for vulkan?
-
-  bufferCreateInfo.usage |= vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eTransferDst; // TODO optimize this
-
-  bufferCreateInfo.pQueueFamilyIndices = m_pDeviceVulkan->GetQueueFamilyIndices().GetPtr();
-  bufferCreateInfo.queueFamilyIndexCount = m_pDeviceVulkan->GetQueueFamilyIndices().GetCount();
-  bufferCreateInfo.sharingMode = vk::SharingMode::eExclusive;
-  bufferCreateInfo.size = m_Description.m_uiTotalSize;
-  //BufferDesc.CPUAccessFlags = 0;
-  //BufferDesc.MiscFlags = 0;
+  {
+    bufferCreateInfo.usage |= vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransformFeedbackBufferEXT;
+    //#TODO_VULKAN will need to create a counter buffer.
+    m_stages |= vk::PipelineStageFlagBits::eTransformFeedbackEXT;
+    m_access |= vk::AccessFlagBits::eTransformFeedbackWriteEXT;
+  }
 
   if (m_Description.m_bUseForIndirectArguments)
   {
-    // TODO Vulkan?
+    bufferCreateInfo.usage |= vk::BufferUsageFlagBits::eIndirectBuffer;
+    m_stages |= vk::PipelineStageFlagBits::eDrawIndirect;
+    m_access |= vk::AccessFlagBits::eIndirectCommandRead;
   }
+
+  if (m_Description.m_ResourceAccess.m_bReadBack)
+  {
+    bufferCreateInfo.usage |= vk::BufferUsageFlagBits::eTransferSrc;
+    m_access |= vk::AccessFlagBits::eTransferRead;
+  }
+
+  bufferCreateInfo.usage |= vk::BufferUsageFlagBits::eTransferDst;
+  m_access |= vk::AccessFlagBits::eTransferWrite;
+
+  bufferCreateInfo.pQueueFamilyIndices = nullptr;
+  bufferCreateInfo.queueFamilyIndexCount = 0;
+  bufferCreateInfo.sharingMode = vk::SharingMode::eExclusive;
+
+  EZ_ASSERT_DEBUG(pInitialData.GetCount() <= m_Description.m_uiTotalSize, "Initial data is bigger than target buffer.");
+  vk::DeviceSize alignment = GetAlignment(m_pDeviceVulkan, bufferCreateInfo.usage);
+  vk::DeviceSize newSize = ezMemoryUtils::AlignSize((vk::DeviceSize)m_Description.m_uiTotalSize, alignment);
+  bufferCreateInfo.size = newSize;
+
 
   if (m_Description.m_bAllowRawViews)
   {
@@ -76,15 +107,15 @@ ezResult ezGALBufferVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const 
     // TODO Vulkan?
   }
 
-  //BufferDesc.StructureByteStride = m_Description.m_uiStructSize;
-
   ezVulkanAllocationCreateInfo allocInfo;
   allocInfo.m_usage = ezVulkanMemoryUsage::Auto;
+  allocInfo.m_flags = {};
   VK_SUCCEED_OR_RETURN_EZ_FAILURE(ezMemoryAllocatorVulkan::CreateBuffer(bufferCreateInfo, allocInfo, m_buffer, m_alloc, &m_allocInfo));
 
   m_device = m_pDeviceVulkan->GetVulkanDevice(); // TODO remove this
 
-  // TODO initial data upload
+  if (!pInitialData.IsEmpty())
+    m_pDeviceVulkan->UploadBuffer(this, pInitialData);
   return EZ_SUCCESS;
 }
 
@@ -114,6 +145,31 @@ void ezGALBufferVulkan::SetDebugNamePlatform(const char* szName) const
     if (m_alloc)
       ezMemoryAllocatorVulkan::SetAllocationUserData(m_alloc, szName);
   }
+}
+
+vk::DeviceSize ezGALBufferVulkan::GetAlignment(const ezGALDeviceVulkan* pDevice, vk::BufferUsageFlags usage) const
+{
+  const vk::PhysicalDeviceProperties& properties = pDevice->GetPhysicalDeviceProperties();
+
+  vk::DeviceSize alignment = 4;
+
+  if (usage & vk::BufferUsageFlagBits::eUniformBuffer)
+    alignment = ezMath::Max(alignment, properties.limits.minUniformBufferOffsetAlignment);
+
+  if (usage & vk::BufferUsageFlagBits::eStorageBuffer)
+    alignment = ezMath::Max(alignment, properties.limits.minStorageBufferOffsetAlignment);
+
+  if (usage & (vk::BufferUsageFlagBits::eUniformTexelBuffer | vk::BufferUsageFlagBits::eStorageTexelBuffer))
+    alignment = ezMath::Max(alignment, properties.limits.minTexelBufferOffsetAlignment);
+
+  if (usage & (vk::BufferUsageFlagBits::eIndexBuffer | vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eIndirectBuffer))
+    alignment = ezMath::Max(alignment, VkDeviceSize(16));
+
+  if (usage & (vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eTransferDst))
+    alignment = ezMath::Max(alignment, properties.limits.optimalBufferCopyOffsetAlignment);
+
+  //#TODO_VULKAN Do we need to take nonCoherentAtomSize into account?
+  return alignment;
 }
 
 EZ_STATICLINK_FILE(RendererVulkan, RendererVulkan_Resources_Implementation_BufferVulkan);

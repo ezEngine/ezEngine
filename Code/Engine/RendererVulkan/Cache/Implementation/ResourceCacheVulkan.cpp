@@ -3,14 +3,19 @@
 #include <Foundation/Basics.h>
 #include <RendererFoundation/Resources/Texture.h>
 #include <RendererVulkan/Cache/ResourceCacheVulkan.h>
+#include <RendererVulkan/Shader/ShaderVulkan.h>
+#include <RendererVulkan/Shader/VertexDeclarationVulkan.h>
+#include <RendererVulkan/State/StateVulkan.h>
 #include <RendererVulkan/Utils/ConversionUtilsVulkan.h>
 
 ezGALDeviceVulkan* ezResourceCacheVulkan::s_pDevice;
 vk::Device ezResourceCacheVulkan::s_device;
 
-ezHashTable<ezGALRenderingSetup, vk::RenderPass, ezResourceCacheVulkan::RenderPassHash> ezResourceCacheVulkan::s_shallowRenderPasses;
-ezHashTable<ezResourceCacheVulkan::RenderPassDesc, vk::RenderPass, ezResourceCacheVulkan::RenderPassHash> ezResourceCacheVulkan::s_renderPasses;
-ezHashTable<ezGALRenderTargetSetup, ezResourceCacheVulkan::FrameBufferCache, ezResourceCacheVulkan::FrameBufferHash> ezResourceCacheVulkan::s_frameBuffers;
+ezHashTable<ezGALRenderingSetup, vk::RenderPass, ezResourceCacheVulkan::ResourceCacheHash> ezResourceCacheVulkan::s_shallowRenderPasses;
+ezHashTable<ezResourceCacheVulkan::RenderPassDesc, vk::RenderPass, ezResourceCacheVulkan::ResourceCacheHash> ezResourceCacheVulkan::s_renderPasses;
+ezHashTable<ezResourceCacheVulkan::FramebufferKey, ezResourceCacheVulkan::FrameBufferCache, ezResourceCacheVulkan::ResourceCacheHash> ezResourceCacheVulkan::s_frameBuffers;
+ezHashTable<ezResourceCacheVulkan::PipelineLayoutDesc, vk::PipelineLayout, ezResourceCacheVulkan::ResourceCacheHash> ezResourceCacheVulkan::s_pipelineLayouts;
+ezHashTable<ezResourceCacheVulkan::GraphicsPipelineDesc, vk::Pipeline, ezResourceCacheVulkan::ResourceCacheHash> ezResourceCacheVulkan::s_graphicsPipelines;
 
 #define EZ_LOG_VULKAN_RESOURCES
 
@@ -48,6 +53,20 @@ void ezResourceCacheVulkan::DeInitialize()
   s_frameBuffers.Clear();
   s_frameBuffers.Compact();
 
+  for (auto it : s_graphicsPipelines)
+  {
+    s_device.destroyPipeline(it.Value(), nullptr);
+  }
+  s_graphicsPipelines.Clear();
+  s_graphicsPipelines.Compact();
+
+  for (auto it : s_pipelineLayouts)
+  {
+    s_device.destroyPipelineLayout(it.Value(), nullptr);
+  }
+  s_pipelineLayouts.Clear();
+  s_pipelineLayouts.Compact();
+
   s_device = nullptr;
 }
 
@@ -72,7 +91,16 @@ void ezResourceCacheVulkan::GetRenderPassDesc(const ezGALRenderingSetup& renderi
     depthAttachment.format = formatInfo.m_eRenderTarget;
     depthAttachment.samples = ezConversionUtilsVulkan::GetSamples(texDesc.m_SampleCount);
 
-    depthAttachment.loadOp = renderingSetup.m_bClearDepth ? vk::AttachmentLoadOp::eClear : vk::AttachmentLoadOp::eLoad;
+    if (renderingSetup.m_bDiscardDepth)
+    {
+      depthAttachment.initialLayout = vk::ImageLayout::eUndefined;
+      depthAttachment.loadOp = vk::AttachmentLoadOp::eDontCare;
+    }
+    else
+    {
+      depthAttachment.initialLayout = renderingSetup.m_bClearDepth ? vk::ImageLayout::eUndefined : vk::ImageLayout::eDepthStencilAttachmentOptimal;
+      depthAttachment.loadOp = renderingSetup.m_bClearDepth ? vk::AttachmentLoadOp::eClear : vk::AttachmentLoadOp::eLoad;
+    }
     depthAttachment.storeOp = vk::AttachmentStoreOp::eStore;
 
     if (format == ezGALResourceFormat::Enum::D24S8)
@@ -85,7 +113,6 @@ void ezResourceCacheVulkan::GetRenderPassDesc(const ezGALRenderingSetup& renderi
       depthAttachment.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
       depthAttachment.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
     }
-    depthAttachment.initialLayout = vk::ImageLayout::eUndefined;
   }
 
   for (size_t i = 0; i < uiColorCount; i++)
@@ -104,18 +131,27 @@ void ezResourceCacheVulkan::GetRenderPassDesc(const ezGALRenderingSetup& renderi
     colorAttachment.format = formatInfo.m_eRenderTarget;
     colorAttachment.samples = ezConversionUtilsVulkan::GetSamples(texDesc.m_SampleCount);
 
-    if (renderingSetup.m_uiRenderTargetClearMask & (1u << i))
+    if (renderingSetup.m_bDiscardColor)
     {
-      colorAttachment.loadOp = vk::AttachmentLoadOp::eClear;
+      colorAttachment.initialLayout = vk::ImageLayout::eUndefined;
+      colorAttachment.loadOp = vk::AttachmentLoadOp::eDontCare;
     }
     else
     {
-      colorAttachment.loadOp = vk::AttachmentLoadOp::eLoad;
+      if (renderingSetup.m_uiRenderTargetClearMask & (1u << i))
+      {
+        colorAttachment.initialLayout = vk::ImageLayout::eUndefined;
+        colorAttachment.loadOp = vk::AttachmentLoadOp::eClear;
+      }
+      else
+      {
+        colorAttachment.initialLayout = vk::ImageLayout::eColorAttachmentOptimal;
+        colorAttachment.loadOp = vk::AttachmentLoadOp::eLoad;
+      }
     }
     colorAttachment.storeOp = vk::AttachmentStoreOp::eStore;
     colorAttachment.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
     colorAttachment.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
-    colorAttachment.initialLayout = vk::ImageLayout::eUndefined;
   }
 }
 
@@ -238,6 +274,7 @@ void ezResourceCacheVulkan::GetFrameBufferDesc(vk::RenderPass renderPass, const 
     const ezGALTexture* pTex = s_pDevice->GetTexture(hTexture);
     const ezGALTextureCreationDescription& texDesc = pTex->GetDescription();
 
+    out_desc.m_msaa = texDesc.m_SampleCount;
     out_desc.m_size = {texDesc.m_uiWidth, texDesc.m_uiHeight};
     out_desc.layers = 1;
   }
@@ -251,16 +288,22 @@ void ezResourceCacheVulkan::GetFrameBufferDesc(vk::RenderPass renderPass, const 
     const ezGALTexture* pTex = s_pDevice->GetTexture(hTexture);
     const ezGALTextureCreationDescription& texDesc = pTex->GetDescription();
 
+    out_desc.m_msaa = texDesc.m_SampleCount;
     out_desc.m_size = {texDesc.m_uiWidth, texDesc.m_uiHeight};
     out_desc.layers = 1;
   }
 }
 
-vk::Framebuffer ezResourceCacheVulkan::RequestFrameBuffer(vk::RenderPass renderPass, const ezGALRenderTargetSetup& renderTargetSetup, ezSizeU32& out_Size)
+vk::Framebuffer ezResourceCacheVulkan::RequestFrameBuffer(vk::RenderPass renderPass, const ezGALRenderTargetSetup& renderTargetSetup, ezSizeU32& out_Size, ezGALMSAASampleCount& out_msaa)
 {
-  if (const FrameBufferCache* pFrameBuffer = s_frameBuffers.GetValue(renderTargetSetup))
+  FramebufferKey key;
+  key.m_renderPass = renderPass;
+  key.m_renderTargetSetup = renderTargetSetup;
+
+  if (const FrameBufferCache* pFrameBuffer = s_frameBuffers.GetValue(key))
   {
     out_Size = pFrameBuffer->m_size;
+    out_msaa = pFrameBuffer->m_msaa;
     return pFrameBuffer->m_frameBuffer;
   }
 
@@ -282,10 +325,154 @@ vk::Framebuffer ezResourceCacheVulkan::RequestFrameBuffer(vk::RenderPass renderP
   FrameBufferCache cache;
   cache.m_size = desc.m_size;
   VK_LOG_ERROR(s_device.createFramebuffer(&framebufferInfo, nullptr, &cache.m_frameBuffer));
+  cache.m_msaa = desc.m_msaa;
 
-  s_frameBuffers.Insert(renderTargetSetup, cache);
+  s_frameBuffers.Insert(key, cache);
   out_Size = cache.m_size;
+  out_msaa = cache.m_msaa;
   return cache.m_frameBuffer;
+}
+
+vk::PipelineLayout ezResourceCacheVulkan::RequestPipelineLayout(const PipelineLayoutDesc& desc)
+{
+  if (const vk::PipelineLayout* pPipelineLayout = s_pipelineLayouts.GetValue(desc))
+  {
+    return *pPipelineLayout;
+  }
+
+#ifdef EZ_LOG_VULKAN_RESOURCES
+  ezLog::Info("Creating Pipeline Layout #{}", s_pipelineLayouts.GetCount());
+#endif // EZ_LOG_VULKAN_RESOURCES
+
+  vk::PipelineLayoutCreateInfo layoutInfo;
+  vk::PipelineLayout layout;
+  VK_ASSERT_DEBUG(s_device.createPipelineLayout(&layoutInfo, nullptr, &layout));
+
+  s_pipelineLayouts.Insert(desc, layout);
+  return layout;
+}
+
+vk::Pipeline ezResourceCacheVulkan::RequestGraphicsPipeline(const GraphicsPipelineDesc& desc)
+{
+  if (const vk::Pipeline* pPipeline = s_graphicsPipelines.GetValue(desc))
+  {
+    return *pPipeline;
+  }
+
+#ifdef EZ_LOG_VULKAN_RESOURCES
+  ezLog::Info("Creating Graphics Pipeline #{}", s_graphicsPipelines.GetCount());
+#endif // EZ_LOG_VULKAN_RESOURCES
+
+  vk::PipelineVertexInputStateCreateInfo vertex_input;
+  if (desc.m_pCurrentVertexDecl)
+  {
+    ezHybridArray<vk::VertexInputBindingDescription, EZ_GAL_MAX_VERTEX_BUFFER_COUNT> bindings = desc.m_pCurrentVertexDecl->GetBindings();
+    for (ezUInt32 i = 0; i < bindings.GetCount(); i++)
+    {
+      bindings[i].stride = desc.m_VertexBufferStrides[bindings[i].binding];
+    }
+    vertex_input.vertexAttributeDescriptionCount = desc.m_pCurrentVertexDecl->GetAttributes().GetCount();
+    vertex_input.pVertexAttributeDescriptions = desc.m_pCurrentVertexDecl->GetAttributes().GetPtr();
+    vertex_input.vertexBindingDescriptionCount = bindings.GetCount();
+    vertex_input.pVertexBindingDescriptions = bindings.GetData();
+  }
+
+  vk::PipelineInputAssemblyStateCreateInfo input_assembly;
+  input_assembly.topology = ezConversionUtilsVulkan::GetPrimitiveTopology(desc.m_topology);
+
+  // Specify rasterization state.
+  const vk::PipelineRasterizationStateCreateInfo* raster = desc.m_pCurrentRasterizerState->GetRasterizerState();
+
+  // Our attachment will write to all color channels, but no blending is enabled.
+  vk::PipelineColorBlendStateCreateInfo blend = *desc.m_pCurrentBlendState->GetBlendState();
+  blend.attachmentCount = desc.m_uiAttachmentCount;
+
+  // We will have one viewport and scissor box.
+  vk::PipelineViewportStateCreateInfo viewport;
+  viewport.viewportCount = 1;
+  viewport.scissorCount = 1;
+
+  // Disable all depth testing.
+  const vk::PipelineDepthStencilStateCreateInfo* depth_stencil = desc.m_pCurrentDepthStencilState->GetDepthStencilState();
+
+  // No multisampling.
+  vk::PipelineMultisampleStateCreateInfo multisample;
+  multisample.rasterizationSamples = ezConversionUtilsVulkan::GetSamples(desc.m_msaa);
+
+  // Specify that these states will be dynamic, i.e. not part of pipeline state object.
+  ezHybridArray<vk::DynamicState, 2> dynamics;
+  dynamics.PushBack(vk::DynamicState::eViewport);
+  dynamics.PushBack(vk::DynamicState::eScissor);
+
+  vk::PipelineDynamicStateCreateInfo dynamic;
+  dynamic.pDynamicStates = dynamics.GetData();
+  dynamic.dynamicStateCount = dynamics.GetCount();
+
+  // Load our SPIR-V shaders.
+  ezHybridArray<vk::PipelineShaderStageCreateInfo, 6> shader_stages;
+  if (vk::ShaderModule shader = desc.m_pCurrentShader->GetVertexShader())
+  {
+    vk::PipelineShaderStageCreateInfo& stage = shader_stages.ExpandAndGetRef();
+    stage.stage = vk::ShaderStageFlagBits::eVertex;
+    stage.module = shader;
+    stage.pName = "main";
+  }
+  if (vk::ShaderModule shader = desc.m_pCurrentShader->GetHullShader())
+  {
+    vk::PipelineShaderStageCreateInfo& stage = shader_stages.ExpandAndGetRef();
+    stage.stage = vk::ShaderStageFlagBits::eTessellationControl;
+    stage.module = shader;
+    stage.pName = "main";
+  }
+  if (vk::ShaderModule shader = desc.m_pCurrentShader->GetDomainShader())
+  {
+    vk::PipelineShaderStageCreateInfo& stage = shader_stages.ExpandAndGetRef();
+    stage.stage = vk::ShaderStageFlagBits::eTessellationEvaluation;
+    stage.module = shader;
+    stage.pName = "main";
+  }
+  if (vk::ShaderModule shader = desc.m_pCurrentShader->GetGeometryShader())
+  {
+    vk::PipelineShaderStageCreateInfo& stage = shader_stages.ExpandAndGetRef();
+    stage.stage = vk::ShaderStageFlagBits::eGeometry;
+    stage.module = shader;
+    stage.pName = "main";
+  }
+  if (vk::ShaderModule shader = desc.m_pCurrentShader->GetPixelShader())
+  {
+    vk::PipelineShaderStageCreateInfo& stage = shader_stages.ExpandAndGetRef();
+    stage.stage = vk::ShaderStageFlagBits::eFragment;
+    stage.module = shader;
+    stage.pName = "main";
+  }
+  if (vk::ShaderModule shader = desc.m_pCurrentShader->GetComputeShader())
+  {
+    vk::PipelineShaderStageCreateInfo& stage = shader_stages.ExpandAndGetRef();
+    stage.stage = vk::ShaderStageFlagBits::eCompute;
+    stage.module = shader;
+    stage.pName = "main";
+  }
+
+  vk::GraphicsPipelineCreateInfo pipe;
+  pipe.renderPass = desc.m_renderPass;
+  pipe.layout = desc.m_layout;
+  pipe.stageCount = shader_stages.GetCount();
+  pipe.pStages = shader_stages.GetData();
+  pipe.pVertexInputState = &vertex_input;
+  pipe.pInputAssemblyState = &input_assembly;
+  pipe.pRasterizationState = raster;
+  pipe.pColorBlendState = &blend;
+  pipe.pMultisampleState = &multisample;
+  pipe.pViewportState = &viewport;
+  pipe.pDepthStencilState = depth_stencil;
+  pipe.pDynamicState = &dynamic;
+
+  vk::Pipeline pipeline;
+  vk::PipelineCache cache;
+  VK_ASSERT_DEBUG(s_device.createGraphicsPipelines(cache, 1, &pipe, nullptr, &pipeline));
+
+  s_graphicsPipelines.Insert(desc, pipeline);
+  return pipeline;
 }
 
 template <typename T, typename R = typename std::underlying_type<T>::type>
@@ -300,7 +487,7 @@ auto GetUnderlyingFlagsValue(T value)
   return static_cast<T::MaskType>(value);
 }
 
-ezUInt32 ezResourceCacheVulkan::RenderPassHash::Hash(const RenderPassDesc& renderingSetup)
+ezUInt32 ezResourceCacheVulkan::ResourceCacheHash::Hash(const RenderPassDesc& renderingSetup)
 {
   ezHashStreamWriter32 writer;
   for (const auto& attachment : renderingSetup.attachments)
@@ -318,7 +505,7 @@ ezUInt32 ezResourceCacheVulkan::RenderPassHash::Hash(const RenderPassDesc& rende
 }
 
 
-ezUInt32 ezResourceCacheVulkan::RenderPassHash::Hash(const ezGALRenderingSetup& renderingSetup)
+ezUInt32 ezResourceCacheVulkan::ResourceCacheHash::Hash(const ezGALRenderingSetup& renderingSetup)
 {
   ezHashStreamWriter32 writer;
   writer << renderingSetup.m_RenderTargetSetup.GetDepthStencilTarget();
@@ -338,7 +525,7 @@ ezUInt32 ezResourceCacheVulkan::RenderPassHash::Hash(const ezGALRenderingSetup& 
   return writer.GetHashValue();
 }
 
-bool ezResourceCacheVulkan::RenderPassHash::Equal(const RenderPassDesc& a, const RenderPassDesc& b)
+bool ezResourceCacheVulkan::ResourceCacheHash::Equal(const RenderPassDesc& a, const RenderPassDesc& b)
 {
   const ezUInt32 uiCount = a.attachments.GetCount();
   if (uiCount != a.attachments.GetCount())
@@ -356,24 +543,68 @@ bool ezResourceCacheVulkan::RenderPassHash::Equal(const RenderPassDesc& a, const
   return true;
 }
 
-bool ezResourceCacheVulkan::RenderPassHash::Equal(const ezGALRenderingSetup& a, const ezGALRenderingSetup& b)
+bool ezResourceCacheVulkan::ResourceCacheHash::Equal(const ezGALRenderingSetup& a, const ezGALRenderingSetup& b)
 {
   return a == b;
 }
 
-ezUInt32 ezResourceCacheVulkan::FrameBufferHash::Hash(const ezGALRenderTargetSetup& renderTargetSetup)
+ezUInt32 ezResourceCacheVulkan::ResourceCacheHash::Hash(const FramebufferKey& key)
 {
   ezHashStreamWriter32 writer;
-  writer << renderTargetSetup.GetDepthStencilTarget();
-  const ezUInt8 uiCount = renderTargetSetup.GetRenderTargetCount();
+  writer << key.m_renderPass;
+  writer << key.m_renderTargetSetup.GetDepthStencilTarget();
+  const ezUInt8 uiCount = key.m_renderTargetSetup.GetRenderTargetCount();
   for (ezUInt8 i = 0; i < uiCount; ++i)
   {
-    writer << renderTargetSetup.GetRenderTarget(i);
+    writer << key.m_renderTargetSetup.GetRenderTarget(i);
   }
   return writer.GetHashValue();
 }
 
-bool ezResourceCacheVulkan::FrameBufferHash::Equal(const ezGALRenderTargetSetup& a, const ezGALRenderTargetSetup& b)
+bool ezResourceCacheVulkan::ResourceCacheHash::Equal(const FramebufferKey& a, const FramebufferKey& b)
 {
-  return a == b;
+  return a.m_renderPass == b.m_renderPass && a.m_renderTargetSetup == b.m_renderTargetSetup;
+}
+
+ezUInt32 ezResourceCacheVulkan::ResourceCacheHash::Hash(const PipelineLayoutDesc& desc)
+{
+  ezHashStreamWriter32 writer;
+  writer << desc.m_TODO;
+  return writer.GetHashValue();
+}
+
+bool ezResourceCacheVulkan::ResourceCacheHash::Equal(const PipelineLayoutDesc& a, const PipelineLayoutDesc& b)
+{
+  return a.m_TODO == b.m_TODO;
+}
+
+ezUInt32 ezResourceCacheVulkan::ResourceCacheHash::Hash(const GraphicsPipelineDesc& desc)
+{
+  ezHashStreamWriter32 writer;
+  writer << desc.m_renderPass;
+  writer << desc.m_layout;
+  writer << desc.m_topology;
+  writer << desc.m_msaa;
+  writer << desc.m_pCurrentRasterizerState;
+  writer << desc.m_pCurrentBlendState;
+  writer << desc.m_pCurrentDepthStencilState;
+  writer << desc.m_pCurrentShader;
+  writer << desc.m_pCurrentVertexDecl;
+  writer.WriteArray(desc.m_VertexBufferStrides).IgnoreResult();
+  return writer.GetHashValue();
+}
+
+bool ArraysEqual(const ezUInt32 (&a)[EZ_GAL_MAX_VERTEX_BUFFER_COUNT], const ezUInt32 (&b)[EZ_GAL_MAX_VERTEX_BUFFER_COUNT])
+{
+  for (ezUInt32 i = 0; i < EZ_GAL_MAX_VERTEX_BUFFER_COUNT; i++)
+  {
+    if (a[i] != b[i])
+      return false;
+  }
+  return true;
+}
+
+bool ezResourceCacheVulkan::ResourceCacheHash::Equal(const GraphicsPipelineDesc& a, const GraphicsPipelineDesc& b)
+{
+  return a.m_renderPass == b.m_renderPass && a.m_layout == b.m_layout && a.m_topology == b.m_topology && a.m_topology == b.m_topology && a.m_msaa == b.m_msaa && a.m_uiAttachmentCount == b.m_uiAttachmentCount && a.m_pCurrentRasterizerState == b.m_pCurrentRasterizerState && a.m_pCurrentBlendState == b.m_pCurrentBlendState && a.m_pCurrentDepthStencilState == b.m_pCurrentDepthStencilState && a.m_pCurrentShader == b.m_pCurrentShader && a.m_pCurrentVertexDecl == b.m_pCurrentVertexDecl && ArraysEqual(a.m_VertexBufferStrides, b.m_VertexBufferStrides);
 }

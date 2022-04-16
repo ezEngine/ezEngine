@@ -3,7 +3,6 @@
 #include <RendererVulkan/Device/DeviceVulkan.h>
 #include <RendererVulkan/Resources/TextureVulkan.h>
 
-
 ezGALTextureVulkan::ezGALTextureVulkan(const ezGALTextureCreationDescription& Description)
   : ezGALTexture(Description)
   , m_image(nullptr)
@@ -39,9 +38,10 @@ ezResult ezGALTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGAL
   createInfo.format = pVulkanDevice->GetFormatLookupTable().GetFormatInfo(m_Description.m_Format).m_eStorage;
 
   createInfo.initialLayout = pInitialData.IsEmpty() ? vk::ImageLayout::eUndefined : vk::ImageLayout::ePreinitialized;
-  createInfo.pQueueFamilyIndices = pVulkanDevice->GetQueueFamilyIndices().GetPtr();
-  createInfo.queueFamilyIndexCount = pVulkanDevice->GetQueueFamilyIndices().GetCount();
   createInfo.sharingMode = vk::SharingMode::eExclusive;
+  createInfo.pQueueFamilyIndices = nullptr;
+  createInfo.queueFamilyIndexCount = 0;
+
   createInfo.tiling = vk::ImageTiling::eOptimal;                                                   // TODO CPU readback might require linear tiling
   createInfo.usage |= vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst; // TODO immutable resources
 

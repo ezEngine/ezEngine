@@ -7,14 +7,14 @@ vk::CommandPool ezCommandBufferPoolVulkan::s_commandPool;
 ezHybridArray<vk::CommandBuffer, 4> ezCommandBufferPoolVulkan::s_CommandBuffers;
 
 
-void ezCommandBufferPoolVulkan::Initialize(vk::Device device, ezUInt32 graphicsQueueIndex)
+void ezCommandBufferPoolVulkan::Initialize(vk::Device device, ezUInt32 graphicsFamilyIndex)
 {
   s_device = device;
 
   // Command buffer
   vk::CommandPoolCreateInfo commandPoolCreateInfo = {};
   commandPoolCreateInfo.flags = vk::CommandPoolCreateFlagBits::eResetCommandBuffer;
-  commandPoolCreateInfo.queueFamilyIndex = graphicsQueueIndex;
+  commandPoolCreateInfo.queueFamilyIndex = graphicsFamilyIndex;
 
   s_commandPool = s_device.createCommandPool(commandPoolCreateInfo);
 }

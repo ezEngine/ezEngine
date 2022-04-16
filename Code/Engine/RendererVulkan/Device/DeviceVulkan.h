@@ -54,16 +54,24 @@ public:
     bool m_bDeviceSwapChain = false;
   };
 
+  struct Queue
+  {
+    vk::Queue m_queue;
+    ezUInt32 m_uiQueueFamily = -1;
+    ezUInt32 m_uiQueueIndex = 0;
+  };
+
   vk::Instance GetVulkanInstance() const;
   vk::Device GetVulkanDevice() const;
-  vk::Queue GetVulkanQueue() const;
+  const Queue& GetGraphicsQueue() const;
+  const Queue& GetTransferQueue() const;
+
   vk::PhysicalDevice GetVulkanPhysicalDevice() const;
+  const vk::PhysicalDeviceProperties& GetPhysicalDeviceProperties() const { return m_properties; }
   const Extensions& GetExtensions() const { return m_extensions; }
+  vk::PipelineStageFlags GetSupportedStages() const;
 
   vk::CommandBuffer& GetCurrentCommandBuffer();
-
-  ezArrayPtr<const ezUInt32> GetQueueFamilyIndices() const;
-  vk::Queue GetQueue();
 
   const ezGALFormatLookupTableVulkan& GetFormatLookupTable() const;
 
@@ -75,7 +83,10 @@ public:
   template <typename T>
   void DeleteLater(T& object, ezVulkanAllocation& allocation)
   {
-    DeleteLater({object.objectType, (void*)object, allocation});
+    if (object)
+    {
+      DeleteLater({object.objectType, (void*)object, allocation});
+    }
     object = nullptr;
     allocation = nullptr;
   }
@@ -83,7 +94,10 @@ public:
   template <typename T>
   void DeleteLater(T& object)
   {
-    DeleteLater({object.objectType, (void*)object, nullptr});
+    if (object)
+    {
+      DeleteLater({object.objectType, (void*)object, nullptr});
+    }
     object = nullptr;
   }
 
@@ -97,6 +111,8 @@ public:
   }
 
   void ReportLiveGpuObjects();
+
+  void UploadBuffer(const ezGALBufferVulkan* pBuffer, ezArrayPtr<const ezUInt8> pInitialData);
 
   ezGALBufferVulkan* FindTempBuffer(ezUInt32 uiSize) { return nullptr; }                                                                           // TODO impl
   ezGALTextureVulkan* FindTempTexture(ezUInt32 uiWidth, ezUInt32 uiHeight, ezUInt32 uiDepth, ezGALResourceFormat::Enum format) { return nullptr; } // TODO impl
@@ -228,10 +244,11 @@ private:
 
   vk::Instance m_instance;
   vk::PhysicalDevice m_physicalDevice;
+  vk::PhysicalDeviceProperties m_properties;
   vk::Device m_device;
-  vk::Queue m_queue;
+  Queue m_graphicsQueue;
+  Queue m_transferQueue;
 
-  ezHybridArray<ezUInt32, 2> m_queueFamilyIndices;
   ezGALFormatLookupTableVulkan m_FormatLookupTable;
 
   vk::PhysicalDeviceMemoryProperties m_memoryProperties;
