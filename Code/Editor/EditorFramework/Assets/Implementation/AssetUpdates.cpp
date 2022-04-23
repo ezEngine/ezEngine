@@ -632,6 +632,11 @@ void ezAssetCurator::InvalidateAssetTransformState(const ezUuid& assetGuid)
   ezAssetInfo* pAssetInfo = nullptr;
   if (m_KnownAssets.TryGetValue(assetGuid, pAssetInfo))
   {
+    if (pAssetInfo->m_bInvalidating)
+      return;
+
+    pAssetInfo->m_bInvalidating = true;
+
     // We do not set pAssetInfo->m_TransformState because that is user facing and
     // as after updating the state it might just be the same as before we instead add
     // it to the queue here to prevent flickering in the GUI.
@@ -658,6 +663,8 @@ void ezAssetCurator::InvalidateAssetTransformState(const ezUuid& assetGuid)
         InvalidateAssetTransformState(guid);
       }
     }
+
+    pAssetInfo->m_bInvalidating = false;
   }
 }
 
