@@ -42,7 +42,7 @@ public:
 
   /// \brief Spawns the prefab that was defined for the given interaction at the given position and using the configured orientation.
   /// Returns false, if the interaction type was not defined in this surface or any of its base surfaces
-  bool InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle hObject, const ezVec3& vPosition, const ezVec3& vSurfaceNormal, const ezVec3& vIncomingDirection, const ezTempHashedString& sInteraction, const ezUInt16* pOverrideTeamID, float fImpulseSqr = 0.0f);
+  bool InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle hObject, const ezVec3& vPosition, const ezVec3& vSurfaceNormal, const ezVec3& vIncomingDirection, const ezTempHashedString& sInteraction, const ezUInt16* pOverrideTeamID, float fImpulseSqr = 0.0f) const;
 
   bool IsBasedOn(const ezSurfaceResource* pThisOrBaseSurface) const;
 
