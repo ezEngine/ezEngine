@@ -47,13 +47,13 @@ struct ezPhysicsOverlapResultArray
   ezHybridArray<ezPhysicsOverlapResult, 16> m_Results;
 };
 
-EZ_DECLARE_FLAGS(ezUInt32, ezPhysicsShapeType, Static, Dynamic, Query);
+EZ_DECLARE_FLAGS_WITH_DEFAULT(ezUInt32, ezPhysicsShapeType, Static | Dynamic | Query, Static, Dynamic, Query);
 
 struct ezPhysicsQueryParameters
 {
   ezPhysicsQueryParameters() = default;
   explicit ezPhysicsQueryParameters(ezUInt32 uiCollisionLayer,
-    ezBitflags<ezPhysicsShapeType> shapeTypes = ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic | ezPhysicsShapeType::Query, ezUInt32 uiIgnoreObjectFilterID = ezInvalidIndex)
+    ezBitflags<ezPhysicsShapeType> shapeTypes = ezPhysicsShapeType::Default, ezUInt32 uiIgnoreObjectFilterID = ezInvalidIndex)
     : m_uiCollisionLayer(uiCollisionLayer)
     , m_ShapeTypes(shapeTypes)
     , m_uiIgnoreObjectFilterID(uiIgnoreObjectFilterID)
@@ -61,7 +61,7 @@ struct ezPhysicsQueryParameters
   }
 
   ezUInt32 m_uiCollisionLayer = 0;
-  ezBitflags<ezPhysicsShapeType> m_ShapeTypes = ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic | ezPhysicsShapeType::Query;
+  ezBitflags<ezPhysicsShapeType> m_ShapeTypes = ezPhysicsShapeType::Default;
   ezUInt32 m_uiIgnoreObjectFilterID = ezInvalidIndex;
   bool m_bIgnoreInitialOverlap = false;
 };

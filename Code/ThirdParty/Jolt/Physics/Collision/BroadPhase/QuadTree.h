@@ -75,7 +75,7 @@ private:
 		inline void				operator = (const NodeID &inRHS)			{ mID = inRHS.mID; }
 
 		/// Getting the value
-		inline					operator const NodeID () const				{ return NodeID(mID); }
+		inline					operator NodeID () const					{ return NodeID(mID); }
 
 		/// Check if the ID is valid
 		inline bool				IsValid() const								{ return mID != cInvalidNodeIndex; }
@@ -220,11 +220,10 @@ public:
 	void						AddBodiesAbort(TrackingVector &ioTracking, const AddState &inState);
 
 	/// Remove inNumber bodies in ioBodyIDs from the quadtree.
-	/// ioBodyIDs may be shuffled around by this function.
-	void						RemoveBodies(const BodyVector &inBodies, TrackingVector &ioTracking, BodyID *ioBodyIDs, int inNumber);
+	void						RemoveBodies(const BodyVector &inBodies, TrackingVector &ioTracking, const BodyID *ioBodyIDs, int inNumber);
 
-	/// Call whenever the aabb of a body changes (can change order of ioBodyIDs array).
-	void						NotifyBodiesAABBChanged(const BodyVector &inBodies, const TrackingVector &inTracking, BodyID *ioBodyIDs, int inNumber);
+	/// Call whenever the aabb of a body changes.
+	void						NotifyBodiesAABBChanged(const BodyVector &inBodies, const TrackingVector &inTracking, const BodyID *ioBodyIDs, int inNumber);
 
 	/// Cast a ray and get the intersecting bodies in ioCollector.
 	void						CastRay(const RayCast &inRay, RayCastBodyCollector &ioCollector, const ObjectLayerFilter &inObjectLayerFilter, const TrackingVector &inTracking) const;
@@ -271,7 +270,7 @@ private:
 	/// Caches location of body inBodyID in the tracker, body can be found in mNodes[inNodeIdx].mChildNodeID[inChildIdx]
 	void						GetBodyLocation(const TrackingVector &inTracking, BodyID inBodyID, uint32 &outNodeIdx, uint32 &outChildIdx) const;
 	void						SetBodyLocation(TrackingVector &ioTracking, BodyID inBodyID, uint32 inNodeIdx, uint32 inChildIdx) const;
-	void						InvalidateBodyLocation(TrackingVector &ioTracking, BodyID inBodyID);
+	static void					sInvalidateBodyLocation(TrackingVector &ioTracking, BodyID inBodyID);
 
 	/// Get the current root of the tree
 	JPH_INLINE const RootNode &	GetCurrentRoot() const				{ return mRootNode[mRootNodeIndex]; }

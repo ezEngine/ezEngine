@@ -68,9 +68,12 @@ void ezJoltDistanceConstraintComponent::ApplySettings()
   const float fMax = ezMath::Max(fMin, m_fMaxDistance);
   pConstraint->SetDistance(fMin, fMax);
 
-  // wake up the bodies that are attached to this constraint
-  ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
-  pModule->GetJoltSystem()->GetBodyInterface().ActivateBody(pConstraint->GetBody2()->GetID());
+  if (pConstraint->GetBody2()->IsInBroadPhase())
+  {
+    // wake up the bodies that are attached to this constraint
+    ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
+    pModule->GetJoltSystem()->GetBodyInterface().ActivateBody(pConstraint->GetBody2()->GetID());
+  }
 }
 
 void ezJoltDistanceConstraintComponent::SerializeComponent(ezWorldWriter& stream) const

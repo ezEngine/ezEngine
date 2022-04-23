@@ -14,12 +14,13 @@
 #include <JoltPlugin/Utilities/JoltConversionUtils.h>
 
 // clang-format off
-EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezJoltActorComponent, 1)
+EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezJoltActorComponent, 2)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
     EZ_ACCESSOR_PROPERTY("Surface", GetSurfaceFile, SetSurfaceFile)->AddAttributes(new ezAssetBrowserAttribute("Surface")),
+    EZ_BITFLAGS_MEMBER_PROPERTY("OnContact", ezOnJoltContact, m_OnContact),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
@@ -42,8 +43,8 @@ void ezJoltActorComponent::SerializeComponent(ezWorldWriter& stream) const
 
   s << m_uiCollisionLayer;
   s << m_hSurface;
+  s << m_OnContact;
 }
-
 
 void ezJoltActorComponent::DeserializeComponent(ezWorldReader& stream)
 {
@@ -54,16 +55,44 @@ void ezJoltActorComponent::DeserializeComponent(ezWorldReader& stream)
 
   s >> m_uiCollisionLayer;
   s >> m_hSurface;
+
+  if (uiVersion >= 2)
+  {
+    s >> m_OnContact;
+  }
+}
+
+void ezJoltActorComponent::OnSimulationStarted()
+{
+  SUPER::OnSimulationStarted();
+
+  if (m_uiObjectFilterID == ezInvalidIndex)
+  {
+    // only create a new filter ID, if none has been passed in manually
+
+    ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
+    m_uiObjectFilterID = pModule->CreateObjectFilterID();
+  }
 }
 
 void ezJoltActorComponent::OnDeactivated()
 {
-  if (m_uiUserDataIndex != ezInvalidIndex)
-  {
-    ezJoltWorldModule* pModule = GetWorld()->GetModule<ezJoltWorldModule>();
+  ezJoltWorldModule* pModule = GetWorld()->GetModule<ezJoltWorldModule>();
 
-    pModule->DeallocateUserData(m_uiUserDataIndex);
+  JPH::BodyID bodyId(m_uiJoltBodyID);
+
+  if (!bodyId.IsInvalid())
+  {
+    auto* pSystem = pModule->GetJoltSystem();
+    auto* pBodies = &pSystem->GetBodyInterface();
+
+    pBodies->RemoveBody(bodyId);
+    pBodies->DestroyBody(bodyId);
+    m_uiJoltBodyID = JPH::BodyID::cInvalidBodyID;
   }
+
+  pModule->DeallocateUserData(m_uiUserDataIndex);
+  pModule->DeleteObjectFilterID(m_uiObjectFilterID);
 
   SUPER::OnDeactivated();
 }
@@ -214,6 +243,12 @@ const ezJoltUserData* ezJoltActorComponent::GetUserData() const
   const ezJoltWorldModule* pModule = GetWorld()->GetModule<ezJoltWorldModule>();
 
   return &pModule->GetUserData(m_uiUserDataIndex);
+}
+
+void ezJoltActorComponent::SetInitialObjectFilterID(ezUInt32 uiObjectFilterID)
+{
+  EZ_ASSERT_DEBUG(!IsActiveAndSimulating(), "The object filter ID can't be changed after simulation has started.");
+  m_uiObjectFilterID = uiObjectFilterID;
 }
 
 const ezJoltMaterial* ezJoltActorComponent::GetJoltMaterial() const

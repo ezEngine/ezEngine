@@ -14,10 +14,9 @@ public:
 						Result()									{ }
 						
 	/// Copy constructor
-						Result(const Result<Type> &inRHS)
+						Result(const Result<Type> &inRHS) :
+		mState(inRHS.mState)
 	{
-		mState = inRHS.mState;
-
 		switch (inRHS.mState)
 		{
 		case EState::Valid:
@@ -34,10 +33,9 @@ public:
 	}
 
 	/// Move constructor
-						Result(Result<Type> &&inRHS) noexcept
+						Result(Result<Type> &&inRHS) noexcept :
+		mState(inRHS.mState)
 	{
-		mState = inRHS.mState;
-
 		switch (inRHS.mState)
 		{
 		case EState::Valid:

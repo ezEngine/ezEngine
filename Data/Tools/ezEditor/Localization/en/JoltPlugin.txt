@@ -43,3 +43,13 @@ ezJoltCCDebugFlags::VisVelocity;Visualize Velocities
 ezJoltAxis::X;X
 ezJoltAxis::Y;Y
 ezJoltAxis::Z;Z
+ezOnJoltContact::SendReportMsg;Send Report Message
+ezOnJoltContact::ImpactReactions;Impact Reactions
+ezOnJoltContact::SlideReactions;Slide Reactions
+ezOnJoltContact::RollXReactions;Roll X Reactions
+ezOnJoltContact::RollYReactions;Roll Y Reactions
+ezOnJoltContact::RollZReactions;Roll Z Reactions
+ezJoltConeConstraintComponent;Cone Constraint (Jolt)
+ezJoltQueryShapeActorComponent;Query Shape (Jolt)
+ezJoltSwingTwistConstraintComponent;Swing Twist Constraint (Jolt)
+ezJoltBoneColliderComponent;Bone Collider (Jolt)

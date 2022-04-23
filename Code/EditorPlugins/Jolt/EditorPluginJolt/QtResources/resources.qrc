@@ -26,6 +26,8 @@
 	<file>ezJoltRopeComponent.png</file>
 	<file>ezJoltShapeCylinderComponent.png</file>
 	<file>ezJoltRagdollComponent.png</file>
+	<file>ezJoltSwingTwistConstraintComponent.png</file>
+	<file>ezJoltConeConstraintComponent.png</file>
   </qresource>  
 </RCC>
 

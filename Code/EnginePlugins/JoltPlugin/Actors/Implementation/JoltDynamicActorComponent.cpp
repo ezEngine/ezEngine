@@ -23,16 +23,16 @@ ezJoltDynamicActorComponentManager::ezJoltDynamicActorComponentManager(ezWorld* 
 
 ezJoltDynamicActorComponentManager::~ezJoltDynamicActorComponentManager() {}
 
-void ezJoltDynamicActorComponentManager::UpdateDynamicActors(/*ezArrayPtr<JPH::BodyID> activeActors*/)
+void ezJoltDynamicActorComponentManager::UpdateDynamicActors()
 {
+  EZ_PROFILE_SCOPE("UpdateDynamicActors");
+
   ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
-
   auto* pSystem = pModule->GetJoltSystem();
-  auto* pBodies = &pSystem->GetBodyInterface();
 
-  for (auto compIt = GetComponents(); compIt.IsValid(); compIt.Next())
+  for (auto itActor : pModule->GetActiveActors())
   {
-    JPH::BodyID bodyId(compIt->m_uiJoltBodyID);
+    JPH::BodyID bodyId(itActor.Value());
 
     JPH::BodyLockRead bodyLock(pSystem->GetBodyLockInterface(), bodyId);
     if (!bodyLock.Succeeded())
@@ -40,21 +40,21 @@ void ezJoltDynamicActorComponentManager::UpdateDynamicActors(/*ezArrayPtr<JPH::B
 
     const JPH::Body& body = bodyLock.GetBody();
 
-    if (!body.IsActive() || !body.IsDynamic())
+    if (!body.IsDynamic())
       continue;
 
-    ezSimdTransform trans = compIt->GetOwner()->GetGlobalTransformSimd();
+    ezSimdTransform trans = itActor.Key()->GetOwner()->GetGlobalTransformSimd();
 
     trans.m_Position = ezJoltConversionUtils::ToSimdVec3(body.GetPosition());
     trans.m_Rotation = ezJoltConversionUtils::ToSimdQuat(body.GetRotation());
 
-    compIt->GetOwner()->SetGlobalTransform(trans);
+    itActor.Key()->GetOwner()->SetGlobalTransform(trans);
   }
 }
 
 void ezJoltDynamicActorComponentManager::UpdateKinematicActors()
 {
-  EZ_PROFILE_SCOPE("KinematicActors");
+  EZ_PROFILE_SCOPE("UpdateKinematicActors");
 
   ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
   auto* pSystem = pModule->GetJoltSystem();
@@ -80,54 +80,6 @@ void ezJoltDynamicActorComponentManager::UpdateKinematicActors()
   }
 }
 
-// void ezJoltDynamicActorComponentManager::UpdateDynamicActors(ezArrayPtr<PxActor*> activeActors)
-//{
-//   EZ_PROFILE_SCOPE("DynamicActors");
-//
-//   for (PxActor* activeActor : activeActors)
-//   {
-//     if (activeActor->getType() != PxActorType::eRIGID_DYNAMIC)
-//       continue;
-//
-//     PxRigidDynamic* dynamicActor = static_cast<PxRigidDynamic*>(activeActor);
-//
-//     ezJoltDynamicActorComponent* pComponent = ezJoltUserData::GetDynamicActorComponent(activeActor->userData);
-//     if (pComponent == nullptr)
-//     {
-//       // Check if this is a breakable sheet component piece
-//       if (ezBreakableSheetComponent* pSheetComponent = ezJoltUserData::GetBreakableSheetComponent(activeActor->userData))
-//       {
-//         pSheetComponent->SetPieceTransform(dynamicActor->getGlobalPose(), ezJoltUserData::GetAdditionalUserData(activeActor->userData));
-//       }
-//
-//       continue;
-//     }
-//
-//     if (pComponent->GetKinematic())
-//       continue;
-//
-//     auto pose = dynamicActor->getGlobalPose();
-//     if (!pose.isSane())
-//     {
-//       // Jolt can completely fuck up poses and never recover
-//       // if that happens, force a non-NaN pose to prevent crashes down the line
-//       dynamicActor->setGlobalPose(ezJoltConversionUtils::ToTransform(pComponent->GetOwner()->GetGlobalTransformSimd()));
-//
-//       // ignore objects with bad data
-//       continue;
-//     }
-//
-//     ezGameObject* pObject = pComponent->GetOwner();
-//     EZ_ASSERT_DEV(pObject != nullptr, "Owner must be still valid");
-//
-//     // preserve scaling
-//     ezSimdTransform t = ezJoltConversionUtils::ToSimdTransform(pose);
-//     t.m_Scale = ezSimdConversion::ToVec3(pObject->GetGlobalScaling());
-//
-//     pObject->SetGlobalTransform(t);
-//   }
-// }
-
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
@@ -138,7 +90,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezJoltDynamicActorComponent, 1, ezComponentMode::Dynamic
       EZ_ACCESSOR_PROPERTY("Kinematic", GetKinematic, SetKinematic),
       EZ_MEMBER_PROPERTY("Mass", m_fMass)->AddAttributes(new ezSuffixAttribute(" kg"), new ezClampValueAttribute(0.0f, ezVariant())),
       EZ_MEMBER_PROPERTY("Density", m_fDensity)->AddAttributes(new ezDefaultValueAttribute(100.0f), new ezSuffixAttribute(" kg/m^3")),
-      EZ_MEMBER_PROPERTY("GravityFactor", m_fGravityFactor)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
+      EZ_ACCESSOR_PROPERTY("GravityFactor", GetGravityFactor, SetGravityFactor)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
       EZ_MEMBER_PROPERTY("LinearDamping", m_fLinearDamping)->AddAttributes(new ezDefaultValueAttribute(0.2f)),
       EZ_MEMBER_PROPERTY("AngularDamping", m_fAngularDamping)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
       EZ_MEMBER_PROPERTY("ContinuousCollisionDetection", m_bCCD),
@@ -235,9 +187,36 @@ void ezJoltDynamicActorComponent::SetKinematic(bool b)
     }
   }
 
-  if (!m_bKinematic)
+  if (!m_bKinematic && pSystem->GetBodyInterface().IsAdded(bodyId))
   {
     pSystem->GetBodyInterface().ActivateBody(bodyId);
+  }
+}
+
+void ezJoltDynamicActorComponent::SetGravityFactor(float factor)
+{
+  if (m_fGravityFactor == factor)
+    return;
+
+  m_fGravityFactor = factor;
+
+  JPH::BodyID bodyId(m_uiJoltBodyID);
+
+  if (bodyId.IsInvalid())
+    return;
+
+  auto* pSystem = GetWorld()->GetOrCreateModule<ezJoltWorldModule>()->GetJoltSystem();
+
+  JPH::BodyLockWrite bodyLock(pSystem->GetBodyLockInterface(), bodyId);
+
+  if (bodyLock.Succeeded())
+  {
+    bodyLock.GetBody().GetMotionProperties()->SetGravityFactor(m_fGravityFactor);
+
+    if (pSystem->GetBodyInterfaceNoLock().IsAdded(bodyId))
+    {
+      pSystem->GetBodyInterfaceNoLock().ActivateBody(bodyId);
+    }
   }
 }
 
@@ -255,9 +234,14 @@ void ezJoltDynamicActorComponent::OnSimulationStarted()
   JPH::BodyCreationSettings bodyCfg;
 
   if (CreateShape(&bodyCfg, m_fDensity).Failed())
+  {
+    ezLog::Error("Jolt dynamic actor component '{}' has no valid shape.", GetOwner()->GetName());
     return;
+  }
 
-  m_uiObjectFilterID = pModule->CreateObjectFilterID();
+  ezJoltUserData* pUserData = nullptr;
+  m_uiUserDataIndex = pModule->AllocateUserData(pUserData);
+  pUserData->Init(this);
 
   bodyCfg.mPosition = ezJoltConversionUtils::ToVec3(trans.m_Position);
   bodyCfg.mRotation = ezJoltConversionUtils::ToQuat(trans.m_Rotation);
@@ -272,6 +256,8 @@ void ezJoltDynamicActorComponent::OnSimulationStarted()
   bodyCfg.mRestitution = pMaterial->m_fRestitution;
   bodyCfg.mFriction = pMaterial->m_fFriction;
   bodyCfg.mCollisionGroup.SetGroupID(m_uiObjectFilterID);
+  bodyCfg.mCollisionGroup.SetGroupFilter(pModule->GetGroupFilter());
+  bodyCfg.mUserData = reinterpret_cast<ezUInt64>(pUserData);
 
   ezVec3 vCenterOfMass(0.0f);
   if (FindCenterOfMass(GetOwner(), vCenterOfMass))
@@ -289,16 +275,10 @@ void ezJoltDynamicActorComponent::OnSimulationStarted()
     bodyCfg.SetShape(com.Create().Get());
   }
 
-  JPH::BodyID bodyId = pBodies->CreateAndAddBody(bodyCfg, JPH::EActivation::Activate);
-  m_uiJoltBodyID = bodyId.GetIndexAndSequenceNumber();
+  JPH::Body* pBody = pBodies->CreateBody(bodyCfg);
+  m_uiJoltBodyID = pBody->GetID().GetIndexAndSequenceNumber();
 
-  ezJoltUserData* pUserData = nullptr;
-  m_uiUserDataIndex = pModule->AllocateUserData(pUserData);
-  pUserData->Init(this);
-
-  JPH::BodyLockWrite bodyLock(pSystem->GetBodyLockInterface(), bodyId);
-  bodyLock.GetBody().SetUserData(reinterpret_cast<ezUInt64>(pUserData));
-
+  pModule->QueueBodyToAdd(pBody);
 
   if (m_bKinematic)
   {
@@ -311,23 +291,6 @@ void ezJoltDynamicActorComponent::OnDeactivated()
   if (m_bKinematic)
   {
     GetWorld()->GetOrCreateComponentManager<ezJoltDynamicActorComponentManager>()->m_KinematicActorComponents.RemoveAndSwap(this);
-  }
-
-  JPH::BodyID bodyId(m_uiJoltBodyID);
-
-  if (!bodyId.IsInvalid())
-  {
-    if (ezJoltWorldModule* pModule = GetWorld()->GetModule<ezJoltWorldModule>())
-    {
-      auto* pSystem = pModule->GetJoltSystem();
-      auto* pBodies = &pSystem->GetBodyInterface();
-
-      pBodies->RemoveBody(bodyId);
-      pBodies->DestroyBody(bodyId);
-      m_uiJoltBodyID = JPH::BodyID::cInvalidBodyID;
-
-      pModule->DeleteObjectFilterID(m_uiObjectFilterID);
-    }
   }
 
   SUPER::OnDeactivated();

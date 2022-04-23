@@ -28,13 +28,13 @@ public:
 	bool						Register(const RTTI *inRTTI);
 
 	/// Get all registered classes
-	vector<const RTTI *>		GetAllClasses();
+	vector<const RTTI *>		GetAllClasses() const;
 
 	/// Singleton factory instance
 	static Factory 				sInstance;
 
 private:
-	using ClassNameMap = unordered_map<string, const RTTI *>;
+	using ClassNameMap = unordered_map<string_view, const RTTI *>;
 
 	using ClassHashMap = unordered_map<uint32, const RTTI *>;
 

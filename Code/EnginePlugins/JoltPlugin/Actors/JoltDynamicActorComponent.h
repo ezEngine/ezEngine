@@ -15,7 +15,7 @@ private:
   friend class ezJoltDynamicActorComponent;
 
   void UpdateKinematicActors();
-  void UpdateDynamicActors(/*ezArrayPtr<JPH::BodyID> activeActors*/);
+  void UpdateDynamicActors();
 
   ezDynamicArray<ezJoltDynamicActorComponent*> m_KinematicActorComponents;
 };
@@ -51,12 +51,14 @@ public:
   bool GetKinematic() const { return m_bKinematic; } // [ property ]
   void SetKinematic(bool b);                         // [ property ]
 
+  void SetGravityFactor(float factor);                        // [ property ]
+  float GetGravityFactor() const { return m_fGravityFactor; } // [ property ]
+
   bool m_bCCD = false;             // [ property ]
   float m_fMass = 0.0f;            // [ property ]
   float m_fDensity = 1.0f;         // [ property ]
   float m_fLinearDamping = 0.1f;   // [ property ]
   float m_fAngularDamping = 0.05f; // [ property ]
-  float m_fGravityFactor = 1.0f;   // [ property ]
 
   void AddLinearForce(const ezVec3& vForce);      // [ scriptable ]
   void AddLinearImpulse(const ezVec3& vImpulse);  // [ scriptable ]
@@ -66,9 +68,6 @@ public:
 protected:
   bool FindCenterOfMass(ezGameObject* pRoot, ezVec3& out_CoM) const;
 
-private:
   bool m_bKinematic = false;
-
-  ezUInt32 m_uiJoltBodyID = ezInvalidIndex;
-  ezUInt32 m_uiObjectFilterID = ezInvalidIndex;
+  float m_fGravityFactor = 1.0f; // [ property ]
 };

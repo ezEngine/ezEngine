@@ -592,6 +592,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezBoxVisualizerAttribute, 1, ezRTTIDefaultAlloca
   {
     EZ_MEMBER_PROPERTY("Color", m_Color),
     EZ_MEMBER_PROPERTY("OffsetOrScale", m_vOffsetOrScale),
+    EZ_MEMBER_PROPERTY("SizeScale", m_fSizeScale),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_FUNCTIONS

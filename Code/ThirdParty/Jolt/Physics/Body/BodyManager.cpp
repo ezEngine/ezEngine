@@ -533,7 +533,7 @@ bool BodyManager::RestoreState(StateRecorder &inStream)
 		UniqueLock lock(mActiveBodiesMutex, EPhysicsLockTypes::ActiveBodiesList);
 
 		// Mark current active bodies as deactivated
-		for (BodyID *id = mActiveBodies, *id_end = mActiveBodies + mNumActiveBodies; id < id_end; ++id)
+		for (const BodyID *id = mActiveBodies, *id_end = mActiveBodies + mNumActiveBodies; id < id_end; ++id)
 			mBodies[id->GetIndex()]->mMotionProperties->mIndexInActiveBodies = Body::cInactiveIndex;
 
 		sort(mActiveBodies, mActiveBodies + mNumActiveBodies); // Sort for validation
@@ -723,9 +723,6 @@ void BodyManager::Draw(const DrawSettings &inDrawSettings, const PhysicsSettings
 				for (int i = 0; i < 3; ++i)
 					inRenderer->DrawWireSphere(body->mMotionProperties->mSleepTestSpheres[i].GetCenter(), body->mMotionProperties->mSleepTestSpheres[i].GetRadius(), sleep_color);
 			}
-
-			if (inDrawSettings.mDrawNames)
-				inRenderer->DrawText3D(body->GetCenterOfMassPosition(), body->GetDebugName(), Color::sCyan, 0.2f);
 		}
 
 	UnlockAllBodies();

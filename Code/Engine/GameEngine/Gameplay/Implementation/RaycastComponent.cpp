@@ -200,7 +200,6 @@ void ezRaycastComponent::Update()
   {
     ezPhysicsQueryParameters queryParams(m_uiCollisionLayerEndPoint);
     queryParams.m_bIgnoreInitialOverlap = true;
-    queryParams.m_ShapeTypes = ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic;
 
     if (m_pPhysicsWorldModule->Raycast(hit, rayStartPosition, rayDir, m_fMaxDistance, queryParams))
     {

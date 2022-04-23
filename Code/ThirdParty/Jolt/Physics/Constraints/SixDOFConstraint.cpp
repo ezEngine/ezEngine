@@ -432,6 +432,7 @@ void SixDOFConstraint::SetupVelocityConstraint(float inDeltaTime)
 				break;
 
 			case 0b111:
+			default: // All motors off is handled here but the results are unused
 				// Keep entire rotation
 				projected_diff = diff;
 				break;
@@ -482,9 +483,9 @@ void SixDOFConstraint::WarmStartVelocityConstraint(float inWarmStartImpulseRatio
 
 	// Warm start rotation motors
 	if (mRotationMotorActive)
-		for (int i = 0; i < 3; ++i)
-			if (mMotorRotationConstraintPart[i].IsActive())
-				mMotorRotationConstraintPart[i].WarmStart(*mBody1, *mBody2, inWarmStartImpulseRatio);
+		for (AngleConstraintPart &c : mMotorRotationConstraintPart)
+			if (c.IsActive())
+				c.WarmStart(*mBody1, *mBody2, inWarmStartImpulseRatio);
 
 	// Warm start rotation constraints
 	if (IsRotationFullyConstrained())
@@ -715,15 +716,15 @@ void SixDOFConstraint::SaveState(StateRecorder &inStream) const
 {
 	TwoBodyConstraint::SaveState(inStream);
 
-	for (int i = 0; i < 3; ++i)
-		mTranslationConstraintPart[i].SaveState(inStream);
+	for (const AxisConstraintPart &c : mTranslationConstraintPart)
+		c.SaveState(inStream);
 	mPointConstraintPart.SaveState(inStream);
 	mSwingTwistConstraintPart.SaveState(inStream);
 	mRotationConstraintPart.SaveState(inStream);
-	for (int i = 0; i < 3; ++i)
-		mMotorTranslationConstraintPart[i].SaveState(inStream);
-	for (int i = 0; i < 3; ++i)
-		mMotorRotationConstraintPart[i].SaveState(inStream);
+	for (const AxisConstraintPart &c : mMotorTranslationConstraintPart)
+		c.SaveState(inStream);
+	for (const AngleConstraintPart &c : mMotorRotationConstraintPart)
+		c.SaveState(inStream);
 
 	inStream.Write(mMotorState);
 	inStream.Write(mTargetVelocity);
@@ -736,15 +737,15 @@ void SixDOFConstraint::RestoreState(StateRecorder &inStream)
 {
 	TwoBodyConstraint::RestoreState(inStream);
 
-	for (int i = 0; i < 3; ++i)
-		mTranslationConstraintPart[i].RestoreState(inStream);
+	for (AxisConstraintPart &c : mTranslationConstraintPart)
+		c.RestoreState(inStream);
 	mPointConstraintPart.RestoreState(inStream);
 	mSwingTwistConstraintPart.RestoreState(inStream);
 	mRotationConstraintPart.RestoreState(inStream);
-	for (int i = 0; i < 3; ++i)
-		mMotorTranslationConstraintPart[i].RestoreState(inStream);
-	for (int i = 0; i < 3; ++i)
-		mMotorRotationConstraintPart[i].RestoreState(inStream);
+	for (AxisConstraintPart &c : mMotorTranslationConstraintPart)
+		c.RestoreState(inStream);
+	for (AngleConstraintPart &c : mMotorRotationConstraintPart)
+		c.RestoreState(inStream);
 
 	inStream.Read(mMotorState);
 	inStream.Read(mTargetVelocity);

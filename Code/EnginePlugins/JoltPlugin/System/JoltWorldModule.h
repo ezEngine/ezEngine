@@ -11,8 +11,10 @@
 
 namespace JPH
 {
+  class Body;
   class TempAllocator;
   class PhysicsSystem;
+  class GroupFilter;
 } // namespace JPH
 
 class EZ_JOLTPLUGIN_DLL ezJoltWorldModule : public ezPhysicsWorldModuleInterface
@@ -63,8 +65,16 @@ public:
 
   virtual void AddStaticCollisionBox(ezGameObject* pObject, ezVec3 boxSize) override;
 
-  //ezMap<physx::PxConstraint*, ezComponentHandle> m_BreakableJoints;
+  // ezMap<physx::PxConstraint*, ezComponentHandle> m_BreakableJoints;
   ezDeque<ezComponentHandle> m_RequireUpdate;
+
+  const ezMap<ezJoltActorComponent*, ezUInt32>& GetActiveActors() const { return m_ActiveActors; }
+
+  void QueueBodyToAdd(JPH::Body* pBody);
+
+  JPH::GroupFilter* GetGroupFilter() const { return m_pGroupFilter; }
+
+  void EnableJoinedBodiesCollisions(ezUInt32 uiObjectFilterID1, ezUInt32 uiObjectFilterID2, bool bEnable);
 
 private:
   bool SweepTest(ezPhysicsCastResult& out_Result, const JPH::Shape& shape, const JPH::Mat44& transform, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection) const;
@@ -75,15 +85,15 @@ private:
   void StartSimulation(const ezWorldModule::UpdateContext& context);
   void FetchResults(const ezWorldModule::UpdateContext& context);
 
-  //void HandleSimulationEvents();
+  // void HandleSimulationEvents();
 
-  //void UpdatePhysicsSlideReactions();
-  //void UpdatePhysicsRollReactions();
+  // void UpdatePhysicsSlideReactions();
+  // void UpdatePhysicsRollReactions();
 
-  //void SpawnPhysicsImpactReactions();
+  // void SpawnPhysicsImpactReactions();
 
-  //void HandleBrokenConstraints();
-  //void HandleTriggerEvents();
+  // void HandleBrokenConstraints();
+  // void HandleTriggerEvents();
 
   void Simulate();
   void SimulateStep(ezTime deltaTime);
@@ -93,7 +103,7 @@ private:
 
   void UpdateConstraints();
 
-  //ezJoltSimulationEventCallback* m_pSimulationEventCallback = nullptr;
+  // ezJoltSimulationEventCallback* m_pSimulationEventCallback = nullptr;
 
   ezUInt32 m_uiNextObjectFilterID = 1;
   ezDynamicArray<ezUInt32> m_FreeObjectFilterIDs;
@@ -106,12 +116,21 @@ private:
 
   ezJoltSettings m_Settings;
 
-  //ezSharedPtr<ezTask> m_pSimulateTask;
-  //ezTaskGroupID m_SimulateTaskGroupId;
-  //bool m_bSimulationStepExecuted = false;
+  // ezSharedPtr<ezTask> m_pSimulateTask;
+  // ezTaskGroupID m_SimulateTaskGroupId;
+  // bool m_bSimulationStepExecuted = false;
 
   ezUniquePtr<JPH::PhysicsSystem> m_pSystem;
   ezUniquePtr<JPH::TempAllocator> m_pTempAllocator;
 
   ezJoltObjectToBroadphaseLayer m_ObjectToBroadphase;
+
+  void* m_pContactListener = nullptr;
+  void* m_pActivationListener = nullptr;
+  ezMap<ezJoltActorComponent*, ezUInt32> m_ActiveActors;
+
+  JPH::GroupFilter* m_pGroupFilter = nullptr;
+
+  ezUInt32 m_uiBodiesAddedSinceOptimize = 0;
+  ezDeque<ezUInt32> m_BodiesToAdd;
 };

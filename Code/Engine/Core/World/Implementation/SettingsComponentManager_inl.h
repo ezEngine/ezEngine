@@ -28,9 +28,11 @@ EZ_ALWAYS_INLINE ComponentType* ezSettingsComponentManager<ComponentType>::GetSi
 template <typename ComponentType>
 EZ_ALWAYS_INLINE const ComponentType* ezSettingsComponentManager<ComponentType>::GetSingletonComponent() const
 {
-  if (!m_Components.IsEmpty())
+  for (const auto& pComponent : m_Components)
   {
-    return m_Components[0].Borrow();
+    // retrieve the first component that is active
+    if (pComponent->IsActive())
+      return m_Components[0].Borrow();
   }
 
   return nullptr;

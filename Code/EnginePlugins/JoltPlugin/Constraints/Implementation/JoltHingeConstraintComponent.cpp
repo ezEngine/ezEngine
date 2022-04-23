@@ -159,7 +159,7 @@ void ezJoltHingeConstraintComponent::ApplySettings()
   }
   else
   {
-    pConstraint->SetLimits(-JPH_PI, +JPH_PI);
+    pConstraint->SetLimits(-JPH::JPH_PI, +JPH::JPH_PI);
   }
 
   // drive
@@ -189,7 +189,10 @@ void ezJoltHingeConstraintComponent::ApplySettings()
     }
   }
 
-  // wake up the bodies that are attached to this constraint
-  ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
-  pModule->GetJoltSystem()->GetBodyInterface().ActivateBody(pConstraint->GetBody2()->GetID());
+  if (pConstraint->GetBody2()->IsInBroadPhase())
+  {
+    // wake up the bodies that are attached to this constraint
+    ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
+    pModule->GetJoltSystem()->GetBodyInterface().ActivateBody(pConstraint->GetBody2()->GetID());
+  }
 }
