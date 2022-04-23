@@ -70,7 +70,7 @@ struct EZ_EDITORFRAMEWORK_DLL ezAssetInfo
     MissingReference,
     COUNT,
   };
-  bool m_bInvalidating = false;
+
   ezUInt8 m_LastStateUpdate = 0; ///< Changes every time m_TransformState is modified. Used to detect stale computations done outside the lock.
   ezAssetExistanceState::Enum m_ExistanceState = ezAssetExistanceState::FileAdded;
   TransformState m_TransformState = TransformState::Unknown;
