@@ -21,23 +21,13 @@ Body Body::sFixedToWorld(false);
 Body::Body(bool) :
 	mPosition(Vec3::sZero()),
 	mRotation(Quat::sIdentity()),
+	mShape(new SphereShape(FLT_EPSILON)), // Dummy shape
 	mFriction(0.0f),
 	mRestitution(0.0f),
 	mObjectLayer(cObjectLayerInvalid),
 	mMotionType(EMotionType::Static)
 {
-	// Dummy shape
-	mShape = new SphereShape(FLT_EPSILON);
 }
-
-#ifdef _DEBUG
-
-string Body::GetDebugName() const
-{ 
-	return mDebugName.empty()? ConvertToString(mID.GetIndex()) : ConvertToString(mID.GetIndex()) + "-" + mDebugName; 
-}
-
-#endif
 
 void Body::SetMotionType(EMotionType inMotionType)
 {
@@ -146,8 +136,8 @@ void Body::SetShapeInternal(const Shape *inShape, bool inUpdateMassProperties)
 
 Body::ECanSleep Body::UpdateSleepStateInternal(float inDeltaTime, float inMaxMovement, float inTimeBeforeSleep)
 {
-	// Check override
-	if (!mMotionProperties->mAllowSleeping)
+	// Check override & sensors will never go to sleep (they would stop detecting collisions with sleeping bodies)
+	if (!mMotionProperties->mAllowSleeping || IsSensor())
 		return ECanSleep::CannotSleep;
 
 	// Get the points to test

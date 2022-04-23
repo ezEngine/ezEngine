@@ -35,7 +35,7 @@ static inline BodyInterface &sGetBodyInterface(PhysicsSystem *inSystem, bool inL
 	return inLockBodies? inSystem->GetBodyInterface() : inSystem->GetBodyInterfaceNoLock();
 }
 
-static inline const BodyLockInterface &sGetBodyLockInterface(PhysicsSystem *inSystem, bool inLockBodies)
+static inline const BodyLockInterface &sGetBodyLockInterface(const PhysicsSystem *inSystem, bool inLockBodies)
 {
 	return inLockBodies? static_cast<const BodyLockInterface &>(inSystem->GetBodyLockInterface()) : static_cast<const BodyLockInterface &>(inSystem->GetBodyLockInterfaceNoLock());
 }
@@ -355,9 +355,6 @@ Ragdoll *RagdollSettings::CreateRagdoll(CollisionGroup::GroupID inCollisionGroup
 		}
 		body2->GetCollisionGroup().SetGroupID(inCollisionGroup);
 		body2->SetUserData(inUserData);
-#ifdef _DEBUG
-		body2->SetDebugName(mSkeleton->GetJoint(joint_idx).mName);
-#endif
 
 		// Temporarily store body pointer for hooking up constraints
 		bodies[joint_idx] = body2;
@@ -574,7 +571,7 @@ void Ragdoll::GetRootTransform(Vec3 &outPosition, Quat &outRotation, bool inLock
 	}
 }
 
-const AABox Ragdoll::GetWorldSpaceBounds(bool inLockBodies) const
+AABox Ragdoll::GetWorldSpaceBounds(bool inLockBodies) const
 {
 	// Lock the bodies
 	int body_count = (int)mBodyIDs.size();

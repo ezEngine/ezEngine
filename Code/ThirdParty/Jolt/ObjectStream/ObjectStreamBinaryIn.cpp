@@ -8,8 +8,7 @@
 JPH_NAMESPACE_BEGIN
 
 ObjectStreamBinaryIn::ObjectStreamBinaryIn(istream &inStream) :
-	ObjectStreamIn(inStream),
-	mNextStringID(0x80000000)
+	ObjectStreamIn(inStream)
 {
 }
 
@@ -140,7 +139,8 @@ bool ObjectStreamBinaryIn::ReadPrimitiveData(string &outPrimitive)
 	outPrimitive = data;
 
 	// Insert string in table
-	mStringTable.insert(StringTable::value_type(mNextStringID++, outPrimitive));
+	mStringTable.try_emplace(mNextStringID, outPrimitive);
+	mNextStringID++;
 	return true;
 }
 

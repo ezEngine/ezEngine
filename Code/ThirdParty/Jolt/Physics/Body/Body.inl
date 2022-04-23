@@ -9,7 +9,7 @@ Mat44 Body::GetWorldTransform() const
 {
 	JPH_ASSERT(BodyAccess::sCheckRights(BodyAccess::sPositionAccess, BodyAccess::EAccess::Read)); 
 
-	return Mat44::sRotationTranslation(mRotation, mPosition).PreTranslated(mShape->GetCenterOfMass());
+	return Mat44::sRotationTranslation(mRotation, mPosition).PreTranslated(-mShape->GetCenterOfMass());
 }
 
 Mat44 Body::GetCenterOfMassTransform() const
@@ -33,6 +33,10 @@ inline bool Body::sFindCollidingPairsCanCollide(const Body &inBody1, const Body 
 	// - A kinematic object can collide with a sensor
 	if ((!inBody1.IsDynamic() && !inBody2.IsDynamic()) 
 		&& !(inBody1.IsKinematic() && inBody2.IsSensor()))
+		return false;
+
+	// If both bodies are sensors, there's no collision
+	if (inBody1.IsSensor() && inBody2.IsSensor())
 		return false;
 
 	// Check that body 1 is active

@@ -77,8 +77,7 @@ public:
 		// Estimate the amount of memory required
 		uint tri_count = inRoot->GetTriangleCountInTree();
 		uint node_count = inRoot->GetNodeCount();
-		uint leaf_node_count = inRoot->GetLeafNodeCount();
-		uint nodes_size = node_ctx.GetPessimisticMemoryEstimate(node_count, leaf_node_count);
+		uint nodes_size = node_ctx.GetPessimisticMemoryEstimate(node_count);
 		uint total_size = HeaderSize + TriangleHeaderSize + nodes_size + tri_ctx.GetPessimisticMemoryEstimate(tri_count);
 		mTree.reserve(total_size);
 
@@ -91,18 +90,16 @@ public:
 
 		struct NodeData
 		{
-											NodeData()									: mNode(nullptr), mNodeStart((uint)-1), mTriangleStart((uint)-1), mNumChildren(0), mParentChildNodeStart(nullptr), mParentTrianglesStart(nullptr) { }
-
-			const AABBTreeBuilder::Node *	mNode;										// Node that this entry belongs to
+			const AABBTreeBuilder::Node *	mNode = nullptr;							// Node that this entry belongs to
 			Vec3							mNodeBoundsMin;								// Quantized node bounds
 			Vec3							mNodeBoundsMax;
-			uint							mNodeStart;									// Start of node in mTree
-			uint							mTriangleStart;								// Start of the triangle data in mTree
-			uint							mNumChildren;								// Number of children
+			uint							mNodeStart = uint(-1);						// Start of node in mTree
+			uint							mTriangleStart = uint(-1);					// Start of the triangle data in mTree
+			uint							mNumChildren = 0;							// Number of children
 			uint							mChildNodeStart[NumChildrenPerNode];		// Start of the children of the node in mTree
 			uint							mChildTrianglesStart[NumChildrenPerNode];	// Start of the triangle data in mTree
-			uint *							mParentChildNodeStart;						// Where to store mNodeStart (to patch mChildNodeStart of my parent)
-			uint *							mParentTrianglesStart;						// Where to store mTriangleStart (to patch mChildTrianglesStart of my parent)
+			uint *							mParentChildNodeStart = nullptr;			// Where to store mNodeStart (to patch mChildNodeStart of my parent)
+			uint *							mParentTrianglesStart = nullptr;			// Where to store mTriangleStart (to patch mChildTrianglesStart of my parent)
 		};
 		
 		deque<NodeData *> to_process;
@@ -222,7 +219,7 @@ public:
 				else
 				{				
 					// Add triangles
-					node_data->mTriangleStart = tri_ctx.Pack(inVertices, node_data->mNode->mTriangles, node_data->mNodeBoundsMin, node_data->mNodeBoundsMax, mTree, outError);
+					node_data->mTriangleStart = tri_ctx.Pack(inVertices, node_data->mNode->mTriangles, mTree, outError);
 					if (node_data->mTriangleStart == uint(-1))
 						return false;
 				}
@@ -244,7 +241,7 @@ public:
 		
 		// Finalize all nodes
 		for (NodeData &n : node_list)
-			if (!node_ctx.NodeFinalize(n.mNode, n.mNodeStart, n.mTriangleStart, n.mNumChildren, n.mChildNodeStart, n.mChildTrianglesStart, mTree, outError))
+			if (!node_ctx.NodeFinalize(n.mNode, n.mNodeStart, n.mNumChildren, n.mChildNodeStart, n.mChildTrianglesStart, mTree, outError))
 				return false;
 		
 		// Finalize the triangles
