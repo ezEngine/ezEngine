@@ -326,7 +326,7 @@ void ezBreakableSheetComponent::OnCollision(ezMsgCollision& msg)
 
   if (fImpulse > m_fBreakImpulseStrength)
   {
-    BreakNow();
+    BreakNow(&msg);
   }
 }
 
