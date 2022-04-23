@@ -82,6 +82,19 @@ public:
     m_pObject = nullptr;
   }
 
+  EZ_FORCE_INLINE static ezComponent* GetComponent(const void* pUserData)
+  {
+    const ezJoltUserData* pJoltUserData = static_cast<const ezJoltUserData*>(pUserData);
+    if (pJoltUserData == nullptr ||
+        pJoltUserData->m_Type == Type::Invalid ||
+        pJoltUserData->m_Type == Type::SurfaceResource)
+    {
+      return nullptr;
+    }
+
+    return static_cast<ezComponent*>(pJoltUserData->m_pObject);
+  }
+
   EZ_FORCE_INLINE static ezJoltActorComponent* GetActorComponent(const void* pUserData)
   {
     const ezJoltUserData* pJoltUserData = static_cast<const ezJoltUserData*>(pUserData);
@@ -99,6 +112,17 @@ public:
     if (pJoltUserData != nullptr && pJoltUserData->m_Type == Type::ShapeComponent)
     {
       return static_cast<ezJoltShapeComponent*>(pJoltUserData->m_pObject);
+    }
+
+    return nullptr;
+  }
+
+  EZ_FORCE_INLINE static ezJoltTriggerComponent* GetTriggerComponent(const void* pUserData)
+  {
+    const ezJoltUserData* pJoltUserData = static_cast<const ezJoltUserData*>(pUserData);
+    if (pJoltUserData != nullptr && pJoltUserData->m_Type == Type::TriggerComponent)
+    {
+      return static_cast<ezJoltTriggerComponent*>(pJoltUserData->m_pObject);
     }
 
     return nullptr;

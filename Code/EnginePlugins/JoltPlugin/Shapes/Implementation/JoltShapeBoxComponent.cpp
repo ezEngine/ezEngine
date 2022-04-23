@@ -74,7 +74,13 @@ void ezJoltShapeBoxComponent::SetHalfExtents(const ezVec3& value)
 
 void ezJoltShapeBoxComponent::CreateShapes(ezDynamicArray<ezJoltSubShape>& out_Shapes, const ezTransform& rootTransform, float fDensity, const ezJoltMaterial* pMaterial)
 {
-  auto pNewShape = new JPH::BoxShape(ezJoltConversionUtils::ToVec3(m_vHalfExtents));
+  // can't create boxes smaller than this
+  ezVec3 size = m_vHalfExtents;
+  size.x = ezMath::Max(size.x, JPH::cDefaultConvexRadius);
+  size.y = ezMath::Max(size.y, JPH::cDefaultConvexRadius);
+  size.z = ezMath::Max(size.z, JPH::cDefaultConvexRadius);
+
+  auto pNewShape = new JPH::BoxShape(ezJoltConversionUtils::ToVec3(size));
   pNewShape->AddRef();
   pNewShape->SetDensity(fDensity);
   pNewShape->SetUserData(reinterpret_cast<ezUInt64>(GetUserData()));

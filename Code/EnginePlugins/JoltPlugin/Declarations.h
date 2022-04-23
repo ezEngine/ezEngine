@@ -30,7 +30,7 @@ struct ezOnJoltContact
   enum Enum
   {
     None = 0,
-    SendReportMsg = EZ_BIT(0),
+    //SendReportMsg = EZ_BIT(0),
     ImpactReactions = EZ_BIT(1),
     SlideReactions = EZ_BIT(2),
     RollXReactions = EZ_BIT(3),

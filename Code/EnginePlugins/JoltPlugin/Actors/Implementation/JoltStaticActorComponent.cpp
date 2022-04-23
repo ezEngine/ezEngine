@@ -73,22 +73,6 @@ void ezJoltStaticActorComponent::DeserializeComponent(ezWorldReader& stream)
 
 void ezJoltStaticActorComponent::OnDeactivated()
 {
-  JPH::BodyID bodyId(m_uiJoltBodyID);
-
-  if (!bodyId.IsInvalid())
-  {
-    if (ezJoltWorldModule* pModule = GetWorld()->GetModule<ezJoltWorldModule>())
-    {
-      auto* pSystem = pModule->GetJoltSystem();
-      auto* pBodies = &pSystem->GetBodyInterface();
-
-      pBodies->RemoveBody(bodyId);
-      m_uiJoltBodyID = JPH::BodyID::cInvalidBodyID;
-
-      pModule->DeleteObjectFilterID(m_uiObjectFilterID);
-    }
-  }
-
   m_UsedSurfaces.Clear();
 
   SUPER::OnDeactivated();
@@ -105,7 +89,7 @@ void ezJoltStaticActorComponent::OnSimulationStarted()
   JPH::BodyCreationSettings bodyCfg;
   if (CreateShape(&bodyCfg, 1.0f).Failed())
   {
-    ezLog::Error("Jolt static actor component has no valid shape.");
+    ezLog::Error("Jolt static actor component '{}' has no valid shape.", GetOwner()->GetName());
     return;
   }
 
@@ -115,8 +99,6 @@ void ezJoltStaticActorComponent::OnSimulationStarted()
   auto* pBodies = &pSystem->GetBodyInterface();
   auto* pMaterial = GetJoltMaterial();
 
-  m_uiObjectFilterID = pModule->CreateObjectFilterID();
-
   bodyCfg.mPosition = ezJoltConversionUtils::ToVec3(trans.m_Position);
   bodyCfg.mRotation = ezJoltConversionUtils::ToQuat(trans.m_Rotation);
   bodyCfg.mMotionType = JPH::EMotionType::Static;
@@ -124,12 +106,13 @@ void ezJoltStaticActorComponent::OnSimulationStarted()
   bodyCfg.mRestitution = pMaterial->m_fRestitution;
   bodyCfg.mFriction = pMaterial->m_fFriction;
   bodyCfg.mCollisionGroup.SetGroupID(m_uiObjectFilterID);
+  bodyCfg.mCollisionGroup.SetGroupFilter(pModule->GetGroupFilter());
+  bodyCfg.mUserData = reinterpret_cast<ezUInt64>(pUserData);
 
-  JPH::BodyID bodyId = pBodies->CreateAndAddBody(bodyCfg, JPH::EActivation::Activate);
-  m_uiJoltBodyID = bodyId.GetIndexAndSequenceNumber();
+  JPH::Body* pBody = pBodies->CreateBody(bodyCfg);
+  m_uiJoltBodyID = pBody->GetID().GetIndexAndSequenceNumber();
 
-  JPH::BodyLockWrite bodyLock(pSystem->GetBodyLockInterface(), bodyId);
-  bodyLock.GetBody().SetUserData(reinterpret_cast<ezUInt64>(pUserData));
+  pModule->QueueBodyToAdd(pBody);
 }
 
 void ezJoltStaticActorComponent::CreateShapes(ezDynamicArray<ezJoltSubShape>& out_Shapes, const ezTransform& rootTransform, float fDensity, const ezJoltMaterial* pMaterial)

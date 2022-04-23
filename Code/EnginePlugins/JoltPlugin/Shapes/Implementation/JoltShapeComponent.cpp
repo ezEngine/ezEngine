@@ -10,11 +10,6 @@
 // clang-format off
 EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezJoltShapeComponent, 1)
 {
-  //EZ_BEGIN_PROPERTIES
-  //{
-  //  //EZ_BITFLAGS_MEMBER_PROPERTY("OnContact", ezOnJoltContact, m_OnContact),
-  //}
-  //EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Physics/Jolt/Shapes"),
@@ -26,26 +21,6 @@ EZ_END_ABSTRACT_COMPONENT_TYPE
 
 ezJoltShapeComponent::ezJoltShapeComponent() = default;
 ezJoltShapeComponent::~ezJoltShapeComponent() = default;
-
-void ezJoltShapeComponent::SerializeComponent(ezWorldWriter& stream) const
-{
-  SUPER::SerializeComponent(stream);
-
-  auto& s = stream.GetStream();
-
-  // s << m_OnContact;
-}
-
-
-void ezJoltShapeComponent::DeserializeComponent(ezWorldReader& stream)
-{
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-
-  auto& s = stream.GetStream();
-
-  // s >> m_OnContact;
-}
 
 void ezJoltShapeComponent::Initialize()
 {

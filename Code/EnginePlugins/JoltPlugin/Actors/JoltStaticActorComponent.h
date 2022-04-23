@@ -49,11 +49,8 @@ public:
 protected:
   void OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const;
 
-  ezUInt32 m_uiObjectFilterID = ezInvalidIndex;
   ezJoltMeshResourceHandle m_hCollisionMesh;
 
   // array to keep surfaces alive, in case they are pulled from the materials of the render mesh
   ezDynamicArray<ezSurfaceResourceHandle> m_UsedSurfaces;
-
-  ezUInt32 m_uiJoltBodyID = ezInvalidIndex;
 };

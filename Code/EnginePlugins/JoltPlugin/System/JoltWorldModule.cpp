@@ -1,14 +1,14 @@
 #include <JoltPlugin/JoltPluginPCH.h>
 
-#include <JoltPlugin/System/JoltWorldModule.h>
-
 #include <Core/Physics/SurfaceResource.h>
 #include <Foundation/Configuration/CVar.h>
 #include <Jolt.h>
 #include <Jolt/Core/JobSystemThreadPool.h>
 #include <Jolt/Core/TempAllocator.h>
+#include <Jolt/Physics/Body/BodyActivationListener.h>
 #include <Jolt/Physics/Collision/BroadPhase/BroadPhaseLayer.h>
 #include <Jolt/Physics/Collision/CastResult.h>
+#include <Jolt/Physics/Collision/GroupFilter.h>
 #include <Jolt/Physics/Collision/NarrowPhaseQuery.h>
 #include <Jolt/Physics/Collision/ObjectLayer.h>
 #include <Jolt/Physics/Collision/PhysicsMaterial.h>
@@ -19,21 +19,27 @@
 #include <Jolt/Physics/PhysicsSystem.h>
 #include <Jolt/RegisterTypes.h>
 #include <JoltPlugin/Actors/JoltDynamicActorComponent.h>
+#include <JoltPlugin/Actors/JoltQueryShapeActorComponent.h>
 #include <JoltPlugin/Actors/JoltStaticActorComponent.h>
+#include <JoltPlugin/Actors/JoltTriggerComponent.h>
 #include <JoltPlugin/Character/JoltFpsCharacterControllerComponent.h>
 #include <JoltPlugin/Components/JoltSettingsComponent.h>
 #include <JoltPlugin/Constraints/JoltConstraintComponent.h>
 #include <JoltPlugin/Resources/JoltMaterial.h>
 #include <JoltPlugin/Shapes/JoltShapeBoxComponent.h>
 #include <JoltPlugin/System/JoltCollisionFiltering.h>
+#include <JoltPlugin/System/JoltContacts.h>
 #include <JoltPlugin/System/JoltCore.h>
 #include <JoltPlugin/System/JoltDebugRenderer.h>
+#include <JoltPlugin/System/JoltWorldModule.h>
 #include <JoltPlugin/Utilities/JoltConversionUtils.h>
 #include <JoltPlugin/Utilities/JoltUserData.h>
 #include <Physics/Collision/CollideShape.h>
 #include <Physics/Collision/Shape/CapsuleShape.h>
 #include <Physics/Collision/Shape/SphereShape.h>
 #include <Physics/Collision/ShapeCast.h>
+#include <RendererCore/Pipeline/View.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
 #include <thread>
 
 // clang-format off
@@ -61,10 +67,56 @@ ezJoltWorldModule::ezJoltWorldModule(ezWorld* pWorld)
 
 ezJoltWorldModule::~ezJoltWorldModule() = default;
 
+class ezJoltBodyActivationListener : public JPH::BodyActivationListener
+{
+public:
+  virtual void OnBodyActivated(const JPH::BodyID& inBodyID, JPH::uint64 inBodyUserData) override
+  {
+    const ezJoltUserData* pUserData = reinterpret_cast<const ezJoltUserData*>(inBodyUserData);
+    if (ezJoltActorComponent* pActor = ezJoltUserData::GetActorComponent(pUserData))
+    {
+      m_pActiveActors->Insert(pActor, inBodyID.GetIndexAndSequenceNumber());
+    }
+  }
+
+  virtual void OnBodyDeactivated(const JPH::BodyID& inBodyID, JPH::uint64 inBodyUserData) override
+  {
+    const ezJoltUserData* pUserData = reinterpret_cast<const ezJoltUserData*>(inBodyUserData);
+    if (ezJoltActorComponent* pActor = ezJoltUserData::GetActorComponent(pUserData))
+    {
+      m_pActiveActors->Remove(pActor);
+    }
+  }
+
+  ezMap<ezJoltActorComponent*, ezUInt32>* m_pActiveActors = nullptr;
+};
+
+class ezJoltGroupFilter : public JPH::GroupFilter
+{
+public:
+  virtual bool CanCollide(const JPH::CollisionGroup& inGroup1, const JPH::CollisionGroup& inGroup2) const override
+  {
+    const ezUInt64 id = static_cast<ezUInt64>(inGroup1.GetGroupID()) << 32 | inGroup2.GetGroupID();
+
+    return !m_IgnoreCollisions.Contains(id);
+  }
+
+  ezHashSet<ezUInt64> m_IgnoreCollisions;
+};
+
+
 void ezJoltWorldModule::Deinitialize()
 {
   m_pSystem.Clear();
   m_pTempAllocator.Clear();
+
+  ezJoltBodyActivationListener* pActivationListener = reinterpret_cast<ezJoltBodyActivationListener*>(m_pActivationListener);
+  EZ_DEFAULT_DELETE(pActivationListener);
+
+  ezJoltContactListener* pContactListener = reinterpret_cast<ezJoltContactListener*>(m_pContactListener);
+  EZ_DEFAULT_DELETE(pContactListener);
+
+  m_pGroupFilter->Release();
 }
 
 void ezJoltWorldModule::Initialize()
@@ -88,37 +140,24 @@ void ezJoltWorldModule::Initialize()
   m_pSystem = EZ_NEW(ezFoundation::GetAlignedAllocator(), JPH::PhysicsSystem);
   m_pSystem->Init(cMaxBodies, cNumBodyMutexes, cMaxBodyPairs, cMaxContactConstraints, m_ObjectToBroadphase, ezJoltCollisionFiltering::BroadphaseFilter, ezJoltCollisionFiltering::ObjectLayerFilter);
 
-  // m_pSystem->OptimizeBroadPhase(); // TODO when (or at all) ?
+  {
+    ezJoltBodyActivationListener* pListener = EZ_DEFAULT_NEW(ezJoltBodyActivationListener);
+    m_pActivationListener = pListener;
+    pListener->m_pActiveActors = &m_ActiveActors;
+    m_pSystem->SetBodyActivationListener(pListener);
+  }
 
-  //  m_pSimulationEventCallback = EZ_DEFAULT_NEW(ezJoltSimulationEventCallback);
-  //  m_pSimulationEventCallback->m_pWorld = GetWorld();
-  //
-  //  {
-  //    PxSceneDesc desc = PxSceneDesc(PxTolerancesScale());
-  //    desc.setToDefault(PxTolerancesScale());
-  //
-  //    desc.flags |= PxSceneFlag::eENABLE_ACTIVE_ACTORS;
-  //    desc.flags |= PxSceneFlag::eEXCLUDE_KINEMATICS_FROM_ACTIVE_ACTORS;
-  //    desc.kineKineFilteringMode = PxPairFilteringMode::eKEEP;
-  //    desc.flags |= PxSceneFlag::eADAPTIVE_FORCE;
-  //    desc.flags |= PxSceneFlag::eENABLE_CCD;
-  //
-  //#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  //    desc.flags |= PxSceneFlag::eREQUIRE_RW_LOCK;
-  //#endif
-  //
-  //    desc.gravity = ezJoltConversionUtils::ToVec3(m_Settings.m_vObjectGravity);
-  //
-  //    desc.cpuDispatcher = &s_CpuDispatcher;
-  //    desc.filterShader = &ezJoltFilterShader;
-  //    desc.simulationEventCallback = m_pSimulationEventCallback;
-  //
-  //    EZ_ASSERT_DEV(desc.isValid(), "Jolt scene description is invalid");
-  //    m_pPxScene = ezJolt::GetSingleton()->GetJoltAPI()->createScene(desc);
-  //    EZ_ASSERT_ALWAYS(m_pPxScene != nullptr, "Creating the Jolt scene failed");
-  //  }
-  //
-  //  m_pCharacterManager = PxCreateControllerManager(*m_pPxScene);
+  {
+    ezJoltContactListener* pListener = EZ_DEFAULT_NEW(ezJoltContactListener);
+    pListener->m_pWorld = GetWorld();
+    m_pContactListener = pListener;
+    m_pSystem->SetContactListener(pListener);
+  }
+
+  {
+    m_pGroupFilter = new ezJoltGroupFilter();
+    m_pGroupFilter->AddRef();
+  }
 }
 
 void ezJoltWorldModule::OnSimulationStarted()
@@ -593,6 +632,30 @@ void ezJoltWorldModule::AddStaticCollisionBox(ezGameObject* pObject, ezVec3 boxS
   pBox->SetHalfExtents(boxSize * 0.5f);
 }
 
+void ezJoltWorldModule::QueueBodyToAdd(JPH::Body* pBody)
+{
+  m_BodiesToAdd.PushBack(pBody->GetID().GetIndexAndSequenceNumber());
+}
+
+void ezJoltWorldModule::EnableJoinedBodiesCollisions(ezUInt32 uiObjectFilterID1, ezUInt32 uiObjectFilterID2, bool bEnable)
+{
+  ezJoltGroupFilter* pFilter = static_cast<ezJoltGroupFilter*>(m_pGroupFilter);
+
+  const ezUInt64 uiMask1 = static_cast<ezUInt64>(uiObjectFilterID1) << 32 | uiObjectFilterID2;
+  const ezUInt64 uiMask2 = static_cast<ezUInt64>(uiObjectFilterID2) << 32 | uiObjectFilterID1;
+
+  if (bEnable)
+  {
+    pFilter->m_IgnoreCollisions.Remove(uiMask1);
+    pFilter->m_IgnoreCollisions.Remove(uiMask2);
+  }
+  else
+  {
+    pFilter->m_IgnoreCollisions.Insert(uiMask1);
+    pFilter->m_IgnoreCollisions.Insert(uiMask2);
+  }
+}
+
 void ezJoltWorldModule::FreeUserDataAfterSimulationStep()
 {
   m_FreeUserData.PushBackRange(m_FreeUserDataAfterSimulationStep);
@@ -604,31 +667,61 @@ void ezJoltWorldModule::StartSimulation(const ezWorldModule::UpdateContext& cont
   if (cvar_JoltSimulationPause)
     return;
 
+  if (!m_BodiesToAdd.IsEmpty())
+  {
+    m_uiBodiesAddedSinceOptimize += m_BodiesToAdd.GetCount();
+
+    static_assert(sizeof(JPH::BodyID) == sizeof(ezUInt32));
+
+    ezUInt32 uiStartIdx = 0;
+
+    while (uiStartIdx < m_BodiesToAdd.GetCount())
+    {
+      const ezUInt32 uiCount = m_BodiesToAdd.GetContiguousRange(uiStartIdx);
+
+      JPH::BodyID* pIDs = reinterpret_cast<JPH::BodyID*>(&m_BodiesToAdd[uiStartIdx]);
+
+      void* pHandle = m_pSystem->GetBodyInterface().AddBodiesPrepare(pIDs, uiCount);
+      m_pSystem->GetBodyInterface().AddBodiesFinalize(pIDs, uiCount, pHandle, JPH::EActivation::Activate);
+
+      uiStartIdx += uiCount;
+    }
+
+    m_BodiesToAdd.Clear();
+  }
+
+  if (m_uiBodiesAddedSinceOptimize > 128)
+  {
+    // TODO: not clear whether this could be multi-threaded or done more efficiently somehow
+    m_pSystem->OptimizeBroadPhase();
+    m_uiBodiesAddedSinceOptimize = 0;
+  }
+
   ezJoltDynamicActorComponentManager* pDynamicActorManager = GetWorld()->GetComponentManager<ezJoltDynamicActorComponentManager>();
   ezJoltFpsCharacterControllerComponentManager* pCharacterManager = GetWorld()->GetComponentManager<ezJoltFpsCharacterControllerComponentManager>();
-  //  ezJoltTriggerComponentManager* pTriggerManager = GetWorld()->GetComponentManager<ezJoltTriggerComponentManager>();
-  //  ezJoltQueryShapeActorComponentManager* pQueryShapesManager = GetWorld()->GetComponentManager<ezJoltQueryShapeActorComponentManager>();
+  ezJoltTriggerComponentManager* pTriggerManager = GetWorld()->GetComponentManager<ezJoltTriggerComponentManager>();
+  ezJoltQueryShapeActorComponentManager* pQueryShapesManager = GetWorld()->GetComponentManager<ezJoltQueryShapeActorComponentManager>();
 
   UpdateSettingsCfg();
-
-  Simulate();
 
   if (pDynamicActorManager != nullptr)
   {
     pDynamicActorManager->UpdateKinematicActors();
   }
 
-  //  if (pQueryShapesManager != nullptr)
-  //  {
-  //    pQueryShapesManager->UpdateKinematicActors();
-  //  }
-  //
-  //  if (pTriggerManager != nullptr)
-  //  {
-  //    pTriggerManager->UpdateKinematicActors();
-  //  }
+  if (pQueryShapesManager != nullptr)
+  {
+    pQueryShapesManager->UpdateMovingQueryShapes();
+  }
+
+  if (pTriggerManager != nullptr)
+  {
+    pTriggerManager->UpdateMovingTriggers();
+  }
 
   UpdateConstraints();
+
+  Simulate();
 
 #ifdef JPH_DEBUG_RENDERER
   if (cvar_JoltDebugDrawConstraints)
@@ -658,11 +751,11 @@ void ezJoltWorldModule::FetchResults(const ezWorldModule::UpdateContext& context
 {
   EZ_PROFILE_SCOPE("FetchResults");
 
-  //  if (ezView* pView = ezRenderWorld::GetViewByUsageHint(ezCameraUsageHint::MainView, ezCameraUsageHint::EditorView, GetWorld()))
-  //  {
-  //    m_pSimulationEventCallback->m_vMainCameraPosition = pView->GetCamera()->GetPosition();
-  //  }
-  //
+  if (ezView* pView = ezRenderWorld::GetViewByUsageHint(ezCameraUsageHint::MainView, ezCameraUsageHint::EditorView, GetWorld()))
+  {
+    reinterpret_cast<ezJoltContactListener*>(m_pContactListener)->m_Events.m_vMainCameraPosition = pView->GetCamera()->GetPosition();
+  }
+
   //  {
   //    EZ_PROFILE_SCOPE("Wait for Simulate Task");
   //    ezTaskSystem::WaitForGroup(m_SimulateTaskGroupId);
@@ -672,22 +765,17 @@ void ezJoltWorldModule::FetchResults(const ezWorldModule::UpdateContext& context
   //  if (!m_bSimulationStepExecuted)
   //    return;
   //
+
   if (ezJoltDynamicActorComponentManager* pDynamicActorManager = GetWorld()->GetComponentManager<ezJoltDynamicActorComponentManager>())
   {
-    JPH::BodyIDVector activeBodies;
-    m_pSystem->GetActiveBodies(activeBodies);
-
-    if (activeBodies.size() > 0)
-    {
-      pDynamicActorManager->UpdateDynamicActors(/*ezMakeArrayPtr(activeBodies.data(), activeBodies.size())*/);
-    }
+    pDynamicActorManager->UpdateDynamicActors();
   }
 
-  //  HandleSimulationEvents();
-  //
+  reinterpret_cast<ezJoltContactListener*>(m_pContactListener)->m_Events.SpawnPhysicsImpactReactions();
+  reinterpret_cast<ezJoltContactListener*>(m_pContactListener)->m_Events.UpdatePhysicsSlideReactions();
+  reinterpret_cast<ezJoltContactListener*>(m_pContactListener)->m_Events.UpdatePhysicsRollReactions();
+
   //  HandleBrokenConstraints();
-  //
-  //  HandleTriggerEvents();
 
   FreeUserDataAfterSimulationStep();
 }
@@ -717,26 +805,6 @@ void ezJoltWorldModule::FetchResults(const ezWorldModule::UpdateContext& context
 //   }
 //
 //   m_pSimulationEventCallback->m_BrokenConstraints.Clear();
-// }
-//
-// void ezJoltWorldModule::HandleTriggerEvents()
-//{
-//   EZ_PROFILE_SCOPE("HandleTriggerEvents");
-//
-//   for (const auto& te : m_pSimulationEventCallback->m_TriggerEvents)
-//   {
-//     ezJoltTriggerComponent* pTrigger;
-//     if (!m_pWorld->TryGetComponent(te.m_hTriggerComponent, pTrigger))
-//       continue;
-//
-//     ezComponent* pOther = nullptr;
-//     if (m_pWorld->TryGetComponent(te.m_hOtherComponent, pOther))
-//     {
-//       pTrigger->PostTriggerMessage(pOther, te.m_TriggerState);
-//     }
-//   }
-//
-//   m_pSimulationEventCallback->m_TriggerEvents.Clear();
 // }
 
 void ezJoltWorldModule::Simulate()

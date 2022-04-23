@@ -28,10 +28,6 @@ class EZ_JOLTPLUGIN_DLL ezJoltShapeComponent : public ezComponent
   //////////////////////////////////////////////////////////////////////////
   // ezComponent
 
-public:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
-
 protected:
   virtual void Initialize() override;
   virtual void OnDeactivated() override;
@@ -45,8 +41,6 @@ public:
   ~ezJoltShapeComponent();
 
   virtual void ExtractGeometry(ezMsgExtractGeometry& msg) const {}
-
-  //ezBitflags<ezOnJoltContact> m_OnContact; // [ property ]
 
 protected:
   friend class ezJoltActorComponent;

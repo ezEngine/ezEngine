@@ -95,6 +95,8 @@ void ezJoltConstraintComponent::OnSimulationStarted()
       if (uiBodyIdA != ezInvalidIndex && bodyLock.GetBody(0) != nullptr)
       {
         CreateContstraintType(bodyLock.GetBody(0), bodyLock.GetBody(1));
+
+        pModule->EnableJoinedBodiesCollisions(bodyLock.GetBody(0)->GetCollisionGroup().GetGroupID(), bodyLock.GetBody(1)->GetCollisionGroup().GetGroupID(), m_bPairCollision);
       }
       else
       {
@@ -354,13 +356,6 @@ ezResult ezJoltConstraintComponent::FindChildBody(ezUInt32& out_uiJoltBodyID)
     }
 
     pObject->TryGetComponentOfBaseType(pRbComp);
-  }
-
-  if (pRbComp->GetKinematic())
-  {
-    ezLog::Error("{0} '{1}' has a child with a ezJoltDynamicActorComponent which is set to be kinematic. Constraint is ignored.",
-      GetDynamicRTTI()->GetTypeName(), GetOwner()->GetName());
-    return EZ_FAILURE;
   }
 
   pRbComp->EnsureSimulationStarted();

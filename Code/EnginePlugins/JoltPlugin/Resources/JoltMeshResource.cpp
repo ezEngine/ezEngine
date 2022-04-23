@@ -61,7 +61,7 @@ ezJoltMeshResource::~ezJoltMeshResource() = default;
 
 ezResourceLoadDesc ezJoltMeshResource::UnloadData(Unload WhatToUnload)
 {
-  for (auto pMesh : m_CookedConvexMeshes)
+  for (auto pMesh : m_ConvexMeshesData)
   {
     if (pMesh != nullptr)
     {
@@ -69,7 +69,7 @@ ezResourceLoadDesc ezJoltMeshResource::UnloadData(Unload WhatToUnload)
     }
   }
 
-  for (auto pMesh : m_CookedConvexMeshInstances)
+  for (auto pMesh : m_ConvexMeshInstances)
   {
     if (pMesh != nullptr)
     {
@@ -77,17 +77,17 @@ ezResourceLoadDesc ezJoltMeshResource::UnloadData(Unload WhatToUnload)
     }
   }
 
-  if (m_CookedTriangleMeshInstance)
+  if (m_TriangleMeshInstance)
   {
-    m_CookedTriangleMeshInstance->Release();
-    m_CookedTriangleMeshInstance = nullptr;
+    m_TriangleMeshInstance->Release();
+    m_TriangleMeshInstance = nullptr;
   }
 
-  m_CookedConvexMeshes.Clear();
-  m_CookedConvexMeshInstances.Clear();
+  m_ConvexMeshesData.Clear();
+  m_ConvexMeshInstances.Clear();
 
-  m_CookedTriangleMesh.Clear();
-  m_CookedTriangleMesh.Compact();
+  m_TriangleMeshData.Clear();
+  m_TriangleMeshData.Compact();
 
   m_uiNumTriangles = 0;
   m_uiNumVertices = 0;
@@ -225,16 +225,16 @@ ezResourceLoadDesc ezJoltMeshResource::UpdateContent(ezStreamReader* Stream)
         ezUInt32 uiBufferSize = 0;
         chunk >> uiBufferSize;
 
-        m_CookedTriangleMesh.SetCountUninitialized(uiBufferSize);
-        chunk.ReadBytes(m_CookedTriangleMesh.GetData(), uiBufferSize);
+        m_TriangleMeshData.SetCountUninitialized(uiBufferSize);
+        chunk.ReadBytes(m_TriangleMeshData.GetData(), uiBufferSize);
         AddStats(chunk, m_uiNumVertices, m_uiNumTriangles);
       }
 
       if (chunk.GetCurrentChunk().m_sChunkName == "ConvexMesh")
       {
-        m_CookedConvexMeshes.PushBack(EZ_DEFAULT_NEW(ezDataBuffer));
-        m_CookedConvexMeshInstances.SetCount(1);
-        ReadConvexMesh(chunk, m_CookedConvexMeshes.PeekBack());
+        m_ConvexMeshesData.PushBack(EZ_DEFAULT_NEW(ezDataBuffer));
+        m_ConvexMeshInstances.SetCount(1);
+        ReadConvexMesh(chunk, m_ConvexMeshesData.PeekBack());
         AddStats(chunk, m_uiNumVertices, m_uiNumTriangles);
       }
 
@@ -243,13 +243,13 @@ ezResourceLoadDesc ezJoltMeshResource::UpdateContent(ezStreamReader* Stream)
         ezUInt16 uiNumParts = 0;
         chunk >> uiNumParts;
 
-        m_CookedConvexMeshes.Reserve(uiNumParts);
-        m_CookedConvexMeshInstances.SetCount(uiNumParts);
+        m_ConvexMeshesData.Reserve(uiNumParts);
+        m_ConvexMeshInstances.SetCount(uiNumParts);
 
         for (ezUInt32 i = 0; i < uiNumParts; ++i)
         {
-          m_CookedConvexMeshes.PushBack(EZ_DEFAULT_NEW(ezDataBuffer));
-          ReadConvexMesh(chunk, m_CookedConvexMeshes.PeekBack());
+          m_ConvexMeshesData.PushBack(EZ_DEFAULT_NEW(ezDataBuffer));
+          ReadConvexMesh(chunk, m_ConvexMeshesData.PeekBack());
           AddStats(chunk, m_uiNumVertices, m_uiNumTriangles);
         }
       }
@@ -257,7 +257,7 @@ ezResourceLoadDesc ezJoltMeshResource::UpdateContent(ezStreamReader* Stream)
       chunk.NextChunk();
     }
 
-    if (m_CookedTriangleMesh.IsEmpty() && m_CookedConvexMeshes.IsEmpty())
+    if (m_TriangleMeshData.IsEmpty() && m_ConvexMeshesData.IsEmpty())
     {
       ezLog::Error("Could neither find a 'TriangleMesh' chunk, nor a 'ConvexMesh' chunk in the JoltMesh file '{0}'", GetResourceID());
     }
@@ -275,13 +275,16 @@ void ezJoltMeshResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 
   out_NewMemoryUsage.m_uiMemoryCPU += m_Surfaces.GetHeapMemoryUsage();
-  out_NewMemoryUsage.m_uiMemoryCPU += m_CookedTriangleMesh.GetHeapMemoryUsage();
-  out_NewMemoryUsage.m_uiMemoryCPU += m_CookedConvexMeshes.GetHeapMemoryUsage();
-  out_NewMemoryUsage.m_uiMemoryCPU += m_CookedConvexMeshInstances.GetHeapMemoryUsage();
+  out_NewMemoryUsage.m_uiMemoryCPU += m_TriangleMeshData.GetHeapMemoryUsage();
+  out_NewMemoryUsage.m_uiMemoryCPU += m_ConvexMeshesData.GetHeapMemoryUsage();
+  out_NewMemoryUsage.m_uiMemoryCPU += m_ConvexMeshInstances.GetHeapMemoryUsage();
 
-  for (const auto pConvex : m_CookedConvexMeshes)
+  for (const auto pConvex : m_ConvexMeshesData)
   {
-    out_NewMemoryUsage.m_uiMemoryCPU += pConvex->GetHeapMemoryUsage();
+    if (pConvex)
+    {
+      out_NewMemoryUsage.m_uiMemoryCPU += pConvex->GetHeapMemoryUsage();
+    }
   }
 }
 
@@ -341,9 +344,9 @@ ezCpuMeshResourceHandle ezJoltMeshResource::ConvertToCpuMesh() const
   ezDynamicArray<ezVec3> positions;
   positions.Reserve(256);
 
-  if (!m_CookedConvexMeshes.IsEmpty())
+  const ezUInt32 uiConvexParts = GetNumConvexParts();
   {
-    for (ezUInt32 i = 0; i < m_CookedConvexMeshes.GetCount(); ++i)
+    for (ezUInt32 i = 0; i < uiConvexParts; ++i)
     {
       auto pShape = InstantiateConvexPart(i, 0, nullptr, 1);
       RetrieveShapeTriangles(pShape, positions);
@@ -351,7 +354,7 @@ ezCpuMeshResourceHandle ezJoltMeshResource::ConvertToCpuMesh() const
     }
   }
 
-  if (!m_CookedTriangleMesh.IsEmpty())
+  if (m_TriangleMeshInstance != nullptr || !m_TriangleMeshData.IsEmpty())
   {
     auto pShape = InstantiateTriangleMesh(0, {});
     RetrieveShapeTriangles(pShape, positions);
@@ -372,11 +375,11 @@ ezCpuMeshResourceHandle ezJoltMeshResource::ConvertToCpuMesh() const
 
 JPH::Shape* ezJoltMeshResource::InstantiateTriangleMesh(ezUInt64 uiUserData, const ezDynamicArray<const ezJoltMaterial*>& materials) const
 {
-  EZ_ASSERT_DEV(!m_CookedTriangleMesh.IsEmpty(), "Jolt mesh resource doesn't contain a triangle mesh.");
-
-  if (m_CookedTriangleMeshInstance == nullptr)
+  if (m_TriangleMeshInstance == nullptr)
   {
-    ezRawMemoryStreamReader memReader(m_CookedTriangleMesh);
+    EZ_ASSERT_DEV(!m_TriangleMeshData.IsEmpty(), "Jolt mesh resource doesn't contain a triangle mesh.");
+
+    ezRawMemoryStreamReader memReader(m_TriangleMeshData);
 
     ezJoltStreamIn jStream;
     jStream.m_pStream = &memReader;
@@ -407,12 +410,16 @@ JPH::Shape* ezJoltMeshResource::InstantiateTriangleMesh(ezUInt64 uiUserData, con
 
     shapeRes.Get()->RestoreMaterialState(materials.GetData(), materials.GetCount());
 
-    m_CookedTriangleMeshInstance = shapeRes.Get();
-    m_CookedTriangleMeshInstance->AddRef();
+    m_TriangleMeshInstance = shapeRes.Get();
+    m_TriangleMeshInstance->AddRef();
+
+    // not needed anymore
+    m_TriangleMeshData.Clear();
+    m_TriangleMeshData.Compact();
   }
 
   {
-    ezJoltCustomShapeInfo* pShapeDeco = new ezJoltCustomShapeInfo(m_CookedTriangleMeshInstance);
+    ezJoltCustomShapeInfo* pShapeDeco = new ezJoltCustomShapeInfo(m_TriangleMeshInstance);
     pShapeDeco->SetUserData(uiUserData);
 
     if (materials.GetCount() == m_Surfaces.GetCount())
@@ -431,11 +438,11 @@ JPH::Shape* ezJoltMeshResource::InstantiateTriangleMesh(ezUInt64 uiUserData, con
 
 JPH::Shape* ezJoltMeshResource::InstantiateConvexPart(ezUInt32 uiPartIdx, ezUInt64 uiUserData, const ezJoltMaterial* pMaterial, float fDensity) const
 {
-  EZ_ASSERT_DEV(!m_CookedConvexMeshes.IsEmpty(), "Jolt mesh resource doesn't contain any convex mesh.");
-
-  if (m_CookedConvexMeshInstances[uiPartIdx] == nullptr)
+  if (m_ConvexMeshInstances[uiPartIdx] == nullptr)
   {
-    ezRawMemoryStreamReader memReader(*m_CookedConvexMeshes[uiPartIdx]);
+    EZ_ASSERT_DEV(!m_ConvexMeshesData.IsEmpty(), "Jolt mesh resource doesn't contain any convex mesh.");
+
+    ezRawMemoryStreamReader memReader(*m_ConvexMeshesData[uiPartIdx]);
 
     ezJoltStreamIn jStream;
     jStream.m_pStream = &memReader;
@@ -470,12 +477,14 @@ JPH::Shape* ezJoltMeshResource::InstantiateConvexPart(ezUInt32 uiPartIdx, ezUInt
     shapeRes.Get()->RestoreMaterialState(materials.GetData(), materials.GetCount());
 
 
-    m_CookedConvexMeshInstances[uiPartIdx] = shapeRes.Get();
-    m_CookedConvexMeshInstances[uiPartIdx]->AddRef();
+    m_ConvexMeshInstances[uiPartIdx] = shapeRes.Get();
+    m_ConvexMeshInstances[uiPartIdx]->AddRef();
+
+    EZ_DEFAULT_DELETE(m_ConvexMeshesData[uiPartIdx]);
   }
 
   {
-    ezJoltCustomShapeInfo* pShapeDeco = new ezJoltCustomShapeInfo(m_CookedConvexMeshInstances[uiPartIdx]);
+    ezJoltCustomShapeInfo* pShapeDeco = new ezJoltCustomShapeInfo(m_ConvexMeshInstances[uiPartIdx]);
     pShapeDeco->SetUserData(uiUserData);
     pShapeDeco->m_fDensity = fDensity;
 

@@ -41,4 +41,6 @@ namespace ezJoltConversionUtils
 
   EZ_ALWAYS_INLINE ezTransform ToTransform(const JPH::Vec3& pos, const JPH::Quat& rot) { return ezTransform(ToVec3(pos), ToQuat(rot)); }
 
+  EZ_ALWAYS_INLINE ezTransform ToTransform(const JPH::Vec3& pos) { return ezTransform(ToVec3(pos)); }
+
 } // namespace ezJoltConversionUtils

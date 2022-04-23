@@ -43,13 +43,13 @@ public:
   const ezDynamicArray<ezSurfaceResourceHandle>& GetSurfaces() const { return m_Surfaces; }
 
   /// \brief Returns whether the mesh resource contains a triangle mesh. Triangle meshes and convex meshes are mutually exclusive.
-  bool HasTriangleMesh() const { return !m_CookedTriangleMesh.IsEmpty(); }
+  bool HasTriangleMesh() const { return m_TriangleMeshInstance != nullptr || !m_TriangleMeshData.IsEmpty(); }
 
   /// \brief Creates a new instance (shape) of the triangle mesh.
   JPH::Shape* InstantiateTriangleMesh(ezUInt64 uiUserData, const ezDynamicArray<const ezJoltMaterial*>& materials) const;
 
   /// \brief Returns the number of convex meshes. Triangle meshes and convex meshes are mutually exclusive.
-  ezUInt32 GetNumConvexParts() const { return m_CookedConvexMeshes.GetCount(); }
+  ezUInt32 GetNumConvexParts() const { return !m_ConvexMeshInstances.IsEmpty() ? m_ConvexMeshInstances.GetCount() : m_ConvexMeshesData.GetCount(); }
 
   /// \brief Creates a new instance (shape) of the triangle mesh.
   JPH::Shape* InstantiateConvexPart(ezUInt32 uiPartIdx, ezUInt64 uiUserData, const ezJoltMaterial* pMaterial, float fDensity) const;
@@ -68,10 +68,10 @@ private:
 private:
   ezBoundingBoxSphere m_Bounds;
   ezDynamicArray<ezSurfaceResourceHandle> m_Surfaces;
-  ezHybridArray<ezDataBuffer*, 1> m_CookedConvexMeshes;
-  ezDataBuffer m_CookedTriangleMesh;
-  mutable JPH::Shape* m_CookedTriangleMeshInstance = nullptr;
-  mutable ezHybridArray<JPH::Shape*, 1> m_CookedConvexMeshInstances;
+  mutable ezHybridArray<ezDataBuffer*, 1> m_ConvexMeshesData;
+  mutable ezDataBuffer m_TriangleMeshData;
+  mutable JPH::Shape* m_TriangleMeshInstance = nullptr;
+  mutable ezHybridArray<JPH::Shape*, 1> m_ConvexMeshInstances;
 
   ezUInt32 m_uiNumVertices = 0;
   ezUInt32 m_uiNumTriangles = 0;

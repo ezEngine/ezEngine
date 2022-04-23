@@ -1,10 +1,8 @@
 #pragma once
 
-#if 0
-
-#  include <Core/Messages/TriggerMessage.h>
-#  include <JoltPlugin/Actors/JoltActorComponent.h>
-#  include <JoltPlugin/Utilities/JoltUserData.h>
+#include <Core/Messages/TriggerMessage.h>
+#include <JoltPlugin/Actors/JoltActorComponent.h>
+#include <JoltPlugin/Utilities/JoltUserData.h>
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -18,9 +16,9 @@ private:
   friend class ezJoltWorldModule;
   friend class ezJoltTriggerComponent;
 
-  void UpdateKinematicActors();
+  void UpdateMovingTriggers();
 
-  ezDynamicArray<ezJoltTriggerComponent*> m_KinematicActorComponents;
+  ezSet<ezJoltTriggerComponent*> m_MovingTriggers;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -47,19 +45,15 @@ public:
   ezJoltTriggerComponent();
   ~ezJoltTriggerComponent();
 
-  //physx::PxRigidDynamic* GetActor() const { return m_pActor; }
-
   void SetTriggerMessage(const char* sz) { m_sTriggerMessage.Assign(sz); }      // [ property ]
   const char* GetTriggerMessage() const { return m_sTriggerMessage.GetData(); } // [ property ]
 
 protected:
   friend class ezJoltWorldModule;
+  friend class ezJoltContactListener;
 
-  //physx::PxRigidDynamic* m_pActor = nullptr;
-  void PostTriggerMessage(const ezComponent* pOtherComponent, ezTriggerState::Enum triggerState) const;
+  void PostTriggerMessage(const ezGameObjectHandle& hOtherObject, ezTriggerState::Enum triggerState) const;
 
   ezHashedString m_sTriggerMessage;
   ezEventMessageSender<ezMsgTriggerTriggered> m_TriggerEventSender; // [ event ]
 };
-
-#endif

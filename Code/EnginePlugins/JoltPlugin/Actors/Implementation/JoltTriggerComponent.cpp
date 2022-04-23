@@ -1,41 +1,35 @@
 #include <JoltPlugin/JoltPluginPCH.h>
 
-#if 0
-
-#  include <Core/WorldSerializer/WorldReader.h>
-#  include <Core/WorldSerializer/WorldWriter.h>
-#  include <Foundation/Profiling/Profiling.h>
-#  include <JoltPlugin/Actors/JoltTriggerComponent.h>
-#  include <JoltPlugin/Shapes/JoltShapeComponent.h>
-#  include <JoltPlugin/System/JoltWorldModule.h>
-#  include <JoltPlugin/Utilities/JoltConversionUtils.h>
+#include <Core/WorldSerializer/WorldReader.h>
+#include <Core/WorldSerializer/WorldWriter.h>
+#include <Foundation/Profiling/Profiling.h>
+#include <JoltPlugin/Actors/JoltTriggerComponent.h>
+#include <JoltPlugin/Shapes/JoltShapeComponent.h>
+#include <JoltPlugin/System/JoltWorldModule.h>
+#include <JoltPlugin/Utilities/JoltConversionUtils.h>
 
 ezJoltTriggerComponentManager::ezJoltTriggerComponentManager(ezWorld* pWorld)
   : ezComponentManager<ezJoltTriggerComponent, ezBlockStorageType::FreeList>(pWorld)
 {
 }
 
-ezJoltTriggerComponentManager::~ezJoltTriggerComponentManager() {}
+ezJoltTriggerComponentManager::~ezJoltTriggerComponentManager() = default;
 
-void ezJoltTriggerComponentManager::UpdateKinematicActors()
+void ezJoltTriggerComponentManager::UpdateMovingTriggers()
 {
-  //EZ_PROFILE_SCOPE("KinematicActors");
+  EZ_PROFILE_SCOPE("MovingTriggers");
 
-  //for (auto pKinematicActorComponent : m_KinematicActorComponents)
-  //{
-  //  if (PxRigidDynamic* pActor = pKinematicActorComponent->GetActor())
-  //  {
-  //    ezGameObject* pObject = pKinematicActorComponent->GetOwner();
+  ezJoltWorldModule* pModule = GetWorld()->GetModule<ezJoltWorldModule>();
+  auto& bodyInterface = pModule->GetJoltSystem()->GetBodyInterface();
 
-  //    pObject->UpdateGlobalTransform();
+  for (auto pTrigger : m_MovingTriggers)
+  {
+    JPH::BodyID bodyId(pTrigger->m_uiJoltBodyID);
 
-  //    const ezVec3 pos = pObject->GetGlobalPosition();
-  //    const ezQuat rot = pObject->GetGlobalRotation();
+    ezSimdTransform trans = pTrigger->GetOwner()->GetGlobalTransformSimd();
 
-  //    PxTransform t = ezJoltConversionUtils::ToTransform(pos, rot);
-  //    pActor->setKinematicTarget(t);
-  //  }
-  //}
+    bodyInterface.SetPositionAndRotation(bodyId, ezJoltConversionUtils::ToVec3(trans.m_Position), ezJoltConversionUtils::ToQuat(trans.m_Rotation), JPH::EActivation::Activate);
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -66,8 +60,6 @@ void ezJoltTriggerComponent::SerializeComponent(ezWorldWriter& stream) const
 
   auto& s = stream.GetStream();
 
-  bool m_bKinematic = false;
-  s << m_bKinematic;
   s << m_sTriggerMessage;
 }
 
@@ -78,94 +70,68 @@ void ezJoltTriggerComponent::DeserializeComponent(ezWorldReader& stream)
 
   auto& s = stream.GetStream();
 
-  bool m_bKinematic = false;
-  s >> m_bKinematic;
   s >> m_sTriggerMessage;
 }
 
 void ezJoltTriggerComponent::OnSimulationStarted()
 {
-  if (!IsActive())
-    return;
-
   ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
 
-  //const ezSimdTransform& globalTransform = GetOwner()->GetGlobalTransformSimd();
+  ezJoltUserData* pUserData = nullptr;
+  m_uiUserDataIndex = pModule->AllocateUserData(pUserData);
+  pUserData->Init(this);
 
-  //JoltTransform t = ezJoltConversionUtils::ToTransform(globalTransform);
-  //m_pActor = ezJolt::GetSingleton()->GetJoltAPI()->createRigidDynamic(t);
-  //EZ_ASSERT_DEBUG(m_pActor != nullptr, "Jolt actor creation failed");
+  JPH::BodyCreationSettings bodyCfg;
+  if (CreateShape(&bodyCfg, 1.0f).Failed())
+  {
+    ezLog::Error("Jolt trigger actor component has no valid shape.");
+    return;
+  }
 
-  //ezJoltUserData* pUserData = nullptr;
-  //m_uiUserDataIndex = pModule->AllocateUserData(pUserData);
-  //pUserData->Init(this);
-  //m_pActor->userData = pUserData;
+  const ezSimdTransform trans = GetOwner()->GetGlobalTransformSimd();
 
-  //// Jolt does not get any scale value, so to correctly position child objects
-  //// we have to pretend that this parent object applies no scale on its children
-  //ezSimdTransform globalTransformNoScale = globalTransform;
-  //globalTransformNoScale.m_Scale.Set(1.0f);
-  //AddShapesFromObject(GetOwner(), m_pActor, globalTransformNoScale);
+  auto* pSystem = pModule->GetJoltSystem();
+  auto* pBodies = &pSystem->GetBodyInterface();
+  auto* pMaterial = GetJoltMaterial();
 
-  //const ezUInt32 uiNumShapes = m_pActor->getNbShapes();
-  //if (uiNumShapes == 0)
-  //{
-  //  m_pActor->release();
-  //  m_pActor = nullptr;
+  bodyCfg.mIsSensor = true;
+  bodyCfg.mPosition = ezJoltConversionUtils::ToVec3(trans.m_Position);
+  bodyCfg.mRotation = ezJoltConversionUtils::ToQuat(trans.m_Rotation);
+  bodyCfg.mMotionType = JPH::EMotionType::Kinematic;
+  bodyCfg.mObjectLayer = ezJoltCollisionFiltering::ConstructObjectLayer(m_uiCollisionLayer, ezJoltBroadphaseLayer::Trigger);
+  bodyCfg.mCollisionGroup.SetGroupID(m_uiObjectFilterID);
+  bodyCfg.mUserData = reinterpret_cast<ezUInt64>(pUserData);
 
-  //  ezLog::Error("Trigger '{0}' does not have any shape components. Actor will be removed.", GetOwner()->GetName());
-  //  return;
-  //}
+  JPH::Body* pBody = pBodies->CreateBody(bodyCfg);
+  m_uiJoltBodyID = pBody->GetID().GetIndexAndSequenceNumber();
 
-  //// set the trigger flag on all attached shapes
-  //{
-  //  ezHybridArray<PxShape*, 16> shapes;
-  //  shapes.SetCountUninitialized(uiNumShapes);
-  //  m_pActor->getShapes(shapes.GetData(), uiNumShapes);
+  pModule->QueueBodyToAdd(pBody);
 
-  //  for (ezUInt32 i = 0; i < uiNumShapes; ++i)
-  //  {
-  //    shapes[i]->setFlag(PxShapeFlag::eSIMULATION_SHAPE, false);
-  //    shapes[i]->setFlag(PxShapeFlag::eTRIGGER_SHAPE, true);
-  //  }
-  //}
-
-  //m_pActor->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
-  //m_pActor->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, true); // triggers are never dynamic
-
-  //{
-  //  EZ_PX_WRITE_LOCK(*(pModule->GetPxScene()));
-  //  pModule->GetPxScene()->addActor(*m_pActor);
-  //}
-
-  //if (GetOwner()->IsDynamic())
-  //{
-  //  GetWorld()->GetOrCreateComponentManager<ezJoltTriggerComponentManager>()->m_KinematicActorComponents.PushBack(this);
-  //}
+  if (GetOwner()->IsDynamic())
+  {
+    ezJoltTriggerComponentManager* pManager = static_cast<ezJoltTriggerComponentManager*>(GetOwningManager());
+    pManager->m_MovingTriggers.Insert(this);
+  }
 }
 
 void ezJoltTriggerComponent::OnDeactivated()
 {
-  //if (m_pActor != nullptr)
-  //{
-  //  EZ_PX_WRITE_LOCK(*(m_pActor->getScene()));
-
-  //  m_pActor->release();
-  //  m_pActor = nullptr;
-  //}
+  if (GetOwner()->IsDynamic())
+  {
+    ezJoltTriggerComponentManager* pManager = static_cast<ezJoltTriggerComponentManager*>(GetOwningManager());
+    pManager->m_MovingTriggers.Remove(this);
+  }
 
   SUPER::OnDeactivated();
 }
 
-void ezJoltTriggerComponent::PostTriggerMessage(const ezComponent* pOtherComponent, ezTriggerState::Enum triggerState) const
+void ezJoltTriggerComponent::PostTriggerMessage(const ezGameObjectHandle& hOtherObject, ezTriggerState::Enum triggerState) const
 {
   ezMsgTriggerTriggered msg;
 
   msg.m_TriggerState = triggerState;
   msg.m_sMessage = m_sTriggerMessage;
-  msg.m_hTriggeringObject = pOtherComponent->GetOwner()->GetHandle();
+  msg.m_hTriggeringObject = hOtherObject;
 
   m_TriggerEventSender.PostEventMessage(msg, this, GetOwner(), ezTime::Zero(), ezObjectMsgQueueType::PostTransform);
 }
-
-#endif
