@@ -149,8 +149,7 @@ ezResult ezJoltActorComponent::CreateShape(JPH::BodyCreationSettings* pSettings,
   CreateShapes(shapes, towner, fDensity, GetJoltMaterial());
   GatherShapes(shapes, GetOwner(), towner, fDensity, GetJoltMaterial());
 
-  auto cleanShapes = [&]()
-  {
+  auto cleanShapes = [&]() {
     for (auto& s : shapes)
     {
       if (s.m_pShape)

@@ -1346,8 +1346,7 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
       auto& cd = pData->m_infoTextData[corner];
 
       // InsertionSort is stable
-      ezSorting::InsertionSort(cd, [](const InfoTextData& lhs, const InfoTextData& rhs) -> bool
-        { return lhs.m_group < rhs.m_group; });
+      ezSorting::InsertionSort(cd, [](const InfoTextData& lhs, const InfoTextData& rhs) -> bool { return lhs.m_group < rhs.m_group; });
 
       ezVec2I32 pos = anchor[corner];
 
