@@ -10,7 +10,8 @@
 class ezGALVertexDeclarationVulkan : public ezGALVertexDeclaration
 {
 public:
-  EZ_ALWAYS_INLINE const vk::PipelineVertexInputStateCreateInfo& GetInputLayout() const;
+  EZ_ALWAYS_INLINE ezArrayPtr<const vk::VertexInputAttributeDescription> GetAttributes() const;
+  EZ_ALWAYS_INLINE ezArrayPtr<const vk::VertexInputBindingDescription> GetBindings() const;
 
 protected:
   friend class ezGALDeviceVulkan;
@@ -24,7 +25,8 @@ protected:
 
   virtual ~ezGALVertexDeclarationVulkan();
 
-  vk::PipelineVertexInputStateCreateInfo m_vulkanInputLayout;
+  ezHybridArray<vk::VertexInputAttributeDescription, EZ_GAL_MAX_VERTEX_BUFFER_COUNT> m_attributes;
+  ezHybridArray<vk::VertexInputBindingDescription, EZ_GAL_MAX_VERTEX_BUFFER_COUNT> m_bindings;
 };
 
 #include <RendererVulkan/Shader/Implementation/VertexDeclarationVulkan_inl.h>

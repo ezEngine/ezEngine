@@ -64,7 +64,7 @@ void ezGALSwapChainVulkan::PresentRenderTarget(ezGALDevice* pDevice)
     presentInfo.pSwapchains = &m_vulkanSwapChain;
     presentInfo.pImageIndices = &m_uiCurrentSwapChainImage;
 
-    m_pVulkanDevice->GetVulkanQueue().presentKHR(&presentInfo);
+    m_pVulkanDevice->GetGraphicsQueue().m_queue.presentKHR(&presentInfo);
 
     m_swapChainImageInUseFences[m_uiCurrentSwapChainImage] = renderFence;
   }
@@ -111,16 +111,15 @@ ezResult ezGALSwapChainVulkan::InitPlatform(ezGALDevice* pDevice)
   swapChainCreateInfo.imageExtent.width = m_WindowDesc.m_pWindow->GetClientAreaSize().width;
   swapChainCreateInfo.imageExtent.height = m_WindowDesc.m_pWindow->GetClientAreaSize().height;
   swapChainCreateInfo.imageFormat = m_pVulkanDevice->GetFormatLookupTable().GetFormatInfo(m_WindowDesc.m_BackBufferFormat).m_eRenderTarget;
-  swapChainCreateInfo.imageSharingMode = vk::SharingMode::eExclusive;
   swapChainCreateInfo.imageUsage = vk::ImageUsageFlagBits::eColorAttachment;
   swapChainCreateInfo.minImageCount = m_WindowDesc.m_bDoubleBuffered ? 2 : 1;
   swapChainCreateInfo.presentMode = ezConversionUtilsVulkan::GetPresentMode(m_WindowDesc.m_PresentMode, presentModes);
   swapChainCreateInfo.preTransform = vk::SurfaceTransformFlagBitsKHR::eIdentity;
   swapChainCreateInfo.surface = m_vulkanSurface;
 
-  ezArrayPtr<const ezUInt32> queueFamilyIndices = m_pVulkanDevice->GetQueueFamilyIndices();
-  swapChainCreateInfo.pQueueFamilyIndices = queueFamilyIndices.GetPtr();
-  swapChainCreateInfo.queueFamilyIndexCount = queueFamilyIndices.GetCount();
+  swapChainCreateInfo.imageSharingMode = vk::SharingMode::eExclusive;
+  swapChainCreateInfo.pQueueFamilyIndices = nullptr;
+  swapChainCreateInfo.queueFamilyIndexCount = 0;
 
   m_vulkanSwapChain = m_pVulkanDevice->GetVulkanDevice().createSwapchainKHR(swapChainCreateInfo);
 

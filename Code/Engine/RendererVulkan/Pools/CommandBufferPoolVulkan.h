@@ -19,7 +19,7 @@
 class EZ_RENDERERVULKAN_DLL ezCommandBufferPoolVulkan
 {
 public:
-  static void Initialize(vk::Device device, ezUInt32 graphicsQueueIndex);
+  static void Initialize(vk::Device device, ezUInt32 graphicsFamilyIndex);
   static void DeInitialize();
 
   static vk::CommandBuffer RequestCommandBuffer();

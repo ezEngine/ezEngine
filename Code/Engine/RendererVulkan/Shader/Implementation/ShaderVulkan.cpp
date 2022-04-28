@@ -56,93 +56,69 @@ void ezGALShaderVulkan::SetDebugName(const char* szName) const
 
 ezResult ezGALShaderVulkan::InitPlatform(ezGALDevice* pDevice)
 {
-  ezGALDeviceVulkan* pDXDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
-
-  // TODO
-#if 0
-  ID3D11Device* pD3D11Device = pDXDevice->GetDXDevice();
+  ezGALDeviceVulkan* pVulkanDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
+  vk::ShaderModuleCreateInfo createInfo;
 
   if (m_Description.HasByteCodeForStage(ezGALShaderStage::VertexShader))
   {
-    if (FAILED(pD3D11Device->CreateVertexShader(m_Description.m_ByteCodes[ezGALShaderStage::VertexShader]->GetByteCode(),
-                                                m_Description.m_ByteCodes[ezGALShaderStage::VertexShader]->GetSize(), nullptr,
-                                                &m_pVertexShader)))
-    {
-      ezLog::Error("Couldn't create native vertex shader from bytecode!");
-      return EZ_FAILURE;
-    }
+    createInfo.codeSize = m_Description.m_ByteCodes[ezGALShaderStage::VertexShader]->GetSize();
+    EZ_ASSERT_DEV(createInfo.codeSize % 4 == 0, "");
+    createInfo.pCode = reinterpret_cast<const ezUInt32*>(m_Description.m_ByteCodes[ezGALShaderStage::VertexShader]->GetByteCode());
+    VK_SUCCEED_OR_RETURN_EZ_FAILURE(pVulkanDevice->GetVulkanDevice().createShaderModule(&createInfo, nullptr, &m_pVertexShader));
   }
 
   if (m_Description.HasByteCodeForStage(ezGALShaderStage::HullShader))
   {
-    if (FAILED(pD3D11Device->CreateHullShader(m_Description.m_ByteCodes[ezGALShaderStage::VertexShader]->GetByteCode(),
-                                              m_Description.m_ByteCodes[ezGALShaderStage::HullShader]->GetSize(), nullptr, &m_pHullShader)))
-    {
-      ezLog::Error("Couldn't create native hull shader from bytecode!");
-      return EZ_FAILURE;
-    }
+    createInfo.codeSize = m_Description.m_ByteCodes[ezGALShaderStage::HullShader]->GetSize();
+    EZ_ASSERT_DEV(createInfo.codeSize % 4 == 0, "");
+    createInfo.pCode = reinterpret_cast<const ezUInt32*>(m_Description.m_ByteCodes[ezGALShaderStage::HullShader]->GetByteCode());
+    VK_SUCCEED_OR_RETURN_EZ_FAILURE(pVulkanDevice->GetVulkanDevice().createShaderModule(&createInfo, nullptr, &m_pHullShader));
   }
 
   if (m_Description.HasByteCodeForStage(ezGALShaderStage::DomainShader))
   {
-    if (FAILED(pD3D11Device->CreateDomainShader(m_Description.m_ByteCodes[ezGALShaderStage::DomainShader]->GetByteCode(),
-                                                m_Description.m_ByteCodes[ezGALShaderStage::DomainShader]->GetSize(), nullptr,
-                                                &m_pDomainShader)))
-    {
-      ezLog::Error("Couldn't create native domain shader from bytecode!");
-      return EZ_FAILURE;
-    }
+    createInfo.codeSize = m_Description.m_ByteCodes[ezGALShaderStage::DomainShader]->GetSize();
+    EZ_ASSERT_DEV(createInfo.codeSize % 4 == 0, "");
+    createInfo.pCode = reinterpret_cast<const ezUInt32*>(m_Description.m_ByteCodes[ezGALShaderStage::DomainShader]->GetByteCode());
+    VK_SUCCEED_OR_RETURN_EZ_FAILURE(pVulkanDevice->GetVulkanDevice().createShaderModule(&createInfo, nullptr, &m_pDomainShader));
   }
 
   if (m_Description.HasByteCodeForStage(ezGALShaderStage::GeometryShader))
   {
-    if (FAILED(pD3D11Device->CreateGeometryShader(m_Description.m_ByteCodes[ezGALShaderStage::GeometryShader]->GetByteCode(),
-                                                  m_Description.m_ByteCodes[ezGALShaderStage::GeometryShader]->GetSize(), nullptr,
-                                                  &m_pGeometryShader)))
-    {
-      ezLog::Error("Couldn't create native geometry shader from bytecode!");
-      return EZ_FAILURE;
-    }
+    createInfo.codeSize = m_Description.m_ByteCodes[ezGALShaderStage::GeometryShader]->GetSize();
+    EZ_ASSERT_DEV(createInfo.codeSize % 4 == 0, "");
+    createInfo.pCode = reinterpret_cast<const ezUInt32*>(m_Description.m_ByteCodes[ezGALShaderStage::GeometryShader]->GetByteCode());
+    VK_SUCCEED_OR_RETURN_EZ_FAILURE(pVulkanDevice->GetVulkanDevice().createShaderModule(&createInfo, nullptr, &m_pGeometryShader));
   }
 
   if (m_Description.HasByteCodeForStage(ezGALShaderStage::PixelShader))
   {
-    if (FAILED(pD3D11Device->CreatePixelShader(m_Description.m_ByteCodes[ezGALShaderStage::PixelShader]->GetByteCode(),
-                                               m_Description.m_ByteCodes[ezGALShaderStage::PixelShader]->GetSize(), nullptr,
-                                               &m_pPixelShader)))
-    {
-      ezLog::Error("Couldn't create native pixel shader from bytecode!");
-      return EZ_FAILURE;
-    }
+    createInfo.codeSize = m_Description.m_ByteCodes[ezGALShaderStage::PixelShader]->GetSize();
+    EZ_ASSERT_DEV(createInfo.codeSize % 4 == 0, "");
+    createInfo.pCode = reinterpret_cast<const ezUInt32*>(m_Description.m_ByteCodes[ezGALShaderStage::PixelShader]->GetByteCode());
+    VK_SUCCEED_OR_RETURN_EZ_FAILURE(pVulkanDevice->GetVulkanDevice().createShaderModule(&createInfo, nullptr, &m_pPixelShader));
   }
 
   if (m_Description.HasByteCodeForStage(ezGALShaderStage::ComputeShader))
   {
-    if (FAILED(pD3D11Device->CreateComputeShader(m_Description.m_ByteCodes[ezGALShaderStage::ComputeShader]->GetByteCode(),
-                                                 m_Description.m_ByteCodes[ezGALShaderStage::ComputeShader]->GetSize(), nullptr,
-                                                 &m_pComputeShader)))
-    {
-      ezLog::Error("Couldn't create native compute shader from bytecode!");
-      return EZ_FAILURE;
-    }
+    createInfo.codeSize = m_Description.m_ByteCodes[ezGALShaderStage::ComputeShader]->GetSize();
+    EZ_ASSERT_DEV(createInfo.codeSize % 4 == 0, "");
+    createInfo.pCode = reinterpret_cast<const ezUInt32*>(m_Description.m_ByteCodes[ezGALShaderStage::ComputeShader]->GetByteCode());
+    VK_SUCCEED_OR_RETURN_EZ_FAILURE(pVulkanDevice->GetVulkanDevice().createShaderModule(&createInfo, nullptr, &m_pComputeShader));
   }
-#endif
 
   return EZ_SUCCESS;
 }
 
 ezResult ezGALShaderVulkan::DeInitPlatform(ezGALDevice* pDevice)
 {
-  // TODO
-#if 0
-  EZ_GAL_Vulkan_RELEASE(m_pVertexShader);
-  EZ_GAL_Vulkan_RELEASE(m_pHullShader);
-  EZ_GAL_Vulkan_RELEASE(m_pDomainShader);
-  EZ_GAL_Vulkan_RELEASE(m_pGeometryShader);
-  EZ_GAL_Vulkan_RELEASE(m_pPixelShader);
-  EZ_GAL_Vulkan_RELEASE(m_pComputeShader);
-#endif
-
+  ezGALDeviceVulkan* pVulkanDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
+  pVulkanDevice->DeleteLater(m_pVertexShader);
+  pVulkanDevice->DeleteLater(m_pHullShader);
+  pVulkanDevice->DeleteLater(m_pDomainShader);
+  pVulkanDevice->DeleteLater(m_pGeometryShader);
+  pVulkanDevice->DeleteLater(m_pPixelShader);
+  pVulkanDevice->DeleteLater(m_pComputeShader);
   return EZ_SUCCESS;
 }
 

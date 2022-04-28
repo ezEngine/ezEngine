@@ -1046,6 +1046,7 @@ void ezRenderPipeline::Render(ezRenderContext* pRenderContext)
   static ezHashedString sStereo = ezMakeHashedString("CAMERA_MODE_STEREO");
 
   static ezHashedString sVSRTAI = ezMakeHashedString("VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX");
+  static ezHashedString sClipSpaceFlipped = ezMakeHashedString("CLIP_SPACE_FLIPPED");
   static ezHashedString sTrue = ezMakeHashedString("TRUE");
   static ezHashedString sFalse = ezMakeHashedString("FALSE");
 
@@ -1060,6 +1061,8 @@ void ezRenderPipeline::Render(ezRenderContext* pRenderContext)
     pRenderContext->SetShaderPermutationVariable(sVSRTAI, sTrue);
   else
     pRenderContext->SetShaderPermutationVariable(sVSRTAI, sFalse);
+
+  pRenderContext->SetShaderPermutationVariable(sClipSpaceFlipped, ezClipSpaceYMode::RenderToTextureDefault == ezClipSpaceYMode::Flipped ? sTrue : sFalse);
 
   // Also set pipeline specific permutation vars
   for (auto& var : m_PermutationVars)

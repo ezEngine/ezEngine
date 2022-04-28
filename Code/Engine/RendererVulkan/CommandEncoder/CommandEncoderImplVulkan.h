@@ -1,10 +1,12 @@
 
 #pragma once
 
+#include <RendererVulkan/RendererVulkanDLL.h>
+
 #include <Foundation/Types/Bitflags.h>
 #include <RendererFoundation/CommandEncoder/CommandEncoderPlatformInterface.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
-#include <RendererVulkan/RendererVulkanDLL.h>
+#include <RendererVulkan/Cache/ResourceCacheVulkan.h>
 
 #include <vulkan/vulkan.hpp>
 
@@ -23,6 +25,9 @@ class EZ_RENDERERVULKAN_DLL ezGALCommandEncoderImplVulkan : public ezGALCommandE
 public:
   ezGALCommandEncoderImplVulkan(ezGALDeviceVulkan& device);
   ~ezGALCommandEncoderImplVulkan();
+
+  void Reset();
+  void MarkDirty();
 
   // ezGALCommandEncoderCommonPlatformInterface
   // State setting functions
@@ -125,32 +130,34 @@ private:
   void FlushDeferredStateChanges();
 
   ezGALDeviceVulkan& m_GALDeviceVulkan;
-
   vk::Device m_vkDevice;
 
   vk::CommandBuffer* m_pCommandBuffer = nullptr;
 
-  const ezGALShaderVulkan* m_pCurrentShader;
-  const ezGALBlendStateVulkan* m_pCurrentBlendState;
-  const ezGALDepthStencilStateVulkan* m_pCurrentDepthStencilState;
-  const ezGALRasterizerStateVulkan* m_pCurrentRasterizerState;
-  const vk::PipelineVertexInputStateCreateInfo* m_pCurrentVertexLayout;
-  vk::PrimitiveTopology m_currentPrimitiveTopology;
-
-  bool m_bPipelineStateDirty = false;
-  bool m_bFrameBufferDirty = false;
+  // Cache flags.
+  bool m_bPipelineStateDirty = true;
+  bool m_bViewportDirty = true;
+  bool m_bIndexBufferDirty = false;
   bool m_bDescriptorsDirty = false;
+  ezGAL::ModifiedRange m_BoundVertexBuffersRange;
+  bool m_bRenderPassActive = false;
 
   // Bound objects for deferred state flushes
+  ezResourceCacheVulkan::GraphicsPipelineDesc m_PipelineDesc;
+  vk::Framebuffer m_frameBuffer;
+  vk::RenderPassBeginInfo m_renderPass;
+  ezHybridArray<vk::ClearValue, EZ_GAL_MAX_RENDERTARGET_COUNT + 1> m_clearValues;
+
+  vk::Viewport m_viewport;
+  vk::Rect2D m_scissor;
+
   const ezGALRenderTargetView* m_pBoundRenderTargets[EZ_GAL_MAX_RENDERTARGET_COUNT];
   const ezGALRenderTargetView* m_pBoundDepthStencilTarget;
   ezUInt32 m_uiBoundRenderTargetCount;
 
+  const ezGALBufferVulkan* m_pIndexBuffer = nullptr;
   vk::Buffer m_pBoundVertexBuffers[EZ_GAL_MAX_VERTEX_BUFFER_COUNT];
-  ezGAL::ModifiedRange m_BoundVertexBuffersRange;
-
-  ezUInt32 m_VertexBufferStrides[EZ_GAL_MAX_VERTEX_BUFFER_COUNT];
-  ezUInt32 m_VertexBufferOffsets[EZ_GAL_MAX_VERTEX_BUFFER_COUNT];
+  vk::DeviceSize m_VertexBufferOffsets[EZ_GAL_MAX_VERTEX_BUFFER_COUNT] = {};
 
   const ezGALBufferVulkan* m_pBoundConstantBuffers[EZ_GAL_MAX_CONSTANT_BUFFER_COUNT];
   ezGAL::ModifiedRange m_BoundConstantBuffersRange[ezGALShaderStage::ENUM_COUNT];

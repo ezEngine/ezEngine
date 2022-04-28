@@ -185,7 +185,6 @@ ezResult ezGALRasterizerStateVulkan::DeInitPlatform(ezGALDevice* pDevice)
   return EZ_SUCCESS;
 }
 
-
 // Sampler state
 
 ezGALSamplerStateVulkan::ezGALSamplerStateVulkan(const ezGALSamplerStateCreationDescription& Description)

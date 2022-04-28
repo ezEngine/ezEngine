@@ -14,6 +14,8 @@ class ezGALPassVulkan : public ezGALPass
 protected:
   friend class ezGALDeviceVulkan;
   friend class ezMemoryUtils;
+  void Reset();
+  void MarkDirty();
 
   virtual ezGALRenderCommandEncoder* BeginRenderingPlatform(const ezGALRenderingSetup& renderingSetup, const char* szName) override;
   virtual void EndRenderingPlatform(ezGALRenderCommandEncoder* pCommandEncoder) override;

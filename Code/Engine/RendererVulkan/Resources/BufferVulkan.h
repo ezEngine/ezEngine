@@ -13,7 +13,8 @@ public:
   EZ_ALWAYS_INLINE vk::IndexType GetIndexType() const;
   EZ_ALWAYS_INLINE ezVulkanAllocation GetAllocation() const;
   EZ_ALWAYS_INLINE const ezVulkanAllocationInfo& GetAllocationInfo() const;
-
+  EZ_ALWAYS_INLINE vk::PipelineStageFlags GetUsedByPipelineStage() const;
+  EZ_ALWAYS_INLINE vk::AccessFlags GetAccessMask() const;
 
 protected:
   friend class ezGALDeviceVulkan;
@@ -27,16 +28,19 @@ protected:
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
 
   virtual void SetDebugNamePlatform(const char* szName) const override;
-
-  ezGALDeviceVulkan* m_pDeviceVulkan = nullptr;
+  vk::DeviceSize GetAlignment(const ezGALDeviceVulkan* pDevice, vk::BufferUsageFlags usage) const;
 
   vk::Buffer m_buffer;
   ezVulkanAllocation m_alloc;
   ezVulkanAllocationInfo m_allocInfo;
 
-  vk::Device m_device;
-
+  // Data for memory barriers and access
+  vk::PipelineStageFlags m_stages = {};
+  vk::AccessFlags m_access = {};
   vk::IndexType m_indexType; // Only applicable for index buffers
+
+  ezGALDeviceVulkan* m_pDeviceVulkan = nullptr;
+  vk::Device m_device;
 };
 
 #include <RendererVulkan/Resources/Implementation/BufferVulkan_inl.h>

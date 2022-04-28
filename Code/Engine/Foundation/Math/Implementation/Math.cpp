@@ -5,15 +5,9 @@
 #include <Foundation/Math/Quat.h>
 #include <Foundation/Math/Vec3.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-// Default on Windows is D3D convention
+// Default are D3D convention before a renderer is initialized.
 ezClipSpaceDepthRange::Enum ezClipSpaceDepthRange::Default = ezClipSpaceDepthRange::ZeroToOne;
 ezClipSpaceYMode::Enum ezClipSpaceYMode::RenderToTextureDefault = ezClipSpaceYMode::Regular;
-#else
-// Default everywhere else is OpenGL convention
-ezClipSpaceDepthRange::Enum ezClipSpaceDepthRange::Default = ezClipSpaceDepthRange::MinusOneToOne;
-ezClipSpaceYMode::Enum ezClipSpaceYMode::RenderToTextureDefault = ezClipSpaceYMode::Flipped;
-#endif
 
 ezHandedness::Enum ezHandedness::Default = ezHandedness::LeftHanded;
 

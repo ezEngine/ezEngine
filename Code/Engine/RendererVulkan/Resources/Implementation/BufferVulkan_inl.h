@@ -18,3 +18,13 @@ const ezVulkanAllocationInfo& ezGALBufferVulkan::GetAllocationInfo() const
 {
   return m_allocInfo;
 }
+
+vk::PipelineStageFlags ezGALBufferVulkan::GetUsedByPipelineStage() const
+{
+  return m_stages;
+}
+
+vk::AccessFlags ezGALBufferVulkan::GetAccessMask() const
+{
+  return m_access;
+}

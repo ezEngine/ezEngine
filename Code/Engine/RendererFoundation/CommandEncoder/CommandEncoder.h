@@ -73,6 +73,8 @@ public:
   virtual void ClearStatisticsCounters();
 
   EZ_ALWAYS_INLINE ezGALDevice& GetDevice() { return m_Device; }
+  // Don't use light hearted ;)
+  void InvalidateState();
 
 protected:
   friend class ezGALDevice;
@@ -80,8 +82,6 @@ protected:
   ezGALCommandEncoder(ezGALDevice& device, ezGALCommandEncoderState& state, ezGALCommandEncoderCommonPlatformInterface& commonImpl);
   virtual ~ezGALCommandEncoder();
 
-  // Don't use light hearted ;)
-  void InvalidateState();
 
   void AssertRenderingThread()
   {

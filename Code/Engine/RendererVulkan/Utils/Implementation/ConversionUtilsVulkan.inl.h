@@ -124,3 +124,19 @@ EZ_ALWAYS_INLINE bool ezConversionUtilsVulkan::IsStencilFormat(vk::Format format
       return false;
   }
 }
+
+EZ_ALWAYS_INLINE vk::PrimitiveTopology ezConversionUtilsVulkan::GetPrimitiveTopology(ezEnum<ezGALPrimitiveTopology> topology)
+{
+  switch (topology)
+  {
+    case ezGALPrimitiveTopology::Points:
+      return vk::PrimitiveTopology::ePointList;
+    case ezGALPrimitiveTopology::Lines:
+      return vk::PrimitiveTopology::eLineList;
+    case ezGALPrimitiveTopology::Triangles:
+      return vk::PrimitiveTopology::eTriangleList;
+    default:
+      EZ_ASSERT_NOT_IMPLEMENTED;
+      return vk::PrimitiveTopology::ePointList;
+  }
+}

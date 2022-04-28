@@ -20,6 +20,18 @@ ezGALPassVulkan::ezGALPassVulkan(ezGALDevice& device)
 
 ezGALPassVulkan::~ezGALPassVulkan() = default;
 
+void ezGALPassVulkan::Reset()
+{
+  m_pCommandEncoderImpl->Reset();
+  m_pRenderCommandEncoder->InvalidateState();
+  m_pComputeCommandEncoder->InvalidateState();
+}
+
+void ezGALPassVulkan::MarkDirty()
+{
+  m_pCommandEncoderImpl->MarkDirty();
+}
+
 ezGALRenderCommandEncoder* ezGALPassVulkan::BeginRenderingPlatform(const ezGALRenderingSetup& renderingSetup, const char* szName)
 {
   vk::CommandBuffer& commandBuffer = static_cast<ezGALDeviceVulkan&>(m_Device).GetCurrentCommandBuffer();
