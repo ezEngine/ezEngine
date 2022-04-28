@@ -60,7 +60,6 @@ ezResult ezGALVertexDeclarationVulkan::InitPlatform(ezGALDevice* pDevice)
     }
   }
 
-  const ezScopedRefPointer<ezGALShaderByteCode>& pByteCode = pShader->GetDescription().m_ByteCodes[ezGALShaderStage::VertexShader];
   return EZ_SUCCESS;
 }
 
