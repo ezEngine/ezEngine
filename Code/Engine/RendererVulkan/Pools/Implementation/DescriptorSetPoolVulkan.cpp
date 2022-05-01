@@ -25,7 +25,7 @@ void ezDescriptorSetPoolVulkan::Initialize(vk::Device device)
   s_descriptorWeights[vk::DescriptorType::eStorageBufferDynamic] = 0.0f; // Same as eStorageBuffer but allows updating the memory offset into the buffer dynamically.
 
   // Not supported by EZ so far.
-  s_descriptorWeights[vk::DescriptorType::eInputAttachment] = 0.0f;      //frame-buffer local read-only image view.
+  s_descriptorWeights[vk::DescriptorType::eInputAttachment] = 0.0f; //frame-buffer local read-only image view.
   s_descriptorWeights[vk::DescriptorType::eCombinedImageSampler] = 0.0f;
   s_descriptorWeights[vk::DescriptorType::eInlineUniformBlock] = 0.0f;
   s_descriptorWeights[vk::DescriptorType::eAccelerationStructureKHR] = 0.0f;

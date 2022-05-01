@@ -70,11 +70,11 @@ ezResult ezGALShaderVulkan::InitPlatform(ezGALDevice* pDevice)
   struct LayoutBinding
   {
     const ezVulkanDescriptorSetLayoutBinding* m_binding = nullptr; ///< The first binding under which this resource was encountered.
-    vk::ShaderStageFlags m_stages = {}; ///< Bitflags of all stages that share this binding. Matching is done by name.
+    vk::ShaderStageFlags m_stages = {};                            ///< Bitflags of all stages that share this binding. Matching is done by name.
   };
   ezHybridArray<ShaderRemapping, 6> remappings[ezGALShaderStage::ENUM_COUNT]; ///< Remappings for each shader stage.
-  ezHybridArray<LayoutBinding, 6> sourceBindings; ///< Bindings across all stages. Can have gaps. Array index is the binding index.
-  ezMap<ezStringView, ezUInt32> bindingMap; ///< Maps binding name to index in sourceBindings.
+  ezHybridArray<LayoutBinding, 6> sourceBindings;                             ///< Bindings across all stages. Can have gaps. Array index is the binding index.
+  ezMap<ezStringView, ezUInt32> bindingMap;                                   ///< Maps binding name to index in sourceBindings.
 
   for (ezUInt32 i = 0; i < ezGALShaderStage::ENUM_COUNT; i++)
   {
@@ -140,8 +140,7 @@ ezResult ezGALShaderVulkan::InitPlatform(ezGALDevice* pDevice)
       }
     }
   }
-  m_BindingMapping.Sort([](const BindingMapping& lhs, const BindingMapping& rhs)
-    { return lhs.m_uiTarget < rhs.m_uiTarget; });
+  m_BindingMapping.Sort([](const BindingMapping& lhs, const BindingMapping& rhs) { return lhs.m_uiTarget < rhs.m_uiTarget; });
 
   // Build Vulkan descriptor set layout
   for (ezUInt32 i = 0; i < sourceBindings.GetCount(); i++)
@@ -156,8 +155,7 @@ ezResult ezGALShaderVulkan::InitPlatform(ezGALDevice* pDevice)
       binding.stageFlags = sourceBinding.m_stages;
     }
   }
-  m_descriptorSetLayoutDesc.m_bindings.Sort([](const vk::DescriptorSetLayoutBinding& lhs, const vk::DescriptorSetLayoutBinding& rhs)
-    { return lhs.binding < rhs.binding; });
+  m_descriptorSetLayoutDesc.m_bindings.Sort([](const vk::DescriptorSetLayoutBinding& lhs, const vk::DescriptorSetLayoutBinding& rhs) { return lhs.binding < rhs.binding; });
   m_descriptorSetLayoutDesc.ComputeHash();
 
   // Remap and build shaders

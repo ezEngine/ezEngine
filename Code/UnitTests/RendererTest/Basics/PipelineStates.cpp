@@ -2,9 +2,9 @@
 
 #include <Core/GameState/GameStateWindow.h>
 #include <Core/Graphics/Camera.h>
-#include <RendererTest/Basics/PipelineStates.h>
 #include <RendererTest/../../../Data/UnitTests/RendererTest/Shaders/TestConstants.h>
 #include <RendererTest/../../../Data/UnitTests/RendererTest/Shaders/TestInstancing.h>
+#include <RendererTest/Basics/PipelineStates.h>
 
 ezResult ezRendererTestPipelineStates::InitializeSubTest(ezInt32 iIdentifier)
 {
@@ -133,7 +133,7 @@ void ezRendererTestPipelineStates::RenderBlock(ezMeshBufferResourceHandle mesh, 
   {
     ezGALRenderCommandEncoder* pCommandEncoder = BeginRendering(clearColor, uiRenderTargetClearMask, pViewport, pScissor);
     {
-      
+
       if (mesh.IsValid())
       {
         ezRenderContext::GetDefaultInstance()->BindShader(m_hNDCPositionOnlyShader);
@@ -282,7 +282,6 @@ void ezRendererTestPipelineStates::ConstantBufferTest()
           pContext->DrawMeshBuffer(1).AssertSuccess();
         }
       }
-      
     }
     EndRendering();
   }
@@ -323,7 +322,6 @@ void ezRendererTestPipelineStates::StructuredBufferTest()
       pContext->BindBuffer("instancingData", m_pDevice->GetDefaultResourceView(m_hInstancingData));
 
       pContext->DrawMeshBuffer(1, 0, 8).AssertSuccess();
-
     }
     EndRendering();
   }

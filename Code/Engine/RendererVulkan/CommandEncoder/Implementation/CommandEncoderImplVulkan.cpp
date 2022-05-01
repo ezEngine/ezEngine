@@ -900,7 +900,7 @@ void ezGALCommandEncoderImplVulkan::FlushDeferredStateChanges()
     m_bIndexBufferDirty = false;
   }
 
-  if (true/*m_bDescriptorsDirty*/)
+  if (true /*m_bDescriptorsDirty*/)
   {
     //#TODO_VULKAN we always create a new descriptor set as we don't know if a buffer was modified since the last draw call (ezGALBufferVulkan::DiscardBuffer).
     // Need to figure out a fast check if any buffer or buffer of a resource view was discarded.

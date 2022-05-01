@@ -443,7 +443,7 @@ ezResult ezShaderCompilerDXC::ReflectShaderStage(ezShaderProgramData& inout_Data
       //#TODO_VULKAN Currently hard coded to a single DescriptorSetLayout.
       ezHybridArray<ezVulkanDescriptorSetLayout, 3> sets;
       ezVulkanDescriptorSetLayout& set = sets.ExpandAndGetRef();
-     
+
       for (ezUInt32 i = 0; i < uiCount; ++i)
       {
         auto& info = *vars[i];
@@ -453,19 +453,19 @@ ezResult ezShaderCompilerDXC::ReflectShaderStage(ezShaderProgramData& inout_Data
         binding.m_uiBinding = static_cast<ezUInt8>(info.binding);
         switch (info.resource_type)
         {
-        case SpvReflectResourceType::SPV_REFLECT_RESOURCE_FLAG_SAMPLER:
-          binding.m_Type = ezVulkanDescriptorSetLayoutBinding::ResourceType::Sampler;
+          case SpvReflectResourceType::SPV_REFLECT_RESOURCE_FLAG_SAMPLER:
+            binding.m_Type = ezVulkanDescriptorSetLayoutBinding::ResourceType::Sampler;
             break;
-        case SpvReflectResourceType::SPV_REFLECT_RESOURCE_FLAG_CBV:
-          binding.m_Type = ezVulkanDescriptorSetLayoutBinding::ResourceType::ConstantBuffer;
-          break;
-        case SpvReflectResourceType::SPV_REFLECT_RESOURCE_FLAG_SRV:
-          binding.m_Type = ezVulkanDescriptorSetLayoutBinding::ResourceType::ResourceView;
-          break;
-        default:
-        case SpvReflectResourceType::SPV_REFLECT_RESOURCE_FLAG_UAV:
-          binding.m_Type = ezVulkanDescriptorSetLayoutBinding::ResourceType::UAV;
-          break;
+          case SpvReflectResourceType::SPV_REFLECT_RESOURCE_FLAG_CBV:
+            binding.m_Type = ezVulkanDescriptorSetLayoutBinding::ResourceType::ConstantBuffer;
+            break;
+          case SpvReflectResourceType::SPV_REFLECT_RESOURCE_FLAG_SRV:
+            binding.m_Type = ezVulkanDescriptorSetLayoutBinding::ResourceType::ResourceView;
+            break;
+          default:
+          case SpvReflectResourceType::SPV_REFLECT_RESOURCE_FLAG_UAV:
+            binding.m_Type = ezVulkanDescriptorSetLayoutBinding::ResourceType::UAV;
+            break;
         }
         binding.m_uiDescriptorType = static_cast<ezUInt32>(info.descriptor_type);
         binding.m_uiDescriptorCount = 1;
@@ -475,8 +475,7 @@ ezResult ezShaderCompilerDXC::ReflectShaderStage(ezShaderProgramData& inout_Data
         }
         binding.m_uiWordOffset = info.word_offset.binding;
       }
-      set.bindings.Sort([](const ezVulkanDescriptorSetLayoutBinding& lhs, const ezVulkanDescriptorSetLayoutBinding& rhs)
-        { return lhs.m_uiBinding < rhs.m_uiBinding; });
+      set.bindings.Sort([](const ezVulkanDescriptorSetLayoutBinding& lhs, const ezVulkanDescriptorSetLayoutBinding& rhs) { return lhs.m_uiBinding < rhs.m_uiBinding; });
 
       ezSpirvMetaData::Write(stream, bytecode, sets);
 

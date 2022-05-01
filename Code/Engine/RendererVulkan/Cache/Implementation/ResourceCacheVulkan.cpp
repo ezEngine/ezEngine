@@ -431,7 +431,7 @@ vk::Pipeline ezResourceCacheVulkan::RequestGraphicsPipeline(const GraphicsPipeli
       stage.pName = "main";
     }
   }
-  
+
   vk::GraphicsPipelineCreateInfo pipe;
   pipe.renderPass = desc.m_renderPass;
   pipe.layout = desc.m_layout;

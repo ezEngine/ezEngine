@@ -61,7 +61,7 @@ public:
     ezUInt32 m_uiQueueIndex = 0;
   };
 
-  ezUInt64 GetCurrentFrame() const { return m_uiFrameCounter;}
+  ezUInt64 GetCurrentFrame() const { return m_uiFrameCounter; }
   ezUInt64 GetSafeFrame() const { return m_uiSafeFrame; }
 
   vk::Instance GetVulkanInstance() const;
@@ -122,7 +122,7 @@ public:
     {
       vk::DebugUtilsObjectNameInfoEXT nameInfo;
       nameInfo.objectType = object.objectType;
-      nameInfo.objectHandle = (uint64_t)static_cast<T::NativeType>(object);
+      nameInfo.objectHandle = (uint64_t) static_cast<T::NativeType>(object);
       nameInfo.pObjectName = szName;
 
       SetDebugName(nameInfo, allocation);

@@ -1,8 +1,8 @@
 #pragma once
 #include <Foundation/Basics.h>
 #include <Foundation/Containers/HybridArray.h>
-#include <Foundation/IO/Stream.h>
 #include <Foundation/IO/MemoryStream.h>
+#include <Foundation/IO/Stream.h>
 
 struct ezVulkanDescriptorSetLayoutBinding
 {
@@ -114,6 +114,5 @@ namespace ezSpirvMetaData
         stream >> binding.m_uiWordOffset;
       }
     }
-
   }
-} // namespace
+} // namespace ezSpirvMetaData

@@ -13,7 +13,7 @@ public:
   EZ_ALWAYS_INLINE const vk::DescriptorImageInfo& GetImageInfo() const;
   const vk::DescriptorBufferInfo& GetBufferInfo() const;
 
-protected :
+protected:
   friend class ezGALDeviceVulkan;
   friend class ezMemoryUtils;
 

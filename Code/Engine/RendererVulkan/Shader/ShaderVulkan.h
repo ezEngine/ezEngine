@@ -30,10 +30,10 @@ public:
       Sampler,
     };
     vk::DescriptorType m_descriptorType = vk::DescriptorType::eSampler;
-    Type m_type = Type::ConstantBuffer; ///< Source resource type in the high level binding model.
+    Type m_type = Type::ConstantBuffer;                            ///< Source resource type in the high level binding model.
     ezGALShaderStage::Enum m_stage = ezGALShaderStage::ENUM_COUNT; ///< Source stage in the high level resource binding model.
-    ezUInt8 m_uiSource = 0; ///< Source binding index in the high level resource binding model.
-    ezUInt8 m_uiTarget = 0; ///< Target binding index in the descriptor set layout.
+    ezUInt8 m_uiSource = 0;                                        ///< Source binding index in the high level resource binding model.
+    ezUInt8 m_uiTarget = 0;                                        ///< Target binding index in the descriptor set layout.
   };
 
   void SetDebugName(const char* szName) const override;
