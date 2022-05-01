@@ -7,6 +7,7 @@
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
 #include <RendererVulkan/Device/DeviceVulkan.h>
 #include <RendererVulkan/Resources/RenderTargetViewVulkan.h>
+#include <RendererVulkan/Shader/ShaderVulkan.h>
 
 #include <vulkan/vulkan.hpp>
 
@@ -31,7 +32,7 @@ public:
   struct PipelineLayoutDesc
   {
     EZ_DECLARE_POD_TYPE();
-    int m_TODO = 0;
+    vk::DescriptorSetLayout m_layout;
   };
 
   struct GraphicsPipelineDesc
@@ -52,6 +53,13 @@ public:
 
   static vk::PipelineLayout RequestPipelineLayout(const PipelineLayoutDesc& desc);
   static vk::Pipeline RequestGraphicsPipeline(const GraphicsPipelineDesc& desc);
+
+  struct DescriptorSetLayoutDesc
+  {
+    mutable ezUInt32 m_uiHash = 0;
+    ezHybridArray<vk::DescriptorSetLayoutBinding, 6> m_bindings;
+  };
+  static vk::DescriptorSetLayout RequestDescriptorSetLayout(const ezGALShaderVulkan::DescriptorSetLayoutDesc& desc);
 
 private:
   struct FramebufferKey
@@ -109,6 +117,9 @@ private:
 
     static ezUInt32 Hash(const GraphicsPipelineDesc& desc);
     static bool Equal(const GraphicsPipelineDesc& a, const GraphicsPipelineDesc& b);
+
+    static ezUInt32 Hash(const ezGALShaderVulkan::DescriptorSetLayoutDesc& desc) { return desc.m_uiHash; }
+    static bool Equal(const ezGALShaderVulkan::DescriptorSetLayoutDesc& a, const ezGALShaderVulkan::DescriptorSetLayoutDesc& b);
   };
 
   struct FrameBufferCache
@@ -134,4 +145,5 @@ private:
 
   static ezHashTable<PipelineLayoutDesc, vk::PipelineLayout, ResourceCacheHash> s_pipelineLayouts;
   static ezHashTable<GraphicsPipelineDesc, vk::Pipeline, ResourceCacheHash> s_graphicsPipelines;
+  static ezHashTable<ezGALShaderVulkan::DescriptorSetLayoutDesc, vk::DescriptorSetLayout, ResourceCacheHash> s_descriptorSetLayouts;
 };

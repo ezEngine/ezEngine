@@ -61,6 +61,9 @@ public:
     ezUInt32 m_uiQueueIndex = 0;
   };
 
+  ezUInt64 GetCurrentFrame() const { return m_uiFrameCounter;}
+  ezUInt64 GetSafeFrame() const { return m_uiSafeFrame; }
+
   vk::Instance GetVulkanInstance() const;
   vk::Device GetVulkanDevice() const;
   const Queue& GetGraphicsQueue() const;
@@ -110,22 +113,29 @@ public:
     object = nullptr;
   }
 
+  void SetDebugName(const vk::DebugUtilsObjectNameInfoEXT& info, ezVulkanAllocation allocation = nullptr);
+
+  template <typename T>
+  void SetDebugName(const char* szName, T& object, ezVulkanAllocation allocation = nullptr)
+  {
+    if (object)
+    {
+      vk::DebugUtilsObjectNameInfoEXT nameInfo;
+      nameInfo.objectType = object.objectType;
+      nameInfo.objectHandle = (uint64_t)static_cast<T::NativeType>(object);
+      nameInfo.pObjectName = szName;
+
+      SetDebugName(nameInfo, allocation);
+    }
+  }
+
   void ReportLiveGpuObjects();
 
-  void UploadBuffer(const ezGALBufferVulkan* pBuffer, ezArrayPtr<const ezUInt8> pInitialData);
-
-  ezGALBufferVulkan* FindTempBuffer(ezUInt32 uiSize) { return nullptr; }                                                                           // TODO impl
-  ezGALTextureVulkan* FindTempTexture(ezUInt32 uiWidth, ezUInt32 uiHeight, ezUInt32 uiDepth, ezGALResourceFormat::Enum format) { return nullptr; } // TODO impl
+  void UploadBufferStaging(const ezGALBufferVulkan* pBuffer, ezArrayPtr<const ezUInt8> pInitialData, vk::DeviceSize dstOffset = 0);
 
   // These functions need to be implemented by a render API abstraction
 protected:
   // Init & shutdown functions
-
-  /// \brief Internal version of device init that allows to modify device creation flags and graphics adapter.
-  ///
-  /// \param pUsedAdapter
-  ///   Null means default adapter.
-  //ezResult InitPlatform(DWORD flags, IDXGIAdapter* pUsedAdapter);
 
   vk::Result SelectInstanceExtensions(ezHybridArray<const char*, 6>& extensions);
   vk::Result SelectDeviceExtensions(ezHybridArray<const char*, 6>& extensions);
@@ -200,16 +210,6 @@ protected:
   /// \endcond
 
 private:
-  struct TempResourceType
-  {
-    enum Enum
-    {
-      Buffer,
-      Texture,
-
-      ENUM_COUNT
-    };
-  };
 
   struct PerFrameData
   {
@@ -223,24 +223,22 @@ private:
 
     ezMutex m_pendingDeletionsMutex;
     ezDeque<PendingDeletion> m_pendingDeletions;
+    ezDeque<PendingDeletion> m_pendingDeletionsPrevious;
 
     ezMutex m_reclaimResourcesMutex;
     ezDeque<ReclaimResource> m_reclaimResources;
+    ezDeque<ReclaimResource> m_reclaimResourcesPrevious;
   };
 
   void DeletePendingResources(ezDeque<PendingDeletion>& pendingDeletions);
   void ReclaimResources(ezDeque<ReclaimResource>& resources);
 
-  void FreeTempResources(ezUInt64 uiFrame);
-
-  //ID3D11Query* GetTimestamp(ezGALTimestampHandle hTimestamp);
-
   void FillFormatLookupTable();
 
-  Extensions m_extensions;
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  VkDebugUtilsMessengerEXT m_debugMessenger;
-#endif
+  ezUInt64 m_uiFrameCounter = 0;
+  ezUInt64 m_uiSafeFrame = 0;
+  ezUInt8 m_uiCurrentPerFrameData = 0;
+  ezUInt8 m_uiNextPerFrameData = 1;
 
   vk::Instance m_instance;
   vk::PhysicalDevice m_physicalDevice;
@@ -259,51 +257,14 @@ private:
   vk::Semaphore m_lastCommandBufferFinished;
 
   PerFrameData m_PerFrameData[4];
-  ezUInt8 m_uiCurrentPerFrameData = 0;
-  ezUInt8 m_uiNextPerFrameData = 1;
-
-  ezUInt64 m_uiFrameCounter = 0;
-
-  struct VkResource
-  {
-    enum class Type
-    {
-      Buffer,
-      Image
-    };
-
-    Type m_type;
-
-    union
-    {
-      VkImage* m_pImage;
-      VkBuffer* m_pBuffer;
-    };
-
-    void Release()
-    {
-      // TODO
-    }
-  };
-
-  struct UsedTempResource
-  {
-    EZ_DECLARE_POD_TYPE();
-
-    VkResource* m_pResource;
-    ezUInt64 m_uiFrame;
-    ezUInt32 m_uiHash;
-  };
-
-  ezMap<ezUInt32, ezDynamicArray<VkResource*>, ezCompareHelper<ezUInt32>, ezLocalAllocatorWrapper> m_FreeTempResources[TempResourceType::ENUM_COUNT];
-  ezDeque<UsedTempResource, ezLocalAllocatorWrapper> m_UsedTempResources[TempResourceType::ENUM_COUNT];
-
-  ezDynamicArray<VkResource*, ezLocalAllocatorWrapper> m_Timestamps;
-  ezUInt32 m_uiCurrentTimestamp = 0;
-  ezUInt32 m_uiNextTimestamp = 0;
 
   ezTime m_SyncTimeDiff;
   bool m_bSyncTimeNeeded = true;
+
+  Extensions m_extensions;
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  VkDebugUtilsMessengerEXT m_debugMessenger;
+#endif
 };
 
 #include <RendererVulkan/Device/Implementation/DeviceVulkan_inl.h>

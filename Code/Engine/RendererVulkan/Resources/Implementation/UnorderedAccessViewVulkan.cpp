@@ -4,18 +4,24 @@
 #include <RendererVulkan/Resources/BufferVulkan.h>
 #include <RendererVulkan/Resources/TextureVulkan.h>
 #include <RendererVulkan/Resources/UnorderedAccessViewVulkan.h>
-
-#include <d3d11.h>
+#include <RendererVulkan/Utils/ConversionUtilsVulkan.h>
 
 bool IsArrayView(const ezGALTextureCreationDescription& texDesc, const ezGALUnorderedAccessViewCreationDescription& viewDesc)
 {
   return texDesc.m_uiArraySize > 1 || viewDesc.m_uiFirstArraySlice > 0;
 }
 
+const vk::DescriptorBufferInfo& ezGALUnorderedAccessViewVulkan::GetBufferInfo() const
+{
+  // Vulkan buffers get constantly swapped out for new ones so the vk::Buffer pointer is not persistent.
+  // We need to acquire the latest one on every request for rendering.
+  m_resourceBufferInfo.buffer = m_pParentBuffer->GetVkBuffer();
+  return m_resourceBufferInfo;
+}
+
 ezGALUnorderedAccessViewVulkan::ezGALUnorderedAccessViewVulkan(
   ezGALResourceBase* pResource, const ezGALUnorderedAccessViewCreationDescription& Description)
   : ezGALUnorderedAccessView(pResource, Description)
-  , m_pDXUnorderedAccessView(nullptr)
 {
 }
 
@@ -23,8 +29,8 @@ ezGALUnorderedAccessViewVulkan::~ezGALUnorderedAccessViewVulkan() {}
 
 ezResult ezGALUnorderedAccessViewVulkan::InitPlatform(ezGALDevice* pDevice)
 {
-  // TODO
-#if 0
+  ezGALDeviceVulkan* pVulkanDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
+
   const ezGALTexture* pTexture = nullptr;
   if (!m_Description.m_hTexture.IsInvalidated())
     pTexture = pDevice->GetTexture(m_Description.m_hTexture);
@@ -35,117 +41,65 @@ ezResult ezGALUnorderedAccessViewVulkan::InitPlatform(ezGALDevice* pDevice)
 
   if (pTexture == nullptr && pBuffer == nullptr)
   {
-    ezLog::Error("No valid texture handle or buffer handle given for unordered access view creation!");
+    ezLog::Error("No valid texture handle or buffer handle given for resource view creation!");
     return EZ_FAILURE;
   }
 
-
-  ezGALResourceFormat::Enum ViewFormat = m_Description.m_OverrideViewFormat;
-
   if (pTexture)
   {
-    const ezGALTextureCreationDescription& TexDesc = pTexture->GetDescription();
-
-    if (ViewFormat == ezGALResourceFormat::Invalid)
-      ViewFormat = TexDesc.m_Format;
-  }
-
-  ezGALDeviceVulkan* pDXDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
-
-
-  DXGI_FORMAT DXViewFormat = DXGI_FORMAT_UNKNOWN;
-  if (ezGALResourceFormat::IsDepthFormat(ViewFormat))
-  {
-    DXViewFormat = pDXDevice->GetFormatLookupTable().GetFormatInfo(ViewFormat).m_eDepthOnlyType;
-  }
-  else
-  {
-    DXViewFormat = pDXDevice->GetFormatLookupTable().GetFormatInfo(ViewFormat).m_eResourceViewType;
-  }
-
-  if (DXViewFormat == DXGI_FORMAT_UNKNOWN)
-  {
-    ezLog::Error("Couldn't get valid DXGI format for resource view! ({0})", ViewFormat);
-    return EZ_FAILURE;
-  }
-
-  D3D11_UNORDERED_ACCESS_VIEW_DESC DXUAVDesc;
-  DXUAVDesc.Format = DXViewFormat;
-
-  ID3D11Resource* pDXResource = nullptr;
-
-  if (pTexture)
-  {
-    pDXResource = static_cast<const ezGALTextureVulkan*>(pTexture->GetParentResource())->GetDXTexture();
+    auto image = static_cast<const ezGALTextureVulkan*>(pTexture->GetParentResource())->GetImage();
     const ezGALTextureCreationDescription& texDesc = pTexture->GetDescription();
 
     const bool bIsArrayView = IsArrayView(texDesc, m_Description);
 
-    switch (texDesc.m_Type)
-    {
-      case ezGALTextureType::Texture2D:
-      case ezGALTextureType::Texture2DProxy:
+    ezGALResourceFormat::Enum viewFormat = m_Description.m_OverrideViewFormat == ezGALResourceFormat::Invalid ? texDesc.m_Format : m_Description.m_OverrideViewFormat;
+    vk::ImageViewCreateInfo viewCreateInfo;
+    viewCreateInfo.format = pVulkanDevice->GetFormatLookupTable().GetFormatInfo(viewFormat).m_eResourceViewType;
+    viewCreateInfo.image = image;
+    viewCreateInfo.subresourceRange = ezConversionUtilsVulkan::GetSubresourceRange(texDesc, m_Description);
+    viewCreateInfo.viewType = ezConversionUtilsVulkan::GetImageViewType(texDesc.m_Type, bIsArrayView);
 
-        if (!bIsArrayView)
-        {
-          DXUAVDesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
-          DXUAVDesc.Texture2D.MipSlice = m_Description.m_uiMipLevelToUse;
-        }
-        else
-        {
-          DXUAVDesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2DARRAY;
-          DXUAVDesc.Texture2DArray.MipSlice = m_Description.m_uiMipLevelToUse;
-          DXUAVDesc.Texture2DArray.ArraySize = m_Description.m_uiArraySize;
-          DXUAVDesc.Texture2DArray.FirstArraySlice = m_Description.m_uiFirstArraySlice;
-        }
-        break;
-
-      case ezGALTextureType::Texture3D:
-
-        DXUAVDesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE3D;
-        DXUAVDesc.Texture3D.MipSlice = m_Description.m_uiMipLevelToUse;
-        DXUAVDesc.Texture3D.FirstWSlice = m_Description.m_uiFirstArraySlice;
-        DXUAVDesc.Texture3D.WSize = m_Description.m_uiArraySize;
-        break;
-
-      default:
-        EZ_ASSERT_NOT_IMPLEMENTED;
-        return EZ_FAILURE;
-    }
+    m_resourceImageInfo.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+    m_resourceImageInfo.imageView;
+    VK_SUCCEED_OR_RETURN_EZ_FAILURE(pVulkanDevice->GetVulkanDevice().createImageView(&viewCreateInfo, nullptr, &m_resourceImageInfo.imageView));
   }
   else if (pBuffer)
   {
-    pDXResource = static_cast<const ezGALBufferVulkan*>(pBuffer)->GetDXBuffer();
+    if (!pBuffer->GetDescription().m_bAllowRawViews && m_Description.m_bRawView)
+    {
+      ezLog::Error("Trying to create a raw view for a buffer with no raw view flag is invalid!");
+      return EZ_FAILURE;
+    }
 
+    m_pParentBuffer = static_cast<const ezGALBufferVulkan*>(pBuffer);
     if (pBuffer->GetDescription().m_bUseAsStructuredBuffer)
-      DXUAVDesc.Format = DXGI_FORMAT_UNKNOWN;
-
-    DXUAVDesc.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;
-    DXUAVDesc.Buffer.FirstElement = m_Description.m_uiFirstElement;
-    DXUAVDesc.Buffer.NumElements = m_Description.m_uiNumElements;
-    DXUAVDesc.Buffer.Flags = 0;
-    if (m_Description.m_bRawView)
-      DXUAVDesc.Buffer.Flags |= D3D11_BUFFER_UAV_FLAG_RAW;
-    if (m_Description.m_bAppend)
-      DXUAVDesc.Buffer.Flags |= D3D11_BUFFER_UAV_FLAG_APPEND;
+    {
+      m_resourceBufferInfo.offset = pBuffer->GetDescription().m_uiStructSize * m_Description.m_uiFirstElement;
+      m_resourceBufferInfo.range = pBuffer->GetDescription().m_uiStructSize * m_Description.m_uiNumElements;
+    }
+    else if (m_Description.m_bRawView)
+    {
+      m_resourceBufferInfo.offset = sizeof(ezUInt32) * m_Description.m_uiFirstElement;
+      m_resourceBufferInfo.range = sizeof(ezUInt32) * m_Description.m_uiNumElements;
+    }
+    else
+    {
+      m_resourceBufferInfo.offset = m_Description.m_uiFirstElement;
+      m_resourceBufferInfo.range = m_Description.m_uiNumElements;
+      EZ_REPORT_FAILURE("Not implemented. Need to figure out the element size of the view format.");
+    }
   }
-
-  if (FAILED(pDXDevice->GetDXDevice()->CreateUnorderedAccessView(pDXResource, &DXUAVDesc, &m_pDXUnorderedAccessView)))
-  {
-    return EZ_FAILURE;
-  }
-  else
-  {
-    return EZ_SUCCESS;
-  }
-#endif
 
   return EZ_SUCCESS;
 }
 
 ezResult ezGALUnorderedAccessViewVulkan::DeInitPlatform(ezGALDevice* pDevice)
 {
-  // TODO
+  ezGALDeviceVulkan* pVulkanDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
+  pVulkanDevice->DeleteLater(m_resourceImageInfo.imageView);
+  m_pParentBuffer = nullptr;
+  m_resourceImageInfo = vk::DescriptorImageInfo();
+  m_resourceBufferInfo = vk::DescriptorBufferInfo();
   return EZ_SUCCESS;
 }
 

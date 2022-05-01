@@ -14,7 +14,7 @@ EZ_ALWAYS_INLINE const vk::PipelineRasterizationStateCreateInfo* ezGALRasterizer
   return &m_rasterizerState;
 }
 
-EZ_ALWAYS_INLINE const vk::DescriptorSetLayoutBinding* ezGALSamplerStateVulkan::GetSamplerState() const
+EZ_ALWAYS_INLINE const vk::DescriptorImageInfo& ezGALSamplerStateVulkan::GetImageInfo() const
 {
-  return &m_samplerState;
+  return m_resourceImageInfo;
 }

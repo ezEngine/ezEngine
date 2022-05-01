@@ -1,7 +1,8 @@
 
 vk::Buffer ezGALBufferVulkan::GetVkBuffer() const
 {
-  return m_buffer;
+  m_currentBuffer.m_currentFrame = m_pDeviceVulkan->GetCurrentFrame();
+  return m_currentBuffer.m_buffer;
 }
 
 vk::IndexType ezGALBufferVulkan::GetIndexType() const
@@ -11,7 +12,7 @@ vk::IndexType ezGALBufferVulkan::GetIndexType() const
 
 ezVulkanAllocation ezGALBufferVulkan::GetAllocation() const
 {
-  return m_alloc;
+  return m_currentBuffer.m_alloc;
 }
 
 const ezVulkanAllocationInfo& ezGALBufferVulkan::GetAllocationInfo() const

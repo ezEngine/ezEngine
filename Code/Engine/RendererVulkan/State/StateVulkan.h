@@ -69,22 +69,19 @@ protected:
 class EZ_RENDERERVULKAN_DLL ezGALSamplerStateVulkan : public ezGALSamplerState
 {
 public:
-  EZ_ALWAYS_INLINE const vk::DescriptorSetLayoutBinding* GetSamplerState() const;
+  EZ_ALWAYS_INLINE const vk::DescriptorImageInfo& GetImageInfo() const;
 
 protected:
   friend class ezGALDeviceVulkan;
   friend class ezMemoryUtils;
 
   ezGALSamplerStateVulkan(const ezGALSamplerStateCreationDescription& Description);
-
   ~ezGALSamplerStateVulkan();
 
   virtual ezResult InitPlatform(ezGALDevice* pDevice) override;
-
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
 
-  vk::Sampler m_sampler = {};
-  vk::DescriptorSetLayoutBinding m_samplerState = {};
+  vk::DescriptorImageInfo m_resourceImageInfo;
 };
 
 

@@ -1,8 +1,10 @@
 #include <ShaderCompilerDXC/ShaderCompilerDXC.h>
 
+#include <Foundation/IO/MemoryStream.h>
 #include <Foundation/Memory/MemoryUtils.h>
 #include <Foundation/Strings/StringConversion.h>
 
+#include <ShaderCompilerDXC/SpirvMetaData.h>
 #include <ShaderCompilerDXC/spirv_reflect.h>
 
 // atlbase.h won't compile with NULL being nullptr
@@ -230,7 +232,7 @@ ezResult ezShaderCompilerDXC::FillSRVResourceBinding(ezShaderStageBinary& shader
   {
     if (info.type_description->op == SpvOp::SpvOpTypeStruct)
     {
-      binding.m_Type = ezShaderResourceBinding::UAV;
+      binding.m_Type = ezShaderResourceBinding::GenericBuffer;
       return EZ_SUCCESS;
     }
   }
@@ -382,7 +384,7 @@ ezResult ezShaderCompilerDXC::ReflectShaderStage(ezShaderProgramData& inout_Data
 {
   EZ_LOG_BLOCK("ReflectShaderStage", inout_Data.m_szSourceFile);
 
-  const auto& bytecode = inout_Data.m_StageBinary[Stage].GetByteCode();
+  auto& bytecode = inout_Data.m_StageBinary[Stage].GetByteCode();
 
   SpvReflectShaderModule module;
 
@@ -430,37 +432,68 @@ ezResult ezShaderCompilerDXC::ReflectShaderStage(ezShaderProgramData& inout_Data
 
       inout_Data.m_StageBinary[Stage].AddShaderResourceBinding(shaderResourceBinding);
     }
+
+    {
+      // Modify meta data
+      ezDefaultMemoryStreamStorage storage;
+      ezMemoryStreamWriter stream(&storage);
+
+      const ezUInt32 uiCount = vars.GetCount();
+
+      //#TODO_VULKAN Currently hard coded to a single DescriptorSetLayout.
+      ezHybridArray<ezVulkanDescriptorSetLayout, 3> sets;
+      ezVulkanDescriptorSetLayout& set = sets.ExpandAndGetRef();
+     
+      for (ezUInt32 i = 0; i < uiCount; ++i)
+      {
+        auto& info = *vars[i];
+        EZ_ASSERT_DEV(info.set == 0, "Only a single descriptor set is currently supported.");
+        ezVulkanDescriptorSetLayoutBinding& binding = set.bindings.ExpandAndGetRef();
+        binding.m_sName = info.name;
+        binding.m_uiBinding = static_cast<ezUInt8>(info.binding);
+        switch (info.resource_type)
+        {
+        case SpvReflectResourceType::SPV_REFLECT_RESOURCE_FLAG_SAMPLER:
+          binding.m_Type = ezVulkanDescriptorSetLayoutBinding::ResourceType::Sampler;
+            break;
+        case SpvReflectResourceType::SPV_REFLECT_RESOURCE_FLAG_CBV:
+          binding.m_Type = ezVulkanDescriptorSetLayoutBinding::ResourceType::ConstantBuffer;
+          break;
+        case SpvReflectResourceType::SPV_REFLECT_RESOURCE_FLAG_SRV:
+          binding.m_Type = ezVulkanDescriptorSetLayoutBinding::ResourceType::ResourceView;
+          break;
+        default:
+        case SpvReflectResourceType::SPV_REFLECT_RESOURCE_FLAG_UAV:
+          binding.m_Type = ezVulkanDescriptorSetLayoutBinding::ResourceType::UAV;
+          break;
+        }
+        binding.m_uiDescriptorType = static_cast<ezUInt32>(info.descriptor_type);
+        binding.m_uiDescriptorCount = 1;
+        for (ezUInt32 uiDim = 0; uiDim < info.array.dims_count; ++uiDim)
+        {
+          binding.m_uiDescriptorCount *= info.array.dims[uiDim];
+        }
+        binding.m_uiWordOffset = info.word_offset.binding;
+      }
+      set.bindings.Sort([](const ezVulkanDescriptorSetLayoutBinding& lhs, const ezVulkanDescriptorSetLayoutBinding& rhs)
+        { return lhs.m_uiBinding < rhs.m_uiBinding; });
+
+      ezSpirvMetaData::Write(stream, bytecode, sets);
+
+      // Replaced compiled Spirv code with custom ezSpirvMetaData format.
+      ezUInt64 uiBytesLeft = storage.GetStorageSize64();
+      ezUInt64 uiReadPosition = 0;
+      bytecode.Clear();
+      bytecode.Reserve((ezUInt32)uiBytesLeft);
+      while (uiBytesLeft > 0)
+      {
+        ezArrayPtr<const ezUInt8> data = storage.GetContiguousMemoryRange(uiReadPosition);
+        bytecode.PushBackRange(data);
+        uiReadPosition += data.GetCount();
+        uiBytesLeft -= data.GetCount();
+      }
+    }
   }
-  //  else if (shaderInputBindDesc.Type == D3D_SIT_UAV_RWTYPED)
-  //  {
-  //    switch (shaderInputBindDesc.Dimension)
-  //    {
-  //      case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_BUFFER:
-  //      case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_BUFFEREX:
-  //        shaderResourceBinding.m_Type = ezShaderResourceBinding::RWBuffer;
-  //        break;
-
-  //      default:
-  //        EZ_ASSERT_NOT_IMPLEMENTED;
-  //        break;
-  //    }
-  //  }
-
-  //  else if (shaderInputBindDesc.Type == D3D_SIT_UAV_RWSTRUCTURED)
-  //    shaderResourceBinding.m_Type = ezShaderResourceBinding::RWStructuredBuffer;
-
-  //  else if (shaderInputBindDesc.Type == D3D_SIT_UAV_RWBYTEADDRESS)
-  //    shaderResourceBinding.m_Type = ezShaderResourceBinding::RWRawBuffer;
-
-  //  else if (shaderInputBindDesc.Type == D3D_SIT_UAV_APPEND_STRUCTURED)
-  //    shaderResourceBinding.m_Type = ezShaderResourceBinding::RWAppendBuffer;
-
-  //  else if (shaderInputBindDesc.Type == D3D_SIT_UAV_CONSUME_STRUCTURED)
-  //    shaderResourceBinding.m_Type = ezShaderResourceBinding::RWConsumeBuffer;
-
-  //  else if (shaderInputBindDesc.Type == D3D_SIT_UAV_RWSTRUCTURED_WITH_COUNTER)
-  //    shaderResourceBinding.m_Type = ezShaderResourceBinding::RWStructuredBufferWithCounter;
-
   return EZ_SUCCESS;
 }
 

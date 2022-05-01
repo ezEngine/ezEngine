@@ -1,30 +1,15 @@
 
-vk::ShaderModule ezGALShaderVulkan::GetVertexShader() const
+vk::ShaderModule ezGALShaderVulkan::GetShader(ezGALShaderStage::Enum stage) const
 {
-  return m_pVertexShader;
+  return m_Shaders[stage];
 }
 
-vk::ShaderModule ezGALShaderVulkan::GetHullShader() const
+const ezGALShaderVulkan::DescriptorSetLayoutDesc& ezGALShaderVulkan::GetDescriptorSetLayout() const
 {
-  return m_pHullShader;
+  return m_descriptorSetLayoutDesc;
 }
 
-vk::ShaderModule ezGALShaderVulkan::GetDomainShader() const
+const ezArrayPtr<const ezGALShaderVulkan::BindingMapping> ezGALShaderVulkan::GetBindingMapping() const
 {
-  return m_pDomainShader;
-}
-
-vk::ShaderModule ezGALShaderVulkan::GetGeometryShader() const
-{
-  return m_pGeometryShader;
-}
-
-vk::ShaderModule ezGALShaderVulkan::GetPixelShader() const
-{
-  return m_pPixelShader;
-}
-
-vk::ShaderModule ezGALShaderVulkan::GetComputeShader() const
-{
-  return m_pComputeShader;
+  return m_BindingMapping;
 }

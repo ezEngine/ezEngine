@@ -1,5 +1,4 @@
-
-ID3D11UnorderedAccessView* ezGALUnorderedAccessViewVulkan::GetDXResourceView() const
+const vk::DescriptorImageInfo& ezGALUnorderedAccessViewVulkan::GetImageInfo() const
 {
-  return m_pDXUnorderedAccessView;
+  return m_resourceImageInfo;
 }
