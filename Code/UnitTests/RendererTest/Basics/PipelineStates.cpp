@@ -2,9 +2,10 @@
 
 #include <Core/GameState/GameStateWindow.h>
 #include <Core/Graphics/Camera.h>
+#include <RendererTest/Basics/PipelineStates.h>
+
 #include <RendererTest/../../../Data/UnitTests/RendererTest/Shaders/TestConstants.h>
 #include <RendererTest/../../../Data/UnitTests/RendererTest/Shaders/TestInstancing.h>
-#include <RendererTest/Basics/PipelineStates.h>
 
 ezResult ezRendererTestPipelineStates::InitializeSubTest(ezInt32 iIdentifier)
 {
