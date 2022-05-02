@@ -1,7 +1,8 @@
 #pragma once
 
-#include "../../../Base/Shaders/Common/ConstantBufferMacros.h"
 #include "../../../Base/Shaders/Common/Platforms.h"
+
+#include "../../../Base/Shaders/Common/ConstantBufferMacros.h"
 
 struct EZ_ALIGN_16(ezTestShaderData)
 {
