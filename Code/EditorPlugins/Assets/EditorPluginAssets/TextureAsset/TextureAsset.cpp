@@ -499,7 +499,6 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 enum class TextureType
 {
-  Unknown,
   Diffuse,
   Normal,
   Roughness,
@@ -530,7 +529,7 @@ void ezTextureAssetDocumentGenerator::GetImportModes(const char* szParentDirRela
 
   baseOutputFile.ChangeFileExtension(GetDocumentExtension());
 
-  TextureType tt = TextureType::Unknown;
+  TextureType tt = TextureType::Diffuse;
 
   if (ezPathUtils::HasExtension(szParentDirRelativePath, "hdr"))
   {
@@ -569,6 +568,7 @@ void ezTextureAssetDocumentGenerator::GetImportModes(const char* szParentDirRela
   info.m_Priority = ezAssetDocGeneratorPriority::DefaultPriority;
   info.m_sOutputFileParentRelative = baseOutputFile;
 
+  // first add the default option
   switch (tt)
   {
     case TextureType::Diffuse:
@@ -626,12 +626,9 @@ void ezTextureAssetDocumentGenerator::GetImportModes(const char* szParentDirRela
       info.m_sIcon = ":/AssetIcons/Texture_Linear.png";
       break;
     }
-
-    case TextureType::Unknown:
-    {
-      break;
-    }
   }
+
+  // now add all the other options
 
   if (tt != TextureType::Diffuse)
   {

@@ -10,7 +10,7 @@ ezJoltCollisionMeshAssetDocumentManager::ezJoltCollisionMeshAssetDocumentManager
 {
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezJoltCollisionMeshAssetDocumentManager::OnDocumentManagerEvent, this));
 
-  m_DocTypeDesc.m_sDocumentTypeName = "Collision Mesh (Jolt)";
+  m_DocTypeDesc.m_sDocumentTypeName = "Jolt_Colmesh_Triangle";
   m_DocTypeDesc.m_sFileExtension = "ezJoltCollisionMeshAsset";
   m_DocTypeDesc.m_sIcon = ":/AssetIcons/Jolt_Collision_Mesh.png";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezJoltCollisionMeshAssetDocument>();
@@ -19,7 +19,7 @@ ezJoltCollisionMeshAssetDocumentManager::ezJoltCollisionMeshAssetDocumentManager
   m_DocTypeDesc.m_sResourceFileExtension = "ezJoltMesh";
   m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::SupportsThumbnail;
 
-  m_DocTypeDesc2.m_sDocumentTypeName = "Collision Mesh (Convex) (Jolt)";
+  m_DocTypeDesc2.m_sDocumentTypeName = "Jolt_Colmesh_Convex";
   m_DocTypeDesc2.m_sFileExtension = "ezJoltConvexCollisionMeshAsset";
   m_DocTypeDesc2.m_sIcon = ":/AssetIcons/Jolt_Collision_Mesh_Convex.png";
   m_DocTypeDesc2.m_pDocumentType = ezGetStaticRTTI<ezJoltCollisionMeshAssetDocument>();
@@ -51,7 +51,7 @@ void ezJoltCollisionMeshAssetDocumentManager::OnDocumentManagerEvent(const ezDoc
 
 void ezJoltCollisionMeshAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
 {
-  if (ezStringUtils::IsEqual(szDocumentTypeName, "Collision Mesh (Convex) (Jolt)"))
+  if (ezStringUtils::IsEqual(szDocumentTypeName, "Jolt_Colmesh_Convex"))
   {
     out_pDocument = new ezJoltCollisionMeshAssetDocument(szPath, true);
   }

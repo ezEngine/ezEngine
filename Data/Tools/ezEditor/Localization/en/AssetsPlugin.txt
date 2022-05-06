@@ -263,3 +263,25 @@ Skeleton.RenderTwistLimits;Render Twist Limits
 BoneShapes;Shapes
 ezEditableSkeletonBoneShape;Shape
 Radius;Radius
+Animated Mesh;Animated Mesh
+Animation Clip;Animation Clip
+Animation Controller;Animation Controller
+Collection;Collection
+ColorGradient;Color Gradient
+Curve1D;Curve 1D
+Decal;Decal
+Image Data;Image Data
+LUT;Lookup Table
+Layer;Scene Layer
+Material;Material
+Mesh;Mesh
+Prefab;Prefab
+PropertyAnim;Property Animation
+Render Target;Render Target
+RenderPipeline;Render Pipeline
+Scene;Scene
+Skeleton;Skeleton
+Surface;Surface
+Texture 2D;Texture 2D
+Texture Cube;Texture Cube
+Visual Script;Visual Script

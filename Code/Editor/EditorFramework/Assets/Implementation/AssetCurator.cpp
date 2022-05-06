@@ -1681,7 +1681,14 @@ void ezAssetCurator::BuildFileExtensionSet(ezSet<ezString>& AllExtensions)
   ezStringBuilder sTemp;
   AllExtensions.Clear();
 
-  const auto& allDesc = ezDocumentManager::GetAllDocumentDescriptors();
+  const auto& assetTypes = ezAssetDocumentManager::GetAllDocumentDescriptors();
+
+  // use translated strings
+  ezMap<ezString, const ezDocumentTypeDescriptor*> allDesc;
+  for (auto it : assetTypes)
+  {
+    allDesc[ezTranslate(it.Key())] = it.Value();
+  }
 
   for (auto it : allDesc)
   {

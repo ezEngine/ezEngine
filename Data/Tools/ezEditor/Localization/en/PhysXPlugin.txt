@@ -19,8 +19,6 @@ ezPxSteppingMode::Fixed;Fixed
 ezPxSteppingMode::SemiFixed;SemiFixed
 ezPxTriggerComponent;Physics Trigger (PhysX);;https://ezengine.net/pages/docs/physics/actors/physx-trigger-component.html
 ezPxVisColMeshComponent;Collision Mesh Visualizer (PhysX)
-CollisionMeshImport.TriangleMesh;Triangle Collision Mesh (PhysX)
-CollisionMeshImport.ConvexMesh;Convex Collision Mesh (PhysX)
 ezBreakableSheetComponent;Breakable Sheet (PhysX);;https://ezengine.net/pages/docs/physics/actors/physx-breakable-sheet-component.html
 ezPxAxis::X;X
 ezPxAxis::Y;Y
@@ -62,3 +60,5 @@ ezPxRagdollStart::WaitForPose;Wait for Pose
 ezPxRagdollStart::Wait;Wait
 Constraints;Constraints
 ezPxRagdollConstraint;Constraint
+Collision Mesh;PhysX Triangle Collision Mesh
+Collision Mesh (Convex);PhysX Convex Collision Mesh
