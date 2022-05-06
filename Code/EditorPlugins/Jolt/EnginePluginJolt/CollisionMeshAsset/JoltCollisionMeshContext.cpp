@@ -10,7 +10,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezJoltCollisionMeshContext, 1, ezRTTIDefaultAllo
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_CONSTANT_PROPERTY("DocumentType", (const char*) "Collision Mesh (Jolt);Collision Mesh (Convex) (Jolt)"),
+    EZ_CONSTANT_PROPERTY("DocumentType", (const char*) "Jolt_Colmesh_Triangle;Jolt_Colmesh_Convex"),
   }
   EZ_END_PROPERTIES;
 }

@@ -12,7 +12,7 @@ float ezJoltCollisionMeshComponentDragDropHandler::CanHandle(const ezDragDropInf
   if (ezComponentDragDropHandler::CanHandle(pInfo) == 0.0f)
     return 0.0f;
 
-  return (IsSpecificAssetType(pInfo, "Collision Mesh (Jolt)") || IsSpecificAssetType(pInfo, "Collision Mesh (Convex) (Jolt)")) ? 1.0f : 0.0f;
+  return (IsSpecificAssetType(pInfo, "Jolt_Colmesh_Triangle") || IsSpecificAssetType(pInfo, "Jolt_Colmesh_Convex")) ? 1.0f : 0.0f;
 }
 
 void ezJoltCollisionMeshComponentDragDropHandler::OnDragBegin(const ezDragDropInfo* pInfo)

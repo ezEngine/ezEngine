@@ -14,8 +14,8 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Jolt, JoltPlugin)
 
   ON_CORESYSTEMS_STARTUP
   {
-    ezResourceManager::RegisterResourceForAssetType("Collision Mesh (Jolt)", ezGetStaticRTTI<ezJoltMeshResource>());
-    ezResourceManager::RegisterResourceForAssetType("Collision Mesh (Convex) (Jolt)", ezGetStaticRTTI<ezJoltMeshResource>());
+    ezResourceManager::RegisterResourceForAssetType("Jolt_Colmesh_Triangle", ezGetStaticRTTI<ezJoltMeshResource>());
+    ezResourceManager::RegisterResourceForAssetType("Jolt_Colmesh_Convex", ezGetStaticRTTI<ezJoltMeshResource>());
 
     ezJoltMeshResourceDescriptor desc;
     ezJoltMeshResourceHandle hResource = ezResourceManager::CreateResource<ezJoltMeshResource>("Missing Jolt Mesh", std::move(desc), "Empty collision mesh");

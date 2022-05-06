@@ -341,7 +341,7 @@ void ezCollisionMeshAssetDocumentGenerator::GetImportModes(const char* szParentD
   {
     ezAssetDocumentGenerator::Info& info = out_Modes.ExpandAndGetRef();
     info.m_Priority = ezAssetDocGeneratorPriority::DefaultPriority;
-    info.m_sName = "CollisionMeshImport.TriangleMesh";
+    info.m_sName = "Collision Mesh";
     info.m_sOutputFileParentRelative = baseOutputFile;
     info.m_sIcon = ":/AssetIcons/Collision_Mesh.png";
   }
@@ -389,7 +389,7 @@ void ezConvexCollisionMeshAssetDocumentGenerator::GetImportModes(const char* szP
   {
     ezAssetDocumentGenerator::Info& info = out_Modes.ExpandAndGetRef();
     info.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
-    info.m_sName = "CollisionMeshImport.ConvexMesh";
+    info.m_sName = "Collision Mesh (Convex)";
     info.m_sOutputFileParentRelative = baseOutputFile;
     info.m_sIcon = ":/AssetIcons/Collision_Mesh_Convex.png";
   }

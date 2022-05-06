@@ -75,7 +75,14 @@ ezQtAssetBrowserWidget::~ezQtAssetBrowserWidget()
 
 void ezQtAssetBrowserWidget::UpdateAssetTypes()
 {
-  const auto& assetTypes = ezAssetDocumentManager::GetAllDocumentDescriptors();
+  const auto& assetTypes0 = ezAssetDocumentManager::GetAllDocumentDescriptors();
+
+  // use translated strings
+  ezMap<ezString, const ezDocumentTypeDescriptor*> assetTypes;
+  for (auto it : assetTypes0)
+  {
+    assetTypes[ezTranslate(it.Key())] = it.Value();
+  }
 
   {
     ezQtScopedBlockSignals block(ListTypeFilter);
@@ -87,6 +94,7 @@ void ezQtAssetBrowserWidget::UpdateAssetTypes()
       QListWidgetItem* pItem = new QListWidgetItem(QIcon(QLatin1String(":/AssetIcons/All")), QLatin1String("<All>"));
       pItem->setFlags(Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable | Qt::ItemFlag::ItemIsUserCheckable);
       pItem->setCheckState(Qt::CheckState::Checked);
+      pItem->setData(Qt::UserRole, QLatin1String("<All>"));
 
       ListTypeFilter->addItem(pItem);
     }
@@ -96,6 +104,7 @@ void ezQtAssetBrowserWidget::UpdateAssetTypes()
       QListWidgetItem* pItem = new QListWidgetItem(ezQtUiServices::GetCachedIconResource(it.Value()->m_sIcon), QString::fromUtf8(it.Key()));
       pItem->setFlags(Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable | Qt::ItemFlag::ItemIsUserCheckable);
       pItem->setCheckState(Qt::CheckState::Unchecked);
+      pItem->setData(Qt::UserRole, QLatin1String(it.Value()->m_sDocumentTypeName));
 
       ListTypeFilter->addItem(pItem);
     }
@@ -112,6 +121,7 @@ void ezQtAssetBrowserWidget::UpdateAssetTypes()
     for (const auto& it : assetTypes)
     {
       TypeFilter->addItem(ezQtUiServices::GetCachedIconResource(it.Value()->m_sIcon), QString::fromUtf8(it.Key()));
+      TypeFilter->setItemData(TypeFilter->count() - 1, QString::fromUtf8(it.Value()->m_sDocumentTypeName), Qt::UserRole);
     }
   }
 
@@ -303,7 +313,7 @@ void ezQtAssetBrowserWidget::OnTypeFilterChanged()
 
     for (ezInt32 i = 1; i < ListTypeFilter->count(); ++i)
     {
-      sTemp.Set(";", ListTypeFilter->item(i)->text().toUtf8().data(), ";");
+      sTemp.Set(";", ListTypeFilter->item(i)->data(Qt::UserRole).toString().toUtf8().data(), ";");
 
       const bool bChecked = sFilter.FindSubString(sTemp) != nullptr;
 
@@ -324,7 +334,7 @@ void ezQtAssetBrowserWidget::OnTypeFilterChanged()
 
     for (ezInt32 i = 1; i < TypeFilter->count(); ++i)
     {
-      sTemp.Set(";", TypeFilter->itemText(i).toUtf8().data(), ";");
+      sTemp.Set(";", TypeFilter->itemData(i, Qt::UserRole).toString().toUtf8().data(), ";");
 
       if (sFilter.FindSubString(sTemp) != nullptr)
       {
@@ -352,7 +362,7 @@ void ezQtAssetBrowserWidget::on_ListTypeFilter_itemChanged(QListWidgetItem* item
 {
   ezQtScopedBlockSignals block(ListTypeFilter);
 
-  if (item->text() == "<All>")
+  if (item->data(Qt::UserRole).toString() == "<All>")
   {
     if (item->checkState() == Qt::Checked)
     {
@@ -371,7 +381,7 @@ void ezQtAssetBrowserWidget::on_ListTypeFilter_itemChanged(QListWidgetItem* item
       {
         if (!m_sAllTypesFilter.IsEmpty())
         {
-          sFilter.Set(";", ListTypeFilter->item(i)->text().toUtf8().data(), ";");
+          sFilter.Set(";", ListTypeFilter->item(i)->data(Qt::UserRole).toString().toUtf8().data(), ";");
 
           if (m_sAllTypesFilter.FindSubString(sFilter) != nullptr)
             ListTypeFilter->item(i)->setCheckState(Qt::Checked);
@@ -411,7 +421,7 @@ void ezQtAssetBrowserWidget::on_ListTypeFilter_itemChanged(QListWidgetItem* item
   for (ezInt32 i = 1; i < ListTypeFilter->count(); ++i)
   {
     if (ListTypeFilter->item(i)->checkState() == Qt::Checked)
-      sFilter.Append(";", ListTypeFilter->item(i)->text().toUtf8().data(), ";");
+      sFilter.Append(";", ListTypeFilter->item(i)->data(Qt::UserRole).toString().toUtf8().data(), ";");
   }
 
   if (sFilter.IsEmpty())         // all filters enabled
@@ -585,7 +595,7 @@ void ezQtAssetBrowserWidget::on_TypeFilter_currentIndexChanged(int index)
 
   if (index > 0)
   {
-    sFilter.Set(";", TypeFilter->itemText(index).toUtf8().data(), ";");
+    sFilter.Set(";", TypeFilter->itemData(index, Qt::UserRole).toString().toUtf8().data(), ";");
   }
   else
   {
@@ -924,7 +934,7 @@ void ezQtAssetBrowserWidget::ShowOnlyTheseTypeFilters(const char* szFilters)
 
       for (ezInt32 i = 1; i < ListTypeFilter->count(); ++i)
       {
-        sFilter.Set(";", ListTypeFilter->item(i)->text().toUtf8().data(), ";");
+        sFilter.Set(";", ListTypeFilter->item(i)->data(Qt::UserRole).toString().toUtf8().data(), ";");
 
         if (sAllFilters.FindSubString(sFilter) == nullptr)
         {
@@ -940,7 +950,7 @@ void ezQtAssetBrowserWidget::ShowOnlyTheseTypeFilters(const char* szFilters)
       {
         const ezInt32 idx = i - 1;
 
-        sFilter.Set(";", TypeFilter->itemText(idx).toUtf8().data(), ";");
+        sFilter.Set(";", TypeFilter->itemData(idx, Qt::UserRole).toString().toUtf8().data(), ";");
 
         if (sAllFilters.FindSubString(sFilter) == nullptr)
         {

@@ -91,3 +91,4 @@ ezQuadParticleOrientation::FixedAxis_ParticleDir;Axis: Particle Dir
 ezParticleBehaviorFactory_Bounds;Bounds
 ezParticleOutOfBoundsMode::Teleport;Teleport
 ezParticleOutOfBoundsMode::Die;Die
+Particle Effect;Particle Effect
