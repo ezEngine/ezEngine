@@ -700,12 +700,12 @@ void ezGALCommandEncoderImplVulkan::SetRasterizerStatePlatform(const ezGALRaster
 
 void ezGALCommandEncoderImplVulkan::SetViewportPlatform(const ezRectFloat& rect, float fMinDepth, float fMaxDepth)
 {
-  // We use ezClipSpaceYMode::Regular and rely in the Vulkan 1.1 feature that a nagative height performs y-inversion of the clip-space to framebuffer-space transform.
+  // We use ezClipSpaceYMode::Regular and rely in the Vulkan 1.1 feature that a negative height performs y-inversion of the clip-space to framebuffer-space transform.
   // https://www.khronos.org/registry/vulkan/specs/1.3-extensions/man/html/VK_KHR_maintenance1.html
   vk::Viewport viewport = {rect.x, rect.height + rect.y, rect.width, -rect.height, fMinDepth, fMaxDepth};
   if (m_viewport != viewport)
   {
-    // viewport is marked as dynamic in the pipeline layout and thus does not mark m_bPipelineStateDirty.
+    // Viewport is marked as dynamic in the pipeline layout and thus does not mark m_bPipelineStateDirty.
     m_viewport = viewport;
     m_bViewportDirty = true;
   }

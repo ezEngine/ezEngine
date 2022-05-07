@@ -25,6 +25,8 @@ public:
   static void ReclaimPool(vk::DescriptorPool& descriptorPool);
 
 private:
+  static constexpr ezUInt32 s_uiPoolBaseSize = 1024;
+
   static vk::DescriptorPool GetNewPool();
 
   static vk::DescriptorPool s_currentPool;

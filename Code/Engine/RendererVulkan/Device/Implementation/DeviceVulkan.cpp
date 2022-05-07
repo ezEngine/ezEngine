@@ -105,9 +105,6 @@ EZ_END_SUBSYSTEM_DECLARATION;
 
 ezGALDeviceVulkan::ezGALDeviceVulkan(const ezGALDeviceCreationDescription& Description)
   : ezGALDevice(Description)
-  , m_device(nullptr)
-  //, m_pDebug(nullptr)
-  , m_uiFrameCounter(1)
 {
 }
 
@@ -377,7 +374,7 @@ ezResult ezGALDeviceVulkan::InitPlatform()
   FillFormatLookupTable();
 
   ezClipSpaceDepthRange::Default = ezClipSpaceDepthRange::ZeroToOne;
-  // We use ezClipSpaceYMode::Regular and rely in the Vulkan 1.1 feature that a nagative height performs y-inversion of the clip-space to framebuffer-space transform.
+  // We use ezClipSpaceYMode::Regular and rely in the Vulkan 1.1 feature that a negative height performs y-inversion of the clip-space to framebuffer-space transform.
   // https://www.khronos.org/registry/vulkan/specs/1.3-extensions/man/html/VK_KHR_maintenance1.html
   ezClipSpaceYMode::RenderToTextureDefault = ezClipSpaceYMode::Regular;
 

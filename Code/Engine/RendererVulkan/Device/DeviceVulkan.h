@@ -235,7 +235,7 @@ private:
 
   void FillFormatLookupTable();
 
-  ezUInt64 m_uiFrameCounter = 0;
+  ezUInt64 m_uiFrameCounter = 1; ///< We start at 1 so m_uiFrameCounter and m_uiSafeFrame are not equal at the start.
   ezUInt64 m_uiSafeFrame = 0;
   ezUInt8 m_uiCurrentPerFrameData = 0;
   ezUInt8 m_uiNextPerFrameData = 1;

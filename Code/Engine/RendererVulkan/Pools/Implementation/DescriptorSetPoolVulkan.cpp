@@ -118,12 +118,12 @@ vk::DescriptorPool ezDescriptorSetPoolVulkan::GetNewPool()
     ezHybridArray<vk::DescriptorPoolSize, 20> poolSizes;
     for (auto weight : s_descriptorWeights)
     {
-      if (static_cast<ezUInt32>(weight.Value() * 1000) > 0)
-        poolSizes.PushBack(vk::DescriptorPoolSize(weight.Key(), static_cast<ezUInt32>(weight.Value() * 1000)));
+      if (static_cast<ezUInt32>(weight.Value() * s_uiPoolBaseSize) > 0)
+        poolSizes.PushBack(vk::DescriptorPoolSize(weight.Key(), static_cast<ezUInt32>(weight.Value() * s_uiPoolBaseSize)));
     }
     vk::DescriptorPoolCreateInfo poolCreateInfo;
     poolCreateInfo.flags = {};
-    poolCreateInfo.maxSets = 1000;
+    poolCreateInfo.maxSets = s_uiPoolBaseSize;
     poolCreateInfo.poolSizeCount = poolSizes.GetCount();
     poolCreateInfo.pPoolSizes = poolSizes.GetData();
 
