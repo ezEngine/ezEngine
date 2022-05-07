@@ -1,0 +1,44 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+[RENDERSTATE]
+
+DepthTest = false
+CullMode = CullMode_None
+
+[VERTEXSHADER]
+
+#include "TestConstants.h"
+
+struct VS_OUT
+{
+  float4 Position : SV_Position;
+};
+
+VS_OUT main(uint vertexId : SV_VertexID)
+{
+  VS_OUT RetVal;
+  RetVal.Position = Vertex0;
+  if (vertexId == 1)
+	  RetVal.Position = Vertex1;
+  else if (vertexId == 2)
+	  RetVal.Position = Vertex2;
+  return RetVal;
+}
+
+[PIXELSHADER]
+
+#include "TestConstants.h"
+
+struct VS_OUT
+{
+  float4 Position : SV_Position;
+};
+
+float4 main(VS_OUT a) : SV_Target
+{
+  return VertexColor;
+}
+

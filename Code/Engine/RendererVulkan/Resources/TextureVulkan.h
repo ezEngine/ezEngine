@@ -10,6 +10,8 @@ class ezGALTextureVulkan : public ezGALTexture
 {
 public:
   EZ_ALWAYS_INLINE vk::Image GetImage() const;
+  EZ_ALWAYS_INLINE vk::ImageLayout GetCurrentLayout() const;
+  EZ_ALWAYS_INLINE vk::ImageLayout GetPreferredLayout() const;
 
   EZ_ALWAYS_INLINE ezVulkanAllocation GetAllocation() const;
   EZ_ALWAYS_INLINE const ezVulkanAllocationInfo& GetAllocationInfo() const;
@@ -32,6 +34,9 @@ protected:
   ezResult CreateStagingBuffer(ezGALDeviceVulkan* pDevice);
 
   vk::Image m_image;
+  vk::ImageLayout m_currentLayout;
+  vk::ImageLayout m_preferredLayout;
+
   ezVulkanAllocation m_alloc;
   ezVulkanAllocationInfo m_allocInfo;
 

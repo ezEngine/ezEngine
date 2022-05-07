@@ -282,6 +282,7 @@ struct ezGALResourceViewCreationDescription : public ezHashableStruct<ezGALResou
 
   ezEnum<ezGALResourceFormat> m_OverrideViewFormat = ezGALResourceFormat::Invalid;
 
+  // Texture only
   ezUInt32 m_uiMostDetailedMipLevel = 0;
   ezUInt32 m_uiMipLevelsToUse = 0xFFFFFFFFu;
 

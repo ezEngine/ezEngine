@@ -189,15 +189,10 @@ ezResult ezGALRasterizerStateVulkan::DeInitPlatform(ezGALDevice* pDevice)
 
 ezGALSamplerStateVulkan::ezGALSamplerStateVulkan(const ezGALSamplerStateCreationDescription& Description)
   : ezGALSamplerState(Description)
-  , m_samplerState({})
-  , m_sampler(nullptr)
 {
 }
 
 ezGALSamplerStateVulkan::~ezGALSamplerStateVulkan() {}
-
-/*
- */
 
 ezResult ezGALSamplerStateVulkan::InitPlatform(ezGALDevice* pDevice)
 {
@@ -219,34 +214,17 @@ ezResult ezGALSamplerStateVulkan::InitPlatform(ezGALDevice* pDevice)
   samplerCreateInfo.mipLodBias = m_Description.m_fMipLodBias;
   samplerCreateInfo.mipmapMode = GALFilterToVulkanMipmapMode[m_Description.m_MipFilter];
 
-  m_sampler = pVulkanDevice->GetVulkanDevice().createSampler(samplerCreateInfo);
-
-  if (!m_sampler)
-  {
-    return EZ_FAILURE;
-  }
-  else
-  {
-    return EZ_SUCCESS;
-  }
-
-  m_samplerState.descriptorType = vk::DescriptorType::eSampledImage;
-
-  // TODO sampler binding info
+  m_resourceImageInfo.imageLayout = vk::ImageLayout::eUndefined;
+  VK_SUCCEED_OR_RETURN_EZ_FAILURE(pVulkanDevice->GetVulkanDevice().createSampler(&samplerCreateInfo, nullptr, &m_resourceImageInfo.sampler));
+  return EZ_SUCCESS;
 }
 
 
 ezResult ezGALSamplerStateVulkan::DeInitPlatform(ezGALDevice* pDevice)
 {
-  if (m_sampler)
-  {
-    ezGALDeviceVulkan* pVulkanDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
-    pVulkanDevice->DeleteLater(m_sampler);
-  }
-
+  ezGALDeviceVulkan* pVulkanDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
+  pVulkanDevice->DeleteLater(m_resourceImageInfo.sampler);
   return EZ_SUCCESS;
 }
-
-
 
 EZ_STATICLINK_FILE(RendererVulkan, RendererVulkan_State_Implementation_StateVulkan);

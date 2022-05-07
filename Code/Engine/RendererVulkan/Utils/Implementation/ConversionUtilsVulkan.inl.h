@@ -6,6 +6,10 @@ namespace
   {
     return texDesc.m_uiArraySize > 1 || viewDesc.m_uiFirstArraySlice > 0;
   }
+  bool IsArrayViewInternal(const ezGALTextureCreationDescription& texDesc, const ezGALUnorderedAccessViewCreationDescription& viewDesc)
+  {
+    return texDesc.m_uiArraySize > 1 || viewDesc.m_uiFirstArraySlice > 0;
+  }
 } // namespace
 
 EZ_ALWAYS_INLINE vk::SampleCountFlagBits ezConversionUtilsVulkan::GetSamples(ezEnum<ezGALMSAASampleCount> samples)
@@ -96,6 +100,96 @@ EZ_ALWAYS_INLINE vk::ImageSubresourceRange ezConversionUtilsVulkan::GetSubresour
   return range;
 }
 
+
+EZ_ALWAYS_INLINE vk::ImageSubresourceRange ezConversionUtilsVulkan::GetSubresourceRange(const ezGALTextureCreationDescription& texDesc, const ezGALUnorderedAccessViewCreationDescription& viewDesc)
+{
+  vk::ImageSubresourceRange range;
+
+  const bool bIsArrayView = IsArrayViewInternal(texDesc, viewDesc);
+
+  ezGALResourceFormat::Enum viewFormat = viewDesc.m_OverrideViewFormat == ezGALResourceFormat::Invalid ? texDesc.m_Format : viewDesc.m_OverrideViewFormat;
+  range.aspectMask = ezGALResourceFormat::IsDepthFormat(viewFormat) ? vk::ImageAspectFlagBits::eDepth : vk::ImageAspectFlagBits::eColor;
+  if (viewFormat == ezGALResourceFormat::D24S8)
+  {
+    range.aspectMask |= vk::ImageAspectFlagBits::eStencil;
+  }
+  range.layerCount = viewDesc.m_uiArraySize;
+  range.levelCount = 1;
+
+  switch (texDesc.m_Type)
+  {
+    case ezGALTextureType::Texture2D:
+    case ezGALTextureType::Texture2DProxy:
+      if (bIsArrayView)
+      {
+        range.baseArrayLayer = viewDesc.m_uiFirstArraySlice;
+        range.baseMipLevel = viewDesc.m_uiMipLevelToUse;
+      }
+      else
+      {
+        range.baseMipLevel = viewDesc.m_uiMipLevelToUse;
+      }
+      break;
+    case ezGALTextureType::TextureCube:
+      if (bIsArrayView)
+      {
+        range.baseArrayLayer = viewDesc.m_uiFirstArraySlice;
+        range.baseMipLevel = viewDesc.m_uiMipLevelToUse;
+      }
+      else
+      {
+        range.baseMipLevel = viewDesc.m_uiMipLevelToUse;
+      }
+      break;
+    case ezGALTextureType::Texture3D:
+      if (bIsArrayView)
+      {
+        EZ_ASSERT_NOT_IMPLEMENTED;
+      }
+      else
+      {
+        range.baseArrayLayer = viewDesc.m_uiFirstArraySlice;
+        range.baseMipLevel = viewDesc.m_uiMipLevelToUse;
+      }
+      break;
+    default:
+      EZ_ASSERT_NOT_IMPLEMENTED;
+  }
+  return range;
+}
+
+EZ_ALWAYS_INLINE vk::ImageViewType ezConversionUtilsVulkan::GetImageViewType(ezEnum<ezGALTextureType> texType, bool bIsArrayView)
+{
+  switch (texType)
+  {
+    case ezGALTextureType::Texture2D:
+    case ezGALTextureType::Texture2DProxy:
+      if (!bIsArrayView)
+      {
+        return vk::ImageViewType::e2D;
+      }
+      else
+      {
+        return vk::ImageViewType::e2DArray;
+      }
+    case ezGALTextureType::TextureCube:
+      if (!bIsArrayView)
+      {
+        return vk::ImageViewType::eCube;
+      }
+      else
+      {
+        return vk::ImageViewType::eCubeArray;
+      }
+    case ezGALTextureType::Texture3D:
+      return vk::ImageViewType::e3D;
+
+    default:
+      EZ_ASSERT_NOT_IMPLEMENTED;
+      return vk::ImageViewType::e1D;
+  }
+}
+
 EZ_ALWAYS_INLINE bool ezConversionUtilsVulkan::IsDepthFormat(vk::Format format)
 {
   switch (format)
@@ -138,5 +232,27 @@ EZ_ALWAYS_INLINE vk::PrimitiveTopology ezConversionUtilsVulkan::GetPrimitiveTopo
     default:
       EZ_ASSERT_NOT_IMPLEMENTED;
       return vk::PrimitiveTopology::ePointList;
+  }
+}
+
+EZ_ALWAYS_INLINE vk::ShaderStageFlagBits ezConversionUtilsVulkan::GetShaderStage(ezGALShaderStage::Enum stage)
+{
+  switch (stage)
+  {
+    case ezGALShaderStage::VertexShader:
+      return vk::ShaderStageFlagBits::eVertex;
+    case ezGALShaderStage::HullShader:
+      return vk::ShaderStageFlagBits::eTessellationControl;
+    case ezGALShaderStage::DomainShader:
+      return vk::ShaderStageFlagBits::eTessellationEvaluation;
+    case ezGALShaderStage::GeometryShader:
+      return vk::ShaderStageFlagBits::eGeometry;
+    case ezGALShaderStage::PixelShader:
+      return vk::ShaderStageFlagBits::eFragment;
+    default:
+      EZ_ASSERT_NOT_IMPLEMENTED;
+      [[fallthrough]];
+    case ezGALShaderStage::ComputeShader:
+      return vk::ShaderStageFlagBits::eCompute;
   }
 }

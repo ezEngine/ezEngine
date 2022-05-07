@@ -12,10 +12,16 @@ bool IsArrayView(const ezGALTextureCreationDescription& texDesc, const ezGALReso
   return texDesc.m_uiArraySize > 1 || viewDesc.m_uiFirstArraySlice > 0;
 }
 
+const vk::DescriptorBufferInfo& ezGALResourceViewVulkan::GetBufferInfo() const
+{
+  // Vulkan buffers get constantly swapped out for new ones so the vk::Buffer pointer is not persistent.
+  // We need to acquire the latest one on every request for rendering.
+  m_resourceBufferInfo.buffer = m_pParentBuffer->GetVkBuffer();
+  return m_resourceBufferInfo;
+}
+
 ezGALResourceViewVulkan::ezGALResourceViewVulkan(ezGALResourceBase* pResource, const ezGALResourceViewCreationDescription& Description)
   : ezGALResourceView(pResource, Description)
-  , m_resourceBinding{}
-  , m_resourceBindingData{}
 {
 }
 
@@ -23,6 +29,8 @@ ezGALResourceViewVulkan::~ezGALResourceViewVulkan() {}
 
 ezResult ezGALResourceViewVulkan::InitPlatform(ezGALDevice* pDevice)
 {
+  ezGALDeviceVulkan* pVulkanDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
+
   const ezGALTexture* pTexture = nullptr;
   if (!m_Description.m_hTexture.IsInvalidated())
     pTexture = pDevice->GetTexture(m_Description.m_hTexture);
@@ -37,35 +45,6 @@ ezResult ezGALResourceViewVulkan::InitPlatform(ezGALDevice* pDevice)
     return EZ_FAILURE;
   }
 
-  ezGALResourceFormat::Enum ViewFormat = m_Description.m_OverrideViewFormat;
-
-  if (pTexture)
-  {
-    if (ViewFormat == ezGALResourceFormat::Invalid)
-      ViewFormat = pTexture->GetDescription().m_Format;
-  }
-  else if (pBuffer)
-  {
-    if (ViewFormat == ezGALResourceFormat::Invalid)
-      ViewFormat = ezGALResourceFormat::RUInt;
-
-    if (!pBuffer->GetDescription().m_bAllowRawViews && m_Description.m_bRawView)
-    {
-      ezLog::Error("Trying to create a raw view for a buffer with no raw view flag is invalid!");
-      return EZ_FAILURE;
-    }
-  }
-
-  ezGALDeviceVulkan* pVulkanDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
-
-  m_resourceBinding.descriptorCount = 1;
-  m_resourceBindingData.descriptorCount = 1;
-
-  m_resourceBinding.descriptorType = pTexture ? vk::DescriptorType::eCombinedImageSampler : vk::DescriptorType::eStorageBuffer;
-  m_resourceBindingData.descriptorType = m_resourceBinding.descriptorType;
-  m_resourceBindingData.pBufferInfo = pTexture ? nullptr : &m_resourceBufferInfo;
-  m_resourceBindingData.pImageInfo = pTexture ? &m_resourceImageInfo : nullptr;
-
   if (pTexture)
   {
     auto image = static_cast<const ezGALTextureVulkan*>(pTexture->GetParentResource())->GetImage();
@@ -73,62 +52,42 @@ ezResult ezGALResourceViewVulkan::InitPlatform(ezGALDevice* pDevice)
 
     const bool bIsArrayView = IsArrayView(texDesc, m_Description);
 
-    m_resourceImageInfo.imageLayout = vk::ImageLayout::eGeneral;
     ezGALResourceFormat::Enum viewFormat = m_Description.m_OverrideViewFormat == ezGALResourceFormat::Invalid ? texDesc.m_Format : m_Description.m_OverrideViewFormat;
-    vk::ImageViewCreateInfo viewCreateInfo = {};
+    vk::ImageViewCreateInfo viewCreateInfo;
     viewCreateInfo.format = pVulkanDevice->GetFormatLookupTable().GetFormatInfo(viewFormat).m_eResourceViewType;
     viewCreateInfo.image = image;
-
     viewCreateInfo.subresourceRange = ezConversionUtilsVulkan::GetSubresourceRange(texDesc, m_Description);
+    viewCreateInfo.viewType = ezConversionUtilsVulkan::GetImageViewType(texDesc.m_Type, bIsArrayView);
 
-    switch (texDesc.m_Type)
-    {
-      case ezGALTextureType::Texture2D:
-      case ezGALTextureType::Texture2DProxy:
-        if (!bIsArrayView)
-        {
-          viewCreateInfo.viewType = vk::ImageViewType::e2D;
-        }
-        else
-        {
-          viewCreateInfo.viewType = vk::ImageViewType::e2DArray;
-        }
-        break;
-      case ezGALTextureType::TextureCube:
-        if (!bIsArrayView)
-        {
-          viewCreateInfo.viewType = vk::ImageViewType::eCube;
-        }
-        else
-        {
-          viewCreateInfo.viewType = vk::ImageViewType::eCubeArray;
-        }
-        break;
-      case ezGALTextureType::Texture3D:
-        viewCreateInfo.viewType = vk::ImageViewType::e3D;
-        break;
-
-      default:
-        EZ_ASSERT_NOT_IMPLEMENTED;
-        return EZ_FAILURE;
-    }
-
-    m_imageView = pVulkanDevice->GetVulkanDevice().createImageView(viewCreateInfo);
-
-    if (!m_imageView)
-    {
-      return EZ_FAILURE;
-    }
-
-    m_resourceImageInfo.imageView = m_imageView;
+    m_resourceImageInfo.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+    m_resourceImageInfo.imageView;
+    VK_SUCCEED_OR_RETURN_EZ_FAILURE(pVulkanDevice->GetVulkanDevice().createImageView(&viewCreateInfo, nullptr, &m_resourceImageInfo.imageView));
   }
   else if (pBuffer)
   {
-    vk::Buffer buffer = static_cast<const ezGALBufferVulkan*>(pBuffer)->GetVkBuffer();
+    if (!pBuffer->GetDescription().m_bAllowRawViews && m_Description.m_bRawView)
+    {
+      ezLog::Error("Trying to create a raw view for a buffer with no raw view flag is invalid!");
+      return EZ_FAILURE;
+    }
 
-    m_resourceBufferInfo.buffer = buffer;
-    m_resourceBufferInfo.offset = m_Description.m_uiFirstElement;
-    m_resourceBufferInfo.range = m_Description.m_uiNumElements;
+    m_pParentBuffer = static_cast<const ezGALBufferVulkan*>(pBuffer);
+    if (pBuffer->GetDescription().m_bUseAsStructuredBuffer)
+    {
+      m_resourceBufferInfo.offset = pBuffer->GetDescription().m_uiStructSize * m_Description.m_uiFirstElement;
+      m_resourceBufferInfo.range = pBuffer->GetDescription().m_uiStructSize * m_Description.m_uiNumElements;
+    }
+    else if (m_Description.m_bRawView)
+    {
+      m_resourceBufferInfo.offset = sizeof(ezUInt32) * m_Description.m_uiFirstElement;
+      m_resourceBufferInfo.range = sizeof(ezUInt32) * m_Description.m_uiNumElements;
+    }
+    else
+    {
+      m_resourceBufferInfo.offset = m_Description.m_uiFirstElement;
+      m_resourceBufferInfo.range = m_Description.m_uiNumElements;
+      EZ_REPORT_FAILURE("Not implemented. Need to figure out the element size of the view format.");
+    }
   }
 
   return EZ_SUCCESS;
@@ -137,11 +96,10 @@ ezResult ezGALResourceViewVulkan::InitPlatform(ezGALDevice* pDevice)
 ezResult ezGALResourceViewVulkan::DeInitPlatform(ezGALDevice* pDevice)
 {
   ezGALDeviceVulkan* pVulkanDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
-  if (m_imageView)
-  {
-    pVulkanDevice->DeleteLater(m_imageView);
-  }
-
+  pVulkanDevice->DeleteLater(m_resourceImageInfo.imageView);
+  m_pParentBuffer = nullptr;
+  m_resourceImageInfo = vk::DescriptorImageInfo();
+  m_resourceBufferInfo = vk::DescriptorBufferInfo();
   return EZ_SUCCESS;
 }
 

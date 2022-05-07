@@ -3,6 +3,7 @@
 #include <RendererVulkan/Cache/ResourceCacheVulkan.h>
 #include <RendererVulkan/CommandEncoder/CommandEncoderImplVulkan.h>
 #include <RendererVulkan/Device/DeviceVulkan.h>
+#include <RendererVulkan/Pools/DescriptorSetPoolVulkan.h>
 #include <RendererVulkan/Resources/BufferVulkan.h>
 #include <RendererVulkan/Resources/QueryVulkan.h>
 #include <RendererVulkan/Resources/RenderTargetViewVulkan.h>
@@ -31,6 +32,7 @@ void ezGALCommandEncoderImplVulkan::Reset()
   m_bDescriptorsDirty = true;
   m_BoundVertexBuffersRange.Reset();
 
+  m_LayoutDesc = {};
   m_PipelineDesc = {};
   m_frameBuffer = nullptr;
 
@@ -50,6 +52,18 @@ void ezGALCommandEncoderImplVulkan::Reset()
     m_pBoundVertexBuffers[i] = nullptr;
     m_VertexBufferOffsets[i] = 0;
   }
+
+  for (ezUInt32 i = 0; i < EZ_GAL_MAX_CONSTANT_BUFFER_COUNT; i++)
+  {
+    m_pBoundConstantBuffers[i] = nullptr;
+  }
+  for (ezUInt32 i = 0; i < ezGALShaderStage::ENUM_COUNT; i++)
+  {
+    m_pBoundShaderResourceViews[i].Clear();
+  }
+  m_pBoundUnoderedAccessViews.Clear();
+
+  ezMemoryUtils::ZeroFill(&m_pBoundSamplerStates[0][0], ezGALShaderStage::ENUM_COUNT * EZ_GAL_MAX_SAMPLER_COUNT);
 
   m_renderPass = vk::RenderPassBeginInfo();
   m_clearValues.Clear();
@@ -86,11 +100,6 @@ void ezGALCommandEncoderImplVulkan::SetConstantBufferPlatform(ezUInt32 uiSlot, c
 {
   // \todo Check if the device supports the slot index?
   m_pBoundConstantBuffers[uiSlot] = pBuffer != nullptr ? static_cast<const ezGALBufferVulkan*>(pBuffer) : nullptr;
-
-  // The GAL doesn't care about stages for constant buffer, but we need to handle this internally.
-  for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
-    m_BoundConstantBuffersRange[stage].SetToIncludeValue(uiSlot);
-
   m_bDescriptorsDirty = true;
 }
 
@@ -98,8 +107,6 @@ void ezGALCommandEncoderImplVulkan::SetSamplerStatePlatform(ezGALShaderStage::En
 {
   // \todo Check if the device supports the stage / the slot index
   m_pBoundSamplerStates[Stage][uiSlot] = pSamplerState != nullptr ? static_cast<const ezGALSamplerStateVulkan*>(pSamplerState) : nullptr;
-  m_BoundSamplerStatesRange[Stage].SetToIncludeValue(uiSlot);
-
   m_bDescriptorsDirty = true;
 }
 
@@ -108,8 +115,6 @@ void ezGALCommandEncoderImplVulkan::SetResourceViewPlatform(ezGALShaderStage::En
   auto& boundShaderResourceViews = m_pBoundShaderResourceViews[Stage];
   boundShaderResourceViews.EnsureCount(uiSlot + 1);
   boundShaderResourceViews[uiSlot] = pResourceView != nullptr ? static_cast<const ezGALResourceViewVulkan*>(pResourceView) : nullptr;
-  m_BoundShaderResourceViewsRange[Stage].SetToIncludeValue(uiSlot);
-
   m_bDescriptorsDirty = true;
 }
 
@@ -117,8 +122,6 @@ void ezGALCommandEncoderImplVulkan::SetUnorderedAccessViewPlatform(ezUInt32 uiSl
 {
   m_pBoundUnoderedAccessViews.EnsureCount(uiSlot + 1);
   m_pBoundUnoderedAccessViews[uiSlot] = pUnorderedAccessView != nullptr ? static_cast<const ezGALUnorderedAccessViewVulkan*>(pUnorderedAccessView) : nullptr;
-  m_pBoundUnoderedAccessViewsRange.SetToIncludeValue(uiSlot);
-
   m_bDescriptorsDirty = true;
 }
 
@@ -200,64 +203,40 @@ void ezGALCommandEncoderImplVulkan::CopyBufferRegionPlatform(const ezGALBuffer* 
   bufferCopy.size = uiByteCount;
 
   m_pCommandBuffer->copyBuffer(source, destination, 1, &bufferCopy);
+  //#TODO_VULKAN memory barrier needed here?
 }
 
 void ezGALCommandEncoderImplVulkan::UpdateBufferPlatform(const ezGALBuffer* pDestination, ezUInt32 uiDestOffset, ezArrayPtr<const ezUInt8> pSourceData,
   ezGALUpdateMode::Enum updateMode)
 {
-  EZ_ASSERT_DEBUG(!m_bRenderPassActive, "Vulkan does not support updating buffers while a render pass is active. TODO: Fix high level render code to make this impossible.");
-
   EZ_CHECK_ALIGNMENT_16(pSourceData.GetPtr());
 
   auto pVulkanDestination = static_cast<const ezGALBufferVulkan*>(pDestination);
 
-  if (pDestination->GetDescription().m_BufferType == ezGALBufferType::ConstantBuffer)
+  switch (updateMode)
   {
-    m_pCommandBuffer->updateBuffer(pVulkanDestination->GetVkBuffer(), uiDestOffset, pSourceData.GetCount(), pSourceData.GetPtr());
-  }
-  else
-  {
-    if (updateMode == ezGALUpdateMode::CopyToTempStorage)
+    case ezGALUpdateMode::Discard:
+      pVulkanDestination->DiscardBuffer();
+      [[fallthrough]];
+    case ezGALUpdateMode::NoOverwrite:
     {
-      if (ezGALBufferVulkan* tmpBuffer = m_GALDeviceVulkan.FindTempBuffer(pSourceData.GetCount()))
-      {
-        EZ_ASSERT_DEV(tmpBuffer->GetAllocationInfo().m_size >= pSourceData.GetCount(), "Source data is too big to copy staged!");
-
-        ezVulkanAllocation alloc = tmpBuffer->GetAllocation();
-        void* pData = nullptr;
-
-        VK_ASSERT_DEV(ezMemoryAllocatorVulkan::MapMemory(alloc, &pData));
-        EZ_ASSERT_DEV(pData, "Implementation error");
-
-        ezMemoryUtils::Copy((ezUInt8*)pData, pSourceData.GetPtr(), pSourceData.GetCount());
-
-        ezMemoryAllocatorVulkan::UnmapMemory(alloc);
-
-        CopyBufferRegionPlatform(pDestination, uiDestOffset, tmpBuffer, 0, pSourceData.GetCount());
-      }
-      else
-      {
-        EZ_REPORT_FAILURE("Could not find a temp buffer for update.");
-      }
-    }
-    else
-    {
-      // TODO need to check if the buffer is mappable
-
-      // TODO is this behavior available on Vulkan?
-      //D3D11_MAP mapType = (updateMode == ezGALUpdateMode::Discard) ? D3D11_MAP_WRITE_DISCARD : D3D11_MAP_WRITE_NO_OVERWRITE;
-
-      EZ_ASSERT_DEV(pVulkanDestination->GetAllocationInfo().m_size >= pSourceData.GetCount(), "Source data is too big to copy staged!");
       ezVulkanAllocation alloc = pVulkanDestination->GetAllocation();
       void* pData = nullptr;
-
       VK_ASSERT_DEV(ezMemoryAllocatorVulkan::MapMemory(alloc, &pData));
       EZ_ASSERT_DEV(pData, "Implementation error");
-
       ezMemoryUtils::Copy((ezUInt8*)pData, pSourceData.GetPtr(), pSourceData.GetCount());
-
       ezMemoryAllocatorVulkan::UnmapMemory(alloc);
     }
+    break;
+    case ezGALUpdateMode::CopyToTempStorage:
+    {
+      EZ_ASSERT_DEBUG(!m_bRenderPassActive, "Vulkan does not support copying buffers while a render pass is active. TODO: Fix high level render code to make this impossible.");
+
+      m_GALDeviceVulkan.UploadBufferStaging(pVulkanDestination, pSourceData, uiDestOffset);
+    }
+    break;
+    default:
+      break;
   }
 }
 
@@ -345,12 +324,13 @@ void ezGALCommandEncoderImplVulkan::CopyTextureRegionPlatform(const ezGALTexture
 void ezGALCommandEncoderImplVulkan::UpdateTexturePlatform(const ezGALTexture* pDestination, const ezGALTextureSubresource& DestinationSubResource,
   const ezBoundingBoxu32& DestinationBox, const ezGALSystemMemoryDescription& pSourceData)
 {
+  //#TODO_VULKAN texture implementation missing.
   ezUInt32 uiWidth = ezMath::Max(DestinationBox.m_vMax.x - DestinationBox.m_vMin.x, 1u);
   ezUInt32 uiHeight = ezMath::Max(DestinationBox.m_vMax.y - DestinationBox.m_vMin.y, 1u);
   ezUInt32 uiDepth = ezMath::Max(DestinationBox.m_vMax.z - DestinationBox.m_vMin.z, 1u);
   ezGALResourceFormat::Enum format = pDestination->GetDescription().m_Format;
 
-  if (ezGALTextureVulkan* pTempTexture = m_GALDeviceVulkan.FindTempTexture(uiWidth, uiHeight, uiDepth, format))
+  if (ezGALTextureVulkan* pTempTexture = nullptr)
   {
     ezVulkanAllocation alloc = pTempTexture->GetAllocation();
     void* pData = nullptr;
@@ -720,10 +700,12 @@ void ezGALCommandEncoderImplVulkan::SetRasterizerStatePlatform(const ezGALRaster
 
 void ezGALCommandEncoderImplVulkan::SetViewportPlatform(const ezRectFloat& rect, float fMinDepth, float fMaxDepth)
 {
-  vk::Viewport viewport = {rect.x, rect.y, rect.width, rect.height, fMinDepth, fMaxDepth};
+  // We use ezClipSpaceYMode::Regular and rely in the Vulkan 1.1 feature that a negative height performs y-inversion of the clip-space to framebuffer-space transform.
+  // https://www.khronos.org/registry/vulkan/specs/1.3-extensions/man/html/VK_KHR_maintenance1.html
+  vk::Viewport viewport = {rect.x, rect.height + rect.y, rect.width, -rect.height, fMinDepth, fMaxDepth};
   if (m_viewport != viewport)
   {
-    // viewport is marked as dynamic in the pipeline layout and thus does not mark m_bPipelineStateDirty.
+    // Viewport is marked as dynamic in the pipeline layout and thus does not mark m_bPipelineStateDirty.
     m_viewport = viewport;
     m_bViewportDirty = true;
   }
@@ -867,13 +849,16 @@ void ezGALCommandEncoderImplVulkan::FlushDeferredStateChanges()
 
   if (m_bPipelineStateDirty)
   {
-    ezResourceCacheVulkan::PipelineLayoutDesc desc;
-    m_PipelineDesc.m_layout = ezResourceCacheVulkan::RequestPipelineLayout(desc);
+    const ezGALShaderVulkan::DescriptorSetLayoutDesc& descriptorLayoutDesc = m_PipelineDesc.m_pCurrentShader->GetDescriptorSetLayout();
 
+    m_LayoutDesc.m_layout = ezResourceCacheVulkan::RequestDescriptorSetLayout(descriptorLayoutDesc);
+    m_PipelineDesc.m_layout = ezResourceCacheVulkan::RequestPipelineLayout(m_LayoutDesc);
     vk::Pipeline pipeline = ezResourceCacheVulkan::RequestGraphicsPipeline(m_PipelineDesc);
 
     m_pCommandBuffer->bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline);
     m_bPipelineStateDirty = false;
+    // Changes to the descriptor layout always require the descriptor set to be re-created.
+    m_bDescriptorsDirty = true;
   }
 
   if (m_bViewportDirty)
@@ -915,58 +900,72 @@ void ezGALCommandEncoderImplVulkan::FlushDeferredStateChanges()
     m_bIndexBufferDirty = false;
   }
 
-#if 0
-  for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
+  if (true /*m_bDescriptorsDirty*/)
   {
-    if (m_pBoundShaders[stage] != nullptr && m_BoundConstantBuffersRange[stage].IsValid())
+    //#TODO_VULKAN we always create a new descriptor set as we don't know if a buffer was modified since the last draw call (ezGALBufferVulkan::DiscardBuffer).
+    // Need to figure out a fast check if any buffer or buffer of a resource view was discarded.
+    m_bDescriptorsDirty = false;
+
+    ezHybridArray<vk::WriteDescriptorSet, 16> descriptorWrites;
+    vk::DescriptorSet descriptorSet = ezDescriptorSetPoolVulkan::CreateDescriptorSet(m_LayoutDesc.m_layout);
+
+    ezArrayPtr<const ezGALShaderVulkan::BindingMapping> bindingMapping = m_PipelineDesc.m_pCurrentShader->GetBindingMapping();
+    const ezUInt32 uiCount = bindingMapping.GetCount();
+    for (ezUInt32 i = 0; i < uiCount; i++)
     {
-      const ezUInt32 uiStartSlot = m_BoundConstantBuffersRange[stage].m_uiMin;
-      const ezUInt32 uiNumSlots = m_BoundConstantBuffersRange[stage].GetCount();
-
-      SetConstantBuffers((ezGALShaderStage::Enum)stage, m_pDXContext, uiStartSlot, uiNumSlots, m_pBoundConstantBuffers + uiStartSlot);
-
-      m_BoundConstantBuffersRange[stage].Reset();
+      const ezGALShaderVulkan::BindingMapping& mapping = bindingMapping[i];
+      vk::WriteDescriptorSet& write = descriptorWrites.ExpandAndGetRef();
+      write.dstArrayElement = 0;
+      write.descriptorType = mapping.m_descriptorType;
+      write.dstBinding = mapping.m_uiTarget;
+      write.dstSet = descriptorSet;
+      write.descriptorCount = 1;
+      switch (mapping.m_type)
+      {
+        case ezGALShaderVulkan::BindingMapping::ConstantBuffer:
+        {
+          const ezGALBufferVulkan* pBuffer = m_pBoundConstantBuffers[mapping.m_uiSource];
+          write.pBufferInfo = &pBuffer->GetBufferInfo();
+        }
+        break;
+        case ezGALShaderVulkan::BindingMapping::ResourceView:
+        {
+          const ezGALResourceViewVulkan* pResourceView = m_pBoundShaderResourceViews[mapping.m_stage][mapping.m_uiSource];
+          if (!pResourceView->GetDescription().m_hTexture.IsInvalidated())
+          {
+            write.pImageInfo = &pResourceView->GetImageInfo();
+          }
+          else
+          {
+            write.pBufferInfo = &pResourceView->GetBufferInfo();
+          }
+        }
+        break;
+        case ezGALShaderVulkan::BindingMapping::UAV:
+        {
+          const ezGALUnorderedAccessViewVulkan* pUAV = m_pBoundUnoderedAccessViews[mapping.m_uiSource];
+          if (!pUAV->GetDescription().m_hTexture.IsInvalidated())
+          {
+            write.pImageInfo = &pUAV->GetImageInfo();
+          }
+          else
+          {
+            write.pBufferInfo = &pUAV->GetBufferInfo();
+          }
+        }
+        break;
+        case ezGALShaderVulkan::BindingMapping::Sampler:
+        {
+          const ezGALSamplerStateVulkan* pSampler = m_pBoundSamplerStates[mapping.m_stage][mapping.m_uiSource];
+          write.pImageInfo = &pSampler->GetImageInfo();
+        }
+        break;
+        default:
+          break;
+      }
     }
+
+    ezDescriptorSetPoolVulkan::UpdateDescriptorSet(descriptorSet, descriptorWrites);
+    m_pCommandBuffer->bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_PipelineDesc.m_layout, 0, 1, &descriptorSet, 0, nullptr);
   }
-
-  // Do UAV bindings before SRV since UAV are outputs which need to be unbound before they are potentially rebound as SRV again.
-  if (m_pBoundUnoderedAccessViewsRange.IsValid())
-  {
-    const ezUInt32 uiStartSlot = m_pBoundUnoderedAccessViewsRange.m_uiMin;
-    const ezUInt32 uiNumSlots = m_pBoundUnoderedAccessViewsRange.GetCount();
-    m_pDXContext->CSSetUnorderedAccessViews(uiStartSlot, uiNumSlots, m_pBoundUnoderedAccessViews.GetData() + uiStartSlot,
-      nullptr); // Todo: Count reset.
-
-    m_pBoundUnoderedAccessViewsRange.Reset();
-  }
-
-  for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
-  {
-    // Need to do bindings even on inactive shader stages since we might miss unbindings otherwise!
-    if (m_BoundShaderResourceViewsRange[stage].IsValid())
-    {
-      const ezUInt32 uiStartSlot = m_BoundShaderResourceViewsRange[stage].m_uiMin;
-      const ezUInt32 uiNumSlots = m_BoundShaderResourceViewsRange[stage].GetCount();
-
-      SetShaderResources((ezGALShaderStage::Enum)stage, m_pDXContext, uiStartSlot, uiNumSlots,
-        m_pBoundShaderResourceViews[stage].GetData() + uiStartSlot);
-
-      m_BoundShaderResourceViewsRange[stage].Reset();
-    }
-
-    // Don't need to unset sampler stages for unbound shader stages.
-    if (m_pBoundShaders[stage] == nullptr)
-      continue;
-
-    if (m_BoundSamplerStatesRange[stage].IsValid())
-    {
-      const ezUInt32 uiStartSlot = m_BoundSamplerStatesRange[stage].m_uiMin;
-      const ezUInt32 uiNumSlots = m_BoundSamplerStatesRange[stage].GetCount();
-
-      SetSamplers((ezGALShaderStage::Enum)stage, m_pDXContext, uiStartSlot, uiNumSlots, m_pBoundSamplerStates[stage] + uiStartSlot);
-
-      m_BoundSamplerStatesRange[stage].Reset();
-    }
-  }
-#endif
 }

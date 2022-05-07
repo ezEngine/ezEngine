@@ -100,7 +100,7 @@ private:
 
 struct EZ_RENDERERFOUNDATION_DLL ezGALShaderStage
 {
-  enum Enum
+  enum Enum : ezUInt8
   {
     VertexShader,
     HullShader,

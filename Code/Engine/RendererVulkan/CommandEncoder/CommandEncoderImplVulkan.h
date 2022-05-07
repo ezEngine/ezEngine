@@ -143,6 +143,7 @@ private:
   bool m_bRenderPassActive = false;
 
   // Bound objects for deferred state flushes
+  ezResourceCacheVulkan::PipelineLayoutDesc m_LayoutDesc;
   ezResourceCacheVulkan::GraphicsPipelineDesc m_PipelineDesc;
   vk::Framebuffer m_frameBuffer;
   vk::RenderPassBeginInfo m_renderPass;
@@ -151,23 +152,16 @@ private:
   vk::Viewport m_viewport;
   vk::Rect2D m_scissor;
 
-  const ezGALRenderTargetView* m_pBoundRenderTargets[EZ_GAL_MAX_RENDERTARGET_COUNT];
-  const ezGALRenderTargetView* m_pBoundDepthStencilTarget;
+  const ezGALRenderTargetView* m_pBoundRenderTargets[EZ_GAL_MAX_RENDERTARGET_COUNT] = {};
+  const ezGALRenderTargetView* m_pBoundDepthStencilTarget = nullptr;
   ezUInt32 m_uiBoundRenderTargetCount;
 
   const ezGALBufferVulkan* m_pIndexBuffer = nullptr;
   vk::Buffer m_pBoundVertexBuffers[EZ_GAL_MAX_VERTEX_BUFFER_COUNT];
   vk::DeviceSize m_VertexBufferOffsets[EZ_GAL_MAX_VERTEX_BUFFER_COUNT] = {};
 
-  const ezGALBufferVulkan* m_pBoundConstantBuffers[EZ_GAL_MAX_CONSTANT_BUFFER_COUNT];
-  ezGAL::ModifiedRange m_BoundConstantBuffersRange[ezGALShaderStage::ENUM_COUNT];
-
-  ezHybridArray<const ezGALResourceViewVulkan*, 16> m_pBoundShaderResourceViews[ezGALShaderStage::ENUM_COUNT];
-  ezGAL::ModifiedRange m_BoundShaderResourceViewsRange[ezGALShaderStage::ENUM_COUNT];
-
+  const ezGALBufferVulkan* m_pBoundConstantBuffers[EZ_GAL_MAX_CONSTANT_BUFFER_COUNT] = {};
+  ezHybridArray<const ezGALResourceViewVulkan*, 16> m_pBoundShaderResourceViews[ezGALShaderStage::ENUM_COUNT] = {};
   ezHybridArray<const ezGALUnorderedAccessViewVulkan*, 16> m_pBoundUnoderedAccessViews;
-  ezGAL::ModifiedRange m_pBoundUnoderedAccessViewsRange;
-
-  const ezGALSamplerStateVulkan* m_pBoundSamplerStates[ezGALShaderStage::ENUM_COUNT][EZ_GAL_MAX_SAMPLER_COUNT];
-  ezGAL::ModifiedRange m_BoundSamplerStatesRange[ezGALShaderStage::ENUM_COUNT];
+  const ezGALSamplerStateVulkan* m_pBoundSamplerStates[ezGALShaderStage::ENUM_COUNT][EZ_GAL_MAX_SAMPLER_COUNT] = {};
 };

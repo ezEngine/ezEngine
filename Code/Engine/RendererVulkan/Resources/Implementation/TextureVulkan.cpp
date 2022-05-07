@@ -185,17 +185,7 @@ ezResult ezGALTextureVulkan::DeInitPlatform(ezGALDevice* pDevice)
 
 void ezGALTextureVulkan::SetDebugNamePlatform(const char* szName) const
 {
-  if (m_image)
-  {
-    vk::DebugUtilsObjectNameInfoEXT nameInfo;
-    nameInfo.objectType = m_image.objectType;
-    nameInfo.objectHandle = (uint64_t)(VkImage)m_image;
-    nameInfo.pObjectName = szName;
-
-    m_device.setDebugUtilsObjectNameEXT(nameInfo);
-    if (m_alloc)
-      ezMemoryAllocatorVulkan::SetAllocationUserData(m_alloc, szName);
-  }
+  static_cast<ezGALDeviceVulkan*>(ezGALDevice::GetDefaultDevice())->SetDebugName(szName, m_image, m_alloc);
 }
 
 ezResult ezGALTextureVulkan::CreateStagingBuffer(ezGALDeviceVulkan* pDevice)
