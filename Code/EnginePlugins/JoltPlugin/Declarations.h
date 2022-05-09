@@ -64,11 +64,10 @@ struct ezJoltSettings
 {
   ezVec3 m_vObjectGravity = ezVec3(0, 0, -9.81f);
   ezVec3 m_vCharacterGravity = ezVec3(0, 0, -12.0f);
-  //float m_fMaxDepenetrationVelocity = 1.0f;
 
   ezEnum<ezJoltSteppingMode> m_SteppingMode = ezJoltSteppingMode::SemiFixed;
   float m_fFixedFrameRate = 60.0f;
   ezUInt32 m_uiMaxSubSteps = 4;
 
-  //ezUInt32 m_uiScratchMemorySize = 256 * 1024;
+  ezUInt32 m_uiMaxBodies = 1000 * 10;
 };

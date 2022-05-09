@@ -9,6 +9,8 @@
 #include <JoltPlugin/System/JoltCollisionFiltering.h>
 #include <JoltPlugin/Utilities/JoltUserData.h>
 
+class ezJoltCharacterControllerComponent;
+
 namespace JPH
 {
   class Body;
@@ -65,7 +67,6 @@ public:
 
   virtual void AddStaticCollisionBox(ezGameObject* pObject, ezVec3 boxSize) override;
 
-  // ezMap<physx::PxConstraint*, ezComponentHandle> m_BreakableJoints;
   ezDeque<ezComponentHandle> m_RequireUpdate;
 
   const ezMap<ezJoltActorComponent*, ezUInt32>& GetActiveActors() const { return m_ActiveActors; }
@@ -76,6 +77,10 @@ public:
 
   void EnableJoinedBodiesCollisions(ezUInt32 uiObjectFilterID1, ezUInt32 uiObjectFilterID2, bool bEnable);
 
+  JPH::TempAllocator* GetTempAllocator() const { return m_pTempAllocator.Borrow(); }
+
+  void ActivateCharacterController(ezJoltCharacterControllerComponent* pCharacter, bool bActivate);
+
 private:
   bool SweepTest(ezPhysicsCastResult& out_Result, const JPH::Shape& shape, const JPH::Mat44& transform, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection) const;
   bool OverlapTest(const JPH::Shape& shape, const JPH::Mat44& transform, const ezPhysicsQueryParameters& params) const;
@@ -85,25 +90,14 @@ private:
   void StartSimulation(const ezWorldModule::UpdateContext& context);
   void FetchResults(const ezWorldModule::UpdateContext& context);
 
-  // void HandleSimulationEvents();
-
-  // void UpdatePhysicsSlideReactions();
-  // void UpdatePhysicsRollReactions();
-
-  // void SpawnPhysicsImpactReactions();
-
-  // void HandleBrokenConstraints();
-  // void HandleTriggerEvents();
-
   void Simulate();
-  void SimulateStep(ezTime deltaTime);
 
   void UpdateSettingsCfg();
   void ApplySettingsCfg();
 
   void UpdateConstraints();
 
-  // ezJoltSimulationEventCallback* m_pSimulationEventCallback = nullptr;
+  ezTime CalculateUpdateSteps();
 
   ezUInt32 m_uiNextObjectFilterID = 1;
   ezDynamicArray<ezUInt32> m_FreeObjectFilterIDs;
@@ -116,9 +110,9 @@ private:
 
   ezJoltSettings m_Settings;
 
-  // ezSharedPtr<ezTask> m_pSimulateTask;
-  // ezTaskGroupID m_SimulateTaskGroupId;
-  // bool m_bSimulationStepExecuted = false;
+  ezSharedPtr<ezTask> m_pSimulateTask;
+  ezTaskGroupID m_SimulateTaskGroupId;
+  ezTime m_SimulatedTimeStep;
 
   ezUniquePtr<JPH::PhysicsSystem> m_pSystem;
   ezUniquePtr<JPH::TempAllocator> m_pTempAllocator;
@@ -133,4 +127,7 @@ private:
 
   ezUInt32 m_uiBodiesAddedSinceOptimize = 0;
   ezDeque<ezUInt32> m_BodiesToAdd;
+
+  ezHybridArray<ezTime, 4> m_UpdateSteps;
+  ezHybridArray<ezJoltCharacterControllerComponent*, 4> m_ActiveCharacters;
 };

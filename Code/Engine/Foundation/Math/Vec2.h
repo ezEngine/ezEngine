@@ -78,6 +78,10 @@ public:
   /// \brief Returns the length of the vector.
   Type GetLength() const; // [tested]
 
+  /// \brief Tries to rescale the vector to the given length. If the vector is too close to zero, EZ_FAILURE is returned and the vector is
+  /// set to zero.
+  ezResult SetLength(Type fNewLength, Type fEpsilon = ezMath::DefaultEpsilon<Type>()); // [tested]
+
   /// \brief Returns the squared length. Faster, since no square-root is taken. Useful, if one only wants to compare the lengths of two
   /// vectors.
   Type GetLengthSquared() const; // [tested]

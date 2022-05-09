@@ -422,6 +422,7 @@ JPH::Shape* ezJoltMeshResource::InstantiateTriangleMesh(ezUInt64 uiUserData, con
     ezJoltCustomShapeInfo* pShapeDeco = new ezJoltCustomShapeInfo(m_TriangleMeshInstance);
     pShapeDeco->SetUserData(uiUserData);
 
+    // only override the materials, if they differ
     if (materials.GetCount() == m_Surfaces.GetCount())
     {
       pShapeDeco->m_CustomMaterials.SetCount(materials.GetCount());

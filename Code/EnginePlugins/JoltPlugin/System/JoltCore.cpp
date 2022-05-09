@@ -128,6 +128,7 @@ void ezJoltCore::Startup()
 
   ezJoltCustomShapeInfo::sRegister();
 
+  // TODO: custom job system
   s_pJobSystem = EZ_NEW(ezFoundation::GetAlignedAllocator(), JPH::JobSystemThreadPool, JPH::cMaxPhysicsJobs, JPH::cMaxPhysicsBarriers, std::thread::hardware_concurrency() - 1);
 
   s_pDefaultMaterial = new ezJoltMaterial;

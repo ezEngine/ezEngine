@@ -107,6 +107,7 @@ void ezJoltConstraintComponent::OnSimulationStarted()
 
   if (m_pConstraint)
   {
+    m_pConstraint->AddRef();
     pModule->GetJoltSystem()->AddConstraint(m_pConstraint);
     ApplySettings();
   }

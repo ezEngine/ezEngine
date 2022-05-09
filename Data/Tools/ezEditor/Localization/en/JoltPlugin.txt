@@ -29,15 +29,10 @@ ezJoltConstraintDriveMode::DriveVelocity;Reach Velocity
 ezJoltConstraintDriveMode::DrivePosition;Reach Position
 ezJoltRopeComponent;Physical Rope (Jolt)
 ezJoltRagdollComponent;Ragdoll (Jolt)
-ezJoltFpsCharacterControllerComponent;FPS Character Controller (Jolt)
 ezJoltCenterOfMassComponent;Center of Mass (Jolt)
 ezJoltRagdollStart::BindPose;Bind Pose
 ezJoltRagdollStart::WaitForPose;Wait for Pose
 ezJoltRagdollStart::Wait;Wait
-ezJoltCCDebugFlags::VisQueryShape;Visualize Query Shapes
-ezJoltCCDebugFlags::VisContactPoints;Visualize Contact Points
-ezJoltCCDebugFlags::VisGroundContact;Visualize Ground Contacts
-ezJoltCCDebugFlags::VisVelocity;Visualize Velocities
 ezJoltAxis::X;X
 ezJoltAxis::Y;Y
 ezJoltAxis::Z;Z
@@ -53,3 +48,10 @@ ezJoltSwingTwistConstraintComponent;Swing Twist Constraint (Jolt)
 ezJoltBoneColliderComponent;Bone Collider (Jolt)
 Jolt_Colmesh_Convex;Jolt Convex Collision Mesh
 Jolt_Colmesh_Triangle;Jolt Triangle Collision Mesh
+ezJoltCharacterDebugFlags::VisShape;Visualize Shape
+ezJoltCharacterDebugFlags::VisGroundContact;Visualize Ground Contact
+ezJoltCharacterDebugFlags::VisCasts;Visualize Casts
+ezJoltCharacterDebugFlags::PrintState;Print Stats
+ezJoltCharacterDebugFlags::VisContacts;Visualize All Contacts
+ezJoltCharacterControllerComponent;Character Controller (Jolt)
+ezJoltDefaultCharacterComponent;Default Character Controller (Jolt)

@@ -74,21 +74,26 @@ class ezJoltObjectLayerFilter final : public JPH::ObjectLayerFilter
 public:
   ezUInt32 m_uiCollisionLayer = 0;
 
+  ezJoltObjectLayerFilter(ezUInt32 uiCollisionLayer)
+    : m_uiCollisionLayer(uiCollisionLayer)
+  {
+  }
+
   virtual bool ShouldCollide(JPH::ObjectLayer inLayer) const override;
 };
 
 class ezJoltBodyFilter final : public JPH::BodyFilter
 {
 public:
-  ezUInt32 m_uiCollisionGroupToIgnore = ezInvalidIndex - 1;
+  ezUInt32 m_uiObjectFilterIDToIgnore = ezInvalidIndex - 1;
 
-  ezJoltBodyFilter(ezUInt32 bodyIdToIgnore)
-    : m_uiCollisionGroupToIgnore(bodyIdToIgnore)
+  ezJoltBodyFilter(ezUInt32 bodyFilterIdToIgnore = ezInvalidIndex - 1)
+    : m_uiObjectFilterIDToIgnore(bodyFilterIdToIgnore)
   {
   }
 
   virtual bool ShouldCollideLocked(const JPH::Body& inBody) const override
   {
-    return inBody.GetCollisionGroup().GetGroupID() != m_uiCollisionGroupToIgnore;
+    return inBody.GetCollisionGroup().GetGroupID() != m_uiObjectFilterIDToIgnore;
   }
 };

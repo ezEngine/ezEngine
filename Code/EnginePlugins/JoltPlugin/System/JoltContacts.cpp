@@ -42,6 +42,18 @@ void ezJoltContactListener::OnContactRemoved(const JPH::SubShapeIDPair& inSubSha
 
 void ezJoltContactListener::OnContact(const JPH::Body& inBody0, const JPH::Body& inBody1, const JPH::ContactManifold& inManifold, JPH::ContactSettings& ioSettings, bool bPersistent)
 {
+  // compute per-material friction and restitution
+  {
+    const ezJoltMaterial* pMat0 = static_cast<const ezJoltMaterial*>(inBody0.GetShape()->GetMaterial(inManifold.mSubShapeID1));
+    const ezJoltMaterial* pMat1 = static_cast<const ezJoltMaterial*>(inBody1.GetShape()->GetMaterial(inManifold.mSubShapeID2));
+
+    if (pMat0 && pMat1)
+    {
+      ioSettings.mCombinedRestitution = ezMath::Max(pMat0->m_fRestitution, pMat1->m_fRestitution);
+      ioSettings.mCombinedFriction = ezMath::Sqrt(pMat0->m_fFriction * pMat1->m_fFriction);
+    }
+  }
+
   m_Events.m_pWorld = m_pWorld;
 
   const ezJoltActorComponent* pActor0 = ezJoltUserData::GetActorComponent(reinterpret_cast<const void*>(inBody0.GetUserData()));
