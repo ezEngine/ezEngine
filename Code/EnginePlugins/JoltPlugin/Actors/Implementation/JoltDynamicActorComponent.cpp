@@ -12,6 +12,7 @@
 #include <JoltPlugin/Resources/JoltMaterial.h>
 #include <JoltPlugin/Shapes/JoltShapeComponent.h>
 #include <JoltPlugin/System/JoltCollisionFiltering.h>
+#include <JoltPlugin/System/JoltCore.h>
 #include <JoltPlugin/System/JoltWorldModule.h>
 #include <JoltPlugin/Utilities/JoltConversionUtils.h>
 #include <Physics/Collision/Shape/OffsetCenterOfMassShape.h>

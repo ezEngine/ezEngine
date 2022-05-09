@@ -3,10 +3,14 @@
 #include <JoltPlugin/Actors/JoltDynamicActorComponent.h>
 #include <JoltPlugin/Actors/JoltQueryShapeActorComponent.h>
 #include <JoltPlugin/Actors/JoltStaticActorComponent.h>
+#include <JoltPlugin/Actors/JoltTriggerComponent.h>
 #include <JoltPlugin/Character/JoltCharacterControllerComponent.h>
 #include <JoltPlugin/Components/JoltSettingsComponent.h>
 #include <JoltPlugin/Constraints/JoltConstraintComponent.h>
 #include <JoltPlugin/Shapes/JoltShapeBoxComponent.h>
+#include <JoltPlugin/System/JoltContacts.h>
+#include <JoltPlugin/System/JoltCore.h>
+#include <JoltPlugin/System/JoltDebugRenderer.h>
 #include <JoltPlugin/System/JoltWorldModule.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>

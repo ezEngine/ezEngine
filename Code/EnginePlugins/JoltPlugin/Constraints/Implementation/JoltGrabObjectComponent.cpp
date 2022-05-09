@@ -3,9 +3,11 @@
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <GameEngine/Gameplay/GrabbableItemComponent.h>
+#include <Jolt/Physics/Body/BodyLockMulti.h>
 #include <JoltPlugin/Actors/JoltDynamicActorComponent.h>
 #include <JoltPlugin/Character/JoltCharacterControllerComponent.h>
 #include <JoltPlugin/Constraints/JoltGrabObjectComponent.h>
+#include <JoltPlugin/System/JoltWorldModule.h>
 #include <Physics/Constraints/SixDOFConstraint.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 

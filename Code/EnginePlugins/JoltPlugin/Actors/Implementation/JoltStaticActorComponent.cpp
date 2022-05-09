@@ -11,6 +11,7 @@
 #include <JoltPlugin/Resources/JoltMaterial.h>
 #include <JoltPlugin/Resources/JoltMeshResource.h>
 #include <JoltPlugin/System/JoltCollisionFiltering.h>
+#include <JoltPlugin/System/JoltCore.h>
 #include <JoltPlugin/System/JoltWorldModule.h>
 #include <JoltPlugin/Utilities/JoltConversionUtils.h>
 #include <RendererCore/Meshes/MeshComponent.h>
