@@ -52,6 +52,16 @@ EZ_ALWAYS_INLINE Type ezVec2Template<Type>::GetLength() const
 }
 
 template <typename Type>
+ezResult ezVec2Template<Type>::SetLength(Type fNewLength, Type fEpsilon /* = ezMath::DefaultEpsilon<Type>() */)
+{
+  if (NormalizeIfNotZero(ezVec2Template<Type>::ZeroVector(), fEpsilon) == EZ_FAILURE)
+    return EZ_FAILURE;
+
+  *this *= fNewLength;
+  return EZ_SUCCESS;
+}
+
+template <typename Type>
 EZ_ALWAYS_INLINE Type ezVec2Template<Type>::GetLengthSquared() const
 {
   return (x * x + y * y);

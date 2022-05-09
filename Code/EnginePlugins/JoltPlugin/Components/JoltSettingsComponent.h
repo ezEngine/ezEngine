@@ -42,6 +42,9 @@ public:
   ezUInt32 GetMaxSubSteps() const { return m_Settings.m_uiMaxSubSteps; } // [ property ]
   void SetMaxSubSteps(ezUInt32 uiMaxSubSteps);                           // [ property ]
 
+  ezUInt32 GetMaxBodies() const { return m_Settings.m_uiMaxBodies; } // [ property ]
+  void SetMaxBodies(ezUInt32 uiMaxBodies);                           // [ property ]
+
 protected:
   ezJoltSettings m_Settings;
 };

@@ -1,46 +1,15 @@
 #include <JoltPlugin/JoltPluginPCH.h>
 
-#include <Core/Physics/SurfaceResource.h>
-#include <Foundation/Configuration/CVar.h>
-#include <Jolt.h>
-#include <Jolt/Core/JobSystemThreadPool.h>
-#include <Jolt/Core/TempAllocator.h>
-#include <Jolt/Physics/Body/BodyActivationListener.h>
-#include <Jolt/Physics/Collision/BroadPhase/BroadPhaseLayer.h>
-#include <Jolt/Physics/Collision/CastResult.h>
-#include <Jolt/Physics/Collision/GroupFilter.h>
-#include <Jolt/Physics/Collision/NarrowPhaseQuery.h>
-#include <Jolt/Physics/Collision/ObjectLayer.h>
-#include <Jolt/Physics/Collision/PhysicsMaterial.h>
-#include <Jolt/Physics/Collision/RayCast.h>
-#include <Jolt/Physics/Collision/Shape/BoxShape.h>
-#include <Jolt/Physics/Collision/Shape/Shape.h>
-#include <Jolt/Physics/PhysicsSettings.h>
-#include <Jolt/Physics/PhysicsSystem.h>
-#include <Jolt/RegisterTypes.h>
 #include <JoltPlugin/Actors/JoltDynamicActorComponent.h>
 #include <JoltPlugin/Actors/JoltQueryShapeActorComponent.h>
 #include <JoltPlugin/Actors/JoltStaticActorComponent.h>
-#include <JoltPlugin/Actors/JoltTriggerComponent.h>
-#include <JoltPlugin/Character/JoltFpsCharacterControllerComponent.h>
+#include <JoltPlugin/Character/JoltCharacterControllerComponent.h>
 #include <JoltPlugin/Components/JoltSettingsComponent.h>
 #include <JoltPlugin/Constraints/JoltConstraintComponent.h>
-#include <JoltPlugin/Resources/JoltMaterial.h>
 #include <JoltPlugin/Shapes/JoltShapeBoxComponent.h>
-#include <JoltPlugin/System/JoltCollisionFiltering.h>
-#include <JoltPlugin/System/JoltContacts.h>
-#include <JoltPlugin/System/JoltCore.h>
-#include <JoltPlugin/System/JoltDebugRenderer.h>
 #include <JoltPlugin/System/JoltWorldModule.h>
-#include <JoltPlugin/Utilities/JoltConversionUtils.h>
-#include <JoltPlugin/Utilities/JoltUserData.h>
-#include <Physics/Collision/CollideShape.h>
-#include <Physics/Collision/Shape/CapsuleShape.h>
-#include <Physics/Collision/Shape/SphereShape.h>
-#include <Physics/Collision/ShapeCast.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
-#include <thread>
 
 // clang-format off
 EZ_IMPLEMENT_WORLD_MODULE(ezJoltWorldModule);
@@ -61,8 +30,8 @@ ezJoltWorldModule::ezJoltWorldModule(ezWorld* pWorld)
   : ezPhysicsWorldModuleInterface(pWorld)
 //, m_FreeObjectFilterIDs(ezJolt::GetSingleton()->GetAllocator()) // could use a proxy allocator to bin those
 {
-  // m_pSimulateTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "", ezMakeDelegate(&ezJoltWorldModule::Simulate, this));
-  // m_pSimulateTask->ConfigureTask("Jolt Simulate", ezTaskNesting::Maybe);
+  m_pSimulateTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "", ezMakeDelegate(&ezJoltWorldModule::Simulate, this));
+  m_pSimulateTask->ConfigureTask("Jolt Simulate", ezTaskNesting::Maybe);
 }
 
 ezJoltWorldModule::~ezJoltWorldModule() = default;
@@ -119,23 +88,118 @@ void ezJoltWorldModule::Deinitialize()
   m_pGroupFilter->Release();
 }
 
+class ezJoltTempAlloc : public JPH::TempAllocator
+{
+public:
+  ezJoltTempAlloc(const char* szName)
+    : m_ProxyAlloc(szName, ezFoundation::GetAlignedAllocator())
+  {
+    AddChunk(0);
+    m_uiCurChunkIdx = 0;
+  }
+
+  ~ezJoltTempAlloc()
+  {
+    for (ezUInt32 i = 0; i < m_Chunks.GetCount(); ++i)
+    {
+      ClearChunk(i);
+    }
+  }
+
+  virtual void* Allocate(JPH::uint inSize) override
+  {
+    if (inSize == 0)
+      return nullptr;
+
+    const ezUInt32 uiNeeded = ezMemoryUtils::AlignSize(inSize, 16u);
+
+    while (true)
+    {
+      const ezUInt32 uiRemaining = m_Chunks[m_uiCurChunkIdx].m_uiSize - m_Chunks[m_uiCurChunkIdx].m_uiLastOffset;
+
+      if (uiRemaining >= uiNeeded)
+        break;
+
+      AddChunk(uiNeeded);
+    }
+
+    auto& lastAlloc = m_Chunks[m_uiCurChunkIdx];
+
+    void* pRes = ezMemoryUtils::AddByteOffset(lastAlloc.m_pPtr, lastAlloc.m_uiLastOffset);
+    lastAlloc.m_uiLastOffset += uiNeeded;
+    return pRes;
+  }
+
+  virtual void Free(void* inAddress, JPH::uint inSize) override
+  {
+    if (inAddress == nullptr)
+      return;
+
+    const ezUInt32 uiAllocSize = ezMemoryUtils::AlignSize(inSize, 16u);
+
+    auto& lastAlloc = m_Chunks[m_uiCurChunkIdx];
+    lastAlloc.m_uiLastOffset -= uiAllocSize;
+
+    if (lastAlloc.m_uiLastOffset == 0 && m_uiCurChunkIdx > 0)
+    {
+      // move back to the previous chunk
+      --m_uiCurChunkIdx;
+    }
+  }
+
+  struct Chunk
+  {
+    void* m_pPtr = nullptr;
+    ezUInt32 m_uiSize = 0;
+    ezUInt32 m_uiLastOffset = 0;
+  };
+
+  void AddChunk(ezUInt32 uiSize)
+  {
+    ++m_uiCurChunkIdx;
+
+    if (m_uiCurChunkIdx < m_Chunks.GetCount())
+      return;
+
+    uiSize = ezMath::Max(uiSize, 1024u * 1024u);
+
+    auto& alloc = m_Chunks.ExpandAndGetRef();
+    alloc.m_pPtr = EZ_NEW_RAW_BUFFER(&m_ProxyAlloc, ezUInt8, uiSize);
+    alloc.m_uiSize = uiSize;
+  }
+
+  void ClearChunk(ezUInt32 uiChunkIdx)
+  {
+    EZ_DELETE_RAW_BUFFER(&m_ProxyAlloc, m_Chunks[uiChunkIdx].m_pPtr);
+    m_Chunks[uiChunkIdx].m_pPtr = nullptr;
+    m_Chunks[uiChunkIdx].m_uiSize = 0;
+    m_Chunks[uiChunkIdx].m_uiLastOffset = 0;
+  }
+
+  ezUInt32 m_uiCurChunkIdx = 0;
+  ezHybridArray<Chunk, 16> m_Chunks;
+  ezProxyAllocator m_ProxyAlloc;
+};
+
+
 void ezJoltWorldModule::Initialize()
 {
-  UpdateSettingsCfg();
+  // TODO: it would be better if this were in OnSimulationStarted() to guarantee that the system is always initialized with the latest values
+  // however, that doesn't work because ezJoltWorldModule is only created by calls to GetOrCreateWorldModule, where Initialize is called, but OnSimulationStarted
+  // is queued and executed later
 
   // ensure the first element is reserved for 'invalid' objects
   m_AllocatedUserData.SetCount(1);
 
-  // TODO: all this should be in OnSimulationStarted()
+  UpdateSettingsCfg();
 
-  // TODO: temp alloc size ???
-  m_pTempAllocator = EZ_NEW(ezFoundation::GetAlignedAllocator(), JPH::TempAllocatorImpl, 100 * 1024 * 1024);
+  ezStringBuilder tmp("JoltTemp-", GetWorld()->GetName());
+  m_pTempAllocator = EZ_DEFAULT_NEW(ezJoltTempAlloc, tmp);
 
-  // TODO: simulation limits ??
-  const uint32_t cMaxBodies = 10000;
+  const uint32_t cMaxBodies = m_Settings.m_uiMaxBodies;
+  const uint32_t cMaxContactConstraints = m_Settings.m_uiMaxBodies * 4;
+  const uint32_t cMaxBodyPairs = cMaxContactConstraints * 10;
   const uint32_t cNumBodyMutexes = 0;
-  const uint32_t cMaxBodyPairs = 10000;
-  const uint32_t cMaxContactConstraints = 50000;
 
   m_pSystem = EZ_NEW(ezFoundation::GetAlignedAllocator(), JPH::PhysicsSystem);
   m_pSystem->Init(cMaxBodies, cNumBodyMutexes, cMaxBodyPairs, cMaxContactConstraints, m_ObjectToBroadphase, ezJoltCollisionFiltering::BroadphaseFilter, ezJoltCollisionFiltering::ObjectLayerFilter);
@@ -259,369 +323,6 @@ void ezJoltWorldModule::SetGravity(const ezVec3& objectGravity, const ezVec3& ch
   }
 }
 
-void FillCastResult(ezPhysicsCastResult& result, const ezVec3& vStart, const ezVec3& vDir, float fDistance, const JPH::BodyID& bodyId, const JPH::SubShapeID& subShapeId, const JPH::BodyLockInterface& lockInterface, const JPH::BodyInterface& bodyInterface, const ezJoltWorldModule* pModule)
-{
-  JPH::BodyLockRead bodyLock(lockInterface, bodyId);
-  const auto& body = bodyLock.GetBody();
-  result.m_vNormal = ezJoltConversionUtils::ToVec3(body.GetWorldSpaceSurfaceNormal(subShapeId, ezJoltConversionUtils::ToVec3(result.m_vPosition)));
-  result.m_uiObjectFilterID = body.GetCollisionGroup().GetGroupID();
-
-  if (ezComponent* pShapeComponent = ezJoltUserData::GetShapeComponent(reinterpret_cast<const void*>(body.GetShape()->GetSubShapeUserData(subShapeId))))
-  {
-    result.m_hShapeObject = pShapeComponent->GetOwner()->GetHandle();
-  }
-
-  if (ezComponent* pActorComponent = ezJoltUserData::GetActorComponent(reinterpret_cast<const void*>(body.GetUserData())))
-  {
-    result.m_hActorObject = pActorComponent->GetOwner()->GetHandle();
-  }
-
-  if (const ezJoltMaterial* pMaterial = static_cast<const ezJoltMaterial*>(bodyInterface.GetMaterial(bodyId, subShapeId)))
-  {
-    result.m_hSurface = pMaterial->m_pSurface->GetResourceHandle();
-  }
-
-  const size_t uiBodyId = bodyId.GetIndexAndSequenceNumber();
-  const size_t uiShapeId = subShapeId.GetValue();
-  result.m_pInternalPhysicsActor = reinterpret_cast<void*>(uiBodyId);
-  result.m_pInternalPhysicsShape = reinterpret_cast<void*>(uiShapeId);
-}
-
-class ezRayCastCollector : public JPH::CastRayCollector
-{
-public:
-  JPH::RayCastResult m_Result;
-  bool m_bAnyHit = false;
-  bool m_bFoundAny = false;
-
-  virtual void AddHit(const JPH::RayCastResult& inResult) override
-  {
-    if (inResult.mFraction < m_Result.mFraction)
-    {
-      m_Result = inResult;
-      m_bFoundAny = true;
-
-      if (m_bAnyHit)
-      {
-        ForceEarlyOut();
-      }
-    }
-  }
-};
-
-bool ezJoltWorldModule::Raycast(ezPhysicsCastResult& out_Result, const ezVec3& vStart, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection /*= ezPhysicsHitCollection::Closest*/) const
-{
-  if (fDistance <= 0.001f || vDir.IsZero())
-    return false;
-
-  const JPH::NarrowPhaseQuery& query = m_pSystem->GetNarrowPhaseQuery();
-
-  JPH::RayCast ray;
-  ray.mOrigin = ezJoltConversionUtils::ToVec3(vStart);
-  ray.mDirection = ezJoltConversionUtils::ToVec3(vDir * fDistance);
-
-  ezRayCastCollector collector;
-  collector.m_bAnyHit = collection == ezPhysicsHitCollection::Any;
-
-  ezJoltBroadPhaseLayerFilter broadphaseFilter(params.m_ShapeTypes);
-  ezJoltBodyFilter bodyFilter(params.m_uiIgnoreObjectFilterID);
-
-  ezJoltObjectLayerFilter objectFilter;
-  objectFilter.m_uiCollisionLayer = params.m_uiCollisionLayer;
-
-  if (params.m_bIgnoreInitialOverlap)
-  {
-    JPH::RayCastSettings opt;
-    opt.mBackFaceMode = JPH::EBackFaceMode::IgnoreBackFaces;
-    opt.mTreatConvexAsSolid = false;
-
-    query.CastRay(ray, opt, collector, broadphaseFilter, objectFilter, bodyFilter);
-
-    if (collector.m_bFoundAny == false)
-      return false;
-  }
-  else
-  {
-    if (!query.CastRay(ray, collector.m_Result, broadphaseFilter, objectFilter, bodyFilter))
-      return false;
-  }
-
-  out_Result.m_fDistance = collector.m_Result.mFraction * fDistance;
-  out_Result.m_vPosition = vStart + fDistance * collector.m_Result.mFraction * vDir;
-
-  FillCastResult(out_Result, vStart, vDir, fDistance, collector.m_Result.mBodyID, collector.m_Result.mSubShapeID2, m_pSystem->GetBodyLockInterfaceNoLock(), m_pSystem->GetBodyInterfaceNoLock(), this);
-
-  return true;
-}
-
-class ezRayCastCollectorAll : public JPH::CastRayCollector
-{
-public:
-  ezArrayPtr<JPH::RayCastResult> m_Results;
-  ezUInt32 m_uiFound = 0;
-
-  virtual void AddHit(const JPH::RayCastResult& inResult) override
-  {
-    m_Results[m_uiFound] = inResult;
-    ++m_uiFound;
-  }
-};
-
-bool ezJoltWorldModule::RaycastAll(ezPhysicsCastResultArray& out_Results, const ezVec3& vStart, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params) const
-{
-  if (fDistance <= 0.001f || vDir.IsZero())
-    return false;
-
-  const JPH::NarrowPhaseQuery& query = m_pSystem->GetNarrowPhaseQuery();
-
-  JPH::RayCast ray;
-  ray.mOrigin = ezJoltConversionUtils::ToVec3(vStart);
-  ray.mDirection = ezJoltConversionUtils::ToVec3(vDir * fDistance);
-
-  ezRayCastCollectorAll collector;
-  collector.m_Results = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), JPH::RayCastResult, 256);
-
-  ezJoltBroadPhaseLayerFilter broadphaseFilter(params.m_ShapeTypes);
-  ezJoltBodyFilter bodyFilter(params.m_uiIgnoreObjectFilterID);
-
-  ezJoltObjectLayerFilter objectFilter;
-  objectFilter.m_uiCollisionLayer = params.m_uiCollisionLayer;
-
-  JPH::RayCastSettings opt;
-  opt.mBackFaceMode = params.m_bIgnoreInitialOverlap ? JPH::EBackFaceMode::IgnoreBackFaces : JPH::EBackFaceMode::CollideWithBackFaces;
-  opt.mTreatConvexAsSolid = !params.m_bIgnoreInitialOverlap;
-
-  query.CastRay(ray, opt, collector, broadphaseFilter, objectFilter, bodyFilter);
-
-  if (collector.m_uiFound == 0)
-    return false;
-
-  out_Results.m_Results.SetCount(collector.m_uiFound);
-
-  for (ezUInt32 i = 0; i < collector.m_uiFound; ++i)
-  {
-    out_Results.m_Results[i].m_fDistance = collector.m_Results[i].mFraction * fDistance;
-    out_Results.m_Results[i].m_vPosition = vStart + fDistance * collector.m_Results[i].mFraction * vDir;
-
-    FillCastResult(out_Results.m_Results[i], vStart, vDir, fDistance, collector.m_Results[i].mBodyID, collector.m_Results[i].mSubShapeID2, m_pSystem->GetBodyLockInterfaceNoLock(), m_pSystem->GetBodyInterfaceNoLock(), this);
-  }
-
-  return true;
-}
-
-class ezJoltShapeCastCollector : public JPH::CastShapeCollector
-{
-public:
-  JPH::ShapeCastResult m_Result;
-  bool m_bFoundAny = false;
-  bool m_bAnyHit = false;
-
-  virtual void AddHit(const JPH::ShapeCastResult& inResult) override
-  {
-    if (inResult.mIsBackFaceHit)
-      return;
-
-    if (inResult.mFraction >= GetEarlyOutFraction())
-      return;
-
-    m_bFoundAny = true;
-    m_Result = inResult;
-
-    UpdateEarlyOutFraction(inResult.mFraction);
-
-    if (m_bAnyHit)
-      ForceEarlyOut();
-  }
-};
-
-bool ezJoltWorldModule::SweepTestSphere(ezPhysicsCastResult& out_Result, float fSphereRadius, const ezVec3& vStart, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection) const
-{
-  if (fSphereRadius <= 0.0f)
-    return false;
-
-  const JPH::SphereShape shape(fSphereRadius);
-
-  return SweepTest(out_Result, shape, JPH::Mat44::sTranslation(ezJoltConversionUtils::ToVec3(vStart)), vDir, fDistance, params, collection);
-}
-
-bool ezJoltWorldModule::SweepTestBox(ezPhysicsCastResult& out_Result, ezVec3 vBoxExtends, const ezTransform& transform, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection) const
-{
-  const JPH::BoxShape shape(ezJoltConversionUtils::ToVec3(vBoxExtends * 0.5f));
-
-  const JPH::Mat44 trans = JPH::Mat44::sRotationTranslation(ezJoltConversionUtils::ToQuat(transform.m_qRotation), ezJoltConversionUtils::ToVec3(transform.m_vPosition));
-
-  return SweepTest(out_Result, shape, trans, vDir, fDistance, params, collection);
-}
-
-bool ezJoltWorldModule::SweepTestCapsule(ezPhysicsCastResult& out_Result, float fCapsuleRadius, float fCapsuleHeight, const ezTransform& transform, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection) const
-{
-  if (fCapsuleRadius <= 0.0f)
-    return false;
-
-  const JPH::CapsuleShape shape(fCapsuleHeight * 0.5f, fCapsuleRadius);
-
-  ezQuat qFixRot;
-  qFixRot.SetFromAxisAndAngle(ezVec3(1, 0, 0), ezAngle::Degree(90.0f));
-
-  ezQuat qRot;
-  qRot = transform.m_qRotation;
-  qRot = qRot * qFixRot;
-
-  const JPH::Mat44 trans = JPH::Mat44::sRotationTranslation(ezJoltConversionUtils::ToQuat(qRot), ezJoltConversionUtils::ToVec3(transform.m_vPosition));
-
-  return SweepTest(out_Result, shape, trans, vDir, fDistance, params, collection);
-}
-
-bool ezJoltWorldModule::SweepTest(ezPhysicsCastResult& out_Result, const JPH::Shape& shape, const JPH::Mat44& transform, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection) const
-{
-  const JPH::NarrowPhaseQuery& query = m_pSystem->GetNarrowPhaseQuery();
-
-  ezJoltBroadPhaseLayerFilter broadphaseFilter(params.m_ShapeTypes);
-  ezJoltBodyFilter bodyFilter(params.m_uiIgnoreObjectFilterID);
-
-  ezJoltObjectLayerFilter objectFilter;
-  objectFilter.m_uiCollisionLayer = params.m_uiCollisionLayer;
-
-  JPH::ShapeCast cast(&shape, JPH::Vec3(1, 1, 1), transform, ezJoltConversionUtils::ToVec3(vDir * fDistance));
-
-  ezJoltShapeCastCollector collector;
-  collector.m_bAnyHit = collection == ezPhysicsHitCollection::Any;
-
-  query.CastShape(cast, {}, collector, broadphaseFilter, objectFilter, bodyFilter);
-
-  if (!collector.m_bFoundAny)
-    return false;
-
-  const auto& res = collector.m_Result;
-
-  out_Result.m_fDistance = res.mFraction * fDistance;
-  out_Result.m_vPosition = ezJoltConversionUtils::ToVec3(res.mContactPointOn2);
-
-  FillCastResult(out_Result, ezJoltConversionUtils::ToVec3(transform.GetTranslation()), vDir, fDistance, res.mBodyID2, res.mSubShapeID2, m_pSystem->GetBodyLockInterfaceNoLock(), m_pSystem->GetBodyInterfaceNoLock(), this);
-
-  return true;
-}
-
-class ezJoltShapeCollectorAny : public JPH::CollideShapeCollector
-{
-public:
-  bool m_bFoundAny = false;
-
-  virtual void AddHit(const JPH::CollideShapeResult& inResult) override
-  {
-    m_bFoundAny = true;
-    ForceEarlyOut();
-  }
-};
-
-class ezJoltShapeCollectorAll : public JPH::CollideShapeCollector
-{
-public:
-  ezHybridArray<JPH::CollideShapeResult, 32> m_Results;
-
-  virtual void AddHit(const JPH::CollideShapeResult& inResult) override
-  {
-    m_Results.PushBack(inResult);
-
-    if (m_Results.GetCount() >= 256)
-    {
-      ForceEarlyOut();
-    }
-  }
-};
-
-bool ezJoltWorldModule::OverlapTestSphere(float fSphereRadius, const ezVec3& vPosition, const ezPhysicsQueryParameters& params) const
-{
-  if (fSphereRadius <= 0.0f)
-    return false;
-
-  const JPH::SphereShape shape(fSphereRadius);
-
-  return OverlapTest(shape, JPH::Mat44::sTranslation(ezJoltConversionUtils::ToVec3(vPosition)), params);
-}
-
-bool ezJoltWorldModule::OverlapTestCapsule(float fCapsuleRadius, float fCapsuleHeight, const ezTransform& transform, const ezPhysicsQueryParameters& params) const
-{
-  if (fCapsuleRadius <= 0.0f)
-    return false;
-
-  const JPH::CapsuleShape shape(fCapsuleHeight * 0.5f, fCapsuleRadius);
-
-  ezQuat qFixRot;
-  qFixRot.SetFromAxisAndAngle(ezVec3(1, 0, 0), ezAngle::Degree(90.0f));
-
-  ezQuat qRot;
-  qRot = transform.m_qRotation;
-  qRot = qRot * qFixRot;
-
-  const JPH::Mat44 trans = JPH::Mat44::sRotationTranslation(ezJoltConversionUtils::ToQuat(qRot), ezJoltConversionUtils::ToVec3(transform.m_vPosition));
-
-  return OverlapTest(shape, trans, params);
-}
-
-bool ezJoltWorldModule::OverlapTest(const JPH::Shape& shape, const JPH::Mat44& transform, const ezPhysicsQueryParameters& params) const
-{
-  const JPH::NarrowPhaseQuery& query = m_pSystem->GetNarrowPhaseQuery();
-
-  ezJoltBroadPhaseLayerFilter broadphaseFilter(params.m_ShapeTypes);
-
-  ezJoltBodyFilter bodyFilter(params.m_uiIgnoreObjectFilterID);
-
-  ezJoltObjectLayerFilter objectFilter;
-  objectFilter.m_uiCollisionLayer = params.m_uiCollisionLayer;
-
-  ezJoltShapeCollectorAny collector;
-  query.CollideShape(&shape, JPH::Vec3(1, 1, 1), transform, {}, collector, broadphaseFilter, objectFilter, bodyFilter);
-
-  return collector.m_bFoundAny;
-}
-
-void ezJoltWorldModule::QueryShapesInSphere(ezPhysicsOverlapResultArray& out_Results, float fSphereRadius, const ezVec3& vPosition, const ezPhysicsQueryParameters& params) const
-{
-  out_Results.m_Results.Clear();
-
-  if (fSphereRadius <= 0.0f)
-    return;
-
-  const JPH::SphereShape shape(fSphereRadius);
-  const JPH::NarrowPhaseQuery& query = m_pSystem->GetNarrowPhaseQuery();
-
-  ezJoltBroadPhaseLayerFilter broadphaseFilter(params.m_ShapeTypes);
-
-  ezJoltObjectLayerFilter objectFilter;
-  objectFilter.m_uiCollisionLayer = params.m_uiCollisionLayer;
-
-  ezJoltBodyFilter bodyFilter(params.m_uiIgnoreObjectFilterID);
-
-  ezJoltShapeCollectorAll collector;
-  query.CollideShape(&shape, JPH::Vec3(1, 1, 1), JPH::Mat44::sTranslation(ezJoltConversionUtils::ToVec3(vPosition)), {}, collector, broadphaseFilter, objectFilter, bodyFilter);
-
-  out_Results.m_Results.SetCount(collector.m_Results.GetCount());
-
-  auto& lockInterface = m_pSystem->GetBodyLockInterfaceNoLock();
-
-  for (ezUInt32 i = 0; i < collector.m_Results.GetCount(); ++i)
-  {
-    auto& overlapResult = out_Results.m_Results[i];
-    auto& overlapHit = collector.m_Results[i];
-
-    JPH::BodyLockRead bodyLock(lockInterface, overlapHit.mBodyID2);
-    const auto& body = bodyLock.GetBody();
-
-    overlapResult.m_uiObjectFilterID = body.GetCollisionGroup().GetGroupID();
-
-    if (ezComponent* pShapeComponent = ezJoltUserData::GetShapeComponent(reinterpret_cast<const void*>(body.GetShape()->GetSubShapeUserData(overlapHit.mSubShapeID2))))
-    {
-      overlapResult.m_hShapeObject = pShapeComponent->GetOwner()->GetHandle();
-    }
-
-    if (ezComponent* pActorComponent = ezJoltUserData::GetActorComponent(reinterpret_cast<const void*>(body.GetUserData())))
-    {
-      overlapResult.m_hActorObject = pActorComponent->GetOwner()->GetHandle();
-    }
-  }
-}
-
 void ezJoltWorldModule::AddStaticCollisionBox(ezGameObject* pObject, ezVec3 boxSize)
 {
   ezJoltStaticActorComponent* pActor = nullptr;
@@ -653,6 +354,23 @@ void ezJoltWorldModule::EnableJoinedBodiesCollisions(ezUInt32 uiObjectFilterID1,
   {
     pFilter->m_IgnoreCollisions.Insert(uiMask1);
     pFilter->m_IgnoreCollisions.Insert(uiMask2);
+  }
+}
+
+void ezJoltWorldModule::ActivateCharacterController(ezJoltCharacterControllerComponent* pCharacter, bool bActivate)
+{
+  if (bActivate)
+  {
+    EZ_ASSERT_DEBUG(!m_ActiveCharacters.Contains(pCharacter), "ezJoltCharacterControllerComponent was activated more than once.");
+
+    m_ActiveCharacters.PushBack(pCharacter);
+  }
+  else
+  {
+    if (!m_ActiveCharacters.RemoveAndSwap(pCharacter))
+    {
+      EZ_ASSERT_DEBUG(false, "ezJoltCharacterControllerComponent was deactivated more than once.");
+    }
   }
 }
 
@@ -697,31 +415,41 @@ void ezJoltWorldModule::StartSimulation(const ezWorldModule::UpdateContext& cont
     m_uiBodiesAddedSinceOptimize = 0;
   }
 
-  ezJoltDynamicActorComponentManager* pDynamicActorManager = GetWorld()->GetComponentManager<ezJoltDynamicActorComponentManager>();
-  ezJoltFpsCharacterControllerComponentManager* pCharacterManager = GetWorld()->GetComponentManager<ezJoltFpsCharacterControllerComponentManager>();
-  ezJoltTriggerComponentManager* pTriggerManager = GetWorld()->GetComponentManager<ezJoltTriggerComponentManager>();
-  ezJoltQueryShapeActorComponentManager* pQueryShapesManager = GetWorld()->GetComponentManager<ezJoltQueryShapeActorComponentManager>();
-
   UpdateSettingsCfg();
 
-  if (pDynamicActorManager != nullptr)
+  m_SimulatedTimeStep = CalculateUpdateSteps();
+
+  if (m_UpdateSteps.IsEmpty())
+    return;
+
+  if (ezJoltDynamicActorComponentManager* pDynamicActorManager = GetWorld()->GetComponentManager<ezJoltDynamicActorComponentManager>())
   {
-    pDynamicActorManager->UpdateKinematicActors();
+    pDynamicActorManager->UpdateKinematicActors(m_SimulatedTimeStep);
   }
 
-  if (pQueryShapesManager != nullptr)
+  if (ezJoltQueryShapeActorComponentManager* pQueryShapesManager = GetWorld()->GetComponentManager<ezJoltQueryShapeActorComponentManager>())
   {
     pQueryShapesManager->UpdateMovingQueryShapes();
   }
 
-  if (pTriggerManager != nullptr)
+  if (ezJoltTriggerComponentManager* pTriggerManager = GetWorld()->GetComponentManager<ezJoltTriggerComponentManager>())
   {
     pTriggerManager->UpdateMovingTriggers();
   }
 
   UpdateConstraints();
 
-  Simulate();
+  m_SimulateTaskGroupId = ezTaskSystem::StartSingleTask(m_pSimulateTask, ezTaskPriority::EarlyThisFrame);
+}
+
+void ezJoltWorldModule::FetchResults(const ezWorldModule::UpdateContext& context)
+{
+  EZ_PROFILE_SCOPE("FetchResults");
+
+  {
+    EZ_PROFILE_SCOPE("Wait for Simulate Task");
+    ezTaskSystem::WaitForGroup(m_SimulateTaskGroupId);
+  }
 
 #ifdef JPH_DEBUG_RENDERER
   if (cvar_JoltDebugDrawConstraints)
@@ -740,35 +468,27 @@ void ezJoltWorldModule::StartSimulation(const ezWorldModule::UpdateContext& cont
     opt.mDrawShapeWireframe = true;
     m_pSystem->DrawBodies(opt, ezJoltCore::s_pDebugRenderer.Borrow());
   }
-#endif
 
   ezJoltCore::DebugDraw(GetWorld());
-  //  m_SimulateTaskGroupId = ezTaskSystem::StartSingleTask(m_pSimulateTask, ezTaskPriority::EarlyThisFrame);
-}
+#endif
 
-
-void ezJoltWorldModule::FetchResults(const ezWorldModule::UpdateContext& context)
-{
-  EZ_PROFILE_SCOPE("FetchResults");
-
-  if (ezView* pView = ezRenderWorld::GetViewByUsageHint(ezCameraUsageHint::MainView, ezCameraUsageHint::EditorView, GetWorld()))
-  {
-    reinterpret_cast<ezJoltContactListener*>(m_pContactListener)->m_Events.m_vMainCameraPosition = pView->GetCamera()->GetPosition();
-  }
-
-  //  {
-  //    EZ_PROFILE_SCOPE("Wait for Simulate Task");
-  //    ezTaskSystem::WaitForGroup(m_SimulateTaskGroupId);
-  //  }
-  //
-  //  // Nothing to fetch if no simulation step was executed
-  //  if (!m_bSimulationStepExecuted)
-  //    return;
-  //
+  // Nothing to fetch if no simulation step was executed
+  if (m_UpdateSteps.IsEmpty())
+    return;
 
   if (ezJoltDynamicActorComponentManager* pDynamicActorManager = GetWorld()->GetComponentManager<ezJoltDynamicActorComponentManager>())
   {
     pDynamicActorManager->UpdateDynamicActors();
+  }
+
+  for (auto pCharacter : m_ActiveCharacters)
+  {
+    pCharacter->Update(m_SimulatedTimeStep);
+  }
+
+  if (ezView* pView = ezRenderWorld::GetViewByUsageHint(ezCameraUsageHint::MainView, ezCameraUsageHint::EditorView, GetWorld()))
+  {
+    reinterpret_cast<ezJoltContactListener*>(m_pContactListener)->m_Events.m_vMainCameraPosition = pView->GetCamera()->GetPosition();
   }
 
   reinterpret_cast<ezJoltContactListener*>(m_pContactListener)->m_Events.SpawnPhysicsImpactReactions();
@@ -807,66 +527,93 @@ void ezJoltWorldModule::FetchResults(const ezWorldModule::UpdateContext& context
 //   m_pSimulationEventCallback->m_BrokenConstraints.Clear();
 // }
 
-void ezJoltWorldModule::Simulate()
+ezTime ezJoltWorldModule::CalculateUpdateSteps()
 {
-  // m_bSimulationStepExecuted = false;
-  const ezTime tDiff = GetWorld()->GetClock().GetTimeDiff();
+  ezTime tSimulatedTimeStep = ezTime::Zero();
+  m_AccumulatedTimeSinceUpdate += GetWorld()->GetClock().GetTimeDiff();
+  m_UpdateSteps.Clear();
 
   if (m_Settings.m_SteppingMode == ezJoltSteppingMode::Variable)
   {
-    SimulateStep(tDiff);
+    // always do a single step with the entire time
+    m_UpdateSteps.PushBack(m_AccumulatedTimeSinceUpdate);
+
+    tSimulatedTimeStep = m_AccumulatedTimeSinceUpdate;
+    m_AccumulatedTimeSinceUpdate.SetZero();
   }
   else if (m_Settings.m_SteppingMode == ezJoltSteppingMode::Fixed)
   {
     const ezTime tFixedStep = ezTime::Seconds(1.0 / m_Settings.m_fFixedFrameRate);
 
-    m_AccumulatedTimeSinceUpdate += tDiff;
     ezUInt32 uiNumSubSteps = 0;
 
     while (m_AccumulatedTimeSinceUpdate >= tFixedStep && uiNumSubSteps < m_Settings.m_uiMaxSubSteps)
     {
-      SimulateStep(tFixedStep);
-
-      m_AccumulatedTimeSinceUpdate -= tFixedStep;
+      m_UpdateSteps.PushBack(tFixedStep);
       ++uiNumSubSteps;
+
+      tSimulatedTimeStep += tFixedStep;
+      m_AccumulatedTimeSinceUpdate -= tFixedStep;
     }
   }
   else if (m_Settings.m_SteppingMode == ezJoltSteppingMode::SemiFixed)
   {
-    m_AccumulatedTimeSinceUpdate += tDiff;
     ezTime tFixedStep = ezTime::Seconds(1.0 / m_Settings.m_fFixedFrameRate);
-    ezTime tMinStep = tFixedStep * 0.25;
+    const ezTime tMinStep = tFixedStep * 0.25;
 
-    if (tFixedStep * m_Settings.m_uiMaxSubSteps < m_AccumulatedTimeSinceUpdate)
+    if (tFixedStep * m_Settings.m_uiMaxSubSteps < m_AccumulatedTimeSinceUpdate) // in case too much time has passed
     {
+      // if taking N steps isn't sufficient to catch up to the passed time, increase the fixed time step accordingly
       tFixedStep = m_AccumulatedTimeSinceUpdate / (double)m_Settings.m_uiMaxSubSteps;
     }
 
     while (m_AccumulatedTimeSinceUpdate > tMinStep)
     {
-      ezTime tDeltaTime = ezMath::Min(tFixedStep, m_AccumulatedTimeSinceUpdate);
+      // prefer fixed time steps
+      // but if at the end there is still more than tMinStep time left, do another step with the remaining time
+      const ezTime tDeltaTime = ezMath::Min(tFixedStep, m_AccumulatedTimeSinceUpdate);
 
-      SimulateStep(tDeltaTime);
+      m_UpdateSteps.PushBack(tDeltaTime);
 
+      tSimulatedTimeStep += tDeltaTime;
       m_AccumulatedTimeSinceUpdate -= tDeltaTime;
     }
   }
-  else
-  {
-    EZ_REPORT_FAILURE("Invalid stepping mode");
-  }
+
+  return tSimulatedTimeStep;
 }
 
-void ezJoltWorldModule::SimulateStep(ezTime deltaTime)
+void ezJoltWorldModule::Simulate()
 {
+  if (m_UpdateSteps.IsEmpty())
+    return;
+
+  EZ_PROFILE_SCOPE("Physics Simulation");
+
+  ezTime tDelta = m_UpdateSteps[0];
+  ezUInt32 uiSteps = 1;
+
+  for (ezUInt32 i = 1; i < m_UpdateSteps.GetCount(); ++i)
   {
-    EZ_PROFILE_SCOPE("Simulate");
+    EZ_PROFILE_SCOPE("Physics Sim Step");
 
-    const int cCollisionSteps = 1;
-    const int cIntegrationSubSteps = 1;
+    if (m_UpdateSteps[i] == tDelta)
+    {
+      ++uiSteps;
+    }
+    else
+    {
+      // do a single Update call with multiple sub-steps, if possible
+      // this saves a bit of time compared to just doing multiple Update calls
 
-    m_pSystem->Update(deltaTime.AsFloatInSeconds(), cCollisionSteps, cIntegrationSubSteps, m_pTempAllocator.Borrow(), ezJoltCore::GetJoltJobSystem());
+      m_pSystem->Update((uiSteps * tDelta).AsFloatInSeconds(), uiSteps, 1, m_pTempAllocator.Borrow(), ezJoltCore::GetJoltJobSystem());
+
+      tDelta = m_UpdateSteps[i];
+      uiSteps = 1;
+    }
   }
+
+  m_pSystem->Update((uiSteps * tDelta).AsFloatInSeconds(), uiSteps, 1, m_pTempAllocator.Borrow(), ezJoltCore::GetJoltJobSystem());
 }
 
 void ezJoltWorldModule::UpdateSettingsCfg()

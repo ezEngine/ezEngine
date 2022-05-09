@@ -52,7 +52,7 @@ void ezJoltDynamicActorComponentManager::UpdateDynamicActors()
   }
 }
 
-void ezJoltDynamicActorComponentManager::UpdateKinematicActors()
+void ezJoltDynamicActorComponentManager::UpdateKinematicActors(ezTime deltaTime)
 {
   EZ_PROFILE_SCOPE("UpdateKinematicActors");
 
@@ -60,7 +60,7 @@ void ezJoltDynamicActorComponentManager::UpdateKinematicActors()
   auto* pSystem = pModule->GetJoltSystem();
   auto* pBodies = &pSystem->GetBodyInterface();
 
-  const float tDiff = GetWorld()->GetClock().GetTimeDiff().AsFloatInSeconds();
+  const float tDiff = deltaTime.AsFloatInSeconds();
 
   for (auto pKinematicActorComponent : m_KinematicActorComponents)
   {
@@ -76,7 +76,7 @@ void ezJoltDynamicActorComponentManager::UpdateKinematicActors()
     const ezSimdVec4f pos = pObject->GetGlobalPositionSimd();
     const ezSimdQuat rot = pObject->GetGlobalRotationSimd();
 
-    pBodies->MoveKinematic(bodyId, ezJoltConversionUtils::ToVec3(pos), ezJoltConversionUtils::ToQuat(rot), tDiff);
+    pBodies->MoveKinematic(bodyId, ezJoltConversionUtils::ToVec3(pos), ezJoltConversionUtils::ToQuat(rot).Normalized(), tDiff);
   }
 }
 
@@ -230,6 +230,9 @@ void ezJoltDynamicActorComponent::OnSimulationStarted()
   auto* pSystem = pModule->GetJoltSystem();
   auto* pBodies = &pSystem->GetBodyInterface();
   auto* pMaterial = GetJoltMaterial();
+
+  if (pMaterial == nullptr)
+    pMaterial = ezJoltCore::GetDefaultMaterial();
 
   JPH::BodyCreationSettings bodyCfg;
 

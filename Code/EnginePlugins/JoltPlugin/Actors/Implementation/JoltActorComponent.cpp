@@ -263,5 +263,5 @@ const ezJoltMaterial* ezJoltActorComponent::GetJoltMaterial() const
     }
   }
 
-  return ezJoltCore::GetDefaultMaterial();
+  return nullptr;
 }

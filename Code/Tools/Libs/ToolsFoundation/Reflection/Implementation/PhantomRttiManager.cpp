@@ -59,6 +59,7 @@ const ezRTTI* ezPhantomRttiManager::RegisterType(ezReflectedTypeDescriptor& desc
 
     pPhantom->SetProperties(desc.m_Properties);
     pPhantom->SetAttributes(desc.m_Attributes);
+    pPhantom->SetFunctions(desc.m_Functions);
     pPhantom->SetupParentHierarchy();
 
     m_NameToPhantom[pPhantom->GetTypeName()] = pPhantom;

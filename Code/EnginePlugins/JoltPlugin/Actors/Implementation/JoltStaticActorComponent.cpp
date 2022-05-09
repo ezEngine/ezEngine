@@ -99,6 +99,9 @@ void ezJoltStaticActorComponent::OnSimulationStarted()
   auto* pBodies = &pSystem->GetBodyInterface();
   auto* pMaterial = GetJoltMaterial();
 
+  if (pMaterial == nullptr)
+    pMaterial = ezJoltCore::GetDefaultMaterial();
+
   bodyCfg.mPosition = ezJoltConversionUtils::ToVec3(trans.m_Position);
   bodyCfg.mRotation = ezJoltConversionUtils::ToQuat(trans.m_Rotation);
   bodyCfg.mMotionType = JPH::EMotionType::Static;
@@ -149,7 +152,6 @@ void ezJoltStaticActorComponent::CreateShapes(ezDynamicArray<ezJoltSubShape>& ou
       PullSurfacesFromGraphicsMesh(materials);
     }
 
-    // TODO: set materials
     auto pNewShape = pMesh->InstantiateTriangleMesh(reinterpret_cast<ezUInt64>(GetUserData()), materials);
 
     ezJoltSubShape& sub = out_Shapes.ExpandAndGetRef();

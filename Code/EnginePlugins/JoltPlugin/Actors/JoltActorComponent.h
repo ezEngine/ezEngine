@@ -47,6 +47,9 @@ public:
   /// \brief Sets the object filter ID to use. This can only be set right after creation, before the component gets activated.
   void SetInitialObjectFilterID(ezUInt32 uiObjectFilterID);
 
+  /// \brief The object filter ID can be used to ignore collisions specifically with this one object.
+  ezUInt32 GetObjectFilterID() const { return m_uiObjectFilterID; }
+
 protected:
   void ExtractSubShapeGeometry(const ezGameObject* pObject, ezMsgExtractGeometry& msg) const;
 

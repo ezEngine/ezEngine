@@ -20,7 +20,7 @@
 	<file>ezJolt6DOFConstraintComponent.png</file>
 	<file>ezJoltHingeConstraintComponent.png</file>
 	<file>ezJoltPointConstraintComponent.png</file>
-	<file>ezJoltCharacterCapsuleShapeComponent.png</file>
+	<file>ezJoltDefaultCharacterComponent.png</file>
 	<file>ezJoltSliderConstraintComponent.png</file>
 	<file>ezJoltBoneColliderComponent.png</file>
 	<file>ezJoltRopeComponent.png</file>

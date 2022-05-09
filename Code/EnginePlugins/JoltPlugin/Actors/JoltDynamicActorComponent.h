@@ -14,7 +14,7 @@ private:
   friend class ezJoltWorldModule;
   friend class ezJoltDynamicActorComponent;
 
-  void UpdateKinematicActors();
+  void UpdateKinematicActors(ezTime deltaTime);
   void UpdateDynamicActors();
 
   ezDynamicArray<ezJoltDynamicActorComponent*> m_KinematicActorComponents;
