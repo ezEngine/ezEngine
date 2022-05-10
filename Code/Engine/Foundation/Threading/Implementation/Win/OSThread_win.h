@@ -27,6 +27,8 @@ typedef struct tagTHREADNAME_INFO
 #define EZ_MSVC_WARNING_NUMBER 6312
 #include <Foundation/Basics/Compiler/DisableWarning.h>
 
+#if EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
+
 // See https://docs.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-setthreaddescription
 // this is the new way to set thread names which are also stored with crash dumps and work in more tools (like Pix etc.)
 // however it needs to be loaded dynamically from the kernel DLL.
@@ -65,6 +67,8 @@ pfnSetThreadDescription GetSetThreadDescriptionProcAddr()
   return retVal;
 }
 
+#endif
+
 void SetThreadNameViaException(HANDLE hThread, LPCSTR szThreadName)
 {
   THREADNAME_INFO info;
@@ -85,6 +89,7 @@ void SetThreadNameViaException(HANDLE hThread, LPCSTR szThreadName)
 
 void SetThreadName(HANDLE hThread, LPCSTR szThreadName)
 {
+#if EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
   static pfnSetThreadDescription s_pSetThreadDescriptionFnPtr = GetSetThreadDescriptionProcAddr();
 
   if (s_pSetThreadDescriptionFnPtr)
@@ -96,6 +101,9 @@ void SetThreadName(HANDLE hThread, LPCSTR szThreadName)
   {
     SetThreadNameViaException(hThread, szThreadName);
   }
+#else
+  SetThreadNameViaException(hThread, szThreadName);
+#endif
 }
 
 #include <Foundation/Basics/Compiler/RestoreWarning.h>
