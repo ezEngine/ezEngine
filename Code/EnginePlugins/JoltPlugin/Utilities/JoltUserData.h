@@ -7,7 +7,7 @@ class ezComponent;
 class ezJoltDynamicActorComponent;
 class ezJoltStaticActorComponent;
 class ezJoltTriggerComponent;
-class ezCharacterControllerComponent;
+class ezJoltCharacterControllerComponent;
 class ezJoltShapeComponent;
 class ezJoltQueryShapeActorComponent;
 class ezJoltRagdollComponent;
@@ -40,7 +40,7 @@ public:
     m_pObject = pObject;
   }
 
-  EZ_ALWAYS_INLINE void Init(ezCharacterControllerComponent* pObject)
+  EZ_ALWAYS_INLINE void Init(ezJoltCharacterControllerComponent* pObject)
   {
     m_Type = Type::CharacterComponent;
     m_pObject = pObject;
@@ -98,9 +98,23 @@ public:
   EZ_FORCE_INLINE static ezJoltActorComponent* GetActorComponent(const void* pUserData)
   {
     const ezJoltUserData* pJoltUserData = static_cast<const ezJoltUserData*>(pUserData);
-    if (pJoltUserData != nullptr && (pJoltUserData->m_Type == Type::DynamicActorComponent || pJoltUserData->m_Type == Type::StaticActorComponent))
+    if (pJoltUserData != nullptr &&
+        (pJoltUserData->m_Type == Type::DynamicActorComponent ||
+          pJoltUserData->m_Type == Type::StaticActorComponent ||
+          pJoltUserData->m_Type == Type::QueryShapeActorComponent))
     {
       return static_cast<ezJoltActorComponent*>(pJoltUserData->m_pObject);
+    }
+
+    return nullptr;
+  }
+
+  EZ_FORCE_INLINE static ezJoltDynamicActorComponent* GetDynamicActorComponent(const void* pUserData)
+  {
+    const ezJoltUserData* pJoltUserData = static_cast<const ezJoltUserData*>(pUserData);
+    if (pJoltUserData != nullptr && pJoltUserData->m_Type == Type::DynamicActorComponent)
+    {
+      return static_cast<ezJoltDynamicActorComponent*>(pJoltUserData->m_pObject);
     }
 
     return nullptr;

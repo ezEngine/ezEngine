@@ -90,6 +90,7 @@ void ezJoltShapeCylinderComponent::CreateShapes(ezDynamicArray<ezJoltSubShape>& 
   const ezQuat qTilt = ezBasisAxis::GetBasisRotation(ezBasisAxis::PositiveY, ezBasisAxis::PositiveZ);
 
   ezTransform tOwn = GetOwner()->GetGlobalTransform();
+  tOwn.m_vScale.x = tOwn.m_vScale.z;
   tOwn.m_qRotation = tOwn.m_qRotation * qTilt;
 
   ezJoltSubShape& sub = out_Shapes.ExpandAndGetRef();

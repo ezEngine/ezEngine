@@ -54,11 +54,19 @@ public:
   void SetGravityFactor(float factor);                        // [ property ]
   float GetGravityFactor() const { return m_fGravityFactor; } // [ property ]
 
-  bool m_bCCD = false;             // [ property ]
-  float m_fMass = 0.0f;            // [ property ]
-  float m_fDensity = 1.0f;         // [ property ]
-  float m_fLinearDamping = 0.1f;   // [ property ]
-  float m_fAngularDamping = 0.05f; // [ property ]
+  void SetSurfaceFile(const char* szFile); // [ property ]
+  const char* GetSurfaceFile() const;      // [ property ]
+
+  bool m_bCCD = false;                                    // [ property ]
+  float m_fMass = 0.0f;                                   // [ property ]
+  float m_fDensity = 1.0f;                                // [ property ]
+  float m_fLinearDamping = 0.1f;                          // [ property ]
+  float m_fAngularDamping = 0.05f;                        // [ property ]
+  ezSurfaceResourceHandle m_hSurface;                     // [ property ]
+  ezBitflags<ezOnJoltContact> m_OnContact;                // [ property ]
+  ezVec3 m_vCenterOfMass = ezVec3::ZeroVector();          // [ property ]
+  bool GetUseCustomCoM() const { return GetUserFlag(0); } // [ property ]
+  void SetUseCustomCoM(bool b) { SetUserFlag(0, b); }     // [ property ]
 
   void AddLinearForce(const ezVec3& vForce);      // [ scriptable ]
   void AddLinearImpulse(const ezVec3& vImpulse);  // [ scriptable ]
@@ -66,7 +74,7 @@ public:
   void AddAngularImpulse(const ezVec3& vImpulse); // [ scriptable ]
 
 protected:
-  bool FindCenterOfMass(ezGameObject* pRoot, ezVec3& out_CoM) const;
+  const ezJoltMaterial* GetJoltMaterial() const;
 
   bool m_bKinematic = false;
   float m_fGravityFactor = 1.0f; // [ property ]

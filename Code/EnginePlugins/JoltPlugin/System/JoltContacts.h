@@ -42,6 +42,7 @@ public:
     ezHashedString m_sRollInteractionPrefab;
   };
 
+  ezMutex m_Mutex;
   ezWorld* m_pWorld = nullptr;
   ezVec3 m_vMainCameraPosition = ezVec3::ZeroVector();
   ezHybridArray<InteractionContact, 8> m_InteractionContacts; // these are spawned PER FRAME, so only a low number is necessary
@@ -49,12 +50,12 @@ public:
 
   SlideAndRollInfo* FindSlideOrRollInfo(const JPH::Body* pBody, const ezVec3& vAvgPos);
 
-  void OnContact_SlideReaction(const JPH::Body& inBody0, const JPH::Body& inBody1, const JPH::ContactManifold& inManifold, const ezJoltActorComponent* pActor0, const ezJoltActorComponent* pActor1, const ezVec3& vAvgPos, const ezVec3& vAvgNormal);
+  void OnContact_SlideReaction(const JPH::Body& inBody0, const JPH::Body& inBody1, const JPH::ContactManifold& inManifold, ezBitflags<ezOnJoltContact> onContact0, ezBitflags<ezOnJoltContact> onContact1, const ezVec3& vAvgPos, const ezVec3& vAvgNormal);
 
-  void OnContact_RollReaction(const JPH::Body& inBody0, const JPH::Body& inBody1, const JPH::ContactManifold& inManifold, const ezJoltActorComponent* pActor0, const ezJoltActorComponent* pActor1, const ezVec3& vAvgPos, const ezVec3& vAvgNormal0);
+  void OnContact_RollReaction(const JPH::Body& inBody0, const JPH::Body& inBody1, const JPH::ContactManifold& inManifold, ezBitflags<ezOnJoltContact> onContact0, ezBitflags<ezOnJoltContact> onContact1, const ezVec3& vAvgPos, const ezVec3& vAvgNormal0);
 
   void OnContact_ImpactReaction(const ezVec3& vAvgPos, const ezVec3& vAvgNormal, float fMaxImpactSqr, const ezSurfaceResource* pSurface1, const ezSurfaceResource* pSurface2, bool bActor1StaticOrKinematic);
-  void OnContact_SlideAndRollReaction(const JPH::Body& inBody0, const JPH::Body& inBody1, const JPH::ContactManifold& inManifold, const ezJoltActorComponent* pActor0, const ezJoltActorComponent* pActor1, const ezVec3& vAvgPos, const ezVec3& vAvgNormal, ezBitflags<ezOnJoltContact> CombinedContactFlags);
+  void OnContact_SlideAndRollReaction(const JPH::Body& inBody0, const JPH::Body& inBody1, const JPH::ContactManifold& inManifold, ezBitflags<ezOnJoltContact> onContact0, ezBitflags<ezOnJoltContact> onContact1, const ezVec3& vAvgPos, const ezVec3& vAvgNormal, ezBitflags<ezOnJoltContact> CombinedContactFlags);
 
   void SpawnPhysicsImpactReactions();
   void UpdatePhysicsSlideReactions();

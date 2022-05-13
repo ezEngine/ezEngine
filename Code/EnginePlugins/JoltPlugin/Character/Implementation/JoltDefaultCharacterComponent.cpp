@@ -9,6 +9,7 @@
 #include <JoltPlugin/Character/JoltDefaultCharacterComponent.h>
 #include <JoltPlugin/Resources/JoltMaterial.h>
 #include <JoltPlugin/System/JoltWorldModule.h>
+#include <RendererCore/AnimationSystem/Declarations.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 
 //////////////////////////////////////////////////////////////////////////
@@ -46,19 +47,19 @@ EZ_BEGIN_COMPONENT_TYPE(ezJoltDefaultCharacterComponent, 1, ezComponentMode::Dyn
   {
     EZ_MESSAGE_HANDLER(ezMsgMoveCharacterController, SetInputState),
     EZ_MESSAGE_HANDLER(ezMsgUpdateLocalBounds, OnUpdateLocalBounds),
-    //EZ_MESSAGE_HANDLER(ezMsgApplyRootMotion, OnApplyRootMotion),
+    EZ_MESSAGE_HANDLER(ezMsgApplyRootMotion, OnApplyRootMotion),
   }
   EZ_END_MESSAGEHANDLERS;
-  //EZ_BEGIN_FUNCTIONS
-  //{
-  //  //EZ_SCRIPT_FUNCTION_PROPERTY(IsDestinationUnobstructed, In, "globalFootPosition", In, "characterHeight"),
-  //  EZ_SCRIPT_FUNCTION_PROPERTY(TeleportCharacter, In, "globalFootPosition"),
-  //  EZ_SCRIPT_FUNCTION_PROPERTY(IsStandingOnGround),
-  //  EZ_SCRIPT_FUNCTION_PROPERTY(IsSlidingOnGround),
-  //  EZ_SCRIPT_FUNCTION_PROPERTY(IsInAir),
-  //  EZ_SCRIPT_FUNCTION_PROPERTY(IsCrouching),
-  //}
-  //EZ_END_FUNCTIONS;
+  EZ_BEGIN_FUNCTIONS
+  {
+    //EZ_SCRIPT_FUNCTION_PROPERTY(IsDestinationUnobstructed, In, "globalFootPosition", In, "characterHeight"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(TeleportCharacter, In, "globalFootPosition"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(IsStandingOnGround),
+    EZ_SCRIPT_FUNCTION_PROPERTY(IsSlidingOnGround),
+    EZ_SCRIPT_FUNCTION_PROPERTY(IsInAir),
+    EZ_SCRIPT_FUNCTION_PROPERTY(IsCrouching),
+  }
+  EZ_END_FUNCTIONS;
 }
 EZ_END_COMPONENT_TYPE
 // clang-format on
@@ -70,6 +71,12 @@ void ezJoltDefaultCharacterComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds
 {
   msg.AddBounds(ezBoundingSphere(ezVec3(0, 0, GetShapeRadius()), GetShapeRadius()), ezInvalidSpatialDataCategory);
   msg.AddBounds(ezBoundingSphere(ezVec3(0, 0, GetCurrentTotalHeight() - GetShapeRadius()), GetShapeRadius()), ezInvalidSpatialDataCategory);
+}
+
+void ezJoltDefaultCharacterComponent::OnApplyRootMotion(ezMsgApplyRootMotion& msg)
+{
+  m_vAbsoluteRootMotion = msg.m_vTranslation;
+  m_InputRotateZ += msg.m_RotationZ;
 }
 
 void ezJoltDefaultCharacterComponent::SerializeComponent(ezWorldWriter& stream) const
@@ -146,6 +153,7 @@ void ezJoltDefaultCharacterComponent::ResetInputState()
   m_InputCrouchBit = 0;
   m_InputRunBit = 0;
   m_InputJumpBit = 0;
+  m_vAbsoluteRootMotion.SetZero();
 }
 
 void ezJoltDefaultCharacterComponent::SetInputState(ezMsgMoveCharacterController& msg)
@@ -194,6 +202,11 @@ float ezJoltDefaultCharacterComponent::GetCurrentTotalHeight() const
   return m_fMaxStepHeight + GetCurrentCapsuleHeight();
 }
 
+void ezJoltDefaultCharacterComponent::TeleportCharacter(const ezVec3& vGlobalFootPosition)
+{
+  TeleportToPosition(vGlobalFootPosition);
+}
+
 void ezJoltDefaultCharacterComponent::OnActivated()
 {
   SUPER::OnActivated();
@@ -201,6 +214,13 @@ void ezJoltDefaultCharacterComponent::OnActivated()
   ResetInternalState();
 
   GetOwner()->UpdateLocalBounds();
+}
+
+void ezJoltDefaultCharacterComponent::OnDeactivated()
+{
+  // TODO: remove query shape etc
+
+  SUPER::OnDeactivated();
 }
 
 JPH::Ref<JPH::Shape> ezJoltDefaultCharacterComponent::MakeNextCharacterShape()
@@ -241,6 +261,35 @@ void ezJoltDefaultCharacterComponent::OnSimulationStarted()
   {
     m_fHeadHeightOffset = pHeadObject->GetLocalPosition().z;
     m_fHeadTargetHeight = m_fHeadHeightOffset;
+  }
+
+  // if (m_bQueryShape)
+  {
+    const ezSimdTransform trans = GetOwner()->GetGlobalTransformSimd();
+
+    ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
+    auto* pSystem = pModule->GetJoltSystem();
+    auto* pBodies = &pSystem->GetBodyInterface();
+
+    JPH::BodyCreationSettings bodyCfg;
+    ezJoltUserData* pUserData = nullptr;
+    m_uiUserDataIndex = pModule->AllocateUserData(pUserData);
+    pUserData->Init(this);
+
+    bodyCfg.SetShape(MakeNextCharacterShape().GetPtr()); // TODO: shape without step offset
+    bodyCfg.mPosition = ezJoltConversionUtils::ToVec3(trans.m_Position);
+    bodyCfg.mRotation = ezJoltConversionUtils::ToQuat(trans.m_Rotation);
+    bodyCfg.mMotionType = JPH::EMotionType::Static;
+    bodyCfg.mObjectLayer = ezJoltCollisionFiltering::ConstructObjectLayer(m_uiCollisionLayer, ezJoltBroadphaseLayer::Character);
+    bodyCfg.mMotionQuality = JPH::EMotionQuality::Discrete;
+    // bodyCfg.mCollisionGroup.SetGroupID(m_uiObjectFilterID);
+    // bodyCfg.mCollisionGroup.SetGroupFilter(pModule->GetGroupFilter()); // the group filter is only needed for objects constrained via joints
+    bodyCfg.mUserData = reinterpret_cast<ezUInt64>(pUserData);
+
+    JPH::Body* pBody = pBodies->CreateBody(bodyCfg);
+    m_uiJoltBodyID = pBody->GetID().GetIndexAndSequenceNumber();
+
+    pModule->QueueBodyToAdd(pBody);
   }
 }
 
@@ -294,6 +343,24 @@ void ezJoltDefaultCharacterComponent::UpdateCharacter()
     pHeadObject->SetLocalPosition(pos);
   }
 
+  // if query shape
+  {
+    auto* pSystem = pModule->GetJoltSystem();
+    auto* pBodies = &pSystem->GetBodyInterface();
+
+    JPH::BodyID bodyId(m_uiJoltBodyID);
+
+    if (!bodyId.IsInvalid())
+    {
+      ezVec3 pos = GetOwner()->GetGlobalPosition();
+      ezQuat rot = GetOwner()->GetGlobalRotation();
+
+      pos.z -= m_fMaxStepHeight; // TODO shape hack
+
+      pBodies->SetPositionAndRotation(bodyId, ezJoltConversionUtils::ToVec3(pos), ezJoltConversionUtils::ToQuat(rot).Normalized(), JPH::EActivation::DontActivate);
+    }
+  }
+
   ResetInputState();
 }
 
@@ -339,8 +406,9 @@ void ezJoltDefaultCharacterComponent::Update_OnGround()
 
   const ezVec3 vPrevPos = GetOwner()->GetGlobalPosition();
   RawMoveWithVelocity(vVelocityToApply);
+  RawMoveIntoDirection(GetOwner()->GetGlobalRotation() * m_vAbsoluteRootMotion);
 
-  InteractWithSurfaces(GetUpdateTimeDelta() * vInputVelocity.GetAsVec2(), vPrevPos, GroundState::OnGround, groundContact);
+  InteractWithSurfaces((GetUpdateTimeDelta() * vInputVelocity.GetAsVec2()) + m_vAbsoluteRootMotion.GetAsVec2(), vPrevPos, GroundState::OnGround, groundContact);
 
   StoreLateralVelocity();
 }
@@ -372,6 +440,7 @@ void ezJoltDefaultCharacterComponent::Update_InAir()
   vVelocityToApply.z = m_fVelocityUp;
 
   RawMoveWithVelocity(vVelocityToApply);
+  RawMoveIntoDirection(GetOwner()->GetGlobalRotation() * m_vAbsoluteRootMotion);
 
   ClampLateralVelocity();
 }
@@ -408,6 +477,7 @@ void ezJoltDefaultCharacterComponent::Update_Sliding()
 
   const ezVec3 vPrevPos = GetOwner()->GetGlobalPosition();
   RawMoveWithVelocity(vVelocityToApply);
+  RawMoveIntoDirection(GetOwner()->GetGlobalRotation() * m_vAbsoluteRootMotion);
 
   InteractWithSurfaces(GetUpdateTimeDelta() * vInputVelocity.GetAsVec2(), vPrevPos, GroundState::Sliding, groundContact);
 

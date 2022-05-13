@@ -2,6 +2,8 @@
 
 #include <JoltPlugin/Character/JoltCharacterControllerComponent.h>
 
+struct ezMsgApplyRootMotion;
+
 using ezJoltDefaultCharacterComponentManager = ezComponentManager<class ezJoltDefaultCharacterComponent, ezBlockStorageType::FreeList>;
 
 class EZ_JOLTPLUGIN_DLL ezJoltDefaultCharacterComponent : public ezJoltCharacterControllerComponent
@@ -18,6 +20,7 @@ public:
 protected:
   virtual void OnSimulationStarted() override;
   virtual void OnActivated() override;
+  virtual void OnDeactivated() override;
 
   //////////////////////////////////////////////////////////////////////////
   // ezJoltCharacterControllerComponent
@@ -78,13 +81,16 @@ public:
   float GetCurrentTotalHeight() const;
 
   GroundState GetGroundState() const { return m_LastGroundState; }
-  bool IsStandingOnGround() const { return m_LastGroundState == GroundState::OnGround; } // [ scriptable ]
-  bool IsSlidingOnGround() const { return m_LastGroundState == GroundState::Sliding; }   // [ scriptable ]
-  // bool IsInAir() const { return m_LastGroundState == GroundState::InAir; }               // [ scriptable ]
-  bool IsCrouching() const { return m_IsCrouchingBit; } // [ scriptable ]
+  bool IsStandingOnGround() const { return m_LastGroundState == GroundState::OnGround; }                                  // [ scriptable ]
+  bool IsSlidingOnGround() const { return m_LastGroundState == GroundState::Sliding; }                                    // [ scriptable ]
+  bool IsInAir() const { return m_LastGroundState == GroundState::Jumping || m_LastGroundState == GroundState::Falling; } // [ scriptable ]
+  bool IsCrouching() const { return m_IsCrouchingBit; }                                                                   // [ scriptable ]
+
+  void TeleportCharacter(const ezVec3& vGlobalFootPosition);
 
 protected:
   void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const;
+  virtual void OnApplyRootMotion(ezMsgApplyRootMotion& msg);
 
   virtual void UpdateCharacter() override;
 
@@ -142,6 +148,11 @@ protected:
   float m_fHeadHeightOffset = 0.0f;
   float m_fHeadTargetHeight = 0.0f;
   ezGameObjectHandle m_hHeadObject;
+
+  ezVec3 m_vAbsoluteRootMotion = ezVec3::ZeroVector();
+
+  ezUInt32 m_uiUserDataIndex = ezInvalidIndex;
+  ezUInt32 m_uiJoltBodyID = ezInvalidIndex;
 
 private:
   const char* DummyGetter() const { return nullptr; }

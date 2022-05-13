@@ -244,8 +244,7 @@ void ezSensorSphereComponent::GetObjectsInSensorVolume(ezDynamicArray<ezGameObje
       out_Objects.PushBack(pObject);
     }
 
-    return ezVisitorExecution::Continue;
-  });
+    return ezVisitorExecution::Continue; });
 }
 
 void ezSensorSphereComponent::DebugDrawSensorShape() const
@@ -307,7 +306,7 @@ void ezSensorCylinderComponent::GetObjectsInSensorVolume(ezDynamicArray<ezGameOb
   const float sphereRadius = ezVec2(m_fRadius * xyScale, m_fHeight * 0.5f * scale.z).GetLength();
   ezBoundingSphere sphere = ezBoundingSphere(pOwner->GetGlobalPosition(), sphereRadius);
 
-  //ezDebugRenderer::DrawLineSphere(GetWorld(), sphere, ezColor::Blue);
+  // ezDebugRenderer::DrawLineSphere(GetWorld(), sphere, ezColor::Blue);
 
   ezSpatialSystem::QueryParams params;
   params.m_uiCategoryBitmask = m_SpatialCategory.GetBitmask();
@@ -326,8 +325,7 @@ void ezSensorCylinderComponent::GetObjectsInSensorVolume(ezDynamicArray<ezGameOb
       out_Objects.PushBack(pObject);
     }
 
-    return ezVisitorExecution::Continue;
-  });
+    return ezVisitorExecution::Continue; });
 }
 
 void ezSensorCylinderComponent::DebugDrawSensorShape() const
@@ -413,8 +411,7 @@ void ezSensorConeComponent::GetObjectsInSensorVolume(ezDynamicArray<ezGameObject
       out_Objects.PushBack(pObject);
     }
 
-    return ezVisitorExecution::Continue;
-  });
+    return ezVisitorExecution::Continue; });
 }
 
 void ezSensorConeComponent::DebugDrawSensorShape() const
@@ -608,6 +605,12 @@ void ezSensorWorldModule::UpdateSensors(const ezWorldModule::UpdateContext& cont
         ezPhysicsCastResult hitResult;
         ezPhysicsQueryParameters params(pSensorComponent->m_uiCollisionLayer);
         params.m_bIgnoreInitialOverlap = true;
+        params.m_ShapeTypes = ezPhysicsShapeType::Default;
+
+        // TODO: probably best to expose the ezPhysicsShapeType bitflags on the component
+        params.m_ShapeTypes.Remove(ezPhysicsShapeType::Rope);
+        params.m_ShapeTypes.Remove(ezPhysicsShapeType::Ragdoll);
+
         if (m_pPhysicsWorldModule->Raycast(hitResult, rayStart, rayDir, fDistance, params))
         {
           // hit something in between -> not visible
@@ -638,8 +641,7 @@ void ezSensorWorldModule::UpdateSensors(const ezWorldModule::UpdateContext& cont
       msg.m_DetectedObjects = pSensorComponent->m_LastDetectedObjects;
 
       pSensorOwner->PostEventMessage(msg, pSensorComponent, ezTime::Zero(), ezObjectMsgQueueType::PostAsync);
-    }
-  });
+    } });
 }
 
 void ezSensorWorldModule::DebugDrawSensors(const ezWorldModule::UpdateContext& context)

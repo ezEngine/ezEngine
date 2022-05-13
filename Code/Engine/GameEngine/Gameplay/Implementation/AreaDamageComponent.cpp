@@ -54,7 +54,10 @@ void ezAreaDamageComponent::ApplyAreaDamage()
 
   const ezVec3 vOwnPosition = GetOwner()->GetGlobalPosition();
 
-  pPhysicsInterface->QueryShapesInSphere(g_OverlapResults, m_fRadius, vOwnPosition, ezPhysicsQueryParameters(m_uiCollisionLayer));
+  ezPhysicsQueryParameters query(m_uiCollisionLayer);
+  query.m_ShapeTypes.Remove(ezPhysicsShapeType::Static | ezPhysicsShapeType::Trigger);
+
+  pPhysicsInterface->QueryShapesInSphere(g_OverlapResults, m_fRadius, vOwnPosition, query);
 
   const float fInvRadius = 1.0f / m_fRadius;
 

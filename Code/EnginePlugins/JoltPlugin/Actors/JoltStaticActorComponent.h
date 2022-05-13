@@ -41,13 +41,16 @@ public:
   void SetMesh(const ezJoltMeshResourceHandle& hMesh);
   EZ_ALWAYS_INLINE const ezJoltMeshResourceHandle& GetMesh() const { return m_hCollisionMesh; }
 
-  ezUInt32 GetObjectFilterID() const { return m_uiObjectFilterID; } // [ scriptable ]
+  void SetSurfaceFile(const char* szFile); // [ property ]
+  const char* GetSurfaceFile() const;      // [ property ]
 
   bool m_bIncludeInNavmesh = true;              // [ property ]
   bool m_bPullSurfacesFromGraphicsMesh = false; // [ property ]
+  ezSurfaceResourceHandle m_hSurface;           // [ property ]
 
 protected:
   void OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const;
+  const ezJoltMaterial* GetJoltMaterial() const;
 
   ezJoltMeshResourceHandle m_hCollisionMesh;
 

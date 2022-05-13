@@ -35,13 +35,23 @@ class EZ_JOLTPLUGIN_DLL ezJoltQueryShapeActorComponent : public ezJoltActorCompo
   // ezComponent
 
 public:
+  virtual void SerializeComponent(ezWorldWriter& stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& stream) override;
+
   virtual void OnSimulationStarted() override;
   virtual void OnDeactivated() override;
 
   //////////////////////////////////////////////////////////////////////////
   // ezJoltQueryShapeActorComponent
-
 public:
   ezJoltQueryShapeActorComponent();
   ~ezJoltQueryShapeActorComponent();
+
+  void SetSurfaceFile(const char* szFile); // [ property ]
+  const char* GetSurfaceFile() const;      // [ property ]
+
+  ezSurfaceResourceHandle m_hSurface; // [ property ]
+
+protected:
+  const ezJoltMaterial* GetJoltMaterial() const;
 };

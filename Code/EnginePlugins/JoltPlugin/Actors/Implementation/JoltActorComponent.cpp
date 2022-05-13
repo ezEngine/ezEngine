@@ -19,10 +19,13 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezJoltActorComponent, 2)
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
-    EZ_ACCESSOR_PROPERTY("Surface", GetSurfaceFile, SetSurfaceFile)->AddAttributes(new ezAssetBrowserAttribute("Surface")),
-    EZ_BITFLAGS_MEMBER_PROPERTY("OnContact", ezOnJoltContact, m_OnContact),
   }
   EZ_END_PROPERTIES;
+  EZ_BEGIN_FUNCTIONS
+  {
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetObjectFilterID),
+  }
+  EZ_END_FUNCTIONS;
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Physics/Jolt/Actors"),
@@ -42,8 +45,6 @@ void ezJoltActorComponent::SerializeComponent(ezWorldWriter& stream) const
   auto& s = stream.GetStream();
 
   s << m_uiCollisionLayer;
-  s << m_hSurface;
-  s << m_OnContact;
 }
 
 void ezJoltActorComponent::DeserializeComponent(ezWorldReader& stream)
@@ -54,12 +55,6 @@ void ezJoltActorComponent::DeserializeComponent(ezWorldReader& stream)
   auto& s = stream.GetStream();
 
   s >> m_uiCollisionLayer;
-  s >> m_hSurface;
-
-  if (uiVersion >= 2)
-  {
-    s >> m_OnContact;
-  }
 }
 
 void ezJoltActorComponent::OnSimulationStarted()
@@ -97,25 +92,6 @@ void ezJoltActorComponent::OnDeactivated()
   SUPER::OnDeactivated();
 }
 
-void ezJoltActorComponent::SetSurfaceFile(const char* szFile)
-{
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    m_hSurface = ezResourceManager::LoadResource<ezSurfaceResource>(szFile);
-  }
-
-  if (m_hSurface.IsValid())
-    ezResourceManager::PreloadResource(m_hSurface);
-}
-
-const char* ezJoltActorComponent::GetSurfaceFile() const
-{
-  if (!m_hSurface.IsValid())
-    return "";
-
-  return m_hSurface.GetResourceID();
-}
-
 void ezJoltActorComponent::GatherShapes(ezDynamicArray<ezJoltSubShape>& shapes, ezGameObject* pObject, const ezTransform& rootTransform, float fDensity, const ezJoltMaterial* pMaterial)
 {
   ezHybridArray<ezJoltShapeComponent*, 8> shapeComps;
@@ -140,14 +116,14 @@ void ezJoltActorComponent::GatherShapes(ezDynamicArray<ezJoltSubShape>& shapes, 
   }
 }
 
-ezResult ezJoltActorComponent::CreateShape(JPH::BodyCreationSettings* pSettings, float fDensity)
+ezResult ezJoltActorComponent::CreateShape(JPH::BodyCreationSettings* pSettings, float fDensity, const ezJoltMaterial* pMaterial)
 {
   ezHybridArray<ezJoltSubShape, 16> shapes;
   ezTransform towner = GetOwner()->GetGlobalTransform();
   towner.m_vScale.Set(1.0f); // pretend like there is no scaling at the root, so that each shape applies its scale
 
-  CreateShapes(shapes, towner, fDensity, GetJoltMaterial());
-  GatherShapes(shapes, GetOwner(), towner, fDensity, GetJoltMaterial());
+  CreateShapes(shapes, towner, fDensity, pMaterial);
+  GatherShapes(shapes, GetOwner(), towner, fDensity, pMaterial);
 
   auto cleanShapes = [&]() {
     for (auto& s : shapes)
@@ -249,19 +225,4 @@ void ezJoltActorComponent::SetInitialObjectFilterID(ezUInt32 uiObjectFilterID)
 {
   EZ_ASSERT_DEBUG(!IsActiveAndSimulating(), "The object filter ID can't be changed after simulation has started.");
   m_uiObjectFilterID = uiObjectFilterID;
-}
-
-const ezJoltMaterial* ezJoltActorComponent::GetJoltMaterial() const
-{
-  if (m_hSurface.IsValid())
-  {
-    ezResourceLock<ezSurfaceResource> pSurface(m_hSurface, ezResourceAcquireMode::BlockTillLoaded);
-
-    if (pSurface->m_pPhysicsMaterialJolt != nullptr)
-    {
-      return static_cast<ezJoltMaterial*>(pSurface->m_pPhysicsMaterialJolt);
-    }
-  }
-
-  return nullptr;
 }

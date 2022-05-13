@@ -25,6 +25,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezJoltStaticActorComponent, 1, ezComponentMode::Static)
     EZ_ACCESSOR_PROPERTY("CollisionMesh", GetMeshFile, SetMeshFile)->AddAttributes(new ezAssetBrowserAttribute("Jolt_Colmesh_Triangle;Jolt_Colmesh_Convex")),
     EZ_MEMBER_PROPERTY("IncludeInNavmesh", m_bIncludeInNavmesh)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_MEMBER_PROPERTY("PullSurfacesFromGraphicsMesh", m_bPullSurfacesFromGraphicsMesh),
+    EZ_ACCESSOR_PROPERTY("Surface", GetSurfaceFile, SetSurfaceFile)->AddAttributes(new ezAssetBrowserAttribute("Surface")),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
@@ -32,11 +33,6 @@ EZ_BEGIN_COMPONENT_TYPE(ezJoltStaticActorComponent, 1, ezComponentMode::Static)
     EZ_MESSAGE_HANDLER(ezMsgExtractGeometry, OnMsgExtractGeometry),
   }
   EZ_END_MESSAGEHANDLERS;
-  EZ_BEGIN_FUNCTIONS
-  {
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetObjectFilterID),
-  }
-  EZ_END_FUNCTIONS;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
@@ -51,12 +47,12 @@ ezJoltStaticActorComponent::~ezJoltStaticActorComponent() = default;
 void ezJoltStaticActorComponent::SerializeComponent(ezWorldWriter& stream) const
 {
   SUPER::SerializeComponent(stream);
-
   auto& s = stream.GetStream();
 
   s << m_hCollisionMesh;
   s << m_bIncludeInNavmesh;
   s << m_bPullSurfacesFromGraphicsMesh;
+  s << m_hSurface;
 }
 
 
@@ -70,6 +66,7 @@ void ezJoltStaticActorComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_hCollisionMesh;
   s >> m_bIncludeInNavmesh;
   s >> m_bPullSurfacesFromGraphicsMesh;
+  s >> m_hSurface;
 }
 
 void ezJoltStaticActorComponent::OnDeactivated()
@@ -81,14 +78,18 @@ void ezJoltStaticActorComponent::OnDeactivated()
 
 void ezJoltStaticActorComponent::OnSimulationStarted()
 {
+  SUPER::OnSimulationStarted();
+
   ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
 
   ezJoltUserData* pUserData = nullptr;
   m_uiUserDataIndex = pModule->AllocateUserData(pUserData);
   pUserData->Init(this);
 
+  auto* pMaterial = GetJoltMaterial();
+
   JPH::BodyCreationSettings bodyCfg;
-  if (CreateShape(&bodyCfg, 1.0f).Failed())
+  if (CreateShape(&bodyCfg, 1.0f, pMaterial).Failed())
   {
     ezLog::Error("Jolt static actor component '{}' has no valid shape.", GetOwner()->GetName());
     return;
@@ -98,7 +99,6 @@ void ezJoltStaticActorComponent::OnSimulationStarted()
 
   auto* pSystem = pModule->GetJoltSystem();
   auto* pBodies = &pSystem->GetBodyInterface();
-  auto* pMaterial = GetJoltMaterial();
 
   if (pMaterial == nullptr)
     pMaterial = ezJoltCore::GetDefaultMaterial();
@@ -255,4 +255,38 @@ const char* ezJoltStaticActorComponent::GetMeshFile() const
 void ezJoltStaticActorComponent::SetMesh(const ezJoltMeshResourceHandle& hMesh)
 {
   m_hCollisionMesh = hMesh;
+}
+
+const ezJoltMaterial* ezJoltStaticActorComponent::GetJoltMaterial() const
+{
+  if (m_hSurface.IsValid())
+  {
+    ezResourceLock<ezSurfaceResource> pSurface(m_hSurface, ezResourceAcquireMode::BlockTillLoaded);
+
+    if (pSurface->m_pPhysicsMaterialJolt != nullptr)
+    {
+      return static_cast<ezJoltMaterial*>(pSurface->m_pPhysicsMaterialJolt);
+    }
+  }
+
+  return nullptr;
+}
+
+void ezJoltStaticActorComponent::SetSurfaceFile(const char* szFile)
+{
+  if (!ezStringUtils::IsNullOrEmpty(szFile))
+  {
+    m_hSurface = ezResourceManager::LoadResource<ezSurfaceResource>(szFile);
+  }
+
+  if (m_hSurface.IsValid())
+    ezResourceManager::PreloadResource(m_hSurface);
+}
+
+const char* ezJoltStaticActorComponent::GetSurfaceFile() const
+{
+  if (!m_hSurface.IsValid())
+    return "";
+
+  return m_hSurface.GetResourceID();
 }
