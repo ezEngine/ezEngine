@@ -15,7 +15,7 @@ export class Player extends ez.TickedTypescriptComponent {
         super()
     }
 
-    characterController: ez.CharacterControllerComponent = null;
+    characterController: ez.JoltDefaultCharacterComponent = null;
     camera: ez.GameObject = null;
     input: ez.InputComponent = null;
     headBone: ez.HeadBoneComponent = null;
@@ -28,13 +28,13 @@ export class Player extends ez.TickedTypescriptComponent {
     gunComp: _guns.Gun[] = [];
     ammoPouch: _guns.AmmoPouch = new _guns.AmmoPouch();
     weaponUnlocked: boolean[] = [];
-    grabObject: ez.PxGrabObjectComponent = null;
+    grabObject: ez.JoltGrabObjectComponent = null;
     requireNoShoot: boolean = false;
     blackboard: ez.BlackboardComponent = null;
 
     OnSimulationStarted(): void {
         let owner = this.GetOwner();
-        this.characterController = owner.TryGetComponentOfBaseType(ez.CharacterControllerComponent);
+        this.characterController = owner.TryGetComponentOfBaseType(ez.JoltDefaultCharacterComponent);
         this.camera = owner.FindChildByName("Camera", true);
         this.input = owner.TryGetComponentOfBaseType(ez.InputComponent);
         this.headBone = this.camera.TryGetComponentOfBaseType(ez.HeadBoneComponent);
@@ -48,7 +48,7 @@ export class Player extends ez.TickedTypescriptComponent {
         this.guns[_ge.Weapon.RocketLauncher] = ez.Utils.FindPrefabRootNode(this.gunRoot.FindChildByName("RocketLauncher", true));
         this.blackboard = owner.TryGetComponentOfBaseType(ez.BlackboardComponent);
 
-        this.grabObject = owner.FindChildByName("GrabObject", true).TryGetComponentOfBaseType(ez.PxGrabObjectComponent);
+        this.grabObject = owner.FindChildByName("GrabObject", true).TryGetComponentOfBaseType(ez.JoltGrabObjectComponent);
         this.SetTickInterval(ez.Time.Milliseconds(0));
 
         this.weaponUnlocked[_ge.Weapon.None] = true;
@@ -109,7 +109,7 @@ export class Player extends ez.TickedTypescriptComponent {
                     this.blackboard.SetEntryValue("MoveBackwards", msg.MoveBackwards);
                     this.blackboard.SetEntryValue("StrafeLeft", msg.StrafeLeft);
                     this.blackboard.SetEntryValue("StrafeRight", msg.StrafeRight);
-                    this.blackboard.SetEntryValue("TouchingGround", this.characterController.IsTouchingGround());
+                    this.blackboard.SetEntryValue("TouchingGround", this.characterController.IsStandingOnGround());
                 }
             }
 
@@ -220,9 +220,10 @@ export class Player extends ez.TickedTypescriptComponent {
                 dir.MulNumber(5.0);
                 pos.AddVec3(dir);
 
-                if (this.characterController.IsDestinationUnobstructed(pos, 0)) {
-                    this.characterController.TeleportCharacter(pos);
-                }
+                // TODO:
+                // if (this.characterController.IsDestinationUnobstructed(pos, 0)) {
+                     this.characterController.TeleportCharacter(pos);
+                // }
             }
         }
 
@@ -238,6 +239,7 @@ export class Player extends ez.TickedTypescriptComponent {
 
                 if (this.grabObject.HasObjectGrabbed()) {
                     let dir = new ez.Vec3(0.75, 0, 0);
+                    dir.MulNumber(30);
                     this.grabObject.ThrowGrabbedObject(dir);
 
                     this.SwitchToWeapon(this.holsteredWeapon);
@@ -296,10 +298,9 @@ export class Player extends ez.TickedTypescriptComponent {
 
             let rbCam = ez.World.CreateObject(go);
 
-            let rbCamActor = ez.World.CreateComponent(rbCam, ez.PxDynamicActorComponent);
-            let rbCamSphere = ez.World.CreateComponent(rbCam, ez.PxShapeSphereComponent);
+            let rbCamActor = ez.World.CreateComponent(rbCam, ez.JoltDynamicActorComponent);
+            let rbCamSphere = ez.World.CreateComponent(rbCam, ez.JoltShapeSphereComponent);
             rbCamSphere.Radius = 0.3;
-            rbCamSphere.CollisionLayer = 2; // debris
             let rbCamLight = ez.World.CreateComponent(rbCam, ez.PointLightComponent);
             rbCamLight.LightColor = ez.Color.DarkRed();
             rbCamLight.Intensity = 200;
@@ -307,6 +308,7 @@ export class Player extends ez.TickedTypescriptComponent {
             rbCamActor.Mass = 30;
             rbCamActor.LinearDamping = 0.5;
             rbCamActor.AngularDamping = 0.99;
+            rbCamActor.CollisionLayer = 2; // debris
             rbCamActor.AddAngularForce(ez.Vec3.CreateRandomPointInSphere());
 
             camera.SetParent(rbCam);

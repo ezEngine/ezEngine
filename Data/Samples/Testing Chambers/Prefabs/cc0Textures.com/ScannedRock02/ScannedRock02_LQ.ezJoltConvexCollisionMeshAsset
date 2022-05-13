@@ -2,19 +2,19 @@ HeaderV2
 {
 o
 {
-	Uuid %id{u4{15725976242169334185,4888943780148552754}}
+	Uuid %id{u4{14737680971665784505,5057588949416469305}}
 	s %t{"ezAssetDocumentInfo"}
 	u3 %v{2}
 	s %n{"Header"}
 	p
 	{
-		s %AssetType{"Collision Mesh (Convex)"}
+		s %AssetType{"Jolt_Colmesh_Convex"}
 		VarArray %Dependencies
 		{
-			s{"Vegetation/Quaternius/Rock2.fbx"}
+			s{"Objects/cc0Textures.com/ScannedRock02/ScannedRock02_LQ.obj"}
 		}
-		Uuid %DocumentID{u4{15725976242169334185,4888943780148552754}}
-		u4 %Hash{6026578825347928629}
+		Uuid %DocumentID{u4{14737680971665784505,5057588949416469305}}
+		u4 %Hash{4004242168257491410}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -28,38 +28,38 @@ Objects
 {
 o
 {
-	Uuid %id{u4{6838880790147241141,4940124556795625090}}
-	s %t{"ezCollisionMeshAssetProperties"}
-	u3 %v{2}
+	Uuid %id{u4{930273541108595135,5461725958257472099}}
+	s %t{"ezJoltSurfaceResourceSlot"}
+	u3 %v{1}
 	p
 	{
-		s %ConvexMeshType{"ezConvexCollisionMeshType::ConvexHull"}
+		s %Label{"Material"}
+		s %Resource{"{ 14bf3313-89f3-4692-873c-d127980bf748 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{7436360443324174726,5677078167736249002}}
+	s %t{"ezJoltCollisionMeshAssetProperties"}
+	u3 %v{1}
+	p
+	{
+		s %ConvexMeshType{"ezJoltConvexCollisionMeshType::ConvexHull"}
 		u1 %Detail{1}
 		b %FlipForwardDir{0}
 		f %Height{0x0000803F}
 		b %IsConvexMesh{1}
 		u2 %MaxConvexPieces{2}
-		s %MeshFile{"Vegetation/Quaternius/Rock2.fbx"}
+		s %MeshFile{"Objects/cc0Textures.com/ScannedRock02/ScannedRock02_LQ.obj"}
 		f %Radius{0x0000003F}
 		f %Radius2{0x0000003F}
 		s %RightDir{"ezBasisAxis::PositiveX"}
 		VarArray %Surfaces
 		{
-			Uuid{u4{3126198978412526527,5343483838650348062}}
+			Uuid{u4{930273541108595135,5461725958257472099}}
 		}
 		f %UniformScaling{0x0000803F}
 		s %UpDir{"ezBasisAxis::PositiveY"}
-	}
-}
-o
-{
-	Uuid %id{u4{3126198978412526527,5343483838650348062}}
-	s %t{"ezSurfaceResourceSlot"}
-	u3 %v{1}
-	p
-	{
-		s %Label{"Rock"}
-		s %Resource{"{ 14bf3313-89f3-4692-873c-d127980bf748 }"}
 	}
 }
 o
@@ -72,7 +72,7 @@ o
 	{
 		VarArray %Children
 		{
-			Uuid{u4{6838880790147241141,4940124556795625090}}
+			Uuid{u4{7436360443324174726,5677078167736249002}}
 		}
 	}
 }
@@ -81,7 +81,25 @@ Types
 {
 o
 {
-	Uuid %id{u4{4804660000725455364,6811252556017389458}}
+	Uuid %id{u4{17999953918963139426,3797774724330577832}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginJolt"}
+		VarArray %Properties{}
+		s %TypeName{"ezJoltConvexCollisionMeshType"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{17627676062673229848,4160480872240254573}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
 	p
@@ -90,10 +108,28 @@ o
 		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
 		VarArray %Functions{}
 		s %ParentTypeName{""}
-		s %PluginName{"ezEditorPluginPhysX"}
+		s %PluginName{"ezEditorPluginJolt"}
 		VarArray %Properties{}
-		s %TypeName{"ezSurfaceResourceSlot"}
+		s %TypeName{"ezJoltSurfaceResourceSlot"}
 		u3 %TypeSize{128}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{721132921943597409,7082307521322309138}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginJolt"}
+		VarArray %Properties{}
+		s %TypeName{"ezJoltCollisionMeshAssetProperties"}
+		u3 %TypeSize{1160}
 		u3 %TypeVersion{1}
 	}
 }
@@ -112,24 +148,6 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
 		u3 %TypeSize{72}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{6208317719524447398,8848520840941081839}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezEnumBase"}
-		s %PluginName{"ezEditorPluginPhysX"}
-		VarArray %Properties{}
-		s %TypeName{"ezConvexCollisionMeshType"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -167,24 +185,6 @@ o
 		s %TypeName{"ezBasisAxis"}
 		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{10666774207481832673,17609779990587517893}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezReflectedClass"}
-		s %PluginName{"ezEditorPluginPhysX"}
-		VarArray %Properties{}
-		s %TypeName{"ezCollisionMeshAssetProperties"}
-		u3 %TypeSize{1160}
-		u3 %TypeVersion{2}
 	}
 }
 o

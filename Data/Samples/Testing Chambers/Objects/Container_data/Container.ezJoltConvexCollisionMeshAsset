@@ -2,16 +2,19 @@ HeaderV2
 {
 o
 {
-	Uuid %id{u4{12865027762212450468,4845243238091221157}}
+	Uuid %id{u4{9737614160977163965,4909594793944982026}}
 	s %t{"ezAssetDocumentInfo"}
 	u3 %v{2}
 	s %n{"Header"}
 	p
 	{
-		s %AssetType{"Collision Mesh (Convex)"}
-		VarArray %Dependencies{}
-		Uuid %DocumentID{u4{12865027762212450468,4845243238091221157}}
-		u4 %Hash{14163101036051757132}
+		s %AssetType{"Jolt_Colmesh_Convex"}
+		VarArray %Dependencies
+		{
+			s{"Objects/Container_data/Container.FBX"}
+		}
+		Uuid %DocumentID{u4{9737614160977163965,4909594793944982026}}
+		u4 %Hash{10648574257658958583}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -25,38 +28,38 @@ Objects
 {
 o
 {
-	Uuid %id{u4{12418404319851751809,4779606958172085695}}
-	s %t{"ezCollisionMeshAssetProperties"}
-	u3 %v{2}
+	Uuid %id{u4{2612131944489264829,5066041123431898410}}
+	s %t{"ezJoltSurfaceResourceSlot"}
+	u3 %v{1}
 	p
 	{
-		s %ConvexMeshType{"ezConvexCollisionMeshType::Cylinder"}
-		u1 %Detail{12}
-		b %FlipForwardDir{0}
-		f %Height{0x14AE873F}
-		b %IsConvexMesh{1}
-		u2 %MaxConvexPieces{2}
-		s %MeshFile{"Prefabs/GasCylinder_data/GasCylinder.fbx"}
-		f %Radius{0xB81E053E}
-		f %Radius2{0xB81E053E}
-		s %RightDir{"ezBasisAxis::PositiveX"}
-		VarArray %Surfaces
-		{
-			Uuid{u4{17830558199093168315,4927758719884470141}}
-		}
-		f %UniformScaling{0x0000803F}
-		s %UpDir{"ezBasisAxis::PositiveZ"}
+		s %Label{"14 - Default"}
+		s %Resource{"{ 72115f7a-5947-4a21-899f-868368bd41d7 }"}
 	}
 }
 o
 {
-	Uuid %id{u4{17830558199093168315,4927758719884470141}}
-	s %t{"ezSurfaceResourceSlot"}
+	Uuid %id{u4{15038808902204072873,5634051581850058267}}
+	s %t{"ezJoltCollisionMeshAssetProperties"}
 	u3 %v{1}
 	p
 	{
-		s %Label{"DefaultMaterial"}
-		s %Resource{"{ 72115f7a-5947-4a21-899f-868368bd41d7 }"}
+		s %ConvexMeshType{"ezJoltConvexCollisionMeshType::ConvexHull"}
+		u1 %Detail{1}
+		b %FlipForwardDir{0}
+		f %Height{0x0000803F}
+		b %IsConvexMesh{1}
+		u2 %MaxConvexPieces{2}
+		s %MeshFile{"Objects/Container_data/Container.FBX"}
+		f %Radius{0x0000003F}
+		f %Radius2{0x0000003F}
+		s %RightDir{"ezBasisAxis::PositiveX"}
+		VarArray %Surfaces
+		{
+			Uuid{u4{2612131944489264829,5066041123431898410}}
+		}
+		f %UniformScaling{0x0000803F}
+		s %UpDir{"ezBasisAxis::PositiveY"}
 	}
 }
 o
@@ -69,7 +72,7 @@ o
 	{
 		VarArray %Children
 		{
-			Uuid{u4{12418404319851751809,4779606958172085695}}
+			Uuid{u4{15038808902204072873,5634051581850058267}}
 		}
 	}
 }
@@ -78,7 +81,25 @@ Types
 {
 o
 {
-	Uuid %id{u4{4804660000725455364,6811252556017389458}}
+	Uuid %id{u4{17999953918963139426,3797774724330577832}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginJolt"}
+		VarArray %Properties{}
+		s %TypeName{"ezJoltConvexCollisionMeshType"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{17627676062673229848,4160480872240254573}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
 	p
@@ -87,10 +108,28 @@ o
 		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
 		VarArray %Functions{}
 		s %ParentTypeName{""}
-		s %PluginName{"ezEditorPluginPhysX"}
+		s %PluginName{"ezEditorPluginJolt"}
 		VarArray %Properties{}
-		s %TypeName{"ezSurfaceResourceSlot"}
+		s %TypeName{"ezJoltSurfaceResourceSlot"}
 		u3 %TypeSize{128}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{721132921943597409,7082307521322309138}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginJolt"}
+		VarArray %Properties{}
+		s %TypeName{"ezJoltCollisionMeshAssetProperties"}
+		u3 %TypeSize{1160}
 		u3 %TypeVersion{1}
 	}
 }
@@ -109,24 +148,6 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
 		u3 %TypeSize{72}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{6208317719524447398,8848520840941081839}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezEnumBase"}
-		s %PluginName{"ezEditorPluginPhysX"}
-		VarArray %Properties{}
-		s %TypeName{"ezConvexCollisionMeshType"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -164,24 +185,6 @@ o
 		s %TypeName{"ezBasisAxis"}
 		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{10666774207481832673,17609779990587517893}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezReflectedClass"}
-		s %PluginName{"ezEditorPluginPhysX"}
-		VarArray %Properties{}
-		s %TypeName{"ezCollisionMeshAssetProperties"}
-		u3 %TypeSize{1160}
-		u3 %TypeVersion{2}
 	}
 }
 o

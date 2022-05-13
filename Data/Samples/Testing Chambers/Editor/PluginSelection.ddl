@@ -6,6 +6,12 @@ PluginState
 }
 PluginState
 {
+	string %ID{"Jolt"}
+	bool %Selected{true}
+	bool %LoadCopy{false}
+}
+PluginState
+{
 	string %ID{"Kraut"}
 	bool %Selected{true}
 	bool %LoadCopy{false}
@@ -13,12 +19,6 @@ PluginState
 PluginState
 {
 	string %ID{"Particles"}
-	bool %Selected{true}
-	bool %LoadCopy{false}
-}
-PluginState
-{
-	string %ID{"PhysX"}
 	bool %Selected{true}
 	bool %LoadCopy{false}
 }

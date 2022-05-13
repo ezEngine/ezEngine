@@ -22,17 +22,17 @@ export class ShootingStar2 extends ez.TypescriptComponent {
         if (!this.ragdoll) {
             this.ragdoll = true;
 
-            var col = this.GetOwner().TryGetComponentOfBaseType(ez.PxBoneColliderComponent);
+            var col = this.GetOwner().TryGetComponentOfBaseType(ez.JoltBoneColliderComponent);
             
             if (col != null) {
                 // if present, deactivate the bone collider component, it isn't needed anymore
                 col.SetActiveFlag(false);
             }
             
-            var rdc = this.GetOwner().TryGetComponentOfBaseType(ez.PxRagdollComponent);
+            var rdc = this.GetOwner().TryGetComponentOfBaseType(ez.JoltRagdollComponent);
             
             if (rdc != null) {
-                rdc.Start = ez.PxRagdollStart.WaitForPose;
+                rdc.Start = ez.JoltRagdollStart.WaitForPose;
 
                 // we want the ragdoll to get a kick, so send an impulse message
                 var imp = new ez.MsgPhysicsAddImpulse();

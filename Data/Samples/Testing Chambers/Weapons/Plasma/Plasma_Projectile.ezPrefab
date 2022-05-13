@@ -11,7 +11,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{3164501351321007789,5751316033902908514}}
-		u4 %Hash{17291353901354797202}
+		u4 %Hash{11704721432754477725}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{15132986221782125580,7231411748225102780}}
@@ -83,7 +83,7 @@ o
 	p
 	{
 		f %Damage{0x00002041}
-		f %Impulse{0x0000A042}
+		f %Impulse{0x0000F041}
 		s %Interaction{"Plasma_Impact"}
 		s %Reaction{"ezProjectileReaction::Absorb"}
 		s %Surface{"{ 8f19ce05-bf1e-4626-9659-e6acc058dee5 }"}
@@ -117,7 +117,7 @@ o
 o
 {
 	Uuid %id{u4{6362658297846975406,5549875606909015063}}
-	s %t{"ezSceneDocumentSettings"}
+	s %t{"ezPrefabDocumentSettings"}
 	u3 %v{1}
 	p
 	{
@@ -144,7 +144,7 @@ o
 {
 	Uuid %id{u4{18096612296587978288,6449934965513159559}}
 	s %t{"ezSceneDocumentRoot"}
-	u3 %v{1}
+	u3 %v{2}
 	s %n{"ObjectTree"}
 	p
 	{
@@ -191,6 +191,24 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezExposedSceneProperty"}
 		u3 %TypeSize{152}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{14332645745114734426,3197497487504472660}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezSceneDocumentSettingsBase"}
+		s %PluginName{"ezEditorPluginScene"}
+		VarArray %Properties{}
+		s %TypeName{"ezPrefabDocumentSettings"}
+		u3 %TypeSize{32}
 		u3 %TypeVersion{1}
 	}
 }
@@ -250,24 +268,6 @@ o
 }
 o
 {
-	Uuid %id{u4{450943844669591006,7318511461061204347}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezReflectedClass"}
-		s %PluginName{"ezEditorPluginScene"}
-		VarArray %Properties{}
-		s %TypeName{"ezSceneDocumentSettings"}
-		u3 %TypeSize{32}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
 	Uuid %id{u4{16760069048281874555,8669125593883744592}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -317,7 +317,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezSceneDocumentRoot"}
 		u3 %TypeSize{80}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -335,6 +335,24 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezObjectMode"}
 		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{14700230518358869173,11472901527618371423}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginScene"}
+		VarArray %Properties{}
+		s %TypeName{"ezSceneDocumentSettingsBase"}
+		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
 	}
 }
