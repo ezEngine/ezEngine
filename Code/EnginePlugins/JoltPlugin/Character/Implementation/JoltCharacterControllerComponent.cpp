@@ -40,19 +40,14 @@ EZ_END_ABSTRACT_COMPONENT_TYPE
 ezJoltCharacterControllerComponent::ezJoltCharacterControllerComponent() = default;
 ezJoltCharacterControllerComponent::~ezJoltCharacterControllerComponent() = default;
 
-void ezJoltCharacterControllerComponent::AddObjectToIgnore(ezUInt32 uiObjectFilterID)
+void ezJoltCharacterControllerComponent::SetObjectToIgnore(ezUInt32 uiObjectFilterID)
 {
-  m_ObjectFilterIDs.PushBack(uiObjectFilterID);
-
-  // TODO:
   m_BodyFilter.m_uiObjectFilterIDToIgnore = uiObjectFilterID;
 }
 
-void ezJoltCharacterControllerComponent::RemoveObjectToIgnore(ezUInt32 uiObjectFilterID)
+void ezJoltCharacterControllerComponent::ClearObjectToIgnore()
 {
-  m_BodyFilter.m_uiObjectFilterIDToIgnore = ezInvalidIndex - 1;
-
-  m_ObjectFilterIDs.RemoveAndSwap(uiObjectFilterID);
+  m_BodyFilter.ClearFilter();
 }
 
 void ezJoltCharacterControllerComponent::SerializeComponent(ezWorldWriter& stream) const
@@ -166,6 +161,9 @@ ezResult ezJoltCharacterControllerComponent::TryChangeShape(JPH::Shape* pNewShap
 
 void ezJoltCharacterControllerComponent::RawMoveWithVelocity(const ezVec3& vVelocity)
 {
+  if (vVelocity.IsZero())
+    return;
+
   ezJoltWorldModule* pModule = GetWorld()->GetModule<ezJoltWorldModule>();
 
   ezJoltBroadPhaseLayerFilter broadphaseFilter(ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic);
@@ -181,6 +179,9 @@ void ezJoltCharacterControllerComponent::RawMoveWithVelocity(const ezVec3& vVelo
 
 void ezJoltCharacterControllerComponent::RawMoveIntoDirection(const ezVec3& vDirection)
 {
+  if (vDirection.IsZero())
+    return;
+
   RawMoveWithVelocity(vDirection * GetInverseUpdateTimeDelta());
 }
 

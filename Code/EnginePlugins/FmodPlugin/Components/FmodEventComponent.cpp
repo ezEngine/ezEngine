@@ -155,7 +155,11 @@ void ezFmodEventComponentManager::ShootOcclusionRays(OcclusionState& state, ezVe
     ezVec3 dir = targetPos - listenerPos;
     float fDistance = dir.GetLengthAndNormalize();
 
-    bool bHit = pPhysicsWorldModule->Raycast(hitResult, listenerPos, dir, fDistance, ezPhysicsQueryParameters(uiCollisionLayer));
+    ezPhysicsQueryParameters query(uiCollisionLayer);
+    query.m_bIgnoreInitialOverlap = true;
+    query.m_ShapeTypes = ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic;
+
+    bool bHit = pPhysicsWorldModule->Raycast(hitResult, listenerPos, dir, fDistance, query);
     if (bHit)
     {
       state.m_uiRaycastHits |= (1 << uiRayIndex);

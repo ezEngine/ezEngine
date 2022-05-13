@@ -29,7 +29,6 @@ ezJoltConstraintDriveMode::DriveVelocity;Reach Velocity
 ezJoltConstraintDriveMode::DrivePosition;Reach Position
 ezJoltRopeComponent;Physical Rope (Jolt)
 ezJoltRagdollComponent;Ragdoll (Jolt)
-ezJoltCenterOfMassComponent;Center of Mass (Jolt)
 ezJoltRagdollStart::BindPose;Bind Pose
 ezJoltRagdollStart::WaitForPose;Wait for Pose
 ezJoltRagdollStart::Wait;Wait
@@ -55,3 +54,4 @@ ezJoltCharacterDebugFlags::PrintState;Print Stats
 ezJoltCharacterDebugFlags::VisContacts;Visualize All Contacts
 ezJoltCharacterControllerComponent;Character Controller (Jolt)
 ezJoltDefaultCharacterComponent;Default Character Controller (Jolt)
+ezJoltGrabObjectComponent;Grab Object (Jolt)

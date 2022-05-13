@@ -17,10 +17,11 @@ enum ezJoltBroadphaseLayer : ezUInt8
 {
   Static,
   Dynamic,
+  Query,
   Trigger,
-  QueryShape,
-  Detail,
   Character,
+  Ragdoll,
+  Rope,
 
   ENUM_COUNT
 };
@@ -59,7 +60,10 @@ public:
 class ezJoltBroadPhaseLayerFilter final : public JPH::BroadPhaseLayerFilter
 {
 public:
-  ezJoltBroadPhaseLayerFilter(ezBitflags<ezPhysicsShapeType> shapeTypes);
+  ezJoltBroadPhaseLayerFilter(ezBitflags<ezPhysicsShapeType> shapeTypes)
+  {
+    m_uiCollisionMask = shapeTypes.GetValue();
+  }
 
   ezUInt32 m_uiCollisionMask = 0;
 
@@ -90,6 +94,11 @@ public:
   ezJoltBodyFilter(ezUInt32 bodyFilterIdToIgnore = ezInvalidIndex - 1)
     : m_uiObjectFilterIDToIgnore(bodyFilterIdToIgnore)
   {
+  }
+
+  void ClearFilter()
+  {
+    m_uiObjectFilterIDToIgnore = ezInvalidIndex - 1;
   }
 
   virtual bool ShouldCollideLocked(const JPH::Body& inBody) const override

@@ -47,7 +47,22 @@ struct ezPhysicsOverlapResultArray
   ezHybridArray<ezPhysicsOverlapResult, 16> m_Results;
 };
 
-EZ_DECLARE_FLAGS_WITH_DEFAULT(ezUInt32, ezPhysicsShapeType, Static | Dynamic | Query, Static, Dynamic, Query);
+/// \brief Flags for selecting which types of physics shapes should be included in things like overlap queries and raycasts.
+///
+/// This is mainly for optimization purposes. It is up to the physics integration to support some or all of these flags.
+///
+/// Note: If this is modified, 'Physics.ts' also has to be updated.
+EZ_DECLARE_FLAGS_WITH_DEFAULT(ezUInt32, ezPhysicsShapeType, 0xFFFFFFFF,
+  Static,    ///< Static geometry
+  Dynamic,   ///< Dynamic and kinematic objects
+  Query,     ///< Query shapes are kinematic bodies that don't participate in the simulation and are only used for raycasts and other queries.
+  Trigger,   ///< Trigger shapes
+  Character, ///< Shapes associated with character controllers.
+  Ragdoll,   ///< All shapes belonging to ragdolls.
+  Rope       ///< All shapes belonging to ropes.
+);
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezPhysicsShapeType);
 
 struct ezPhysicsQueryParameters
 {

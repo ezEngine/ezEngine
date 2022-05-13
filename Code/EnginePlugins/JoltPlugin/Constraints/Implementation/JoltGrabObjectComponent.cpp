@@ -150,7 +150,7 @@ bool ezJoltGrabObjectComponent::GrabObject(ezGameObject* pObjectToGrab, const ez
   ezJoltCharacterControllerComponent* pController;
   if (GetWorld()->TryGetComponent(m_hCharacterControllerComponent, pController))
   {
-    pController->AddObjectToIgnore(pActorToGrab->GetObjectFilterID());
+    pController->SetObjectToIgnore(pActorToGrab->GetObjectFilterID());
   }
 
   m_ChildAnchorLocal = localGrabPoint;
@@ -241,7 +241,7 @@ void ezJoltGrabObjectComponent::ReleaseGrabbedObject()
   ezJoltCharacterControllerComponent* pController;
   if (GetWorld()->TryGetComponent(m_hCharacterControllerComponent, pController))
   {
-    pController->RemoveObjectToIgnore(pGrabbedActor->GetObjectFilterID());
+    pController->ClearObjectToIgnore();
   }
 
   pModule->GetJoltSystem()->RemoveConstraint(m_pConstraint);
@@ -383,14 +383,16 @@ void ezJoltGrabObjectComponent::CreateJoint(ezJoltDynamicActorComponent* pParent
     const auto diff0 = pBody0->GetPosition() - pBody0->GetCenterOfMassPosition();
     const auto diff1 = pBody1->GetPosition() - pBody1->GetCenterOfMassPosition();
 
+    const JPH::Quat childRot = ezJoltConversionUtils::ToQuat(m_ChildAnchorLocal.m_qRotation);
+
     opt.mDrawConstraintSize = 0.1f;
     opt.mSpace = JPH::EConstraintSpace::LocalToBodyCOM;
     opt.mPosition1 = diff0;
-    opt.mPosition2 = ezJoltConversionUtils::ToVec3(m_ChildAnchorLocal.m_vPosition) + diff1;
+    opt.mPosition2 = diff1 + ezJoltConversionUtils::ToVec3(m_ChildAnchorLocal.m_vPosition);
     opt.mAxisX1 = JPH::Vec3::sAxisX();
-    opt.mAxisX2 = JPH::Vec3::sAxisX();
     opt.mAxisY1 = JPH::Vec3::sAxisY();
-    opt.mAxisY2 = JPH::Vec3::sAxisY();
+    opt.mAxisX2 = childRot * JPH::Vec3::sAxisX();
+    opt.mAxisY2 = childRot * JPH::Vec3::sAxisY();
     opt.MakeFreeAxis(JPH::SixDOFConstraintSettings::EAxis::TranslationX);
     opt.MakeFreeAxis(JPH::SixDOFConstraintSettings::EAxis::TranslationY);
     opt.MakeFreeAxis(JPH::SixDOFConstraintSettings::EAxis::TranslationZ);

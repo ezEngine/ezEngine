@@ -34,13 +34,7 @@ public:
   ezJoltActorComponent();
   ~ezJoltActorComponent();
 
-  void SetSurfaceFile(const char* szFile); // [ property ]
-  const char* GetSurfaceFile() const;      // [ property ]
-
   ezUInt8 m_uiCollisionLayer = 0;     // [ property ]
-  ezSurfaceResourceHandle m_hSurface; // [ property ]
-
-  ezBitflags<ezOnJoltContact> m_OnContact; // [ property ]
 
   const ezJoltUserData* GetUserData() const;
 
@@ -53,10 +47,8 @@ public:
 protected:
   void ExtractSubShapeGeometry(const ezGameObject* pObject, ezMsgExtractGeometry& msg) const;
 
-  const ezJoltMaterial* GetJoltMaterial() const;
-
   static void GatherShapes(ezDynamicArray<ezJoltSubShape>& shapes, ezGameObject* pObject, const ezTransform& rootTransform, float fDensity, const ezJoltMaterial* pMaterial);
-  ezResult CreateShape(JPH::BodyCreationSettings* pSettings, float fDensity);
+  ezResult CreateShape(JPH::BodyCreationSettings* pSettings, float fDensity, const ezJoltMaterial* pMaterial);
 
   virtual void CreateShapes(ezDynamicArray<ezJoltSubShape>& out_Shapes, const ezTransform& rootTransform, float fDensity, const ezJoltMaterial* pMaterial) {}
 

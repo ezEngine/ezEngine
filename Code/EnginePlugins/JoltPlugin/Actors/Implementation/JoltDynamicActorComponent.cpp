@@ -8,7 +8,6 @@
 #include <Jolt/Physics/Collision/Shape/SphereShape.h>
 #include <Jolt/Physics/PhysicsSystem.h>
 #include <JoltPlugin/Actors/JoltDynamicActorComponent.h>
-#include <JoltPlugin/Components/JoltCenterOfMassComponent.h>
 #include <JoltPlugin/Resources/JoltMaterial.h>
 #include <JoltPlugin/Shapes/JoltShapeComponent.h>
 #include <JoltPlugin/System/JoltCollisionFiltering.h>
@@ -84,17 +83,21 @@ void ezJoltDynamicActorComponentManager::UpdateKinematicActors(ezTime deltaTime)
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezJoltDynamicActorComponent, 1, ezComponentMode::Dynamic)
+EZ_BEGIN_COMPONENT_TYPE(ezJoltDynamicActorComponent, 2, ezComponentMode::Dynamic)
 {
   EZ_BEGIN_PROPERTIES
   {
       EZ_ACCESSOR_PROPERTY("Kinematic", GetKinematic, SetKinematic),
       EZ_MEMBER_PROPERTY("Mass", m_fMass)->AddAttributes(new ezSuffixAttribute(" kg"), new ezClampValueAttribute(0.0f, ezVariant())),
       EZ_MEMBER_PROPERTY("Density", m_fDensity)->AddAttributes(new ezDefaultValueAttribute(100.0f), new ezSuffixAttribute(" kg/m^3")),
+      EZ_ACCESSOR_PROPERTY("Surface", GetSurfaceFile, SetSurfaceFile)->AddAttributes(new ezAssetBrowserAttribute("Surface")),
       EZ_ACCESSOR_PROPERTY("GravityFactor", GetGravityFactor, SetGravityFactor)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
       EZ_MEMBER_PROPERTY("LinearDamping", m_fLinearDamping)->AddAttributes(new ezDefaultValueAttribute(0.2f)),
-      EZ_MEMBER_PROPERTY("AngularDamping", m_fAngularDamping)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
+      EZ_MEMBER_PROPERTY("AngularDamping", m_fAngularDamping)->AddAttributes(new ezDefaultValueAttribute(0.2f)),
       EZ_MEMBER_PROPERTY("ContinuousCollisionDetection", m_bCCD),
+      EZ_BITFLAGS_MEMBER_PROPERTY("OnContact", ezOnJoltContact, m_OnContact),
+      EZ_ACCESSOR_PROPERTY("CustomCenterOfMass", GetUseCustomCoM, SetUseCustomCoM),
+      EZ_MEMBER_PROPERTY("CenterOfMass", m_vCenterOfMass),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
@@ -111,6 +114,11 @@ EZ_BEGIN_COMPONENT_TYPE(ezJoltDynamicActorComponent, 1, ezComponentMode::Dynamic
     EZ_SCRIPT_FUNCTION_PROPERTY(AddAngularImpulse, In, "vImpulse"),
   }
   EZ_END_FUNCTIONS;
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezTransformManipulatorAttribute("CenterOfMass")
+  }
+  EZ_END_ATTRIBUTES;
 }
 EZ_END_COMPONENT_TYPE
 // clang-format on
@@ -135,6 +143,10 @@ void ezJoltDynamicActorComponent::SerializeComponent(ezWorldWriter& stream) cons
   s << m_fDensity;
   s << m_fMass;
   s << m_fGravityFactor;
+  s << m_hSurface;
+  s << m_OnContact;
+  s << GetUseCustomCoM();
+  s << m_vCenterOfMass;
 }
 
 void ezJoltDynamicActorComponent::DeserializeComponent(ezWorldReader& stream)
@@ -151,6 +163,16 @@ void ezJoltDynamicActorComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_fDensity;
   s >> m_fMass;
   s >> m_fGravityFactor;
+  s >> m_hSurface;
+  s >> m_OnContact;
+
+  if (uiVersion >= 2)
+  {
+    bool com;
+    s >> com;
+    SetUseCustomCoM(com);
+    s >> m_vCenterOfMass;
+  }
 }
 
 void ezJoltDynamicActorComponent::SetKinematic(bool b)
@@ -232,16 +254,16 @@ void ezJoltDynamicActorComponent::OnSimulationStarted()
   auto* pBodies = &pSystem->GetBodyInterface();
   auto* pMaterial = GetJoltMaterial();
 
-  if (pMaterial == nullptr)
-    pMaterial = ezJoltCore::GetDefaultMaterial();
-
   JPH::BodyCreationSettings bodyCfg;
 
-  if (CreateShape(&bodyCfg, m_fDensity).Failed())
+  if (CreateShape(&bodyCfg, m_fDensity, pMaterial).Failed())
   {
     ezLog::Error("Jolt dynamic actor component '{}' has no valid shape.", GetOwner()->GetName());
     return;
   }
+
+  if (pMaterial == nullptr)
+    pMaterial = ezJoltCore::GetDefaultMaterial();
 
   ezJoltUserData* pUserData = nullptr;
   m_uiUserDataIndex = pModule->AllocateUserData(pUserData);
@@ -263,17 +285,15 @@ void ezJoltDynamicActorComponent::OnSimulationStarted()
   bodyCfg.mCollisionGroup.SetGroupFilter(pModule->GetGroupFilter());
   bodyCfg.mUserData = reinterpret_cast<ezUInt64>(pUserData);
 
-  ezVec3 vCenterOfMass(0.0f);
-  if (FindCenterOfMass(GetOwner(), vCenterOfMass))
+  if (GetUseCustomCoM())
   {
-    ezSimdTransform CoMTransform = trans;
-    CoMTransform.m_Scale.Set(1.0f);
-    CoMTransform.Invert();
+    auto vLocalCenterOfMass = ezSimdVec4f(m_vCenterOfMass.x, m_vCenterOfMass.y, m_vCenterOfMass.z);
+    auto vPrevCoM = ezJoltConversionUtils::ToSimdVec3(bodyCfg.GetShape()->GetCenterOfMass());
 
-    vCenterOfMass = ezSimdConversion::ToVec3(CoMTransform.TransformPosition(ezSimdConversion::ToVec3(vCenterOfMass)));
+    auto vComShift = vLocalCenterOfMass - vPrevCoM;
 
     JPH::OffsetCenterOfMassShapeSettings com;
-    com.mOffset = ezJoltConversionUtils::ToVec3(vCenterOfMass);
+    com.mOffset = ezJoltConversionUtils::ToVec3(vComShift);
     com.mInnerShapePtr = bodyCfg.GetShape();
 
     bodyCfg.SetShape(com.Create().Get());
@@ -354,26 +374,36 @@ void ezJoltDynamicActorComponent::AddImpulseAtPos(ezMsgPhysicsAddImpulse& msg)
   pBodies->AddImpulse(JPH::BodyID(m_uiJoltBodyID), ezJoltConversionUtils::ToVec3(msg.m_vImpulse), ezJoltConversionUtils::ToVec3(msg.m_vGlobalPosition));
 }
 
-bool ezJoltDynamicActorComponent::FindCenterOfMass(ezGameObject* pRoot, ezVec3& out_CoM) const
+const ezJoltMaterial* ezJoltDynamicActorComponent::GetJoltMaterial() const
 {
-  ezJoltCenterOfMassComponent* pCOM;
-  if (pRoot->TryGetComponentOfBaseType<ezJoltCenterOfMassComponent>(pCOM))
+  if (m_hSurface.IsValid())
   {
-    out_CoM = pRoot->GetGlobalPosition();
-    return true;
-  }
-  else
-  {
-    auto it = pRoot->GetChildren();
+    ezResourceLock<ezSurfaceResource> pSurface(m_hSurface, ezResourceAcquireMode::BlockTillLoaded);
 
-    while (it.IsValid())
+    if (pSurface->m_pPhysicsMaterialJolt != nullptr)
     {
-      if (FindCenterOfMass(it, out_CoM))
-        return true;
-
-      ++it;
+      return static_cast<ezJoltMaterial*>(pSurface->m_pPhysicsMaterialJolt);
     }
   }
 
-  return false;
+  return nullptr;
+}
+
+void ezJoltDynamicActorComponent::SetSurfaceFile(const char* szFile)
+{
+  if (!ezStringUtils::IsNullOrEmpty(szFile))
+  {
+    m_hSurface = ezResourceManager::LoadResource<ezSurfaceResource>(szFile);
+  }
+
+  if (m_hSurface.IsValid())
+    ezResourceManager::PreloadResource(m_hSurface);
+}
+
+const char* ezJoltDynamicActorComponent::GetSurfaceFile() const
+{
+  if (!m_hSurface.IsValid())
+    return "";
+
+  return m_hSurface.GetResourceID();
 }

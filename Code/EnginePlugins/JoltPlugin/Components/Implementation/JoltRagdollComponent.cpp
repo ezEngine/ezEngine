@@ -734,9 +734,11 @@ void ezJoltRagdollComponent::CreateLimbBody(const LimbConfig& parentLimb, LimbCo
   pLink->mMotionQuality = JPH::EMotionQuality::LinearCast;
   pLink->mGravityFactor = m_fGravityFactor;
   pLink->mUserData = reinterpret_cast<ezUInt64>(m_pJoltUserData);
-  pLink->mObjectLayer = ezJoltCollisionFiltering::ConstructObjectLayer(0, m_bSelfCollision ? ezJoltBroadphaseLayer::Dynamic : ezJoltBroadphaseLayer::Detail);
+  pLink->mObjectLayer = ezJoltCollisionFiltering::ConstructObjectLayer(0, ezJoltBroadphaseLayer::Ragdoll);
   pLink->mCollisionGroup.SetGroupID(m_uiObjectFilterID);
   // pLink->setLinearVelocity(vPxVelocity, false);
+
+  // TODO: setup self-collision
 }
 
 void ezJoltRagdollComponent::ComputeLimbModelSpaceTransform(ezTransform& transform, const ezMsgAnimationPoseUpdated& pose, ezUInt32 uiIndex)

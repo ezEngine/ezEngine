@@ -117,6 +117,8 @@ void ezProjectileComponent::Update()
 
     ezPhysicsQueryParameters queryParams(m_uiCollisionLayer);
     queryParams.m_bIgnoreInitialOverlap = true;
+    queryParams.m_ShapeTypes.Remove(ezPhysicsShapeType::Trigger);
+    //queryParams.m_ShapeTypes.Remove(ezPhysicsShapeType::Character); // TODO: expose this ??
 
     ezPhysicsCastResult castResult;
     if (pPhysicsInterface->Raycast(castResult, pEntity->GetGlobalPosition(), vCurDirection, fDistance, queryParams))

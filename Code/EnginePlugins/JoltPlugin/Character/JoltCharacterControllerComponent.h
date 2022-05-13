@@ -60,8 +60,8 @@ public:
   /// \brief Checks whether the character can be resized to the new height without intersecting other geometry.
   // bool CanResize(float fNewShapeHeight) const;
 
-  void AddObjectToIgnore(ezUInt32 uiObjectFilterID);
-  void RemoveObjectToIgnore(ezUInt32 uiObjectFilterID);
+  void SetObjectToIgnore(ezUInt32 uiObjectFilterID);
+  void ClearObjectToIgnore();
 
 public:                                               // [ properties ]
   ezUInt32 m_uiCollisionLayer = 0;                    // [ property ]
@@ -183,8 +183,6 @@ protected:
 
   void VisualizeContact(const ContactPoint& contact, const ezColor& color) const;
   void VisualizeContacts(const ezDynamicArray<ContactPoint>& contacts, const ezColor& color) const;
-
-  ezHybridArray<ezUInt32, 1> m_ObjectFilterIDs;
 
 private:
   friend class ezJoltWorldModule;

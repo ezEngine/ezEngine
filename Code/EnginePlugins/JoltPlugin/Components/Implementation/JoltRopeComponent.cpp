@@ -223,7 +223,7 @@ void ezJoltRopeComponent::CreateRope()
     }
 
     auto& part = opt->mParts[idx];
-    part.mObjectLayer = ezJoltCollisionFiltering::ConstructObjectLayer(m_uiCollisionLayer, ezJoltBroadphaseLayer::Detail); // 'Detail' so that the rope doesn't collide with itself
+    part.mObjectLayer = ezJoltCollisionFiltering::ConstructObjectLayer(m_uiCollisionLayer, ezJoltBroadphaseLayer::Rope);
     part.mGravityFactor = m_fGravityFactor;
     part.mMotionQuality = JPH::EMotionQuality::LinearCast; // todo: option
     part.mMotionType = JPH::EMotionType::Dynamic;
@@ -236,6 +236,7 @@ void ezJoltRopeComponent::CreateRope()
     part.mRestitution = pMaterial->m_fRestitution;
     part.mFriction = pMaterial->m_fFriction;
     part.mCollisionGroup.SetGroupID(m_uiObjectFilterID);
+    //bodyCfg.mCollisionGroup.SetGroupFilter(pModule->GetGroupFilter()); // TODO: might need a custom group filter 
 
     if (idx > 0)
     {
@@ -261,7 +262,7 @@ void ezJoltRopeComponent::CreateRope()
     {
       // disable all collisions for the first and last rope segment
       // this prevents colliding with walls that the rope is attached to
-      part.mObjectLayer = ezJoltCollisionFiltering::ConstructObjectLayer(m_uiCollisionLayer, ezJoltBroadphaseLayer::QueryShape);
+      part.mObjectLayer = ezJoltCollisionFiltering::ConstructObjectLayer(m_uiCollisionLayer, ezJoltBroadphaseLayer::Query);
     }
   }
 

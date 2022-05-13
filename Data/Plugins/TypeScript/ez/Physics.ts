@@ -9,13 +9,13 @@ export import GameObject = __GameObject.GameObject;
 
 
 declare function __CPP_Physics_Raycast(start: Vec3, dir: Vec3, distance: number, collisionLayer: number, shapeTypes: Physics.ShapeType, ignoreShapeId: number): Physics.HitResult;
-declare function __CPP_Physics_SweepTestSphere(sphereRadius: number, start: Vec3, dir: Vec3, distance: number, collisionLayer: number, ignoreShapeId: number): Physics.HitResult;
-declare function __CPP_Physics_SweepTestBox(boxExtends: Vec3, start: Transform, dir: Vec3, distance: number, collisionLayer: number, ignoreShapeId: number): Physics.HitResult;
-declare function __CPP_Physics_SweepTestCapsule(capsuleRadius: number, capsuleHeight: number, start: Transform, dir: Vec3, distance: number, collisionLayer: number, ignoreShapeId: number): Physics.HitResult;
-declare function __CPP_Physics_OverlapTestSphere(sphereRadius: number, position: Vec3, collisionLayer: number, ignoreShapeId: number): boolean;
-declare function __CPP_Physics_OverlapTestCapsule(capsuleRadius: number, capsuleHeight: number, transform: Transform, collisionLayer: number, ignoreShapeId: number): boolean;
+declare function __CPP_Physics_SweepTestSphere(sphereRadius: number, start: Vec3, dir: Vec3, distance: number, collisionLayer: number, shapeTypes: Physics.ShapeType, ignoreShapeId: number): Physics.HitResult;
+declare function __CPP_Physics_SweepTestBox(boxExtends: Vec3, start: Transform, dir: Vec3, distance: number, collisionLayer: number, shapeTypes: Physics.ShapeType, ignoreShapeId: number): Physics.HitResult;
+declare function __CPP_Physics_SweepTestCapsule(capsuleRadius: number, capsuleHeight: number, start: Transform, dir: Vec3, distance: number, collisionLayer: number, shapeTypes: Physics.ShapeType, ignoreShapeId: number): Physics.HitResult;
+declare function __CPP_Physics_OverlapTestSphere(sphereRadius: number, position: Vec3, collisionLayer: number, shapeTypes: Physics.ShapeType, ignoreShapeId: number): boolean;
+declare function __CPP_Physics_OverlapTestCapsule(capsuleRadius: number, capsuleHeight: number, transform: Transform, collisionLayer: number, shapeTypes: Physics.ShapeType, ignoreShapeId: number): boolean;
 declare function __CPP_Physics_GetGravity(): Vec3;
-declare function __CPP_Physics_QueryShapesInSphere(radius: number, position: Vec3, collisionLayer: number, ignoreShapeId: number, callback: Physics.QueryShapeCallback): void;
+declare function __CPP_Physics_QueryShapesInSphere(radius: number, position: Vec3, collisionLayer: number, shapeTypes: Physics.ShapeType, ignoreShapeId: number, callback: Physics.QueryShapeCallback): void;
 
 /**
  * Functions in this module are typically implemented by a physics engine and operate on the physics representation of the world,
@@ -31,10 +31,18 @@ export namespace Physics {
     /**
      * Static physics shapes never move. In exchange, they cost much less performance.
      * Dynamic physics shapes are simulated according to rigid body dynamics and thus fall down, collide and interact with other dynamic shapes.
+     * Query shapes do not participate in the simulation, but may represent objects that can be detected via raycasts and overlap queries.
      */
     export enum ShapeType {
         Static = 1 << 0,
         Dynamic = 1 << 1,
+        Query = 1 << 2,
+        Trigger = 1 << 3,
+        Character = 1 << 4,
+        Ragdoll = 1 << 5,
+        Rope = 1 << 6,
+
+        AllInteractive = Dynamic | Query | Character | Ragdoll | Rope,
     }
 
     export class HitResult {
@@ -60,43 +68,43 @@ export namespace Physics {
     export function Raycast(start: Vec3, dir: Vec3, distance: number, collisionLayer: number, shapeTypes: ShapeType = ShapeType.Static | ShapeType.Dynamic, ignoreShapeId: number = -1): HitResult {
         return __CPP_Physics_Raycast(start, dir, distance, collisionLayer, shapeTypes, ignoreShapeId);
     }
-    
+
     /**
      * Sweeps a sphere from a position along a direction for a maximum distance and reports the first shape that was hit along the way.
      * @returns A HitResult object or null.
      */
-    export function SweepTestSphere(sphereRadius: number, start: Vec3, dir: Vec3, distance: number, collisionLayer: number, ignoreShapeId: number = -1): HitResult {
-        return __CPP_Physics_SweepTestSphere(sphereRadius, start, dir, distance, collisionLayer, ignoreShapeId);
+    export function SweepTestSphere(sphereRadius: number, start: Vec3, dir: Vec3, distance: number, collisionLayer: number, shapeTypes: ShapeType = ShapeType.Static | ShapeType.Dynamic, ignoreShapeId: number = -1): HitResult {
+        return __CPP_Physics_SweepTestSphere(sphereRadius, start, dir, distance, collisionLayer, shapeTypes, ignoreShapeId);
     }
 
     /**
      * Sweeps a box from a position along a direction for a maximum distance and reports the first shape that was hit along the way.
      * @returns A HitResult object or null.
      */
-    export function SweepTestBox(boxExtends: Vec3, start: Transform, dir: Vec3, distance: number, collisionLayer: number, ignoreShapeId: number = -1): HitResult {
-        return __CPP_Physics_SweepTestBox(boxExtends, start, dir, distance, collisionLayer, ignoreShapeId);
+    export function SweepTestBox(boxExtends: Vec3, start: Transform, dir: Vec3, distance: number, collisionLayer: number, shapeTypes: ShapeType = ShapeType.Static | ShapeType.Dynamic, ignoreShapeId: number = -1): HitResult {
+        return __CPP_Physics_SweepTestBox(boxExtends, start, dir, distance, collisionLayer, shapeTypes, ignoreShapeId);
     }
 
     /**
      * Sweeps a capsule from a position along a direction for a maximum distance and reports the first shape that was hit along the way.
      * @returns A HitResult object or null.
      */
-    export function SweepTestCapsule(capsuleRadius: number, capsuleHeight: number, start: Transform, dir: Vec3, distance: number, collisionLayer: number, ignoreShapeId: number = -1): HitResult {
-        return __CPP_Physics_SweepTestCapsule(capsuleRadius, capsuleHeight, start, dir, distance, collisionLayer, ignoreShapeId);
+    export function SweepTestCapsule(capsuleRadius: number, capsuleHeight: number, start: Transform, dir: Vec3, distance: number, collisionLayer: number, shapeTypes: ShapeType = ShapeType.Static | ShapeType.Dynamic, ignoreShapeId: number = -1): HitResult {
+        return __CPP_Physics_SweepTestCapsule(capsuleRadius, capsuleHeight, start, dir, distance, collisionLayer, shapeTypes, ignoreShapeId);
     }
 
     /**
      * Checks whether any shape overlaps with the given sphere.
      */
-    export function OverlapTestSphere(sphereRadius: number, position: Vec3, collisionLayer: number, ignoreShapeId: number = -1): boolean {
-        return __CPP_Physics_OverlapTestSphere(sphereRadius, position, collisionLayer, ignoreShapeId);
+    export function OverlapTestSphere(sphereRadius: number, position: Vec3, collisionLayer: number, shapeTypes: ShapeType = ShapeType.Static | ShapeType.Dynamic, ignoreShapeId: number = -1): boolean {
+        return __CPP_Physics_OverlapTestSphere(sphereRadius, position, collisionLayer, shapeTypes, ignoreShapeId);
     }
 
     /**
      * Checks whether any shape overlaps with the given capsule.
      */
-    export function OverlapTestCapsule(capsuleRadius: number, capsuleHeight: number, transform: Transform, collisionLayer: number, ignoreShapeId: number = -1): boolean {
-        return __CPP_Physics_OverlapTestCapsule(capsuleRadius, capsuleHeight, transform, collisionLayer, ignoreShapeId);
+    export function OverlapTestCapsule(capsuleRadius: number, capsuleHeight: number, transform: Transform, collisionLayer: number, shapeTypes: ShapeType = ShapeType.Static | ShapeType.Dynamic, ignoreShapeId: number = -1): boolean {
+        return __CPP_Physics_OverlapTestCapsule(capsuleRadius, capsuleHeight, transform, collisionLayer, shapeTypes, ignoreShapeId);
     }
 
     /**
@@ -109,7 +117,7 @@ export namespace Physics {
     /**
      * Reports all dynamic shapes found within the given sphere, using a callback function.
      */
-    export function QueryShapesInSphere(radius: number, position: Vec3, collisionLayer: number, callback: QueryShapeCallback, ignoreShapeId: number = -1): void {
-        __CPP_Physics_QueryShapesInSphere(radius, position, collisionLayer, ignoreShapeId, callback);
+    export function QueryShapesInSphere(radius: number, position: Vec3, collisionLayer: number, shapeTypes: ShapeType = ShapeType.AllInteractive, callback: QueryShapeCallback, ignoreShapeId: number = -1): void {
+        __CPP_Physics_QueryShapesInSphere(radius, position, collisionLayer, shapeTypes, ignoreShapeId, callback);
     }
 }

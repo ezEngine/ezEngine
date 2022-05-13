@@ -5,6 +5,7 @@
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Preferences/EditorPreferences.h>
+#include <Foundation/Strings/TranslationLookup.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 
 ezQtAssetBrowserWidget::ezQtAssetBrowserWidget(QWidget* parent)
@@ -214,14 +215,15 @@ void ezQtAssetBrowserWidget::AddAssetCreatorMenu(QMenu* pMenu, bool useSelectedA
     pMan->GetSupportedDocumentTypes(documentTypes);
   }
 
-  documentTypes.Sort([](const ezDocumentTypeDescriptor* a, const ezDocumentTypeDescriptor* b) -> bool { return a->m_sDocumentTypeName.Compare_NoCase(b->m_sDocumentTypeName) < 0; });
+  documentTypes.Sort([](const ezDocumentTypeDescriptor* a, const ezDocumentTypeDescriptor* b) -> bool
+    { return ezStringUtils::Compare(ezTranslate(a->m_sDocumentTypeName), ezTranslate(b->m_sDocumentTypeName)) < 0; });
 
   for (const ezDocumentTypeDescriptor* desc : documentTypes)
   {
     if (!desc->m_bCanCreate || desc->m_sFileExtension.IsEmpty())
       continue;
 
-    QAction* pAction = pSubMenu->addAction(desc->m_sDocumentTypeName.GetData());
+    QAction* pAction = pSubMenu->addAction(ezTranslate(desc->m_sDocumentTypeName));
     pAction->setIcon(ezQtUiServices::GetSingleton()->GetCachedIconResource(desc->m_sIcon));
     pAction->setProperty("AssetType", desc->m_sDocumentTypeName.GetData());
     pAction->setProperty("AssetManager", QVariant::fromValue<void*>(desc->m_pManager));
@@ -646,8 +648,10 @@ void ezQtAssetBrowserWidget::on_ListAssets_customContextMenuRequested(const QPoi
 
     m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/OpenFolder16.png")), QLatin1String("Open in Explorer"), this, SLOT(OnListOpenExplorer()));
     m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/DocumentGuid16.png")), QLatin1String("Copy Asset Guid"), this, SLOT(OnListCopyAssetGuid()));
-    m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Search16.png")), QLatin1String("Find all direct references to this asset"), this, [&]() { OnListFindAllReferences(false); });
-    m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Search16.png")), QLatin1String("Find all direct and indirect references to this asset"), this, [&]() { OnListFindAllReferences(true); });
+    m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Search16.png")), QLatin1String("Find all direct references to this asset"), this, [&]()
+      { OnListFindAllReferences(false); });
+    m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Search16.png")), QLatin1String("Find all direct and indirect references to this asset"), this, [&]()
+      { OnListFindAllReferences(true); });
   }
 
   auto pSortAction = m.addAction(QLatin1String("Sort by Recently Used"), this, SLOT(OnListToggleSortByRecentlyUsed()));
@@ -802,6 +806,7 @@ void ezQtAssetBrowserWidget::OnNewAsset()
 
   ezAssetDocumentManager* pManager = (ezAssetDocumentManager*)pSender->property("AssetManager").value<void*>();
   ezString sAssetType = pSender->property("AssetType").toString().toUtf8().data();
+  ezString sTranslateAssetType = ezTranslate(sAssetType);
   ezString sExtension = pSender->property("Extension").toString().toUtf8().data();
   bool useSelection = pSender->property("UseSelection").toBool();
 
@@ -832,9 +837,9 @@ void ezQtAssetBrowserWidget::OnNewAsset()
     }
   }
 
-  ezStringBuilder title("Create ", sAssetType), sFilter;
+  ezStringBuilder title("Create ", sTranslateAssetType), sFilter;
 
-  sFilter.Format("{0} (*.{1})", sAssetType, sExtension);
+  sFilter.Format("{0} (*.{1})", sTranslateAssetType, sExtension);
 
   QString sSelectedFilter = sFilter.GetData();
   ezStringBuilder sOutput = QFileDialog::getSaveFileName(QApplication::activeWindow(), title.GetData(), sStartDir, sFilter.GetData(), &sSelectedFilter, QFileDialog::Option::DontResolveSymlinks).toUtf8().data();

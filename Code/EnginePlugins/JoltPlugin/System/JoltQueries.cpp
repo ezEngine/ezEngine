@@ -258,7 +258,7 @@ public:
 class ezJoltShapeCollectorAll : public JPH::CollideShapeCollector
 {
 public:
-  ezHybridArray<JPH::CollideShapeResult, 32> m_Results;
+  ezHybridArray<JPH::CollideShapeResult, 32, ezAlignedAllocatorWrapper> m_Results;
 
   virtual void AddHit(const JPH::CollideShapeResult& inResult) override
   {

@@ -75,6 +75,8 @@ void ezJoltTriggerComponent::DeserializeComponent(ezWorldReader& stream)
 
 void ezJoltTriggerComponent::OnSimulationStarted()
 {
+  SUPER::OnSimulationStarted();
+
   ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
 
   ezJoltUserData* pUserData = nullptr;
@@ -82,7 +84,7 @@ void ezJoltTriggerComponent::OnSimulationStarted()
   pUserData->Init(this);
 
   JPH::BodyCreationSettings bodyCfg;
-  if (CreateShape(&bodyCfg, 1.0f).Failed())
+  if (CreateShape(&bodyCfg, 1.0f, nullptr).Failed())
   {
     ezLog::Error("Jolt trigger actor component has no valid shape.");
     return;
@@ -92,7 +94,6 @@ void ezJoltTriggerComponent::OnSimulationStarted()
 
   auto* pSystem = pModule->GetJoltSystem();
   auto* pBodies = &pSystem->GetBodyInterface();
-  auto* pMaterial = GetJoltMaterial();
 
   bodyCfg.mIsSensor = true;
   bodyCfg.mPosition = ezJoltConversionUtils::ToVec3(trans.m_Position);
@@ -100,6 +101,7 @@ void ezJoltTriggerComponent::OnSimulationStarted()
   bodyCfg.mMotionType = JPH::EMotionType::Kinematic;
   bodyCfg.mObjectLayer = ezJoltCollisionFiltering::ConstructObjectLayer(m_uiCollisionLayer, ezJoltBroadphaseLayer::Trigger);
   bodyCfg.mCollisionGroup.SetGroupID(m_uiObjectFilterID);
+  // bodyCfg.mCollisionGroup.SetGroupFilter(pModule->GetGroupFilter()); // the group filter is only needed for objects constrained via joints
   bodyCfg.mUserData = reinterpret_cast<ezUInt64>(pUserData);
 
   JPH::Body* pBody = pBodies->CreateBody(bodyCfg);

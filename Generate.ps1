@@ -1,10 +1,41 @@
 param 
 (
-	[Parameter(Mandatory = $True)] [ValidateSet('Win64vs2019', 'Uwp64vs2019', 'Win64vs2022', 'Uwp64vs2022')][string] $Target,
-    [switch]$NoUnityBuild
+    [Parameter(Mandatory = $True)] [ValidateSet('Win64vs2019', 'Uwp64vs2019', 'Win64vs2022', 'Uwp64vs2022')][string] $Target,
+    [switch]$NoUnityBuild,
+    [switch]$NoSubmoduleUpdate
 )
 
 Set-Location $PSScriptRoot
+
+if ($NoSubmoduleUpdate -eq $False) {
+    $CURRENT_COMMIT = git log -n 1 --format=%H
+
+    Write-Host "Current commit: $CURRENT_COMMIT"
+
+    $UPDATE_SUBMODULES = $True
+    $LAST_UPDATE_FILE = "$PSScriptRoot\Data\Content\AssetCache\LastSubmoduleUpdate.txt" 
+
+    if (Test-Path $LAST_UPDATE_FILE) {
+        $LAST_COMMIT = Get-Content -Path $LAST_UPDATE_FILE
+
+        if ($CURRENT_COMMIT -eq $LAST_COMMIT) {
+            Write-Host "Submodules already up-to-date."
+            $UPDATE_SUBMODULES = $False
+        }
+        else {
+            Write-Host "Submodules were last updated at commit: $LAST_COMMIT"
+        }
+    }
+
+    if ($UPDATE_SUBMODULES) {
+        Write-Host "Updating submodules"
+
+        git submodule init
+        git submodule update
+
+        Out-File -FilePath $LAST_UPDATE_FILE -InputObject $CURRENT_COMMIT
+    }
+}
 
 $CMAKE_ARGS = @("-S", "$PSScriptRoot")
 
