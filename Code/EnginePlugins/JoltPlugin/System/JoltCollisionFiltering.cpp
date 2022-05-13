@@ -73,10 +73,10 @@ namespace ezJoltCollisionFiltering
         return EZ_BIT(ezJoltBroadphaseLayer::Static) | EZ_BIT(ezJoltBroadphaseLayer::Dynamic) | EZ_BIT(ezJoltBroadphaseLayer::Trigger) | EZ_BIT(ezJoltBroadphaseLayer::Character);
 
       case Ragdoll:
-        return EZ_BIT(ezJoltBroadphaseLayer::Static) | EZ_BIT(ezJoltBroadphaseLayer::Dynamic);// TODO: | EZ_BIT(ezJoltBroadphaseLayer::Ragdoll) | EZ_BIT(ezJoltBroadphaseLayer::Rope);
+        return EZ_BIT(ezJoltBroadphaseLayer::Static) | EZ_BIT(ezJoltBroadphaseLayer::Dynamic); // TODO: | EZ_BIT(ezJoltBroadphaseLayer::Ragdoll) | EZ_BIT(ezJoltBroadphaseLayer::Rope);
 
       case Rope:
-        return EZ_BIT(ezJoltBroadphaseLayer::Static) | EZ_BIT(ezJoltBroadphaseLayer::Dynamic);// TODO: | EZ_BIT(ezJoltBroadphaseLayer::Ragdoll) | EZ_BIT(ezJoltBroadphaseLayer::Rope);
+        return EZ_BIT(ezJoltBroadphaseLayer::Static) | EZ_BIT(ezJoltBroadphaseLayer::Dynamic); // TODO: | EZ_BIT(ezJoltBroadphaseLayer::Ragdoll) | EZ_BIT(ezJoltBroadphaseLayer::Rope);
 
         EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
     }

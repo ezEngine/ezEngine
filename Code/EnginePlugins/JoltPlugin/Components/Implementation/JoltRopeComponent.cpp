@@ -236,7 +236,7 @@ void ezJoltRopeComponent::CreateRope()
     part.mRestitution = pMaterial->m_fRestitution;
     part.mFriction = pMaterial->m_fFriction;
     part.mCollisionGroup.SetGroupID(m_uiObjectFilterID);
-    //bodyCfg.mCollisionGroup.SetGroupFilter(pModule->GetGroupFilter()); // TODO: might need a custom group filter 
+    //bodyCfg.mCollisionGroup.SetGroupFilter(pModule->GetGroupFilter()); // TODO: might need a custom group filter
 
     if (idx > 0)
     {
