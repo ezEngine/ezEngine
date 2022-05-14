@@ -72,25 +72,19 @@ EZ_ALWAYS_INLINE vk::ImageSubresourceRange ezConversionUtilsVulkan::GetSubresour
   {
     range.aspectMask |= vk::ImageAspectFlagBits::eStencil;
   }
-  range.layerCount = viewDesc.m_uiArraySize;
+  range.baseMipLevel = viewDesc.m_uiMostDetailedMipLevel;
   range.levelCount = viewDesc.m_uiMipLevelsToUse;
 
   switch (texDesc.m_Type)
   {
     case ezGALTextureType::Texture2D:
     case ezGALTextureType::Texture2DProxy:
-      if (bIsArrayView)
-      {
-        range.baseArrayLayer = viewDesc.m_uiFirstArraySlice;
-        range.baseMipLevel = viewDesc.m_uiMostDetailedMipLevel;
-      }
+      range.layerCount = viewDesc.m_uiArraySize;
+      range.baseArrayLayer = viewDesc.m_uiFirstArraySlice;
       break;
     case ezGALTextureType::TextureCube:
-      if (bIsArrayView)
-      {
-        range.baseArrayLayer = viewDesc.m_uiFirstArraySlice;
-        range.baseMipLevel = viewDesc.m_uiMostDetailedMipLevel;
-      }
+      range.baseArrayLayer = viewDesc.m_uiFirstArraySlice;
+      range.layerCount = viewDesc.m_uiArraySize * 6;
       break;
     case ezGALTextureType::Texture3D:
       break;
@@ -113,33 +107,19 @@ EZ_ALWAYS_INLINE vk::ImageSubresourceRange ezConversionUtilsVulkan::GetSubresour
   {
     range.aspectMask |= vk::ImageAspectFlagBits::eStencil;
   }
-  range.layerCount = viewDesc.m_uiArraySize;
+
+  range.baseMipLevel = viewDesc.m_uiMipLevelToUse;
   range.levelCount = 1;
+  range.layerCount = viewDesc.m_uiArraySize;
 
   switch (texDesc.m_Type)
   {
     case ezGALTextureType::Texture2D:
     case ezGALTextureType::Texture2DProxy:
-      if (bIsArrayView)
-      {
-        range.baseArrayLayer = viewDesc.m_uiFirstArraySlice;
-        range.baseMipLevel = viewDesc.m_uiMipLevelToUse;
-      }
-      else
-      {
-        range.baseMipLevel = viewDesc.m_uiMipLevelToUse;
-      }
+      range.baseArrayLayer = viewDesc.m_uiFirstArraySlice;
       break;
     case ezGALTextureType::TextureCube:
-      if (bIsArrayView)
-      {
-        range.baseArrayLayer = viewDesc.m_uiFirstArraySlice;
-        range.baseMipLevel = viewDesc.m_uiMipLevelToUse;
-      }
-      else
-      {
-        range.baseMipLevel = viewDesc.m_uiMipLevelToUse;
-      }
+      range.baseArrayLayer = viewDesc.m_uiFirstArraySlice;
       break;
     case ezGALTextureType::Texture3D:
       if (bIsArrayView)
@@ -149,7 +129,6 @@ EZ_ALWAYS_INLINE vk::ImageSubresourceRange ezConversionUtilsVulkan::GetSubresour
       else
       {
         range.baseArrayLayer = viewDesc.m_uiFirstArraySlice;
-        range.baseMipLevel = viewDesc.m_uiMipLevelToUse;
       }
       break;
     default:

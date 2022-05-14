@@ -231,7 +231,7 @@ void ezProcessTask::StartProcess()
   args << "-project";
   args << ezToolsProject::GetSingleton()->GetProjectFile().GetData();
   args << "-renderer";
-  args << ezGameApplication::GetActiveRenderer().GetData();
+  args << ezGameApplication::GetActiveRenderer();
 
   if (m_pIPC->StartClientProcess("EditorProcessor.exe", args, false, pFirstAllowedMessageType).Failed())
   {

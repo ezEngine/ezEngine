@@ -17,6 +17,17 @@ private:
     ST_IndexBuffer,
     ST_ConstantBuffer,
     ST_StructuredBuffer,
+    ST_Texture2D,
+    ST_Texture2DArray,
+  };
+
+  enum ImageCaptureFrames
+  {
+    DefaultCapture = 5,
+    StructuredBuffer_InitialData = 5,
+    StructuredBuffer_Discard = 6,
+    StructuredBuffer_NoOverwrite = 8,
+    StructuredBuffer_CopyToTempStorage = 9,
   };
 
   virtual void SetupSubTests() override
@@ -27,6 +38,8 @@ private:
     AddSubTest("04 - IndexBuffer", SubTests::ST_IndexBuffer);
     AddSubTest("05 - ConstantBuffer", SubTests::ST_ConstantBuffer);
     AddSubTest("06 - StructuredBuffer", SubTests::ST_StructuredBuffer);
+    AddSubTest("07 - Texture2D", SubTests::ST_Texture2D);
+    AddSubTest("08 - Texture2DArray", SubTests::ST_Texture2DArray);
   }
 
   virtual ezResult InitializeSubTest(ezInt32 iIdentifier) override;
@@ -37,6 +50,7 @@ private:
 
   ezGALRenderCommandEncoder* BeginRendering(ezColor clearColor, ezUInt32 uiRenderTargetClearMask, ezRectFloat* pViewport = nullptr, ezRectU32* pScissor = nullptr);
   void EndRendering();
+  void RenderCube(ezRectFloat viewport, ezMat4 mMVP, ezUInt32 uiRenderTargetClearMask, ezGALResourceViewHandle hSRV);
 
   void MostBasicTriangleTest();
   void ViewportScissorTest();
@@ -44,8 +58,14 @@ private:
   void IndexBufferTest();
   void ConstantBufferTest();
   void StructuredBufferTest();
+  void Texture2D();
+  void Texture2DArray();
 
 private:
+  ezInt32 m_iFrame = 0;
+  bool m_bCaptureImage = false;
+  ezHybridArray<ezUInt32, 8> m_ImgCompFrames;
+
   ezShaderResourceHandle m_hMostBasicTriangleShader;
   ezShaderResourceHandle m_hNDCPositionOnlyShader;
   ezShaderResourceHandle m_hConstantBufferShader;
@@ -58,4 +78,20 @@ private:
   ezConstantBufferStorageHandle m_hTestPositionsConstantBuffer;
 
   ezGALBufferHandle m_hInstancingData;
+  ezGALResourceViewHandle m_hInstancingDataView_8_4;
+  ezGALResourceViewHandle m_hInstancingDataView_12_4;
+
+  ezGALTextureHandle m_hTexture2D;
+  ezGALResourceViewHandle m_hTexture2D_Mip0;
+  ezGALResourceViewHandle m_hTexture2D_Mip1;
+  ezGALResourceViewHandle m_hTexture2D_Mip2;
+  ezGALResourceViewHandle m_hTexture2D_Mip3;
+  ezGALTextureHandle m_hTexture2DArray;
+  ezGALResourceViewHandle m_hTexture2DArray_Layer0_Mip0;
+  ezGALResourceViewHandle m_hTexture2DArray_Layer0_Mip1;
+  ezGALResourceViewHandle m_hTexture2DArray_Layer1_Mip0;
+  ezGALResourceViewHandle m_hTexture2DArray_Layer1_Mip1;
+  ezMeshBufferResourceHandle m_hCubeUV;
+
+
 };

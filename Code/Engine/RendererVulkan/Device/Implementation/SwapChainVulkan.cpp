@@ -112,6 +112,9 @@ ezResult ezGALSwapChainVulkan::InitPlatform(ezGALDevice* pDevice)
   swapChainCreateInfo.imageExtent.height = m_WindowDesc.m_pWindow->GetClientAreaSize().height;
   swapChainCreateInfo.imageFormat = m_pVulkanDevice->GetFormatLookupTable().GetFormatInfo(m_WindowDesc.m_BackBufferFormat).m_eRenderTarget;
   swapChainCreateInfo.imageUsage = vk::ImageUsageFlagBits::eColorAttachment;
+  if (m_WindowDesc.m_bAllowScreenshots)
+    swapChainCreateInfo.imageUsage |= vk::ImageUsageFlagBits::eTransferSrc;
+  
   swapChainCreateInfo.minImageCount = m_WindowDesc.m_bDoubleBuffered ? 2 : 1;
   swapChainCreateInfo.presentMode = ezConversionUtilsVulkan::GetPresentMode(m_WindowDesc.m_PresentMode, presentModes);
   swapChainCreateInfo.preTransform = vk::SurfaceTransformFlagBitsKHR::eIdentity;
@@ -160,6 +163,7 @@ ezResult ezGALSwapChainVulkan::InitPlatform(ezGALDevice* pDevice)
     //    EZ_ASSERT_RELEASE(!m_hBackBufferTexture.IsInvalidated(), "Couldn't create non-native backbuffer texture object!");
     //  }
     //}
+    m_pVulkanDevice->SetDebugName("SwapChainImage", m_swapChainImages[i]);
 
     ezGALTextureCreationDescription TexDesc;
     TexDesc.m_Format = m_WindowDesc.m_BackBufferFormat;
@@ -170,6 +174,7 @@ ezResult ezGALSwapChainVulkan::InitPlatform(ezGALDevice* pDevice)
     TexDesc.m_bAllowShaderResourceView = false;
     TexDesc.m_bCreateRenderTarget = true;
     TexDesc.m_ResourceAccess.m_bImmutable = true;
+    TexDesc.m_ResourceAccess.m_bReadBack = m_WindowDesc.m_bAllowScreenshots;
     m_swapChainTextures.PushBack(m_pVulkanDevice->CreateTexture(TexDesc));
   }
 
