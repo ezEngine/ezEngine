@@ -526,7 +526,7 @@ bool ezStringUtils::StartsWith(const char* szString, const char* szStartsWith, c
   }
 
   // if both are equally long, this comparison will return true
-  return (*szStartsWith == '\0');
+  return (*szStartsWith == '\0' || szStartsWith == szStartsWithEnd);
 }
 
 bool ezStringUtils::StartsWith_NoCase(const char* szString, const char* szStartsWith, const char* pStringEnd, const char* szStartsWithEnd)
@@ -550,7 +550,7 @@ bool ezStringUtils::StartsWith_NoCase(const char* szString, const char* szStarts
   }
 
   // if both are equally long, this comparison will return true
-  return (*szStartsWith == '\0');
+  return (*szStartsWith == '\0' || szStartsWith == szStartsWithEnd);
 }
 
 bool ezStringUtils::EndsWith(const char* szString, const char* szEndsWith, const char* pStringEnd, const char* szEndsWithEnd)

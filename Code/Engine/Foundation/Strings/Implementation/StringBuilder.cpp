@@ -972,7 +972,10 @@ ezResult ezStringBuilder::MakeRelativeTo(const char* szAbsolutePathToMakeThisRel
     if (sAbsBase.GetData()[iSame] != '/')
       continue;
 
-    if (sAbsBase.IsEqualN_NoCase(sAbsThis.GetData(), iSame + 1))
+    // We need to check here if sAbsThis starts with sAbsBase in the range[0, iSame + 1]. However, we can't compare the first N bytes because those might not be a valid utf8 substring in absBase.
+    // Thus we can't use IsEqualN_NoCase as N would need to be the number of characters, not bytes. Computing the number of characters in absBase would mean iterating the string twice.
+    // As an alternative, as we know [0, iSame + 1] is a valid utf8 string in sAbsBase we can ask whether absThis starts with that substring.
+    if (ezStringUtils::StartsWith_NoCase(sAbsThis.GetData(), sAbsBase.GetData(), sAbsThis.GetData() + sAbsThis.GetElementCount(), sAbsBase.GetData() + iSame + 1))
       break;
   }
 
