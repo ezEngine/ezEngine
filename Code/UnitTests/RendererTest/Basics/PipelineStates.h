@@ -92,6 +92,4 @@ private:
   ezGALResourceViewHandle m_hTexture2DArray_Layer1_Mip0;
   ezGALResourceViewHandle m_hTexture2DArray_Layer1_Mip1;
   ezMeshBufferResourceHandle m_hCubeUV;
-
-
 };

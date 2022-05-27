@@ -475,13 +475,13 @@ void ezGALDeviceVulkan::UploadTextureStaging(const ezGALTextureVulkan* pTexture,
   for (ezUInt32 i = 0; i < subResource.layerCount; i++)
   {
     auto pLayerData = reinterpret_cast<const ezUInt8*>(data.m_pData) + i * data.m_uiSlicePitch;
-    const vk::Format format =  pTexture->GetImageFormat();
+    const vk::Format format = pTexture->GetImageFormat();
     const ezUInt8 uiBlockSize = vk::blockSize(format);
     const auto blockExtent = vk::blockExtent(format);
     const VkExtent3D blockCount = {
       (imageExtent.width + blockExtent[0] - 1) / blockExtent[0],
       (imageExtent.height + blockExtent[1] - 1) / blockExtent[1],
-      (imageExtent.depth + blockExtent[2] - 1) / blockExtent[2] };
+      (imageExtent.depth + blockExtent[2] - 1) / blockExtent[2]};
 
     const vk::DeviceSize uiTotalSize = uiBlockSize * blockCount.width * blockCount.height * blockCount.depth;
     ezStagingBufferVulkan stagingBuffer = ezStagingBufferPoolVulkan::AllocateBuffer(0, uiTotalSize);

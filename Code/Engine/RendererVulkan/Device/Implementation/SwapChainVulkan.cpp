@@ -114,7 +114,7 @@ ezResult ezGALSwapChainVulkan::InitPlatform(ezGALDevice* pDevice)
   swapChainCreateInfo.imageUsage = vk::ImageUsageFlagBits::eColorAttachment;
   if (m_WindowDesc.m_bAllowScreenshots)
     swapChainCreateInfo.imageUsage |= vk::ImageUsageFlagBits::eTransferSrc;
-  
+
   swapChainCreateInfo.minImageCount = m_WindowDesc.m_bDoubleBuffered ? 2 : 1;
   swapChainCreateInfo.presentMode = ezConversionUtilsVulkan::GetPresentMode(m_WindowDesc.m_PresentMode, presentModes);
   swapChainCreateInfo.preTransform = vk::SurfaceTransformFlagBitsKHR::eIdentity;

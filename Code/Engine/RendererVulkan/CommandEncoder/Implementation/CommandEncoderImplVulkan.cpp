@@ -548,7 +548,7 @@ void ezGALCommandEncoderImplVulkan::CopyTextureReadbackResultPlatform(const ezGA
     const ezGALTextureSubresource& subRes = SourceSubResource[i];
     const ezGALSystemMemoryDescription& memDesc = TargetData[i];
 
-    vk::ImageSubresource subResource{ imageAspect, subRes.m_uiMipLevel, subRes.m_uiArraySlice };
+    vk::ImageSubresource subResource{imageAspect, subRes.m_uiMipLevel, subRes.m_uiArraySlice};
     vk::SubresourceLayout subResourceLayout;
     m_vkDevice.getImageSubresourceLayout(pVulkanTexture->GetStagingTexture(), &subResource, &subResourceLayout);
     ezUInt8* pSubResourceData = reinterpret_cast<ezUInt8*>(pData) + subResourceLayout.offset;
@@ -997,7 +997,7 @@ void ezGALCommandEncoderImplVulkan::FlushDeferredStateChanges()
       m_pCommandBuffer->setScissor(0, 1, &m_scissor);
     else
     {
-      vk::Rect2D noScissor({ int(m_viewport.x), int(m_viewport.y + m_viewport.height) }, { ezUInt32(m_viewport.width), ezUInt32(-m_viewport.height)  });
+      vk::Rect2D noScissor({int(m_viewport.x), int(m_viewport.y + m_viewport.height)}, {ezUInt32(m_viewport.width), ezUInt32(-m_viewport.height)});
       m_pCommandBuffer->setScissor(0, 1, &noScissor);
     }
     m_bViewportDirty = false;
