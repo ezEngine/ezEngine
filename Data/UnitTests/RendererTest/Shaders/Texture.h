@@ -3,13 +3,12 @@
 struct VS_IN
 {
   float3 pos : POSITION;
+  float2 texcoord0 : TEXCOORD0;
 };
 
 struct VS_OUT
 {
   float4 pos : SV_Position;
-  float4 color : COLOR;
-  float3 normal : NORMAL;
   float2 texcoord0 : TEXCOORD0;
 };
 

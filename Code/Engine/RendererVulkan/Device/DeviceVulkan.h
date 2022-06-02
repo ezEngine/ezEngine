@@ -118,6 +118,7 @@ public:
   template <typename T>
   void SetDebugName(const char* szName, T& object, ezVulkanAllocation allocation = nullptr)
   {
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
     if (object)
     {
       vk::DebugUtilsObjectNameInfoEXT nameInfo;
@@ -127,11 +128,15 @@ public:
 
       SetDebugName(nameInfo, allocation);
     }
+#endif
   }
 
   void ReportLiveGpuObjects();
 
   void UploadBufferStaging(const ezGALBufferVulkan* pBuffer, ezArrayPtr<const ezUInt8> pInitialData, vk::DeviceSize dstOffset = 0);
+
+  void UploadTextureStaging(const ezGALTextureVulkan* pTexture, const vk::ImageSubresourceLayers& subResource, const ezGALSystemMemoryDescription& data);
+
 
   // These functions need to be implemented by a render API abstraction
 protected:

@@ -9,6 +9,7 @@
 #include <EditorPluginScene/Scene/Scene2Document.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <GameEngine/GameApplication/GameApplication.h>
 #include <GuiFoundation/Action/ActionManager.h>
 #include <QMimeData>
 #include <RendererFoundation/Device/Device.h>
@@ -117,7 +118,7 @@ ezResult ezEditorTest::InitializeTest()
     ezUniquePtr<ezGALDevice> pDevice;
     ezGALDeviceCreationDescription DeviceInit;
 
-    pDevice = ezGALDeviceFactory::CreateDevice("DX11", ezFoundation::GetDefaultAllocator(), DeviceInit);
+    pDevice = ezGALDeviceFactory::CreateDevice(ezGameApplication::GetActiveRenderer(), ezFoundation::GetDefaultAllocator(), DeviceInit);
 
     EZ_SUCCEED_OR_RETURN(pDevice->Init());
 
@@ -135,14 +136,14 @@ ezResult ezEditorTest::InitializeTest()
 #endif
   }
 
-  if (s_bIsReferenceDriver)
+  if (ezStringUtils::IsEqual_NoCase(ezGameApplication::GetActiveRenderer(), "DX11") && s_bIsReferenceDriver)
   {
     // Use different images for comparison when running the D3D11 Reference Device
     ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_D3D11Ref");
   }
-  else if (s_bIsAMDDriver)
+  else if (ezStringUtils::IsEqual_NoCase(ezGameApplication::GetActiveRenderer(), "DX11") && s_bIsAMDDriver)
   {
-    // Line rendering is different on AMD and requires separate images for tests rendering lines.
+    // Line rendering on DX11 is different on AMD and requires separate images for tests rendering lines.
     ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_AMD");
   }
   else

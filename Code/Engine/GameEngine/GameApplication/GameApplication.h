@@ -49,7 +49,7 @@ public:
   static ezGameApplication* GetGameApplicationInstance() { return s_pGameApplicationInstance; }
 
   /// \brief Returns the active renderer of the current app. Either the default or overridden via -render command line flag.
-  static ezString GetActiveRenderer();
+  static const char* GetActiveRenderer();
 
   /// \brief When the graphics device is created, by default the game application will pick a platform specific implementation. This
   /// function allows to override that by setting a custom function that creates a graphics device.

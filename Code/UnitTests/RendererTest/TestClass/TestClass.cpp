@@ -86,19 +86,26 @@ ezResult ezGraphicsTest::SetupRenderer()
     ezGALDevice::SetDefaultDevice(m_pDevice);
   }
 
-  if (m_pDevice->GetCapabilities().m_sAdapterName == "Microsoft Basic Render Driver" || m_pDevice->GetCapabilities().m_sAdapterName.StartsWith_NoCase("Intel(R) UHD Graphics"))
+  if (ezStringUtils::IsEqual_NoCase(szRendererName, "DX11"))
   {
-    // Use different images for comparison when running the D3D11 Reference Device
-    ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_D3D11Ref");
+    if (m_pDevice->GetCapabilities().m_sAdapterName == "Microsoft Basic Render Driver" || m_pDevice->GetCapabilities().m_sAdapterName.StartsWith_NoCase("Intel(R) UHD Graphics"))
+    {
+      // Use different images for comparison when running the D3D11 Reference Device
+      ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_D3D11Ref");
+    }
+    else if (m_pDevice->GetCapabilities().m_sAdapterName.FindSubString_NoCase("AMD") || m_pDevice->GetCapabilities().m_sAdapterName.FindSubString_NoCase("Radeon"))
+    {
+      // Line rendering is different on AMD and requires separate images for tests rendering lines.
+      ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_AMD");
+    }
+    else
+    {
+      ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("");
+    }
   }
-  else if (m_pDevice->GetCapabilities().m_sAdapterName.FindSubString_NoCase("AMD") || m_pDevice->GetCapabilities().m_sAdapterName.FindSubString_NoCase("Radeon"))
+  else if (ezStringUtils::IsEqual_NoCase(szRendererName, "Vulkan"))
   {
-    // Line rendering is different on AMD and requires separate images for tests rendering lines.
-    ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_AMD");
-  }
-  else
-  {
-    ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("");
+    ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_Vulkan");
   }
 
   m_hObjectTransformCB = ezRenderContext::CreateConstantBufferStorage<ObjectCB>();
@@ -201,6 +208,7 @@ void ezGraphicsTest::EndFrame()
   m_pDevice->EndPass(m_pPass);
   m_pPass = nullptr;
 
+  ezRenderContext::GetDefaultInstance()->ResetContextState();
   m_pDevice->EndPipeline(m_hSwapChain);
 
   m_pDevice->EndFrame();

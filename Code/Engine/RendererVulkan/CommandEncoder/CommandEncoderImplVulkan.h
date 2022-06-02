@@ -151,6 +151,7 @@ private:
 
   vk::Viewport m_viewport;
   vk::Rect2D m_scissor;
+  bool m_bScissorEnabled = false;
 
   const ezGALRenderTargetView* m_pBoundRenderTargets[EZ_GAL_MAX_RENDERTARGET_COUNT] = {};
   const ezGALRenderTargetView* m_pBoundDepthStencilTarget = nullptr;

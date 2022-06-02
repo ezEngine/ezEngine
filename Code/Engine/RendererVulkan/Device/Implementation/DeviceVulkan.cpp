@@ -396,9 +396,11 @@ ezResult ezGALDeviceVulkan::InitPlatform()
 
 void ezGALDeviceVulkan::SetDebugName(const vk::DebugUtilsObjectNameInfoEXT& info, ezVulkanAllocation allocation)
 {
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   m_device.setDebugUtilsObjectNameEXT(info);
   if (allocation)
     ezMemoryAllocatorVulkan::SetAllocationUserData(allocation, info.pObjectName);
+#endif
 }
 
 void ezGALDeviceVulkan::ReportLiveGpuObjects()
@@ -439,6 +441,89 @@ void ezGALDeviceVulkan::UploadBufferStaging(const ezGALBufferVulkan* pBuffer, ez
 
   //#TODO_VULKAN Custom delete later / return to ezStagingBufferPoolVulkan once this is on the transfer queue and runs async to graphics queue.
   DeleteLater(stagingBuffer.m_buffer, stagingBuffer.m_alloc);
+}
+
+void ezGALDeviceVulkan::UploadTextureStaging(const ezGALTextureVulkan* pTexture, const vk::ImageSubresourceLayers& subResource, const ezGALSystemMemoryDescription& data)
+{
+  const vk::Offset3D imageOffset = {0, 0, 0};
+  const vk::Extent3D imageExtent = pTexture->GetMipLevelSize(subResource.mipLevel);
+
+  auto getRange = [](const vk::ImageSubresourceLayers& layers) -> vk::ImageSubresourceRange {
+    vk::ImageSubresourceRange range;
+    range.aspectMask = layers.aspectMask;
+    range.baseMipLevel = layers.mipLevel;
+    range.levelCount = 1;
+    range.baseArrayLayer = layers.baseArrayLayer;
+    range.layerCount = layers.layerCount;
+    return range;
+  };
+
+  {
+    vk::ImageMemoryBarrier imageBarrier;
+    imageBarrier.srcAccessMask = {};
+    imageBarrier.dstAccessMask = vk::AccessFlagBits::eTransferWrite;
+    imageBarrier.oldLayout = vk::ImageLayout::eUndefined;
+    imageBarrier.newLayout = pTexture->GetPreferredLayout(vk::ImageLayout::eTransferDstOptimal);
+    imageBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    imageBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    imageBarrier.image = pTexture->GetImage();
+    imageBarrier.subresourceRange = getRange(subResource);
+
+    GetCurrentCommandBuffer().pipelineBarrier(vk::PipelineStageFlagBits::eTopOfPipe, vk::PipelineStageFlagBits::eTransfer, vk::DependencyFlags(), 0, nullptr, 0, nullptr, 1, &imageBarrier);
+  }
+
+  for (ezUInt32 i = 0; i < subResource.layerCount; i++)
+  {
+    auto pLayerData = reinterpret_cast<const ezUInt8*>(data.m_pData) + i * data.m_uiSlicePitch;
+    const vk::Format format = pTexture->GetImageFormat();
+    const ezUInt8 uiBlockSize = vk::blockSize(format);
+    const auto blockExtent = vk::blockExtent(format);
+    const VkExtent3D blockCount = {
+      (imageExtent.width + blockExtent[0] - 1) / blockExtent[0],
+      (imageExtent.height + blockExtent[1] - 1) / blockExtent[1],
+      (imageExtent.depth + blockExtent[2] - 1) / blockExtent[2]};
+
+    const vk::DeviceSize uiTotalSize = uiBlockSize * blockCount.width * blockCount.height * blockCount.depth;
+    ezStagingBufferVulkan stagingBuffer = ezStagingBufferPoolVulkan::AllocateBuffer(0, uiTotalSize);
+
+    const ezUInt32 uiBufferRowPitch = uiBlockSize * blockCount.width;
+    const ezUInt32 uiBufferSlicePitch = uiBufferRowPitch * blockCount.height;
+    EZ_ASSERT_DEV(uiBufferRowPitch == data.m_uiRowPitch, "Row pitch with padding is not implemented yet.");
+    EZ_ASSERT_DEV(uiBufferSlicePitch == data.m_uiSlicePitch, "Row pitch with padding is not implemented yet.");
+
+    void* pData = nullptr;
+    ezMemoryAllocatorVulkan::MapMemory(stagingBuffer.m_alloc, &pData);
+    ezMemoryUtils::Copy(reinterpret_cast<ezUInt8*>(pData), pLayerData, uiTotalSize);
+    ezMemoryAllocatorVulkan::UnmapMemory(stagingBuffer.m_alloc);
+
+    vk::BufferImageCopy region = {};
+    region.imageSubresource = subResource;
+    region.imageOffset = imageOffset;
+    region.imageExtent = imageExtent;
+
+    region.bufferOffset = 0;
+    region.bufferRowLength = blockExtent[0] * uiBufferRowPitch / uiBlockSize;
+    region.bufferImageHeight = blockExtent[1] * uiBufferSlicePitch / uiBufferRowPitch;
+
+    //#TODO_VULKAN atomic min size violation?
+    GetCurrentCommandBuffer().copyBufferToImage(stagingBuffer.m_buffer, pTexture->GetImage(), pTexture->GetPreferredLayout(vk::ImageLayout::eTransferDstOptimal), 1, &region);
+    //#TODO_VULKAN buffer pool
+    DeleteLater(stagingBuffer.m_buffer, stagingBuffer.m_alloc);
+  }
+
+  {
+    vk::ImageMemoryBarrier imageBarrier;
+    imageBarrier.srcAccessMask = vk::AccessFlagBits::eTransferWrite;
+    imageBarrier.dstAccessMask = pTexture->GetAccessMask();
+    imageBarrier.oldLayout = pTexture->GetPreferredLayout(vk::ImageLayout::eTransferDstOptimal);
+    imageBarrier.newLayout = pTexture->GetPreferredLayout();
+    imageBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    imageBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    imageBarrier.image = pTexture->GetImage();
+    imageBarrier.subresourceRange = getRange(subResource);
+
+    GetCurrentCommandBuffer().pipelineBarrier(vk::PipelineStageFlagBits::eTransfer, pTexture->GetUsedByPipelineStage(), vk::DependencyFlags(), 0, nullptr, 0, nullptr, 1, &imageBarrier);
+  }
 }
 
 ezResult ezGALDeviceVulkan::ShutdownPlatform()
@@ -1220,10 +1305,10 @@ void ezGALDeviceVulkan::FillFormatLookupTable()
                                                                    .RV(vk::Format::eR32G32B32Sint));
 
   // TODO dunno if these are actually supported for the respective Vulkan device
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::B5G6R5UNormalized, ezGALFormatLookupEntryVulkan(vk::Format::eB5G6R5UnormPack16)
-                                                                              .RT(vk::Format::eB5G6R5UnormPack16)
-                                                                              .VA(vk::Format::eB5G6R5UnormPack16)
-                                                                              .RV(vk::Format::eB5G6R5UnormPack16));
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::B5G6R5UNormalized, ezGALFormatLookupEntryVulkan(vk::Format::eR5G6B5UnormPack16)
+                                                                              .RT(vk::Format::eR5G6B5UnormPack16)
+                                                                              .VA(vk::Format::eR5G6B5UnormPack16)
+                                                                              .RV(vk::Format::eR5G6B5UnormPack16));
 
   m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::BGRAUByteNormalized, ezGALFormatLookupEntryVulkan(vk::Format::eB8G8R8A8Unorm)
                                                                                 .RT(vk::Format::eB8G8R8A8Unorm)
@@ -1398,7 +1483,7 @@ void ezGALDeviceVulkan::FillFormatLookupTable()
     return vk::Format::eUndefined;
   };
 
-  // Select smallest available depth format.
+  // Select smallest available depth format.  #TODO_VULKAN support packed eX8D24UnormPack32?
   vk::Format depthFormat = SelectDepthFormat({vk::Format::eD16Unorm, vk::Format::eD24UnormS8Uint, vk::Format::eD32Sfloat, vk::Format::eD32SfloatS8Uint});
   m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::D16,
     ezGALFormatLookupEntryVulkan(depthFormat).RT(depthFormat).RV(depthFormat).DS(depthFormat).D(depthFormat));

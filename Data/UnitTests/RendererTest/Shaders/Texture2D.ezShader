@@ -1,0 +1,30 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+[RENDERSTATE]
+
+[VERTEXSHADER]
+
+#include "Texture.h"
+
+VS_OUT main(VS_IN Input)
+{
+  VS_OUT RetVal;
+  RetVal.pos = mul(mvp, float4(Input.pos, 1.0));
+  RetVal.texcoord0 = Input.texcoord0;
+  return RetVal;
+}
+
+[PIXELSHADER]
+
+#include "Texture.h"
+
+Texture2D DiffuseTexture;
+SamplerState PointClampSampler;
+
+float4 main(PS_IN Input) : SV_Target
+{
+  return DiffuseTexture.Sample(PointClampSampler, Input.texcoord0);
+}

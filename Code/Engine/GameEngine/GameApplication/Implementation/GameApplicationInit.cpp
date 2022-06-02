@@ -222,12 +222,12 @@ void ezGameApplication::Init_SetupDefaultResources()
   }
 }
 
-ezString GetRendererNameFromCommandLine()
+const char* GetRendererNameFromCommandLine()
 {
   return opt_Renderer.GetOptionValue(ezCommandLineOption::LogMode::FirstTimeIfSpecified);
 }
 
-ezString ezGameApplication::GetActiveRenderer()
+const char* ezGameApplication::GetActiveRenderer()
 {
   return GetRendererNameFromCommandLine();
 }
