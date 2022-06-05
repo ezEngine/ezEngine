@@ -3,7 +3,9 @@
 #include <EditorFramework/Dialogs/ExportProjectDlg.moc.h>
 #include <EditorFramework/Preferences/Preferences.h>
 #include <EditorFramework/Preferences/ProjectPreferences.h>
+#include <Foundation/Containers/Set.h>
 #include <Foundation/IO/OSFile.h>
+#include <Foundation/Strings/String.h>
 #include <QFileDialog>
 
 bool ezQtExportProjectDlg::s_bTransformAll = true;
@@ -54,7 +56,8 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
 
   ezStringBuilder sPath;
 
-  ezDeque<ezString> fileList;
+  ezMap<ezString, ezSet<ezString>> fileList;
+  ezSet<ezString> assetInputs;
 
   auto logToFile = [&](const char* msg)
   {
@@ -70,25 +73,133 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
       return;
     }
 
-    logToFile(sPath);
+    sPath.Trim("/\\");
+    const ezUInt32 uiStrip = sPath.GetElementCount() + 1;
+
+    ezSet<ezString>& ddFileList = fileList[sPath];
+
 
     ezFileSystemIterator it;
-    for (it.StartSearch(sPath, ezFileSystemIteratorFlags::ReportFilesRecursive); it.IsValid();)
+    for (it.StartSearch(sPath, ezFileSystemIteratorFlags::ReportFilesAndFoldersRecursive); it.IsValid();)
     {
-      if (it.GetCurrentPath().EndsWith("/AssetCache/Thumbnails") ||
-          it.GetCurrentPath().EndsWith("/Base/Editor"))
+      if (it.GetStats().m_bIsDirectory)
       {
-        it.SkipFolder();
+        if (it.GetCurrentPath().EndsWith("/AssetCache/Thumbnails") ||
+            it.GetCurrentPath().EndsWith("/AssetCache/Temp") ||
+            it.GetCurrentPath().EndsWith("/Base/Editor"))
+        {
+          it.SkipFolder();
+        }
+        else
+        {
+          it.Next();
+        }
+
+        continue;
+      }
+
+      if (it.GetStats().m_sName == "AssetCurator.ezCache" ||
+          it.GetStats().m_sName == "DataDir.ezManifest" ||
+          it.GetStats().m_sName == "ezProject")
+      {
+        it.Next();
         continue;
       }
 
       it.GetStats().GetFullPath(sPath);
 
-      // TODO: filter out files that are not needed (asset source files and such)
-      fileList.PushBack(sPath);
-      logToFile(sPath);
+      auto asset = ezAssetCurator::GetSingleton()->FindSubAsset(sPath);
+      if (asset.isValid())
+      {
+        assetInputs.Union(asset->m_pAssetInfo->m_Info->m_AssetTransformDependencies);
 
+        // ignore all asset files
+        it.Next();
+        continue;
+      }
+
+      sPath.Shrink(uiStrip, 0);
+
+      ddFileList.Insert(sPath);
       it.Next();
+    }
+  }
+
+  for (auto itDir = fileList.GetIterator(); itDir.IsValid(); ++itDir)
+  {
+    for (auto itFile = itDir.Value().GetIterator(); itFile.IsValid();)
+    {
+      if (assetInputs.Contains(*itFile))
+      {
+        itFile = itDir.Value().Remove(itFile);
+      }
+      else
+      {
+        ++itFile;
+      }
+    }
+  }
+
+  {
+    sPath = ezOSFile::GetApplicationDirectory();
+    sPath.Trim("/\\");
+    const ezUInt32 uiStrip = sPath.GetElementCount() + 1;
+
+    ezSet<ezString>& ddFileList = fileList[sPath];
+
+    ezFileSystemIterator it;
+    for (it.StartSearch(sPath, ezFileSystemIteratorFlags::ReportFilesAndFoldersRecursive); it.IsValid();)
+    {
+      const ezStringBuilder fileName = it.GetStats().m_sName;
+
+      if (it.GetStats().m_bIsDirectory)
+      {
+        if (fileName == "iconengines" ||
+            fileName == "imageformats" ||
+            fileName == "platforms")
+        {
+          it.SkipFolder();
+          continue;
+        }
+
+        it.Next();
+        continue;
+      }
+
+      if (fileName.HasExtension("exe") ||
+          fileName.HasExtension("pdb") ||
+          fileName.HasExtension("loaded"))
+      {
+        it.Next();
+        continue;
+      }
+
+      if (fileName.HasExtension("dll"))
+      {
+        if (fileName.StartsWith("ezEditorPlugin") ||
+            fileName.StartsWith("ezEnginePlugin") ||
+            fileName.StartsWith("ezSharedPlugin") ||
+            fileName.StartsWith("Qt5") ||
+            fileName.StartsWith("Qt6"))
+        {
+          it.Next();
+          continue;
+        }
+      }
+
+      it.GetStats().GetFullPath(sPath);
+      sPath.Shrink(uiStrip, 0);
+      ddFileList.Insert(sPath);
+      it.Next();
+    }
+  }
+
+  for (auto itDir = fileList.GetIterator(); itDir.IsValid(); ++itDir)
+  {
+    for (auto itFile = itDir.Value().GetIterator(); itFile.IsValid(); ++itFile)
+    {
+      sPath.Set(itDir.Key(), "/", itFile.Key());
+      logToFile(sPath);
     }
   }
 }
