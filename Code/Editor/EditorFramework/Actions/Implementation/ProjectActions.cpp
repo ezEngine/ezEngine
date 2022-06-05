@@ -8,6 +8,7 @@
 #include <EditorFramework/Dialogs/DataDirsDlg.moc.h>
 #include <EditorFramework/Dialogs/EditorPluginConfigDlg.moc.h>
 #include <EditorFramework/Dialogs/EnginePluginConfigDlg.moc.h>
+#include <EditorFramework/Dialogs/ExportProjectDlg.moc.h>
 #include <EditorFramework/Dialogs/InputConfigDlg.moc.h>
 #include <EditorFramework/Dialogs/LaunchFileserveDlg.moc.h>
 #include <EditorFramework/Dialogs/PreferencesDlg.moc.h>
@@ -45,6 +46,7 @@ ezActionDescriptorHandle ezProjectActions::s_hPreferencesDlg;
 ezActionDescriptorHandle ezProjectActions::s_hTagsDlg;
 ezActionDescriptorHandle ezProjectActions::s_hImportAsset;
 ezActionDescriptorHandle ezProjectActions::s_hAssetProfiles;
+ezActionDescriptorHandle ezProjectActions::s_hExportProject;
 
 ezActionDescriptorHandle ezProjectActions::s_hToolsMenu;
 ezActionDescriptorHandle ezProjectActions::s_hToolsCategory;
@@ -88,6 +90,7 @@ void ezProjectActions::RegisterActions()
   s_hWindowConfig = EZ_REGISTER_ACTION_1("Project.WindowConfig", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::WindowConfig);
   s_hImportAsset = EZ_REGISTER_ACTION_1("Project.ImportAsset", ezActionScope::Global, "Project", "Ctrl+I", ezProjectAction, ezProjectAction::ButtonType::ImportAsset);
   s_hAssetProfiles = EZ_REGISTER_ACTION_1("Project.AssetProfiles", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::AssetProfiles);
+  s_hExportProject = EZ_REGISTER_ACTION_1("Project.ExportProject", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::ExportProject);
 
   s_hToolsMenu = EZ_REGISTER_MENU("Menu.Tools");
   s_hToolsCategory = EZ_REGISTER_CATEGORY("ToolsCategory");
@@ -139,6 +142,7 @@ void ezProjectActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hInputConfig);
   ezActionManager::UnregisterAction(s_hAssetProfiles);
   ezActionManager::UnregisterAction(s_hSetupCppProject);
+  ezActionManager::UnregisterAction(s_hExportProject);
 }
 
 void ezProjectActions::MapActions(const char* szMapping)
@@ -161,6 +165,7 @@ void ezProjectActions::MapActions(const char* szMapping)
   // pMap->MapAction(s_hRecentProjects, "Menu.Editor/ProjectCategory", 3.0f);// use dashboard
   pMap->MapAction(s_hCloseProject, "Menu.Editor/ProjectCategory", 4.0f);
   pMap->MapAction(s_hSetupCppProject, "Menu.Editor/ProjectCategory", 5.0f);
+  pMap->MapAction(s_hExportProject, "Menu.Editor/ProjectCategory", 6.0f);
   pMap->MapAction(s_hProjectSettingsMenu, "Menu.Editor/ProjectCategory", 1000.0f);
 
   pMap->MapAction(s_hSettingsCategory, "Menu.Editor", 3.0f);
@@ -361,6 +366,9 @@ ezProjectAction::ezProjectAction(const ezActionContext& context, const char* szN
     case ezProjectAction::ButtonType::TagsDialog:
       SetIconPath(":/EditorFramework/Icons/Tag16.png");
       break;
+    case ezProjectAction::ButtonType::ExportProject:
+      // TODO: SetIconPath(":/EditorFramework/Icons/Tag16.png");
+      break;
     case ezProjectAction::ButtonType::Shortcuts:
       SetIconPath(":/GuiFoundation/Icons/Shortcuts16.png");
       break;
@@ -383,7 +391,7 @@ ezProjectAction::ezProjectAction(const ezActionContext& context, const char* szN
 
   if (m_ButtonType == ButtonType::CloseProject || m_ButtonType == ButtonType::DataDirectories || m_ButtonType == ButtonType::WindowConfig || m_ButtonType == ButtonType::ImportAsset || m_ButtonType == ButtonType::EnginePlugins || m_ButtonType == ButtonType::TagsDialog ||
       m_ButtonType == ButtonType::ReloadEngine || m_ButtonType == ButtonType::ReloadResources || m_ButtonType == ButtonType::LaunchFileserve || m_ButtonType == ButtonType::LaunchInspector || m_ButtonType == ButtonType::OpenVsCode || m_ButtonType == ButtonType::InputConfig ||
-      m_ButtonType == ButtonType::AssetProfiles || m_ButtonType == ButtonType::SetupCppProject)
+      m_ButtonType == ButtonType::AssetProfiles || m_ButtonType == ButtonType::SetupCppProject || m_ButtonType == ButtonType::ExportProject)
   {
     SetEnabled(ezToolsProject::IsProjectOpen());
 
@@ -394,7 +402,7 @@ ezProjectAction::ezProjectAction(const ezActionContext& context, const char* szN
 ezProjectAction::~ezProjectAction()
 {
   if (m_ButtonType == ButtonType::CloseProject || m_ButtonType == ButtonType::DataDirectories || m_ButtonType == ButtonType::WindowConfig || m_ButtonType == ButtonType::ImportAsset || m_ButtonType == ButtonType::EnginePlugins || m_ButtonType == ButtonType::TagsDialog ||
-      m_ButtonType == ButtonType::ReloadEngine || m_ButtonType == ButtonType::ReloadResources || m_ButtonType == ButtonType::LaunchFileserve || m_ButtonType == ButtonType::LaunchInspector || m_ButtonType == ButtonType::OpenVsCode || m_ButtonType == ButtonType::InputConfig || m_ButtonType == ButtonType::AssetProfiles || m_ButtonType == ButtonType::SetupCppProject)
+      m_ButtonType == ButtonType::ReloadEngine || m_ButtonType == ButtonType::ReloadResources || m_ButtonType == ButtonType::LaunchFileserve || m_ButtonType == ButtonType::LaunchInspector || m_ButtonType == ButtonType::OpenVsCode || m_ButtonType == ButtonType::InputConfig || m_ButtonType == ButtonType::AssetProfiles || m_ButtonType == ButtonType::SetupCppProject || m_ButtonType == ButtonType::ExportProject)
   {
     ezToolsProject::s_Events.RemoveEventHandler(ezMakeDelegate(&ezProjectAction::ProjectEventHandler, this));
   }
@@ -499,6 +507,16 @@ void ezProjectAction::Execute(const ezVariant& value)
       if (dlg.exec() == QDialog::Accepted)
       {
         ezToolsProject::BroadcastConfigChanged();
+      }
+    }
+    break;
+
+    case ezProjectAction::ButtonType::ExportProject:
+    {
+      ezQtExportProjectDlg dlg(nullptr);
+      if (dlg.exec() == QDialog::Accepted)
+      {
+        // TODO
       }
     }
     break;
