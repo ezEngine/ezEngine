@@ -33,10 +33,9 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezApplicationFileSystemConfig_DataDirConfig, ezNo
 EZ_END_STATIC_REFLECTED_TYPE;
 // clang-format on
 
-ezResult ezApplicationFileSystemConfig::Save()
+ezResult ezApplicationFileSystemConfig::Save(const char* szPath)
 {
-  ezStringBuilder sPath;
-  sPath = ":project/DataDirectories.ddl";
+  ezStringBuilder sPath = szPath;
 
   ezFileWriter file;
   if (file.Open(sPath).Failed())

@@ -27,6 +27,18 @@ void ezQtExportProjectDlg::showEvent(QShowEvent* e)
 
 void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
 {
+  // TODO:
+  // filter out unused runtime/game plugins
+  // user selected output path
+  // transform assets
+  // progress bar
+  // start.bat
+  // better logic to filter out input assets
+  // include / exclude config file ??
+  // output log to UI
+  // asset profile
+  // copy inputs into resource: RML files
+
   const char* szDstFolder = "C:/GitHub/ExportTest";
 
   if (ezOSFile::DeleteFolder(szDstFolder).Failed())
@@ -56,14 +68,24 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
 
   ezStringBuilder sPath;
 
-  ezMap<ezString, ezSet<ezString>> fileList;
+  struct DataDirInfo
+  {
+    ezString m_sTargetDirPath;
+    ezString m_sTargetDirRootName;
+    ezSet<ezString> m_Files;
+  };
+
+  ezMap<ezString, DataDirInfo> fileList;
   ezSet<ezString> assetInputs;
 
-  auto logToFile = [&](const char* msg)
+  auto logToFile = [&](const char* msg, const char* msg2)
   {
     logFile.Write(msg, ezStringUtils::GetStringElementCount(msg)).AssertSuccess();
+    logFile.Write(msg2, ezStringUtils::GetStringElementCount(msg2)).AssertSuccess();
     logFile.Write("\n", 1).AssertSuccess();
   };
+
+  ezUInt32 uiDataDirNumber = 1;
 
   for (const auto& dataDir : dataDirs.m_DataDirs)
   {
@@ -76,8 +98,22 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
     sPath.Trim("/\\");
     const ezUInt32 uiStrip = sPath.GetElementCount() + 1;
 
-    ezSet<ezString>& ddFileList = fileList[sPath];
+    DataDirInfo& ddInfo = fileList[sPath];
+    ezSet<ezString>& ddFileList = ddInfo.m_Files;
 
+    if (!dataDir.m_sRootName.IsEmpty())
+    {
+      sTemp.Set("Data/", dataDir.m_sRootName);
+
+      ddInfo.m_sTargetDirRootName = dataDir.m_sRootName;
+      ddInfo.m_sTargetDirPath = sTemp;
+    }
+    else
+    {
+      sTemp.Format("Data/Extra{}", uiDataDirNumber);
+
+      ddInfo.m_sTargetDirPath = sTemp;
+    }
 
     ezFileSystemIterator it;
     for (it.StartSearch(sPath, ezFileSystemIteratorFlags::ReportFilesAndFoldersRecursive); it.IsValid();)
@@ -99,8 +135,7 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
       }
 
       if (it.GetStats().m_sName == "AssetCurator.ezCache" ||
-          it.GetStats().m_sName == "DataDir.ezManifest" ||
-          it.GetStats().m_sName == "ezProject")
+          it.GetStats().m_sName == "DataDirectories.ddl")
       {
         it.Next();
         continue;
@@ -125,13 +160,27 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
     }
   }
 
+  // filter out asset inputs
+  // this is problematic
   for (auto itDir = fileList.GetIterator(); itDir.IsValid(); ++itDir)
   {
-    for (auto itFile = itDir.Value().GetIterator(); itFile.IsValid();)
+    if (itDir.Value().m_sTargetDirRootName.IsEqual_NoCase("base"))
+      continue;
+
+    for (auto itFile = itDir.Value().m_Files.GetIterator(); itFile.IsValid();)
     {
+      if (itFile.Key().EndsWith_NoCase(".ezShader") ||
+          itFile.Key().EndsWith_NoCase(".bank") ||
+          itFile.Key().EndsWith_NoCase(".rml"))
+      {
+        // TODO: special case
+        ++itFile;
+        continue;
+      }
+
       if (assetInputs.Contains(*itFile))
       {
-        itFile = itDir.Value().Remove(itFile);
+        itFile = itDir.Value().m_Files.Remove(itFile);
       }
       else
       {
@@ -142,10 +191,17 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
 
   {
     sPath = ezOSFile::GetApplicationDirectory();
+    sPath.MakeCleanPath();
     sPath.Trim("/\\");
     const ezUInt32 uiStrip = sPath.GetElementCount() + 1;
 
-    ezSet<ezString>& ddFileList = fileList[sPath];
+    DataDirInfo& ddInfo = fileList[sPath];
+    ezSet<ezString>& ddFileList = ddInfo.m_Files;
+
+    ddInfo.m_sTargetDirPath = "Bin";
+    ddInfo.m_sTargetDirRootName = "-"; // don't add to data dir config
+
+    ddFileList.Insert("Player.exe");
 
     ezFileSystemIterator it;
     for (it.StartSearch(sPath, ezFileSystemIteratorFlags::ReportFilesAndFoldersRecursive); it.IsValid();)
@@ -194,12 +250,55 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
     }
   }
 
-  for (auto itDir = fileList.GetIterator(); itDir.IsValid(); ++itDir)
+  // write data dir config file
   {
-    for (auto itFile = itDir.Value().GetIterator(); itFile.IsValid(); ++itFile)
+    ezApplicationFileSystemConfig cfg;
+
+    for (auto itDir = fileList.GetIterator(); itDir.IsValid(); ++itDir)
     {
-      sPath.Set(itDir.Key(), "/", itFile.Key());
-      logToFile(sPath);
+      const auto& info = itDir.Value();
+
+      if (info.m_sTargetDirRootName == "-")
+        continue;
+
+      sPath.Set(">sdk/", info.m_sTargetDirPath);
+
+      auto& ddc = cfg.m_DataDirs.ExpandAndGetRef();
+      ddc.m_sDataDirSpecialPath = sPath;
+      ddc.m_sRootName = info.m_sTargetDirRootName;
+    }
+
+    sPath.Set(szDstFolder, "/Data/project/DataDirectories.ddl");
+    if (cfg.Save(sPath).Failed())
+    {
+      if (cfg.Save(sPath).Failed())
+        ezQtUiServices::GetSingleton()->MessageBoxWarning(ezFmt("Failed to write data directory config file '{0}'", sPath));
+      return;
     }
   }
+
+  logToFile("Output folder: ", szDstFolder);
+
+  for (auto itDir = fileList.GetIterator(); itDir.IsValid(); ++itDir)
+  {
+    logToFile("Source sub-folder: ", itDir.Key());
+    logToFile("Destination sub-folder: ", itDir.Value().m_sTargetDirPath);
+
+    for (auto itFile = itDir.Value().m_Files.GetIterator(); itFile.IsValid(); ++itFile)
+    {
+      sPath.Set(itDir.Key(), "/", itFile.Key());
+      sTemp.Set(szDstFolder, "/", itDir.Value().m_sTargetDirPath, "/", itFile.Key());
+
+      if (ezOSFile::CopyFile(sPath, sTemp).Succeeded())
+      {
+        logToFile(" -> ", itFile.Key());
+      }
+      else
+      {
+        logToFile(" Copy failed:", itFile.Key());
+      }
+    }
+  }
+
+  accept();
 }
