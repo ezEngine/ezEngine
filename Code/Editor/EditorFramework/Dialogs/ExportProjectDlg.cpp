@@ -15,7 +15,9 @@ ezQtExportProjectDlg::ezQtExportProjectDlg(QWidget* parent)
 {
   setupUi(this);
 
-  // ezProjectPreferencesUser* pPref = ezPreferences::QueryPreferences<ezProjectPreferencesUser>();
+  ezProjectPreferencesUser* pPref = ezPreferences::QueryPreferences<ezProjectPreferencesUser>();
+
+  Destination->setText(pPref->m_sExportFolder.GetData());
 }
 
 void ezQtExportProjectDlg::showEvent(QShowEvent* e)
@@ -23,6 +25,18 @@ void ezQtExportProjectDlg::showEvent(QShowEvent* e)
   QDialog::showEvent(e);
 
   TransformAll->setChecked(s_bTransformAll);
+}
+
+void ezQtExportProjectDlg::on_BrowseDestination_clicked()
+{
+  QString sPath = QFileDialog::getExistingDirectory(this, QLatin1String("Select output directory"), Destination->text());
+
+  if (!sPath.isEmpty())
+  {
+    Destination->setText(sPath);
+    ezProjectPreferencesUser* pPref = ezPreferences::QueryPreferences<ezProjectPreferencesUser>();
+    pPref->m_sExportFolder = sPath.toUtf8().data();
+  }
 }
 
 void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
@@ -34,11 +48,22 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
   // progress bar
   // start.bat
   // better logic to filter out input assets
-  // include / exclude config file ??
+  // blacklist / whitelist for files per data directory
   // output log to UI
   // asset profile
   // copy inputs into resource: RML files
   // code cleanup
+
+  if (TransformAll->isChecked())
+  {
+    ezStatus stat = ezAssetCurator::GetSingleton()->TransformAllAssets(ezTransformFlags::None);
+
+    if (stat.Failed())
+    {
+      ezQtUiServices::GetSingleton()->MessageBoxStatus(stat, "Asset transform failed");
+      return;
+    }
+  }
 
   ezProgressRange mainProgress("Export Project", 6, true);
   mainProgress.SetStepWeighting(0, 0.05f); // Preparing output folder
@@ -48,7 +73,7 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
   mainProgress.SetStepWeighting(4, 0.01f); // Writing data directory config
   //mainProgress.SetStepWeighting(5, 0.0f); // Copying files
 
-  const char* szDstFolder = "C:/GitHub/ExportTest";
+  const ezString szDstFolder = Destination->text().toUtf8().data();
 
   {
     mainProgress.BeginNextStep("Preparing output folder");
@@ -331,6 +356,8 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
     }
   }
 
+  ezDynamicArray<ezString> sceneFiles;
+
   {
     mainProgress.BeginNextStep("Copying files");
 
@@ -356,12 +383,33 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
         if (ezOSFile::CopyFile(sPath, sTemp).Succeeded())
         {
           logToFile(" -> ", itFile.Key());
+
+          if (sTemp.EndsWith_NoCase(".ezObjectGraph") && sTemp.FindSubString_NoCase("scene"))
+          {
+            sceneFiles.PushBack(sTemp);
+          }
         }
         else
         {
           logToFile(" Copy failed:", itFile.Key());
         }
       }
+    }
+  }
+
+  // write .bat files
+  for (const auto& sf : sceneFiles)
+  {
+    ezStringBuilder cmd;
+    cmd.Format("start Bin/Player.exe -scene \"{}", sf);
+
+    ezStringBuilder bat;
+    bat.Format("{}/Launch {}.bat", szDstFolder, ezPathUtils::GetFileName(sf));
+
+    ezOSFile file;
+    if (file.Open(bat, ezFileOpenMode::Write).Succeeded())
+    {
+      file.Write(cmd.GetData(), cmd.GetElementCount()).AssertSuccess();
     }
   }
 

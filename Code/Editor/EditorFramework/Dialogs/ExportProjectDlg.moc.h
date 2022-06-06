@@ -15,6 +15,7 @@ public:
 
 private Q_SLOTS:
   void on_ExportProjectButton_clicked();
+  void on_BrowseDestination_clicked();
 
 
 protected:

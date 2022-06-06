@@ -13,4 +13,7 @@ public:
 
   // which apps to launch as external 'Players' (other than ezPlayer.exe)
   ezDynamicArray<ezString> m_PlayerApps;
+
+  // the directory where the project should be exported to
+  ezString m_sExportFolder;
 };
