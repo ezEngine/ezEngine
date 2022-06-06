@@ -38,19 +38,32 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
   // output log to UI
   // asset profile
   // copy inputs into resource: RML files
+  // code cleanup
+
+  ezProgressRange mainProgress("Export Project", 6, true);
+  mainProgress.SetStepWeighting(0, 0.05f); // Preparing output folder
+  mainProgress.SetStepWeighting(1, 0.10f); // Scanning data directories
+  mainProgress.SetStepWeighting(2, 0.10f); // Filtering files
+  mainProgress.SetStepWeighting(3, 0.05f); // Gathering binaries
+  mainProgress.SetStepWeighting(4, 0.01f); // Writing data directory config
+  //mainProgress.SetStepWeighting(5, 0.0f); // Copying files
 
   const char* szDstFolder = "C:/GitHub/ExportTest";
 
-  if (ezOSFile::DeleteFolder(szDstFolder).Failed())
   {
-    ezQtUiServices::GetSingleton()->MessageBoxWarning(ezFmt("Failed to remove destination folder:\n'{}'", szDstFolder));
-    return;
-  }
+    mainProgress.BeginNextStep("Preparing output folder");
 
-  if (ezOSFile::CreateDirectoryStructure(szDstFolder).Failed())
-  {
-    ezQtUiServices::GetSingleton()->MessageBoxWarning(ezFmt("Failed to create destination folder:\n'{}'", szDstFolder));
-    return;
+    if (ezOSFile::DeleteFolder(szDstFolder).Failed())
+    {
+      ezQtUiServices::GetSingleton()->MessageBoxWarning(ezFmt("Failed to remove destination folder:\n'{}'", szDstFolder));
+      return;
+    }
+
+    if (ezOSFile::CreateDirectoryStructure(szDstFolder).Failed())
+    {
+      ezQtUiServices::GetSingleton()->MessageBoxWarning(ezFmt("Failed to create destination folder:\n'{}'", szDstFolder));
+      return;
+    }
   }
 
   ezStringBuilder sTemp;
@@ -85,111 +98,145 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
     logFile.Write("\n", 1).AssertSuccess();
   };
 
-  ezUInt32 uiDataDirNumber = 1;
+  ezUInt32 uiTotalFiles = 0;
 
-  for (const auto& dataDir : dataDirs.m_DataDirs)
   {
-    if (ezFileSystem::ResolveSpecialDirectory(dataDir.m_sDataDirSpecialPath, sPath).Failed())
+    mainProgress.BeginNextStep("Scanning data directories");
+
+    ezProgressRange progress("Scanning data directories", dataDirs.m_DataDirs.GetCount(), true);
+
+    ezUInt32 uiDataDirNumber = 1;
+
+    for (const auto& dataDir : dataDirs.m_DataDirs)
     {
-      ezQtUiServices::GetSingleton()->MessageBoxWarning(ezFmt("Failed to get special directory '{0}'", dataDir.m_sDataDirSpecialPath));
-      return;
-    }
+      progress.BeginNextStep(dataDir.m_sDataDirSpecialPath);
 
-    sPath.Trim("/\\");
-    const ezUInt32 uiStrip = sPath.GetElementCount() + 1;
-
-    DataDirInfo& ddInfo = fileList[sPath];
-    ezSet<ezString>& ddFileList = ddInfo.m_Files;
-
-    if (!dataDir.m_sRootName.IsEmpty())
-    {
-      sTemp.Set("Data/", dataDir.m_sRootName);
-
-      ddInfo.m_sTargetDirRootName = dataDir.m_sRootName;
-      ddInfo.m_sTargetDirPath = sTemp;
-    }
-    else
-    {
-      sTemp.Format("Data/Extra{}", uiDataDirNumber);
-
-      ddInfo.m_sTargetDirPath = sTemp;
-    }
-
-    ezFileSystemIterator it;
-    for (it.StartSearch(sPath, ezFileSystemIteratorFlags::ReportFilesAndFoldersRecursive); it.IsValid();)
-    {
-      if (it.GetStats().m_bIsDirectory)
+      if (ezFileSystem::ResolveSpecialDirectory(dataDir.m_sDataDirSpecialPath, sPath).Failed())
       {
-        if (it.GetCurrentPath().EndsWith("/AssetCache/Thumbnails") ||
-            it.GetCurrentPath().EndsWith("/AssetCache/Temp") ||
-            it.GetCurrentPath().EndsWith("/Base/Editor"))
-        {
-          it.SkipFolder();
-        }
-        else
-        {
-          it.Next();
-        }
-
-        continue;
+        ezQtUiServices::GetSingleton()->MessageBoxWarning(ezFmt("Failed to get special directory '{0}'", dataDir.m_sDataDirSpecialPath));
+        return;
       }
 
-      if (it.GetStats().m_sName == "AssetCurator.ezCache" ||
-          it.GetStats().m_sName == "DataDirectories.ddl")
+      sPath.Trim("/\\");
+      const ezUInt32 uiStrip = sPath.GetElementCount() + 1;
+
+      DataDirInfo& ddInfo = fileList[sPath];
+      ezSet<ezString>& ddFileList = ddInfo.m_Files;
+
+      if (!dataDir.m_sRootName.IsEmpty())
       {
-        it.Next();
-        continue;
-      }
+        sTemp.Set("Data/", dataDir.m_sRootName);
 
-      it.GetStats().GetFullPath(sPath);
-
-      auto asset = ezAssetCurator::GetSingleton()->FindSubAsset(sPath);
-      if (asset.isValid())
-      {
-        assetInputs.Union(asset->m_pAssetInfo->m_Info->m_AssetTransformDependencies);
-
-        // ignore all asset files
-        it.Next();
-        continue;
-      }
-
-      sPath.Shrink(uiStrip, 0);
-
-      ddFileList.Insert(sPath);
-      it.Next();
-    }
-  }
-
-  // filter out asset inputs
-  // this is problematic
-  for (auto itDir = fileList.GetIterator(); itDir.IsValid(); ++itDir)
-  {
-    if (itDir.Value().m_sTargetDirRootName.IsEqual_NoCase("base"))
-      continue;
-
-    for (auto itFile = itDir.Value().m_Files.GetIterator(); itFile.IsValid();)
-    {
-      if (itFile.Key().EndsWith_NoCase(".ezShader") ||
-          itFile.Key().EndsWith_NoCase(".bank") ||
-          itFile.Key().EndsWith_NoCase(".rml"))
-      {
-        // TODO: special case
-        ++itFile;
-        continue;
-      }
-
-      if (assetInputs.Contains(*itFile))
-      {
-        itFile = itDir.Value().m_Files.Remove(itFile);
+        ddInfo.m_sTargetDirRootName = dataDir.m_sRootName;
+        ddInfo.m_sTargetDirPath = sTemp;
       }
       else
       {
-        ++itFile;
+        sTemp.Format("Data/Extra{}", uiDataDirNumber);
+
+        ddInfo.m_sTargetDirPath = sTemp;
+      }
+
+      ezFileSystemIterator it;
+      for (it.StartSearch(sPath, ezFileSystemIteratorFlags::ReportFilesAndFoldersRecursive); it.IsValid();)
+      {
+        if (ezProgress::GetGlobalProgressbar()->WasCanceled())
+          return;
+
+        if (it.GetStats().m_bIsDirectory)
+        {
+          if (it.GetCurrentPath().EndsWith("/AssetCache/Thumbnails") ||
+              it.GetCurrentPath().EndsWith("/AssetCache/Temp") ||
+              it.GetCurrentPath().EndsWith("/Base/Editor"))
+          {
+            it.SkipFolder();
+          }
+          else
+          {
+            it.Next();
+          }
+
+          continue;
+        }
+
+        if (it.GetStats().m_sName == "AssetCurator.ezCache" ||
+            it.GetStats().m_sName == "DataDirectories.ddl")
+        {
+          it.Next();
+          continue;
+        }
+
+        it.GetStats().GetFullPath(sPath);
+
+        auto asset = ezAssetCurator::GetSingleton()->FindSubAsset(sPath);
+        if (asset.isValid())
+        {
+          assetInputs.Union(asset->m_pAssetInfo->m_Info->m_AssetTransformDependencies);
+
+          // ignore all asset files
+          it.Next();
+          continue;
+        }
+
+        sPath.Shrink(uiStrip, 0);
+
+        ddFileList.Insert(sPath);
+        ++uiTotalFiles;
+        it.Next();
+      }
+    }
+  }
+
+
+  // filter out asset inputs
+  // this is problematic
+  {
+    mainProgress.BeginNextStep("Filtering files");
+
+    ezProgressRange range("Filtering files", uiTotalFiles, true);
+
+    for (auto itDir = fileList.GetIterator(); itDir.IsValid(); ++itDir)
+    {
+      if (itDir.Value().m_sTargetDirRootName.IsEqual_NoCase("base"))
+      {
+        range.BeginNextStep("Skipping Base Directory", itDir.Value().m_Files.GetCount());
+        continue;
+      }
+
+      for (auto itFile = itDir.Value().m_Files.GetIterator(); itFile.IsValid();)
+      {
+        range.BeginNextStep(itFile.Key());
+
+        if (ezProgress::GetGlobalProgressbar()->WasCanceled())
+          return;
+
+        if (itFile.Key().EndsWith_NoCase(".ezShader") ||
+            itFile.Key().EndsWith_NoCase(".bank") ||
+            itFile.Key().EndsWith_NoCase(".rml"))
+        {
+          // TODO: special case
+          ++itFile;
+          continue;
+        }
+
+        if (assetInputs.Contains(*itFile))
+        {
+          itFile = itDir.Value().m_Files.Remove(itFile);
+          --uiTotalFiles;
+        }
+        else
+        {
+          ++itFile;
+        }
       }
     }
   }
 
   {
+    mainProgress.BeginNextStep("Gathering binaries");
+
+    //ezProgressRange range("Gathering binaries", true);
+
     sPath = ezOSFile::GetApplicationDirectory();
     sPath.MakeCleanPath();
     sPath.Trim("/\\");
@@ -202,10 +249,14 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
     ddInfo.m_sTargetDirRootName = "-"; // don't add to data dir config
 
     ddFileList.Insert("Player.exe");
+    ++uiTotalFiles;
 
     ezFileSystemIterator it;
     for (it.StartSearch(sPath, ezFileSystemIteratorFlags::ReportFilesAndFoldersRecursive); it.IsValid();)
     {
+      if (ezProgress::GetGlobalProgressbar()->WasCanceled())
+        return;
+
       const ezStringBuilder fileName = it.GetStats().m_sName;
 
       if (it.GetStats().m_bIsDirectory)
@@ -246,12 +297,15 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
       it.GetStats().GetFullPath(sPath);
       sPath.Shrink(uiStrip, 0);
       ddFileList.Insert(sPath);
+      ++uiTotalFiles;
       it.Next();
     }
   }
 
   // write data dir config file
   {
+    mainProgress.BeginNextStep("Writing data directory config");
+
     ezApplicationFileSystemConfig cfg;
 
     for (auto itDir = fileList.GetIterator(); itDir.IsValid(); ++itDir)
@@ -277,25 +331,36 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
     }
   }
 
-  logToFile("Output folder: ", szDstFolder);
-
-  for (auto itDir = fileList.GetIterator(); itDir.IsValid(); ++itDir)
   {
-    logToFile("Source sub-folder: ", itDir.Key());
-    logToFile("Destination sub-folder: ", itDir.Value().m_sTargetDirPath);
+    mainProgress.BeginNextStep("Copying files");
 
-    for (auto itFile = itDir.Value().m_Files.GetIterator(); itFile.IsValid(); ++itFile)
+    ezProgressRange range("Copying files", uiTotalFiles, true);
+
+    logToFile("Output folder: ", szDstFolder);
+
+    for (auto itDir = fileList.GetIterator(); itDir.IsValid(); ++itDir)
     {
-      sPath.Set(itDir.Key(), "/", itFile.Key());
-      sTemp.Set(szDstFolder, "/", itDir.Value().m_sTargetDirPath, "/", itFile.Key());
+      logToFile("Source sub-folder: ", itDir.Key());
+      logToFile("Destination sub-folder: ", itDir.Value().m_sTargetDirPath);
 
-      if (ezOSFile::CopyFile(sPath, sTemp).Succeeded())
+      for (auto itFile = itDir.Value().m_Files.GetIterator(); itFile.IsValid(); ++itFile)
       {
-        logToFile(" -> ", itFile.Key());
-      }
-      else
-      {
-        logToFile(" Copy failed:", itFile.Key());
+        if (ezProgress::GetGlobalProgressbar()->WasCanceled())
+          return;
+
+        range.BeginNextStep(itFile.Key());
+
+        sPath.Set(itDir.Key(), "/", itFile.Key());
+        sTemp.Set(szDstFolder, "/", itDir.Value().m_sTargetDirPath, "/", itFile.Key());
+
+        if (ezOSFile::CopyFile(sPath, sTemp).Succeeded())
+        {
+          logToFile(" -> ", itFile.Key());
+        }
+        else
+        {
+          logToFile(" Copy failed:", itFile.Key());
+        }
       }
     }
   }
