@@ -3,6 +3,7 @@
 #include <EditorFramework/Dialogs/ExportProjectDlg.moc.h>
 #include <EditorFramework/Preferences/Preferences.h>
 #include <EditorFramework/Preferences/ProjectPreferences.h>
+#include <Foundation/CodeUtils/Preprocessor.h>
 #include <Foundation/Containers/Set.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Strings/String.h>
@@ -85,26 +86,53 @@ struct ezPathPatternFilter
     return true;
   }
 
-  void AddExcludeFilter(const char* szText)
+  void AddFilter(ezStringView sText, bool bIncludeFilter)
   {
-    ezStringBuilder text = szText;
+    ezStringBuilder text = sText;
     text.MakeCleanPath();
+    text.Trim(" \t\r\n");
 
-    if (text.IsEmpty())
+    if (text.IsEmpty() || text.StartsWith("//"))
       return;
 
-    m_ExcludePatterns.ExpandAndGetRef().Configure(text);
+    if (bIncludeFilter)
+      m_IncludePatterns.ExpandAndGetRef().Configure(text);
+    else
+      m_ExcludePatterns.ExpandAndGetRef().Configure(text);
   }
 
-  void AddIncludeFilter(const char* szText)
+  void ReadConfigFile(const char* szFile)
   {
-    ezStringBuilder text = szText;
-    text.MakeCleanPath();
+    ezStringBuilder content;
 
-    if (text.IsEmpty())
-      return;
+    ezPreprocessor pp;
+    pp.SetPassThroughLine(false);
+    pp.SetPassThroughPragma(false);
+    if (pp.Process(szFile, content, true, true).Failed())
+      return; // TODO: error reporting
 
-    m_IncludePatterns.ExpandAndGetRef().Configure(text);
+    ezDynamicArray<ezStringView> lines;
+
+    content.Split(false, lines, "\n", "\r");
+
+    bool bIncludeFilter = false;
+
+    for (auto line : lines)
+    {
+      if (line.IsEqual_NoCase("[INCLUDE]"))
+      {
+        bIncludeFilter = true;
+        continue;
+      }
+
+      if (line.IsEqual_NoCase("[EXCLUDE]"))
+      {
+        bIncludeFilter = false;
+        continue;
+      }
+
+      AddFilter(line, bIncludeFilter);
+    }
   }
 };
 
@@ -144,10 +172,6 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
 {
   // TODO:
   // filter out unused runtime/game plugins
-  // user selected output path
-  // transform assets
-  // progress bar
-  // start.bat
   // better logic to filter out input assets
   // blacklist / whitelist for files per data directory
   // output log to UI
@@ -215,7 +239,7 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
   };
 
   ezMap<ezString, DataDirInfo> fileList;
-  ezSet<ezString> assetInputs;
+  //ezSet<ezString> assetInputs;
 
   auto logToFile = [&](const char* msg, const char* msg2)
   {
@@ -228,14 +252,8 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
 
 
   ezPathPatternFilter filter;
-  filter.AddExcludeFilter("*.jpg");
-  filter.AddExcludeFilter("*.tga");
-  filter.AddExcludeFilter("*/CppSource");
-  filter.AddExcludeFilter("*/AssetCache/Thumbnails");
-  filter.AddExcludeFilter("*/AssetCache/Temp");
-  filter.AddExcludeFilter("*/Editor/*");
-  filter.AddExcludeFilter("*/AssetCurator.ezCache");
-  filter.AddExcludeFilter("*/DataDirectories.ddl");
+
+  filter.ReadConfigFile("Project.ezExportFilter");
 
   {
     mainProgress.BeginNextStep("Scanning data directories");
@@ -308,11 +326,13 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
         auto asset = ezAssetCurator::GetSingleton()->FindSubAsset(sPath);
         if (asset.isValid())
         {
-          assetInputs.Union(asset->m_pAssetInfo->m_Info->m_AssetTransformDependencies);
+          //assetInputs.Union(asset->m_pAssetInfo->m_Info->m_AssetTransformDependencies);
 
           // ignore all asset files
-          it.Next();
-          continue;
+          //it.Next();
+          //continue;
+
+          // TODO: redirect to asset output
         }
 
         ddFileList.Insert(sRelPath);
@@ -325,48 +345,48 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
 
   // filter out asset inputs
   // this is problematic
-  if (false)
-  {
-    mainProgress.BeginNextStep("Filtering files");
+  //if (false)
+  //{
+  //  mainProgress.BeginNextStep("Filtering files");
 
-    ezProgressRange range("Filtering files", uiTotalFiles, true);
+  //  ezProgressRange range("Filtering files", uiTotalFiles, true);
 
-    for (auto itDir = fileList.GetIterator(); itDir.IsValid(); ++itDir)
-    {
-      if (itDir.Value().m_sTargetDirRootName.IsEqual_NoCase("base"))
-      {
-        range.BeginNextStep("Skipping Base Directory", itDir.Value().m_Files.GetCount());
-        continue;
-      }
+  //  for (auto itDir = fileList.GetIterator(); itDir.IsValid(); ++itDir)
+  //  {
+  //    if (itDir.Value().m_sTargetDirRootName.IsEqual_NoCase("base"))
+  //    {
+  //      range.BeginNextStep("Skipping Base Directory", itDir.Value().m_Files.GetCount());
+  //      continue;
+  //    }
 
-      for (auto itFile = itDir.Value().m_Files.GetIterator(); itFile.IsValid();)
-      {
-        range.BeginNextStep(itFile.Key());
+  //    for (auto itFile = itDir.Value().m_Files.GetIterator(); itFile.IsValid();)
+  //    {
+  //      range.BeginNextStep(itFile.Key());
 
-        if (ezProgress::GetGlobalProgressbar()->WasCanceled())
-          return;
+  //      if (ezProgress::GetGlobalProgressbar()->WasCanceled())
+  //        return;
 
-        if (itFile.Key().EndsWith_NoCase(".ezShader") ||
-            itFile.Key().EndsWith_NoCase(".bank") ||
-            itFile.Key().EndsWith_NoCase(".rml"))
-        {
-          // TODO: special case
-          ++itFile;
-          continue;
-        }
+  //      if (itFile.Key().EndsWith_NoCase(".ezShader") ||
+  //          itFile.Key().EndsWith_NoCase(".bank") ||
+  //          itFile.Key().EndsWith_NoCase(".rml"))
+  //      {
+  //        // TODO: special case
+  //        ++itFile;
+  //        continue;
+  //      }
 
-        if (assetInputs.Contains(*itFile))
-        {
-          itFile = itDir.Value().m_Files.Remove(itFile);
-          --uiTotalFiles;
-        }
-        else
-        {
-          ++itFile;
-        }
-      }
-    }
-  }
+  //      if (assetInputs.Contains(*itFile))
+  //      {
+  //        itFile = itDir.Value().m_Files.Remove(itFile);
+  //        --uiTotalFiles;
+  //      }
+  //      else
+  //      {
+  //        ++itFile;
+  //      }
+  //    }
+  //  }
+  //}
 
   {
     mainProgress.BeginNextStep("Gathering binaries");

@@ -1,0 +1,14 @@
+[EXCLUDE]
+
+*.dds
+*.jpg
+*.tga
+*/CppSource
+*/AssetCache
+*/Editor/*
+*/DataDirectories.ddl
+*.ezExportFilter
+
+[INCLUDE]
+
+/Textures/BlueNoise.dds
