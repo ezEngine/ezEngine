@@ -8,6 +8,107 @@
 #include <Foundation/Strings/String.h>
 #include <QFileDialog>
 
+struct ezPathPattern
+{
+  enum MatchType : ezUInt8
+  {
+    Exact,
+    StartsWith,
+    EndsWith,
+    Contains
+  };
+
+  MatchType m_MatchType = MatchType::Exact;
+  ezString m_sString;
+
+  void Configure(ezStringView text)
+  {
+    text.Trim(" \t\r\n");
+
+    const bool bStart = text.StartsWith("*");
+    const bool bEnd = text.EndsWith("*");
+
+    text.Trim("*");
+    m_sString = text;
+
+    if (bStart && bEnd)
+      m_MatchType = MatchType::Contains;
+    else if (bStart)
+      m_MatchType = MatchType::EndsWith;
+    else if (bEnd)
+      m_MatchType = MatchType::StartsWith;
+    else
+      m_MatchType = MatchType::Exact;
+  }
+
+  bool Matches(ezStringView text) const
+  {
+    switch (m_MatchType)
+    {
+      case MatchType::Exact:
+        return text.IsEqual_NoCase(m_sString.GetView());
+      case MatchType::StartsWith:
+        return text.StartsWith_NoCase(m_sString);
+      case MatchType::EndsWith:
+        return text.EndsWith_NoCase(m_sString);
+      case MatchType::Contains:
+        return text.FindSubString_NoCase(m_sString) != nullptr;
+    }
+
+    EZ_ASSERT_NOT_IMPLEMENTED;
+    return false;
+  }
+};
+
+struct ezPathPatternFilter
+{
+  ezDynamicArray<ezPathPattern> m_ExcludePatterns;
+  ezDynamicArray<ezPathPattern> m_IncludePatterns;
+
+  bool PassesFilters(ezStringView text) const
+  {
+    for (const auto& filter : m_IncludePatterns)
+    {
+      // if any include pattern matches, that overrides the exclude patterns
+      if (filter.Matches(text))
+        return true;
+    }
+
+    for (const auto& filter : m_ExcludePatterns)
+    {
+      // no include pattern matched, but any exclude pattern matches -> filter out
+      if (filter.Matches(text))
+        return false;
+    }
+
+    // no filter matches at all -> include by default
+    return true;
+  }
+
+  void AddExcludeFilter(const char* szText)
+  {
+    ezStringBuilder text = szText;
+    text.MakeCleanPath();
+
+    if (text.IsEmpty())
+      return;
+
+    m_ExcludePatterns.ExpandAndGetRef().Configure(text);
+  }
+
+  void AddIncludeFilter(const char* szText)
+  {
+    ezStringBuilder text = szText;
+    text.MakeCleanPath();
+
+    if (text.IsEmpty())
+      return;
+
+    m_IncludePatterns.ExpandAndGetRef().Configure(text);
+  }
+};
+
+
 bool ezQtExportProjectDlg::s_bTransformAll = true;
 
 ezQtExportProjectDlg::ezQtExportProjectDlg(QWidget* parent)
@@ -71,7 +172,7 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
   mainProgress.SetStepWeighting(2, 0.10f); // Filtering files
   mainProgress.SetStepWeighting(3, 0.05f); // Gathering binaries
   mainProgress.SetStepWeighting(4, 0.01f); // Writing data directory config
-  //mainProgress.SetStepWeighting(5, 0.0f); // Copying files
+  // mainProgress.SetStepWeighting(5, 0.0f); // Copying files
 
   const ezString szDstFolder = Destination->text().toUtf8().data();
 
@@ -104,7 +205,7 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
 
   const auto dataDirs = ezQtEditorApp::GetSingleton()->GetFileSystemConfig();
 
-  ezStringBuilder sPath;
+  ezStringBuilder sPath, sRelPath, sStartPath;
 
   struct DataDirInfo
   {
@@ -125,6 +226,17 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
 
   ezUInt32 uiTotalFiles = 0;
 
+
+  ezPathPatternFilter filter;
+  filter.AddExcludeFilter("*.jpg");
+  filter.AddExcludeFilter("*.tga");
+  filter.AddExcludeFilter("*/CppSource");
+  filter.AddExcludeFilter("*/AssetCache/Thumbnails");
+  filter.AddExcludeFilter("*/AssetCache/Temp");
+  filter.AddExcludeFilter("*/Editor/*");
+  filter.AddExcludeFilter("*/AssetCurator.ezCache");
+  filter.AddExcludeFilter("*/DataDirectories.ddl");
+
   {
     mainProgress.BeginNextStep("Scanning data directories");
 
@@ -136,16 +248,16 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
     {
       progress.BeginNextStep(dataDir.m_sDataDirSpecialPath);
 
-      if (ezFileSystem::ResolveSpecialDirectory(dataDir.m_sDataDirSpecialPath, sPath).Failed())
+      if (ezFileSystem::ResolveSpecialDirectory(dataDir.m_sDataDirSpecialPath, sStartPath).Failed())
       {
         ezQtUiServices::GetSingleton()->MessageBoxWarning(ezFmt("Failed to get special directory '{0}'", dataDir.m_sDataDirSpecialPath));
         return;
       }
 
-      sPath.Trim("/\\");
-      const ezUInt32 uiStrip = sPath.GetElementCount() + 1;
+      sStartPath.Trim("/\\");
+      const ezUInt32 uiStrip = sStartPath.GetElementCount();
 
-      DataDirInfo& ddInfo = fileList[sPath];
+      DataDirInfo& ddInfo = fileList[sStartPath];
       ezSet<ezString>& ddFileList = ddInfo.m_Files;
 
       if (!dataDir.m_sRootName.IsEmpty())
@@ -163,16 +275,19 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
       }
 
       ezFileSystemIterator it;
-      for (it.StartSearch(sPath, ezFileSystemIteratorFlags::ReportFilesAndFoldersRecursive); it.IsValid();)
+      for (it.StartSearch(sStartPath, ezFileSystemIteratorFlags::ReportFilesAndFoldersRecursive); it.IsValid();)
       {
         if (ezProgress::GetGlobalProgressbar()->WasCanceled())
           return;
 
+        it.GetStats().GetFullPath(sPath);
+
+        sRelPath = sPath;
+        sRelPath.Shrink(uiStrip, 0);
+
         if (it.GetStats().m_bIsDirectory)
         {
-          if (it.GetCurrentPath().EndsWith("/AssetCache/Thumbnails") ||
-              it.GetCurrentPath().EndsWith("/AssetCache/Temp") ||
-              it.GetCurrentPath().EndsWith("/Base/Editor"))
+          if (!filter.PassesFilters(sRelPath))
           {
             it.SkipFolder();
           }
@@ -184,14 +299,11 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
           continue;
         }
 
-        if (it.GetStats().m_sName == "AssetCurator.ezCache" ||
-            it.GetStats().m_sName == "DataDirectories.ddl")
+        if (!filter.PassesFilters(sRelPath))
         {
           it.Next();
           continue;
         }
-
-        it.GetStats().GetFullPath(sPath);
 
         auto asset = ezAssetCurator::GetSingleton()->FindSubAsset(sPath);
         if (asset.isValid())
@@ -203,9 +315,7 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
           continue;
         }
 
-        sPath.Shrink(uiStrip, 0);
-
-        ddFileList.Insert(sPath);
+        ddFileList.Insert(sRelPath);
         ++uiTotalFiles;
         it.Next();
       }
@@ -215,6 +325,7 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
 
   // filter out asset inputs
   // this is problematic
+  if (false)
   {
     mainProgress.BeginNextStep("Filtering files");
 
@@ -260,12 +371,12 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
   {
     mainProgress.BeginNextStep("Gathering binaries");
 
-    //ezProgressRange range("Gathering binaries", true);
+    // ezProgressRange range("Gathering binaries", true);
 
     sPath = ezOSFile::GetApplicationDirectory();
     sPath.MakeCleanPath();
     sPath.Trim("/\\");
-    const ezUInt32 uiStrip = sPath.GetElementCount() + 1;
+    const ezUInt32 uiStrip = sPath.GetElementCount();
 
     DataDirInfo& ddInfo = fileList[sPath];
     ezSet<ezString>& ddFileList = ddInfo.m_Files;
