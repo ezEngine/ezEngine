@@ -95,13 +95,16 @@ struct ezPathPatternFilter
     if (text.IsEmpty() || text.StartsWith("//"))
       return;
 
+    if (!text.StartsWith("*") && !text.StartsWith("/"))
+      text.Prepend("/");
+
     if (bIncludeFilter)
       m_IncludePatterns.ExpandAndGetRef().Configure(text);
     else
       m_ExcludePatterns.ExpandAndGetRef().Configure(text);
   }
 
-  void ReadConfigFile(const char* szFile)
+  ezResult ReadConfigFile(const char* szFile)
   {
     ezStringBuilder content;
 
@@ -109,7 +112,7 @@ struct ezPathPatternFilter
     pp.SetPassThroughLine(false);
     pp.SetPassThroughPragma(false);
     if (pp.Process(szFile, content, true, true).Failed())
-      return; // TODO: error reporting
+      return EZ_FAILURE; // TODO: error reporting
 
     ezDynamicArray<ezStringView> lines;
 
@@ -133,6 +136,8 @@ struct ezPathPatternFilter
 
       AddFilter(line, bIncludeFilter);
     }
+
+    return EZ_SUCCESS;
   }
 };
 
@@ -239,7 +244,7 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
   };
 
   ezMap<ezString, DataDirInfo> fileList;
-  //ezSet<ezString> assetInputs;
+  // ezSet<ezString> assetInputs;
 
   auto logToFile = [&](const char* msg, const char* msg2)
   {
@@ -248,12 +253,42 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
     logFile.Write("\n", 1).AssertSuccess();
   };
 
-  ezUInt32 uiTotalFiles = 0;
-
-
   ezPathPatternFilter filter;
 
-  filter.ReadConfigFile("Project.ezExportFilter");
+  if (filter.ReadConfigFile("Project.ezExportFilter").Failed())
+  {
+    ezQtUiServices::GetSingleton()->MessageBoxInformation(ezFmt("The config file 'Project.ezExportFilter' does not exist or is invalid.\n\nUsing 'Common.ezExportFilter' instead."));
+
+    if (filter.ReadConfigFile("Common.ezExportFilter").Failed())
+    {
+      ezQtUiServices::GetSingleton()->MessageBoxWarning(ezFmt("The config file 'Common.ezExportFilter' does not exist or is invalid.\n\nCanceling operation.."));
+
+      return;
+    }
+  }
+
+  {
+    ezDynamicArray<ezString> addFiles;
+
+    for (auto pMan : ezDocumentManager::GetAllDocumentManagers())
+    {
+      if (auto pAssMan = ezDynamicCast<ezAssetDocumentManager*>(pMan))
+      {
+        pAssMan->GetAdditionalOutputs(addFiles);
+      }
+    }
+
+    if (ezFileSystem::ResolveSpecialDirectory(">project", sStartPath).Succeeded())
+    {
+      DataDirInfo& ddInfo = fileList[sStartPath];
+      ezSet<ezString>& ddFileList = ddInfo.m_Files;
+
+      for (const auto& file : addFiles)
+      {
+        ddFileList.Insert(file);
+      }
+    }
+  }
 
   {
     mainProgress.BeginNextStep("Scanning data directories");
@@ -323,70 +358,47 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
           continue;
         }
 
+        // ezDocumentTypeDescriptor* pDocDesc;
+        // if (ezDocumentManager::FindDocumentTypeFromPath(sPath, false, pDocDesc).Succeeded())
+        //{
+        //   if (ezAssetDocumentManager* pAssetMan = ezDynamicCast<ezAssetDocumentManager*>(pDocDesc->m_pManager))
+        //   {
+        //     pAssetMan->GetRelativeOutputFileName(
+        //   }
+        // }
+
         auto asset = ezAssetCurator::GetSingleton()->FindSubAsset(sPath);
         if (asset.isValid())
         {
-          //assetInputs.Union(asset->m_pAssetInfo->m_Info->m_AssetTransformDependencies);
+          // redirect to asset output
+          if (asset->m_bMainAsset)
+          {
+            ezAssetDocumentManager* pAssetMan = ezStaticCast<ezAssetDocumentManager*>(asset->m_pAssetInfo->m_pDocumentTypeDescriptor->m_pManager);
+
+            ezStringBuilder sRelFile = pAssetMan->GetRelativeOutputFileName(asset->m_pAssetInfo->m_pDocumentTypeDescriptor, sStartPath, asset->m_pAssetInfo->m_sAbsolutePath, nullptr);
+
+            sRelFile.Prepend("AssetCache/");
+            ddFileList.Insert(sRelFile);
+
+            for (const ezString& outputTag : asset->m_pAssetInfo->m_Info->m_Outputs)
+            {
+              sRelFile = pAssetMan->GetRelativeOutputFileName(asset->m_pAssetInfo->m_pDocumentTypeDescriptor, sStartPath, asset->m_pAssetInfo->m_sAbsolutePath, outputTag);
+
+              sRelFile.Prepend("AssetCache/");
+              ddFileList.Insert(sRelFile);
+            }
+          }
 
           // ignore all asset files
-          //it.Next();
-          //continue;
-
-          // TODO: redirect to asset output
+          it.Next();
+          continue;
         }
 
         ddFileList.Insert(sRelPath);
-        ++uiTotalFiles;
         it.Next();
       }
     }
   }
-
-
-  // filter out asset inputs
-  // this is problematic
-  //if (false)
-  //{
-  //  mainProgress.BeginNextStep("Filtering files");
-
-  //  ezProgressRange range("Filtering files", uiTotalFiles, true);
-
-  //  for (auto itDir = fileList.GetIterator(); itDir.IsValid(); ++itDir)
-  //  {
-  //    if (itDir.Value().m_sTargetDirRootName.IsEqual_NoCase("base"))
-  //    {
-  //      range.BeginNextStep("Skipping Base Directory", itDir.Value().m_Files.GetCount());
-  //      continue;
-  //    }
-
-  //    for (auto itFile = itDir.Value().m_Files.GetIterator(); itFile.IsValid();)
-  //    {
-  //      range.BeginNextStep(itFile.Key());
-
-  //      if (ezProgress::GetGlobalProgressbar()->WasCanceled())
-  //        return;
-
-  //      if (itFile.Key().EndsWith_NoCase(".ezShader") ||
-  //          itFile.Key().EndsWith_NoCase(".bank") ||
-  //          itFile.Key().EndsWith_NoCase(".rml"))
-  //      {
-  //        // TODO: special case
-  //        ++itFile;
-  //        continue;
-  //      }
-
-  //      if (assetInputs.Contains(*itFile))
-  //      {
-  //        itFile = itDir.Value().m_Files.Remove(itFile);
-  //        --uiTotalFiles;
-  //      }
-  //      else
-  //      {
-  //        ++itFile;
-  //      }
-  //    }
-  //  }
-  //}
 
   {
     mainProgress.BeginNextStep("Gathering binaries");
@@ -405,7 +417,6 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
     ddInfo.m_sTargetDirRootName = "-"; // don't add to data dir config
 
     ddFileList.Insert("Player.exe");
-    ++uiTotalFiles;
 
     ezFileSystemIterator it;
     for (it.StartSearch(sPath, ezFileSystemIteratorFlags::ReportFilesAndFoldersRecursive); it.IsValid();)
@@ -453,7 +464,6 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
       it.GetStats().GetFullPath(sPath);
       sPath.Shrink(uiStrip, 0);
       ddFileList.Insert(sPath);
-      ++uiTotalFiles;
       it.Next();
     }
   }
@@ -491,6 +501,10 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
 
   {
     mainProgress.BeginNextStep("Copying files");
+
+    ezUInt32 uiTotalFiles = 0;
+    for (auto itDir = fileList.GetIterator(); itDir.IsValid(); ++itDir)
+      uiTotalFiles += itDir.Value().m_Files.GetCount();
 
     ezProgressRange range("Copying files", uiTotalFiles, true);
 

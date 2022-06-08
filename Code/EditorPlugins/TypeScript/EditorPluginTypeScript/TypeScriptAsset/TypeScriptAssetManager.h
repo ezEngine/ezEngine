@@ -21,6 +21,8 @@ public:
   void SetupProjectForTypeScript(bool bForce);
   ezResult GenerateScriptCompendium(ezBitflags<ezTransformFlags> transformFlags);
 
+  virtual ezStatus GetAdditionalOutputs(ezDynamicArray<ezString>& files) override;
+
 private:
   void OnDocumentManagerEvent(const ezDocumentManager::Event& e);
 

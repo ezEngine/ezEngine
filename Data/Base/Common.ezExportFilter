@@ -8,6 +8,9 @@
 */Editor/*
 */DataDirectories.ddl
 *.ezExportFilter
+*/.gitignore
+*/TypeScript/*
+*.ts
 
 [INCLUDE]
 
