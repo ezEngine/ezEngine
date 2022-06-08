@@ -8,144 +8,7 @@
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Strings/String.h>
 #include <QFileDialog>
-
-struct ezPathPattern
-{
-  enum MatchType : ezUInt8
-  {
-    Exact,
-    StartsWith,
-    EndsWith,
-    Contains
-  };
-
-  MatchType m_MatchType = MatchType::Exact;
-  ezString m_sString;
-
-  void Configure(ezStringView text)
-  {
-    text.Trim(" \t\r\n");
-
-    const bool bStart = text.StartsWith("*");
-    const bool bEnd = text.EndsWith("*");
-
-    text.Trim("*");
-    m_sString = text;
-
-    if (bStart && bEnd)
-      m_MatchType = MatchType::Contains;
-    else if (bStart)
-      m_MatchType = MatchType::EndsWith;
-    else if (bEnd)
-      m_MatchType = MatchType::StartsWith;
-    else
-      m_MatchType = MatchType::Exact;
-  }
-
-  bool Matches(ezStringView text) const
-  {
-    switch (m_MatchType)
-    {
-      case MatchType::Exact:
-        return text.IsEqual_NoCase(m_sString.GetView());
-      case MatchType::StartsWith:
-        return text.StartsWith_NoCase(m_sString);
-      case MatchType::EndsWith:
-        return text.EndsWith_NoCase(m_sString);
-      case MatchType::Contains:
-        return text.FindSubString_NoCase(m_sString) != nullptr;
-    }
-
-    EZ_ASSERT_NOT_IMPLEMENTED;
-    return false;
-  }
-};
-
-struct ezPathPatternFilter
-{
-  ezDynamicArray<ezPathPattern> m_ExcludePatterns;
-  ezDynamicArray<ezPathPattern> m_IncludePatterns;
-
-  bool PassesFilters(ezStringView text) const
-  {
-    for (const auto& filter : m_IncludePatterns)
-    {
-      // if any include pattern matches, that overrides the exclude patterns
-      if (filter.Matches(text))
-        return true;
-    }
-
-    for (const auto& filter : m_ExcludePatterns)
-    {
-      // no include pattern matched, but any exclude pattern matches -> filter out
-      if (filter.Matches(text))
-        return false;
-    }
-
-    // no filter matches at all -> include by default
-    return true;
-  }
-
-  void AddFilter(ezStringView sText, bool bIncludeFilter)
-  {
-    ezStringBuilder text = sText;
-    text.MakeCleanPath();
-    text.Trim(" \t\r\n");
-
-    if (text.IsEmpty() || text.StartsWith("//"))
-      return;
-
-    if (!text.StartsWith("*") && !text.StartsWith("/"))
-      text.Prepend("/");
-
-    if (bIncludeFilter)
-      m_IncludePatterns.ExpandAndGetRef().Configure(text);
-    else
-      m_ExcludePatterns.ExpandAndGetRef().Configure(text);
-  }
-
-  ezResult ReadConfigFile(const char* szFile, const ezPlatformProfile* pAssetProfile)
-  {
-    ezStringBuilder content;
-
-    ezPreprocessor pp;
-    pp.SetPassThroughLine(false);
-    pp.SetPassThroughPragma(false);
-
-    ezStringBuilder sDefine;
-    sDefine.Format("PLATFORM_PROFILE_{} 1", pAssetProfile->GetConfigName());
-    sDefine.ToUpper();
-    pp.AddCustomDefine(sDefine).IgnoreResult();
-
-    if (pp.Process(szFile, content, true, true).Failed())
-      return EZ_FAILURE; // TODO: error reporting
-
-    ezDynamicArray<ezStringView> lines;
-
-    content.Split(false, lines, "\n", "\r");
-
-    bool bIncludeFilter = false;
-
-    for (auto line : lines)
-    {
-      if (line.IsEqual_NoCase("[INCLUDE]"))
-      {
-        bIncludeFilter = true;
-        continue;
-      }
-
-      if (line.IsEqual_NoCase("[EXCLUDE]"))
-      {
-        bIncludeFilter = false;
-        continue;
-      }
-
-      AddFilter(line, bIncludeFilter);
-    }
-
-    return EZ_SUCCESS;
-  }
-};
+#include <ToolsFoundation/Utilities/PathPatternFilter.h>
 
 
 bool ezQtExportProjectDlg::s_bTransformAll = true;
@@ -261,11 +124,17 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
   ezPathPatternFilter dataFilter;
   ezPathPatternFilter binariesFilter;
 
-  if (dataFilter.ReadConfigFile("ProjectData.ezExportFilter", pAssetProfile).Failed())
+  sTemp.Format("PLATFORM_PROFILE_{} 1", pAssetProfile->GetConfigName());
+  sTemp.ToUpper();
+
+  ezHybridArray<ezString, 1> ppDefines;
+  ppDefines.PushBack(sTemp);
+
+  if (dataFilter.ReadConfigFile("ProjectData.ezExportFilter", ppDefines).Failed())
   {
     ezQtUiServices::GetSingleton()->MessageBoxInformation(ezFmt("The config file 'ProjectData.ezExportFilter' does not exist or is invalid.\n\nUsing 'CommonData.ezExportFilter' instead."));
 
-    if (dataFilter.ReadConfigFile("CommonData.ezExportFilter", pAssetProfile).Failed())
+    if (dataFilter.ReadConfigFile("CommonData.ezExportFilter", ppDefines).Failed())
     {
       ezQtUiServices::GetSingleton()->MessageBoxWarning(ezFmt("The config file 'CommonData.ezExportFilter' does not exist or is invalid.\n\nCanceling operation.."));
 
@@ -273,11 +142,11 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
     }
   }
 
-  if (binariesFilter.ReadConfigFile("ProjectBinaries.ezExportFilter", pAssetProfile).Failed())
+  if (binariesFilter.ReadConfigFile("ProjectBinaries.ezExportFilter", ppDefines).Failed())
   {
     ezQtUiServices::GetSingleton()->MessageBoxInformation(ezFmt("The config file 'ProjectBinaries.ProjectBinaries' does not exist or is invalid.\n\nUsing 'CommonBinaries.ezExportFilter' instead."));
 
-    if (binariesFilter.ReadConfigFile("CommonBinaries.ezExportFilter", pAssetProfile).Failed())
+    if (binariesFilter.ReadConfigFile("CommonBinaries.ezExportFilter", ppDefines).Failed())
     {
       ezQtUiServices::GetSingleton()->MessageBoxWarning(ezFmt("The config file 'CommonBinaries.ezExportFilter' does not exist or is invalid.\n\nCanceling operation.."));
 
