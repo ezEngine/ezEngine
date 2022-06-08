@@ -104,13 +104,19 @@ struct ezPathPatternFilter
       m_ExcludePatterns.ExpandAndGetRef().Configure(text);
   }
 
-  ezResult ReadConfigFile(const char* szFile)
+  ezResult ReadConfigFile(const char* szFile, const ezPlatformProfile* pAssetProfile)
   {
     ezStringBuilder content;
 
     ezPreprocessor pp;
     pp.SetPassThroughLine(false);
     pp.SetPassThroughPragma(false);
+
+    ezStringBuilder sDefine;
+    sDefine.Format("PLATFORM_PROFILE_{} 1", pAssetProfile->GetConfigName());
+    sDefine.ToUpper();
+    pp.AddCustomDefine(sDefine).IgnoreResult();
+
     if (pp.Process(szFile, content, true, true).Failed())
       return EZ_FAILURE; // TODO: error reporting
 
@@ -177,8 +183,6 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
 {
   // TODO:
   // filter out unused runtime/game plugins
-  // better logic to filter out input assets
-  // blacklist / whitelist for files per data directory
   // output log to UI
   // asset profile
   // copy inputs into resource: RML files
@@ -246,7 +250,6 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
   };
 
   ezMap<ezString, DataDirInfo> fileList;
-  // ezSet<ezString> assetInputs;
 
   auto logToFile = [&](const char* msg, const char* msg2)
   {
@@ -255,15 +258,28 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
     logFile.Write("\n", 1).AssertSuccess();
   };
 
-  ezPathPatternFilter filter;
+  ezPathPatternFilter dataFilter;
+  ezPathPatternFilter binariesFilter;
 
-  if (filter.ReadConfigFile("Project.ezExportFilter").Failed())
+  if (dataFilter.ReadConfigFile("ProjectData.ezExportFilter", pAssetProfile).Failed())
   {
-    ezQtUiServices::GetSingleton()->MessageBoxInformation(ezFmt("The config file 'Project.ezExportFilter' does not exist or is invalid.\n\nUsing 'Common.ezExportFilter' instead."));
+    ezQtUiServices::GetSingleton()->MessageBoxInformation(ezFmt("The config file 'ProjectData.ezExportFilter' does not exist or is invalid.\n\nUsing 'CommonData.ezExportFilter' instead."));
 
-    if (filter.ReadConfigFile("Common.ezExportFilter").Failed())
+    if (dataFilter.ReadConfigFile("CommonData.ezExportFilter", pAssetProfile).Failed())
     {
-      ezQtUiServices::GetSingleton()->MessageBoxWarning(ezFmt("The config file 'Common.ezExportFilter' does not exist or is invalid.\n\nCanceling operation.."));
+      ezQtUiServices::GetSingleton()->MessageBoxWarning(ezFmt("The config file 'CommonData.ezExportFilter' does not exist or is invalid.\n\nCanceling operation.."));
+
+      return;
+    }
+  }
+
+  if (binariesFilter.ReadConfigFile("ProjectBinaries.ezExportFilter", pAssetProfile).Failed())
+  {
+    ezQtUiServices::GetSingleton()->MessageBoxInformation(ezFmt("The config file 'ProjectBinaries.ProjectBinaries' does not exist or is invalid.\n\nUsing 'CommonBinaries.ezExportFilter' instead."));
+
+    if (binariesFilter.ReadConfigFile("CommonBinaries.ezExportFilter", pAssetProfile).Failed())
+    {
+      ezQtUiServices::GetSingleton()->MessageBoxWarning(ezFmt("The config file 'CommonBinaries.ezExportFilter' does not exist or is invalid.\n\nCanceling operation.."));
 
       return;
     }
@@ -362,7 +378,7 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
 
         if (it.GetStats().m_bIsDirectory)
         {
-          if (!filter.PassesFilters(sRelPath))
+          if (!dataFilter.PassesFilters(sRelPath))
           {
             it.SkipFolder();
           }
@@ -374,20 +390,11 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
           continue;
         }
 
-        if (!filter.PassesFilters(sRelPath))
+        if (!dataFilter.PassesFilters(sRelPath))
         {
           it.Next();
           continue;
         }
-
-        // ezDocumentTypeDescriptor* pDocDesc;
-        // if (ezDocumentManager::FindDocumentTypeFromPath(sPath, false, pDocDesc).Succeeded())
-        //{
-        //   if (ezAssetDocumentManager* pAssetMan = ezDynamicCast<ezAssetDocumentManager*>(pDocDesc->m_pManager))
-        //   {
-        //     pAssetMan->GetRelativeOutputFileName(
-        //   }
-        // }
 
         auto asset = ezAssetCurator::GetSingleton()->FindSubAsset(sPath);
         if (asset.isValid())
@@ -422,70 +429,45 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
     }
   }
 
+  // Binaries
   {
     mainProgress.BeginNextStep("Gathering binaries");
 
     // ezProgressRange range("Gathering binaries", true);
 
-    sPath = ezOSFile::GetApplicationDirectory();
-    sPath.MakeCleanPath();
-    sPath.Trim("/\\");
-    const ezUInt32 uiStrip = sPath.GetElementCount();
+    sStartPath = ezOSFile::GetApplicationDirectory();
+    sStartPath.MakeCleanPath();
+    sStartPath.Trim("/\\");
+    const ezUInt32 uiStrip = sStartPath.GetElementCount();
 
-    DataDirInfo& ddInfo = fileList[sPath];
+    DataDirInfo& ddInfo = fileList[sStartPath];
     ezSet<ezString>& ddFileList = ddInfo.m_Files;
 
     ddInfo.m_sTargetDirPath = "Bin";
     ddInfo.m_sTargetDirRootName = "-"; // don't add to data dir config
 
-    ddFileList.Insert("Player.exe");
-
     ezFileSystemIterator it;
-    for (it.StartSearch(sPath, ezFileSystemIteratorFlags::ReportFilesAndFoldersRecursive); it.IsValid();)
+    for (it.StartSearch(sStartPath, ezFileSystemIteratorFlags::ReportFilesAndFoldersRecursive); it.IsValid();)
     {
       if (ezProgress::GetGlobalProgressbar()->WasCanceled())
         return;
 
-      const ezStringBuilder fileName = it.GetStats().m_sName;
-
-      if (it.GetStats().m_bIsDirectory)
-      {
-        if (fileName == "iconengines" ||
-            fileName == "imageformats" ||
-            fileName == "platforms")
-        {
-          it.SkipFolder();
-          continue;
-        }
-
-        it.Next();
-        continue;
-      }
-
-      if (fileName.HasExtension("exe") ||
-          fileName.HasExtension("pdb") ||
-          fileName.HasExtension("loaded"))
-      {
-        it.Next();
-        continue;
-      }
-
-      if (fileName.HasExtension("dll"))
-      {
-        if (fileName.StartsWith("ezEditorPlugin") ||
-            fileName.StartsWith("ezEnginePlugin") ||
-            fileName.StartsWith("ezSharedPlugin") ||
-            fileName.StartsWith("Qt5") ||
-            fileName.StartsWith("Qt6"))
-        {
-          it.Next();
-          continue;
-        }
-      }
-
       it.GetStats().GetFullPath(sPath);
-      sPath.Shrink(uiStrip, 0);
-      ddFileList.Insert(sPath);
+
+      sRelPath = sPath;
+      sRelPath.Shrink(uiStrip, 0);
+
+      if (!binariesFilter.PassesFilters(sRelPath))
+      {
+        if (it.GetStats().m_bIsDirectory)
+          it.SkipFolder();
+        else
+          it.Next();
+
+        continue;
+      }
+
+      ddFileList.Insert(sRelPath);
       it.Next();
     }
   }
