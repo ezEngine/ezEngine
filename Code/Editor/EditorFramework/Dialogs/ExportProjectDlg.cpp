@@ -195,6 +195,8 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
     }
   }
 
+  const ezPlatformProfile* pAssetProfile = ezAssetCurator::GetSingleton()->GetActiveAssetProfile();
+
   ezProgressRange mainProgress("Export Project", 6, true);
   mainProgress.SetStepWeighting(0, 0.05f); // Preparing output folder
   mainProgress.SetStepWeighting(1, 0.10f); // Scanning data directories
@@ -267,6 +269,7 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
     }
   }
 
+  // asset document manager generated files
   {
     ezDynamicArray<ezString> addFiles;
 
@@ -280,6 +283,8 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
 
     if (ezFileSystem::ResolveSpecialDirectory(">project", sStartPath).Succeeded())
     {
+      sStartPath.Trim("/\\");
+
       DataDirInfo& ddInfo = fileList[sStartPath];
       ezSet<ezString>& ddFileList = ddInfo.m_Files;
 
@@ -287,6 +292,23 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
       {
         ddFileList.Insert(file);
       }
+    }
+  }
+
+  // ezAidlt files
+  {
+    for (const auto& dataDir : dataDirs.m_DataDirs)
+    {
+      if (ezFileSystem::ResolveSpecialDirectory(dataDir.m_sDataDirSpecialPath, sStartPath).Failed())
+      {
+        ezQtUiServices::GetSingleton()->MessageBoxWarning(ezFmt("Failed to get special directory '{0}'", dataDir.m_sDataDirSpecialPath));
+        return;
+      }
+
+      ezStringBuilder sAidltPath("AssetCache/", pAssetProfile->GetConfigName(), ".ezAidlt");
+
+      sStartPath.Trim("/\\");
+      fileList[sStartPath].m_Files.Insert(sAidltPath);
     }
   }
 
