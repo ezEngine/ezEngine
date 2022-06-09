@@ -96,6 +96,10 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
     return;
   }
 
+  ezLogSystemScope logScope(&logFile);
+
+
+
   const auto dataDirs = ezQtEditorApp::GetSingleton()->GetFileSystemConfig();
 
   ezStringBuilder sPath, sRelPath, sStartPath;
@@ -105,17 +109,20 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
   ezPathPatternFilter dataFilter;
   ezPathPatternFilter binariesFilter;
 
-  ezQtUiServices::GetSingleton()->MessageBoxStatus(ezProjectExport::ReadExportFilters(dataFilter, binariesFilter, pAssetProfile->GetConfigName()), "Setting up export configuration failed.");
+  if (ezProjectExport::ReadExportFilters(dataFilter, binariesFilter, pAssetProfile->GetConfigName()).Failed())
+    return;
 
   ezProjectExport::GatherGeneratedAssetManagerFiles(fileList[sProjectRootDir].m_Files);
-  ezProjectExport::GatherAssetLookupTableFiles(fileList, dataDirs, pAssetProfile->GetConfigName());
+  if (ezProjectExport::GatherAssetLookupTableFiles(fileList, dataDirs, pAssetProfile->GetConfigName()).Failed())
+    return;
 
   ezDynamicArray<ezString> sceneFiles;
 
   {
     mainProgress.BeginNextStep("Scanning data directories");
 
-    ezProjectExport::ScanDataDirectories(fileList, dataDirs, ezProgress::GetGlobalProgressbar(), dataFilter);
+    if (ezProjectExport::ScanDataDirectories(fileList, dataDirs, ezProgress::GetGlobalProgressbar(), dataFilter).Failed())
+      return;
   }
 
   // Binaries
@@ -142,10 +149,7 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
     mainProgress.BeginNextStep("Writing data directory config");
 
     if (ezProjectExport::CreateDataDirectoryDDL(fileList, szDstFolder).Failed())
-    {
-      ezQtUiServices::GetSingleton()->MessageBoxWarning("Failed to write the DataDirectories.ddl file.");
       return;
-    }
   }
 
   {
@@ -165,7 +169,7 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
     {
       sTargetFolder.Set(szDstFolder, "/", itDir.Value().m_sTargetDirPath);
 
-      if (ezProjectExport::CopyFiles(itDir.Key(), sTargetFolder, itDir.Value().m_Files, ezProgress::GetGlobalProgressbar(), &range, &logFile).Failed())
+      if (ezProjectExport::CopyFiles(itDir.Key(), sTargetFolder, itDir.Value().m_Files, ezProgress::GetGlobalProgressbar(), &range).Failed())
         return;
     }
   }

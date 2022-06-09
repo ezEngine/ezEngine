@@ -36,13 +36,13 @@ struct EZ_EDITORFRAMEWORK_DLL ezProjectExport
 
   using DirectoryMapping = ezMap<ezString, DataDirectory>;
 
-  static ezStatus ClearTargetFolder(const char* szAbsFolderPath);
-  static ezStatus ScanFolder(ezSet<ezString>& out_Files, const char* szFolder, const ezPathPatternFilter& filter, ezProgress* pProgress, ezAssetCurator* pCurator);
-  static ezResult CopyFiles(const char* szSrcFolder, const char* szDstFolder, const ezSet<ezString>& files, ezProgress* pProgress, ezProgressRange* pProgressRange, ezLogInterface* pLog);
+  static ezResult ClearTargetFolder(const char* szAbsFolderPath);
+  static ezResult ScanFolder(ezSet<ezString>& out_Files, const char* szFolder, const ezPathPatternFilter& filter, ezProgress* pProgress, ezAssetCurator* pCurator);
+  static ezResult CopyFiles(const char* szSrcFolder, const char* szDstFolder, const ezSet<ezString>& files, ezProgress* pProgress, ezProgressRange* pProgressRange);
   static void GatherGeneratedAssetManagerFiles(ezSet<ezString>& out_Files);
   static ezResult CreateExportFilterFile(const char* szExpectedFile, const char* szFallbackFile);
-  static ezStatus ReadExportFilters(ezPathPatternFilter& out_DataFilter, ezPathPatternFilter& out_BinariesFilter, const char* szPlatformProfileName);
+  static ezResult ReadExportFilters(ezPathPatternFilter& out_DataFilter, ezPathPatternFilter& out_BinariesFilter, const char* szPlatformProfileName);
   static ezResult CreateDataDirectoryDDL(const DirectoryMapping& mapping, const char* szTargetDirectory);
-  static void GatherAssetLookupTableFiles(DirectoryMapping& mapping, const ezApplicationFileSystemConfig& dirConfig, const char* szPlatformProfileName);
-  static ezStatus ScanDataDirectories(DirectoryMapping& mapping, const ezApplicationFileSystemConfig& dirConfig, ezProgress* pProgress, const ezPathPatternFilter& dataFilter);
+  static ezResult GatherAssetLookupTableFiles(DirectoryMapping& mapping, const ezApplicationFileSystemConfig& dirConfig, const char* szPlatformProfileName);
+  static ezResult ScanDataDirectories(DirectoryMapping& mapping, const ezApplicationFileSystemConfig& dirConfig, ezProgress* pProgress, const ezPathPatternFilter& dataFilter);
 };

@@ -7,22 +7,24 @@
 #include <Foundation/IO/OSFile.h>
 #include <ToolsFoundation/Utilities/PathPatternFilter.h>
 
-ezStatus ezProjectExport::ClearTargetFolder(const char* szAbsFolderPath)
+ezResult ezProjectExport::ClearTargetFolder(const char* szAbsFolderPath)
 {
   if (ezOSFile::DeleteFolder(szAbsFolderPath).Failed())
   {
-    return ezStatus(ezFmt("Target folder could not be removed:\n'{}'", szAbsFolderPath));
+    ezLog::Error("Target folder could not be removed:\n'{}'", szAbsFolderPath);
+    return EZ_FAILURE;
   }
 
   if (ezOSFile::CreateDirectoryStructure(szAbsFolderPath).Failed())
   {
-    return ezStatus(ezFmt("Target folder could not be created:\n'{}'", szAbsFolderPath));
+    ezLog::Error("Target folder could not be created:\n'{}'", szAbsFolderPath);
+    return EZ_FAILURE;
   }
 
-  return ezStatus(EZ_SUCCESS);
+  return EZ_SUCCESS;
 }
 
-ezStatus ezProjectExport::ScanFolder(ezSet<ezString>& out_Files, const char* szFolder, const ezPathPatternFilter& filter, ezProgress* pProgress, ezAssetCurator* pCurator)
+ezResult ezProjectExport::ScanFolder(ezSet<ezString>& out_Files, const char* szFolder, const ezPathPatternFilter& filter, ezProgress* pProgress, ezAssetCurator* pCurator)
 {
   ezStringBuilder sRootFolder = szFolder;
   sRootFolder.Trim("/\\");
@@ -35,7 +37,10 @@ ezStatus ezProjectExport::ScanFolder(ezSet<ezString>& out_Files, const char* szF
   for (it.StartSearch(sRootFolder, ezFileSystemIteratorFlags::ReportFilesAndFoldersRecursive); it.IsValid();)
   {
     if (pProgress && pProgress->WasCanceled())
-      return ezStatus("User canceled");
+    {
+      ezLog::Warning("Folder scanning canceled by user");
+      return EZ_FAILURE;
+    }
 
     it.GetStats().GetFullPath(sAbsFilePath);
 
@@ -90,13 +95,13 @@ ezStatus ezProjectExport::ScanFolder(ezSet<ezString>& out_Files, const char* szF
     it.Next();
   }
 
-  return ezStatus(EZ_SUCCESS);
+  return EZ_SUCCESS;
 }
 
-ezResult ezProjectExport::CopyFiles(const char* szSrcFolder, const char* szDstFolder, const ezSet<ezString>& files, ezProgress* pProgress, ezProgressRange* pProgressRange, ezLogInterface* pLog)
+ezResult ezProjectExport::CopyFiles(const char* szSrcFolder, const char* szDstFolder, const ezSet<ezString>& files, ezProgress* pProgress, ezProgressRange* pProgressRange)
 {
-  ezLog::Info(pLog, "Source folder: ", szSrcFolder);
-  ezLog::Info(pLog, "Destination folder: ", szDstFolder);
+  ezLog::Info("Source folder: ", szSrcFolder);
+  ezLog::Info("Destination folder: ", szDstFolder);
 
   ezStringBuilder sSrc, sDst;
 
@@ -104,7 +109,7 @@ ezResult ezProjectExport::CopyFiles(const char* szSrcFolder, const char* szDstFo
   {
     if (pProgress && pProgress->WasCanceled())
     {
-      ezLog::Info(pLog, "File copy operation canceled by user.");
+      ezLog::Info("File copy operation canceled by user.");
       return EZ_FAILURE;
     }
 
@@ -118,11 +123,11 @@ ezResult ezProjectExport::CopyFiles(const char* szSrcFolder, const char* szDstFo
 
     if (ezOSFile::CopyFile(sSrc, sDst).Succeeded())
     {
-      ezLog::Info(pLog, " Copied: {}", itFile.Key());
+      ezLog::Info(" Copied: {}", itFile.Key());
     }
     else
     {
-      ezLog::Error(pLog, " Copy failed: {}", itFile.Key());
+      ezLog::Error(" Copy failed: {}", itFile.Key());
     }
   }
 
@@ -157,17 +162,18 @@ ezResult ezProjectExport::CreateExportFilterFile(const char* szExpectedFile, con
   ezStringBuilder src;
   src.Set("#include <", szFallbackFile, ">\n\n\n[EXCLUDE]\n\n// TODO: add exclude patterns\n\n\n[INCLUDE]\n\n//TODO: add include patterns\n\n\n");
 
-  // ezStringBuilder sTarget;
-  // sTarget.Set(">project/", szExpectedFile);
-
   ezFileWriter file;
-  EZ_SUCCEED_OR_RETURN(file.Open(szExpectedFile));
-  EZ_SUCCEED_OR_RETURN(file.WriteBytes(src.GetData(), src.GetElementCount()));
+  if (file.Open(szExpectedFile).Failed())
+  {
+    ezLog::Error("Failed to open '{}' for writing.", szExpectedFile);
+    return EZ_FAILURE;
+  }
 
+  file.WriteBytes(src.GetData(), src.GetElementCount()).AssertSuccess();
   return EZ_SUCCESS;
 }
 
-ezStatus ezProjectExport::ReadExportFilters(ezPathPatternFilter& out_DataFilter, ezPathPatternFilter& out_BinariesFilter, const char* szPlatformProfileName)
+ezResult ezProjectExport::ReadExportFilters(ezPathPatternFilter& out_DataFilter, ezPathPatternFilter& out_BinariesFilter, const char* szPlatformProfileName)
 {
   ezStringBuilder sDefine;
   sDefine.Format("PLATFORM_PROFILE_{} 1", szPlatformProfileName);
@@ -178,25 +184,29 @@ ezStatus ezProjectExport::ReadExportFilters(ezPathPatternFilter& out_DataFilter,
 
   if (ezProjectExport::CreateExportFilterFile(":project/ProjectData.ezExportFilter", "CommonData.ezExportFilter").Failed())
   {
-    return ezStatus(ezFmt("The file 'ProjectData.ezExportFilter' could not be created."));
+    ezLog::Error("The file 'ProjectData.ezExportFilter' could not be created.");
+    return EZ_FAILURE;
   }
 
   if (ezProjectExport::CreateExportFilterFile(":project/ProjectBinaries.ezExportFilter", "CommonBinaries.ezExportFilter").Failed())
   {
-    return ezStatus(ezFmt("The file 'ProjectBinaries.ezExportFilter' could not be created."));
+    ezLog::Error("The file 'ProjectBinaries.ezExportFilter' could not be created.");
+    return EZ_FAILURE;
   }
 
   if (out_DataFilter.ReadConfigFile("ProjectData.ezExportFilter", ppDefines).Failed())
   {
-    return ezStatus(ezFmt("The file 'ProjectData.ezExportFilter' could not be read."));
+    ezLog::Error("The file 'ProjectData.ezExportFilter' could not be read.");
+    return EZ_FAILURE;
   }
 
   if (out_BinariesFilter.ReadConfigFile("ProjectBinaries.ezExportFilter", ppDefines).Failed())
   {
-    return ezStatus(ezFmt("The file 'ProjectBinaries.ezExportFilter' could not be read."));
+    ezLog::Error("The file 'ProjectBinaries.ezExportFilter' could not be read.");
+    return EZ_FAILURE;
   }
 
-  return ezStatus(EZ_SUCCESS);
+  return EZ_SUCCESS;
 }
 
 ezResult ezProjectExport::CreateDataDirectoryDDL(const DirectoryMapping& mapping, const char* szTargetDirectory)
@@ -221,25 +231,38 @@ ezResult ezProjectExport::CreateDataDirectoryDDL(const DirectoryMapping& mapping
 
   sPath.Set(szTargetDirectory, "/Data/project/DataDirectories.ddl");
 
-  return cfg.Save(sPath);
+  if (cfg.Save(sPath).Failed())
+  {
+    ezLog::Error("Failed to write DataDirectories.ddl file.");
+    return EZ_FAILURE;
+  }
+
+  return EZ_SUCCESS;
 }
 
-void ezProjectExport::GatherAssetLookupTableFiles(DirectoryMapping& mapping, const ezApplicationFileSystemConfig& dirConfig, const char* szPlatformProfileName)
+ezResult ezProjectExport::GatherAssetLookupTableFiles(DirectoryMapping& mapping, const ezApplicationFileSystemConfig& dirConfig, const char* szPlatformProfileName)
 {
   ezStringBuilder sDataDirPath;
 
   for (const auto& dataDir : dirConfig.m_DataDirs)
   {
-    ezFileSystem::ResolveSpecialDirectory(dataDir.m_sDataDirSpecialPath, sDataDirPath).AssertSuccess();
+    if (ezFileSystem::ResolveSpecialDirectory(dataDir.m_sDataDirSpecialPath, sDataDirPath).Failed())
+    {
+      ezLog::Error("Failed to resolve data directory path '{}'", dataDir.m_sDataDirSpecialPath);
+      return EZ_FAILURE;
+    }
+
     sDataDirPath.Trim("/\\");
 
     ezStringBuilder sAidltPath("AssetCache/", szPlatformProfileName, ".ezAidlt");
 
     mapping[sDataDirPath].m_Files.Insert(sAidltPath);
   }
+
+  return EZ_SUCCESS;
 }
 
-ezStatus ezProjectExport::ScanDataDirectories(DirectoryMapping& mapping, const ezApplicationFileSystemConfig& dirConfig, ezProgress* pProgress, const ezPathPatternFilter& dataFilter)
+ezResult ezProjectExport::ScanDataDirectories(DirectoryMapping& mapping, const ezApplicationFileSystemConfig& dirConfig, ezProgress* pProgress, const ezPathPatternFilter& dataFilter)
 {
   ezProgressRange progress("Scanning data directories", dirConfig.m_DataDirs.GetCount(), true);
 
@@ -253,7 +276,8 @@ ezStatus ezProjectExport::ScanDataDirectories(DirectoryMapping& mapping, const e
 
     if (ezFileSystem::ResolveSpecialDirectory(dataDir.m_sDataDirSpecialPath, sDataDirPath).Failed())
     {
-      return ezStatus(ezFmt("Failed to get special directory '{0}'", dataDir.m_sDataDirSpecialPath));
+      ezLog::Error("Failed to get special directory '{0}'", dataDir.m_sDataDirSpecialPath);
+      return EZ_FAILURE;
     }
 
     sDataDirPath.Trim("/\\");
@@ -275,12 +299,10 @@ ezStatus ezProjectExport::ScanDataDirectories(DirectoryMapping& mapping, const e
       ddInfo.m_sTargetDirPath = sDstPath;
     }
 
-    const ezStatus status = ezProjectExport::ScanFolder(ddInfo.m_Files, sDataDirPath, dataFilter, pProgress, ezAssetCurator::GetSingleton());
-    if (status.Failed())
-      return status;
+    EZ_SUCCEED_OR_RETURN(ezProjectExport::ScanFolder(ddInfo.m_Files, sDataDirPath, dataFilter, pProgress, ezAssetCurator::GetSingleton()));
   }
 
-  return ezStatus(EZ_SUCCESS);
+  return EZ_SUCCESS;
 }
 
 //////////////////////////////////////////////////////////////////////////
