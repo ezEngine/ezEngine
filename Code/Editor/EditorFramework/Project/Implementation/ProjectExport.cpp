@@ -24,14 +24,14 @@ ezResult ezProjectExport::ClearTargetFolder(const char* szAbsFolderPath)
   return EZ_SUCCESS;
 }
 
-ezResult ezProjectExport::ScanFolder(ezSet<ezString>& out_Files, const char* szFolder, const ezPathPatternFilter& filter, ezAssetCurator* pCurator)
+ezResult ezProjectExport::ScanFolder(ezSet<ezString>& out_Files, const char* szFolder, const ezPathPatternFilter& filter, ezAssetCurator* pCurator, ezDynamicArray<ezString>* pSceneFiles)
 {
   ezStringBuilder sRootFolder = szFolder;
   sRootFolder.Trim("/\\");
 
   const ezUInt32 uiRootFolderLength = sRootFolder.GetElementCount();
 
-  ezStringBuilder sAbsFilePath, sRelFilePath;
+  ezStringBuilder sAbsFilePath, sRelFilePath, sScenePath;
 
   ezFileSystemIterator it;
   for (it.StartSearch(sRootFolder, ezFileSystemIteratorFlags::ReportFilesAndFoldersRecursive); it.IsValid();)
@@ -57,6 +57,12 @@ ezResult ezProjectExport::ScanFolder(ezSet<ezString>& out_Files, const char* szF
       continue;
     }
 
+    if (it.GetStats().m_bIsDirectory)
+    {
+      it.Next();
+      continue;
+    }
+
     if (pCurator)
     {
       auto asset = pCurator->FindSubAsset(sAbsFilePath);
@@ -71,12 +77,11 @@ ezResult ezProjectExport::ScanFolder(ezSet<ezString>& out_Files, const char* szF
         sRelFilePath.Prepend("AssetCache/");
         out_Files.Insert(sRelFilePath);
 
-        // TODO
-        // if (asset->m_pAssetInfo->m_pDocumentTypeDescriptor->m_sDocumentTypeName == "Scene")
-        //{
-        //  sTemp.Set(sRootFolder, "/", sRelFilePath);
-        //  sceneFiles.PushBack(sTemp);
-        //}
+        if (pSceneFiles && asset->m_pAssetInfo->m_pDocumentTypeDescriptor->m_sDocumentTypeName == "Scene")
+        {
+          sScenePath.Set(sRootFolder, "/", sRelFilePath);
+          pSceneFiles->PushBack(sScenePath);
+        }
 
         for (const ezString& outputTag : asset->m_pAssetInfo->m_Info->m_Outputs)
         {
@@ -100,8 +105,8 @@ ezResult ezProjectExport::ScanFolder(ezSet<ezString>& out_Files, const char* szF
 
 ezResult ezProjectExport::CopyFiles(const char* szSrcFolder, const char* szDstFolder, const ezSet<ezString>& files, ezProgressRange* pProgressRange)
 {
-  ezLog::Info("Source folder: ", szSrcFolder);
-  ezLog::Info("Destination folder: ", szDstFolder);
+  ezLog::Info("Source folder: {}", szSrcFolder);
+  ezLog::Info("Destination folder: {}", szDstFolder);
 
   ezStringBuilder sSrc, sDst;
 
@@ -131,6 +136,7 @@ ezResult ezProjectExport::CopyFiles(const char* szSrcFolder, const char* szDstFo
     }
   }
 
+  ezLog::Success("Finished copying files to destination '{}'", szDstFolder);
   return EZ_SUCCESS;
 }
 
@@ -262,7 +268,7 @@ ezResult ezProjectExport::GatherAssetLookupTableFiles(DirectoryMapping& mapping,
   return EZ_SUCCESS;
 }
 
-ezResult ezProjectExport::ScanDataDirectories(DirectoryMapping& mapping, const ezApplicationFileSystemConfig& dirConfig, const ezPathPatternFilter& dataFilter)
+ezResult ezProjectExport::ScanDataDirectories(DirectoryMapping& mapping, const ezApplicationFileSystemConfig& dirConfig, const ezPathPatternFilter& dataFilter, ezDynamicArray<ezString>* pSceneFiles)
 {
   ezProgressRange progress("Scanning data directories", dirConfig.m_DataDirs.GetCount(), true);
 
@@ -299,7 +305,7 @@ ezResult ezProjectExport::ScanDataDirectories(DirectoryMapping& mapping, const e
       ddInfo.m_sTargetDirPath = sDstPath;
     }
 
-    EZ_SUCCEED_OR_RETURN(ezProjectExport::ScanFolder(ddInfo.m_Files, sDataDirPath, dataFilter, ezAssetCurator::GetSingleton()));
+    EZ_SUCCEED_OR_RETURN(ezProjectExport::ScanFolder(ddInfo.m_Files, sDataDirPath, dataFilter, ezAssetCurator::GetSingleton(), pSceneFiles));
   }
 
   return EZ_SUCCESS;
@@ -325,6 +331,7 @@ ezResult ezProjectExport::CopyAllFiles(DirectoryMapping& mapping, const char* sz
       return EZ_FAILURE;
   }
 
+  ezLog::Success("Finished copying all files.");
   return EZ_SUCCESS;
 }
 
@@ -339,50 +346,8 @@ ezResult ezProjectExport::GatherBinaries(DirectoryMapping& mapping, const ezPath
   ddInfo.m_sTargetDirPath = "Bin";
   ddInfo.m_sTargetDirRootName = "-"; // don't add to data dir config
 
-  if (ezProjectExport::ScanFolder(ddInfo.m_Files, sAppDir, filter, nullptr).Failed())
+  if (ezProjectExport::ScanFolder(ddInfo.m_Files, sAppDir, filter, nullptr, nullptr).Failed())
     return EZ_FAILURE;
 
   return EZ_SUCCESS;
 }
-
-//////////////////////////////////////////////////////////////////////////
-
-ezLogSystemToFile::ezLogSystemToFile() = default;
-ezLogSystemToFile::~ezLogSystemToFile() = default;
-
-ezResult ezLogSystemToFile::Open(const char* szAbsFile)
-{
-  return m_File.Open(szAbsFile, ezFileOpenMode::Write);
-}
-
-void ezLogSystemToFile::HandleLogMessage(const ezLoggingEventData& le)
-{
-  if (!m_File.IsOpen())
-    return;
-
-  ezStringBuilder tmp;
-
-  switch (le.m_EventType)
-  {
-    case ezLogMsgType::ErrorMsg:
-      tmp.Append("Error: ", le.m_szText, "\n");
-      break;
-    case ezLogMsgType::SeriousWarningMsg:
-    case ezLogMsgType::WarningMsg:
-      tmp.Append("Warning: ", le.m_szText, "\n");
-      break;
-    case ezLogMsgType::SuccessMsg:
-    case ezLogMsgType::InfoMsg:
-    case ezLogMsgType::DevMsg:
-    case ezLogMsgType::DebugMsg:
-      tmp.Append(le.m_szText, "\n");
-      break;
-
-    default:
-      return;
-  }
-
-  m_File.Write(tmp.GetData(), tmp.GetElementCount()).AssertSuccess();
-}
-
-//////////////////////////////////////////////////////////////////////////

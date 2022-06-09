@@ -64,24 +64,30 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
   }
 
   const ezString sAssetProfile = ezAssetCurator::GetSingleton()->GetActiveAssetProfile()->GetConfigName();
-
   const ezString szDstFolder = Destination->text().toUtf8().data();
 
-  ezStringBuilder sTemp;
-  sTemp.Set(szDstFolder, "/ExportLog.txt");
+  ezLogSystemToBuffer logFile;
 
-  ezLogSystemToFile logFile;
-  if (logFile.Open(sTemp).Failed())
+  auto WriteLogFile = [&]()
   {
-    ezQtUiServices::GetSingleton()->MessageBoxWarning(ezFmt("Failed to create log file '{0}'", sTemp));
-    return;
-  }
+    ezStringBuilder sTemp;
+    sTemp.Set(szDstFolder, "/ExportLog.txt");
+
+    ezOSFile file;
+
+    if (file.Open(sTemp, ezFileOpenMode::Write).Failed())
+    {
+      ezQtUiServices::GetSingleton()->MessageBoxWarning(ezFmt("Failed to write export log '{0}'", sTemp));
+      return;
+    }
+
+    file.Write(logFile.m_sBuffer.GetData(), logFile.m_sBuffer.GetElementCount()).AssertSuccess();
+  };
+  EZ_SCOPE_EXIT(WriteLogFile());
 
   ezLogSystemScope logScope(&logFile);
 
   const auto dataDirs = ezQtEditorApp::GetSingleton()->GetFileSystemConfig();
-
-
 
 
 
@@ -93,15 +99,15 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
   mainProgress.SetStepWeighting(4, 0.01f); // Writing data directory config
   // mainProgress.SetStepWeighting(5, 0.0f); // Copying files
 
-  ezStringBuilder sProjectRootDir;
-  ezFileSystem::ResolveSpecialDirectory(">project", sProjectRootDir).AssertSuccess();
-  sProjectRootDir.Trim("/\\");
-
   {
     mainProgress.BeginNextStep("Preparing output folder");
     if (ezProjectExport::ClearTargetFolder(szDstFolder).Failed())
       return;
   }
+  ezStringBuilder sProjectRootDir;
+  ezFileSystem::ResolveSpecialDirectory(">project", sProjectRootDir).AssertSuccess();
+  sProjectRootDir.Trim("/\\");
+
 
   ezProjectExport::DirectoryMapping fileList;
 
@@ -115,12 +121,12 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
   if (ezProjectExport::GatherAssetLookupTableFiles(fileList, dataDirs, sAssetProfile).Failed())
     return;
 
-  ezDynamicArray<ezString> sceneFiles;
+  ezHybridArray<ezString, 16> sceneFiles;
 
   {
     mainProgress.BeginNextStep("Scanning data directories");
 
-    if (ezProjectExport::ScanDataDirectories(fileList, dataDirs, dataFilter).Failed())
+    if (ezProjectExport::ScanDataDirectories(fileList, dataDirs, dataFilter, &sceneFiles).Failed())
       return;
   }
 
