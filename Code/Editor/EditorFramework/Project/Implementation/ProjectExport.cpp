@@ -24,7 +24,7 @@ ezResult ezProjectExport::ClearTargetFolder(const char* szAbsFolderPath)
   return EZ_SUCCESS;
 }
 
-ezResult ezProjectExport::ScanFolder(ezSet<ezString>& out_Files, const char* szFolder, const ezPathPatternFilter& filter, ezProgress* pProgress, ezAssetCurator* pCurator)
+ezResult ezProjectExport::ScanFolder(ezSet<ezString>& out_Files, const char* szFolder, const ezPathPatternFilter& filter, ezAssetCurator* pCurator)
 {
   ezStringBuilder sRootFolder = szFolder;
   sRootFolder.Trim("/\\");
@@ -36,7 +36,7 @@ ezResult ezProjectExport::ScanFolder(ezSet<ezString>& out_Files, const char* szF
   ezFileSystemIterator it;
   for (it.StartSearch(sRootFolder, ezFileSystemIteratorFlags::ReportFilesAndFoldersRecursive); it.IsValid();)
   {
-    if (pProgress && pProgress->WasCanceled())
+    if (ezProgress::GetGlobalProgressbar()->WasCanceled())
     {
       ezLog::Warning("Folder scanning canceled by user");
       return EZ_FAILURE;
@@ -98,7 +98,7 @@ ezResult ezProjectExport::ScanFolder(ezSet<ezString>& out_Files, const char* szF
   return EZ_SUCCESS;
 }
 
-ezResult ezProjectExport::CopyFiles(const char* szSrcFolder, const char* szDstFolder, const ezSet<ezString>& files, ezProgress* pProgress, ezProgressRange* pProgressRange)
+ezResult ezProjectExport::CopyFiles(const char* szSrcFolder, const char* szDstFolder, const ezSet<ezString>& files, ezProgressRange* pProgressRange)
 {
   ezLog::Info("Source folder: ", szSrcFolder);
   ezLog::Info("Destination folder: ", szDstFolder);
@@ -107,7 +107,7 @@ ezResult ezProjectExport::CopyFiles(const char* szSrcFolder, const char* szDstFo
 
   for (auto itFile = files.GetIterator(); itFile.IsValid(); ++itFile)
   {
-    if (pProgress && pProgress->WasCanceled())
+    if (ezProgress::GetGlobalProgressbar()->WasCanceled())
     {
       ezLog::Info("File copy operation canceled by user.");
       return EZ_FAILURE;
@@ -262,7 +262,7 @@ ezResult ezProjectExport::GatherAssetLookupTableFiles(DirectoryMapping& mapping,
   return EZ_SUCCESS;
 }
 
-ezResult ezProjectExport::ScanDataDirectories(DirectoryMapping& mapping, const ezApplicationFileSystemConfig& dirConfig, ezProgress* pProgress, const ezPathPatternFilter& dataFilter)
+ezResult ezProjectExport::ScanDataDirectories(DirectoryMapping& mapping, const ezApplicationFileSystemConfig& dirConfig, const ezPathPatternFilter& dataFilter)
 {
   ezProgressRange progress("Scanning data directories", dirConfig.m_DataDirs.GetCount(), true);
 
@@ -299,7 +299,30 @@ ezResult ezProjectExport::ScanDataDirectories(DirectoryMapping& mapping, const e
       ddInfo.m_sTargetDirPath = sDstPath;
     }
 
-    EZ_SUCCEED_OR_RETURN(ezProjectExport::ScanFolder(ddInfo.m_Files, sDataDirPath, dataFilter, pProgress, ezAssetCurator::GetSingleton()));
+    EZ_SUCCEED_OR_RETURN(ezProjectExport::ScanFolder(ddInfo.m_Files, sDataDirPath, dataFilter, ezAssetCurator::GetSingleton()));
+  }
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezProjectExport::CopyAllFiles(DirectoryMapping& mapping, const char* szTargetDirectory)
+{
+  ezUInt32 uiTotalFiles = 0;
+  for (auto itDir = mapping.GetIterator(); itDir.IsValid(); ++itDir)
+    uiTotalFiles += itDir.Value().m_Files.GetCount();
+
+  ezProgressRange range("Copying files", uiTotalFiles, true);
+
+  ezLog::Info("Copying files to target directory '{}'", szTargetDirectory);
+
+  ezStringBuilder sTargetFolder;
+
+  for (auto itDir = mapping.GetIterator(); itDir.IsValid(); ++itDir)
+  {
+    sTargetFolder.Set(szTargetDirectory, "/", itDir.Value().m_sTargetDirPath);
+
+    if (ezProjectExport::CopyFiles(itDir.Key(), sTargetFolder, itDir.Value().m_Files, &range).Failed())
+      return EZ_FAILURE;
   }
 
   return EZ_SUCCESS;

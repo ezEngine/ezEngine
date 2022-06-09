@@ -102,9 +102,7 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
 
   const auto dataDirs = ezQtEditorApp::GetSingleton()->GetFileSystemConfig();
 
-  ezStringBuilder sPath, sRelPath, sStartPath;
-
-  ezMap<ezString, ezProjectExport::DataDirectory> fileList;
+  ezProjectExport::DirectoryMapping fileList;
 
   ezPathPatternFilter dataFilter;
   ezPathPatternFilter binariesFilter;
@@ -121,7 +119,7 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
   {
     mainProgress.BeginNextStep("Scanning data directories");
 
-    if (ezProjectExport::ScanDataDirectories(fileList, dataDirs, ezProgress::GetGlobalProgressbar(), dataFilter).Failed())
+    if (ezProjectExport::ScanDataDirectories(fileList, dataDirs, dataFilter).Failed())
       return;
   }
 
@@ -140,38 +138,22 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
     ddInfo.m_sTargetDirPath = "Bin";
     ddInfo.m_sTargetDirRootName = "-"; // don't add to data dir config
 
-    if (ezProjectExport::ScanFolder(ddInfo.m_Files, sAppDir, binariesFilter, ezProgress::GetGlobalProgressbar(), nullptr).Failed())
-      return;
-  }
-
-  // write data dir config file
-  {
-    mainProgress.BeginNextStep("Writing data directory config");
-
-    if (ezProjectExport::CreateDataDirectoryDDL(fileList, szDstFolder).Failed())
+    if (ezProjectExport::ScanFolder(ddInfo.m_Files, sAppDir, binariesFilter, nullptr).Failed())
       return;
   }
 
   {
     mainProgress.BeginNextStep("Copying files");
 
-    ezUInt32 uiTotalFiles = 0;
-    for (auto itDir = fileList.GetIterator(); itDir.IsValid(); ++itDir)
-      uiTotalFiles += itDir.Value().m_Files.GetCount();
+    if (ezProjectExport::CopyAllFiles(fileList, szDstFolder).Failed())
+      return;
+  }
 
-    ezProgressRange range("Copying files", uiTotalFiles, true);
+  {
+    mainProgress.BeginNextStep("Writing data directory config");
 
-    ezLog::Info(&logFile, "Output folder: {}", szDstFolder);
-
-    ezStringBuilder sTargetFolder;
-
-    for (auto itDir = fileList.GetIterator(); itDir.IsValid(); ++itDir)
-    {
-      sTargetFolder.Set(szDstFolder, "/", itDir.Value().m_sTargetDirPath);
-
-      if (ezProjectExport::CopyFiles(itDir.Key(), sTargetFolder, itDir.Value().m_Files, ezProgress::GetGlobalProgressbar(), &range).Failed())
-        return;
-    }
+    if (ezProjectExport::CreateDataDirectoryDDL(fileList, szDstFolder).Failed())
+      return;
   }
 
   // write .bat files
