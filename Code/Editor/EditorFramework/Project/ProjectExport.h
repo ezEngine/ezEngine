@@ -31,4 +31,5 @@ struct EZ_EDITORFRAMEWORK_DLL ezProjectExport
   static ezResult ScanFolder(ezSet<ezString>& out_Files, const char* szFolder, const ezPathPatternFilter& filter, ezProgress* pProgress, ezAssetCurator* pCurator);
   static ezResult CopyFiles(const char* szSrcFolder, const char* szDstFolder, const ezSet<ezString>& files, ezProgress* pProgress, ezProgressRange* pProgressRange, ezLogInterface* pLog);
   static void GatherGeneratedAssetManagerFiles(ezSet<ezString>& out_Files);
+  static ezResult CreateExportFilterFile(const char* szExpectedFile, const char* szFallbackFile);
 };

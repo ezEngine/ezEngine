@@ -2,6 +2,7 @@
 #include <EditorFramework/Project/ProjectExport.h>
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
+#include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/IO/OSFile.h>
 #include <ToolsFoundation/Utilities/PathPatternFilter.h>
 
@@ -145,6 +146,24 @@ void ezProjectExport::GatherGeneratedAssetManagerFiles(ezSet<ezString>& out_File
       addFiles.Clear();
     }
   }
+}
+
+ezResult ezProjectExport::CreateExportFilterFile(const char* szExpectedFile, const char* szFallbackFile)
+{
+  if (ezFileSystem::ExistsFile(szExpectedFile))
+    return EZ_SUCCESS;
+
+  ezStringBuilder src;
+  src.Set("#include <", szFallbackFile, ">\n\n\n[EXCLUDE]\n\n// TODO: add exclude patterns\n\n\n[INCLUDE]\n\n//TODO: add include patterns\n\n\n");
+
+  //ezStringBuilder sTarget;
+  //sTarget.Set(">project/", szExpectedFile);
+
+  ezFileWriter file;
+  EZ_SUCCEED_OR_RETURN(file.Open(szExpectedFile));
+  EZ_SUCCEED_OR_RETURN(file.WriteBytes(src.GetData(), src.GetElementCount()));
+
+  return EZ_SUCCESS;
 }
 
 //////////////////////////////////////////////////////////////////////////

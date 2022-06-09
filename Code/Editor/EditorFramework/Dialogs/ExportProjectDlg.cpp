@@ -118,28 +118,18 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
   ezHybridArray<ezString, 1> ppDefines;
   ppDefines.PushBack(sTemp);
 
-  if (dataFilter.ReadConfigFile("ProjectData.ezExportFilter", ppDefines).Failed())
+  if (ezProjectExport::CreateExportFilterFile(":project/ProjectData.ezExportFilter", "CommonData.ezExportFilter").Failed() ||
+      ezProjectExport::CreateExportFilterFile(":project/ProjectBinaries.ezExportFilter", "CommonBinaries.ezExportFilter").Failed())
   {
-    ezQtUiServices::GetSingleton()->MessageBoxInformation(ezFmt("The config file 'ProjectData.ezExportFilter' does not exist or is invalid.\n\nUsing 'CommonData.ezExportFilter' instead."));
-
-    if (dataFilter.ReadConfigFile("CommonData.ezExportFilter", ppDefines).Failed())
-    {
-      ezQtUiServices::GetSingleton()->MessageBoxWarning(ezFmt("The config file 'CommonData.ezExportFilter' does not exist or is invalid.\n\nCanceling operation.."));
-
-      return;
-    }
+    ezQtUiServices::GetSingleton()->MessageBoxWarning(ezFmt("The config files 'ProjectData.ezExportFilter' and 'ProjectBinaries.ezExportFilter' could not be created."));
+    return;
   }
 
-  if (binariesFilter.ReadConfigFile("ProjectBinaries.ezExportFilter", ppDefines).Failed())
+  if (dataFilter.ReadConfigFile("ProjectData.ezExportFilter", ppDefines).Failed() ||
+      binariesFilter.ReadConfigFile("ProjectBinaries.ezExportFilter", ppDefines).Failed())
   {
-    ezQtUiServices::GetSingleton()->MessageBoxInformation(ezFmt("The config file 'ProjectBinaries.ProjectBinaries' does not exist or is invalid.\n\nUsing 'CommonBinaries.ezExportFilter' instead."));
-
-    if (binariesFilter.ReadConfigFile("CommonBinaries.ezExportFilter", ppDefines).Failed())
-    {
-      ezQtUiServices::GetSingleton()->MessageBoxWarning(ezFmt("The config file 'CommonBinaries.ezExportFilter' does not exist or is invalid.\n\nCanceling operation.."));
-
-      return;
-    }
+    ezQtUiServices::GetSingleton()->MessageBoxWarning(ezFmt("The config files 'ProjectData.ezExportFilter' and 'ProjectBinaries.ezExportFilter' could not be read."));
+    return;
   }
 
   ezProjectExport::GatherGeneratedAssetManagerFiles(fileList[sProjectRootDir].m_Files);
