@@ -47,10 +47,9 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
 {
   // TODO:
   // filter out unused runtime/game plugins
-  // output log to UI
-  // asset profile
+  // select asset profile for export
   // copy inputs into resource: RML files
-  // code cleanup
+  // include all generated files (physics meshes)
 
   if (TransformAll->isChecked())
   {
@@ -63,7 +62,6 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
     }
   }
 
-  const ezString sAssetProfile = ezAssetCurator::GetSingleton()->GetActiveAssetProfile()->GetConfigName();
   const ezString szDstFolder = Destination->text().toUtf8().data();
 
   ezLogSystemToBuffer logFile;
@@ -72,6 +70,8 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
   {
     ezStringBuilder sTemp;
     sTemp.Set(szDstFolder, "/ExportLog.txt");
+
+    ExportLog->setPlainText(logFile.m_sBuffer.GetData());
 
     ezOSFile file;
 
@@ -83,89 +83,17 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
 
     file.Write(logFile.m_sBuffer.GetData(), logFile.m_sBuffer.GetElementCount()).AssertSuccess();
   };
-  EZ_SCOPE_EXIT(WriteLogFile());
 
   ezLogSystemScope logScope(&logFile);
+  EZ_SCOPE_EXIT(WriteLogFile());
 
-  const auto dataDirs = ezQtEditorApp::GetSingleton()->GetFileSystemConfig();
-
-
-
-  ezProgressRange mainProgress("Export Project", 6, true);
-  mainProgress.SetStepWeighting(0, 0.05f); // Preparing output folder
-  mainProgress.SetStepWeighting(1, 0.10f); // Scanning data directories
-  mainProgress.SetStepWeighting(2, 0.10f); // Filtering files
-  mainProgress.SetStepWeighting(3, 0.05f); // Gathering binaries
-  mainProgress.SetStepWeighting(4, 0.01f); // Writing data directory config
-  // mainProgress.SetStepWeighting(5, 0.0f); // Copying files
-
+  if (ezProjectExport::ExportProject(szDstFolder, ezAssetCurator::GetSingleton()->GetActiveAssetProfile(), ezQtEditorApp::GetSingleton()->GetFileSystemConfig()).Failed())
   {
-    mainProgress.BeginNextStep("Preparing output folder");
-    if (ezProjectExport::ClearTargetFolder(szDstFolder).Failed())
-      return;
+    ezQtUiServices::GetSingleton()->MessageBoxWarning("Project export failed. See log for details.");
   }
-  ezStringBuilder sProjectRootDir;
-  ezFileSystem::ResolveSpecialDirectory(">project", sProjectRootDir).AssertSuccess();
-  sProjectRootDir.Trim("/\\");
-
-
-  ezProjectExport::DirectoryMapping fileList;
-
-  ezPathPatternFilter dataFilter;
-  ezPathPatternFilter binariesFilter;
-
-  if (ezProjectExport::ReadExportFilters(dataFilter, binariesFilter, sAssetProfile).Failed())
-    return;
-
-  ezProjectExport::GatherGeneratedAssetManagerFiles(fileList[sProjectRootDir].m_Files);
-  if (ezProjectExport::GatherAssetLookupTableFiles(fileList, dataDirs, sAssetProfile).Failed())
-    return;
-
-  ezHybridArray<ezString, 16> sceneFiles;
-
+  else
   {
-    mainProgress.BeginNextStep("Scanning data directories");
-
-    if (ezProjectExport::ScanDataDirectories(fileList, dataDirs, dataFilter, &sceneFiles).Failed())
-      return;
+    ezQtUiServices::GetSingleton()->MessageBoxInformation("Project export successful.");
+    ezQtUiServices::GetSingleton()->OpenInExplorer(szDstFolder, false);
   }
-
-  {
-    mainProgress.BeginNextStep("Gathering binaries");
-
-    if (ezProjectExport::GatherBinaries(fileList, binariesFilter).Failed())
-      return;
-  }
-
-  {
-    mainProgress.BeginNextStep("Copying files");
-
-    if (ezProjectExport::CopyAllFiles(fileList, szDstFolder).Failed())
-      return;
-  }
-
-  {
-    mainProgress.BeginNextStep("Writing data directory config");
-
-    if (ezProjectExport::CreateDataDirectoryDDL(fileList, szDstFolder).Failed())
-      return;
-  }
-
-  // write .bat files
-  for (const auto& sf : sceneFiles)
-  {
-    ezStringBuilder cmd;
-    cmd.Format("start Bin/Player.exe -scene \"{}", sf);
-
-    ezStringBuilder bat;
-    bat.Format("{}/Launch {}.bat", szDstFolder, ezPathUtils::GetFileName(sf));
-
-    ezOSFile file;
-    if (file.Open(bat, ezFileOpenMode::Write).Succeeded())
-    {
-      file.Write(cmd.GetData(), cmd.GetElementCount()).AssertSuccess();
-    }
-  }
-
-  accept();
 }

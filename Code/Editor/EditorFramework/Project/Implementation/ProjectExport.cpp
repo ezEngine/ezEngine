@@ -1,3 +1,4 @@
+#include <Core/Configuration/PlatformProfile.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Project/ProjectExport.h>
 #include <Foundation/Application/Config/FileSystemConfig.h>
@@ -24,7 +25,7 @@ ezResult ezProjectExport::ClearTargetFolder(const char* szAbsFolderPath)
   return EZ_SUCCESS;
 }
 
-ezResult ezProjectExport::ScanFolder(ezSet<ezString>& out_Files, const char* szFolder, const ezPathPatternFilter& filter, ezAssetCurator* pCurator, ezDynamicArray<ezString>* pSceneFiles)
+ezResult ezProjectExport::ScanFolder(ezSet<ezString>& out_Files, const char* szFolder, const ezPathPatternFilter& filter, ezAssetCurator* pCurator, ezDynamicArray<ezString>* pSceneFiles, const ezPlatformProfile* pPlatformProfile)
 {
   ezStringBuilder sRootFolder = szFolder;
   sRootFolder.Trim("/\\");
@@ -72,7 +73,7 @@ ezResult ezProjectExport::ScanFolder(ezSet<ezString>& out_Files, const char* szF
         // redirect to asset output
         ezAssetDocumentManager* pAssetMan = ezStaticCast<ezAssetDocumentManager*>(asset->m_pAssetInfo->m_pDocumentTypeDescriptor->m_pManager);
 
-        sRelFilePath = pAssetMan->GetRelativeOutputFileName(asset->m_pAssetInfo->m_pDocumentTypeDescriptor, sRootFolder, asset->m_pAssetInfo->m_sAbsolutePath, nullptr);
+        sRelFilePath = pAssetMan->GetRelativeOutputFileName(asset->m_pAssetInfo->m_pDocumentTypeDescriptor, sRootFolder, asset->m_pAssetInfo->m_sAbsolutePath, nullptr, pPlatformProfile);
 
         sRelFilePath.Prepend("AssetCache/");
         out_Files.Insert(sRelFilePath);
@@ -85,7 +86,7 @@ ezResult ezProjectExport::ScanFolder(ezSet<ezString>& out_Files, const char* szF
 
         for (const ezString& outputTag : asset->m_pAssetInfo->m_Info->m_Outputs)
         {
-          sRelFilePath = pAssetMan->GetRelativeOutputFileName(asset->m_pAssetInfo->m_pDocumentTypeDescriptor, sRootFolder, asset->m_pAssetInfo->m_sAbsolutePath, outputTag);
+          sRelFilePath = pAssetMan->GetRelativeOutputFileName(asset->m_pAssetInfo->m_pDocumentTypeDescriptor, sRootFolder, asset->m_pAssetInfo->m_sAbsolutePath, outputTag, pPlatformProfile);
 
           sRelFilePath.Prepend("AssetCache/");
           out_Files.Insert(sRelFilePath);
@@ -140,7 +141,7 @@ ezResult ezProjectExport::CopyFiles(const char* szSrcFolder, const char* szDstFo
   return EZ_SUCCESS;
 }
 
-void ezProjectExport::GatherGeneratedAssetManagerFiles(ezSet<ezString>& out_Files)
+ezResult ezProjectExport::GatherGeneratedAssetManagerFiles(ezSet<ezString>& out_Files)
 {
   ezHybridArray<ezString, 4> addFiles;
 
@@ -158,6 +159,8 @@ void ezProjectExport::GatherGeneratedAssetManagerFiles(ezSet<ezString>& out_File
       addFiles.Clear();
     }
   }
+
+  return EZ_SUCCESS;
 }
 
 ezResult ezProjectExport::CreateExportFilterFile(const char* szExpectedFile, const char* szFallbackFile)
@@ -179,10 +182,10 @@ ezResult ezProjectExport::CreateExportFilterFile(const char* szExpectedFile, con
   return EZ_SUCCESS;
 }
 
-ezResult ezProjectExport::ReadExportFilters(ezPathPatternFilter& out_DataFilter, ezPathPatternFilter& out_BinariesFilter, const char* szPlatformProfileName)
+ezResult ezProjectExport::ReadExportFilters(ezPathPatternFilter& out_DataFilter, ezPathPatternFilter& out_BinariesFilter, const ezPlatformProfile* pPlatformProfile)
 {
   ezStringBuilder sDefine;
-  sDefine.Format("PLATFORM_PROFILE_{} 1", szPlatformProfileName);
+  sDefine.Format("PLATFORM_PROFILE_{} 1", pPlatformProfile->GetConfigName());
   sDefine.ToUpper();
 
   ezHybridArray<ezString, 1> ppDefines;
@@ -246,7 +249,7 @@ ezResult ezProjectExport::CreateDataDirectoryDDL(const DirectoryMapping& mapping
   return EZ_SUCCESS;
 }
 
-ezResult ezProjectExport::GatherAssetLookupTableFiles(DirectoryMapping& mapping, const ezApplicationFileSystemConfig& dirConfig, const char* szPlatformProfileName)
+ezResult ezProjectExport::GatherAssetLookupTableFiles(DirectoryMapping& mapping, const ezApplicationFileSystemConfig& dirConfig, const ezPlatformProfile* pPlatformProfile)
 {
   ezStringBuilder sDataDirPath;
 
@@ -260,7 +263,7 @@ ezResult ezProjectExport::GatherAssetLookupTableFiles(DirectoryMapping& mapping,
 
     sDataDirPath.Trim("/\\");
 
-    ezStringBuilder sAidltPath("AssetCache/", szPlatformProfileName, ".ezAidlt");
+    ezStringBuilder sAidltPath("AssetCache/", pPlatformProfile->GetConfigName(), ".ezAidlt");
 
     mapping[sDataDirPath].m_Files.Insert(sAidltPath);
   }
@@ -268,7 +271,7 @@ ezResult ezProjectExport::GatherAssetLookupTableFiles(DirectoryMapping& mapping,
   return EZ_SUCCESS;
 }
 
-ezResult ezProjectExport::ScanDataDirectories(DirectoryMapping& mapping, const ezApplicationFileSystemConfig& dirConfig, const ezPathPatternFilter& dataFilter, ezDynamicArray<ezString>* pSceneFiles)
+ezResult ezProjectExport::ScanDataDirectories(DirectoryMapping& mapping, const ezApplicationFileSystemConfig& dirConfig, const ezPathPatternFilter& dataFilter, ezDynamicArray<ezString>* pSceneFiles, const ezPlatformProfile* pPlatformProfile)
 {
   ezProgressRange progress("Scanning data directories", dirConfig.m_DataDirs.GetCount(), true);
 
@@ -305,7 +308,7 @@ ezResult ezProjectExport::ScanDataDirectories(DirectoryMapping& mapping, const e
       ddInfo.m_sTargetDirPath = sDstPath;
     }
 
-    EZ_SUCCEED_OR_RETURN(ezProjectExport::ScanFolder(ddInfo.m_Files, sDataDirPath, dataFilter, ezAssetCurator::GetSingleton(), pSceneFiles));
+    EZ_SUCCEED_OR_RETURN(ezProjectExport::ScanFolder(ddInfo.m_Files, sDataDirPath, dataFilter, ezAssetCurator::GetSingleton(), pSceneFiles, pPlatformProfile));
   }
 
   return EZ_SUCCESS;
@@ -346,8 +349,103 @@ ezResult ezProjectExport::GatherBinaries(DirectoryMapping& mapping, const ezPath
   ddInfo.m_sTargetDirPath = "Bin";
   ddInfo.m_sTargetDirRootName = "-"; // don't add to data dir config
 
-  if (ezProjectExport::ScanFolder(ddInfo.m_Files, sAppDir, filter, nullptr, nullptr).Failed())
+  if (ezProjectExport::ScanFolder(ddInfo.m_Files, sAppDir, filter, nullptr, nullptr, nullptr).Failed())
     return EZ_FAILURE;
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezProjectExport::CreateLaunchConfig(const ezDynamicArray<ezString>& sceneFiles, const char* szTargetDirectory)
+{
+  for (const auto& sf : sceneFiles)
+  {
+    ezStringBuilder cmd;
+    cmd.Format("start Bin/Player.exe -scene \"{}", sf);
+
+    ezStringBuilder bat;
+    bat.Format("{}/Launch {}.bat", szTargetDirectory, ezPathUtils::GetFileName(sf));
+
+    ezOSFile file;
+    if (file.Open(bat, ezFileOpenMode::Write).Failed())
+    {
+      ezLog::Error("Couldn't create '{}'", bat);
+      return EZ_FAILURE;
+    }
+
+    file.Write(cmd.GetData(), cmd.GetElementCount()).AssertSuccess();
+  }
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezProjectExport::ExportProject(const char* szTargetDirectory, const ezPlatformProfile* pPlatformProfile, const ezApplicationFileSystemConfig& dataDirs)
+{
+  ezProgressRange mainProgress("Export Project", 8, true);
+  mainProgress.SetStepWeighting(0, 0.05f); // Preparing output folder
+  mainProgress.SetStepWeighting(1, 0.05f); // Generating special files
+  mainProgress.SetStepWeighting(2, 0.10f); // Scanning data directories
+  mainProgress.SetStepWeighting(3, 0.05f); // Gathering binaries
+  mainProgress.SetStepWeighting(4, 1.0f);  // Copying files
+  mainProgress.SetStepWeighting(5, 0.01f); // Writing data directory config
+  mainProgress.SetStepWeighting(6, 0.01f); // Finish up
+
+  ezStringBuilder sProjectRootDir;
+  ezHybridArray<ezString, 16> sceneFiles;
+  ezProjectExport::DirectoryMapping fileList;
+
+  ezPathPatternFilter dataFilter;
+  ezPathPatternFilter binariesFilter;
+
+  // 0
+  {
+    mainProgress.BeginNextStep("Preparing output folder");
+    EZ_SUCCEED_OR_RETURN(ezProjectExport::ClearTargetFolder(szTargetDirectory));
+  }
+
+  // 0
+  {
+    ezFileSystem::ResolveSpecialDirectory(">project", sProjectRootDir).AssertSuccess();
+    sProjectRootDir.Trim("/\\");
+
+    EZ_SUCCEED_OR_RETURN(ezProjectExport::ReadExportFilters(dataFilter, binariesFilter, pPlatformProfile));
+    EZ_SUCCEED_OR_RETURN(ezProjectExport::GatherAssetLookupTableFiles(fileList, dataDirs, pPlatformProfile));
+  }
+
+  // 1
+  {
+    mainProgress.BeginNextStep("Generating special files");
+    EZ_SUCCEED_OR_RETURN(ezProjectExport::GatherGeneratedAssetManagerFiles(fileList[sProjectRootDir].m_Files));
+  }
+
+  // 2
+  {
+    mainProgress.BeginNextStep("Scanning data directories");
+    EZ_SUCCEED_OR_RETURN(ezProjectExport::ScanDataDirectories(fileList, dataDirs, dataFilter, &sceneFiles, pPlatformProfile));
+  }
+
+  // 3
+  {
+    mainProgress.BeginNextStep("Gathering binaries");
+    EZ_SUCCEED_OR_RETURN(ezProjectExport::GatherBinaries(fileList, binariesFilter));
+  }
+
+  // 4
+  {
+    mainProgress.BeginNextStep("Copying files");
+    EZ_SUCCEED_OR_RETURN(ezProjectExport::CopyAllFiles(fileList, szTargetDirectory));
+  }
+
+  // 5
+  {
+    mainProgress.BeginNextStep("Writing data directory config");
+    EZ_SUCCEED_OR_RETURN(ezProjectExport::CreateDataDirectoryDDL(fileList, szTargetDirectory));
+  }
+
+  // 6
+  {
+    mainProgress.BeginNextStep("Finishing up");
+    EZ_SUCCEED_OR_RETURN(ezProjectExport::CreateLaunchConfig(sceneFiles, szTargetDirectory));
+  }
 
   return EZ_SUCCESS;
 }
