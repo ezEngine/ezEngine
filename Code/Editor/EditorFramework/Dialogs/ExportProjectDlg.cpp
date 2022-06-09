@@ -112,25 +112,7 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
   ezPathPatternFilter dataFilter;
   ezPathPatternFilter binariesFilter;
 
-  sTemp.Format("PLATFORM_PROFILE_{} 1", pAssetProfile->GetConfigName());
-  sTemp.ToUpper();
-
-  ezHybridArray<ezString, 1> ppDefines;
-  ppDefines.PushBack(sTemp);
-
-  if (ezProjectExport::CreateExportFilterFile(":project/ProjectData.ezExportFilter", "CommonData.ezExportFilter").Failed() ||
-      ezProjectExport::CreateExportFilterFile(":project/ProjectBinaries.ezExportFilter", "CommonBinaries.ezExportFilter").Failed())
-  {
-    ezQtUiServices::GetSingleton()->MessageBoxWarning(ezFmt("The config files 'ProjectData.ezExportFilter' and 'ProjectBinaries.ezExportFilter' could not be created."));
-    return;
-  }
-
-  if (dataFilter.ReadConfigFile("ProjectData.ezExportFilter", ppDefines).Failed() ||
-      binariesFilter.ReadConfigFile("ProjectBinaries.ezExportFilter", ppDefines).Failed())
-  {
-    ezQtUiServices::GetSingleton()->MessageBoxWarning(ezFmt("The config files 'ProjectData.ezExportFilter' and 'ProjectBinaries.ezExportFilter' could not be read."));
-    return;
-  }
+  ezQtUiServices::GetSingleton()->MessageBoxStatus(ezProjectExport::ReadExportFilters(dataFilter, binariesFilter, pAssetProfile->GetConfigName()), "Setting up export configuration failed.");
 
   ezProjectExport::GatherGeneratedAssetManagerFiles(fileList[sProjectRootDir].m_Files);
 

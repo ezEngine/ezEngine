@@ -156,14 +156,46 @@ ezResult ezProjectExport::CreateExportFilterFile(const char* szExpectedFile, con
   ezStringBuilder src;
   src.Set("#include <", szFallbackFile, ">\n\n\n[EXCLUDE]\n\n// TODO: add exclude patterns\n\n\n[INCLUDE]\n\n//TODO: add include patterns\n\n\n");
 
-  //ezStringBuilder sTarget;
-  //sTarget.Set(">project/", szExpectedFile);
+  // ezStringBuilder sTarget;
+  // sTarget.Set(">project/", szExpectedFile);
 
   ezFileWriter file;
   EZ_SUCCEED_OR_RETURN(file.Open(szExpectedFile));
   EZ_SUCCEED_OR_RETURN(file.WriteBytes(src.GetData(), src.GetElementCount()));
 
   return EZ_SUCCESS;
+}
+
+ezStatus ezProjectExport::ReadExportFilters(ezPathPatternFilter& out_DataFilter, ezPathPatternFilter& out_BinariesFilter, const char* szPlatformProfileName)
+{
+  ezStringBuilder sDefine;
+  sDefine.Format("PLATFORM_PROFILE_{} 1", szPlatformProfileName);
+  sDefine.ToUpper();
+
+  ezHybridArray<ezString, 1> ppDefines;
+  ppDefines.PushBack(sDefine);
+
+  if (ezProjectExport::CreateExportFilterFile(":project/ProjectData.ezExportFilter", "CommonData.ezExportFilter").Failed())
+  {
+    return ezStatus(ezFmt("The file 'ProjectData.ezExportFilter' could not be created."));
+  }
+
+  if (ezProjectExport::CreateExportFilterFile(":project/ProjectBinaries.ezExportFilter", "CommonBinaries.ezExportFilter").Failed())
+  {
+    return ezStatus(ezFmt("The file 'ProjectBinaries.ezExportFilter' could not be created."));
+  }
+
+  if (out_DataFilter.ReadConfigFile("ProjectData.ezExportFilter", ppDefines).Failed())
+  {
+    return ezStatus(ezFmt("The file 'ProjectData.ezExportFilter' could not be read."));
+  }
+
+  if (out_BinariesFilter.ReadConfigFile("ProjectBinaries.ezExportFilter", ppDefines).Failed())
+  {
+    return ezStatus(ezFmt("The file 'ProjectBinaries.ezExportFilter' could not be read."));
+  }
+
+  return ezStatus(EZ_SUCCESS);
 }
 
 //////////////////////////////////////////////////////////////////////////
