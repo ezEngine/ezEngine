@@ -22,7 +22,7 @@ ezStatus ezProjectExport::ClearTargetFolder(const char* szAbsFolderPath)
   return ezStatus(EZ_SUCCESS);
 }
 
-ezResult ezProjectExport::ScanFolder(ezSet<ezString>& out_Files, const char* szFolder, const ezPathPatternFilter& filter, ezProgress* pProgress, ezAssetCurator* pCurator)
+ezStatus ezProjectExport::ScanFolder(ezSet<ezString>& out_Files, const char* szFolder, const ezPathPatternFilter& filter, ezProgress* pProgress, ezAssetCurator* pCurator)
 {
   ezStringBuilder sRootFolder = szFolder;
   sRootFolder.Trim("/\\");
@@ -35,7 +35,7 @@ ezResult ezProjectExport::ScanFolder(ezSet<ezString>& out_Files, const char* szF
   for (it.StartSearch(sRootFolder, ezFileSystemIteratorFlags::ReportFilesAndFoldersRecursive); it.IsValid();)
   {
     if (pProgress && pProgress->WasCanceled())
-      return EZ_FAILURE;
+      return ezStatus("User canceled");
 
     it.GetStats().GetFullPath(sAbsFilePath);
 
@@ -90,7 +90,7 @@ ezResult ezProjectExport::ScanFolder(ezSet<ezString>& out_Files, const char* szF
     it.Next();
   }
 
-  return EZ_SUCCESS;
+  return ezStatus(EZ_SUCCESS);
 }
 
 ezResult ezProjectExport::CopyFiles(const char* szSrcFolder, const char* szDstFolder, const ezSet<ezString>& files, ezProgress* pProgress, ezProgressRange* pProgressRange, ezLogInterface* pLog)
@@ -222,6 +222,65 @@ ezResult ezProjectExport::CreateDataDirectoryDDL(const DirectoryMapping& mapping
   sPath.Set(szTargetDirectory, "/Data/project/DataDirectories.ddl");
 
   return cfg.Save(sPath);
+}
+
+void ezProjectExport::GatherAssetLookupTableFiles(DirectoryMapping& mapping, const ezApplicationFileSystemConfig& dirConfig, const char* szPlatformProfileName)
+{
+  ezStringBuilder sDataDirPath;
+
+  for (const auto& dataDir : dirConfig.m_DataDirs)
+  {
+    ezFileSystem::ResolveSpecialDirectory(dataDir.m_sDataDirSpecialPath, sDataDirPath).AssertSuccess();
+    sDataDirPath.Trim("/\\");
+
+    ezStringBuilder sAidltPath("AssetCache/", szPlatformProfileName, ".ezAidlt");
+
+    mapping[sDataDirPath].m_Files.Insert(sAidltPath);
+  }
+}
+
+ezStatus ezProjectExport::ScanDataDirectories(DirectoryMapping& mapping, const ezApplicationFileSystemConfig& dirConfig, ezProgress* pProgress, const ezPathPatternFilter& dataFilter)
+{
+  ezProgressRange progress("Scanning data directories", dirConfig.m_DataDirs.GetCount(), true);
+
+  ezUInt32 uiDataDirNumber = 1;
+
+  ezStringBuilder sDataDirPath, sDstPath;
+
+  for (const auto& dataDir : dirConfig.m_DataDirs)
+  {
+    progress.BeginNextStep(dataDir.m_sDataDirSpecialPath);
+
+    if (ezFileSystem::ResolveSpecialDirectory(dataDir.m_sDataDirSpecialPath, sDataDirPath).Failed())
+    {
+      return ezStatus(ezFmt("Failed to get special directory '{0}'", dataDir.m_sDataDirSpecialPath));
+    }
+
+    sDataDirPath.Trim("/\\");
+
+    ezProjectExport::DataDirectory& ddInfo = mapping[sDataDirPath];
+
+    if (!dataDir.m_sRootName.IsEmpty())
+    {
+      sDstPath.Set("Data/", dataDir.m_sRootName);
+
+      ddInfo.m_sTargetDirRootName = dataDir.m_sRootName;
+      ddInfo.m_sTargetDirPath = sDstPath;
+    }
+    else
+    {
+      sDstPath.Format("Data/Extra{}", uiDataDirNumber);
+      ++uiDataDirNumber;
+
+      ddInfo.m_sTargetDirPath = sDstPath;
+    }
+
+    const ezStatus status = ezProjectExport::ScanFolder(ddInfo.m_Files, sDataDirPath, dataFilter, pProgress, ezAssetCurator::GetSingleton());
+    if (status.Failed())
+      return status;
+  }
+
+  return ezStatus(EZ_SUCCESS);
 }
 
 //////////////////////////////////////////////////////////////////////////

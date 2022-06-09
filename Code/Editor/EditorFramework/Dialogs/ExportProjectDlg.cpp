@@ -108,65 +108,14 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
   ezQtUiServices::GetSingleton()->MessageBoxStatus(ezProjectExport::ReadExportFilters(dataFilter, binariesFilter, pAssetProfile->GetConfigName()), "Setting up export configuration failed.");
 
   ezProjectExport::GatherGeneratedAssetManagerFiles(fileList[sProjectRootDir].m_Files);
-
-  // ezAidlt files
-  {
-    for (const auto& dataDir : dataDirs.m_DataDirs)
-    {
-      if (ezFileSystem::ResolveSpecialDirectory(dataDir.m_sDataDirSpecialPath, sStartPath).Failed())
-      {
-        ezQtUiServices::GetSingleton()->MessageBoxWarning(ezFmt("Failed to get special directory '{0}'", dataDir.m_sDataDirSpecialPath));
-        return;
-      }
-
-      ezStringBuilder sAidltPath("AssetCache/", pAssetProfile->GetConfigName(), ".ezAidlt");
-
-      sStartPath.Trim("/\\");
-      fileList[sStartPath].m_Files.Insert(sAidltPath);
-    }
-  }
+  ezProjectExport::GatherAssetLookupTableFiles(fileList, dataDirs, pAssetProfile->GetConfigName());
 
   ezDynamicArray<ezString> sceneFiles;
 
   {
     mainProgress.BeginNextStep("Scanning data directories");
 
-    ezProgressRange progress("Scanning data directories", dataDirs.m_DataDirs.GetCount(), true);
-
-    ezUInt32 uiDataDirNumber = 1;
-
-    for (const auto& dataDir : dataDirs.m_DataDirs)
-    {
-      progress.BeginNextStep(dataDir.m_sDataDirSpecialPath);
-
-      if (ezFileSystem::ResolveSpecialDirectory(dataDir.m_sDataDirSpecialPath, sStartPath).Failed())
-      {
-        ezQtUiServices::GetSingleton()->MessageBoxWarning(ezFmt("Failed to get special directory '{0}'", dataDir.m_sDataDirSpecialPath));
-        return;
-      }
-
-      sStartPath.Trim("/\\");
-      const ezUInt32 uiStrip = sStartPath.GetElementCount();
-
-      ezProjectExport::DataDirectory& ddInfo = fileList[sStartPath];
-
-      if (!dataDir.m_sRootName.IsEmpty())
-      {
-        sTemp.Set("Data/", dataDir.m_sRootName);
-
-        ddInfo.m_sTargetDirRootName = dataDir.m_sRootName;
-        ddInfo.m_sTargetDirPath = sTemp;
-      }
-      else
-      {
-        sTemp.Format("Data/Extra{}", uiDataDirNumber);
-
-        ddInfo.m_sTargetDirPath = sTemp;
-      }
-
-      if (ezProjectExport::ScanFolder(ddInfo.m_Files, sStartPath, dataFilter, ezProgress::GetGlobalProgressbar(), ezAssetCurator::GetSingleton()).Failed())
-        return;
-    }
+    ezProjectExport::ScanDataDirectories(fileList, dataDirs, ezProgress::GetGlobalProgressbar(), dataFilter);
   }
 
   // Binaries
