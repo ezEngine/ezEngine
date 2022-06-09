@@ -46,4 +46,5 @@ struct EZ_EDITORFRAMEWORK_DLL ezProjectExport
   static ezResult GatherAssetLookupTableFiles(DirectoryMapping& mapping, const ezApplicationFileSystemConfig& dirConfig, const char* szPlatformProfileName);
   static ezResult ScanDataDirectories(DirectoryMapping& mapping, const ezApplicationFileSystemConfig& dirConfig, const ezPathPatternFilter& dataFilter);
   static ezResult CopyAllFiles(DirectoryMapping& mapping, const char* szTargetDirectory);
+  static ezResult GatherBinaries(DirectoryMapping& mapping, const ezPathPatternFilter& filter);
 };

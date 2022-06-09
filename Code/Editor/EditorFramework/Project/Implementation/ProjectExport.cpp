@@ -328,6 +328,23 @@ ezResult ezProjectExport::CopyAllFiles(DirectoryMapping& mapping, const char* sz
   return EZ_SUCCESS;
 }
 
+ezResult ezProjectExport::GatherBinaries(DirectoryMapping& mapping, const ezPathPatternFilter& filter)
+{
+  ezStringBuilder sAppDir;
+  sAppDir = ezOSFile::GetApplicationDirectory();
+  sAppDir.MakeCleanPath();
+  sAppDir.Trim("/\\");
+
+  ezProjectExport::DataDirectory& ddInfo = mapping[sAppDir];
+  ddInfo.m_sTargetDirPath = "Bin";
+  ddInfo.m_sTargetDirRootName = "-"; // don't add to data dir config
+
+  if (ezProjectExport::ScanFolder(ddInfo.m_Files, sAppDir, filter, nullptr).Failed())
+    return EZ_FAILURE;
+
+  return EZ_SUCCESS;
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 ezLogSystemToFile::ezLogSystemToFile() = default;

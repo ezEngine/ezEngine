@@ -52,12 +52,6 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
   // copy inputs into resource: RML files
   // code cleanup
 
-  ezStringBuilder sProjectRootDir;
-  if (ezFileSystem::ResolveSpecialDirectory(">project", sProjectRootDir).Failed())
-    return;
-  sProjectRootDir.Trim("/\\");
-
-
   if (TransformAll->isChecked())
   {
     ezStatus stat = ezAssetCurator::GetSingleton()->TransformAllAssets(ezTransformFlags::None);
@@ -69,22 +63,9 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
     }
   }
 
-  const ezPlatformProfile* pAssetProfile = ezAssetCurator::GetSingleton()->GetActiveAssetProfile();
-
-  ezProgressRange mainProgress("Export Project", 6, true);
-  mainProgress.SetStepWeighting(0, 0.05f); // Preparing output folder
-  mainProgress.SetStepWeighting(1, 0.10f); // Scanning data directories
-  mainProgress.SetStepWeighting(2, 0.10f); // Filtering files
-  mainProgress.SetStepWeighting(3, 0.05f); // Gathering binaries
-  mainProgress.SetStepWeighting(4, 0.01f); // Writing data directory config
-  // mainProgress.SetStepWeighting(5, 0.0f); // Copying files
+  const ezString sAssetProfile = ezAssetCurator::GetSingleton()->GetActiveAssetProfile()->GetConfigName();
 
   const ezString szDstFolder = Destination->text().toUtf8().data();
-
-  {
-    mainProgress.BeginNextStep("Preparing output folder");
-    ezQtUiServices::GetSingleton()->MessageBoxStatus(ezProjectExport::ClearTargetFolder(szDstFolder), "Failed to clear output folder");
-  }
 
   ezStringBuilder sTemp;
   sTemp.Set(szDstFolder, "/ExportLog.txt");
@@ -98,20 +79,40 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
 
   ezLogSystemScope logScope(&logFile);
 
-
-
   const auto dataDirs = ezQtEditorApp::GetSingleton()->GetFileSystemConfig();
+
+
+
+
+
+  ezProgressRange mainProgress("Export Project", 6, true);
+  mainProgress.SetStepWeighting(0, 0.05f); // Preparing output folder
+  mainProgress.SetStepWeighting(1, 0.10f); // Scanning data directories
+  mainProgress.SetStepWeighting(2, 0.10f); // Filtering files
+  mainProgress.SetStepWeighting(3, 0.05f); // Gathering binaries
+  mainProgress.SetStepWeighting(4, 0.01f); // Writing data directory config
+  // mainProgress.SetStepWeighting(5, 0.0f); // Copying files
+
+  ezStringBuilder sProjectRootDir;
+  ezFileSystem::ResolveSpecialDirectory(">project", sProjectRootDir).AssertSuccess();
+  sProjectRootDir.Trim("/\\");
+
+  {
+    mainProgress.BeginNextStep("Preparing output folder");
+    if (ezProjectExport::ClearTargetFolder(szDstFolder).Failed())
+      return;
+  }
 
   ezProjectExport::DirectoryMapping fileList;
 
   ezPathPatternFilter dataFilter;
   ezPathPatternFilter binariesFilter;
 
-  if (ezProjectExport::ReadExportFilters(dataFilter, binariesFilter, pAssetProfile->GetConfigName()).Failed())
+  if (ezProjectExport::ReadExportFilters(dataFilter, binariesFilter, sAssetProfile).Failed())
     return;
 
   ezProjectExport::GatherGeneratedAssetManagerFiles(fileList[sProjectRootDir].m_Files);
-  if (ezProjectExport::GatherAssetLookupTableFiles(fileList, dataDirs, pAssetProfile->GetConfigName()).Failed())
+  if (ezProjectExport::GatherAssetLookupTableFiles(fileList, dataDirs, sAssetProfile).Failed())
     return;
 
   ezDynamicArray<ezString> sceneFiles;
@@ -123,22 +124,10 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
       return;
   }
 
-  // Binaries
   {
     mainProgress.BeginNextStep("Gathering binaries");
 
-    // ezProgressRange range("Gathering binaries", true);
-
-    ezStringBuilder sAppDir;
-    sAppDir = ezOSFile::GetApplicationDirectory();
-    sAppDir.MakeCleanPath();
-    sAppDir.Trim("/\\");
-
-    ezProjectExport::DataDirectory& ddInfo = fileList[sAppDir];
-    ddInfo.m_sTargetDirPath = "Bin";
-    ddInfo.m_sTargetDirRootName = "-"; // don't add to data dir config
-
-    if (ezProjectExport::ScanFolder(ddInfo.m_Files, sAppDir, binariesFilter, nullptr).Failed())
+    if (ezProjectExport::GatherBinaries(fileList, binariesFilter).Failed())
       return;
   }
 
