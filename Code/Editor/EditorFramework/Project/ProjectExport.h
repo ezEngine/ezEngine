@@ -27,10 +27,20 @@ public:
 
 struct EZ_EDITORFRAMEWORK_DLL ezProjectExport
 {
+  struct DataDirectory
+  {
+    ezString m_sTargetDirPath;
+    ezString m_sTargetDirRootName;
+    ezSet<ezString> m_Files;
+  };
+
+  using DirectoryMapping = ezMap<ezString, DataDirectory>;
+
   static ezStatus ClearTargetFolder(const char* szAbsFolderPath);
   static ezResult ScanFolder(ezSet<ezString>& out_Files, const char* szFolder, const ezPathPatternFilter& filter, ezProgress* pProgress, ezAssetCurator* pCurator);
   static ezResult CopyFiles(const char* szSrcFolder, const char* szDstFolder, const ezSet<ezString>& files, ezProgress* pProgress, ezProgressRange* pProgressRange, ezLogInterface* pLog);
   static void GatherGeneratedAssetManagerFiles(ezSet<ezString>& out_Files);
   static ezResult CreateExportFilterFile(const char* szExpectedFile, const char* szFallbackFile);
   static ezStatus ReadExportFilters(ezPathPatternFilter& out_DataFilter, ezPathPatternFilter& out_BinariesFilter, const char* szPlatformProfileName);
+  static ezResult CreateDataDirectoryDDL(const DirectoryMapping& mapping, const char* szTargetDirectory);
 };

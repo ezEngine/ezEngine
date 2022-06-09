@@ -100,14 +100,7 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
 
   ezStringBuilder sPath, sRelPath, sStartPath;
 
-  struct DataDirInfo
-  {
-    ezString m_sTargetDirPath;
-    ezString m_sTargetDirRootName;
-    ezSet<ezString> m_Files;
-  };
-
-  ezMap<ezString, DataDirInfo> fileList;
+  ezMap<ezString, ezProjectExport::DataDirectory> fileList;
 
   ezPathPatternFilter dataFilter;
   ezPathPatternFilter binariesFilter;
@@ -155,7 +148,7 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
       sStartPath.Trim("/\\");
       const ezUInt32 uiStrip = sStartPath.GetElementCount();
 
-      DataDirInfo& ddInfo = fileList[sStartPath];
+      ezProjectExport::DataDirectory& ddInfo = fileList[sStartPath];
 
       if (!dataDir.m_sRootName.IsEmpty())
       {
@@ -187,7 +180,7 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
     sAppDir.MakeCleanPath();
     sAppDir.Trim("/\\");
 
-    DataDirInfo& ddInfo = fileList[sAppDir];
+    ezProjectExport::DataDirectory& ddInfo = fileList[sAppDir];
     ddInfo.m_sTargetDirPath = "Bin";
     ddInfo.m_sTargetDirRootName = "-"; // don't add to data dir config
 
@@ -199,32 +192,12 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
   {
     mainProgress.BeginNextStep("Writing data directory config");
 
-    ezApplicationFileSystemConfig cfg;
-
-    for (auto itDir = fileList.GetIterator(); itDir.IsValid(); ++itDir)
+    if (ezProjectExport::CreateDataDirectoryDDL(fileList, szDstFolder).Failed())
     {
-      const auto& info = itDir.Value();
-
-      if (info.m_sTargetDirRootName == "-")
-        continue;
-
-      sPath.Set(">sdk/", info.m_sTargetDirPath);
-
-      auto& ddc = cfg.m_DataDirs.ExpandAndGetRef();
-      ddc.m_sDataDirSpecialPath = sPath;
-      ddc.m_sRootName = info.m_sTargetDirRootName;
-    }
-
-    sPath.Set(szDstFolder, "/Data/project/DataDirectories.ddl");
-    if (cfg.Save(sPath).Failed())
-    {
-      if (cfg.Save(sPath).Failed())
-        ezQtUiServices::GetSingleton()->MessageBoxWarning(ezFmt("Failed to write data directory config file '{0}'", sPath));
+      ezQtUiServices::GetSingleton()->MessageBoxWarning("Failed to write the DataDirectories.ddl file.");
       return;
     }
   }
-
-
 
   {
     mainProgress.BeginNextStep("Copying files");

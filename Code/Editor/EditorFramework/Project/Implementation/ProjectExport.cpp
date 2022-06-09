@@ -1,5 +1,6 @@
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Project/ProjectExport.h>
+#include <Foundation/Application/Config/FileSystemConfig.h>
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
@@ -196,6 +197,31 @@ ezStatus ezProjectExport::ReadExportFilters(ezPathPatternFilter& out_DataFilter,
   }
 
   return ezStatus(EZ_SUCCESS);
+}
+
+ezResult ezProjectExport::CreateDataDirectoryDDL(const DirectoryMapping& mapping, const char* szTargetDirectory)
+{
+  ezApplicationFileSystemConfig cfg;
+
+  ezStringBuilder sPath;
+
+  for (auto itDir = mapping.GetIterator(); itDir.IsValid(); ++itDir)
+  {
+    const auto& info = itDir.Value();
+
+    if (info.m_sTargetDirRootName == "-")
+      continue;
+
+    sPath.Set(">sdk/", info.m_sTargetDirPath);
+
+    auto& ddc = cfg.m_DataDirs.ExpandAndGetRef();
+    ddc.m_sDataDirSpecialPath = sPath;
+    ddc.m_sRootName = info.m_sTargetDirRootName;
+  }
+
+  sPath.Set(szTargetDirectory, "/Data/project/DataDirectories.ddl");
+
+  return cfg.Save(sPath);
 }
 
 //////////////////////////////////////////////////////////////////////////
