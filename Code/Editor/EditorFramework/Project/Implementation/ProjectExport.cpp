@@ -377,6 +377,25 @@ ezResult ezProjectExport::CreateLaunchConfig(const ezDynamicArray<ezString>& sce
   return EZ_SUCCESS;
 }
 
+ezResult ezProjectExport::GatherGeneratedAssetFiles(ezSet<ezString>& out_Files, const char* szProjectDirectory)
+{
+  ezStringBuilder sRoot(szProjectDirectory, "/AssetCache/Generated");
+
+  ezPathPatternFilter filter;
+  ezSet<ezString> files;
+  EZ_SUCCEED_OR_RETURN(ScanFolder(files, sRoot, filter, nullptr, nullptr, nullptr));
+
+  ezStringBuilder sFilePath;
+
+  for (const auto& file : files)
+  {
+    sFilePath.Set("/AssetCache/Generated", file);
+    out_Files.Insert(sFilePath);
+  }
+
+  return EZ_SUCCESS;
+}
+
 ezResult ezProjectExport::ExportProject(const char* szTargetDirectory, const ezPlatformProfile* pPlatformProfile, const ezApplicationFileSystemConfig& dataDirs)
 {
   ezProgressRange mainProgress("Export Project", 7, true);
@@ -406,8 +425,9 @@ ezResult ezProjectExport::ExportProject(const char* szTargetDirectory, const ezP
     ezFileSystem::ResolveSpecialDirectory(">project", sProjectRootDir).AssertSuccess();
     sProjectRootDir.Trim("/\\");
 
-    EZ_SUCCEED_OR_RETURN(ezProjectExport::ReadExportFilters(dataFilter, binariesFilter, pPlatformProfile));
     EZ_SUCCEED_OR_RETURN(ezProjectExport::GatherAssetLookupTableFiles(fileList, dataDirs, pPlatformProfile));
+    EZ_SUCCEED_OR_RETURN(ezProjectExport::ReadExportFilters(dataFilter, binariesFilter, pPlatformProfile));
+    EZ_SUCCEED_OR_RETURN(ezProjectExport::GatherGeneratedAssetFiles(fileList[sProjectRootDir].m_Files, sProjectRootDir));
   }
 
   // 1

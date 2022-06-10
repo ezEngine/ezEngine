@@ -39,4 +39,5 @@ private:
   static ezResult CopyAllFiles(DirectoryMapping& mapping, const char* szTargetDirectory);
   static ezResult GatherBinaries(DirectoryMapping& mapping, const ezPathPatternFilter& filter);
   static ezResult CreateLaunchConfig(const ezDynamicArray<ezString>& sceneFiles, const char* szTargetDirectory);
+  static ezResult GatherGeneratedAssetFiles(ezSet<ezString>& out_Files, const char* szProjectDirectory);
 };
