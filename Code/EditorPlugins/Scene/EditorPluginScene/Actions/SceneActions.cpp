@@ -8,13 +8,11 @@
 #include <Foundation/IO/OSFile.h>
 #include <GuiFoundation/Action/ActionManager.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
+#include <QProcess>
 #include <SharedPluginScene/Common/Messages.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 
-#include <QProcess>
-
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneAction, 1, ezRTTINoAllocator)
-  ;
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezActionDescriptorHandle ezSceneActions::s_hSceneCategory;

@@ -10,6 +10,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProjectPreferencesUser, 1, ezRTTIDefaultAlloca
   EZ_BEGIN_PROPERTIES
   {
     EZ_ARRAY_MEMBER_PROPERTY("Players", m_PlayerApps)->AddAttributes(new ezHiddenAttribute()),
+    EZ_MEMBER_PROPERTY("ExportFolder", m_sExportFolder)->AddAttributes(new ezHiddenAttribute()),
   }
   EZ_END_PROPERTIES;
 }

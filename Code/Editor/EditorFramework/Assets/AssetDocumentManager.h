@@ -21,6 +21,10 @@ public:
   virtual ezStatus ReadAssetDocumentInfo(ezUniquePtr<ezAssetDocumentInfo>& out_pInfo, ezStreamReader& stream) const;
   virtual void FillOutSubAssetList(const ezAssetDocumentInfo& assetInfo, ezHybridArray<ezSubAssetData, 4>& out_SubAssets) const {}
 
+  /// If this asset type has additional output files that need to be generated (like a texture atlas that combines outputs from multiple assets)
+  /// this function should make sure those files are all generated and return the list of relative file paths (from the data directory root).
+  virtual ezStatus GetAdditionalOutputs(ezDynamicArray<ezString>& files) { return ezStatus(EZ_SUCCESS); }
+
   // ezDocumentManager overrides:
 public:
   virtual ezStatus CloneDocument(const char* szPath, const char* szClonePath, ezUuid& inout_cloneGuid) override;

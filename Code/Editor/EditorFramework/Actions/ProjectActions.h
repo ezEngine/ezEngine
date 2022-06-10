@@ -41,6 +41,7 @@ public:
   static ezActionDescriptorHandle s_hPreferencesDlg;
   static ezActionDescriptorHandle s_hTagsDlg;
   static ezActionDescriptorHandle s_hAssetProfiles;
+  static ezActionDescriptorHandle s_hExportProject;
 
   static ezActionDescriptorHandle s_hToolsMenu;
   static ezActionDescriptorHandle s_hToolsCategory;
@@ -115,6 +116,7 @@ public:
     AssetProfiles,
     SetupCppProject,
     ShowDocsAndCommunity,
+    ExportProject,
   };
 
   ezProjectAction(const ezActionContext& context, const char* szName, ButtonType button);

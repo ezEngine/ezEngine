@@ -810,6 +810,14 @@ void ezSceneContext::InsertSelectedChildren(const ezGameObject* pObject)
 
 bool ezSceneContext::ExportDocument(const ezExportDocumentMsgToEngine* pMsg)
 {
+  // make sure the world has been updated at least once, otherwise components aren't initialized
+  // and messages for geometry extraction won't be delivered
+  // this is necessary for the scene export modifiers to work
+  {
+    EZ_LOCK(m_pWorld->GetWriteMarker());
+    m_pWorld->Update();
+  }
+
   //#TODO layers
   ezSceneExportModifier::ApplyAllModifiers(*m_pWorld, GetDocumentGuid());
 

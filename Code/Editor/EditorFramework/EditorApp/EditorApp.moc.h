@@ -16,8 +16,8 @@
 #include <Foundation/Types/UniquePtr.h>
 #include <GuiFoundation/ContainerWindow/ContainerWindow.moc.h>
 #include <QApplication>
-#include <ToolsFoundation/Basics/RecentFilesList.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
+#include <ToolsFoundation/Utilities/RecentFilesList.h>
 
 class QMainWindow;
 class QWidget;
