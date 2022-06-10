@@ -32,7 +32,7 @@ ezResult ezProjectExport::ScanFolder(ezSet<ezString>& out_Files, const char* szF
 
   const ezUInt32 uiRootFolderLength = sRootFolder.GetElementCount();
 
-  ezStringBuilder sAbsFilePath, sRelFilePath, sScenePath;
+  ezStringBuilder sAbsFilePath, sRelFilePath;
 
   ezFileSystemIterator it;
   for (it.StartSearch(sRootFolder, ezFileSystemIteratorFlags::ReportFilesAndFoldersRecursive); it.IsValid();)
@@ -80,8 +80,7 @@ ezResult ezProjectExport::ScanFolder(ezSet<ezString>& out_Files, const char* szF
 
         if (pSceneFiles && asset->m_pAssetInfo->m_pDocumentTypeDescriptor->m_sDocumentTypeName == "Scene")
         {
-          sScenePath.Set(sRootFolder, "/", sRelFilePath);
-          pSceneFiles->PushBack(sScenePath);
+          pSceneFiles->PushBack(sRelFilePath);
         }
 
         for (const ezString& outputTag : asset->m_pAssetInfo->m_Info->m_Outputs)
@@ -360,7 +359,7 @@ ezResult ezProjectExport::CreateLaunchConfig(const ezDynamicArray<ezString>& sce
   for (const auto& sf : sceneFiles)
   {
     ezStringBuilder cmd;
-    cmd.Format("start Bin/Player.exe -scene \"{}", sf);
+    cmd.Format("start Bin/Player.exe -scene \"{}/Data/project/{}\"", szTargetDirectory, sf); // TODO
 
     ezStringBuilder bat;
     bat.Format("{}/Launch {}.bat", szTargetDirectory, ezPathUtils::GetFileName(sf));
