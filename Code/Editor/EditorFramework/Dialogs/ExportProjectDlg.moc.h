@@ -21,4 +21,3 @@ private Q_SLOTS:
 protected:
   virtual void showEvent(QShowEvent* e) override;
 };
-
