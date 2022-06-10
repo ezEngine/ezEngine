@@ -1,6 +1,8 @@
 #include <EditorFramework/EditorFrameworkPCH.h>
 
+#include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Dialogs/ExportProjectDlg.moc.h>
+#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Preferences/Preferences.h>
 #include <EditorFramework/Preferences/ProjectPreferences.h>
 #include <EditorFramework/Project/ProjectExport.h>
@@ -8,6 +10,7 @@
 #include <Foundation/Containers/Set.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Strings/String.h>
+#include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <QFileDialog>
 #include <ToolsFoundation/Utilities/PathPatternFilter.h>
 
@@ -49,7 +52,6 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
   // filter out unused runtime/game plugins
   // select asset profile for export
   // copy inputs into resource: RML files
-  // include all generated files (physics meshes)
 
   if (TransformAll->isChecked())
   {
