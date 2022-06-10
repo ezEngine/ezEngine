@@ -379,7 +379,7 @@ ezResult ezProjectExport::CreateLaunchConfig(const ezDynamicArray<ezString>& sce
 
 ezResult ezProjectExport::ExportProject(const char* szTargetDirectory, const ezPlatformProfile* pPlatformProfile, const ezApplicationFileSystemConfig& dataDirs)
 {
-  ezProgressRange mainProgress("Export Project", 8, true);
+  ezProgressRange mainProgress("Export Project", 7, true);
   mainProgress.SetStepWeighting(0, 0.05f); // Preparing output folder
   mainProgress.SetStepWeighting(1, 0.05f); // Generating special files
   mainProgress.SetStepWeighting(2, 0.10f); // Scanning data directories

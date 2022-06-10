@@ -53,7 +53,7 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
 
   if (TransformAll->isChecked())
   {
-    ezStatus stat = ezAssetCurator::GetSingleton()->TransformAllAssets(ezTransformFlags::None);
+    ezStatus stat = ezAssetCurator::GetSingleton()->TransformAllAssets(ezTransformFlags::TriggeredManually);
 
     if (stat.Failed())
     {
