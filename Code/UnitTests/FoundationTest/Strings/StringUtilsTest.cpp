@@ -499,6 +499,10 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringUtils)
 
     ezStringUtils::snprintf(sz, 256, "Inf Value: %+10.2f", -ezMath::Infinity<float>());
     EZ_TEST_STRING(sz, "Inf Value:  -Infinity");
+
+    // extended stuff
+    ezStringUtils::snprintf(sz, 256, "size: %zu", (size_t)12345678);
+    EZ_TEST_STRING(sz, "size: 12345678");
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "StartsWith")
