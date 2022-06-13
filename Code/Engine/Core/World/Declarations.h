@@ -190,29 +190,29 @@ struct ezObjectFlags
 
   struct Bits
   {
-    StorageType Dynamic : 1;
-    StorageType ForceDynamic : 1;
-    StorageType ActiveFlag : 1;
-    StorageType ActiveState : 1;
-    StorageType Initialized : 1;
-    StorageType Initializing : 1;
-    StorageType SimulationStarted : 1;
-    StorageType SimulationStarting : 1;
-    StorageType UnhandledMessageHandler : 1;
+    StorageType Dynamic : 1;                             //< 0
+    StorageType ForceDynamic : 1;                        //< 1
+    StorageType ActiveFlag : 1;                          //< 2
+    StorageType ActiveState : 1;                         //< 3
+    StorageType Initialized : 1;                         //< 4
+    StorageType Initializing : 1;                        //< 5
+    StorageType SimulationStarted : 1;                   //< 6
+    StorageType SimulationStarting : 1;                  //< 7
+    StorageType UnhandledMessageHandler : 1;             //< 8
+    StorageType ChildChangesNotifications : 1;           //< 9
+    StorageType ComponentChangesNotifications : 1;       //< 10
+    StorageType StaticTransformChangesNotifications : 1; //< 11
 
-    StorageType ChildChangesNotifications : 1;
-    StorageType ComponentChangesNotifications : 1;
+    StorageType Padding : 12; // 12 - 23
 
-    StorageType Padding : 13;
-
-    StorageType UserFlag0 : 1;
-    StorageType UserFlag1 : 1;
-    StorageType UserFlag2 : 1;
-    StorageType UserFlag3 : 1;
-    StorageType UserFlag4 : 1;
-    StorageType UserFlag5 : 1;
-    StorageType UserFlag6 : 1;
-    StorageType UserFlag7 : 1;
+    StorageType UserFlag0 : 1; //< 24
+    StorageType UserFlag1 : 1; //< 25
+    StorageType UserFlag2 : 1; //< 26
+    StorageType UserFlag3 : 1; //< 27
+    StorageType UserFlag4 : 1; //< 28
+    StorageType UserFlag5 : 1; //< 29
+    StorageType UserFlag6 : 1; //< 30
+    StorageType UserFlag7 : 1; //< 31
   };
 };
 

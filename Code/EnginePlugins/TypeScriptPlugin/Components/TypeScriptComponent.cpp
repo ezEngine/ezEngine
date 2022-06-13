@@ -90,6 +90,12 @@ void ezTypeScriptComponent::DeserializeComponent(ezWorldReader& stream)
       m_Parameters.Insert(key, value);
     }
   }
+
+  // reset all user flags
+  for (ezUInt32 i = 0; i < 8; ++i)
+  {
+    SetUserFlag(i, false);
+  }
 }
 
 bool ezTypeScriptComponent::OnUnhandledMessage(ezMessage& msg, bool bWasPostedMsg)
@@ -363,8 +369,7 @@ const ezRangeView<const char*, ezUInt32> ezTypeScriptComponent::GetParameters() 
     { return m_Parameters.GetCount(); },
     [](ezUInt32& it)
     { ++it; },
-    [this](const ezUInt32& it) -> const char*
-    { return m_Parameters.GetKey(it).GetString().GetData(); });
+    [this](const ezUInt32& it) -> const char* { return m_Parameters.GetKey(it).GetString().GetData(); });
 }
 
 void ezTypeScriptComponent::SetParameter(const char* szKey, const ezVariant& value)
