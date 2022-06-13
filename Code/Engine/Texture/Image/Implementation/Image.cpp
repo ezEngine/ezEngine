@@ -82,24 +82,27 @@ const ezImageHeader& ezImageView::GetHeader() const
 }
 
 ezImageView ezImageView::GetRowView(
-  ezUInt32 uiMipLevel /*= 0*/, ezUInt32 uiFace /*= 0*/, ezUInt32 uiArrayIndex /*= 0*/, ezUInt32 y /*= 0*/, ezUInt32 z /*= 0*/) const
+  ezUInt32 uiMipLevel /*= 0*/, ezUInt32 uiFace /*= 0*/, ezUInt32 uiArrayIndex /*= 0*/, ezUInt32 y /*= 0*/, ezUInt32 z /*= 0*/, ezUInt32 uiPlaneIndex /*= 0*/) const
 {
   ezImageHeader header;
   header.SetNumMipLevels(1);
   header.SetNumFaces(1);
   header.SetNumArrayIndices(1);
-  header.SetWidth(GetWidth(uiMipLevel));
-  header.SetHeight(ezImageFormat::GetBlockHeight(m_format));
-  header.SetDepth(1);
-  header.SetImageFormat(m_format);
+
+  // Scale dimensions relative to the block size of the subformat
+  ezImageFormat::Enum subFormat = ezImageFormat::GetSubFormat(m_format, uiPlaneIndex);
+  header.SetWidth(GetWidth(uiMipLevel) * ezImageFormat::GetBlockWidth(subFormat) / ezImageFormat::GetBlockWidth(m_format, uiPlaneIndex));
+  header.SetHeight(ezImageFormat::GetBlockHeight(m_format, 0) * ezImageFormat::GetBlockHeight(subFormat) / ezImageFormat::GetBlockHeight(m_format, uiPlaneIndex));
+  header.SetDepth(ezImageFormat::GetBlockDepth(subFormat) / ezImageFormat::GetBlockDepth(m_format, uiPlaneIndex));
+  header.SetImageFormat(ezImageFormat::GetSubFormat(m_format, uiPlaneIndex));
 
   ezUInt64 offset = 0;
 
-  offset += GetSubImageOffset(uiMipLevel, uiFace, uiArrayIndex);
-  offset += z * GetDepthPitch(uiMipLevel);
-  offset += y * GetRowPitch(uiMipLevel);
+  offset += GetSubImageOffset(uiMipLevel, uiFace, uiArrayIndex, uiPlaneIndex);
+  offset += z * GetDepthPitch(uiMipLevel, uiPlaneIndex);
+  offset += y * GetRowPitch(uiMipLevel, uiPlaneIndex);
 
-  ezBlobPtr<const ezUInt8> dataSlice = m_dataPtr.GetSubArray(offset, GetRowPitch(uiMipLevel));
+  ezBlobPtr<const ezUInt8> dataSlice = m_dataPtr.GetSubArray(offset, GetRowPitch(uiMipLevel, uiPlaneIndex));
   return ezImageView(header, ezConstByteBlobPtr(dataSlice.GetPtr(), dataSlice.GetCount()));
 }
 
@@ -117,7 +120,7 @@ void ezImageView::ReinterpretAs(ezImageFormat::Enum format)
 ezUInt64 ezImageView::ComputeLayout()
 {
   m_subImageOffsets.Clear();
-  m_subImageOffsets.Reserve(m_uiNumMipLevels * m_uiNumFaces * m_uiNumArrayIndices);
+  m_subImageOffsets.Reserve(m_uiNumMipLevels * m_uiNumFaces * m_uiNumArrayIndices * GetPlaneCount());
 
   ezUInt64 uiDataSize = 0;
 
@@ -127,9 +130,12 @@ ezUInt64 ezImageView::ComputeLayout()
     {
       for (ezUInt32 uiMipLevel = 0; uiMipLevel < m_uiNumMipLevels; uiMipLevel++)
       {
-        m_subImageOffsets.PushBack(uiDataSize);
+        for (ezUInt32 uiPlaneIndex = 0; uiPlaneIndex < GetPlaneCount(); uiPlaneIndex++)
+        {
+          m_subImageOffsets.PushBack(uiDataSize);
 
-        uiDataSize += GetDepthPitch(uiMipLevel) * GetDepth(uiMipLevel);
+          uiDataSize += GetDepthPitch(uiMipLevel, uiPlaneIndex) * GetDepth(uiMipLevel);
+        }
       }
     }
   }
@@ -140,17 +146,18 @@ ezUInt64 ezImageView::ComputeLayout()
   return uiDataSize;
 }
 
-void ezImageView::ValidateSubImageIndices(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32 uiArrayIndex) const
+void ezImageView::ValidateSubImageIndices(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32 uiArrayIndex, ezUInt32 uiPlaneIndex) const
 {
   EZ_ASSERT_DEV(uiMipLevel < m_uiNumMipLevels, "Invalid mip level");
   EZ_ASSERT_DEV(uiFace < m_uiNumFaces, "Invalid uiFace");
   EZ_ASSERT_DEV(uiArrayIndex < m_uiNumArrayIndices, "Invalid array slice");
+  EZ_ASSERT_DEV(uiPlaneIndex < GetPlaneCount(), "Invalid plane index");
 }
 
-const ezUInt64& ezImageView::GetSubImageOffset(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32 uiArrayIndex) const
+const ezUInt64& ezImageView::GetSubImageOffset(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32 uiArrayIndex, ezUInt32 uiPlaneIndex) const
 {
-  ValidateSubImageIndices(uiMipLevel, uiFace, uiArrayIndex);
-  return m_subImageOffsets[uiMipLevel + m_uiNumMipLevels * (uiFace + m_uiNumFaces * uiArrayIndex)];
+  ValidateSubImageIndices(uiMipLevel, uiFace, uiArrayIndex, uiPlaneIndex);
+  return m_subImageOffsets[uiPlaneIndex + GetPlaneCount() * (uiMipLevel + m_uiNumMipLevels * (uiFace + m_uiNumFaces * uiArrayIndex))];
 }
 
 ezImage::ezImage()
@@ -291,8 +298,8 @@ ezImageView ezImageView::GetSubImageView(ezUInt32 uiMipLevel /*= 0*/, ezUInt32 u
   header.SetDepth(GetDepth(uiMipLevel));
   header.SetImageFormat(m_format);
 
-  const ezUInt64& offset = GetSubImageOffset(uiMipLevel, uiFace, uiArrayIndex);
-  ezUInt64 size = *(&offset + 1) - offset;
+  const ezUInt64& offset = GetSubImageOffset(uiMipLevel, uiFace, uiArrayIndex, 0);
+  ezUInt64 size = *(&offset + GetPlaneCount()) - offset;
 
   ezBlobPtr<const ezUInt8> subView = m_dataPtr.GetSubArray(offset, size);
 
@@ -308,28 +315,62 @@ ezImage ezImage::GetSubImageView(ezUInt32 uiMipLevel /*= 0*/, ezUInt32 uiFace /*
     constView.GetHeader(), ezByteBlobPtr(const_cast<ezUInt8*>(constView.GetBlobPtr<ezUInt8>().GetPtr()), constView.GetBlobPtr<ezUInt8>().GetCount()));
 }
 
-ezImage ezImage::GetSliceView(ezUInt32 uiMipLevel /*= 0*/, ezUInt32 uiFace /*= 0*/, ezUInt32 uiArrayIndex /*= 0*/, ezUInt32 z /*= 0*/)
+ezImageView ezImageView::GetPlaneView(ezUInt32 uiMipLevel /*= 0*/, ezUInt32 uiFace /*= 0*/, ezUInt32 uiArrayIndex /*= 0*/, ezUInt32 uiPlaneIndex /*= 0*/) const
 {
-  ezImageView constView = ezImageView::GetSliceView(uiMipLevel, uiFace, uiArrayIndex, z);
+  ezImageHeader header;
+  header.SetNumMipLevels(1);
+  header.SetNumFaces(1);
+  header.SetNumArrayIndices(1);
+
+  // Scale dimensions relative to the block size of the first plane which determines the "nominal" width, height and depth
+  ezImageFormat::Enum subFormat = ezImageFormat::GetSubFormat(m_format, uiPlaneIndex);
+  header.SetWidth(GetWidth(uiMipLevel) * ezImageFormat::GetBlockWidth(subFormat) / ezImageFormat::GetBlockWidth(m_format, uiPlaneIndex));
+  header.SetHeight(GetHeight(uiMipLevel) * ezImageFormat::GetBlockHeight(subFormat) / ezImageFormat::GetBlockHeight(m_format, uiPlaneIndex));
+  header.SetDepth(GetDepth(uiMipLevel) * ezImageFormat::GetBlockDepth(subFormat) / ezImageFormat::GetBlockDepth(m_format, uiPlaneIndex));
+  header.SetImageFormat(subFormat);
+
+  const ezUInt64& offset = GetSubImageOffset(uiMipLevel, uiFace, uiArrayIndex, uiPlaneIndex);
+  ezUInt64 size = *(&offset + 1) - offset;
+
+  ezBlobPtr<const ezUInt8> subView = m_dataPtr.GetSubArray(offset, size);
+
+  return ezImageView(header, ezConstByteBlobPtr(subView.GetPtr(), subView.GetCount()));
+}
+
+ezImage ezImage::GetPlaneView(ezUInt32 uiMipLevel /* = 0 */, ezUInt32 uiFace /* = 0 */, ezUInt32 uiArrayIndex /* = 0 */, ezUInt32 uiPlaneIndex /* = 0 */)
+{
+  ezImageView constView = ezImageView::GetPlaneView(uiMipLevel, uiFace, uiArrayIndex, uiPlaneIndex);
 
   // Create an ezImage attached to the view. Const cast is safe here since we own the storage.
   return ezImage(
     constView.GetHeader(), ezByteBlobPtr(const_cast<ezUInt8*>(constView.GetBlobPtr<ezUInt8>().GetPtr()), constView.GetBlobPtr<ezUInt8>().GetCount()));
 }
 
-ezImageView ezImageView::GetSliceView(ezUInt32 uiMipLevel /*= 0*/, ezUInt32 uiFace /*= 0*/, ezUInt32 uiArrayIndex /*= 0*/, ezUInt32 z /*= 0*/) const
+ezImage ezImage::GetSliceView(ezUInt32 uiMipLevel /*= 0*/, ezUInt32 uiFace /*= 0*/, ezUInt32 uiArrayIndex /*= 0*/, ezUInt32 z /*= 0*/, ezUInt32 uiPlaneIndex /*= 0*/)
+{
+  ezImageView constView = ezImageView::GetSliceView(uiMipLevel, uiFace, uiArrayIndex, z, uiPlaneIndex);
+
+  // Create an ezImage attached to the view. Const cast is safe here since we own the storage.
+  return ezImage(
+    constView.GetHeader(), ezByteBlobPtr(const_cast<ezUInt8*>(constView.GetBlobPtr<ezUInt8>().GetPtr()), constView.GetBlobPtr<ezUInt8>().GetCount()));
+}
+
+ezImageView ezImageView::GetSliceView(ezUInt32 uiMipLevel /*= 0*/, ezUInt32 uiFace /*= 0*/, ezUInt32 uiArrayIndex /*= 0*/, ezUInt32 z /*= 0*/, ezUInt32 uiPlaneIndex /*= 0*/) const
 {
   ezImageHeader header;
   header.SetNumMipLevels(1);
   header.SetNumFaces(1);
   header.SetNumArrayIndices(1);
-  header.SetWidth(GetWidth(uiMipLevel));
-  header.SetHeight(GetHeight(uiMipLevel));
-  header.SetDepth(1);
-  header.SetImageFormat(m_format);
 
-  ezUInt64 offset = GetSubImageOffset(uiMipLevel, uiFace, uiArrayIndex) + z * GetDepthPitch(uiMipLevel);
-  ezUInt64 size = GetDepthPitch(uiMipLevel);
+  // Scale dimensions relative to the block size of the first plane which determines the "nominal" width, height and depth
+  ezImageFormat::Enum subFormat = ezImageFormat::GetSubFormat(m_format, uiPlaneIndex);
+  header.SetWidth(GetWidth(uiMipLevel) * ezImageFormat::GetBlockWidth(subFormat) / ezImageFormat::GetBlockWidth(m_format, uiPlaneIndex));
+  header.SetHeight(GetHeight(uiMipLevel) * ezImageFormat::GetBlockHeight(subFormat) / ezImageFormat::GetBlockHeight(m_format, uiPlaneIndex));
+  header.SetDepth(ezImageFormat::GetBlockDepth(subFormat) / ezImageFormat::GetBlockDepth(m_format, uiPlaneIndex));
+  header.SetImageFormat(subFormat);
+
+  ezUInt64 offset = GetSubImageOffset(uiMipLevel, uiFace, uiArrayIndex, uiPlaneIndex) + z * GetDepthPitch(uiMipLevel, uiPlaneIndex);
+  ezUInt64 size = GetDepthPitch(uiMipLevel, uiPlaneIndex);
 
   ezBlobPtr<const ezUInt8> subView = m_dataPtr.GetSubArray(offset, size);
 

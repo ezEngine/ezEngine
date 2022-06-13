@@ -89,22 +89,40 @@ public:
   /// \brief Returns the number of array indices.
   ezUInt32 GetNumArrayIndices() const { return m_uiNumArrayIndices; }
 
-  /// \brief Returns the number of blocks contained in a given mip level in the horizontal direction.
-  ezUInt32 GetNumBlocksX(ezUInt32 uiMipLevel = 0) const { return ezImageFormat::GetNumBlocksX(m_format, GetWidth(uiMipLevel)); }
+  /// \brief Returns the number of image planes.
+  ezUInt32 GetPlaneCount() const
+  {
+    return ezImageFormat::GetPlaneCount(m_format);
+  }
 
   /// \brief Returns the number of blocks contained in a given mip level in the horizontal direction.
-  ezUInt32 GetNumBlocksY(ezUInt32 uiMipLevel = 0) const { return ezImageFormat::GetNumBlocksY(m_format, GetHeight(uiMipLevel)); }
+  ezUInt32 GetNumBlocksX(ezUInt32 uiMipLevel = 0, ezUInt32 uiPlaneIndex = 0) const
+  {
+    return ezImageFormat::GetNumBlocksX(m_format, GetWidth(uiMipLevel), uiPlaneIndex);
+  }
+
+  /// \brief Returns the number of blocks contained in a given mip level in the horizontal direction.
+  ezUInt32 GetNumBlocksY(ezUInt32 uiMipLevel = 0, ezUInt32 uiPlaneIndex = 0) const
+  {
+    return ezImageFormat::GetNumBlocksY(m_format, GetHeight(uiMipLevel), uiPlaneIndex);
+  }
 
   /// \brief Returns the number of blocks contained in a given mip level in the depth direction.
-  ezUInt32 GetNumBlocksZ(ezUInt32 uiMipLevel = 0) const { return ezImageFormat::GetNumBlocksZ(m_format, GetDepth(uiMipLevel)); }
+  ezUInt32 GetNumBlocksZ(ezUInt32 uiMipLevel = 0, ezUInt32 uiPlaneIndex = 0) const
+  {
+    return ezImageFormat::GetNumBlocksZ(m_format, GetDepth(uiMipLevel), uiPlaneIndex);
+  }
 
   /// \brief Returns the offset in bytes between two subsequent rows of the given mip level.
-  ezUInt64 GetRowPitch(ezUInt32 uiMipLevel = 0) const { return ezImageFormat::GetRowPitch(GetImageFormat(), GetWidth(uiMipLevel)); }
+  ezUInt64 GetRowPitch(ezUInt32 uiMipLevel = 0, ezUInt32 uiPlaneIndex = 0) const
+  {
+    return ezImageFormat::GetRowPitch(m_format, GetWidth(uiMipLevel), uiPlaneIndex);
+  }
 
   /// \brief Returns the offset in bytes between two subsequent depth slices of the given mip level.
-  ezUInt64 GetDepthPitch(ezUInt32 uiMipLevel = 0) const
+  ezUInt64 GetDepthPitch(ezUInt32 uiMipLevel = 0, ezUInt32 uiPlaneIndex = 0) const
   {
-    return ezImageFormat::GetDepthPitch(GetImageFormat(), GetWidth(uiMipLevel), GetHeight(uiMipLevel));
+    return ezImageFormat::GetDepthPitch(m_format, GetWidth(uiMipLevel), GetHeight(uiMipLevel), uiPlaneIndex);
   }
 
   /// \brief Computes the data size required for an image with the header's format and dimensions.
@@ -114,7 +132,10 @@ public:
 
     for (ezUInt32 uiMipLevel = 0; uiMipLevel < GetNumMipLevels(); uiMipLevel++)
     {
-      uiDataSize += GetDepthPitch(uiMipLevel) * static_cast<ezUInt64>(GetDepth(uiMipLevel));
+      for (ezUInt32 uiPlaneIndex = 0; uiPlaneIndex < GetPlaneCount(); ++uiPlaneIndex)
+      {
+        uiDataSize += GetDepthPitch(uiMipLevel, uiPlaneIndex) * static_cast<ezUInt64>(GetDepth(uiMipLevel));
+      }
     }
 
     return ezMath::SafeMultiply64(uiDataSize, ezMath::SafeMultiply32(GetNumArrayIndices(), GetNumFaces()));

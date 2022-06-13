@@ -99,7 +99,8 @@ namespace
   ezHashTable<ezUInt32, TableEntry> s_conversionTable;
   bool s_conversionTableValid = false;
 
-  ezUInt32 MakeKey(ezImageFormat::Enum a, ezImageFormat::Enum b) { return a * ezImageFormat::NUM_FORMATS + b; }
+  constexpr ezUInt32 MakeKey(ezImageFormat::Enum a, ezImageFormat::Enum b) { return a * ezImageFormat::NUM_FORMATS + b; }
+  constexpr ezUInt32 MakeTypeKey(ezImageFormatType::Enum a, ezImageFormatType::Enum b) { return (a << 16) + b; }
 
   struct IntermediateBuffer
   {
@@ -289,6 +290,14 @@ void ezImageConversion::RebuildConversionTable()
           "In-place conversions are only allowed between formats of the same number of bits per pixel and compressedness");
       }
 
+      if (ezImageFormat::GetType(subConversion.m_sourceFormat) == ezImageFormatType::PLANAR)
+      {
+        EZ_ASSERT_DEV(ezImageFormat::GetType(subConversion.m_targetFormat) == ezImageFormatType::LINEAR, "Conversions from planar formats must target linear formats");
+      }
+      else if (ezImageFormat::GetType(subConversion.m_targetFormat) == ezImageFormatType::PLANAR)
+      {
+        EZ_ASSERT_DEV(ezImageFormat::GetType(subConversion.m_sourceFormat) == ezImageFormatType::LINEAR, "Conversions to planar formats must sourced from linear formats");
+      }
 
       ezUInt32 tableIndex = MakeKey(subConversion.m_sourceFormat, subConversion.m_targetFormat);
 
@@ -516,23 +525,31 @@ ezResult ezImageConversion::ConvertSingleStep(
   header.SetImageFormat(targetFormat);
   target.ResetAndAlloc(header);
 
-  if (!ezImageFormat::IsCompressed(sourceFormat))
+  switch (MakeTypeKey(ezImageFormat::GetType(sourceFormat), ezImageFormat::GetType(targetFormat)))
   {
-    if (!ezImageFormat::IsCompressed(targetFormat))
+    case MakeTypeKey(ezImageFormatType::LINEAR, ezImageFormatType::LINEAR):
     {
       // we have to do the computation in 64-bit otherwise it might overflow for very large textures (8k x 4k or bigger).
       ezUInt64 numElements = ezUInt64(8) * target.GetByteBlobPtr().GetCount() / (ezUInt64)ezImageFormat::GetBitsPerPixel(targetFormat);
       return static_cast<const ezImageConversionStepLinear*>(pStep)->ConvertPixels(
         source.GetByteBlobPtr(), target.GetByteBlobPtr(), (ezUInt32)numElements, sourceFormat, targetFormat);
     }
-    else
-    {
+
+    case MakeTypeKey(ezImageFormatType::LINEAR, ezImageFormatType::BLOCK_COMPRESSED):
       return ConvertSingleStepCompress(source, target, sourceFormat, targetFormat, pStep);
-    }
-  }
-  else
-  {
-    return ConvertSingleStepDecompress(source, target, sourceFormat, targetFormat, pStep);
+
+    case MakeTypeKey(ezImageFormatType::LINEAR, ezImageFormatType::PLANAR):
+      return ConvertSingleStepPlanarize(source, target, sourceFormat, targetFormat, pStep);
+
+    case MakeTypeKey(ezImageFormatType::BLOCK_COMPRESSED, ezImageFormatType::LINEAR):
+      return ConvertSingleStepDecompress(source, target, sourceFormat, targetFormat, pStep);
+
+    case MakeTypeKey(ezImageFormatType::PLANAR, ezImageFormatType::LINEAR):
+      return ConvertSingleStepDeplanarize(source, target, sourceFormat, targetFormat, pStep);
+
+    default:
+      EZ_ASSERT_NOT_IMPLEMENTED;
+      return EZ_FAILURE;
   }
 }
 
@@ -660,6 +677,85 @@ ezResult ezImageConversion::ConvertSingleStepCompress(
   return EZ_SUCCESS;
 }
 
+ezResult ezImageConversion::ConvertSingleStepDeplanarize(
+  const ezImageView& source, ezImage& target, ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat, const ezImageConversionStep* pStep)
+{
+  for (ezUInt32 arrayIndex = 0; arrayIndex < source.GetNumArrayIndices(); arrayIndex++)
+  {
+    for (ezUInt32 face = 0; face < source.GetNumFaces(); face++)
+    {
+      for (ezUInt32 mipLevel = 0; mipLevel < source.GetNumMipLevels(); mipLevel++)
+      {
+        const ezUInt32 width = target.GetWidth(mipLevel);
+        const ezUInt32 height = target.GetHeight(mipLevel);
+
+        ezHybridArray<ezImageView, 2> sourcePlanes;
+        for (ezUInt32 planeIndex = 0; planeIndex < source.GetPlaneCount(); ++planeIndex)
+        {
+          const ezUInt32 blockSizeX = ezImageFormat::GetBlockWidth(sourceFormat, planeIndex);
+          const ezUInt32 blockSizeY = ezImageFormat::GetBlockHeight(sourceFormat, planeIndex);
+
+          if (width % blockSizeX != 0 || height % blockSizeY != 0)
+          {
+            // Input image must be aligned to block dimensions already.
+            return EZ_FAILURE;
+          }
+
+          sourcePlanes.PushBack(source.GetPlaneView(mipLevel, face, arrayIndex, planeIndex));
+        }
+
+        if (static_cast<const ezImageConversionStepDeplanarize*>(pStep)
+              ->ConvertPixels(sourcePlanes, target.GetSubImageView(mipLevel, face, arrayIndex), width, height, sourceFormat, targetFormat)
+              .Failed())
+        {
+          return EZ_FAILURE;
+        }
+      }
+    }
+  }
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezImageConversion::ConvertSingleStepPlanarize(
+  const ezImageView& source, ezImage& target, ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat, const ezImageConversionStep* pStep)
+{
+  for (ezUInt32 arrayIndex = 0; arrayIndex < source.GetNumArrayIndices(); arrayIndex++)
+  {
+    for (ezUInt32 face = 0; face < source.GetNumFaces(); face++)
+    {
+      for (ezUInt32 mipLevel = 0; mipLevel < source.GetNumMipLevels(); mipLevel++)
+      {
+        const ezUInt32 width = target.GetWidth(mipLevel);
+        const ezUInt32 height = target.GetHeight(mipLevel);
+
+        ezHybridArray<ezImage, 2> targetPlanes;
+        for (ezUInt32 planeIndex = 0; planeIndex < target.GetPlaneCount(); ++planeIndex)
+        {
+          const ezUInt32 blockSizeX = ezImageFormat::GetBlockWidth(targetFormat, planeIndex);
+          const ezUInt32 blockSizeY = ezImageFormat::GetBlockHeight(targetFormat, planeIndex);
+
+          if (width % blockSizeX != 0 || height % blockSizeY != 0)
+          {
+            // Input image must be aligned to block dimensions already.
+            return EZ_FAILURE;
+          }
+
+          targetPlanes.PushBack(target.GetPlaneView(mipLevel, face, arrayIndex, planeIndex));
+        }
+
+        if (static_cast<const ezImageConversionStepPlanarize*>(pStep)
+              ->ConvertPixels(source.GetSubImageView(mipLevel, face, arrayIndex), targetPlanes, width, height, sourceFormat, targetFormat)
+              .Failed())
+        {
+          return EZ_FAILURE;
+        }
+      }
+    }
+  }
+
+  return EZ_SUCCESS;
+}
 
 bool ezImageConversion::IsConvertible(ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat)
 {
