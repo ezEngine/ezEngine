@@ -122,7 +122,7 @@ public:
   template <typename T>
   void ReclaimLater(T& object, void* pContext = nullptr)
   {
-    ReclaimLater({object.objectType, (void*)object, pContext });
+    ReclaimLater({object.objectType, (void*)object, pContext});
     object = nullptr;
   }
 

@@ -744,7 +744,6 @@ ezGALPass* ezGALDeviceVulkan::BeginPassPlatform(const char* szName)
 void ezGALDeviceVulkan::EndPassPlatform(ezGALPass* pPass)
 {
   ezProfilingScopeAndMarker::Stop(m_pDefaultPass->m_pRenderCommandEncoder.Borrow(), m_pPassTimingScope);
-
 }
 
 // State creation functions

@@ -12,13 +12,13 @@ class ezGALRenderTargetViewVulkan;
 class ezGALResourceViewVulkan;
 class ezGALUnorderedAccessViewVulkan;
 
-/// \brief 
+/// \brief
 class EZ_RENDERERVULKAN_DLL ezPipelineBarrierVulkan
 {
 public:
   /// \name Barrier handling
   ///@{
-  
+
   /// \brief Set the active command buffer that barriers are flushed into.
   void SetCommandBuffer(vk::CommandBuffer* pCommandBuffer);
 

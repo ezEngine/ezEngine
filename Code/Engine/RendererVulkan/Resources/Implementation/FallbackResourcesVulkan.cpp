@@ -32,72 +32,72 @@ void ezFallbackResourcesVulkan::GALDeviceEventHandler(const ezGALDeviceEvent& e)
 {
   switch (e.m_Type)
   {
-  case ezGALDeviceEvent::AfterInit:
-  {
-    auto CreateTexture = [](ezGALTextureType::Enum type, ezGALMSAASampleCount::Enum samples) -> ezGALResourceViewHandle {
-      ezGALTextureCreationDescription desc;
-      desc.m_uiWidth = 4;
-      desc.m_uiHeight = 4;
-      if (type == ezGALTextureType::Texture3D)
-        desc.m_uiDepth = 4;
-      desc.m_uiMipLevelCount = 1;
-      desc.m_Format = ezGALResourceFormat::BGRAUByteNormalizedsRGB;
-      desc.m_Type = type;
-      desc.m_SampleCount = samples;
-      desc.m_ResourceAccess.m_bImmutable = false;
-      ezGALTextureHandle hTexture = s_pDevice->CreateTexture(desc);
-      EZ_ASSERT_DEV(!hTexture.IsInvalidated(), "Failed to create fallback resource");
-      // Debug device not set yet.
-      s_pDevice->GetTexture(hTexture)->SetDebugName("FallbackResourceVulkan");
-      m_Textures.PushBack(hTexture);
-      return s_pDevice->GetDefaultResourceView(hTexture);
-    };
+    case ezGALDeviceEvent::AfterInit:
     {
-      ezGALResourceViewHandle hView = CreateTexture(ezGALTextureType::Texture2D, ezGALMSAASampleCount::None);
-      m_ResourceViews[{vk::DescriptorType::eSampledImage, ezShaderResourceType::Texture2D}] = hView;
-      m_ResourceViews[{vk::DescriptorType::eSampledImage, ezShaderResourceType::Texture2DArray}] = hView;
+      auto CreateTexture = [](ezGALTextureType::Enum type, ezGALMSAASampleCount::Enum samples) -> ezGALResourceViewHandle {
+        ezGALTextureCreationDescription desc;
+        desc.m_uiWidth = 4;
+        desc.m_uiHeight = 4;
+        if (type == ezGALTextureType::Texture3D)
+          desc.m_uiDepth = 4;
+        desc.m_uiMipLevelCount = 1;
+        desc.m_Format = ezGALResourceFormat::BGRAUByteNormalizedsRGB;
+        desc.m_Type = type;
+        desc.m_SampleCount = samples;
+        desc.m_ResourceAccess.m_bImmutable = false;
+        ezGALTextureHandle hTexture = s_pDevice->CreateTexture(desc);
+        EZ_ASSERT_DEV(!hTexture.IsInvalidated(), "Failed to create fallback resource");
+        // Debug device not set yet.
+        s_pDevice->GetTexture(hTexture)->SetDebugName("FallbackResourceVulkan");
+        m_Textures.PushBack(hTexture);
+        return s_pDevice->GetDefaultResourceView(hTexture);
+      };
+      {
+        ezGALResourceViewHandle hView = CreateTexture(ezGALTextureType::Texture2D, ezGALMSAASampleCount::None);
+        m_ResourceViews[{vk::DescriptorType::eSampledImage, ezShaderResourceType::Texture2D}] = hView;
+        m_ResourceViews[{vk::DescriptorType::eSampledImage, ezShaderResourceType::Texture2DArray}] = hView;
+      }
+      {
+        ezGALResourceViewHandle hView = CreateTexture(ezGALTextureType::Texture2D, ezGALMSAASampleCount::TwoSamples);
+        m_ResourceViews[{vk::DescriptorType::eSampledImage, ezShaderResourceType::Texture2DMS}] = hView;
+        m_ResourceViews[{vk::DescriptorType::eSampledImage, ezShaderResourceType::Texture2DMSArray}] = hView;
+      }
+      {
+        ezGALResourceViewHandle hView = CreateTexture(ezGALTextureType::TextureCube, ezGALMSAASampleCount::None);
+        m_ResourceViews[{vk::DescriptorType::eSampledImage, ezShaderResourceType::TextureCube}] = hView;
+        m_ResourceViews[{vk::DescriptorType::eSampledImage, ezShaderResourceType::TextureCubeArray}] = hView;
+      }
+      {
+        ezGALResourceViewHandle hView = CreateTexture(ezGALTextureType::Texture3D, ezGALMSAASampleCount::None);
+        m_ResourceViews[{vk::DescriptorType::eSampledImage, ezShaderResourceType::Texture3D}] = hView;
+      }
     }
-    {
-      ezGALResourceViewHandle hView = CreateTexture(ezGALTextureType::Texture2D, ezGALMSAASampleCount::TwoSamples);
-      m_ResourceViews[{vk::DescriptorType::eSampledImage, ezShaderResourceType::Texture2DMS}] = hView;
-      m_ResourceViews[{vk::DescriptorType::eSampledImage, ezShaderResourceType::Texture2DMSArray}] = hView;
-    }
-    {
-      ezGALResourceViewHandle hView = CreateTexture(ezGALTextureType::TextureCube, ezGALMSAASampleCount::None);
-      m_ResourceViews[{vk::DescriptorType::eSampledImage, ezShaderResourceType::TextureCube}] = hView;
-      m_ResourceViews[{vk::DescriptorType::eSampledImage, ezShaderResourceType::TextureCubeArray}] = hView;
-    }
-    {
-      ezGALResourceViewHandle hView = CreateTexture(ezGALTextureType::Texture3D, ezGALMSAASampleCount::None);
-      m_ResourceViews[{vk::DescriptorType::eSampledImage, ezShaderResourceType::Texture3D}] = hView;
-    }
-  }
-  break;
-  case ezGALDeviceEvent::BeforeShutdown:
-  {
-    m_ResourceViews.Clear();
-    m_ResourceViews.Compact();
-
-    m_UAVs.Clear();
-    m_UAVs.Compact();
-
-    for (ezGALBufferHandle hBuffer : m_Buffers)
-    {
-      s_pDevice->DestroyBuffer(hBuffer);
-    }
-    m_Buffers.Clear();
-    m_Buffers.Compact();
-
-    for (ezGALTextureHandle hTexture : m_Textures)
-    {
-      s_pDevice->DestroyTexture(hTexture);
-    }
-    m_Textures.Clear();
-    m_Textures.Compact();
-  }
-  break;
-  default:
     break;
+    case ezGALDeviceEvent::BeforeShutdown:
+    {
+      m_ResourceViews.Clear();
+      m_ResourceViews.Compact();
+
+      m_UAVs.Clear();
+      m_UAVs.Compact();
+
+      for (ezGALBufferHandle hBuffer : m_Buffers)
+      {
+        s_pDevice->DestroyBuffer(hBuffer);
+      }
+      m_Buffers.Clear();
+      m_Buffers.Compact();
+
+      for (ezGALTextureHandle hTexture : m_Textures)
+      {
+        s_pDevice->DestroyTexture(hTexture);
+      }
+      m_Textures.Clear();
+      m_Textures.Compact();
+    }
+    break;
+    default:
+      break;
   }
 }
 

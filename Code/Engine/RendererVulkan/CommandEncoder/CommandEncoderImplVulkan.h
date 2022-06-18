@@ -144,7 +144,7 @@ private:
   ezGAL::ModifiedRange m_BoundVertexBuffersRange;
   bool m_bRenderPassActive = false;
   bool m_bClearSubmitted = false; ///< Start render pass is lazy so if no draw call is executed we need to make sure the clear is executed anyways.
-  bool m_bInsideCompute = false; ///< Within BeginCompute / EndCompute block.
+  bool m_bInsideCompute = false;  ///< Within BeginCompute / EndCompute block.
 
 
   // Bound objects for deferred state flushes

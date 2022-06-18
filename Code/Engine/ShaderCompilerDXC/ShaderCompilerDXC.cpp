@@ -449,7 +449,6 @@ ezResult ezShaderCompilerDXC::ReflectShaderStage(ezShaderProgramData& inout_Data
 
       descriptorToEzBinding[i] = inout_Data.m_StageBinary[Stage].GetShaderResourceBindings().GetCount();
       inout_Data.m_StageBinary[Stage].AddShaderResourceBinding(shaderResourceBinding);
-
     }
 
     {

@@ -50,6 +50,4 @@ private:
   ezGALTextureHandle m_hTexture2DArray;
 
   ezMeshBufferResourceHandle m_hCubeUV;
-
-
 };
