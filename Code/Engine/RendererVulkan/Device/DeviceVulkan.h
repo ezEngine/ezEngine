@@ -14,6 +14,11 @@ using ezGALFormatLookupTableVulkan = ezGALFormatLookupTable<ezGALFormatLookupEnt
 class ezGALBufferVulkan;
 class ezGALTextureVulkan;
 class ezGALPassVulkan;
+class ezPipelineBarrierVulkan;
+class ezCommandBufferPoolVulkan;
+class ezStagingBufferPoolVulkan;
+class ezQueryPoolVulkan;
+class ezInitContextVulkan;
 
 /// \brief The Vulkan device implementation of the graphics abstraction layer.
 class EZ_RENDERERVULKAN_DLL ezGALDeviceVulkan : public ezGALDevice
@@ -39,6 +44,7 @@ public:
     EZ_DECLARE_POD_TYPE();
     vk::ObjectType m_type;
     void* m_pObject;
+    void* m_pContext = nullptr;
   };
 
   struct Extensions
@@ -52,6 +58,7 @@ public:
     PFN_vkSetDebugUtilsObjectNameEXT pfn_vkSetDebugUtilsObjectNameEXT;
 
     bool m_bDeviceSwapChain = false;
+    bool m_bShaderViewportIndexLayer = false;
   };
 
   struct Queue
@@ -75,6 +82,12 @@ public:
   vk::PipelineStageFlags GetSupportedStages() const;
 
   vk::CommandBuffer& GetCurrentCommandBuffer();
+  ezPipelineBarrierVulkan& GetCurrentPipelineBarrier();
+  ezQueryPoolVulkan& GetQueryPool() const;
+  ezStagingBufferPoolVulkan& GetStagingBufferPool() const;
+  ezInitContextVulkan& GetInitContext() const;
+  ezProxyAllocator& GetAllocator();
+
 
   const ezGALFormatLookupTableVulkan& GetFormatLookupTable() const;
 
@@ -107,9 +120,9 @@ public:
   void ReclaimLater(const ReclaimResource& reclaim);
 
   template <typename T>
-  void ReclaimLater(T& object)
+  void ReclaimLater(T& object, void* pContext = nullptr)
   {
-    ReclaimLater({object.objectType, (void*)object});
+    ReclaimLater({object.objectType, (void*)object, pContext });
     object = nullptr;
   }
 
@@ -133,9 +146,8 @@ public:
 
   void ReportLiveGpuObjects();
 
-  void UploadBufferStaging(const ezGALBufferVulkan* pBuffer, ezArrayPtr<const ezUInt8> pInitialData, vk::DeviceSize dstOffset = 0);
-
-  void UploadTextureStaging(const ezGALTextureVulkan* pTexture, const vk::ImageSubresourceLayers& subResource, const ezGALSystemMemoryDescription& data);
+  static void UploadBufferStaging(ezStagingBufferPoolVulkan* pStagingBufferPool, ezPipelineBarrierVulkan* pPipelineBarrier, vk::CommandBuffer commandBuffer, const ezGALBufferVulkan* pBuffer, ezArrayPtr<const ezUInt8> pInitialData, vk::DeviceSize dstOffset = 0);
+  static void UploadTextureStaging(ezStagingBufferPoolVulkan* pStagingBufferPool, ezPipelineBarrierVulkan* pPipelineBarrier, vk::CommandBuffer commandBuffer, const ezGALTextureVulkan* pTexture, const vk::ImageSubresourceLayers& subResource, const ezGALSystemMemoryDescription& data);
 
 
   // These functions need to be implemented by a render API abstraction
@@ -215,7 +227,6 @@ protected:
   /// \endcond
 
 private:
-
   struct PerFrameData
   {
     /// \brief These are all fences passed into submit calls. For some reason waiting for the fence of the last submit is not enough. At least I can't get it to work (neither semaphores nor barriers make it past the validation layer).
@@ -257,14 +268,20 @@ private:
   vk::PhysicalDeviceMemoryProperties m_memoryProperties;
 
   ezUniquePtr<ezGALPassVulkan> m_pDefaultPass;
+  ezUniquePtr<ezPipelineBarrierVulkan> m_pPipelineBarrier;
+  ezUniquePtr<ezCommandBufferPoolVulkan> m_pCommandBufferPool;
+  ezUniquePtr<ezStagingBufferPoolVulkan> m_pStagingBufferPool;
+  ezUniquePtr<ezQueryPoolVulkan> m_pQueryPool;
+  ezUniquePtr<ezInitContextVulkan> m_pInitContext;
 
   // We daisy-chain all command buffers in a frame in sequential order via this semaphore for now.
   vk::Semaphore m_lastCommandBufferFinished;
 
   PerFrameData m_PerFrameData[4];
 
-  ezTime m_SyncTimeDiff;
-  bool m_bSyncTimeNeeded = true;
+  struct GPUTimingScope* m_pFrameTimingScope = nullptr;
+  struct GPUTimingScope* m_pPipelineTimingScope = nullptr;
+  struct GPUTimingScope* m_pPassTimingScope = nullptr;
 
   Extensions m_extensions;
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)

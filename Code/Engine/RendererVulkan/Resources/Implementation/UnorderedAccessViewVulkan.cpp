@@ -15,7 +15,7 @@ const vk::DescriptorBufferInfo& ezGALUnorderedAccessViewVulkan::GetBufferInfo() 
 {
   // Vulkan buffers get constantly swapped out for new ones so the vk::Buffer pointer is not persistent.
   // We need to acquire the latest one on every request for rendering.
-  m_resourceBufferInfo.buffer = m_pParentBuffer->GetVkBuffer();
+  m_resourceBufferInfo.buffer = static_cast<const ezGALBufferVulkan*>(GetResource())->GetVkBuffer();
   return m_resourceBufferInfo;
 }
 
@@ -47,7 +47,8 @@ ezResult ezGALUnorderedAccessViewVulkan::InitPlatform(ezGALDevice* pDevice)
 
   if (pTexture)
   {
-    auto image = static_cast<const ezGALTextureVulkan*>(pTexture->GetParentResource())->GetImage();
+    auto pParentTexture = static_cast<const ezGALTextureVulkan*>(pTexture->GetParentResource());
+    auto image = pParentTexture->GetImage();
     const ezGALTextureCreationDescription& texDesc = pTexture->GetDescription();
 
     const bool bIsArrayView = IsArrayView(texDesc, m_Description);
@@ -58,9 +59,13 @@ ezResult ezGALUnorderedAccessViewVulkan::InitPlatform(ezGALDevice* pDevice)
     viewCreateInfo.image = image;
     viewCreateInfo.subresourceRange = ezConversionUtilsVulkan::GetSubresourceRange(texDesc, m_Description);
     viewCreateInfo.viewType = ezConversionUtilsVulkan::GetImageViewType(texDesc.m_Type, bIsArrayView);
+    if (texDesc.m_Type == ezGALTextureType::TextureCube)
+      viewCreateInfo.viewType = vk::ImageViewType::e2DArray; // There is no RWTextureCube / RWTextureCubeArray in HLSL
 
-    m_resourceImageInfo.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+    m_resourceImageInfo.imageLayout = vk::ImageLayout::eGeneral;
     m_resourceImageInfo.imageView;
+
+    m_range = viewCreateInfo.subresourceRange;
     VK_SUCCEED_OR_RETURN_EZ_FAILURE(pVulkanDevice->GetVulkanDevice().createImageView(&viewCreateInfo, nullptr, &m_resourceImageInfo.imageView));
   }
   else if (pBuffer)
@@ -71,7 +76,7 @@ ezResult ezGALUnorderedAccessViewVulkan::InitPlatform(ezGALDevice* pDevice)
       return EZ_FAILURE;
     }
 
-    m_pParentBuffer = static_cast<const ezGALBufferVulkan*>(pBuffer);
+    auto pParentBuffer = static_cast<const ezGALBufferVulkan*>(pBuffer);
     if (pBuffer->GetDescription().m_bUseAsStructuredBuffer)
     {
       m_resourceBufferInfo.offset = pBuffer->GetDescription().m_uiStructSize * m_Description.m_uiFirstElement;
@@ -97,7 +102,6 @@ ezResult ezGALUnorderedAccessViewVulkan::DeInitPlatform(ezGALDevice* pDevice)
 {
   ezGALDeviceVulkan* pVulkanDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
   pVulkanDevice->DeleteLater(m_resourceImageInfo.imageView);
-  m_pParentBuffer = nullptr;
   m_resourceImageInfo = vk::DescriptorImageInfo();
   m_resourceBufferInfo = vk::DescriptorBufferInfo();
   return EZ_SUCCESS;

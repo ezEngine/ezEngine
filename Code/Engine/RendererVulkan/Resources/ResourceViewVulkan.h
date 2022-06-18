@@ -6,12 +6,14 @@
 #include <vulkan/vulkan.hpp>
 
 class ezGALBufferVulkan;
+class ezGALTextureVulkan;
 
 class ezGALResourceViewVulkan : public ezGALResourceView
 {
 public:
   EZ_ALWAYS_INLINE const vk::DescriptorImageInfo& GetImageInfo() const;
   const vk::DescriptorBufferInfo& GetBufferInfo() const;
+  vk::ImageSubresourceRange GetRange() const;
 
 protected:
   friend class ezGALDeviceVulkan;
@@ -23,7 +25,7 @@ protected:
   virtual ezResult InitPlatform(ezGALDevice* pDevice) override;
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
 
-  const ezGALBufferVulkan* m_pParentBuffer = nullptr;
+  vk::ImageSubresourceRange m_range;
   mutable vk::DescriptorImageInfo m_resourceImageInfo;
   mutable vk::DescriptorBufferInfo m_resourceBufferInfo;
 };

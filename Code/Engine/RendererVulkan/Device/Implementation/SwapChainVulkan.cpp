@@ -7,8 +7,8 @@
 #include <RendererVulkan/Device/SwapChainVulkan.h>
 #include <RendererVulkan/Pools/SemaphorePoolVulkan.h>
 #include <RendererVulkan/Resources/TextureVulkan.h>
-#include <RendererVulkan/Utils/CommandBufferUtilsVulkan.h>
 #include <RendererVulkan/Utils/ConversionUtilsVulkan.h>
+#include <RendererVulkan/Utils/PipelineBarrierVulkan.h>
 
 void ezGALSwapChainVulkan::AcquireNextRenderTarget(ezGALDevice* pDevice)
 {
@@ -30,24 +30,23 @@ void ezGALSwapChainVulkan::AcquireNextRenderTarget(ezGALDevice* pDevice)
     ezLog::Warning("Swap-chain does not match the target window size and should be recreated.");
   }
 
+#ifdef VK_LOG_LAYOUT_CHANGES
+  ezLog::Warning("AcquireNextRenderTarget {}", ezArgP(static_cast<void*>(m_swapChainImages[m_uiCurrentSwapChainImage])));
+#endif
+
   m_RenderTargets.m_hRTs[0] = m_swapChainTextures[m_uiCurrentSwapChainImage];
 }
 
 void ezGALSwapChainVulkan::PresentRenderTarget(ezGALDevice* pDevice)
 {
+  EZ_PROFILE_SCOPE("PresentRenderTarget");
+
   auto pVulkanDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
   {
-    // Move image into ePresentSrcKHR layout.
-    ezImageMemoryBarrierVulkan memmoryBarrier;
-    {
-      memmoryBarrier.old_layout = vk::ImageLayout::eColorAttachmentOptimal;
-      memmoryBarrier.new_layout = vk::ImageLayout::ePresentSrcKHR;
-      memmoryBarrier.src_access_mask = vk::AccessFlagBits::eColorAttachmentWrite;
-      memmoryBarrier.src_stage_mask = vk::PipelineStageFlagBits::eColorAttachmentOutput;
-      memmoryBarrier.dst_stage_mask = vk::PipelineStageFlagBits::eBottomOfPipe;
-    }
     auto view = ezGALDevice::GetDefaultDevice()->GetDefaultRenderTargetView(m_RenderTargets.m_hRTs[0]);
-    ezCommandBufferUtilsVulkan::CmdImageMemoryBarrier(pVulkanDevice->GetCurrentCommandBuffer(), view, memmoryBarrier);
+    const ezGALTextureVulkan* pTexture = static_cast<const ezGALTextureVulkan*>(pVulkanDevice->GetTexture(m_swapChainTextures[m_uiCurrentSwapChainImage]));
+    // Move image into ePresentSrcKHR layout.
+    pVulkanDevice->GetCurrentPipelineBarrier().EnsureImageLayout(pTexture, pTexture->GetFullRange(), vk::ImageLayout::ePresentSrcKHR, vk::PipelineStageFlagBits::eBottomOfPipe, {});
   }
 
   // Submit command buffer
@@ -65,6 +64,10 @@ void ezGALSwapChainVulkan::PresentRenderTarget(ezGALDevice* pDevice)
     presentInfo.pImageIndices = &m_uiCurrentSwapChainImage;
 
     m_pVulkanDevice->GetGraphicsQueue().m_queue.presentKHR(&presentInfo);
+
+#ifdef VK_LOG_LAYOUT_CHANGES
+    ezLog::Warning("PresentInfoKHR {}", ezArgP(m_swapChainImages[m_uiCurrentSwapChainImage]));
+#endif
 
     m_swapChainImageInUseFences[m_uiCurrentSwapChainImage] = renderFence;
   }
@@ -93,7 +96,7 @@ ezResult ezGALSwapChainVulkan::InitPlatform(ezGALDevice* pDevice)
 
   if (!m_vulkanSurface)
   {
-    ezLog::Error("Failed to create vulkan surface for window \"{}\"", m_WindowDesc.m_pWindow);
+    ezLog::Error("Failed to create Vulkan surface for window \"{}\"", m_WindowDesc.m_pWindow);
     return EZ_FAILURE;
   }
 
@@ -126,7 +129,6 @@ ezResult ezGALSwapChainVulkan::InitPlatform(ezGALDevice* pDevice)
 
   m_vulkanSwapChain = m_pVulkanDevice->GetVulkanDevice().createSwapchainKHR(swapChainCreateInfo);
 
-  // TODO screenshot functionality
   if (!m_vulkanSwapChain)
   {
     ezLog::Error("Failed to create Vulkan swap chain!");
@@ -143,26 +145,6 @@ ezResult ezGALSwapChainVulkan::InitPlatform(ezGALDevice* pDevice)
 
   for (ezUInt32 i = 0; i < uiSwapChainImages; i++)
   {
-    //{
-    //  bool canMakeDirectScreenshots = (SwapChainDesc.SwapEffect != DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL);
-
-    //  TexDesc.m_ResourceAccess.m_bReadBack = m_WindowDesc.m_bAllowScreenshots && canMakeDirectScreenshots;
-
-    //  // And create the ez texture object wrapping the backbuffer texture
-    //  m_hBackBufferTexture = pDXDevice->CreateTexture(TexDesc);
-    //  EZ_ASSERT_RELEASE(!m_hBackBufferTexture.IsInvalidated(), "Couldn't create native backbuffer texture object!");
-
-    //  // Create extra texture to be used as "practical backbuffer" if we can't do the screenshots the user wants.
-    //  if (!canMakeDirectScreenshots && m_WindowDesc.m_bAllowScreenshots)
-    //  {
-    //    TexDesc.m_pExisitingNativeObject = nullptr;
-    //    TexDesc.m_ResourceAccess.m_bReadBack = true;
-
-    //    m_hActualBackBufferTexture = m_hBackBufferTexture;
-    //    m_hBackBufferTexture = pDXDevice->CreateTexture(TexDesc);
-    //    EZ_ASSERT_RELEASE(!m_hBackBufferTexture.IsInvalidated(), "Couldn't create non-native backbuffer texture object!");
-    //  }
-    //}
     m_pVulkanDevice->SetDebugName("SwapChainImage", m_swapChainImages[i]);
 
     ezGALTextureCreationDescription TexDesc;

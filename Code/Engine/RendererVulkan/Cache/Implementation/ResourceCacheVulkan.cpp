@@ -15,7 +15,11 @@ ezHashTable<ezGALRenderingSetup, vk::RenderPass, ezResourceCacheVulkan::Resource
 ezHashTable<ezResourceCacheVulkan::RenderPassDesc, vk::RenderPass, ezResourceCacheVulkan::ResourceCacheHash> ezResourceCacheVulkan::s_renderPasses;
 ezHashTable<ezResourceCacheVulkan::FramebufferKey, ezResourceCacheVulkan::FrameBufferCache, ezResourceCacheVulkan::ResourceCacheHash> ezResourceCacheVulkan::s_frameBuffers;
 ezHashTable<ezResourceCacheVulkan::PipelineLayoutDesc, vk::PipelineLayout, ezResourceCacheVulkan::ResourceCacheHash> ezResourceCacheVulkan::s_pipelineLayouts;
-ezHashTable<ezResourceCacheVulkan::GraphicsPipelineDesc, vk::Pipeline, ezResourceCacheVulkan::ResourceCacheHash> ezResourceCacheVulkan::s_graphicsPipelines;
+ezResourceCacheVulkan::GraphicsPipelineMap ezResourceCacheVulkan::s_graphicsPipelines;
+ezResourceCacheVulkan::ComputePipelineMap ezResourceCacheVulkan::s_computePipelines;
+ezMap<const ezRefCounted*, ezHybridArray<ezResourceCacheVulkan::GraphicsPipelineMap::Iterator, 1>> ezResourceCacheVulkan::s_graphicsPipelineUsedBy;
+ezMap<const ezRefCounted*, ezHybridArray<ezResourceCacheVulkan::ComputePipelineMap::Iterator, 1>> ezResourceCacheVulkan::s_computePipelineUsedBy;
+
 ezHashTable<ezGALShaderVulkan::DescriptorSetLayoutDesc, vk::DescriptorSetLayout, ezResourceCacheVulkan::ResourceCacheHash> ezResourceCacheVulkan::s_descriptorSetLayouts;
 
 #define EZ_LOG_VULKAN_RESOURCES
@@ -59,7 +63,12 @@ void ezResourceCacheVulkan::DeInitialize()
     s_device.destroyPipeline(it.Value(), nullptr);
   }
   s_graphicsPipelines.Clear();
-  s_graphicsPipelines.Compact();
+  GraphicsPipelineMap tmp;
+  s_graphicsPipelines.Swap(tmp);
+  s_graphicsPipelineUsedBy.Clear();
+  ezMap<const ezRefCounted*, ezHybridArray<GraphicsPipelineMap::Iterator, 1>> tmp2;
+  s_graphicsPipelineUsedBy.Swap(tmp2);
+
 
   for (auto it : s_pipelineLayouts)
   {
@@ -300,6 +309,13 @@ void ezResourceCacheVulkan::GetFrameBufferDesc(vk::RenderPass renderPass, const 
     out_desc.m_size = {texDesc.m_uiWidth, texDesc.m_uiHeight};
     out_desc.layers = 1;
   }
+
+  // In some places rendering is started with an empty ezGALRenderTargetSetup just to be able to run GPU commands.
+  // An empty size is invalid in Vulkan so we just set it so 1,1.
+  if (out_desc.m_size == ezSizeU32(0, 0))
+  {
+    out_desc.m_size = {1, 1};
+  }
 }
 
 vk::Framebuffer ezResourceCacheVulkan::RequestFrameBuffer(vk::RenderPass renderPass, const ezGALRenderTargetSetup& renderTargetSetup, ezSizeU32& out_Size, ezGALMSAASampleCount& out_msaa)
@@ -450,7 +466,47 @@ vk::Pipeline ezResourceCacheVulkan::RequestGraphicsPipeline(const GraphicsPipeli
   vk::PipelineCache cache;
   VK_ASSERT_DEBUG(s_device.createGraphicsPipelines(cache, 1, &pipe, nullptr, &pipeline));
 
-  s_graphicsPipelines.Insert(desc, pipeline);
+  auto it = s_graphicsPipelines.Insert(desc, pipeline);
+  {
+    s_graphicsPipelineUsedBy[desc.m_pCurrentRasterizerState].PushBack(it);
+    s_graphicsPipelineUsedBy[desc.m_pCurrentBlendState].PushBack(it);
+    s_graphicsPipelineUsedBy[desc.m_pCurrentDepthStencilState].PushBack(it);
+    s_graphicsPipelineUsedBy[desc.m_pCurrentShader].PushBack(it);
+    s_graphicsPipelineUsedBy[desc.m_pCurrentVertexDecl].PushBack(it);
+  }
+
+  return pipeline;
+}
+
+vk::Pipeline ezResourceCacheVulkan::RequestComputePipeline(const ComputePipelineDesc& desc)
+{
+  if (const vk::Pipeline* pPipeline = s_computePipelines.GetValue(desc))
+  {
+    return *pPipeline;
+  }
+
+#ifdef EZ_LOG_VULKAN_RESOURCES
+  ezLog::Info("Creating Compute Pipeline #{}", s_computePipelines.GetCount());
+#endif // EZ_LOG_VULKAN_RESOURCES
+
+  vk::ComputePipelineCreateInfo pipe;
+  pipe.layout = desc.m_layout;
+  {
+    vk::ShaderModule shader = desc.m_pCurrentShader->GetShader(ezGALShaderStage::ComputeShader);
+    pipe.stage.stage = ezConversionUtilsVulkan::GetShaderStage(ezGALShaderStage::ComputeShader);
+    pipe.stage.module = shader;
+    pipe.stage.pName = "main";
+  }
+
+  vk::Pipeline pipeline;
+  vk::PipelineCache cache;
+  VK_ASSERT_DEBUG(s_device.createComputePipelines(cache, 1, &pipe, nullptr, &pipeline));
+
+  auto it = s_computePipelines.Insert(desc, pipeline);
+  {
+    s_computePipelineUsedBy[desc.m_pCurrentShader].PushBack(it);
+  }
+
   return pipeline;
 }
 
@@ -474,6 +530,56 @@ vk::DescriptorSetLayout ezResourceCacheVulkan::RequestDescriptorSetLayout(const 
 
   s_descriptorSetLayouts.Insert(desc, layout);
   return layout;
+}
+
+void ezResourceCacheVulkan::ResourceDeleted(const ezRefCounted* pResource)
+{
+  auto it = s_graphicsPipelineUsedBy.Find(pResource);
+  if (it.IsValid())
+  {
+    const auto& itArray = it.Value();
+    for (GraphicsPipelineMap::Iterator it2 : itArray)
+    {
+      s_pDevice->DeleteLater(it2.Value());
+
+      const GraphicsPipelineDesc& desc = it2.Key();
+      ezArrayPtr<const ezRefCounted*> resources((const ezRefCounted**)&desc.m_pCurrentRasterizerState, 5);
+      for (const ezRefCounted* pResource2 : resources)
+      {
+        if (pResource2 != pResource)
+        {
+          s_graphicsPipelineUsedBy[pResource2].RemoveAndSwap(it2);
+        }
+      }
+
+      s_graphicsPipelines.Remove(it2);
+    }
+
+    s_graphicsPipelineUsedBy.Remove(it);
+  }
+}
+
+void ezResourceCacheVulkan::ShaderDeleted(const ezGALShaderVulkan* pShader)
+{
+  if (pShader->GetDescription().HasByteCodeForStage(ezGALShaderStage::ComputeShader))
+  {
+    auto it = s_computePipelineUsedBy.Find(pShader);
+    if (it.IsValid())
+    {
+      const auto& itArray = it.Value();
+      for (ComputePipelineMap::Iterator it2 : itArray)
+      {
+        s_pDevice->DeleteLater(it2.Value());
+        s_computePipelines.Remove(it2);
+      }
+
+      s_computePipelineUsedBy.Remove(it);
+    }
+  }
+  else
+  {
+    ResourceDeleted(pShader);
+  }
 }
 
 ezUInt32 ezResourceCacheVulkan::ResourceCacheHash::Hash(const RenderPassDesc& renderingSetup)
@@ -553,6 +659,33 @@ bool ezResourceCacheVulkan::ResourceCacheHash::Equal(const ezGALShaderVulkan::De
   return true;
 }
 
+bool ezResourceCacheVulkan::ResourceCacheHash::Less(const GraphicsPipelineDesc& a, const GraphicsPipelineDesc& b)
+{
+#define LESS_CHECK(member)  \
+  if (a.member != b.member) \
+    return a.member < b.member;
+
+  LESS_CHECK(m_renderPass);
+  LESS_CHECK(m_layout);
+  LESS_CHECK(m_topology);
+  LESS_CHECK(m_msaa);
+  LESS_CHECK(m_uiAttachmentCount);
+  LESS_CHECK(m_pCurrentRasterizerState);
+  LESS_CHECK(m_pCurrentBlendState);
+  LESS_CHECK(m_pCurrentDepthStencilState);
+  LESS_CHECK(m_pCurrentShader);
+  LESS_CHECK(m_pCurrentVertexDecl);
+
+  for (ezUInt32 i = 0; i < EZ_GAL_MAX_VERTEX_BUFFER_COUNT; i++)
+  {
+    if (a.m_VertexBufferStrides[i] != b.m_VertexBufferStrides[i])
+      return a.m_VertexBufferStrides[i] < b.m_VertexBufferStrides[i];
+  }
+  return false;
+
+#undef LESS_CHECK
+}
+
 ezUInt32 ezResourceCacheVulkan::ResourceCacheHash::Hash(const FramebufferKey& key)
 {
   ezHashStreamWriter32 writer;
@@ -590,6 +723,7 @@ ezUInt32 ezResourceCacheVulkan::ResourceCacheHash::Hash(const GraphicsPipelineDe
   writer << desc.m_layout;
   writer << desc.m_topology;
   writer << desc.m_msaa;
+  writer << desc.m_uiAttachmentCount;
   writer << desc.m_pCurrentRasterizerState;
   writer << desc.m_pCurrentBlendState;
   writer << desc.m_pCurrentDepthStencilState;
@@ -611,5 +745,17 @@ bool ArraysEqual(const ezUInt32 (&a)[EZ_GAL_MAX_VERTEX_BUFFER_COUNT], const ezUI
 
 bool ezResourceCacheVulkan::ResourceCacheHash::Equal(const GraphicsPipelineDesc& a, const GraphicsPipelineDesc& b)
 {
-  return a.m_renderPass == b.m_renderPass && a.m_layout == b.m_layout && a.m_topology == b.m_topology && a.m_topology == b.m_topology && a.m_msaa == b.m_msaa && a.m_uiAttachmentCount == b.m_uiAttachmentCount && a.m_pCurrentRasterizerState == b.m_pCurrentRasterizerState && a.m_pCurrentBlendState == b.m_pCurrentBlendState && a.m_pCurrentDepthStencilState == b.m_pCurrentDepthStencilState && a.m_pCurrentShader == b.m_pCurrentShader && a.m_pCurrentVertexDecl == b.m_pCurrentVertexDecl && ArraysEqual(a.m_VertexBufferStrides, b.m_VertexBufferStrides);
+  return a.m_renderPass == b.m_renderPass && a.m_layout == b.m_layout && a.m_topology == b.m_topology && a.m_msaa == b.m_msaa && a.m_uiAttachmentCount == b.m_uiAttachmentCount && a.m_pCurrentRasterizerState == b.m_pCurrentRasterizerState && a.m_pCurrentBlendState == b.m_pCurrentBlendState && a.m_pCurrentDepthStencilState == b.m_pCurrentDepthStencilState && a.m_pCurrentShader == b.m_pCurrentShader && a.m_pCurrentVertexDecl == b.m_pCurrentVertexDecl && ArraysEqual(a.m_VertexBufferStrides, b.m_VertexBufferStrides);
+}
+
+bool ezResourceCacheVulkan::ResourceCacheHash::Less(const ComputePipelineDesc& a, const ComputePipelineDesc& b)
+{
+  if (a.m_layout != b.m_layout)
+    return a.m_layout < b.m_layout;
+  return a.m_pCurrentShader < b.m_pCurrentShader;
+}
+
+bool ezResourceCacheVulkan::ResourceCacheHash::Equal(const ComputePipelineDesc& a, const ComputePipelineDesc& b)
+{
+  return a.m_layout == b.m_layout && a.m_pCurrentShader == b.m_pCurrentShader;
 }

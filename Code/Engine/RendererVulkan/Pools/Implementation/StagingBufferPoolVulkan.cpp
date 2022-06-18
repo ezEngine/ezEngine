@@ -2,16 +2,17 @@
 
 #include <RendererVulkan/Pools/StagingBufferPoolVulkan.h>
 
-vk::Device ezStagingBufferPoolVulkan::s_device;
+#include <RendererVulkan/Device/DeviceVulkan.h>
 
-void ezStagingBufferPoolVulkan::Initialize(vk::Device device)
+void ezStagingBufferPoolVulkan::Initialize(ezGALDeviceVulkan* pDevice)
 {
-  s_device = device;
+  m_pDevice = pDevice;
+  m_device = pDevice->GetVulkanDevice();
 }
 
 void ezStagingBufferPoolVulkan::DeInitialize()
 {
-  s_device = nullptr;
+  m_device = nullptr;
 }
 
 ezStagingBufferVulkan ezStagingBufferPoolVulkan::AllocateBuffer(vk::DeviceSize alignment, vk::DeviceSize size)
@@ -19,7 +20,7 @@ ezStagingBufferVulkan ezStagingBufferPoolVulkan::AllocateBuffer(vk::DeviceSize a
   //#TODO_VULKAN alignment
   ezStagingBufferVulkan buffer;
 
-  EZ_ASSERT_DEBUG(s_device, "ezStagingBufferPoolVulkan::Initialize not called");
+  EZ_ASSERT_DEBUG(m_device, "ezStagingBufferPoolVulkan::Initialize not called");
   vk::BufferCreateInfo bufferCreateInfo = {};
   bufferCreateInfo.size = size;
   bufferCreateInfo.usage = vk::BufferUsageFlagBits::eTransferSrc;
@@ -40,6 +41,8 @@ ezStagingBufferVulkan ezStagingBufferPoolVulkan::AllocateBuffer(vk::DeviceSize a
 
 void ezStagingBufferPoolVulkan::ReclaimBuffer(ezStagingBufferVulkan& buffer)
 {
-  EZ_ASSERT_DEBUG(s_device, "ezStagingBufferPoolVulkan::Initialize not called");
-  ezMemoryAllocatorVulkan::DestroyBuffer(buffer.m_buffer, buffer.m_alloc);
+  m_pDevice->DeleteLater(buffer.m_buffer, buffer.m_alloc);
+
+  //EZ_ASSERT_DEBUG(m_device, "ezStagingBufferPoolVulkan::Initialize not called");
+  //ezMemoryAllocatorVulkan::DestroyBuffer(buffer.m_buffer, buffer.m_alloc);
 }

@@ -3,6 +3,7 @@
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/IO/MemoryStream.h>
 #include <Foundation/IO/Stream.h>
+#include <RendererFoundation/Descriptors/Descriptors.h>
 
 struct ezVulkanDescriptorSetLayoutBinding
 {
@@ -15,12 +16,14 @@ struct ezVulkanDescriptorSetLayoutBinding
   };
 
   EZ_DECLARE_POD_TYPE();
-  ezStringView m_sName; ///< Used to match the same descriptor use across multiple stages.
-  ezUInt8 m_uiBinding = 0;
-  ResourceType m_Type = ResourceType::ConstantBuffer;
-  ezUInt16 m_uiDescriptorType = 0; ///< Maps to vk::DescriptorType
-  ezUInt32 m_uiDescriptorCount = 1;
-  ezUInt32 m_uiWordOffset = 0; ///< Offset of the location in the spirv code where the binding index is located to allow changing it at runtime.
+  ezStringView m_sName;                                                ///< Used to match the same descriptor use across multiple stages.
+  ezUInt8 m_uiBinding = 0;                                             ///< Target descriptor binding slot.
+  ezUInt8 m_uiVirtualBinding = 0;                                      ///< Virtual binding slot in the high level renderer interface.
+  ezShaderResourceType::Enum m_ezType = ezShaderResourceType::Unknown; ///< EZ shader resource type, needed to find compatible fallback resources.
+  ResourceType m_Type = ResourceType::ConstantBuffer;                  ///< Resource type, used to map to the correct EZ resource type.
+  ezUInt16 m_uiDescriptorType = 0;                                     ///< Maps to vk::DescriptorType
+  ezUInt32 m_uiDescriptorCount = 1;                                    ///< For now, this must be 1 as EZ does not support descriptor arrays right now.
+  ezUInt32 m_uiWordOffset = 0;                                         ///< Offset of the location in the spirv code where the binding index is located to allow changing it at runtime.
 };
 
 struct ezVulkanDescriptorSetLayout
@@ -36,12 +39,13 @@ namespace ezSpirvMetaData
   enum MetaDataVersion
   {
     Version1 = 1,
+    Version2 = 2, ///< m_uiVirtualBinding, m_ezType added
   };
 
   void Write(ezStreamWriter& stream, const ezArrayPtr<ezUInt8>& shaderCode, const ezDynamicArray<ezVulkanDescriptorSetLayout>& sets)
   {
     stream << s_uiSpirvMetaDataMagicNumber;
-    stream.WriteVersion(MetaDataVersion::Version1);
+    stream.WriteVersion(MetaDataVersion::Version2);
     const ezUInt32 uiSize = shaderCode.GetCount();
     stream << uiSize;
     stream.WriteBytes(shaderCode.GetPtr(), uiSize).AssertSuccess();
@@ -59,6 +63,8 @@ namespace ezSpirvMetaData
         const ezVulkanDescriptorSetLayoutBinding& binding = set.bindings[j];
         stream.WriteString(binding.m_sName).AssertSuccess();
         stream << binding.m_uiBinding;
+        stream << binding.m_uiVirtualBinding;
+        stream << static_cast<ezUInt8>(binding.m_ezType);
         stream << static_cast<ezUInt8>(binding.m_Type);
         stream << binding.m_uiDescriptorType;
         stream << binding.m_uiDescriptorCount;
@@ -78,8 +84,7 @@ namespace ezSpirvMetaData
     ezUInt32 uiMagicNumber;
     stream >> uiMagicNumber;
     EZ_ASSERT_DEV(uiMagicNumber == s_uiSpirvMetaDataMagicNumber, "Vulkan shader does not start with s_uiSpirvMetaDataMagicNumber");
-    ezTypeVersion uiVersion = stream.ReadVersion(MetaDataVersion::Version1);
-    EZ_ASSERT_DEV(uiVersion == MetaDataVersion::Version1, "Unknown Vulkan shader version '{}'", uiVersion);
+    ezTypeVersion uiVersion = stream.ReadVersion(MetaDataVersion::Version2);
 
     ezUInt32 uiSize = 0;
     stream >> uiSize;
@@ -106,8 +111,17 @@ namespace ezSpirvMetaData
         stream >> uiStringElements;
         binding.m_sName = ezStringView(reinterpret_cast<const char*>(&data[(ezUInt32)stream.GetReadPosition()]), uiStringElements);
         stream.SkipBytes(uiStringElements);
-
         stream >> binding.m_uiBinding;
+        if (uiVersion >= MetaDataVersion::Version2)
+        {
+          stream >> binding.m_uiVirtualBinding;
+          stream >> reinterpret_cast<ezUInt8&>(binding.m_ezType);
+        }
+        else
+        {
+          binding.m_uiVirtualBinding = binding.m_uiBinding;
+          binding.m_ezType = ezShaderResourceType::Texture2D;
+        }
         stream >> reinterpret_cast<ezUInt8&>(binding.m_Type);
         stream >> binding.m_uiDescriptorType;
         stream >> binding.m_uiDescriptorCount;

@@ -116,7 +116,7 @@ void ezRendererTestSwapChain::ResizeTest(ezUInt32 uiInvocationCount)
 
 ezTestAppRun ezRendererTestSwapChain::BasicRenderLoop(ezInt32 iIdentifier, ezUInt32 uiInvocationCount)
 {
-  m_pDevice->BeginFrame();
+  m_pDevice->BeginFrame(uiInvocationCount);
   m_pDevice->BeginPipeline("GraphicsTest", m_hSwapChain);
   m_pPass = m_pDevice->BeginPass("SwapChainTest");
   {

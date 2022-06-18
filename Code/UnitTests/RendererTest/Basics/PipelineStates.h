@@ -19,6 +19,8 @@ private:
     ST_StructuredBuffer,
     ST_Texture2D,
     ST_Texture2DArray,
+    ST_GenerateMipMaps,
+    ST_Timestamps,
   };
 
   enum ImageCaptureFrames
@@ -28,6 +30,7 @@ private:
     StructuredBuffer_Discard = 6,
     StructuredBuffer_NoOverwrite = 8,
     StructuredBuffer_CopyToTempStorage = 9,
+    Timestamps_MaxWaitTime = 10,
   };
 
   virtual void SetupSubTests() override
@@ -40,6 +43,8 @@ private:
     AddSubTest("06 - StructuredBuffer", SubTests::ST_StructuredBuffer);
     AddSubTest("07 - Texture2D", SubTests::ST_Texture2D);
     AddSubTest("08 - Texture2DArray", SubTests::ST_Texture2DArray);
+    AddSubTest("09 - GenerateMipMaps", SubTests::ST_GenerateMipMaps);
+    AddSubTest("10 - Timestamps", SubTests::ST_Timestamps);
   }
 
   virtual ezResult InitializeSubTest(ezInt32 iIdentifier) override;
@@ -50,6 +55,7 @@ private:
 
   ezGALRenderCommandEncoder* BeginRendering(ezColor clearColor, ezUInt32 uiRenderTargetClearMask, ezRectFloat* pViewport = nullptr, ezRectU32* pScissor = nullptr);
   void EndRendering();
+
   void RenderCube(ezRectFloat viewport, ezMat4 mMVP, ezUInt32 uiRenderTargetClearMask, ezGALResourceViewHandle hSRV);
 
   void MostBasicTriangleTest();
@@ -60,6 +66,8 @@ private:
   void StructuredBufferTest();
   void Texture2D();
   void Texture2DArray();
+  void GenerateMipMaps();
+  void Timestamps();
 
 private:
   ezInt32 m_iFrame = 0;
@@ -92,4 +100,9 @@ private:
   ezGALResourceViewHandle m_hTexture2DArray_Layer1_Mip0;
   ezGALResourceViewHandle m_hTexture2DArray_Layer1_Mip1;
   ezMeshBufferResourceHandle m_hCubeUV;
+
+  bool m_bTimestampsValid = false;
+  ezTime m_CPUTime[2];
+  ezTime m_GPUTime[2];
+  ezGALTimestampHandle m_timestamps[2];
 };

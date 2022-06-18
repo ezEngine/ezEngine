@@ -43,17 +43,17 @@ namespace
     }
   }
 
+  struct ImgColor
+  {
+    EZ_DECLARE_POD_TYPE();
+    ezUInt8 b;
+    ezUInt8 g;
+    ezUInt8 r;
+    ezUInt8 a;
+  };
+
   void CreateImage(ezImage& image, ezUInt32 uiWidth, ezUInt32 uiHeight, ezUInt32 uiMipLevelCount, bool bMipLevelIsBlue, ezUInt8 uiFixedBlue = 0)
   {
-    struct ImgColor
-    {
-      EZ_DECLARE_POD_TYPE();
-      ezUInt8 b;
-      ezUInt8 g;
-      ezUInt8 r;
-      ezUInt8 a;
-    };
-
     ezImageHeader header;
     header.SetImageFormat(ezImageFormat::B8G8R8A8_UNORM_SRGB);
     header.SetWidth(uiWidth);
@@ -104,6 +104,16 @@ ezResult ezRendererTestPipelineStates::InitializeSubTest(ezInt32 iIdentifier)
   m_iFrame = -1;
   m_bCaptureImage = false;
   m_ImgCompFrames.Clear();
+
+  {
+    m_bTimestampsValid = false;
+    m_CPUTime[0] = {};
+    m_CPUTime[1] = {};
+    m_GPUTime[0] = {};
+    m_GPUTime[1] = {};
+    m_timestamps[0] = {};
+    m_timestamps[1] = {};
+  }
 
   EZ_SUCCEED_OR_RETURN(ezGraphicsTest::InitializeSubTest(iIdentifier));
   EZ_SUCCEED_OR_RETURN(SetupRenderer());
@@ -179,6 +189,29 @@ ezResult ezRendererTestPipelineStates::InitializeSubTest(ezInt32 iIdentifier)
 
     ezImage coloredMips;
     CreateImage(coloredMips, desc.m_uiWidth, desc.m_uiHeight, desc.m_uiMipLevelCount, true);
+
+    if (iIdentifier == SubTests::ST_GenerateMipMaps)
+    {
+      // Clear all mips except the fist one and let them be regenerated.
+      desc.m_ResourceAccess.m_bImmutable = false;
+      desc.m_bAllowDynamicMipGeneration = true;
+      for (ezUInt32 m = 1; m < desc.m_uiMipLevelCount; m++)
+      {
+        const ezUInt32 uiHeight = coloredMips.GetHeight(m);
+        const ezUInt32 uiWidth = coloredMips.GetWidth(m);
+        for (ezUInt32 y = 0; y < uiHeight; y++)
+        {
+          for (ezUInt32 x = 0; x < uiWidth; x++)
+          {
+            ImgColor* pColor = coloredMips.GetPixelPointer<ImgColor>(m, 0u, 0u, x, y);
+            pColor->a = 255;
+            pColor->b = 0;
+            pColor->g = 0;
+            pColor->r = 0;
+          }
+        }
+      }
+    }
 
     ezHybridArray<ezGALSystemMemoryDescription, 4> initialData;
     initialData.SetCount(desc.m_uiMipLevelCount);
@@ -285,6 +318,7 @@ ezResult ezRendererTestPipelineStates::InitializeSubTest(ezInt32 iIdentifier)
       m_ImgCompFrames.PushBack(ImageCaptureFrames::StructuredBuffer_NoOverwrite);
       m_ImgCompFrames.PushBack(ImageCaptureFrames::StructuredBuffer_CopyToTempStorage);
       break;
+    case SubTests::ST_GenerateMipMaps:
     case SubTests::ST_Texture2D:
     {
       m_ImgCompFrames.PushBack(ImageCaptureFrames::DefaultCapture);
@@ -297,6 +331,9 @@ ezResult ezRendererTestPipelineStates::InitializeSubTest(ezInt32 iIdentifier)
       m_hShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/Texture2DArray.ezShader");
     }
     break;
+    case SubTests::ST_Timestamps:
+      m_ImgCompFrames.PushBack(ImageCaptureFrames::Timestamps_MaxWaitTime);
+      break;
     default:
       EZ_ASSERT_NOT_IMPLEMENTED;
       break;
@@ -353,7 +390,7 @@ ezTestAppRun ezRendererTestPipelineStates::RunSubTest(ezInt32 iIdentifier, ezUIn
 {
   m_iFrame = uiInvocationCount;
   m_bCaptureImage = false;
-  m_pDevice->BeginFrame();
+  m_pDevice->BeginFrame(uiInvocationCount);
   m_pDevice->BeginPipeline("GraphicsTest", m_hSwapChain);
 
   switch (iIdentifier)
@@ -381,6 +418,12 @@ ezTestAppRun ezRendererTestPipelineStates::RunSubTest(ezInt32 iIdentifier, ezUIn
       break;
     case SubTests::ST_Texture2DArray:
       Texture2DArray();
+      break;
+    case SubTests::ST_GenerateMipMaps:
+      GenerateMipMaps();
+      break;
+    case SubTests::ST_Timestamps:
+      Timestamps();
       break;
     default:
       EZ_ASSERT_NOT_IMPLEMENTED;
@@ -460,11 +503,7 @@ ezGALRenderCommandEncoder* ezRendererTestPipelineStates::BeginRendering(ezColor 
   }
   pCommandEncoder->SetScissorRect(scissor);
 
-  static ezHashedString sClipSpaceFlipped = ezMakeHashedString("CLIP_SPACE_FLIPPED");
-  static ezHashedString sTrue = ezMakeHashedString("TRUE");
-  static ezHashedString sFalse = ezMakeHashedString("FALSE");
-  ezClipSpaceYMode::Enum clipSpace = ezClipSpaceYMode::RenderToTextureDefault;
-  ezRenderContext::GetDefaultInstance()->SetShaderPermutationVariable(sClipSpaceFlipped, clipSpace == ezClipSpaceYMode::Flipped ? sTrue : sFalse);
+  SetClipSpace();
   return pCommandEncoder;
 }
 
@@ -622,14 +661,11 @@ void ezRendererTestPipelineStates::StructuredBufferTest()
 
 void ezRendererTestPipelineStates::RenderCube(ezRectFloat viewport, ezMat4 mMVP, ezUInt32 uiRenderTargetClearMask, ezGALResourceViewHandle hSRV)
 {
-  ezGALRenderCommandEncoder* pCommandEncoder = BeginRendering(ezColor::RebeccaPurple, uiRenderTargetClearMask, &viewport);
+  ezGALRenderCommandEncoder* pCommandEncoder = BeginRendering(ezColor::RebeccaPurple, uiRenderTargetClearMask);
+
   ezRenderContext::GetDefaultInstance()->BindTexture2D("DiffuseTexture", hSRV);
   RenderObject(m_hCubeUV, mMVP, ezColor(1, 1, 1, 1), ezShaderBindFlags::None);
 
-  if (m_bCaptureImage && m_ImgCompFrames.Contains(m_iFrame))
-  {
-    EZ_TEST_IMAGE(m_iFrame, 100);
-  }
   EndRendering();
 };
 
@@ -685,6 +721,74 @@ void ezRendererTestPipelineStates::Texture2DArray()
   }
   m_pDevice->EndPass(m_pPass);
   m_pPass = nullptr;
+}
+
+void ezRendererTestPipelineStates::GenerateMipMaps()
+{
+  const float fWidth = (float)m_pWindow->GetClientAreaSize().width;
+  const float fHeight = (float)m_pWindow->GetClientAreaSize().height;
+  const ezUInt32 uiColumns = 2;
+  const ezUInt32 uiRows = 2;
+  const float fElementWidth = fWidth / uiColumns;
+  const float fElementHeight = fHeight / uiRows;
+
+  const ezMat4 mMVP = CreateSimpleMVP((float)fElementWidth / (float)fElementHeight);
+  m_pPass = m_pDevice->BeginPass("GenerateMipMaps");
+  {
+    ezRectFloat viewport = ezRectFloat(0, 0, fElementWidth, fElementHeight);
+    ezGALRenderCommandEncoder* pCommandEncoder = BeginRendering(ezColor::RebeccaPurple, 0, &viewport);
+    pCommandEncoder->GenerateMipMaps(m_pDevice->GetDefaultResourceView(m_hTexture2D));
+    EndRendering();
+
+    RenderCube(viewport, mMVP, 0xFFFFFFFF, m_hTexture2D_Mip0);
+    viewport = ezRectFloat(fElementWidth, 0, fElementWidth, fElementHeight);
+    RenderCube(viewport, mMVP, 0, m_hTexture2D_Mip1);
+    viewport = ezRectFloat(0, fElementHeight, fElementWidth, fElementHeight);
+    RenderCube(viewport, mMVP, 0, m_hTexture2D_Mip2);
+    m_bCaptureImage = true;
+    viewport = ezRectFloat(fElementWidth, fElementHeight, fElementWidth, fElementHeight);
+    RenderCube(viewport, mMVP, 0, m_hTexture2D_Mip3);
+  }
+  m_pDevice->EndPass(m_pPass);
+  m_pPass = nullptr;
+}
+
+void ezRendererTestPipelineStates::Timestamps()
+{
+  m_pPass = m_pDevice->BeginPass("Timestamps");
+  {
+    ezGALRenderCommandEncoder* pCommandEncoder = BeginRendering(ezColor::RebeccaPurple, 0xFFFFFFFF);
+
+    if (m_iFrame == 2)
+    {
+      m_CPUTime[0] = ezTime::Now();
+      m_timestamps[0] = pCommandEncoder->InsertTimestamp();
+    }
+    ezRenderContext::GetDefaultInstance()->BindShader(m_hNDCPositionOnlyShader);
+    ezRenderContext::GetDefaultInstance()->BindMeshBuffer(m_hSphereMesh);
+    ezRenderContext::GetDefaultInstance()->DrawMeshBuffer().AssertSuccess();
+
+    if (m_iFrame == 2)
+      m_timestamps[1] = pCommandEncoder->InsertTimestamp();
+    EndRendering();
+  }
+  m_pDevice->EndPass(m_pPass);
+  m_pPass = nullptr;
+
+  if (m_iFrame > 2 && !m_bTimestampsValid)
+  {
+    if (m_bTimestampsValid = m_pDevice->GetTimestampResult(m_timestamps[0], m_GPUTime[0]).Succeeded() && m_pDevice->GetTimestampResult(m_timestamps[1], m_GPUTime[1]).Succeeded())
+    {
+      m_CPUTime[1] = ezTime::Now();
+      EZ_TEST_BOOL_MSG(m_CPUTime[0] <= m_GPUTime[0], "%.6f < %.6f", m_CPUTime[0].GetSeconds(), m_GPUTime[0].GetSeconds());
+      EZ_TEST_BOOL_MSG(m_GPUTime[0] <= m_GPUTime[1], "%.6f < %.6f", m_GPUTime[0].GetSeconds(), m_GPUTime[1].GetSeconds());
+      EZ_TEST_BOOL_MSG(m_GPUTime[1] <= m_CPUTime[1], "%.6f < %.6f", m_GPUTime[1].GetSeconds(), m_CPUTime[1].GetSeconds());
+    }
+  }
+  if (m_iFrame == ImageCaptureFrames::Timestamps_MaxWaitTime)
+  {
+    EZ_TEST_BOOL_MSG(m_bTimestampsValid, "Timestamp results are not present.");
+  }
 }
 
 static ezRendererTestPipelineStates g_PipelineStatesTest;

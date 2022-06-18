@@ -372,6 +372,7 @@ public:
       m_pDevice->EndPipeline(m_hSwapChain);
 
       m_pDevice->EndFrame();
+      ezRenderContext::GetDefaultInstance()->ResetContextState();
     }
 
     // needs to be called once per frame

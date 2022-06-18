@@ -136,6 +136,7 @@ void ezWindowOutputTargetXR::RenderCompanionView(bool bThrottleCompanionView)
     pDevice->EndPass(pPass);
 
     pDevice->EndPipeline(m_pCompanionWindowOutputTarget->m_hSwapChain);
+    m_pRenderContext->ResetContextState();
   }
 }
 

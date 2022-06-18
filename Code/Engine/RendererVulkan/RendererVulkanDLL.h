@@ -14,6 +14,8 @@
 #  define EZ_RENDERERVULKAN_DLL
 #endif
 
+// Uncomment to log all layout transitions.
+//#define VK_LOG_LAYOUT_CHANGES
 
 #define EZ_GAL_VULKAN_RELEASE(vulkanObj) \
   do                                     \

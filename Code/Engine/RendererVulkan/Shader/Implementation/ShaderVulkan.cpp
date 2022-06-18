@@ -131,9 +131,10 @@ ezResult ezGALShaderVulkan::InitPlatform(ezGALDevice* pDevice)
             // We build this remapping table to map our descriptor binding to the original per-stage resource binding model.
             BindingMapping& bindingMapping = m_BindingMapping.ExpandAndGetRef();
             bindingMapping.m_descriptorType = (vk::DescriptorType)binding.m_uiDescriptorType;
+            bindingMapping.m_ezType = binding.m_ezType;
             bindingMapping.m_type = (BindingMapping::Type)binding.m_Type;
             bindingMapping.m_stage = (ezGALShaderStage::Enum)i;
-            bindingMapping.m_uiSource = binding.m_uiBinding;
+            bindingMapping.m_uiSource = binding.m_uiVirtualBinding;
             bindingMapping.m_uiTarget = uiTargetBinding;
           }
         }
@@ -141,6 +142,10 @@ ezResult ezGALShaderVulkan::InitPlatform(ezGALDevice* pDevice)
     }
   }
   m_BindingMapping.Sort([](const BindingMapping& lhs, const BindingMapping& rhs) { return lhs.m_uiTarget < rhs.m_uiTarget; });
+  for (ezUInt32 i = 0; i < m_BindingMapping.GetCount(); i++)
+  {
+    m_BindingMapping[i].m_targetStages = ezConversionUtilsVulkan::GetPipelineStage(sourceBindings[m_BindingMapping[i].m_uiTarget].m_stages);
+  }
 
   // Build Vulkan descriptor set layout
   for (ezUInt32 i = 0; i < sourceBindings.GetCount(); i++)

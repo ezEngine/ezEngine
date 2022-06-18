@@ -28,6 +28,7 @@ public:
 
   void Reset();
   void MarkDirty();
+  void SetCurrentCommandBuffer(vk::CommandBuffer* commandBuffer, ezPipelineBarrierVulkan* pipelineBarrier);
 
   // ezGALCommandEncoderCommonPlatformInterface
   // State setting functions
@@ -83,7 +84,7 @@ public:
   virtual void InsertEventMarkerPlatform(const char* szMarker) override;
 
   // ezGALCommandEncoderRenderPlatformInterface
-  void BeginRendering(vk::CommandBuffer& commandBuffer, const ezGALRenderingSetup& renderingSetup);
+  void BeginRendering(const ezGALRenderingSetup& renderingSetup);
   void EndRendering();
 
   // Draw functions
@@ -120,7 +121,7 @@ public:
 
   // ezGALCommandEncoderComputePlatformInterface
   // Dispatch
-  void BeginCompute(vk::CommandBuffer& commandBuffer);
+  void BeginCompute();
   void EndCompute();
 
   virtual void DispatchPlatform(ezUInt32 uiThreadGroupCountX, ezUInt32 uiThreadGroupCountY, ezUInt32 uiThreadGroupCountZ) override;
@@ -133,6 +134,7 @@ private:
   vk::Device m_vkDevice;
 
   vk::CommandBuffer* m_pCommandBuffer = nullptr;
+  ezPipelineBarrierVulkan* m_pPipelineBarrier = nullptr;
 
   // Cache flags.
   bool m_bPipelineStateDirty = true;
@@ -141,10 +143,14 @@ private:
   bool m_bDescriptorsDirty = false;
   ezGAL::ModifiedRange m_BoundVertexBuffersRange;
   bool m_bRenderPassActive = false;
+  bool m_bClearSubmitted = false; ///< Start render pass is lazy so if no draw call is executed we need to make sure the clear is executed anyways.
+  bool m_bInsideCompute = false; ///< Within BeginCompute / EndCompute block.
+
 
   // Bound objects for deferred state flushes
   ezResourceCacheVulkan::PipelineLayoutDesc m_LayoutDesc;
   ezResourceCacheVulkan::GraphicsPipelineDesc m_PipelineDesc;
+  ezResourceCacheVulkan::ComputePipelineDesc m_ComputeDesc;
   vk::Framebuffer m_frameBuffer;
   vk::RenderPassBeginInfo m_renderPass;
   ezHybridArray<vk::ClearValue, EZ_GAL_MAX_RENDERTARGET_COUNT + 1> m_clearValues;

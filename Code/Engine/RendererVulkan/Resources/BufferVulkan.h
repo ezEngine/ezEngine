@@ -3,6 +3,8 @@
 
 #include <RendererFoundation/Resources/Buffer.h>
 
+#include <RendererVulkan/Device/DeviceVulkan.h>
+
 #include <vulkan/vulkan.hpp>
 
 class EZ_RENDERERVULKAN_DLL ezGALBufferVulkan : public ezGALBuffer

@@ -44,6 +44,7 @@ protected:
   void ShutdownRenderer();
   void DestroyWindow();
   void ClearScreen(const ezColor& color = ezColor::Black);
+  void SetClipSpace();
 
   void BeginFrame();
   void EndFrame();

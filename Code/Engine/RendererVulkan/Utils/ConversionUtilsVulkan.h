@@ -38,6 +38,8 @@ public:
   static bool IsStencilFormat(vk::Format format);
   static vk::PrimitiveTopology GetPrimitiveTopology(ezEnum<ezGALPrimitiveTopology> topology);
   static vk::ShaderStageFlagBits GetShaderStage(ezGALShaderStage::Enum stage);
+  static vk::PipelineStageFlags GetPipelineStage(ezGALShaderStage::Enum stage);
+  static vk::PipelineStageFlags GetPipelineStage(vk::ShaderStageFlags flags);
 };
 
 #include <RendererVulkan/Utils/Implementation/ConversionUtilsVulkan.inl.h>
