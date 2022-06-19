@@ -67,7 +67,7 @@ function(ez_set_target_output_dirs TARGET_NAME LIB_OUTPUT_DIR DLL_OUTPUT_DIR)
 			ARCHIVE_OUTPUT_DIRECTORY "${OUTPUT_LIB_DEV}"
         )
     else()
-        message(WARNING "Unknown CMAKE_BUILD_TYPE: '${CMAKE_BUILD_TYPE}'")
+        message(WARNING "Unknown CMAKE_BUILD_TYPE: '${CMAKE_BUILD_TYPE}'. ezEngine cmake scripts support the following 3 build types: 'Debug', 'Dev', 'Release'")
     endif()	
 
     set_target_properties(${TARGET_NAME} PROPERTIES
@@ -270,8 +270,8 @@ function(ez_set_application_properties TARGET_NAME)
         target_link_libraries (${TARGET_NAME} PRIVATE ${X11_X11_LIB} sfml-window sfml-system)
     endif ()
 
-    # We need to link against X11, pthread and rt last or linker errors will occur.
-    if (EZ_CMAKE_COMPILER_GCC)
+    # We need to link against pthread and rt last or linker errors will occur.
+    if (EZ_CMAKE_PLATFORM_LINUX)
         target_link_libraries (${TARGET_NAME} PRIVATE pthread rt)
     endif ()
 

@@ -170,11 +170,37 @@ function(ez_set_build_flags_clang TARGET_NAME)
 	#endif ()
 	
 	if(NOT EZ_CMAKE_PLATFORM_ANDROID AND NOT EZ_CMAKE_PLATFORM_WINDOWS)
-		target_compile_options(${TARGET_NAME} PRIVATE "-stdlib=libc++")
+		target_compile_options(${TARGET_NAME} PRIVATE $<$<COMPILE_LANGUAGE:CXX>:-stdlib=libc++>)
+		
+		target_link_options(${TARGET_NAME} PRIVATE $<$<COMPILE_LANGUAGE:CXX>:-stdlib=libc++>)
 	endif()
 	
 	if(EZ_CMAKE_ARCHITECTURE_X86)
 		target_compile_options(${TARGET_NAME} PRIVATE "-msse4.1")
+	endif()
+	
+	if(EZ_CMAKE_PLATFORM_LINUX)
+		target_compile_options(${TARGET_NAME} PRIVATE -fPIC)
+		
+		# We want to use the llvm linker lld by default
+		# Unless the user has specified a different linker
+		get_target_property(TARGET_TYPE ${TARGET_NAME} TYPE)
+		message(STATUS "TARGET_TYPE ${TARGET_TYPE}")
+		if ("${TARGET_TYPE}" STREQUAL "SHARED_LIBRARY")
+			if(NOT ("${CMAKE_EXE_LINKER_FLAGS}" MATCHES "fuse-ld="))
+				target_link_options(${TARGET_NAME} PRIVATE "-fuse-ld=lld")
+				message(STATUS "Using lld linker")
+			else()
+				message(STATUS "User has set custom linker")
+			endif()
+		elseif("${TARGET_TYPE}" STREQUAL "EXECUTABLE")
+			if(NOT ("${CMAKE_SHARED_LINKER_FLAGS}" MATCHES "fuse-ld="))
+				target_link_options(${TARGET_NAME} PRIVATE "-fuse-ld=lld")
+				message(STATUS "Using lld linker")
+			else()
+				message(STATUS "user has set custom linker")
+			endif()
+		endif()
 	endif()
 	
 	# Disable warning: multi-character character constant

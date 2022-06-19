@@ -21,6 +21,7 @@
 
 // include c++11 specific header
 #include <type_traits>
+#include <utility>
 
 #ifndef __has_cpp_attribute
 #  define __has_cpp_attribute(name) 0
