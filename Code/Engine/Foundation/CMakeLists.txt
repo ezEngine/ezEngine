@@ -20,7 +20,7 @@ endif()
 if (EZ_CMAKE_PLATFORM_LINUX)
   CHECK_INCLUDE_FILE_CXX("uuid/uuid.h" UUID_HEADER)
   if (NOT UUID_HEADER)
-	message(FATAL_ERROR "Missing uuid/uuid.h. Have you installed the uuid-dev package?")
+    message(FATAL_ERROR "Missing uuid/uuid.h. Have you installed the uuid-dev package?")
   endif()
   
   target_link_libraries(${PROJECT_NAME}

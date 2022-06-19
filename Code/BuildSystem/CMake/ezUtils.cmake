@@ -67,7 +67,7 @@ function(ez_set_target_output_dirs TARGET_NAME LIB_OUTPUT_DIR DLL_OUTPUT_DIR)
 			ARCHIVE_OUTPUT_DIRECTORY "${OUTPUT_LIB_DEV}"
         )
     else()
-        message(WARNING "Unknown CMAKE_BUILD_TYPE: '${CMAKE_BUILD_TYPE}'. ezEngine cmake scripts support the following 3 build types: 'Debug', 'Dev', 'Release'")
+        message(WARNING "Unknown CMAKE_BUILD_TYPE: '${CMAKE_BUILD_TYPE}'. ezEngine cmake scripts support the following 3 build types: 'Debug', 'Dev', 'Shipping'")
     endif()	
 
     set_target_properties(${TARGET_NAME} PROPERTIES
@@ -247,8 +247,8 @@ function(ez_set_library_properties TARGET_NAME)
     endif ()
 
     if (EZ_CMAKE_PLATFORM_OSX OR EZ_CMAKE_PLATFORM_LINUX)
-		find_package(X11 REQUIRED)
-		find_package(SFML REQUIRED system window)
+        find_package(X11 REQUIRED)
+        find_package(SFML REQUIRED system window)
         target_include_directories (${TARGET_NAME} PRIVATE ${X11_X11_INCLUDE_PATH})
         target_link_libraries (${TARGET_NAME} PRIVATE ${X11_X11_LIB} sfml-window sfml-system)
     endif ()
