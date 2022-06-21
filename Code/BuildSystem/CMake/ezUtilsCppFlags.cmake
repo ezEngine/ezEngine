@@ -182,17 +182,27 @@ function(ez_set_build_flags_clang TARGET_NAME)
 	if(EZ_CMAKE_PLATFORM_LINUX)
 		target_compile_options(${TARGET_NAME} PRIVATE -fPIC)
 		
+		# Look for the super fast ld compatible linker called "mold". If present we want to use it.
+		find_program(MOLD_PATH "mold")
+		
 		# We want to use the llvm linker lld by default
 		# Unless the user has specified a different linker
 		get_target_property(TARGET_TYPE ${TARGET_NAME} TYPE)
-		message(STATUS "TARGET_TYPE ${TARGET_TYPE}")
 		if ("${TARGET_TYPE}" STREQUAL "SHARED_LIBRARY")
 			if(NOT ("${CMAKE_EXE_LINKER_FLAGS}" MATCHES "fuse-ld="))
-				target_link_options(${TARGET_NAME} PRIVATE "-fuse-ld=lld")
+				if (MOLD_PATH)
+					target_link_options(${TARGET_NAME} PRIVATE "-fuse-ld=${MOLD_PATH}")
+				else()
+				    target_link_options(${TARGET_NAME} PRIVATE "-fuse-ld=lld")
+				endif()
 			endif()
 		elseif("${TARGET_TYPE}" STREQUAL "EXECUTABLE")
 			if(NOT ("${CMAKE_SHARED_LINKER_FLAGS}" MATCHES "fuse-ld="))
-				target_link_options(${TARGET_NAME} PRIVATE "-fuse-ld=lld")
+				if (MOLD_PATH)
+					target_link_options(${TARGET_NAME} PRIVATE "-fuse-ld=${MOLD_PATH}")
+				else()
+				    target_link_options(${TARGET_NAME} PRIVATE "-fuse-ld=lld")
+				endif()
 			endif()
 		endif()
 	endif()
@@ -244,6 +254,27 @@ function(ez_set_build_flags_gcc TARGET_NAME)
 	
 	# Disable warning: multi-character character constant
 	target_compile_options(${TARGET_NAME} PRIVATE -Wno-multichar)
+	
+	# Look for the super fast ld compatible linker called "mold". If present we want to use it.
+	# GCC can not be told to directly use mold. Instead if we have to look for a symlink called "ld"
+	# Which might reside either in /usr/libexec/mold or /usr/local/libexec/mold
+	# We can then use gcc's "-B" argument to specify the ld executable path.
+	find_program(MOLD_PATH "ld" HINTS "/usr/libexec/mold" "/usr/local/libexec/mold" NO_DEFAULT_PATH)
+	
+	if (MOLD_PATH)
+		get_filename_component(MOLD_DIR ${MOLD_PATH} DIRECTORY)
+		# Use the ultra fast mold linker if present and the user didn't specify a different linker manually
+		get_target_property(TARGET_TYPE ${TARGET_NAME} TYPE)
+		if ("${TARGET_TYPE}" STREQUAL "SHARED_LIBRARY")
+			if(NOT ("${CMAKE_EXE_LINKER_FLAGS}" MATCHES "fuse-ld="))
+				target_link_options(${TARGET_NAME} PRIVATE -B ${MOLD_DIR})
+			endif()
+		elseif("${TARGET_TYPE}" STREQUAL "EXECUTABLE")
+			if(NOT ("${CMAKE_SHARED_LINKER_FLAGS}" MATCHES "fuse-ld="))
+				target_link_options(${TARGET_NAME} PRIVATE -B ${MOLD_DIR})
+			endif()
+		endif()
+	endif()
 
 endfunction()
 
