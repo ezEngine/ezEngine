@@ -11,7 +11,7 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC BUILDSYSTEM_ENABLE_ZSTD_SUPPOR
 
 target_include_directories(${PROJECT_NAME} PRIVATE common compress decompress)
 
-if (EZ_COMPILE_ENGINE_AS_DLL)
+if (EZ_COMPILE_ENGINE_AS_DLL AND EZ_CMAKE_PLATFORM_WINDOWS)
 
   target_compile_definitions(${PROJECT_NAME} PRIVATE ZSTD_DLL_EXPORT=1)
   target_compile_definitions(${PROJECT_NAME} PUBLIC ZSTD_DLL_IMPORT=1)

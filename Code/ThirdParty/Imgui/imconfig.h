@@ -18,10 +18,14 @@
 // Start ezEngine edit
 // Configure the DLL Import/Export Define
 #ifdef BUILDSYSTEM_COMPILE_ENGINE_AS_DLL
+#ifdef WIN32
 #ifdef BUILDSYSTEM_BUILDING_IMGUI_LIB
 #define IMGUI_API __declspec(dllexport)
 #else
 #define IMGUI_API __declspec(dllimport)
+#endif
+#else
+#define IMGUI_API __attribute__ ((visibility ("default")))
 #endif
 #endif
 
