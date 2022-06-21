@@ -12,7 +12,7 @@
 #      define EZ_FILESERVEPLUGIN_DLL __declspec(dllimport)
 #    endif
 #  else
-#    define EZ_FILESERVEPLUGIN_DLL __attribute__ ((visibility ("default")))
+#    define EZ_FILESERVEPLUGIN_DLL __attribute__((visibility("default")))
 #  endif
 #else
 #  define EZ_FILESERVEPLUGIN_DLL

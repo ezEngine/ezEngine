@@ -9,7 +9,7 @@
 #      define EZ_JOLTCOOKING_DLL __declspec(dllimport)
 #    endif
 #  else
-#    define EZ_JOLTCOOKING_DLL __attribute__ ((visibility ("default")))
+#    define EZ_JOLTCOOKING_DLL __attribute__((visibility("default")))
 #  endif
 #else
 #  define EZ_JOLTCOOKING_DLL
