@@ -483,7 +483,7 @@ void ezEngineProcessGameApplication::Init_LoadProjectPlugins()
     return lhs.m_sAppDirRelativePath.Compare_NoCase(rhs.m_sAppDirRelativePath) < 0;
   });
 
-  m_CustomPluginConfig.SetOnlyLoadManualPlugins(false); // we also want to load editor plugin dependencies
+  //m_CustomPluginConfig.SetOnlyLoadManualPlugins(false); // we also want to load editor plugin dependencies
   m_CustomPluginConfig.Apply();
 }
 

@@ -1,0 +1,12 @@
+PluginInfo
+{
+	string %DisplayName{"FMOD Sound"}
+	string %Description{"Adds support for sound via FMOD."}
+	string %EditorPlugins{"ezEditorPluginFmod"}
+	string %EditorEnginePlugins{}
+	string %RuntimePlugins{"ezFmodPlugin"}
+	string %PackageDependencies{}
+	string %RequiredPlugins{"Scene"}
+	string %ExclusiveFeatures{"Sound"}
+	string %EnabledInTemplates{"General2D", "General3D"}
+}

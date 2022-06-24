@@ -13,9 +13,6 @@
 
 void OnLoadPlugin()
 {
-  ezQtEditorApp::GetSingleton()->AddRuntimePluginDependency("EditorPluginParticle", "ezParticlePlugin");
-  ezQtEditorApp::GetSingleton()->AddRuntimePluginDependency("EditorPluginParticle", "ezEnginePluginParticle");
-
   ezParticleActions::RegisterActions();
 
   // Particle Effect

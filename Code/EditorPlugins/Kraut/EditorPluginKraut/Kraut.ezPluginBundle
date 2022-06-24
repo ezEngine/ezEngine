@@ -1,0 +1,12 @@
+PluginInfo
+{
+	string %DisplayName{"Kraut Tree"}
+	string %Description{"Adds support for procedurally generated trees."}
+	string %EditorPlugins{"ezEditorPluginKraut"}
+	string %EditorEnginePlugins{"ezEnginePluginKraut"}
+	string %RuntimePlugins{"ezKrautPlugin"}
+	string %PackageDependencies{}
+	string %RequiredPlugins{"Scene"}
+	string %ExclusiveFeatures{}
+	string %EnabledInTemplates{"General3D"}
+}

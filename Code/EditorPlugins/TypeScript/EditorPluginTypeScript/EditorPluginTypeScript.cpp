@@ -18,8 +18,6 @@
 
 void OnLoadPlugin()
 {
-  ezQtEditorApp::GetSingleton()->AddRuntimePluginDependency("EditorPluginTypeScript", "ezTypeScriptPlugin");
-
   ezTypeScriptActions::RegisterActions();
 
   // TypeScript
@@ -48,8 +46,6 @@ void OnUnloadPlugin()
 {
   ezTypeScriptActions::UnregisterActions();
 }
-
-EZ_PLUGIN_DEPENDENCY(ezEditorPluginScene);
 
 EZ_PLUGIN_ON_LOADED()
 {

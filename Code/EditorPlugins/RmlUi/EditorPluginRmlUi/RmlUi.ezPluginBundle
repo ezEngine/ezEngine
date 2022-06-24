@@ -1,0 +1,12 @@
+PluginInfo
+{
+	string %DisplayName{"RML UI"}
+	string %Description{"Adds support for graphical user interfaces using RmlUI."}
+	string %EditorPlugins{"ezEditorPluginRmlUi"}
+	string %EditorEnginePlugins{"ezEnginePluginRmlUi"}
+	string %RuntimePlugins{"ezRmlUiPlugin"}
+	string %PackageDependencies{}
+	string %RequiredPlugins{"Scene"}
+	string %ExclusiveFeatures{}
+	string %EnabledInTemplates{"General2D", "General3D"}
+}

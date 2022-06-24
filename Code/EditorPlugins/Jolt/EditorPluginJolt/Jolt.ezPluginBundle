@@ -1,0 +1,12 @@
+PluginInfo
+{
+	string %DisplayName{"Jolt Physics"}
+	string %Description{"Adds support for 3D physics simulation via Jolt."}
+	string %EditorPlugins{"ezEditorPluginJolt"}
+	string %EditorEnginePlugins{"ezEnginePluginJolt"}
+	string %RuntimePlugins{"ezJoltPlugin"}
+	string %PackageDependencies{}
+	string %RequiredPlugins{"Scene"}
+	string %ExclusiveFeatures{"physics"}
+	string %EnabledInTemplates{"General3D"}
+}

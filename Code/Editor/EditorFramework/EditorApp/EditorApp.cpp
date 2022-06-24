@@ -166,6 +166,172 @@ void ezQtEditorApp::OnDemandDynamicStringEnumLoad(const char* szEnumName, ezDyna
   m_DynamicEnumStringsToClear.Insert(szEnumName);
 }
 
+ezResult ezQtEditorApp::AddBundlesInOrder(ezDynamicArray<ezString>& order, const ezPluginBundleSet& bundles, const ezString& start, bool bEditor, bool bEditorEngine, bool bRuntime) const
+{
+  const auto& bundle = bundles.m_Plugins.Find(start).Value();
+
+  for (const ezString& req : bundle.m_RequiredBundles)
+  {
+    auto it = bundles.m_Plugins.Find(req);
+
+    if (!it.IsValid())
+    {
+      ezLog::Error("Plugin bundle '{}' has a dependency on bundle '{}' which does not exist.", start, req);
+      return EZ_FAILURE;
+    }
+
+    EZ_SUCCEED_OR_RETURN(AddBundlesInOrder(order, bundles, req, bEditor, bEditorEngine, bRuntime));
+  }
+
+  if (bRuntime)
+  {
+    for (const ezString& dll : bundle.m_RuntimePlugins)
+    {
+      if (!order.Contains(dll))
+        order.PushBack(dll);
+    }
+  }
+
+  if (bEditorEngine)
+  {
+    for (const ezString& dll : bundle.m_EditorEnginePlugins)
+    {
+      if (!order.Contains(dll))
+        order.PushBack(dll);
+    }
+  }
+
+  if (bEditor)
+  {
+    for (const ezString& dll : bundle.m_EditorPlugins)
+    {
+      if (!order.Contains(dll))
+        order.PushBack(dll);
+    }
+  }
+
+  return EZ_SUCCESS;
+}
+
+void ezQtEditorApp::LoadPluginBundleDlls(const char* szProjectFile)
+{
+  ezStringBuilder sPath = szProjectFile;
+  sPath.PathParentDirectory();
+  sPath.AppendPath("Editor/PluginSelection.ddl");
+
+  ezFileReader file;
+  if (file.Open(sPath).Succeeded())
+  {
+    ezOpenDdlReader ddl;
+    if (ddl.ParseDocument(file).Failed())
+    {
+      ezLog::Error("Syntax error in plugin bundle file '{}'", sPath);
+    }
+    else
+    {
+      m_PluginBundles.ReadStateFromDDL(ddl);
+    }
+  }
+
+  ezHybridArray<ezString, 16> order;
+
+  // first all the mandatory bundles
+  for (auto it : m_PluginBundles.m_Plugins)
+  {
+    if (!it.Value().m_bMandatory)
+      continue;
+
+    if (AddBundlesInOrder(order, m_PluginBundles, it.Key(), true, false, false).Failed())
+    {
+      ezQtUiServices::MessageBoxWarning("The mandatory plugin bundles have non-existing dependencies. Please make sure all plugins are properly built and the ezPluginBundle files correctly reference each other.");
+
+      return;
+    }
+  }
+
+  // now the non-mandatory bundles
+  for (auto it : m_PluginBundles.m_Plugins)
+  {
+    if (it.Value().m_bMandatory || !it.Value().m_bSelected)
+      continue;
+
+    if (AddBundlesInOrder(order, m_PluginBundles, it.Key(), true, false, false).Failed())
+    {
+      ezQtUiServices::MessageBoxWarning("The plugin bundles have non-existing dependencies. Please make sure all plugins are properly built and the ezPluginBundle files correctly reference each other.");
+
+      return;
+    }
+  }
+
+  ezSet<ezString> NotLoaded;
+  for (const auto& it : order)
+  {
+    if (ezPlugin::LoadPlugin(it).Failed())
+    {
+      NotLoaded.Insert(it);
+    }
+  }
+
+  if (!NotLoaded.IsEmpty())
+  {
+    ezStringBuilder s = "The following plugins could not be loaded. Scenes may not load correctly.\n\n";
+
+    for (auto it = NotLoaded.GetIterator(); it.IsValid(); ++it)
+    {
+      s.AppendFormat(" '{0}' \n", it.Key());
+    }
+
+    ezQtUiServices::MessageBoxWarning(s);
+  }
+}
+
+void ezQtEditorApp::LaunchEditor(const char* szProject)
+{
+  ezStringBuilder app;
+  app = ezOSFile::GetApplicationDirectory();
+  app.AppendPath("Editor.exe");
+  app.MakeCleanPath();
+
+  // TODO: pass through all command line arguments ?
+
+  QStringList args;
+  args << "-nosplash";
+  args << "-project";
+  args << QString::fromUtf8(szProject);
+
+  if (m_StartupFlags.IsSet(StartupFlags::SafeMode))
+    args << "-safe";
+  if (m_StartupFlags.IsSet(StartupFlags::NoRecent))
+    args << "-noRecent";
+  if (m_StartupFlags.IsSet(StartupFlags::Debug))
+    args << "-debug";
+
+  QProcess proc;
+  proc.startDetached(QString::fromUtf8(app), args);
+}
+
+const ezApplicationPluginConfig ezQtEditorApp::GetRuntimePluginConfig(bool bIncludeEditorPlugins) const
+{
+  ezApplicationPluginConfig cfg;
+
+  ezHybridArray<ezString, 16> order;
+  for (auto it : m_PluginBundles.m_Plugins)
+  {
+    if (it.Value().m_bMandatory || it.Value().m_bSelected)
+    {
+      AddBundlesInOrder(order, m_PluginBundles, it.Key(), false, bIncludeEditorPlugins, true).IgnoreResult();
+    }
+  }
+
+  for (const auto& it : order)
+  {
+    auto& var = cfg.m_Plugins.ExpandAndGetRef();
+    var.m_sAppDirRelativePath = it;
+  }
+
+  return cfg;
+}
+
 void ezQtEditorApp::ReloadEngineResources()
 {
   ezSimpleConfigMsgToEngine msg;

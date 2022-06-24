@@ -1,0 +1,12 @@
+PluginInfo
+{
+	string %DisplayName{"Procedural Generation"}
+	string %Description{"Adds support for placing objects procedurally."}
+	string %EditorPlugins{"ezEditorPluginProcGen"}
+	string %EditorEnginePlugins{}
+	string %RuntimePlugins{"ezProcGenPlugin"}
+	string %PackageDependencies{}
+	string %RequiredPlugins{"Scene"}
+	string %ExclusiveFeatures{}
+	string %EnabledInTemplates{"General3D"}
+}

@@ -243,22 +243,24 @@ void ezQtCppProjectDlg::on_GenerateSolution_clicked()
     ezStringBuilder sPluginName = ezToolsProject::GetSingleton()->GetProjectName();
     sPluginName.Append("Plugin");
 
-    ezPluginSet& Plugins = ezQtEditorApp::GetSingleton()->GetEnginePlugins();
+    // TODO plugins
 
-    bool bExisted;
-    auto plugin = Plugins.m_Plugins.FindOrAdd(sPluginName, &bExisted);
+    //ezPluginSet& Plugins = ezQtEditorApp::GetSingleton()->GetEnginePlugins();
 
-    plugin.Value().m_bLoadCopy = true;
-    plugin.Value().m_bToBeLoaded = true;
+    //bool bExisted;
+    //auto plugin = Plugins.m_Plugins.FindOrAdd(sPluginName, &bExisted);
 
-    if (!bExisted)
-    {
-      plugin.Value().m_bActive = false;
-      plugin.Value().m_bAvailable = false;
-      plugin.Value().m_LastModification = ezTimestamp::CurrentTimestamp();
-    }
+    //plugin.Value().m_bLoadCopy = true;
+    //plugin.Value().m_bToBeLoaded = true;
 
-    ezQtEditorApp::GetSingleton()->StoreEnginePluginsToBeLoaded();
+    //if (!bExisted)
+    //{
+    //  plugin.Value().m_bActive = false;
+    //  plugin.Value().m_bAvailable = false;
+    //  plugin.Value().m_LastModification = ezTimestamp::CurrentTimestamp();
+    //}
+
+    //ezQtEditorApp::GetSingleton()->StoreEnginePluginsToBeLoaded();
   }
 }
 

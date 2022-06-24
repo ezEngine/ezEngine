@@ -1,0 +1,13 @@
+PluginInfo
+{
+	bool %Mandatory{true}
+	string %DisplayName{"Assets"}
+	string %Description{"Adds support for the central ez asset types."}
+	string %EditorPlugins{"ezEditorPluginAssets"}
+	string %EditorEnginePlugins{"ezEnginePluginAssets"}
+	string %RuntimePlugins{}
+	string %PackageDependencies{}
+	string %RequiredPlugins{}
+	string %ExclusiveFeatures{}
+	string %EnabledInTemplates{}
+}

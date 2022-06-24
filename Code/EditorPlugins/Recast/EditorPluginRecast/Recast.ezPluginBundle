@@ -1,0 +1,12 @@
+PluginInfo
+{
+	string %DisplayName{"Recast AI"}
+	string %Description{"Adds support for generating navigation meshes with Recast."}
+	string %EditorPlugins{"ezEditorPluginRecast"}
+	string %EditorEnginePlugins{"ezEnginePluginRecast"}
+	string %RuntimePlugins{"ezRecastPlugin"}
+	string %PackageDependencies{}
+	string %RequiredPlugins{"Scene"}
+	string %ExclusiveFeatures{}
+	string %EnabledInTemplates{"General3D"}
+}

@@ -1,0 +1,13 @@
+PluginInfo
+{
+	bool %Mandatory{true}
+	string %DisplayName{"Scene Editing"}
+	string %Description{"Adds support for scenes and prefabs."}
+	string %EditorPlugins{"ezEditorPluginScene"}
+	string %EditorEnginePlugins{"ezEnginePluginScene"}
+	string %RuntimePlugins{}
+	string %PackageDependencies{}
+	string %RequiredPlugins{"Assets"}
+	string %ExclusiveFeatures{}
+	string %EnabledInTemplates{}
+}

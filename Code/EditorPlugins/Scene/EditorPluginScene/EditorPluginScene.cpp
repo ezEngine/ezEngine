@@ -90,8 +90,6 @@ void OnLoadPlugin()
 {
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(OnDocumentManagerEvent));
 
-  ezQtEditorApp::GetSingleton()->AddRuntimePluginDependency("EditorPluginScene", "ezEnginePluginScene");
-
   ezQtEditorApp::GetSingleton()->m_Events.AddEventHandler(ToolsProjectEventHandler);
 
   ezAssetCurator::GetSingleton()->m_Events.AddEventHandler(AssetCuratorEventHandler);

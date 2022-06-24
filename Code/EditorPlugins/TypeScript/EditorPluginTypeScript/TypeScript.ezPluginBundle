@@ -1,0 +1,12 @@
+PluginInfo
+{
+	string %DisplayName{"TypeScript"}
+	string %Description{"Adds support for scripting objects via TypeScript."}
+	string %EditorPlugins{"ezEditorPluginTypeScript"}
+	string %EditorEnginePlugins{}
+	string %RuntimePlugins{"ezTypeScriptPlugin"}
+	string %PackageDependencies{}
+	string %RequiredPlugins{"Scene"}
+	string %ExclusiveFeatures{}
+	string %EnabledInTemplates{"General2D", "General3D"}
+}

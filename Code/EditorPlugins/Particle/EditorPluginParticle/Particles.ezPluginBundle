@@ -1,0 +1,12 @@
+PluginInfo
+{
+	string %DisplayName{"Particles"}
+	string %Description{"Adds support for particle effects."}
+	string %EditorPlugins{"ezEditorPluginParticle"}
+	string %EditorEnginePlugins{"ezEnginePluginParticle"}
+	string %RuntimePlugins{"ezParticlePlugin"}
+	string %PackageDependencies{}
+	string %RequiredPlugins{"Scene"}
+	string %ExclusiveFeatures{}
+	string %EnabledInTemplates{"General2D", "General3D"}
+}

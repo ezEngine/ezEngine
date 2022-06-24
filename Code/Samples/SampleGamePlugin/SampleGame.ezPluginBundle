@@ -1,0 +1,12 @@
+PluginInfo
+{
+	string %DisplayName{"Sample Game"}
+	string %Description{"Contains the C++ code of the sample game project."}
+	string %EditorPlugins{}
+	string %EditorEnginePlugins{}
+	string %RuntimePlugins{"ezSampleGamePlugin"}
+	string %PackageDependencies{}
+	string %RequiredPlugins{"Scene", "Particles"}
+	string %ExclusiveFeatures{"Sample"}
+	string %EnabledInTemplates{}
+}

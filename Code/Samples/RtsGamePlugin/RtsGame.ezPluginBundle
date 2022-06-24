@@ -1,0 +1,12 @@
+PluginInfo
+{
+	string %DisplayName{"RTS Sample Game"}
+	string %Description{"Contains the C++ code of the RTS sample game project."}
+	string %EditorPlugins{}
+	string %EditorEnginePlugins{}
+	string %RuntimePlugins{"ezRtsGamePlugin"}
+	string %PackageDependencies{}
+	string %RequiredPlugins{"Scene", "Particles", "Fmod", "RmlUi"}
+	string %ExclusiveFeatures{"Sample"}
+	string %EnabledInTemplates{}
+}

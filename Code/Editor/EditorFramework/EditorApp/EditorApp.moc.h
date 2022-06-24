@@ -118,14 +118,8 @@ public:
   /// \brief Returns true if the editor is started is run in test mode.
   bool IsInUnitTestMode() const { return m_StartupFlags.IsSet(StartupFlags::UnitTest); }
 
-  const ezPluginSet& GetEditorPlugins() const { return s_EditorPlugins; }
-  const ezPluginSet& GetEnginePlugins() const { return s_EnginePlugins; }
-
-  ezPluginSet& GetEditorPlugins() { return s_EditorPlugins; }
-  ezPluginSet& GetEnginePlugins() { return s_EnginePlugins; }
-
-  void StoreEditorPluginsToBeLoaded();
-  void StoreEnginePluginsToBeLoaded();
+  const ezPluginBundleSet& GetPluginBundles() const { return m_PluginBundles; }
+  ezPluginBundleSet& GetPluginBundles() { return m_PluginBundles; }
 
   void AddRestartRequiredReason(const char* szReason);
   const ezSet<ezString>& GetRestartRequiredReasons() { return s_RestartRequiredReasons; }
@@ -175,12 +169,17 @@ public:
 
   ezResult CreateOrOpenProject(bool bCreate, const char* szFile);
 
+  void LoadPluginBundleDlls(const char* szProjectFile);
+
+  /// \brief Launches a new instance of the editor to open the given project.
+  void LaunchEditor(const char* szProject);
+
   /// \brief Adds a data directory as a hard dependency to the project. Should be used by plugins to ensure their required data is
   /// available. The path must be relative to the SdkRoot folder.
   void AddPluginDataDirDependency(const char* szSdkRootRelativePath, const char* szRootName = nullptr, bool bWriteable = false);
 
   const ezApplicationFileSystemConfig& GetFileSystemConfig() const { return m_FileSystemConfig; }
-  const ezApplicationPluginConfig& GetEnginePluginConfig() const { return m_EnginePluginConfig; }
+  const ezApplicationPluginConfig GetRuntimePluginConfig(bool bIncludeEditorPlugins) const;
 
   void SetFileSystemConfig(const ezApplicationFileSystemConfig& cfg);
 
@@ -191,8 +190,6 @@ public:
 
   bool MakePathDataDirectoryParentRelative(ezStringBuilder& sPath) const;
   bool MakeParentDataDirectoryRelativePathAbsolute(ezStringBuilder& sPath, bool bCheckExists) const;
-
-  void AddRuntimePluginDependency(const char* szEditorPluginName, const char* szRuntimeDependency);
 
   ezStatus SaveTagRegistry();
 
@@ -239,16 +236,12 @@ private:
 
   void LoadEditorPreferences();
   void LoadProjectPreferences();
-  void DetectAvailableEditorPlugins();
+  void DetectAvailablePluginBundles();
   void DetectAvailableEnginePlugins();
   void StoreEnginePluginModificationTimes();
   bool CheckForEnginePluginModifications();
   void RestartEngineProcessIfPluginsChanged();
-  void ReadEditorPluginsToBeLoaded();
-  void ReadEnginePluginConfig();
   void SaveAllOpenDocuments();
-
-  void ValidateEnginePluginConfig();
 
   void ReadTagRegistry();
 
@@ -259,8 +252,11 @@ private:
   void SetupAndShowSplashScreen();
   void CloseSplashScreen();
 
+  ezResult AddBundlesInOrder(ezDynamicArray<ezString>& order, const ezPluginBundleSet& bundles, const ezString& start, bool bEditor, bool bEditorEngine, bool bRuntime) const;
+
   bool m_bSavePreferencesAfterOpenProject;
   bool m_bLoadingProjectInProgress = false;
+  bool m_bAnyProjectOpened = false;
 
   ezBitflags<StartupFlags> m_StartupFlags;
   ezDynamicArray<ezString> m_DocumentsToOpen;
@@ -268,8 +264,7 @@ private:
   ezSet<ezString> s_RestartRequiredReasons;
   ezSet<ezString> s_ReloadProjectRequiredReasons;
 
-  ezPluginSet s_EditorPlugins;
-  ezPluginSet s_EnginePlugins;
+  ezPluginBundleSet m_PluginBundles;
 
   void SaveRecentFiles();
   void LoadRecentFiles();
@@ -288,9 +283,6 @@ private:
 
   ezTime m_LastPluginModificationCheck;
   ezApplicationFileSystemConfig m_FileSystemConfig;
-  ezApplicationPluginConfig m_EnginePluginConfig;
-
-  ezMap<ezString, ezSet<ezString>> m_AdditionalRuntimePluginDependencies;
 
   // *** Recent Paths ***
   ezString m_sLastDocumentFolder;
