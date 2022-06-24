@@ -172,7 +172,7 @@ public:
   void LoadPluginBundleDlls(const char* szProjectFile);
 
   /// \brief Launches a new instance of the editor to open the given project.
-  void LaunchEditor(const char* szProject);
+  void LaunchEditor(const char* szProject, bool bCreate);
 
   /// \brief Adds a data directory as a hard dependency to the project. Should be used by plugins to ensure their required data is
   /// available. The path must be relative to the SdkRoot folder.

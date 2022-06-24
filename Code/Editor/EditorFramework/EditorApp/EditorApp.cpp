@@ -285,7 +285,7 @@ void ezQtEditorApp::LoadPluginBundleDlls(const char* szProjectFile)
   }
 }
 
-void ezQtEditorApp::LaunchEditor(const char* szProject)
+void ezQtEditorApp::LaunchEditor(const char* szProject, bool bCreate)
 {
   ezStringBuilder app;
   app = ezOSFile::GetApplicationDirectory();
@@ -296,7 +296,7 @@ void ezQtEditorApp::LaunchEditor(const char* szProject)
 
   QStringList args;
   args << "-nosplash";
-  args << "-project";
+  args << (bCreate ? "-newproject" : "-project");
   args << QString::fromUtf8(szProject);
 
   if (m_StartupFlags.IsSet(StartupFlags::SafeMode))

@@ -17,7 +17,7 @@ void ezQtEditorApp::AddRestartRequiredReason(const char* szReason)
   {
     if (ezToolsProject::CanCloseProject())
     {
-      LaunchEditor(ezToolsProject::GetSingleton()->GetProjectFile());
+      LaunchEditor(ezToolsProject::GetSingleton()->GetProjectFile(), false);
 
       QApplication::closeAllWindows();
       return;

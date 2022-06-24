@@ -88,14 +88,34 @@ ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, const char* szFile)
 
   ezStatus res;
   if (bCreate)
-    res = ezToolsProject::CreateProject(sProjectFile);
+  {
+    if (m_bAnyProjectOpened)
+    {
+      // if we opened any project before, spawn a new editor instance and open the project there
+      // this way, a different set of editor plugins can be loaded
+      LaunchEditor(sProjectFile, true);
+
+      QApplication::closeAllWindows();
+      return EZ_SUCCESS;
+    }
+    else
+    {
+      // once we start loading any plugins, we can't reuse the same instance again for another project
+      m_bAnyProjectOpened = true;
+
+      // TODO plugins create default bundle
+      LoadPluginBundleDlls(sProjectFile);
+
+      res = ezToolsProject::CreateProject(sProjectFile);
+    }
+  }
   else
   {
     if (m_bAnyProjectOpened)
     {
       // if we opened any project before, spawn a new editor instance and open the project there
       // this way, a different set of editor plugins can be loaded
-      LaunchEditor(sProjectFile);
+      LaunchEditor(sProjectFile, false);
 
       QApplication::closeAllWindows();
       return EZ_SUCCESS;

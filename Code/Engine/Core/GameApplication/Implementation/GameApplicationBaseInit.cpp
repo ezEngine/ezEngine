@@ -168,7 +168,6 @@ void ezGameApplicationBase::Init_LoadProjectPlugins()
 {
   ezApplicationPluginConfig appPluginConfig;
   appPluginConfig.Load();
-  //appPluginConfig.SetOnlyLoadManualPlugins(true);
   appPluginConfig.Apply();
 }
 
