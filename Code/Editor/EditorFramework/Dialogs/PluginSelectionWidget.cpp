@@ -46,6 +46,8 @@ void ezQtPluginSelectionWidget::SetPluginSet(ezPluginBundleSet* pPluginSet)
     PluginsList->addItem(pItem);
   }
 
+  on_PluginsList_currentItemChanged(nullptr, nullptr);
+
   Template->clear();
   Template->addItem("<custom>");
 
@@ -59,6 +61,9 @@ void ezQtPluginSelectionWidget::SetPluginSet(ezPluginBundleSet* pPluginSet)
 
 void ezQtPluginSelectionWidget::SyncStateToSet()
 {
+  // make sure to pull the latest state from the UI
+  on_PluginsList_currentItemChanged(nullptr, PluginsList->currentItem());
+
   for (auto& state : m_States)
   {
     state.m_pInfo->m_bSelected = state.m_bSelected;
@@ -79,6 +84,11 @@ void ezQtPluginSelectionWidget::on_PluginsList_currentItemChanged(QListWidgetIte
     auto& state = m_States[PluginsList->row(current)];
     DescriptionText->setPlainText(state.m_pInfo->m_sDescription.GetData());
     LoadCopy->setChecked(state.m_bLoadCopy);
+    LoadCopy->setEnabled(true);
+  }
+  else
+  {
+    LoadCopy->setEnabled(false);
   }
 }
 

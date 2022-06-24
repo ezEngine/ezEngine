@@ -10,9 +10,6 @@ void ezQtEditorApp::StoreEnginePluginModificationTimes()
   {
     ezPluginBundle& plugin = it.Value();
 
-    if (!plugin.m_bLoadCopy)
-      continue;
-
     for (const ezString& rt : plugin.m_RuntimePlugins)
     {
       ezStringBuilder sPath, sCopy;
@@ -33,27 +30,28 @@ void ezQtEditorApp::StoreEnginePluginModificationTimes()
 
 bool ezQtEditorApp::CheckForEnginePluginModifications()
 {
-  // TODO plugins
+  for (auto it : m_PluginBundles.m_Plugins)
+  {
+    ezPluginBundle& plugin = it.Value();
 
-  // for (const auto& plugin : m_EnginePluginConfig.m_Plugins)
-  //{
-  //   auto& data = s_EnginePlugins.m_Plugins[plugin.m_sAppDirRelativePath];
-  //   // only plugins for which a copy was loaded can be modified in parallel
-  //   if (!plugin.m_bLoadCopy)
-  //     continue;
+    if (!plugin.m_bLoadCopy)
+      continue;
 
-  //  ezStringBuilder sPath, sCopy;
-  //  ezPlugin::GetPluginPaths(plugin.m_sAppDirRelativePath, sPath, sCopy, 0);
+    for (const ezString& rt : plugin.m_RuntimePlugins)
+    {
+      ezStringBuilder sPath, sCopy;
+      ezPlugin::GetPluginPaths(rt, sPath, sCopy, 0);
 
-  //  ezFileStats stats;
-  //  if (ezOSFile::GetFileStats(sPath, stats).Succeeded())
-  //  {
-  //    if (!data.m_LastModification.IsValid() || stats.m_LastModificationTime.Compare(data.m_LastModification, ezTimestamp::CompareMode::Newer))
-  //    {
-  //      return true;
-  //    }
-  //  }
-  //}
+      ezFileStats stats;
+      if (ezOSFile::GetFileStats(sPath, stats).Succeeded())
+      {
+        if (!plugin.m_LastModificationTime.IsValid() || stats.m_LastModificationTime.Compare(plugin.m_LastModificationTime, ezTimestamp::CompareMode::Newer))
+        {
+          return true;
+        }
+      }
+    }
+  }
 
   return false;
 }
