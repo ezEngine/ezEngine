@@ -238,7 +238,6 @@ private:
   void LoadEditorPreferences();
   void LoadProjectPreferences();
   void DetectAvailablePluginBundles();
-  void DetectAvailableEnginePlugins();
   void StoreEnginePluginModificationTimes();
   bool CheckForEnginePluginModifications();
   void RestartEngineProcessIfPluginsChanged();
@@ -253,7 +252,7 @@ private:
   void SetupAndShowSplashScreen();
   void CloseSplashScreen();
 
-  ezResult AddBundlesInOrder(ezDynamicArray<ezString>& order, const ezPluginBundleSet& bundles, const ezString& start, bool bEditor, bool bEditorEngine, bool bRuntime) const;
+  ezResult AddBundlesInOrder(ezDynamicArray<ezApplicationPluginConfig::PluginConfig>& order, const ezPluginBundleSet& bundles, const ezString& start, bool bEditor, bool bEditorEngine, bool bRuntime) const;
 
   bool m_bSavePreferencesAfterOpenProject;
   bool m_bLoadingProjectInProgress = false;

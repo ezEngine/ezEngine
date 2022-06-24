@@ -166,9 +166,20 @@ void ezQtEditorApp::OnDemandDynamicStringEnumLoad(const char* szEnumName, ezDyna
   m_DynamicEnumStringsToClear.Insert(szEnumName);
 }
 
-ezResult ezQtEditorApp::AddBundlesInOrder(ezDynamicArray<ezString>& order, const ezPluginBundleSet& bundles, const ezString& start, bool bEditor, bool bEditorEngine, bool bRuntime) const
+bool ContainsPlugin(const ezDynamicArray<ezApplicationPluginConfig::PluginConfig>& all, const char* szPlugin)
 {
-  const auto& bundle = bundles.m_Plugins.Find(start).Value();
+  for (const ezApplicationPluginConfig::PluginConfig& one : all)
+  {
+    if (one.m_sAppDirRelativePath == szPlugin)
+      return true;
+  }
+
+  return false;
+}
+
+ezResult ezQtEditorApp::AddBundlesInOrder(ezDynamicArray<ezApplicationPluginConfig::PluginConfig>& order, const ezPluginBundleSet& bundles, const ezString& start, bool bEditor, bool bEditorEngine, bool bRuntime) const
+{
+  const ezPluginBundle& bundle = bundles.m_Plugins.Find(start).Value();
 
   for (const ezString& req : bundle.m_RequiredBundles)
   {
@@ -187,8 +198,12 @@ ezResult ezQtEditorApp::AddBundlesInOrder(ezDynamicArray<ezString>& order, const
   {
     for (const ezString& dll : bundle.m_RuntimePlugins)
     {
-      if (!order.Contains(dll))
-        order.PushBack(dll);
+      if (!ContainsPlugin(order, dll))
+      {
+        ezApplicationPluginConfig::PluginConfig& p = order.ExpandAndGetRef();
+        p.m_sAppDirRelativePath = dll;
+        p.m_bLoadCopy = bundle.m_bLoadCopy;
+      }
     }
   }
 
@@ -196,8 +211,12 @@ ezResult ezQtEditorApp::AddBundlesInOrder(ezDynamicArray<ezString>& order, const
   {
     for (const ezString& dll : bundle.m_EditorEnginePlugins)
     {
-      if (!order.Contains(dll))
-        order.PushBack(dll);
+      if (!ContainsPlugin(order, dll))
+      {
+        ezApplicationPluginConfig::PluginConfig& p = order.ExpandAndGetRef();
+        p.m_sAppDirRelativePath = dll;
+        p.m_bLoadCopy = bundle.m_bLoadCopy;
+      }
     }
   }
 
@@ -205,8 +224,12 @@ ezResult ezQtEditorApp::AddBundlesInOrder(ezDynamicArray<ezString>& order, const
   {
     for (const ezString& dll : bundle.m_EditorPlugins)
     {
-      if (!order.Contains(dll))
-        order.PushBack(dll);
+      if (!ContainsPlugin(order, dll))
+      {
+        ezApplicationPluginConfig::PluginConfig& p = order.ExpandAndGetRef();
+        p.m_sAppDirRelativePath = dll;
+        p.m_bLoadCopy = bundle.m_bLoadCopy;
+      }
     }
   }
 
@@ -254,7 +277,7 @@ void ezQtEditorApp::LoadPluginBundleDlls(const char* szProjectFile)
     }
   }
 
-  ezHybridArray<ezString, 16> order;
+  ezDynamicArray<ezApplicationPluginConfig::PluginConfig> order;
 
   // first all the mandatory bundles
   for (auto it : m_PluginBundles.m_Plugins)
@@ -285,11 +308,11 @@ void ezQtEditorApp::LoadPluginBundleDlls(const char* szProjectFile)
   }
 
   ezSet<ezString> NotLoaded;
-  for (const auto& it : order)
+  for (const ezApplicationPluginConfig::PluginConfig& it : order)
   {
-    if (ezPlugin::LoadPlugin(it).Failed())
+    if (ezPlugin::LoadPlugin(it.m_sAppDirRelativePath, it.m_bLoadCopy ? ezPluginLoadFlags::LoadCopy : ezPluginLoadFlags::Default).Failed())
     {
-      NotLoaded.Insert(it);
+      NotLoaded.Insert(it.m_sAppDirRelativePath);
     }
   }
 
@@ -340,14 +363,8 @@ const ezApplicationPluginConfig ezQtEditorApp::GetRuntimePluginConfig(bool bIncl
   {
     if (it.Value().m_bMandatory || it.Value().m_bSelected)
     {
-      AddBundlesInOrder(order, m_PluginBundles, it.Key(), false, bIncludeEditorPlugins, true).IgnoreResult();
+      AddBundlesInOrder(cfg.m_Plugins, m_PluginBundles, it.Key(), false, bIncludeEditorPlugins, true).IgnoreResult();
     }
-  }
-
-  for (const auto& it : order)
-  {
-    auto& var = cfg.m_Plugins.ExpandAndGetRef();
-    var.m_sAppDirRelativePath = it;
   }
 
   return cfg;

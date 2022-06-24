@@ -19,6 +19,9 @@ struct EZ_EDITORFRAMEWORK_DLL ezPluginBundle
   bool m_bSelected = false; ///< whether this bundle is supposed to be used.
   bool m_bLoadCopy = false; ///< Whether the engine should load a copy of the runtime DLL, so that the original can be replaced and potentially reloaded.
 
+  // Temp state:
+  ezTimestamp m_LastModificationTime;
+
   // General Bundle Description
   bool m_bMandatory = false;                        ///< if set, the bundle is always used and not even displayed in the UI
   ezString m_sDisplayName;                          ///< The string for displaying the bundle in UI

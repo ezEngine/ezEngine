@@ -4,42 +4,43 @@
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Profiling/Profiling.h>
 
-void ezQtEditorApp::DetectAvailableEnginePlugins()
-{
-  // TODO plugins
-
-  StoreEnginePluginModificationTimes();
-}
-
 void ezQtEditorApp::StoreEnginePluginModificationTimes()
 {
-  // TODO plugins
+  for (auto it : m_PluginBundles.m_Plugins)
+  {
+    ezPluginBundle& plugin = it.Value();
 
-  //for (const auto& plugin : m_EnginePluginConfig.m_Plugins)
-  //{
-  //  auto& data = s_EnginePlugins.m_Plugins[plugin.m_sAppDirRelativePath];
+    if (!plugin.m_bLoadCopy)
+      continue;
 
-  //  ezStringBuilder sPath, sCopy;
-  //  ezPlugin::GetPluginPaths(plugin.m_sAppDirRelativePath, sPath, sCopy, 0);
+    for (const ezString& rt : plugin.m_RuntimePlugins)
+    {
+      ezStringBuilder sPath, sCopy;
+      ezPlugin::GetPluginPaths(rt, sPath, sCopy, 0);
 
-  //  ezFileStats stats;
-  //  if (ezOSFile::GetFileStats(sPath, stats).Succeeded())
-  //  {
-  //    data.m_LastModification = stats.m_LastModificationTime;
-  //  }
-  //}
+      ezFileStats stats;
+      if (ezOSFile::GetFileStats(sPath, stats).Succeeded())
+      {
+        if (!plugin.m_LastModificationTime.IsValid() || stats.m_LastModificationTime.Compare(plugin.m_LastModificationTime, ezTimestamp::CompareMode::Newer))
+        {
+          // store the maximum (latest) modification timestamp
+          plugin.m_LastModificationTime = stats.m_LastModificationTime;
+        }
+      }
+    }
+  }
 }
 
 bool ezQtEditorApp::CheckForEnginePluginModifications()
 {
   // TODO plugins
 
-  //for (const auto& plugin : m_EnginePluginConfig.m_Plugins)
+  // for (const auto& plugin : m_EnginePluginConfig.m_Plugins)
   //{
-  //  auto& data = s_EnginePlugins.m_Plugins[plugin.m_sAppDirRelativePath];
-  //  // only plugins for which a copy was loaded can be modified in parallel
-  //  if (!plugin.m_bLoadCopy)
-  //    continue;
+  //   auto& data = s_EnginePlugins.m_Plugins[plugin.m_sAppDirRelativePath];
+  //   // only plugins for which a copy was loaded can be modified in parallel
+  //   if (!plugin.m_bLoadCopy)
+  //     continue;
 
   //  ezStringBuilder sPath, sCopy;
   //  ezPlugin::GetPluginPaths(plugin.m_sAppDirRelativePath, sPath, sCopy, 0);

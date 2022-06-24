@@ -16,5 +16,5 @@ Plugin
 Plugin
 {
 	string %Path{"ezRtsGamePlugin"}
-	bool %LoadCopy{false}
+	bool %LoadCopy{true}
 }
