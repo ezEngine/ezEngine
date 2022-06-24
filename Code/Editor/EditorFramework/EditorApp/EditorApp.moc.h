@@ -169,6 +169,7 @@ public:
 
   ezResult CreateOrOpenProject(bool bCreate, const char* szFile);
 
+  void CreatePluginSelectionDDL(const char* szProjectFile, const char* szTemplate);
   void LoadPluginBundleDlls(const char* szProjectFile);
 
   /// \brief Launches a new instance of the editor to open the given project.

@@ -103,7 +103,8 @@ ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, const char* szFile)
       // once we start loading any plugins, we can't reuse the same instance again for another project
       m_bAnyProjectOpened = true;
 
-      // TODO plugins create default bundle
+      // create default plugin selection
+      CreatePluginSelectionDDL(sProjectFile, "General3D");
       LoadPluginBundleDlls(sProjectFile);
 
       res = ezToolsProject::CreateProject(sProjectFile);

@@ -213,6 +213,27 @@ ezResult ezQtEditorApp::AddBundlesInOrder(ezDynamicArray<ezString>& order, const
   return EZ_SUCCESS;
 }
 
+void ezQtEditorApp::CreatePluginSelectionDDL(const char* szProjectFile, const char* szTemplate)
+{
+  ezStringBuilder sPath = szProjectFile;
+  sPath.PathParentDirectory();
+  sPath.AppendPath("Editor/PluginSelection.ddl");
+
+  for (auto it : m_PluginBundles.m_Plugins)
+  {
+    ezPluginBundle& bundle = it.Value();
+
+    bundle.m_bSelected = bundle.m_EnabledInTemplates.Contains(szTemplate);
+  }
+
+  ezFileWriter file;
+  file.Open(sPath).AssertSuccess();
+
+  ezOpenDdlWriter ddl;
+  ddl.SetOutputStream(&file);
+  m_PluginBundles.WriteStateToDDL(ddl);
+}
+
 void ezQtEditorApp::LoadPluginBundleDlls(const char* szProjectFile)
 {
   ezStringBuilder sPath = szProjectFile;
