@@ -1,8 +1,6 @@
 #include <Foundation/FoundationInternal.h>
 EZ_FOUNDATION_INTERNAL_HEADER
 
-#if EZ_ENABLED(EZ_PLATFORM_LINUX)
-
 #  include <dlfcn.h>
 
 #  include <Foundation/Configuration/Plugin.h>
@@ -48,7 +46,3 @@ ezResult LoadPluginModule(const char* szFileToLoad, ezPluginModule& Module, cons
   }
   return EZ_SUCCESS;
 }
-
-#else
-#  error "This file should not have been included."
-#endif
