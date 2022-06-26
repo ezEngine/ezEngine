@@ -21,7 +21,7 @@ EZ_CREATE_SIMPLE_TEST(Configuration, Plugin)
   CVar_TestPlugin2Reloaded = 0;
   CVar_TestPlugin2FoundDependencies = false;
 
-#if EZ_ENABLED(EZ_SUPPORTS_DYNAMIC_PLUGINS)
+#if EZ_ENABLED(EZ_SUPPORTS_DYNAMIC_PLUGINS) && EZ_ENABLED(EZ_COMPILE_ENGINE_AS_DLL)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "LoadPlugin")
   {

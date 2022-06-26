@@ -10,7 +10,7 @@
 #elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX)
 #  include <Foundation/Configuration/Implementation/Posix/Plugin_Posix.h>
 #elif EZ_ENABLED(EZ_PLATFORM_ANDROID)
-#  include <Foundation/Configuration/Implementation/Posix/Plugin_Android.h>
+#  include <Foundation/Configuration/Implementation/Android/Plugin_Android.h>
 #else
 #  error "Plugins not implemented on this Platform."
 #endif
