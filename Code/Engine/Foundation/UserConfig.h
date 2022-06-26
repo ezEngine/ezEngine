@@ -69,7 +69,7 @@
 #    define EZ_USE_ALLOCATION_STACK_TRACING EZ_ON
 #  endif
 
-#  if EZ_DISABLED(EZ_PLATFORM_WINDOWS)
+#  if EZ_DISABLED(EZ_PLATFORM_WINDOWS) && EZ_DISABLED(EZ_PLATFORM_LINUX)
 #    if EZ_ENABLED(EZ_COMPILE_ENGINE_AS_DLL)
 #      error "DLL builds are not supported on this platform."
 #    endif

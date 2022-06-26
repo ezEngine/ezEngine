@@ -13,7 +13,7 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC BUILDSYSTEM_ENABLE_VHACD_SUPPO
 
 target_include_directories(${PROJECT_NAME} PRIVATE inc public)
 
-if (EZ_COMPILE_ENGINE_AS_DLL)
+if (EZ_COMPILE_ENGINE_AS_DLL AND EZ_CMAKE_PLATFORM_WINDOWS)
 
   target_compile_definitions(${PROJECT_NAME} PRIVATE VHACD_BUILDING_LIB=1)
   target_compile_definitions(${PROJECT_NAME} PUBLIC VHACD_SHARED_LIBRARY=1)

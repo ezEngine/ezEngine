@@ -169,14 +169,18 @@ LICENSE
 // Start ezEngine edit
 // Configure the DLL Import/Export Define
 #undef STBIWDEF
-#  ifdef BUILDSYSTEM_COMPILE_ENGINE_AS_DLL
+#ifdef BUILDSYSTEM_COMPILE_ENGINE_AS_DLL
+#  ifdef _WIN32
 #    ifdef BUILDSYSTEM_BUILDING_STB_IMAGE_LIB
 #      define STBIWDEF __declspec(dllexport)
-#else
+#    else
 #      define STBIWDEF __declspec(dllimport)
-#endif
+#    endif
 #  else
-#    define STBIWDEF
+#    define STBIWDEF __attribute__ ((visibility ("default")))
+#  endif
+#else
+#  define STBIWDEF
 #endif
 // End ezEngine edit
 //////////////////////////////////////////////////////////////////////////

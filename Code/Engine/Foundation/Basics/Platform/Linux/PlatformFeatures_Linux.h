@@ -22,7 +22,7 @@
 
 /// Whether dynamic plugins (through DLLs loaded/unloaded at runtime) are supported
 #undef EZ_SUPPORTS_DYNAMIC_PLUGINS
-#define EZ_SUPPORTS_DYNAMIC_PLUGINS EZ_OFF
+#define EZ_SUPPORTS_DYNAMIC_PLUGINS EZ_ON
 
 /// Whether applications can access any file (not sandboxed)
 #undef EZ_SUPPORTS_UNRESTRICTED_FILE_ACCESS

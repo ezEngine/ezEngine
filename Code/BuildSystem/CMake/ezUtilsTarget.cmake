@@ -1,12 +1,12 @@
 ######################################
-### ez_create_target(<LIBRARY | APPLICATION> <target-name> [NO_PCH] [NO_UNITY] [NO_QT] [EXCLUDE_FOLDER_FOR_UNITY <relative-folder>...])
+### ez_create_target(<LIBRARY | APPLICATION> <target-name> [NO_PCH] [NO_UNITY] [NO_QT] [ALL_SYMBOLS_VISIBLE] [EXCLUDE_FOLDER_FOR_UNITY <relative-folder>...])
 ######################################
 
 macro(ez_create_target TYPE TARGET_NAME)
 
     ez_apply_build_filter(${TARGET_NAME})
 
-    set(ARG_OPTIONS NO_PCH NO_UNITY NO_QT NO_EZ_PREFIX ENABLE_RTTI NO_WARNINGS_AS_ERRORS NO_CONTROLFLOWGUARD)
+    set(ARG_OPTIONS NO_PCH NO_UNITY NO_QT NO_EZ_PREFIX ENABLE_RTTI NO_WARNINGS_AS_ERRORS NO_CONTROLFLOWGUARD ALL_SYMBOLS_VISIBLE)
     set(ARG_ONEVALUEARGS "")
     set(ARG_MULTIVALUEARGS EXCLUDE_FOLDER_FOR_UNITY EXCLUDE_FROM_PCH_REGEX MANUAL_SOURCE_FILES)
     cmake_parse_arguments(ARG "${ARG_OPTIONS}" "${ARG_ONEVALUEARGS}" "${ARG_MULTIVALUEARGS}" ${ARGN} )
@@ -100,6 +100,11 @@ macro(ez_create_target TYPE TARGET_NAME)
     ez_set_common_target_definitions(${TARGET_NAME})
 
     ez_set_build_flags(${TARGET_NAME} ${ARGN})
+	
+	# On linux we want all symbols to be hidden by default. We manually "export" them.
+	if (EZ_COMPILE_ENGINE_AS_DLL AND EZ_CMAKE_PLATFORM_LINUX AND NOT ARG_ALL_SYMBOLS_VISIBLE)
+		target_compile_options(${TARGET_NAME} PRIVATE "-fvisibility=hidden")
+	endif()
 
     ez_set_project_ide_folder(${TARGET_NAME} ${CMAKE_CURRENT_SOURCE_DIR})
 	
