@@ -18,6 +18,7 @@ ezQtCppProjectDlg::ezQtCppProjectDlg(QWidget* parent)
 
   Generator->addItem("Visual Studio 2019");
   Generator->addItem("Visual Studio 2022");
+  Generator->setCurrentIndex(1);
 
   UpdateUI();
 }
@@ -245,22 +246,22 @@ void ezQtCppProjectDlg::on_GenerateSolution_clicked()
 
     // TODO plugins
 
-    //ezPluginSet& Plugins = ezQtEditorApp::GetSingleton()->GetEnginePlugins();
+    // ezPluginSet& Plugins = ezQtEditorApp::GetSingleton()->GetEnginePlugins();
 
-    //bool bExisted;
-    //auto plugin = Plugins.m_Plugins.FindOrAdd(sPluginName, &bExisted);
+    // bool bExisted;
+    // auto plugin = Plugins.m_Plugins.FindOrAdd(sPluginName, &bExisted);
 
-    //plugin.Value().m_bLoadCopy = true;
-    //plugin.Value().m_bToBeLoaded = true;
+    // plugin.Value().m_bLoadCopy = true;
+    // plugin.Value().m_bToBeLoaded = true;
 
-    //if (!bExisted)
+    // if (!bExisted)
     //{
-    //  plugin.Value().m_bActive = false;
-    //  plugin.Value().m_bAvailable = false;
-    //  plugin.Value().m_LastModification = ezTimestamp::CurrentTimestamp();
-    //}
+    //   plugin.Value().m_bActive = false;
+    //   plugin.Value().m_bAvailable = false;
+    //   plugin.Value().m_LastModification = ezTimestamp::CurrentTimestamp();
+    // }
 
-    //ezQtEditorApp::GetSingleton()->StoreEnginePluginsToBeLoaded();
+    // ezQtEditorApp::GetSingleton()->StoreEnginePluginsToBeLoaded();
   }
 }
 
