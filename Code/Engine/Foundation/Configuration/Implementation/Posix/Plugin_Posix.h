@@ -1,12 +1,12 @@
 #include <Foundation/FoundationInternal.h>
 EZ_FOUNDATION_INTERNAL_HEADER
 
-#  include <dlfcn.h>
+#include <dlfcn.h>
 
-#  include <Foundation/Configuration/Plugin.h>
-#  include <Foundation/IO/OSFile.h>
-#  include <Foundation/Logging/Log.h>
-#  include <Foundation/Strings/StringBuilder.h>
+#include <Foundation/Configuration/Plugin.h>
+#include <Foundation/IO/OSFile.h>
+#include <Foundation/Logging/Log.h>
+#include <Foundation/Strings/StringBuilder.h>
 
 typedef void* ezPluginModule;
 
