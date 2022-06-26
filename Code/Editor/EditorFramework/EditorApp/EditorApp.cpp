@@ -236,11 +236,24 @@ ezResult ezQtEditorApp::AddBundlesInOrder(ezDynamicArray<ezApplicationPluginConf
   return EZ_SUCCESS;
 }
 
+void ezQtEditorApp::WritePluginSelectionStateDDL(const char* szProjectDir /*= ":project"*/)
+{
+  ezStringBuilder path = szProjectDir;
+  path.AppendPath("Editor/PluginSelection.ddl");
+
+  ezFileWriter file;
+  file.Open(path).AssertSuccess();
+
+  ezOpenDdlWriter ddl;
+  ddl.SetOutputStream(&file);
+
+  m_PluginBundles.WriteStateToDDL(ddl);
+}
+
 void ezQtEditorApp::CreatePluginSelectionDDL(const char* szProjectFile, const char* szTemplate)
 {
   ezStringBuilder sPath = szProjectFile;
   sPath.PathParentDirectory();
-  sPath.AppendPath("Editor/PluginSelection.ddl");
 
   for (auto it : m_PluginBundles.m_Plugins)
   {
@@ -249,12 +262,7 @@ void ezQtEditorApp::CreatePluginSelectionDDL(const char* szProjectFile, const ch
     bundle.m_bSelected = bundle.m_EnabledInTemplates.Contains(szTemplate);
   }
 
-  ezFileWriter file;
-  file.Open(sPath).AssertSuccess();
-
-  ezOpenDdlWriter ddl;
-  ddl.SetOutputStream(&file);
-  m_PluginBundles.WriteStateToDDL(ddl);
+  WritePluginSelectionStateDDL(sPath);
 }
 
 void ezQtEditorApp::LoadPluginBundleDlls(const char* szProjectFile)

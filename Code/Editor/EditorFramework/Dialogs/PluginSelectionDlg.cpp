@@ -26,13 +26,7 @@ void ezQtPluginSelectionDlg::on_Buttons_clicked(QAbstractButton* pButton)
     {
       *m_pPluginSet = m_LocalPluginSet;
 
-      ezFileWriter file;
-      file.Open(":project/Editor/PluginSelection.ddl").AssertSuccess();
-
-      ezOpenDdlWriter ddl;
-      ddl.SetOutputStream(&file);
-      m_pPluginSet->WriteStateToDDL(ddl);
-
+      ezQtEditorApp::GetSingleton()->WritePluginSelectionStateDDL();
       ezQtEditorApp::GetSingleton()->AddRestartRequiredReason("The set of active plugins has changed.");
     }
 

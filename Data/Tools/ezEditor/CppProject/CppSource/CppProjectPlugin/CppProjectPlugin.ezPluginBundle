@@ -8,6 +8,6 @@ PluginInfo
 	string %RuntimePlugins{"CppProject"}
 	string %PackageDependencies{}
 	string %RequiredPlugins{}
-	string %ExclusiveFeatures{"CppProject"}
+	string %ExclusiveFeatures{"GamePlugin"}
 	string %EnabledInTemplates{}
 }

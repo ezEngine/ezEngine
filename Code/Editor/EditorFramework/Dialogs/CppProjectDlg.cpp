@@ -241,27 +241,23 @@ void ezQtCppProjectDlg::on_GenerateSolution_clicked()
       on_OpenSolution_clicked();
     }
 
-    ezStringBuilder sPluginName = ezToolsProject::GetSingleton()->GetProjectName();
-    sPluginName.Append("Plugin");
+    ezStringBuilder sProjectName = ezToolsProject::GetSingleton()->GetProjectName();
+    ezStringBuilder sPluginName(sProjectName, "Plugin");
 
-    // TODO plugins
+    ezPluginBundleSet& bundles = ezQtEditorApp::GetSingleton()->GetPluginBundles();
 
-    // ezPluginSet& Plugins = ezQtEditorApp::GetSingleton()->GetEnginePlugins();
+    bundles.m_Plugins.Remove(sPluginName);
+    ezPluginBundle& plugin = bundles.m_Plugins[sPluginName];
+    plugin.m_bLoadCopy = true;
+    plugin.m_bSelected = true;
+    plugin.m_LastModificationTime = ezTimestamp::CurrentTimestamp();
+    plugin.m_ExclusiveFeatures.PushBack("GamePlugin");
+    plugin.m_sDisplayName = sProjectName;
+    txt.Set("C++ code for the ", sProjectName, " project.");
+    plugin.m_sDescription = txt;
+    plugin.m_RuntimePlugins.PushBack(sPluginName);
 
-    // bool bExisted;
-    // auto plugin = Plugins.m_Plugins.FindOrAdd(sPluginName, &bExisted);
-
-    // plugin.Value().m_bLoadCopy = true;
-    // plugin.Value().m_bToBeLoaded = true;
-
-    // if (!bExisted)
-    //{
-    //   plugin.Value().m_bActive = false;
-    //   plugin.Value().m_bAvailable = false;
-    //   plugin.Value().m_LastModification = ezTimestamp::CurrentTimestamp();
-    // }
-
-    // ezQtEditorApp::GetSingleton()->StoreEnginePluginsToBeLoaded();
+    ezQtEditorApp::GetSingleton()->WritePluginSelectionStateDDL();
   }
 }
 

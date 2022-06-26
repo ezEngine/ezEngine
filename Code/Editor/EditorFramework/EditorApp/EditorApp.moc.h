@@ -169,6 +169,7 @@ public:
 
   ezResult CreateOrOpenProject(bool bCreate, const char* szFile);
 
+  void WritePluginSelectionStateDDL(const char* szProjectDir = ":project");
   void CreatePluginSelectionDDL(const char* szProjectFile, const char* szTemplate);
   void LoadPluginBundleDlls(const char* szProjectFile);
 
