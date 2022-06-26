@@ -54,7 +54,8 @@ ezResult ezGALRenderTargetViewVulkan::InitPlatform(ezGALDevice* pDevice)
     return EZ_FAILURE;
   }
 
-  vk::Image vkImage = static_cast<const ezGALTextureVulkan*>(pTexture->GetParentResource())->GetImage();
+  auto pTextureVulkan = static_cast<const ezGALTextureVulkan*>(pTexture->GetParentResource());
+  vk::Image vkImage = pTextureVulkan->GetImage();
   const bool bIsArrayView = IsArrayView(texDesc, m_Description);
 
   vk::ImageViewCreateInfo imageViewCreationInfo;
@@ -89,6 +90,8 @@ ezResult ezGALRenderTargetViewVulkan::InitPlatform(ezGALDevice* pDevice)
     imageViewCreationInfo.subresourceRange.baseArrayLayer = m_Description.m_uiFirstSlice;
     imageViewCreationInfo.subresourceRange.layerCount = m_Description.m_uiSliceCount;
   }
+  m_range = imageViewCreationInfo.subresourceRange;
+  m_bfullRange = m_range == pTextureVulkan->GetFullRange();
 
   VK_SUCCEED_OR_RETURN_EZ_FAILURE(pVulkanDevice->GetVulkanDevice().createImageView(&imageViewCreationInfo, nullptr, &m_imageView));
   return EZ_SUCCESS;

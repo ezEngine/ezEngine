@@ -73,7 +73,7 @@ EZ_ALWAYS_INLINE vk::ImageSubresourceRange ezConversionUtilsVulkan::GetSubresour
     range.aspectMask |= vk::ImageAspectFlagBits::eStencil;
   }
   range.baseMipLevel = viewDesc.m_uiMostDetailedMipLevel;
-  range.levelCount = viewDesc.m_uiMipLevelsToUse;
+  range.levelCount = ezMath::Min(viewDesc.m_uiMipLevelsToUse, texDesc.m_uiMipLevelCount - range.baseMipLevel);
 
   switch (texDesc.m_Type)
   {
@@ -87,6 +87,7 @@ EZ_ALWAYS_INLINE vk::ImageSubresourceRange ezConversionUtilsVulkan::GetSubresour
       range.layerCount = viewDesc.m_uiArraySize * 6;
       break;
     case ezGALTextureType::Texture3D:
+      range.layerCount = 1;
       break;
     default:
       EZ_ASSERT_NOT_IMPLEMENTED;
@@ -234,4 +235,45 @@ EZ_ALWAYS_INLINE vk::ShaderStageFlagBits ezConversionUtilsVulkan::GetShaderStage
     case ezGALShaderStage::ComputeShader:
       return vk::ShaderStageFlagBits::eCompute;
   }
+}
+
+EZ_ALWAYS_INLINE vk::PipelineStageFlags ezConversionUtilsVulkan::GetPipelineStage(ezGALShaderStage::Enum stage)
+{
+  switch (stage)
+  {
+    case ezGALShaderStage::VertexShader:
+      return vk::PipelineStageFlagBits::eVertexShader;
+    case ezGALShaderStage::HullShader:
+      return vk::PipelineStageFlagBits::eTessellationControlShader;
+    case ezGALShaderStage::DomainShader:
+      return vk::PipelineStageFlagBits::eTessellationEvaluationShader;
+    case ezGALShaderStage::GeometryShader:
+      return vk::PipelineStageFlagBits::eGeometryShader;
+    case ezGALShaderStage::PixelShader:
+      return vk::PipelineStageFlagBits::eFragmentShader;
+    default:
+      EZ_ASSERT_NOT_IMPLEMENTED;
+      [[fallthrough]];
+    case ezGALShaderStage::ComputeShader:
+      return vk::PipelineStageFlagBits::eComputeShader;
+  }
+}
+
+EZ_ALWAYS_INLINE vk::PipelineStageFlags ezConversionUtilsVulkan::GetPipelineStage(vk::ShaderStageFlags flags)
+{
+  vk::PipelineStageFlags res;
+  if (flags & vk::ShaderStageFlagBits::eVertex)
+    res |= vk::PipelineStageFlagBits::eVertexShader;
+  if (flags & vk::ShaderStageFlagBits::eTessellationControl)
+    res |= vk::PipelineStageFlagBits::eTessellationControlShader;
+  if (flags & vk::ShaderStageFlagBits::eTessellationEvaluation)
+    res |= vk::PipelineStageFlagBits::eTessellationEvaluationShader;
+  if (flags & vk::ShaderStageFlagBits::eGeometry)
+    res |= vk::PipelineStageFlagBits::eGeometryShader;
+  if (flags & vk::ShaderStageFlagBits::eFragment)
+    res |= vk::PipelineStageFlagBits::eFragmentShader;
+  if (flags & vk::ShaderStageFlagBits::eCompute)
+    res |= vk::PipelineStageFlagBits::eComputeShader;
+
+  return res;
 }

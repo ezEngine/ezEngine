@@ -5,6 +5,8 @@
 
 #include <vulkan/vulkan.hpp>
 
+class ezGALDeviceVulkan;
+
 struct ezStagingBufferVulkan
 {
   vk::Buffer m_buffer;
@@ -15,12 +17,13 @@ struct ezStagingBufferVulkan
 class EZ_RENDERERVULKAN_DLL ezStagingBufferPoolVulkan
 {
 public:
-  static void Initialize(vk::Device device);
-  static void DeInitialize();
+  void Initialize(ezGALDeviceVulkan* pDevice);
+  void DeInitialize();
 
-  static ezStagingBufferVulkan AllocateBuffer(vk::DeviceSize alignment, vk::DeviceSize size);
-  static void ReclaimBuffer(ezStagingBufferVulkan& buffer);
+  ezStagingBufferVulkan AllocateBuffer(vk::DeviceSize alignment, vk::DeviceSize size);
+  void ReclaimBuffer(ezStagingBufferVulkan& buffer);
 
 private:
-  static vk::Device s_device;
+  ezGALDeviceVulkan* m_pDevice = nullptr;
+  vk::Device m_device;
 };

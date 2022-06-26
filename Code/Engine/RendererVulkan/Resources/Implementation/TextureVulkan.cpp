@@ -1,7 +1,9 @@
 #include <RendererVulkan/RendererVulkanPCH.h>
 
 #include <RendererVulkan/Device/DeviceVulkan.h>
+#include <RendererVulkan/Device/InitContext.h>
 #include <RendererVulkan/Resources/TextureVulkan.h>
+#include <RendererVulkan/Utils/PipelineBarrierVulkan.h>
 
 vk::Extent3D ezGALTextureVulkan::GetMipLevelSize(ezUInt32 uiMipLevel) const
 {
@@ -16,9 +18,11 @@ vk::ImageSubresourceRange ezGALTextureVulkan::GetFullRange() const
 {
   vk::ImageSubresourceRange range;
   range.aspectMask = ezGALResourceFormat::IsDepthFormat(m_Description.m_Format) ? vk::ImageAspectFlagBits::eDepth : vk::ImageAspectFlagBits::eColor;
+  if (ezGALResourceFormat::IsStencilFormat(m_Description.m_Format))
+    range.aspectMask |= vk::ImageAspectFlagBits::eStencil;
   range.baseArrayLayer = 0;
   range.baseMipLevel = 0;
-  range.layerCount = m_Description.m_uiArraySize;
+  range.layerCount = m_Description.m_Type == ezGALTextureType::TextureCube ? m_Description.m_uiArraySize * 6 : m_Description.m_uiArraySize;
   range.levelCount = m_Description.m_uiMipLevelCount;
   return range;
 }
@@ -35,9 +39,11 @@ ezGALTextureVulkan::~ezGALTextureVulkan() {}
 ezResult ezGALTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData)
 {
   ezGALDeviceVulkan* m_pDeviceVulkan = static_cast<ezGALDeviceVulkan*>(pDevice);
+  m_pDevice = m_pDeviceVulkan;
   m_device = m_pDeviceVulkan->GetVulkanDevice();
 
   vk::ImageCreateInfo createInfo = {};
+  //#TODO_VULKAN VK_IMAGE_CREATE_MUTABLE_FORMAT_BIT / VkImageFormatListCreateInfoKHR to allow changing the format in a view is slow.
   createInfo.flags |= vk::ImageCreateFlagBits::eMutableFormat;
   m_imageFormat = m_pDeviceVulkan->GetFormatLookupTable().GetFormatInfo(m_Description.m_Format).m_eStorage;
   createInfo.format = m_imageFormat;
@@ -74,6 +80,9 @@ ezResult ezGALTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGAL
   // m_bAllowDynamicMipGeneration has to be emulated via a shader so we need to enable shader resource view and render target support.
   if (m_Description.m_bAllowShaderResourceView || m_Description.m_bAllowDynamicMipGeneration)
   {
+    // Needed for blit-based generation
+    createInfo.usage |= vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eTransferSrc;
+    // Needed for shader-based generation
     createInfo.usage |= vk::ImageUsageFlagBits::eSampled;
     m_stages |= m_pDeviceVulkan->GetSupportedStages();
     m_access |= vk::AccessFlagBits::eShaderRead;
@@ -121,6 +130,7 @@ ezResult ezGALTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGAL
 
     case ezGALTextureType::Texture3D:
     {
+      createInfo.arrayLayers = 1;
       createInfo.imageType = vk::ImageType::e3D;
       if (m_Description.m_bCreateRenderTarget)
       {
@@ -140,33 +150,12 @@ ezResult ezGALTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGAL
     ezVulkanAllocationCreateInfo allocInfo;
     allocInfo.m_usage = ezVulkanMemoryUsage::Auto;
     VK_SUCCEED_OR_RETURN_EZ_FAILURE(ezMemoryAllocatorVulkan::CreateImage(createInfo, allocInfo, m_image, m_alloc, &m_allocInfo));
-
-    if (!pInitialData.IsEmpty())
-    {
-      for (ezUInt32 uiLayer = 0; uiLayer < createInfo.arrayLayers; uiLayer++)
-      {
-        for (ezUInt32 uiMipLevel = 0; uiMipLevel < createInfo.mipLevels; uiMipLevel++)
-        {
-          const ezUInt32 uiSubresourceIndex = uiMipLevel + uiLayer * createInfo.mipLevels;
-          EZ_ASSERT_DEBUG(uiSubresourceIndex < pInitialData.GetCount(), "Not all data provided in the intial texture data.");
-          const ezGALSystemMemoryDescription& subResourceData = pInitialData[uiSubresourceIndex];
-
-          vk::ImageSubresourceLayers subresourceLayers;
-          // We do not support stencil uploads right now.
-          subresourceLayers.aspectMask = ezGALResourceFormat::IsDepthFormat(m_Description.m_Format) ? vk::ImageAspectFlagBits::eDepth : vk::ImageAspectFlagBits::eColor;
-          subresourceLayers.mipLevel = uiMipLevel;
-          subresourceLayers.baseArrayLayer = uiLayer;
-          subresourceLayers.layerCount = 1;
-
-          m_pDeviceVulkan->UploadTextureStaging(this, subresourceLayers, subResourceData);
-        }
-      }
-    }
   }
   else
   {
     m_image = static_cast<VkImage>(m_pExisitingNativeObject);
   }
+  m_pDeviceVulkan->GetInitContext().InitTexture(this, createInfo, pInitialData);
 
   if (m_Description.m_ResourceAccess.m_bReadBack)
     return CreateStagingBuffer(m_pDeviceVulkan, createInfo);
@@ -190,7 +179,11 @@ ezResult ezGALTextureVulkan::DeInitPlatform(ezGALDevice* pDevice)
 
 void ezGALTextureVulkan::SetDebugNamePlatform(const char* szName) const
 {
-  static_cast<ezGALDeviceVulkan*>(ezGALDevice::GetDefaultDevice())->SetDebugName(szName, m_image, m_alloc);
+  m_pDevice->SetDebugName(szName, m_image, m_alloc);
+  if (m_stagingImage)
+  {
+    m_pDevice->SetDebugName(szName, m_stagingImage, m_stagingAlloc);
+  }
 }
 
 ezResult ezGALTextureVulkan::CreateStagingBuffer(ezGALDeviceVulkan* pDevice, const vk::ImageCreateInfo& imageCreateInfo)

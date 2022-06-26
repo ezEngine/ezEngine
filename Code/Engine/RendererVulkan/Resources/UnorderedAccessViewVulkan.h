@@ -12,6 +12,7 @@ class ezGALUnorderedAccessViewVulkan : public ezGALUnorderedAccessView
 public:
   EZ_ALWAYS_INLINE const vk::DescriptorImageInfo& GetImageInfo() const;
   const vk::DescriptorBufferInfo& GetBufferInfo() const;
+  vk::ImageSubresourceRange GetRange() const;
 
 protected:
   friend class ezGALDeviceVulkan;
@@ -24,9 +25,9 @@ protected:
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
 
 private:
-  const ezGALBufferVulkan* m_pParentBuffer = nullptr;
   mutable vk::DescriptorImageInfo m_resourceImageInfo;
   mutable vk::DescriptorBufferInfo m_resourceBufferInfo;
+  vk::ImageSubresourceRange m_range;
 };
 
 #include <RendererVulkan/Resources/Implementation/UnorderedAccessViewVulkan_inl.h>

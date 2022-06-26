@@ -32,11 +32,17 @@ void ezGALPassVulkan::MarkDirty()
   m_pCommandEncoderImpl->MarkDirty();
 }
 
+void ezGALPassVulkan::SetCurrentCommandBuffer(vk::CommandBuffer* commandBuffer, ezPipelineBarrierVulkan* pipelineBarrier)
+{
+  m_pCommandEncoderImpl->SetCurrentCommandBuffer(commandBuffer, pipelineBarrier);
+}
+
 ezGALRenderCommandEncoder* ezGALPassVulkan::BeginRenderingPlatform(const ezGALRenderingSetup& renderingSetup, const char* szName)
 {
-  vk::CommandBuffer& commandBuffer = static_cast<ezGALDeviceVulkan&>(m_Device).GetCurrentCommandBuffer();
+  auto& deviceVulkan = static_cast<ezGALDeviceVulkan&>(m_Device);
+  deviceVulkan.GetCurrentCommandBuffer();
 
-  m_pCommandEncoderImpl->BeginRendering(commandBuffer, renderingSetup);
+  m_pCommandEncoderImpl->BeginRendering(renderingSetup);
 
   return m_pRenderCommandEncoder.Borrow();
 }
@@ -50,9 +56,10 @@ void ezGALPassVulkan::EndRenderingPlatform(ezGALRenderCommandEncoder* pCommandEn
 
 ezGALComputeCommandEncoder* ezGALPassVulkan::BeginComputePlatform(const char* szName)
 {
-  vk::CommandBuffer& commandBuffer = static_cast<ezGALDeviceVulkan&>(m_Device).GetCurrentCommandBuffer();
+  auto& deviceVulkan = static_cast<ezGALDeviceVulkan&>(m_Device);
+  deviceVulkan.GetCurrentCommandBuffer();
 
-  m_pCommandEncoderImpl->BeginCompute(commandBuffer);
+  m_pCommandEncoderImpl->BeginCompute();
 
   return m_pComputeCommandEncoder.Borrow();
 }

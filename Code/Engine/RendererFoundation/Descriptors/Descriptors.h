@@ -13,6 +13,32 @@
 
 class ezWindowBase;
 
+struct EZ_RENDERERFOUNDATION_DLL ezShaderResourceType
+{
+  typedef ezUInt8 StorageType;
+  enum Enum : ezUInt8
+  {
+    Unknown = 0,
+
+    Texture1D = 1,
+    Texture1DArray = 2,
+    Texture2D = 3,
+    Texture2DArray = 4,
+    Texture2DMS = 5,
+    Texture2DMSArray = 6,
+    Texture3D = 7,
+    TextureCube = 8,
+    TextureCubeArray = 9,
+
+    UAV = 10,            ///< RW textures and buffers
+    ConstantBuffer = 20, ///< Constant buffers
+    GenericBuffer = 21,  ///< Read only (structured) buffers
+    Sampler = 22,        ///< Separate sampler states
+
+    Default = Unknown,
+  };
+};
+
 /// \brief Defines a swap chain's present mode.
 /// \sa ezGALWindowSwapChainCreationDescription
 struct EZ_RENDERERFOUNDATION_DLL ezGALPresentMode

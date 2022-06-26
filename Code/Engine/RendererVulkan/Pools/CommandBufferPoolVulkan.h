@@ -9,7 +9,7 @@
 /// Do not call ReclaimCommandBuffer manually, instead call ezGALDeviceVulkan::ReclaimLater which will make sure to reclaim the command buffer once it is no longer in use.
 /// Usage:
 /// \code{.cpp}
-///   vk::CommandBuffer c = ezCommandBufferPoolVulkan::RequestCommandBuffer();
+///   vk::CommandBuffer c = pPool->RequestCommandBuffer();
 ///   c.begin();
 ///   ...
 ///   c.end();
@@ -19,14 +19,14 @@
 class EZ_RENDERERVULKAN_DLL ezCommandBufferPoolVulkan
 {
 public:
-  static void Initialize(vk::Device device, ezUInt32 graphicsFamilyIndex);
-  static void DeInitialize();
+  void Initialize(vk::Device device, ezUInt32 graphicsFamilyIndex);
+  void DeInitialize();
 
-  static vk::CommandBuffer RequestCommandBuffer();
-  static void ReclaimCommandBuffer(vk::CommandBuffer& CommandBuffer);
+  vk::CommandBuffer RequestCommandBuffer();
+  void ReclaimCommandBuffer(vk::CommandBuffer& CommandBuffer);
 
 private:
-  static vk::Device s_device;
-  static vk::CommandPool s_commandPool;
-  static ezHybridArray<vk::CommandBuffer, 4> s_CommandBuffers;
+  vk::Device m_device;
+  vk::CommandPool m_commandPool;
+  ezHybridArray<vk::CommandBuffer, 4> m_CommandBuffers;
 };

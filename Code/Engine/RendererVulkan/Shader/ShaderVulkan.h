@@ -6,6 +6,7 @@
 #include <RendererFoundation/RendererFoundationDLL.h>
 #include <RendererFoundation/Shader/Shader.h>
 
+#include <RendererCore/Shader/ShaderStageBinary.h>
 #include <vulkan/vulkan.hpp>
 
 class EZ_RENDERERVULKAN_DLL ezGALShaderVulkan : public ezGALShader
@@ -29,11 +30,13 @@ public:
       UAV,
       Sampler,
     };
-    vk::DescriptorType m_descriptorType = vk::DescriptorType::eSampler;
-    Type m_type = Type::ConstantBuffer;                            ///< Source resource type in the high level binding model.
-    ezGALShaderStage::Enum m_stage = ezGALShaderStage::ENUM_COUNT; ///< Source stage in the high level resource binding model.
-    ezUInt8 m_uiSource = 0;                                        ///< Source binding index in the high level resource binding model.
-    ezUInt8 m_uiTarget = 0;                                        ///< Target binding index in the descriptor set layout.
+    vk::DescriptorType m_descriptorType = vk::DescriptorType::eSampler;  ///< Descriptor slot type.
+    ezShaderResourceType::Enum m_ezType = ezShaderResourceType::Unknown; ///< EZ resource type. We need this to find a compatible fallback resource is a descriptor slot is empty.
+    Type m_type = Type::ConstantBuffer;                                  ///< Source resource type in the high level binding model.
+    ezGALShaderStage::Enum m_stage = ezGALShaderStage::ENUM_COUNT;       ///< Source stage in the high level resource binding model.
+    ezUInt8 m_uiSource = 0;                                              ///< Source binding index in the high level resource binding model.
+    ezUInt8 m_uiTarget = 0;                                              ///< Target binding index in the descriptor set layout.
+    vk::PipelineStageFlags m_targetStages;                               ///< Target stages that this mapping is used in.
   };
 
   void SetDebugName(const char* szName) const override;

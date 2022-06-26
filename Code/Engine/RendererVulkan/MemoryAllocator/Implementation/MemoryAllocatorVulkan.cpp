@@ -16,6 +16,16 @@ VKAPI_ATTR void VKAPI_CALL vkGetDeviceBufferMemoryRequirements(
 #define VMA_DYNAMIC_VULKAN_FUNCTIONS 1
 #define VMA_STATS_STRING_ENABLED 1
 
+
+//
+//#define VMA_DEBUG_LOG(format, ...)   \
+//  do                                 \
+//  {                                  \
+//    ezStringBuilder tmp;             \
+//    tmp.Printf(format, __VA_ARGS__); \
+//    ezLog::Error("{}", tmp);         \
+//  } while (false)
+
 #include <RendererVulkan/MemoryAllocator/MemoryAllocatorVulkan.h>
 
 #define VMA_IMPLEMENTATION

@@ -78,30 +78,11 @@ struct EZ_RENDERERCORE_DLL ezShaderResourceBinding
 {
   EZ_DECLARE_MEM_RELOCATABLE_TYPE();
 
-  enum ResourceType
-  {
-    Unknown = 0,
-
-    Texture1D = 1,
-    Texture1DArray = 2,
-    Texture2D = 3,
-    Texture2DArray = 4,
-    Texture2DMS = 5,
-    Texture2DMSArray = 6,
-    Texture3D = 7,
-    TextureCube = 8,
-    TextureCubeArray = 9,
-
-    UAV = 10,            ///< RW textures and buffers
-    ConstantBuffer = 20, ///< Constant buffers
-    GenericBuffer = 21,  ///< Read only (structured) buffers
-    Sampler = 22,        ///< Separate sampler states
-  };
 
   ezShaderResourceBinding();
   ~ezShaderResourceBinding();
 
-  ResourceType m_Type;
+  ezShaderResourceType::Enum m_Type;
   ezInt32 m_iSlot;
   ezHashedString m_sName;
   ezScopedRefPointer<ezShaderConstantBufferLayout> m_pLayout;

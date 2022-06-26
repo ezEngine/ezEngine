@@ -52,6 +52,7 @@ protected:
   ezVulkanAllocation m_alloc = nullptr;
   ezVulkanAllocationInfo m_allocInfo;
 
+  ezGALDeviceVulkan* m_pDevice = nullptr;
   vk::Device m_device;
   void* m_pExisitingNativeObject = nullptr;
 

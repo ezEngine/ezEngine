@@ -144,7 +144,7 @@ ezResult ezShaderConstantBufferLayout::Read(ezStreamReader& stream)
 
 ezShaderResourceBinding::ezShaderResourceBinding()
 {
-  m_Type = Unknown;
+  m_Type = ezShaderResourceType::Unknown;
   m_iSlot = -1;
   m_pLayout = nullptr;
 }
@@ -213,7 +213,7 @@ ezResult ezShaderStageBinary::Write(ezStreamWriter& stream) const
     stream << r.m_iSlot;
     stream << (ezUInt8)r.m_Type;
 
-    if (r.m_Type == ezShaderResourceBinding::ConstantBuffer)
+    if (r.m_Type == ezShaderResourceType::ConstantBuffer)
     {
       EZ_SUCCEED_OR_RETURN(r.m_pLayout->Write(stream));
     }
@@ -270,9 +270,9 @@ ezResult ezShaderStageBinary::Read(ezStreamReader& stream)
 
       ezUInt8 uiType = 0;
       stream >> uiType;
-      r.m_Type = (ezShaderResourceBinding::ResourceType)uiType;
+      r.m_Type = (ezShaderResourceType::Enum)uiType;
 
-      if (r.m_Type == ezShaderResourceBinding::ConstantBuffer && uiVersion >= ezShaderStageBinary::Version4)
+      if (r.m_Type == ezShaderResourceType::ConstantBuffer && uiVersion >= ezShaderStageBinary::Version4)
       {
         auto pLayout = EZ_DEFAULT_NEW(ezShaderConstantBufferLayout);
         EZ_SUCCEED_OR_RETURN(pLayout->Read(stream));

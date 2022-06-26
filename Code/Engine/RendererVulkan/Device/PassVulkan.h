@@ -16,6 +16,7 @@ protected:
   friend class ezMemoryUtils;
   void Reset();
   void MarkDirty();
+  void SetCurrentCommandBuffer(vk::CommandBuffer* commandBuffer, ezPipelineBarrierVulkan* pipelineBarrier);
 
   virtual ezGALRenderCommandEncoder* BeginRenderingPlatform(const ezGALRenderingSetup& renderingSetup, const char* szName) override;
   virtual void EndRenderingPlatform(ezGALRenderCommandEncoder* pCommandEncoder) override;

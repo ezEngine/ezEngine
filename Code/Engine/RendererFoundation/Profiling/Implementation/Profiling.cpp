@@ -56,7 +56,11 @@ public:
 private:
   static void OnEngineStartup() { ezGALDevice::GetDefaultDevice()->m_Events.AddEventHandler(&GPUProfilingSystem::ProcessTimestamps); }
 
-  static void OnEngineShutdown() { ezGALDevice::GetDefaultDevice()->m_Events.RemoveEventHandler(&GPUProfilingSystem::ProcessTimestamps); }
+  static void OnEngineShutdown()
+  {
+    m_TimingScopes.Clear();
+    ezGALDevice::GetDefaultDevice()->m_Events.RemoveEventHandler(&GPUProfilingSystem::ProcessTimestamps);
+  }
 
   static ezDeque<GPUTimingScope, ezStaticAllocatorWrapper> m_TimingScopes;
 

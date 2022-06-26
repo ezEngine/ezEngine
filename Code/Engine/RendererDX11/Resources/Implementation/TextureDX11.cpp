@@ -47,12 +47,12 @@ ezResult ezGALTextureDX11::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGALSy
       Tex2DDesc.ArraySize = (m_Description.m_Type == ezGALTextureType::Texture2D ? m_Description.m_uiArraySize : (m_Description.m_uiArraySize * 6));
       Tex2DDesc.BindFlags = 0;
 
-      if (m_Description.m_bAllowShaderResourceView)
+      if (m_Description.m_bAllowShaderResourceView || m_Description.m_bAllowDynamicMipGeneration)
         Tex2DDesc.BindFlags |= D3D11_BIND_SHADER_RESOURCE;
       if (m_Description.m_bAllowUAV)
         Tex2DDesc.BindFlags |= D3D11_BIND_UNORDERED_ACCESS;
 
-      if (m_Description.m_bCreateRenderTarget)
+      if (m_Description.m_bCreateRenderTarget || m_Description.m_bAllowDynamicMipGeneration)
         Tex2DDesc.BindFlags |= ezGALResourceFormat::IsDepthFormat(m_Description.m_Format) ? D3D11_BIND_DEPTH_STENCIL : D3D11_BIND_RENDER_TARGET;
 
       Tex2DDesc.CPUAccessFlags = 0; // We always use staging textures to update the data

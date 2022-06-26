@@ -260,6 +260,15 @@ void ezGraphicsTest::ClearScreen(const ezColor& color)
   ezRenderContext::GetDefaultInstance()->BeginRendering(m_pPass, renderingSetup, viewport);
 }
 
+void ezGraphicsTest::SetClipSpace()
+{
+  static ezHashedString sClipSpaceFlipped = ezMakeHashedString("CLIP_SPACE_FLIPPED");
+  static ezHashedString sTrue = ezMakeHashedString("TRUE");
+  static ezHashedString sFalse = ezMakeHashedString("FALSE");
+  ezClipSpaceYMode::Enum clipSpace = ezClipSpaceYMode::RenderToTextureDefault;
+  ezRenderContext::GetDefaultInstance()->SetShaderPermutationVariable(sClipSpaceFlipped, clipSpace == ezClipSpaceYMode::Flipped ? sTrue : sFalse);
+}
+
 ezMeshBufferResourceHandle ezGraphicsTest::CreateMesh(const ezGeometry& geom, const char* szResourceName)
 {
   ezMeshBufferResourceHandle hMesh;

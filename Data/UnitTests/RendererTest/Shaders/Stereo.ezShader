@@ -1,0 +1,41 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+[RENDERSTATE]
+
+[SHADER]
+
+#include "CommonConstants.h"
+
+struct VS_IN
+{
+  float3 pos : POSITION;
+  uint InstanceID : SV_InstanceID;
+};
+
+struct VS_OUT
+{
+  float4 pos : SV_Position;
+  uint RenderTargetArrayIndex : SV_RenderTargetArrayIndex;
+};
+
+typedef VS_OUT PS_IN;
+
+[VERTEXSHADER]
+
+VS_OUT main(VS_IN Input)
+{
+  VS_OUT RetVal;
+  RetVal.pos = mul(mvp, float4(Input.pos, 1.0));
+  RetVal.RenderTargetArrayIndex = Input.InstanceID % 2;
+  return RetVal;
+}
+
+[PIXELSHADER]
+
+float4 main(PS_IN Input) : SV_Target
+{
+  return Input.RenderTargetArrayIndex == 0 ? float4(1.0, 0.0, 0.0, 1.0) : float4(0.0, 1.0, 0.0, 1.0);
+}

@@ -1110,7 +1110,7 @@ void ezRenderContext::ApplyConstantBufferBindings(const ezShaderStageBinary* pBi
 {
   for (const auto& binding : pBinary->m_ShaderResourceBindings)
   {
-    if (binding.m_Type != ezShaderResourceBinding::ConstantBuffer)
+    if (binding.m_Type != ezShaderResourceType::ConstantBuffer)
       continue;
 
     const ezUInt64 uiResourceHash = binding.m_sName.GetHash();
@@ -1157,19 +1157,19 @@ void ezRenderContext::ApplyTextureBindings(ezGALShaderStage::Enum stage, const e
     const ezUInt64 uiResourceHash = binding.m_sName.GetHash();
     ezGALResourceViewHandle hResourceView;
 
-    if (binding.m_Type >= ezShaderResourceBinding::Texture2D && binding.m_Type <= ezShaderResourceBinding::Texture2DMSArray)
+    if (binding.m_Type >= ezShaderResourceType::Texture2D && binding.m_Type <= ezShaderResourceType::Texture2DMSArray)
     {
       m_BoundTextures2D.TryGetValue(uiResourceHash, hResourceView);
       m_pGALCommandEncoder->SetResourceView(stage, binding.m_iSlot, hResourceView);
     }
 
-    if (binding.m_Type == ezShaderResourceBinding::Texture3D)
+    if (binding.m_Type == ezShaderResourceType::Texture3D)
     {
       m_BoundTextures3D.TryGetValue(uiResourceHash, hResourceView);
       m_pGALCommandEncoder->SetResourceView(stage, binding.m_iSlot, hResourceView);
     }
 
-    if (binding.m_Type >= ezShaderResourceBinding::TextureCube && binding.m_Type <= ezShaderResourceBinding::TextureCubeArray)
+    if (binding.m_Type >= ezShaderResourceType::TextureCube && binding.m_Type <= ezShaderResourceType::TextureCubeArray)
     {
       m_BoundTexturesCube.TryGetValue(uiResourceHash, hResourceView);
       m_pGALCommandEncoder->SetResourceView(stage, binding.m_iSlot, hResourceView);
@@ -1181,7 +1181,7 @@ void ezRenderContext::ApplyUAVBindings(const ezShaderStageBinary* pBinary)
 {
   for (const auto& binding : pBinary->m_ShaderResourceBindings)
   {
-    if (binding.m_Type != ezShaderResourceBinding::UAV)
+    if (binding.m_Type != ezShaderResourceType::UAV)
       continue;
 
     const ezUInt64 uiResourceHash = binding.m_sName.GetHash();
@@ -1197,7 +1197,7 @@ void ezRenderContext::ApplySamplerBindings(ezGALShaderStage::Enum stage, const e
 {
   for (const auto& binding : pBinary->m_ShaderResourceBindings)
   {
-    if (binding.m_Type != ezShaderResourceBinding::Sampler)
+    if (binding.m_Type != ezShaderResourceType::Sampler)
       continue;
 
     const ezUInt64 uiResourceHash = binding.m_sName.GetHash();
@@ -1216,7 +1216,7 @@ void ezRenderContext::ApplyBufferBindings(ezGALShaderStage::Enum stage, const ez
 {
   for (const auto& binding : pBinary->m_ShaderResourceBindings)
   {
-    if (binding.m_Type != ezShaderResourceBinding::GenericBuffer)
+    if (binding.m_Type != ezShaderResourceType::GenericBuffer)
       continue;
 
     const ezUInt64 uiResourceHash = binding.m_sName.GetHash();
