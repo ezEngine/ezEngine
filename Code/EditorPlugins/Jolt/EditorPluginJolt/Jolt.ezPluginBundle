@@ -1,0 +1,15 @@
+// for a description of the options see:
+// Code/EditorPlugins/Assets/EditorPluginAssets/Assets.ezPluginBundle
+
+PluginInfo
+{
+	string %DisplayName{"Jolt Physics"}
+	string %Description{"Adds support for 3D physics simulation via Jolt."}
+	string %EditorPlugins{"ezEditorPluginJolt"}
+	string %EditorEnginePlugins{"ezEnginePluginJolt"}
+	string %RuntimePlugins{"ezJoltPlugin"}
+	string %PackageDependencies{}
+	string %RequiredPlugins{}
+	string %ExclusiveFeatures{"physics"}
+	string %EnabledInTemplates{}
+}

@@ -13,8 +13,6 @@ static void ToolsProjectEventHandler(const ezToolsProjectEvent& e);
 
 void OnLoadPlugin()
 {
-  ezQtEditorApp::GetSingleton()->AddRuntimePluginDependency("EditorPluginFmod", "ezFmodPlugin");
-
   ezToolsProject::GetSingleton()->s_Events.AddEventHandler(ToolsProjectEventHandler);
 
   // Mesh
@@ -62,8 +60,6 @@ static void ToolsProjectEventHandler(const ezToolsProjectEvent& e)
     pPreferences->SyncCVars();
   }
 }
-
-EZ_PLUGIN_DEPENDENCY(ezEditorPluginScene);
 
 EZ_PLUGIN_ON_LOADED()
 {

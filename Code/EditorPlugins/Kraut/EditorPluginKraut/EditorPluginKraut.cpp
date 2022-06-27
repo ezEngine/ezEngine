@@ -10,10 +10,6 @@
 
 void OnLoadPlugin()
 {
-  ezQtEditorApp::GetSingleton()->AddRuntimePluginDependency("EditorPluginKraut", "ezKrautPlugin");
-  ezQtEditorApp::GetSingleton()->AddRuntimePluginDependency("EditorPluginKraut", "ezEnginePluginKraut");
-
-
   // Kraut Tree
   {
     // Menu Bar
@@ -34,8 +30,6 @@ void OnLoadPlugin()
     }
   }
 }
-
-EZ_PLUGIN_DEPENDENCY(ezEditorPluginScene);
 
 EZ_PLUGIN_ON_LOADED()
 {

@@ -24,7 +24,6 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezApplicationPluginConfig_PluginConfig, ezNoBase,
   {
     EZ_MEMBER_PROPERTY("RelativePath", m_sAppDirRelativePath),
     EZ_MEMBER_PROPERTY("LoadCopy", m_bLoadCopy),
-    EZ_SET_MEMBER_PROPERTY("Dependencies", m_sDependecyOf),
   }
   EZ_END_PROPERTIES;
 }
@@ -40,27 +39,11 @@ bool ezApplicationPluginConfig::AddPlugin(const PluginConfig& cfg0)
 {
   PluginConfig cfg = cfg0;
 
-  if (cfg.m_sDependecyOf.IsEmpty())
-  {
-    cfg.m_sDependecyOf.Insert("<manual>");
-  }
-
   for (ezUInt32 i = 0; i < m_Plugins.GetCount(); ++i)
   {
     if (m_Plugins[i].m_sAppDirRelativePath == cfg.m_sAppDirRelativePath)
     {
-      bool merged = false;
-
-      for (auto it = cfg.m_sDependecyOf.GetIterator(); it.IsValid(); ++it)
-      {
-        if (!m_Plugins[i].m_sDependecyOf.Contains(*it))
-        {
-          m_Plugins[i].m_sDependecyOf.Insert(*it);
-          merged = true;
-        }
-      }
-
-      return merged;
+      return false;
     }
   }
 
@@ -73,46 +56,26 @@ bool ezApplicationPluginConfig::RemovePlugin(const PluginConfig& cfg0)
 {
   PluginConfig cfg = cfg0;
 
-  if (cfg.m_sDependecyOf.IsEmpty())
-    cfg.m_sDependecyOf.Insert("<manual>");
-
-  bool modified = false;
-
   for (ezUInt32 i = 0; i < m_Plugins.GetCount(); ++i)
   {
     if (m_Plugins[i].m_sAppDirRelativePath == cfg.m_sAppDirRelativePath)
     {
-      for (auto it = cfg.m_sDependecyOf.GetIterator(); it.IsValid(); ++it)
-      {
-        if (m_Plugins[i].m_sDependecyOf.Remove(*it))
-          modified = true;
-      }
-
-      if (m_Plugins[i].m_sDependecyOf.IsEmpty())
-      {
-        m_Plugins.RemoveAtAndSwap(i);
-        return true;
-      }
-
-      return modified;
+      m_Plugins.RemoveAtAndSwap(i);
+      return true;
     }
   }
 
   return false;
 }
 
+ezApplicationPluginConfig::ezApplicationPluginConfig() = default;
 
-ezApplicationPluginConfig::ezApplicationPluginConfig()
-{
-  m_bManualOnly = true;
-}
-
-ezResult ezApplicationPluginConfig::Save()
+ezResult ezApplicationPluginConfig::Save(const char* szConfigPath) const
 {
   m_Plugins.Sort();
 
   ezStringBuilder sPath;
-  sPath = ":project/Plugins.ddl";
+  sPath = szConfigPath;
 
   ezFileWriter file;
   if (file.Open(sPath).Failed())
@@ -130,32 +93,20 @@ ezResult ezApplicationPluginConfig::Save()
     ezOpenDdlUtils::StoreString(writer, m_Plugins[i].m_sAppDirRelativePath, "Path");
     ezOpenDdlUtils::StoreBool(writer, m_Plugins[i].m_bLoadCopy, "LoadCopy");
 
-    if (!m_Plugins[i].m_sDependecyOf.IsEmpty())
-    {
-      writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::String, "DependencyOf");
-
-      for (auto it = m_Plugins[i].m_sDependecyOf.GetIterator(); it.IsValid(); ++it)
-      {
-        writer.WriteString(*it);
-      }
-
-      writer.EndPrimitiveList();
-    }
-
     writer.EndObject();
   }
 
   return EZ_SUCCESS;
 }
 
-void ezApplicationPluginConfig::Load()
+void ezApplicationPluginConfig::Load(const char* szConfigPath)
 {
   EZ_LOG_BLOCK("ezApplicationPluginConfig::Load()");
 
   m_Plugins.Clear();
 
   ezStringBuilder sPath;
-  sPath = ":project/Plugins.ddl";
+  sPath = szConfigPath;
 
   ezFileReader file;
   if (file.Open(sPath).Failed())
@@ -181,19 +132,10 @@ void ezApplicationPluginConfig::Load()
     PluginConfig cfg;
 
     const ezOpenDdlReaderElement* pPath = pPlugin->FindChildOfType(ezOpenDdlPrimitiveType::String, "Path");
-    const ezOpenDdlReaderElement* pDependencyOf = pPlugin->FindChildOfType(ezOpenDdlPrimitiveType::String, "DependencyOf");
     const ezOpenDdlReaderElement* pCopy = pPlugin->FindChildOfType(ezOpenDdlPrimitiveType::Bool, "LoadCopy");
 
     if (pPath)
       cfg.m_sAppDirRelativePath = pPath->GetPrimitivesString()[0];
-
-    if (pDependencyOf)
-    {
-      for (ezUInt32 i = 0; i < pDependencyOf->GetNumPrimitives(); ++i)
-      {
-        cfg.m_sDependecyOf.Insert(pDependencyOf->GetPrimitivesString()[i]);
-      }
-    }
 
     if (pCopy)
     {
@@ -211,15 +153,9 @@ void ezApplicationPluginConfig::Apply()
 
   for (const auto& var : m_Plugins)
   {
-    if (m_bManualOnly)
-    {
-      if (!var.m_sDependecyOf.Contains("<manual>"))
-        continue;
-    }
-
     ezBitflags<ezPluginLoadFlags> flags;
     flags.AddOrRemove(ezPluginLoadFlags::LoadCopy, var.m_bLoadCopy);
-    flags.AddOrRemove(ezPluginLoadFlags::CustomDependency, !var.m_sDependecyOf.Contains("<manual>"));
+    flags.AddOrRemove(ezPluginLoadFlags::CustomDependency, false);
 
     ezPlugin::LoadPlugin(var.m_sAppDirRelativePath, flags).IgnoreResult();
   }

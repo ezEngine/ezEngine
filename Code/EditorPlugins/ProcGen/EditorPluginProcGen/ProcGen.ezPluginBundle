@@ -1,0 +1,15 @@
+// for a description of the options see:
+// Code/EditorPlugins/Assets/EditorPluginAssets/Assets.ezPluginBundle
+
+PluginInfo
+{
+	string %DisplayName{"Procedural Generation"}
+	string %Description{"Adds support for placing objects procedurally."}
+	string %EditorPlugins{"ezEditorPluginProcGen"}
+	string %EditorEnginePlugins{}
+	string %RuntimePlugins{"ezProcGenPlugin"}
+	string %PackageDependencies{}
+	string %RequiredPlugins{}
+	string %ExclusiveFeatures{}
+	string %EnabledInTemplates{"General3D"}
+}

@@ -20,9 +20,6 @@ static void ToolsProjectEventHandler(const ezToolsProjectEvent& e);
 
 void OnLoadPlugin()
 {
-  ezQtEditorApp::GetSingleton()->AddRuntimePluginDependency("EditorPluginJolt", "ezJoltPlugin");
-  ezQtEditorApp::GetSingleton()->AddRuntimePluginDependency("EditorPluginJolt", "ezEnginePluginJolt");
-
   ezToolsProject::GetSingleton()->s_Events.AddEventHandler(ToolsProjectEventHandler);
 
   // Collision Mesh
@@ -68,8 +65,6 @@ void OnUnloadPlugin()
   ezToolsProject::GetSingleton()->s_Events.RemoveEventHandler(ToolsProjectEventHandler);
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezJoltCollisionMeshAssetProperties::PropertyMetaStateEventHandler);
 }
-
-EZ_PLUGIN_DEPENDENCY(ezEditorPluginScene);
 
 EZ_PLUGIN_ON_LOADED()
 {

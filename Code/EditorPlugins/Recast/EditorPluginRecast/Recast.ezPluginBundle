@@ -1,0 +1,15 @@
+// for a description of the options see:
+// Code/EditorPlugins/Assets/EditorPluginAssets/Assets.ezPluginBundle
+
+PluginInfo
+{
+	string %DisplayName{"Recast AI"}
+	string %Description{"Adds support for generating navigation meshes with Recast."}
+	string %EditorPlugins{"ezEditorPluginRecast"}
+	string %EditorEnginePlugins{"ezEnginePluginRecast"}
+	string %RuntimePlugins{"ezRecastPlugin"}
+	string %PackageDependencies{}
+	string %RequiredPlugins{}
+	string %ExclusiveFeatures{}
+	string %EnabledInTemplates{"General3D"}
+}

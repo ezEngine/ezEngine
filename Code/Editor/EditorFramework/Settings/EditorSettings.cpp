@@ -90,6 +90,6 @@ void ezQtEditorApp::SaveSettings()
     SaveOpenDocumentsList();
 
     m_FileSystemConfig.Save().IgnoreResult();
-    m_EnginePluginConfig.Save().IgnoreResult();
+    GetRuntimePluginConfig(false).Save().IgnoreResult();
   }
 }

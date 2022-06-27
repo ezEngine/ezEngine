@@ -38,7 +38,7 @@ void ezFmodActions::UnregisterActions()
 void ezFmodActions::MapMenuActions(const char* szMapping)
 {
   ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "Mmapping the actions failed!");
+  EZ_ASSERT_DEV(pMap != nullptr, "Mapping the actions failed!");
 
   pMap->MapAction(s_hCategoryFmod, "Menu.Editor/ProjectCategory/Menu.ProjectSettings", 9.0f);
   pMap->MapAction(s_hProjectSettings, "Menu.Editor/ProjectCategory/Menu.ProjectSettings/Fmod", 0.0f);
@@ -51,7 +51,7 @@ void ezFmodActions::MapMenuActions(const char* szMapping)
 void ezFmodActions::MapToolbarActions(const char* szMapping)
 {
   ezActionMap* pSceneMap = ezActionMapManager::GetActionMap(szMapping);
-  EZ_ASSERT_DEV(pSceneMap != nullptr, "Mmapping the actions failed!");
+  EZ_ASSERT_DEV(pSceneMap != nullptr, "Mapping the actions failed!");
 
   pSceneMap->MapAction(s_hCategoryFmod, "", 12.0f);
   pSceneMap->MapAction(s_hMuteSound, "Fmod", 0.0f);

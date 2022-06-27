@@ -18,6 +18,7 @@ ezQtCppProjectDlg::ezQtCppProjectDlg(QWidget* parent)
 
   Generator->addItem("Visual Studio 2019");
   Generator->addItem("Visual Studio 2022");
+  Generator->setCurrentIndex(1);
 
   UpdateUI();
 }
@@ -43,7 +44,18 @@ ezResult ezQtCppProjectDlg::GenerateSolution()
   EZ_SCOPE_EXIT(QApplication::restoreOverrideCursor());
   EZ_SCOPE_EXIT(UpdateUI());
 
-  const ezString sProjectName = ezToolsProject::GetSingleton()->GetProjectName();
+  const ezString sRealProjectName = ezToolsProject::GetSingleton()->GetProjectName(false);
+  const ezString sProjectName = ezToolsProject::GetSingleton()->GetProjectName(true);
+
+  if (sRealProjectName != sProjectName)
+  {
+    if (ezQtUiServices::MessageBoxQuestion(ezFmt("The project's name '{}' contains characters and/or whitespace that can't be used in C++ identifiers.\n\nInstead the adjusted name '{}' will be used.\n\nIf you don't want this, you need to rename your project (rename the folder in which it resides) and try again.\n\nDo you want to continue?", sRealProjectName, sProjectName), QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::Yes) != QMessageBox::StandardButton::Yes)
+    {
+      output.AppendFormat("User doesn't like auto-generated project name '{}' :(", sProjectName);
+      return EZ_FAILURE;
+    }
+  }
+
   ezStringBuilder sProjectNameUpper = sProjectName;
   sProjectNameUpper.ToUpper();
 
@@ -240,25 +252,25 @@ void ezQtCppProjectDlg::on_GenerateSolution_clicked()
       on_OpenSolution_clicked();
     }
 
-    ezStringBuilder sPluginName = ezToolsProject::GetSingleton()->GetProjectName();
-    sPluginName.Append("Plugin");
+    ezStringBuilder sProjectName = ezToolsProject::GetSingleton()->GetProjectName(true);
+    ezStringBuilder sPluginName(sProjectName, "Plugin");
 
-    ezPluginSet& Plugins = ezQtEditorApp::GetSingleton()->GetEnginePlugins();
+    ezPluginBundleSet& bundles = ezQtEditorApp::GetSingleton()->GetPluginBundles();
 
-    bool bExisted;
-    auto plugin = Plugins.m_Plugins.FindOrAdd(sPluginName, &bExisted);
+    bundles.m_Plugins.Remove(sPluginName);
+    ezPluginBundle& plugin = bundles.m_Plugins[sPluginName];
+    plugin.m_bLoadCopy = true;
+    plugin.m_bSelected = true;
+    plugin.m_bMissing = true;
+    plugin.m_LastModificationTime = ezTimestamp::CurrentTimestamp();
+    plugin.m_ExclusiveFeatures.PushBack("ProjectPlugin");
+    txt.Set("'", sProjectName, "' project plugin");
+    plugin.m_sDisplayName = txt;
+    txt.Set("C++ code for the '", sProjectName, "' project.");
+    plugin.m_sDescription = txt;
+    plugin.m_RuntimePlugins.PushBack(sPluginName);
 
-    plugin.Value().m_bLoadCopy = true;
-    plugin.Value().m_bToBeLoaded = true;
-
-    if (!bExisted)
-    {
-      plugin.Value().m_bActive = false;
-      plugin.Value().m_bAvailable = false;
-      plugin.Value().m_LastModification = ezTimestamp::CurrentTimestamp();
-    }
-
-    ezQtEditorApp::GetSingleton()->StoreEnginePluginsToBeLoaded();
+    ezQtEditorApp::GetSingleton()->WritePluginSelectionStateDDL();
   }
 }
 
@@ -292,7 +304,7 @@ ezString ezQtCppProjectDlg::GetSolutionFile() const
 {
   ezStringBuilder sSolutionFile;
   sSolutionFile = GetBuildDir();
-  sSolutionFile.AppendPath(ezToolsProject::GetSingleton()->GetProjectName());
+  sSolutionFile.AppendPath(ezToolsProject::GetSingleton()->GetProjectName(true));
   sSolutionFile.Append(".sln");
 
   return sSolutionFile;

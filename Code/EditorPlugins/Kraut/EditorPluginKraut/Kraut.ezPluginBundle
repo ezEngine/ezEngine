@@ -1,0 +1,15 @@
+// for a description of the options see:
+// Code/EditorPlugins/Assets/EditorPluginAssets/Assets.ezPluginBundle
+
+PluginInfo
+{
+	string %DisplayName{"Kraut Tree"}
+	string %Description{"Adds support for procedurally generated trees."}
+	string %EditorPlugins{"ezEditorPluginKraut"}
+	string %EditorEnginePlugins{"ezEnginePluginKraut"}
+	string %RuntimePlugins{"ezKrautPlugin"}
+	string %PackageDependencies{}
+	string %RequiredPlugins{}
+	string %ExclusiveFeatures{}
+	string %EnabledInTemplates{"General3D"}
+}

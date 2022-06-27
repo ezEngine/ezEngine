@@ -321,7 +321,11 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
 
   ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
 
-  if (pCmd->GetStringOptionArguments("-project") > 0)
+  if (pCmd->GetStringOptionArguments("-newproject") > 0)
+  {
+    CreateOrOpenProject(true, pCmd->GetAbsolutePathOption("-newproject")).IgnoreResult();
+  }
+  else if (pCmd->GetStringOptionArguments("-project") > 0)
   {
     for (ezUInt32 doc = 0; doc < pCmd->GetStringOptionArguments("-documents"); ++doc)
     {

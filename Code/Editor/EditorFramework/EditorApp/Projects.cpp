@@ -4,6 +4,7 @@
 #include <EditorFramework/Assets/AssetProcessor.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Preferences/EditorPreferences.h>
+#include <Foundation/Utilities/CommandLineUtils.h>
 #include <GuiFoundation/Dialogs/ModifiedDocumentsDlg.moc.h>
 #include <GuiFoundation/UIServices/DynamicStringEnum.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
@@ -44,7 +45,6 @@ void ezQtEditorApp::SlotQueuedOpenProject(QString sProject)
   CreateOrOpenProject(false, sProject.toUtf8().data()).IgnoreResult();
 }
 
-
 ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, const char* szFile)
 {
   // check that we don't attempt to open a project from a different repository, due to code changes this often doesn't work too well
@@ -69,15 +69,15 @@ ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, const char* szFile)
 
   CloseSplashScreen();
 
-  ezStringBuilder sFile = szFile;
-  sFile.MakeCleanPath();
+  ezStringBuilder sProjectFile = szFile;
+  sProjectFile.MakeCleanPath();
 
-  if (bCreate == false && !sFile.EndsWith_NoCase("/ezProject"))
+  if (bCreate == false && !sProjectFile.EndsWith_NoCase("/ezProject"))
   {
-    sFile.AppendPath("ezProject");
+    sProjectFile.AppendPath("ezProject");
   }
 
-  if (ezToolsProject::IsProjectOpen() && ezToolsProject::GetSingleton()->GetProjectFile() == sFile)
+  if (ezToolsProject::IsProjectOpen() && ezToolsProject::GetSingleton()->GetProjectFile() == sProjectFile)
   {
     ezQtUiServices::MessageBoxInformation("The selected project is already open");
     return EZ_FAILURE;
@@ -86,20 +86,63 @@ ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, const char* szFile)
   if (!ezToolsProject::CanCloseProject())
     return EZ_FAILURE;
 
+  // create default plugin selection
+  if (!ExistsPluginSelectionStateDDL(sProjectFile))
+    CreatePluginSelectionDDL(sProjectFile, "General3D");
+
   ezStatus res;
   if (bCreate)
-    res = ezToolsProject::CreateProject(sFile);
+  {
+    if (m_bAnyProjectOpened)
+    {
+      // if we opened any project before, spawn a new editor instance and open the project there
+      // this way, a different set of editor plugins can be loaded
+      LaunchEditor(sProjectFile, true);
+
+      QApplication::closeAllWindows();
+      return EZ_SUCCESS;
+    }
+    else
+    {
+      // once we start loading any plugins, we can't reuse the same instance again for another project
+      m_bAnyProjectOpened = true;
+
+      LoadPluginBundleDlls(sProjectFile);
+
+      res = ezToolsProject::CreateProject(sProjectFile);
+    }
+  }
   else
-    res = ezToolsProject::OpenProject(sFile);
+  {
+    if (m_bAnyProjectOpened)
+    {
+      // if we opened any project before, spawn a new editor instance and open the project there
+      // this way, a different set of editor plugins can be loaded
+      LaunchEditor(sProjectFile, false);
+
+      QApplication::closeAllWindows();
+      return EZ_SUCCESS;
+    }
+    else
+    {
+      // once we start loading any plugins, we can't reuse the same instance again for another project
+      m_bAnyProjectOpened = true;
+
+      LoadPluginBundleDlls(sProjectFile);
+
+      res = ezToolsProject::OpenProject(sProjectFile);
+    }
+  }
 
   if (res.m_Result.Failed())
   {
     ezStringBuilder s;
-    s.Format("Failed to open project:\n'{0}'", sFile);
+    s.Format("Failed to open project:\n'{0}'", sProjectFile);
 
     ezQtUiServices::MessageBoxStatus(res, s);
     return EZ_FAILURE;
   }
+
 
   if (m_StartupFlags.AreNoneSet(StartupFlags::SafeMode | StartupFlags::Headless))
   {
@@ -163,7 +206,6 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProjectEvent& r)
       ezDynamicStringEnum::s_RequestUnknownCallback = ezMakeDelegate(&ezQtEditorApp::OnDemandDynamicStringEnumLoad, this);
       LoadProjectPreferences();
       SetupDataDirectories();
-      ReadEnginePluginConfig();
       ReadTagRegistry();
       UpdateInputDynamicEnumValues();
 
@@ -175,7 +217,7 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProjectEvent& r)
 
       // tell the engine process which file system and plugin configuration to use
       ezEditorEngineProcessConnection::GetSingleton()->SetFileSystemConfig(m_FileSystemConfig);
-      ezEditorEngineProcessConnection::GetSingleton()->SetPluginConfig(m_EnginePluginConfig);
+      ezEditorEngineProcessConnection::GetSingleton()->SetPluginConfig(GetRuntimePluginConfig(true));
 
       ezAssetCurator::GetSingleton()->StartInitialize(m_FileSystemConfig);
       if (ezEditorEngineProcessConnection::GetSingleton()->RestartProcess().Failed())
@@ -194,7 +236,8 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProjectEvent& r)
 
       if (m_StartupFlags.AreNoneSet(ezQtEditorApp::StartupFlags::Headless | ezQtEditorApp::StartupFlags::SafeMode | ezQtEditorApp::StartupFlags::UnitTest) && pPreferences->m_bBackgroundAssetProcessing)
       {
-        QTimer::singleShot(1000, this, [this]() { ezAssetProcessor::GetSingleton()->RestartProcessTask(); });
+        QTimer::singleShot(1000, this, [this]()
+          { ezAssetProcessor::GetSingleton()->RestartProcessTask(); });
       }
 
       // Make sure preferences are saved, this is important when the project was just created.

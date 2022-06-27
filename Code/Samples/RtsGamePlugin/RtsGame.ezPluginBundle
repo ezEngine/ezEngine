@@ -1,0 +1,15 @@
+// for a description of the options see:
+// Code/EditorPlugins/Assets/EditorPluginAssets/Assets.ezPluginBundle
+
+PluginInfo
+{
+	string %DisplayName{"RTS Sample Game"}
+	string %Description{"Contains the C++ code of the RTS sample game project."}
+	string %EditorPlugins{}
+	string %EditorEnginePlugins{}
+	string %RuntimePlugins{"ezRtsGamePlugin"}
+	string %PackageDependencies{}
+	string %RequiredPlugins{"Particles", "Fmod", "RmlUi"}
+	string %ExclusiveFeatures{"Sample"}
+	string %EnabledInTemplates{}
+}

@@ -1,0 +1,37 @@
+PluginInfo
+{
+	// The name with which the bundle appears in the UI.
+	string %DisplayName{"Assets"}
+
+	// A description of what functionality this bundle adds.
+	string %Description{"Adds support for the central ez asset types."}
+	
+	// List of plugins (without path or extension) to load into the editor process.
+	string %EditorPlugins{"ezEditorPluginAssets"}
+
+	// List of plugins (without path or extension) to load into the editor engine process.
+	string %EditorEnginePlugins{"ezEnginePluginAssets"}
+
+	// List of plugins (without path or extension) to load into the engine process (e.g. also Player.exe and stand-alone apps).
+	string %RuntimePlugins{}
+	
+	// List of bundles (without path or extension) that are always needed for this bundle to work.
+	string %RequiredPlugins{}
+
+	// List of additional files that need to be shipped for the plugin to work right (usually other DLLs).
+	string %PackageDependencies{}
+	
+	// List of tags for "features" that this bundle provides. 
+	// Only one bundle with each feature may be selected.
+	// Typically used to prevent multiple physics or sound engines to be in use at the same time.
+	string %ExclusiveFeatures{}
+
+	// List of 'template' names in which this bundle should be selected.
+	// All used template names appear in the UI for the user to choose from.
+	// For a bundle to be active by default in new projects, include the "General3D" template here.
+	string %EnabledInTemplates{}
+
+	// if true, the plugin is not shown in the UI and always loaded
+	// only used for system functionality
+	bool %Mandatory{true}
+}

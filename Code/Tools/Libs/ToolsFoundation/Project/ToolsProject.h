@@ -84,7 +84,9 @@ public:
   const ezString& GetProjectFile() const { return m_sProjectPath; }
 
   /// \brief Returns the short name of the project (extracted from the path).
-  const ezString GetProjectName() const;
+  ///
+  /// \param bSanitize Whether to replace whitespace and other problematic characters, such that it can be used in code.
+  const ezString GetProjectName(bool bSanitize) const;
 
   /// \brief Returns the path in which the 'ezProject' file is stored
   ezString GetProjectDirectory() const;

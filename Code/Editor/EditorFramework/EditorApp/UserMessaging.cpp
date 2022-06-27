@@ -7,13 +7,21 @@ void ezQtEditorApp::AddRestartRequiredReason(const char* szReason)
   if (!s_RestartRequiredReasons.Find(szReason).IsValid())
   {
     s_RestartRequiredReasons.Insert(szReason);
-
-    ezStringBuilder s;
-    s.Format("The editor process must be restarted.\nReason: '{0}'", szReason);
-
-    ezQtUiServices::MessageBoxInformation(s);
-
     UpdateGlobalStatusBarMessage();
+  }
+
+  ezStringBuilder s;
+  s.Format("The editor process must be restarted.\nReason: '{0}'\n\nDo you want to restart now?", szReason);
+
+  if (ezQtUiServices::MessageBoxQuestion(s, QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::Yes) == QMessageBox::StandardButton::Yes)
+  {
+    if (ezToolsProject::CanCloseProject())
+    {
+      LaunchEditor(ezToolsProject::GetSingleton()->GetProjectFile(), false);
+
+      QApplication::closeAllWindows();
+      return;
+    }
   }
 }
 
@@ -37,10 +45,10 @@ void ezQtEditorApp::UpdateGlobalStatusBarMessage()
   ezStringBuilder sText;
 
   if (!s_RestartRequiredReasons.IsEmpty())
-    sText.Append("Restart the Editor to apply changes.   ");
+    sText.Append("Restart the editor to apply changes.   ");
 
   if (!s_ReloadProjectRequiredReasons.IsEmpty())
-    sText.Append("Reload the Project to apply changes.   ");
+    sText.Append("Reload the project to apply changes.   ");
 
   ezQtUiServices::ShowGlobalStatusBarMessage(sText);
 }

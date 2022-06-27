@@ -99,7 +99,7 @@ void ezQtContainerWindow::UpdateWindowTitle()
 
   if (ezToolsProject::IsProjectOpen())
   {
-    sTitle = ezToolsProject::GetSingleton()->GetProjectName();
+    sTitle = ezToolsProject::GetSingleton()->GetProjectName(false);
     sTitle.Append(" - ");
   }
 

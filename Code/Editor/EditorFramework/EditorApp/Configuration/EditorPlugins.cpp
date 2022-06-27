@@ -9,15 +9,160 @@
 #include <Foundation/IO/OpenDdlWriter.h>
 #include <Foundation/Profiling/Profiling.h>
 
-void ezQtEditorApp::DetectAvailableEditorPlugins()
+void ezPluginBundle::WriteStateToDDL(ezOpenDdlWriter& ddl, const char* szOwnName) const
 {
-  s_EditorPlugins.m_Plugins.Clear();
+  ddl.BeginObject("PluginState");
+  ezOpenDdlUtils::StoreString(ddl, szOwnName, "ID");
+  ezOpenDdlUtils::StoreBool(ddl, m_bSelected, "Selected");
+  ezOpenDdlUtils::StoreBool(ddl, m_bLoadCopy, "LoadCopy");
+  ddl.EndObject();
+}
 
+void ezPluginBundle::ReadStateFromDDL(ezOpenDdlReader& ddl, const char* szOwnName)
+{
+  m_bSelected = false;
+
+  auto pState = ddl.GetRootElement()->FindChildOfType("PluginState");
+  while (pState)
+  {
+    auto pName = pState->FindChildOfType(ezOpenDdlPrimitiveType::String, "ID");
+    if (!pName || pName->GetPrimitivesString()[0] != szOwnName)
+    {
+      pState = pState->GetSibling();
+      continue;
+    }
+
+    if (auto pVal = pState->FindChildOfType(ezOpenDdlPrimitiveType::Bool, "Selected"))
+      m_bSelected = pVal->GetPrimitivesBool()[0];
+    if (auto pVal = pState->FindChildOfType(ezOpenDdlPrimitiveType::Bool, "LoadCopy"))
+      m_bLoadCopy = pVal->GetPrimitivesBool()[0];
+
+    break;
+  }
+}
+
+void ezPluginBundleSet::WriteStateToDDL(ezOpenDdlWriter& ddl) const
+{
+  for (const auto& it : m_Plugins)
+  {
+    if (it.Value().m_bSelected)
+    {
+      it.Value().WriteStateToDDL(ddl, it.Key());
+    }
+  }
+}
+
+void ezPluginBundleSet::ReadStateFromDDL(ezOpenDdlReader& ddl)
+{
+  for (auto& it : m_Plugins)
+  {
+    it.Value().ReadStateFromDDL(ddl, it.Key());
+  }
+}
+
+bool ezPluginBundleSet::IsStateEqual(const ezPluginBundleSet& rhs) const
+{
+  if (m_Plugins.GetCount() != rhs.m_Plugins.GetCount())
+    return false;
+
+  for (auto it : m_Plugins)
+  {
+    auto it2 = rhs.m_Plugins.Find(it.Key());
+
+    if (!it2.IsValid())
+      return false;
+
+    if (!it.Value().IsStateEqual(it2.Value()))
+      return false;
+  }
+
+  return true;
+}
+
+ezResult ezPluginBundle::ReadBundleFromDDL(ezOpenDdlReader& ddl)
+{
+  EZ_LOG_BLOCK("Reading plugin info file");
+
+  auto pInfo = ddl.GetRootElement()->FindChildOfType("PluginInfo");
+
+  if (pInfo == nullptr)
+  {
+    ezLog::Error("'PluginInfo' root object is missing");
+    return EZ_FAILURE;
+  }
+
+  if (auto pElement = pInfo->FindChildOfType(ezOpenDdlPrimitiveType::Bool, "Mandatory"))
+    m_bMandatory = pElement->GetPrimitivesBool()[0];
+
+  if (auto pElement = pInfo->FindChildOfType(ezOpenDdlPrimitiveType::String, "DisplayName"))
+    m_sDisplayName = pElement->GetPrimitivesString()[0];
+
+  if (auto pElement = pInfo->FindChildOfType(ezOpenDdlPrimitiveType::String, "Description"))
+    m_sDescription = pElement->GetPrimitivesString()[0];
+
+  if (auto pElement = pInfo->FindChildOfType(ezOpenDdlPrimitiveType::String, "EditorPlugins"))
+  {
+    m_EditorPlugins.SetCount(pElement->GetNumPrimitives());
+    for (ezUInt32 i = 0; i < pElement->GetNumPrimitives(); ++i)
+      m_EditorPlugins[i] = pElement->GetPrimitivesString()[i];
+  }
+
+  if (auto pElement = pInfo->FindChildOfType(ezOpenDdlPrimitiveType::String, "EditorEnginePlugins"))
+  {
+    m_EditorEnginePlugins.SetCount(pElement->GetNumPrimitives());
+    for (ezUInt32 i = 0; i < pElement->GetNumPrimitives(); ++i)
+      m_EditorEnginePlugins[i] = pElement->GetPrimitivesString()[i];
+  }
+
+  if (auto pElement = pInfo->FindChildOfType(ezOpenDdlPrimitiveType::String, "RuntimePlugins"))
+  {
+    m_RuntimePlugins.SetCount(pElement->GetNumPrimitives());
+    for (ezUInt32 i = 0; i < pElement->GetNumPrimitives(); ++i)
+      m_RuntimePlugins[i] = pElement->GetPrimitivesString()[i];
+  }
+
+  if (auto pElement = pInfo->FindChildOfType(ezOpenDdlPrimitiveType::String, "PackageDependencies"))
+  {
+    m_PackageDependencies.SetCount(pElement->GetNumPrimitives());
+    for (ezUInt32 i = 0; i < pElement->GetNumPrimitives(); ++i)
+      m_PackageDependencies[i] = pElement->GetPrimitivesString()[i];
+  }
+
+  if (auto pElement = pInfo->FindChildOfType(ezOpenDdlPrimitiveType::String, "RequiredPlugins"))
+  {
+    m_RequiredBundles.SetCount(pElement->GetNumPrimitives());
+    for (ezUInt32 i = 0; i < pElement->GetNumPrimitives(); ++i)
+      m_RequiredBundles[i] = pElement->GetPrimitivesString()[i];
+  }
+
+  if (auto pElement = pInfo->FindChildOfType(ezOpenDdlPrimitiveType::String, "ExclusiveFeatures"))
+  {
+    m_ExclusiveFeatures.SetCount(pElement->GetNumPrimitives());
+    for (ezUInt32 i = 0; i < pElement->GetNumPrimitives(); ++i)
+      m_ExclusiveFeatures[i] = pElement->GetPrimitivesString()[i];
+  }
+
+  if (auto pElement = pInfo->FindChildOfType(ezOpenDdlPrimitiveType::String, "EnabledInTemplates"))
+  {
+    m_EnabledInTemplates.SetCount(pElement->GetNumPrimitives());
+    for (ezUInt32 i = 0; i < pElement->GetNumPrimitives(); ++i)
+      m_EnabledInTemplates[i] = pElement->GetPrimitivesString()[i];
+  }
+
+  m_bMissing = false;
+
+  return EZ_SUCCESS;
+}
+
+void ezQtEditorApp::DetectAvailablePluginBundles()
+{
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS)
   {
     ezStringBuilder sSearch = ezOSFile::GetApplicationDirectory();
-    ;
-    sSearch.AppendPath("ezEditorPlugin*.dll");
+
+    sSearch.AppendPath("*.ezPluginBundle");
+
+    ezStringBuilder sPath;
 
     ezFileSystemIterator fsit;
     for (fsit.StartSearch(sSearch.GetData(), ezFileSystemIteratorFlags::ReportFiles); fsit.IsValid(); fsit.Next())
@@ -25,7 +170,21 @@ void ezQtEditorApp::DetectAvailableEditorPlugins()
       ezStringBuilder sPlugin = fsit.GetStats().m_sName;
       sPlugin.RemoveFileExtension();
 
-      s_EditorPlugins.m_Plugins[sPlugin].m_bAvailable = true;
+      fsit.GetStats().GetFullPath(sPath);
+
+      ezFileReader file;
+      if (file.Open(sPath).Succeeded())
+      {
+        ezOpenDdlReader ddl;
+        if (ddl.ParseDocument(file).Failed())
+        {
+          ezLog::Error("Failed to parse plugin bundle file: '{}'", sPath);
+        }
+        else
+        {
+          m_PluginBundles.m_Plugins[sPlugin].ReadBundleFromDDL(ddl).IgnoreResult();
+        }
+      }
     }
   }
 #else
@@ -33,116 +192,10 @@ void ezQtEditorApp::DetectAvailableEditorPlugins()
 #endif
 }
 
-void ezQtEditorApp::StoreEditorPluginsToBeLoaded()
-{
-  AddRestartRequiredReason("The set of active editor plugins was changed.");
-
-  ezDeferredFileWriter FileOut;
-  FileOut.SetOutput(":appdata/EditorPlugins.ddl");
-
-  ezOpenDdlWriter writer;
-  writer.SetCompactMode(false);
-  writer.SetPrimitiveTypeStringMode(ezOpenDdlWriter::TypeStringMode::Compliant);
-  writer.SetOutputStream(&FileOut);
-
-  for (auto it = s_EditorPlugins.m_Plugins.GetIterator(); it.IsValid(); ++it)
-  {
-    writer.BeginObject("Plugin");
-    ezOpenDdlUtils::StoreString(writer, it.Key().GetData(), "Name");
-    ezOpenDdlUtils::StoreBool(writer, it.Value().m_bToBeLoaded, "Enable");
-    writer.EndObject();
-  }
-
-  if (FileOut.Close().Failed())
-  {
-    ezLog::Error("Failed to save ':appdata/EditorPlugins.ddl'");
-  }
-}
-
-void ezQtEditorApp::ReadEditorPluginsToBeLoaded()
-{
-  // If loading that file fails, enable all plugins
-  for (auto it = s_EditorPlugins.m_Plugins.GetIterator(); it.IsValid(); ++it)
-  {
-    it.Value().m_bToBeLoaded = true;
-  }
-
-  ezFileReader FileIn;
-  if (FileIn.Open(":appdata/EditorPlugins.ddl").Failed())
-    return;
-
-  ezOpenDdlReader reader;
-  if (reader.ParseDocument(FileIn, 0, ezLog::GetThreadLocalLogSystem()).Failed())
-    return;
-
-  const ezOpenDdlReaderElement* pRoot = reader.GetRootElement();
-
-  // if a plugin is new, activate it (by keeping it enabled)
-
-  for (const ezOpenDdlReaderElement* pPlugin = pRoot->GetFirstChild(); pPlugin != nullptr; pPlugin = pPlugin->GetSibling())
-  {
-    if (!pPlugin->IsCustomType("Plugin"))
-      continue;
-
-    const ezOpenDdlReaderElement* pName = pPlugin->FindChildOfType(ezOpenDdlPrimitiveType::String, "Name");
-    const ezOpenDdlReaderElement* pEnable = pPlugin->FindChildOfType(ezOpenDdlPrimitiveType::Bool, "Enable");
-
-    if (!pName || !pEnable)
-      continue;
-
-    s_EditorPlugins.m_Plugins[pName->GetPrimitivesString()[0]].m_bToBeLoaded = pEnable->GetPrimitivesBool()[0];
-  }
-}
-
-
 void ezQtEditorApp::LoadEditorPlugins()
 {
   EZ_PROFILE_SCOPE("LoadEditorPlugins");
-  DetectAvailableEditorPlugins();
-  ReadEditorPluginsToBeLoaded();
+  DetectAvailablePluginBundles();
 
   ezPlugin::InitializeStaticallyLinkedPlugins();
-
-  for (auto it = s_EditorPlugins.m_Plugins.GetIterator(); it.IsValid(); ++it)
-  {
-    it.Value().m_bActive = false;
-  }
-
-  ezSet<ezString> NotLoaded;
-
-  for (auto it = s_EditorPlugins.m_Plugins.GetIterator(); it.IsValid(); ++it)
-  {
-    if (!it.Value().m_bToBeLoaded)
-      continue;
-
-    // only load plugins that are available
-    if (it.Value().m_bAvailable)
-    {
-      if (ezPlugin::LoadPlugin(it.Key().GetData()).Failed())
-      {
-        NotLoaded.Insert(it.Key());
-      }
-      else
-      {
-        it.Value().m_bActive = true;
-      }
-    }
-    else
-    {
-      NotLoaded.Insert(it.Key());
-    }
-  }
-
-  if (!NotLoaded.IsEmpty())
-  {
-    ezStringBuilder s = "The following plugins could not be loaded. Scenes may not load correctly.\n\n";
-
-    for (auto it = NotLoaded.GetIterator(); it.IsValid(); ++it)
-    {
-      s.AppendFormat(" '{0}' ", it.Key());
-    }
-
-    ezQtUiServices::MessageBoxWarning(s);
-  }
 }
-

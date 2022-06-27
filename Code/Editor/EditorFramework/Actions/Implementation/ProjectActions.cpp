@@ -6,11 +6,10 @@
 #include <EditorFramework/Dialogs/AssetProfilesDlg.moc.h>
 #include <EditorFramework/Dialogs/CppProjectDlg.moc.h>
 #include <EditorFramework/Dialogs/DataDirsDlg.moc.h>
-#include <EditorFramework/Dialogs/EditorPluginConfigDlg.moc.h>
-#include <EditorFramework/Dialogs/EnginePluginConfigDlg.moc.h>
 #include <EditorFramework/Dialogs/ExportProjectDlg.moc.h>
 #include <EditorFramework/Dialogs/InputConfigDlg.moc.h>
 #include <EditorFramework/Dialogs/LaunchFileserveDlg.moc.h>
+#include <EditorFramework/Dialogs/PluginSelectionDlg.moc.h>
 #include <EditorFramework/Dialogs/PreferencesDlg.moc.h>
 #include <EditorFramework/Dialogs/TagsDlg.moc.h>
 #include <EditorFramework/Dialogs/WindowCfgDlg.moc.h>
@@ -37,8 +36,6 @@ ezActionDescriptorHandle ezProjectActions::s_hSettingsCategory;
 ezActionDescriptorHandle ezProjectActions::s_hEditorSettingsMenu;
 ezActionDescriptorHandle ezProjectActions::s_hProjectSettingsMenu;
 ezActionDescriptorHandle ezProjectActions::s_hShortcutEditor;
-ezActionDescriptorHandle ezProjectActions::s_hEditorPlugins;
-ezActionDescriptorHandle ezProjectActions::s_hEnginePlugins;
 ezActionDescriptorHandle ezProjectActions::s_hDataDirectories;
 ezActionDescriptorHandle ezProjectActions::s_hWindowConfig;
 ezActionDescriptorHandle ezProjectActions::s_hInputConfig;
@@ -47,6 +44,7 @@ ezActionDescriptorHandle ezProjectActions::s_hTagsDlg;
 ezActionDescriptorHandle ezProjectActions::s_hImportAsset;
 ezActionDescriptorHandle ezProjectActions::s_hAssetProfiles;
 ezActionDescriptorHandle ezProjectActions::s_hExportProject;
+ezActionDescriptorHandle ezProjectActions::s_hPluginSelection;
 
 ezActionDescriptorHandle ezProjectActions::s_hToolsMenu;
 ezActionDescriptorHandle ezProjectActions::s_hToolsCategory;
@@ -80,10 +78,9 @@ void ezProjectActions::RegisterActions()
   s_hProjectSettingsMenu = EZ_REGISTER_MENU("Menu.ProjectSettings");
 
   s_hShortcutEditor = EZ_REGISTER_ACTION_1("Editor.Shortcuts", ezActionScope::Global, "Editor", "", ezProjectAction, ezProjectAction::ButtonType::Shortcuts);
-  s_hEditorPlugins = EZ_REGISTER_ACTION_1("Editor.Plugins", ezActionScope::Global, "Editor", "", ezProjectAction, ezProjectAction::ButtonType::EditorPlugins);
-  s_hEnginePlugins = EZ_REGISTER_ACTION_1("Engine.Plugins", ezActionScope::Global, "Editor", "", ezProjectAction, ezProjectAction::ButtonType::EnginePlugins);
   s_hPreferencesDlg = EZ_REGISTER_ACTION_1("Editor.Preferences", ezActionScope::Global, "Editor", "", ezProjectAction, ezProjectAction::ButtonType::PreferencesDialog);
   s_hTagsDlg = EZ_REGISTER_ACTION_1("Engine.Tags", ezActionScope::Global, "Editor", "", ezProjectAction, ezProjectAction::ButtonType::TagsDialog);
+  s_hPluginSelection = EZ_REGISTER_ACTION_1("Project.PluginSelection", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::PluginSelection);
 
   s_hDataDirectories = EZ_REGISTER_ACTION_1("Project.DataDirectories", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::DataDirectories);
   s_hInputConfig = EZ_REGISTER_ACTION_1("Project.InputConfig", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::InputConfig);
@@ -132,8 +129,6 @@ void ezProjectActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hSaveProfiling);
   ezActionManager::UnregisterAction(s_hOpenVsCode);
   ezActionManager::UnregisterAction(s_hShortcutEditor);
-  ezActionManager::UnregisterAction(s_hEditorPlugins);
-  ezActionManager::UnregisterAction(s_hEnginePlugins);
   ezActionManager::UnregisterAction(s_hPreferencesDlg);
   ezActionManager::UnregisterAction(s_hTagsDlg);
   ezActionManager::UnregisterAction(s_hDataDirectories);
@@ -143,6 +138,7 @@ void ezProjectActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hAssetProfiles);
   ezActionManager::UnregisterAction(s_hSetupCppProject);
   ezActionManager::UnregisterAction(s_hExportProject);
+  ezActionManager::UnregisterAction(s_hPluginSelection);
 }
 
 void ezProjectActions::MapActions(const char* szMapping)
@@ -180,12 +176,11 @@ void ezProjectActions::MapActions(const char* szMapping)
   pMap->MapAction(s_hSaveProfiling, "Menu.Tools/ToolsCategory", 4.0f);
   pMap->MapAction(s_hOpenVsCode, "Menu.Tools/ToolsCategory", 5.0f);
 
-  pMap->MapAction(s_hEditorPlugins, "Menu.Editor/SettingsCategory/Menu.EditorSettings", 1.0f);
   pMap->MapAction(s_hShortcutEditor, "Menu.Editor/SettingsCategory/Menu.EditorSettings", 2.0f);
   pMap->MapAction(s_hPreferencesDlg, "Menu.Editor/SettingsCategory/Menu.EditorSettings", 3.0f);
 
+  pMap->MapAction(s_hPluginSelection, "Menu.Editor/ProjectCategory/Menu.ProjectSettings", 0.5f);
   pMap->MapAction(s_hDataDirectories, "Menu.Editor/ProjectCategory/Menu.ProjectSettings", 1.0f);
-  pMap->MapAction(s_hEnginePlugins, "Menu.Editor/ProjectCategory/Menu.ProjectSettings", 2.0f);
   pMap->MapAction(s_hInputConfig, "Menu.Editor/ProjectCategory/Menu.ProjectSettings", 3.0f);
   pMap->MapAction(s_hTagsDlg, "Menu.Editor/ProjectCategory/Menu.ProjectSettings", 4.0f);
   pMap->MapAction(s_hWindowConfig, "Menu.Editor/ProjectCategory/Menu.ProjectSettings", 5.0f);
@@ -354,10 +349,7 @@ ezProjectAction::ezProjectAction(const ezActionContext& context, const char* szN
     case ezProjectAction::ButtonType::InputConfig:
       SetIconPath(":/EditorFramework/Icons/Input16.png");
       break;
-    case ezProjectAction::ButtonType::EditorPlugins:
-      SetIconPath(":/EditorFramework/Icons/Plugins16.png");
-      break;
-    case ezProjectAction::ButtonType::EnginePlugins:
+    case ezProjectAction::ButtonType::PluginSelection:
       SetIconPath(":/EditorFramework/Icons/Plugins16.png");
       break;
     case ezProjectAction::ButtonType::PreferencesDialog:
@@ -389,9 +381,9 @@ ezProjectAction::ezProjectAction(const ezActionContext& context, const char* szN
       break;
   }
 
-  if (m_ButtonType == ButtonType::CloseProject || m_ButtonType == ButtonType::DataDirectories || m_ButtonType == ButtonType::WindowConfig || m_ButtonType == ButtonType::ImportAsset || m_ButtonType == ButtonType::EnginePlugins || m_ButtonType == ButtonType::TagsDialog ||
+  if (m_ButtonType == ButtonType::CloseProject || m_ButtonType == ButtonType::DataDirectories || m_ButtonType == ButtonType::WindowConfig || m_ButtonType == ButtonType::ImportAsset || m_ButtonType == ButtonType::TagsDialog ||
       m_ButtonType == ButtonType::ReloadEngine || m_ButtonType == ButtonType::ReloadResources || m_ButtonType == ButtonType::LaunchFileserve || m_ButtonType == ButtonType::LaunchInspector || m_ButtonType == ButtonType::OpenVsCode || m_ButtonType == ButtonType::InputConfig ||
-      m_ButtonType == ButtonType::AssetProfiles || m_ButtonType == ButtonType::SetupCppProject || m_ButtonType == ButtonType::ExportProject)
+      m_ButtonType == ButtonType::AssetProfiles || m_ButtonType == ButtonType::SetupCppProject || m_ButtonType == ButtonType::ExportProject || m_ButtonType == ButtonType::PluginSelection)
   {
     SetEnabled(ezToolsProject::IsProjectOpen());
 
@@ -401,8 +393,8 @@ ezProjectAction::ezProjectAction(const ezActionContext& context, const char* szN
 
 ezProjectAction::~ezProjectAction()
 {
-  if (m_ButtonType == ButtonType::CloseProject || m_ButtonType == ButtonType::DataDirectories || m_ButtonType == ButtonType::WindowConfig || m_ButtonType == ButtonType::ImportAsset || m_ButtonType == ButtonType::EnginePlugins || m_ButtonType == ButtonType::TagsDialog ||
-      m_ButtonType == ButtonType::ReloadEngine || m_ButtonType == ButtonType::ReloadResources || m_ButtonType == ButtonType::LaunchFileserve || m_ButtonType == ButtonType::LaunchInspector || m_ButtonType == ButtonType::OpenVsCode || m_ButtonType == ButtonType::InputConfig || m_ButtonType == ButtonType::AssetProfiles || m_ButtonType == ButtonType::SetupCppProject || m_ButtonType == ButtonType::ExportProject)
+  if (m_ButtonType == ButtonType::CloseProject || m_ButtonType == ButtonType::DataDirectories || m_ButtonType == ButtonType::WindowConfig || m_ButtonType == ButtonType::ImportAsset || m_ButtonType == ButtonType::TagsDialog ||
+      m_ButtonType == ButtonType::ReloadEngine || m_ButtonType == ButtonType::ReloadResources || m_ButtonType == ButtonType::LaunchFileserve || m_ButtonType == ButtonType::LaunchInspector || m_ButtonType == ButtonType::OpenVsCode || m_ButtonType == ButtonType::InputConfig || m_ButtonType == ButtonType::AssetProfiles || m_ButtonType == ButtonType::SetupCppProject || m_ButtonType == ButtonType::ExportProject || m_ButtonType == ButtonType::PluginSelection)
   {
     ezToolsProject::s_Events.RemoveEventHandler(ezMakeDelegate(&ezProjectAction::ProjectEventHandler, this));
   }
@@ -474,17 +466,14 @@ void ezProjectAction::Execute(const ezVariant& value)
     }
     break;
 
-    case ezProjectAction::ButtonType::EditorPlugins:
+    case ezProjectAction::ButtonType::PluginSelection:
     {
-      ezQtEditorPluginConfigDlg dlg(nullptr);
-      dlg.exec();
-    }
-    break;
+      ezQtEditorApp::GetSingleton()->DetectAvailablePluginBundles();
 
-    case ezProjectAction::ButtonType::EnginePlugins:
-    {
-      ezQtEnginePluginConfigDlg dlg(nullptr);
+      ezQtPluginSelectionDlg dlg(&ezQtEditorApp::GetSingleton()->GetPluginBundles());
       dlg.exec();
+
+      ezQtEditorApp::GetSingleton()->SaveSettings();
     }
     break;
 
