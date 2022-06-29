@@ -5,6 +5,7 @@
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/Configuration/SubSystem.h>
 #include <GameEngine/GameApplication/GameApplication.h>
+#include <ToolsFoundation/Application/ApplicationServices.h>
 
 EZ_IMPLEMENT_SINGLETON(ezAssetProcessor);
 
@@ -225,7 +226,7 @@ void ezProcessTask::StartProcess()
 
   QStringList args;
   args << "-appname";
-  args << "ezEditor";
+  args << ezApplication::GetApplicationInstance()->GetApplicationName().GetData();
   args << "-appid";
   args << QString::number(m_uiProcessorID);
   args << "-project";

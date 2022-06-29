@@ -11,10 +11,6 @@
 
 void OnLoadPlugin()
 {
-  ezQtEditorApp::GetSingleton()->AddRuntimePluginDependency("EditorPluginRmlUi", "ezRmlUiPlugin");
-  ezQtEditorApp::GetSingleton()->AddRuntimePluginDependency("EditorPluginRmlUi", "ezEnginePluginRmlUi");
-
-
   // RmlUi
   {
     // Menu Bar
@@ -37,8 +33,6 @@ void OnLoadPlugin()
 }
 
 void OnUnloadPlugin() {}
-
-EZ_PLUGIN_DEPENDENCY(ezEditorPluginScene);
 
 EZ_PLUGIN_ON_LOADED()
 {

@@ -126,7 +126,7 @@ public:
   static void RemoveLogWriter(ezLoggingEvent::Handler handler);
 
   /// \brief Unregisters a previously registered receiver. It is an error to unregister a receiver that was not registered.
-  static void RemoveLogWriter(ezEventSubscriptionID subscriptionID);
+  static void RemoveLogWriter(ezEventSubscriptionID& subscriptionID);
 
   /// \brief Returns how many message of the given type occurred.
   static ezUInt32 GetMessageCount(ezLogMsgType::Enum MessageType) { return s_uiMessageCount[MessageType]; }

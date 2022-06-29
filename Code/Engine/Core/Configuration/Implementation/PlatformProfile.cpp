@@ -72,7 +72,7 @@ void ezPlatformProfile::AddMissingConfigs()
       // check whether we already have an instance of this type
       for (auto pType : m_Configs)
       {
-        if (pType->GetDynamicRTTI() == pRtti)
+        if (pType && pType->GetDynamicRTTI() == pRtti)
         {
           bHasTypeAlready = true;
           break;
@@ -83,6 +83,7 @@ void ezPlatformProfile::AddMissingConfigs()
       {
         // if not, allocate one
         ezProfileConfigData* pObject = pRtti->GetAllocator()->Allocate<ezProfileConfigData>();
+        EZ_ASSERT_DEV(pObject != nullptr, "Invalid profile config");
         ezReflectionUtils::SetAllMemberPropertiesToDefault(pRtti, pObject);
 
         m_Configs.PushBack(pObject);
@@ -91,9 +92,7 @@ void ezPlatformProfile::AddMissingConfigs()
   }
 
   // sort all configs alphabetically
-  m_Configs.Sort([](const ezProfileConfigData* lhs, const ezProfileConfigData* rhs) -> bool {
-    return ezStringUtils::Compare(lhs->GetDynamicRTTI()->GetTypeName(), rhs->GetDynamicRTTI()->GetTypeName()) < 0;
-  });
+  m_Configs.Sort([](const ezProfileConfigData* lhs, const ezProfileConfigData* rhs) -> bool { return ezStringUtils::Compare(lhs->GetDynamicRTTI()->GetTypeName(), rhs->GetDynamicRTTI()->GetTypeName()) < 0; });
 }
 
 const ezProfileConfigData* ezPlatformProfile::GetTypeConfig(const ezRTTI* pRtti) const

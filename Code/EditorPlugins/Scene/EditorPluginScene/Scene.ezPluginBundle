@@ -1,0 +1,16 @@
+// for a description of the options see:
+// Code/EditorPlugins/Assets/EditorPluginAssets/Assets.ezPluginBundle
+
+PluginInfo
+{
+	string %DisplayName{"Scene Editing"}
+	string %Description{"Adds support for scenes and prefabs."}
+	string %EditorPlugins{"ezEditorPluginScene"}
+	string %EditorEnginePlugins{"ezEnginePluginScene"}
+	string %RuntimePlugins{}
+	string %PackageDependencies{}
+	string %RequiredPlugins{}
+	string %ExclusiveFeatures{}
+	string %EnabledInTemplates{}
+	bool %Mandatory{true}
+}

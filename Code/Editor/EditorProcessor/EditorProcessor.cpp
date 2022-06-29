@@ -26,7 +26,7 @@ public:
   typedef ezApplication SUPER;
 
   ezEditorApplication()
-    : ezApplication("ezEditorProcessor")
+    : ezApplication("ezEditor")
   {
     EnableMemoryLeakReporting(true);
     m_pEditorEngineProcessAppDummy = EZ_DEFAULT_NEW(ezEditorEngineProcessApp);

@@ -211,8 +211,8 @@ protected:
   virtual void ExecuteBaseInitFunctions();
   virtual void BaseInit_ConfigureLogging();
 
-  ezEventSubscriptionID m_LogToConsoleID;
-  ezEventSubscriptionID m_LogToVsID;
+  ezEventSubscriptionID m_LogToConsoleID = 0;
+  ezEventSubscriptionID m_LogToVsID = 0;
 
   /// \brief Executes all 'Init_' functions. Typically done after core system startup
   virtual void ExecuteInitFunctions();

@@ -28,15 +28,21 @@ static thread_local ezLogInterface* s_DefaultLogSystem = nullptr;
 
 ezEventSubscriptionID ezGlobalLog::AddLogWriter(ezLoggingEvent::Handler handler)
 {
+  if (s_LoggingEvent.HasEventHandler(handler))
+    return 0;
+
   return s_LoggingEvent.AddEventHandler(handler);
 }
 
 void ezGlobalLog::RemoveLogWriter(ezLoggingEvent::Handler handler)
 {
+  if (!s_LoggingEvent.HasEventHandler(handler))
+    return;
+
   s_LoggingEvent.RemoveEventHandler(handler);
 }
 
-void ezGlobalLog::RemoveLogWriter(ezEventSubscriptionID subscriptionID)
+void ezGlobalLog::RemoveLogWriter(ezEventSubscriptionID& subscriptionID)
 {
   s_LoggingEvent.RemoveEventHandler(subscriptionID);
 }

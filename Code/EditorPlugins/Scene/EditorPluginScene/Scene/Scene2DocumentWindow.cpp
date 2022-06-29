@@ -91,7 +91,7 @@ bool ezQtScene2DocumentWindow::InternalCanCloseWindow()
   ezScene2Document* pDoc = static_cast<ezScene2Document*>(GetDocument());
   if (pDoc && pDoc->IsAnyLayerModified())
   {
-    QMessageBox::StandardButton res = QMessageBox::question(this, QLatin1String("ezEditor"), QLatin1String("Save scene and all layers before closing?"), QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No | QMessageBox::StandardButton::Cancel, QMessageBox::StandardButton::Cancel);
+    QMessageBox::StandardButton res = ezQtUiServices::MessageBoxQuestion("Save scene and all layers before closing?", QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No | QMessageBox::StandardButton::Cancel, QMessageBox::StandardButton::Cancel);
 
     if (res == QMessageBox::StandardButton::Cancel)
       return false;

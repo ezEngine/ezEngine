@@ -538,8 +538,6 @@ ezVariant CustomAction_CreateShaderFromTemplate(const ezDocument* pDoc)
 
 void OnLoadPlugin()
 {
-  ezQtEditorApp::GetSingleton()->AddRuntimePluginDependency("EditorPluginAssets", "ezEnginePluginAssets");
-
   ConfigureAnimationControllerAsset();
   ConfigureTexture2DAsset();
   ConfigureTextureCubeAsset();

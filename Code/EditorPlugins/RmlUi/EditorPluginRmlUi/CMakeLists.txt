@@ -22,3 +22,8 @@ target_link_libraries(${PROJECT_NAME}
 add_dependencies(${PROJECT_NAME}
   EnginePluginRmlUi
 )
+
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/RmlUi.ezPluginBundle" $<TARGET_FILE_DIR:${PROJECT_NAME}>
+		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+	  )
