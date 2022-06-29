@@ -43,6 +43,7 @@
 #include <EditorFramework/Visualizers/DirectionVisualizerAdapter.h>
 #include <EditorFramework/Visualizers/SphereVisualizerAdapter.h>
 #include <EditorFramework/Visualizers/VisualizerAdapterRegistry.h>
+#include <Foundation/Application/Application.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Logging/ConsoleWriter.h>
 #include <Foundation/Logging/VisualStudioWriter.h>
@@ -186,7 +187,7 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
 
   QCoreApplication::setOrganizationDomain("www.ezengine.net");
   QCoreApplication::setOrganizationName("ezEngine Project");
-  QCoreApplication::setApplicationName(ezApplicationServices::GetSingleton()->GetApplicationName());
+  QCoreApplication::setApplicationName(ezApplication::GetApplicationInstance()->GetApplicationName().GetData());
   QCoreApplication::setApplicationVersion("1.0.0");
 
   m_StartupFlags = startupFlags;
@@ -212,8 +213,8 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
 
   const bool bNoRecent = m_StartupFlags.IsAnySet(StartupFlags::UnitTest | StartupFlags::SafeMode | StartupFlags::Headless | StartupFlags::NoRecent);
 
-  ezString sApplicationName = pCmd->GetStringOption("-appname", 0, "ezEditor");
-  ezApplicationServices::GetSingleton()->SetApplicationName(sApplicationName);
+  const ezString sApplicationName = pCmd->GetStringOption("-appname", 0, ezApplication::GetApplicationInstance()->GetApplicationName());
+  ezApplication::GetApplicationInstance()->SetApplicationName(sApplicationName);
 
   QLocale::setDefault(QLocale(QLocale::English));
 
@@ -269,10 +270,10 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
 
   {
     EZ_PROFILE_SCOPE("Logging");
-    ezString sApplicationID = pCmd->GetStringOption("-appid", 0, "ezEditor");
+    ezInt32 iApplicationID = pCmd->GetIntOption("-appid", 0);
     ezStringBuilder sLogFile;
-    sLogFile.Format(":appdata/Log_{0}.htm", sApplicationID);
-    m_LogHTML.BeginLog(sLogFile, sApplicationID);
+    sLogFile.Format(":appdata/Log_{0}.htm", iApplicationID);
+    m_LogHTML.BeginLog(sLogFile, sApplicationName);
 
     ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
     ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
@@ -479,24 +480,24 @@ void ezQtEditorApp::SetupAndShowSplashScreen()
   if (!bShowSplashScreen)
     return;
 
-  //QSvgRenderer svgRenderer(QString(":/Splash/Splash/splash.svg"));
+  // QSvgRenderer svgRenderer(QString(":/Splash/Splash/splash.svg"));
 
-  //const qreal PixelRatio = qApp->primaryScreen()->devicePixelRatio();
+  // const qreal PixelRatio = qApp->primaryScreen()->devicePixelRatio();
 
   //// TODO: When migrating to Qt 5.15 or newer this should have a fixed square size and
   //// let the aspect ratio mode of the svg renderer handle the difference
-  //QPixmap splashPixmap(QSize(187, 256) * PixelRatio);
-  //splashPixmap.fill(Qt::transparent);
+  // QPixmap splashPixmap(QSize(187, 256) * PixelRatio);
+  // splashPixmap.fill(Qt::transparent);
   //{
-  //  QPainter painter;
-  //  painter.begin(&splashPixmap);
-  //  svgRenderer.render(&painter);
-  //  painter.end();
-  //}
+  //   QPainter painter;
+  //   painter.begin(&splashPixmap);
+  //   svgRenderer.render(&painter);
+  //   painter.end();
+  // }
 
   QPixmap splashPixmap(QString(":/Splash/Splash/splash.png"));
 
-  //splashPixmap.setDevicePixelRatio(PixelRatio);
+  // splashPixmap.setDevicePixelRatio(PixelRatio);
 
   m_pSplashScreen = new QSplashScreen(splashPixmap);
   m_pSplashScreen->setMask(splashPixmap.mask());

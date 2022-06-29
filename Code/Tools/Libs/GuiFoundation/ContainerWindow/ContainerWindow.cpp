@@ -1,5 +1,6 @@
 #include <GuiFoundation/GuiFoundationPCH.h>
 
+#include <Foundation/Application/Application.h>
 #include <Foundation/Types/ScopeExit.h>
 #include <GuiFoundation/ContainerWindow/ContainerWindow.moc.h>
 #include <GuiFoundation/DockPanels/ApplicationPanel.moc.h>
@@ -103,7 +104,7 @@ void ezQtContainerWindow::UpdateWindowTitle()
     sTitle.Append(" - ");
   }
 
-  sTitle.Append(ezApplicationServices::GetSingleton()->GetApplicationName());
+  sTitle.Append(ezApplication::GetApplicationInstance()->GetApplicationName().GetView());
 
   setWindowTitle(QString::fromUtf8(sTitle.GetData()));
 }

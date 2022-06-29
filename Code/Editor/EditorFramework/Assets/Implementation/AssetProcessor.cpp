@@ -5,6 +5,7 @@
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/Configuration/SubSystem.h>
 #include <GameEngine/GameApplication/GameApplication.h>
+#include <ToolsFoundation/Application/ApplicationServices.h>
 
 EZ_IMPLEMENT_SINGLETON(ezAssetProcessor);
 
@@ -225,7 +226,7 @@ void ezProcessTask::StartProcess()
 
   QStringList args;
   args << "-appname";
-  args << "ezEditor";
+  args << ezApplication::GetApplicationInstance()->GetApplicationName().GetData();
   args << "-appid";
   args << QString::number(m_uiProcessorID);
   args << "-project";
@@ -271,7 +272,8 @@ bool ezProcessTask::GetNextAssetToProcess(ezAssetInfo* pInfo, ezUuid& out_guid, 
       return false;
   }
 
-  auto TestFunc = [this, &bComplete](const ezSet<ezString>& Files) -> ezAssetInfo* {
+  auto TestFunc = [this, &bComplete](const ezSet<ezString>& Files) -> ezAssetInfo*
+  {
     for (const auto& sFile : Files)
     {
       if (ezAssetInfo* pFileInfo = ezAssetCurator::GetSingleton()->GetAssetInfo(sFile))
@@ -359,7 +361,8 @@ bool ezProcessTask::GetNextAssetToProcess(ezUuid& out_guid, ezStringBuilder& out
 void ezProcessTask::OnProcessCrashed()
 {
   m_bSuccess = false;
-  ezLogEntryDelegate logger([this](ezLogEntry& entry) { m_LogEntries.PushBack(std::move(entry)); });
+  ezLogEntryDelegate logger([this](ezLogEntry& entry)
+    { m_LogEntries.PushBack(std::move(entry)); });
   ezLog::Error(&logger, "AssetProcessor crashed!");
   ezLog::Error(&ezAssetProcessor::GetSingleton()->m_CuratorLog, "AssetProcessor crashed!");
 }

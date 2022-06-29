@@ -13,10 +13,6 @@ class EZ_TOOLSFOUNDATION_DLL ezApplicationServices
 public:
   ezApplicationServices();
 
-  void SetApplicationName(const char* szName);
-
-  const char* GetApplicationName() const;
-
   /// \brief A writable folder in which application specific user data may be stored
   ezString GetApplicationUserDataFolder() const;
 
@@ -37,9 +33,4 @@ public:
 
   /// \brief The folder where under which the sample projects are stored
   ezString GetSampleProjectsFolder() const;
-
-
-
-private:
-  ezString m_sApplicationName;
 };

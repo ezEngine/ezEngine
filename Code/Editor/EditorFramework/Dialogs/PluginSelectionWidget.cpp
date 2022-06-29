@@ -44,7 +44,7 @@ void ezQtPluginSelectionWidget::SetPluginSet(ezPluginBundleSet* pPluginSet)
     if (pi.m_bMissing)
     {
       tmp.Append(" (missing)");
-      pItem->setBackgroundColor(QColor::fromRgb(200, 0, 0));
+      pItem->setBackground(QColor::fromRgb(200, 0, 0));
     }
 
     pItem->setText(tmp.GetData());

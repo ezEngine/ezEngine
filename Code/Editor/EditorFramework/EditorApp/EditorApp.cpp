@@ -21,8 +21,6 @@ ezQtEditorApp::ezQtEditorApp()
 {
   m_bSavePreferencesAfterOpenProject = false;
 
-  ezApplicationServices::GetSingleton()->SetApplicationName("ezEditor");
-
   m_pTimer = new QTimer(nullptr);
 }
 
