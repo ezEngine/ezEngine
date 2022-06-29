@@ -58,6 +58,9 @@ void ezGameApplicationBase::Init_PlatformProfile_SetPreferred()
 void ezGameApplicationBase::BaseInit_ConfigureLogging()
 {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  ezGlobalLog::RemoveLogWriter(m_LogToConsoleID);
+  ezGlobalLog::RemoveLogWriter(m_LogToVsID);
+
   if (!opt_DisableConsoleOutput.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified))
   {
     m_LogToConsoleID = ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
