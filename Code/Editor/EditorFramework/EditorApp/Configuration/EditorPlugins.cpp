@@ -157,17 +157,18 @@ ezResult ezPluginBundle::ReadBundleFromDDL(ezOpenDdlReader& ddl)
 void ezQtEditorApp::DetectAvailablePluginBundles()
 {
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS)
+  // find all ezPluginBundle files
   {
     ezStringBuilder sSearch = ezOSFile::GetApplicationDirectory();
 
     sSearch.AppendPath("*.ezPluginBundle");
 
-    ezStringBuilder sPath;
+    ezStringBuilder sPath, sPlugin;
 
     ezFileSystemIterator fsit;
     for (fsit.StartSearch(sSearch.GetData(), ezFileSystemIteratorFlags::ReportFiles); fsit.IsValid(); fsit.Next())
     {
-      ezStringBuilder sPlugin = fsit.GetStats().m_sName;
+      sPlugin = fsit.GetStats().m_sName;
       sPlugin.RemoveFileExtension();
 
       fsit.GetStats().GetFullPath(sPath);
@@ -185,6 +186,52 @@ void ezQtEditorApp::DetectAvailablePluginBundles()
           m_PluginBundles.m_Plugins[sPlugin].ReadBundleFromDDL(ddl).IgnoreResult();
         }
       }
+    }
+  }
+
+  // additionally, find all *Plugin.dll files that are not mentioned in any ezPluginBundle and treat them as fake plugin bundles
+  if (false) // sometimes useful, but not how it's supposed to be
+  {
+    ezStringBuilder sSearch = ezOSFile::GetApplicationDirectory();
+
+    sSearch.AppendPath("*Plugin.dll");
+
+    ezStringBuilder sPlugin;
+
+    auto isUsedInBundle = [this](const ezStringBuilder& sPlugin) -> bool
+    {
+      for (auto pit : m_PluginBundles.m_Plugins)
+      {
+        if (pit.Key().IsEqual_NoCase(sPlugin))
+          return true;
+
+        const ezPluginBundle& val = pit.Value();
+
+        for (const auto& rt : val.m_RuntimePlugins)
+        {
+          if (rt.IsEqual_NoCase(sPlugin))
+            return true;
+        }
+      }
+
+      return false;
+    };
+
+    ezFileSystemIterator fsit;
+    for (fsit.StartSearch(sSearch.GetData(), ezFileSystemIteratorFlags::ReportFiles); fsit.IsValid(); fsit.Next())
+    {
+      sPlugin = fsit.GetStats().m_sName;
+      sPlugin.RemoveFileExtension();
+
+      if (isUsedInBundle(sPlugin))
+        continue;
+
+      auto& newp = m_PluginBundles.m_Plugins[sPlugin];
+      newp.m_RuntimePlugins.PushBack(sPlugin);
+      newp.m_sDescription = "No ezPluginBundle file is present for this plugin.";
+
+      sPlugin.Shrink(0, 6);
+      newp.m_sDisplayName = sPlugin;
     }
   }
 #else
