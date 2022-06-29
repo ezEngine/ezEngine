@@ -24,18 +24,20 @@ ezMap<ezString, QPixmap> ezQtUiServices::s_PixmapsCache;
 bool ezQtUiServices::s_bHeadless;
 ezQtUiServices::TickEvent ezQtUiServices::s_LastTickEvent;
 
-static ezQtUiServices g_instance;
+static ezQtUiServices* g_pInstance = nullptr;
 
 // clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, QtUiServices)
 
   ON_CORESYSTEMS_STARTUP
   {
+    g_pInstance = EZ_DEFAULT_NEW(ezQtUiServices);
     ezQtUiServices::GetSingleton()->Init();
   }
 
   ON_CORESYSTEMS_SHUTDOWN
   {
+    EZ_DEFAULT_DELETE(g_pInstance);
   }
 
 EZ_END_SUBSYSTEM_DECLARATION;

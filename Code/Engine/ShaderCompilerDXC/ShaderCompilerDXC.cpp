@@ -56,6 +56,39 @@ static const char* GetProfileName(const char* szPlatform, ezGALShaderStage::Enum
 
 ezResult ezShaderCompilerDXC::Initialize()
 {
+  if (m_VertexInputMapping.IsEmpty())
+  {
+    m_VertexInputMapping["in.var.POSITION"] = ezGALVertexAttributeSemantic::Position;
+    m_VertexInputMapping["in.var.NORMAL"] = ezGALVertexAttributeSemantic::Normal;
+    m_VertexInputMapping["in.var.TANGENT"] = ezGALVertexAttributeSemantic::Tangent;
+
+    m_VertexInputMapping["in.var.COLOR0"] = ezGALVertexAttributeSemantic::Color0;
+    m_VertexInputMapping["in.var.COLOR1"] = ezGALVertexAttributeSemantic::Color1;
+    m_VertexInputMapping["in.var.COLOR2"] = ezGALVertexAttributeSemantic::Color2;
+    m_VertexInputMapping["in.var.COLOR3"] = ezGALVertexAttributeSemantic::Color3;
+    m_VertexInputMapping["in.var.COLOR4"] = ezGALVertexAttributeSemantic::Color4;
+    m_VertexInputMapping["in.var.COLOR5"] = ezGALVertexAttributeSemantic::Color5;
+    m_VertexInputMapping["in.var.COLOR6"] = ezGALVertexAttributeSemantic::Color6;
+    m_VertexInputMapping["in.var.COLOR7"] = ezGALVertexAttributeSemantic::Color7;
+
+    m_VertexInputMapping["in.var.TEXCOORD0"] = ezGALVertexAttributeSemantic::TexCoord0;
+    m_VertexInputMapping["in.var.TEXCOORD1"] = ezGALVertexAttributeSemantic::TexCoord1;
+    m_VertexInputMapping["in.var.TEXCOORD2"] = ezGALVertexAttributeSemantic::TexCoord2;
+    m_VertexInputMapping["in.var.TEXCOORD3"] = ezGALVertexAttributeSemantic::TexCoord3;
+    m_VertexInputMapping["in.var.TEXCOORD4"] = ezGALVertexAttributeSemantic::TexCoord4;
+    m_VertexInputMapping["in.var.TEXCOORD5"] = ezGALVertexAttributeSemantic::TexCoord5;
+    m_VertexInputMapping["in.var.TEXCOORD6"] = ezGALVertexAttributeSemantic::TexCoord6;
+    m_VertexInputMapping["in.var.TEXCOORD7"] = ezGALVertexAttributeSemantic::TexCoord7;
+    m_VertexInputMapping["in.var.TEXCOORD8"] = ezGALVertexAttributeSemantic::TexCoord8;
+    m_VertexInputMapping["in.var.TEXCOORD9"] = ezGALVertexAttributeSemantic::TexCoord9;
+
+    m_VertexInputMapping["in.var.BITANGENT"] = ezGALVertexAttributeSemantic::BiTangent;
+    m_VertexInputMapping["in.var.BONEINDICES0"] = ezGALVertexAttributeSemantic::BoneIndices0;
+    m_VertexInputMapping["in.var.BONEINDICES1"] = ezGALVertexAttributeSemantic::BoneIndices1;
+    m_VertexInputMapping["in.var.BONEWEIGHTS0"] = ezGALVertexAttributeSemantic::BoneWeights0;
+    m_VertexInputMapping["in.var.BONEWEIGHTS1"] = ezGALVertexAttributeSemantic::BoneWeights1;
+  }
+
   if (s_pDxcUtils != nullptr)
     return EZ_SUCCESS;
 
@@ -111,6 +144,8 @@ ezResult CompileVulkanShader(const char* szFile, const char* szSource, bool bDeb
   args.PushBack(ezStringWChar(szProfile));
   args.PushBack(L"-Qstrip_reflect"); // Strip reflection into a separate blob.
   args.PushBack(L"-spirv");
+  args.PushBack(L"-fvk-use-dx-position-w");
+  args.PushBack(L"-fspv-target-env=vulkan1.1");
 
   if (bDebug)
   {
@@ -119,9 +154,9 @@ ezResult CompileVulkanShader(const char* szFile, const char* szSource, bool bDeb
     sDebugSource.ReplaceAll("#line ", "//ine ");
     szCompileSource = sDebugSource;
 
-    ezLog::Warning("Vulkan DEBUG shader support not really implemented.");
+    //ezLog::Warning("Vulkan DEBUG shader support not really implemented.");
 
-    // args.PushBack(L"-Zi"); // Enable debug information.
+    args.PushBack(L"-Zi"); // Enable debug information.
     // args.PushBack(L"-Fo"); // Optional. Stored in the pdb.
     // args.PushBack(L"myshader.bin");
     // args.PushBack(L"-Fd"); // The file name of the pdb.
@@ -380,6 +415,40 @@ ezResult ezShaderCompilerDXC::FillUAVResourceBinding(ezShaderStageBinary& shader
   return EZ_FAILURE;
 }
 
+ezGALResourceFormat::Enum GetEZFormat(SpvReflectFormat format)
+{
+  switch (format)
+  {
+    case SpvReflectFormat::SPV_REFLECT_FORMAT_R32_UINT:
+      return ezGALResourceFormat::RUInt;
+    case SpvReflectFormat::SPV_REFLECT_FORMAT_R32_SINT:
+      return ezGALResourceFormat::RInt;
+    case SpvReflectFormat::SPV_REFLECT_FORMAT_R32_SFLOAT:
+      return ezGALResourceFormat::RFloat;
+    case SpvReflectFormat::SPV_REFLECT_FORMAT_R32G32_UINT:
+      return ezGALResourceFormat::RGUInt;
+    case SpvReflectFormat::SPV_REFLECT_FORMAT_R32G32_SINT:
+      return ezGALResourceFormat::RGInt;
+    case SpvReflectFormat::SPV_REFLECT_FORMAT_R32G32_SFLOAT:
+      return ezGALResourceFormat::RGFloat;
+    case SpvReflectFormat::SPV_REFLECT_FORMAT_R32G32B32_UINT:
+      return ezGALResourceFormat::RGBUInt;
+    case SpvReflectFormat::SPV_REFLECT_FORMAT_R32G32B32_SINT:
+      return ezGALResourceFormat::RGBInt;
+    case SpvReflectFormat::SPV_REFLECT_FORMAT_R32G32B32_SFLOAT:
+      return ezGALResourceFormat::RGBFloat;
+    case SpvReflectFormat::SPV_REFLECT_FORMAT_R32G32B32A32_UINT:
+      return ezGALResourceFormat::RGBAUInt;
+    case SpvReflectFormat::SPV_REFLECT_FORMAT_R32G32B32A32_SINT:
+      return ezGALResourceFormat::RGBAInt;
+    case SpvReflectFormat::SPV_REFLECT_FORMAT_R32G32B32A32_SFLOAT:
+      return ezGALResourceFormat::RGBAFloat;
+    case SpvReflectFormat::SPV_REFLECT_FORMAT_UNDEFINED:
+    default:
+      return ezGALResourceFormat::Invalid;
+  }
+}
+
 ezResult ezShaderCompilerDXC::ReflectShaderStage(ezShaderProgramData& inout_Data, ezGALShaderStage::Enum Stage)
 {
   EZ_LOG_BLOCK("ReflectShaderStage", inout_Data.m_szSourceFile);
@@ -395,6 +464,45 @@ ezResult ezShaderCompilerDXC::ReflectShaderStage(ezShaderProgramData& inout_Data
   }
 
   EZ_SCOPE_EXIT(spvReflectDestroyShaderModule(&module));
+
+  //
+  ezHybridArray<ezVulkanVertexInputAttribute, 8> vertexInputAttributes;
+  if (Stage == ezGALShaderStage::VertexShader)
+  {
+    ezUInt32 uiNumVars = 0;
+    if (spvReflectEnumerateInputVariables(&module, &uiNumVars, nullptr) != SPV_REFLECT_RESULT_SUCCESS)
+    {
+      ezLog::Error("Failed to retrieve number of input variables.");
+      return EZ_FAILURE;
+    }
+    ezDynamicArray<SpvReflectInterfaceVariable*> vars;
+    vars.SetCount(uiNumVars);
+
+    if (spvReflectEnumerateInputVariables(&module, &uiNumVars, vars.GetData()) != SPV_REFLECT_RESULT_SUCCESS)
+    {
+      ezLog::Error("Failed to retrieve input variables.");
+      return EZ_FAILURE;
+    }
+
+    vertexInputAttributes.Reserve(vars.GetCount());
+
+    for (ezUInt32 i = 0; i < vars.GetCount(); ++i)
+    {
+      SpvReflectInterfaceVariable* pVar = vars[i];
+      if (pVar->name != nullptr)
+      {
+        ezVulkanVertexInputAttribute& attr = vertexInputAttributes.ExpandAndGetRef();
+        attr.m_uiLocation = static_cast<ezUInt8>(pVar->location);
+
+        ezGALVertexAttributeSemantic::Enum* pVAS = m_VertexInputMapping.GetValue(pVar->name);
+        EZ_ASSERT_DEV(pVAS != nullptr, "Unknown vertex input sematic found: {}", pVar->name);
+        attr.m_eSemantic = *pVAS;
+        attr.m_eFormat = GetEZFormat(pVar->format);
+        EZ_ASSERT_DEV(pVAS != nullptr, "Unknown vertex input format found: {}", pVar->format);
+      }
+    }
+  }
+
 
   // descriptor bindings
   {
@@ -426,7 +534,6 @@ ezResult ezShaderCompilerDXC::ReflectShaderStage(ezShaderProgramData& inout_Data
       ezShaderResourceBinding shaderResourceBinding;
       shaderResourceBinding.m_Type = ezShaderResourceType::Unknown;
       shaderResourceBinding.m_iSlot = info.binding;
-      EZ_ASSERT_DEV(info.resource_type != SpvReflectResourceType::SPV_REFLECT_RESOURCE_FLAG_SAMPLER || info.binding <= 16, "");
       shaderResourceBinding.m_sName.Assign(info.name);
 
       if (FillResourceBinding(inout_Data.m_StageBinary[Stage], shaderResourceBinding, info).Failed())
@@ -498,7 +605,7 @@ ezResult ezShaderCompilerDXC::ReflectShaderStage(ezShaderProgramData& inout_Data
       }
       set.bindings.Sort([](const ezVulkanDescriptorSetLayoutBinding& lhs, const ezVulkanDescriptorSetLayoutBinding& rhs) { return lhs.m_uiBinding < rhs.m_uiBinding; });
 
-      ezSpirvMetaData::Write(stream, bytecode, sets);
+      ezSpirvMetaData::Write(stream, bytecode, sets, vertexInputAttributes);
 
       // Replaced compiled Spirv code with custom ezSpirvMetaData format.
       ezUInt64 uiBytesLeft = storage.GetStorageSize64();

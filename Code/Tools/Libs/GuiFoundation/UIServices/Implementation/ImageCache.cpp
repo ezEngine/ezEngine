@@ -1,15 +1,31 @@
 #include <GuiFoundation/GuiFoundationPCH.h>
 
+#include <Foundation/Configuration/Startup.h>
 #include <Foundation/Math/Math.h>
 #include <Foundation/Threading/ThreadUtils.h>
 
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
 #include <QtConcurrent/qtconcurrentrun.h>
 
-static ezQtImageCache g_ImageCacheSingleton;
+static ezQtImageCache* g_pImageCacheSingleton = nullptr;
 
 EZ_IMPLEMENT_SINGLETON(ezQtImageCache);
 
+// clang-format off
+EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, QtImageCache)
+
+ON_CORESYSTEMS_STARTUP
+{
+  g_pImageCacheSingleton = EZ_DEFAULT_NEW(ezQtImageCache);
+}
+
+ON_CORESYSTEMS_SHUTDOWN
+{
+  EZ_DEFAULT_DELETE(g_pImageCacheSingleton);
+}
+
+EZ_END_SUBSYSTEM_DECLARATION;
+// clang-format on
 
 ezQtImageCache::ezQtImageCache()
   : m_SingletonRegistrar(this)
@@ -49,7 +65,7 @@ void ezQtImageCache::InvalidateCache(const char* szAbsolutePath)
   ezUInt32 id = e.Value().m_uiImageID;
   m_ImageCache.Remove(e);
 
-  Q_EMIT g_ImageCacheSingleton.ImageInvalidated(sPath, id);
+  Q_EMIT g_pImageCacheSingleton->ImageInvalidated(sPath, id);
 }
 
 const QPixmap* ezQtImageCache::QueryPixmap(
@@ -146,7 +162,7 @@ void ezQtImageCache::RunLoadingTask()
       m_Requests.Remove(it);
 
       // inform the requester that his request has been fulfilled
-      g_ImageCacheSingleton.EmitLoadedSignal(sQtPath, req.m_Index, req.m_UserData1, req.m_UserData2);
+      g_pImageCacheSingleton->EmitLoadedSignal(sQtPath, req.m_Index, req.m_UserData1, req.m_UserData2);
     }
   }
 
@@ -250,7 +266,7 @@ void ezQtImageCache::LoadingTask(QString sPath, QModelIndex index, QVariant User
   pCache->m_iCurrentMemoryUsage += ezMath::SafeMultiply64(entry.m_Pixmap.width(), entry.m_Pixmap.height(), 4);
 
   // send event that something has been loaded
-  g_ImageCacheSingleton.EmitLoadedSignal(sPath, index, UserData1, UserData2);
+  g_pImageCacheSingleton->EmitLoadedSignal(sPath, index, UserData1, UserData2);
 
   // start the next task
   pCache->RunLoadingTask();

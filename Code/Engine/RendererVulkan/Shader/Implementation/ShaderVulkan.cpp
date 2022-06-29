@@ -50,13 +50,22 @@ ezResult ezGALShaderVulkan::InitPlatform(ezGALDevice* pDevice)
   // Extract meta data and shader code.
   ezArrayPtr<const ezUInt8> shaderCode[ezGALShaderStage::ENUM_COUNT];
   ezDynamicArray<ezVulkanDescriptorSetLayout> sets[ezGALShaderStage::ENUM_COUNT];
+  ezHybridArray<ezVulkanVertexInputAttribute, 8> vertexInputAttributes;
+
   for (ezUInt32 i = 0; i < ezGALShaderStage::ENUM_COUNT; i++)
   {
     if (m_Description.HasByteCodeForStage((ezGALShaderStage::Enum)i))
     {
       ezArrayPtr<const ezUInt8> metaData(reinterpret_cast<const ezUInt8*>(m_Description.m_ByteCodes[i]->GetByteCode()), m_Description.m_ByteCodes[i]->GetSize());
-      ezSpirvMetaData::Read(metaData, shaderCode[i], sets[i]);
+      // Only the vertex shader stores vertexInputAttributes, so passing in the array into other shaders is just a no op.
+      ezSpirvMetaData::Read(metaData, shaderCode[i], sets[i], vertexInputAttributes);
     }
+  }
+
+  // For now the meta data and what the shader exposes is the exact same data but this might change so different types are used.
+  for (ezVulkanVertexInputAttribute& via : vertexInputAttributes)
+  {
+    m_VertexInputAttributes.PushBack({via.m_eSemantic, via.m_uiLocation, via.m_eFormat});
   }
 
   // Compute remapping.

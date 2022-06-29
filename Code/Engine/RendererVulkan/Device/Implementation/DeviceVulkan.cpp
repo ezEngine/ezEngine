@@ -167,7 +167,7 @@ vk::Result ezGALDeviceVulkan::SelectInstanceExtensions(ezHybridArray<const char*
 }
 
 
-vk::Result ezGALDeviceVulkan::SelectDeviceExtensions(ezHybridArray<const char*, 6>& extensions)
+vk::Result ezGALDeviceVulkan::SelectDeviceExtensions(vk::DeviceCreateInfo& deviceCreateInfo, ezHybridArray<const char*, 6>& extensions)
 {
   // Fetch the list of extensions supported by the runtime.
   ezUInt32 extensionCount;
@@ -192,12 +192,26 @@ vk::Result ezGALDeviceVulkan::SelectDeviceExtensions(ezHybridArray<const char*, 
       return vk::Result::eSuccess;
     }
     enableFlag = false;
+    ezLog::Warning("Extension '{}' not supported", extensionName);
     return vk::Result::eErrorExtensionNotPresent;
   };
 
   VK_SUCCEED_OR_RETURN_LOG(AddExtIfSupported(VK_KHR_SWAPCHAIN_EXTENSION_NAME, m_extensions.m_bDeviceSwapChain));
-  VK_SUCCEED_OR_RETURN_LOG(AddExtIfSupported(VK_EXT_SHADER_VIEWPORT_INDEX_LAYER_EXTENSION_NAME, m_extensions.m_bShaderViewportIndexLayer));
+  AddExtIfSupported(VK_EXT_SHADER_VIEWPORT_INDEX_LAYER_EXTENSION_NAME, m_extensions.m_bShaderViewportIndexLayer);
 
+  vk::PhysicalDeviceFeatures2 features;
+  features.pNext = &m_extensions.m_borderColorEXT;
+  m_physicalDevice.getFeatures2(&features);
+
+  // Only use the extension if it allows us to not specify a format or we would need to create different samplers for every texture.
+  if (m_extensions.m_borderColorEXT.customBorderColors && m_extensions.m_borderColorEXT.customBorderColorWithoutFormat)
+  {
+    AddExtIfSupported(VK_EXT_CUSTOM_BORDER_COLOR_EXTENSION_NAME, m_extensions.m_bBorderColorFloat);
+    if (m_extensions.m_bBorderColorFloat)
+    {
+      deviceCreateInfo.pNext = &m_extensions.m_borderColorEXT;
+    }
+  }
   return vk::Result::eSuccess;
 }
 
@@ -360,10 +374,10 @@ ezResult ezGALDeviceVulkan::InitPlatform()
     deviceLayers.SetCount(uiLayers);
     VK_SUCCEED_OR_RETURN_EZ_FAILURE(m_physicalDevice.enumerateDeviceLayerProperties(&uiLayers, deviceLayers.GetData()));
 
-    ezHybridArray<const char*, 6> deviceExtensions;
-    VK_SUCCEED_OR_RETURN_EZ_FAILURE(SelectDeviceExtensions(deviceExtensions));
-
     vk::DeviceCreateInfo deviceCreateInfo = {};
+    ezHybridArray<const char*, 6> deviceExtensions;
+    VK_SUCCEED_OR_RETURN_EZ_FAILURE(SelectDeviceExtensions(deviceCreateInfo, deviceExtensions));
+
     deviceCreateInfo.enabledExtensionCount = deviceExtensions.GetCount();
     deviceCreateInfo.ppEnabledExtensionNames = deviceExtensions.GetData();
     // Device layers are deprecated but provided (same as in instance) for backwards compatibility.
@@ -374,6 +388,7 @@ ezResult ezGALDeviceVulkan::InitPlatform()
     deviceCreateInfo.pEnabledFeatures = &physicalDeviceFeatures; // Enabling all available features for now
     deviceCreateInfo.queueCreateInfoCount = queues.GetCount();
     deviceCreateInfo.pQueueCreateInfos = queues.GetData();
+
     VK_SUCCEED_OR_RETURN_EZ_FAILURE(m_physicalDevice.createDevice(&deviceCreateInfo, nullptr, &m_device));
     m_device.getQueue(m_graphicsQueue.m_uiQueueFamily, m_graphicsQueue.m_uiQueueIndex, &m_graphicsQueue.m_queue);
     m_device.getQueue(m_transferQueue.m_uiQueueFamily, m_transferQueue.m_uiQueueIndex, &m_transferQueue.m_queue);
@@ -737,6 +752,7 @@ vk::Fence ezGALDeviceVulkan::Submit(vk::Semaphore waitSemaphore, vk::PipelineSta
 
 ezGALPass* ezGALDeviceVulkan::BeginPassPlatform(const char* szName)
 {
+  GetCurrentCommandBuffer();
   m_pPassTimingScope = ezProfilingScopeAndMarker::Start(m_pDefaultPass->m_pRenderCommandEncoder.Borrow(), szName);
   return m_pDefaultPass.Borrow();
 }
@@ -1062,8 +1078,8 @@ void ezGALDeviceVulkan::BeginFramePlatform(const ezUInt64 uiRenderFrame)
   }
 
   m_PerFrameData[m_uiCurrentPerFrameData].m_uiFrame = m_uiFrameCounter;
-  m_pQueryPool->BeginFrame();
 
+  m_pQueryPool->BeginFrame(GetCurrentCommandBuffer());
   GetCurrentCommandBuffer();
   ezStringBuilder sb;
   sb.Format("Frame {}", uiRenderFrame);

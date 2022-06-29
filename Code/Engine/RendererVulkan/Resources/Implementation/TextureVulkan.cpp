@@ -27,6 +27,16 @@ vk::ImageSubresourceRange ezGALTextureVulkan::GetFullRange() const
   return range;
 }
 
+vk::ImageAspectFlags ezGALTextureVulkan::GetStagingAspectMask() const
+{
+  vk::ImageAspectFlags mask = ezGALResourceFormat::IsDepthFormat(m_Description.m_Format) ? vk::ImageAspectFlagBits::eDepth : vk::ImageAspectFlagBits::eColor;
+  if (ezGALResourceFormat::IsStencilFormat(m_Description.m_Format))
+    mask |= vk::ImageAspectFlagBits::eStencil;
+  if (ezGALResourceFormat::IsDepthFormat(m_Description.m_Format))
+    mask = vk::ImageAspectFlagBits::eColor;
+  return mask;
+}
+
 ezGALTextureVulkan::ezGALTextureVulkan(const ezGALTextureCreationDescription& Description)
   : ezGALTexture(Description)
   , m_image(nullptr)

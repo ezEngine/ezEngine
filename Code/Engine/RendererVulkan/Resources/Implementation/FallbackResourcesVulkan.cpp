@@ -8,6 +8,7 @@
 #include <RendererVulkan/Resources/TextureVulkan.h>
 #include <RendererVulkan/Resources/UnorderedAccessViewVulkan.h>
 #include <RendererVulkan/Utils/ConversionUtilsVulkan.h>
+#include <RendererFoundation/Resources/Buffer.h>
 
 ezGALDeviceVulkan* ezFallbackResourcesVulkan::s_pDevice = nullptr;
 ezEventSubscriptionID ezFallbackResourcesVulkan::s_EventID = 0;
@@ -70,6 +71,25 @@ void ezFallbackResourcesVulkan::GALDeviceEventHandler(const ezGALDeviceEvent& e)
       {
         ezGALResourceViewHandle hView = CreateTexture(ezGALTextureType::Texture3D, ezGALMSAASampleCount::None);
         m_ResourceViews[{vk::DescriptorType::eSampledImage, ezShaderResourceType::Texture3D}] = hView;
+      }
+      {
+        ezGALBufferCreationDescription desc;
+        desc.m_bUseForIndirectArguments = false;
+        desc.m_bUseAsStructuredBuffer = true;
+        desc.m_bAllowRawViews = true;
+        desc.m_bStreamOutputTarget = false;
+        desc.m_bAllowShaderResourceView = true;
+        desc.m_bAllowUAV = true;
+        desc.m_uiStructSize = 128;
+        desc.m_uiTotalSize = 1280;
+        desc.m_ResourceAccess.m_bImmutable = false;
+        ezGALBufferHandle hBuffer = s_pDevice->CreateBuffer(desc);
+        s_pDevice->GetBuffer(hBuffer)->SetDebugName("FallbackResourceVulkan");
+        m_Buffers.PushBack(hBuffer);
+        ezGALResourceViewHandle hView = s_pDevice->GetDefaultResourceView(hBuffer);
+        m_ResourceViews[{vk::DescriptorType::eUniformBuffer, ezShaderResourceType::ConstantBuffer}] = hView;
+        m_ResourceViews[{vk::DescriptorType::eStorageBuffer, ezShaderResourceType::GenericBuffer}] = hView;
+
       }
     }
     break;

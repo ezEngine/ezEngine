@@ -94,6 +94,7 @@ ezResult ezGALRenderTargetViewVulkan::InitPlatform(ezGALDevice* pDevice)
   m_bfullRange = m_range == pTextureVulkan->GetFullRange();
 
   VK_SUCCEED_OR_RETURN_EZ_FAILURE(pVulkanDevice->GetVulkanDevice().createImageView(&imageViewCreationInfo, nullptr, &m_imageView));
+  pVulkanDevice->SetDebugName("RTV", m_imageView);
   return EZ_SUCCESS;
 }
 

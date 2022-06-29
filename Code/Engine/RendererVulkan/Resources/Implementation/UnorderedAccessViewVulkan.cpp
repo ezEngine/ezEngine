@@ -67,6 +67,7 @@ ezResult ezGALUnorderedAccessViewVulkan::InitPlatform(ezGALDevice* pDevice)
 
     m_range = viewCreateInfo.subresourceRange;
     VK_SUCCEED_OR_RETURN_EZ_FAILURE(pVulkanDevice->GetVulkanDevice().createImageView(&viewCreateInfo, nullptr, &m_resourceImageInfo.imageView));
+    pVulkanDevice->SetDebugName("UAV-Texture", m_resourceImageInfo.imageView);
   }
   else if (pBuffer)
   {
@@ -89,9 +90,8 @@ ezResult ezGALUnorderedAccessViewVulkan::InitPlatform(ezGALDevice* pDevice)
     }
     else
     {
-      m_resourceBufferInfo.offset = m_Description.m_uiFirstElement;
-      m_resourceBufferInfo.range = m_Description.m_uiNumElements;
-      EZ_REPORT_FAILURE("Not implemented. Need to figure out the element size of the view format.");
+      m_resourceBufferInfo.offset = pBuffer->GetDescription().m_uiStructSize * m_Description.m_uiFirstElement;
+      m_resourceBufferInfo.range = pBuffer->GetDescription().m_uiStructSize * m_Description.m_uiNumElements;
     }
   }
 

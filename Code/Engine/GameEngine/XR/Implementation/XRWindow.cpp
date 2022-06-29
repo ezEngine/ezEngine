@@ -70,11 +70,6 @@ ezWindowOutputTargetXR::ezWindowOutputTargetXR(ezXRInterface* pXrInterface, ezUn
     m_hCompanionShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Pipeline/VRCompanionView.ezShader");
     EZ_ASSERT_DEV(m_hCompanionShader.IsValid(), "Could not load VR companion view shader!");
     m_hCompanionConstantBuffer = ezRenderContext::CreateConstantBufferStorage<ezVRCompanionViewConstants>();
-
-    // Companion window output is assumed to be ezWindowOutputTargetGAL
-    ezWindowOutputTargetGAL* pOutputGAL = static_cast<ezWindowOutputTargetGAL*>(m_pCompanionWindowOutputTarget.Borrow());
-    const ezGALSwapChain* pSwapChain = ezGALDevice::GetDefaultDevice()->GetSwapChain(pOutputGAL->m_hSwapChain);
-    m_hCompanionRenderTarget = pSwapChain->GetBackBufferTexture();
   }
 }
 
@@ -106,13 +101,15 @@ void ezWindowOutputTargetXR::RenderCompanionView(bool bThrottleCompanionView)
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   ezRenderContext* m_pRenderContext = ezRenderContext::GetDefaultInstance();
 
-  if (const ezGALTexture* tex = pDevice->GetTexture(m_hCompanionRenderTarget))
   {
     pDevice->BeginPipeline("VR CompanionView", m_pCompanionWindowOutputTarget->m_hSwapChain);
 
     auto pPass = pDevice->BeginPass("Blit CompanionView");
 
-    auto hRenderTargetView = ezGALDevice::GetDefaultDevice()->GetDefaultRenderTargetView(m_hCompanionRenderTarget);
+    const ezGALSwapChain* pSwapChain = ezGALDevice::GetDefaultDevice()->GetSwapChain(m_pCompanionWindowOutputTarget->m_hSwapChain);
+    ezGALTextureHandle hCompanionRenderTarget = pSwapChain->GetBackBufferTexture();
+    const ezGALTexture* tex = pDevice->GetTexture(hCompanionRenderTarget);
+    auto hRenderTargetView = ezGALDevice::GetDefaultDevice()->GetDefaultRenderTargetView(hCompanionRenderTarget);
     ezVec2 targetSize = ezVec2((float)tex->GetDescription().m_uiWidth, (float)tex->GetDescription().m_uiHeight);
 
     ezGALRenderingSetup renderingSetup;

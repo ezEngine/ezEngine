@@ -61,7 +61,7 @@ void ezQueryPoolVulkan::Calibrate()
   m_device.destroyEvent(event);
 }
 
-void ezQueryPoolVulkan::BeginFrame()
+void ezQueryPoolVulkan::BeginFrame(vk::CommandBuffer commandBuffer)
 {
   ezUInt64 uiCurrentFrame = m_pDevice->GetCurrentFrame();
   ezUInt64 uiSafeFrame = m_pDevice->GetSafeFrame();
@@ -104,6 +104,7 @@ void ezQueryPoolVulkan::BeginFrame()
     {
       pPool->m_bReady = false;
       m_freePools.PushBack(pPool);
+      m_resetPools.PushBack(pPool->m_pool);
     }
     m_pendingFrames.PopFront();
   }
@@ -114,6 +115,12 @@ void ezQueryPoolVulkan::BeginFrame()
   {
     Calibrate();
   }
+
+  for (vk::QueryPool pool : m_resetPools)
+  {
+    commandBuffer.resetQueryPool(pool, 0, s_uiPoolSize);
+  }
+  m_resetPools.Clear();
 }
 
 ezGALTimestampHandle ezQueryPoolVulkan::GetTimestamp()
@@ -136,7 +143,6 @@ void ezQueryPoolVulkan::InsertTimestamp(vk::CommandBuffer commandBuffer, ezGALTi
     commandBuffer.resetQueryPool(pool, 0, s_uiPoolSize);
   }
   m_resetPools.Clear();
-
   const ezUInt32 uiPoolIndex = (ezUInt32)hTimestamp.m_uiIndex / s_uiPoolSize;
   const ezUInt32 uiQueryIndex = (ezUInt32)hTimestamp.m_uiIndex % s_uiPoolSize;
   EZ_ASSERT_DEBUG(hTimestamp.m_uiFrameCounter == m_pCurrentFrame->m_uiFrameCounter, "Timestamps must be created and used in the same frame!");
@@ -180,7 +186,6 @@ ezQueryPoolVulkan::TimestampPool* ezQueryPoolVulkan::GetFreePool()
   {
     TimestampPool* pPool = m_freePools.PeekBack();
     m_freePools.PopBack();
-    m_resetPools.PushBack(pPool->m_pool);
     pPool->m_queryResults.Clear();
     pPool->m_queryResults.SetCount(s_uiPoolSize, 0);
     return pPool;

@@ -9,7 +9,7 @@
 
 bool IsArrayView(const ezGALTextureCreationDescription& texDesc, const ezGALResourceViewCreationDescription& viewDesc)
 {
-  return texDesc.m_uiArraySize > 1 || viewDesc.m_uiFirstArraySlice > 0;
+  return texDesc.m_uiArraySize > 1 || viewDesc.m_uiArraySize > 1;
 }
 
 const vk::DescriptorBufferInfo& ezGALResourceViewVulkan::GetBufferInfo() const
@@ -52,18 +52,37 @@ ezResult ezGALResourceViewVulkan::InitPlatform(ezGALDevice* pDevice)
     const ezGALTextureCreationDescription& texDesc = pTexture->GetDescription();
 
     const bool bIsArrayView = IsArrayView(texDesc, m_Description);
+    const bool bIsDepth = ezGALResourceFormat::IsDepthFormat(pTexture->GetDescription().m_Format);
 
     ezGALResourceFormat::Enum viewFormat = m_Description.m_OverrideViewFormat == ezGALResourceFormat::Invalid ? texDesc.m_Format : m_Description.m_OverrideViewFormat;
     vk::ImageViewCreateInfo viewCreateInfo;
     viewCreateInfo.format = pVulkanDevice->GetFormatLookupTable().GetFormatInfo(viewFormat).m_eResourceViewType;
     viewCreateInfo.image = image;
     viewCreateInfo.subresourceRange = ezConversionUtilsVulkan::GetSubresourceRange(texDesc, m_Description);
-    viewCreateInfo.viewType = ezConversionUtilsVulkan::GetImageViewType(texDesc.m_Type, bIsArrayView);
+    viewCreateInfo.subresourceRange.aspectMask &= ~vk::ImageAspectFlagBits::eStencil;
 
-    m_resourceImageInfo.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
-    m_resourceImageInfo.imageView;
+
+    m_resourceImageInfo.imageLayout = bIsDepth ? vk::ImageLayout::eDepthReadOnlyStencilAttachmentOptimalKHR : vk::ImageLayout::eShaderReadOnlyOptimal;
+    m_resourceImageInfoArray.imageLayout = m_resourceImageInfo.imageLayout;
     m_range = viewCreateInfo.subresourceRange;
-    VK_SUCCEED_OR_RETURN_EZ_FAILURE(pVulkanDevice->GetVulkanDevice().createImageView(&viewCreateInfo, nullptr, &m_resourceImageInfo.imageView));
+    if (texDesc.m_Type == ezGALTextureType::Texture3D) // no array support
+    {
+      viewCreateInfo.viewType = ezConversionUtilsVulkan::GetImageViewType(texDesc.m_Type, false);
+      VK_SUCCEED_OR_RETURN_EZ_FAILURE(pVulkanDevice->GetVulkanDevice().createImageView(&viewCreateInfo, nullptr, &m_resourceImageInfo.imageView));
+    }
+    else if (m_Description.m_uiArraySize == 1) // can be array or not
+    {
+      viewCreateInfo.viewType = ezConversionUtilsVulkan::GetImageViewType(texDesc.m_Type, false);
+      VK_SUCCEED_OR_RETURN_EZ_FAILURE(pVulkanDevice->GetVulkanDevice().createImageView(&viewCreateInfo, nullptr, &m_resourceImageInfo.imageView));
+      viewCreateInfo.viewType = ezConversionUtilsVulkan::GetImageViewType(texDesc.m_Type, true);
+      VK_SUCCEED_OR_RETURN_EZ_FAILURE(pVulkanDevice->GetVulkanDevice().createImageView(&viewCreateInfo, nullptr, &m_resourceImageInfoArray.imageView));
+
+    }
+    else // Can only be array
+    {
+      viewCreateInfo.viewType = ezConversionUtilsVulkan::GetImageViewType(texDesc.m_Type, true);
+      VK_SUCCEED_OR_RETURN_EZ_FAILURE(pVulkanDevice->GetVulkanDevice().createImageView(&viewCreateInfo, nullptr, &m_resourceImageInfoArray.imageView));
+    }
   }
   else if (pBuffer)
   {
@@ -86,9 +105,9 @@ ezResult ezGALResourceViewVulkan::InitPlatform(ezGALDevice* pDevice)
     }
     else
     {
-      m_resourceBufferInfo.offset = m_Description.m_uiFirstElement;
-      m_resourceBufferInfo.range = m_Description.m_uiNumElements;
-      EZ_REPORT_FAILURE("Not implemented. Need to figure out the element size of the view format.");
+      m_resourceBufferInfo.offset = pBuffer->GetDescription().m_uiStructSize * m_Description.m_uiFirstElement;
+      m_resourceBufferInfo.range = pBuffer->GetDescription().m_uiStructSize * m_Description.m_uiNumElements;
+      //EZ_REPORT_FAILURE("Not implemented. Need to figure out the element size of the view format.");
     }
   }
 
@@ -99,7 +118,9 @@ ezResult ezGALResourceViewVulkan::DeInitPlatform(ezGALDevice* pDevice)
 {
   ezGALDeviceVulkan* pVulkanDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
   pVulkanDevice->DeleteLater(m_resourceImageInfo.imageView);
+  pVulkanDevice->DeleteLater(m_resourceImageInfoArray.imageView);
   m_resourceImageInfo = vk::DescriptorImageInfo();
+  m_resourceImageInfoArray = vk::DescriptorImageInfo();
   m_resourceBufferInfo = vk::DescriptorBufferInfo();
   return EZ_SUCCESS;
 }

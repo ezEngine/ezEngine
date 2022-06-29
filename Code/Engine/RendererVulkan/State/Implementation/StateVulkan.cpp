@@ -203,7 +203,44 @@ ezResult ezGALSamplerStateVulkan::InitPlatform(ezGALDevice* pDevice)
   samplerCreateInfo.addressModeV = GALTextureAddressModeToVulkan[m_Description.m_AddressV];
   samplerCreateInfo.addressModeW = GALTextureAddressModeToVulkan[m_Description.m_AddressW];
   samplerCreateInfo.anisotropyEnable = m_Description.m_uiMaxAnisotropy > 1.f ? VK_TRUE : VK_FALSE;
-  samplerCreateInfo.borderColor = vk::BorderColor::eFloatTransparentBlack; // TODO cannot support custom ezColor here
+
+  vk::SamplerCustomBorderColorCreateInfoEXT customBorderColor;
+  if (samplerCreateInfo.addressModeU == vk::SamplerAddressMode::eClampToBorder || samplerCreateInfo.addressModeV == vk::SamplerAddressMode::eClampToBorder || samplerCreateInfo.addressModeW == vk::SamplerAddressMode::eClampToBorder)
+  {
+    const ezColor col = m_Description.m_BorderColor;
+    if (col == ezColor(0, 0, 0, 0))
+    {
+      samplerCreateInfo.borderColor = vk::BorderColor::eFloatTransparentBlack;
+    }
+    else if (col == ezColor(0, 0, 0, 1))
+    {
+      samplerCreateInfo.borderColor = vk::BorderColor::eFloatOpaqueBlack;
+    }
+    else if (col == ezColor(1, 1, 1, 1))
+    {
+      samplerCreateInfo.borderColor = vk::BorderColor::eFloatOpaqueWhite;
+    }
+    else if (pVulkanDevice->GetExtensions().m_bBorderColorFloat)
+    {
+      customBorderColor.customBorderColor.setFloat32({col.r, col.g, col.b, col.a});
+      samplerCreateInfo.borderColor = vk::BorderColor::eFloatCustomEXT;
+      samplerCreateInfo.pNext = &customBorderColor;
+    }
+    else
+    {
+      // Fallback to close enough.
+      const bool bTransparent = m_Description.m_BorderColor.a == 0.0f;
+      const bool bBlack = m_Description.m_BorderColor.r == 0.0f;
+      if (bBlack)
+      {
+        samplerCreateInfo.borderColor = bTransparent ? vk::BorderColor::eFloatTransparentBlack : vk::BorderColor::eFloatOpaqueBlack;
+      }
+      else
+      {
+        samplerCreateInfo.borderColor = vk::BorderColor::eFloatOpaqueWhite;
+      }
+    }
+  }
   samplerCreateInfo.compareEnable = m_Description.m_SampleCompareFunc == ezGALCompareFunc::Never ? VK_FALSE : VK_TRUE;
   samplerCreateInfo.compareOp = GALCompareFuncToVulkan[m_Description.m_SampleCompareFunc];
   samplerCreateInfo.magFilter = GALFilterToVulkanFilter[m_Description.m_MagFilter];

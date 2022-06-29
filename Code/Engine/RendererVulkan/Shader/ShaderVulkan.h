@@ -39,11 +39,19 @@ public:
     vk::PipelineStageFlags m_targetStages;                               ///< Target stages that this mapping is used in.
   };
 
+  struct VertexInputAttribute
+  {
+    ezGALVertexAttributeSemantic::Enum m_eSemantic = ezGALVertexAttributeSemantic::Position;
+    ezUInt8 m_uiLocation = 0;
+    ezGALResourceFormat::Enum m_eFormat = ezGALResourceFormat::XYZFloat;
+  };
+
   void SetDebugName(const char* szName) const override;
 
   EZ_ALWAYS_INLINE vk::ShaderModule GetShader(ezGALShaderStage::Enum stage) const;
   EZ_ALWAYS_INLINE const DescriptorSetLayoutDesc& GetDescriptorSetLayout() const;
   EZ_ALWAYS_INLINE const ezArrayPtr<const BindingMapping> GetBindingMapping() const;
+  EZ_ALWAYS_INLINE const ezArrayPtr<const VertexInputAttribute> GetVertexInputAttributes() const;
 
 protected:
   friend class ezGALDeviceVulkan;
@@ -58,6 +66,7 @@ protected:
 private:
   DescriptorSetLayoutDesc m_descriptorSetLayoutDesc;
   ezHybridArray<BindingMapping, 16> m_BindingMapping;
+  ezHybridArray<VertexInputAttribute, 8> m_VertexInputAttributes;
   vk::ShaderModule m_Shaders[ezGALShaderStage::ENUM_COUNT];
 };
 
