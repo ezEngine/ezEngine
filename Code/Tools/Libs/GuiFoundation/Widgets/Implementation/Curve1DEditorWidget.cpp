@@ -229,6 +229,36 @@ struct PtToDelete
   bool operator<(const PtToDelete& rhs) const { return m_uiPointIdx > rhs.m_uiPointIdx; }
 };
 
+void ezQtCurve1DEditorWidget::ClearAllPoints()
+{
+  Q_EMIT BeginCpChangesEvent("Delete Points");
+
+  ezHybridArray<PtToDelete, 16> delOrder;
+
+  for (ezUInt32 curveIdx = 0; curveIdx < m_Curves.m_Curves.GetCount(); ++curveIdx)
+  {
+    ezCurve1D curveData;
+    m_Curves.m_Curves[curveIdx]->ConvertToRuntimeData(curveData);
+
+    for (ezUInt32 i = 0; i < curveData.GetNumControlPoints(); ++i)
+    {
+      auto& pt = delOrder.ExpandAndGetRef();
+      pt.m_uiCurveIdx = curveIdx;
+      pt.m_uiPointIdx = i;
+    }
+  }
+
+  delOrder.Sort();
+
+  // Delete sorted from back to front to prevent point indices becoming invalidated
+  for (const auto& pt : delOrder)
+  {
+    Q_EMIT CpDeletedEvent(pt.m_uiCurveIdx, pt.m_uiPointIdx);
+  }
+
+  Q_EMIT EndCpChangesEvent();
+}
+
 void ezQtCurve1DEditorWidget::onDeleteControlPoints()
 {
   const auto selection = CurveEdit->GetSelection();
@@ -387,32 +417,131 @@ void ezQtCurve1DEditorWidget::onContextMenu(QPoint pos, QPointF scenePos)
     QMenu* cmRT = m.addMenu("Right Tangents");
     QMenu* cmBT = m.addMenu("Both Tangents");
 
-    cmLT->addAction("Auto", this, [this]() { SetTangentMode(ezCurveTangentMode::Auto, true, false); });
-    cmLT->addAction("Bezier", this, [this]() { SetTangentMode(ezCurveTangentMode::Bezier, true, false); });
-    cmLT->addAction("Fixed Length", this, [this]() { SetTangentMode(ezCurveTangentMode::FixedLength, true, false); });
-    cmLT->addAction("Linear", this, [this]() { SetTangentMode(ezCurveTangentMode::Linear, true, false); });
+    cmLT->addAction("Auto", this, [this]()
+      { SetTangentMode(ezCurveTangentMode::Auto, true, false); });
+    cmLT->addAction("Bezier", this, [this]()
+      { SetTangentMode(ezCurveTangentMode::Bezier, true, false); });
+    cmLT->addAction("Fixed Length", this, [this]()
+      { SetTangentMode(ezCurveTangentMode::FixedLength, true, false); });
+    cmLT->addAction("Linear", this, [this]()
+      { SetTangentMode(ezCurveTangentMode::Linear, true, false); });
 
-    cmRT->addAction("Auto", this, [this]() { SetTangentMode(ezCurveTangentMode::Auto, false, true); });
-    cmRT->addAction("Bezier", this, [this]() { SetTangentMode(ezCurveTangentMode::Bezier, false, true); });
-    cmRT->addAction("Fixed Length", this, [this]() { SetTangentMode(ezCurveTangentMode::FixedLength, false, true); });
-    cmRT->addAction("Linear", this, [this]() { SetTangentMode(ezCurveTangentMode::Linear, false, true); });
+    cmRT->addAction("Auto", this, [this]()
+      { SetTangentMode(ezCurveTangentMode::Auto, false, true); });
+    cmRT->addAction("Bezier", this, [this]()
+      { SetTangentMode(ezCurveTangentMode::Bezier, false, true); });
+    cmRT->addAction("Fixed Length", this, [this]()
+      { SetTangentMode(ezCurveTangentMode::FixedLength, false, true); });
+    cmRT->addAction("Linear", this, [this]()
+      { SetTangentMode(ezCurveTangentMode::Linear, false, true); });
 
-    cmBT->addAction("Auto", this, [this]() { SetTangentMode(ezCurveTangentMode::Auto, true, true); });
-    cmBT->addAction("Bezier", this, [this]() { SetTangentMode(ezCurveTangentMode::Bezier, true, true); });
-    cmBT->addAction("Fixed Length", this, [this]() { SetTangentMode(ezCurveTangentMode::FixedLength, true, true); });
-    cmBT->addAction("Linear", this, [this]() { SetTangentMode(ezCurveTangentMode::Linear, true, true); });
+    cmBT->addAction("Auto", this, [this]()
+      { SetTangentMode(ezCurveTangentMode::Auto, true, true); });
+    cmBT->addAction("Bezier", this, [this]()
+      { SetTangentMode(ezCurveTangentMode::Bezier, true, true); });
+    cmBT->addAction("Fixed Length", this, [this]()
+      { SetTangentMode(ezCurveTangentMode::FixedLength, true, true); });
+    cmBT->addAction("Linear", this, [this]()
+      { SetTangentMode(ezCurveTangentMode::Linear, true, true); });
   }
 
   m.addSeparator();
   QMenu* cm = m.addMenu("Curve");
   cm->addSeparator();
-  cm->addAction("Normalize X", this, [this]() { NormalizeCurveX(0); });
-  cm->addAction("Normalize Y", this, [this]() { NormalizeCurveY(0); });
-  cm->addAction("Loop: Adjust Last Point", this, [this]() { MakeRepeatable(true); });
-  cm->addAction("Loop: Adjust First Point", this, [this]() { MakeRepeatable(false); });
+  cm->addAction("Normalize X", this, [this]()
+    { NormalizeCurveX(0); });
+  cm->addAction("Normalize Y", this, [this]()
+    { NormalizeCurveY(0); });
+  cm->addAction("Loop: Adjust Last Point", this, [this]()
+    { MakeRepeatable(true); });
+  cm->addAction("Loop: Adjust First Point", this, [this]()
+    { MakeRepeatable(false); });
+  cm->addAction("Clear Curve", this, [this]()
+    { ClearAllPoints(); });
 
   m.addAction(
-    "Frame", this, [this]() { FrameCurve(); }, QKeySequence(Qt::ControlModifier | Qt::Key_F));
+    "Frame", this, [this]()
+    { FrameCurve(); },
+    QKeySequence(Qt::ControlModifier | Qt::Key_F));
+
+  QMenu* gm = m.addMenu("Generate Curve");
+  QMenu* lm = gm->addMenu("Linear");
+  QMenu* sm = gm->addMenu("Sine");
+  QMenu* qm = gm->addMenu("Quad");
+  QMenu* qcm = gm->addMenu("Cubic");
+  QMenu* qrm = gm->addMenu("Quartic");
+  QMenu* qim = gm->addMenu("Quintic");
+  QMenu* qxm = gm->addMenu("Expo");
+  QMenu* qcrm = gm->addMenu("Circ");
+  QMenu* qbm = gm->addMenu("Back");
+  QMenu* qem = gm->addMenu("Elastic");
+  QMenu* qbom = gm->addMenu("Bounce");
+
+  gm->addSeparator();
+  lm->addAction("EaseInLinear", this, [this]()
+    { onGenerateCurve(ezMath::ezEasingFunctions::InLinear); });
+  lm->addAction("EaseOutLinear", this, [this]()
+    { onGenerateCurve(ezMath::ezEasingFunctions::OutLinear); });
+  sm->addAction("EaseInSine", this, [this]()
+    { onGenerateCurve(ezMath::ezEasingFunctions::InSine); });
+  sm->addAction("EaseOutSine", this, [this]()
+    { onGenerateCurve(ezMath::ezEasingFunctions::OutSine); });
+  sm->addAction("EaseInOutSine", this, [this]()
+    { onGenerateCurve(ezMath::ezEasingFunctions::InOutSine); });
+  qm->addAction("EaseInQuad", this, [this]()
+    { onGenerateCurve(ezMath::ezEasingFunctions::InQuad); });
+  qm->addAction("EaseOutQuad", this, [this]()
+    { onGenerateCurve(ezMath::ezEasingFunctions::OutQuad); });
+  qm->addAction("EaseInOutQuad", this, [this]()
+    { onGenerateCurve(ezMath::ezEasingFunctions::InOutQuad); });
+  qcm->addAction("EaseInCubic", this, [this]()
+    { onGenerateCurve(ezMath::ezEasingFunctions::InCubic); });
+  qcm->addAction("EaseOutCubic", this, [this]()
+    { onGenerateCurve(ezMath::ezEasingFunctions::OutCubic); });
+  qcm->addAction("EaseInOutCubic", this, [this]()
+    { onGenerateCurve(ezMath::ezEasingFunctions::InOutCubic); });
+  qrm->addAction("EaseInQuartic", this, [this]()
+    { onGenerateCurve(ezMath::ezEasingFunctions::InQuartic); });
+  qrm->addAction("EaseOutQuartic", this, [this]()
+    { onGenerateCurve(ezMath::ezEasingFunctions::OutQuartic); });
+  qrm->addAction("EaseInOutQuartic", this, [this]()
+    { onGenerateCurve(ezMath::ezEasingFunctions::InOutQuartic); });
+  qim->addAction("EaseInQuintic", this, [this]()
+    { onGenerateCurve(ezMath::ezEasingFunctions::InQuintic); });
+  qim->addAction("EaseOutQuintic", this, [this]()
+    { onGenerateCurve(ezMath::ezEasingFunctions::OutQuintic); });
+  qim->addAction("EaseInOutQuintic", this, [this]()
+    { onGenerateCurve(ezMath::ezEasingFunctions::InOutQuintic); });
+  qxm->addAction("EaseInExpo", this, [this]()
+    { onGenerateCurve(ezMath::ezEasingFunctions::InExpo); });
+  qxm->addAction("EaseOutExpo", this, [this]()
+    { onGenerateCurve(ezMath::ezEasingFunctions::OutExpo); });
+  qxm->addAction("EaseInOutExpo", this, [this]()
+    { onGenerateCurve(ezMath::ezEasingFunctions::InOutExpo); });
+  qcrm->addAction("EaseInCirc", this, [this]()
+    { onGenerateCurve(ezMath::ezEasingFunctions::InCirc); });
+  qcrm->addAction("EaseOutCirc", this, [this]()
+    { onGenerateCurve(ezMath::ezEasingFunctions::OutCirc); });
+  qcrm->addAction("EaseInOutCirc", this, [this]()
+    { onGenerateCurve(ezMath::ezEasingFunctions::InOutCirc); });
+  qbm->addAction("EaseInBack", this, [this]()
+    { onGenerateCurve(ezMath::ezEasingFunctions::InBack); });
+  qbm->addAction("EaseOutBack", this, [this]()
+    { onGenerateCurve(ezMath::ezEasingFunctions::OutBack); });
+  qbm->addAction("EaseInOutBack", this, [this]()
+    { onGenerateCurve(ezMath::ezEasingFunctions::InOutBack); });
+  qem->addAction("EaseInElastic", this, [this]()
+    { onGenerateCurve(ezMath::ezEasingFunctions::InElastic); });
+  qem->addAction("EaseOutElastic", this, [this]()
+    { onGenerateCurve(ezMath::ezEasingFunctions::OutElastic); });
+  qem->addAction("EaseInOutElastic", this, [this]()
+    { onGenerateCurve(ezMath::ezEasingFunctions::InOutElastic); });
+  qbom->addAction("EaseInBounce", this, [this]()
+    { onGenerateCurve(ezMath::ezEasingFunctions::InBounce); });
+  qbom->addAction("EaseOutBounce", this, [this]()
+    { onGenerateCurve(ezMath::ezEasingFunctions::OutBounce); });
+  qbom->addAction("EaseInOutBounce", this, [this]()
+    { onGenerateCurve(ezMath::ezEasingFunctions::InOutBounce); });
 
   m.exec(pos);
 }
@@ -575,6 +704,24 @@ void ezQtCurve1DEditorWidget::onMoveCurve(ezInt32 iCurve, double moveY)
   }
 
   Q_EMIT EndCpChangesEvent();
+}
+
+void ezQtCurve1DEditorWidget::onGenerateCurve(ezMath::ezEasingFunctions easingFunction)
+{
+  auto easing = ezMath::GetEasingFunction(easingFunction);
+  if (easing == nullptr)
+  {
+    ezLog::Error("Failed to generate curve");
+    return;
+  }
+
+  // Delete all existing control points
+  ClearAllPoints();
+
+  for (float x = 0.0; x <= 1.0; x += 0.025) // Resolution of 0.025
+  {
+    InsertCpAt(x, easing(x), ezVec2d::ZeroVector());
+  }
 }
 
 void ezQtCurve1DEditorWidget::UpdateSpinBoxes()

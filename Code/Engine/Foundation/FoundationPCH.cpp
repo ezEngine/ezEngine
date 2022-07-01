@@ -99,6 +99,7 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_Logging_Implementation_VisualStudioWriter);
   EZ_STATICLINK_REFERENCE(Foundation_Logging_Implementation_Win_ETWProvider_win);
   EZ_STATICLINK_REFERENCE(Foundation_Math_Implementation_Color);
+  EZ_STATICLINK_REFERENCE(Foundation_Math_Implementation_Easing);
   EZ_STATICLINK_REFERENCE(Foundation_Math_Implementation_Float16);
   EZ_STATICLINK_REFERENCE(Foundation_Math_Implementation_Frustum);
   EZ_STATICLINK_REFERENCE(Foundation_Math_Implementation_Intersection);
