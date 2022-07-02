@@ -501,6 +501,7 @@ void ezGALCommandEncoderImplVulkan::ReadbackTexturePlatform(const ezGALTexture* 
     m_pPipelineBarrier->Flush();
 
     const ezGALTextureCreationDescription& textureDesc = pVulkanTexture->GetDescription();
+    vk::ImageAspectFlagBits imageAspect = ezGALResourceFormat::IsDepthFormat(textureDesc.m_Format) ? vk::ImageAspectFlagBits::eDepth : vk::ImageAspectFlagBits::eColor;
     if (ezGALResourceFormat::IsDepthFormat(textureDesc.m_Format))
     {
       //#TODO_VULKAN readback of depth buffers not implemented yet. This does not assert to make the editor start.
