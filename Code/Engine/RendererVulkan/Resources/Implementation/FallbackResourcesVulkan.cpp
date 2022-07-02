@@ -3,12 +3,12 @@
 #include <RendererVulkan/Resources/FallbackResourcesVulkan.h>
 
 #include <Foundation/Algorithm/HashStream.h>
+#include <RendererFoundation/Resources/Buffer.h>
 #include <RendererVulkan/Device/DeviceVulkan.h>
 #include <RendererVulkan/Resources/ResourceViewVulkan.h>
 #include <RendererVulkan/Resources/TextureVulkan.h>
 #include <RendererVulkan/Resources/UnorderedAccessViewVulkan.h>
 #include <RendererVulkan/Utils/ConversionUtilsVulkan.h>
-#include <RendererFoundation/Resources/Buffer.h>
 
 ezGALDeviceVulkan* ezFallbackResourcesVulkan::s_pDevice = nullptr;
 ezEventSubscriptionID ezFallbackResourcesVulkan::s_EventID = 0;
@@ -89,7 +89,6 @@ void ezFallbackResourcesVulkan::GALDeviceEventHandler(const ezGALDeviceEvent& e)
         ezGALResourceViewHandle hView = s_pDevice->GetDefaultResourceView(hBuffer);
         m_ResourceViews[{vk::DescriptorType::eUniformBuffer, ezShaderResourceType::ConstantBuffer}] = hView;
         m_ResourceViews[{vk::DescriptorType::eStorageBuffer, ezShaderResourceType::GenericBuffer}] = hView;
-
       }
     }
     break;

@@ -292,7 +292,7 @@ void ezResourceCacheVulkan::GetFrameBufferDesc(vk::RenderPass renderPass, const 
     const ezGALTextureCreationDescription& texDesc = pTex->GetDescription();
     vk::Extent3D extend = pTex->GetMipLevelSize(pRenderTargetView->GetDescription().m_uiMipLevel);
     out_desc.m_msaa = texDesc.m_SampleCount;
-    out_desc.m_size = { extend.width, extend.height };
+    out_desc.m_size = {extend.width, extend.height};
     out_desc.layers = 1;
   }
   for (size_t i = 0; i < uiColorCount; i++)
@@ -305,7 +305,7 @@ void ezResourceCacheVulkan::GetFrameBufferDesc(vk::RenderPass renderPass, const 
     const ezGALTextureCreationDescription& texDesc = pTex->GetDescription();
     vk::Extent3D extend = pTex->GetMipLevelSize(pRenderTargetView->GetDescription().m_uiMipLevel);
     out_desc.m_msaa = texDesc.m_SampleCount;
-    out_desc.m_size = { extend.width, extend.height};
+    out_desc.m_size = {extend.width, extend.height};
     out_desc.layers = 1;
   }
 
