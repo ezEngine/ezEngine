@@ -1,6 +1,7 @@
 
 #pragma once
 
+#include <Foundation/System/PlatformFeatures.h>
 #include <Foundation/Types/Bitflags.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <RendererFoundation/Device/Device.h>
@@ -52,8 +53,7 @@ public:
     bool m_bSurface = false;
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
     bool m_bWin32Surface = false;
-#elif defined(VK_USE_PLATFORM_XCB_KHR)
-    bool m_bXcbSurface = false;
+#elif EZ_ENABLED(EZ_SUPPORTS_GLFW)
 #else
 #  error "Vulkan Platform not supported"
 #endif

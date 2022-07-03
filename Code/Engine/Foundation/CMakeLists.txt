@@ -64,6 +64,13 @@ if (EZ_3RDPARTY_ZLIB_SUPPORT)
 
 endif()
 
+if(EZ_3RDPARTY_GLFW_SUPPORT)
+
+  target_compile_definitions(${PROJECT_NAME} PUBLIC BUILDSYSTEM_ENABLE_GLFW_SUPPORT)
+  target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
+
+endif()
+
 ez_set_natvis_file(${PROJECT_NAME} "${CMAKE_CURRENT_SOURCE_DIR}/ezEngine.natvis")
 
 ####################################################

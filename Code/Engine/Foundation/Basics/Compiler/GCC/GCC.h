@@ -23,4 +23,9 @@
 #  define EZ_SOURCE_LINE __LINE__
 #  define EZ_SOURCE_FILE __FILE__
 
+#  ifdef BUILDSYSTEM_BUILDTYPE_Debug
+#    undef EZ_COMPILE_FOR_DEBUG
+#    define EZ_COMPILE_FOR_DEBUG EZ_ON
+#  endif
+
 #endif

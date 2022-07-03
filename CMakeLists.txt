@@ -39,6 +39,7 @@ endif()
 ez_set_build_types()
 ez_check_build_type()
 ez_write_configuration_txt()
+ez_pull_platform_vars()
 
 ez_init_projects()
 

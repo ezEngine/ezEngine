@@ -1,32 +1,37 @@
-cmake_minimum_required(VERSION 3.0...3.20 FATAL_ERROR)
+###################
+## ezEngine specific additions
+###################
+ez_cmake_init()
 
-project(GLFW VERSION 3.3.7 LANGUAGES C)
-
-set(CMAKE_LEGACY_CYGWIN_WIN32 OFF)
-
-if (POLICY CMP0054)
-    cmake_policy(SET CMP0054 NEW)
+if(NOT EZ_3RDPARTY_GLFW_SUPPORT)
+  return()
 endif()
 
-if (POLICY CMP0069)
-    cmake_policy(SET CMP0069 NEW)
+set(GLFW_VERSION_MAJOR "3")
+set(GLFW_VERSION_MINOR "3.7")
+set(GLFW_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+set(GLFW_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR})
+
+if(EZ_COMPILE_ENGINE_AS_DLL)
+  option(GLFW_BUILD_SHARED_LIBS "Build shared libraries" ON)
+else()
+  option(GLFW_BUILD_SHARED_LIBS "Build shared libraries" OFF)
 endif()
 
-if (POLICY CMP0077)
-    cmake_policy(SET CMP0077 NEW)
-endif()
+###################
+## ezEngine specific additions end
+###################
 
-set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
-option(GLFW_BUILD_EXAMPLES "Build the GLFW example programs" ON)
-option(GLFW_BUILD_TESTS "Build the GLFW test programs" ON)
-option(GLFW_BUILD_DOCS "Build the GLFW documentation" ON)
-option(GLFW_INSTALL "Generate installation target" ON)
+option(GLFW_BUILD_EXAMPLES "Build the GLFW example programs" OFF)
+option(GLFW_BUILD_TESTS "Build the GLFW test programs" OFF)
+option(GLFW_BUILD_DOCS "Build the GLFW documentation" OFF)
+option(GLFW_INSTALL "Generate installation target" OFF)
 option(GLFW_VULKAN_STATIC "Assume the Vulkan loader is linked with the application" OFF)
 
 include(GNUInstallDirs)
 include(CMakeDependentOption)
+
 
 cmake_dependent_option(GLFW_USE_OSMESA "Use OSMesa for offscreen context creation" OFF
                        "UNIX" OFF)
@@ -37,11 +42,11 @@ cmake_dependent_option(GLFW_USE_WAYLAND "Use Wayland for window creation" OFF
 cmake_dependent_option(USE_MSVC_RUNTIME_LIBRARY_DLL "Use MSVC runtime library DLL" ON
                        "MSVC" OFF)
 
-if (BUILD_SHARED_LIBS)
+if (GLFW_BUILD_SHARED_LIBS)
     set(_GLFW_BUILD_DLL 1)
 endif()
 
-if (BUILD_SHARED_LIBS AND UNIX)
+if (GLFW_BUILD_SHARED_LIBS AND UNIX)
     # On Unix-like systems, shared libraries can use the soname system.
     set(GLFW_LIB_NAME glfw)
 else()
@@ -49,7 +54,7 @@ else()
 endif()
 
 if (GLFW_VULKAN_STATIC)
-    if (BUILD_SHARED_LIBS)
+    if (GLFW_BUILD_SHARED_LIBS)
         # If you absolutely must do this, remove this line and add the Vulkan
         # loader static library via the CMAKE_SHARED_LINKER_FLAGS
         message(FATAL_ERROR "You are trying to link the Vulkan loader static library into the GLFW shared library")

@@ -33,7 +33,7 @@ jobs:
       targetType: inline
       script: |
         sudo apt-get update
-        sudo apt-get install -y cmake uuid-dev libx11-dev build-essential qt5-default libqt5svg5-dev
+        sudo apt-get install -y cmake uuid-dev libx11-dev build-essential qt5-default libqt5svg5-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev
   - task: Bash@3
     displayName: Info
     inputs:
@@ -41,15 +41,13 @@ jobs:
       script: >-
         lscpu | grep -E '^Thread|^Core|^Socket|^CPU\('
 
-        # dpkg -L libsfml-dev
-
         git config --list
 
         dpkg --list | grep compiler
   - task: CMake@1
     displayName: CMake
     inputs:
-      cmakeArgs: -DCMAKE_PREFIX_PATH=/opt/qt511/;/usr/SFML/SFML-2.5.1;/usr/SFML/SFML-2.5.1/lib/cmake/SFML -DCMAKE_BUILD_TYPE=Dev -DCMAKE_CXX_COMPILER=g++-10 -DCMAKE_C_COMPILER=gcc-10 -DEZ_ENABLE_FOLDER_UNITY_FILES=$(unityfiles) -G "Unix Makefiles" ../
+      cmakeArgs: -DCMAKE_PREFIX_PATH=/opt/qt511/ -DCMAKE_BUILD_TYPE=Dev -DCMAKE_CXX_COMPILER=g++-10 -DCMAKE_C_COMPILER=gcc-10 -DEZ_ENABLE_FOLDER_UNITY_FILES=$(unityfiles) -G "Unix Makefiles" ../
   - task: Bash@3
     displayName: Make
     inputs:

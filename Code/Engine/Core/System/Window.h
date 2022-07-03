@@ -13,10 +13,8 @@ class ezOpenDdlReader;
 class ezOpenDdlReaderElement;
 
 // Include the proper Input implementation to use
-#if EZ_ENABLED(EZ_SUPPORTS_SFML)
-#  include <Core/System/Implementation/SFML/InputDevice_SFML.h>
-#elif EZ_ENABLED(EZ_PLATFORM_LINUX)
-#  include <Core/System/Implementation/xcb/InputDevice_xcb.h>
+#if EZ_ENABLED(EZ_SUPPORTS_GLFW)
+#  include <Core/System/Implementation/glfw/InputDevice_glfw.h>
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 #  include <Core/System/Implementation/Win/InputDevice_win32.h>
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
@@ -25,27 +23,15 @@ class ezOpenDdlReaderElement;
 #  include <Core/System/Implementation/null/InputDevice_null.h>
 #endif
 
-#if EZ_ENABLED(EZ_SUPPORTS_SFML)
-
-using ezWindowHandle = sf::Window*;
-#  define INVALID_WINDOW_HANDLE_VALUE (sf::Window*)(0)
-
-#elif EZ_ENABLED(EZ_PLATFORM_LINUX)
-#  define INVALID_WINDOW_HANDLE_VALUE \
-    ezWindowHandle { nullptr, 0 }
+#if EZ_ENABLED(EZ_SUPPORTS_GLFW)
 
 extern "C"
 {
-  typedef struct xcb_connection_t xcb_connection_t;
-  typedef struct xcb_screen_t xcb_screen_t;
-  typedef struct xcb_intern_atom_reply_t xcb_intern_atom_reply_t;
+  typedef struct GLFWwindow GLFWwindow;
 }
 
-struct ezWindowHandle
-{
-  xcb_connection_t* m_pConnection;
-  ezUInt32 m_Window;
-};
+using ezWindowHandle = GLFWwindow*;
+#  define INVALID_WINDOW_HANDLE_VALUE (GLFWwindow*)(0)
 
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 
@@ -293,9 +279,16 @@ private:
 
   mutable ezWindowHandle m_WindowHandle = ezWindowHandle();
 
-#if EZ_ENABLED(EZ_SUPPORTS_SFML)
-#elif EZ_ENABLED(EZ_PLATFORM_LINUX)
-  xcb_intern_atom_reply_t* atom_wm_delete_window = nullptr;
+#if EZ_ENABLED(EZ_SUPPORTS_GLFW)
+  static void SizeCallback(GLFWwindow* window, int width, int height);
+  static void PositionCallback(GLFWwindow* window, int xpos, int ypos);
+  static void CloseCallback(GLFWwindow* window);
+  static void FocusCallback(GLFWwindow* window, int focused);
+  static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
+  static void CharacterCallback(GLFWwindow* window, unsigned int codepoint);
+  static void CursorPositionCallback(GLFWwindow* window, double xpos, double ypos);
+  static void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
+  static void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 #endif
 
   /// increased every time an ezWindow is created, to be able to get a free window index easily

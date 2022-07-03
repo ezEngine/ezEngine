@@ -317,6 +317,11 @@ ezResult ezPlugin::LoadPlugin(const char* szPluginFile, ezBitflags<ezPluginLoadF
   {
     s_PluginLoadOrder.PushBack(szPluginFile);
   }
+  else
+  {
+    // If we failed to load the plugin, it shouldn't be in the loaded modules list
+    g_LoadedModules.Remove(szPluginFile);
+  }
 
   return res;
 }
