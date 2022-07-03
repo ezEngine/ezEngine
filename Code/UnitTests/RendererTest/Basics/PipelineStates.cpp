@@ -2,6 +2,7 @@
 
 #include <Core/GameState/GameStateWindow.h>
 #include <Core/Graphics/Camera.h>
+#include <Foundation/Threading/ThreadUtils.h>
 #include <RendererTest/Basics/PipelineStates.h>
 
 #include <RendererTest/../../../Data/UnitTests/RendererTest/Shaders/TestConstants.h>
@@ -783,11 +784,15 @@ void ezRendererTestPipelineStates::Timestamps()
       EZ_TEST_BOOL_MSG(m_CPUTime[0] <= m_GPUTime[0], "%.6f < %.6f", m_CPUTime[0].GetSeconds(), m_GPUTime[0].GetSeconds());
       EZ_TEST_BOOL_MSG(m_GPUTime[0] <= m_GPUTime[1], "%.6f < %.6f", m_GPUTime[0].GetSeconds(), m_GPUTime[1].GetSeconds());
       EZ_TEST_BOOL_MSG(m_GPUTime[1] <= m_CPUTime[1], "%.6f < %.6f", m_GPUTime[1].GetSeconds(), m_CPUTime[1].GetSeconds());
+      ezTestFramework::GetInstance()->Output(ezTestOutput::Message, "Timestamp results received after %d frames and %.3f seconds.", m_iFrame, (ezTime::Now() - m_CPUTime[0]).AsFloatInSeconds());
+      m_ImgCompFrames.Clear();
     }
   }
-  if (m_iFrame == ImageCaptureFrames::Timestamps_MaxWaitTime)
+  ezThreadUtils::Sleep(ezTime::Milliseconds(16));
+  if (m_iFrame > 2 && (ezTime::Now() - m_CPUTime[0]).AsFloatInSeconds() > 10.0f)
   {
-    EZ_TEST_BOOL_MSG(m_bTimestampsValid, "Timestamp results are not present.");
+    EZ_TEST_BOOL_MSG(m_bTimestampsValid, "Timestamp results are not present after 10 seconds.");
+    m_ImgCompFrames.Clear();
   }
 }
 
