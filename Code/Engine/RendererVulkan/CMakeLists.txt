@@ -11,8 +11,6 @@ ez_create_target(LIBRARY ${PROJECT_NAME})
 if (EZ_CMAKE_PLATFORM_WINDOWS)
 	target_compile_definitions(${PROJECT_NAME} PRIVATE VK_USE_PLATFORM_WIN32_KHR)
 elseif (EZ_CMAKE_PLATFORM_LINUX)
-	# On Debian / Ubuntu we need libxcb1-dev
-	target_compile_definitions(${PROJECT_NAME} PRIVATE VK_USE_PLATFORM_XCB_KHR)
 	target_compile_options(${PROJECT_NAME} PRIVATE "-Wno-nullability-completeness" "-Wno-enum-compare" "-Wno-switch")
 endif()
 
@@ -27,3 +25,9 @@ target_link_libraries(${PROJECT_NAME}
   Foundation
   RendererFoundation
 )
+
+if(EZ_3RDPARTY_GLFW_SUPPORT)
+
+  target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
+
+endif()

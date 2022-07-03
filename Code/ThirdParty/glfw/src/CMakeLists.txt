@@ -88,7 +88,18 @@ if (CMAKE_VERSION VERSION_LESS "3.16" AND APPLE)
                                 LANGUAGE C)
 endif()
 
-add_library(glfw ${glfw_SOURCES} ${glfw_HEADERS})
+#ezEngine change
+if(GLFW_BUILD_SHARED_LIBS)
+  add_library(glfw SHARED ${glfw_SOURCES} ${glfw_HEADERS})
+else()
+  add_library(glfw ${glfw_SOURCES} ${glfw_HEADERS})
+endif()
+#ezEngine change end
+
+message(STATUS "GLFW_LIB_NAME ${GLFW_LIB_NAME}")
+message(STATUS "GLFW_VERSION_MAJOR ${GLFW_VERSION_MAJOR}")
+message(STATUS "GLFW_VERSION_MINOR ${GLFW_VERSION_MINOR}")
+
 set_target_properties(glfw PROPERTIES
                       OUTPUT_NAME ${GLFW_LIB_NAME}
                       VERSION ${GLFW_VERSION_MAJOR}.${GLFW_VERSION_MINOR}
@@ -152,7 +163,7 @@ if (MINGW)
     target_compile_definitions(glfw PRIVATE WINVER=0x0501)
 endif()
 
-if (BUILD_SHARED_LIBS)
+if (GLFW_BUILD_SHARED_LIBS)
     if (WIN32)
         if (MINGW)
             # Remove the dependency on the shared version of libgcc

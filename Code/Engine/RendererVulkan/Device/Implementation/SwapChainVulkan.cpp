@@ -3,6 +3,7 @@
 #include <Core/System/Window.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
+#include <Foundation/System/PlatformFeatures.h>
 #include <RendererFoundation/Resources/RenderTargetView.h>
 #include <RendererVulkan/Device/DeviceVulkan.h>
 #include <RendererVulkan/Device/SwapChainVulkan.h>
@@ -11,8 +12,8 @@
 #include <RendererVulkan/Utils/ConversionUtilsVulkan.h>
 #include <RendererVulkan/Utils/PipelineBarrierVulkan.h>
 
-#ifdef VK_USE_PLATFORM_XCB_KHR
-#  include <xcb/xcb.h>
+#if EZ_ENABLED(EZ_SUPPORTS_GLFW)
+#  include <GLFW/glfw3.h>
 #endif
 
 namespace
@@ -45,7 +46,7 @@ void ezGALSwapChainVulkan::AcquireNextRenderTarget(ezGALDevice* pDevice)
   if (m_swapChainImageInUseFences[m_uiCurrentSwapChainImage])
   {
     //#TODO_VULKAN waiting for fence does not seem to be necessary, is it already done by acquireNextImageKHR?
-    //m_pVulkanDevice->GetVulkanDevice().waitForFences(1, &m_swapChainImageInUseFences[m_uiCurrentSwapChainImage], true, 1000000000ui64);
+    // m_pVulkanDevice->GetVulkanDevice().waitForFences(1, &m_swapChainImageInUseFences[m_uiCurrentSwapChainImage], true, 1000000000ui64);
     m_swapChainImageInUseFences[m_uiCurrentSwapChainImage] = nullptr;
   }
 
@@ -112,20 +113,18 @@ ezResult ezGALSwapChainVulkan::InitPlatform(ezGALDevice* pDevice)
 {
   m_pVulkanDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
 
-// TODO move to platform specific inl file.
-#if defined(VK_USE_PLATFORM_WIN32_KHR)
+#if EZ_ENABLED(EZ_SUPPORTS_GLFW)
+  VkSurfaceKHR glfwSurface = VK_NULL_HANDLE;
+  VK_SUCCEED_OR_RETURN_EZ_FAILURE(glfwCreateWindowSurface(m_pVulkanDevice->GetVulkanInstance(), m_WindowDesc.m_pWindow->GetNativeWindowHandle(), nullptr, &glfwSurface));
+  m_vulkanSurface = glfwSurface;
+#elif defined(VK_USE_PLATFORM_WIN32_KHR)
   vk::Win32SurfaceCreateInfoKHR surfaceCreateInfo = {};
   surfaceCreateInfo.hinstance = GetModuleHandle(nullptr);
   surfaceCreateInfo.hwnd = (HWND)m_WindowDesc.m_pWindow->GetNativeWindowHandle();
 
   m_vulkanSurface = m_pVulkanDevice->GetVulkanInstance().createWin32SurfaceKHR(surfaceCreateInfo);
-#elif defined(VK_USE_PLATFORM_XCB_KHR)
-  ezWindowHandle windowHandle = m_WindowDesc.m_pWindow->GetNativeWindowHandle();
-  vk::XcbSurfaceCreateInfoKHR surfaceCreateInfo = {};
-  surfaceCreateInfo.connection = windowHandle.m_pConnection;
-  surfaceCreateInfo.window = windowHandle.m_Window;
-
-  m_vulkanSurface = m_pVulkanDevice->GetVulkanInstance().createXcbSurfaceKHR(surfaceCreateInfo);
+#else
+#  error Platform not supported
 #endif
 
   if (!m_vulkanSurface)

@@ -56,7 +56,7 @@ public:
     : ezTypedArrayProperty<Type>(szPropertyName)
   {
     EZ_ASSERT_DEBUG(getCount != nullptr, "The get count function of an array property cannot be nullptr.");
-    EZ_ASSERT_DEBUG(m_Getter != nullptr, "The get value function of an array property cannot be nullptr.");
+    EZ_ASSERT_DEBUG(getter != nullptr, "The get value function of an array property cannot be nullptr.");
 
     m_GetCount = getCount;
     m_Getter = getter;

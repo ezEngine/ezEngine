@@ -6,6 +6,7 @@
 
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <Foundation/System/PlatformFeatures.h>
 #include <RendererFoundation/CommandEncoder/RenderCommandEncoder.h>
 #include <RendererFoundation/Device/DeviceFactory.h>
 #include <RendererFoundation/Device/SwapChain.h>
@@ -33,6 +34,10 @@
 #include <RendererVulkan/Shader/VertexDeclarationVulkan.h>
 #include <RendererVulkan/State/StateVulkan.h>
 #include <RendererVulkan/Utils/PipelineBarrierVulkan.h>
+
+#if EZ_ENABLED(EZ_SUPPORTS_GLFW)
+#  include <GLFW/glfw3.h>
+#endif
 
 VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData)
 {
@@ -83,7 +88,7 @@ void vkQueueEndDebugUtilsLabelEXT(VkQueue queue)
   return vkQueueEndDebugUtilsLabelEXTFunc(queue);
 }
 //
-//void vkQueueInsertDebugUtilsLabelEXT(VkQueue queue, const VkDebugUtilsLabelEXT* pLabelInfo)
+// void vkQueueInsertDebugUtilsLabelEXT(VkQueue queue, const VkDebugUtilsLabelEXT* pLabelInfo)
 //{
 //  return vkQueueInsertDebugUtilsLabelEXTFunc(queue, pLabelInfo);
 //}
@@ -163,10 +168,16 @@ vk::Result ezGALDeviceVulkan::SelectInstanceExtensions(ezHybridArray<const char*
   };
 
   VK_SUCCEED_OR_RETURN_LOG(AddExtIfSupported(VK_KHR_SURFACE_EXTENSION_NAME, m_extensions.m_bSurface));
-#if defined(VK_USE_PLATFORM_WIN32_KHR)
+#if EZ_ENABLED(EZ_SUPPORTS_GLFW)
+  uint32_t iNumGlfwExtensions = 0;
+  const char** glfwExtensions = glfwGetRequiredInstanceExtensions(&iNumGlfwExtensions);
+  bool dummy = false;
+  for (uint32_t i = 0; i < iNumGlfwExtensions; ++i)
+  {
+    VK_SUCCEED_OR_RETURN_LOG(AddExtIfSupported(glfwExtensions[i], dummy));
+  }
+#elif defined(VK_USE_PLATFORM_WIN32_KHR)
   VK_SUCCEED_OR_RETURN_LOG(AddExtIfSupported(VK_KHR_WIN32_SURFACE_EXTENSION_NAME, m_extensions.m_bWin32Surface));
-#elif defined(VK_USE_PLATFORM_XCB_KHR)
-  VK_SUCCEED_OR_RETURN_LOG(AddExtIfSupported(VK_KHR_XCB_SURFACE_EXTENSION_NAME, m_extensions.m_bXcbSurface));
 #else
 #  error "Vulkan platform not supported"
 #endif
@@ -465,7 +476,7 @@ void ezGALDeviceVulkan::UploadBufferStaging(ezStagingBufferPoolVulkan* pStagingB
 
   //#TODO_VULKAN Use transfer queue
   ezStagingBufferVulkan stagingBuffer = pStagingBufferPool->AllocateBuffer(0, pInitialData.GetCount());
-  //ezMemoryUtils::Copy(reinterpret_cast<ezUInt8*>(stagingBuffer.m_allocInfo.m_pMappedData), pInitialData.GetPtr(), pInitialData.GetCount());
+  // ezMemoryUtils::Copy(reinterpret_cast<ezUInt8*>(stagingBuffer.m_allocInfo.m_pMappedData), pInitialData.GetPtr(), pInitialData.GetCount());
   ezMemoryAllocatorVulkan::MapMemory(stagingBuffer.m_alloc, &pData);
   ezMemoryUtils::Copy(reinterpret_cast<ezUInt8*>(pData), pInitialData.GetPtr(), pInitialData.GetCount());
   ezMemoryAllocatorVulkan::UnmapMemory(stagingBuffer.m_alloc);

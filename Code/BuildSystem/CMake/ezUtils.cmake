@@ -255,16 +255,6 @@ function(ez_set_library_properties TARGET_NAME)
         endif()
     endif ()
 
-    if (EZ_CMAKE_PLATFORM_OSX OR EZ_CMAKE_PLATFORM_LINUX)
-        find_package(X11 REQUIRED)
-        target_include_directories (${TARGET_NAME} PRIVATE ${X11_X11_INCLUDE_PATH})
-        target_link_libraries (${TARGET_NAME} PRIVATE ${X11_X11_LIB})
-		if (EZ_3RDPARTY_SFML_SUPPORT)
-			find_package(SFML REQUIRED system window)
-			target_link_libraries (${TARGET_NAME} PRIVATE sfml-window sfml-system)
-		endif()
-    endif ()
-
 endfunction()
 
 ######################################
@@ -274,16 +264,6 @@ endfunction()
 function(ez_set_application_properties TARGET_NAME)
 
     ez_pull_all_vars()
-
-    if (EZ_CMAKE_PLATFORM_OSX OR EZ_CMAKE_PLATFORM_LINUX)
-        find_package(X11 REQUIRED)
-        target_include_directories (${TARGET_NAME} PRIVATE ${X11_X11_INCLUDE_PATH})
-        target_link_libraries (${TARGET_NAME} PRIVATE ${X11_X11_LIB})
-		if (EZ_3RDPARTY_SFML_SUPPORT)
-			find_package(SFML REQUIRED system window)
-			target_link_libraries (${TARGET_NAME} PRIVATE sfml-window sfml-system)
-		endif()
-    endif ()
 
     # We need to link against pthread and rt last or linker errors will occur.
     if (EZ_CMAKE_PLATFORM_LINUX)

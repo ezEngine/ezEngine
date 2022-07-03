@@ -120,7 +120,7 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezTypedResourceHandl
   ResourceType* pResource = (ResourceType*)hResource.m_Typeless.m_pResource;
 
   // EZ_ASSERT_DEV(pResource->m_iLockCount < 20, "You probably forgot somewhere to call 'EndAcquireResource' in sync with 'BeginAcquireResource'.");
-  EZ_ASSERT_DEBUG(pResource->GetDynamicRTTI()->IsDerivedFrom<ResourceType>(),
+  EZ_ASSERT_DEBUG(pResource->GetDynamicRTTI()->template IsDerivedFrom<ResourceType>(),
     "The requested resource does not have the same type ('{0}') as the resource handle ('{1}').", pResource->GetDynamicRTTI()->GetTypeName(),
     ezGetStaticRTTI<ResourceType>()->GetTypeName());
 
