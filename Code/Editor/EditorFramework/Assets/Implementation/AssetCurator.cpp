@@ -81,7 +81,7 @@ void ezAssetInfo::Update(ezUniquePtr<ezAssetInfo>& rhs)
   m_pDocumentTypeDescriptor = rhs->m_pDocumentTypeDescriptor;
   m_sAbsolutePath = std::move(rhs->m_sAbsolutePath);
   m_sDataDirParentRelativePath = std::move(rhs->m_sDataDirParentRelativePath);
-  m_sDataDirRelativePath = ezStringView(m_sDataDirRelativePath.FindSubString("/") + 1); // skip the initial folder
+  m_sDataDirRelativePath = ezStringView(m_sDataDirParentRelativePath.FindSubString("/") + 1); // skip the initial folder
   m_Info = std::move(rhs->m_Info);
   m_AssetHash = rhs->m_AssetHash;
   m_ThumbHash = rhs->m_ThumbHash;
