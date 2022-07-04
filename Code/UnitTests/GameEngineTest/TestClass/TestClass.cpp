@@ -26,21 +26,29 @@ ezResult ezGameEngineTest::InitializeTest()
   if (m_pApplication == nullptr)
     return EZ_FAILURE;
 
+
   EZ_SUCCEED_OR_RETURN(ezRun_Startup(m_pApplication));
 
-  if (ezStringUtils::IsEqual_NoCase(ezGameApplication::GetActiveRenderer(), "DX11") && ezGALDevice::HasDefaultDevice() && (ezGALDevice::GetDefaultDevice()->GetCapabilities().m_sAdapterName == "Microsoft Basic Render Driver" || ezGALDevice::GetDefaultDevice()->GetCapabilities().m_sAdapterName.StartsWith_NoCase("Intel(R) UHD Graphics")))
+  if (ezStringUtils::IsEqual_NoCase(ezGameApplication::GetActiveRenderer(), "DX11"))
   {
-    // Use different images for comparison when running the D3D11 Reference Device
-    ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_D3D11Ref");
+    if (ezGALDevice::HasDefaultDevice() && (ezGALDevice::GetDefaultDevice()->GetCapabilities().m_sAdapterName == "Microsoft Basic Render Driver" || ezGALDevice::GetDefaultDevice()->GetCapabilities().m_sAdapterName.StartsWith_NoCase("Intel(R) UHD Graphics")))
+    {
+      // Use different images for comparison when running the D3D11 Reference Device
+      ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_D3D11Ref");
+    }
+    else if (ezStringUtils::IsEqual_NoCase(ezGameApplication::GetActiveRenderer(), "DX11") && ezGALDevice::HasDefaultDevice() && ezGALDevice::GetDefaultDevice()->GetCapabilities().m_sAdapterName.FindSubString_NoCase("AMD") || ezGALDevice::GetDefaultDevice()->GetCapabilities().m_sAdapterName.FindSubString_NoCase("Radeon"))
+    {
+      // Line rendering on DX11 is different on AMD and requires separate images for tests rendering lines.
+      ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_AMD");
+    }
+    else
+    {
+      ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("");
+    }
   }
-  else if (ezStringUtils::IsEqual_NoCase(ezGameApplication::GetActiveRenderer(), "DX11") && ezGALDevice::HasDefaultDevice() && ezGALDevice::GetDefaultDevice()->GetCapabilities().m_sAdapterName.FindSubString_NoCase("AMD") || ezGALDevice::GetDefaultDevice()->GetCapabilities().m_sAdapterName.FindSubString_NoCase("Radeon"))
+  else if (ezStringUtils::IsEqual_NoCase(ezGameApplication::GetActiveRenderer(), "Vulkan"))
   {
-    // Line rendering on DX11 is different on AMD and requires separate images for tests rendering lines.
-    ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_AMD");
-  }
-  else
-  {
-    ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("");
+    ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_Vulkan");
   }
 
   return EZ_SUCCESS;

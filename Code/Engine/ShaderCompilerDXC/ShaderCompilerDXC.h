@@ -22,4 +22,7 @@ private:
   ezResult FillUAVResourceBinding(ezShaderStageBinary& shaderBinary, ezShaderResourceBinding& binding, const SpvReflectDescriptorBinding& info);
 
   ezResult Initialize();
+
+private:
+  ezMap<const char*, ezGALVertexAttributeSemantic::Enum, CompareConstChar> m_VertexInputMapping;
 };

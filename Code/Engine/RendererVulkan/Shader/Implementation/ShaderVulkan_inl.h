@@ -13,3 +13,8 @@ const ezArrayPtr<const ezGALShaderVulkan::BindingMapping> ezGALShaderVulkan::Get
 {
   return m_BindingMapping;
 }
+
+const ezArrayPtr<const ezGALShaderVulkan::VertexInputAttribute> ezGALShaderVulkan::GetVertexInputAttributes() const
+{
+  return m_VertexInputAttributes;
+}

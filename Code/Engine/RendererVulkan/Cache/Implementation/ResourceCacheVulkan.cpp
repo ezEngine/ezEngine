@@ -3,6 +3,7 @@
 #include <Foundation/Basics.h>
 #include <RendererFoundation/Resources/Texture.h>
 #include <RendererVulkan/Cache/ResourceCacheVulkan.h>
+#include <RendererVulkan/Resources/TextureVulkan.h>
 #include <RendererVulkan/Shader/ShaderVulkan.h>
 #include <RendererVulkan/Shader/VertexDeclarationVulkan.h>
 #include <RendererVulkan/State/StateVulkan.h>
@@ -287,12 +288,11 @@ void ezResourceCacheVulkan::GetFrameBufferDesc(vk::RenderPass renderPass, const 
     const ezGALRenderTargetViewVulkan* pRenderTargetView = static_cast<const ezGALRenderTargetViewVulkan*>(s_pDevice->GetRenderTargetView(renderTargetSetup.GetDepthStencilTarget()));
     out_desc.attachments.PushBack(pRenderTargetView->GetImageView());
 
-    auto hTexture = pRenderTargetView->GetDescription().m_hTexture;
-    const ezGALTexture* pTex = s_pDevice->GetTexture(hTexture);
+    const ezGALTextureVulkan* pTex = static_cast<const ezGALTextureVulkan*>(pRenderTargetView->GetTexture()->GetParentResource());
     const ezGALTextureCreationDescription& texDesc = pTex->GetDescription();
-
+    vk::Extent3D extend = pTex->GetMipLevelSize(pRenderTargetView->GetDescription().m_uiMipLevel);
     out_desc.m_msaa = texDesc.m_SampleCount;
-    out_desc.m_size = {texDesc.m_uiWidth, texDesc.m_uiHeight};
+    out_desc.m_size = {extend.width, extend.height};
     out_desc.layers = 1;
   }
   for (size_t i = 0; i < uiColorCount; i++)
@@ -301,12 +301,11 @@ void ezResourceCacheVulkan::GetFrameBufferDesc(vk::RenderPass renderPass, const 
     const ezGALRenderTargetViewVulkan* pRenderTargetView = static_cast<const ezGALRenderTargetViewVulkan*>(s_pDevice->GetRenderTargetView(colorRT));
     out_desc.attachments.PushBack(pRenderTargetView->GetImageView());
 
-    auto hTexture = pRenderTargetView->GetDescription().m_hTexture;
-    const ezGALTexture* pTex = s_pDevice->GetTexture(hTexture);
+    const ezGALTextureVulkan* pTex = static_cast<const ezGALTextureVulkan*>(pRenderTargetView->GetTexture()->GetParentResource());
     const ezGALTextureCreationDescription& texDesc = pTex->GetDescription();
-
+    vk::Extent3D extend = pTex->GetMipLevelSize(pRenderTargetView->GetDescription().m_uiMipLevel);
     out_desc.m_msaa = texDesc.m_SampleCount;
-    out_desc.m_size = {texDesc.m_uiWidth, texDesc.m_uiHeight};
+    out_desc.m_size = {extend.width, extend.height};
     out_desc.layers = 1;
   }
 
@@ -318,7 +317,7 @@ void ezResourceCacheVulkan::GetFrameBufferDesc(vk::RenderPass renderPass, const 
   }
 }
 
-vk::Framebuffer ezResourceCacheVulkan::RequestFrameBuffer(vk::RenderPass renderPass, const ezGALRenderTargetSetup& renderTargetSetup, ezSizeU32& out_Size, ezGALMSAASampleCount& out_msaa)
+vk::Framebuffer ezResourceCacheVulkan::RequestFrameBuffer(vk::RenderPass renderPass, const ezGALRenderTargetSetup& renderTargetSetup, ezSizeU32& out_Size, ezEnum<ezGALMSAASampleCount>& out_msaa)
 {
   FramebufferKey key;
   key.m_renderPass = renderPass;
@@ -348,8 +347,8 @@ vk::Framebuffer ezResourceCacheVulkan::RequestFrameBuffer(vk::RenderPass renderP
 
   FrameBufferCache cache;
   cache.m_size = desc.m_size;
-  VK_LOG_ERROR(s_device.createFramebuffer(&framebufferInfo, nullptr, &cache.m_frameBuffer));
   cache.m_msaa = desc.m_msaa;
+  VK_LOG_ERROR(s_device.createFramebuffer(&framebufferInfo, nullptr, &cache.m_frameBuffer));
 
   s_frameBuffers.Insert(key, cache);
   out_Size = cache.m_size;
@@ -646,7 +645,7 @@ bool ezResourceCacheVulkan::ResourceCacheHash::Equal(const ezGALRenderingSetup& 
 bool ezResourceCacheVulkan::ResourceCacheHash::Equal(const ezGALShaderVulkan::DescriptorSetLayoutDesc& a, const ezGALShaderVulkan::DescriptorSetLayoutDesc& b)
 {
   const ezUInt32 uiCount = a.m_bindings.GetCount();
-  if (uiCount != a.m_bindings.GetCount())
+  if (uiCount != b.m_bindings.GetCount())
     return false;
 
   for (ezUInt32 i = 0; i < uiCount; i++)

@@ -119,6 +119,11 @@ bool ezPipelineBarrierVulkan::IsDirty(vk::Image image, const vk::ImageSubresourc
   return false;
 }
 
+bool ezPipelineBarrierVulkan::IsDirty() const
+{
+  return m_srcStageMask || m_dstStageMask;
+}
+
 void ezPipelineBarrierVulkan::AccessBuffer(const ezGALBufferVulkan* pBuffer, vk::DeviceSize offset, vk::DeviceSize length, vk::PipelineStageFlags srcStages, vk::AccessFlags srcAccess, vk::PipelineStageFlags dstStages, vk::AccessFlags dstAccess)
 {
   SubBufferState subState;
@@ -153,25 +158,31 @@ void ezPipelineBarrierVulkan::EnsureImageLayout(const ezGALTextureVulkan* pTextu
 
 void ezPipelineBarrierVulkan::EnsureImageLayout(const ezGALRenderTargetViewVulkan* pTextureView, vk::ImageLayout dstLayout, vk::PipelineStageFlags dstStages, vk::AccessFlags dstAccess, bool bDiscardSource)
 {
-  auto pTexture = static_cast<const ezGALTextureVulkan*>(pTextureView->GetTexture());
+  auto pTexture = static_cast<const ezGALTextureVulkan*>(pTextureView->GetTexture()->GetParentResource());
   EnsureImageLayout(pTexture, pTextureView->GetRange(), dstLayout, dstStages, dstAccess, bDiscardSource);
 }
 
 void ezPipelineBarrierVulkan::EnsureImageLayout(const ezGALResourceViewVulkan* pTextureView, vk::ImageLayout dstLayout, vk::PipelineStageFlags dstStages, vk::AccessFlags dstAccess, bool bDiscardSource)
 {
-  auto pTexture = static_cast<const ezGALTextureVulkan*>(pTextureView->GetResource());
+  auto pTexture = static_cast<const ezGALTextureVulkan*>(pTextureView->GetResource()->GetParentResource());
   EnsureImageLayout(pTexture, pTextureView->GetRange(), dstLayout, dstStages, dstAccess, bDiscardSource);
 }
 
 void ezPipelineBarrierVulkan::EnsureImageLayout(const ezGALUnorderedAccessViewVulkan* pTextureView, vk::ImageLayout dstLayout, vk::PipelineStageFlags dstStages, vk::AccessFlags dstAccess, bool bDiscardSource)
 {
-  auto pTexture = static_cast<const ezGALTextureVulkan*>(pTextureView->GetResource());
+  auto pTexture = static_cast<const ezGALTextureVulkan*>(pTextureView->GetResource()->GetParentResource());
   EnsureImageLayout(pTexture, pTextureView->GetRange(), dstLayout, dstStages, dstAccess, bDiscardSource);
 }
 
-void ezPipelineBarrierVulkan::EnsureImageLayout(const ezGALTextureVulkan* pTexture, const vk::ImageSubresourceRange& subResources, vk::ImageLayout dstLayout, vk::PipelineStageFlags dstStages, vk::AccessFlags dstAccess, bool bDiscardSource)
+void ezPipelineBarrierVulkan::EnsureImageLayout(const ezGALTextureVulkan* pTexture, vk::ImageSubresourceRange subResources, vk::ImageLayout dstLayout, vk::PipelineStageFlags dstStages, vk::AccessFlags dstAccess, bool bDiscardSource)
 {
   const vk::ImageSubresourceRange fullRange = pTexture->GetFullRange();
+  if (ezGALResourceFormat::IsStencilFormat(pTexture->GetDescription().m_Format))
+  {
+    // Vulkan spec forces us to always transition depth and stencil at the same time.
+    subResources.aspectMask |= vk::ImageAspectFlagBits::eStencil | vk::ImageAspectFlagBits::eDepth;
+  }
+
   const bool bIsFullRange = subResources == fullRange;
 
   ImageState* pState = m_imageState.GetValue(pTexture->GetImage());

@@ -37,7 +37,10 @@ struct EZ_RENDERERFOUNDATION_DLL ezShaderResourceType
 
     Default = Unknown,
   };
+
+  static bool IsArray(ezShaderResourceType::Enum format);
 };
+
 
 /// \brief Defines a swap chain's present mode.
 /// \sa ezGALWindowSwapChainCreationDescription

@@ -106,6 +106,8 @@ ezResult ezGALSwapChainVulkan::InitPlatform(ezGALDevice* pDevice)
   presentModes.SetCount(uiPresentModes);
   VK_SUCCEED_OR_RETURN_EZ_FAILURE(m_pVulkanDevice->GetVulkanPhysicalDevice().getSurfacePresentModesKHR(m_vulkanSurface, &uiPresentModes, presentModes.GetData()));
 
+  const vk::SurfaceCapabilitiesKHR surfaceCapabilities = m_pVulkanDevice->GetVulkanPhysicalDevice().getSurfaceCapabilitiesKHR(m_vulkanSurface);
+
   vk::SwapchainCreateInfoKHR swapChainCreateInfo = {};
   swapChainCreateInfo.clipped = VK_FALSE;
   swapChainCreateInfo.compositeAlpha = vk::CompositeAlphaFlagBitsKHR::eOpaque;
@@ -113,8 +115,11 @@ ezResult ezGALSwapChainVulkan::InitPlatform(ezGALDevice* pDevice)
   swapChainCreateInfo.imageColorSpace = vk::ColorSpaceKHR::eSrgbNonlinear;
   swapChainCreateInfo.imageExtent.width = m_WindowDesc.m_pWindow->GetClientAreaSize().width;
   swapChainCreateInfo.imageExtent.height = m_WindowDesc.m_pWindow->GetClientAreaSize().height;
+  swapChainCreateInfo.imageExtent.width = ezMath::Clamp(swapChainCreateInfo.imageExtent.width, surfaceCapabilities.minImageExtent.width, surfaceCapabilities.maxImageExtent.width);
+  swapChainCreateInfo.imageExtent.height = ezMath::Clamp(swapChainCreateInfo.imageExtent.height, surfaceCapabilities.minImageExtent.height, surfaceCapabilities.maxImageExtent.height);
+
   swapChainCreateInfo.imageFormat = m_pVulkanDevice->GetFormatLookupTable().GetFormatInfo(m_WindowDesc.m_BackBufferFormat).m_eRenderTarget;
-  swapChainCreateInfo.imageUsage = vk::ImageUsageFlagBits::eColorAttachment;
+  swapChainCreateInfo.imageUsage = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferDst; // We need eTransferDst to be able to resolve msaa textures into the backbuffer.
   if (m_WindowDesc.m_bAllowScreenshots)
     swapChainCreateInfo.imageUsage |= vk::ImageUsageFlagBits::eTransferSrc;
 
@@ -149,8 +154,8 @@ ezResult ezGALSwapChainVulkan::InitPlatform(ezGALDevice* pDevice)
 
     ezGALTextureCreationDescription TexDesc;
     TexDesc.m_Format = m_WindowDesc.m_BackBufferFormat;
-    TexDesc.m_uiWidth = m_WindowDesc.m_pWindow->GetClientAreaSize().width;
-    TexDesc.m_uiHeight = m_WindowDesc.m_pWindow->GetClientAreaSize().height;
+    TexDesc.m_uiWidth = swapChainCreateInfo.imageExtent.width;
+    TexDesc.m_uiHeight = swapChainCreateInfo.imageExtent.height;
     TexDesc.m_SampleCount = m_WindowDesc.m_SampleCount;
     TexDesc.m_pExisitingNativeObject = m_swapChainImages[i];
     TexDesc.m_bAllowShaderResourceView = false;

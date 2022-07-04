@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+	<Type Name="vk::Flags&lt;*&gt;">
+		<DisplayString>[{($T1)m_mask}]</DisplayString>
+	</Type>
 
 	<!-- Strings-->
 	<Type Name="ezHybridStringBase&lt;*&gt;">

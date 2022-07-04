@@ -31,6 +31,8 @@ public:
   /// \brief Full barrier for debugging purposes.
   void FullBarrier();
 
+  bool IsDirty() const;
+
   ///@}
   /// \name Buffer handling
   ///@{
@@ -64,7 +66,7 @@ public:
   void EnsureImageLayout(const ezGALRenderTargetViewVulkan* pTextureView, vk::ImageLayout dstLayout, vk::PipelineStageFlags dstStages, vk::AccessFlags dstAccess, bool bDiscardSource = false);
   void EnsureImageLayout(const ezGALResourceViewVulkan* pTextureView, vk::ImageLayout dstLayout, vk::PipelineStageFlags dstStages, vk::AccessFlags dstAccess, bool bDiscardSource = false);
   void EnsureImageLayout(const ezGALUnorderedAccessViewVulkan* pTextureView, vk::ImageLayout dstLayout, vk::PipelineStageFlags dstStages, vk::AccessFlags dstAccess, bool bDiscardSource = false);
-  void EnsureImageLayout(const ezGALTextureVulkan* pTexture, const vk::ImageSubresourceRange& subResources, vk::ImageLayout dstLayout, vk::PipelineStageFlags dstStages, vk::AccessFlags dstAccess, bool bDiscardSource = false);
+  void EnsureImageLayout(const ezGALTextureVulkan* pTexture, vk::ImageSubresourceRange subResources, vk::ImageLayout dstLayout, vk::PipelineStageFlags dstStages, vk::AccessFlags dstAccess, bool bDiscardSource = false);
 
   bool IsDirty(vk::Image image, const vk::ImageSubresourceRange& subResources) const;
   ///@}

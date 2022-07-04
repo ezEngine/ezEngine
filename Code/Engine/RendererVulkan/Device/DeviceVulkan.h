@@ -59,6 +59,9 @@ public:
 
     bool m_bDeviceSwapChain = false;
     bool m_bShaderViewportIndexLayer = false;
+
+    vk::PhysicalDeviceCustomBorderColorFeaturesEXT m_borderColorEXT;
+    bool m_bBorderColorFloat = false;
   };
 
   struct Queue
@@ -155,7 +158,7 @@ protected:
   // Init & shutdown functions
 
   vk::Result SelectInstanceExtensions(ezHybridArray<const char*, 6>& extensions);
-  vk::Result SelectDeviceExtensions(ezHybridArray<const char*, 6>& extensions);
+  vk::Result SelectDeviceExtensions(vk::DeviceCreateInfo& deviceCreateInfo, ezHybridArray<const char*, 6>& extensions);
 
   virtual ezResult InitPlatform() override;
   virtual ezResult ShutdownPlatform() override;

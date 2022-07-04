@@ -1,3 +1,16 @@
+inline bool ezShaderResourceType::IsArray(ezShaderResourceType::Enum format)
+{
+  switch (format)
+  {
+    case ezShaderResourceType::Texture1DArray:
+    case ezShaderResourceType::Texture2DArray:
+    case ezShaderResourceType::Texture2DMSArray:
+    case ezShaderResourceType::TextureCubeArray:
+      return true;
+    default:
+      return false;
+  }
+}
 
 inline ezGALShaderCreationDescription::ezGALShaderCreationDescription()
   : ezHashableStruct()

@@ -50,7 +50,6 @@ private:
   ezXRInterface* m_pXrInterface = nullptr;
   ezTime m_lastPresent;
   ezUniquePtr<ezWindowOutputTargetGAL> m_pCompanionWindowOutputTarget;
-  ezGALTextureHandle m_hCompanionRenderTarget;
   ezConstantBufferStorageHandle m_hCompanionConstantBuffer;
   ezShaderResourceHandle m_hCompanionShader;
 };

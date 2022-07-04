@@ -17,7 +17,7 @@ public:
   void DeInitialize();
 
   /// \brief Needs to be called every frame so the pool can figure out which queries have finished and reuse old data.
-  void BeginFrame();
+  void BeginFrame(vk::CommandBuffer commandBuffer);
 
   /// \brief Create a new timestamp. This needs to be consumed in the same frame it was acquired using InsertTimestamp.
   ezGALTimestampHandle GetTimestamp();
