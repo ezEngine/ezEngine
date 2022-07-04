@@ -468,6 +468,7 @@ ezResult ezAssetCurator::ReadAssetDocumentInfo(const char* szAbsFilePath, ezFile
     sRelPath.MakeRelativeTo(sDataDir).IgnoreResult();
 
     out_assetInfo->m_sDataDirParentRelativePath = sRelPath;
+    out_assetInfo->m_sDataDirRelativePath = ezStringView(out_assetInfo->m_sDataDirParentRelativePath.FindSubString("/") + 1);
     out_assetInfo->m_sAbsolutePath = szAbsFilePath;
   }
 

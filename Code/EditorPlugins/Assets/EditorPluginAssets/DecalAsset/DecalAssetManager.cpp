@@ -137,7 +137,7 @@ ezStatus ezDecalAssetDocumentManager::GenerateDecalTexture(const ezPlatformProfi
       if (asset.m_pAssetInfo->GetManager() != this)
         continue;
 
-      EZ_LOG_BLOCK("Decal", asset.m_pAssetInfo->m_sDataDirParentRelativePath.GetData());
+      EZ_LOG_BLOCK("Decal", asset.m_pAssetInfo->m_sDataDirParentRelativePath);
 
       // does the document already exist and is it open ?
       bool bWasOpen = false;
