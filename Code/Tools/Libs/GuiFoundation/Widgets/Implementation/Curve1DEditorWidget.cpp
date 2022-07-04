@@ -708,19 +708,12 @@ void ezQtCurve1DEditorWidget::onMoveCurve(ezInt32 iCurve, double moveY)
 
 void ezQtCurve1DEditorWidget::onGenerateCurve(ezMath::ezEasingFunctions easingFunction)
 {
-  auto easing = ezMath::GetEasingFunction(easingFunction);
-  if (easing == nullptr)
-  {
-    ezLog::Error("Failed to generate curve");
-    return;
-  }
-
   // Delete all existing control points
   ClearAllPoints();
 
-  for (float x = 0.0; x <= 1.0; x += 0.025) // Resolution of 0.025
+  for (double x = 0.0; x <= 1.0; x += 0.025) // Resolution of 0.025
   {
-    InsertCpAt(x, easing(x), ezVec2d::ZeroVector());
+    InsertCpAt(x, GetEasingValue(easingFunction, x), ezVec2d::ZeroVector());
   }
 }
 

@@ -1,52 +1,114 @@
 
 #include <Foundation/Math/Easing.h>
 
-#include <unordered_map>
-
 namespace ezMath
 {
-  ezEasingFunction GetEasingFunction(ezEasingFunctions easingFunction)
+  template <typename Type>
+  Type EZ_FOUNDATION_DLL GetEasingValue(ezEasingFunctions easingFunction, Type input)
   {
-    static std::unordered_map<ezEasingFunctions, ezEasingFunction> easingFunctions;
-
-    if (easingFunctions.empty())
+    switch (easingFunction)
     {
-      easingFunctions[ezEasingFunctions::InLinear] = EaseInLinear<double>;
-      easingFunctions[ezEasingFunctions::OutLinear] = EaseOutLinear<double>;
-      easingFunctions[ezEasingFunctions::InSine] = EaseInSine<double>;
-      easingFunctions[ezEasingFunctions::OutSine] = EaseOutSine<double>;
-      easingFunctions[ezEasingFunctions::InOutSine] = EaseInOutSine<double>;
-      easingFunctions[ezEasingFunctions::InQuad] = EaseInQuad<double>;
-      easingFunctions[ezEasingFunctions::OutQuad] = EaseOutQuad<double>;
-      easingFunctions[ezEasingFunctions::InOutQuad] = EaseInOutQuad<double>;
-      easingFunctions[ezEasingFunctions::InCubic] = EaseInCubic<double>;
-      easingFunctions[ezEasingFunctions::OutCubic] = EaseOutCubic<double>;
-      easingFunctions[ezEasingFunctions::InOutCubic] = EaseInOutCubic<double>;
-      easingFunctions[ezEasingFunctions::InQuartic] = EaseInQuartic<double>;
-      easingFunctions[ezEasingFunctions::OutQuartic] = EaseOutQuartic<double>;
-      easingFunctions[ezEasingFunctions::InOutQuartic] = EaseInOutQuartic<double>;
-      easingFunctions[ezEasingFunctions::InQuintic] = EaseInQuintic<double>;
-      easingFunctions[ezEasingFunctions::OutQuintic] = EaseOutQuintic<double>;
-      easingFunctions[ezEasingFunctions::InOutQuintic] = EaseInOutQuintic<double>;
-      easingFunctions[ezEasingFunctions::InExpo] = EaseInExpo<double>;
-      easingFunctions[ezEasingFunctions::OutExpo] = EaseOutExpo<double>;
-      easingFunctions[ezEasingFunctions::InOutExpo] = EaseInOutExpo<double>;
-      easingFunctions[ezEasingFunctions::InCirc] = EaseInCirc<double>;
-      easingFunctions[ezEasingFunctions::OutCirc] = EaseOutCirc<double>;
-      easingFunctions[ezEasingFunctions::InOutCirc] = EaseInOutCirc<double>;
-      easingFunctions[ezEasingFunctions::InBack] = EaseInBack<double>;
-      easingFunctions[ezEasingFunctions::OutBack] = EaseOutBack<double>;
-      easingFunctions[ezEasingFunctions::InOutBack] = EaseInOutBack<double>;
-      easingFunctions[ezEasingFunctions::InElastic] = EaseInElastic<double>;
-      easingFunctions[ezEasingFunctions::OutElastic] = EaseOutElastic<double>;
-      easingFunctions[ezEasingFunctions::InOutElastic] = EaseInOutElastic<double>;
-      easingFunctions[ezEasingFunctions::InBounce] = EaseInBounce<double>;
-      easingFunctions[ezEasingFunctions::OutBounce] = EaseOutBounce<double>;
-      easingFunctions[ezEasingFunctions::InOutBounce] = EaseInOutBounce<double>;
+      case InLinear:
+        return EaseInLinear<Type>(input);
+        break;
+      case OutLinear:
+        return EaseOutLinear<Type>(input);
+        break;
+      case InSine:
+        return EaseInSine<Type>(input);
+        break;
+      case OutSine:
+        return EaseOutSine<Type>(input);
+        break;
+      case InOutSine:
+        return EaseInOutSine<Type>(input);
+        break;
+      case InQuad:
+        return EaseInQuad<Type>(input);
+        break;
+      case OutQuad:
+        return EaseOutQuad<Type>(input);
+        break;
+      case InOutQuad:
+        return EaseInOutQuad<Type>(input);
+        break;
+      case InCubic:
+        return EaseInCubic<Type>(input);
+        break;
+      case OutCubic:
+        return EaseOutCubic<Type>(input);
+        break;
+      case InOutCubic:
+        return EaseInOutCubic<Type>(input);
+        break;
+      case InQuartic:
+        return EaseInQuartic<Type>(input);
+        break;
+      case OutQuartic:
+        return EaseOutQuartic<Type>(input);
+        break;
+      case InOutQuartic:
+        return EaseInOutQuartic<Type>(input);
+        break;
+      case InQuintic:
+        return EaseInQuintic<Type>(input);
+        break;
+      case OutQuintic:
+        return EaseOutQuintic<Type>(input);
+        break;
+      case InOutQuintic:
+        return EaseInOutQuintic<Type>(input);
+        break;
+      case InExpo:
+        return EaseInExpo<Type>(input);
+        break;
+      case OutExpo:
+        return EaseOutExpo<Type>(input);
+        break;
+      case InOutExpo:
+        return EaseInOutExpo<Type>(input);
+        break;
+      case InCirc:
+        return EaseInCirc<Type>(input);
+        break;
+      case OutCirc:
+        return EaseOutCirc<Type>(input);
+        break;
+      case InOutCirc:
+        return EaseInOutCirc<Type>(input);
+        break;
+      case InBack:
+        return EaseInBack<Type>(input);
+        break;
+      case OutBack:
+        return EaseOutBack<Type>(input);
+        break;
+      case InOutBack:
+        return EaseInOutBack<Type>(input);
+        break;
+      case InElastic:
+        return EaseInElastic<Type>(input);
+        break;
+      case OutElastic:
+        return EaseOutElastic<Type>(input);
+        break;
+      case InOutElastic:
+        return EaseInOutElastic<Type>(input);
+        break;
+      case InBounce:
+        return EaseInBounce<Type>(input);
+        break;
+      case OutBounce:
+        return EaseOutBounce<Type>(input);
+        break;
+      case InOutBounce:
+        return EaseInOutBounce<Type>(input);
+        break;
+      case EasingCount:
+      default:
+        EZ_ASSERT_NOT_IMPLEMENTED("Easing function not implemented");
+        return 0;
     }
-
-    auto iter = easingFunctions.find(easingFunction);
-    return iter == easingFunctions.end() ? nullptr : iter->second;
   }
 } // namespace ezMath
 

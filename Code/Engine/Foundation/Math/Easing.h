@@ -5,6 +5,14 @@
 
 namespace ezMath
 {
+  /// \brief Supported easing function types adapted from https://easings.net. To view some of these in action, please
+  /// visit the above mentioned source link.
+  ///
+  /// Types:
+  /// - EaseIn: Indicates a transition from the zero strength to full strength.
+  /// - EaseOut: Indicates a transition from full strength to zero strength.
+  /// - EaseInOut: Indicates a transition from zero strength to full strength halfway, then a transition back to zero strength.
+  /// - EaseOutIn: Indicates a transition from full strength to zero strength halfway, then a transition back to full strength.
   enum ezEasingFunctions
   {
     InLinear,
@@ -38,13 +46,14 @@ namespace ezMath
     InOutElastic,
     InBounce,
     OutBounce,
-    InOutBounce
+    InOutBounce,
+
+    EasingCount, // All easing function types must be stated before this.
   };
 
-  typedef double (*ezEasingFunction)(double);
-
-  /// \brief Helper function that returns an easing function pointer.
-  ezEasingFunction EZ_FOUNDATION_DLL GetEasingFunction(ezEasingFunctions easingFunction);
+  /// \brief Helper function that returns the easing value from an easing function.
+  template <typename Type>
+  Type EZ_FOUNDATION_DLL GetEasingValue(ezEasingFunctions easingFunction, Type input);
 
   template <typename Type>
   Type EaseInLinear(Type t);
