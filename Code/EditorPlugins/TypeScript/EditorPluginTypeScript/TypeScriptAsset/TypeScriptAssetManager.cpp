@@ -367,7 +367,7 @@ ezResult ezTypeScriptAssetDocumentManager::GenerateScriptCompendium(ezBitflags<e
   {
     for (auto pAssetInfo : allTsAssets)
     {
-      const ezString& docPath = pAssetInfo->m_sDataDirRelativePath;
+      const ezString& docPath = pAssetInfo->m_sDataDirParentRelativePath;
       const ezUuid& docGuid = pAssetInfo->m_Info->m_DocumentID;
 
       sFilename = ezPathUtils::GetFileName(docPath);

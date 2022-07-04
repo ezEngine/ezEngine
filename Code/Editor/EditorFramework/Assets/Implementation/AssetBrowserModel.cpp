@@ -138,7 +138,7 @@ void ezQtAssetBrowserModel::HandleAsset(const ezSubAsset* pInfo, AssetOp op)
   {
     // TODO: Due to file system watcher weirdness the m_sDataDirRelativePath can be empty at this point when renaming files
     // really rare haven't reproed it yet but that case crashes when getting the name so early out that.
-    if (!m_DisplayedEntries.Contains(pInfo->m_Data.m_Guid) || pInfo->m_pAssetInfo->m_sDataDirRelativePath.IsEmpty())
+    if (!m_DisplayedEntries.Contains(pInfo->m_Data.m_Guid) || pInfo->m_pAssetInfo->m_sDataDirParentRelativePath.IsEmpty())
     {
       return;
     }
@@ -280,7 +280,7 @@ QVariant ezQtAssetBrowserModel::data(const QModelIndex& index, int role) const
     case Qt::ToolTipRole:
     {
       ezStringBuilder sToolTip = pSubAsset->GetName();
-      sToolTip.Append("\n", pSubAsset->m_pAssetInfo->m_sDataDirRelativePath);
+      sToolTip.Append("\n", pSubAsset->m_pAssetInfo->m_sDataDirParentRelativePath);
       sToolTip.Append("\nTransform State: ");
       switch (pSubAsset->m_pAssetInfo->m_TransformState)
       {
@@ -347,7 +347,7 @@ QVariant ezQtAssetBrowserModel::data(const QModelIndex& index, int role) const
       return QString::fromUtf8(pSubAsset->m_pAssetInfo->m_sAbsolutePath);
 
     case UserRoles::RelativePath:
-      return QString::fromUtf8(pSubAsset->m_pAssetInfo->m_sDataDirRelativePath);
+      return QString::fromUtf8(pSubAsset->m_pAssetInfo->m_sDataDirParentRelativePath);
 
     case UserRoles::AssetIconPath:
       return ezQtUiServices::GetCachedPixmapResource(pSubAsset->m_pAssetInfo->m_pDocumentTypeDescriptor->m_sIcon);

@@ -595,7 +595,7 @@ ezStatus ezScene2Document::DeleteLayer(const ezUuid& layerGuid)
     auto assetInfo = ezAssetCurator::GetSingleton()->GetSubAsset(layerGuid);
     if (assetInfo.isValid())
     {
-      sName = ezPathUtils::GetFileName(assetInfo->m_pAssetInfo->m_sDataDirRelativePath);
+      sName = ezPathUtils::GetFileName(assetInfo->m_pAssetInfo->m_sDataDirParentRelativePath);
     }
     else
     {
