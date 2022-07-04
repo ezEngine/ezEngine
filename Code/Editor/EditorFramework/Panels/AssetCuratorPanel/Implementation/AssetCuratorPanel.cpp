@@ -175,7 +175,7 @@ void ezQtAssetCuratorPanel::UpdateIssueInfo()
       auto assetInfoDep = ezAssetCurator::GetSingleton()->GetSubAsset(guid);
       if (assetInfoDep)
       {
-        return assetInfoDep->m_pAssetInfo->m_sDataDirRelativePath;
+        return assetInfoDep->m_pAssetInfo->m_sDataDirParentRelativePath;
       }
 
       ezUInt64 uiLow;

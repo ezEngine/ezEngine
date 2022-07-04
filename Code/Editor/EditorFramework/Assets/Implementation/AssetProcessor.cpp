@@ -320,7 +320,7 @@ bool ezProcessTask::GetNextAssetToProcess(ezAssetInfo* pInfo, ezUuid& out_guid, 
     ezAssetCurator::GetSingleton()->m_Updating.Insert(pInfo->m_Info->m_DocumentID);
     out_guid = pInfo->m_Info->m_DocumentID;
     out_sAbsPath = pInfo->m_sAbsolutePath;
-    out_sRelPath = pInfo->m_sDataDirRelativePath;
+    out_sRelPath = pInfo->m_sDataDirParentRelativePath;
     return true;
   }
 

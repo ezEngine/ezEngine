@@ -137,7 +137,7 @@ ezStatus ezDecalAssetDocumentManager::GenerateDecalTexture(const ezPlatformProfi
       if (asset.m_pAssetInfo->GetManager() != this)
         continue;
 
-      EZ_LOG_BLOCK("Decal", asset.m_pAssetInfo->m_sDataDirRelativePath.GetData());
+      EZ_LOG_BLOCK("Decal", asset.m_pAssetInfo->m_sDataDirParentRelativePath.GetData());
 
       // does the document already exist and is it open ?
       bool bWasOpen = false;
@@ -148,7 +148,7 @@ ezStatus ezDecalAssetDocumentManager::GenerateDecalTexture(const ezPlatformProfi
         pDoc = pEditorApp->OpenDocument(asset.m_pAssetInfo->m_sAbsolutePath, ezDocumentFlags::None);
 
       if (pDoc == nullptr)
-        return ezStatus(ezFmt("Could not open asset document '{0}'", asset.m_pAssetInfo->m_sDataDirRelativePath));
+        return ezStatus(ezFmt("Could not open asset document '{0}'", asset.m_pAssetInfo->m_sDataDirParentRelativePath));
 
       ezDecalAssetDocument* pDecalAsset = static_cast<ezDecalAssetDocument*>(pDoc);
 

@@ -115,21 +115,21 @@ bool ezQtAssetBrowserFilter::IsAssetFiltered(const ezSubAsset* pInfo) const
   if (!m_sPathFilter.IsEmpty())
   {
     // if the string is not found in the path, ignore this asset
-    if (!pInfo->m_pAssetInfo->m_sDataDirRelativePath.StartsWith_NoCase(m_sPathFilter))
+    if (!pInfo->m_pAssetInfo->m_sDataDirParentRelativePath.StartsWith_NoCase(m_sPathFilter))
       return true;
 
     if (!m_bShowItemsInSubFolders)
     {
       // do we find another path separator after the prefix path?
       // if so, there is a sub-folder, and thus we ignore it
-      if (ezStringUtils::FindSubString(pInfo->m_pAssetInfo->m_sDataDirRelativePath.GetData() + m_sPathFilter.GetElementCount() + 1, "/") != nullptr)
+      if (ezStringUtils::FindSubString(pInfo->m_pAssetInfo->m_sDataDirParentRelativePath.GetData() + m_sPathFilter.GetElementCount() + 1, "/") != nullptr)
         return true;
     }
   }
 
   if (!m_bShowItemsInHiddenFolders)
   {
-    if (ezStringUtils::FindSubString_NoCase(pInfo->m_pAssetInfo->m_sDataDirRelativePath.GetData() + m_sPathFilter.GetElementCount() + 1, "_data/") !=
+    if (ezStringUtils::FindSubString_NoCase(pInfo->m_pAssetInfo->m_sDataDirParentRelativePath.GetData() + m_sPathFilter.GetElementCount() + 1, "_data/") !=
         nullptr)
       return true;
   }
@@ -144,7 +144,7 @@ bool ezQtAssetBrowserFilter::IsAssetFiltered(const ezSubAsset* pInfo) const
     else
     {
       // if the string is not found in the path, ignore this asset
-      if (pInfo->m_pAssetInfo->m_sDataDirRelativePath.FindSubString_NoCase(m_sTextFilter) == nullptr)
+      if (pInfo->m_pAssetInfo->m_sDataDirParentRelativePath.FindSubString_NoCase(m_sTextFilter) == nullptr)
       {
         if (pInfo->GetName().FindSubString_NoCase(m_sTextFilter) == nullptr)
         {

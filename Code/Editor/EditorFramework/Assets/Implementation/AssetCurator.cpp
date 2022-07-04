@@ -80,7 +80,7 @@ void ezAssetInfo::Update(ezUniquePtr<ezAssetInfo>& rhs)
   m_TransformState = rhs->m_TransformState;
   m_pDocumentTypeDescriptor = rhs->m_pDocumentTypeDescriptor;
   m_sAbsolutePath = std::move(rhs->m_sAbsolutePath);
-  m_sDataDirRelativePath = std::move(rhs->m_sDataDirRelativePath);
+  m_sDataDirParentRelativePath = std::move(rhs->m_sDataDirParentRelativePath);
   m_Info = std::move(rhs->m_Info);
   m_AssetHash = rhs->m_AssetHash;
   m_ThumbHash = rhs->m_ThumbHash;
@@ -93,7 +93,7 @@ void ezAssetInfo::Update(ezUniquePtr<ezAssetInfo>& rhs)
 ezStringView ezSubAsset::GetName() const
 {
   if (m_bMainAsset)
-    return ezPathUtils::GetFileName(m_pAssetInfo->m_sDataDirRelativePath.GetData(), m_pAssetInfo->m_sDataDirRelativePath.GetData() + m_pAssetInfo->m_sDataDirRelativePath.GetElementCount());
+    return ezPathUtils::GetFileName(m_pAssetInfo->m_sDataDirParentRelativePath.GetData(), m_pAssetInfo->m_sDataDirParentRelativePath.GetData() + m_pAssetInfo->m_sDataDirParentRelativePath.GetElementCount());
   else
     return m_Data.m_sName;
 }
@@ -101,7 +101,7 @@ ezStringView ezSubAsset::GetName() const
 
 void ezSubAsset::GetSubAssetIdentifier(ezStringBuilder& out_sPath) const
 {
-  out_sPath = m_pAssetInfo->m_sDataDirRelativePath;
+  out_sPath = m_pAssetInfo->m_sDataDirParentRelativePath;
 
   if (!m_bMainAsset)
   {
@@ -360,7 +360,7 @@ ezStatus ezAssetCurator::TransformAllAssets(ezBitflags<ezTransformFlags> transfo
       // what was specified before
       // since this is a valid case, we just stop updating the progress bar, in case more assets are detected
 
-      range.BeginNextStep(ezPathUtils::GetFileNameAndExtension(pAssetInfo->m_sDataDirRelativePath).GetStartPointer());
+      range.BeginNextStep(ezPathUtils::GetFileNameAndExtension(pAssetInfo->m_sDataDirParentRelativePath).GetStartPointer());
       --uiNumStepsLeft;
     }
 
@@ -368,7 +368,7 @@ ezStatus ezAssetCurator::TransformAllAssets(ezBitflags<ezTransformFlags> transfo
     if (res.m_Result.Failed())
     {
       uiNumFailedSteps++;
-      ezLog::Error("{0} ({1})", res.m_sMessage, pAssetInfo->m_sDataDirRelativePath);
+      ezLog::Error("{0} ({1})", res.m_sMessage, pAssetInfo->m_sDataDirParentRelativePath);
     }
   }
 
@@ -440,12 +440,12 @@ void ezAssetCurator::ResaveAllAssets()
 
     ezAssetInfo* pAssetInfo = GetAssetInfo(sortedAssets[i]);
     EZ_ASSERT_DEBUG(pAssetInfo, "Should not happen as data was derived from known assets list.");
-    range.BeginNextStep(ezPathUtils::GetFileNameAndExtension(pAssetInfo->m_sDataDirRelativePath).GetStartPointer());
+    range.BeginNextStep(ezPathUtils::GetFileNameAndExtension(pAssetInfo->m_sDataDirParentRelativePath).GetStartPointer());
 
     auto res = ResaveAsset(pAssetInfo);
     if (res.m_Result.Failed())
     {
-      ezLog::Error("{0} ({1})", res.m_sMessage, pAssetInfo->m_sDataDirRelativePath);
+      ezLog::Error("{0} ({1})", res.m_sMessage, pAssetInfo->m_sDataDirParentRelativePath);
     }
   }
 }
@@ -636,10 +636,10 @@ const ezAssetCurator::ezLockedSubAsset ezAssetCurator::FindSubAsset(const char* 
 
     for (auto it = m_KnownAssets.GetIterator(); it.IsValid(); ++it)
     {
-      if (it.Value()->m_sDataDirRelativePath.EndsWith_NoCase(sPath))
+      if (it.Value()->m_sDataDirParentRelativePath.EndsWith_NoCase(sPath))
       {
         // endswith -> could also be equal
-        if (path.IsEqual_NoCase(it.Value()->m_sDataDirRelativePath.GetData()))
+        if (path.IsEqual_NoCase(it.Value()->m_sDataDirParentRelativePath.GetData()))
         {
           // if equal, just take it
           return it.Value();
@@ -647,9 +647,9 @@ const ezAssetCurator::ezLockedSubAsset ezAssetCurator::FindSubAsset(const char* 
 
         // need to check again with a slash to make sure we don't return something that is of an invalid type
         // this can happen where the user is allowed to type random paths
-        if (it.Value()->m_sDataDirRelativePath.EndsWith_NoCase(sPathWithSlash))
+        if (it.Value()->m_sDataDirParentRelativePath.EndsWith_NoCase(sPathWithSlash))
         {
-          const ezUInt32 uiLength = it.Value()->m_sDataDirRelativePath.GetElementCount();
+          const ezUInt32 uiLength = it.Value()->m_sDataDirParentRelativePath.GetElementCount();
           if (uiLength < uiMinLength)
           {
             uiMinLength = uiLength;
@@ -1138,7 +1138,7 @@ ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const ezPlatformP
 
   const ezAssetDocumentTypeDescriptor* pTypeDesc = pAssetInfo->m_pDocumentTypeDescriptor;
 
-  EZ_ASSERT_DEV(pTypeDesc->m_pDocumentType->IsDerivedFrom<ezAssetDocument>(), "Asset document does not derive from correct base class ('{0}')", pAssetInfo->m_sDataDirRelativePath);
+  EZ_ASSERT_DEV(pTypeDesc->m_pDocumentType->IsDerivedFrom<ezAssetDocument>(), "Asset document does not derive from correct base class ('{0}')", pAssetInfo->m_sDataDirParentRelativePath);
 
   auto assetFlags = pTypeDesc->m_AssetDocumentFlags;
 
@@ -1183,7 +1183,7 @@ ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const ezPlatformP
     pDoc = ezQtEditorApp::GetSingleton()->OpenDocument(pAssetInfo->m_sAbsolutePath, ezDocumentFlags::None);
 
   if (pDoc == nullptr)
-    return ezStatus(ezFmt("Could not open asset document '{0}'", pAssetInfo->m_sDataDirRelativePath));
+    return ezStatus(ezFmt("Could not open asset document '{0}'", pAssetInfo->m_sDataDirParentRelativePath));
 
   EZ_SCOPE_EXIT(if (!pDoc->HasWindowBeenRequested() && !bWasOpen) pDoc->GetDocumentManager()->CloseDocument(pDoc););
 
@@ -1226,7 +1226,7 @@ ezStatus ezAssetCurator::ResaveAsset(ezAssetInfo* pAssetInfo)
     pDoc = ezQtEditorApp::GetSingleton()->OpenDocument(pAssetInfo->m_sAbsolutePath, ezDocumentFlags::None);
 
   if (pDoc == nullptr)
-    return ezStatus(ezFmt("Could not open asset document '{0}'", pAssetInfo->m_sDataDirRelativePath));
+    return ezStatus(ezFmt("Could not open asset document '{0}'", pAssetInfo->m_sDataDirParentRelativePath));
 
   ezStatus ret = pDoc->SaveDocument(true);
 

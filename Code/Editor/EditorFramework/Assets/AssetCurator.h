@@ -81,7 +81,7 @@ struct EZ_EDITORFRAMEWORK_DLL ezAssetInfo
 
   const ezAssetDocumentTypeDescriptor* m_pDocumentTypeDescriptor = nullptr;
   ezString m_sAbsolutePath;
-  ezString m_sDataDirRelativePath;
+  ezString m_sDataDirParentRelativePath;
 
   ezUniquePtr<ezAssetDocumentInfo> m_Info;
 
