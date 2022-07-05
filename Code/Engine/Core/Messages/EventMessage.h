@@ -2,6 +2,7 @@
 
 #include <Core/World/EventMessageHandlerComponent.h>
 #include <Core/World/GameObject.h>
+#include <Core/World/World.h>
 #include <Foundation/Communication/Message.h>
 
 /// \brief Base class for all messages that are sent as 'events'

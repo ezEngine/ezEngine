@@ -556,6 +556,28 @@ void ezGALCommandEncoderImplVulkan::ReadbackTexturePlatform(const ezGALTexture* 
         }
       }
     }
+    else if (pVulkanTexture->GetImageFormat() == pVulkanTexture->GetStagingImageFormat())
+    {
+      ezHybridArray<vk::ImageCopy, 16> regions;
+      for (ezUInt32 uiMipLevel = 0; uiMipLevel < textureDesc.m_uiMipLevelCount; uiMipLevel++)
+      {
+        vk::Extent3D mipLevelSize = pVulkanTexture->GetMipLevelSize(uiMipLevel);
+
+        vk::ImageSubresourceLayers subresourceLayers;
+        subresourceLayers.aspectMask = imageAspect;
+        subresourceLayers.mipLevel = uiMipLevel;
+        subresourceLayers.baseArrayLayer = 0;
+        subresourceLayers.layerCount = textureDesc.m_uiArraySize;
+
+        vk::ImageCopy mipCopy;
+        mipCopy.srcSubresource = subresourceLayers;
+        mipCopy.dstSubresource = subresourceLayers;
+        mipCopy.extent = mipLevelSize;
+
+        regions.PushBack(mipCopy);
+      }
+      m_pCommandBuffer->copyImage(pVulkanTexture->GetImage(), vk::ImageLayout::eTransferSrcOptimal, pVulkanTexture->GetStagingTexture(), vk::ImageLayout::eTransferDstOptimal, vk::ArrayProxy(regions.GetCount(), regions.GetData()));
+    }
     else
     {
       EZ_ASSERT_NOT_IMPLEMENTED;

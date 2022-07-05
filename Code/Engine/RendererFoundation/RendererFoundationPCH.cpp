@@ -6,14 +6,11 @@ EZ_STATICLINK_LIBRARY(RendererFoundation)
     return;
 
   EZ_STATICLINK_REFERENCE(RendererFoundation_Basics);
-  EZ_STATICLINK_REFERENCE(RendererFoundation_Context_Implementation_Context);
-  EZ_STATICLINK_REFERENCE(RendererFoundation_Context_Implementation_ContextState);
   EZ_STATICLINK_REFERENCE(RendererFoundation_Device_Implementation_Device);
   EZ_STATICLINK_REFERENCE(RendererFoundation_Device_Implementation_DeviceCapabilities);
   EZ_STATICLINK_REFERENCE(RendererFoundation_Device_Implementation_SwapChain);
   EZ_STATICLINK_REFERENCE(RendererFoundation_Profiling_Implementation_Profiling);
   EZ_STATICLINK_REFERENCE(RendererFoundation_Resources_Implementation_Buffer);
-  EZ_STATICLINK_REFERENCE(RendererFoundation_Resources_Implementation_Fence);
   EZ_STATICLINK_REFERENCE(RendererFoundation_Resources_Implementation_ProxyTexture);
   EZ_STATICLINK_REFERENCE(RendererFoundation_Resources_Implementation_Query);
   EZ_STATICLINK_REFERENCE(RendererFoundation_Resources_Implementation_RenderTargetSetup);

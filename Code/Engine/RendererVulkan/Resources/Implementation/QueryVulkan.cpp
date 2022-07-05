@@ -3,8 +3,6 @@
 #include <RendererVulkan/Device/DeviceVulkan.h>
 #include <RendererVulkan/Resources/QueryVulkan.h>
 
-#include <d3d11.h>
-
 ezGALQueryVulkan::ezGALQueryVulkan(const ezGALQueryCreationDescription& Description)
   : ezGALQuery(Description)
 {

@@ -234,7 +234,6 @@ const char* ezGameApplication::GetActiveRenderer()
 
 void ezGameApplication::Init_SetupGraphicsDevice()
 {
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   ezGALDeviceCreationDescription DeviceInit;
 
 #  if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
@@ -262,8 +261,6 @@ void ezGameApplication::Init_SetupGraphicsDevice()
   // Create GPU resource pool
   ezGPUResourcePool* pResourcePool = EZ_DEFAULT_NEW(ezGPUResourcePool);
   ezGPUResourcePool::SetDefaultInstance(pResourcePool);
-
-#endif
 }
 
 void ezGameApplication::Init_LoadRequiredPlugins()
@@ -291,7 +288,6 @@ void ezGameApplication::Init_LoadRequiredPlugins()
 
 void ezGameApplication::Deinit_ShutdownGraphicsDevice()
 {
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   if (!ezGALDevice::HasDefaultDevice())
     return;
 
@@ -304,7 +300,6 @@ void ezGameApplication::Deinit_ShutdownGraphicsDevice()
   pDevice->Shutdown().IgnoreResult();
   EZ_DEFAULT_DELETE(pDevice);
   ezGALDevice::SetDefaultDevice(nullptr);
-#endif
 }
 
 

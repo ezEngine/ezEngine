@@ -17,14 +17,14 @@ public:
   template <typename T, typename R = typename std::underlying_type<T>::type>
   static R GetUnderlyingValue(T value)
   {
-    return static_cast<std::underlying_type<T>::type>(value);
+    return static_cast<typename std::underlying_type<T>::type>(value);
   }
 
   /// \brief Helper function to hash vk flags.
   template <typename T>
   static auto GetUnderlyingFlagsValue(T value)
   {
-    return static_cast<T::MaskType>(value);
+    return static_cast<typename T::MaskType>(value);
   }
 
   static vk::SampleCountFlagBits GetSamples(ezEnum<ezGALMSAASampleCount> samples);

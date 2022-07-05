@@ -10,7 +10,7 @@ set (EZ_BUILD_EXPERIMENTAL_VULKAN OFF CACHE BOOL "Whether to enable experimental
 
 macro(ez_requires_vulkan)
 
-	ez_requires_windows()
+	ez_requires_one_of(EZ_CMAKE_PLATFORM_LINUX EZ_CMAKE_PLATFORM_WINDOWS)
 	ez_requires(EZ_BUILD_EXPERIMENTAL_VULKAN)
 
 endmacro()

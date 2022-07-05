@@ -1,4 +1,4 @@
-#include "..\DeviceVulkan.h"
+#include "../DeviceVulkan.h"
 
 EZ_ALWAYS_INLINE vk::Device ezGALDeviceVulkan::GetVulkanDevice() const
 {

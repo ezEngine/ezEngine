@@ -50,7 +50,13 @@ public:
   struct Extensions
   {
     bool m_bSurface = false;
+#if defined(VK_USE_PLATFORM_WIN32_KHR)
     bool m_bWin32Surface = false;
+#elif defined(VK_USE_PLATFORM_XCB_KHR)
+    bool m_bXcbSurface = false;
+#else
+#  error "Vulkan Platform not supported"
+#endif
 
     bool m_bDebugUtils = false;
     PFN_vkCreateDebugUtilsMessengerEXT pfn_vkCreateDebugUtilsMessengerEXT;
@@ -90,6 +96,8 @@ public:
   ezStagingBufferPoolVulkan& GetStagingBufferPool() const;
   ezInitContextVulkan& GetInitContext() const;
   ezProxyAllocator& GetAllocator();
+
+  ezGALTextureHandle CreateTextureInternal(const ezGALTextureCreationDescription& Description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData, vk::Format OverrideFormat);
 
 
   const ezGALFormatLookupTableVulkan& GetFormatLookupTable() const;
@@ -139,7 +147,7 @@ public:
     {
       vk::DebugUtilsObjectNameInfoEXT nameInfo;
       nameInfo.objectType = object.objectType;
-      nameInfo.objectHandle = (uint64_t) static_cast<T::NativeType>(object);
+      nameInfo.objectHandle = (uint64_t) static_cast<typename T::NativeType>(object);
       nameInfo.pObjectName = szName;
 
       SetDebugName(nameInfo, allocation);

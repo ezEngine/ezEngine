@@ -1,6 +1,9 @@
 #include <RendererVulkan/RendererVulkanPCH.h>
 
-#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#  include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#endif
+
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <RendererFoundation/CommandEncoder/RenderCommandEncoder.h>
@@ -160,7 +163,13 @@ vk::Result ezGALDeviceVulkan::SelectInstanceExtensions(ezHybridArray<const char*
   };
 
   VK_SUCCEED_OR_RETURN_LOG(AddExtIfSupported(VK_KHR_SURFACE_EXTENSION_NAME, m_extensions.m_bSurface));
+#if defined(VK_USE_PLATFORM_WIN32_KHR)
   VK_SUCCEED_OR_RETURN_LOG(AddExtIfSupported(VK_KHR_WIN32_SURFACE_EXTENSION_NAME, m_extensions.m_bWin32Surface));
+#elif defined(VK_USE_PLATFORM_XCB_KHR)
+  VK_SUCCEED_OR_RETURN_LOG(AddExtIfSupported(VK_KHR_XCB_SURFACE_EXTENSION_NAME, m_extensions.m_bXcbSurface));
+#else
+#  error "Vulkan platform not supported"
+#endif
   VK_SUCCEED_OR_RETURN_LOG(AddExtIfSupported(VK_EXT_DEBUG_UTILS_EXTENSION_NAME, m_extensions.m_bDebugUtils));
 
   return vk::Result::eSuccess;
@@ -197,7 +206,10 @@ vk::Result ezGALDeviceVulkan::SelectDeviceExtensions(vk::DeviceCreateInfo& devic
   };
 
   VK_SUCCEED_OR_RETURN_LOG(AddExtIfSupported(VK_KHR_SWAPCHAIN_EXTENSION_NAME, m_extensions.m_bDeviceSwapChain));
-  AddExtIfSupported(VK_EXT_SHADER_VIEWPORT_INDEX_LAYER_EXTENSION_NAME, m_extensions.m_bShaderViewportIndexLayer);
+  if (AddExtIfSupported(VK_EXT_SHADER_VIEWPORT_INDEX_LAYER_EXTENSION_NAME, m_extensions.m_bShaderViewportIndexLayer) != vk::Result::eSuccess)
+  {
+    ezLog::Warning("The optional extension '" VK_EXT_SHADER_VIEWPORT_INDEX_LAYER_EXTENSION_NAME "' is not present");
+  }
 
   vk::PhysicalDeviceFeatures2 features;
   features.pNext = &m_extensions.m_borderColorEXT;
@@ -543,6 +555,12 @@ ezResult ezGALDeviceVulkan::ShutdownPlatform()
     ReclaimLater(m_lastCommandBufferFinished, m_pCommandBufferPool.Borrow());
   auto& pCommandEncoder = m_pDefaultPass->m_pCommandEncoderImpl;
 
+  // We couldn't create a device in the first place, so early out of shutdown
+  if (!m_device)
+  {
+    return EZ_SUCCESS;
+  }
+
   m_device.waitIdle();
   for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_PerFrameData); ++i)
   {
@@ -553,7 +571,7 @@ ezResult ezGALDeviceVulkan::ShutdownPlatform()
       vk::Result fenceStatus = m_device.getFenceStatus(fence);
       if (fenceStatus == vk::Result::eNotReady)
       {
-        m_device.waitForFences(1, &fence, true, 1000000000ui64);
+        m_device.waitForFences(1, &fence, true, 1000000000);
       }
     }
     perFrameData.m_CommandBufferFences.Clear();
@@ -648,6 +666,19 @@ ezInitContextVulkan& ezGALDeviceVulkan::GetInitContext() const
 ezProxyAllocator& ezGALDeviceVulkan::GetAllocator()
 {
   return m_Allocator;
+}
+
+ezGALTextureHandle ezGALDeviceVulkan::CreateTextureInternal(const ezGALTextureCreationDescription& Description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData, vk::Format OverrideFormat)
+{
+  ezGALTextureVulkan* pTexture = EZ_NEW(&m_Allocator, ezGALTextureVulkan, Description, OverrideFormat);
+
+  if (!pTexture->InitPlatform(this, pInitialData).Succeeded())
+  {
+    EZ_DELETE(&m_Allocator, pTexture);
+    return ezGALTextureHandle();
+  }
+
+  return FinalizeTextureInternal(Description, pTexture);
 }
 
 void ezGALDeviceVulkan::BeginPipelinePlatform(const char* szName, ezGALSwapChain* pSwapChain)
@@ -915,6 +946,7 @@ ezGALTexture* ezGALDeviceVulkan::CreateTexturePlatform(
   return pTexture;
 }
 
+
 void ezGALDeviceVulkan::DestroyTexturePlatform(ezGALTexture* pTexture)
 {
   ezGALTextureVulkan* pVulkanTexture = static_cast<ezGALTextureVulkan*>(pTexture);
@@ -1057,7 +1089,7 @@ void ezGALDeviceVulkan::BeginFramePlatform(const ezUInt64 uiRenderFrame)
       vk::Result fenceStatus = m_device.getFenceStatus(fence);
       if (fenceStatus == vk::Result::eNotReady)
       {
-        m_device.waitForFences(1, &fence, true, 1000000000ui64);
+        m_device.waitForFences(1, &fence, true, 1000000000);
       }
     }
     perFrameData.m_CommandBufferFences.Clear();

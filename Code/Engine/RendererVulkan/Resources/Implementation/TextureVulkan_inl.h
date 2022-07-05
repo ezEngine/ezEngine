@@ -55,3 +55,8 @@ const ezVulkanAllocationInfo& ezGALTextureVulkan::GetStagingAllocationInfo() con
 {
   return m_stagingAllocInfo;
 }
+
+EZ_ALWAYS_INLINE bool ezGALTextureVulkan::GetFormatOverrideEnabled() const
+{
+  return m_formatOverride;
+}

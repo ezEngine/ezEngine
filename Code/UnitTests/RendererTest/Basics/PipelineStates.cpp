@@ -778,7 +778,7 @@ void ezRendererTestPipelineStates::Timestamps()
 
   if (m_iFrame > 2 && !m_bTimestampsValid)
   {
-    if (m_bTimestampsValid = m_pDevice->GetTimestampResult(m_timestamps[0], m_GPUTime[0]).Succeeded() && m_pDevice->GetTimestampResult(m_timestamps[1], m_GPUTime[1]).Succeeded())
+    if ((m_bTimestampsValid = m_pDevice->GetTimestampResult(m_timestamps[0], m_GPUTime[0]).Succeeded() && m_pDevice->GetTimestampResult(m_timestamps[1], m_GPUTime[1]).Succeeded()))
     {
       m_CPUTime[1] = ezTime::Now();
       EZ_TEST_BOOL_MSG(m_CPUTime[0] <= m_GPUTime[0], "%.6f < %.6f", m_CPUTime[0].GetSeconds(), m_GPUTime[0].GetSeconds());

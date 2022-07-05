@@ -59,4 +59,7 @@ mark_as_advanced(FORCE EZ_ENABLE_COMPILER_STATIC_ANALYSIS)
 ### Qt
 # set (EZ_VCPKG_INSTALL_QT OFF CACHE BOOL "Whether to install Qt via vcpkg.")
 
-
+######################################
+### SFML
+######################################
+set (EZ_3RDPARTY_SFML_SUPPORT OFF CACHE BOOL "Wether to compile against SFML")

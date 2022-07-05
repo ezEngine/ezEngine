@@ -5,6 +5,7 @@
 #include <vulkan/vulkan.hpp>
 
 class ezGALBufferVulkan;
+class ezGALDeviceVulkan;
 
 class ezGALTextureVulkan : public ezGALTexture
 {
@@ -25,6 +26,8 @@ public:
   EZ_ALWAYS_INLINE ezVulkanAllocation GetStagingAllocation() const;
   EZ_ALWAYS_INLINE const ezVulkanAllocationInfo& GetStagingAllocationInfo() const;
 
+  EZ_ALWAYS_INLINE bool GetFormatOverrideEnabled() const;
+
   vk::Extent3D GetMipLevelSize(ezUInt32 uiMipLevel) const;
   vk::ImageSubresourceRange GetFullRange() const;
   vk::ImageAspectFlags GetStagingAspectMask() const;
@@ -34,6 +37,7 @@ protected:
   friend class ezMemoryUtils;
 
   ezGALTextureVulkan(const ezGALTextureCreationDescription& Description);
+  ezGALTextureVulkan(const ezGALTextureCreationDescription& Description, vk::Format OverrideFormat);
 
   ~ezGALTextureVulkan();
 
@@ -60,8 +64,11 @@ protected:
 
   vk::Image m_stagingImage;
   vk::Format m_stagingImageFormat = vk::Format::eUndefined;
+  vk::ComponentMapping m_componentMapping;
   ezVulkanAllocation m_stagingAlloc = nullptr;
   ezVulkanAllocationInfo m_stagingAllocInfo;
+
+  bool m_formatOverride = false;
 };
 
 #include <RendererVulkan/Resources/Implementation/TextureVulkan_inl.h>

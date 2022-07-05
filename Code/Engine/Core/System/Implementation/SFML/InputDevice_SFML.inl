@@ -2,6 +2,9 @@
 
 #include <Core/System/Implementation/SFML/InputDevice_SFML.h>
 #include <SFML/Window/Window.hpp>
+#include <SFML/Window/Keyboard.hpp>
+#include <SFML/Window/Mouse.hpp>
+#include <SFML/Window/Event.hpp>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStandardInputDevice, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;

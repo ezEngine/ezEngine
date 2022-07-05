@@ -11,6 +11,10 @@ if(MSVC)
   target_compile_options(${PROJECT_NAME} PRIVATE /W4 /WX)
 endif()
 
+if(EZ_CMAKE_PLATFORM_LINUX)
+  target_link_libraries(${PROJECT_NAME} PRIVATE xcb)
+endif()
+
 target_link_libraries(${PROJECT_NAME}
   PUBLIC
   Foundation

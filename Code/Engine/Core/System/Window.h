@@ -15,6 +15,8 @@ class ezOpenDdlReaderElement;
 // Include the proper Input implementation to use
 #if EZ_ENABLED(EZ_SUPPORTS_SFML)
 #  include <Core/System/Implementation/SFML/InputDevice_SFML.h>
+#elif EZ_ENABLED(EZ_PLATFORM_LINUX)
+#  include <Core/System/Implementation/xcb/InputDevice_xcb.h>
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 #  include <Core/System/Implementation/Win/InputDevice_win32.h>
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
@@ -27,6 +29,23 @@ class ezOpenDdlReaderElement;
 
 using ezWindowHandle = sf::Window*;
 #  define INVALID_WINDOW_HANDLE_VALUE (sf::Window*)(0)
+
+#elif EZ_ENABLED(EZ_PLATFORM_LINUX)
+#  define INVALID_WINDOW_HANDLE_VALUE \
+    ezWindowHandle { nullptr, 0 }
+
+extern "C"
+{
+  typedef struct xcb_connection_t xcb_connection_t;
+  typedef struct xcb_screen_t xcb_screen_t;
+  typedef struct xcb_intern_atom_reply_t xcb_intern_atom_reply_t;
+}
+
+struct ezWindowHandle
+{
+  xcb_connection_t* m_pConnection;
+  ezUInt32 m_Window;
+};
 
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 
@@ -273,6 +292,11 @@ private:
   ezUniquePtr<ezStandardInputDevice> m_pInputDevice;
 
   mutable ezWindowHandle m_WindowHandle = ezWindowHandle();
+
+#if EZ_ENABLED(EZ_SUPPORTS_SFML)
+#elif EZ_ENABLED(EZ_PLATFORM_LINUX)
+  xcb_intern_atom_reply_t* atom_wm_delete_window = nullptr;
+#endif
 
   /// increased every time an ezWindow is created, to be able to get a free window index easily
   static ezUInt8 s_uiNextUnusedWindowNumber;

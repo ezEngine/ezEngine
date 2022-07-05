@@ -63,7 +63,6 @@ ezResult ezGALUnorderedAccessViewVulkan::InitPlatform(ezGALDevice* pDevice)
       viewCreateInfo.viewType = vk::ImageViewType::e2DArray; // There is no RWTextureCube / RWTextureCubeArray in HLSL
 
     m_resourceImageInfo.imageLayout = vk::ImageLayout::eGeneral;
-    m_resourceImageInfo.imageView;
 
     m_range = viewCreateInfo.subresourceRange;
     VK_SUCCEED_OR_RETURN_EZ_FAILURE(pVulkanDevice->GetVulkanDevice().createImageView(&viewCreateInfo, nullptr, &m_resourceImageInfo.imageView));

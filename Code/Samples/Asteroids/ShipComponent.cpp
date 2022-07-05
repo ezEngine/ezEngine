@@ -5,7 +5,10 @@
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/Utilities/Stats.h>
 #include <RendererCore/Meshes/MeshComponent.h>
-#include <XBoxControllerPlugin/InputDeviceXBox.h>
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#  include <XBoxControllerPlugin/InputDeviceXBox.h>
+#endif
 
 // clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ShipComponent, 1, ezComponentMode::Dynamic);
@@ -135,7 +138,9 @@ void ShipComponent::Update()
 
     float ShootTrack[20] = {1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
     ezInputDeviceXBox360::GetDevice()->AddVibrationTrack(static_cast<ezUInt8>(m_iPlayerIndex), ezInputDeviceController::Motor::RightMotor, ShootTrack, 20);
+#endif
   }
 
   m_fAmmunition = ezMath::Clamp<float>(m_fAmmunition + (float)tDiff.GetSeconds(), 0.0f, CVar_MaxAmmo);

@@ -2,6 +2,7 @@
 
 #include <Core/System/Window.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <Foundation/Reflection/ReflectionUtils.h>
 #include <RendererFoundation/Resources/RenderTargetView.h>
 #include <RendererVulkan/Device/DeviceVulkan.h>
 #include <RendererVulkan/Device/SwapChainVulkan.h>
@@ -9,6 +10,30 @@
 #include <RendererVulkan/Resources/TextureVulkan.h>
 #include <RendererVulkan/Utils/ConversionUtilsVulkan.h>
 #include <RendererVulkan/Utils/PipelineBarrierVulkan.h>
+
+#ifdef VK_USE_PLATFORM_XCB_KHR
+#  include <xcb/xcb.h>
+#endif
+
+namespace
+{
+  ezResult GetAlternativeFormat(vk::Format& format, vk::ComponentMapping& componentMapping)
+  {
+    switch (format)
+    {
+      case vk::Format::eR8G8B8A8Srgb:
+        format = vk::Format::eB8G8R8A8Srgb;
+        componentMapping = vk::ComponentMapping{vk::ComponentSwizzle::eB, vk::ComponentSwizzle::eG, vk::ComponentSwizzle::eR, vk::ComponentSwizzle::eA};
+        return EZ_SUCCESS;
+      case vk::Format::eR8G8B8A8Unorm:
+        format = vk::Format::eB8G8R8A8Unorm;
+        componentMapping = vk::ComponentMapping{vk::ComponentSwizzle::eB, vk::ComponentSwizzle::eG, vk::ComponentSwizzle::eR, vk::ComponentSwizzle::eA};
+        return EZ_SUCCESS;
+      default:
+        return EZ_FAILURE;
+    }
+  }
+} // namespace
 
 void ezGALSwapChainVulkan::AcquireNextRenderTarget(ezGALDevice* pDevice)
 {
@@ -87,12 +112,21 @@ ezResult ezGALSwapChainVulkan::InitPlatform(ezGALDevice* pDevice)
 {
   m_pVulkanDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
 
-
+// TODO move to platform specific inl file.
+#if defined(VK_USE_PLATFORM_WIN32_KHR)
   vk::Win32SurfaceCreateInfoKHR surfaceCreateInfo = {};
   surfaceCreateInfo.hinstance = GetModuleHandle(nullptr);
   surfaceCreateInfo.hwnd = (HWND)m_WindowDesc.m_pWindow->GetNativeWindowHandle();
 
   m_vulkanSurface = m_pVulkanDevice->GetVulkanInstance().createWin32SurfaceKHR(surfaceCreateInfo);
+#elif defined(VK_USE_PLATFORM_XCB_KHR)
+  ezWindowHandle windowHandle = m_WindowDesc.m_pWindow->GetNativeWindowHandle();
+  vk::XcbSurfaceCreateInfoKHR surfaceCreateInfo = {};
+  surfaceCreateInfo.connection = windowHandle.m_pConnection;
+  surfaceCreateInfo.window = windowHandle.m_Window;
+
+  m_vulkanSurface = m_pVulkanDevice->GetVulkanInstance().createXcbSurfaceKHR(surfaceCreateInfo);
+#endif
 
   if (!m_vulkanSurface)
   {
@@ -108,17 +142,65 @@ ezResult ezGALSwapChainVulkan::InitPlatform(ezGALDevice* pDevice)
 
   const vk::SurfaceCapabilitiesKHR surfaceCapabilities = m_pVulkanDevice->GetVulkanPhysicalDevice().getSurfaceCapabilitiesKHR(m_vulkanSurface);
 
+  uint32_t uiNumSurfaceFormats = 0;
+  VK_SUCCEED_OR_RETURN_EZ_FAILURE(m_pVulkanDevice->GetVulkanPhysicalDevice().getSurfaceFormatsKHR(m_vulkanSurface, &uiNumSurfaceFormats, nullptr));
+  std::vector<vk::SurfaceFormatKHR> supportedFormats;
+  supportedFormats.resize(uiNumSurfaceFormats);
+  VK_SUCCEED_OR_RETURN_EZ_FAILURE(m_pVulkanDevice->GetVulkanPhysicalDevice().getSurfaceFormatsKHR(m_vulkanSurface, &uiNumSurfaceFormats, supportedFormats.data()));
+
+  vk::Format desiredFormat = m_pVulkanDevice->GetFormatLookupTable().GetFormatInfo(m_WindowDesc.m_BackBufferFormat).m_eRenderTarget;
+  vk::ColorSpaceKHR desiredColorSpace = vk::ColorSpaceKHR::eSrgbNonlinear;
+  vk::ComponentMapping backBufferComponentMapping;
+
+  bool formatFound = false;
+  for (vk::SurfaceFormatKHR& supportedFormat : supportedFormats)
+  {
+    if (supportedFormat.format == desiredFormat && supportedFormat.colorSpace == desiredColorSpace)
+    {
+      formatFound = true;
+      break;
+    }
+  }
+
+  if (!formatFound && GetAlternativeFormat(desiredFormat, backBufferComponentMapping).Succeeded())
+  {
+    for (vk::SurfaceFormatKHR& supportedFormat : supportedFormats)
+    {
+      if (supportedFormat.format == desiredFormat && supportedFormat.colorSpace == desiredColorSpace)
+      {
+        formatFound = true;
+        break;
+      }
+    }
+  }
+
+  if (!formatFound)
+  {
+    ezStringBuilder backBufferFormatNice = "<unknown>";
+    ezReflectionUtils::EnumerationToString(ezGetStaticRTTI<ezGALResourceFormat>(), m_WindowDesc.m_BackBufferFormat, backBufferFormatNice);
+    ezLog::Error("The requested back buffer format {} mapping to the vulkan format {} is not supported on this system.", backBufferFormatNice, vk::to_string(desiredFormat).c_str());
+    ezLog::Info("Available formats are:");
+    for (vk::SurfaceFormatKHR& supportedFormat : supportedFormats)
+    {
+      ezLog::Info("  format: {}  color space: {}", vk::to_string(supportedFormat.format).c_str(), vk::to_string(supportedFormat.colorSpace).c_str());
+    }
+    return EZ_FAILURE;
+  }
+
+  // Does the device support RGBA textures or only BRGA?
+  // Do we need to store somewhere if the texture is swizzeled?
+
   vk::SwapchainCreateInfoKHR swapChainCreateInfo = {};
   swapChainCreateInfo.clipped = VK_FALSE;
   swapChainCreateInfo.compositeAlpha = vk::CompositeAlphaFlagBitsKHR::eOpaque;
   swapChainCreateInfo.imageArrayLayers = 1;
-  swapChainCreateInfo.imageColorSpace = vk::ColorSpaceKHR::eSrgbNonlinear;
+  swapChainCreateInfo.imageColorSpace = desiredColorSpace;
   swapChainCreateInfo.imageExtent.width = m_WindowDesc.m_pWindow->GetClientAreaSize().width;
   swapChainCreateInfo.imageExtent.height = m_WindowDesc.m_pWindow->GetClientAreaSize().height;
   swapChainCreateInfo.imageExtent.width = ezMath::Clamp(swapChainCreateInfo.imageExtent.width, surfaceCapabilities.minImageExtent.width, surfaceCapabilities.maxImageExtent.width);
   swapChainCreateInfo.imageExtent.height = ezMath::Clamp(swapChainCreateInfo.imageExtent.height, surfaceCapabilities.minImageExtent.height, surfaceCapabilities.maxImageExtent.height);
+  swapChainCreateInfo.imageFormat = desiredFormat;
 
-  swapChainCreateInfo.imageFormat = m_pVulkanDevice->GetFormatLookupTable().GetFormatInfo(m_WindowDesc.m_BackBufferFormat).m_eRenderTarget;
   swapChainCreateInfo.imageUsage = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferDst; // We need eTransferDst to be able to resolve msaa textures into the backbuffer.
   if (m_WindowDesc.m_bAllowScreenshots)
     swapChainCreateInfo.imageUsage |= vk::ImageUsageFlagBits::eTransferSrc;
@@ -162,7 +244,7 @@ ezResult ezGALSwapChainVulkan::InitPlatform(ezGALDevice* pDevice)
     TexDesc.m_bCreateRenderTarget = true;
     TexDesc.m_ResourceAccess.m_bImmutable = true;
     TexDesc.m_ResourceAccess.m_bReadBack = m_WindowDesc.m_bAllowScreenshots;
-    m_swapChainTextures.PushBack(m_pVulkanDevice->CreateTexture(TexDesc));
+    m_swapChainTextures.PushBack(m_pVulkanDevice->CreateTextureInternal(TexDesc, ezArrayPtr<ezGALSystemMemoryDescription>(), desiredFormat));
   }
 
   m_RenderTargets.m_hRTs[0] = m_swapChainTextures[0];
