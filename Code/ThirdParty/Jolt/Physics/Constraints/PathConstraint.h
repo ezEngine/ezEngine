@@ -9,7 +9,7 @@
 #include <Jolt/Physics/Constraints/ConstraintPart/AxisConstraintPart.h>
 #include <Jolt/Physics/Constraints/ConstraintPart/DualAxisConstraintPart.h>
 #include <Jolt/Physics/Constraints/ConstraintPart/HingeRotationConstraintPart.h>
-#include <Jolt/Physics/Constraints/ConstraintPart/RotationQuatConstraintPart.h>
+#include <Jolt/Physics/Constraints/ConstraintPart/RotationEulerConstraintPart.h>
 
 JPH_NAMESPACE_BEGIN
 
@@ -66,11 +66,13 @@ protected:
 class PathConstraint final : public TwoBodyConstraint
 {
 public:
+	JPH_OVERRIDE_NEW_DELETE
+
 	/// Construct point constraint
 									PathConstraint(Body &inBody1, Body &inBody2, const PathConstraintSettings &inSettings);
 
 	// Generic interface of a constraint
-	virtual EConstraintType			GetType() const override								{ return EConstraintType::Path; }
+	virtual EConstraintSubType		GetSubType() const override								{ return EConstraintSubType::Path; }
 	virtual void					SetupVelocityConstraint(float inDeltaTime) override;
 	virtual void					WarmStartVelocityConstraint(float inWarmStartImpulseRatio) override;
 	virtual bool					SolveVelocityConstraint(float inDeltaTime) override;
@@ -81,6 +83,7 @@ public:
 	virtual void					SaveState(StateRecorder &inStream) const override;
 	virtual void					RestoreState(StateRecorder &inStream) override;
 	virtual bool					IsActive() const override								{ return TwoBodyConstraint::IsActive() && mPath != nullptr; }
+	virtual Ref<ConstraintSettings> GetConstraintSettings() const override;
 
 	// See: TwoBodyConstraint
 	virtual Mat44					GetConstraintToBody1Matrix() const override				{ return mPathToBody1; }
@@ -110,6 +113,13 @@ public:
 	float							GetTargetVelocity() const								{ return mTargetVelocity; }
 	void							SetTargetPathFraction(float inFraction)					{ JPH_ASSERT(mPath->IsLooping() || (inFraction >= 0.0f && inFraction <= mPath->GetPathMaxFraction())); mTargetPathFraction = inFraction; }
 	float							GetTargetPathFraction() const							{ return mTargetPathFraction; }
+
+	///@name Get Lagrange multiplier from last physics update (relates to how much force/torque was applied to satisfy the constraint)
+	inline Vector<2>				GetTotalLambdaPosition() const							{ return mPositionConstraintPart.GetTotalLambda(); }
+	inline float					GetTotalLambdaPositionLimits() const					{ return mPositionLimitsConstraintPart.GetTotalLambda(); }
+	inline float					GetTotalLambdaMotor() const								{ return mPositionMotorConstraintPart.GetTotalLambda(); }
+	inline Vector<2>				GetTotalLambdaRotationHinge() const						{ return mHingeConstraintPart.GetTotalLambda(); }
+	inline Vec3						GetTotalLambdaRotation() const							{ return mRotationConstraintPart.GetTotalLambda(); }
 
 private:
 	// Internal helper function to calculate the values below
@@ -160,7 +170,7 @@ private:
 
 	// Rotation constraint parts
 	HingeRotationConstraintPart		mHingeConstraintPart;									///< Constraint part that removes 2 degrees of rotation freedom
-	RotationQuatConstraintPart		mRotationConstraintPart;								///< Constraint part that removes all rotational freedom
+	RotationEulerConstraintPart		mRotationConstraintPart;								///< Constraint part that removes all rotational freedom
 };
 
 JPH_NAMESPACE_END

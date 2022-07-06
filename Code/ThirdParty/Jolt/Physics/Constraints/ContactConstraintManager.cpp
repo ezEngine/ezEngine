@@ -8,7 +8,9 @@
 #include <Jolt/Physics/PhysicsUpdateContext.h>
 #include <Jolt/Physics/PhysicsSettings.h>
 #include <Jolt/Physics/IslandBuilder.h>
+#include <Jolt/Physics/DeterminismLog.h>
 #include <Jolt/Core/TempAllocator.h>
+#include <Jolt/Core/QuickSort.h>
 #ifdef JPH_DEBUG_RENDERER
 	#include <Jolt/Renderer/DebugRenderer.h>
 #endif // JPH_DEBUG_RENDERER
@@ -41,6 +43,10 @@ void ContactConstraintManager::WorldContactPoint::CalculateNonPenetrationConstra
 template <EMotionType Type1, EMotionType Type2>
 JPH_INLINE void ContactConstraintManager::WorldContactPoint::CalculateFrictionAndNonPenetrationConstraintProperties(float inDeltaTime, const Body &inBody1, const Body &inBody2, Mat44Arg inInvI1, Mat44Arg inInvI2, Vec3Arg inWorldSpacePosition1, Vec3Arg inWorldSpacePosition2, Vec3Arg inWorldSpaceNormal, Vec3Arg inWorldSpaceTangent1, Vec3Arg inWorldSpaceTangent2, float inCombinedRestitution, float inCombinedFriction, float inMinVelocityForRestitution)
 {
+	JPH_DET_LOG("CalculateFrictionAndNonPenetrationConstraintProperties: p1: " << inWorldSpacePosition1 << " p2: " << inWorldSpacePosition2
+		<< " normal: " << inWorldSpaceNormal << " tangent1: " << inWorldSpaceTangent1 << " tangent2: " << inWorldSpaceTangent2
+		<< " restitution: " << inCombinedRestitution << " friction: " << inCombinedFriction << " minv: " << inMinVelocityForRestitution);
+
 	// Calculate collision points relative to body
 	Vec3 p = 0.5f * (inWorldSpacePosition1 + inWorldSpacePosition2);
 	Vec3 r1 = p - inBody1.GetCenterOfMassPosition();
@@ -242,13 +248,13 @@ void ContactConstraintManager::ManifoldCache::Prepare(uint inExpectedNumBodyPair
 	mCachedBodyPairs.SetNumBuckets(min(max(cMinBuckets, GetNextPowerOf2(inExpectedNumBodyPairs)), mCachedBodyPairs.GetMaxBuckets()));
 }
 
-const ContactConstraintManager::MKeyValue *ContactConstraintManager::ManifoldCache::Find(const SubShapeIDPair &inKey, size_t inKeyHash) const
+const ContactConstraintManager::MKeyValue *ContactConstraintManager::ManifoldCache::Find(const SubShapeIDPair &inKey, uint64 inKeyHash) const
 {
 	JPH_ASSERT(mIsFinalized);
 	return mCachedManifolds.Find(inKey, inKeyHash);
 }
 
-ContactConstraintManager::MKeyValue *ContactConstraintManager::ManifoldCache::Create(ContactAllocator &ioContactAllocator, const SubShapeIDPair &inKey, size_t inKeyHash, int inNumContactPoints)
+ContactConstraintManager::MKeyValue *ContactConstraintManager::ManifoldCache::Create(ContactAllocator &ioContactAllocator, const SubShapeIDPair &inKey, uint64 inKeyHash, int inNumContactPoints)
 {
 	JPH_ASSERT(!mIsFinalized);
 	MKeyValue *kv = mCachedManifolds.Create(ioContactAllocator, inKey, inKeyHash, CachedManifold::sGetRequiredExtraSize(inNumContactPoints));
@@ -262,7 +268,7 @@ ContactConstraintManager::MKeyValue *ContactConstraintManager::ManifoldCache::Cr
 	return kv;
 }
 
-ContactConstraintManager::MKVAndCreated ContactConstraintManager::ManifoldCache::FindOrCreate(ContactAllocator &ioContactAllocator, const SubShapeIDPair &inKey, size_t inKeyHash, int inNumContactPoints)
+ContactConstraintManager::MKVAndCreated ContactConstraintManager::ManifoldCache::FindOrCreate(ContactAllocator &ioContactAllocator, const SubShapeIDPair &inKey, uint64 inKeyHash, int inNumContactPoints)
 {
 	MKeyValue *kv = const_cast<MKeyValue *>(mCachedManifolds.Find(inKey, inKeyHash));
 	if (kv != nullptr)
@@ -283,13 +289,13 @@ const ContactConstraintManager::MKeyValue *ContactConstraintManager::ManifoldCac
 	return mCachedManifolds.FromHandle(inHandle);
 }
 
-const ContactConstraintManager::BPKeyValue *ContactConstraintManager::ManifoldCache::Find(const BodyPair &inKey, size_t inKeyHash) const
+const ContactConstraintManager::BPKeyValue *ContactConstraintManager::ManifoldCache::Find(const BodyPair &inKey, uint64 inKeyHash) const
 {
 	JPH_ASSERT(mIsFinalized);	
 	return mCachedBodyPairs.Find(inKey, inKeyHash);
 }
 
-ContactConstraintManager::BPKeyValue *ContactConstraintManager::ManifoldCache::Create(ContactAllocator &ioContactAllocator, const BodyPair &inKey, size_t inKeyHash)
+ContactConstraintManager::BPKeyValue *ContactConstraintManager::ManifoldCache::Create(ContactAllocator &ioContactAllocator, const BodyPair &inKey, uint64 inKeyHash)
 {
 	JPH_ASSERT(!mIsFinalized);
 	BPKeyValue *kv = mCachedBodyPairs.Create(ioContactAllocator, inKey, inKeyHash, 0);
@@ -302,18 +308,18 @@ ContactConstraintManager::BPKeyValue *ContactConstraintManager::ManifoldCache::C
 	return kv;
 }
 
-void ContactConstraintManager::ManifoldCache::GetAllBodyPairsSorted(vector<const BPKeyValue *> &outAll) const
+void ContactConstraintManager::ManifoldCache::GetAllBodyPairsSorted(Array<const BPKeyValue *> &outAll) const
 {
 	JPH_ASSERT(mIsFinalized);
 	mCachedBodyPairs.GetAllKeyValues(outAll);
 
 	// Sort by key
-	sort(outAll.begin(), outAll.end(), [](const BPKeyValue *inLHS, const BPKeyValue *inRHS) {
+	QuickSort(outAll.begin(), outAll.end(), [](const BPKeyValue *inLHS, const BPKeyValue *inRHS) {
 		return inLHS->GetKey() < inRHS->GetKey();
 	});
 }
 
-void ContactConstraintManager::ManifoldCache::GetAllManifoldsSorted(const CachedBodyPair &inBodyPair, vector<const MKeyValue *> &outAll) const
+void ContactConstraintManager::ManifoldCache::GetAllManifoldsSorted(const CachedBodyPair &inBodyPair, Array<const MKeyValue *> &outAll) const
 {
 	JPH_ASSERT(mIsFinalized);
 
@@ -325,12 +331,12 @@ void ContactConstraintManager::ManifoldCache::GetAllManifoldsSorted(const Cached
 	}
 
 	// Sort by key
-	sort(outAll.begin(), outAll.end(), [](const MKeyValue *inLHS, const MKeyValue *inRHS) {
+	QuickSort(outAll.begin(), outAll.end(), [](const MKeyValue *inLHS, const MKeyValue *inRHS) {
 		return inLHS->GetKey() < inRHS->GetKey();
 	});
 }
 
-void ContactConstraintManager::ManifoldCache::GetAllCCDManifoldsSorted(vector<const MKeyValue *> &outAll) const
+void ContactConstraintManager::ManifoldCache::GetAllCCDManifoldsSorted(Array<const MKeyValue *> &outAll) const
 {
 	mCachedManifolds.GetAllKeyValues(outAll);
 
@@ -342,7 +348,7 @@ void ContactConstraintManager::ManifoldCache::GetAllCCDManifoldsSorted(vector<co
 		}
 
 	// Sort by key
-	sort(outAll.begin(), outAll.end(), [](const MKeyValue *inLHS, const MKeyValue *inRHS) {
+	QuickSort(outAll.begin(), outAll.end(), [](const MKeyValue *inLHS, const MKeyValue *inRHS) {
 		return inLHS->GetKey() < inRHS->GetKey();
 	});
 }
@@ -375,7 +381,7 @@ void ContactConstraintManager::ManifoldCache::SaveState(StateRecorder &inStream)
 	JPH_ASSERT(mIsFinalized);
 
 	// Get contents of cache
-	vector<const BPKeyValue *> all_bp;
+	Array<const BPKeyValue *> all_bp;
 	GetAllBodyPairsSorted(all_bp);
 
 	// Write amount of body pairs
@@ -393,7 +399,7 @@ void ContactConstraintManager::ManifoldCache::SaveState(StateRecorder &inStream)
 		bp.SaveState(inStream);
 
 		// Get attached manifolds
-		vector<const MKeyValue *> all_m;
+		Array<const MKeyValue *> all_m;
 		GetAllManifoldsSorted(bp, all_m);
 
 		// Write num manifolds
@@ -421,7 +427,7 @@ void ContactConstraintManager::ManifoldCache::SaveState(StateRecorder &inStream)
 	}
 
 	// Get CCD manifolds
-	vector<const MKeyValue *> all_m;
+	Array<const MKeyValue *> all_m;
 	GetAllCCDManifoldsSorted(all_m);
 
 	// Write num CCD manifolds
@@ -443,7 +449,7 @@ bool ContactConstraintManager::ManifoldCache::RestoreState(const ManifoldCache &
 	ContactAllocator contact_allocator(GetContactAllocator());
 
 	// When validating, get all existing body pairs
-	vector<const BPKeyValue *> all_bp;
+	Array<const BPKeyValue *> all_bp;
 	if (inStream.IsValidating())
 		inReadCache.GetAllBodyPairsSorted(all_bp);
 
@@ -463,7 +469,7 @@ bool ContactConstraintManager::ManifoldCache::RestoreState(const ManifoldCache &
 		inStream.Read(body_pair_key);
 
 		// Create new entry for this body pair
-		size_t body_pair_hash = BodyPairHash {} (body_pair_key);
+		uint64 body_pair_hash = body_pair_key.GetHash();
 		BPKeyValue *bp_kv = Create(contact_allocator, body_pair_key, body_pair_hash);
 		if (bp_kv == nullptr)
 		{
@@ -479,7 +485,7 @@ bool ContactConstraintManager::ManifoldCache::RestoreState(const ManifoldCache &
 		bp.RestoreState(inStream);
 
 		// When validating, get all existing manifolds
-		vector<const MKeyValue *> all_m;
+		Array<const MKeyValue *> all_m;
 		if (inStream.IsValidating())
 			inReadCache.GetAllManifoldsSorted(all_bp[i]->GetValue(), all_m);
 
@@ -497,7 +503,7 @@ bool ContactConstraintManager::ManifoldCache::RestoreState(const ManifoldCache &
 			if (inStream.IsValidating() && j < all_m.size())
 				sub_shape_key = all_m[j]->GetKey();
 			inStream.Read(sub_shape_key);
-			size_t sub_shape_key_hash = std::hash<SubShapeIDPair> {} (sub_shape_key);
+			uint64 sub_shape_key_hash = sub_shape_key.GetHash();
 			
 			// Read amount of contact points
 			uint16 num_contact_points;
@@ -531,7 +537,7 @@ bool ContactConstraintManager::ManifoldCache::RestoreState(const ManifoldCache &
 	}
 
 	// When validating, get all existing CCD manifolds
-	vector<const MKeyValue *> all_m;
+	Array<const MKeyValue *> all_m;
 	if (inStream.IsValidating())
 		inReadCache.GetAllCCDManifoldsSorted(all_m);
 
@@ -548,7 +554,7 @@ bool ContactConstraintManager::ManifoldCache::RestoreState(const ManifoldCache &
 		if (inStream.IsValidating() && j < all_m.size())
 			sub_shape_key = all_m[j]->GetKey();
 		inStream.Read(sub_shape_key);
-		size_t sub_shape_key_hash = std::hash<SubShapeIDPair> {} (sub_shape_key);
+		uint64 sub_shape_key_hash = sub_shape_key.GetHash();
 			
 		// Create CCD manifold
 		MKeyValue *m_kv = Create(contact_allocator, sub_shape_key, sub_shape_key_hash, 0);
@@ -622,7 +628,7 @@ JPH_INLINE void ContactConstraintManager::TemplatedCalculateFrictionAndNonPenetr
 	{
 		Vec3 p1 = inTransformBody1 * Vec3::sLoadFloat3Unsafe(wcp.mContactPoint->mPosition1);
 		Vec3 p2 = inTransformBody2 * Vec3::sLoadFloat3Unsafe(wcp.mContactPoint->mPosition2);
-		wcp.CalculateFrictionAndNonPenetrationConstraintProperties<Type1, Type2>(inDeltaTime, inBody1, inBody2, inInvI1, inInvI2, p1, p2, ioConstraint.mWorldSpaceNormal, t1, t2, ioConstraint.mSettings.mCombinedRestitution, ioConstraint.mSettings.mCombinedFriction, min_velocity_for_restitution);
+		wcp.CalculateFrictionAndNonPenetrationConstraintProperties<Type1, Type2>(inDeltaTime, inBody1, inBody2, inInvI1, inInvI2, p1, p2, ioConstraint.mWorldSpaceNormal, t1, t2, ioConstraint.mCombinedRestitution, ioConstraint.mCombinedFriction, min_velocity_for_restitution);
 	}
 }
 
@@ -671,12 +677,12 @@ inline void ContactConstraintManager::CalculateFrictionAndNonPenetrationConstrai
 	}
 }
 
-void ContactConstraintManager::GetContactsFromCache(ContactAllocator &ioContactAllocator, Body &inBody1, Body &inBody2, bool &outPairHandled, bool &outContactFound)
+void ContactConstraintManager::GetContactsFromCache(ContactAllocator &ioContactAllocator, Body &inBody1, Body &inBody2, bool &outPairHandled, bool &outConstraintCreated)
 {
 	JPH_PROFILE_FUNCTION();
 
 	// Start with nothing found and not handled
-	outContactFound = false;
+	outConstraintCreated = false;
 	outPairHandled = false;
 
 	// Swap bodies so that body 1 id < body 2 id
@@ -694,7 +700,7 @@ void ContactConstraintManager::GetContactsFromCache(ContactAllocator &ioContactA
 
 	// Find the cached body pair
 	BodyPair body_pair_key(body1->GetID(), body2->GetID());
-	size_t body_pair_hash = BodyPairHash {} (body_pair_key);
+	uint64 body_pair_hash = body_pair_key.GetHash();
 	const ManifoldCache &read_cache = mCache[mCacheWriteIdx ^ 1];
 	const BPKeyValue *kv = read_cache.Find(body_pair_key, body_pair_hash);
 	if (kv == nullptr)
@@ -740,9 +746,6 @@ void ContactConstraintManager::GetContactsFromCache(ContactAllocator &ioContactA
 	if (input_cbp.mFirstCachedManifold == ManifoldMap::cInvalidHandle)
 		return;
 
-	// A contact is available, start creating constraints
-	outContactFound = true;
-
 	// Get body transforms
 	Mat44 transform_body1 = body1->GetCenterOfMassTransform();
 	Mat44 transform_body2 = body2->GetCenterOfMassTransform();
@@ -764,7 +767,7 @@ void ContactConstraintManager::GetContactsFromCache(ContactAllocator &ioContactA
 		JPH_ASSERT(input_cm.mNumContactPoints > 0); // There should be contact points in this manifold!
 
 		// Create room for manifold in write buffer and copy data
-		size_t input_hash = std::hash<SubShapeIDPair> {} (input_key);
+		uint64 input_hash = input_key.GetHash();
 		MKeyValue *output_kv = write_cache.Create(ioContactAllocator, input_key, input_hash, input_cm.mNumContactPoints);
 		if (output_kv == nullptr)
 			break; // Out of cache space
@@ -777,8 +780,9 @@ void ContactConstraintManager::GetContactsFromCache(ContactAllocator &ioContactA
 
 		// Calculate default contact settings
 		ContactSettings settings;
-		settings.mCombinedFriction = mCombineFriction(*body1, *body2);
-		settings.mCombinedRestitution = mCombineRestitution(*body1, *body2);
+		settings.mCombinedFriction = mCombineFriction(*body1, input_key.GetSubShapeID1(), *body2, input_key.GetSubShapeID2());
+		settings.mCombinedRestitution = mCombineRestitution(*body1, input_key.GetSubShapeID1(), *body2, input_key.GetSubShapeID2());
+		settings.mIsSensor = body1->IsSensor() || body2->IsSensor();
 
 		// Calculate world space contact normal
 		Vec3 world_space_normal = transform_body2.Multiply3x3(Vec3::sLoadFloat3Unsafe(output_cm->mContactNormal)).Normalized();
@@ -808,7 +812,8 @@ void ContactConstraintManager::GetContactsFromCache(ContactAllocator &ioContactA
 		}
 
 		// If one of the bodies is a sensor, don't actually create the constraint
-		if (!body1->IsSensor() && !body2->IsSensor())
+		JPH_ASSERT(settings.mIsSensor || !(body1->IsSensor() || body2->IsSensor()), "Sensors cannot be converted into regular bodies by a contact callback!");
+		if (!settings.mIsSensor)
 		{
 			// Add contact constraint in world space for the solver
 			uint32 constraint_idx = mNumConstraints++;
@@ -818,13 +823,17 @@ void ContactConstraintManager::GetContactsFromCache(ContactAllocator &ioContactA
 				break;
 			}
 			
+			// A constraint will be created
+			outConstraintCreated = true;
+
 			ContactConstraint &constraint = mConstraints[constraint_idx];
 			new (&constraint) ContactConstraint();
 			constraint.mBody1 = body1;
 			constraint.mBody2 = body2;
 			constraint.mSortKey = input_hash;
 			constraint.mWorldSpaceNormal = world_space_normal;
-			constraint.mSettings = settings;
+			constraint.mCombinedFriction = settings.mCombinedFriction;
+			constraint.mCombinedRestitution = settings.mCombinedRestitution;
 			constraint.mContactPoints.resize(output_cm->mNumContactPoints);
 			for (uint32 i = 0; i < output_cm->mNumContactPoints; ++i)
 			{
@@ -835,6 +844,8 @@ void ContactConstraintManager::GetContactsFromCache(ContactAllocator &ioContactA
 				wcp.mFrictionConstraint2.SetTotalLambda(ccp.mFrictionLambda[1]);
 				wcp.mContactPoint = &ccp;
 			}
+
+			JPH_DET_LOG("GetContactsFromCache: id1: " << constraint.mBody1->GetID() << " id2: " << constraint.mBody2->GetID() << " key: " << constraint.mSortKey);
 
 			// Calculate friction and non-penetration constraint properties for all contact points
 			CalculateFrictionAndNonPenetrationConstraintProperties(constraint, delta_time, transform_body1, transform_body2, *body1, *body2);
@@ -878,7 +889,7 @@ ContactConstraintManager::BodyPairHandle ContactConstraintManager::AddBodyPair(C
 
 	// Add an entry
 	BodyPair body_pair_key(body1->GetID(), body2->GetID());
-	size_t body_pair_hash = BodyPairHash {} (body_pair_key);
+	uint64 body_pair_hash = body_pair_key.GetHash();
 	BPKeyValue *body_pair_kv = mCache[mCacheWriteIdx].Create(ioContactAllocator, body_pair_key, body_pair_hash);
 	if (body_pair_kv == nullptr)
 		return nullptr; // Out of cache space
@@ -902,11 +913,11 @@ ContactConstraintManager::BodyPairHandle ContactConstraintManager::AddBodyPair(C
 }
 
 template <EMotionType Type1, EMotionType Type2>
-void ContactConstraintManager::TemplatedAddContactConstraint(ContactAllocator &ioContactAllocator, BodyPairHandle inBodyPairHandle, Body &inBody1, Body &inBody2, const ContactManifold &inManifold, Mat44Arg inInvI1, Mat44Arg inInvI2)
+bool ContactConstraintManager::TemplatedAddContactConstraint(ContactAllocator &ioContactAllocator, BodyPairHandle inBodyPairHandle, Body &inBody1, Body &inBody2, const ContactManifold &inManifold, Mat44Arg inInvI1, Mat44Arg inInvI2)
 {
 	// Calculate hash
 	SubShapeIDPair key { inBody1.GetID(), inManifold.mSubShapeID1, inBody2.GetID(), inManifold.mSubShapeID2 };
-	size_t key_hash = std::hash<SubShapeIDPair> {} (key);
+	uint64 key_hash = key.GetHash();
 
 	// Determine number of contact points
 	int num_contact_points = (int)inManifold.mWorldSpaceContactPointsOn1.size();
@@ -919,7 +930,7 @@ void ContactConstraintManager::TemplatedAddContactConstraint(ContactAllocator &i
 	ManifoldCache &write_cache = mCache[mCacheWriteIdx];
 	MKeyValue *new_manifold_kv = write_cache.Create(ioContactAllocator, key, key_hash, num_contact_points);
 	if (new_manifold_kv == nullptr)
-		return; // Out of cache space
+		return false; // Out of cache space
 	CachedManifold *new_manifold = &new_manifold_kv->GetValue();
 
 	// Transform the world space normal to the space of body 2 (this is usually the static body)
@@ -928,8 +939,9 @@ void ContactConstraintManager::TemplatedAddContactConstraint(ContactAllocator &i
 
 	// Settings object that gets passed to the callback
 	ContactSettings settings;
-	settings.mCombinedFriction = mCombineFriction(inBody1, inBody2);
-	settings.mCombinedRestitution = mCombineRestitution(inBody1, inBody2);
+	settings.mCombinedFriction = mCombineFriction(inBody1, inManifold.mSubShapeID1, inBody2, inManifold.mSubShapeID2);
+	settings.mCombinedRestitution = mCombineRestitution(inBody1, inManifold.mSubShapeID1, inBody2, inManifold.mSubShapeID2);
+	settings.mIsSensor = inBody1.IsSensor() || inBody2.IsSensor();
 
 	// Get the contact points for the old cache entry
 	const ManifoldCache &read_cache = mCache[mCacheWriteIdx ^ 1];
@@ -964,8 +976,11 @@ void ContactConstraintManager::TemplatedAddContactConstraint(ContactAllocator &i
 	// Get inverse transform for body 1
 	Mat44 inverse_transform_body1 = inBody1.GetInverseCenterOfMassTransform();
 
+	bool contact_constraint_created;
+
 	// If one of the bodies is a sensor, don't actually create the constraint
-	if (inBody1.IsSensor() || inBody2.IsSensor())
+	JPH_ASSERT(settings.mIsSensor || !(inBody1.IsSensor() || inBody2.IsSensor()), "Sensors cannot be converted into regular bodies by a contact callback!");
+	if (settings.mIsSensor)
 	{
 		// Store the contact manifold in the cache
 		for (int i = 0; i < num_contact_points; ++i)
@@ -984,6 +999,9 @@ void ContactConstraintManager::TemplatedAddContactConstraint(ContactAllocator &i
 			cp.mFrictionLambda[0] = 0.0f;
 			cp.mFrictionLambda[1] = 0.0f;
 		}
+
+		// No constraint created
+		contact_constraint_created = false;
 	}
 	else
 	{
@@ -996,8 +1014,11 @@ void ContactConstraintManager::TemplatedAddContactConstraint(ContactAllocator &i
 			// Manifold has been created already, we're not filling it in, so we need to reset the contact number of points.
 			// Note that we don't hook it up to the body pair cache so that it won't be used as a cache during the next simulation.
 			new_manifold->mNumContactPoints = 0; 
-			return;
+			return false;
 		}
+
+		// We will create a contact constraint
+		contact_constraint_created = true;
 		
 		ContactConstraint &constraint = mConstraints[constraint_idx];
 		new (&constraint) ContactConstraint();
@@ -1005,7 +1026,10 @@ void ContactConstraintManager::TemplatedAddContactConstraint(ContactAllocator &i
 		constraint.mBody1 = &inBody1;
 		constraint.mBody2 = &inBody2;
 		constraint.mSortKey = key_hash;
-		constraint.mSettings = settings;
+		constraint.mCombinedFriction = settings.mCombinedFriction;
+		constraint.mCombinedRestitution = settings.mCombinedRestitution;
+
+		JPH_DET_LOG("TemplatedAddContactConstraint: id1: " << constraint.mBody1->GetID() << " id2: " << constraint.mBody2->GetID() << " key: " << constraint.mSortKey);
 
 		// Notify island builder
 		mUpdateContext->mIslandBuilder->LinkContact(constraint_idx, inBody1.GetIndexInActiveBodiesInternal(), inBody2.GetIndexInActiveBodiesInternal());
@@ -1070,12 +1094,19 @@ void ContactConstraintManager::TemplatedAddContactConstraint(ContactAllocator &i
 	CachedBodyPair *cbp = reinterpret_cast<CachedBodyPair *>(inBodyPairHandle);
 	new_manifold->mNextWithSameBodyPair = cbp->mFirstCachedManifold;
 	cbp->mFirstCachedManifold = write_cache.ToHandle(new_manifold_kv);
+
+	// A contact constraint was added
+	return contact_constraint_created;
 }
 
-void ContactConstraintManager::AddContactConstraint(ContactAllocator &ioContactAllocator, BodyPairHandle inBodyPairHandle, Body &inBody1, Body &inBody2, const ContactManifold &inManifold)
+bool ContactConstraintManager::AddContactConstraint(ContactAllocator &ioContactAllocator, BodyPairHandle inBodyPairHandle, Body &inBody1, Body &inBody2, const ContactManifold &inManifold)
 {
 	JPH_PROFILE_FUNCTION();
 
+	JPH_DET_LOG("AddContactConstraint: id1: " << inBody1.GetID() << " id2: " << inBody2.GetID()
+		<< " subshape1: " << inManifold.mSubShapeID1 << " subshape2: " << inManifold.mSubShapeID2
+		<< " normal: " << inManifold.mWorldSpaceNormal << " pendepth: " << inManifold.mPenetrationDepth);
+	
 	JPH_ASSERT(inManifold.mWorldSpaceNormal.IsNormalized());
 
 	// Swap bodies so that body 1 id < body 2 id
@@ -1106,16 +1137,13 @@ void ContactConstraintManager::AddContactConstraint(ContactAllocator &ioContactA
 			switch (body2->GetMotionType())
 			{
 			case EMotionType::Dynamic:
-				TemplatedAddContactConstraint<EMotionType::Dynamic, EMotionType::Dynamic>(ioContactAllocator, inBodyPairHandle, *body1, *body2, *manifold, invi1, body2->GetInverseInertia());
-				break;
+				return TemplatedAddContactConstraint<EMotionType::Dynamic, EMotionType::Dynamic>(ioContactAllocator, inBodyPairHandle, *body1, *body2, *manifold, invi1, body2->GetInverseInertia());
 
 			case EMotionType::Kinematic:
-				TemplatedAddContactConstraint<EMotionType::Dynamic, EMotionType::Kinematic>(ioContactAllocator, inBodyPairHandle, *body1, *body2, *manifold, invi1, Mat44() /* Will not be used */);
-				break;
+				return TemplatedAddContactConstraint<EMotionType::Dynamic, EMotionType::Kinematic>(ioContactAllocator, inBodyPairHandle, *body1, *body2, *manifold, invi1, Mat44() /* Will not be used */);
 
 			case EMotionType::Static:
-				TemplatedAddContactConstraint<EMotionType::Dynamic, EMotionType::Static>(ioContactAllocator, inBodyPairHandle, *body1, *body2, *manifold, invi1, Mat44() /* Will not be used */);
-				break;
+				return TemplatedAddContactConstraint<EMotionType::Dynamic, EMotionType::Static>(ioContactAllocator, inBodyPairHandle, *body1, *body2, *manifold, invi1, Mat44() /* Will not be used */);
 
 			default:
 				JPH_ASSERT(false);
@@ -1128,16 +1156,13 @@ void ContactConstraintManager::AddContactConstraint(ContactAllocator &ioContactA
 		switch (body2->GetMotionType())
 		{
 		case EMotionType::Dynamic:
-			TemplatedAddContactConstraint<EMotionType::Kinematic, EMotionType::Dynamic>(ioContactAllocator, inBodyPairHandle, *body1, *body2, *manifold, Mat44() /* Will not be used */, body2->GetInverseInertia());
-			break;
+			return TemplatedAddContactConstraint<EMotionType::Kinematic, EMotionType::Dynamic>(ioContactAllocator, inBodyPairHandle, *body1, *body2, *manifold, Mat44() /* Will not be used */, body2->GetInverseInertia());
 
 		case EMotionType::Kinematic:
-			TemplatedAddContactConstraint<EMotionType::Kinematic, EMotionType::Kinematic>(ioContactAllocator, inBodyPairHandle, *body1, *body2, *manifold, Mat44() /* Will not be used */, Mat44() /* Will not be used */);
-			break;
+			return TemplatedAddContactConstraint<EMotionType::Kinematic, EMotionType::Kinematic>(ioContactAllocator, inBodyPairHandle, *body1, *body2, *manifold, Mat44() /* Will not be used */, Mat44() /* Will not be used */);
 
 		case EMotionType::Static:
-			TemplatedAddContactConstraint<EMotionType::Kinematic, EMotionType::Static>(ioContactAllocator, inBodyPairHandle, *body1, *body2, *manifold, Mat44() /* Will not be used */, Mat44() /* Will not be used */);
-			break;
+			return TemplatedAddContactConstraint<EMotionType::Kinematic, EMotionType::Static>(ioContactAllocator, inBodyPairHandle, *body1, *body2, *manifold, Mat44() /* Will not be used */, Mat44() /* Will not be used */);
 
 		default:
 			JPH_ASSERT(false);
@@ -1149,12 +1174,10 @@ void ContactConstraintManager::AddContactConstraint(ContactAllocator &ioContactA
 		switch (body2->GetMotionType())
 		{
 		case EMotionType::Dynamic:
-			TemplatedAddContactConstraint<EMotionType::Static, EMotionType::Dynamic>(ioContactAllocator, inBodyPairHandle, *body1, *body2, *manifold, Mat44() /* Will not be used */, body2->GetInverseInertia());
-			break;
+			return TemplatedAddContactConstraint<EMotionType::Static, EMotionType::Dynamic>(ioContactAllocator, inBodyPairHandle, *body1, *body2, *manifold, Mat44() /* Will not be used */, body2->GetInverseInertia());
 
 		case EMotionType::Kinematic:
-			TemplatedAddContactConstraint<EMotionType::Static, EMotionType::Kinematic>(ioContactAllocator, inBodyPairHandle, *body1, *body2, *manifold, Mat44() /* Will not be used */, Mat44() /* Will not be used */);
-			break;
+			return TemplatedAddContactConstraint<EMotionType::Static, EMotionType::Kinematic>(ioContactAllocator, inBodyPairHandle, *body1, *body2, *manifold, Mat44() /* Will not be used */, Mat44() /* Will not be used */);
 
 		case EMotionType::Static: // Static vs static not possible
 		default: 
@@ -1167,6 +1190,8 @@ void ContactConstraintManager::AddContactConstraint(ContactAllocator &ioContactA
 		JPH_ASSERT(false);
 		break;
 	}
+
+	return false;
 }
 
 void ContactConstraintManager::OnCCDContactAdded(ContactAllocator &ioContactAllocator, const Body &inBody1, const Body &inBody2, const ContactManifold &inManifold, ContactSettings &outSettings)
@@ -1174,8 +1199,9 @@ void ContactConstraintManager::OnCCDContactAdded(ContactAllocator &ioContactAllo
 	JPH_ASSERT(inManifold.mWorldSpaceNormal.IsNormalized());
 
 	// Calculate contact settings
-	outSettings.mCombinedFriction = mCombineFriction(inBody1, inBody2);
-	outSettings.mCombinedRestitution = mCombineRestitution(inBody1, inBody2);
+	outSettings.mCombinedFriction = mCombineFriction(inBody1, inManifold.mSubShapeID1, inBody2, inManifold.mSubShapeID2);
+	outSettings.mCombinedRestitution = mCombineRestitution(inBody1, inManifold.mSubShapeID1, inBody2, inManifold.mSubShapeID2);
+	outSettings.mIsSensor = false; // For now, no sensors are supported during CCD
 
 	// The remainder of this function only deals with calling contact callbacks, if there's no contact callback we also don't need to do this work
 	if (mContactListener != nullptr)
@@ -1200,7 +1226,7 @@ void ContactConstraintManager::OnCCDContactAdded(ContactAllocator &ioContactAllo
 
 		// Calculate hash
 		SubShapeIDPair key { body1->GetID(), manifold->mSubShapeID1, body2->GetID(), manifold->mSubShapeID2 };
-		size_t key_hash = std::hash<SubShapeIDPair> {} (key);
+		uint64 key_hash = key.GetHash();
 
 		// Check if we already created this contact this physics update
 		ManifoldCache &write_cache = mCache[mCacheWriteIdx];
@@ -1240,17 +1266,32 @@ void ContactConstraintManager::OnCCDContactAdded(ContactAllocator &ioContactAllo
 			mContactListener->OnContactPersisted(*body1, *body2, *manifold, outSettings);
 		}
 	}
+
+	JPH_ASSERT(!outSettings.mIsSensor, "CCD bodies cannot currently act as sensors");
 }
 
 void ContactConstraintManager::SortContacts(uint32 *inConstraintIdxBegin, uint32 *inConstraintIdxEnd) const
 {
 	JPH_PROFILE_FUNCTION();
 
-	sort(inConstraintIdxBegin, inConstraintIdxEnd, [this](uint32 inLHS, uint32 inRHS) {
+	QuickSort(inConstraintIdxBegin, inConstraintIdxEnd, [this](uint32 inLHS, uint32 inRHS) {
 		const ContactConstraint &lhs = mConstraints[inLHS];
 		const ContactConstraint &rhs = mConstraints[inRHS];
-		JPH_ASSERT(lhs.mSortKey != rhs.mSortKey, "Hash collision, ordering will be inconsistent");
-		return lhs.mSortKey < rhs.mSortKey;
+
+		// Most of the time the sort key will be different so we sort on that
+		if (lhs.mSortKey != rhs.mSortKey)
+			return lhs.mSortKey < rhs.mSortKey;
+
+		// If they're equal we use the IDs of body 1 to order
+		if (lhs.mBody1 != rhs.mBody1)
+			return lhs.mBody1->GetID() < rhs.mBody1->GetID();
+
+		// If they're still equal we use the IDs of body 2 to order
+		if (lhs.mBody2 != rhs.mBody2)
+			return lhs.mBody2->GetID() < rhs.mBody2->GetID();
+
+		JPH_ASSERT(inLHS == inRHS, "Hash collision, ordering will be inconsistent");
+		return false;
 	});
 }
 
@@ -1385,7 +1426,7 @@ JPH_INLINE bool ContactConstraintManager::sSolveVelocityConstraint(ContactConstr
 			// Calculate max impulse that can be applied. Note that we're using the non-penetration impulse from the previous iteration here.
 			// We do this because non-penetration is more important so is solved last (the last things that are solved in an iterative solver
 			// contribute the most).
-			float max_lambda_f = ioConstraint.mSettings.mCombinedFriction * wcp.mNonPenetrationConstraint.GetTotalLambda();
+			float max_lambda_f = ioConstraint.mCombinedFriction * wcp.mNonPenetrationConstraint.GetTotalLambda();
 
 			// Solve friction velocities
 			// Note that what we're doing is not fully correct since the max force we can apply is 2 * max_lambda_f instead of max_lambda_f since we're solving axis independently

@@ -43,6 +43,9 @@ private:
 		uint				mNumTrianglesAccumulatedLeft;		
 		uint				mNumTrianglesAccumulatedRight;		
 	};
+
+	// Scratch area to store the bins
+	Array<Bin>				mBins;
 };
 
 JPH_NAMESPACE_END

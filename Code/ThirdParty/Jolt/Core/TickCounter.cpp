@@ -65,7 +65,7 @@ static const uint64 sProcessorTicksPerSecond = []() {
 			string line;
 			getline(ifs, line);
 		
-		#if defined(JPH_CPU_X64)
+		#if defined(JPH_CPU_X86)
 			const char *cpu_str = "cpu MHz";
 		#elif defined(JPH_CPU_ARM64)
 			const char *cpu_str = "BogoMIPS";
@@ -79,7 +79,7 @@ static const uint64 sProcessorTicksPerSecond = []() {
 			{
 				// Find ':'
 				string::size_type pos = line.find(':', num_chars);
-				if (pos != string::npos)
+				if (pos != String::npos)
 				{		
 					// Convert to number
 					string freq = line.substr(pos + 1);

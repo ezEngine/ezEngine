@@ -228,10 +228,14 @@ void JobSystemThreadPool::BarrierImpl::Wait()
 	}
 }
 
-JobSystemThreadPool::JobSystemThreadPool(uint inMaxJobs, uint inMaxBarriers, int inNumThreads) :
-	mMaxBarriers(inMaxBarriers),
-	mBarriers(new BarrierImpl [inMaxBarriers]) // Init freelist of barriers
+void JobSystemThreadPool::Init(uint inMaxJobs, uint inMaxBarriers, int inNumThreads)
 {
+	JPH_ASSERT(mBarriers == nullptr); // Already initialized?
+
+	// Init freelist of barriers
+	mMaxBarriers = inMaxBarriers;
+	mBarriers = new BarrierImpl [inMaxBarriers];
+
 	// Init freelist of jobs
 	mJobs.Init(inMaxJobs, inMaxJobs);
 
@@ -241,6 +245,11 @@ JobSystemThreadPool::JobSystemThreadPool(uint inMaxJobs, uint inMaxBarriers, int
 
 	// Start the worker threads
 	StartThreads(inNumThreads);
+}
+
+JobSystemThreadPool::JobSystemThreadPool(uint inMaxJobs, uint inMaxBarriers, int inNumThreads)
+{
+	Init(inMaxJobs, inMaxBarriers, inNumThreads);
 }
 
 void JobSystemThreadPool::StartThreads(int inNumThreads)
@@ -257,7 +266,7 @@ void JobSystemThreadPool::StartThreads(int inNumThreads)
 	mQuit = false;
 
 	// Allocate heads
-	mHeads = new atomic<uint> [inNumThreads];
+	mHeads = reinterpret_cast<atomic<uint> *>(Allocate(sizeof(atomic<uint>) * inNumThreads));
 	for (int i = 0; i < inNumThreads; ++i)
 		mHeads[i] = 0;
 
@@ -265,14 +274,7 @@ void JobSystemThreadPool::StartThreads(int inNumThreads)
 	JPH_ASSERT(mThreads.empty());
 	mThreads.reserve(inNumThreads);
 	for (int i = 0; i < inNumThreads; ++i)
-	{
-		// Name the thread
-		char name[64];
-		snprintf(name, sizeof(name), "Worker %d", int(i + 1));
-
-		// Create thread
-		mThreads.emplace_back([this, name, i] { ThreadMain(name, i); });
-	}
+		mThreads.emplace_back([this, i] { ThreadMain(i); });
 }
 
 JobSystemThreadPool::~JobSystemThreadPool()
@@ -319,7 +321,7 @@ void JobSystemThreadPool::StopThreads()
 	}
 
 	// Destroy heads and reset tail
-	delete [] mHeads;
+	Free(mHeads);
 	mHeads = nullptr;
 	mTail = 0;
 }
@@ -514,17 +516,21 @@ static void SetThreadName(const char *inName)
 
 #endif
 
-void JobSystemThreadPool::ThreadMain([[maybe_unused]] const char *inName, int inThreadIndex)
+void JobSystemThreadPool::ThreadMain(int inThreadIndex)
 {
+	// Name the thread
+	char name[64];
+	snprintf(name, sizeof(name), "Worker %d", int(inThreadIndex + 1));
+
 #ifdef JPH_PLATFORM_WINDOWS
-	SetThreadName(inName);
+	SetThreadName(name);
 #endif
 
 	// Enable floating point exceptions
 	FPExceptionsEnable enable_exceptions;
 	JPH_UNUSED(enable_exceptions);
 
-	JPH_PROFILE_THREAD_START(inName);
+	JPH_PROFILE_THREAD_START(name);
 
 	atomic<uint> &head = mHeads[inThreadIndex];
 

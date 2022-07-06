@@ -9,10 +9,6 @@
 #include <Jolt/Physics/Body/BodyManager.h>
 #include <Jolt/Physics/Collision/BroadPhase/BroadPhase.h>
 
-#ifdef JPH_TRACK_BROADPHASE_STATS
-	#include <map>
-#endif // JPH_TRACK_BROADPHASE_STATS
-
 //#define JPH_DUMP_BROADPHASE_TREE
 
 JPH_NAMESPACE_BEGIN
@@ -22,6 +18,9 @@ JPH_NAMESPACE_BEGIN
 /// During the UpdatePrepare/Finalize() call the tree is rebuilt to achieve a tight fit again.
 class QuadTree : public NonCopyable
 {
+public:
+	JPH_OVERRIDE_NEW_DELETE
+
 private:
 	// Forward declare
 	class AtomicNodeID;
@@ -30,6 +29,8 @@ private:
 	class NodeID
 	{
 	public:
+		JPH_OVERRIDE_NEW_DELETE
+
 		/// Default constructor does not initialize
 		inline 					NodeID() = default;
 
@@ -96,7 +97,7 @@ private:
 	{
 	public:
 		/// Construct node
-								Node();
+		explicit				Node(bool inIsChanged);
 
 		/// Get bounding box encapsulating all children
 		void					GetNodeBounds(AABox &outBounds) const;
@@ -130,7 +131,7 @@ private:
 
 		/// If this part of the tree has changed, if not, we will treat this sub tree as a single body during the UpdatePrepare/Finalize().
 		/// If any changes are made to an object inside this sub tree then the direct path from the body to the top of the tree will become changed.
-		atomic<uint32>			mIsChanged = false;
+		atomic<uint32>			mIsChanged;
 
 		// Padding to align to 124 bytes
 		uint32					mPadding = 0;
@@ -164,7 +165,7 @@ public:
 		atomic<uint32>			mBodyLocation { cInvalidBodyLocation };
 	};
 
-	using TrackingVector = vector<Tracking>;
+	using TrackingVector = Array<Tracking>;
 
 	/// Destructor
 								~QuadTree();
@@ -286,7 +287,7 @@ private:
 	inline void					WidenAndMarkNodeAndParentsChanged(uint32 inNodeIndex, const AABox &inNewBounds);
 
 	/// Allocate a new node
-	inline uint32				AllocateNode();
+	inline uint32				AllocateNode(bool inIsChanged);
 
 	/// Try to insert a new leaf to the tree at inNodeIndex
 	inline bool					TryInsertLeaf(TrackingVector &ioTracking, int inNodeIndex, NodeID inLeafID, const AABox &inLeafBounds, int inLeafNumBodies);
@@ -294,8 +295,8 @@ private:
 	/// Try to replace the existing root with a new root that contains both the existing root and the new leaf
 	inline bool					TryCreateNewRoot(TrackingVector &ioTracking, atomic<uint32> &ioRootNodeIndex, NodeID inLeafID, const AABox &inLeafBounds, int inLeafNumBodies);
 
-	/// Build a tree for ioBodyIDs, returns the NodeID of the root (which will be the ID of a single body if inNumber = 1)
-	NodeID						BuildTree(const BodyVector &inBodies, TrackingVector &ioTracking, NodeID *ioNodeIDs, int inNumber, AABox &outBounds);
+	/// Build a tree for ioBodyIDs, returns the NodeID of the root (which will be the ID of a single body if inNumber = 1). All tree levels up to inMaxDepthMarkChanged will be marked as 'changed'.
+	NodeID						BuildTree(const BodyVector &inBodies, TrackingVector &ioTracking, NodeID *ioNodeIDs, int inNumber, uint inMaxDepthMarkChanged, AABox &outBounds);
 
 	/// Sorts ioNodeIDs spatially into 2 groups. Second groups starts at ioNodeIDs + outMidPoint.
 	/// After the function returns ioNodeIDs and ioNodeCenters will be shuffled
@@ -331,7 +332,7 @@ private:
 		uint64					mCollectorTicks = 0;
 	};
 	
-	using LayerToStats = map<string, Stat>;
+	using LayerToStats = UnorderedMap<String, Stat>;
 
 	/// Trace the stats of a single query type to the TTY
 	void						ReportStats(const char *inName, const LayerToStats &inLayer) const;
@@ -343,6 +344,9 @@ private:
 	mutable LayerToStats		mCollideOrientedBoxStats;
 	mutable LayerToStats		mCastAABoxStats;
 #endif // JPH_TRACK_BROADPHASE_STATS
+
+	/// Debug function to get the depth of the tree from node inNodeID
+	uint						GetMaxTreeDepth(const NodeID &inNodeID) const;
 
 	/// Walk the node tree calling the Visitor::VisitNodes for each node encountered and Visitor::VisitBody for each body encountered
 	template <class Visitor>

@@ -7,9 +7,11 @@
 
 JPH_NAMESPACE_BEGIN
 
-class [[nodiscard]] UVec4
+class [[nodiscard]] alignas(16) UVec4
 {
 public:
+	JPH_OVERRIDE_NEW_DELETE
+
 	// Underlying vector type
 #if defined(JPH_USE_SSE)
 	using Type = __m128i;

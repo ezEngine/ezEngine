@@ -12,16 +12,16 @@ ObjectStreamBinaryIn::ObjectStreamBinaryIn(istream &inStream) :
 {
 }
 
-bool ObjectStreamBinaryIn::ReadDataType(EDataType &outType)
+bool ObjectStreamBinaryIn::ReadDataType(EOSDataType &outType)
 {
 	uint32 type;
 	mStream.read((char *)&type, sizeof(type));
 	if (mStream.fail()) return false;
-	outType = (EDataType)type;
+	outType = (EOSDataType)type;
 	return true;
 }
 
-bool ObjectStreamBinaryIn::ReadName(string &outName)
+bool ObjectStreamBinaryIn::ReadName(String &outName)
 {
 	return ReadPrimitiveData(outName);
 }
@@ -107,7 +107,7 @@ bool ObjectStreamBinaryIn::ReadPrimitiveData(bool &outPrimitive)
 	return true;
 }
 
-bool ObjectStreamBinaryIn::ReadPrimitiveData(string &outPrimitive)
+bool ObjectStreamBinaryIn::ReadPrimitiveData(String &outPrimitive)
 {
 	// Read length or ID of string
 	uint32 len;

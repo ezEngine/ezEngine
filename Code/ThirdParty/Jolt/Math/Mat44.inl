@@ -52,22 +52,25 @@ Mat44 Mat44::sLoadFloat4x4Aligned(const Float4 *inV)
 
 Mat44 Mat44::sRotationX(float inX)
 {
-	// TODO: Could be optimized
-	float c = cos(inX), s = sin(inX);
+	Vec4 sv, cv;
+	Vec4::sReplicate(inX).SinCos(sv, cv);
+	float s = sv.GetX(), c = cv.GetX();
 	return Mat44(Vec4(1, 0, 0, 0), Vec4(0, c, s, 0), Vec4(0, -s, c, 0), Vec4(0, 0, 0, 1));
 }
 
 Mat44 Mat44::sRotationY(float inY)
 {
-	// TODO: Could be optimized
-	float c = cos(inY), s = sin(inY);
+	Vec4 sv, cv;
+	Vec4::sReplicate(inY).SinCos(sv, cv);
+	float s = sv.GetX(), c = cv.GetX();
 	return Mat44(Vec4(c, 0, -s, 0), Vec4(0, 1, 0, 0), Vec4(s, 0, c, 0), Vec4(0, 0, 0, 1));
 }
 
 Mat44 Mat44::sRotationZ(float inZ)
 {
-	// TODO: Could be optimized
-	float c = cos(inZ), s = sin(inZ);
+	Vec4 sv, cv;
+	Vec4::sReplicate(inZ).SinCos(sv, cv);
+	float s = sv.GetX(), c = cv.GetX();
 	return Mat44(Vec4(c, s, 0, 0), Vec4(-s, c, 0, 0), Vec4(0, 0, 1, 0), Vec4(0, 0, 0, 1));
 }
 
@@ -104,9 +107,9 @@ Mat44 Mat44::sRotation(QuatArg inQuat)
 	float z = inQuat.GetZ();
 	float w = inQuat.GetW();
 
-	float tx = 2.0f * x;
-	float ty = 2.0f * y;
-	float tz = 2.0f * z;
+	float tx = x + x; // Note: Using x + x instead of 2.0f * x to force this function to return the same value as the SSE4.1 version across platforms.
+	float ty = y + y;
+	float tz = z + z;
 
 	float xx = tx * x;
 	float yy = ty * y;
@@ -118,9 +121,9 @@ Mat44 Mat44::sRotation(QuatArg inQuat)
 	float yw = ty * w;
 	float zw = tz * w;
 
-	return Mat44(Vec4(1.0f - yy - zz, xy + zw, xz - yw, 0.0f),
-				 Vec4(xy - zw, 1.0f - xx - zz, yz + xw, 0.0f),
-				 Vec4(xz + yw, yz - xw, 1.0f - xx - yy, 0.0f),
+	return Mat44(Vec4((1.0f - yy) - zz, xy + zw, xz - yw, 0.0f), // Note: Added extra brackets to force this function to return the same value as the SSE4.1 version across platforms.
+				 Vec4(xy - zw, (1.0f - zz) - xx, yz + xw, 0.0f),
+				 Vec4(xz + yw, yz - xw, (1.0f - xx) - yy, 0.0f),
 				 Vec4(0.0f, 0.0f, 0.0f, 1.0f));
 #endif
 }
@@ -554,8 +557,8 @@ Mat44 Mat44::Inversed() const
 	minor3 = _mm_add_ps(_mm_mul_ps(row1, tmp1), minor3);
 
 	__m128 det = _mm_mul_ps(row0, minor0);
-	det = _mm_add_ps(_mm_shuffle_ps(det, det, _MM_SHUFFLE(1, 0, 3, 2)), det);
-	det = _mm_add_ss(_mm_shuffle_ps(det, det, _MM_SHUFFLE(2, 3, 0, 1)), det);
+	det = _mm_add_ps(_mm_shuffle_ps(det, det, _MM_SHUFFLE(2, 3, 0, 1)), det); // Original code did (x + z) + (y + w), changed to (x + y) + (z + w) to match the ARM code below and make the result cross platform deterministic
+	det = _mm_add_ss(_mm_shuffle_ps(det, det, _MM_SHUFFLE(1, 0, 3, 2)), det);
 	det = _mm_div_ss(_mm_set_ss(1.0f), det);
 	det = _mm_shuffle_ps(det, det, _MM_SHUFFLE(0, 0, 0, 0));
 	
@@ -857,8 +860,8 @@ Mat44 Mat44::Inversed3x3() const
 	minor1 = _mm_sub_ps(minor1, _mm_mul_ps(row3, tmp1));
 
 	__m128 det = _mm_mul_ps(row0, minor0);
-	det = _mm_add_ps(_mm_shuffle_ps(det, det, _MM_SHUFFLE(1, 0, 3, 2)), det);
-	det = _mm_add_ss(_mm_shuffle_ps(det, det, _MM_SHUFFLE(2, 3, 0, 1)), det);
+	det = _mm_add_ps(_mm_shuffle_ps(det, det, _MM_SHUFFLE(2, 3, 0, 1)), det); // Original code did (x + z) + (y + w), changed to (x + y) + (z + w) to match the ARM code below and make the result cross platform deterministic
+	det = _mm_add_ss(_mm_shuffle_ps(det, det, _MM_SHUFFLE(1, 0, 3, 2)), det);
 	det = _mm_div_ss(_mm_set_ss(1.0f), det);
 	det = _mm_shuffle_ps(det, det, _MM_SHUFFLE(0, 0, 0, 0));
 	

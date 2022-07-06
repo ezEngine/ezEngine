@@ -11,7 +11,7 @@
 
 JPH_NAMESPACE_BEGIN
 
-RefConst<PhysicsMaterial> PhysicsMaterial::sDefault = new PhysicsMaterialSimple("Default", Color::sGrey);
+RefConst<PhysicsMaterial> PhysicsMaterial::sDefault;
 
 JPH_IMPLEMENT_SERIALIZABLE_VIRTUAL(PhysicsMaterial)
 {
@@ -42,7 +42,7 @@ PhysicsMaterial::PhysicsMaterialResult PhysicsMaterial::sRestoreFromBinaryState(
 	}
 
 	// Get the RTTI for the material
-	const RTTI *rtti = Factory::sInstance.Find(hash);
+	const RTTI *rtti = Factory::sInstance->Find(hash);
 	if (rtti == nullptr)
 	{
 		result.SetError("Failed to create instance of material");

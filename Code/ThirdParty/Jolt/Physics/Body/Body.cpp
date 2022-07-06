@@ -16,17 +16,19 @@
 
 JPH_NAMESPACE_BEGIN
 
+static const SphereShape sFixedToWorldShape(FLT_EPSILON);
 Body Body::sFixedToWorld(false);
 
 Body::Body(bool) :
 	mPosition(Vec3::sZero()),
 	mRotation(Quat::sIdentity()),
-	mShape(new SphereShape(FLT_EPSILON)), // Dummy shape
+	mShape(&sFixedToWorldShape), // Dummy shape
 	mFriction(0.0f),
 	mRestitution(0.0f),
 	mObjectLayer(cObjectLayerInvalid),
 	mMotionType(EMotionType::Static)
 {
+	sFixedToWorldShape.SetEmbedded();
 }
 
 void Body::SetMotionType(EMotionType inMotionType)
@@ -164,7 +166,7 @@ Body::ECanSleep Body::UpdateSleepStateInternal(float inDeltaTime, float inMaxMov
 	return mMotionProperties->mSleepTestTimer >= inTimeBeforeSleep? ECanSleep::CanSleep : ECanSleep::CannotSleep;
 }
 
-void Body::ApplyBuoyancyImpulse(const Plane &inSurface, float inBuoyancy, float inLinearDrag, float inAngularDrag, Vec3Arg inFluidVelocity, Vec3Arg inGravity, float inDeltaTime)
+bool Body::ApplyBuoyancyImpulse(const Plane &inSurface, float inBuoyancy, float inLinearDrag, float inAngularDrag, Vec3Arg inFluidVelocity, Vec3Arg inGravity, float inDeltaTime)
 {
 	JPH_PROFILE_FUNCTION();
 
@@ -252,7 +254,10 @@ void Body::ApplyBuoyancyImpulse(const Plane &inSurface, float inBuoyancy, float 
 		// Calculate total delta angular velocity due to drag and buoyancy
 		Vec3 delta_angular_velocity = drag_delta_angular_velocity + inv_inertia * relative_center_of_buoyancy.Cross(buoyancy_impulse + drag_impulse);
 		mMotionProperties->AddAngularVelocityStep(delta_angular_velocity);
+		return true;
 	}
+
+	return false;
 }
 
 void Body::SaveState(StateRecorder &inStream) const
@@ -294,6 +299,8 @@ BodyCreationSettings Body::GetBodyCreationSettings() const
 
 	result.mPosition = GetPosition();
 	result.mRotation = GetRotation();
+	result.mLinearVelocity = mMotionProperties != nullptr? mMotionProperties->GetLinearVelocity() : Vec3::sZero();
+	result.mAngularVelocity = mMotionProperties != nullptr? mMotionProperties->GetAngularVelocity() : Vec3::sZero();
 	result.mObjectLayer = GetObjectLayer();
 	result.mCollisionGroup = GetCollisionGroup();
 	result.mMotionType = GetMotionType();

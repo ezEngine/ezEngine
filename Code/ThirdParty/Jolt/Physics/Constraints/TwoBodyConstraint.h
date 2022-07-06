@@ -25,8 +25,13 @@ public:
 class TwoBodyConstraint : public Constraint
 {
 public:
+	JPH_OVERRIDE_NEW_DELETE
+
 	/// Constructor
 								TwoBodyConstraint(Body &inBody1, Body &inBody2, const TwoBodyConstraintSettings &inSettings) : Constraint(inSettings), mBody1(&inBody1), mBody2(&inBody2) { }
+
+	/// Get the type of a constraint
+	virtual EConstraintType		GetType() const override				{ return EConstraintType::TwoBodyConstraint; }
 
 	/// Solver interface
 	virtual bool				IsActive() const override				{ return Constraint::IsActive() && (mBody1->IsActive() || mBody2->IsActive()) && (mBody2->IsDynamic() || mBody1->IsDynamic()); }

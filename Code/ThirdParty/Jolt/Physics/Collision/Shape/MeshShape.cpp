@@ -24,6 +24,7 @@
 #include <Jolt/Core/StreamIn.h>
 #include <Jolt/Core/StreamOut.h>
 #include <Jolt/Core/Profiler.h>
+#include <Jolt/Core/UnorderedMap.h>
 #include <Jolt/Geometry/AABox4.h>
 #include <Jolt/Geometry/RayAABox.h>
 #include <Jolt/Geometry/Indexify.h>
@@ -35,10 +36,6 @@
 #include <Jolt/AABBTree/TriangleCodec/TriangleCodecIndexed8BitPackSOA4Flags.h>
 #include <Jolt/AABBTree/NodeCodec/NodeCodecQuadTreeHalfFloat.h>
 #include <Jolt/ObjectStream/TypeDeclarations.h>
-
-JPH_SUPPRESS_WARNINGS_STD_BEGIN
-#include <unordered_map>
-JPH_SUPPRESS_WARNINGS_STD_END
 
 JPH_NAMESPACE_BEGIN
 
@@ -92,7 +89,7 @@ MeshShapeSettings::MeshShapeSettings(const VertexList &inVertices, const Indexed
 void MeshShapeSettings::Sanitize()
 {
 	// Remove degenerate and duplicate triangles
-	unordered_set<IndexedTriangle> triangles;
+	UnorderedSet<IndexedTriangle> triangles;
 	triangles.reserve(mIndexedTriangles.size());
 	for (int t = (int)mIndexedTriangles.size() - 1; t >= 0; --t)
 	{
@@ -189,12 +186,11 @@ MeshShape::MeshShape(const MeshShapeSettings &inSettings, ShapeResult &outResult
 	AABBTreeBuilder::Node *root = builder.Build(builder_stats);
 
 	// Convert to buffer
-	AABBTreeToBufferStats buffer_stats;
 	AABBTreeToBuffer<TriangleCodec, NodeCodec> buffer;
-	string error;
-	if (!buffer.Convert(inSettings.mTriangleVertices, root, buffer_stats, error, EAABBTreeToBufferConvertMode::DepthFirstTrianglesLast))
+	const char *error = nullptr;
+	if (!buffer.Convert(inSettings.mTriangleVertices, root, error))
 	{
-		outResult.SetError(move(error));
+		outResult.SetError(error);
 		delete root;
 		return;
 	}
@@ -217,6 +213,7 @@ MeshShape::MeshShape(const MeshShapeSettings &inSettings, ShapeResult &outResult
 
 void MeshShape::sFindActiveEdges(const VertexList &inVertices, IndexedTriangleList &ioIndices)
 {
+	// A struct to hold the two vertex indices of an edge
 	struct Edge
 	{
 				Edge(int inIdx1, int inIdx2) : mIdx1(min(inIdx1, inIdx2)), mIdx2(max(inIdx1, inIdx2)) { }
@@ -245,33 +242,54 @@ void MeshShape::sFindActiveEdges(const VertexList &inVertices, IndexedTriangleLi
 
 	JPH_MAKE_HASH_STRUCT(Edge, EdgeHash, t.mIdx1, t.mIdx2)
 
+	// A struct to hold the triangles that are connected to an edge
+	struct TriangleIndices
+	{
+		uint	mNumTriangles = 0;
+		uint	mTriangleIndices[2];
+	};
+
 	// Build a list of edge to triangles
-	using EdgeToTriangle = unordered_map<Edge, vector<uint>, EdgeHash>;
+	using EdgeToTriangle = UnorderedMap<Edge, TriangleIndices, EdgeHash>;
 	EdgeToTriangle edge_to_triangle;
+	edge_to_triangle.reserve(ioIndices.size() * 3);
 	for (uint triangle_idx = 0; triangle_idx < ioIndices.size(); ++triangle_idx)
 	{
-		const IndexedTriangle &triangle = ioIndices[triangle_idx];
+		IndexedTriangle &triangle = ioIndices[triangle_idx];
 		for (uint edge_idx = 0; edge_idx < 3; ++edge_idx)
 		{
 			Edge edge(triangle.mIdx[edge_idx], triangle.mIdx[(edge_idx + 1) % 3]);
-			edge_to_triangle[edge].push_back(triangle_idx);
+			TriangleIndices &indices = edge_to_triangle[edge];
+			if (indices.mNumTriangles < 2)
+			{
+				// Store index of triangle that connects to this edge
+				indices.mTriangleIndices[indices.mNumTriangles] = triangle_idx;
+				indices.mNumTriangles++;
+			}
+			else
+			{
+				// 3 or more triangles share an edge, mark this edge as active
+				uint32 mask = 1 << (edge_idx + FLAGS_ACTIVE_EGDE_SHIFT);
+				JPH_ASSERT((triangle.mMaterialIndex & mask) == 0);
+				triangle.mMaterialIndex |= mask;
+			}
 		}
 	}
 
 	// Walk over all edges and determine which ones are active
 	for (const EdgeToTriangle::value_type &edge : edge_to_triangle)
 	{
-		bool active = false;
-		if (edge.second.size() == 1)
+		uint num_active = 0;
+		if (edge.second.mNumTriangles == 1)
 		{
 			// Edge is not shared, it is an active edge
-			active = true;
+			num_active = 1;
 		}
-		else if (edge.second.size() == 2)
+		else if (edge.second.mNumTriangles == 2)
 		{
 			// Simple shared edge, determine if edge is active based on the two adjacent triangles
-			const IndexedTriangle &triangle1 = ioIndices[edge.second[0]];
-			const IndexedTriangle &triangle2 = ioIndices[edge.second[1]];
+			const IndexedTriangle &triangle1 = ioIndices[edge.second.mTriangleIndices[0]];
+			const IndexedTriangle &triangle2 = ioIndices[edge.second.mTriangleIndices[1]];
 
 			// Find which edge this is for both triangles
 			uint edge_idx1 = edge.first.GetIndexInTriangle(triangle1);
@@ -290,25 +308,23 @@ void MeshShape::sFindActiveEdges(const VertexList &inVertices, IndexedTriangleLi
 			Plane triangle2_plane = Plane::sFromPointsCCW(triangle2_e1, triangle2_e2, triangle2_op);
 
 			// Determine if the edge is active
-			active = ActiveEdges::IsEdgeActive(triangle1_plane.GetNormal(), triangle2_plane.GetNormal(), triangle1_e2 - triangle1_e1);
+			num_active = ActiveEdges::IsEdgeActive(triangle1_plane.GetNormal(), triangle2_plane.GetNormal(), triangle1_e2 - triangle1_e1)? 2 : 0;
 		}
 		else
 		{
-			// Multiple edges incoming, assume active
-			active = true;
+			// More edges incoming, we've already marked all edges beyond the 2nd as active
+			num_active = 2;
 		}
 
-		if (active)
+		// Mark edges of all original triangles active
+		for (uint i = 0; i < num_active; ++i)
 		{
-			// Mark edges of all original triangles active
-			for (uint triangle_idx : edge.second)
-			{
-				IndexedTriangle &triangle = ioIndices[triangle_idx];
-				uint edge_idx = edge.first.GetIndexInTriangle(triangle);
-				uint32 mask = 1 << (edge_idx + FLAGS_ACTIVE_EGDE_SHIFT);
-				JPH_ASSERT((triangle.mMaterialIndex & mask) == 0);
-				triangle.mMaterialIndex |= mask;
-			}
+			uint triangle_idx = edge.second.mTriangleIndices[i];
+			IndexedTriangle &triangle = ioIndices[triangle_idx];
+			uint edge_idx = edge.first.GetIndexInTriangle(triangle);
+			uint32 mask = 1 << (edge_idx + FLAGS_ACTIVE_EGDE_SHIFT);
+			JPH_ASSERT((triangle.mMaterialIndex & mask) == 0);
+			triangle.mMaterialIndex |= mask;
 		}
 	}
 }
@@ -511,14 +527,14 @@ void MeshShape::Draw(DebugRenderer *inRenderer, Mat44Arg inCenterOfMassTransform
 				}
 			}
 
-			vector<DebugRenderer::Triangle> &		mTriangles;
+			Array<DebugRenderer::Triangle> &		mTriangles;
 			const PhysicsMaterialList &				mMaterials;
 			bool									mUseMaterialColors;
 			bool									mDrawTriangleGroups;
 			int										mColorIdx = 0;
 		};
 		
-		vector<DebugRenderer::Triangle> triangles;
+		Array<DebugRenderer::Triangle> triangles;
 		Visitor visitor { triangles, mMaterials, mCachedUseMaterialColors, mCachedTrianglesColoredPerGroup };
 		WalkTree(visitor);
 		mGeometry = new DebugRenderer::Geometry(inRenderer->CreateTriangleBatch(triangles), GetLocalBounds());
@@ -660,9 +676,13 @@ bool MeshShape::CastRay(const RayCast &inRay, const SubShapeIDCreator &inSubShap
 	return visitor.mReturnValue;
 }
 
-void MeshShape::CastRay(const RayCast &inRay, const RayCastSettings &inRayCastSettings, const SubShapeIDCreator &inSubShapeIDCreator, CastRayCollector &ioCollector) const
+void MeshShape::CastRay(const RayCast &inRay, const RayCastSettings &inRayCastSettings, const SubShapeIDCreator &inSubShapeIDCreator, CastRayCollector &ioCollector, const ShapeFilter &inShapeFilter) const
 {
 	JPH_PROFILE_FUNCTION();
+
+	// Test shape filter
+	if (!inShapeFilter.ShouldCollide(inSubShapeIDCreator.GetID()))
+		return;
 
 	struct Visitor
 	{
@@ -724,7 +744,7 @@ void MeshShape::CastRay(const RayCast &inRay, const RayCastSettings &inRayCastSe
 	WalkTreePerTriangle(inSubShapeIDCreator, visitor);
 }
 
-void MeshShape::CollidePoint(Vec3Arg inPoint, const SubShapeIDCreator &inSubShapeIDCreator, CollidePointCollector &ioCollector) const
+void MeshShape::CollidePoint(Vec3Arg inPoint, const SubShapeIDCreator &inSubShapeIDCreator, CollidePointCollector &ioCollector, const ShapeFilter &inShapeFilter) const
 {
 	// First test if we're inside our bounding box
 	AABox bounds = GetLocalBounds();
@@ -752,7 +772,7 @@ void MeshShape::CollidePoint(Vec3Arg inPoint, const SubShapeIDCreator &inSubShap
 		settings.mBackFaceMode = EBackFaceMode::CollideWithBackFaces;
 
 		// Cast a ray that's 10% longer than the heigth of our bounding box
-		CastRay(RayCast { inPoint, 1.1f * bounds.GetSize().GetY() * Vec3::sAxisY() }, settings, inSubShapeIDCreator, collector);
+		CastRay(RayCast { inPoint, 1.1f * bounds.GetSize().GetY() * Vec3::sAxisY() }, settings, inSubShapeIDCreator, collector, inShapeFilter);
 
 		// Odd amount of hits means inside
 		if ((collector.mHitCount & 1) == 1)
@@ -1001,7 +1021,7 @@ int MeshShape::GetTrianglesNext(GetTrianglesContext &ioContext, int inMaxTriangl
 	return context.mNumTrianglesFound;
 }
 
-void MeshShape::sCollideConvexVsMesh(const Shape *inShape1, const Shape *inShape2, Vec3Arg inScale1, Vec3Arg inScale2, Mat44Arg inCenterOfMassTransform1, Mat44Arg inCenterOfMassTransform2, const SubShapeIDCreator &inSubShapeIDCreator1, const SubShapeIDCreator &inSubShapeIDCreator2, const CollideShapeSettings &inCollideShapeSettings, CollideShapeCollector &ioCollector)
+void MeshShape::sCollideConvexVsMesh(const Shape *inShape1, const Shape *inShape2, Vec3Arg inScale1, Vec3Arg inScale2, Mat44Arg inCenterOfMassTransform1, Mat44Arg inCenterOfMassTransform2, const SubShapeIDCreator &inSubShapeIDCreator1, const SubShapeIDCreator &inSubShapeIDCreator2, const CollideShapeSettings &inCollideShapeSettings, CollideShapeCollector &ioCollector, [[maybe_unused]] const ShapeFilter &inShapeFilter)
 {
 	JPH_PROFILE_FUNCTION();
 
@@ -1046,7 +1066,7 @@ void MeshShape::sCollideConvexVsMesh(const Shape *inShape1, const Shape *inShape
 	shape2->WalkTreePerTriangle(inSubShapeIDCreator2, visitor);
 }
 
-void MeshShape::sCollideSphereVsMesh(const Shape *inShape1, const Shape *inShape2, Vec3Arg inScale1, Vec3Arg inScale2, Mat44Arg inCenterOfMassTransform1, Mat44Arg inCenterOfMassTransform2, const SubShapeIDCreator &inSubShapeIDCreator1, const SubShapeIDCreator &inSubShapeIDCreator2, const CollideShapeSettings &inCollideShapeSettings, CollideShapeCollector &ioCollector)
+void MeshShape::sCollideSphereVsMesh(const Shape *inShape1, const Shape *inShape2, Vec3Arg inScale1, Vec3Arg inScale2, Mat44Arg inCenterOfMassTransform1, Mat44Arg inCenterOfMassTransform2, const SubShapeIDCreator &inSubShapeIDCreator1, const SubShapeIDCreator &inSubShapeIDCreator2, const CollideShapeSettings &inCollideShapeSettings, CollideShapeCollector &ioCollector, [[maybe_unused]] const ShapeFilter &inShapeFilter)
 {
 	JPH_PROFILE_FUNCTION();
 
@@ -1095,14 +1115,14 @@ void MeshShape::SaveBinaryState(StreamOut &inStream) const
 {
 	Shape::SaveBinaryState(inStream);
 
-	inStream.Write(static_cast<const ByteBufferVector &>(mTree)); // Make sure we use the vector<> overload
+	inStream.Write(static_cast<const ByteBufferVector &>(mTree)); // Make sure we use the Array<> overload
 }
 
 void MeshShape::RestoreBinaryState(StreamIn &inStream)
 {
 	Shape::RestoreBinaryState(inStream);
 
-	inStream.Read(static_cast<ByteBufferVector &>(mTree)); // Make sure we use the vector<> overload
+	inStream.Read(static_cast<ByteBufferVector &>(mTree)); // Make sure we use the Array<> overload
 }
 
 void MeshShape::SaveMaterialState(PhysicsMaterialList &outMaterials) const
@@ -1161,6 +1181,9 @@ void MeshShape::sRegister()
 	{
 		CollisionDispatch::sRegisterCollideShape(s, EShapeSubType::Mesh, sCollideConvexVsMesh);
 		CollisionDispatch::sRegisterCastShape(s, EShapeSubType::Mesh, sCastConvexVsMesh);
+
+		CollisionDispatch::sRegisterCastShape(EShapeSubType::Mesh, s, CollisionDispatch::sReversedCastShape);
+		CollisionDispatch::sRegisterCollideShape(EShapeSubType::Mesh, s, CollisionDispatch::sReversedCollideShape);
 	}
 
 	// Specialized collision functions

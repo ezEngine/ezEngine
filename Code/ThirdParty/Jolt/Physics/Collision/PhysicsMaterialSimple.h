@@ -15,7 +15,7 @@ public:
 
 	/// Constructor
 											PhysicsMaterialSimple() = default;
-											PhysicsMaterialSimple(const string &inName, ColorArg inColor) : mDebugName(inName), mDebugColor(inColor) { }
+											PhysicsMaterialSimple(const string_view &inName, ColorArg inColor) : mDebugName(inName), mDebugColor(inColor) { }
 
 	// Properties
 	virtual const char *					GetDebugName() const override		{ return mDebugName.c_str(); }
@@ -29,7 +29,7 @@ protected:
 	virtual void							RestoreBinaryState(StreamIn &inStream) override;
 
 private:
-	string									mDebugName;							///< Name of the material, used for debugging purposes
+	String									mDebugName;							///< Name of the material, used for debugging purposes
 	Color									mDebugColor = Color::sGrey;			///< Color of the material, used to render the shapes
 };
 

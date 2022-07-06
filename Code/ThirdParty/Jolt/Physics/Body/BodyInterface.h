@@ -20,6 +20,7 @@ class TransformedShape;
 class PhysicsMaterial;
 class SubShapeID;
 class Shape;
+class TwoBodyConstraintSettings;
 class TwoBodyConstraint;
 
 /// Class that provides operations on bodies using a body ID. Note that if you need to do multiple operations on a single body, it is more efficient to lock the body once and combine the operations.
@@ -41,6 +42,8 @@ public:
 	void						DestroyBodies(const BodyID *inBodyIDs, int inNumber);
 
 	/// Add body to the world.
+	/// Note that if you need to add multiple bodies, use the AddBodiesPrepare/AddBodiesFinalize function.
+	/// Adding many bodies, one at a time, results in a really inefficient broadphase until PhysicsSystem::OptimizeBroadPhase is called or when PhysicsSystem::Update rebuilds the tree!
 	/// After adding, to get a body by ID use the BodyLockRead or BodyLockWrite interface!
 	void						AddBody(const BodyID &inBodyID, EActivation inActivationMode);
 	
@@ -74,6 +77,9 @@ public:
 	void						DeactivateBodies(const BodyID *inBodyIDs, int inNumber);
 	bool						IsActive(const BodyID &inBodyID) const;
 	///@}
+
+	/// Create a two body constraint
+	TwoBodyConstraint *			CreateConstraint(const TwoBodyConstraintSettings *inSettings, const BodyID &inBodyID1, const BodyID &inBodyID2);
 
 	/// Activate non-static bodies attached to a constraint
 	void						ActivateConstraint(const TwoBodyConstraint *inConstraint);

@@ -12,48 +12,48 @@ ObjectStreamTextIn::ObjectStreamTextIn(istream &inStream) :
 {
 }
 
-bool ObjectStreamTextIn::ReadDataType(EDataType &outType)
+bool ObjectStreamTextIn::ReadDataType(EOSDataType &outType)
 {
-	string token;
+	String token;
 	if (ReadWord(token)) 
 	{
 		transform(token.begin(), token.end(), token.begin(), [](char inValue) { return (char)tolower(inValue); });
 		if (token == "declare")
-			outType = EDataType::Declare;
+			outType = EOSDataType::Declare;
 		else if (token == "object")
-			outType = EDataType::Object;		
+			outType = EOSDataType::Object;		
 		else if (token == "instance")
-			outType = EDataType::Instance;
+			outType = EOSDataType::Instance;
 		else if (token == "pointer")
-			outType = EDataType::Pointer;
+			outType = EOSDataType::Pointer;
 		else if (token == "array")
-			outType  = EDataType::Array;
+			outType  = EOSDataType::Array;
 		else if (token == "uint8")
-			outType  = EDataType::T_uint8;
+			outType  = EOSDataType::T_uint8;
 		else if (token == "uint16")
-			outType  = EDataType::T_uint16;
+			outType  = EOSDataType::T_uint16;
 		else if (token == "int")
-			outType  = EDataType::T_int;
+			outType  = EOSDataType::T_int;
 		else if (token == "uint32")
-			outType  = EDataType::T_uint32;
+			outType  = EOSDataType::T_uint32;
 		else if (token == "uint64")
-			outType  = EDataType::T_uint64;
+			outType  = EOSDataType::T_uint64;
 		else if (token == "float")
-			outType  = EDataType::T_float;
+			outType  = EOSDataType::T_float;
 		else if (token == "bool")
-			outType  = EDataType::T_bool;
+			outType  = EOSDataType::T_bool;
 		else if (token == "string")
-			outType  = EDataType::T_string;
+			outType  = EOSDataType::T_String;
 		else if (token == "float3")
-			outType  = EDataType::T_Float3;
+			outType  = EOSDataType::T_Float3;
 		else if (token == "vec3")
-			outType  = EDataType::T_Vec3;
+			outType  = EOSDataType::T_Vec3;
 		else if (token == "vec4")
-			outType  = EDataType::T_Vec4;
+			outType  = EOSDataType::T_Vec4;
 		else if (token == "quat")
-			outType  = EDataType::T_Quat;
+			outType  = EOSDataType::T_Quat;
 		else if (token == "mat44")
-			outType  = EDataType::T_Mat44;
+			outType  = EOSDataType::T_Mat44;
 		else
 		{
 			Trace("ObjectStreamTextIn: Found unknown data type.");
@@ -64,14 +64,14 @@ bool ObjectStreamTextIn::ReadDataType(EDataType &outType)
 	return false;
 }
 
-bool ObjectStreamTextIn::ReadName(string &outName)
+bool ObjectStreamTextIn::ReadName(String &outName)
 {
 	return ReadWord(outName);
 }
 
 bool ObjectStreamTextIn::ReadIdentifier(Identifier &outIdentifier)
 {
-	string token;
+	String token;
 	if (!ReadWord(token))
 		return false;
 	outIdentifier = (uint32)std::strtoul(token.c_str(), nullptr, 16);
@@ -90,11 +90,11 @@ bool ObjectStreamTextIn::ReadCount(uint32 &outCount)
 
 bool ObjectStreamTextIn::ReadPrimitiveData(uint8 &outPrimitive)
 {
-	string token;
+	String token;
 	if (!ReadWord(token))
 		return false;
 	uint32 temporary;
-	istringstream stream(token);
+	IStringStream stream(token);
 	stream >> temporary;
 	if (!stream.fail())
 	{
@@ -106,11 +106,11 @@ bool ObjectStreamTextIn::ReadPrimitiveData(uint8 &outPrimitive)
 
 bool ObjectStreamTextIn::ReadPrimitiveData(uint16 &outPrimitive)
 {
-	string token;
+	String token;
 	if (!ReadWord(token))
 		return false;
 	uint32 temporary;
-	istringstream stream(token);
+	IStringStream stream(token);
 	stream >> temporary;
 	if (!stream.fail())
 	{
@@ -122,47 +122,47 @@ bool ObjectStreamTextIn::ReadPrimitiveData(uint16 &outPrimitive)
 
 bool ObjectStreamTextIn::ReadPrimitiveData(int &outPrimitive)
 {
-	string token;
+	String token;
 	if (!ReadWord(token))
 		return false;
-	istringstream stream(token);
+	IStringStream stream(token);
 	stream >> outPrimitive;
 	return !stream.fail();
 }
 
 bool ObjectStreamTextIn::ReadPrimitiveData(uint32 &outPrimitive)
 {
-	string token;
+	String token;
 	if (!ReadWord(token))
 		return false;
-	istringstream stream(token);
+	IStringStream stream(token);
 	stream >> outPrimitive;
 	return !stream.fail();
 }
 
 bool ObjectStreamTextIn::ReadPrimitiveData(uint64 &outPrimitive)
 {
-	string token;
+	String token;
 	if (!ReadWord(token))
 		return false;
-	istringstream stream(token);
+	IStringStream stream(token);
 	stream >> outPrimitive;
 	return !stream.fail();
 }
 
 bool ObjectStreamTextIn::ReadPrimitiveData(float &outPrimitive)
 {
-	string token;
+	String token;
 	if (!ReadWord(token))
 		return false;
-	istringstream stream(token);
+	IStringStream stream(token);
 	stream >> outPrimitive;
 	return !stream.fail();
 }
 
 bool ObjectStreamTextIn::ReadPrimitiveData(bool &outPrimitive)
 {
-	string token;
+	String token;
 	if (!ReadWord(token))
 		return false;
 	transform(token.begin(), token.end(), token.begin(), [](char inValue) { return (char)tolower(inValue); });
@@ -170,7 +170,7 @@ bool ObjectStreamTextIn::ReadPrimitiveData(bool &outPrimitive)
 	return outPrimitive || token == "false";
 }
 
-bool ObjectStreamTextIn::ReadPrimitiveData(string &outPrimitive)
+bool ObjectStreamTextIn::ReadPrimitiveData(String &outPrimitive)
 {
 	outPrimitive.clear();
 
@@ -191,7 +191,7 @@ bool ObjectStreamTextIn::ReadPrimitiveData(string &outPrimitive)
 		return false;
 
 	// Read string and interpret special characters
-	string	result;
+	String result;
 	bool escaped = false;
 	for (;;) 
 	{
@@ -311,7 +311,7 @@ bool ObjectStreamTextIn::ReadChar(char &outChar)
 	return !mStream.eof();
 }
 
-bool ObjectStreamTextIn::ReadWord(string &outWord)
+bool ObjectStreamTextIn::ReadWord(String &outWord)
 {
 	outWord.clear();
 

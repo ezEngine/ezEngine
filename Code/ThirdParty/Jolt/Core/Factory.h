@@ -4,10 +4,7 @@
 #pragma once
 
 #include <Jolt/Core/RTTI.h>
-
-JPH_SUPPRESS_WARNINGS_STD_BEGIN
-#include <unordered_map>
-JPH_SUPPRESS_WARNINGS_STD_END
+#include <Jolt/Core/UnorderedMap.h>
 
 JPH_NAMESPACE_BEGIN
 
@@ -15,6 +12,8 @@ JPH_NAMESPACE_BEGIN
 class Factory
 {
 public:
+	JPH_OVERRIDE_NEW_DELETE
+
 	/// Create an object
 	void *						CreateObject(const char *inName);
 
@@ -27,16 +26,22 @@ public:
 	/// Register an object with the factory. Returns false on failure.
 	bool						Register(const RTTI *inRTTI);
 
+	/// Register a list of objects with the factory. Returns false on failure.
+	bool						Register(const RTTI **inRTTIs, uint inNumber);
+
+	/// Unregisters all types
+	void						Clear();
+
 	/// Get all registered classes
-	vector<const RTTI *>		GetAllClasses() const;
+	Array<const RTTI *>			GetAllClasses() const;
 
 	/// Singleton factory instance
-	static Factory 				sInstance;
+	static Factory *			sInstance;
 
 private:
-	using ClassNameMap = unordered_map<string_view, const RTTI *>;
+	using ClassNameMap = UnorderedMap<string_view, const RTTI *>;
 
-	using ClassHashMap = unordered_map<uint32, const RTTI *>;
+	using ClassHashMap = UnorderedMap<uint32, const RTTI *>;
 
 	/// Map of class names to type info
 	ClassNameMap				mClassNameMap;

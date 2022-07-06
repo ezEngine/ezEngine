@@ -11,11 +11,13 @@ JPH_NAMESPACE_BEGIN
 class ObjectStreamBinaryOut : public ObjectStreamOut
 {
 public:
+	JPH_OVERRIDE_NEW_DELETE
+
 	/// Constructor and destructor
 	explicit 					ObjectStreamBinaryOut(ostream &inStream);
 
 	///@name Output type specific operations
-	virtual void				WriteDataType(EDataType inType) override;
+	virtual void				WriteDataType(EOSDataType inType) override;
 	virtual void				WriteName(const char *inName) override;
 	virtual void				WriteIdentifier(Identifier inIdentifier) override;
 	virtual void				WriteCount(uint32 inCount) override;
@@ -27,7 +29,7 @@ public:
 	virtual void				WritePrimitiveData(const uint64 &inPrimitive) override;
 	virtual void				WritePrimitiveData(const float &inPrimitive) override;
 	virtual void				WritePrimitiveData(const bool &inPrimitive) override;
-	virtual void				WritePrimitiveData(const string &inPrimitive) override;
+	virtual void				WritePrimitiveData(const String &inPrimitive) override;
 	virtual void				WritePrimitiveData(const Float3 &inPrimitive) override;
 	virtual void				WritePrimitiveData(const Vec3 &inPrimitive) override;
 	virtual void				WritePrimitiveData(const Vec4 &inPrimitive) override;
@@ -35,7 +37,7 @@ public:
 	virtual void				WritePrimitiveData(const Mat44 &inPrimitive) override;
 
 private:
-	using StringTable = unordered_map<string, uint32>;
+	using StringTable = UnorderedMap<String, uint32>;
 
 	StringTable					mStringTable;
 	uint32						mNextStringID = 0x80000000;

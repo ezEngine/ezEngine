@@ -41,7 +41,7 @@ const vector<Vec3> ConvexShape::sUnitSphereTriangles = []() {
 	return verts;
 }();
 
-void ConvexShape::sCollideConvexVsConvex(const Shape *inShape1, const Shape *inShape2, Vec3Arg inScale1, Vec3Arg inScale2, Mat44Arg inCenterOfMassTransform1, Mat44Arg inCenterOfMassTransform2, const SubShapeIDCreator &inSubShapeIDCreator1, const SubShapeIDCreator &inSubShapeIDCreator2, const CollideShapeSettings &inCollideShapeSettings, CollideShapeCollector &ioCollector)
+void ConvexShape::sCollideConvexVsConvex(const Shape *inShape1, const Shape *inShape2, Vec3Arg inScale1, Vec3Arg inScale2, Mat44Arg inCenterOfMassTransform1, Mat44Arg inCenterOfMassTransform2, const SubShapeIDCreator &inSubShapeIDCreator1, const SubShapeIDCreator &inSubShapeIDCreator2, const CollideShapeSettings &inCollideShapeSettings, CollideShapeCollector &ioCollector, [[maybe_unused]] const ShapeFilter &inShapeFilter)
 {
 	JPH_PROFILE_FUNCTION();
 
@@ -184,9 +184,13 @@ bool ConvexShape::CastRay(const RayCast &inRay, const SubShapeIDCreator &inSubSh
 	return false;
 }
 
-void ConvexShape::CastRay(const RayCast &inRay, const RayCastSettings &inRayCastSettings, const SubShapeIDCreator &inSubShapeIDCreator, CastRayCollector &ioCollector) const
+void ConvexShape::CastRay(const RayCast &inRay, const RayCastSettings &inRayCastSettings, const SubShapeIDCreator &inSubShapeIDCreator, CastRayCollector &ioCollector, const ShapeFilter &inShapeFilter) const
 {
 	// Note: This is a fallback routine, most convex shapes should implement a more performant version!
+
+	// Test shape filter
+	if (!inShapeFilter.ShouldCollide(inSubShapeIDCreator.GetID()))
+		return;
 
 	// First do a normal raycast, limited to the early out fraction
 	RayCastResult hit;
@@ -226,8 +230,12 @@ void ConvexShape::CastRay(const RayCast &inRay, const RayCastSettings &inRayCast
 	}
 }
 
-void ConvexShape::CollidePoint(Vec3Arg inPoint, const SubShapeIDCreator &inSubShapeIDCreator, CollidePointCollector &ioCollector) const
+void ConvexShape::CollidePoint(Vec3Arg inPoint, const SubShapeIDCreator &inSubShapeIDCreator, CollidePointCollector &ioCollector, const ShapeFilter &inShapeFilter) const
 {
+	// Test shape filter
+	if (!inShapeFilter.ShouldCollide(inSubShapeIDCreator.GetID()))
+		return;
+
 	// First test bounding box
 	if (GetLocalBounds().Contains(inPoint))
 	{
@@ -447,28 +455,19 @@ void ConvexShape::GetSubmergedVolume(Mat44Arg inCenterOfMassTransform, Vec3Arg i
 #ifdef JPH_DEBUG_RENDERER
 void ConvexShape::DrawGetSupportFunction(DebugRenderer *inRenderer, Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, ColorArg inColor, bool inDrawSupportDirection) const
 {
-	DebugRenderer::GeometryRef &geometry = mGetSupportFunctionGeometry[inScale];
-	if (geometry == nullptr)
-	{
-		SupportBuffer buffer;
-		const Support *support = GetSupportFunction(ESupportMode::ExcludeConvexRadius, buffer, inScale);
-		AddConvexRadius<Support> add_convex(*support, support->GetConvexRadius());
-		geometry = inRenderer->CreateTriangleGeometryForConvex([&add_convex](Vec3Arg inDirection) { return add_convex.GetSupport(inDirection); });
-	}
+	// Get the support function with convex radius
+	SupportBuffer buffer;
+	const Support *support = GetSupportFunction(ESupportMode::ExcludeConvexRadius, buffer, inScale);
+	AddConvexRadius<Support> add_convex(*support, support->GetConvexRadius());
 
+	// Draw the shape
+	DebugRenderer::GeometryRef geometry = inRenderer->CreateTriangleGeometryForConvex([&add_convex](Vec3Arg inDirection) { return add_convex.GetSupport(inDirection); });
 	AABox bounds = geometry->mBounds.Transformed(inCenterOfMassTransform);
-
 	float lod_scale_sq = geometry->mBounds.GetExtent().LengthSq();
-
 	inRenderer->DrawGeometry(inCenterOfMassTransform, bounds, lod_scale_sq, inColor, geometry);
 
 	if (inDrawSupportDirection)
 	{
-		// Get the support function with convex radius
-		SupportBuffer buffer;
-		const Support *support = GetSupportFunction(ESupportMode::ExcludeConvexRadius, buffer, inScale);
-		AddConvexRadius<Support> add_convex(*support, support->GetConvexRadius());
-
 		// Iterate on all directions and draw the support point and an arrow in the direction that was sampled to test if the support points make sense
 		for (Vec3 v : Vec3::sUnitSphere)
 		{
@@ -485,7 +484,7 @@ void ConvexShape::DrawGetSupportFunction(DebugRenderer *inRenderer, Mat44Arg inC
 void ConvexShape::DrawGetSupportingFace(DebugRenderer *inRenderer, Mat44Arg inCenterOfMassTransform, Vec3Arg inScale) const
 {
 	// Sample directions and map which faces belong to which directions
-	using FaceToDirection = unordered_map<SupportingFace, vector<Vec3>>;
+	using FaceToDirection = UnorderedMap<SupportingFace, Array<Vec3>>;
 	FaceToDirection faces;
 	for (Vec3 v : Vec3::sUnitSphere)
 	{

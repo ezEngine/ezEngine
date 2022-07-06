@@ -42,9 +42,14 @@
 #endif
 
 // Detect CPU architecture
-#if defined(__x86_64__) || defined(_M_X64)
+#if defined(__x86_64__) || defined(_M_X64) || defined(__i386__) || defined(_M_IX86)
 	// X86 CPU architecture
-	#define JPH_CPU_X64
+	#define JPH_CPU_X86
+	#if defined(__x86_64__) || defined(_M_X64)
+		#define JPH_CPU_ADDRESS_BITS 64
+	#else
+		#define JPH_CPU_ADDRESS_BITS 32
+	#endif
 	#define JPH_USE_SSE
 
 	// Detect enabled instruction sets
@@ -69,21 +74,27 @@
 	#if defined(__AVX2__) && !defined(JPH_USE_AVX2)
 		#define JPH_USE_AVX2
 	#endif
-	#if defined(JPH_COMPILER_CLANG) || defined(JPH_COMPILER_GCC)
-		#if defined(__FMA__) && !defined(JPH_USE_FMADD)
-			#define JPH_USE_FMADD
+	#if defined(__AVX512F__) && defined(__AVX512VL__) && defined(__AVX512DQ__) && !defined(JPH_USE_AVX512)
+		#define JPH_USE_AVX512
+	#endif
+	#ifndef JPH_CROSS_PLATFORM_DETERMINISTIC // FMA is not compatible with cross platform determinism
+		#if defined(JPH_COMPILER_CLANG) || defined(JPH_COMPILER_GCC)
+			#if defined(__FMA__) && !defined(JPH_USE_FMADD)
+				#define JPH_USE_FMADD
+			#endif
+		#elif defined(JPH_COMPILER_MSVC)
+			#if defined(__AVX2__) && !defined(JPH_USE_FMADD) // AVX2 also enables fused multiply add
+				#define JPH_USE_FMADD
+			#endif
+		#else
+			#error Undefined compiler
 		#endif
-	#elif defined(JPH_COMPILER_MSVC)
-		#if defined(__AVX2__) && !defined(JPH_USE_FMADD) // AVX2 also enables fused multiply add
-			#define JPH_USE_FMADD
-		#endif
-	#else
-		#error Undefined compiler
 	#endif
 #elif defined(__aarch64__) || defined(_M_ARM64)
 	// ARM64 CPU architecture
 	#define JPH_CPU_ARM64
 	#define JPH_USE_NEON
+	#define JPH_CPU_ADDRESS_BITS 64
 #else
 	#error Unsupported CPU architecture
 #endif
@@ -158,7 +169,8 @@
 	JPH_MSVC_SUPPRESS_WARNING(5045) /* Compiler will insert Spectre mitigation for memory load if /Qspectre switch specified */ \
 	JPH_MSVC_SUPPRESS_WARNING(4583) /* 'X': destructor is not implicitly called */				\
 	JPH_MSVC_SUPPRESS_WARNING(4582) /* 'X': constructor is not implicitly called */				\
-	JPH_MSVC_SUPPRESS_WARNING(5219) /* implicit conversion from 'X' to 'Y', possible loss of data  */
+	JPH_MSVC_SUPPRESS_WARNING(5219) /* implicit conversion from 'X' to 'Y', possible loss of data  */ \
+	JPH_MSVC_SUPPRESS_WARNING(4826) /* Conversion from 'X *' to 'JPH::uint64' is sign-extended. This may cause unexpected runtime behavior. (32-bit) */
 
 // OS-specific includes
 #if defined(JPH_PLATFORM_WINDOWS)
@@ -174,7 +186,7 @@
 	#include <limits.h>
 	#include <string.h>
 
-	#if defined(JPH_CPU_X64)
+	#if defined(JPH_CPU_X86)
 		#define JPH_BREAKPOINT		__asm volatile ("int $0x3")
 	#elif defined(JPH_CPU_ARM64)
 		#define JPH_BREAKPOINT		__builtin_trap()
@@ -201,7 +213,9 @@
 #define JPH_SUPPRESS_WARNINGS_STD_BEGIN		\
 	JPH_SUPPRESS_WARNING_PUSH				\
 	JPH_MSVC_SUPPRESS_WARNING(4710)			\
-	JPH_MSVC_SUPPRESS_WARNING(4711)
+	JPH_MSVC_SUPPRESS_WARNING(4711)			\
+	JPH_MSVC_SUPPRESS_WARNING(4820)			\
+	JPH_MSVC_SUPPRESS_WARNING(4514)
 
 #define JPH_SUPPRESS_WARNINGS_STD_END		\
 	JPH_SUPPRESS_WARNING_POP
@@ -209,7 +223,6 @@
 // Standard C++ includes
 JPH_SUPPRESS_WARNINGS_STD_BEGIN
 #include <vector>
-#include <algorithm>
 #include <utility>
 #include <cmath>
 #include <sstream>
@@ -238,7 +251,7 @@ static_assert(sizeof(uint8) == 1, "Invalid size of uint8");
 static_assert(sizeof(uint16) == 2, "Invalid size of uint16");
 static_assert(sizeof(uint32) == 4, "Invalid size of uint32");
 static_assert(sizeof(uint64) == 8, "Invalid size of uint64");
-static_assert(sizeof(void *) == 8, "Invalid size of pointer");
+static_assert(sizeof(void *) == (JPH_CPU_ADDRESS_BITS == 64? 8 : 4), "Invalid size of pointer" );
 
 // Define inline macro
 #if defined(JPH_COMPILER_CLANG) || defined(JPH_COMPILER_GCC)
@@ -273,11 +286,18 @@ static_assert(sizeof(void *) == 8, "Invalid size of pointer");
 	#define JPH_IF_DEBUG(...)
 #endif
 
+// Shorthand for #ifdef JPH_FLOATING_POINT_EXCEPTIONS_ENABLED / #endif
+#ifdef JPH_FLOATING_POINT_EXCEPTIONS_ENABLED
+	#define JPH_IF_FLOATING_POINT_EXCEPTIONS_ENABLED(...)	__VA_ARGS__
+#else
+	#define JPH_IF_FLOATING_POINT_EXCEPTIONS_ENABLED(...)
+#endif
+
 // Macro to indicate that a parameter / variable is unused
 #define JPH_UNUSED(x)			(void)x
 
 // Macro to enable floating point precise mode and to disable fused multiply add instructions
-#if defined(JPH_COMPILER_CLANG) || defined(JPH_COMPILER_GCC)
+#if defined(JPH_COMPILER_CLANG) || defined(JPH_COMPILER_GCC) || defined(JPH_CROSS_PLATFORM_DETERMINISTIC)
 	// In clang it appears you cannot turn off -ffast-math and -ffp-contract=fast for a code block
 	// There is #pragma clang fp contract (off) but that doesn't seem to work under clang 9 & 10 when -ffast-math is specified on the commandline (you override it to turn it on, but not off)
 	// There is #pragma float_control(precise, on) but that doesn't work under clang 9.
