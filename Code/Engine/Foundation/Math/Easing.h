@@ -48,12 +48,12 @@ namespace ezMath
     OutBounce,
     InOutBounce,
 
-    EasingCount, // All easing function types must be stated before this.
+    ENUM_COUNT, // All easing function types must be stated before this.
   };
 
   /// \brief Helper function that returns the easing value from an easing function.
   template <typename Type>
-  Type EZ_FOUNDATION_DLL GetEasingValue(ezEasingFunctions easingFunction, Type input);
+  Type GetEasingValue(ezEasingFunctions easingFunction, Type input);
 
   template <typename Type>
   Type EaseInLinear(Type t);
