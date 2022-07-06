@@ -164,10 +164,6 @@ void ezJoltCore::Shutdown()
 
   JPH::Trace = nullptr;
 
-#ifdef JPH_ENABLE_ASSERTS
-  JPH::AssertFailed = JPH::DummyAssertFailed;
-#endif
-
   ezSurfaceResource::s_Events.RemoveEventHandler(&ezJoltCore::SurfaceResourceEventHandler);
 }
 
