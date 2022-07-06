@@ -41,7 +41,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezJoltRopeComponent, 1, ezComponentMode::Dynamic)
       EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
       EZ_ACCESSOR_PROPERTY("Surface", GetSurfaceFile, SetSurfaceFile)->AddAttributes(new ezAssetBrowserAttribute("Surface")),
       EZ_ACCESSOR_PROPERTY("GravityFactor", GetGravityFactor, SetGravityFactor)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
-      //EZ_MEMBER_PROPERTY("SelfCollision", m_bSelfCollision), // works, but not exposed for now
+      EZ_MEMBER_PROPERTY("SelfCollision", m_bSelfCollision),
+      EZ_MEMBER_PROPERTY("ContinuousCollisionDetection", m_bCCD),
     }
     EZ_END_PROPERTIES;
     EZ_BEGIN_MESSAGEHANDLERS
@@ -99,6 +100,7 @@ void ezJoltRopeComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_fBendStiffness;
   s << m_fTotalMass;
   s << m_fSlack;
+  s << m_bCCD;
 
   stream.WriteGameObjectHandle(m_hAnchor);
 }
@@ -123,6 +125,7 @@ void ezJoltRopeComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_fBendStiffness;
   s >> m_fTotalMass;
   s >> m_fSlack;
+  s >> m_bCCD;
 
   m_hAnchor = stream.ReadGameObjectHandle();
 }
@@ -198,13 +201,13 @@ void ezJoltRopeComponent::CreateRope()
   capsule.mRadius = m_fThickness * 0.5f;
   capsule.mHalfHeightOfCylinder = fPieceLength * 0.5f;
   capsule.mMaterial = pMaterial;
-  // TODO: capsule.mUserData = ... one for the entire rope ?
+  capsule.mUserData = reinterpret_cast<ezUInt64>(pUserData);
 
   JPH::RotatedTranslatedShapeSettings capsOffset;
   capsOffset.mInnerShapePtr = capsule.Create().Get();
   capsOffset.mPosition = JPH::Vec3(fPieceLength * 0.5f, 0, 0);
   capsOffset.mRotation = JPH::Quat::sRotation(JPH::Vec3::sAxisZ(), ezAngle::Degree(-90).GetRadian());
-  // TODO: capsOffset.mUserData = ... one for the entire rope ?
+  capsOffset.mUserData = reinterpret_cast<ezUInt64>(pUserData);
 
   ezVec3 vNextJointPos;
 
@@ -217,7 +220,7 @@ void ezJoltRopeComponent::CreateRope()
       // set previous name as parent name
       joint.mParentName = name;
 
-      name.Format("RopeLink_{}", idx);
+      name.Format("Link{}", idx);
       joint.mName = name;
       joint.mParentJointIndex = static_cast<ezInt32>(idx) - 1;
     }
@@ -225,7 +228,7 @@ void ezJoltRopeComponent::CreateRope()
     auto& part = opt->mParts[idx];
     part.mObjectLayer = ezJoltCollisionFiltering::ConstructObjectLayer(m_uiCollisionLayer, ezJoltBroadphaseLayer::Rope);
     part.mGravityFactor = m_fGravityFactor;
-    part.mMotionQuality = JPH::EMotionQuality::LinearCast; // todo: option
+    part.mMotionQuality = m_bCCD ? JPH::EMotionQuality::LinearCast : JPH::EMotionQuality::Discrete;
     part.mMotionType = JPH::EMotionType::Dynamic;
     part.mPosition = ezJoltConversionUtils::ToVec3(pieces[idx].m_vPosition);
     part.mRotation = ezJoltConversionUtils::ToQuat(pieces[idx].m_qRotation);
@@ -235,8 +238,10 @@ void ezJoltRopeComponent::CreateRope()
     part.mOverrideMassProperties = JPH::EOverrideMassProperties::CalculateInertia;
     part.mRestitution = pMaterial->m_fRestitution;
     part.mFriction = pMaterial->m_fFriction;
+    part.mLinearDamping = 0.1f;
+    part.mAngularDamping = 0.1f;
     part.mCollisionGroup.SetGroupID(m_uiObjectFilterID);
-    //bodyCfg.mCollisionGroup.SetGroupFilter(pModule->GetGroupFilter()); // TODO: might need a custom group filter
+    part.mCollisionGroup.SetGroupFilter(pModule->GetGroupFilterIgnoreSame()); // this is used if m_bSelfCollision is off, otherwise it gets overridden below
 
     if (idx > 0)
     {
@@ -246,17 +251,17 @@ void ezJoltRopeComponent::CreateRope()
       pConstraint->mPosition2 = ezJoltConversionUtils::ToVec3(vNextJointPos);
       pConstraint->mNormalHalfConeAngle = m_MaxBend.GetRadian();
       pConstraint->mPlaneHalfConeAngle = m_MaxBend.GetRadian();
-      pConstraint->mTwistAxis1 = ezJoltConversionUtils::ToVec3(pieces[idx - 1].m_qRotation * ezVec3(1, 0, 0));
-      pConstraint->mTwistAxis2 = ezJoltConversionUtils::ToVec3(pieces[idx].m_qRotation * ezVec3(1, 0, 0));
-      pConstraint->mPlaneAxis1 = ezJoltConversionUtils::ToVec3(pieces[idx - 1].m_qRotation * ezVec3(0, 1, 0));
-      pConstraint->mPlaneAxis2 = ezJoltConversionUtils::ToVec3(pieces[idx].m_qRotation * ezVec3(0, 1, 0));
+      pConstraint->mTwistAxis1 = ezJoltConversionUtils::ToVec3(pieces[idx - 1].m_qRotation * ezVec3(1, 0, 0)).Normalized();
+      pConstraint->mTwistAxis2 = ezJoltConversionUtils::ToVec3(pieces[idx].m_qRotation * ezVec3(1, 0, 0)).Normalized();
+      pConstraint->mPlaneAxis1 = ezJoltConversionUtils::ToVec3(pieces[idx - 1].m_qRotation * ezVec3(0, 1, 0)).Normalized();
+      pConstraint->mPlaneAxis2 = ezJoltConversionUtils::ToVec3(pieces[idx].m_qRotation * ezVec3(0, 1, 0)).Normalized();
       pConstraint->mTwistMinAngle = -m_MaxTwist.GetRadian();
       pConstraint->mTwistMaxAngle = m_MaxTwist.GetRadian();
       pConstraint->mMaxFrictionTorque = m_fBendStiffness;
       part.mToParent = pConstraint;
     }
 
-    vNextJointPos = pieces[idx].m_vPosition + pieces[idx].m_qRotation * ezVec3(fPieceLength * 0.5f, 0, 0);
+    vNextJointPos = pieces[idx].m_vPosition + pieces[idx].m_qRotation * ezVec3(fPieceLength, 0, 0);
 
     if ((m_bAttachToOrigin && idx == 0) || (m_bAttachToAnchor && idx + 1 == pieces.GetCount()))
     {
@@ -266,7 +271,15 @@ void ezJoltRopeComponent::CreateRope()
     }
   }
 
-  m_pRagdoll = opt->CreateRagdoll({}, reinterpret_cast<ezUInt64>(pUserData), pModule->GetJoltSystem());
+  opt->Stabilize();
+
+  if (m_bSelfCollision)
+  {
+    // overrides the group filter above to one that allows collision with itself, except for directly joined bodies
+    opt->DisableParentChildCollisions();
+  }
+
+  m_pRagdoll = opt->CreateRagdoll(m_uiObjectFilterID, reinterpret_cast<ezUInt64>(pUserData), pModule->GetJoltSystem());
   m_pRagdoll->AddRef();
   m_pRagdoll->AddToPhysicsSystem(JPH::EActivation::Activate);
 
@@ -290,26 +303,27 @@ void ezJoltRopeComponent::CreateRope()
   }
 }
 
-JPH::Constraint* ezJoltRopeComponent::CreateConstraint(const ezGameObjectHandle& hTarget, const ezTransform& location, ezUInt32 uiBodyID)
+JPH::Constraint* ezJoltRopeComponent::CreateConstraint(const ezGameObjectHandle& hTarget, const ezTransform& dstLoc, ezUInt32 uiBodyID)
 {
   ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
 
 
   JPH::BodyID bodyIDs[2] = {JPH::BodyID(JPH::BodyID::cInvalidBodyID), JPH::BodyID(uiBodyID)};
 
-  ezJoltDynamicActorComponent* pActor = nullptr;
-
   ezGameObject* pObject = nullptr;
-  if (GetWorld()->TryGetObject(hTarget, pObject))
-  {
-    if (!pObject->TryGetComponentOfBaseType(pActor))
-    {
-      pObject = pObject->GetParent();
+  if (!GetWorld()->TryGetObject(hTarget, pObject))
+    return nullptr;
 
-      if (pObject)
-      {
-        pObject->TryGetComponentOfBaseType(pActor);
-      }
+  const auto location = pObject->GetGlobalTransform();
+
+  ezJoltDynamicActorComponent* pActor = nullptr;
+  if (!pObject->TryGetComponentOfBaseType(pActor))
+  {
+    pObject = pObject->GetParent();
+
+    if (pObject)
+    {
+      pObject->TryGetComponentOfBaseType(pActor);
     }
   }
 
@@ -318,6 +332,7 @@ JPH::Constraint* ezJoltRopeComponent::CreateConstraint(const ezGameObjectHandle&
     pActor->EnsureSimulationStarted();
     bodyIDs[0] = JPH::BodyID(pActor->GetJoltBodyID());
   }
+
 
   // create the joint
   {
@@ -328,25 +343,33 @@ JPH::Constraint* ezJoltRopeComponent::CreateConstraint(const ezGameObjectHandle&
 
     JPH::Body* pAnchor = bodies.GetBody(0) != nullptr ? bodies.GetBody(0) : &JPH::Body::sFixedToWorld;
 
-    // exact orientation of this constraint would need to be determined somehow
-    // JPH::SwingTwistConstraintSettings constraint;
-    // constraint.mDrawConstraintSize = 0.1f;
-    // constraint.mPosition1 = ezJoltConversionUtils::ToVec3(location.m_vPosition);
-    // constraint.mPosition2 = ezJoltConversionUtils::ToVec3(location.m_vPosition);
-    // constraint.mNormalHalfConeAngle = m_MaxBend.GetRadian();
-    // constraint.mPlaneHalfConeAngle = m_MaxBend.GetRadian();
-    // constraint.mTwistAxis1 = ezJoltConversionUtils::ToVec3(location.m_qRotation * ezVec3(1, 0, 0));
-    // constraint.mTwistAxis2 = ezJoltConversionUtils::ToVec3(location.m_qRotation * ezVec3(1, 0, 0));
-    // constraint.mPlaneAxis1 = ezJoltConversionUtils::ToVec3(location.m_qRotation * ezVec3(0, 1, 0));
-    // constraint.mPlaneAxis2 = ezJoltConversionUtils::ToVec3(location.m_qRotation * ezVec3(0, 1, 0));
-    // constraint.mTwistMinAngle = -m_MaxTwist.GetRadian();
-    // constraint.mTwistMaxAngle = m_MaxTwist.GetRadian();
-    // constraint.mMaxFrictionTorque = m_fBendStiffness;
+    const ezVec3 vTwistAxis1 = location.m_qRotation * ezVec3(1, 0, 0);
+    const ezVec3 vTwistAxis2 = dstLoc.m_qRotation * ezVec3(1, 0, 0);
 
-    JPH::PointConstraintSettings constraint;
+    ezQuat qAxis1to2;
+    qAxis1to2.SetShortestRotation(vTwistAxis1, vTwistAxis2);
+
+    const ezVec3 vOrthoAxis1 = location.m_qRotation * ezVec3(0, 1, 0);
+    const ezVec3 vOrthoAxis2 = qAxis1to2 * vOrthoAxis1;
+
+
+    JPH::SwingTwistConstraintSettings constraint;
+    constraint.mSpace = JPH::EConstraintSpace::WorldSpace;
     constraint.mDrawConstraintSize = 0.1f;
-    constraint.mPoint1 = ezJoltConversionUtils::ToVec3(location.m_vPosition);
-    constraint.mPoint2 = constraint.mPoint1;
+    constraint.mPosition1 = ezJoltConversionUtils::ToVec3(location.m_vPosition);
+    constraint.mPosition2 = ezJoltConversionUtils::ToVec3(dstLoc.m_vPosition);
+    constraint.mNormalHalfConeAngle = m_MaxBend.GetRadian();
+    constraint.mPlaneHalfConeAngle = m_MaxBend.GetRadian();
+
+    constraint.mTwistAxis1 = ezJoltConversionUtils::ToVec3(vTwistAxis1).Normalized();
+    constraint.mTwistAxis2 = ezJoltConversionUtils::ToVec3(vTwistAxis2).Normalized();
+
+    constraint.mPlaneAxis1 = ezJoltConversionUtils::ToVec3(vOrthoAxis1).Normalized();
+    constraint.mPlaneAxis2 = ezJoltConversionUtils::ToVec3(vOrthoAxis2).Normalized();
+
+    constraint.mTwistMinAngle = -m_MaxTwist.GetRadian();
+    constraint.mTwistMaxAngle = m_MaxTwist.GetRadian();
+    constraint.mMaxFrictionTorque = m_fBendStiffness;
 
     auto* pConstraint = constraint.Create(*pAnchor, *bodies.GetBody(1));
     pConstraint->AddRef();
@@ -479,24 +502,19 @@ void ezJoltRopeComponent::DestroyPhysicsShapes()
   }
 }
 
-// this is a hard-coded constant that seems to prevent the most severe issues well enough
-//
-// applying forces to an articulation is a problem,
-// because articulations tend to end up with bad (NaN)
-// data real quickly if those forces are too large
-// linear and angular damping already helps a lot, but it's not sufficient
-// the only reliable solution seems to be to prevent too large incoming forces
+// applying forces to a ragdoll is a problem,
 // since ropes have many links, things like explosions tend to apply the same force to each link
 // thus multiplying the effect
+// the only reliable solution seems to be to prevent too large incoming forces
 // therefore a 'frame budget' is used to only apply a certain amount of force during a single frame
 // this effectively ignores most forces that are applied to multiple links and just moves one or two links
-// constexpr float g_fMaxForce = 1.5f;
+constexpr float g_fMaxForce = 1.5f;
 
 void ezJoltRopeComponent::Update()
 {
   ezJoltWorldModule* pModule = GetWorld()->GetModule<ezJoltWorldModule>();
 
-  // m_fMaxForcePerFrame = g_fMaxForce * 2.0f;
+  m_fMaxForcePerFrame = g_fMaxForce * 2.0f;
 
   if (m_pRagdoll == nullptr)
     return;
@@ -650,62 +668,60 @@ void ezJoltRopeComponent::SetAnchor(ezGameObjectHandle hActor)
 
 void ezJoltRopeComponent::AddForceAtPos(ezMsgPhysicsAddForce& msg)
 {
-  // if (m_pArticulation == nullptr || m_fMaxForcePerFrame <= 0.0f)
-  //   return;
+  if (m_pRagdoll == nullptr || m_fMaxForcePerFrame <= 0.0f)
+    return;
 
-  // EZ_PX_WRITE_LOCK(*m_pArticulation->getScene());
+  JPH::BodyID bodyId;
 
-  // JoltArticulationLink* pLink[1] = {};
+  if (msg.m_pInternalPhysicsActor != nullptr)
+    bodyId = JPH::BodyID(reinterpret_cast<size_t>(msg.m_pInternalPhysicsActor) & 0xFFFFFFFF);
+  else
+    bodyId = m_pRagdoll->GetBodyID(0);
 
-  // if (msg.m_pInternalPhysicsActor != nullptr)
-  //   pLink[0] = reinterpret_cast<PxArticulationLink*>(msg.m_pInternalPhysicsActor);
-  // else
-  //   m_pArticulation->getLinks(pLink, 1);
+  ezVec3 vImp = msg.m_vForce;
+  const float fOrgImp = vImp.GetLength();
 
-  // ezVec3 vImp = msg.m_vForce;
-  // const float fOrgImp = vImp.GetLength();
+  if (fOrgImp > g_fMaxForce)
+  {
+    vImp.SetLength(g_fMaxForce).IgnoreResult();
+    m_fMaxForcePerFrame -= g_fMaxForce;
+  }
+  else
+  {
+    m_fMaxForcePerFrame -= fOrgImp;
+  }
 
-  // if (fOrgImp > g_fMaxForce)
-  //{
-  //   vImp.SetLength(g_fMaxForce).IgnoreResult();
-  //   m_fMaxForcePerFrame -= g_fMaxForce;
-  // }
-  // else
-  //{
-  //   m_fMaxForcePerFrame -= fOrgImp;
-  // }
-
-  // JoltRigidBodyExt::addForceAtPos(*pLink[0], ezJoltConversionUtils::ToVec3(vImp), ezJoltConversionUtils::ToVec3(msg.m_vGlobalPosition), PxForceMode::eFORCE);
+  ezJoltWorldModule* pModule = GetWorld()->GetModule<ezJoltWorldModule>();
+  pModule->GetJoltSystem()->GetBodyInterface().AddForce(bodyId, ezJoltConversionUtils::ToVec3(vImp), ezJoltConversionUtils::ToVec3(msg.m_vGlobalPosition));
 }
 
 void ezJoltRopeComponent::AddImpulseAtPos(ezMsgPhysicsAddImpulse& msg)
 {
-  // if (m_pArticulation == nullptr || m_fMaxForcePerFrame <= 0.0f)
-  //   return;
+  if (m_pRagdoll == nullptr || m_fMaxForcePerFrame <= 0.0f)
+    return;
 
-  // EZ_PX_WRITE_LOCK(*m_pArticulation->getScene());
+  JPH::BodyID bodyId;
 
-  // JoltArticulationLink* pLink[1] = {};
+  if (msg.m_pInternalPhysicsActor != nullptr)
+    bodyId = JPH::BodyID(reinterpret_cast<size_t>(msg.m_pInternalPhysicsActor) & 0xFFFFFFFF);
+  else
+    bodyId = m_pRagdoll->GetBodyID(0);
 
-  // if (msg.m_pInternalPhysicsActor != nullptr)
-  //   pLink[0] = reinterpret_cast<PxArticulationLink*>(msg.m_pInternalPhysicsActor);
-  // else
-  //   m_pArticulation->getLinks(pLink, 1);
+  ezVec3 vImp = msg.m_vImpulse;
+  const float fOrgImp = vImp.GetLength();
 
-  // ezVec3 vImp = msg.m_vImpulse;
-  // const float fOrgImp = vImp.GetLength();
+  if (fOrgImp > g_fMaxForce)
+  {
+    vImp.SetLength(g_fMaxForce).IgnoreResult();
+    m_fMaxForcePerFrame -= g_fMaxForce;
+  }
+  else
+  {
+    m_fMaxForcePerFrame -= fOrgImp;
+  }
 
-  // if (fOrgImp > g_fMaxForce)
-  //{
-  //   vImp.SetLength(g_fMaxForce).IgnoreResult();
-  //   m_fMaxForcePerFrame -= g_fMaxForce;
-  // }
-  // else
-  //{
-  //   m_fMaxForcePerFrame -= fOrgImp;
-  // }
-
-  // JoltRigidBodyExt::addForceAtPos(*pLink[0], ezJoltConversionUtils::ToVec3(vImp), ezJoltConversionUtils::ToVec3(msg.m_vGlobalPosition), PxForceMode::eIMPULSE);
+  ezJoltWorldModule* pModule = GetWorld()->GetModule<ezJoltWorldModule>();
+  pModule->GetJoltSystem()->GetBodyInterface().AddImpulse(bodyId, ezJoltConversionUtils::ToVec3(vImp), ezJoltConversionUtils::ToVec3(msg.m_vGlobalPosition));
 }
 
 //////////////////////////////////////////////////////////////////////////

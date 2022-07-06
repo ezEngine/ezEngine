@@ -77,11 +77,19 @@ public:
   ezHashSet<ezUInt64> m_IgnoreCollisions;
 };
 
+class ezJoltGroupFilterIgnoreSame : public JPH::GroupFilter
+{
+public:
+  virtual bool CanCollide(const JPH::CollisionGroup& inGroup1, const JPH::CollisionGroup& inGroup2) const override
+  {
+    return inGroup1.GetGroupID() != inGroup2.GetGroupID();
+  }
+};
 
 void ezJoltWorldModule::Deinitialize()
 {
-  m_pSystem.Clear();
-  m_pTempAllocator.Clear();
+  m_pSystem = nullptr;
+  m_pTempAllocator = nullptr;
 
   ezJoltBodyActivationListener* pActivationListener = reinterpret_cast<ezJoltBodyActivationListener*>(m_pActivationListener);
   EZ_DEFAULT_DELETE(pActivationListener);
@@ -90,6 +98,7 @@ void ezJoltWorldModule::Deinitialize()
   EZ_DEFAULT_DELETE(pContactListener);
 
   m_pGroupFilter->Release();
+  m_pGroupFilterIgnoreSame->Release();
 }
 
 class ezJoltTempAlloc : public JPH::TempAllocator
@@ -198,14 +207,14 @@ void ezJoltWorldModule::Initialize()
   UpdateSettingsCfg();
 
   ezStringBuilder tmp("JoltTemp-", GetWorld()->GetName());
-  m_pTempAllocator = EZ_DEFAULT_NEW(ezJoltTempAlloc, tmp);
+  m_pTempAllocator = std::make_unique<ezJoltTempAlloc>(tmp);
 
   const uint32_t cMaxBodies = m_Settings.m_uiMaxBodies;
   const uint32_t cMaxContactConstraints = m_Settings.m_uiMaxBodies * 4;
   const uint32_t cMaxBodyPairs = cMaxContactConstraints * 10;
   const uint32_t cNumBodyMutexes = 0;
 
-  m_pSystem = EZ_NEW(ezFoundation::GetAlignedAllocator(), JPH::PhysicsSystem);
+  m_pSystem = std::make_unique<JPH::PhysicsSystem>();
   m_pSystem->Init(cMaxBodies, cNumBodyMutexes, cMaxBodyPairs, cMaxContactConstraints, m_ObjectToBroadphase, ezJoltCollisionFiltering::BroadphaseFilter, ezJoltCollisionFiltering::ObjectLayerFilter);
 
   {
@@ -225,6 +234,11 @@ void ezJoltWorldModule::Initialize()
   {
     m_pGroupFilter = new ezJoltGroupFilter();
     m_pGroupFilter->AddRef();
+  }
+
+  {
+    m_pGroupFilterIgnoreSame = new ezJoltGroupFilterIgnoreSame();
+    m_pGroupFilterIgnoreSame->AddRef();
   }
 }
 
@@ -457,20 +471,20 @@ void ezJoltWorldModule::FetchResults(const ezWorldModule::UpdateContext& context
 
 #ifdef JPH_DEBUG_RENDERER
   if (cvar_JoltDebugDrawConstraints)
-    m_pSystem->DrawConstraints(ezJoltCore::s_pDebugRenderer.Borrow());
+    m_pSystem->DrawConstraints(ezJoltCore::s_pDebugRenderer.get());
 
   if (cvar_JoltDebugDrawConstraintLimits)
-    m_pSystem->DrawConstraintLimits(ezJoltCore::s_pDebugRenderer.Borrow());
+    m_pSystem->DrawConstraintLimits(ezJoltCore::s_pDebugRenderer.get());
 
   if (cvar_JoltDebugDrawConstraintFrames)
-    m_pSystem->DrawConstraintReferenceFrame(ezJoltCore::s_pDebugRenderer.Borrow());
+    m_pSystem->DrawConstraintReferenceFrame(ezJoltCore::s_pDebugRenderer.get());
 
   if (cvar_JoltDebugDrawBodies)
   {
     JPH::BodyManager::DrawSettings opt;
     opt.mDrawShape = true;
     opt.mDrawShapeWireframe = true;
-    m_pSystem->DrawBodies(opt, ezJoltCore::s_pDebugRenderer.Borrow());
+    m_pSystem->DrawBodies(opt, ezJoltCore::s_pDebugRenderer.get());
   }
 
   ezJoltCore::DebugDraw(GetWorld());
@@ -610,14 +624,14 @@ void ezJoltWorldModule::Simulate()
       // do a single Update call with multiple sub-steps, if possible
       // this saves a bit of time compared to just doing multiple Update calls
 
-      m_pSystem->Update((uiSteps * tDelta).AsFloatInSeconds(), uiSteps, 1, m_pTempAllocator.Borrow(), ezJoltCore::GetJoltJobSystem());
+      m_pSystem->Update((uiSteps * tDelta).AsFloatInSeconds(), uiSteps, 1, m_pTempAllocator.get(), ezJoltCore::GetJoltJobSystem());
 
       tDelta = m_UpdateSteps[i];
       uiSteps = 1;
     }
   }
 
-  m_pSystem->Update((uiSteps * tDelta).AsFloatInSeconds(), uiSteps, 1, m_pTempAllocator.Borrow(), ezJoltCore::GetJoltJobSystem());
+  m_pSystem->Update((uiSteps * tDelta).AsFloatInSeconds(), uiSteps, 1, m_pTempAllocator.get(), ezJoltCore::GetJoltJobSystem());
 }
 
 void ezJoltWorldModule::UpdateSettingsCfg()

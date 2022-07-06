@@ -54,9 +54,10 @@ EZ_BEGIN_COMPONENT_TYPE(ezJoltRagdollComponent, 1, ezComponentMode::Dynamic)
 {
   EZ_BEGIN_PROPERTIES
   {
+    EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
+    EZ_MEMBER_PROPERTY("SelfCollision", m_bSelfCollision),
     EZ_ENUM_MEMBER_PROPERTY("Start", ezJoltRagdollStart, m_Start),
     EZ_ACCESSOR_PROPERTY("GravityFactor", GetGravityFactor, SetGravityFactor)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
-    EZ_MEMBER_PROPERTY("SelfCollision", m_bSelfCollision),
     EZ_MEMBER_PROPERTY("Stiffness", m_fStiffness)->AddAttributes(new ezDefaultValueAttribute(10.0f)),
     EZ_ARRAY_MEMBER_PROPERTY("Constraints", m_Constraints),
   }
@@ -104,6 +105,7 @@ void ezJoltRagdollComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_Start;
   s << m_fGravityFactor;
   s << m_bSelfCollision;
+  s << m_uiCollisionLayer;
   s.WriteArray(m_Constraints).AssertSuccess();
 }
 
@@ -116,6 +118,7 @@ void ezJoltRagdollComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_Start;
   s >> m_fGravityFactor;
   s >> m_bSelfCollision;
+  s >> m_uiCollisionLayer;
   s.ReadArray(m_Constraints).AssertSuccess();
 }
 
@@ -498,7 +501,8 @@ void ezJoltRagdollComponent::SetupLimbsFromBindPose()
 
   m_LimbPoses.SetCountUninitialized(desc.m_Skeleton.GetJointCount());
 
-  auto getBone = [&](ezUInt32 i, auto f) -> ezMat4 {
+  auto getBone = [&](ezUInt32 i, auto f) -> ezMat4
+  {
     const auto& j = desc.m_Skeleton.GetJointByIndex(i);
     const ezMat4 bm = j.GetBindPoseLocalTransform().GetAsMat4();
 
@@ -564,8 +568,20 @@ void ezJoltRagdollComponent::SetupJoltBasics(/*physx::PxPhysics* pPxApi,*/ ezJol
 
 void ezJoltRagdollComponent::FinishSetupLimbs()
 {
+  m_pRagdollSettings->Stabilize();
+
+  // if (m_bSelfCollision)
+  // TODO: use GetGroupFilterIgnoreSame when m_bSelfCollision is false (see ropes)
+  {
+    m_pRagdollSettings->DisableParentChildCollisions();
+  }
+
+  static JPH::CollisionGroup::GroupID s_iRagdollCounter = 0;
+  ++s_iRagdollCounter;
+
   ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
-  m_pRagdoll = m_pRagdollSettings->CreateRagdoll({}, reinterpret_cast<ezUInt64>(m_pJoltUserData), pModule->GetJoltSystem());
+  m_pRagdoll = m_pRagdollSettings->CreateRagdoll(s_iRagdollCounter, reinterpret_cast<ezUInt64>(m_pJoltUserData), pModule->GetJoltSystem());
+
   m_pRagdoll->AddRef();
   m_pRagdoll->AddToPhysicsSystem(JPH::EActivation::Activate);
 }
@@ -734,7 +750,7 @@ void ezJoltRagdollComponent::CreateLimbBody(const LimbConfig& parentLimb, LimbCo
   pLink->mMotionQuality = JPH::EMotionQuality::LinearCast;
   pLink->mGravityFactor = m_fGravityFactor;
   pLink->mUserData = reinterpret_cast<ezUInt64>(m_pJoltUserData);
-  pLink->mObjectLayer = ezJoltCollisionFiltering::ConstructObjectLayer(0, ezJoltBroadphaseLayer::Ragdoll);
+  pLink->mObjectLayer = ezJoltCollisionFiltering::ConstructObjectLayer(m_uiCollisionLayer, ezJoltBroadphaseLayer::Ragdoll);
   pLink->mCollisionGroup.SetGroupID(m_uiObjectFilterID);
   // pLink->setLinearVelocity(vPxVelocity, false);
 

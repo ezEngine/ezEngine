@@ -1,5 +1,6 @@
 #include <JoltPlugin/JoltPluginPCH.h>
 
+#include <Core/Factory.h>
 #include <Core/Physics/SurfaceResource.h>
 #include <Foundation/Configuration/CVar.h>
 #include <Jolt/Core/IssueReporting.h>
@@ -15,7 +16,7 @@
 #include <stdarg.h>
 
 #ifdef JPH_DEBUG_RENDERER
-ezUniquePtr<ezJoltDebugRenderer> ezJoltCore::s_pDebugRenderer;
+std::unique_ptr<ezJoltDebugRenderer> ezJoltCore::s_pDebugRenderer;
 #endif
 
 // clang-format off
@@ -34,7 +35,7 @@ EZ_END_STATIC_REFLECTED_BITFLAGS;
 // clang-format on
 
 ezJoltMaterial* ezJoltCore::s_pDefaultMaterial = nullptr;
-ezUniquePtr<JPH::JobSystem> ezJoltCore::s_pJobSystem;
+std::unique_ptr<JPH::JobSystem> ezJoltCore::s_pJobSystem;
 
 ezJoltMaterial::ezJoltMaterial() = default;
 ezJoltMaterial::~ezJoltMaterial() = default;
@@ -124,19 +125,22 @@ void ezJoltCore::Startup()
 {
   JPH::Trace = JoltTraceFunc;
   JPH_IF_ENABLE_ASSERTS(JPH::AssertFailed = JoltAssertFailed;)
+
+  JPH::Factory::sInstance = new JPH::Factory();
+
   JPH::RegisterTypes();
 
   ezJoltCustomShapeInfo::sRegister();
 
   // TODO: custom job system
-  s_pJobSystem = EZ_NEW(ezFoundation::GetAlignedAllocator(), JPH::JobSystemThreadPool, JPH::cMaxPhysicsJobs, JPH::cMaxPhysicsBarriers, std::thread::hardware_concurrency() - 1);
+  s_pJobSystem = std::make_unique<JPH::JobSystemThreadPool>(JPH::cMaxPhysicsJobs, JPH::cMaxPhysicsBarriers, std::thread::hardware_concurrency() - 1);
 
   s_pDefaultMaterial = new ezJoltMaterial;
   s_pDefaultMaterial->AddRef();
   JPH::PhysicsMaterial::sDefault = s_pDefaultMaterial;
 
 #ifdef JPH_DEBUG_RENDERER
-  s_pDebugRenderer = EZ_DEFAULT_NEW(ezJoltDebugRenderer);
+  s_pDebugRenderer = std::make_unique<ezJoltDebugRenderer>();
 #endif
 
   ezSurfaceResource::s_Events.AddEventHandler(&ezJoltCore::SurfaceResourceEventHandler);
@@ -144,10 +148,25 @@ void ezJoltCore::Startup()
 
 void ezJoltCore::Shutdown()
 {
+#ifdef JPH_DEBUG_RENDERER
+  s_pDebugRenderer = nullptr;
+#endif
+
+  JPH::PhysicsMaterial::sDefault = nullptr;
+
   s_pDefaultMaterial->Release();
   s_pDefaultMaterial = nullptr;
 
-  s_pJobSystem.Clear();
+  s_pJobSystem = nullptr;
+
+  delete JPH::Factory::sInstance;
+  JPH::Factory::sInstance = nullptr;
+
+  JPH::Trace = nullptr;
+
+#ifdef JPH_ENABLE_ASSERTS
+  JPH::AssertFailed = JPH::DummyAssertFailed;
+#endif
 
   ezSurfaceResource::s_Events.RemoveEventHandler(&ezJoltCore::SurfaceResourceEventHandler);
 }

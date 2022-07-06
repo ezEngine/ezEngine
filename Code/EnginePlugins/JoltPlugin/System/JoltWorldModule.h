@@ -32,8 +32,8 @@ public:
   virtual void Deinitialize() override;
   virtual void OnSimulationStarted() override;
 
-  JPH::PhysicsSystem* GetJoltSystem() { return m_pSystem.Borrow(); }
-  const JPH::PhysicsSystem* GetJoltSystem() const { return m_pSystem.Borrow(); }
+  JPH::PhysicsSystem* GetJoltSystem() { return m_pSystem.get(); }
+  const JPH::PhysicsSystem* GetJoltSystem() const { return m_pSystem.get(); }
 
   ezUInt32 CreateObjectFilterID();
   void DeleteObjectFilterID(ezUInt32& uiObjectFilterID);
@@ -74,10 +74,11 @@ public:
   void QueueBodyToAdd(JPH::Body* pBody);
 
   JPH::GroupFilter* GetGroupFilter() const { return m_pGroupFilter; }
+  JPH::GroupFilter* GetGroupFilterIgnoreSame() const { return m_pGroupFilterIgnoreSame; }
 
   void EnableJoinedBodiesCollisions(ezUInt32 uiObjectFilterID1, ezUInt32 uiObjectFilterID2, bool bEnable);
 
-  JPH::TempAllocator* GetTempAllocator() const { return m_pTempAllocator.Borrow(); }
+  JPH::TempAllocator* GetTempAllocator() const { return m_pTempAllocator.get(); }
 
   void ActivateCharacterController(ezJoltCharacterControllerComponent* pCharacter, bool bActivate);
 
@@ -114,8 +115,8 @@ private:
   ezTaskGroupID m_SimulateTaskGroupId;
   ezTime m_SimulatedTimeStep;
 
-  ezUniquePtr<JPH::PhysicsSystem> m_pSystem;
-  ezUniquePtr<JPH::TempAllocator> m_pTempAllocator;
+  std::unique_ptr<JPH::PhysicsSystem> m_pSystem;
+  std::unique_ptr<JPH::TempAllocator> m_pTempAllocator;
 
   ezJoltObjectToBroadphaseLayer m_ObjectToBroadphase;
 
@@ -124,6 +125,7 @@ private:
   ezMap<ezJoltActorComponent*, ezUInt32> m_ActiveActors;
 
   JPH::GroupFilter* m_pGroupFilter = nullptr;
+  JPH::GroupFilter* m_pGroupFilterIgnoreSame = nullptr;
 
   ezUInt32 m_uiBodiesAddedSinceOptimize = 0;
   ezDeque<ezUInt32> m_BodiesToAdd;
