@@ -33,7 +33,7 @@ public:
 
   virtual void DrawGeometry(JPH::Mat44Arg inModelMatrix, const JPH::AABox& inWorldSpaceBounds, float inLODScaleSq, JPH::ColorArg inModelColor, const GeometryRef& inGeometry, ECullMode inCullMode = ECullMode::CullBackFace, ECastShadow inCastShadow = ECastShadow::On, EDrawMode inDrawMode = EDrawMode::Solid) override;
 
-  virtual void DrawText3D(JPH::Vec3Arg inPosition, const JPH::string& inString, JPH::ColorArg inColor = JPH::Color::sWhite, float inHeight = 0.5f) override {}
+  virtual void DrawText3D(JPH::Vec3Arg inPosition, const JPH::string_view& inString, JPH::ColorArg inColor = JPH::Color::sWhite, float inHeight = 0.5f) override {}
 };
 
 

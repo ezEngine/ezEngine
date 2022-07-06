@@ -38,7 +38,7 @@ public:
 		uint32						mUserData = 0;											///< User data value (can be used by the application for any purpose)
 	};
 
-	using SubShapes = vector<SubShapeSettings>;
+	using SubShapes = Array<SubShapeSettings>;
 
 	SubShapes						mSubShapes;
 };
@@ -47,6 +47,8 @@ public:
 class CompoundShape : public Shape
 {
 public:
+	JPH_OVERRIDE_NEW_DELETE
+
 	/// Constructor
 	explicit						CompoundShape(EShapeSubType inSubType) : Shape(EShapeType::Compound, inSubType) { }
 									CompoundShape(EShapeSubType inSubType, const ShapeSettings &inSettings, ShapeResult &outResult) : Shape(EShapeType::Compound, inSubType, inSettings, outResult) { }
@@ -226,9 +228,9 @@ public:
 		// 3 padding bytes left
 	};
 
-	static_assert(sizeof(SubShape) == 40, "Compiler added unexpected padding");
+	static_assert(sizeof(SubShape) == (JPH_CPU_ADDRESS_BITS == 64? 40 : 36), "Compiler added unexpected padding");
 
-	using SubShapes = vector<SubShape>;
+	using SubShapes = Array<SubShape>;
 
 	/// Access to the sub shapes of this compound
 	const SubShapes &				GetSubShapes() const									{ return mSubShapes; }

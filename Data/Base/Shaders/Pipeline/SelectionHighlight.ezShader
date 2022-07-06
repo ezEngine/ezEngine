@@ -53,7 +53,7 @@ struct PS_IN
   Texture2DArray SelectionDepthTexture;
   Texture2DArray SceneDepthTexture;
 
-  #define SampleDepth(texture, coords, input) texture.Load(int3(coords.xy, 0)).r
+  #define SampleDepth(texture, coords, input) texture.Load(int4(coords.xy, 0, 0)).r
 
 #endif
 

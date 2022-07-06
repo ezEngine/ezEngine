@@ -5,14 +5,13 @@
 
 #include <Jolt/Core/Reference.h>
 #include <Jolt/Core/StaticArray.h>
+#include <Jolt/ObjectStream/SerializableAttribute.h>
 
 JPH_NAMESPACE_BEGIN
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // RTTI
 //////////////////////////////////////////////////////////////////////////////////////////
-
-class RTTIAttribute;
 
 /// Light weight runtime type information system. This way we don't need to turn
 /// on the default RTTI system of the compiler (introducing a possible overhead for every
@@ -21,7 +20,6 @@ class RTTIAttribute;
 /// Notes:
 ///  - An extra virtual member function is added. This adds 8 bytes to the size of 
 ///    an instance of the class (unless you are already using virtual functions).
-///
 ///
 /// To use RTTI on a specific class use:
 ///
@@ -81,8 +79,8 @@ class RTTIAttribute;
 ///
 /// Example of usage in a program:
 ///
-///		pFoo foo_ptr = new Foo;
-///		pFoo bar_ptr = new Bar;
+///		Foo *foo_ptr = new Foo;
+///		Foo *bar_ptr = new Bar;
 ///
 ///		IsType(foo_ptr, RTTI(Bar)) returns false
 ///		IsType(bar_ptr, RTTI(Bar)) returns true
@@ -164,10 +162,9 @@ public:
 	const void *				CastTo(const void *inObject, const RTTI *inRTTI) const;
 
 	/// Attribute access
-	void						AddAttribute(const RTTIAttribute *inAttribute);
+	void						AddAttribute(const SerializableAttribute &inAttribute);
 	int							GetAttributeCount() const;
-	const RTTIAttribute *		GetAttribute(int inIdx) const;
-	const RTTIAttribute *		GetAttribute(const RTTI *inRTTI, const char *inName) const;
+	const SerializableAttribute & GetAttribute(int inIdx) const;
 
 protected:
 	/// Base class information
@@ -177,14 +174,12 @@ protected:
 		int						mOffset;
 	};
 
-	using AttributeRefC = RefConst<RTTIAttribute>;
-
 	const char *				mName;														///< Class name
 	int							mSize;														///< Class size
-	vector<BaseClass>			mBaseClasses;												///< Names of base classes
+	StaticArray<BaseClass, 4>	mBaseClasses;												///< Names of base classes
 	pCreateObjectFunction		mCreate;													///< Pointer to a function that will create a new instance of this class
 	pDestructObjectFunction		mDestruct;													///< Pointer to a function that will destruct an object of this class
-	vector<AttributeRefC>		mAttributes;												///< All attributes of this class
+	StaticArray<SerializableAttribute, 32> mAttributes;										///< All attributes of this class
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -194,6 +189,7 @@ protected:
 // JPH_DECLARE_RTTI_NON_VIRTUAL
 #define JPH_DECLARE_RTTI_NON_VIRTUAL(class_name)																	\
 public:																												\
+	JPH_OVERRIDE_NEW_DELETE																							\
 	friend RTTI *				GetRTTIOfType(class_name *);														\
 	friend inline const RTTI *	GetRTTI(const class_name *inObject) { return GetRTTIOfType((class_name *)nullptr); }\
 	static void					sCreateRTTI(RTTI &inRTTI);															\
@@ -233,6 +229,7 @@ public:																												\
 
 #define JPH_DECLARE_RTTI_HELPER(class_name, modifier)																\
 public:																												\
+	JPH_OVERRIDE_NEW_DELETE																							\
 	friend RTTI *				GetRTTIOfType(class_name *);														\
 	friend inline const RTTI *	GetRTTI(const class_name *inObject) { return inObject->GetRTTI(); }					\
 	virtual const RTTI *		GetRTTI() const modifier;															\
@@ -434,34 +431,5 @@ inline Ref<DstType> DynamicCast(Ref<SrcType> &inObject)
 {
 	return inObject != nullptr? const_cast<DstType *>(reinterpret_cast<const DstType *>(inObject->CastTo(JPH_RTTI(DstType)))) : nullptr;
 }
-
-//////////////////////////////////////////////////////////////////////////////////////////
-// RTTIAttribute
-//////////////////////////////////////////////////////////////////////////////////////////
-
-/// Represents a member of a class.
-class RTTIAttribute : public RefTarget<RTTIAttribute>
-{
-	JPH_DECLARE_RTTI_VIRTUAL_BASE(RTTIAttribute)
-
-public:
-	/// Constructor
-								RTTIAttribute()												: mName("") { }
-	explicit					RTTIAttribute(const char *inName)							: mName(inName) { }
-	virtual						~RTTIAttribute() = default;
-
-	/// Name of the attribute
-	void						SetName(const char *inName)									{ mName = inName; }
-	const char *				GetName() const												{ return mName; }
-
-	/// In case this attribute contains an RTTI type, return it (note that a vector<sometype> will return the rtti of sometype)
-	virtual const RTTI *		GetMemberPrimitiveType() const								{ return nullptr; }
-
-	/// In case this attribute references an object, return data pointer here (note that if the attribute is vector<sometype> it will return the address of the vector)
-	virtual const void *		GetMemberPointer(const void *inObject) const				{ return nullptr; }
-
-private:
-	const char *				mName;
-};
 
 JPH_NAMESPACE_END

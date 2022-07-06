@@ -17,13 +17,13 @@ namespace JPH
 class EZ_JOLTPLUGIN_DLL ezJoltCore
 {
 public:
-  static JPH::JobSystem* GetJoltJobSystem() { return s_pJobSystem.Borrow(); }
+  static JPH::JobSystem* GetJoltJobSystem() { return s_pJobSystem.get(); }
   static const ezJoltMaterial* GetDefaultMaterial() { return s_pDefaultMaterial; }
 
   static void DebugDraw(ezWorld* pWorld);
 
 #ifdef JPH_DEBUG_RENDERER
-  static ezUniquePtr<ezJoltDebugRenderer> s_pDebugRenderer;
+  static std::unique_ptr<ezJoltDebugRenderer> s_pDebugRenderer;
 #endif
 
 private:
@@ -35,5 +35,5 @@ private:
   static void SurfaceResourceEventHandler(const ezSurfaceResourceEvent& e);
 
   static ezJoltMaterial* s_pDefaultMaterial;
-  static ezUniquePtr<JPH::JobSystem> s_pJobSystem;
+  static std::unique_ptr<JPH::JobSystem> s_pJobSystem;
 };

@@ -31,6 +31,8 @@ class BodyCreationSettings;
 class Body : public NonCopyable
 {
 public:
+	JPH_OVERRIDE_NEW_DELETE
+
 	/// Default constructor
 							Body() = default;
 
@@ -60,7 +62,7 @@ public:
 	/// These sensors will only detect collisions with active Dynamic or Kinematic bodies. As soon as a body go to sleep, the contact point with the sensor will be lost.
 	/// If you make a sensor Dynamic or Kinematic and activate them, the sensor will be able to detect collisions with sleeping bodies too. An active sensor will never go to sleep automatically.
 	/// When you make a Dynamic or Kinematic sensor, make sure it is in an ObjectLayer that does not collide with Static bodies or other sensors to avoid extra overhead in the broad phase.
-	inline void				SetIsSensor(bool inIsSensor)									{ if (inIsSensor) mFlags.fetch_or(uint8(JPH::Body::EFlags::IsSensor), JPH::memory_order_relaxed); else mFlags.fetch_and(uint8(~uint8(JPH::Body::EFlags::IsSensor)), JPH::memory_order_relaxed); }
+	inline void				SetIsSensor(bool inIsSensor)									{ if (inIsSensor) mFlags.fetch_or(uint8(EFlags::IsSensor), memory_order_relaxed); else mFlags.fetch_and(uint8(~uint8(EFlags::IsSensor)), memory_order_relaxed); }
 
 	/// Check if this body is a sensor.
 	inline bool				IsSensor() const												{ return (mFlags.load(memory_order_relaxed) & uint8(EFlags::IsSensor)) != 0; }
@@ -148,7 +150,8 @@ public:
 	/// @param inFluidVelocity The average velocity of the fluid (in m/s) in which the body resides
 	/// @param inGravity The graviy vector (pointing down)
 	/// @param inDeltaTime Delta time of the next simulation step (in s)
-	void					ApplyBuoyancyImpulse(const Plane &inSurface, float inBuoyancy, float inLinearDrag, float inAngularDrag, Vec3Arg inFluidVelocity, Vec3Arg inGravity, float inDeltaTime);
+	/// @return true if an impulse was applied, false if the body was not in the fluid
+	bool					ApplyBuoyancyImpulse(const Plane &inSurface, float inBuoyancy, float inLinearDrag, float inAngularDrag, Vec3Arg inFluidVelocity, Vec3Arg inGravity, float inDeltaTime);
 
 	/// Check if this body has been added to the physics system
 	inline bool				IsInBroadPhase() const											{ return (mFlags.load(memory_order_relaxed) & uint8(EFlags::IsInBroadPhase)) != 0; }
@@ -305,7 +308,12 @@ private:
 	EMotionType				mMotionType;													///< Type of motion (static, dynamic or kinematic)
 	atomic<uint8>			mFlags = 0;														///< See EFlags for possible flags
 	
-	// 121 bytes up to here
+	// 121 bytes up to here (64-bit mode)
+
+#if JPH_CPU_ADDRESS_BITS == 32
+	// Padding for 32 bit mode
+	char					mPadding[19];
+#endif
 };
 
 static_assert(sizeof(Body) == 128, "Body should be 128 bytes");

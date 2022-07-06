@@ -22,12 +22,19 @@ JPH_NAMESPACE_BEGIN
 class JobSystemThreadPool final : public JobSystem
 {
 public:
+	JPH_OVERRIDE_NEW_DELETE
+
 	/// Creates a thread pool.
+	/// @see JobSystemThreadPool::Init
+							JobSystemThreadPool(uint inMaxJobs, uint inMaxBarriers, int inNumThreads = -1);
+							JobSystemThreadPool() = default;
+	virtual					~JobSystemThreadPool() override;
+
+	/// Initialize the thread pool
 	/// @param inMaxJobs Max number of jobs that can be allocated at any time
 	/// @param inMaxBarriers Max number of barriers that can be allocated at any time
 	/// @param inNumThreads Number of threads to start (the number of concurrent jobs is 1 more because the main thread will also run jobs while waiting for a barrier to complete). Use -1 to autodetect the amount of CPU's.
-							JobSystemThreadPool(uint inMaxJobs, uint inMaxBarriers, int inNumThreads = -1);
-	virtual					~JobSystemThreadPool() override;
+	void					Init(uint inMaxJobs, uint inMaxBarriers, int inNumThreads = -1);
 
 	// See JobSystem
 	virtual int				GetMaxConcurrency() const override				{ return int(mThreads.size()) + 1; }
@@ -79,6 +86,8 @@ private:
 	class BarrierImpl : public Barrier
 	{
 	public:
+		JPH_OVERRIDE_NEW_DELETE
+
 		/// Constructor
 							BarrierImpl();
 		virtual				~BarrierImpl() override;
@@ -101,7 +110,7 @@ private:
 		virtual void		OnJobFinished(Job *inJob) override;
 
 		/// Jobs queue for the barrier
-		static constexpr uint cMaxJobs = 1024;
+		static constexpr uint cMaxJobs = 2048;
 		static_assert(IsPowerOf2(cMaxJobs));								// We do bit operations and require max jobs to be a power of 2
 		atomic<Job *> 		mJobs[cMaxJobs];								///< List of jobs that are part of this barrier, nullptrs for empty slots
 		alignas(JPH_CACHE_LINE_SIZE) atomic<uint> mJobReadIndex { 0 };		///< First job that could be valid (modulo cMaxJobs), can be nullptr if other thread is still working on adding the job
@@ -115,7 +124,7 @@ private:
 	void					StopThreads();
 	
 	/// Entry point for a thread
-	void					ThreadMain(const char *inName, int inThreadIndex);
+	void					ThreadMain(int inThreadIndex);
 
 	/// Get the head of the thread that has processed the least amount of jobs
 	inline uint				GetHead() const;
@@ -128,11 +137,11 @@ private:
 	AvailableJobs			mJobs;
 
 	/// Array of barriers (we keep them constructed all the time since constructing a semaphore/mutex is not cheap)
-	uint					mMaxBarriers;									///< Max amount of barriers
-	BarrierImpl *			mBarriers;										///< List of the actual barriers
+	uint					mMaxBarriers = 0;								///< Max amount of barriers
+	BarrierImpl *			mBarriers = nullptr;							///< List of the actual barriers
 
 	/// Threads running jobs
-	vector<thread>			mThreads;
+	Array<thread>			mThreads;
 
 	// The job queue
 	static constexpr uint32 cQueueLength = 1024;

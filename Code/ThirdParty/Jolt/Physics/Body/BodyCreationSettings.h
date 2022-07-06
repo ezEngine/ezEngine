@@ -57,8 +57,8 @@ public:
 	/// Restore the state of this object from inStream. Doesn't restore the shape nor the group filter.
 	void					RestoreBinaryState(StreamIn &inStream);
 
-	using GroupFilterToIDMap = unordered_map<const GroupFilter *, uint32>;
-	using IDToGroupFilterMap = vector<RefConst<GroupFilter>>;
+	using GroupFilterToIDMap = UnorderedMap<const GroupFilter *, uint32>;
+	using IDToGroupFilterMap = Array<RefConst<GroupFilter>>;
 	using ShapeToIDMap = Shape::ShapeToIDMap;
 	using IDToShapeMap = Shape::IDToShapeMap;
 	using MaterialToIDMap = Shape::MaterialToIDMap;
@@ -74,11 +74,10 @@ public:
 	/// Restore a shape, all its children and materials. Pass in an empty map in ioShapeMap / ioMaterialMap / ioGroupFilterMap or reuse the same map while reading multiple shapes from the same stream in order to restore duplicates.
 	static BCSResult		sRestoreWithChildren(StreamIn &inStream, IDToShapeMap &ioShapeMap, IDToMaterialMap &ioMaterialMap, IDToGroupFilterMap &ioGroupFilterMap);
 
-	/// Position of the body (not of the center of mass)
-	Vec3					mPosition = Vec3::sZero();
-
-	/// Rotation of the body
-	Quat					mRotation = Quat::sIdentity();
+	Vec3					mPosition = Vec3::sZero();										///< Position of the body (not of the center of mass)
+	Quat					mRotation = Quat::sIdentity();									///< Rotation of the body
+	Vec3					mLinearVelocity = Vec3::sZero();								///< World space linear velocity of the center of mass (m/s)
+	Vec3					mAngularVelocity = Vec3::sZero();								///< World space angular velocity (rad/s)
 
 	/// User data value (can be used by application)
 	uint64					mUserData = 0;

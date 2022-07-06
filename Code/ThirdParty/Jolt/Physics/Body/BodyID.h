@@ -3,12 +3,16 @@
 
 #pragma once
 
+#include <Jolt/Core/HashCombine.h>
+
 JPH_NAMESPACE_BEGIN
 
 /// ID of a body. This is a way of reasoning about bodies in a multithreaded simulation while avoiding race conditions.
 class BodyID
 {
 public:
+	JPH_OVERRIDE_NEW_DELETE
+
 	static constexpr uint32	cInvalidBodyID = 0xffffffff;	///< The value for an invalid body ID
 	static constexpr uint32	cBroadPhaseBit = 0x00800000;	///< This bit is used by the broadphase
 	static constexpr uint32	cMaxBodyIndex = 0x7fffff;		///< Maximum value for body index (also the maximum amount of bodies supported - 1)
@@ -90,3 +94,6 @@ private:
 };
 
 JPH_NAMESPACE_END
+
+// Create a std::hash for BodyID
+JPH_MAKE_HASHABLE(JPH::BodyID, t.GetIndexAndSequenceNumber())

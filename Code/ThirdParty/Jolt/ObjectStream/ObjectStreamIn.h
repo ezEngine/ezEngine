@@ -6,17 +6,17 @@
 #include <Jolt/ObjectStream/ObjectStream.h>
 #include <Jolt/Core/Reference.h>
 #include <Jolt/Core/RTTI.h>
+#include <Jolt/Core/UnorderedMap.h>
 
 JPH_SUPPRESS_WARNINGS_STD_BEGIN
 #include <fstream>
-#include <unordered_map>
 JPH_SUPPRESS_WARNINGS_STD_END
 
 JPH_NAMESPACE_BEGIN
 
 /// ObjectStreamIn contains all logic for reading an object from disk. It is the base
 /// class for the text and binary input streams (ObjectStreamTextIn and ObjectStreamBinaryIn).
-class ObjectStreamIn : public ObjectStream
+class ObjectStreamIn : public IObjectStreamIn
 {
 private:
 	struct ClassDescription;
@@ -78,30 +78,10 @@ public:
 	void *						Read(const RTTI *inRTTI);
 	void *						ReadObject(const RTTI *& outRTTI);
 	bool						ReadRTTI();
-	bool						ReadClassData(const char *inClassName, void *inInstance);
+	virtual bool				ReadClassData(const char *inClassName, void *inInstance) override;
 	bool						ReadClassData(const ClassDescription &inClassDesc, void *inInstance);
-	bool						ReadPointerData(const RTTI *inRTTI, void **inPointer, int inRefCountOffset = -1);
-	bool						SkipAttributeData(int inArrayDepth, EDataType inDataType, const char *inClassName);
-
-	///@name Input type specific operations
-	virtual bool				ReadDataType(EDataType &outType) = 0;
-	virtual bool				ReadName(string &outName) = 0;
-	virtual bool				ReadIdentifier(Identifier &outIdentifier) = 0;
-	virtual bool				ReadCount(uint32 &outCount) = 0;
-
-	virtual bool				ReadPrimitiveData(uint8 &outPrimitive) = 0;
-	virtual bool				ReadPrimitiveData(uint16 &outPrimitive) = 0;
-	virtual bool				ReadPrimitiveData(int &outPrimitive) = 0;
-	virtual bool				ReadPrimitiveData(uint32 &outPrimitive) = 0;
-	virtual bool				ReadPrimitiveData(uint64 &outPrimitive) = 0;
-	virtual bool				ReadPrimitiveData(float &outPrimitive) = 0;
-	virtual bool				ReadPrimitiveData(bool &outPrimitive) = 0;
-	virtual bool				ReadPrimitiveData(string &outPrimitive) = 0;
-	virtual bool				ReadPrimitiveData(Float3 &outPrimitive) = 0;
-	virtual bool				ReadPrimitiveData(Vec3 &outPrimitive) = 0;
-	virtual bool				ReadPrimitiveData(Vec4 &outPrimitive) = 0;
-	virtual bool				ReadPrimitiveData(Quat &outPrimitive) = 0;
-	virtual bool				ReadPrimitiveData(Mat44 &outPrimitive) = 0;
+	virtual bool				ReadPointerData(const RTTI *inRTTI, void **inPointer, int inRefCountOffset = -1) override;
+	bool						SkipAttributeData(int inArrayDepth, EOSDataType inDataType, const char *inClassName);
 
 protected:
 	/// Constructor
@@ -120,8 +100,8 @@ private:
 	struct AttributeDescription
 	{
 		int						mArrayDepth = 0;
-		EDataType				mDataType = EDataType::Invalid;
-		string					mClassName;
+		EOSDataType				mDataType = EOSDataType::Invalid;
+		String					mClassName;
 		int						mIndex = -1;
 	};
 
@@ -131,7 +111,7 @@ private:
 		explicit 				ClassDescription(const RTTI *inRTTI)					: mRTTI(inRTTI) { }
 
 		const RTTI *			mRTTI = nullptr;
-		vector<AttributeDescription>	mAttributes;
+		Array<AttributeDescription>	mAttributes;
 	};
 	
 	struct ObjectInfo
@@ -151,97 +131,12 @@ private:
 		const RTTI *			mRTTI;
 	};
 	
-	using IdentifierMap = unordered_map<Identifier, ObjectInfo>;
-	using ClassDescriptionMap = unordered_map<string, ClassDescription>;
+	using IdentifierMap = UnorderedMap<Identifier, ObjectInfo>;
+	using ClassDescriptionMap = UnorderedMap<String, ClassDescription>;
 
 	ClassDescriptionMap			mClassDescriptionMap;
 	IdentifierMap				mIdentifierMap;											///< Links identifier to an object pointer
-	vector<Link>				mUnresolvedLinks;										///< All pointers (links) are resolved after reading the entire file, e.g. when all object exist
+	Array<Link>					mUnresolvedLinks;										///< All pointers (links) are resolved after reading the entire file, e.g. when all object exist
 };
-
-// Define macro to declare functions for a specific primitive type
-#define JPH_DECLARE_PRIMITIVE(name)														\
-	bool	OSReadData(ObjectStreamIn &ioStream, name &outPrimitive);
-
-// This file uses the JPH_DECLARE_PRIMITIVE macro to define all types
-#include <Jolt/ObjectStream/ObjectStreamTypes.h>
-
-/// Define serialization templates for dynamic arrays
-template <class T>
-bool OSReadData(ObjectStreamIn &ioStream, vector<T> &inArray)
-{
-	bool continue_reading = true;
-
-	// Read array length
-	uint32 array_length;
-	continue_reading = ioStream.ReadCount(array_length);
-
-	// Read array items
-	if (continue_reading) 
-	{
-		inArray.resize(array_length);
-		for (uint32 el = 0; el < array_length && continue_reading; ++el) 
-			continue_reading = OSReadData(ioStream, inArray[el]);
-	}
-
-	return continue_reading;
-}
-
-/// Define serialization templates for static arrays
-template <class T, uint N>
-bool OSReadData(ObjectStreamIn &ioStream, StaticArray<T, N> &inArray)
-{
-	bool continue_reading = true;
-
-	// Read array length
-	uint32 array_length;
-	continue_reading = ioStream.ReadCount(array_length);
-
-	// Check if we can fit this many elements
-	if (array_length > N)
-		return false;
-
-	// Read array items
-	if (continue_reading) 
-	{
-		inArray.resize(array_length);
-		for (uint32 el = 0; el < array_length && continue_reading; ++el) 
-			continue_reading = OSReadData(ioStream, inArray[el]);
-	}
-
-	return continue_reading;
-}
-
-/// Define serialization templates for C style arrays
-template <class T, uint N>
-bool OSReadData(ObjectStreamIn &ioStream, T (&inArray)[N])
-{
-	bool continue_reading = true;
-
-	// Read array length
-	uint32 array_length;
-	continue_reading = ioStream.ReadCount(array_length);
-	if (array_length != N)
-		return false;
-
-	// Read array items
-	for (uint32 el = 0; el < N && continue_reading; ++el) 
-		continue_reading = OSReadData(ioStream, inArray[el]);
-
-	return continue_reading;
-}
-
-/// Define serialization templates for references
-template <class T>
-bool OSReadData(ObjectStreamIn &ioStream, Ref<T> &inRef)
-{
-	return ioStream.ReadPointerData(JPH_RTTI(T), inRef.InternalGetPointer(), T::sInternalGetRefCountOffset());
-}
-
-template <class T>
-bool OSReadData(ObjectStreamIn &ioStream, RefConst<T> &inRef)
-{
-	return ioStream.ReadPointerData(JPH_RTTI(T), inRef.InternalGetPointer(), T::sInternalGetRefCountOffset());
-}
 
 JPH_NAMESPACE_END

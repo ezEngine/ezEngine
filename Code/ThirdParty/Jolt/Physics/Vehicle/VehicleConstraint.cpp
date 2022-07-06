@@ -69,7 +69,7 @@ void VehicleConstraintSettings::RestoreBinaryState(StreamIn &inStream)
 
 	uint32 hash = 0;
 	inStream.Read(hash);
-	const RTTI *rtti = Factory::sInstance.Find(hash);
+	const RTTI *rtti = Factory::sInstance->Find(hash);
 	mController = reinterpret_cast<VehicleControllerSettings *>(rtti->CreateObject());
 	mController->RestoreBinaryState(inStream);
 }
@@ -479,6 +479,12 @@ void VehicleConstraint::RestoreState(StateRecorder &inStream)
 
 	inStream.Read(mPitchRollRotationAxis);
 	mPitchRollPart.RestoreState(inStream);
+}
+
+Ref<ConstraintSettings> VehicleConstraint::GetConstraintSettings() const
+{
+	JPH_ASSERT(false); // Not implemented yet
+	return nullptr;
 }
 
 JPH_NAMESPACE_END

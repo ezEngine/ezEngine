@@ -27,6 +27,8 @@ JPH_IMPLEMENT_SERIALIZABLE_VIRTUAL(SliderConstraintSettings)
 	JPH_ADD_ATTRIBUTE(SliderConstraintSettings, mNormalAxis2)
 	JPH_ADD_ATTRIBUTE(SliderConstraintSettings, mLimitsMin)
 	JPH_ADD_ATTRIBUTE(SliderConstraintSettings, mLimitsMax)
+	JPH_ADD_ATTRIBUTE(SliderConstraintSettings, mFrequency)
+	JPH_ADD_ATTRIBUTE(SliderConstraintSettings, mDamping)
 	JPH_ADD_ATTRIBUTE(SliderConstraintSettings, mMaxFrictionForce)
 	JPH_ADD_ATTRIBUTE(SliderConstraintSettings, mMotorSettings)
 }
@@ -35,14 +37,19 @@ void SliderConstraintSettings::SetPoint(const Body &inBody1, const Body &inBody2
 {
 	JPH_ASSERT(mSpace == EConstraintSpace::WorldSpace);
 
-	// Determine anchor point: If any of the bodies can never be dynamic use the other body as anchor point, otherwise use the mid point between the two center of masses
+	// Determine anchor point: If any of the bodies can never be dynamic use the other body as anchor point
 	Vec3 anchor;
 	if (!inBody1.CanBeKinematicOrDynamic())
 		anchor = inBody2.GetCenterOfMassPosition();
 	else if (!inBody2.CanBeKinematicOrDynamic())
 		anchor = inBody1.GetCenterOfMassPosition();
 	else
-		anchor = 0.5f * (inBody1.GetCenterOfMassPosition() + inBody2.GetCenterOfMassPosition());
+	{
+		// Otherwise use weighted anchor point towards the lightest body
+		float inv_m1 = inBody1.GetMotionPropertiesUnchecked()->GetInverseMassUnchecked();
+		float inv_m2 = inBody2.GetMotionPropertiesUnchecked()->GetInverseMassUnchecked();
+		anchor = (inv_m1 * inBody1.GetCenterOfMassPosition() + inv_m2 * inBody2.GetCenterOfMassPosition()) / (inv_m1 + inv_m2);
+	}
 
 	mPoint1 = mPoint2 = anchor;
 }
@@ -68,6 +75,8 @@ void SliderConstraintSettings::SaveBinaryState(StreamOut &inStream) const
 	inStream.Write(mNormalAxis2);
 	inStream.Write(mLimitsMin);
 	inStream.Write(mLimitsMax);
+	inStream.Write(mFrequency);
+	inStream.Write(mDamping);
 	inStream.Write(mMaxFrictionForce);
 	mMotorSettings.SaveBinaryState(inStream);
 }
@@ -85,6 +94,8 @@ void SliderConstraintSettings::RestoreBinaryState(StreamIn &inStream)
 	inStream.Read(mNormalAxis2);
 	inStream.Read(mLimitsMin);
 	inStream.Read(mLimitsMax);
+	inStream.Read(mFrequency);
+	inStream.Read(mDamping);
 	inStream.Read(mMaxFrictionForce);
 	mMotorSettings.RestoreBinaryState(inStream);
 }
@@ -103,38 +114,8 @@ SliderConstraint::SliderConstraint(Body &inBody1, Body &inBody2, const SliderCon
 	mMaxFrictionForce(inSettings.mMaxFrictionForce),
 	mMotorSettings(inSettings.mMotorSettings)
 {
-	// Store inverse of initial rotation from body 1 to body 2 in body 1 space:
-	//
-	// q20 = q10 r0 
-	// <=> r0 = q10^-1 q20 
-	// <=> r0^-1 = q20^-1 q10
-	//
-	// where:
-	//
-	// q10, q20 = world space initial orientation of body 1 and 2
-	// r0 = initial rotation rotation from body 1 to body 2 in local space of body 1
-	//
-	// We can also write this in terms of the constraint matrices:
-	// 
-	// q20 c2 = q10 c1
-	// <=> q20 = q10 c1 c2^-1
-	// => r0 = c1 c2^-1
-	// <=> r0^-1 = c2 c1^-1
-	// 
-	// where:
-	// 
-	// c1, c2 = matrix that takes us from body 1 and 2 COM to constraint space 1 and 2
-	if (inSettings.mSliderAxis1 == inSettings.mSliderAxis2 && inSettings.mNormalAxis1 == inSettings.mNormalAxis2)
-	{
-		// Axis are the same -> identity transform
-		mInvInitialOrientation = Quat::sIdentity();
-	}
-	else
-	{
-		Mat44 constraint1(Vec4(inSettings.mSliderAxis1, 0), Vec4(inSettings.mNormalAxis1, 0), Vec4(inSettings.mSliderAxis1.Cross(inSettings.mNormalAxis1), 0), Vec4(0, 0, 0, 1));
-		Mat44 constraint2(Vec4(inSettings.mSliderAxis2, 0), Vec4(inSettings.mNormalAxis2, 0), Vec4(inSettings.mSliderAxis2.Cross(inSettings.mNormalAxis2), 0), Vec4(0, 0, 0, 1));
-		mInvInitialOrientation = constraint2.GetQuaternion() * constraint1.GetQuaternion().Conjugated();
-	}
+	// Store inverse of initial rotation from body 1 to body 2 in body 1 space
+	mInvInitialOrientation = RotationEulerConstraintPart::sGetInvInitialOrientationXY(inSettings.mSliderAxis1, inSettings.mNormalAxis1, inSettings.mSliderAxis2, inSettings.mNormalAxis2);
 
 	if (inSettings.mSpace == EConstraintSpace::WorldSpace)
 	{
@@ -155,8 +136,21 @@ SliderConstraint::SliderConstraint(Body &inBody1, Body &inBody2, const SliderCon
 	mLocalSpaceNormal2 = mLocalSpaceSliderAxis1.Cross(mLocalSpaceNormal1);
 
 	// Store limits
-	JPH_ASSERT(inSettings.mLimitsMin != inSettings.mLimitsMax, "Better use a fixed constraint");
+	JPH_ASSERT(inSettings.mLimitsMin != inSettings.mLimitsMax || inSettings.mFrequency > 0.0f, "Better use a fixed constraint");
 	SetLimits(inSettings.mLimitsMin, inSettings.mLimitsMax);
+
+	// Store frequency and damping
+	SetFrequency(inSettings.mFrequency);
+	SetDamping(inSettings.mDamping);
+}
+
+float SliderConstraint::GetCurrentPosition() const
+{
+	// See: CalculateR1R2U and CalculateSlidingAxisAndPosition
+	Vec3 r1 = mBody1->GetRotation() * mLocalSpacePosition1;
+	Vec3 r2 = mBody2->GetRotation() * mLocalSpacePosition2;
+	Vec3 u = mBody2->GetCenterOfMassPosition() + r2 - mBody1->GetCenterOfMassPosition() - r1;
+	return u.Dot(mBody1->GetRotation() * mLocalSpaceSliderAxis1);
 }
 
 void SliderConstraint::SetLimits(float inLimitsMin, float inLimitsMax)
@@ -202,8 +196,9 @@ void SliderConstraint::CalculateSlidingAxisAndPosition(Mat44Arg inRotation1)
 void SliderConstraint::CalculatePositionLimitsConstraintProperties(float inDeltaTime)
 {
 	// Check if distance is within limits
-	if (mHasLimits && (mD <= mLimitsMin || mD >= mLimitsMax))
-		mPositionLimitsConstraintPart.CalculateConstraintProperties(inDeltaTime, *mBody1, mR1 + mU, *mBody2, mR2, mWorldSpaceSliderAxis);
+	bool below_min = mD <= mLimitsMin;
+	if (mHasLimits && (below_min || mD >= mLimitsMax))
+		mPositionLimitsConstraintPart.CalculateConstraintProperties(inDeltaTime, *mBody1, mR1 + mU, *mBody2, mR2, mWorldSpaceSliderAxis, 0.0f, mD - (below_min? mLimitsMin : mLimitsMax), mFrequency, mDamping);
 	else
 		mPositionLimitsConstraintPart.Deactivate();
 }
@@ -312,7 +307,7 @@ bool SliderConstraint::SolvePositionConstraint(float inDeltaTime, float inBaumga
 
 	// Solve limits along slider axis
 	bool limit = false;
-	if (mHasLimits)
+	if (mHasLimits && mFrequency <= 0.0f)
 	{
 		rotation1 = Mat44::sRotation(mBody1->GetRotation());
 		rotation2 = Mat44::sRotation(mBody2->GetRotation());
@@ -421,6 +416,27 @@ void SliderConstraint::RestoreState(StateRecorder &inStream)
 	inStream.Read(mMotorState);
 	inStream.Read(mTargetVelocity);
 	inStream.Read(mTargetPosition);
+}
+
+Ref<ConstraintSettings> SliderConstraint::GetConstraintSettings() const
+{
+	SliderConstraintSettings *settings = new SliderConstraintSettings;
+	ToConstraintSettings(*settings);
+	settings->mSpace = EConstraintSpace::LocalToBodyCOM;
+	settings->mPoint1 = mLocalSpacePosition1;
+	settings->mSliderAxis1 = mLocalSpaceSliderAxis1;
+	settings->mNormalAxis1 = mLocalSpaceNormal1;
+	settings->mPoint2 = mLocalSpacePosition2;
+	Mat44 inv_initial_rotation = Mat44::sRotation(mInvInitialOrientation);
+	settings->mSliderAxis2 = inv_initial_rotation.Multiply3x3(mLocalSpaceSliderAxis1);
+	settings->mNormalAxis2 = inv_initial_rotation.Multiply3x3(mLocalSpaceNormal1);
+	settings->mLimitsMin = mLimitsMin;
+	settings->mLimitsMax = mLimitsMax;
+	settings->mFrequency = mFrequency;
+	settings->mDamping = mDamping;
+	settings->mMaxFrictionForce = mMaxFrictionForce;
+	settings->mMotorSettings = mMotorSettings;
+	return settings;
 }
 
 Mat44 SliderConstraint::GetConstraintToBody1Matrix() const

@@ -20,7 +20,8 @@ public:
 	// See: ConstraintSettings::SaveBinaryState
 	virtual void				SaveBinaryState(StreamOut &inStream) const override;
 
-	/// Create an an instance of this constraint
+	/// Create an an instance of this constraint.
+	/// Note that the rotation constraint will be solved from body 1. This means that if body 1 and body 2 have different masses / inertias (kinematic body = infinite mass / inertia), body 1 should be the heaviest body.
 	virtual TwoBodyConstraint *	Create(Body &inBody1, Body &inBody2) const override;
 
 	/// Simple way of setting the anchor points in world space so that the current relative position is chosen as the '0' position
@@ -47,6 +48,11 @@ public:
 	float						mLimitsMin = -FLT_MAX;
 	float						mLimitsMax = FLT_MAX;
 
+	/// If mFrequency > 0 the constraint limits will be soft and mFrequency specifies the oscillation frequency in Hz and mDamping the damping ratio (0 = no damping, 1 = critical damping).
+	/// If mFrequency <= 0, mDamping is ignored and the limits will be hard.
+	float						mFrequency = 0.0f;
+	float						mDamping = 0.0f;
+
 	/// Maximum amount of friction force to apply (N) when not driven by a motor.
 	float						mMaxFrictionForce = 0.0f;
 
@@ -62,11 +68,13 @@ protected:
 class SliderConstraint final : public TwoBodyConstraint
 {
 public:
+	JPH_OVERRIDE_NEW_DELETE
+
 	/// Construct slider constraint
 								SliderConstraint(Body &inBody1, Body &inBody2, const SliderConstraintSettings &inSettings);
 
 	// Generic interface of a constraint
-	virtual EConstraintType		GetType() const override								{ return EConstraintType::Slider; }
+	virtual EConstraintSubType	GetSubType() const override								{ return EConstraintSubType::Slider; }
 	virtual void				SetupVelocityConstraint(float inDeltaTime) override;
 	virtual void				WarmStartVelocityConstraint(float inWarmStartImpulseRatio) override;
 	virtual bool				SolveVelocityConstraint(float inDeltaTime) override;
@@ -77,10 +85,14 @@ public:
 #endif // JPH_DEBUG_RENDERER
 	virtual void				SaveState(StateRecorder &inStream) const override;
 	virtual void				RestoreState(StateRecorder &inStream) override;
+	virtual Ref<ConstraintSettings> GetConstraintSettings() const override;
 
 	// See: TwoBodyConstraint
 	virtual Mat44				GetConstraintToBody1Matrix() const override;
 	virtual Mat44				GetConstraintToBody2Matrix() const override;
+
+	/// Get the current distance from the rest position
+	float						GetCurrentPosition() const;
 
 	/// Friction control
 	void						SetMaxFrictionForce(float inFrictionForce)				{ mMaxFrictionForce = inFrictionForce; }
@@ -103,6 +115,14 @@ public:
 	float						GetLimitsMin() const									{ return mLimitsMin; }
 	float						GetLimitsMax() const									{ return mLimitsMax; }
 	bool						HasLimits() const										{ return mHasLimits; }
+
+	/// Update the spring frequency for the limits constraint
+	void						SetFrequency(float inFrequency)							{ JPH_ASSERT(inFrequency >= 0.0f); mFrequency = inFrequency; }
+	float						GetFrequency() const									{ return mFrequency; }
+
+	/// Update the spring damping for the limits constraint
+	void						SetDamping(float inDamping)								{ JPH_ASSERT(inDamping >= 0.0f); mDamping = inDamping; }
+	float						GetDamping() const										{ return mDamping; }
 
 	///@name Get Lagrange multiplier from last physics update (relates to how much force/torque was applied to satisfy the constraint)
 	inline Vector<2> 			GetTotalLambdaPosition() const							{ return mPositionConstraintPart.GetTotalLambda(); }
@@ -138,6 +158,10 @@ private:
 	bool						mHasLimits;
 	float						mLimitsMin;
 	float						mLimitsMax;
+
+	// Soft slider limits
+	float						mFrequency;
+	float						mDamping;
 
 	// Friction
 	float						mMaxFrictionForce;

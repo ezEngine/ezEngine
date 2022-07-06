@@ -13,12 +13,12 @@ void FillCastResult(ezPhysicsCastResult& result, const ezVec3& vStart, const ezV
   result.m_vNormal = ezJoltConversionUtils::ToVec3(body.GetWorldSpaceSurfaceNormal(subShapeId, ezJoltConversionUtils::ToVec3(result.m_vPosition)));
   result.m_uiObjectFilterID = body.GetCollisionGroup().GetGroupID();
 
-  if (ezComponent* pShapeComponent = ezJoltUserData::GetShapeComponent(reinterpret_cast<const void*>(body.GetShape()->GetSubShapeUserData(subShapeId))))
+  if (ezComponent* pShapeComponent = ezJoltUserData::GetComponent(reinterpret_cast<const void*>(body.GetShape()->GetSubShapeUserData(subShapeId))))
   {
     result.m_hShapeObject = pShapeComponent->GetOwner()->GetHandle();
   }
 
-  if (ezComponent* pActorComponent = ezJoltUserData::GetActorComponent(reinterpret_cast<const void*>(body.GetUserData())))
+  if (ezComponent* pActorComponent = ezJoltUserData::GetComponent(reinterpret_cast<const void*>(body.GetUserData())))
   {
     result.m_hActorObject = pActorComponent->GetOwner()->GetHandle();
   }
@@ -345,12 +345,12 @@ void ezJoltWorldModule::QueryShapesInSphere(ezPhysicsOverlapResultArray& out_Res
 
     overlapResult.m_uiObjectFilterID = body.GetCollisionGroup().GetGroupID();
 
-    if (ezComponent* pShapeComponent = ezJoltUserData::GetShapeComponent(reinterpret_cast<const void*>(body.GetShape()->GetSubShapeUserData(overlapHit.mSubShapeID2))))
+    if (ezComponent* pShapeComponent = ezJoltUserData::GetComponent(reinterpret_cast<const void*>(body.GetShape()->GetSubShapeUserData(overlapHit.mSubShapeID2))))
     {
       overlapResult.m_hShapeObject = pShapeComponent->GetOwner()->GetHandle();
     }
 
-    if (ezComponent* pActorComponent = ezJoltUserData::GetActorComponent(reinterpret_cast<const void*>(body.GetUserData())))
+    if (ezComponent* pActorComponent = ezJoltUserData::GetComponent(reinterpret_cast<const void*>(body.GetUserData())))
     {
       overlapResult.m_hActorObject = pActorComponent->GetOwner()->GetHandle();
     }

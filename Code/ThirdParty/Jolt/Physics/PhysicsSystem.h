@@ -10,6 +10,7 @@
 #include <Jolt/Physics/Constraints/ConstraintManager.h>
 #include <Jolt/Physics/IslandBuilder.h>
 #include <Jolt/Physics/PhysicsUpdateContext.h>
+#include <Jolt/Physics/PhysicsSettings.h>
 
 JPH_NAMESPACE_BEGIN
 
@@ -24,6 +25,8 @@ class PhysicsStepListener;
 class PhysicsSystem : public NonCopyable
 {
 public:
+	JPH_OVERRIDE_NEW_DELETE
+
 	/// Constructor / Destructor
 								PhysicsSystem()												: mContactManager(mPhysicsSettings) { }
 								~PhysicsSystem();
@@ -83,6 +86,9 @@ public:
 	/// Batch remove constraints. Note that the inConstraints array is allowed to have nullptrs, these will be ignored.
 	void						RemoveConstraints(Constraint **inConstraints, int inNumber)	{ mConstraintManager.Remove(inConstraints, inNumber); }
 
+	/// Get a list of all constraints
+	Constraints					GetConstraints() const										{ return mConstraintManager.GetConstraints(); }
+
 	/// Optimize the broadphase, needed only if you've added many bodies prior to calling Update() for the first time.
 	void						OptimizeBroadPhase();
 
@@ -108,7 +114,7 @@ public:
 	static bool					sDrawMotionQualityLinearCast;								///< Draw debug info for objects that perform continuous collision detection through the linear cast motion quality
 
 	/// Draw the state of the bodies (debugging purposes)
-	void						DrawBodies(const BodyManager::DrawSettings &inSettings, DebugRenderer *inRenderer) { mBodyManager.Draw(inSettings, mPhysicsSettings, inRenderer); }
+	void						DrawBodies(const BodyManager::DrawSettings &inSettings, DebugRenderer *inRenderer, const BodyDrawFilter *inBodyFilter = nullptr) { mBodyManager.Draw(inSettings, mPhysicsSettings, inRenderer, inBodyFilter); }
 
 	/// Draw the constraints only (debugging purposes)
 	void						DrawConstraints(DebugRenderer *inRenderer)					{ mConstraintManager.DrawConstraints(inRenderer); }
@@ -248,7 +254,7 @@ private:
 	Mutex						mStepListenersMutex;
 
 	/// List of physics step listeners
-	using StepListeners = vector<PhysicsStepListener *>;
+	using StepListeners = Array<PhysicsStepListener *>;
 	StepListeners				mStepListeners;
 
 	/// This is the global gravity vector

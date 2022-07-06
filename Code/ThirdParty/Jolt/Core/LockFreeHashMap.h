@@ -54,10 +54,11 @@ public:
 	inline					LFHMAllocatorContext(LFHMAllocator &inAllocator, uint32 inBlockSize);
 
 	/// @brief Allocate data block
-	/// @param inSize Size of block to allocae
+	/// @param inSize Size of block to allocate.
+	/// @param inAlignment Alignment of block to allocate.
 	/// @param outWriteOffset Offset in buffer where block is located
 	/// @return True if allocation succeeded
-	inline bool				Allocate(uint32 inSize, uint32 &outWriteOffset);
+	inline bool				Allocate(uint32 inSize, uint32 inAlignment, uint32 &outWriteOffset);
 
 private:
 	LFHMAllocator &			mAllocator;
@@ -115,10 +116,10 @@ public:
 	/// Insert a new element, returns null if map full.
 	/// Multiple threads can be inserting in the map at the same time.
 	template <class... Params>
-	inline KeyValue *		Create(LFHMAllocatorContext &ioContext, const Key &inKey, size_t inKeyHash, int inExtraBytes, Params &&... inConstructorParams);
+	inline KeyValue *		Create(LFHMAllocatorContext &ioContext, const Key &inKey, uint64 inKeyHash, int inExtraBytes, Params &&... inConstructorParams);
 	
 	/// Find an element, returns null if not found
-	inline const KeyValue *	Find(const Key &inKey, size_t inKeyHash) const;
+	inline const KeyValue *	Find(const Key &inKey, uint64 inKeyHash) const;
 
 	/// Value of an invalid handle
 	const static uint32		cInvalidHandle = uint32(-1);
@@ -136,7 +137,7 @@ public:
 #endif // JPH_ENABLE_ASSERTS
 
 	/// Get all key/value pairs
-	inline void				GetAllKeyValues(vector<const KeyValue *> &outAll) const;
+	inline void				GetAllKeyValues(Array<const KeyValue *> &outAll) const;
 
 	/// Non-const iterator
 	struct Iterator

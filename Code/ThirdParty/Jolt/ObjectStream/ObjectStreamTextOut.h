@@ -11,11 +11,13 @@ JPH_NAMESPACE_BEGIN
 class ObjectStreamTextOut : public ObjectStreamOut
 {
 public:
+	JPH_OVERRIDE_NEW_DELETE
+
 	/// Constructor and destructor
 	explicit					ObjectStreamTextOut(ostream &inStream);
 
 	///@name Output type specific operations
-	virtual void				WriteDataType(EDataType inType) override;
+	virtual void				WriteDataType(EOSDataType inType) override;
 	virtual void				WriteName(const char *inName) override;
 	virtual void				WriteIdentifier(Identifier inIdentifier) override;
 	virtual void				WriteCount(uint32 inCount) override;
@@ -27,7 +29,7 @@ public:
 	virtual void				WritePrimitiveData(const uint64 &inPrimitive) override;
 	virtual void				WritePrimitiveData(const float &inPrimitive) override;
 	virtual void				WritePrimitiveData(const bool &inPrimitive) override;
-	virtual void				WritePrimitiveData(const string &inPrimitive) override;
+	virtual void				WritePrimitiveData(const String &inPrimitive) override;
 	virtual void				WritePrimitiveData(const Float3 &inPrimitive) override;
 	virtual void				WritePrimitiveData(const Vec3 &inPrimitive) override;
 	virtual void				WritePrimitiveData(const Vec4 &inPrimitive) override;
@@ -41,7 +43,7 @@ public:
 
 private:
 	void						WriteChar(char inChar);
-	void						WriteWord(const string &inWord);
+	void						WriteWord(const string_view &inWord);
 
 	int							mIndentation = 0;
 };

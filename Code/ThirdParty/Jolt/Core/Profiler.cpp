@@ -6,6 +6,7 @@
 #include <Jolt/Core/Profiler.h>
 #include <Jolt/Core/Color.h>
 #include <Jolt/Core/StringTools.h>
+#include <Jolt/Core/QuickSort.h>
 
 JPH_SUPPRESS_WARNINGS_STD_BEGIN
 #include <fstream>
@@ -19,7 +20,7 @@ JPH_NAMESPACE_BEGIN
 // Profiler
 //////////////////////////////////////////////////////////////////////////////////////////
 
-Profiler Profiler::sInstance;
+Profiler *Profiler::sInstance = nullptr;
 thread_local ProfileThread *ProfileThread::sInstance = nullptr;
 
 bool ProfileMeasurement::sOutOfSamplesReported = false;
@@ -38,7 +39,7 @@ void Profiler::NextFrame()
 		t->mCurrentSample = 0;
 }
 
-void Profiler::Dump(string inTag)
+void Profiler::Dump(const string_view &inTag)
 {
 	mDump = true;
 	mDumpTag = inTag;
@@ -55,7 +56,7 @@ void Profiler::RemoveThread(ProfileThread *inThread)
 { 
 	lock_guard lock(mLock); 
 	
-	vector<ProfileThread *>::iterator i = find(mThreads.begin(), mThreads.end(), inThread); 
+	Array<ProfileThread *>::iterator i = find(mThreads.begin(), mThreads.end(), inThread); 
 	JPH_ASSERT(i != mThreads.end()); 
 	mThreads.erase(i); 
 }
@@ -138,7 +139,7 @@ void Profiler::DumpInternal()
 		}
 
 	// Determine tag of this profile
-	string tag;
+	String tag;
 	if (mDumpTag.empty())
 	{
 		// Next sequence number
@@ -161,25 +162,25 @@ void Profiler::DumpInternal()
 			sAggregate(0, Color::sGetDistinctColor(0).GetUInt32(), s, end, aggregators, key_to_aggregators);
 
 	// Dump as list
-	DumpList(tag, aggregators);
+	DumpList(tag.c_str(), aggregators);
 
 	// Dump as chart
-	DumpChart(tag, threads, key_to_aggregators, aggregators);
+	DumpChart(tag.c_str(), threads, key_to_aggregators, aggregators);
 }
 
-static string sHTMLEncode(string inString)
+static String sHTMLEncode(const char *inString)
 {
-	string str = inString;
+	String str(inString);
 	StringReplace(str, "<", "&lt;");
 	StringReplace(str, ">", "&gt;");
 	return str;
 }
 
-void Profiler::DumpList(string inTag, const Aggregators &inAggregators)
+void Profiler::DumpList(const char *inTag, const Aggregators &inAggregators)
 {
 	// Open file
 	ofstream f;
-	f.open(StringFormat("profile_list_%s.html", inTag.c_str()).c_str(), ofstream::out | ofstream::trunc);
+	f.open(StringFormat("profile_list_%s.html", inTag).c_str(), ofstream::out | ofstream::trunc);
 	if (!f.is_open()) 
 		return;
 
@@ -221,7 +222,7 @@ void Profiler::DumpList(string inTag, const Aggregators &inAggregators)
 	
 	// Sort the list
 	Aggregators aggregators = inAggregators;
-	sort(aggregators.begin(), aggregators.end());
+	QuickSort(aggregators.begin(), aggregators.end());
 	
 	// Write all aggregators
 	for (const Aggregator &item : aggregators)
@@ -255,11 +256,11 @@ void Profiler::DumpList(string inTag, const Aggregators &inAggregators)
 	f << R"(</tbody></table></body></html>)";
 }
 
-void Profiler::DumpChart(string inTag, const Threads &inThreads, const KeyToAggregator &inKeyToAggregators, const Aggregators &inAggregators)
+void Profiler::DumpChart(const char *inTag, const Threads &inThreads, const KeyToAggregator &inKeyToAggregators, const Aggregators &inAggregators)
 {
 	// Open file
 	ofstream f;
-	f.open(StringFormat("profile_chart_%s.html", inTag.c_str()).c_str(), ofstream::out | ofstream::trunc);
+	f.open(StringFormat("profile_chart_%s.html", inTag).c_str(), ofstream::out | ofstream::trunc);
 	if (!f.is_open()) 
 		return;
 
@@ -345,7 +346,7 @@ void Profiler::DumpChart(string inTag, const Threads &inThreads, const KeyToAggr
 		if (!first)
 			f << ",";
 		first = false;
-		string name = "\"" + sHTMLEncode(a.mName) + "\"";
+		String name = "\"" + sHTMLEncode(a.mName) + "\"";
 		f << name;
 	}
 	f << "],\ncalls: [";

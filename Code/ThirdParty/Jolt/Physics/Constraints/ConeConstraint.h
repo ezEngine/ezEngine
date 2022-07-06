@@ -68,11 +68,13 @@ protected:
 class ConeConstraint final : public TwoBodyConstraint
 {
 public:
+	JPH_OVERRIDE_NEW_DELETE
+
 	/// Construct cone constraint
 								ConeConstraint(Body &inBody1, Body &inBody2, const ConeConstraintSettings &inSettings);
 
 	// Generic interface of a constraint
-	virtual EConstraintType		GetType() const override					{ return EConstraintType::Cone; }
+	virtual EConstraintSubType	GetSubType() const override					{ return EConstraintSubType::Cone; }
 	virtual void				SetupVelocityConstraint(float inDeltaTime) override;
 	virtual void				WarmStartVelocityConstraint(float inWarmStartImpulseRatio) override;
 	virtual bool				SolveVelocityConstraint(float inDeltaTime) override;
@@ -83,13 +85,14 @@ public:
 #endif // JPH_DEBUG_RENDERER
 	virtual void				SaveState(StateRecorder &inStream) const override;
 	virtual void				RestoreState(StateRecorder &inStream) override;
+	virtual Ref<ConstraintSettings> GetConstraintSettings() const override;
 
 	// See: TwoBodyConstraint
 	virtual Mat44				GetConstraintToBody1Matrix() const override;
 	virtual Mat44				GetConstraintToBody2Matrix() const override;
 
 	/// Update maximum angle between body 1 and 2 (see ConeConstraintSettings)
-	void						SetHalfConeAngle(float inHalfConeAngle)		{ JPH_ASSERT(inHalfConeAngle >= 0.0f && inHalfConeAngle <= JPH_PI); mCosHalfConeAngle = cos(inHalfConeAngle); }
+	void						SetHalfConeAngle(float inHalfConeAngle)		{ JPH_ASSERT(inHalfConeAngle >= 0.0f && inHalfConeAngle <= JPH_PI); mCosHalfConeAngle = Cos(inHalfConeAngle); }
 	float						GetCosHalfConeAngle() const					{ return mCosHalfConeAngle; }
 
 	///@name Get Lagrange multiplier from last physics update (relates to how much force/torque was applied to satisfy the constraint)

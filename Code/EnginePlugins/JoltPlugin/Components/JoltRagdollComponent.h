@@ -90,6 +90,7 @@ public:
   float GetGravityFactor() const { return m_fGravityFactor; } // [ property ]
   void SetGravityFactor(float factor);                        // [ property ]
 
+  ezUInt8 m_uiCollisionLayer = 0; // [ property ]
   bool m_bSelfCollision = false; // [ property ]
 
   void AddImpulseAtPos(ezMsgPhysicsAddImpulse& msg); // [ message ]

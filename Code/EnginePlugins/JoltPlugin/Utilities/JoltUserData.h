@@ -120,16 +120,16 @@ public:
     return nullptr;
   }
 
-  EZ_FORCE_INLINE static ezJoltShapeComponent* GetShapeComponent(const void* pUserData)
-  {
-    const ezJoltUserData* pJoltUserData = static_cast<const ezJoltUserData*>(pUserData);
-    if (pJoltUserData != nullptr && pJoltUserData->m_Type == Type::ShapeComponent)
-    {
-      return static_cast<ezJoltShapeComponent*>(pJoltUserData->m_pObject);
-    }
+  //EZ_FORCE_INLINE static ezJoltShapeComponent* GetShapeComponent(const void* pUserData)
+  //{
+  //  const ezJoltUserData* pJoltUserData = static_cast<const ezJoltUserData*>(pUserData);
+  //  if (pJoltUserData != nullptr && pJoltUserData->m_Type == Type::ShapeComponent)
+  //  {
+  //    return static_cast<ezJoltShapeComponent*>(pJoltUserData->m_pObject);
+  //  }
 
-    return nullptr;
-  }
+  //  return nullptr;
+  //}
 
   EZ_FORCE_INLINE static ezJoltTriggerComponent* GetTriggerComponent(const void* pUserData)
   {

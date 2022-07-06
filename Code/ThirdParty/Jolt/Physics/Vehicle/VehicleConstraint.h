@@ -31,8 +31,8 @@ public:
 	Vec3						mUp { 0, 1, 0 };							///< Vector indicating the up direction of the vehicle (in local space to the body)
 	Vec3						mForward { 0, 0, 1 };						///< Vector indicating forward direction of the vehicle (in local space to the body)
 	float						mMaxPitchRollAngle = JPH_PI;				///< Defines the maximum pitch/roll angle (rad), can be used to avoid the car from getting upside down. The vehicle up direction will stay within a cone centered around the up axis with half top angle mMaxPitchRollAngle, set to pi to turn off.
-	vector<Ref<WheelSettings>>	mWheels;									///< List of wheels and their properties
-	vector<VehicleAntiRollBar>	mAntiRollBars;								///< List of anti rollbars and their properties
+	Array<Ref<WheelSettings>>	mWheels;									///< List of wheels and their properties
+	Array<VehicleAntiRollBar>	mAntiRollBars;								///< List of anti rollbars and their properties
 	Ref<VehicleControllerSettings> mController;								///< Defines how the vehicle can accelerate / decellerate
 
 protected:
@@ -50,10 +50,10 @@ public:
 	virtual						~VehicleConstraint() override;
 
 	/// Get the type of a constraint
-	virtual EConstraintType		GetType() const override					{ return EConstraintType::Vehicle; }
+	virtual EConstraintSubType	GetSubType() const override					{ return EConstraintSubType::Vehicle; }
 
 	/// Defines the maximum pitch/roll angle (rad), can be used to avoid the car from getting upside down. The vehicle up direction will stay within a cone centered around the up axis with half top angle mMaxPitchRollAngle, set to pi to turn off.
-	void						SetMaxPitchRollAngle(float inMaxPitchRollAngle) { mCosMaxPitchRollAngle = cos(inMaxPitchRollAngle); }
+	void						SetMaxPitchRollAngle(float inMaxPitchRollAngle) { mCosMaxPitchRollAngle = Cos(inMaxPitchRollAngle); }
 	
 	/// Set the interface that tests collision between wheel and ground
 	void						SetVehicleCollisionTester(const VehicleCollisionTester *inTester) { mVehicleCollisionTester = inTester; }
@@ -104,6 +104,7 @@ public:
 #endif // JPH_DEBUG_RENDERER
 	virtual void				SaveState(StateRecorder &inStream) const override;
 	virtual void				RestoreState(StateRecorder &inStream) override;
+	virtual Ref<ConstraintSettings> GetConstraintSettings() const override;
 
 private:
 	// See: PhysicsStepListener
@@ -120,7 +121,7 @@ private:
 	Vec3						mForward;									///< Local space forward vector for the vehicle
 	Vec3						mUp;										///< Local space up vector for the vehicle
 	Wheels						mWheels;									///< Wheel states of the vehicle
-	vector<VehicleAntiRollBar>	mAntiRollBars;								///< Anti rollbars of the vehicle
+	Array<VehicleAntiRollBar>	mAntiRollBars;								///< Anti rollbars of the vehicle
 	VehicleController *			mController;								///< Controls the acceleration / declerration of the vehicle
 	bool						mIsActive = false;							///< If this constraint is active
 

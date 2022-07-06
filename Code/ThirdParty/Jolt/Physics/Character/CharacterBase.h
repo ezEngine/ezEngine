@@ -19,6 +19,11 @@ class StateRecorder;
 class CharacterBaseSettings : public RefTarget<CharacterBaseSettings>
 {
 public:
+	JPH_OVERRIDE_NEW_DELETE
+
+	/// Virtual destructor
+	virtual								~CharacterBaseSettings() = default;
+
 	/// Maximum angle of slope that character can still walk on (radians).
 	float								mMaxSlopeAngle = DegreesToRadians(50.0f);
 
@@ -31,6 +36,8 @@ public:
 class CharacterBase : public RefTarget<CharacterBase>, public NonCopyable
 {
 public:
+	JPH_OVERRIDE_NEW_DELETE
+
 	/// Constructor
 										CharacterBase(const CharacterBaseSettings *inSettings, PhysicsSystem *inSystem);
 
@@ -38,7 +45,7 @@ public:
 	virtual								~CharacterBase() = default;
 
 	/// Set the maximum angle of slope that character can still walk on (radians)
-	void								SetMaxSlopeAngle(float inMaxSlopeAngle)					{ mCosMaxSlopeAngle = cos(inMaxSlopeAngle); }
+	void								SetMaxSlopeAngle(float inMaxSlopeAngle)					{ mCosMaxSlopeAngle = Cos(inMaxSlopeAngle); }
 
 	/// Get the current shape that the character is using.
 	const Shape *						GetShape() const										{ return mShape; }

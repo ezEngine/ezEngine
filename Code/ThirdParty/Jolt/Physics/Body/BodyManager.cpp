@@ -10,8 +10,10 @@
 #include <Jolt/Physics/Body/BodyActivationListener.h>
 #include <Jolt/Physics/StateRecorder.h>
 #include <Jolt/Core/StringTools.h>
+#include <Jolt/Core/QuickSort.h>
 #ifdef JPH_DEBUG_RENDERER
 	#include <Jolt/Renderer/DebugRenderer.h>
+	#include <Jolt/Physics/Body/BodyFilter.h>
 #endif // JPH_DEBUG_RENDERER
 
 JPH_NAMESPACE_BEGIN
@@ -25,6 +27,8 @@ JPH_NAMESPACE_BEGIN
 class BodyWithMotionProperties : public Body
 {
 public:
+	JPH_OVERRIDE_NEW_DELETE
+
 	MotionProperties		mMotionProperties;
 };
 
@@ -184,6 +188,8 @@ Body *BodyManager::CreateBody(const BodyCreationSettings &inBodyCreationSettings
 		mp->SetAngularDamping(inBodyCreationSettings.mAngularDamping);
 		mp->SetMaxLinearVelocity(inBodyCreationSettings.mMaxLinearVelocity);
 		mp->SetMaxAngularVelocity(inBodyCreationSettings.mMaxAngularVelocity);
+		mp->SetLinearVelocity(inBodyCreationSettings.mLinearVelocity); // Needs to happen after setting the max linear/angular velocity
+		mp->SetAngularVelocity(inBodyCreationSettings.mAngularVelocity);
 		mp->SetGravityFactor(inBodyCreationSettings.mGravityFactor);
 		mp->SetMotionQuality(inBodyCreationSettings.mMotionQuality);
 		mp->mAllowSleeping = inBodyCreationSettings.mAllowSleeping;
@@ -485,7 +491,7 @@ void BodyManager::SaveState(StateRecorder &inStream) const
 		// Write active bodies, sort because activation can come from multiple threads, so order is not deterministic
 		inStream.Write(mNumActiveBodies);
 		BodyIDVector sorted_active_bodies(mActiveBodies, mActiveBodies + mNumActiveBodies);
-		sort(sorted_active_bodies.begin(), sorted_active_bodies.end());
+		QuickSort(sorted_active_bodies.begin(), sorted_active_bodies.end());
 		for (const BodyID &id : sorted_active_bodies)
 			inStream.Write(id);
 
@@ -536,7 +542,7 @@ bool BodyManager::RestoreState(StateRecorder &inStream)
 		for (const BodyID *id = mActiveBodies, *id_end = mActiveBodies + mNumActiveBodies; id < id_end; ++id)
 			mBodies[id->GetIndex()]->mMotionProperties->mIndexInActiveBodies = Body::cInactiveIndex;
 
-		sort(mActiveBodies, mActiveBodies + mNumActiveBodies); // Sort for validation
+		QuickSort(mActiveBodies, mActiveBodies + mNumActiveBodies); // Sort for validation
 
 		// Read active bodies
 		inStream.Read(mNumActiveBodies);
@@ -553,14 +559,14 @@ bool BodyManager::RestoreState(StateRecorder &inStream)
 }
 
 #ifdef JPH_DEBUG_RENDERER
-void BodyManager::Draw(const DrawSettings &inDrawSettings, const PhysicsSettings &inPhysicsSettings, DebugRenderer *inRenderer)
+void BodyManager::Draw(const DrawSettings &inDrawSettings, const PhysicsSettings &inPhysicsSettings, DebugRenderer *inRenderer, const BodyDrawFilter *inBodyFilter)
 {
 	JPH_PROFILE_FUNCTION();
 
 	LockAllBodies();
 
 	for (const Body *body : mBodies)
-		if (sIsValidBodyPointer(body) && body->IsInBroadPhase())
+		if (sIsValidBodyPointer(body) && body->IsInBroadPhase() && (!inBodyFilter || inBodyFilter->ShouldDraw(*body)))
 		{
 			JPH_ASSERT(mBodies[body->GetID().GetIndex()] == body);
 
@@ -716,7 +722,7 @@ void BodyManager::Draw(const DrawSettings &inDrawSettings, const PhysicsSettings
 			if (inDrawSettings.mDrawSleepStats && body->IsDynamic() && body->IsActive())
 			{
 				// Draw stats to know which bodies could go to sleep
-				string text = StringFormat("t: %.1f", (double)body->mMotionProperties->mSleepTestTimer);
+				String text = StringFormat("t: %.1f", (double)body->mMotionProperties->mSleepTestTimer);
 				uint8 g = uint8(Clamp(255.0f * body->mMotionProperties->mSleepTestTimer / inPhysicsSettings.mTimeBeforeSleep, 0.0f, 255.0f));
 				Color sleep_color = Color(0, 255 - g, g);
 				inRenderer->DrawText3D(body->GetCenterOfMassPosition(), text, sleep_color, 0.2f);

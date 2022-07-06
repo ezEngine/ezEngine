@@ -15,18 +15,21 @@ class BodyActivationListener;
 struct PhysicsSettings;
 #ifdef JPH_DEBUG_RENDERER
 class DebugRenderer;
+class BodyDrawFilter;
 #endif // JPH_DEBUG_RENDERER
 
 /// Array of bodies
-using BodyVector = vector<Body *>;
+using BodyVector = Array<Body *>;
 
 /// Array of body ID's
-using BodyIDVector = vector<BodyID>;
+using BodyIDVector = Array<BodyID>;
 
 /// Class that contains all bodies
 class BodyManager : public NonCopyable
 {
 public:
+	JPH_OVERRIDE_NEW_DELETE
+
 	/// Destructor
 									~BodyManager();
 
@@ -179,7 +182,7 @@ public:
 	};
 
 	/// Draw the state of the bodies (debugging purposes)
-	void							Draw(const DrawSettings &inSettings, const PhysicsSettings &inPhysicsSettings, DebugRenderer *inRenderer);
+	void							Draw(const DrawSettings &inSettings, const PhysicsSettings &inPhysicsSettings, DebugRenderer *inRenderer, const BodyDrawFilter *inBodyFilter = nullptr);
 #endif // JPH_DEBUG_RENDERER
 
 #ifdef JPH_ENABLE_ASSERTS
@@ -248,7 +251,7 @@ private:
 	mutable BodyMutexes				mBodyMutexes;
 
 	/// List of next sequence number for a body ID
-	vector<uint8>					mBodySequenceNumbers;
+	Array<uint8>					mBodySequenceNumbers;
 
 	/// Mutex that protects the mActiveBodies array
 	mutable Mutex					mActiveBodiesMutex;
