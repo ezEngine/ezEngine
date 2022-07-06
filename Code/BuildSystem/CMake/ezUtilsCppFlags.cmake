@@ -196,6 +196,9 @@ function(ez_set_build_flags_clang TARGET_NAME)
 				    target_link_options(${TARGET_NAME} PRIVATE "-fuse-ld=lld")
 				endif()
 			endif()
+            
+            # Reporting missing symbols at linktime
+            target_link_options(${TARGET_NAME} PRIVATE "-Wl,-z,defs")
 		elseif("${TARGET_TYPE}" STREQUAL "EXECUTABLE")
 			if(NOT ("${CMAKE_SHARED_LINKER_FLAGS}" MATCHES "fuse-ld="))
 				if (MOLD_PATH)
@@ -204,6 +207,9 @@ function(ez_set_build_flags_clang TARGET_NAME)
 				    target_link_options(${TARGET_NAME} PRIVATE "-fuse-ld=lld")
 				endif()
 			endif()
+            
+            # Reporting missing symbols at linktime
+            target_link_options(${TARGET_NAME} PRIVATE "-Wl,-z,defs")
 		endif()
 	endif()
 	
@@ -275,6 +281,11 @@ function(ez_set_build_flags_gcc TARGET_NAME)
 			endif()
 		endif()
 	endif()
+    
+    # Reporting missing symbols at linktime
+    if(("${TARGET_TYPE}" STREQUAL "SHARED_LIBRARY") OR ("${TARGET_TYPE}" STREQUAL "EXECUTABLE"))
+        target_link_options(${TARGET_NAME} PRIVATE "-Wl,-z,defs")
+    endif()
 
 endfunction()
 

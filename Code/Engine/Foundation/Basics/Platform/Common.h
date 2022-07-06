@@ -170,3 +170,11 @@ void EZ_IGNORE_UNUSED(const T&)
 #  define EZ_MATH_CHECK_FOR_NAN EZ_ON
 
 #endif
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#  define EZ_DECL_EXPORT __declspec(dllexport)
+#  define EZ_DECL_IMPORT __declspec(dllimport)
+#else
+#  define EZ_DECL_EXPORT __attribute__((visibility("default")))
+#  define EZ_DECL_IMPORT __attribute__((visibility("default")))
+#endif

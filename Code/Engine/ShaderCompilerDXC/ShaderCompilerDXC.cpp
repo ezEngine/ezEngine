@@ -7,23 +7,65 @@
 #include <ShaderCompilerDXC/SpirvMetaData.h>
 #include <ShaderCompilerDXC/spirv_reflect.h>
 
-// atlbase.h won't compile with NULL being nullptr
-#ifdef NULL
-#  undef NULL
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#  include <d3dcompiler.h>
 #endif
-#define NULL 0
 
-#include <atlbase.h>
-#include <d3dcompiler.h>
-#include <dxcapi.h>
+#include <dxc/dxcapi.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezShaderCompilerDXC, 1, ezRTTIDefaultAllocator<ezShaderCompilerDXC>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-CComPtr<IDxcUtils> s_pDxcUtils;
-CComPtr<IDxcCompiler3> s_pDxcCompiler;
+template <typename T>
+struct ezComPtr
+{
+public:
+  ezComPtr() {}
+  ~ezComPtr()
+  {
+    if (m_ptr != nullptr)
+    {
+      m_ptr->Release();
+      m_ptr = nullptr;
+    }
+  }
+
+  ezComPtr(const ezComPtr& other)
+    : m_ptr(other.m_ptr)
+  {
+    if (m_ptr)
+    {
+      m_ptr->AddRef();
+    }
+  }
+
+  T* operator->() { return m_ptr; }
+  T* const operator->() const { return m_ptr; }
+
+  T** put()
+  {
+    EZ_ASSERT_DEV(m_ptr == nullptr, "Can only put into an empty ezComPtr");
+    return &m_ptr;
+  }
+
+  bool operator==(nullptr_t)
+  {
+    return m_ptr == nullptr;
+  }
+
+  bool operator!=(nullptr_t)
+  {
+    return m_ptr != nullptr;
+  }
+
+private:
+  T* m_ptr = nullptr;
+};
+
+ezComPtr<IDxcUtils> s_pDxcUtils;
+ezComPtr<IDxcCompiler3> s_pDxcCompiler;
 
 static ezResult CompileVulkanShader(const char* szFile, const char* szSource, bool bDebug, const char* szProfile, const char* szEntryPoint, ezDynamicArray<ezUInt8>& out_ByteCode);
 
@@ -92,8 +134,8 @@ ezResult ezShaderCompilerDXC::Initialize()
   if (s_pDxcUtils != nullptr)
     return EZ_SUCCESS;
 
-  DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&s_pDxcUtils));
-  DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&s_pDxcCompiler));
+  DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(s_pDxcUtils.put()));
+  DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(s_pDxcCompiler.put()));
 
   return EZ_SUCCESS;
 }
@@ -142,7 +184,6 @@ ezResult CompileVulkanShader(const char* szFile, const char* szSource, bool bDeb
   args.PushBack(ezStringWChar(szEntryPoint));
   args.PushBack(L"-T");
   args.PushBack(ezStringWChar(szProfile));
-  args.PushBack(L"-Qstrip_reflect"); // Strip reflection into a separate blob.
   args.PushBack(L"-spirv");
   args.PushBack(L"-fvk-use-dx-position-w");
   args.PushBack(L"-fspv-target-env=vulkan1.1");
@@ -163,8 +204,8 @@ ezResult CompileVulkanShader(const char* szFile, const char* szSource, bool bDeb
     // args.PushBack(L"myshader.pdb");
   }
 
-  CComPtr<IDxcBlobEncoding> pSource = nullptr;
-  s_pDxcUtils->CreateBlob(szCompileSource, (UINT32)strlen(szCompileSource), DXC_CP_UTF8, &pSource);
+  ezComPtr<IDxcBlobEncoding> pSource;
+  s_pDxcUtils->CreateBlob(szCompileSource, (UINT32)strlen(szCompileSource), DXC_CP_UTF8, pSource.put());
 
   DxcBuffer Source;
   Source.Ptr = pSource->GetBufferPointer();
@@ -178,11 +219,11 @@ ezResult CompileVulkanShader(const char* szFile, const char* szSource, bool bDeb
     pszArgs[i] = args[i].GetData();
   }
 
-  CComPtr<IDxcResult> pResults;
-  s_pDxcCompiler->Compile(&Source, pszArgs.GetData(), pszArgs.GetCount(), nullptr, IID_PPV_ARGS(&pResults));
+  ezComPtr<IDxcResult> pResults;
+  s_pDxcCompiler->Compile(&Source, pszArgs.GetData(), pszArgs.GetCount(), nullptr, IID_PPV_ARGS(pResults.put()));
 
-  CComPtr<IDxcBlobUtf8> pErrors = nullptr;
-  pResults->GetOutput(DXC_OUT_ERRORS, IID_PPV_ARGS(&pErrors), nullptr);
+  ezComPtr<IDxcBlobUtf8> pErrors;
+  pResults->GetOutput(DXC_OUT_ERRORS, IID_PPV_ARGS(pErrors.put()), nullptr);
 
   HRESULT hrStatus;
   pResults->GetStatus(&hrStatus);
@@ -205,9 +246,9 @@ ezResult CompileVulkanShader(const char* szFile, const char* szSource, bool bDeb
     }
   }
 
-  CComPtr<IDxcBlob> pShader = nullptr;
-  CComPtr<IDxcBlobUtf16> pShaderName = nullptr;
-  pResults->GetOutput(DXC_OUT_OBJECT, IID_PPV_ARGS(&pShader), &pShaderName);
+  ezComPtr<IDxcBlob> pShader;
+  ezComPtr<IDxcBlobWide> pShaderName;
+  pResults->GetOutput(DXC_OUT_OBJECT, IID_PPV_ARGS(pShader.put()), pShaderName.put());
 
   if (pShader == nullptr)
   {
@@ -360,6 +401,18 @@ ezResult ezShaderCompilerDXC::FillSRVResourceBinding(ezShaderStageBinary& shader
       case SpvDim::SpvDimBuffer:
         binding.m_Type = ezShaderResourceType::GenericBuffer;
         return EZ_SUCCESS;
+
+      case SpvDim::SpvDimRect:
+        EZ_ASSERT_NOT_IMPLEMENTED;
+        return EZ_FAILURE;
+
+      case SpvDim::SpvDimSubpassData:
+        EZ_ASSERT_NOT_IMPLEMENTED;
+        return EZ_FAILURE;
+
+      case SpvDim::SpvDimMax:
+        EZ_ASSERT_DEV(false, "Invalid enum value");
+        break;
     }
 
     if (info.image.ms > 0)

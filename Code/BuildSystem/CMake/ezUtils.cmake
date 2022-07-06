@@ -21,6 +21,7 @@ include("ezUtilsVulkan")
 include("ezUtilsDependency")
 include("ezUtilsKraut")
 include("ezUtilsExternal")
+include("ezUtilsRenderer")
 
 ######################################
 ### ez_set_target_output_dirs(<target> <lib-output-dir> <dll-output-dir>)
@@ -242,7 +243,11 @@ function(ez_set_library_properties TARGET_NAME)
     ez_pull_all_vars()
 
     if (EZ_CMAKE_PLATFORM_LINUX)
-        target_link_libraries (${TARGET_NAME} PRIVATE pthread rt)
+        # c = libc.so (the C standard library)
+        # m = libm.so (the C standard library math portion)
+        # pthread = libpthread.so (thread support)
+        # rt = librt.so (compiler runtime functions)
+        target_link_libraries (${TARGET_NAME} PRIVATE pthread rt c m)
 
         if (EZ_CMAKE_COMPILER_GCC)
             # Workaround for: https://bugs.launchpad.net/ubuntu/+source/gcc-5/+bug/1568899
@@ -252,9 +257,12 @@ function(ez_set_library_properties TARGET_NAME)
 
     if (EZ_CMAKE_PLATFORM_OSX OR EZ_CMAKE_PLATFORM_LINUX)
         find_package(X11 REQUIRED)
-        find_package(SFML REQUIRED system window)
         target_include_directories (${TARGET_NAME} PRIVATE ${X11_X11_INCLUDE_PATH})
-        target_link_libraries (${TARGET_NAME} PRIVATE ${X11_X11_LIB} sfml-window sfml-system)
+        target_link_libraries (${TARGET_NAME} PRIVATE ${X11_X11_LIB})
+		if (EZ_3RDPARTY_SFML_SUPPORT)
+			find_package(SFML REQUIRED system window)
+			target_link_libraries (${TARGET_NAME} PRIVATE sfml-window sfml-system)
+		endif()
     endif ()
 
 endfunction()
@@ -269,9 +277,12 @@ function(ez_set_application_properties TARGET_NAME)
 
     if (EZ_CMAKE_PLATFORM_OSX OR EZ_CMAKE_PLATFORM_LINUX)
         find_package(X11 REQUIRED)
-        find_package(SFML REQUIRED system window)
         target_include_directories (${TARGET_NAME} PRIVATE ${X11_X11_INCLUDE_PATH})
-        target_link_libraries (${TARGET_NAME} PRIVATE ${X11_X11_LIB} sfml-window sfml-system)
+        target_link_libraries (${TARGET_NAME} PRIVATE ${X11_X11_LIB})
+		if (EZ_3RDPARTY_SFML_SUPPORT)
+			find_package(SFML REQUIRED system window)
+			target_link_libraries (${TARGET_NAME} PRIVATE sfml-window sfml-system)
+		endif()
     endif ()
 
     # We need to link against pthread and rt last or linker errors will occur.
@@ -403,6 +414,33 @@ macro(ez_requires)
     endif()
 
   endforeach()
+
+endmacro()
+
+######################################
+### ez_requires_one_of(<variable1> (<variable2>) (<variable3>) ...)
+######################################
+macro(ez_requires_one_of)
+
+  if(${ARGC} EQUAL 0)
+    message(FATAL_ERROR "ez_requires_one_of needs at least one argument")
+  endif()
+
+  set(ALL_ARGS "${ARGN}")
+  
+  set(VALID 0)
+
+  foreach(arg IN LISTS ALL_ARGS)
+
+    if (${arg})
+      set(VALID 1)
+    endif()
+
+  endforeach()
+  
+  if(NOT VALID)
+    return()
+  endif()
 
 endmacro()
 

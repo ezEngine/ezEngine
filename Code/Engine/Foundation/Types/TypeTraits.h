@@ -194,6 +194,8 @@ EZ_DEFINE_AS_POD_TYPE(ezUInt16);
 EZ_DEFINE_AS_POD_TYPE(ezUInt32);
 EZ_DEFINE_AS_POD_TYPE(ezUInt64);
 EZ_DEFINE_AS_POD_TYPE(wchar_t);
+EZ_DEFINE_AS_POD_TYPE(unsigned long);
+EZ_DEFINE_AS_POD_TYPE(long);
 
 /// \brief Checks inheritance at compile time.
 #define EZ_IS_DERIVED_FROM_STATIC(BaseClass, DerivedClass) \

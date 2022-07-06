@@ -11,6 +11,9 @@
 #if EZ_ENABLED(EZ_SUPPORTS_SFML)
 #  include <Core/System/Implementation/SFML/InputDevice_SFML.inl>
 #  include <Core/System/Implementation/SFML/Window_SFML.inl>
+#elif EZ_ENABLED(EZ_PLATFORM_LINUX)
+#  include <Core/System/Implementation/xcb/InputDevice_xcb.inl>
+#  include <Core/System/Implementation/xcb/Window_xcb.inl>
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 #  include <Core/System/Implementation/Win/InputDevice_win32.inl>
 #  include <Core/System/Implementation/Win/Window_win32.inl>

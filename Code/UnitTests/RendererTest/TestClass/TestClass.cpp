@@ -134,6 +134,10 @@ ezResult ezGraphicsTest::CreateWindow(ezUInt32 uiResolutionX, ezUInt32 uiResolut
     swapChainDesc.m_SampleCount = ezGALMSAASampleCount::None;
     swapChainDesc.m_bAllowScreenshots = true;
     m_hSwapChain = ezGALWindowSwapChain::Create(swapChainDesc);
+    if (m_hSwapChain.IsInvalidated())
+    {
+      return EZ_FAILURE;
+    }
   }
 
   {
@@ -144,6 +148,10 @@ ezResult ezGraphicsTest::CreateWindow(ezUInt32 uiResolutionX, ezUInt32 uiResolut
     texDesc.m_bCreateRenderTarget = true;
 
     m_hDepthStencilTexture = m_pDevice->CreateTexture(texDesc);
+    if (m_hDepthStencilTexture.IsInvalidated())
+    {
+      return EZ_FAILURE;
+    }
   }
 
   return EZ_SUCCESS;

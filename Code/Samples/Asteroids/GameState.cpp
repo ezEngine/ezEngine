@@ -8,7 +8,9 @@
 #include <Core/System/Window.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 
-#include <XBoxControllerPlugin/InputDeviceXBox.h>
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#  include <XBoxControllerPlugin/InputDeviceXBox.h>
+#endif
 
 EZ_APPLICATION_ENTRY_POINT(ezGameApplication, "Asteroids", "Data/Samples/Asteroids");
 
@@ -69,10 +71,12 @@ void AsteroidGameState::BeforeWorldUpdate()
 
 void AsteroidGameState::ConfigureInputActions()
 {
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   ezInputDeviceXBox360::GetDevice()->EnableVibration(0, true);
   ezInputDeviceXBox360::GetDevice()->EnableVibration(1, true);
   ezInputDeviceXBox360::GetDevice()->EnableVibration(2, true);
   ezInputDeviceXBox360::GetDevice()->EnableVibration(3, true);
+#endif
 
   RegisterInputAction("Main", "ResetLevel", ezInputSlot_KeyReturn);
 

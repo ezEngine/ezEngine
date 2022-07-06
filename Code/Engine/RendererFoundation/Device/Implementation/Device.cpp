@@ -625,6 +625,11 @@ ezGALTextureHandle ezGALDevice::CreateTexture(const ezGALTextureCreationDescript
 
   ezGALTexture* pTexture = CreateTexturePlatform(desc, pInitialData);
 
+  return FinalizeTextureInternal(desc, pTexture);
+}
+
+ezGALTextureHandle ezGALDevice::FinalizeTextureInternal(const ezGALTextureCreationDescription& desc, ezGALTexture* pTexture)
+{
   if (pTexture != nullptr)
   {
     ezGALTextureHandle hTexture(m_Textures.Insert(pTexture));

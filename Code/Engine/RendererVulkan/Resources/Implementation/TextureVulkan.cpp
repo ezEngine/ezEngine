@@ -44,6 +44,15 @@ ezGALTextureVulkan::ezGALTextureVulkan(const ezGALTextureCreationDescription& De
 {
 }
 
+ezGALTextureVulkan::ezGALTextureVulkan(const ezGALTextureCreationDescription& Description, vk::Format OverrideFormat)
+  : ezGALTexture(Description)
+  , m_image(nullptr)
+  , m_pExisitingNativeObject(Description.m_pExisitingNativeObject)
+  , m_imageFormat(OverrideFormat)
+  , m_formatOverride(true)
+{
+}
+
 ezGALTextureVulkan::~ezGALTextureVulkan() {}
 
 ezResult ezGALTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData)
@@ -55,7 +64,10 @@ ezResult ezGALTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGAL
   vk::ImageCreateInfo createInfo = {};
   //#TODO_VULKAN VK_IMAGE_CREATE_MUTABLE_FORMAT_BIT / VkImageFormatListCreateInfoKHR to allow changing the format in a view is slow.
   createInfo.flags |= vk::ImageCreateFlagBits::eMutableFormat;
-  m_imageFormat = m_pDeviceVulkan->GetFormatLookupTable().GetFormatInfo(m_Description.m_Format).m_eStorage;
+  if (m_imageFormat == vk::Format::eUndefined)
+  {
+    m_imageFormat = m_pDeviceVulkan->GetFormatLookupTable().GetFormatInfo(m_Description.m_Format).m_eStorage;
+  }
   createInfo.format = m_imageFormat;
   if (createInfo.format == vk::Format::eUndefined)
   {
@@ -168,7 +180,12 @@ ezResult ezGALTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGAL
   m_pDeviceVulkan->GetInitContext().InitTexture(this, createInfo, pInitialData);
 
   if (m_Description.m_ResourceAccess.m_bReadBack)
+  {
+    // We want the staging texture to always have the intended format
+    // and not the override format given by the parent texture
+    createInfo.format = m_pDeviceVulkan->GetFormatLookupTable().GetFormatInfo(m_Description.m_Format).m_eStorage;
     return CreateStagingBuffer(m_pDeviceVulkan, createInfo);
+  }
 
   return EZ_SUCCESS;
 }
@@ -209,6 +226,8 @@ ezResult ezGALTextureVulkan::CreateStagingBuffer(ezGALDeviceVulkan* pDevice, con
   allocInfo.m_usage = ezVulkanMemoryUsage::Auto;
   allocInfo.m_flags = ezVulkanAllocationCreateFlags::HostAccessRandom;
   VK_SUCCEED_OR_RETURN_EZ_FAILURE(ezMemoryAllocatorVulkan::CreateImage(stagingImageCreateInfo, allocInfo, m_stagingImage, m_stagingAlloc, &m_stagingAllocInfo));
+
+  m_stagingImageFormat = imageCreateInfo.format;
 
   return EZ_SUCCESS;
 }

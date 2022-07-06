@@ -38,7 +38,7 @@ ezResult UnloadPluginModule(ezPluginModule& Module, const char* szPluginFile)
 
 ezResult LoadPluginModule(const char* szFileToLoad, ezPluginModule& Module, const char* szPluginFile)
 {
-  Module = dlopen(szFileToLoad, RTLD_NOW);
+  Module = dlopen(szFileToLoad, RTLD_NOW | RTLD_GLOBAL);
   if (Module == nullptr)
   {
     ezLog::Error("Could not load plugin '{0}'. Error {1}.\nSet the environment variable LD_DEBUG=all to get more information.", szPluginFile, static_cast<const char*>(dlerror()));

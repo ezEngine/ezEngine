@@ -28,16 +28,6 @@ jobs:
         #sudo apt update
         #sudo apt install qt511-meta-full
   - task: Bash@3
-    displayName: SFML
-    inputs:
-      targetType: inline
-      script: >-
-        wget https://www.sfml-dev.org/files/SFML-2.5.1-linux-gcc-64-bit.tar.gz
-
-        sudo mkdir /usr/SFML
-
-        sudo tar xf SFML-2.5.1-linux-gcc-64-bit.tar.gz -C /usr/SFML/
-  - task: Bash@3
     displayName: Apt-Get
     inputs:
       targetType: inline
@@ -64,7 +54,7 @@ jobs:
     displayName: Make
     inputs:
       targetType: inline
-      script: make -C ./build -j2
+      script: make -C ./build -j$(nproc)
   - task: PowerShell@2
     displayName: PowerShell Script
     inputs:

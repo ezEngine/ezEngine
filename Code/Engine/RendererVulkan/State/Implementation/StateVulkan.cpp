@@ -4,10 +4,6 @@
 #include <RendererVulkan/RendererVulkanDLL.h>
 #include <RendererVulkan/State/StateVulkan.h>
 
-#include <d3d11.h>
-#include <d3d11_3.h>
-
-
 // Mapping tables to map ezGAL constants to Vulkan constants
 #include <RendererVulkan/State/Implementation/StateVulkan_MappingTables.inl>
 
