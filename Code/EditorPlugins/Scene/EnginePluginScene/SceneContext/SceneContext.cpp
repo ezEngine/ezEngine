@@ -815,6 +815,7 @@ bool ezSceneContext::ExportDocument(const ezExportDocumentMsgToEngine* pMsg)
   // this is necessary for the scene export modifiers to work
   {
     EZ_LOCK(m_pWorld->GetWriteMarker());
+    m_pWorld->SetWorldSimulationEnabled(false);
     m_pWorld->Update();
   }
 
