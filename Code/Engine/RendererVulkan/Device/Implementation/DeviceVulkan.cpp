@@ -206,10 +206,7 @@ vk::Result ezGALDeviceVulkan::SelectDeviceExtensions(vk::DeviceCreateInfo& devic
   };
 
   VK_SUCCEED_OR_RETURN_LOG(AddExtIfSupported(VK_KHR_SWAPCHAIN_EXTENSION_NAME, m_extensions.m_bDeviceSwapChain));
-  if (AddExtIfSupported(VK_EXT_SHADER_VIEWPORT_INDEX_LAYER_EXTENSION_NAME, m_extensions.m_bShaderViewportIndexLayer) != vk::Result::eSuccess)
-  {
-    ezLog::Warning("The optional extension '" VK_EXT_SHADER_VIEWPORT_INDEX_LAYER_EXTENSION_NAME "' is not present");
-  }
+  AddExtIfSupported(VK_EXT_SHADER_VIEWPORT_INDEX_LAYER_EXTENSION_NAME, m_extensions.m_bShaderViewportIndexLayer);
 
   vk::PhysicalDeviceFeatures2 features;
   features.pNext = &m_extensions.m_borderColorEXT;

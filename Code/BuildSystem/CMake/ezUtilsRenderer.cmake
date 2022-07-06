@@ -4,7 +4,7 @@
 
 macro(ez_requires_renderer)
 
-	if(EZ_CMAKE_PLATFORM_WINDOWS)
+    if(EZ_CMAKE_PLATFORM_WINDOWS)
         ez_requires_d3d()
     else()
         ez_requires_vulkan()

@@ -1,10 +1,6 @@
 ez_cmake_init()
 
-if(EZ_CMAKE_PLATFORM_WINDOWS)
-  ez_requires_d3d()
-else()
-  ez_requires_vulkan()
-endif()
+ez_requires_renderer()
 
 # Add content files for UWP version.
 if(EZ_CMAKE_PLATFORM_WINDOWS_UWP)

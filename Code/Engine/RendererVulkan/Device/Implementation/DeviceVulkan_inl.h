@@ -1,5 +1,3 @@
-#include "../DeviceVulkan.h"
-
 EZ_ALWAYS_INLINE vk::Device ezGALDeviceVulkan::GetVulkanDevice() const
 {
   return m_device;
