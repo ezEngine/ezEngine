@@ -711,8 +711,11 @@ void ezQtCurve1DEditorWidget::onGenerateCurve(ezMath::ezEasingFunctions easingFu
   // Delete all existing control points
   ClearAllPoints();
 
-  for (double x = 0.0; x <= 1.0; x += 0.025) // Resolution of 0.025
+  const double fps = m_Curves.m_uiFramesPerSecond;
+
+  for (ezUInt32 i = 0; i <= m_Curves.m_uiFramesPerSecond; i += 2)
   {
+    const double x = i / fps;
     InsertCpAt(x, GetEasingValue(easingFunction, x), ezVec2d::ZeroVector());
   }
 }
