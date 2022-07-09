@@ -31,7 +31,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetDeviceBufferMemoryRequirements(
 #define VMA_IMPLEMENTATION
 
 #ifndef VA_IGNORE_THIS_FILE
-#  define VA_INCLUDE_HIDDEN <VulkanMemoryAllocator/include/vk_mem_alloc.h>
+#  define VA_INCLUDE_HIDDEN <vma/vk_mem_alloc.h>
 #else
 #  define VA_INCLUDE_HIDDEN ""
 #endif

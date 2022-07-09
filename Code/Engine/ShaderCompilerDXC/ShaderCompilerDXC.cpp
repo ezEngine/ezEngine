@@ -5,7 +5,7 @@
 #include <Foundation/Strings/StringConversion.h>
 
 #include <ShaderCompilerDXC/SpirvMetaData.h>
-#include <ShaderCompilerDXC/spirv_reflect.h>
+#include <spirv_reflect.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 #  include <d3dcompiler.h>

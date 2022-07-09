@@ -81,6 +81,7 @@ struct ezVulkanAllocationInfo
   vk::DeviceSize m_size;
   void* m_pMappedData;
   void* m_pUserData;
+  const char* m_pName;
 };
 
 
