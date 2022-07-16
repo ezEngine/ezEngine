@@ -99,7 +99,7 @@ void ezResourceCacheVulkan::GetRenderPassDesc(const ezGALRenderingSetup& renderi
     const ezGALRenderTargetViewVulkan* pRenderTargetView = static_cast<const ezGALRenderTargetViewVulkan*>(s_pDevice->GetRenderTargetView(renderingSetup.m_RenderTargetSetup.GetDepthStencilTarget()));
 
     auto hTexture = pRenderTargetView->GetDescription().m_hTexture;
-    const ezGALTexture* pTex = s_pDevice->GetTexture(hTexture);
+    auto* pTex = static_cast<const ezGALTextureVulkan*>(s_pDevice->GetTexture(hTexture)->GetParentResource());
 
     const ezGALTextureCreationDescription& texDesc = pTex->GetDescription();
     ezEnum<ezGALResourceFormat> format = texDesc.m_Format;
@@ -107,6 +107,11 @@ void ezResourceCacheVulkan::GetRenderPassDesc(const ezGALRenderingSetup& renderi
 
     AttachmentDesc& depthAttachment = out_desc.attachments.ExpandAndGetRef();
     depthAttachment.format = formatInfo.m_eRenderTarget;
+    if (pTex->GetFormatOverrideEnabled())
+    {
+      depthAttachment.format = pTex->GetImageFormat();
+    }
+
     depthAttachment.samples = ezConversionUtilsVulkan::GetSamples(texDesc.m_SampleCount);
 
     if (renderingSetup.m_bDiscardDepth)
@@ -139,7 +144,7 @@ void ezResourceCacheVulkan::GetRenderPassDesc(const ezGALRenderingSetup& renderi
     const ezGALRenderTargetViewVulkan* pRenderTargetView = static_cast<const ezGALRenderTargetViewVulkan*>(s_pDevice->GetRenderTargetView(colorRT));
 
     auto hTexture = pRenderTargetView->GetDescription().m_hTexture;
-    const ezGALTexture* pTex = s_pDevice->GetTexture(hTexture);
+    auto* pTex = static_cast<const ezGALTextureVulkan*>(s_pDevice->GetTexture(hTexture)->GetParentResource());
 
     const ezGALTextureCreationDescription& texDesc = pTex->GetDescription();
     ezEnum<ezGALResourceFormat> format = texDesc.m_Format;
@@ -147,6 +152,11 @@ void ezResourceCacheVulkan::GetRenderPassDesc(const ezGALRenderingSetup& renderi
 
     AttachmentDesc& colorAttachment = out_desc.attachments.ExpandAndGetRef();
     colorAttachment.format = formatInfo.m_eRenderTarget;
+    if (pTex->GetFormatOverrideEnabled())
+    {
+      colorAttachment.format = pTex->GetImageFormat();
+    }
+
     colorAttachment.samples = ezConversionUtilsVulkan::GetSamples(texDesc.m_SampleCount);
 
     if (renderingSetup.m_bDiscardColor)
@@ -293,7 +303,7 @@ void ezResourceCacheVulkan::GetFrameBufferDesc(vk::RenderPass renderPass, const 
     vk::Extent3D extend = pTex->GetMipLevelSize(pRenderTargetView->GetDescription().m_uiMipLevel);
     out_desc.m_msaa = texDesc.m_SampleCount;
     out_desc.m_size = {extend.width, extend.height};
-    out_desc.layers = 1;
+    out_desc.layers = texDesc.m_uiArraySize;
   }
   for (size_t i = 0; i < uiColorCount; i++)
   {
@@ -306,7 +316,7 @@ void ezResourceCacheVulkan::GetFrameBufferDesc(vk::RenderPass renderPass, const 
     vk::Extent3D extend = pTex->GetMipLevelSize(pRenderTargetView->GetDescription().m_uiMipLevel);
     out_desc.m_msaa = texDesc.m_SampleCount;
     out_desc.m_size = {extend.width, extend.height};
-    out_desc.layers = 1;
+    out_desc.layers = texDesc.m_uiArraySize;
   }
 
   // In some places rendering is started with an empty ezGALRenderTargetSetup just to be able to run GPU commands.
@@ -314,6 +324,7 @@ void ezResourceCacheVulkan::GetFrameBufferDesc(vk::RenderPass renderPass, const 
   if (out_desc.m_size == ezSizeU32(0, 0))
   {
     out_desc.m_size = {1, 1};
+    out_desc.layers = 1;
   }
 }
 
@@ -622,7 +633,7 @@ ezUInt32 ezResourceCacheVulkan::ResourceCacheHash::Hash(const ezGALRenderingSetu
 bool ezResourceCacheVulkan::ResourceCacheHash::Equal(const RenderPassDesc& a, const RenderPassDesc& b)
 {
   const ezUInt32 uiCount = a.attachments.GetCount();
-  if (uiCount != a.attachments.GetCount())
+  if (uiCount != b.attachments.GetCount())
     return false;
 
   for (ezUInt32 i = 0; i < uiCount; i++)
