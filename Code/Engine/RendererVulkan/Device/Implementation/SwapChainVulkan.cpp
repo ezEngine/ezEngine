@@ -113,16 +113,16 @@ ezResult ezGALSwapChainVulkan::InitPlatform(ezGALDevice* pDevice)
 {
   m_pVulkanDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
 
-#if EZ_ENABLED(EZ_SUPPORTS_GLFW)
-  VkSurfaceKHR glfwSurface = VK_NULL_HANDLE;
-  VK_SUCCEED_OR_RETURN_EZ_FAILURE(glfwCreateWindowSurface(m_pVulkanDevice->GetVulkanInstance(), m_WindowDesc.m_pWindow->GetNativeWindowHandle(), nullptr, &glfwSurface));
-  m_vulkanSurface = glfwSurface;
-#elif defined(VK_USE_PLATFORM_WIN32_KHR)
+#if defined(VK_USE_PLATFORM_WIN32_KHR)
   vk::Win32SurfaceCreateInfoKHR surfaceCreateInfo = {};
   surfaceCreateInfo.hinstance = GetModuleHandle(nullptr);
   surfaceCreateInfo.hwnd = (HWND)m_WindowDesc.m_pWindow->GetNativeWindowHandle();
 
   m_vulkanSurface = m_pVulkanDevice->GetVulkanInstance().createWin32SurfaceKHR(surfaceCreateInfo);
+#elif EZ_ENABLED(EZ_SUPPORTS_GLFW)
+  VkSurfaceKHR glfwSurface = VK_NULL_HANDLE;
+  VK_SUCCEED_OR_RETURN_EZ_FAILURE(glfwCreateWindowSurface(m_pVulkanDevice->GetVulkanInstance(), m_WindowDesc.m_pWindow->GetNativeWindowHandle(), nullptr, &glfwSurface));
+  m_vulkanSurface = glfwSurface;
 #else
 #  error Platform not supported
 #endif

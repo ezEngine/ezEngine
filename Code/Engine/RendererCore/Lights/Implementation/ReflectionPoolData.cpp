@@ -305,7 +305,10 @@ void ezReflectionPool::Data::CreateReflectionViewsAndResources()
     desc.m_ResourceAccess.m_bImmutable = false;
 
     m_hFallbackReflectionSpecularTexture = pDevice->CreateTexture(desc);
-    pDevice->GetTexture(m_hFallbackReflectionSpecularTexture)->SetDebugName("Reflection Fallback Specular Texture");
+    if (!m_hFallbackReflectionSpecularTexture.IsInvalidated())
+    {
+      pDevice->GetTexture(m_hFallbackReflectionSpecularTexture)->SetDebugName("Reflection Fallback Specular Texture");
+    }
   }
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)

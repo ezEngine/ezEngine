@@ -30,23 +30,33 @@ extern "C"
   typedef struct GLFWwindow GLFWwindow;
 }
 
-using ezWindowHandle = GLFWwindow*;
-#  define INVALID_WINDOW_HANDLE_VALUE (GLFWwindow*)(0)
+#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#  include <Foundation/Basics/Platform/Win/MinWindows.h>
+  using ezWindowHandle = ezMinWindows::HWND;
+#    define INVALID_WINDOW_HANDLE_VALUE (ezWindowHandle)(0)
+#  else
+  using ezWindowHandle = GLFWwindow*;
+#    define INVALID_WINDOW_HANDLE_VALUE (GLFWwindow*)(0)
+#endif
+  using ezWindowInternalHandle = GLFWwindow*;
 
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 
 #  include <Foundation/Basics/Platform/Win/MinWindows.h>
 using ezWindowHandle = ezMinWindows::HWND;
+using ezWindowInternalHandle = ezWindowHandle;
 #  define INVALID_WINDOW_HANDLE_VALUE (ezWindowHandle)(0)
 
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
 
 using ezWindowHandle = IUnknown*;
+using ezWindowInternalHandle = ezWindowHandle;
 #  define INVALID_WINDOW_HANDLE_VALUE nullptr
 
 #else
 
 using ezWindowHandle = void*;
+using ezWindowInternalHandle = ezWindowHandle;
 #  define INVALID_WINDOW_HANDLE_VALUE nullptr
 
 #endif
@@ -171,7 +181,7 @@ public:
   virtual ezSizeU32 GetClientAreaSize() const override { return m_CreationDescription.m_Resolution; }
 
   /// \brief Returns the platform specific window handle.
-  virtual ezWindowHandle GetNativeWindowHandle() const override { return m_WindowHandle; }
+  virtual ezWindowHandle GetNativeWindowHandle() const override;
 
   /// \brief Returns whether the window covers an entire monitor.
   ///
@@ -277,7 +287,7 @@ private:
 
   ezUniquePtr<ezStandardInputDevice> m_pInputDevice;
 
-  mutable ezWindowHandle m_WindowHandle = ezWindowHandle();
+  mutable ezWindowInternalHandle m_WindowHandle = ezWindowInternalHandle();
 
 #if EZ_ENABLED(EZ_SUPPORTS_GLFW)
   static void SizeCallback(GLFWwindow* window, int width, int height);

@@ -27,3 +27,8 @@ void ezWindow::OnResize(const ezSizeU32& newWindowSize)
 {
   EZ_ASSERT_NOT_IMPLEMENTED;
 }
+
+ezWindowHandle ezWindow::GetNativeWindowHandle() const
+{
+  return m_WindowHandle;
+}

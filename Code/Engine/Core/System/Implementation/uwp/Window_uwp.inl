@@ -184,3 +184,8 @@ void ezWindow::OnResize(const ezSizeU32& newWindowSize)
 {
   ezLog::Info("Window resized to ({0}, {1})", newWindowSize.width, newWindowSize.height);
 }
+
+ezWindowHandle ezWindow::GetNativeWindowHandle() const
+{
+  return m_WindowHandle;
+}

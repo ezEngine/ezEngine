@@ -3,6 +3,16 @@
 
 #include <GLFW/glfw3.h>
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#  ifdef APIENTRY
+#    undef APIENTRY
+#endif
+
+# include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#  define GLFW_EXPOSE_NATIVE_WIN32
+#  include <GLFW/glfw3native.h>
+#endif
+
 namespace
 {
   void glfwErrorCallback(int errorCode, const char* msg)
@@ -302,4 +312,13 @@ void ezWindow::ScrollCallback(GLFWwindow* window, double xoffset, double yoffset
   {
     self->m_pInputDevice->OnScroll(xoffset, yoffset);
   }
+}
+
+ezWindowHandle ezWindow::GetNativeWindowHandle() const
+{
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+  return ezMinWindows::FromNative<HWND>(glfwGetWin32Window(m_WindowHandle));
+#else
+  return m_WindowHandle;
+#endif
 }
