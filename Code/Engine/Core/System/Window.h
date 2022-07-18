@@ -31,14 +31,14 @@ extern "C"
 }
 
 #  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-#  include <Foundation/Basics/Platform/Win/MinWindows.h>
-  using ezWindowHandle = ezMinWindows::HWND;
+#    include <Foundation/Basics/Platform/Win/MinWindows.h>
+using ezWindowHandle = ezMinWindows::HWND;
 #    define INVALID_WINDOW_HANDLE_VALUE (ezWindowHandle)(0)
 #  else
-  using ezWindowHandle = GLFWwindow*;
+using ezWindowHandle = GLFWwindow*;
 #    define INVALID_WINDOW_HANDLE_VALUE (GLFWwindow*)(0)
-#endif
-  using ezWindowInternalHandle = GLFWwindow*;
+#  endif
+using ezWindowInternalHandle = GLFWwindow*;
 
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 

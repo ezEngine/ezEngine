@@ -1,6 +1,6 @@
+#include <Core/System/ControllerInput.h>
 #include <Foundation/Configuration/Startup.h>
 #include <XBoxControllerPlugin/InputDeviceXBox.h>
-#include <Core/System/ControllerInput.h>
 
 static ezInputDeviceXBox360* g_InputDeviceXBox360 = nullptr;
 

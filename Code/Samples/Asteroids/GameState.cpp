@@ -5,9 +5,9 @@
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/Time/Clock.h>
 
-#include <Core/System/Window.h>
-#include <Core/System/ControllerInput.h>
 #include <Core/Input/DeviceTypes/Controller.h>
+#include <Core/System/ControllerInput.h>
+#include <Core/System/Window.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 
 EZ_APPLICATION_ENTRY_POINT(ezGameApplication, "Asteroids", "Data/Samples/Asteroids");
