@@ -34,7 +34,7 @@ add_dependencies(${PROJECT_NAME}
   ParticlePlugin
 )
 
-if(EZ_CMAKE_PLATFORM_WINDOWS)
+if(TARGET XBoxControllerPlugin)
   target_link_libraries(${PROJECT_NAME}
     PUBLIC
     XBoxControllerPlugin
