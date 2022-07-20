@@ -4,6 +4,11 @@ ez_cmake_init()
 
 ez_requires(EZ_CMAKE_PLATFORM_WINDOWS)
 
+# When using glfw, glfw will handle xbox controller input, and this plugin is not needed.
+if(EZ_3RDPARTY_GLFW_SUPPORT)
+  return()
+endif()
+
 
 # Get the name of this folder as the project name
 get_filename_component(PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)

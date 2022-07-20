@@ -3,6 +3,16 @@
 
 #include <GLFW/glfw3.h>
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#  ifdef APIENTRY
+#    undef APIENTRY
+#endif
+
+# include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#  define GLFW_EXPOSE_NATIVE_WIN32
+#  include <GLFW/glfw3native.h>
+#endif
+
 namespace
 {
   void glfwErrorCallback(int errorCode, const char* msg)
@@ -21,14 +31,17 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Core, Window)
 
   ON_CORESYSTEMS_STARTUP
   {
-    if(!glfwInit())
+    if (!glfwInit())
     {
       const char* szErrorDesc = nullptr;
       int iErrorCode = glfwGetError(&szErrorDesc);
       ezLog::Warning("Failed to initialize glfw. Window and input related functionality will not be available. Error Code {}. GLFW Error Message: {}", iErrorCode, szErrorDesc);
     }
-    // Set the error callback after init, so we don't print an error if init fails.
-    glfwSetErrorCallback(&glfwErrorCallback);
+    else
+    {
+      // Set the error callback after init, so we don't print an error if init fails.
+      glfwSetErrorCallback(&glfwErrorCallback);
+    }
   }
 
   ON_CORESYSTEMS_SHUTDOWN
@@ -302,4 +315,13 @@ void ezWindow::ScrollCallback(GLFWwindow* window, double xoffset, double yoffset
   {
     self->m_pInputDevice->OnScroll(xoffset, yoffset);
   }
+}
+
+ezWindowHandle ezWindow::GetNativeWindowHandle() const
+{
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+  return ezMinWindows::FromNative<HWND>(glfwGetWin32Window(m_WindowHandle));
+#else
+  return m_WindowHandle;
+#endif
 }

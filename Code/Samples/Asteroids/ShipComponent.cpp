@@ -1,14 +1,14 @@
 #include "ShipComponent.h"
+
 #include "CollidableComponent.h"
 #include "Level.h"
 #include "ProjectileComponent.h"
+
+#include <Core/Input/DeviceTypes/Controller.h>
+#include <Core/System/ControllerInput.h>
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/Utilities/Stats.h>
 #include <RendererCore/Meshes/MeshComponent.h>
-
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#  include <XBoxControllerPlugin/InputDeviceXBox.h>
-#endif
 
 // clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ShipComponent, 1, ezComponentMode::Dynamic);
@@ -138,9 +138,10 @@ void ShipComponent::Update()
 
     float ShootTrack[20] = {1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-    ezInputDeviceXBox360::GetDevice()->AddVibrationTrack(static_cast<ezUInt8>(m_iPlayerIndex), ezInputDeviceController::Motor::RightMotor, ShootTrack, 20);
-#endif
+    if (ezControllerInput::HasDevice())
+    {
+      ezControllerInput::GetDevice()->AddVibrationTrack(static_cast<ezUInt8>(m_iPlayerIndex), ezInputDeviceController::Motor::RightMotor, ShootTrack, 20);
+    }
   }
 
   m_fAmmunition = ezMath::Clamp<float>(m_fAmmunition + (float)tDiff.GetSeconds(), 0.0f, CVar_MaxAmmo);

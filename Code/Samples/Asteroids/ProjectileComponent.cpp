@@ -6,9 +6,8 @@
 #include <Foundation/Utilities/Stats.h>
 #include <RendererCore/Meshes/MeshComponent.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#  include <XBoxControllerPlugin/InputDeviceXBox.h>
-#endif
+#include <Core/Input/DeviceTypes/Controller.h>
+#include <Core/System/ControllerInput.h>
 
 // clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ProjectileComponent, 1, ezComponentMode::Dynamic);
@@ -85,9 +84,10 @@ void ProjectileComponent::Update()
           float HitTrack[20] = {
             1.0f, 0.1f, 0.0f, 0.1f, 0.0f, 0.1f, 0.0f, 0.1f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-          ezInputDeviceXBox360::GetDevice()->AddVibrationTrack(static_cast<ezUInt8>(pShipComponent->m_iPlayerIndex), ezInputDeviceController::Motor::LeftMotor, HitTrack, 20);
-#endif
+          if (ezControllerInput::HasDevice())
+          {
+            ezControllerInput::GetDevice()->AddVibrationTrack(static_cast<ezUInt8>(pShipComponent->m_iPlayerIndex), ezInputDeviceController::Motor::LeftMotor, HitTrack, 20);
+          }
         }
 
         const float fAngle = (float)GetWorld()->GetRandomNumberGenerator().DoubleMinMax(10.0, 100.0);
