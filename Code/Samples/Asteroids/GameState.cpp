@@ -69,10 +69,13 @@ void AsteroidGameState::BeforeWorldUpdate()
 
 void AsteroidGameState::ConfigureInputActions()
 {
-  ezControllerInput::GetDevice()->EnableVibration(0, true);
-  ezControllerInput::GetDevice()->EnableVibration(1, true);
-  ezControllerInput::GetDevice()->EnableVibration(2, true);
-  ezControllerInput::GetDevice()->EnableVibration(3, true);
+  if(ezControllerInput::HasDevice())
+  {
+    ezControllerInput::GetDevice()->EnableVibration(0, true);
+    ezControllerInput::GetDevice()->EnableVibration(1, true);
+    ezControllerInput::GetDevice()->EnableVibration(2, true);
+    ezControllerInput::GetDevice()->EnableVibration(3, true);
+  }
 
   RegisterInputAction("Main", "ResetLevel", ezInputSlot_KeyReturn);
 

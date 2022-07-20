@@ -84,7 +84,10 @@ void ProjectileComponent::Update()
           float HitTrack[20] = {
             1.0f, 0.1f, 0.0f, 0.1f, 0.0f, 0.1f, 0.0f, 0.1f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
 
-          ezControllerInput::GetDevice()->AddVibrationTrack(static_cast<ezUInt8>(pShipComponent->m_iPlayerIndex), ezInputDeviceController::Motor::LeftMotor, HitTrack, 20);
+          if(ezControllerInput::HasDevice())
+          {
+            ezControllerInput::GetDevice()->AddVibrationTrack(static_cast<ezUInt8>(pShipComponent->m_iPlayerIndex), ezInputDeviceController::Motor::LeftMotor, HitTrack, 20);
+          }
         }
 
         const float fAngle = (float)GetWorld()->GetRandomNumberGenerator().DoubleMinMax(10.0, 100.0);

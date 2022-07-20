@@ -138,7 +138,10 @@ void ShipComponent::Update()
 
     float ShootTrack[20] = {1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
 
-    ezControllerInput::GetDevice()->AddVibrationTrack(static_cast<ezUInt8>(m_iPlayerIndex), ezInputDeviceController::Motor::RightMotor, ShootTrack, 20);
+    if(ezControllerInput::HasDevice())
+    {
+      ezControllerInput::GetDevice()->AddVibrationTrack(static_cast<ezUInt8>(m_iPlayerIndex), ezInputDeviceController::Motor::RightMotor, ShootTrack, 20);
+    }
   }
 
   m_fAmmunition = ezMath::Clamp<float>(m_fAmmunition + (float)tDiff.GetSeconds(), 0.0f, CVar_MaxAmmo);

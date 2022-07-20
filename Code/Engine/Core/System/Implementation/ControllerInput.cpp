@@ -8,6 +8,11 @@ namespace
   ezInputDeviceController* g_pInputDeviceController = nullptr;
 }
 
+bool ezControllerInput::HasDevice()
+{
+  return g_pInputDeviceController != nullptr;
+}
+
 ezInputDeviceController* ezControllerInput::GetDevice()
 {
   return g_pInputDeviceController;
