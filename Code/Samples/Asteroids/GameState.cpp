@@ -69,7 +69,7 @@ void AsteroidGameState::BeforeWorldUpdate()
 
 void AsteroidGameState::ConfigureInputActions()
 {
-  if(ezControllerInput::HasDevice())
+  if (ezControllerInput::HasDevice())
   {
     ezControllerInput::GetDevice()->EnableVibration(0, true);
     ezControllerInput::GetDevice()->EnableVibration(1, true);

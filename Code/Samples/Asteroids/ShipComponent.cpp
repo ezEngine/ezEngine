@@ -138,7 +138,7 @@ void ShipComponent::Update()
 
     float ShootTrack[20] = {1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
 
-    if(ezControllerInput::HasDevice())
+    if (ezControllerInput::HasDevice())
     {
       ezControllerInput::GetDevice()->AddVibrationTrack(static_cast<ezUInt8>(m_iPlayerIndex), ezInputDeviceController::Motor::RightMotor, ShootTrack, 20);
     }
