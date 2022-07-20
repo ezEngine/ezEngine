@@ -24,6 +24,8 @@ private:
   void RegisterControllerButton(const char* szButton, const char* szName, ezBitflags<ezInputSlotFlags> SlotFlags);
   void SetDeadZone(const char* szButton);
   void SetControllerValue(ezStringBuilder& tmp, ezUInt8 controllerIndex, const char* inputSlotName, float value);
+
+  bool m_bInitialized = false;
 };
 
 namespace
@@ -122,10 +124,27 @@ void ezControllerInputGlfw::SetControllerValue(ezStringBuilder& tmp, ezUInt8 con
 
 void ezControllerInputGlfw::InitializeDevice()
 {
+  // Make a arbitrary call into glfw so that we can check if the library is properly initialized
+  glfwJoystickPresent(0);
+
+  // Check for errors during the previous call
+  const char* desc;
+  int errorCode = glfwGetError(&desc);
+  if(errorCode != GLFW_NO_ERROR)
+  {
+    ezLog::Warning("glfw joystick and gamepad input not avaiable: {} - {}", errorCode, desc);
+    return;
+  }
+  m_bInitialized = true;
 }
 
 void ezControllerInputGlfw::UpdateInputSlotValues()
 {
+  if(!m_bInitialized)
+  {
+    return;
+  }
+
   ezStringBuilder inputSlotName;
 
   // update all virtual controllers
@@ -176,6 +195,11 @@ void ezControllerInputGlfw::ResetInputSlotValues()
 
 void ezControllerInputGlfw::RegisterInputSlots()
 {
+  if(!m_bInitialized)
+  {
+    return;
+  }
+
   RegisterControllerButton("button_a", "Button A", ezInputSlotFlags::IsButton);
   RegisterControllerButton("button_b", "Button B", ezInputSlotFlags::IsButton);
   RegisterControllerButton("button_x", "Button X", ezInputSlotFlags::IsButton);
@@ -217,6 +241,11 @@ void ezControllerInputGlfw::RegisterInputSlots()
 
 bool ezControllerInputGlfw::IsControllerConnected(ezUInt8 uiPhysical) const
 {
+  if(!m_bInitialized)
+  {
+    return false;
+  }
+
   int glfwId = GLFW_JOYSTICK_1 + uiPhysical;
   return glfwJoystickPresent(glfwId) && glfwJoystickIsGamepad(glfwId);
 }

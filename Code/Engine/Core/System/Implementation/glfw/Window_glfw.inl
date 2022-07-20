@@ -31,14 +31,17 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Core, Window)
 
   ON_CORESYSTEMS_STARTUP
   {
-    if(!glfwInit())
+    if (!glfwInit())
     {
       const char* szErrorDesc = nullptr;
       int iErrorCode = glfwGetError(&szErrorDesc);
       ezLog::Warning("Failed to initialize glfw. Window and input related functionality will not be available. Error Code {}. GLFW Error Message: {}", iErrorCode, szErrorDesc);
     }
-    // Set the error callback after init, so we don't print an error if init fails.
-    glfwSetErrorCallback(&glfwErrorCallback);
+    else
+    {
+      // Set the error callback after init, so we don't print an error if init fails.
+      glfwSetErrorCallback(&glfwErrorCallback);
+    }
   }
 
   ON_CORESYSTEMS_SHUTDOWN
