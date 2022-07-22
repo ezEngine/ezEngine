@@ -48,16 +48,16 @@ namespace
     switch (messageSeverity)
     {
       case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
-        ezLog::Debug("VK Verbose: {}", pCallbackData->pMessage);
+        ezLog::Debug("VK: {}", pCallbackData->pMessage);
         break;
       case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:
-        ezLog::Info("VK Info: {}", pCallbackData->pMessage);
+        ezLog::Info("VK: {}", pCallbackData->pMessage);
         break;
       case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT:
-        ezLog::Warning("VK warning: {}", pCallbackData->pMessage);
+        ezLog::Warning("VK: {}", pCallbackData->pMessage);
         break;
       case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
-        ezLog::Error("VK error: {}", pCallbackData->pMessage);
+        ezLog::Error("VK: {}", pCallbackData->pMessage);
         break;
       default:
         break;
