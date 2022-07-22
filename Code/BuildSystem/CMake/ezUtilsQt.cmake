@@ -71,7 +71,7 @@ function(ez_prepare_find_qt)
         endif()
 
         if (EZ_CMAKE_PLATFORM_LINUX)
-            set (Qt5WinExtras_DIR "Qt5X11Extras_DIR-NOTFOUND" CACHE PATH "" FORCE)
+            set (Qt5X11Extras_DIR "Qt5X11Extras_DIR-NOTFOUND" CACHE PATH "" FORCE)
         endif()
     endif()
 
