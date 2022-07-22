@@ -33,7 +33,7 @@ jobs:
       targetType: inline
       script: |
         sudo apt-get update
-        sudo apt-get install -y cmake uuid-dev libx11-dev build-essential qt5-default libqt5svg5-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev
+        sudo apt-get install -y cmake uuid-dev libx11-dev build-essential qt5-default libqt5svg5-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libqt5x11extras5-dev
   - task: Bash@3
     displayName: Info
     inputs:

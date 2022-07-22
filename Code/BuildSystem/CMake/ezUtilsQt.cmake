@@ -69,6 +69,10 @@ function(ez_prepare_find_qt)
         if (EZ_CMAKE_PLATFORM_WINDOWS)
             set (Qt5WinExtras_DIR "Qt5WinExtras_DIR-NOTFOUND" CACHE PATH "" FORCE)
         endif()
+
+        if (EZ_CMAKE_PLATFORM_LINUX)
+            set (Qt5X11Extras_DIR "Qt5X11Extras_DIR-NOTFOUND" CACHE PATH "" FORCE)
+        endif()
     endif()
 
     # force find_package to search for Qt in the correct folder
@@ -99,6 +103,10 @@ function(ez_link_target_qt)
 
     if (NOT EZ_CMAKE_PLATFORM_WINDOWS)
         list(REMOVE_ITEM FN_ARG_COMPONENTS WinExtras)
+    endif()
+
+    if(NOT EZ_CMAKE_PLATFORM_LINUX)
+        list(REMOVE_ITEM FN_ARG_COMPONENTS X11Extras)
     endif()
 
     ez_prepare_find_qt()
