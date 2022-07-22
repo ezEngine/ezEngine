@@ -13,12 +13,12 @@ EZ_FOUNDATION_INTERNAL_HEADER
 #  include <direct.h>
 #  define EZ_USE_OLD_POSIX_FUNCTIONS EZ_ON
 #else
+#  include <dirent.h>
+#  include <fnmatch.h>
 #  include <pwd.h>
 #  include <sys/file.h>
 #  include <sys/types.h>
 #  include <unistd.h>
-#  include <dirent.h>
-#  include <fnmatch.h>
 #  define EZ_USE_OLD_POSIX_FUNCTIONS EZ_OFF
 #endif
 
@@ -392,7 +392,7 @@ const ezString ezOSFile::GetCurrentWorkingDirectory()
   return clean;
 }
 
-#if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS)
+#  if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS)
 
 ezFileSystemIterator::ezFileSystemIterator()
 {
@@ -412,19 +412,20 @@ bool ezFileSystemIterator::IsValid() const
   return !m_Data.m_Handles.IsEmpty();
 }
 
-namespace {
+namespace
+{
   ezResult UpdateCurrentFile(ezFileStats& curFile, const ezStringBuilder& curPath, DIR* hSearch, const ezString& wildcardSearch)
   {
-    struct dirent *hCurrentFile = readdir(hSearch);
-    if(hCurrentFile == nullptr)
+    struct dirent* hCurrentFile = readdir(hSearch);
+    if (hCurrentFile == nullptr)
       return EZ_FAILURE;
 
-    if(!wildcardSearch.IsEmpty())
+    if (!wildcardSearch.IsEmpty())
     {
-      while(fnmatch(wildcardSearch.GetData(), hCurrentFile->d_name, FNM_NOESCAPE) != 0)
+      while (fnmatch(wildcardSearch.GetData(), hCurrentFile->d_name, FNM_NOESCAPE) != 0)
       {
         hCurrentFile = readdir(hSearch);
-        if(hCurrentFile == nullptr)
+        if (hCurrentFile == nullptr)
           return EZ_FAILURE;
       }
     }
@@ -439,11 +440,11 @@ namespace {
     curFile.m_bIsDirectory = hCurrentFile->d_type == DT_DIR;
     curFile.m_sParentPath = curPath;
     curFile.m_sName = hCurrentFile->d_name;
-    curFile.m_LastModificationTime.SetInt64(fileStat.st_mtime, ezSIUnitOfTime::Second); 
+    curFile.m_LastModificationTime.SetInt64(fileStat.st_mtime, ezSIUnitOfTime::Second);
 
-    return EZ_SUCCESS; 
+    return EZ_SUCCESS;
   }
-}
+} // namespace
 
 void ezFileSystemIterator::StartSearch(const char* szSearchStart, ezBitflags<ezFileSystemIteratorFlags> flags /*= ezFileSystemIteratorFlags::All*/)
 {
@@ -461,13 +462,13 @@ void ezFileSystemIterator::StartSearch(const char* szSearchStart, ezBitflags<ezF
 
   // Since the use of wildcard-ed file names will disable recursion, we ensure both are not used simultaneously.
   const bool bHasWildcard = sSearch.FindLastSubString("*") || sSearch.FindLastSubString("?");
-  if(flags.IsSet(ezFileSystemIteratorFlags::Recursive) == true && bHasWildcard == true)
+  if (flags.IsSet(ezFileSystemIteratorFlags::Recursive) == true && bHasWildcard == true)
   {
     EZ_ASSERT_DEV(false, "Recursive file iteration does not support wildcards. Either don't use recursion, or filter the filenames manually.");
     return;
   }
 
-  if(bHasWildcard)
+  if (bHasWildcard)
   {
     m_Data.m_wildcardSearch = sSearch.GetFileNameAndExtension();
     m_sCurPath = sSearch.GetFileDirectory();
@@ -487,7 +488,7 @@ void ezFileSystemIterator::StartSearch(const char* szSearchStart, ezBitflags<ezF
   if (hSearch == nullptr)
     return;
 
-  if(UpdateCurrentFile(m_CurFile, m_sCurPath, hSearch, m_Data.m_wildcardSearch).Failed())
+  if (UpdateCurrentFile(m_CurFile, m_sCurPath, hSearch, m_Data.m_wildcardSearch).Failed())
   {
     return;
   }
@@ -613,6 +614,6 @@ void ezFileSystemIterator::SkipFolder()
   m_Flags.Add(ezFileSystemIteratorFlags::Recursive);
 }
 
-#endif
+#  endif
 
 #endif // EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)

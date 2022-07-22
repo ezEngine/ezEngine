@@ -12,7 +12,7 @@ struct ezOSFileData
   FILE* m_pFileHandle;
 };
 
-extern "C" 
+extern "C"
 {
   typedef struct __dirstream DIR;
 }
