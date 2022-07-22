@@ -122,6 +122,7 @@ ezResult ezGraphicsTest::CreateWindow(ezUInt32 uiResolutionX, ezUInt32 uiResolut
     ezWindowCreationDesc WindowCreationDesc;
     WindowCreationDesc.m_Resolution.width = uiResolutionX;
     WindowCreationDesc.m_Resolution.height = uiResolutionY;
+    WindowCreationDesc.m_bShowMouseCursor = true;
     m_pWindow = EZ_DEFAULT_NEW(ezWindow);
     if (m_pWindow->Initialize(WindowCreationDesc).Failed())
       return EZ_FAILURE;
