@@ -83,10 +83,12 @@ void ezEngineProcessGameApplication::WaitForDebugger()
 {
   if (ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-debug"))
   {
+    #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
     while (!IsDebuggerPresent())
     {
       ezThreadUtils::Sleep(ezTime::Milliseconds(10));
     }
+    #endif
   }
 }
 

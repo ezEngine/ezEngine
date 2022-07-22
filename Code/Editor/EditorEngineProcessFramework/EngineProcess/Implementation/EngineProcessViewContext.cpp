@@ -61,7 +61,9 @@ void ezEngineProcessViewContext::HandleViewMessage(const ezEditorEngineViewMsg* 
   }
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
   EZ_REPORT_FAILURE("This code path should never be executed on UWP.");
-#elif
+#elif EZ_ENABLED(EZ_PLATFORM_LINUX)
+  EZ_ASSERT_NOT_IMPLEMENTED
+#else
 #  error "Unsupported platform."
 #endif
 }
