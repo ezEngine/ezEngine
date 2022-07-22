@@ -167,7 +167,8 @@ Only concrete and clocks.\n\
     // Therefore I tested it manually, and leave the code in, such that it is at least a 'does it compile and link' test.
 
     ezStringBuilder sOutputFolder = ezOSFile::GetApplicationDirectory();
-    sOutputFolder.AppendPath("*");
+    // TODO do not commit
+    sOutputFolder.AppendPath("*.so");
 
     ezStringBuilder sFullPath;
 
@@ -177,10 +178,11 @@ Only concrete and clocks.\n\
     bool bSkipFolder = true;
 
     ezFileSystemIterator it;
-    for (it.StartSearch(sOutputFolder.GetData(), ezFileSystemIteratorFlags::ReportFilesAndFoldersRecursive); it.IsValid(); )
+    for (it.StartSearch(sOutputFolder.GetData(), ezFileSystemIteratorFlags::ReportFiles); it.IsValid(); )
     {
       sFullPath = it.GetCurrentPath();
       sFullPath.AppendPath(it.GetStats().m_sName.GetData());
+      ezLog::Warning("{}", sFullPath);
 
       it.GetStats();
       it.GetCurrentPath();
