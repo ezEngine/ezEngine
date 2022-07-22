@@ -1,10 +1,6 @@
 ez_cmake_init()
 
-
-ez_requires_windows()
-
 ez_requires(EZ_3RDPARTY_ADS_SUPPORT)
-
 
 ez_requires_qt()
 
@@ -15,7 +11,7 @@ ez_create_target(SHARED_LIBRARY ${PROJECT_NAME} NO_EZ_PREFIX)
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
-ez_link_target_qt(TARGET ${PROJECT_NAME} COMPONENTS Core Gui Widgets Svg)
+ez_link_target_qt(TARGET ${PROJECT_NAME} COMPONENTS Core Gui Widgets Svg X11Extras)
 
 if (EZ_COMPILE_ENGINE_AS_DLL)
   target_compile_definitions(${PROJECT_NAME} PRIVATE ADS_SHARED_EXPORT)
@@ -42,4 +38,10 @@ set (MOC_FILES
   )
 ez_qt_wrap_target_moc_files(${PROJECT_NAME} "${MOC_FILES}")
 
-target_compile_options(${PROJECT_NAME} PRIVATE /wd4458 /wd4996 /wd4456 /wd4702)
+if(EZ_CMAKE_PLATFORM_WINDOWS)
+  target_compile_options(${PROJECT_NAME} PRIVATE /wd4458 /wd4996 /wd4456 /wd4702)
+endif()
+
+if(EZ_CMAKE_PLATFORM_LINUX)
+  target_link_libraries(${PROJECT_NAME} PRIVATE xcb)
+endif()
