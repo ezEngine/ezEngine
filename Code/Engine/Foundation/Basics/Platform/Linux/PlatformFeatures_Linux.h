@@ -6,7 +6,7 @@
 
 /// Iterating through the file system is not supported
 #undef EZ_SUPPORTS_FILE_ITERATORS
-#define EZ_SUPPORTS_FILE_ITERATORS EZ_OFF
+#define EZ_SUPPORTS_FILE_ITERATORS EZ_ON
 
 /// Getting the stats of a file (modification times etc.) is supported.
 #undef EZ_SUPPORTS_FILE_STATS

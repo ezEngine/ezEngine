@@ -169,7 +169,7 @@ function(ez_set_build_flags_clang TARGET_NAME)
 	#set (CMAKE_CPP_CREATE_STATIC_LIBRARY ON)
 	#endif ()
 	
-	if(NOT EZ_CMAKE_PLATFORM_ANDROID AND NOT EZ_CMAKE_PLATFORM_WINDOWS)
+	if(EZ_CMAKE_PLATFORM_OSX)
 		target_compile_options(${TARGET_NAME} PRIVATE $<$<COMPILE_LANGUAGE:CXX>:-stdlib=libc++>)
 		
 		target_link_options(${TARGET_NAME} PRIVATE $<$<COMPILE_LANGUAGE:CXX>:-stdlib=libc++>)
