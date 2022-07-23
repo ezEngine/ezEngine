@@ -104,18 +104,18 @@ void ezLayerContext::OnDeinitialize()
 
 ezEngineProcessViewContext* ezLayerContext::CreateViewContext()
 {
-  EZ_ASSERT_NOT_IMPLEMENTED("Layers should not create views.");
+  EZ_REPORT_FAILURE("Layers should not create views.");
   return nullptr;
 }
 
 void ezLayerContext::DestroyViewContext(ezEngineProcessViewContext* pContext)
 {
-  EZ_ASSERT_NOT_IMPLEMENTED("Layers should not create views.");
+  EZ_REPORT_FAILURE("Layers should not create views.");
 }
 
 bool ezLayerContext::ExportDocument(const ezExportDocumentMsgToEngine* pMsg)
 {
-  EZ_ASSERT_NOT_IMPLEMENTED("Layers do not support export yet. THe layer content is baked into the main scene instead.");
+  EZ_REPORT_FAILURE("Layers do not support export yet. THe layer content is baked into the main scene instead.");
   return false;
 }
 

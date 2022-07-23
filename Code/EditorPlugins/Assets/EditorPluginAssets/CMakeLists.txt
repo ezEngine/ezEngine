@@ -1,7 +1,6 @@
 ez_cmake_init()
 
 ez_requires_editor()
-ez_requires_d3d()
 
 # Get the name of this folder as the project name
 get_filename_component(PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
@@ -21,7 +20,6 @@ add_dependencies(${PROJECT_NAME}
   ShaderCompiler
 )
 
-ez_link_target_dx11(${PROJECT_NAME})
 ez_link_target_qt(TARGET ${PROJECT_NAME} COMPONENTS Core Gui Widgets Svg)
 ez_link_target_assimp(${PROJECT_NAME})
 

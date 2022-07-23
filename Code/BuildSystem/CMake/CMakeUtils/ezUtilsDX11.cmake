@@ -3,6 +3,8 @@
 # #####################################
 
 function(ez_link_target_dx11 TARGET_NAME)
+	ez_requires_d3d()
+
 	get_property(EZ_DX11_LIBRARY GLOBAL PROPERTY EZ_DX11_LIBRARY)
 
 	# only execute find_package once

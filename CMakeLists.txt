@@ -52,6 +52,9 @@ endif()
 ez_pull_platform_vars()
 
 include("ezPlatformVars")
+if(EZ_CMAKE_PLATFORM_LINUX)
+	set (EZ_EXPERIMENTAL_EDITOR_ON_LINUX OFF CACHE BOOL "Wether or not to build the editor on linux")
+endif()
 
 ez_init_projects()
 

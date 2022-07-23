@@ -75,6 +75,8 @@ void ezAnimationClipAssetDocument::SetCommonAssetUiState(ezCommonAssetUiState::E
     case ezCommonAssetUiState::SimulationSpeed:
       m_fSimulationSpeed = value;
       break;
+    default:
+      break;
   }
 
   // handles standard booleans and broadcasts the event
@@ -87,6 +89,8 @@ double ezAnimationClipAssetDocument::GetCommonAssetUiState(ezCommonAssetUiState:
   {
     case ezCommonAssetUiState::SimulationSpeed:
       return m_fSimulationSpeed;
+    default:
+      break;
   }
 
   return SUPER::GetCommonAssetUiState(state);

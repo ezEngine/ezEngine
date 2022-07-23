@@ -623,6 +623,9 @@ void ezQtEngineViewWidget::EngineViewProcessEventHandler(const ezEditorEnginePro
     case ezEditorEngineProcessConnection::Event::Type::Invalid:
       EZ_ASSERT_DEV(false, "Invalid message should never happen");
       break;
+
+    case ezEditorEngineProcessConnection::Event::Type::ProcessRestarted:
+      break;
   }
 }
 

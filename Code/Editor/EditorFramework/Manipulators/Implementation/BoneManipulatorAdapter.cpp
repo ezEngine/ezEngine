@@ -124,6 +124,8 @@ void ezBoneManipulatorAdapter::ClickGizmoEventHandler(const ezGizmoEvent& e)
       m_Gizmos[uiGizmo].m_ClickGizmo.SetVisible(false);
     }
     break;
+    default:
+      break;
   }
 }
 
