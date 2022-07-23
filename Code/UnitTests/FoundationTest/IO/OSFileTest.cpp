@@ -204,10 +204,10 @@ Only concrete and clocks.\n\
       it.Next();
     }
 
-    // The binary folder will only have subdirectories on windows desktop
-    #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-      EZ_TEST_BOOL(uiFolders > 0);
-    #endif
+// The binary folder will only have subdirectories on windows desktop
+#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+    EZ_TEST_BOOL(uiFolders > 0);
+#  endif
     EZ_TEST_BOOL(uiFiles > 0);
   }
 
