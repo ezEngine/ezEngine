@@ -402,7 +402,7 @@ ezFileSystemIterator::~ezFileSystemIterator()
 {
   while (!m_Data.m_Handles.IsEmpty())
   {
-    closedir(m_Data.m_Handles.PeekBack());
+    closedir((DIR*)m_Data.m_Handles.PeekBack());
     m_Data.m_Handles.PopBack();
   }
 }
@@ -571,10 +571,10 @@ ezInt32 ezFileSystemIterator::InternalNext()
     // if the recursion did not work, just iterate in this folder further
   }
 
-  if (UpdateCurrentFile(m_CurFile, m_sCurPath, m_Data.m_Handles.PeekBack(), m_Data.m_wildcardSearch).Failed())
+  if (UpdateCurrentFile(m_CurFile, m_sCurPath, (DIR*)m_Data.m_Handles.PeekBack(), m_Data.m_wildcardSearch).Failed())
   {
     // nothing found in this directory anymore
-    closedir(m_Data.m_Handles.PeekBack());
+    closedir((DIR*)m_Data.m_Handles.PeekBack());
     m_Data.m_Handles.PopBack();
 
     if (m_Data.m_Handles.IsEmpty())

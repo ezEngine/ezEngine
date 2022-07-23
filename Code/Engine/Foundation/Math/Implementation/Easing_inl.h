@@ -335,7 +335,7 @@ namespace ezMath
         return EaseInOutBounce<Type>(input);
       case ENUM_COUNT:
       default:
-        EZ_ASSERT_NOT_IMPLEMENTED("Easing function not implemented");
+        EZ_REPORT_FAILURE("Easing function not implemented");
         return 0;
     }
   }
