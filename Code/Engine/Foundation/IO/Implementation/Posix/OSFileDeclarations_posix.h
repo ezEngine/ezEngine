@@ -12,15 +12,16 @@ struct ezOSFileData
   FILE* m_pFileHandle;
 };
 
-extern "C"
-{
-  typedef struct __dirstream DIR;
-}
+#if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS)
+
+#  include <dirent.h>
 
 struct ezFileIterationData
 {
   ezHybridArray<DIR*, 16> m_Handles;
   ezString m_wildcardSearch;
 };
+
+#endif
 
 /// \endcond
