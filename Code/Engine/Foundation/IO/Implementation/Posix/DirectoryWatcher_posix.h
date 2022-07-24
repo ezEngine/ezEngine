@@ -8,6 +8,7 @@
 
 #include <Foundation/Logging/Log.h>
 #include <Foundation/IO/OSFile.h>
+#include <Foundation/IO/Implementation/Shared/FileSystemMirror.h>
 
 namespace 
 {
@@ -49,6 +50,7 @@ struct ezDirectoryWatcherImpl
   uint32_t m_inotifyWatchMask = 0;
   ezBitflags<ezDirectoryWatcher::Watch> m_whatToWatch;
   ezDynamicArray<ezUInt8> m_buffer;
+  ezUniquePtr<ezFileSystemMirror> m_fileSystemMirror;
 };
 
 ezDirectoryWatcher::ezDirectoryWatcher()
@@ -94,6 +96,7 @@ ezResult ezDirectoryWatcher::OpenDirectory(const ezString& path, ezBitflags<Watc
 
   uint32_t watchMask = 0;
 
+
   // If we need to watch subdirectories, we always need to be notified if a subdirectory was created or deleted
   if(whatToWatch.IsSet(Watch::Subdirectories))
   {
@@ -120,6 +123,14 @@ ezResult ezDirectoryWatcher::OpenDirectory(const ezString& path, ezBitflags<Watc
   if(wd < 0)
   {
     return EZ_FAILURE;
+  }
+
+  if(whatToWatch.IsSet(Watch::Deletes) && whatToWatch.IsSet(Watch::Subdirectories))
+  {
+    // When a sub-folder is moved out of view. We need to trigger delete events for all files inside it.
+    // Thus we need to keep a in memory copy of the file system.
+    m_pImpl->m_fileSystemMirror = EZ_DEFAULT_NEW(ezFileSystemMirror);
+    m_pImpl->m_fileSystemMirror->AddDirectory(folder.GetData());
   }
 
   m_pImpl->m_whatToWatch = whatToWatch;
@@ -166,6 +177,7 @@ void ezDirectoryWatcher::CloseDirectory()
   }
   m_pImpl->m_wdToPath.Clear();
   m_pImpl->m_pathToWd.Clear();
+  m_pImpl->m_fileSystemMirror = nullptr;
 }
 
 
@@ -293,7 +305,7 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func)
 
             if(!lastMoveFrom.IsEmpty() && lastMoveFrom.cookie != event->cookie)
             {
-              // orphaned move from and oprhaned move to in sequence
+              // orphaned move from
               processOrphanedMoveFrom(lastMoveFrom);
             }
 

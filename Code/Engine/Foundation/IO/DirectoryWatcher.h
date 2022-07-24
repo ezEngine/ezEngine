@@ -35,7 +35,8 @@ public:
       Reads = EZ_BIT(0),         ///< Watch for reads.
       Writes = EZ_BIT(1),        ///< Watch for writes.
       Creates = EZ_BIT(2),       ///< Watch for newly created files.
-      Renames = EZ_BIT(3),       ///< Watch for renames.
+      Deletes = EZ_BIT(3),       ///< Watch for deleted files.
+      Renames = EZ_BIT(4),       ///< Watch for renames.
       Subdirectories = EZ_BIT(4) ///< Watch files in subdirectories recursively.
     };
 
