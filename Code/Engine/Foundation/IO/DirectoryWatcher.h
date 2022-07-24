@@ -27,6 +27,7 @@ public:
   struct Watch
   {
     typedef ezUInt8 StorageType;
+    constexpr static ezUInt8 Default = 0;
 
     /// \brief Enum values
     enum Enum
