@@ -18,9 +18,8 @@ public:
 
   struct DirEntry
   {
-    ezDynamicArray<ezUniquePtr<DirEntry>> m_subDirectories;
+    ezMap<ezString, DirEntry> m_subDirectories;
     ezDynamicArray<ezString> m_files;
-    ezString m_name;
   };
 
   ezFileSystemMirror();
@@ -45,7 +44,34 @@ public:
 
 private:
   DirEntry m_topLevelDir;
+  ezString m_topLevelDirPath;
 };
+
+namespace 
+{
+  template <typename T, typename U>
+  uint32_t FindInsertPosition(const T& container, const U& value)
+  {
+    auto* begin = container.GetData();
+    auto* end = container.GetData() + container.GetCount();
+    auto insertPos = std::upper_bound(begin, end, value);
+    return insertPos - begin;
+  }
+
+  template <typename T, typename U>
+  uint32_t FindInsertPositionLikeyOrdered(const T& container, const U& value)
+  {
+    if(container.IsEmpty())
+    {
+      return 0;
+    }
+    if(container.PeekBack() < value)
+    {
+      return container.GetCount();
+    }
+    return FindInsertPosition(container, value);
+  }
+}
 
 ezFileSystemMirror::ezFileSystemMirror() = default;
 ezFileSystemMirror::~ezFileSystemMirror() = default;
@@ -59,9 +85,9 @@ void ezFileSystemMirror::AddDirectory(const char* path)
     currentDirAbsPath.Shrink(0, 1);
   }
 
-  if (m_topLevelDir.m_name.IsEmpty())
+  if (m_topLevelDirPath.IsEmpty())
   {
-    m_topLevelDir.m_name = currentDirAbsPath;
+    m_topLevelDirPath = currentDirAbsPath;
 
     ezDynamicArray<DirEntry*> m_dirStack;
     DirEntry* currentDir = &m_topLevelDir;
@@ -88,19 +114,15 @@ void ezFileSystemMirror::AddDirectory(const char* path)
 
       if (stats.m_bIsDirectory)
       {
-        ezUniquePtr<DirEntry> newDir = EZ_DEFAULT_NEW(DirEntry);
-
-        newDir->m_name = stats.m_sName;
-
         m_dirStack.PushBack(currentDir);
-        DirEntry* nextDir = newDir.Borrow();
-        currentDir->m_subDirectories.PushBack(std::move(newDir));
-        currentDir = nextDir;
+        auto insertIt = currentDir->m_subDirectories.Insert(stats.m_sName, DirEntry());
+        currentDir = &insertIt.Value();
         currentDirAbsPath.AppendPath(stats.m_sName);
       }
       else
       {
-        currentDir->m_files.PushBack(stats.m_sName);
+        uint32_t insertPos = FindInsertPositionLikeyOrdered(currentDir->m_files, stats.m_sName);
+        currentDir->m_files.Insert(std::move(stats.m_sName), insertPos);
       }
     }
   }
