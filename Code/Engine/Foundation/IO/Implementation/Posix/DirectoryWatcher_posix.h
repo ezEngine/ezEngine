@@ -45,6 +45,7 @@ struct ezDirectoryWatcherImpl
 {
   ezHashTable<int, ezString> m_wdToPath;
   ezMap<ezString, int> m_pathToWd;
+  ezString m_topLevelPath;
 
   int m_inotifyFd = -1;
   uint32_t m_inotifyWatchMask = 0;
@@ -91,6 +92,9 @@ ezResult ezDirectoryWatcher::OpenDirectory(const ezString& path, ezBitflags<Watc
 
   ezStringBuilder folder = path;
   folder.MakeCleanPath();
+  folder.TrimWordEnd("/");
+
+  m_pImpl->m_topLevelPath = folder;
 
   const int inotifyFd = m_pImpl->m_inotifyFd;
 
@@ -131,6 +135,10 @@ ezResult ezDirectoryWatcher::OpenDirectory(const ezString& path, ezBitflags<Watc
     // Thus we need to keep a in memory copy of the file system.
     m_pImpl->m_fileSystemMirror = EZ_DEFAULT_NEW(ezFileSystemMirror);
     m_pImpl->m_fileSystemMirror->AddDirectory(folder.GetData());
+    m_pImpl->m_fileSystemMirror->Enumerate(m_pImpl->m_topLevelPath, [](const char* path, ezFileSystemMirror::Type type)
+    {
+      ezLog::Info("{} {}", type == ezFileSystemMirror::Type::Directory ? "dir" : "file", path);
+    }).IgnoreResult();
   }
 
   m_pImpl->m_whatToWatch = whatToWatch;
@@ -191,6 +199,7 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func)
 
   static int eventId = 0;
   const ezBitflags<Watch> whatToWatch = m_pImpl->m_whatToWatch;
+  ezFileSystemMirror* mirror = m_pImpl->m_fileSystemMirror.Borrow();
 
   MoveEvent lastMoveFrom;
 
@@ -217,7 +226,7 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func)
         const struct inotify_event* event = (struct inotify_event*)(buffer + curPos);
 
         auto it = m_pImpl->m_wdToPath.Find(event->wd);
-        if(it.IsValid())
+        if(it.IsValid() && event->len > 0)
         {
           tmpPath = it.Value();
           tmpPath.AppendPath(event->name);
@@ -240,6 +249,18 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func)
                 ezLog::Info("Now watching {}", tmpPath);
                 m_pImpl->m_wdToPath.Insert(wd, tmpPath);
                 m_pImpl->m_pathToWd.Insert(tmpPath, wd);
+              }
+            }
+
+            if(mirror != nullptr)
+            {
+              if(IsFile(event->mask))
+              {
+                mirror->AddFile(tmpPath).AssertSuccess();
+                mirror->Enumerate(m_pImpl->m_topLevelPath, [](const char* path, ezFileSystemMirror::Type type)
+                {
+                  ezLog::Info("{} {}", type == ezFileSystemMirror::Type::Directory ? "dir" : "file");
+                }).IgnoreResult();
               }
             }
 

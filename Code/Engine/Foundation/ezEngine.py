@@ -2,14 +2,15 @@ import lldb.formatters.Logger
 import lldb
 
 def __lldb_init_module(debugger, internal_dict):
-    lldb.formatters.Logger._lldb_formatters_debug_level = 2
-    debugger.HandleCommand('type synthetic add -x "ezDynamicArray<" --python-class ezEngine.ezDynamicArraySynthProvider')
-    debugger.HandleCommand('type synthetic add -x "ezHybridArray<" --python-class ezEngine.ezHybridArraySynthProvider')
-    debugger.HandleCommand('type synthetic add -x "ezHybridString<" --python-class ezEngine.ezHybridStringSynthProvider')
+    # comment this in for debug output
+    #lldb.formatters.Logger._lldb_formatters_debug_level = 2
+    debugger.HandleCommand('type synthetic add -x "^ezDynamicArray<" --python-class ezEngine.ezDynamicArraySynthProvider')
+    debugger.HandleCommand('type synthetic add -x "^ezHybridArray<" --python-class ezEngine.ezHybridArraySynthProvider')
+    debugger.HandleCommand('type synthetic add -x "^ezHybridString<" --python-class ezEngine.ezHybridStringSynthProvider')
     debugger.HandleCommand('type synthetic add ezStringBuilder --python-class ezEngine.ezHybridStringSynthProvider')
     debugger.HandleCommand('type synthetic add ezStringView --python-class ezEngine.ezStringViewSynthProvider')
 
-    debugger.HandleCommand('type summary add -x "ezHybridString<" --python-function ezEngine.ezHybridString_SummaryProvider')
+    debugger.HandleCommand('type summary add -x "^ezHybridString<" --python-function ezEngine.ezHybridString_SummaryProvider')
     debugger.HandleCommand('type summary add ezStringBuilder --python-function ezEngine.ezHybridString_SummaryProvider')
     debugger.HandleCommand('type summary add ezStringView --python-function ezEngine.ezStringView_SummaryProvider')
 
