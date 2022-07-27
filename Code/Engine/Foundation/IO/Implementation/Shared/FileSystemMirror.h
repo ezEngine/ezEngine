@@ -26,7 +26,7 @@ public:
   ~ezFileSystemMirror();
 
   // \brief Adds the directory, and all files in it recursively.
-  void AddDirectory(const char* path);
+  ezResult AddDirectory(const char* path);
 
   // \brief Adds a file. Creates directories if they do not exist.
   ezResult AddFile(const char* path);
@@ -35,7 +35,7 @@ public:
   ezResult RemoveFile(const char* path);
 
   // \brief Removes a directory. Deletes any files & directories inside.
-  void RemoveDirectory(const char* path);
+  ezResult RemoveDirectory(const char* path);
 
   using EnumerateFunc = ezDelegate<void(const ezStringBuilder& path, Type type)>;
 
@@ -80,7 +80,7 @@ namespace
 ezFileSystemMirror::ezFileSystemMirror() = default;
 ezFileSystemMirror::~ezFileSystemMirror() = default;
 
-void ezFileSystemMirror::AddDirectory(const char* path)
+ezResult ezFileSystemMirror::AddDirectory(const char* path)
 {
   ezStringBuilder currentDirAbsPath = path;
   currentDirAbsPath.MakeCleanPath();
@@ -141,15 +141,22 @@ void ezFileSystemMirror::AddDirectory(const char* path)
   else
   {
     DirEntry* parentDir = FindDirectory(currentDirAbsPath);
+    if(parentDir == nullptr)
+    {
+      return EZ_FAILURE;
+    }
 
     while(!currentDirAbsPath.IsEmpty())
     {
       const char* dirEnd = currentDirAbsPath.FindSubString("/");
-      ezStringView subdirName(currentDirAbsPath.GetData(), dirEnd + 0);
+      ezStringView subdirName(currentDirAbsPath.GetData(), dirEnd + 1);
       auto insertIt = currentDir->m_subDirectories.Insert(subdirName, DirEntry());
       currentDir = &insertIt.Value();
+      currentDirAbsPath.Shrink(0, ezStringUtils::GetCharacterCount(subdirName.GetStartPointer(), subdirName.GetEndPointer()));
     }
   }
+
+  return EZ_SUCCESS;
 }
 
 ezResult ezFileSystemMirror::AddFile(const char* path)
@@ -163,7 +170,14 @@ ezResult ezFileSystemMirror::AddFile(const char* path)
 
   if(sPath.FindSubString("/") != nullptr)
   {
-    EZ_ASSERT_NOT_IMPLEMENTED;
+    do
+    {
+      const char* dirEnd = sPath.FindSubString("/");
+      ezStringView subdirName(sPath.GetData(), dirEnd + 1);
+      auto insertIt = dir->m_subDirectories.Insert(subdirName, DirEntry());
+      dir = &insertIt.Value();
+      sPath.Shrink(0, ezStringUtils::GetCharacterCount(subdirName.GetStartPointer(), subdirName.GetEndPointer()));
+    } while(sPath.FindSubString("/") != nullptr);
   }
   uint32_t insertPos = FindInsertPosition(dir->m_files, sPath);
   dir->m_files.Insert(sPath, insertPos);
@@ -199,8 +213,33 @@ ezResult ezFileSystemMirror::RemoveFile(const char* path)
   return EZ_SUCCESS;
 }
 
-void ezFileSystemMirror::RemoveDirectory(const char* path)
+ezResult ezFileSystemMirror::RemoveDirectory(const char* path)
 {
+  ezStringBuilder parentPath = path;
+  if(parentPath.EndsWith("/"))
+  {
+    parentPath.Shrink(0, 1);
+  }
+  ezStringBuilder dirName = parentPath.GetFileDirectory();
+  dirName.Append("/");
+  parentPath.PathParentDirectory();
+  if(!parentPath.EndsWith("/"))
+  {
+    parentPath.Append("/");
+  }
+
+  DirEntry* parentDir = FindDirectory(parentPath);
+  if(parentDir == nullptr)
+  {
+    return EZ_FAILURE;
+  }
+
+  if(!parentDir->m_subDirectories.Remove(dirName))
+  {
+    return EZ_FAILURE;
+  }
+
+  return EZ_SUCCESS;  
 }
 
 namespace {
