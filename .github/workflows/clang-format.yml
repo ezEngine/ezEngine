@@ -31,7 +31,7 @@ jobs:
           echo "Running ClangFormat"
 
           # run it once to detect whether there are any changes
-          $clangDiff = $codeDiff | python "${env:GITHUB_WORKSPACE}/Utilities/clang-format-diff.py" -style file -p1 -binary "${env:GITHUB_WORKSPACE}/Utilities/Ubuntu/clang-format"
+          $clangDiff = $codeDiff | python "${env:GITHUB_WORKSPACE}/Utilities/clang-format-diff.py" -style file -p1 -binary "${env:GITHUB_WORKSPACE}/Utilities/Ubuntu/clang-format" -iregex ".*\.(cpp|h|inl)"
 
           if($clangDiff.Length -gt 0)
           {
