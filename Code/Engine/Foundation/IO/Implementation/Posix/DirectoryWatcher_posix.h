@@ -259,7 +259,7 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func)
                 mirror->AddFile(tmpPath).AssertSuccess();
                 mirror->Enumerate(m_pImpl->m_topLevelPath, [](const char* path, ezFileSystemMirror::Type type)
                 {
-                  ezLog::Info("{} {}", type == ezFileSystemMirror::Type::Directory ? "dir" : "file");
+                  ezLog::Info("{} {}", type == ezFileSystemMirror::Type::Directory ? "dir" : "file", path);
                 }).IgnoreResult();
               }
             }

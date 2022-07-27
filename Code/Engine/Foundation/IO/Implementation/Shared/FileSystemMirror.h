@@ -44,6 +44,7 @@ public:
 
 private:
   DirEntry* FindDirectory(ezStringBuilder& path);
+  DirEntry* AddDirectoryImpl(DirEntry* startDir, ezStringBuilder& path);
 
 private:
   DirEntry m_topLevelDir;
@@ -83,17 +84,20 @@ void ezFileSystemMirror::AddDirectory(const char* path)
 {
   ezStringBuilder currentDirAbsPath = path;
   currentDirAbsPath.MakeCleanPath();
-  if(currentDirAbsPath.GetElementCount() > 1 && currentDirAbsPath.EndsWith("/"))
+  if(!currentDirAbsPath.EndsWith("/"))
   {
-    currentDirAbsPath.Shrink(0, 1);
+    currentDirAbsPath.Append("/");
   }
 
+  DirEntry* currentDir = nullptr;
   if (m_topLevelDirPath.IsEmpty())
   {
     m_topLevelDirPath = currentDirAbsPath;
+    currentDirAbsPath.Shrink(0,1); // remove trailing /
+
+    currentDir = &m_topLevelDir;
 
     ezDynamicArray<DirEntry*> m_dirStack;
-    DirEntry* currentDir = &m_topLevelDir;
 
     ezFileSystemIterator files;
     files.StartSearch(currentDirAbsPath.GetData(), ezFileSystemIteratorFlags::ReportFilesAndFoldersRecursive);
@@ -109,16 +113,21 @@ void ezFileSystemMirror::AddDirectory(const char* path)
         currentDir = m_dirStack.PeekBack();
         m_dirStack.PopBack();
         currentDirAbsPath.PathParentDirectory();
-        if(currentDirAbsPath.GetElementCount() > 1 && currentDirAbsPath.EndsWith("/"))
+        if(currentDirAbsPath.EndsWith("/"))
         {
-            currentDirAbsPath.Shrink(0, 1);
+          currentDirAbsPath.Shrink(0, 1);
         }
       }
 
       if (stats.m_bIsDirectory)
       {
         m_dirStack.PushBack(currentDir);
-        auto insertIt = currentDir->m_subDirectories.Insert(stats.m_sName, DirEntry());
+        ezStringBuilder subdirName = stats.m_sName;
+        if(!subdirName.EndsWith("/"))
+        {
+          subdirName.Append("/");
+        }
+        auto insertIt = currentDir->m_subDirectories.Insert(subdirName, DirEntry());
         currentDir = &insertIt.Value();
         currentDirAbsPath.AppendPath(stats.m_sName);
       }
@@ -127,6 +136,18 @@ void ezFileSystemMirror::AddDirectory(const char* path)
         uint32_t insertPos = FindInsertPositionLikeyOrdered(currentDir->m_files, stats.m_sName);
         currentDir->m_files.Insert(std::move(stats.m_sName), insertPos);
       }
+    }
+  }
+  else
+  {
+    DirEntry* parentDir = FindDirectory(currentDirAbsPath);
+
+    while(!currentDirAbsPath.IsEmpty())
+    {
+      const char* dirEnd = currentDirAbsPath.FindSubString("/");
+      ezStringView subdirName(currentDirAbsPath.GetData(), dirEnd + 0);
+      auto insertIt = currentDir->m_subDirectories.Insert(subdirName, DirEntry());
+      currentDir = &insertIt.Value();
     }
   }
 }
@@ -194,6 +215,10 @@ ezResult ezFileSystemMirror::Enumerate(const char* path, EnumerateFunc callbackF
 {
   ezHybridArray<ezDirEnumerateState, 16> dirStack;
   ezStringBuilder sPath = path;
+  if(!sPath.EndsWith("/"))
+  {
+    sPath.Append("/");
+  }
   DirEntry* currentDir = FindDirectory(sPath);
   if(currentDir == nullptr)
   {
@@ -252,13 +277,11 @@ ezResult ezFileSystemMirror::Enumerate(const char* path, EnumerateFunc callbackF
 
 ezFileSystemMirror::DirEntry* ezFileSystemMirror::FindDirectory(ezStringBuilder& path)
 {
-  #error TODO make sure all stored paths end with /
   if(!path.StartsWith(m_topLevelDirPath))
   {
     return nullptr;
   }
   path.TrimWordStart(m_topLevelDirPath);
-  path.TrimWordStart("/");
 
   DirEntry* currentDir = &m_topLevelDir;
 
@@ -273,6 +296,7 @@ ezFileSystemMirror::DirEntry* ezFileSystemMirror::FindDirectory(ezStringBuilder&
         path.TrimWordStart(dir.Key());
         path.TrimWordStart("/");
         found = true;
+        break;
       }
     }
   } while(found);
