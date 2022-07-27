@@ -134,7 +134,7 @@ ezResult ezDirectoryWatcher::OpenDirectory(const ezString& path, ezBitflags<Watc
     // When a sub-folder is moved out of view. We need to trigger delete events for all files inside it.
     // Thus we need to keep a in memory copy of the file system.
     m_pImpl->m_fileSystemMirror = EZ_DEFAULT_NEW(ezFileSystemMirror);
-    m_pImpl->m_fileSystemMirror->AddDirectory(folder.GetData());
+    m_pImpl->m_fileSystemMirror->AddDirectory(folder.GetData()).AssertSuccess();
     m_pImpl->m_fileSystemMirror->Enumerate(m_pImpl->m_topLevelPath, [](const char* path, ezFileSystemMirror::Type type)
     {
       ezLog::Info("{} {}", type == ezFileSystemMirror::Type::Directory ? "dir" : "file", path);
@@ -289,6 +289,18 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func)
           {
             ezLog::Info("IN_DELETE {} {} {}", type, tmpPath, eventId++);
 
+            if(mirror)
+            {
+              if(IsFile(event->mask))
+              {
+                mirror->RemoveFile(tmpPath).AssertSuccess();
+              }
+              else
+              {
+                mirror->RemoveDirectory(tmpPath).AssertSuccess();
+              }
+            }
+
             if(whatToWatch.IsSet(Watch::Subdirectories) && IsDirectory(event->mask))
             {
               auto deletedDirIt = m_pImpl->m_pathToWd.Find(tmpPath);
@@ -333,9 +345,36 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func)
             if(lastMoveFrom.IsEmpty())
             {
               // Orphaned move to, treat as add
-              if(whatToWatch.IsSet(Watch::Creates) && IsFile(event->mask))
+              if(whatToWatch.IsSet(Watch::Creates))
               {
-                func(tmpPath.GetData(), ezDirectoryWatcherAction::Added);
+                if(IsFile(event->mask))
+                {
+                  func(tmpPath.GetData(), ezDirectoryWatcherAction::Added);
+                }
+                else
+                {
+                  // entire directory moved in
+                  ezFileSystemIterator fileIterator;
+                  fileIterator.StartSearch(tmpPath, ezFileSystemIteratorFlags::ReportFilesRecursive);
+                  ezStringBuilder filePath;
+                  for(; fileIterator.IsValid(); fileIterator.Next())
+                  {
+                    fileIterator.GetStats().GetFullPath(filePath);
+                    func(filePath, ezDirectoryWatcherAction::Added);
+                  }
+                }
+              }
+
+              if(mirror)
+              {
+                if(IsFile(event->mask))
+                {
+                  mirror->AddFile(tmpPath).AssertSuccess();
+                }
+                else
+                {
+                  mirror->AddDirectory(tmpPath).AssertSuccess();
+                }
               }
             }
             else 
@@ -346,6 +385,19 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func)
                 func(lastMoveFrom.path.GetData(), ezDirectoryWatcherAction::RenamedOldName);
                 func(tmpPath.GetData(), ezDirectoryWatcherAction::RenamedNewName);
                 lastMoveFrom.Clear();
+              }
+
+              if(mirror)
+              {
+                if(IsFile(event->mask))
+                {
+                  mirror->RemoveFile(lastMoveFrom.path).AssertSuccess();
+                  mirror->AddFile(tmpPath).AssertSuccess();
+                }
+                else
+                {
+                  EZ_ASSERT_NOT_IMPLEMENTED;
+                }
               }
             }
           }
