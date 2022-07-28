@@ -37,6 +37,9 @@ public:
   // \brief Removes a directory. Deletes any files & directories inside.
   ezResult RemoveDirectory(const char* path);
 
+  // \brief Moves a directory. Any files & folders inside are moved with it.
+  ezResult MoveDirectory(const char* fromPath, const char* toPath);
+
   using EnumerateFunc = ezDelegate<void(const ezStringBuilder& path, Type type)>;
 
   // \brief Enumerates the files & directories under the given path
@@ -75,6 +78,22 @@ namespace
     }
     return FindInsertPosition(container, value);
   }
+
+  void EnsureTrailingSlash(ezStringBuilder& builder)
+  {
+    if(!builder.EndsWith("/"))
+    {
+      builder.Append("/");
+    }
+  }
+
+  void RemoveTrailingSlash(ezStringBuilder& builder)
+  {
+    if(builder.EndsWith("/"))
+    {
+      builder.Shrink(0, 1);
+    }
+  }
 }
 
 ezFileSystemMirror::ezFileSystemMirror() = default;
@@ -84,10 +103,7 @@ ezResult ezFileSystemMirror::AddDirectory(const char* path)
 {
   ezStringBuilder currentDirAbsPath = path;
   currentDirAbsPath.MakeCleanPath();
-  if(!currentDirAbsPath.EndsWith("/"))
-  {
-    currentDirAbsPath.Append("/");
-  }
+  EnsureTrailingSlash(currentDirAbsPath);
 
   DirEntry* currentDir = nullptr;
   if (m_topLevelDirPath.IsEmpty())
@@ -113,20 +129,14 @@ ezResult ezFileSystemMirror::AddDirectory(const char* path)
         currentDir = m_dirStack.PeekBack();
         m_dirStack.PopBack();
         currentDirAbsPath.PathParentDirectory();
-        if(currentDirAbsPath.EndsWith("/"))
-        {
-          currentDirAbsPath.Shrink(0, 1);
-        }
+        RemoveTrailingSlash(currentDirAbsPath);
       }
 
       if (stats.m_bIsDirectory)
       {
         m_dirStack.PushBack(currentDir);
         ezStringBuilder subdirName = stats.m_sName;
-        if(!subdirName.EndsWith("/"))
-        {
-          subdirName.Append("/");
-        }
+        EnsureTrailingSlash(subdirName);
         auto insertIt = currentDir->m_subDirectories.Insert(subdirName, DirEntry());
         currentDir = &insertIt.Value();
         currentDirAbsPath.AppendPath(stats.m_sName);
@@ -216,17 +226,11 @@ ezResult ezFileSystemMirror::RemoveFile(const char* path)
 ezResult ezFileSystemMirror::RemoveDirectory(const char* path)
 {
   ezStringBuilder parentPath = path;
-  if(parentPath.EndsWith("/"))
-  {
-    parentPath.Shrink(0, 1);
-  }
+  RemoveTrailingSlash(parentPath);
   ezStringBuilder dirName = parentPath.GetFileDirectory();
   dirName.Append("/");
   parentPath.PathParentDirectory();
-  if(!parentPath.EndsWith("/"))
-  {
-    parentPath.Append("/");
-  }
+  EnsureTrailingSlash(parentPath);
 
   DirEntry* parentDir = FindDirectory(parentPath);
   if(parentDir == nullptr)
@@ -240,6 +244,65 @@ ezResult ezFileSystemMirror::RemoveDirectory(const char* path)
   }
 
   return EZ_SUCCESS;  
+}
+
+ezResult ezFileSystemMirror::MoveDirectory(const char* fromPath, const char* toPath)
+{
+  ezStringBuilder sFromPath = fromPath;
+  ezStringBuilder sFromName = fromPath;
+  sFromPath.PathParentDirectory();
+  EnsureTrailingSlash(sFromPath);
+  sFromName.Shrink(sFromPath.GetCharacterCount(), 0);
+  EnsureTrailingSlash(sFromName);
+
+
+  ezStringBuilder sToPath = toPath;
+  ezStringBuilder sToName = toPath;
+  sToPath.PathParentDirectory();
+  EnsureTrailingSlash(sToPath);
+  sToName.Shrink(sToPath.GetCharacterCount(), 0);
+  EnsureTrailingSlash(sToName);
+
+  DirEntry* moveFromDir = FindDirectory(sFromPath);
+  if(!moveFromDir)
+  {
+    return EZ_FAILURE;
+  }
+  EZ_ASSERT_DEV(sFromPath.IsEmpty(), "move from directory should fully exist");
+
+  DirEntry* moveToDir = FindDirectory(sToPath);
+  if(!moveToDir)
+  {
+    return EZ_FAILURE;
+  }
+
+  if(!sToPath.IsEmpty())
+  {
+    do
+    {
+      const char* dirEnd = sToPath.FindSubString("/");
+      ezStringView subdirName(sToPath.GetData(), dirEnd + 1);
+      auto insertIt = moveToDir->m_subDirectories.Insert(subdirName, DirEntry());
+      moveToDir = &insertIt.Value();
+      sToPath.Shrink(0, ezStringUtils::GetCharacterCount(subdirName.GetStartPointer(), subdirName.GetEndPointer()));
+    } while(!sToPath.IsEmpty());   
+  }
+
+  DirEntry movedDir;
+  {
+    auto fromIt = moveFromDir->m_subDirectories.Find(sFromName);
+    if(!fromIt.IsValid())
+    {
+      return EZ_FAILURE;
+    }
+
+    movedDir = std::move(fromIt.Value());
+    moveFromDir->m_subDirectories.Remove(fromIt);
+  }
+
+  moveToDir->m_subDirectories.Insert(sToName, std::move(movedDir));
+
+  return EZ_SUCCESS;
 }
 
 namespace {

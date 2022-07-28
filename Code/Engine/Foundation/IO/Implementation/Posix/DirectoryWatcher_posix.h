@@ -396,7 +396,7 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func)
                 }
                 else
                 {
-                  EZ_ASSERT_NOT_IMPLEMENTED;
+                  mirror->MoveDirectory(lastMoveFrom.path, tmpPath).AssertSuccess();
                 }
               }
             }
