@@ -89,8 +89,7 @@ public:
   ///
   /// 'Minimum' means the (non-absolute) distance of a point to the plane. So a point behind the plane will always have a 'lower distance'
   /// than a point in front of the plane, even if that is closer to the plane's surface.
-  Type GetMinimumDistanceTo(
-    const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride = sizeof(ezVec3Template<Type>)) const; // [tested]
+  Type GetMinimumDistanceTo(const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride = sizeof(ezVec3Template<Type>)) const; // [tested]
 
   /// \brief Returns the minimum distance between given box and a plane
   Type GetMinimumDistanceTo(const ezBoundingBoxTemplate<Type>& Box) const; // [tested]
@@ -124,10 +123,10 @@ public:
   ezPositionOnPlane::Enum GetObjectPosition(const ezBoundingBoxTemplate<Type>& Box) const; // [tested]
 
   /// \brief Projects a point onto a plane (along the planes normal).
-  const ezVec3Template<Type> ProjectOntoPlane(const ezVec3Template<Type>& vPoint) const; // [tested]
+  [[nodiscard]] const ezVec3Template<Type> ProjectOntoPlane(const ezVec3Template<Type>& vPoint) const; // [tested]
 
   /// \brief Returns the mirrored point. E.g. on the other side of the plane, at the same distance.
-  const ezVec3Template<Type> Mirror(const ezVec3Template<Type>& vPoint) const; // [tested]
+  [[nodiscard]] const ezVec3Template<Type> Mirror(const ezVec3Template<Type>& vPoint) const; // [tested]
 
   /// \brief Take the given direction vector and returns a modified one that is coplanar to the plane.
   const ezVec3Template<Type> GetCoplanarDirection(const ezVec3Template<Type>& vDirection) const; // [tested]
@@ -170,28 +169,26 @@ public:
   ///
   /// Intersections with \a out_fIntersection less than zero will be discarded and not reported as intersections.
   /// If such intersections are desired, use GetRayIntersectionBiDirectional instead.
-  bool GetRayIntersection(const ezVec3Template<Type>& vRayStartPos, const ezVec3Template<Type>& vRayDir, Type* out_fIntersection = nullptr,
+  [[nodiscard]] bool GetRayIntersection(const ezVec3Template<Type>& vRayStartPos, const ezVec3Template<Type>& vRayDir, Type* out_fIntersection = nullptr,
     ezVec3Template<Type>* out_vIntersection = nullptr) const; // [tested]
 
   /// \brief Returns true, if the ray intersects the plane. Intersection time and point are stored in the out-parameters. Allows for intersections at
   /// negative times (shooting into the opposite direction).
-  bool GetRayIntersectionBiDirectional(const ezVec3Template<Type>& vRayStartPos, const ezVec3Template<Type>& vRayDir,
+  [[nodiscard]] bool GetRayIntersectionBiDirectional(const ezVec3Template<Type>& vRayStartPos, const ezVec3Template<Type>& vRayDir,
     Type* out_fIntersection = nullptr, ezVec3Template<Type>* out_vIntersection = nullptr) const; // [tested]
 
   /// \brief Returns true, if there is any intersection with the plane between the line's start and end position. Returns the fraction along the line
   /// and the actual intersection point.
-  bool GetLineSegmentIntersection(const ezVec3Template<Type>& vLineStartPos, const ezVec3Template<Type>& vLineEndPos,
+  [[nodiscard]] bool GetLineSegmentIntersection(const ezVec3Template<Type>& vLineStartPos, const ezVec3Template<Type>& vLineEndPos,
     Type* out_fHitFraction = nullptr, ezVec3Template<Type>* out_vIntersection = nullptr) const; // [tested]
 
   /// \brief Computes the one point where all three planes intersect. Returns EZ_FAILURE if no such point exists.
-  static ezResult GetPlanesIntersectionPoint(
-    const ezPlaneTemplate<Type>& p0, const ezPlaneTemplate<Type>& p1, const ezPlaneTemplate<Type>& p2, ezVec3Template<Type>& out_Result); // [tested]
+  static ezResult GetPlanesIntersectionPoint(const ezPlaneTemplate<Type>& p0, const ezPlaneTemplate<Type>& p1, const ezPlaneTemplate<Type>& p2, ezVec3Template<Type>& out_Result); // [tested]
 
   // *** Helper Functions ***
 public:
   /// \brief Returns three points from an unreliable set of points, that reliably form a plane. Returns false, if there are none.
-  static ezResult FindSupportPoints(
-    const ezVec3Template<Type>* const pVertices, ezInt32 iMaxVertices, ezInt32& out_v1, ezInt32& out_v2, ezInt32& out_v3); // [tested]
+  static ezResult FindSupportPoints(const ezVec3Template<Type>* const pVertices, ezInt32 iMaxVertices, ezInt32& out_v1, ezInt32& out_v2, ezInt32& out_v3); // [tested]
 };
 
 /// \brief Checks whether this plane and the other are identical.

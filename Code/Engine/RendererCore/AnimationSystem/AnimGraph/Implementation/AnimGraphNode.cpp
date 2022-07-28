@@ -244,7 +244,7 @@ void ezAnimState::UpdateState(ezTime tDiff)
     }
     else
     {
-      if (bIsInRampDownArea)
+      if (!m_bTriggerActive && bIsInRampDownArea)
       {
         m_State = State::StartedRampDown;
 

@@ -503,6 +503,8 @@ function(ez_finalize_projects)
     # find all init.cmake files below this directory
     file (GLOB_RECURSE INIT_FILES "finalize.cmake")
 
+    # TODO: also finalize external projects
+
     foreach (INIT_FILE ${INIT_FILES})
 
         message(STATUS "Including '${INIT_FILE}'")

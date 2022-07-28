@@ -542,6 +542,21 @@ void ezParticleEffectInstance::UpdateWindSamples()
   m_vSampleWindLocations[uiDataIdx].Clear();
 }
 
+ezUInt64 ezParticleEffectInstance::GetNumActiveParticles() const
+{
+  ezUInt64 num = 0;
+
+  for (auto pSystem : m_ParticleSystems)
+  {
+    if (pSystem)
+    {
+      num += pSystem->GetNumActiveParticles();
+    }
+  }
+
+  return num;
+}
+
 void ezParticleEffectInstance::SetTransform(const ezTransform& transform, const ezVec3& vParticleStartVelocity)
 {
   m_Transform = transform;

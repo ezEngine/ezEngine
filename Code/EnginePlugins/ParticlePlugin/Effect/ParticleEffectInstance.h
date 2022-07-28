@@ -63,6 +63,9 @@ public:
 
   void UpdateWindSamples();
 
+  /// \brief Returns the number of currently active particles across all systems.
+  ezUInt64 GetNumActiveParticles() const;
+
   /// @name Transform Related
   /// @{
 public:
