@@ -79,9 +79,11 @@ public:
 
   /// \brief Returns the lower left world space position of the cell with the given coordinates.
   ezVec3 GetCellWorldSpaceOrigin(const ezVec2I32& Coord) const;
+  ezVec3 GetCellLocalSpaceOrigin(const ezVec2I32& Coord) const;
 
   /// \brief Returns the center world space position of the cell with the given coordinates.
   ezVec3 GetCellWorldSpaceCenter(const ezVec2I32& Coord) const;
+  ezVec3 GetCellLocalSpaceCenter(const ezVec2I32& Coord) const;
 
   /// \brief Checks whether the given cell coordinate is inside valid ranges.
   bool IsValidCellCoordinate(const ezVec2I32& Coord) const;
@@ -121,7 +123,5 @@ private:
 
   ezDynamicArray<CellData> m_Cells;
 };
-
-
 
 #include <Utilities/DataStructures/Implementation/GameGrid_inl.h>

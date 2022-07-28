@@ -69,19 +69,26 @@ ezVec2I32 ezGameGrid<CellData>::GetCellAtWorldPosition(const ezVec3& vWorldSpace
 template <class CellData>
 ezVec3 ezGameGrid<CellData>::GetCellWorldSpaceOrigin(const ezVec2I32& Coord) const
 {
-  const ezVec3 vPos = m_RotateToWorldspace * m_vLocalSpaceCellSize.CompMul(ezVec3((float)Coord.x, (float)Coord.y, 0.0f));
+  return m_vWorldSpaceOrigin + m_RotateToWorldspace * GetCellLocalSpaceOrigin(Coord);
+}
 
-  return m_vWorldSpaceOrigin + vPos;
+template <class CellData>
+ezVec3 ezGameGrid<CellData>::GetCellLocalSpaceOrigin(const ezVec2I32& Coord) const
+{
+  return m_vLocalSpaceCellSize.CompMul(ezVec3((float)Coord.x, (float)Coord.y, 0.0f));
 }
 
 template <class CellData>
 ezVec3 ezGameGrid<CellData>::GetCellWorldSpaceCenter(const ezVec2I32& Coord) const
 {
-  const ezVec3 vPos = m_RotateToWorldspace * m_vLocalSpaceCellSize.CompMul(ezVec3((float)Coord.x + 0.5f, (float)Coord.y + 0.5f, 0.5f));
-
-  return m_vWorldSpaceOrigin + vPos;
+  return m_vWorldSpaceOrigin + m_RotateToWorldspace * GetCellLocalSpaceCenter(Coord);
 }
 
+template <class CellData>
+ezVec3 ezGameGrid<CellData>::GetCellLocalSpaceCenter(const ezVec2I32& Coord) const
+{
+  return m_vLocalSpaceCellSize.CompMul(ezVec3((float)Coord.x + 0.5f, (float)Coord.y + 0.5f, 0.5f));
+}
 
 template <class CellData>
 bool ezGameGrid<CellData>::IsValidCellCoordinate(const ezVec2I32& Coord) const
