@@ -78,12 +78,6 @@ export class MsgBlackboardEntryChanged extends EventMessage
   NewValue: any;
 }
 
-export class MsgBreakableSheetBroke extends EventMessage
-{
-  public static GetTypeNameHash(): number { return 2989265645; }
-  constructor() { super(); this.TypeNameHash = 2989265645; }
-}
-
 export class MsgBuildStaticMesh extends Message
 {
   public static GetTypeNameHash(): number { return 2644487384; }
@@ -143,18 +137,6 @@ export class MsgExtractRenderData extends Message
   constructor() { super(); this.TypeNameHash = 2914273568; }
 }
 
-export class MsgExtractVolumes extends Message
-{
-  public static GetTypeNameHash(): number { return 4107494019; }
-  constructor() { super(); this.TypeNameHash = 4107494019; }
-}
-
-export class MsgFmodSoundFinished extends EventMessage
-{
-  public static GetTypeNameHash(): number { return 4054082438; }
-  constructor() { super(); this.TypeNameHash = 4054082438; }
-}
-
 export class MsgGenericEvent extends EventMessage
 {
   public static GetTypeNameHash(): number { return 3196354340; }
@@ -207,7 +189,7 @@ export class MsgPhysicsAddImpulse extends Message
   constructor() { super(); this.TypeNameHash = 2566646672; }
   GlobalPosition: Vec3 = new Vec3(0, 0, 0);
   Impulse: Vec3 = new Vec3(0, 0, 0);
-  ShapeID: number = 0;
+  ObjectFilterID: number = 0;
 }
 
 export class MsgPhysicsJointBroke extends EventMessage
@@ -228,16 +210,16 @@ export class MsgRetrieveBoneState extends Message
   constructor() { super(); this.TypeNameHash = 2483229000; }
 }
 
-export class MsgRmlUiReload extends Message
-{
-  public static GetTypeNameHash(): number { return 1859392301; }
-  constructor() { super(); this.TypeNameHash = 1859392301; }
-}
-
 export class MsgRopePoseUpdated extends Message
 {
   public static GetTypeNameHash(): number { return 2063668489; }
   constructor() { super(); this.TypeNameHash = 2063668489; }
+}
+
+export class MsgSensorDetectedObjectsChanged extends EventMessage
+{
+  public static GetTypeNameHash(): number { return 3745087146; }
+  constructor() { super(); this.TypeNameHash = 3745087146; }
 }
 
 export class MsgSetColor extends Message
