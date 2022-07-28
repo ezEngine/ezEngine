@@ -483,8 +483,20 @@ void ezWorld::Update()
     ezStats::SetStat(sStatName, GetObjectCount());
   }
 
-  m_Data.m_Clock.SetPaused(!m_Data.m_bSimulateWorld);
-  m_Data.m_Clock.Update();
+  if (!m_Data.m_bSimulateWorld)
+  {
+    // only change the pause mode temporarily
+    // so that user choices don't get overridden
+
+    const bool bClockPaused = m_Data.m_Clock.GetPaused();
+    m_Data.m_Clock.SetPaused(true);
+    m_Data.m_Clock.Update();
+    m_Data.m_Clock.SetPaused(bClockPaused);
+  }
+  else
+  {
+    m_Data.m_Clock.Update();
+  }
 
   if (m_Data.m_pSpatialSystem != nullptr)
   {
