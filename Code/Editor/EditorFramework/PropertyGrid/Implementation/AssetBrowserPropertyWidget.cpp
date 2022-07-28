@@ -131,13 +131,16 @@ void ezQtAssetPropertyWidget::InternalSetValue(const ezVariant& value)
   }
   else
   {
-    ezStringBuilder sText = value.ConvertTo<ezString>();
+    ezStringBuilder sOrgText = value.ConvertTo<ezString>();
+    ezStringBuilder sFullPath = sOrgText;
+    ezStringBuilder sDisplayText = sOrgText;
+
     m_AssetGuid = ezUuid();
     ezStringBuilder sThumbnailPath;
 
-    if (ezConversionUtils::IsStringUuid(sText))
+    if (ezConversionUtils::IsStringUuid(sOrgText))
     {
-      if (!IsValidAssetType(sText))
+      if (!IsValidAssetType(sOrgText))
       {
         m_uiThumbnailID = 0;
 
@@ -153,13 +156,14 @@ void ezQtAssetPropertyWidget::InternalSetValue(const ezVariant& value)
         return;
       }
 
-      m_AssetGuid = ezConversionUtils::ConvertStringToUuid(sText);
+      m_AssetGuid = ezConversionUtils::ConvertStringToUuid(sOrgText);
 
       auto pAsset = ezAssetCurator::GetSingleton()->GetSubAsset(m_AssetGuid);
 
       if (pAsset)
       {
-        pAsset->GetSubAssetIdentifier(sText);
+        pAsset->GetSubAssetIdentifier(sFullPath);
+        sDisplayText = sFullPath.GetFileName();
 
         sThumbnailPath = ezAssetDocumentManager::GenerateResourceThumbnailPath(pAsset->m_pAssetInfo->m_sAbsolutePath);
       }
@@ -174,13 +178,13 @@ void ezQtAssetPropertyWidget::InternalSetValue(const ezVariant& value)
       m_pWidget->setPalette(m_pal);
 
       if (m_AssetGuid.IsValid())
-        m_pWidget->setToolTip(QStringLiteral("The selected file resolved to a valid asset GUID"));
+        m_pWidget->setToolTip(sFullPath.GetData());
       else
         m_pWidget->setToolTip(QStringLiteral("The selected file is not a valid asset"));
     }
 
     m_pWidget->setPlaceholderText(QString());
-    m_pWidget->setText(QString::fromUtf8(sText.GetData()));
+    m_pWidget->setText(sDisplayText.GetData());
   }
 }
 
