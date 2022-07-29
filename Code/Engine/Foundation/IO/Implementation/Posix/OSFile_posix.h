@@ -266,6 +266,15 @@ ezResult ezOSFile::InternalCreateDirectory(const char* szDirectory)
   return EZ_FAILURE;
 }
 
+ezResult ezOSFile::InternalMoveDirectory(const char* szDirectoryFrom, const char* ezDirectoryTo)
+{
+  if(rename(szDirectoryFrom, ezDirectoryTo) != 0)
+  {
+    return EZ_FAILURE;
+  }
+  return EZ_SUCCESS;
+}
+
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS) && EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
 ezResult ezOSFile::InternalGetFileStats(const char* szFileOrFolder, ezFileStats& out_Stats)
 {

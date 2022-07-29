@@ -10,12 +10,12 @@ struct ezDirectoryWatcherImpl;
 /// \brief Which action has been performed on a file.
 enum class ezDirectoryWatcherAction
 {
-  None,
-  Added,
-  Removed,
-  Modified,
-  RenamedOldName,
-  RenamedNewName,
+  None,           ///< Nothing happend
+  Added,          ///< A file was added
+  Removed,        ///< A file was removed
+  Modified,       ///< A file was modified. Both Reads and Writes can 'modify' the timestamps of a file.
+  RenamedOldName, ///< A file was renamed. First the old file name is provided.
+  RenamedNewName, ///< A file was renamed. The new name is provided second.
 };
 
 /// \brief
