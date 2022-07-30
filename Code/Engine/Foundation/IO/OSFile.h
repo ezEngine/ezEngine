@@ -221,7 +221,7 @@ public:
 
   /// \brief Renames / Moves an existing directory. szDirectoryFrom must exist. The parent directory of ezDirectoryTo must exist. 
   /// Returns EZ_FAILURE on the move failed.
-  static ezResult MoveDirectory(const char* szDirectoryFrom, const char* ezDirectoryTo);
+  static ezResult MoveFileOrDirectory(const char* szDirectoryFrom, const char* ezDirectoryTo);
 
   /// \brief Copies the source file into the destination file.
   static ezResult CopyFile(const char* szSource, const char* szDestination); // [tested]
@@ -361,7 +361,7 @@ private:
   static ezResult InternalDeleteFile(const char* szFile);
   static ezResult InternalDeleteDirectory(const char* szDirectory);
   static ezResult InternalCreateDirectory(const char* szFile);
-  static ezResult InternalMoveDirectory(const char* szDirectoryFrom, const char* ezDirectoryTo);
+  static ezResult InternalMoveFileOrDirectory(const char* szDirectoryFrom, const char* ezDirectoryTo);
 
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
   static ezResult InternalGetFileStats(const char* szFileOrFolder, ezFileStats& out_Stats);

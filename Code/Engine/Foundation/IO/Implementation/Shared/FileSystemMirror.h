@@ -200,7 +200,7 @@ ezResult ezFileSystemMirror::AddFile(const char* path, bool* outFileExistsAlread
   }
   else
   {
-    if(outFileExistsAlready == nullptr)
+    if(outFileExistsAlready != nullptr)
     {
       *outFileExistsAlready = true;
     }

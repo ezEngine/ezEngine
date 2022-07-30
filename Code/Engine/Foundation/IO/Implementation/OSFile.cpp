@@ -351,7 +351,7 @@ ezResult ezOSFile::CreateDirectoryStructure(const char* szDirectory)
   return Res;
 }
 
-ezResult ezOSFile::MoveDirectory(const char* szDirectoryFrom, const char* szDirectoryTo)
+ezResult ezOSFile::MoveFileOrDirectory(const char* szDirectoryFrom, const char* szDirectoryTo)
 {
   ezStringBuilder sFrom(szDirectoryFrom); 
   sFrom.MakeCleanPath();
@@ -361,7 +361,7 @@ ezResult ezOSFile::MoveDirectory(const char* szDirectoryFrom, const char* szDire
   sTo.MakeCleanPath();
   sTo.MakePathSeparatorsNative();
 
-  return InternalMoveDirectory(sFrom, sTo);
+  return InternalMoveFileOrDirectory(sFrom, sTo);
 }
 
 ezResult ezOSFile::CopyFile(const char* szSource, const char* szDestination)

@@ -278,6 +278,15 @@ ezResult ezOSFile::InternalCreateDirectory(const char* szDirectory)
   return EZ_SUCCESS;
 }
 
+ezResult ezOSFile::InternalMoveFileOrDirectory(const char* szDirectoryFrom, const char* ezDirectoryTo)
+{
+  if(MoveFileW(ezDosDevicePath(szDirectoryFrom), ezDosDevicePath(szDirectoryTo) == 0)
+  {
+    return EZ_FAILURE;
+  }
+  return EZ_SUCCESS;
+}
+
 #endif // not EZ_USE_POSIX_FILE_API
 
 ezResult ezOSFile::InternalGetFileStats(const char* szFileOrFolder, ezFileStats& out_Stats)

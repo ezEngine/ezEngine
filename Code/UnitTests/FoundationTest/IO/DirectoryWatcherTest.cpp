@@ -80,14 +80,14 @@ EZ_CREATE_SIMPLE_TEST(IO, DirectoryWatcher)
     EZ_TEST_BOOL(ezOSFile::CreateDirectoryStructure(tmp).Succeeded());
   };
 
-  auto RenameDirectory = [&](const char* from, const char* to) {
+  auto Rename = [&](const char* from, const char* to) {
     tmp = sTestRootPath;
     tmp.AppendPath(from);
 
     tmp2 = sTestRootPath;
     tmp2.AppendPath(to);
 
-    EZ_TEST_BOOL(ezOSFile::MoveDirectory(tmp, tmp2).Succeeded());
+    EZ_TEST_BOOL(ezOSFile::MoveFileOrDirectory(tmp, tmp2).Succeeded());
   };
 
   auto DeleteDirectory = [&](const char* relPath, bool test = true)
@@ -146,6 +146,25 @@ EZ_CREATE_SIMPLE_TEST(IO, DirectoryWatcher)
       {"test.file", ezDirectoryWatcherAction::Modified},
     };
     CheckExpectedEvents(watcher, expectedEvents);
+
+    DeleteFile("test.file");
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Simple rename file")
+  {
+    ezDirectoryWatcher watcher;
+    EZ_TEST_BOOL(watcher.OpenDirectory(sTestRootPath, ezDirectoryWatcher::Watch::Renames).Succeeded());
+
+    CreateFile("test.file");
+    Rename("test.file", "supertest.file");
+
+    ExpectedEvent expectedEvents[] = {
+      {"test.file", ezDirectoryWatcherAction::RenamedOldName},
+      {"supertest.file", ezDirectoryWatcherAction::RenamedNewName},
+    };
+    CheckExpectedEvents(watcher, expectedEvents);
+
+    DeleteFile("supertest.file");
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Subdirectory Create File")
@@ -207,7 +226,7 @@ EZ_CREATE_SIMPLE_TEST(IO, DirectoryWatcher)
 
     TickWatcher(watcher);
 
-    RenameDirectory("New Folder", "sub");
+    Rename("New Folder", "sub");
 
     CreateFile("sub/bla");
     ModifyFile("sub/bla");
@@ -232,7 +251,7 @@ EZ_CREATE_SIMPLE_TEST(IO, DirectoryWatcher)
                    .Succeeded());
 
     CreateDirectory("New Folder");
-    RenameDirectory("New Folder", "sub");
+    Rename("New Folder", "sub");
 
     TickWatcher(watcher);
 
@@ -260,7 +279,7 @@ EZ_CREATE_SIMPLE_TEST(IO, DirectoryWatcher)
                    .Succeeded());
 
     CreateDirectory("New Folder/subsub");
-    RenameDirectory("New Folder", "sub");
+    Rename("New Folder", "sub");
 
     TickWatcher(watcher);
 
@@ -300,7 +319,7 @@ EZ_CREATE_SIMPLE_TEST(IO, DirectoryWatcher)
     };
     CheckExpectedEvents(watcher, expectedEvents1);
 
-    RenameDirectory("sub2", "../sub2");
+    Rename("sub2", "../sub2");
 
     ExpectedEvent expectedEvents2[] = {
       {"sub2/subsub2/file2.txt", ezDirectoryWatcherAction::Removed},
@@ -309,7 +328,47 @@ EZ_CREATE_SIMPLE_TEST(IO, DirectoryWatcher)
     // Issue here: After moving sub2 out of view, it remains in m_pathToWd
     CheckExpectedEvents(watcher, expectedEvents2);
 
-    RenameDirectory("../sub2", "sub2");
+    Rename("../sub2", "sub2");
+
+    ExpectedEvent expectedEvents3[] = {
+      {"sub2/file1", ezDirectoryWatcherAction::Added},
+      {"sub2/subsub2/file2.txt", ezDirectoryWatcherAction::Added},
+    };
+    CheckExpectedEvents(watcher, expectedEvents3);
+
+    DeleteDirectory("sub2");
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Create, Delete, Create")
+  {
+    ezDirectoryWatcher watcher;
+    EZ_TEST_BOOL(watcher.OpenDirectory(
+                          sTestRootPath,
+                          ezDirectoryWatcher::Watch::Creates | ezDirectoryWatcher::Watch::Deletes |
+                            ezDirectoryWatcher::Watch::Writes | ezDirectoryWatcher::Watch::Subdirectories)
+                   .Succeeded());
+
+    CreateDirectory("sub2/subsub2");
+    CreateFile("sub2/file1");
+    CreateFile("sub2/subsub2/file2.txt");
+
+    ExpectedEvent expectedEvents1[] = {
+      {"sub2/file1", ezDirectoryWatcherAction::Added},
+      {"sub2/subsub2/file2.txt", ezDirectoryWatcherAction::Added},
+    };
+    CheckExpectedEvents(watcher, expectedEvents1);
+
+    DeleteDirectory("sub2");
+
+    ExpectedEvent expectedEvents2[] = {
+      {"sub2/file1", ezDirectoryWatcherAction::Removed},
+      {"sub2/subsub2/file2.txt", ezDirectoryWatcherAction::Removed},
+    };
+    CheckExpectedEvents(watcher, expectedEvents2);
+
+    CreateDirectory("sub2/subsub2");
+    CreateFile("sub2/file1");
+    CreateFile("sub2/subsub2/file2.txt");
 
     ExpectedEvent expectedEvents3[] = {
       {"sub2/file1", ezDirectoryWatcherAction::Added},

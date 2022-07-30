@@ -266,7 +266,7 @@ ezResult ezOSFile::InternalCreateDirectory(const char* szDirectory)
   return EZ_FAILURE;
 }
 
-ezResult ezOSFile::InternalMoveDirectory(const char* szDirectoryFrom, const char* ezDirectoryTo)
+ezResult ezOSFile::InternalMoveFileOrDirectory(const char* szDirectoryFrom, const char* ezDirectoryTo)
 {
   if(rename(szDirectoryFrom, ezDirectoryTo) != 0)
   {

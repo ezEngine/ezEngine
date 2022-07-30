@@ -32,12 +32,13 @@ public:
     /// \brief Enum values
     enum Enum
     {
-      Reads = EZ_BIT(0),         ///< Watch for reads.
-      Writes = EZ_BIT(1),        ///< Watch for writes.
-      Creates = EZ_BIT(2),       ///< Watch for newly created files.
-      Deletes = EZ_BIT(3),       ///< Watch for deleted files.
-      Renames = EZ_BIT(4),       ///< Watch for renames.
-      Subdirectories = EZ_BIT(4) ///< Watch files in subdirectories recursively.
+      Reads = EZ_BIT(0),          ///< Watch for reads.
+      Writes = EZ_BIT(1),         ///< Watch for writes.
+      Creates = EZ_BIT(2),        ///< Watch for newly created files.
+      Deletes = EZ_BIT(3),        ///< Watch for deleted files.
+      Renames = EZ_BIT(4),        ///< Watch for renames.
+      Subdirectories = EZ_BIT(5), ///< Watch files in subdirectories recursively.
+      Blocking = EZ_BIT(6)        ///< EnumerateChanges will block until there are changes to report. Without this flag, it will return immediately.
     };
 
     struct Bits
