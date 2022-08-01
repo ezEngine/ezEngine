@@ -499,6 +499,10 @@ ezInt32 ezFileSystemIterator::InternalNext()
       return EZ_FAILURE;
 
     m_sCurPath.PathParentDirectory();
+    if(m_sCurPath.EndsWith("/"))
+    {
+      m_sCurPath.Shrink(0, 1); // Remove trailing /
+    }
 
     return CallInternalNext;
   }
