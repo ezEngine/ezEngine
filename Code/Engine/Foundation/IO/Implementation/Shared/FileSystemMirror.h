@@ -8,6 +8,7 @@
 // Which folder was moved (but not to where, nor its contents). This means when a folder is moved out of view,
 // this needs to be treated as a delete. At the point of the move, it is no longer possible to query the contents of the folder.
 // So a in memory copy of the file system is required in order to correctly implement a directory watcher.
+template <typename T>
 class ezFileSystemMirror
 {
 public:
@@ -17,10 +18,26 @@ public:
     Directory
   };
 
+  struct FileEntry
+  {
+    ezString path;
+    T value;
+
+    bool operator < (const FileEntry& other) const
+    {
+      return this->path < other.path;
+    }
+
+    bool operator != (const ezString& other) const
+    {
+      return this->path != other;
+    }
+  };
+
   struct DirEntry
   {
     ezMap<ezString, DirEntry> m_subDirectories;
-    ezDynamicArray<ezString> m_files;
+    ezDynamicArray<FileEntry> m_files;
   };
 
   ezFileSystemMirror();
@@ -30,7 +47,7 @@ public:
   ezResult AddDirectory(const char* path);
 
   // \brief Adds a file. Creates directories if they do not exist.
-  ezResult AddFile(const char* path, bool* outFileExistsAlready);
+  ezResult AddFile(const char* path, const T& value, bool* outFileExistsAlready, T* outOldValue);
 
   // \brief Removes a file.
   ezResult RemoveFile(const char* path);
@@ -63,7 +80,7 @@ namespace
     auto* begin = container.GetData();
     auto* end = container.GetData() + container.GetCount();
     auto insertPos = std::upper_bound(begin, end, value);
-    return insertPos - begin;
+    return static_cast<uint32_t>(insertPos - begin);
   }
 
   template <typename T, typename U>
@@ -97,10 +114,14 @@ namespace
   }
 }
 
-ezFileSystemMirror::ezFileSystemMirror() = default;
-ezFileSystemMirror::~ezFileSystemMirror() = default;
+template <typename T>
+ezFileSystemMirror<T>::ezFileSystemMirror() = default;
 
-ezResult ezFileSystemMirror::AddDirectory(const char* path)
+template <typename T>
+ezFileSystemMirror<T>::~ezFileSystemMirror() = default;
+
+template <typename T>
+ezResult ezFileSystemMirror<T>::AddDirectory(const char* path)
 {
   ezStringBuilder currentDirAbsPath = path;
   currentDirAbsPath.MakeCleanPath();
@@ -142,8 +163,8 @@ ezResult ezFileSystemMirror::AddDirectory(const char* path)
       }
       else
       {
-        uint32_t insertPos = FindInsertPositionLikeyOrdered(currentDir->m_files, stats.m_sName);
-        currentDir->m_files.Insert(std::move(stats.m_sName), insertPos);
+        uint32_t insertPos = FindInsertPositionLikeyOrdered(currentDir->m_files, FileEntry{stats.m_sName, {}});
+        currentDir->m_files.Insert({std::move(stats.m_sName), {}}, insertPos);
       }
     }
   }
@@ -168,7 +189,8 @@ ezResult ezFileSystemMirror::AddDirectory(const char* path)
   return EZ_SUCCESS;
 }
 
-ezResult ezFileSystemMirror::AddFile(const char* path, bool* outFileExistsAlready)
+template <typename T>
+ezResult ezFileSystemMirror<T>::AddFile(const char* path, const T& value, bool* outFileExistsAlready, T* outOldValue)
 {
   ezStringBuilder sPath = path;
   DirEntry* dir = FindDirectory(sPath);
@@ -188,11 +210,12 @@ ezResult ezFileSystemMirror::AddFile(const char* path, bool* outFileExistsAlread
       sPath.Shrink(ezStringUtils::GetCharacterCount(subdirName.GetStartPointer(), subdirName.GetEndPointer()), 0);
     } while(sPath.FindSubString("/") != nullptr);
   }
-  uint32_t insertPos = FindInsertPosition(dir->m_files, sPath);
+  FileEntry key{ sPath, T() };
+  uint32_t insertPos = FindInsertPosition(dir->m_files, key);
   // Do not add the file twice
   if(insertPos == 0 || dir->m_files[insertPos - 1] != sPath)
   {
-    dir->m_files.Insert(sPath, insertPos);
+    dir->m_files.Insert({sPath, value}, insertPos);
     if(outFileExistsAlready != nullptr)
     {
       *outFileExistsAlready = false;
@@ -200,15 +223,22 @@ ezResult ezFileSystemMirror::AddFile(const char* path, bool* outFileExistsAlread
   }
   else
   {
+    FileEntry& entry = dir->m_files[insertPos - 1];
     if(outFileExistsAlready != nullptr)
     {
       *outFileExistsAlready = true;
     }
+    if(outOldValue != nullptr)
+    {
+      *outOldValue = entry.value;
+    }
+    entry.value = value;
   }
   return EZ_SUCCESS;
 }
 
-ezResult ezFileSystemMirror::RemoveFile(const char* path)
+template <typename T>
+ezResult ezFileSystemMirror<T>::RemoveFile(const char* path)
 {
   ezStringBuilder sPath = path;
   DirEntry* dir = FindDirectory(sPath);
@@ -227,7 +257,7 @@ ezResult ezFileSystemMirror::RemoveFile(const char* path)
     return EZ_FAILURE; // there are no files in this directory
   }
 
-  uint32_t shouldBePos = FindInsertPosition(dir->m_files, sPath);
+  uint32_t shouldBePos = FindInsertPosition(dir->m_files, FileEntry{sPath, {}});
   if(shouldBePos == 0 || dir->m_files[shouldBePos - 1] != sPath)
   {
     return EZ_FAILURE; // file does not exist
@@ -237,7 +267,8 @@ ezResult ezFileSystemMirror::RemoveFile(const char* path)
   return EZ_SUCCESS;
 }
 
-ezResult ezFileSystemMirror::RemoveDirectory(const char* path)
+template <typename T>
+ezResult ezFileSystemMirror<T>::RemoveDirectory(const char* path)
 {
   ezStringBuilder parentPath = path;
   ezStringBuilder dirName = path;
@@ -260,7 +291,8 @@ ezResult ezFileSystemMirror::RemoveDirectory(const char* path)
   return EZ_SUCCESS;  
 }
 
-ezResult ezFileSystemMirror::MoveDirectory(const char* fromPath, const char* toPath)
+template <typename T>
+ezResult ezFileSystemMirror<T>::MoveDirectory(const char* fromPath, const char* toPath)
 {
   ezStringBuilder sFromPath = fromPath;
   ezStringBuilder sFromName = fromPath;
@@ -320,16 +352,18 @@ ezResult ezFileSystemMirror::MoveDirectory(const char* fromPath, const char* toP
 }
 
 namespace {
+  template <typename T>
   struct ezDirEnumerateState
   {
-    ezFileSystemMirror::DirEntry* dir;
-    ezMap<ezString, ezFileSystemMirror::DirEntry>::Iterator subDirIt;
+    typename ezFileSystemMirror<T>::DirEntry* dir;
+    typename ezMap<ezString, typename ezFileSystemMirror<T>::DirEntry>::Iterator subDirIt;
   };
 }
 
-ezResult ezFileSystemMirror::Enumerate(const char* path, EnumerateFunc callbackFunc)
+template <typename T>
+ezResult ezFileSystemMirror<T>::Enumerate(const char* path, EnumerateFunc callbackFunc)
 {
-  ezHybridArray<ezDirEnumerateState, 16> dirStack;
+  ezHybridArray<ezDirEnumerateState<T>, 16> dirStack;
   ezStringBuilder sPath = path;
   if(!sPath.EndsWith("/"))
   {
@@ -345,7 +379,7 @@ ezResult ezFileSystemMirror::Enumerate(const char* path, EnumerateFunc callbackF
     return EZ_FAILURE; // requested folder to enumerate doesn't exist
   }
   DirEntry* currentDir = dirToEnumerate;
-  ezMap<ezString, ezFileSystemMirror::DirEntry>::Iterator currentSubDirIt = currentDir->m_subDirectories.GetIterator();
+  typename ezMap<ezString, ezFileSystemMirror::DirEntry>::Iterator currentSubDirIt = currentDir->m_subDirectories.GetIterator();
   sPath = path;
 
   while (currentDir != nullptr)
@@ -368,7 +402,7 @@ ezResult ezFileSystemMirror::Enumerate(const char* path, EnumerateFunc callbackF
       for(auto& file : currentDir->m_files)
       {
         sFilePath = sPath;
-        sFilePath.AppendPath(file);
+        sFilePath.AppendPath(file.path);
         callbackFunc(sFilePath, Type::File);
       }
       if(dirStack.IsEmpty())
@@ -392,7 +426,8 @@ ezResult ezFileSystemMirror::Enumerate(const char* path, EnumerateFunc callbackF
   return EZ_SUCCESS;
 }
 
-ezFileSystemMirror::DirEntry* ezFileSystemMirror::FindDirectory(ezStringBuilder& path)
+template <typename T>
+typename ezFileSystemMirror<T>::DirEntry* ezFileSystemMirror<T>::FindDirectory(ezStringBuilder& path)
 {
   if(!path.StartsWith(m_topLevelDirPath))
   {

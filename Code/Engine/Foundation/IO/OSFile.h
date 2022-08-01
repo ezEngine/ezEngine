@@ -361,7 +361,7 @@ private:
   static ezResult InternalDeleteFile(const char* szFile);
   static ezResult InternalDeleteDirectory(const char* szDirectory);
   static ezResult InternalCreateDirectory(const char* szFile);
-  static ezResult InternalMoveFileOrDirectory(const char* szDirectoryFrom, const char* ezDirectoryTo);
+  static ezResult InternalMoveFileOrDirectory(const char* szDirectoryFrom, const char* szDirectoryTo);
 
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
   static ezResult InternalGetFileStats(const char* szFileOrFolder, ezFileStats& out_Stats);

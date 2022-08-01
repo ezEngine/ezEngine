@@ -278,9 +278,9 @@ ezResult ezOSFile::InternalCreateDirectory(const char* szDirectory)
   return EZ_SUCCESS;
 }
 
-ezResult ezOSFile::InternalMoveFileOrDirectory(const char* szDirectoryFrom, const char* ezDirectoryTo)
+ezResult ezOSFile::InternalMoveFileOrDirectory(const char* szDirectoryFrom, const char* szDirectoryTo)
 {
-  if(MoveFileW(ezDosDevicePath(szDirectoryFrom), ezDosDevicePath(szDirectoryTo) == 0)
+  if(MoveFileW(ezDosDevicePath(szDirectoryFrom), ezDosDevicePath(szDirectoryTo)) == 0)
   {
     return EZ_FAILURE;
   }

@@ -137,7 +137,7 @@ struct ezDirectoryWatcherImpl
           {
             m_fileSystemMirror->AddFile(tmpPath2, &fileExistsAlready).AssertSuccess();
           }
-          if (m_whatToWatch.IsSet(ezDirectoryWatcher::Watch::Creates))
+          if (m_whatToWatch.IsSet(ezDirectoryWatcher::Watch::Creates) && !fileExistsAlready)
           {
             func(tmpPath2, ezDirectoryWatcherAction::Added);
           }
@@ -284,7 +284,7 @@ void ezDirectoryWatcher::CloseDirectory()
 }
 
 
-void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func)
+void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezUInt32 waitUpToMilliseconds)
 {
   const int inotifyFd = m_pImpl->m_inotifyFd;
   uint8_t* const buffer = m_pImpl->m_buffer.GetData();
@@ -352,23 +352,20 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func)
 
   if (inotifyFd >= 0)
   {
-    if (whatToWatch.IsSet(ezDirectoryWatcher::Watch::Blocking))
+    if (waitUpToMilliseconds > 0)
     {
       struct pollfd pollFor = {inotifyFd, POLLIN, 0};
-      while (true)
+      int pollResult = poll(&pollFor, 1, waitUpToMilliseconds);
+      if (pollResult < 0)
       {
-        int pollResult = poll(&pollFor, 1, 1'000'000);
-        if (pollResult < 0)
-        {
-          // Error, stop
-          ezLog::Error("Unexpected result from poll when watching directory {}", m_sDirectoryPath);
-          CloseDirectory();
-          return;
-        }
-        else if (pollResult > 0)
-        {
-          break;
-        }
+        // Error, stop
+        ezLog::Error("Unexpected result from poll when watching directory {}", m_sDirectoryPath);
+        CloseDirectory();
+        return;
+      }
+      else if (pollResult == 0)
+      {
+        return; // timeout, no results
       }
     }
 
