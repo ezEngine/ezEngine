@@ -52,7 +52,6 @@ class EZ_FOUNDATION_DLL ezInDevelopmentAttribute : public ezPropertyAttribute
   EZ_ADD_DYNAMIC_REFLECTION(ezInDevelopmentAttribute, ezPropertyAttribute);
 
 public:
-
   enum Phase
   {
     Alpha,
