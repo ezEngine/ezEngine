@@ -18,26 +18,10 @@ public:
     Directory
   };
 
-  struct FileEntry
-  {
-    ezString path;
-    T value;
-
-    bool operator < (const FileEntry& other) const
-    {
-      return this->path < other.path;
-    }
-
-    bool operator != (const ezString& other) const
-    {
-      return this->path != other;
-    }
-  };
-
   struct DirEntry
   {
     ezMap<ezString, DirEntry> m_subDirectories;
-    ezDynamicArray<FileEntry> m_files;
+    ezMap<ezString, T> m_files;
   };
 
   ezFileSystemMirror();
@@ -74,29 +58,6 @@ private:
 
 namespace 
 {
-  template <typename T, typename U>
-  uint32_t FindInsertPosition(const T& container, const U& value)
-  {
-    auto* begin = container.GetData();
-    auto* end = container.GetData() + container.GetCount();
-    auto insertPos = std::upper_bound(begin, end, value);
-    return static_cast<uint32_t>(insertPos - begin);
-  }
-
-  template <typename T, typename U>
-  uint32_t FindInsertPositionLikeyOrdered(const T& container, const U& value)
-  {
-    if(container.IsEmpty())
-    {
-      return 0;
-    }
-    if(container.PeekBack() < value)
-    {
-      return container.GetCount();
-    }
-    return FindInsertPosition(container, value);
-  }
-
   void EnsureTrailingSlash(ezStringBuilder& builder)
   {
     if(!builder.EndsWith("/"))
@@ -163,8 +124,7 @@ ezResult ezFileSystemMirror<T>::AddDirectory(const char* path, bool* outDirector
       }
       else
       {
-        uint32_t insertPos = FindInsertPositionLikeyOrdered(currentDir->m_files, FileEntry{stats.m_sName, {}});
-        currentDir->m_files.Insert({std::move(stats.m_sName), {}}, insertPos);
+        currentDir->m_files.Insert(std::move(stats.m_sName), T{});
       }
     }
     if(outDirectoryExistsAlready != nullptr)
@@ -219,12 +179,11 @@ ezResult ezFileSystemMirror<T>::AddFile(const char* path, const T& value, bool* 
       sPath.Shrink(ezStringUtils::GetCharacterCount(subdirName.GetStartPointer(), subdirName.GetEndPointer()), 0);
     } while(sPath.FindSubString("/") != nullptr);
   }
-  FileEntry key{ sPath, T() };
-  uint32_t insertPos = FindInsertPosition(dir->m_files, key);
+  auto it = dir->m_files.Find(sPath);
   // Do not add the file twice
-  if(insertPos == 0 || dir->m_files[insertPos - 1] != sPath)
+  if(!it.IsValid())
   {
-    dir->m_files.Insert({sPath, value}, insertPos);
+    dir->m_files.Insert(sPath, value);
     if(outFileExistsAlready != nullptr)
     {
       *outFileExistsAlready = false;
@@ -232,16 +191,15 @@ ezResult ezFileSystemMirror<T>::AddFile(const char* path, const T& value, bool* 
   }
   else
   {
-    FileEntry& entry = dir->m_files[insertPos - 1];
     if(outFileExistsAlready != nullptr)
     {
       *outFileExistsAlready = true;
     }
     if(outOldValue != nullptr)
     {
-      *outOldValue = entry.value;
+      *outOldValue = it.Value();
     }
-    entry.value = value;
+    it.Value() = value;
   }
   return EZ_SUCCESS;
 }
@@ -266,13 +224,13 @@ ezResult ezFileSystemMirror<T>::RemoveFile(const char* path)
     return EZ_FAILURE; // there are no files in this directory
   }
 
-  uint32_t shouldBePos = FindInsertPosition(dir->m_files, FileEntry{sPath, {}});
-  if(shouldBePos == 0 || dir->m_files[shouldBePos - 1] != sPath)
+  auto it = dir->m_files.Find(sPath);
+  if(!it.IsValid())
   {
     return EZ_FAILURE; // file does not exist
   }
 
-  dir->m_files.RemoveAtAndCopy(shouldBePos - 1);
+  dir->m_files.Remove(it);
   return EZ_SUCCESS;
 }
 
@@ -407,7 +365,7 @@ ezResult ezFileSystemMirror<T>::Enumerate(const char* path, EnumerateFunc callba
       for(auto& file : currentDir->m_files)
       {
         sFilePath = sPath;
-        sFilePath.AppendPath(file.path);
+        sFilePath.AppendPath(file.Key());
         callbackFunc(sFilePath, Type::File);
       }
 

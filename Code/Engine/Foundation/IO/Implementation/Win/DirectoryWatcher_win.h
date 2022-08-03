@@ -36,6 +36,8 @@ namespace
       return path.IsEmpty();
     }
   };
+
+  using ezFileSystemMirrorType = ezFileSystemMirror<bool>;
 } // namespace
 
 struct ezDirectoryWatcherImpl
@@ -48,7 +50,7 @@ struct ezDirectoryWatcherImpl
   OVERLAPPED m_overlapped;
   ezDynamicArray<ezUInt8> m_buffer;
   ezBitflags<ezDirectoryWatcher::Watch> m_whatToWatch;
-  ezUniquePtr<ezFileSystemMirror<bool>> m_mirror; // store the last modification timestamp alongside each file
+  ezUniquePtr<ezFileSystemMirrorType> m_mirror; // store the last modification timestamp alongside each file
 };
 
 ezDirectoryWatcher::ezDirectoryWatcher()
@@ -69,7 +71,7 @@ ezResult ezDirectoryWatcher::OpenDirectory(const ezString& absolutePath, ezBitfl
   if (whatToWatch.IsSet(Watch::Writes) || whatToWatch.AreAllSet(Watch::Deletes | Watch::Subdirectories))
   {
     m_pImpl->m_filter |= FILE_NOTIFY_CHANGE_LAST_WRITE;
-    m_pImpl->m_mirror = EZ_DEFAULT_NEW(ezFileSystemMirror<bool>);
+    m_pImpl->m_mirror = EZ_DEFAULT_NEW(ezFileSystemMirrorType);
     m_pImpl->m_mirror->AddDirectory(sPath).AssertSuccess();
   }
 
@@ -148,7 +150,7 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezUInt3
 
     const ezBitflags<ezDirectoryWatcher::Watch> whatToWatch = m_pImpl->m_whatToWatch;
 
-    ezFileSystemMirror<bool>* mirror = m_pImpl->m_mirror.Borrow();
+    ezFileSystemMirrorType* mirror = m_pImpl->m_mirror.Borrow();
 
     MoveEvent lastMoveFrom;
 
@@ -307,8 +309,8 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezUInt3
               {
                 if(mirror && whatToWatch.IsSet(Watch::Subdirectories))
                 {
-                  mirror->Enumerate(eventFilePath, [&](const ezStringBuilder& path, ezFileSystemMirror<bool>::Type type) {
-                          func(path, ezDirectoryWatcherAction::Removed, (type == ezFileSystemMirror<bool>::Type::File) ? ezDirectoryWatcherType::File : ezDirectoryWatcherType::Directory);
+                  mirror->Enumerate(eventFilePath, [&](const ezStringBuilder& path, ezFileSystemMirrorType::Type type) {
+                          func(path, ezDirectoryWatcherAction::Removed, (type == ezFileSystemMirrorType::Type::File) ? ezDirectoryWatcherType::File : ezDirectoryWatcherType::Directory);
                         })
                     .AssertSuccess();
                 }
