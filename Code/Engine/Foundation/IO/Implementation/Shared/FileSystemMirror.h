@@ -44,7 +44,7 @@ public:
   ~ezFileSystemMirror();
 
   // \brief Adds the directory, and all files in it recursively.
-  ezResult AddDirectory(const char* path);
+  ezResult AddDirectory(const char* path, bool* outDirectoryExistsAlready = nullptr);
 
   // \brief Adds a file. Creates directories if they do not exist.
   ezResult AddFile(const char* path, const T& value, bool* outFileExistsAlready, T* outOldValue);
@@ -121,7 +121,7 @@ template <typename T>
 ezFileSystemMirror<T>::~ezFileSystemMirror() = default;
 
 template <typename T>
-ezResult ezFileSystemMirror<T>::AddDirectory(const char* path)
+ezResult ezFileSystemMirror<T>::AddDirectory(const char* path, bool* outDirectoryExistsAlready)
 {
   ezStringBuilder currentDirAbsPath = path;
   currentDirAbsPath.MakeCleanPath();
@@ -167,6 +167,10 @@ ezResult ezFileSystemMirror<T>::AddDirectory(const char* path)
         currentDir->m_files.Insert({std::move(stats.m_sName), {}}, insertPos);
       }
     }
+    if(outDirectoryExistsAlready != nullptr)
+    {
+      *outDirectoryExistsAlready = false;
+    }
   }
   else
   {
@@ -174,6 +178,11 @@ ezResult ezFileSystemMirror<T>::AddDirectory(const char* path)
     if(parentDir == nullptr)
     {
       return EZ_FAILURE;
+    }
+
+    if(outDirectoryExistsAlready != nullptr)
+    {
+      *outDirectoryExistsAlready = currentDirAbsPath.IsEmpty();
     }
 
     while(!currentDirAbsPath.IsEmpty())
@@ -394,10 +403,6 @@ ezResult ezFileSystemMirror<T>::Enumerate(const char* path, EnumerateFunc callba
     }
     else
     {
-      if(currentDir != dirToEnumerate)
-      {
-        callbackFunc(sPath, Type::Directory);
-      }
       ezStringBuilder sFilePath;
       for(auto& file : currentDir->m_files)
       {
@@ -405,6 +410,16 @@ ezResult ezFileSystemMirror<T>::Enumerate(const char* path, EnumerateFunc callba
         sFilePath.AppendPath(file.path);
         callbackFunc(sFilePath, Type::File);
       }
+
+      if (currentDir != dirToEnumerate)
+      {
+        if(sPath.EndsWith("/") && sPath.GetElementCount() > 1)
+        {
+          sPath.Shrink(0, 1);
+        }
+        callbackFunc(sPath, Type::Directory);
+      }
+
       if(dirStack.IsEmpty())
       {
         currentDir = nullptr;

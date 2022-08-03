@@ -11,11 +11,17 @@ struct ezDirectoryWatcherImpl;
 enum class ezDirectoryWatcherAction
 {
   None,           ///< Nothing happend
-  Added,          ///< A file was added
-  Removed,        ///< A file was removed
+  Added,          ///< A file or directory was added
+  Removed,        ///< A file or directory was removed
   Modified,       ///< A file was modified. Both Reads and Writes can 'modify' the timestamps of a file.
-  RenamedOldName, ///< A file was renamed. First the old file name is provided.
-  RenamedNewName, ///< A file was renamed. The new name is provided second.
+  RenamedOldName, ///< A file or directory was renamed. First the old name is provided.
+  RenamedNewName, ///< A file or directory was renamed. The new name is provided second.
+};
+
+enum class ezDirectoryWatcherType
+{
+  File,
+  Directory
 };
 
 /// \brief
@@ -66,7 +72,7 @@ public:
   ///   Returns the opened directory, will be empty if no directory was opened.
   const char* GetDirectory() const { return m_sDirectoryPath; }
 
-  using EnumerateChangesFunction = ezDelegate<void(const char* filename, ezDirectoryWatcherAction action), 48>;
+  using EnumerateChangesFunction = ezDelegate<void(const char* filename, ezDirectoryWatcherAction action, ezDirectoryWatcherType type), 48>;
 
   /// \brief
   ///   Calls the callback \p func for each change since the last call. For each change the filename

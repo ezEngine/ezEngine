@@ -66,14 +66,14 @@ ezResult ezDirectoryWatcher::OpenDirectory(const ezString& absolutePath, ezBitfl
 
   m_pImpl->m_whatToWatch = whatToWatch;
   m_pImpl->m_filter = FILE_NOTIFY_CHANGE_FILE_NAME;
-  if (whatToWatch.IsSet(Watch::Writes))
+  if (whatToWatch.IsSet(Watch::Writes) || whatToWatch.AreAllSet(Watch::Deletes | Watch::Subdirectories))
   {
     m_pImpl->m_filter |= FILE_NOTIFY_CHANGE_LAST_WRITE;
     m_pImpl->m_mirror = EZ_DEFAULT_NEW(ezFileSystemMirror<bool>);
     m_pImpl->m_mirror->AddDirectory(sPath).AssertSuccess();
   }
 
-  if (whatToWatch.IsAnySet(Watch::Deletes | Watch::Creates))
+  if (whatToWatch.IsAnySet(Watch::Deletes | Watch::Creates | Watch::Renames))
   {
     m_pImpl->m_filter |= FILE_NOTIFY_CHANGE_DIR_NAME;
   }
@@ -152,33 +152,6 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezUInt3
 
     MoveEvent lastMoveFrom;
 
-    // An orpahend move from is when we see a move from, but no move to
-    // This means the file was moved outside of our view of the file system
-    // tread this as a delete.
-    auto processOrphanedMoveFrom = [&](MoveEvent& moveFrom) {
-      if (whatToWatch.IsSet(Watch::Deletes))
-      {
-        if (!moveFrom.isDirectory)
-        {
-          func(moveFrom.path.GetData(), ezDirectoryWatcherAction::Removed);
-          mirror->RemoveFile(moveFrom.path).AssertSuccess();
-        }
-        else
-        {
-          ezStringBuilder dirPath;
-          mirror->Enumerate(moveFrom.path, [&](const char* path, ezFileSystemMirror<bool>::Type type) {
-                  if (type == ezFileSystemMirror<bool>::Type::File)
-                  {
-                    func(path, ezDirectoryWatcherAction::Removed);
-                  }
-                })
-            .AssertSuccess();
-          mirror->RemoveDirectory(moveFrom.path).AssertSuccess();
-        }
-      }
-      moveFrom.Clear();
-    };
-
     // Progress the messages
     auto info = (const FILE_NOTIFY_EXTENDED_INFORMATION*)buffer.GetData();
     while (true)
@@ -232,7 +205,10 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezUInt3
               fireEvent = whatToWatch.IsAnySet(ezDirectoryWatcher::Watch::Writes);
               bool fileAreadyKnown = false;
               bool addPending = false;
-              mirror->AddFile(eventFilePath.GetData(), false, &fileAreadyKnown, &addPending).AssertSuccess();
+              if(mirror)
+              {
+                mirror->AddFile(eventFilePath.GetData(), false, &fileAreadyKnown, &addPending).AssertSuccess();
+              }
               if (fileAreadyKnown && addPending)
               {
                 fireEvent = false;
@@ -241,6 +217,7 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezUInt3
             break;
             case FILE_ACTION_RENAMED_OLD_NAME:
               DEBUG_LOG("FILE_ACTION_RENAMED_OLD_NAME {} ({})", eventFilePath, info->LastModificationTime.QuadPart);
+              EZ_ASSERT_DEV(lastMoveFrom.IsEmpty(), "there should be no pending move from");
               action = ezDirectoryWatcherAction::RenamedOldName;
               fireEvent = whatToWatch.IsAnySet(ezDirectoryWatcher::Watch::Renames);
               EZ_ASSERT_DEV(lastMoveFrom.IsEmpty(), "there should be no pending last move from");
@@ -256,12 +233,13 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezUInt3
                 mirror->RemoveFile(lastMoveFrom.path).AssertSuccess();
                 mirror->AddFile(eventFilePath, false, nullptr, nullptr).AssertSuccess();
               }
+              lastMoveFrom.Clear();
               break;
           }
 
           if (fireEvent)
           {
-            func(eventFilePath, action);
+            func(eventFilePath, action, ezDirectoryWatcherType::File);
           }
         }
         else
@@ -271,9 +249,15 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezUInt3
             case FILE_ACTION_ADDED:
             {
               DEBUG_LOG("DIR_ACTION_ADDED {}", eventFilePath);
+              bool directoryAlreadyKnown = false;
               if (mirror)
               {
-                mirror->AddDirectory(eventFilePath).AssertSuccess();
+                mirror->AddDirectory(eventFilePath, &directoryAlreadyKnown).AssertSuccess();
+              }
+
+              if(whatToWatch.IsSet(Watch::Creates) && !directoryAlreadyKnown)
+              {
+                func(eventFilePath, ezDirectoryWatcherAction::Added, ezDirectoryWatcherType::Directory);
               }
 
               // Whenever we add a directory we might be "to late" to see changes inside it.
@@ -292,9 +276,14 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezUInt3
                 stats.GetFullPath(tmpPath2);
                 if (stats.m_bIsDirectory)
                 {
+                  directoryAlreadyKnown = false;
                   if (mirror)
                   {
-                    mirror->AddDirectory(tmpPath2).AssertSuccess();
+                    mirror->AddDirectory(tmpPath2, &directoryAlreadyKnown).AssertSuccess();
+                  }
+                  if(whatToWatch.IsSet(ezDirectoryWatcher::Watch::Creates) && !directoryAlreadyKnown)
+                  {
+                    func(tmpPath2, ezDirectoryWatcherAction::Added, ezDirectoryWatcherType::Directory);
                   }
                 }
                 else
@@ -306,7 +295,7 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezUInt3
                   }
                   if (whatToWatch.IsSet(ezDirectoryWatcher::Watch::Creates) && !fileExistsAlready)
                   {
-                    func(tmpPath2, ezDirectoryWatcherAction::Added);
+                    func(tmpPath2, ezDirectoryWatcherAction::Added, ezDirectoryWatcherType::File);
                   }
                 }
               }
@@ -314,22 +303,40 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezUInt3
             break;
             case FILE_ACTION_REMOVED:
               DEBUG_LOG("DIR_ACTION_REMOVED {}", eventFilePath);
-              mirror->Enumerate(eventFilePath, [&](const ezStringBuilder& path, ezFileSystemMirror<bool>::Type type) {
-                      if (type == ezFileSystemMirror<bool>::Type::File)
-                      {
-                        func(path, ezDirectoryWatcherAction::Removed);
-                      }
-                    })
-                .AssertSuccess();
-              mirror->RemoveDirectory(eventFilePath).AssertSuccess();
+              if(whatToWatch.IsSet(Watch::Deletes))
+              {
+                if(mirror && whatToWatch.IsSet(Watch::Subdirectories))
+                {
+                  mirror->Enumerate(eventFilePath, [&](const ezStringBuilder& path, ezFileSystemMirror<bool>::Type type) {
+                          func(path, ezDirectoryWatcherAction::Removed, (type == ezFileSystemMirror<bool>::Type::File) ? ezDirectoryWatcherType::File : ezDirectoryWatcherType::Directory);
+                        })
+                    .AssertSuccess();
+                }
+                func(eventFilePath, ezDirectoryWatcherAction::Removed, ezDirectoryWatcherType::Directory);
+              }
+              if(mirror)
+              {
+                mirror->RemoveDirectory(eventFilePath).AssertSuccess();
+              }
               break;
             case FILE_ACTION_RENAMED_OLD_NAME:
               DEBUG_LOG("DIR_ACTION_OLD_NAME {}", eventFilePath);
+              EZ_ASSERT_DEV(lastMoveFrom.IsEmpty(), "there should be no pending move from");
               lastMoveFrom = {eventFilePath, true};
               break;
             case FILE_ACTION_RENAMED_NEW_NAME:
               DEBUG_LOG("DIR_ACTION_NEW_NAME {}", eventFilePath);
               EZ_ASSERT_DEV(!lastMoveFrom.IsEmpty(), "rename old name and rename new name should always appear in pairs");
+              if(mirror)
+              {
+                mirror->MoveDirectory(lastMoveFrom.path, eventFilePath).AssertSuccess();
+              }
+              if(whatToWatch.IsSet(Watch::Renames))
+              {
+                func(lastMoveFrom.path, ezDirectoryWatcherAction::RenamedOldName, ezDirectoryWatcherType::Directory);
+                func(eventFilePath, ezDirectoryWatcherAction::RenamedNewName, ezDirectoryWatcherType::Directory);
+              }
+              lastMoveFrom.Clear();
               break;
             default:
               break;
