@@ -1602,6 +1602,12 @@ void ezQtPropertyTypeContainerWidget::UpdateElement(ezUInt32 index)
     {
       ezStringBuilder sTitle;
       sTitle.Format("[{0}] - {1}", m_Keys[index].ConvertTo<ezString>(), ezTranslate(pCommonType->GetTypeName()));
+
+      if (auto pInDev = pCommonType->GetAttributeByType<ezInDevelopmentAttribute>())
+      {
+        sTitle.AppendFormat(" [ {} ]", pInDev->GetString());
+      }
+
       elem.m_pSubGroup->SetTitle(sTitle);
     }
 

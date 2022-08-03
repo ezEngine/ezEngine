@@ -7,14 +7,14 @@
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <GuiFoundation/Widgets/SearchableMenu.moc.h>
-#include <ToolsFoundation/Object/ObjectAccessorBase.h>
-
 #include <QHBoxLayout>
 #include <QInputDialog>
 #include <QMenu>
 #include <QPushButton>
+#include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
 ezString ezQtAddSubElementButton::s_sLastMenuSearch;
+bool ezQtAddSubElementButton::s_bShowInDevelopmentFeatures = false;
 
 ezQtAddSubElementButton::ezQtAddSubElementButton()
   : ezQtPropertyWidget()
@@ -175,6 +175,16 @@ void ezQtAddSubElementButton::onMenuAboutToShow()
         it = m_SupportedTypes.Remove(it);
         continue;
       }
+
+      if (!s_bShowInDevelopmentFeatures)
+      {
+        if (auto pInDev = it.Key()->GetAttributeByType<ezInDevelopmentAttribute>())
+        {
+          it = m_SupportedTypes.Remove(it);
+          continue;
+        }
+      }
+
       if (m_pConstraint)
       {
         const ezAbstractProperty* pConstraintProp = it.Key()->FindPropertyByName(m_pConstraint->GetConstantName());
@@ -235,6 +245,7 @@ void ezQtAddSubElementButton::onMenuAboutToShow()
 
       // Determine current menu
       const ezCategoryAttribute* pCatA = pRtti->GetAttributeByType<ezCategoryAttribute>();
+      const ezInDevelopmentAttribute* pInDev = pRtti->GetAttributeByType<ezInDevelopmentAttribute>();
 
       if (m_pSearchableMenu != nullptr)
       {
@@ -242,14 +253,26 @@ void ezQtAddSubElementButton::onMenuAboutToShow()
         fullName = pCatA ? pCatA->GetCategory() : "";
         fullName.AppendPath(ezTranslate(pRtti->GetTypeName()));
 
+        if (pInDev)
+        {
+          fullName.AppendFormat(" [ {} ]", pInDev->GetString());
+        }
+
         m_pSearchableMenu->AddItem(fullName, QVariant::fromValue((void*)pRtti), actionIcon);
       }
       else
       {
         QMenu* pCat = CreateCategoryMenu(pCatA ? pCatA->GetCategory() : nullptr, existingMenus);
 
+        ezStringBuilder fullName = ezTranslate(pRtti->GetTypeName());
+
+        if (pInDev)
+        {
+          fullName.AppendFormat(" [ {} ]", pInDev->GetString());
+        }
+
         // Add type action to current menu
-        QAction* pAction = new QAction(QString::fromUtf8(ezTranslate(pRtti->GetTypeName())), m_pMenu);
+        QAction* pAction = new QAction(fullName.GetData(), m_pMenu);
         pAction->setProperty("type", QVariant::fromValue((void*)pRtti));
         EZ_VERIFY(connect(pAction, SIGNAL(triggered()), this, SLOT(OnMenuAction())) != nullptr, "connection failed");
 
@@ -265,8 +288,7 @@ void ezQtAddSubElementButton::onMenuAboutToShow()
         const ezRTTI* pRtti = static_cast<const ezRTTI*>(variant.value<void*>());
 
         OnAction(pRtti);
-        m_pMenu->close();
-      });
+        m_pMenu->close(); });
 
       connect(m_pSearchableMenu, &ezQtSearchableMenu::SearchTextChanged, m_pMenu,
         [this](const QString& text) { s_sLastMenuSearch = text.toUtf8().data(); });

@@ -13,6 +13,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezVisualizeHandComponent, 1, ezComponentMode::Static)
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("XR"),
+    new ezInDevelopmentAttribute(ezInDevelopmentAttribute::Phase::Beta),
   }
   EZ_END_ATTRIBUTES;
 }

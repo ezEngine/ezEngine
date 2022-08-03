@@ -4,6 +4,7 @@
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Preferences/EditorPreferences.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <GuiFoundation/PropertyGrid/Implementation/AddSubElementButton.moc.h>
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -18,6 +19,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorPreferencesUser, 1, ezRTTIDefaultAllocat
     EZ_MEMBER_PROPERTY("FieldOfView", m_fPerspectiveFieldOfView)->AddAttributes(new ezDefaultValueAttribute(70.0f), new ezClampValueAttribute(10.0f, 150.0f)),
     EZ_MEMBER_PROPERTY("GizmoSize", m_fGizmoSize)->AddAttributes(new ezDefaultValueAttribute(1.5f), new ezClampValueAttribute(0.2f, 5.0f)),
     EZ_MEMBER_PROPERTY("UseOldGizmos", m_bOldGizmos),
+    EZ_ACCESSOR_PROPERTY("ShowInDevelopmentFeatures", GetShowInDevelopmentFeatures, SetShowInDevelopmentFeatures),
     EZ_MEMBER_PROPERTY("RotationSnap", m_RotationSnapValue)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(15.0f))),
     EZ_MEMBER_PROPERTY("ScaleSnap", m_fScaleSnapValue)->AddAttributes(new ezDefaultValueAttribute(0.125f)),
     EZ_MEMBER_PROPERTY("TranslationSnap", m_fTranslationSnapValue)->AddAttributes(new ezDefaultValueAttribute(0.25f)),
@@ -71,6 +73,13 @@ void ezEditorPreferencesUser::SetAsDefaultValues(const ezEngineViewLightSettings
   m_fDirectionalLightIntensity = settings.GetDirectionalLightIntensity();
   m_bFog = settings.GetFog();
   TriggerPreferencesChangedEvent();
+}
+
+void ezEditorPreferencesUser::SetShowInDevelopmentFeatures(bool b)
+{
+  m_bShowInDevelopmentFeatures = b;
+
+  ezQtAddSubElementButton::s_bShowInDevelopmentFeatures = b;
 }
 
 void ezQtEditorApp::LoadEditorPreferences()

@@ -46,6 +46,27 @@ private:
   ezUntrackedString m_sCategory;
 };
 
+/// \brief A property attribute that indicates that this feature is still in development and should not be shown to all users.
+class EZ_FOUNDATION_DLL ezInDevelopmentAttribute : public ezPropertyAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezInDevelopmentAttribute, ezPropertyAttribute);
+
+public:
+  enum Phase
+  {
+    Alpha,
+    Beta
+  };
+
+  ezInDevelopmentAttribute() = default;
+  ezInDevelopmentAttribute(ezInt32 phase) { m_Phase = phase; }
+
+  const char* GetString() const;
+
+  ezInt32 m_Phase = Phase::Beta;
+};
+
+
 /// \brief Used for dynamic titles of visual script nodes.
 /// E.g. "Set Bool Property '{Name}'" will allow the title to by dynamic
 /// by reading the current value of the 'Name' property.
