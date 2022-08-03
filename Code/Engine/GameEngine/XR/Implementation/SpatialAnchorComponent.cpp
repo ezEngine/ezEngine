@@ -14,6 +14,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSpatialAnchorComponent, 2, ezComponentMode::Dynamic)
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("XR"),
+    new ezInDevelopmentAttribute(ezInDevelopmentAttribute::Phase::Beta),
   }
   EZ_END_ATTRIBUTES;
 }

@@ -30,6 +30,38 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCategoryAttribute, 1, ezRTTIDefaultAllocator<e
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInDevelopmentAttribute, 1, ezRTTIDefaultAllocator<ezInDevelopmentAttribute>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Phase", m_Phase),
+  }
+  EZ_END_PROPERTIES;
+  EZ_BEGIN_FUNCTIONS
+  {
+    EZ_CONSTRUCTOR_PROPERTY(ezInt32),
+  }
+  EZ_END_FUNCTIONS;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+
+const char* ezInDevelopmentAttribute::GetString() const
+{
+  switch (m_Phase)
+  {
+  case Phase::Alpha:
+    return "ALPHA";
+
+  case Phase::Beta:
+    return "BETA";
+
+    EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
+  }
+
+  return "";
+}
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTitleAttribute, 1, ezRTTIDefaultAllocator<ezTitleAttribute>)
 {
   EZ_BEGIN_PROPERTIES

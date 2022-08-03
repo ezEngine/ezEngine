@@ -15,6 +15,8 @@ class EZ_GUIFOUNDATION_DLL ezQtAddSubElementButton : public ezQtPropertyWidget
 public:
   ezQtAddSubElementButton();
 
+  static bool s_bShowInDevelopmentFeatures;
+
 protected:
   virtual void DoPrepareToDie() override {}
 

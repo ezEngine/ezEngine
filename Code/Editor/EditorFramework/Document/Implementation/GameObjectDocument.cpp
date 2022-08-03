@@ -206,8 +206,7 @@ void ezGameObjectDocument::SetGizmoMoveParentOnly(bool bMoveParent)
   ShowDocumentStatus(ezFmt("Move Parent Only: {}", m_bGizmoMoveParentOnly ? "ON" : "OFF"));
 }
 
-void ezGameObjectDocument::DetermineNodeName(
-  const ezDocumentObject* pObject, const ezUuid& prefabGuid, ezStringBuilder& out_Result, QIcon* out_pIcon /*= nullptr*/) const
+void ezGameObjectDocument::DetermineNodeName(const ezDocumentObject* pObject, const ezUuid& prefabGuid, ezStringBuilder& out_Result, QIcon* out_pIcon /*= nullptr*/) const
 {
   // tries to find a good name for a node by looking at the attached components and their properties
 
@@ -256,6 +255,11 @@ void ezGameObjectDocument::DetermineNodeName(
         out_Result.Shrink(0, 9);
       if (out_Result.StartsWith("ez"))
         out_Result.Shrink(2, 0);
+
+      if (auto pInDev = pChild->GetTypeAccessor().GetType()->GetAttributeByType<ezInDevelopmentAttribute>())
+      {
+        out_Result.AppendFormat(" [ {} ]", pInDev->GetString());
+      }
     }
 
     if (prefabGuid.IsValid())

@@ -39,4 +39,13 @@ public:
   bool m_bDirectionalLightShadows = false;
   float m_fDirectionalLightIntensity = 10.0f;
   bool m_bFog = false;
+
+  void SetShowInDevelopmentFeatures(bool b);
+  bool GetShowInDevelopmentFeatures() const
+  {
+    return m_bShowInDevelopmentFeatures;
+  }
+
+private:
+  bool m_bShowInDevelopmentFeatures = false;
 };

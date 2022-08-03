@@ -20,6 +20,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezBakedProbesVolumeComponent, 1, ezComponentMode::Static
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_ATTRIBUTES
   {
+    new ezInDevelopmentAttribute(ezInDevelopmentAttribute::Phase::Beta),
     new ezCategoryAttribute("Rendering/Baking"),
     new ezBoxManipulatorAttribute("Extents"),
     new ezBoxVisualizerAttribute("Extents", 1.0f, ezColor::OrangeRed),

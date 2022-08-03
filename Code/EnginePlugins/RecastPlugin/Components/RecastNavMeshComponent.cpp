@@ -22,6 +22,7 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezRcComponent, 1)
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("AI/Recast"),
+    new ezInDevelopmentAttribute(ezInDevelopmentAttribute::Phase::Beta),
   }
   EZ_END_ATTRIBUTES;
 }
