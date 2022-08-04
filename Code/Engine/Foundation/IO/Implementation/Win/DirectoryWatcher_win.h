@@ -49,9 +49,9 @@ struct ezDirectoryWatcherImpl
   void DoRead();
 
   HANDLE m_directoryHandle;
-  HANDLE m_completionPort;
   DWORD m_filter;
   OVERLAPPED m_overlapped;
+  HANDLE m_overlappedEvent;
   ezDynamicArray<ezUInt8> m_buffer;
   ezBitflags<ezDirectoryWatcher::Watch> m_whatToWatch;
   ezUniquePtr<ezFileSystemMirrorType> m_mirror; // store the last modification timestamp alongside each file
@@ -91,8 +91,8 @@ ezResult ezDirectoryWatcher::OpenDirectory(const ezString& absolutePath, ezBitfl
     return EZ_FAILURE;
   }
 
-  m_pImpl->m_completionPort = CreateIoCompletionPort(m_pImpl->m_directoryHandle, nullptr, 0, 1);
-  if (m_pImpl->m_completionPort == INVALID_HANDLE_VALUE)
+  m_pImpl->m_overlappedEvent = CreateEvent(nullptr, TRUE, FALSE, nullptr);
+  if (m_pImpl->m_overlappedEvent == INVALID_HANDLE_VALUE)
   {
     return EZ_FAILURE;
   }
@@ -108,7 +108,7 @@ void ezDirectoryWatcher::CloseDirectory()
   if (!m_sDirectoryPath.IsEmpty())
   {
     CancelIo(m_pImpl->m_directoryHandle);
-    CloseHandle(m_pImpl->m_completionPort);
+    CloseHandle(m_pImpl->m_overlappedEvent);
     CloseHandle(m_pImpl->m_directoryHandle);
     m_sDirectoryPath.Clear();
   }
@@ -122,7 +122,9 @@ ezDirectoryWatcher::~ezDirectoryWatcher()
 
 void ezDirectoryWatcherImpl::DoRead()
 {
+  ResetEvent(m_overlappedEvent);
   memset(&m_overlapped, 0, sizeof(m_overlapped));
+  m_overlapped.hEvent = m_overlappedEvent;
   BOOL success =
     ReadDirectoryChangesExW(m_directoryHandle, m_buffer.GetData(), m_buffer.GetCount(), m_whatToWatch.IsSet(ezDirectoryWatcher::Watch::Subdirectories), m_filter, nullptr, &m_overlapped, nullptr, ReadDirectoryNotifyExtendedInformation);
   EZ_ASSERT_DEV(success, "ReadDirectoryChangesW failed.");
@@ -131,20 +133,14 @@ void ezDirectoryWatcherImpl::DoRead()
 void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezUInt32 waitUpToMilliseconds)
 {
   EZ_ASSERT_DEV(!m_sDirectoryPath.IsEmpty(), "No directory opened!");
-  OVERLAPPED* lpOverlapped;
-  DWORD numberOfBytes;
-  ULONG_PTR completionKey;
-  while (GetQueuedCompletionStatus(m_pImpl->m_completionPort, &numberOfBytes, &completionKey, &lpOverlapped, waitUpToMilliseconds) != 0)
+  while (WaitForSingleObject(m_pImpl->m_overlappedEvent, waitUpToMilliseconds) == WAIT_OBJECT_0)
   {
     waitUpToMilliseconds = 0; // only wait on the first call to GetQueuedCompletionStatus
-    if (numberOfBytes <= 0)
-    {
-      ezLog::Debug("GetQueuedCompletionStatus with size 0. Should not happen according to msdn.");
-      m_pImpl->DoRead();
-      continue;
-    }
-    // Copy the buffer
 
+    DWORD numberOfBytes = 0;
+    GetOverlappedResult(m_pImpl->m_directoryHandle, &m_pImpl->m_overlapped, &numberOfBytes, FALSE);
+
+    // Copy the buffer
     ezHybridArray<ezUInt8, 4096> buffer;
     buffer.SetCountUninitialized(numberOfBytes);
     buffer.GetArrayPtr().CopyFrom(m_pImpl->m_buffer.GetArrayPtr().GetSubArray(0, numberOfBytes));
@@ -355,11 +351,28 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezUInt3
         info = (const FILE_NOTIFY_EXTENDED_INFORMATION*)(((ezUInt8*)info) + info->NextEntryOffset);
     }
   }
+}
 
-  if (lpOverlapped != nullptr)
+
+void ezDirectoryWatcher::EnumerateChanges(ezArrayPtr<ezDirectoryWatcher*> watchers, EnumerateChangesFunction func, uint32_t waitUpToMilliseconds)
+{
+  ezHybridArray<HANDLE, 16> events;
+  events.SetCount(watchers.GetCount());
+
+  for(ezUInt32 i=0; i < watchers.GetCount(); ++i)
   {
-    EZ_ASSERT_DEV(false, "GetQueuedCompletionStatus returned false but lpOverlapped is not null");
+    events[i] = watchers[i]->m_pImpl->m_overlappedEvent;
   }
 
-  EZ_ASSERT_DEV(GetLastError() == WAIT_TIMEOUT, "GetQueuedCompletionStatus gave an error");
+  // Wait for any of the watchers to have some data ready
+  if(WaitForMultipleObjects(events.GetCount(), events.GetData(), FALSE, waitUpToMilliseconds) == WAIT_TIMEOUT)
+  {
+    return;
+  }
+
+  // Iterate all of them to make sure we report all changes up to this point.
+  for(ezDirectoryWatcher* watcher : watchers)
+  {
+    watcher->EnumerateChanges(func);
+  }
 }
