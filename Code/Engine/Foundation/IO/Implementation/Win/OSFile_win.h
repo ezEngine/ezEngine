@@ -280,7 +280,7 @@ ezResult ezOSFile::InternalCreateDirectory(const char* szDirectory)
 
 ezResult ezOSFile::InternalMoveFileOrDirectory(const char* szDirectoryFrom, const char* szDirectoryTo)
 {
-  if(MoveFileW(ezDosDevicePath(szDirectoryFrom), ezDosDevicePath(szDirectoryTo)) == 0)
+  if (MoveFileW(ezDosDevicePath(szDirectoryFrom), ezDosDevicePath(szDirectoryTo)) == 0)
   {
     return EZ_FAILURE;
   }
@@ -499,7 +499,7 @@ ezInt32 ezFileSystemIterator::InternalNext()
       return EZ_FAILURE;
 
     m_sCurPath.PathParentDirectory();
-    if(m_sCurPath.EndsWith("/"))
+    if (m_sCurPath.EndsWith("/"))
     {
       m_sCurPath.Shrink(0, 1); // Remove trailing /
     }

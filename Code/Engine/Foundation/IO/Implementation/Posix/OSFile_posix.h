@@ -268,7 +268,7 @@ ezResult ezOSFile::InternalCreateDirectory(const char* szDirectory)
 
 ezResult ezOSFile::InternalMoveFileOrDirectory(const char* szDirectoryFrom, const char* szDirectoryTo)
 {
-  if(rename(szDirectoryFrom, szDirectoryTo) != 0)
+  if (rename(szDirectoryFrom, szDirectoryTo) != 0)
   {
     return EZ_FAILURE;
   }
@@ -590,7 +590,7 @@ ezInt32 ezFileSystemIterator::InternalNext()
       return EZ_FAILURE;
 
     m_sCurPath.PathParentDirectory();
-    if(m_sCurPath.GetElementCount() > 1 && m_sCurPath.EndsWith("/"))
+    if (m_sCurPath.GetElementCount() > 1 && m_sCurPath.EndsWith("/"))
     {
       m_sCurPath.Shrink(0, 1);
     }

@@ -219,7 +219,7 @@ public:
   /// be created.
   static ezResult CreateDirectoryStructure(const char* szDirectory); // [tested]
 
-  /// \brief Renames / Moves an existing directory. szDirectoryFrom must exist. The parent directory of ezDirectoryTo must exist. 
+  /// \brief Renames / Moves an existing directory. szDirectoryFrom must exist. The parent directory of ezDirectoryTo must exist.
   /// Returns EZ_FAILURE on the move failed.
   static ezResult MoveFileOrDirectory(const char* szDirectoryFrom, const char* ezDirectoryTo);
 

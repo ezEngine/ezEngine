@@ -353,7 +353,7 @@ ezResult ezOSFile::CreateDirectoryStructure(const char* szDirectory)
 
 ezResult ezOSFile::MoveFileOrDirectory(const char* szDirectoryFrom, const char* szDirectoryTo)
 {
-  ezStringBuilder sFrom(szDirectoryFrom); 
+  ezStringBuilder sFrom(szDirectoryFrom);
   sFrom.MakeCleanPath();
   sFrom.MakePathSeparatorsNative();
 

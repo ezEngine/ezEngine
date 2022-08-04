@@ -11,7 +11,7 @@ EZ_FOUNDATION_INTERNAL_HEADER
 #include <Foundation/Logging/Log.h>
 
 #if EZ_DISABLED(EZ_SUPPORTS_FILE_ITERATORS)
-#error The directory watcher implementation needs file iterators
+#  error The directory watcher implementation needs file iterators
 #endif
 
 // Comment in to get verbose output on the function of the directory watcher
@@ -183,9 +183,9 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezUInt3
               fireEvent = whatToWatch.IsSet(ezDirectoryWatcher::Watch::Creates);
               if (mirror)
               {
-                bool fileAlreadyExists= false;
+                bool fileAlreadyExists = false;
                 mirror->AddFile(eventFilePath.GetData(), true, &fileAlreadyExists, nullptr).AssertSuccess();
-                if(fileAlreadyExists)
+                if (fileAlreadyExists)
                 {
                   fireEvent = false;
                 }
@@ -195,7 +195,7 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezUInt3
               DEBUG_LOG("FILE_ACTION_REMOVED {} ({})", eventFilePath, info->LastModificationTime.QuadPart);
               action = ezDirectoryWatcherAction::Removed;
               fireEvent = whatToWatch.IsSet(ezDirectoryWatcher::Watch::Deletes);
-              if(mirror)
+              if (mirror)
               {
                 mirror->RemoveFile(eventFilePath.GetData()).AssertSuccess();
               }
@@ -207,7 +207,7 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezUInt3
               fireEvent = whatToWatch.IsAnySet(ezDirectoryWatcher::Watch::Writes);
               bool fileAreadyKnown = false;
               bool addPending = false;
-              if(mirror)
+              if (mirror)
               {
                 mirror->AddFile(eventFilePath.GetData(), false, &fileAreadyKnown, &addPending).AssertSuccess();
               }
@@ -230,7 +230,7 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezUInt3
               action = ezDirectoryWatcherAction::RenamedNewName;
               fireEvent = whatToWatch.IsAnySet(ezDirectoryWatcher::Watch::Renames);
               EZ_ASSERT_DEV(!lastMoveFrom.IsEmpty() && !lastMoveFrom.isDirectory, "last move from doesn't match");
-              if(mirror)
+              if (mirror)
               {
                 mirror->RemoveFile(lastMoveFrom.path).AssertSuccess();
                 mirror->AddFile(eventFilePath, false, nullptr, nullptr).AssertSuccess();
@@ -257,7 +257,7 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezUInt3
                 mirror->AddDirectory(eventFilePath, &directoryAlreadyKnown).AssertSuccess();
               }
 
-              if(whatToWatch.IsSet(Watch::Creates) && !directoryAlreadyKnown)
+              if (whatToWatch.IsSet(Watch::Creates) && !directoryAlreadyKnown)
               {
                 func(eventFilePath, ezDirectoryWatcherAction::Added, ezDirectoryWatcherType::Directory);
               }
@@ -283,7 +283,7 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezUInt3
                   {
                     mirror->AddDirectory(tmpPath2, &directoryAlreadyKnown).AssertSuccess();
                   }
-                  if(whatToWatch.IsSet(ezDirectoryWatcher::Watch::Creates) && !directoryAlreadyKnown)
+                  if (whatToWatch.IsSet(ezDirectoryWatcher::Watch::Creates) && !directoryAlreadyKnown)
                   {
                     func(tmpPath2, ezDirectoryWatcherAction::Added, ezDirectoryWatcherType::Directory);
                   }
@@ -305,9 +305,9 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezUInt3
             break;
             case FILE_ACTION_REMOVED:
               DEBUG_LOG("DIR_ACTION_REMOVED {}", eventFilePath);
-              if(whatToWatch.IsSet(Watch::Deletes))
+              if (whatToWatch.IsSet(Watch::Deletes))
               {
-                if(mirror && whatToWatch.IsSet(Watch::Subdirectories))
+                if (mirror && whatToWatch.IsSet(Watch::Subdirectories))
                 {
                   mirror->Enumerate(eventFilePath, [&](const ezStringBuilder& path, ezFileSystemMirrorType::Type type) {
                           func(path, ezDirectoryWatcherAction::Removed, (type == ezFileSystemMirrorType::Type::File) ? ezDirectoryWatcherType::File : ezDirectoryWatcherType::Directory);
@@ -316,7 +316,7 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezUInt3
                 }
                 func(eventFilePath, ezDirectoryWatcherAction::Removed, ezDirectoryWatcherType::Directory);
               }
-              if(mirror)
+              if (mirror)
               {
                 mirror->RemoveDirectory(eventFilePath).AssertSuccess();
               }
@@ -329,11 +329,11 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezUInt3
             case FILE_ACTION_RENAMED_NEW_NAME:
               DEBUG_LOG("DIR_ACTION_NEW_NAME {}", eventFilePath);
               EZ_ASSERT_DEV(!lastMoveFrom.IsEmpty(), "rename old name and rename new name should always appear in pairs");
-              if(mirror)
+              if (mirror)
               {
                 mirror->MoveDirectory(lastMoveFrom.path, eventFilePath).AssertSuccess();
               }
-              if(whatToWatch.IsSet(Watch::Renames))
+              if (whatToWatch.IsSet(Watch::Renames))
               {
                 func(lastMoveFrom.path, ezDirectoryWatcherAction::RenamedOldName, ezDirectoryWatcherType::Directory);
                 func(eventFilePath, ezDirectoryWatcherAction::RenamedNewName, ezDirectoryWatcherType::Directory);
@@ -359,19 +359,19 @@ void ezDirectoryWatcher::EnumerateChanges(ezArrayPtr<ezDirectoryWatcher*> watche
   ezHybridArray<HANDLE, 16> events;
   events.SetCount(watchers.GetCount());
 
-  for(ezUInt32 i=0; i < watchers.GetCount(); ++i)
+  for (ezUInt32 i = 0; i < watchers.GetCount(); ++i)
   {
     events[i] = watchers[i]->m_pImpl->m_overlappedEvent;
   }
 
   // Wait for any of the watchers to have some data ready
-  if(WaitForMultipleObjects(events.GetCount(), events.GetData(), FALSE, waitUpToMilliseconds) == WAIT_TIMEOUT)
+  if (WaitForMultipleObjects(events.GetCount(), events.GetData(), FALSE, waitUpToMilliseconds) == WAIT_TIMEOUT)
   {
     return;
   }
 
   // Iterate all of them to make sure we report all changes up to this point.
-  for(ezDirectoryWatcher* watcher : watchers)
+  for (ezDirectoryWatcher* watcher : watchers)
   {
     watcher->EnumerateChanges(func);
   }
