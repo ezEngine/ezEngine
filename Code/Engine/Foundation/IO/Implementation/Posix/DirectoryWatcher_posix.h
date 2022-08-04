@@ -11,11 +11,15 @@
 #  include <Foundation/IO/OSFile.h>
 #  include <Foundation/Logging/Log.h>
 
+#  if EZ_DISABLED(EZ_SUPPORTS_FILE_ITERATORS)
+#    error The directory watcher implementation needs file iterators
+#  endif
+
 // Comment in to get verbose output on the function of the directory watcher
 //#  define DEBUG_FILE_WATCHER
 
 #  ifdef DEBUG_FILE_WATCHER
-#    define DEBUG_LOG(...) ezLog::Info(__VA_ARGS__)
+#    define DEBUG_LOG(...) ezLog::Debug(__VA_ARGS__)
 #  else
 #    define DEBUG_LOG(...)
 #  endif
@@ -55,7 +59,11 @@ namespace
     ezString path;
     int wd;
   };
+
+  using ezFileSystemMirrorType = ezFileSystemMirror<bool>;
 } // namespace
+
+EZ_DEFINE_AS_POD_TYPE(struct pollfd);
 
 struct ezDirectoryWatcherImpl
 {
@@ -67,15 +75,35 @@ struct ezDirectoryWatcherImpl
   uint32_t m_inotifyWatchMask = 0;
   ezBitflags<ezDirectoryWatcher::Watch> m_whatToWatch;
   ezDynamicArray<ezUInt8> m_buffer;
-  ezUniquePtr<ezFileSystemMirror> m_fileSystemMirror;
+
+  ezUniquePtr<ezFileSystemMirrorType> m_fileSystemMirror;
   // List of directories we could not watch yet.
   // This might happen if the directory was moved / renamed before we could add a watch to it.
   ezHashSet<ezString> m_pendingDirectories;
 
-  void WatchNewDirectory(const ezStringBuilder& path, ezDirectoryWatcher::EnumerateChangesFunction& func)
+  void WatchNewDirectory(const ezStringBuilder& path, ezDirectoryWatcher::EnumerateChangesFunction& func, bool fireEvent)
   {
     ezStringBuilder tmpPath = path;
     EnsureTrailingSlash(tmpPath);
+
+    bool directoryAlreadyExists = false;
+    if (m_fileSystemMirror)
+    {
+      m_fileSystemMirror->AddDirectory(tmpPath, &directoryAlreadyExists).AssertSuccess();
+    }
+
+    if (m_whatToWatch.IsSet(ezDirectoryWatcher::Watch::Creates) && !directoryAlreadyExists && fireEvent)
+    {
+      RemoveTrailingSlash(tmpPath);
+      func(tmpPath, ezDirectoryWatcherAction::Added, ezDirectoryWatcherType::Directory);
+      EnsureTrailingSlash(tmpPath);
+    }
+
+    if (!m_whatToWatch.IsSet(ezDirectoryWatcher::Watch::Subdirectories))
+    {
+      return;
+    }
+
     if (m_pathToWd.Contains(tmpPath))
     {
       // Already watching, skip
@@ -107,9 +135,15 @@ struct ezDirectoryWatcherImpl
         stats.GetFullPath(tmpPath2);
         if (stats.m_bIsDirectory)
         {
+          directoryAlreadyExists = false;
           if (m_fileSystemMirror)
           {
-            m_fileSystemMirror->AddDirectory(tmpPath2).AssertSuccess();
+            m_fileSystemMirror->AddDirectory(tmpPath2, &directoryAlreadyExists).AssertSuccess();
+          }
+
+          if (m_whatToWatch.IsSet(ezDirectoryWatcher::Watch::Creates) && !directoryAlreadyExists)
+          {
+            func(tmpPath2, ezDirectoryWatcherAction::Added, ezDirectoryWatcherType::Directory);
           }
 
           EnsureTrailingSlash(tmpPath2);
@@ -135,11 +169,11 @@ struct ezDirectoryWatcherImpl
           bool fileExistsAlready = false;
           if (m_fileSystemMirror)
           {
-            m_fileSystemMirror->AddFile(tmpPath2, &fileExistsAlready).AssertSuccess();
+            m_fileSystemMirror->AddFile(tmpPath2, false, &fileExistsAlready, nullptr).AssertSuccess();
           }
           if (m_whatToWatch.IsSet(ezDirectoryWatcher::Watch::Creates) && !fileExistsAlready)
           {
-            func(tmpPath2, ezDirectoryWatcherAction::Added);
+            func(tmpPath2, ezDirectoryWatcherAction::Added, ezDirectoryWatcherType::File);
           }
         }
       }
@@ -206,17 +240,13 @@ ezResult ezDirectoryWatcher::OpenDirectory(const ezString& path, ezBitflags<Watc
   {
     watchMask |= IN_CREATE;
   }
-  if (whatToWatch.IsSet(Watch::Reads))
-  {
-    watchMask |= IN_ACCESS;
-  }
   if (whatToWatch.IsSet(Watch::Renames))
   {
     watchMask |= IN_MOVED_FROM | IN_MOVED_TO;
   }
   if (whatToWatch.IsSet(Watch::Writes))
   {
-    watchMask |= IN_CLOSE_WRITE;
+    watchMask |= IN_CLOSE_WRITE | IN_CREATE;
   }
   if (whatToWatch.IsSet(Watch::Deletes))
   {
@@ -231,11 +261,11 @@ ezResult ezDirectoryWatcher::OpenDirectory(const ezString& path, ezBitflags<Watc
     return EZ_FAILURE;
   }
 
-  if (whatToWatch.IsSet(Watch::Deletes) && whatToWatch.IsSet(Watch::Subdirectories))
+  if ((whatToWatch.IsSet(Watch::Deletes) && whatToWatch.IsSet(Watch::Subdirectories)) || whatToWatch.IsSet(Watch::Writes))
   {
     // When a sub-folder is moved out of view. We need to trigger delete events for all files inside it.
     // Thus we need to keep a in memory copy of the file system.
-    m_pImpl->m_fileSystemMirror = EZ_DEFAULT_NEW(ezFileSystemMirror);
+    m_pImpl->m_fileSystemMirror = EZ_DEFAULT_NEW(ezFileSystemMirrorType);
     m_pImpl->m_fileSystemMirror->AddDirectory(folder.GetData()).AssertSuccess();
   }
 
@@ -292,9 +322,8 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezUInt3
 
   ezStringBuilder tmpPath;
 
-  static int eventId = 0;
   const ezBitflags<Watch> whatToWatch = m_pImpl->m_whatToWatch;
-  ezFileSystemMirror* mirror = m_pImpl->m_fileSystemMirror.Borrow();
+  ezFileSystemMirrorType* mirror = m_pImpl->m_fileSystemMirror.Borrow();
 
   MoveEvent lastMoveFrom;
 
@@ -306,20 +335,21 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezUInt3
     {
       if (!moveFrom.isDirectory)
       {
-        func(moveFrom.path.GetData(), ezDirectoryWatcherAction::Removed);
+        func(moveFrom.path.GetData(), ezDirectoryWatcherAction::Removed, ezDirectoryWatcherType::File);
         mirror->RemoveFile(moveFrom.path).AssertSuccess();
         m_pImpl->m_pendingDirectories.Remove(moveFrom.path);
       }
       else
       {
         ezStringBuilder dirPath;
-        mirror->Enumerate(moveFrom.path, [&](const char* path, ezFileSystemMirror::Type type) {
-                if (type == ezFileSystemMirror::Type::File)
+        mirror->Enumerate(moveFrom.path, [&](const char* path, typename ezFileSystemMirrorType::Type type) {
+                if (type == ezFileSystemMirrorType::Type::File)
                 {
-                  func(path, ezDirectoryWatcherAction::Removed);
+                  func(path, ezDirectoryWatcherAction::Removed, ezDirectoryWatcherType::File);
                 }
                 else
                 {
+                  func(path, ezDirectoryWatcherAction::Removed, ezDirectoryWatcherType::Directory);
                   dirPath = path;
                   EnsureTrailingSlash(dirPath);
                   auto it = m_pImpl->m_pathToWd.Find(dirPath);
@@ -334,6 +364,8 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezUInt3
               })
           .AssertSuccess();
         mirror->RemoveDirectory(moveFrom.path).AssertSuccess();
+
+        func(moveFrom.path, ezDirectoryWatcherAction::Removed, ezDirectoryWatcherType::Directory);
 
         dirPath = moveFrom.path;
         EnsureTrailingSlash(dirPath);
@@ -391,50 +423,45 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezUInt3
 
           if (event->mask & IN_CREATE)
           {
-            DEBUG_LOG("IN_CREATE {} {} {}", type, tmpPath, eventId++);
+            DEBUG_LOG("IN_CREATE {} {} {} {}", type, tmpPath, event->cookie, event->mask);
 
-            if (whatToWatch.IsSet(Watch::Subdirectories) && IsDirectory(event->mask))
+            if (IsDirectory(event->mask))
             {
-              m_pImpl->WatchNewDirectory(tmpPath, func);
+              m_pImpl->WatchNewDirectory(tmpPath, func, true);
             }
-
-            bool fileExistsAlready = false;
-            if (mirror != nullptr)
+            else
             {
-              if (IsFile(event->mask))
+              bool fileExistsAlready = false;
+              if (mirror != nullptr)
               {
-                mirror->AddFile(tmpPath, &fileExistsAlready).AssertSuccess();
+                mirror->AddFile(tmpPath, true, &fileExistsAlready, nullptr).AssertSuccess();
               }
-              else
-              {
-                mirror->AddDirectory(tmpPath).AssertSuccess();
-              }
-            }
 
-            if (whatToWatch.IsSet(Watch::Creates) && IsFile(event->mask) && !fileExistsAlready)
-            {
-              func(tmpPath.GetData(), ezDirectoryWatcherAction::Added);
+              if (whatToWatch.IsSet(Watch::Creates) && !fileExistsAlready)
+              {
+                func(tmpPath.GetData(), ezDirectoryWatcherAction::Added, ezDirectoryWatcherType::File);
+              }
             }
           }
           else if (event->mask & IN_CLOSE_WRITE)
           {
-            DEBUG_LOG("IN_CLOSE_WRITE {} {} {}", type, tmpPath, eventId++);
+            DEBUG_LOG("IN_CLOSE_WRITE {} {} {} {}", type, tmpPath, event->cookie, event->mask);
             if (whatToWatch.IsSet(Watch::Writes) && IsFile(event->mask))
             {
-              func(tmpPath.GetData(), ezDirectoryWatcherAction::Modified);
-            }
-          }
-          else if (event->mask & IN_ACCESS)
-          {
-            DEBUG_LOG("IN_ACCESS {} {} {}", type, tmpPath, eventId++);
-            if (whatToWatch.IsSet(Watch::Reads) && IsFile(event->mask))
-            {
-              func(tmpPath.GetData(), ezDirectoryWatcherAction::Modified);
+              bool addPending = false;
+              if (mirror)
+              {
+                mirror->AddFile(tmpPath, false, nullptr, &addPending).AssertSuccess();
+              }
+              if (!addPending)
+              {
+                func(tmpPath.GetData(), ezDirectoryWatcherAction::Modified, ezDirectoryWatcherType::File);
+              }
             }
           }
           else if (event->mask & IN_DELETE)
           {
-            DEBUG_LOG("IN_DELETE {} {} {}", type, tmpPath, eventId++);
+            DEBUG_LOG("IN_DELETE {} {} {}", type, tmpPath, event->cookie);
 
             if (IsDirectory(event->mask))
             {
@@ -443,6 +470,11 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezUInt3
               if (mirror)
               {
                 mirror->RemoveDirectory(tmpPath).AssertSuccess();
+              }
+
+              if (whatToWatch.IsSet(Watch::Deletes))
+              {
+                func(tmpPath.GetData(), ezDirectoryWatcherAction::Removed, ezDirectoryWatcherType::Directory);
               }
 
               if (whatToWatch.IsSet(Watch::Subdirectories))
@@ -468,13 +500,13 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezUInt3
 
               if (whatToWatch.IsSet(Watch::Deletes))
               {
-                func(tmpPath.GetData(), ezDirectoryWatcherAction::Removed);
+                func(tmpPath.GetData(), ezDirectoryWatcherAction::Removed, ezDirectoryWatcherType::File);
               }
             }
           }
           else if (event->mask & IN_MOVED_FROM)
           {
-            DEBUG_LOG("IN_MOVED_FROM {} {} {} ({})", type, tmpPath, eventId++, event->cookie);
+            DEBUG_LOG("IN_MOVED_FROM {} {} {}", type, tmpPath, event->cookie);
 
             if (!lastMoveFrom.IsEmpty())
             {
@@ -487,7 +519,7 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezUInt3
           }
           else if (event->mask & IN_MOVED_TO)
           {
-            DEBUG_LOG("IN_MOVED_TO {} {} {} ({})", type, tmpPath, eventId++, event->cookie);
+            DEBUG_LOG("IN_MOVED_TO {} {} {}", type, tmpPath, event->cookie);
 
             if (!lastMoveFrom.IsEmpty() && lastMoveFrom.cookie != event->cookie)
             {
@@ -503,26 +535,26 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezUInt3
                 bool fileAlreadyExists = false;
                 if (mirror)
                 {
-                  mirror->AddFile(tmpPath, &fileAlreadyExists).AssertSuccess();
+                  mirror->AddFile(tmpPath, false, &fileAlreadyExists, nullptr).AssertSuccess();
                 }
 
                 if (whatToWatch.IsSet(Watch::Creates) && !fileAlreadyExists)
                 {
-                  func(tmpPath.GetData(), ezDirectoryWatcherAction::Added);
+                  func(tmpPath.GetData(), ezDirectoryWatcherAction::Added, ezDirectoryWatcherType::File);
                 }
               }
               else
               {
-                m_pImpl->WatchNewDirectory(tmpPath, func);
+                m_pImpl->WatchNewDirectory(tmpPath, func, true);
               }
             }
             else
             {
               // regular move
-              if (whatToWatch.IsSet(Watch::Renames) && IsFile(event->mask))
+              if (whatToWatch.IsSet(Watch::Renames))
               {
-                func(lastMoveFrom.path.GetData(), ezDirectoryWatcherAction::RenamedOldName);
-                func(tmpPath.GetData(), ezDirectoryWatcherAction::RenamedNewName);
+                func(lastMoveFrom.path.GetData(), ezDirectoryWatcherAction::RenamedOldName, IsFile(event->mask) ? ezDirectoryWatcherType::File : ezDirectoryWatcherType::Directory);
+                func(tmpPath.GetData(), ezDirectoryWatcherAction::RenamedNewName, IsFile(event->mask) ? ezDirectoryWatcherType::File : ezDirectoryWatcherType::Directory);
               }
 
               if (IsDirectory(event->mask))
@@ -530,7 +562,7 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezUInt3
                 if (m_pImpl->m_pendingDirectories.Contains(lastMoveFrom.path))
                 {
                   m_pImpl->m_pendingDirectories.Remove(lastMoveFrom.path);
-                  m_pImpl->WatchNewDirectory(tmpPath, func);
+                  m_pImpl->WatchNewDirectory(tmpPath, func, false);
                 }
                 else
                 {
@@ -569,7 +601,7 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezUInt3
                 if (IsFile(event->mask))
                 {
                   mirror->RemoveFile(lastMoveFrom.path).AssertSuccess();
-                  mirror->AddFile(tmpPath, nullptr).AssertSuccess();
+                  mirror->AddFile(tmpPath, false, nullptr, nullptr).AssertSuccess();
                 }
                 else
                 {
@@ -579,6 +611,10 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezUInt3
               lastMoveFrom.Clear();
             }
           }
+        }
+        else
+        {
+          DEBUG_LOG("UNKNOWN {}", event->mask);
         }
 
         curPos += sizeof(struct inotify_event) + event->len;
@@ -592,6 +628,41 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezUInt3
   }
 }
 
+void ezDirectoryWatcher::EnumerateChanges(ezArrayPtr<ezDirectoryWatcher*> watchers, EnumerateChangesFunction func, uint32_t waitUpToMilliseconds)
+{
+  if (waitUpToMilliseconds > 0)
+  {
+    ezHybridArray<struct pollfd, 16> pollFor;
+    pollFor.SetCount(watchers.GetCount());
+
+    for (ezUInt32 i = 0; i < watchers.GetCount(); ++i)
+    {
+      ezDirectoryWatcher* curWatcher = watchers[i];
+      pollFor[i] = {curWatcher->m_pImpl->m_inotifyFd, POLLIN, 0};
+    }
+
+
+    int pollResult = poll(pollFor.GetData(), pollFor.GetCount(), waitUpToMilliseconds);
+    if (pollResult < 0)
+    {
+      // Error, stop
+      ezLog::Error("Unexpected result from poll enumerating multiple watchers");
+      return;
+    }
+    else if (pollResult == 0)
+    {
+      return; // timeout, no results
+    }
+  }
+
+  for (ezDirectoryWatcher* watcher : watchers)
+  {
+    watcher->EnumerateChanges(func);
+  }
+}
+
+#  undef DEBUG_LOG
+
 #else // <sys/inotify.h> is missing
 struct ezDirectoryWatcherImpl
 {
@@ -604,11 +675,12 @@ ezDirectoryWatcher::ezDirectoryWatcher()
 
 ezResult ezDirectoryWatcher::OpenDirectory(const ezString& path, ezBitflags<Watch> whatToWatch)
 {
-  EZ_ASSERT_NOT_IMPLEMENTED
   return EZ_FAILURE;
 }
 
-void ezDirectoryWatcher::CloseDirectory(){EZ_ASSERT_NOT_IMPLEMENTED}
+void ezDirectoryWatcher::CloseDirectory()
+{
+}
 
 ezDirectoryWatcher::~ezDirectoryWatcher()
 {
@@ -616,9 +688,12 @@ ezDirectoryWatcher::~ezDirectoryWatcher()
 
 void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func)
 {
-  EZ_ASSERT_NOT_IMPLEMENTED
+  ezLog::Warning("ezDirectoryWatcher not supported on this linux system");
 }
 
-#  undef DEBUG_LOG
+void ezDirectoryWatcher::EnumerateChanges(ezArrayPtr<ezDirectoryWatcher*> watchers, EnumerateChangesFunction func, uint32_t waitUpToMilliseconds)
+{
+  ezLog::Warning("ezDirectoryWatcher not supported on this linux system");
+}
 
 #endif

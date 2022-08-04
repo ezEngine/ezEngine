@@ -10,6 +10,10 @@ EZ_FOUNDATION_INTERNAL_HEADER
 #include <Foundation/IO/Implementation/Win/DosDevicePath_win.h>
 #include <Foundation/Logging/Log.h>
 
+#if EZ_DISABLED(EZ_SUPPORTS_FILE_ITERATORS)
+#error The directory watcher implementation needs file iterators
+#endif
+
 // Comment in to get verbose output on the function of the directory watcher
 #define DEBUG_FILE_WATCHER
 

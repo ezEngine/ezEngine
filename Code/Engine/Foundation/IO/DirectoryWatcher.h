@@ -1,9 +1,11 @@
 #pragma once
 
-#include <Foundation/Basics.h>
-#include <Foundation/Strings/String.h>
-#include <Foundation/Types/Bitflags.h>
-#include <Foundation/Types/Delegate.h>
+#if EZ_ENABLED(EZ_SUPPORTS_DIRECTORY_WATCHER)
+
+#  include <Foundation/Basics.h>
+#  include <Foundation/Strings/String.h>
+#  include <Foundation/Types/Bitflags.h>
+#  include <Foundation/Types/Delegate.h>
 
 struct ezDirectoryWatcherImpl;
 
@@ -82,9 +84,15 @@ public:
   /// \note There might be multiple changes on the same file reported.
   void EnumerateChanges(EnumerateChangesFunction func, uint32_t waitUpToMilliseconds = 0);
 
+  /// \brief
+  ///   Same as the other EnumerateChanges function, but enumerates multiple watchers.
+  static void EnumerateChanges(ezArrayPtr<ezDirectoryWatcher*> watchers, EnumerateChangesFunction func, uint32_t waitUpToMilliseconds = 0);
+
 private:
   ezString m_sDirectoryPath;
   ezDirectoryWatcherImpl* m_pImpl = nullptr;
 };
 
 EZ_DECLARE_FLAGS_OPERATORS(ezDirectoryWatcher::Watch);
+
+#endif
