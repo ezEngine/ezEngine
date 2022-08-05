@@ -55,7 +55,8 @@ EZ_CREATE_SIMPLE_TEST(IO, DirectoryWatcher)
         EZ_TEST_BOOL_MSG(type == events[i].type, "Expected event at index %d type mismatch", i);
       }
       i++;
-    }, ezTime::Milliseconds(100));
+    },
+      ezTime::Milliseconds(100));
     EZ_TEST_BOOL_MSG(firedEvents.GetCount() == events.GetCount(), "Directory watcher did not fire expected amount of events");
   };
 
@@ -74,7 +75,8 @@ EZ_CREATE_SIMPLE_TEST(IO, DirectoryWatcher)
           EZ_TEST_BOOL_MSG(type == events[i].type, "Expected event at index %d type mismatch", i);
         }
         i++;
-      }, ezTime::Milliseconds(100));
+      },
+      ezTime::Milliseconds(100));
     EZ_TEST_BOOL_MSG(firedEvents.GetCount() == events.GetCount(), "Directory watcher did not fire expected amount of events");
   };
 
