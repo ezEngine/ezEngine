@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Foundation/Basics.h>
+
 #if EZ_ENABLED(EZ_SUPPORTS_DIRECTORY_WATCHER)
 
 #  include <Foundation/Basics.h>
