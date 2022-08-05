@@ -11,11 +11,16 @@ namespace DirectoryWatcherTestHelpers
 
   struct ExpectedEvent
   {
-    EZ_DECLARE_POD_TYPE();
+    ~ExpectedEvent(){}; // To make it non-pod
 
     const char* path;
     ezDirectoryWatcherAction action;
     ezDirectoryWatcherType type;
+
+    bool operator == (const ExpectedEvent& other) const
+    {
+      return ezStringView(path) == ezStringView(other.path) && action == other.action && type == other.type;
+    }
   };
 
   struct ExpectedEventStorage
@@ -57,6 +62,31 @@ EZ_CREATE_SIMPLE_TEST(IO, DirectoryWatcher)
       i++;
     },
       ezTime::Milliseconds(100));
+    EZ_TEST_BOOL_MSG(firedEvents.GetCount() == events.GetCount(), "Directory watcher did not fire expected amount of events");
+  };
+
+  auto CheckExpectedEventsUnordered = [&](ezDirectoryWatcher& watcher, ezArrayPtr<ExpectedEvent> events) {
+    ezDynamicArray<ExpectedEventStorage> firedEvents;
+    ezUInt32 i = 0;
+    ezDynamicArray<bool> eventFired;
+    eventFired.SetCount(events.GetCount());
+    watcher.EnumerateChanges([&](const char* path, ezDirectoryWatcherAction action, ezDirectoryWatcherType type) {
+      tmp = path;
+      tmp.Shrink(sTestRootPath.GetCharacterCount(), 0);
+      firedEvents.PushBack({tmp, action, type});
+      auto index = events.IndexOf({tmp, action, type});
+      EZ_TEST_BOOL_MSG(index != ezInvalidIndex, "Event %d (%s, %d, %d) not found in expected events list", i, tmp.GetData(), (int)action, (int)type);
+      if(index != ezInvalidIndex)
+      {
+        eventFired[index] = true;
+      }
+      i++;
+    },
+      ezTime::Milliseconds(100));
+    for(auto& fired : eventFired)
+    {
+      EZ_TEST_BOOL(fired);
+    }
     EZ_TEST_BOOL_MSG(firedEvents.GetCount() == events.GetCount(), "Directory watcher did not fire expected amount of events");
   };
 
@@ -422,7 +452,7 @@ EZ_CREATE_SIMPLE_TEST(IO, DirectoryWatcher)
       {"sub2/subsub2", ezDirectoryWatcherAction::Added, ezDirectoryWatcherType::Directory},
       {"sub2/subsub2/file2.txt", ezDirectoryWatcherAction::Added, ezDirectoryWatcherType::File},
     };
-    CheckExpectedEvents(watcher, expectedEvents1);
+    CheckExpectedEventsUnordered(watcher, expectedEvents1);
 
     Rename("sub2", "../sub2");
 
@@ -443,7 +473,7 @@ EZ_CREATE_SIMPLE_TEST(IO, DirectoryWatcher)
       {"sub2/subsub2", ezDirectoryWatcherAction::Added, ezDirectoryWatcherType::Directory},
       {"sub2/subsub2/file2.txt", ezDirectoryWatcherAction::Added, ezDirectoryWatcherType::File},
     };
-    CheckExpectedEvents(watcher, expectedEvents3);
+    CheckExpectedEventsUnordered(watcher, expectedEvents3);
 
     DeleteDirectory("sub2");
   }
@@ -467,7 +497,7 @@ EZ_CREATE_SIMPLE_TEST(IO, DirectoryWatcher)
       {"sub2/subsub2", ezDirectoryWatcherAction::Added, ezDirectoryWatcherType::Directory},
       {"sub2/subsub2/file2.txt", ezDirectoryWatcherAction::Added, ezDirectoryWatcherType::File},
     };
-    CheckExpectedEvents(watcher, expectedEvents1);
+    CheckExpectedEventsUnordered(watcher, expectedEvents1);
 
     DeleteDirectory("sub2");
 
@@ -477,7 +507,7 @@ EZ_CREATE_SIMPLE_TEST(IO, DirectoryWatcher)
       {"sub2/subsub2", ezDirectoryWatcherAction::Removed, ezDirectoryWatcherType::Directory},
       {"sub2", ezDirectoryWatcherAction::Removed, ezDirectoryWatcherType::Directory},
     };
-    CheckExpectedEvents(watcher, expectedEvents2);
+    CheckExpectedEventsUnordered(watcher, expectedEvents2);
 
     CreateDirectory("sub2/subsub2");
     CreateFile("sub2/file1");
@@ -489,7 +519,7 @@ EZ_CREATE_SIMPLE_TEST(IO, DirectoryWatcher)
       {"sub2/subsub2", ezDirectoryWatcherAction::Added, ezDirectoryWatcherType::Directory},
       {"sub2/subsub2/file2.txt", ezDirectoryWatcherAction::Added, ezDirectoryWatcherType::File},
     };
-    CheckExpectedEvents(watcher, expectedEvents3);
+    CheckExpectedEventsUnordered(watcher, expectedEvents3);
 
     DeleteDirectory("sub2");
   }
