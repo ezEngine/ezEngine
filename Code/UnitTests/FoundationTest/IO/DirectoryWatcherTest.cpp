@@ -17,7 +17,7 @@ namespace DirectoryWatcherTestHelpers
     ezDirectoryWatcherAction action;
     ezDirectoryWatcherType type;
 
-    bool operator == (const ExpectedEvent& other) const
+    bool operator==(const ExpectedEvent& other) const
     {
       return ezStringView(path) == ezStringView(other.path) && action == other.action && type == other.type;
     }
@@ -76,14 +76,14 @@ EZ_CREATE_SIMPLE_TEST(IO, DirectoryWatcher)
       firedEvents.PushBack({tmp, action, type});
       auto index = events.IndexOf({tmp, action, type});
       EZ_TEST_BOOL_MSG(index != ezInvalidIndex, "Event %d (%s, %d, %d) not found in expected events list", i, tmp.GetData(), (int)action, (int)type);
-      if(index != ezInvalidIndex)
+      if (index != ezInvalidIndex)
       {
         eventFired[index] = true;
       }
       i++;
     },
       ezTime::Milliseconds(100));
-    for(auto& fired : eventFired)
+    for (auto& fired : eventFired)
     {
       EZ_TEST_BOOL(fired);
     }
