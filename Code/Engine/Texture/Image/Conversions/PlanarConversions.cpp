@@ -1,4 +1,4 @@
-#include <TexturePCH.h>
+#include <Texture/TexturePCH.h>
 
 #include <Texture/Image/ImageConversion.h>
 
@@ -58,23 +58,23 @@ struct ezImageConversion_NV12_sRGB : public ezImageConversionStepDeplanarize
         ezVec3I32 p10 = YUV2RGB(ezVec3I32(luma1[0], chroma[0], chroma[1]));
         ezVec3I32 p11 = YUV2RGB(ezVec3I32(luma1[1], chroma[0], chroma[1]));
 
-        rgba0[0] = p00.x;
-        rgba0[1] = p00.y;
-        rgba0[2] = p00.z;
-        rgba0[3] = 0xff;
-        rgba0[4] = p01.x;
-        rgba0[5] = p01.y;
-        rgba0[6] = p01.z;
-        rgba0[7] = 0xff;
+        rgba0[0] = static_cast<ezUInt8>(p00.x);
+        rgba0[1] = static_cast<ezUInt8>(p00.y);
+        rgba0[2] = static_cast<ezUInt8>(p00.z);
+        rgba0[3] = static_cast<ezUInt8>(0xff);
+        rgba0[4] = static_cast<ezUInt8>(p01.x);
+        rgba0[5] = static_cast<ezUInt8>(p01.y);
+        rgba0[6] = static_cast<ezUInt8>(p01.z);
+        rgba0[7] = static_cast<ezUInt8>(0xff);
 
-        rgba1[0] = p10.x;
-        rgba1[1] = p10.y;
-        rgba1[2] = p10.z;
-        rgba1[3] = 0xff;
-        rgba1[4] = p11.x;
-        rgba1[5] = p11.y;
-        rgba1[6] = p11.z;
-        rgba1[7] = 0xff;
+        rgba1[0] = static_cast<ezUInt8>(p10.x);
+        rgba1[1] = static_cast<ezUInt8>(p10.y);
+        rgba1[2] = static_cast<ezUInt8>(p10.z);
+        rgba1[3] = static_cast<ezUInt8>(0xff);
+        rgba1[4] = static_cast<ezUInt8>(p11.x);
+        rgba1[5] = static_cast<ezUInt8>(p11.y);
+        rgba1[6] = static_cast<ezUInt8>(p11.z);
+        rgba1[7] = static_cast<ezUInt8>(0xff);
 
         luma0 += 2;
         luma1 += 2;
@@ -118,15 +118,15 @@ struct ezImageConversion_sRGB_NV12 : public ezImageConversionStepPlanarize
         ezVec3I32 p10 = RGB2YUV(ezVec3I32(rgba1[0], rgba1[1], rgba1[2]));
         ezVec3I32 p11 = RGB2YUV(ezVec3I32(rgba1[4], rgba1[5], rgba1[6]));
 
-        luma0[0] = p00.x;
-        luma0[1] = p01.x;
-        luma1[0] = p10.x;
-        luma1[1] = p11.x;
+        luma0[0] = static_cast<ezUInt8>(p00.x);
+        luma0[1] = static_cast<ezUInt8>(p01.x);
+        luma1[0] = static_cast<ezUInt8>(p10.x);
+        luma1[1] = static_cast<ezUInt8>(p11.x);
 
         ezVec3I32 c = (p00 + p01 + p10 + p11);
 
-        chroma[0] = c.y >> 2;
-        chroma[1] = c.z >> 2;
+        chroma[0] = static_cast<ezUInt8>(c.y >> 2);
+        chroma[1] = static_cast<ezUInt8>(c.z >> 2);
 
         luma0 += 2;
         luma1 += 2;
