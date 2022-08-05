@@ -31,6 +31,7 @@ private:
   {
     ezString sFile;
     ezDirectoryWatcherAction action;
+    ezDirectoryWatcherType type;
   };
 
   static constexpr ezUInt32 s_FrameDelay = 5;

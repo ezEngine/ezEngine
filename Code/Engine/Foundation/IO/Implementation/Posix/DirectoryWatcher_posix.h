@@ -314,7 +314,7 @@ void ezDirectoryWatcher::CloseDirectory()
 }
 
 
-void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezUInt32 waitUpToMilliseconds)
+void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezTime waitUpTo)
 {
   const int inotifyFd = m_pImpl->m_inotifyFd;
   uint8_t* const buffer = m_pImpl->m_buffer.GetData();
@@ -384,10 +384,11 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezUInt3
 
   if (inotifyFd >= 0)
   {
-    if (waitUpToMilliseconds > 0)
+    int timeout = static_cast<int>(waitUpTo.GetMilliseconds());
+    if (timeout > 0)
     {
       struct pollfd pollFor = {inotifyFd, POLLIN, 0};
-      int pollResult = poll(&pollFor, 1, waitUpToMilliseconds);
+      int pollResult = poll(&pollFor, 1, timeout);
       if (pollResult < 0)
       {
         // Error, stop
@@ -628,9 +629,10 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezUInt3
   }
 }
 
-void ezDirectoryWatcher::EnumerateChanges(ezArrayPtr<ezDirectoryWatcher*> watchers, EnumerateChangesFunction func, uint32_t waitUpToMilliseconds)
+void ezDirectoryWatcher::EnumerateChanges(ezArrayPtr<ezDirectoryWatcher*> watchers, EnumerateChangesFunction func, ezTime waitUpTo)
 {
-  if (waitUpToMilliseconds > 0)
+  int timeout = static_cast<int>(waitUpTo.GetMilliseconds());
+  if (timeout > 0)
   {
     ezHybridArray<struct pollfd, 16> pollFor;
     pollFor.SetCount(watchers.GetCount());
@@ -642,7 +644,7 @@ void ezDirectoryWatcher::EnumerateChanges(ezArrayPtr<ezDirectoryWatcher*> watche
     }
 
 
-    int pollResult = poll(pollFor.GetData(), pollFor.GetCount(), waitUpToMilliseconds);
+    int pollResult = poll(pollFor.GetData(), pollFor.GetCount(), timeout);
     if (pollResult < 0)
     {
       // Error, stop
@@ -686,12 +688,12 @@ ezDirectoryWatcher::~ezDirectoryWatcher()
 {
 }
 
-void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func)
+void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezTime waitUpTo)
 {
   ezLog::Warning("ezDirectoryWatcher not supported on this linux system");
 }
 
-void ezDirectoryWatcher::EnumerateChanges(ezArrayPtr<ezDirectoryWatcher*> watchers, EnumerateChangesFunction func, uint32_t waitUpToMilliseconds)
+void ezDirectoryWatcher::EnumerateChanges(ezArrayPtr<ezDirectoryWatcher*> watchers, EnumerateChangesFunction func, ezTime waitUpTo)
 {
   ezLog::Warning("ezDirectoryWatcher not supported on this linux system");
 }

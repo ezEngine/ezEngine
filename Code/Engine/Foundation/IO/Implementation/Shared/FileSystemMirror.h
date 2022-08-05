@@ -95,7 +95,7 @@ ezResult ezFileSystemMirror<T>::AddDirectory(const char* path, bool* outDirector
 
     DirEntry* currentDir = &m_topLevelDir;
 
-    ezDynamicArray<DirEntry*> m_dirStack;
+    ezHybridArray<DirEntry*, 16> m_dirStack;
 
     ezFileSystemIterator files;
     files.StartSearch(currentDirAbsPath.GetData(), ezFileSystemIteratorFlags::ReportFilesAndFoldersRecursive);

@@ -41,8 +41,8 @@ ezAssetWatcher::ezAssetWatcher(const ezApplicationFileSystemConfig& fileSystemCo
     ezHybridArray<WatcherResult, 16> watcherResults;
     for (ezDirectoryWatcher* pWatcher : m_Watchers)
     {
-      pWatcher->EnumerateChanges([pWatcher, &watcherResults](const char* szFilename, ezDirectoryWatcherAction action) {
-        watcherResults.PushBack({szFilename, action});
+      pWatcher->EnumerateChanges([pWatcher, &watcherResults](const char* szFilename, ezDirectoryWatcherAction action, ezDirectoryWatcherType type) {
+        watcherResults.PushBack({szFilename, action, type});
       });
     }
     for (const WatcherResult& res : watcherResults)

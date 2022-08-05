@@ -82,11 +82,11 @@ public:
   ///   If waitUpToMilliseconds is greater than 0, blocks until either a change was observed or the timelimit is reached.
   ///
   /// \note There might be multiple changes on the same file reported.
-  void EnumerateChanges(EnumerateChangesFunction func, uint32_t waitUpToMilliseconds = 0);
+  void EnumerateChanges(EnumerateChangesFunction func, ezTime waitUpTo = ezTime::Zero());
 
   /// \brief
   ///   Same as the other EnumerateChanges function, but enumerates multiple watchers.
-  static void EnumerateChanges(ezArrayPtr<ezDirectoryWatcher*> watchers, EnumerateChangesFunction func, uint32_t waitUpToMilliseconds = 0);
+  static void EnumerateChanges(ezArrayPtr<ezDirectoryWatcher*> watchers, EnumerateChangesFunction func, ezTime waitUpTo = ezTime::Zero());
 
 private:
   ezString m_sDirectoryPath;

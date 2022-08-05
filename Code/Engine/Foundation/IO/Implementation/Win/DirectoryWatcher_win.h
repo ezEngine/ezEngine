@@ -10,12 +10,8 @@ EZ_FOUNDATION_INTERNAL_HEADER
 #include <Foundation/IO/Implementation/Win/DosDevicePath_win.h>
 #include <Foundation/Logging/Log.h>
 
-#if EZ_DISABLED(EZ_SUPPORTS_FILE_ITERATORS)
-#  error The directory watcher implementation needs file iterators
-#endif
-
 // Comment in to get verbose output on the function of the directory watcher
-#define DEBUG_FILE_WATCHER
+// #define DEBUG_FILE_WATCHER
 
 #ifdef DEBUG_FILE_WATCHER
 #  define DEBUG_LOG(...) ezLog::Debug(__VA_ARGS__)
@@ -130,12 +126,12 @@ void ezDirectoryWatcherImpl::DoRead()
   EZ_ASSERT_DEV(success, "ReadDirectoryChangesW failed.");
 }
 
-void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezUInt32 waitUpToMilliseconds)
+void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezTime waitUpTo)
 {
   EZ_ASSERT_DEV(!m_sDirectoryPath.IsEmpty(), "No directory opened!");
-  while (WaitForSingleObject(m_pImpl->m_overlappedEvent, waitUpToMilliseconds) == WAIT_OBJECT_0)
+  while (WaitForSingleObject(m_pImpl->m_overlappedEvent, static_cast<DWORD>(waitUpTo.GetMilliseconds())) == WAIT_OBJECT_0)
   {
-    waitUpToMilliseconds = 0; // only wait on the first call to GetQueuedCompletionStatus
+    waitUpTo = ezTime::Zero(); // only wait on the first call to GetQueuedCompletionStatus
 
     DWORD numberOfBytes = 0;
     GetOverlappedResult(m_pImpl->m_directoryHandle, &m_pImpl->m_overlapped, &numberOfBytes, FALSE);
@@ -354,7 +350,7 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezUInt3
 }
 
 
-void ezDirectoryWatcher::EnumerateChanges(ezArrayPtr<ezDirectoryWatcher*> watchers, EnumerateChangesFunction func, uint32_t waitUpToMilliseconds)
+void ezDirectoryWatcher::EnumerateChanges(ezArrayPtr<ezDirectoryWatcher*> watchers, EnumerateChangesFunction func, ezTime waitUpTo)
 {
   ezHybridArray<HANDLE, 16> events;
   events.SetCount(watchers.GetCount());
@@ -365,7 +361,7 @@ void ezDirectoryWatcher::EnumerateChanges(ezArrayPtr<ezDirectoryWatcher*> watche
   }
 
   // Wait for any of the watchers to have some data ready
-  if (WaitForMultipleObjects(events.GetCount(), events.GetData(), FALSE, waitUpToMilliseconds) == WAIT_TIMEOUT)
+  if (WaitForMultipleObjects(events.GetCount(), events.GetData(), FALSE, static_cast<DWORD>(waitUpTo.GetMilliseconds())) == WAIT_TIMEOUT)
   {
     return;
   }

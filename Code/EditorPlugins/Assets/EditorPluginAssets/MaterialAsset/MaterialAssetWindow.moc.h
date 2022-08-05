@@ -13,6 +13,7 @@ class ezQtNodeView;
 struct ezSelectionManagerEvent;
 class ezDirectoryWatcher;
 enum class ezDirectoryWatcherAction;
+enum class ezDirectoryWatcherType;
 class ezQtDocumentPanel;
 class QTextEdit;
 struct ezMaterialVisualShaderEvent;
@@ -44,7 +45,7 @@ private:
   void SendRedrawMsg();
   void RestoreResource();
   void UpdateNodeEditorVisibility();
-  void OnVseConfigChanged(const char* filename, ezDirectoryWatcherAction action);
+  void OnVseConfigChanged(const char* filename, ezDirectoryWatcherAction action, ezDirectoryWatcherType type);
   void VisualShaderEventHandler(const ezMaterialVisualShaderEvent& e);
   void SetupDirectoryWatcher(bool needIt);
 
