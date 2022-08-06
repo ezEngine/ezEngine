@@ -1,5 +1,8 @@
 #pragma once
 
+#include <Foundation/FoundationInternal.h>
+EZ_FOUNDATION_INTERNAL_HEADER
+
 #include <Foundation/IO/DirectoryWatcher.h>
 
 #if __has_include(<sys/inotify.h>)
