@@ -24,7 +24,7 @@ ezAssetWatcher::ezAssetWatcher(const ezApplicationFileSystemConfig& fileSystemCo
 
     ezDirectoryWatcher* pWatcher = EZ_DEFAULT_NEW(ezDirectoryWatcher);
     ezResult res =
-      pWatcher->OpenDirectory(sTemp, ezDirectoryWatcher::Watch::Reads | ezDirectoryWatcher::Watch::Writes | ezDirectoryWatcher::Watch::Creates |
+      pWatcher->OpenDirectory(sTemp, ezDirectoryWatcher::Watch::Deletes | ezDirectoryWatcher::Watch::Writes | ezDirectoryWatcher::Watch::Creates |
                                        ezDirectoryWatcher::Watch::Renames | ezDirectoryWatcher::Watch::Subdirectories);
 
     if (res.Failed())
@@ -41,18 +41,8 @@ ezAssetWatcher::ezAssetWatcher(const ezApplicationFileSystemConfig& fileSystemCo
     ezHybridArray<WatcherResult, 16> watcherResults;
     for (ezDirectoryWatcher* pWatcher : m_Watchers)
     {
-      pWatcher->EnumerateChanges([pWatcher, &watcherResults](const char* szFilename, ezDirectoryWatcherAction action) {
-        ezStringBuilder sTemp = pWatcher->GetDirectory();
-        sTemp.AppendPath(szFilename);
-        sTemp.MakeCleanPath();
-
-        if (action == ezDirectoryWatcherAction::Modified)
-        {
-          if (ezOSFile::ExistsDirectory(sTemp))
-            return;
-        }
-
-        watcherResults.PushBack({sTemp, action});
+      pWatcher->EnumerateChanges([pWatcher, &watcherResults](const char* szFilename, ezDirectoryWatcherAction action, ezDirectoryWatcherType type) {
+        watcherResults.PushBack({szFilename, action, type});
       });
     }
     for (const WatcherResult& res : watcherResults)

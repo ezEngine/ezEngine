@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Foundation/Basics.h>
+
 #include <Foundation/IO/DirectoryWatcher.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <GameEngine/GameApplication/GameApplication.h>
@@ -25,7 +27,7 @@ public:
 
 private:
   void CreateHistogramQuad();
-  void OnFileChanged(const char* filename, ezDirectoryWatcherAction action);
+  void OnFileChanged(const char* filename, ezDirectoryWatcherAction action, ezDirectoryWatcherType type);
 
   ezGALTextureHandle m_hScreenTexture;
   ezGALRenderTargetViewHandle m_hScreenRTV;

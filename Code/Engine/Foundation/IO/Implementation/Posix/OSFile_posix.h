@@ -266,6 +266,15 @@ ezResult ezOSFile::InternalCreateDirectory(const char* szDirectory)
   return EZ_FAILURE;
 }
 
+ezResult ezOSFile::InternalMoveFileOrDirectory(const char* szDirectoryFrom, const char* szDirectoryTo)
+{
+  if (rename(szDirectoryFrom, szDirectoryTo) != 0)
+  {
+    return EZ_FAILURE;
+  }
+  return EZ_SUCCESS;
+}
+
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS) && EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
 ezResult ezOSFile::InternalGetFileStats(const char* szFileOrFolder, ezFileStats& out_Stats)
 {
@@ -581,6 +590,10 @@ ezInt32 ezFileSystemIterator::InternalNext()
       return EZ_FAILURE;
 
     m_sCurPath.PathParentDirectory();
+    if (m_sCurPath.GetElementCount() > 1 && m_sCurPath.EndsWith("/"))
+    {
+      m_sCurPath.Shrink(0, 1);
+    }
 
     return CallInternalNext;
   }

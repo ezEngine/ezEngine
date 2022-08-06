@@ -381,9 +381,9 @@ void ezQtMaterialAssetDocumentWindow::UpdateNodeEditorVisibility()
   }
 }
 
-void ezQtMaterialAssetDocumentWindow::OnVseConfigChanged(const char* filename, ezDirectoryWatcherAction action)
+void ezQtMaterialAssetDocumentWindow::OnVseConfigChanged(const char* filename, ezDirectoryWatcherAction action, ezDirectoryWatcherType type)
 {
-  if (!ezPathUtils::HasExtension(filename, "DDL"))
+  if (type != ezDirectoryWatcherType::File || !ezPathUtils::HasExtension(filename, "DDL"))
     return;
 
   // lalala ... this is to allow writes to the file to 'hopefully' finish before we try to read it

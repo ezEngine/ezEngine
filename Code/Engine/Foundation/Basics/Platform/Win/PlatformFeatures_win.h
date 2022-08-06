@@ -24,6 +24,14 @@
 #undef EZ_SUPPORTS_FILE_STATS
 #define EZ_SUPPORTS_FILE_STATS EZ_ON
 
+/// Directory watcher is supported on non uwp platforms.
+#undef EZ_SUPPORTS_DIRECTORY_WATCHER
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+#  define EZ_SUPPORTS_DIRECTORY_WATCHER EZ_OFF
+#else
+#  define EZ_SUPPORTS_DIRECTORY_WATCHER EZ_ON
+#endif
+
 /// Memory mapping a file is supported.
 #undef EZ_SUPPORTS_MEMORY_MAPPED_FILE
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
