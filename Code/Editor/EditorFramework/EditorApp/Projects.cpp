@@ -48,6 +48,7 @@ void ezQtEditorApp::SlotQueuedOpenProject(QString sProject)
 ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, const char* szFile)
 {
   // check that we don't attempt to open a project from a different repository, due to code changes this often doesn't work too well
+  if (!IsInHeadlessMode())
   {
     ezStringBuilder sdkDir;
     if (ezFileSystem::FindFolderWithSubPath(sdkDir, szFile, "Data/Base", "ezSdkRoot.txt").Succeeded())
@@ -236,7 +237,8 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProjectEvent& r)
 
       if (m_StartupFlags.AreNoneSet(ezQtEditorApp::StartupFlags::Headless | ezQtEditorApp::StartupFlags::SafeMode | ezQtEditorApp::StartupFlags::UnitTest) && pPreferences->m_bBackgroundAssetProcessing)
       {
-        QTimer::singleShot(1000, this, [this]() { ezAssetProcessor::GetSingleton()->RestartProcessTask(); });
+        QTimer::singleShot(1000, this, [this]()
+          { ezAssetProcessor::GetSingleton()->RestartProcessTask(); });
       }
 
       // Make sure preferences are saved, this is important when the project was just created.
