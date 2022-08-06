@@ -3,7 +3,6 @@
 #include <Foundation/IO/Archive/ArchiveUtils.h>
 
 #include <Foundation/Algorithm/HashStream.h>
-#include <Foundation/IO/CompressedStreamZlib.h>
 #include <Foundation/IO/CompressedStreamZstd.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/MemoryMappedFile.h>
@@ -205,15 +204,6 @@ public:
 
 #endif
 
-#ifdef BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
-
-class ezCompressedStreamReaderZipWithSource : public ezCompressedStreamReaderZip
-{
-public:
-  ezRawMemoryStreamReader m_Source;
-};
-
-#endif
 
 ezUniquePtr<ezStreamReader> ezArchiveUtils::CreateEntryReader(const ezArchiveEntry& entry, const void* pStartOfArchiveData)
 {
@@ -236,16 +226,6 @@ ezUniquePtr<ezStreamReader> ezArchiveUtils::CreateEntryReader(const ezArchiveEnt
       ezCompressedStreamReaderZstdWithSource* pRawReader = static_cast<ezCompressedStreamReaderZstdWithSource*>(reader.Borrow());
       ConfigureRawMemoryStreamReader(entry, pStartOfArchiveData, pRawReader->m_Source);
       pRawReader->SetInputStream(&pRawReader->m_Source);
-      break;
-    }
-#endif
-#ifdef BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
-    case ezArchiveCompressionMode::Compressed_zip:
-    {
-      reader = EZ_DEFAULT_NEW(ezCompressedStreamReaderZipWithSource);
-      ezCompressedStreamReaderZipWithSource* pRawReader = static_cast<ezCompressedStreamReaderZipWithSource*>(reader.Borrow());
-      ConfigureRawMemoryStreamReader(entry, pStartOfArchiveData, pRawReader->m_Source);
-      pRawReader->SetInputStream(&pRawReader->m_Source, entry.m_uiStoredDataSize);
       break;
     }
 #endif
