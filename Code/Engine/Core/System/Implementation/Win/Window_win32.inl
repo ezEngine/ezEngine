@@ -70,7 +70,7 @@ ezResult ezWindow::Initialize()
   windowClass.cbSize = sizeof(WNDCLASSEXW);
   windowClass.style = CS_HREDRAW | CS_VREDRAW;
   windowClass.hInstance = GetModuleHandleW(nullptr);
-  windowClass.hIcon = LoadIcon(nullptr, IDI_APPLICATION); /// \todo Expose icon functionality somehow
+  windowClass.hIcon = LoadIcon(GetModuleHandleW(nullptr), MAKEINTRESOURCE(101)); /// \todo Expose icon functionality somehow (101 == IDI_ICON1, see resource.h)
   windowClass.hCursor = LoadCursor(nullptr, IDC_ARROW);
   windowClass.hbrBackground = static_cast<HBRUSH>(GetStockObject(BLACK_BRUSH));
   windowClass.lpszClassName = L"ezWin32Window";
