@@ -81,6 +81,7 @@ public:
   float m_fPhysicsRestitution;
   float m_fPhysicsFrictionStatic;
   float m_fPhysicsFrictionDynamic;
+  float m_fSoundObstruction;
   ezHashedString m_sOnCollideInteraction;
   ezHashedString m_sSlideInteractionPrefab;
   ezHashedString m_sRollInteractionPrefab;

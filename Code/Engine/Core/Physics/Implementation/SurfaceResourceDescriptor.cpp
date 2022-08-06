@@ -27,7 +27,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezSurfaceInteraction, ezNoBase, 1, ezRTTIDefaultA
 }
 EZ_END_STATIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSurfaceResourceDescriptor, 2, ezRTTIDefaultAllocator<ezSurfaceResourceDescriptor>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSurfaceResourceDescriptor, 3, ezRTTIDefaultAllocator<ezSurfaceResourceDescriptor>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -35,6 +35,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSurfaceResourceDescriptor, 2, ezRTTIDefaultAll
     EZ_MEMBER_PROPERTY("Restitution", m_fPhysicsRestitution)->AddAttributes(new ezDefaultValueAttribute(0.25f)),
     EZ_MEMBER_PROPERTY("StaticFriction", m_fPhysicsFrictionStatic)->AddAttributes(new ezDefaultValueAttribute(0.6f)),
     EZ_MEMBER_PROPERTY("DynamicFriction", m_fPhysicsFrictionDynamic)->AddAttributes(new ezDefaultValueAttribute(0.4f)),
+    EZ_MEMBER_PROPERTY("SoundObstruction", m_fSoundObstruction)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 1.0f)),
     EZ_ACCESSOR_PROPERTY("OnCollideInteraction", GetCollisionInteraction, SetCollisionInteraction)->AddAttributes(new ezDynamicStringEnumAttribute("SurfaceInteractionTypeEnum")),
     EZ_ACCESSOR_PROPERTY("SlideReaction", GetSlideReactionPrefabFile, SetSlideReactionPrefabFile)->AddAttributes(new ezAssetBrowserAttribute("Prefab")),
     EZ_ACCESSOR_PROPERTY("RollReaction", GetRollReactionPrefabFile, SetRollReactionPrefabFile)->AddAttributes(new ezAssetBrowserAttribute("Prefab")),
@@ -106,12 +107,17 @@ void ezSurfaceResourceDescriptor::Load(ezStreamReader& stream)
   ezUInt8 uiVersion = 0;
 
   stream >> uiVersion;
-  EZ_ASSERT_DEV(uiVersion <= 7, "Invalid version {0} for surface resource", uiVersion);
+  EZ_ASSERT_DEV(uiVersion <= 8, "Invalid version {0} for surface resource", uiVersion);
 
   stream >> m_fPhysicsRestitution;
   stream >> m_fPhysicsFrictionStatic;
   stream >> m_fPhysicsFrictionDynamic;
   stream >> m_hBaseSurface;
+
+  if (uiVersion >= 8)
+  {
+    stream >> m_fSoundObstruction;
+  }
 
   if (uiVersion >= 4)
   {
@@ -177,13 +183,16 @@ void ezSurfaceResourceDescriptor::Load(ezStreamReader& stream)
 
 void ezSurfaceResourceDescriptor::Save(ezStreamWriter& stream) const
 {
-  const ezUInt8 uiVersion = 7;
+  const ezUInt8 uiVersion = 8;
 
   stream << uiVersion;
   stream << m_fPhysicsRestitution;
   stream << m_fPhysicsFrictionStatic;
   stream << m_fPhysicsFrictionDynamic;
   stream << m_hBaseSurface;
+
+  // version 8
+  stream << m_fSoundObstruction;
 
   // version 4
   stream << m_sOnCollideInteraction;

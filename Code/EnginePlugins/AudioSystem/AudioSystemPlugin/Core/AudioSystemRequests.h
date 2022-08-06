@@ -1,0 +1,382 @@
+#pragma once
+
+#include <AudioSystemPlugin/AudioSystemPluginDLL.h>
+
+#include <AudioSystemPlugin/Core/AudioSystemData.h>
+
+#include <Foundation/Types/Status.h>
+#include <Foundation/Types/VariantType.h>
+
+
+/// \brief Helper macro the declare the callback value of an audio request.
+#define EZ_DECLARE_AUDIOSYSTEM_REQUEST_CALLBACK(name) \
+  using CallbackType = ezDelegate<void(const name&)>; \
+  CallbackType m_Callback
+
+
+/// \brief Helper macro to declare a new audio system request.
+#define EZ_DECLARE_AUDIOSYSTEM_REQUEST_TYPE(name)                                              \
+  EZ_DECLARE_POD_TYPE();                                                                       \
+  bool operator==(const name& rhs) const                                                       \
+  {                                                                                            \
+    return static_cast<ezAudioSystemRequest>(*this) == static_cast<ezAudioSystemRequest>(rhs); \
+  }                                                                                            \
+  bool operator!=(const name& rhs) const                                                       \
+  {                                                                                            \
+    return !(*this == rhs);                                                                    \
+  }                                                                                            \
+  EZ_DECLARE_AUDIOSYSTEM_REQUEST_CALLBACK(name)
+
+
+/// \brief Helper macro to declare an ezHashHelper implementation of an audio system request.
+#define EZ_DECLARE_AUDIOSYSTEM_REQUEST_HASH(name)             \
+  template <>                                                 \
+  struct ezHashHelper<name>                                   \
+  {                                                           \
+    EZ_ALWAYS_INLINE static ezUInt32 Hash(const name& value)  \
+    {                                                         \
+      return ezHashHelper<ezAudioSystemRequest>::Hash(value); \
+    }                                                         \
+    EZ_ALWAYS_INLINE static bool                              \
+    Equal(const name& a, const name& b)                       \
+    {                                                         \
+      return a == b;                                          \
+    }                                                         \
+  }
+
+
+/// \brief Helper macro to declare stream operators for an audio system request.
+#define EZ_DECLARE_AUDIOSYSTEM_REQUEST_STREAM_OPERATORS(name)                          \
+  EZ_AUDIOSYSTEMPLUGIN_DLL void operator<<(ezStreamWriter& Stream, const name& Value); \
+  EZ_AUDIOSYSTEMPLUGIN_DLL void operator>>(ezStreamReader& Stream, name& Value)
+
+
+/// \brief Helper macro to declare a new audio system request.
+#define EZ_DECLARE_AUDIOSYSTEM_REQUEST(name)                   \
+  EZ_DECLARE_AUDIOSYSTEM_REQUEST_HASH(name);                   \
+  EZ_DECLARE_AUDIOSYSTEM_REQUEST_STREAM_OPERATORS(name);       \
+  EZ_DECLARE_REFLECTABLE_TYPE(EZ_AUDIOSYSTEMPLUGIN_DLL, name); \
+  EZ_DECLARE_CUSTOM_VARIANT_TYPE(name)
+
+
+/// \brief Helper macro to define stream operators for audio system
+/// requests which doesn't add more data.
+#define EZ_DEFINE_AUDIOSYSTEM_STREAM_OPERATORS_BASIC(name)     \
+  void operator<<(ezStreamWriter& Stream, const name& Value)   \
+  {                                                            \
+    Stream << static_cast<const ezAudioSystemRequest&>(Value); \
+  }                                                            \
+  void operator>>(ezStreamReader& Stream, name& Value)         \
+  {                                                            \
+    Stream >> static_cast<ezAudioSystemRequest&>(Value);       \
+  }
+
+
+/// \brief Base class for all audio system requests.
+///
+/// An audio request is a message sent to the audio system. It contains a type and a payload.
+/// The payload depend on the audio request purpose (load trigger, update listener, shutdown system, etc.).
+///
+/// To send an audio request, use the ezAudioSystem::SendRequest() function. Audio requests sent this way
+/// will be executed asynchronously in the audio thread.
+///
+/// Each audio requests can have callbacks, this can be useful when you want to do some logic after an
+/// asynchronous audio request as been sent to the audio system. The callbacks will be executed in the
+/// main thread.
+///
+/// If you need to send an audio request synchronously, use the ezAudioSystem::SendRequestSync() function.
+/// This will block the main thread until the request has been processed.
+struct EZ_AUDIOSYSTEMPLUGIN_DLL ezAudioSystemRequest
+{
+  EZ_DECLARE_POD_TYPE();
+
+  /// \brief The audio entity which is being manipulated, if any.
+  ezAudioSystemDataID m_uiEntityId{0};
+
+  /// \brief The audio listener which is being manipulated, if any.
+  ezAudioSystemDataID m_uiListenerId{0};
+
+  /// \brief The audio object (trigger, rtpc, environment, etc.) which is being manipulated, if any.
+  ezAudioSystemDataID m_uiObjectId{0};
+
+  /// \brief The status of the audio request.
+  ezStatus m_eStatus;
+
+  bool operator==(const ezAudioSystemRequest& rhs) const
+  {
+    return m_uiEntityId == rhs.m_uiEntityId && m_uiListenerId == rhs.m_uiListenerId && m_uiObjectId == rhs.m_uiObjectId && m_eStatus.Succeeded() == rhs.m_eStatus.Succeeded();
+  }
+
+  bool operator!=(const ezAudioSystemRequest& rhs) const
+  {
+    return !(*this == rhs);
+  }
+};
+
+template <>
+struct ezHashHelper<ezAudioSystemRequest>
+{
+  EZ_ALWAYS_INLINE static ezUInt32 Hash(const ezAudioSystemRequest& value)
+  {
+    return ezHashHelper<ezUInt64>::Hash(value.m_uiEntityId) * ezHashHelper<ezUInt64>::Hash(value.m_uiListenerId) * ezHashHelper<ezUInt64>::Hash(value.m_uiObjectId);
+  }
+
+  EZ_ALWAYS_INLINE static bool Equal(const ezAudioSystemRequest& a, const ezAudioSystemRequest& b)
+  {
+    return a == b;
+  }
+};
+
+/// \brief Audio request to register a new entity in the audio system.
+struct EZ_AUDIOSYSTEMPLUGIN_DLL ezAudioSystemRequestRegisterEntity : public ezAudioSystemRequest
+{
+  EZ_DECLARE_POD_TYPE();
+  EZ_DECLARE_AUDIOSYSTEM_REQUEST_CALLBACK(ezAudioSystemRequestRegisterEntity);
+
+  bool operator==(const ezAudioSystemRequestRegisterEntity& rhs) const
+  {
+    return static_cast<ezAudioSystemRequest>(*this) == static_cast<ezAudioSystemRequest>(rhs) && m_sName == rhs.m_sName;
+  }
+  bool operator!=(const ezAudioSystemRequestRegisterEntity& rhs) const
+  {
+    return !(*this == rhs);
+  }
+
+  ezString m_sName;
+};
+
+template <>
+struct ezHashHelper<ezAudioSystemRequestRegisterEntity>
+{
+  EZ_ALWAYS_INLINE static ezUInt32 Hash(const ezAudioSystemRequestRegisterEntity& value)
+  {
+    return ezHashHelper<ezAudioSystemRequest>::Hash(value) * ezHashHelper<ezString>::Hash(value.m_sName);
+  }
+
+  EZ_ALWAYS_INLINE static bool Equal(const ezAudioSystemRequestRegisterEntity& a, const ezAudioSystemRequestRegisterEntity& b)
+  {
+    return a == b;
+  }
+};
+
+/// \brief Audio request to unregister an entity from the audio system.
+struct EZ_AUDIOSYSTEMPLUGIN_DLL ezAudioSystemRequestUnregisterEntity : public ezAudioSystemRequest
+{
+  EZ_DECLARE_AUDIOSYSTEM_REQUEST_TYPE(ezAudioSystemRequestUnregisterEntity);
+};
+
+/// \brief Audio request to load data needed to activate a trigger.
+struct EZ_AUDIOSYSTEMPLUGIN_DLL ezAudioSystemRequestLoadTrigger : public ezAudioSystemRequest
+{
+  EZ_DECLARE_POD_TYPE();
+  EZ_DECLARE_AUDIOSYSTEM_REQUEST_CALLBACK(ezAudioSystemRequestLoadTrigger);
+
+  bool operator==(const ezAudioSystemRequestLoadTrigger& rhs) const
+  {
+    return static_cast<ezAudioSystemRequest>(*this) == static_cast<ezAudioSystemRequest>(rhs) && m_uiEventId == rhs.m_uiEventId;
+  }
+  bool operator!=(const ezAudioSystemRequestLoadTrigger& rhs) const
+  {
+    return !(*this == rhs);
+  }
+
+  /// \brief The event that this trigger should start.
+  ezAudioSystemDataID m_uiEventId{0};
+};
+
+template <>
+struct ezHashHelper<ezAudioSystemRequestLoadTrigger>
+{
+  EZ_ALWAYS_INLINE static ezUInt32 Hash(const ezAudioSystemRequestLoadTrigger& value)
+  {
+    return ezHashHelper<ezAudioSystemRequest>::Hash(value) * ezHashHelper<ezAudioSystemDataID>::Hash(value.m_uiEventId);
+  }
+
+  EZ_ALWAYS_INLINE static bool Equal(const ezAudioSystemRequestLoadTrigger& a, const ezAudioSystemRequestLoadTrigger& b)
+  {
+    return a == b;
+  }
+};
+
+/// \brief Audio request to activate a trigger.
+struct EZ_AUDIOSYSTEMPLUGIN_DLL ezAudioSystemRequestActivateTrigger : public ezAudioSystemRequest
+{
+  EZ_DECLARE_POD_TYPE();
+  EZ_DECLARE_AUDIOSYSTEM_REQUEST_CALLBACK(ezAudioSystemRequestActivateTrigger);
+
+  bool operator==(const ezAudioSystemRequestActivateTrigger& rhs) const
+  {
+    return static_cast<ezAudioSystemRequest>(*this) == static_cast<ezAudioSystemRequest>(rhs) && m_uiEventId == rhs.m_uiEventId;
+  }
+  bool operator!=(const ezAudioSystemRequestActivateTrigger& rhs) const
+  {
+    return !(*this == rhs);
+  }
+
+  /// \brief The event that this trigger should start.
+  ezAudioSystemDataID m_uiEventId{0};
+};
+
+template <>
+struct ezHashHelper<ezAudioSystemRequestActivateTrigger>
+{
+  EZ_ALWAYS_INLINE static ezUInt32 Hash(const ezAudioSystemRequestActivateTrigger& value)
+  {
+    return ezHashHelper<ezAudioSystemRequest>::Hash(value) * ezHashHelper<ezAudioSystemDataID>::Hash(value.m_uiEventId);
+  }
+
+  EZ_ALWAYS_INLINE static bool Equal(const ezAudioSystemRequestActivateTrigger& a, const ezAudioSystemRequestActivateTrigger& b)
+  {
+    return a == b;
+  }
+};
+
+/// \brief Audio request to stop an event.
+struct EZ_AUDIOSYSTEMPLUGIN_DLL ezAudioSystemRequestStopEvent : public ezAudioSystemRequest
+{
+  EZ_DECLARE_POD_TYPE();
+  EZ_DECLARE_AUDIOSYSTEM_REQUEST_CALLBACK(ezAudioSystemRequestStopEvent);
+
+  bool operator==(const ezAudioSystemRequestStopEvent& rhs) const
+  {
+    return static_cast<ezAudioSystemRequest>(*this) == static_cast<ezAudioSystemRequest>(rhs) && m_uiTriggerId == rhs.m_uiTriggerId;
+  }
+  bool operator!=(const ezAudioSystemRequestStopEvent& rhs) const
+  {
+    return !(*this == rhs);
+  }
+
+  /// \brief The trigger which have started this event.
+  ezAudioSystemDataID m_uiTriggerId{0};
+};
+
+template <>
+struct ezHashHelper<ezAudioSystemRequestStopEvent>
+{
+  EZ_ALWAYS_INLINE static ezUInt32 Hash(const ezAudioSystemRequestStopEvent& value)
+  {
+    return ezHashHelper<ezAudioSystemRequest>::Hash(value) * ezHashHelper<ezAudioSystemDataID>::Hash(value.m_uiTriggerId);
+  }
+
+  EZ_ALWAYS_INLINE static bool Equal(const ezAudioSystemRequestStopEvent& a, const ezAudioSystemRequestStopEvent& b)
+  {
+    return a == b;
+  }
+};
+
+/// \brief Audio request to unload data loaded by a trigger.
+struct EZ_AUDIOSYSTEMPLUGIN_DLL ezAudioSystemRequestUnloadTrigger : public ezAudioSystemRequest
+{
+  EZ_DECLARE_AUDIOSYSTEM_REQUEST_TYPE(ezAudioSystemRequestUnloadTrigger);
+};
+
+/// \brief Audio request to shutdown the audio system. Used internally only. Sending this request
+/// at runtime will lead to unspecified behaviors.
+struct EZ_AUDIOSYSTEMPLUGIN_DLL ezAudioSystemRequestShutdown : public ezAudioSystemRequest
+{
+  EZ_DECLARE_AUDIOSYSTEM_REQUEST_TYPE(ezAudioSystemRequestShutdown);
+};
+
+/// \brief A functor used by ezVariant to call an audio request callback.
+struct CallRequestCallbackFunc
+{
+  explicit CallRequestCallbackFunc(const ezVariant& value)
+    : m_Value(value)
+  {
+  }
+
+  template <typename T>
+  void operator()()
+  {
+    if (m_Value.IsA<ezAudioSystemRequestRegisterEntity>())
+    {
+      ezResult conversionStatus = EZ_SUCCESS;
+      const auto& request = m_Value.ConvertTo<ezAudioSystemRequestRegisterEntity>(&conversionStatus);
+
+      if (conversionStatus.Succeeded())
+      {
+        request.m_Callback(request);
+      }
+    }
+    else if (m_Value.IsA<ezAudioSystemRequestUnregisterEntity>())
+    {
+      ezResult conversionStatus = EZ_SUCCESS;
+      const auto& request = m_Value.ConvertTo<ezAudioSystemRequestUnregisterEntity>(&conversionStatus);
+
+      if (conversionStatus.Succeeded())
+      {
+        request.m_Callback(request);
+      }
+    }
+    else if (m_Value.IsA<ezAudioSystemRequestLoadTrigger>())
+    {
+      ezResult conversionStatus = EZ_SUCCESS;
+      const auto& request = m_Value.ConvertTo<ezAudioSystemRequestLoadTrigger>(&conversionStatus);
+
+      if (conversionStatus.Succeeded())
+      {
+        request.m_Callback(request);
+      }
+    }
+    else if (m_Value.IsA<ezAudioSystemRequestActivateTrigger>())
+    {
+      ezResult conversionStatus = EZ_SUCCESS;
+      const auto& request = m_Value.ConvertTo<ezAudioSystemRequestActivateTrigger>(&conversionStatus);
+
+      if (conversionStatus.Succeeded())
+      {
+        request.m_Callback(request);
+      }
+    }
+    else if (m_Value.IsA<ezAudioSystemRequestStopEvent>())
+    {
+      ezResult conversionStatus = EZ_SUCCESS;
+      const auto& request = m_Value.ConvertTo<ezAudioSystemRequestStopEvent>(&conversionStatus);
+
+      if (conversionStatus.Succeeded())
+      {
+        request.m_Callback(request);
+      }
+    }
+    else if (m_Value.IsA<ezAudioSystemRequestShutdown>())
+    {
+      ezResult conversionStatus = EZ_SUCCESS;
+      const auto& request = m_Value.ConvertTo<ezAudioSystemRequestShutdown>(&conversionStatus);
+
+      if (conversionStatus.Succeeded())
+      {
+        request.m_Callback(request);
+      }
+    }
+    else
+    {
+      ezLog::Error("Received an Audio Request with an invalid type");
+    }
+  }
+
+  const ezVariant& m_Value;
+};
+
+EZ_DECLARE_AUDIOSYSTEM_REQUEST_STREAM_OPERATORS(ezAudioSystemRequest);
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_AUDIOSYSTEMPLUGIN_DLL, ezAudioSystemRequest);
+
+EZ_DECLARE_AUDIOSYSTEM_REQUEST_STREAM_OPERATORS(ezAudioSystemRequestRegisterEntity);
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_AUDIOSYSTEMPLUGIN_DLL, ezAudioSystemRequestRegisterEntity);
+EZ_DECLARE_CUSTOM_VARIANT_TYPE(ezAudioSystemRequestRegisterEntity);
+
+EZ_DECLARE_AUDIOSYSTEM_REQUEST(ezAudioSystemRequestUnregisterEntity);
+
+EZ_DECLARE_AUDIOSYSTEM_REQUEST_STREAM_OPERATORS(ezAudioSystemRequestLoadTrigger);
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_AUDIOSYSTEMPLUGIN_DLL, ezAudioSystemRequestLoadTrigger);
+EZ_DECLARE_CUSTOM_VARIANT_TYPE(ezAudioSystemRequestLoadTrigger);
+
+EZ_DECLARE_AUDIOSYSTEM_REQUEST_STREAM_OPERATORS(ezAudioSystemRequestActivateTrigger);
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_AUDIOSYSTEMPLUGIN_DLL, ezAudioSystemRequestActivateTrigger);
+EZ_DECLARE_CUSTOM_VARIANT_TYPE(ezAudioSystemRequestActivateTrigger);
+
+EZ_DECLARE_AUDIOSYSTEM_REQUEST_STREAM_OPERATORS(ezAudioSystemRequestStopEvent);
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_AUDIOSYSTEMPLUGIN_DLL, ezAudioSystemRequestStopEvent);
+EZ_DECLARE_CUSTOM_VARIANT_TYPE(ezAudioSystemRequestStopEvent);
+
+EZ_DECLARE_AUDIOSYSTEM_REQUEST(ezAudioSystemRequestUnloadTrigger);
+EZ_DECLARE_AUDIOSYSTEM_REQUEST(ezAudioSystemRequestShutdown);

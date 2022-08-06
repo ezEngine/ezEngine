@@ -1,0 +1,19 @@
+#include <AudioSystemPlugin/AudioSystemPluginPCH.h>
+
+#include <AudioSystemPlugin/Core/AudioSystemMessages.h>
+
+#include <Foundation/Types/VariantTypeRegistry.h>
+
+EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgAudioSystemSetRtpcValue);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgAudioSystemSetRtpcValue, 1, ezRTTIDefaultAllocator<ezMsgAudioSystemSetRtpcValue>)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgAudioSystemSetSwitchState);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgAudioSystemSetSwitchState, 1, ezRTTIDefaultAllocator<ezMsgAudioSystemSetSwitchState>)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgAudioSystemSetEnvironmentAmount);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgAudioSystemSetEnvironmentAmount, 1, ezRTTIDefaultAllocator<ezMsgAudioSystemSetEnvironmentAmount>)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+EZ_STATICLINK_FILE(AudioSystemPlugin, AudioSystemPlugin_Implementation_AudioSystemMessages);

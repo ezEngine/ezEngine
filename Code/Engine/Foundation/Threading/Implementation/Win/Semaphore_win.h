@@ -86,11 +86,11 @@ void ezSemaphore::ReturnToken()
   EZ_VERIFY(ReleaseSemaphore(m_hSemaphore, 1, nullptr) != 0, "Returning a semaphore token failed, most likely due to a AcquireToken() / ReturnToken() mismatch.");
 }
 
-ezResult ezSemaphore::TryAcquireToken()
+ezResult ezSemaphore::TryAcquireToken(ezTime timeout)
 {
   EZ_ASSERT_DEV(m_hSemaphore != nullptr, "Invalid semaphore.");
 
-  const ezUInt32 res = WaitForSingleObject(m_hSemaphore, 0 /* timeout of zero milliseconds */);
+  const ezUInt32 res = WaitForSingleObject(m_hSemaphore, ezMath::FloatToInt(timeout.AsFloatInSeconds() * 1000));
 
   if (res == WAIT_OBJECT_0)
   {
