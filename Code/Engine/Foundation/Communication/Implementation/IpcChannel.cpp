@@ -2,11 +2,15 @@
 
 #include <Foundation/Communication/Implementation/IpcChannelEnet.h>
 #include <Foundation/Communication/Implementation/MessageLoop.h>
-#include <Foundation/Communication/Implementation/Win/PipeChannel_win.h>
 #include <Foundation/Communication/IpcChannel.h>
 #include <Foundation/Communication/RemoteMessage.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Serialization/ReflectionSerializer.h>
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#include <Foundation/Communication/Implementation/Win/PipeChannel_win.h>
+#elif EZ_ENABLED(EZ_PLATFORM_LINUX)
+#endif
 
 ezIpcChannel::ezIpcChannel(const char* szAddress, Mode::Enum mode)
   : m_Mode(mode)
