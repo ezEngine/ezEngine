@@ -31,9 +31,17 @@ private:
   virtual void InternalSend() override;
   virtual bool NeedWakeup() const override;
 
+  // These are called from MessageLoop_linux on OS events
+  void AcceptIncomingConnection();
+  void ProcessIncomingPackages();
+  void ProcessConnectSuccessfull();
+
 private:
   ezString m_serverSocketPath;
   ezString m_clientSocketPath;
-  int m_socketFd = -1;
+  int m_serverSocketFd = -1;
+  int m_clientSocketFd = -1;
+
+  ezUInt8 m_InputBuffer[4096];
 };
 #endif
