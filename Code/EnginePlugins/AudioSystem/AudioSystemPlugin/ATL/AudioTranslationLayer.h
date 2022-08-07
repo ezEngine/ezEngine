@@ -24,21 +24,24 @@ public:
 
   ezAudioSystemDataID GetTriggerId(const char* szTriggerName) const;
 
+  ezAudioSystemDataID GetRtpcId(const char* szRtpcName) const;
+
 private:
   friend class ezAudioSystem;
 
   void ProcessRequest(ezVariant&& request);
 
   void RegisterTrigger(ezAudioSystemDataID uiId, ezAudioSystemTriggerData* pTriggerData);
+  void RegisterRtpc(ezAudioSystemDataID uiId, ezAudioSystemRtpcData* pTriggerData);
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   void DebugRender();
 #endif
 
   // ATLObject containers
-  ezATLEntitiesLookup m_mEntities;
-  ezATLTriggersLookup m_mTriggers;
-  // ezATLRtpcLookup m_mRtpcs;
+  ezATLEntityLookup m_mEntities;
+  ezATLTriggerLookup m_mTriggers;
+  ezATLRtpcLookup m_mRtpcs;
   // ezATLSwitchLookup m_mSwitches;
   // ezATLBanksLookup m_mBanks;
   // ezATLEnvironmentLookup m_mEnvironments;

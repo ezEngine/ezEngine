@@ -236,6 +236,50 @@ void ezAudioSystem::RegisterTrigger(const char* szTriggerName, ezStreamReader* p
   m_AudioTranslationLayer.RegisterTrigger(uiTriggerId, pTriggerData);
 }
 
+void ezAudioSystem::RegisterRtpc(const char* szTriggerName, const char* szControlFile)
+{
+  if (!m_bInitialized)
+    return;
+
+  ezFileReader file;
+  if (!file.Open(szControlFile, 256).Succeeded())
+  {
+    ezLog::Error("Unable to register a rtpc in the audio system: Could not open trigger control file '{0}'", szControlFile);
+    return;
+  }
+
+  RegisterRtpc(szTriggerName, &file);
+}
+
+void ezAudioSystem::RegisterRtpc(const char* szRtpcName, ezStreamReader* pStreamReader)
+{
+  auto* pAudioMiddleware = ezSingletonRegistry::GetSingletonInstance<ezAudioMiddleware>();
+  if (pAudioMiddleware == nullptr)
+  {
+    ezLog::Error("Unable to register a rtpc in the audio system: No audio middleware currently running.");
+    return;
+  }
+
+  ezEnum<ezAudioSystemControlType> type;
+  *pStreamReader >> type;
+
+  if (type != ezAudioSystemControlType::Rtpc)
+  {
+    ezLog::Error("Unable to register a rtpc in the audio system: The control have an invalid file.");
+    return;
+  }
+
+  ezAudioSystemRtpcData* pSystemRtpcData = pAudioMiddleware->DeserializeRtpcEntry(pStreamReader);
+  if (pSystemRtpcData == nullptr)
+  {
+    ezLog::Error("Unable to register a rtpc in the audio system: Could not deserialize trigger control.");
+    return;
+  }
+
+  const ezUInt32 uiRtpcId = ezHashHelper<const char*>::Hash(szRtpcName);
+  m_AudioTranslationLayer.RegisterRtpc(uiRtpcId, pSystemRtpcData);
+}
+
 ezAudioSystemDataID ezAudioSystem::GetTriggerId(const char* szTriggerName) const
 {
   return m_AudioTranslationLayer.GetTriggerId(szTriggerName);
@@ -243,7 +287,7 @@ ezAudioSystemDataID ezAudioSystem::GetTriggerId(const char* szTriggerName) const
 
 ezAudioSystemDataID ezAudioSystem::GetRtpcId(const char* szRtpcName) const
 {
-  return 0;
+  return m_AudioTranslationLayer.GetRtpcId(szRtpcName);
 }
 
 ezAudioSystemDataID ezAudioSystem::GetSwitchId(const char* szSwitchName) const

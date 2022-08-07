@@ -16,7 +16,9 @@ public:
   virtual ezResult ReloadControls() = 0;
 
 protected:
-  virtual ezResult SerializeTriggerControl(ezStreamWriter* stream, const ezAudioSystemTriggerData* triggerData) = 0;
+  virtual ezResult SerializeTriggerControl(ezStreamWriter* pStream, const ezAudioSystemTriggerData* pTriggerData) = 0;
+  virtual ezResult SerializeRtpcControl(ezStreamWriter* pStream, const ezAudioSystemRtpcData* pRtpcData) = 0;
 
-  virtual ezResult CreateTriggerControl(const char* szTriggerName, const ezAudioSystemTriggerData* triggerData);
+  virtual ezResult CreateTriggerControl(const char* szTriggerName, const ezAudioSystemTriggerData* pTriggerData);
+  virtual ezResult CreateRtpcControl(const char* szRtpcName, const ezAudioSystemRtpcData* prtRtpcData);
 };

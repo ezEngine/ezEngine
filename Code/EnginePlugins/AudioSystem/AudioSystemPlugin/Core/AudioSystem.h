@@ -119,6 +119,8 @@ private:
 
   void RegisterTrigger(const char* szTriggerName, const char* szControlFile);
   void RegisterTrigger(const char* szTriggerName, ezStreamReader* pStreamReader);
+  void RegisterRtpc(const char* szTriggerName, const char* szControlFile);
+  void RegisterRtpc(const char* szRtpcName, ezStreamReader* pStreamReader);
 
   ezAudioThread* m_pAudioThread = nullptr;
   ezAudioTranslationLayer m_AudioTranslationLayer;

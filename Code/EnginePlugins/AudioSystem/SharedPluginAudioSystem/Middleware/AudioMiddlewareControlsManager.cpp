@@ -33,4 +33,31 @@ ezResult ezAudioMiddlewareControlsManager::CreateTriggerControl(const char* szTr
   return EZ_FAILURE;
 }
 
+ezResult ezAudioMiddlewareControlsManager::CreateRtpcControl(const char* szRtpcName, const ezAudioSystemRtpcData* prtRtpcData)
+{
+  ezStringBuilder sbOutputFile;
+  sbOutputFile.Format(":atl/Rtpcs/{0}.ezAudioSystemControl", szRtpcName);
+
+  ezStringBuilder sbAssetPath;
+  if (ezFileSystem::ResolvePath(sbOutputFile, &sbAssetPath, nullptr).Failed())
+    return EZ_FAILURE;
+
+  ezFileWriter file;
+  if (file.Open(sbAssetPath, 256).Failed())
+    return EZ_FAILURE;
+
+  // Set the control type
+  file << ezAudioSystemControlType::Rtpc;
+
+  // Serialize the trigger data. This method is implemented by the audio middleware.
+  if (SerializeRtpcControl(&file, prtRtpcData).Succeeded())
+  {
+    file.Close();
+    return EZ_SUCCESS;
+  }
+
+  file.Close();
+  return EZ_FAILURE;
+}
+
 EZ_STATICLINK_FILE(SharedPluginAudioSystem, SharedPluginAudioSystem_Middleware_AudioMiddlewareControlsManager);

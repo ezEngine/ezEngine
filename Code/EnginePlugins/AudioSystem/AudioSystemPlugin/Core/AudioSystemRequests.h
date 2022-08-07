@@ -270,6 +270,39 @@ struct EZ_AUDIOSYSTEMPLUGIN_DLL ezAudioSystemRequestUnloadTrigger : public ezAud
   EZ_DECLARE_AUDIOSYSTEM_REQUEST_TYPE(ezAudioSystemRequestUnloadTrigger);
 };
 
+/// \brief Audio request to set the value of a real-time parameter.
+struct EZ_AUDIOSYSTEMPLUGIN_DLL ezAudioSystemRequestSetRtpcValue : public ezAudioSystemRequest
+{
+  EZ_DECLARE_POD_TYPE();
+  EZ_DECLARE_AUDIOSYSTEM_REQUEST_CALLBACK(ezAudioSystemRequestSetRtpcValue);
+
+  bool operator==(const ezAudioSystemRequestSetRtpcValue& rhs) const
+  {
+    return static_cast<ezAudioSystemRequest>(*this) == static_cast<ezAudioSystemRequest>(rhs) && m_fValue == rhs.m_fValue;
+  }
+  bool operator!=(const ezAudioSystemRequestSetRtpcValue& rhs) const
+  {
+    return !(*this == rhs);
+  }
+
+  /// \brief The new parameter's value.
+  float m_fValue{0.0f};
+};
+
+template <>
+struct ezHashHelper<ezAudioSystemRequestSetRtpcValue>
+{
+  EZ_ALWAYS_INLINE static ezUInt32 Hash(const ezAudioSystemRequestSetRtpcValue& value)
+  {
+    return ezHashHelper<ezAudioSystemRequest>::Hash(value) * ezHashHelper<ezInt32>::Hash(ezMath::FloatToInt(value.m_fValue * 1000.0f));
+  }
+
+  EZ_ALWAYS_INLINE static bool Equal(const ezAudioSystemRequestSetRtpcValue& a, const ezAudioSystemRequestSetRtpcValue& b)
+  {
+    return a == b;
+  }
+};
+
 /// \brief Audio request to shutdown the audio system. Used internally only. Sending this request
 /// at runtime will lead to unspecified behaviors.
 struct EZ_AUDIOSYSTEMPLUGIN_DLL ezAudioSystemRequestShutdown : public ezAudioSystemRequest
@@ -286,67 +319,47 @@ struct CallRequestCallbackFunc
   }
 
   template <typename T>
+  EZ_ALWAYS_INLINE void Call() const
+  {
+    ezResult conversionStatus = EZ_SUCCESS;
+    const auto& request = m_Value.ConvertTo<T>(&conversionStatus);
+
+    if (conversionStatus.Succeeded())
+    {
+      request.m_Callback(request);
+    }
+  }
+
+  template <typename T>
   void operator()()
   {
     if (m_Value.IsA<ezAudioSystemRequestRegisterEntity>())
     {
-      ezResult conversionStatus = EZ_SUCCESS;
-      const auto& request = m_Value.ConvertTo<ezAudioSystemRequestRegisterEntity>(&conversionStatus);
-
-      if (conversionStatus.Succeeded())
-      {
-        request.m_Callback(request);
-      }
+      Call<ezAudioSystemRequestRegisterEntity>();
     }
     else if (m_Value.IsA<ezAudioSystemRequestUnregisterEntity>())
     {
-      ezResult conversionStatus = EZ_SUCCESS;
-      const auto& request = m_Value.ConvertTo<ezAudioSystemRequestUnregisterEntity>(&conversionStatus);
-
-      if (conversionStatus.Succeeded())
-      {
-        request.m_Callback(request);
-      }
+      Call<ezAudioSystemRequestUnregisterEntity>();
     }
     else if (m_Value.IsA<ezAudioSystemRequestLoadTrigger>())
     {
-      ezResult conversionStatus = EZ_SUCCESS;
-      const auto& request = m_Value.ConvertTo<ezAudioSystemRequestLoadTrigger>(&conversionStatus);
-
-      if (conversionStatus.Succeeded())
-      {
-        request.m_Callback(request);
-      }
+      Call<ezAudioSystemRequestLoadTrigger>();
     }
     else if (m_Value.IsA<ezAudioSystemRequestActivateTrigger>())
     {
-      ezResult conversionStatus = EZ_SUCCESS;
-      const auto& request = m_Value.ConvertTo<ezAudioSystemRequestActivateTrigger>(&conversionStatus);
-
-      if (conversionStatus.Succeeded())
-      {
-        request.m_Callback(request);
-      }
+      Call<ezAudioSystemRequestActivateTrigger>();
     }
     else if (m_Value.IsA<ezAudioSystemRequestStopEvent>())
     {
-      ezResult conversionStatus = EZ_SUCCESS;
-      const auto& request = m_Value.ConvertTo<ezAudioSystemRequestStopEvent>(&conversionStatus);
-
-      if (conversionStatus.Succeeded())
-      {
-        request.m_Callback(request);
-      }
+      Call<ezAudioSystemRequestStopEvent>();
+    }
+    else if (m_Value.IsA<ezAudioSystemRequestSetRtpcValue>())
+    {
+      Call<ezAudioSystemRequestSetRtpcValue>();
     }
     else if (m_Value.IsA<ezAudioSystemRequestShutdown>())
     {
-      ezResult conversionStatus = EZ_SUCCESS;
-      const auto& request = m_Value.ConvertTo<ezAudioSystemRequestShutdown>(&conversionStatus);
-
-      if (conversionStatus.Succeeded())
-      {
-        request.m_Callback(request);
-      }
+      Call<ezAudioSystemRequestShutdown>();
     }
     else
     {
@@ -377,6 +390,10 @@ EZ_DECLARE_CUSTOM_VARIANT_TYPE(ezAudioSystemRequestActivateTrigger);
 EZ_DECLARE_AUDIOSYSTEM_REQUEST_STREAM_OPERATORS(ezAudioSystemRequestStopEvent);
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_AUDIOSYSTEMPLUGIN_DLL, ezAudioSystemRequestStopEvent);
 EZ_DECLARE_CUSTOM_VARIANT_TYPE(ezAudioSystemRequestStopEvent);
+
+EZ_DECLARE_AUDIOSYSTEM_REQUEST_STREAM_OPERATORS(ezAudioSystemRequestSetRtpcValue);
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_AUDIOSYSTEMPLUGIN_DLL, ezAudioSystemRequestSetRtpcValue);
+EZ_DECLARE_CUSTOM_VARIANT_TYPE(ezAudioSystemRequestSetRtpcValue);
 
 EZ_DECLARE_AUDIOSYSTEM_REQUEST(ezAudioSystemRequestUnloadTrigger);
 EZ_DECLARE_AUDIOSYSTEM_REQUEST(ezAudioSystemRequestShutdown);

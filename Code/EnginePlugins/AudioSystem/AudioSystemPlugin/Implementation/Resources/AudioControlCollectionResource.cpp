@@ -121,6 +121,9 @@ void ezAudioControlCollectionResource::Register()
       case ezAudioSystemControlType::Trigger:
         pAudioSystem->RegisterTrigger(entry.m_sName, &reader);
         break;
+      case ezAudioSystemControlType::Rtpc:
+        pAudioSystem->RegisterRtpc(entry.m_sName, &reader);
+        break;
     }
   }
 }

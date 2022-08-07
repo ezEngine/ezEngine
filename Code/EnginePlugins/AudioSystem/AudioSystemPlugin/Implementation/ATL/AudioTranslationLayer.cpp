@@ -110,6 +110,18 @@ ezAudioSystemDataID ezAudioTranslationLayer::GetTriggerId(const char* szTriggerN
   return 0;
 }
 
+ezAudioSystemDataID ezAudioTranslationLayer::GetRtpcId(const char* szRtpcName) const
+{
+  const auto uiRtpcId = ezHashHelper<const char*>::Hash(szRtpcName);
+  if (const auto it = m_mRtpcs.Find(uiRtpcId); it.IsValid())
+  {
+    ezLog::Info("Found rtpc {0}: {1}", szRtpcName, uiRtpcId);
+    return uiRtpcId;
+  }
+
+  return 0;
+}
+
 void ezAudioTranslationLayer::ProcessRequest(ezVariant&& request)
 {
   ezLog::Info("ATL received a request");
@@ -225,13 +237,13 @@ void ezAudioTranslationLayer::ProcessRequest(ezVariant&& request)
 
     if (!m_mEntities.Contains(audioRequest.m_uiEntityId))
     {
-      ezLog::Error("Failed to stop trigger {0}. It references an unregistered entity {1}.", audioRequest.m_uiObjectId, audioRequest.m_uiEntityId);
+      ezLog::Error("Failed to stop trigger {0}. It references an unregistered entity {1}.", audioRequest.m_uiTriggerId, audioRequest.m_uiEntityId);
       return;
     }
 
     if (!m_mTriggers.Contains(audioRequest.m_uiTriggerId))
     {
-      ezLog::Error("Failed to stop trigger {0}. Make sure it was registered before.", audioRequest.m_uiObjectId);
+      ezLog::Error("Failed to stop trigger {0}. Make sure it was registered before.", audioRequest.m_uiTriggerId);
       return;
     }
 
@@ -247,6 +259,29 @@ void ezAudioTranslationLayer::ProcessRequest(ezVariant&& request)
 
     audioRequest.m_eStatus = pAudioMiddleware->StopEvent(entity->m_pEntityData, pEventData);
 
+    needCallback = audioRequest.m_Callback.IsValid();
+  }
+
+  if (request.IsA<ezAudioSystemRequestSetRtpcValue>())
+  {
+    auto& audioRequest = request.GetWritable<ezAudioSystemRequestSetRtpcValue>();
+
+    if (!m_mEntities.Contains(audioRequest.m_uiEntityId))
+    {
+      ezLog::Error("Failed to set the rtpc {0}. It references an unregistered entity {1}.", audioRequest.m_uiObjectId, audioRequest.m_uiEntityId);
+      return;
+    }
+
+    if (!m_mRtpcs.Contains(audioRequest.m_uiObjectId))
+    {
+      ezLog::Error("Failed to set rtpc {0}. Make sure it was registered before.", audioRequest.m_uiObjectId);
+      return;
+    }
+
+    const auto& entity = m_mEntities[audioRequest.m_uiEntityId];
+    const auto& rtpc = m_mRtpcs[audioRequest.m_uiObjectId];
+
+    audioRequest.m_eStatus = pAudioMiddleware->SetRtpc(entity->m_pEntityData, rtpc->m_pRtpcData, audioRequest.m_fValue);
     needCallback = audioRequest.m_Callback.IsValid();
   }
 
@@ -273,6 +308,18 @@ void ezAudioTranslationLayer::RegisterTrigger(ezAudioSystemDataID uiId, ezAudioS
 
   ezLog::Info("ATL: Registering a trigger with id {0}", uiId);
   m_mTriggers[uiId] = EZ_AUDIOSYSTEM_NEW(ezATLTrigger, uiId, pTriggerData);
+}
+
+void ezAudioTranslationLayer::RegisterRtpc(ezAudioSystemDataID uiId, ezAudioSystemRtpcData* pTriggerData)
+{
+  if (m_mRtpcs.Contains(uiId))
+  {
+    ezLog::Warning("ATL: Rtpc with id {0} already exists. Skipping new registration.", uiId);
+    return;
+  }
+
+  ezLog::Info("ATL: Registering a rtpc with id {0}", uiId);
+  m_mRtpcs[uiId] = EZ_AUDIOSYSTEM_NEW(ezATLRtpc, uiId, pTriggerData);
 }
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)

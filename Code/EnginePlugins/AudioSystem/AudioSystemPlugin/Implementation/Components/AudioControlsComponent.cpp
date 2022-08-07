@@ -64,8 +64,7 @@ void ezAudioControlsComponent::DeserializeComponent(ezWorldReader& stream)
 
   auto& s = stream.GetStream();
 
-  const ezTypeVersion uiVersion = s.ReadVersion(kVersion_AudioControlsComponent);
-  EZ_ASSERT_DEV(uiVersion <= kVersion_AudioControlsComponent, "Invalid component version.");
+  s.ReadVersion(kVersion_AudioControlsComponent);
 
   s >> m_sControlsAsset;
   s >> m_bAutoLoad;

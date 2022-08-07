@@ -23,19 +23,19 @@ struct EZ_AUDIOSYSTEMPLUGIN_DLL ezAudioSystemControlType
     Trigger = 1,
 
     /// \brief The control is a real-time parameter.
-    Rtpc = 1,
+    Rtpc = 2,
 
     /// \brief The control is a sound bank.
-    SoundBank = 2,
+    SoundBank = 3,
 
     /// \brief The control is a switch container.
-    Switch = 3,
+    Switch = 4,
 
     /// \brief The control is a switch state.
-    SwitchState = 4,
+    SwitchState = 5,
 
     /// \brief The control is an environment effect.
-    Environment = 5,
+    Environment = 6,
 
     Default = Invalid,
   };
@@ -85,26 +85,26 @@ struct EZ_AUDIOSYSTEMPLUGIN_DLL ezAudioSystemTriggerState
     Invalid = 0,
 
     /// \brief The trigger is activated and currently playing an event.
-    Playing = 1 << 1,
-
+    Playing = 1,
+    
     /// \brief The trigger is ready to be activated. This state is set after the
     /// trigger is loaded through LoadTrigger.
-    Ready = 2 << 1,
-
+    Ready = 2,
+    
     /// \brief The trigger is being loaded.
-    Loading = 3 << 1,
+    Loading = 3,
 
     /// \brief The trigger is being unloaded.
-    Unloading = 4 << 1,
+    Unloading = 4,
 
     /// \brief The trigger is being activated.
-    Starting = 5 << 1,
+    Starting = 5,
 
     /// \brief The trigger is being stopped.
-    Stopping = 6 << 1,
+    Stopping = 6,
 
     /// \brief The trigger is stopped, and not playing an event.
-    Stopped = 7 << 1,
+    Stopped = 7,
 
     Default = Invalid,
   };
@@ -122,13 +122,13 @@ enum class EZ_AUDIOSYSTEMPLUGIN_DLL ezAudioSystemEventState : ezUInt8
   Invalid = 0,
 
   /// \brief The event is currently playing audio.
-  Playing = 1 << 0,
-
+  Playing = 1,
+  
   /// \brief The event is loading.
-  Loading = 2 << 0,
-
+  Loading = 2,
+  
   /// \brief The event is being unloaded.
-  Unloading = 3 << 0,
+  Unloading = 3,
 };
 
 /// \brief Base class for an audio middleware entity.
@@ -156,8 +156,11 @@ public:
 };
 
 /// \brief Base class for an audio middleware RTPC.
-struct EZ_AUDIOSYSTEMPLUGIN_DLL ezAudioSystemRtpcData
+class EZ_AUDIOSYSTEMPLUGIN_DLL ezAudioSystemRtpcData : public ezReflectedClass
 {
+  EZ_ADD_DYNAMIC_REFLECTION(ezAudioSystemRtpcData, ezReflectedClass);
+
+public:
   virtual ~ezAudioSystemRtpcData() = default;
 };
 

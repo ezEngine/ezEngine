@@ -4,11 +4,20 @@
 
 #include <AudioSystemPlugin/Core/AudioSystemData.h>
 
+#include <Core/Messages/EventMessage.h>
 #include <Foundation/Communication/Message.h>
 
 struct EZ_AUDIOSYSTEMPLUGIN_DLL ezMsgAudioSystemSetRtpcValue : public ezMessage
 {
   EZ_DECLARE_MESSAGE_TYPE(ezMsgAudioSystemSetRtpcValue, ezMessage);
+
+  float m_fValue{0.0f};
+  bool m_bSync{false};
+};
+
+struct EZ_AUDIOSYSTEMPLUGIN_DLL ezMsgAudioSystemRtpcValueChanged : public ezEventMessage
+{
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgAudioSystemRtpcValueChanged, ezEventMessage);
 
   float m_fValue{0.0f};
 };

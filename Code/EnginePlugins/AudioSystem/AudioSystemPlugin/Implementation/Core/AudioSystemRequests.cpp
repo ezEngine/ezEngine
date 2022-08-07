@@ -68,6 +68,20 @@ void operator>>(ezStreamReader& Stream, ezAudioSystemRequestStopEvent& Value)
   Stream >> Value.m_uiTriggerId;
 }
 
+EZ_DEFINE_CUSTOM_VARIANT_TYPE(ezAudioSystemRequestSetRtpcValue);
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezAudioSystemRequestSetRtpcValue, ezAudioSystemRequest, 1, ezRTTIDefaultAllocator<ezAudioSystemRequestSetRtpcValue>)
+EZ_END_STATIC_REFLECTED_TYPE;
+void operator<<(ezStreamWriter& Stream, const ezAudioSystemRequestSetRtpcValue& Value)
+{
+  Stream << static_cast<const ezAudioSystemRequest&>(Value);
+  Stream << Value.m_fValue;
+}
+void operator>>(ezStreamReader& Stream, ezAudioSystemRequestSetRtpcValue& Value)
+{
+  Stream >> static_cast<ezAudioSystemRequest&>(Value);
+  Stream >> Value.m_fValue;
+}
+
 EZ_DEFINE_CUSTOM_VARIANT_TYPE(ezAudioSystemRequestUnloadTrigger);
 EZ_DEFINE_AUDIOSYSTEM_STREAM_OPERATORS_BASIC(ezAudioSystemRequestUnloadTrigger);
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezAudioSystemRequestUnloadTrigger, ezAudioSystemRequest, 1, ezRTTIDefaultAllocator<ezAudioSystemRequestUnloadTrigger>)

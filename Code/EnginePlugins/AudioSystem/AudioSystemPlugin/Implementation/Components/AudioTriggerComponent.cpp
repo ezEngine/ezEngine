@@ -435,8 +435,7 @@ void ezAudioTriggerComponent::DeserializeComponent(ezWorldReader& stream)
 
   auto& s = stream.GetStream();
 
-  const ezTypeVersion uiVersion = s.ReadVersion(kVersion_AudioTriggerComponent);
-  EZ_ASSERT_DEV(uiVersion <= kVersion_AudioTriggerComponent, "Invalid audio trigger component version.");
+  s.ReadVersion(kVersion_AudioTriggerComponent);
 
   s >> m_sPlayTrigger;
   s >> m_sStopTrigger;
