@@ -158,7 +158,16 @@ void ezEditorEngineProcessConnection::Initialize(const ezRTTI* pFirstAllowedMess
     args << ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-TelemetryPort", 0, "1050");
   }
 
-  if (m_IPC.StartClientProcess("EditorEngineProcess.exe", args, false, pFirstAllowedMessageType).Failed())
+  #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  const char* EditorEngineProcessExecutableName = "EditorEngineProcess.exe";
+  #elif EZ_ENABLED(EZ_PLATFORM_LINUX)
+  const char* EditorEngineProcessExecutableName = "EditorEngineProcess";
+  #else
+  #error Platform not supported
+  #endif
+
+
+  if (m_IPC.StartClientProcess(EditorEngineProcessExecutableName, args, false, pFirstAllowedMessageType).Failed())
   {
     m_bProcessCrashed = true;
   }
