@@ -10,6 +10,7 @@ template <typename T>
 using ezATLMapLookup = ezMap<ezAudioSystemDataID, T*, ezCompareHelper<ezAudioSystemDataID>, ezAudioSystemAllocatorWrapper>;
 
 using ezATLEntityLookup = ezATLMapLookup<class ezATLEntity>;
+using ezATLListenerLookup = ezATLMapLookup<class ezATLListener>;
 using ezATLTriggerLookup = ezATLMapLookup<class ezATLTrigger>;
 using ezATLEventLookup = ezATLMapLookup<class ezATLEvent>;
 using ezATLRtpcLookup = ezATLMapLookup<class ezATLRtpc>;
@@ -42,7 +43,6 @@ public:
 
   ~ezATLListener() override = default;
 
-  ezTransform m_tTransform;
   ezAudioSystemListenerData* const m_pListenerData;
 };
 
@@ -58,7 +58,6 @@ public:
 
   ~ezATLEntity() override = default;
 
-  ezTransform m_tTransform;
   ezAudioSystemEntityData* const m_pEntityData;
 };
 
@@ -69,7 +68,6 @@ public:
   explicit ezATLTrigger(const ezAudioSystemDataID uiId, ezAudioSystemTriggerData* const pTriggerData = nullptr)
     : ezATLControl(uiId)
     , m_pTriggerData(pTriggerData)
-    , m_mEvents()
   {
   }
 

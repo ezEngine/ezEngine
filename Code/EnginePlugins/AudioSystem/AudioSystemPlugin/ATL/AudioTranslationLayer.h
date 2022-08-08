@@ -40,6 +40,7 @@ private:
 
   // ATLObject containers
   ezATLEntityLookup m_mEntities;
+  ezATLListenerLookup m_mListeners;
   ezATLTriggerLookup m_mTriggers;
   ezATLRtpcLookup m_mRtpcs;
   // ezATLSwitchLookup m_mSwitches;

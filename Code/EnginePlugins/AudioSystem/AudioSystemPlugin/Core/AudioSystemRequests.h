@@ -171,6 +171,8 @@ struct EZ_AUDIOSYSTEMPLUGIN_DLL ezAudioSystemRequestRegisterEntity : public ezAu
 {
   EZ_DECLARE_AUDIOSYSTEM_REQUEST_TYPE(ezAudioSystemRequestRegisterEntity, m_sName == rhs.m_sName);
 
+  /// \brief A friendly name for the entity. Not very used by most of the audio engines for
+  /// other purposes than debugging.
   ezString m_sName;
 };
 
@@ -178,6 +180,38 @@ struct EZ_AUDIOSYSTEMPLUGIN_DLL ezAudioSystemRequestRegisterEntity : public ezAu
 struct EZ_AUDIOSYSTEMPLUGIN_DLL ezAudioSystemRequestUnregisterEntity : public ezAudioSystemRequest
 {
   EZ_DECLARE_AUDIOSYSTEM_REQUEST_TYPE_SIMPLE(ezAudioSystemRequestUnregisterEntity);
+};
+
+/// \brief Audio request to register a new listener in the audio system.
+struct EZ_AUDIOSYSTEMPLUGIN_DLL ezAudioSystemRequestRegisterListener : public ezAudioSystemRequest
+{
+  EZ_DECLARE_AUDIOSYSTEM_REQUEST_TYPE(ezAudioSystemRequestRegisterListener, m_sName == rhs.m_sName);
+
+  /// \brief A friendly name for the listener. Not very used by most of the audio engines for
+  /// other purposes than debugging.
+  ezString m_sName;
+};
+
+/// \brief Audio request to unregister a listener from the audio system.
+struct EZ_AUDIOSYSTEMPLUGIN_DLL ezAudioSystemRequestUnregisterListener : public ezAudioSystemRequest
+{
+  EZ_DECLARE_AUDIOSYSTEM_REQUEST_TYPE_SIMPLE(ezAudioSystemRequestUnregisterListener);
+};
+
+/// \brief Audio request to set the transform and velocity of a listener.
+struct EZ_AUDIOSYSTEMPLUGIN_DLL ezAudioSystemRequestSetListenerTransform : public ezAudioSystemRequest
+{
+  // clang-format off
+  EZ_DECLARE_AUDIOSYSTEM_REQUEST_TYPE(
+    ezAudioSystemRequestSetListenerTransform,
+    m_vPosition == rhs.m_vPosition && m_vForward == rhs.m_vForward && m_vUp == rhs.m_vUp && m_vVelocity == rhs.m_vVelocity
+  );
+  // clang-format on
+
+  ezVec3 m_vPosition;
+  ezVec3 m_vForward;
+  ezVec3 m_vUp;
+  ezVec3 m_vVelocity;
 };
 
 /// \brief Audio request to load data needed to activate a trigger.
@@ -228,6 +262,21 @@ struct EZ_AUDIOSYSTEMPLUGIN_DLL ezAudioSystemRequestShutdown : public ezAudioSys
 {
   EZ_DECLARE_AUDIOSYSTEM_REQUEST_TYPE_SIMPLE(ezAudioSystemRequestShutdown);
 };
+
+EZ_DECLARE_AUDIOSYSTEM_REQUEST_STREAM_OPERATORS(ezAudioSystemRequest);
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_AUDIOSYSTEMPLUGIN_DLL, ezAudioSystemRequest);
+
+EZ_DECLARE_AUDIOSYSTEM_REQUEST(ezAudioSystemRequestRegisterEntity, ezHashHelper<ezString>::Hash(value.m_sName));
+EZ_DECLARE_AUDIOSYSTEM_REQUEST_SIMPLE(ezAudioSystemRequestUnregisterEntity);
+EZ_DECLARE_AUDIOSYSTEM_REQUEST(ezAudioSystemRequestRegisterListener, ezHashHelper<ezString>::Hash(value.m_sName));
+EZ_DECLARE_AUDIOSYSTEM_REQUEST_SIMPLE(ezAudioSystemRequestUnregisterListener);
+EZ_DECLARE_AUDIOSYSTEM_REQUEST_SIMPLE(ezAudioSystemRequestSetListenerTransform); // TODO: Hash ezVec3
+EZ_DECLARE_AUDIOSYSTEM_REQUEST(ezAudioSystemRequestLoadTrigger, ezHashHelper<ezAudioSystemDataID>::Hash(value.m_uiEventId));
+EZ_DECLARE_AUDIOSYSTEM_REQUEST(ezAudioSystemRequestActivateTrigger, ezHashHelper<ezAudioSystemDataID>::Hash(value.m_uiEventId));
+EZ_DECLARE_AUDIOSYSTEM_REQUEST(ezAudioSystemRequestStopEvent, ezHashHelper<ezAudioSystemDataID>::Hash(value.m_uiTriggerId));
+EZ_DECLARE_AUDIOSYSTEM_REQUEST_SIMPLE(ezAudioSystemRequestUnloadTrigger);
+EZ_DECLARE_AUDIOSYSTEM_REQUEST(ezAudioSystemRequestSetRtpcValue, ezHashHelper<ezInt32>::Hash(ezMath::FloatToInt(value.m_fValue * 1000.0f)));
+EZ_DECLARE_AUDIOSYSTEM_REQUEST_SIMPLE(ezAudioSystemRequestShutdown);
 
 /// \brief A functor used by ezVariant to call an audio request callback.
 struct CallRequestCallbackFunc
@@ -288,15 +337,3 @@ struct CallRequestCallbackFunc
 
   const ezVariant& m_Value;
 };
-
-EZ_DECLARE_AUDIOSYSTEM_REQUEST_STREAM_OPERATORS(ezAudioSystemRequest);
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_AUDIOSYSTEMPLUGIN_DLL, ezAudioSystemRequest);
-
-EZ_DECLARE_AUDIOSYSTEM_REQUEST(ezAudioSystemRequestRegisterEntity, ezHashHelper<ezString>::Hash(value.m_sName));
-EZ_DECLARE_AUDIOSYSTEM_REQUEST_SIMPLE(ezAudioSystemRequestUnregisterEntity);
-EZ_DECLARE_AUDIOSYSTEM_REQUEST(ezAudioSystemRequestLoadTrigger, ezHashHelper<ezAudioSystemDataID>::Hash(value.m_uiEventId));
-EZ_DECLARE_AUDIOSYSTEM_REQUEST(ezAudioSystemRequestActivateTrigger, ezHashHelper<ezAudioSystemDataID>::Hash(value.m_uiEventId));
-EZ_DECLARE_AUDIOSYSTEM_REQUEST(ezAudioSystemRequestStopEvent, ezHashHelper<ezAudioSystemDataID>::Hash(value.m_uiTriggerId));
-EZ_DECLARE_AUDIOSYSTEM_REQUEST_SIMPLE(ezAudioSystemRequestUnloadTrigger);
-EZ_DECLARE_AUDIOSYSTEM_REQUEST(ezAudioSystemRequestSetRtpcValue, ezHashHelper<ezInt32>::Hash(ezMath::FloatToInt(value.m_fValue * 1000.0f)));
-EZ_DECLARE_AUDIOSYSTEM_REQUEST_SIMPLE(ezAudioSystemRequestShutdown);

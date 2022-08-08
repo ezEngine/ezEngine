@@ -141,8 +141,11 @@ public:
 };
 
 /// \brief Base class for an audio middleware listener.
-struct EZ_AUDIOSYSTEMPLUGIN_DLL ezAudioSystemListenerData
+class EZ_AUDIOSYSTEMPLUGIN_DLL ezAudioSystemListenerData : public ezReflectedClass
 {
+  EZ_ADD_DYNAMIC_REFLECTION(ezAudioSystemListenerData, ezReflectedClass);
+
+public:
   virtual ~ezAudioSystemListenerData() = default;
 };
 

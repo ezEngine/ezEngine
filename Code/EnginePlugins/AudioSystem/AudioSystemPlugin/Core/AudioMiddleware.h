@@ -76,9 +76,12 @@ public:
 
   /// \brief Sets the global position (world position) of an entity.
   /// \param pEntityData The entity on which set the global position.
-  /// \param tTransform The game object transformation data (in world space).
+  /// \param vPosition The global position of the entity.
+  /// \param vForward The forward direction of the entity.
+  /// \param vUp The up direction of the entity.
+  /// \param vVelocity The velocity of the entity.
   /// \return EZ_SUCCESS when the operation is successful, EZ_FAILURE otherwise.
-  virtual ezResult SetEntityTransform(ezAudioSystemEntityData* pEntityData, const ezTransform& tTransform) = 0;
+  virtual ezResult SetEntityTransform(ezAudioSystemEntityData* pEntityData, const ezVec3& vPosition, const ezVec3& vForward, const ezVec3& vUp, const ezVec3& vVelocity) = 0;
 
   /// \brief Loads a trigger for a further activation.
   /// All the data and media needed by the trigger will be loaded. Once done, the trigger status will
@@ -144,11 +147,33 @@ public:
   /// \return EZ_SUCCESS when the operation is successful, EZ_FAILURE otherwise.
   virtual ezResult SetEnvironmentAmount(ezAudioSystemEntityData* pEntityData, const ezAudioSystemEnvironmentData* pEnvironmentData, float fAmount) = 0;
 
+  /// \brief Add/register a listener in the audio middleware.
+  /// This is needed to let the middleware know where to render audio, and to provide
+  /// transformation values (position and orientation).
+  /// \param pListenerData The listener that should be added in the audio middleware.
+  /// \param szListenerName The name of the game object representing that listener. (Can be used for debug purposes)
+  /// \return EZ_SUCCESS when the operation is successful, EZ_FAILURE otherwise.
+  virtual ezResult AddListener(ezAudioSystemListenerData* pListenerData, const char* szListenerName) = 0;
+
+  /// \brief Resets a listener state.
+  /// \param pListenerData The listener that should be reset.
+  /// \return EZ_SUCCESS when the operation is successful, EZ_FAILURE otherwise.
+  virtual ezResult ResetListener(ezAudioSystemListenerData* pListenerData) = 0;
+
+  /// \brief Remove/unregister a listener from the audio middleware.
+  /// This action disable the possibility to update the position of the listener.
+  /// \param pListenerData The listener that should be removed from the audio middleware.
+  /// \return EZ_SUCCESS when the operation is successful, EZ_FAILURE otherwise.
+  virtual ezResult RemoveListener(ezAudioSystemListenerData* pListenerData) = 0;
+
   /// \brief Sets the global transform (wold position and orientation) of a listener.
   /// \param pListenerData The listener data.
-  /// \param tTransform The global transform.
+  /// \param vPosition The global position of the listener.
+  /// \param vForward The forward direction of the listener.
+  /// \param vUp The up direction of the listener.
+  /// \param vVelocity The velocity of the listener.
   /// \return EZ_SUCCESS when the operation is successful, EZ_FAILURE otherwise.
-  virtual ezResult SetListenerTransform(ezAudioSystemListenerData* pListenerData, const ezTransform& tTransform) = 0;
+  virtual ezResult SetListenerTransform(ezAudioSystemListenerData* pListenerData, const ezVec3& vPosition, const ezVec3& vForward, const ezVec3& vUp, const ezVec3& vVelocity) = 0;
 
   /// \brief Loads a bank file.
   /// \param pBankData The bank data used for loading.

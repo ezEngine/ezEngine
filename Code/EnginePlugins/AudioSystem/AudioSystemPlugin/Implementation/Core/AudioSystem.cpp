@@ -8,6 +8,8 @@
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Time/Clock.h>
 
+constexpr ezAudioSystemDataID kEditorListenerId = 1; // EZ will send -1 as ID in override mode, but we use 1 internally
+
 ezThreadID gMainThreadId = static_cast<ezThreadID>(0);
 
 ezCVarInt cvar_AudioSystemMemoryEntitiesPoolSize("Audio.Memory.EntitiesPoolSize", 1024, ezCVarFlags::Save, "Specify the pre-allocated number of entities in the pool.");
@@ -101,18 +103,34 @@ ezUInt8 ezAudioSystem::GetNumListeners()
 
 void ezAudioSystem::SetListenerOverrideMode(bool enabled)
 {
+  m_bListenerOverrideMode = enabled;
 }
 
 void ezAudioSystem::SetListener(ezInt32 iIndex, const ezVec3& vPosition, const ezVec3& vForward, const ezVec3& vUp, const ezVec3& vVelocity)
 {
+  ezAudioSystemRequestSetListenerTransform request;
+
+  // Index is -1 when inside the editor, listener is overriden when simulating. Both of them seems to mean the listener is the editor camera. Need to be sure about that...
+  request.m_uiListenerId = m_bListenerOverrideMode || iIndex == -1 ? kEditorListenerId : static_cast<ezAudioSystemDataID>(iIndex);
+  request.m_vPosition = vPosition;
+  request.m_vForward = vForward;
+  request.m_vUp = vUp;
+  request.m_vVelocity = vVelocity;
+
+  if (m_bListenerOverrideMode)
+  {
+    SendRequestSync(request);
+  }
+  else
+  {
+    SendRequest(request);
+  }
 }
 
 ezAudioSystem::ezAudioSystem()
   : m_SingletonRegistrar(this)
-  , m_AudioTranslationLayer()
-  , m_MainEvent()
-  , m_ProcessingEvent()
   , m_bInitialized(false)
+  , m_bListenerOverrideMode(false)
 {
   gMainThreadId = ezThreadUtils::GetCurrentThreadID();
 }
@@ -143,6 +161,16 @@ bool ezAudioSystem::Startup()
     // Start audio thread
     StartAudioThread();
     m_bInitialized = true;
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+    // Register the default (editor) listener
+    ezAudioSystemRequestRegisterListener request;
+
+    request.m_uiListenerId = kEditorListenerId;
+    request.m_sName = "Editor Listener";
+
+    SendRequestSync(request);
+#endif
   }
 
   return m_bInitialized;
@@ -151,6 +179,15 @@ bool ezAudioSystem::Startup()
 void ezAudioSystem::Shutdown()
 {
   EZ_ASSERT_ALWAYS(gMainThreadId == ezThreadUtils::GetCurrentThreadID(), "AudioSystem::Shutdown not called from main thread.");
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  // Unregister the default (editor) listener
+  ezAudioSystemRequestUnregisterListener request;
+
+  request.m_uiListenerId = kEditorListenerId;
+
+  SendRequestSync(request);
+#endif
 
   ezAudioSystemRequestShutdown shutdownRequest;
   SendRequestSync(shutdownRequest);
@@ -375,11 +412,9 @@ void ezAudioSystem::UpdateInternal()
   if (!handleBlockingRequest)
   {
     const ezTime endTime = ezTime::Now(); // stamp the end time
-
     const ezTime elapsedTime = endTime - startTime;
-    const ezTime frameTime = ezTime::Seconds(1.0f / cvar_AudioSystemFPS);
 
-    if (frameTime > elapsedTime)
+    if (const ezTime frameTime = ezTime::Seconds(1.0f / cvar_AudioSystemFPS); frameTime > elapsedTime)
     {
       const ezTime timeOut = frameTime - elapsedTime;
       EZ_PROFILE_SCOPE_WITH_TIMEOUT("AudioSystem", timeOut);

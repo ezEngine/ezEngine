@@ -124,8 +124,6 @@ ezAudioSystemDataID ezAudioTranslationLayer::GetRtpcId(const char* szRtpcName) c
 
 void ezAudioTranslationLayer::ProcessRequest(ezVariant&& request)
 {
-  ezLog::Info("ATL received a request");
-
   auto* pAudioMiddleware = ezSingletonRegistry::GetSingletonInstance<ezAudioMiddleware>();
 
   if (pAudioMiddleware == nullptr)
@@ -150,7 +148,7 @@ void ezAudioTranslationLayer::ProcessRequest(ezVariant&& request)
     needCallback = audioRequest.m_Callback.IsValid();
   }
 
-  if (request.IsA<ezAudioSystemRequestUnregisterEntity>())
+  else if (request.IsA<ezAudioSystemRequestUnregisterEntity>())
   {
     auto& audioRequest = request.GetWritable<ezAudioSystemRequestUnregisterEntity>();
 
@@ -167,7 +165,57 @@ void ezAudioTranslationLayer::ProcessRequest(ezVariant&& request)
     needCallback = audioRequest.m_Callback.IsValid();
   }
 
-  if (request.IsA<ezAudioSystemRequestLoadTrigger>())
+  else if (request.IsA<ezAudioSystemRequestRegisterListener>())
+  {
+    auto& audioRequest = request.GetWritable<ezAudioSystemRequestRegisterListener>();
+    ezAudioSystemListenerData* pListenerData = pAudioMiddleware->CreateListenerData(audioRequest.m_uiListenerId);
+
+    if (pListenerData == nullptr)
+    {
+      ezLog::Error("Failed to create listener data for listener {0}", audioRequest.m_uiListenerId);
+      return;
+    }
+
+    m_mListeners[audioRequest.m_uiListenerId] = EZ_AUDIOSYSTEM_NEW(ezATLListener, audioRequest.m_uiListenerId, pListenerData);
+    audioRequest.m_eStatus = pAudioMiddleware->AddListener(pListenerData, audioRequest.m_sName);
+
+    needCallback = audioRequest.m_Callback.IsValid();
+  }
+
+  else if (request.IsA<ezAudioSystemRequestUnregisterListener>())
+  {
+    auto& audioRequest = request.GetWritable<ezAudioSystemRequestUnregisterListener>();
+
+    if (!m_mListeners.Contains(audioRequest.m_uiListenerId))
+    {
+      ezLog::Error("Failed to unregister listener {0}. Make sure it was registered before.", audioRequest.m_uiListenerId);
+      return;
+    }
+
+    const auto& listener = m_mListeners[audioRequest.m_uiListenerId];
+    pAudioMiddleware->RemoveListener(listener->m_pListenerData).IgnoreResult();
+    audioRequest.m_eStatus = pAudioMiddleware->DestroyListenerData(listener->m_pListenerData);
+
+    needCallback = audioRequest.m_Callback.IsValid();
+  }
+
+  else if (request.IsA<ezAudioSystemRequestSetListenerTransform>())
+  {
+    auto& audioRequest = request.GetWritable<ezAudioSystemRequestSetListenerTransform>();
+
+    if (!m_mListeners.Contains(audioRequest.m_uiListenerId))
+    {
+      ezLog::Error("Failed to set listener transform {0}. Make sure it was registered before.", audioRequest.m_uiListenerId);
+      return;
+    }
+
+    const auto& listener = m_mListeners[audioRequest.m_uiListenerId];
+    audioRequest.m_eStatus = pAudioMiddleware->SetListenerTransform(listener->m_pListenerData, audioRequest.m_vPosition, audioRequest.m_vForward, audioRequest.m_vUp, audioRequest.m_vVelocity);
+
+    needCallback = audioRequest.m_Callback.IsValid();
+  }
+
+  else if (request.IsA<ezAudioSystemRequestLoadTrigger>())
   {
     auto& audioRequest = request.GetWritable<ezAudioSystemRequestLoadTrigger>();
 
@@ -200,7 +248,7 @@ void ezAudioTranslationLayer::ProcessRequest(ezVariant&& request)
     needCallback = audioRequest.m_Callback.IsValid();
   }
 
-  if (request.IsA<ezAudioSystemRequestActivateTrigger>())
+  else if (request.IsA<ezAudioSystemRequestActivateTrigger>())
   {
     auto& audioRequest = request.GetWritable<ezAudioSystemRequestActivateTrigger>();
 
@@ -231,7 +279,7 @@ void ezAudioTranslationLayer::ProcessRequest(ezVariant&& request)
     needCallback = audioRequest.m_Callback.IsValid();
   }
 
-  if (request.IsA<ezAudioSystemRequestStopEvent>())
+  else if (request.IsA<ezAudioSystemRequestStopEvent>())
   {
     auto& audioRequest = request.GetWritable<ezAudioSystemRequestStopEvent>();
 
@@ -262,7 +310,7 @@ void ezAudioTranslationLayer::ProcessRequest(ezVariant&& request)
     needCallback = audioRequest.m_Callback.IsValid();
   }
 
-  if (request.IsA<ezAudioSystemRequestSetRtpcValue>())
+  else if (request.IsA<ezAudioSystemRequestSetRtpcValue>())
   {
     auto& audioRequest = request.GetWritable<ezAudioSystemRequestSetRtpcValue>();
 
@@ -285,7 +333,7 @@ void ezAudioTranslationLayer::ProcessRequest(ezVariant&& request)
     needCallback = audioRequest.m_Callback.IsValid();
   }
 
-  if (request.IsA<ezAudioSystemRequestShutdown>())
+  else if (request.IsA<ezAudioSystemRequestShutdown>())
   {
     auto& audioRequest = request.GetWritable<ezAudioSystemRequestShutdown>();
     audioRequest.m_eStatus = pAudioMiddleware->Shutdown();

@@ -141,4 +141,6 @@ private:
   ezSemaphore m_ProcessingEvent;
 
   bool m_bInitialized;
+
+  bool m_bListenerOverrideMode;
 };
