@@ -22,7 +22,7 @@ void operator>>(ezStreamReader& Stream, ezAudioSystemRequestRegisterEntity& Valu
 }
 
 EZ_DEFINE_CUSTOM_VARIANT_TYPE(ezAudioSystemRequestUnregisterEntity);
-EZ_DEFINE_AUDIOSYSTEM_STREAM_OPERATORS_BASIC(ezAudioSystemRequestUnregisterEntity);
+EZ_DEFINE_AUDIOSYSTEM_STREAM_OPERATORS_SIMPLE(ezAudioSystemRequestUnregisterEntity);
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezAudioSystemRequestUnregisterEntity, ezAudioSystemRequest, 1, ezRTTIDefaultAllocator<ezAudioSystemRequestUnregisterEntity>)
 EZ_END_STATIC_REFLECTED_TYPE;
 
@@ -83,12 +83,12 @@ void operator>>(ezStreamReader& Stream, ezAudioSystemRequestSetRtpcValue& Value)
 }
 
 EZ_DEFINE_CUSTOM_VARIANT_TYPE(ezAudioSystemRequestUnloadTrigger);
-EZ_DEFINE_AUDIOSYSTEM_STREAM_OPERATORS_BASIC(ezAudioSystemRequestUnloadTrigger);
+EZ_DEFINE_AUDIOSYSTEM_STREAM_OPERATORS_SIMPLE(ezAudioSystemRequestUnloadTrigger);
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezAudioSystemRequestUnloadTrigger, ezAudioSystemRequest, 1, ezRTTIDefaultAllocator<ezAudioSystemRequestUnloadTrigger>)
 EZ_END_STATIC_REFLECTED_TYPE;
 
 EZ_DEFINE_CUSTOM_VARIANT_TYPE(ezAudioSystemRequestShutdown);
-EZ_DEFINE_AUDIOSYSTEM_STREAM_OPERATORS_BASIC(ezAudioSystemRequestShutdown);
+EZ_DEFINE_AUDIOSYSTEM_STREAM_OPERATORS_SIMPLE(ezAudioSystemRequestShutdown);
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezAudioSystemRequestShutdown, ezAudioSystemRequest, 1, ezRTTIDefaultAllocator<ezAudioSystemRequestShutdown>)
 EZ_END_STATIC_REFLECTED_TYPE;
 
