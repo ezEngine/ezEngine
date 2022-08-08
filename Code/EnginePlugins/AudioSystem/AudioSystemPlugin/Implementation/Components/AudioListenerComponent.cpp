@@ -107,12 +107,16 @@ void ezAudioListenerComponent::SetListenerOrientationObject(const char* szGuid)
 
 ezVec3 ezAudioListenerComponent::GetListenerPosition()
 {
+  ezVec3 position;
+
   if (ezGameObject* pObject = nullptr; GetWorld()->TryGetObject(m_hListenerPositionObject, pObject))
   {
-    return pObject->GetGlobalPosition();
+    position = pObject->GetGlobalPosition();
   }
 
-  return GetOwner()->GetGlobalPosition();
+  position = GetOwner()->GetGlobalPosition();
+
+  return position + m_vListenerPositionOffset;
 }
 
 ezVec3 ezAudioListenerComponent::GetListenerVelocity()
