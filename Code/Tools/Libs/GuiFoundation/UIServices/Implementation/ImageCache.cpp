@@ -32,7 +32,7 @@ ezQtImageCache::ezQtImageCache()
 {
   m_bCacheEnabled = true;
   m_bTaskRunning = false;
-  m_iMemoryUsageThreshold = 30 * 1024 * 1024; // 30 MB
+  m_iMemoryUsageThreshold = 128 * 1024 * 1024;
   m_iCurrentMemoryUsage = 0;
   m_pImageLoading = nullptr;
   m_pImageUnavailable = nullptr;
@@ -288,11 +288,11 @@ void ezQtImageCache::CleanupCache()
   m_LastCleanupTime = tNow;
 
   // purge everything older than 5 minutes, then 4 minutes, ...
-  for (ezInt32 i = 5; i > 0; --i)
+  for (ezInt32 i = 5; i > 2; --i)
   {
     const ezTime tPurgeThreshold = ezTime::Seconds(60) * i;
 
-    // purge ALL images that have not been accessed in a longer time
+    // purge images that have not been accessed in a longer time
     for (auto it = m_ImageCache.GetIterator(); it.IsValid();)
     {
       if (tNow - it.Value().m_LastAccess > tPurgeThreshold)
@@ -302,13 +302,13 @@ void ezQtImageCache::CleanupCache()
         m_iCurrentMemoryUsage -= ezMath::SafeMultiply64(it.Value().m_Pixmap.width(), it.Value().m_Pixmap.height(), 4);
 
         it = m_ImageCache.Remove(it);
+
+        // if we have reached the threshold, stop further purging
+        if (m_iCurrentMemoryUsage < m_iMemoryUsageThreshold)
+          return;
       }
       else
         ++it;
     }
-
-    // if we have reached the threshold, stop further purging
-    if (m_iCurrentMemoryUsage < m_iMemoryUsageThreshold)
-      return;
   }
 }
