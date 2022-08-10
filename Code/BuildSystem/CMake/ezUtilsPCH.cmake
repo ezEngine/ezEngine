@@ -37,7 +37,7 @@ endfunction()
 
 function(ez_pch_use PCH_H TARGET_CPPS)
 
-  if (NOT MSVC)
+  if (NOT EZ_CMAKE_GENERATOR_MSVC)
     return()
   endif()
 
@@ -68,7 +68,7 @@ endfunction()
 
 function(ez_pch_create PCH_H TARGET_CPP)
 
-  if (NOT MSVC)
+  if (NOT EZ_CMAKE_GENERATOR_MSVC)
     return()
   endif()
 

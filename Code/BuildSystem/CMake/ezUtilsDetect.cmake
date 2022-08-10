@@ -187,7 +187,7 @@ function(ez_detect_generator)
 
 	if (EZ_CMAKE_PLATFORM_WINDOWS) # Supported windows generators
 	
-	  if (MSVC)
+	  if (CMAKE_GENERATOR MATCHES "Visual Studio")
 	  
 			# Visual Studio (All VS generators define MSVC)
 			message (STATUS "Generator is MSVC (EZ_CMAKE_GENERATOR_MSVC)")
@@ -195,7 +195,7 @@ function(ez_detect_generator)
 			set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_MSVC ON)
 			set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_PREFIX "Vs")
 			set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_CONFIGURATION $<CONFIGURATION>)
-	  elseif(CMAKE_GENERATOR STREQUAL "Ninja") # Ninja makefiles. Only makefile format supported by Visual Studio Open Folder
+	  elseif(CMAKE_GENERATOR MATCHES "Ninja") # Ninja makefiles. Only makefile format supported by Visual Studio Open Folder
 			message (STATUS "Buildsystem is Ninja (EZ_CMAKE_GENERATOR_NINJA)")
 			
 			set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_NINJA ON)
