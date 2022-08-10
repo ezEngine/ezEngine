@@ -10,6 +10,7 @@
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 #include <Foundation/Communication/Implementation/Win/PipeChannel_win.h>
 #elif EZ_ENABLED(EZ_PLATFORM_LINUX)
+#include <Foundation/Communication/Implementation/Linux/PipeChannel_linux.h>
 #endif
 
 ezIpcChannel::ezIpcChannel(const char* szAddress, Mode::Enum mode)
@@ -37,6 +38,8 @@ ezIpcChannel* ezIpcChannel::CreatePipeChannel(const char* szAddress, Mode::Enum 
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
   return EZ_DEFAULT_NEW(ezPipeChannel_win, szAddress, mode);
+#elif EZ_ENABLED(EZ_PLATFORM_LINUX)
+  return EZ_DEFAULT_NEW(ezPipeChannel_linux, szAddress, mode);
 #else
   EZ_ASSERT_NOT_IMPLEMENTED;
   return nullptr;

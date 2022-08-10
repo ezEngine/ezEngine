@@ -43,5 +43,6 @@ private:
   int m_clientSocketFd = -1;
 
   ezUInt8 m_InputBuffer[4096];
+  ezAtomicBool m_Connecting = false;
 };
 #endif

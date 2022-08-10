@@ -58,5 +58,11 @@ protected:
   ezDynamicArray<ezIpcChannel*> m_ConnectQueue;
   ezDynamicArray<ezIpcChannel*> m_DisconnectQueue;
   ezDynamicArray<ezIpcChannel*> m_SendQueue;
+
+  // Thread local copies of the different queues for the ProcessTasks method
+  ezDynamicArray<ezIpcChannel*> m_ConnectQueueTask;
+  ezDynamicArray<ezIpcChannel*> m_DisconnectQueueTask;
+  ezDynamicArray<ezIpcChannel*> m_SendQueueTask;
+
   ezDynamicArray<ezIpcChannel*> m_AllAddedChannels;
 };
