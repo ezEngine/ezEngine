@@ -104,6 +104,16 @@ void ezEditorProcessCommunicationChannel::CloseConnection()
   }
 }
 
+ezString ezEditorProcessCommunicationChannel::GetStdoutContents()
+{
+  if(m_pClientProcess)
+  {
+    QByteArray output = m_pClientProcess->readAllStandardOutput();
+    return ezString(ezStringView((const char*)output.data(), output.size()));
+  }
+  return ezString();
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 ezResult ezEditorProcessRemoteCommunicationChannel::ConnectToServer(const char* szAddress)

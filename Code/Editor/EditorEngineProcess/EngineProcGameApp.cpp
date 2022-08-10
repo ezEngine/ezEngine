@@ -1,6 +1,7 @@
 #include <EditorEngineProcess/EditorEngineProcessPCH.h>
 
 #include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#include <Foundation/System/SystemInformation.h>
 
 #include <Core/Console/QuakeConsole.h>
 #include <EditorEngineProcess/EngineProcGameApp.h>
@@ -24,7 +25,7 @@ ezResult ezEngineProcessGameApplication::BeforeCoreSystemsStartup()
   m_pApp = CreateEngineProcessApp();
   ezStartup::AddApplicationTag("editorengineprocess");
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP) || EZ_ENABLED(EZ_PLATFORM_LINUX)
   // Make sure to disable the fileserve plugin
   ezCommandLineUtils::GetGlobalInstance()->InjectCustomArgument("-fs_off");
 #endif
@@ -37,7 +38,7 @@ void ezEngineProcessGameApplication::AfterCoreSystemsStartup()
   // skip project creation at this point
   // SUPER::AfterCoreSystemsStartup();
 
-#if EZ_DISABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#if EZ_DISABLED(EZ_PLATFORM_WINDOWS_DESKTOP) && EZ_DISABLED(EZ_PLATFORM_LINUX)
   {
     // on all 'mobile' platforms, we assume we are in remote mode
     ezEditorEngineProcessApp::GetSingleton()->SetRemoteMode();
@@ -83,12 +84,10 @@ void ezEngineProcessGameApplication::WaitForDebugger()
 {
   if (ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-debug"))
   {
-    #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-    while (!IsDebuggerPresent())
+    while (!ezSystemInformation::IsDebuggerAttached())
     {
       ezThreadUtils::Sleep(ezTime::Milliseconds(10));
     }
-    #endif
   }
 }
 
@@ -128,6 +127,15 @@ void ezEngineProcessGameApplication::LogWriter(const ezLoggingEventData& e)
   // the editor does not care about flushing caches, so no need to send this over
   if (msg.m_Entry.m_Type == ezLogMsgType::Flush)
     return;
+
+  if(msg.m_Entry.m_sTag == "IPC")
+    return;
+
+  // Prevent infinite recursion by disabeling logging until we are done sending the message
+  ezLogInterface* oldLogSystem = ezLog::GetThreadLocalLogSystem();
+  ezMuteLog muteLog;
+  ezLog::SetThreadLocalLogSystem(&muteLog);
+  EZ_SCOPE_EXIT(ezLog::SetThreadLocalLogSystem(oldLogSystem));
 
   m_IPC.SendMessage(&msg);
 }

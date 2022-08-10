@@ -16,6 +16,8 @@ public:
 
   void CloseConnection();
 
+  ezString GetStdoutContents();
+
 private:
   QProcess* m_pClientProcess = nullptr;
 };
