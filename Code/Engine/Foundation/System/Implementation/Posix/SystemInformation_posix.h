@@ -1,12 +1,38 @@
 #include <Foundation/FoundationInternal.h>
 EZ_FOUNDATION_INTERNAL_HEADER
 
+#include <Foundation/IO/OSFile.h>
 #include <unistd.h>
 
 bool ezSystemInformation::IsDebuggerAttached()
 {
-  // TODO: No simple way to test without massive overhead.
-  return false;
+  ezOSFile status;
+  if (status.Open("/proc/self/status", ezFileOpenMode::Read).Failed())
+  {
+    return false;
+  }
+
+
+  char buffer[2048];
+  ezUInt64 numBytesRead = status.Read(buffer, EZ_ARRAY_SIZE(buffer));
+  status.Close();
+
+
+  ezStringView contents(buffer, numBytesRead);
+  const char* tracerPid = contents.FindSubString("TracerPid:");
+  if (tracerPid == nullptr)
+  {
+    return false;
+  }
+
+  tracerPid += 10; // Skip TracerPid:
+
+  while (*tracerPid == ' ' || *tracerPid == '\t')
+  {
+    tracerPid++;
+  }
+
+  return *tracerPid == '0' ? false : true;
 }
 
 void ezSystemInformation::Initialize()

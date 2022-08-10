@@ -6,6 +6,7 @@
 #include <TestFramework/Utilities/HTMLOutput.h>
 
 #include <Foundation/System/CrashHandler.h>
+#include <Foundation/System/SystemInformation.h>
 
 #ifdef EZ_USE_QT
 #  include <TestFramework/Framework/Qt/qtTestFramework.h>
@@ -138,18 +139,17 @@ void ezTestSetup::DeInitTestFramework(bool bSilent /*= false*/)
   }
 #endif
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
   TestSettings settings = pTestFramework->GetSettings();
   if (settings.m_bKeepConsoleOpen && !bSilent)
   {
-    if (IsDebuggerPresent())
+    if (ezSystemInformation::IsDebuggerAttached())
     {
       std::cout << "Press the any key to continue...\n";
       fflush(stdin);
-      int iRet = _getch();
+      getchar();
     }
   }
-#endif
+
   // This is needed as at least windows can't be bothered to write anything
   // to the output streams at all if it's not enough or the app is too fast.
   fflush(stdout);
