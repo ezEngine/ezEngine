@@ -355,6 +355,7 @@ ezResult ezDdsFileFormat::WriteImage(ezStreamWriter& stream, const ezImageView& 
   switch (ezImageFormat::GetType(image.GetImageFormat()))
   {
     case ezImageFormatType::LINEAR:
+    case ezImageFormatType::PLANAR:
       fileHeader.m_uiFlags |= ezDdsdFlags::PITCH;
       fileHeader.m_uiPitchOrLinearSize = static_cast<ezUInt32>(image.GetRowPitch(0));
       break;

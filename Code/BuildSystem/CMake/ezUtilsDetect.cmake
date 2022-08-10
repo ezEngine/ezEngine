@@ -14,15 +14,15 @@ function(ez_detect_project_name OUT_NAME)
 
 	get_filename_component(NAME_REPO ${CMAKE_SOURCE_DIR} NAME)
 	get_filename_component(NAME_DEST ${CMAKE_BINARY_DIR} NAME)
-
+		
 	set (DETECTED_NAME "${NAME_REPO}")
 
 	if (NOT ${NAME_REPO} STREQUAL ${NAME_DEST})
 		set (DETECTED_NAME "${DETECTED_NAME}_${NAME_DEST}")
-	endif()
-
+		endif()
+		
 	set(${OUT_NAME} "${DETECTED_NAME}" PARENT_SCOPE)
-	
+
 	message(STATUS "Auto-detected solution name: ${DETECTED_NAME} (Generator = ${CMAKE_GENERATOR})")
 
 endfunction()
@@ -182,7 +182,7 @@ function(ez_detect_generator)
 		message(STATUS "CMake was called from Visual Studio Open Folder workflow")
 		set_property(GLOBAL PROPERTY EZ_CMAKE_INSIDE_VS ON)
 	endif()
-
+	
 	message (STATUS "CMAKE_GENERATOR is '${CMAKE_GENERATOR}'")
 
 	if (EZ_CMAKE_PLATFORM_WINDOWS) # Supported windows generators
@@ -236,12 +236,13 @@ function(ez_detect_generator)
 		set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_MAKE ON)
 		set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_PREFIX "Make")
 		set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_CONFIGURATION ${CMAKE_BUILD_TYPE})
-	  elseif(CMAKE_GENERATOR STREQUAL "Ninja") # Ninja make files for Visual Studio + VS Code Open Folder
+		
+	  elseif(CMAKE_GENERATOR STREQUAL "Ninja" OR CMAKE_GENERATOR STREQUAL "Ninja Multi-Config") # Ninja makefiles. Only makefile format supported by Visual Studio Open Folder
 		message (STATUS "Buildsystem is Ninja (EZ_CMAKE_GENERATOR_NINJA)")
 		
 		set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_NINJA ON)
 		set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_PREFIX "Ninja")
-		set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_CONFIGURATION ${CMAKE_BUILD_TYPE})		
+		set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_CONFIGURATION ${CMAKE_BUILD_TYPE})
 	  else ()
 		message (FATAL_ERROR "Generator '${CMAKE_GENERATOR}' is not supported on Linux! Please extend ez_detect_generator()")
 	  endif ()

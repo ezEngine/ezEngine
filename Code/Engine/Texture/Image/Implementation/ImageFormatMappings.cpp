@@ -128,8 +128,8 @@ typedef enum DXGI_FORMAT
 ezUInt32 ezImageFormatMappings::ToDxgiFormat(ezImageFormat::Enum format)
 {
 
-#define CASE_EZ2DXGI(ez)                                                                                                                             \
-  case ezImageFormat::ez:                                                                                                                            \
+#define CASE_EZ2DXGI(ez)  \
+  case ezImageFormat::ez: \
     return DXGI_FORMAT_##ez
   switch (format)
   {
@@ -204,13 +204,14 @@ ezUInt32 ezImageFormatMappings::ToDxgiFormat(ezImageFormat::Enum format)
       CASE_EZ2DXGI(BC7_UNORM);
       CASE_EZ2DXGI(BC7_UNORM_SRGB);
       CASE_EZ2DXGI(B4G4R4A4_UNORM);
+      CASE_EZ2DXGI(NV12);
   }
 }
 
 ezImageFormat::Enum ezImageFormatMappings::FromDxgiFormat(ezUInt32 uiDxgiFormat)
 {
-#define CASE_DXGI2EZ(ez)                                                                                                                             \
-  case DXGI_FORMAT_##ez:                                                                                                                             \
+#define CASE_DXGI2EZ(ez) \
+  case DXGI_FORMAT_##ez: \
     return ezImageFormat::ez
   switch (uiDxgiFormat)
   {
@@ -285,6 +286,7 @@ ezImageFormat::Enum ezImageFormatMappings::FromDxgiFormat(ezUInt32 uiDxgiFormat)
       CASE_DXGI2EZ(BC7_UNORM);
       CASE_DXGI2EZ(BC7_UNORM_SRGB);
       CASE_DXGI2EZ(B4G4R4A4_UNORM);
+      CASE_DXGI2EZ(NV12);
   }
 }
 

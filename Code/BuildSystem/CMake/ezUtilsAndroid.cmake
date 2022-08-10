@@ -44,17 +44,23 @@ function(ez_android_add_default_content TARGET_NAME)
   configure_file(${CONTENT_DIRECTORY_SRC}/AndroidManifest.xml ${CMAKE_CURRENT_BINARY_DIR}/AndroidManifest.xml)
   configure_file(${CONTENT_DIRECTORY_SRC}/res/values/strings.xml ${CONTENT_DIRECTORY_DST}/res/values/strings.xml)
 
-  if(NOT EXISTS "$ENV{ANDROID_NDK_HOME}")
-	  message(FATAL_ERROR "Could not find ANDROID_NDK_HOME environment variables")
-  else()
-    set(ANDROID_NDK $ENV{ANDROID_NDK_HOME})
+  if(NOT ANDROID_NDK)
+    message(WARNING "ANDROID_NDK not set")
+    if(NOT EXISTS "$ENV{ANDROID_NDK_HOME}")
+        message(FATAL_ERROR "ANDROID_NDK_HOME environment variable not set. Please ensure it points to the android NDK root folder.")
+    else()
+      set(ANDROID_NDK $ENV{ANDROID_NDK_HOME})
+    endif()
   endif()
 
-
   if(NOT EXISTS "$ENV{ANDROID_HOME}")
-    message(FATAL_ERROR "Could not find ANDROID_HOME environment variables")
+    if(NOT EXISTS "$ENV{ANDROID_SDK_ROOT}")
+      message(FATAL_ERROR "Could not find ANDROID_HOME or ANDROID_SDK_ROOT environment variables")
+    else()
+      set(ANDROID_SDK $ENV{ANDROID_SDK_ROOT})
+    endif()
   else()
-	set(ANDROID_SDK $ENV{ANDROID_HOME})
+    set(ANDROID_SDK $ENV{ANDROID_HOME})
   endif()
 
   get_filename_component(ANDROID_BUILD_TOOLS_ROOT "${ANDROID_SDK}/build-tools" ABSOLUTE)
@@ -87,14 +93,14 @@ function(ez_android_add_default_content TARGET_NAME)
 
   STRING(FIND "${APK_OUTPUT_DIR}" "NOTFOUND" APK_OUTPUT_DIR_NOTFOUND)
   if(${APK_OUTPUT_DIR_NOTFOUND} GREATER -1)
-	SET(APK_OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR})
+    SET(APK_OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR})
   endif()
  
   add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
     BYPRODUCTS "${APK_OUTPUT_DIR}/${TARGET_NAME}.apk" "${APK_OUTPUT_DIR}/${TARGET_NAME}.unaligned.apk"
     COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${TARGET_NAME}> ${CONTENT_DIRECTORY_DST}/lib/${ANDROID_ABI}/lib${TARGET_NAME}.so
 	COMMAND powershell -NoLogo -NoProfile -File ${CMAKE_SOURCE_DIR}/${EZ_SUBMODULE_PREFIX_PATH}/Utilities/BuildApk.ps1 -BuildToolsPath "${ANDROID_BUILD_TOOLS}" -ContentDirectory "${CONTENT_DIRECTORY_DST}" -Manifest "${CMAKE_CURRENT_BINARY_DIR}/AndroidManifest.xml" -AndroidPlatformRoot "${ANDROID_PLATFORM_ROOT}" -TargetName "${TARGET_NAME}" -OutDir "${APK_OUTPUT_DIR}" -SignKey "${CONTENT_DIRECTORY_SRC}/debug.keystore" -SignPassword "pass:android"
-	USES_TERMINAL
+    USES_TERMINAL
     )
 
 endfunction()

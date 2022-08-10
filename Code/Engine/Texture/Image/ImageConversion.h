@@ -75,6 +75,24 @@ public:
     ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const = 0;
 };
 
+/// \brief Interface for a single image conversion step from a linear to a planar format.
+class EZ_TEXTURE_DLL ezImageConversionStepPlanarize : public ezImageConversionStep
+{
+public:
+  /// \brief Converts a batch of pixels into the given target planes.
+  virtual ezResult ConvertPixels(const ezImageView& source, ezArrayPtr<ezImage> target, ezUInt32 numPixelsX, ezUInt32 numPixelsY, ezImageFormat::Enum sourceFormat,
+    ezImageFormat::Enum targetFormat) const = 0;
+};
+
+/// \brief Interface for a single image conversion step from a planar to a linear format.
+class EZ_TEXTURE_DLL ezImageConversionStepDeplanarize : public ezImageConversionStep
+{
+public:
+  /// \brief Converts a batch of pixels from the given source planes.
+  virtual ezResult ConvertPixels(ezArrayPtr<ezImageView> source, ezImage target, ezUInt32 numPixelsX, ezUInt32 numPixelsY, ezImageFormat::Enum sourceFormat,
+    ezImageFormat::Enum targetFormat) const = 0;
+};
+
 
 /// \brief Helper class containing utilities to convert between different image formats and layouts.
 class EZ_TEXTURE_DLL ezImageConversion
@@ -141,6 +159,12 @@ private:
     ezImageFormat::Enum targetFormat, const ezImageConversionStep* pStep);
 
   static ezResult ConvertSingleStepCompress(const ezImageView& source, ezImage& target, ezImageFormat::Enum sourceFormat,
+    ezImageFormat::Enum targetFormat, const ezImageConversionStep* pStep);
+
+    static ezResult ConvertSingleStepDeplanarize(const ezImageView& source, ezImage& target, ezImageFormat::Enum sourceFormat,
+    ezImageFormat::Enum targetFormat, const ezImageConversionStep* pStep);
+
+  static ezResult ConvertSingleStepPlanarize(const ezImageView& source, ezImage& target, ezImageFormat::Enum sourceFormat,
     ezImageFormat::Enum targetFormat, const ezImageConversionStep* pStep);
 
   static void RebuildConversionTable();

@@ -1,6 +1,6 @@
 #include <Texture/TexturePCH.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 
 //-------------------------------------------------------------------------------------
 // BC4BC5.cpp
