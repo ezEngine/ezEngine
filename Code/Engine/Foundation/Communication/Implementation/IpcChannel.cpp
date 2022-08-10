@@ -8,9 +8,9 @@
 #include <Foundation/Serialization/ReflectionSerializer.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-#include <Foundation/Communication/Implementation/Win/PipeChannel_win.h>
+#  include <Foundation/Communication/Implementation/Win/PipeChannel_win.h>
 #elif EZ_ENABLED(EZ_PLATFORM_LINUX)
-#include <Foundation/Communication/Implementation/Linux/PipeChannel_linux.h>
+#  include <Foundation/Communication/Implementation/Linux/PipeChannel_linux.h>
 #endif
 
 ezIpcChannel::ezIpcChannel(const char* szAddress, Mode::Enum mode)

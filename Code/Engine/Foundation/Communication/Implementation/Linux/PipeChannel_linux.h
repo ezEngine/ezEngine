@@ -8,8 +8,8 @@ EZ_FOUNDATION_INTERNAL_HEADER
 #  include <Foundation/Basics.h>
 #  include <Foundation/Communication/IpcChannel.h>
 
-#include <sys/types.h>
-#include <sys/stat.h>
+#  include <sys/stat.h>
+#  include <sys/types.h>
 
 
 class EZ_FOUNDATION_DLL ezPipeChannel_linux : public ezIpcChannel
@@ -19,7 +19,6 @@ public:
   ~ezPipeChannel_linux();
 
 private:
-
   friend class ezMessageLoop;
   friend class ezMessageLoop_linux;
 

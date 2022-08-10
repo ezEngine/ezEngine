@@ -1,15 +1,15 @@
 #include <Foundation/FoundationInternal.h>
 EZ_FOUNDATION_INTERNAL_HEADER
 
-#include <unistd.h>
 #include <Foundation/IO/OSFile.h>
+#include <unistd.h>
 
 bool ezSystemInformation::IsDebuggerAttached()
 {
   // TODO: No simple way to test without massive overhead.
 
   ezOSFile status;
-  if(status.Open("/proc/self/status", ezFileOpenMode::Read).Failed())
+  if (status.Open("/proc/self/status", ezFileOpenMode::Read).Failed())
   {
     return false;
   }
@@ -22,14 +22,14 @@ bool ezSystemInformation::IsDebuggerAttached()
 
   ezStringView contents(buffer, numBytesRead);
   const char* tracerPid = contents.FindSubString("TracerPid:");
-  if(tracerPid == nullptr)
+  if (tracerPid == nullptr)
   {
     return false;
   }
 
   tracerPid += 10; // Skip TracerPid:
 
-  while(*tracerPid == ' ' || *tracerPid == '\t')
+  while (*tracerPid == ' ' || *tracerPid == '\t')
   {
     tracerPid++;
   }

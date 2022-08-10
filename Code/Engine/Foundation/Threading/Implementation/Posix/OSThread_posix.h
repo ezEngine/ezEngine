@@ -35,11 +35,11 @@ void ezOSThread::Start()
   EZ_IGNORE_UNUSED(iReturnCode);
   EZ_ASSERT_RELEASE(iReturnCode == 0, "Thread creation failed!");
 
-  if(iReturnCode == 0 && m_szName != nullptr)
+  if (iReturnCode == 0 && m_szName != nullptr)
   {
     // pthread has a thread name limit of 16 bytes.
     // This means 15 characters and the terminating '\0'
-    if(strlen(m_szName) < 16)
+    if (strlen(m_szName) < 16)
     {
       pthread_setname_np(m_Handle, m_szName);
     }

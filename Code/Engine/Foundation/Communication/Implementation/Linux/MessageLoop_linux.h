@@ -10,7 +10,7 @@ EZ_FOUNDATION_INTERNAL_HEADER
 #  include <Foundation/Communication/Implementation/MessageLoop.h>
 #  include <Foundation/Threading/Mutex.h>
 
-#include <poll.h>
+#  include <poll.h>
 
 class ezIpcChannel;
 class ezPipeChannel_linux;
@@ -42,7 +42,6 @@ private:
   void RemovePendingWaits(ezPipeChannel_linux* pChannel);
 
 private:
-
   struct WaitInfo
   {
     EZ_DECLARE_POD_TYPE();
