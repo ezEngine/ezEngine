@@ -35,6 +35,7 @@ void ezOSThread::Start()
   EZ_IGNORE_UNUSED(iReturnCode);
   EZ_ASSERT_RELEASE(iReturnCode == 0, "Thread creation failed!");
 
+#if EZ_ENABLED(EZ_PLATFORM_LINUX) || EZ_ENABLED(EZ_PLATFORM_ANDROID)
   if (iReturnCode == 0 && m_szName != nullptr)
   {
     // pthread has a thread name limit of 16 bytes.
@@ -51,6 +52,7 @@ void ezOSThread::Start()
       pthread_setname_np(m_Handle, threadName);
     }
   }
+#endif
 
   m_ThreadID = m_Handle;
 

@@ -6,8 +6,6 @@ EZ_FOUNDATION_INTERNAL_HEADER
 
 bool ezSystemInformation::IsDebuggerAttached()
 {
-  // TODO: No simple way to test without massive overhead.
-
   ezOSFile status;
   if (status.Open("/proc/self/status", ezFileOpenMode::Read).Failed())
   {
