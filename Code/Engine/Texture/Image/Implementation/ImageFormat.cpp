@@ -498,7 +498,7 @@ ezImageFormat::Enum ezImageFormat::FromPixelMask(
 }
 
 
-ezImageFormat::Enum ezImageFormat::GetSubFormat(Enum format, ezUInt32 uiPlaneIndex)
+ezImageFormat::Enum ezImageFormat::GetPlaneSubFormat(Enum format, ezUInt32 uiPlaneIndex)
 {
   const auto& metadata = GetImageFormatMetaData(format);
 

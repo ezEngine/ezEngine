@@ -54,6 +54,16 @@ struct EZ_TEXTURE_DLL ezImageFormatChannel
 struct EZ_TEXTURE_DLL ezImageFormat
 {
   /// \brief Enum describing the encoding format of the pixels of an image.
+  ///
+  /// Image formats can be separated into three types: linear, block compressed, and planar.
+  /// In linear formats, the various channels of each pixel (such as R, G, B) are stored interleaved in memory [RGBRGBRGB...].
+  /// This is in contrast to planar formats, where each channel is stored in a separate slice of memory [RRR...GGG...BBB...].
+  /// Planar formats are typically used for video formats with luma and chroma channels, and may also be partially planarized.
+  /// For example, NV12 has a luma (Y) plane and a chroma (UV) plane,
+  /// where the chroma plane again stores the two sub-channels linearly interleaved.
+  /// For these formats, GetPlaneSubFormat() returns a description of the encoding within each plane.
+  /// Block compressed formats use a different approach, where pixels are arranged in blocks of a fixed format-dependent size
+  /// (from 4x4 for BC1-7 and up to 12x12 for some ASTC formats), with colors encoded with a fixed ratio compression.
   enum Enum : ezUInt16
   {
     UNKNOWN,
@@ -310,7 +320,7 @@ struct EZ_TEXTURE_DLL ezImageFormat
     ezUInt32 uiRedMask, ezUInt32 uiGreenMask, ezUInt32 uiBlueMask, ezUInt32 uiAlphaMask, ezUInt32 uiBitsPerPixel);
 
   /// \brief Returns the format of a subplane of a given format.
-  static ezImageFormat::Enum GetSubFormat(ezImageFormat::Enum format, ezUInt32 uiPlaneIndex);
+  static ezImageFormat::Enum GetPlaneSubFormat(ezImageFormat::Enum format, ezUInt32 uiPlaneIndex);
 
   /// \brief Returns true if the data formats are compatible, i.e. can be copied into one another
   static bool IsCompatible(Enum left, Enum right);

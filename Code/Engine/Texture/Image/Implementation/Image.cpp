@@ -90,11 +90,11 @@ ezImageView ezImageView::GetRowView(
   header.SetNumArrayIndices(1);
 
   // Scale dimensions relative to the block size of the subformat
-  ezImageFormat::Enum subFormat = ezImageFormat::GetSubFormat(m_format, uiPlaneIndex);
+  ezImageFormat::Enum subFormat = ezImageFormat::GetPlaneSubFormat(m_format, uiPlaneIndex);
   header.SetWidth(GetWidth(uiMipLevel) * ezImageFormat::GetBlockWidth(subFormat) / ezImageFormat::GetBlockWidth(m_format, uiPlaneIndex));
   header.SetHeight(ezImageFormat::GetBlockHeight(m_format, 0) * ezImageFormat::GetBlockHeight(subFormat) / ezImageFormat::GetBlockHeight(m_format, uiPlaneIndex));
   header.SetDepth(ezImageFormat::GetBlockDepth(subFormat) / ezImageFormat::GetBlockDepth(m_format, uiPlaneIndex));
-  header.SetImageFormat(ezImageFormat::GetSubFormat(m_format, uiPlaneIndex));
+  header.SetImageFormat(ezImageFormat::GetPlaneSubFormat(m_format, uiPlaneIndex));
 
   ezUInt64 offset = 0;
 
@@ -323,7 +323,7 @@ ezImageView ezImageView::GetPlaneView(ezUInt32 uiMipLevel /*= 0*/, ezUInt32 uiFa
   header.SetNumArrayIndices(1);
 
   // Scale dimensions relative to the block size of the first plane which determines the "nominal" width, height and depth
-  ezImageFormat::Enum subFormat = ezImageFormat::GetSubFormat(m_format, uiPlaneIndex);
+  ezImageFormat::Enum subFormat = ezImageFormat::GetPlaneSubFormat(m_format, uiPlaneIndex);
   header.SetWidth(GetWidth(uiMipLevel) * ezImageFormat::GetBlockWidth(subFormat) / ezImageFormat::GetBlockWidth(m_format, uiPlaneIndex));
   header.SetHeight(GetHeight(uiMipLevel) * ezImageFormat::GetBlockHeight(subFormat) / ezImageFormat::GetBlockHeight(m_format, uiPlaneIndex));
   header.SetDepth(GetDepth(uiMipLevel) * ezImageFormat::GetBlockDepth(subFormat) / ezImageFormat::GetBlockDepth(m_format, uiPlaneIndex));
@@ -363,7 +363,7 @@ ezImageView ezImageView::GetSliceView(ezUInt32 uiMipLevel /*= 0*/, ezUInt32 uiFa
   header.SetNumArrayIndices(1);
 
   // Scale dimensions relative to the block size of the first plane which determines the "nominal" width, height and depth
-  ezImageFormat::Enum subFormat = ezImageFormat::GetSubFormat(m_format, uiPlaneIndex);
+  ezImageFormat::Enum subFormat = ezImageFormat::GetPlaneSubFormat(m_format, uiPlaneIndex);
   header.SetWidth(GetWidth(uiMipLevel) * ezImageFormat::GetBlockWidth(subFormat) / ezImageFormat::GetBlockWidth(m_format, uiPlaneIndex));
   header.SetHeight(GetHeight(uiMipLevel) * ezImageFormat::GetBlockHeight(subFormat) / ezImageFormat::GetBlockHeight(m_format, uiPlaneIndex));
   header.SetDepth(ezImageFormat::GetBlockDepth(subFormat) / ezImageFormat::GetBlockDepth(m_format, uiPlaneIndex));
