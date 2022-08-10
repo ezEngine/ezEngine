@@ -87,3 +87,6 @@
 #define EZ_SIMD_IMPLEMENTATION_SSE 2
 
 #define EZ_SIMD_IMPLEMENTATION 0
+
+// Application entry point code injection (undef and redefine in UserConfig.h if needed)
+#define EZ_APPLICATION_ENTRY_POINT_CODE_INJECTION

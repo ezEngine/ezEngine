@@ -161,30 +161,57 @@ void ezStreamWriter::WriteVersion(ezTypeVersion uiVersion)
 
 namespace ezStreamWriterUtil
 {
+  // single element serialization
+
   template <class T>
-  auto SerializeImpl(ezStreamWriter& Stream, const T& Obj, int) -> decltype(Stream << Obj, ezResult(EZ_SUCCESS))
+  EZ_ALWAYS_INLINE auto SerializeImpl(ezStreamWriter& stream, const T& Obj, int) -> decltype(stream << Obj, ezResult(EZ_SUCCESS))
   {
-    Stream << Obj;
+    stream << Obj;
 
     return EZ_SUCCESS;
   }
 
   template <class T>
-  auto SerializeImpl(ezStreamWriter& Stream, const T& Obj, long) -> decltype(Obj.Serialize(Stream).IgnoreResult(), ezResult(EZ_SUCCESS))
+  EZ_ALWAYS_INLINE auto SerializeImpl(ezStreamWriter& stream, const T& Obj, long) -> decltype(Obj.Serialize(stream).IgnoreResult(), ezResult(EZ_SUCCESS))
   {
-    return ezToResult(Obj.Serialize(Stream));
+    return ezToResult(Obj.Serialize(stream));
   }
 
   template <class T>
-  auto SerializeImpl(ezStreamWriter& Stream, const T& Obj, float) -> decltype(Obj.serialize(Stream).IgnoreResult(), ezResult(EZ_SUCCESS))
+  EZ_ALWAYS_INLINE auto SerializeImpl(ezStreamWriter& stream, const T& Obj, float) -> decltype(Obj.serialize(stream).IgnoreResult(), ezResult(EZ_SUCCESS))
   {
-    return ezToResult(Obj.serialize(Stream));
+    return ezToResult(Obj.serialize(stream));
   }
 
   template <class T>
-  auto Serialize(ezStreamWriter& Stream, const T& Obj) -> decltype(SerializeImpl(Stream, Obj, 0).IgnoreResult(), ezResult(EZ_SUCCESS))
+  EZ_ALWAYS_INLINE auto Serialize(ezStreamWriter& stream, const T& Obj) -> decltype(SerializeImpl(stream, Obj, 0).IgnoreResult(), ezResult(EZ_SUCCESS))
   {
-    return SerializeImpl(Stream, Obj, 0);
+    return SerializeImpl(stream, Obj, 0);
+  }
+
+  // serialization of array
+
+  template <class T>
+  EZ_ALWAYS_INLINE auto SerializeArrayImpl(ezStreamWriter& stream, const T* pArray, ezUInt64 uiCount, int) -> decltype(SerializeArray(stream, pArray, uiCount), ezResult(EZ_SUCCESS))
+  {
+    return SerializeArray(stream, pArray, uiCount);
+  }
+
+  template <class T>
+  ezResult SerializeArrayImpl(ezStreamWriter& stream, const T* pArray, ezUInt64 uiCount, long)
+  {
+    for (ezUInt64 i = 0; i < uiCount; ++i)
+    {
+      EZ_SUCCEED_OR_RETURN(ezStreamWriterUtil::Serialize<T>(stream, pArray[i]));
+    }
+
+    return EZ_SUCCESS;
+  }
+
+  template <class T>
+  EZ_ALWAYS_INLINE ezResult SerializeArray(ezStreamWriter& stream, const T* pArray, ezUInt64 uiCount)
+  {
+    return SerializeArrayImpl(stream, pArray, uiCount, 0);
   }
 } // namespace ezStreamWriterUtil
 
@@ -194,12 +221,7 @@ ezResult ezStreamWriter::WriteArray(const ezArrayBase<ValueType, ArrayType>& Arr
   const ezUInt64 uiCount = Array.GetCount();
   EZ_SUCCEED_OR_RETURN(WriteQWordValue(&uiCount));
 
-  for (ezUInt32 i = 0; i < static_cast<ezUInt32>(uiCount); ++i)
-  {
-    EZ_SUCCEED_OR_RETURN(ezStreamWriterUtil::Serialize<ValueType>(*this, Array[i]));
-  }
-
-  return EZ_SUCCESS;
+  return ezStreamWriterUtil::SerializeArray<ValueType>(*this, Array.GetArrayPtr().GetPtr(), Array.GetCount());
 }
 
 template <typename ValueType, ezUInt32 uiSize>
@@ -208,12 +230,7 @@ ezResult ezStreamWriter::WriteArray(const ValueType (&Array)[uiSize])
   const ezUInt64 uiWriteSize = uiSize;
   EZ_SUCCEED_OR_RETURN(WriteQWordValue(&uiWriteSize));
 
-  for (ezUInt32 i = 0; i < static_cast<ezUInt32>(uiSize); ++i)
-  {
-    EZ_SUCCEED_OR_RETURN(ezStreamWriterUtil::Serialize<ValueType>(*this, Array[i]));
-  }
-
-  return EZ_SUCCESS;
+  return ezStreamWriterUtil::SerializeArray<ValueType>(*this, Array, uiSize);
 }
 
 template <typename KeyType, typename Comparer>
@@ -263,30 +280,56 @@ ezResult ezStreamWriter::WriteHashTable(const ezHashTableBase<KeyType, ValueType
 namespace ezStreamReaderUtil
 {
   template <class T>
-  auto DeserializeImpl(ezStreamReader& Stream, T& Obj, int) -> decltype(Stream >> Obj, ezResult(EZ_SUCCESS))
+  EZ_ALWAYS_INLINE auto DeserializeImpl(ezStreamReader& stream, T& Obj, int) -> decltype(stream >> Obj, ezResult(EZ_SUCCESS))
   {
-    Stream >> Obj;
+    stream >> Obj;
 
     return EZ_SUCCESS;
   }
 
   template <class T>
-  auto DeserializeImpl(ezStreamReader& Stream, T& Obj, long) -> decltype(Obj.Deserialize(Stream).IgnoreResult(), ezResult(EZ_SUCCESS))
+  EZ_ALWAYS_INLINE auto DeserializeImpl(ezStreamReader& stream, T& Obj, long) -> decltype(Obj.Deserialize(stream).IgnoreResult(), ezResult(EZ_SUCCESS))
   {
-    return ezToResult(Obj.Deserialize(Stream));
+    return ezToResult(Obj.Deserialize(stream));
   }
 
   template <class T>
-  auto DeserializeImpl(ezStreamReader& Stream, T& Obj, float) -> decltype(Obj.deserialize(Stream).IgnoreResult(), ezResult(EZ_SUCCESS))
+  EZ_ALWAYS_INLINE auto DeserializeImpl(ezStreamReader& stream, T& Obj, float) -> decltype(Obj.deserialize(stream).IgnoreResult(), ezResult(EZ_SUCCESS))
   {
-    return ezToResult(Obj.deserialize(Stream));
+    return ezToResult(Obj.deserialize(stream));
   }
 
   template <class T>
-  auto Deserialize(ezStreamReader& Stream, T& Obj) -> decltype(DeserializeImpl(Stream, Obj, 0).IgnoreResult(), ezResult(EZ_SUCCESS))
+  EZ_ALWAYS_INLINE auto Deserialize(ezStreamReader& stream, T& Obj) -> decltype(DeserializeImpl(stream, Obj, 0).IgnoreResult(), ezResult(EZ_SUCCESS))
   {
-    return DeserializeImpl(Stream, Obj, 0);
+    return DeserializeImpl(stream, Obj, 0);
   }
+
+  // serialization of array
+
+  template <class T>
+  EZ_ALWAYS_INLINE auto DeserializeArrayImpl(ezStreamReader& stream, T* pArray, ezUInt64 uiCount, int) -> decltype(DeserializeArray(stream, pArray, uiCount), ezResult(EZ_SUCCESS))
+  {
+    return DeserializeArray(stream, pArray, uiCount);
+  }
+
+  template <class T>
+  ezResult DeserializeArrayImpl(ezStreamReader& stream, T* pArray, ezUInt64 uiCount, long)
+  {
+    for (ezUInt64 i = 0; i < uiCount; ++i)
+    {
+      EZ_SUCCEED_OR_RETURN(ezStreamReaderUtil::Deserialize<T>(stream, pArray[i]));
+    }
+
+    return EZ_SUCCESS;
+  }
+
+  template <class T>
+  EZ_ALWAYS_INLINE ezResult DeserializeArray(ezStreamReader& stream, T* pArray, ezUInt64 uiCount)
+  {
+    return DeserializeArrayImpl(stream, pArray, uiCount, 0);
+  }
+
 } // namespace ezStreamReaderUtil
 
 template <typename ArrayType, typename ValueType>
@@ -301,12 +344,9 @@ ezResult ezStreamReader::ReadArray(ezArrayBase<ValueType, ArrayType>& Array)
 
     if (uiCount > 0)
     {
-      static_cast<ArrayType&>(Array).Reserve(static_cast<ezUInt32>(uiCount));
+      static_cast<ArrayType&>(Array).SetCount(static_cast<ezUInt32>(uiCount));
 
-      for (ezUInt32 i = 0; i < static_cast<ezUInt32>(uiCount); ++i)
-      {
-        EZ_SUCCEED_OR_RETURN(ezStreamReaderUtil::Deserialize<ValueType>(*this, Array.ExpandAndGetRef()));
-      }
+      EZ_SUCCEED_OR_RETURN(ezStreamReaderUtil::DeserializeArray<ValueType>(*this, Array.GetData(), uiCount));
     }
 
     return EZ_SUCCESS;
@@ -329,10 +369,7 @@ ezResult ezStreamReader::ReadArray(ValueType (&Array)[uiSize])
 
   if (uiCount < ezMath::MaxValue<ezUInt32>())
   {
-    for (ezUInt32 i = 0; i < static_cast<ezUInt32>(uiCount); ++i)
-    {
-      EZ_SUCCEED_OR_RETURN(ezStreamReaderUtil::Deserialize<ValueType>(*this, Array[i]));
-    }
+    EZ_SUCCEED_OR_RETURN(ezStreamReaderUtil::DeserializeArray<ValueType>(*this, Array, uiCount));
 
     return EZ_SUCCESS;
   }

@@ -32,7 +32,7 @@ public:
   const char* GetName() const;
 
   /// \brief Returns the index of this world.
-  ezUInt8 GetIndex() const;
+  ezUInt32 GetIndex() const;
 
   /// \name Object Functions
   ///@{
@@ -400,7 +400,7 @@ private:
   typedef ezInternal::WorldData::QueuedMsgMetaData QueuedMsgMetaData;
 
   ezUInt32 m_uiIndex;
-  static ezStaticArray<ezWorld*, 256> s_Worlds;
+  static ezStaticArray<ezWorld*, EZ_MAX_WORLDS> s_Worlds;
 };
 
 #include <Core/World/Implementation/World_inl.h>

@@ -18,9 +18,6 @@ struct ezEventMessage;
 #  undef SendMessage
 #endif
 
-/// \brief Build switch to disable velocity on game objects if it is not needed
-#define EZ_GAMEOBJECT_VELOCITY EZ_ON
-
 /// \brief This class represents an object inside the world.
 ///
 /// Game objects only consists of hierarchical data like transformation and a list of components.

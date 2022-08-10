@@ -89,7 +89,18 @@ void ezPlaneTemplate<Type>::Transform(const ezMat3Template<Type>& m)
   ezVec3Template<Type> vPointOnPlane = m_vNormal * -m_fNegDistance;
 
   // rotate the normal, translate the point
-  SetFromNormalAndPoint(m.TransformDirection(m_vNormal), m * vPointOnPlane);
+  ezVec3Template<Type> vTransformedNormal = m.TransformDirection(m_vNormal);
+
+  // If the plane's distance is already infinite, there won't be any meaningful change
+  // to it as a result of the transformation.
+  if (!ezMath::IsFinite(m_fNegDistance))
+  {
+    m_vNormal = vTransformedNormal;
+  }
+  else
+  {
+    SetFromNormalAndPoint(vTransformedNormal, m * vPointOnPlane);
+  } 
 }
 
 template <typename Type>
@@ -98,7 +109,18 @@ void ezPlaneTemplate<Type>::Transform(const ezMat4Template<Type>& m)
   ezVec3Template<Type> vPointOnPlane = m_vNormal * -m_fNegDistance;
 
   // rotate the normal, translate the point
-  SetFromNormalAndPoint(m.TransformDirection(m_vNormal), m * vPointOnPlane);
+  ezVec3Template<Type> vTransformedNormal = m.TransformDirection(m_vNormal);
+
+  // If the plane's distance is already infinite, there won't be any meaningful change
+  // to it as a result of the transformation.
+  if (!ezMath::IsFinite(m_fNegDistance))
+  {
+    m_vNormal = vTransformedNormal;
+  }
+  else
+  {
+    SetFromNormalAndPoint(vTransformedNormal, m * vPointOnPlane);
+  }
 }
 
 template <typename Type>
@@ -200,7 +222,7 @@ void ezPlaneTemplate<Type>::SetInvalid()
 template <typename Type>
 bool ezPlaneTemplate<Type>::IsValid() const
 {
-  return ezMath::IsFinite(m_fNegDistance) && m_vNormal.IsNormalized(ezMath::DefaultEpsilon<Type>());
+  return !IsNaN() && m_vNormal.IsNormalized(ezMath::DefaultEpsilon<Type>());
 }
 
 template <typename Type>
@@ -209,6 +231,11 @@ bool ezPlaneTemplate<Type>::IsNaN() const
   return ezMath::IsNaN(m_fNegDistance) || m_vNormal.IsNaN();
 }
 
+template <typename Type>
+bool ezPlaneTemplate<Type>::IsFinite() const
+{
+  return m_vNormal.IsValid() && ezMath::IsFinite(m_fNegDistance);
+}
 
 /*! The given vertices can be partially equal or lie on the same line. The algorithm will try to find 3 vertices, that
   form a plane, and deduce the normal from them. This algorithm is much slower, than all the other methods, so only

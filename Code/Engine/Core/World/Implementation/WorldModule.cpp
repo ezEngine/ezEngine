@@ -14,7 +14,7 @@ ezWorldModule::ezWorldModule(ezWorld* pWorld)
 
 ezWorldModule::~ezWorldModule() {}
 
-ezUInt8 ezWorldModule::GetWorldIndex() const
+ezUInt32 ezWorldModule::GetWorldIndex() const
 {
   return GetWorld()->GetIndex();
 }
@@ -70,6 +70,7 @@ EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
 static ezWorldModuleTypeId s_uiNextTypeId = 0;
+static ezDynamicArray<ezWorldModuleTypeId> s_freeTypeIds;
 static constexpr ezWorldModuleTypeId s_InvalidWorldModuleTypeId = ezWorldModuleTypeId(-1);
 
 ezWorldModuleFactory::ezWorldModuleFactory() = default;
@@ -138,7 +139,18 @@ ezWorldModuleTypeId ezWorldModuleFactory::RegisterWorldModule(const ezRTTI* pRtt
     return uiTypeId;
   }
 
+  if (s_freeTypeIds.IsEmpty())
+  {
+    EZ_ASSERT_DEV(s_uiNextTypeId < EZ_MAX_WORLD_MODULE_TYPES - 1, "World module id overflow!");
+
   uiTypeId = s_uiNextTypeId++;
+  }
+  else
+  {
+    uiTypeId = s_freeTypeIds.PeekBack();
+    s_freeTypeIds.PopBack();
+  }
+
   m_TypeToId.Insert(pRtti, uiTypeId);
 
   m_CreatorFuncs.EnsureCount(uiTypeId + 1);
@@ -327,6 +339,12 @@ void ezWorldModuleFactory::ClearUnloadedTypeToIDs()
     {
       ++it;
     }
+  }
+
+  // Finally, adding all invalid typeIds to the free list for reusing later
+  for (ezWorldModuleTypeId removedId : mappedIdsToRemove)
+  {
+    s_freeTypeIds.PushBack(removedId);
   }
 }
 

@@ -9,7 +9,7 @@ function(ez_check_build_type)
 
 	if (NOT CMAKE_BUILD_TYPE)
 		
-		set (CMAKE_BUILD_TYPE Dev CACHE STRING "Choose the type of build, options are: None Debug Dev Shipping." FORCE)
+		set (CMAKE_BUILD_TYPE ${EZ_BUILDTYPENAME_DEV} CACHE STRING "Choose the type of build, options are: None ${EZ_BUILDTYPENAME_DEBUG} ${EZ_BUILDTYPENAME_DEV} ${EZ_BUILDTYPENAME_RELEASE}." FORCE)
 	
 	endif()
 
@@ -25,6 +25,8 @@ function(ez_set_build_flags_msvc TARGET_NAME)
     set(ARG_ONEVALUEARGS "")
     set(ARG_MULTIVALUEARGS "")
     cmake_parse_arguments(ARG "${ARG_OPTIONS}" "${ARG_ONEVALUEARGS}" "${ARG_MULTIVALUEARGS}" ${ARGN} )
+
+	ez_pull_config_vars()
 
 	#target_compile_options(${TARGET_NAME} PRIVATE "$<$<CONFIG:DEBUG>:${MY_DEBUG_OPTIONS}>")
 	
@@ -73,25 +75,25 @@ function(ez_set_build_flags_msvc TARGET_NAME)
 	endif ()
 	
 	# /Zo: Improved debugging of optimized code
-	target_compile_options(${TARGET_NAME} PRIVATE "$<$<CONFIG:SHIPPING>:/Zo>")
-	target_compile_options(${TARGET_NAME} PRIVATE "$<$<CONFIG:DEV>:/Zo>")
+	target_compile_options(${TARGET_NAME} PRIVATE "$<$<CONFIG:${EZ_BUILDTYPENAME_RELEASE_UPPER}>:/Zo>")
+	target_compile_options(${TARGET_NAME} PRIVATE "$<$<CONFIG:${EZ_BUILDTYPENAME_DEV_UPPER}>:/Zo>")
 	
 	# /Ob1: Only consider functions for inlining that are marked with inline or forceinline
-	target_compile_options(${TARGET_NAME} PRIVATE "$<$<CONFIG:DEBUG>:/Ob1>")
+	target_compile_options(${TARGET_NAME} PRIVATE "$<$<CONFIG:${EZ_BUILDTYPENAME_DEBUG_UPPER}>:/Ob1>")
 	
 	# /Ox: favor speed for optimizations
-	target_compile_options(${TARGET_NAME} PRIVATE "$<$<CONFIG:SHIPPING>:/Ox>")
+	target_compile_options(${TARGET_NAME} PRIVATE "$<$<CONFIG:${EZ_BUILDTYPENAME_RELEASE_UPPER}>:/Ox>")
 	# /Ob2: Consider all functions for inlining
-	target_compile_options(${TARGET_NAME} PRIVATE "$<$<CONFIG:SHIPPING>:/Ob2>")
+	target_compile_options(${TARGET_NAME} PRIVATE "$<$<CONFIG:${EZ_BUILDTYPENAME_RELEASE_UPPER}>:/Ob2>")
 	# /Oi: Replace some functions with intrinsics or other special forms of the function
-	target_compile_options(${TARGET_NAME} PRIVATE "$<$<CONFIG:SHIPPING>:/Oi>")
+	target_compile_options(${TARGET_NAME} PRIVATE "$<$<CONFIG:${EZ_BUILDTYPENAME_RELEASE_UPPER}>:/Oi>")
 	
 	# Enable SSE4.1 for Clang on Windows.
 	# Todo: In general we should make this configurable. As of writing SSE4.1 is always active for windows builds (independent of the compiler)
 	if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND EZ_CMAKE_ARCHITECTURE_X86)
 		target_compile_options(${TARGET_NAME} PRIVATE "-msse4.1")
 	endif()
-	
+
 	set (LINKER_FLAGS_DEBUG "")
 	
 	#Do not remove unreferenced data. Required to make incremental linking work.
@@ -100,20 +102,20 @@ function(ez_set_build_flags_msvc TARGET_NAME)
 	#Do not enable comdat folding in debug. Required to make incremental linking work.
 	set (LINKER_FLAGS_DEBUG "${LINKER_FLAGS_DEBUG} /OPT:NOICF")
 	
-	set_target_properties(${TARGET_NAME} PROPERTIES LINK_FLAGS_DEBUG           ${LINKER_FLAGS_DEBUG})
-	set_target_properties(${TARGET_NAME} PROPERTIES LINK_FLAGS_DEV  ${LINKER_FLAGS_DEBUG})
 	
-	set (LINKER_FLAGS_SHIPPING "")
+	set (LINKER_FLAGS_RELEASE "")
 	
-	set (LINKER_FLAGS_SHIPPING "${LINKER_FLAGS_SHIPPING} /INCREMENTAL:NO")
-		
+	set (LINKER_FLAGS_RELEASE "${LINKER_FLAGS_RELEASE} /INCREMENTAL:NO")
+	
 	# Remove unreferenced data (does not work together with incremental build)
-	set (LINKER_FLAGS_SHIPPING "${LINKER_FLAGS_SHIPPING} /OPT:REF")
-		
+	set (LINKER_FLAGS_RELEASE "${LINKER_FLAGS_RELEASE} /OPT:REF")
+	
 	# Enable comdat folding. Reduces the number of redundant template functions and thus reduces binary size. Makes debugging harder though.
-	set (LINKER_FLAGS_SHIPPING "${LINKER_FLAGS_SHIPPING} /OPT:ICF")	
-
-  	set_target_properties (${TARGET_NAME} PROPERTIES LINK_FLAGS_SHIPPING        ${LINKER_FLAGS_SHIPPING})
+	set (LINKER_FLAGS_RELEASE "${LINKER_FLAGS_RELEASE} /OPT:ICF")	
+	
+	set_target_properties(${TARGET_NAME} PROPERTIES LINK_FLAGS_${EZ_BUILDTYPENAME_DEBUG_UPPER} ${LINKER_FLAGS_DEBUG})
+	set_target_properties(${TARGET_NAME} PROPERTIES LINK_FLAGS_${EZ_BUILDTYPENAME_DEV_UPPER}   ${LINKER_FLAGS_${EZ_DEV_BUILD_LINKERFLAGS}})
+  	set_target_properties(${TARGET_NAME} PROPERTIES LINK_FLAGS_${EZ_BUILDTYPENAME_RELEASE_UPPER} ${LINKER_FLAGS_RELEASE})
   	
 	if(EZ_ENABLE_COMPILER_STATIC_ANALYSIS)
 		target_compile_options(${TARGET_NAME} PRIVATE "/analyze")
@@ -261,12 +263,12 @@ function(ez_set_build_flags_gcc TARGET_NAME)
 	target_compile_options(${TARGET_NAME} PRIVATE -fPIC -gdwarf-3)
 
 	if(EZ_CMAKE_ARCHITECTURE_X86)
-		target_compile_options(${TARGET_NAME} PRIVATE -msse4.1)
+	target_compile_options(${TARGET_NAME} PRIVATE -msse4.1)
 	endif()
 	
 	# Disable warning: multi-character character constant
 	target_compile_options(${TARGET_NAME} PRIVATE -Wno-multichar)
-	
+
 	# Look for the super fast ld compatible linker called "mold". If present we want to use it.
 	# GCC can not be told to directly use mold. Instead if we have to look for a symlink called "ld"
 	# Which might reside either in /usr/libexec/mold or /usr/local/libexec/mold

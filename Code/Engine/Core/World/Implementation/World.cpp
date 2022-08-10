@@ -62,7 +62,7 @@ ezWorld::ezWorld(ezWorldDesc& desc)
   {
     m_uiIndex = s_Worlds.GetCount();
     EZ_ASSERT_DEV(m_uiIndex < GetMaxNumWorlds(), "Max world index reached: {}", GetMaxNumWorlds());
-    static_assert((GetMaxNumWorlds() - 1) <= ezMath::MaxValue<ezUInt8>()); // World index is stored in ezUInt8 in game objects
+    static_assert(GetMaxNumWorlds() == EZ_MAX_WORLDS);
 
     s_Worlds.PushBack(this);
   }
@@ -72,6 +72,7 @@ ezWorld::ezWorld(ezWorldDesc& desc)
 
 ezWorld::~ezWorld()
 {
+  EZ_LOCK(GetWriteMarker());
   m_Data.Clear();
 
   s_Worlds[m_uiIndex] = nullptr;
@@ -163,7 +164,7 @@ ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObj
 
   // insert the new object into the id mapping table
   ezGameObjectId newId = m_Data.m_Objects.Insert(pNewObject);
-  newId.m_WorldIndex = static_cast<ezUInt8>(m_uiIndex);
+  newId.m_WorldIndex = ezGameObjectId::StorageType(m_uiIndex & (EZ_MAX_WORLDS - 1));
 
   // fill out some data
   pNewObject->m_InternalId = newId;
@@ -286,7 +287,7 @@ void ezWorld::DeleteObjectNow(const ezGameObjectHandle& hObject0, bool bAlsoDele
 
   // invalidate (but preserve world index) and remove from id table
   pObject->m_InternalId.Invalidate();
-  pObject->m_InternalId.m_WorldIndex = static_cast<ezUInt8>(m_uiIndex);
+  pObject->m_InternalId.m_WorldIndex = m_uiIndex;
 
   m_Data.m_DeadObjects.Insert(pObject);
   EZ_VERIFY(m_Data.m_Objects.Remove(hObject), "Implementation error.");

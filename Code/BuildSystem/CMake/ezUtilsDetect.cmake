@@ -14,15 +14,15 @@ function(ez_detect_project_name OUT_NAME)
 
 	get_filename_component(NAME_REPO ${CMAKE_SOURCE_DIR} NAME)
 	get_filename_component(NAME_DEST ${CMAKE_BINARY_DIR} NAME)
-		
+
 	set (DETECTED_NAME "${NAME_REPO}")
 
 	if (NOT ${NAME_REPO} STREQUAL ${NAME_DEST})
 		set (DETECTED_NAME "${DETECTED_NAME}_${NAME_DEST}")
-		endif()
-		
-	set(${OUT_NAME} "${DETECTED_NAME}" PARENT_SCOPE)
+	endif()
 
+	set(${OUT_NAME} "${DETECTED_NAME}" PARENT_SCOPE)
+	
 	message(STATUS "Auto-detected solution name: ${DETECTED_NAME} (Generator = ${CMAKE_GENERATOR})")
 
 endfunction()
@@ -49,10 +49,20 @@ function(ez_detect_platform)
 	set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_POSIX OFF)
 	set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_OSX OFF)
 	set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_LINUX OFF)
+	set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_ANDROID OFF)
+	set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_EMSCRIPTEN OFF)
 	
 	message (STATUS "CMAKE_SYSTEM_NAME is '${CMAKE_SYSTEM_NAME}'")
+	
+	if (EMSCRIPTEN)
 
-	if (CMAKE_SYSTEM_NAME STREQUAL "Windows") # Desktop Windows
+	  message (STATUS "Platform is Emscripten (EZ_CMAKE_PLATFORM_EMSCRIPTEN)")
+	  
+	  set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_EMSCRIPTEN ON)
+	  
+	  set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_PREFIX "Web") 
+
+	elseif (CMAKE_SYSTEM_NAME MATCHES "Windows") # Desktop Windows
 	
 	  message (STATUS "Platform is Windows (EZ_CMAKE_PLATFORM_WINDOWS, EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP)")
 	  message (STATUS "CMAKE_SYSTEM_VERSION is ${CMAKE_SYSTEM_VERSION}")
@@ -67,7 +77,7 @@ function(ez_detect_platform)
 			set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_WINDOWS_7 ON)
 	  endif()
 
-	elseif (CMAKE_SYSTEM_NAME STREQUAL "WindowsStore") # Windows Universal
+	elseif (CMAKE_SYSTEM_NAME MATCHES "WindowsStore") # Windows Universal
 	  
 	  message (STATUS "Platform is Windows Universal (EZ_CMAKE_PLATFORM_WINDOWS, EZ_CMAKE_PLATFORM_WINDOWS_UWP)")
 	  
@@ -76,7 +86,7 @@ function(ez_detect_platform)
 	  
 	  set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_PREFIX "WinUWP") 
 
-	elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin" AND CURRENT_OSX_VERSION) # OS X
+	elseif (CMAKE_SYSTEM_NAME MATCHES "Darwin" AND CURRENT_OSX_VERSION) # OS X
 	  
 	  message (STATUS "Platform is OS X (EZ_CMAKE_PLATFORM_OSX, EZ_CMAKE_PLATFORM_POSIX)")
 	  
@@ -85,7 +95,7 @@ function(ez_detect_platform)
 	
 	  set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_PREFIX "Osx") 
 
-	elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux") # Linux
+	elseif (CMAKE_SYSTEM_NAME MATCHES "Linux") # Linux
 	
 	  message (STATUS "Platform is Linux (EZ_CMAKE_PLATFORM_LINUX, EZ_CMAKE_PLATFORM_POSIX)")
 	  
@@ -94,7 +104,7 @@ function(ez_detect_platform)
 	
 	  set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_PREFIX "Linux")
 	
-	elseif (CMAKE_SYSTEM_NAME STREQUAL "Android") # Android
+	elseif (CMAKE_SYSTEM_NAME MATCHES "Android") # Android
 		message (STATUS "Platform is Android (EZ_CMAKE_PLATFORM_ANDROID, EZ_CMAKE_PLATFORM_POSIX)")
 		
 		set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_POSIX ON)
@@ -142,6 +152,7 @@ macro(ez_pull_platform_vars)
 	get_property(EZ_CMAKE_PLATFORM_OSX GLOBAL PROPERTY EZ_CMAKE_PLATFORM_OSX)
 	get_property(EZ_CMAKE_PLATFORM_LINUX GLOBAL PROPERTY EZ_CMAKE_PLATFORM_LINUX)
 	get_property(EZ_CMAKE_PLATFORM_ANDROID GLOBAL PROPERTY EZ_CMAKE_PLATFORM_ANDROID)
+	get_property(EZ_CMAKE_PLATFORM_EMSCRIPTEN GLOBAL PROPERTY EZ_CMAKE_PLATFORM_EMSCRIPTEN)
 	
 	if(EZ_CMAKE_PLATFORM_WINDOWS)
 		get_property(EZ_CMAKE_WINDOWS_SDK_VERSION GLOBAL PROPERTY EZ_CMAKE_WINDOWS_SDK_VERSION)
@@ -182,73 +193,73 @@ function(ez_detect_generator)
 		message(STATUS "CMake was called from Visual Studio Open Folder workflow")
 		set_property(GLOBAL PROPERTY EZ_CMAKE_INSIDE_VS ON)
 	endif()
-	
+
 	message (STATUS "CMAKE_GENERATOR is '${CMAKE_GENERATOR}'")
 
 	if (EZ_CMAKE_PLATFORM_WINDOWS) # Supported windows generators
 	
-	  if (CMAKE_GENERATOR MATCHES "Visual Studio")
-	  
+		if (CMAKE_GENERATOR MATCHES "Visual Studio")
 			# Visual Studio (All VS generators define MSVC)
 			message (STATUS "Generator is MSVC (EZ_CMAKE_GENERATOR_MSVC)")
 			
 			set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_MSVC ON)
 			set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_PREFIX "Vs")
 			set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_CONFIGURATION $<CONFIGURATION>)
-	  elseif(CMAKE_GENERATOR MATCHES "Ninja") # Ninja makefiles. Only makefile format supported by Visual Studio Open Folder
+		elseif(CMAKE_GENERATOR MATCHES "Ninja") # Ninja makefiles. Only makefile format supported by Visual Studio Open Folder
 			message (STATUS "Buildsystem is Ninja (EZ_CMAKE_GENERATOR_NINJA)")
 			
 			set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_NINJA ON)
 			set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_PREFIX "Ninja")
 			set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_CONFIGURATION ${CMAKE_BUILD_TYPE})
-	  else ()
+		else ()
 			message (FATAL_ERROR "Generator '${CMAKE_GENERATOR}' is not supported on Windows! Please extend ez_detect_generator()")
-	  endif ()
+		endif ()
 
 	elseif (EZ_CMAKE_PLATFORM_OSX) # Supported OSX generators
 	
-	  if (CMAKE_GENERATOR STREQUAL "Xcode") # XCODE
-	  
-		message (STATUS "Buildsystem is Xcode (EZ_CMAKE_GENERATOR_XCODE)")
-		
-		set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_XCODE ON)
-		set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_PREFIX "Xcode")
-		set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_CONFIGURATION $<CONFIGURATION>)
+		if (CMAKE_GENERATOR MATCHES "Xcode") # XCODE
 
-	  elseif (CMAKE_GENERATOR STREQUAL "Unix Makefiles") # Unix Makefiles (for QtCreator etc.)
-	  
-		message (STATUS "Buildsystem is Make (EZ_CMAKE_GENERATOR_MAKE)")
+			message (STATUS "Buildsystem is Xcode (EZ_CMAKE_GENERATOR_XCODE)")
 		
-		set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_MAKE ON)
-		set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_PREFIX "Make")
-		set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_CONFIGURATION ${CMAKE_BUILD_TYPE})
+			set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_XCODE ON)
+			set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_PREFIX "Xcode")
+			set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_CONFIGURATION $<CONFIGURATION>)
 
-	  else ()
-		message (FATAL_ERROR "Generator '${CMAKE_GENERATOR}' is not supported on OS X! Please extend ez_detect_generator()")
-	  endif ()
+		elseif (CMAKE_GENERATOR MATCHES "Unix Makefiles") # Unix Makefiles (for QtCreator etc.)
+
+			message (STATUS "Buildsystem is Make (EZ_CMAKE_GENERATOR_MAKE)")
+		
+			set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_MAKE ON)
+			set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_PREFIX "Make")
+			set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_CONFIGURATION ${CMAKE_BUILD_TYPE})
+
+		else ()
+			message (FATAL_ERROR "Generator '${CMAKE_GENERATOR}' is not supported on OS X! Please extend ez_detect_generator()")
+		endif ()
 
 	elseif (EZ_CMAKE_PLATFORM_LINUX)
 	
-	  if (CMAKE_GENERATOR STREQUAL "Unix Makefiles") # Unix Makefiles (for QtCreator etc.)
+		if (CMAKE_GENERATOR MATCHES "Unix Makefiles") # Unix Makefiles (for QtCreator etc.)
 		
-		message (STATUS "Buildsystem is Make (EZ_CMAKE_GENERATOR_MAKE)")
+			message (STATUS "Buildsystem is Make (EZ_CMAKE_GENERATOR_MAKE)")
 		
 		set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_MAKE ON)
 		set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_PREFIX "Make")
 		set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_CONFIGURATION ${CMAKE_BUILD_TYPE})
 		
-	  elseif(CMAKE_GENERATOR STREQUAL "Ninja" OR CMAKE_GENERATOR STREQUAL "Ninja Multi-Config") # Ninja makefiles. Only makefile format supported by Visual Studio Open Folder
-		message (STATUS "Buildsystem is Ninja (EZ_CMAKE_GENERATOR_NINJA)")
-		
-		set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_NINJA ON)
-		set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_PREFIX "Ninja")
-		set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_CONFIGURATION ${CMAKE_BUILD_TYPE})
-	  else ()
-		message (FATAL_ERROR "Generator '${CMAKE_GENERATOR}' is not supported on Linux! Please extend ez_detect_generator()")
-	  endif ()
+		elseif(CMAKE_GENERATOR MATCHES "Ninja" OR CMAKE_GENERATOR MATCHES "Ninja Multi-Config")
+			message (STATUS "Buildsystem is Ninja (EZ_CMAKE_GENERATOR_NINJA)")
+			
+			set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_NINJA ON)
+			set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_PREFIX "Ninja")
+			set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_CONFIGURATION ${CMAKE_BUILD_TYPE})
+		else()
+			message (FATAL_ERROR "Generator '${CMAKE_GENERATOR}' is not supported on Linux! Please extend ez_detect_generator()")
+		endif()
 
 	elseif (EZ_CMAKE_PLATFORM_ANDROID)
-		if(CMAKE_GENERATOR STREQUAL "Ninja") # Ninja makefiles. Only makefile format supported by Visual Studio Open Folder
+		
+		if(CMAKE_GENERATOR MATCHES "Ninja" OR CMAKE_GENERATOR MATCHES "Ninja Multi-Config")
 			message (STATUS "Buildsystem is Ninja (EZ_CMAKE_GENERATOR_NINJA)")
 			
 			set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_NINJA ON)
@@ -258,8 +269,22 @@ function(ez_detect_generator)
 		else()
 			message (FATAL_ERROR "Generator '${CMAKE_GENERATOR}' is not supported on Android! Please extend ez_detect_generator()")
 		endif()
+
+	elseif (EZ_CMAKE_PLATFORM_EMSCRIPTEN)
+
+		if(CMAKE_GENERATOR MATCHES "Ninja" OR CMAKE_GENERATOR MATCHES "Ninja Multi-Config")
+			message (STATUS "Buildsystem is Ninja (EZ_CMAKE_GENERATOR_NINJA)")
+			
+			set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_NINJA ON)
+			set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_PREFIX "Ninja")
+			set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_CONFIGURATION ${CMAKE_BUILD_TYPE})
+			
+		else()
+			message (FATAL_ERROR "Generator '${CMAKE_GENERATOR}' is not supported on Emscripten! Please extend ez_detect_generator()")
+		endif()
+
 	else ()
-	  message (FATAL_ERROR "Platform '${CMAKE_SYSTEM_NAME}' has not set up the supported generators. Please extend ez_detect_generator()")
+		message (FATAL_ERROR "Platform '${CMAKE_SYSTEM_NAME}' has not set up the supported generators. Please extend ez_detect_generator()")
 	endif ()
 
 endfunction()
@@ -397,6 +422,7 @@ function(ez_detect_compiler_and_architecture)
 	set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_64BIT OFF)
 	set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_X86 OFF)
 	set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_ARM OFF)
+	set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_EMSCRIPTEN OFF)
 	
 	if(EZ_DETECTED_ARCH STREQUAL "x86")
 	
@@ -429,7 +455,20 @@ function(ez_detect_compiler_and_architecture)
 	  
 	  message (STATUS "Architecture is 64-Bit (EZ_CMAKE_ARCHITECTURE_64BIT)")
 	  set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_64BIT ON)
+
+ 	elseif(EZ_DETECTED_ARCH STREQUAL "emscripten")
+	
+	  message (STATUS "Architecture is WEBASSEMBLY (EZ_CMAKE_ARCHITECTURE_WEBASSEMBLY)")
+      set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_WEBASSEMBLY ON)
 	  
+	if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+		message (STATUS "Architecture is 64-Bit (EZ_CMAKE_ARCHITECTURE_64BIT)")
+		set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_64BIT ON)
+	else()
+		message (STATUS "Architecture is 32-Bit (EZ_CMAKE_ARCHITECTURE_32BIT)")
+		set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_32BIT ON)
+	endif()
+
 	else()
 	  message(FATAL_ERROR "Unhandled target architecture ${EZ_DETECTED_ARCH}")
 	endif ()
@@ -475,6 +514,7 @@ macro(ez_pull_compiler_and_architecture_vars)
 	get_property(EZ_CMAKE_ARCHITECTURE_64BIT GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_64BIT)
 	get_property(EZ_CMAKE_ARCHITECTURE_X86 GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_X86)
 	get_property(EZ_CMAKE_ARCHITECTURE_ARM GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_ARM)
+	get_property(EZ_CMAKE_ARCHITECTURE_WEBASSEMBLY GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_WEBASSEMBLY)
 
 endmacro()
 
@@ -535,7 +575,7 @@ function(ez_detect_version)
 		return()
 	endif()
 
-	ez_get_version("${CMAKE_SOURCE_DIR}/${EZ_SUBMODULE_PREFIX_PATH}/version.txt" VERSION_MAJOR VERSION_MINOR VERSION_PATCH)
+	ez_get_version("${CMAKE_SOURCE_DIR}/version.txt" VERSION_MAJOR VERSION_MINOR VERSION_PATCH)
 
 	set_property(GLOBAL PROPERTY EZ_CMAKE_SDKVERSION_MAJOR "${VERSION_MAJOR}")
 	set_property(GLOBAL PROPERTY EZ_CMAKE_SDKVERSION_MINOR "${VERSION_MINOR}")

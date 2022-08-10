@@ -15,6 +15,7 @@
 #define EZ_APPLICATION_ENTRY_POINT(AppClass, ...)                                                                                           \
   EZ_ALIGN_VARIABLE(static char appBuffer[sizeof(AppClass)], EZ_ALIGNMENT_OF(AppClass)); /* Not on the stack to cope with smaller stacks */ \
                                                                                                                                             \
+  EZ_APPLICATION_ENTRY_POINT_CODE_INJECTION                                                                                                 \
   int main(int argc, const char** argv)                                                                                                     \
   {                                                                                                                                         \
                                                                                                                                             \

@@ -139,11 +139,14 @@ public:
   /// \brief Checks whether this plane and the other are equal within some threshold.
   bool IsEqual(const ezPlaneTemplate<Type>& rhs, Type fEpsilon = ezMath::DefaultEpsilon<Type>()) const; // [tested]
 
-  /// \brief Checks whether the plane has valid values (not NaN, or infinite, normalized normal).
+  /// \brief Checks whether the plane has valid values (not NaN, normalized normal).
   bool IsValid() const; // [tested]
 
   /// \brief Checks whether any component is NaN.
   bool IsNaN() const; // [tested]
+
+  /// \brief Checks whether any component is Infinity.
+  bool IsFinite() const; // [tested]
 
   // *** Modifications ***
 public:

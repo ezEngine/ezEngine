@@ -305,6 +305,8 @@ ezMat4 ezGraphicsUtils::CreateOrthographicProjectionMatrix(float fViewWidth, flo
 
 ezMat4 ezGraphicsUtils::CreateOrthographicProjectionMatrix(float fLeft, float fRight, float fBottom, float fTop, float fNearZ, float fFarZ, ezClipSpaceDepthRange::Enum DepthRange, ezClipSpaceYMode::Enum yRange, ezHandedness::Enum handedness)
 {
+  EZ_ASSERT_DEBUG(ezMath::IsFinite(fNearZ) && ezMath::IsFinite(fFarZ), "Infinite plane values are not supported for orthographic projections!");
+
   ezMat4 res;
   res.SetIdentity();
 
@@ -350,6 +352,8 @@ ezMat4 ezGraphicsUtils::CreateOrthographicProjectionMatrix(float fLeft, float fR
 
 ezMat4 ezGraphicsUtils::CreatePerspectiveProjectionMatrix(float fLeft, float fRight, float fBottom, float fTop, float fNearZ, float fFarZ, ezClipSpaceDepthRange::Enum DepthRange, ezClipSpaceYMode::Enum yRange, ezHandedness::Enum handedness)
 {
+  EZ_ASSERT_DEBUG(ezMath::IsFinite(fNearZ) || ezMath::IsFinite(fFarZ), "fNearZ and fFarZ cannot both be infinite at the same time!");
+
   ezMat4 res;
   res.SetZero();
 
@@ -365,7 +369,6 @@ ezMat4 ezGraphicsUtils::CreatePerspectiveProjectionMatrix(float fLeft, float fRi
   // in the final matrix.
   const float fMinPlane = ezMath::Min(fNearZ, fFarZ);
   const float fTwoNearZ = fMinPlane + fMinPlane;
-  const float fOneDivNearMinusFar = 1.0f / (fNearZ - fFarZ);
   const float fOneDivRightMinusLeft = 1.0f / (fRight - fLeft);
   const float fOneDivTopMinusBottom = 1.0f / (fTop - fBottom);
 
@@ -377,18 +380,60 @@ ezMat4 ezGraphicsUtils::CreatePerspectiveProjectionMatrix(float fLeft, float fRi
   res.Element(2, 1) = (fTop + fBottom) * fOneDivTopMinusBottom;
   res.Element(2, 3) = -1.0f;
 
+  // If either fNearZ or fFarZ is infinite, one can derive the resulting z-transformation by using limit math
+  // and letting the respective variable approach infinity in the original expressions for P(2, 2) and P(3, 2).
+  // The result is that a couple of terms from the original fraction get reduced to 0 by being divided by infinity,
+  // which fortunately yields 1) finite and 2) much simpler expressions for P(2, 2) and P(3, 2).
   if (DepthRange == ezClipSpaceDepthRange::MinusOneToOne)
   {
     // The OpenGL Way: http://wiki.delphigl.com/index.php/glFrustum
-    res.Element(2, 2) = (fFarZ + fNearZ) * fOneDivNearMinusFar;
-    res.Element(3, 2) = 2 * fFarZ * fNearZ * fOneDivNearMinusFar;
+    // Algebraically reordering the z-row fractions from the above source in a way so infinite fNearZ or fFarZ will zero out
+    // instead of producing NaNs due to inf/inf divisions will yield these generalized formulas which could be used instead
+    // of the branching below. Insert infinity for either fNearZ or fFarZ to see that these will yield exactly these simplifications:
+    //res.Element(2, 2) = 1.f / (fNearZ / fFarZ - 1.f) + 1.f / (1.f - fFarZ / fNearZ);
+    //res.Element(3, 2) = 2.f / (1.f / fFarZ - 1.f / fNearZ);
+    if (!ezMath::IsFinite(fNearZ))
+    {
+      res.Element(2, 2) = 1.f;
+      res.Element(3, 2) = 2.f * fFarZ;
+    }
+    else if (!ezMath::IsFinite(fFarZ))
+    {
+      res.Element(2, 2) = -1.f;
+      res.Element(3, 2) = -2.f * fNearZ;
+    }
+    else
+    {
+      const float fOneDivNearMinusFar = 1.0f / (fNearZ - fFarZ);
+      res.Element(2, 2) = (fFarZ + fNearZ) * fOneDivNearMinusFar;
+      res.Element(3, 2) = 2 * fFarZ * fNearZ * fOneDivNearMinusFar;
+    }
   }
   else
   {
     // The Left-Handed Direct3D Way: https://docs.microsoft.com/windows/win32/direct3d9/d3dxmatrixperspectiveoffcenterlh
     // The Right-Handed Direct3D Way: https://docs.microsoft.com/windows/win32/direct3d9/d3dxmatrixperspectiveoffcenterrh
-    res.Element(2, 2) = fFarZ * fOneDivNearMinusFar;
-    res.Element(3, 2) = fFarZ * fNearZ * fOneDivNearMinusFar;
+    // Algebraically reordering the z-row fractions from the above source in a way so infinite fNearZ or fFarZ will zero out
+    // instead of producing NaNs due to inf/inf divisions will yield these generalized formulas which could be used instead
+    // of the branching below. Insert infinity for either fNearZ or fFarZ to see that these will yield exactly these simplifications:
+    //res.Element(2, 2) = 1.f / (fNearZ / fFarZ - 1.f);
+    //res.Element(3, 2) = 1.f / (1.f / fFarZ - 1.f / fNearZ);
+    if (!ezMath::IsFinite(fNearZ))
+    {
+      res.Element(2, 2) = 0.f;
+      res.Element(3, 2) = fFarZ;
+    }
+    else if (!ezMath::IsFinite(fFarZ))
+    {
+      res.Element(2, 2) = -1.f;
+      res.Element(3, 2) = -fNearZ;
+    }
+    else
+    {
+      const float fOneDivNearMinusFar = 1.0f / (fNearZ - fFarZ);
+      res.Element(2, 2) = fFarZ * fOneDivNearMinusFar;
+      res.Element(3, 2) = fFarZ * fNearZ * fOneDivNearMinusFar;
+    }
   }
 
   if (handedness == ezHandedness::LeftHanded)

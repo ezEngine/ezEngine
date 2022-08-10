@@ -91,7 +91,7 @@ private:
     const ezTaskGroupID& WaitingForGroup, ezAtomicInteger32* pWorkerState);
 
   /// \brief Called whenever a task has been finished/canceled. Makes sure that groups are marked as finished when all tasks are done.
-  static void TaskHasFinished(const ezSharedPtr<ezTask>& pTask, ezTaskGroup* pGroup);
+  static void TaskHasFinished(ezSharedPtr<ezTask>&& pTask, ezTaskGroup* pGroup);
 
   /// \brief Moves all 'next frame' tasks into the 'this frame' queues.
   static void ReprioritizeFrameTasks();
@@ -214,14 +214,14 @@ public:
   /// Also optionally returns the number of tasks that were finished during the last frame.
   static double GetThreadUtilization(ezWorkerThreadType::Enum Type, ezUInt32 uiThreadIndex, ezUInt32* pNumTasksExecuted = nullptr);
 
+  /// \brief [internal] Wakes up or allocates up to \a uiNumThreads, unless enough threads are currently active and not blocked
+  static void WakeUpThreads(ezWorkerThreadType::Enum type, ezUInt32 uiNumThreads);
+
 private:
   friend class ezTaskWorkerThread;
 
   /// \brief Allocates \a uiAddThreads additional threads of \a type
   static void AllocateThreads(ezWorkerThreadType::Enum type, ezUInt32 uiAddThreads);
-
-  /// \brief Wakes up or allocates up to \a uiNumThreads, unless enough threads are currently active and not blocked
-  static void WakeUpThreads(ezWorkerThreadType::Enum type, ezUInt32 uiNumThreads);
 
   /// \brief Shuts down all worker threads. Does NOT finish the remaining tasks that were not started yet. Does not clear them either, though.
   static void StopWorkerThreads();
@@ -239,8 +239,12 @@ private:
 
 public:
   /// A helper function to process task items in a parallel fashion by having per-worker index ranges generated.
-  static void ParallelForIndexed(ezUInt32 uiStartIndex, ezUInt32 uiNumItems, ezParallelForIndexedFunction taskCallback,
-    const char* taskName = nullptr, const ezParallelForParams& config = ezParallelForParams());
+  static void ParallelForIndexed(ezUInt32 uiStartIndex, ezUInt32 uiNumItems, ezParallelForIndexedFunction32 taskCallback,
+    const char* taskName = nullptr, const ezParallelForParams& params = ezParallelForParams());
+
+  /// A helper function to process task items in a parallel fashion by having per-worker index ranges generated.
+  static void ParallelForIndexed(ezUInt64 uiStartIndex, ezUInt64 uiNumItems, ezParallelForIndexedFunction64 taskCallback,
+    const char* taskName = nullptr, const ezParallelForParams& params = ezParallelForParams());
 
   /// A helper function to process task items in a parallel fashion by generating per-worker sub-ranges
   /// from an initial item array pointer.
@@ -269,7 +273,7 @@ public:
 private:
   template <typename ElemType>
   static void ParallelForInternal(
-    ezArrayPtr<ElemType> taskItems, ezParallelForFunction<ElemType> taskCallback, const char* taskName, const ezParallelForParams& config);
+    ezArrayPtr<ElemType> taskItems, ezParallelForFunction<ElemType> taskCallback, const char* taskName, const ezParallelForParams& params);
 
   ///@}
 

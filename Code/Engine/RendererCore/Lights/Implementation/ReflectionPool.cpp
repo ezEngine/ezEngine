@@ -108,7 +108,7 @@ void ezReflectionPool::ExtractReflectionProbe(const ezComponent* pComponent, ezM
     if (msg.m_OverrideCategory == ezInvalidRenderDataCategory)
     {
       ezStringBuilder sEnum;
-      ezReflectionUtils::EnumerationToString(probeData.m_Flags, sEnum, ezReflectionUtils::EnumConversionMode::ValueNameOnly);
+      ezReflectionUtils::BitflagsToString(probeData.m_Flags, sEnum, ezReflectionUtils::EnumConversionMode::ValueNameOnly);
       ezStringBuilder s;
       ezInt32 activeIndex = 0;
       if (s_pData->m_ActiveDynamicUpdate.Contains({uiWorldIndex, id}))

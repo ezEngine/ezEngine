@@ -75,9 +75,7 @@ namespace ezInternal
 
     EZ_CHECK_AT_COMPILETIME(sizeof(ezGameObject) == 128);
     EZ_CHECK_AT_COMPILETIME(sizeof(QueuedMsgMetaData) == 16);
-
-    EZ_CHECK_AT_COMPILETIME(sizeof(ezGameObjectId::m_WorldIndex) == sizeof(ezComponentId::m_WorldIndex));
-    EZ_CHECK_AT_COMPILETIME(sizeof(ezComponentId::m_TypeId) == sizeof(ezWorldModuleTypeId));
+    EZ_CHECK_AT_COMPILETIME(EZ_COMPONENT_TYPE_INDEX_BITS <= sizeof(ezWorldModuleTypeId) * 8);
 
     auto pDefaultInitBatch = EZ_NEW(&m_Allocator, InitBatch, &m_Allocator, "Default", true);
     pDefaultInitBatch->m_bIsReady = true;

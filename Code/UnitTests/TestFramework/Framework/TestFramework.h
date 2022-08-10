@@ -51,6 +51,7 @@ public:
   void SetAllFailedTestsEnabledStatus();
   // Each function on a test must not take longer than the given time or the test process will be terminated.
   void SetTestTimeout(ezUInt32 testTimeoutMS);
+  ezUInt32 GetTestTimeout() const;
   void GetTestSettingsFromCommandLine(const ezCommandLineUtils& cmd);
 
   // Test execution
@@ -220,10 +221,10 @@ protected:
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 #  include <Foundation/Basics/Platform/Win/MinWindows.h>
-#  define EZ_NV_OPTIMUS                                                                           \
-    extern "C"                                                                                    \
-    {                                                                                             \
-      _declspec(dllexport) ezMinWindows::DWORD NvOptimusEnablement = 0x00000001;                  \
+#  define EZ_NV_OPTIMUS                                                          \
+    extern "C"                                                                   \
+    {                                                                            \
+      _declspec(dllexport) ezMinWindows::DWORD NvOptimusEnablement = 0x00000001; \
       _declspec(dllexport) ezMinWindows::DWORD AmdPowerXpressRequestHighPerformance = 0x00000001; \
     }
 #else
@@ -258,6 +259,7 @@ protected:
 #  define EZ_TESTFRAMEWORK_ENTRY_POINT_BEGIN(szTestName, szNiceTestName)                    \
     /* Enables that on machines with multiple GPUs the NVIDIA GPU is preferred */           \
     EZ_NV_OPTIMUS                                                                           \
+    EZ_APPLICATION_ENTRY_POINT_CODE_INJECTION                                               \
     int main(int argc, char** argv)                                                         \
     {                                                                                       \
       ezTestSetup::InitTestFramework(szTestName, szNiceTestName, argc, (const char**)argv); \
