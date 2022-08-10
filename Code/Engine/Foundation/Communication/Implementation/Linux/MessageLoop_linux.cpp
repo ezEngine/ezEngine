@@ -1,13 +1,15 @@
 #include <Foundation/FoundationPCH.h>
 
-#include <Foundation/Communication/Implementation/Linux/MessageLoop_linux.h>
+#if EZ_ENABLED(EZ_PLATFORM_LINUX)
 
-#include <Foundation/Communication/Implementation/Linux/PipeChannel_linux.h>
-#include <Foundation/Logging/Log.h>
+#  include <Foundation/Communication/Implementation/Linux/MessageLoop_linux.h>
 
-#include <fcntl.h>
-#include <poll.h>
-#include <unistd.h>
+#  include <Foundation/Communication/Implementation/Linux/PipeChannel_linux.h>
+#  include <Foundation/Logging/Log.h>
+
+#  include <fcntl.h>
+#  include <poll.h>
+#  include <unistd.h>
 
 ezMessageLoop_linux::ezMessageLoop_linux()
 {
@@ -161,3 +163,5 @@ void ezMessageLoop_linux::WakeUp()
   ezUInt8 wakeupByte = 0;
   int writeResult = write(m_wakeupPipeWriteEndFd, &wakeupByte, sizeof(wakeupByte));
 }
+
+#endif
