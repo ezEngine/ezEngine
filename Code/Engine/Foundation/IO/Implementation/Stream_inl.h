@@ -172,7 +172,7 @@ namespace ezStreamWriterUtil
   }
 
   template <class T>
-  EZ_ALWAYS_INLINE auto SerializeImpl(ezStreamWriter& stream, const T& Obj, double) -> decltype(Obj.Serialize(stream).IgnoreResult(), ezResult(EZ_SUCCESS))
+  EZ_ALWAYS_INLINE auto SerializeImpl(ezStreamWriter& stream, const T& Obj, long) -> decltype(Obj.Serialize(stream).IgnoreResult(), ezResult(EZ_SUCCESS))
   {
     return ezToResult(Obj.Serialize(stream));
   }
@@ -191,14 +191,16 @@ namespace ezStreamWriterUtil
 
   // serialization of array
 
+#if EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
   template <class T>
   EZ_ALWAYS_INLINE auto SerializeArrayImpl(ezStreamWriter& stream, const T* pArray, ezUInt64 uiCount, int) -> decltype(SerializeArray(stream, pArray, uiCount), ezResult(EZ_SUCCESS))
   {
     return SerializeArray(stream, pArray, uiCount);
   }
+#endif
 
   template <class T>
-  ezResult SerializeArrayImpl(ezStreamWriter& stream, const T* pArray, ezUInt64 uiCount, double)
+  ezResult SerializeArrayImpl(ezStreamWriter& stream, const T* pArray, ezUInt64 uiCount, long)
   {
     for (ezUInt64 i = 0; i < uiCount; ++i)
     {
@@ -288,7 +290,7 @@ namespace ezStreamReaderUtil
   }
 
   template <class T>
-  EZ_ALWAYS_INLINE auto DeserializeImpl(ezStreamReader& stream, T& Obj, double) -> decltype(Obj.Deserialize(stream).IgnoreResult(), ezResult(EZ_SUCCESS))
+  EZ_ALWAYS_INLINE auto DeserializeImpl(ezStreamReader& stream, T& Obj, long) -> decltype(Obj.Deserialize(stream).IgnoreResult(), ezResult(EZ_SUCCESS))
   {
     return ezToResult(Obj.Deserialize(stream));
   }
@@ -307,14 +309,16 @@ namespace ezStreamReaderUtil
 
   // serialization of array
 
+#if EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
   template <class T>
   EZ_ALWAYS_INLINE auto DeserializeArrayImpl(ezStreamReader& stream, T* pArray, ezUInt64 uiCount, int) -> decltype(DeserializeArray(stream, pArray, uiCount), ezResult(EZ_SUCCESS))
   {
     return DeserializeArray(stream, pArray, uiCount);
   }
+#endif
 
   template <class T>
-  ezResult DeserializeArrayImpl(ezStreamReader& stream, T* pArray, ezUInt64 uiCount, double)
+  ezResult DeserializeArrayImpl(ezStreamReader& stream, T* pArray, ezUInt64 uiCount, long)
   {
     for (ezUInt64 i = 0; i < uiCount; ++i)
     {
