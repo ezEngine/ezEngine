@@ -1,27 +1,33 @@
 include(CheckIncludeFileCXX)
-include("ezCMakeConfig")
 
-include("ezUtilsVars")
-include("ezUtilsPCH")
-include("ezUtilsUnityFiles")
-include("ezUtilsQt")
-include("ezUtilsDetect")
-include("ezUtilsDX11")
-include("ezUtilsNuGet")
-include("ezUtilsEmbree")
-include("ezUtilsCI")
-include("ezUtilsCppFlags")
-include("ezUtilsAndroid")
-include("ezUtilsUWP")
-include("ezUtilsTarget")
-include("ezUtilsTargetCS")
-include("ezUtilsVcpkg")
-include("ezUtilsSubmodule")
-include("ezUtilsVulkan")
-include("ezUtilsDependency")
-include("ezUtilsKraut")
-include("ezUtilsExternal")
-include("ezUtilsRenderer")
+file(GLOB UTILS_FILES "${CMAKE_CURRENT_LIST_DIR}/CMakeUtils/*.cmake")
+
+# automatically include all files in the CMakeUtils subfolder
+foreach(UTILS_FILE ${UTILS_FILES})
+	include("${UTILS_FILE}")
+endforeach()
+
+# #####################################
+# ## ez_pull_config_vars()
+# #####################################
+macro(ez_pull_config_vars)
+	get_property(EZ_BUILDTYPENAME_DEBUG GLOBAL PROPERTY EZ_BUILDTYPENAME_DEBUG)
+	get_property(EZ_BUILDTYPENAME_DEV GLOBAL PROPERTY EZ_BUILDTYPENAME_DEV)
+	get_property(EZ_BUILDTYPENAME_RELEASE GLOBAL PROPERTY EZ_BUILDTYPENAME_RELEASE)
+
+	get_property(EZ_BUILDTYPENAME_DEBUG_UPPER GLOBAL PROPERTY EZ_BUILDTYPENAME_DEBUG_UPPER)
+	get_property(EZ_BUILDTYPENAME_DEV_UPPER GLOBAL PROPERTY EZ_BUILDTYPENAME_DEV_UPPER)
+	get_property(EZ_BUILDTYPENAME_RELEASE_UPPER GLOBAL PROPERTY EZ_BUILDTYPENAME_RELEASE_UPPER)
+
+	get_property(EZ_DEV_BUILD_LINKERFLAGS GLOBAL PROPERTY EZ_DEV_BUILD_LINKERFLAGS)
+
+	get_property(EZ_CMAKE_RELPATH GLOBAL PROPERTY EZ_CMAKE_RELPATH)
+	get_property(EZ_CMAKE_RELPATH_CODE GLOBAL PROPERTY EZ_CMAKE_RELPATH_CODE)
+	get_property(EZ_CONFIG_PATH_7ZA GLOBAL PROPERTY EZ_CONFIG_PATH_7ZA)
+
+	get_property(EZ_CONFIG_QT_WINX64_URL GLOBAL PROPERTY EZ_CONFIG_QT_WINX64_URL)
+	get_property(EZ_CONFIG_QT_WINX64_VERSION GLOBAL PROPERTY EZ_CONFIG_QT_WINX64_VERSION)
+endmacro()
 
 # #####################################
 # ## ez_set_target_output_dirs(<target> <lib-output-dir> <dll-output-dir>)
@@ -65,7 +71,6 @@ function(ez_set_target_output_dirs TARGET_NAME LIB_OUTPUT_DIR DLL_OUTPUT_DIR)
 	string(TOLOWER ${EZ_CMAKE_GENERATOR_PREFIX} LOWER_GENERATOR_PREFIX)
 
 	set(PRE_PATH "${EZ_CMAKE_PLATFORM_PREFIX}${EZ_CMAKE_GENERATOR_PREFIX}${EZ_CMAKE_COMPILER_POSTFIX}")
-
 	set(OUTPUT_DEBUG "${PRE_PATH}${EZ_BUILDTYPENAME_DEBUG}${EZ_CMAKE_ARCHITECTURE_POSTFIX}${SUB_DIR}")
 	set(OUTPUT_RELEASE "${PRE_PATH}${EZ_BUILDTYPENAME_RELEASE}${EZ_CMAKE_ARCHITECTURE_POSTFIX}${SUB_DIR}")
 	set(OUTPUT_DEV "${PRE_PATH}${EZ_BUILDTYPENAME_DEV}${EZ_CMAKE_ARCHITECTURE_POSTFIX}${SUB_DIR}")
@@ -583,9 +588,11 @@ function(ez_set_build_types)
 endfunction()
 
 # #####################################
-# ## ez_download_and_extract(<url-to-download> <dest-folder-path> <dest-filename-without-extension> <dest-file-extension>)
+# ## ez_download_and_extract(<url-to-download> <dest-folder-path> <dest-filename-without-extension>)
 # #####################################
-function(ez_download_and_extract URL DEST_FOLDER DEST_FILENAME PKG_TYPE)
+function(ez_download_and_extract URL DEST_FOLDER DEST_FILENAME)
+	get_filename_component(PKG_TYPE ${URL} LAST_EXT)
+
 	set(FULL_FILENAME "${DEST_FILENAME}.${PKG_TYPE}")
 	set(PKG_FILE "${DEST_FOLDER}/${FULL_FILENAME}")
 	set(EXTRACT_MARKER "${PKG_FILE}.extracted")
@@ -611,10 +618,12 @@ function(ez_download_and_extract URL DEST_FOLDER DEST_FILENAME PKG_TYPE)
 		endif()
 	endif()
 
+	ez_pull_config_vars()
+
 	message(STATUS "Extracting '${FULL_FILENAME}'...")
 
 	if(${PKG_TYPE} MATCHES "7z")
-		execute_process(COMMAND "${CMAKE_SOURCE_DIR}/Data/Tools/Precompiled/7za.exe"
+		execute_process(COMMAND "${EZ_CONFIG_PATH_7ZA}"
 			x "${PKG_FILE}"
 			-aoa
 			WORKING_DIRECTORY "${DEST_FOLDER}"

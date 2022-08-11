@@ -3,8 +3,10 @@
 #include <Foundation/CodeUtils/Preprocessor.h>
 #include <ToolsFoundation/Utilities/PathPatternFilter.h>
 
-void ezPathPattern::Configure(ezStringView text)
+void ezPathPattern::Configure(const ezStringView text0)
 {
+  ezStringView text = text0;
+
   text.Trim(" \t\r\n");
 
   const bool bStart = text.StartsWith("*");
@@ -23,7 +25,7 @@ void ezPathPattern::Configure(ezStringView text)
     m_MatchType = MatchType::Exact;
 }
 
-bool ezPathPattern::Matches(ezStringView text) const
+bool ezPathPattern::Matches(const ezStringView text) const
 {
   switch (m_MatchType)
   {
