@@ -168,17 +168,17 @@ ezResult ezFileSystemMirror<T>::AddFile(const char* path, const T& value, bool* 
     return EZ_FAILURE; // file not under top level directory
   }
 
-  if (sPath.FindSubString("/") != nullptr)
+  const char* szSlashPos = sPath.FindSubString("/");
+
+  while (szSlashPos != nullptr)
   {
-    do
-    {
-      const char* dirEnd = sPath.FindSubString("/");
-      ezStringView subdirName(sPath.GetData(), dirEnd + 1);
-      auto insertIt = dir->m_subDirectories.Insert(subdirName, DirEntry());
-      dir = &insertIt.Value();
-      sPath.Shrink(ezStringUtils::GetCharacterCount(subdirName.GetStartPointer(), subdirName.GetEndPointer()), 0);
-    } while (sPath.FindSubString("/") != nullptr);
+    ezStringView subdirName(sPath.GetData(), szSlashPos + 1);
+    auto insertIt = dir->m_subDirectories.Insert(subdirName, DirEntry());
+    dir = &insertIt.Value();
+    sPath.Shrink(ezStringUtils::GetCharacterCount(subdirName.GetStartPointer(), subdirName.GetEndPointer()), 0);
+    szSlashPos = sPath.FindSubString("/");
   }
+
   auto it = dir->m_files.Find(sPath);
   // Do not add the file twice
   if (!it.IsValid())

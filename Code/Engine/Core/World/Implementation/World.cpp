@@ -1011,6 +1011,7 @@ void ezWorld::UpdateAsynchronous()
     ezWorldModule* pModule = static_cast<ezWorldModule*>(updateFunction.m_Function.GetClassInstance());
     ezComponentManagerBase* pManager = ezDynamicCast<ezComponentManagerBase*>(pModule);
 
+    // a world module can also register functions in the async phase so we want at least one task
     const ezUInt32 uiTotalCount = pManager != nullptr ? pManager->GetComponentCount() : 1;
     const ezUInt32 uiGranularity = (updateFunction.m_uiGranularity != 0) ? updateFunction.m_uiGranularity : uiTotalCount;
 

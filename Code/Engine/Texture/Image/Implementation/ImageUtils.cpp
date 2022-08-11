@@ -1592,7 +1592,7 @@ ezColor ezImageUtils::NearestSample(const ezColor* pPixelPointer, ezUInt32 uiWid
     x = x % w;
     x = x < 0 ? x + w : x;
     y = y % h;
-    y = y < 0 ? y + w : y;
+    y = y < 0 ? y + h : y;
   }
   else
   {
@@ -1639,7 +1639,7 @@ ezColor ezImageUtils::BilinearSample(const ezColor* pData, ezUInt32 uiWidth, ezU
       x = x % w;
       x = x < 0 ? x + w : x;
       y = y % h;
-      y = y < 0 ? y + w : y;
+      y = y < 0 ? y + h : y;
     }
     else
     {

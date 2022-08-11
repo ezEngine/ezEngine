@@ -61,4 +61,5 @@ macro(ez_create_target_cs TYPE TARGET_NAME)
 
 	ez_set_default_target_output_dirs(${TARGET_NAME})
 	ez_set_project_ide_folder(${TARGET_NAME} ${CMAKE_CURRENT_SOURCE_DIR})
+
 endmacro()

@@ -135,4 +135,5 @@ macro(ez_create_target TYPE TARGET_NAME)
 	if(GATHER_EXPORT_PROJECTS)
 		set_property(GLOBAL APPEND PROPERTY "EXPORT_PROJECTS" ${TARGET_NAME})
 	endif()
+
 endmacro()

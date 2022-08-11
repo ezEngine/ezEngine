@@ -24,10 +24,10 @@ struct EZ_TOOLSFOUNDATION_DLL ezPathPattern
   ezString m_sString;
 
   /// \brief Sets up the pattern from the given text. Whitespace is trimmed.
-  void Configure(ezStringView text);
+  void Configure(const ezStringView text);
 
   /// \brief Returns true if the given text matches this path pattern.
-  bool Matches(ezStringView text) const;
+  bool Matches(const ezStringView text) const;
 };
 
 /// \brief A collection of ezPathPatterns.

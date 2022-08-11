@@ -140,13 +140,6 @@ function(ez_set_build_flags_msvc TARGET_NAME)
 	# 'nodiscard': attribute is ignored in this syntactic position
 	target_compile_options(${TARGET_NAME} PRIVATE /wd5240)
 
-	# ARR specific
-	if(${ARG_NO_CONTROLFLOWGUARD})
-	# message(STATUS "Disabling ControlFlowGuard for target '${TARGET_NAME}'")
-	else()
-		target_compile_options(${TARGET_NAME} PRIVATE /guard:cf)
-		target_link_options(${TARGET_NAME} PRIVATE /guard:cf)
-	endif()
 endfunction()
 
 # #####################################

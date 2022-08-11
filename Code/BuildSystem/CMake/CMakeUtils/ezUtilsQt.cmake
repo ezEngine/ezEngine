@@ -23,16 +23,17 @@ function(ez_prepare_find_qt)
 	# # Download Qt package
 	ez_pull_compiler_and_architecture_vars()
 	ez_pull_platform_vars()
+	ez_pull_config_vars()
 
 	# Currently only implemented for x64
 	if(EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP AND EZ_CMAKE_ARCHITECTURE_64BIT)
 		if(EZ_CMAKE_ARCHITECTURE_64BIT)
-			set(EZ_SDK_VERSION "Qt-5.13.0-vs141-x64")
-			set(EZ_SDK_URL "https://github.com/ezEngine/thirdparty/releases/download/Qt-5.13.0-vs141-x64/Qt-5.13.0-vs141-x64.zip")
+			set(EZ_SDK_VERSION "${EZ_CONFIG_QT_WINX64_VERSION}")
+			set(EZ_SDK_URL "${EZ_CONFIG_QT_WINX64_URL}")
 		endif()
 
 		if((EZ_QT_DIR STREQUAL "EZ_QT_DIR-NOTFOUND") OR(EZ_QT_DIR STREQUAL ""))
-			ez_download_and_extract("${EZ_SDK_URL}" "${CMAKE_BINARY_DIR}" "${EZ_SDK_VERSION}" "zip")
+			ez_download_and_extract("${EZ_SDK_URL}" "${CMAKE_BINARY_DIR}" "${EZ_SDK_VERSION}")
 
 			set(EZ_QT_DIR "${CMAKE_BINARY_DIR}/${EZ_SDK_VERSION}" CACHE PATH "Directory of the Qt installation" FORCE)
 		endif()
