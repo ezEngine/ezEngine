@@ -56,7 +56,7 @@ function(ez_detect_platform)
 
 		set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_PREFIX "Web")
 
-	elseif(CMAKE_SYSTEM_NAME MATCHES "Windows") # Desktop Windows
+	elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows") # Desktop Windows
 		message(STATUS "Platform is Windows (EZ_CMAKE_PLATFORM_WINDOWS, EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP)")
 		message(STATUS "CMAKE_SYSTEM_VERSION is ${CMAKE_SYSTEM_VERSION}")
 		message(STATUS "CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION is ${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION}")
@@ -70,7 +70,7 @@ function(ez_detect_platform)
 			set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_WINDOWS_7 ON)
 		endif()
 
-	elseif(CMAKE_SYSTEM_NAME MATCHES "WindowsStore") # Windows Universal
+	elseif(CMAKE_SYSTEM_NAME STREQUAL "WindowsStore") # Windows Universal
 		message(STATUS "Platform is Windows Universal (EZ_CMAKE_PLATFORM_WINDOWS, EZ_CMAKE_PLATFORM_WINDOWS_UWP)")
 
 		set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_WINDOWS ON)
@@ -78,7 +78,7 @@ function(ez_detect_platform)
 
 		set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_PREFIX "WinUWP")
 
-	elseif(CMAKE_SYSTEM_NAME MATCHES "Darwin" AND CURRENT_OSX_VERSION) # OS X
+	elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin" AND CURRENT_OSX_VERSION) # OS X
 		message(STATUS "Platform is OS X (EZ_CMAKE_PLATFORM_OSX, EZ_CMAKE_PLATFORM_POSIX)")
 
 		set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_POSIX ON)
@@ -86,7 +86,7 @@ function(ez_detect_platform)
 
 		set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_PREFIX "Osx")
 
-	elseif(CMAKE_SYSTEM_NAME MATCHES "Linux") # Linux
+	elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux") # Linux
 		message(STATUS "Platform is Linux (EZ_CMAKE_PLATFORM_LINUX, EZ_CMAKE_PLATFORM_POSIX)")
 
 		set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_POSIX ON)
@@ -94,7 +94,7 @@ function(ez_detect_platform)
 
 		set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_PREFIX "Linux")
 
-	elseif(CMAKE_SYSTEM_NAME MATCHES "Android") # Android
+	elseif(CMAKE_SYSTEM_NAME STREQUAL "Android") # Android
 		message(STATUS "Platform is Android (EZ_CMAKE_PLATFORM_ANDROID, EZ_CMAKE_PLATFORM_POSIX)")
 
 		set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_POSIX ON)
