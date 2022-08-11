@@ -172,7 +172,7 @@ namespace ezStreamWriterUtil
   }
 
   template <class T>
-  EZ_ALWAYS_INLINE auto SerializeImpl(ezStreamWriter& stream, const T& Obj, long) -> decltype(Obj.Serialize(stream).IgnoreResult(), ezResult(EZ_SUCCESS))
+  EZ_ALWAYS_INLINE auto SerializeImpl(ezStreamWriter& stream, const T& Obj, long long) -> decltype(Obj.Serialize(stream).IgnoreResult(), ezResult(EZ_SUCCESS))
   {
     return ezToResult(Obj.Serialize(stream));
   }
@@ -198,7 +198,7 @@ namespace ezStreamWriterUtil
   }
 
   template <class T>
-  ezResult SerializeArrayImpl(ezStreamWriter& stream, const T* pArray, ezUInt64 uiCount, long)
+  ezResult SerializeArrayImpl(ezStreamWriter& stream, const T* pArray, ezUInt64 uiCount, long long)
   {
     for (ezUInt64 i = 0; i < uiCount; ++i)
     {
@@ -288,7 +288,7 @@ namespace ezStreamReaderUtil
   }
 
   template <class T>
-  EZ_ALWAYS_INLINE auto DeserializeImpl(ezStreamReader& stream, T& Obj, long) -> decltype(Obj.Deserialize(stream).IgnoreResult(), ezResult(EZ_SUCCESS))
+  EZ_ALWAYS_INLINE auto DeserializeImpl(ezStreamReader& stream, T& Obj, long long) -> decltype(Obj.Deserialize(stream).IgnoreResult(), ezResult(EZ_SUCCESS))
   {
     return ezToResult(Obj.Deserialize(stream));
   }
@@ -314,7 +314,7 @@ namespace ezStreamReaderUtil
   }
 
   template <class T>
-  ezResult DeserializeArrayImpl(ezStreamReader& stream, T* pArray, ezUInt64 uiCount, long)
+  ezResult DeserializeArrayImpl(ezStreamReader& stream, T* pArray, ezUInt64 uiCount, long long)
   {
     for (ezUInt64 i = 0; i < uiCount; ++i)
     {
