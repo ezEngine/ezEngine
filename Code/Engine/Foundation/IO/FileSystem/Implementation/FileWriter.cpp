@@ -41,34 +41,49 @@ ezResult ezFileWriter::WriteBytes(const void* pWriteBuffer, ezUInt64 uiBytesToWr
 {
   EZ_ASSERT_DEV(m_pDataDirWriter != nullptr, "The file has not been opened (successfully).");
 
-  ezUInt8* pBuffer = (ezUInt8*)pWriteBuffer;
-
-  while (uiBytesToWrite > 0)
+  if (uiBytesToWrite > m_Cache.GetCount())
   {
-    // determine chunk size to be written
-    ezUInt64 uiChunkSize = uiBytesToWrite;
+    // if there is more incoming data than what our cache can hold, there is no point in storing a copy
+    // instead we can just pass the entire data through right away
 
-    const ezUInt64 uiRemainingCache = m_Cache.GetCount() - m_uiCacheWritePosition;
-
-    if (uiRemainingCache < uiBytesToWrite)
-      uiChunkSize = uiRemainingCache;
-
-    // copy memory
-    ezMemoryUtils::Copy(&m_Cache[(ezUInt32)m_uiCacheWritePosition], pBuffer, (ezUInt32)uiChunkSize);
-
-    pBuffer += uiChunkSize;
-    m_uiCacheWritePosition += uiChunkSize;
-    uiBytesToWrite -= uiChunkSize;
-
-    // if the cache is full or nearly full, flush it to disk
-    if (m_uiCacheWritePosition + 32 >= m_Cache.GetCount())
+    if (m_uiCacheWritePosition > 0)
     {
-      if (Flush() == EZ_FAILURE)
-        return EZ_FAILURE;
+      EZ_SUCCEED_OR_RETURN(Flush());
     }
-  }
 
-  return EZ_SUCCESS;
+    return m_pDataDirWriter->Write(pWriteBuffer, uiBytesToWrite);
+  }
+  else
+  {
+    ezUInt8* pBuffer = (ezUInt8*)pWriteBuffer;
+
+    while (uiBytesToWrite > 0)
+    {
+      // determine chunk size to be written
+      ezUInt64 uiChunkSize = uiBytesToWrite;
+
+      const ezUInt64 uiRemainingCache = m_Cache.GetCount() - m_uiCacheWritePosition;
+
+      if (uiRemainingCache < uiBytesToWrite)
+        uiChunkSize = uiRemainingCache;
+
+      // copy memory
+      ezMemoryUtils::Copy(&m_Cache[(ezUInt32)m_uiCacheWritePosition], pBuffer, (ezUInt32)uiChunkSize);
+
+      pBuffer += uiChunkSize;
+      m_uiCacheWritePosition += uiChunkSize;
+      uiBytesToWrite -= uiChunkSize;
+
+      // if the cache is full or nearly full, flush it to disk
+      if (m_uiCacheWritePosition + 32 >= m_Cache.GetCount())
+      {
+        if (Flush() == EZ_FAILURE)
+          return EZ_FAILURE;
+      }
+    }
+
+    return EZ_SUCCESS;
+  }
 }
 
 

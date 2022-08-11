@@ -8,6 +8,7 @@
 
 #include <Foundation/IO/StringDeduplicationContext.h>
 #include <Foundation/Strings/String.h>
+#include <Foundation/Time/Stopwatch.h>
 
 namespace
 {
@@ -338,6 +339,96 @@ EZ_CREATE_SIMPLE_TEST(IO, StreamOperation)
       EZ_TEST_STRING(szRead0, szRead2);
       EZ_TEST_STRING(szRead0, szRead4);
       EZ_TEST_STRING(szRead1, szRead5);
+    }
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Array Serialization Performance (bytes)")
+  {
+    constexpr ezUInt32 uiCount = 1024 * 1024 * 10;
+
+    ezContiguousMemoryStreamStorage storage(uiCount + 16);
+
+    ezMemoryStreamWriter writer(&storage);
+    ezMemoryStreamReader reader(&storage);
+
+    ezDynamicArray<ezUInt8> DynamicArray;
+    DynamicArray.SetCountUninitialized(uiCount);
+
+    for (ezUInt32 i = 0; i < uiCount; ++i)
+    {
+      DynamicArray[i] = i & 0xFF;
+    }
+
+    {
+      ezStopwatch sw;
+
+      writer.WriteArray(DynamicArray).AssertSuccess();
+
+      ezTime t = sw.GetRunningTotal();
+      ezStringBuilder s;
+      s.Format("Write {} byte array: {}", ezArgFileSize(uiCount), t);
+      ezTestFramework::Output(ezTestOutput::Details, s);
+    }
+
+    {
+      ezStopwatch sw;
+
+      reader.ReadArray(DynamicArray).IgnoreResult();
+
+      ezTime t = sw.GetRunningTotal();
+      ezStringBuilder s;
+      s.Format("Read {} byte array: {}", ezArgFileSize(uiCount), t);
+      ezTestFramework::Output(ezTestOutput::Details, s);
+    }
+
+    for (ezUInt32 i = 0; i < uiCount; ++i)
+    {
+      EZ_TEST_INT(DynamicArray[i], i & 0xFF);
+    }
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Array Serialization Performance (ezVec3)")
+  {
+    constexpr ezUInt32 uiCount = 1024 * 1024 * 10;
+
+    ezContiguousMemoryStreamStorage storage(uiCount * sizeof(ezVec3) + 16);
+
+    ezMemoryStreamWriter writer(&storage);
+    ezMemoryStreamReader reader(&storage);
+
+    ezDynamicArray<ezVec3> DynamicArray;
+    DynamicArray.SetCountUninitialized(uiCount);
+
+    for (ezUInt32 i = 0; i < uiCount; ++i)
+    {
+      DynamicArray[i].Set(i, i + 1, i + 2);
+    }
+
+    {
+      ezStopwatch sw;
+
+      writer.WriteArray(DynamicArray).AssertSuccess();
+
+      ezTime t = sw.GetRunningTotal();
+      ezStringBuilder s;
+      s.Format("Write {} vec3 array: {}", ezArgFileSize(uiCount * sizeof(ezVec3)), t);
+      ezTestFramework::Output(ezTestOutput::Details, s);
+    }
+
+    {
+      ezStopwatch sw;
+
+      reader.ReadArray(DynamicArray).AssertSuccess();
+
+      ezTime t = sw.GetRunningTotal();
+      ezStringBuilder s;
+      s.Format("Read {} vec3 array: {}", ezArgFileSize(uiCount * sizeof(ezVec3)), t);
+      ezTestFramework::Output(ezTestOutput::Details, s);
+    }
+
+    for (ezUInt32 i = 0; i < uiCount; ++i)
+    {
+      EZ_TEST_VEC3(DynamicArray[i], ezVec3(i, i + 1, i + 2), 0.01f);
     }
   }
 }

@@ -469,9 +469,6 @@ namespace ezInternal
       PlaneData m_PlaneData;
       ezDynamicArray<const ezGameObject*>* m_pOutObjects;
       ezUInt64 m_uiFrameCounter;
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-
-#endif
     };
 
     template <bool UseTagsFilter>

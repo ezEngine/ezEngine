@@ -65,7 +65,7 @@ ezResult ezDeferredFileWriter::Close()
 
 write_data:
   ezFileWriter file;
-  EZ_SUCCEED_OR_RETURN(file.Open(m_sOutputFile));
+  EZ_SUCCEED_OR_RETURN(file.Open(m_sOutputFile, 0)); // use the minimum cache size, we want to pass data directly through to disk
 
   m_sOutputFile.Clear();
   return m_Storage.CopyToStream(file);

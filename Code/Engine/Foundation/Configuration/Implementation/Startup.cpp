@@ -269,9 +269,6 @@ void ezStartup::Startup(ezStartupStage::Enum stage)
     }
   }
 
-  // ezThreadUtils::IsMainThread can only be called after the Base startup is through, so this is they earliest possible position for the check
-  EZ_ASSERT_DEV(ezThreadUtils::IsMainThread(), "The startup system can only be called from the Main Thread.");
-
   // now everything should be started
   {
     EZ_LOG_BLOCK("Failed SubSystems");

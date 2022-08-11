@@ -498,6 +498,11 @@ void ezTestFramework::SetTestTimeout(ezUInt32 testTimeoutMS)
   UpdateTestTimeout();
 }
 
+ezUInt32 ezTestFramework::GetTestTimeout() const
+{
+  return m_timeoutMS;
+}
+
 void ezTestFramework::TimeoutThread()
 {
   std::unique_lock<std::mutex> lock(m_timeoutLock);

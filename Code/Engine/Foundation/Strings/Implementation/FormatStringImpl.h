@@ -14,6 +14,8 @@ class ezFormatStringImpl : public ezFormatString
   // If a BuildString function requires more storage, it may need to do some trickery.
   // For an example look at BuildString for ezArgErrorCode, which uses an increased thread_local temp buffer.
   static constexpr ezUInt32 TempStringLength = 64;
+  // Maximum number of parameters. Results in compilation error if exceeded.
+  static constexpr ezUInt32 MaxNumParameters = 12;
 
 public:
   ezFormatStringImpl(const char* szFormat, ARGS&&... args)
@@ -33,9 +35,9 @@ public:
       return "";
     }
 
-    ezStringView param[10];
+    ezStringView param[MaxNumParameters];
 
-    char tmp[10][TempStringLength];
+    char tmp[MaxNumParameters][TempStringLength];
     ReplaceString<0>(tmp, param);
 
     const char* szString = m_szString;
@@ -69,9 +71,9 @@ public:
       else if (*szString == '{' && *(szString + 1) == '}')
       {
         ++iLastParam;
-        EZ_ASSERT_DEV(iLastParam < 10, "Too many placeholders in format string");
+        EZ_ASSERT_DEV(iLastParam < MaxNumParameters, "Too many placeholders in format string");
 
-        if (iLastParam < 10)
+        if (iLastParam < MaxNumParameters)
         {
           SBAppendView(sb, param[iLastParam]);
         }
@@ -90,9 +92,9 @@ public:
 
 private:
   template <ezInt32 N>
-  typename std::enable_if<sizeof...(ARGS) != N>::type ReplaceString(char tmp[10][TempStringLength], ezStringView* pViews) const
+  typename std::enable_if<sizeof...(ARGS) != N>::type ReplaceString(char tmp[MaxNumParameters][TempStringLength], ezStringView* pViews) const
   {
-    EZ_CHECK_AT_COMPILETIME_MSG(N < 10, "Maximum number of format arguments reached");
+    EZ_CHECK_AT_COMPILETIME_MSG(N < MaxNumParameters, "Maximum number of format arguments reached");
 
     // using a free function allows to overload with various different argument types
     pViews[N] = BuildString(tmp[N], TempStringLength - 1, std::get<N>(m_Arguments));
@@ -103,7 +105,7 @@ private:
 
   // Recursion end if we reached the number of arguments.
   template <ezInt32 N>
-  typename std::enable_if<sizeof...(ARGS) == N>::type ReplaceString(char tmp[10][TempStringLength], ezStringView* pViews) const
+  typename std::enable_if<sizeof...(ARGS) == N>::type ReplaceString(char tmp[MaxNumParameters][TempStringLength], ezStringView* pViews) const
   {
   }
 

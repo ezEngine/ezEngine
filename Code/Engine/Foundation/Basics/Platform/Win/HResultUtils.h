@@ -8,7 +8,7 @@
 EZ_FOUNDATION_DLL ezString ezHRESULTtoString(ezMinWindows::HRESULT result);
 
 /// Conversion of HRESULT to ezResult.
-inline ezResult ezToResult(ezMinWindows::HRESULT result)
+EZ_ALWAYS_INLINE ezResult ezToResult(ezMinWindows::HRESULT result)
 {
   return result >= 0 ? EZ_SUCCESS : EZ_FAILURE;
 }

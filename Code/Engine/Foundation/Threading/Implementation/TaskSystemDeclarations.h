@@ -187,14 +187,16 @@ struct EZ_FOUNDATION_DLL ezParallelForParams
 
   /// Returns the multiplicity to use for the given task. If 0 is returned,
   /// serial execution is to be performed.
-  ezUInt32 DetermineMultiplicity(ezUInt32 uiNumTaskItems) const;
+  ezUInt32 DetermineMultiplicity(ezUInt64 uiNumTaskItems) const;
 
   /// Returns the number of task items to work on per invocation (multiplicity).
   /// This is aligned with the multiplicity, i.e., multiplicity * bin_size >= # task items.
+  ezUInt64 DetermineItemsPerInvocation(ezUInt64 uiNumTaskItems, ezUInt32 uiMultiplicity) const;
   ezUInt32 DetermineItemsPerInvocation(ezUInt32 uiNumTaskItems, ezUInt32 uiMultiplicity) const;
 };
 
-using ezParallelForIndexedFunction = ezDelegate<void(ezUInt32, ezUInt32), 48>;
+using ezParallelForIndexedFunction32 = ezDelegate<void(ezUInt32, ezUInt32), 48>;
+using ezParallelForIndexedFunction64 = ezDelegate<void(ezUInt64, ezUInt64), 48>;
 
 template <typename ElemType>
 using ezParallelForFunction = ezDelegate<void(ezUInt32, ezArrayPtr<ElemType>), 48>;

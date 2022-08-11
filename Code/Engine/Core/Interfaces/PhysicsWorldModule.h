@@ -10,7 +10,15 @@ struct ezSkeletonResourceDescriptor;
 
 using ezSurfaceResourceHandle = ezTypedResourceHandle<class ezSurfaceResource>;
 
-/// \brief Used for raycast and sweep tests
+/// \brief Classifies the facing of an individual raycast hit
+enum class ezPhysicsHitType : int8_t
+{
+  Undefined = -1, ///< Returned if the respective physics binding does not provide this information
+  TriangleFrontFace = 0,  ///< The raycast hit the front face of a triangle
+  TriangleBackFace = 1,   ///< The raycast hit the back face of a triangle
+};
+
+/// \brief Used for raycast and seep tests
 struct ezPhysicsCastResult
 {
   ezVec3 m_vPosition;
@@ -21,6 +29,7 @@ struct ezPhysicsCastResult
   ezGameObjectHandle m_hActorObject;            ///< The game object to which the parent actor of the hit physics shape is attached.
   ezSurfaceResourceHandle m_hSurface;           ///< The type of surface that was hit (if available)
   ezUInt32 m_uiObjectFilterID = ezInvalidIndex; ///< An ID either per object (rigid-body / ragdoll) or per shape (implementation specific) that can be used to ignore this object during raycasts and shape queries.
+  ezPhysicsHitType m_hitType = ezPhysicsHitType::Undefined; ///< Classification of the triangle face, see ezPhysicsHitType
 
   // Physics-engine specific information, may be available or not.
   void* m_pInternalPhysicsShape = nullptr;

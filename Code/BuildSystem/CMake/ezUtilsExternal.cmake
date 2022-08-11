@@ -1,9 +1,8 @@
-######################################
-### ez_include_ezExport()
-######################################
+# #####################################
+# ## ez_include_ezExport()
+# #####################################
 
 macro(ez_include_ezExport)
-
 	# Create a modified version of the ezExport.cmake file,
 	# where the absolute paths to the original locations are replaced
 	# with the absolute paths to this installation
@@ -27,27 +26,24 @@ macro(ez_include_ezExport)
 
 	# include the modified file, so that the CMake targets become known
 	include(${IMP_FILE})
-
 endmacro()
 
-
-######################################
-### ez_configure_external_project()
-######################################
-
+# #####################################
+# ## ez_configure_external_project()
+# #####################################
 macro(ez_configure_external_project)
+	file(RELATIVE_PATH EZ_SUBMODULE_PREFIX_PATH ${CMAKE_SOURCE_DIR} ${EZ_SDK_DIR})
+	set_property(GLOBAL PROPERTY EZ_SUBMODULE_PREFIX_PATH ${EZ_SUBMODULE_PREFIX_PATH})
 
-    file(RELATIVE_PATH EZ_SUBMODULE_PREFIX_PATH ${CMAKE_SOURCE_DIR} ${EZ_SDK_DIR})
-    set_property(GLOBAL PROPERTY EZ_SUBMODULE_PREFIX_PATH ${EZ_SUBMODULE_PREFIX_PATH})
-    if(EZ_SUBMODULE_PREFIX_PATH STREQUAL "")
-        set(EZ_SUBMODULE_MODE FALSE)
-    else()
-        set(EZ_SUBMODULE_MODE FALSE)
-    endif()
-    set_property(GLOBAL PROPERTY EZ_SUBMODULE_MODE ${EZ_SUBMODULE_MODE})
+	if(EZ_SUBMODULE_PREFIX_PATH STREQUAL "")
+		set(EZ_SUBMODULE_MODE FALSE)
+	else()
+		set(EZ_SUBMODULE_MODE FALSE)
+	endif()
 
-    ez_build_filter_init()
+	set_property(GLOBAL PROPERTY EZ_SUBMODULE_MODE ${EZ_SUBMODULE_MODE})
 
-    ez_set_build_types()
+	ez_build_filter_init()
 
+	ez_set_build_types()
 endmacro()

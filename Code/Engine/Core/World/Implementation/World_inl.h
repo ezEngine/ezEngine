@@ -4,9 +4,9 @@ EZ_ALWAYS_INLINE const char* ezWorld::GetName() const
   return m_Data.m_sName.GetData();
 }
 
-EZ_ALWAYS_INLINE ezUInt8 ezWorld::GetIndex() const
+EZ_ALWAYS_INLINE ezUInt32 ezWorld::GetIndex() const
 {
-  return static_cast<ezUInt8>(m_uiIndex);
+  return m_uiIndex;
 }
 
 EZ_FORCE_INLINE ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc)
@@ -493,17 +493,17 @@ constexpr ezUInt64 ezWorld::GetMaxNumComponentsPerType()
 
 constexpr ezUInt64 ezWorld::GetMaxNumWorldModules()
 {
-  return (1 << (sizeof(ezWorldModuleTypeId) * 8 - 2));
+  return EZ_MAX_WORLD_MODULE_TYPES;
 }
 
 constexpr ezUInt64 ezWorld::GetMaxNumComponentTypes()
 {
-  return GetMaxNumWorldModules();
+  return EZ_MAX_COMPONENT_TYPES;
 }
 
 constexpr ezUInt64 ezWorld::GetMaxNumWorlds()
 {
-  return (1 << (sizeof(ezGameObjectId::m_WorldIndex) * 8));
+  return EZ_MAX_WORLDS;
 }
 
 // static

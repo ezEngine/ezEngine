@@ -95,7 +95,7 @@ public:
 
   /// \brief Helper template to shorten the call for ezBitflags
   template <typename T>
-  static bool EnumerationToString(ezBitflags<T> value, ezStringBuilder& out_sOutput, ezEnum<EnumConversionMode> conversionMode = EnumConversionMode::Default)
+  static bool BitflagsToString(ezBitflags<T> value, ezStringBuilder& out_sOutput, ezEnum<EnumConversionMode> conversionMode = EnumConversionMode::Default)
   {
     return EnumerationToString(ezGetStaticRTTI<T>(), value.GetValue(), out_sOutput, conversionMode);
   }

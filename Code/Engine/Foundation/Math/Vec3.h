@@ -38,7 +38,7 @@ public:
   static const ezVec3Template<Type> UnitXAxis() { return ezVec3Template(1, 0, 0); }
   /// \brief Returns a vector initialized to the y unit vector (0, 1, 0).
   static const ezVec3Template<Type> UnitYAxis() { return ezVec3Template(0, 1, 0); }
-  /// \brief Returns a vector initialized to the z unit vector (1, 0, 0).
+  /// \brief Returns a vector initialized to the z unit vector (0, 0, 1).
   static const ezVec3Template<Type> UnitZAxis() { return ezVec3Template(0, 0, 1); }
 
 #if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)

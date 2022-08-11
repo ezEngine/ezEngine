@@ -26,11 +26,16 @@ ezTaskGroupID ezTaskSystem::StartSingleTask(
   return Group;
 }
 
-void ezTaskSystem::TaskHasFinished(const ezSharedPtr<ezTask>& pTask, ezTaskGroup* pGroup)
+void ezTaskSystem::TaskHasFinished(ezSharedPtr<ezTask>&& pTask, ezTaskGroup* pGroup)
 {
+  // call task finished callback and deallocate the task (if last reference)
   if (pTask && pTask->m_OnTaskFinished.IsValid() && pTask->m_iRemainingRuns == 0)
   {
     pTask->m_OnTaskFinished(pTask);
+
+    // make sure to clear the task sharedptr BEFORE we mark the task (group) as finished,
+    // so that if this is the last reference, the task gets deallocated first
+    pTask.Clear();
   }
 
   if (pGroup->m_iNumRemainingTasks.Decrement() == 0)
@@ -134,7 +139,7 @@ bool ezTaskSystem::ExecuteTask(ezTaskPriority::Enum FirstPriority, ezTaskPriorit
   tl_TaskWorkerInfo.m_szTaskName = nullptr;
 
   // notify the group, that a task is finished, which might trigger other tasks to be executed
-  TaskHasFinished(td.m_pTask, td.m_pBelongsToGroup);
+  TaskHasFinished(std::move(td.m_pTask), td.m_pBelongsToGroup);
 
   return true;
 }
@@ -182,7 +187,7 @@ ezResult ezTaskSystem::CancelTask(const ezSharedPtr<ezTask>& pTask, ezOnTaskRunn
             pTask->m_iRemainingRuns = 0;
 
             // tell the system that one task of that group is 'finished', to ensure its dependencies will get scheduled
-            TaskHasFinished(it->m_pTask, it->m_pBelongsToGroup);
+            TaskHasFinished(std::move(it->m_pTask), it->m_pBelongsToGroup);
             return EZ_SUCCESS;
           }
 
@@ -197,7 +202,8 @@ ezResult ezTaskSystem::CancelTask(const ezSharedPtr<ezTask>& pTask, ezOnTaskRunn
 
   if (OnTaskRunning == ezOnTaskRunning::WaitTillFinished)
   {
-    WaitForCondition([pTask]() { return pTask->IsTaskFinished(); });
+    WaitForCondition([pTask]()
+      { return pTask->IsTaskFinished(); });
   }
 
   return EZ_FAILURE;
@@ -295,9 +301,9 @@ void ezTaskSystem::ExecuteSomeFrameTasks(ezTime smoothFrameTime)
   while (CurTime - LastTime < smoothFrameTime)
   {
     if (!ExecuteTask(ezTaskPriority::SomeFrameMainThread, ezTaskPriority::SomeFrameMainThread, false, ezTaskGroupID(), nullptr))
-  {
+    {
       // nothing left to do, reset the threshold
-    s_FrameTimeThreshold = smoothFrameTime;
+      s_FrameTimeThreshold = smoothFrameTime;
       return;
     }
 

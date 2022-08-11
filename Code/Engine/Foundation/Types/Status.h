@@ -10,7 +10,7 @@ class ezLogInterface;
 /// \brief An ezResult with an additional message for the reason of failure
 struct EZ_FOUNDATION_DLL ezStatus
 {
-  explicit ezStatus()
+  EZ_ALWAYS_INLINE explicit ezStatus()
     : m_Result(EZ_FAILURE)
   {
   }
@@ -33,7 +33,7 @@ struct EZ_FOUNDATION_DLL ezStatus
   {
   }
 
-  ezStatus(ezResult r)
+  EZ_ALWAYS_INLINE ezStatus(ezResult r)
     : m_Result(r)
   {
   }
@@ -48,7 +48,7 @@ struct EZ_FOUNDATION_DLL ezStatus
   ezString m_sMessage;
 };
 
-inline ezResult ezToResult(const ezStatus& result)
+EZ_ALWAYS_INLINE ezResult ezToResult(const ezStatus& result)
 {
   return result.m_Result;
 }

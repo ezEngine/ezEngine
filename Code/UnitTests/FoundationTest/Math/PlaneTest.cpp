@@ -504,6 +504,37 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
     }
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsFinite")
+  {
+    if (ezMath::SupportsInfinity<ezMathTestType>())
+    {
+      ezPlaneT p;
+
+      p.m_vNormal = ezVec3(1, 2, 3).GetNormalized();
+      p.m_fNegDistance = 42;
+      EZ_TEST_BOOL(p.IsValid());
+      EZ_TEST_BOOL(p.IsFinite());
+
+      p.SetInvalid();
+      p.m_vNormal = ezVec3(1, 2, 3).GetNormalized();
+      p.m_fNegDistance = ezMath::Infinity<ezMathTestType>();
+      EZ_TEST_BOOL(p.IsValid());
+      EZ_TEST_BOOL(!p.IsFinite());
+
+      p.SetInvalid();
+      p.m_vNormal.x = ezMath::NaN<ezMathTestType>();
+      p.m_fNegDistance = ezMath::Infinity<ezMathTestType>();
+      EZ_TEST_BOOL(!p.IsValid());
+      EZ_TEST_BOOL(!p.IsFinite());
+
+      p.SetInvalid();
+      p.m_vNormal = ezVec3(1, 2, 3);
+      p.m_fNegDistance = 42;
+      EZ_TEST_BOOL(!p.IsValid());
+      EZ_TEST_BOOL(p.IsFinite());
+    }
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetMinimumDistanceTo/GetMaximumDistanceTo")
   {
     const ezUInt32 numTestLoops = 1000 * 1000;

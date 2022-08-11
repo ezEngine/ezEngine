@@ -80,7 +80,7 @@ private:
 ///
 /// This is intentionally not done via casting operator overload (or even additional constructors) since this usually comes with a
 /// considerable data loss.
-inline ezResult ezToResult(ezResult result)
+EZ_ALWAYS_INLINE ezResult ezToResult(ezResult result)
 {
   return result;
 }

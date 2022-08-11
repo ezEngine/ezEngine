@@ -69,7 +69,8 @@ public:
   /// \brief Creates the frustum by extracting the planes from the given (model-view / projection) matrix.
   ///
   /// If the matrix is just the projection matrix, the frustum will be in local space. Pass the full ModelViewProjection
-  /// matrix to create the frustum in world-space.
+  /// matrix to create the frustum in world-space. If the projection matrix contained in ModelViewProjection is an infinite
+  /// plane projection matrix, the resulting frustum will yield a far plane with infinite distance.
   void SetFrustum(const ezMat4& ModelViewProjection, ezClipSpaceDepthRange::Enum DepthRange = ezClipSpaceDepthRange::Default,
     ezHandedness::Enum Handedness = ezHandedness::Default); // [tested]
 
@@ -97,6 +98,9 @@ public:
   void InvertFrustum(); // [tested]
 
   /// \brief Computes the frustum corner points.
+  ///
+  /// Note: If the frustum contains an infinite far plane, the far plane corners (out_points[4..7])
+  /// will be at infinity.
   void ComputeCornerPoints(ezVec3 out_Points[FrustumCorner::CORNER_COUNT]) const; // [tested]
 
   /// \brief Checks whether the given object is inside or outside the frustum.

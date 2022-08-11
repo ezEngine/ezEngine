@@ -226,11 +226,37 @@ void ezFrustum::SetFrustum(const ezMat4& ModelViewProjection0, ezClipSpaceDepthR
   for (int p = 0; p < 6; ++p)
   {
     const float len = planes[p].GetAsVec3().GetLength();
-    planes[p] /= len;
-
-    m_Planes[p].m_vNormal = planes[p].GetAsVec3();
-    m_Planes[p].m_fNegDistance = planes[p].w;
+    // doing the division here manually since we want to accept the case where length is 0 (infinite plane)
+    const float invLen = 1.f / len;
+    planes[p].x *= ezMath::IsFinite(invLen) ? invLen : 0.f;
+    planes[p].y *= ezMath::IsFinite(invLen) ? invLen : 0.f;
+    planes[p].z *= ezMath::IsFinite(invLen) ? invLen : 0.f;
+    planes[p].w *= invLen;
   }
+
+  // The last matrix row is giving the camera's plane, which means its normal is
+  // also the camera's viewing direction.
+  const ezVec3 cameraViewDirection = ModelViewProjection.GetRow(3).GetAsVec3();
+
+  // Making sure the near/far plane is always closest/farthest. The way we derive the
+  // planes always yields the closer plane pointing towards the camera and the farther
+  // plane pointing away from the camera, so flip when that relationship inverts.
+  if (planes[FarPlane].GetAsVec3().Dot(cameraViewDirection) < 0)
+  {
+    EZ_ASSERT_DEBUG(planes[NearPlane].GetAsVec3().Dot(cameraViewDirection) >= 0, "");
+    ezMath::Swap(planes[NearPlane], planes[FarPlane]);
+  }
+
+  // In case we have an infinity far plane projection, the normal is invalid.
+  // We'll just take the mirrored normal from the near plane.
+  EZ_ASSERT_DEBUG(planes[NearPlane].IsValid(), "Near plane is expected to be non-nan and finite at this point!");
+  if (ezMath::Abs(planes[FarPlane].w) == ezMath::Infinity<float>())
+  {
+    planes[FarPlane] = (-planes[NearPlane].GetAsVec3()).GetAsVec4(planes[FarPlane].w);
+  }
+
+  static_assert(offsetof(ezPlane, m_vNormal) == offsetof(ezVec4, x) && offsetof(ezPlane, m_fNegDistance) == offsetof(ezVec4, w));
+  ezMemoryUtils::Copy(m_Planes, (ezPlane*)planes, 6);
 }
 
 void ezFrustum::SetFrustum(const ezVec3& vPosition, const ezVec3& vForwards, const ezVec3& vUp, ezAngle FovX, ezAngle FovY, float fNearPlane, float fFarPlane)
@@ -246,6 +272,12 @@ void ezFrustum::SetFrustum(const ezVec3& vPosition, const ezVec3& vForwards, con
 
   // Far Plane
   m_Planes[FarPlane].SetFromNormalAndPoint(vForwardsNorm, vPosition + fFarPlane * vForwardsNorm);
+
+  // Making sure the near/far plane is always closest/farthest.
+  if (fNearPlane > fFarPlane)
+  {
+    ezMath::Swap(m_Planes[NearPlane], m_Planes[FarPlane]);
+  }
 
   ezMat3 mLocalFrame;
   mLocalFrame.SetColumn(0, vRightNorm);

@@ -1,20 +1,19 @@
-
 # find the folder into which the Vulkan SDK has been installed
 
 # early out, if this target has been created before
-if ((TARGET EzVulkan::Loader) AND (TARGET EzVulkan::DXC))
+if((TARGET EzVulkan::Loader) AND(TARGET EzVulkan::DXC))
 	return()
 endif()
 
-set (EZ_VULKAN_DIR $ENV{VULKAN_SDK} CACHE PATH "Directory of the Vulkan SDK")
+set(EZ_VULKAN_DIR $ENV{VULKAN_SDK} CACHE PATH "Directory of the Vulkan SDK")
 
 ez_pull_compiler_and_architecture_vars()
 
 get_property(EZ_SUBMODULE_PREFIX_PATH GLOBAL PROPERTY EZ_SUBMODULE_PREFIX_PATH)
 
-if (EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP AND EZ_CMAKE_ARCHITECTURE_64BIT)
-	if ((EZ_VULKAN_DIR STREQUAL "EZ_VULKAN_DIR-NOTFOUND") OR (EZ_VULKAN_DIR STREQUAL ""))
-		#set(CMAKE_FIND_DEBUG_MODE TRUE)
+if(EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP AND EZ_CMAKE_ARCHITECTURE_64BIT)
+	if((EZ_VULKAN_DIR STREQUAL "EZ_VULKAN_DIR-NOTFOUND") OR(EZ_VULKAN_DIR STREQUAL ""))
+		# set(CMAKE_FIND_DEBUG_MODE TRUE)
 		unset(EZ_VULKAN_DIR CACHE)
 		unset(EzVulkan_DIR CACHE)
 		find_path(EZ_VULKAN_DIR Config/vk_layer_settings.txt
@@ -23,11 +22,12 @@ if (EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP AND EZ_CMAKE_ARCHITECTURE_64BIT)
 			$ENV{VULKAN_SDK}
 			REQUIRED
 		)
-		#set(CMAKE_FIND_DEBUG_MODE FALSE)
+
+		# set(CMAKE_FIND_DEBUG_MODE FALSE)
 	endif()
 elseif(EZ_CMAKE_PLATFORM_LINUX AND EZ_CMAKE_ARCHITECTURE_64BIT)
-	if ((EZ_VULKAN_DIR STREQUAL "EZ_VULKAN_DIR-NOTFOUND") OR (EZ_VULKAN_DIR STREQUAL ""))
-		#set(CMAKE_FIND_DEBUG_MODE TRUE)
+	if((EZ_VULKAN_DIR STREQUAL "EZ_VULKAN_DIR-NOTFOUND") OR(EZ_VULKAN_DIR STREQUAL ""))
+		# set(CMAKE_FIND_DEBUG_MODE TRUE)
 		unset(EZ_VULKAN_DIR CACHE)
 		unset(EzVulkan_DIR CACHE)
 		find_path(EZ_VULKAN_DIR config/vk_layer_settings.txt
@@ -36,7 +36,8 @@ elseif(EZ_CMAKE_PLATFORM_LINUX AND EZ_CMAKE_ARCHITECTURE_64BIT)
 			$ENV{VULKAN_SDK}
 			REQUIRED
 		)
-		#set(CMAKE_FIND_DEBUG_MODE FALSE)
+
+		# set(CMAKE_FIND_DEBUG_MODE FALSE)
 	endif()
 else()
 	message(FATAL_ERROR "TODO: Vulkan is not yet supported on this platform and/or architecture.")
@@ -45,8 +46,8 @@ endif()
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(EzVulkan DEFAULT_MSG EZ_VULKAN_DIR)
 
-if (EZVULKAN_FOUND)
-	if (EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP AND EZ_CMAKE_ARCHITECTURE_64BIT)
+if(EZVULKAN_FOUND)
+	if(EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP AND EZ_CMAKE_ARCHITECTURE_64BIT)
 		add_library(EzVulkan::Loader STATIC IMPORTED)
 		set_target_properties(EzVulkan::Loader PROPERTIES IMPORTED_LOCATION "${EZ_VULKAN_DIR}/Lib/vulkan-1.lib")
 		set_target_properties(EzVulkan::Loader PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${EZ_VULKAN_DIR}/Include")

@@ -21,6 +21,16 @@ void ezPlugin::GetPluginPaths(const char* szPluginName, ezStringBuilder& sOrigin
   sCopiedFile = ezOSFile::GetApplicationDirectory();
   sCopiedFile.AppendPath(szPluginName);
 
+  if (!ezOSFile::ExistsFile(sOriginalFile))
+  {
+    sOriginalFile = ezOSFile::GetCurrentWorkingDirectory();
+    sOriginalFile.AppendPath(szPluginName);
+    sOriginalFile.Append(".dll");
+
+    sCopiedFile = ezOSFile::GetCurrentWorkingDirectory();
+    sCopiedFile.AppendPath(szPluginName);
+  }
+
   if (uiFileCopyNumber > 0)
     sCopiedFile.AppendFormat("{0}", uiFileCopyNumber);
 

@@ -189,10 +189,14 @@ void ezDynamicArrayBase<T>::Reserve(ezUInt32 uiCapacity)
 
   uiNewCapacity64 = ezMath::Max<ezUInt64>(uiNewCapacity64, uiCapacity);
 
+  constexpr ezUInt64 uiMaxCapacity = 0xFFFFFFFFllu - (CAPACITY_ALIGNMENT - 1);
+
   // the maximum value must leave room for the capacity alignment computation below (without overflowing the 32 bit range)
-  uiNewCapacity64 = ezMath::Min<ezUInt64>(uiNewCapacity64, 0xFFFFFFFFllu - (CAPACITY_ALIGNMENT - 1));
+  uiNewCapacity64 = ezMath::Min<ezUInt64>(uiNewCapacity64, uiMaxCapacity);
 
   uiNewCapacity64 = (uiNewCapacity64 + (CAPACITY_ALIGNMENT - 1)) & ~(CAPACITY_ALIGNMENT - 1);
+
+  EZ_ASSERT_DEV(uiCapacity <= uiNewCapacity64, "The requested capacity of {} elements exceeds the maximum possible capacity of {} elements.", uiCapacity, uiMaxCapacity);
 
   SetCapacity(static_cast<ezUInt32>(uiNewCapacity64 & 0xFFFFFFFF));
 }

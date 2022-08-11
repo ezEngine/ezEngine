@@ -8,6 +8,12 @@
 
 #include <Core/CoreDLL.h>
 
+#ifndef EZ_WORLD_INDEX_BITS
+#define EZ_WORLD_INDEX_BITS 8
+#endif
+
+#define EZ_MAX_WORLDS (1 << EZ_WORLD_INDEX_BITS)
+
 class ezWorld;
 class ezSpatialSystem;
 class ezCoordinateSystemProvider;
@@ -39,6 +45,8 @@ struct ezGameObjectId
 
   EZ_DECLARE_ID_TYPE(ezGameObjectId, 32, 8);
 
+  static_assert(EZ_WORLD_INDEX_BITS > 0 && EZ_WORLD_INDEX_BITS <= 24);
+
   EZ_FORCE_INLINE ezGameObjectId(StorageType instanceIndex, ezUInt8 generation, ezUInt8 worldIndex = 0)
   {
     m_Data = 0;
@@ -52,10 +60,9 @@ struct ezGameObjectId
     StorageType m_Data;
     struct
     {
-      ezUInt32 m_InstanceIndex;
-      ezUInt8 m_Generation;
-      ezUInt8 m_WorldIndex;
-      ezUInt16 m_Padding;
+      StorageType m_InstanceIndex : 32;
+      StorageType m_Generation : 8;
+      StorageType m_WorldIndex : EZ_WORLD_INDEX_BITS;
     };
   };
 };
@@ -88,6 +95,8 @@ EZ_CORE_DLL void operator>>(ezStreamReader& Stream, ezGameObjectHandle& Value);
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezGameObjectHandle);
 EZ_DECLARE_CUSTOM_VARIANT_TYPE(ezGameObjectHandle);
+#define EZ_COMPONENT_TYPE_INDEX_BITS (24 - EZ_WORLD_INDEX_BITS)
+#define EZ_MAX_COMPONENT_TYPES (1 << EZ_COMPONENT_TYPE_INDEX_BITS)
 
 /// \brief Internal component id used by ezComponentHandle.
 struct ezComponentId
@@ -95,6 +104,8 @@ struct ezComponentId
   typedef ezUInt64 StorageType;
 
   EZ_DECLARE_ID_TYPE(ezComponentId, 32, 8);
+
+  static_assert(EZ_COMPONENT_TYPE_INDEX_BITS > 0 && EZ_COMPONENT_TYPE_INDEX_BITS <= 16);
 
   EZ_ALWAYS_INLINE ezComponentId(StorageType instanceIndex, ezUInt8 generation, ezUInt16 typeId = 0, ezUInt8 worldIndex = 0)
   {
@@ -110,10 +121,10 @@ struct ezComponentId
     StorageType m_Data;
     struct
     {
-      ezUInt32 m_InstanceIndex;
-      ezUInt8 m_Generation;
-      ezUInt8 m_WorldIndex;
-      ezUInt16 m_TypeId;
+      StorageType m_InstanceIndex : 32;
+      StorageType m_Generation : 8;
+      StorageType m_WorldIndex : EZ_WORLD_INDEX_BITS;
+      StorageType m_TypeId : EZ_COMPONENT_TYPE_INDEX_BITS;
     };
   };
 };
@@ -335,7 +346,9 @@ class ezSpatialDataHandle
   EZ_DECLARE_HANDLE_TYPE(ezSpatialDataHandle, ezSpatialDataId);
 };
 
+#define EZ_MAX_WORLD_MODULE_TYPES EZ_MAX_COMPONENT_TYPES
 typedef ezUInt16 ezWorldModuleTypeId;
+static_assert(ezMath::MaxValue<ezWorldModuleTypeId>() >= EZ_MAX_WORLD_MODULE_TYPES - 1);
 
 typedef ezGenericId<24, 8> ezComponentInitBatchId;
 class ezComponentInitBatchHandle
