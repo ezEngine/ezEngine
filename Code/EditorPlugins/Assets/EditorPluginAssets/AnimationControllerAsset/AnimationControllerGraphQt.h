@@ -56,7 +56,5 @@ class ezQtAnimationControllerNode : public ezQtNode
 public:
   ezQtAnimationControllerNode();
 
-  virtual void InitNode(const ezDocumentNodeManager* pManager, const ezDocumentObject* pObject) override;
-
   virtual void UpdateState() override;
 };

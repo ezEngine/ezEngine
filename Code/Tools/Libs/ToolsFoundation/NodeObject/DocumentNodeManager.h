@@ -1,11 +1,10 @@
 #pragma once
 
+#include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <Foundation/Types/Status.h>
+#include <ToolsFoundation/Document/Document.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
-#include <ToolsFoundation/ToolsFoundationDLL.h>
 
-class ezAbstractObjectGraph;
-class ezDocumentObject;
 class ezPin;
 class ezConnection;
 
@@ -24,31 +23,38 @@ struct EZ_TOOLSFOUNDATION_DLL ezDocumentNodeManagerEvent
     AfterNodeRemoved,
   };
 
-  ezDocumentNodeManagerEvent(Type eventType, const ezDocumentObject* pObject = nullptr, const ezConnection* pConnection = nullptr)
+  ezDocumentNodeManagerEvent(Type eventType, const ezDocumentObject* pObject = nullptr, const ezConnection* connection = nullptr)
     : m_EventType(eventType)
     , m_pObject(pObject)
-    , m_pConnection(pConnection)
+  //, m_Connection(connection)
   {
   }
 
   Type m_EventType;
   const ezDocumentObject* m_pObject;
-  const ezConnection* m_pConnection;
+  // const ezConnection* m_pConnection;
 };
 
-class EZ_TOOLSFOUNDATION_DLL ezConnection : public ezReflectedClass
+class ezConnection
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezConnection, ezReflectedClass);
-
 public:
-  const ezPin* GetSourcePin() const { return m_pSourcePin; }
-  const ezPin* GetTargetPin() const { return m_pTargetPin; }
+  const ezPin& GetSourcePin() const { return m_SourcePin; }
+  const ezPin& GetTargetPin() const { return m_TargetPin; }
+  const ezDocumentObject* GetParent() const { return m_pParent; }
 
 private:
   friend class ezDocumentNodeManager;
 
-  const ezPin* m_pSourcePin;
-  const ezPin* m_pTargetPin;
+  ezConnection(const ezPin& sourcePin, const ezPin& targetPin, const ezDocumentObject* pParent)
+    : m_SourcePin(sourcePin)
+    , m_TargetPin(targetPin)
+    , m_pParent(pParent)
+  {
+  }
+
+  const ezPin& m_SourcePin;
+  const ezPin& m_TargetPin;
+  const ezDocumentObject* m_pParent = nullptr;
 };
 
 class EZ_TOOLSFOUNDATION_DLL ezPin : public ezReflectedClass
@@ -84,7 +90,6 @@ public:
   const char* GetName() const { return m_sName; }
   const ezColorGammaUB& GetColor() const { return m_Color; }
   const ezDocumentObject* GetParent() const { return m_pParent; }
-  const ezArrayPtr<const ezConnection* const> GetConnections() const { return m_Connections; }
 
 private:
   friend class ezDocumentNodeManager;
@@ -92,8 +97,7 @@ private:
   Type m_Type;
   ezColorGammaUB m_Color;
   ezString m_sName;
-  const ezDocumentObject* m_pParent;
-  ezHybridArray<const ezConnection*, 6> m_Connections;
+  const ezDocumentObject* m_pParent = nullptr;
 };
 
 class EZ_TOOLSFOUNDATION_DLL ezDocumentNodeManager : public ezDocumentObjectManager
@@ -104,14 +108,15 @@ public:
   ezDocumentNodeManager();
   virtual ~ezDocumentNodeManager();
 
-  virtual void DestroyAllObjects() override;
+  virtual const ezRTTI* GetConnectionType() const;
 
   ezVec2 GetNodePos(const ezDocumentObject* pObject) const;
+  const ezConnection& GetConnection(const ezDocumentObject* pObject) const;
+
   const ezPin* GetInputPinByName(const ezDocumentObject* pObject, const char* szName) const;
   const ezPin* GetOutputPinByName(const ezDocumentObject* pObject, const char* szName) const;
-  const ezArrayPtr<ezPin* const> GetInputPins(const ezDocumentObject* pObject) const;
-  const ezArrayPtr<ezPin* const> GetOutputPins(const ezDocumentObject* pObject) const;
-  const ezConnection* GetConnection(const ezPin* pSource, const ezPin* pTarget) const;
+  ezArrayPtr<const ezUniquePtr<const ezPin>> GetInputPins(const ezDocumentObject* pObject) const;
+  ezArrayPtr<const ezUniquePtr<const ezPin>> GetOutputPins(const ezDocumentObject* pObject) const;
 
   enum class CanConnectResult
   {
@@ -123,84 +128,56 @@ public:
   };
 
   bool IsNode(const ezDocumentObject* pObject) const;
-  ezStatus CanConnect(const ezPin* pSource, const ezPin* pTarget, CanConnectResult& result) const;
+  bool IsConnection(const ezDocumentObject* pObject) const;
+
+  ezArrayPtr<const ezConnection* const> GetConnections(const ezPin& pin) const;
+  bool HasConnections(const ezPin& pin) const;
+  bool IsConnected(const ezPin& source, const ezPin& target) const;
+  ezStatus CanConnect(const ezPin& source, const ezPin& target, CanConnectResult& result) const;
   ezStatus CanDisconnect(const ezConnection* pConnection) const;
-  ezStatus CanDisconnect(const ezPin* pSource, const ezPin* pTarget) const;
+  ezStatus CanDisconnect(const ezDocumentObject* pObject) const;
   ezStatus CanMoveNode(const ezDocumentObject* pObject, const ezVec2& vPos) const;
 
-  void Connect(const ezPin* pSource, const ezPin* pTarget);
-  void Disconnect(const ezPin* pSource, const ezPin* pTarget);
+  void Connect(const ezDocumentObject* pObject, const ezPin& source, const ezPin& target);
+  void Disconnect(const ezDocumentObject* pObject);
   void MoveNode(const ezDocumentObject* pObject, const ezVec2& vPos);
 
   void AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph) const;
   void RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph, bool bUndoable);
+
+  void GetMetaDataHash(const ezDocumentObject* pObject, ezUInt64& inout_uiHash) const;
+  bool CopySelectedObjects(ezAbstractObjectGraph& out_objectGraph) const;
+  bool PasteObjects(const ezArrayPtr<ezDocument::PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, const ezVec2& pickedPosition, bool bAllowPickedPosition);
 
 protected:
   /// \brief Tests whether pTarget can be reached from pSource by following the pin connections
   bool CanReachNode(const ezDocumentObject* pSource, const ezDocumentObject* pTarget, ezSet<const ezDocumentObject*>& Visited) const;
 
   /// \brief Returns true if adding a connection between the two pins would create a circular graph
-  bool WouldConnectionCreateCircle(const ezPin* pSource, const ezPin* pTarget) const;
+  bool WouldConnectionCreateCircle(const ezPin& source, const ezPin& target) const;
 
   struct NodeInternal
   {
-    NodeInternal()
-      : m_vPos(0, 0)
-    {
-    }
-    ezVec2 m_vPos;
-    ezHybridArray<ezPin*, 6> m_Inputs;
-    ezHybridArray<ezPin*, 6> m_Outputs;
-  };
-  struct PinTuple
-  {
-    PinTuple()
-      : m_pSourcePin(nullptr)
-      , m_pTargetPin(nullptr)
-    {
-    }
-    PinTuple(const ezPin* pPinOut, const ezPin* pPinIn)
-      : m_pSourcePin(pPinOut)
-      , m_pTargetPin(pPinIn)
-    {
-    }
-
-    bool operator<(const PinTuple& rhs) const
-    {
-      if (m_pSourcePin == rhs.m_pSourcePin)
-      {
-        return m_pTargetPin < rhs.m_pTargetPin;
-      }
-      else
-      {
-        return m_pSourcePin < rhs.m_pSourcePin;
-      }
-    }
-
-    bool operator==(const PinTuple& rhs) const { return m_pSourcePin == rhs.m_pSourcePin && m_pTargetPin == rhs.m_pTargetPin; }
-
-    const ezPin* m_pSourcePin;
-    const ezPin* m_pTargetPin;
+    ezVec2 m_vPos = ezVec2::ZeroVector();
+    ezHybridArray<ezUniquePtr<ezPin>, 6> m_Inputs;
+    ezHybridArray<ezUniquePtr<ezPin>, 6> m_Outputs;
   };
 
 private:
-  virtual bool InternalIsNode(const ezDocumentObject* pObject) const { return true; }
-  virtual ezStatus InternalCanConnect(const ezPin* pSource, const ezPin* pTarget, CanConnectResult& out_Result) const
-  {
-    out_Result = CanConnectResult::ConnectNtoN;
-    return ezStatus(EZ_SUCCESS);
-  }
-  virtual ezStatus InternalCanDisconnect(const ezPin* pSource, const ezPin* pTarget) const { return ezStatus(EZ_SUCCESS); }
+  virtual bool InternalIsNode(const ezDocumentObject* pObject) const;
+  virtual bool InternalIsConnection(const ezDocumentObject* pObject) const;
+  virtual ezStatus InternalCanConnect(const ezPin& source, const ezPin& target, CanConnectResult& out_Result) const;
+  virtual ezStatus InternalCanDisconnect(const ezPin& source, const ezPin& target) const { return ezStatus(EZ_SUCCESS); }
   virtual ezStatus InternalCanMoveNode(const ezDocumentObject* pObject, const ezVec2& vPos) const { return ezStatus(EZ_SUCCESS); }
   virtual void InternalCreatePins(const ezDocumentObject* pObject, NodeInternal& node) = 0;
-  virtual void InternalDestroyPins(const ezDocumentObject* pObject, NodeInternal& node) = 0;
-  virtual ezConnection* InternalCreateConnection(const ezPin* pSource, const ezPin* pTarget) { return EZ_DEFAULT_NEW(ezConnection); }
-  virtual void InternalDestroyConnection(ezConnection* pConnection) { EZ_DEFAULT_DELETE(pConnection); }
 
   void ObjectHandler(const ezDocumentObjectEvent& e);
   void StructureEventHandler(const ezDocumentObjectStructureEvent& e);
 
+  void RestoreOldMetaDataAfterLoading(const ezAbstractObjectGraph& graph, const ezAbstractObjectNode::Property& connectionsProperty, const ezDocumentObject* pSourceObject);
+
 private:
-  ezMap<ezUuid, NodeInternal> m_ObjectToNode;
-  ezMap<PinTuple, ezConnection*> m_PinsToConnection;
+  ezHashTable<ezUuid, NodeInternal> m_ObjectToNode;
+  ezHashTable<ezUuid, ezUniquePtr<ezConnection>> m_ObjectToConnection;
+  ezMap<const ezPin*, ezHybridArray<const ezConnection*, 6>> m_Connections;
 };

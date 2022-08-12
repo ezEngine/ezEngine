@@ -26,13 +26,6 @@ const ezString& ezVisualShaderPin::GetTooltip() const
 }
 
 //////////////////////////////////////////////////////////////////////////
-// ezVisualShaderConnection
-//////////////////////////////////////////////////////////////////////////
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualShaderConnection, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-
-//////////////////////////////////////////////////////////////////////////
 // ezVisualShaderNodeManager
 //////////////////////////////////////////////////////////////////////////
 
@@ -53,32 +46,16 @@ void ezVisualShaderNodeManager::InternalCreatePins(const ezDocumentObject* pObje
 
   for (const auto& pin : pDesc->m_InputPins)
   {
-    ezVisualShaderPin* pPin = EZ_DEFAULT_NEW(ezVisualShaderPin, ezPin::Type::Input, &pin, pObject);
+    auto pPin = EZ_DEFAULT_NEW(ezVisualShaderPin, ezPin::Type::Input, &pin, pObject);
     node.m_Inputs.PushBack(pPin);
   }
 
   for (const auto& pin : pDesc->m_OutputPins)
   {
-    ezVisualShaderPin* pPin = EZ_DEFAULT_NEW(ezVisualShaderPin, ezPin::Type::Output, &pin, pObject);
+    auto pPin = EZ_DEFAULT_NEW(ezVisualShaderPin, ezPin::Type::Output, &pin, pObject);
     node.m_Outputs.PushBack(pPin);
   }
 }
-
-void ezVisualShaderNodeManager::InternalDestroyPins(const ezDocumentObject* pObject, NodeInternal& node)
-{
-  for (ezPin* pPin : node.m_Inputs)
-  {
-    EZ_DEFAULT_DELETE(pPin);
-  }
-  node.m_Inputs.Clear();
-
-  for (ezPin* pPin : node.m_Outputs)
-  {
-    EZ_DEFAULT_DELETE(pPin);
-  }
-  node.m_Outputs.Clear();
-}
-
 
 void ezVisualShaderNodeManager::GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& Types) const
 {
@@ -91,29 +68,27 @@ void ezVisualShaderNodeManager::GetCreateableTypes(ezHybridArray<const ezRTTI*, 
   }
 }
 
-ezStatus ezVisualShaderNodeManager::InternalCanConnect(const ezPin* pSource, const ezPin* pTarget, CanConnectResult& out_Result) const
+ezStatus ezVisualShaderNodeManager::InternalCanConnect(const ezPin& source, const ezPin& target, CanConnectResult& out_Result) const
 {
-  const ezVisualShaderPin* pPinSource = ezDynamicCast<const ezVisualShaderPin*>(pSource);
-  const ezVisualShaderPin* pPinTarget = ezDynamicCast<const ezVisualShaderPin*>(pTarget);
-
-  EZ_ASSERT_DEBUG(pPinSource != nullptr && pPinTarget != nullptr, "Das ist eigentlich unmoeglich!");
+  const ezVisualShaderPin& pinSource = ezStaticCast<const ezVisualShaderPin&>(source);
+  const ezVisualShaderPin& pinTarget = ezStaticCast<const ezVisualShaderPin&>(target);
 
   const ezRTTI* pSamplerType = ezVisualShaderTypeRegistry::GetSingleton()->GetPinSamplerType();
   const ezRTTI* pStringType = ezGetStaticRTTI<ezString>();
 
-  if ((pPinSource->GetDataType() == pSamplerType && pPinTarget->GetDataType() != pSamplerType) || (pPinSource->GetDataType() != pSamplerType && pPinTarget->GetDataType() == pSamplerType))
+  if ((pinSource.GetDataType() == pSamplerType && pinTarget.GetDataType() != pSamplerType) || (pinSource.GetDataType() != pSamplerType && pinTarget.GetDataType() == pSamplerType))
   {
     out_Result = CanConnectResult::ConnectNever;
     return ezStatus("Pin of type 'sampler' cannot be connected with a pin of a different type.");
   }
 
-  if ((pPinSource->GetDataType() == pStringType && pPinTarget->GetDataType() != pStringType) || (pPinSource->GetDataType() != pStringType && pPinTarget->GetDataType() == pStringType))
+  if ((pinSource.GetDataType() == pStringType && pinTarget.GetDataType() != pStringType) || (pinSource.GetDataType() != pStringType && pinTarget.GetDataType() == pStringType))
   {
     out_Result = CanConnectResult::ConnectNever;
     return ezStatus("Pin of type 'string' cannot be connected with a pin of a different type.");
   }
 
-  if (WouldConnectionCreateCircle(pSource, pTarget))
+  if (WouldConnectionCreateCircle(source, target))
   {
     out_Result = CanConnectResult::ConnectNever;
     return ezStatus("Connecting these pins would create a circle in the shader graph.");

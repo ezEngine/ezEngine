@@ -41,12 +41,12 @@ private:
 
 
   ezStatus GatherAllNodes(const ezDocumentObject* pRootObj);
-  ezUInt16 DeterminePinId(const ezDocumentObject* pOwner, const ezPin* pPin) const;
+  ezUInt16 DeterminePinId(const ezDocumentObject* pOwner, const ezPin& pin) const;
   ezStatus GenerateNode(const ezDocumentObject* pNode);
-  ezStatus GenerateInputPinCode(ezArrayPtr<ezPin* const> pins);
+  ezStatus GenerateInputPinCode(ezArrayPtr<const ezUniquePtr<const ezPin>> pins);
   ezStatus CheckPropertyValues(const ezDocumentObject* pNode, const ezVisualShaderNodeDescriptor* pDesc);
   ezStatus InsertPropertyValues(const ezDocumentObject* pNode, const ezVisualShaderNodeDescriptor* pDesc, ezStringBuilder& sString);
-  ezStatus GenerateOutputPinCode(const ezDocumentObject* pOwnerNode, const ezPin* pPinSource);
+  ezStatus GenerateOutputPinCode(const ezDocumentObject* pOwnerNode, const ezPin& pinSource);
 
   ezStatus ReplaceInputPinsByCode(const ezDocumentObject* pOwnerNode, const ezVisualShaderNodeDescriptor* pNodeDesc, ezStringBuilder& sInlineCode, ezStringBuilder& sCodeForPlacingDefines);
   void SetPinDefines(const ezDocumentObject* pOwnerNode, ezStringBuilder& sInlineCode);

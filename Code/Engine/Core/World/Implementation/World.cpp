@@ -1,8 +1,8 @@
 #include <Core/CorePCH.h>
 
 #include <Core/Messages/DeleteObjectMessage.h>
-#include <Core/Messages/EventMessage.h>
 #include <Core/Messages/HierarchyChangedMessages.h>
+#include <Core/World/EventMessageHandlerComponent.h>
 #include <Core/World/World.h>
 #include <Core/World/WorldModule.h>
 #include <Foundation/Memory/FrameAllocator.h>

@@ -132,13 +132,13 @@ ezStatus ezVisualShaderCodeGenerator::GatherAllNodes(const ezDocumentObject* pRo
   return ezStatus(EZ_SUCCESS);
 }
 
-ezUInt16 ezVisualShaderCodeGenerator::DeterminePinId(const ezDocumentObject* pOwner, const ezPin* pPin) const
+ezUInt16 ezVisualShaderCodeGenerator::DeterminePinId(const ezDocumentObject* pOwner, const ezPin& pin) const
 {
   const auto pins = m_pNodeManager->GetOutputPins(pOwner);
 
   for (ezUInt32 i = 0; i < pins.GetCount(); ++i)
   {
-    if (pins[i] == pPin)
+    if (pins[i] == &pin)
       return i;
   }
 
@@ -267,25 +267,21 @@ ezStatus ezVisualShaderCodeGenerator::GenerateNode(const ezDocumentObject* pNode
   return ezStatus(EZ_SUCCESS);
 }
 
-ezStatus ezVisualShaderCodeGenerator::GenerateInputPinCode(ezArrayPtr<ezPin* const> pins)
+ezStatus ezVisualShaderCodeGenerator::GenerateInputPinCode(ezArrayPtr<const ezUniquePtr<const ezPin>> pins)
 {
-  for (ezUInt32 i = 0; i < pins.GetCount(); ++i)
+  for (auto& pPin : pins)
   {
-    const ezVisualShaderPin* pPin = ezDynamicCast<const ezVisualShaderPin*>(pins[i]);
-    EZ_ASSERT_DEBUG(pPin != nullptr, "Invalid pin pointer: {0}", ezArgP(pins[i]));
-
-    auto connections = pPin->GetConnections();
+    auto connections = m_pNodeManager->GetConnections(*pPin);
     EZ_ASSERT_DEBUG(connections.GetCount() <= 1, "Input pin has {0} connections", connections.GetCount());
 
     if (connections.IsEmpty())
       continue;
 
-    const ezPin* pPinSource = connections[0]->GetSourcePin();
-    EZ_ASSERT_DEBUG(pPinSource != nullptr, "Invalid connection");
+    const ezPin& pinSource = connections[0]->GetSourcePin();
 
     // recursively generate all dependent code
-    const ezDocumentObject* pOwnerNode = pPinSource->GetParent();
-    const ezStatus resNode = GenerateOutputPinCode(pOwnerNode, pPinSource);
+    const ezDocumentObject* pOwnerNode = pinSource.GetParent();
+    const ezStatus resNode = GenerateOutputPinCode(pOwnerNode, pinSource);
 
     if (resNode.m_Result.Failed())
       return resNode;
@@ -294,9 +290,9 @@ ezStatus ezVisualShaderCodeGenerator::GenerateInputPinCode(ezArrayPtr<ezPin* con
   return ezStatus(EZ_SUCCESS);
 }
 
-ezStatus ezVisualShaderCodeGenerator::GenerateOutputPinCode(const ezDocumentObject* pOwnerNode, const ezPin* pPin)
+ezStatus ezVisualShaderCodeGenerator::GenerateOutputPinCode(const ezDocumentObject* pOwnerNode, const ezPin& pin)
 {
-  OutputPinState& ps = m_OutputPins[pPin];
+  OutputPinState& ps = m_OutputPins[&pin];
 
   if (ps.m_bCodeGenerated)
     return ezStatus(EZ_SUCCESS);
@@ -306,7 +302,7 @@ ezStatus ezVisualShaderCodeGenerator::GenerateOutputPinCode(const ezDocumentObje
   EZ_SUCCEED_OR_RETURN(GenerateNode(pOwnerNode));
 
   const ezVisualShaderNodeDescriptor* pDesc = m_pTypeRegistry->GetDescriptorForType(pOwnerNode->GetType());
-  const ezUInt16 uiPinID = DeterminePinId(pOwnerNode, pPin);
+  const ezUInt16 uiPinID = DeterminePinId(pOwnerNode, pin);
 
   ezStringBuilder sInlineCode = pDesc->m_OutputPins[uiPinID].m_sShaderCodeInline;
   ezStringBuilder ignore; // DefineWhenUsingDefaultValue not used for output pins
@@ -326,7 +322,7 @@ ezStatus ezVisualShaderCodeGenerator::GenerateOutputPinCode(const ezDocumentObje
 ezStatus ezVisualShaderCodeGenerator::ReplaceInputPinsByCode(
   const ezDocumentObject* pOwnerNode, const ezVisualShaderNodeDescriptor* pNodeDesc, ezStringBuilder& sInlineCode, ezStringBuilder& sCodeForPlacingDefines)
 {
-  const ezArrayPtr<ezPin* const> inputPins = m_pNodeManager->GetInputPins(pOwnerNode);
+  auto inputPins = m_pNodeManager->GetInputPins(pOwnerNode);
 
   ezStringBuilder sPinName, sValue;
 
@@ -336,7 +332,8 @@ ezStatus ezVisualShaderCodeGenerator::ReplaceInputPinsByCode(
 
     sPinName.Format("$in{0}", i);
 
-    if (inputPins[i]->GetConnections().IsEmpty())
+    auto connections = m_pNodeManager->GetConnections(*inputPins[i]);
+    if (connections.IsEmpty())
     {
       if (pNodeDesc->m_InputPins[i].m_bExposeAsProperty)
       {
@@ -365,9 +362,9 @@ ezStatus ezVisualShaderCodeGenerator::ReplaceInputPinsByCode(
     }
     else
     {
-      const ezPin* pOutputPin = inputPins[i]->GetConnections()[0]->GetSourcePin();
+      const ezPin& outputPin = connections[0]->GetSourcePin();
 
-      const OutputPinState& pinState = m_OutputPins[pOutputPin];
+      const OutputPinState& pinState = m_OutputPins[&outputPin];
       EZ_ASSERT_DEBUG(pinState.m_bCodeGenerated, "Pin code should have been generated at this point");
 
       // replace all occurrences of the pin identifier with the code that was generate for the connected output pin
@@ -384,13 +381,13 @@ void ezVisualShaderCodeGenerator::SetPinDefines(const ezDocumentObject* pOwnerNo
   ezStringBuilder sDefineName;
 
   {
-    const ezArrayPtr<ezPin* const> pins = m_pNodeManager->GetInputPins(pOwnerNode);
+    auto pins = m_pNodeManager->GetInputPins(pOwnerNode);
 
     for (ezUInt32 i = 0; i < pins.GetCount(); ++i)
     {
       sDefineName.Format("INPUT_PIN_{0}_CONNECTED", i);
 
-      if (pins[i]->GetConnections().IsEmpty())
+      if (m_pNodeManager->HasConnections(*pins[i]) == false)
       {
         sInlineCode.ReplaceAll(sDefineName, "0");
       }
@@ -402,13 +399,13 @@ void ezVisualShaderCodeGenerator::SetPinDefines(const ezDocumentObject* pOwnerNo
   }
 
   {
-    const ezArrayPtr<ezPin* const> pins = m_pNodeManager->GetOutputPins(pOwnerNode);
+    auto pins = m_pNodeManager->GetOutputPins(pOwnerNode);
 
     for (ezUInt32 i = 0; i < pins.GetCount(); ++i)
     {
       sDefineName.Format("OUTPUT_PIN_{0}_CONNECTED", i);
 
-      if (pins[i]->GetConnections().IsEmpty())
+      if (m_pNodeManager->HasConnections(*pins[i]) == false)
       {
         sInlineCode.ReplaceAll(sDefineName, "0");
       }

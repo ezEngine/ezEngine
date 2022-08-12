@@ -24,10 +24,9 @@ class ezAnimationControllerNodeManager : public ezDocumentNodeManager
 public:
   virtual bool InternalIsNode(const ezDocumentObject* pObject) const override;
   virtual void InternalCreatePins(const ezDocumentObject* pObject, NodeInternal& node) override;
-  virtual void InternalDestroyPins(const ezDocumentObject* pObject, NodeInternal& node) override;
   virtual void GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& Types) const override;
 
-  virtual ezStatus InternalCanConnect(const ezPin* pSource, const ezPin* pTarget, CanConnectResult& out_Result) const override;
+  virtual ezStatus InternalCanConnect(const ezPin& source, const ezPin& target, CanConnectResult& out_Result) const override;
 };
 
 class ezAnimationControllerAssetDocument : public ezAssetDocument

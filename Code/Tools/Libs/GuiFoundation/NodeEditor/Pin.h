@@ -29,7 +29,7 @@ public:
   bool HasAnyConnections() const { return !m_Connections.IsEmpty(); }
 
   const ezPin* GetPin() const { return m_pPin; }
-  virtual void SetPin(const ezPin* pPin);
+  virtual void SetPin(const ezPin& pin);
   virtual void ConnectedStateChanged(bool bConnected);
 
   virtual QPointF GetPinPos() const;
@@ -48,12 +48,12 @@ protected:
   virtual QVariant itemChange(GraphicsItemChange change, const QVariant& value) override;
 
   ezQtPinHighlightState m_HighlightState = ezQtPinHighlightState::None;
+  QGraphicsTextItem* m_pLabel;
+  QPointF m_PinCenter;
 
 private:
   bool m_bIsActive = true;
 
+  const ezPin* m_pPin = nullptr;
   ezHybridArray<ezQtConnection*, 6> m_Connections;
-  QPointF m_PinCenter;
-  const ezPin* m_pPin;
-  QGraphicsTextItem* m_pLabel;
 };

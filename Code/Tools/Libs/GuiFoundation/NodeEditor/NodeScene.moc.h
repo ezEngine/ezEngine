@@ -35,6 +35,28 @@ public:
   static ezRttiMappedObjectFactory<ezQtConnection>& GetConnectionFactory();
   static ezVec2 GetLastMouseInteractionPos() { return s_LastMouseInteraction; }
 
+  struct VisualStyleFlags
+  {
+    using StorageType = ezUInt32;
+
+    enum Enum
+    {
+      StraightConnections = EZ_BIT(0), ///< Straight connection lines instead of bezier curves
+      ConnectionArrows = EZ_BIT(1),    ///< Draw an arrow to indicate the connection's direction. Only works with straight lines atm.
+
+      Default = 0
+    };
+
+    struct Bits
+    {
+      StorageType StraightConnections : 1;
+      StorageType ConnectionArrows : 1;
+    };
+  };
+
+  void SetVisualStyleFlags(ezBitflags<VisualStyleFlags> flags);
+  ezBitflags<VisualStyleFlags> GetVisualStyleFlags() const { return m_VisualStyleFlags; }
+
 protected:
   virtual void mouseMoveEvent(QGraphicsSceneMouseEvent* event) override;
   virtual void mousePressEvent(QGraphicsSceneMouseEvent* event) override;
@@ -44,15 +66,15 @@ protected:
 
 private:
   void Clear();
-  void CreateNode(const ezDocumentObject* pObject);
-  void DeleteNode(const ezDocumentObject* pObject);
+  void CreateQtNode(const ezDocumentObject* pObject);
+  void DeleteQtNode(const ezDocumentObject* pObject);
+  void CreateQtConnection(const ezDocumentObject* pObject);
+  void DeleteQtConnection(const ezDocumentObject* pObject);
+  void CreateNodeObject(const ezRTTI* pRtti);
   void NodeEventsHandler(const ezDocumentNodeManagerEvent& e);
   void PropertyEventsHandler(const ezDocumentObjectPropertyEvent& e);
   void SelectionEventsHandler(const ezSelectionManagerEvent& e);
-  void GetSelection(ezDeque<const ezDocumentObject*>& selection) const;
   void GetSelectedNodes(ezDeque<ezQtNode*>& selection) const;
-  void ConnectPins(const ezConnection* pConnection);
-  void DisconnectPins(const ezConnection* pConnection);
   void MarkupConnectablePins(ezQtPin* pSourcePin);
   void ResetConnectablePinMarkup();
   void OpenSearchMenu(QPoint screenPos);
@@ -60,14 +82,13 @@ private:
 protected:
   virtual ezStatus RemoveNode(ezQtNode* pNode);
   virtual void RemoveSelectedNodesAction();
-  virtual void ConnectPinsAction(const ezPin* pSourcePin, const ezPin* pTargetPin);
+  virtual void ConnectPinsAction(const ezPin& sourcePin, const ezPin& targetPin);
   virtual void DisconnectPinsAction(ezQtConnection* pConnection);
   virtual void DisconnectPinsAction(ezQtPin* pPin);
 
 private Q_SLOTS:
-  void OnMenuAction();
-  void CreateNode(const ezRTTI* pRtti);
   void OnMenuItemTriggered(const QString& sName, const QVariant& variant);
+  void OnSelectionChanged();
 
 private:
   static ezRttiMappedObjectFactory<ezQtNode> s_NodeFactory;
@@ -75,20 +96,22 @@ private:
   static ezRttiMappedObjectFactory<ezQtConnection> s_ConnectionFactory;
 
 protected:
-  const ezDocumentNodeManager* m_pManager;
+  const ezDocumentNodeManager* m_pManager = nullptr;
 
   ezMap<const ezDocumentObject*, ezQtNode*> m_Nodes;
-  ezMap<const ezConnection*, ezQtConnection*> m_ConnectionsSourceTarget;
+  ezMap<const ezDocumentObject*, ezQtConnection*> m_Connections;
 
 private:
-  bool m_bIgnoreSelectionChange;
-  ezQtPin* m_pStartPin;
-  ezQtConnection* m_pTempConnection;
+  bool m_bIgnoreSelectionChange = false;
+  ezQtPin* m_pStartPin = nullptr;
+  ezQtConnection* m_pTempConnection = nullptr;
   ezDeque<const ezDocumentObject*> m_Selection;
-  ezVec2 m_vPos;
+  ezVec2 m_vMousePos = ezVec2::ZeroVector();
   QString m_sContextMenuSearchText;
   ezDynamicArray<const ezQtPin*> m_ConnectablePins;
+  ezBitflags<VisualStyleFlags> m_VisualStyleFlags;
 
   static ezVec2 s_LastMouseInteraction;
 };
 
+EZ_DECLARE_FLAGS_OPERATORS(ezQtNodeScene::VisualStyleFlags);

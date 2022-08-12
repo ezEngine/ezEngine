@@ -598,7 +598,7 @@ ezQtPropertyPointerWidget::~ezQtPropertyPointerWidget()
 
 void ezQtPropertyPointerWidget::OnInit()
 {
-  m_pGroup->SetTitle(ezTranslate(m_pProp->GetPropertyName()));
+  UpdateTitle();
   m_pGrid->SetCollapseState(m_pGroup);
   connect(m_pGroup, &ezQtGroupBoxBase::CollapseStateChanged, m_pGrid, &ezQtPropertyGridWidget::OnCollapseStateChanged);
 
@@ -655,15 +655,18 @@ void ezQtPropertyPointerWidget::SetSelection(const ezHybridArray<ezPropertySelec
     m_pAddButton->SetSelection(emptyItems);
   }
 
+  const ezRTTI* pCommonType = nullptr;
   if (!subItems.IsEmpty())
   {
-    const ezRTTI* pCommonType = ezQtPropertyWidget::GetCommonBaseType(subItems);
+    pCommonType = ezQtPropertyWidget::GetCommonBaseType(subItems);
 
     m_pTypeWidget = new ezQtTypeWidget(m_pGroup->GetContent(), m_pGrid, m_pObjectAccessor, pCommonType, nullptr, nullptr);
     m_pTypeWidget->SetSelection(subItems);
 
     m_pGroupLayout->addWidget(m_pTypeWidget);
   }
+
+  UpdateTitle(pCommonType);
 }
 
 
@@ -673,6 +676,16 @@ void ezQtPropertyPointerWidget::DoPrepareToDie()
   {
     m_pTypeWidget->PrepareToDie();
   }
+}
+
+void ezQtPropertyPointerWidget::UpdateTitle(const ezRTTI* pType /*= nullptr*/)
+{
+  ezStringBuilder sb = ezTranslate(m_pProp->GetPropertyName());
+  if (pType != nullptr)
+  {
+    sb.Append(": ", ezTranslate(pType->GetTypeName()));
+  }
+  m_pGroup->SetTitle(sb);
 }
 
 void ezQtPropertyPointerWidget::OnDeleteButtonClicked()

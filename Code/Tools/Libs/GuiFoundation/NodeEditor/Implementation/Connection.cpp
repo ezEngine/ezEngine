@@ -1,12 +1,12 @@
 #include <GuiFoundation/GuiFoundationPCH.h>
 
 #include <GuiFoundation/NodeEditor/Connection.h>
+#include <GuiFoundation/NodeEditor/NodeScene.moc.h>
 #include <QApplication>
 #include <QPalette>
 
 ezQtConnection::ezQtConnection(QGraphicsItem* parent)
   : QGraphicsPathItem(parent)
-  , m_pConnection(nullptr)
 {
   auto palette = QApplication::palette();
 
@@ -19,31 +19,96 @@ ezQtConnection::ezQtConnection(QGraphicsItem* parent)
   setZValue(-1);
 }
 
-ezQtConnection::~ezQtConnection() {}
+ezQtConnection::~ezQtConnection() = default;
+
+void ezQtConnection::InitConnection(const ezDocumentObject* pObject, const ezConnection* pConnection)
+{
+  m_pObject = pObject;
+  m_pConnection = pConnection;
+}
 
 void ezQtConnection::SetPosIn(const QPointF& point)
 {
   m_InPoint = point;
-  UpdateConnection();
+  UpdateGeometry();
 }
 
 void ezQtConnection::SetPosOut(const QPointF& point)
 {
   m_OutPoint = point;
-  UpdateConnection();
+  UpdateGeometry();
 }
 
 void ezQtConnection::SetDirIn(const QPointF& dir)
 {
   m_InDir = dir;
-  // m_InDir
-  UpdateConnection();
+  UpdateGeometry();
 }
 
 void ezQtConnection::SetDirOut(const QPointF& dir)
 {
   m_OutDir = dir;
-  UpdateConnection();
+  UpdateGeometry();
+}
+
+void ezQtConnection::UpdateGeometry()
+{
+  constexpr float arrowHalfSize = 8.0f;
+
+  prepareGeometryChange();
+
+  QPainterPath p;
+  QPointF dir = m_InPoint - m_OutPoint;
+
+  auto visualStyleFlags = static_cast<ezQtNodeScene*>(scene())->GetVisualStyleFlags();
+  if (visualStyleFlags.IsSet(ezQtNodeScene::VisualStyleFlags::StraightConnections))
+  {
+    QPointF startPoint = m_OutPoint;
+    QPointF endPoint = m_InPoint;
+
+    if (visualStyleFlags.IsSet(ezQtNodeScene::VisualStyleFlags::ConnectionArrows))
+    {
+      const float length = ezMath::Sqrt(dir.x() * dir.x() + dir.y() * dir.y());
+      const float invLength = length != 0.0f ? 1.0f / length : 1.0f;
+      const QPointF dirNorm = dir * invLength;
+      const QPointF normal = QPointF(dirNorm.y(), -dirNorm.x());
+
+      // offset start and endpoint
+      startPoint -= normal * (arrowHalfSize * 1.3f);
+      endPoint -= normal * (arrowHalfSize * 1.3f);
+
+      const QPointF midPoint = startPoint + dir * 0.5f;
+      const QPointF tipPoint = midPoint + dirNorm * arrowHalfSize;
+      const QPointF backPoint = midPoint - dirNorm * arrowHalfSize;
+
+      QPolygonF arrow;
+      arrow.append(tipPoint);
+      arrow.append(backPoint + normal * arrowHalfSize);
+      arrow.append(backPoint - normal * arrowHalfSize);
+      arrow.append(tipPoint);
+
+      p.addPolygon(arrow);
+    }
+
+    p.moveTo(startPoint);
+    p.lineTo(endPoint);
+  }
+  else
+  {
+    p.moveTo(m_OutPoint);
+    float fDotOut = QPointF::dotProduct(m_OutDir, dir);
+    float fDotIn = QPointF::dotProduct(m_InDir, -dir);
+
+    fDotOut = ezMath::Max(100.0f, ezMath::Abs(fDotOut));
+    fDotIn = ezMath::Max(100.0f, ezMath::Abs(fDotIn));
+
+    QPointF ctr1 = m_OutPoint + m_OutDir * (fDotOut * 0.5f);
+    QPointF ctr2 = m_InPoint + m_InDir * (fDotIn * 0.5f);
+
+    p.cubicTo(ctr1, ctr2, m_InPoint);
+  }
+
+  setPath(p);
 }
 
 QPen ezQtConnection::DeterminePen() const
@@ -54,8 +119,8 @@ QPen ezQtConnection::DeterminePen() const
   }
 
   ezColorGammaUB color;
-  const ezColorGammaUB sourceColor = m_pConnection->GetSourcePin()->GetColor();
-  const ezColorGammaUB targetColor = m_pConnection->GetTargetPin()->GetColor();
+  const ezColorGammaUB sourceColor = m_pConnection->GetSourcePin().GetColor();
+  const ezColorGammaUB targetColor = m_pConnection->GetTargetPin().GetColor();
 
   const bool isSourceGrey = (sourceColor.r == sourceColor.g && sourceColor.r == sourceColor.b);
   const bool isTargetGrey = (targetColor.r == targetColor.g && targetColor.r == targetColor.b);
@@ -75,8 +140,6 @@ QPen ezQtConnection::DeterminePen() const
 
   if (m_bAdjacentNodeSelected)
   {
-    QRectF r = boundingRect();
-
     color = ezMath::Lerp(color, ezColorGammaUB(255, 255, 255), 0.1f);
     return QPen(QBrush(qRgb(color.r, color.g, color.b)), 3, Qt::DashLine);
   }
@@ -86,27 +149,22 @@ QPen ezQtConnection::DeterminePen() const
   }
 }
 
-void ezQtConnection::UpdateConnection()
+void ezQtConnection::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget)
 {
-  prepareGeometryChange();
+  auto palette = QApplication::palette();
 
-  setPen(DeterminePen());
+  QPen p = DeterminePen();
+  if (isSelected())
+  {
+    p.setColor(palette.highlight().color());
+  }
+  painter->setPen(p);
 
-  QPainterPath p;
+  auto visualStyleFlags = static_cast<ezQtNodeScene*>(scene())->GetVisualStyleFlags();
+  if (visualStyleFlags.IsSet(ezQtNodeScene::VisualStyleFlags::ConnectionArrows))
+  {
+    painter->setBrush(p.brush());
+  }
 
-  p.moveTo(m_OutPoint);
-
-  QPointF dir = m_InPoint - m_OutPoint;
-  float fDotOut = QPointF::dotProduct(m_OutDir, dir);
-  float fDotIn = QPointF::dotProduct(m_InDir, -dir);
-
-  fDotOut = ezMath::Max(100.0f, ezMath::Abs(fDotOut));
-  fDotIn = ezMath::Max(100.0f, ezMath::Abs(fDotIn));
-
-  QPointF ctr1 = m_OutPoint + m_OutDir * (fDotOut * 0.5f);
-  QPointF ctr2 = m_InPoint + m_InDir * (fDotIn * 0.5f);
-
-  p.cubicTo(ctr1, ctr2, m_InPoint);
-
-  setPath(p);
+  painter->drawPath(path());
 }

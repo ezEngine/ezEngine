@@ -662,9 +662,7 @@ static int __CPP_GameObject_SendEventMessage(duk_context* pDuk)
   {
     ezUniquePtr<ezMessage> pMsg = pBinding->MessageFromParameter(pDuk, 1, ezTime::Zero());
 
-    ezEventMessage* pEventMsg = ezStaticCast<ezEventMessage*>(pMsg.Borrow());
-
-    pGameObject->SendEventMessage(*pEventMsg, pSender);
+    pGameObject->SendEventMessage(ezStaticCast<ezEventMessage&>(*pMsg), pSender);
 
     if (duk.GetBoolValue(4)) // expect the message to have result values
     {
@@ -678,9 +676,7 @@ static int __CPP_GameObject_SendEventMessage(duk_context* pDuk)
 
     ezUniquePtr<ezMessage> pMsg = pBinding->MessageFromParameter(pDuk, 1, delay);
 
-    ezEventMessage* pEventMsg = ezStaticCast<ezEventMessage*>(pMsg.Borrow());
-
-    pGameObject->PostEventMessage(*pEventMsg, pSender, delay);
+    pGameObject->PostEventMessage(ezStaticCast<ezEventMessage&>(*pMsg), pSender, delay);
   }
 
   return duk.ReturnVoid();

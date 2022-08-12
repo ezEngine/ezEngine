@@ -179,5 +179,67 @@ ezResult ezBlackboard::Deserialize(ezStreamReader& stream)
   return EZ_SUCCESS;
 }
 
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezComparisonOperator, 1)
+  EZ_ENUM_CONSTANTS(ezComparisonOperator::Equal, ezComparisonOperator::NotEqual)
+  EZ_ENUM_CONSTANTS(ezComparisonOperator::Less, ezComparisonOperator::LessEqual)
+  EZ_ENUM_CONSTANTS(ezComparisonOperator::Greater, ezComparisonOperator::GreaterEqual)
+EZ_END_STATIC_REFLECTED_ENUM;
+// clang-format on
+
+// static
+bool ezComparisonOperator::Compare(ezComparisonOperator::Enum cmp, double f1, double f2)
+{
+  switch (cmp)
+  {
+    case ezComparisonOperator::Equal:
+      return f1 == f2;
+    case ezComparisonOperator::NotEqual:
+      return f1 != f2;
+    case ezComparisonOperator::Less:
+      return f1 < f2;
+    case ezComparisonOperator::LessEqual:
+      return f1 <= f2;
+    case ezComparisonOperator::Greater:
+      return f1 > f2;
+    case ezComparisonOperator::GreaterEqual:
+      return f1 >= f2;
+
+      EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
+  }
+
+  return false;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezBlackboardCondition, ezNoBase, 1, ezRTTIDefaultAllocator<ezBlackboardCondition>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_ACCESSOR_PROPERTY("EntryName", GetEntryName, SetEntryName),
+    EZ_ENUM_MEMBER_PROPERTY("Operator", ezComparisonOperator, m_Operator),
+    EZ_MEMBER_PROPERTY("ComparisonValue", m_fComparisonValue),
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_STATIC_REFLECTED_TYPE;
+// clang-format on
+
+bool ezBlackboardCondition::IsConditionMet(const ezBlackboard& blackboard) const
+{
+  auto pEntry = blackboard.GetEntry(m_sEntryName);
+  if (pEntry != nullptr && pEntry->m_Value.IsNumber())
+  {
+    double fEntryValue = pEntry->m_Value.ConvertTo<double>();
+    return ezComparisonOperator::Compare(m_Operator, fEntryValue, m_fComparisonValue);
+  }
+
+  return false;
+}
+
 
 EZ_STATICLINK_FILE(Core, Core_Utils_Implementation_Blackboard);

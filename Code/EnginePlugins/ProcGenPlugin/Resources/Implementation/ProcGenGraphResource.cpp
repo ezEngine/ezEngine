@@ -29,7 +29,7 @@ ezProcGenGraphResource::ezProcGenGraphResource()
 {
 }
 
-ezProcGenGraphResource::~ezProcGenGraphResource() {}
+ezProcGenGraphResource::~ezProcGenGraphResource() = default;
 
 const ezDynamicArray<ezSharedPtr<const PlacementOutput>>& ezProcGenGraphResource::GetPlacementOutputs() const
 {

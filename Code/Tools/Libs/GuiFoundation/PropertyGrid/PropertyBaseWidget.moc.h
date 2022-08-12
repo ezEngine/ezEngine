@@ -208,6 +208,7 @@ protected:
   virtual void OnInit() override;
   void StructureEventHandler(const ezDocumentObjectStructureEvent& e);
   virtual void DoPrepareToDie() override;
+  void UpdateTitle(const ezRTTI* pType = nullptr);
 
 protected:
   QHBoxLayout* m_pLayout = nullptr;
