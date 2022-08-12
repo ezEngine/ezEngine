@@ -42,7 +42,7 @@ void ezRenderPipelineRttiConverterContext::Clear()
   m_pRenderPipeline = nullptr;
 }
 
-void* ezRenderPipelineRttiConverterContext::CreateObject(const ezUuid& guid, const ezRTTI* pRtti)
+ezInternal::NewInstance<void> ezRenderPipelineRttiConverterContext::CreateObject(const ezUuid& guid, const ezRTTI* pRtti)
 {
   EZ_ASSERT_DEBUG(pRtti != nullptr, "Object type is unknown");
 
@@ -54,12 +54,11 @@ void* ezRenderPipelineRttiConverterContext::CreateObject(const ezUuid& guid, con
       return nullptr;
     }
 
-    ezUniquePtr<ezRenderPipelinePass> pass = pRtti->GetAllocator()->Allocate<ezRenderPipelinePass>();
-    ezRenderPipelinePass* pPass = pass.Borrow();
-    m_pRenderPipeline->AddPass(std::move(pass));
+    auto pass = pRtti->GetAllocator()->Allocate<ezRenderPipelinePass>();
+    m_pRenderPipeline->AddPass(pass);
 
-    RegisterObject(guid, pRtti, pPass);
-    return pPass;
+    RegisterObject(guid, pRtti, pass);
+    return pass;
   }
   else if (pRtti->IsDerivedFrom<ezExtractor>())
   {
@@ -69,12 +68,11 @@ void* ezRenderPipelineRttiConverterContext::CreateObject(const ezUuid& guid, con
       return nullptr;
     }
 
-    ezUniquePtr<ezExtractor> extractor = pRtti->GetAllocator()->Allocate<ezExtractor>();
-    ezExtractor* pExtractor = extractor.Borrow();
-    m_pRenderPipeline->AddExtractor(std::move(extractor));
+    auto extractor = pRtti->GetAllocator()->Allocate<ezExtractor>();
+    m_pRenderPipeline->AddExtractor(extractor);
 
-    RegisterObject(guid, pRtti, pExtractor);
-    return pExtractor;
+    RegisterObject(guid, pRtti, extractor);
+    return extractor;
   }
   else
   {

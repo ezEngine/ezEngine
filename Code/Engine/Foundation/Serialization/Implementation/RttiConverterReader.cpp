@@ -11,7 +11,7 @@ ezRttiConverterReader::ezRttiConverterReader(const ezAbstractObjectGraph* pGraph
   m_pContext = pContext;
 }
 
-void* ezRttiConverterReader::CreateObjectFromNode(const ezAbstractObjectNode* pNode)
+ezInternal::NewInstance<void> ezRttiConverterReader::CreateObjectFromNode(const ezAbstractObjectNode* pNode)
 {
   const ezRTTI* pRtti = ezRTTI::FindTypeByName(pNode->GetType());
   if (pRtti == nullptr)
@@ -20,7 +20,7 @@ void* ezRttiConverterReader::CreateObjectFromNode(const ezAbstractObjectNode* pN
     return nullptr;
   }
 
-  void* pObject = m_pContext->CreateObject(pNode->GetGuid(), pRtti);
+  auto pObject = m_pContext->CreateObject(pNode->GetGuid(), pRtti);
   if (pObject)
   {
     ApplyPropertiesToObject(pNode, pRtti, pObject);

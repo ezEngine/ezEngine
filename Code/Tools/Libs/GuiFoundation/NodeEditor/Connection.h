@@ -30,6 +30,8 @@ public:
 
   bool m_bAdjacentNodeSelected = false;
 
+  virtual void ExtendContextMenu(QMenu& menu) {}
+
 protected:
   virtual void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override;
 

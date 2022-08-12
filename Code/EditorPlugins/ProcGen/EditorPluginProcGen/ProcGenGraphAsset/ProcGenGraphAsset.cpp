@@ -83,7 +83,7 @@ struct ezProcGenGraphAssetDocument::GenerateContext
   ezDocumentObjectConverterWriter m_ObjectWriter;
   ezRttiConverterContext m_RttiConverterContext;
   ezRttiConverterReader m_RttiConverter;
-  ezHashTable<const ezDocumentObject*, ezProcGenNodeBase*> m_DocObjToProcGenNodeTable;
+  ezHashTable<const ezDocumentObject*, ezUniquePtr<ezProcGenNodeBase>> m_DocObjToProcGenNodeTable;
   ezHashTable<DocObjAndOutput, ezExpressionAST::Node*> m_DocObjAndOutputToASTNodeTable;
   ezProcGenNodeBase::GraphContext m_GraphContext;
 };
@@ -169,9 +169,9 @@ ezStatus ezProcGenGraphAssetDocument::WriteAsset(ezStreamWriter& stream, const e
       {
         EZ_SUCCEED_OR_RETURN(WriteByteCode(pPlacementNode));
 
-        ezProcGenNodeBase* pPGNode;
-        EZ_VERIFY(context.m_DocObjToProcGenNodeTable.TryGetValue(pPlacementNode, pPGNode), "Implementation error");
-        auto pPlacementOutput = ezStaticCast<ezProcGen_PlacementOutput*>(pPGNode);
+        auto pPGNode = context.m_DocObjToProcGenNodeTable.GetValue(pPlacementNode);
+        EZ_VERIFY(pPGNode != nullptr, "Implementation error");
+        auto pPlacementOutput = ezStaticCast<ezProcGen_PlacementOutput*>(pPGNode->Borrow());
 
         pPlacementOutput->m_VolumeTagSetIndices = context.m_GraphContext.m_VolumeTagSetIndices;
         pPlacementOutput->Save(chunk);
@@ -212,9 +212,9 @@ ezStatus ezProcGenGraphAssetDocument::WriteAsset(ezStreamWriter& stream, const e
     {
       EZ_SUCCEED_OR_RETURN(WriteByteCode(pVertexColorNode));
 
-      ezProcGenNodeBase* pPGNode;
-      EZ_VERIFY(context.m_DocObjToProcGenNodeTable.TryGetValue(pVertexColorNode, pPGNode), "Implementation error");
-      auto pVertexColorOutput = ezStaticCast<ezProcGen_VertexColorOutput*>(pPGNode);
+      auto pPGNode = context.m_DocObjToProcGenNodeTable.GetValue(pVertexColorNode);
+      EZ_VERIFY(pPGNode != nullptr, "Implementation error");
+      auto pVertexColorOutput = ezStaticCast<ezProcGen_VertexColorOutput*>(pPGNode->Borrow());
 
       pVertexColorOutput->m_VolumeTagSetIndices = context.m_GraphContext.m_VolumeTagSetIndices;
       pVertexColorOutput->Save(chunk);
@@ -379,13 +379,18 @@ ezExpressionAST::Node* ezProcGenGraphAssetDocument::GenerateExpressionAST(const 
     inputAstNodes[i] = astNode;
   }
 
-  ezProcGenNodeBase* cachedPGNode;
-  if (!context.m_DocObjToProcGenNodeTable.TryGetValue(outputNode, cachedPGNode))
+  ezProcGenNodeBase* cachedPGNode = nullptr;
+  if (auto pCachedPGNode = context.m_DocObjToProcGenNodeTable.GetValue(outputNode))
+  {
+    cachedPGNode = pCachedPGNode->Borrow();
+  }
+  else
   {
     ezAbstractObjectNode* pAbstractNode = context.m_ObjectWriter.AddObjectToGraph(outputNode);
-    cachedPGNode = static_cast<ezProcGenNodeBase*>(context.m_RttiConverter.CreateObjectFromNode(pAbstractNode));
+    auto newPGNode = context.m_RttiConverter.CreateObjectFromNode(pAbstractNode).Cast<ezProcGenNodeBase>();
+    cachedPGNode = newPGNode;
 
-    context.m_DocObjToProcGenNodeTable.Insert(outputNode, cachedPGNode);
+    context.m_DocObjToProcGenNodeTable.Insert(outputNode, newPGNode);
   }
 
   return cachedPGNode->GenerateExpressionASTNode(ezTempHashedString(szOutputName), inputAstNodes, out_Ast, context.m_GraphContext);

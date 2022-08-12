@@ -274,7 +274,7 @@ ezStatus ezDocument::ReadAndRegisterTypes(const ezAbstractObjectGraph& types)
   {
     if (it.Value()->GetType() == sDescTypeName)
     {
-      ezReflectedTypeDescriptor* pDesc = static_cast<ezReflectedTypeDescriptor*>(rttiConverter.CreateObjectFromNode(it.Value()));
+      ezReflectedTypeDescriptor* pDesc = rttiConverter.CreateObjectFromNode(it.Value()).Cast<ezReflectedTypeDescriptor>();
       if (pDesc->m_Flags.IsSet(ezTypeFlags::Minimal))
       {
         ezGetStaticRTTI<ezReflectedTypeDescriptor>()->GetAllocator()->Deallocate(pDesc);

@@ -431,3 +431,4 @@ ezPhysicsShapeType::Trigger;Trigger
 ezPhysicsShapeType::Character;Character
 ezPhysicsShapeType::Ragdoll;Ragdoll
 ezPhysicsShapeType::Rope;Rope
+ezStateMachineComponent;State Machine

@@ -137,6 +137,12 @@ export class MsgExtractRenderData extends Message
   constructor() { super(); this.TypeNameHash = 2914273568; }
 }
 
+export class MsgFmodSoundFinished extends EventMessage
+{
+  public static GetTypeNameHash(): number { return 4054082438; }
+  constructor() { super(); this.TypeNameHash = 4054082438; }
+}
+
 export class MsgGenericEvent extends EventMessage
 {
   public static GetTypeNameHash(): number { return 3196354340; }
@@ -257,6 +263,13 @@ export class MsgSetText extends Message
 {
   public static GetTypeNameHash(): number { return 2638773750; }
   constructor() { super(); this.TypeNameHash = 2638773750; }
+}
+
+export class MsgStateMachineStateChanged extends EventMessage
+{
+  public static GetTypeNameHash(): number { return 3508545104; }
+  constructor() { super(); this.TypeNameHash = 3508545104; }
+  NewStateName: string;
 }
 
 export class MsgTransformChanged extends Message

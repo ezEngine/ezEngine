@@ -23,7 +23,7 @@ public:
   virtual void Clear() override;
   void DeleteExistingObjects();
 
-  virtual void* CreateObject(const ezUuid& guid, const ezRTTI* pRtti) override;
+  virtual ezInternal::NewInstance<void> CreateObject(const ezUuid& guid, const ezRTTI* pRtti) override;
   virtual void DeleteObject(const ezUuid& guid) override;
 
   virtual void RegisterObject(const ezUuid& guid, const ezRTTI* pRtti, void* pObject) override;

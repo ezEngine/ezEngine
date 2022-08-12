@@ -309,6 +309,8 @@ void ezQtNodeScene::contextMenuEvent(QGraphicsSceneContextMenuEvent* contextMenu
       menu.addAction(pAction);
       connect(pAction, &QAction::triggered, this, [this](bool bChecked) { RemoveSelectedNodesAction(); });
     }
+
+    pNode->ExtendContextMenu(menu);
   }
   else if (iType == Type::Connection)
   {
@@ -316,6 +318,8 @@ void ezQtNodeScene::contextMenuEvent(QGraphicsSceneContextMenuEvent* contextMenu
     QAction* pAction = new QAction("Delete Connection", &menu);
     menu.addAction(pAction);
     connect(pAction, &QAction::triggered, this, [this, pConnection](bool bChecked) { DisconnectPinsAction(pConnection); });
+
+    pConnection->ExtendContextMenu(menu);
   }
   else
   {

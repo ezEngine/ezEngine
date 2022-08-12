@@ -353,7 +353,7 @@ void ezDocumentNodeManager::RestoreMetaDataAfterLoading(const ezAbstractObjectGr
   ezRttiConverterContext context;
   ezRttiConverterReader rttiConverter(&graph, &context);
 
-  for (auto it = graph.GetAllNodes().GetIterator(); it.IsValid(); ++it)
+  for (auto it : graph.GetAllNodes())
   {
     auto pAbstractObject = it.Value();
     ezDocumentObject* pObject = GetObject(pAbstractObject->GetGuid());

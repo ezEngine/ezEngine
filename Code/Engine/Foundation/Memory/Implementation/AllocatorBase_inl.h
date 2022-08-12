@@ -32,6 +32,12 @@ namespace ezInternal
       other.m_pAllocator = nullptr;
     }
 
+    EZ_ALWAYS_INLINE NewInstance(std::nullptr_t)
+    {
+      m_pInstance = nullptr;
+      m_pAllocator = nullptr;
+    }
+
     template <typename U>
     EZ_ALWAYS_INLINE NewInstance<U> Cast()
     {

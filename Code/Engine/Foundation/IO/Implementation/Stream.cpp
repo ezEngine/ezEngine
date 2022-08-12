@@ -9,9 +9,11 @@ ezStreamReader::~ezStreamReader() = default;
 
 ezResult ezStreamReader::ReadString(ezStringBuilder& builder)
 {
-  auto context = ezStringDeduplicationReadContext::GetContext();
-
-  if (!context)
+  if (auto context = ezStringDeduplicationReadContext::GetContext())
+  {
+    builder = context->DeserializeString(*this);
+  }
+  else
   {
     ezUInt32 uiCount = 0;
     EZ_SUCCEED_OR_RETURN(ReadDWordValue(&uiCount));
@@ -31,10 +33,6 @@ ezResult ezStreamReader::ReadString(ezStringBuilder& builder)
       builder.Clear();
     }
   }
-  else
-  {
-    builder = context->DeserializeString(*this);
-  }
 
   return EZ_SUCCESS;
 }
@@ -49,26 +47,23 @@ ezResult ezStreamReader::ReadString(ezString& string)
 }
 
 ezStreamWriter::ezStreamWriter() = default;
-
 ezStreamWriter::~ezStreamWriter() = default;
 
 ezResult ezStreamWriter::WriteString(const ezStringView szStringView)
 {
   const ezUInt32 uiCount = szStringView.GetElementCount();
 
-  auto context = ezStringDeduplicationWriteContext::GetContext();
-
-  if (!context)
+  if (auto context = ezStringDeduplicationWriteContext::GetContext())
+  {
+    context->SerializeString(szStringView, *this);
+  }
+  else
   {
     EZ_SUCCEED_OR_RETURN(WriteDWordValue(&uiCount));
     if (uiCount > 0)
     {
       EZ_SUCCEED_OR_RETURN(WriteBytes(szStringView.GetStartPointer(), uiCount));
     }
-  }
-  else
-  {
-    context->SerializeString(szStringView, *this);
   }
 
   return EZ_SUCCESS;

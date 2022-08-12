@@ -38,7 +38,7 @@ public:
   /// parentGuid + property name + index and ignores the address of pObject.
   virtual ezUuid GenerateObjectGuid(const ezUuid& parentGuid, const ezAbstractProperty* pProp, ezVariant index, void* pObject) const;
 
-  virtual void* CreateObject(const ezUuid& guid, const ezRTTI* pRtti);
+  virtual ezInternal::NewInstance<void> CreateObject(const ezUuid& guid, const ezRTTI* pRtti);
   virtual void DeleteObject(const ezUuid& guid);
 
   virtual void RegisterObject(const ezUuid& guid, const ezRTTI* pRtti, void* pObject);
@@ -89,7 +89,7 @@ class EZ_FOUNDATION_DLL ezRttiConverterReader
 public:
   ezRttiConverterReader(const ezAbstractObjectGraph* pGraph, ezRttiConverterContext* pContext);
 
-  void* CreateObjectFromNode(const ezAbstractObjectNode* pNode);
+  ezInternal::NewInstance<void> CreateObjectFromNode(const ezAbstractObjectNode* pNode);
   void ApplyPropertiesToObject(const ezAbstractObjectNode* pNode, const ezRTTI* pRtti, void* pObject);
 
 private:
