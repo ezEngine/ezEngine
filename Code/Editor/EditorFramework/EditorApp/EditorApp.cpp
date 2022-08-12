@@ -379,7 +379,10 @@ void ezQtEditorApp::LaunchEditor(const char* szProject, bool bCreate)
 {
   ezStringBuilder app;
   app = ezOSFile::GetApplicationDirectory();
-  app.AppendPath("Editor.exe");
+  app.AppendPath("Editor");
+  #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  app.Append(".exe");
+  #endif
   app.MakeCleanPath();
 
   // TODO: pass through all command line arguments ?

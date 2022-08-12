@@ -5,6 +5,7 @@ EZ_FOUNDATION_INTERNAL_HEADER
 
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Utilities/CommandLineUtils.h>
+#include <Foundation/Threading/ThreadUtils.h>
 #include <errno.h>
 #include <stdio.h>
 #include <sys/stat.h>
@@ -38,6 +39,86 @@ EZ_FOUNDATION_INTERNAL_HEADER
 
 ezResult ezOSFile::InternalOpen(const char* szFile, ezFileOpenMode::Enum OpenMode, ezFileShareMode::Enum FileShareMode)
 {
+#if EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP) // UWP does not support these functions
+  int fd = -1;
+  switch (OpenMode)
+  {
+    // O_CLOEXEC = don't forward to child processes
+    case ezFileOpenMode::Read:
+      fd = open(szFile, O_RDONLY | O_CLOEXEC);
+      break;
+    case ezFileOpenMode::Write:
+    case ezFileOpenMode::Append:
+      fd = open(szFile, O_CREAT | O_WRONLY | O_CLOEXEC, 0644);
+      break;
+    default:
+      break;
+  }
+
+  if (FileShareMode == ezFileShareMode::Default)
+  {
+    if (OpenMode == ezFileOpenMode::Read)
+    {
+      FileShareMode = ezFileShareMode::SharedReads;
+    }
+    else
+    {
+      FileShareMode = ezFileShareMode::Exclusive;
+    }
+  }
+
+  if(fd == -1)
+  {
+    return EZ_FAILURE;
+  }
+
+  const int iSharedMode = (FileShareMode == ezFileShareMode::Exclusive) ? LOCK_EX : LOCK_SH;
+  const ezTime sleepTime = ezTime::Milliseconds(20);
+  ezInt32 iRetries = m_bRetryOnSharingViolation ? 20 : 1;
+
+  while (flock(fd, iSharedMode | LOCK_NB /* do not block */) != 0)
+  {
+    int errorCode = errno;
+    iRetries--;
+    if(iRetries == 0 || errorCode != EWOULDBLOCK)
+    {
+      // error, could not get a lock
+      ezLog::Error("Failed to get a {} lock for file {}, error {}", (FileShareMode == ezFileShareMode::Exclusive) ? "Exculsive" : "Shared", szFile, errno);
+      close(fd);
+      return EZ_FAILURE;
+    }
+    ezLog::Warning("Sleeping for {}", m_sFileName);
+    ezThreadUtils::Sleep(sleepTime);
+  }
+
+  switch (OpenMode)
+  {
+    case ezFileOpenMode::Read:
+      m_FileData.m_pFileHandle = fdopen(fd, "rb");
+      break;
+    case ezFileOpenMode::Write:
+      ftruncate(fd, 0);
+      m_FileData.m_pFileHandle = fdopen(fd, "wb");
+      break;
+    case ezFileOpenMode::Append:
+      m_FileData.m_pFileHandle = fdopen(fd, "ab");
+
+      // in append mode we need to set the file pointer to the end explicitly, otherwise GetFilePosition might return 0 the first time
+      if (m_FileData.m_pFileHandle != nullptr)
+        InternalSetFilePosition(0, ezFileSeekMode::FromEnd);
+
+      break;
+    default:
+      break;
+  }
+
+  if(m_FileData.m_pFileHandle == nullptr)
+  {
+    close(fd);
+  }
+
+#else
+
   switch (OpenMode)
   {
     case ezFileOpenMode::Read:
@@ -57,37 +138,13 @@ ezResult ezOSFile::InternalOpen(const char* szFile, ezFileOpenMode::Enum OpenMod
     default:
       break;
   }
+#endif
 
   if (m_FileData.m_pFileHandle == nullptr)
-    return EZ_FAILURE;
-
-
-  if (FileShareMode == ezFileShareMode::Default)
   {
-    if (OpenMode == ezFileOpenMode::Read)
-    {
-      FileShareMode = ezFileShareMode::SharedReads;
-    }
-    else
-    {
-      FileShareMode = ezFileShareMode::Exclusive;
-    }
-  }
-
-#if EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP) // UWP does not support these functions
-
-  const int iSharedMode = (FileShareMode == ezFileShareMode::Exclusive) ? LOCK_EX : LOCK_SH;
-
-  const int fileNo = fileno(m_FileData.m_pFileHandle);
-  if (flock(fileNo, iSharedMode | LOCK_NB /* do not block */) != 0)
-  {
-    // error, could not get a lock
-
-    fclose(m_FileData.m_pFileHandle);
-    m_FileData.m_pFileHandle = nullptr;
+    ezLog::Error("Failed to open mode '{}' for '{}'", (int)OpenMode, szFile);
     return EZ_FAILURE;
   }
-#endif
 
   // lock will be released automatically when the file is closed
   return EZ_SUCCESS;
@@ -106,7 +163,10 @@ ezResult ezOSFile::InternalWrite(const void* pBuffer, ezUInt64 uiBytes)
   while (uiBytes > uiBatchBytes)
   {
     if (fwrite(pBuffer, 1, uiBatchBytes, m_FileData.m_pFileHandle) != uiBatchBytes)
+    {
+      ezLog::Error("fwrite 1gb failed for '{}'", m_sFileName);
       return EZ_FAILURE;
+    }
 
     uiBytes -= uiBatchBytes;
     pBuffer = ezMemoryUtils::AddByteOffset(pBuffer, uiBatchBytes);
@@ -117,7 +177,10 @@ ezResult ezOSFile::InternalWrite(const void* pBuffer, ezUInt64 uiBytes)
     const ezUInt32 uiBytes32 = static_cast<ezUInt32>(uiBytes);
 
     if (fwrite(pBuffer, 1, uiBytes32, m_FileData.m_pFileHandle) != uiBytes)
+    {
+      ezLog::Error("fwrite failed for '{}'", m_sFileName);
       return EZ_FAILURE;
+    }
   }
 
   return EZ_SUCCESS;

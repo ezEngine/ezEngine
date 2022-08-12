@@ -32,7 +32,7 @@ ezPipeChannel_linux::ezPipeChannel_linux(const char* szAddress, Mode::Enum Mode)
 
   int& targetSocket = (Mode == Mode::Server) ? m_serverSocketFd : m_clientSocketFd;
 
-  targetSocket = socket(AF_UNIX, SOCK_STREAM | SOCK_NONBLOCK, 0);
+  targetSocket = socket(AF_UNIX, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, 0);
   if (targetSocket == -1)
   {
     ezLog::Error("[IPC]Failed to create unix domain socket. error {}", errno);

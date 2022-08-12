@@ -27,6 +27,7 @@ ezSourcePass::ezSourcePass(const char* szName)
   m_Format = ezGALResourceFormat::RGBAUByteNormalizedsRGB;
   m_MsaaMode = ezGALMSAASampleCount::None;
   m_bClear = true;
+  m_ClearColor = ezColor::Black;
 }
 
 ezSourcePass::~ezSourcePass() {}

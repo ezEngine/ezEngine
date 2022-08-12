@@ -3,6 +3,7 @@
 #include <EditorFramework/IPC/EditorProcessCommunicationChannel.h>
 #include <Foundation/Communication/IpcChannel.h>
 #include <Foundation/IO/OSFile.h>
+#include <Foundation/System/Process.h>
 
 ezResult ezEditorProcessCommunicationChannel::StartClientProcess(
   const char* szProcess, const QStringList& args, bool bRemote, const ezRTTI* pFirstAllowedMessageType, ezUInt32 uiMemSize)
@@ -15,10 +16,8 @@ ezResult ezEditorProcessCommunicationChannel::StartClientProcess(
   m_pFirstAllowedMessageType = pFirstAllowedMessageType;
 
   static ezUInt64 uiUniqueHash = 0;
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  DWORD PID = GetCurrentProcessId();
+  ezOsProcessID PID = ezProcess::GetCurrentProcessID();
   uiUniqueHash = ezHashingUtils::xxHash64(&PID, sizeof(PID), uiUniqueHash);
-#endif
   ezTime time = ezTime::Now();
   uiUniqueHash = ezHashingUtils::xxHash64(&time, sizeof(time), uiUniqueHash);
   ezStringBuilder sMemName;

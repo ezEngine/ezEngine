@@ -681,7 +681,7 @@ ezStatus ezMaterialAssetDocument::InternalTransformAsset(const char* szTargetFil
 
           ezVisualShaderErrorLog log;
 
-          ret = ezQtEditorApp::GetSingleton()->ExecuteTool("ShaderCompiler.exe", arguments, 60, &log);
+          ret = ezQtEditorApp::GetSingleton()->ExecuteTool("ShaderCompiler", arguments, 60, &log);
           if (ret.Failed())
           {
             e.m_Type = ezMaterialVisualShaderEvent::TransformFailed;

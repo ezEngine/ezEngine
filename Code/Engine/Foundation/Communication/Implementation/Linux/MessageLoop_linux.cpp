@@ -31,6 +31,7 @@ ezMessageLoop_linux::ezMessageLoop_linux()
 
 ezMessageLoop_linux::~ezMessageLoop_linux()
 {
+  StopUpdateThread();
   if (m_wakeupPipeReadEndFd >= 0)
   {
     close(m_wakeupPipeReadEndFd);
