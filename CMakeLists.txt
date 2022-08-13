@@ -51,7 +51,7 @@ endif()
 
 ez_pull_platform_vars()
 
-include("CMakeUtils/ezUtilsPlatformVars")
+include("ezPlatformVars")
 
 ez_init_projects()
 
