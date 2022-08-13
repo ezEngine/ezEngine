@@ -1,10 +1,9 @@
 #pragma once
 
-#include "../Common/Platforms.h"
 #include "../Common/ConstantBufferMacros.h"
+#include "../Common/Platforms.h"
 
 CONSTANT_BUFFER(ezCopyConstants, 3)
 {
   INT2(Offset);
 };
-

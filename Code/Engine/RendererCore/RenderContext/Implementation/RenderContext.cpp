@@ -861,12 +861,12 @@ void ezRenderContext::LoadBuiltinShader(ezShaderUtils::ezBuiltinShaderType type,
   ezShaderResourceHandle hActiveShader;
   switch (type)
   {
-  case ezShaderUtils::ezBuiltinShaderType::CopyImage:
-    hActiveShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Pipeline/Copy.ezShader");
-    break;
-  case ezShaderUtils::ezBuiltinShaderType::DownscaleImage:
-    hActiveShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Pipeline/Downscale.ezShader");
-    break;
+    case ezShaderUtils::ezBuiltinShaderType::CopyImage:
+      hActiveShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Pipeline/Copy.ezShader");
+      break;
+    case ezShaderUtils::ezBuiltinShaderType::DownscaleImage:
+      hActiveShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Pipeline/Downscale.ezShader");
+      break;
   }
 
   EZ_ASSERT_DEV(hActiveShader.IsValid(), "Could not load builtin shader!");
@@ -882,7 +882,7 @@ void ezRenderContext::LoadBuiltinShader(ezShaderUtils::ezBuiltinShaderType type,
     permutationVariables.Insert(sVSRTAI, sTrue);
   else
     permutationVariables.Insert(sVSRTAI, sFalse);
- 
+
   ezShaderPermutationResourceHandle hActiveShaderPermutation = ezShaderManager::PreloadSinglePermutation(hActiveShader, permutationVariables, false);
 
   if (!hActiveShaderPermutation.IsValid())

@@ -83,7 +83,7 @@ void ezInitContextVulkan::InitTexture(const ezGALTextureVulkan* pTexture, vk::Im
         const VkExtent3D blockCount = {
           (imageExtent.width + blockExtent[0] - 1) / blockExtent[0],
           (imageExtent.height + blockExtent[1] - 1) / blockExtent[1],
-          (imageExtent.depth + blockExtent[2] - 1) / blockExtent[2] };
+          (imageExtent.depth + blockExtent[2] - 1) / blockExtent[2]};
         const ezUInt32 uiTotalSize = uiBlockSize * blockCount.width * blockCount.height * blockCount.depth;
         tempData.SetCount(uiTotalSize, 0);
       }

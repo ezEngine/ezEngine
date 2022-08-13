@@ -651,7 +651,7 @@ void ezGALCommandEncoderImplVulkan::CopyTextureReadbackResultPlatform(const ezGA
     const ezGALTextureSubresource& subRes = SourceSubResource[i];
     const ezGALSystemMemoryDescription& memDesc = TargetData[i];
 
-    vk::ImageSubresource subResource{ stagingAspect, subRes.m_uiMipLevel, subRes.m_uiArraySlice};
+    vk::ImageSubresource subResource{stagingAspect, subRes.m_uiMipLevel, subRes.m_uiArraySlice};
     vk::SubresourceLayout subResourceLayout;
     m_vkDevice.getImageSubresourceLayout(pVulkanTexture->GetStagingTexture(), &subResource, &subResourceLayout);
     ezUInt8* pSubResourceData = reinterpret_cast<ezUInt8*>(pData) + subResourceLayout.offset;
@@ -779,7 +779,7 @@ void ezGALCommandEncoderImplVulkan::GenerateMipMapsPlatform(const ezGALResourceV
         destinationLayers.mipLevel++;
 
         vk::Extent3D mipLevelSize = pVulkanTexture->GetMipLevelSize(0);
-        copy.Copy({0, 0, 0}, sourceLayers, {0, 0, 0}, destinationLayers, { (ezUInt32)destinationMipLevelSize.width, (ezUInt32)destinationMipLevelSize.height, (ezUInt32)destinationMipLevelSize.depth });
+        copy.Copy({0, 0, 0}, sourceLayers, {0, 0, 0}, destinationLayers, {(ezUInt32)destinationMipLevelSize.width, (ezUInt32)destinationMipLevelSize.height, (ezUInt32)destinationMipLevelSize.depth});
       }
       m_bPipelineStateDirty = true;
       m_bViewportDirty = true;
