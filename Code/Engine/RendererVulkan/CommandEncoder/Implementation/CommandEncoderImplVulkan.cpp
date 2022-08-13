@@ -16,6 +16,7 @@
 #include <RendererVulkan/Shader/ShaderVulkan.h>
 #include <RendererVulkan/Shader/VertexDeclarationVulkan.h>
 #include <RendererVulkan/State/StateVulkan.h>
+#include <RendererVulkan/Utils/ImageCopyVulkan.h>
 #include <RendererVulkan/Utils/PipelineBarrierVulkan.h>
 
 ezGALCommandEncoderImplVulkan::ezGALCommandEncoderImplVulkan(ezGALDeviceVulkan& device)
@@ -497,115 +498,129 @@ void ezGALCommandEncoderImplVulkan::ReadbackTexturePlatform(const ezGALTexture* 
   }
   else
   {
-    m_pPipelineBarrier->EnsureImageLayout(pVulkanTexture, vk::ImageLayout::eTransferSrcOptimal, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferRead);
-    m_pPipelineBarrier->Flush();
-
     const ezGALTextureCreationDescription& textureDesc = pVulkanTexture->GetDescription();
     vk::ImageAspectFlagBits imageAspect = ezGALResourceFormat::IsDepthFormat(textureDesc.m_Format) ? vk::ImageAspectFlagBits::eDepth : vk::ImageAspectFlagBits::eColor;
-    if (ezGALResourceFormat::IsDepthFormat(textureDesc.m_Format))
+
+    if (!ezGALResourceFormat::IsDepthFormat(textureDesc.m_Format) && (bSupportsBlit || pVulkanTexture->GetImageFormat() == pVulkanTexture->GetStagingImageFormat()))
     {
-      //#TODO_VULKAN readback of depth buffers not implemented yet. This does not assert to make the editor start.
-      static bool bReported = false;
-      if (!bReported)
+      m_pPipelineBarrier->EnsureImageLayout(pVulkanTexture, vk::ImageLayout::eTransferSrcOptimal, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferRead);
+      m_pPipelineBarrier->Flush();
+
       {
-        bReported = true;
-        ezLog::Error("CPU readback of depth buffers not implemented yet.");
+        // staging texture layout currently not tracked.
+        vk::ImageMemoryBarrier imageBarrier;
+        imageBarrier.srcAccessMask = {};
+        imageBarrier.dstAccessMask = vk::AccessFlagBits::eTransferWrite;
+        imageBarrier.oldLayout = vk::ImageLayout::eUndefined;
+        imageBarrier.newLayout = vk::ImageLayout::eTransferDstOptimal;
+        imageBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        imageBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        imageBarrier.image = pVulkanTexture->GetStagingTexture();
+        imageBarrier.subresourceRange = pVulkanTexture->GetFullRange();
+        imageBarrier.subresourceRange.aspectMask = pVulkanTexture->GetStagingAspectMask();
+
+        m_pCommandBuffer->pipelineBarrier(vk::PipelineStageFlagBits::eTopOfPipe, vk::PipelineStageFlagBits::eTransfer, vk::DependencyFlags(), 0, nullptr, 0, nullptr, 1, &imageBarrier);
       }
-      return;
-    }
 
-    {
-      // staging texture layout currently not tracked.
-      vk::ImageMemoryBarrier imageBarrier;
-      imageBarrier.srcAccessMask = {};
-      imageBarrier.dstAccessMask = vk::AccessFlagBits::eTransferWrite;
-      imageBarrier.oldLayout = vk::ImageLayout::eUndefined;
-      imageBarrier.newLayout = vk::ImageLayout::eTransferDstOptimal;
-      imageBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-      imageBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-      imageBarrier.image = pVulkanTexture->GetStagingTexture();
-      imageBarrier.subresourceRange = pVulkanTexture->GetFullRange();
-      imageBarrier.subresourceRange.aspectMask = pVulkanTexture->GetStagingAspectMask();
-
-      m_pCommandBuffer->pipelineBarrier(vk::PipelineStageFlagBits::eTopOfPipe, vk::PipelineStageFlagBits::eTransfer, vk::DependencyFlags(), 0, nullptr, 0, nullptr, 1, &imageBarrier);
-    }
-
-    if (bSupportsBlit)
-    {
-      for (ezUInt32 uiLayer = 0; uiLayer < textureDesc.m_uiArraySize; uiLayer++)
+      if (bSupportsBlit)
       {
+        for (ezUInt32 uiLayer = 0; uiLayer < textureDesc.m_uiArraySize; uiLayer++)
+        {
+          for (ezUInt32 uiMipLevel = 0; uiMipLevel < textureDesc.m_uiMipLevelCount; uiMipLevel++)
+          {
+            vk::Extent3D mipLevelSize = pVulkanTexture->GetMipLevelSize(uiMipLevel);
+            vk::Offset3D mipLevelEndOffset = {(ezInt32)mipLevelSize.width, (ezInt32)mipLevelSize.height, (ezInt32)mipLevelSize.depth};
+
+            vk::ImageSubresourceLayers subresourceLayers;
+            // We do not support stencil uploads right now.
+            subresourceLayers.aspectMask = imageAspect;
+            subresourceLayers.mipLevel = uiMipLevel;
+            subresourceLayers.baseArrayLayer = uiLayer;
+            subresourceLayers.layerCount = 1;
+
+            vk::ImageBlit imageBlitRegion;
+            imageBlitRegion.srcSubresource = subresourceLayers;
+            imageBlitRegion.srcOffsets[1] = mipLevelEndOffset;
+            imageBlitRegion.dstSubresource = subresourceLayers;
+            imageBlitRegion.dstOffsets[1] = mipLevelEndOffset;
+
+            m_pCommandBuffer->blitImage(pVulkanTexture->GetImage(), vk::ImageLayout::eTransferSrcOptimal, pVulkanTexture->GetStagingTexture(), vk::ImageLayout::eTransferDstOptimal, 1, &imageBlitRegion, vk::Filter::eNearest);
+          }
+        }
+      }
+      else if (pVulkanTexture->GetImageFormat() == pVulkanTexture->GetStagingImageFormat())
+      {
+        ezHybridArray<vk::ImageCopy, 16> regions;
         for (ezUInt32 uiMipLevel = 0; uiMipLevel < textureDesc.m_uiMipLevelCount; uiMipLevel++)
         {
           vk::Extent3D mipLevelSize = pVulkanTexture->GetMipLevelSize(uiMipLevel);
-          vk::Offset3D mipLevelEndOffset = {(ezInt32)mipLevelSize.width, (ezInt32)mipLevelSize.height, (ezInt32)mipLevelSize.depth};
 
           vk::ImageSubresourceLayers subresourceLayers;
-          // We do not support stencil uploads right now.
           subresourceLayers.aspectMask = imageAspect;
           subresourceLayers.mipLevel = uiMipLevel;
-          subresourceLayers.baseArrayLayer = uiLayer;
-          subresourceLayers.layerCount = 1;
+          subresourceLayers.baseArrayLayer = 0;
+          subresourceLayers.layerCount = textureDesc.m_uiArraySize;
 
-          vk::ImageBlit imageBlitRegion;
-          imageBlitRegion.srcSubresource = subresourceLayers;
-          imageBlitRegion.srcOffsets[1] = mipLevelEndOffset;
-          imageBlitRegion.dstSubresource = subresourceLayers;
-          imageBlitRegion.dstOffsets[1] = mipLevelEndOffset;
+          vk::ImageCopy mipCopy;
+          mipCopy.srcSubresource = subresourceLayers;
+          mipCopy.dstSubresource = subresourceLayers;
+          mipCopy.extent = mipLevelSize;
 
-          m_pCommandBuffer->blitImage(pVulkanTexture->GetImage(), vk::ImageLayout::eTransferSrcOptimal, pVulkanTexture->GetStagingTexture(), vk::ImageLayout::eTransferDstOptimal, 1, &imageBlitRegion, vk::Filter::eNearest);
+          regions.PushBack(mipCopy);
         }
+        m_pCommandBuffer->copyImage(pVulkanTexture->GetImage(), vk::ImageLayout::eTransferSrcOptimal, pVulkanTexture->GetStagingTexture(), vk::ImageLayout::eTransferDstOptimal, vk::ArrayProxy(regions.GetCount(), regions.GetData()));
       }
-    }
-    else if (pVulkanTexture->GetImageFormat() == pVulkanTexture->GetStagingImageFormat())
-    {
-      ezHybridArray<vk::ImageCopy, 16> regions;
-      for (ezUInt32 uiMipLevel = 0; uiMipLevel < textureDesc.m_uiMipLevelCount; uiMipLevel++)
+
       {
-        vk::Extent3D mipLevelSize = pVulkanTexture->GetMipLevelSize(uiMipLevel);
+        // staging texture layout currently not tracked.
+        vk::ImageMemoryBarrier imageBarrier;
+        imageBarrier.srcAccessMask = vk::AccessFlagBits::eTransferWrite;
+        imageBarrier.dstAccessMask = vk::AccessFlagBits::eMemoryRead;
+        imageBarrier.oldLayout = vk::ImageLayout::eTransferDstOptimal;
+        imageBarrier.newLayout = vk::ImageLayout::eGeneral;
+        imageBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        imageBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        imageBarrier.image = pVulkanTexture->GetStagingTexture();
+        imageBarrier.subresourceRange = pVulkanTexture->GetFullRange();
+        imageBarrier.subresourceRange.aspectMask = pVulkanTexture->GetStagingAspectMask();
 
-        vk::ImageSubresourceLayers subresourceLayers;
-        subresourceLayers.aspectMask = imageAspect;
-        subresourceLayers.mipLevel = uiMipLevel;
-        subresourceLayers.baseArrayLayer = 0;
-        subresourceLayers.layerCount = textureDesc.m_uiArraySize;
-
-        vk::ImageCopy mipCopy;
-        mipCopy.srcSubresource = subresourceLayers;
-        mipCopy.dstSubresource = subresourceLayers;
-        mipCopy.extent = mipLevelSize;
-
-        regions.PushBack(mipCopy);
+        m_pCommandBuffer->pipelineBarrier(vk::PipelineStageFlagBits::eTransfer, vk::PipelineStageFlagBits::eTransfer, vk::DependencyFlags(), 0, nullptr, 0, nullptr, 1, &imageBarrier);
       }
-      m_pCommandBuffer->copyImage(pVulkanTexture->GetImage(), vk::ImageLayout::eTransferSrcOptimal, pVulkanTexture->GetStagingTexture(), vk::ImageLayout::eTransferDstOptimal, vk::ArrayProxy(regions.GetCount(), regions.GetData()));
     }
     else
     {
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      ezImageCopyVulkan copy(m_GALDeviceVulkan);
+      copy.Init(pVulkanTexture, pVulkanTexture, true, ezShaderUtils::ezBuiltinShaderType::CopyImage);
+      for (ezUInt32 uiMipLevel = 0; uiMipLevel < textureDesc.m_uiMipLevelCount; uiMipLevel++)
+      {
+        vk::ImageSubresourceLayers subresourceLayersSource;
+        subresourceLayersSource.aspectMask = imageAspect;
+        subresourceLayersSource.mipLevel = uiMipLevel;
+        subresourceLayersSource.baseArrayLayer = 0;
+        subresourceLayersSource.layerCount = textureDesc.m_uiArraySize;
+
+        vk::ImageSubresourceLayers subresourceLayersTarget;
+        subresourceLayersTarget.aspectMask = pVulkanTexture->GetStagingAspectMask();
+        subresourceLayersTarget.mipLevel = uiMipLevel;
+        subresourceLayersTarget.baseArrayLayer = 0;
+        subresourceLayersTarget.layerCount = textureDesc.m_uiArraySize;
+
+        vk::Extent3D mipLevelSize = pVulkanTexture->GetMipLevelSize(0);
+        copy.Copy({0, 0, 0}, subresourceLayersSource, {0, 0, 0}, subresourceLayersTarget, {mipLevelSize.width, mipLevelSize.height, mipLevelSize.depth});
+      }
+      m_bPipelineStateDirty = true;
+      m_bViewportDirty = true;
+      m_bDescriptorsDirty = true;
     }
 
     // There is no need to change the layout back of this texture right now but as the next layout will most certainly not be another eTransferSrcOptimal we might as well change it back to its default state.
     m_pPipelineBarrier->EnsureImageLayout(pVulkanTexture, pVulkanTexture->GetPreferredLayout(), pVulkanTexture->GetUsedByPipelineStage(), pVulkanTexture->GetAccessMask());
-
-    {
-      // staging texture layout currently not tracked.
-      vk::ImageMemoryBarrier imageBarrier;
-      imageBarrier.srcAccessMask = vk::AccessFlagBits::eTransferWrite;
-      imageBarrier.dstAccessMask = vk::AccessFlagBits::eMemoryRead;
-      imageBarrier.oldLayout = vk::ImageLayout::eTransferDstOptimal;
-      imageBarrier.newLayout = vk::ImageLayout::eGeneral;
-      imageBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-      imageBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-      imageBarrier.image = pVulkanTexture->GetStagingTexture();
-      imageBarrier.subresourceRange = pVulkanTexture->GetFullRange();
-      imageBarrier.subresourceRange.aspectMask = pVulkanTexture->GetStagingAspectMask();
-
-      m_pCommandBuffer->pipelineBarrier(vk::PipelineStageFlagBits::eTransfer, vk::PipelineStageFlagBits::eTransfer, vk::DependencyFlags(), 0, nullptr, 0, nullptr, 1, &imageBarrier);
-    }
   }
 
   //#TODO_VULKAN readback fence
   m_GALDeviceVulkan.Submit({}, {}, {});
   m_vkDevice.waitIdle();
+  m_pPipelineBarrier = &m_GALDeviceVulkan.GetCurrentPipelineBarrier();
   m_pCommandBuffer = &m_GALDeviceVulkan.GetCurrentCommandBuffer();
 }
 
@@ -625,17 +640,6 @@ void ezGALCommandEncoderImplVulkan::CopyTextureReadbackResultPlatform(const ezGA
   const ezGALTextureCreationDescription& textureDesc = pVulkanTexture->GetDescription();
   vk::ImageAspectFlags imageAspect = ezGALResourceFormat::IsDepthFormat(textureDesc.m_Format) ? vk::ImageAspectFlagBits::eDepth : vk::ImageAspectFlagBits::eColor;
   vk::ImageAspectFlags stagingAspect = pVulkanTexture->GetStagingAspectMask();
-  if (ezGALResourceFormat::IsDepthFormat(textureDesc.m_Format))
-  {
-    //#TODO_VULKAN readback of depth buffers not implemented yet. This does not assert to make the editor start.
-    static bool bReported = false;
-    if (!bReported)
-    {
-      bReported = true;
-      ezLog::Error("CPU readback of depth buffers not implemented yet.");
-    }
-    return;
-  }
 
   const ezUInt32 uiSubResources = SourceSubResource.GetCount();
 
@@ -647,7 +651,7 @@ void ezGALCommandEncoderImplVulkan::CopyTextureReadbackResultPlatform(const ezGA
     const ezGALTextureSubresource& subRes = SourceSubResource[i];
     const ezGALSystemMemoryDescription& memDesc = TargetData[i];
 
-    vk::ImageSubresource subResource{imageAspect, subRes.m_uiMipLevel, subRes.m_uiArraySlice};
+    vk::ImageSubresource subResource{ stagingAspect, subRes.m_uiMipLevel, subRes.m_uiArraySlice};
     vk::SubresourceLayout subResourceLayout;
     m_vkDevice.getImageSubresourceLayout(pVulkanTexture->GetStagingTexture(), &subResource, &subResourceLayout);
     ezUInt8* pSubResourceData = reinterpret_cast<ezUInt8*>(pData) + subResourceLayout.offset;
@@ -749,7 +753,37 @@ void ezGALCommandEncoderImplVulkan::GenerateMipMapsPlatform(const ezGALResourceV
     }
     else
     {
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      {
+        vk::ImageSubresourceRange otherLevels = viewRange;
+        otherLevels.baseMipLevel += 1;
+        otherLevels.levelCount -= 1;
+        m_pPipelineBarrier->EnsureImageLayout(pVulkanTexture, otherLevels, vk::ImageLayout::eColorAttachmentOptimal, vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::AccessFlagBits::eColorAttachmentWrite);
+      }
+
+      ezImageCopyVulkan copy(m_GALDeviceVulkan);
+      copy.Init(pVulkanTexture, pVulkanTexture, false, ezShaderUtils::ezBuiltinShaderType::DownscaleImage);
+      for (ezUInt32 uiMipLevel = viewRange.baseMipLevel; uiMipLevel < (viewRange.baseMipLevel + viewRange.levelCount - 1); uiMipLevel++)
+      {
+        vk::Extent3D sourceMipLevelSize = pVulkanTexture->GetMipLevelSize(uiMipLevel);
+        vk::Offset3D sourceMipLevelEndOffset = {(ezInt32)sourceMipLevelSize.width, (ezInt32)sourceMipLevelSize.height, (ezInt32)sourceMipLevelSize.depth};
+        vk::Extent3D destinationMipLevelSize = pVulkanTexture->GetMipLevelSize(uiMipLevel + 1);
+        vk::Offset3D destinationMipLevelEndOffset = {(ezInt32)destinationMipLevelSize.width, (ezInt32)destinationMipLevelSize.height, (ezInt32)destinationMipLevelSize.depth};
+
+        vk::ImageSubresourceLayers sourceLayers;
+        sourceLayers.aspectMask = viewRange.aspectMask;
+        sourceLayers.mipLevel = uiMipLevel;
+        sourceLayers.baseArrayLayer = viewRange.baseArrayLayer;
+        sourceLayers.layerCount = viewRange.layerCount;
+
+        vk::ImageSubresourceLayers destinationLayers = sourceLayers;
+        destinationLayers.mipLevel++;
+
+        vk::Extent3D mipLevelSize = pVulkanTexture->GetMipLevelSize(0);
+        copy.Copy({0, 0, 0}, sourceLayers, {0, 0, 0}, destinationLayers, { (ezUInt32)destinationMipLevelSize.width, (ezUInt32)destinationMipLevelSize.height, (ezUInt32)destinationMipLevelSize.depth });
+      }
+      m_bPipelineStateDirty = true;
+      m_bViewportDirty = true;
+      m_bDescriptorsDirty = true;
     }
   }
 }
@@ -793,7 +827,7 @@ void ezGALCommandEncoderImplVulkan::BeginRendering(const ezGALRenderingSetup& re
   m_PipelineDesc.m_renderPass = ezResourceCacheVulkan::RequestRenderPass(renderingSetup);
   m_PipelineDesc.m_uiAttachmentCount = renderingSetup.m_RenderTargetSetup.GetRenderTargetCount();
   ezSizeU32 size;
-  m_frameBuffer = ezResourceCacheVulkan::RequestFrameBuffer(m_PipelineDesc.m_renderPass, renderingSetup.m_RenderTargetSetup, size, m_PipelineDesc.m_msaa);
+  m_frameBuffer = ezResourceCacheVulkan::RequestFrameBuffer(m_PipelineDesc.m_renderPass, renderingSetup.m_RenderTargetSetup, size, m_PipelineDesc.m_msaa, m_uiLayers);
 
   SetScissorRectPlatform(ezRectU32(size.width, size.height));
 
@@ -805,16 +839,17 @@ void ezGALCommandEncoderImplVulkan::BeginRendering(const ezGALRenderingSetup& re
 
     m_clearValues.Clear();
 
-    const bool bHasDepth = !renderingSetup.m_RenderTargetSetup.GetDepthStencilTarget().IsInvalidated();
+    const bool m_bHasDepth = !renderingSetup.m_RenderTargetSetup.GetDepthStencilTarget().IsInvalidated();
     const ezUInt32 uiColorCount = renderingSetup.m_RenderTargetSetup.GetRenderTargetCount();
     m_bClearSubmitted = !(renderingSetup.m_bClearDepth || renderingSetup.m_bClearStencil || renderingSetup.m_uiRenderTargetClearMask);
 
-    if (bHasDepth)
+    if (m_bHasDepth)
     {
       vk::ClearValue& depthClear = m_clearValues.ExpandAndGetRef();
       depthClear.depthStencil.setDepth(1.0f).setStencil(0);
 
       const ezGALRenderTargetViewVulkan* pRenderTargetView = static_cast<const ezGALRenderTargetViewVulkan*>(m_GALDeviceVulkan.GetRenderTargetView(renderingSetup.m_RenderTargetSetup.GetDepthStencilTarget()));
+      m_depthMask = pRenderTargetView->GetRange().aspectMask;
       m_pPipelineBarrier->EnsureImageLayout(pRenderTargetView, vk::ImageLayout::eDepthStencilAttachmentOptimal, vk::PipelineStageFlagBits::eEarlyFragmentTests | vk::PipelineStageFlagBits::eLateFragmentTests, vk::AccessFlagBits::eDepthStencilAttachmentWrite);
     }
     for (ezUInt32 i = 0; i < uiColorCount; i++)
@@ -852,6 +887,8 @@ void ezGALCommandEncoderImplVulkan::EndRendering()
     m_bRenderPassActive = false;
   }
 
+  m_depthMask = {};
+  m_uiLayers = 0;
   m_PipelineDesc.m_msaa = ezGALMSAASampleCount::None;
   m_PipelineDesc.m_renderPass = nullptr;
   m_frameBuffer = nullptr;
@@ -859,8 +896,50 @@ void ezGALCommandEncoderImplVulkan::EndRendering()
 
 void ezGALCommandEncoderImplVulkan::ClearPlatform(const ezColor& ClearColor, ezUInt32 uiRenderTargetClearMask, bool bClearDepth, bool bClearStencil, float fDepthClear, ezUInt8 uiStencilClear)
 {
-  // TODO:
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  if (!m_bRenderPassActive && !m_bInsideCompute)
+  {
+    m_pCommandBuffer->beginRenderPass(m_renderPass, vk::SubpassContents::eInline);
+    m_bClearSubmitted = true;
+    m_bRenderPassActive = true;
+  }
+  //#TODO_VULKAN Not sure if we need barriers here.
+  ezHybridArray<vk::ClearAttachment, 8> attachments;
+
+  // Clear color
+  if (uiRenderTargetClearMask != 0)
+  {
+    for (ezUInt32 i = 0; i < EZ_GAL_MAX_RENDERTARGET_COUNT; i++)
+    {
+      if (uiRenderTargetClearMask & (1u << i) && i < m_PipelineDesc.m_uiAttachmentCount)
+      {
+        vk::ClearAttachment& attachment = attachments.ExpandAndGetRef();
+        attachment.aspectMask = vk::ImageAspectFlagBits::eColor;
+        attachment.clearValue.color.setFloat32({ClearColor.r, ClearColor.g, ClearColor.b, ClearColor.a});
+        attachment.colorAttachment = i;
+      }
+    }
+  }
+  // Clear depth / stencil
+  if (bClearDepth || bClearStencil)
+  {
+    vk::ClearAttachment& attachment = attachments.ExpandAndGetRef();
+    if (bClearDepth && (m_depthMask & vk::ImageAspectFlagBits::eDepth))
+    {
+      attachment.aspectMask |= vk::ImageAspectFlagBits::eDepth;
+      attachment.clearValue.depthStencil.setDepth(fDepthClear);
+    }
+    if (bClearStencil && (m_depthMask & vk::ImageAspectFlagBits::eStencil))
+    {
+      attachment.aspectMask |= vk::ImageAspectFlagBits::eStencil;
+      attachment.clearValue.depthStencil.setStencil(uiStencilClear);
+    }
+  }
+
+  vk::ClearRect rect;
+  rect.baseArrayLayer = 0;
+  rect.layerCount = m_uiLayers;
+  rect.rect = m_renderPass.renderArea;
+  m_pCommandBuffer->clearAttachments(attachments.GetCount(), attachments.GetData(), 1, &rect);
 }
 
 // Draw functions

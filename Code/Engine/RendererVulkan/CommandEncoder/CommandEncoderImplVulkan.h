@@ -142,7 +142,7 @@ private:
   bool m_bIndexBufferDirty = false;
   bool m_bDescriptorsDirty = false;
   ezGAL::ModifiedRange m_BoundVertexBuffersRange;
-  bool m_bRenderPassActive = false;
+  bool m_bRenderPassActive = false; ///< #TODO_VULKAN Disabling and re-enabling the render pass is buggy as we might execute a clear twice.
   bool m_bClearSubmitted = false; ///< Start render pass is lazy so if no draw call is executed we need to make sure the clear is executed anyways.
   bool m_bInsideCompute = false;  ///< Within BeginCompute / EndCompute block.
 
@@ -154,6 +154,8 @@ private:
   vk::Framebuffer m_frameBuffer;
   vk::RenderPassBeginInfo m_renderPass;
   ezHybridArray<vk::ClearValue, EZ_GAL_MAX_RENDERTARGET_COUNT + 1> m_clearValues;
+  vk::ImageAspectFlags m_depthMask = {};
+  ezUInt32 m_uiLayers = 0;
 
   vk::Viewport m_viewport;
   vk::Rect2D m_scissor;

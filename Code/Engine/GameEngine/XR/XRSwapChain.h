@@ -16,6 +16,7 @@ public:
 
 public:
   ezGALXRSwapChain(ezXRInterface* pXrInterface);
+  virtual ezResult UpdateSwapChain(ezGALDevice* pDevice, ezEnum<ezGALPresentMode> newPresentMode) override;
 
 protected:
   static Functor s_Factory;

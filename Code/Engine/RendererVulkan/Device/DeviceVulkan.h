@@ -275,7 +275,7 @@ private:
   Queue m_transferQueue;
 
   ezGALFormatLookupTableVulkan m_FormatLookupTable;
-
+  vk::PipelineStageFlags m_supportedStages;
   vk::PhysicalDeviceMemoryProperties m_memoryProperties;
 
   ezUniquePtr<ezGALPassVulkan> m_pDefaultPass;

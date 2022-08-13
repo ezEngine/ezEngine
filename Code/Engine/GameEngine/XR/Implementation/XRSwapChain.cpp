@@ -18,6 +18,11 @@ ezGALXRSwapChain::ezGALXRSwapChain(ezXRInterface* pXrInterface)
 {
 }
 
+ezResult ezGALXRSwapChain::UpdateSwapChain(ezGALDevice* pDevice, ezEnum<ezGALPresentMode> newPresentMode)
+{
+  return EZ_FAILURE;
+}
+
 void ezGALXRSwapChain::SetFactoryMethod(Functor factory)
 {
   s_Factory = factory;

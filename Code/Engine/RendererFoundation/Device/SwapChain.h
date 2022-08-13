@@ -14,6 +14,7 @@ public:
 
   virtual void AcquireNextRenderTarget(ezGALDevice* pDevice) = 0;
   virtual void PresentRenderTarget(ezGALDevice* pDevice) = 0;
+  virtual ezResult UpdateSwapChain(ezGALDevice* pDevice, ezEnum<ezGALPresentMode> newPresentMode) = 0;
 
   virtual ~ezGALSwapChain();
 
@@ -39,7 +40,7 @@ public:
   static ezGALSwapChainHandle Create(const ezGALWindowSwapChainCreationDescription& desc);
 
 public:
-  const ezGALWindowSwapChainCreationDescription& GetWindowDescription() { return m_WindowDesc; }
+  const ezGALWindowSwapChainCreationDescription& GetWindowDescription() const { return m_WindowDesc; }
 
 protected:
   ezGALWindowSwapChain(const ezGALWindowSwapChainCreationDescription& Description);

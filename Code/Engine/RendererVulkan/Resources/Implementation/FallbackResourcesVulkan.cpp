@@ -58,8 +58,13 @@ void ezFallbackResourcesVulkan::GALDeviceEventHandler(const ezGALDeviceEvent& e)
         m_ResourceViews[{vk::DescriptorType::eSampledImage, ezShaderResourceType::Texture2D}] = hView;
         m_ResourceViews[{vk::DescriptorType::eSampledImage, ezShaderResourceType::Texture2DArray}] = hView;
       }
+
+      // Swift shader can only do 4x MSAA. Add a check anyways.
+      vk::ImageFormatProperties props;
+      vk::Result res = s_pDevice->GetVulkanPhysicalDevice().getImageFormatProperties(vk::Format::eB8G8R8A8Srgb, vk::ImageType::e2D, vk::ImageTiling::eOptimal, vk::ImageUsageFlagBits::eSampled, {}, &props);
+      if (res == vk::Result::eSuccess && props.sampleCounts & vk::SampleCountFlagBits::e4)
       {
-        ezGALResourceViewHandle hView = CreateTexture(ezGALTextureType::Texture2D, ezGALMSAASampleCount::TwoSamples);
+        ezGALResourceViewHandle hView = CreateTexture(ezGALTextureType::Texture2D, ezGALMSAASampleCount::FourSamples);
         m_ResourceViews[{vk::DescriptorType::eSampledImage, ezShaderResourceType::Texture2DMS}] = hView;
         m_ResourceViews[{vk::DescriptorType::eSampledImage, ezShaderResourceType::Texture2DMSArray}] = hView;
       }

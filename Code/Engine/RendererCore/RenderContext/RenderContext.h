@@ -18,6 +18,7 @@
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Device/Pass.h>
 #include <RendererFoundation/Shader/Shader.h>
+#include <RendererFoundation/Shader/ShaderUtils.h>
 
 #include <RendererCore/../../../Data/Base/Shaders/Common/GlobalConstants.h>
 
@@ -266,6 +267,7 @@ public:
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(RendererCore, RendererContext);
 
+  static void LoadBuiltinShader(ezShaderUtils::ezBuiltinShaderType type, ezShaderUtils::ezBuiltinShader& out_shader);
   static void OnEngineShutdown();
 
 private:

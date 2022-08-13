@@ -351,6 +351,8 @@ void ezReflectionPool::OnRenderEvent(const ezRenderWorldRenderEvent& e)
           desc.m_uiFirstSlice = uiFaceIndex;
           desc.m_uiSliceCount = 1;
           renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, pDevice->CreateRenderTargetView(desc));
+          renderingSetup.m_ClearColor = ezColor(0, 0, 0, 1);
+          renderingSetup.m_uiRenderTargetClearMask = 0xFFFFFFFF;
 
           auto pGALCommandEncoder = pGALPass->BeginRendering(renderingSetup, "ClearSkySpecular");
           pGALCommandEncoder->Clear(ezColor::Black);

@@ -101,6 +101,13 @@ void ezGALSwapChainVulkan::PresentRenderTarget(ezGALDevice* pDevice)
   pVulkanDevice->ReclaimLater(currentPipelineRenderFinishedSemaphore);
 }
 
+ezResult ezGALSwapChainVulkan::UpdateSwapChain(ezGALDevice* pDevice, ezEnum<ezGALPresentMode> newPresentMode)
+{
+  EZ_ASSERT_DEBUG(!m_currentPipelineImageAvailableSemaphore, "UpdateSwapChain must not be called between AcquireNextRenderTarget and PresentRenderTarget.");
+  m_currentPresentMode = newPresentMode;
+  return CreateSwapChainInternal();
+}
+
 ezGALSwapChainVulkan::ezGALSwapChainVulkan(const ezGALWindowSwapChainCreationDescription& Description)
   : ezGALWindowSwapChain(Description)
   , m_vulkanSwapChain(nullptr)
@@ -112,6 +119,7 @@ ezGALSwapChainVulkan::~ezGALSwapChainVulkan() {}
 ezResult ezGALSwapChainVulkan::InitPlatform(ezGALDevice* pDevice)
 {
   m_pVulkanDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
+  m_currentPresentMode = m_WindowDesc.m_InitialPresentMode;
 
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
   vk::Win32SurfaceCreateInfoKHR surfaceCreateInfo = {};
@@ -132,7 +140,11 @@ ezResult ezGALSwapChainVulkan::InitPlatform(ezGALDevice* pDevice)
     ezLog::Error("Failed to create Vulkan surface for window \"{}\"", m_WindowDesc.m_pWindow);
     return EZ_FAILURE;
   }
+  return CreateSwapChainInternal();
+}
 
+ezResult ezGALSwapChainVulkan::CreateSwapChainInternal()
+{
   uint32_t uiPresentModes = 0;
   VK_SUCCEED_OR_RETURN_EZ_FAILURE(m_pVulkanDevice->GetVulkanPhysicalDevice().getSurfacePresentModesKHR(m_vulkanSurface, &uiPresentModes, nullptr));
   ezHybridArray<vk::PresentModeKHR, 4> presentModes;
@@ -202,16 +214,20 @@ ezResult ezGALSwapChainVulkan::InitPlatform(ezGALDevice* pDevice)
 
   swapChainCreateInfo.imageUsage = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferDst; // We need eTransferDst to be able to resolve msaa textures into the backbuffer.
   if (m_WindowDesc.m_bAllowScreenshots)
-    swapChainCreateInfo.imageUsage |= vk::ImageUsageFlagBits::eTransferSrc;
+    swapChainCreateInfo.imageUsage |= vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eSampled;
 
   swapChainCreateInfo.minImageCount = m_WindowDesc.m_bDoubleBuffered ? 2 : 1;
-  swapChainCreateInfo.presentMode = ezConversionUtilsVulkan::GetPresentMode(m_WindowDesc.m_PresentMode, presentModes);
+  swapChainCreateInfo.presentMode = ezConversionUtilsVulkan::GetPresentMode(m_currentPresentMode, presentModes);
   swapChainCreateInfo.preTransform = vk::SurfaceTransformFlagBitsKHR::eIdentity;
   swapChainCreateInfo.surface = m_vulkanSurface;
 
   swapChainCreateInfo.imageSharingMode = vk::SharingMode::eExclusive;
   swapChainCreateInfo.pQueueFamilyIndices = nullptr;
   swapChainCreateInfo.queueFamilyIndexCount = 0;
+
+  // We must pass in the old swap chain or NVidia will crash.
+  swapChainCreateInfo.oldSwapchain = m_vulkanSwapChain;
+  DestroySwapChainInternal(m_pVulkanDevice);
 
   m_vulkanSwapChain = m_pVulkanDevice->GetVulkanDevice().createSwapchainKHR(swapChainCreateInfo);
 
@@ -245,25 +261,29 @@ ezResult ezGALSwapChainVulkan::InitPlatform(ezGALDevice* pDevice)
     TexDesc.m_ResourceAccess.m_bReadBack = m_WindowDesc.m_bAllowScreenshots;
     m_swapChainTextures.PushBack(m_pVulkanDevice->CreateTextureInternal(TexDesc, ezArrayPtr<ezGALSystemMemoryDescription>(), desiredFormat));
   }
-
   m_RenderTargets.m_hRTs[0] = m_swapChainTextures[0];
   return EZ_SUCCESS;
 }
 
-ezResult ezGALSwapChainVulkan::DeInitPlatform(ezGALDevice* pDevice)
+void ezGALSwapChainVulkan::DestroySwapChainInternal(ezGALDeviceVulkan* pVulkanDevice)
 {
   ezUInt32 uiSwapChainImages = m_swapChainTextures.GetCount();
   for (ezUInt32 i = 0; i < uiSwapChainImages; i++)
   {
-    pDevice->DestroyTexture(m_swapChainTextures[i]);
+    pVulkanDevice->DestroyTexture(m_swapChainTextures[i]);
   }
   m_swapChainTextures.Clear();
 
-  ezGALDeviceVulkan* pVulkanDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
   if (m_vulkanSwapChain)
   {
     pVulkanDevice->DeleteLater(m_vulkanSwapChain);
   }
+}
+
+ezResult ezGALSwapChainVulkan::DeInitPlatform(ezGALDevice* pDevice)
+{
+  ezGALDeviceVulkan* pVulkanDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
+  DestroySwapChainInternal(pVulkanDevice);
   if (m_vulkanSurface)
   {
 

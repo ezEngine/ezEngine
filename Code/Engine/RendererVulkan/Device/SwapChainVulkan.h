@@ -14,6 +14,7 @@ class ezGALSwapChainVulkan : public ezGALWindowSwapChain
 public:
   virtual void AcquireNextRenderTarget(ezGALDevice* pDevice) override;
   virtual void PresentRenderTarget(ezGALDevice* pDevice) override;
+  virtual ezResult UpdateSwapChain(ezGALDevice* pDevice, ezEnum<ezGALPresentMode> newPresentMode) override;
 
   EZ_ALWAYS_INLINE vk::SwapchainKHR GetVulkanSwapChain() const;
 
@@ -26,10 +27,13 @@ protected:
   virtual ~ezGALSwapChainVulkan();
 
   virtual ezResult InitPlatform(ezGALDevice* pDevice) override;
+  ezResult CreateSwapChainInternal();
+  void DestroySwapChainInternal(ezGALDeviceVulkan* pVulkanDevice);
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
 
 protected:
   ezGALDeviceVulkan* m_pVulkanDevice = nullptr;
+  ezEnum<ezGALPresentMode> m_currentPresentMode;
 
   vk::SurfaceKHR m_vulkanSurface;
   vk::SwapchainKHR m_vulkanSwapChain;

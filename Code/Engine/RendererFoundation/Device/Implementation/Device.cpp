@@ -1008,6 +1008,23 @@ ezGALSwapChainHandle ezGALDevice::CreateSwapChain(const SwapChainFactoryFunction
   return ezGALSwapChainHandle(m_SwapChains.Insert(pSwapChain));
 }
 
+ezResult ezGALDevice::UpdateSwapChain(ezGALSwapChainHandle hSwapChain, ezEnum<ezGALPresentMode> newPresentMode)
+{
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
+  ezGALSwapChain* pSwapChain = nullptr;
+
+  if (m_SwapChains.TryGetValue(hSwapChain, pSwapChain))
+  {
+    return pSwapChain->UpdateSwapChain(this, newPresentMode);
+  }
+  else
+  {
+    ezLog::Warning("UpdateSwapChain called on invalid handle.");
+    return EZ_FAILURE;
+  }
+}
+
 void ezGALDevice::DestroySwapChain(ezGALSwapChainHandle hSwapChain)
 {
   EZ_GALDEVICE_LOCK_AND_CHECK();
