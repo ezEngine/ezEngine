@@ -106,7 +106,7 @@ void ezDynamicArrayBase<T>::Swap(ezDynamicArrayBase<T>& other)
   {
     constexpr ezUInt32 InplaceStorageSize = 64;
 
-    struct Tmp : ezAligned<EZ_ALIGNMENT_OF(T)>
+    struct alignas(EZ_ALIGNMENT_OF(T)) Tmp
     {
       ezUInt8 m_StaticData[InplaceStorageSize * sizeof(T)];
     };

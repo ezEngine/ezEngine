@@ -12,28 +12,18 @@ jobs:
 - job: Job_1
   displayName: Linux-x64
   pool:
-    vmImage: 'ubuntu-20.04'
+    vmImage: 'ubuntu-22.04'
   steps:
   - checkout: self
     submodules: true
     lfs: true
-  - task: Bash@3
-    displayName: QT
-    inputs:
-      targetType: inline
-      filePath: sudo apt-get update
-      script: |
-        # For now qt5-default on ubuntu-20.04 is good enough for us and we don't need to add a custom repo.
-        #sudo add-apt-repository ppa:beineri/opt-qt-5.11.1-xenial
-        #sudo apt update
-        #sudo apt install qt511-meta-full
   - task: Bash@3
     displayName: Apt-Get
     inputs:
       targetType: inline
       script: |
         sudo apt-get update
-        sudo apt-get install -y cmake uuid-dev libx11-dev build-essential qt5-default libqt5svg5-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libqt5x11extras5-dev
+        sudo apt-get install -y cmake uuid-dev gcc-12 g++-12 libx11-dev build-essential qtbase5-dev qtbase5-dev-tools libqt5svg5-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libqt5x11extras5-dev
   - task: Bash@3
     displayName: Info
     inputs:
@@ -47,7 +37,7 @@ jobs:
   - task: CMake@1
     displayName: CMake
     inputs:
-      cmakeArgs: -DCMAKE_PREFIX_PATH=/opt/qt511/ -DCMAKE_BUILD_TYPE=Dev -DCMAKE_CXX_COMPILER=g++-10 -DCMAKE_C_COMPILER=gcc-10 -DEZ_ENABLE_FOLDER_UNITY_FILES=$(unityfiles) -G "Unix Makefiles" ../
+      cmakeArgs: -DCMAKE_PREFIX_PATH=/opt/qt511/ -DCMAKE_BUILD_TYPE=Dev -DCMAKE_CXX_COMPILER=g++-12 -DCMAKE_C_COMPILER=gcc-12 -DEZ_ENABLE_FOLDER_UNITY_FILES=$(unityfiles) -G "Unix Makefiles" ../
   - task: Bash@3
     displayName: Make
     inputs:

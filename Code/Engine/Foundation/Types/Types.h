@@ -140,68 +140,6 @@ class ezBitflagsBase
 {
 };
 
-/// \brief Alignment helper. Derive from this struct if alignment is depending on a template parameter.
-/// If alignment is fixed always use the EZ_ALIGN macro.
-template <size_t Alignment>
-struct ezAligned;
-template <>
-struct EZ_ALIGN(ezAligned<1>, 1)
-{
-};
-template <>
-struct EZ_ALIGN(ezAligned<2>, 2)
-{
-};
-template <>
-struct EZ_ALIGN(ezAligned<4>, 4)
-{
-};
-template <>
-struct EZ_ALIGN(ezAligned<8>, 8)
-{
-};
-template <>
-struct EZ_ALIGN(ezAligned<16>, 16)
-{
-};
-template <>
-struct EZ_ALIGN(ezAligned<32>, 32)
-{
-};
-template <>
-struct EZ_ALIGN(ezAligned<64>, 64)
-{
-};
-template <>
-struct EZ_ALIGN(ezAligned<128>, 128)
-{
-};
-template <>
-struct EZ_ALIGN(ezAligned<256>, 256)
-{
-};
-template <>
-struct EZ_ALIGN(ezAligned<512>, 512)
-{
-};
-template <>
-struct EZ_ALIGN(ezAligned<1024>, 1024)
-{
-};
-template <>
-struct EZ_ALIGN(ezAligned<2048>, 2048)
-{
-};
-template <>
-struct EZ_ALIGN(ezAligned<4096>, 4096)
-{
-};
-template <>
-struct EZ_ALIGN(ezAligned<8192>, 8192)
-{
-};
-
-
 /// \brief Helper struct to get a storage type from a size in byte.
 template <size_t SizeInByte>
 struct ezSizeToType;
