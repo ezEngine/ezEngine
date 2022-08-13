@@ -1,0 +1,16 @@
+{
+    "Registrations": [
+        {
+            "component": {
+                "type": "git",
+                "git": {
+                    "name": "ezEngine",
+                    "repositoryUrl": "https://github.com/ezEngine/ezEngine",
+                    "commitHash": "b0073763c8ee6a2385876301a76d4250617d0284"
+                }
+            },
+            "license": "MIT"
+        }
+    ],
+    "version": 1
+}

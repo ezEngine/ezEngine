@@ -15,14 +15,3 @@ target_link_libraries(${PROJECT_NAME}
   Core
   Jolt
 )
-
-if (EZ_3RDPARTY_VHACD_SUPPORT)
-
-  target_link_libraries(${PROJECT_NAME}
-
-    PRIVATE
-    vhacd
-  )
-
-endif()
-

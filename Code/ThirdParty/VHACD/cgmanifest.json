@@ -1,0 +1,16 @@
+{
+    "Registrations": [
+        {
+            "component": {
+                "type": "git",
+                "git": {
+                    "name": "kmammou/v-hacd",
+                    "repositoryUrl": "https://github.com/kmammou/v-hacd",
+                    "commitHash": "43889832cdd6c6f02ef0ff1574e63aedfc25b5af"
+                }
+            },
+            "license": "BSD-3-Clause license"
+        }
+    ],
+    "version": 1
+}

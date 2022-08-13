@@ -16,8 +16,9 @@
 #include <Jolt/Physics/Collision/Shape/MeshShape.h>
 #include <JoltPlugin/Utilities/JoltConversionUtils.h>
 #include <Physics/Collision/Shape/ConvexHullShape.h>
-#include <vhacd/public/VHACD.h>
 
+#define ENABLE_VHACD_IMPLEMENTATION 1
+#include <VHACD/VHACD.h>
 using namespace VHACD;
 
 class ezJoltStreamOut : public JPH::StreamOut
@@ -282,7 +283,6 @@ ezStatus ezJoltCooking::WriteResourceToStream(ezChunkStreamWriter& stream, const
   {
     if (meshType == MeshType::ConvexDecomposition)
     {
-#ifdef BUILDSYSTEM_ENABLE_VHACD_SUPPORT
       stream.BeginChunk("ConvexDecompositionMesh", 1);
 
       ezStopwatch timer;
@@ -290,10 +290,6 @@ ezStatus ezJoltCooking::WriteResourceToStream(ezChunkStreamWriter& stream, const
       ezLog::Dev("Decomposed Convex Mesh Cooking time: {0}s", ezArgF(timer.GetRunningTotal().GetSeconds(), 2));
 
       stream.EndChunk();
-#else
-      meshType = MeshType::ConvexHull;
-      ezLog::SeriousWarning("Convex decomposition support is not available. Computing convex hull instead.");
-#endif
     }
 
     if (meshType == MeshType::ConvexHull)
@@ -315,14 +311,12 @@ ezStatus ezJoltCooking::WriteResourceToStream(ezChunkStreamWriter& stream, const
   return ezStatus(EZ_SUCCESS);
 }
 
-#ifdef BUILDSYSTEM_ENABLE_VHACD_SUPPORT
 ezResult ezJoltCooking::CookDecomposedConvexMesh(const ezJoltCookingMesh& mesh, ezStreamWriter& OutputStream, ezUInt32 uiMaxConvexPieces)
 {
   EZ_LOG_BLOCK("Decomposing Mesh");
 
   IVHACD* pConDec = CreateVHACD();
   IVHACD::Parameters params;
-  params.Init();
   params.m_maxConvexHulls = ezMath::Max(1u, uiMaxConvexPieces);
 
   if (uiMaxConvexPieces <= 2)
@@ -363,7 +357,7 @@ ezResult ezJoltCooking::CookDecomposedConvexMesh(const ezJoltCookingMesh& mesh, 
     IVHACD::ConvexHull ch;
     pConDec->GetConvexHull(i, ch);
 
-    if (ch.m_nTriangles == 0)
+    if (ch.m_triangles.empty())
       continue;
 
     ++uiNumParts;
@@ -378,30 +372,30 @@ ezResult ezJoltCooking::CookDecomposedConvexMesh(const ezJoltCookingMesh& mesh, 
     IVHACD::ConvexHull ch;
     pConDec->GetConvexHull(i, ch);
 
-    if (ch.m_nTriangles == 0)
+    if (ch.m_triangles.empty())
       continue;
 
     ezJoltCookingMesh chm;
 
-    chm.m_Vertices.SetCount(ch.m_nPoints);
+    chm.m_Vertices.SetCount((ezUInt32)ch.m_points.size());
 
-    for (ezUInt32 v = 0; v < ch.m_nPoints; ++v)
+    for (ezUInt32 v = 0; v < (ezUInt32)ch.m_points.size(); ++v)
     {
-      chm.m_Vertices[v].Set((float)ch.m_points[v * 3 + 0], (float)ch.m_points[v * 3 + 1], (float)ch.m_points[v * 3 + 2]);
+      chm.m_Vertices[v].Set((float)ch.m_points[v].mX, (float)ch.m_points[v].mY, (float)ch.m_points[v].mZ);
     }
 
-    chm.m_VerticesInPolygon.SetCount(ch.m_nTriangles);
-    chm.m_PolygonSurfaceID.SetCount(ch.m_nTriangles);
-    chm.m_PolygonIndices.SetCount(ch.m_nTriangles * 3);
+    chm.m_VerticesInPolygon.SetCount((ezUInt32)ch.m_triangles.size());
+    chm.m_PolygonSurfaceID.SetCount((ezUInt32)ch.m_triangles.size());
+    chm.m_PolygonIndices.SetCount((ezUInt32)ch.m_triangles.size() * 3);
 
-    for (ezUInt32 t = 0; t < ch.m_nTriangles; ++t)
+    for (ezUInt32 t = 0; t < (ezUInt32)ch.m_triangles.size(); ++t)
     {
       chm.m_VerticesInPolygon[t] = 3;
       chm.m_PolygonSurfaceID[t] = 0;
 
-      chm.m_PolygonIndices[t * 3 + 0] = ch.m_triangles[t * 3 + 0];
-      chm.m_PolygonIndices[t * 3 + 1] = ch.m_triangles[t * 3 + 1];
-      chm.m_PolygonIndices[t * 3 + 2] = ch.m_triangles[t * 3 + 2];
+      chm.m_PolygonIndices[t * 3 + 0] = ch.m_triangles[t].mI0;
+      chm.m_PolygonIndices[t * 3 + 1] = ch.m_triangles[t].mI1;
+      chm.m_PolygonIndices[t * 3 + 2] = ch.m_triangles[t].mI2;
     }
 
     EZ_SUCCEED_OR_RETURN(CookSingleConvexJoltMesh(chm, OutputStream));
@@ -409,7 +403,5 @@ ezResult ezJoltCooking::CookDecomposedConvexMesh(const ezJoltCookingMesh& mesh, 
 
   return EZ_SUCCESS;
 }
-
-#endif
 
 EZ_STATICLINK_FILE(JoltCooking, JoltCooking_JoltCooking);

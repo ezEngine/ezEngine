@@ -14,17 +14,6 @@ target_link_libraries(${PROJECT_NAME}
 
   PUBLIC
   Core
-
 )
-
-if (EZ_3RDPARTY_VHACD_SUPPORT)
-
-  target_link_libraries(${PROJECT_NAME}
-
-    PRIVATE
-    vhacd
-  )
-
-endif()
 
 ez_link_target_physx_cooking(${PROJECT_NAME})
