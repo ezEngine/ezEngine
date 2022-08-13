@@ -10,14 +10,19 @@
 #include <Foundation/UserConfig.h>
 
 // Configure the DLL Import/Export Define
+// EZ_FOUNDATION_DLL_CPP17 should be used if a class or struct has additional c++17 attributes e.g.
+// struct [[nodiscard]] EZ_FOUNDATION_DLL_CPP17 StructName { ... };
 #if EZ_ENABLED(EZ_COMPILE_ENGINE_AS_DLL)
 #  ifdef BUILDSYSTEM_BUILDING_FOUNDATION_LIB
 #    define EZ_FOUNDATION_DLL EZ_DECL_EXPORT
+#    define EZ_FOUNDATION_DLL_CPP17 EZ_DECL_EXPORT_CPP17
 #  else
 #    define EZ_FOUNDATION_DLL EZ_DECL_IMPORT
+#    define EZ_FOUNDATION_DLL_CPP17 EZ_DECL_IMPORT_CPP17
 #  endif
 #else
 #  define EZ_FOUNDATION_DLL
+#  define EZ_FOUNDATION_DLL_CPP17
 #endif
 
 #include <Foundation/FoundationInternal.h>
