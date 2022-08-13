@@ -174,11 +174,7 @@ void EZ_IGNORE_UNUSED(const T&)
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 #  define EZ_DECL_EXPORT __declspec(dllexport)
 #  define EZ_DECL_IMPORT __declspec(dllimport)
-#  define EZ_DECL_EXPORT_CPP17 __declspec(dllexport)
-#  define EZ_DECL_IMPORT_CPP17 __declspec(dllimport)
 #else
-#  define EZ_DECL_EXPORT __attribute__((visibility("default")))
-#  define EZ_DECL_IMPORT __attribute__((visibility("default")))
-#  define EZ_DECL_EXPORT_CPP17 [[gnu::visibility("default")]]
-#  define EZ_DECL_IMPORT_CPP17 [[gnu::visibility("default")]]
+#  define EZ_DECL_EXPORT [[gnu::visibility("default")]]
+#  define EZ_DECL_IMPORT [[gnu::visibility("default")]]
 #endif

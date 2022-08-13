@@ -14,7 +14,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdFloat)
     EZ_TEST_BOOL(ezMath::IsNaN((float)vDefCtor));
 #else
     // Placement new of the default constructor should not have any effect on the previous data.
-    float EZ_ALIGN_16(testBlock[4]) = {1, 2, 3, 4};
+    alignas(16) float testBlock[4] = {1, 2, 3, 4};
     ezSimdFloat* pDefCtor = ::new ((void*)&testBlock[0]) ezSimdFloat;
     EZ_TEST_BOOL((float)(*pDefCtor) == 1.0f);
 #endif

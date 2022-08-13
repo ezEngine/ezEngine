@@ -513,7 +513,7 @@ private:
 
   void SendNotificationMessage(ezMessage& msg);
 
-  struct EZ_CORE_DLL EZ_ALIGN_16(TransformationData)
+  struct EZ_CORE_DLL alignas(16) TransformationData
   {
     EZ_DECLARE_POD_TYPE();
 

@@ -18,7 +18,7 @@ EZ_ALWAYS_INLINE ezSimdVec4b::ezSimdVec4b(bool x, bool y, bool z, bool w)
 {
   EZ_CHECK_SIMD_ALIGNMENT(this);
 
-  ezUInt32 EZ_ALIGN_16(mask[4]) = {x ? 0xFFFFFFFF : 0, y ? 0xFFFFFFFF : 0, z ? 0xFFFFFFFF : 0, w ? 0xFFFFFFFF : 0};
+  alignas(16) ezUInt32 mask[4] = {x ? 0xFFFFFFFF : 0, y ? 0xFFFFFFFF : 0, z ? 0xFFFFFFFF : 0, w ? 0xFFFFFFFF : 0};
   m_v = _mm_load_ps((float*)mask);
 }
 

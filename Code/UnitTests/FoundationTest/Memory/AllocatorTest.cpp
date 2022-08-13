@@ -20,7 +20,7 @@ struct EZ_ALIGN(NonAlignedVector, EZ_ALIGNMENT_MINIMUM)
   float z;
 };
 
-struct EZ_ALIGN_16(AlignedVector)
+struct alignas(16) AlignedVector
 {
   EZ_DECLARE_POD_TYPE();
 

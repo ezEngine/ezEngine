@@ -63,8 +63,8 @@ public:
   EZ_ALWAYS_INLINE void HashCombine(const ezUuid& hash);
 
 private:
-  friend EZ_FOUNDATION_DLL void operator>>(ezStreamReader& Stream, ezUuid& Value);
-  friend EZ_FOUNDATION_DLL void operator<<(ezStreamWriter& Stream, const ezUuid& Value);
+  friend void operator>>(ezStreamReader& Stream, ezUuid& Value);
+  friend void operator<<(ezStreamWriter& Stream, const ezUuid& Value);
 
   ezUInt64 m_uiHigh;
   ezUInt64 m_uiLow;

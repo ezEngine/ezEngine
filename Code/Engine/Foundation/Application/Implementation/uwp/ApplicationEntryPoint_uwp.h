@@ -20,7 +20,7 @@ namespace ezApplicationDetails
   template <typename AppClass, typename... Args>
   int EntryFunc(Args&&... arguments)
   {
-    EZ_ALIGN_VARIABLE(static char appBuffer[sizeof(AppClass)], EZ_ALIGNMENT_OF(AppClass)); // Not on the stack to cope with smaller stacks.
+    alignas(EZ_ALIGNMENT_OF(AppClass)) static char appBuffer[sizeof(AppClass)]; // Not on the stack to cope with smaller stacks.
 
     if (InitializeWinrt().Failed())
     {
@@ -47,7 +47,7 @@ namespace ezApplicationDetails
 
 /// \brief Same as EZ_APPLICATION_ENTRY_POINT but should be used for applications that shall always show a console window.
 #define EZ_CONSOLEAPP_ENTRY_POINT(AppClass, ...)                                                                                            \
-  EZ_ALIGN_VARIABLE(static char appBuffer[sizeof(AppClass)], EZ_ALIGNMENT_OF(AppClass)); /* Not on the stack to cope with smaller stacks */ \
+  alignas(EZ_ALIGNMENT_OF(AppClass)) static char appBuffer[sizeof(AppClass)]; /* Not on the stack to cope with smaller stacks */ \
                                                                                                                                             \
   EZ_APPLICATION_ENTRY_POINT_CODE_INJECTION                                                                                                 \
   int main(int argc, const char** argv) { return ::ezApplicationDetails::EntryFunc<AppClass>(__VA_ARGS__); }

@@ -64,7 +64,7 @@ void ezHashedString::InitHashedString()
   if (s_pHSData != nullptr)
     return;
 
-  EZ_ALIGN_VARIABLE(static ezUInt8 HashedStringDataBuffer[sizeof(HashedStringData)], EZ_ALIGNMENT_OF(HashedStringData));
+  alignas(EZ_ALIGNMENT_OF(HashedStringData)) static ezUInt8 HashedStringDataBuffer[sizeof(HashedStringData)];
   s_pHSData = new (HashedStringDataBuffer) HashedStringData();
 
   // makes sure the empty string exists for the default constructor to use

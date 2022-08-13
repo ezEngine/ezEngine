@@ -211,8 +211,8 @@ inline bool ezSimdVec4f::IsNaN() const
 {
   // NAN -> (exponent = all 1, mantissa = non-zero)
 
-  const ezUInt32 EZ_ALIGN_16(s_exponentMask[4]) = {0x7f800000, 0x7f800000, 0x7f800000, 0x7f800000};
-  const ezUInt32 EZ_ALIGN_16(s_mantissaMask[4]) = {0x7FFFFF, 0x7FFFFF, 0x7FFFFF, 0x7FFFFF};
+  alignas(16) const ezUInt32 s_exponentMask[4] = {0x7f800000, 0x7f800000, 0x7f800000, 0x7f800000};
+  alignas(16) const ezUInt32 s_mantissaMask[4] = {0x7FFFFF, 0x7FFFFF, 0x7FFFFF, 0x7FFFFF};
 
   __m128 exponentMask = _mm_load_ps(reinterpret_cast<const float*>(s_exponentMask));
   __m128 mantissaMask = _mm_load_ps(reinterpret_cast<const float*>(s_mantissaMask));
@@ -231,7 +231,7 @@ EZ_ALWAYS_INLINE bool ezSimdVec4f::IsValid() const
   // NAN -> (exponent = all 1, mantissa = non-zero)
   // INF -> (exponent = all 1, mantissa = zero)
 
-  const ezUInt32 EZ_ALIGN_16(s_exponentMask[4]) = {0x7f800000, 0x7f800000, 0x7f800000, 0x7f800000};
+  alignas(16) const ezUInt32 s_exponentMask[4] = {0x7f800000, 0x7f800000, 0x7f800000, 0x7f800000};
 
   __m128 exponentMask = _mm_load_ps(reinterpret_cast<const float*>(s_exponentMask));
 

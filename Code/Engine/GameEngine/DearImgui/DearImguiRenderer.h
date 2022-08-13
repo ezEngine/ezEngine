@@ -14,7 +14,7 @@
 class ezRenderDataBatch;
 using ezShaderResourceHandle = ezTypedResourceHandle<class ezShaderResource>;
 
-struct EZ_ALIGN_16(ezImguiVertex)
+struct alignas(16) ezImguiVertex
 {
   EZ_DECLARE_POD_TYPE();
 

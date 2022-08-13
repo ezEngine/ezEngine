@@ -12,7 +12,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4u)
     EZ_TEST_BOOL(vDefCtor.x() == 0xCDCDCDCD && vDefCtor.y() == 0xCDCDCDCD && vDefCtor.z() == 0xCDCDCDCD && vDefCtor.w() == 0xCDCDCDCD);
 #else
     // Placement new of the default constructor should not have any effect on the previous data.
-    float EZ_ALIGN_16(testBlock[4]) = {1, 2, 3, 4};
+    alignas(16) float testBlock[4] = {1, 2, 3, 4};
     ezSimdVec4u* pDefCtor = ::new ((void*)&testBlock[0]) ezSimdVec4u;
     EZ_TEST_BOOL(testBlock[0] == 1 && testBlock[1] == 2 && testBlock[2] == 3 && testBlock[3] == 4);
 #endif

@@ -10,7 +10,7 @@
 #include <RendererCore/Shader/ShaderResource.h>
 #include <RendererFoundation/Shader/ShaderUtils.h>
 
-struct EZ_ALIGN_16(SpriteData)
+struct alignas(16) SpriteData
 {
   ezVec3 m_worldSpacePosition;
   float m_size;
