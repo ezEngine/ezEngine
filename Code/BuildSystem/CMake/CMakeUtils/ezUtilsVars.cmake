@@ -6,7 +6,7 @@ if((CMAKE_GENERATOR MATCHES "Visual Studio") OR (CMAKE_SYSTEM_NAME STREQUAL "Lin
 	set(EZ_COMPILE_ENGINE_AS_DLL ON CACHE BOOL "Whether to compile the code as a shared libraries (DLL).")
 	mark_as_advanced(FORCE EZ_COMPILE_ENGINE_AS_DLL)
 else()
-	unset(EZ_COMPILE_ENGINE_AS_DLL)
+	unset(EZ_COMPILE_ENGINE_AS_DLL CACHE)
 endif()
 
 # #####################################
