@@ -51,6 +51,8 @@ endif()
 
 ez_pull_platform_vars()
 
+include("CMakeUtils/ezUtilsPlatformVars")
+
 ez_init_projects()
 
 get_property(SELECTED_FILTER_NAME GLOBAL PROPERTY EZ_BUILD_FILTER_SELECTED)
