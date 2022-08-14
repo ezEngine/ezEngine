@@ -4,7 +4,7 @@
 
 // HLSL
 
-#define EZ_ALIGN_16(decl) decl
+#define EZ_SHADER_STRUCT
 
 struct Transform
 {
@@ -61,7 +61,8 @@ float3x3 TransformToRotation(Transform t)
 #include <RendererCore/Shader/Types.h>
 #include <Foundation/Basics/Platform/Common.h>
 
-#define CONSTANT_BUFFER(Name, Slot) struct EZ_ALIGN_16(Name)
+#define EZ_SHADER_STRUCT alignas(16)
+#define CONSTANT_BUFFER(Name, Slot) struct alignas(16) Name
 #define STRUCTURED_BUFFER(Name, Type)
 #define FLOAT1(Name) float Name
 #define FLOAT2(Name) ezVec2 Name

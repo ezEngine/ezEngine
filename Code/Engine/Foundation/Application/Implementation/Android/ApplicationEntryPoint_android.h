@@ -13,7 +13,7 @@ namespace ezApplicationDetails
   template <typename AppClass, typename... Args>
   void EntryFunc(struct android_app* pAndroidApp, Args&&... arguments)
   {
-    alignas(EZ_ALGIMENT_OF(AppClass)) static char appBuffer[sizeof(AppClass)]; // Not on the stack to cope with smaller stacks.
+    alignas(EZ_ALIGNMENT_OF(AppClass)) static char appBuffer[sizeof(AppClass)]; // Not on the stack to cope with smaller stacks.
     ezAndroidUtils::SetAndroidApp(pAndroidApp);
     AppClass* pApp = new (appBuffer) AppClass(std::forward<Args>(arguments)...);
 

@@ -12,10 +12,6 @@
 #  error "EZ_ALWAYS_INLINE is not defined."
 #endif
 
-#ifndef EZ_ALIGN
-#  error "EZ_ALIGN is not defined."
-#endif
-
 #ifndef EZ_ALIGNMENT_OF
 #  error "EZ_ALIGNMENT_OF is not defined."
 #endif

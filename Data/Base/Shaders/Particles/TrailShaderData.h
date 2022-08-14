@@ -3,28 +3,28 @@
 #include "ParticleSystemConstants.h"
 #include "BaseParticleShaderData.h"
 
-struct EZ_ALIGN_16(ezTrailParticleShaderData)
+struct EZ_SHADER_STRUCT ezTrailParticleShaderData
 {
   INT1(NumPoints);
   FLOAT3(dummy);
 };
 
-struct EZ_ALIGN_16(ezTrailParticlePointsData8)
+struct EZ_SHADER_STRUCT ezTrailParticlePointsData8
 {
   FLOAT4(Positions[8]);
 };
 
-struct EZ_ALIGN_16(ezTrailParticlePointsData16)
+struct EZ_SHADER_STRUCT ezTrailParticlePointsData16
 {
   FLOAT4(Positions[16]);
 };
 
-struct EZ_ALIGN_16(ezTrailParticlePointsData32)
+struct EZ_SHADER_STRUCT ezTrailParticlePointsData32
 {
   FLOAT4(Positions[32]);
 };
 
-struct EZ_ALIGN_16(ezTrailParticlePointsData64)
+struct EZ_SHADER_STRUCT ezTrailParticlePointsData64
 {
   FLOAT4(Positions[64]);
 };

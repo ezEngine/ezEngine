@@ -4,7 +4,7 @@
 
 #include "../../../Base/Shaders/Common/ConstantBufferMacros.h"
 
-struct EZ_ALIGN_16(ezTestShaderData)
+struct EZ_SHADER_STRUCT ezTestShaderData
 {
   FLOAT4(InstanceColor);
   TRANSFORM(InstanceTransform);

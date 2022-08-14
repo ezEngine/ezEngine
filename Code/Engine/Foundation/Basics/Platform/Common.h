@@ -66,10 +66,6 @@
 #  define EZ_CHECK_ALIGNMENT(ptr, alignment)
 #endif
 
-#define EZ_ALIGN_16(decl) EZ_ALIGN(decl, 16)
-#define EZ_ALIGN_32(decl) EZ_ALIGN(decl, 32)
-#define EZ_ALIGN_64(decl) EZ_ALIGN(decl, 64)
-#define EZ_ALIGN_128(decl) EZ_ALIGN(decl, 128)
 #define EZ_CHECK_ALIGNMENT_16(ptr) EZ_CHECK_ALIGNMENT(ptr, 16)
 #define EZ_CHECK_ALIGNMENT_32(ptr) EZ_CHECK_ALIGNMENT(ptr, 32)
 #define EZ_CHECK_ALIGNMENT_64(ptr) EZ_CHECK_ALIGNMENT(ptr, 64)
