@@ -29,7 +29,7 @@ ezDebugRendererContext::ezDebugRendererContext(const ezViewHandle& hView)
 
 namespace
 {
-  struct EZ_ALIGN_16(Vertex)
+  struct alignas(16) Vertex
   {
     ezVec3 m_position;
     ezColorLinearUB m_color;
@@ -37,7 +37,7 @@ namespace
 
   EZ_CHECK_AT_COMPILETIME(sizeof(Vertex) == 16);
 
-  struct EZ_ALIGN_16(TexVertex)
+  struct alignas(16) TexVertex
   {
     ezVec3 m_position;
     ezColorLinearUB m_color;
@@ -47,7 +47,7 @@ namespace
 
   EZ_CHECK_AT_COMPILETIME(sizeof(TexVertex) == 32);
 
-  struct EZ_ALIGN_16(BoxData)
+  struct alignas(16) BoxData
   {
     ezShaderTransform m_transform;
     ezColor m_color;
@@ -55,7 +55,7 @@ namespace
 
   EZ_CHECK_AT_COMPILETIME(sizeof(BoxData) == 64);
 
-  struct EZ_ALIGN_16(GlyphData)
+  struct alignas(16) GlyphData
   {
     ezVec2 m_topLeftCorner;
     ezColorLinearUB m_color;

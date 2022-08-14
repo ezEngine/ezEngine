@@ -202,8 +202,8 @@ private:
 
   static ezApplication* s_pApplicationInstance;
 
-  friend void ezRun(ezApplication* pApplicationInstance);
-  friend ezResult ezRun_Startup(ezApplication* pApplicationInstance);
-  friend void ezRun_MainLoop(ezApplication* pApplicationInstance);
-  friend void ezRun_Shutdown(ezApplication* pApplicationInstance);
+  friend EZ_FOUNDATION_DLL_FRIEND void ezRun(ezApplication* pApplicationInstance);
+  friend EZ_FOUNDATION_DLL_FRIEND ezResult ezRun_Startup(ezApplication* pApplicationInstance);
+  friend EZ_FOUNDATION_DLL_FRIEND void ezRun_MainLoop(ezApplication* pApplicationInstance);
+  friend EZ_FOUNDATION_DLL_FRIEND void ezRun_Shutdown(ezApplication* pApplicationInstance);
 };

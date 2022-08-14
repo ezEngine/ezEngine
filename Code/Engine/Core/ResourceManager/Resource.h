@@ -186,11 +186,11 @@ private:
   template <typename ResourceType>
   friend class ezTypedResourceHandle;
 
-  friend void IncreaseResourceRefCount(ezResource* pResource, const void* pOwner);
-  friend void DecreaseResourceRefCount(ezResource* pResource, const void* pOwner);
+  friend EZ_CORE_DLL_FRIEND void IncreaseResourceRefCount(ezResource* pResource, const void* pOwner);
+  friend EZ_CORE_DLL_FRIEND void DecreaseResourceRefCount(ezResource* pResource, const void* pOwner);
 
 #if EZ_ENABLED(EZ_RESOURCEHANDLE_STACK_TRACES)
-  friend void MigrateResourceRefCount(ezResource* pResource, const void* pOldOwner, const void* pNewOwner);
+  friend EZ_CORE_DLL_FRIEND void MigrateResourceRefCount(ezResource* pResource, const void* pOldOwner, const void* pNewOwner);
 
   struct HandleStackTrace
   {

@@ -4,7 +4,7 @@
 #include <Foundation/Memory/LargeBlockAllocator.h>
 #include <Foundation/Memory/StackAllocator.h>
 
-struct EZ_ALIGN(NonAlignedVector, EZ_ALIGNMENT_MINIMUM)
+struct alignas(EZ_ALIGNMENT_MINIMUM) NonAlignedVector
 {
   EZ_DECLARE_POD_TYPE();
 
