@@ -71,8 +71,15 @@ ezQtContainerWindow::ezQtContainerWindow()
 
   m_DockManager = new ads::CDockManager(this);
   m_DockManager->setConfigFlags(
-    static_cast<ads::CDockManager::ConfigFlags>(ads::CDockManager::DockAreaHasCloseButton | ads::CDockManager::DockAreaCloseButtonClosesTab |
-                                                ads::CDockManager::OpaqueSplitterResize | ads::CDockManager::AllTabsHaveCloseButton));
+    static_cast<ads::CDockManager::ConfigFlags>(
+      ads::CDockManager::DockAreaHasCloseButton |
+      ads::CDockManager::DockAreaCloseButtonClosesTab |
+      ads::CDockManager::OpaqueSplitterResize |
+      ads::CDockManager::AlwaysShowTabs |
+      ads::CDockManager::MiddleMouseButtonClosesTab |
+      ads::CDockManager::DockAreaHasTabsMenuButton |
+      ads::CDockManager::FloatingContainerHasWidgetIcon |
+      ads::CDockManager::AllTabsHaveCloseButton));
 
   connect(m_DockManager, &ads::CDockManager::floatingWidgetCreated, this, &ezQtContainerWindow::SlotFloatingWidgetOpened);
 }

@@ -194,7 +194,11 @@ void CFloatingWidgetTitleBar::mouseMoveEvent(QMouseEvent *ev)
 	{
 		if(d->FloatingWidget->isMaximized())
 		{
-			d->FloatingWidget->showNormal(/*true*/);
+#ifdef Q_OS_LINUX
+			d->FloatingWidget->showNormal(true);
+#else
+			d->FloatingWidget->showNormal();
+#endif
 		}
 		d->FloatingWidget->moveFloating();
 		Super::mouseMoveEvent(ev);

@@ -43,5 +43,5 @@ if(EZ_CMAKE_PLATFORM_WINDOWS)
 endif()
 
 if(EZ_CMAKE_PLATFORM_LINUX)
-  target_link_libraries(${PROJECT_NAME} PRIVATE xcb)
+  target_link_libraries(${PROJECT_NAME} PRIVATE xcb Qt5::GuiPrivate)
 endif()
