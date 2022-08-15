@@ -9,6 +9,11 @@ function(ez_set_target_pch TARGET_NAME PCH_NAME)
 
 	# message(STATUS "Setting PCH for '${TARGET_NAME}': ${PCH_NAME}")
 	set_property(TARGET ${TARGET_NAME} PROPERTY "PCH_FILE_NAME" ${PCH_NAME})
+
+	if(NOT EZ_CMAKE_GENERATOR_MSVC)
+		# When not generating a Visual Studio solution we use the cmake build in PCH support
+		target_precompile_headers(${TARGET_NAME} PRIVATE "$<$<COMPILE_LANGUAGE:CXX>:${PCH_NAME}.h>")
+	endif()
 endfunction()
 
 # #####################################
