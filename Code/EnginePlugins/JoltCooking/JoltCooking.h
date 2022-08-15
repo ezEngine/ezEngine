@@ -29,10 +29,7 @@ public:
   static ezResult CookConvexMesh(const ezJoltCookingMesh& mesh, ezStreamWriter& OutputStream);
   static ezResult ComputeConvexHull(const ezJoltCookingMesh& mesh, ezJoltCookingMesh& outMesh);
   static ezStatus WriteResourceToStream(ezChunkStreamWriter& stream, const ezJoltCookingMesh& mesh, const ezArrayPtr<ezString>& surfaces, MeshType meshType, ezUInt32 uiMaxConvexPieces = 1);
-
-#ifdef BUILDSYSTEM_ENABLE_VHACD_SUPPORT
   static ezResult CookDecomposedConvexMesh(const ezJoltCookingMesh& mesh, ezStreamWriter& OutputStream, ezUInt32 uiMaxConvexPieces);
-#endif
 
 private:
   static ezResult CookSingleConvexJoltMesh(const ezJoltCookingMesh& mesh, ezStreamWriter& OutputStream);
