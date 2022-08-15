@@ -51,6 +51,7 @@ class CFloatingDragPreview;
 struct FloatingDragPreviewPrivate;
 class CDockingStateReader;
 
+
 /**
  * Container that manages a number of dock areas with single dock widgets
  * or tabyfied dock widgets in each area.
@@ -215,6 +216,18 @@ public:
 	 * If all dock widgets in a dock area are closed, the dock area will be closed
 	 */
 	QList<CDockAreaWidget*> openedDockAreas() const;
+
+	/**
+	 * Returns a list for all open dock widgets in all open dock areas
+	 */
+	QList<CDockWidget*> openedDockWidgets() const;
+
+	/**
+	 * This function returns true, if the container has open dock areas.
+	 * This functions is a little bit faster than calling openedDockAreas().isEmpty()
+	 * because it returns as soon as it finds an open dock area
+	 */
+	bool hasOpenDockAreas() const;
 
     /**
      * This function returns true if this dock area has only one single

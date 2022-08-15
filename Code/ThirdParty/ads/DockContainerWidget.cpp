@@ -1286,7 +1286,7 @@ CDockContainerWidget::CDockContainerWidget(CDockManager* DockManager, QWidget *p
 	d->isFloating = floatingWidget() != nullptr;
 
 	d->Layout = new QGridLayout();
-	d->Layout->setContentsMargins(0, 1, 0, 1);
+	d->Layout->setContentsMargins(0, 0, 0, 0);
 	d->Layout->setSpacing(0);
 	setLayout(d->Layout);
 
@@ -1565,8 +1565,9 @@ void CDockContainerWidget::dropFloatingWidget(CFloatingDockContainer* FloatingWi
 	}
 
 	if (Dropped)
-	{
-		FloatingWidget->deleteLater();
+	{ 
+		// Fix https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/issues/351
+		FloatingWidget->hideAndDeleteLater();
 
 		// If we dropped a floating widget with only one single dock widget, then we
 		// drop a top level widget that changes from floating to docked now
@@ -1625,6 +1626,37 @@ QList<CDockAreaWidget*> CDockContainerWidget::openedDockAreas() const
 
 
 //============================================================================
+QList<CDockWidget*> CDockContainerWidget::openedDockWidgets() const
+{
+	QList<CDockWidget*> DockWidgetList;
+	for (auto DockArea : d->DockAreas)
+	{
+		if (!DockArea->isHidden())
+		{
+			DockWidgetList.append(DockArea->openedDockWidgets());
+		}
+	}
+
+	return DockWidgetList;
+}
+
+
+//============================================================================
+bool CDockContainerWidget::hasOpenDockAreas() const
+{
+	for (auto DockArea : d->DockAreas)
+	{
+		if (!DockArea->isHidden())
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+
+//============================================================================
 void CDockContainerWidget::saveState(QXmlStreamWriter& s) const
 {
     ADS_PRINT("CDockContainerWidget::saveState isFloating "
@@ -1679,7 +1711,10 @@ bool CDockContainerWidget::restoreState(CDockingStateReader& s, bool Testing)
 		if (!Testing)
 		{
 			CFloatingDockContainer* FloatingWidget = floatingWidget();
-			FloatingWidget->restoreGeometry(Geometry);
+			if (FloatingWidget)
+			{
+				FloatingWidget->restoreGeometry(Geometry);
+			}
 		}
 	}
 
