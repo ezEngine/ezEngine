@@ -9,3 +9,10 @@ if(EZ_CMAKE_PLATFORM_WINDOWS OR EZ_CMAKE_PLATFORM_LINUX)
 else()
 	unset(EZ_COMPILE_ENGINE_AS_DLL CACHE)
 endif()
+
+# #####################################
+# ## Experimental Editor support on Linux
+# #####################################
+if(EZ_CMAKE_PLATFORM_LINUX)
+	set (EZ_EXPERIMENTAL_EDITOR_ON_LINUX OFF CACHE BOOL "Wether or not to build the editor on linux")
+endif()
