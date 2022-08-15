@@ -1,15 +1,4 @@
 # #####################################
-# ## General settings
-# #####################################
-
-if(CMAKE_GENERATOR MATCHES "Visual Studio")
-	set(EZ_COMPILE_ENGINE_AS_DLL ON CACHE BOOL "Whether to compile the code as a shared libraries (DLL).")
-	mark_as_advanced(FORCE EZ_COMPILE_ENGINE_AS_DLL)
-else()
-	unset(EZ_COMPILE_ENGINE_AS_DLL CACHE)
-endif()
-
-# #####################################
 # ## Output directories
 # #####################################
 set(EZ_OUTPUT_DIRECTORY_LIB "${CMAKE_SOURCE_DIR}/Output/Lib" CACHE PATH "Where to store the compiled .lib files.")

@@ -6,12 +6,12 @@
 #include <Foundation/Basics/Platform/Win/MinWindows.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_32BIT)
-struct EZ_ALIGN(ezMutexHandle, 4)
+struct alignas(4) ezMutexHandle
 {
   ezUInt8 data[24];
 };
 #else
-struct EZ_ALIGN(ezMutexHandle, 8)
+struct alignas(8) ezMutexHandle
 {
   ezUInt8 data[40];
 };
@@ -19,12 +19,12 @@ struct EZ_ALIGN(ezMutexHandle, 8)
 
 
 #if EZ_ENABLED(EZ_PLATFORM_32BIT)
-struct EZ_ALIGN(ezConditionVariableHandle, 4)
+struct alignas(4) ezConditionVariableHandle
 {
   ezUInt8 data[4];
 };
 #else
-struct EZ_ALIGN(ezConditionVariableHandle, 8)
+struct alignas(8) ezConditionVariableHandle
 {
   ezUInt8 data[8];
 };

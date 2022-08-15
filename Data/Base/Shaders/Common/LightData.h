@@ -13,7 +13,7 @@
 #define LIGHT_TYPE_SPOT 1
 #define LIGHT_TYPE_DIR 2
 
-struct EZ_ALIGN_16(ezPerLightData)
+struct EZ_SHADER_STRUCT ezPerLightData
 {
   UINT1(colorAndType);
   FLOAT1(intensity);
@@ -36,19 +36,19 @@ struct EZ_ALIGN_16(ezPerLightData)
   EZ_CHECK_AT_COMPILETIME(sizeof(ezPerLightData) == 48);
 #endif
 
-struct EZ_ALIGN_16(ezPointShadowData)
+struct EZ_SHADER_STRUCT ezPointShadowData
 {
   FLOAT4(shadowParams); // x = slope bias, y = constant bias, z = penumbra size in texel, w = fadeout
   MAT4(worldToLightMatrix)[6];
 };
 
-struct EZ_ALIGN_16(ezSpotShadowData)
+struct EZ_SHADER_STRUCT ezSpotShadowData
 {
   FLOAT4(shadowParams); // x = slope bias, y = constant bias, z = penumbra size in texel, w = fadeout
   MAT4(worldToLightMatrix);
 };
 
-struct EZ_ALIGN_16(ezDirShadowData)
+struct EZ_SHADER_STRUCT ezDirShadowData
 {
   FLOAT4(shadowParams); // x = slope bias, y = constant bias, z = penumbra size in texel, w = num cascades
   MAT4(worldToLightMatrix);
@@ -78,7 +78,7 @@ struct EZ_ALIGN_16(ezDirShadowData)
 #define DECAL_WRAP_AROUND (1 << 8)
 #define DECAL_MAP_NORMAL_TO_GEOMETRY (1 << 9)
 
-struct EZ_ALIGN_16(ezPerDecalData)
+struct EZ_SHADER_STRUCT ezPerDecalData
 {
   TRANSFORM(worldToDecalMatrix);
 
@@ -111,7 +111,7 @@ struct EZ_ALIGN_16(ezPerDecalData)
 #define REFLECTION_PROBE_INDEX_BITMASK 0x3FFFFFFF
 #define GET_REFLECTION_PROBE_INDEX(index) (index & REFLECTION_PROBE_INDEX_BITMASK)
 
-  struct EZ_ALIGN_16(ezPerReflectionProbeData)
+  struct EZ_SHADER_STRUCT ezPerReflectionProbeData
   {
     TRANSFORM(WorldToProbeProjectionMatrix);
     FLOAT4(Scale);

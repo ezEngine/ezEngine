@@ -66,10 +66,6 @@
 #  define EZ_CHECK_ALIGNMENT(ptr, alignment)
 #endif
 
-#define EZ_ALIGN_16(decl) EZ_ALIGN(decl, 16)
-#define EZ_ALIGN_32(decl) EZ_ALIGN(decl, 32)
-#define EZ_ALIGN_64(decl) EZ_ALIGN(decl, 64)
-#define EZ_ALIGN_128(decl) EZ_ALIGN(decl, 128)
 #define EZ_CHECK_ALIGNMENT_16(ptr) EZ_CHECK_ALIGNMENT(ptr, 16)
 #define EZ_CHECK_ALIGNMENT_32(ptr) EZ_CHECK_ALIGNMENT(ptr, 32)
 #define EZ_CHECK_ALIGNMENT_64(ptr) EZ_CHECK_ALIGNMENT(ptr, 64)
@@ -174,7 +170,11 @@ void EZ_IGNORE_UNUSED(const T&)
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 #  define EZ_DECL_EXPORT __declspec(dllexport)
 #  define EZ_DECL_IMPORT __declspec(dllimport)
+#  define EZ_DECL_EXPORT_FRIEND __declspec(dllexport)
+#  define EZ_DECL_IMPORT_FRIEND __declspec(dllimport)
 #else
-#  define EZ_DECL_EXPORT __attribute__((visibility("default")))
-#  define EZ_DECL_IMPORT __attribute__((visibility("default")))
+#  define EZ_DECL_EXPORT [[gnu::visibility("default")]]
+#  define EZ_DECL_IMPORT [[gnu::visibility("default")]]
+#  define EZ_DECL_EXPORT_FRIEND
+#  define EZ_DECL_IMPORT_FRIEND
 #endif

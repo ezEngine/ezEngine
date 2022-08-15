@@ -28,14 +28,6 @@
 #    define EZ_FORCE_INLINE __forceinline
 #  endif
 
-#  ifdef __INTELLISENSE__
-#    define EZ_ALIGN(decl, alignment) decl
-#    define EZ_ALIGN_VARIABLE(decl, alignment) decl
-#  else
-#    define EZ_ALIGN(decl, alignment) __declspec(align(alignment)) decl
-#    define EZ_ALIGN_VARIABLE(decl, alignment) __declspec(align(alignment)) decl
-#  endif
-
 // workaround for MSVC compiler issue with alignment determination of dependent types
 #  define EZ_ALIGNMENT_OF(type) EZ_COMPILE_TIME_MAX(EZ_ALIGNMENT_MINIMUM, EZ_COMPILE_TIME_MIN(sizeof(type), __alignof(type)))
 

@@ -3,7 +3,7 @@
 #include "ParticleSystemConstants.h"
 #include "BaseParticleShaderData.h"
 
-struct EZ_ALIGN_16(ezBillboardQuadParticleShaderData)
+struct EZ_SHADER_STRUCT ezBillboardQuadParticleShaderData
 {
   FLOAT3(Position);
   PACKEDHALF2(RotationOffset, RotationSpeed, RotationOffsetAndSpeed);

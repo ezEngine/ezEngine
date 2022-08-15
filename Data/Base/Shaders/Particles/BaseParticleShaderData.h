@@ -2,7 +2,7 @@
 
 #include "ParticleSystemConstants.h"
 
-struct EZ_ALIGN_16(ezBaseParticleShaderData)
+struct EZ_SHADER_STRUCT ezBaseParticleShaderData
 {
   PACKEDCOLOR4H(Color);
   PACKEDHALF2(Life, Size, LifeAndSize); // Life: 1 to 0

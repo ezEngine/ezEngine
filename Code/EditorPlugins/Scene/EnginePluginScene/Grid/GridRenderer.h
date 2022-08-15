@@ -41,7 +41,7 @@ private:
   ezSceneContext* m_pSceneContext;
 };
 
-struct EZ_ALIGN_16(GridVertex)
+struct alignas(16) GridVertex
 {
   ezVec3 m_position;
   ezColorLinearUB m_color;

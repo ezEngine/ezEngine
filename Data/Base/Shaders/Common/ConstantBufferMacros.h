@@ -4,7 +4,7 @@
 
 // HLSL
 
-#define EZ_ALIGN_16(decl) decl
+#  define EZ_SHADER_STRUCT
 
 struct Transform
 {
@@ -61,28 +61,31 @@ float3x3 TransformToRotation(Transform t)
 #include <RendererCore/Shader/Types.h>
 #include <Foundation/Basics/Platform/Common.h>
 
-#define CONSTANT_BUFFER(Name, Slot) struct EZ_ALIGN_16(Name)
-#define STRUCTURED_BUFFER(Name, Type)
-#define FLOAT1(Name) float Name
-#define FLOAT2(Name) ezVec2 Name
-#define FLOAT3(Name) ezVec3 Name
-#define FLOAT4(Name) ezVec4 Name
-#define INT1(Name) int Name
-#define INT2(Name) ezVec2I32 Name
-#define INT3(Name) ezVec3I32 Name
-#define INT4(Name) ezVec4I32 Name
-#define UINT1(Name) ezUInt32 Name
-#define UINT2(Name) ezVec2U32 Name
-#define UINT3(Name) ezVec3U32 Name
-#define UINT4(Name) ezVec4U32 Name
-#define MAT3(Name) ezShaderMat3 Name
-#define MAT4(Name) ezMat4 Name
-#define TRANSFORM(Name) ezShaderTransform Name
-#define COLOR4F(Name) ezColor Name
-#define COLOR4UB(Name) ezColorGammaUB Name
-#define BOOL1(Name) ezShaderBool Name
-#define PACKEDHALF2(Name1, Name2, CombinedName) ezFloat16 Name1; ezFloat16 Name2
-#define PACKEDCOLOR4H(Name) ezColorLinear16f Name
+#  define EZ_SHADER_STRUCT alignas(16)
+#  define CONSTANT_BUFFER(Name, Slot) struct alignas(16) Name
+#  define STRUCTURED_BUFFER(Name, Type)
+#  define FLOAT1(Name) float Name
+#  define FLOAT2(Name) ezVec2 Name
+#  define FLOAT3(Name) ezVec3 Name
+#  define FLOAT4(Name) ezVec4 Name
+#  define INT1(Name) int Name
+#  define INT2(Name) ezVec2I32 Name
+#  define INT3(Name) ezVec3I32 Name
+#  define INT4(Name) ezVec4I32 Name
+#  define UINT1(Name) ezUInt32 Name
+#  define UINT2(Name) ezVec2U32 Name
+#  define UINT3(Name) ezVec3U32 Name
+#  define UINT4(Name) ezVec4U32 Name
+#  define MAT3(Name) ezShaderMat3 Name
+#  define MAT4(Name) ezMat4 Name
+#  define TRANSFORM(Name) ezShaderTransform Name
+#  define COLOR4F(Name) ezColor Name
+#  define COLOR4UB(Name) ezColorGammaUB Name
+#  define BOOL1(Name) ezShaderBool Name
+#  define PACKEDHALF2(Name1, Name2, CombinedName) \
+    ezFloat16 Name1;                              \
+    ezFloat16 Name2
+#  define PACKEDCOLOR4H(Name) ezColorLinear16f Name
 
 #endif
 

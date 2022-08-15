@@ -47,13 +47,13 @@ struct ezSpatialData
   ///
   /// If the same category was already registered before, it returns that instead.
   /// Asserts that there are no more than 32 unique categories.
-  static EZ_CORE_DLL Category RegisterCategory(const char* szCategoryName, const ezBitflags<Flags>& flags);
+  EZ_CORE_DLL static Category RegisterCategory(const char* szCategoryName, const ezBitflags<Flags>& flags);
 
   /// \brief Returns either an existing category with the given name or ezInvalidSpatialDataCategory.
-  static EZ_CORE_DLL Category FindCategory(const char* szCategoryName);
+  EZ_CORE_DLL static Category FindCategory(const char* szCategoryName);
 
   /// \brief Returns the flags for the given category.
-  static EZ_CORE_DLL const ezBitflags<Flags>& GetCategoryFlags(Category category);
+  EZ_CORE_DLL static const ezBitflags<Flags>& GetCategoryFlags(Category category);
 
 private:
   struct CategoryData

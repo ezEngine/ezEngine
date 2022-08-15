@@ -2,7 +2,7 @@
 
 #include "BaseParticleShaderData.h"
 
-struct EZ_ALIGN_16(ezTangentQuadParticleShaderData)
+struct EZ_SHADER_STRUCT ezTangentQuadParticleShaderData
 {
   FLOAT3(Position);
   FLOAT1(dummy1);

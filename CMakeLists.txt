@@ -51,6 +51,8 @@ endif()
 
 ez_pull_platform_vars()
 
+include("ezPlatformVars")
+
 ez_init_projects()
 
 get_property(SELECTED_FILTER_NAME GLOBAL PROPERTY EZ_BUILD_FILTER_SELECTED)

@@ -47,7 +47,7 @@ enum ezResultEnum
 };
 
 /// \brief Default enum for returning failure or success, instead of using a bool.
-struct EZ_FOUNDATION_DLL [[nodiscard]] ezResult
+struct [[nodiscard]] EZ_FOUNDATION_DLL ezResult
 {
 public:
   ezResult(ezResultEnum res)

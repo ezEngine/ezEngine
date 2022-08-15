@@ -144,7 +144,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4f)
     EZ_TEST_BOOL(vDefCtor.IsNaN<4>());
 #else
     // Placement new of the default constructor should not have any effect on the previous data.
-    float EZ_ALIGN_16(testBlock[4]) = {1, 2, 3, 4};
+    alignas(16) float testBlock[4] = {1, 2, 3, 4};
     ezSimdVec4f* pDefCtor = ::new ((void*)&testBlock[0]) ezSimdVec4f;
     EZ_TEST_BOOL(pDefCtor->x() == 1.0f && pDefCtor->y() == 2.0f && pDefCtor->z() == 3.0f && pDefCtor->w() == 4.0f);
 #endif
