@@ -10,7 +10,11 @@ if(PROJECT_IS_TOP_LEVEL)
 	set (EZ_OUTPUT_DIRECTORY_LIB "${EZ_SDK_DIR}/Output/Lib" CACHE PATH "Where to store the compiled .lib files.")
 	set (EZ_OUTPUT_DIRECTORY_DLL "${EZ_SDK_DIR}/Output/Bin" CACHE PATH "Where to store the compiled .dll files.")
 
-	set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${EZ_SDK_DIR}/Code/BuildSystem/CMake")
+	include("${EZ_SDK_DIR}/ezCMakeConfig.cmake")
+	get_property(EZ_CMAKE_RELPATH GLOBAL PROPERTY EZ_CMAKE_RELPATH)
+	get_property(EZ_CMAKE_RELPATH_CODE GLOBAL PROPERTY EZ_CMAKE_RELPATH_CODE)
+
+	set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${EZ_SDK_DIR}/${EZ_CMAKE_RELPATH}")
 
 	include("ezUtils")
 
