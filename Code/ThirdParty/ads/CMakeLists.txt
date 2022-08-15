@@ -11,7 +11,7 @@ ez_create_target(SHARED_LIBRARY ${PROJECT_NAME} NO_EZ_PREFIX)
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
-ez_link_target_qt(TARGET ${PROJECT_NAME} COMPONENTS Core Gui Widgets Svg X11Extras Gui-Private)
+ez_link_target_qt(TARGET ${PROJECT_NAME} COMPONENTS Core Gui Widgets Svg X11Extras)
 
 if (EZ_COMPILE_ENGINE_AS_DLL)
   target_compile_definitions(${PROJECT_NAME} PRIVATE ADS_SHARED_EXPORT)
@@ -43,5 +43,5 @@ if(EZ_CMAKE_PLATFORM_WINDOWS)
 endif()
 
 if(EZ_CMAKE_PLATFORM_LINUX)
-  target_link_libraries(${PROJECT_NAME} PRIVATE xcb)
+  target_link_libraries(${PROJECT_NAME} PRIVATE xcb Qt5::GuiPrivate)
 endif()
