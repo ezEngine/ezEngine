@@ -92,7 +92,7 @@ function(ez_link_target_qt)
 	endif()
 
 	if(NOT EZ_CMAKE_PLATFORM_LINUX)
-		list(REMOVE_ITEM FN_ARG_COMPONENTS X11Extras)
+		list(REMOVE_ITEM FN_ARG_COMPONENTS X11Extras Gui-Private)
 	endif()
 
 	ez_prepare_find_qt()
