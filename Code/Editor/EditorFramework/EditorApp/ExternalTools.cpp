@@ -12,11 +12,11 @@ ezString ezQtEditorApp::GetExternalToolsFolder(bool bForceUseCustomTools)
 
 ezString ezQtEditorApp::FindToolApplication(const char* szToolName)
 {
-  #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
   ezStringBuilder toolExe = szToolName;
   toolExe.Append(".exe");
   szToolName = toolExe;
-  #endif
+#endif
 
   ezStringBuilder sTool = ezQtEditorApp::GetSingleton()->GetExternalToolsFolder();
   sTool.AppendPath(szToolName);
@@ -39,11 +39,11 @@ ezStatus ezQtEditorApp::ExecuteTool(const char* szTool, const QStringList& argum
   // this block is supposed to be in the global log, not the given log interface
   EZ_LOG_BLOCK("Executing Tool", szTool);
 
-  #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
   ezStringBuilder toolExe = szTool;
   toolExe.Append(".exe");
   szTool = toolExe;
-  #endif
+#endif
 
   ezStringBuilder cmd;
   for (ezInt32 i = 0; i < arguments.size(); ++i)

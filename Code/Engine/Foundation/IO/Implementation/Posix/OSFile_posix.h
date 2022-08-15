@@ -4,8 +4,8 @@
 EZ_FOUNDATION_INTERNAL_HEADER
 
 #include <Foundation/Logging/Log.h>
-#include <Foundation/Utilities/CommandLineUtils.h>
 #include <Foundation/Threading/ThreadUtils.h>
+#include <Foundation/Utilities/CommandLineUtils.h>
 #include <errno.h>
 #include <stdio.h>
 #include <sys/stat.h>
@@ -67,7 +67,7 @@ ezResult ezOSFile::InternalOpen(const char* szFile, ezFileOpenMode::Enum OpenMod
     }
   }
 
-  if(fd == -1)
+  if (fd == -1)
   {
     return EZ_FAILURE;
   }
@@ -80,7 +80,7 @@ ezResult ezOSFile::InternalOpen(const char* szFile, ezFileOpenMode::Enum OpenMod
   {
     int errorCode = errno;
     iRetries--;
-    if(iRetries == 0 || errorCode != EWOULDBLOCK)
+    if (iRetries == 0 || errorCode != EWOULDBLOCK)
     {
       // error, could not get a lock
       ezLog::Error("Failed to get a {} lock for file {}, error {}", (FileShareMode == ezFileShareMode::Exclusive) ? "Exculsive" : "Shared", szFile, errno);
@@ -112,7 +112,7 @@ ezResult ezOSFile::InternalOpen(const char* szFile, ezFileOpenMode::Enum OpenMod
       break;
   }
 
-  if(m_FileData.m_pFileHandle == nullptr)
+  if (m_FileData.m_pFileHandle == nullptr)
   {
     close(fd);
   }

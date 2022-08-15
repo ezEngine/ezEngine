@@ -158,13 +158,13 @@ void ezEditorEngineProcessConnection::Initialize(const ezRTTI* pFirstAllowedMess
     args << ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-TelemetryPort", 0, "1050");
   }
 
-  #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   const char* EditorEngineProcessExecutableName = "EditorEngineProcess.exe";
-  #elif EZ_ENABLED(EZ_PLATFORM_LINUX)
+#elif EZ_ENABLED(EZ_PLATFORM_LINUX)
   const char* EditorEngineProcessExecutableName = "EditorEngineProcess";
-  #else
-  #error Platform not supported
-  #endif
+#else
+#  error Platform not supported
+#endif
 
 
   if (m_IPC.StartClientProcess(EditorEngineProcessExecutableName, args, false, pFirstAllowedMessageType).Failed())
@@ -363,7 +363,7 @@ ezResult ezEditorEngineProcessConnection::RestartProcess()
 
   ezLog::Dev("Waiting for IPC connection");
 
-  if(m_IPC.WaitForConnection(ezTime()).Failed())
+  if (m_IPC.WaitForConnection(ezTime()).Failed())
   {
     ezLog::Error("Engine process did not connect. Engine process output:\n{}", m_IPC.GetStdoutContents());
     ShutdownProcess();

@@ -128,7 +128,7 @@ void ezEngineProcessGameApplication::LogWriter(const ezLoggingEventData& e)
   if (msg.m_Entry.m_Type == ezLogMsgType::Flush)
     return;
 
-  if(msg.m_Entry.m_sTag == "IPC")
+  if (msg.m_Entry.m_sTag == "IPC")
     return;
 
   // Prevent infinite recursion by disabeling logging until we are done sending the message

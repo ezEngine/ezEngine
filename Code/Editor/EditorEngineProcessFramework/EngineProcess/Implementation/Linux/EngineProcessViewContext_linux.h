@@ -27,11 +27,11 @@ namespace
 
 ezEditorProcessViewWindow::~ezEditorProcessViewWindow()
 {
-    if(m_hWnd != nullptr)
-    {
-        glfwDestroyWindow(m_hWnd);
-        m_hWnd = nullptr;
-    }
+  if (m_hWnd != nullptr)
+  {
+    glfwDestroyWindow(m_hWnd);
+    m_hWnd = nullptr;
+  }
 }
 
 ezResult ezEditorProcessViewWindow::UpdateWindow(ezWindowHandle parentWindow, ezUInt16 uiWidth, ezUInt16 uiHeight)
@@ -39,7 +39,7 @@ ezResult ezEditorProcessViewWindow::UpdateWindow(ezWindowHandle parentWindow, ez
   m_uiWidth = uiWidth;
   m_uiHeight = uiHeight;
 
-  if(m_hWnd == nullptr)
+  if (m_hWnd == nullptr)
   {
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     EZ_GLFW_RETURN_FAILURE_ON_ERROR();

@@ -34,7 +34,7 @@ bool ezEngineProcessCommunicationChannel::IsHostAlive() const
   // We send the signal 0 to the given PID (signal 0 is a no-op)
   // If this succeeds, the process with the given PID exists
   // if it fails, the process does not / no longer exist.
-  if(kill(m_iHostPID, 0) < 0)
+  if (kill(m_iHostPID, 0) < 0)
     bValid = false;
 #else
 #  error Not implemented

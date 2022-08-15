@@ -105,7 +105,7 @@ void ezEditorProcessCommunicationChannel::CloseConnection()
 
 ezString ezEditorProcessCommunicationChannel::GetStdoutContents()
 {
-  if(m_pClientProcess)
+  if (m_pClientProcess)
   {
     QByteArray output = m_pClientProcess->readAllStandardOutput();
     return ezString(ezStringView((const char*)output.data(), output.size()));
