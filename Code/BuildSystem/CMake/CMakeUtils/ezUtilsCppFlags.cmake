@@ -206,7 +206,7 @@ function(ez_set_build_flags_clang TARGET_NAME)
 	endif()
 
 	if(NOT(CMAKE_CURRENT_SOURCE_DIR MATCHES "Code/ThirdParty"))
-		target_compile_options(${TARGET_NAME} PRIVATE -Werror=inconsistent-missing-override -Werror=switch -Werror=uninitialized -Werror=unused-result)
+		target_compile_options(${TARGET_NAME} PRIVATE -Werror=inconsistent-missing-override -Werror=switch -Werror=uninitialized -Werror=unused-result -Werror=return-type)
 	else()
 		# Ignore all warnings in third party code.
 		target_compile_options(${TARGET_NAME} PRIVATE -Wno-everything)
@@ -252,10 +252,10 @@ function(ez_set_build_flags_gcc TARGET_NAME)
 		# Warning / Error settings for ez code
 		# attributes = error if a attribute is placed incorrectly (e.g. EZ_FOUNDATION_DLL)
 		# unused-result = error if [[nodiscard]] return value is not handeled (ezResult)
-		target_compile_options(${TARGET_NAME} PRIVATE -Werror=attributes -Werror=unused-result -Wno-ignored-attributes)
+		target_compile_options(${TARGET_NAME} PRIVATE -Werror=attributes -Werror=unused-result -Wno-ignored-attributes -Werror=return-type)
 	else()
 		# Ignore all warnings in third party code.
-		target_compile_options(${TARGET_NAME} PRIVATE -Wno-everything)
+		target_compile_options(${TARGET_NAME} PRIVATE -w)
 	endif()
 
 	# Look for the super fast ld compatible linker called "mold". If present we want to use it.

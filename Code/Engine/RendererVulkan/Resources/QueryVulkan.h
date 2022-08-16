@@ -6,7 +6,7 @@ class ezGALQueryVulkan : public ezGALQuery
 {
 public:
   EZ_ALWAYS_INLINE ezUInt32 GetID() const;
-  EZ_ALWAYS_INLINE vk::QueryPool GetPool() const {} // TODO
+  EZ_ALWAYS_INLINE vk::QueryPool GetPool() const { return nullptr; } // TODO
 
 protected:
   friend class ezGALDeviceVulkan;

@@ -37,7 +37,7 @@ jobs:
   - task: CMake@1
     displayName: CMake
     inputs:
-      cmakeArgs: -DCMAKE_PREFIX_PATH=/opt/qt511/ -DCMAKE_BUILD_TYPE=Dev -DCMAKE_CXX_COMPILER=g++-12 -DCMAKE_C_COMPILER=gcc-12 -DEZ_ENABLE_FOLDER_UNITY_FILES=$(unityfiles) -G "Unix Makefiles" ../
+      cmakeArgs: -DCMAKE_PREFIX_PATH=/opt/qt511/ -DCMAKE_BUILD_TYPE=Dev -DCMAKE_CXX_COMPILER=g++-12 -DCMAKE_C_COMPILER=gcc-12 -DEZ_ENABLE_FOLDER_UNITY_FILES=$(unityfiles) -DEZ_BUILD_EXPERIMENTAL_VULKAN=ON -G "Unix Makefiles" ../
   - task: Bash@3
     displayName: Make
     inputs:

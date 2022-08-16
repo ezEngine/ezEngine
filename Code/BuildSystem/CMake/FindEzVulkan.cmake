@@ -8,6 +8,7 @@ endif()
 set(EZ_VULKAN_DIR $ENV{VULKAN_SDK} CACHE PATH "Directory of the Vulkan SDK")
 
 ez_pull_compiler_and_architecture_vars()
+ez_pull_config_vars()
 
 get_property(EZ_SUBMODULE_PREFIX_PATH GLOBAL PROPERTY EZ_SUBMODULE_PREFIX_PATH)
 
@@ -34,8 +35,24 @@ elseif(EZ_CMAKE_PLATFORM_LINUX AND EZ_CMAKE_ARCHITECTURE_64BIT)
 			PATHS
 			${EZ_VULKAN_DIR}
 			$ENV{VULKAN_SDK}
-			REQUIRED
 		)
+
+		if(EZ_CMAKE_ARCHITECTURE_X86)
+			if((EZ_VULKAN_DIR STREQUAL "EZ_VULKAN_DIR-NOTFOUND") OR (EZ_VULKAN_DIR STREQUAL ""))
+				ez_download_and_extract("${EZ_CONFIG_VULKAN_SDK_LINUXX64_URL}" "${CMAKE_BINARY_DIR}/vulkan-sdk" "vulkan-sdk-${EZ_CONFIG_VULKAN_SDK_LINUXX64_VERSION}")
+				set(EZ_VULKAN_DIR "${CMAKE_BINARY_DIR}/vulkan-sdk/${EZ_CONFIG_VULKAN_SDK_LINUXX64_VERSION}" CACHE PATH "Directory of the Vulkan SDK" FORCE)
+
+				find_path(EZ_VULKAN_DIR config/vk_layer_settings.txt
+					PATHS
+					${EZ_VULKAN_DIR}
+					$ENV{VULKAN_SDK}
+				)
+			endif()
+		endif()
+
+		if((EZ_VULKAN_DIR STREQUAL "EZ_VULKAN_DIR-NOTFOUND") OR (EZ_VULKAN_DIR STREQUAL ""))
+			message(FATAL_ERROR "Failed to find vulkan SDK. Ez requires the vulkan sdk ${EZ_CONFIG_VULKAN_SDK_LINUXX64_VERSION}. Please set the environment variable VULKAN_SDK to the vulkan sdk location.")
+		endif()
 
 		# set(CMAKE_FIND_DEBUG_MODE FALSE)
 	endif()
