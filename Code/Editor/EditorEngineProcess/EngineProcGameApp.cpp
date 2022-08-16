@@ -132,10 +132,7 @@ void ezEngineProcessGameApplication::LogWriter(const ezLoggingEventData& e)
     return;
 
   // Prevent infinite recursion by disabeling logging until we are done sending the message
-  ezLogInterface* oldLogSystem = ezLog::GetThreadLocalLogSystem();
-  ezMuteLog muteLog;
-  ezLog::SetThreadLocalLogSystem(&muteLog);
-  EZ_SCOPE_EXIT(ezLog::SetThreadLocalLogSystem(oldLogSystem));
+  EZ_LOG_BLOCK_MUTE();
 
   m_IPC.SendMessage(&msg);
 }
