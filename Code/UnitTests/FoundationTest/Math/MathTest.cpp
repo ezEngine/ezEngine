@@ -756,6 +756,10 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
     EZ_TEST_INT(ezMath::FirstBitLow(ezUInt64(0xFF000000FF00000C)), 2);
     EZ_TEST_INT(ezMath::FirstBitLow(ezUInt64(0xFF000000FF000008)), 3);
     EZ_TEST_INT(ezMath::FirstBitLow(ezUInt64(0xFFFFFFFFFFFFFFFF)), 0);
+
+    // Edge cases specifically for 32-bit systems where upper and lower 32-bit are handled individually.
+    EZ_TEST_INT(ezMath::FirstBitLow(ezUInt64(0x00000000FFFFFFFF)), 0);
+    EZ_TEST_INT(ezMath::FirstBitLow(ezUInt64(0xFFFFFFFF00000000)), 32);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "FirstBitHigh")
@@ -771,6 +775,10 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
     EZ_TEST_INT(ezMath::FirstBitHigh(ezUInt64(0x003F000000FF000F)), 53);
     EZ_TEST_INT(ezMath::FirstBitHigh(ezUInt64(0x001F000000FF000F)), 52);
     EZ_TEST_INT(ezMath::FirstBitHigh(ezUInt64(0xFFFFFFFFFFFFFFFF)), 63);
+
+    // Edge cases specifically for 32-bit systems where upper and lower 32-bit are handled individually.
+    EZ_TEST_INT(ezMath::FirstBitHigh(ezUInt64(0x00000000FFFFFFFF)), 31);
+    EZ_TEST_INT(ezMath::FirstBitHigh(ezUInt64(0xFFFFFFFF00000000)), 63);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "CountTrailingZeros (32)")

@@ -32,9 +32,9 @@ ezUInt64 ezMemoryStreamReader::ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRe
 
       const ezUInt64 toRead = ezMath::Min<ezUInt64>(data.GetCount(), uiBytesLeft);
 
-      ezMemoryUtils::Copy(static_cast<ezUInt8*>(pReadBuffer), data.GetPtr(), toRead);
+      ezMemoryUtils::Copy(static_cast<ezUInt8*>(pReadBuffer), data.GetPtr(), static_cast<size_t>(toRead)); // Down-cast to size_t for 32-bit.
 
-      pReadBuffer = ezMemoryUtils::AddByteOffset(pReadBuffer, toRead);
+      pReadBuffer = ezMemoryUtils::AddByteOffset(pReadBuffer, static_cast<size_t>(toRead)); // Down-cast to size_t for 32-bit.
 
       m_uiReadPosition += toRead;
       uiBytesLeft -= toRead;
@@ -118,9 +118,9 @@ ezResult ezMemoryStreamWriter::WriteBytes(const void* pWriteBuffer, ezUInt64 uiB
 
       const ezUInt64 toWrite = ezMath::Min<ezUInt64>(data.GetCount(), uiBytesLeft);
 
-      ezMemoryUtils::Copy(data.GetPtr(), static_cast<const ezUInt8*>(pWriteBuffer), toWrite);
+      ezMemoryUtils::Copy(data.GetPtr(), static_cast<const ezUInt8*>(pWriteBuffer), static_cast<size_t>(toWrite)); // Down-cast to size_t for 32-bit.
 
-      pWriteBuffer = ezMemoryUtils::AddByteOffset(pWriteBuffer, toWrite);
+      pWriteBuffer = ezMemoryUtils::AddByteOffset(pWriteBuffer, static_cast<size_t>(toWrite)); // Down-cast to size_t for 32-bit.
 
       m_uiWritePosition += toWrite;
       uiBytesLeft -= toWrite;
