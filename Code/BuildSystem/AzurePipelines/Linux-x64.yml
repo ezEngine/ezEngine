@@ -23,7 +23,7 @@ jobs:
       targetType: inline
       script: |
         sudo apt-get update
-        sudo apt-get install -y cmake uuid-dev gcc-12 g++-12 libx11-dev build-essential qtbase5-dev qtbase5-dev-tools libqt5svg5-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libqt5x11extras5-dev qtbase5-private-dev
+        sudo apt-get install -y cmake uuid-dev gcc-12 g++-12 libx11-dev build-essential qtbase5-dev qtbase5-dev-tools libqt5svg5-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libqt5x11extras5-dev qtbase5-private-dev xvfb lightdm
   - task: Bash@3
     displayName: Info
     inputs:
@@ -59,7 +59,13 @@ jobs:
     condition: eq(variables['task.MSBuild.status'], 'success')
     inputs:
       targetType: inline
-      script: ./Output/Bin/LinuxMakeGccDev64/CoreTest -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)/CoreTest
+      script: | 
+        export DISPLAY=:1
+        Xvfb :1 -screen 0 1024x768x16 &
+        sleep 1
+        exec lightdm-session &
+        sleep 2
+        ./Output/Bin/LinuxMakeGccDev64/CoreTest -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)/CoreTest
   - task: Bash@3
     displayName: ToolsFoundationTest
     condition: eq(variables['task.MSBuild.status'], 'success')
