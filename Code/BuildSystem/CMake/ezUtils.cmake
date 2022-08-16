@@ -27,6 +27,9 @@ macro(ez_pull_config_vars)
 
 	get_property(EZ_CONFIG_QT_WINX64_URL GLOBAL PROPERTY EZ_CONFIG_QT_WINX64_URL)
 	get_property(EZ_CONFIG_QT_WINX64_VERSION GLOBAL PROPERTY EZ_CONFIG_QT_WINX64_VERSION)
+
+	get_property(EZ_CONFIG_VULKAN_SDK_LINUXX64_VERSION GLOBAL PROPERTY EZ_CONFIG_VULKAN_SDK_LINUXX64_VERSION)
+	get_property(EZ_CONFIG_VULKAN_SDK_LINUXX64_URL GLOBAL PROPERTY EZ_CONFIG_VULKAN_SDK_LINUXX64_URL)
 endmacro()
 
 # #####################################
@@ -591,7 +594,11 @@ endfunction()
 # ## ez_download_and_extract(<url-to-download> <dest-folder-path> <dest-filename-without-extension>)
 # #####################################
 function(ez_download_and_extract URL DEST_FOLDER DEST_FILENAME)
-	get_filename_component(PKG_TYPE ${URL} LAST_EXT)
+	if(${URL} MATCHES ".tar.gz$")
+		set(PKG_TYPE "tar.gz")
+	else()
+		get_filename_component(PKG_TYPE ${URL} LAST_EXT)
+	endif()
 
 	set(FULL_FILENAME "${DEST_FILENAME}.${PKG_TYPE}")
 	set(PKG_FILE "${DEST_FOLDER}/${FULL_FILENAME}")
