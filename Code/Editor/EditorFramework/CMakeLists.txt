@@ -7,7 +7,7 @@ get_filename_component(PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
 
 ez_create_target(LIBRARY ${PROJECT_NAME})
 
-ez_link_target_qt(TARGET ${PROJECT_NAME} COMPONENTS Core Gui Widgets Network WinExtras Svg)
+ez_link_target_qt(TARGET ${PROJECT_NAME} COMPONENTS Core Gui Widgets WinExtras Svg)
 
 target_link_libraries(${PROJECT_NAME}
   PUBLIC
