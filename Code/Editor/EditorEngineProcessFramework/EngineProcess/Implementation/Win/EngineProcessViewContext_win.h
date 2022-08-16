@@ -6,4 +6,6 @@ ezResult ezEditorProcessViewWindow::UpdateWindow(ezWindowHandle parentWindow, ez
   m_hWnd = parentWindow;
   m_uiWidth = uiWidth;
   m_uiHeight = uiHeight;
+
+  return EZ_SUCCESS;
 }
