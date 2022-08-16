@@ -61,7 +61,7 @@ namespace ezInternal
   EZ_FORCE_INLINE T* CreateRawBuffer(ezAllocatorBase* pAllocator, size_t uiCount)
   {
     ezUInt64 safeAllocationSize = ezMath::SafeMultiply64(uiCount, sizeof(T));
-    return static_cast<T*>(pAllocator->Allocate(safeAllocationSize, EZ_ALIGNMENT_OF(T)));
+    return static_cast<T*>(pAllocator->Allocate(static_cast<size_t>(safeAllocationSize), EZ_ALIGNMENT_OF(T))); // Down-cast to size_t for 32-bit
   }
 
   EZ_FORCE_INLINE void DeleteRawBuffer(ezAllocatorBase* pAllocator, void* ptr)
