@@ -68,3 +68,6 @@ ezResult ezEditorProcessViewWindow::UpdateWindow(ezWindowHandle parentWindow, ez
 
   return EZ_SUCCESS;
 }
+
+// Clean up the mess including Xlib.h caused
+#undef None
