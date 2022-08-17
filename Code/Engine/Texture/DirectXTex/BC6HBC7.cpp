@@ -1,6 +1,6 @@
 #include <Texture/TexturePCH.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS) //|| EZ_ENABLED(EZ_PLATFORM_LINUX)
 
 //-------------------------------------------------------------------------------------
 // BC6HBC7.cpp
