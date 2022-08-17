@@ -13,7 +13,7 @@ endfunction()
 # ## ez_set_build_flags_msvc(<target>)
 # #####################################
 function(ez_set_build_flags_msvc TARGET_NAME)
-	set(ARG_OPTIONS ENABLE_RTTI NO_WARNINGS_AS_ERRORS NO_CONTROLFLOWGUARD)
+	set(ARG_OPTIONS ENABLE_RTTI NO_WARNINGS_AS_ERRORS NO_CONTROLFLOWGUARD NO_DEBUG)
 	set(ARG_ONEVALUEARGS "")
 	set(ARG_MULTIVALUEARGS "")
 	cmake_parse_arguments(ARG "${ARG_OPTIONS}" "${ARG_ONEVALUEARGS}" "${ARG_MULTIVALUEARGS}" ${ARGN})
@@ -106,8 +106,16 @@ function(ez_set_build_flags_msvc TARGET_NAME)
 	# Enable comdat folding. Reduces the number of redundant template functions and thus reduces binary size. Makes debugging harder though.
 	set(LINKER_FLAGS_RELEASE "${LINKER_FLAGS_RELEASE} /OPT:ICF")
 
-	set_target_properties(${TARGET_NAME} PROPERTIES LINK_FLAGS_${EZ_BUILDTYPENAME_DEBUG_UPPER} ${LINKER_FLAGS_DEBUG})
-	set_target_properties(${TARGET_NAME} PROPERTIES LINK_FLAGS_${EZ_BUILDTYPENAME_DEV_UPPER} ${LINKER_FLAGS_${EZ_DEV_BUILD_LINKERFLAGS}})
+	if(${ARG_NO_DEBUG})
+		# if NO_DEBUG is set, use the Dev build configuration even for Debug builds, to get best performance
+		message(STATUS "Using Dev build flags for Debug builds '${TARGET_NAME}'")
+		set_target_properties(${TARGET_NAME} PROPERTIES LINK_FLAGS_${EZ_BUILDTYPENAME_DEBUG_UPPER} ${LINKER_FLAGS_RELEASE})
+		set_target_properties(${TARGET_NAME} PROPERTIES LINK_FLAGS_${EZ_BUILDTYPENAME_DEV_UPPER} ${LINKER_FLAGS_RELEASE})
+	else()
+		set_target_properties(${TARGET_NAME} PROPERTIES LINK_FLAGS_${EZ_BUILDTYPENAME_DEBUG_UPPER} ${LINKER_FLAGS_DEBUG})
+		set_target_properties(${TARGET_NAME} PROPERTIES LINK_FLAGS_${EZ_BUILDTYPENAME_DEV_UPPER} ${LINKER_FLAGS_${EZ_DEV_BUILD_LINKERFLAGS}})
+	endif()
+
 	set_target_properties(${TARGET_NAME} PROPERTIES LINK_FLAGS_${EZ_BUILDTYPENAME_RELEASE_UPPER} ${LINKER_FLAGS_RELEASE})
 
 	if(EZ_ENABLE_COMPILER_STATIC_ANALYSIS)
