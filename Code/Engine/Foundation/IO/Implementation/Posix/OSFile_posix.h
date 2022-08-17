@@ -87,7 +87,6 @@ ezResult ezOSFile::InternalOpen(const char* szFile, ezFileOpenMode::Enum OpenMod
       close(fd);
       return EZ_FAILURE;
     }
-    ezLog::Warning("Sleeping for {}", m_sFileName);
     ezThreadUtils::Sleep(sleepTime);
   }
 
@@ -97,7 +96,11 @@ ezResult ezOSFile::InternalOpen(const char* szFile, ezFileOpenMode::Enum OpenMod
       m_FileData.m_pFileHandle = fdopen(fd, "rb");
       break;
     case ezFileOpenMode::Write:
-      ftruncate(fd, 0);
+      if(ftruncate(fd, 0) < 0)
+      {
+        close(fd);
+        return EZ_FAILURE;
+      }
       m_FileData.m_pFileHandle = fdopen(fd, "wb");
       break;
     case ezFileOpenMode::Append:
@@ -164,7 +167,7 @@ ezResult ezOSFile::InternalWrite(const void* pBuffer, ezUInt64 uiBytes)
   {
     if (fwrite(pBuffer, 1, uiBatchBytes, m_FileData.m_pFileHandle) != uiBatchBytes)
     {
-      ezLog::Error("fwrite 1gb failed for '{}'", m_sFileName);
+      ezLog::Error("fwrite 1GB failed for '{}'", m_sFileName);
       return EZ_FAILURE;
     }
 
