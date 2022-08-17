@@ -15,6 +15,8 @@
 
 #if EZ_DISABLED(EZ_PLATFORM_LINUX)
 #include "DirectXTexP.h"
+#else
+#include "EZCompat.h"
 #endif
 
 #include "BC.h"
