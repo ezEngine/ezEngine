@@ -96,7 +96,7 @@ ezResult ezOSFile::InternalOpen(const char* szFile, ezFileOpenMode::Enum OpenMod
       m_FileData.m_pFileHandle = fdopen(fd, "rb");
       break;
     case ezFileOpenMode::Write:
-      if(ftruncate(fd, 0) < 0)
+      if (ftruncate(fd, 0) < 0)
       {
         close(fd);
         return EZ_FAILURE;
