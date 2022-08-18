@@ -19,7 +19,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdFloat)
     // Placement new of the default constructor should not have any effect on the previous data.
     alignas(16) float testBlock[4] = {1, 2, 3, 4};
     ezSimdFloat* pDefCtor = ::new ((void*)&testBlock[0]) ezSimdFloat;
-    EZ_TEST_BOOL_MSG((float)(*pDefCtor) == 1.0f, "Default cosntructed value is %f", (float)(*pDefCtor));
+    EZ_TEST_BOOL_MSG((float)(*pDefCtor) == 1.0f, "Default constructed value is %f", (float)(*pDefCtor));
 #  endif
 #endif
 
