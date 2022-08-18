@@ -145,7 +145,6 @@ ezResult ezOSFile::InternalOpen(const char* szFile, ezFileOpenMode::Enum OpenMod
 
   if (m_FileData.m_pFileHandle == nullptr)
   {
-    ezLog::Error("Failed to open mode '{}' for '{}'", (int)OpenMode, szFile);
     return EZ_FAILURE;
   }
 
