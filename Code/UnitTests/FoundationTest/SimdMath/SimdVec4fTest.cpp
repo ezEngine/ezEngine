@@ -143,14 +143,14 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4f)
     ezSimdVec4f vDefCtor;
     EZ_TEST_BOOL(vDefCtor.IsNaN<4>());
 #else
-    // GCC assumes that the contents of the memory prior to the placement constructor doesn't matter
-    // So it optimizes away the initialization.
-    #if EZ_DISABLED(EZ_COMPILER_GCC)
+// GCC assumes that the contents of the memory prior to the placement constructor doesn't matter
+// So it optimizes away the initialization.
+#  if EZ_DISABLED(EZ_COMPILER_GCC)
     // Placement new of the default constructor should not have any effect on the previous data.
     alignas(16) float testBlock[4] = {1, 2, 3, 4};
     ezSimdVec4f* pDefCtor = ::new ((void*)&testBlock[0]) ezSimdVec4f;
     EZ_TEST_BOOL(pDefCtor->x() == 1.0f && pDefCtor->y() == 2.0f && pDefCtor->z() == 3.0f && pDefCtor->w() == 4.0f);
-    #endif
+#  endif
 #endif
 
     // Make sure the class didn't accidentally change in size.

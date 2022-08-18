@@ -5,13 +5,14 @@
 #include <Foundation/SimdMath/SimdBBox.h>
 #include <Foundation/SimdMath/SimdConversion.h>
 
-#define EZ_TEST_SIMD_VECTOR_EQUAL(NUM_COMPONENTS, A, B, EPSILON) \
-  do { \
-    auto _ezDiff = B - A; \
+#define EZ_TEST_SIMD_VECTOR_EQUAL(NUM_COMPONENTS, A, B, EPSILON)                                                                                               \
+  do                                                                                                                                                           \
+  {                                                                                                                                                            \
+    auto _ezDiff = B - A;                                                                                                                                      \
     ezTestBool((A).IsEqual((B), EPSILON).AllSet<NUM_COMPONENTS>(), "Test failed: " EZ_STRINGIZE(A) ".IsEqual(" EZ_STRINGIZE(B) ", " EZ_STRINGIZE(EPSILON) ")", \
-    EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, \
-    "Difference %lf %lf %lf %lf", _ezDiff.x(), _ezDiff.y(), _ezDiff.z(), _ezDiff.w()); \
-  } while(false) 
+      EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION,                                                                                                      \
+      "Difference %lf %lf %lf %lf", _ezDiff.x(), _ezDiff.y(), _ezDiff.z(), _ezDiff.w());                                                                       \
+  } while (false)
 
 
 EZ_CREATE_SIMPLE_TEST(SimdMath, SimdBBox)

@@ -15,7 +15,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdFloat)
 #else
 // GCC assumes that the contents of the memory before calling the default constructor are irrelevant.
 // So it optimizes away the 1,2,3,4 initializer completely.
-#  if EZ_DISABLED(EZ_COMPILER_GCC) 
+#  if EZ_DISABLED(EZ_COMPILER_GCC)
     // Placement new of the default constructor should not have any effect on the previous data.
     alignas(16) float testBlock[4] = {1, 2, 3, 4};
     ezSimdFloat* pDefCtor = ::new ((void*)&testBlock[0]) ezSimdFloat;
