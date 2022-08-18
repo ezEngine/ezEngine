@@ -5,6 +5,15 @@
 #include <Foundation/SimdMath/SimdBBox.h>
 #include <Foundation/SimdMath/SimdConversion.h>
 
+#define EZ_TEST_SIMD_VECTOR_EQUAL(NUM_COMPONENTS, A, B, EPSILON) \
+  do { \
+    auto _ezDiff = B - A; \
+    ezTestBool((A).IsEqual((B), EPSILON).AllSet<NUM_COMPONENTS>(), "Test failed: " EZ_STRINGIZE(A) ".IsEqual(" EZ_STRINGIZE(B) ", " EZ_STRINGIZE(EPSILON) ")", \
+    EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, \
+    "Difference %lf %lf %lf %lf", _ezDiff.x(), _ezDiff.y(), _ezDiff.z(), _ezDiff.w()); \
+  } while(false) 
+
+
 EZ_CREATE_SIMPLE_TEST(SimdMath, SimdBBox)
 {
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor")
@@ -247,8 +256,8 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdBBox)
 
     b.Transform(t);
 
-    EZ_TEST_BOOL(b.m_Min.IsEqual(ezSimdVec4f(10, 8, -14), 0.00001f).AllSet<3>());
-    EZ_TEST_BOOL(b.m_Max.IsEqual(ezSimdVec4f(14, 10, -6), 0.00001f).AllSet<3>());
+    EZ_TEST_SIMD_VECTOR_EQUAL(3, b.m_Min, ezSimdVec4f(10, 8, -14), 0.00001f);
+    EZ_TEST_SIMD_VECTOR_EQUAL(3, b.m_Max, ezSimdVec4f(14, 10, -6), 0.00001f);
 
     t.m_Rotation.SetFromAxisAndAngle(ezSimdVec4f(0, 0, 1), ezAngle::Degree(-30));
 
@@ -267,8 +276,8 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdBBox)
       referenceBox.TransformFromOrigin(referenceTransform.GetAsMat4());
     }
 
-    EZ_TEST_BOOL(b.m_Min.IsEqual(ezSimdConversion::ToVec3(referenceBox.m_vMin), 0.00001f).AllSet<3>());
-    EZ_TEST_BOOL(b.m_Max.IsEqual(ezSimdConversion::ToVec3(referenceBox.m_vMax), 0.00001f).AllSet<3>());
+    EZ_TEST_SIMD_VECTOR_EQUAL(3, b.m_Min, ezSimdConversion::ToVec3(referenceBox.m_vMin), 0.00001f);
+    EZ_TEST_SIMD_VECTOR_EQUAL(3, b.m_Max, ezSimdConversion::ToVec3(referenceBox.m_vMax), 0.00001f);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetClampedPoint")
