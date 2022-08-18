@@ -27,8 +27,8 @@ ezTextureAssetDocumentManager::ezTextureAssetDocumentManager()
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezTextureAssetDocumentManager::OnDocumentManagerEvent, this));
 
   // additional whitelist for non-asset files where an asset may be selected
-  ezAssetFileExtensionWhitelist::AddAssetFileExtension("Texture 2D", "dds");
-  ezAssetFileExtensionWhitelist::AddAssetFileExtension("Texture 2D", "color");
+  ezAssetFileExtensionWhitelist::AddAssetFileExtension("CompatibleAsset_Texture_2D", "dds");
+  ezAssetFileExtensionWhitelist::AddAssetFileExtension("CompatibleAsset_Texture_2D", "color");
 
   // texture asset source files
   ezAssetFileExtensionWhitelist::AddAssetFileExtension("Image2D", "dds");
@@ -41,6 +41,7 @@ ezTextureAssetDocumentManager::ezTextureAssetDocumentManager()
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_sResourceFileExtension = "ezTexture2D";
   m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoThumbnailOnTransform;
+  m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Texture_2D");
 
   m_DocTypeDesc2.m_sDocumentTypeName = "Render Target";
   m_DocTypeDesc2.m_sFileExtension = "ezRenderTargetAsset";
@@ -49,6 +50,8 @@ ezTextureAssetDocumentManager::ezTextureAssetDocumentManager()
   m_DocTypeDesc2.m_pManager = this;
   m_DocTypeDesc2.m_sResourceFileExtension = "ezRenderTarget";
   m_DocTypeDesc2.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoTransformOnSave;
+  m_DocTypeDesc2.m_CompatibleTypes.PushBack("CompatibleAsset_Texture_2D"); // render targets can also be used as 2D textures
+  m_DocTypeDesc2.m_CompatibleTypes.PushBack("CompatibleAsset_Texture_Target");
 
   ezQtImageCache::GetSingleton()->RegisterTypeImage("Render Target", QPixmap(":/AssetIcons/Render_Target.png"));
 }

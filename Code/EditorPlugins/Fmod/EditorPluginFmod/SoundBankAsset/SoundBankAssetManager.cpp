@@ -60,6 +60,7 @@ ezSoundBankAssetDocumentManager::ezSoundBankAssetDocumentManager()
   m_DocTypeDesc.m_sIcon = ":/AssetIcons/Sound_Bank.png";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezSoundBankAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
+  m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Fmod_Bank");
 
   m_DocTypeDesc.m_sResourceFileExtension = "ezFmodSoundBank";
   m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::None;

@@ -16,6 +16,7 @@ ezSurfaceAssetDocumentManager::ezSurfaceAssetDocumentManager()
   m_DocTypeDesc.m_sIcon = ":/AssetIcons/Surface.png";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezSurfaceAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
+  m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Surface");
 
   m_DocTypeDesc.m_sResourceFileExtension = "ezSurface";
   m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoTransformOnSave;

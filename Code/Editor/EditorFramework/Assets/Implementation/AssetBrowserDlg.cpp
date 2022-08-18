@@ -2,6 +2,7 @@
 
 #include <EditorFramework/Assets/AssetBrowserDlg.moc.h>
 #include <EditorFramework/Assets/AssetBrowserFilter.moc.h>
+#include <EditorFramework/Assets/AssetDocumentManager.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 
 
@@ -17,14 +18,36 @@ ezQtAssetBrowserDlg::ezQtAssetBrowserDlg(QWidget* parent, const ezUuid& preselec
 {
   setupUi(this);
 
-  m_sVisibleFilters = szVisibleFilters;
+  ButtonFileDialog->setVisible(false); // not working correctly anymore
+
+  {
+    ezStringBuilder temp = szVisibleFilters;
+    ezHybridArray<ezStringView, 4> compTypes;
+    temp.Split(false, compTypes, ";");
+    ezStringBuilder allFiltered = szVisibleFilters;
+
+    for (const auto& descIt : ezAssetDocumentManager::GetAllDocumentDescriptors())
+    {
+      const ezDocumentTypeDescriptor* pType = descIt.Value();
+      for (ezStringView ct : compTypes)
+      {
+        if (pType->m_CompatibleTypes.Contains(ct))
+        {
+          allFiltered.Append(";", pType->m_sDocumentTypeName, ";");
+        }
+      }
+    }
+
+    m_sVisibleFilters = allFiltered;
+  }
+
   ButtonSelect->setEnabled(false);
 
   AssetBrowserWidget->SetSelectedAsset(preselectedAsset);
 
-  if (!ezStringUtils::IsEqual(szVisibleFilters, ";;")) // that's an empty filter list
+  if (!ezStringUtils::IsEqual(m_sVisibleFilters, ";;")) // that's an empty filter list
   {
-    AssetBrowserWidget->ShowOnlyTheseTypeFilters(szVisibleFilters);
+    AssetBrowserWidget->ShowOnlyTheseTypeFilters(m_sVisibleFilters);
   }
 
   QSettings Settings;

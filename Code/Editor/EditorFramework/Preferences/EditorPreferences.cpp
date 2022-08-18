@@ -28,7 +28,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorPreferencesUser, 1, ezRTTIDefaultAllocat
     EZ_MEMBER_PROPERTY("AssetFilterCombobox", m_bAssetFilterCombobox)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_MEMBER_PROPERTY("SkyBox", m_bSkyBox)->AddAttributes(new ezDefaultValueAttribute(true), new ezGroupAttribute("Engine View Light Settings")),
     EZ_MEMBER_PROPERTY("SkyLight", m_bSkyLight)->AddAttributes(new ezDefaultValueAttribute(true), new ezClampValueAttribute(0.0f, 2.0f)),
-    EZ_MEMBER_PROPERTY("SkyLightCubeMap", m_sSkyLightCubeMap)->AddAttributes(new ezDefaultValueAttribute(ezStringView("{ 0b202e08-a64f-465d-b38e-15b81d161822 }")), new ezAssetBrowserAttribute("Texture Cube")),
+    EZ_MEMBER_PROPERTY("SkyLightCubeMap", m_sSkyLightCubeMap)->AddAttributes(new ezDefaultValueAttribute(ezStringView("{ 0b202e08-a64f-465d-b38e-15b81d161822 }")), new ezAssetBrowserAttribute("CompatibleAsset_Texture_Cube")),
     EZ_MEMBER_PROPERTY("SkyLightIntensity", m_fSkyLightIntensity)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 20.0f)),
     EZ_MEMBER_PROPERTY("DirectionalLight", m_bDirectionalLight)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_MEMBER_PROPERTY("DirectionalLightAngle", m_DirectionalLightAngle)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(30.0f)), new ezClampValueAttribute(ezAngle::Degree(-90.0f), ezAngle::Degree(90.0f))),

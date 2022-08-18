@@ -79,8 +79,23 @@ bool ezQtAssetPropertyWidget::IsValidAssetType(const char* szAssetReference) con
   if (ezStringUtils::IsEqual(pAssetAttribute->GetTypeFilter(), ";;")) // empty type list -> allows everything
     return true;
 
-  const ezStringBuilder sTypeFilter(";", pAsset->m_Data.m_sSubAssetsDocumentTypeName.GetData(), ";");
-  return ezStringUtils::FindSubString_NoCase(pAssetAttribute->GetTypeFilter(), sTypeFilter) != nullptr;
+  ezStringBuilder sTypeFilter(";", pAsset->m_Data.m_sSubAssetsDocumentTypeName, ";");
+
+  if (ezStringUtils::FindSubString_NoCase(pAssetAttribute->GetTypeFilter(), sTypeFilter) != nullptr)
+    return true;
+
+  if (const ezDocumentTypeDescriptor* pDesc = ezDocumentManager::GetDescriptorForDocumentType(pAsset->m_Data.m_sSubAssetsDocumentTypeName))
+  {
+    for (const ezString& comp : pDesc->m_CompatibleTypes)
+    {
+      sTypeFilter.Set(";", comp, ";");
+
+      if (ezStringUtils::FindSubString_NoCase(pAssetAttribute->GetTypeFilter(), sTypeFilter) != nullptr)
+        return true;
+    }
+  }
+
+  return false;
 }
 
 void ezQtAssetPropertyWidget::OnInit()
@@ -325,12 +340,12 @@ void ezQtAssetPropertyWidget::OnCreateNewAsset()
   const ezAssetBrowserAttribute* pAssetAttribute = m_pProp->GetAttributeByType<ezAssetBrowserAttribute>();
   ezStringBuilder sTypeFilter = pAssetAttribute->GetTypeFilter();
 
-  ezHybridArray<ezString, 4> types;
-  sTypeFilter.Split(false, types, ";");
+  ezHybridArray<ezString, 4> allowedTypes;
+  sTypeFilter.Split(false, allowedTypes, ";");
 
   ezStringBuilder tmp;
 
-  for (ezString& type : types)
+  for (ezString& type : allowedTypes)
   {
     tmp = type;
     tmp.Trim(" ");
@@ -343,9 +358,7 @@ void ezQtAssetPropertyWidget::OnCreateNewAsset()
     const ezDocumentTypeDescriptor* pDocType = nullptr;
   };
 
-  ezHybridArray<info, 4> typesToUse;
-  typesToUse.SetCount(types.GetCount());
-  bool bFoundAny = false;
+  ezMap<ezString, info> typesToUse;
 
   {
     const ezHybridArray<ezDocumentManager*, 16>& managers = ezDocumentManager::GetAllDocumentManagers();
@@ -357,31 +370,39 @@ void ezQtAssetPropertyWidget::OnCreateNewAsset()
         ezHybridArray<const ezDocumentTypeDescriptor*, 4> documentTypes;
         pAssetMan->GetSupportedDocumentTypes(documentTypes);
 
-        for (auto pType : documentTypes)
+        for (const ezDocumentTypeDescriptor* pType : documentTypes)
         {
-          ezUInt32 idx = types.IndexOf(pType->m_sDocumentTypeName);
+          if (allowedTypes.IndexOf(pType->m_sDocumentTypeName) == ezInvalidIndex)
+          {
+            for (const ezString& compType : pType->m_CompatibleTypes)
+            {
+              if (allowedTypes.IndexOf(compType) != ezInvalidIndex)
+                goto allowed;
+            }
 
-          if (idx == ezInvalidIndex)
             continue;
+          }
 
-          typesToUse[idx].pAssetMan = pAssetMan;
-          typesToUse[idx].pDocType = pType;
-          bFoundAny = true;
+        allowed:
+
+          auto& toUse = typesToUse[pType->m_sDocumentTypeName];
+
+          toUse.pAssetMan = pAssetMan;
+          toUse.pDocType = pType;
         }
       }
     }
   }
 
-  if (!bFoundAny)
+  if (typesToUse.IsEmpty())
     return;
 
   ezStringBuilder sFilter;
   QString sSelectedFilter;
 
-  for (const auto& ttu : typesToUse)
+  for (auto it : typesToUse)
   {
-    if (ttu.pAssetMan == nullptr)
-      continue;
+    const auto& ttu = it.Value();
 
     const ezString sAssetType = ttu.pDocType->m_sDocumentTypeName;
     const ezString sExtension = ttu.pDocType->m_sFileExtension;
@@ -410,10 +431,9 @@ void ezQtAssetPropertyWidget::OnCreateNewAsset()
 
   sFilter = sOutput.GetFileExtension();
 
-  for (const auto& ttu : typesToUse)
+  for (auto it : typesToUse)
   {
-    if (ttu.pAssetMan == nullptr)
-      continue;
+    const auto& ttu = it.Value();
 
     if (sFilter.IsEqual_NoCase(ttu.pDocType->m_sFileExtension))
     {

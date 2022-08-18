@@ -15,6 +15,7 @@ ezJoltCollisionMeshAssetDocumentManager::ezJoltCollisionMeshAssetDocumentManager
   m_DocTypeDesc.m_sIcon = ":/AssetIcons/Jolt_Collision_Mesh.png";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezJoltCollisionMeshAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
+  m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Jolt_Colmesh_Triangle");
 
   m_DocTypeDesc.m_sResourceFileExtension = "ezJoltMesh";
   m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::SupportsThumbnail;
@@ -24,6 +25,8 @@ ezJoltCollisionMeshAssetDocumentManager::ezJoltCollisionMeshAssetDocumentManager
   m_DocTypeDesc2.m_sIcon = ":/AssetIcons/Jolt_Collision_Mesh_Convex.png";
   m_DocTypeDesc2.m_pDocumentType = ezGetStaticRTTI<ezJoltCollisionMeshAssetDocument>();
   m_DocTypeDesc2.m_pManager = this;
+  m_DocTypeDesc2.m_CompatibleTypes.PushBack("CompatibleAsset_Jolt_Colmesh_Triangle"); // convex meshes can also be used as triangle meshes (concave)
+  m_DocTypeDesc2.m_CompatibleTypes.PushBack("CompatibleAsset_Jolt_Colmesh_Convex");
 
   m_DocTypeDesc2.m_sResourceFileExtension = "ezJoltMesh";
   m_DocTypeDesc2.m_AssetDocumentFlags = ezAssetDocumentFlags::SupportsThumbnail;

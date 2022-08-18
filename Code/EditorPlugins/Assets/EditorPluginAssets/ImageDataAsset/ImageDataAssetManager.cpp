@@ -22,6 +22,7 @@ ezImageDataAssetDocumentManager::ezImageDataAssetDocumentManager()
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_sResourceFileExtension = "ezImageData";
   m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoThumbnailOnTransform;
+  m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Data_2D");
 }
 
 ezImageDataAssetDocumentManager::~ezImageDataAssetDocumentManager()

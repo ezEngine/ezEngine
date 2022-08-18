@@ -14,13 +14,14 @@ ezMeshAssetDocumentManager::ezMeshAssetDocumentManager()
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezMeshAssetDocumentManager::OnDocumentManagerEvent, this));
 
   // additional whitelist for non-asset files where an asset may be selected
-  ezAssetFileExtensionWhitelist::AddAssetFileExtension("Mesh", "ezMesh");
+  ezAssetFileExtensionWhitelist::AddAssetFileExtension("CompatibleAsset_Mesh_Static", "ezMesh");
 
   m_DocTypeDesc.m_sDocumentTypeName = "Mesh";
   m_DocTypeDesc.m_sFileExtension = "ezMeshAsset";
   m_DocTypeDesc.m_sIcon = ":/AssetIcons/Mesh.png";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezMeshAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
+  m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Mesh_Static");
 
   m_DocTypeDesc.m_sResourceFileExtension = "ezMesh";
   m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::SupportsThumbnail;

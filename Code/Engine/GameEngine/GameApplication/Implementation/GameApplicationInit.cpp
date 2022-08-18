@@ -14,6 +14,7 @@
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraphResource.h>
 #include <RendererCore/AnimationSystem/AnimationClipResource.h>
 #include <RendererCore/Decals/DecalAtlasResource.h>
+#include <RendererCore/Decals/DecalResource.h>
 #include <RendererCore/GPUResourcePool/GPUResourcePool.h>
 #include <RendererCore/Material/MaterialResource.h>
 #include <RendererCore/Meshes/MeshResource.h>
@@ -46,6 +47,7 @@ void ezGameApplication::Init_ConfigureAssetManagement()
   ezResourceManager::RegisterResourceForAssetType("Collection", ezGetStaticRTTI<ezCollectionResource>());
   ezResourceManager::RegisterResourceForAssetType("Material", ezGetStaticRTTI<ezMaterialResource>());
   ezResourceManager::RegisterResourceForAssetType("Mesh", ezGetStaticRTTI<ezMeshResource>());
+  ezResourceManager::RegisterResourceForAssetType("Animated Mesh", ezGetStaticRTTI<ezMeshResource>());
   ezResourceManager::RegisterResourceForAssetType("Prefab", ezGetStaticRTTI<ezPrefabResource>());
   ezResourceManager::RegisterResourceForAssetType("RenderPipeline", ezGetStaticRTTI<ezRenderPipelineResource>());
   ezResourceManager::RegisterResourceForAssetType("Surface", ezGetStaticRTTI<ezSurfaceResource>());
@@ -58,8 +60,10 @@ void ezGameApplication::Init_ConfigureAssetManagement()
   ezResourceManager::RegisterResourceForAssetType("Animation Clip", ezGetStaticRTTI<ezAnimationClipResource>());
   ezResourceManager::RegisterResourceForAssetType("Animation Controller", ezGetStaticRTTI<ezAnimGraphResource>());
   ezResourceManager::RegisterResourceForAssetType("Image Data", ezGetStaticRTTI<ezImageDataResource>());
-  ezResourceManager::RegisterResourceForAssetType("Property Anim", ezGetStaticRTTI<ezPropertyAnimResource>());
+  ezResourceManager::RegisterResourceForAssetType("PropertyAnim", ezGetStaticRTTI<ezPropertyAnimResource>());
   ezResourceManager::RegisterResourceForAssetType("Visual Script", ezGetStaticRTTI<ezVisualScriptResource>());
+  ezResourceManager::RegisterResourceForAssetType("Decal", ezGetStaticRTTI<ezDecalResource>());
+  ezResourceManager::RegisterResourceForAssetType("LUT", ezGetStaticRTTI<ezTexture3DResource>());
 }
 
 void ezGameApplication::Init_SetupDefaultResources()
@@ -236,9 +240,9 @@ void ezGameApplication::Init_SetupGraphicsDevice()
 {
   ezGALDeviceCreationDescription DeviceInit;
 
-#  if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   DeviceInit.m_bDebugDevice = true;
-#  endif
+#endif
 
   {
     ezGALDevice* pDevice = nullptr;

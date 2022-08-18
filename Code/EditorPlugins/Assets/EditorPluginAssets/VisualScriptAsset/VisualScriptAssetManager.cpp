@@ -16,6 +16,7 @@ ezVisualScriptAssetManager::ezVisualScriptAssetManager()
   m_DocTypeDesc.m_sIcon = ":/AssetIcons/Visual_Script.png";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezVisualScriptAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
+  m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Code_VisualScript");
 
   m_DocTypeDesc.m_sResourceFileExtension = "ezVisualScriptBin";
   m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoTransformOnSave;
