@@ -179,17 +179,17 @@ namespace
       if (def.m_sType.IsEqual("Texture2D"))
       {
         attributes.PushBack(EZ_DEFAULT_NEW(ezCategoryAttribute, "Texture 2D"));
-        attributes.PushBack(EZ_DEFAULT_NEW(ezAssetBrowserAttribute, "Texture 2D;Render Target;HTML Texture"));
+        attributes.PushBack(EZ_DEFAULT_NEW(ezAssetBrowserAttribute, "CompatibleAsset_Texture_2D"));
       }
       else if (def.m_sType.IsEqual("Texture3D"))
       {
         attributes.PushBack(EZ_DEFAULT_NEW(ezCategoryAttribute, "Texture 3D"));
-        attributes.PushBack(EZ_DEFAULT_NEW(ezAssetBrowserAttribute, "Texture 3D"));
+        attributes.PushBack(EZ_DEFAULT_NEW(ezAssetBrowserAttribute, "CompatibleAsset_Texture_3D"));
       }
       else if (def.m_sType.IsEqual("TextureCube"))
       {
         attributes.PushBack(EZ_DEFAULT_NEW(ezCategoryAttribute, "Texture Cube"));
-        attributes.PushBack(EZ_DEFAULT_NEW(ezAssetBrowserAttribute, "Texture Cube"));
+        attributes.PushBack(EZ_DEFAULT_NEW(ezAssetBrowserAttribute, "CompatibleAsset_Texture_Cube"));
       }
     }
     else if (def.m_sType.StartsWith_NoCase("permutation"))

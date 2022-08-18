@@ -18,7 +18,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSkeletonPoseComponent, 4, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Skeleton", GetSkeletonFile, SetSkeletonFile)->AddAttributes(new ezAssetBrowserAttribute("Skeleton")),
+    EZ_ACCESSOR_PROPERTY("Skeleton", GetSkeletonFile, SetSkeletonFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Mesh_Skeleton")),
     EZ_ENUM_ACCESSOR_PROPERTY("Mode", ezSkeletonPoseMode, GetPoseMode, SetPoseMode),
     EZ_MEMBER_PROPERTY("EditBones", m_fDummy),
     EZ_MAP_ACCESSOR_PROPERTY("Bones", GetBones, GetBone, SetBone, RemoveBone)->AddAttributes(new ezExposedParametersAttribute("Skeleton"), new ezContainerAttribute(false, true, false)),

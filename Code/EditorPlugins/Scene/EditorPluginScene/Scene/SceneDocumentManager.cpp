@@ -23,6 +23,7 @@ ezSceneDocumentManager::ezSceneDocumentManager()
     docTypeDesc.m_sIcon = ":/AssetIcons/Scene.png";
     docTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezScene2Document>();
     docTypeDesc.m_pManager = this;
+    docTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Scene");
 
     docTypeDesc.m_sResourceFileExtension = "ezObjectGraph";
     docTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::OnlyTransformManually | ezAssetDocumentFlags::SupportsThumbnail;
@@ -37,6 +38,7 @@ ezSceneDocumentManager::ezSceneDocumentManager()
     docTypeDesc.m_sIcon = ":/AssetIcons/Prefab.png";
     docTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezSceneDocument>();
     docTypeDesc.m_pManager = this;
+    docTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Prefab");
 
     docTypeDesc.m_sResourceFileExtension = "ezObjectGraph";
     docTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoTransformOnSave | ezAssetDocumentFlags::SupportsThumbnail;
@@ -50,6 +52,7 @@ ezSceneDocumentManager::ezSceneDocumentManager()
     docTypeDesc.m_sIcon = ":/AssetIcons/Layer.png";
     docTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezLayerDocument>();
     docTypeDesc.m_pManager = this;
+    docTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Scene_Layer");
 
     docTypeDesc.m_sResourceFileExtension = "";
     // A layer can not be transformed individually (at least at the moment)

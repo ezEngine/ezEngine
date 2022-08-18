@@ -34,6 +34,7 @@ ezTypeScriptAssetDocumentManager::ezTypeScriptAssetDocumentManager()
   m_DocTypeDesc.m_sIcon = ":/AssetIcons/TypeScript.png";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezTypeScriptAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
+  m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Code_TypeScript");
 
   m_DocTypeDesc.m_sResourceFileExtension = "ezTypeScriptRes";
   m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::None;

@@ -10,7 +10,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezAnimClip1D, ezNoBase, 1, ezRTTIDefaultAllocator
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Clip", GetAnimationFile, SetAnimationFile)->AddAttributes(new ezAssetBrowserAttribute("Animation Clip")),
+    EZ_ACCESSOR_PROPERTY("Clip", GetAnimationFile, SetAnimationFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Keyframe_Animation")),
     EZ_MEMBER_PROPERTY("Position", m_fPosition),
   }
   EZ_END_PROPERTIES;

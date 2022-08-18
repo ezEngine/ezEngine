@@ -9,7 +9,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezJoltSurfaceResourceSlot, ezNoBase, 1, ezRTTIDef
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Label", m_sLabel)->AddAttributes(new ezReadOnlyAttribute()),
-    EZ_MEMBER_PROPERTY("Resource", m_sResource)->AddAttributes(new ezAssetBrowserAttribute("Surface")),
+    EZ_MEMBER_PROPERTY("Resource", m_sResource)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface")),
   }
   EZ_END_PROPERTIES;
 }

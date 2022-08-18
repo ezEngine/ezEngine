@@ -16,6 +16,7 @@ ezRenderPipelineAssetManager::ezRenderPipelineAssetManager()
   m_DocTypeDesc.m_sIcon = ":/AssetIcons/RenderPipeline.png";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezRenderPipelineAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
+  m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_RenderPipeline");
 
   m_DocTypeDesc.m_sResourceFileExtension = "ezRenderPipelineBin";
   m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoTransformOnSave;

@@ -232,6 +232,10 @@ void ezReflectionPool::Data::PreExtraction()
     for (const ezReflectionProbeRef& probe : updatesFinished)
     {
       m_ActiveDynamicUpdate.Remove(probe);
+
+      if (s_pData->m_WorldReflectionData[probe.m_uiWorldIndex] == nullptr)
+        continue;
+
       ezReflectionPool::Data::WorldReflectionData& data = *s_pData->m_WorldReflectionData[probe.m_uiWorldIndex];
       data.m_mapping.ProbeUpdateFinished(probe.m_Id);
     }
@@ -241,6 +245,9 @@ void ezReflectionPool::Data::PreExtraction()
       ezReflectionProbeRef nextUpdate = m_DynamicUpdateQueue.PeekFront();
       m_DynamicUpdateQueue.PopFront();
       m_PendingDynamicUpdate.Remove(nextUpdate);
+
+      if (s_pData->m_WorldReflectionData[nextUpdate.m_uiWorldIndex] == nullptr)
+        continue;
 
       ezReflectionPool::Data::WorldReflectionData& data = *s_pData->m_WorldReflectionData[nextUpdate.m_uiWorldIndex];
       ProbeData& probeData = data.m_Probes.GetValueUnchecked(nextUpdate.m_Id.m_InstanceIndex);

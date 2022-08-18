@@ -16,13 +16,14 @@ ezMaterialAssetDocumentManager::ezMaterialAssetDocumentManager()
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezMaterialAssetDocumentManager::OnDocumentManagerEvent, this));
 
   // additional whitelist for non-asset files where an asset may be selected
-  ezAssetFileExtensionWhitelist::AddAssetFileExtension("Material", "ezMaterial");
+  ezAssetFileExtensionWhitelist::AddAssetFileExtension("CompatibleAsset_Material", "ezMaterial");
 
   m_DocTypeDesc.m_sDocumentTypeName = "Material";
   m_DocTypeDesc.m_sFileExtension = "ezMaterialAsset";
   m_DocTypeDesc.m_sIcon = ":/AssetIcons/Material.png";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezMaterialAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
+  m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Material");
 
   m_DocTypeDesc.m_sResourceFileExtension = "ezMaterialBin";
   m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::SupportsThumbnail;

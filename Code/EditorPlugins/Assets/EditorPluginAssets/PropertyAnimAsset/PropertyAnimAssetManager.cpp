@@ -16,6 +16,7 @@ ezPropertyAnimAssetDocumentManager::ezPropertyAnimAssetDocumentManager()
   m_DocTypeDesc.m_sIcon = ":/AssetIcons/PropertyAnim.png";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezPropertyAnimAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
+  m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Property_Animation");
 
   m_DocTypeDesc.m_sResourceFileExtension = "ezPropertyAnim";
   m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoTransformOnSave;

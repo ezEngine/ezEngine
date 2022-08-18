@@ -161,7 +161,7 @@ void ezViewLightButtonAction::Execute(const ezVariant& value)
       ezStringBuilder sFile = m_pSettings->GetSkyLightCubeMap();
       ezUuid assetGuid = ezConversionUtils::ConvertStringToUuid(sFile);
 
-      ezQtAssetBrowserDlg dlg(pView, assetGuid, "Texture Cube");
+      ezQtAssetBrowserDlg dlg(pView, assetGuid, "CompatibleAsset_Texture_Cube");
       if (dlg.exec() == 0)
         return;
 
