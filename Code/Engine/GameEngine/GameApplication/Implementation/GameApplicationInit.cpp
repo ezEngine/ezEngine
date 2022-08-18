@@ -22,6 +22,7 @@
 #include <RendererCore/Shader/ShaderPermutationResource.h>
 #include <RendererCore/ShaderCompiler/ShaderManager.h>
 #include <RendererCore/Textures/Texture2DResource.h>
+#include <RendererCore/Textures/Texture3DResource.h>
 #include <RendererCore/Textures/TextureCubeResource.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Device/DeviceFactory.h>
