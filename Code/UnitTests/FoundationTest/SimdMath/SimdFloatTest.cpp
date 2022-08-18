@@ -13,10 +13,14 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdFloat)
     ezSimdFloat vDefCtor;
     EZ_TEST_BOOL(ezMath::IsNaN((float)vDefCtor));
 #else
+// GCC assumes that the contents of the memory before calling the default constructor are irrelevant.
+// So it optimizes away the 1,2,3,4 initializer completely.
+#  if EZ_DISABLED(EZ_COMPILER_GCC)
     // Placement new of the default constructor should not have any effect on the previous data.
     alignas(16) float testBlock[4] = {1, 2, 3, 4};
     ezSimdFloat* pDefCtor = ::new ((void*)&testBlock[0]) ezSimdFloat;
-    EZ_TEST_BOOL((float)(*pDefCtor) == 1.0f);
+    EZ_TEST_BOOL_MSG((float)(*pDefCtor) == 1.0f, "Default constructed value is %f", (float)(*pDefCtor));
+#  endif
 #endif
 
     // Make sure the class didn't accidentally change in size.
