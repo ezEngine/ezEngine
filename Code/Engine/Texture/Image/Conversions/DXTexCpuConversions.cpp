@@ -110,8 +110,8 @@ public:
             {
               for (ezUInt32 x = 0; x < 4; x++)
               {
-                const ezUInt8* pixel = srcIt + y * srcStride + x * 4;
-                temp[y * 4 + x] = DirectX::XMVectorSet(pixel[0] / 255.0f, pixel[1] / 255.0f, pixel[2] / 255.0f, pixel[3] / 255.0f);
+                const float* pixel = reinterpret_cast<const float*>(srcIt + y * srcStride + x * 4 * sizeof(float));
+                temp[y * 4 + x] = DirectX::XMVectorSet(pixel[0], pixel[1], pixel[2], pixel[3]);
               }
             }
             DirectX::D3DXEncodeBC6HU(targetIt, temp, 0);
