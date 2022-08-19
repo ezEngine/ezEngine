@@ -649,6 +649,7 @@ void ezQtAssetBrowserWidget::on_ListAssets_customContextMenuRequested(const QPoi
     m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/DocumentGuid16.png")), QLatin1String("Copy Asset Guid"), this, SLOT(OnListCopyAssetGuid()));
     m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Search16.png")), QLatin1String("Find all direct references to this asset"), this, [&]() { OnListFindAllReferences(false); });
     m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Search16.png")), QLatin1String("Find all direct and indirect references to this asset"), this, [&]() { OnListFindAllReferences(true); });
+    m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/ZoomOut16.png")), QLatin1String("Filter to this Path"), this, SLOT(OnFilterToThisPath()));
   }
 
   auto pSortAction = m.addAction(QLatin1String("Sort by Recently Used"), this, SLOT(OnListToggleSortByRecentlyUsed()));
@@ -733,6 +734,20 @@ void ezQtAssetBrowserWidget::OnListCopyAssetGuid()
   ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage(ezFmt("Copied asset GUID: {}", tmp), ezTime::Seconds(5));
 }
 
+void ezQtAssetBrowserWidget::OnFilterToThisPath()
+{
+  if (!ListAssets->selectionModel()->hasSelection())
+    return;
+
+  ezStringBuilder sPath = m_pModel->data(ListAssets->currentIndex(), ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString().toUtf8().data();
+  sPath.PathParentDirectory();
+  sPath.Trim("/");
+
+  if (!ezQtEditorApp::GetSingleton()->MakePathDataDirectoryParentRelative(sPath))
+    return;
+
+  m_pFilter->SetPathFilter(sPath);
+}
 
 void ezQtAssetBrowserWidget::OnListFindAllReferences(bool transitive)
 {
