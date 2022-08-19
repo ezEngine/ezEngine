@@ -296,8 +296,13 @@ struct ezShadowPool::Data
     renderTargets.m_hDSTarget = m_hShadowAtlasTexture;
     pView->SetRenderTargets(renderTargets);
 
+    EZ_ASSERT_DEV(m_ShadowViewsMutex.IsLocked(), "m_ShadowViewsMutex must be locked at this point.");
+    m_ShadowViewsMutex.Unlock(); // if the resource gets loaded in the call below, his could lead to a deadlock
+
     // ShadowMapRenderPipeline.ezRenderPipelineAsset
     pView->SetRenderPipelineResource(ezResourceManager::LoadResource<ezRenderPipelineResource>("{ 4f4d9f16-3d47-4c67-b821-a778f11dcaf5 }"));
+
+    m_ShadowViewsMutex.Lock();
 
     // Set viewport size to something valid, this will be changed to the proper location in the atlas texture in OnEndExtraction before
     // rendering.
