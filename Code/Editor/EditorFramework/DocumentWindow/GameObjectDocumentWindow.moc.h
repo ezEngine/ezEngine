@@ -18,7 +18,6 @@ public:
   ezGameObjectDocument* GetGameObjectDocument() const;
 
 protected:
-  ezGlobalSettingsMsgToEngine GetGlobalSettings() const;
   ezWorldSettingsMsgToEngine GetWorldSettings() const;
   ezGridSettingsMsgToEngine GetGridSettings() const;
   virtual void ProcessMessageEventHandler(const ezEditorEngineDocumentMsg* pMsg) override;

@@ -155,12 +155,6 @@ void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
     return;
   }
 
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezGlobalSettingsMsgToEngine>())
-  {
-    HandleGlobalSettingsMsg(static_cast<const ezGlobalSettingsMsgToEngine*>(pMsg));
-    return;
-  }
-
   if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezObjectsForDebugVisMsgToEngine>())
   {
     HandleObjectsForDebugVisMsg(static_cast<const ezObjectsForDebugVisMsgToEngine*>(pMsg));
@@ -382,11 +376,6 @@ void ezSceneContext::HandleGridSettingsMsg(const ezGridSettingsMsgToEngine* pMsg
       m_GridTransform.m_qRotation.SetFromMat3(mRot);
     }
   }
-}
-
-void ezSceneContext::HandleGlobalSettingsMsg(const ezGlobalSettingsMsgToEngine* pMsg)
-{
-  ezGizmoRenderer::s_fGizmoScale = pMsg->m_fGizmoScale;
 }
 
 void ezSceneContext::HandleSimulationSettingsMsg(const ezSimulationSettingsMsgToEngine* pMsg)

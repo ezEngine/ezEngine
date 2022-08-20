@@ -515,9 +515,9 @@ public:
   ezVec3 m_vGridTangent2;
 };
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezGlobalSettingsMsgToEngine : public ezEditorEngineDocumentMsg
+class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezGlobalSettingsMsgToEngine : public ezEditorEngineMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezGlobalSettingsMsgToEngine, ezEditorEngineDocumentMsg);
+  EZ_ADD_DYNAMIC_REFLECTION(ezGlobalSettingsMsgToEngine, ezEditorEngineMsg);
 
 public:
   float m_fGizmoScale = 0.0f;

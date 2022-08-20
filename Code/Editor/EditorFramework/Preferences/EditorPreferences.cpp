@@ -17,7 +17,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorPreferencesUser, 1, ezRTTIDefaultAllocat
     EZ_MEMBER_PROPERTY("ShowSplashscreen", m_bShowSplashscreen)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_MEMBER_PROPERTY("BackgroundAssetProcessing", m_bBackgroundAssetProcessing)->AddAttributes(new ezDefaultValueAttribute(false)),
     EZ_MEMBER_PROPERTY("FieldOfView", m_fPerspectiveFieldOfView)->AddAttributes(new ezDefaultValueAttribute(70.0f), new ezClampValueAttribute(10.0f, 150.0f)),
-    EZ_MEMBER_PROPERTY("GizmoSize", m_fGizmoSize)->AddAttributes(new ezDefaultValueAttribute(1.5f), new ezClampValueAttribute(0.2f, 5.0f)),
+    EZ_ACCESSOR_PROPERTY("GizmoSize", GetGizmoSize, SetGizmoSize)->AddAttributes(new ezDefaultValueAttribute(1.5f), new ezClampValueAttribute(0.2f, 5.0f)),
     EZ_MEMBER_PROPERTY("UseOldGizmos", m_bOldGizmos),
     EZ_ACCESSOR_PROPERTY("ShowInDevelopmentFeatures", GetShowInDevelopmentFeatures, SetShowInDevelopmentFeatures),
     EZ_MEMBER_PROPERTY("RotationSnap", m_RotationSnapValue)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(15.0f))),
@@ -80,6 +80,20 @@ void ezEditorPreferencesUser::SetShowInDevelopmentFeatures(bool b)
   m_bShowInDevelopmentFeatures = b;
 
   ezQtAddSubElementButton::s_bShowInDevelopmentFeatures = b;
+}
+
+void ezEditorPreferencesUser::SetGizmoSize(float f)
+{
+  m_fGizmoSize = f;
+  SyncGlobalSettings();
+}
+
+void ezEditorPreferencesUser::SyncGlobalSettings()
+{
+  ezGlobalSettingsMsgToEngine msg;
+  msg.m_fGizmoScale = m_fGizmoSize;
+
+  ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
 }
 
 void ezQtEditorApp::LoadEditorPreferences()

@@ -312,10 +312,6 @@ void ezQtPropertyAnimAssetDocumentWindow::InternalRedraw()
       GetEditorEngineConnection()->SendMessage(&msg);
     }
     {
-      ezGlobalSettingsMsgToEngine msg = GetGlobalSettings();
-      GetEditorEngineConnection()->SendMessage(&msg);
-    }
-    {
       ezWorldSettingsMsgToEngine msg = GetWorldSettings();
       GetEditorEngineConnection()->SendMessage(&msg);
     }

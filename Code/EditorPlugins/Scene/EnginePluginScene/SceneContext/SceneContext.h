@@ -12,7 +12,6 @@ class ezGameModeMsgToEngine;
 class ezWorldSettingsMsgToEngine;
 class ezObjectsForDebugVisMsgToEngine;
 struct ezVisualScriptComponentActivityEvent;
-class ezGlobalSettingsMsgToEngine;
 class ezGridSettingsMsgToEngine;
 class ezSimulationSettingsMsgToEngine;
 struct ezResourceManagerEvent;
@@ -87,7 +86,6 @@ private:
   void HandleGameModeMsg(const ezGameModeMsgToEngine* pMsg);
   void HandleSimulationSettingsMsg(const ezSimulationSettingsMsgToEngine* msg);
   void HandleGridSettingsMsg(const ezGridSettingsMsgToEngine* msg);
-  void HandleGlobalSettingsMsg(const ezGlobalSettingsMsgToEngine* msg);
   void HandleWorldSettingsMsg(const ezWorldSettingsMsgToEngine* msg);
   void HandleObjectsForDebugVisMsg(const ezObjectsForDebugVisMsgToEngine* pMsg);
   void ComputeHierarchyBounds(ezGameObject* pObj, ezBoundingBoxSphere& bounds);

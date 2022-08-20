@@ -15,7 +15,8 @@
 ezQtSceneDocumentWindow::ezQtSceneDocumentWindow(ezSceneDocument* pDocument)
   : ezQtSceneDocumentWindowBase(pDocument)
 {
-  auto ViewFactory = [](ezQtEngineDocumentWindow* pWindow, ezEngineViewConfig* pConfig) -> ezQtEngineViewWidget* {
+  auto ViewFactory = [](ezQtEngineDocumentWindow* pWindow, ezEngineViewConfig* pConfig) -> ezQtEngineViewWidget*
+  {
     ezQtSceneViewWidget* pWidget = new ezQtSceneViewWidget(nullptr, static_cast<ezQtSceneDocumentWindowBase*>(pWindow), pConfig);
     pWindow->AddViewWidget(pWidget);
     return pWidget;
@@ -23,7 +24,8 @@ ezQtSceneDocumentWindow::ezQtSceneDocumentWindow(ezSceneDocument* pDocument)
   m_pQuadViewWidget = new ezQtQuadViewWidget(pDocument, this, ViewFactory, "EditorPluginScene_ViewToolBar");
 
   pDocument->SetEditToolConfigDelegate(
-    [this](ezGameObjectEditTool* pTool) { pTool->ConfigureTool(static_cast<ezGameObjectDocument*>(GetDocument()), this, this); });
+    [this](ezGameObjectEditTool* pTool)
+    { pTool->ConfigureTool(static_cast<ezGameObjectDocument*>(GetDocument()), this, this); });
 
   setCentralWidget(m_pQuadViewWidget);
 
@@ -272,10 +274,6 @@ void ezQtSceneDocumentWindowBase::SendRedrawMsg()
     GetEditorEngineConnection()->SendMessage(&msg);
   }
   {
-    ezGlobalSettingsMsgToEngine msg = GetGlobalSettings();
-    GetEditorEngineConnection()->SendMessage(&msg);
-  }
-  {
     ezWorldSettingsMsgToEngine msg = GetWorldSettings();
     GetEditorEngineConnection()->SendMessage(&msg);
   }
@@ -310,7 +308,8 @@ void ezQtSceneDocumentWindowBase::ExtendPropertyGridContextMenu(
   {
     QAction* pAction = menu.addAction("Expose as Parameter");
     pAction->setEnabled(iExposed < items.GetCount());
-    connect(pAction, &QAction::triggered, pAction, [this, &menu, &items, pProp]() {
+    connect(pAction, &QAction::triggered, pAction, [this, &menu, &items, pProp]()
+      {
       while (true)
       {
         bool bOk = false;
@@ -338,13 +337,13 @@ void ezQtSceneDocumentWindowBase::ExtendPropertyGridContextMenu(
         }
         pAccessor->FinishTransaction();
         return;
-      }
-    });
+      } });
   }
   {
     QAction* pAction = menu.addAction("Remove Exposed Parameter");
     pAction->setEnabled(iExposed > 0);
-    connect(pAction, &QAction::triggered, pAction, [this, &menu, &items, pProp]() {
+    connect(pAction, &QAction::triggered, pAction, [this, &menu, &items, pProp]()
+      {
       auto pAccessor = GetSceneDocument()->GetObjectAccessor();
       pAccessor->StartTransaction("Remove Exposed Parameter");
       for (const ezPropertySelection& sel : items)
@@ -355,8 +354,7 @@ void ezQtSceneDocumentWindowBase::ExtendPropertyGridContextMenu(
           GetSceneDocument()->RemoveExposedParameter(index).LogFailure();
         }
       }
-      pAccessor->FinishTransaction();
-    });
+      pAccessor->FinishTransaction(); });
   }
 }
 

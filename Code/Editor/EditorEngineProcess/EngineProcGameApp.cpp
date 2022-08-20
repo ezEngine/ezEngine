@@ -8,6 +8,7 @@
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
+#include <EditorEngineProcessFramework/Gizmos/GizmoRenderer.h>
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
@@ -312,6 +313,10 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
   {
     HandleResourceRestoreMsg(*pMsg2a);
   }
+  else if (const auto* pMsg2b = ezDynamicCast<const ezGlobalSettingsMsgToEngine*>(e.m_pMessage))
+  {
+    ezGizmoRenderer::s_fGizmoScale = pMsg2b->m_fGizmoScale;
+  }
   else if (const auto* pMsg3 = ezDynamicCast<const ezChangeCVarMsgToEngine*>(e.m_pMessage))
   {
     if (ezCVar* pCVar = ezCVar::FindCVarByName(pMsg3->m_sCVarName))
@@ -474,7 +479,8 @@ ezEngineProcessDocumentContext* ezEngineProcessGameApplication::CreateDocumentCo
 
 void ezEngineProcessGameApplication::Init_LoadProjectPlugins()
 {
-  m_CustomPluginConfig.m_Plugins.Sort([](const ezApplicationPluginConfig::PluginConfig& lhs, const ezApplicationPluginConfig::PluginConfig& rhs) -> bool {
+  m_CustomPluginConfig.m_Plugins.Sort([](const ezApplicationPluginConfig::PluginConfig& lhs, const ezApplicationPluginConfig::PluginConfig& rhs) -> bool
+    {
     const bool isEnginePluginLhs = lhs.m_sAppDirRelativePath.FindSubString_NoCase("EnginePlugin") != nullptr;
     const bool isEnginePluginRhs = rhs.m_sAppDirRelativePath.FindSubString_NoCase("EnginePlugin") != nullptr;
 
@@ -487,8 +493,7 @@ void ezEngineProcessGameApplication::Init_LoadProjectPlugins()
       return isEnginePluginRhs;
     }
 
-    return lhs.m_sAppDirRelativePath.Compare_NoCase(rhs.m_sAppDirRelativePath) < 0;
-  });
+    return lhs.m_sAppDirRelativePath.Compare_NoCase(rhs.m_sAppDirRelativePath) < 0; });
 
   m_CustomPluginConfig.Apply();
 }

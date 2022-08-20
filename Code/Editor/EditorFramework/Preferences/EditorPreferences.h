@@ -18,7 +18,6 @@ public:
   void SetAsDefaultValues(const ezEngineViewLightSettings& settings);
 
   float m_fPerspectiveFieldOfView = 70.0f;
-  float m_fGizmoSize = 1.5f;
   bool m_bOldGizmos = false;
   ezAngle m_RotationSnapValue = ezAngle::Degree(15.0f);
   float m_fScaleSnapValue = 0.125f;
@@ -46,6 +45,12 @@ public:
     return m_bShowInDevelopmentFeatures;
   }
 
+  void SetGizmoSize(float f);
+  float GetGizmoSize() const { return m_fGizmoSize; }
+
 private:
+  void SyncGlobalSettings();
+
+  float m_fGizmoSize = 1.5f;
   bool m_bShowInDevelopmentFeatures = false;
 };
