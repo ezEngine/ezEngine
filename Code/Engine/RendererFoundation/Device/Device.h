@@ -89,6 +89,7 @@ public:
 
   using SwapChainFactoryFunction = ezDelegate<ezGALSwapChain*(ezAllocatorBase*)>;
   ezGALSwapChainHandle CreateSwapChain(const SwapChainFactoryFunction& func);
+  ezResult UpdateSwapChain(ezGALSwapChainHandle hSwapChain, ezEnum<ezGALPresentMode> newPresentMode);
   void DestroySwapChain(ezGALSwapChainHandle hSwapChain);
 
   ezGALQueryHandle CreateQuery(const ezGALQueryCreationDescription& Description);

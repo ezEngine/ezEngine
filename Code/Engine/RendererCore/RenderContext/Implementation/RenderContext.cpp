@@ -45,10 +45,12 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, RendererContext)
 
   ON_HIGHLEVELSYSTEMS_STARTUP
   {
+    ezShaderUtils::g_RequestBuiltinShaderCallback = ezMakeDelegate(ezRenderContext::LoadBuiltinShader);
   }
 
   ON_HIGHLEVELSYSTEMS_SHUTDOWN
   {
+    ezShaderUtils::g_RequestBuiltinShaderCallback = {};
     ezRenderContext::OnEngineShutdown();
   }
 
@@ -852,6 +854,48 @@ ezGALSamplerStateHandle ezRenderContext::GetDefaultSamplerState(ezBitflags<ezDef
 
 // private functions
 //////////////////////////////////////////////////////////////////////////
+
+// static
+void ezRenderContext::LoadBuiltinShader(ezShaderUtils::ezBuiltinShaderType type, ezShaderUtils::ezBuiltinShader& out_shader)
+{
+  ezShaderResourceHandle hActiveShader;
+  switch (type)
+  {
+    case ezShaderUtils::ezBuiltinShaderType::CopyImage:
+      hActiveShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Pipeline/Copy.ezShader");
+      break;
+    case ezShaderUtils::ezBuiltinShaderType::DownscaleImage:
+      hActiveShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Pipeline/Downscale.ezShader");
+      break;
+  }
+
+  EZ_ASSERT_DEV(hActiveShader.IsValid(), "Could not load builtin shader!");
+
+  ezHashTable<ezHashedString, ezHashedString> permutationVariables;
+  static ezHashedString sVSRTAI = ezMakeHashedString("VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX");
+  static ezHashedString sTrue = ezMakeHashedString("TRUE");
+  static ezHashedString sFalse = ezMakeHashedString("FALSE");
+  if (ezGALDevice::GetDefaultDevice()->GetCapabilities().m_bVertexShaderRenderTargetArrayIndex)
+    permutationVariables.Insert(sVSRTAI, sTrue);
+  else
+    permutationVariables.Insert(sVSRTAI, sFalse);
+
+
+  ezShaderPermutationResourceHandle hActiveShaderPermutation = ezShaderManager::PreloadSinglePermutation(hActiveShader, permutationVariables, false);
+
+  EZ_ASSERT_DEV(hActiveShaderPermutation.IsValid(), "Could not load builtin shader permutation!");
+
+  ezResourceLock<ezShaderPermutationResource> pShaderPermutation(hActiveShaderPermutation, ezResourceAcquireMode::BlockTillLoaded);
+
+  EZ_ASSERT_DEV(pShaderPermutation->IsShaderValid(), "Builtin shader permutation shader is invalid!");
+
+  out_shader.m_hActiveGALShader = pShaderPermutation->GetGALShader();
+  EZ_ASSERT_DEV(!out_shader.m_hActiveGALShader.IsInvalidated(), "Invalid GAL Shader handle.");
+
+  out_shader.m_hBlendState = pShaderPermutation->GetBlendState();
+  out_shader.m_hDepthStencilState = pShaderPermutation->GetDepthStencilState();
+  out_shader.m_hRasterizerState = pShaderPermutation->GetRasterizerState();
+}
 
 // static
 void ezRenderContext::OnEngineShutdown()

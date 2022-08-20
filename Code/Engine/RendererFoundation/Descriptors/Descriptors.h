@@ -65,7 +65,7 @@ struct ezGALWindowSwapChainCreationDescription : public ezHashableStruct<ezGALWi
   // Note however, that different platforms may enforce restrictions on this.
   ezGALMSAASampleCount::Enum m_SampleCount = ezGALMSAASampleCount::None;
   ezGALResourceFormat::Enum m_BackBufferFormat = ezGALResourceFormat::RGBAUByteNormalizedsRGB;
-  ezEnum<ezGALPresentMode> m_PresentMode = ezGALPresentMode::VSync;
+  ezEnum<ezGALPresentMode> m_InitialPresentMode = ezGALPresentMode::VSync;
 
   bool m_bDoubleBuffered = true;
   bool m_bAllowScreenshots = false;

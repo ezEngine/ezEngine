@@ -3,6 +3,7 @@
 #include <RendererVulkan/Device/DeviceVulkan.h>
 #include <RendererVulkan/Device/InitContext.h>
 #include <RendererVulkan/Resources/TextureVulkan.h>
+#include <RendererVulkan/Utils/ConversionUtilsVulkan.h>
 #include <RendererVulkan/Utils/PipelineBarrierVulkan.h>
 
 vk::Extent3D ezGALTextureVulkan::GetMipLevelSize(ezUInt32 uiMipLevel) const
@@ -29,11 +30,9 @@ vk::ImageSubresourceRange ezGALTextureVulkan::GetFullRange() const
 
 vk::ImageAspectFlags ezGALTextureVulkan::GetStagingAspectMask() const
 {
-  vk::ImageAspectFlags mask = ezGALResourceFormat::IsDepthFormat(m_Description.m_Format) ? vk::ImageAspectFlagBits::eDepth : vk::ImageAspectFlagBits::eColor;
-  if (ezGALResourceFormat::IsStencilFormat(m_Description.m_Format))
+  vk::ImageAspectFlags mask = ezConversionUtilsVulkan::IsDepthFormat(m_stagingImageFormat) ? vk::ImageAspectFlagBits::eDepth : vk::ImageAspectFlagBits::eColor;
+  if (ezConversionUtilsVulkan::IsStencilFormat(m_stagingImageFormat))
     mask |= vk::ImageAspectFlagBits::eStencil;
-  if (ezGALResourceFormat::IsDepthFormat(m_Description.m_Format))
-    mask = vk::ImageAspectFlagBits::eColor;
   return mask;
 }
 
@@ -88,7 +87,7 @@ ezResult ezGALTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGAL
   createInfo.tiling = vk::ImageTiling::eOptimal;
   createInfo.usage |= vk::ImageUsageFlagBits::eTransferDst;
   if (m_Description.m_ResourceAccess.m_bReadBack)
-    createInfo.usage |= vk::ImageUsageFlagBits::eTransferSrc;
+    createInfo.usage |= vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eSampled;
 
   // TODO are these correctly populated or do they contain meaningless values depending on
   // the texture type indicated?
@@ -110,7 +109,7 @@ ezResult ezGALTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGAL
     m_access |= vk::AccessFlagBits::eShaderRead;
     m_preferredLayout = bIsDepth ? vk::ImageLayout::eDepthStencilReadOnlyOptimal : vk::ImageLayout::eShaderReadOnlyOptimal;
   }
-
+  //VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT
   if (m_Description.m_bCreateRenderTarget || m_Description.m_bAllowDynamicMipGeneration)
   {
     if (bIsDepth)
@@ -216,18 +215,43 @@ void ezGALTextureVulkan::SetDebugNamePlatform(const char* szName) const
 ezResult ezGALTextureVulkan::CreateStagingBuffer(ezGALDeviceVulkan* pDevice, const vk::ImageCreateInfo& imageCreateInfo)
 {
   vk::ImageCreateInfo stagingImageCreateInfo = imageCreateInfo;
+  if (stagingImageCreateInfo.format == vk::Format::eD32Sfloat)
+  {
+    stagingImageCreateInfo.format = vk::Format::eR32Sfloat;
+  }
+  m_stagingImageFormat = stagingImageCreateInfo.format;
+
+  const vk::FormatProperties srcFormatProps = pDevice->GetVulkanPhysicalDevice().getFormatProperties(m_imageFormat);
+  const vk::FormatProperties dstFormatProps = pDevice->GetVulkanPhysicalDevice().getFormatProperties(m_stagingImageFormat);
+  const bool bSupportsCopy = (m_imageFormat == m_stagingImageFormat && (srcFormatProps.optimalTilingFeatures & vk::FormatFeatureFlagBits::eTransferSrc) && (dstFormatProps.linearTilingFeatures & vk::FormatFeatureFlagBits::eTransferDst));
+  const bool bSupportsBlit = ((srcFormatProps.optimalTilingFeatures & vk::FormatFeatureFlagBits::eBlitSrc) && (dstFormatProps.linearTilingFeatures & vk::FormatFeatureFlagBits::eBlitDst) && (ezConversionUtilsVulkan::IsDepthFormat(m_stagingImageFormat) == ezConversionUtilsVulkan::IsDepthFormat(m_imageFormat)));
+  const bool bRequiresProxy = !(dstFormatProps.linearTilingFeatures & vk::FormatFeatureFlagBits::eColorAttachment);
 
   stagingImageCreateInfo.samples = vk::SampleCountFlagBits::e1;
   stagingImageCreateInfo.tiling = vk::ImageTiling::eLinear;
-  stagingImageCreateInfo.usage = vk::ImageUsageFlagBits::eTransferDst;
+  stagingImageCreateInfo.flags = {}; // Clear all flags as we don't need them and they usually are not supported on NVidia in linear mode.
+
+  if (bSupportsCopy || bSupportsBlit)
+  {
+    stagingImageCreateInfo.usage = vk::ImageUsageFlagBits::eTransferDst;
+  }
+  else
+  {
+    if (bRequiresProxy)
+      stagingImageCreateInfo.usage = vk::ImageUsageFlagBits::eTransferDst;
+    else
+      stagingImageCreateInfo.usage = vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eColorAttachment;
+  }
+
   stagingImageCreateInfo.initialLayout = vk::ImageLayout::eUndefined;
+
+  vk::ImageFormatProperties props2;
+  VK_ASSERT_DEBUG(pDevice->GetVulkanPhysicalDevice().getImageFormatProperties(stagingImageCreateInfo.format, stagingImageCreateInfo.imageType, stagingImageCreateInfo.tiling, stagingImageCreateInfo.usage, stagingImageCreateInfo.flags, &props2));
 
   ezVulkanAllocationCreateInfo allocInfo;
   allocInfo.m_usage = ezVulkanMemoryUsage::Auto;
   allocInfo.m_flags = ezVulkanAllocationCreateFlags::HostAccessRandom;
   VK_SUCCEED_OR_RETURN_EZ_FAILURE(ezMemoryAllocatorVulkan::CreateImage(stagingImageCreateInfo, allocInfo, m_stagingImage, m_stagingAlloc, &m_stagingAllocInfo));
-
-  m_stagingImageFormat = imageCreateInfo.format;
 
   return EZ_SUCCESS;
 }

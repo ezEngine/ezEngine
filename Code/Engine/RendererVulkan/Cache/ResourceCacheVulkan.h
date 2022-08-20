@@ -28,7 +28,7 @@ public:
   static void DeInitialize();
 
   static vk::RenderPass RequestRenderPass(const ezGALRenderingSetup& renderingSetup);
-  static vk::Framebuffer RequestFrameBuffer(vk::RenderPass renderPass, const ezGALRenderTargetSetup& renderTargetSetup, ezSizeU32& out_Size, ezEnum<ezGALMSAASampleCount>& out_msaa);
+  static vk::Framebuffer RequestFrameBuffer(vk::RenderPass renderPass, const ezGALRenderTargetSetup& renderTargetSetup, ezSizeU32& out_Size, ezEnum<ezGALMSAASampleCount>& out_msaa, ezUInt32& out_uiLayers);
 
   struct PipelineLayoutDesc
   {
@@ -145,6 +145,7 @@ private:
     vk::Framebuffer m_frameBuffer;
     ezSizeU32 m_size;
     ezEnum<ezGALMSAASampleCount> m_msaa;
+    ezUInt32 m_layers = 0;
     EZ_DECLARE_POD_TYPE();
   };
 

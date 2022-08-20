@@ -22,21 +22,24 @@ ezWindowOutputTargetGAL::~ezWindowOutputTargetGAL()
 
 void ezWindowOutputTargetGAL::CreateSwapchain(const ezGALWindowSwapChainCreationDescription& desc)
 {
-  const bool bSwapChainExisted = !m_hSwapChain.IsInvalidated();
-  if (bSwapChainExisted)
-  {
-    ezGALDevice::GetDefaultDevice()->DestroySwapChain(m_hSwapChain);
-    m_hSwapChain.Invalidate();
-  }
-
   m_currentDesc = desc;
   // ezWindowOutputTargetGAL takes over the present mode and keeps it up to date with cvar_AppVSync.
   m_Size = desc.m_pWindow->GetClientAreaSize();
-  m_currentDesc.m_PresentMode = ezGameApplication::cvar_AppVSync ? ezGALPresentMode::VSync : ezGALPresentMode::Immediate;
-  m_hSwapChain = ezGALWindowSwapChain::Create(m_currentDesc);
-  if (bSwapChainExisted && m_OnSwapChainChanged.IsValid())
+  m_currentDesc.m_InitialPresentMode = ezGameApplication::cvar_AppVSync ? ezGALPresentMode::VSync : ezGALPresentMode::Immediate;
+
+  const bool bSwapChainExisted = !m_hSwapChain.IsInvalidated();
+  if (bSwapChainExisted)
   {
-    m_OnSwapChainChanged(m_hSwapChain, m_Size);
+    ezGALDevice::GetDefaultDevice()->UpdateSwapChain(m_hSwapChain, ezGameApplication::cvar_AppVSync ? ezGALPresentMode::VSync : ezGALPresentMode::Immediate).AssertSuccess("");
+
+    if (bSwapChainExisted && m_OnSwapChainChanged.IsValid())
+    {
+      m_OnSwapChainChanged(m_hSwapChain, m_Size);
+    }
+  }
+  else
+  {
+    m_hSwapChain = ezGALWindowSwapChain::Create(m_currentDesc);
   }
 }
 
@@ -49,7 +52,7 @@ void ezWindowOutputTargetGAL::Present(bool bEnableVSync)
 
     // The actual present call is done by setting the swapchain to an ezView.
     // This call is only used to recreate the swapchain at a safe location.
-    if (m_Size != m_currentDesc.m_pWindow->GetClientAreaSize() || presentMode != m_currentDesc.m_PresentMode)
+    if (m_Size != m_currentDesc.m_pWindow->GetClientAreaSize() || presentMode != m_currentDesc.m_InitialPresentMode)
     {
       CreateSwapchain(m_currentDesc);
     }

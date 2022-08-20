@@ -328,7 +328,7 @@ void ezResourceCacheVulkan::GetFrameBufferDesc(vk::RenderPass renderPass, const 
   }
 }
 
-vk::Framebuffer ezResourceCacheVulkan::RequestFrameBuffer(vk::RenderPass renderPass, const ezGALRenderTargetSetup& renderTargetSetup, ezSizeU32& out_Size, ezEnum<ezGALMSAASampleCount>& out_msaa)
+vk::Framebuffer ezResourceCacheVulkan::RequestFrameBuffer(vk::RenderPass renderPass, const ezGALRenderTargetSetup& renderTargetSetup, ezSizeU32& out_Size, ezEnum<ezGALMSAASampleCount>& out_msaa, ezUInt32& out_uiLayers)
 {
   FramebufferKey key;
   key.m_renderPass = renderPass;
@@ -359,11 +359,13 @@ vk::Framebuffer ezResourceCacheVulkan::RequestFrameBuffer(vk::RenderPass renderP
   FrameBufferCache cache;
   cache.m_size = desc.m_size;
   cache.m_msaa = desc.m_msaa;
+  cache.m_layers = desc.layers;
   VK_LOG_ERROR(s_device.createFramebuffer(&framebufferInfo, nullptr, &cache.m_frameBuffer));
 
   s_frameBuffers.Insert(key, cache);
   out_Size = cache.m_size;
   out_msaa = cache.m_msaa;
+  out_uiLayers = cache.m_layers;
   return cache.m_frameBuffer;
 }
 

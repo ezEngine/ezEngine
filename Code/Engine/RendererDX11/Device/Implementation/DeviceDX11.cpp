@@ -283,6 +283,11 @@ void ezGALDeviceDX11::ReportLiveGpuObjects()
 #endif
 }
 
+void ezGALDeviceDX11::FlushDeadObjects()
+{
+  DestroyDeadObjects();
+}
+
 ezResult ezGALDeviceDX11::ShutdownPlatform()
 {
   ezGALWindowSwapChain::SetFactoryMethod({});

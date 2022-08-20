@@ -138,6 +138,18 @@ EZ_ALWAYS_INLINE vk::ImageSubresourceRange ezConversionUtilsVulkan::GetSubresour
   return range;
 }
 
+EZ_ALWAYS_INLINE vk::ImageSubresourceRange ezConversionUtilsVulkan::GetSubresourceRange(
+  const vk::ImageSubresourceLayers& layers)
+{
+  vk::ImageSubresourceRange range;
+  range.aspectMask = layers.aspectMask;
+  range.baseMipLevel = layers.mipLevel;
+  range.levelCount = 1;
+  range.baseArrayLayer = layers.baseArrayLayer;
+  range.layerCount = layers.layerCount;
+  return range;
+}
+
 EZ_ALWAYS_INLINE vk::ImageViewType ezConversionUtilsVulkan::GetImageViewType(ezEnum<ezGALTextureType> texType, bool bIsArrayView)
 {
   switch (texType)

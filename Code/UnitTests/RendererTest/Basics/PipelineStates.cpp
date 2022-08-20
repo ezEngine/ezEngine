@@ -662,11 +662,14 @@ void ezRendererTestPipelineStates::StructuredBufferTest()
 
 void ezRendererTestPipelineStates::RenderCube(ezRectFloat viewport, ezMat4 mMVP, ezUInt32 uiRenderTargetClearMask, ezGALResourceViewHandle hSRV)
 {
-  ezGALRenderCommandEncoder* pCommandEncoder = BeginRendering(ezColor::RebeccaPurple, uiRenderTargetClearMask);
+  ezGALRenderCommandEncoder* pCommandEncoder = BeginRendering(ezColor::RebeccaPurple, uiRenderTargetClearMask, &viewport);
 
   ezRenderContext::GetDefaultInstance()->BindTexture2D("DiffuseTexture", hSRV);
   RenderObject(m_hCubeUV, mMVP, ezColor(1, 1, 1, 1), ezShaderBindFlags::None);
-
+  if (m_bCaptureImage && m_ImgCompFrames.Contains(m_iFrame))
+  {
+    EZ_TEST_IMAGE(m_iFrame, 100);
+  }
   EndRendering();
 };
 

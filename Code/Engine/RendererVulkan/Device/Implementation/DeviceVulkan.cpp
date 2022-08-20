@@ -248,6 +248,25 @@ vk::Result ezGALDeviceVulkan::SelectDeviceExtensions(vk::DeviceCreateInfo& devic
   features.pNext = &m_extensions.m_borderColorEXT;
   m_physicalDevice.getFeatures2(&features);
 
+  m_supportedStages = vk::PipelineStageFlagBits::eVertexShader | vk::PipelineStageFlagBits::eFragmentShader | vk::PipelineStageFlagBits::eComputeShader;
+  if (features.features.geometryShader)
+  {
+    m_supportedStages |= vk::PipelineStageFlagBits::eGeometryShader;
+  }
+  else
+  {
+    ezLog::Warning("Geometry shaders are not supported.");
+  }
+
+  if (features.features.tessellationShader)
+  {
+    m_supportedStages |= vk::PipelineStageFlagBits::eTessellationControlShader | vk::PipelineStageFlagBits::eTessellationEvaluationShader;
+  }
+  else
+  {
+    ezLog::Warning("Tessellation shaders are not supported.");
+  }
+
   // Only use the extension if it allows us to not specify a format or we would need to create different samplers for every texture.
   if (m_extensions.m_borderColorEXT.customBorderColors && m_extensions.m_borderColorEXT.customBorderColorWithoutFormat)
   {
@@ -648,6 +667,7 @@ ezResult ezGALDeviceVulkan::ShutdownPlatform()
 
   ezMemoryAllocatorVulkan::DeInitialize();
 
+  m_device.waitIdle();
   m_device.destroy();
 
   m_extensions.pfn_vkDestroyDebugUtilsMessengerEXT(m_instance, m_debugMessenger, nullptr);
@@ -1247,8 +1267,7 @@ void ezGALDeviceVulkan::FillCapabilitiesPlatform()
 
 vk::PipelineStageFlags ezGALDeviceVulkan::GetSupportedStages() const
 {
-  vk::PipelineStageFlags stages = vk::PipelineStageFlagBits::eVertexShader | vk::PipelineStageFlagBits::eGeometryShader | vk::PipelineStageFlagBits::eTessellationControlShader | vk::PipelineStageFlagBits::eTessellationEvaluationShader | vk::PipelineStageFlagBits::eFragmentShader | vk::PipelineStageFlagBits::eComputeShader;
-  return stages;
+  return m_supportedStages;
 }
 
 ezInt32 ezGALDeviceVulkan::GetMemoryIndex(vk::MemoryPropertyFlags properties, const vk::MemoryRequirements& requirements) const

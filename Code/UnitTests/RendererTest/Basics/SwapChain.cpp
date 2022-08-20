@@ -21,7 +21,7 @@ ezResult ezRendererTestSwapChain::InitializeSubTest(ezInt32 iIdentifier)
     ezWindowCreationDesc WindowCreationDesc;
     WindowCreationDesc.m_Resolution.width = m_CurrentWindowSize.width;
     WindowCreationDesc.m_Resolution.height = m_CurrentWindowSize.height;
-    WindowCreationDesc.m_WindowMode = iIdentifier == SubTests::ST_ResizeWindow ? ezWindowMode::WindowResizable : ezWindowMode::WindowFixedResolution;
+    WindowCreationDesc.m_WindowMode = (iIdentifier == SubTests::ST_ResizeWindow) ? ezWindowMode::WindowResizable : ezWindowMode::WindowFixedResolution;
     // ezGameStateWindow will write any window size changes into the config.
     m_pWindow = EZ_DEFAULT_NEW(ezGameStateWindow, WindowCreationDesc);
   }
@@ -32,7 +32,7 @@ ezResult ezRendererTestSwapChain::InitializeSubTest(ezInt32 iIdentifier)
     swapChainDesc.m_pWindow = m_pWindow;
     swapChainDesc.m_SampleCount = ezGALMSAASampleCount::None;
     swapChainDesc.m_bAllowScreenshots = true;
-    swapChainDesc.m_PresentMode = SubTests::ST_NoVSync ? ezGALPresentMode::Immediate : ezGALPresentMode::VSync;
+    swapChainDesc.m_InitialPresentMode = (iIdentifier == SubTests::ST_NoVSync) ? ezGALPresentMode::Immediate : ezGALPresentMode::VSync;
     m_hSwapChain = ezGALWindowSwapChain::Create(swapChainDesc);
   }
 
@@ -86,20 +86,13 @@ void ezRendererTestSwapChain::ResizeTest(ezUInt32 uiInvocationCount)
   if (m_pWindow->GetClientAreaSize() != m_CurrentWindowSize)
   {
     m_CurrentWindowSize = m_pWindow->GetClientAreaSize();
-    m_pDevice->DestroySwapChain(m_hSwapChain);
-    m_hSwapChain.Invalidate();
-
     m_pDevice->DestroyTexture(m_hDepthStencilTexture);
     m_hDepthStencilTexture.Invalidate();
 
     // Swap Chain
     {
-      ezGALWindowSwapChainCreationDescription swapChainDesc;
-      swapChainDesc.m_pWindow = m_pWindow;
-      swapChainDesc.m_SampleCount = ezGALMSAASampleCount::None;
-      swapChainDesc.m_bAllowScreenshots = true;
-      swapChainDesc.m_PresentMode = SubTests::ST_NoVSync ? ezGALPresentMode::Immediate : ezGALPresentMode::VSync;
-      m_hSwapChain = ezGALWindowSwapChain::Create(swapChainDesc);
+      auto presentMode = m_pDevice->GetSwapChain<ezGALWindowSwapChain>(m_hSwapChain)->GetWindowDescription().m_InitialPresentMode;
+      EZ_TEST_RESULT(m_pDevice->UpdateSwapChain(m_hSwapChain, presentMode));
     }
 
     // Depth Texture

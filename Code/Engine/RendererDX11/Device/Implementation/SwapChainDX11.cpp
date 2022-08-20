@@ -28,7 +28,7 @@ void ezGALSwapChainDX11::PresentRenderTarget(ezGALDevice* pDevice)
     pDXDevice->GetRenderCommandEncoder()->CopyTexture(this->m_hActualBackBufferTexture, this->m_hBackBufferTexture);
   }
 
-  HRESULT result = m_pDXSwapChain->Present(m_WindowDesc.m_PresentMode == ezGALPresentMode::VSync ? 1 : 0, 0);
+  HRESULT result = m_pDXSwapChain->Present(m_currentPresentMode == ezGALPresentMode::VSync ? 1 : 0, 0);
   if (FAILED(result))
   {
     ezLog::Error("Swap chain Present failed with {0}", (ezUInt32)result);
@@ -56,6 +56,37 @@ void ezGALSwapChainDX11::PresentRenderTarget(ezGALDevice* pDevice)
 #endif
 }
 
+ezResult ezGALSwapChainDX11::UpdateSwapChain(ezGALDevice* pDevice, ezEnum<ezGALPresentMode> newPresentMode)
+{
+  ezGALDeviceDX11* pDXDevice = static_cast<ezGALDeviceDX11*>(pDevice);
+  m_currentPresentMode = newPresentMode;
+  DestroyBackBufferInternal(pDXDevice);
+
+  // Need to flush dead objects or ResizeBuffers will fail as the backbuffer is still referenced.
+  pDXDevice->FlushDeadObjects();
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+  HRESULT result = m_pDXSwapChain->ResizeBuffers(2, // Only double buffering supported.
+    m_WindowDesc.m_pWindow->GetClientAreaSize().width,
+    m_WindowDesc.m_pWindow->GetClientAreaSize().height,
+    DXGI_FORMAT_R8G8B8A8_UNORM,
+    0);
+#else
+  HRESULT result = m_pDXSwapChain->ResizeBuffers(m_WindowDesc.m_bDoubleBuffered ? 2 : 1,
+    m_WindowDesc.m_pWindow->GetClientAreaSize().width,
+    m_WindowDesc.m_pWindow->GetClientAreaSize().height,
+    pDXDevice->GetFormatLookupTable().GetFormatInfo(m_WindowDesc.m_BackBufferFormat).m_eRenderTarget,
+    DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH);
+#endif
+  if (FAILED(result))
+  {
+    ezLog::Error("UpdateSwapChain: ResizeBuffers call failed: {}", ezArgErrorCode(result));
+    return EZ_FAILURE;
+  }
+
+  return CreateBackBufferInternal(pDXDevice);
+}
+
 ezGALSwapChainDX11::ezGALSwapChainDX11(const ezGALWindowSwapChainCreationDescription& Description)
   : ezGALWindowSwapChain(Description)
   , m_pDXSwapChain(nullptr)
@@ -68,7 +99,7 @@ ezGALSwapChainDX11::~ezGALSwapChainDX11() {}
 ezResult ezGALSwapChainDX11::InitPlatform(ezGALDevice* pDevice)
 {
   ezGALDeviceDX11* pDXDevice = static_cast<ezGALDeviceDX11*>(pDevice);
-
+  m_currentPresentMode = m_WindowDesc.m_InitialPresentMode;
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
   DXGI_SWAP_CHAIN_DESC1 SwapChainDesc = {0};
 
@@ -164,75 +195,86 @@ ezResult ezGALSwapChainDX11::InitPlatform(ezGALDevice* pDevice)
   }
   else
 #endif
-  {
-    // Get texture of the swap chain
-    ID3D11Texture2D* pNativeBackBufferTexture = nullptr;
-    HRESULT result = m_pDXSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&pNativeBackBufferTexture));
-    if (FAILED(result))
-    {
-      ezLog::Error("Couldn't access backbuffer texture of swapchain: {0}", ezHRESULTtoString(result));
-      EZ_GAL_DX11_RELEASE(m_pDXSwapChain);
-
-      return EZ_FAILURE;
-    }
-
-    ezGALTextureCreationDescription TexDesc;
-    TexDesc.m_uiWidth = m_WindowDesc.m_pWindow->GetClientAreaSize().width;
-    TexDesc.m_uiHeight = m_WindowDesc.m_pWindow->GetClientAreaSize().height;
-    TexDesc.m_SampleCount = m_WindowDesc.m_SampleCount;
-    TexDesc.m_pExisitingNativeObject = pNativeBackBufferTexture;
-    TexDesc.m_bAllowShaderResourceView = false;
-    TexDesc.m_bCreateRenderTarget = true;
+  m_bCanMakeDirectScreenshots = (SwapChainDesc.SwapEffect != DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL);
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-    // See format handling in swap chain desc creation above.
-    if (ezGALResourceFormat::IsSrgb(m_WindowDesc.m_BackBufferFormat))
-      TexDesc.m_Format = ezGALResourceFormat::RGBAUByteNormalizedsRGB;
-    else
-      TexDesc.m_Format = ezGALResourceFormat::RGBAUByteNormalized;
-#else
-    TexDesc.m_Format = m_WindowDesc.m_BackBufferFormat;
+  m_bCanMakeDirectScreenshots = m_bCanMakeDirectScreenshots && (SwapChainDesc.SwapEffect != DXGI_SWAP_EFFECT_FLIP_DISCARD);
 #endif
-
-    TexDesc.m_ResourceAccess.m_bImmutable = true;
-
-    bool canMakeDirectScreenshots = (SwapChainDesc.SwapEffect != DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL);
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-    canMakeDirectScreenshots = canMakeDirectScreenshots && (SwapChainDesc.SwapEffect != DXGI_SWAP_EFFECT_FLIP_DISCARD);
-#endif
-
-    TexDesc.m_ResourceAccess.m_bReadBack = m_WindowDesc.m_bAllowScreenshots && canMakeDirectScreenshots;
-
-    // And create the ez texture object wrapping the backbuffer texture
-    m_hBackBufferTexture = pDXDevice->CreateTexture(TexDesc);
-    EZ_ASSERT_RELEASE(!m_hBackBufferTexture.IsInvalidated(), "Couldn't create native backbuffer texture object!");
-
-    // Create extra texture to be used as "practical backbuffer" if we can't do the screenshots the user wants.
-    if (!canMakeDirectScreenshots && m_WindowDesc.m_bAllowScreenshots)
-    {
-      TexDesc.m_pExisitingNativeObject = nullptr;
-      TexDesc.m_ResourceAccess.m_bReadBack = true;
-
-      m_hActualBackBufferTexture = m_hBackBufferTexture;
-      m_hBackBufferTexture = pDXDevice->CreateTexture(TexDesc);
-      EZ_ASSERT_RELEASE(!m_hBackBufferTexture.IsInvalidated(), "Couldn't create non-native backbuffer texture object!");
-    }
-
-    m_RenderTargets.m_hRTs[0] = m_hBackBufferTexture;
-
-    return EZ_SUCCESS;
-  }
+  return CreateBackBufferInternal(pDXDevice);
 }
 
-ezResult ezGALSwapChainDX11::DeInitPlatform(ezGALDevice* pDevice)
+ezResult ezGALSwapChainDX11::CreateBackBufferInternal(ezGALDeviceDX11* pDXDevice)
 {
-  pDevice->DestroyTexture(m_hBackBufferTexture);
+  // Get texture of the swap chain
+  ID3D11Texture2D* pNativeBackBufferTexture = nullptr;
+  HRESULT result = m_pDXSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&pNativeBackBufferTexture));
+  if (FAILED(result))
+  {
+    ezLog::Error("Couldn't access backbuffer texture of swapchain: {0}", ezHRESULTtoString(result));
+    EZ_GAL_DX11_RELEASE(m_pDXSwapChain);
+
+    return EZ_FAILURE;
+  }
+
+  ezGALTextureCreationDescription TexDesc;
+  TexDesc.m_uiWidth = m_WindowDesc.m_pWindow->GetClientAreaSize().width;
+  TexDesc.m_uiHeight = m_WindowDesc.m_pWindow->GetClientAreaSize().height;
+  TexDesc.m_SampleCount = m_WindowDesc.m_SampleCount;
+  TexDesc.m_pExisitingNativeObject = pNativeBackBufferTexture;
+  TexDesc.m_bAllowShaderResourceView = false;
+  TexDesc.m_bCreateRenderTarget = true;
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+  // See format handling in swap chain desc creation above.
+  if (ezGALResourceFormat::IsSrgb(m_WindowDesc.m_BackBufferFormat))
+    TexDesc.m_Format = ezGALResourceFormat::RGBAUByteNormalizedsRGB;
+  else
+    TexDesc.m_Format = ezGALResourceFormat::RGBAUByteNormalized;
+#else
+  TexDesc.m_Format = m_WindowDesc.m_BackBufferFormat;
+#endif
+
+  TexDesc.m_ResourceAccess.m_bImmutable = true;
+
+
+
+  TexDesc.m_ResourceAccess.m_bReadBack = m_WindowDesc.m_bAllowScreenshots && m_bCanMakeDirectScreenshots;
+
+  // And create the ez texture object wrapping the backbuffer texture
+  m_hBackBufferTexture = pDXDevice->CreateTexture(TexDesc);
+  EZ_ASSERT_RELEASE(!m_hBackBufferTexture.IsInvalidated(), "Couldn't create native backbuffer texture object!");
+
+  // Create extra texture to be used as "practical backbuffer" if we can't do the screenshots the user wants.
+  if (!m_bCanMakeDirectScreenshots && m_WindowDesc.m_bAllowScreenshots)
+  {
+    TexDesc.m_pExisitingNativeObject = nullptr;
+    TexDesc.m_ResourceAccess.m_bReadBack = true;
+
+    m_hActualBackBufferTexture = m_hBackBufferTexture;
+    m_hBackBufferTexture = pDXDevice->CreateTexture(TexDesc);
+    EZ_ASSERT_RELEASE(!m_hBackBufferTexture.IsInvalidated(), "Couldn't create non-native backbuffer texture object!");
+  }
+
+  m_RenderTargets.m_hRTs[0] = m_hBackBufferTexture;
+
+  return EZ_SUCCESS;
+}
+
+void ezGALSwapChainDX11::DestroyBackBufferInternal(ezGALDeviceDX11* pDXDevice)
+{
+  pDXDevice->DestroyTexture(m_hBackBufferTexture);
   m_hBackBufferTexture.Invalidate();
 
   if (!m_hActualBackBufferTexture.IsInvalidated())
   {
-    pDevice->DestroyTexture(m_hActualBackBufferTexture);
+    pDXDevice->DestroyTexture(m_hActualBackBufferTexture);
     m_hActualBackBufferTexture.Invalidate();
   }
+
+  m_RenderTargets.m_hRTs[0].Invalidate();
+}
+
+ezResult ezGALSwapChainDX11::DeInitPlatform(ezGALDevice* pDevice)
+{
+  DestroyBackBufferInternal(static_cast<ezGALDeviceDX11*>(pDevice));
 
 #if EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
   // Full screen swap chains must be switched to windowed mode before destruction.
