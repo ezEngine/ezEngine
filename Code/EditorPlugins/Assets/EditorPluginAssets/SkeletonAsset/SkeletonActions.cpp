@@ -123,6 +123,8 @@ void ezSkeletonAction::AssetEventHandler(const ezSkeletonAssetEvent& e)
     case ezSkeletonAssetEvent::RenderStateChanged:
       UpdateState();
       break;
+    default:
+      break;
   }
 }
 

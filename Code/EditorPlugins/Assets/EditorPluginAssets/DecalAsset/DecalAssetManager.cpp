@@ -330,7 +330,7 @@ ezStatus ezDecalAssetDocumentManager::RunTexConv(const char* szTargetFile, const
   arguments << "-atlasDesc";
   arguments << QString(szInputFile);
 
-  EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("TexConv.exe", arguments, 180, ezLog::GetThreadLocalLogSystem()));
+  EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("TexConv", arguments, 180, ezLog::GetThreadLocalLogSystem()));
 
   return ezStatus(EZ_SUCCESS);
 }

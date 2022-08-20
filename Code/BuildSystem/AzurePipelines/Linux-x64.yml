@@ -23,7 +23,7 @@ jobs:
       targetType: inline
       script: |
         sudo apt-get update
-        sudo apt-get install -y cmake uuid-dev gcc-12 g++-12 libx11-dev build-essential qtbase5-dev qtbase5-dev-tools libqt5svg5-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libqt5x11extras5-dev qtbase5-private-dev xvfb lightdm
+        sudo apt-get install -y cmake uuid-dev gcc-12 g++-12 libx11-dev build-essential qtbase5-dev qtbase5-dev-tools libqt5svg5-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libqt5x11extras5-dev qtbase5-private-dev xvfb lightdm libassimp-dev
   - task: Bash@3
     displayName: Info
     inputs:
@@ -37,7 +37,7 @@ jobs:
   - task: CMake@1
     displayName: CMake
     inputs:
-      cmakeArgs: -DCMAKE_PREFIX_PATH=/opt/qt511/ -DCMAKE_BUILD_TYPE=Dev -DCMAKE_CXX_COMPILER=g++-12 -DCMAKE_C_COMPILER=gcc-12 -DEZ_ENABLE_FOLDER_UNITY_FILES=$(unityfiles) -DEZ_BUILD_EXPERIMENTAL_VULKAN=ON -G "Unix Makefiles" ../
+      cmakeArgs: -DCMAKE_BUILD_TYPE=Dev -DCMAKE_CXX_COMPILER=g++-12 -DCMAKE_C_COMPILER=gcc-12 -DEZ_ENABLE_FOLDER_UNITY_FILES=$(unityfiles) -DEZ_BUILD_EXPERIMENTAL_VULKAN=ON -DEZ_EXPERIMENTAL_EDITOR_ON_LINUX=ON -G "Unix Makefiles" ../
   - task: Bash@3
     displayName: Make
     inputs:

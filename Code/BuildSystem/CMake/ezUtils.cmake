@@ -410,8 +410,11 @@ endmacro()
 # ## ez_requires_editor()
 # #####################################
 macro(ez_requires_editor)
-	ez_requires_qt()
-	ez_requires_d3d()
+        ez_requires_qt()
+        ez_requires_renderer()
+	if(EZ_CMAKE_PLATFORM_LINUX)
+		ez_requires(EZ_EXPERIMENTAL_EDITOR_ON_LINUX)
+	endif()
 endmacro()
 
 # #####################################

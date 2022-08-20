@@ -111,9 +111,9 @@ void ezPipeChannel_win::InternalConnect()
   if (m_Connected)
   {
     ProcessOutgoingMessages(0);
+    m_Events.Broadcast(ezIpcChannelEvent(m_Mode == Mode::Client ? ezIpcChannelEvent::ConnectedToServer : ezIpcChannelEvent::ConnectedToClient, this));
   }
 
-  m_Events.Broadcast(ezIpcChannelEvent(m_Mode == Mode::Client ? ezIpcChannelEvent::ConnectedToServer : ezIpcChannelEvent::ConnectedToClient, this));
   return;
 }
 
@@ -186,6 +186,7 @@ bool ezPipeChannel_win::ProcessConnection()
       break;
     case ERROR_PIPE_CONNECTED:
       m_Connected = true;
+      m_Events.Broadcast(ezIpcChannelEvent(m_Mode == Mode::Client ? ezIpcChannelEvent::ConnectedToServer : ezIpcChannelEvent::ConnectedToClient, this));
       break;
     case ERROR_NO_DATA:
       return false;

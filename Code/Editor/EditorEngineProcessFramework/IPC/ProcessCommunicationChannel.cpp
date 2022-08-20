@@ -101,6 +101,12 @@ ezResult ezProcessCommunicationChannel::WaitForMessage(const ezRTTI* pMessageTyp
   while (m_pWaitForMessageType != nullptr)
   {
     m_pChannel->WaitForMessages();
+    if (!m_pChannel->IsConnected())
+    {
+      m_pWaitForMessageType = nullptr;
+      ezLog::Dev("Lost connection while waiting for {}", pMessageType->GetTypeName());
+      return EZ_FAILURE;
+    }
 
     if (tTimeout != ezTime())
     {
@@ -114,4 +120,49 @@ ezResult ezProcessCommunicationChannel::WaitForMessage(const ezRTTI* pMessageTyp
   }
 
   return EZ_SUCCESS;
+}
+
+ezResult ezProcessCommunicationChannel::WaitForConnection(ezTime tTimeout)
+{
+  if (m_pChannel->IsConnected())
+  {
+    return EZ_SUCCESS;
+  }
+
+  ezThreadSignal waitForConnectionSignal;
+
+  ezEventSubscriptionID eventSubscriptionId = m_pChannel->m_Events.AddEventHandler([&](const ezIpcChannelEvent& event) {
+    switch (event.m_Type)
+    {
+      case ezIpcChannelEvent::ConnectedToClient:
+      case ezIpcChannelEvent::ConnectedToServer:
+      case ezIpcChannelEvent::DisconnectedFromClient:
+      case ezIpcChannelEvent::DisconnectedFromServer:
+        waitForConnectionSignal.RaiseSignal();
+        break;
+      default:
+        break;
+    }
+  });
+
+  EZ_SCOPE_EXIT(m_pChannel->m_Events.RemoveEventHandler(eventSubscriptionId));
+
+  if (m_pChannel->IsConnected())
+  {
+    return EZ_SUCCESS;
+  }
+
+  if (tTimeout == ezTime())
+  {
+    waitForConnectionSignal.WaitForSignal();
+  }
+  else
+  {
+    if (waitForConnectionSignal.WaitForSignal(tTimeout) == ezThreadSignal::WaitResult::Timeout)
+    {
+      return EZ_FAILURE;
+    }
+  }
+
+  return m_pChannel->IsConnected() ? EZ_SUCCESS : EZ_FAILURE;
 }

@@ -158,7 +158,16 @@ void ezEditorEngineProcessConnection::Initialize(const ezRTTI* pFirstAllowedMess
     args << ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-TelemetryPort", 0, "1050");
   }
 
-  if (m_IPC.StartClientProcess("EditorEngineProcess.exe", args, false, pFirstAllowedMessageType).Failed())
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  const char* EditorEngineProcessExecutableName = "EditorEngineProcess.exe";
+#elif EZ_ENABLED(EZ_PLATFORM_LINUX)
+  const char* EditorEngineProcessExecutableName = "EditorEngineProcess";
+#else
+#  error Platform not supported
+#endif
+
+
+  if (m_IPC.StartClientProcess(EditorEngineProcessExecutableName, args, false, pFirstAllowedMessageType).Failed())
   {
     m_bProcessCrashed = true;
   }
@@ -352,6 +361,15 @@ ezResult ezEditorEngineProcessConnection::RestartProcess()
     return EZ_FAILURE;
   }
 
+  ezLog::Dev("Waiting for IPC connection");
+
+  if (m_IPC.WaitForConnection(ezTime()).Failed())
+  {
+    ezLog::Error("Engine process did not connect. Engine process output:\n{}", m_IPC.GetStdoutContents());
+    ShutdownProcess();
+    return EZ_FAILURE;
+  }
+
   {
     // Send project setup.
     ezSetupProjectMsgToEngine msg;
@@ -360,14 +378,14 @@ ezResult ezEditorEngineProcessConnection::RestartProcess()
     msg.m_PluginConfig = m_PluginConfig;
     msg.m_sAssetProfile = ezAssetCurator::GetSingleton()->GetActiveAssetProfile()->GetConfigName();
 
-    ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
+    SendMessage(&msg);
   }
 
   ezLog::Dev("Waiting for Engine Process response");
 
-  if (ezEditorEngineProcessConnection::GetSingleton()->WaitForMessage(ezGetStaticRTTI<ezProjectReadyMsgToEditor>(), ezTime()).Failed())
+  if (WaitForMessage(ezGetStaticRTTI<ezProjectReadyMsgToEditor>(), ezTime()).Failed())
   {
-    ezLog::Error("Failed to restart the engine process");
+    ezLog::Error("Failed to restart the engine process. Engine Process Output:\n", m_IPC.GetStdoutContents());
     ShutdownProcess();
     return EZ_FAILURE;
   }

@@ -89,7 +89,7 @@ ezResult ezMemoryMappedFile::Open(const char* szAbsolutePath, Mode mode)
   flags |= MAP_POPULATE;
 #    endif
 #  endif
-  m_Impl->m_hFile = open(szAbsolutePath, access, 0);
+  m_Impl->m_hFile = open(szAbsolutePath, access | O_CLOEXEC, 0);
   if (m_Impl->m_hFile == -1)
   {
     ezLog::Error("Could not open file for memory mapping - {}", strerror(errno));

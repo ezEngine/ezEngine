@@ -10,6 +10,7 @@ struct ezPathPatternFilter;
 class ezAssetCurator;
 class ezApplicationFileSystemConfig;
 class ezPlatformProfile;
+class ezProgressRange;
 
 //////////////////////////////////////////////////////////////////////////
 

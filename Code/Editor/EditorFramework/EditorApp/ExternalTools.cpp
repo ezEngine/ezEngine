@@ -12,6 +12,12 @@ ezString ezQtEditorApp::GetExternalToolsFolder(bool bForceUseCustomTools)
 
 ezString ezQtEditorApp::FindToolApplication(const char* szToolName)
 {
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+  ezStringBuilder toolExe = szToolName;
+  toolExe.Append(".exe");
+  szToolName = toolExe;
+#endif
+
   ezStringBuilder sTool = ezQtEditorApp::GetSingleton()->GetExternalToolsFolder();
   sTool.AppendPath(szToolName);
 
@@ -32,6 +38,12 @@ ezStatus ezQtEditorApp::ExecuteTool(const char* szTool, const QStringList& argum
 {
   // this block is supposed to be in the global log, not the given log interface
   EZ_LOG_BLOCK("Executing Tool", szTool);
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+  ezStringBuilder toolExe = szTool;
+  toolExe.Append(".exe");
+  szTool = toolExe;
+#endif
 
   ezStringBuilder cmd;
   for (ezInt32 i = 0; i < arguments.size(); ++i)
@@ -154,7 +166,7 @@ ezStatus ezQtEditorApp::ExecuteTool(const char* szTool, const QStringList& argum
 
 ezString ezQtEditorApp::BuildFileserveCommandLine() const
 {
-  const ezStringBuilder sToolPath = ezQtEditorApp::GetSingleton()->FindToolApplication("Fileserve.exe");
+  const ezStringBuilder sToolPath = ezQtEditorApp::GetSingleton()->FindToolApplication("Fileserve");
   const ezStringBuilder sProjectDir = ezToolsProject::GetSingleton()->GetProjectDirectory();
   ezStringBuilder params;
 
@@ -166,7 +178,7 @@ ezString ezQtEditorApp::BuildFileserveCommandLine() const
 
 void ezQtEditorApp::RunFileserve()
 {
-  const ezStringBuilder sToolPath = ezQtEditorApp::GetSingleton()->FindToolApplication("Fileserve.exe");
+  const ezStringBuilder sToolPath = ezQtEditorApp::GetSingleton()->FindToolApplication("Fileserve");
   const ezStringBuilder sProjectDir = ezToolsProject::GetSingleton()->GetProjectDirectory();
 
   QStringList args;
@@ -178,7 +190,7 @@ void ezQtEditorApp::RunFileserve()
 
 void ezQtEditorApp::RunInspector()
 {
-  const ezStringBuilder sToolPath = ezQtEditorApp::GetSingleton()->FindToolApplication("Inspector.exe");
+  const ezStringBuilder sToolPath = ezQtEditorApp::GetSingleton()->FindToolApplication("Inspector");
   QStringList args;
 
   QProcess::startDetached(sToolPath.GetData(), args);

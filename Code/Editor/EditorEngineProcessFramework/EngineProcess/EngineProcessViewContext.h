@@ -22,11 +22,14 @@ class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezEditorProcessViewWindow : public ezW
 public:
   ezEditorProcessViewWindow()
   {
-    m_hWnd = 0;
+    m_hWnd = INVALID_WINDOW_HANDLE_VALUE;
     m_uiWidth = 0;
     m_uiHeight = 0;
   }
 
+  ~ezEditorProcessViewWindow();
+
+  ezResult UpdateWindow(ezWindowHandle parentWindow, ezUInt16 uiWidth, ezUInt16 uiHeight);
 
   // Inherited via ezWindowBase
   virtual ezSizeU32 GetClientAreaSize() const override { return ezSizeU32(m_uiWidth, m_uiHeight); }
@@ -34,9 +37,11 @@ public:
   virtual void ProcessWindowMessages() override {}
   virtual bool IsFullscreenWindow(bool bOnlyProperFullscreenMode = false) const override { return false; }
 
-  ezWindowHandle m_hWnd;
   ezUInt16 m_uiWidth;
   ezUInt16 m_uiHeight;
+
+private:
+  ezWindowHandle m_hWnd;
 };
 
 /// \brief Represents the view/window on the engine process side, holds all data necessary for rendering

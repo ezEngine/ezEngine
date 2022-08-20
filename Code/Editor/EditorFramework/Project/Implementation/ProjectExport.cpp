@@ -6,6 +6,7 @@
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/IO/OSFile.h>
+#include <Foundation/Utilities/Progress.h>
 #include <ToolsFoundation/Utilities/PathPatternFilter.h>
 
 ezResult ezProjectExport::ClearTargetFolder(const char* szAbsFolderPath)

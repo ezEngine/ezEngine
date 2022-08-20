@@ -319,6 +319,8 @@ void ezScene2Document::DocumentManagerEventHandler(const ezDocumentManager::Even
       }
     }
     break;
+    default:
+      break;
   }
 }
 

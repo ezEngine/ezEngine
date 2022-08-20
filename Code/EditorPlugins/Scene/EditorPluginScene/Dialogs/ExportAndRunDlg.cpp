@@ -16,7 +16,11 @@ ezQtExportAndRunDlg::ezQtExportAndRunDlg(QWidget* parent)
 {
   setupUi(this);
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   ToolCombo->addItem("ezPlayer", "Player.exe");
+#else
+  ToolCombo->addItem("ezPlayer", "Player");
+#endif
 
   ezProjectPreferencesUser* pPref = ezPreferences::QueryPreferences<ezProjectPreferencesUser>();
 

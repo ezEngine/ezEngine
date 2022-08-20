@@ -38,7 +38,7 @@ void ezEngineProcessViewContext::SetViewID(ezUInt32 id)
 
 void ezEngineProcessViewContext::HandleViewMessage(const ezEditorEngineViewMsg* pMsg)
 {
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP) || EZ_ENABLED(EZ_PLATFORM_LINUX)
   if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewRedrawMsgToEngine>())
   {
     const ezViewRedrawMsgToEngine* pMsg2 = static_cast<const ezViewRedrawMsgToEngine*>(pMsg);
@@ -61,7 +61,7 @@ void ezEngineProcessViewContext::HandleViewMessage(const ezEditorEngineViewMsg* 
   }
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
   EZ_REPORT_FAILURE("This code path should never be executed on UWP.");
-#elif
+#else
 #  error "Unsupported platform."
 #endif
 }
@@ -100,11 +100,14 @@ void ezEngineProcessViewContext::HandleWindowUpdate(ezWindowHandle hWnd, ezUInt1
     // create window
     {
       ezUniquePtr<ezEditorProcessViewWindow> pWindow = EZ_DEFAULT_NEW(ezEditorProcessViewWindow);
-      pWindow->m_hWnd = hWnd;
-      pWindow->m_uiWidth = uiWidth;
-      pWindow->m_uiHeight = uiHeight;
-
-      pWindowPlugin->m_pWindow = std::move(pWindow);
+      if (pWindow->UpdateWindow(hWnd, uiWidth, uiHeight).Succeeded())
+      {
+        pWindowPlugin->m_pWindow = std::move(pWindow);
+      }
+      else
+      {
+        ezLog::Error("Failed to create Editor Process View Window");
+      }
     }
 
     // create output target
@@ -372,3 +375,11 @@ void ezEngineProcessViewContext::DrawSimpleGrid() const
 
   ezDebugRenderer::DrawLines(m_hView, lines, ezColor::White);
 }
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#  include <EditorEngineProcessFramework/EngineProcess/Implementation/Win/EngineProcessViewContext_win.h>
+#elif EZ_ENABLED(EZ_PLATFORM_LINUX)
+#  include <EditorEngineProcessFramework/EngineProcess/Implementation/Linux/EngineProcessViewContext_linux.h>
+#else
+#  error Platform not supported
+#endif

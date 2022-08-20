@@ -13,7 +13,7 @@ public:
   ~ezQtScene2DocumentWindow();
 
   virtual const char* GetWindowLayoutGroupName() const override { return "Scene2"; }
-  virtual bool InternalCanCloseWindow();
+  virtual bool InternalCanCloseWindow() override;
 
   ezStatus SaveAllLayers();
 };

@@ -18,3 +18,10 @@ target_link_libraries(${PROJECT_NAME}
   GameEngine
   Utilities
 )
+
+if(EZ_3RDPARTY_GLFW_SUPPORT AND EZ_CMAKE_PLATFORM_LINUX)
+  target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
+
+  find_package(X11 REQUIRED)
+  target_link_libraries(${PROJECT_NAME} PRIVATE ${X11_X11_LIB})
+endif()

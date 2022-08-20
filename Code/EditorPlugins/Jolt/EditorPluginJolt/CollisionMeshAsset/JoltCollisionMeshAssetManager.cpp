@@ -49,6 +49,8 @@ void ezJoltCollisionMeshAssetDocumentManager::OnDocumentManagerEvent(const ezDoc
       }
     }
     break;
+    default:
+      break;
   }
 }
 
