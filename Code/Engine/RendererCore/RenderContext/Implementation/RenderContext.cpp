@@ -871,9 +871,6 @@ void ezRenderContext::LoadBuiltinShader(ezShaderUtils::ezBuiltinShaderType type,
 
   EZ_ASSERT_DEV(hActiveShader.IsValid(), "Could not load builtin shader!");
 
-  if (!hActiveShader.IsValid())
-    return;
-
   ezHashTable<ezHashedString, ezHashedString> permutationVariables;
   static ezHashedString sVSRTAI = ezMakeHashedString("VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX");
   static ezHashedString sTrue = ezMakeHashedString("TRUE");
@@ -883,19 +880,14 @@ void ezRenderContext::LoadBuiltinShader(ezShaderUtils::ezBuiltinShaderType type,
   else
     permutationVariables.Insert(sVSRTAI, sFalse);
 
+
   ezShaderPermutationResourceHandle hActiveShaderPermutation = ezShaderManager::PreloadSinglePermutation(hActiveShader, permutationVariables, false);
 
-  if (!hActiveShaderPermutation.IsValid())
-    return;
+  EZ_ASSERT_DEV(hActiveShaderPermutation.IsValid(), "Could not load builtin shader permutation!");
 
-  ezShaderPermutationResource* pShaderPermutation = ezResourceManager::BeginAcquireResource(
-    hActiveShaderPermutation, ezResourceAcquireMode::BlockTillLoaded);
+  ezResourceLock<ezShaderPermutationResource> pShaderPermutation(hActiveShaderPermutation, ezResourceAcquireMode::BlockTillLoaded);
 
-  if (!pShaderPermutation->IsShaderValid())
-  {
-    ezResourceManager::EndAcquireResource(pShaderPermutation);
-    return;
-  }
+  EZ_ASSERT_DEV(pShaderPermutation->IsShaderValid(), "Builtin shader permutation shader is invalid!");
 
   out_shader.m_hActiveGALShader = pShaderPermutation->GetGALShader();
   EZ_ASSERT_DEV(!out_shader.m_hActiveGALShader.IsInvalidated(), "Invalid GAL Shader handle.");
