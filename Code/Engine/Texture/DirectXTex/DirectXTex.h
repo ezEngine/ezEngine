@@ -31,7 +31,9 @@
 #endif
 #else
 #include <directx/dxgiformat.h>
+#if __has_include(<wsl/winadapter.h>)
 #include <wsl/winadapter.h>
+#endif
 #endif
 
 #include <DirectXMath.h>

@@ -106,9 +106,11 @@
 #include <d3d11_1.h>
 #endif
 #else // !WIN32
+#if __has_include(<wsl/winadapter.h>)
 #include <wsl/winadapter.h>
 #include <wsl/wrladapter.h>
 #include <directx/d3d12.h>
+#endif
 #endif
 
 #include <algorithm>
@@ -133,7 +135,9 @@
 #define XM_ALIGNED_DATA(x) __declspec(align(x))
 #endif
 
+#if EZ_DISABLED(EZ_PLATFORM_LINUX)
 #include "DirectXTex.h"
+#endif
 
 #include <malloc.h>
 

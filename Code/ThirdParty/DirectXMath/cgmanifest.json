@@ -1,0 +1,13 @@
+{
+  "Registrations": [
+    {
+      "component": {
+        "type": "git",
+        "git": {
+          "repositoryUrl": "https://github.com/microsoft/DirectXMath",
+          "commitHash": "c6d0cb3720a4f22c1a4969a01f16fc6f1df0cc4e"
+        }
+      }
+    }
+  ]
+}
