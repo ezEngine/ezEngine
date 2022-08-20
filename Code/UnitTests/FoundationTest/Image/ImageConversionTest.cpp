@@ -203,6 +203,11 @@ private:
 
     ezFileSystem::AddDataDirectory(">eztest/", "ImageComparisonDataDir", "imgout", ezFileSystem::AllowWrites).IgnoreResult();
 
+    #if EZ_ENABLED(EZ_PLATFORM_LINUX)
+    // On linux we use CPU based BC6 and BC7 compression, which sometimes gives slightly different results from the GPU compression on Windows.
+    ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_Linux");
+    #endif
+
     return EZ_SUCCESS;
   }
 
