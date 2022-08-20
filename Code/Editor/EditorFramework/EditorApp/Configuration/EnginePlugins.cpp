@@ -92,5 +92,6 @@ void ezQtEditorApp::RestartEngineProcessIfPluginsChanged()
   ezLog::Info("Engine plugins have changed, restarting engine process.");
 
   StoreEnginePluginModificationTimes();
+  ezEditorEngineProcessConnection::GetSingleton()->SetPluginConfig(GetRuntimePluginConfig(true));
   ezEditorEngineProcessConnection::GetSingleton()->RestartProcess().IgnoreResult();
 }
