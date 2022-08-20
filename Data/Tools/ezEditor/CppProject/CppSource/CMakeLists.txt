@@ -6,9 +6,11 @@ if(PROJECT_IS_TOP_LEVEL)
 
 	set (EZ_SDK_DIR "" CACHE PATH "The ezEngine SDK root directory.")
 
+	message(STATUS "EZ_SDK_DIR is set to '${EZ_SDK_DIR}'")
+
 	# fix output directory
-	set (EZ_OUTPUT_DIRECTORY_LIB "${EZ_SDK_DIR}/Output/Lib" CACHE PATH "Where to store the compiled .lib files.")
-	set (EZ_OUTPUT_DIRECTORY_DLL "${EZ_SDK_DIR}/Output/Bin" CACHE PATH "Where to store the compiled .dll files.")
+	set (EZ_OUTPUT_DIRECTORY_LIB "${EZ_SDK_DIR}/Output/Lib" CACHE PATH "Where to store the compiled .lib files." FORCE)
+	set (EZ_OUTPUT_DIRECTORY_DLL "${EZ_SDK_DIR}/Output/Bin" CACHE PATH "Where to store the compiled .dll files." FORCE)
 
 	include("${EZ_SDK_DIR}/ezCMakeConfig.cmake")
 	get_property(EZ_CMAKE_RELPATH GLOBAL PROPERTY EZ_CMAKE_RELPATH)
@@ -17,6 +19,7 @@ if(PROJECT_IS_TOP_LEVEL)
 	set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${EZ_SDK_DIR}/${EZ_CMAKE_RELPATH}")
 
 	include("ezUtils")
+	include("ezPlatformVars")
 
 	ez_include_ezExport()
 

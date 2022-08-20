@@ -12,11 +12,15 @@ ezString ezQtEditorApp::GetExternalToolsFolder(bool bForceUseCustomTools)
 
 ezString ezQtEditorApp::FindToolApplication(const char* szToolName)
 {
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
   ezStringBuilder toolExe = szToolName;
-  toolExe.Append(".exe");
-  szToolName = toolExe;
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+  toolExe.ChangeFileExtension("exe");
+#else
+  toolExe.RemoveFileExtension();
 #endif
+
+  szToolName = toolExe;
 
   ezStringBuilder sTool = ezQtEditorApp::GetSingleton()->GetExternalToolsFolder();
   sTool.AppendPath(szToolName);
@@ -39,11 +43,15 @@ ezStatus ezQtEditorApp::ExecuteTool(const char* szTool, const QStringList& argum
   // this block is supposed to be in the global log, not the given log interface
   EZ_LOG_BLOCK("Executing Tool", szTool);
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
   ezStringBuilder toolExe = szTool;
-  toolExe.Append(".exe");
-  szTool = toolExe;
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+  toolExe.ChangeFileExtension("exe");
+#else
+  toolExe.RemoveFileExtension();
 #endif
+
+  szTool = toolExe;
 
   ezStringBuilder cmd;
   for (ezInt32 i = 0; i < arguments.size(); ++i)
@@ -62,7 +70,8 @@ ezStatus ezQtEditorApp::ExecuteTool(const char* szTool, const QStringList& argum
   QString logoutput;
   proc.setProcessChannelMode(QProcess::MergedChannels);
   proc.setReadChannel(QProcess::StandardOutput);
-  QObject::connect(&proc, &QProcess::readyReadStandardOutput, [&proc, &logoutput]() { logoutput.append(proc.readAllStandardOutput()); });
+  QObject::connect(&proc, &QProcess::readyReadStandardOutput, [&proc, &logoutput]()
+    { logoutput.append(proc.readAllStandardOutput()); });
   proc.start(QString::fromUtf8(ezQtEditorApp::GetSingleton()->FindToolApplication(szTool)), arguments);
 
   if (!proc.waitForStarted(uiSecondsTillTimeout * 1000))

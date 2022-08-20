@@ -186,12 +186,13 @@ ezResult ezQtCppProjectDlg::GenerateSolution()
 
     ezLogSystemToBuffer log;
 
-    ezStatus res = ezQtEditorApp::GetSingleton()->ExecuteTool("cmake/bin/cmake.exe", args, 120, &log, ezLogMsgType::InfoMsg);
+    ezStatus res = ezQtEditorApp::GetSingleton()->ExecuteTool("cmake/bin/cmake", args, 120, &log, ezLogMsgType::InfoMsg);
 
     if (res.Failed())
     {
       output.AppendFormat("Solution generation failed:\n\n");
       output.AppendFormat("{}\n", log.m_sBuffer);
+      output.AppendFormat("{}\n", res.m_sMessage);
       return EZ_FAILURE;
     }
 
