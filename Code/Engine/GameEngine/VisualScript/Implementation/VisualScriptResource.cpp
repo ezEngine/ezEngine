@@ -327,6 +327,9 @@ void ezVisualScriptResourceDescriptor::PrecomputeMessageHandlers()
     auto& node = m_Nodes[uiNode];
     const ezRTTI* pType = node.m_pType;
 
+    if (!pType)
+      continue;
+
     ezUniquePtr<ezVisualScriptNode> pNode;
 
     if (pType->IsDerivedFrom<ezMessage>() && node.m_isMsgHandler)

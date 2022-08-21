@@ -60,6 +60,30 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 
+class EZ_GAMEENGINE_DLL ezVisualScriptNode_PhysicsTriggerEvent : public ezVisualScriptNode
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptNode_PhysicsTriggerEvent, ezVisualScriptNode);
+
+public:
+  ezVisualScriptNode_PhysicsTriggerEvent();
+  ~ezVisualScriptNode_PhysicsTriggerEvent();
+
+  virtual void Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin) override;
+  virtual void* GetInputPinDataPointer(ezUInt8 uiPin) override { return nullptr; }
+  virtual ezInt32 HandlesMessagesWithID() const override;
+  virtual void HandleMessage(ezMessage* pMsg) override;
+
+  const char* GetTriggerMessage() const { return m_sTriggerMessage.GetData(); }
+  void SetTriggerMessage(const char* s) { m_sTriggerMessage.Assign(s); }
+
+private:
+  ezHashedString m_sTriggerMessage;
+  ezGameObjectHandle m_hObject;
+  ezTriggerState::Enum m_State;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
 class EZ_GAMEENGINE_DLL ezVisualScriptNode_InputState : public ezVisualScriptNode
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptNode_InputState, ezVisualScriptNode);
