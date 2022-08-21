@@ -20,9 +20,6 @@ class CharacterVirtualSettings : public CharacterBaseSettings
 public:
 	JPH_OVERRIDE_NEW_DELETE
 
-	/// Vector indicating the up direction of the character
-	Vec3								mUp = Vec3::sAxisY();
-
 	/// Character mass (kg). Used to push down objects with gravity when the character is standing on top.
 	float								mMass = 70.0f;
 
@@ -62,6 +59,18 @@ public:
 
 	/// Called whenever the character collides with a body. Returns true if the contact can push the character.
 	virtual void						OnContactAdded(const CharacterVirtual *inCharacter, const BodyID &inBodyID2, const SubShapeID &inSubShapeID2, Vec3Arg inContactPosition, Vec3Arg inContactNormal, CharacterContactSettings &ioSettings) { /* Default do nothing */ }
+
+	/// Called whenever a contact is being used by the solver. Allows the listener to override the resulting character velocity (e.g. by preventing sliding along certain surfaces).
+	/// @param inCharacter Character that is being solved
+	/// @param inBodyID2 Body ID of body that is being hit
+	/// @param inSubShapeID2 Sub shape ID of shape that is being hit
+	/// @param inContactPosition World space contact position
+	/// @param inContactNormal World space contact normal
+	/// @param inContactVelocity World space velocity of contact point (e.g. for a moving platform)
+	/// @param inContactMaterial Material of contact point
+	/// @param inCharacterVelocity World space velocity of the character prior to hitting this contact
+	/// @param ioNewCharacterVelocity Contains the calculated world space velocity of the character after hitting this contact, this velocity slides along the surface of the contact. Can be modified by the listener to provide an alternative velocity.
+	virtual void						OnContactSolve(const CharacterVirtual *inCharacter, const BodyID &inBodyID2, const SubShapeID &inSubShapeID2, Vec3Arg inContactPosition, Vec3Arg inContactNormal, Vec3Arg inContactVelocity, const PhysicsMaterial *inContactMaterial, Vec3Arg inCharacterVelocity, Vec3 &ioNewCharacterVelocity) { /* Default do nothing */ }
 };
 
 /// Runtime character object.
@@ -120,9 +129,11 @@ public:
 	/// Character padding
 	float								GetCharacterPadding() const								{ return mCharacterPadding; }
 
-	/// This is the main update function. It moves the character according to its current velocity. Note it's your own responsibility to apply gravity!
+	/// This is the main update function. It moves the character according to its current velocity (the character is similar to a kinematic body in the sense
+	/// that you set the velocity and the character will follow unless collision is blocking the way). Note it's your own responsibility to apply gravity to the character velocity!
+	/// Different surface materials (like ice) can be emulated by getting the ground material and adjusting the velocity and/or the max slope angle accordingly every frame.
 	/// @param inDeltaTime Time step to simulate.
-	/// @param inGravity Gravity vector (m/s^2)
+	/// @param inGravity Gravity vector (m/s^2). This gravity vector is only used when the character is standing on top of another object to apply downward force.
 	/// @param inBroadPhaseLayerFilter Filter that is used to check if the character collides with something in the broadphase.
 	/// @param inObjectLayerFilter Filter that is used to check if a character collides with a layer.
 	/// @param inBodyFilter Filter that is used to check if a character collides with a body.
@@ -131,11 +142,12 @@ public:
 
 	/// This function will return true if the character has moved into a slope that is too steep (e.g. a vertical wall).
 	/// You would call WalkStairs to attempt to step up stairs.
-	bool								CanWalkStairs() const;
+	/// @param inLinearVelocity The linear velocity that the player desired. This is used to determine if we're pusing into a step.
+	bool								CanWalkStairs(Vec3Arg inLinearVelocity) const;
 
 	/// When stair walking is needed, you can call the WalkStairs function to cast up, forward and down again to try to find a valid position
 	/// @param inDeltaTime Time step to simulate.
-	/// @param inGravity Gravity vector (m/s^2)
+	/// @param inGravity Gravity vector (m/s^2). This gravity vector is only used when the character is standing on top of another object to apply downward force.
 	/// @param inStepUp The direction and distance to step up (this corresponds to the max step height)
 	/// @param inStepForward The direction and distance to step forward after the step up
 	/// @param inStepForwardTest When running at a high frequency, inStepForward can be very small and it's likely that you hit the side of the stairs on the way down. This could produce a normal that violates the max slope angle. If this happens, we test again using this distance from the up position to see if we find a valid slope.
@@ -146,6 +158,17 @@ public:
 	/// @param inAllocator An allocator for temporary allocations. All memory will be freed by the time this function returns.
 	/// @return true if the stair walk was successful
 	bool								WalkStairs(float inDeltaTime, Vec3Arg inGravity, Vec3Arg inStepUp, Vec3Arg inStepForward, Vec3Arg inStepForwardTest, Vec3Arg inStepDownExtra, const BroadPhaseLayerFilter &inBroadPhaseLayerFilter, const ObjectLayerFilter &inObjectLayerFilter, const BodyFilter &inBodyFilter, TempAllocator &inAllocator);
+
+	/// This function can be used to artificially keep the character to the floor. Normally when a character is on a small step and starts moving horizontally, the character will
+	/// lose contact with the floor because the initial vertical velocity is zero while the horizontal velocity is quite high. To prevent the character from losing contact with the floor,
+	/// we do an additional collision check downwards and if we find the floor within a certain distance, we project the character onto the floor.
+	/// @param inStepDown Max amount to project the character downwards (if no floor is found within this distance, the function will return false)
+	/// @param inBroadPhaseLayerFilter Filter that is used to check if the character collides with something in the broadphase.
+	/// @param inObjectLayerFilter Filter that is used to check if a character collides with a layer.
+	/// @param inBodyFilter Filter that is used to check if a character collides with a body.
+	/// @param inAllocator An allocator for temporary allocations. All memory will be freed by the time this function returns.
+	/// @return True if the character was successfully projected onto the floor.
+	bool								StickToFloor(Vec3Arg inStepDown, const BroadPhaseLayerFilter &inBroadPhaseLayerFilter, const ObjectLayerFilter &inObjectLayerFilter, const BodyFilter &inBodyFilter, TempAllocator &inAllocator);
 
 	/// This function can be used after a character has teleported to determine the new contacts with the world.
 	void								RefreshContacts(const BroadPhaseLayerFilter &inBroadPhaseLayerFilter, const ObjectLayerFilter &inObjectLayerFilter, const BodyFilter &inBodyFilter, TempAllocator &inAllocator);
@@ -179,6 +202,7 @@ public:
 #ifdef JPH_DEBUG_RENDERER
 	static inline bool					sDrawConstraints = false;								///< Draw the current state of the constraints for iteration 0 when creating them
 	static inline bool					sDrawWalkStairs = false;								///< Draw the state of the walk stairs algorithm
+	static inline bool					sDrawStickToFloor = false;								///< Draw the state of the stick to floor algorithm
 #endif
 
 private:
@@ -187,7 +211,8 @@ private:
 	{
 		Vec3							mPosition;												///< Position where the character makes contact
 		Vec3							mLinearVelocity;										///< Velocity of the contact point
-		Vec3							mNormal;												///< Contact normal, pointing towards the character
+		Vec3							mContactNormal;											///< Contact normal, pointing towards the character
+		Vec3							mSurfaceNormal;											///< Surface normal of the contact
 		float							mDistance;												///< Distance to the contact <= 0 means that it is an actual contact, > 0 means predictive
 		float							mFraction;												///< Fraction along the path where this contact takes place
 		BodyID							mBodyB;													///< ID of body we're colliding with
@@ -231,10 +256,11 @@ private:
 	class ContactCollector : public CollideShapeCollector
 	{
 	public:
-										ContactCollector(PhysicsSystem *inSystem, uint inMaxHits, TempContactList &outContacts) : mSystem(inSystem), mContacts(outContacts), mMaxHits(inMaxHits) { }
+										ContactCollector(PhysicsSystem *inSystem, uint inMaxHits, Vec3Arg inUp, TempContactList &outContacts) : mUp(inUp), mSystem(inSystem), mContacts(outContacts), mMaxHits(inMaxHits) { }
 
 		virtual void					AddHit(const CollideShapeResult &inResult) override;
 
+		Vec3							mUp;
 		PhysicsSystem *					mSystem;
 		TempContactList &				mContacts;
 		uint							mMaxHits;
@@ -244,12 +270,13 @@ private:
 	class ContactCastCollector : public CastShapeCollector
 	{
 	public:
-										ContactCastCollector(PhysicsSystem *inSystem, Vec3Arg inDisplacement, uint inMaxHits, const IgnoredContactList &inIgnoredContacts, TempContactList &outContacts) : mSystem(inSystem), mDisplacement(inDisplacement), mIgnoredContacts(inIgnoredContacts), mContacts(outContacts), mMaxHits(inMaxHits) { }
+										ContactCastCollector(PhysicsSystem *inSystem, Vec3Arg inDisplacement, uint inMaxHits, Vec3Arg inUp, const IgnoredContactList &inIgnoredContacts, TempContactList &outContacts) : mDisplacement(inDisplacement), mUp(inUp), mSystem(inSystem), mIgnoredContacts(inIgnoredContacts), mContacts(outContacts), mMaxHits(inMaxHits) { }
 
 		virtual void					AddHit(const ShapeCastResult &inResult) override;
 
-		PhysicsSystem *					mSystem;
 		Vec3							mDisplacement;
+		Vec3							mUp;
+		PhysicsSystem *					mSystem;
 		const IgnoredContactList &		mIgnoredContacts;
 		TempContactList &				mContacts;
 		uint							mMaxHits;
@@ -257,10 +284,14 @@ private:
 
 	// Helper function to convert a Jolt collision result into a contact
 	template <class taCollector>
-	inline static void					sFillContactProperties(Contact &outContact, const Body &inBody, const taCollector &inCollector, const CollideShapeResult &inResult);
+	inline static void					sFillContactProperties(Contact &outContact, const Body &inBody, Vec3Arg inUp, const taCollector &inCollector, const CollideShapeResult &inResult);
 
 	// Move the shape from ioPosition and try to displace it by inVelocity * inDeltaTime, this will try to slide the shape along the world geometry
-	void								MoveShape(Vec3 &ioPosition, Vec3Arg inVelocity, Vec3Arg inGravity, float inDeltaTime, ContactList *outActiveContacts, const BroadPhaseLayerFilter &inBroadPhaseLayerFilter, const ObjectLayerFilter &inObjectLayerFilter, const BodyFilter &inBodyFilter, TempAllocator &inAllocator) const;
+	void								MoveShape(Vec3 &ioPosition, Vec3Arg inVelocity, Vec3Arg inGravity, float inDeltaTime, ContactList *outActiveContacts, const BroadPhaseLayerFilter &inBroadPhaseLayerFilter, const ObjectLayerFilter &inObjectLayerFilter, const BodyFilter &inBodyFilter, TempAllocator &inAllocator
+	#ifdef JPH_DEBUG_RENDERER
+		, bool inDrawConstraints = false
+	#endif // JPH_DEBUG_RENDERER
+		) const;
 
 	// Ask the callback if inContact is a valid contact point
 	bool								ValidateContact(const Contact &inContact) const;
@@ -275,7 +306,11 @@ private:
 	void								DetermineConstraints(TempContactList &inContacts, ConstraintList &outConstraints) const;
 
 	// Use the constraints to solve the displacement of the character. This will slide the character on the planes around the origin for as far as possible.
-	void								SolveConstraints(Vec3Arg inVelocity, Vec3Arg inGravity, float inDeltaTime, float inTimeRemaining, ConstraintList &ioConstraints, IgnoredContactList &ioIgnoredContacts, float &outTimeSimulated, Vec3 &outDisplacement, TempAllocator &inAllocator) const;
+	void								SolveConstraints(Vec3Arg inVelocity, Vec3Arg inGravity, float inDeltaTime, float inTimeRemaining, ConstraintList &ioConstraints, IgnoredContactList &ioIgnoredContacts, float &outTimeSimulated, Vec3 &outDisplacement, TempAllocator &inAllocator
+	#ifdef JPH_DEBUG_RENDERER
+		, bool inDrawConstraints = false
+	#endif // JPH_DEBUG_RENDERER
+		) const;
 
 	// Handle contact with physics object that we're colliding against
 	bool								HandleContact(Vec3Arg inVelocity, Constraint &ioConstraint, Vec3Arg inGravity, float inDeltaTime) const;
@@ -283,11 +318,14 @@ private:
 	// Does a swept test of the shape from inPosition with displacement inDisplacement, returns true if there was a collision
 	bool								GetFirstContactForSweep(Vec3Arg inPosition, Vec3Arg inDisplacement, Contact &outContact, const IgnoredContactList &inIgnoredContacts, const BroadPhaseLayerFilter &inBroadPhaseLayerFilter, const ObjectLayerFilter &inObjectLayerFilter, const BodyFilter &inBodyFilter, TempAllocator &inAllocator) const;
 
-	// Store contacts so that CheckSupport and GetStandingPhysicsInstance etc. can return information
+	// Store contacts so that we have proper ground information
 	void								StoreActiveContacts(const TempContactList &inContacts, TempAllocator &inAllocator);
 
 	// This function will determine which contacts are touching the character and will calculate the one that is supporting us
-	void								UpdateSupportingContact(TempAllocator &inAllocator);
+	void								UpdateSupportingContact(bool inSkipContactVelocityCheck, TempAllocator &inAllocator);
+
+	/// This function can be called after moving the character to a new colliding position
+	void								MoveToContact(Vec3Arg inPosition, const Contact &inContact, const BroadPhaseLayerFilter &inBroadPhaseLayerFilter, const ObjectLayerFilter &inObjectLayerFilter, const BodyFilter &inBodyFilter, TempAllocator &inAllocator);
 
 	// This function returns the actual center of mass of the shape, not corrected for the character padding
 	inline Mat44						GetCenterOfMassTransform(Vec3Arg inPosition, QuatArg inRotation, const Shape *inShape) const
@@ -297,9 +335,6 @@ private:
 
 	// Our main listener for contacts
 	CharacterContactListener *			mListener = nullptr;
-
-	// The character's world space up axis
-	Vec3								mUp;
 
 	// Movement settings
 	float								mPredictiveContactDistance;								// How far to scan outside of the shape for predictive contacts

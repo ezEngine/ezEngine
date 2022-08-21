@@ -9,7 +9,11 @@
 	JPH_SUPPRESS_WARNING_PUSH
 	JPH_MSVC_SUPPRESS_WARNING(5039) // winbase.h(13179): warning C5039: 'TpSetCallbackCleanupGroup': pointer or reference to potentially throwing function passed to 'extern "C"' function under -EHc. Undefined behavior may occur if this function throws an exception.
 	#define WIN32_LEAN_AND_MEAN
+#ifndef JPH_COMPILER_MINGW
 	#include <Windows.h>
+#else
+	#include <windows.h>
+#endif
 	JPH_SUPPRESS_WARNING_POP
 #elif defined(JPH_PLATFORM_LINUX) || defined(JPH_PLATFORM_ANDROID)
 	#include <fstream>
@@ -100,6 +104,8 @@ static const uint64 sProcessorTicksPerSecond = []() {
     size_t len = sizeof(freq);
     sysctl(mib, 2, &freq, &len, nullptr, 0);
 	return freq;
+#elif defined(JPH_PLATFORM_WASM)
+	return 1; // Not supported
 #else
 	#error Undefined
 #endif
