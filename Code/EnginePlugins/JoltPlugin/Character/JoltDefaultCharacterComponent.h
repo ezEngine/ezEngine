@@ -33,20 +33,21 @@ public:
   {
     OnGround, ///< Character is touching the ground
     Sliding,  ///< Character is touching a steep surface and therefore slides downwards
-    Jumping,  ///< Character is jumping up, not yet falling down
-    Falling,  ///< Character isn't touching any ground surface (may still touch a wall or ceiling)
+    InAir,    ///< Character isn't touching any ground surface (may still touch a wall or ceiling)
   };
 
   ezAngle m_RotateSpeed = ezAngle::Degree(90.0f); ///< [ property ] How many degrees per second the character turns
   float m_fShapeRadius = 0.25f;
   float m_fCylinderHeightCrouch = 0.9f;
   float m_fCylinderHeightStand = 1.7f;
+  float m_fFootRadius = 0.15f;
 
   float m_fWalkSpeedCrouching = 0.5f;
   float m_fWalkSpeedStanding = 1.5f;
   float m_fWalkSpeedRunning = 3.5f;
 
-  float m_fMaxStepHeight = 0.25f;
+  float m_fMaxStepUp = 0.25f;
+  float m_fMaxStepDown = 0.25f;
   float m_fJumpImpulse = 5.0f;
 
   ezHashedString m_sWalkSurfaceInteraction;       ///< [ property ] The surface interaction to spawn regularly when walking
@@ -77,26 +78,35 @@ public:
   /// \brief Returns the radius of the shape. This never changes at runtime.
   float GetShapeRadius() const;
 
-  /// \brief Returns the current (crouching/standing) height of the capsule plus the step offset (the character floats above the ground)
-  float GetCurrentTotalHeight() const;
-
   GroundState GetGroundState() const { return m_LastGroundState; }
-  bool IsStandingOnGround() const { return m_LastGroundState == GroundState::OnGround; }                                  // [ scriptable ]
-  bool IsSlidingOnGround() const { return m_LastGroundState == GroundState::Sliding; }                                    // [ scriptable ]
-  bool IsInAir() const { return m_LastGroundState == GroundState::Jumping || m_LastGroundState == GroundState::Falling; } // [ scriptable ]
-  bool IsCrouching() const { return m_IsCrouchingBit; }                                                                   // [ scriptable ]
+  bool IsStandingOnGround() const { return m_LastGroundState == GroundState::OnGround; } // [ scriptable ]
+  bool IsSlidingOnGround() const { return m_LastGroundState == GroundState::Sliding; }   // [ scriptable ]
+  bool IsInAir() const { return m_LastGroundState == GroundState::InAir; }               // [ scriptable ]
+  bool IsCrouching() const { return m_IsCrouchingBit; }                                  // [ scriptable ]
 
   void TeleportCharacter(const ezVec3& vGlobalFootPosition);
+
+  struct Config
+  {
+    bool m_bAllowJump = true;
+    bool m_bAllowCrouch = true;
+    bool m_bApplyGravity = true;
+    bool m_bApplyGroundVelocity = true;
+    ezVec3 m_vVelocity = ezVec3::ZeroVector();
+    float m_fPushDownForce = 0;
+    ezHashedString m_sGroundInteraction;
+    float m_fGroundInteractionDistanceThreshold = 1.0f;
+    float m_fMaxStepUp = 0;
+    float m_fMaxStepDown = 0;
+  };
+
+  virtual void DetermineConfig(Config& out_Inputs);
 
 protected:
   void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const;
   virtual void OnApplyRootMotion(ezMsgApplyRootMotion& msg);
 
   virtual void UpdateCharacter() override;
-
-  virtual void Update_OnGround();
-  virtual void Update_InAir();
-  virtual void Update_Sliding();
   virtual void ApplyRotationZ();
 
   /// \brief Clears the input states to neutral values
@@ -107,29 +117,17 @@ protected:
   /// \brief Creates a new shape with the given height (and fixed radius)
   virtual JPH::Ref<JPH::Shape> MakeNextCharacterShape() override;
 
-  /// \brief Checks what the ground state would be at the given position. If there is any contact, returns the most interesting contact point.
-  GroundState DetermineGroundState(ContactPoint& out_Contact, const ezVec3& vFootPosition, float fAllowedStepUp, float fAllowedStepDown, float fCylinderRadius) const;
-
-  GroundState DetermineCurrentState(bool bAllowStepDown);
-
-  ezVec3 ComputeInputVelocity_OnGround() const;
-  ezVec3 ComputeInputVelocity_InAir() const;
-
-  /// \brief Modifies the up/down velocity such that the character sticks to the ground when walking down stairs, and steps up when encountering small obstacles.
-  void AdjustVelocityToStepUpOrDown(float& fVelocityUp, const ContactPoint& groundContact) const;
-
   void ApplyCrouchState();
-  void InteractWithSurfaces(const ezVec2& vWalkAmount, const ezVec3& vStartPos, GroundState groundState, const ContactPoint& contact);
-
-  void ClampUpVelocity();
-
-  void VisualizeShape();
+  void InteractWithSurfaces(const ContactPoint& contact, const Config& cfg);
 
   void StoreLateralVelocity();
   void ClampLateralVelocity();
+  void MoveHeadObject();
+  void DebugVisualizations();
 
-  ezHybridArray<ContactPoint, 32> m_CurrentContacts;
-  GroundState m_LastGroundState = GroundState::Falling;
+  void CheckFeet();
+
+  GroundState m_LastGroundState = GroundState::InAir;
 
   ezUInt8 m_InputJumpBit : 1;
   ezUInt8 m_InputCrouchBit : 1;
@@ -142,6 +140,7 @@ protected:
   float m_fAccumulatedWalkDistance = 0.0f;
   ezVec2 m_vVelocityLateral = ezVec2::ZeroVector();
   ezTransform m_PreviousTransform;
+  bool m_bFeetOnSolidGround = false;
 
   float m_fCurrentCylinderHeight = 0;
 

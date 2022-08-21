@@ -13,7 +13,7 @@ namespace JPH
   class TempAllocator;
 } // namespace JPH
 
-EZ_DECLARE_FLAGS(ezUInt32, ezJoltCharacterDebugFlags, PrintState, VisShape, VisContacts, VisCasts, VisGroundContact);
+EZ_DECLARE_FLAGS(ezUInt32, ezJoltCharacterDebugFlags, PrintState, VisShape, VisContacts, VisCasts, VisGroundContact, VisFootCheck);
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_JOLTPLUGIN_DLL, ezJoltCharacterDebugFlags);
 
 class EZ_JOLTPLUGIN_DLL ezJoltCharacterControllerComponent : public ezComponent
@@ -51,9 +51,6 @@ public:
   /// \brief Checks what the ground state would be at the given position. If there is any contact, returns the most interesting contact point.
   // GroundState DetermineGroundState(ContactPoint& out_Contact, const ezVec3& vFootPosition, float fAllowedStepUp, float fAllowedStepDown, float fCylinderRadius) const;
 
-  /// \brief Detects the velocity of the ground that the character is standing on. If it is a dynamic body, a downwards force is applied to it.
-  // ezVec3 GetGroundVelocityAndPushDown(const ContactPoint& contact, JPH::PhysicsSystem* pJoltSystem, float fPushGroundForce);
-
   /// \brief Checks whether the character could stand at the target position with the desired height without intersecting other geometry
   // bool TestShapeOverlap(const ezVec3& vGlobalFootPos, float fNewShapeHeight) const;
 
@@ -64,7 +61,8 @@ public:
   void ClearObjectToIgnore();
 
 public:                                               // [ properties ]
-  ezUInt32 m_uiCollisionLayer = 0;                    // [ property ]
+  ezUInt8 m_uiCollisionLayer = 0;                    // [ property ]
+  ezUInt8 m_uiPresenceCollisionLayer = 0;            // [ property ]
   ezBitflags<ezJoltCharacterDebugFlags> m_DebugFlags; // [ property ]
 
   /// \brief The maximum slope that the character can walk up.
@@ -112,7 +110,7 @@ protected:
   ezResult TryChangeShape(JPH::Shape* pNewShape);
 
   /// \brief Moves the character using the given velocity and timestep, making it collide with and slide along obstacles.
-  void RawMoveWithVelocity(const ezVec3& vVelocity);
+  bool RawMoveWithVelocity(const ezVec3& vVelocity, float fMaxStairStepUp);
 
   /// \brief Variant of RawMoveWithVelocity() that takes a direction vector instead.
   void RawMoveIntoDirection(const ezVec3& vDirection);
@@ -122,6 +120,8 @@ protected:
 
   /// \brief Teleports the character to the destination position, even if it would get stuck there.
   void TeleportToPosition(const ezVec3& vGlobalFootPos);
+
+  bool StickToGround(float fMaxDist);
 
   /// \brief Gathers all contact points that are found by sweeping the shape along a direction
   void CollectCastContacts(ezDynamicArray<ContactPoint>& out_Contacts, const JPH::Shape* pShape, const ezVec3& vQueryPosition, const ezQuat& qQueryRotation, const ezVec3& vSweepDir) const;
@@ -172,14 +172,14 @@ protected:
   /// * if there is any flat enough contact, the closest one of those is returned
   /// * if there are no flat contacts, the flattest of the steep contacts is returned
   /// * otherwise an invalid index
-  static ezBitflags<ShapeContacts> ClassifyContacts(const ezDynamicArray<ContactPoint>& contacts, ezAngle maxSlopeAngle, const ezVec3& vCenterPos, ezUInt32* out_pBestGroundContact);
+  // static ezBitflags<ShapeContacts> ClassifyContacts(const ezDynamicArray<ContactPoint>& contacts, ezAngle maxSlopeAngle, const ezVec3& vCenterPos, ezUInt32* out_pBestGroundContact);
 
   using ContactFilter = ezDelegate<bool(const ContactPoint&)>;
 
   /// \brief Returns the index or ezInvalidIndex of the contact point whose normal is closest to vNormal.
   ///
   /// \param filter allows to ignore contact points by other criteria, such as position.
-  static ezUInt32 FindFlattestContact(const ezDynamicArray<ContactPoint>& contacts, const ezVec3& vNormal, ContactFilter filter);
+  // static ezUInt32 FindFlattestContact(const ezDynamicArray<ContactPoint>& contacts, const ezVec3& vNormal, ContactFilter filter);
 
   void VisualizeContact(const ContactPoint& contact, const ezColor& color) const;
   void VisualizeContacts(const ezDynamicArray<ContactPoint>& contacts, const ezColor& color) const;
@@ -193,5 +193,12 @@ private:
   float m_fInverseUpdateTimeDelta = 1.0f;
   JPH::CharacterVirtual* m_pCharacter = nullptr;
 
+  void CreatePresenceBody();
+  void RemovePresenceBody();
+  void MovePresenceBody(ezTime deltaTime);
+
+  ezUInt32 m_uiPresenceBodyID = ezInvalidIndex;
+
   ezJoltBodyFilter m_BodyFilter;
+  ezUInt32 m_uiUserDataIndex = ezInvalidIndex;
 };

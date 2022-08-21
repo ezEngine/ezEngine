@@ -127,7 +127,7 @@ private:
   JPH::GroupFilter* m_pGroupFilter = nullptr;
   JPH::GroupFilter* m_pGroupFilterIgnoreSame = nullptr;
 
-  ezUInt32 m_uiBodiesAddedSinceOptimize = 0;
+  ezUInt32 m_uiBodiesAddedSinceOptimize = 100;
   ezDeque<ezUInt32> m_BodiesToAdd;
 
   ezHybridArray<ezTime, 4> m_UpdateSteps;

@@ -866,10 +866,10 @@ void CharacterVirtual::MoveToContact(Vec3Arg inPosition, const Contact &inContac
 			c.mHadCollision = true;
 			JPH_IF_ENABLE_ASSERTS(found_contact = true;)
 		}
-	JPH_ASSERT(found_contact);
+	//JPH_ASSERT(found_contact);
 
 	StoreActiveContacts(contacts, inAllocator);
-	JPH_ASSERT(mGroundState != EGroundState::InAir);
+	//JPH_ASSERT(mGroundState != EGroundState::InAir);
 }
 
 bool CharacterVirtual::SetShape(const Shape *inShape, float inMaxPenetrationDepth, const BroadPhaseLayerFilter &inBroadPhaseLayerFilter, const ObjectLayerFilter &inObjectLayerFilter, const BodyFilter &inBodyFilter, TempAllocator &inAllocator)

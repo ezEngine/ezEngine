@@ -19,8 +19,19 @@ void ezJoltFixedConstraintComponent::ApplySettings()
 
 void ezJoltFixedConstraintComponent::CreateContstraintType(JPH::Body* pBody0, JPH::Body* pBody1)
 {
+  const auto diff0 = pBody0->GetPosition() - pBody0->GetCenterOfMassPosition();
+  const auto diff1 = pBody1->GetPosition() - pBody1->GetCenterOfMassPosition();
+
   JPH::FixedConstraintSettings opt;
   opt.mDrawConstraintSize = 0.1f;
+
+  opt.mSpace = JPH::EConstraintSpace::LocalToBodyCOM;
+  opt.mPoint1 = ezJoltConversionUtils::ToVec3(m_localFrameA.m_vPosition) + diff0;
+  opt.mPoint2 = ezJoltConversionUtils::ToVec3(m_localFrameB.m_vPosition) + diff1;
+  opt.mAxisX1 = ezJoltConversionUtils::ToVec3(m_localFrameA.m_qRotation * ezVec3(1, 0, 0));
+  opt.mAxisX2 = ezJoltConversionUtils::ToVec3(m_localFrameB.m_qRotation * ezVec3(1, 0, 0));
+  opt.mAxisY1 = ezJoltConversionUtils::ToVec3(m_localFrameA.m_qRotation * ezVec3(0, 1, 0));
+  opt.mAxisY2 = ezJoltConversionUtils::ToVec3(m_localFrameB.m_qRotation * ezVec3(0, 1, 0));
 
   m_pConstraint = opt.Create(*pBody0, *pBody1);
 }
