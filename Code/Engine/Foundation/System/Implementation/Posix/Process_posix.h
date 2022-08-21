@@ -2,93 +2,232 @@
 EZ_FOUNDATION_INTERNAL_HEADER
 
 #include <Foundation/System/Process.h>
+#include <Foundation/Threading/ThreadUtils.h>
+#include <Foundation/Logging/Log.h>
+
+#include <sys/wait.h>
+#include <unistd.h>
 
 struct ezProcessImpl
 {
   EZ_DECLARE_POD_TYPE();
+
+  pid_t m_childPid = -1;
+  bool m_exitCodeAvailable = false;
+  bool m_processSuspended = false;
+
+  static ezResult StartChildProcess(const ezProcessOptions& opt, pid_t& outPid, bool suspended)
+  {
+    pid_t childPid = fork();
+    if (childPid < 0)
+    {
+      return EZ_FAILURE;
+    }
+
+    if (childPid == 0) // We are the child
+    {
+      ezHybridArray<char*, 9> args;
+
+      for (const ezString& arg : opt.m_Arguments)
+      {
+        args.PushBack(const_cast<char*>(arg.GetData()));
+      }
+      args.PushBack(nullptr);
+
+      if (!opt.m_sWorkingDirectory.IsEmpty())
+      {
+        if (chdir(opt.m_sWorkingDirectory.GetData()) < 0)
+        {
+          _exit(-1); // Failed to change working directory
+        }
+      }
+
+      if(suspended)
+      {
+        if(raise(SIGSTOP) < 0)
+        {
+          _exit(-1);
+        }
+      }
+
+      if (execv(opt.m_sProcess.GetData(), args.GetData()) < 0)
+      {
+        _exit(-1);
+      }
+    }
+    else
+    {
+      outPid = childPid;
+    }
+
+    return EZ_SUCCESS;
+  }
 };
 
 ezProcess::ezProcess()
 {
-  /// \todo Implement ezProcess::ezProcess on Posix
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  m_impl = EZ_DEFAULT_NEW(ezProcessImpl);
 }
 
 ezProcess::~ezProcess()
 {
-  /// \todo Implement ezProcess::~ezProcess on Posix
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  if (GetState() == ezProcessState::Running)
+  {
+    ezLog::Dev("Process still running - terminating '{}'", m_sProcess);
+
+    Terminate().IgnoreResult();
+  }
+
+  // Explicitly clear the implementation here so that member
+  // state (e.g. delegates) used by the impl survives the implementation.
+  m_impl.Clear();
 }
 
 ezResult ezProcess::Execute(const ezProcessOptions& opt, ezInt32* out_iExitCode /*= nullptr*/)
 {
-  /// \todo Implement ezProcess::Execute on Posix
+  pid_t childPid = 0;
+  if (ezProcessImpl::StartChildProcess(opt, childPid, false).Failed())
+  {
+    return EZ_FAILURE;
+  }
 
-  EZ_ASSERT_NOT_IMPLEMENTED;
-  return EZ_FAILURE;
+  int childReturnValue = -1;
+  pid_t waitedPid = waitpid(childPid, &childReturnValue, 0);
+  if (waitedPid < 0)
+  {
+    return EZ_FAILURE;
+  }
+  if (out_iExitCode != nullptr)
+  {
+    *out_iExitCode = childReturnValue;
+  }
+  return EZ_SUCCESS;
 }
 
 ezResult ezProcess::Launch(const ezProcessOptions& opt, ezBitflags<ezProcessLaunchFlags> launchFlags /*= ezProcessLaunchFlags::None*/)
 {
-  /// \todo Implement ezProcess::Launch on Posix
+  EZ_ASSERT_DEV(m_impl->m_childPid == -1, "Can not reuse an instance of ezProcess");
 
-  EZ_ASSERT_NOT_IMPLEMENTED;
-  return EZ_FAILURE;
+  if(ezProcessImpl::StartChildProcess(opt, m_impl->m_childPid, launchFlags.IsSet(ezProcessLaunchFlags::Suspended)).Failed())
+  {
+    return EZ_FAILURE;
+  }
+
+  m_impl->m_exitCodeAvailable = false;
+  m_impl->m_processSuspended = launchFlags.IsSet(ezProcessLaunchFlags::Suspended);
+
+  if(launchFlags.IsSet(ezProcessLaunchFlags::Detached))
+  {
+    Detach();
+  }
+
+  return EZ_SUCCESS;
 }
 
 ezResult ezProcess::ResumeSuspended()
 {
-  /// \todo Implement ezProcess::ResumeSuspended on Posix
+  if(m_impl->m_childPid < 0 || !m_impl->m_processSuspended)
+  {
+    return EZ_FAILURE;
+  }
 
-  EZ_ASSERT_NOT_IMPLEMENTED;
-  return EZ_FAILURE;
+  if(kill(m_impl->m_childPid, SIGCONT) < 0)
+  {
+    return EZ_FAILURE;
+  }
+  m_impl->m_processSuspended = false;
+  return EZ_SUCCESS;
 }
 
 ezResult ezProcess::WaitToFinish(ezTime timeout /*= ezTime::Zero()*/)
 {
-  /// \todo Implement ezProcess::WaitToFinish on Posix
+  int returnValue = 0;
+  if(timeout.IsZero())
+  {
+    if(waitpid(m_impl->m_childPid, &returnValue, 0) < 0)
+    {
+      return EZ_FAILURE;
+    }
+  }
+  else 
+  {
+    int waitResult = 0;
+    ezTime startWait = ezTime::Now();
+    while(true)
+    {
+      waitResult = waitpid(m_impl->m_childPid, &returnValue, WNOHANG);
+      if(waitResult < 0)
+      {
+        return EZ_FAILURE;
+      }
+      if(waitResult > 0)
+      {
+        break;
+      }
+      ezTime timeSpent = ezTime::Now() - startWait;
+      if(timeSpent > timeout)
+      {
+        return EZ_FAILURE;
+      }
+      ezThreadUtils::Sleep(ezMath::Min(ezTime::Milliseconds(100.0), timeout - timeSpent));
+    }
+  }
 
-  EZ_ASSERT_NOT_IMPLEMENTED;
-  return EZ_FAILURE;
+  m_iExitCode = returnValue;
+  m_impl->m_exitCodeAvailable = true;
+  return EZ_SUCCESS;
 }
 
 ezResult ezProcess::Terminate()
 {
-  /// \todo Implement ezProcess::Terminate on Posix
+  if(m_impl->m_childPid == -1)
+  {
+    return EZ_FAILURE;
+  }
 
-  EZ_ASSERT_NOT_IMPLEMENTED;
-  return EZ_FAILURE;
+  if(kill(m_impl->m_childPid, SIGKILL) < 0)
+  {
+    if(errno != ESRCH) // ESRCH = Process does not exist
+    {
+      return EZ_FAILURE;
+    }
+  }
+  m_impl->m_exitCodeAvailable = true;
+  m_iExitCode = -1;
+
+  return EZ_SUCCESS;
 }
 
 ezProcessState ezProcess::GetState() const
 {
-  /// \todo Implement ezProcess::GetState on Posix
+  if(m_impl->m_childPid == -1)
+  {
+    return ezProcessState::NotStarted;
+  }
 
-  EZ_ASSERT_NOT_IMPLEMENTED;
-  return ezProcessState::NotStarted;
+  if(m_impl->m_exitCodeAvailable)
+  {
+    return ezProcessState::Finished;
+  }
+
+  return ezProcessState::Running;
 }
 
 void ezProcess::Detach()
 {
-  /// \todo Implement ezProcess::Detach on Posix
-
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  m_impl->m_childPid = -1;
 }
 
 ezOsProcessHandle ezProcess::GetProcessHandle() const
 {
-  /// \todo Implement ezProcess::GetProcessHandle on Posix
-
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  EZ_ASSERT_DEV(false, "There is no process handle on posix");
   return nullptr;
 }
 
 ezOsProcessID ezProcess::GetProcessID() const
 {
-  /// \todo Implement ezProcess::GetProcessID on Posix
-
-  EZ_ASSERT_NOT_IMPLEMENTED;
-  return 0;
+  EZ_ASSERT_DEV(m_impl->m_childPid != -1, "No ProcessID available");
+  return m_impl->m_childPid;
 }
 
 ezOsProcessID ezProcess::GetCurrentProcessID()
