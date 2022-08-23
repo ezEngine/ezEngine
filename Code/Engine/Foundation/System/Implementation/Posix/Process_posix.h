@@ -123,10 +123,10 @@ struct ezProcessImpl
       }
     }
 
-    for(ezUInt32 i=0; i < self->m_streams.GetCount(); ++i)
+    for (ezUInt32 i = 0; i < self->m_streams.GetCount(); ++i)
     {
       ezStringBuilder& overflowBuffer = self->m_overflowBuffers[i];
-      if(!overflowBuffer.IsEmpty())
+      if (!overflowBuffer.IsEmpty())
       {
         self->m_streams[i].callback(overflowBuffer);
         overflowBuffer.Clear();
@@ -353,7 +353,7 @@ ezResult ezProcess::Execute(const ezProcessOptions& opt, ezInt32* out_iExitCode 
   }
   if (out_iExitCode != nullptr)
   {
-    if(WIFEXITED(childStatus))
+    if (WIFEXITED(childStatus))
     {
       *out_iExitCode = WEXITSTATUS(childStatus);
     }
@@ -457,7 +457,7 @@ ezResult ezProcess::WaitToFinish(ezTime timeout /*= ezTime::Zero()*/)
     }
   }
 
-  if(WIFEXITED(childStatus))
+  if (WIFEXITED(childStatus))
   {
     m_iExitCode = WEXITSTATUS(childStatus);
   }
