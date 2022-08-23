@@ -14,7 +14,7 @@
 ezMessageLoop_linux::ezMessageLoop_linux()
 {
   int fds[2];
-  if (pipe2(fds, O_NONBLOCK) < 0)
+  if (pipe2(fds, O_NONBLOCK | O_CLOEXEC) < 0)
   {
     ezLog::Error("[IPC]Failed to create wakeup pipe for ezMessageLoop_linux");
   }

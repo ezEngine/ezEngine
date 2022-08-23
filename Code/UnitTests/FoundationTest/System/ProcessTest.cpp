@@ -117,15 +117,12 @@ EZ_CREATE_SIMPLE_TEST(System, Process)
     EZ_TEST_BOOL_MSG(tDiff < ezTime::Seconds(1.0), "Destruction of ezProcess should be instant after Detach() was used.");
   }
 
-#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "STDOUT")
   {
     ezDynamicArray<ezStringBuilder> lines;
     ezStringBuilder out;
     ezProcessOptions opt;
-    opt.m_onStdOut = [&](ezStringView view)
-    {
+    opt.m_onStdOut = [&](ezStringView view) {
       out.Append(view);
       lines.PushBack(view);
     };
@@ -182,8 +179,7 @@ EZ_CREATE_SIMPLE_TEST(System, Process)
     ezStringBuilder out;
     ezStringBuilder err;
     ezProcessOptions opt;
-    opt.m_onStdOut = [&](ezStringView view)
-    {
+    opt.m_onStdOut = [&](ezStringView view) {
       out.Append(view);
       lines.PushBack(view);
     };
@@ -212,9 +208,5 @@ EZ_CREATE_SIMPLE_TEST(System, Process)
     EZ_TEST_STRING(out, g_szTestMsg);
     EZ_TEST_BOOL_MSG(err.IsEmpty(), "Error stream should be empty.");
   }
-
-#  else
-  ezLog::Warning("ezProcess functions are not implemented on this platform.");
-#  endif
 }
 #endif
