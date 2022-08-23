@@ -37,5 +37,11 @@ void ezStringView::Shrink(ezUInt32 uiShrinkCharsFront, ezUInt32 uiShrinkCharsBac
   }
 }
 
+ezStringView ezStringView::GetShrunk(ezUInt32 uiShrinkCharsFront, ezUInt32 uiShrinkCharsBack) const
+{
+  ezStringView tmp = *this;
+  tmp.Shrink(uiShrinkCharsFront, uiShrinkCharsBack);
+  return tmp;
+}
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Strings_Implementation_StringView);

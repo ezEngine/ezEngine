@@ -19,82 +19,73 @@ const char* ezPathUtils::FindPreviousSeparator(const char* szPathStart, const ch
   return nullptr;
 }
 
-bool ezPathUtils::HasAnyExtension(const char* szPath, const char* szPathEnd)
+bool ezPathUtils::HasAnyExtension(ezStringView sPath)
 {
-  ezStringUtils::UpdateStringEnd(szPath, szPathEnd);
-
-  const char* szDot = ezStringUtils::FindLastSubString(szPath, ".", nullptr, szPathEnd);
+  const char* szDot = ezStringUtils::FindLastSubString(sPath.GetStartPointer(), ".", nullptr, sPath.GetEndPointer());
 
   if (szDot == nullptr)
     return false;
 
   // find the last separator in the string
-  const char* szSeparator = FindPreviousSeparator(szPath, szPathEnd);
+  const char* szSeparator = FindPreviousSeparator(sPath.GetStartPointer(), sPath.GetEndPointer());
 
   return (szSeparator < szDot);
 }
 
-bool ezPathUtils::HasExtension(const char* szPath, const char* szExtension, const char* szPathEnd)
+bool ezPathUtils::HasExtension(ezStringView sPath, ezStringView sExtension)
 {
-  if (ezStringUtils::StartsWith(szExtension, "."))
-    return ezStringUtils::EndsWith_NoCase(szPath, szExtension, szPathEnd);
+  if (ezStringUtils::StartsWith(sExtension.GetStartPointer(), ".", sExtension.GetEndPointer()))
+    return ezStringUtils::EndsWith_NoCase(sPath.GetStartPointer(), sExtension.GetStartPointer(), sPath.GetEndPointer(), sExtension.GetEndPointer());
 
   ezStringBuilder sExt;
-  sExt.Append(".", szExtension);
+  sExt.Append(".", sExtension);
 
-  return ezStringUtils::EndsWith_NoCase(szPath, sExt.GetData(), szPathEnd);
+  return ezStringUtils::EndsWith_NoCase(sPath.GetStartPointer(), sExt.GetData(), sPath.GetEndPointer());
 }
 
-ezStringView ezPathUtils::GetFileExtension(const char* szPath, const char* szPathEnd)
+ezStringView ezPathUtils::GetFileExtension(ezStringView sPath)
 {
-  ezStringUtils::UpdateStringEnd(szPath, szPathEnd);
-
-  const char* szDot = ezStringUtils::FindLastSubString(szPath, ".", nullptr, szPathEnd);
+  const char* szDot = ezStringUtils::FindLastSubString(sPath.GetStartPointer(), ".", nullptr, sPath.GetEndPointer());
 
   if (szDot == nullptr)
     return ezStringView(nullptr);
 
   // find the last separator in the string
-  const char* szSeparator = FindPreviousSeparator(szPath, szPathEnd);
+  const char* szSeparator = FindPreviousSeparator(sPath.GetStartPointer(), sPath.GetEndPointer());
 
   if (szSeparator > szDot)
     return ezStringView(nullptr);
 
-  return ezStringView(szDot + 1, szPathEnd);
+  return ezStringView(szDot + 1, sPath.GetEndPointer());
 }
 
-ezStringView ezPathUtils::GetFileNameAndExtension(const char* szPath, const char* szPathEnd)
+ezStringView ezPathUtils::GetFileNameAndExtension(ezStringView sPath)
 {
-  ezStringUtils::UpdateStringEnd(szPath, szPathEnd);
-
-  const char* szSeparator = FindPreviousSeparator(szPath, szPathEnd);
+  const char* szSeparator = FindPreviousSeparator(sPath.GetStartPointer(), sPath.GetEndPointer());
 
   if (szSeparator == nullptr)
-    return ezStringView(szPath, szPathEnd);
+    return sPath;
 
-  return ezStringView(szSeparator + 1, szPathEnd);
+  return ezStringView(szSeparator + 1, sPath.GetEndPointer());
 }
 
-ezStringView ezPathUtils::GetFileName(const char* szPath, const char* szPathEnd)
+ezStringView ezPathUtils::GetFileName(ezStringView sPath)
 {
-  // make sure szPathEnd is valid
-  ezStringUtils::UpdateStringEnd(szPath, szPathEnd);
+  const char* szSeparator = FindPreviousSeparator(sPath.GetStartPointer(), sPath.GetEndPointer());
 
-  const char* szSeparator = FindPreviousSeparator(szPath, szPathEnd);
-
-  const char* szDot = ezStringUtils::FindLastSubString(szPath, ".", szPathEnd);
+  const char* szDot = ezStringUtils::FindLastSubString(sPath.GetStartPointer(), ".", sPath.GetEndPointer());
 
   if (szDot < szSeparator) // includes (szDot == nullptr), szSeparator will never be nullptr here -> no extension
   {
-    return ezStringView(szSeparator + 1, szPathEnd);
+    return ezStringView(szSeparator + 1, sPath.GetEndPointer());
   }
 
   if (szSeparator == nullptr)
   {
     if (szDot == nullptr) // no folder, no extension -> the entire thing is just a name
-      return ezStringView(szPath, szPathEnd);
+      return sPath;
 
-    return ezStringView(szPath, szDot); // no folder, but an extension -> remove the extension
+    return ezStringView(sPath.GetStartPointer(), szDot); // no folder, but an extension -> remove the extension
   }
 
   // now: there is a separator AND an extension
@@ -102,26 +93,22 @@ ezStringView ezPathUtils::GetFileName(const char* szPath, const char* szPathEnd)
   return ezStringView(szSeparator + 1, szDot);
 }
 
-ezStringView ezPathUtils::GetFileDirectory(const char* szPath, const char* szPathEnd)
+ezStringView ezPathUtils::GetFileDirectory(ezStringView sPath)
 {
-  // make sure szPathEnd is valid
-  ezStringUtils::UpdateStringEnd(szPath, szPathEnd);
-
-  ezStringView end(szPath, szPathEnd);
-  auto it = rbegin(end);
+  auto it = rbegin(sPath);
 
   // if it already ends in a path separator, do not return a different directory
   if (IsPathSeparator(it.GetCharacter()))
-    return end;
+    return sPath;
 
   // find the last separator in the string
-  const char* szSeparator = FindPreviousSeparator(szPath, szPathEnd);
+  const char* szSeparator = FindPreviousSeparator(sPath.GetStartPointer(), sPath.GetEndPointer());
 
   // no path separator -> root dir -> return the empty path
   if (szSeparator == nullptr)
     return ezStringView(nullptr);
 
-  return ezStringView(szPath, szSeparator + 1);
+  return ezStringView(sPath.GetStartPointer(), szSeparator + 1);
 }
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
@@ -134,12 +121,14 @@ const char ezPathUtils::OsSpecificPathSeparator = '/';
 #  error "Unknown platform."
 #endif
 
-bool ezPathUtils::IsAbsolutePath(const char* szPath)
+bool ezPathUtils::IsAbsolutePath(ezStringView sPath)
 {
-  if (ezStringUtils::IsNullOrEmpty(szPath))
+  if (sPath.GetElementCount() < 2)
     return false;
 
-    // szPath[0] will not be \0 -> so we can access szPath[1] without problems
+  const char* szPath = sPath.GetStartPointer();
+
+  // szPath[0] will not be \0 -> so we can access szPath[1] without problems
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   /// if it is an absolute path, character 0 must be ASCII (A - Z)
@@ -155,32 +144,32 @@ bool ezPathUtils::IsAbsolutePath(const char* szPath)
 #endif
 }
 
-bool ezPathUtils::IsRelativePath(const char* szPath)
+bool ezPathUtils::IsRelativePath(ezStringView sPath)
 {
-  if (ezStringUtils::IsNullOrEmpty(szPath))
+  if (sPath.IsEmpty())
     return true;
 
   // if it starts with a separator, it is not a relative path, ever
-  if (ezPathUtils::IsPathSeparator(szPath[0]))
+  if (ezPathUtils::IsPathSeparator(*sPath.GetStartPointer()))
     return false;
 
-  return !IsAbsolutePath(szPath) && !IsRootedPath(szPath);
+  return !IsAbsolutePath(sPath) && !IsRootedPath(sPath);
 }
 
-bool ezPathUtils::IsRootedPath(const char* szPath)
+bool ezPathUtils::IsRootedPath(ezStringView sPath)
 {
-  return szPath != nullptr && szPath[0] == ':';
+  return !sPath.IsEmpty() && *sPath.GetStartPointer() == ':';
 }
 
-void ezPathUtils::GetRootedPathParts(const char* szPath, ezStringView& root, ezStringView& relPath)
+void ezPathUtils::GetRootedPathParts(ezStringView sPath, ezStringView& root, ezStringView& relPath)
 {
   root = ezStringView();
-  relPath = ezStringView(szPath);
+  relPath = sPath;
 
-  if (!IsRootedPath(szPath))
+  if (!IsRootedPath(sPath))
     return;
 
-  const char* szStart = szPath;
+  const char* szStart = sPath.GetStartPointer();
 
   do
   {
@@ -210,10 +199,10 @@ void ezPathUtils::GetRootedPathParts(const char* szPath, ezStringView& root, ezS
   }
 }
 
-ezStringView ezPathUtils::GetRootedPathRootName(const char* szPath)
+ezStringView ezPathUtils::GetRootedPathRootName(ezStringView sPath)
 {
   ezStringView root, relPath;
-  GetRootedPathParts(szPath, root, relPath);
+  GetRootedPathParts(sPath, root, relPath);
   return root;
 }
 
@@ -236,15 +225,11 @@ bool ezPathUtils::IsValidFilenameChar(ezUInt32 character)
   return true;
 }
 
-bool ezPathUtils::ContainsInvalidFilenameChars(const char* szPath, const char* szPathEnd /*= ezMaxStringEnd*/)
+bool ezPathUtils::ContainsInvalidFilenameChars(ezStringView sPath)
 {
   /// \test Not tested yet
 
-  // make sure szPathEnd is valid
-  ezStringUtils::UpdateStringEnd(szPath, szPathEnd);
-
-  ezStringView view(szPath, szPathEnd);
-  ezStringIterator<ezStringView> it = view.GetIteratorFront();
+  ezStringIterator<ezStringView> it = sPath.GetIteratorFront();
 
   for (; it.IsValid(); ++it)
   {
@@ -255,28 +240,24 @@ bool ezPathUtils::ContainsInvalidFilenameChars(const char* szPath, const char* s
   return false;
 }
 
-ezResult ezPathUtils::MakeValidFilename(const char* szFilename, ezUInt32 replacementCharacter, ezStringBuilder& outFilename)
+void ezPathUtils::MakeValidFilename(ezStringView sFilename, ezUInt32 replacementCharacter, ezStringBuilder& outFilename)
 {
   EZ_ASSERT_DEBUG(IsValidFilenameChar(replacementCharacter), "Given replacement character is not allowed for filenames.");
 
-  // Empty string
-  if (ezStringUtils::IsNullOrEmpty(szFilename))
-    return EZ_FAILURE;
+  outFilename.Clear();
 
-  do
+  for (auto it = sFilename.GetIteratorFront(); it.IsValid(); ++it)
   {
-    ezUInt32 currentChar = ezUnicodeUtils::DecodeUtf8ToUtf32(szFilename); // moves pointer one char forward already.
+    ezUInt32 currentChar = it.GetCharacter();
+
     if (IsValidFilenameChar(currentChar) == false)
       outFilename.Append(replacementCharacter);
     else
       outFilename.Append(currentChar);
-
-  } while (*szFilename != '\0');
-
-  return EZ_SUCCESS;
+  }
 }
 
-bool ezPathUtils::IsSubPath(const ezStringView& sPrefixPath, const ezStringView& sFullPath)
+bool ezPathUtils::IsSubPath(ezStringView sPrefixPath, ezStringView sFullPath)
 {
   /// \test this is new
 

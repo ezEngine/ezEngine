@@ -213,9 +213,9 @@ void ezStackResolver::ResolveStackFrames()
     }
 
     frame.m_uiLineNumber = (ezUInt32)lineInfo.LineNumber;
-    frame.m_sSymbol = ezStringUtf8(symbolInfo.Name);
+    frame.m_sSymbol = ezStringUtf8(symbolInfo.Name).GetView();
 
-    tmp = ezStringUtf8(lineInfo.FileName);
+    tmp = ezStringUtf8(lineInfo.FileName).GetView();
     tmp.MakeCleanPath();
     frame.m_sFilename = tmp;
   }

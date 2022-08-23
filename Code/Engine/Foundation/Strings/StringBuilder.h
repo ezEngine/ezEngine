@@ -77,8 +77,8 @@ public:
   }
 
   /// \brief Constructor that appends all the given strings.
-  ezStringBuilder(const char* pData1, const char* pData2, const char* pData3 = nullptr, const char* pData4 = nullptr, const char* pData5 = nullptr,
-    const char* pData6 = nullptr); // [tested]
+  ezStringBuilder(ezStringView pData1, ezStringView pData2, ezStringView pData3 = {}, ezStringView pData4 = {},
+    ezStringView pData5 = {}, ezStringView pData6 = {}); // [tested]
 
   /// \brief Copies the given Utf8 string into this one.
   /* implicit */ ezStringBuilder(const char* szUTF8, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator()); // [tested]
@@ -87,7 +87,7 @@ public:
   /* implicit */ ezStringBuilder(const wchar_t* szWChar, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator()); // [tested]
 
   /// \brief Copies the given substring into this one. The ezStringView might actually be a substring of this very string.
-  /* implicit */ ezStringBuilder(const ezStringView& rhs, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator()); // [tested]
+  /* implicit */ ezStringBuilder(ezStringView rhs, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator()); // [tested]
 
   /// \brief Copies the given string into this one.
   void operator=(const ezStringBuilder& rhs); // [tested]
@@ -102,7 +102,7 @@ public:
   void operator=(const wchar_t* szWChar); // [tested]
 
   /// \brief Copies the given substring into this one. The ezStringView might actually be a substring of this very string.
-  void operator=(const ezStringView& rhs); // [tested]
+  void operator=(ezStringView rhs); // [tested]
 
   /// \brief Copies the given string into this one.
   template <ezUInt16 Size>
@@ -183,8 +183,8 @@ public:
   void ChangeCharacter(iterator& it, ezUInt32 uiCharacter); // [tested]
 
   /// \brief Sets the string by concatenating all given strings.
-  void Set(const char* pData1, const char* pData2 = nullptr, const char* pData3 = nullptr, const char* pData4 = nullptr, const char* pData5 = nullptr,
-    const char* pData6 = nullptr);
+  void Set(ezStringView pData1, ezStringView pData2 = {}, ezStringView pData3 = {}, ezStringView pData4 = {},
+    ezStringView pData5 = {}, ezStringView pData6 = {});
 
   /// \brief Copies the string starting at \a pStart up to \a pEnd (exclusive).
   void SetSubString_FromTo(const char* pStart, const char* pEnd);
@@ -203,11 +203,8 @@ public:
     const wchar_t* pData5 = nullptr, const wchar_t* pData6 = nullptr); // [tested]
 
   /// \brief Appends all the given strings at the back of this string in one operation.
-  void Append(const char* pData1, const char* pData2 = nullptr, const char* pData3 = nullptr, const char* pData4 = nullptr,
-    const char* pData5 = nullptr, const char* pData6 = nullptr); // [tested]
-
-  /// \brief Appends the given string at the back of this string.
-  void Append(const ezStringView& view);
+  void Append(ezStringView pData1, ezStringView pData2 = {}, ezStringView pData3 = {}, ezStringView pData4 = {},
+    ezStringView pData5 = {}, ezStringView pData6 = {}); // [tested]
 
   /// \brief Prepends a single Utf32 character.
   void Prepend(ezUInt32 uiChar); // [tested]
@@ -217,8 +214,8 @@ public:
     const wchar_t* pData5 = nullptr, const wchar_t* pData6 = nullptr); // [tested]
 
   /// \brief Prepends all the given strings to the front of this string in one operation.
-  void Prepend(const char* pData1, const char* pData2 = nullptr, const char* pData3 = nullptr, const char* pData4 = nullptr,
-    const char* pData5 = nullptr, const char* pData6 = nullptr); // [tested]
+  void Prepend(ezStringView pData1, ezStringView pData2 = {}, ezStringView pData3 = {}, ezStringView pData4 = {},
+    ezStringView pData5 = {}, ezStringView pData6 = {}); // [tested]
 
   /// \brief Sets this string to the formatted string, uses printf-style formatting.
   void Printf(const char* szUtf8Format, ...); // [tested]
@@ -268,10 +265,10 @@ public:
 
 
   /// \brief Replaces the string that starts at szStartPos and ends at szEndPos with the string szReplaceWith.
-  void ReplaceSubString(const char* szStartPos, const char* szEndPos, const ezStringView& szReplaceWith); // [tested]
+  void ReplaceSubString(const char* szStartPos, const char* szEndPos, ezStringView szReplaceWith); // [tested]
 
   /// \brief A wrapper around ReplaceSubString. Will insert the given string at szInsertAtPos.
-  void Insert(const char* szInsertAtPos, const ezStringView& szTextToInsert); // [tested]
+  void Insert(const char* szInsertAtPos, ezStringView szTextToInsert); // [tested]
 
   /// \brief A wrapper around ReplaceSubString. Will remove the substring which starts at szRemoveFromPos and ends at szRemoveToPos.
   void Remove(const char* szRemoveFromPos, const char* szRemoveToPos); // [tested]
@@ -280,44 +277,38 @@ public:
   /// beginning).
   ///
   /// Returns the first position where szSearchFor was found, or nullptr if nothing was found (and replaced).
-  const char* ReplaceFirst(const char* szSearchFor, const ezStringView& szReplacement, const char* szStartSearchAt = nullptr); // [tested]
+  const char* ReplaceFirst(ezStringView sSearchFor, ezStringView sReplacement, const char* szStartSearchAt = nullptr); // [tested]
 
   /// \brief Case-insensitive version of ReplaceFirst.
-  const char* ReplaceFirst_NoCase(const char* szSearchFor, const ezStringView& szReplacement,
-    const char* szStartSearchAt = nullptr); // [tested]
+  const char* ReplaceFirst_NoCase(ezStringView sSearchFor, ezStringView sReplacement, const char* szStartSearchAt = nullptr); // [tested]
 
   /// \brief Replaces the last occurrence of szSearchFor by szReplacement. Optionally starts searching at szStartSearchAt (or the end).
   ///
   /// Returns the last position where szSearchFor was found, or nullptr if nothing was found (and replaced).
-  const char* ReplaceLast(const char* szSearchFor, const ezStringView& szReplacement, const char* szStartSearchAt = nullptr); // [tested]
+  const char* ReplaceLast(ezStringView sSearchFor, ezStringView sReplacement, const char* szStartSearchAt = nullptr); // [tested]
 
   /// \brief Case-insensitive version of ReplaceLast.
-  const char* ReplaceLast_NoCase(const char* szSearchFor, const ezStringView& szReplacement,
-    const char* szStartSearchAt = nullptr); // [tested]
+  const char* ReplaceLast_NoCase(ezStringView sSearchFor, ezStringView sReplacement, const char* szStartSearchAt = nullptr); // [tested]
 
   /// \brief Replaces all occurrences of szSearchFor by szReplacement. Returns the number of replacements.
-  ezUInt32 ReplaceAll(const char* szSearchFor, const ezStringView& szReplacement); // [tested]
+  ezUInt32 ReplaceAll(ezStringView sSearchFor, ezStringView sReplacement); // [tested]
 
   /// \brief Case-insensitive version of ReplaceAll.
-  ezUInt32 ReplaceAll_NoCase(const char* szSearchFor, const ezStringView& szReplacement); // [tested]
+  ezUInt32 ReplaceAll_NoCase(ezStringView sSearchFor, ezStringView sReplacement); // [tested]
 
   /// \brief Replaces the first occurrence of szSearchFor by szReplaceWith, if szSearchFor was found to be a 'whole word', as indicated by
   /// the delimiter function IsDelimiterCB.
-  const char* ReplaceWholeWord(const char* szSearchFor, const ezStringView& szReplaceWith,
-    ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB); // [tested]
+  const char* ReplaceWholeWord(const char* szSearchFor, ezStringView szReplaceWith, ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB); // [tested]
 
   /// \brief Case-insensitive version of ReplaceWholeWord.
-  const char* ReplaceWholeWord_NoCase(const char* szSearchFor, const ezStringView& szReplaceWith,
-    ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB); // [tested]
+  const char* ReplaceWholeWord_NoCase(const char* szSearchFor, ezStringView szReplaceWith, ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB); // [tested]
 
   /// \brief Replaces all occurrences of szSearchFor by szReplaceWith, if szSearchFor was found to be a 'whole word', as indicated by the
   /// delimiter function IsDelimiterCB.
-  ezUInt32 ReplaceWholeWordAll(const char* szSearchFor, const ezStringView& szReplaceWith,
-    ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB); // [tested]
+  ezUInt32 ReplaceWholeWordAll(const char* szSearchFor, ezStringView szReplaceWith, ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB); // [tested]
 
   /// \brief Case-insensitive version of ReplaceWholeWordAll.
-  ezUInt32 ReplaceWholeWordAll_NoCase(const char* szSearchFor, const ezStringView& szReplaceWith,
-    ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB); // [tested]
+  ezUInt32 ReplaceWholeWordAll_NoCase(const char* szSearchFor, ezStringView szReplaceWith, ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB); // [tested]
 
   /// \brief Fills the given container with ezStringView's which represent each found substring.
   /// If bReturnEmptyStrings is true, even empty strings between separators are returned.
@@ -401,7 +392,7 @@ public:
   /// \brief Appends several path pieces. Makes sure they are always properly separated by a slash.
   ///
   /// Will call 'MakeCleanPath' internally, so the representation of the path might change.
-  void AppendPath(const char* szPath1, const char* szPath2 = nullptr, const char* szPath3 = nullptr, const char* szPath4 = nullptr); // [tested]
+  void AppendPath(ezStringView sPath1, ezStringView sPath2 = {}, ezStringView sPath3 = {}, ezStringView sPath4 = {}); // [tested]
 
   /// \brief Similar to Append() but the very first argument is a separator that is only appended (once) if the existing string is not empty and does
   /// not already end with the separator.
@@ -414,15 +405,15 @@ public:
     ezStringView sText4 = ezStringView(), ezStringView sText5 = ezStringView(), ezStringView sText6 = ezStringView());
 
   /// \brief Changes the file name part of the path, keeps the extension intact (if there is any).
-  void ChangeFileName(const char* szNewFileName); // [tested]
+  void ChangeFileName(ezStringView sNewFileName); // [tested]
 
   /// \brief Changes the file name and the extension part of the path.
-  void ChangeFileNameAndExtension(const char* szNewFileNameWithExtension); // [tested]
+  void ChangeFileNameAndExtension(ezStringView sNewFileNameWithExtension); // [tested]
 
   /// \brief Only changes the file extension of the path. If there is no extension yet, one is appended.
   ///
   /// szNewExtension must not start with a dot.
-  void ChangeFileExtension(const char* szNewExtension); // [tested]
+  void ChangeFileExtension(ezStringView sNewExtension); // [tested]
 
   /// \brief If any extension exists, it is removed, including the dot before it.
   void RemoveFileExtension(); // [tested]
@@ -430,7 +421,7 @@ public:
   /// \brief Converts this path into a relative path to the path with the awesome variable name 'szAbsolutePathToMakeThisRelativeTo'
   ///
   /// If the method succeeds the StringBuilder's contents are modified in place.
-  ezResult MakeRelativeTo(const char* szAbsolutePathToMakeThisRelativeTo); // [tested]
+  ezResult MakeRelativeTo(ezStringView sAbsolutePathToMakeThisRelativeTo); // [tested]
 
   /// \brief Cleans this path up and replaces all path separators by the OS specific separator.
   ///
@@ -453,12 +444,10 @@ public:
   void Trim(const char* szTrimCharsStart, const char* szTrimCharsEnd); // [tested]
 
   /// \brief If the string starts with one of the given words (case insensitive), it is removed and the function returns true.
-  bool TrimWordStart(
-    const char* szWord1, const char* szWord2 = nullptr, const char* szWord3 = nullptr, const char* szWord4 = nullptr, const char* szWord5 = nullptr);
+  bool TrimWordStart(const char* szWord1, const char* szWord2 = nullptr, const char* szWord3 = nullptr, const char* szWord4 = nullptr, const char* szWord5 = nullptr);
 
   /// \brief If the string ends with one of the given words (case insensitive), it is removed and the function returns true.
-  bool TrimWordEnd(
-    const char* szWord1, const char* szWord2 = nullptr, const char* szWord3 = nullptr, const char* szWord4 = nullptr, const char* szWord5 = nullptr);
+  bool TrimWordEnd(const char* szWord1, const char* szWord2 = nullptr, const char* szWord3 = nullptr, const char* szWord4 = nullptr, const char* szWord5 = nullptr);
 
 private:
   /// \brief Will remove all double path separators (slashes and backslashes) in a path, except if the path starts with two (back-)slashes,

@@ -45,7 +45,7 @@ inline ezStringBuilder::ezStringBuilder(const wchar_t* szWChar, ezAllocatorBase*
   *this = szWChar;
 }
 
-inline ezStringBuilder::ezStringBuilder(const ezStringView& rhs, ezAllocatorBase* pAllocator)
+inline ezStringBuilder::ezStringBuilder(ezStringView rhs, ezAllocatorBase* pAllocator)
   : m_Data(pAllocator)
 {
   m_uiCharacterCount = 0;
@@ -227,7 +227,7 @@ EZ_ALWAYS_INLINE void ezStringBuilder::Reserve(ezUInt32 uiNumElements)
   m_Data.Reserve(uiNumElements);
 }
 
-EZ_ALWAYS_INLINE void ezStringBuilder::Insert(const char* szInsertAtPos, const ezStringView& szTextToInsert)
+EZ_ALWAYS_INLINE void ezStringBuilder::Insert(const char* szInsertAtPos, ezStringView szTextToInsert)
 {
   ReplaceSubString(szInsertAtPos, szInsertAtPos, szTextToInsert);
 }
@@ -293,32 +293,32 @@ void ezStringBuilder::Split(bool bReturnEmptyStrings, Container& Output, const c
 
 EZ_FORCE_INLINE bool ezStringBuilder::HasAnyExtension() const
 {
-  return ezPathUtils::HasAnyExtension(GetData(), GetData() + GetElementCount());
+  return ezPathUtils::HasAnyExtension(GetView());
 }
 
 EZ_FORCE_INLINE bool ezStringBuilder::HasExtension(const char* szExtension) const
 {
-  return ezPathUtils::HasExtension(GetData(), szExtension, GetData() + GetElementCount());
+  return ezPathUtils::HasExtension(GetView(), szExtension);
 }
 
 EZ_FORCE_INLINE ezStringView ezStringBuilder::GetFileExtension() const
 {
-  return ezPathUtils::GetFileExtension(GetData(), GetData() + GetElementCount());
+  return ezPathUtils::GetFileExtension(GetView());
 }
 
 EZ_FORCE_INLINE ezStringView ezStringBuilder::GetFileName() const
 {
-  return ezPathUtils::GetFileName(GetData(), GetData() + GetElementCount());
+  return ezPathUtils::GetFileName(GetView());
 }
 
 EZ_FORCE_INLINE ezStringView ezStringBuilder::GetFileNameAndExtension() const
 {
-  return ezPathUtils::GetFileNameAndExtension(GetData(), GetData() + GetElementCount());
+  return ezPathUtils::GetFileNameAndExtension(GetView());
 }
 
 EZ_FORCE_INLINE ezStringView ezStringBuilder::GetFileDirectory() const
 {
-  return ezPathUtils::GetFileDirectory(GetData(), GetData() + GetElementCount());
+  return ezPathUtils::GetFileDirectory(GetView());
 }
 
 EZ_FORCE_INLINE bool ezStringBuilder::IsAbsolutePath() const

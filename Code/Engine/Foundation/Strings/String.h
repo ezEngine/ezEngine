@@ -99,23 +99,23 @@ public:
   /// \brief Returns the number of characters in this string.
   ezUInt32 GetCharacterCount() const; // [tested]
 
-  /// \brief Returns an iterator to a sub-string of this string, starting at character uiFirstCharacter, up until uiFirstCharacter +
+  /// \brief Returns a view to a sub-string of this string, starting at character uiFirstCharacter, up until uiFirstCharacter +
   /// uiNumCharacters.
   ///
-  /// Note that this iterator will only be valid as long as this ezHybridString lives.
-  /// Once the original string is destroyed, all iterators to them will point into invalid memory.
+  /// Note that this view will only be valid as long as this ezHybridString lives.
+  /// Once the original string is destroyed, all views to them will point into invalid memory.
   ezStringView GetSubString(ezUInt32 uiFirstCharacter, ezUInt32 uiNumCharacters) const; // [tested]
 
-  /// \brief Returns an iterator to the sub-string containing the first uiNumCharacters characters of this string.
+  /// \brief Returns a view to the sub-string containing the first uiNumCharacters characters of this string.
   ///
-  /// Note that this iterator will only be valid as long as this ezHybridString lives.
-  /// Once the original string is destroyed, all iterators to them will point into invalid memory.
+  /// Note that this view will only be valid as long as this ezHybridString lives.
+  /// Once the original string is destroyed, all views to them will point into invalid memory.
   ezStringView GetFirst(ezUInt32 uiNumCharacters) const; // [tested]
 
-  /// \brief Returns an iterator to the sub-string containing the last uiNumCharacters characters of this string.
+  /// \brief Returns a view to the sub-string containing the last uiNumCharacters characters of this string.
   ///
-  /// Note that this iterator will only be valid as long as this ezHybridString lives.
-  /// Once the original string is destroyed, all iterators to them will point into invalid memory.
+  /// Note that this view will only be valid as long as this ezHybridString lives.
+  /// Once the original string is destroyed, all views to them will point into invalid memory.
   ezStringView GetLast(ezUInt32 uiNumCharacters) const; // [tested]
 
   /// \brief Replaces the current string with the content from the stream. Reads the stream to its end.
