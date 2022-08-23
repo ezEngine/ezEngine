@@ -13,6 +13,21 @@ EZ_FOUNDATION_INTERNAL_HEADER
 
 EZ_DEFINE_AS_POD_TYPE(struct pollfd);
 
+namespace
+{
+  ezResult AddFdFlags(int fd, int addFlags)
+  {
+    int flags = fcntl(fd, F_GETFD);
+    flags |= addFlags;
+    if (fcntl(fd, F_SETFD, flags) != 0)
+    {
+      ezLog::Error("Failed to set flags on {}: {}", fd, errno);
+      return EZ_FAILURE;
+    }
+    return EZ_SUCCESS;
+  }
+} // namespace
+
 struct ezProcessImpl
 {
   ~ezProcessImpl()
@@ -139,7 +154,7 @@ struct ezProcessImpl
   ezResult StartStreamWatcher()
   {
     int wakeupPipe[2] = {-1, -1};
-    if (pipe2(wakeupPipe, O_NONBLOCK | O_CLOEXEC) < 0)
+    if (pipe(wakeupPipe) < 0)
     {
       ezLog::Error("Failed to setup wakeup pipe {}", errno);
       return EZ_FAILURE;
@@ -148,6 +163,15 @@ struct ezProcessImpl
     {
       m_wakeupPipeReadEnd = wakeupPipe[0];
       m_wakeupPipeWriteEnd = wakeupPipe[1];
+      if (AddFdFlags(m_wakeupPipeReadEnd, O_NONBLOCK | O_CLOEXEC).Failed() ||
+          AddFdFlags(m_wakeupPipeWriteEnd, O_NONBLOCK | O_CLOEXEC).Failed())
+      {
+        close(m_wakeupPipeReadEnd);
+        m_wakeupPipeReadEnd = -1;
+        close(m_wakeupPipeWriteEnd);
+        m_wakeupPipeWriteEnd = -1;
+        return EZ_FAILURE;
+      }
     }
 
     m_streamWatcherThread = EZ_DEFAULT_NEW(ezOSThread, &StreamWatcherThread, this, "StdStrmWtch");
@@ -161,7 +185,7 @@ struct ezProcessImpl
     if (m_streamWatcherThread)
     {
       char c = 0;
-      write(m_wakeupPipeWriteEnd, &c, 1);
+      EZ_IGNORE_UNUSED(write(m_wakeupPipeWriteEnd, &c, 1));
       m_streamWatcherThread->Join();
       m_streamWatcherThread = nullptr;
     }
