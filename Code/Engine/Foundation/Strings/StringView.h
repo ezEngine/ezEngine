@@ -94,6 +94,9 @@ public:
   /// and its state will be set to invalid, however no error or assert will be triggered.
   void Shrink(ezUInt32 uiShrinkCharsFront, ezUInt32 uiShrinkCharsBack); // [tested]
 
+  /// \brief Returns a sub-string that is shrunk at the start and front by the given amount of characters (not bytes!).
+  ezStringView GetShrunk(ezUInt32 uiShrinkCharsFront, ezUInt32 uiShrinkCharsBack = 0) const;
+
   /// \brief Removes all characters from the start and end that appear in the given strings by adjusting the begin and end of the view.
   void Trim(const char* szTrimChars); // [tested]
 

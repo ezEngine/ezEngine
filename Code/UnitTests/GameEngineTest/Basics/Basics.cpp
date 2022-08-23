@@ -84,7 +84,7 @@ ezResult TranformProject(const char* szProjectPath, ezUInt32 uiCleanVersion)
   {
     ezStringView sProjectPath = ezPathUtils::GetFileDirectory(szProjectPath);
     sProjectPath.Trim("\\/");
-    ezStringView sProjectName = ezPathUtils::GetFileName(sProjectPath.GetStartPointer(), sProjectPath.GetEndPointer());
+    ezStringView sProjectName = ezPathUtils::GetFileName(sProjectPath);
     sOutputPath.AppendPath("Transform");
     sOutputPath.Append(sProjectName);
     if (ezOSFile::CreateDirectoryStructure(sOutputPath).Failed())

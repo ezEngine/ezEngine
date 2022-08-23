@@ -94,7 +94,7 @@ void ezAssetInfo::Update(ezUniquePtr<ezAssetInfo>& rhs)
 ezStringView ezSubAsset::GetName() const
 {
   if (m_bMainAsset)
-    return ezPathUtils::GetFileName(m_pAssetInfo->m_sDataDirParentRelativePath, m_pAssetInfo->m_sDataDirParentRelativePath.GetData() + m_pAssetInfo->m_sDataDirParentRelativePath.GetElementCount());
+    return ezPathUtils::GetFileName(m_pAssetInfo->m_sDataDirParentRelativePath);
   else
     return m_Data.m_sName;
 }
@@ -933,7 +933,7 @@ ezResult ezAssetCurator::FindBestMatchForFile(ezStringBuilder& sFile, ezArrayPtr
   {
     // not much we can do here, if the filename is already invalid, we will probably not find it in out known files list
 
-    ezPathUtils::MakeValidFilename(testName, '_', sFile).IgnoreResult();
+    ezPathUtils::MakeValidFilename(testName, '_', sFile);
     return EZ_FAILURE;
   }
 
