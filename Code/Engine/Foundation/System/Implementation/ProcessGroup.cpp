@@ -6,7 +6,7 @@
 #    include <Foundation/System/Implementation/Win/ProcessGroup_win.h>
 #  elif EZ_ENABLED(EZ_PLATFORM_OSX)
 #    include <Foundation/System/Implementation/OSX/ProcessGroup_OSX.h>
-#  elif EZ_ENABLED(EZ_PLATFORM_LINUX)
+#  elif EZ_ENABLED(EZ_PLATFORM_LINUX) || EZ_ENABLED(EZ_PLATFORM_ANDROID)
 #    include <Foundation/System/Implementation/Posix/ProcessGroup_posix.h>
 #  else
 #    error "ProcessGroup functions are not implemented on current platform"

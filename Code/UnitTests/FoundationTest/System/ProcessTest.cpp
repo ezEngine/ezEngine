@@ -25,8 +25,6 @@ EZ_CREATE_SIMPLE_TEST(System, Process)
     EZ_TEST_STRING(cmdLine, "-bla \"blub blub\" \"di dub\" -test \"-hmpf 27\" -a b -c d -e \"f g h\"");
   }
 
-#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-
   static const char* g_szTestMsg = "Tell me more!\nAnother line\n520CharactersInOneLineAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA_END\nThat's all";
   static const char* g_szTestMsgLine0 = "Tell me more!\n";
   static const char* g_szTestMsgLine1 = "Another line\n";
@@ -124,8 +122,7 @@ EZ_CREATE_SIMPLE_TEST(System, Process)
     ezDynamicArray<ezStringBuilder> lines;
     ezStringBuilder out;
     ezProcessOptions opt;
-    opt.m_onStdOut = [&](ezStringView view)
-    {
+    opt.m_onStdOut = [&](ezStringView view) {
       out.Append(view);
       lines.PushBack(view);
     };
@@ -182,8 +179,7 @@ EZ_CREATE_SIMPLE_TEST(System, Process)
     ezStringBuilder out;
     ezStringBuilder err;
     ezProcessOptions opt;
-    opt.m_onStdOut = [&](ezStringView view)
-    {
+    opt.m_onStdOut = [&](ezStringView view) {
       out.Append(view);
       lines.PushBack(view);
     };
@@ -212,9 +208,5 @@ EZ_CREATE_SIMPLE_TEST(System, Process)
     EZ_TEST_STRING(out, g_szTestMsg);
     EZ_TEST_BOOL_MSG(err.IsEmpty(), "Error stream should be empty.");
   }
-
-#  else
-  ezLog::Warning("ezProcess functions are not implemented on this platform.");
-#  endif
 }
 #endif
