@@ -350,6 +350,8 @@ void ezFileSystemIterator::StartSearch(const char* szSearchStart, ezBitflags<ezF
 {
   EZ_ASSERT_DEV(m_Data.m_Handles.IsEmpty(), "Cannot start another search.");
 
+  m_sSearchTerm = szSearchStart;
+
   ezStringBuilder sSearch = szSearchStart;
   sSearch.MakeCleanPath();
 
@@ -426,27 +428,14 @@ void ezFileSystemIterator::StartSearch(const char* szSearchStart, ezBitflags<ezF
   }
 }
 
-void ezFileSystemIterator::Next()
-{
-  while (true)
-  {
-    const ezInt32 res = InternalNext();
-
-    if (res == EZ_SUCCESS)
-      return;
-
-    if (res == EZ_FAILURE)
-      return;
-  }
-}
-
-
 ezInt32 ezFileSystemIterator::InternalNext()
 {
-  constexpr ezInt32 CallInternalNext = 2;
+  constexpr ezInt32 ReturnFailure = 0;
+  constexpr ezInt32 ReturnSuccess = 1;
+  constexpr ezInt32 ReturnCallInternalNext = 2;
 
   if (m_Data.m_Handles.IsEmpty())
-    return EZ_FAILURE;
+    return ReturnFailure;
 
   if (m_Flags.IsSet(ezFileSystemIteratorFlags::Recursive) && m_CurFile.m_bIsDirectory && (m_CurFile.m_sName != "..") && (m_CurFile.m_sName != "."))
   {
@@ -469,20 +458,20 @@ ezInt32 ezFileSystemIterator::InternalNext()
       m_Data.m_Handles.PushBack(hSearch);
 
       if ((m_CurFile.m_sName == "..") || (m_CurFile.m_sName == "."))
-        return CallInternalNext; // will search for the next file or folder that is not ".." or "." ; might return false though
+        return ReturnCallInternalNext; // will search for the next file or folder that is not ".." or "." ; might return false though
 
       if (m_CurFile.m_bIsDirectory)
       {
         if (!m_Flags.IsSet(ezFileSystemIteratorFlags::ReportFolders))
-          return CallInternalNext;
+          return ReturnCallInternalNext;
       }
       else
       {
         if (!m_Flags.IsSet(ezFileSystemIteratorFlags::ReportFiles))
-          return CallInternalNext;
+          return ReturnCallInternalNext;
       }
 
-      return EZ_SUCCESS;
+      return ReturnSuccess;
     }
 
     // if the recursion did not work, just iterate in this folder further
@@ -496,7 +485,7 @@ ezInt32 ezFileSystemIterator::InternalNext()
     m_Data.m_Handles.PopBack();
 
     if (m_Data.m_Handles.IsEmpty())
-      return EZ_FAILURE;
+      return ReturnFailure;
 
     m_sCurPath.PathParentDirectory();
     if (m_sCurPath.EndsWith("/"))
@@ -504,7 +493,7 @@ ezInt32 ezFileSystemIterator::InternalNext()
       m_sCurPath.Shrink(0, 1); // Remove trailing /
     }
 
-    return CallInternalNext;
+    return ReturnCallInternalNext;
   }
 
   m_CurFile.m_uiFileSize = HighLowToUInt64(data.nFileSizeHigh, data.nFileSizeLow);
@@ -514,20 +503,20 @@ ezInt32 ezFileSystemIterator::InternalNext()
   m_CurFile.m_LastModificationTime.SetInt64(FileTimeToEpoch(data.ftLastWriteTime), ezSIUnitOfTime::Microsecond);
 
   if ((m_CurFile.m_sName == "..") || (m_CurFile.m_sName == "."))
-    return CallInternalNext;
+    return ReturnCallInternalNext;
 
   if (m_CurFile.m_bIsDirectory)
   {
     if (!m_Flags.IsSet(ezFileSystemIteratorFlags::ReportFolders))
-      return CallInternalNext;
+      return ReturnCallInternalNext;
   }
   else
   {
     if (!m_Flags.IsSet(ezFileSystemIteratorFlags::ReportFiles))
-      return CallInternalNext;
+      return ReturnCallInternalNext;
   }
 
-  return EZ_SUCCESS;
+  return ReturnSuccess;
 }
 
 void ezFileSystemIterator::SkipFolder()

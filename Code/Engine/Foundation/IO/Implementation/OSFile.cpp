@@ -617,6 +617,53 @@ ezResult ezOSFile::DeleteFolder(const char* szFolder)
 
 #endif // EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS) && EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
 
+void ezFileSystemIterator::StartMultiFolderSearch(ezArrayPtr<ezString> startFolders, const char* szSearchTerm, ezBitflags<ezFileSystemIteratorFlags> flags /*= ezFileSystemIteratorFlags::Default*/)
+{
+  if (startFolders.IsEmpty())
+    return;
+
+  m_sMultiSearchTerm = szSearchTerm;
+  m_Flags = flags;
+  m_uiCurrentStartFolder = 0;
+  m_StartFolders = startFolders;
+
+  ezStringBuilder search = startFolders[m_uiCurrentStartFolder];
+  search.AppendPath(szSearchTerm);
+
+  StartSearch(search, m_Flags);
+}
+
+void ezFileSystemIterator::Next()
+{
+  while (true)
+  {
+    const ezInt32 res = InternalNext();
+
+    if (res == 1) // success
+    {
+      return;
+    }
+    else if (res == 0) // failure
+    {
+      ++m_uiCurrentStartFolder;
+
+      if (m_uiCurrentStartFolder < m_StartFolders.GetCount())
+      {
+        ezStringBuilder search = m_StartFolders[m_uiCurrentStartFolder];
+        search.AppendPath(m_sMultiSearchTerm);
+
+        StartSearch(search, m_Flags);
+      }
+
+      return;
+    }
+    else
+    {
+      // call InternalNext() again
+    }
+  }
+}
+
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 #  include <Foundation/IO/Implementation/Win/OSFile_win.h>
@@ -630,6 +677,5 @@ ezResult ezOSFile::DeleteFolder(const char* szFolder)
 #else
 #  error "Unknown Platform."
 #endif
-
 
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_OSFile);

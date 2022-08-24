@@ -66,9 +66,7 @@ void ezGameApplication::ReinitializeInputConfig()
 
 ezString ezGameApplication::FindProjectDirectory() const
 {
-  EZ_ASSERT_RELEASE(!m_sAppProjectPath.IsEmpty(), "Either the project must have a built in project directory passed to the "
-                                                  "ezGameApplication constructor, or m_sAppProjectPath must be set manually before doing "
-                                                  "project setup, or ezGameApplication::FindProjectDirectory() must be overridden.");
+  EZ_ASSERT_RELEASE(!m_sAppProjectPath.IsEmpty(), "Either the project must have a built-in project directory passed to the ezGameApplication constructor, or m_sAppProjectPath must be set manually before doing project setup, or ezGameApplication::FindProjectDirectory() must be overridden.");
 
   if (ezPathUtils::IsAbsolutePath(m_sAppProjectPath))
     return m_sAppProjectPath;

@@ -99,7 +99,7 @@ public:
 
   /// \brief Starts a search at the given folder. Use * and ? as wildcards.
   ///
-  /// To iterate all files from on folder, use '/Some/Folder'
+  /// To iterate all files from one folder, use '/Some/Folder'
   /// To iterate over all files of a certain type (in one folder) use '/Some/Folder/*.ext'
   /// Only the final path segment can use placeholders, folders in between must be fully named.
   /// If bRecursive is false, the iterator will only iterate over the files in the start folder, and will not recurse into subdirectories.
@@ -108,7 +108,17 @@ public:
   /// If EZ_SUCCESS is returned, the iterator points to a valid file, and the functions GetCurrentPath() and GetStats() will return
   /// the information about that file. To advance to the next file, use Next() or SkipFolder().
   /// When no iteration is possible (the directory does not exist or the wild-cards are used incorrectly), EZ_FAILURE is returned.
-  void StartSearch(const char* szSearchStart, ezBitflags<ezFileSystemIteratorFlags> flags = ezFileSystemIteratorFlags::Default); // [tested]
+  void StartSearch(const char* szSearchTerm, ezBitflags<ezFileSystemIteratorFlags> flags = ezFileSystemIteratorFlags::Default); // [tested]
+
+  /// \brief The same as StartSearch() but executes the same search on multiple folders.
+  ///
+  /// The search term is appended to each start folder and they are searched one after the other.
+  void StartMultiFolderSearch(ezArrayPtr<ezString> startFolders, const char* szSearchTerm, ezBitflags<ezFileSystemIteratorFlags> flags = ezFileSystemIteratorFlags::Default);
+
+  /// \brief Returns the search string with which StartSearch() was called.
+  ///
+  /// If StartMultiFolderSearch() is used, every time a new top-level folder is entered, StartSearch() is executed. In this case GetCurrentSearchTerm() can be used to know in which top-level folder the search is currently running.
+  const ezStringView GetCurrentSearchTerm() const { return m_sSearchTerm; }
 
   /// \brief Returns the current path in which files are searched. Changes when 'Next' moves in or out of a sub-folder.
   ///
@@ -140,6 +150,11 @@ private:
 
   /// \brief Platform specific data, required by the implementation.
   ezFileIterationData m_Data;
+
+  ezString m_sSearchTerm;
+  ezString m_sMultiSearchTerm;
+  ezUInt32 m_uiCurrentStartFolder = 0;
+  ezHybridArray<ezString, 8> m_StartFolders;
 };
 
 #endif

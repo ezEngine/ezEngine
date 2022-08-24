@@ -133,7 +133,7 @@ public:
   /// If horizontal alignment is right, the entire text block is aligned according to the longest line.
   /// If vertical alignment is bottom, the entire text block is aligned there.
   ///
-  /// Data can be output as a table, by separating columns with tabs (\n). For example:\n
+  /// Data can be output as a table, by separating columns with tabs (\t). For example:
   /// "| Col 1\t| Col 2\t| Col 3\t|\n| abc\t| 42\t| 11.23\t|"
   ///
   /// Returns the number of lines that the text was split up into.

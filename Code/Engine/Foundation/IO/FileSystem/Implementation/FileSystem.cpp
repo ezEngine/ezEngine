@@ -97,7 +97,8 @@ ezResult ezFileSystem::AddDataDirectory(const char* szDataDirectory, const char*
 
   if (!failed)
   {
-    s_Data->m_DataDirFactories.Sort([](const auto& a, const auto& b) { return a.m_fPriority < b.m_fPriority; });
+    s_Data->m_DataDirFactories.Sort([](const auto& a, const auto& b)
+      { return a.m_fPriority < b.m_fPriority; });
 
     // use the factory that was added last as the one with the highest priority -> allows to override already added factories
     for (ezInt32 i = s_Data->m_DataDirFactories.GetCount() - 1; i >= 0; --i)
@@ -918,6 +919,34 @@ ezMutex& ezFileSystem::GetMutex()
   EZ_ASSERT_DEV(s_Data != nullptr, "FileSystem is not initialized.");
   return s_Data->m_FsMutex;
 }
+
+#if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS)
+
+void ezFileSystem::StartSearch(ezFileSystemIterator& iterator, const char* szSearchTerm, ezBitflags<ezFileSystemIteratorFlags> flags /*= ezFileSystemIteratorFlags::Default*/)
+{
+  EZ_LOCK(s_Data->m_FsMutex);
+
+  ezHybridArray<ezString, 16> folders;
+  ezStringBuilder sDdPath;
+
+  for (const auto& dd : s_Data->m_DataDirectories)
+  {
+    sDdPath = dd.m_pDataDirectory->GetRedirectedDataDirectoryPath();
+
+    if (ResolvePath(sDdPath, &sDdPath, nullptr).Failed())
+      continue;
+
+    if (sDdPath.IsEmpty() || !ezOSFile::ExistsDirectory(sDdPath))
+      continue;
+
+
+    folders.PushBack(sDdPath);
+  }
+
+  iterator.StartMultiFolderSearch(folders, szSearchTerm, flags);
+}
+
+#endif
 
 ezResult ezFileSystem::CreateDirectoryStructure(const char* szPath)
 {

@@ -524,6 +524,8 @@ void ezFileSystemIterator::StartSearch(const char* szSearchStart, ezBitflags<ezF
 {
   EZ_ASSERT_DEV(m_Data.m_Handles.IsEmpty(), "Cannot start another search.");
 
+  m_sSearchTerm = szSearchStart;
+
   ezStringBuilder sSearch = szSearchStart;
   sSearch.MakeCleanPath();
 
@@ -592,21 +594,6 @@ void ezFileSystemIterator::StartSearch(const char* szSearchStart, ezBitflags<ezF
     }
   }
 }
-
-void ezFileSystemIterator::Next()
-{
-  while (true)
-  {
-    const ezInt32 res = InternalNext();
-
-    if (res == EZ_SUCCESS)
-      return;
-
-    if (res == EZ_FAILURE)
-      return;
-  }
-}
-
 
 ezInt32 ezFileSystemIterator::InternalNext()
 {
