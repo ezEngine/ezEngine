@@ -28,10 +28,24 @@ public:
   ezStringView(const char* pStart); // [tested]
 
   /// \brief Creates a string view for the range from pStart to pEnd.
-  ezStringView(const char* pStart, const char* pEnd); // [tested]
+  constexpr ezStringView(const char* pStart, const char* pEnd); // [tested]
 
   /// \brief Creates a string view for the range from pStart to pStart + uiLength.
-  ezStringView(const char* pStart, ezUInt32 uiLength);
+  constexpr ezStringView(const char* pStart, ezUInt32 uiLength);
+
+  template <size_t N>
+  constexpr ezStringView(const char (&szString)[N])
+    : m_pStart(szString)
+    , m_pEnd(szString + N)
+  {
+  }
+
+  template <size_t N>
+  constexpr ezStringView(char (&szString)[N])
+    : m_pStart(szString)
+    , m_pEnd(szString + N)
+  {
+  }
 
   /// \brief Advances the start to the next character, unless the end of the range was reached.
   void operator++(); // [tested]

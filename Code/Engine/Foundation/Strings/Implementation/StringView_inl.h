@@ -8,15 +8,13 @@ inline ezStringView::ezStringView(const char* pStart)
   m_pEnd = pStart + ezStringUtils::GetStringElementCount(pStart);
 }
 
-inline ezStringView::ezStringView(const char* pStart, const char* pEnd)
+inline constexpr ezStringView::ezStringView(const char* pStart, const char* pEnd)
 {
-  EZ_ASSERT_DEV(pStart <= pEnd, "It should start BEFORE it ends.");
-
   m_pStart = pStart;
   m_pEnd = pEnd;
 }
 
-inline ezStringView::ezStringView(const char* pStart, ezUInt32 uiLength)
+inline constexpr ezStringView::ezStringView(const char* pStart, ezUInt32 uiLength)
 {
   m_pStart = pStart;
   m_pEnd = pStart + uiLength;
