@@ -121,7 +121,7 @@ namespace ezLiterals
   /// Example:
   /// using namespace ezLiterals;
   /// "Hello World"_sv
-  constexpr ezStringView operator "" _sv(const char* pString, size_t len);
-}
+  constexpr ezStringView operator"" _sv(const char* pString, size_t len);
+} // namespace ezLiterals
 
 #include <Foundation/Strings/Implementation/StringView_inl.h>

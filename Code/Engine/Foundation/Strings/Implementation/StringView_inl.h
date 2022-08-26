@@ -3,8 +3,8 @@
 inline ezStringView::ezStringView() = default;
 
 constexpr inline ezStringView::ezStringView(const char* pStart)
-: m_pStart(pStart)
-, m_pEnd(pStart + ezStringUtils::GetStringElementCount(pStart))
+  : m_pStart(pStart)
+  , m_pEnd(pStart + ezStringUtils::GetStringElementCount(pStart))
 {
 }
 
@@ -17,8 +17,8 @@ inline ezStringView::ezStringView(const char* pStart, const char* pEnd)
 }
 
 constexpr inline ezStringView::ezStringView(const char* pStart, ezUInt32 uiLength)
-: m_pStart(pStart)
-, m_pEnd(pStart + uiLength)
+  : m_pStart(pStart)
+  , m_pEnd(pStart + uiLength)
 {
 }
 
@@ -68,7 +68,7 @@ inline void ezStringView::Trim(const char* szTrimCharsStart, const char* szTrimC
     ezStringUtils::Trim(m_pStart, m_pEnd, szTrimCharsStart, szTrimCharsEnd);
 }
 
-constexpr ezStringView ezLiterals::operator "" _sv(const char* pString, size_t len)
+constexpr ezStringView ezLiterals::operator"" _sv(const char* pString, size_t len)
 {
   return ezStringView(pString, static_cast<ezUInt32>(len));
 }
