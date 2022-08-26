@@ -4,6 +4,8 @@
 
 #include <Foundation/Strings/String.h>
 
+using namespace ezLiterals;
+
 EZ_CREATE_SIMPLE_TEST(Strings, StringView)
 {
   ezStringBuilder tmp;
@@ -38,6 +40,28 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringView)
     EZ_TEST_STRING(it.GetData(tmp), "fghijklmnopq");
     EZ_TEST_BOOL(it.GetEndPointer() == sz + 17);
     EZ_TEST_INT(it.GetElementCount(), 12);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor constexpr")
+  {
+    constexpr ezStringView a = ezStringView("Hello World");
+    EZ_TEST_INT(a.GetElementCount(), 11);
+    EZ_TEST_STRING(a.GetData(tmp), "Hello World");
+
+    constexpr ezStringView b = ezStringView("Hello World", 10);
+    EZ_TEST_INT(b.GetElementCount(), 10);
+    EZ_TEST_STRING(b.GetData(tmp), "Hello Worl");
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "String literal")
+  {
+    constexpr ezStringView a = "Hello World"_sv;
+    EZ_TEST_INT(a.GetElementCount(), 11);
+    EZ_TEST_STRING(a.GetData(tmp), "Hello World");
+
+    ezStringView b = "Hello Worl"_sv;
+    EZ_TEST_INT(b.GetElementCount(), 10);
+    EZ_TEST_STRING(b.GetData(tmp), "Hello Worl");
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator++")

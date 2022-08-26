@@ -25,13 +25,13 @@ public:
   ezStringView();
 
   /// \brief Creates a string view starting at the given position, ending at the next '\0' terminator.
-  ezStringView(const char* pStart); // [tested]
+  constexpr ezStringView(const char* pStart); // [tested]
 
   /// \brief Creates a string view for the range from pStart to pEnd.
   ezStringView(const char* pStart, const char* pEnd); // [tested]
 
   /// \brief Creates a string view for the range from pStart to pStart + uiLength.
-  ezStringView(const char* pStart, ezUInt32 uiLength);
+  constexpr ezStringView(const char* pStart, ezUInt32 uiLength);
 
   /// \brief Advances the start to the next character, unless the end of the range was reached.
   void operator++(); // [tested]
@@ -113,5 +113,15 @@ private:
   const char* m_pStart = nullptr;
   const char* m_pEnd = nullptr;
 };
+
+namespace ezLiterals
+{
+  /// \brief String literal suffix to create a ezStringView.
+  ///
+  /// Example:
+  /// using namespace ezLiterals;
+  /// "Hello World"_sv
+  constexpr ezStringView operator "" _sv(const char* pString, size_t len);
+}
 
 #include <Foundation/Strings/Implementation/StringView_inl.h>
