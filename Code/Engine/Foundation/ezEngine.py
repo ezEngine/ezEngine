@@ -3,7 +3,7 @@ import lldb
 
 def __lldb_init_module(debugger, internal_dict):
     # comment this in for debug output
-    lldb.formatters.Logger._lldb_formatters_debug_level = 2
+    # lldb.formatters.Logger._lldb_formatters_debug_level = 2
     debugger.HandleCommand('type synthetic add -x "^ezDynamicArray<" --python-class ezEngine.ezDynamicArraySynthProvider')
     debugger.HandleCommand('type synthetic add -x "^ezHybridArray<" --python-class ezEngine.ezHybridArraySynthProvider')
     debugger.HandleCommand('type synthetic add -x "^ezHybridString<" --python-class ezEngine.ezHybridStringSynthProvider')
@@ -13,6 +13,7 @@ def __lldb_init_module(debugger, internal_dict):
     debugger.HandleCommand('type synthetic add -x "^ezArrayPtr<" --python-class ezEngine.ezArrayPtrSynthProvider')
     debugger.HandleCommand('type synthetic add ezByteArrayPtr --python-class ezEngine.ezArrayPtrSynthProvider')
     debugger.HandleCommand('type synthetic add ezConstByteArrayPtr --python-class ezEngine.ezArrayPtrSynthProvider')
+    debugger.HandleCommand('type synthetic add -x "^ezMap<" --python-class ezEngine.ezMapSynthProvider')
 
     debugger.HandleCommand('type summary add -x "^ezHybridString<" --python-function ezEngine.ezHybridString_SummaryProvider')
     debugger.HandleCommand('type summary add ezStringBuilder --python-function ezEngine.ezHybridString_SummaryProvider')
@@ -336,12 +337,19 @@ class ezMapSynthProvider:
     def __init__(self, valobj, dict):
         logger = lldb.formatters.Logger.Logger()
         self.valobj = valobj
+        # reading the data through the debugger can take a long time
+        # Limit the loops to this number of iterations
+        self.maxSteps = 1000 
+        self.lastNodeIndex = -2
+        self.lastNode = None
 
     def update(self):
         try:
+            self.lastNodeIndex = -2
+            self.lastNode = None
             self.m_uiCount = self.valobj.GetChildMemberWithName('m_uiCount')
             self.m_pRoot = self.valobj.GetChildMemberWithName('m_pRoot')
-            self.m_NilNodeAddr = self.valobj.GetChildMemberWithName('m_NilNode').GetAddress()
+            self.m_NilNodeAddr = self.valobj.GetChildMemberWithName('m_NilNode').GetLoadAddress()
             self.element_type = self.m_ptr.GetType().GetPointeeType()
             self.element_size = self.element_type.GetByteSize()
         except Exception as inst:
@@ -350,8 +358,6 @@ class ezMapSynthProvider:
         return False
 
     def num_children(self):
-        logger = lldb.formatters.Logger.Logger()
-        logger >> "num_children" + str(self.m_uiCount)
         numElements = self.m_uiCount.GetValueAsUnsigned(0)
         if numElements > 0xff000000:
             return 1
@@ -366,21 +372,32 @@ class ezMapSynthProvider:
 
     def GetLeftMost(self):
         node = self.m_pRoot
+        steps = self.maxSteps
 
-        while self.GetLink(node, 0).GetAddress() != self.m_NilNodeAddr:
+        while self.GetLink(node, 0).GetValueAsUnsigned() != self.m_NilNodeAddr and steps > 0:
             node = self.GetLink(node, 0)
+            steps = steps -1
+
+        if steps == 0:
+            return None
 
         return node
 
     def NextNode(self, node):
         rightNode = self.GetLink(node, 1)
 
+        steps = self.maxSteps
+
         # if this element has a right child, go there and then search for the left most child of that
-        if rightNode.GetAddress() != self.GetLink(rightNode, 1).GetAddress():
+        if rightNode.GetValueAsUnsigned() != self.GetLink(rightNode, 1).GetValueAsUnsigned():
             node = rightNode
 
-            while self.GetLink(node, 0).GetAddress() != self.GetLink(self.GetNode(node, 0), 0).GetAddress():
+            while self.GetLink(node, 0).GetValueAsUnsigned() != self.GetLink(self.GetLink(node, 0), 0).GetValueAsUnsigned() and steps > 0:
                 node = self.GetLink(node, 0)
+                steps = steps - 1
+
+            if steps == 0:
+                return None
 
             return node
 
@@ -388,17 +405,26 @@ class ezMapSynthProvider:
         parentParent = self.GetParent(parent)
 
         # if this element has a parent and this element is that parents left child, go directly to the parent
-        if parent.GetAddress() != parentParent.GetAddress() and self.GetLink(parent, 0).GetAddress() == node.GetAddress():
+        if parent.GetValueAsUnsigned() != parentParent.GetValueAsUnsigned() and self.GetLink(parent, 0).GetValueAsUnsigned() == node.GetValueAsUnsigned():
             return parent
 
         # if this element has a parent and this element is that parents right child, search for the next parent, whose left child this is
-        if parent.GetAddress() != parentParent.GetAddress() and self.GetLink(parent, 1).GetAddress() == node.GetAddress():
-            while self.GetLink(self.GetParent(node), 1).GetAddress() == node.GetAddress():
+        if parent.GetValueAsUnsigned() != parentParent.GetValueAsUnsigned() and self.GetLink(parent, 1).GetValueAsUnsigned() == node.GetValueAsUnsigned():
+            while self.GetLink(self.GetParent(node), 1).GetValueAsUnsigned() == node.GetValueAsUnsigned() and steps > 0:
                 node = self.GetParent(node)
+                steps = steps - 1
 
-            # TODO continue
+            if steps == 0:
+                return None
 
-            
+            # if we are the root node
+            parent = self.GetParent(node)
+            if (parent.GetValueAsUnsigned() == 0) or (parent.GetValueAsUnsigned() == self.GetParent(parent).GetValueAsUnsigned()):
+                return None
+
+            return parent
+
+        return None   
 
     def get_child_at_index(self, index):
         logger = lldb.formatters.Logger.Logger()
@@ -409,11 +435,28 @@ class ezMapSynthProvider:
         else:
             index = index - 1
 
-        if index >= self.num_children() - 1:
+        if index >= self.num_children():
             return None
         try:
-            offset = index * self.element_size
-            return self.m_ptr.CreateChildAtOffset('[' + str(index) + ']', offset, self.element_type)
+            node = self.GetLeftMost()
+            stepsLeft = index
+
+            # Can we re-use the last cached result?
+            if index == self.lastNodeIndex + 1:
+                node = self.lastNode
+                stepsLeft = 1
+
+            while node and stepsLeft > 0:
+                node = self.NextNode(node)
+                stepsLeft = stepsLeft - 1
+
+            if node:
+                self.lastNode = node
+                self.lastNodeIndex = index
+                return node.CreateChildAtOffset('[' + str(index) + ']', 0, node.GetType().GetPointeeType())
+
+            return None
+
         except exception as inst:
             logger >> str(inst)
             return None
