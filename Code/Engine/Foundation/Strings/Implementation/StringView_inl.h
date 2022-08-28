@@ -68,7 +68,7 @@ inline void ezStringView::Trim(const char* szTrimCharsStart, const char* szTrimC
     ezStringUtils::Trim(m_pStart, m_pEnd, szTrimCharsStart, szTrimCharsEnd);
 }
 
-constexpr ezStringView operator "" _ezsv(const char* pString, size_t len)
+constexpr ezStringView operator"" _ezsv(const char* pString, size_t len)
 {
   return ezStringView(pString, static_cast<ezUInt32>(len));
 }

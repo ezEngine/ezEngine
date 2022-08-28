@@ -119,6 +119,6 @@ private:
 /// Example:
 /// using namespace ezLiterals;
 /// "Hello World"_ezsv
-constexpr ezStringView operator "" _ezsv(const char* pString, size_t len);
+constexpr ezStringView operator"" _ezsv(const char* pString, size_t len);
 
 #include <Foundation/Strings/Implementation/StringView_inl.h>
