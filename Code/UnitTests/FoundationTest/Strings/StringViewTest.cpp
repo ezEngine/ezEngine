@@ -4,8 +4,6 @@
 
 #include <Foundation/Strings/String.h>
 
-using namespace ezLiterals;
-
 EZ_CREATE_SIMPLE_TEST(Strings, StringView)
 {
   ezStringBuilder tmp;
@@ -55,11 +53,11 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringView)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "String literal")
   {
-    constexpr ezStringView a = "Hello World"_sv;
+    constexpr ezStringView a = "Hello World"_ezsv;
     EZ_TEST_INT(a.GetElementCount(), 11);
     EZ_TEST_STRING(a.GetData(tmp), "Hello World");
 
-    ezStringView b = "Hello Worl"_sv;
+    ezStringView b = "Hello Worl"_ezsv;
     EZ_TEST_INT(b.GetElementCount(), 10);
     EZ_TEST_STRING(b.GetData(tmp), "Hello Worl");
   }

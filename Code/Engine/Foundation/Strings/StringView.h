@@ -114,14 +114,11 @@ private:
   const char* m_pEnd = nullptr;
 };
 
-namespace ezLiterals
-{
-  /// \brief String literal suffix to create a ezStringView.
-  ///
-  /// Example:
-  /// using namespace ezLiterals;
-  /// "Hello World"_sv
-  constexpr ezStringView operator"" _sv(const char* pString, size_t len);
-} // namespace ezLiterals
+/// \brief String literal suffix to create a ezStringView.
+///
+/// Example:
+/// using namespace ezLiterals;
+/// "Hello World"_ezsv
+constexpr ezStringView operator "" _ezsv(const char* pString, size_t len);
 
 #include <Foundation/Strings/Implementation/StringView_inl.h>
