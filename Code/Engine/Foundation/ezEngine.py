@@ -3,19 +3,24 @@ import lldb
 
 def __lldb_init_module(debugger, internal_dict):
     # comment this in for debug output
-    #lldb.formatters.Logger._lldb_formatters_debug_level = 2
+    lldb.formatters.Logger._lldb_formatters_debug_level = 2
     debugger.HandleCommand('type synthetic add -x "^ezDynamicArray<" --python-class ezEngine.ezDynamicArraySynthProvider')
     debugger.HandleCommand('type synthetic add -x "^ezHybridArray<" --python-class ezEngine.ezHybridArraySynthProvider')
     debugger.HandleCommand('type synthetic add -x "^ezHybridString<" --python-class ezEngine.ezHybridStringSynthProvider')
     debugger.HandleCommand('type synthetic add ezStringBuilder --python-class ezEngine.ezHybridStringSynthProvider')
     debugger.HandleCommand('type synthetic add ezStringView --python-class ezEngine.ezStringViewSynthProvider')
+    debugger.HandleCommand('type synthetic add -x "^ezEnum<" --python-class ezEngine.ezEnumSynthProvider')
+    debugger.HandleCommand('type synthetic add -x "^ezArrayPtr<" --python-class ezEngine.ezArrayPtrSynthProvider')
+    debugger.HandleCommand('type synthetic add ezByteArrayPtr --python-class ezEngine.ezArrayPtrSynthProvider')
+    debugger.HandleCommand('type synthetic add ezConstByteArrayPtr --python-class ezEngine.ezArrayPtrSynthProvider')
 
     debugger.HandleCommand('type summary add -x "^ezHybridString<" --python-function ezEngine.ezHybridString_SummaryProvider')
     debugger.HandleCommand('type summary add ezStringBuilder --python-function ezEngine.ezHybridString_SummaryProvider')
     debugger.HandleCommand('type summary add ezStringView --python-function ezEngine.ezStringView_SummaryProvider')
+    debugger.HandleCommand('type summary add -x "^ezEnum<" --python-function ezEngine.ezEnum_SummaryProvider')
 
 def make_string(F):
-    return bytearray(F.GetData().uint8).decode("utf-8")
+    return bytearray(F.GetData().uint8[:-1]).decode("utf-8")
 
 class ezDynamicArraySynthProvider:
     def __init__(self, valobj, dict):
@@ -243,3 +248,172 @@ def ezStringView_SummaryProvider(valobj, dict):
     except Exception as inst:
         logger >> str(inst)
         return "<error>"
+
+class ezEnumSynthProvider:
+    def __init__(self, valobj, dict):
+        self.valobj = valobj
+
+
+    def update(self):
+        self.value = "?"
+        logger = lldb.formatters.Logger.Logger()
+        logger >> "ezEnumSynthProvider::Update"
+        try:
+            enum_name = self.valobj.GetType().GetTemplateArgumentType(0).GetName() + "::Enum"
+            logger >> enum_name
+            enum_type = self.valobj.GetTarget().FindTypes(enum_name).GetTypeAtIndex(0)
+            logger >> str(enum_type)
+            value = self.valobj.GetChildMemberWithName("m_value").GetValueAsUnsigned()
+            self.value = "? ({})".format(value)
+            for v in enum_type.GetEnumMembers():
+                if value == v.GetValueAsUnsigned():
+                    self.value = "{} ({})".format(v.GetName(), v.GetValueAsUnsigned())
+                    break
+        except Exception as inst:
+            logger >> str(inst)
+        return False
+
+    def num_children(self):
+        return 1
+
+    def get_child_at_index(self, index):
+        return self.valobj.CreateValueFromExpression('value', '"' + self.value + '"')
+
+def ezEnum_SummaryProvider(valobj, dict):
+    logger = lldb.formatters.Logger.Logger()
+    try:
+        logger >> "ezEnum_SummaryProvider"
+        content = valobj.GetChildAtIndex(0)
+        return make_string(content)
+    except Exception as inst:
+        logger >> str(inst)
+        return "<error>"
+
+class ezArrayPtrSynthProvider:
+    def __init__(self, valobj, dict):
+        logger = lldb.formatters.Logger.Logger()
+        self.valobj = valobj
+
+    def update(self):
+        try:
+            self.m_ptr = self.valobj.GetChildMemberWithName('m_ptr')
+            self.m_uiCount = self.valobj.GetChildMemberWithName('m_uiCount')
+            self.element_type = self.m_ptr.GetType().GetPointeeType()
+            self.element_size = self.element_type.GetByteSize()
+        except Exception as inst:
+            logger >> inst
+
+        return False
+
+    def num_children(self):
+        logger = lldb.formatters.Logger.Logger()
+        logger >> "num_children" + str(self.m_uiCount)
+        numElements = self.m_uiCount.GetValueAsUnsigned(0)
+        if numElements > 0xff000000:
+            return 1
+        numElements = min(numElements, 256)
+        return numElements + 1
+
+    def get_child_at_index(self, index):
+        logger = lldb.formatters.Logger.Logger()
+        logger >> "Getting child" + str(index)
+        if index < 1:
+            if index == 0:
+                return self.m_uiCount
+        else:
+            index = index - 1
+
+        if index >= self.num_children() - 1:
+            return None
+        try:
+            offset = index * self.element_size
+            return self.m_ptr.CreateChildAtOffset('[' + str(index) + ']', offset, self.element_type)
+        except exception as inst:
+            logger >> str(inst)
+            return None
+
+class ezMapSynthProvider:
+    def __init__(self, valobj, dict):
+        logger = lldb.formatters.Logger.Logger()
+        self.valobj = valobj
+
+    def update(self):
+        try:
+            self.m_uiCount = self.valobj.GetChildMemberWithName('m_uiCount')
+            self.m_pRoot = self.valobj.GetChildMemberWithName('m_pRoot')
+            self.m_NilNodeAddr = self.valobj.GetChildMemberWithName('m_NilNode').GetAddress()
+            self.element_type = self.m_ptr.GetType().GetPointeeType()
+            self.element_size = self.element_type.GetByteSize()
+        except Exception as inst:
+            logger >> inst
+
+        return False
+
+    def num_children(self):
+        logger = lldb.formatters.Logger.Logger()
+        logger >> "num_children" + str(self.m_uiCount)
+        numElements = self.m_uiCount.GetValueAsUnsigned(0)
+        if numElements > 0xff000000:
+            return 1
+        numElements = min(numElements, 256)
+        return numElements + 1
+
+    def GetLink(self, node, index):
+        return node.Dereference().GetChildMemberWithName('m_pLink').GetChildAtIndex(index)
+
+    def GetParent(self, node):
+        return node.Dereference().GetChildMemberWithName('m_pParent')
+
+    def GetLeftMost(self):
+        node = self.m_pRoot
+
+        while self.GetLink(node, 0).GetAddress() != self.m_NilNodeAddr:
+            node = self.GetLink(node, 0)
+
+        return node
+
+    def NextNode(self, node):
+        rightNode = self.GetLink(node, 1)
+
+        # if this element has a right child, go there and then search for the left most child of that
+        if rightNode.GetAddress() != self.GetLink(rightNode, 1).GetAddress():
+            node = rightNode
+
+            while self.GetLink(node, 0).GetAddress() != self.GetLink(self.GetNode(node, 0), 0).GetAddress():
+                node = self.GetLink(node, 0)
+
+            return node
+
+        parent = self.GetParent(node)
+        parentParent = self.GetParent(parent)
+
+        # if this element has a parent and this element is that parents left child, go directly to the parent
+        if parent.GetAddress() != parentParent.GetAddress() and self.GetLink(parent, 0).GetAddress() == node.GetAddress():
+            return parent
+
+        # if this element has a parent and this element is that parents right child, search for the next parent, whose left child this is
+        if parent.GetAddress() != parentParent.GetAddress() and self.GetLink(parent, 1).GetAddress() == node.GetAddress():
+            while self.GetLink(self.GetParent(node), 1).GetAddress() == node.GetAddress():
+                node = self.GetParent(node)
+
+            # TODO continue
+
+            
+
+    def get_child_at_index(self, index):
+        logger = lldb.formatters.Logger.Logger()
+        logger >> "Getting child" + str(index)
+        if index < 1:
+            if index == 0:
+                return self.m_uiCount
+        else:
+            index = index - 1
+
+        if index >= self.num_children() - 1:
+            return None
+        try:
+            offset = index * self.element_size
+            return self.m_ptr.CreateChildAtOffset('[' + str(index) + ']', offset, self.element_type)
+        except exception as inst:
+            logger >> str(inst)
+            return None
