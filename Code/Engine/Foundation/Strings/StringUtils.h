@@ -12,7 +12,7 @@ class EZ_FOUNDATION_DLL ezStringUtils
 public:
   /// \brief Returns true, if the given string is a nullptr pointer or a string that immediately terminates with a '\0' character.
   template <typename T>
-  static bool IsNullOrEmpty(const T* pString); // [tested]
+  static constexpr bool IsNullOrEmpty(const T* pString); // [tested]
 
   /// \brief Returns true, if the given string is a nullptr pointer, is equal to its end or a string that immediately terminates with a '\0'
   /// character.
@@ -30,7 +30,17 @@ public:
   /// Equal to the amount of bytes in a string, if used on non-ASCII (i.e. UTF-8) strings.
   /// Equal to the number of characters in a string, if used with UTF-32 strings.
   template <typename T>
-  static ezUInt32 GetStringElementCount(const T* pString, const T* pStringEnd = (const T*)-1); // [tested]
+  static constexpr ezUInt32 GetStringElementCount(const T* pString); // [tested]
+
+  /// \brief Returns the number of elements of type T that the string contains, until it hits an element that is zero OR until it hits the
+  /// end pointer.
+  ///
+  /// Equal to the string length, if used with pure ASCII strings.
+  /// Equal to the amount of bytes in a string, if used on non-ASCII (i.e. UTF-8) strings.
+  /// Equal to the number of characters in a string, if used with UTF-32 strings.
+  template <typename T>
+  static ezUInt32 GetStringElementCount(const T* pString, const T* pStringEnd); // [tested]
+
 
   /// \brief Returns the number of characters (not Bytes!) in a Utf8 string (excluding the zero terminator), until it hits zero or the end
   /// pointer.
