@@ -125,6 +125,7 @@ public:
 
 private Q_SLOTS:
   void SlotValueChanged();
+  void SlotSliderValueChanged(int value);
   void on_EditingFinished_triggered();
 
 protected:
@@ -135,6 +136,7 @@ protected:
   ezInt8 m_iNumComponents;
   QHBoxLayout* m_pLayout;
   ezQtDoubleSpinBox* m_pWidget[4];
+  QSlider* m_pSlider = nullptr;
 };
 
 /// *** QUATERNION ***
@@ -278,4 +280,3 @@ protected:
   QMenu* m_pMenu;
   ezInt64 m_iCurrentBitflags;
 };
-
