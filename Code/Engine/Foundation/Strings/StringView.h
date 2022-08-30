@@ -30,7 +30,7 @@ public:
   ezStringView(char* pStart);
 
   /// \brief Creates a string view starting at the given position, ending at the next '\0' terminator.
-  template <typename T> // T is always const char*
+  template <typename T>                                                                                           // T is always const char*
   constexpr ezStringView(T pStart, typename std::enable_if<std::is_same<T, const char*>::value, int>::type* = 0); // [tested]
 
   /// \brief Creates a string view from any class / struct which is implicitly conertible to const char *
@@ -45,11 +45,11 @@ public:
 
   /// \brief Construct a string view from a string literal.
   template <size_t N>
-  ezStringView(const char(&str)[N]);
+  ezStringView(const char (&str)[N]);
 
   /// \brief Construct a string view from a fixed size buffer
   template <size_t N>
-  ezStringView(char(&str)[N]);
+  ezStringView(char (&str)[N]);
 
   /// \brief Advances the start to the next character, unless the end of the range was reached.
   void operator++(); // [tested]
