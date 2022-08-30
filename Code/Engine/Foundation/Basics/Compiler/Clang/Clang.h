@@ -6,9 +6,12 @@
 #  undef EZ_COMPILER_CLANG
 #  define EZ_COMPILER_CLANG EZ_ON
 
-/// \todo re-investigate: attribute(always inline) does not work for some reason
-#  define EZ_ALWAYS_INLINE inline
-#  define EZ_FORCE_INLINE inline
+#  define EZ_ALWAYS_INLINE __attribute__((always_inline)) inline
+#  if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#    define EZ_FORCE_INLINE inline
+#  else
+#    define EZ_FORCE_INLINE __attribute__((always_inline)) inline
+#  endif
 
 #  define EZ_ALIGNMENT_OF(type) EZ_COMPILE_TIME_MAX(__alignof(type), EZ_ALIGNMENT_MINIMUM)
 
