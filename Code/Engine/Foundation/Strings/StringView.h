@@ -6,6 +6,8 @@
 
 #include <Foundation/Strings/Implementation/StringBase.h>
 
+#include <type_traits>
+
 class ezStringBuilder;
 
 /// \brief ezStringView represent a read-only sub-string of a larger string, as it can store a dedicated string end position.
@@ -25,13 +27,29 @@ public:
   ezStringView();
 
   /// \brief Creates a string view starting at the given position, ending at the next '\0' terminator.
-  constexpr ezStringView(const char* pStart); // [tested]
+  ezStringView(char* pStart);
+
+  /// \brief Creates a string view starting at the given position, ending at the next '\0' terminator.
+  template <typename T>                                                                                           // T is always const char*
+  constexpr ezStringView(T pStart, typename std::enable_if<std::is_same<T, const char*>::value, int>::type* = 0); // [tested]
+
+  /// \brief Creates a string view from any class / struct which is implicitly conertible to const char *
+  template <typename T>
+  EZ_ALWAYS_INLINE ezStringView(const T&& str, typename std::enable_if<std::is_same<T, const char*>::value == false && std::is_convertible<T, const char*>::value, int>::type* = 0); // [tested]
 
   /// \brief Creates a string view for the range from pStart to pEnd.
   ezStringView(const char* pStart, const char* pEnd); // [tested]
 
   /// \brief Creates a string view for the range from pStart to pStart + uiLength.
   constexpr ezStringView(const char* pStart, ezUInt32 uiLength);
+
+  /// \brief Construct a string view from a string literal.
+  template <size_t N>
+  ezStringView(const char (&str)[N]);
+
+  /// \brief Construct a string view from a fixed size buffer
+  template <size_t N>
+  ezStringView(char (&str)[N]);
 
   /// \brief Advances the start to the next character, unless the end of the range was reached.
   void operator++(); // [tested]

@@ -42,10 +42,6 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringView)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor constexpr")
   {
-    constexpr ezStringView a = ezStringView("Hello World");
-    EZ_TEST_INT(a.GetElementCount(), 11);
-    EZ_TEST_STRING(a.GetData(tmp), "Hello World");
-
     constexpr ezStringView b = ezStringView("Hello World", 10);
     EZ_TEST_INT(b.GetElementCount(), 10);
     EZ_TEST_STRING(b.GetData(tmp), "Hello Worl");

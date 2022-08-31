@@ -2,10 +2,24 @@
 
 inline ezStringView::ezStringView() = default;
 
-constexpr inline ezStringView::ezStringView(const char* pStart)
+inline ezStringView::ezStringView(char* pStart)
   : m_pStart(pStart)
   , m_pEnd(pStart + ezStringUtils::GetStringElementCount(pStart))
 {
+}
+
+template <typename T>
+constexpr inline ezStringView::ezStringView(T pStart, typename std::enable_if<std::is_same<T, const char*>::value, int>::type*)
+  : m_pStart(pStart)
+  , m_pEnd(pStart + ezStringUtils::GetStringElementCount(pStart))
+{
+}
+
+template <typename T>
+EZ_ALWAYS_INLINE ezStringView::ezStringView(const T&& str, typename std::enable_if<std::is_same<T, const char*>::value == false && std::is_convertible<T, const char*>::value, int>::type*)
+{
+  m_pStart = str;
+  m_pEnd = m_pStart + ezStringUtils::GetStringElementCount(m_pStart);
 }
 
 inline ezStringView::ezStringView(const char* pStart, const char* pEnd)
@@ -20,6 +34,22 @@ constexpr inline ezStringView::ezStringView(const char* pStart, ezUInt32 uiLengt
   : m_pStart(pStart)
   , m_pEnd(pStart + uiLength)
 {
+}
+
+template <size_t N>
+inline ezStringView::ezStringView(const char (&str)[N])
+  : m_pStart(str)
+  , m_pEnd(str + N - 1)
+{
+  static_assert(N > 0, "Not a string literal");
+  EZ_ASSERT_DEBUG(str[N - 1] == '\0', "Not a string literal. Manually cast to 'const char*' if you are trying to pass a const char fixed size array.");
+}
+
+template <size_t N>
+inline ezStringView::ezStringView(char (&str)[N])
+{
+  m_pStart = str;
+  m_pEnd = m_pStart + ezStringUtils::GetStringElementCount(str, str + N);
 }
 
 inline void ezStringView::operator++()
