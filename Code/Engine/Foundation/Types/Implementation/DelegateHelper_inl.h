@@ -128,7 +128,7 @@ public:
       // Lambdas with no capture have a size of 1.
       // Lambdas with no capture actually have no data. Do not copy the 1 uninitialized byte.
       // Propper function pointers have a size of > 4 or 8 (depending on pointer size)
-      if constexpr(functionSize > 1)
+      if constexpr (functionSize > 1)
       {
         CopyFunctionToInplaceStorage(function);
       }
