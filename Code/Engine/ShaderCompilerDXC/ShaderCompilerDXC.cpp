@@ -13,8 +13,6 @@
 
 #include <dxc/dxcapi.h>
 
-using namespace ezLiterals;
-
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezShaderCompilerDXC, 1, ezRTTIDefaultAllocator<ezShaderCompilerDXC>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
