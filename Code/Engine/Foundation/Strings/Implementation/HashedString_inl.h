@@ -62,7 +62,8 @@ EZ_FORCE_INLINE void ezHashedString::Assign(const char (&szString)[N])
   HashedType tmp = m_Data;
 #endif
   // this function will already increase the refcount as needed
-  m_Data = AddHashedString(szString, ezHashingUtils::StringHash(szString));
+  auto sv = ezStringView(szString, N);
+  m_Data = AddHashedString(sv, ezHashingUtils::StringHash(sv));
 
 #if EZ_ENABLED(EZ_HASHED_STRING_REF_COUNTING)
   tmp.Value().m_iRefCount.Decrement();

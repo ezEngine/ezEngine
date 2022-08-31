@@ -8,21 +8,21 @@ ezLogWriter::HTML::~HTML()
   EndLog();
 }
 
-void ezLogWriter::HTML::BeginLog(const char* szFile, const char* szAppTitle)
+void ezLogWriter::HTML::BeginLog(ezStringView sFile, ezStringView sAppTitle)
 {
   const ezUInt32 uiLogCache = 1024 * 10;
 
-  if (m_File.Open(szFile, uiLogCache, ezFileShareMode::SharedReads) == EZ_FAILURE)
+  ezStringBuilder sNewName;
+  if (m_File.Open(sFile.GetData(sNewName), uiLogCache, ezFileShareMode::SharedReads) == EZ_FAILURE)
   {
     for (ezUInt32 i = 1; i < 32; ++i)
     {
-      const ezStringBuilder sName = ezPathUtils::GetFileName(szFile);
+      const ezStringBuilder sName = ezPathUtils::GetFileName(sFile);
 
-      ezStringBuilder sNewName;
       sNewName.Format("{0}_{1}", sName, i);
 
-      ezStringBuilder sPath = szFile;
-      sPath.ChangeFileName(sNewName.GetData());
+      ezStringBuilder sPath = sFile;
+      sPath.ChangeFileName(sNewName);
 
       if (m_File.Open(sPath.GetData(), uiLogCache) == EZ_SUCCESS)
         break;
@@ -31,12 +31,12 @@ void ezLogWriter::HTML::BeginLog(const char* szFile, const char* szAppTitle)
 
   if (!m_File.IsOpen())
   {
-    ezLog::Error("Could not open Log-File \"{0}\".", szFile);
+    ezLog::Error("Could not open Log-File \"{0}\".", sFile);
     return;
   }
 
   ezStringBuilder sText;
-  sText.Format("<HTML><HEAD><META HTTP-EQUIV=\"Content-Type\" content=\"text/html; charset=utf-8\"><TITLE>Log - {0}</TITLE></HEAD><BODY>", szAppTitle);
+  sText.Format("<HTML><HEAD><META HTTP-EQUIV=\"Content-Type\" content=\"text/html; charset=utf-8\"><TITLE>Log - {0}</TITLE></HEAD><BODY>", sAppTitle);
 
   m_File.WriteBytes(sText.GetData(), sizeof(char) * sText.GetElementCount()).IgnoreResult();
 }

@@ -17,7 +17,7 @@ public:
   ezProcessingStreamSpawnerZeroInitialized();
 
   /// \brief Which stream to zero initialize
-  void SetStreamName(const char* szStreamName);
+  void SetStreamName(ezStringView szStreamName);
 
 protected:
   virtual ezResult UpdateStreamBindings() override;

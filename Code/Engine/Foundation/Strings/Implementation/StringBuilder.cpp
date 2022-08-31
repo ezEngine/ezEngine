@@ -976,10 +976,10 @@ bool ezStringBuilder::IsPathBelowFolder(const char* szPathToFolder)
 
 void ezStringBuilder::MakePathSeparatorsNative()
 {
-  const char sep[2] = {ezPathUtils::OsSpecificPathSeparator, '\0'};
+  const char sep = ezPathUtils::OsSpecificPathSeparator;
 
   MakeCleanPath();
-  ReplaceAll("/", sep);
+  ReplaceAll("/", ezStringView(&sep, 1));
 }
 
 void ezStringBuilder::RemoveDoubleSlashesInPath()

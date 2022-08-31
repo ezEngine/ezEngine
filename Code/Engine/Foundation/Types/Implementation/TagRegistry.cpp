@@ -13,10 +13,10 @@ ezTagRegistry& ezTagRegistry::GetGlobalRegistry()
   return s_GlobalRegistry;
 }
 
-const ezTag& ezTagRegistry::RegisterTag(const char* szTagString)
+const ezTag& ezTagRegistry::RegisterTag(ezStringView sTagString)
 {
   ezHashedString TagString;
-  TagString.Assign(szTagString);
+  TagString.Assign(sTagString);
 
   return RegisterTag(TagString);
 }
@@ -67,7 +67,7 @@ const ezTag* ezTagRegistry::GetTagByMurmurHash(ezUInt32 uiMurmurHash) const
 
   for (ezTag* pTag : m_TagsByIndex)
   {
-    if (ezHashingUtils::MurmurHash32String(pTag->GetTagString().GetData()) == uiMurmurHash)
+    if (ezHashingUtils::MurmurHash32String(pTag->GetTagString()) == uiMurmurHash)
     {
       return pTag;
     }

@@ -18,9 +18,9 @@ ezProcessingStreamSpawnerZeroInitialized::ezProcessingStreamSpawnerZeroInitializ
 {
 }
 
-void ezProcessingStreamSpawnerZeroInitialized::SetStreamName(const char* szStreamName)
+void ezProcessingStreamSpawnerZeroInitialized::SetStreamName(ezStringView sStreamName)
 {
-  m_StreamName.Assign(szStreamName);
+  m_StreamName.Assign(sStreamName);
 }
 
 ezResult ezProcessingStreamSpawnerZeroInitialized::UpdateStreamBindings()

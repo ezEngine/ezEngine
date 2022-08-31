@@ -20,12 +20,12 @@ public:
   /// If anything goes wrong it is logged and the math expression is in an invalid state.
   /// \param log
   ///   If null, default log interface will be used.
-  explicit ezMathExpression(const char* szExpressionString); // [tested]
+  explicit ezMathExpression(ezStringView sExpressionString); // [tested]
 
   /// \brief Reinitializes using the given expression.
   ///
   /// An empty string or nullptr are considered to be 'invalid' expressions.
-  void Reset(const char* szExpressionString);
+  void Reset(ezStringView szExpressionString);
 
   /// Whether the expression is valid and can be evaluated.
   bool IsValid() const { return m_bIsValid; }

@@ -24,7 +24,7 @@ public:
   bool IsEmpty() const;
 
   /// \brief Adds a named event into the track at the given time.
-  void AddControlPoint(ezTime time, const char* szEvent);
+  void AddControlPoint(ezTime time, ezStringView sEvent);
 
   /// \brief Samples the event track from range [start; end) and adds all events that occured in that time period to the array.
   ///

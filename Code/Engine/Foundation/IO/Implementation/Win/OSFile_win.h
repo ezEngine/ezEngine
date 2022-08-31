@@ -450,7 +450,7 @@ ezInt32 ezFileSystemIterator::InternalNext()
 
   if (m_Flags.IsSet(ezFileSystemIteratorFlags::Recursive) && m_CurFile.m_bIsDirectory && (m_CurFile.m_sName != "..") && (m_CurFile.m_sName != "."))
   {
-    m_sCurPath.AppendPath(m_CurFile.m_sName.GetData());
+    m_sCurPath.AppendPath(m_CurFile.m_sName);
 
     ezStringBuilder sNewSearch = m_sCurPath;
     sNewSearch.AppendPath("*");

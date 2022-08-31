@@ -24,7 +24,7 @@ struct EZ_FOUNDATION_DLL ezStringView : public ezStringBase<ezStringView>
 public:
   EZ_DECLARE_POD_TYPE();
   /// \brief Default constructor creates an invalid view.
-  ezStringView();
+  constexpr ezStringView();
 
   /// \brief Creates a string view starting at the given position, ending at the next '\0' terminator.
   ezStringView(char* pStart);
@@ -135,8 +135,7 @@ private:
 /// \brief String literal suffix to create a ezStringView.
 ///
 /// Example:
-/// using namespace ezLiterals;
-/// "Hello World"_ezsv
+/// "Hello World"
 constexpr ezStringView operator"" _ezsv(const char* pString, size_t len);
 
 #include <Foundation/Strings/Implementation/StringView_inl.h>

@@ -159,14 +159,13 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezTime 
       if (bytesNeeded > 0)
       {
         ezHybridArray<char, 1024> dir;
-        dir.SetCountUninitialized(bytesNeeded + 1);
+        dir.SetCountUninitialized(bytesNeeded);
         WideCharToMultiByte(CP_UTF8, 0, directory.GetPtr(), directory.GetCount(), dir.GetData(), dir.GetCount(), nullptr, nullptr);
-        dir[bytesNeeded] = '\0';
         ezDirectoryWatcherAction action = ezDirectoryWatcherAction::None;
         bool fireEvent = false;
 
         ezStringBuilder eventFilePath = m_sDirectoryPath;
-        eventFilePath.AppendPath(dir.GetData());
+        eventFilePath.AppendPath(ezStringView(dir.GetData(), dir.GetCount()));
         eventFilePath.MakeCleanPath();
 
         if ((info->FileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0)

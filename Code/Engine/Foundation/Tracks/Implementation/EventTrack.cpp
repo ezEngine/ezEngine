@@ -17,7 +17,7 @@ bool ezEventTrack::IsEmpty() const
   return m_ControlPoints.IsEmpty();
 }
 
-void ezEventTrack::AddControlPoint(ezTime time, const char* szEvent)
+void ezEventTrack::AddControlPoint(ezTime time, ezStringView sEvent)
 {
   m_bSort = true;
 
@@ -28,7 +28,7 @@ void ezEventTrack::AddControlPoint(ezTime time, const char* szEvent)
 
   // search for existing event
   {
-    ezTempHashedString tmp(szEvent);
+    ezTempHashedString tmp(sEvent);
 
     for (ezUInt32 i = 0; i < uiNumEvents; ++i)
     {
@@ -45,7 +45,7 @@ void ezEventTrack::AddControlPoint(ezTime time, const char* szEvent)
     cp.m_uiEvent = uiNumEvents;
 
     ezHashedString hs;
-    hs.Assign(szEvent);
+    hs.Assign(sEvent);
 
     m_Events.PushBack(hs);
   }
@@ -200,7 +200,7 @@ void ezEventTrack::Load(ezStreamReader& stream)
   for (ezHashedString& name : m_Events)
   {
     stream >> tmp;
-    name.Assign(tmp.GetData());
+    name.Assign(tmp);
   }
 
   stream >> count;
