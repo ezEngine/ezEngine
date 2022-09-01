@@ -525,6 +525,7 @@ ezQtPropertyEditorIntSpinboxWidget::ezQtPropertyEditorIntSpinboxWidget(ezInt8 iN
   setLayout(m_pLayout);
 
   QSizePolicy policy = sizePolicy();
+  policy.setHorizontalStretch(2);
 
   for (ezInt32 c = 0; c < m_iNumComponents; ++c)
   {
@@ -534,7 +535,6 @@ ezQtPropertyEditorIntSpinboxWidget::ezQtPropertyEditorIntSpinboxWidget(ezInt8 iN
     m_pWidget[c]->setSingleStep(1);
     m_pWidget[c]->setAccelerated(true);
 
-    policy.setHorizontalStretch(2);
     m_pWidget[c]->setSizePolicy(policy);
 
     m_pLayout->addWidget(m_pWidget[c]);
@@ -552,9 +552,29 @@ void ezQtPropertyEditorIntSpinboxWidget::OnInit()
     {
       case 1:
       {
+        const ezInt32 iMinValue = pClamp->GetMinValue().ConvertTo<ezInt32>();
+        const ezInt32 iMaxValue = pClamp->GetMaxValue().ConvertTo<ezInt32>();
+
         ezQtScopedBlockSignals bs(m_pWidget[0]);
         m_pWidget[0]->setMinimum(pClamp->GetMinValue());
         m_pWidget[0]->setMaximum(pClamp->GetMaxValue());
+
+        if (pClamp->GetMinValue().IsValid() && pClamp->GetMaxValue().IsValid() && (iMaxValue - iMinValue) < 256)
+        {
+          ezQtScopedBlockSignals bs2(m_pSlider);
+
+          // we have to create the slider here, because in the constructor we don't know the real
+          // min and max values from the ezClampValueAttribute (only the rough type ranges)
+          m_pSlider = new QSlider(this);
+          m_pSlider->setOrientation(Qt::Orientation::Horizontal);
+          m_pSlider->setMinimum(iMinValue);
+          m_pSlider->setMaximum(iMaxValue);
+
+          m_pLayout->insertWidget(0, m_pSlider, 5); // make it take up most of the space
+          connect(m_pSlider, SIGNAL(valueChanged(int)), this, SLOT(SlotSliderValueChanged(int)));
+          connect(m_pSlider, SIGNAL(sliderReleased()), this, SLOT(on_EditingFinished_triggered()));
+        }
+
         break;
       }
       case 2:
@@ -626,11 +646,16 @@ void ezQtPropertyEditorIntSpinboxWidget::OnInit()
     {
       case 1:
       {
-        ezQtScopedBlockSignals bs(m_pWidget[0]);
+        ezQtScopedBlockSignals bs(m_pWidget[0], m_pSlider);
 
         if (pDefault->GetValue().CanConvertTo<ezInt32>())
         {
           m_pWidget[0]->setDefaultValue(pDefault->GetValue().ConvertTo<ezInt32>());
+
+          if (m_pSlider)
+          {
+            m_pSlider->setValue(pDefault->GetValue().ConvertTo<ezInt32>());
+          }
         }
         break;
       }
@@ -692,12 +717,18 @@ void ezQtPropertyEditorIntSpinboxWidget::OnInit()
 
 void ezQtPropertyEditorIntSpinboxWidget::InternalSetValue(const ezVariant& value)
 {
-  ezQtScopedBlockSignals bs(m_pWidget[0], m_pWidget[1], m_pWidget[2], m_pWidget[3]);
+  ezQtScopedBlockSignals bs(m_pWidget[0], m_pWidget[1], m_pWidget[2], m_pWidget[3], m_pSlider);
 
   switch (m_iNumComponents)
   {
     case 1:
       m_pWidget[0]->setValue(value.ConvertTo<ezInt32>());
+
+      if (m_pSlider)
+      {
+        m_pSlider->setValue(value.ConvertTo<ezInt32>());
+      }
+
       break;
     case 2:
       m_pWidget[0]->setValue(value.ConvertTo<ezVec2I32>().x);
@@ -728,6 +759,13 @@ void ezQtPropertyEditorIntSpinboxWidget::SlotValueChanged()
   {
     case 1:
       BroadcastValueChanged((ezInt32)m_pWidget[0]->value());
+
+      if (m_pSlider)
+      {
+        ezQtScopedBlockSignals b0(m_pSlider);
+        m_pSlider->setValue((ezInt32)m_pWidget[0]->value());
+      }
+
       break;
     case 2:
       BroadcastValueChanged(ezVec2I32(m_pWidget[0]->value(), m_pWidget[1]->value()));
@@ -739,6 +777,21 @@ void ezQtPropertyEditorIntSpinboxWidget::SlotValueChanged()
       BroadcastValueChanged(ezVec4I32(m_pWidget[0]->value(), m_pWidget[1]->value(), m_pWidget[2]->value(), m_pWidget[3]->value()));
       break;
   }
+}
+
+void ezQtPropertyEditorIntSpinboxWidget::SlotSliderValueChanged(int value)
+{
+  if (!m_bTemporaryCommand)
+    Broadcast(ezPropertyEvent::Type::BeginTemporary);
+
+  m_bTemporaryCommand = true;
+
+  {
+    ezQtScopedBlockSignals b0(m_pWidget[0]);
+    m_pWidget[0]->setValue(value);
+  }
+
+  BroadcastValueChanged((ezInt32)m_pSlider->value());
 }
 
 void ezQtPropertyEditorIntSpinboxWidget::on_EditingFinished_triggered()
