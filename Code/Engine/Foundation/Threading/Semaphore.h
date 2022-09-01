@@ -26,12 +26,12 @@ public:
   /// If szSharedName is a non-empty string, a 'named' semaphore is created, which can be opened on other processes as well.
   ///
   /// This call can fail, if a semaphore with the same name already exists. Use ezSemaphore::Open() instead.
-  ezResult Create(ezUInt32 uiInitialTokenCount = 0, const char* szSharedName = nullptr);
+  ezResult Create(ezUInt32 uiInitialTokenCount = 0, ezStringView sSharedName = ezStringView());
 
   /// \brief Attempts to open an existing named semaphore.
   ///
   /// Fails if no such semaphore exists.
-  ezResult Open(const char* szSharedName);
+  ezResult Open(ezStringView sSharedName);
 
   /// \brief Waits until a token is available and acquires it.
   ///

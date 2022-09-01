@@ -19,7 +19,7 @@ ezSemaphore::~ezSemaphore()
   }
 }
 
-ezResult ezSemaphore::Create(ezUInt32 uiInitialTokenCount, const char* szSharedName /*= nullptr*/)
+ezResult ezSemaphore::Create(ezUInt32 uiInitialTokenCount, ezStringView sSharedName /*= nullptr*/)
 {
   EZ_ASSERT_DEV(m_hSemaphore == nullptr, "Semaphore can't be recreated.");
 
@@ -27,7 +27,7 @@ ezResult ezSemaphore::Create(ezUInt32 uiInitialTokenCount, const char* szSharedN
   const DWORD flags = 0;                   // reserved but unused
   const DWORD access = STANDARD_RIGHTS_ALL | SEMAPHORE_MODIFY_STATE /* needed for ReleaseSemaphore */;
 
-  if (ezStringUtils::IsNullOrEmpty(szSharedName))
+  if (sSharedName.IsEmpty())
   {
     // create an unnamed semaphore
 
@@ -38,7 +38,7 @@ ezResult ezSemaphore::Create(ezUInt32 uiInitialTokenCount, const char* szSharedN
     // create a named semaphore in the 'Local' namespace
     // these are visible session wide, ie. all processes by the same user account can see these, but not across users
 
-    const ezStringBuilder semaphoreName("Local\\", szSharedName);
+    const ezStringBuilder semaphoreName("Local\\", sSharedName);
 
     m_hSemaphore = CreateSemaphoreExW(secAttr, uiInitialTokenCount, ezMath::MaxValue<ezInt32>(), ezStringWChar(semaphoreName).GetData(), flags, access);
   }
@@ -51,7 +51,7 @@ ezResult ezSemaphore::Create(ezUInt32 uiInitialTokenCount, const char* szSharedN
   return EZ_SUCCESS;
 }
 
-ezResult ezSemaphore::Open(const char* szSharedName)
+ezResult ezSemaphore::Open(ezStringView sSharedName)
 {
   EZ_ASSERT_DEV(m_hSemaphore == nullptr, "Semaphore can't be recreated.");
 
@@ -60,9 +60,9 @@ ezResult ezSemaphore::Open(const char* szSharedName)
   const DWORD access = SYNCHRONIZE /* needed for WaitForSingleObject */ | SEMAPHORE_MODIFY_STATE /* needed for ReleaseSemaphore */;
   const BOOL inheriteHandle = FALSE;
 
-  EZ_ASSERT_DEV(!ezStringUtils::IsNullOrEmpty(szSharedName), "Name of semaphore to open mustn't be empty.");
+  EZ_ASSERT_DEV(!sSharedName.IsEmpty(), "Name of semaphore to open mustn't be empty.");
 
-  const ezStringBuilder semaphoreName("Local\\", szSharedName);
+  const ezStringBuilder semaphoreName("Local\\", sSharedName);
 
   m_hSemaphore = OpenSemaphoreW(access, inheriteHandle, ezStringWChar(semaphoreName).GetData());
 

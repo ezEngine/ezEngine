@@ -715,8 +715,7 @@ ezResult ezFileSystem::FindFolderWithSubPath(ezStringBuilder& result, const char
       {
         ezDataBuffer db;
         f.ReadAll(db);
-        db.PushBack('\0');
-        sRedirection.Set((const char*)db.GetData());
+        sRedirection.Set(ezStringView((const char*)db.GetData(), db.GetCount()));
       }
     }
 

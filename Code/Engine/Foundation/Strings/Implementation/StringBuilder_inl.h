@@ -150,7 +150,7 @@ inline void ezStringBuilder::Append(
   ezStringUtf8 s5(pData5, m_Data.GetAllocator());
   ezStringUtf8 s6(pData6, m_Data.GetAllocator());
 
-  Append(s1.GetData(), s2.GetData(), s3.GetData(), s4.GetData(), s5.GetData(), s6.GetData());
+  Append(s1.GetView(), s2.GetView(), s3.GetView(), s4.GetView(), s5.GetView(), s6.GetView());
 }
 
 inline void ezStringBuilder::Prepend(
@@ -165,7 +165,7 @@ inline void ezStringBuilder::Prepend(
   ezStringUtf8 s5(pData5, m_Data.GetAllocator());
   ezStringUtf8 s6(pData6, m_Data.GetAllocator());
 
-  Prepend(s1.GetData(), s2.GetData(), s3.GetData(), s4.GetData(), s5.GetData(), s6.GetData());
+  Prepend(s1.GetView(), s2.GetView(), s3.GetView(), s4.GetView(), s5.GetView(), s6.GetView());
 }
 
 EZ_ALWAYS_INLINE const char* ezStringBuilder::GetData() const
@@ -323,22 +323,22 @@ EZ_FORCE_INLINE ezStringView ezStringBuilder::GetFileDirectory() const
 
 EZ_FORCE_INLINE bool ezStringBuilder::IsAbsolutePath() const
 {
-  return ezPathUtils::IsAbsolutePath(GetData());
+  return ezPathUtils::IsAbsolutePath(GetView());
 }
 
 EZ_FORCE_INLINE bool ezStringBuilder::IsRelativePath() const
 {
-  return ezPathUtils::IsRelativePath(GetData());
+  return ezPathUtils::IsRelativePath(GetView());
 }
 
 EZ_FORCE_INLINE bool ezStringBuilder::IsRootedPath() const
 {
-  return ezPathUtils::IsRootedPath(GetData());
+  return ezPathUtils::IsRootedPath(GetView());
 }
 
 EZ_FORCE_INLINE ezStringView ezStringBuilder::GetRootedPathRootName() const
 {
-  return ezPathUtils::GetRootedPathRootName(GetData());
+  return ezPathUtils::GetRootedPathRootName(GetView());
 }
 
 #include <Foundation/Strings/Implementation/AllStrings_inl.h>

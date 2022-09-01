@@ -161,9 +161,9 @@ void ezTranslatorFromFiles::LoadTranslationFile(const char* szFullPath)
     sTooltip.Trim(" \t\r\n");
     sHelpUrl.Trim(" \t\r\n");
 
-    StoreTranslation(sValue, ezHashingUtils::StringHash(sKey.GetData()), ezTranslationUsage::Default);
-    StoreTranslation(sTooltip, ezHashingUtils::StringHash(sKey.GetData()), ezTranslationUsage::Tooltip);
-    StoreTranslation(sHelpUrl, ezHashingUtils::StringHash(sKey.GetData()), ezTranslationUsage::HelpURL);
+    StoreTranslation(sValue, ezHashingUtils::StringHash(sKey), ezTranslationUsage::Default);
+    StoreTranslation(sTooltip, ezHashingUtils::StringHash(sKey), ezTranslationUsage::Tooltip);
+    StoreTranslation(sHelpUrl, ezHashingUtils::StringHash(sKey), ezTranslationUsage::HelpURL);
   }
 }
 

@@ -57,7 +57,7 @@ protected:
       };
     };
 
-    UpdateFunctionDesc(const UpdateFunction& function, const char* szFunctionName)
+    UpdateFunctionDesc(const UpdateFunction& function, ezStringView szFunctionName)
     {
       m_Function = function;
       m_sFunctionName.Assign(szFunctionName);

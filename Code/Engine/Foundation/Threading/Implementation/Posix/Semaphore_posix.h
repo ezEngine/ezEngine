@@ -3,6 +3,8 @@ EZ_FOUNDATION_INTERNAL_HEADER
 
 // THIS IMPLEMENTATION IS UNTESTED (and may not even compile)
 
+#include <Foundation/Strings/StringBuilder.h>
+
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <semaphore.h>
@@ -24,9 +26,9 @@ ezSemaphore::~ezSemaphore()
   }
 }
 
-ezResult ezSemaphore::Create(ezUInt32 uiInitialTokenCount, const char* szSharedName /*= nullptr*/)
+ezResult ezSemaphore::Create(ezUInt32 uiInitialTokenCount, ezStringView sSharedName /*= nullptr*/)
 {
-  if (ezStringUtils::IsNullOrEmpty(szSharedName))
+  if (sSharedName.IsEmpty())
   {
     // create an unnamed semaphore
 
@@ -42,7 +44,8 @@ ezResult ezSemaphore::Create(ezUInt32 uiInitialTokenCount, const char* szSharedN
     // create a named semaphore
 
     // documentation is unclear about access rights, just throwing everything at it for good measure
-    m_hSemaphore.m_pNamed = sem_open(szSharedName, O_CREAT | O_EXCL, S_IRWXU | S_IRWXO | S_IRWXG, uiInitialTokenCount);
+    ezStringBuilder tmp;
+    m_hSemaphore.m_pNamed = sem_open(sSharedName.GetData(tmp), O_CREAT | O_EXCL, S_IRWXU | S_IRWXO | S_IRWXG, uiInitialTokenCount);
 
     if (m_hSemaphore.m_pNamed == nullptr)
     {
@@ -55,13 +58,14 @@ ezResult ezSemaphore::Create(ezUInt32 uiInitialTokenCount, const char* szSharedN
   return EZ_SUCCESS;
 }
 
-ezResult ezSemaphore::Open(const char* szSharedName)
+ezResult ezSemaphore::Open(ezStringView sSharedName)
 {
-  EZ_ASSERT_DEV(!ezStringUtils::IsNullOrEmpty(szSharedName), "Name of semaphore to open mustn't be empty.");
+  EZ_ASSERT_DEV(!sSharedName.IsEmpty(), "Name of semaphore to open mustn't be empty.");
 
   // open a named semaphore
 
-  m_hSemaphore.m_pNamed = sem_open(szSharedName, 0);
+  ezStringBuilder tmp;
+  m_hSemaphore.m_pNamed = sem_open(sSharedName.GetData(tmp), 0);
 
   if (m_hSemaphore.m_pNamed == nullptr)
   {

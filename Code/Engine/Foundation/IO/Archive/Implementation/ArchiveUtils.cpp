@@ -535,7 +535,7 @@ ezResult ezArchiveUtils::ExtractZipTOC(ezMemoryMappedFile& memFile, ezArchiveTOC
       const char* szName = reinterpret_cast<const char*>(toc.m_AllPathStrings.GetData() + entry.m_uiPathStringOffset);
       sLowerCaseHash = szName;
       sLowerCaseHash.ToLower();
-      toc.m_PathToEntryIndex.Insert(ezArchiveStoredString(ezHashingUtils::StringHash(sLowerCaseHash.GetData()), entry.m_uiPathStringOffset), toc.m_Entries.GetCount() - 1);
+      toc.m_PathToEntryIndex.Insert(ezArchiveStoredString(ezHashingUtils::StringHash(sLowerCaseHash), entry.m_uiPathStringOffset), toc.m_Entries.GetCount() - 1);
 
       // Compute data stream start location. We need to skip past the local (and redundant) file header to find it.
       const void* pLfStart = memFile.GetReadPointer(cdfHeader.offsetLocalHeader, ezMemoryMappedFile::OffsetBase::Start);

@@ -14,9 +14,9 @@ EZ_FOUNDATION_INTERNAL_HEADER
 class ezDosDevicePath
 {
 public:
-  ezDosDevicePath(const char* szPath)
+  ezDosDevicePath(ezStringView sPath)
   {
-    ezStringBuilder tmp("\\\\?\\", szPath);
+    ezStringBuilder tmp("\\\\?\\", sPath);
     tmp.ReplaceAll("/", "\\");
     m_Data = tmp.GetData();
   }

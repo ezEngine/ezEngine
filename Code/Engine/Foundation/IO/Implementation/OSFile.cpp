@@ -485,7 +485,7 @@ ezResult ezOSFile::GetFileCasing(const char* szFileOrFolder, ezStringBuilder& ou
         break;
       }
 
-      out_sCorrectSpelling.AppendPath(stats.m_sName.GetData());
+      out_sCorrectSpelling.AppendPath(stats.m_sName);
     }
     sCurPath.Append(it.GetCharacter());
     ++it;

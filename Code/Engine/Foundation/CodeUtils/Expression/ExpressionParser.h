@@ -12,10 +12,10 @@ public:
 
   struct Stream
   {
-    Stream(const char* szName, ezProcessingStream::DataType dataType)
+    Stream(ezStringView sName, ezProcessingStream::DataType dataType)
       : m_DataType(dataType)
     {
-      m_sName.Assign(szName);
+      m_sName.Assign(sName);
     }
 
     ezHashedString m_sName;

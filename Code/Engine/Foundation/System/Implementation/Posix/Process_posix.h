@@ -6,6 +6,7 @@ EZ_FOUNDATION_INTERNAL_HEADER
 #include <Foundation/Threading/Thread.h>
 #include <Foundation/Threading/ThreadUtils.h>
 
+#include <errno.h>
 #include <fcntl.h>
 #include <poll.h>
 #include <sys/wait.h>

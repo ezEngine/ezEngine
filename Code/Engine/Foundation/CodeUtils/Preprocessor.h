@@ -379,7 +379,7 @@ private: // *** Other ***
     if (pe.m_pToken->m_uiLine == 0 && pe.m_pToken->m_uiColumn == 0)                                                                                 \
     {                                                                                                                                               \
       const_cast<ezToken*>(pe.m_pToken)->m_uiLine = m_sCurrentFileStack.PeekBack().m_iCurrentLine;                                                  \
-      const_cast<ezToken*>(pe.m_pToken)->m_File.Assign(m_sCurrentFileStack.PeekBack().m_sVirtualFileName.GetData());                                \
+      const_cast<ezToken*>(pe.m_pToken)->m_File = m_sCurrentFileStack.PeekBack().m_sVirtualFileName;                                                \
     }                                                                                                                                               \
     m_ProcessingEvents.Broadcast(pe);                                                                                                               \
     ezLog::Type(m_pLog, "File '{0}', Line {1} ({2}): " FormatStr, pe.m_pToken->m_File.GetString(), pe.m_pToken->m_uiLine, pe.m_pToken->m_uiColumn); \
@@ -393,7 +393,7 @@ private: // *** Other ***
     if (_pe.m_pToken->m_uiLine == 0 && _pe.m_pToken->m_uiColumn == 0)                                                                                  \
     {                                                                                                                                                  \
       const_cast<ezToken*>(_pe.m_pToken)->m_uiLine = m_sCurrentFileStack.PeekBack().m_iCurrentLine;                                                    \
-      const_cast<ezToken*>(_pe.m_pToken)->m_File.Assign(m_sCurrentFileStack.PeekBack().m_sVirtualFileName.GetData());                                  \
+      const_cast<ezToken*>(_pe.m_pToken)->m_File = m_sCurrentFileStack.PeekBack().m_sVirtualFileName;                                                  \
     }                                                                                                                                                  \
     ezStringBuilder sInfo;                                                                                                                             \
     sInfo.Format(FormatStr, ##__VA_ARGS__);                                                                                                            \

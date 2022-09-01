@@ -8,22 +8,22 @@ static ezHashedString s_sOutput = ezMakeHashedString("output");
 
 ezMathExpression::ezMathExpression() = default;
 
-ezMathExpression::ezMathExpression(const char* szExpressionString)
+ezMathExpression::ezMathExpression(ezStringView sExpressionString)
 {
-  Reset(szExpressionString);
+  Reset(sExpressionString);
 }
 
-void ezMathExpression::Reset(const char* szExpressionString)
+void ezMathExpression::Reset(ezStringView sExpressionString)
 {
-  m_OriginalExpression.Assign(szExpressionString);
+  m_OriginalExpression.Assign(sExpressionString);
   m_ByteCode.Clear();
   m_bIsValid = false;
 
-  if (ezStringUtils::IsNullOrEmpty(szExpressionString))
+  if (sExpressionString.IsEmpty())
     return;
 
   ezStringBuilder tmp = s_sOutput.GetView();
-  tmp.Append(" = ", szExpressionString);
+  tmp.Append(" = ", sExpressionString);
 
   ezExpressionParser::Stream outputs[] = {
     ezExpressionParser::Stream(s_sOutput, ezProcessingStream::DataType::Float),

@@ -70,15 +70,15 @@ void ezProcessingStreamGroup::ClearProcessors()
   m_Processors.Clear();
 }
 
-ezProcessingStream* ezProcessingStreamGroup::AddStream(const char* szName, ezProcessingStream::DataType Type)
+ezProcessingStream* ezProcessingStreamGroup::AddStream(ezStringView sName, ezProcessingStream::DataType Type)
 {
   // Treat adding a stream two times as an error (return null)
-  if (GetStreamByName(szName))
+  if (GetStreamByName(sName))
     return nullptr;
 
-  ezHashedString sName;
-  sName.Assign(szName);
-  ezProcessingStream* pStream = EZ_DEFAULT_NEW(ezProcessingStream, sName, Type, ezProcessingStream::GetDataTypeSize(Type), 16);
+  ezHashedString Name;
+  Name.Assign(sName);
+  ezProcessingStream* pStream = EZ_DEFAULT_NEW(ezProcessingStream, Name, Type, ezProcessingStream::GetDataTypeSize(Type), 16);
 
   m_DataStreams.PushBack(pStream);
 
@@ -87,10 +87,10 @@ ezProcessingStream* ezProcessingStreamGroup::AddStream(const char* szName, ezPro
   return pStream;
 }
 
-void ezProcessingStreamGroup::RemoveStreamByName(const char* szName)
+void ezProcessingStreamGroup::RemoveStreamByName(ezStringView sName)
 {
   ezHashedString Name;
-  Name.Assign(szName);
+  Name.Assign(sName);
 
   for (ezUInt32 i = 0; i < m_DataStreams.GetCount(); ++i)
   {
@@ -105,10 +105,10 @@ void ezProcessingStreamGroup::RemoveStreamByName(const char* szName)
   }
 }
 
-ezProcessingStream* ezProcessingStreamGroup::GetStreamByName(const char* szName) const
+ezProcessingStream* ezProcessingStreamGroup::GetStreamByName(ezStringView sName) const
 {
   ezHashedString Name;
-  Name.Assign(szName);
+  Name.Assign(sName);
 
   for (ezProcessingStream* Stream : m_DataStreams)
   {

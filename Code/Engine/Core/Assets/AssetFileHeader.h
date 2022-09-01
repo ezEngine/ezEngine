@@ -36,7 +36,7 @@ public:
   const ezHashedString& GetGenerator() { return m_sGenerator; }
 
   /// \brief Allows to set the generator string
-  void SetGenerator(const char* szGenerator) { m_sGenerator.Assign(szGenerator); }
+  void SetGenerator(ezStringView szGenerator) { m_sGenerator.Assign(szGenerator); }
 
 private:
   ezUInt64 m_uiHash;

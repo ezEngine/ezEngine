@@ -1,6 +1,6 @@
 #pragma once
 
-inline ezStringView::ezStringView() = default;
+inline constexpr ezStringView::ezStringView() = default;
 
 inline ezStringView::ezStringView(char* pStart)
   : m_pStart(pStart)
