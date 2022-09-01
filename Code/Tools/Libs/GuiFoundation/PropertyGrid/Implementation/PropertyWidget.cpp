@@ -559,7 +559,7 @@ void ezQtPropertyEditorIntSpinboxWidget::OnInit()
         m_pWidget[0]->setMinimum(pClamp->GetMinValue());
         m_pWidget[0]->setMaximum(pClamp->GetMaxValue());
 
-        if ((iMaxValue - iMinValue) < 256)
+        if (pClamp->GetMinValue().IsValid() && pClamp->GetMaxValue().IsValid() && (iMaxValue - iMinValue) < 256)
         {
           ezQtScopedBlockSignals bs2(m_pSlider);
 
