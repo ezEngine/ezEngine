@@ -10,6 +10,7 @@ EZ_FOUNDATION_INTERNAL_HEADER
 #include <poll.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include <errno.h>
 
 EZ_DEFINE_AS_POD_TYPE(struct pollfd);
 
