@@ -57,12 +57,12 @@ inline void ezStringView::operator++()
   if (!IsValid())
     return;
 
-  ezUnicodeUtils::MoveToNextUtf8(m_pStart);
+  ezUnicodeUtils::MoveToNextUtf8(m_pStart, m_pEnd);
 }
 
 inline void ezStringView::operator+=(ezUInt32 d)
 {
-  ezUnicodeUtils::MoveToNextUtf8(m_pStart, d);
+  ezUnicodeUtils::MoveToNextUtf8(m_pStart, m_pEnd, d);
 }
 
 inline bool ezStringView::IsValid() const

@@ -185,6 +185,31 @@ EZ_CREATE_SIMPLE_TEST(Strings, UnicodeUtils)
 
     ezUnicodeUtils::MoveToNextUtf8(sz);
     EZ_TEST_BOOL(sz == &s.GetData()[12]);
+
+    sz = s.GetData();
+    const char* szEnd = s.GetView().GetEndPointer();
+
+
+    ezUnicodeUtils::MoveToNextUtf8(sz, szEnd);
+    EZ_TEST_BOOL(sz == &s.GetData()[1]);
+
+    ezUnicodeUtils::MoveToNextUtf8(sz, szEnd);
+    EZ_TEST_BOOL(sz == &s.GetData()[2]);
+
+    ezUnicodeUtils::MoveToNextUtf8(sz, szEnd);
+    EZ_TEST_BOOL(sz == &s.GetData()[4]);
+
+    ezUnicodeUtils::MoveToNextUtf8(sz, szEnd);
+    EZ_TEST_BOOL(sz == &s.GetData()[6]);
+
+    ezUnicodeUtils::MoveToNextUtf8(sz, szEnd);
+    EZ_TEST_BOOL(sz == &s.GetData()[8]);
+
+    ezUnicodeUtils::MoveToNextUtf8(sz, szEnd);
+    EZ_TEST_BOOL(sz == &s.GetData()[11]);
+
+    ezUnicodeUtils::MoveToNextUtf8(sz, szEnd);
+    EZ_TEST_BOOL(sz == &s.GetData()[12]);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "MoveToPriorUtf8")
