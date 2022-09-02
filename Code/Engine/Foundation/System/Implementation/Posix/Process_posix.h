@@ -530,7 +530,7 @@ ezProcessState ezProcess::GetState() const
 
   int childStatus = -1;
   int waitResult = waitpid(m_impl->m_childPid, &childStatus, WNOHANG);
-  if(waitResult > 0)
+  if (waitResult > 0)
   {
     m_iExitCode = WEXITSTATUS(childStatus);
     m_impl->m_exitCodeAvailable = true;
