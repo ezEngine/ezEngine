@@ -211,6 +211,23 @@ inline void ezUnicodeUtils::MoveToNextUtf8(const char*& szUtf8, ezUInt32 uiNumCh
   }
 }
 
+inline void ezUnicodeUtils::MoveToNextUtf8(const char*& szUtf8, const char* szUtf8End, ezUInt32 uiNumCharacters)
+{
+  EZ_ASSERT_DEBUG(szUtf8 != nullptr, "Bad programmer!");
+
+  while (uiNumCharacters > 0 && szUtf8 < szUtf8End)
+  {
+    EZ_ASSERT_DEV(*szUtf8 != '\0', "The given string must not point to the zero terminator.");
+
+    do
+    {
+      ++szUtf8;
+    } while ((szUtf8 < szUtf8End) && IsUtf8ContinuationByte(*szUtf8));
+
+    --uiNumCharacters;
+  }
+}
+
 inline void ezUnicodeUtils::MoveToPriorUtf8(const char*& szUtf8, ezUInt32 uiNumCharacters)
 {
   EZ_ASSERT_DEBUG(szUtf8 != nullptr, "Bad programmer!");

@@ -44,6 +44,12 @@ public:
   /// It may not point to a zero terminator already.
   static void MoveToNextUtf8(const char*& szUtf8, ezUInt32 uiNumCharacters = 1); // [tested]
 
+  /// \brief Moves the given string pointer ahead to the next Utf8 character sequence.
+  ///
+  /// The string may point to an invalid position (in between a character sequence).
+  /// It may not point to a zero terminator already.
+  static void MoveToNextUtf8(const char*& szUtf8, const char* szUtf8End, ezUInt32 uiNumCharacters = 1); // [tested]
+
   /// \brief Moves the given string pointer backwards to the previous Utf8 character sequence.
   ///
   /// The string may point to an invalid position (in between a character sequence), or even the \0 terminator,

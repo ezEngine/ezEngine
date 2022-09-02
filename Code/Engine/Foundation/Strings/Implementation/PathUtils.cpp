@@ -170,10 +170,11 @@ void ezPathUtils::GetRootedPathParts(ezStringView sPath, ezStringView& root, ezS
     return;
 
   const char* szStart = sPath.GetStartPointer();
+  const char* szPathEnd = sPath.GetEndPointer();
 
   do
   {
-    ezUnicodeUtils::MoveToNextUtf8(szStart);
+    ezUnicodeUtils::MoveToNextUtf8(szStart, szPathEnd);
 
     if (*szStart == '\0')
       return;
@@ -181,10 +182,10 @@ void ezPathUtils::GetRootedPathParts(ezStringView sPath, ezStringView& root, ezS
   } while (IsPathSeparator(*szStart));
 
   const char* szEnd = szStart;
-  ezUnicodeUtils::MoveToNextUtf8(szEnd);
+  ezUnicodeUtils::MoveToNextUtf8(szEnd, szPathEnd);
 
   while (*szEnd != '\0' && !IsPathSeparator(*szEnd))
-    ezUnicodeUtils::MoveToNextUtf8(szEnd);
+    ezUnicodeUtils::MoveToNextUtf8(szEnd, szPathEnd);
 
   root = ezStringView(szStart, szEnd);
   if (*szEnd == '\0')
@@ -194,8 +195,8 @@ void ezPathUtils::GetRootedPathParts(ezStringView sPath, ezStringView& root, ezS
   else
   {
     // skip path separator for the relative path
-    ezUnicodeUtils::MoveToNextUtf8(szEnd);
-    relPath = ezStringView(szEnd);
+    ezUnicodeUtils::MoveToNextUtf8(szEnd, szPathEnd);
+    relPath = ezStringView(szEnd, szPathEnd);
   }
 }
 

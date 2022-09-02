@@ -26,7 +26,7 @@ void ezStringView::Shrink(ezUInt32 uiShrinkCharsFront, ezUInt32 uiShrinkCharsBac
 {
   while (IsValid() && (uiShrinkCharsFront > 0))
   {
-    ezUnicodeUtils::MoveToNextUtf8(m_pStart, 1);
+    ezUnicodeUtils::MoveToNextUtf8(m_pStart, m_pEnd, 1);
     --uiShrinkCharsFront;
   }
 

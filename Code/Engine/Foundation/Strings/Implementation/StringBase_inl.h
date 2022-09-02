@@ -177,7 +177,7 @@ template <typename Derived>
 const char* ezStringBase<Derived>::ComputeCharacterPosition(ezUInt32 uiCharacterIndex) const
 {
   const char* pos = InternalGetData();
-  ezUnicodeUtils::MoveToNextUtf8(pos, uiCharacterIndex);
+  ezUnicodeUtils::MoveToNextUtf8(pos, InternalGetDataEnd(), uiCharacterIndex);
   return pos;
 }
 

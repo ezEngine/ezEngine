@@ -545,8 +545,8 @@ bool ezStringUtils::StartsWith_NoCase(const char* szString, const char* szStarts
     if (ezStringUtils::CompareChars_NoCase(szStartsWith, szString) != 0)
       return false;
 
-    ezUnicodeUtils::MoveToNextUtf8(szString);
-    ezUnicodeUtils::MoveToNextUtf8(szStartsWith);
+    ezUnicodeUtils::MoveToNextUtf8(szString, pStringEnd);
+    ezUnicodeUtils::MoveToNextUtf8(szStartsWith, szStartsWithEnd);
   }
 
   // if both are equally long, this comparison will return true
@@ -610,12 +610,12 @@ const char* ezStringUtils::FindSubString(const char* szSource, const char* szStr
 
   const char* pCurPos = &szSource[0];
 
-  while ((*pCurPos != '\0') && (pCurPos < pSourceEnd))
+  while ((pCurPos < pSourceEnd) && (*pCurPos != '\0'))
   {
     if (ezStringUtils::StartsWith(pCurPos, szStringToFind, pSourceEnd, szStringToFindEnd))
       return pCurPos;
 
-    ezUnicodeUtils::MoveToNextUtf8(pCurPos);
+    ezUnicodeUtils::MoveToNextUtf8(pCurPos, pSourceEnd);
   }
 
   return nullptr;
@@ -634,7 +634,7 @@ const char* ezStringUtils::FindSubString_NoCase(const char* szSource, const char
     if (ezStringUtils::StartsWith_NoCase(pCurPos, szStringToFind, pSourceEnd, szStringToFindEnd))
       return pCurPos;
 
-    ezUnicodeUtils::MoveToNextUtf8(pCurPos);
+    ezUnicodeUtils::MoveToNextUtf8(pCurPos, pSourceEnd);
   }
 
   return nullptr;
@@ -708,7 +708,7 @@ const char* ezStringUtils::FindWholeWord(const char* szString, const char* szSea
     }
 
     pPrevPos = pCurPos;
-    ezUnicodeUtils::MoveToNextUtf8(pCurPos);
+    ezUnicodeUtils::MoveToNextUtf8(pCurPos, pStringEnd);
   }
 
   return nullptr;
@@ -738,7 +738,7 @@ const char* ezStringUtils::FindWholeWord_NoCase(
     }
 
     pPrevPos = pCurPos;
-    ezUnicodeUtils::MoveToNextUtf8(pCurPos);
+    ezUnicodeUtils::MoveToNextUtf8(pCurPos, pStringEnd);
   }
 
   return nullptr;
