@@ -7,7 +7,7 @@
 /// application crashes
 ///
 /// On Windows when an ezProcessGroup instance is destroyed (either normally or due to a crash), all processes that have
-/// been added to the group will be terminated by the OS. Other operating systems give no such guarantee.
+/// been added to the group will be terminated by the OS. Other operating systems do not provide the terminate on crash guarantee.
 ///
 /// Only processes that were launched asynchronously and in a suspended state can be added to process groups.
 /// They will be resumed by the group.
