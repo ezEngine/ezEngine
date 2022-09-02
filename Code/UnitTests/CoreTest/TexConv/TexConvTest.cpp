@@ -8,7 +8,7 @@
 #include <Foundation/System/ProcessGroup.h>
 #include <Texture/Image/Image.h>
 
-#if EZ_ENABLED(EZ_SUPPORTS_PROCESSES) && EZ_ENABLED(EZ_PLATFORM_WINDOWS) && defined(BUILDSYSTEM_TEXCONV_PRESENT)
+#if EZ_ENABLED(EZ_SUPPORTS_PROCESSES) && (EZ_ENABLED(EZ_PLATFORM_WINDOWS) || EZ_ENABLED(EZ_PLATFORM_LINUX)) && defined(BUILDSYSTEM_TEXCONV_PRESENT)
 
 class ezTexConvTest : public ezTestBaseClass
 {
@@ -67,11 +67,16 @@ private:
 
   void RunTexConv(ezProcessOptions& options, const char* szOutName)
   {
+    #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+    const char* szTexConvExecutableName = "TexConv.exe";
+    #else
+    const char* szTexConvExecutableName = "TexConv";
+    #endif
     ezStringBuilder sTexConvExe = ezOSFile::GetApplicationDirectory();
-    sTexConvExe.AppendPath("TexConv.exe");
+    sTexConvExe.AppendPath(szTexConvExecutableName);
     sTexConvExe.MakeCleanPath();
 
-    if (!EZ_TEST_BOOL_MSG(ezOSFile::ExistsFile(sTexConvExe), "TexConv.exe does not exist"))
+    if (!EZ_TEST_BOOL_MSG(ezOSFile::ExistsFile(sTexConvExe), "%s does not exist", szTexConvExecutableName))
       return;
 
     options.m_sProcess = sTexConvExe;

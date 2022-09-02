@@ -528,6 +528,15 @@ ezProcessState ezProcess::GetState() const
     return ezProcessState::Finished;
   }
 
+  int childStatus = -1;
+  int waitResult = waitpid(m_impl->m_childPid, &childStatus, WNOHANG);
+  if(waitResult > 0)
+  {
+    m_iExitCode = WEXITSTATUS(childStatus);
+    m_impl->m_exitCodeAvailable = true;
+    return ezProcessState::Finished;
+  }
+
   return ezProcessState::Running;
 }
 
