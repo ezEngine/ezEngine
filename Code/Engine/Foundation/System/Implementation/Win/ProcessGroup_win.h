@@ -62,10 +62,10 @@ void ezProcessGroupImpl::Initialize()
   }
 }
 
-ezProcessGroup::ezProcessGroup(const char* szGroupName /*= nullptr*/)
+ezProcessGroup::ezProcessGroup(ezStringView sGroupName)
 {
   m_impl = EZ_DEFAULT_NEW(ezProcessGroupImpl);
-  m_impl->m_sName = szGroupName;
+  m_impl->m_sName = sGroupName;
 }
 
 ezProcessGroup::~ezProcessGroup()
