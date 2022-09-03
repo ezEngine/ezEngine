@@ -10,19 +10,9 @@ namespace AE_NS_FOUNDATION
   {
   // *** Data ***
   public:
-    //! The union that allows different representations of the data.
-    union
-    {
-      //! The vector as x/y/z
-      struct
-      {
-        float x;
-        float y;
-        float z;
-      };
-      //! The vector as a 3-component float-array.
-      float m_Data[3];
-    };
+    float x;
+    float y;
+    float z;
 
   // *** Constructors ***
   public:

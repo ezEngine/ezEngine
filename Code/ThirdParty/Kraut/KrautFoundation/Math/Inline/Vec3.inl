@@ -1,8 +1,8 @@
 #ifndef AE_FOUNDATION_MATH_VEC3_INL
 #define AE_FOUNDATION_MATH_VEC3_INL
 
-#include "../Math/Math.h"
-#include "../Basics/Checks.h"
+#include "../Math.h"
+#include "../../Basics/Checks.h"
 
 namespace AE_NS_FOUNDATION
 {

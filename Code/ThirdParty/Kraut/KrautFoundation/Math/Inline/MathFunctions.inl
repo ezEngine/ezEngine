@@ -1,7 +1,7 @@
 #ifndef AE_FOUNDATION_MATH_MATH_INL
 #define AE_FOUNDATION_MATH_MATH_INL
 
-#include "../Math/Math.h"
+#include "../Math.h"
 
 #include <math.h>
 #include <cstdlib>

@@ -2,7 +2,6 @@ ez_cmake_init()
 
 ez_requires_editor()
 
-ez_requires(EZ_BUILD_KRAUT)
 ez_requires_kraut()
 
 # Get the name of this folder as the project name
@@ -15,6 +14,6 @@ target_link_libraries(${PROJECT_NAME}
   EditorEngineProcessFramework
   GameEngine
   KrautPlugin
+  Kraut
 )
 
-ez_link_target_kraut(${PROJECT_NAME})

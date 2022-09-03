@@ -6,7 +6,7 @@
 #include "../Math/Plane.h"
 #include "../Math/Quaternion.h"
 #include "../Math/Vec3.h"
-#include "../Streams/Streams.h"
+#include "Streams.h"
 #include "../Strings/String.h"
 
 namespace AE_NS_FOUNDATION
@@ -101,7 +101,7 @@ namespace AE_NS_FOUNDATION
 
   inline void operator<<(aeStreamOut& s, const aePlane& data)
   {
-    s.Write(&data.m_fComponents[0], sizeof(float) * 4);
+    s.Write(&data, sizeof(float) * 4);
   }
 
   inline void operator<<(aeStreamOut& s, const aeMatrix& data)
@@ -111,7 +111,7 @@ namespace AE_NS_FOUNDATION
 
   inline void operator<<(aeStreamOut& s, const aeQuaternion& data)
   {
-    s.Write(data.m_Components, sizeof(float) * 4);
+    s.Write(&data, sizeof(float) * 4);
   }
 
   // ******** Stream In Operators ********
@@ -203,7 +203,7 @@ namespace AE_NS_FOUNDATION
 
   inline void operator>>(aeStreamIn& s, aePlane& data)
   {
-    s.Read(&data.m_fComponents[0], sizeof(float) * 4);
+    s.Read(&data, sizeof(float) * 4);
   }
 
   inline void operator>>(aeStreamIn& s, aeMatrix& data)
@@ -213,7 +213,7 @@ namespace AE_NS_FOUNDATION
 
   inline void operator>>(aeStreamIn& s, aeQuaternion& data)
   {
-    s.Read(data.m_Components, sizeof(float) * 4);
+    s.Read(&data, sizeof(float) * 4);
   }
 
 } // namespace AE_NS_FOUNDATION

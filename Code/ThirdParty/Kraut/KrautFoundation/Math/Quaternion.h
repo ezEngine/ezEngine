@@ -1,7 +1,7 @@
 #ifndef AE_FOUNDATION_MATH_QUATERNION_H
 #define AE_FOUNDATION_MATH_QUATERNION_H
 
-#include "../Math/Vec3.h"
+#include "Vec3.h"
 
 namespace AE_NS_FOUNDATION
 {
@@ -9,16 +9,8 @@ namespace AE_NS_FOUNDATION
   {
   // *** Data ***
   public:
-    union
-    {
-      float m_Components[4];
-
-      struct
-      {
-        aeVec3 v;
-        float w;
-      };
-    };
+    aeVec3 v;
+    float w;
 
     enum Initialization
     {
