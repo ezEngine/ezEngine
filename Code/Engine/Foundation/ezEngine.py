@@ -21,7 +21,10 @@ def __lldb_init_module(debugger, internal_dict):
     debugger.HandleCommand('type summary add -x "^ezEnum<" --python-function ezEngine.ezEnum_SummaryProvider')
 
 def make_string(F):
-    return bytearray(F.GetData().uint8[:-1]).decode("utf-8")
+    data = bytearray(F.GetData().uint8)
+    if data[-1] == 0:
+        data = data[:-1]
+    return data.decode("utf-8")
 
 class ezDynamicArraySynthProvider:
     def __init__(self, valobj, dict):
@@ -190,7 +193,7 @@ def ezHybridString_SummaryProvider(valobj, dict):
             return "<empty>"
         if count > 1024:
             count = 1024
-        return make_string(content)
+        return '"' + make_string(content) + '"'
     except Exception as inst:
         logger >> str(inst)
         return "<error>"
