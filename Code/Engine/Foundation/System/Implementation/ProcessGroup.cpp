@@ -5,7 +5,7 @@
 #  if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 #    include <Foundation/System/Implementation/Win/ProcessGroup_win.h>
 #  else
-#    include <Foundation/System/Implementation/ez/ProcessGroup_ez.h>
+#    include <Foundation/System/Implementation/other/ProcessGroup_other.h>
 #  endif
 
 const ezHybridArray<ezProcess, 8>& ezProcessGroup::GetProcesses() const
