@@ -195,32 +195,6 @@ namespace AE_NS_FOUNDATION
     aeStringFunctions::Copy(&m_pDataToRead[uiPrevLength], m_uiCapacity - uiPrevLength, szSource, Length);
   }
 
-  inline void aeString::Format(const char* szFormat, ...)
-  {
-    va_list ap;
-    va_start(ap, szFormat);
-
-    FormatArgs(szFormat, ap);
-
-    va_end(ap);
-  }
-
-  inline void aeString::FormatArgs(const char* szFormat, va_list ap)
-  {
-    // TODO: Test this function thoroughly, especially on different platforms !
-
-    AE_CHECK_DEV(szFormat != nullptr, "aeString::FormatArgs: Cannot work with a nullptr-String as Format.");
-
-    va_list ap2;
-    va_copy(ap2, ap);
-
-    const aeUInt32 uiLength = aeStringFunctions::vsnprintf(nullptr, 0, szFormat, ap);
-    resize(uiLength + 1);
-
-    m_uiLength = aeStringFunctions::vsnprintf(&m_pDataToRead[0], uiLength + 1, szFormat, ap2);
-    m_pDataToRead[m_uiLength] = '\0';
-  }
-
   inline void aeString::operator+=(const aeBasicString& str)
   {
     Concatenate(str.c_str(), str.length());
@@ -317,15 +291,6 @@ namespace AE_NS_FOUNDATION
     return (m_pDataToRead[index]);
   }
 
-  inline void aeString::ToUpperCase(void)
-  {
-    aeStringFunctions::ToUpperCase(m_pDataToRead);
-  }
-
-  inline void aeString::ToLowerCase(void)
-  {
-    aeStringFunctions::ToLowerCase(m_pDataToRead);
-  }
 } // namespace AE_NS_FOUNDATION
 
 

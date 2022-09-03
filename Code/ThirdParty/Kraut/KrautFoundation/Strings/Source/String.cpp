@@ -77,16 +77,6 @@ namespace AE_NS_FOUNDATION
     return (true);
   }
 
-  bool aeString::Replace_NoCase (const char* szSearchFor, const char* szReplaceWith, aeUInt32 uiStartPos)
-  {
-    const aeInt32 iPos = FindFirstStringPos_NoCase (szSearchFor, uiStartPos);
-    if (iPos < 0)
-      return (false);
-
-    ReplaceSubString (iPos, aeStringFunctions::GetLength (szSearchFor), szReplaceWith);
-    return (true);
-  }
-
   aeUInt32 aeString::ReplaceAll (const char* szSearchFor, const char* szReplaceWith, aeUInt32 uiStartPos)
   {
     const aeUInt32 uiSearchLen = aeStringFunctions::GetLength (szSearchFor);
@@ -105,97 +95,6 @@ namespace AE_NS_FOUNDATION
       iFoundPos = FindFirstStringPos (szSearchFor, uiStartPos);
 
       AE_CHECK_DEV (uiCounter < 100000, "aeString::ReplaceAll: Too many replacements! Probably an endless loop.");
-    }
-
-    return (uiCounter);
-  }
-
-  aeUInt32 aeString::ReplaceAll_NoCase (const char* szSearchFor, const char* szReplaceWith, aeUInt32 uiStartPos)
-  {
-    const aeUInt32 uiSearchLen = aeStringFunctions::GetLength (szSearchFor);
-    const aeUInt32 uiReplaceLen = aeStringFunctions::GetLength (szReplaceWith);
-
-    aeUInt32 uiCounter = 0;
-
-    aeInt32 iFoundPos = FindFirstStringPos_NoCase (szSearchFor, uiStartPos);
-    while (iFoundPos >= 0)
-    {
-      ReplaceSubString (iFoundPos, uiSearchLen, szReplaceWith);
-      ++uiCounter;
-
-      uiStartPos = iFoundPos + uiReplaceLen;
-
-      iFoundPos = FindFirstStringPos_NoCase (szSearchFor, uiStartPos);
-
-      AE_CHECK_DEV (uiCounter < 100000, "aeString::ReplaceAll: Too many replacements! Probably an endless loop.");
-    }
-
-    return (uiCounter);
-  }
-
-  bool aeString::ReplaceWholeWord (const char* szSearchFor, const char* szReplaceWith, aeStringFunctions::AE_IS_WORD_DELIMITER IsDelimiterCB, aeUInt32 uiStartPos)
-  {
-    aeInt32 iFoundPos = FindWholeWord (szSearchFor, IsDelimiterCB, uiStartPos);
-
-    if (iFoundPos < 0)
-      return (false);
-
-    ReplaceSubString (iFoundPos, aeStringFunctions::GetLength (szSearchFor), szReplaceWith);
-    return (true);
-  }
-
-  bool aeString::ReplaceWholeWord_NoCase (const char* szSearchFor, const char* szReplaceWith, aeStringFunctions::AE_IS_WORD_DELIMITER IsDelimiterCB, aeUInt32 uiStartPos)
-  {
-    aeInt32 iFoundPos = FindWholeWord_NoCase (szSearchFor, IsDelimiterCB, uiStartPos);
-
-    if (iFoundPos < 0)
-      return (false);
-
-    ReplaceSubString (iFoundPos, aeStringFunctions::GetLength (szSearchFor), szReplaceWith);
-    return (true);
-  }
-
-  aeUInt32 aeString::ReplaceWholeWordAll (const char* szSearchFor, const char* szReplaceWith, aeStringFunctions::AE_IS_WORD_DELIMITER IsDelimiterCB, aeUInt32 uiStartPos)
-  {
-    const aeUInt32 uiSearchLen = aeStringFunctions::GetLength (szSearchFor);
-    const aeUInt32 uiReplaceLen = aeStringFunctions::GetLength (szReplaceWith);
-
-    aeUInt32 uiCounter = 0;
-
-    aeInt32 iFoundPos = FindWholeWord (szSearchFor, IsDelimiterCB, uiStartPos);
-    while (iFoundPos > 0)
-    {
-      ReplaceSubString (iFoundPos, uiSearchLen, szReplaceWith);
-      ++uiCounter;
-
-      uiStartPos = iFoundPos + uiReplaceLen;
-
-      iFoundPos = FindWholeWord (szSearchFor, IsDelimiterCB, uiStartPos);
-
-      AE_CHECK_DEV (uiCounter < 100000, "aeString::ReplaceWholeWordAll: Too many replacements! Probably an endless loop.");
-    }
-
-    return (uiCounter);
-  }
-
-  aeUInt32 aeString::ReplaceWholeWordAll_NoCase (const char* szSearchFor, const char* szReplaceWith, aeStringFunctions::AE_IS_WORD_DELIMITER IsDelimiterCB, aeUInt32 uiStartPos)
-  {
-    const aeUInt32 uiSearchLen = aeStringFunctions::GetLength (szSearchFor);
-    const aeUInt32 uiReplaceLen = aeStringFunctions::GetLength (szReplaceWith);
-
-    aeUInt32 uiCounter = 0;
-
-    aeInt32 iFoundPos = FindWholeWord_NoCase (szSearchFor, IsDelimiterCB, uiStartPos);
-    while (iFoundPos > 0)
-    {
-      ReplaceSubString (iFoundPos, uiSearchLen, szReplaceWith);
-      ++uiCounter;
-
-      uiStartPos = iFoundPos + uiReplaceLen;
-
-      iFoundPos = FindWholeWord_NoCase (szSearchFor, IsDelimiterCB, uiStartPos);
-
-      AE_CHECK_DEV (uiCounter < 100000, "aeString::ReplaceWholeWordAll_NoCase: Too many replacements! Probably an endless loop.");
     }
 
     return (uiCounter);

@@ -45,11 +45,6 @@ namespace AE_NS_FOUNDATION
     //! Appends up to uiCharsToCopy characters of the given string to this string.
     void Concatenate(const char* szSource, aeUInt32 uiCharsToCopy);
 
-    //! Creates a formatted string. See the C-function sprintf for details.
-    void Format(const char* szFormat, ...);
-    //! Creates a formatted string. See the C-function sprintf for details.
-    void FormatArgs(const char* szFormat, va_list ap);
-
     // get operator[] from aeBasicString into this class
     using aeBasicString::operator[];
     //! Allows read/write-access to the character with the given index
@@ -78,26 +73,8 @@ namespace AE_NS_FOUNDATION
 
     //! Replaces the first occurance of szSearchFor after index uiStartPos with szReplaceWith. Returns true if anything was replaced.
     bool Replace(const char* szSearchFor, const char* szReplaceWith, aeUInt32 uiStartPos = 0);
-    //! Replaces the first occurance of szSearchFor after index uiStartPos with szReplaceWith. Returns true if anything was replaced. Ignores case.
-    bool Replace_NoCase(const char* szSearchFor, const char* szReplaceWith, aeUInt32 uiStartPos = 0);
     //! Replaces the first occurance of szSearchFor after index uiStartPos with szReplaceWith. Returns how many occurances were found and replaced.
     aeUInt32 ReplaceAll(const char* szSearchFor, const char* szReplaceWith, aeUInt32 uiStartPos = 0);
-    //! Replaces the first occurance of szSearchFor after index uiStartPos with szReplaceWith. Returns how many occurances were found and replaced. Ignores case.
-    aeUInt32 ReplaceAll_NoCase(const char* szSearchFor, const char* szReplaceWith, aeUInt32 uiStartPos = 0);
-
-    //! Searches for a whole word and replaces it. Returns true, if anyting was replaced.
-    bool ReplaceWholeWord(const char* szSearchFor, const char* szReplaceWith, aeStringFunctions::AE_IS_WORD_DELIMITER IsDelimiterCB, aeUInt32 uiStartPos = 0);
-    //! Searches for a whole word and replaces it. Returns true, if anyting was replaced. Ignores case.
-    bool ReplaceWholeWord_NoCase(const char* szSearchFor, const char* szReplaceWith, aeStringFunctions::AE_IS_WORD_DELIMITER IsDelimiterCB, aeUInt32 uiStartPos = 0);
-    //! Searches for a whole word and replaces it. Returns how many words were replaced.
-    aeUInt32 ReplaceWholeWordAll(const char* szSearchFor, const char* szReplaceWith, aeStringFunctions::AE_IS_WORD_DELIMITER IsDelimiterCB, aeUInt32 uiStartPos = 0);
-    //! Searches for a whole word and replaces it. Returns how many words were replaced. Ignores case.
-    aeUInt32 ReplaceWholeWordAll_NoCase(const char* szSearchFor, const char* szReplaceWith, aeStringFunctions::AE_IS_WORD_DELIMITER IsDelimiterCB, aeUInt32 uiStartPos = 0);
-
-    //! Converts all characters in this string to upper case.
-    void ToUpperCase(void);
-    //! Converts all characters in this string to lower case.
-    void ToLowerCase(void);
 
   private:
     //! Computes the next best capacity size to use for reallocations. Rounds to the next higher multiple of 32.

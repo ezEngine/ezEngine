@@ -30,16 +30,6 @@ namespace AE_NS_FOUNDATION
     return (aeStringFunctions::CompareEqual (m_pDataToRead, szString2, uiCharsToCompare));
   }
 
-  inline bool aeBasicString::CompareEqual_NoCase (const char* szString2) const
-  {
-    return (aeStringFunctions::CompareEqual_NoCase (m_pDataToRead, szString2));
-  }
-
-  inline bool aeBasicString::CompareEqual_NoCase (const char* szString2, aeUInt32 uiCharsToCompare) const
-  {
-    return (aeStringFunctions::CompareEqual_NoCase (m_pDataToRead, szString2, uiCharsToCompare));
-  }
-
   inline aeInt32 aeBasicString::CompareAlphabetically (const char* szString2) const
   {
     return (aeStringFunctions::CompareAlphabetically (m_pDataToRead, szString2));
@@ -50,64 +40,14 @@ namespace AE_NS_FOUNDATION
     return (aeStringFunctions::CompareAlphabetically (m_pDataToRead, szString2, uiCharsToCompare));
   }
 
-  inline aeInt32 aeBasicString::CompareAlphabetically_NoCase (const char* szString2) const
-  {
-    return (aeStringFunctions::CompareAlphabetically_NoCase (m_pDataToRead, szString2));
-  }
-
-  inline aeInt32 aeBasicString::CompareAlphabetically_NoCase (const char* szString2, aeUInt32 uiCharsToCompare) const
-  {
-    return (aeStringFunctions::CompareAlphabetically_NoCase (m_pDataToRead, szString2, uiCharsToCompare));
-  }
-
   inline aeInt32 aeBasicString::FindFirstStringPos (const char* szStringToFind, aeUInt32 uiStartPos) const
   {
     return (aeStringFunctions::FindFirstStringPos (m_pDataToRead, szStringToFind, uiStartPos));
   }
 
-  inline aeInt32 aeBasicString::FindFirstStringPos_NoCase (const char* szStringToFind, aeUInt32 uiStartPos) const
-  {
-    return (aeStringFunctions::FindFirstStringPos_NoCase (m_pDataToRead, szStringToFind, uiStartPos));
-  }
-
-  inline aeInt32 aeBasicString::FindLastStringPos  (const char* szStringToFind, aeUInt32 uiStartPos) const
-  {
-    return (aeStringFunctions::FindLastStringPos (m_pDataToRead, szStringToFind, uiStartPos));
-  }
-
-  inline aeInt32 aeBasicString::FindLastStringPos_NoCase  (const char* szStringToFind, aeUInt32 uiStartPos) const
-  {
-    return (aeStringFunctions::FindLastStringPos_NoCase (m_pDataToRead, szStringToFind, uiStartPos));
-  }
-
   inline bool aeBasicString::StartsWith (const char* szStartsWith) const
   {
     return (aeStringFunctions::StartsWith (c_str (), szStartsWith));
-  }
-
-  inline bool aeBasicString::StartsWith_NoCase (const char* szStartsWith) const
-  {
-    return (aeStringFunctions::StartsWith_NoCase (c_str (), szStartsWith));
-  }
-
-  inline bool aeBasicString::EndsWith (const char* szEndsWith) const
-  {
-    return (aeStringFunctions::EndsWith (c_str (), szEndsWith));
-  }
-
-  inline bool aeBasicString::EndsWith_NoCase (const char* szEndsWith) const
-  {
-    return (aeStringFunctions::EndsWith_NoCase (c_str (), szEndsWith));
-  }
-
-  inline aeInt32 aeBasicString::FindWholeWord (const char* szSearchFor, aeStringFunctions::AE_IS_WORD_DELIMITER IsDelimiterCB, aeUInt32 uiStartPos) const
-  {
-    return (aeStringFunctions::FindWholeWord (c_str (), szSearchFor, IsDelimiterCB, uiStartPos));
-  }
-
-  inline aeInt32 aeBasicString::FindWholeWord_NoCase (const char* szSearchFor, aeStringFunctions::AE_IS_WORD_DELIMITER IsDelimiterCB, aeUInt32 uiStartPos) const
-  {
-    return (aeStringFunctions::FindWholeWord_NoCase (c_str (), szSearchFor, IsDelimiterCB, uiStartPos));
   }
 
   inline bool operator== (const aeBasicString& lhs, const aeBasicString& rhs)

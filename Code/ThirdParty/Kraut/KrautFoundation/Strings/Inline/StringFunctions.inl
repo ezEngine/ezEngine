@@ -52,21 +52,6 @@ namespace AE_NS_FOUNDATION
     return (strncmp (szString1, szString2, uiCharsToCompare) == 0);
   }
 
-  inline bool aeStringFunctions::CompareEqual_NoCase (const char* szString1, const char* szString2)
-  {
-    AE_STRINGCOMPARE_HANDLE_NULL_PTRS (szString1, szString2, true, false);
-
-    return (_stricmp (szString1, szString2) == 0);
-  }
-
-  inline bool aeStringFunctions::CompareEqual_NoCase (const char* szString1, const char* szString2, aeUInt32 uiCharsToCompare)
-  {
-    AE_STRINGCOMPARE_HANDLE_NULL_PTRS (szString1, szString2, true, false);
-
-    return (_strnicmp (szString1, szString2, uiCharsToCompare) == 0);
-  }
-
-
   inline aeInt32 aeStringFunctions::CompareAlphabetically (const char* szString1, const char* szString2)
   {
     AE_STRINGCOMPARE_HANDLE_NULL_PTRS (szString1, szString2, 0, 1);
@@ -79,20 +64,6 @@ namespace AE_NS_FOUNDATION
     AE_STRINGCOMPARE_HANDLE_NULL_PTRS (szString1, szString2, 0, 1);
 
     return (strncmp (szString1, szString2, uiCharsToCompare));
-  }
-
-  inline aeInt32 aeStringFunctions::CompareAlphabetically_NoCase (const char* szString1, const char* szString2)
-  {
-    AE_STRINGCOMPARE_HANDLE_NULL_PTRS (szString1, szString2, 0, 1);
-
-    return (_stricmp (szString1, szString2));
-  }
-
-  inline aeInt32 aeStringFunctions::CompareAlphabetically_NoCase (const char* szString1, const char* szString2, aeUInt32 uiCharsToCompare)
-  {
-    AE_STRINGCOMPARE_HANDLE_NULL_PTRS (szString1, szString2, 0, 1);
-
-    return (_strnicmp (szString1, szString2, uiCharsToCompare));
   }
 
   inline aeUInt32 aeStringFunctions::Concatenate (char* szDest, aeUInt32 uiDstSize, aeUInt32 uiDstStrLen, const char* szSource)
@@ -155,16 +126,6 @@ namespace AE_NS_FOUNDATION
       return (GetLength (szDest));
 
     return (Concatenate (szDest, uiDstSize, GetLength (szDest), szSource, uiCharsToCopy));
-  }
-
-  inline char aeStringFunctions::ToUpperCase (char cChar)
-  {
-    return static_cast<char>(toupper (cChar));
-  }
-
-  inline char aeStringFunctions::ToLowerCase (char cChar)
-  {
-    return static_cast<char>(tolower (cChar));
   }
 }
 
