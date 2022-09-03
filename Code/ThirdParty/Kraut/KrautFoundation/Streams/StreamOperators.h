@@ -101,7 +101,7 @@ namespace AE_NS_FOUNDATION
 
   inline void operator<<(aeStreamOut& s, const aePlane& data)
   {
-    s.Write(&data.m_fComponents[0], sizeof(float) * 4);
+    s.Write(&data, sizeof(float) * 4);
   }
 
   inline void operator<<(aeStreamOut& s, const aeMatrix& data)
@@ -203,7 +203,7 @@ namespace AE_NS_FOUNDATION
 
   inline void operator>>(aeStreamIn& s, aePlane& data)
   {
-    s.Read(&data.m_fComponents[0], sizeof(float) * 4);
+    s.Read(&data, sizeof(float) * 4);
   }
 
   inline void operator>>(aeStreamIn& s, aeMatrix& data)

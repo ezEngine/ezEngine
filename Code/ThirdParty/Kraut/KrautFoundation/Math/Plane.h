@@ -22,17 +22,8 @@ namespace AE_NS_FOUNDATION
   // *** Data ***
   public:
 
-    union
-    {
-      float m_fComponents[4];
-
-      struct
-      {
-        aeVec3 m_vNormal;
-        float m_fDistance;
-      };
-    };
-
+    aeVec3 m_vNormal;
+    float m_fDistance;
 
   // *** Constructors ***
   public:
