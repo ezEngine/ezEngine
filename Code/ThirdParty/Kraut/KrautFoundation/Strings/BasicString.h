@@ -1,7 +1,7 @@
 #ifndef AE_FOUNDATION_STRINGS_BASICSTRING_H
 #define AE_FOUNDATION_STRINGS_BASICSTRING_H
 
-#include "../Strings/StringFunctions.h"
+#include "StringFunctions.h"
 #include "Declarations.h"
 
 namespace AE_NS_FOUNDATION

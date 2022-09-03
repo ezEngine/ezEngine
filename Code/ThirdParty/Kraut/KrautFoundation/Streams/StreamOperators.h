@@ -6,7 +6,7 @@
 #include "../Math/Plane.h"
 #include "../Math/Quaternion.h"
 #include "../Math/Vec3.h"
-#include "../Streams/Streams.h"
+#include "Streams.h"
 #include "../Strings/String.h"
 
 namespace AE_NS_FOUNDATION

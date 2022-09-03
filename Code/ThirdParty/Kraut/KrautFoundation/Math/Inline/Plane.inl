@@ -1,7 +1,7 @@
 #ifndef AE_FOUNDATION_MATHS_PLANE_INL
 #define AE_FOUNDATION_MATHS_PLANE_INL
 
-#include "../Math/Matrix.h"
+#include "../Matrix.h"
 
 namespace AE_NS_FOUNDATION
 {

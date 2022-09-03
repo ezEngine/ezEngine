@@ -2,7 +2,7 @@
 #define AE_FOUNDATION_MATH_MATRIX_H
 
 #include "Declarations.h"
-#include "../Math/Vec3.h"
+#include "Vec3.h"
 
 namespace AE_NS_FOUNDATION
 {

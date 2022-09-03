@@ -1,7 +1,7 @@
 #ifndef AE_FOUNDATION_MATH_PLANE_H
 #define AE_FOUNDATION_MATH_PLANE_H
 
-#include "../Math/Vec3.h"
+#include "Vec3.h"
 
 namespace AE_NS_FOUNDATION
 {

@@ -1,8 +1,8 @@
 #ifndef AE_FOUNDATION_STRINGS_STRINGFUNCTIONS_INL
 #define AE_FOUNDATION_STRINGS_STRINGFUNCTIONS_INL
 
-#include "../Defines.h"
-#include "../Math/Math.h"
+#include "../../Defines.h"
+#include "../../Math/Math.h"
 #include <string.h>
 #include <stdio.h>
 #include <ctype.h>
