@@ -491,6 +491,7 @@ ezResult ezProcess::WaitToFinish(ezTime timeout /*= ezTime::Zero()*/)
     m_iExitCode = -1;
   }
   m_impl->m_exitCodeAvailable = true;
+
   return EZ_SUCCESS;
 }
 
@@ -534,6 +535,9 @@ ezProcessState ezProcess::GetState() const
   {
     m_iExitCode = WEXITSTATUS(childStatus);
     m_impl->m_exitCodeAvailable = true;
+
+    m_impl->StopStreamWatcher();
+
     return ezProcessState::Finished;
   }
 

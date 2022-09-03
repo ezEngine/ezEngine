@@ -17,7 +17,7 @@ class EZ_FOUNDATION_DLL ezProcessGroup
 
 public:
   /// \brief Creates a process group. The name is only used for debugging purposes.
-  ezProcessGroup(const char* szGroupName = nullptr);
+  ezProcessGroup(ezStringView sGroupName = {});
   ~ezProcessGroup();
 
   /// \brief Launches a new process in the group.

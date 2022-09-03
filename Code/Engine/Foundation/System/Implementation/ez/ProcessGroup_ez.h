@@ -13,7 +13,7 @@ struct ezProcessGroupImpl
   EZ_DECLARE_POD_TYPE();
 };
 
-ezProcessGroup::ezProcessGroup(const char* szGroupName /*= nullptr*/)
+ezProcessGroup::ezProcessGroup(ezStringView sGroupName)
 {
 }
 
