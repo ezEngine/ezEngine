@@ -19,8 +19,12 @@ class ezKrautTreeAssetDocument : public ezSimpleAssetDocument<ezKrautTreeAssetPr
 public:
   ezKrautTreeAssetDocument(const char* szDocumentPath);
 
+  ezStatus WriteKrautAsset(ezStreamWriter& stream) const;
+
 protected:
   virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
+
+  void AssignMaterials(ezKrautGeneratorResourceDescriptor& desc, const ezKrautTreeAssetProperties* pProp) const;
 
   void SyncBackAssetProperties(ezKrautTreeAssetProperties*& pProp, const ezKrautGeneratorResourceDescriptor& desc);
 
