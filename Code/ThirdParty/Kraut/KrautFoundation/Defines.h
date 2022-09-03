@@ -18,11 +18,11 @@
 typedef unsigned char aeUInt8;
 typedef unsigned short aeUInt16;
 typedef unsigned int aeUInt32;
-typedef unsigned __int64 aeUInt64;
+typedef unsigned long long aeUInt64;
 
 typedef char aeInt8;
 typedef short aeInt16;
 typedef int aeInt32;
-typedef __int64 aeInt64;
+typedef long long aeInt64;
 
 #endif
