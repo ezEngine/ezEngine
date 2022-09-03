@@ -509,7 +509,7 @@ void ezKrautGeneratorResource::GenerateTreeDescriptor(ezKrautTreeResourceDescrip
 
               auto& mat = dstDesc.m_Materials.ExpandAndGetRef();
               mat.m_MaterialType = static_cast<ezKrautMaterialType>(geometryType);
-              mat.m_VariationColor = ezColor::White;
+              //mat.m_VariationColor = srcMat.m_VariationColor;// currently done through the material
               mat.m_sMaterial = srcMat.m_hMaterial.GetResourceID(); // TODO: could just pass on the material handle
             }
 

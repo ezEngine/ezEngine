@@ -4,6 +4,7 @@
 #include <RendererCore/RenderContext/Implementation/RenderContextStructs.h>
 #include <Texture/TexConv/TexConvEnums.h>
 #include <ToolsFoundation/Object/DocumentObjectBase.h>
+#include <GuiFoundation/Widgets/CurveEditData.h>
 
 struct ezPropertyMetaStateEvent;
 
@@ -93,6 +94,8 @@ public:
   ezTexture2DChannelMappingEnum::Enum GetChannelMapping() const { return m_ChannelMapping; }
 
   ezInt32 GetNumInputFiles() const;
+
+  ezSingleCurveData m_TestCurve;
 
   bool m_bIsRenderTarget = false;
   bool m_bPremultipliedAlpha = false;

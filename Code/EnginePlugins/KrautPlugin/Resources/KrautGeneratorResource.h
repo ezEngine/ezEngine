@@ -23,6 +23,7 @@ struct ezKrautMaterialDescriptor
   ezKrautMaterialType m_MaterialType = ezKrautMaterialType::None;
   ezKrautBranchType m_BranchType = ezKrautBranchType::None;
   ezMaterialResourceHandle m_hMaterial;
+  //ezColor m_VariationColor = ezColor::White;// currently done through the material
 };
 
 struct EZ_KRAUTPLUGIN_DLL ezKrautGeneratorResourceDescriptor

@@ -1,5 +1,7 @@
 #include <EditorPluginKraut/EditorPluginKrautPCH.h>
 
+#include <Core/Assets/AssetFileHeader.h>
+#include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/DocumentWindow/OrbitCamViewWidget.moc.h>
 #include <EditorFramework/InputContexts/OrbitCameraContext.h>
 #include <EditorPluginKraut/KrautTreeAsset/KrautTreeAssetWindow.moc.h>
@@ -7,6 +9,8 @@
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <GuiFoundation/DockPanels/DocumentPanel.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
+#include <QBoxLayout>
+#include <QComboBox>
 
 ezQtKrautTreeAssetDocumentWindow::ezQtKrautTreeAssetDocumentWindow(ezAssetDocument* pDocument)
   : ezQtEngineDocumentWindow(pDocument)
@@ -48,19 +52,66 @@ ezQtKrautTreeAssetDocumentWindow::ezQtKrautTreeAssetDocumentWindow(ezAssetDocume
     setCentralWidget(pContainer);
   }
 
+
   // Property Grid
   {
+    ezDocumentObject* pRootObject = pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0];
+
+    ezDeque<const ezDocumentObject*> sel;
+    sel.PushBack(pRootObject);
+
     ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
     pPropertyPanel->setObjectName("KrautTreeAssetDockWidget");
     pPropertyPanel->setWindowTitle("Kraut Tree Properties");
     pPropertyPanel->show();
 
-    ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);
-    pPropertyPanel->setWidget(pPropertyGrid);
+    QComboBox* pBranchTypeCombo = new QComboBox(pPropertyPanel);
+
+    QTabWidget* pTabWidget = new QTabWidget(pPropertyPanel);
+
+    QWidget* pGroup = new QWidget(pPropertyPanel);
+    pGroup->setLayout(new QVBoxLayout);
+    pGroup->layout()->addWidget(pBranchTypeCombo);
+    pGroup->layout()->addWidget(pTabWidget);
+
+    pPropertyPanel->setWidget(pGroup);
+
+    ezQtPropertyGridWidget* pAssetProps = new ezQtPropertyGridWidget(pTabWidget, pDocument, false);
+    pAssetProps->SetSelectionIncludeExcludeProperties(nullptr, "Materials;BT_Trunk1;BT_Trunk2;BT_Trunk3;BT_MainBranch1;BT_MainBranch2;BT_MainBranch3;BT_SubBranch1;BT_SubBranch2;BT_SubBranch3;BT_Twig1;BT_Twig2;BT_Twig3");
+    pAssetProps->SetSelection(sel);
+    pTabWidget->addTab(pAssetProps, "Asset");
+
+    //ezQtPropertyGridWidget* pMaterialProps = new ezQtPropertyGridWidget(pTabWidget, pDocument, false);
+    //pMaterialProps->SetSelectionIncludeExcludeProperties("Materials");
+    //pMaterialProps->SetSelection(sel);
+    //pTabWidget->addTab(pMaterialProps, "Materials");
+
+    m_pBranchProps = new ezQtPropertyGridWidget(pTabWidget, pDocument, false);
+    //m_pBranchProps->SetSelectionIncludeExcludeProperties("BT_Trunk1;BT_MainBranch1;BT_MainBranch2");
+    //m_pBranchProps->SetSelection(sel);
+    pTabWidget->addTab(m_pBranchProps, "Branch Type");
 
     addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPropertyPanel);
 
     pDocument->GetSelectionManager()->SetSelection(pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
+
+    {
+      connect(pBranchTypeCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(onBranchTypeSelected(int)));
+      pBranchTypeCombo->addItem("Trunk");
+      //pBranchTypeCombo->addItem("Trunk 2");
+      //pBranchTypeCombo->addItem("Trunk 3");
+      pBranchTypeCombo->addItem("Main Branch 1");
+      pBranchTypeCombo->addItem("Main Branch 2");
+      pBranchTypeCombo->addItem("Main Branch 3");
+      pBranchTypeCombo->addItem("Sub Branch 1");
+      pBranchTypeCombo->addItem("Sub Branch 2");
+      pBranchTypeCombo->addItem("Sub Branch 3");
+      pBranchTypeCombo->addItem("Twig 1");
+      pBranchTypeCombo->addItem("Twig 2");
+      pBranchTypeCombo->addItem("Twig 3");
+
+      pBranchTypeCombo->setCurrentIndex(0);
+    }
   }
 
   m_pAssetDoc = static_cast<ezKrautTreeAssetDocument*>(pDocument);
@@ -75,6 +126,8 @@ ezQtKrautTreeAssetDocumentWindow::ezQtKrautTreeAssetDocumentWindow(ezAssetDocume
 ezQtKrautTreeAssetDocumentWindow::~ezQtKrautTreeAssetDocumentWindow()
 {
   GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezQtKrautTreeAssetDocumentWindow::PropertyEventHandler, this));
+
+  RestoreResource();
 }
 
 void ezQtKrautTreeAssetDocumentWindow::SendRedrawMsg()
@@ -99,6 +152,49 @@ void ezQtKrautTreeAssetDocumentWindow::QueryObjectBBox(ezInt32 iPurpose)
   msg.m_uiViewID = 0xFFFFFFFF;
   msg.m_iPurpose = iPurpose;
   GetDocument()->SendMessageToEngine(&msg);
+}
+
+void ezQtKrautTreeAssetDocumentWindow::RestoreResource()
+{
+  ezRestoreResourceMsgToEngine msg;
+  msg.m_sResourceType = "Kraut Tree";
+
+  ezStringBuilder tmp;
+  msg.m_sResourceID = ezConversionUtils::ToString(GetDocument()->GetGuid(), tmp);
+
+  ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
+}
+
+void ezQtKrautTreeAssetDocumentWindow::UpdatePreview()
+{
+  if (ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
+    return;
+
+  ezResourceUpdateMsgToEngine msg;
+  msg.m_sResourceType = "Kraut Tree";
+
+  ezStringBuilder tmp;
+  msg.m_sResourceID = ezConversionUtils::ToString(GetDocument()->GetGuid(), tmp);
+
+  ezContiguousMemoryStreamStorage streamStorage;
+  ezMemoryStreamWriter memoryWriter(&streamStorage);
+
+  // Write Path
+  ezStringBuilder sAbsFilePath = GetDocument()->GetDocumentPath();
+  sAbsFilePath.ChangeFileExtension("ezKrautTree");
+
+  // Write Header
+  memoryWriter << sAbsFilePath;
+  const ezUInt64 uiHash = ezAssetCurator::GetSingleton()->GetAssetDependencyHash(GetDocument()->GetGuid());
+  ezAssetFileHeader AssetHeader;
+  AssetHeader.SetFileHashAndVersion(uiHash, GetDocument()->GetAssetTypeVersion());
+  AssetHeader.Write(memoryWriter).AssertSuccess();
+
+  // Write Asset Data
+  GetKrautDocument()->WriteKrautAsset(memoryWriter);
+  msg.m_Data = ezArrayPtr<const ezUInt8>(streamStorage.GetData(), streamStorage.GetStorageSize32());
+
+  ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
 }
 
 void ezQtKrautTreeAssetDocumentWindow::InternalRedraw()
@@ -143,4 +239,87 @@ void ezQtKrautTreeAssetDocumentWindow::PropertyEventHandler(const ezDocumentObje
 
     GetDocument()->SendMessageToEngine(&msg);
   }
+  else
+  {
+    UpdatePreview();
+  }
+}
+
+void ezQtKrautTreeAssetDocumentWindow::onBranchTypeSelected(int index)
+{
+  if (m_pBranchProps == nullptr)
+    return;
+
+  ezDocumentObject* pRootObject = GetDocument()->GetObjectManager()->GetRootObject()->GetChildren()[0];
+
+  ezDocumentObject* pSelected = nullptr;
+
+  for (ezDocumentObject* pChild : pRootObject->GetChildren())
+  {
+    if (index == 0 && ezStringUtils::IsEqual(pChild->GetParentProperty(), "BT_Trunk1"))
+    {
+      pSelected = pChild;
+      break;
+    }
+    //if (index == 1 && ezStringUtils::IsEqual(pChild->GetParentProperty(), "BT_Trunk2"))
+    //{
+    //  pSelected = pChild;
+    //  break;
+    //}
+    //if (index == 2 && ezStringUtils::IsEqual(pChild->GetParentProperty(), "BT_Trunk3"))
+    //{
+    //  pSelected = pChild;
+    //  break;
+    //}
+    if (index == 1 && ezStringUtils::IsEqual(pChild->GetParentProperty(), "BT_MainBranch1"))
+    {
+      pSelected = pChild;
+      break;
+    }
+    if (index == 2 && ezStringUtils::IsEqual(pChild->GetParentProperty(), "BT_MainBranch2"))
+    {
+      pSelected = pChild;
+      break;
+    }
+    if (index == 3 && ezStringUtils::IsEqual(pChild->GetParentProperty(), "BT_MainBranch3"))
+    {
+      pSelected = pChild;
+      break;
+    }
+    if (index == 4 && ezStringUtils::IsEqual(pChild->GetParentProperty(), "BT_SubBranch1"))
+    {
+      pSelected = pChild;
+      break;
+    }
+    if (index == 5 && ezStringUtils::IsEqual(pChild->GetParentProperty(), "BT_SubBranch2"))
+    {
+      pSelected = pChild;
+      break;
+    }
+    if (index == 6 && ezStringUtils::IsEqual(pChild->GetParentProperty(), "BT_SubBranch3"))
+    {
+      pSelected = pChild;
+      break;
+    }
+    if (index == 7 && ezStringUtils::IsEqual(pChild->GetParentProperty(), "BT_Twig1"))
+    {
+      pSelected = pChild;
+      break;
+    }
+    if (index == 8 && ezStringUtils::IsEqual(pChild->GetParentProperty(), "BT_Twig2"))
+    {
+      pSelected = pChild;
+      break;
+    }
+    if (index == 9 && ezStringUtils::IsEqual(pChild->GetParentProperty(), "BT_Twig3"))
+    {
+      pSelected = pChild;
+      break;
+    }
+  }
+
+  ezDeque<const ezDocumentObject*> sel;
+  sel.PushBack(pSelected);
+  GetDocument()->GetSelectionManager()->SetSelection(pSelected);
+  m_pBranchProps->SetSelection(sel);
 }

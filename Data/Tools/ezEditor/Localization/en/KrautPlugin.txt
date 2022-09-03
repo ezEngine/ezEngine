@@ -1,3 +1,26 @@
 ezKrautTreeComponent;Kraut Tree;;https://ezengine.net/pages/docs/terrain/kraut-overview.html
 ezKrautAssetMaterial;Material
 Kraut Tree;Kraut Tree
+
+GoodRandomSeeds;Good Random Seeds
+ezKrautBranchTypeMode::Regular;Regular
+ezKrautBranchTypeMode::Umbrella;Umbrella
+ezKrautBranchTargetDir::Straight;Straight
+ezKrautBranchTargetDir::Upwards;Upwards
+ezKrautBranchTargetDir::Degree22;22.5 Degree
+ezKrautBranchTargetDir::Degree45;45 Degree
+ezKrautBranchTargetDir::Degree67;67.5 Degree
+ezKrautBranchTargetDir::Degree90; 90 Degree
+ezKrautBranchTargetDir::Degree112;112.5 Degree
+ezKrautBranchTargetDir::Degree135;135 Degree
+ezKrautBranchTargetDir::Degree157;157.5 Degree
+ezKrautBranchTargetDir::Downwards;Downwards
+ezKrautBranchTargetDir2Usage::Off;Off
+ezKrautBranchTargetDir2Usage::Relative;Relative
+ezKrautBranchTargetDir2Usage::Absolute;Absolute
+ezKrautLeafOrientation::Upwards;Upwards
+ezKrautLeafOrientation::AlongBranch;Along Branch
+ezKrautLeafOrientation::OrthogonalToBranch;Orthogonal To Branch
+ezKrautFrondContourMode::Full;Full
+ezKrautFrondContourMode::Symetric;Symetric
+ezKrautFrondContourMode::InverseSymetric;Inverse Symetric

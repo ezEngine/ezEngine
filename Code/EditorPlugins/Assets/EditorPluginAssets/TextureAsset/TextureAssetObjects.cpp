@@ -24,6 +24,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetProperties, 5, ezRTTIDefaultAlloca
 {
   EZ_BEGIN_PROPERTIES
   {
+    EZ_MEMBER_PROPERTY("TestCurve", m_TestCurve),
+
     EZ_MEMBER_PROPERTY("IsRenderTarget", m_bIsRenderTarget)->AddAttributes(new ezHiddenAttribute),
     EZ_ENUM_MEMBER_PROPERTY("Usage", ezTexConvUsage, m_TextureUsage),
 

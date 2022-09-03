@@ -85,6 +85,7 @@ void ezKrautTreeContext::OnInitialize()
     ezConversionUtils::ToString(GetDocumentGuid(), sMeshGuid);
     m_hMainResource = ezResourceManager::LoadResource<ezKrautGeneratorResource>(sMeshGuid);
     pTree->SetVariationIndex(0xFFFF); // takes the 'display seed'
+    pTree->SetVariationIndex(11);     // TODO: hardcoded seed
     pTree->SetKrautGeneratorResource(m_hMainResource);
   }
 
