@@ -1298,8 +1298,7 @@ void ezQtCurve1DButtonWidget::UpdatePreview(ezObjectAccessorBase* pObjectAccesso
     maxY = ezMath::Max(maxY, p.y);
   }
 
-  points.Sort([](const ezVec2d& lhs, const ezVec2d& rhs) -> bool
-    { return lhs.x < rhs.x; });
+  points.Sort([](const ezVec2d& lhs, const ezVec2d& rhs) -> bool { return lhs.x < rhs.x; });
 
   const double pW = ezMath::Max(10, size().width());
   const double pH = ezMath::Clamp(size().height(), 5, 24);
