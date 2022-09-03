@@ -2,6 +2,7 @@
 #define AE_FOUNDATION_MEMORY_MEMORY_INL
 
 #include <memory>
+#include <cstring>
 
 namespace AE_NS_FOUNDATION
 {
