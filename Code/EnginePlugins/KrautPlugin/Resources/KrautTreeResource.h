@@ -71,7 +71,7 @@ struct EZ_KRAUTPLUGIN_DLL ezKrautTreeResourceDescriptor
   {
     ezKrautMaterialType m_MaterialType;
     ezString m_sMaterial;
-    ezColorGammaUB m_VariationColor = ezColor::White;
+    ezColorGammaUB m_VariationColor = ezColor::White; // currently done through the material
   };
 
   ezKrautTreeResourceDetails m_Details;

@@ -95,40 +95,6 @@ namespace AE_NS_FOUNDATION
     return (_strnicmp (szString1, szString2, uiCharsToCompare));
   }
 
-
-  inline void aeStringFunctions::Copy (char* szDest, aeUInt32 uiDstSize, const char* szSource)
-  {
-    // Handle nullptr-pointer strings
-    if (IsNullOrEmpty (szSource))
-    {
-      szDest[0] = '\0';
-      return;
-    }
-
-    AE_CHECK_DEV (uiDstSize > 0, "aeStringFunctions::Copy: Cannot copy into a Zero-Length-String.");
-    AE_CHECK_DEV (szDest != nullptr, "aeStringFunctions::Copy: Cannot copy into a nullptr-String.");
-
-    strncpy (szDest, szSource, uiDstSize - 1);
-    szDest[uiDstSize - 1] = '\0';
-  }
-
-  inline void aeStringFunctions::Copy (char* szDest, aeUInt32 uiDstSize, const char* szSource, aeUInt32 uiCharsToCopy)
-  {
-    // Handle nullptr-pointer strings
-    if (IsNullOrEmpty (szSource))
-    {
-      szDest[0] = '\0';
-      return;
-    }
-
-    AE_CHECK_DEV (uiDstSize > 0, "aeStringFunctions::Copy: Cannot copy into a Zero-Length-String.");
-    AE_CHECK_DEV (szDest != nullptr, "aeStringFunctions::Copy: Cannot copy into a nullptr-String.");
-
-    const aeUInt32 uiSize = aeMath::Min (uiCharsToCopy, uiDstSize - 1);
-    strncpy (szDest, szSource, uiSize);
-    szDest[uiSize] = '\0';
-  }
-
   inline aeUInt32 aeStringFunctions::Concatenate (char* szDest, aeUInt32 uiDstSize, aeUInt32 uiDstStrLen, const char* szSource)
   {
     // Handle nullptr-pointer strings

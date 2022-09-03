@@ -1,8 +1,6 @@
 #ifndef AE_FOUNDATION_GENERAL_DEFINES_H
 #define AE_FOUNDATION_GENERAL_DEFINES_H
 
-#define AE_COMPILE_ENGINE_AS_DLL
-
 // class 'type' needs to have dll-interface to be used by clients of class 'type2' -> dll export / import issues (mostly with templates)
 #pragma warning(disable : 4251)
 
