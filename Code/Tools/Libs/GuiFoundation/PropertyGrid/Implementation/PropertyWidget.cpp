@@ -1,14 +1,18 @@
 #include <GuiFoundation/GuiFoundationPCH.h>
 
 #include <Foundation/Strings/TranslationLookup.h>
+#include <GuiFoundation/Dialogs/CurveEditDlg.moc.h>
 #include <GuiFoundation/PropertyGrid/Implementation/PropertyWidget.moc.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
+#include <GuiFoundation/Widgets/CurveEditData.h>
 #include <GuiFoundation/Widgets/DoubleSpinBox.moc.h>
 #include <QComboBox>
 #include <QLineEdit>
 #include <QMenu>
 #include <QPushButton>
 #include <QWidgetAction>
+#include <ToolsFoundation/Document/Document.h>
+#include <ToolsFoundation/Object/ObjectAccessorBase.h>
 #include <qcheckbox.h>
 #include <qlayout.h>
 
@@ -956,6 +960,7 @@ ezQtColorButtonWidget::ezQtColorButtonWidget(QWidget* parent)
   : QFrame(parent)
 {
   setAutoFillBackground(true);
+  setCursor(Qt::PointingHandCursor);
 }
 
 void ezQtColorButtonWidget::SetColor(const ezVariant& color)
@@ -1241,4 +1246,164 @@ void ezQtPropertyEditorBitflagsWidget::on_Menu_aboutToHide()
     m_iCurrentBitflags = iValue;
     BroadcastValueChanged(m_iCurrentBitflags);
   }
+}
+
+
+/// *** CURVE1D ***
+
+ezQtCurve1DButtonWidget::ezQtCurve1DButtonWidget(QWidget* parent)
+  : QLabel(parent)
+{
+  setAutoFillBackground(true);
+  setCursor(Qt::PointingHandCursor);
+  setScaledContents(true);
+}
+
+void ezQtCurve1DButtonWidget::UpdatePreview(ezObjectAccessorBase* pObjectAccessor, const ezDocumentObject* pCurveObject, QColor color, float minLength, bool fixedLength)
+{
+  ezInt32 iNumPoints = 0;
+  pObjectAccessor->GetCount(pCurveObject, "ControlPoints", iNumPoints);
+
+  ezVariant v;
+  ezHybridArray<ezVec2d, 32> points;
+  points.Reserve(iNumPoints);
+
+  double minX = 0.0;
+  double maxX = minLength * 4800.0;
+
+  double minY = 0.0;
+  double maxY = 1.0;
+
+  for (ezInt32 i = 0; i < iNumPoints; ++i)
+  {
+    const ezDocumentObject* pPoint = pObjectAccessor->GetChildObject(pCurveObject, "ControlPoints", i);
+
+    ezVec2d p;
+
+    pObjectAccessor->GetValue(pPoint, "Tick", v);
+    p.x = v.ConvertTo<double>();
+
+    pObjectAccessor->GetValue(pPoint, "Value", v);
+    p.y = v.ConvertTo<double>();
+
+    points.PushBack(p);
+
+    if (!fixedLength)
+    {
+      minX = ezMath::Min(minX, p.x);
+      maxX = ezMath::Max(maxX, p.x);
+    }
+
+    minY = ezMath::Min(minY, p.y);
+    maxY = ezMath::Max(maxY, p.y);
+  }
+
+  points.Sort([](const ezVec2d& lhs, const ezVec2d& rhs) -> bool
+    { return lhs.x < rhs.x; });
+
+  const double pW = ezMath::Max(10, size().width());
+  const double pH = ezMath::Clamp(size().height(), 5, 24);
+
+  QPixmap pixmap((int)pW, (int)pH);
+  pixmap.fill(palette().base().color());
+
+  QPainter pt(&pixmap);
+  pt.setPen(color);
+  pt.setRenderHint(QPainter::RenderHint::Antialiasing);
+  pt.setRenderHint(QPainter::RenderHint::HighQualityAntialiasing);
+
+  const double normX = 1.0 / (maxX - minX);
+  const double normY = 1.0 / (maxY - minY);
+
+  for (ezUInt32 i = 1; i < points.GetCount(); ++i)
+  {
+    auto pt0 = points[i - 1];
+    auto pt1 = points[i];
+
+    pt0.x = (pt0.x * normX) - minX;
+    pt1.x = (pt1.x * normX) - minX;
+
+    pt0.y = 1.0 - ((pt0.y * normY) - minY);
+    pt1.y = 1.0 - ((pt1.y * normY) - minY);
+
+    pt.drawLine((int)(pt0.x * pW), (int)(pt0.y * pH), (int)(pt1.x * pW), (int)(pt1.y * pH));
+  }
+
+  setPixmap(pixmap);
+}
+
+void ezQtCurve1DButtonWidget::mouseReleaseEvent(QMouseEvent* event)
+{
+  Q_EMIT clicked();
+}
+
+ezQtPropertyEditorCurve1DWidget::ezQtPropertyEditorCurve1DWidget()
+  : ezQtPropertyWidget()
+{
+  m_pLayout = new QHBoxLayout(this);
+  m_pLayout->setMargin(0);
+  setLayout(m_pLayout);
+
+  m_pWidget = new ezQtCurve1DButtonWidget(this);
+  m_pWidget->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
+
+  m_pLayout->addWidget(m_pWidget);
+
+  EZ_VERIFY(connect(m_pWidget, SIGNAL(clicked()), this, SLOT(on_Button_triggered())) != nullptr, "signal/slot connection failed");
+}
+
+void ezQtPropertyEditorCurve1DWidget::SetSelection(const ezHybridArray<ezPropertySelection, 8>& items)
+{
+  ezQtPropertyWidget::SetSelection(items);
+
+  UpdatePreview();
+}
+
+void ezQtPropertyEditorCurve1DWidget::OnInit() {}
+void ezQtPropertyEditorCurve1DWidget::DoPrepareToDie() {}
+
+void ezQtPropertyEditorCurve1DWidget::UpdatePreview()
+{
+  if (m_Items.IsEmpty())
+    return;
+
+  const ezDocumentObject* pParent = m_Items[0].m_pObject;
+  const ezDocumentObject* pCurve = m_pObjectAccessor->GetChildObject(pParent, m_pProp->GetPropertyName(), {});
+  const ezSingleCurveDataAttribute* pCurveAttr = m_pProp->GetAttributeByType<ezSingleCurveDataAttribute>();
+
+  if (pCurveAttr)
+  {
+    m_pWidget->UpdatePreview(m_pObjectAccessor, pCurve, QColor(pCurveAttr->m_DisplayColor.r, pCurveAttr->m_DisplayColor.g, pCurveAttr->m_DisplayColor.b), pCurveAttr->m_fMinLength, pCurveAttr->m_bFixedLength);
+  }
+  else
+  {
+    m_pWidget->UpdatePreview(m_pObjectAccessor, pCurve, QColor(0, 200, 0), 0, false);
+  }
+}
+
+void ezQtPropertyEditorCurve1DWidget::on_Button_triggered()
+{
+  const ezDocumentObject* pParent = m_Items[0].m_pObject;
+  const ezDocumentObject* pCurve = m_pObjectAccessor->GetChildObject(pParent, m_pProp->GetPropertyName(), {});
+  const ezSingleCurveDataAttribute* pCurveAttr = m_pProp->GetAttributeByType<ezSingleCurveDataAttribute>();
+
+  // TODO: would like to have one transaction open to finish/cancel at the end
+  // but also be able to undo individual steps while editing
+  //m_pObjectAccessor->GetObjectManager()->GetDocument()->GetCommandHistory()->StartTransaction("Edit Curve");
+
+  ezQtCurveEditDlg* pDlg = new ezQtCurveEditDlg(m_pObjectAccessor, pCurve, pCurveAttr ? pCurveAttr->m_DisplayColor : ezColorGammaUB(ezColor::GreenYellow), pCurveAttr ? pCurveAttr->m_fMinLength : 0.0f, pCurveAttr ? pCurveAttr->m_bFixedLength : false, this);
+  pDlg->restoreGeometry(ezQtCurveEditDlg::GetLastDialogGeometry());
+
+  if (pDlg->exec() == QDialog::Accepted)
+  {
+    //m_pObjectAccessor->GetObjectManager()->GetDocument()->GetCommandHistory()->FinishTransaction();
+
+    UpdatePreview();
+  }
+  else
+  {
+    //m_pObjectAccessor->GetObjectManager()->GetDocument()->GetCommandHistory()->CancelTransaction();
+  }
+
+  delete pDlg;
 }

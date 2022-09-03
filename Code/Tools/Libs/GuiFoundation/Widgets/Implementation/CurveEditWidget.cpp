@@ -99,8 +99,16 @@ void ezQtCurveEditWidget::SetScrubberPosition(double fPosition)
 
 void ezQtCurveEditWidget::FrameCurve()
 {
-  m_bFrameBeforePaint = false;
+  double fWidth = m_fMaxCurveExtent;
+  double fHeight = m_fMaxValue - m_fMinValue;
+  double fOffsetX = 0;
+  double fOffsetY = m_fMinValue;
 
+  Frame(fOffsetX, fOffsetY, fWidth, fHeight);
+}
+
+void ezQtCurveEditWidget::FrameSelection()
+{
   double fWidth = m_fMaxCurveExtent;
   double fHeight = m_fMaxValue - m_fMinValue;
   double fOffsetX = 0;
@@ -129,6 +137,13 @@ void ezQtCurveEditWidget::FrameCurve()
     fOffsetX = point.GetTickAsTime().GetSeconds() - 0.05;
     fOffsetY = point.m_fValue - 0.05;
   }
+
+  Frame(fOffsetX, fOffsetY, fWidth, fHeight);
+}
+
+void ezQtCurveEditWidget::Frame(double fOffsetX, double fOffsetY, double fWidth, double fHeight)
+{
+  m_bFrameBeforePaint = false;
 
   fWidth = ezMath::Max(fWidth, 0.1);
   fHeight = ezMath::Max(fHeight, 0.1);
@@ -190,6 +205,26 @@ void ezQtCurveEditWidget::ClearSelection()
   Q_EMIT SelectionChangedEvent();
 }
 
+void ezQtCurveEditWidget::SelectAll()
+{
+  m_SelectedCPs.Clear();
+
+  for (ezUInt32 curveIdx = 0; curveIdx < m_Curves.GetCount(); ++curveIdx)
+  {
+    for (ezUInt32 cpIdx = 0; cpIdx < m_Curves[curveIdx].GetNumControlPoints(); ++cpIdx)
+    {
+      auto& sel = m_SelectedCPs.ExpandAndGetRef();
+      sel.m_uiCurve = curveIdx;
+      sel.m_uiPoint = cpIdx;
+    }
+  }
+
+  ComputeSelectionRect();
+  update();
+
+  Q_EMIT SelectionChangedEvent();
+}
+
 bool ezQtCurveEditWidget::IsSelected(const ezSelectedCurveCP& cp) const
 {
   for (const auto& other : m_SelectedCPs)
@@ -207,6 +242,7 @@ void ezQtCurveEditWidget::SetSelection(const ezSelectedCurveCP& cp)
   m_SelectedCPs.PushBack(cp);
 
   ComputeSelectionRect();
+  update();
 
   Q_EMIT SelectionChangedEvent();
 }
@@ -216,6 +252,7 @@ void ezQtCurveEditWidget::ToggleSelected(const ezSelectedCurveCP& cp)
   SetSelected(cp, !IsSelected(cp));
 
   ComputeSelectionRect();
+  update();
 
   Q_EMIT SelectionChangedEvent();
 }
@@ -242,6 +279,7 @@ void ezQtCurveEditWidget::SetSelected(const ezSelectedCurveCP& cp, bool set)
   }
 
   ComputeSelectionRect();
+  update();
   Q_EMIT SelectionChangedEvent();
 }
 
@@ -284,7 +322,8 @@ void ezQtCurveEditWidget::paintEvent(QPaintEvent* e)
 
   if (m_pGridBar)
   {
-    m_pGridBar->SetConfig(viewportSceneRect, fRoughGridDensity, fFineGridDensity, [this](const QPointF& pt) -> QPoint { return MapFromScene(pt); });
+    m_pGridBar->SetConfig(viewportSceneRect, fRoughGridDensity, fFineGridDensity, [this](const QPointF& pt) -> QPoint
+      { return MapFromScene(pt); });
   }
 
   RenderSideLinesAndText(&painter, viewportSceneRect);
@@ -726,18 +765,31 @@ void ezQtCurveEditWidget::keyPressEvent(QKeyEvent* e)
 
   if (e->modifiers() == Qt::ControlModifier && e->key() == Qt::Key_F)
   {
+    e->accept();
     FrameCurve();
+  }
+  else if (e->modifiers() == Qt::ShiftModifier && e->key() == Qt::Key_F)
+  {
+    e->accept();
+    FrameSelection();
+  }
+  else if (e->modifiers() == Qt::ControlModifier && e->key() == Qt::Key_A)
+  {
+    e->accept();
+    SelectAll();
   }
 
   if (e->modifiers() == Qt::NoModifier)
   {
     if (e->key() == Qt::Key_Escape)
     {
+      e->accept();
       ClearSelection();
     }
 
     if (e->key() == Qt::Key_Delete)
     {
+      e->accept();
       Q_EMIT DeleteControlPointsEvent();
     }
   }

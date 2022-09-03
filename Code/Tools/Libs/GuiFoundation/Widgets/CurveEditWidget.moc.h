@@ -27,6 +27,8 @@ public:
   double GetMaxCurveExtent() const { return m_fMaxCurveExtent; }
 
   void FrameCurve();
+  void FrameSelection();
+  void Frame(double offsetX, double offsetY, double width, double height);
 
   QPoint MapFromScene(const QPointF& pos) const;
   QPoint MapFromScene(const ezVec2d& pos) const { return MapFromScene(QPointF(pos.x, pos.y)); }
@@ -34,6 +36,7 @@ public:
   ezVec2 MapDirFromScene(const ezVec2& pos) const;
 
   void ClearSelection();
+  void SelectAll();
   const ezDynamicArray<ezSelectedCurveCP>& GetSelection() const { return m_SelectedCPs; }
   bool IsSelected(const ezSelectedCurveCP& cp) const;
   void SetSelection(const ezSelectedCurveCP& cp);

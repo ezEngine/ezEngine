@@ -15,11 +15,12 @@ public:
   explicit ezQtCurve1DEditorWidget(QWidget* pParent);
   ~ezQtCurve1DEditorWidget();
 
-  void SetCurves(ezCurveGroupData& curveData, double fMinCurveLength, bool bCurveLengthIsFixed);
+  void SetCurves(const ezCurveGroupData& curveData, double fMinCurveLength, bool bCurveLengthIsFixed);
   void SetScrubberPosition(ezUInt64 uiTick);
   void ClearSelection();
 
   void FrameCurve();
+  void FrameSelection();
   void MakeRepeatable(bool bAdjustLastPoint);
   void NormalizeCurveX(ezUInt32 uiActiveCurve);
   void NormalizeCurveY(ezUInt32 uiActiveCurve);

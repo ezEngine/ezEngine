@@ -90,6 +90,20 @@ public:
   double Evaluate(ezInt64 uiTick) const;
 };
 
+class EZ_GUIFOUNDATION_DLL ezSingleCurveDataAttribute : public ezPropertyAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezSingleCurveDataAttribute, ezPropertyAttribute);
+
+public:
+  ezSingleCurveDataAttribute() = default;
+  ezSingleCurveDataAttribute(ezColorGammaUB color, float minLength, bool fixedLength);
+
+  float m_fMinLength = 0.0f;
+  bool m_bFixedLength = false;
+  ezColorGammaUB m_DisplayColor;
+};
+
+
 class EZ_GUIFOUNDATION_DLL ezCurveGroupData : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezCurveGroupData, ezReflectedClass);
