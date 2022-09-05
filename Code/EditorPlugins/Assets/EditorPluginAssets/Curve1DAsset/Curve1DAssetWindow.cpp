@@ -121,7 +121,6 @@ void ezQtCurve1DAssetDocumentWindow::onInsertCpAt(ezUInt32 uiCurveIdx, ezInt64 t
   ezCurve1DAssetDocument* pDoc = static_cast<ezCurve1DAssetDocument*>(GetDocument());
 
   ezCommandHistory* history = pDoc->GetCommandHistory();
-  history->StartTransaction("Insert Control Point");
 
   if (pDoc->GetPropertyObject()->GetTypeAccessor().GetCount("Curves") == 0)
   {
@@ -166,8 +165,6 @@ void ezQtCurve1DAssetDocumentWindow::onInsertCpAt(ezUInt32 uiCurveIdx, ezInt64 t
   cmdSet.m_sProperty = "RightTangent";
   cmdSet.m_NewValue = ezVec2(+0.1f, 0.0f);
   history->AddCommand(cmdSet);
-
-  history->FinishTransaction();
 }
 
 void ezQtCurve1DAssetDocumentWindow::onCurveCpMoved(ezUInt32 curveIdx, ezUInt32 cpIdx, ezInt64 iTickX, double newPosY)

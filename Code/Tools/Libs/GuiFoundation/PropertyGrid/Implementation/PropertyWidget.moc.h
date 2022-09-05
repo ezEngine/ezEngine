@@ -280,3 +280,43 @@ protected:
   QMenu* m_pMenu;
   ezInt64 m_iCurrentBitflags;
 };
+
+
+/// *** CURVE1D ***
+
+class EZ_GUIFOUNDATION_DLL ezQtCurve1DButtonWidget : public QLabel
+{
+  Q_OBJECT
+
+public:
+  explicit ezQtCurve1DButtonWidget(QWidget* parent);
+
+  void UpdatePreview(ezObjectAccessorBase* pObjectAccessor, const ezDocumentObject* pCurveObject, QColor color, float minLength, bool fixedLength);
+
+Q_SIGNALS:
+  void clicked();
+
+protected:
+  virtual void mouseReleaseEvent(QMouseEvent* event) override;
+};
+
+class EZ_GUIFOUNDATION_DLL ezQtPropertyEditorCurve1DWidget : public ezQtPropertyWidget
+{
+  Q_OBJECT
+
+public:
+  ezQtPropertyEditorCurve1DWidget();
+
+private Q_SLOTS:
+  void on_Button_triggered();
+
+protected:
+  virtual void SetSelection(const ezHybridArray<ezPropertySelection, 8>& items) override;
+  virtual void OnInit() override;
+  virtual void DoPrepareToDie() override;
+  void UpdatePreview();
+
+protected:
+  QHBoxLayout* m_pLayout = nullptr;
+  ezQtCurve1DButtonWidget* m_pWidget = nullptr;
+};

@@ -13,6 +13,7 @@
 #include <ToolsFoundation/Document/Document.h>
 
 #include <Foundation/Profiling/Profiling.h>
+#include <GuiFoundation/Widgets/CurveEditData.h>
 #include <QLayout>
 #include <QScrollArea>
 
@@ -126,6 +127,11 @@ static ezQtPropertyWidget* VarianceTypeCreator(const ezRTTI* pRtti)
   return new ezQtVarianceTypeWidget();
 }
 
+static ezQtPropertyWidget* Curve1DTypeCreator(const ezRTTI* pRtti)
+{
+  return new ezQtPropertyEditorCurve1DWidget();
+}
+
 // clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, PropertyGrid)
 
@@ -170,6 +176,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, PropertyGrid)
 
     ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezTagSetWidgetAttribute>(), TagSetCreator);
     ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezVarianceTypeBase>(), VarianceTypeCreator);
+    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezSingleCurveData>(), Curve1DTypeCreator);
 
 
   }

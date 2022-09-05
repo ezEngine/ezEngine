@@ -34,14 +34,14 @@ ezQtCurve1DEditorWidget::ezQtCurve1DEditorWidget(QWidget* pParent)
 
 ezQtCurve1DEditorWidget::~ezQtCurve1DEditorWidget() {}
 
-void ezQtCurve1DEditorWidget::SetCurves(ezCurveGroupData& curves, double fMinCurveLength, bool bCurveLengthIsFixed)
+void ezQtCurve1DEditorWidget::SetCurves(const ezCurveGroupData& curves, double fMinCurveLength, bool bCurveLengthIsFixed)
 {
   ezQtScopedUpdatesDisabled ud(this);
   ezQtScopedBlockSignals bs(this);
 
   m_Curves.CloneFrom(curves);
 
-  CurveEdit->SetCurves(&curves, fMinCurveLength, bCurveLengthIsFixed);
+  CurveEdit->SetCurves(&m_Curves, fMinCurveLength, bCurveLengthIsFixed);
   m_fCurveDuration = CurveEdit->GetMaxCurveExtent();
 
   UpdateSpinBoxes();
@@ -62,6 +62,11 @@ void ezQtCurve1DEditorWidget::ClearSelection()
 void ezQtCurve1DEditorWidget::FrameCurve()
 {
   CurveEdit->FrameCurve();
+}
+
+void ezQtCurve1DEditorWidget::FrameSelection()
+{
+  CurveEdit->FrameSelection();
 }
 
 void ezQtCurve1DEditorWidget::MakeRepeatable(bool bAdjustLastPoint)
@@ -292,7 +297,11 @@ void ezQtCurve1DEditorWidget::onDeleteControlPoints()
 
 void ezQtCurve1DEditorWidget::onDoubleClick(const QPointF& scenePos, const QPointF& epsilon)
 {
+  Q_EMIT BeginCpChangesEvent("Add Control Point");
+
   InsertCpAt(scenePos.x(), scenePos.y(), ezVec2d(ezMath::Abs(epsilon.x()), ezMath::Abs(epsilon.y())));
+
+  Q_EMIT EndCpChangesEvent();
 }
 
 void ezQtCurve1DEditorWidget::onMoveControlPoints(double x, double y)
@@ -401,21 +410,31 @@ void ezQtCurve1DEditorWidget::onContextMenu(QPoint pos, QPointF scenePos)
   m_contextMenuScenePos = scenePos;
 
   QMenu m(this);
-  m.setDefaultAction(m.addAction("Add Point", this, SLOT(onAddPoint())));
+  m.setDefaultAction(m.addAction("Add Point\tDbl Click", this, SLOT(onAddPoint())));
 
   const auto& selection = CurveEdit->GetSelection();
 
+  QMenu* cmSel = m.addMenu("Selection");
+  cmSel->addAction("Select All\tCtrl+A", this, [this]() { CurveEdit->SelectAll(); });
+
   if (!selection.IsEmpty())
   {
-    m.addAction("Delete Points", this, SLOT(onDeleteControlPoints()), QKeySequence(Qt::Key_Delete));
-    m.addSeparator();
-    m.addAction("Link Tangents", this, SLOT(onLinkTangents()));
-    m.addAction("Break Tangents", this, SLOT(onBreakTangents()));
-    m.addAction("Flatten Tangents", this, SLOT(onFlattenTangents()));
+    cmSel->addAction("Clear Selection\tESC", this, [this]() { CurveEdit->ClearSelection(); });
 
-    QMenu* cmLT = m.addMenu("Left Tangents");
-    QMenu* cmRT = m.addMenu("Right Tangents");
-    QMenu* cmBT = m.addMenu("Both Tangents");
+    cmSel->addAction(
+      "Frame Selection\tShift+F", this, [this]() { FrameSelection(); });
+
+    cmSel->addSeparator();
+
+    cmSel->addAction("Delete Points\tDel", this, SLOT(onDeleteControlPoints()));
+    cmSel->addSeparator();
+    cmSel->addAction("Link Tangents", this, SLOT(onLinkTangents()));
+    cmSel->addAction("Break Tangents", this, SLOT(onBreakTangents()));
+    cmSel->addAction("Flatten Tangents", this, SLOT(onFlattenTangents()));
+
+    QMenu* cmLT = cmSel->addMenu("Left Tangents");
+    QMenu* cmRT = cmSel->addMenu("Right Tangents");
+    QMenu* cmBT = cmSel->addMenu("Both Tangents");
 
     cmLT->addAction("Auto", this, [this]()
       { SetTangentMode(ezCurveTangentMode::Auto, true, false); });
@@ -445,7 +464,6 @@ void ezQtCurve1DEditorWidget::onContextMenu(QPoint pos, QPointF scenePos)
       { SetTangentMode(ezCurveTangentMode::Linear, true, true); });
   }
 
-  m.addSeparator();
   QMenu* cm = m.addMenu("Curve");
   cm->addSeparator();
   cm->addAction("Normalize X", this, [this]()
@@ -459,10 +477,8 @@ void ezQtCurve1DEditorWidget::onContextMenu(QPoint pos, QPointF scenePos)
   cm->addAction("Clear Curve", this, [this]()
     { ClearAllPoints(); });
 
-  m.addAction(
-    "Frame", this, [this]()
-    { FrameCurve(); },
-    QKeySequence(Qt::ControlModifier | Qt::Key_F));
+  cm->addAction(
+    "Frame Curve\tCtrl+F", this, [this]() { FrameCurve(); });
 
   QMenu* gm = m.addMenu("Generate Curve");
   QMenu* lm = gm->addMenu("Linear");
@@ -548,7 +564,11 @@ void ezQtCurve1DEditorWidget::onContextMenu(QPoint pos, QPointF scenePos)
 
 void ezQtCurve1DEditorWidget::onAddPoint()
 {
+  Q_EMIT BeginCpChangesEvent("Add Control Point");
+
   InsertCpAt(m_contextMenuScenePos.x(), m_contextMenuScenePos.y(), ezVec2d::ZeroVector());
+
+  Q_EMIT EndCpChangesEvent();
 }
 
 void ezQtCurve1DEditorWidget::onLinkTangents()
@@ -708,6 +728,8 @@ void ezQtCurve1DEditorWidget::onMoveCurve(ezInt32 iCurve, double moveY)
 
 void ezQtCurve1DEditorWidget::onGenerateCurve(ezMath::ezEasingFunctions easingFunction)
 {
+  Q_EMIT BeginCpChangesEvent("Generate Curve");
+
   // Delete all existing control points
   ClearAllPoints();
 
@@ -718,6 +740,8 @@ void ezQtCurve1DEditorWidget::onGenerateCurve(ezMath::ezEasingFunctions easingFu
     const double x = i / fps;
     InsertCpAt(x, GetEasingValue(easingFunction, x), ezVec2d::ZeroVector());
   }
+
+  Q_EMIT EndCpChangesEvent();
 }
 
 void ezQtCurve1DEditorWidget::UpdateSpinBoxes()
