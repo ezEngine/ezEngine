@@ -11,7 +11,7 @@ o
 		s %AssetType{"Kraut Tree"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{7922893751843090352,4753529958296423156}}
-		u4 %Hash{14974533387171080214}
+		u4 %Hash{17480694910678053916}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -1122,7 +1122,7 @@ o
 		f %BranchlessPartABS{0}
 		f %BranchlessPartEndABS{0}
 		Angle %DirChangePerSegment{f{0xC4B8323E}}
-		b %EnableFronds{0}
+		b %EnableFronds{1}
 		b %EnableLeaves{0}
 		b %EnableMesh{1}
 		Angle %FlareRotation{f{0}}
@@ -1134,7 +1134,7 @@ o
 		u1 %FrondDetail{1}
 		f %FrondHeight{0x0000003F}
 		Uuid %FrondHeightScale{u4{14094350557424909865,10745002024714388264}}
-		s %FrondMaterial{"{ 1f56861a-dfe6-4028-917a-1fcb10700d3b }"}
+		s %FrondMaterial{"{ dd0d988c-9586-488c-ac94-be2e84266b77 }"}
 		Angle %FrondOrientationDeviation{f{0}}
 		s %FrondUpOrientation{"ezKrautLeafOrientation::Upwards"}
 		f %FrondWidth{0x0000003F}
@@ -1150,12 +1150,12 @@ o
 		Angle %MaxBranchAngleDeviation{f{0xC4B8323E}}
 		u2 %MaxBranchLength{300}
 		Uuid %MaxBranchLengthParentScale{u4{9484134285126777101,7744922727565450334}}
-		u2 %MaxBranchThickness{100}
+		u2 %MaxBranchThickness{23}
 		u1 %MaxBranchesPerNode{1}
 		Angle %MaxRotationalDeviation{f{0}}
 		Angle %MaxTargetDirDeviation{f{0xDC0FC93F}}
 		u2 %MinBranchLength{300}
-		u2 %MinBranchThickness{100}
+		u2 %MinBranchThickness{16}
 		u1 %MinBranchesPerNode{1}
 		f %NodeHeight{0}
 		f %NodeSpacingAfter{0}

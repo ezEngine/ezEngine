@@ -101,7 +101,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezKrautAssetBranchType, ezNoBase, 1, ezRTTINoAllo
     // Growth
     EZ_MEMBER_PROPERTY("MinBranchLength", m_uiMinBranchLengthInCM)->AddAttributes(new ezDefaultValueAttribute(100), new ezClampValueAttribute(1, 10000), new ezSuffixAttribute("cm"), new ezGroupAttribute("Branch Growth")),
     EZ_MEMBER_PROPERTY("MaxBranchLength", m_uiMaxBranchLengthInCM)->AddAttributes(new ezDefaultValueAttribute(100), new ezClampValueAttribute(1, 10000), new ezSuffixAttribute("cm")),
-    EZ_MEMBER_PROPERTY("MaxBranchLengthParentScale", m_MaxBranchLengthParentScale),
+    EZ_MEMBER_PROPERTY("MaxBranchLengthParentScale", m_MaxBranchLengthParentScale)->AddAttributes(new ezSingleCurveDataAttribute(ezColor::Brown, 1.0f, true)),
     EZ_MEMBER_PROPERTY("TargetDirDeviation", m_GrowMaxTargetDirDeviation)->AddAttributes(new ezDefaultValueAttribute(ezAngle()), new ezClampValueAttribute(ezAngle::Degree(0), ezAngle::Degree(180))),
     EZ_MEMBER_PROPERTY("DirChangePerSegment", m_GrowMaxDirChangePerSegment)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(5)), new ezClampValueAttribute(ezAngle::Degree(0), ezAngle::Degree(90))),
     EZ_MEMBER_PROPERTY("OnlyGrowUpAndDown", m_bRestrictGrowthToFrondPlane),
@@ -119,11 +119,11 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezKrautAssetBranchType, ezNoBase, 1, ezRTTINoAllo
 
     EZ_MEMBER_PROPERTY("EnableMesh", m_bEnableMesh)->AddAttributes(new ezDefaultValueAttribute(true), new ezGroupAttribute("Branch Mesh")),
     EZ_MEMBER_PROPERTY("BranchMaterial", m_sBranchMaterial)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Material")),
-    EZ_MEMBER_PROPERTY("BranchContour", m_BranchContour),
+    EZ_MEMBER_PROPERTY("BranchContour", m_BranchContour)->AddAttributes(new ezSingleCurveDataAttribute(ezColor::Brown, 1.0f, true)),
     EZ_MEMBER_PROPERTY("Roundness", m_fRoundnessFactor)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, 1.0f)),
     EZ_MEMBER_PROPERTY("Flares", m_uiFlares)->AddAttributes(new ezDefaultValueAttribute(0), new ezClampValueAttribute(0, 16)),
     EZ_MEMBER_PROPERTY("FlareWidth", m_fFlareWidth)->AddAttributes(new ezDefaultValueAttribute(2.0f), new ezClampValueAttribute(0.0f, 10.0f)),
-    EZ_MEMBER_PROPERTY("FlareWidthCurve", m_FlareWidthCurve),
+    EZ_MEMBER_PROPERTY("FlareWidthCurve", m_FlareWidthCurve)->AddAttributes(new ezSingleCurveDataAttribute(ezColor::FloralWhite, 1.0f, true)),
     EZ_MEMBER_PROPERTY("FlareRotation", m_FlareRotation)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(0)), new ezClampValueAttribute(ezAngle::Degree(-720), ezAngle::Degree(720))),
     EZ_MEMBER_PROPERTY("RotateTexCoords", m_bRotateTexCoords)->AddAttributes(new ezDefaultValueAttribute(true)),
 
@@ -137,12 +137,12 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezKrautAssetBranchType, ezNoBase, 1, ezRTTINoAllo
     EZ_MEMBER_PROPERTY("NumFronds", m_uiNumFronds)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(1, 16)),
     EZ_MEMBER_PROPERTY("AlignFrondsOnSurface", m_bAlignFrondsOnSurface),
     EZ_MEMBER_PROPERTY("FrondDetail", m_uiFrondDetail)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(0, 32)),
-    EZ_MEMBER_PROPERTY("FrondContour", m_FrondContour),
+    EZ_MEMBER_PROPERTY("FrondContour", m_FrondContour)->AddAttributes(new ezSingleCurveDataAttribute(ezColor::LawnGreen, 1.0f, true)),
     EZ_ENUM_MEMBER_PROPERTY("FrondContourMode", ezKrautFrondContourMode, m_FrondContourMode),
     EZ_MEMBER_PROPERTY("FrondHeight", m_fFrondHeight)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, 10.0f)),
-    EZ_MEMBER_PROPERTY("FrondHeightScale", m_FrondHeight),
+    EZ_MEMBER_PROPERTY("FrondHeightScale", m_FrondHeight)->AddAttributes(new ezSingleCurveDataAttribute(ezColor::LawnGreen, 1.0f, true)),
     EZ_MEMBER_PROPERTY("FrondWidth", m_fFrondWidth)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, 10.0f)),
-    EZ_MEMBER_PROPERTY("FrondWidthScale", m_FrondWidth),
+    EZ_MEMBER_PROPERTY("FrondWidthScale", m_FrondWidth)->AddAttributes(new ezSingleCurveDataAttribute(ezColor::LawnGreen, 1.0f, true)),
     //EZ_MEMBER_PROPERTY("FrondVariationColor", m_FrondVariationColor)->AddAttributes(new ezDefaultValueAttribute(ezColor::White)),
 
     // Leaves
@@ -151,7 +151,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezKrautAssetBranchType, ezNoBase, 1, ezRTTINoAllo
     EZ_MEMBER_PROPERTY("LeafMaterial", m_sLeafMaterial)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Material")),
     EZ_MEMBER_PROPERTY("BillboardLeaves", m_bBillboardLeaves)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_MEMBER_PROPERTY("LeafSize", m_fLeafSize)->AddAttributes(new ezDefaultValueAttribute(0.25f), new ezClampValueAttribute(0.01f, 10.0f)),
-    EZ_MEMBER_PROPERTY("LeafScale", m_LeafScale),
+    EZ_MEMBER_PROPERTY("LeafScale", m_LeafScale)->AddAttributes(new ezSingleCurveDataAttribute(ezColor::LightGreen, 1.0f, true)),
     EZ_MEMBER_PROPERTY("LeafInterval", m_fLeafInterval)->AddAttributes(new ezDefaultValueAttribute(0.0f), new ezClampValueAttribute(0.0f, 10.0f)),
     //EZ_MEMBER_PROPERTY("LeafVariationColor", m_LeafVariationColor)->AddAttributes(new ezDefaultValueAttribute(ezColor::White)),
 
