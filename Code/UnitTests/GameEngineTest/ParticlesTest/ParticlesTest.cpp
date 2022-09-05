@@ -140,22 +140,22 @@ ezUInt32 ezGameEngineTestParticles::GetImageCompareThreshold(ezInt32 iIdentifier
     // All these tests sample a sphere texture and lavapipe consistently samples a lower mip-level for this texture which results in slightly blurrier results. Images are identical to AMD if mip-maps are disabled for the texture.
     switch (iIdentifier)
     {
-    case SubTests::BurstEmitter:
-      return 500;
-    case SubTests::ContinuousEmitter:
-      return 400;
-    case SubTests::EventReactionEffect:
-      return 700;
-    case SubTests::GravityBehavior:
-      return 800;
-    case SubTests::TrailRenderer:
-      return 900;
-    case SubTests::VelocityBehavior:
-      return 1300;
-    case SubTests::VelocityConeInitializer:
-      return 200;
-    default:
-      break;
+      case SubTests::BurstEmitter:
+        return 500;
+      case SubTests::ContinuousEmitter:
+        return 400;
+      case SubTests::EventReactionEffect:
+        return 700;
+      case SubTests::GravityBehavior:
+        return 800;
+      case SubTests::TrailRenderer:
+        return 900;
+      case SubTests::VelocityBehavior:
+        return 1300;
+      case SubTests::VelocityConeInitializer:
+        return 200;
+      default:
+        break;
     }
   }
   return 110;

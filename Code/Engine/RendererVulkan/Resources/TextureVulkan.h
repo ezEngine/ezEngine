@@ -13,8 +13,8 @@ public:
   enum class StagingMode : ezUInt8
   {
     None,
-    Buffer, ///< We can use vkCopyImageToBuffer to a CPU buffer.
-    Texture, ///< Formats differ and we need to render to a linear CPU texture to do the conversion.
+    Buffer,          ///< We can use vkCopyImageToBuffer to a CPU buffer.
+    Texture,         ///< Formats differ and we need to render to a linear CPU texture to do the conversion.
     TextureAndBuffer ///< Formats differ and linear texture can't be rendered to. Render to optimal layout GPU texture and then use vkCopyImageToBuffer to CPU buffer.
   };
   struct SubResourceOffset

@@ -885,7 +885,7 @@ void ezRenderContext::LoadBuiltinShader(ezShaderUtils::ezBuiltinShaderType type,
   static ezHashedString sCameraMode = ezMakeHashedString("CAMERA_MODE");
   static ezHashedString sPerspective = ezMakeHashedString("CAMERA_MODE_PERSPECTIVE");
   static ezHashedString sStereo = ezMakeHashedString("CAMERA_MODE_STEREO");
-  
+
   permutationVariables.Insert(sCameraMode, bStereo ? sStereo : sPerspective);
   if (ezGALDevice::GetDefaultDevice()->GetCapabilities().m_bVertexShaderRenderTargetArrayIndex)
     permutationVariables.Insert(sVSRTAI, sTrue);

@@ -135,7 +135,7 @@ void ezFallbackResourcesVulkan::GALDeviceEventHandler(const ezGALDeviceEvent& e)
 
 const ezGALResourceViewVulkan* ezFallbackResourcesVulkan::GetFallbackResourceView(vk::DescriptorType descriptorType, ezShaderResourceType::Enum ezType, bool bDepth)
 {
-  if (ezGALResourceViewHandle* pView = m_ResourceViews.GetValue(Key{descriptorType, ezType, bDepth }))
+  if (ezGALResourceViewHandle* pView = m_ResourceViews.GetValue(Key{descriptorType, ezType, bDepth}))
   {
     return static_cast<const ezGALResourceViewVulkan*>(s_pDevice->GetResourceView(*pView));
   }

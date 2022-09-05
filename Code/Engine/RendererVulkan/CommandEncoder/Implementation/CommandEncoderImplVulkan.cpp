@@ -743,7 +743,6 @@ void ezGALCommandEncoderImplVulkan::CopyTextureReadbackResultPlatform(const ezGA
     }
 
     ezMemoryAllocatorVulkan::UnmapMemory(pStagingBuffer->GetAllocation());
-
   }
 }
 

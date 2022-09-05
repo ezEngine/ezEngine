@@ -5,8 +5,8 @@
 #include <RendererVulkan/Pools/CommandBufferPoolVulkan.h>
 #include <RendererVulkan/Pools/StagingBufferPoolVulkan.h>
 #include <RendererVulkan/Resources/TextureVulkan.h>
-#include <RendererVulkan/Utils/PipelineBarrierVulkan.h>
 #include <RendererVulkan/Utils/ConversionUtilsVulkan.h>
+#include <RendererVulkan/Utils/PipelineBarrierVulkan.h>
 
 
 ezInitContextVulkan::ezInitContextVulkan(ezGALDeviceVulkan* pDevice)

@@ -1595,22 +1595,21 @@ void ezGALDeviceVulkan::FillFormatLookupTable()
     return vk::Format::eUndefined;
   };
 
-  auto SelectStorageFormat = [](vk::Format depthFormat) -> vk::Format
-  {
+  auto SelectStorageFormat = [](vk::Format depthFormat) -> vk::Format {
     switch (depthFormat)
     {
-    case vk::Format::eD16Unorm:
-      return vk::Format::eR16Unorm;
-    case vk::Format::eD16UnormS8Uint:
-      return vk::Format::eUndefined;
-    case vk::Format::eD24UnormS8Uint:
-      return vk::Format::eUndefined;
-    case vk::Format::eD32Sfloat:
-      return vk::Format::eR32Sfloat;
-    case vk::Format::eD32SfloatS8Uint:
-      return vk::Format::eR32Sfloat;
-    default:
-      return vk::Format::eUndefined;
+      case vk::Format::eD16Unorm:
+        return vk::Format::eR16Unorm;
+      case vk::Format::eD16UnormS8Uint:
+        return vk::Format::eUndefined;
+      case vk::Format::eD24UnormS8Uint:
+        return vk::Format::eUndefined;
+      case vk::Format::eD32Sfloat:
+        return vk::Format::eR32Sfloat;
+      case vk::Format::eD32SfloatS8Uint:
+        return vk::Format::eR32Sfloat;
+      default:
+        return vk::Format::eUndefined;
     }
   };
 

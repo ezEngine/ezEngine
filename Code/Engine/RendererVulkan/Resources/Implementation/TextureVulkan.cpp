@@ -1,12 +1,12 @@
 #include <RendererVulkan/RendererVulkanPCH.h>
 
+#include <Foundation/Memory/MemoryUtils.h>
 #include <RendererVulkan/Device/DeviceVulkan.h>
 #include <RendererVulkan/Device/InitContext.h>
 #include <RendererVulkan/Resources/BufferVulkan.h>
 #include <RendererVulkan/Resources/TextureVulkan.h>
 #include <RendererVulkan/Utils/ConversionUtilsVulkan.h>
 #include <RendererVulkan/Utils/PipelineBarrierVulkan.h>
-#include <Foundation/Memory/MemoryUtils.h>
 
 vk::Extent3D ezGALTextureVulkan::GetMipLevelSize(ezUInt32 uiMipLevel) const
 {
@@ -255,7 +255,7 @@ ezUInt32 ezGALTextureVulkan::ComputeSubResourceOffsets(ezDynamicArray<SubResourc
         (imageExtent.depth + blockExtent[2] - 1) / blockExtent[2]};
 
       const ezUInt32 uiTotalSize = uiBlockSize * blockCount.width * blockCount.height * blockCount.depth;
-      subResourceSizes.PushBack({uiOffset, uiTotalSize, blockCount.width / blockExtent[0], blockCount.height / blockExtent[1] });
+      subResourceSizes.PushBack({uiOffset, uiTotalSize, blockCount.width / blockExtent[0], blockCount.height / blockExtent[1]});
       uiOffset += ezMemoryUtils::AlignSize(uiTotalSize, alignment);
     }
   }

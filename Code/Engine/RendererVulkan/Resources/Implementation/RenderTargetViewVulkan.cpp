@@ -47,7 +47,7 @@ ezResult ezGALRenderTargetViewVulkan::InitPlatform(ezGALDevice* pDevice)
     return EZ_FAILURE;
   }
 
-  
+
   vk::Image vkImage = pTextureVulkan->GetImage();
   const bool bIsArrayView = IsArrayView(texDesc, m_Description);
 
