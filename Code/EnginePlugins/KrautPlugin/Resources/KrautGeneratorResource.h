@@ -26,7 +26,7 @@ struct ezKrautMaterialDescriptor
   //ezColor m_VariationColor = ezColor::White;// currently done through the material
 };
 
-struct EZ_KRAUTPLUGIN_DLL ezKrautGeneratorResourceDescriptor
+struct EZ_KRAUTPLUGIN_DLL ezKrautGeneratorResourceDescriptor : public ezRefCounted
 {
   Kraut::TreeStructureDesc m_TreeStructureDesc;
   Kraut::LodDesc m_LodDesc[5];
@@ -54,17 +54,23 @@ class EZ_KRAUTPLUGIN_DLL ezKrautGeneratorResource : public ezResource
 public:
   ezKrautGeneratorResource();
 
-  ezKrautTreeResourceHandle GenerateTree(ezUInt32 uiRandomSeed) const;
-  ezKrautTreeResourceHandle GenerateTreeWithGoodSeed(ezUInt16 uiGoodSeedIndex) const;
+  const ezSharedPtr<ezKrautGeneratorResourceDescriptor>& GetDescriptor() const
+  {
+    return m_GeneratorDesc;
+  }
 
-  void GenerateTreeDescriptor(ezKrautTreeResourceDescriptor& dstDesc, ezUInt32 uiRandomSeed) const;
+  ezKrautTreeResourceHandle GenerateTree(const ezSharedPtr<ezKrautGeneratorResourceDescriptor>& descriptor, ezUInt32 uiRandomSeed) const;
+  ezKrautTreeResourceHandle GenerateTreeWithGoodSeed(const ezSharedPtr<ezKrautGeneratorResourceDescriptor>& descriptor, ezUInt16 uiGoodSeedIndex) const;
+
+  void GenerateTreeDescriptor(const ezSharedPtr<ezKrautGeneratorResourceDescriptor>& descriptor, ezKrautTreeResourceDescriptor& dstDesc, ezUInt32 uiRandomSeed) const;
 
 private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
   virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
 
-  ezUniquePtr<ezKrautGeneratorResourceDescriptor> m_Descriptor;
+  ezMutex m_DataMutex;
+  ezSharedPtr<ezKrautGeneratorResourceDescriptor> m_GeneratorDesc;
 
   struct BranchNodeExtraData
   {

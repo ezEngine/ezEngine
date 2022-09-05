@@ -287,6 +287,9 @@ namespace Kraut
 
     AE_CHECK_DEV(uiBranches >= spawnDesc.m_uiMinBranches, "Number of Branches to spawn (%i) is smaller than minimum number of branches (%i). This should not happen.", uiBranches, spawnDesc.m_uiMinBranches);
 
+    if (uiBranches == 0)
+      return;
+
     aeArray<float> BranchPos;
     BranchPos.reserve(uiBranches);
     aeArray<bool> Used;

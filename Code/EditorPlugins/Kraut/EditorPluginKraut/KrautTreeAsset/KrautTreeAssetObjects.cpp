@@ -101,7 +101,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezKrautAssetBranchType, ezNoBase, 1, ezRTTINoAllo
     // Growth
     EZ_MEMBER_PROPERTY("MinBranchLength", m_uiMinBranchLengthInCM)->AddAttributes(new ezDefaultValueAttribute(100), new ezClampValueAttribute(1, 10000), new ezSuffixAttribute("cm"), new ezGroupAttribute("Branch Growth")),
     EZ_MEMBER_PROPERTY("MaxBranchLength", m_uiMaxBranchLengthInCM)->AddAttributes(new ezDefaultValueAttribute(100), new ezClampValueAttribute(1, 10000), new ezSuffixAttribute("cm")),
-    //Kraut::Curve m_MaxBranchLengthParentScale;
+    EZ_MEMBER_PROPERTY("MaxBranchLengthParentScale", m_MaxBranchLengthParentScale),
     EZ_MEMBER_PROPERTY("TargetDirDeviation", m_GrowMaxTargetDirDeviation)->AddAttributes(new ezDefaultValueAttribute(ezAngle()), new ezClampValueAttribute(ezAngle::Degree(0), ezAngle::Degree(180))),
     EZ_MEMBER_PROPERTY("DirChangePerSegment", m_GrowMaxDirChangePerSegment)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(5)), new ezClampValueAttribute(ezAngle::Degree(0), ezAngle::Degree(90))),
     EZ_MEMBER_PROPERTY("OnlyGrowUpAndDown", m_bRestrictGrowthToFrondPlane),
@@ -119,12 +119,11 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezKrautAssetBranchType, ezNoBase, 1, ezRTTINoAllo
 
     EZ_MEMBER_PROPERTY("EnableMesh", m_bEnableMesh)->AddAttributes(new ezDefaultValueAttribute(true), new ezGroupAttribute("Branch Mesh")),
     EZ_MEMBER_PROPERTY("BranchMaterial", m_sBranchMaterial)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Material")),
-    //Kraut::Curve m_BranchContour;
     EZ_MEMBER_PROPERTY("BranchContour", m_BranchContour),
     EZ_MEMBER_PROPERTY("Roundness", m_fRoundnessFactor)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, 1.0f)),
     EZ_MEMBER_PROPERTY("Flares", m_uiFlares)->AddAttributes(new ezDefaultValueAttribute(0), new ezClampValueAttribute(0, 16)),
     EZ_MEMBER_PROPERTY("FlareWidth", m_fFlareWidth)->AddAttributes(new ezDefaultValueAttribute(2.0f), new ezClampValueAttribute(0.0f, 10.0f)),
-    //Kraut::Curve m_FlareWidthCurve;
+    EZ_MEMBER_PROPERTY("FlareWidthCurve", m_FlareWidthCurve),
     EZ_MEMBER_PROPERTY("FlareRotation", m_FlareRotation)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(0)), new ezClampValueAttribute(ezAngle::Degree(-720), ezAngle::Degree(720))),
     EZ_MEMBER_PROPERTY("RotateTexCoords", m_bRotateTexCoords)->AddAttributes(new ezDefaultValueAttribute(true)),
 
@@ -138,12 +137,12 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezKrautAssetBranchType, ezNoBase, 1, ezRTTINoAllo
     EZ_MEMBER_PROPERTY("NumFronds", m_uiNumFronds)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(1, 16)),
     EZ_MEMBER_PROPERTY("AlignFrondsOnSurface", m_bAlignFrondsOnSurface),
     EZ_MEMBER_PROPERTY("FrondDetail", m_uiFrondDetail)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(0, 32)),
-    //Kraut::Curve m_FrondContour;
+    EZ_MEMBER_PROPERTY("FrondContour", m_FrondContour),
     EZ_ENUM_MEMBER_PROPERTY("FrondContourMode", ezKrautFrondContourMode, m_FrondContourMode),
     EZ_MEMBER_PROPERTY("FrondHeight", m_fFrondHeight)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, 10.0f)),
-    //Kraut::Curve m_FrondHeight;
+    EZ_MEMBER_PROPERTY("FrondHeightScale", m_FrondHeight),
     EZ_MEMBER_PROPERTY("FrondWidth", m_fFrondWidth)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, 10.0f)),
-    //Kraut::Curve m_FrondWidth;
+    EZ_MEMBER_PROPERTY("FrondWidthScale", m_FrondWidth),
     //EZ_MEMBER_PROPERTY("FrondVariationColor", m_FrondVariationColor)->AddAttributes(new ezDefaultValueAttribute(ezColor::White)),
 
     // Leaves
@@ -152,13 +151,12 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezKrautAssetBranchType, ezNoBase, 1, ezRTTINoAllo
     EZ_MEMBER_PROPERTY("LeafMaterial", m_sLeafMaterial)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Material")),
     EZ_MEMBER_PROPERTY("BillboardLeaves", m_bBillboardLeaves)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_MEMBER_PROPERTY("LeafSize", m_fLeafSize)->AddAttributes(new ezDefaultValueAttribute(0.25f), new ezClampValueAttribute(0.01f, 10.0f)),
-    //Kraut::Curve m_LeafScale;
+    EZ_MEMBER_PROPERTY("LeafScale", m_LeafScale),
     EZ_MEMBER_PROPERTY("LeafInterval", m_fLeafInterval)->AddAttributes(new ezDefaultValueAttribute(0.0f), new ezClampValueAttribute(0.0f, 10.0f)),
     //EZ_MEMBER_PROPERTY("LeafVariationColor", m_LeafVariationColor)->AddAttributes(new ezDefaultValueAttribute(ezColor::White)),
 
     // Shared
 
-    //ezString m_sTexture[Kraut::BranchGeometryType::ENUM_COUNT];
     //ezUInt8 m_uiTextureTilingX[Kraut::BranchGeometryType::ENUM_COUNT] = {1, 1, 1};
     //ezUInt8 m_uiTextureTilingY[Kraut::BranchGeometryType::ENUM_COUNT] = {1, 1, 1};
   }
@@ -199,6 +197,29 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezKrautTreeAssetProperties::ezKrautTreeAssetProperties() = default;
 ezKrautTreeAssetProperties::~ezKrautTreeAssetProperties() = default;
+
+void CopyCurve(Kraut::Curve& dst, const ezSingleCurveData& src, ezUInt32 uiNumSamples)
+{
+  if (src.m_ControlPoints.IsEmpty())
+  {
+    dst.Initialize(2, 1.0f, 0.0f, 1.0f); // TODO: default + ranges?
+  }
+  else
+  {
+    ezCurve1D c;
+    src.ConvertToRuntimeData(c);
+    c.CreateLinearApproximation();
+
+    dst.Initialize(uiNumSamples, 1.0f, 0.0f, 1.0f);
+
+    const double invSam = 1.0 / (uiNumSamples - 1);
+    for (ezUInt32 i = 0; i < uiNumSamples; ++i)
+    {
+      const double val = c.Evaluate(i * invSam);
+      dst.m_Values[i] = (float)val;
+    }
+  }
+}
 
 void CopyConfig(Kraut::SpawnNodeDesc& nd, const ezKrautAssetBranchType& bt, ezDynamicArray<ezKrautMaterialDescriptor>& materials, ezKrautBranchType branchType)
 {
@@ -283,7 +304,7 @@ void CopyConfig(Kraut::SpawnNodeDesc& nd, const ezKrautAssetBranchType& bt, ezDy
 
   nd.m_uiMinBranchLengthInCM = ezMath::Clamp<ezUInt16>(bt.m_uiMinBranchLengthInCM, 1, 10000);
   nd.m_uiMaxBranchLengthInCM = ezMath::Clamp<ezUInt16>(bt.m_uiMaxBranchLengthInCM, nd.m_uiMinBranchLengthInCM, 10000);
-  //Kraut::Curve m_MaxBranchLengthParentScale;
+  CopyCurve(nd.m_MaxBranchLengthParentScale, bt.m_MaxBranchLengthParentScale, 20);
   nd.m_fGrowMaxTargetDirDeviation = bt.m_GrowMaxTargetDirDeviation.GetDegree();
   nd.m_fGrowMaxDirChangePerSegment = bt.m_GrowMaxDirChangePerSegment.GetDegree();
   nd.m_bRestrictGrowthToFrondPlane = bt.m_bRestrictGrowthToFrondPlane;
@@ -300,11 +321,11 @@ void CopyConfig(Kraut::SpawnNodeDesc& nd, const ezKrautAssetBranchType& bt, ezDy
 
   // Branch Mesh
 
-  //Kraut::Curve m_BranchContour;
+  CopyCurve(nd.m_BranchContour, bt.m_BranchContour, 50);
   nd.m_fRoundnessFactor = bt.m_fRoundnessFactor;
   nd.m_uiFlares = bt.m_uiFlares;
   nd.m_fFlareWidth = bt.m_fFlareWidth;
-  //Kraut::Curve m_FlareWidthCurve;
+  CopyCurve(nd.m_FlareWidthCurve, bt.m_FlareWidthCurve, 50);
   nd.m_fFlareRotation = bt.m_FlareRotation.GetDegree();
   nd.m_bRotateTexCoords = bt.m_bRotateTexCoords;
 
@@ -316,32 +337,21 @@ void CopyConfig(Kraut::SpawnNodeDesc& nd, const ezKrautAssetBranchType& bt, ezDy
   nd.m_uiNumFronds = bt.m_uiNumFronds;
   nd.m_bAlignFrondsOnSurface = bt.m_bAlignFrondsOnSurface;
   nd.m_uiFrondDetail = bt.m_uiFrondDetail;
-  //Kraut::Curve m_FrondContour;
+  CopyCurve(nd.m_FrondContour, bt.m_FrondContour, 40);
   nd.m_FrondContourMode = (Kraut::SpawnNodeDesc::FrondContourMode)bt.m_FrondContourMode.GetValue();
   nd.m_fFrondHeight = bt.m_fFrondHeight;
-  //Kraut::Curve m_FrondHeight;
+  CopyCurve(nd.m_FrondHeight, bt.m_FrondHeight, 50);
   nd.m_fFrondWidth = bt.m_fFrondWidth;
-  //Kraut::Curve m_FrondWidth;
-  //ezColorGammaUB col = bt.m_FrondVariationColor;
-  //nd.m_uiVariationColor[Kraut::BranchGeometryType::Frond][0] = col.r;
-  //nd.m_uiVariationColor[Kraut::BranchGeometryType::Frond][1] = col.g;
-  //nd.m_uiVariationColor[Kraut::BranchGeometryType::Frond][2] = col.b;
-  //nd.m_uiVariationColor[Kraut::BranchGeometryType::Frond][3] = col.a;
+  CopyCurve(nd.m_FrondWidth, bt.m_FrondWidth, 50);
 
   // Leaves
 
   nd.m_bBillboardLeaves = bt.m_bBillboardLeaves;
   nd.m_fLeafSize = bt.m_fLeafSize;
-  //Kraut::Curve m_LeafScale;
+  CopyCurve(nd.m_LeafScale, bt.m_LeafScale, 25);
   nd.m_fLeafInterval = bt.m_fLeafInterval;
-  //col = bt.m_LeafVariationColor;
-  //nd.m_uiVariationColor[Kraut::BranchGeometryType::Leaf][0] = col.r;
-  //nd.m_uiVariationColor[Kraut::BranchGeometryType::Leaf][1] = col.g;
-  //nd.m_uiVariationColor[Kraut::BranchGeometryType::Leaf][2] = col.b;
-  //nd.m_uiVariationColor[Kraut::BranchGeometryType::Leaf][3] = col.a;
 
   // Shared
-  //ezString m_sTexture[Kraut::BranchGeometryType::ENUM_COUNT];
   //ezUInt8 m_uiTextureTilingX[Kraut::BranchGeometryType::ENUM_COUNT] = {1, 1, 1};
   //ezUInt8 m_uiTextureTilingY[Kraut::BranchGeometryType::ENUM_COUNT] = {1, 1, 1};
 }

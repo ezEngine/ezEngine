@@ -102,8 +102,6 @@ struct ezKrautAssetBranchType
 {
   // === Administrative ===
 
-  //Kraut::BranchType::Enum m_Type;
-  //bool m_bUsed = false;
   //bool m_bVisible = true;
 
   bool m_bGrowSubBranchType1 = false;
@@ -153,7 +151,7 @@ struct ezKrautAssetBranchType
 
   ezUInt16 m_uiMinBranchLengthInCM = 100;
   ezUInt16 m_uiMaxBranchLengthInCM = 100;
-  //Kraut::Curve m_MaxBranchLengthParentScale;
+  ezSingleCurveData m_MaxBranchLengthParentScale;
   ezAngle m_GrowMaxTargetDirDeviation = {};
   ezAngle m_GrowMaxDirChangePerSegment = ezAngle::Degree(5);
   bool m_bRestrictGrowthToFrondPlane = false;
@@ -173,11 +171,10 @@ struct ezKrautAssetBranchType
   bool m_bEnableMesh = true;
   ezString m_sBranchMaterial;
   ezSingleCurveData m_BranchContour;
-  //Kraut::Curve m_BranchContour;
   float m_fRoundnessFactor = 0.5f;
   ezUInt8 m_uiFlares = 0;
   float m_fFlareWidth = 2.0f;
-  //Kraut::Curve m_FlareWidthCurve;
+  ezSingleCurveData m_FlareWidthCurve;
   ezAngle m_FlareRotation = {};
   bool m_bRotateTexCoords = true;
 
@@ -191,12 +188,12 @@ struct ezKrautAssetBranchType
   ezUInt8 m_uiNumFronds = 1;
   bool m_bAlignFrondsOnSurface = false;
   ezUInt8 m_uiFrondDetail = 1;
-  //Kraut::Curve m_FrondContour;
+  ezSingleCurveData m_FrondContour;
   ezEnum<ezKrautFrondContourMode> m_FrondContourMode = ezKrautFrondContourMode::Full;
   float m_fFrondHeight = 0.5f;
-  //Kraut::Curve m_FrondHeight;
+  ezSingleCurveData m_FrondHeight;
   float m_fFrondWidth = 0.5f;
-  //Kraut::Curve m_FrondWidth;
+  ezSingleCurveData m_FrondWidth;
   //ezColor m_FrondVariationColor;// currently done through the material
 
   // Leaves
@@ -205,13 +202,12 @@ struct ezKrautAssetBranchType
   ezString m_sLeafMaterial;
   bool m_bBillboardLeaves = true;
   float m_fLeafSize = 0.25f;
-  //Kraut::Curve m_LeafScale;
+  ezSingleCurveData m_LeafScale;
   float m_fLeafInterval = 0;
   //ezColor m_LeafVariationColor;// currently done through the material
 
   // Shared
 
-  //ezString m_sTexture[Kraut::BranchGeometryType::ENUM_COUNT];
   //ezUInt8 m_uiTextureTilingX[Kraut::BranchGeometryType::ENUM_COUNT] = {1, 1, 1};
   //ezUInt8 m_uiTextureTilingY[Kraut::BranchGeometryType::ENUM_COUNT] = {1, 1, 1};
 };

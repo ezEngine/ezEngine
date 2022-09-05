@@ -337,21 +337,25 @@ void ezKrautTreeComponent::EnsureTreeIsGenerated()
   if (pResource.GetAcquireResult() != ezResourceAcquireResult::Final)
     return;
 
+  auto genDesc = pResource->GetDescriptor();
+  if (genDesc == nullptr)
+    return;
+
   ezKrautTreeResourceHandle hNewTree;
 
   if (m_uiCustomRandomSeed != 0xFFFF)
   {
-    hNewTree = pResource->GenerateTree(m_uiCustomRandomSeed);
+    hNewTree = pResource->GenerateTree(genDesc, m_uiCustomRandomSeed);
   }
   else
   {
     if (m_uiVariationIndex == 0xFFFF)
     {
-      hNewTree = pResource->GenerateTreeWithGoodSeed(GetOwner()->GetStableRandomSeed() & 0xFFFF);
+      hNewTree = pResource->GenerateTreeWithGoodSeed(genDesc, GetOwner()->GetStableRandomSeed() & 0xFFFF);
     }
     else
     {
-      hNewTree = pResource->GenerateTreeWithGoodSeed(m_uiVariationIndex);
+      hNewTree = pResource->GenerateTreeWithGoodSeed(genDesc, m_uiVariationIndex);
     }
   }
 
