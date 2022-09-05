@@ -35,17 +35,18 @@ void ezFallbackResourcesVulkan::GALDeviceEventHandler(const ezGALDeviceEvent& e)
   {
     case ezGALDeviceEvent::AfterInit:
     {
-      auto CreateTexture = [](ezGALTextureType::Enum type, ezGALMSAASampleCount::Enum samples) -> ezGALResourceViewHandle {
+      auto CreateTexture = [](ezGALTextureType::Enum type, ezGALMSAASampleCount::Enum samples, bool bDepth) -> ezGALResourceViewHandle {
         ezGALTextureCreationDescription desc;
         desc.m_uiWidth = 4;
         desc.m_uiHeight = 4;
         if (type == ezGALTextureType::Texture3D)
           desc.m_uiDepth = 4;
         desc.m_uiMipLevelCount = 1;
-        desc.m_Format = ezGALResourceFormat::BGRAUByteNormalizedsRGB;
+        desc.m_Format = bDepth ? ezGALResourceFormat::D16 : ezGALResourceFormat::BGRAUByteNormalizedsRGB;
         desc.m_Type = type;
         desc.m_SampleCount = samples;
         desc.m_ResourceAccess.m_bImmutable = false;
+        desc.m_bCreateRenderTarget = bDepth;
         ezGALTextureHandle hTexture = s_pDevice->CreateTexture(desc);
         EZ_ASSERT_DEV(!hTexture.IsInvalidated(), "Failed to create fallback resource");
         // Debug device not set yet.
@@ -54,9 +55,14 @@ void ezFallbackResourcesVulkan::GALDeviceEventHandler(const ezGALDeviceEvent& e)
         return s_pDevice->GetDefaultResourceView(hTexture);
       };
       {
-        ezGALResourceViewHandle hView = CreateTexture(ezGALTextureType::Texture2D, ezGALMSAASampleCount::None);
-        m_ResourceViews[{vk::DescriptorType::eSampledImage, ezShaderResourceType::Texture2D}] = hView;
-        m_ResourceViews[{vk::DescriptorType::eSampledImage, ezShaderResourceType::Texture2DArray}] = hView;
+        ezGALResourceViewHandle hView = CreateTexture(ezGALTextureType::Texture2D, ezGALMSAASampleCount::None, false);
+        m_ResourceViews[{vk::DescriptorType::eSampledImage, ezShaderResourceType::Texture2D, false}] = hView;
+        m_ResourceViews[{vk::DescriptorType::eSampledImage, ezShaderResourceType::Texture2DArray, false}] = hView;
+      }
+      {
+        ezGALResourceViewHandle hView = CreateTexture(ezGALTextureType::Texture2D, ezGALMSAASampleCount::None, true);
+        m_ResourceViews[{vk::DescriptorType::eSampledImage, ezShaderResourceType::Texture2D, true}] = hView;
+        m_ResourceViews[{vk::DescriptorType::eSampledImage, ezShaderResourceType::Texture2DArray, true}] = hView;
       }
 
       // Swift shader can only do 4x MSAA. Add a check anyways.
@@ -64,18 +70,18 @@ void ezFallbackResourcesVulkan::GALDeviceEventHandler(const ezGALDeviceEvent& e)
       vk::Result res = s_pDevice->GetVulkanPhysicalDevice().getImageFormatProperties(vk::Format::eB8G8R8A8Srgb, vk::ImageType::e2D, vk::ImageTiling::eOptimal, vk::ImageUsageFlagBits::eSampled, {}, &props);
       if (res == vk::Result::eSuccess && props.sampleCounts & vk::SampleCountFlagBits::e4)
       {
-        ezGALResourceViewHandle hView = CreateTexture(ezGALTextureType::Texture2D, ezGALMSAASampleCount::FourSamples);
-        m_ResourceViews[{vk::DescriptorType::eSampledImage, ezShaderResourceType::Texture2DMS}] = hView;
-        m_ResourceViews[{vk::DescriptorType::eSampledImage, ezShaderResourceType::Texture2DMSArray}] = hView;
+        ezGALResourceViewHandle hView = CreateTexture(ezGALTextureType::Texture2D, ezGALMSAASampleCount::FourSamples, false);
+        m_ResourceViews[{vk::DescriptorType::eSampledImage, ezShaderResourceType::Texture2DMS, false}] = hView;
+        m_ResourceViews[{vk::DescriptorType::eSampledImage, ezShaderResourceType::Texture2DMSArray, false}] = hView;
       }
       {
-        ezGALResourceViewHandle hView = CreateTexture(ezGALTextureType::TextureCube, ezGALMSAASampleCount::None);
-        m_ResourceViews[{vk::DescriptorType::eSampledImage, ezShaderResourceType::TextureCube}] = hView;
-        m_ResourceViews[{vk::DescriptorType::eSampledImage, ezShaderResourceType::TextureCubeArray}] = hView;
+        ezGALResourceViewHandle hView = CreateTexture(ezGALTextureType::TextureCube, ezGALMSAASampleCount::None, false);
+        m_ResourceViews[{vk::DescriptorType::eSampledImage, ezShaderResourceType::TextureCube, false}] = hView;
+        m_ResourceViews[{vk::DescriptorType::eSampledImage, ezShaderResourceType::TextureCubeArray, false}] = hView;
       }
       {
-        ezGALResourceViewHandle hView = CreateTexture(ezGALTextureType::Texture3D, ezGALMSAASampleCount::None);
-        m_ResourceViews[{vk::DescriptorType::eSampledImage, ezShaderResourceType::Texture3D}] = hView;
+        ezGALResourceViewHandle hView = CreateTexture(ezGALTextureType::Texture3D, ezGALMSAASampleCount::None, false);
+        m_ResourceViews[{vk::DescriptorType::eSampledImage, ezShaderResourceType::Texture3D, false}] = hView;
       }
       {
         ezGALBufferCreationDescription desc;
@@ -92,8 +98,10 @@ void ezFallbackResourcesVulkan::GALDeviceEventHandler(const ezGALDeviceEvent& e)
         s_pDevice->GetBuffer(hBuffer)->SetDebugName("FallbackResourceVulkan");
         m_Buffers.PushBack(hBuffer);
         ezGALResourceViewHandle hView = s_pDevice->GetDefaultResourceView(hBuffer);
-        m_ResourceViews[{vk::DescriptorType::eUniformBuffer, ezShaderResourceType::ConstantBuffer}] = hView;
-        m_ResourceViews[{vk::DescriptorType::eStorageBuffer, ezShaderResourceType::GenericBuffer}] = hView;
+        m_ResourceViews[{vk::DescriptorType::eUniformBuffer, ezShaderResourceType::ConstantBuffer, false}] = hView;
+        m_ResourceViews[{vk::DescriptorType::eUniformBuffer, ezShaderResourceType::ConstantBuffer, true}] = hView;
+        m_ResourceViews[{vk::DescriptorType::eStorageBuffer, ezShaderResourceType::GenericBuffer, false}] = hView;
+        m_ResourceViews[{vk::DescriptorType::eStorageBuffer, ezShaderResourceType::GenericBuffer, true}] = hView;
       }
     }
     break;
@@ -125,9 +133,9 @@ void ezFallbackResourcesVulkan::GALDeviceEventHandler(const ezGALDeviceEvent& e)
   }
 }
 
-const ezGALResourceViewVulkan* ezFallbackResourcesVulkan::GetFallbackResourceView(vk::DescriptorType descriptorType, ezShaderResourceType::Enum ezType)
+const ezGALResourceViewVulkan* ezFallbackResourcesVulkan::GetFallbackResourceView(vk::DescriptorType descriptorType, ezShaderResourceType::Enum ezType, bool bDepth)
 {
-  if (ezGALResourceViewHandle* pView = m_ResourceViews.GetValue(Key{descriptorType, ezType}))
+  if (ezGALResourceViewHandle* pView = m_ResourceViews.GetValue(Key{descriptorType, ezType, bDepth }))
   {
     return static_cast<const ezGALResourceViewVulkan*>(s_pDevice->GetResourceView(*pView));
   }
@@ -137,7 +145,7 @@ const ezGALResourceViewVulkan* ezFallbackResourcesVulkan::GetFallbackResourceVie
 
 const ezGALUnorderedAccessViewVulkan* ezFallbackResourcesVulkan::GetFallbackUnorderedAccessView(vk::DescriptorType descriptorType, ezShaderResourceType::Enum ezType)
 {
-  if (ezGALUnorderedAccessViewHandle* pView = m_UAVs.GetValue(Key{descriptorType, ezType}))
+  if (ezGALUnorderedAccessViewHandle* pView = m_UAVs.GetValue(Key{descriptorType, ezType, false}))
   {
     return static_cast<const ezGALUnorderedAccessViewVulkan*>(s_pDevice->GetUnorderedAccessView(*pView));
   }
@@ -150,10 +158,11 @@ ezUInt32 ezFallbackResourcesVulkan::KeyHash::Hash(const Key& a)
   ezHashStreamWriter32 writer;
   writer << ezConversionUtilsVulkan::GetUnderlyingValue(a.m_descriptorType);
   writer << ezConversionUtilsVulkan::GetUnderlyingValue(a.m_ezType);
+  writer << a.m_bDepth;
   return writer.GetHashValue();
 }
 
 bool ezFallbackResourcesVulkan::KeyHash::Equal(const Key& a, const Key& b)
 {
-  return a.m_descriptorType == b.m_descriptorType && a.m_ezType == b.m_ezType;
+  return a.m_descriptorType == b.m_descriptorType && a.m_ezType == b.m_ezType && a.m_bDepth == b.m_bDepth;
 }

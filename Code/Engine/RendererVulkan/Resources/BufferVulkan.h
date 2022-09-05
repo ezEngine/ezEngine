@@ -19,6 +19,7 @@ public:
   EZ_ALWAYS_INLINE const ezVulkanAllocationInfo& GetAllocationInfo() const;
   EZ_ALWAYS_INLINE vk::PipelineStageFlags GetUsedByPipelineStage() const;
   EZ_ALWAYS_INLINE vk::AccessFlags GetAccessMask() const;
+  static vk::DeviceSize GetAlignment(const ezGALDeviceVulkan* pDevice, vk::BufferUsageFlags usage);
 
 protected:
   struct BufferVulkan
@@ -31,7 +32,7 @@ protected:
   friend class ezGALDeviceVulkan;
   friend class ezMemoryUtils;
 
-  ezGALBufferVulkan(const ezGALBufferCreationDescription& Description);
+  ezGALBufferVulkan(const ezGALBufferCreationDescription& Description, bool bCPU = false);
 
   virtual ~ezGALBufferVulkan();
 
@@ -39,7 +40,6 @@ protected:
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
   virtual void SetDebugNamePlatform(const char* szName) const override;
   void CreateBuffer() const;
-  vk::DeviceSize GetAlignment(const ezGALDeviceVulkan* pDevice, vk::BufferUsageFlags usage) const;
 
   mutable BufferVulkan m_currentBuffer;
   mutable vk::DescriptorBufferInfo m_resourceBufferInfo;
@@ -56,6 +56,7 @@ protected:
   ezGALDeviceVulkan* m_pDeviceVulkan = nullptr;
   vk::Device m_device;
 
+  bool m_bCPU = false;
   mutable ezString m_sDebugName;
 };
 

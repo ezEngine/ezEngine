@@ -27,6 +27,7 @@ public:
   const ezImage& GetLastScreenshot() { return m_LastScreenshot; }
 
   ezResult LoadScene(const char* szSceneFile);
+  ezWorld* GetWorld() const { return m_pWorld.Borrow(); }
 
 protected:
   virtual ezResult BeforeCoreSystemsStartup() override;

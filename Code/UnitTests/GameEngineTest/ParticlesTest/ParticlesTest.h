@@ -12,6 +12,8 @@ public:
   void SetupSceneSubTest(const char* szFile);
   void SetupParticleSubTest(const char* szFile);
   ezTestAppRun ExecParticleSubTest(ezInt32 iCurFrame);
+
+  ezUInt32 m_uiImageCompareThreshold = 110;
 };
 
 class ezGameEngineTestParticles : public ezGameEngineTest
@@ -61,6 +63,7 @@ private:
   virtual void SetupSubTests() override;
   virtual ezResult InitializeSubTest(ezInt32 iIdentifier) override;
   virtual ezTestAppRun RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount) override;
+  ezUInt32 GetImageCompareThreshold(ezInt32 iIdentifier);
 
   ezInt32 m_iFrame = 0;
   ezGameEngineTestApplication_Particles* m_pOwnApplication = nullptr;

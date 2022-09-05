@@ -31,11 +31,16 @@ Texture2DArray Input;
 
 float4 main(PS_IN input) : SV_Target
 {
+#if CAMERA_MODE == CAMERA_MODE_STEREO
+  int ArrayIndex = input.RenderTargetArrayIndex;
+#else
+  int ArrayIndex = 0;
+#endif
   int mipLevel = 0;
-  float4 res = 0.25f * Input.Load(int4((int)input.Position.x * 2, (int)input.Position.y * 2, input.RenderTargetArrayIndex, mipLevel));
-  res += 0.25f * Input.Load(int4((int)input.Position.x * 2 + 1, (int)input.Position.y * 2, input.RenderTargetArrayIndex, mipLevel));
-  res += 0.25f * Input.Load(int4((int)input.Position.x * 2, (int)input.Position.y * 2 + 1, input.RenderTargetArrayIndex, mipLevel));
-  res += 0.25f * Input.Load(int4((int)input.Position.x * 2 + 1, (int)input.Position.y * 2 + 1, input.RenderTargetArrayIndex, mipLevel));
+  float4 res = 0.25f * Input.Load(int4((int)input.Position.x * 2, (int)input.Position.y * 2, ArrayIndex, mipLevel));
+  res += 0.25f * Input.Load(int4((int)input.Position.x * 2 + 1, (int)input.Position.y * 2, ArrayIndex, mipLevel));
+  res += 0.25f * Input.Load(int4((int)input.Position.x * 2, (int)input.Position.y * 2 + 1, ArrayIndex, mipLevel));
+  res += 0.25f * Input.Load(int4((int)input.Position.x * 2 + 1, (int)input.Position.y * 2 + 1, ArrayIndex, mipLevel));
 
   return res;
 }

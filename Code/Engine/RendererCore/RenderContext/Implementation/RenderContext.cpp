@@ -859,11 +859,18 @@ ezGALSamplerStateHandle ezRenderContext::GetDefaultSamplerState(ezBitflags<ezDef
 void ezRenderContext::LoadBuiltinShader(ezShaderUtils::ezBuiltinShaderType type, ezShaderUtils::ezBuiltinShader& out_shader)
 {
   ezShaderResourceHandle hActiveShader;
+  bool bStereo = false;
   switch (type)
   {
+    case ezShaderUtils::ezBuiltinShaderType::CopyImageArray:
+      bStereo = true;
+      [[fallthrough]];
     case ezShaderUtils::ezBuiltinShaderType::CopyImage:
       hActiveShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Pipeline/Copy.ezShader");
       break;
+    case ezShaderUtils::ezBuiltinShaderType::DownscaleImageArray:
+      bStereo = true;
+      [[fallthrough]];
     case ezShaderUtils::ezBuiltinShaderType::DownscaleImage:
       hActiveShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Pipeline/Downscale.ezShader");
       break;
@@ -875,6 +882,11 @@ void ezRenderContext::LoadBuiltinShader(ezShaderUtils::ezBuiltinShaderType type,
   static ezHashedString sVSRTAI = ezMakeHashedString("VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX");
   static ezHashedString sTrue = ezMakeHashedString("TRUE");
   static ezHashedString sFalse = ezMakeHashedString("FALSE");
+  static ezHashedString sCameraMode = ezMakeHashedString("CAMERA_MODE");
+  static ezHashedString sPerspective = ezMakeHashedString("CAMERA_MODE_PERSPECTIVE");
+  static ezHashedString sStereo = ezMakeHashedString("CAMERA_MODE_STEREO");
+  
+  permutationVariables.Insert(sCameraMode, bStereo ? sStereo : sPerspective);
   if (ezGALDevice::GetDefaultDevice()->GetCapabilities().m_bVertexShaderRenderTargetArrayIndex)
     permutationVariables.Insert(sVSRTAI, sTrue);
   else

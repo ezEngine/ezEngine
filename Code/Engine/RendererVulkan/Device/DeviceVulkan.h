@@ -97,8 +97,8 @@ public:
   ezInitContextVulkan& GetInitContext() const;
   ezProxyAllocator& GetAllocator();
 
-  ezGALTextureHandle CreateTextureInternal(const ezGALTextureCreationDescription& Description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData, vk::Format OverrideFormat);
-
+  ezGALTextureHandle CreateTextureInternal(const ezGALTextureCreationDescription& Description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData, vk::Format OverrideFormat, bool bLinearCPU = false);
+  ezGALBufferHandle CreateBufferInternal(const ezGALBufferCreationDescription& Description, ezArrayPtr<const ezUInt8> pInitialData, bool bCPU = false);
 
   const ezGALFormatLookupTableVulkan& GetFormatLookupTable() const;
 

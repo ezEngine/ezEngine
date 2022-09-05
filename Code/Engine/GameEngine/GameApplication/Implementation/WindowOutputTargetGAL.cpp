@@ -2,6 +2,7 @@
 
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/GameApplication/WindowOutputTarget.h>
+#include <RendererCore/Textures/TextureUtils.h>
 #include <RendererFoundation/CommandEncoder/RenderCommandEncoder.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Device/Pass.h>
@@ -77,6 +78,7 @@ ezResult ezWindowOutputTargetGAL::CaptureImage(ezImage& out_Image)
   const ezGALTexture* pBackbuffer = ezGALDevice::GetDefaultDevice()->GetTexture(hBackbuffer);
   const ezUInt32 uiWidth = pBackbuffer->GetDescription().m_uiWidth;
   const ezUInt32 uiHeight = pBackbuffer->GetDescription().m_uiHeight;
+  const ezEnum<ezGALResourceFormat> format = pBackbuffer->GetDescription().m_Format;
 
   ezDynamicArray<ezUInt8> backbufferData;
   backbufferData.SetCountUninitialized(uiWidth * uiHeight * 4);
@@ -95,7 +97,7 @@ ezResult ezWindowOutputTargetGAL::CaptureImage(ezImage& out_Image)
   ezImageHeader header;
   header.SetWidth(uiWidth);
   header.SetHeight(uiHeight);
-  header.SetImageFormat(ezImageFormat::R8G8B8A8_UNORM);
+  header.SetImageFormat(ezTextureUtils::GalFormatToImageFormat(format, true));
   out_Image.ResetAndAlloc(header);
   ezUInt8* pData = out_Image.GetPixelPointer<ezUInt8>();
 

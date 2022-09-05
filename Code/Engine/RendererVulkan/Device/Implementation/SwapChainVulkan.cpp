@@ -34,6 +34,23 @@ namespace
         return EZ_FAILURE;
     }
   }
+
+  ezGALResourceFormat::Enum GetResourceFormat(vk::Format& format)
+  {
+    switch (format)
+    {
+      case vk::Format::eR8G8B8A8Srgb:
+        return ezGALResourceFormat::RGBAUByteNormalizedsRGB;
+      case vk::Format::eR8G8B8A8Unorm:
+        ezGALResourceFormat::RGBAUByteNormalized;
+      case vk::Format::eB8G8R8A8Srgb:
+        return ezGALResourceFormat::BGRAUByteNormalizedsRGB;
+      case vk::Format::eB8G8R8A8Unorm:
+        ezGALResourceFormat::BGRAUByteNormalized;
+      default:
+        return ezGALResourceFormat::ENUM_COUNT;
+    }
+  }
 } // namespace
 
 void ezGALSwapChainVulkan::AcquireNextRenderTarget(ezGALDevice* pDevice)
@@ -250,7 +267,7 @@ ezResult ezGALSwapChainVulkan::CreateSwapChainInternal()
     m_pVulkanDevice->SetDebugName("SwapChainImage", m_swapChainImages[i]);
 
     ezGALTextureCreationDescription TexDesc;
-    TexDesc.m_Format = m_WindowDesc.m_BackBufferFormat;
+    TexDesc.m_Format = GetResourceFormat(desiredFormat);
     TexDesc.m_uiWidth = swapChainCreateInfo.imageExtent.width;
     TexDesc.m_uiHeight = swapChainCreateInfo.imageExtent.height;
     TexDesc.m_SampleCount = m_WindowDesc.m_SampleCount;

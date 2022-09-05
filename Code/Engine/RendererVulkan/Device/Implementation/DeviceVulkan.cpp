@@ -688,7 +688,7 @@ vk::CommandBuffer& ezGALDeviceVulkan::GetCurrentCommandBuffer()
     // Restart new command buffer if none is active already.
     commandBuffer = m_pCommandBufferPool->RequestCommandBuffer();
     vk::CommandBufferBeginInfo beginInfo;
-    commandBuffer.begin(&beginInfo);
+    VK_ASSERT_DEBUG(commandBuffer.begin(&beginInfo));
     GetCurrentPipelineBarrier().SetCommandBuffer(&commandBuffer);
 
     m_pDefaultPass->SetCurrentCommandBuffer(&commandBuffer, m_pPipelineBarrier.Borrow());
@@ -728,9 +728,9 @@ ezProxyAllocator& ezGALDeviceVulkan::GetAllocator()
   return m_Allocator;
 }
 
-ezGALTextureHandle ezGALDeviceVulkan::CreateTextureInternal(const ezGALTextureCreationDescription& Description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData, vk::Format OverrideFormat)
+ezGALTextureHandle ezGALDeviceVulkan::CreateTextureInternal(const ezGALTextureCreationDescription& Description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData, vk::Format OverrideFormat, bool bStaging)
 {
-  ezGALTextureVulkan* pTexture = EZ_NEW(&m_Allocator, ezGALTextureVulkan, Description, OverrideFormat);
+  ezGALTextureVulkan* pTexture = EZ_NEW(&m_Allocator, ezGALTextureVulkan, Description, OverrideFormat, bStaging);
 
   if (!pTexture->InitPlatform(this, pInitialData).Succeeded())
   {
@@ -739,6 +739,19 @@ ezGALTextureHandle ezGALDeviceVulkan::CreateTextureInternal(const ezGALTextureCr
   }
 
   return FinalizeTextureInternal(Description, pTexture);
+}
+
+ezGALBufferHandle ezGALDeviceVulkan::CreateBufferInternal(const ezGALBufferCreationDescription& Description, ezArrayPtr<const ezUInt8> pInitialData, bool bCPU)
+{
+  ezGALBufferVulkan* pBuffer = EZ_NEW(&m_Allocator, ezGALBufferVulkan, Description, bCPU);
+
+  if (!pBuffer->InitPlatform(this, pInitialData).Succeeded())
+  {
+    EZ_DELETE(&m_Allocator, pBuffer);
+    return ezGALBufferHandle();
+  }
+
+  return FinalizeBufferInternal(Description, pBuffer);
 }
 
 void ezGALDeviceVulkan::BeginPipelinePlatform(const char* szName, ezGALSwapChain* pSwapChain)
@@ -1582,14 +1595,33 @@ void ezGALDeviceVulkan::FillFormatLookupTable()
     return vk::Format::eUndefined;
   };
 
+  auto SelectStorageFormat = [](vk::Format depthFormat) -> vk::Format
+  {
+    switch (depthFormat)
+    {
+    case vk::Format::eD16Unorm:
+      return vk::Format::eR16Unorm;
+    case vk::Format::eD16UnormS8Uint:
+      return vk::Format::eUndefined;
+    case vk::Format::eD24UnormS8Uint:
+      return vk::Format::eUndefined;
+    case vk::Format::eD32Sfloat:
+      return vk::Format::eR32Sfloat;
+    case vk::Format::eD32SfloatS8Uint:
+      return vk::Format::eR32Sfloat;
+    default:
+      return vk::Format::eUndefined;
+    }
+  };
+
   // Select smallest available depth format.  #TODO_VULKAN support packed eX8D24UnormPack32?
   vk::Format depthFormat = SelectDepthFormat({vk::Format::eD16Unorm, vk::Format::eD24UnormS8Uint, vk::Format::eD32Sfloat, vk::Format::eD32SfloatS8Uint});
   m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::D16,
-    ezGALFormatLookupEntryVulkan(depthFormat).RT(depthFormat).RV(depthFormat).DS(depthFormat).D(depthFormat));
+    ezGALFormatLookupEntryVulkan(SelectStorageFormat(depthFormat)).RT(depthFormat).RV(depthFormat).DS(depthFormat).D(depthFormat));
 
   // Select closest depth stencil format.
   depthFormat = SelectDepthFormat({vk::Format::eD24UnormS8Uint, vk::Format::eD32SfloatS8Uint, vk::Format::eD16UnormS8Uint});
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::D24S8, ezGALFormatLookupEntryVulkan(depthFormat)
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::D24S8, ezGALFormatLookupEntryVulkan(SelectStorageFormat(depthFormat))
                                                                   .RT(depthFormat)
                                                                   .RV(depthFormat)
                                                                   .DS(depthFormat)
@@ -1599,7 +1631,7 @@ void ezGALDeviceVulkan::FillFormatLookupTable()
   // Select biggest depth format.
   depthFormat = SelectDepthFormat({vk::Format::eD32Sfloat, vk::Format::eD32SfloatS8Uint, vk::Format::eD24UnormS8Uint, vk::Format::eD16Unorm});
   m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::DFloat,
-    ezGALFormatLookupEntryVulkan(depthFormat).RT(depthFormat).RV(depthFormat).D(depthFormat).DS(depthFormat));
+    ezGALFormatLookupEntryVulkan(SelectStorageFormat(depthFormat)).RT(depthFormat).RV(depthFormat).D(depthFormat).DS(depthFormat));
 
   // TODO is BC1 the rgba or the rgb format?
   m_FormatLookupTable.SetFormatInfo(

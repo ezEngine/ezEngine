@@ -45,7 +45,9 @@ public:
   enum class ezBuiltinShaderType
   {
     CopyImage,
+    CopyImageArray,
     DownscaleImage,
+    DownscaleImageArray,
   };
 
   struct ezBuiltinShader

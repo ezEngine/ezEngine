@@ -41,7 +41,7 @@ public:
   void BufferDestroyed(const ezGALBufferVulkan* pBuffer);
 
   void AccessBuffer(const ezGALBufferVulkan* pBuffer, vk::DeviceSize offset, vk::DeviceSize length, vk::PipelineStageFlags srcStages, vk::AccessFlags srcAccess, vk::PipelineStageFlags dstStages, vk::AccessFlags dstAccess);
-
+  bool IsDirty(vk::Buffer buffer, vk::DeviceSize offset, vk::DeviceSize length, vk::AccessFlags dstAccess);
   ///@}
   /// \name Image handling
   ///@{

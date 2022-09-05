@@ -3,6 +3,7 @@
 #include <RendererVulkan/Device/DeviceVulkan.h>
 #include <RendererVulkan/Resources/RenderTargetViewVulkan.h>
 #include <RendererVulkan/Resources/TextureVulkan.h>
+#include <RendererVulkan/Utils/ConversionUtilsVulkan.h>
 
 bool IsArrayView(const ezGALTextureCreationDescription& texDesc, const ezGALRenderTargetViewCreationDescription& viewDesc)
 {
@@ -35,18 +36,10 @@ ezResult ezGALRenderTargetViewVulkan::InitPlatform(ezGALDevice* pDevice)
     viewFormat = m_Description.m_OverrideViewFormat;
 
   ezGALDeviceVulkan* pVulkanDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
+  auto pTextureVulkan = static_cast<const ezGALTextureVulkan*>(pTexture->GetParentResource());
+  vk::Format vkViewFormat = pTextureVulkan->GetImageFormat();
 
-  vk::Format vkViewFormat = vk::Format::eUndefined;
-
-  const bool bIsDepthFormat = ezGALResourceFormat::IsDepthFormat(viewFormat);
-  if (bIsDepthFormat)
-  {
-    vkViewFormat = pVulkanDevice->GetFormatLookupTable().GetFormatInfo(viewFormat).m_eDepthStencilType;
-  }
-  else
-  {
-    vkViewFormat = pVulkanDevice->GetFormatLookupTable().GetFormatInfo(viewFormat).m_eRenderTarget;
-  }
+  const bool bIsDepthFormat = ezConversionUtilsVulkan::IsDepthFormat(vkViewFormat);
 
   if (vkViewFormat == vk::Format::eUndefined)
   {
@@ -54,7 +47,7 @@ ezResult ezGALRenderTargetViewVulkan::InitPlatform(ezGALDevice* pDevice)
     return EZ_FAILURE;
   }
 
-  auto pTextureVulkan = static_cast<const ezGALTextureVulkan*>(pTexture->GetParentResource());
+  
   vk::Image vkImage = pTextureVulkan->GetImage();
   const bool bIsArrayView = IsArrayView(texDesc, m_Description);
 

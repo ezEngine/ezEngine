@@ -124,6 +124,21 @@ bool ezPipelineBarrierVulkan::IsDirty() const
   return m_srcStageMask || m_dstStageMask;
 }
 
+bool ezPipelineBarrierVulkan::IsDirty(vk::Buffer buffer, vk::DeviceSize offset, vk::DeviceSize length, vk::AccessFlags dstAccess)
+{
+  BufferState* pState = m_bufferState.GetValue(buffer);
+  if (pState)
+  {
+    SubBufferState subState;
+    subState.m_offset = offset;
+    subState.m_length = length;
+    subState.m_stages = {};
+    subState.m_accessMask = dstAccess;
+    return IsDirtyInternal(*pState, subState);
+  }
+  return false;
+}
+
 void ezPipelineBarrierVulkan::AccessBuffer(const ezGALBufferVulkan* pBuffer, vk::DeviceSize offset, vk::DeviceSize length, vk::PipelineStageFlags srcStages, vk::AccessFlags srcAccess, vk::PipelineStageFlags dstStages, vk::AccessFlags dstAccess)
 {
   SubBufferState subState;

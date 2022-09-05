@@ -11,8 +11,10 @@
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/Shader/ShaderResource.h>
 #include <RendererCore/ShaderCompiler/ShaderManager.h>
+#include <RendererCore/Textures/TextureUtils.h>
 #include <RendererFoundation/Device/DeviceFactory.h>
 #include <RendererFoundation/Device/SwapChain.h>
+#include <RendererFoundation/Resources/Texture.h>
 #include <Texture/Image/Image.h>
 #include <Texture/Image/ImageConversion.h>
 #include <Texture/Image/ImageUtils.h>
@@ -105,7 +107,14 @@ ezResult ezGraphicsTest::SetupRenderer()
   }
   else if (ezStringUtils::IsEqual_NoCase(szRendererName, "Vulkan"))
   {
-    ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_Vulkan");
+    if (m_pDevice->GetCapabilities().m_sAdapterName.FindSubString_NoCase("llvmpipe"))
+    {
+      ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_LLVMPIPE");
+    }
+    else
+    {
+      ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_Vulkan");
+    }
   }
 
   m_hObjectTransformCB = ezRenderContext::CreateConstantBufferStorage<ObjectCB>();
@@ -230,12 +239,14 @@ ezResult ezGraphicsTest::GetImage(ezImage& img)
   auto pCommandEncoder = ezRenderContext::GetDefaultInstance()->GetCommandEncoder();
 
   ezGALTextureHandle hBBTexture = m_pDevice->GetSwapChain(m_hSwapChain)->GetBackBufferTexture();
+  const ezGALTexture* pBackbuffer = ezGALDevice::GetDefaultDevice()->GetTexture(hBBTexture);
   pCommandEncoder->ReadbackTexture(hBBTexture);
+  const ezEnum<ezGALResourceFormat> format = pBackbuffer->GetDescription().m_Format;
 
   ezImageHeader header;
   header.SetWidth(m_pWindow->GetClientAreaSize().width);
   header.SetHeight(m_pWindow->GetClientAreaSize().height);
-  header.SetImageFormat(ezImageFormat::R8G8B8A8_UNORM);
+  header.SetImageFormat(ezTextureUtils::GalFormatToImageFormat(format, true));
   img.ResetAndAlloc(header);
 
   ezGALSystemMemoryDescription MemDesc;

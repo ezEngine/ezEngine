@@ -145,6 +145,7 @@ ezResult ezGALShaderVulkan::InitPlatform(ezGALDevice* pDevice)
             bindingMapping.m_stage = (ezGALShaderStage::Enum)i;
             bindingMapping.m_uiSource = binding.m_uiVirtualBinding;
             bindingMapping.m_uiTarget = uiTargetBinding;
+            bindingMapping.m_sName = binding.m_sName;
           }
         }
       }
