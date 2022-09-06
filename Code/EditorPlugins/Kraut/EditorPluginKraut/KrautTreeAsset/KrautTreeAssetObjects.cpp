@@ -101,7 +101,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezKrautAssetBranchType, ezNoBase, 1, ezRTTINoAllo
     // Growth
     EZ_MEMBER_PROPERTY("MinBranchLength", m_uiMinBranchLengthInCM)->AddAttributes(new ezDefaultValueAttribute(100), new ezClampValueAttribute(1, 10000), new ezSuffixAttribute("cm"), new ezGroupAttribute("Branch Growth")),
     EZ_MEMBER_PROPERTY("MaxBranchLength", m_uiMaxBranchLengthInCM)->AddAttributes(new ezDefaultValueAttribute(100), new ezClampValueAttribute(1, 10000), new ezSuffixAttribute("cm")),
-    EZ_MEMBER_PROPERTY("MaxBranchLengthParentScale", m_MaxBranchLengthParentScale)->AddAttributes(new ezSingleCurveDataAttribute(ezColor::Brown, 1.0f, true)),
+    EZ_MEMBER_PROPERTY("MaxBranchLengthParentScale", m_MaxBranchLengthParentScale)->AddAttributes(new ezColorAttribute(ezColor::Brown), new ezCurveExtentsAttribute(0.0, true, 1.0f, true), new ezClampValueAttribute(0.0, 1.0), new ezDefaultValueAttribute(1.0)),
     EZ_MEMBER_PROPERTY("TargetDirDeviation", m_GrowMaxTargetDirDeviation)->AddAttributes(new ezDefaultValueAttribute(ezAngle()), new ezClampValueAttribute(ezAngle::Degree(0), ezAngle::Degree(180))),
     EZ_MEMBER_PROPERTY("DirChangePerSegment", m_GrowMaxDirChangePerSegment)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(5)), new ezClampValueAttribute(ezAngle::Degree(0), ezAngle::Degree(90))),
     EZ_MEMBER_PROPERTY("OnlyGrowUpAndDown", m_bRestrictGrowthToFrondPlane),
@@ -119,11 +119,11 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezKrautAssetBranchType, ezNoBase, 1, ezRTTINoAllo
 
     EZ_MEMBER_PROPERTY("EnableMesh", m_bEnableMesh)->AddAttributes(new ezDefaultValueAttribute(true), new ezGroupAttribute("Branch Mesh")),
     EZ_MEMBER_PROPERTY("BranchMaterial", m_sBranchMaterial)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Material")),
-    EZ_MEMBER_PROPERTY("BranchContour", m_BranchContour)->AddAttributes(new ezSingleCurveDataAttribute(ezColor::Brown, 1.0f, true)),
+    EZ_MEMBER_PROPERTY("BranchContour", m_BranchContour)->AddAttributes(new ezColorAttribute(ezColor::Brown), new ezCurveExtentsAttribute(0.0f, true, 1.0f, true), new ezClampValueAttribute(0.1, 1.0), new ezDefaultValueAttribute(1.0)),
     EZ_MEMBER_PROPERTY("Roundness", m_fRoundnessFactor)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, 1.0f)),
     EZ_MEMBER_PROPERTY("Flares", m_uiFlares)->AddAttributes(new ezDefaultValueAttribute(0), new ezClampValueAttribute(0, 16)),
     EZ_MEMBER_PROPERTY("FlareWidth", m_fFlareWidth)->AddAttributes(new ezDefaultValueAttribute(2.0f), new ezClampValueAttribute(0.0f, 10.0f)),
-    EZ_MEMBER_PROPERTY("FlareWidthCurve", m_FlareWidthCurve)->AddAttributes(new ezSingleCurveDataAttribute(ezColor::FloralWhite, 1.0f, true)),
+    EZ_MEMBER_PROPERTY("FlareWidthCurve", m_FlareWidthCurve)->AddAttributes(new ezColorAttribute(ezColor::FloralWhite), new ezCurveExtentsAttribute(0.0, true, 1.0, true), new ezClampValueAttribute(0.0, 1.0), new ezDefaultValueAttribute(1.0)),
     EZ_MEMBER_PROPERTY("FlareRotation", m_FlareRotation)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(0)), new ezClampValueAttribute(ezAngle::Degree(-720), ezAngle::Degree(720))),
     EZ_MEMBER_PROPERTY("RotateTexCoords", m_bRotateTexCoords)->AddAttributes(new ezDefaultValueAttribute(true)),
 
@@ -137,12 +137,12 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezKrautAssetBranchType, ezNoBase, 1, ezRTTINoAllo
     EZ_MEMBER_PROPERTY("NumFronds", m_uiNumFronds)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(1, 16)),
     EZ_MEMBER_PROPERTY("AlignFrondsOnSurface", m_bAlignFrondsOnSurface),
     EZ_MEMBER_PROPERTY("FrondDetail", m_uiFrondDetail)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(0, 32)),
-    EZ_MEMBER_PROPERTY("FrondContour", m_FrondContour)->AddAttributes(new ezSingleCurveDataAttribute(ezColor::LawnGreen, 1.0f, true)),
+    EZ_MEMBER_PROPERTY("FrondContour", m_FrondContour)->AddAttributes(new ezColorAttribute(ezColor::LawnGreen), new ezCurveExtentsAttribute(0.0, true, 1.0, true), new ezClampValueAttribute(0.0, 1.0), new ezDefaultValueAttribute(1.0)),
     EZ_ENUM_MEMBER_PROPERTY("FrondContourMode", ezKrautFrondContourMode, m_FrondContourMode),
     EZ_MEMBER_PROPERTY("FrondHeight", m_fFrondHeight)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, 10.0f)),
-    EZ_MEMBER_PROPERTY("FrondHeightScale", m_FrondHeight)->AddAttributes(new ezSingleCurveDataAttribute(ezColor::LawnGreen, 1.0f, true)),
+    EZ_MEMBER_PROPERTY("FrondHeightScale", m_FrondHeight)->AddAttributes(new ezColorAttribute(ezColor::LawnGreen), new ezCurveExtentsAttribute(0.0, true, 1.0, true), new ezClampValueAttribute(-1.0, 1.0)),
     EZ_MEMBER_PROPERTY("FrondWidth", m_fFrondWidth)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, 10.0f)),
-    EZ_MEMBER_PROPERTY("FrondWidthScale", m_FrondWidth)->AddAttributes(new ezSingleCurveDataAttribute(ezColor::LawnGreen, 1.0f, true)),
+    EZ_MEMBER_PROPERTY("FrondWidthScale", m_FrondWidth)->AddAttributes(new ezColorAttribute(ezColor::LawnGreen), new ezCurveExtentsAttribute(0.0, true, 1.0, true), new ezClampValueAttribute(0.0, 1.0), new ezDefaultValueAttribute(1.0)),
     //EZ_MEMBER_PROPERTY("FrondVariationColor", m_FrondVariationColor)->AddAttributes(new ezDefaultValueAttribute(ezColor::White)),
 
     // Leaves
@@ -151,7 +151,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezKrautAssetBranchType, ezNoBase, 1, ezRTTINoAllo
     EZ_MEMBER_PROPERTY("LeafMaterial", m_sLeafMaterial)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Material")),
     EZ_MEMBER_PROPERTY("BillboardLeaves", m_bBillboardLeaves)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_MEMBER_PROPERTY("LeafSize", m_fLeafSize)->AddAttributes(new ezDefaultValueAttribute(0.25f), new ezClampValueAttribute(0.01f, 10.0f)),
-    EZ_MEMBER_PROPERTY("LeafScale", m_LeafScale)->AddAttributes(new ezSingleCurveDataAttribute(ezColor::LightGreen, 1.0f, true)),
+    EZ_MEMBER_PROPERTY("LeafScale", m_LeafScale)->AddAttributes(new ezColorAttribute(ezColor::LightGreen), new ezCurveExtentsAttribute(0.0, true, 1.0, true), new ezClampValueAttribute(0.0, 1.0), new ezDefaultValueAttribute(1.0)),
     EZ_MEMBER_PROPERTY("LeafInterval", m_fLeafInterval)->AddAttributes(new ezDefaultValueAttribute(0.0f), new ezClampValueAttribute(0.0f, 10.0f)),
     //EZ_MEMBER_PROPERTY("LeafVariationColor", m_LeafVariationColor)->AddAttributes(new ezDefaultValueAttribute(ezColor::White)),
 
@@ -198,11 +198,11 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezKrautTreeAssetProperties::ezKrautTreeAssetProperties() = default;
 ezKrautTreeAssetProperties::~ezKrautTreeAssetProperties() = default;
 
-void CopyCurve(Kraut::Curve& dst, const ezSingleCurveData& src, ezUInt32 uiNumSamples)
+void CopyCurve(Kraut::Curve& dst, const ezSingleCurveData& src, ezUInt32 uiNumSamples, float fDefaultValue)
 {
   if (src.m_ControlPoints.IsEmpty())
   {
-    dst.Initialize(2, 1.0f, 0.0f, 1.0f); // TODO: default + ranges?
+    dst.Initialize(1, fDefaultValue, 0.0f, 1.0f);
   }
   else
   {
@@ -210,7 +210,7 @@ void CopyCurve(Kraut::Curve& dst, const ezSingleCurveData& src, ezUInt32 uiNumSa
     src.ConvertToRuntimeData(c);
     c.CreateLinearApproximation();
 
-    dst.Initialize(uiNumSamples, 1.0f, 0.0f, 1.0f);
+    dst.Initialize(uiNumSamples, fDefaultValue, 0.0f, 1.0f);
 
     const double invSam = 1.0 / (uiNumSamples - 1);
     for (ezUInt32 i = 0; i < uiNumSamples; ++i)
@@ -304,7 +304,7 @@ void CopyConfig(Kraut::SpawnNodeDesc& nd, const ezKrautAssetBranchType& bt, ezDy
 
   nd.m_uiMinBranchLengthInCM = ezMath::Clamp<ezUInt16>(bt.m_uiMinBranchLengthInCM, 1, 10000);
   nd.m_uiMaxBranchLengthInCM = ezMath::Clamp<ezUInt16>(bt.m_uiMaxBranchLengthInCM, nd.m_uiMinBranchLengthInCM, 10000);
-  CopyCurve(nd.m_MaxBranchLengthParentScale, bt.m_MaxBranchLengthParentScale, 20);
+  CopyCurve(nd.m_MaxBranchLengthParentScale, bt.m_MaxBranchLengthParentScale, 20, 1.0f);
   nd.m_fGrowMaxTargetDirDeviation = bt.m_GrowMaxTargetDirDeviation.GetDegree();
   nd.m_fGrowMaxDirChangePerSegment = bt.m_GrowMaxDirChangePerSegment.GetDegree();
   nd.m_bRestrictGrowthToFrondPlane = bt.m_bRestrictGrowthToFrondPlane;
@@ -321,11 +321,11 @@ void CopyConfig(Kraut::SpawnNodeDesc& nd, const ezKrautAssetBranchType& bt, ezDy
 
   // Branch Mesh
 
-  CopyCurve(nd.m_BranchContour, bt.m_BranchContour, 50);
+  CopyCurve(nd.m_BranchContour, bt.m_BranchContour, 50, 1.0f);
   nd.m_fRoundnessFactor = bt.m_fRoundnessFactor;
   nd.m_uiFlares = bt.m_uiFlares;
   nd.m_fFlareWidth = bt.m_fFlareWidth;
-  CopyCurve(nd.m_FlareWidthCurve, bt.m_FlareWidthCurve, 50);
+  CopyCurve(nd.m_FlareWidthCurve, bt.m_FlareWidthCurve, 50, 1.0f);
   nd.m_fFlareRotation = bt.m_FlareRotation.GetDegree();
   nd.m_bRotateTexCoords = bt.m_bRotateTexCoords;
 
@@ -337,18 +337,18 @@ void CopyConfig(Kraut::SpawnNodeDesc& nd, const ezKrautAssetBranchType& bt, ezDy
   nd.m_uiNumFronds = bt.m_uiNumFronds;
   nd.m_bAlignFrondsOnSurface = bt.m_bAlignFrondsOnSurface;
   nd.m_uiFrondDetail = bt.m_uiFrondDetail;
-  CopyCurve(nd.m_FrondContour, bt.m_FrondContour, 40);
+  CopyCurve(nd.m_FrondContour, bt.m_FrondContour, 40, 1.0f);
   nd.m_FrondContourMode = (Kraut::SpawnNodeDesc::FrondContourMode)bt.m_FrondContourMode.GetValue();
   nd.m_fFrondHeight = bt.m_fFrondHeight;
-  CopyCurve(nd.m_FrondHeight, bt.m_FrondHeight, 50);
+  CopyCurve(nd.m_FrondHeight, bt.m_FrondHeight, 50, 0.0f);
   nd.m_fFrondWidth = bt.m_fFrondWidth;
-  CopyCurve(nd.m_FrondWidth, bt.m_FrondWidth, 50);
+  CopyCurve(nd.m_FrondWidth, bt.m_FrondWidth, 50, 1.0f);
 
   // Leaves
 
   nd.m_bBillboardLeaves = bt.m_bBillboardLeaves;
   nd.m_fLeafSize = bt.m_fLeafSize;
-  CopyCurve(nd.m_LeafScale, bt.m_LeafScale, 25);
+  CopyCurve(nd.m_LeafScale, bt.m_LeafScale, 25, 1.0f);
   nd.m_fLeafInterval = bt.m_fLeafInterval;
 
   // Shared
