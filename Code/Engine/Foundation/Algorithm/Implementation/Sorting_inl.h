@@ -87,7 +87,6 @@ ezUInt32 ezSorting::Partition(Container& inout_container, ezUInt32 uiLeft, ezUIn
     else if (DoCompare(comparer, inout_container[uiLeft], inout_container[uiPivotIndex]))
     {
       // left < pivot < right
-      uiPivotIndex = uiPivotIndex;
     }
     else
     {
@@ -106,7 +105,6 @@ ezUInt32 ezSorting::Partition(Container& inout_container, ezUInt32 uiLeft, ezUIn
     else if (DoCompare(comparer, inout_container[uiRight], inout_container[uiPivotIndex]))
     {
       // right < pivot < left
-      uiPivotIndex = uiPivotIndex;
     }
     else
     {
@@ -187,7 +185,6 @@ ezUInt32 ezSorting::Partition(T* pPtr, ezUInt32 uiLeft, ezUInt32 uiRight, const 
     else if (DoCompare(comparer, pPtr[uiLeft], pPtr[uiPivotIndex]))
     {
       // left < pivot < right
-      uiPivotIndex = uiPivotIndex;
     }
     else
     {
@@ -206,7 +203,6 @@ ezUInt32 ezSorting::Partition(T* pPtr, ezUInt32 uiLeft, ezUInt32 uiRight, const 
     else if (DoCompare(comparer, pPtr[uiRight], pPtr[uiPivotIndex]))
     {
       // right < pivot < left
-      uiPivotIndex = uiPivotIndex;
     }
     else
     {
