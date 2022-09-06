@@ -291,7 +291,7 @@ class EZ_GUIFOUNDATION_DLL ezQtCurve1DButtonWidget : public QLabel
 public:
   explicit ezQtCurve1DButtonWidget(QWidget* parent);
 
-  void UpdatePreview(ezObjectAccessorBase* pObjectAccessor, const ezDocumentObject* pCurveObject, QColor color, float minLength, bool fixedLength);
+  void UpdatePreview(ezObjectAccessorBase* pObjectAccessor, const ezDocumentObject* pCurveObject, QColor color, double fLowerExtents, bool bLowerFixed, double fUpperExtents, bool bUpperFixed, double fDefaultValue, double fLowerRange, double fUpperRange);
 
 Q_SIGNALS:
   void clicked();
@@ -318,5 +318,5 @@ protected:
 
 protected:
   QHBoxLayout* m_pLayout = nullptr;
-  ezQtCurve1DButtonWidget* m_pWidget = nullptr;
+  ezQtCurve1DButtonWidget* m_pButton = nullptr;
 };

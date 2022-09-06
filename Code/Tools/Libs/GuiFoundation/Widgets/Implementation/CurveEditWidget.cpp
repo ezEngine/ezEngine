@@ -32,7 +32,7 @@ ezQtCurveEditWidget::ezQtCurveEditWidget(QWidget* parent)
   m_TangentHandleBrush.setStyle(Qt::BrushStyle::SolidPattern);
 }
 
-void ezQtCurveEditWidget::SetCurves(ezCurveGroupData* pCurveEditData, double fMinCurveLength, bool bCurveLengthIsFixed)
+void ezQtCurveEditWidget::SetCurves(ezCurveGroupData* pCurveEditData)
 {
   m_pCurveEditData = pCurveEditData;
 
@@ -61,9 +61,10 @@ void ezQtCurveEditWidget::SetCurves(ezCurveGroupData* pCurveEditData, double fMi
 
   m_CurvesSorted = m_Curves;
   m_CurveExtents.SetCount(m_Curves.GetCount());
-  m_fMaxCurveExtent = fMinCurveLength;
-  m_fMinValue = ezMath::MaxValue<float>();
-  m_fMaxValue = -ezMath::MaxValue<float>();
+  m_fMinExtentValue = m_fLowerExtent;
+  m_fMaxExtentValue = m_fUpperExtent;
+  m_fMinValue = ezMath::HighValue<float>();
+  m_fMaxValue = -ezMath::HighValue<float>();
 
   for (ezUInt32 i = 0; i < m_CurvesSorted.GetCount(); ++i)
   {
@@ -77,8 +78,10 @@ void ezQtCurveEditWidget::SetCurves(ezCurveGroupData* pCurveEditData, double fMi
     double fMin, fMax;
     curve.QueryExtremeValues(fMin, fMax);
 
-    if (!bCurveLengthIsFixed)
-      m_fMaxCurveExtent = ezMath::Max(m_fMaxCurveExtent, m_CurveExtents[i].y);
+    if (!m_bLowerExtentFixed)
+      m_fMinExtentValue = ezMath::Min(m_fMinExtentValue, m_CurveExtents[i].x);
+    if (!m_bUpperExtentFixed)
+      m_fMaxExtentValue = ezMath::Max(m_fMaxExtentValue, m_CurveExtents[i].y);
 
     m_fMinValue = ezMath::Min(m_fMinValue, fMin);
     m_fMaxValue = ezMath::Max(m_fMaxValue, fMax);
@@ -99,19 +102,35 @@ void ezQtCurveEditWidget::SetScrubberPosition(double fPosition)
 
 void ezQtCurveEditWidget::FrameCurve()
 {
-  double fWidth = m_fMaxCurveExtent;
-  double fHeight = m_fMaxValue - m_fMinValue;
-  double fOffsetX = 0;
-  double fOffsetY = m_fMinValue;
+  double fLowPoint = m_fMinValue;
+  double fUprPoint = m_fMaxValue;
+
+  if (m_fLowerRange > -ezMath::HighValue<double>() * 0.5)
+    fLowPoint = ezMath::Min(fLowPoint, m_fLowerRange);
+  else
+    fLowPoint = ezMath::Min(fLowPoint, 0.0);
+
+  if (m_fUpperRange < ezMath::HighValue<double>() * 0.5)
+    fUprPoint = ezMath::Max(fUprPoint, m_fUpperRange);
+  else
+    fUprPoint = ezMath::Max(fUprPoint, 1.0);
+
+  double fLeftPoint = ezMath::Min(0.0, m_fMinExtentValue);
+  double fRightPoint = ezMath::Max(1.0, m_fMaxExtentValue);
+
+  double fWidth = ezMath::Max(1.0, fRightPoint - fLeftPoint);
+  double fHeight = fUprPoint - fLowPoint;
+  double fOffsetX = fLeftPoint;
+  double fOffsetY = fLowPoint;
 
   Frame(fOffsetX, fOffsetY, fWidth, fHeight);
 }
 
 void ezQtCurveEditWidget::FrameSelection()
 {
-  double fWidth = m_fMaxCurveExtent;
+  double fWidth = m_fMaxExtentValue - m_fMinExtentValue;
   double fHeight = m_fMaxValue - m_fMinValue;
-  double fOffsetX = 0;
+  double fOffsetX = m_fMinExtentValue;
   double fOffsetY = m_fMinValue;
 
   if (m_Curves.GetCount() == 0)
@@ -322,16 +341,18 @@ void ezQtCurveEditWidget::paintEvent(QPaintEvent* e)
 
   if (m_pGridBar)
   {
-    m_pGridBar->SetConfig(viewportSceneRect, fRoughGridDensity, fFineGridDensity, [this](const QPointF& pt) -> QPoint { return MapFromScene(pt); });
+    m_pGridBar->SetConfig(viewportSceneRect, fRoughGridDensity, fFineGridDensity, [this](const QPointF& pt) -> QPoint
+      { return MapFromScene(pt); });
   }
 
   RenderSideLinesAndText(&painter, viewportSceneRect);
 
+  const float fExtWidth = (float)(m_fMaxExtentValue - m_fMinExtentValue);
+
+  RenderValueRanges(&painter);
   PaintCurveSegments(&painter, 0, 255);
-  PaintCurveSegments(&painter, m_fMaxCurveExtent, 200);
-  PaintCurveSegments(&painter, 2.0f * m_fMaxCurveExtent, 150);
-  PaintCurveSegments(&painter, 3.0f * m_fMaxCurveExtent, 100);
-  PaintCurveSegments(&painter, 4.0f * m_fMaxCurveExtent, 50);
+  PaintCurveSegments(&painter, fExtWidth, 200);
+  PaintCurveSegments(&painter, 2.0f * fExtWidth, 150);
   PaintOutsideAreaOverlay(&painter);
   PaintSelectedTangentLines(&painter);
   PaintControlPoints(&painter);
@@ -831,9 +852,9 @@ void ezQtCurveEditWidget::PaintCurveSegments(QPainter* painter, float fOffsetX, 
       // line from zero to first cp
       {
         const ezCurve1D::ControlPoint& cp = curve.GetControlPoint(0);
-        path.moveTo(MapFromScene(QPointF(fOffsetX, cp.m_Position.y)));
+        path.moveTo(MapFromScene(QPointF(fOffsetX + m_fMinExtentValue, cp.m_Position.y)));
 
-        if (cp.m_Position.x > 0)
+        if (cp.m_Position.x > m_fMinExtentValue)
         {
           path.lineTo(MapFromScene(QPointF(fOffsetX + cp.m_Position.x, cp.m_Position.y)));
         }
@@ -859,9 +880,9 @@ void ezQtCurveEditWidget::PaintCurveSegments(QPainter* painter, float fOffsetX, 
       {
         const ezCurve1D::ControlPoint& cp = curve.GetControlPoint(numCps - 1);
 
-        if (cp.m_Position.x < m_fMaxCurveExtent)
+        if (cp.m_Position.x < m_fMaxExtentValue)
         {
-          path.lineTo(MapFromScene(QPointF(fOffsetX + m_fMaxCurveExtent, cp.m_Position.y)));
+          path.lineTo(MapFromScene(QPointF(fOffsetX + m_fMaxExtentValue, cp.m_Position.y)));
         }
       }
 
@@ -898,21 +919,36 @@ void ezQtCurveEditWidget::PaintCurveSegments(QPainter* painter, float fOffsetX, 
 
 void ezQtCurveEditWidget::PaintOutsideAreaOverlay(QPainter* painter) const
 {
-  const int iRightEdge = MapFromScene(QPointF(ezMath::Max(0.0, m_fMaxCurveExtent), 0)).x();
+  const int iLeftEdge = MapFromScene(QPointF(m_fMinExtentValue, 0)).x();
+  const int iRightEdge = MapFromScene(QPointF(m_fMaxExtentValue, 0)).x();
 
-  if (iRightEdge >= rect().width())
-    return;
+  if (iLeftEdge > 0)
+  {
+    QRect area = rect();
+    area.setRight(iLeftEdge);
 
-  QRect area = rect();
-  area.setLeft(iRightEdge);
+    QBrush b;
+    b.setColor(palette().light().color());
+    b.setStyle(Qt::BrushStyle::Dense6Pattern);
 
-  QBrush b;
-  b.setColor(palette().light().color());
-  b.setStyle(Qt::BrushStyle::Dense6Pattern);
+    painter->setPen(Qt::NoPen);
+    painter->setBrush(b);
+    painter->drawRect(area);
+  }
 
-  painter->setPen(Qt::NoPen);
-  painter->setBrush(b);
-  painter->drawRect(area);
+  if (iRightEdge < rect().width())
+  {
+    QRect area = rect();
+    area.setLeft(iRightEdge);
+
+    QBrush b;
+    b.setColor(palette().light().color());
+    b.setStyle(Qt::BrushStyle::Dense6Pattern);
+
+    painter->setPen(Qt::NoPen);
+    painter->setBrush(b);
+    painter->drawRect(area);
+  }
 }
 
 void ezQtCurveEditWidget::PaintControlPoints(QPainter* painter) const
@@ -1246,6 +1282,20 @@ void ezQtCurveEditWidget::RenderSideLinesAndText(QPainter* painter, const QRectF
   }
 
   painter->restore();
+}
+
+void ezQtCurveEditWidget::RenderValueRanges(QPainter* painter)
+{
+  const int iUpperEdge = MapFromScene(QPointF(0, m_fUpperRange)).y();
+  const int iLowerEdge = MapFromScene(QPointF(0, m_fLowerRange)).y();
+
+  QPen p(QColor(255, 200, 0, 200));
+  p.setStyle(Qt::PenStyle::DashLine);
+  p.setWidth(1);
+
+  painter->setPen(p);
+  painter->drawLine(rect().left(), iUpperEdge, rect().right(), iUpperEdge);
+  painter->drawLine(rect().left(), iLowerEdge, rect().right(), iLowerEdge);
 }
 
 bool ezQtCurveEditWidget::PickCpAt(const QPoint& pos, float fMaxPixelDistance, ezSelectedCurveCP& out_Result) const

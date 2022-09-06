@@ -20,11 +20,20 @@ class EZ_GUIFOUNDATION_DLL ezQtCurveEditWidget : public QWidget
 public:
   ezQtCurveEditWidget(QWidget* parent);
 
-  void SetCurves(ezCurveGroupData* pCurveEditData, double fMinCurveLength, bool bCurveLengthIsFixed);
+  double m_fLowerRange = -ezMath::HighValue<double>();
+  double m_fUpperRange = ezMath::HighValue<double>();
+  double m_fLowerExtent = 0.0;
+  double m_fUpperExtent = 1.0;
+  bool m_bLowerExtentFixed = false;
+  bool m_bUpperExtentFixed = false;
+
+  void SetCurves(ezCurveGroupData* pCurveEditData);
   void SetGridBarWidget(ezQGridBarWidget* pGridBar) { m_pGridBar = pGridBar; }
 
   void SetScrubberPosition(double fPosition);
-  double GetMaxCurveExtent() const { return m_fMaxCurveExtent; }
+
+  double GetMinCurveExtent() const { return m_fMinExtentValue; }
+  double GetMaxCurveExtent() const { return m_fMaxExtentValue; }
 
   void FrameCurve();
   void FrameSelection();
@@ -107,6 +116,7 @@ private:
   void PaintScrubber(QPainter& p) const;
   void RenderVerticalGrid(QPainter* painter, const QRectF& viewportSceneRect, double fRoughGridDensity);
   void RenderSideLinesAndText(QPainter* painter, const QRectF& viewportSceneRect);
+  void RenderValueRanges(QPainter* painter);
   QRectF ComputeViewportSceneRect() const;
   bool PickCpAt(const QPoint& pos, float fMaxPixelDistance, ezSelectedCurveCP& out_Result) const;
   ClickTarget DetectClickTarget(const QPoint& pos);
@@ -126,8 +136,10 @@ private:
   ezHybridArray<ezCurve1D, 4> m_Curves;
   ezHybridArray<ezCurve1D, 4> m_CurvesSorted;
   ezHybridArray<ezVec2d, 4> m_CurveExtents;
-  double m_fMaxCurveExtent;
+  double m_fMinExtentValue;
+  double m_fMaxExtentValue;
   double m_fMinValue, m_fMaxValue;
+
 
   QPointF m_SceneTranslation;
   QPointF m_SceneToPixelScale;
@@ -156,4 +168,3 @@ private:
   bool m_bShowScrubber = false;
   double m_fScrubberPosition = 0;
 };
-

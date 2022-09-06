@@ -13,10 +13,14 @@ class EZ_GUIFOUNDATION_DLL ezQtCurveEditDlg : public QDialog, Ui_CurveEditDlg
 {
   Q_OBJECT
 public:
-  ezQtCurveEditDlg(ezObjectAccessorBase* pObjectAccessor, const ezDocumentObject* pCurveObject, ezColorGammaUB curveColor, double fMinCurveLength, bool bCurveLengthIsFixed, QWidget* parent);
+  ezQtCurveEditDlg(ezObjectAccessorBase* pObjectAccessor, const ezDocumentObject* pCurveObject, QWidget* parent);
   ~ezQtCurveEditDlg();
 
   static QByteArray GetLastDialogGeometry() { return s_LastDialogGeometry; }
+
+  void SetCurveColor(const ezColor& color);
+  void SetCurveExtents(double fLower, bool bLowerFixed, double fUpper, bool bUpperFixed);
+  void SetCurveRanges(double fLower, double fUpper);
 
   virtual void reject() override;
   virtual void accept() override;
@@ -50,7 +54,12 @@ private:
   void RetrieveCurveState();
   void UpdatePreview();
 
-  double m_fMinCurveLength = 1.0;
+  double m_fLowerRange = -ezMath::HighValue<double>();
+  double m_fUpperRange = ezMath::HighValue<double>();
+  double m_fLowerExtents = 0.0;
+  double m_fUpperExtents = 1.0;
+  bool m_bLowerFixed = false;
+  bool m_bUpperFixed = false;
   bool m_bCurveLengthIsFixed = false;
   ezCurveGroupData m_Curves;
   ezUInt32 m_uiActionsUndoBaseline = 0;
@@ -62,5 +71,7 @@ private:
   const ezDocumentObject* m_pCurveObject = nullptr;
 
 protected:
-  virtual void closeEvent(QCloseEvent*) override;
+  virtual void closeEvent(QCloseEvent* e) override;
+  virtual void showEvent(QShowEvent* e) override;
+
 };

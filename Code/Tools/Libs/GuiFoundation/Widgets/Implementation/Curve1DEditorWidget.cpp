@@ -34,14 +34,28 @@ ezQtCurve1DEditorWidget::ezQtCurve1DEditorWidget(QWidget* pParent)
 
 ezQtCurve1DEditorWidget::~ezQtCurve1DEditorWidget() {}
 
-void ezQtCurve1DEditorWidget::SetCurves(const ezCurveGroupData& curves, double fMinCurveLength, bool bCurveLengthIsFixed)
+void ezQtCurve1DEditorWidget::SetCurveExtents(double fLowerBound, double fUpperBound, bool bLowerIsFixed, bool bUpperIsFixed)
+{
+  CurveEdit->m_fLowerExtent = fLowerBound;
+  CurveEdit->m_fUpperExtent = fUpperBound;
+  CurveEdit->m_bLowerExtentFixed = bLowerIsFixed;
+  CurveEdit->m_bUpperExtentFixed = bUpperIsFixed;
+}
+
+void ezQtCurve1DEditorWidget::SetCurveRanges(double fLowerRange, double fUpperRange)
+{
+  CurveEdit->m_fLowerRange = fLowerRange;
+  CurveEdit->m_fUpperRange = fUpperRange;
+}
+
+void ezQtCurve1DEditorWidget::SetCurves(const ezCurveGroupData& curves)
 {
   ezQtScopedUpdatesDisabled ud(this);
   ezQtScopedBlockSignals bs(this);
 
   m_Curves.CloneFrom(curves);
 
-  CurveEdit->SetCurves(&m_Curves, fMinCurveLength, bCurveLengthIsFixed);
+  CurveEdit->SetCurves(&m_Curves);
   m_fCurveDuration = CurveEdit->GetMaxCurveExtent();
 
   UpdateSpinBoxes();
@@ -319,8 +333,8 @@ void ezQtCurve1DEditorWidget::onMoveControlPoints(double x, double y)
   {
     const auto& cp = m_CurvesBackup.m_Curves[cpSel.m_uiCurve]->m_ControlPoints[cpSel.m_uiPoint];
     ezVec2d newPos = ezVec2d(cp.GetTickAsTime().GetSeconds(), cp.m_fValue) + m_ControlPointMove;
-    newPos.x = ezMath::Max(newPos.x, 0.0);
-    newPos.y = ezMath::Clamp(newPos.y, -100000.0, +100000.0);
+
+    ClampPoint(newPos.x, newPos.y);
 
     Q_EMIT CpMovedEvent(cpSel.m_uiCurve, cpSel.m_uiPoint, m_Curves.TickFromTime(ezTime::Seconds(newPos.x)), newPos.y);
   }
@@ -344,8 +358,8 @@ void ezQtCurve1DEditorWidget::onScaleControlPoints(QPointF refPt, double scaleX,
   {
     const auto& cp = m_CurvesBackup.m_Curves[cpSel.m_uiCurve]->m_ControlPoints[cpSel.m_uiPoint];
     ezVec2d newPos = ref + (ezVec2d(cp.GetTickAsTime().GetSeconds(), cp.m_fValue) - ref).CompMul(scale);
-    newPos.x = ezMath::Max(newPos.x, 0.0);
-    newPos.y = ezMath::Clamp(newPos.y, -100000.0, +100000.0);
+
+    ClampPoint(newPos.x, newPos.y);
 
     Q_EMIT CpMovedEvent(cpSel.m_uiCurve, cpSel.m_uiPoint, m_Curves.TickFromTime(ezTime::Seconds(newPos.x)), newPos.y);
   }
@@ -415,14 +429,17 @@ void ezQtCurve1DEditorWidget::onContextMenu(QPoint pos, QPointF scenePos)
   const auto& selection = CurveEdit->GetSelection();
 
   QMenu* cmSel = m.addMenu("Selection");
-  cmSel->addAction("Select All\tCtrl+A", this, [this]() { CurveEdit->SelectAll(); });
+  cmSel->addAction("Select All\tCtrl+A", this, [this]()
+    { CurveEdit->SelectAll(); });
 
   if (!selection.IsEmpty())
   {
-    cmSel->addAction("Clear Selection\tESC", this, [this]() { CurveEdit->ClearSelection(); });
+    cmSel->addAction("Clear Selection\tESC", this, [this]()
+      { CurveEdit->ClearSelection(); });
 
     cmSel->addAction(
-      "Frame Selection\tShift+F", this, [this]() { FrameSelection(); });
+      "Frame Selection\tShift+F", this, [this]()
+      { FrameSelection(); });
 
     cmSel->addSeparator();
 
@@ -478,7 +495,8 @@ void ezQtCurve1DEditorWidget::onContextMenu(QPoint pos, QPointF scenePos)
     { ClearAllPoints(); });
 
   cm->addAction(
-    "Frame Curve\tCtrl+F", this, [this]() { FrameCurve(); });
+    "Frame Curve\tCtrl+F", this, [this]()
+    { FrameCurve(); });
 
   QMenu* gm = m.addMenu("Generate Curve");
   QMenu* lm = gm->addMenu("Linear");
@@ -623,8 +641,8 @@ void ezQtCurve1DEditorWidget::onFlattenTangents()
 void ezQtCurve1DEditorWidget::InsertCpAt(double posX, double value, ezVec2d epsilon)
 {
   int curveIdx = 0, cpIdx = 0;
-  posX = ezMath::Max(posX, 0.0);
-  value = ezMath::Clamp(value, -100000.0, +100000.0);
+
+  ClampPoint(posX, value);
 
   // do not insert at a point where a CP already exists
   if (PickControlPointAt(posX, value, epsilon, curveIdx, cpIdx))
@@ -870,4 +888,14 @@ void ezQtCurve1DEditorWidget::SetTangentMode(ezCurveTangentMode::Enum mode, bool
   }
 
   Q_EMIT EndCpChangesEvent();
+}
+
+void ezQtCurve1DEditorWidget::ClampPoint(double& x, double& y) const
+{
+  if (CurveEdit->m_bLowerExtentFixed)
+    x = ezMath::Max(x, CurveEdit->m_fLowerExtent);
+  if (CurveEdit->m_bUpperExtentFixed)
+    x = ezMath::Min(x, CurveEdit->m_fUpperExtent);
+
+  y = ezMath::Clamp(y, CurveEdit->m_fLowerRange, CurveEdit->m_fUpperRange);
 }

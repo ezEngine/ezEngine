@@ -21,7 +21,8 @@
 ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPropertyAnimAssetDocument* pDocument)
   : ezQtGameObjectDocumentWindow(pDocument)
 {
-  auto ViewFactory = [](ezQtEngineDocumentWindow* pWindow, ezEngineViewConfig* pConfig) -> ezQtEngineViewWidget* {
+  auto ViewFactory = [](ezQtEngineDocumentWindow* pWindow, ezEngineViewConfig* pConfig) -> ezQtEngineViewWidget*
+  {
     ezQtGameObjectViewWidget* pWidget = new ezQtGameObjectViewWidget(nullptr, static_cast<ezQtPropertyAnimAssetDocumentWindow*>(pWindow), pConfig);
     pWindow->AddViewWidget(pWidget);
     return pWidget;
@@ -29,7 +30,8 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
   m_pQuadViewWidget = new ezQtQuadViewWidget(pDocument, this, ViewFactory, "PropertyAnimAssetViewToolBar");
 
   pDocument->SetEditToolConfigDelegate(
-    [this](ezGameObjectEditTool* pTool) { pTool->ConfigureTool(static_cast<ezGameObjectDocument*>(GetDocument()), this, this); });
+    [this](ezGameObjectEditTool* pTool)
+    { pTool->ConfigureTool(static_cast<ezGameObjectDocument*>(GetDocument()), this, this); });
 
   pDocument->m_PropertyAnimEvents.AddEventHandler(ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::PropertyAnimAssetEventHandler, this));
 
@@ -385,7 +387,8 @@ void ezQtPropertyAnimAssetDocumentWindow::UpdateSelectionData()
 
     ezQtPropertyAnimModel* pModel = m_pPropertiesModel;
 
-    auto addRecursive = [&tracks, pModel](auto& self, const ezQtPropertyAnimModelTreeEntry* pTreeItem) -> void {
+    auto addRecursive = [&tracks, pModel](auto& self, const ezQtPropertyAnimModelTreeEntry* pTreeItem) -> void
+    {
       if (pTreeItem->m_pTrack != nullptr)
         tracks.Insert(pTreeItem->m_iTrackIdx);
 
@@ -691,7 +694,8 @@ void ezQtPropertyAnimAssetDocumentWindow::CommandHistoryEventHandler(const ezCom
 void ezQtPropertyAnimAssetDocumentWindow::UpdateCurveEditor()
 {
   ezPropertyAnimAssetDocument* pDoc = GetPropertyAnimDocument();
-  m_pCurveEditor->SetCurves(m_CurvesToDisplay, pDoc->GetAnimationDurationTime().GetSeconds(), true);
+  m_pCurveEditor->SetCurveExtents(0, pDoc->GetAnimationDurationTime().GetSeconds(), true, true);
+  m_pCurveEditor->SetCurves(m_CurvesToDisplay);
 }
 
 
@@ -1290,13 +1294,14 @@ void ezQtPropertyAnimAssetTreeView::onAfterModelReset()
 
   // changing the selection is not possible in onAfterModelReset, probably because the items are not yet fully valid
   // has to be done shortly after
-  QTimer::singleShot(0, this, [this, newSelection]() {
-    selectionModel()->clearSelection();
-    for (const auto& idx : newSelection)
+  QTimer::singleShot(0, this, [this, newSelection]()
     {
-      selectionModel()->select(idx, QItemSelectionModel::SelectionFlag::Select | QItemSelectionModel::SelectionFlag::Rows);
-    }
-  });
+      selectionModel()->clearSelection();
+      for (const auto& idx : newSelection)
+      {
+        selectionModel()->select(idx, QItemSelectionModel::SelectionFlag::Select | QItemSelectionModel::SelectionFlag::Rows);
+      }
+    });
 }
 
 void ezQtPropertyAnimAssetTreeView::keyPressEvent(QKeyEvent* e)
@@ -1322,9 +1327,12 @@ void ezQtPropertyAnimAssetTreeView::contextMenuEvent(QContextMenuEvent* event)
 
   pRemoveAction->setShortcut(Qt::Key_Delete);
 
-  connect(pFrameAction, &QAction::triggered, this, [this](bool) { Q_EMIT FrameSelectedItemsEvent(); });
-  connect(pRemoveAction, &QAction::triggered, this, [this](bool) { Q_EMIT DeleteSelectedItemsEvent(); });
-  connect(pBindingAction, &QAction::triggered, this, [this](bool) { Q_EMIT RebindSelectedItemsEvent(); });
+  connect(pFrameAction, &QAction::triggered, this, [this](bool)
+    { Q_EMIT FrameSelectedItemsEvent(); });
+  connect(pRemoveAction, &QAction::triggered, this, [this](bool)
+    { Q_EMIT DeleteSelectedItemsEvent(); });
+  connect(pBindingAction, &QAction::triggered, this, [this](bool)
+    { Q_EMIT RebindSelectedItemsEvent(); });
 
   m.exec(QCursor::pos());
 }

@@ -1259,7 +1259,7 @@ ezQtCurve1DButtonWidget::ezQtCurve1DButtonWidget(QWidget* parent)
   setScaledContents(true);
 }
 
-void ezQtCurve1DButtonWidget::UpdatePreview(ezObjectAccessorBase* pObjectAccessor, const ezDocumentObject* pCurveObject, QColor color, float minLength, bool fixedLength)
+void ezQtCurve1DButtonWidget::UpdatePreview(ezObjectAccessorBase* pObjectAccessor, const ezDocumentObject* pCurveObject, QColor color, double fLowerExtents, bool bLowerFixed, double fUpperExtents, bool bUpperFixed, double fDefaultValue, double fLowerRange, double fUpperRange)
 {
   ezInt32 iNumPoints = 0;
   pObjectAccessor->GetCount(pCurveObject, "ControlPoints", iNumPoints);
@@ -1268,11 +1268,11 @@ void ezQtCurve1DButtonWidget::UpdatePreview(ezObjectAccessorBase* pObjectAccesso
   ezHybridArray<ezVec2d, 32> points;
   points.Reserve(iNumPoints);
 
-  double minX = 0.0;
-  double maxX = minLength * 4800.0;
+  double minX = fLowerExtents * 4800.0;
+  double maxX = fUpperExtents * 4800.0;
 
-  double minY = 0.0;
-  double maxY = 1.0;
+  double minY = fLowerRange;
+  double maxY = fUpperRange;
 
   for (ezInt32 i = 0; i < iNumPoints; ++i)
   {
@@ -1288,17 +1288,15 @@ void ezQtCurve1DButtonWidget::UpdatePreview(ezObjectAccessorBase* pObjectAccesso
 
     points.PushBack(p);
 
-    if (!fixedLength)
-    {
+    if (!bLowerFixed)
       minX = ezMath::Min(minX, p.x);
+
+    if (!bUpperFixed)
       maxX = ezMath::Max(maxX, p.x);
-    }
 
     minY = ezMath::Min(minY, p.y);
     maxY = ezMath::Max(maxY, p.y);
   }
-
-  points.Sort([](const ezVec2d& lhs, const ezVec2d& rhs) -> bool { return lhs.x < rhs.x; });
 
   const double pW = ezMath::Max(10, size().width());
   const double pH = ezMath::Clamp(size().height(), 5, 24);
@@ -1311,21 +1309,53 @@ void ezQtCurve1DButtonWidget::UpdatePreview(ezObjectAccessorBase* pObjectAccesso
   pt.setRenderHint(QPainter::RenderHint::Antialiasing);
   pt.setRenderHint(QPainter::RenderHint::HighQualityAntialiasing);
 
-  const double normX = 1.0 / (maxX - minX);
-  const double normY = 1.0 / (maxY - minY);
-
-  for (ezUInt32 i = 1; i < points.GetCount(); ++i)
+  if (!points.IsEmpty())
   {
-    auto pt0 = points[i - 1];
-    auto pt1 = points[i];
+    points.Sort([](const ezVec2d& lhs, const ezVec2d& rhs) -> bool
+      { return lhs.x < rhs.x; });
 
-    pt0.x = (pt0.x * normX) - minX;
-    pt1.x = (pt1.x * normX) - minX;
+    const double normX = 1.0 / (maxX - minX);
+    const double normY = 1.0 / (maxY - minY);
 
-    pt0.y = 1.0 - ((pt0.y * normY) - minY);
-    pt1.y = 1.0 - ((pt1.y * normY) - minY);
+    QPainterPath path;
 
-    pt.drawLine((int)(pt0.x * pW), (int)(pt0.y * pH), (int)(pt1.x * pW), (int)(pt1.y * pH));
+    {
+      double startX = ezMath::Min(minX, points[0].x);
+      double startY = points[0].y;
+
+      startX = (startX - minX) * normX;
+      startY = 1.0 - ((startY - minY) * normY);
+
+      path.moveTo((int)(startX * pW), (int)(startY * pH));
+    }
+
+    for (ezUInt32 i = 0; i < points.GetCount(); ++i)
+    {
+      auto pt0 = points[i];
+      pt0.x = (pt0.x - minX) * normX;
+      pt0.y = 1.0 - ((pt0.y - minY) * normY);
+
+      path.lineTo((int)(pt0.x * pW), (int)(pt0.y * pH));
+    }
+
+    {
+      double endX = ezMath::Max(maxX, points.PeekBack().x);
+      double endY = points.PeekBack().y;
+
+      endX = (endX - minX) * normX;
+      endY = 1.0 - ((endY - minY) * normY);
+
+      path.lineTo((int)(endX * pW), (int)(endY * pH));
+    }
+
+    pt.drawPath(path);
+  }
+  else
+  {
+    const double normY = 1.0 / (maxY - minY);
+    double valY = 1.0 - ((fDefaultValue - minY) * normY);
+
+    pt.drawLine(0, (int)(valY * pH), (int)pW, (int)(valY * pH));
   }
 
   setPixmap(pixmap);
@@ -1343,12 +1373,12 @@ ezQtPropertyEditorCurve1DWidget::ezQtPropertyEditorCurve1DWidget()
   m_pLayout->setMargin(0);
   setLayout(m_pLayout);
 
-  m_pWidget = new ezQtCurve1DButtonWidget(this);
-  m_pWidget->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
+  m_pButton = new ezQtCurve1DButtonWidget(this);
+  m_pButton->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
 
-  m_pLayout->addWidget(m_pWidget);
+  m_pLayout->addWidget(m_pButton);
 
-  EZ_VERIFY(connect(m_pWidget, SIGNAL(clicked()), this, SLOT(on_Button_triggered())) != nullptr, "signal/slot connection failed");
+  EZ_VERIFY(connect(m_pButton, SIGNAL(clicked()), this, SLOT(on_Button_triggered())) != nullptr, "signal/slot connection failed");
 }
 
 void ezQtPropertyEditorCurve1DWidget::SetSelection(const ezHybridArray<ezPropertySelection, 8>& items)
@@ -1368,30 +1398,55 @@ void ezQtPropertyEditorCurve1DWidget::UpdatePreview()
 
   const ezDocumentObject* pParent = m_Items[0].m_pObject;
   const ezDocumentObject* pCurve = m_pObjectAccessor->GetChildObject(pParent, m_pProp->GetPropertyName(), {});
-  const ezSingleCurveDataAttribute* pCurveAttr = m_pProp->GetAttributeByType<ezSingleCurveDataAttribute>();
+  const ezColorAttribute* pColorAttr = m_pProp->GetAttributeByType<ezColorAttribute>();
+  const ezCurveExtentsAttribute* pExtentsAttr = m_pProp->GetAttributeByType<ezCurveExtentsAttribute>();
+  const ezDefaultValueAttribute* pDefAttr = m_pProp->GetAttributeByType<ezDefaultValueAttribute>();
+  const ezClampValueAttribute* pClampAttr = m_pProp->GetAttributeByType<ezClampValueAttribute>();
 
-  if (pCurveAttr)
-  {
-    m_pWidget->UpdatePreview(m_pObjectAccessor, pCurve, QColor(pCurveAttr->m_DisplayColor.r, pCurveAttr->m_DisplayColor.g, pCurveAttr->m_DisplayColor.b), pCurveAttr->m_fMinLength, pCurveAttr->m_bFixedLength);
-  }
-  else
-  {
-    m_pWidget->UpdatePreview(m_pObjectAccessor, pCurve, QColor(0, 200, 0), 0, false);
-  }
+  const bool bLowerFixed = pExtentsAttr ? pExtentsAttr->m_bLowerExtentFixed : false;
+  const bool bUpperFixed = pExtentsAttr ? pExtentsAttr->m_bUpperExtentFixed : false;
+  const double fLowerExt = pExtentsAttr ? pExtentsAttr->m_fLowerExtent : 0.0;
+  const double fUpperExt = pExtentsAttr ? pExtentsAttr->m_fUpperExtent : 1.0;
+  const ezColorGammaUB color = pColorAttr ? pColorAttr->GetColor() : ezColor::GreenYellow;
+  const double fLowerRange = (pClampAttr && pClampAttr->GetMinValue().IsNumber()) ? pClampAttr->GetMinValue().ConvertTo<double>() : 0.0;
+  const double fUpperRange = (pClampAttr && pClampAttr->GetMaxValue().IsNumber()) ? pClampAttr->GetMaxValue().ConvertTo<double>() : 1.0;
+  const double fDefVal = (pDefAttr && pDefAttr->GetValue().IsNumber()) ? pDefAttr->GetValue().ConvertTo<double>() : 0.0;
+
+  m_pButton->UpdatePreview(m_pObjectAccessor, pCurve, QColor(color.r, color.g, color.b), fLowerExt, bLowerFixed, fUpperExt, bUpperFixed, fDefVal, fLowerRange, fUpperRange);
 }
 
 void ezQtPropertyEditorCurve1DWidget::on_Button_triggered()
 {
   const ezDocumentObject* pParent = m_Items[0].m_pObject;
   const ezDocumentObject* pCurve = m_pObjectAccessor->GetChildObject(pParent, m_pProp->GetPropertyName(), {});
-  const ezSingleCurveDataAttribute* pCurveAttr = m_pProp->GetAttributeByType<ezSingleCurveDataAttribute>();
+  const ezColorAttribute* pColorAttr = m_pProp->GetAttributeByType<ezColorAttribute>();
+  const ezCurveExtentsAttribute* pExtentsAttr = m_pProp->GetAttributeByType<ezCurveExtentsAttribute>();
+  const ezClampValueAttribute* pClampAttr = m_pProp->GetAttributeByType<ezClampValueAttribute>();
 
   // TODO: would like to have one transaction open to finish/cancel at the end
   // but also be able to undo individual steps while editing
   //m_pObjectAccessor->GetObjectManager()->GetDocument()->GetCommandHistory()->StartTransaction("Edit Curve");
 
-  ezQtCurveEditDlg* pDlg = new ezQtCurveEditDlg(m_pObjectAccessor, pCurve, pCurveAttr ? pCurveAttr->m_DisplayColor : ezColorGammaUB(ezColor::GreenYellow), pCurveAttr ? pCurveAttr->m_fMinLength : 0.0f, pCurveAttr ? pCurveAttr->m_bFixedLength : false, this);
+  ezQtCurveEditDlg* pDlg = new ezQtCurveEditDlg(m_pObjectAccessor, pCurve, this);
   pDlg->restoreGeometry(ezQtCurveEditDlg::GetLastDialogGeometry());
+
+  if (pColorAttr)
+  {
+    pDlg->SetCurveColor(pColorAttr->GetColor());
+  }
+
+  if (pExtentsAttr)
+  {
+    pDlg->SetCurveExtents(pExtentsAttr->m_fLowerExtent, pExtentsAttr->m_bLowerExtentFixed, pExtentsAttr->m_fUpperExtent, pExtentsAttr->m_bUpperExtentFixed);
+  }
+
+  if (pClampAttr)
+  {
+    const double fLower = pClampAttr->GetMinValue().IsNumber() ? pClampAttr->GetMinValue().ConvertTo<double>() : -ezMath::HighValue<double>();
+    const double fUpper = pClampAttr->GetMaxValue().IsNumber() ? pClampAttr->GetMaxValue().ConvertTo<double>() : ezMath::HighValue<double>();
+
+    pDlg->SetCurveRanges(fLower, fUpper);
+  }
 
   if (pDlg->exec() == QDialog::Accepted)
   {
