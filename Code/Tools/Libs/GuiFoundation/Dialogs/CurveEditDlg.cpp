@@ -8,11 +8,9 @@
 
 QByteArray ezQtCurveEditDlg::s_LastDialogGeometry;
 
-ezQtCurveEditDlg::ezQtCurveEditDlg(ezObjectAccessorBase* pObjectAccessor, const ezDocumentObject* pCurveObject, ezColorGammaUB curveColor, double fMinCurveLength, bool bCurveLengthIsFixed, QWidget* parent)
+ezQtCurveEditDlg::ezQtCurveEditDlg(ezObjectAccessorBase* pObjectAccessor, const ezDocumentObject* pCurveObject, QWidget* parent)
   : QDialog(parent)
 {
-  m_fMinCurveLength = fMinCurveLength;
-  m_bCurveLengthIsFixed = bCurveLengthIsFixed;
   m_pObjectAccessor = pObjectAccessor;
   m_pCurveObject = pCurveObject;
 
@@ -38,10 +36,8 @@ ezQtCurveEditDlg::ezQtCurveEditDlg(ezObjectAccessorBase* pObjectAccessor, const 
   connect(m_shortcutRedo, &QShortcut::activated, this, &ezQtCurveEditDlg::on_actionRedo_triggered);
 
   m_Curves.m_Curves.PushBack(EZ_DEFAULT_NEW(ezSingleCurveData));
-  m_Curves.m_Curves.PeekBack()->m_CurveColor = curveColor;
 
   RetrieveCurveState();
-  UpdatePreview();
 
   m_uiActionsUndoBaseline = m_pObjectAccessor->GetObjectManager()->GetDocument()->GetCommandHistory()->GetUndoStackSize();
 }
@@ -89,6 +85,25 @@ ezQtCurveEditDlg::~ezQtCurveEditDlg()
   s_LastDialogGeometry = saveGeometry();
 }
 
+void ezQtCurveEditDlg::SetCurveColor(const ezColor& color)
+{
+  m_Curves.m_Curves.PeekBack()->m_CurveColor = color;
+}
+
+void ezQtCurveEditDlg::SetCurveExtents(double fLower, bool bLowerFixed, double fUpper, bool bUpperFixed)
+{
+  m_fLowerExtents = fLower;
+  m_fUpperExtents = fUpper;
+  m_bLowerFixed = bLowerFixed;
+  m_bUpperFixed = bUpperFixed;
+}
+
+void ezQtCurveEditDlg::SetCurveRanges(double fLower, double fUpper)
+{
+  m_fLowerRange = fLower;
+  m_fUpperRange = fUpper;
+}
+
 void ezQtCurveEditDlg::reject()
 {
   // ignore
@@ -110,12 +125,21 @@ void ezQtCurveEditDlg::cancel()
 void ezQtCurveEditDlg::UpdatePreview()
 {
   ezQtCurve1DEditorWidget* pEdit = CurveEditor;
-  pEdit->SetCurves(m_Curves, m_fMinCurveLength, m_bCurveLengthIsFixed);
+  pEdit->SetCurveExtents(m_fLowerExtents, m_fUpperExtents, m_bLowerFixed, m_bUpperFixed);
+  pEdit->SetCurveRanges(m_fLowerRange, m_fUpperRange);
+  pEdit->SetCurves(m_Curves);
 }
 
 void ezQtCurveEditDlg::closeEvent(QCloseEvent*)
 {
   cancel();
+}
+
+void ezQtCurveEditDlg::showEvent(QShowEvent* e)
+{
+  QDialog::showEvent(e);
+
+  UpdatePreview();
 }
 
 void ezQtCurveEditDlg::OnCpMovedEvent(ezUInt32 curveIdx, ezUInt32 cpIdx, ezInt64 iTickX, double newPosY)

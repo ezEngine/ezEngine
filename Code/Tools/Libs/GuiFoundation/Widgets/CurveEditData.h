@@ -90,17 +90,18 @@ public:
   double Evaluate(ezInt64 uiTick) const;
 };
 
-class EZ_GUIFOUNDATION_DLL ezSingleCurveDataAttribute : public ezPropertyAttribute
+class EZ_GUIFOUNDATION_DLL ezCurveExtentsAttribute : public ezPropertyAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSingleCurveDataAttribute, ezPropertyAttribute);
+  EZ_ADD_DYNAMIC_REFLECTION(ezCurveExtentsAttribute, ezPropertyAttribute);
 
 public:
-  ezSingleCurveDataAttribute() = default;
-  ezSingleCurveDataAttribute(ezColorGammaUB color, float minLength, bool fixedLength);
+  ezCurveExtentsAttribute() = default;
+  ezCurveExtentsAttribute(double fLowerExtent, bool bLowerExtentFixed, double fUpperExtent, bool bUpperExtentFixed);
 
-  float m_fMinLength = 0.0f;
-  bool m_bFixedLength = false;
-  ezColorGammaUB m_DisplayColor;
+  double m_fLowerExtent = 0.0;
+  double m_fUpperExtent = 1.0;
+  bool m_bLowerExtentFixed = false;
+  bool m_bUpperExtentFixed = false;
 };
 
 

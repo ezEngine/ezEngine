@@ -47,29 +47,31 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCurveGroupData, 2, ezRTTIDefaultAllocator<ezCu
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSingleCurveDataAttribute, 1, ezRTTIDefaultAllocator<ezSingleCurveDataAttribute>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCurveExtentsAttribute, 1, ezRTTIDefaultAllocator<ezCurveExtentsAttribute>)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Color", m_DisplayColor),
-    EZ_MEMBER_PROPERTY("MinLength", m_fMinLength),
-    EZ_MEMBER_PROPERTY("FixedLength", m_bFixedLength),
+    EZ_MEMBER_PROPERTY("LowerExtent", m_fLowerExtent),
+    EZ_MEMBER_PROPERTY("UpperExtent", m_fUpperExtent),
+    EZ_MEMBER_PROPERTY("LowerExtentFixed", m_bLowerExtentFixed),
+    EZ_MEMBER_PROPERTY("UpperExtentFixed", m_bUpperExtentFixed),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_FUNCTIONS
   {
-    EZ_CONSTRUCTOR_PROPERTY(ezColorGammaUB, float, bool),
+    EZ_CONSTRUCTOR_PROPERTY(float, bool, float, bool),
   }
   EZ_END_FUNCTIONS;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezSingleCurveDataAttribute::ezSingleCurveDataAttribute(ezColorGammaUB color, float minLength, bool fixedLength)
+ezCurveExtentsAttribute::ezCurveExtentsAttribute(double fLowerExtent, bool bLowerExtentFixed, double fUpperExtent, bool bUpperExtentFixed)
 {
-  m_DisplayColor = color;
-  m_fMinLength = minLength;
-  m_bFixedLength = fixedLength;
+  m_fLowerExtent = fLowerExtent;
+  m_fUpperExtent = fUpperExtent;
+  m_bLowerExtentFixed = bLowerExtentFixed;
+  m_bUpperExtentFixed = bUpperExtentFixed;
 }
 
 void ezCurveControlPointData::SetTickFromTime(ezTime time, ezInt64 fps)

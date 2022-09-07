@@ -691,7 +691,8 @@ void ezQtPropertyAnimAssetDocumentWindow::CommandHistoryEventHandler(const ezCom
 void ezQtPropertyAnimAssetDocumentWindow::UpdateCurveEditor()
 {
   ezPropertyAnimAssetDocument* pDoc = GetPropertyAnimDocument();
-  m_pCurveEditor->SetCurves(m_CurvesToDisplay, pDoc->GetAnimationDurationTime().GetSeconds(), true);
+  m_pCurveEditor->SetCurveExtents(0, pDoc->GetAnimationDurationTime().GetSeconds(), true, true);
+  m_pCurveEditor->SetCurves(m_CurvesToDisplay);
 }
 
 

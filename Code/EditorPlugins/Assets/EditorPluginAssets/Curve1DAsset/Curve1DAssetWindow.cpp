@@ -304,7 +304,8 @@ void ezQtCurve1DAssetDocumentWindow::UpdatePreview()
 {
   ezCurve1DAssetDocument* pDoc = static_cast<ezCurve1DAssetDocument*>(GetDocument());
 
-  m_pCurveEditor->SetCurves(*pDoc->GetProperties(), 0.1f, false);
+  m_pCurveEditor->SetCurveExtents(0, 0.1f, true, false);
+  m_pCurveEditor->SetCurves(*pDoc->GetProperties());
 
   SendLiveResourcePreview();
 }
