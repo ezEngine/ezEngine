@@ -73,5 +73,4 @@ private:
 protected:
   virtual void closeEvent(QCloseEvent* e) override;
   virtual void showEvent(QShowEvent* e) override;
-
 };

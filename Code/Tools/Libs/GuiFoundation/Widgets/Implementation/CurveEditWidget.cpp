@@ -341,8 +341,7 @@ void ezQtCurveEditWidget::paintEvent(QPaintEvent* e)
 
   if (m_pGridBar)
   {
-    m_pGridBar->SetConfig(viewportSceneRect, fRoughGridDensity, fFineGridDensity, [this](const QPointF& pt) -> QPoint
-      { return MapFromScene(pt); });
+    m_pGridBar->SetConfig(viewportSceneRect, fRoughGridDensity, fFineGridDensity, [this](const QPointF& pt) -> QPoint { return MapFromScene(pt); });
   }
 
   RenderSideLinesAndText(&painter, viewportSceneRect);

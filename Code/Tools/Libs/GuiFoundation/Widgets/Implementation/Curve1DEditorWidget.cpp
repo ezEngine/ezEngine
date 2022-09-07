@@ -429,17 +429,14 @@ void ezQtCurve1DEditorWidget::onContextMenu(QPoint pos, QPointF scenePos)
   const auto& selection = CurveEdit->GetSelection();
 
   QMenu* cmSel = m.addMenu("Selection");
-  cmSel->addAction("Select All\tCtrl+A", this, [this]()
-    { CurveEdit->SelectAll(); });
+  cmSel->addAction("Select All\tCtrl+A", this, [this]() { CurveEdit->SelectAll(); });
 
   if (!selection.IsEmpty())
   {
-    cmSel->addAction("Clear Selection\tESC", this, [this]()
-      { CurveEdit->ClearSelection(); });
+    cmSel->addAction("Clear Selection\tESC", this, [this]() { CurveEdit->ClearSelection(); });
 
     cmSel->addAction(
-      "Frame Selection\tShift+F", this, [this]()
-      { FrameSelection(); });
+      "Frame Selection\tShift+F", this, [this]() { FrameSelection(); });
 
     cmSel->addSeparator();
 
@@ -495,8 +492,7 @@ void ezQtCurve1DEditorWidget::onContextMenu(QPoint pos, QPointF scenePos)
     { ClearAllPoints(); });
 
   cm->addAction(
-    "Frame Curve\tCtrl+F", this, [this]()
-    { FrameCurve(); });
+    "Frame Curve\tCtrl+F", this, [this]() { FrameCurve(); });
 
   QMenu* gm = m.addMenu("Generate Curve");
   QMenu* lm = gm->addMenu("Linear");
