@@ -15,7 +15,7 @@ public:
   static void Initialize(ezGALDeviceVulkan* pDevice);
   static void DeInitialize();
 
-  static const ezGALResourceViewVulkan* GetFallbackResourceView(vk::DescriptorType descriptorType, ezShaderResourceType::Enum ezType);
+  static const ezGALResourceViewVulkan* GetFallbackResourceView(vk::DescriptorType descriptorType, ezShaderResourceType::Enum ezType, bool bDepth);
   static const ezGALUnorderedAccessViewVulkan* GetFallbackUnorderedAccessView(vk::DescriptorType descriptorType, ezShaderResourceType::Enum ezType);
 
 private:
@@ -29,6 +29,7 @@ private:
     EZ_DECLARE_POD_TYPE();
     vk::DescriptorType m_descriptorType;
     ezShaderResourceType::Enum m_ezType;
+    bool m_bDepth = false;
   };
 
   struct KeyHash

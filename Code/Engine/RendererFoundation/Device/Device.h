@@ -177,6 +177,7 @@ protected:
   const ezGALSwapChain* GetSwapChainInternal(ezGALSwapChainHandle hSwapChain, const ezRTTI* pRequestedType) const;
 
   ezGALTextureHandle FinalizeTextureInternal(const ezGALTextureCreationDescription& desc, ezGALTexture* pTexture);
+  ezGALBufferHandle FinalizeBufferInternal(const ezGALBufferCreationDescription& desc, ezGALBuffer* pBuffer);
 
   ezProxyAllocator m_Allocator;
   ezLocalAllocatorWrapper m_AllocatorWrapper;

@@ -103,7 +103,9 @@ ezTestAppRun ezStereoTest::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocation
 
   if (m_ImgCompFrames[m_iImgCompIdx] == m_iFrame)
   {
-    EZ_TEST_IMAGE(m_iImgCompIdx, 250);
+    // The particle effect increases the error on lavapipe, see ezGameEngineTestParticles::GetImageCompareThreshold.
+    ezUInt32 uiThreshhold = ezGALDevice::GetDefaultDevice()->GetCapabilities().m_sAdapterName.FindSubString_NoCase("llvmpipe") ? 300 : 250;
+    EZ_TEST_IMAGE(m_iImgCompIdx, uiThreshhold);
     ++m_iImgCompIdx;
 
     if (m_iImgCompIdx >= m_ImgCompFrames.GetCount())

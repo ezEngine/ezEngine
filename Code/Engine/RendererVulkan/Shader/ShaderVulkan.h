@@ -37,6 +37,7 @@ public:
     ezUInt8 m_uiSource = 0;                                              ///< Source binding index in the high level resource binding model.
     ezUInt8 m_uiTarget = 0;                                              ///< Target binding index in the descriptor set layout.
     vk::PipelineStageFlags m_targetStages;                               ///< Target stages that this mapping is used in.
+    ezStringView m_sName;
   };
 
   struct VertexInputAttribute

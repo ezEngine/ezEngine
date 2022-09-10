@@ -9,9 +9,11 @@
 #include <EditorEngineProcessFramework/Gizmos/GizmoHandle.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
+#include <RendererCore/Textures/TextureUtils.h>
 #include <RendererFoundation/CommandEncoder/RenderCommandEncoder.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Device/Pass.h>
+#include <RendererFoundation/Resources/Texture.h>
 #include <Texture/Image/ImageUtils.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEngineProcessDocumentContext, 1, ezRTTINoAllocator)
@@ -439,6 +441,8 @@ void ezEngineProcessDocumentContext::UpdateDocumentContext()
         EZ_SCOPE_EXIT(pGALPass->EndRendering(pGALCommandEncoder));
 
         pGALCommandEncoder->ReadbackTexture(m_hThumbnailColorRT);
+        const ezGALTexture* pThumbnailColor = ezGALDevice::GetDefaultDevice()->GetTexture(m_hThumbnailColorRT);
+        const ezEnum<ezGALResourceFormat> format = pThumbnailColor->GetDescription().m_Format;
 
         ezGALSystemMemoryDescription MemDesc;
         {
@@ -447,7 +451,7 @@ void ezEngineProcessDocumentContext::UpdateDocumentContext()
         }
 
         ezImageHeader header;
-        header.SetImageFormat(ezImageFormat::R8G8B8A8_UNORM);
+        header.SetImageFormat(ezTextureUtils::GalFormatToImageFormat(format, true));
         header.SetWidth(m_uiThumbnailWidth);
         header.SetHeight(m_uiThumbnailHeight);
         ezImage image;

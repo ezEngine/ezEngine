@@ -5,6 +5,7 @@
 #include <RendererVulkan/Pools/CommandBufferPoolVulkan.h>
 #include <RendererVulkan/Pools/StagingBufferPoolVulkan.h>
 #include <RendererVulkan/Resources/TextureVulkan.h>
+#include <RendererVulkan/Utils/ConversionUtilsVulkan.h>
 #include <RendererVulkan/Utils/PipelineBarrierVulkan.h>
 
 
@@ -124,7 +125,7 @@ void ezInitContextVulkan::InitTexture(const ezGALTextureVulkan* pTexture, vk::Im
 
         vk::ImageSubresourceLayers subresourceLayers;
         // We do not support stencil uploads right now.
-        subresourceLayers.aspectMask = ezGALResourceFormat::IsDepthFormat(pTexture->GetDescription().m_Format) ? vk::ImageAspectFlagBits::eDepth : vk::ImageAspectFlagBits::eColor;
+        subresourceLayers.aspectMask = ezConversionUtilsVulkan::IsDepthFormat(pTexture->GetImageFormat()) ? vk::ImageAspectFlagBits::eDepth : vk::ImageAspectFlagBits::eColor;
         subresourceLayers.mipLevel = uiMipLevel;
         subresourceLayers.baseArrayLayer = uiLayer;
         subresourceLayers.layerCount = 1;

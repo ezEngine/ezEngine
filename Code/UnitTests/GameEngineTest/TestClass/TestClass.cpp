@@ -48,7 +48,14 @@ ezResult ezGameEngineTest::InitializeTest()
   }
   else if (ezStringUtils::IsEqual_NoCase(ezGameApplication::GetActiveRenderer(), "Vulkan"))
   {
-    ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_Vulkan");
+    if (ezGALDevice::HasDefaultDevice() && ezGALDevice::GetDefaultDevice()->GetCapabilities().m_sAdapterName.FindSubString_NoCase("llvmpipe"))
+    {
+      ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_LLVMPIPE");
+    }
+    else
+    {
+      ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_Vulkan");
+    }
   }
 
   return EZ_SUCCESS;

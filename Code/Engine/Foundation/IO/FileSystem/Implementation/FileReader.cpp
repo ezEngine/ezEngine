@@ -71,15 +71,17 @@ ezUInt64 ezFileReader::ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead)
       if (uiCachedBytesLeft < uiBytesToRead)
         uiChunkSize = uiCachedBytesLeft;
 
-      // copy data into the buffer
-      // uiChunkSize can never be larger than the cache size, which is limited to 32 Bit
-      ezMemoryUtils::Copy(&pBuffer[uiBufferPosition], &m_Cache[(ezUInt32)m_uiCacheReadPosition], (ezUInt32)uiChunkSize);
+      if (uiChunkSize > 0)
+      {
+        // copy data into the buffer
+        // uiChunkSize can never be larger than the cache size, which is limited to 32 Bit
+        ezMemoryUtils::Copy(&pBuffer[uiBufferPosition], &m_Cache[(ezUInt32)m_uiCacheReadPosition], (ezUInt32)uiChunkSize);
 
-      // store how much was read and how much is still left to read
-      uiBufferPosition += uiChunkSize;
-      m_uiCacheReadPosition += uiChunkSize;
-      uiBytesToRead -= uiChunkSize;
-
+        // store how much was read and how much is still left to read
+        uiBufferPosition += uiChunkSize;
+        m_uiCacheReadPosition += uiChunkSize;
+        uiBytesToRead -= uiChunkSize;
+      }
 
 
       // if the cache is depleted, refill it

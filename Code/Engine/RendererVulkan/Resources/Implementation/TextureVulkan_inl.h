@@ -3,12 +3,6 @@ vk::Image ezGALTextureVulkan::GetImage() const
   return m_image;
 }
 
-vk::ImageLayout ezGALTextureVulkan::GetCurrentLayout() const
-{
-  return m_currentLayout;
-}
-
-
 vk::ImageLayout ezGALTextureVulkan::GetPreferredLayout() const
 {
   return m_preferredLayout;
@@ -41,22 +35,27 @@ const ezVulkanAllocationInfo& ezGALTextureVulkan::GetAllocationInfo() const
   return m_allocInfo;
 }
 
-const vk::Image ezGALTextureVulkan::GetStagingTexture() const
-{
-  return m_stagingImage;
-}
-
-ezVulkanAllocation ezGALTextureVulkan::GetStagingAllocation() const
-{
-  return m_stagingAlloc;
-}
-
-const ezVulkanAllocationInfo& ezGALTextureVulkan::GetStagingAllocationInfo() const
-{
-  return m_stagingAllocInfo;
-}
-
-EZ_ALWAYS_INLINE bool ezGALTextureVulkan::GetFormatOverrideEnabled() const
+bool ezGALTextureVulkan::GetFormatOverrideEnabled() const
 {
   return m_formatOverride;
+}
+
+bool ezGALTextureVulkan::IsLinearLayout() const
+{
+  return m_bLinearCPU;
+}
+
+ezGALTextureVulkan::StagingMode ezGALTextureVulkan::GetStagingMode() const
+{
+  return m_stagingMode;
+}
+
+ezGALTextureHandle ezGALTextureVulkan::GetStagingTexture() const
+{
+  return m_hStagingTexture;
+}
+
+ezGALBufferHandle ezGALTextureVulkan::GetStagingBuffer() const
+{
+  return m_hStagingBuffer;
 }

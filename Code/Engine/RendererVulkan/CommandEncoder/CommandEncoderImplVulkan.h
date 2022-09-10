@@ -73,6 +73,8 @@ public:
 
   virtual void GenerateMipMapsPlatform(const ezGALResourceView* pResourceView) override;
 
+  void CopyImageToBuffer(const ezGALTextureVulkan* pSource, const ezGALBufferVulkan* pDestination);
+
   // Misc
 
   virtual void FlushPlatform() override;
@@ -135,6 +137,7 @@ private:
 
   vk::CommandBuffer* m_pCommandBuffer = nullptr;
   ezPipelineBarrierVulkan* m_pPipelineBarrier = nullptr;
+
 
   // Cache flags.
   bool m_bPipelineStateDirty = true;

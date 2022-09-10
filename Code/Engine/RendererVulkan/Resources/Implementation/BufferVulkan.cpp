@@ -5,8 +5,9 @@
 #include <RendererVulkan/RendererVulkanDLL.h>
 #include <RendererVulkan/Resources/BufferVulkan.h>
 
-ezGALBufferVulkan::ezGALBufferVulkan(const ezGALBufferCreationDescription& Description)
+ezGALBufferVulkan::ezGALBufferVulkan(const ezGALBufferCreationDescription& Description, bool bCPU)
   : ezGALBuffer(Description)
+  , m_bCPU(bCPU)
 {
 }
 
@@ -180,7 +181,14 @@ void ezGALBufferVulkan::CreateBuffer() const
 
   ezVulkanAllocationCreateInfo allocCreateInfo;
   allocCreateInfo.m_usage = ezVulkanMemoryUsage::Auto;
-  allocCreateInfo.m_flags = ezVulkanAllocationCreateFlags::HostAccessSequentialWrite;
+  if (m_bCPU)
+  {
+    allocCreateInfo.m_flags = ezVulkanAllocationCreateFlags::HostAccessRandom;
+  }
+  else
+  {
+    allocCreateInfo.m_flags = ezVulkanAllocationCreateFlags::HostAccessSequentialWrite;
+  }
   VK_ASSERT_DEV(ezMemoryAllocatorVulkan::CreateBuffer(bufferCreateInfo, allocCreateInfo, m_currentBuffer.m_buffer, m_currentBuffer.m_alloc, &m_allocInfo));
 }
 
@@ -190,11 +198,11 @@ void ezGALBufferVulkan::SetDebugNamePlatform(const char* szName) const
   m_pDeviceVulkan->SetDebugName(szName, m_currentBuffer.m_buffer, m_currentBuffer.m_alloc);
 }
 
-vk::DeviceSize ezGALBufferVulkan::GetAlignment(const ezGALDeviceVulkan* pDevice, vk::BufferUsageFlags usage) const
+vk::DeviceSize ezGALBufferVulkan::GetAlignment(const ezGALDeviceVulkan* pDevice, vk::BufferUsageFlags usage)
 {
   const vk::PhysicalDeviceProperties& properties = pDevice->GetPhysicalDeviceProperties();
 
-  vk::DeviceSize alignment = 4;
+  vk::DeviceSize alignment = ezMath::Max<vk::DeviceSize>(4, properties.limits.nonCoherentAtomSize);
 
   if (usage & vk::BufferUsageFlagBits::eUniformBuffer)
     alignment = ezMath::Max(alignment, properties.limits.minUniformBufferOffsetAlignment);
@@ -211,7 +219,6 @@ vk::DeviceSize ezGALBufferVulkan::GetAlignment(const ezGALDeviceVulkan* pDevice,
   if (usage & (vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eTransferDst))
     alignment = ezMath::Max(alignment, properties.limits.optimalBufferCopyOffsetAlignment);
 
-  //#TODO_VULKAN Do we need to take nonCoherentAtomSize into account?
   return alignment;
 }
 

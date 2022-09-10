@@ -531,6 +531,11 @@ ezGALBufferHandle ezGALDevice::CreateBuffer(const ezGALBufferCreationDescription
 
   ezGALBuffer* pBuffer = CreateBufferPlatform(desc, pInitialData);
 
+  return FinalizeBufferInternal(desc, pBuffer);
+}
+
+ezGALBufferHandle ezGALDevice::FinalizeBufferInternal(const ezGALBufferCreationDescription& desc, ezGALBuffer* pBuffer)
+{
   if (pBuffer != nullptr)
   {
     ezGALBufferHandle hBuffer(m_Buffers.Insert(pBuffer));
@@ -567,7 +572,6 @@ void ezGALDevice::DestroyBuffer(ezGALBufferHandle hBuffer)
     ezLog::Warning("DestroyBuffer called on invalid handle (double free?)");
   }
 }
-
 
 // Helper functions for buffers (for common, simple use cases)
 ezGALBufferHandle ezGALDevice::CreateVertexBuffer(ezUInt32 uiVertexSize, ezUInt32 uiVertexCount, ezArrayPtr<const ezUInt8> pInitialData, bool bDataIsMutable /*= false */)

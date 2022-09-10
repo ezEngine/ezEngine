@@ -29,70 +29,29 @@ ezImageCopyVulkan::ezImageCopyVulkan(ezGALDeviceVulkan& GALDeviceVulkan)
 ezImageCopyVulkan::~ezImageCopyVulkan()
 {
   m_GALDeviceVulkan.DeleteLater(m_renderPass);
-
   m_GALDeviceVulkan.DestroyVertexDeclaration(m_hVertexDecl);
-
-  m_GALDeviceVulkan.DeleteLater(m_proxyImage, m_proxyAlloc);
 }
 
-void ezImageCopyVulkan::Init(const ezGALTextureVulkan* pSource, const ezGALTextureVulkan* pTarget, bool useReadbackTarget, ezShaderUtils::ezBuiltinShaderType type)
+void ezImageCopyVulkan::Init(const ezGALTextureVulkan* pSource, const ezGALTextureVulkan* pTarget, ezShaderUtils::ezBuiltinShaderType type)
 {
   m_pSource = pSource;
   m_pTarget = pTarget;
-  m_bUseReadbackTarget = useReadbackTarget;
   m_type = type;
 
   auto& targetDesc = m_pTarget->GetDescription();
 
-  m_targetImage = m_pTarget->GetImage();
-  m_targetFormat = m_pTarget->GetImageFormat();
+  vk::Image targetImage = m_pTarget->GetImage();
+  vk::Format targetFormat = m_pTarget->GetImageFormat();
 
-  bool bTargetIsDepth = ezGALResourceFormat::IsDepthFormat(targetDesc.m_Format);
-  m_bRequiresProxy = false;
-  if (m_bUseReadbackTarget)
-  {
-    m_targetImage = m_pTarget->GetStagingTexture();
-    m_targetFormat = m_pTarget->GetStagingImageFormat();
-    bTargetIsDepth = ezConversionUtilsVulkan::IsDepthFormat(m_targetFormat);
-
-    const vk::FormatProperties dstFormatProps = m_GALDeviceVulkan.GetVulkanPhysicalDevice().getFormatProperties(m_targetFormat);
-    m_bRequiresProxy = !(dstFormatProps.linearTilingFeatures & vk::FormatFeatureFlagBits::eColorAttachment);
-    EZ_ASSERT_DEV((dstFormatProps.optimalTilingFeatures & vk::FormatFeatureFlagBits::eColorAttachment), "Writing to stagiing texture impossible.");
-  }
+  bool bTargetIsDepth = ezConversionUtilsVulkan::IsDepthFormat(targetFormat);
   EZ_ASSERT_DEV(bTargetIsDepth == false, "Writing to depth is not implemented");
-
-  // Create proxy render target if we can't render to target directly.
-  if (m_bRequiresProxy)
-  {
-    vk::ImageCreateInfo proxyImageCreateInfo;
-
-    proxyImageCreateInfo.imageType = targetDesc.m_Type == ezGALTextureType::Texture3D ? vk::ImageType::e3D : vk::ImageType::e2D;
-    proxyImageCreateInfo.format = m_targetFormat;
-    proxyImageCreateInfo.sharingMode = vk::SharingMode::eExclusive;
-    proxyImageCreateInfo.pQueueFamilyIndices = nullptr;
-    proxyImageCreateInfo.queueFamilyIndexCount = 0;
-    proxyImageCreateInfo.extent.width = targetDesc.m_uiWidth;
-    proxyImageCreateInfo.extent.height = targetDesc.m_uiHeight;
-    proxyImageCreateInfo.extent.depth = targetDesc.m_uiDepth;
-    proxyImageCreateInfo.mipLevels = targetDesc.m_uiMipLevelCount;
-    proxyImageCreateInfo.arrayLayers = (targetDesc.m_Type == ezGALTextureType::Texture2D ? targetDesc.m_uiArraySize : (targetDesc.m_uiArraySize * 6));
-    proxyImageCreateInfo.samples = vk::SampleCountFlagBits::e1;
-    proxyImageCreateInfo.tiling = vk::ImageTiling::eOptimal;
-    proxyImageCreateInfo.usage = vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eColorAttachment;
-    proxyImageCreateInfo.initialLayout = vk::ImageLayout::eUndefined;
-    ezVulkanAllocationCreateInfo allocInfo;
-    allocInfo.m_usage = ezVulkanMemoryUsage::Auto;
-    VK_ASSERT_DEV(ezMemoryAllocatorVulkan::CreateImage(proxyImageCreateInfo, allocInfo, m_proxyImage, m_proxyAlloc, &m_proxyAllocInfo));
-
-    m_targetImage = m_proxyImage;
-  }
 
   // Render pass
   {
     ezHybridArray<vk::AttachmentDescription, 4> attachments;
     ezHybridArray<vk::AttachmentReference, 4> colorAttachmentRefs;
     vk::AttachmentDescription& vkAttachment = attachments.ExpandAndGetRef();
-    vkAttachment.format = m_targetFormat;
+    vkAttachment.format = targetFormat;
     vkAttachment.samples = ezConversionUtilsVulkan::GetSamples(targetDesc.m_SampleCount);
     vkAttachment.loadOp = vk::AttachmentLoadOp::eLoad; //#TODO_VULKAN we could replace this with don't care if we knew that all copy commands render to the entire sub-resource.
     vkAttachment.storeOp = vk::AttachmentStoreOp::eStore;
@@ -161,132 +120,23 @@ void ezImageCopyVulkan::Copy(const ezVec3U32& sourceOffset, const vk::ImageSubre
 {
   EZ_ASSERT_DEV(sourceOffset.IsZero(), "Offset not implemented yet.");
   EZ_ASSERT_DEV(targetOffset.IsZero(), "Offset not implemented yet.");
+  if (m_type == ezShaderUtils::ezBuiltinShaderType::CopyImage || m_type == ezShaderUtils::ezBuiltinShaderType::CopyImage)
+  {
+    EZ_ASSERT_DEV(sourceLayers.layerCount == 1 && targetLayers.layerCount == 1, "If ezBuiltinShaderType is not one of the array variants, layerCount must be 1.");
+  }
 
   vk::CommandBuffer commandBuffer = m_GALDeviceVulkan.GetCurrentCommandBuffer();
   ezPipelineBarrierVulkan& pipelineBarrier = m_GALDeviceVulkan.GetCurrentPipelineBarrier();
 
   // Barriers
   {
-    const bool bSourceIsDepth = ezGALResourceFormat::IsDepthFormat(m_pSource->GetDescription().m_Format);
+    const bool bSourceIsDepth = ezConversionUtilsVulkan::IsDepthFormat(m_pSource->GetImageFormat());
     pipelineBarrier.EnsureImageLayout(m_pSource, ezConversionUtilsVulkan::GetSubresourceRange(sourceLayers), bSourceIsDepth ? vk::ImageLayout::eDepthStencilReadOnlyOptimal : vk::ImageLayout::eShaderReadOnlyOptimal, vk::PipelineStageFlagBits::eFragmentShader, vk::AccessFlagBits::eShaderRead);
-    if (!m_bUseReadbackTarget)
-    {
-      pipelineBarrier.EnsureImageLayout(m_pTarget, ezConversionUtilsVulkan::GetSubresourceRange(targetLayers), vk::ImageLayout::eColorAttachmentOptimal, vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::AccessFlagBits::eColorAttachmentWrite);
-    }
-    else
-    {
-      // staging / proxy to color attachment
-      vk::ImageMemoryBarrier imageBarrier;
-      imageBarrier.srcAccessMask = {};
-      imageBarrier.dstAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
-      imageBarrier.oldLayout = vk::ImageLayout::eUndefined;
-      imageBarrier.newLayout = vk::ImageLayout::eColorAttachmentOptimal;
-      imageBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-      imageBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-      imageBarrier.image = m_targetImage;
-      imageBarrier.subresourceRange = ezConversionUtilsVulkan::GetSubresourceRange(targetLayers);
-      imageBarrier.subresourceRange.aspectMask = m_pTarget->GetStagingAspectMask();
-
-      commandBuffer.pipelineBarrier(vk::PipelineStageFlagBits::eTopOfPipe, vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::DependencyFlags(), 0, nullptr, 0, nullptr, 1, &imageBarrier);
-    }
+    pipelineBarrier.EnsureImageLayout(m_pTarget, ezConversionUtilsVulkan::GetSubresourceRange(targetLayers), vk::ImageLayout::eColorAttachmentOptimal, vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::AccessFlagBits::eColorAttachmentWrite);
     pipelineBarrier.Flush();
   }
 
   RenderInternal(sourceOffset, sourceLayers, targetOffset, targetLayers, extends);
-
-  // Barriers
-  {
-    if (!m_bUseReadbackTarget)
-    {
-      // If the target is not a read-back target, we just assume a shader will read it next.
-      pipelineBarrier.EnsureImageLayout(m_pTarget, ezConversionUtilsVulkan::GetSubresourceRange(targetLayers), vk::ImageLayout::eShaderReadOnlyOptimal, m_pTarget->GetUsedByPipelineStage(), m_pTarget->GetAccessMask());
-    }
-    else
-    {
-      // If we use the read-back target, we just assume that the target layout is memory read.
-      if (m_bRequiresProxy)
-      {
-        {
-          // proxy to transfer read
-          vk::ImageMemoryBarrier imageBarrier;
-          imageBarrier.srcAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
-          imageBarrier.dstAccessMask = vk::AccessFlagBits::eTransferRead;
-          imageBarrier.oldLayout = vk::ImageLayout::eColorAttachmentOptimal;
-          imageBarrier.newLayout = vk::ImageLayout::eTransferSrcOptimal;
-          imageBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-          imageBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-          imageBarrier.image = m_targetImage;
-          imageBarrier.subresourceRange = ezConversionUtilsVulkan::GetSubresourceRange(targetLayers);
-          imageBarrier.subresourceRange.aspectMask = m_pTarget->GetStagingAspectMask();
-
-          commandBuffer.pipelineBarrier(vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::PipelineStageFlagBits::eTransfer, vk::DependencyFlags(), 0, nullptr, 0, nullptr, 1, &imageBarrier);
-        }
-        {
-          // staging texture to transfer write
-          vk::ImageMemoryBarrier imageBarrier;
-          imageBarrier.srcAccessMask = {};
-          imageBarrier.dstAccessMask = vk::AccessFlagBits::eTransferWrite;
-          imageBarrier.oldLayout = vk::ImageLayout::eUndefined;
-          imageBarrier.newLayout = vk::ImageLayout::eTransferDstOptimal;
-          imageBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-          imageBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-          imageBarrier.image = m_pTarget->GetStagingTexture();
-          imageBarrier.subresourceRange = ezConversionUtilsVulkan::GetSubresourceRange(targetLayers);
-          imageBarrier.subresourceRange.aspectMask = m_pTarget->GetStagingAspectMask();
-
-          commandBuffer.pipelineBarrier(vk::PipelineStageFlagBits::eTopOfPipe, vk::PipelineStageFlagBits::eTransfer, vk::DependencyFlags(), 0, nullptr, 0, nullptr, 1, &imageBarrier);
-        }
-
-        // Copy proxy to target
-        {
-          ezHybridArray<vk::ImageCopy, 16> regions;
-          {
-            vk::Extent3D mipLevelSize = m_pTarget->GetMipLevelSize(targetLayers.mipLevel);
-
-            vk::ImageCopy mipCopy;
-            mipCopy.srcSubresource = targetLayers;
-            mipCopy.dstSubresource = targetLayers;
-            mipCopy.extent = mipLevelSize;
-
-            regions.PushBack(mipCopy);
-          }
-          commandBuffer.copyImage(m_targetImage, vk::ImageLayout::eTransferSrcOptimal, m_pTarget->GetStagingTexture(), vk::ImageLayout::eTransferDstOptimal, vk::ArrayProxy(regions.GetCount(), regions.GetData()));
-        }
-
-        {
-          // staging texture to memory read
-          vk::ImageMemoryBarrier imageBarrier;
-          imageBarrier.srcAccessMask = vk::AccessFlagBits::eTransferWrite;
-          imageBarrier.dstAccessMask = vk::AccessFlagBits::eMemoryRead;
-          imageBarrier.oldLayout = vk::ImageLayout::eTransferDstOptimal;
-          imageBarrier.newLayout = vk::ImageLayout::eGeneral;
-          imageBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-          imageBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-          imageBarrier.image = m_pTarget->GetStagingTexture();
-          imageBarrier.subresourceRange = m_pTarget->GetFullRange();
-          imageBarrier.subresourceRange.aspectMask = m_pTarget->GetStagingAspectMask();
-
-          commandBuffer.pipelineBarrier(vk::PipelineStageFlagBits::eTransfer, vk::PipelineStageFlagBits::eTransfer, vk::DependencyFlags(), 0, nullptr, 0, nullptr, 1, &imageBarrier);
-        }
-      }
-      else
-      {
-        // target to memory read
-        vk::ImageMemoryBarrier imageBarrier;
-        imageBarrier.srcAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
-        imageBarrier.dstAccessMask = vk::AccessFlagBits::eMemoryRead;
-        imageBarrier.oldLayout = vk::ImageLayout::eColorAttachmentOptimal;
-        imageBarrier.newLayout = vk::ImageLayout::eGeneral;
-        imageBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-        imageBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-        imageBarrier.image = m_targetImage;
-        imageBarrier.subresourceRange = m_pTarget->GetFullRange();
-        imageBarrier.subresourceRange.aspectMask = m_pTarget->GetStagingAspectMask();
-
-        commandBuffer.pipelineBarrier(vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::PipelineStageFlagBits::eTransfer, vk::DependencyFlags(), 0, nullptr, 0, nullptr, 1, &imageBarrier);
-      }
-    }
-  }
 }
 
 void ezImageCopyVulkan::RenderInternal(const ezVec3U32& sourceOffset, const vk::ImageSubresourceLayers& sourceLayers, const ezVec3U32& targetOffset, const vk::ImageSubresourceLayers& targetLayers, const ezVec3U32& extends)
@@ -301,6 +151,9 @@ void ezImageCopyVulkan::RenderInternal(const ezVec3U32& sourceOffset, const vk::
 
   vk::Image sourceImage = m_pSource->GetImage();
   vk::Format sourceFormat = m_pSource->GetImageFormat();
+
+  vk::Image targetImage = m_pTarget->GetImage();
+  vk::Format targetFormat = m_pTarget->GetImageFormat();
 
   vk::ImageView sourceView;
   vk::ImageView targetView;
@@ -319,8 +172,8 @@ void ezImageCopyVulkan::RenderInternal(const ezVec3U32& sourceOffset, const vk::
   }
   {
     vk::ImageViewCreateInfo viewCreateInfo;
-    viewCreateInfo.format = m_targetFormat;
-    viewCreateInfo.image = m_targetImage;
+    viewCreateInfo.format = targetFormat;
+    viewCreateInfo.image = targetImage;
     viewCreateInfo.subresourceRange = ezConversionUtilsVulkan::GetSubresourceRange(targetLayers);
     viewCreateInfo.viewType = ezConversionUtilsVulkan::GetImageViewType(targetDesc.m_Type, true);
     VK_ASSERT_DEV(m_GALDeviceVulkan.GetVulkanDevice().createImageView(&viewCreateInfo, nullptr, &targetView));
