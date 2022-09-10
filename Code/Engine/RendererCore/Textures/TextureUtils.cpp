@@ -289,13 +289,13 @@ ezImageFormat::Enum ezTextureUtils::GalFormatToImageFormat(ezGALResourceFormat::
     case ezGALResourceFormat::RGB10A2UIntNormalized:
     case ezGALResourceFormat::D24S8:
     default:
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
     {
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
       ezStringBuilder sFormat;
       EZ_ASSERT_DEBUG(ezReflectionUtils::EnumerationToString(ezGetStaticRTTI<ezGALResourceFormat>(), format, sFormat, ezReflectionUtils::EnumConversionMode::ValueNameOnly), "Cannot convert GAL format '{}' to string", format);
       EZ_ASSERT_DEBUG(false, "The GL format: '{}' does not have a matching image format.", sFormat);
-    }
 #endif
+    }
   }
   return ezImageFormat::UNKNOWN;
 }

@@ -42,11 +42,11 @@ namespace
       case vk::Format::eR8G8B8A8Srgb:
         return ezGALResourceFormat::RGBAUByteNormalizedsRGB;
       case vk::Format::eR8G8B8A8Unorm:
-        ezGALResourceFormat::RGBAUByteNormalized;
+        return ezGALResourceFormat::RGBAUByteNormalized;
       case vk::Format::eB8G8R8A8Srgb:
         return ezGALResourceFormat::BGRAUByteNormalizedsRGB;
       case vk::Format::eB8G8R8A8Unorm:
-        ezGALResourceFormat::BGRAUByteNormalized;
+        return ezGALResourceFormat::BGRAUByteNormalized;
       default:
         return ezGALResourceFormat::ENUM_COUNT;
     }

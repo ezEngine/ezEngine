@@ -202,7 +202,7 @@ vk::DeviceSize ezGALBufferVulkan::GetAlignment(const ezGALDeviceVulkan* pDevice,
 {
   const vk::PhysicalDeviceProperties& properties = pDevice->GetPhysicalDeviceProperties();
 
-  vk::DeviceSize alignment = ezMath::Max(4ull, properties.limits.nonCoherentAtomSize);
+  vk::DeviceSize alignment = ezMath::Max<vk::DeviceSize>(4, properties.limits.nonCoherentAtomSize);
 
   if (usage & vk::BufferUsageFlagBits::eUniformBuffer)
     alignment = ezMath::Max(alignment, properties.limits.minUniformBufferOffsetAlignment);
