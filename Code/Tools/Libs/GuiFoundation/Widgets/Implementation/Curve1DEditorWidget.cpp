@@ -442,17 +442,14 @@ void ezQtCurve1DEditorWidget::onContextMenu(QPoint pos, QPointF scenePos)
   const auto& selection = CurveEdit->GetSelection();
 
   QMenu* cmSel = m.addMenu("Selection");
-  cmSel->addAction("Select All\tCtrl+A", this, [this]()
-    { CurveEdit->SelectAll(); });
+  cmSel->addAction("Select All\tCtrl+A", this, [this]() { CurveEdit->SelectAll(); });
 
   if (!selection.IsEmpty())
   {
-    cmSel->addAction("Clear Selection\tESC", this, [this]()
-      { CurveEdit->ClearSelection(); });
+    cmSel->addAction("Clear Selection\tESC", this, [this]() { CurveEdit->ClearSelection(); });
 
     cmSel->addAction(
-      "Frame Selection\tShift+F", this, [this]()
-      { FrameSelection(); });
+      "Frame Selection\tShift+F", this, [this]() { FrameSelection(); });
 
     cmSel->addSeparator();
 
@@ -508,8 +505,7 @@ void ezQtCurve1DEditorWidget::onContextMenu(QPoint pos, QPointF scenePos)
     { ClearAllPoints(); });
 
   cm->addAction(
-    "Frame Curve\tCtrl+F", this, [this]()
-    { FrameCurve(); });
+    "Frame Curve\tCtrl+F", this, [this]() { FrameCurve(); });
 
   QMenu* presentsMenu = m.addMenu("Presets");
 
@@ -534,70 +530,38 @@ void ezQtCurve1DEditorWidget::onContextMenu(QPoint pos, QPointF scenePos)
     QMenu* qbom = gm->addMenu("Bounce");
 
     gm->addSeparator();
-    lm->addAction("Ease In", this, [this]()
-      { onGenerateCurve(ezMath::ezEasingFunctions::InLinear); });
-    lm->addAction("Ease Out", this, [this]()
-      { onGenerateCurve(ezMath::ezEasingFunctions::OutLinear); });
-    sm->addAction("Ease In", this, [this]()
-      { onGenerateCurve(ezMath::ezEasingFunctions::InSine); });
-    sm->addAction("Ease Out", this, [this]()
-      { onGenerateCurve(ezMath::ezEasingFunctions::OutSine); });
-    sm->addAction("Ease In and Out", this, [this]()
-      { onGenerateCurve(ezMath::ezEasingFunctions::InOutSine); });
-    qm->addAction("Ease In", this, [this]()
-      { onGenerateCurve(ezMath::ezEasingFunctions::InQuad); });
-    qm->addAction("Ease Out", this, [this]()
-      { onGenerateCurve(ezMath::ezEasingFunctions::OutQuad); });
-    qm->addAction("Ease In and Out", this, [this]()
-      { onGenerateCurve(ezMath::ezEasingFunctions::InOutQuad); });
-    qcm->addAction("Ease In", this, [this]()
-      { onGenerateCurve(ezMath::ezEasingFunctions::InCubic); });
-    qcm->addAction("Ease Out", this, [this]()
-      { onGenerateCurve(ezMath::ezEasingFunctions::OutCubic); });
-    qcm->addAction("Ease In and Out", this, [this]()
-      { onGenerateCurve(ezMath::ezEasingFunctions::InOutCubic); });
-    qrm->addAction("Ease In", this, [this]()
-      { onGenerateCurve(ezMath::ezEasingFunctions::InQuartic); });
-    qrm->addAction("Ease Out", this, [this]()
-      { onGenerateCurve(ezMath::ezEasingFunctions::OutQuartic); });
-    qrm->addAction("Ease In and Out", this, [this]()
-      { onGenerateCurve(ezMath::ezEasingFunctions::InOutQuartic); });
-    qim->addAction("Ease In", this, [this]()
-      { onGenerateCurve(ezMath::ezEasingFunctions::InQuintic); });
-    qim->addAction("Ease Out", this, [this]()
-      { onGenerateCurve(ezMath::ezEasingFunctions::OutQuintic); });
-    qim->addAction("Ease In and Out", this, [this]()
-      { onGenerateCurve(ezMath::ezEasingFunctions::InOutQuintic); });
-    qxm->addAction("Ease In", this, [this]()
-      { onGenerateCurve(ezMath::ezEasingFunctions::InExpo); });
-    qxm->addAction("Ease Out", this, [this]()
-      { onGenerateCurve(ezMath::ezEasingFunctions::OutExpo); });
-    qxm->addAction("Ease In and Out", this, [this]()
-      { onGenerateCurve(ezMath::ezEasingFunctions::InOutExpo); });
-    qcrm->addAction("Ease In", this, [this]()
-      { onGenerateCurve(ezMath::ezEasingFunctions::InCirc); });
-    qcrm->addAction("Ease Out", this, [this]()
-      { onGenerateCurve(ezMath::ezEasingFunctions::OutCirc); });
-    qcrm->addAction("Ease In and Out", this, [this]()
-      { onGenerateCurve(ezMath::ezEasingFunctions::InOutCirc); });
-    qbm->addAction("Ease In", this, [this]()
-      { onGenerateCurve(ezMath::ezEasingFunctions::InBack); });
-    qbm->addAction("Ease Out", this, [this]()
-      { onGenerateCurve(ezMath::ezEasingFunctions::OutBack); });
-    qbm->addAction("Ease In and Out", this, [this]()
-      { onGenerateCurve(ezMath::ezEasingFunctions::InOutBack); });
-    qem->addAction("Ease In", this, [this]()
-      { onGenerateCurve(ezMath::ezEasingFunctions::InElastic); });
-    qem->addAction("Ease Out", this, [this]()
-      { onGenerateCurve(ezMath::ezEasingFunctions::OutElastic); });
-    qem->addAction("Ease In and Out", this, [this]()
-      { onGenerateCurve(ezMath::ezEasingFunctions::InOutElastic); });
-    qbom->addAction("Ease In", this, [this]()
-      { onGenerateCurve(ezMath::ezEasingFunctions::InBounce); });
-    qbom->addAction("Ease Out", this, [this]()
-      { onGenerateCurve(ezMath::ezEasingFunctions::OutBounce); });
-    qbom->addAction("Ease In and Out", this, [this]()
-      { onGenerateCurve(ezMath::ezEasingFunctions::InOutBounce); });
+    lm->addAction("Ease In", this, [this]() { onGenerateCurve(ezMath::ezEasingFunctions::InLinear); });
+    lm->addAction("Ease Out", this, [this]() { onGenerateCurve(ezMath::ezEasingFunctions::OutLinear); });
+    sm->addAction("Ease In", this, [this]() { onGenerateCurve(ezMath::ezEasingFunctions::InSine); });
+    sm->addAction("Ease Out", this, [this]() { onGenerateCurve(ezMath::ezEasingFunctions::OutSine); });
+    sm->addAction("Ease In and Out", this, [this]() { onGenerateCurve(ezMath::ezEasingFunctions::InOutSine); });
+    qm->addAction("Ease In", this, [this]() { onGenerateCurve(ezMath::ezEasingFunctions::InQuad); });
+    qm->addAction("Ease Out", this, [this]() { onGenerateCurve(ezMath::ezEasingFunctions::OutQuad); });
+    qm->addAction("Ease In and Out", this, [this]() { onGenerateCurve(ezMath::ezEasingFunctions::InOutQuad); });
+    qcm->addAction("Ease In", this, [this]() { onGenerateCurve(ezMath::ezEasingFunctions::InCubic); });
+    qcm->addAction("Ease Out", this, [this]() { onGenerateCurve(ezMath::ezEasingFunctions::OutCubic); });
+    qcm->addAction("Ease In and Out", this, [this]() { onGenerateCurve(ezMath::ezEasingFunctions::InOutCubic); });
+    qrm->addAction("Ease In", this, [this]() { onGenerateCurve(ezMath::ezEasingFunctions::InQuartic); });
+    qrm->addAction("Ease Out", this, [this]() { onGenerateCurve(ezMath::ezEasingFunctions::OutQuartic); });
+    qrm->addAction("Ease In and Out", this, [this]() { onGenerateCurve(ezMath::ezEasingFunctions::InOutQuartic); });
+    qim->addAction("Ease In", this, [this]() { onGenerateCurve(ezMath::ezEasingFunctions::InQuintic); });
+    qim->addAction("Ease Out", this, [this]() { onGenerateCurve(ezMath::ezEasingFunctions::OutQuintic); });
+    qim->addAction("Ease In and Out", this, [this]() { onGenerateCurve(ezMath::ezEasingFunctions::InOutQuintic); });
+    qxm->addAction("Ease In", this, [this]() { onGenerateCurve(ezMath::ezEasingFunctions::InExpo); });
+    qxm->addAction("Ease Out", this, [this]() { onGenerateCurve(ezMath::ezEasingFunctions::OutExpo); });
+    qxm->addAction("Ease In and Out", this, [this]() { onGenerateCurve(ezMath::ezEasingFunctions::InOutExpo); });
+    qcrm->addAction("Ease In", this, [this]() { onGenerateCurve(ezMath::ezEasingFunctions::InCirc); });
+    qcrm->addAction("Ease Out", this, [this]() { onGenerateCurve(ezMath::ezEasingFunctions::OutCirc); });
+    qcrm->addAction("Ease In and Out", this, [this]() { onGenerateCurve(ezMath::ezEasingFunctions::InOutCirc); });
+    qbm->addAction("Ease In", this, [this]() { onGenerateCurve(ezMath::ezEasingFunctions::InBack); });
+    qbm->addAction("Ease Out", this, [this]() { onGenerateCurve(ezMath::ezEasingFunctions::OutBack); });
+    qbm->addAction("Ease In and Out", this, [this]() { onGenerateCurve(ezMath::ezEasingFunctions::InOutBack); });
+    qem->addAction("Ease In", this, [this]() { onGenerateCurve(ezMath::ezEasingFunctions::InElastic); });
+    qem->addAction("Ease Out", this, [this]() { onGenerateCurve(ezMath::ezEasingFunctions::OutElastic); });
+    qem->addAction("Ease In and Out", this, [this]() { onGenerateCurve(ezMath::ezEasingFunctions::InOutElastic); });
+    qbom->addAction("Ease In", this, [this]() { onGenerateCurve(ezMath::ezEasingFunctions::InBounce); });
+    qbom->addAction("Ease Out", this, [this]() { onGenerateCurve(ezMath::ezEasingFunctions::OutBounce); });
+    qbom->addAction("Ease In and Out", this, [this]() { onGenerateCurve(ezMath::ezEasingFunctions::InOutBounce); });
   }
 
   // Show all available presets from disk in a hierarchical menu structure
@@ -605,8 +569,7 @@ void ezQtCurve1DEditorWidget::onContextMenu(QPoint pos, QPointF scenePos)
     ezMap<ezString, QMenu*> subMenus;
     subMenus[""] = presentsMenu;
 
-    auto GetSubMenu = [&](const ezStringBuilder& path, auto GetSubMenu2)
-    {
+    auto GetSubMenu = [&](const ezStringBuilder& path, auto GetSubMenu2) {
       auto it = subMenus.Find(path);
       if (it.IsValid())
         return it.Value();
@@ -630,8 +593,7 @@ void ezQtCurve1DEditorWidget::onContextMenu(QPoint pos, QPointF scenePos)
 
       sPresetPath.Trim("/");
 
-      GetSubMenu(sPresetPath, GetSubMenu)->addAction(sPresetName.GetData(), [this, preset]()
-        { LoadCurvePreset(preset).IgnoreResult(); });
+      GetSubMenu(sPresetPath, GetSubMenu)->addAction(sPresetName.GetData(), [this, preset]() { LoadCurvePreset(preset).IgnoreResult(); });
     }
   }
 
@@ -832,8 +794,7 @@ void ezQtCurve1DEditorWidget::onGenerateCurve(ezMath::ezEasingFunctions easingFu
     samples[i].m_fCorrectValue = GetEasingValue(easingFunction, x);
   }
 
-  auto AddPt = [&](ezUInt32 idx)
-  {
+  auto AddPt = [&](ezUInt32 idx) {
     samples[idx].m_bInserted = true;
     const double x = samples[idx].m_fPos;
     const double y = samples[idx].m_fCorrectValue;
