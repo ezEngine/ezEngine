@@ -76,7 +76,6 @@ function(ez_generate_folder_unity_file TARGET_NAME PROJECT_DIRECTORY SUB_FOLDER_
 
 	if(EXISTS ${FOLDER_UNITY_FILE})
 		# check if the generated unity file is different from the existing one
-		#file(SHA1 ${FOLDER_UNITY_FILE} UNITY_EXISTING_HASH)
 		file(READ ${FOLDER_UNITY_FILE} OLD_UNITY_FILE_CONTENTS)
 		string(SHA1 UNITY_EXISTING_HASH ${OLD_UNITY_FILE_CONTENTS})
 		string(SHA1 UNITY_NEW_HASH ${UNITY_FILE_CONTENTS})
@@ -88,7 +87,6 @@ function(ez_generate_folder_unity_file TARGET_NAME PROJECT_DIRECTORY SUB_FOLDER_
 
 	if(${UNITY_FILE_NEEDS_UPDATE})
 		file(WRITE ${FOLDER_UNITY_FILE} ${UNITY_FILE_CONTENTS})
-		message("Writing unity file ${FOLDER_UNITY_FILE}")
 	endif()
 
 	# add the file to the target and sort it into the proper sub-tree
