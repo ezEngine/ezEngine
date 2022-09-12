@@ -445,6 +445,7 @@ ezQtPropertyEditorAngleWidget::ezQtPropertyEditorAngleWidget()
     m_pWidget->setMaximum(ezMath::Infinity<double>());
     m_pWidget->setSingleStep(0.1f);
     m_pWidget->setAccelerated(true);
+    m_pWidget->setDecimals(1);
 
     policy.setHorizontalStretch(2);
     m_pWidget->setSizePolicy(policy);

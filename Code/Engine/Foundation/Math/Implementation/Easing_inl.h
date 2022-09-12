@@ -165,7 +165,7 @@ namespace ezMath
   template <typename Type>
   EZ_ALWAYS_INLINE Type EaseOutBack(Type t)
   {
-    return 10 + 2.70158 * pow(t - 1.0, 3.0) + 1.70158 * pow(t - 1.0, 2.0);
+    return 1 + 2.70158 * pow(t - 1.0, 3.0) + 1.70158 * pow(t - 1.0, 2.0);
   }
 
   template <typename Type>
