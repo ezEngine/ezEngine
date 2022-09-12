@@ -61,6 +61,8 @@ private Q_SLOTS:
   void onSelectionChanged();
   void onMoveCurve(ezInt32 iCurve, double moveY);
   void onGenerateCurve(ezMath::ezEasingFunctions easingFunction);
+  void onSaveAsPreset();
+  void onLoadPreset();
 
 private:
   void InsertCpAt(double posX, double value, ezVec2d epsilon);
@@ -69,6 +71,9 @@ private:
   void UpdateSpinBoxes();
   void SetTangentMode(ezCurveTangentMode::Enum mode, bool bLeft, bool bRight);
   void ClampPoint(double& x, double& y) const;
+  void SaveCurvePreset(const char* szFile) const;
+  ezResult LoadCurvePreset(const char* szFile);
+  void FindAllPresets();
 
   double m_fCurveDuration;
   ezVec2 m_TangentMove;
@@ -76,4 +81,6 @@ private:
   ezCurveGroupData m_Curves;
   ezCurveGroupData m_CurvesBackup;
   QPointF m_contextMenuScenePos;
+
+  static ezDynamicArray<ezString> s_CurvePresets;
 };

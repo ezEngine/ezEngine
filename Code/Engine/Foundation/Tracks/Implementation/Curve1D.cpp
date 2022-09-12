@@ -102,8 +102,7 @@ ezInt32 ezCurve1D::FindApproxControlPoint(double x) const
 
 double ezCurve1D::Evaluate(double x) const
 {
-  EZ_ASSERT_DEBUG(!m_LinearApproximation.IsEmpty(), "Cannot evaluate curve without precomputing curve approximation data first. Call "
-                                                    "CreateLinearApproximation() on curve before calling Evaluate().");
+  EZ_ASSERT_DEBUG(!m_LinearApproximation.IsEmpty(), "Cannot evaluate curve without precomputing curve approximation data first. Call CreateLinearApproximation() on curve before calling Evaluate().");
 
   if (m_LinearApproximation.GetCount() >= 2)
   {
