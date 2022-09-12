@@ -157,6 +157,18 @@ ezResult ezGALSwapChainVulkan::InitPlatform(ezGALDevice* pDevice)
     ezLog::Error("Failed to create Vulkan surface for window \"{}\"", m_WindowDesc.m_pWindow);
     return EZ_FAILURE;
   }
+
+  vk::Bool32 surfaceSupported = false;
+
+  VK_SUCCEED_OR_RETURN_EZ_FAILURE(m_pVulkanDevice->GetVulkanPhysicalDevice().getSurfaceSupportKHR(m_pVulkanDevice->GetGraphicsQueue().m_uiQueueFamily, m_vulkanSurface, &surfaceSupported));
+
+  if (!surfaceSupported)
+  {
+    ezLog::Error("Vulkan device does not support surfaces");
+    m_pVulkanDevice->DeleteLater(m_vulkanSurface);
+    return EZ_FAILURE;
+  }
+
   return CreateSwapChainInternal();
 }
 
@@ -303,7 +315,6 @@ ezResult ezGALSwapChainVulkan::DeInitPlatform(ezGALDevice* pDevice)
   DestroySwapChainInternal(pVulkanDevice);
   if (m_vulkanSurface)
   {
-
     pVulkanDevice->DeleteLater(m_vulkanSurface);
   }
   return EZ_SUCCESS;
