@@ -161,8 +161,8 @@ ezResult ezGALSwapChainVulkan::InitPlatform(ezGALDevice* pDevice)
   vk::Bool32 surfaceSupported = false;
 
   VK_SUCCEED_OR_RETURN_EZ_FAILURE(m_pVulkanDevice->GetVulkanPhysicalDevice().getSurfaceSupportKHR(m_pVulkanDevice->GetGraphicsQueue().m_uiQueueFamily, m_vulkanSurface, &surfaceSupported));
-  
-  if(!surfaceSupported)
+
+  if (!surfaceSupported)
   {
     ezLog::Error("Vulkan device does not support surfaces");
     m_pVulkanDevice->DeleteLater(m_vulkanSurface);
