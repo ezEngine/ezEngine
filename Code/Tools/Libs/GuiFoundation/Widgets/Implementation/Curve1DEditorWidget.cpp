@@ -997,6 +997,8 @@ void ezQtCurve1DEditorWidget::FindAllPresets()
 {
   s_CurvePresets.Clear();
 
+#if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS)
+
   EZ_LOCK(ezFileSystem::GetMutex());
 
   ezStringBuilder sFilePath;
@@ -1029,6 +1031,8 @@ void ezQtCurve1DEditorWidget::FindAllPresets()
   }
 
   s_CurvePresets.Sort();
+
+#endif
 }
 
 void ezQtCurve1DEditorWidget::UpdateSpinBoxes()
