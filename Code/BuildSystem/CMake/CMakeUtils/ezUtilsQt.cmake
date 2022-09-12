@@ -12,6 +12,23 @@ macro(ez_requires_qt)
 	ez_requires(EZ_ENABLE_QT_SUPPORT)
 endmacro()
 
+macro(ez_find_qt)
+	# Global keyword was added in cmake 3.24.0 and significantly speeds up generation of QT targets
+	if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.24.0")
+		if(EZ_QT_DIR)
+			find_package(Qt5 COMPONENTS ${ARGN} REQUIRED PATHS ${EZ_QT_DIR} GLOBAL)
+		else()
+			find_package(Qt5 COMPONENTS ${ARGN} REQUIRED GLOBAL)
+		endif()
+	else()
+		if(EZ_QT_DIR)
+			find_package(Qt5 COMPONENTS ${ARGN} REQUIRED PATHS ${EZ_QT_DIR})
+		else()
+			find_package(Qt5 COMPONENTS ${ARGN} REQUIRED)
+		endif()
+	endif()
+endmacro()
+
 # #####################################
 # ## ez_prepare_find_qt()
 # #####################################
@@ -97,11 +114,7 @@ function(ez_link_target_qt)
 
 	ez_prepare_find_qt()
 
-	if(EZ_QT_DIR)
-		find_package(Qt5 COMPONENTS ${FN_ARG_COMPONENTS} REQUIRED PATHS ${EZ_QT_DIR})
-	else()
-		find_package(Qt5 COMPONENTS ${FN_ARG_COMPONENTS} REQUIRED)
-	endif()
+	ez_find_qt(${FN_ARG_COMPONENTS})
 
 	mark_as_advanced(FORCE Qt5_DIR)
 	mark_as_advanced(FORCE Qt5Core_DIR)
@@ -177,11 +190,7 @@ function(ez_qt_wrap_target_ui_files TARGET_NAME FILES_TO_WRAP)
 
 	ez_prepare_find_qt()
 
-	if(EZ_QT_DIR)
-		find_package(Qt5 COMPONENTS Widgets REQUIRED PATHS ${EZ_QT_DIR})
-	else()
-		find_package(Qt5 COMPONENTS Widgets REQUIRED)
-	endif()
+	ez_find_qt(Widgets)
 
 	if(NOT TARGET Qt5::uic)
 		message(FATAL_ERROR "UIC.exe not found")
@@ -214,11 +223,7 @@ function(ez_qt_wrap_target_moc_files TARGET_NAME FILES_TO_WRAP)
 
 	ez_prepare_find_qt()
 
-	if(EZ_QT_DIR)
-		find_package(Qt5 COMPONENTS Widgets REQUIRED PATHS ${EZ_QT_DIR})
-	else()
-		find_package(Qt5 COMPONENTS Widgets REQUIRED)
-	endif()
+	ez_find_qt(Widgets)
 
 	set(Qt5Core_MOC_EXECUTABLE Qt5::moc)
 	ez_retrieve_target_pch(${TARGET_NAME} PCH_H)
@@ -249,11 +254,7 @@ function(ez_qt_wrap_target_qrc_files TARGET_NAME FILES_TO_WRAP)
 
 	ez_prepare_find_qt()
 
-	if(EZ_QT_DIR)
-		find_package(Qt5 COMPONENTS Widgets REQUIRED PATHS ${EZ_QT_DIR})
-	else()
-		find_package(Qt5 COMPONENTS Widgets REQUIRED)
-	endif()
+	ez_find_qt(Widgets)
 
 	set(Qt5Core_RCC_EXECUTABLE Qt5::rcc)
 	qt5_add_resources(QRC_FILES ${FILES_TO_WRAP})

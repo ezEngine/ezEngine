@@ -1,12 +1,12 @@
 # #####################################
-# ## ez_write_pvs_header(<file-path> <optional-text>)
+# ## ez_add_pvs_header(<target-var> <optional-text>)
 # #####################################
 
-function(ez_write_pvs_header TARGET_FILE OPTIONAL_TEXT)
+function(ez_add_pvs_header TARGET_VAR OPTIONAL_TEXT)
 	if(EZ_ENABLE_PVS_STUDIO_HEADER_IN_UNITY_FILES)
-		file(WRITE ${TARGET_FILE} "// This is an open source non-commercial project. Dear PVS-Studio, please check it.\n// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com \n\n${OPTIONAL_TEXT}")
+		set(${TARGET_VAR} "// This is an open source non-commercial project. Dear PVS-Studio, please check it.\n// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com \n\n${OPTIONAL_TEXT}" PARENT_SCOPE)
 	else()
-		file(WRITE ${TARGET_FILE} "${OPTIONAL_TEXT}")
+		set(${TARGET_VAR} "${OPTIONAL_TEXT}" PARENT_SCOPE)
 	endif()
 endfunction()
 
@@ -45,15 +45,17 @@ function(ez_generate_folder_unity_file TARGET_NAME PROJECT_DIRECTORY SUB_FOLDER_
 
 	set(FOLDER_UNITY_FILE "${CMAKE_BINARY_DIR}/${CURRENT_FOLDER_RELATIVE}/unity_${CURRENT_FOLDER_HASH}.cpp")
 	set(TMP_UNITY_FILE "${CMAKE_BINARY_DIR}/temp/unity.cpp")
+	
+	set(UNITY_FILE_CONTENTS "")
 
 	# message (STATUS "Generating ${FOLDER_UNITY_FILE}")
-	ez_write_pvs_header(${TMP_UNITY_FILE} "// generated unity cpp file\n\n")
+	ez_add_pvs_header(UNITY_FILE_CONTENTS "// generated unity cpp file\n\n")
 
 	# find the PCH and include it as the first thing in the unity file
 	ez_retrieve_target_pch(${TARGET_NAME} PCH_FILE)
 
 	if(PCH_FILE)
-		file(APPEND ${TMP_UNITY_FILE} "#include <${PCH_FILE}.h>\n\n")
+		string(APPEND UNITY_FILE_CONTENTS "#include <${PCH_FILE}.h>\n\n")
 
 		ez_pch_use("${PCH_FILE}.h" "${FOLDER_UNITY_FILE}")
 	endif()
@@ -63,17 +65,21 @@ function(ez_generate_folder_unity_file TARGET_NAME PROJECT_DIRECTORY SUB_FOLDER_
 		set(CUR_FILE_FULL "${PROJECT_DIRECTORY}/${SUB_FOLDER_PATH}/${CUR_FILE}")
 
 		file(TO_NATIVE_PATH ${CUR_FILE_FULL} CUR_FILE_NATIVE)
-		file(APPEND ${TMP_UNITY_FILE} "#include \"${CUR_FILE_NATIVE}\"\n")
+		string(APPEND UNITY_FILE_CONTENTS "#include \"${CUR_FILE_NATIVE}\"\n")
 
 		set_source_files_properties(${CUR_FILE_FULL} PROPERTIES HEADER_FILE_ONLY true)
 	endforeach()
+	
+	file(APPEND ${TMP_UNITY_FILE} ${UNITY_FILE_CONTENTS})
 
 	set(UNITY_FILE_NEEDS_UPDATE true)
 
 	if(EXISTS ${FOLDER_UNITY_FILE})
 		# check if the generated unity file is different from the existing one
-		file(SHA1 ${FOLDER_UNITY_FILE} UNITY_EXISTING_HASH)
-		file(SHA1 ${TMP_UNITY_FILE} UNITY_NEW_HASH)
+		#file(SHA1 ${FOLDER_UNITY_FILE} UNITY_EXISTING_HASH)
+		file(READ ${FOLDER_UNITY_FILE} OLD_UNITY_FILE_CONTENTS)
+		string(SHA1 UNITY_EXISTING_HASH ${OLD_UNITY_FILE_CONTENTS})
+		string(SHA1 UNITY_NEW_HASH ${UNITY_FILE_CONTENTS})
 
 		if(${UNITY_EXISTING_HASH} STREQUAL ${UNITY_NEW_HASH})
 			set(UNITY_FILE_NEEDS_UPDATE false)
@@ -81,8 +87,8 @@ function(ez_generate_folder_unity_file TARGET_NAME PROJECT_DIRECTORY SUB_FOLDER_
 	endif()
 
 	if(${UNITY_FILE_NEEDS_UPDATE})
-		file(READ ${TMP_UNITY_FILE} UNITY_FILE_CONTENTS)
 		file(WRITE ${FOLDER_UNITY_FILE} ${UNITY_FILE_CONTENTS})
+		message("Writing unity file ${FOLDER_UNITY_FILE}")
 	endif()
 
 	# add the file to the target and sort it into the proper sub-tree
