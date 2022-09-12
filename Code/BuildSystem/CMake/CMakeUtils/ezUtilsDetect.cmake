@@ -306,34 +306,37 @@ function(ez_detect_compiler_and_architecture)
 	set_property(GLOBAL PROPERTY EZ_CMAKE_COMPILER_CLANG OFF)
 	set_property(GLOBAL PROPERTY EZ_CMAKE_COMPILER_GCC OFF)
 
-	set(CMAKE_TRY_COMPILE_TARGET_TYPE "STATIC_LIBRARY")
-	try_compile(COMPILE_RESULT
-		${CMAKE_CURRENT_BINARY_DIR}
-		${CMAKE_SOURCE_DIR}/${EZ_SUBMODULE_PREFIX_PATH}/${EZ_CMAKE_RELPATH}/ProbingSrc/ArchitectureDetect.c
-		OUTPUT_VARIABLE COMPILE_OUTPUT
-	)
+	# Only compile the detect file if we don't have a cached result from the last run
+	if((NOT EZ_DETECTED_COMPILER) OR (NOT EZ_DETECTED_ARCH) OR (NOT EZ_DETECTED_MSVC_VER))
+		set(CMAKE_TRY_COMPILE_TARGET_TYPE "STATIC_LIBRARY")
+		try_compile(COMPILE_RESULT
+			${CMAKE_CURRENT_BINARY_DIR}
+			${CMAKE_SOURCE_DIR}/${EZ_SUBMODULE_PREFIX_PATH}/${EZ_CMAKE_RELPATH}/ProbingSrc/ArchitectureDetect.c
+			OUTPUT_VARIABLE COMPILE_OUTPUT
+		)
 
-	if(NOT COMPILE_RESULT)
-		message(FATAL_ERROR "Failed to detect compiler / target architecture. Compiler output: ${COMPILE_OUTPUT}")
-	endif()
+		if(NOT COMPILE_RESULT)
+			message(FATAL_ERROR "Failed to detect compiler / target architecture. Compiler output: ${COMPILE_OUTPUT}")
+		endif()
 
-	if(${COMPILE_OUTPUT} MATCHES "ARCH:'([^']*)'")
-		set(EZ_DETECTED_ARCH ${CMAKE_MATCH_1})
-	else()
-		message(FATAL_ERROR "The compile test did not output the architecture. Compiler broken? Compiler output: ${COMPILE_OUTPUT}")
-	endif()
-
-	if(${COMPILE_OUTPUT} MATCHES "COMPILER:'([^']*)'")
-		set(EZ_DETECTED_COMPILER ${CMAKE_MATCH_1})
-	else()
-		message(FATAL_ERROR "The compile test did not output the compiler. Compiler broken? Compiler output: ${COMPILE_OUTPUT}")
-	endif()
-
-	if(EZ_DETECTED_COMPILER STREQUAL "msvc")
-		if(${COMPILE_OUTPUT} MATCHES "MSC_VER:'([^']*)'")
-			set(EZ_DETECTED_MSVC_VER ${CMAKE_MATCH_1})
+		if(${COMPILE_OUTPUT} MATCHES "ARCH:'([^']*)'")
+			set(EZ_DETECTED_ARCH ${CMAKE_MATCH_1} CACHE INTERNAL "")
 		else()
-			message(FATAL_ERROR "The compile test did not output the MSC_VER. Compiler broken? Compiler output: ${COMPILE_OUTPUT}")
+			message(FATAL_ERROR "The compile test did not output the architecture. Compiler broken? Compiler output: ${COMPILE_OUTPUT}")
+		endif()
+
+		if(${COMPILE_OUTPUT} MATCHES "COMPILER:'([^']*)'")
+			set(EZ_DETECTED_COMPILER ${CMAKE_MATCH_1} CACHE INTERNAL "")
+		else()
+			message(FATAL_ERROR "The compile test did not output the compiler. Compiler broken? Compiler output: ${COMPILE_OUTPUT}")
+		endif()
+		
+		if(EZ_DETECTED_COMPILER STREQUAL "msvc")
+			if(${COMPILE_OUTPUT} MATCHES "MSC_VER:'([^']*)'")
+				set(EZ_DETECTED_MSVC_VER ${CMAKE_MATCH_1} CACHE INTERNAL "")
+			else()
+				message(FATAL_ERROR "The compile test did not output the MSC_VER. Compiler broken? Compiler output: ${COMPILE_OUTPUT}")
+			endif()
 		endif()
 	endif()
 

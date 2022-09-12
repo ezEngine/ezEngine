@@ -317,18 +317,24 @@ endfunction()
 # ## ez_glob_source_files(<path-to-folder> <out-files>)
 # #####################################
 function(ez_glob_source_files ROOT_DIR RESULT_ALL_SOURCES)
-	file(GLOB_RECURSE CPP_FILES "${ROOT_DIR}/*.cpp" "${ROOT_DIR}/*.cc")
-	file(GLOB_RECURSE H_FILES "${ROOT_DIR}/*.h" "${ROOT_DIR}/*.hpp" "${ROOT_DIR}/*.inl")
-	file(GLOB_RECURSE C_FILES "${ROOT_DIR}/*.c")
-	file(GLOB_RECURSE CS_FILES "${ROOT_DIR}/*.cs")
+	file(GLOB_RECURSE RELEVANT_FILES 
+		"${ROOT_DIR}/*.cpp" 
+		"${ROOT_DIR}/*.cc" 
+		"${ROOT_DIR}/*.h" 
+		"${ROOT_DIR}/*.hpp" 
+		"${ROOT_DIR}/*.inl" 
+		"${ROOT_DIR}/*.c" 
+		"${ROOT_DIR}/*.cs" 
+		"${ROOT_DIR}/*.ui"
+		"${ROOT_DIR}/*.qrc"
+		"${ROOT_DIR}/*.def"
+		"${ROOT_DIR}/*.ico"
+		"${ROOT_DIR}/*.rc"
+		"${ROOT_DIR}/*.cmake"
+		"${ROOT_DIR}/CMakeLists.txt"
+	)
 
-	file(GLOB_RECURSE UI_FILES "${ROOT_DIR}/*.ui")
-	file(GLOB_RECURSE QRC_FILES "${ROOT_DIR}/*.qrc")
-	file(GLOB_RECURSE DEF_FILES "${ROOT_DIR}/*.def")
-	file(GLOB_RECURSE RES_FILES "${ROOT_DIR}/*.ico" "${ROOT_DIR}/*.rc")
-	file(GLOB_RECURSE CMAKE_FILES "${ROOT_DIR}/*.cmake" "${ROOT_DIR}/CMakeLists.txt")
-
-	set(${RESULT_ALL_SOURCES} ${CPP_FILES} ${H_FILES} ${C_FILES} ${CS_FILES} ${UI_FILES} ${QRC_FILES} ${RES_FILES} ${DEF_FILES} ${CMAKE_FILES} PARENT_SCOPE)
+	set(${RESULT_ALL_SOURCES} ${RELEVANT_FILES} PARENT_SCOPE)
 endfunction()
 
 # #####################################
@@ -441,7 +447,7 @@ endfunction()
 # #####################################
 function(ez_init_projects)
 	# find all init.cmake files below this directory
-	file(GLOB_RECURSE INIT_FILES "init.cmake")
+	file(GLOB_RECURSE INIT_FILES "${CMAKE_SOURCE_DIR}/${EZ_SUBMODULE_PREFIX_PATH}/Code/init.cmake")
 
 	foreach(INIT_FILE ${INIT_FILES})
 		message(STATUS "Including '${INIT_FILE}'")
@@ -454,10 +460,10 @@ endfunction()
 # #####################################
 function(ez_finalize_projects)
 	# find all init.cmake files below this directory
-	file(GLOB_RECURSE INIT_FILES "finalize.cmake")
+	file(GLOB_RECURSE FINALIZE_FILES "${CMAKE_SOURCE_DIR}/${EZ_SUBMODULE_PREFIX_PATH}/Code/finalize.cmake")
 
 	# TODO: also finalize external projects
-	foreach(INIT_FILE ${INIT_FILES})
+	foreach(INIT_FILE ${FINALIZE_FILES})
 		message(STATUS "Including '${INIT_FILE}'")
 		include("${INIT_FILE}")
 	endforeach()
@@ -470,7 +476,7 @@ endfunction()
 # The build filter is intended to only build a subset of ezEngine.
 # The build filters are configured through cmake files in the 'BuildFilters' directory.
 function(ez_build_filter_init)
-	file(GLOB_RECURSE FILTER_FILES "${CMAKE_SOURCE_DIR}/*.BuildFilter")
+	file(GLOB_RECURSE FILTER_FILES "${CMAKE_SOURCE_DIR}/${EZ_SUBMODULE_PREFIX_PATH}/Code/BuildSystem/CMake/BuildFilters/*.BuildFilter")
 
 	get_property(EZ_BUILD_FILTER_NAMES GLOBAL PROPERTY EZ_BUILD_FILTER_NAMES)
 
