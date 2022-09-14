@@ -71,8 +71,8 @@ public:
 
   ezInt64 m_iTick; // 4800 ticks per second
   double m_fValue;
-  ezVec2 m_LeftTangent;
-  ezVec2 m_RightTangent;
+  ezVec2 m_LeftTangent = ezVec2(-0.1f, 0.0f);
+  ezVec2 m_RightTangent = ezVec2(+0.1f, 0.0f);
   bool m_bTangentsLinked = true;
   ezEnum<ezCurveTangentMode> m_LeftTangentMode;
   ezEnum<ezCurveTangentMode> m_RightTangentMode;
