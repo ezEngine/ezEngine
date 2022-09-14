@@ -445,11 +445,15 @@ endfunction()
 # #####################################
 # ## ez_init_projects()
 # #####################################
-# Make sure that EZ_SOURCE_DIR points to the directory containing 
-# all relevant sources before calling this function.
+# By defining EZ_SOURCE_DIR before calling this function
+# you can change the location that will be scanned for projects.
 function(ez_init_projects)
-	# find all init.cmake files below this directory
-	file(GLOB_RECURSE INIT_FILES "${EZ_SOURCE_DIR}/init.cmake")
+	# find all init.cmake files below this directory or the given source directory if any.
+    if(EZ_SOURCE_DIR)
+        file(GLOB_RECURSE INIT_FILES "${EZ_SOURCE_DIR}/init.cmake")
+    else()
+        file(GLOB_RECURSE INIT_FILES "${CMAKE_CURRENT_SOURCE_DIR}/init.cmake")
+    endif()
 
 	foreach(INIT_FILE ${INIT_FILES})
 		message(STATUS "Including '${INIT_FILE}'")
@@ -460,16 +464,20 @@ endfunction()
 # #####################################
 # ## ez_finalize_projects()
 # #####################################
-# Make sure that EZ_SOURCE_DIR points to the directory containing 
-# all relevant sources before calling this function.
+# By defining EZ_SOURCE_DIR before calling this function
+# you can change the location that will be scanned for projects.
 function(ez_finalize_projects)
-	# find all init.cmake files below this directory
-	file(GLOB_RECURSE FINALIZE_FILES "${EZ_SOURCE_DIR}/finalize.cmake")
+	# find all finalize.cmake files below this directory or the given source directory if any.
+    if(EZ_SOURCE_DIR)
+        file(GLOB_RECURSE FINALIZE_FILES "${EZ_SOURCE_DIR}/finalize.cmake")
+    else()
+        file(GLOB_RECURSE FINALIZE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/finalize.cmake")
+    endif()
 
 	# TODO: also finalize external projects
-	foreach(INIT_FILE ${FINALIZE_FILES})
-		message(STATUS "Including '${INIT_FILE}'")
-		include("${INIT_FILE}")
+	foreach(FINALIZE_FILE ${FINALIZE_FILES})
+		message(STATUS "Including '${FINALIZE_FILE}'")
+		include("${FINALIZE_FILE}")
 	endforeach()
 endfunction()
 
