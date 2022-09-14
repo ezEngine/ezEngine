@@ -208,6 +208,7 @@ void CopyCurve(Kraut::Curve& dst, const ezSingleCurveData& src, ezUInt32 uiNumSa
   {
     ezCurve1D c;
     src.ConvertToRuntimeData(c);
+    c.SortControlPoints();
     c.CreateLinearApproximation();
 
     dst.Initialize(uiNumSamples, fDefaultValue, 0.0f, 1.0f);
