@@ -53,6 +53,8 @@ ez_pull_platform_vars()
 
 include("ezPlatformVars")
 
+set(EZ_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Code")
+
 ez_init_projects()
 
 get_property(SELECTED_FILTER_NAME GLOBAL PROPERTY EZ_BUILD_FILTER_SELECTED)

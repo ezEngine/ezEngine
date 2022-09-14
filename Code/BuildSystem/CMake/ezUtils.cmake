@@ -445,9 +445,11 @@ endfunction()
 # #####################################
 # ## ez_init_projects()
 # #####################################
+# Make sure that EZ_SOURCE_DIR points to the directory containing 
+# all relevant sources before calling this function.
 function(ez_init_projects)
 	# find all init.cmake files below this directory
-	file(GLOB_RECURSE INIT_FILES "${CMAKE_SOURCE_DIR}/${EZ_SUBMODULE_PREFIX_PATH}/Code/init.cmake")
+	file(GLOB_RECURSE INIT_FILES "${EZ_SOURCE_DIR}/init.cmake")
 
 	foreach(INIT_FILE ${INIT_FILES})
 		message(STATUS "Including '${INIT_FILE}'")
@@ -458,9 +460,11 @@ endfunction()
 # #####################################
 # ## ez_finalize_projects()
 # #####################################
+# Make sure that EZ_SOURCE_DIR points to the directory containing 
+# all relevant sources before calling this function.
 function(ez_finalize_projects)
 	# find all init.cmake files below this directory
-	file(GLOB_RECURSE FINALIZE_FILES "${CMAKE_SOURCE_DIR}/${EZ_SUBMODULE_PREFIX_PATH}/Code/finalize.cmake")
+	file(GLOB_RECURSE FINALIZE_FILES "${EZ_SOURCE_DIR}/finalize.cmake")
 
 	# TODO: also finalize external projects
 	foreach(INIT_FILE ${FINALIZE_FILES})
