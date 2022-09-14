@@ -59,6 +59,12 @@ struct AoPositionResult
 
 static void GenerateAmbientOcclusionSpheres(ezDynamicOctree& octree, const ezBoundingBox& bbox, ezDynamicArray<ezDynamicArray<ezBoundingSphere>>& occlusionSpheres, const Kraut::TreeStructure& treeStructure)
 {
+  occlusionSpheres.Clear();
+
+
+  if (!bbox.IsValid())
+    return;
+
   ezStopwatch swAO;
 
   octree.CreateTree(bbox.GetCenter(), bbox.GetHalfExtents() + ezVec3(1.0f), 0.1f);
@@ -244,7 +250,11 @@ void ezKrautGeneratorResource::GenerateTreeDescriptor(const ezSharedPtr<ezKrautG
 
   auto bbox = treeStructure.ComputeBoundingBox();
   ezBoundingBox bbox2;
-  bbox2.SetElements(ToEzSwizzle(bbox.m_vMin), ToEzSwizzle(bbox.m_vMax));
+
+  if (bbox.IsInvalid())
+    bbox2.SetInvalid();
+  else
+    bbox2.SetElements(ToEzSwizzle(bbox.m_vMin), ToEzSwizzle(bbox.m_vMax));
 
   // data for ambient occlusion computation
   ezDynamicArray<ezDynamicArray<ezBoundingSphere>> occlusionSpheres;
@@ -510,7 +520,7 @@ void ezKrautGeneratorResource::GenerateTreeDescriptor(const ezSharedPtr<ezKrautG
 
               auto& mat = dstDesc.m_Materials.ExpandAndGetRef();
               mat.m_MaterialType = static_cast<ezKrautMaterialType>(geometryType);
-              //mat.m_VariationColor = srcMat.m_VariationColor;// currently done through the material
+              // mat.m_VariationColor = srcMat.m_VariationColor;// currently done through the material
               mat.m_sMaterial = srcMat.m_hMaterial.GetResourceID(); // TODO: could just pass on the material handle
             }
 
