@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Foundation/Math/Easing.h>
+#include <Foundation/Math/CurveFunctions.h>
 #include <Foundation/Tracks/Curve1D.h>
 #include <GuiFoundation/GuiFoundationDLL.h>
 #include <GuiFoundation/ui_Curve1DEditorWidget.h>
@@ -28,6 +28,8 @@ public:
   void NormalizeCurveX(ezUInt32 uiActiveCurve);
   void NormalizeCurveY(ezUInt32 uiActiveCurve);
   void ClearAllPoints();
+  void MirrorHorizontally(ezUInt32 uiActiveCurve);
+  void MirrorVertically(ezUInt32 uiActiveCurve);
 
 Q_SIGNALS:
   void CpMovedEvent(ezUInt32 curveIdx, ezUInt32 cpIdx, ezInt64 iTickX, double newPosY);
@@ -60,7 +62,7 @@ private Q_SLOTS:
   void onFlattenTangents();
   void onSelectionChanged();
   void onMoveCurve(ezInt32 iCurve, double moveY);
-  void onGenerateCurve(ezMath::ezEasingFunctions easingFunction);
+  void onGenerateCurve(ezMath::ezCurveFunction function, bool inverse);
   void onSaveAsPreset();
   void onLoadPreset();
 
