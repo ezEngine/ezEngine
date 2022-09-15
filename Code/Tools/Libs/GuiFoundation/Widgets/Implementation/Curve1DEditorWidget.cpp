@@ -539,17 +539,14 @@ void ezQtCurve1DEditorWidget::onContextMenu(QPoint pos, QPointF scenePos)
   const auto& selection = CurveEdit->GetSelection();
 
   QMenu* cmSel = m.addMenu("Selection");
-  cmSel->addAction("Select All\tCtrl+A", this, [this]()
-    { CurveEdit->SelectAll(); });
+  cmSel->addAction("Select All\tCtrl+A", this, [this]() { CurveEdit->SelectAll(); });
 
   if (!selection.IsEmpty())
   {
-    cmSel->addAction("Clear Selection\tESC", this, [this]()
-      { CurveEdit->ClearSelection(); });
+    cmSel->addAction("Clear Selection\tESC", this, [this]() { CurveEdit->ClearSelection(); });
 
     cmSel->addAction(
-      "Frame Selection\tShift+F", this, [this]()
-      { FrameSelection(); });
+      "Frame Selection\tShift+F", this, [this]() { FrameSelection(); });
 
     cmSel->addSeparator();
 
@@ -594,24 +591,16 @@ void ezQtCurve1DEditorWidget::onContextMenu(QPoint pos, QPointF scenePos)
   {
     QMenu* cm = m.addMenu("Curve");
     cm->addSeparator();
-    cm->addAction("Mirror Horizontally", this, [this]()
-      { MirrorHorizontally(0); });
-    cm->addAction("Mirror Vertically", this, [this]()
-      { MirrorVertically(0); });
-    cm->addAction("Normalize X", this, [this]()
-      { NormalizeCurveX(0); });
-    cm->addAction("Normalize Y", this, [this]()
-      { NormalizeCurveY(0); });
-    cm->addAction("Loop: Adjust Last Point", this, [this]()
-      { MakeRepeatable(true); });
-    cm->addAction("Loop: Adjust First Point", this, [this]()
-      { MakeRepeatable(false); });
-    cm->addAction("Clear Curve", this, [this]()
-      { ClearAllPoints(); });
+    cm->addAction("Mirror Horizontally", this, [this]() { MirrorHorizontally(0); });
+    cm->addAction("Mirror Vertically", this, [this]() { MirrorVertically(0); });
+    cm->addAction("Normalize X", this, [this]() { NormalizeCurveX(0); });
+    cm->addAction("Normalize Y", this, [this]() { NormalizeCurveY(0); });
+    cm->addAction("Loop: Adjust Last Point", this, [this]() { MakeRepeatable(true); });
+    cm->addAction("Loop: Adjust First Point", this, [this]() { MakeRepeatable(false); });
+    cm->addAction("Clear Curve", this, [this]() { ClearAllPoints(); });
 
     cm->addAction(
-      "Frame Curve\tCtrl+F", this, [this]()
-      { FrameCurve(); });
+      "Frame Curve\tCtrl+F", this, [this]() { FrameCurve(); });
   }
 
   QMenu* presentsMenu = m.addMenu("Presets");
@@ -738,8 +727,7 @@ void ezQtCurve1DEditorWidget::onContextMenu(QPoint pos, QPointF scenePos)
     ezMap<ezString, QMenu*> subMenus;
     subMenus[""] = presentsMenu;
 
-    auto GetSubMenu = [&](const ezStringBuilder& path, auto GetSubMenu2)
-    {
+    auto GetSubMenu = [&](const ezStringBuilder& path, auto GetSubMenu2) {
       auto it = subMenus.Find(path);
       if (it.IsValid())
         return it.Value();
@@ -763,8 +751,7 @@ void ezQtCurve1DEditorWidget::onContextMenu(QPoint pos, QPointF scenePos)
 
       sPresetPath.Trim("/");
 
-      GetSubMenu(sPresetPath, GetSubMenu)->addAction(sPresetName.GetData(), [this, preset]()
-        { LoadCurvePreset(preset).IgnoreResult(); });
+      GetSubMenu(sPresetPath, GetSubMenu)->addAction(sPresetName.GetData(), [this, preset]() { LoadCurvePreset(preset).IgnoreResult(); });
     }
   }
 
@@ -965,8 +952,7 @@ void ezQtCurve1DEditorWidget::onGenerateCurve(ezMath::ezCurveFunction function, 
     samples[i].m_fCorrectValue = GetCurveValue(function, x, inverse);
   }
 
-  auto AddPt = [&](ezUInt32 idx)
-  {
+  auto AddPt = [&](ezUInt32 idx) {
     samples[idx].m_bInserted = true;
     const double x = samples[idx].m_fPos;
     const double y = samples[idx].m_fCorrectValue;
