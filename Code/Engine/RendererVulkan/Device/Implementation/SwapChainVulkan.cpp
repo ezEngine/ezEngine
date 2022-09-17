@@ -16,6 +16,10 @@
 #  include <GLFW/glfw3.h>
 #endif
 
+#if EZ_ENABLED(EZ_PLATFORM_LINUX)
+#  include <xcb/xcb.h>
+#endif
+
 namespace
 {
   ezResult GetAlternativeFormat(vk::Format& format, vk::ComponentMapping& componentMapping)
@@ -144,6 +148,31 @@ ezResult ezGALSwapChainVulkan::InitPlatform(ezGALDevice* pDevice)
   surfaceCreateInfo.hwnd = (HWND)m_WindowDesc.m_pWindow->GetNativeWindowHandle();
 
   m_vulkanSurface = m_pVulkanDevice->GetVulkanInstance().createWin32SurfaceKHR(surfaceCreateInfo);
+#elif EZ_ENABLED(EZ_PLATFORM_LINUX)
+  ezWindowHandle windowHandle = m_WindowDesc.m_pWindow->GetNativeWindowHandle();
+  switch (windowHandle.type)
+  {
+    case ezWindowHandle::Type::Invalid:
+      ezLog::Error("Invalid native window handle for window \"{}\"", m_WindowDesc.m_pWindow);
+      return EZ_FAILURE;
+    case ezWindowHandle::Type::GLFW:
+    {
+      VkSurfaceKHR glfwSurface = VK_NULL_HANDLE;
+      VK_SUCCEED_OR_RETURN_EZ_FAILURE(glfwCreateWindowSurface(m_pVulkanDevice->GetVulkanInstance(), windowHandle.glfwWindow, nullptr, &glfwSurface));
+      m_vulkanSurface = glfwSurface;
+    }
+    break;
+    case ezWindowHandle::Type::XCB:
+    {
+      vk::XcbSurfaceCreateInfoKHR surfaceCreateInfo = {};
+      EZ_ASSERT_DEV(windowHandle.xcbWindow.m_pConnection != nullptr && windowHandle.xcbWindow.m_Window != 0, "Invalid xcb handle");
+      surfaceCreateInfo.connection = windowHandle.xcbWindow.m_pConnection;
+      surfaceCreateInfo.window = windowHandle.xcbWindow.m_Window;
+
+      m_vulkanSurface = m_pVulkanDevice->GetVulkanInstance().createXcbSurfaceKHR(surfaceCreateInfo);
+    }
+    break;
+  }
 #elif EZ_ENABLED(EZ_SUPPORTS_GLFW)
   VkSurfaceKHR glfwSurface = VK_NULL_HANDLE;
   VK_SUCCEED_OR_RETURN_EZ_FAILURE(glfwCreateWindowSurface(m_pVulkanDevice->GetVulkanInstance(), m_WindowDesc.m_pWindow->GetNativeWindowHandle(), nullptr, &glfwSurface));

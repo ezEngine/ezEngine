@@ -23,6 +23,11 @@ class ezOpenDdlReaderElement;
 #  include <Core/System/Implementation/null/InputDevice_null.h>
 #endif
 
+// Currently the following scenarios are possible
+// - Windows native implementation, using HWND
+// - GLFW on windows, using GLFWWindow* internally and HWND to pass windows around
+// - GLFW / XCB on linux. Runtime uses GLFWWindow*. Editor uses xcb-window. Tagged union is passed around as window handle.
+
 #if EZ_ENABLED(EZ_SUPPORTS_GLFW)
 
 extern "C"
@@ -33,12 +38,46 @@ extern "C"
 #  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 #    include <Foundation/Basics/Platform/Win/MinWindows.h>
 using ezWindowHandle = ezMinWindows::HWND;
+using ezWindowInternalHandle = GLFWwindow*;
 #    define INVALID_WINDOW_HANDLE_VALUE (ezWindowHandle)(0)
+#  elif EZ_ENABLED(EZ_PLATFORM_LINUX)
+
+extern "C"
+{
+  typedef struct xcb_connection_t xcb_connection_t;
+}
+
+struct ezXcbWindowHandle
+{
+  xcb_connection_t* m_pConnection;
+  ezUInt32 m_Window;
+};
+
+struct ezWindowHandle
+{
+  enum class Type
+  {
+    Invalid = 0,
+    GLFW = 1, // Used by the runtime
+    XCB = 2   // Used by the editor
+  };
+
+  Type type;
+  union
+  {
+    GLFWwindow* glfwWindow;
+    ezXcbWindowHandle xcbWindow;
+  };
+};
+
+using ezWindowInternalHandle = ezWindowHandle;
+#    define INVALID_WINDOW_HANDLE_VALUE \
+      ezWindowHandle {}
 #  else
 using ezWindowHandle = GLFWwindow*;
+using ezWindowInternalHandle = GLFWwindow*;
 #    define INVALID_WINDOW_HANDLE_VALUE (GLFWwindow*)(0)
 #  endif
-using ezWindowInternalHandle = GLFWwindow*;
 
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 

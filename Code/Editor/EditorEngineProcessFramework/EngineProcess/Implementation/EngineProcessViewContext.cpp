@@ -47,7 +47,15 @@ void ezEngineProcessViewContext::HandleViewMessage(const ezEditorEngineViewMsg* 
 
     if (pMsg2->m_uiWindowWidth > 0 && pMsg2->m_uiWindowHeight > 0)
     {
+#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
       HandleWindowUpdate(reinterpret_cast<ezWindowHandle>(pMsg2->m_uiHWND), pMsg2->m_uiWindowWidth, pMsg2->m_uiWindowHeight);
+#  else
+      ezWindowHandle windowHandle;
+      windowHandle.type = ezWindowHandle::Type::XCB;
+      windowHandle.xcbWindow.m_Window = static_cast<ezUInt32>(pMsg2->m_uiHWND);
+      windowHandle.xcbWindow.m_pConnection = nullptr;
+      HandleWindowUpdate(windowHandle, pMsg2->m_uiWindowWidth, pMsg2->m_uiWindowHeight);
+#  endif
       Redraw(true);
     }
   }
