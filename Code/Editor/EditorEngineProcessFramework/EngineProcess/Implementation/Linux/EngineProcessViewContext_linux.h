@@ -1,73 +1,41 @@
-#include <GLFW/glfw3.h>
 
-#define GLFW_EXPOSE_NATIVE_X11
-#include <GLFW/glfw3native.h>
-
-namespace
-{
-  ezResult ezGlfwError(const char* file, size_t line)
-  {
-    const char* desc;
-    int errorCode = glfwGetError(&desc);
-    if (errorCode != GLFW_NO_ERROR)
-    {
-      ezLog::Error("GLFW error {} ({}): {} - {}", file, line, errorCode, desc);
-      return EZ_FAILURE;
-    }
-    return EZ_SUCCESS;
-  }
-} // namespace
-
-#define EZ_GLFW_RETURN_FAILURE_ON_ERROR()         \
-  do                                              \
-  {                                               \
-    if (ezGlfwError(__FILE__, __LINE__).Failed()) \
-      return EZ_FAILURE;                          \
-  } while (false)
+#include <xcb/xcb.h>
 
 ezEditorProcessViewWindow::~ezEditorProcessViewWindow()
 {
-  if (m_hWnd != nullptr)
+  if(m_hWnd.type == ezWindowHandle::Type::XCB)
   {
-    glfwDestroyWindow(m_hWnd);
-    m_hWnd = nullptr;
+    xcb_disconnect(m_hWnd.xcbWindow.m_pConnection);
+    m_hWnd.xcbWindow.m_pConnection = nullptr;
+    m_hWnd.type = ezWindowHandle::Type::Invalid;
   }
 }
 
 ezResult ezEditorProcessViewWindow::UpdateWindow(ezWindowHandle parentWindow, ezUInt16 uiWidth, ezUInt16 uiHeight)
 {
+  if (m_hWnd.type == ezWindowHandle::Type::Invalid)
+  {
+    // xcb_connect always returns a non-NULL pointer to a xcb_connection_t,
+    // even on failure. Callers need to use xcb_connection_has_error() to
+    // check for failure. When finished, use xcb_disconnect() to close the
+    // connection and free the structure.
+    int scr = 0;
+    m_hWnd.type = ezWindowHandle::Type::XCB;
+    m_hWnd.xcbWindow.m_pConnection = xcb_connect(NULL, &scr);
+    if (auto err = xcb_connection_has_error(m_hWnd.xcbWindow.m_pConnection); err != 0)
+    {
+      ezLog::Error("Could not connect to x11 via xcb. Error-Code '{}'", err);
+      xcb_disconnect(m_hWnd.xcbWindow.m_pConnection);
+      m_hWnd.xcbWindow.m_pConnection = nullptr;
+      m_hWnd.type = ezWindowHandle::Type::Invalid;
+      return EZ_FAILURE;
+    }
+  }
+
   m_uiWidth = uiWidth;
   m_uiHeight = uiHeight;
-
-  if (m_hWnd == nullptr)
-  {
-    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-    EZ_GLFW_RETURN_FAILURE_ON_ERROR();
-
-    //glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
-    //EZ_GLFW_RETURN_FAILURE_ON_ERROR();
-
-    glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
-    EZ_GLFW_RETURN_FAILURE_ON_ERROR();
-
-    GLFWwindow* pWindow = glfwCreateWindow(uiWidth, uiHeight, "EditorEngineView", nullptr, nullptr);
-    EZ_GLFW_RETURN_FAILURE_ON_ERROR();
-
-    Window xEngineWindow = glfwGetX11Window(pWindow);
-    Display* xDisplay = glfwGetX11Display();
-
-    Window xParentWindow = reinterpret_cast<Window>(parentWindow);
-
-    //XSynchronize(xDisplay, true);
-    XReparentWindow(xDisplay, xEngineWindow, xParentWindow, 0, 0);
-
-    //glfwShowWindow(pWindow);
-
-    m_hWnd = pWindow;
-  }
+  EZ_ASSERT_DEV(parentWindow.type == ezWindowHandle::Type::XCB && parentWindow.xcbWindow.m_Window != 0, "Invalid handle passed");
+  m_hWnd.xcbWindow.m_Window = parentWindow.xcbWindow.m_Window;
 
   return EZ_SUCCESS;
 }
-
-// Clean up the mess including Xlib.h caused
-#undef None
