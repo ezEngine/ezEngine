@@ -3,7 +3,7 @@
 
 ezEditorProcessViewWindow::~ezEditorProcessViewWindow()
 {
-  if(m_hWnd.type == ezWindowHandle::Type::XCB)
+  if (m_hWnd.type == ezWindowHandle::Type::XCB)
   {
     xcb_disconnect(m_hWnd.xcbWindow.m_pConnection);
     m_hWnd.xcbWindow.m_pConnection = nullptr;
