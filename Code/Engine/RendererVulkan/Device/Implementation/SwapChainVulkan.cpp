@@ -245,7 +245,10 @@ ezResult ezGALSwapChainVulkan::CreateSwapChainInternal()
   if (m_WindowDesc.m_bAllowScreenshots)
     swapChainCreateInfo.imageUsage |= vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eSampled;
 
-  swapChainCreateInfo.minImageCount = m_WindowDesc.m_bDoubleBuffered ? 2 : 1;
+  swapChainCreateInfo.minImageCount = ezMath::Max(m_WindowDesc.m_bDoubleBuffered ? 2u : 1u, surfaceCapabilities.minImageCount);
+  if (surfaceCapabilities.maxImageCount != 0)
+    swapChainCreateInfo.minImageCount = ezMath::Min(swapChainCreateInfo.minImageCount, surfaceCapabilities.maxImageCount);
+
   swapChainCreateInfo.presentMode = ezConversionUtilsVulkan::GetPresentMode(m_currentPresentMode, presentModes);
   swapChainCreateInfo.preTransform = vk::SurfaceTransformFlagBitsKHR::eIdentity;
   swapChainCreateInfo.surface = m_vulkanSurface;
