@@ -337,6 +337,8 @@ function(ez_detect_compiler_and_architecture)
 			else()
 				message(FATAL_ERROR "The compile test did not output the MSC_VER. Compiler broken? Compiler output: ${COMPILE_OUTPUT}")
 			endif()
+		else()
+			set(EZ_DETECTED_MSVC_VER "<NOT USING MSVC>" CACHE INTERNAL "")
 		endif()
 	endif()
 

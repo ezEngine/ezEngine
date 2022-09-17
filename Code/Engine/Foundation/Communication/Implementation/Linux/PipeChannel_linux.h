@@ -43,5 +43,7 @@ private:
 
   ezUInt8 m_InputBuffer[4096];
   ezAtomicBool m_Connecting = false;
+
+  ezUInt64 m_previousSendOffset = 0;
 };
 #endif

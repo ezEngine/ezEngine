@@ -14,8 +14,8 @@ static const char* GenerateThreadName(ezWorkerThreadType::Enum ThreadType, ezUIn
 }
 
 ezTaskWorkerThread::ezTaskWorkerThread(ezWorkerThreadType::Enum ThreadType, ezUInt32 uiThreadNumber)
-  // We need at least 128 kb of stack size, otherwise the shader compilation tasks will run out of stack space.
-  : ezThread(GenerateThreadName(ThreadType, uiThreadNumber), 128 * 1024)
+  // We need at least 256 kb of stack size, otherwise the shader compilation tasks will run out of stack space.
+  : ezThread(GenerateThreadName(ThreadType, uiThreadNumber), 256 * 1024)
 {
   m_WorkerType = ThreadType;
   m_uiWorkerThreadNumber = uiThreadNumber & 0xFFFF;
