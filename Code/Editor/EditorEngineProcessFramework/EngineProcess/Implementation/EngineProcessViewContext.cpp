@@ -53,7 +53,7 @@ void ezEngineProcessViewContext::HandleViewMessage(const ezEditorEngineViewMsg* 
       ezWindowHandle windowHandle;
       windowHandle.type = ezWindowHandle::Type::XCB;
       windowHandle.xcbWindow.m_Window = static_cast<ezUInt32>(pMsg2->m_uiHWND);
-      windowHandle.xcbWindow.m_pConnection = nullptr; // TODO
+      windowHandle.xcbWindow.m_pConnection = nullptr;
       HandleWindowUpdate(windowHandle, pMsg2->m_uiWindowWidth, pMsg2->m_uiWindowHeight);
 #  endif
       Redraw(true);
