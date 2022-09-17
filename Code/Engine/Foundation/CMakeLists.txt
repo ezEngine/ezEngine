@@ -27,7 +27,7 @@ if (EZ_CMAKE_PLATFORM_LINUX)
     PRIVATE
 
     uuid
-	dl # dlopen, dlclose, etc
+    dl # dlopen, dlclose, etc
   )
 endif()
 

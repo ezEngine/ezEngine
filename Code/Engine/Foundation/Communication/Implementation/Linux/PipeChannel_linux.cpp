@@ -173,12 +173,11 @@ void ezPipeChannel_linux::InternalSend()
   while (true)
   {
 
-    ezUInt64 uiToWrite = storage->GetStorageSize64();
-    ezUInt64 uiNextOffset = 0;
+    ezUInt64 uiToWrite = storage->GetStorageSize64() - m_previousSendOffset;
+    ezUInt64 uiNextOffset = m_previousSendOffset;
     while (uiToWrite > 0)
     {
       const ezArrayPtr<const ezUInt8> range = storage->GetContiguousMemoryRange(uiNextOffset);
-      uiToWrite -= range.GetCount();
 
       int res = send(m_clientSocketFd, range.GetPtr(), range.GetCount(), 0);
 
@@ -188,6 +187,7 @@ void ezPipeChannel_linux::InternalSend()
         // We can't send at the moment. Wait until we can send again.
         if (errorCode == EWOULDBLOCK)
         {
+          m_previousSendOffset = uiNextOffset;
           static_cast<ezMessageLoop_linux*>(m_pOwner)->RegisterWait(this, ezMessageLoop_linux::WaitType::Send, m_clientSocketFd);
           return;
         }
@@ -196,8 +196,10 @@ void ezPipeChannel_linux::InternalSend()
         return;
       }
 
-      uiNextOffset += range.GetCount();
+      uiToWrite -= static_cast<ezUInt64>(res);
+      uiNextOffset += res;
     }
+    m_previousSendOffset = 0;
 
     {
       EZ_LOCK(m_OutputQueueMutex);
