@@ -167,7 +167,7 @@ void ezImageCopyVulkan::RenderInternal(const ezVec3U32& sourceOffset, const vk::
     viewCreateInfo.subresourceRange = ezConversionUtilsVulkan::GetSubresourceRange(sourceLayers);
     viewCreateInfo.subresourceRange.aspectMask &= ~vk::ImageAspectFlagBits::eStencil;
     viewCreateInfo.viewType = ezConversionUtilsVulkan::GetImageViewType(sourceDesc.m_Type, true);
-    if(viewCreateInfo.viewType == vk::ImageViewType::eCube || viewCreateInfo.viewType == vk::ImageViewType::eCubeArray)
+    if (viewCreateInfo.viewType == vk::ImageViewType::eCube || viewCreateInfo.viewType == vk::ImageViewType::eCubeArray)
     {
       viewCreateInfo.viewType = vk::ImageViewType::e2DArray;
     }
@@ -180,7 +180,7 @@ void ezImageCopyVulkan::RenderInternal(const ezVec3U32& sourceOffset, const vk::
     viewCreateInfo.image = targetImage;
     viewCreateInfo.subresourceRange = ezConversionUtilsVulkan::GetSubresourceRange(targetLayers);
     viewCreateInfo.viewType = ezConversionUtilsVulkan::GetImageViewType(targetDesc.m_Type, true);
-    if(viewCreateInfo.viewType == vk::ImageViewType::eCube || viewCreateInfo.viewType == vk::ImageViewType::eCubeArray)
+    if (viewCreateInfo.viewType == vk::ImageViewType::eCube || viewCreateInfo.viewType == vk::ImageViewType::eCubeArray)
     {
       viewCreateInfo.viewType = vk::ImageViewType::e2DArray;
     }
