@@ -12,20 +12,47 @@ macro(ez_requires_qt)
 	ez_requires(EZ_ENABLE_QT_SUPPORT)
 endmacro()
 
+# #####################################
+# ## ez_find_qt()
+# ## invoked once in the root cmake script to locate all requierd QT components.
+# #####################################
 macro(ez_find_qt)
-	# Global keyword was added in cmake 3.24.0 and significantly speeds up generation of QT targets
-	if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.24.0")
+	ez_prepare_find_qt()
+
+	set(EZ_QT_COMPONENTS 
+		Widgets
+		Core
+		Gui
+		Widgets
+		Network
+		Svg
+	)
+	
+	if(EZ_CMAKE_PLATFORM_WINDOWS)
+		set(EZ_QT_COMPONENTS ${EZ_QT_COMPONENTS} WinExtras)
+	elseif(EZ_CMAKE_PLATFORM_LINUX)
+		set(EZ_QT_COMPONENTS ${EZ_QT_COMPONENTS} X11Extras)
+	endif()
+
+	if(EZ_ENABLE_QT_SUPPORT)
 		if(EZ_QT_DIR)
-			find_package(Qt5 COMPONENTS ${ARGN} REQUIRED PATHS ${EZ_QT_DIR} GLOBAL)
+			find_package(Qt5 COMPONENTS ${EZ_QT_COMPONENTS} REQUIRED PATHS ${EZ_QT_DIR})
 		else()
-			find_package(Qt5 COMPONENTS ${ARGN} REQUIRED GLOBAL)
+			find_package(Qt5 COMPONENTS ${EZ_QT_COMPONENTS} REQUIRED)
 		endif()
-	else()
-		if(EZ_QT_DIR)
-			find_package(Qt5 COMPONENTS ${ARGN} REQUIRED PATHS ${EZ_QT_DIR})
-		else()
-			find_package(Qt5 COMPONENTS ${ARGN} REQUIRED)
-		endif()
+	endif()
+	
+	mark_as_advanced(FORCE Qt5_DIR)
+	mark_as_advanced(FORCE Qt5Core_DIR)
+	mark_as_advanced(FORCE Qt5Gui_DIR)
+	mark_as_advanced(FORCE Qt5Widgets_DIR)
+	mark_as_advanced(FORCE Qt5Network_DIR)
+	mark_as_advanced(FORCE Qt5Svg_DIR)
+
+	if(EZ_CMAKE_PLATFORM_WINDOWS)
+		mark_as_advanced(FORCE Qt5WinExtras_DIR)
+	elseif()
+		mark_as_advanced(FORCE Qt5X11Extras_DIR)
 	endif()
 endmacro()
 
@@ -112,20 +139,6 @@ function(ez_link_target_qt)
 		list(REMOVE_ITEM FN_ARG_COMPONENTS X11Extras)
 	endif()
 
-	ez_prepare_find_qt()
-
-	ez_find_qt(${FN_ARG_COMPONENTS})
-
-	mark_as_advanced(FORCE Qt5_DIR)
-	mark_as_advanced(FORCE Qt5Core_DIR)
-	mark_as_advanced(FORCE Qt5Gui_DIR)
-	mark_as_advanced(FORCE Qt5Widgets_DIR)
-	mark_as_advanced(FORCE Qt5Network_DIR)
-	mark_as_advanced(FORCE Qt5Svg_DIR)
-
-	if(EZ_CMAKE_PLATFORM_WINDOWS)
-		mark_as_advanced(FORCE Qt5WinExtras_DIR)
-	endif()
 
 	get_property(EZ_SUBMODULE_PREFIX_PATH GLOBAL PROPERTY EZ_SUBMODULE_PREFIX_PATH)
 
@@ -188,10 +201,6 @@ function(ez_qt_wrap_target_ui_files TARGET_NAME FILES_TO_WRAP)
 		return()
 	endif()
 
-	ez_prepare_find_qt()
-
-	ez_find_qt(Widgets)
-
 	if(NOT TARGET Qt5::uic)
 		message(FATAL_ERROR "UIC.exe not found")
 	else()
@@ -221,10 +230,6 @@ function(ez_qt_wrap_target_moc_files TARGET_NAME FILES_TO_WRAP)
 		return()
 	endif()
 
-	ez_prepare_find_qt()
-
-	ez_find_qt(Widgets)
-
 	set(Qt5Core_MOC_EXECUTABLE Qt5::moc)
 	ez_retrieve_target_pch(${TARGET_NAME} PCH_H)
 
@@ -251,10 +256,6 @@ function(ez_qt_wrap_target_qrc_files TARGET_NAME FILES_TO_WRAP)
 	if(NOT FILES_TO_WRAP)
 		return()
 	endif()
-
-	ez_prepare_find_qt()
-
-	ez_find_qt(Widgets)
 
 	set(Qt5Core_RCC_EXECUTABLE Qt5::rcc)
 	qt5_add_resources(QRC_FILES ${FILES_TO_WRAP})
