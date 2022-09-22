@@ -610,6 +610,8 @@ void ezGALDeviceVulkan::UploadTextureStaging(ezStagingBufferPoolVulkan* pStaging
 ezResult ezGALDeviceVulkan::ShutdownPlatform()
 {
   ezImageCopyVulkan::DeInitialize(*this);
+  DestroyDeadObjects(); // ezImageCopyVulkan might add dead objects, so make sure the list is cleared again
+
   ezFallbackResourcesVulkan::DeInitialize();
 
   ezGALWindowSwapChain::SetFactoryMethod({});
