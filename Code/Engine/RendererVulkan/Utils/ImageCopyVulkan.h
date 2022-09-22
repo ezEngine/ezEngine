@@ -13,6 +13,7 @@ class ezGALRenderTargetViewVulkan;
 class ezGALResourceViewVulkan;
 class ezGALUnorderedAccessViewVulkan;
 
+
 /// \brief
 class EZ_RENDERERVULKAN_DLL ezImageCopyVulkan
 {
@@ -23,8 +24,36 @@ public:
 
   void Copy(const ezVec3U32& sourceOffset, const vk::ImageSubresourceLayers& sourceLayers, const ezVec3U32& targetOffset, const vk::ImageSubresourceLayers& targetLayers, const ezVec3U32& extends);
 
+  static void Initialize(ezGALDeviceVulkan& GALDeviceVulkan);
+  static void DeInitialize(ezGALDeviceVulkan& GALDeviceVulkan);
+
+  struct RenderPassCacheEntry
+  {
+    EZ_DECLARE_POD_TYPE();
+
+    vk::Format targetFormat;
+    vk::SampleCountFlagBits targetSamples;
+  };
+
+  struct PipelineCacheKey
+  {
+    EZ_DECLARE_POD_TYPE();
+
+    vk::RenderPass m_renderPass;
+    ezEnum<ezGALMSAASampleCount> m_sampelCount;
+    ezShaderUtils::ezBuiltinShaderType m_shaderType;
+  };
+
+  struct PipelineCacheValue
+  {
+    ezResourceCacheVulkan::PipelineLayoutDesc m_LayoutDesc;
+    ezResourceCacheVulkan::GraphicsPipelineDesc m_PipelineDesc;
+    vk::Pipeline m_pipeline;
+  };
+
 private:
   void RenderInternal(const ezVec3U32& sourceOffset, const vk::ImageSubresourceLayers& sourceLayers, const ezVec3U32& targetOffset, const vk::ImageSubresourceLayers& targetLayers, const ezVec3U32& extends);
+
 
 private:
   ezGALDeviceVulkan& m_GALDeviceVulkan;
@@ -41,4 +70,19 @@ private:
   ezResourceCacheVulkan::PipelineLayoutDesc m_LayoutDesc;
   ezResourceCacheVulkan::GraphicsPipelineDesc m_PipelineDesc;
   vk::Pipeline m_pipeline;
+
+  // static members to keep important resources alive
+  struct Cache
+  {
+    Cache(ezAllocatorBase* pAllocator);
+    ~Cache();
+
+    ezHashTable<ezGALShaderHandle, ezGALVertexDeclarationHandle> m_vertexDeclarations;
+    ezHashTable<RenderPassCacheEntry, vk::RenderPass> m_renderPasses;
+    ezHashTable<PipelineCacheKey, PipelineCacheValue> m_pipelines;
+
+    //TODO add mutex to make thread safe
+  };
+
+  static ezUniquePtr<Cache> s_cache;
 };

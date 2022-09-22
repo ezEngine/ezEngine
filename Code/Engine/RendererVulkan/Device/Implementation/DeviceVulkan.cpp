@@ -34,6 +34,7 @@
 #include <RendererVulkan/Shader/VertexDeclarationVulkan.h>
 #include <RendererVulkan/State/StateVulkan.h>
 #include <RendererVulkan/Utils/PipelineBarrierVulkan.h>
+#include <RendererVulkan/Utils/ImageCopyVulkan.h>
 
 #if EZ_ENABLED(EZ_SUPPORTS_GLFW)
 #  include <GLFW/glfw3.h>
@@ -499,6 +500,7 @@ ezResult ezGALDeviceVulkan::InitPlatform()
   ezResourceCacheVulkan::Initialize(this, m_device);
   ezDescriptorSetPoolVulkan::Initialize(m_device);
   ezFallbackResourcesVulkan::Initialize(this);
+  ezImageCopyVulkan::Initialize(*this);
 
   m_pDefaultPass = EZ_NEW(&m_Allocator, ezGALPassVulkan, *this);
 
@@ -607,6 +609,7 @@ void ezGALDeviceVulkan::UploadTextureStaging(ezStagingBufferPoolVulkan* pStaging
 
 ezResult ezGALDeviceVulkan::ShutdownPlatform()
 {
+  ezImageCopyVulkan::DeInitialize(*this);
   ezFallbackResourcesVulkan::DeInitialize();
 
   ezGALWindowSwapChain::SetFactoryMethod({});
