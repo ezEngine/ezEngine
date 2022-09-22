@@ -160,6 +160,13 @@ public:
   static void UploadBufferStaging(ezStagingBufferPoolVulkan* pStagingBufferPool, ezPipelineBarrierVulkan* pPipelineBarrier, vk::CommandBuffer commandBuffer, const ezGALBufferVulkan* pBuffer, ezArrayPtr<const ezUInt8> pInitialData, vk::DeviceSize dstOffset = 0);
   static void UploadTextureStaging(ezStagingBufferPoolVulkan* pStagingBufferPool, ezPipelineBarrierVulkan* pPipelineBarrier, vk::CommandBuffer commandBuffer, const ezGALTextureVulkan* pTexture, const vk::ImageSubresourceLayers& subResource, const ezGALSystemMemoryDescription& data);
 
+  struct OnBeforeImageDestroyedData
+  {
+    vk::Image image;
+    ezGALDeviceVulkan& GALDeviceVulkan;
+  };
+  ezEvent<OnBeforeImageDestroyedData> OnBeforeImageDestroyed;
+
 
   // These functions need to be implemented by a render API abstraction
 protected:

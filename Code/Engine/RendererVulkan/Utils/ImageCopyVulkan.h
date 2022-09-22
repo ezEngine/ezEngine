@@ -27,7 +27,7 @@ public:
   static void Initialize(ezGALDeviceVulkan& GALDeviceVulkan);
   static void DeInitialize(ezGALDeviceVulkan& GALDeviceVulkan);
 
-  struct RenderPassCacheEntry
+  struct RenderPassCacheKey
   {
     EZ_DECLARE_POD_TYPE();
 
@@ -51,8 +51,18 @@ public:
     vk::Pipeline m_pipeline;
   };
 
+  struct FramebufferCacheKey
+  {
+    vk::RenderPass m_renderpass;
+    vk::ImageView m_targetView;
+    ezVec3U32 m_extends;
+    uint32_t m_layerCount;
+  };
+
 private:
   void RenderInternal(const ezVec3U32& sourceOffset, const vk::ImageSubresourceLayers& sourceLayers, const ezVec3U32& targetOffset, const vk::ImageSubresourceLayers& targetLayers, const ezVec3U32& extends);
+
+  static void OnBeforeImageDestroyed(ezGALDeviceVulkan::OnBeforeImageDestroyedData data);
 
 
 private:
@@ -71,15 +81,21 @@ private:
   ezResourceCacheVulkan::GraphicsPipelineDesc m_PipelineDesc;
   vk::Pipeline m_pipeline;
 
-  // static members to keep important resources alive
+  // Cache to keep important resources alive
+  // This avoids recreating them every frame
   struct Cache
   {
     Cache(ezAllocatorBase* pAllocator);
     ~Cache();
 
     ezHashTable<ezGALShaderHandle, ezGALVertexDeclarationHandle> m_vertexDeclarations;
-    ezHashTable<RenderPassCacheEntry, vk::RenderPass> m_renderPasses;
+    ezHashTable<RenderPassCacheKey, vk::RenderPass> m_renderPasses;
     ezHashTable<PipelineCacheKey, PipelineCacheValue> m_pipelines;
+    ezHashTable<vk::Image, vk::ImageView> m_SourceImageViews;
+    ezHashTable<vk::Image, vk::ImageView> m_TargetImageViews;
+    ezHashTable<FramebufferCacheKey, vk::Framebuffer> m_Framebuffers;
+
+    ezEventSubscriptionID m_onBeforeImageDeletedSubscription;
 
     //TODO add mutex to make thread safe
   };

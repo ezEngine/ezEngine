@@ -31,14 +31,14 @@ struct ezHashHelper<ezGALShaderHandle>
 };
 
 template <>
-struct ezHashHelper<ezImageCopyVulkan::RenderPassCacheEntry>
+struct ezHashHelper<ezImageCopyVulkan::RenderPassCacheKey>
 {
-  EZ_ALWAYS_INLINE static ezUInt32 Hash(const ezImageCopyVulkan::RenderPassCacheEntry& value)
+  EZ_ALWAYS_INLINE static ezUInt32 Hash(const ezImageCopyVulkan::RenderPassCacheKey& value)
   {
     return ezHashingUtils::CombineHashValues32(static_cast<uint32_t>(value.targetFormat), static_cast<uint32_t>(value.targetSamples));
   }
 
-  EZ_ALWAYS_INLINE static bool Equal(const ezImageCopyVulkan::RenderPassCacheEntry& a, const ezImageCopyVulkan::RenderPassCacheEntry& b)
+  EZ_ALWAYS_INLINE static bool Equal(const ezImageCopyVulkan::RenderPassCacheKey& a, const ezImageCopyVulkan::RenderPassCacheKey& b)
   {
     return a.targetFormat == b.targetFormat && a.targetSamples == b.targetSamples;
   }
@@ -62,12 +62,49 @@ struct ezHashHelper<ezImageCopyVulkan::PipelineCacheKey>
   }
 };
 
+template <>
+struct ezHashHelper<vk::Image>
+{
+  EZ_ALWAYS_INLINE static ezUInt32 Hash(vk::Image value)
+  {
+    return ezHashHelper<void*>::Hash((VkImage)value);
+  }
+
+  EZ_ALWAYS_INLINE static bool Equal(vk::Image a, vk::Image b)
+  {
+    return a == b;
+  }
+};
+
+template <>
+struct ezHashHelper<ezImageCopyVulkan::FramebufferCacheKey>
+{
+  EZ_ALWAYS_INLINE static ezUInt32 Hash(const ezImageCopyVulkan::FramebufferCacheKey& value)
+  {
+    ezHashStreamWriter32 writer;
+    writer << (VkRenderPass)value.m_renderpass;
+    writer << (VkImageView)value.m_targetView;
+    writer << value.m_extends.x;
+    writer << value.m_extends.y;
+    writer << value.m_layerCount;
+    return writer.GetHashValue();
+  }
+
+  EZ_ALWAYS_INLINE static bool Equal(const ezImageCopyVulkan::FramebufferCacheKey& a, const ezImageCopyVulkan::FramebufferCacheKey& b)
+  {
+    return a.m_renderpass == b.m_renderpass && a.m_targetView == b.m_targetView && a.m_extends == b.m_extends && a.m_layerCount == b.m_layerCount;
+  }
+};
+
 ezUniquePtr<ezImageCopyVulkan::Cache> ezImageCopyVulkan::s_cache;
 
 ezImageCopyVulkan::Cache::Cache(ezAllocatorBase* pAllocator)
   : m_vertexDeclarations(pAllocator)
   , m_renderPasses(pAllocator)
   , m_pipelines(pAllocator)
+  , m_SourceImageViews(pAllocator)
+  , m_TargetImageViews(pAllocator)
+  , m_Framebuffers(pAllocator)
 {
 }
 
@@ -83,10 +120,13 @@ ezImageCopyVulkan::~ezImageCopyVulkan() = default;
 void ezImageCopyVulkan::Initialize(ezGALDeviceVulkan& GALDeviceVulkan)
 {
   s_cache = EZ_NEW(&GALDeviceVulkan.GetAllocator(), ezImageCopyVulkan::Cache, &GALDeviceVulkan.GetAllocator());
+
+  s_cache->m_onBeforeImageDeletedSubscription = GALDeviceVulkan.OnBeforeImageDestroyed.AddEventHandler(ezMakeDelegate(OnBeforeImageDestroyed));
 }
 
 void ezImageCopyVulkan::DeInitialize(ezGALDeviceVulkan& GALDeviceVulkan)
 {
+  GALDeviceVulkan.OnBeforeImageDestroyed.RemoveEventHandler(s_cache->m_onBeforeImageDeletedSubscription);
   for (auto& kv : (s_cache->m_vertexDeclarations))
   {
     GALDeviceVulkan.DestroyVertexDeclaration(kv.Value());
@@ -95,7 +135,33 @@ void ezImageCopyVulkan::DeInitialize(ezGALDeviceVulkan& GALDeviceVulkan)
   {
     GALDeviceVulkan.GetVulkanDevice().destroyRenderPass(kv.Value());
   }
+  for (auto& kv : (s_cache->m_SourceImageViews))
+  {
+    GALDeviceVulkan.GetVulkanDevice().destroyImageView(kv.Value());
+  }
+  for (auto& kv : (s_cache->m_TargetImageViews))
+  {
+    GALDeviceVulkan.GetVulkanDevice().destroyImageView(kv.Value());
+  }
+  for (auto& kv : (s_cache->m_Framebuffers))
+  {
+    GALDeviceVulkan.GetVulkanDevice().destroyFramebuffer(kv.Value());
+  }
   s_cache = nullptr;
+}
+
+void ezImageCopyVulkan::OnBeforeImageDestroyed(ezGALDeviceVulkan::OnBeforeImageDestroyedData data)
+{
+  if (auto it = s_cache->m_SourceImageViews.Find(data.image); it.IsValid())
+  {
+    data.GALDeviceVulkan.GetVulkanDevice().destroyImageView(it.Value());
+    s_cache->m_SourceImageViews.Remove(it);
+  }
+  if (auto it = s_cache->m_TargetImageViews.Find(data.image); it.IsValid())
+  {
+    data.GALDeviceVulkan.GetVulkanDevice().destroyImageView(it.Value());
+    s_cache->m_TargetImageViews.Remove(it);
+  }
 }
 
 void ezImageCopyVulkan::Init(const ezGALTextureVulkan* pSource, const ezGALTextureVulkan* pTarget, ezShaderUtils::ezBuiltinShaderType type)
@@ -114,7 +180,7 @@ void ezImageCopyVulkan::Init(const ezGALTextureVulkan* pSource, const ezGALTextu
 
   // Render pass
   {
-    RenderPassCacheEntry cacheEntry = {};
+    RenderPassCacheKey cacheEntry = {};
     cacheEntry.targetFormat = targetFormat;
     cacheEntry.targetSamples = ezConversionUtilsVulkan::GetSamples(targetDesc.m_SampleCount);
 
@@ -217,6 +283,8 @@ void ezImageCopyVulkan::Init(const ezGALTextureVulkan* pSource, const ezGALTextu
       m_LayoutDesc.m_layout = ezResourceCacheVulkan::RequestDescriptorSetLayout(descriptorLayoutDesc);
       m_PipelineDesc.m_layout = ezResourceCacheVulkan::RequestPipelineLayout(m_LayoutDesc);
       m_pipeline = ezResourceCacheVulkan::RequestGraphicsPipeline(m_PipelineDesc);
+
+      s_cache->m_pipelines.Insert(cacheEntry, PipelineCacheValue{m_LayoutDesc, m_PipelineDesc, m_pipeline});
     }
   }
 }
@@ -266,43 +334,79 @@ void ezImageCopyVulkan::RenderInternal(const ezVec3U32& sourceOffset, const vk::
 
   // Image Views
   {
-    vk::ImageViewCreateInfo viewCreateInfo;
-    viewCreateInfo.format = sourceFormat;
-    viewCreateInfo.image = sourceImage;
-    viewCreateInfo.subresourceRange = ezConversionUtilsVulkan::GetSubresourceRange(sourceLayers);
-    viewCreateInfo.subresourceRange.aspectMask &= ~vk::ImageAspectFlagBits::eStencil;
-    viewCreateInfo.viewType = ezConversionUtilsVulkan::GetImageViewType(sourceDesc.m_Type, true);
-    if (viewCreateInfo.viewType == vk::ImageViewType::eCube || viewCreateInfo.viewType == vk::ImageViewType::eCubeArray)
+    if (auto it = s_cache->m_SourceImageViews.Find(sourceImage); it.IsValid())
     {
-      viewCreateInfo.viewType = vk::ImageViewType::e2DArray;
+      sourceView = it.Value();
     }
-    VK_ASSERT_DEV(m_GALDeviceVulkan.GetVulkanDevice().createImageView(&viewCreateInfo, nullptr, &sourceView));
-    m_GALDeviceVulkan.SetDebugName("ImageCopy-SRV", sourceView);
+    else
+    {
+
+      vk::ImageViewCreateInfo viewCreateInfo;
+      viewCreateInfo.format = sourceFormat;
+      viewCreateInfo.image = sourceImage;
+      viewCreateInfo.subresourceRange = ezConversionUtilsVulkan::GetSubresourceRange(sourceLayers);
+      viewCreateInfo.subresourceRange.aspectMask &= ~vk::ImageAspectFlagBits::eStencil;
+      viewCreateInfo.viewType = ezConversionUtilsVulkan::GetImageViewType(sourceDesc.m_Type, true);
+      if (viewCreateInfo.viewType == vk::ImageViewType::eCube || viewCreateInfo.viewType == vk::ImageViewType::eCubeArray)
+      {
+        viewCreateInfo.viewType = vk::ImageViewType::e2DArray;
+      }
+      ezLog::Info("CreateImageView");
+      VK_ASSERT_DEV(m_GALDeviceVulkan.GetVulkanDevice().createImageView(&viewCreateInfo, nullptr, &sourceView));
+      m_GALDeviceVulkan.SetDebugName("ImageCopy-SRV", sourceView);
+      s_cache->m_SourceImageViews.Insert(sourceImage, sourceView);
+    }
   }
   {
-    vk::ImageViewCreateInfo viewCreateInfo;
-    viewCreateInfo.format = targetFormat;
-    viewCreateInfo.image = targetImage;
-    viewCreateInfo.subresourceRange = ezConversionUtilsVulkan::GetSubresourceRange(targetLayers);
-    viewCreateInfo.viewType = ezConversionUtilsVulkan::GetImageViewType(targetDesc.m_Type, true);
-    if (viewCreateInfo.viewType == vk::ImageViewType::eCube || viewCreateInfo.viewType == vk::ImageViewType::eCubeArray)
+    if (auto it = s_cache->m_TargetImageViews.Find(targetImage); it.IsValid())
     {
-      viewCreateInfo.viewType = vk::ImageViewType::e2DArray;
+      targetView = it.Value();
     }
-    VK_ASSERT_DEV(m_GALDeviceVulkan.GetVulkanDevice().createImageView(&viewCreateInfo, nullptr, &targetView));
-    m_GALDeviceVulkan.SetDebugName("ImageCopy-RTV", targetView);
+    else
+    {
+
+      vk::ImageViewCreateInfo viewCreateInfo;
+      viewCreateInfo.format = targetFormat;
+      viewCreateInfo.image = targetImage;
+      viewCreateInfo.subresourceRange = ezConversionUtilsVulkan::GetSubresourceRange(targetLayers);
+      viewCreateInfo.viewType = ezConversionUtilsVulkan::GetImageViewType(targetDesc.m_Type, true);
+      if (viewCreateInfo.viewType == vk::ImageViewType::eCube || viewCreateInfo.viewType == vk::ImageViewType::eCubeArray)
+      {
+        viewCreateInfo.viewType = vk::ImageViewType::e2DArray;
+      }
+      ezLog::Info("CreateImageView");
+      VK_ASSERT_DEV(m_GALDeviceVulkan.GetVulkanDevice().createImageView(&viewCreateInfo, nullptr, &targetView));
+      m_GALDeviceVulkan.SetDebugName("ImageCopy-RTV", targetView);
+      s_cache->m_TargetImageViews.Insert(targetImage, targetView);
+    }
   }
 
   // Framebuffer
   {
-    vk::FramebufferCreateInfo framebufferInfo;
-    framebufferInfo.renderPass = m_renderPass;
-    framebufferInfo.attachmentCount = 1;
-    framebufferInfo.pAttachments = &targetView;
-    framebufferInfo.width = extends.x;
-    framebufferInfo.height = extends.y;
-    framebufferInfo.layers = targetLayers.layerCount;
-    VK_ASSERT_DEV(m_GALDeviceVulkan.GetVulkanDevice().createFramebuffer(&framebufferInfo, nullptr, &frameBuffer));
+    FramebufferCacheKey cacheEntry = {};
+    cacheEntry.m_renderpass = m_renderPass;
+    cacheEntry.m_targetView = targetView;
+    cacheEntry.m_extends = extends;
+    cacheEntry.m_layerCount = targetLayers.layerCount;
+
+    if (auto it = s_cache->m_Framebuffers.Find(cacheEntry); it.IsValid())
+    {
+      frameBuffer = it.Value();
+    }
+    else
+    {
+      vk::FramebufferCreateInfo framebufferInfo;
+      framebufferInfo.renderPass = m_renderPass;
+      framebufferInfo.attachmentCount = 1;
+      framebufferInfo.pAttachments = &targetView;
+      framebufferInfo.width = extends.x;
+      framebufferInfo.height = extends.y;
+      framebufferInfo.layers = targetLayers.layerCount;
+      ezLog::Info("Create FrameBuffer");
+      VK_ASSERT_DEV(m_GALDeviceVulkan.GetVulkanDevice().createFramebuffer(&framebufferInfo, nullptr, &frameBuffer));
+
+      s_cache->m_Framebuffers.Insert(cacheEntry, frameBuffer);
+    }
   }
 
   // Descriptor Set
@@ -371,8 +475,4 @@ void ezImageCopyVulkan::RenderInternal(const ezVec3U32& sourceOffset, const vk::
 
     commandBuffer.endRenderPass();
   }
-
-  m_GALDeviceVulkan.DeleteLater(sourceView);
-  m_GALDeviceVulkan.DeleteLater(targetView);
-  m_GALDeviceVulkan.DeleteLater(frameBuffer);
 }

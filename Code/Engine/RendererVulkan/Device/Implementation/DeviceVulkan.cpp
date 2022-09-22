@@ -1323,7 +1323,11 @@ void ezGALDeviceVulkan::DeletePendingResources(ezDeque<PendingDeletion>& pending
         m_device.destroyImageView(reinterpret_cast<vk::ImageView&>(deletion.m_pObject));
         break;
       case vk::ObjectType::eImage:
-        ezMemoryAllocatorVulkan::DestroyImage(reinterpret_cast<vk::Image&>(deletion.m_pObject), deletion.m_allocation);
+        {
+          auto& image = reinterpret_cast<vk::Image&>(deletion.m_pObject);
+          OnBeforeImageDestroyed.Broadcast(OnBeforeImageDestroyedData{image, *this});
+          ezMemoryAllocatorVulkan::DestroyImage(image, deletion.m_allocation);
+        }
         break;
       case vk::ObjectType::eBuffer:
         ezMemoryAllocatorVulkan::DestroyBuffer(reinterpret_cast<vk::Buffer&>(deletion.m_pObject), deletion.m_allocation);
