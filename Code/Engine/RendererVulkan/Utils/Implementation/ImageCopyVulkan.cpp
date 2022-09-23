@@ -389,7 +389,6 @@ void ezImageCopyVulkan::RenderInternal(const ezVec3U32& sourceOffset, const vk::
       {
         viewCreateInfo.viewType = vk::ImageViewType::e2DArray;
       }
-      ezLog::Info("CreateImageView");
       VK_ASSERT_DEV(m_GALDeviceVulkan.GetVulkanDevice().createImageView(&viewCreateInfo, nullptr, &sourceView));
       m_GALDeviceVulkan.SetDebugName("ImageCopy-SRV", sourceView);
       s_cache->m_sourceImageViews.Insert(cacheKey, sourceView);
@@ -417,7 +416,6 @@ void ezImageCopyVulkan::RenderInternal(const ezVec3U32& sourceOffset, const vk::
       {
         viewCreateInfo.viewType = vk::ImageViewType::e2DArray;
       }
-      ezLog::Info("CreateImageView");
       VK_ASSERT_DEV(m_GALDeviceVulkan.GetVulkanDevice().createImageView(&viewCreateInfo, nullptr, &targetView));
       m_GALDeviceVulkan.SetDebugName("ImageCopy-RTV", targetView);
       s_cache->m_targetImageViews.Insert(cacheKey, targetView);
@@ -446,7 +444,6 @@ void ezImageCopyVulkan::RenderInternal(const ezVec3U32& sourceOffset, const vk::
       framebufferInfo.width = extends.x;
       framebufferInfo.height = extends.y;
       framebufferInfo.layers = targetLayers.layerCount;
-      ezLog::Info("Create FrameBuffer");
       VK_ASSERT_DEV(m_GALDeviceVulkan.GetVulkanDevice().createFramebuffer(&framebufferInfo, nullptr, &frameBuffer));
 
       s_cache->m_framebuffers.Insert(cacheEntry, frameBuffer);
