@@ -46,6 +46,8 @@ public:
 
   struct PipelineCacheValue
   {
+    EZ_DECLARE_POD_TYPE();
+
     ezResourceCacheVulkan::PipelineLayoutDesc m_LayoutDesc;
     ezResourceCacheVulkan::GraphicsPipelineDesc m_PipelineDesc;
     vk::Pipeline m_pipeline;
@@ -53,10 +55,28 @@ public:
 
   struct FramebufferCacheKey
   {
+    EZ_DECLARE_POD_TYPE();
+
     vk::RenderPass m_renderpass;
     vk::ImageView m_targetView;
     ezVec3U32 m_extends;
     uint32_t m_layerCount;
+  };
+
+  struct ImageViewCacheKey
+  {
+    EZ_DECLARE_POD_TYPE();
+
+    vk::Image m_image;
+    vk::ImageSubresourceLayers m_subresourceLayers;
+  };
+
+  struct ImageViewCacheValue
+  {
+    EZ_DECLARE_POD_TYPE();
+
+    vk::ImageSubresourceLayers m_subresourceLayers;
+    vk::ImageView m_imageView;
   };
 
 private:
@@ -91,13 +111,13 @@ private:
     ezHashTable<ezGALShaderHandle, ezGALVertexDeclarationHandle> m_vertexDeclarations;
     ezHashTable<RenderPassCacheKey, vk::RenderPass> m_renderPasses;
     ezHashTable<PipelineCacheKey, PipelineCacheValue> m_pipelines;
-    ezHashTable<vk::Image, vk::ImageView> m_SourceImageViews;
-    ezHashTable<vk::Image, vk::ImageView> m_TargetImageViews;
-    ezHashTable<FramebufferCacheKey, vk::Framebuffer> m_Framebuffers;
+    ezHashTable<ImageViewCacheKey, vk::ImageView> m_sourceImageViews;
+    ezHashTable<vk::Image, ImageViewCacheValue> m_imageToSourceImageViewCacheKey;
+    ezHashTable<ImageViewCacheKey, vk::ImageView> m_targetImageViews;
+    ezHashTable<vk::Image, ImageViewCacheValue> m_imageToTargetImageViewCacheKey;
+    ezHashTable<FramebufferCacheKey, vk::Framebuffer> m_framebuffers;
 
     ezEventSubscriptionID m_onBeforeImageDeletedSubscription;
-
-    //TODO add mutex to make thread safe
   };
 
   static ezUniquePtr<Cache> s_cache;
