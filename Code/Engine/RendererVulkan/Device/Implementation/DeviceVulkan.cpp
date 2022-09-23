@@ -33,8 +33,8 @@
 #include <RendererVulkan/Shader/ShaderVulkan.h>
 #include <RendererVulkan/Shader/VertexDeclarationVulkan.h>
 #include <RendererVulkan/State/StateVulkan.h>
-#include <RendererVulkan/Utils/PipelineBarrierVulkan.h>
 #include <RendererVulkan/Utils/ImageCopyVulkan.h>
+#include <RendererVulkan/Utils/PipelineBarrierVulkan.h>
 
 #if EZ_ENABLED(EZ_SUPPORTS_GLFW)
 #  include <GLFW/glfw3.h>
@@ -1325,11 +1325,11 @@ void ezGALDeviceVulkan::DeletePendingResources(ezDeque<PendingDeletion>& pending
         m_device.destroyImageView(reinterpret_cast<vk::ImageView&>(deletion.m_pObject));
         break;
       case vk::ObjectType::eImage:
-        {
-          auto& image = reinterpret_cast<vk::Image&>(deletion.m_pObject);
-          OnBeforeImageDestroyed.Broadcast(OnBeforeImageDestroyedData{image, *this});
-          ezMemoryAllocatorVulkan::DestroyImage(image, deletion.m_allocation);
-        }
+      {
+        auto& image = reinterpret_cast<vk::Image&>(deletion.m_pObject);
+        OnBeforeImageDestroyed.Broadcast(OnBeforeImageDestroyedData{image, *this});
+        ezMemoryAllocatorVulkan::DestroyImage(image, deletion.m_allocation);
+      }
         break;
       case vk::ObjectType::eBuffer:
         ezMemoryAllocatorVulkan::DestroyBuffer(reinterpret_cast<vk::Buffer&>(deletion.m_pObject), deletion.m_allocation);
