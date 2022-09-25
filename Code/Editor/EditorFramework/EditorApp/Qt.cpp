@@ -88,7 +88,8 @@ void ezQtEditorApp::InitQt(int argc, char** argv)
   }
   else
   {
-    s_pQtApplication = new QApplication(argc, argv);
+    s_iArgc = argc;
+    s_pQtApplication = new QApplication(s_iArgc, argv);
     s_pQtApplication->setProperty("Shared", QVariant::fromValue((int)1));
     QFont font = s_pQtApplication->font();
     int ps = font.pixelSize();
