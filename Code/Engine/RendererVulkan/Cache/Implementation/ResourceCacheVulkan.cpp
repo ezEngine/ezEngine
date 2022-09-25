@@ -403,9 +403,10 @@ vk::Pipeline ezResourceCacheVulkan::RequestGraphicsPipeline(const GraphicsPipeli
 #endif // EZ_LOG_VULKAN_RESOURCES
 
   vk::PipelineVertexInputStateCreateInfo vertex_input;
+  ezHybridArray<vk::VertexInputBindingDescription, EZ_GAL_MAX_VERTEX_BUFFER_COUNT> bindings;
   if (desc.m_pCurrentVertexDecl)
   {
-    ezHybridArray<vk::VertexInputBindingDescription, EZ_GAL_MAX_VERTEX_BUFFER_COUNT> bindings = desc.m_pCurrentVertexDecl->GetBindings();
+    bindings = desc.m_pCurrentVertexDecl->GetBindings();
     for (ezUInt32 i = 0; i < bindings.GetCount(); i++)
     {
       bindings[i].stride = desc.m_VertexBufferStrides[bindings[i].binding];
