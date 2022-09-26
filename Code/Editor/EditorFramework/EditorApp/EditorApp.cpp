@@ -34,7 +34,7 @@ ezQtEditorApp::~ezQtEditorApp()
 
 ezInt32 ezQtEditorApp::RunEditor()
 {
-  ezInt32 ret = s_pQtApplication->exec();
+  ezInt32 ret = m_pQtApplication->exec();
   return ret;
 }
 

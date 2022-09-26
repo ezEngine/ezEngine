@@ -80,32 +80,33 @@ void ezQtEditorApp::InitQt(int argc, char** argv)
 
   if (qApp != nullptr)
   {
-    s_pQtApplication = qApp;
+    m_pQtApplication = qApp;
     bool ok = false;
-    const int iCount = s_pQtApplication->property("Shared").toInt(&ok);
+    const int iCount = m_pQtApplication->property("Shared").toInt(&ok);
     EZ_ASSERT_DEV(ok, "Existing QApplication was not constructed by EZ!");
-    s_pQtApplication->setProperty("Shared", QVariant::fromValue(iCount + 1));
+    m_pQtApplication->setProperty("Shared", QVariant::fromValue(iCount + 1));
   }
   else
   {
-    s_pQtApplication = new QApplication(argc, argv);
-    s_pQtApplication->setProperty("Shared", QVariant::fromValue((int)1));
-    QFont font = s_pQtApplication->font();
+    m_iArgc = argc;
+    m_pQtApplication = new QApplication(m_iArgc, argv);
+    m_pQtApplication->setProperty("Shared", QVariant::fromValue((int)1));
+    QFont font = m_pQtApplication->font();
     int ps = font.pixelSize();
     // font.setPixelSize(11);
-    s_pQtApplication->setFont(font);
+    m_pQtApplication->setFont(font);
   }
 }
 
 void ezQtEditorApp::DeInitQt()
 {
-  const int iCount = s_pQtApplication->property("Shared").toInt();
+  const int iCount = m_pQtApplication->property("Shared").toInt();
   if (iCount == 1)
   {
-    delete s_pQtApplication;
+    delete m_pQtApplication;
   }
   else
   {
-    s_pQtApplication->setProperty("Shared", QVariant::fromValue(iCount - 1));
+    m_pQtApplication->setProperty("Shared", QVariant::fromValue(iCount - 1));
   }
 }

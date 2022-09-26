@@ -274,7 +274,8 @@ private:
   ezRecentFilesList s_RecentProjects;
   ezRecentFilesList s_RecentDocuments;
 
-  QApplication* s_pQtApplication = nullptr;
+  int m_iArgc = 0;
+  QApplication* m_pQtApplication = nullptr;
   ezLongOpControllerManager m_LongOpControllerManager;
   ezEditorEngineProcessConnection* s_pEngineViewProcess;
   QTimer* m_pTimer = nullptr;
