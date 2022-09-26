@@ -40,6 +40,7 @@ extern "C"
 using ezWindowHandle = ezMinWindows::HWND;
 using ezWindowInternalHandle = GLFWwindow*;
 #    define INVALID_WINDOW_HANDLE_VALUE (ezWindowHandle)(0)
+#    define INVALID_INTERNAL_WINDOW_HANDLE_VALUE nullptr
 #  elif EZ_ENABLED(EZ_PLATFORM_LINUX)
 
 extern "C"
@@ -98,6 +99,10 @@ using ezWindowHandle = void*;
 using ezWindowInternalHandle = ezWindowHandle;
 #  define INVALID_WINDOW_HANDLE_VALUE nullptr
 
+#endif
+
+#ifndef INVALID_INTERNAL_WINDOW_HANDLE_VALUE
+#  define INVALID_INTERNAL_WINDOW_HANDLE_VALUE INVALID_WINDOW_HANDLE_VALUE
 #endif
 
 /// \brief Base class of all window classes that have a client area and a native window handle.
