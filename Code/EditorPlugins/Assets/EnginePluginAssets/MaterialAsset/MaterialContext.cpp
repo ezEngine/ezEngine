@@ -4,6 +4,7 @@
 #include <EnginePluginAssets/MaterialAsset/MaterialView.h>
 #include <RendererCore/Meshes/MeshBufferUtils.h>
 #include <RendererCore/Meshes/MeshComponent.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialContext, 1, ezRTTIDefaultAllocator<ezMaterialContext>)
@@ -33,7 +34,12 @@ void ezMaterialContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
   {
     const ezDocumentConfigMsgToEngine* pMsg2 = static_cast<const ezDocumentConfigMsgToEngine*>(pMsg);
 
-    if (pMsg2->m_sWhatToDo == "PreviewModel" && m_PreviewModel != (PreviewModel)pMsg2->m_iValue)
+    if (pMsg2->m_sWhatToDo == "InvalidateCache")
+    {
+      // make sure all scenes etc rebuild their render cache
+      ezRenderWorld::DeleteAllCachedRenderData();
+    }
+    else if (pMsg2->m_sWhatToDo == "PreviewModel" && m_PreviewModel != (PreviewModel)pMsg2->m_iValue)
     {
       m_PreviewModel = (PreviewModel)pMsg2->m_iValue;
 

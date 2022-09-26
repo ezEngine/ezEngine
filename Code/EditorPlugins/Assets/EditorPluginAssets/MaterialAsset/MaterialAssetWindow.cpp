@@ -316,6 +316,16 @@ void ezQtMaterialAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjec
   }
 
   UpdatePreview();
+
+  if (e.m_sProperty == "ShaderMode" ||
+      e.m_sProperty == "BLEND_MODE" ||
+      e.m_sProperty == "BaseMaterial")
+  {
+    ezDocumentConfigMsgToEngine msg;
+    msg.m_sWhatToDo = "InvalidateCache";
+
+    GetEditorEngineConnection()->SendMessage(&msg);
+  }
 }
 
 
