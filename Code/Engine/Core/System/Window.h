@@ -102,7 +102,7 @@ using ezWindowInternalHandle = ezWindowHandle;
 #endif
 
 #ifndef INVALID_INTERNAL_WINDOW_HANDLE_VALUE
-#define INVALID_INTERNAL_WINDOW_HANDLE_VALUE INVALID_WINDOW_HANDLE_VALUE
+#  define INVALID_INTERNAL_WINDOW_HANDLE_VALUE INVALID_WINDOW_HANDLE_VALUE
 #endif
 
 /// \brief Base class of all window classes that have a client area and a native window handle.
