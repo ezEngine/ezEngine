@@ -391,6 +391,7 @@ bool ezHashTableBase<K, V, H>::Remove(const CompatibleKeyType& key, V* out_oldVa
 template <typename K, typename V, typename H>
 typename ezHashTableBase<K, V, H>::Iterator ezHashTableBase<K, V, H>::Remove(const typename ezHashTableBase<K, V, H>::Iterator& pos)
 {
+  EZ_ASSERT_DEBUG(pos.m_hashTable == this, "Iterator from wrong hashtable");
   Iterator it = pos;
   ezUInt32 uiIndex = pos.m_uiCurrentIndex;
   ++it;

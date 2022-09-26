@@ -100,22 +100,29 @@ ezResult ezProcessCommunicationChannel::WaitForMessage(const ezRTTI* pMessageTyp
 
   while (m_pWaitForMessageType != nullptr)
   {
-    m_pChannel->WaitForMessages();
-    if (!m_pChannel->IsConnected())
+    if (tTimeout == ezTime())
     {
-      m_pWaitForMessageType = nullptr;
-      ezLog::Dev("Lost connection while waiting for {}", pMessageType->GetTypeName());
-      return EZ_FAILURE;
+      m_pChannel->WaitForMessages();
     }
-
-    if (tTimeout != ezTime())
+    else
     {
-      if (ezTime::Now() - tStart > tTimeout)
+      ezTime tTimeLeft = tTimeout - (ezTime::Now() - tStart);
+
+      if (tTimeLeft < ezTime::Zero())
       {
         m_pWaitForMessageType = nullptr;
         ezLog::Dev("Reached time-out of {0} seconds while waiting for {1}", ezArgF(tTimeout.GetSeconds(), 1), pMessageType->GetTypeName());
         return EZ_FAILURE;
       }
+
+      m_pChannel->WaitForMessages(tTimeLeft).IgnoreResult();
+    }
+
+    if (!m_pChannel->IsConnected())
+    {
+      m_pWaitForMessageType = nullptr;
+      ezLog::Dev("Lost connection while waiting for {}", pMessageType->GetTypeName());
+      return EZ_FAILURE;
     }
   }
 

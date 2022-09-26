@@ -131,6 +131,20 @@ void ezIpcChannel::WaitForMessages()
   }
 }
 
+ezResult ezIpcChannel::WaitForMessages(ezTime timeout)
+{
+  if (m_Connected)
+  {
+    if (m_IncomingMessages.WaitForSignal(timeout) == ezThreadSignal::WaitResult::Timeout)
+    {
+      return EZ_FAILURE;
+    }
+    ProcessMessages();
+  }
+
+  return EZ_SUCCESS;
+}
+
 void ezIpcChannel::ReceiveMessageData(ezArrayPtr<const ezUInt8> data)
 {
   ezArrayPtr<const ezUInt8> remainingData = data;
