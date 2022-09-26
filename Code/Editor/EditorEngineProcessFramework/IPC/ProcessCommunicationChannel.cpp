@@ -100,11 +100,12 @@ ezResult ezProcessCommunicationChannel::WaitForMessage(const ezRTTI* pMessageTyp
 
   while (m_pWaitForMessageType != nullptr)
   {
-    if(tTimeout == ezTime())
+    if (tTimeout == ezTime())
     {
       m_pChannel->WaitForMessages();
     }
-    else {
+    else
+    {
       ezTime tTimeLeft = tTimeout - (ezTime::Now() - tStart);
 
       if (tTimeLeft < ezTime::Zero())

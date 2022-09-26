@@ -135,7 +135,7 @@ ezResult ezIpcChannel::WaitForMessages(ezTime timeout)
 {
   if (m_Connected)
   {
-    if(m_IncomingMessages.WaitForSignal(timeout) == ezThreadSignal::WaitResult::Timeout)
+    if (m_IncomingMessages.WaitForSignal(timeout) == ezThreadSignal::WaitResult::Timeout)
     {
       return EZ_FAILURE;
     }
