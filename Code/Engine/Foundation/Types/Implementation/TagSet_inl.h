@@ -236,13 +236,16 @@ void ezTagSetTemplate<BlockStorageAllocator>::Set(const ezTag& Tag)
 {
   EZ_ASSERT_DEV(Tag.IsValid(), "Only valid tags can be set in a tag set!");
 
-  if (!IsTagInAllocatedRange(Tag))
+  if (m_TagBlocks.IsEmpty())
   {
-    const ezUInt32 uiTagBlockStart = GetTagBlockStart();
-    const ezUInt32 uiNewBlockStart = (uiTagBlockStart != ezSmallInvalidIndex) ? ezMath::Min(Tag.m_uiBlockIndex, uiTagBlockStart) : Tag.m_uiBlockIndex;
-    const ezUInt32 uiNewBlockIndex = (uiTagBlockStart != ezSmallInvalidIndex) ? ezMath::Max(Tag.m_uiBlockIndex, uiTagBlockStart) : Tag.m_uiBlockIndex;
+    Reallocate(Tag.m_uiBlockIndex, Tag.m_uiBlockIndex);
+  }
+  else if (IsTagInAllocatedRange(Tag) == false)
+  {
+    const ezUInt32 uiNewBlockStart = ezMath::Min<ezUInt32>(Tag.m_uiBlockIndex, GetTagBlockStart());
+    const ezUInt32 uiNewBlockEnd = ezMath::Max<ezUInt32>(Tag.m_uiBlockIndex, GetTagBlockEnd());
 
-    Reallocate(uiNewBlockStart, uiNewBlockIndex);
+    Reallocate(uiNewBlockStart, uiNewBlockEnd);
   }
 
   ezUInt64& tagBlock = m_TagBlocks[Tag.m_uiBlockIndex - GetTagBlockStart()];
@@ -382,7 +385,7 @@ void ezTagSetTemplate<BlockStorageAllocator>::Reallocate(ezUInt32 uiNewTagBlockS
   const ezUInt16 uiNewBlockArraySize = static_cast<ezUInt16>((uiNewMaxBlockIndex - uiNewTagBlockStart) + 1);
 
   // Early out for non-filled tag sets
-  if (IsEmpty())
+  if (m_TagBlocks.IsEmpty())
   {
     m_TagBlocks.SetCount(uiNewBlockArraySize);
     SetTagBlockStart(static_cast<ezUInt16>(uiNewTagBlockStart));
