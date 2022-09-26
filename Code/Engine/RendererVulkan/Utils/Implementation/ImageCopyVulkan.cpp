@@ -183,7 +183,7 @@ void ezImageCopyVulkan::OnBeforeImageDestroyed(ezGALDeviceVulkan::OnBeforeImageD
     bool removed = s_cache->m_sourceImageViews.Remove(cacheKey);
     EZ_IGNORE_UNUSED(removed);
     EZ_ASSERT_DEV(removed, "m_imageToSourceImageViewCacheKey and m_sourceImageViews should always be in sync");
-    s_cache->m_imageToTargetImageViewCacheKey.Remove(it);
+    s_cache->m_imageToSourceImageViewCacheKey.Remove(it);
   }
   if (auto it = s_cache->m_imageToTargetImageViewCacheKey.Find(data.image); it.IsValid())
   {
