@@ -33,6 +33,7 @@
 #include <RendererVulkan/Shader/ShaderVulkan.h>
 #include <RendererVulkan/Shader/VertexDeclarationVulkan.h>
 #include <RendererVulkan/State/StateVulkan.h>
+#include <RendererVulkan/Utils/ImageCopyVulkan.h>
 #include <RendererVulkan/Utils/PipelineBarrierVulkan.h>
 
 #if EZ_ENABLED(EZ_SUPPORTS_GLFW)
@@ -499,6 +500,7 @@ ezResult ezGALDeviceVulkan::InitPlatform()
   ezResourceCacheVulkan::Initialize(this, m_device);
   ezDescriptorSetPoolVulkan::Initialize(m_device);
   ezFallbackResourcesVulkan::Initialize(this);
+  ezImageCopyVulkan::Initialize(*this);
 
   m_pDefaultPass = EZ_NEW(&m_Allocator, ezGALPassVulkan, *this);
 
@@ -607,6 +609,9 @@ void ezGALDeviceVulkan::UploadTextureStaging(ezStagingBufferPoolVulkan* pStaging
 
 ezResult ezGALDeviceVulkan::ShutdownPlatform()
 {
+  ezImageCopyVulkan::DeInitialize(*this);
+  DestroyDeadObjects(); // ezImageCopyVulkan might add dead objects, so make sure the list is cleared again
+
   ezFallbackResourcesVulkan::DeInitialize();
 
   ezGALWindowSwapChain::SetFactoryMethod({});
@@ -1320,7 +1325,11 @@ void ezGALDeviceVulkan::DeletePendingResources(ezDeque<PendingDeletion>& pending
         m_device.destroyImageView(reinterpret_cast<vk::ImageView&>(deletion.m_pObject));
         break;
       case vk::ObjectType::eImage:
-        ezMemoryAllocatorVulkan::DestroyImage(reinterpret_cast<vk::Image&>(deletion.m_pObject), deletion.m_allocation);
+      {
+        auto& image = reinterpret_cast<vk::Image&>(deletion.m_pObject);
+        OnBeforeImageDestroyed.Broadcast(OnBeforeImageDestroyedData{image, *this});
+        ezMemoryAllocatorVulkan::DestroyImage(image, deletion.m_allocation);
+      }
         break;
       case vk::ObjectType::eBuffer:
         ezMemoryAllocatorVulkan::DestroyBuffer(reinterpret_cast<vk::Buffer&>(deletion.m_pObject), deletion.m_allocation);
