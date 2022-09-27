@@ -194,7 +194,7 @@ void ezTypeScriptAssetDocumentManager::InitializeTranspiler()
 
   if (ezFileSystem::FindDataDirectoryWithRoot("TypeScript") == nullptr)
   {
-    ezFileSystem::AddDataDirectory(">sdk/Data/Tools/ezEditor/TypeScript", "TypeScript", "TypeScript").IgnoreResult();
+    ezFileSystem::AddDataDirectory(">sdk/Data/Tools/ezEditor/Typescript", "TypeScript", "TypeScript").IgnoreResult();
   }
 
   m_Transpiler.SetOutputFolder(":project/AssetCache/Temp");

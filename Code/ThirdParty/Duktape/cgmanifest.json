@@ -5,7 +5,7 @@
         "type": "git",
         "git": {
           "repositoryUrl": "https://github.com/svaarala/duktape",
-          "commitHash": "6001888049cb42656f8649db020e804bcdeca6a7"
+          "commitHash": "03d4d728f8365021de6955c649e6dcd05dcca99f"
         }
       }
     } 

@@ -64,6 +64,7 @@ void ezDuktapeContext::FatalErrorHandler(void* pUserData, const char* szMsg)
 {
   // unfortunately it is not possible to do a stack trace here
   ezLog::Error("DukTape: {}", szMsg);
+  EZ_ASSERT_ALWAYS(false, "Duktape fatal error {}", szMsg);
 }
 
 void* ezDuktapeContext::DukAlloc(void* pUserData, size_t size)
