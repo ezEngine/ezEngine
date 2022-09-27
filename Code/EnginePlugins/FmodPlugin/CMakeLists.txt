@@ -1,6 +1,5 @@
 ez_cmake_init()
 
-
 ez_requires_fmod()
 
 # Get the name of this folder as the project name

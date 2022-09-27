@@ -7,7 +7,7 @@ class ezSoundEventComponentDragDropHandler : public ezComponentDragDropHandler
   EZ_ADD_DYNAMIC_REFLECTION(ezSoundEventComponentDragDropHandler, ezComponentDragDropHandler);
 
 public:
-  float CanHandle(const ezDragDropInfo* pInfo) const;
+  float CanHandle(const ezDragDropInfo* pInfo) const override;
 
   virtual void OnDragBegin(const ezDragDropInfo* pInfo) override;
 };

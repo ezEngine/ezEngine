@@ -41,6 +41,8 @@ void ezSoundEventAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMa
       }
     }
     break;
+    default:
+      break;
   }
 }
 
