@@ -28,6 +28,7 @@ public:
   virtual void BeforeHighLevelSystemsShutdown() override;
 
 private:
+  void UpdateSwapChain();
   void CreateScreenQuad();
   void OnFileChanged(const char* filename, ezDirectoryWatcherAction action, ezDirectoryWatcherType type);
 

@@ -25,6 +25,7 @@
 
 static ezUInt32 g_uiWindowWidth = 640;
 static ezUInt32 g_uiWindowHeight = 480;
+static bool g_bWindowResized = false;
 
 class ezShaderExplorerWindow : public ezWindow
 {
@@ -36,6 +37,16 @@ public:
   }
 
   virtual void OnClickClose() override { m_bCloseRequested = true; }
+  virtual ezSizeU32 GetClientAreaSize() const override { return ezSizeU32(g_uiWindowWidth, g_uiWindowHeight); }
+  virtual void OnResize(const ezSizeU32& newWindowSize) override
+  {
+    if (g_uiWindowWidth != newWindowSize.width || g_uiWindowHeight != newWindowSize.height)
+    {
+      g_uiWindowWidth = newWindowSize.width;
+      g_uiWindowHeight = newWindowSize.height;
+      g_bWindowResized = true;
+    }
+  }
 
   bool m_bCloseRequested;
 };
@@ -48,6 +59,12 @@ ezShaderExplorerApp::ezShaderExplorerApp()
 ezApplication::Execution ezShaderExplorerApp::Run()
 {
   m_pWindow->ProcessWindowMessages();
+
+  if (g_bWindowResized)
+  {
+    g_bWindowResized = false;
+    UpdateSwapChain();
+  }
 
   if (m_pWindow->m_bCloseRequested || ezInputManager::GetInputActionState("Main", "CloseApp") == ezKeyState::Pressed)
     return Execution::Quit;
@@ -331,23 +348,7 @@ void ezShaderExplorerApp::AfterCoreSystemsStartup()
   // now that we have a window and device, tell the engine to initialize the rendering infrastructure
   ezStartup::StartupHighLevelSystems();
 
-  // Create a Swapchain
-  {
-    ezGALWindowSwapChainCreationDescription swapChainDesc;
-    swapChainDesc.m_pWindow = m_pWindow;
-    swapChainDesc.m_SampleCount = ezGALMSAASampleCount::None;
-    swapChainDesc.m_bAllowScreenshots = true;
-    swapChainDesc.m_InitialPresentMode = ezGALPresentMode::VSync;
-    m_hSwapChain = ezGALWindowSwapChain::Create(swapChainDesc);
-
-    ezGALTextureCreationDescription texDesc;
-    texDesc.m_uiWidth = g_uiWindowWidth;
-    texDesc.m_uiHeight = g_uiWindowHeight;
-    texDesc.m_Format = ezGALResourceFormat::D24S8;
-    texDesc.m_bCreateRenderTarget = true;
-
-    m_hDepthStencilTexture = m_pDevice->CreateTexture(texDesc);
-  }
+  UpdateSwapChain();
 
   // Setup Shaders and Materials
   {
@@ -384,6 +385,40 @@ void ezShaderExplorerApp::BeforeHighLevelSystemsShutdown()
 
   m_camera.Clear();
   m_directoryWatcher.Clear();
+}
+
+void ezShaderExplorerApp::UpdateSwapChain()
+{
+  // Create a Swapchain
+  if (m_hSwapChain.IsInvalidated())
+  {
+    ezGALWindowSwapChainCreationDescription swapChainDesc;
+    swapChainDesc.m_pWindow = m_pWindow;
+    swapChainDesc.m_SampleCount = ezGALMSAASampleCount::None;
+    swapChainDesc.m_bAllowScreenshots = true;
+    swapChainDesc.m_InitialPresentMode = ezGALPresentMode::VSync;
+    m_hSwapChain = ezGALWindowSwapChain::Create(swapChainDesc);
+  }
+  else
+  {
+    m_pDevice->UpdateSwapChain(m_hSwapChain, ezGALPresentMode::VSync).IgnoreResult();
+  }
+
+  if (!m_hSwapChain.IsInvalidated())
+  {
+    m_pDevice->DestroyTexture(m_hDepthStencilTexture);
+    m_hDepthStencilTexture.Invalidate();
+  }
+  // Create depth texture
+  {
+    ezGALTextureCreationDescription texDesc;
+    texDesc.m_uiWidth = g_uiWindowWidth;
+    texDesc.m_uiHeight = g_uiWindowHeight;
+    texDesc.m_Format = ezGALResourceFormat::D24S8;
+    texDesc.m_bCreateRenderTarget = true;
+
+    m_hDepthStencilTexture = m_pDevice->CreateTexture(texDesc);
+  }
 }
 
 void ezShaderExplorerApp::CreateScreenQuad()
