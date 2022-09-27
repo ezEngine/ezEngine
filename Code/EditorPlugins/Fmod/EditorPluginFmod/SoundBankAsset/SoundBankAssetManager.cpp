@@ -242,6 +242,8 @@ void ezSoundBankAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMan
       }
     }
     break;
+    default:
+      break;
   }
 }
 
