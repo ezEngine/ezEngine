@@ -280,7 +280,7 @@ void ezQtUiServices::OpenInExplorer(const char* szPath, bool bIsFile)
 #elif EZ_ENABLED(EZ_PLATFORM_LINUX)
   ezStringBuilder parentDir;
 
-  if(bIsFile)
+  if (bIsFile)
   {
     parentDir = szPath;
     parentDir = parentDir.GetFileDirectory();
