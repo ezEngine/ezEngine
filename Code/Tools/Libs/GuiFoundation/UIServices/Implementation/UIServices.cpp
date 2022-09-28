@@ -270,12 +270,28 @@ void ezQtUiServices::OpenInExplorer(const char* szPath, bool bIsFile)
 {
   QStringList args;
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
   if (bIsFile)
     args << "/select,";
 
   args << QDir::toNativeSeparators(szPath);
 
   QProcess::startDetached("explorer", args);
+#elif EZ_ENABLED(EZ_PLATFORM_LINUX)
+  ezStringBuilder parentDir;
+
+  if(bIsFile)
+  {
+    parentDir = szPath;
+    parentDir = parentDir.GetFileDirectory();
+    szPath = parentDir.GetData();
+  }
+  args << QDir::toNativeSeparators(szPath);
+
+  QProcess::startDetached("xdg-open", args);
+#else
+#  error not implemented
+#endif
 }
 
 ezStatus ezQtUiServices::OpenInVsCode(const QStringList& arguments)

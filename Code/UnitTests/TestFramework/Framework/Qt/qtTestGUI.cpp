@@ -531,7 +531,13 @@ void OpenInExplorer(const char* szPath)
 
   args << QDir::toNativeSeparators(szPath);
 
+#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
   QProcess::startDetached("explorer", args);
+#  elif EZ_ENABLED(EZ_PLATFORM_LINUX)
+  QProcess::startDetached("xdg-open", args);
+#  else
+  EZ_ASSERT_NOT_IMPLEMENTED();
+#  endif
 }
 
 void ezQtTestGUI::on_actionOpenTestDataFolder_triggered()
