@@ -290,7 +290,7 @@ void ezQtUiServices::OpenInExplorer(const char* szPath, bool bIsFile)
 
   QProcess::startDetached("xdg-open", args);
 #else
-#  error not implemented
+  EZ_ASSERT_NOT_IMPLEMENTED
 #endif
 }
 
