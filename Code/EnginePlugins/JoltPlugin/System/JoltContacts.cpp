@@ -55,7 +55,7 @@ void ezJoltContactListener::OnContact(const JPH::Body& inBody0, const JPH::Body&
     }
   }
 
-  m_Events.m_pWorld = m_pWorld;
+  m_ContactEvents.m_pWorld = m_pWorld;
 
   const ezJoltDynamicActorComponent* pActor0 = ezJoltUserData::GetDynamicActorComponent(reinterpret_cast<const void*>(inBody0.GetUserData()));
   const ezJoltDynamicActorComponent* pActor1 = ezJoltUserData::GetDynamicActorComponent(reinterpret_cast<const void*>(inBody1.GetUserData()));
@@ -87,7 +87,7 @@ void ezJoltContactListener::OnContact(const JPH::Body& inBody0, const JPH::Body&
 
       if (bPersistent)
       {
-        m_Events.OnContact_SlideAndRollReaction(inBody0, inBody1, inManifold, ContactFlags0, ContactFlags1, vAvgPos, vAvgNormal, CombinedContactFlags);
+        m_ContactEvents.OnContact_SlideAndRollReaction(inBody0, inBody1, inManifold, ContactFlags0, ContactFlags1, vAvgPos, vAvgNormal, CombinedContactFlags);
       }
       else if (fImpactSqr >= 1.0f && CombinedContactFlags.IsAnySet(ezOnJoltContact::ImpactReactions))
       {
@@ -99,7 +99,7 @@ void ezJoltContactListener::OnContact(const JPH::Body& inBody0, const JPH::Body&
         if (pMat2 == nullptr)
           pMat2 = static_cast<const ezJoltMaterial*>(ezJoltMaterial::sDefault.GetPtr());
 
-        m_Events.OnContact_ImpactReaction(vAvgPos, vAvgNormal, fImpactSqr, pMat1->m_pSurface, pMat2->m_pSurface, inBody0.IsStatic() || inBody0.IsKinematic());
+        m_ContactEvents.OnContact_ImpactReaction(vAvgPos, vAvgNormal, fImpactSqr, pMat1->m_pSurface, pMat2->m_pSurface, inBody0.IsStatic() || inBody0.IsKinematic());
       }
     }
   }
@@ -133,6 +133,8 @@ bool ezJoltContactListener::ActivateTrigger(const JPH::Body& inBody1, const JPH:
   {
     pTrigger->PostTriggerMessage(pComponent->GetOwner()->GetHandle(), ezTriggerState::Activated);
 
+    EZ_LOCK(m_TriggerMutex);
+
     const ezUInt64 uiStoreID = (uiBody1id < uiBody2id) ? (uiBody1id << 32 | uiBody2id) : (uiBody2id << 32 | uiBody1id);
     auto& trig = m_Trigs[uiStoreID];
     trig.m_pTrigger = pTrigger;
@@ -145,6 +147,8 @@ bool ezJoltContactListener::ActivateTrigger(const JPH::Body& inBody1, const JPH:
 
 void ezJoltContactListener::DeactivateTrigger(ezUInt64 uiBody1id, ezUInt64 uiBody2id)
 {
+  EZ_LOCK(m_TriggerMutex);
+
   const ezUInt64 uiStoreID = (uiBody1id < uiBody2id) ? (uiBody1id << 32 | uiBody2id) : (uiBody2id << 32 | uiBody1id);
   auto itTrig = m_Trigs.Find(uiStoreID);
 

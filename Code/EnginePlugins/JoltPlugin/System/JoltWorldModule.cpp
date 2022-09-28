@@ -93,9 +93,11 @@ void ezJoltWorldModule::Deinitialize()
 
   ezJoltBodyActivationListener* pActivationListener = reinterpret_cast<ezJoltBodyActivationListener*>(m_pActivationListener);
   EZ_DEFAULT_DELETE(pActivationListener);
+  m_pActivationListener = nullptr;
 
   ezJoltContactListener* pContactListener = reinterpret_cast<ezJoltContactListener*>(m_pContactListener);
   EZ_DEFAULT_DELETE(pContactListener);
+  m_pContactListener = nullptr;
 
   m_pGroupFilter->Release();
   m_pGroupFilterIgnoreSame->Release();
@@ -506,12 +508,12 @@ void ezJoltWorldModule::FetchResults(const ezWorldModule::UpdateContext& context
 
   if (ezView* pView = ezRenderWorld::GetViewByUsageHint(ezCameraUsageHint::MainView, ezCameraUsageHint::EditorView, GetWorld()))
   {
-    reinterpret_cast<ezJoltContactListener*>(m_pContactListener)->m_Events.m_vMainCameraPosition = pView->GetCamera()->GetPosition();
+    reinterpret_cast<ezJoltContactListener*>(m_pContactListener)->m_ContactEvents.m_vMainCameraPosition = pView->GetCamera()->GetPosition();
   }
 
-  reinterpret_cast<ezJoltContactListener*>(m_pContactListener)->m_Events.SpawnPhysicsImpactReactions();
-  reinterpret_cast<ezJoltContactListener*>(m_pContactListener)->m_Events.UpdatePhysicsSlideReactions();
-  reinterpret_cast<ezJoltContactListener*>(m_pContactListener)->m_Events.UpdatePhysicsRollReactions();
+  reinterpret_cast<ezJoltContactListener*>(m_pContactListener)->m_ContactEvents.SpawnPhysicsImpactReactions();
+  reinterpret_cast<ezJoltContactListener*>(m_pContactListener)->m_ContactEvents.UpdatePhysicsSlideReactions();
+  reinterpret_cast<ezJoltContactListener*>(m_pContactListener)->m_ContactEvents.UpdatePhysicsRollReactions();
 
   //  HandleBrokenConstraints();
 

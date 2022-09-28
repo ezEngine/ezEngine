@@ -66,7 +66,7 @@ class ezJoltContactListener : public JPH::ContactListener
 {
 public:
   ezWorld* m_pWorld = nullptr;
-  ezJoltContactEvents m_Events;
+  ezJoltContactEvents m_ContactEvents;
 
   struct TriggerObj
   {
@@ -74,6 +74,7 @@ public:
     ezGameObjectHandle m_hTarget;
   };
 
+  ezMutex m_TriggerMutex;
   ezMap<ezUInt64, TriggerObj> m_Trigs;
 
   virtual void OnContactAdded(const JPH::Body& inBody1, const JPH::Body& inBody2, const JPH::ContactManifold& inManifold, JPH::ContactSettings& ioSettings) override;
