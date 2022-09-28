@@ -536,7 +536,7 @@ void OpenInExplorer(const char* szPath)
 #  elif EZ_ENABLED(EZ_PLATFORM_LINUX)
   QProcess::startDetached("xdg-open", args);
 #  else
-  EZ_ASSERT_NOT_IMPLEMENTED();
+  EZ_ASSERT_NOT_IMPLEMENTED
 #  endif
 }
 
