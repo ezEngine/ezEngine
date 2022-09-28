@@ -157,9 +157,7 @@ void ezQtDataDirsDlg::on_ButtonOpenFolder_clicked()
   ezStringBuilder sPath;
   ezFileSystem::ResolveSpecialDirectory(m_Config.m_DataDirs[m_iSelection].m_sDataDirSpecialPath, sPath).IgnoreResult();
 
-  QStringList args;
-  args << "/select," << QDir::toNativeSeparators(sPath.GetData());
-  QProcess::startDetached("explorer", args);
+  ezQtUiServices::OpenInExplorer(sPath.GetData(), true);
 }
 
 void ezQtDataDirsDlg::on_ListDataDirs_itemDoubleClicked(QListWidgetItem* pItem)
