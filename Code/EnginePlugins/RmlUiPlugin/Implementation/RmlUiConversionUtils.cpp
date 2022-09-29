@@ -42,7 +42,7 @@ namespace ezRmlUiConversionUtils
       case Rml::Variant::STRING:
         result = value.Get<Rml::String>().c_str();
         break;
-      
+
       default:
         break;
     }

@@ -23,7 +23,6 @@ ezRmlUiDocumentContext::ezRmlUiDocumentContext()
 
 ezRmlUiDocumentContext::~ezRmlUiDocumentContext()
 {
-
 }
 
 void ezRmlUiDocumentContext::OnInitialize()
