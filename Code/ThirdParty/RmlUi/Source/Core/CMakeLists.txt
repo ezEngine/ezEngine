@@ -28,10 +28,11 @@ target_sources(${PROJECT_NAME} PRIVATE
 target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_LIST_DIR}/../../Include")
 
 # Freetype
-set(RMLUI_FREETYPE_PATH ${CMAKE_SOURCE_DIR}/${EZ_SUBMODULE_PREFIX_PATH}/Code/ThirdParty/RmlUi/Dependencies/freetype)
-target_include_directories(${PROJECT_NAME} PRIVATE "${RMLUI_FREETYPE_PATH}/Include")
 
 if(EZ_CMAKE_PLATFORM_WINDOWS)
+  set(RMLUI_FREETYPE_PATH ${CMAKE_SOURCE_DIR}/${EZ_SUBMODULE_PREFIX_PATH}/Code/ThirdParty/RmlUi/Dependencies/freetype)
+  target_include_directories(${PROJECT_NAME} PRIVATE "${RMLUI_FREETYPE_PATH}/Include")
+
   target_compile_definitions(${PROJECT_NAME} PRIVATE RmlCore_EXPORTS)
   
   if(CMAKE_SIZEOF_VOID_P EQUAL 8)
@@ -45,6 +46,16 @@ if(EZ_CMAKE_PLATFORM_WINDOWS)
   add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different "${RMLUI_FREETYPE_LIB}/freetype.dll" $<TARGET_FILE_DIR:${PROJECT_NAME}>
   )
+endif()
+
+if(EZ_CMAKE_PLATFORM_LINUX)
+  set(CMAKE_FIND_DEBUG_MODE TRUE)
+  find_package(Freetype)
+  set(CMAKE_FIND_DEBUG_MODE FALSE)
+  if(NOT Freetype_FOUND)
+    message(FATAL_ERROR "Couldn't find freetype. Check your cmake prefix path or install your systems freetype package (e.g. libfreetype-dev).")
+  endif()
+  target_link_libraries(${PROJECT_NAME} PRIVATE Freetype::Freetype)
 endif()
 
 #lunasvg

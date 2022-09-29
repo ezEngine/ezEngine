@@ -7,12 +7,13 @@
 class ezObjectSelectionMsgToEngine;
 class ezRenderContext;
 
-class EZ_ENGINEPLUGINRMLUI_DLL ezRmlUiContext : public ezEngineProcessDocumentContext
+class EZ_ENGINEPLUGINRMLUI_DLL ezRmlUiDocumentContext : public ezEngineProcessDocumentContext
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezRmlUiContext, ezEngineProcessDocumentContext);
+  EZ_ADD_DYNAMIC_REFLECTION(ezRmlUiDocumentContext, ezEngineProcessDocumentContext);
 
 public:
-  ezRmlUiContext();
+  ezRmlUiDocumentContext();
+  ~ezRmlUiDocumentContext();
 
   const ezRmlUiResourceHandle& GetResource() const { return m_hMainResource; }
 

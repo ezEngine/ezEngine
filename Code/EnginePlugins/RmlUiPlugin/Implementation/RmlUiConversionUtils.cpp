@@ -42,6 +42,9 @@ namespace ezRmlUiConversionUtils
       case Rml::Variant::STRING:
         result = value.Get<Rml::String>().c_str();
         break;
+      
+      default:
+        break;
     }
 
     if (targetType != ezVariant::Type::Invalid && result.IsValid())
@@ -81,7 +84,7 @@ namespace ezRmlUiConversionUtils
 
       case ezVariant::Type::UInt32:
       case ezVariant::Type::Int64:
-        return Rml::Variant(value.ConvertTo<ezInt64>());
+        return Rml::Variant(static_cast<int64_t>(value.ConvertTo<ezInt64>()));
 
       case ezVariant::Type::Float:
         return Rml::Variant(value.Get<float>());

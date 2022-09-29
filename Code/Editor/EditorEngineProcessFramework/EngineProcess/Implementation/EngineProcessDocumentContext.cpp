@@ -31,6 +31,7 @@ ezEngineProcessDocumentContext* ezEngineProcessDocumentContext::GetDocumentConte
 void ezEngineProcessDocumentContext::AddDocumentContext(ezUuid guid, const ezVariant& metaData, ezEngineProcessDocumentContext* pContext, ezEngineProcessCommunicationChannel* pIPC)
 {
   EZ_ASSERT_DEV(!s_DocumentContexts.Contains(guid), "Cannot add a view with an index that already exists");
+  ezLog::Info("Adding document context {} type {}", ezArgP(pContext), pContext->GetDynamicRTTI()->GetTypeName());
   s_DocumentContexts[guid] = pContext;
 
   pContext->Initialize(guid, metaData, pIPC);
