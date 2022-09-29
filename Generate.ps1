@@ -15,7 +15,7 @@ if ($NoSubmoduleUpdate -eq $False) {
     $UPDATE_SUBMODULES = $True
     $LAST_UPDATE_FILE = "$PSScriptRoot\Data\Content\AssetCache\LastSubmoduleUpdate.txt" 
 
-    if (Test-Path $LAST_UPDATE_FILE) {
+    if (Test-Path $LAST_UPDATE_FILE -PathType Leaf -ErrorAction SilentlyContinue) {
         $LAST_COMMIT = Get-Content -Path $LAST_UPDATE_FILE
 
         if ($CURRENT_COMMIT -eq $LAST_COMMIT) {
@@ -33,7 +33,7 @@ if ($NoSubmoduleUpdate -eq $False) {
         git submodule init
         git submodule update
 
-        Out-File -FilePath $LAST_UPDATE_FILE -InputObject $CURRENT_COMMIT
+        Out-File ( New-Item -Path $LAST_UPDATE_FILE -Force) -InputObject $CURRENT_COMMIT
     }
 }
 
