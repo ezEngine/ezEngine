@@ -37,15 +37,15 @@ public:
 
   /// \brief Sets the unique ptr from a freshly created instance through EZ_NEW or EZ_DEFAULT_NEW.
   template <typename U>
-  void operator=(const ezInternal::NewInstance<U>& instance);
+  ezUniquePtr<T>& operator=(const ezInternal::NewInstance<U>& instance);
 
   /// \brief Move assigns a unique ptr from another. The other unique ptr will be empty afterwards to guarantee that there is only one
   /// unique ptr managing the same object.
   template <typename U>
-  void operator=(ezUniquePtr<U>&& other);
+  ezUniquePtr<T>& operator=(ezUniquePtr<U>&& other);
 
   /// \brief Same as calling 'Reset()'
-  EZ_ALWAYS_INLINE void operator=(std::nullptr_t) { Clear(); }
+  ezUniquePtr<T>& operator=(std::nullptr_t);
 
   /// \brief Releases the managed object without destroying it. The unique ptr will be empty afterwards.
   T* Release();
@@ -67,7 +67,7 @@ public:
   T* operator->() const;
 
   /// \brief Returns true if there is managed object and false if the unique ptr is empty.
-  operator bool() const;
+  explicit operator bool() const;
 
   /// \brief Compares the unique ptr against another unique ptr.
   bool operator==(const ezUniquePtr<T>& rhs) const;

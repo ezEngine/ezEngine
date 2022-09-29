@@ -44,17 +44,19 @@ EZ_ALWAYS_INLINE ezUniquePtr<T>::~ezUniquePtr()
 
 template <typename T>
 template <typename U>
-EZ_ALWAYS_INLINE void ezUniquePtr<T>::operator=(const ezInternal::NewInstance<U>& instance)
+EZ_ALWAYS_INLINE ezUniquePtr<T>& ezUniquePtr<T>::operator=(const ezInternal::NewInstance<U>& instance)
 {
   Clear();
 
   m_pInstance = instance.m_pInstance;
   m_pAllocator = instance.m_pAllocator;
+
+  return *this;
 }
 
 template <typename T>
 template <typename U>
-EZ_ALWAYS_INLINE void ezUniquePtr<T>::operator=(ezUniquePtr<U>&& other)
+EZ_ALWAYS_INLINE ezUniquePtr<T>& ezUniquePtr<T>::operator=(ezUniquePtr<U>&& other)
 {
   Clear();
 
@@ -63,6 +65,16 @@ EZ_ALWAYS_INLINE void ezUniquePtr<T>::operator=(ezUniquePtr<U>&& other)
 
   other.m_pInstance = nullptr;
   other.m_pAllocator = nullptr;
+
+  return *this;
+}
+
+template <typename T>
+EZ_ALWAYS_INLINE ezUniquePtr<T>& ezUniquePtr<T>::operator=(std::nullptr_t)
+{
+  Clear();
+
+  return *this;
 }
 
 template <typename T>

@@ -46,25 +46,25 @@ public:
 
   /// \brief Sets the shared ptr from a freshly created instance through EZ_NEW or EZ_DEFAULT_NEW.
   template <typename U>
-  void operator=(const ezInternal::NewInstance<U>& instance);
+  ezSharedPtr<T>& operator=(const ezInternal::NewInstance<U>& instance);
 
   /// \brief Sets the shared ptr from another. Both will hold a reference to the managed object afterwards.
-  void operator=(const ezSharedPtr<T>& other);
+  ezSharedPtr<T>& operator=(const ezSharedPtr<T>& other);
 
   /// \brief Sets the shared ptr from another. Both will hold a reference to the managed object afterwards.
   template <typename U>
-  void operator=(const ezSharedPtr<U>& other);
+  ezSharedPtr<T>& operator=(const ezSharedPtr<U>& other);
 
   /// \brief Move assigns a shared ptr from another. The other shared ptr will be empty afterwards.
   template <typename U>
-  void operator=(ezSharedPtr<U>&& other);
+  ezSharedPtr<T>& operator=(ezSharedPtr<U>&& other);
 
   /// \brief Move assigns a shared ptr from a unique ptr. The unique ptr will be empty afterwards.
   template <typename U>
-  void operator=(ezUniquePtr<U>&& other);
+  ezSharedPtr<T>& operator=(ezUniquePtr<U>&& other);
 
   /// \brief Assigns a nullptr to the shared ptr. Same as Reset.
-  void operator=(std::nullptr_t);
+  ezSharedPtr<T>& operator=(std::nullptr_t);
 
   /// \brief Borrows the managed object. The shared ptr stays unmodified.
   T* Borrow() const;
@@ -85,7 +85,7 @@ public:
   operator T*();
 
   /// \brief Returns true if there is managed object and false if the shared ptr is empty.
-  operator bool() const;
+  explicit operator bool() const;
 
   /// \brief Compares the shared ptr against another shared ptr.
   bool operator==(const ezSharedPtr<T>& rhs) const;

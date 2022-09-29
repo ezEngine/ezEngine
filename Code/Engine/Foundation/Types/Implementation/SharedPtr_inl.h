@@ -80,7 +80,7 @@ EZ_ALWAYS_INLINE ezSharedPtr<T>::~ezSharedPtr()
 
 template <typename T>
 template <typename U>
-EZ_ALWAYS_INLINE void ezSharedPtr<T>::operator=(const ezInternal::NewInstance<U>& instance)
+EZ_ALWAYS_INLINE ezSharedPtr<T>& ezSharedPtr<T>::operator=(const ezInternal::NewInstance<U>& instance)
 {
   ReleaseReferenceIfValid();
 
@@ -88,10 +88,12 @@ EZ_ALWAYS_INLINE void ezSharedPtr<T>::operator=(const ezInternal::NewInstance<U>
   m_pAllocator = instance.m_pAllocator;
 
   AddReferenceIfValid();
+
+  return *this;
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE void ezSharedPtr<T>::operator=(const ezSharedPtr<T>& other)
+EZ_ALWAYS_INLINE ezSharedPtr<T>& ezSharedPtr<T>::operator=(const ezSharedPtr<T>& other)
 {
   if (m_pInstance != other.m_pInstance)
   {
@@ -102,11 +104,13 @@ EZ_ALWAYS_INLINE void ezSharedPtr<T>::operator=(const ezSharedPtr<T>& other)
 
     AddReferenceIfValid();
   }
+
+  return *this;
 }
 
 template <typename T>
 template <typename U>
-EZ_ALWAYS_INLINE void ezSharedPtr<T>::operator=(const ezSharedPtr<U>& other)
+EZ_ALWAYS_INLINE ezSharedPtr<T>& ezSharedPtr<T>::operator=(const ezSharedPtr<U>& other)
 {
   if (m_pInstance != other.m_pInstance)
   {
@@ -117,11 +121,13 @@ EZ_ALWAYS_INLINE void ezSharedPtr<T>::operator=(const ezSharedPtr<U>& other)
 
     AddReferenceIfValid();
   }
+
+  return *this;
 }
 
 template <typename T>
 template <typename U>
-EZ_ALWAYS_INLINE void ezSharedPtr<T>::operator=(ezSharedPtr<U>&& other)
+EZ_ALWAYS_INLINE ezSharedPtr<T>& ezSharedPtr<T>::operator=(ezSharedPtr<U>&& other)
 {
   if (m_pInstance != other.m_pInstance)
   {
@@ -133,23 +139,29 @@ EZ_ALWAYS_INLINE void ezSharedPtr<T>::operator=(ezSharedPtr<U>&& other)
     other.m_pInstance = nullptr;
     other.m_pAllocator = nullptr;
   }
+
+  return *this;
 }
 
 template <typename T>
 template <typename U>
-EZ_ALWAYS_INLINE void ezSharedPtr<T>::operator=(ezUniquePtr<U>&& other)
+EZ_ALWAYS_INLINE ezSharedPtr<T>& ezSharedPtr<T>::operator=(ezUniquePtr<U>&& other)
 {
   ReleaseReferenceIfValid();
 
   m_pInstance = other.Release(m_pAllocator);
 
   AddReferenceIfValid();
+
+  return *this;
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE void ezSharedPtr<T>::operator=(std::nullptr_t)
+EZ_ALWAYS_INLINE ezSharedPtr<T>& ezSharedPtr<T>::operator=(std::nullptr_t)
 {
   ReleaseReferenceIfValid();
+
+  return *this;
 }
 
 template <typename T>
