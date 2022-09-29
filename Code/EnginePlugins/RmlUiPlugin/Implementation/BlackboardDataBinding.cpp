@@ -7,8 +7,8 @@
 
 namespace ezRmlUiInternal
 {
-  BlackboardDataBinding::BlackboardDataBinding(ezBlackboard& blackboard)
-    : m_Blackboard(blackboard)
+  BlackboardDataBinding::BlackboardDataBinding(const ezSharedPtr<ezBlackboard>& pBlackboard)
+    : m_pBlackboard(pBlackboard)
   {
   }
 
@@ -16,7 +16,10 @@ namespace ezRmlUiInternal
 
   ezResult BlackboardDataBinding::Initialize(Rml::Context& context)
   {
-    const char* szModelName = m_Blackboard.GetName();
+    if (m_pBlackboard == nullptr)
+      return EZ_FAILURE;
+
+    const char* szModelName = m_pBlackboard->GetName();
     if (ezStringUtils::IsNullOrEmpty(szModelName))
     {
       ezLog::Error("Can't bind a blackboard without a valid name");
@@ -29,9 +32,9 @@ namespace ezRmlUiInternal
       return EZ_FAILURE;
     }
 
-    for (auto it : m_Blackboard.GetAllEntries())
+    for (auto it : m_pBlackboard->GetAllEntries())
     {
-      m_EntryWrappers.emplace_back(m_Blackboard, it.Key(), it.Value().m_uiChangeCounter);
+      m_EntryWrappers.emplace_back(*m_pBlackboard, it.Key(), it.Value().m_uiChangeCounter);
     }
 
     for (auto& wrapper : m_EntryWrappers)
@@ -44,30 +47,33 @@ namespace ezRmlUiInternal
 
     m_hDataModel = constructor.GetModelHandle();
 
-    m_uiBlackboardChangeCounter = m_Blackboard.GetBlackboardChangeCounter();
-    m_uiBlackboardEntryChangeCounter = m_Blackboard.GetBlackboardEntryChangeCounter();
+    m_uiBlackboardChangeCounter = m_pBlackboard->GetBlackboardChangeCounter();
+    m_uiBlackboardEntryChangeCounter = m_pBlackboard->GetBlackboardEntryChangeCounter();
 
     return EZ_SUCCESS;
   }
 
   void BlackboardDataBinding::Deinitialize(Rml::Context& context)
   {
-    context.RemoveDataModel(m_Blackboard.GetName());
+    if (m_pBlackboard != nullptr)
+    {
+      context.RemoveDataModel(m_pBlackboard->GetName());
+    }
   }
 
   void BlackboardDataBinding::Update()
   {
-    if (m_uiBlackboardChangeCounter != m_Blackboard.GetBlackboardChangeCounter())
+    if (m_uiBlackboardChangeCounter != m_pBlackboard->GetBlackboardChangeCounter())
     {
       ezLog::Warning("Data Binding doesn't work with values that are registered or unregistered after setup");
-      m_uiBlackboardChangeCounter = m_Blackboard.GetBlackboardChangeCounter();
+      m_uiBlackboardChangeCounter = m_pBlackboard->GetBlackboardChangeCounter();
     }
 
-    if (m_uiBlackboardEntryChangeCounter != m_Blackboard.GetBlackboardEntryChangeCounter())
+    if (m_uiBlackboardEntryChangeCounter != m_pBlackboard->GetBlackboardEntryChangeCounter())
     {
       for (auto& wrapper : m_EntryWrappers)
       {
-        auto pEntry = m_Blackboard.GetEntry(wrapper.m_sName);
+        auto pEntry = m_pBlackboard->GetEntry(wrapper.m_sName);
 
         if (pEntry != nullptr && wrapper.m_uiChangeCounter != pEntry->m_uiChangeCounter)
         {
@@ -76,7 +82,7 @@ namespace ezRmlUiInternal
         }
       }
 
-      m_uiBlackboardEntryChangeCounter = m_Blackboard.GetBlackboardEntryChangeCounter();
+      m_uiBlackboardEntryChangeCounter = m_pBlackboard->GetBlackboardEntryChangeCounter();
     }
   }
 

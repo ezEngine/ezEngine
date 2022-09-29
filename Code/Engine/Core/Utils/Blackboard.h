@@ -3,6 +3,7 @@
 #include <Core/CoreDLL.h>
 #include <Foundation/Communication/Event.h>
 #include <Foundation/Strings/HashedString.h>
+#include <Foundation/Types/RefCounted.h>
 #include <Foundation/Types/Variant.h>
 
 class ezStreamReader;
@@ -61,7 +62,7 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezBlackboardEntryFlags);
 ///
 /// For example this is commonly used in game AI, where some system gathers interesting pieces of data about the environment,
 /// and then NPCs might use that information to make decisions.
-class EZ_CORE_DLL ezBlackboard
+class EZ_CORE_DLL ezBlackboard : public ezRefCounted
 {
 public:
   ezBlackboard();

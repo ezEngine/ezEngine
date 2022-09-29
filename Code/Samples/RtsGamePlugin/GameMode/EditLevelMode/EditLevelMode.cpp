@@ -79,7 +79,7 @@ void RtsEditLevelMode::SetupEditUI()
     if (!pEditUIObject->TryGetComponentOfBaseType(pUiComponent))
       return;
 
-    pUiComponent->AddBlackboardBinding(*m_pBlackboard);
+    pUiComponent->AddBlackboardBinding(m_pBlackboard);
 
     m_hEditUIComponent = pUiComponent->GetHandle();
   }

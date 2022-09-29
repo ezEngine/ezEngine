@@ -115,7 +115,7 @@ ezBlackboardComponent::~ezBlackboardComponent() = default;
 ezBlackboardComponent& ezBlackboardComponent::operator=(ezBlackboardComponent&& other) = default;
 
 // static
-ezBlackboard* ezBlackboardComponent::FindBlackboard(ezGameObject* pObject)
+ezSharedPtr<ezBlackboard> ezBlackboardComponent::FindBlackboard(ezGameObject* pObject)
 {
   ezBlackboardComponent* pBlackboardComponent = nullptr;
   while (pObject != nullptr && !pObject->TryGetComponentOfBaseType(pBlackboardComponent))
@@ -125,7 +125,7 @@ ezBlackboard* ezBlackboardComponent::FindBlackboard(ezGameObject* pObject)
 
   if (pBlackboardComponent != nullptr)
   {
-    return &pBlackboardComponent->GetBoard();
+    return pBlackboardComponent->GetBoard();
   }
 
   return nullptr;
@@ -178,14 +178,14 @@ void ezBlackboardComponent::DeserializeComponent(ezWorldReader& stream)
   }
 }
 
-ezBlackboard& ezBlackboardComponent::GetBoard()
+const ezSharedPtr<ezBlackboard>& ezBlackboardComponent::GetBoard()
 {
-  return *m_pBoard.Borrow();
+  return m_pBoard;
 }
 
-const ezBlackboard& ezBlackboardComponent::GetBoard() const
+ezSharedPtr<const ezBlackboard> ezBlackboardComponent::GetBoard() const
 {
-  return *m_pBoard.Borrow();
+  return m_pBoard;
 }
 
 struct BCFlags

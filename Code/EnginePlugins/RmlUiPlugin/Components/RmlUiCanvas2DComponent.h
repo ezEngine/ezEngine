@@ -57,7 +57,7 @@ public:
   void RemoveDataBinding(ezUInt32 uiDataBindingIndex);
 
   /// \brief Adds the given blackboard as data binding. The name of the board is used as model name for the binding.
-  ezUInt32 AddBlackboardBinding(ezBlackboard& blackboard);
+  ezUInt32 AddBlackboardBinding(const ezSharedPtr<ezBlackboard>& pBlackboard);
   void RemoveBlackboardBinding(ezUInt32 uiDataBindingIndex);
 
   ezRmlUiContext* GetOrCreateRmlContext();
