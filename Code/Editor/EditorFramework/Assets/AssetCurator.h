@@ -224,6 +224,9 @@ private:
   ///@{
 
 public:
+  ezDateTime GetLastFullTransformDate() const;
+  void StoreFullTransformDate();
+
   /// \brief Transforms all assets and writes the lookup tables. If the given platform is empty, the active platform is used.
   ezStatus TransformAllAssets(ezBitflags<ezTransformFlags> transformFlags, const ezPlatformProfile* pAssetProfile = nullptr);
   void ResaveAllAssets();

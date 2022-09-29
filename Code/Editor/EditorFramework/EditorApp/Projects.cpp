@@ -4,6 +4,7 @@
 #include <EditorFramework/Assets/AssetProcessor.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Preferences/EditorPreferences.h>
+#include <Foundation/Time/Timestamp.h>
 #include <Foundation/Utilities/CommandLineUtils.h>
 #include <GuiFoundation/Dialogs/ModifiedDocumentsDlg.moc.h>
 #include <GuiFoundation/UIServices/DynamicStringEnum.h>
@@ -235,12 +236,6 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProjectEvent& r)
 
       ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
 
-      if (m_StartupFlags.AreNoneSet(ezQtEditorApp::StartupFlags::Headless | ezQtEditorApp::StartupFlags::SafeMode | ezQtEditorApp::StartupFlags::UnitTest) && pPreferences->m_bBackgroundAssetProcessing)
-      {
-        QTimer::singleShot(1000, this, [this]()
-          { ezAssetProcessor::GetSingleton()->RestartProcessTask(); });
-      }
-
       // Make sure preferences are saved, this is important when the project was just created.
       if (m_bSavePreferencesAfterOpenProject)
       {
@@ -252,6 +247,34 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProjectEvent& r)
         // Save recent project list on project open in case of crashes or stopping the debugger.
         SaveRecentFiles();
       }
+
+      if (m_StartupFlags.AreNoneSet(ezQtEditorApp::StartupFlags::Headless | ezQtEditorApp::StartupFlags::SafeMode | ezQtEditorApp::StartupFlags::UnitTest))
+      {
+        ezTimestamp lastTransform = ezAssetCurator::GetSingleton()->GetLastFullTransformDate().GetTimestamp();
+
+        if (pPreferences->m_bBackgroundAssetProcessing)
+        {
+          QTimer::singleShot(1000, this, [this]()
+            { ezAssetProcessor::GetSingleton()->RestartProcessTask(); });
+        }
+        else if (!lastTransform.IsValid() || (ezTimestamp::CurrentTimestamp() - lastTransform).GetHours() > 5 * 24)
+        {
+          const auto clicked = ezQtUiServices::MessageBoxQuestion("<html>Apply asset transformation now?<br><br>\
+Explanation: For assets to work properly, they must be <a href='https://ezengine.net/pages/docs/assets/assets-overview.html#asset-transform'>transformed</a>. Otherwise they don't function as they should or don't even show up.<br>You can manually run the asset transform from the <a href='https://ezengine.net/pages/docs/assets/asset-browser.html#transform-assets'>asset browser</a> at any time.</html>",
+            QMessageBox::StandardButton::Apply | QMessageBox::StandardButton::Ignore, QMessageBox::StandardButton::Apply);
+
+          if (clicked == QMessageBox::StandardButton::Ignore)
+          {
+            ezAssetCurator::GetSingleton()->StoreFullTransformDate();
+            break;
+          }
+
+          // check whether the project needs to be transformed
+          QTimer::singleShot(1000, this, [this]()
+            { ezAssetCurator::GetSingleton()->TransformAllAssets(ezTransformFlags::Default); });
+        }
+      }
+
       break;
     }
 

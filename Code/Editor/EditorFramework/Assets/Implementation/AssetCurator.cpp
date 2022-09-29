@@ -12,6 +12,7 @@
 #include <Foundation/Serialization/ReflectionSerializer.h>
 #include <Foundation/Time/Stopwatch.h>
 #include <Foundation/Utilities/CommandLineOptions.h>
+#include <ToolsFoundation/Application/ApplicationServices.h>
 
 #define EZ_CURATOR_CACHE_VERSION 2
 #define EZ_CURATOR_CACHE_FILE_VERSION 6
@@ -322,6 +323,34 @@ void ezAssetCurator::MainThreadTick(bool bTopLevel)
   bReentry = false;
 }
 
+ezDateTime ezAssetCurator::GetLastFullTransformDate() const
+{
+  ezStringBuilder path = ezApplicationServices::GetSingleton()->GetProjectPreferencesFolder();
+  path.AppendPath("LastFullTransform.date");
+
+  ezFileStats stat;
+  if (ezOSFile::GetFileStats(path, stat).Failed())
+    return {};
+
+  return stat.m_LastModificationTime;
+}
+
+void ezAssetCurator::StoreFullTransformDate()
+{
+  ezStringBuilder path = ezApplicationServices::GetSingleton()->GetProjectPreferencesFolder();
+  path.AppendPath("LastFullTransform.date");
+
+  ezOSFile file;
+  if (file.Open(path, ezFileOpenMode::Write).Succeeded())
+  {
+    ezDateTime date;
+    date.SetTimestamp(ezTimestamp::CurrentTimestamp());
+
+    path.Format("{}", date);
+    file.Write(path.GetData(), path.GetElementCount()).AssertSuccess();
+  }
+}
+
 ////////////////////////////////////////////////////////////////////////
 // ezAssetCurator High Level Functions
 ////////////////////////////////////////////////////////////////////////
@@ -375,7 +404,9 @@ ezStatus ezAssetCurator::TransformAllAssets(ezBitflags<ezTransformFlags> transfo
 
   range.BeginNextStep("Writing Lookup Tables");
 
-  ezAssetCurator::GetSingleton()->WriteAssetTables(pAssetProfile).IgnoreResult();
+  WriteAssetTables(pAssetProfile).IgnoreResult();
+
+  StoreFullTransformDate();
 
   if (uiNumFailedSteps > 0)
     return ezStatus(ezFmt("Transform all assets failed on {0} assets.", uiNumFailedSteps));
