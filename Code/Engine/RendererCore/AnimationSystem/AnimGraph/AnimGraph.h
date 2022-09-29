@@ -54,12 +54,12 @@ public:
   ezAnimGraph();
   ~ezAnimGraph();
 
-  void Configure(const ezSkeletonResourceHandle& hSkeleton, ezAnimPoseGenerator& poseGenerator, ezBlackboard* pBlackboard = nullptr);
+  void Configure(const ezSkeletonResourceHandle& hSkeleton, ezAnimPoseGenerator& poseGenerator, const ezSharedPtr<ezBlackboard>& pBlackboard = nullptr);
 
   void Update(ezTime tDiff, ezGameObject* pTarget);
   void GetRootMotion(ezVec3& translation, ezAngle& rotationX, ezAngle& rotationY, ezAngle& rotationZ) const;
 
-  ezBlackboard* GetBlackboard() { return m_pBlackboard; }
+  const ezSharedPtr<ezBlackboard>& GetBlackboard() { return m_pBlackboard; }
 
   ezResult Serialize(ezStreamWriter& stream) const;
   ezResult Deserialize(ezStreamReader& stream);
@@ -112,7 +112,7 @@ private:
   bool m_bInitialized = false;
 
   ezAnimPoseGenerator* m_pPoseGenerator = nullptr;
-  ezBlackboard* m_pBlackboard = nullptr;
+  ezSharedPtr<ezBlackboard> m_pBlackboard = nullptr;
 
   ezHybridArray<ezAnimGraphPinDataBoneWeights, 4> m_PinDataBoneWeights;
   ezHybridArray<ezAnimGraphPinDataLocalTransforms, 4> m_PinDataLocalTransforms;

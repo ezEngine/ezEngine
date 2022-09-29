@@ -251,9 +251,9 @@ void ezRmlUiCanvas2DComponent::RemoveDataBinding(ezUInt32 uiDataBindingIndex)
   m_DataBindings[uiDataBindingIndex] = nullptr;
 }
 
-ezUInt32 ezRmlUiCanvas2DComponent::AddBlackboardBinding(ezBlackboard& blackboard)
+ezUInt32 ezRmlUiCanvas2DComponent::AddBlackboardBinding(const ezSharedPtr<ezBlackboard>& pBlackboard)
 {
-  auto pDataBinding = EZ_DEFAULT_NEW(ezRmlUiInternal::BlackboardDataBinding, blackboard);
+  auto pDataBinding = EZ_DEFAULT_NEW(ezRmlUiInternal::BlackboardDataBinding, pBlackboard);
   return AddDataBinding(pDataBinding);
 }
 

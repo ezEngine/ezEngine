@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Foundation/Strings/HashedString.h>
+#include <Foundation/Types/SharedPtr.h>
 #include <RmlUiPlugin/RmlUiDataBinding.h>
 
 class ezBlackboard;
@@ -10,7 +11,7 @@ namespace ezRmlUiInternal
   class BlackboardDataBinding final : public ezRmlUiDataBinding
   {
   public:
-    BlackboardDataBinding(ezBlackboard& blackboard);
+    BlackboardDataBinding(const ezSharedPtr<ezBlackboard>& pBlackboard);
     ~BlackboardDataBinding();
 
     virtual ezResult Initialize(Rml::Context& context) override;
@@ -18,7 +19,7 @@ namespace ezRmlUiInternal
     virtual void Update() override;
 
   private:
-    ezBlackboard& m_Blackboard;
+    ezSharedPtr<ezBlackboard> m_pBlackboard;
 
     Rml::DataModelHandle m_hDataModel;
 

@@ -12,7 +12,7 @@ ezHashTable<ezString, ezSharedPtr<ezAnimGraphSharedBoneWeights>> ezAnimGraph::s_
 ezAnimGraph::ezAnimGraph() = default;
 ezAnimGraph::~ezAnimGraph() = default;
 
-void ezAnimGraph::Configure(const ezSkeletonResourceHandle& hSkeleton, ezAnimPoseGenerator& poseGenerator, ezBlackboard* pBlackboard /*= nullptr*/)
+void ezAnimGraph::Configure(const ezSkeletonResourceHandle& hSkeleton, ezAnimPoseGenerator& poseGenerator, const ezSharedPtr<ezBlackboard>& pBlackboard /*= nullptr*/)
 {
   m_hSkeleton = hSkeleton;
   m_pPoseGenerator = &poseGenerator;
