@@ -21,9 +21,7 @@ ezRmlUiDocumentContext::ezRmlUiDocumentContext()
 {
 }
 
-ezRmlUiDocumentContext::~ezRmlUiDocumentContext()
-{
-}
+ezRmlUiDocumentContext::~ezRmlUiDocumentContext() = default;
 
 void ezRmlUiDocumentContext::OnInitialize()
 {
