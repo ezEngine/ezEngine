@@ -1,6 +1,6 @@
 ez_cmake_init()
 
-ez_requires_d3d()
+ez_requires_renderer()
 
 ez_requires_rmlui()
 ez_requires(EZ_3RDPARTY_IMGUI_SUPPORT)
