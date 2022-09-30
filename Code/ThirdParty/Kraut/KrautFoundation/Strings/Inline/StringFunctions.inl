@@ -13,16 +13,18 @@ namespace AE_NS_FOUNDATION
   #define AE_STRINGCOMPARE_HANDLE_NULL_PTRS(szString1, szString2, ret_true, ret_false)\
     if (szString1 == szString2)/* Handles the case that both are nullptr and that both are actually the same string */ \
       return (ret_true);\
-    if (szString1 == nullptr)\
+    if (szString1 == nullptr) {\
       if (szString2[0] == '\0') /* if String1 is nullptr, String2 is never nullptr, otherwise the previous IF would have returned already */ \
         return (ret_true);\
       else\
         return (ret_false);\
-    if (szString2 == nullptr) \
+    }\
+    if (szString2 == nullptr) {\
       if (szString1[0] == '\0') /* if String2 is nullptr, String1 is never nullptr, otherwise the previous IF would have returned already */ \
         return (ret_true);\
       else\
-        return (ret_false);
+        return (ret_false);\
+    }
 
   inline bool aeStringFunctions::IsNullOrEmpty (const char* szString)
   {
