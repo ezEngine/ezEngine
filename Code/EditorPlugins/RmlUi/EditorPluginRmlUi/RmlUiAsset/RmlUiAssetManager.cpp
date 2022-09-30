@@ -38,6 +38,9 @@ void ezRmlUiAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager
       }
     }
     break;
+
+    default:
+      break;
   }
 }
 

@@ -44,6 +44,8 @@ namespace ezRmlUiInternal
       case Rml::Log::LT_DEBUG:
         ezLog::Debug("{}", message.c_str());
         break;
+      default:
+        break;
     }
 
     return true;

@@ -75,7 +75,7 @@ elif [[ $Issue =~ $MintPattern ]]; then
 fi
 
 if [ "$Distribution" = "Ubuntu" -a "$Version" = "22" ] || [ "$Distribution" = "Mint" -a "$Version" = "21" ] ; then
-  packages=(cmake build-essential ninja-build qtbase5-dev libqt5svg5-dev libqt5x11extras5-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev uuid-dev qtbase5-private-dev mold)
+  packages=(cmake build-essential ninja-build qtbase5-dev libqt5svg5-dev libqt5x11extras5-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev uuid-dev qtbase5-private-dev mold libfreetype-dev)
 
   if [ "$UseClang" = true ]; then
     packages+=(clang-14 libstdc++-12-dev)

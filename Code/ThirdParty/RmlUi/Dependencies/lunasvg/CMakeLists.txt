@@ -15,7 +15,7 @@ target_include_directories(${PROJECT_NAME}
   "3rdparty/software"
 
   PUBLIC
-  "Include"
+  "include"
 )
 
 if(EZ_CMAKE_PLATFORM_WINDOWS)
