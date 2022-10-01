@@ -263,7 +263,7 @@ ezEditorInput ezOrbitCameraContext::DoWheelEvent(QWheelEvent* e)
   const float fScale = e->modifiers().testFlag(Qt::KeyboardModifier::ShiftModifier)  ? 1.4f : 1.1f;
 
   float fDistance = (m_vOrbitPoint - m_pCamera->GetCenterPosition()).GetLength();
-  if (e->delta() > 0)
+  if (e->angleDelta().y() > 0)
   {
     fDistance /= fScale;
   }

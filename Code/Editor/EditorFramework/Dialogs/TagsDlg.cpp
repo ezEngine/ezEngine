@@ -229,7 +229,7 @@ QTreeWidgetItem* ezQtTagsDlg::CreateTagItem(QTreeWidgetItem* pParentItem, const 
   if (bBuiltIn)
   {
     pItem->setText(0, tag + QString(" (built in)"));
-    pItem->setFlags(0);
+    pItem->setFlags(Qt::ItemFlags());
   }
   else
   {

@@ -1308,7 +1308,6 @@ void ezQtCurve1DButtonWidget::UpdatePreview(ezObjectAccessorBase* pObjectAccesso
   QPainter pt(&pixmap);
   pt.setPen(color);
   pt.setRenderHint(QPainter::RenderHint::Antialiasing);
-  pt.setRenderHint(QPainter::RenderHint::HighQualityAntialiasing);
 
   if (!points.IsEmpty())
   {

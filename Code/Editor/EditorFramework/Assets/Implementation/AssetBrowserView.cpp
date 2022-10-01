@@ -76,7 +76,7 @@ void ezQtAssetBrowserView::wheelEvent(QWheelEvent* pEvent)
 {
   if (pEvent->modifiers() == Qt::CTRL)
   {
-    ezInt32 iDelta = pEvent->delta() > 0 ? 5 : -5;
+    ezInt32 iDelta = pEvent->angleDelta().y() > 0 ? 5 : -5;
     SetIconScale(m_iIconSizePercentage + iDelta);
     Q_EMIT ViewZoomed(m_iIconSizePercentage);
     return;

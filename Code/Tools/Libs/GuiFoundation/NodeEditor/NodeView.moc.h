@@ -35,7 +35,7 @@ private:
   QPointF m_ViewPos;
   QPointF m_ViewScale;
 
-  QPoint m_vStartDragView;
+  QPointF m_vStartDragView;
   QPointF m_vStartDragScene;
 };
 
