@@ -107,6 +107,8 @@ protected:
   void SubscribeGameObjectEventHandlers();
   void UnsubscribeGameObjectEventHandlers();
 
+  void GameObjectDocumentEventHandler(const ezGameObjectDocumentEvent& e);
+
   /// \name Gizmo
   ///@{
 public:

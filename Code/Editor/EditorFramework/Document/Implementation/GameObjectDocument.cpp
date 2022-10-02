@@ -11,6 +11,10 @@
 #include <GuiFoundation/PropertyGrid/VisualizerManager.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
+// - Log UIs -
+#include "EditorFramework/Panels/LogPanel/LogPanel.moc.h"
+#include <EditorFramework/Panels/LogPanel/LogPanel.moc.h>
+#include <GuiFoundation/Models/LogModel.moc.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameObjectMetaData, 1, ezRTTINoAllocator)
@@ -56,6 +60,8 @@ void ezGameObjectDocument::SubscribeGameObjectEventHandlers()
   m_ObjectPropertyEventHandlerID = GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezGameObjectDocument::ObjectPropertyEventHandler, this));
   m_ObjectStructureEventHandlerID = GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezGameObjectDocument::ObjectStructureEventHandler, this));
   m_ObjectEventHandlerID = GetObjectManager()->m_ObjectEvents.AddEventHandler(ezMakeDelegate(&ezGameObjectDocument::ObjectEventHandler, this));
+
+  s_GameObjectDocumentEvents.AddEventHandler(ezMakeDelegate(&ezGameObjectDocument::GameObjectDocumentEventHandler, this));
 }
 
 void ezGameObjectDocument::UnsubscribeGameObjectEventHandlers()
@@ -64,6 +70,28 @@ void ezGameObjectDocument::UnsubscribeGameObjectEventHandlers()
   GetObjectManager()->m_PropertyEvents.RemoveEventHandler(m_ObjectPropertyEventHandlerID);
   GetObjectManager()->m_StructureEvents.RemoveEventHandler(m_ObjectStructureEventHandlerID);
   GetObjectManager()->m_ObjectEvents.RemoveEventHandler(m_ObjectEventHandlerID);
+
+  s_GameObjectDocumentEvents.RemoveEventHandler(ezMakeDelegate(&ezGameObjectDocument::GameObjectDocumentEventHandler, this));
+}
+
+void ezGameObjectDocument::GameObjectDocumentEventHandler(const ezGameObjectDocumentEvent& e)
+{
+  switch (e.m_Type)
+  {
+    case ezGameObjectDocumentEvent::Type::GameMode_StartingExternal:
+    case ezGameObjectDocumentEvent::Type::GameMode_StartingPlay:
+    case ezGameObjectDocumentEvent::Type::GameMode_StartingSimulate:
+    {
+      auto pEditorPrefsUser = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
+      if (pEditorPrefsUser && pEditorPrefsUser->m_bClearEditorLogsOnPlay)
+      {
+        ezQtLogPanel::GetSingleton()->EditorLog->GetLog()->Clear();
+      }
+    }
+      break;
+    default:
+      break;
+  }
 }
 
 ezEditorInputContext* ezGameObjectDocument::GetEditorInputContextOverride()
