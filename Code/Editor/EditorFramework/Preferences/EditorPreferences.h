@@ -38,7 +38,7 @@ public:
   bool m_bDirectionalLightShadows = false;
   float m_fDirectionalLightIntensity = 10.0f;
   bool m_bFog = false;
-  bool m_bClearEditorLogsOnPlay = false;
+  bool m_bClearEditorLogsOnPlay = true;
 
   void SetShowInDevelopmentFeatures(bool b);
   bool GetShowInDevelopmentFeatures() const

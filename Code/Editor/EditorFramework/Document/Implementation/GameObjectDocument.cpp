@@ -1,20 +1,19 @@
 #include <EditorFramework/EditorFrameworkPCH.h>
 
+#include "EditorFramework/Panels/LogPanel/LogPanel.moc.h"
 #include <Core/World/GameObject.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Document/GameObjectDocument.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
 #include <EditorFramework/EditTools/EditTool.h>
 #include <EditorFramework/Gizmos/SnapProvider.h>
+#include <EditorFramework/Panels/LogPanel/LogPanel.moc.h>
 #include <EditorFramework/Preferences/EditorPreferences.h>
+#include <GuiFoundation/Models/LogModel.moc.h>
 #include <GuiFoundation/PropertyGrid/ManipulatorManager.h>
 #include <GuiFoundation/PropertyGrid/VisualizerManager.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
-// - Log UIs -
-#include "EditorFramework/Panels/LogPanel/LogPanel.moc.h"
-#include <EditorFramework/Panels/LogPanel/LogPanel.moc.h>
-#include <GuiFoundation/Models/LogModel.moc.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameObjectMetaData, 1, ezRTTINoAllocator)
@@ -78,17 +77,20 @@ void ezGameObjectDocument::GameObjectDocumentEventHandler(const ezGameObjectDocu
 {
   switch (e.m_Type)
   {
-    case ezGameObjectDocumentEvent::Type::GameMode_StartingExternal:
+    // case ezGameObjectDocumentEvent::Type::GameMode_StartingExternal: // the external player doesn't log to the editor panel, so don't need to clear that
     case ezGameObjectDocumentEvent::Type::GameMode_StartingPlay:
     case ezGameObjectDocumentEvent::Type::GameMode_StartingSimulate:
     {
       auto pEditorPrefsUser = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
       if (pEditorPrefsUser && pEditorPrefsUser->m_bClearEditorLogsOnPlay)
       {
-        ezQtLogPanel::GetSingleton()->EditorLog->GetLog()->Clear();
+        // on play, the engine log has a lot of activity, so makes sense to clear that first
+        ezQtLogPanel::GetSingleton()->EngineLog->GetLog()->Clear();
+        // but I think we usually want to keep the editor log around
+        //ezQtLogPanel::GetSingleton()->EditorLog->GetLog()->Clear();
       }
     }
-      break;
+    break;
     default:
       break;
   }
