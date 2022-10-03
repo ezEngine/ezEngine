@@ -35,6 +35,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorPreferencesUser, 1, ezRTTIDefaultAllocat
     EZ_MEMBER_PROPERTY("DirectionalLightShadows", m_bDirectionalLightShadows),
     EZ_MEMBER_PROPERTY("DirectionalLightIntensity", m_fDirectionalLightIntensity)->AddAttributes(new ezDefaultValueAttribute(10.0f)),
     EZ_MEMBER_PROPERTY("Fog", m_bFog),
+    EZ_MEMBER_PROPERTY("ClearEditorLogsOnPlay", m_bClearEditorLogsOnPlay)
   }
   EZ_END_PROPERTIES;
 }
