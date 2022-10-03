@@ -11,7 +11,7 @@ opts=$(getopt \
 eval set --$opts
 
 RunCMake=true
-BuildType="Debug"
+BuildType="Dev"
 
 
 while [[ $# -gt 0 ]]; do
