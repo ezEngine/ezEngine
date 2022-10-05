@@ -17,11 +17,11 @@ BuildType="Dev"
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --help)
-      echo "Usage: $(basename $0) [--setup] [--clang] [--no-cmake] [--build-type Debug|Dev|Release]"
+      echo "Usage: $(basename $0) [--setup] [--clang] [--no-cmake] [--build-type Debug|Dev|Shipping]"
       echo "  --setup       Run first time setup. This installs dependencies and makes sure the git repository is setup correctly."
       echo "  --clang       Use clang instead of gcc"
       echo "  --no-cmake    Do not invoke cmake (usefull when only --setup is needed)"
-      echo "  --build-type  Which build type cmake should be invoked with Debug|Dev|Release"
+      echo "  --build-type  Which build type cmake should be invoked with Debug|Dev|Shipping"
       exit 0
       ;;
 
@@ -75,7 +75,7 @@ elif [[ $Issue =~ $MintPattern ]]; then
 fi
 
 if [ "$Distribution" = "Ubuntu" -a "$Version" = "22" ] || [ "$Distribution" = "Mint" -a "$Version" = "21" ] ; then
-  packages=(cmake build-essential ninja-build qtbase5-dev libqt5svg5-dev libqt5x11extras5-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev uuid-dev qtbase5-private-dev mold libfreetype-dev)
+  packages=(cmake build-essential ninja-build qtbase5-dev libqt5svg5-dev libqt5x11extras5-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev uuid-dev qtbase5-private-dev mold libfreetype-dev libtinfo5)
 
   if [ "$UseClang" = true ]; then
     packages+=(clang-14 libstdc++-12-dev)
