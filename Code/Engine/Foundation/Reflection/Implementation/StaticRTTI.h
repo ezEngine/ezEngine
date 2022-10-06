@@ -152,11 +152,17 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
 
 /// \cond
 // internal helper macro
-#define EZ_RTTIINFO_DECL(Type, BaseType, Version)    \
-                                                     \
-  const char* GetTypeName(Type*) { return #Type; }   \
-  ezUInt32 GetTypeVersion(Type*) { return Version; } \
-                                                     \
+#define EZ_RTTIINFO_DECL(Type, BaseType, Version) \
+                                                  \
+  const char* GetTypeName(Type*)                  \
+  {                                               \
+    return #Type;                                 \
+  }                                               \
+  ezUInt32 GetTypeVersion(Type*)                  \
+  {                                               \
+    return Version;                               \
+  }                                               \
+                                                  \
   ezRTTI GetRTTI(Type*);
 
 // internal helper macro
@@ -276,7 +282,7 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
 
 
 // [internal] Helper macro to get the return type of a getter function.
-#define EZ_GETTER_TYPE(Class, GetterFunc) decltype(((Class*)nullptr)->GetterFunc())
+#define EZ_GETTER_TYPE(Class, GetterFunc) decltype(((Class*)nullptr + 123)->GetterFunc())
 
 /// \brief Within a EZ_BEGIN_PROPERTIES / EZ_END_PROPERTIES; block, this adds a property that uses custom getter / setter functions.
 ///

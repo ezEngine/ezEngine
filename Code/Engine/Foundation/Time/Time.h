@@ -38,10 +38,7 @@ public:
   EZ_DECLARE_POD_TYPE();
 
   /// \brief The default constructor sets the time to zero.
-  EZ_ALWAYS_INLINE constexpr ezTime()
-    : m_fTime(0.0)
-  {
-  }
+  EZ_ALWAYS_INLINE constexpr ezTime() = default;
 
   /// \brief Sets the time value to zero.
   void SetZero();
@@ -118,7 +115,7 @@ private:
   constexpr explicit ezTime(double fTime);
 
   /// \brief The time is stored in seconds
-  double m_fTime;
+  double m_fTime = 0.0;
 
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Foundation, Time);
