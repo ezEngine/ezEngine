@@ -325,6 +325,7 @@ void ezPlayerApplication::FindAvailableScenes()
 
   m_bCheckedForScenes = true;
 
+#if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS)
   ezFileSystemIterator fsit;
   ezStringBuilder sScenePath;
 
@@ -340,6 +341,7 @@ void ezPlayerApplication::FindAvailableScenes()
 
     m_AvailableScenes.PushBack(sScenePath);
   }
+#endif
 }
 
 bool ezPlayerApplication::DisplayMenu()
