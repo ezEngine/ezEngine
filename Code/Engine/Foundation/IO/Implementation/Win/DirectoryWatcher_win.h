@@ -144,7 +144,7 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezTime 
     // Reissue the read request
     m_pImpl->DoRead();
 
-    if(numberOfBytes == 0)
+    if (numberOfBytes == 0)
     {
       return;
     }
