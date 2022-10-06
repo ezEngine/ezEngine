@@ -179,7 +179,7 @@ void ezSceneActions::MapMenuActions(const char* szMapping)
     const char* szUtilsSubPath = "Menu.Scene/Scene.Utils.Menu";
 
     pMap->MapAction(s_hSceneUtilsMenu, "Menu.Scene", 2.0f);
-    //pMap->MapAction(s_hCreateThumbnail, szUtilsSubPath, 0.0f); // now available through the export scene dialog
+    // pMap->MapAction(s_hCreateThumbnail, szUtilsSubPath, 0.0f); // now available through the export scene dialog
     pMap->MapAction(s_hKeepSimulationChanges, szUtilsSubPath, 1.0f);
     pMap->MapAction(s_hUtilExportSceneToOBJ, szUtilsSubPath, 2.0f);
 
@@ -518,13 +518,21 @@ void ezSceneAction::LaunchPlayer(const char* szPlayerApp)
 QStringList ezSceneAction::GetPlayerCommandLine(ezStringBuilder& out_SingleLine) const
 {
   QStringList arguments;
-  arguments << "-scene";
+  arguments << "-project";
+  arguments << ezToolsProject::GetSingleton()->GetProjectDirectory().GetData();
 
-  const ezStringBuilder sPath = m_pSceneDocument->GetAssetDocumentManager()->GetAbsoluteOutputFileName(
-    m_pSceneDocument->GetAssetDocumentTypeDescriptor(), m_pSceneDocument->GetDocumentPath(), "");
+  {
+    arguments << "-scene";
 
-  const char* szPath = sPath.GetData();
-  arguments << QString::fromUtf8(szPath);
+    ezStringBuilder sAssetDataDir = ezAssetCurator::GetSingleton()->FindDataDirectoryForAsset(m_pSceneDocument->GetDocumentPath());
+
+    ezStringBuilder sRelativePath = m_pSceneDocument->GetAssetDocumentManager()->GetAbsoluteOutputFileName(m_pSceneDocument->GetAssetDocumentTypeDescriptor(), m_pSceneDocument->GetDocumentPath(), "");
+
+    sRelativePath.MakeRelativeTo(sAssetDataDir).AssertSuccess();
+    sRelativePath.MakeCleanPath();
+
+    arguments << sRelativePath.GetData();
+  }
 
   ezStringBuilder sWndCfgPath = ezApplicationServices::GetSingleton()->GetProjectPreferencesFolder();
   sWndCfgPath.AppendPath("Window.ddl");

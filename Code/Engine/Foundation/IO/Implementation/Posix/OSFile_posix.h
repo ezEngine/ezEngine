@@ -468,9 +468,7 @@ const ezString ezOSFile::GetCurrentWorkingDirectory()
 
 #  if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS)
 
-ezFileSystemIterator::ezFileSystemIterator()
-{
-}
+ezFileSystemIterator::ezFileSystemIterator() = default;
 
 ezFileSystemIterator::~ezFileSystemIterator()
 {
@@ -523,6 +521,8 @@ namespace
 void ezFileSystemIterator::StartSearch(const char* szSearchStart, ezBitflags<ezFileSystemIteratorFlags> flags /*= ezFileSystemIteratorFlags::All*/)
 {
   EZ_ASSERT_DEV(m_Data.m_Handles.IsEmpty(), "Cannot start another search.");
+
+  m_sSearchTerm = szSearchStart;
 
   ezStringBuilder sSearch = szSearchStart;
   sSearch.MakeCleanPath();
@@ -592,21 +592,6 @@ void ezFileSystemIterator::StartSearch(const char* szSearchStart, ezBitflags<ezF
     }
   }
 }
-
-void ezFileSystemIterator::Next()
-{
-  while (true)
-  {
-    const ezInt32 res = InternalNext();
-
-    if (res == EZ_SUCCESS)
-      return;
-
-    if (res == EZ_FAILURE)
-      return;
-  }
-}
-
 
 ezInt32 ezFileSystemIterator::InternalNext()
 {
@@ -678,18 +663,6 @@ ezInt32 ezFileSystemIterator::InternalNext()
   }
 
   return EZ_SUCCESS;
-}
-
-void ezFileSystemIterator::SkipFolder()
-{
-  EZ_ASSERT_DEBUG(m_Flags.IsSet(ezFileSystemIteratorFlags::Recursive), "SkipFolder has no meaning when the iterator is not set to be recursive.");
-  EZ_ASSERT_DEBUG(m_CurFile.m_bIsDirectory, "SkipFolder can only be called when the current object is a folder.");
-
-  m_Flags.Remove(ezFileSystemIteratorFlags::Recursive);
-
-  Next();
-
-  m_Flags.Add(ezFileSystemIteratorFlags::Recursive);
 }
 
 #  endif

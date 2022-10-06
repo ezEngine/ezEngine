@@ -1157,35 +1157,23 @@ void ezQtCurve1DEditorWidget::FindAllPresets()
 
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS)
 
-  EZ_LOCK(ezFileSystem::GetMutex());
+  ezFileSystemIterator fsIt;
+
+  ezFileSystem::StartSearch(fsIt, "Editor/Presets/Curves", ezFileSystemIteratorFlags::ReportFilesRecursive);
 
   ezStringBuilder sFilePath;
 
-  for (ezUInt32 ddIdx = 0; ddIdx < ezFileSystem::GetNumDataDirectories(); ++ddIdx)
+  for (; fsIt.IsValid(); fsIt.Next())
   {
-    ezStringBuilder sSearchPath = ezFileSystem::GetDataDirectory(ddIdx)->GetRedirectedDataDirectoryPath();
-
-    if (ezFileSystem::ResolvePath(sSearchPath, &sSearchPath, nullptr).Failed())
+    if (!ezPathUtils::HasExtension(fsIt.GetStats().m_sName, "ezCurvePreset"))
       continue;
 
-    if (sSearchPath.IsEmpty() || !ezOSFile::ExistsDirectory(sSearchPath))
-      continue;
+    fsIt.GetStats().GetFullPath(sFilePath);
+    sFilePath.MakeCleanPath();
 
-    sSearchPath.AppendPath("Editor/Presets/Curves");
+    sFilePath.MakeRelativeTo(fsIt.GetCurrentSearchTerm()).AssertSuccess();
 
-    ezFileSystemIterator fsIt;
-    for (fsIt.StartSearch(sSearchPath, ezFileSystemIteratorFlags::ReportFilesRecursive); fsIt.IsValid(); fsIt.Next())
-    {
-      if (!ezPathUtils::HasExtension(fsIt.GetStats().m_sName, "ezCurvePreset"))
-        continue;
-
-      fsIt.GetStats().GetFullPath(sFilePath);
-      sFilePath.MakeCleanPath();
-
-      sFilePath.MakeRelativeTo(sSearchPath).AssertSuccess();
-
-      s_CurvePresets.PushBack(sFilePath);
-    }
+    s_CurvePresets.PushBack(sFilePath);
   }
 
   s_CurvePresets.Sort();

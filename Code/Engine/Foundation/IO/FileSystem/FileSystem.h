@@ -4,6 +4,7 @@
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/IO/FileSystem/Implementation/DataDirType.h>
+#include <Foundation/IO/OSFile.h>
 #include <Foundation/Threading/Mutex.h>
 
 /// \brief The ezFileSystem provides high-level functionality to manage files in a virtual file system.
@@ -190,6 +191,11 @@ public:
   /// \brief Returns the (recursive) mutex that is used internally by the file system which can be used to guard bundled operations on the file
   /// system.
   static ezMutex& GetMutex();
+
+#if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS)
+  /// \brief Starts a multi-folder search for \a szSearchTerm on all current data directories.
+  static void StartSearch(ezFileSystemIterator& iterator, const char* szSearchTerm, ezBitflags<ezFileSystemIteratorFlags> flags = ezFileSystemIteratorFlags::Default);
+#endif
 
   ///@}
 

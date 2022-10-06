@@ -919,6 +919,34 @@ ezMutex& ezFileSystem::GetMutex()
   return s_Data->m_FsMutex;
 }
 
+#if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS)
+
+void ezFileSystem::StartSearch(ezFileSystemIterator& iterator, const char* szSearchTerm, ezBitflags<ezFileSystemIteratorFlags> flags /*= ezFileSystemIteratorFlags::Default*/)
+{
+  EZ_LOCK(s_Data->m_FsMutex);
+
+  ezHybridArray<ezString, 16> folders;
+  ezStringBuilder sDdPath;
+
+  for (const auto& dd : s_Data->m_DataDirectories)
+  {
+    sDdPath = dd.m_pDataDirectory->GetRedirectedDataDirectoryPath();
+
+    if (ResolvePath(sDdPath, &sDdPath, nullptr).Failed())
+      continue;
+
+    if (sDdPath.IsEmpty() || !ezOSFile::ExistsDirectory(sDdPath))
+      continue;
+
+
+    folders.PushBack(sDdPath);
+  }
+
+  iterator.StartMultiFolderSearch(folders, szSearchTerm, flags);
+}
+
+#endif
+
 ezResult ezFileSystem::CreateDirectoryStructure(const char* szPath)
 {
   ezStringBuilder sRedir;
