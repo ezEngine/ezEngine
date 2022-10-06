@@ -144,6 +144,11 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezTime 
     // Reissue the read request
     m_pImpl->DoRead();
 
+    if (numberOfBytes == 0)
+    {
+      return;
+    }
+
     const ezBitflags<ezDirectoryWatcher::Watch> whatToWatch = m_pImpl->m_whatToWatch;
 
     ezFileSystemMirrorType* mirror = m_pImpl->m_mirror.Borrow();
