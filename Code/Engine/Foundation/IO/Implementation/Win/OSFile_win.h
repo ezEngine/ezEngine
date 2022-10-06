@@ -328,9 +328,7 @@ ezResult ezOSFile::InternalGetFileStats(const char* szFileOrFolder, ezFileStats&
 
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS)
 
-ezFileSystemIterator::ezFileSystemIterator()
-{
-}
+ezFileSystemIterator::ezFileSystemIterator() = default;
 
 ezFileSystemIterator::~ezFileSystemIterator()
 {
@@ -517,18 +515,6 @@ ezInt32 ezFileSystemIterator::InternalNext()
   }
 
   return ReturnSuccess;
-}
-
-void ezFileSystemIterator::SkipFolder()
-{
-  EZ_ASSERT_DEBUG(m_Flags.IsSet(ezFileSystemIteratorFlags::Recursive), "SkipFolder has no meaning when the iterator is not set to be recursive.");
-  EZ_ASSERT_DEBUG(m_CurFile.m_bIsDirectory, "SkipFolder can only be called when the current object is a folder.");
-
-  m_Flags.Remove(ezFileSystemIteratorFlags::Recursive);
-
-  Next();
-
-  m_Flags.Add(ezFileSystemIteratorFlags::Recursive);
 }
 
 #endif

@@ -617,6 +617,8 @@ ezResult ezOSFile::DeleteFolder(const char* szFolder)
 
 #endif // EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS) && EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
 
+#if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS)
+
 void ezFileSystemIterator::StartMultiFolderSearch(ezArrayPtr<ezString> startFolders, const char* szSearchTerm, ezBitflags<ezFileSystemIteratorFlags> flags /*= ezFileSystemIteratorFlags::Default*/)
 {
   if (startFolders.IsEmpty())
@@ -663,6 +665,20 @@ void ezFileSystemIterator::Next()
     }
   }
 }
+
+void ezFileSystemIterator::SkipFolder()
+{
+  EZ_ASSERT_DEBUG(m_Flags.IsSet(ezFileSystemIteratorFlags::Recursive), "SkipFolder has no meaning when the iterator is not set to be recursive.");
+  EZ_ASSERT_DEBUG(m_CurFile.m_bIsDirectory, "SkipFolder can only be called when the current object is a folder.");
+
+  m_Flags.Remove(ezFileSystemIteratorFlags::Recursive);
+
+  Next();
+
+  m_Flags.Add(ezFileSystemIteratorFlags::Recursive);
+}
+
+#endif
 
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
