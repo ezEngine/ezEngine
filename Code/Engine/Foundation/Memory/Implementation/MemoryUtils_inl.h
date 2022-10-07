@@ -249,6 +249,9 @@ EZ_ALWAYS_INLINE void ezMemoryUtils::Construct(T* pDestination, size_t uiCount, 
   EZ_CHECK_AT_COMPILETIME_MSG(std::is_trivial<T>::value, "This method should only be called for 'real' pod aka trivial types");
 }
 
+#define EZ_GCC_WARNING_NAME "-Wstringop-overflow"
+#include <Foundation/Basics/Compiler/GCC/DisableWarning_GCC.h>
+
 template <typename T>
 EZ_ALWAYS_INLINE void ezMemoryUtils::Construct(T* pDestination, size_t uiCount, ezTypeIsClass)
 {
@@ -259,6 +262,8 @@ EZ_ALWAYS_INLINE void ezMemoryUtils::Construct(T* pDestination, size_t uiCount, 
     ::new (pDestination + i) T();
   }
 }
+
+#include <Foundation/Basics/Compiler/GCC/RestoreWarning_GCC.h>
 
 template <typename T>
 EZ_ALWAYS_INLINE ezMemoryUtils::ConstructorFunction ezMemoryUtils::MakeConstructorFunction(ezTypeIsPod)
@@ -369,6 +374,9 @@ EZ_ALWAYS_INLINE void ezMemoryUtils::Destruct(T* pDestination, size_t uiCount, e
   // Nothing to do here. See Construct of for more info.
 }
 
+#define EZ_GCC_WARNING_NAME "-Waggressive-loop-optimizations"
+#include <Foundation/Basics/Compiler/GCC/DisableWarning_GCC.h>
+
 template <typename T>
 EZ_ALWAYS_INLINE void ezMemoryUtils::Destruct(T* pDestination, size_t uiCount, ezTypeIsClass)
 {
@@ -379,6 +387,8 @@ EZ_ALWAYS_INLINE void ezMemoryUtils::Destruct(T* pDestination, size_t uiCount, e
     pDestination[i - 1].~T();
   }
 }
+
+#include <Foundation/Basics/Compiler/GCC/RestoreWarning_GCC.h>
 
 template <typename T>
 EZ_ALWAYS_INLINE ezMemoryUtils::DestructorFunction ezMemoryUtils::MakeDestructorFunction(ezTypeIsPod)

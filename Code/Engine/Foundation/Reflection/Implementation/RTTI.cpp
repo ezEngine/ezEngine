@@ -408,7 +408,7 @@ void ezRTTI::AssignPlugin(const char* szPluginName)
 }
 
 #define EZ_MSVC_WARNING_NUMBER 4505
-#include <Foundation/Basics/Compiler/DisableWarning.h>
+#include <Foundation/Basics/Compiler/MSVC/DisableWarning_MSVC.h>
 
 static bool IsValidIdentifierName(const char* szIdentifier)
 {

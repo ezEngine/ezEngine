@@ -2,7 +2,7 @@
 
 // On MSVC 2008 in 64 Bit <cmath> generates a lot of warnings (actually it is math.h, which is included by cmath)
 #define EZ_MSVC_WARNING_NUMBER 4985
-#include <Foundation/Basics/Compiler/DisableWarning.h>
+#include <Foundation/Basics/Compiler/MSVC/DisableWarning_MSVC.h>
 
 // include std header
 #include <cmath>
@@ -13,7 +13,7 @@
 #include <cwctype>
 #include <new>
 
-#include <Foundation/Basics/Compiler/RestoreWarning.h>
+#include <Foundation/Basics/Compiler/MSVC/RestoreWarning_MSVC.h>
 
 // redefine NULL to nullptr
 #undef NULL

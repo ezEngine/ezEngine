@@ -11,7 +11,7 @@
 // accessed in the constructor (so no operations on a not completely initialized object happen)
 
 #define EZ_MSVC_WARNING_NUMBER 4355
-#include <Foundation/Basics/Compiler/DisableWarning.h>
+#include <Foundation/Basics/Compiler/MSVC/DisableWarning_MSVC.h>
 
 #ifndef EZ_THREAD_CLASS_ENTRY_POINT
 #  error "Definition for ezThreadClassEntryPoint is missing on this platform!"
@@ -80,4 +80,4 @@ private:
   friend ezUInt32 RunThread(ezThread* pThread);
 };
 
-#include <Foundation/Basics/Compiler/RestoreWarning.h>
+#include <Foundation/Basics/Compiler/MSVC/RestoreWarning_MSVC.h>
