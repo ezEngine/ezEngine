@@ -1,0 +1,13 @@
+set_property(GLOBAL PROPERTY EZ_BUILD_FILTER_UwpProjects
+	Texture
+	Core
+    Foundation
+	FileservePlugin
+	InspectorPlugin
+    enet
+    zstd
+	stb_image
+	mikktspace
+	Lua
+	Duktape
+)
