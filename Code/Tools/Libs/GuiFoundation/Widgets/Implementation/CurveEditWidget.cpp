@@ -737,7 +737,11 @@ void ezQtCurveEditWidget::mouseDoubleClickEvent(QMouseEvent* e)
 
 void ezQtCurveEditWidget::wheelEvent(QWheelEvent* e)
 {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
   const QPointF ptAt = MapToScene(mapFromGlobal(e->globalPosition().toPoint()));
+#else
+  const QPointF ptAt = MapToScene(mapFromGlobal(e->globalPos()));
+#endif
   QPointF posDiff = m_SceneTranslation - ptAt;
 
   double changeX = 1.2;
@@ -751,7 +755,11 @@ void ezQtCurveEditWidget::wheelEvent(QWheelEvent* e)
   const double oldScaleX = m_SceneToPixelScale.x();
   const double oldScaleY = m_SceneToPixelScale.y();
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
   if (e->angleDelta().y() > 0)
+#else
+  if (e->delta() > 0)
+#endif
   {
 
     m_SceneToPixelScale.setX(m_SceneToPixelScale.x() * changeX);

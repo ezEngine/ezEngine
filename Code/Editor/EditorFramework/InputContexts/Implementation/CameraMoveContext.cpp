@@ -737,7 +737,11 @@ ezEditorInput ezCameraMoveContext::DoWheelEvent(QWheelEvent* e)
 
     float fNewDim = 20.0f;
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
     if (e->angleDelta().y() > 0)
+#else
+    if (e->delta() > 0)
+#endif
       fNewDim = m_pCamera->GetFovOrDim() * ezMath::Pow(1.0f / fTick, fBoost);
     else
       fNewDim = m_pCamera->GetFovOrDim() * ezMath::Pow(fTick, fBoost);
@@ -753,7 +757,11 @@ ezEditorInput ezCameraMoveContext::DoWheelEvent(QWheelEvent* e)
   {
     if (e->modifiers() == Qt::KeyboardModifier::ControlModifier)
     {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
       if (e->angleDelta().y() > 0)
+#else
+      if (e->delta() > 0)
+#endif
       {
         SetMoveSpeed(pPreferences->GetCameraSpeed() + 1);
       }
@@ -772,7 +780,11 @@ ezEditorInput ezCameraMoveContext::DoWheelEvent(QWheelEvent* e)
       if (e->modifiers() == Qt::KeyboardModifier::ShiftModifier)
         fBoost *= 5.0f;
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
       if (e->angleDelta().y() > 0)
+#else
+      if (e->delta() > 0)
+#endif
       {
         m_pCamera->MoveLocally(ConvertCameraSpeed(pPreferences->GetCameraSpeed()) * fBoost, 0, 0);
       }

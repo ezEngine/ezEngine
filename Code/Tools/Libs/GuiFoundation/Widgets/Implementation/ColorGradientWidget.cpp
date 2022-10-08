@@ -728,10 +728,18 @@ void ezQtColorGradientWidget::wheelEvent(QWheelEvent* event)
     {
       const double range = m_fDisplayExtentMaxX - m_fDisplayExtentMinX;
 
-      const double zoomCenter = WindowToGradientCoord(event->position().rx());
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+      const double zoomCenter = WindowToGradientCoord(event->position().x());
+#else
+      const double zoomCenter = WindowToGradientCoord(event->pos().x());
+#endif
       const double zoomNorm = (zoomCenter - m_fDisplayExtentMinX) / range;
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
       const double changePerc = (event->angleDelta().y() > 0) ? 0.1 : -0.1;
+#else
+      const double changePerc = (event->delta() > 0) ? 0.1 : -0.1;
+#endif
       const double change = changePerc * range;
 
       m_fDisplayExtentMinX += change * zoomNorm;

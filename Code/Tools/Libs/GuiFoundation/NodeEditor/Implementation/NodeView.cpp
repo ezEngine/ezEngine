@@ -44,7 +44,12 @@ void ezQtNodeView::mousePressEvent(QMouseEvent* event)
   if (event->button() == Qt::RightButton)
   {
     setContextMenuPolicy(Qt::NoContextMenu);
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
     m_vStartDragView = event->localPos();
+#else
+    m_vStartDragView = event->pos();
+#endif
+
     m_vStartDragScene = m_ViewPos;
     viewport()->setCursor(Qt::ClosedHandCursor);
     event->accept();
@@ -60,7 +65,11 @@ void ezQtNodeView::mouseMoveEvent(QMouseEvent* event)
   if (m_bPanning)
   {
     m_iPanCounter++;
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
     QPointF vViewDelta = m_vStartDragView - event->localPos();
+#else
+    QPointF vViewDelta = m_vStartDragView - event->pos();
+#endif
     QPointF vSceneDelta = QPointF(vViewDelta.x() / m_ViewScale.x(), vViewDelta.y() / m_ViewScale.y());
     m_ViewPos = m_vStartDragScene + vSceneDelta;
     UpdateView();
@@ -83,19 +92,35 @@ void ezQtNodeView::mouseReleaseEvent(QMouseEvent* event)
 
 void ezQtNodeView::wheelEvent(QWheelEvent* event)
 {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
   QPointF centerA(event->position().x() / m_ViewScale.x(), event->position().y() / m_ViewScale.y());
+#else
+  QPointF centerA(event->pos().x() / m_ViewScale.x(), event->pos().y() / m_ViewScale.y());
+#endif
 
   const qreal fScaleFactor = 1.15;
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
   const qreal fScale = (event->angleDelta().y() > 0) ? fScaleFactor : (1.0 / fScaleFactor);
+#else
+  const qreal fScale = (event->delta() > 0) ? fScaleFactor : (1.0 / fScaleFactor);
+#endif
 
   m_ViewScale *= fScale;
   m_ViewScale.setX(ezMath::Clamp(m_ViewScale.x(), 0.01, 2.0));
   m_ViewScale.setY(ezMath::Clamp(m_ViewScale.y(), 0.01, 2.0));
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
   QPointF centerB(event->position().x() / m_ViewScale.x(), event->position().y() / m_ViewScale.y());
+#else
+  QPointF centerB(event->pos().x() / m_ViewScale.x(), event->pos().y() / m_ViewScale.y());
+#endif
   m_ViewPos -= (centerB - centerA);
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
   m_vStartDragView = event->position();
+#else
+  m_vStartDragView = event->pos();
+#endif
   m_vStartDragScene = m_ViewPos;
 
   UpdateView();
