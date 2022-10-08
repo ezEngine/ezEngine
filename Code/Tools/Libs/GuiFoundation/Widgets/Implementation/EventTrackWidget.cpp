@@ -622,7 +622,11 @@ void ezQtEventTrackWidget::mouseDoubleClickEvent(QMouseEvent* e)
 
 void ezQtEventTrackWidget::wheelEvent(QWheelEvent* e)
 {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+  const double ptAtX = MapToScene(mapFromGlobal(e->globalPosition().toPoint())).x();
+#else
   const double ptAtX = MapToScene(mapFromGlobal(e->globalPos())).x();
+#endif
   double posDiff = m_fSceneTranslationX - ptAtX;
 
   double changeX = 1.2;
@@ -636,7 +640,11 @@ void ezQtEventTrackWidget::wheelEvent(QWheelEvent* e)
   const double oldScaleX = m_SceneToPixelScale.x();
   const double oldScaleY = m_SceneToPixelScale.y();
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+  if (e->angleDelta().y() > 0)
+#else
   if (e->delta() > 0)
+#endif
   {
     m_SceneToPixelScale.setX(m_SceneToPixelScale.x() * changeX);
     m_SceneToPixelScale.setY(m_SceneToPixelScale.y() * changeY);

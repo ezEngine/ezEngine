@@ -260,10 +260,14 @@ ezEditorInput ezOrbitCameraContext::DoWheelEvent(QWheelEvent* e)
   if (!m_pCamera->IsPerspective())
     return ezEditorInput::MayBeHandledByOthers;
 
-  const float fScale = e->modifiers().testFlag(Qt::KeyboardModifier::ShiftModifier)  ? 1.4f : 1.1f;
+  const float fScale = e->modifiers().testFlag(Qt::KeyboardModifier::ShiftModifier) ? 1.4f : 1.1f;
 
   float fDistance = (m_vOrbitPoint - m_pCamera->GetCenterPosition()).GetLength();
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+  if (e->angleDelta().y() > 0)
+#else
   if (e->delta() > 0)
+#endif
   {
     fDistance /= fScale;
   }
