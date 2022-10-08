@@ -540,7 +540,7 @@ QStringList ezSceneAction::GetPlayerCommandLine(ezStringBuilder& out_SingleLine)
   if (ezOSFile::ExistsFile(sWndCfgPath))
   {
     arguments << "-wnd";
-    arguments << QString::fromUtf8(sWndCfgPath);
+    arguments << QString::fromUtf8(sWndCfgPath, sWndCfgPath.GetElementCount());
   }
 
   arguments << "-profile";

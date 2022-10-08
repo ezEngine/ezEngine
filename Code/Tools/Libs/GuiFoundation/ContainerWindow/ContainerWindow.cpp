@@ -355,7 +355,8 @@ void ezQtContainerWindow::AddDocumentWindow(ezQtDocumentWindow* pDocWindow)
   // therefore, we do some stuff in ezQtContainerWindow::UpdateWindowDecoration() instead
 
   m_DocumentWindows.PushBack(pDocWindow);
-  ads::CDockWidget* dock = new ads::CDockWidget(QString::fromUtf8(pDocWindow->GetDisplayNameShort()));
+  ezString displayName = pDocWindow->GetDisplayNameShort();
+  ads::CDockWidget* dock = new ads::CDockWidget(QString::fromUtf8(displayName.GetData(), displayName.GetElementCount()));
   dock->installEventFilter(pDocWindow);
 
   dock->setObjectName(pDocWindow->GetUniqueName());

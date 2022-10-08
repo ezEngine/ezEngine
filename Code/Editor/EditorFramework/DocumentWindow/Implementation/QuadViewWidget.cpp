@@ -15,7 +15,7 @@ ezQtQuadViewWidget::ezQtQuadViewWidget(ezAssetDocument* pDocument, ezQtEngineDoc
   m_sViewToolBarMapping = szViewToolBarMapping;
 
   m_pViewLayout = new QGridLayout(this);
-  m_pViewLayout->setMargin(0);
+  m_pViewLayout->setContentsMargins(0, 0, 0, 0);
   m_pViewLayout->setSpacing(4);
   setLayout(m_pViewLayout);
 

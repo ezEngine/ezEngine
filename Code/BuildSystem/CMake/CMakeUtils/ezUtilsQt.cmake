@@ -30,29 +30,25 @@ macro(ez_find_qt)
 	
 	if(EZ_CMAKE_PLATFORM_WINDOWS)
 		set(EZ_QT_COMPONENTS ${EZ_QT_COMPONENTS} WinExtras)
-	elseif(EZ_CMAKE_PLATFORM_LINUX)
-		set(EZ_QT_COMPONENTS ${EZ_QT_COMPONENTS} X11Extras)
 	endif()
 
 	if(EZ_ENABLE_QT_SUPPORT)
 		if(EZ_QT_DIR)
-			find_package(Qt5 COMPONENTS ${EZ_QT_COMPONENTS} REQUIRED PATHS ${EZ_QT_DIR})
+			find_package(Qt6 COMPONENTS ${EZ_QT_COMPONENTS} REQUIRED PATHS ${EZ_QT_DIR})
 		else()
-			find_package(Qt5 COMPONENTS ${EZ_QT_COMPONENTS} REQUIRED)
+			find_package(Qt6 COMPONENTS ${EZ_QT_COMPONENTS} REQUIRED)
 		endif()
 	endif()
 	
-	mark_as_advanced(FORCE Qt5_DIR)
-	mark_as_advanced(FORCE Qt5Core_DIR)
-	mark_as_advanced(FORCE Qt5Gui_DIR)
-	mark_as_advanced(FORCE Qt5Widgets_DIR)
-	mark_as_advanced(FORCE Qt5Network_DIR)
-	mark_as_advanced(FORCE Qt5Svg_DIR)
+	mark_as_advanced(FORCE Qt6_DIR)
+	mark_as_advanced(FORCE Qt6Core_DIR)
+	mark_as_advanced(FORCE Qt6Gui_DIR)
+	mark_as_advanced(FORCE Qt6Widgets_DIR)
+	mark_as_advanced(FORCE Qt6Network_DIR)
+	mark_as_advanced(FORCE Qt6Svg_DIR)
 
 	if(EZ_CMAKE_PLATFORM_WINDOWS)
-		mark_as_advanced(FORCE Qt5WinExtras_DIR)
-	elseif()
-		mark_as_advanced(FORCE Qt5X11Extras_DIR)
+		mark_as_advanced(FORCE Qt6WinExtras_DIR)
 	endif()
 endmacro()
 
@@ -92,19 +88,19 @@ function(ez_prepare_find_qt)
 		message(STATUS "Qt-dir has changed, clearing cached Qt paths")
 
 		# Clear cached qt dirs
-		set(Qt5_DIR "Qt5_DIR-NOTFOUND" CACHE PATH "" FORCE)
-		set(Qt5Core_DIR "Qt5Core_DIR-NOTFOUND" CACHE PATH "" FORCE)
-		set(Qt5Gui_DIR "Qt5Gui_DIR-NOTFOUND" CACHE PATH "" FORCE)
-		set(Qt5Widgets_DIR "Qt5Widgets_DIR-NOTFOUND" CACHE PATH "" FORCE)
-		set(Qt5Network_DIR "Qt5Network_DIR-NOTFOUND" CACHE PATH "" FORCE)
-		set(Qt5Svg_DIR "Qt5Svg_DIR-NOTFOUND" CACHE PATH "" FORCE)
+		set(Qt6_DIR "Qt6_DIR-NOTFOUND" CACHE PATH "" FORCE)
+		set(Qt6Core_DIR "Qt6Core_DIR-NOTFOUND" CACHE PATH "" FORCE)
+		set(Qt6Gui_DIR "Qt6Gui_DIR-NOTFOUND" CACHE PATH "" FORCE)
+		set(Qt6Widgets_DIR "Qt6Widgets_DIR-NOTFOUND" CACHE PATH "" FORCE)
+		set(Qt6Network_DIR "Qt6Network_DIR-NOTFOUND" CACHE PATH "" FORCE)
+		set(Qt6Svg_DIR "Qt6Svg_DIR-NOTFOUND" CACHE PATH "" FORCE)
 
 		if(EZ_CMAKE_PLATFORM_WINDOWS)
-			set(Qt5WinExtras_DIR "Qt5WinExtras_DIR-NOTFOUND" CACHE PATH "" FORCE)
+			set(Qt6WinExtras_DIR "Qt6WinExtras_DIR-NOTFOUND" CACHE PATH "" FORCE)
 		endif()
 
 		if(EZ_CMAKE_PLATFORM_LINUX)
-			set(Qt5X11Extras_DIR "Qt5X11Extras_DIR-NOTFOUND" CACHE PATH "" FORCE)
+			set(Qt6X11Extras_DIR "Qt6X11Extras_DIR-NOTFOUND" CACHE PATH "" FORCE)
 		endif()
 	endif()
 
@@ -156,14 +152,14 @@ function(ez_link_target_qt)
 			endif()
 		endif()
 
-		target_link_libraries(${FN_ARG_TARGET} PUBLIC "Qt5::${module}")
+		target_link_libraries(${FN_ARG_TARGET} PUBLIC "Qt6::${module}")
 
 		if(FN_ARG_COPY_DLLS)
 			# copy the dll into the binary folder for each configuration using generator expressions
 			# as a post-build step for every qt-enabled target:
 			add_custom_command(TARGET ${FN_ARG_TARGET} POST_BUILD
 				COMMAND ${CMAKE_COMMAND} -E copy_if_different
-				$<TARGET_FILE:Qt5::${module}>
+				$<TARGET_FILE:Qt6::${module}>
 				$<TARGET_FILE_DIR:${FN_ARG_TARGET}>)
 		endif()
 	endforeach()
@@ -201,17 +197,17 @@ function(ez_qt_wrap_target_ui_files TARGET_NAME FILES_TO_WRAP)
 		return()
 	endif()
 
-	if(NOT TARGET Qt5::uic)
+	if(NOT TARGET Qt6::uic)
 		message(FATAL_ERROR "UIC.exe not found")
 	else()
-		# due to the stupid way CMake variable scopes work, and a stupid way Qt sets up the Qt5Widgets_UIC_EXECUTABLE variable,
+		# due to the stupid way CMake variable scopes work, and a stupid way Qt sets up the Qt6Widgets_UIC_EXECUTABLE variable,
 		# its value gets 'lost' (reset to empty) if find_package has been called in a different function before
-		# since it is used internally by qt5_wrap_ui, we must ensure to restore it here, otherwise the custom build tool command on UI files
+		# since it is used internally by Qt6_wrap_ui, we must ensure to restore it here, otherwise the custom build tool command on UI files
 		# will miss the uic.exe part and just be "-o stuff" instead of "uic.exe -o stuff"
-		get_target_property(Qt5Widgets_UIC_EXECUTABLE Qt5::uic IMPORTED_LOCATION)
+		get_target_property(Qt6Widgets_UIC_EXECUTABLE Qt6::uic IMPORTED_LOCATION)
 	endif()
 
-	qt5_wrap_ui(UIC_FILES ${FILES_TO_WRAP})
+	Qt6_wrap_ui(UIC_FILES ${FILES_TO_WRAP})
 
 	target_sources(${TARGET_NAME} PRIVATE ${UIC_FILES})
 
@@ -230,14 +226,14 @@ function(ez_qt_wrap_target_moc_files TARGET_NAME FILES_TO_WRAP)
 		return()
 	endif()
 
-	set(Qt5Core_MOC_EXECUTABLE Qt5::moc)
+	set(Qt6Core_MOC_EXECUTABLE Qt6::moc)
 	ez_retrieve_target_pch(${TARGET_NAME} PCH_H)
 
 	if(PCH_H)
-		qt5_wrap_cpp(MOC_FILES TARGET ${TARGET_NAME} ${FILES_TO_WRAP} OPTIONS -b "${PCH_H}.h")
+		Qt6_wrap_cpp(MOC_FILES TARGET ${TARGET_NAME} ${FILES_TO_WRAP} OPTIONS -b "${PCH_H}.h")
 		ez_pch_use("${PCH_H}.h" "${MOC_FILES}")
 	else()
-		qt5_wrap_cpp(MOC_FILES TARGET ${TARGET_NAME} ${FILES_TO_WRAP})
+		Qt6_wrap_cpp(MOC_FILES TARGET ${TARGET_NAME} ${FILES_TO_WRAP})
 	endif()
 
 	target_sources(${TARGET_NAME} PRIVATE ${MOC_FILES})
@@ -257,8 +253,8 @@ function(ez_qt_wrap_target_qrc_files TARGET_NAME FILES_TO_WRAP)
 		return()
 	endif()
 
-	set(Qt5Core_RCC_EXECUTABLE Qt5::rcc)
-	qt5_add_resources(QRC_FILES ${FILES_TO_WRAP})
+	set(Qt6Core_RCC_EXECUTABLE Qt6::rcc)
+	Qt6_add_resources(QRC_FILES ${FILES_TO_WRAP})
 
 	target_sources(${TARGET_NAME} PRIVATE ${QRC_FILES})
 

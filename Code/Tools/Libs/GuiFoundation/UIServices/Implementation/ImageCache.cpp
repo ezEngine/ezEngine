@@ -154,7 +154,7 @@ void ezQtImageCache::RunLoadingTask()
     if (!m_ImageCache.Find(sQtPath).IsValid())
     {
       m_bTaskRunning = true;
-      QtConcurrent::run(LoadingTask, sQtPath, req.m_Index, req.m_UserData1, req.m_UserData2);
+      (void)QtConcurrent::run(LoadingTask, sQtPath, req.m_Index, req.m_UserData1, req.m_UserData2);
       return;
     }
     else

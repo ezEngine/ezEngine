@@ -126,15 +126,14 @@ void ezQtCVarWidget::SearchTextChanged(const QString& text)
   m_pFilterModel->setFilterRole(Qt::UserRole);
   m_pFilterModel->setFilterCaseSensitivity(Qt::CaseSensitivity::CaseInsensitive);
 
-  QRegExp e;
+  QRegularExpression e;
 
   QString st = "(?=.*" + text + ".*)";
   st.replace(" ", ".*)(?=.*");
 
   e.setPattern(st);
-  e.setCaseSensitivity(Qt::CaseSensitivity::CaseInsensitive);
-  e.setPatternSyntax(QRegExp::RegExp);
-  m_pFilterModel->setFilterRegExp(e);
+  e.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
+  m_pFilterModel->setFilterRegularExpression(e);
   CVarsView->expandAll();
 }
 

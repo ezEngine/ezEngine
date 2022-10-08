@@ -23,7 +23,7 @@ ezQtPropertyEditorCheckboxWidget::ezQtPropertyEditorCheckboxWidget()
   : ezQtStandardPropertyWidget()
 {
   m_pLayout = new QHBoxLayout(this);
-  m_pLayout->setMargin(0);
+  m_pLayout->setContentsMargins(0, 0, 0, 0);
   setLayout(m_pLayout);
 
   m_pWidget = new QCheckBox(this);
@@ -86,7 +86,7 @@ ezQtPropertyEditorDoubleSpinboxWidget::ezQtPropertyEditorDoubleSpinboxWidget(ezI
   m_pWidget[3] = nullptr;
 
   m_pLayout = new QHBoxLayout(this);
-  m_pLayout->setMargin(0);
+  m_pLayout->setContentsMargins(0, 0, 0, 0);
   setLayout(m_pLayout);
 
   QSizePolicy policy = sizePolicy();
@@ -357,7 +357,7 @@ ezQtPropertyEditorTimeWidget::ezQtPropertyEditorTimeWidget()
   m_pWidget = nullptr;
 
   m_pLayout = new QHBoxLayout(this);
-  m_pLayout->setMargin(0);
+  m_pLayout->setContentsMargins(0, 0, 0, 0);
   setLayout(m_pLayout);
 
   QSizePolicy policy = sizePolicy();
@@ -433,7 +433,7 @@ ezQtPropertyEditorAngleWidget::ezQtPropertyEditorAngleWidget()
   m_pWidget = nullptr;
 
   m_pLayout = new QHBoxLayout(this);
-  m_pLayout->setMargin(0);
+  m_pLayout->setContentsMargins(0, 0, 0, 0);
   setLayout(m_pLayout);
 
   QSizePolicy policy = sizePolicy();
@@ -526,7 +526,7 @@ ezQtPropertyEditorIntSpinboxWidget::ezQtPropertyEditorIntSpinboxWidget(ezInt8 iN
   m_pWidget[3] = nullptr;
 
   m_pLayout = new QHBoxLayout(this);
-  m_pLayout->setMargin(0);
+  m_pLayout->setContentsMargins(0, 0, 0, 0);
   setLayout(m_pLayout);
 
   QSizePolicy policy = sizePolicy();
@@ -820,7 +820,7 @@ ezQtPropertyEditorQuaternionWidget::ezQtPropertyEditorQuaternionWidget()
   m_pWidget[2] = nullptr;
 
   m_pLayout = new QHBoxLayout(this);
-  m_pLayout->setMargin(0);
+  m_pLayout->setContentsMargins(0, 0, 0, 0);
   setLayout(m_pLayout);
 
   QSizePolicy policy = sizePolicy();
@@ -901,7 +901,7 @@ ezQtPropertyEditorLineEditWidget::ezQtPropertyEditorLineEditWidget()
   : ezQtStandardPropertyWidget()
 {
   m_pLayout = new QHBoxLayout(this);
-  m_pLayout->setMargin(0);
+  m_pLayout->setContentsMargins(0, 0, 0, 0);
   setLayout(m_pLayout);
 
   m_pWidget = new QLineEdit(this);
@@ -1003,7 +1003,7 @@ ezQtPropertyEditorColorWidget::ezQtPropertyEditorColorWidget()
   m_bExposeAlpha = false;
 
   m_pLayout = new QHBoxLayout(this);
-  m_pLayout->setMargin(0);
+  m_pLayout->setContentsMargins(0, 0, 0, 0);
   setLayout(m_pLayout);
 
   m_pWidget = new ezQtColorButtonWidget(this);
@@ -1083,7 +1083,7 @@ ezQtPropertyEditorEnumWidget::ezQtPropertyEditorEnumWidget()
 {
 
   m_pLayout = new QHBoxLayout(this);
-  m_pLayout->setMargin(0);
+  m_pLayout->setContentsMargins(0, 0, 0, 0);
   setLayout(m_pLayout);
 
   m_pWidget = new QComboBox(this);
@@ -1145,7 +1145,7 @@ ezQtPropertyEditorBitflagsWidget::ezQtPropertyEditorBitflagsWidget()
   : ezQtStandardPropertyWidget()
 {
   m_pLayout = new QHBoxLayout(this);
-  m_pLayout->setMargin(0);
+  m_pLayout->setContentsMargins(0, 0, 0, 0);
   setLayout(m_pLayout);
 
   m_pWidget = new QPushButton(this);
@@ -1369,7 +1369,7 @@ ezQtPropertyEditorCurve1DWidget::ezQtPropertyEditorCurve1DWidget()
   : ezQtPropertyWidget()
 {
   m_pLayout = new QHBoxLayout(this);
-  m_pLayout->setMargin(0);
+  m_pLayout->setContentsMargins(0, 0, 0, 0);
   setLayout(m_pLayout);
 
   m_pButton = new ezQtCurve1DButtonWidget(this);

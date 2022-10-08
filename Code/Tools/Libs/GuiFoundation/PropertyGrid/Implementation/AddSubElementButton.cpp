@@ -22,7 +22,7 @@ ezQtAddSubElementButton::ezQtAddSubElementButton()
   // Reset base class size policy as we are put in a layout that would cause us to vanish instead.
   setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
   m_pLayout = new QHBoxLayout(this);
-  m_pLayout->setMargin(0);
+  m_pLayout->setContentsMargins(0, 0, 0, 0);
   setLayout(m_pLayout);
 
   m_pButton = new QPushButton(this);

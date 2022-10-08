@@ -38,7 +38,7 @@ ezQtTypeWidget::ezQtTypeWidget(QWidget* pParent, ezQtPropertyGridWidget* pGrid, 
   m_pLayout->setColumnStretch(1, 0);
   m_pLayout->setColumnMinimumWidth(1, 5);
   m_pLayout->setColumnStretch(2, 2);
-  m_pLayout->setMargin(0);
+  m_pLayout->setContentsMargins(0, 0, 0, 0);
   m_pLayout->setSpacing(0);
   setLayout(m_pLayout);
 
@@ -135,7 +135,7 @@ void ezQtTypeWidget::BuildUI(const ezRTTI* pType, const ezMap<ezString, const ez
     pLayout->setColumnStretch(1, 0);
     pLayout->setColumnMinimumWidth(1, 5);
     pLayout->setColumnStretch(2, 2);
-    pLayout->setMargin(0);
+    pLayout->setContentsMargins(0, 0, 0, 0);
     pLayout->setSpacing(0);
     pGroupBox->GetContent()->setLayout(pLayout);
 

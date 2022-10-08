@@ -250,7 +250,7 @@ void ezQtDocumentWindow::UIServicesEventHandler(const ezQtUiServices::Event& e)
         }
 
         m_pPermanentGlobalStatusButton->setPalette(pal);
-        m_pPermanentGlobalStatusButton->setText(QString::fromUtf8(e.m_sText));
+        m_pPermanentGlobalStatusButton->setText(QString::fromUtf8(e.m_sText, e.m_sText.GetElementCount()));
         m_pPermanentGlobalStatusButton->setVisible(!m_pPermanentGlobalStatusButton->text().isEmpty());
       }
     }
@@ -344,7 +344,7 @@ void ezQtDocumentWindow::SaveWindowLayout()
   sGroup.Format("DocumentWnd_{0}", GetWindowLayoutGroupName());
 
   QSettings Settings;
-  Settings.beginGroup(QString::fromUtf8(sGroup));
+  Settings.beginGroup(QString::fromUtf8(sGroup, sGroup.GetElementCount()));
   {
     // All other properties are defined by the outer container window.
     Settings.setValue("WindowState", saveState());
@@ -364,7 +364,7 @@ void ezQtDocumentWindow::RestoreWindowLayout()
 
   {
     QSettings Settings;
-    Settings.beginGroup(QString::fromUtf8(sGroup));
+    Settings.beginGroup(QString::fromUtf8(sGroup, sGroup.GetElementCount()));
     {
       restoreState(Settings.value("WindowState", saveState()).toByteArray());
     }

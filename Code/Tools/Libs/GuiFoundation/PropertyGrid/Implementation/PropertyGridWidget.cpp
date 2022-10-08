@@ -236,7 +236,7 @@ ezQtPropertyGridWidget::ezQtPropertyGridWidget(QWidget* pParent, ezDocument* pDo
 
   m_pLayout = new QVBoxLayout(this);
   m_pLayout->setSpacing(0);
-  m_pLayout->setMargin(0);
+  m_pLayout->setContentsMargins(0, 0, 0, 0);
   setLayout(m_pLayout);
   m_pLayout->addWidget(m_pScroll);
 
@@ -248,7 +248,7 @@ ezQtPropertyGridWidget::ezQtPropertyGridWidget(QWidget* pParent, ezDocument* pDo
 
   m_pContentLayout = new QVBoxLayout(m_pContent);
   m_pContentLayout->setSpacing(1);
-  m_pContentLayout->setMargin(1);
+  m_pContentLayout->setContentsMargins(0, 0, 0, 0);
   m_pContent->setLayout(m_pContentLayout);
 
   m_pSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);

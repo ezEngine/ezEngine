@@ -273,7 +273,7 @@ QVariant ezQtAssetBrowserModel::data(const QModelIndex& index, int role) const
     case Qt::DisplayRole:
     {
       ezStringBuilder sFilename = pSubAsset->GetName();
-      return QString::fromUtf8(sFilename);
+      return QString::fromUtf8(sFilename, sFilename.GetElementCount());
     }
     break;
 
@@ -312,7 +312,7 @@ QVariant ezQtAssetBrowserModel::data(const QModelIndex& index, int role) const
           break;
       }
 
-      return QString::fromUtf8(sToolTip);
+      return QString::fromUtf8(sToolTip, sToolTip.GetElementCount());
     }
     case Qt::DecorationRole:
     {
@@ -344,10 +344,10 @@ QVariant ezQtAssetBrowserModel::data(const QModelIndex& index, int role) const
       return QVariant::fromValue(pSubAsset->m_pAssetInfo->m_Info->m_DocumentID);
     }
     case UserRoles::AbsolutePath:
-      return QString::fromUtf8(pSubAsset->m_pAssetInfo->m_sAbsolutePath);
+      return QString::fromUtf8(pSubAsset->m_pAssetInfo->m_sAbsolutePath, pSubAsset->m_pAssetInfo->m_sAbsolutePath.GetElementCount());
 
     case UserRoles::RelativePath:
-      return QString::fromUtf8(pSubAsset->m_pAssetInfo->m_sDataDirParentRelativePath);
+      return QString::fromUtf8(pSubAsset->m_pAssetInfo->m_sDataDirParentRelativePath, pSubAsset->m_pAssetInfo->m_sDataDirParentRelativePath.GetElementCount());
 
     case UserRoles::AssetIconPath:
       return ezQtUiServices::GetCachedPixmapResource(pSubAsset->m_pAssetInfo->m_pDocumentTypeDescriptor->m_sIcon);
