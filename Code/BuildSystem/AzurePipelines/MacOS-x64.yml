@@ -64,15 +64,15 @@ jobs:
       script: |
         # Brew update takes very long. Only enable if below steps start failing.
         brew update
-        brew list --versions qt@5
-        brew install qt@5
-        brew info qt@5
+        brew list --versions qt@6
+        brew install qt@6
+        brew info qt@6
         brew install Caskroom/cask/xquartz
         brew info Caskroom/cask/xquartz
   - task: CMake@1
     displayName: CMake
     inputs:
-      cmakeArgs: -DCMAKE_PREFIX_PATH=/usr/local/opt/qt@5/ -DEZ_ENABLE_QT_SUPPORT=1 -DCMAKE_BUILD_TYPE=Dev -DEZ_ENABLE_FOLDER_UNITY_FILES=$(unityfiles) -G "Xcode" ../
+      cmakeArgs: -DCMAKE_PREFIX_PATH=/usr/local/opt/qt@6/ -DEZ_ENABLE_QT_SUPPORT=1 -DCMAKE_BUILD_TYPE=Dev -DEZ_ENABLE_FOLDER_UNITY_FILES=$(unityfiles) -G "Xcode" ../
   - task: Xcode@5
     displayName: Xcode build
     inputs:
