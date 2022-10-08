@@ -358,7 +358,9 @@ ezResult ezGALDeviceDX11::ShutdownPlatform()
 
 void ezGALDeviceDX11::BeginPipelinePlatform(const char* szName, ezGALSwapChain* pSwapChain)
 {
+#if EZ_ENABLED(EZ_USE_PROFILING)
   m_pPipelineTimingScope = ezProfilingScopeAndMarker::Start(m_pDefaultPass->m_pRenderCommandEncoder.Borrow(), szName);
+#endif
 
   if (pSwapChain)
   {
@@ -373,12 +375,17 @@ void ezGALDeviceDX11::EndPipelinePlatform(ezGALSwapChain* pSwapChain)
     pSwapChain->PresentRenderTarget(this);
   }
 
+#if EZ_ENABLED(EZ_USE_PROFILING)
   ezProfilingScopeAndMarker::Stop(m_pDefaultPass->m_pRenderCommandEncoder.Borrow(), m_pPipelineTimingScope);
+#endif
 }
 
 ezGALPass* ezGALDeviceDX11::BeginPassPlatform(const char* szName)
 {
+#if EZ_ENABLED(EZ_USE_PROFILING)
   m_pPassTimingScope = ezProfilingScopeAndMarker::Start(m_pDefaultPass->m_pRenderCommandEncoder.Borrow(), szName);
+#endif
+
   m_pDefaultPass->BeginPass(szName);
 
   return m_pDefaultPass.Borrow();
@@ -388,7 +395,10 @@ void ezGALDeviceDX11::EndPassPlatform(ezGALPass* pPass)
 {
   EZ_ASSERT_DEV(m_pDefaultPass.Borrow() == pPass, "Invalid pass");
 
+#if EZ_ENABLED(EZ_USE_PROFILING)
   ezProfilingScopeAndMarker::Stop(m_pDefaultPass->m_pRenderCommandEncoder.Borrow(), m_pPassTimingScope);
+#endif
+
   m_pDefaultPass->EndPass();
 }
 
@@ -711,7 +721,10 @@ void ezGALDeviceDX11::BeginFramePlatform(const ezUInt64 uiRenderFrame)
 
   ezStringBuilder sb;
   sb.Format("Frame {}", uiRenderFrame);
+
+#if EZ_ENABLED(EZ_USE_PROFILING)
   m_pFrameTimingScope = ezProfilingScopeAndMarker::Start(m_pDefaultPass->m_pRenderCommandEncoder.Borrow(), sb);
+#endif
 
   // check if fence is reached and wait if the disjoint timer is about to be re-used
   {
@@ -738,7 +751,10 @@ void ezGALDeviceDX11::BeginFramePlatform(const ezUInt64 uiRenderFrame)
 void ezGALDeviceDX11::EndFramePlatform()
 {
   auto& pCommandEncoder = m_pDefaultPass->m_pCommandEncoderImpl;
+
+#if EZ_ENABLED(EZ_USE_PROFILING)
   ezProfilingScopeAndMarker::Stop(m_pDefaultPass->m_pRenderCommandEncoder.Borrow(), m_pFrameTimingScope);
+#endif
 
   // end disjoint query
   {
