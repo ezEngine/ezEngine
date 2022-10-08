@@ -27,10 +27,6 @@ macro(ez_find_qt)
 		Network
 		Svg
 	)
-	
-	if(EZ_CMAKE_PLATFORM_WINDOWS)
-		set(EZ_QT_COMPONENTS ${EZ_QT_COMPONENTS} WinExtras)
-	endif()
 
 	if(EZ_ENABLE_QT_SUPPORT)
 		if(EZ_QT_DIR)
@@ -42,14 +38,18 @@ macro(ez_find_qt)
 	
 	mark_as_advanced(FORCE Qt6_DIR)
 	mark_as_advanced(FORCE Qt6Core_DIR)
+    mark_as_advanced(FORCE Qt6CoreTools_DIR)
 	mark_as_advanced(FORCE Qt6Gui_DIR)
+    mark_as_advanced(FORCE Qt6GuiTools_DIR)
 	mark_as_advanced(FORCE Qt6Widgets_DIR)
+    mark_as_advanced(FORCE Qt6WidgetsTools_DIR)
 	mark_as_advanced(FORCE Qt6Network_DIR)
 	mark_as_advanced(FORCE Qt6Svg_DIR)
-
-	if(EZ_CMAKE_PLATFORM_WINDOWS)
-		mark_as_advanced(FORCE Qt6WinExtras_DIR)
-	endif()
+    mark_as_advanced(FORCE Qt6EntryPointPrivate_DIR)
+    mark_as_advanced(FORCE Qt6ZlibPrivate_DIR)
+    mark_as_advanced(FORCE WINDEPLOYQT_EXECUTABLE)
+    mark_as_advanced(FORCE QT_ADDITIONAL_HOST_PACKAGES_PREFIX_PATH)
+    mark_as_advanced(FORCE QT_ADDITIONAL_PACKAGES_PREFIX_PATH)
 endmacro()
 
 # #####################################
@@ -90,18 +90,16 @@ function(ez_prepare_find_qt)
 		# Clear cached qt dirs
 		set(Qt6_DIR "Qt6_DIR-NOTFOUND" CACHE PATH "" FORCE)
 		set(Qt6Core_DIR "Qt6Core_DIR-NOTFOUND" CACHE PATH "" FORCE)
+        set(Qt6CoreTools_DIR "Qt6CoreTools_DIR-NOTFOUND" CACHE PATH "" FORCE)
 		set(Qt6Gui_DIR "Qt6Gui_DIR-NOTFOUND" CACHE PATH "" FORCE)
+        set(Qt6GuiTools_DIR "Qt6GuiTools_DIR-NOTFOUND" CACHE PATH "" FORCE)
 		set(Qt6Widgets_DIR "Qt6Widgets_DIR-NOTFOUND" CACHE PATH "" FORCE)
+        set(Qt6WidgetsTools_DIR "Qt6WidgetTools_DIR-NOTFOUND" CACHE PATH "" FORCE)
 		set(Qt6Network_DIR "Qt6Network_DIR-NOTFOUND" CACHE PATH "" FORCE)
 		set(Qt6Svg_DIR "Qt6Svg_DIR-NOTFOUND" CACHE PATH "" FORCE)
-
-		if(EZ_CMAKE_PLATFORM_WINDOWS)
-			set(Qt6WinExtras_DIR "Qt6WinExtras_DIR-NOTFOUND" CACHE PATH "" FORCE)
-		endif()
-
-		if(EZ_CMAKE_PLATFORM_LINUX)
-			set(Qt6X11Extras_DIR "Qt6X11Extras_DIR-NOTFOUND" CACHE PATH "" FORCE)
-		endif()
+        set(Qt6ZlibPrivate_DIR "Qt6ZlibPrivate_DIR-NOTFOUND" CACHE PATH "" FORCE)
+        set(Qt6EntryPointPrivate_DIR "Qt6EntryPointPrivate_DIR-NOTFOUND" CACHE PATH "" FORCE)
+        set(WINDEPLOYQT_EXECUTABLE "WINDEPLOYQT_EXECUTABLE-NOTFOUND" CACHE FILEPATH "" FORCE)
 	endif()
 
 	# force find_package to search for Qt in the correct folder
@@ -127,15 +125,6 @@ function(ez_link_target_qt)
 		message(FATAL_ERROR "ez_link_target_qt: Invalid arguments '${FN_ARG_UNPARSED_ARGUMENTS}'")
 	endif()
 
-	if(NOT EZ_CMAKE_PLATFORM_WINDOWS)
-		list(REMOVE_ITEM FN_ARG_COMPONENTS WinExtras)
-	endif()
-
-	if(NOT EZ_CMAKE_PLATFORM_LINUX)
-		list(REMOVE_ITEM FN_ARG_COMPONENTS X11Extras)
-	endif()
-
-
 	get_property(EZ_SUBMODULE_PREFIX_PATH GLOBAL PROPERTY EZ_SUBMODULE_PREFIX_PATH)
 
 	file(RELATIVE_PATH SUB_FOLDER "${CMAKE_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/..")
@@ -145,13 +134,6 @@ function(ez_link_target_qt)
 	target_compile_definitions(${FN_ARG_TARGET} PUBLIC EZ_USE_QT)
 
 	foreach(module ${FN_ARG_COMPONENTS})
-		if(NOT ${EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP})
-			# skip Windows-only components
-			if(${module} STREQUAL "WinExtras")
-				continue()
-			endif()
-		endif()
-
 		target_link_libraries(${FN_ARG_TARGET} PUBLIC "Qt6::${module}")
 
 		if(FN_ARG_COPY_DLLS)
