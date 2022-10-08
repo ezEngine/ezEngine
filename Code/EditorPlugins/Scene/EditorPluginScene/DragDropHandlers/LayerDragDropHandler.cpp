@@ -6,8 +6,8 @@
 #include <EditorPluginScene/DragDropHandlers/LayerDragDropHandler.h>
 #include <EditorPluginScene/Scene/Scene2Document.h>
 #include <GuiFoundation/Action/ActionManager.h>
-#include <QMimeData>
 #include <QIODevice>
+#include <QMimeData>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/Document/DocumentManager.h>
 

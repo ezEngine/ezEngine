@@ -3,7 +3,8 @@
 #include <EditorEngineProcessFramework/IPC/ProcessCommunicationChannel.h>
 #include <EditorFramework/EditorFrameworkDLL.h>
 
-template <typename T> class QList;
+template <typename T>
+class QList;
 class QString;
 using QStringList = QList<QString>;
 class QProcess;
