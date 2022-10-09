@@ -59,17 +59,13 @@ jobs:
     inputs:
       ConnectedServiceName: a416236e-0672-4024-bca3-853beb235e5e
       KeyVaultName: ezKeys
-      SecretsFilter: AzureBlobPW,ThirdPartyWinX64-2
+      SecretsFilter: AzureBlobPW,ThirdPartyWinx64Qt6
   - task: PowerShell@2
     displayName: Download ThirdParty
     inputs:
       targetType: inline
       script: >-
-        if ((Test-Path $(System.DefaultWorkingDirectory)\ThirdPartyWinx64) -and !(Test-Path $(System.DefaultWorkingDirectory)\ThirdPartyWinx64\Qt6-6.4.0-vs143-x64))
-        {
-          Remove-Item -Recurse -Force $(System.DefaultWorkingDirectory)\ThirdPartyWinx64
-        }
-        if (!(Test-Path $(System.DefaultWorkingDirectory)\ThirdPartyWinx64))
+        if (!(Test-Path $(System.DefaultWorkingDirectory)\ThirdPartyWinx64) -or !(Test-Path $(System.DefaultWorkingDirectory)\ThirdPartyWinx64\Qt6-6.4.0-vs143-x64))
         {
           if (!(Test-Path $(System.DefaultWorkingDirectory)\ThirdPartyWinx64))
           {
@@ -84,7 +80,7 @@ jobs:
           & compact /c /s /i /f $(Build.ArtifactStagingDirectory)\
           $url7zip = "https://vstsagenttools.blob.core.windows.net/tools/7zip/1/7zip.zip"
           $output7zip = "./7zip.zip"
-          $urlThirdParty = "$(ThirdPartyWinx64)"
+          $urlThirdParty = "$(ThirdPartyWinx64Qt6)"
           $outputThirdParty = "$(System.DefaultWorkingDirectory)\ThirdParty.7z"
           $output = "$(System.DefaultWorkingDirectory)"
           wget $url7zip -OutFile $output7zip
