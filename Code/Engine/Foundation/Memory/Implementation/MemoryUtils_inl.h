@@ -254,10 +254,15 @@ EZ_ALWAYS_INLINE void ezMemoryUtils::Construct(T* pDestination, size_t uiCount, 
 {
   EZ_CHECK_CLASS(T);
 
+#define EZ_GCC_WARNING_NAME "-Wstringop-overflow"
+#include <Foundation/Basics/Compiler/GCC/DisableWarning_GCC.h>
+
   for (size_t i = 0; i < uiCount; i++)
   {
     ::new (pDestination + i) T();
   }
+
+#include <Foundation/Basics/Compiler/GCC/RestoreWarning_GCC.h>
 }
 
 template <typename T>
@@ -374,10 +379,15 @@ EZ_ALWAYS_INLINE void ezMemoryUtils::Destruct(T* pDestination, size_t uiCount, e
 {
   EZ_CHECK_CLASS(T);
 
-  for (size_t i = uiCount; i-- > 0;)
+#define EZ_GCC_WARNING_NAME "-Waggressive-loop-optimizations"
+#include <Foundation/Basics/Compiler/GCC/DisableWarning_GCC.h>
+
+  for (size_t i = uiCount; i > 0; --i)
   {
-    pDestination[i].~T();
+    pDestination[i - 1].~T();
   }
+
+#include <Foundation/Basics/Compiler/GCC/RestoreWarning_GCC.h>
 }
 
 template <typename T>
@@ -439,9 +449,9 @@ inline void ezMemoryUtils::CopyOverlapped(T* pDestination, const T* pSource, siz
   }
   else
   {
-    for (size_t i = uiCount; i-- > 0;)
+    for (size_t i = uiCount; i > 0; --i)
     {
-      pDestination[i] = pSource[i];
+      pDestination[i - 1] = pSource[i - 1];
     }
   }
 }
@@ -514,9 +524,9 @@ inline void ezMemoryUtils::RelocateOverlapped(T* pDestination, T* pSource, size_
   }
   else
   {
-    for (size_t i = uiCount; i-- > 0;)
+    for (size_t i = uiCount; i > 0; --i)
     {
-      pDestination[i] = std::move(pSource[i]);
+      pDestination[i - 1] = std::move(pSource[i - 1]);
     }
 
     size_t uiDestructCount = pDestination - pSource;
@@ -547,9 +557,9 @@ inline void ezMemoryUtils::Prepend(T* pDestination, const T& source, size_t uiCo
   {
     MoveConstruct(pDestination + uiCount, std::move(pDestination[uiCount - 1]));
 
-    for (size_t i = uiCount - 1; i-- > 0;)
+    for (size_t i = uiCount - 1; i > 0; --i)
     {
-      pDestination[i + 1] = std::move(pDestination[i]);
+      pDestination[i] = std::move(pDestination[i - 1]);
     }
 
     *pDestination = source;
@@ -583,9 +593,9 @@ inline void ezMemoryUtils::Prepend(T* pDestination, T&& source, size_t uiCount, 
   {
     MoveConstruct(pDestination + uiCount, std::move(pDestination[uiCount - 1]));
 
-    for (size_t i = uiCount - 1; i-- > 0;)
+    for (size_t i = uiCount - 1; i > 0; --i)
     {
-      pDestination[i + 1] = std::move(pDestination[i]);
+      pDestination[i] = std::move(pDestination[i - 1]);
     }
 
     *pDestination = std::move(source);

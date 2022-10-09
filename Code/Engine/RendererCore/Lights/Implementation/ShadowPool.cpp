@@ -44,172 +44,169 @@ EZ_END_SUBSYSTEM_DECLARATION;
 ezCVarBool cvar_RenderingShadowsShowPoolStats("Rendering.Shadows.ShowPoolStats", false, ezCVarFlags::Default, "Display same stats of the shadow pool");
 #endif
 
-namespace
+static ezUInt32 s_uiShadowAtlasTextureWidth = 4096; ///\todo make this configurable
+static ezUInt32 s_uiShadowAtlasTextureHeight = 4096;
+static ezUInt32 s_uiShadowMapSize = 1024;
+static ezUInt32 s_uiMinShadowMapSize = 64;
+static float s_fFadeOutScaleStart = (s_uiMinShadowMapSize + 1.0f) / s_uiShadowMapSize;
+static float s_fFadeOutScaleEnd = s_fFadeOutScaleStart * 0.5f;
+
+struct ShadowView
 {
-  static ezUInt32 s_uiShadowAtlasTextureWidth = 4096; ///\todo make this configurable
-  static ezUInt32 s_uiShadowAtlasTextureHeight = 4096;
-  static ezUInt32 s_uiShadowMapSize = 1024;
-  static ezUInt32 s_uiMinShadowMapSize = 64;
-  static float s_fFadeOutScaleStart = (s_uiMinShadowMapSize + 1.0f) / s_uiShadowMapSize;
-  static float s_fFadeOutScaleEnd = s_fFadeOutScaleStart * 0.5f;
+  ezViewHandle m_hView;
+  ezCamera m_Camera;
+};
 
-  struct ShadowView
+struct ShadowData
+{
+  ezHybridArray<ezViewHandle, 6> m_Views;
+  ezUInt32 m_uiType;
+  float m_fShadowMapScale;
+  float m_fPenumbraSize;
+  float m_fSlopeBias;
+  float m_fConstantBias;
+  float m_fFadeOutStart;
+  float m_fMinRange;
+  ezUInt32 m_uiPackedDataOffset; // in 16 bytes steps
+};
+
+struct LightAndRefView
+{
+  EZ_DECLARE_POD_TYPE();
+
+  const ezLightComponent* m_pLight;
+  const ezView* m_pReferenceView;
+};
+
+struct SortedShadowData
+{
+  EZ_DECLARE_POD_TYPE();
+
+  ezUInt32 m_uiIndex;
+  float m_fShadowMapScale;
+
+  EZ_ALWAYS_INLINE bool operator<(const SortedShadowData& other) const
   {
-    ezViewHandle m_hView;
-    ezCamera m_Camera;
-  };
+    if (m_fShadowMapScale > other.m_fShadowMapScale) // we want to sort descending (higher scale first)
+      return true;
 
-  struct ShadowData
+    return m_uiIndex < other.m_uiIndex;
+  }
+};
+
+static ezDynamicArray<SortedShadowData> s_SortedShadowData;
+
+struct AtlasCell
+{
+  EZ_DECLARE_POD_TYPE();
+
+  EZ_ALWAYS_INLINE AtlasCell()
+    : m_Rect(0, 0, 0, 0)
   {
-    ezHybridArray<ezViewHandle, 6> m_Views;
-    ezUInt32 m_uiType;
-    float m_fShadowMapScale;
-    float m_fPenumbraSize;
-    float m_fSlopeBias;
-    float m_fConstantBias;
-    float m_fFadeOutStart;
-    float m_fMinRange;
-    ezUInt32 m_uiPackedDataOffset; // in 16 bytes steps
-  };
+    m_uiChildIndices[0] = m_uiChildIndices[1] = m_uiChildIndices[2] = m_uiChildIndices[3] = 0xFFFF;
+    m_uiDataIndex = ezInvalidIndex;
+  }
 
-  struct LightAndRefView
+  EZ_ALWAYS_INLINE bool IsLeaf() const
   {
-    EZ_DECLARE_POD_TYPE();
+    return m_uiChildIndices[0] == 0xFFFF && m_uiChildIndices[1] == 0xFFFF && m_uiChildIndices[2] == 0xFFFF && m_uiChildIndices[3] == 0xFFFF;
+  }
 
-    const ezLightComponent* m_pLight;
-    const ezView* m_pReferenceView;
-  };
+  ezRectU32 m_Rect;
+  ezUInt16 m_uiChildIndices[4];
+  ezUInt32 m_uiDataIndex;
+};
 
-  struct SortedShadowData
+static ezDeque<AtlasCell> s_AtlasCells;
+
+static AtlasCell* Insert(AtlasCell* pCell, ezUInt32 uiShadowMapSize, ezUInt32 uiDataIndex)
+{
+  if (!pCell->IsLeaf())
   {
-    EZ_DECLARE_POD_TYPE();
-
-    ezUInt32 m_uiIndex;
-    float m_fShadowMapScale;
-
-    EZ_ALWAYS_INLINE bool operator<(const SortedShadowData& other) const
+    for (ezUInt32 i = 0; i < 4; ++i)
     {
-      if (m_fShadowMapScale > other.m_fShadowMapScale) // we want to sort descending (higher scale first)
-        return true;
-
-      return m_uiIndex < other.m_uiIndex;
-    }
-  };
-
-  static ezDynamicArray<SortedShadowData> s_SortedShadowData;
-
-  struct AtlasCell
-  {
-    EZ_DECLARE_POD_TYPE();
-
-    EZ_ALWAYS_INLINE AtlasCell()
-      : m_Rect(0, 0, 0, 0)
-    {
-      m_uiChildIndices[0] = m_uiChildIndices[1] = m_uiChildIndices[2] = m_uiChildIndices[3] = 0xFFFF;
-      m_uiDataIndex = ezInvalidIndex;
-    }
-
-    EZ_ALWAYS_INLINE bool IsLeaf() const
-    {
-      return m_uiChildIndices[0] == 0xFFFF && m_uiChildIndices[1] == 0xFFFF && m_uiChildIndices[2] == 0xFFFF && m_uiChildIndices[3] == 0xFFFF;
-    }
-
-    ezRectU32 m_Rect;
-    ezUInt16 m_uiChildIndices[4];
-    ezUInt32 m_uiDataIndex;
-  };
-
-  static ezDeque<AtlasCell> s_AtlasCells;
-
-  static AtlasCell* Insert(AtlasCell* pCell, ezUInt32 uiShadowMapSize, ezUInt32 uiDataIndex)
-  {
-    if (!pCell->IsLeaf())
-    {
-      for (ezUInt32 i = 0; i < 4; ++i)
+      AtlasCell* pChildCell = &s_AtlasCells[pCell->m_uiChildIndices[i]];
+      if (AtlasCell* pNewCell = Insert(pChildCell, uiShadowMapSize, uiDataIndex))
       {
-        AtlasCell* pChildCell = &s_AtlasCells[pCell->m_uiChildIndices[i]];
-        if (AtlasCell* pNewCell = Insert(pChildCell, uiShadowMapSize, uiDataIndex))
-        {
-          return pNewCell;
-        }
+        return pNewCell;
       }
+    }
 
+    return nullptr;
+  }
+  else
+  {
+    if (pCell->m_uiDataIndex != ezInvalidIndex)
       return nullptr;
-    }
-    else
+
+    if (pCell->m_Rect.width < uiShadowMapSize || pCell->m_Rect.height < uiShadowMapSize)
+      return nullptr;
+
+    if (pCell->m_Rect.width == uiShadowMapSize && pCell->m_Rect.height == uiShadowMapSize)
     {
-      if (pCell->m_uiDataIndex != ezInvalidIndex)
-        return nullptr;
-
-      if (pCell->m_Rect.width < uiShadowMapSize || pCell->m_Rect.height < uiShadowMapSize)
-        return nullptr;
-
-      if (pCell->m_Rect.width == uiShadowMapSize && pCell->m_Rect.height == uiShadowMapSize)
-      {
-        pCell->m_uiDataIndex = uiDataIndex;
-        return pCell;
-      }
-
-      // Split
-      ezUInt32 x = pCell->m_Rect.x;
-      ezUInt32 y = pCell->m_Rect.y;
-      ezUInt32 w = pCell->m_Rect.width / 2;
-      ezUInt32 h = pCell->m_Rect.height / 2;
-
-      ezUInt32 uiCellIndex = s_AtlasCells.GetCount();
-      s_AtlasCells.ExpandAndGetRef().m_Rect = ezRectU32(x, y, w, h);
-      s_AtlasCells.ExpandAndGetRef().m_Rect = ezRectU32(x + w, y, w, h);
-      s_AtlasCells.ExpandAndGetRef().m_Rect = ezRectU32(x, y + h, w, h);
-      s_AtlasCells.ExpandAndGetRef().m_Rect = ezRectU32(x + w, y + h, w, h);
-
-      for (ezUInt32 i = 0; i < 4; ++i)
-      {
-        pCell->m_uiChildIndices[i] = static_cast<ezUInt16>(uiCellIndex + i);
-      }
-
-      AtlasCell* pChildCell = &s_AtlasCells[pCell->m_uiChildIndices[0]];
-      return Insert(pChildCell, uiShadowMapSize, uiDataIndex);
+      pCell->m_uiDataIndex = uiDataIndex;
+      return pCell;
     }
-  }
 
-  static ezRectU32 FindAtlasRect(ezUInt32 uiShadowMapSize, ezUInt32 uiDataIndex)
-  {
-    EZ_ASSERT_DEBUG(ezMath::IsPowerOf2(uiShadowMapSize), "Size must be power of 2");
+    // Split
+    ezUInt32 x = pCell->m_Rect.x;
+    ezUInt32 y = pCell->m_Rect.y;
+    ezUInt32 w = pCell->m_Rect.width / 2;
+    ezUInt32 h = pCell->m_Rect.height / 2;
 
-    AtlasCell* pCell = Insert(&s_AtlasCells[0], uiShadowMapSize, uiDataIndex);
-    if (pCell != nullptr)
+    ezUInt32 uiCellIndex = s_AtlasCells.GetCount();
+    s_AtlasCells.ExpandAndGetRef().m_Rect = ezRectU32(x, y, w, h);
+    s_AtlasCells.ExpandAndGetRef().m_Rect = ezRectU32(x + w, y, w, h);
+    s_AtlasCells.ExpandAndGetRef().m_Rect = ezRectU32(x, y + h, w, h);
+    s_AtlasCells.ExpandAndGetRef().m_Rect = ezRectU32(x + w, y + h, w, h);
+
+    for (ezUInt32 i = 0; i < 4; ++i)
     {
-      EZ_ASSERT_DEBUG(pCell->IsLeaf() && pCell->m_uiDataIndex == uiDataIndex, "Implementation error");
-      return pCell->m_Rect;
+      pCell->m_uiChildIndices[i] = static_cast<ezUInt16>(uiCellIndex + i);
     }
 
-    ezLog::Warning("Shadow Pool is full. Not enough space for a {0}x{0} shadow map. The light will have no shadow.", uiShadowMapSize);
-    return ezRectU32(0, 0, 0, 0);
+    AtlasCell* pChildCell = &s_AtlasCells[pCell->m_uiChildIndices[0]];
+    return Insert(pChildCell, uiShadowMapSize, uiDataIndex);
+  }
+}
+
+static ezRectU32 FindAtlasRect(ezUInt32 uiShadowMapSize, ezUInt32 uiDataIndex)
+{
+  EZ_ASSERT_DEBUG(ezMath::IsPowerOf2(uiShadowMapSize), "Size must be power of 2");
+
+  AtlasCell* pCell = Insert(&s_AtlasCells[0], uiShadowMapSize, uiDataIndex);
+  if (pCell != nullptr)
+  {
+    EZ_ASSERT_DEBUG(pCell->IsLeaf() && pCell->m_uiDataIndex == uiDataIndex, "Implementation error");
+    return pCell->m_Rect;
   }
 
-  static float AddSafeBorder(ezAngle fov, float fPenumbraSize)
+  ezLog::Warning("Shadow Pool is full. Not enough space for a {0}x{0} shadow map. The light will have no shadow.", uiShadowMapSize);
+  return ezRectU32(0, 0, 0, 0);
+}
+
+static float AddSafeBorder(ezAngle fov, float fPenumbraSize)
+{
+  float fHalfHeight = ezMath::Tan(fov * 0.5f);
+  float fNewFov = ezMath::ATan(fHalfHeight + fPenumbraSize).GetDegree() * 2.0f;
+  return fNewFov;
+}
+
+ezTagSet s_ExcludeTagsWhiteList;
+
+static void CopyExcludeTagsOnWhiteList(const ezTagSet& referenceTags, ezTagSet& out_TargetTags)
+{
+  out_TargetTags.Clear();
+  out_TargetTags.SetByName("EditorHidden");
+
+  for (auto& tag : referenceTags)
   {
-    float fHalfHeight = ezMath::Tan(fov * 0.5f);
-    float fNewFov = ezMath::ATan(fHalfHeight + fPenumbraSize).GetDegree() * 2.0f;
-    return fNewFov;
-  }
-
-  ezTagSet s_ExcludeTagsWhiteList;
-
-  static void CopyExcludeTagsOnWhiteList(const ezTagSet& referenceTags, ezTagSet& out_TargetTags)
-  {
-    out_TargetTags.Clear();
-    out_TargetTags.SetByName("EditorHidden");
-
-    for (auto& tag : referenceTags)
+    if (s_ExcludeTagsWhiteList.IsSet(tag))
     {
-      if (s_ExcludeTagsWhiteList.IsSet(tag))
-      {
-        out_TargetTags.Set(tag);
-      }
+      out_TargetTags.Set(tag);
     }
   }
-} // namespace
+}
 
 // must not be in anonymous namespace
 template <>

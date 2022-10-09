@@ -152,11 +152,17 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
 
 /// \cond
 // internal helper macro
-#define EZ_RTTIINFO_DECL(Type, BaseType, Version)    \
-                                                     \
-  const char* GetTypeName(Type*) { return #Type; }   \
-  ezUInt32 GetTypeVersion(Type*) { return Version; } \
-                                                     \
+#define EZ_RTTIINFO_DECL(Type, BaseType, Version) \
+                                                  \
+  const char* GetTypeName(Type*)                  \
+  {                                               \
+    return #Type;                                 \
+  }                                               \
+  ezUInt32 GetTypeVersion(Type*)                  \
+  {                                               \
+    return Version;                               \
+  }                                               \
+                                                  \
   ezRTTI GetRTTI(Type*);
 
 // internal helper macro
@@ -276,7 +282,7 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
 
 
 // [internal] Helper macro to get the return type of a getter function.
-#define EZ_GETTER_TYPE(Class, GetterFunc) decltype(((Class*)nullptr)->GetterFunc())
+#define EZ_GETTER_TYPE(Class, GetterFunc) decltype(std::declval<Class>().GetterFunc())
 
 /// \brief Within a EZ_BEGIN_PROPERTIES / EZ_END_PROPERTIES; block, this adds a property that uses custom getter / setter functions.
 ///
@@ -297,7 +303,7 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
   (new ezAccessorProperty<OwnType, EZ_GETTER_TYPE(OwnType, OwnType::Getter)>(PropertyName, &OwnType::Getter, nullptr))
 
 // [internal] Helper macro to get the return type of a array getter function.
-#define EZ_ARRAY_GETTER_TYPE(Class, GetterFunc) decltype(((Class*)nullptr)->GetterFunc(0))
+#define EZ_ARRAY_GETTER_TYPE(Class, GetterFunc) decltype(std::declval<Class>().GetterFunc(0))
 
 /// \brief Within a EZ_BEGIN_PROPERTIES / EZ_END_PROPERTIES; block, this adds a property that uses custom functions to access an array.
 ///
@@ -322,10 +328,10 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
   (new ezAccessorArrayProperty<OwnType, EZ_ARRAY_GETTER_TYPE(OwnType, OwnType::Getter)>( \
     PropertyName, &OwnType::GetCount, &OwnType::Getter, nullptr, nullptr, nullptr))
 
-#define EZ_SET_CONTAINER_TYPE(Class, GetterFunc) decltype(((Class*)nullptr)->GetterFunc())
+#define EZ_SET_CONTAINER_TYPE(Class, GetterFunc) decltype(std::declval<Class>().GetterFunc())
 
 #define EZ_SET_CONTAINER_SUB_TYPE(Class, GetterFunc) \
-  ezContainerSubTypeResolver<ezTypeTraits<decltype(((Class*)nullptr)->GetterFunc())>::NonConstReferenceType>::Type
+  ezContainerSubTypeResolver<ezTypeTraits<decltype(std::declval<Class>().GetterFunc())>::NonConstReferenceType>::Type
 
 /// \brief Within a EZ_BEGIN_PROPERTIES / EZ_END_PROPERTIES; block, this adds a property that uses custom functions to access a set.
 ///
@@ -424,10 +430,10 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
 
 
 // [internal] Helper macro to get the type of a class member.
-#define EZ_MEMBER_TYPE(Class, Member) decltype(((Class*)nullptr)->Member)
+#define EZ_MEMBER_TYPE(Class, Member) decltype(std::declval<Class>().Member)
 
 #define EZ_MEMBER_CONTAINER_SUB_TYPE(Class, Member) \
-  ezContainerSubTypeResolver<ezTypeTraits<decltype(((Class*)nullptr)->Member)>::NonConstReferenceType>::Type
+  ezContainerSubTypeResolver<ezTypeTraits<decltype(std::declval<Class>().Member)>::NonConstReferenceType>::Type
 
 /// \brief Within a EZ_BEGIN_PROPERTIES / EZ_END_PROPERTIES; block, this adds a property that actually exists as a member.
 ///

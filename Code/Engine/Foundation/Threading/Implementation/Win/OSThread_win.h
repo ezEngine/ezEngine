@@ -25,7 +25,7 @@ typedef struct tagTHREADNAME_INFO
 #pragma pack(pop)
 
 #define EZ_MSVC_WARNING_NUMBER 6312
-#include <Foundation/Basics/Compiler/DisableWarning.h>
+#include <Foundation/Basics/Compiler/MSVC/DisableWarning_MSVC.h>
 
 #if EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
 
@@ -106,7 +106,7 @@ void SetThreadName(HANDLE hThread, LPCSTR szThreadName)
 #endif
 }
 
-#include <Foundation/Basics/Compiler/RestoreWarning.h>
+#include <Foundation/Basics/Compiler/MSVC/RestoreWarning_MSVC.h>
 
 /// \endcond
 

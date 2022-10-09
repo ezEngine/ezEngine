@@ -69,7 +69,7 @@ ezResult ezGALTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGAL
 
   if ((m_imageFormat == vk::Format::eR8G8B8A8Srgb || m_imageFormat == vk::Format::eB8G8R8A8Unorm) && m_Description.m_bCreateRenderTarget)
   {
-    printf("");
+    // printf("");
   }
   createInfo.format = m_imageFormat;
   if (createInfo.format == vk::Format::eUndefined)
