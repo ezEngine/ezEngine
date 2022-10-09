@@ -51,7 +51,7 @@ jobs:
 
       - name: Run CMake
         run: |
-          cmake.exe -S repo -B build -G "Visual Studio 16 2019" -A x64 -DCMAKE_SYSTEM_VERSION:STRING="10.0.18362.0" -DEZ_ENABLE_QT_SUPPORT:BOOL=ON -DEZ_BUILD_PHYSX:BOOL=ON -DEZ_BUILD_SAMPLES:BOOL=ON -DEZ_BUILD_UNITTESTS:BOOL=OFF -DEZ_BUILD_KRAUT:BOOL=ON -DEZ_BUILD_RMLUI:BOOL=ON -DEZ_BUILD_FMOD:BOOL=ON -DEZ_SOLUTION_NAME:string="solution"
+          cmake.exe -S repo -B build -G "Visual Studio 16 2019" -A x64 -DCMAKE_SYSTEM_VERSION:STRING="10.0.18362.0" -DEZ_ENABLE_QT_SUPPORT:BOOL=ON -DEZ_BUILD_UNITTESTS:BOOL=OFF -DEZ_SOLUTION_NAME:string="solution"
 
       - name: Build Full Solution
         run:  msbuild build/solution.sln /p:Configuration=Dev
