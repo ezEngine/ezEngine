@@ -65,6 +65,10 @@ jobs:
     inputs:
       targetType: inline
       script: >-
+        if ((Test-Path $(System.DefaultWorkingDirectory)\ThirdPartyWinx64) -and !(Test-Path $(System.DefaultWorkingDirectory)\ThirdPartyWinx64\Qt6-6.4.0-vs143-x64))
+        {
+          Remove-Item -Recurse -Force $(System.DefaultWorkingDirectory)\ThirdPartyWinx64
+        }
         if (!(Test-Path $(System.DefaultWorkingDirectory)\ThirdPartyWinx64))
         {
           if (!(Test-Path $(System.DefaultWorkingDirectory)\ThirdPartyWinx64))
