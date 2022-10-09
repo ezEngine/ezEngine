@@ -207,6 +207,8 @@ public:
 
 #  define EZ_PROFILE_SCOPE(Name) /*empty*/
 
+#  define EZ_PROFILE_SCOPE_WITH_TIMEOUT(szScopeName, Timeout) /*empty*/
+
 #  define EZ_PROFILE_LIST_SCOPE(szListName, szFirstSectionName) /*empty*/
 
 #  define EZ_PROFILE_LIST_NEXT_SECTION(szNextSectionName) /*empty*/
