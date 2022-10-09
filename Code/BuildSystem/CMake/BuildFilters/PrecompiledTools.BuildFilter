@@ -1,0 +1,29 @@
+set_property(GLOBAL PROPERTY EZ_BUILD_FILTER_PrecompiledTools
+	
+	ArchiveTool
+	enet
+	Texture
+	Core
+    Foundation
+	EditorPluginFileserve
+	GameEngine
+	GuiFoundation
+	RendererCore
+	RendererDX11
+	RendererFoundation
+	ShaderCompilerHLSL
+	ToolsFoundation
+	Fileserve
+	FileservePlugin
+	GdbProxy
+	Inspector
+	MiniDumpTool
+	ozz
+	ShaderCompiler
+	stb_image
+	TexConv
+	zstd
+	mikktspace
+	Utilities
+	ads
+)
