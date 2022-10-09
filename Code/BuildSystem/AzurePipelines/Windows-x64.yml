@@ -87,7 +87,7 @@ jobs:
           Expand-Archive -Path $output7zip -DestinationPath $output -Force
           # Start-BitsTransfer -Source $urlThirdParty -Destination $outputThirdParty
           wget $urlThirdParty -OutFile $outputThirdParty
-          & "$output/7zip/7z.exe" x -p$(AzureBlobPW) $outputThirdParty
+          & "$output/7zip/7z.exe" x -y -p$(AzureBlobPW) $outputThirdParty
           & del $outputThirdParty
         }
   - task: PowerShell@2
