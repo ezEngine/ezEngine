@@ -67,6 +67,11 @@ function(ez_prepare_find_qt)
 
 	# Currently only implemented for x64
 	if(EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP AND EZ_CMAKE_ARCHITECTURE_64BIT)
+        # Upgrade from Qt5 to Qt6 if the EZ_QT_DIR points to a previously automatically downloaded Qt5 package.
+        if("${EZ_QT_DIR}" MATCHES ".*Qt-5\\.13\\.0-vs141-x64")
+            set(EZ_QT_DIR "EZ_QT_DIR-NOTFOUND" CACHE PATH "Directory of the Qt installation" FORCE)
+        endif()
+    
 		if(EZ_CMAKE_ARCHITECTURE_64BIT)
 			set(EZ_SDK_VERSION "${EZ_CONFIG_QT_WINX64_VERSION}")
 			set(EZ_SDK_URL "${EZ_CONFIG_QT_WINX64_URL}")
@@ -132,6 +137,9 @@ function(ez_link_target_qt)
 	target_include_directories(${FN_ARG_TARGET} PUBLIC ${CMAKE_BINARY_DIR}/${SUB_FOLDER})
 
 	target_compile_definitions(${FN_ARG_TARGET} PUBLIC EZ_USE_QT)
+    
+    #Qt6 requires runtime type information
+    target_compile_options(${FN_ARG_TARGET} PRIVATE "/GR")
 
 	foreach(module ${FN_ARG_COMPONENTS})
 		target_link_libraries(${FN_ARG_TARGET} PUBLIC "Qt6::${module}")
