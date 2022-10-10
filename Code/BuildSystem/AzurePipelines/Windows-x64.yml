@@ -65,8 +65,8 @@ jobs:
     inputs:
       targetType: inline
       script: >-
-        #if (!(Test-Path $(System.DefaultWorkingDirectory)\ThirdPartyWinx64) -or !(Test-Path $(System.DefaultWorkingDirectory)\ThirdPartyWinx64\Qt6-6.4.0-vs143-x64))
-        #{
+        if (!(Test-Path $(System.DefaultWorkingDirectory)\ThirdPartyWinx64) -or !(Test-Path $(System.DefaultWorkingDirectory)\ThirdPartyWinx64\Qt6-6.4.0-vs143-x64))
+        {
           if (!(Test-Path $(System.DefaultWorkingDirectory)\ThirdPartyWinx64))
           {
             & mkdir $(System.DefaultWorkingDirectory)\ThirdPartyWinx64
@@ -89,7 +89,7 @@ jobs:
           wget $urlThirdParty -OutFile $outputThirdParty
           & "$output/7zip/7z.exe" x -y -p$(AzureBlobPW) $outputThirdParty
           & del $outputThirdParty
-        #}
+        }
   - task: PowerShell@2
     displayName: Delete old crash dumps
     inputs:
