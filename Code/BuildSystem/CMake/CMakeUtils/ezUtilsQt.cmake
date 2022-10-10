@@ -38,18 +38,18 @@ macro(ez_find_qt)
 	
 	mark_as_advanced(FORCE Qt6_DIR)
 	mark_as_advanced(FORCE Qt6Core_DIR)
-    mark_as_advanced(FORCE Qt6CoreTools_DIR)
+	mark_as_advanced(FORCE Qt6CoreTools_DIR)
 	mark_as_advanced(FORCE Qt6Gui_DIR)
-    mark_as_advanced(FORCE Qt6GuiTools_DIR)
+	mark_as_advanced(FORCE Qt6GuiTools_DIR)
 	mark_as_advanced(FORCE Qt6Widgets_DIR)
-    mark_as_advanced(FORCE Qt6WidgetsTools_DIR)
+	mark_as_advanced(FORCE Qt6WidgetsTools_DIR)
 	mark_as_advanced(FORCE Qt6Network_DIR)
 	mark_as_advanced(FORCE Qt6Svg_DIR)
-    mark_as_advanced(FORCE Qt6EntryPointPrivate_DIR)
-    mark_as_advanced(FORCE Qt6ZlibPrivate_DIR)
-    mark_as_advanced(FORCE WINDEPLOYQT_EXECUTABLE)
-    mark_as_advanced(FORCE QT_ADDITIONAL_HOST_PACKAGES_PREFIX_PATH)
-    mark_as_advanced(FORCE QT_ADDITIONAL_PACKAGES_PREFIX_PATH)
+	mark_as_advanced(FORCE Qt6EntryPointPrivate_DIR)
+	mark_as_advanced(FORCE Qt6ZlibPrivate_DIR)
+	mark_as_advanced(FORCE WINDEPLOYQT_EXECUTABLE)
+	mark_as_advanced(FORCE QT_ADDITIONAL_HOST_PACKAGES_PREFIX_PATH)
+	mark_as_advanced(FORCE QT_ADDITIONAL_PACKAGES_PREFIX_PATH)
 endmacro()
 
 # #####################################
@@ -67,11 +67,11 @@ function(ez_prepare_find_qt)
 
 	# Currently only implemented for x64
 	if(EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP AND EZ_CMAKE_ARCHITECTURE_64BIT)
-        # Upgrade from Qt5 to Qt6 if the EZ_QT_DIR points to a previously automatically downloaded Qt5 package.
-        if("${EZ_QT_DIR}" MATCHES ".*Qt-5\\.13\\.0-vs141-x64")
-            set(EZ_QT_DIR "EZ_QT_DIR-NOTFOUND" CACHE PATH "Directory of the Qt installation" FORCE)
-        endif()
-    
+		# Upgrade from Qt5 to Qt6 if the EZ_QT_DIR points to a previously automatically downloaded Qt5 package.
+		if("${EZ_QT_DIR}" MATCHES ".*Qt-5\\.13\\.0-vs141-x64")
+			set(EZ_QT_DIR "EZ_QT_DIR-NOTFOUND" CACHE PATH "Directory of the Qt installation" FORCE)
+		endif()
+	
 		if(EZ_CMAKE_ARCHITECTURE_64BIT)
 			set(EZ_SDK_VERSION "${EZ_CONFIG_QT_WINX64_VERSION}")
 			set(EZ_SDK_URL "${EZ_CONFIG_QT_WINX64_URL}")
@@ -95,16 +95,16 @@ function(ez_prepare_find_qt)
 		# Clear cached qt dirs
 		set(Qt6_DIR "Qt6_DIR-NOTFOUND" CACHE PATH "" FORCE)
 		set(Qt6Core_DIR "Qt6Core_DIR-NOTFOUND" CACHE PATH "" FORCE)
-        set(Qt6CoreTools_DIR "Qt6CoreTools_DIR-NOTFOUND" CACHE PATH "" FORCE)
+		set(Qt6CoreTools_DIR "Qt6CoreTools_DIR-NOTFOUND" CACHE PATH "" FORCE)
 		set(Qt6Gui_DIR "Qt6Gui_DIR-NOTFOUND" CACHE PATH "" FORCE)
-        set(Qt6GuiTools_DIR "Qt6GuiTools_DIR-NOTFOUND" CACHE PATH "" FORCE)
+		set(Qt6GuiTools_DIR "Qt6GuiTools_DIR-NOTFOUND" CACHE PATH "" FORCE)
 		set(Qt6Widgets_DIR "Qt6Widgets_DIR-NOTFOUND" CACHE PATH "" FORCE)
-        set(Qt6WidgetsTools_DIR "Qt6WidgetTools_DIR-NOTFOUND" CACHE PATH "" FORCE)
+		set(Qt6WidgetsTools_DIR "Qt6WidgetTools_DIR-NOTFOUND" CACHE PATH "" FORCE)
 		set(Qt6Network_DIR "Qt6Network_DIR-NOTFOUND" CACHE PATH "" FORCE)
 		set(Qt6Svg_DIR "Qt6Svg_DIR-NOTFOUND" CACHE PATH "" FORCE)
-        set(Qt6ZlibPrivate_DIR "Qt6ZlibPrivate_DIR-NOTFOUND" CACHE PATH "" FORCE)
-        set(Qt6EntryPointPrivate_DIR "Qt6EntryPointPrivate_DIR-NOTFOUND" CACHE PATH "" FORCE)
-        set(WINDEPLOYQT_EXECUTABLE "WINDEPLOYQT_EXECUTABLE-NOTFOUND" CACHE FILEPATH "" FORCE)
+		set(Qt6ZlibPrivate_DIR "Qt6ZlibPrivate_DIR-NOTFOUND" CACHE PATH "" FORCE)
+		set(Qt6EntryPointPrivate_DIR "Qt6EntryPointPrivate_DIR-NOTFOUND" CACHE PATH "" FORCE)
+		set(WINDEPLOYQT_EXECUTABLE "WINDEPLOYQT_EXECUTABLE-NOTFOUND" CACHE FILEPATH "" FORCE)
 	endif()
 
 	# force find_package to search for Qt in the correct folder
@@ -137,9 +137,11 @@ function(ez_link_target_qt)
 	target_include_directories(${FN_ARG_TARGET} PUBLIC ${CMAKE_BINARY_DIR}/${SUB_FOLDER})
 
 	target_compile_definitions(${FN_ARG_TARGET} PUBLIC EZ_USE_QT)
-    
-    #Qt6 requires runtime type information
-    target_compile_options(${FN_ARG_TARGET} PRIVATE "/GR")
+	
+	if(EZ_CMAKE_COMPILER_MSVC)
+		#Qt6 requires runtime type information
+		target_compile_options(${FN_ARG_TARGET} PRIVATE "/GR")
+	endif()
 
 	foreach(module ${FN_ARG_COMPONENTS})
 		target_link_libraries(${FN_ARG_TARGET} PUBLIC "Qt6::${module}")
