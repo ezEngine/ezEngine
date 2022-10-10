@@ -61,8 +61,8 @@ public:
   void ClearObjectToIgnore();
 
 public:                                               // [ properties ]
-  ezUInt8 m_uiCollisionLayer = 0;                    // [ property ]
-  ezUInt8 m_uiPresenceCollisionLayer = 0;            // [ property ]
+  ezUInt8 m_uiCollisionLayer = 0;                     // [ property ]
+  ezUInt8 m_uiPresenceCollisionLayer = 0;             // [ property ]
   ezBitflags<ezJoltCharacterDebugFlags> m_DebugFlags; // [ property ]
 
   /// \brief The maximum slope that the character can walk up.
