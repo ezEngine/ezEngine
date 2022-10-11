@@ -59,6 +59,26 @@ protected:
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
+struct ezComparisonOperator
+{
+  using StorageType = ezUInt8;
+  enum Enum
+  {
+    Equal,
+    NotEqual,
+    Less,
+    LessEqual,
+    Greater,
+    GreaterEqual,
+
+    Default = Equal
+  };
+
+  static bool Compare(ezComparisonOperator::Enum cmp, double f1, double f2);
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezComparisonOperator);
+
 struct EZ_RENDERERCORE_DLL ezAnimState
 {
   enum class State

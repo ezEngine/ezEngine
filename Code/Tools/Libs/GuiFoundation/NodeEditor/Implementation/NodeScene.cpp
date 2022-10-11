@@ -443,8 +443,6 @@ void ezQtNodeScene::CreateNodeObject(const ezRTTI* pRtti)
     ezAddObjectCommand cmd;
     cmd.m_pType = pRtti;
     cmd.m_NewObjectGuid.CreateNewUuid();
-    // cmd.m_sParentProperty
-    // cmd.m_Parent
     cmd.m_Index = -1;
 
     res = history->AddCommand(cmd);
@@ -820,8 +818,6 @@ void ezQtNodeScene::ConnectPinsAction(const ezPin& sourcePin, const ezPin& targe
     ezAddObjectCommand cmd;
     cmd.m_pType = m_pManager->GetConnectionType();
     cmd.m_NewObjectGuid.CreateNewUuid();
-    // cmd.m_sParentProperty
-    // cmd.m_Parent
     cmd.m_Index = -1;
 
     res = history->AddCommand(cmd);
