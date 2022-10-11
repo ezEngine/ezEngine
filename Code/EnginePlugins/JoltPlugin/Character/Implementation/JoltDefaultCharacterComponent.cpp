@@ -550,6 +550,9 @@ void ezJoltDefaultCharacterComponent::DetermineConfig(Config& out_Inputs)
       case ezJoltDefaultCharacterComponent::GroundState::Sliding:
         // TODO: slide interaction
         break;
+
+      case GroundState::InAir:
+        break;
     }
   }
 
