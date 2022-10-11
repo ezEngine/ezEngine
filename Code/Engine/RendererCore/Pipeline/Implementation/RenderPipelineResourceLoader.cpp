@@ -246,7 +246,7 @@ void ezRenderPipelineResourceLoader::CreateRenderPipelineResourceDescriptor(cons
 
         ezUuid connectionGuid;
         connectionGuid.CreateNewUuid();
-        context.RegisterObject(connectionGuid,pType, &data);
+        context.RegisterObject(connectionGuid, pType, &data);
         rttiConverter.AddObjectToGraph(pType, &data, "Connection");
       }
     }
