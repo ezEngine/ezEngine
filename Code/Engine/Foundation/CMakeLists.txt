@@ -66,9 +66,6 @@ if(EZ_3RDPARTY_GLFW_SUPPORT)
 
 endif()
 
-ez_set_natvis_file(${PROJECT_NAME} "${CMAKE_CURRENT_SOURCE_DIR}/ezEngine.natvis")
-
-
 
 
 

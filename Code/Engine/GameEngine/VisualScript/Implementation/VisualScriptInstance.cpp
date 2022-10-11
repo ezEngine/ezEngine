@@ -103,7 +103,7 @@ void ezVisualScriptInstance::Configure(const ezVisualScriptResourceHandle& hScri
     {
       CreateFunctionCallNode(n, resource);
     }
-    else if (node.m_pType->IsDerivedFrom<ezMessage>())
+    else if (node.m_pType && node.m_pType->IsDerivedFrom<ezMessage>())
     {
       if (node.m_isMsgSender)
       {
@@ -114,7 +114,7 @@ void ezVisualScriptInstance::Configure(const ezVisualScriptResourceHandle& hScri
         CreateMessageHandlerNode(n, resource);
       }
     }
-    else if (node.m_pType->IsDerivedFrom<ezVisualScriptNode>())
+    else if (node.m_pType && node.m_pType->IsDerivedFrom<ezVisualScriptNode>())
     {
       CreateVisualScriptNode(n, resource);
     }

@@ -277,16 +277,6 @@ function(ez_set_application_properties TARGET_NAME)
 endfunction()
 
 # #####################################
-# ## ez_set_natvis_file(<target> <path-to-natvis-file>)
-# #####################################
-function(ez_set_natvis_file TARGET_NAME NATVIS_FILE)
-	# We need at least visual studio 2015 for this to work
-	if((MSVC_VERSION GREATER 1900) OR(MSVC_VERSION EQUAL 1900))
-		target_sources(${TARGET_NAME} PRIVATE ${NATVIS_FILE})
-	endif()
-endfunction()
-
-# #####################################
 # ## ez_make_winmain_executable(<target>)
 # #####################################
 function(ez_make_winmain_executable TARGET_NAME)
@@ -331,6 +321,7 @@ function(ez_glob_source_files ROOT_DIR RESULT_ALL_SOURCES)
 		"${ROOT_DIR}/*.ico"
 		"${ROOT_DIR}/*.rc"
 		"${ROOT_DIR}/*.cmake"
+		"${ROOT_DIR}/*.natvis"
 		"${ROOT_DIR}/CMakeLists.txt"
 	)
 

@@ -287,7 +287,9 @@ void ezJoltDynamicActorComponent::OnSimulationStarted()
 
   if (GetUseCustomCoM())
   {
-    auto vLocalCenterOfMass = ezSimdVec4f(m_vCenterOfMass.x, m_vCenterOfMass.y, m_vCenterOfMass.z);
+    const ezVec3 vGlobalScale = GetOwner()->GetGlobalScaling();
+    const float scale = ezMath::Min(vGlobalScale.x, vGlobalScale.y, vGlobalScale.z);
+    auto vLocalCenterOfMass = ezSimdVec4f(scale * m_vCenterOfMass.x, scale * m_vCenterOfMass.y, scale * m_vCenterOfMass.z);
     auto vPrevCoM = ezJoltConversionUtils::ToSimdVec3(bodyCfg.GetShape()->GetCenterOfMass());
 
     auto vComShift = vLocalCenterOfMass - vPrevCoM;

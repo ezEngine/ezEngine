@@ -7,15 +7,16 @@
 #include <Jolt/Core/Profiler.h>
 #include <Jolt/Core/FPException.h>
 
-JPH_SUPPRESS_WARNINGS_STD_BEGIN
-#include <algorithm>
-JPH_SUPPRESS_WARNINGS_STD_END
-
 #ifdef JPH_PLATFORM_WINDOWS
 	JPH_SUPPRESS_WARNING_PUSH
 	JPH_MSVC_SUPPRESS_WARNING(5039) // winbase.h(13179): warning C5039: 'TpSetCallbackCleanupGroup': pointer or reference to potentially throwing function passed to 'extern "C"' function under -EHc. Undefined behavior may occur if this function throws an exception.
 	#define WIN32_LEAN_AND_MEAN
+#ifndef JPH_COMPILER_MINGW
 	#include <Windows.h>
+#else
+	#include <windows.h>
+#endif
+
 	JPH_SUPPRESS_WARNING_POP
 #endif
 
@@ -482,7 +483,7 @@ void JobSystemThreadPool::QueueJobs(Job **inJobs, uint inNumJobs)
 	mSemaphore.Release(min(inNumJobs, (uint)mThreads.size()));
 }
 
-#ifdef JPH_PLATFORM_WINDOWS
+#if defined(JPH_PLATFORM_WINDOWS) && !defined(JPH_COMPILER_MINGW) // MinGW doesn't support __try/__except
 
 // Sets the current thread name in MSVC debugger
 static void SetThreadName(const char *inName)
@@ -514,7 +515,7 @@ static void SetThreadName(const char *inName)
 	}
 }
 
-#endif
+#endif // JPH_PLATFORM_WINDOWS && !JPH_COMPILER_MINGW
 
 void JobSystemThreadPool::ThreadMain(int inThreadIndex)
 {
@@ -522,9 +523,9 @@ void JobSystemThreadPool::ThreadMain(int inThreadIndex)
 	char name[64];
 	snprintf(name, sizeof(name), "Worker %d", int(inThreadIndex + 1));
 
-#ifdef JPH_PLATFORM_WINDOWS
+#if defined(JPH_PLATFORM_WINDOWS) && !defined(JPH_COMPILER_MINGW)
 	SetThreadName(name);
-#endif
+#endif // JPH_PLATFORM_WINDOWS && !JPH_COMPILER_MINGW
 
 	// Enable floating point exceptions
 	FPExceptionsEnable enable_exceptions;

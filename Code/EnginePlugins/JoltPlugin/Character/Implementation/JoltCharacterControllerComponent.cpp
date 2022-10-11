@@ -7,6 +7,7 @@
 #include <GameEngine/Physics/CharacterControllerComponent.h>
 #include <JoltPlugin/Character/JoltCharacterControllerComponent.h>
 #include <JoltPlugin/Resources/JoltMaterial.h>
+#include <JoltPlugin/System/JoltCore.h>
 #include <JoltPlugin/System/JoltWorldModule.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 
@@ -14,7 +15,7 @@
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(ezJoltCharacterDebugFlags, 1)
-EZ_BITFLAGS_CONSTANTS(ezJoltCharacterDebugFlags::PrintState, ezJoltCharacterDebugFlags::VisShape, ezJoltCharacterDebugFlags::VisContacts,  ezJoltCharacterDebugFlags::VisCasts, ezJoltCharacterDebugFlags::VisGroundContact)
+EZ_BITFLAGS_CONSTANTS(ezJoltCharacterDebugFlags::PrintState, ezJoltCharacterDebugFlags::VisShape, ezJoltCharacterDebugFlags::VisContacts,  ezJoltCharacterDebugFlags::VisCasts, ezJoltCharacterDebugFlags::VisGroundContact, ezJoltCharacterDebugFlags::VisFootCheck)
 EZ_END_STATIC_REFLECTED_BITFLAGS;
 
 EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezJoltCharacterControllerComponent, 1)
@@ -22,9 +23,10 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezJoltCharacterControllerComponent, 1)
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
+    EZ_MEMBER_PROPERTY("PresenceCollisionLayer", m_uiPresenceCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
     EZ_ACCESSOR_PROPERTY("Mass", GetMass, SetMass)->AddAttributes(new ezDefaultValueAttribute(70.0f), new ezClampValueAttribute(0.1f, 10000.0f)),
     EZ_ACCESSOR_PROPERTY("Strength", GetStrength, SetStrength)->AddAttributes(new ezDefaultValueAttribute(500.0f), new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_ACCESSOR_PROPERTY("MaxClimbingSlope", GetMaxClimbingSlope, SetMaxClimbingSlope)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(45))),
+    EZ_ACCESSOR_PROPERTY("MaxClimbingSlope", GetMaxClimbingSlope, SetMaxClimbingSlope)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(40))),
     EZ_BITFLAGS_MEMBER_PROPERTY("DebugFlags", ezJoltCharacterDebugFlags , m_DebugFlags),
   }
   EZ_END_PROPERTIES;
@@ -58,6 +60,7 @@ void ezJoltCharacterControllerComponent::SerializeComponent(ezWorldWriter& strea
   s << m_DebugFlags;
 
   s << m_uiCollisionLayer;
+  s << m_uiPresenceCollisionLayer;
   s << m_fMass;
   s << m_fStrength;
   s << m_MaxClimbingSlope;
@@ -72,6 +75,7 @@ void ezJoltCharacterControllerComponent::DeserializeComponent(ezWorldReader& str
   s >> m_DebugFlags;
 
   s >> m_uiCollisionLayer;
+  s >> m_uiPresenceCollisionLayer;
   s >> m_fMass;
   s >> m_fStrength;
   s >> m_MaxClimbingSlope;
@@ -112,6 +116,8 @@ void ezJoltCharacterControllerComponent::OnSimulationStarted()
   m_pCharacter->AddRef();
 
   pModule->ActivateCharacterController(this, true);
+
+  CreatePresenceBody();
 }
 
 void ezJoltCharacterControllerComponent::SetMaxClimbingSlope(ezAngle slope)
@@ -153,36 +159,151 @@ ezResult ezJoltCharacterControllerComponent::TryChangeShape(JPH::Shape* pNewShap
 
   if (m_pCharacter->SetShape(pNewShape, 0.01f, broadphaseFilter, objectFilter, m_BodyFilter, *pModule->GetTempAllocator()))
   {
+    RemovePresenceBody();
+    CreatePresenceBody();
+
     return EZ_SUCCESS;
   }
 
   return EZ_FAILURE;
 }
 
-void ezJoltCharacterControllerComponent::RawMoveWithVelocity(const ezVec3& vVelocity)
+bool ezJoltCharacterControllerComponent::RawMoveWithVelocity(const ezVec3& vVelocity, float fMaxStairStepUp)
 {
-  if (vVelocity.IsZero())
-    return;
-
   ezJoltWorldModule* pModule = GetWorld()->GetModule<ezJoltWorldModule>();
 
   ezJoltBroadPhaseLayerFilter broadphaseFilter(ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic);
   ezJoltObjectLayerFilter objectFilter(m_uiCollisionLayer);
 
-  // TODO: set/try rotation on Jolt CC ?
+  JPH::Vec3 old_position = m_pCharacter->GetPosition();
 
   m_pCharacter->SetLinearVelocity(ezJoltConversionUtils::ToVec3(vVelocity));
-  m_pCharacter->Update(GetUpdateTimeDelta(), JPH::Vec3::sZero(), broadphaseFilter, objectFilter, m_BodyFilter, *pModule->GetTempAllocator());
+  m_pCharacter->Update(GetUpdateTimeDelta(), ezJoltConversionUtils::ToVec3(pModule->GetCharacterGravity()), broadphaseFilter, objectFilter, m_BodyFilter, *pModule->GetTempAllocator());
+
+  // TODO: set/try rotation on Jolt CC ?
+  bool bStepped = false;
+
+  if (fMaxStairStepUp > 0)
+  {
+    // ezDebugRenderer::DrawInfoText(GetWorld(), ezDebugRenderer::ScreenPlacement::TopLeft, "Stair", "Step Stairs enabled", ezColor::GreenYellow);
+
+    JPH::Vec3 mDesiredVelocity = ezJoltConversionUtils::ToVec3(vVelocity);
+    // Calculate how much we wanted to move horizontally
+    JPH::Vec3 desired_horizontal_step = mDesiredVelocity * GetUpdateTimeDelta();
+    desired_horizontal_step.SetZ(0);
+    float desired_horizontal_step_len = desired_horizontal_step.Length();
+
+    // Calculate how much we moved horizontally
+    JPH::Vec3 achieved_horizontal_step = m_pCharacter->GetPosition() - old_position;
+    achieved_horizontal_step.SetZ(0);
+    float achieved_horizontal_step_len = achieved_horizontal_step.Length();
+
+    // If we didn't move as far as we wanted and we're against a slope that's too steep
+    if (achieved_horizontal_step_len + 1.0e-4f < desired_horizontal_step_len)
+    {
+      // ezDebugRenderer::DrawInfoText(GetWorld(), ezDebugRenderer::ScreenPlacement::TopLeft, "Stair", "Not far enough", ezColor::BlueViolet);
+
+      if (m_pCharacter->CanWalkStairs(mDesiredVelocity))
+      {
+        // Calculate how much we should step forward
+        JPH::Vec3 step_forward_normalized = desired_horizontal_step / desired_horizontal_step_len;
+        JPH::Vec3 step_forward = step_forward_normalized * ezMath::Max(0.02f, desired_horizontal_step_len - achieved_horizontal_step_len);
+
+        const float cMinStepForward = 0.3f; // TODO doesn't seem to have an effect ?
+
+        // Calculate how far to scan ahead for a floor
+        JPH::Vec3 step_forward_test = step_forward_normalized * cMinStepForward;
+
+        const JPH::Vec3 stepUp(0, 0, fMaxStairStepUp);
+
+        // ezDebugRenderer::DrawInfoText(GetWorld(), ezDebugRenderer::ScreenPlacement::TopLeft, "Stair", "Walk Stairs", ezColor::OrangeRed);
+
+        bStepped = m_pCharacter->WalkStairs(GetUpdateTimeDelta(), JPH::Vec3(0, 0, -10) /*gravity*/, stepUp, step_forward, step_forward_test, JPH::Vec3::sZero(), broadphaseFilter, objectFilter, m_BodyFilter, *pModule->GetTempAllocator());
+      }
+    }
+  }
 
   GetOwner()->SetGlobalPosition(ezJoltConversionUtils::ToSimdVec3(m_pCharacter->GetPosition()));
+
+  return bStepped;
 }
+
+// float ezJoltCharacterControllerComponent::ClampedRawMoveIntoDirection(const ezVec3& vDirection)
+//{
+//   float fMaxDistance = vDirection.GetLength();
+//
+//   if (fMaxDistance <= 0.0f)
+//     return 0.0f;
+//
+//   const ezVec3 vDirNormal = vDirection / fMaxDistance;
+//   const ezVec3 vShapePos = ezJoltConversionUtils::ToVec3(GetJoltCharacter()->GetCenterOfMassTransform().GetTranslation());
+//
+//   ezHybridArray<ContactPoint, 32> contacts;
+//   CollectCastContacts(contacts, GetJoltCharacter()->GetShape(), vShapePos, ezQuat::IdentityQuaternion(), vDirection /*+ vDirNormal*/);
+//
+//   ezDebugRenderer::DrawCross(GetWorld(), vShapePos, 0.2f, ezColor::GreenYellow);
+//
+//
+//   const float fPadding = GetJoltCharacter()->GetCharacterPadding();
+//   float fMoveDistance = fMaxDistance;
+//
+//   if (!contacts.IsEmpty())
+//   {
+//     // float fFraction = 1.0f;
+//
+//     ezQuat rot;
+//     ezUInt32 uiClosestContact = 0;
+//     float fClosestContact = 1.1f;
+//
+//     for (ezUInt32 c = 0; c < contacts.GetCount(); ++c)
+//     {
+//       if (contacts[c].m_fCastFraction < fClosestContact)
+//       {
+//         uiClosestContact = c;
+//         fClosestContact = contacts[c].m_fCastFraction;
+//       }
+//     }
+//
+//     const ContactPoint& cont = contacts[uiClosestContact];
+//     const ezAngle alpha = ezMath::ACos(cont.m_vContactNormal.Dot(-vDirNormal));
+//     const float sinAlpha = ezMath::Sin(alpha);
+//     const float gegenKath = fPadding;
+//     const float fHypoth = gegenKath / sinAlpha;
+//
+//     // for (const ContactPoint& contact : contacts)
+//     //{
+//     //   // ignore contacts that we are moving away from or parallel to
+//     //   if (contact.m_vContactNormal.Dot(vDirNormal) >= 0.0f)
+//     //   {
+//     //     rot.SetShortestRotation(ezVec3::UnitXAxis(), contact.m_vContactNormal);
+//     //     ezDebugRenderer::DrawCylinder(GetWorld(), 0.0f, 0.05f, 0.1f, ezColor::ZeroColor(), ezColor::DimGrey, ezTransform(contact.m_vPosition, rot));
+//     //     continue;
+//     //   }
+//
+//     //  fFraction = ezMath::Min(contact.m_fCastFraction, fFraction);
+//     fMoveDistance = ezMath::Min((fMaxDistance /*+ 1.0f*/) * cont.m_fCastFraction, fMaxDistance) - fHypoth;
+//
+//     //  {
+//     //    rot.SetShortestRotation(ezVec3::UnitXAxis(), contact.m_vContactNormal);
+//     //    ezDebugRenderer::DrawCylinder(GetWorld(), 0.0f, 0.05f, 0.1f, ezColor::ZeroColor(), ezColor::Black, ezTransform(contact.m_vPosition, rot));
+//     //  }
+//     //}
+//   }
+//
+//   if (fMoveDistance > 0.0)
+//   {
+//     RawMoveIntoDirection(vDirNormal * fMoveDistance, false);
+//   }
+//
+//   return fMaxDistance;
+// }
 
 void ezJoltCharacterControllerComponent::RawMoveIntoDirection(const ezVec3& vDirection)
 {
   if (vDirection.IsZero())
     return;
 
-  RawMoveWithVelocity(vDirection * GetInverseUpdateTimeDelta());
+  RawMoveWithVelocity(vDirection * GetInverseUpdateTimeDelta(), 0.0f);
 }
 
 void ezJoltCharacterControllerComponent::RawMoveToPosition(const ezVec3& vTargetPosition)
@@ -200,6 +321,19 @@ void ezJoltCharacterControllerComponent::TeleportToPosition(const ezVec3& vGloba
   ezJoltWorldModule* pModule = GetWorld()->GetModule<ezJoltWorldModule>();
 
   m_pCharacter->RefreshContacts(broadphaseFilter, objectFilter, m_BodyFilter, *pModule->GetTempAllocator());
+}
+
+bool ezJoltCharacterControllerComponent::StickToGround(float fMaxDist)
+{
+  if (m_pCharacter->GetGroundState() != JPH::CharacterBase::EGroundState::InAir)
+    return false;
+
+  ezJoltBroadPhaseLayerFilter broadphaseFilter(ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic);
+  ezJoltObjectLayerFilter objectFilter(m_uiCollisionLayer);
+
+  ezJoltWorldModule* pModule = GetWorld()->GetModule<ezJoltWorldModule>();
+
+  return m_pCharacter->StickToFloor(JPH::Vec3(0, 0, -fMaxDist), broadphaseFilter, objectFilter, m_BodyFilter, *pModule->GetTempAllocator());
 }
 
 void ezJoltCharacterControllerComponent::CollectCastContacts(ezDynamicArray<ContactPoint>& out_Contacts, const JPH::Shape* pShape, const ezVec3& vQueryPosition, const ezQuat& qQueryRotation, const ezVec3& vSweepDir) const
@@ -281,6 +415,7 @@ void ezJoltCharacterControllerComponent::CollectContacts(ezDynamicArray<ContactP
 
   JPH::CollideShapeSettings settings;
   settings.mCollisionTolerance = fCollisionTolerance;
+  settings.mBackFaceMode = JPH::EBackFaceMode::CollideWithBackFaces;
 
   pJoltSystem->GetNarrowPhaseQuery().CollideShape(pShape, JPH::Vec3::sReplicate(1.0f), trans, settings, collector, broadphaseFilter, objectFilter, m_BodyFilter);
 }
@@ -345,101 +480,101 @@ void ezJoltCharacterControllerComponent::SpawnContactInteraction(const ContactPo
   }
 }
 
-ezBitflags<ezJoltCharacterControllerComponent::ShapeContacts> ezJoltCharacterControllerComponent::ClassifyContacts(const ezDynamicArray<ContactPoint>& contacts, ezAngle maxSlopeAngle, const ezVec3& vCenterPos, ezUInt32* out_pBestGroundContact)
-{
-  ezBitflags<ShapeContacts> flags;
-
-  if (contacts.IsEmpty())
-    return flags;
-
-  const float fMaxSlopeAngleCos = ezMath::Cos(maxSlopeAngle);
-
-  float fFlattestContactCos = -2.0f;    // overall flattest contact point
-  float fClosestContactFraction = 2.0f; // closest contact point that is flat enough
-
-  if (out_pBestGroundContact)
-    *out_pBestGroundContact = ezInvalidIndex;
-
-  for (ezUInt32 idx = 0; idx < contacts.GetCount(); ++idx)
-  {
-    const auto& contact = contacts[idx];
-
-    const float fContactAngleCos = contact.m_vSurfaceNormal.Dot(ezVec3(0, 0, 1));
-
-    if (contact.m_vPosition.z > vCenterPos.z) // contact above
-    {
-      if (fContactAngleCos < -fMaxSlopeAngleCos)
-      {
-        // TODO: have dedicated max angle value
-        flags.Add(ShapeContacts::Ceiling);
-      }
-    }
-    else // contact below
-    {
-      if (fContactAngleCos > fMaxSlopeAngleCos) // is contact flat enough to stand on?
-      {
-        flags.Add(ShapeContacts::FlatGround);
-
-        if (out_pBestGroundContact && contact.m_fCastFraction < fClosestContactFraction) // contact closer than previous one?
-        {
-          fClosestContactFraction = contact.m_fCastFraction;
-          *out_pBestGroundContact = idx;
-        }
-      }
-      else
-      {
-        flags.Add(ShapeContacts::SteepGround);
-
-        if (out_pBestGroundContact && fContactAngleCos > fFlattestContactCos) // is contact flatter than previous one?
-        {
-          fFlattestContactCos = fContactAngleCos;
-
-          if (!flags.IsSet(ShapeContacts::FlatGround))
-          {
-            *out_pBestGroundContact = idx;
-          }
-        }
-      }
-    }
-  }
-
-  if (flags.IsSet(ShapeContacts::FlatGround))
-  {
-    flags.Remove(ShapeContacts::SteepGround);
-  }
-
-  if (flags.IsSet(ShapeContacts::SteepGround))
-  {
-    return flags;
-  }
-
-  return flags;
-}
-
-ezUInt32 ezJoltCharacterControllerComponent::FindFlattestContact(const ezDynamicArray<ContactPoint>& contacts, const ezVec3& vNormal, ContactFilter filter)
-{
-  ezUInt32 uiBestIdx = ezInvalidIndex;
-
-  float fFlattestContactCos = -2.0f; // overall flattest contact point
-
-  for (ezUInt32 idx = 0; idx < contacts.GetCount(); ++idx)
-  {
-    const auto& contact = contacts[idx];
-
-    if (filter.IsValid() && !filter(contact))
-      continue;
-
-    const float fContactAngleCos = contact.m_vSurfaceNormal.Dot(ezVec3(0, 0, 1));
-
-    if (fContactAngleCos > fFlattestContactCos) // is contact flatter than previous one?
-    {
-      fFlattestContactCos = fContactAngleCos;
-      uiBestIdx = idx;
-    }
-  }
-
-  return uiBestIdx;
-}
+// ezBitflags<ezJoltCharacterControllerComponent::ShapeContacts> ezJoltCharacterControllerComponent::ClassifyContacts(const ezDynamicArray<ContactPoint>& contacts, ezAngle maxSlopeAngle, const ezVec3& vCenterPos, ezUInt32* out_pBestGroundContact)
+//{
+//   ezBitflags<ShapeContacts> flags;
+//
+//   if (contacts.IsEmpty())
+//     return flags;
+//
+//   const float fMaxSlopeAngleCos = ezMath::Cos(maxSlopeAngle);
+//
+//   float fFlattestContactCos = -2.0f;    // overall flattest contact point
+//   float fClosestContactFraction = 2.0f; // closest contact point that is flat enough
+//
+//   if (out_pBestGroundContact)
+//     *out_pBestGroundContact = ezInvalidIndex;
+//
+//   for (ezUInt32 idx = 0; idx < contacts.GetCount(); ++idx)
+//   {
+//     const auto& contact = contacts[idx];
+//
+//     const float fContactAngleCos = contact.m_vSurfaceNormal.Dot(ezVec3(0, 0, 1));
+//
+//     if (contact.m_vPosition.z > vCenterPos.z) // contact above
+//     {
+//       if (fContactAngleCos < -fMaxSlopeAngleCos)
+//       {
+//         // TODO: have dedicated max angle value
+//         flags.Add(ShapeContacts::Ceiling);
+//       }
+//     }
+//     else // contact below
+//     {
+//       if (fContactAngleCos > fMaxSlopeAngleCos) // is contact flat enough to stand on?
+//       {
+//         flags.Add(ShapeContacts::FlatGround);
+//
+//         if (out_pBestGroundContact && contact.m_fCastFraction < fClosestContactFraction) // contact closer than previous one?
+//         {
+//           fClosestContactFraction = contact.m_fCastFraction;
+//           *out_pBestGroundContact = idx;
+//         }
+//       }
+//       else
+//       {
+//         flags.Add(ShapeContacts::SteepGround);
+//
+//         if (out_pBestGroundContact && fContactAngleCos > fFlattestContactCos) // is contact flatter than previous one?
+//         {
+//           fFlattestContactCos = fContactAngleCos;
+//
+//           if (!flags.IsSet(ShapeContacts::FlatGround))
+//           {
+//             *out_pBestGroundContact = idx;
+//           }
+//         }
+//       }
+//     }
+//   }
+//
+//   if (flags.IsSet(ShapeContacts::FlatGround))
+//   {
+//     flags.Remove(ShapeContacts::SteepGround);
+//   }
+//
+//   if (flags.IsSet(ShapeContacts::SteepGround))
+//   {
+//     return flags;
+//   }
+//
+//   return flags;
+// }
+//
+// ezUInt32 ezJoltCharacterControllerComponent::FindFlattestContact(const ezDynamicArray<ContactPoint>& contacts, const ezVec3& vNormal, ContactFilter filter)
+//{
+//   ezUInt32 uiBestIdx = ezInvalidIndex;
+//
+//   float fFlattestContactCos = -2.0f; // overall flattest contact point
+//
+//   for (ezUInt32 idx = 0; idx < contacts.GetCount(); ++idx)
+//   {
+//     const auto& contact = contacts[idx];
+//
+//     if (filter.IsValid() && !filter(contact))
+//       continue;
+//
+//     const float fContactAngleCos = contact.m_vSurfaceNormal.Dot(ezVec3(0, 0, 1));
+//
+//     if (fContactAngleCos > fFlattestContactCos) // is contact flatter than previous one?
+//     {
+//       fFlattestContactCos = fContactAngleCos;
+//       uiBestIdx = idx;
+//     }
+//   }
+//
+//   return uiBestIdx;
+// }
 
 void ezJoltCharacterControllerComponent::VisualizeContact(const ContactPoint& contact, const ezColor& color) const
 {
@@ -464,5 +599,83 @@ void ezJoltCharacterControllerComponent::Update(ezTime deltaTime)
   m_fUpdateTimeDelta = deltaTime.AsFloatInSeconds();
   m_fInverseUpdateTimeDelta = static_cast<float>(1.0 / deltaTime.GetSeconds());
 
+  MovePresenceBody(deltaTime);
+
   UpdateCharacter();
+}
+
+void ezJoltCharacterControllerComponent::CreatePresenceBody()
+{
+  ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
+  const ezSimdTransform trans = GetOwner()->GetGlobalTransformSimd();
+
+  auto* pSystem = pModule->GetJoltSystem();
+  auto* pBodies = &pSystem->GetBodyInterface();
+  auto* pMaterial = ezJoltCore::GetDefaultMaterial();
+
+  JPH::BodyCreationSettings bodyCfg;
+  bodyCfg.SetShape(m_pCharacter->GetShape());
+
+  ezJoltUserData* pUserData = nullptr;
+  m_uiUserDataIndex = pModule->AllocateUserData(pUserData);
+  pUserData->Init(this);
+
+  ezUInt32 m_uiObjectFilterID = pModule->CreateObjectFilterID();
+
+  bodyCfg.mPosition = ezJoltConversionUtils::ToVec3(trans.m_Position);
+  bodyCfg.mRotation = ezJoltConversionUtils::ToQuat(trans.m_Rotation);
+  bodyCfg.mMotionType = JPH::EMotionType::Kinematic;
+  bodyCfg.mObjectLayer = ezJoltCollisionFiltering::ConstructObjectLayer(m_uiPresenceCollisionLayer, ezJoltBroadphaseLayer::Character);
+  bodyCfg.mCollisionGroup.SetGroupID(m_uiObjectFilterID);
+  bodyCfg.mCollisionGroup.SetGroupFilter(pModule->GetGroupFilter());
+  bodyCfg.mUserData = reinterpret_cast<ezUInt64>(pUserData);
+
+  JPH::Body* pBody = pBodies->CreateBody(bodyCfg);
+  m_uiPresenceBodyID = pBody->GetID().GetIndexAndSequenceNumber();
+
+  pModule->QueueBodyToAdd(pBody);
+}
+
+void ezJoltCharacterControllerComponent::RemovePresenceBody()
+{
+  if (m_uiPresenceBodyID == ezInvalidIndex)
+    return;
+
+  JPH::BodyID bodyId(m_uiPresenceBodyID);
+
+  m_uiPresenceBodyID = ezInvalidIndex;
+
+  if (bodyId.IsInvalid())
+    return;
+
+  ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
+  auto* pSystem = pModule->GetJoltSystem();
+  auto* pBodies = &pSystem->GetBodyInterface();
+
+  pBodies->RemoveBody(bodyId);
+  pBodies->DestroyBody(bodyId);
+
+  pModule->DeallocateUserData(m_uiUserDataIndex);
+  // pModule->DeleteObjectFilterID(m_uiObjectFilterID);
+}
+
+void ezJoltCharacterControllerComponent::MovePresenceBody(ezTime deltaTime)
+{
+  if (m_uiPresenceBodyID == ezInvalidIndex)
+    return;
+
+  JPH::BodyID bodyId(m_uiPresenceBodyID);
+
+  if (bodyId.IsInvalid())
+    return;
+
+  ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
+  auto* pSystem = pModule->GetJoltSystem();
+  auto* pBodies = &pSystem->GetBodyInterface();
+
+  const ezSimdTransform trans = GetOwner()->GetGlobalTransformSimd();
+
+  const float tDiff = deltaTime.AsFloatInSeconds();
+
+  pBodies->MoveKinematic(bodyId, ezJoltConversionUtils::ToVec3(trans.m_Position), ezJoltConversionUtils::ToQuat(trans.m_Rotation).Normalized(), tDiff);
 }

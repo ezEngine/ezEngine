@@ -11,7 +11,7 @@ o
 		s %AssetType{"Visual Script"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{3949384846659947393,5637688191052284832}}
-		u4 %Hash{7568039336641364269}
+		u4 %Hash{13354908550709982701}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{3562346173113476036,8270073927138974508}}
@@ -62,22 +62,6 @@ o
 }
 o
 {
-	Uuid %id{u4{13862088510191465384,4935852612466815634}}
-	s %t{"VisualScriptNode::ezVisualScriptNode_PxTriggerEvent"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Node::Connections
-		{
-			Uuid{u4{17678322426543137705,6711846872291065290}}
-			Uuid{u4{10734599634740102229,13935977859858548028}}
-		}
-		Vec2 %Node::Pos{f{0x83FB28C2,0x00002CC3}}
-		s %TriggerMessage{"PlayerTrigger"}
-	}
-}
-o
-{
 	Uuid %id{u4{2637648115808772797,5167344017837647598}}
 	s %t{"VisualScriptNode::ezVisualScriptNode_FindComponent"}
 	u3 %v{1}
@@ -90,6 +74,22 @@ o
 		}
 		Vec2 %Node::Pos{f{0x5755E542,0x90E91C42}}
 		s %Type{"ezTransformComponent"}
+	}
+}
+o
+{
+	Uuid %id{u4{759278611469782424,5178905510288376107}}
+	s %t{"VisualScriptNode::ezVisualScriptNode_PhysicsTriggerEvent"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Node::Connections
+		{
+			Uuid{u4{492836070288298300,6743136830560714692}}
+			Uuid{u4{4477660008615398881,10705811984756258048}}
+		}
+		Vec2 %Node::Pos{f{0xAFFAA4C2,0x7F4987C3}}
+		s %TriggerMessage{"PlayerTrigger"}
 	}
 }
 o
@@ -114,6 +114,7 @@ o
 	{
 		VarArray %BoolParameters{}
 		VarArray %NumberParameters{}
+		VarArray %StringParameters{}
 	}
 }
 o
@@ -127,17 +128,17 @@ o
 		VarArray %Children
 		{
 			Uuid{u4{3323364086108825744,5376883940726220846}}
-			Uuid{u4{13862088510191465384,4935852612466815634}}
 			Uuid{u4{2637648115808772797,5167344017837647598}}
 			Uuid{u4{15133297846160176825,4732198566198166217}}
 			Uuid{u4{7680083676092114585,5227582488650009750}}
 			Uuid{u4{13611487421288186664,10563286944659151943}}
+			Uuid{u4{759278611469782424,5178905510288376107}}
 		}
 	}
 }
 o
 {
-	Uuid %id{u4{17678322426543137705,6711846872291065290}}
+	Uuid %id{u4{492836070288298300,6743136830560714692}}
 	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
 	p
@@ -162,6 +163,18 @@ o
 }
 o
 {
+	Uuid %id{u4{4477660008615398881,10705811984756258048}}
+	s %t{"DocumentNodeManagerConnectionInternal"}
+	u3 %v{1}
+	p
+	{
+		s %SourcePin{"OnDeactivated"}
+		Uuid %Target{u4{7680083676092114585,5227582488650009750}}
+		s %TargetPin{"run"}
+	}
+}
+o
+{
 	Uuid %id{u4{15698615623467960568,11785733594183921061}}
 	s %t{"DocumentNodeManagerConnectionInternal"}
 	u3 %v{1}
@@ -170,18 +183,6 @@ o
 		s %SourcePin{"Component"}
 		Uuid %Target{u4{13611487421288186664,10563286944659151943}}
 		s %TargetPin{"Component"}
-	}
-}
-o
-{
-	Uuid %id{u4{10734599634740102229,13935977859858548028}}
-	s %t{"DocumentNodeManagerConnectionInternal"}
-	u3 %v{1}
-	p
-	{
-		s %SourcePin{"OnDeactivated"}
-		Uuid %Target{u4{7680083676092114585,5227582488650009750}}
-		s %TargetPin{"run"}
 	}
 }
 o
@@ -219,16 +220,20 @@ o
 }
 o
 {
-	Uuid %id{u4{11614183841319027127,6205267641758029710}}
-	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{2}
+	Uuid %id{u4{3499090634469354149,3435599044994278687}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
 	p
 	{
 		VarArray %Attributes{}
-		s %Category{"ezPropertyCategory::Member"}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Const|ezPropertyFlags::Phantom"}
-		s %Name{"TriggerMessage"}
-		s %Type{"ezConstCharPtr"}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezVisualScriptParameter"}
+		s %PluginName{"ezEditorPluginAssets"}
+		VarArray %Properties{}
+		s %TypeName{"ezVisualScriptParameterString"}
+		u3 %TypeSize{144}
+		u3 %TypeVersion{1}
 	}
 }
 o
@@ -246,6 +251,27 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezVisualScriptParameterNumber"}
 		u3 %TypeSize{88}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{10956998182626395787,6975737919868345869}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezVisualScriptNodeBase"}
+		s %PluginName{"VisualScriptTypes"}
+		VarArray %Properties
+		{
+			Uuid{u4{3673750008076504703,12836469195348197967}}
+		}
+		s %TypeName{"VisualScriptNode::ezVisualScriptNode_PhysicsTriggerEvent"}
+		u3 %TypeSize{0}
 		u3 %TypeVersion{1}
 	}
 }
@@ -403,6 +429,20 @@ o
 }
 o
 {
+	Uuid %id{u4{3673750008076504703,12836469195348197967}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Const|ezPropertyFlags::Phantom"}
+		s %Name{"TriggerMessage"}
+		s %Type{"ezConstCharPtr"}
+	}
+}
+o
+{
 	Uuid %id{u4{17173176954813884198,13258424530111393122}}
 	s %t{"ezReflectedPropertyDescriptor"}
 	u3 %v{2}
@@ -410,9 +450,9 @@ o
 	{
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Member"}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Const|ezPropertyFlags::Phantom"}
 		s %Name{"Name"}
-		s %Type{"ezString"}
+		s %Type{"ezConstCharPtr"}
 	}
 }
 o
@@ -429,28 +469,7 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezVisualScriptAssetProperties"}
-		u3 %TypeSize{56}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{4184066678543859733,16060427696528311314}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezVisualScriptNodeBase"}
-		s %PluginName{"VisualScriptTypes"}
-		VarArray %Properties
-		{
-			Uuid{u4{11614183841319027127,6205267641758029710}}
-		}
-		s %TypeName{"VisualScriptNode::ezVisualScriptNode_PxTriggerEvent"}
-		u3 %TypeSize{0}
+		u3 %TypeSize{80}
 		u3 %TypeVersion{1}
 	}
 }

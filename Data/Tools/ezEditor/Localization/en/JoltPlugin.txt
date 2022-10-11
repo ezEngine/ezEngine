@@ -52,6 +52,7 @@ ezJoltCharacterDebugFlags::VisGroundContact;Visualize Ground Contact
 ezJoltCharacterDebugFlags::VisCasts;Visualize Casts
 ezJoltCharacterDebugFlags::PrintState;Print Stats
 ezJoltCharacterDebugFlags::VisContacts;Visualize All Contacts
+ezJoltCharacterDebugFlags::VisFootCheck;Visualize Foot Check
 ezJoltCharacterControllerComponent;Character Controller (Jolt)
 ezJoltDefaultCharacterComponent;Default Character Controller (Jolt)
 ezJoltGrabObjectComponent;Grab Object (Jolt)

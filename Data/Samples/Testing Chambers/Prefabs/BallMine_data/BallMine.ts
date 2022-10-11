@@ -64,7 +64,7 @@ export class BallMine extends ez.TickedTypescriptComponent {
 
                 this._state = BallMineState.Approaching;
 
-                let actor = this.GetOwner().TryGetComponentOfBaseType(ez.PxDynamicActorComponent);
+                let actor = this.GetOwner().TryGetComponentOfBaseType(ez.JoltDynamicActorComponent);
                 if (actor != null) {
                     diffPos.Normalize();
                     diffPos.MulNumber(this.RollForce);
@@ -137,7 +137,7 @@ export class BallMine extends ez.TickedTypescriptComponent {
         let spawnExpl = this.GetOwner().TryGetComponentOfBaseType(ez.SpawnComponent);
 
         if (spawnExpl != null) {
-            spawnExpl.TriggerManualSpawn();
+            spawnExpl.TriggerManualSpawn(true, ez.Vec3.ZeroVector());
         }
 
         ez.World.DeleteObjectDelayed(this.GetOwner());
