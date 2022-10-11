@@ -23,16 +23,14 @@ struct EZ_TOOLSFOUNDATION_DLL ezDocumentNodeManagerEvent
     AfterNodeRemoved,
   };
 
-  ezDocumentNodeManagerEvent(Type eventType, const ezDocumentObject* pObject = nullptr, const ezConnection* connection = nullptr)
+  ezDocumentNodeManagerEvent(Type eventType, const ezDocumentObject* pObject = nullptr)
     : m_EventType(eventType)
     , m_pObject(pObject)
-  //, m_Connection(connection)
   {
   }
 
   Type m_EventType;
   const ezDocumentObject* m_pObject;
-  // const ezConnection* m_pConnection;
 };
 
 class ezConnection

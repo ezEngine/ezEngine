@@ -24,11 +24,7 @@ namespace
 
 //////////////////////////////////////////////////////////////////////////
 
-ezQtProcGenNode::ezQtProcGenNode()
-{
-  // this costs too much performance :-(
-  EnableDropShadow(false);
-}
+ezQtProcGenNode::ezQtProcGenNode() = default;
 
 void ezQtProcGenNode::InitNode(const ezDocumentNodeManager* pManager, const ezDocumentObject* pObject)
 {

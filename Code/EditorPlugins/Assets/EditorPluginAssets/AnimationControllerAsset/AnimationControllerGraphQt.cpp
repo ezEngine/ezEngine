@@ -3,11 +3,7 @@
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorPluginAssets/AnimationControllerAsset/AnimationControllerGraphQt.h>
 
-ezQtAnimationControllerNode::ezQtAnimationControllerNode()
-{
-  // this costs too much performance :-(
-  EnableDropShadow(false);
-}
+ezQtAnimationControllerNode::ezQtAnimationControllerNode() = default;
 
 void ezQtAnimationControllerNode::UpdateState()
 {

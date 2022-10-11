@@ -38,10 +38,6 @@ void ezQtPin::RemoveConnection(ezQtConnection* pConnection)
 
   if (m_Connections.IsEmpty())
     ConnectedStateChanged(false);
-
-  // TODO: is this really necessary?
-  //EZ_ASSERT_NOT_IMPLEMENTED;
-  //UpdateConnections();
 }
 
 void ezQtPin::ConnectedStateChanged(bool bConnected)
