@@ -264,7 +264,7 @@ static void AssignNodePriority(const ezDocumentObject* pNode, ezUInt16 curPrio, 
 
   for (auto& pPin : inputPins)
   {
-    for (auto pConnection : pNodeManager->GetConnections(* pPin))
+    for (auto pConnection : pNodeManager->GetConnections(*pPin))
     {
       AssignNodePriority(pConnection->GetSourcePin().GetParent(), curPrio - 1, prios, pNodeManager);
     }

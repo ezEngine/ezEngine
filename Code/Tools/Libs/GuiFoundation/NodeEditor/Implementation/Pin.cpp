@@ -68,14 +68,13 @@ void ezQtPin::SetPin(const ezPin& pin)
 
   if (pin.GetType() == ezPin::Type::Input)
   {
-    m_pLabel->setPos(iRadus, 0);    
+    m_pLabel->setPos(iRadus, 0);
     bounds = QRectF(0, 0, iRadus, iRadus);
   }
   else
   {
     m_pLabel->setPos(0, 0);
     bounds = QRectF(rectLabel.width(), 0, iRadus, iRadus);
-    
   }
 
   const int shrink = 3;

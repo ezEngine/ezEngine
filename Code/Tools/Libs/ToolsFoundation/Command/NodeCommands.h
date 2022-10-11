@@ -81,7 +81,7 @@ public:
 
 public: // Properties
   ezUuid m_ConnectionObject;
-  
+
 private:
   virtual ezStatus DoInternal(bool bRedo) override;
   virtual ezStatus UndoInternal(bool bFireEvents) override;

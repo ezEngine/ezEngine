@@ -234,7 +234,7 @@ ezStatus ezDisconnectNodePinsCommand::DoInternal(bool bRedo)
     m_pConnectionObject = pManager->GetObject(m_ConnectionObject);
     if (!pManager->IsConnection(m_pConnectionObject))
       return ezStatus("Disconnect Node Pins: The given connection object is not valid connection!");
-    
+
     EZ_SUCCEED_OR_RETURN(pManager->CanRemove(m_pConnectionObject));
 
     const ezConnection& connection = pManager->GetConnection(m_pConnectionObject);

@@ -87,7 +87,7 @@ ezQtVisualShaderNode::ezQtVisualShaderNode() = default;
 
 void ezQtVisualShaderNode::InitNode(const ezDocumentNodeManager* pManager, const ezDocumentObject* pObject)
 {
-  ezQtNode::InitNode(pManager, pObject);  
+  ezQtNode::InitNode(pManager, pObject);
 
   if (auto pDesc = ezVisualShaderTypeRegistry::GetSingleton()->GetDescriptorForType(pObject->GetType()))
   {

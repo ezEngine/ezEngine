@@ -282,8 +282,7 @@ void ezQtNodeScene::contextMenuEvent(QGraphicsSceneContextMenuEvent* contextMenu
     ezQtPin* pPin = static_cast<ezQtPin*>(pItem);
     QAction* pAction = new QAction("Disconnect Pin", &menu);
     menu.addAction(pAction);
-    connect(pAction, &QAction::triggered, this, [this, pPin](bool bChecked)
-      { DisconnectPinsAction(pPin); });
+    connect(pAction, &QAction::triggered, this, [this, pPin](bool bChecked) { DisconnectPinsAction(pPin); });
 
     pPin->ExtendContextMenu(menu);
   }
@@ -302,8 +301,7 @@ void ezQtNodeScene::contextMenuEvent(QGraphicsSceneContextMenuEvent* contextMenu
     {
       QAction* pAction = new QAction("Remove", &menu);
       menu.addAction(pAction);
-      connect(pAction, &QAction::triggered, this, [this](bool bChecked)
-        { RemoveSelectedNodesAction(); });
+      connect(pAction, &QAction::triggered, this, [this](bool bChecked) { RemoveSelectedNodesAction(); });
     }
   }
   else if (iType == Type::Connection)
@@ -311,8 +309,7 @@ void ezQtNodeScene::contextMenuEvent(QGraphicsSceneContextMenuEvent* contextMenu
     ezQtConnection* pConnection = static_cast<ezQtConnection*>(pItem);
     QAction* pAction = new QAction("Delete Connection", &menu);
     menu.addAction(pAction);
-    connect(pAction, &QAction::triggered, this, [this, pConnection](bool bChecked)
-      { DisconnectPinsAction(pConnection); });
+    connect(pAction, &QAction::triggered, this, [this, pConnection](bool bChecked) { DisconnectPinsAction(pConnection); });
   }
   else
   {
@@ -667,8 +664,7 @@ void ezQtNodeScene::OpenSearchMenu(QPoint screenPos)
   menu.addAction(pSearchMenu);
 
   connect(pSearchMenu, &ezQtSearchableMenu::MenuItemTriggered, this, &ezQtNodeScene::OnMenuItemTriggered);
-  connect(pSearchMenu, &ezQtSearchableMenu::MenuItemTriggered, this, [&menu]()
-    { menu.close(); });
+  connect(pSearchMenu, &ezQtSearchableMenu::MenuItemTriggered, this, [&menu]() { menu.close(); });
 
   ezStringBuilder sFullName, sCleanName;
 
@@ -775,7 +771,7 @@ void ezQtNodeScene::ConnectPinsAction(const ezPin& sourcePin, const ezPin& targe
     {
       ezDisconnectNodePinsCommand cmd;
       cmd.m_ConnectionObject = pConnection->GetParent()->GetGuid();
-      
+
       res = history->AddCommand(cmd);
 
       if (res.Failed())
@@ -847,7 +843,7 @@ void ezQtNodeScene::DisconnectPinsAction(ezQtConnection* pConnection)
 
     ezDisconnectNodePinsCommand cmd;
     cmd.m_ConnectionObject = pConnection->GetConnection()->GetParent()->GetGuid();
-    
+
     res = history->AddCommand(cmd);
     if (res.m_Result.Failed())
       history->CancelTransaction();

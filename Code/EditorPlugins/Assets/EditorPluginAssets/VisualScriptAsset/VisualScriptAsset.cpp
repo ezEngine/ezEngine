@@ -305,8 +305,7 @@ ezResult ezVisualScriptAssetDocument::GenerateVisualScriptDescriptor(ezVisualScr
         EZ_ASSERT_DEBUG(varName.IsA<ezString>(), "Missing or invalid property");
         const ezString name = varName.ConvertTo<ezString>();
 
-        auto findVarName = [&](auto parameters)
-        {
+        auto findVarName = [&](auto parameters) {
           for (const auto& p : parameters)
           {
             if (p.m_sName == name)

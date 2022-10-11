@@ -476,7 +476,7 @@ bool ezDocumentNodeManager::CopySelectedObjects(ezAbstractObjectGraph& out_objec
         const ezDocumentObject* pConnectionObject = pConnection->GetParent();
 
         EZ_ASSERT_DEV(pSourcePin == &pConnection->GetSourcePin(), "");
-        if (copiedConnections.Contains(pConnectionObject)  == false && copiedNodes.Contains(pConnection->GetTargetPin().GetParent()))
+        if (copiedConnections.Contains(pConnectionObject) == false && copiedNodes.Contains(pConnection->GetTargetPin().GetParent()))
         {
           writer.AddObjectToGraph(pConnectionObject, "root");
           copiedConnections.Insert(pConnectionObject);

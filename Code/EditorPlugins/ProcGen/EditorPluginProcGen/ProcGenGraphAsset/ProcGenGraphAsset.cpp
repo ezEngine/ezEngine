@@ -399,7 +399,7 @@ ezExpressionAST::Node* ezProcGenGraphAssetDocument::GenerateDebugExpressionAST(G
   const ezPin* pPinSource = m_pDebugPin;
   if (pPinSource->GetType() == ezPin::Type::Input)
   {
-    auto connections = pManager->GetConnections(*pPinSource);    
+    auto connections = pManager->GetConnections(*pPinSource);
     EZ_ASSERT_DEBUG(connections.GetCount() <= 1, "Input pin has {0} connections", connections.GetCount());
 
     if (connections.IsEmpty())
