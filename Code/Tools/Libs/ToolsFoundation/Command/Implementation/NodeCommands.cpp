@@ -81,6 +81,13 @@ ezStatus ezRemoveNodeCommand::DoInternal(bool bRedo)
         ezDisconnectNodePinsCommand cmd;
         cmd.m_ConnectionObject = connections[0]->GetParent()->GetGuid();
         auto res = AddSubCommand(cmd);
+        if (res.m_Result.Succeeded())
+        {
+          ezRemoveObjectCommand remove;
+          remove.m_Object = cmd.m_ConnectionObject;
+          res = AddSubCommand(remove);
+        }
+
         if (res.m_Result.Failed())
         {
           return res;
@@ -101,6 +108,13 @@ ezStatus ezRemoveNodeCommand::DoInternal(bool bRedo)
         ezDisconnectNodePinsCommand cmd;
         cmd.m_ConnectionObject = connections[0]->GetParent()->GetGuid();
         auto res = AddSubCommand(cmd);
+        if (res.m_Result.Succeeded())
+        {
+          ezRemoveObjectCommand remove;
+          remove.m_Object = cmd.m_ConnectionObject;
+          res = AddSubCommand(remove);
+        }
+
         if (res.m_Result.Failed())
         {
           return res;

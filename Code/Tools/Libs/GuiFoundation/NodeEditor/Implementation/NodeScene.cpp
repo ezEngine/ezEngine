@@ -773,6 +773,13 @@ void ezQtNodeScene::ConnectPinsAction(const ezPin& sourcePin, const ezPin& targe
       cmd.m_ConnectionObject = pConnection->GetParent()->GetGuid();
 
       res = history->AddCommand(cmd);
+      if (res.m_Result.Succeeded())
+      {
+        ezRemoveObjectCommand remove;
+        remove.m_Object = cmd.m_ConnectionObject;
+
+        res = history->AddCommand(remove);
+      }
 
       if (res.Failed())
       {
@@ -792,6 +799,13 @@ void ezQtNodeScene::ConnectPinsAction(const ezPin& sourcePin, const ezPin& targe
       cmd.m_ConnectionObject = pConnection->GetParent()->GetGuid();
 
       res = history->AddCommand(cmd);
+      if (res.m_Result.Succeeded())
+      {
+        ezRemoveObjectCommand remove;
+        remove.m_Object = cmd.m_ConnectionObject;
+
+        res = history->AddCommand(remove);
+      }
 
       if (res.Failed())
       {
@@ -845,6 +859,14 @@ void ezQtNodeScene::DisconnectPinsAction(ezQtConnection* pConnection)
     cmd.m_ConnectionObject = pConnection->GetConnection()->GetParent()->GetGuid();
 
     res = history->AddCommand(cmd);
+    if (res.m_Result.Succeeded())
+    {
+      ezRemoveObjectCommand remove;
+      remove.m_Object = cmd.m_ConnectionObject;
+
+      res = history->AddCommand(remove);
+    }
+
     if (res.m_Result.Failed())
       history->CancelTransaction();
     else
