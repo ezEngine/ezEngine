@@ -7,7 +7,7 @@
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderPipelineAssetDocument, 3, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderPipelineAssetDocument, 4, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 bool ezRenderPipelineNodeManager::InternalIsNode(const ezDocumentObject* pObject) const
@@ -87,6 +87,8 @@ ezRenderPipelineAssetDocument::ezRenderPipelineAssetDocument(const char* szDocum
 
 ezStatus ezRenderPipelineAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
+  ezDocumentNodeManager* pManager = static_cast<ezDocumentNodeManager*>(GetObjectManager());
+
   const ezUInt8 uiVersion = 1;
   stream << uiVersion;
 
@@ -105,9 +107,12 @@ ezStatus ezRenderPipelineAssetDocument::InternalTransformAsset(ezStreamWriter& s
     {
       objectConverter.AddObjectToGraph(pObject, "Extractor");
     }
+    else if (pManager->IsConnection(pObject))
+    {
+      objectConverter.AddObjectToGraph(pObject, "Connection");
+    }
   }
 
-  ezDocumentNodeManager* pManager = static_cast<ezDocumentNodeManager*>(GetObjectManager());
   pManager->AttachMetaDataBeforeSaving(graph);
 
   ezDefaultMemoryStreamStorage storage;

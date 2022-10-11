@@ -13,16 +13,9 @@
 
 struct RenderPipelineResourceLoaderConnectionInternal
 {
-  RenderPipelineResourceLoaderConnectionInternal() {}
-  RenderPipelineResourceLoaderConnectionInternal(const char* szPinSource, const ezUuid& target, const char* szPinTarget)
-    : m_SourcePin(szPinSource)
-    , m_Target(target)
-    , m_TargetPin(szPinTarget)
-  {
-  }
-
-  ezString m_SourcePin;
+  ezUuid m_Source;
   ezUuid m_Target;
+  ezString m_SourcePin;
   ezString m_TargetPin;
 };
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, RenderPipelineResourceLoaderConnectionInternal);
@@ -32,29 +25,10 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(RenderPipelineResourceLoaderConnectionInternal, e
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("SourcePin", m_SourcePin),
-    EZ_MEMBER_PROPERTY("Target", m_Target),
-    EZ_MEMBER_PROPERTY("TargetPin", m_TargetPin),
-  }
-  EZ_END_PROPERTIES;
-}
-EZ_END_STATIC_REFLECTED_TYPE;
-// clang-format on
-
-struct RenderPipelineResourceLoaderNodeDataInternal
-{
-  ezVec2 m_NodePos;
-  ezDynamicArray<RenderPipelineResourceLoaderConnectionInternal> m_Connections;
-};
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, RenderPipelineResourceLoaderNodeDataInternal);
-
-// clang-format off
-EZ_BEGIN_STATIC_REFLECTED_TYPE(RenderPipelineResourceLoaderNodeDataInternal, ezNoBase, 1, ezRTTIDefaultAllocator<RenderPipelineResourceLoaderNodeDataInternal>)
-{
-  EZ_BEGIN_PROPERTIES
-  {
-    EZ_MEMBER_PROPERTY("Node::Pos", m_NodePos),
-    EZ_ARRAY_MEMBER_PROPERTY("Node::Connections", m_Connections),
+    EZ_MEMBER_PROPERTY("Connection::Source", m_Source),
+    EZ_MEMBER_PROPERTY("Connection::Target", m_Target),
+    EZ_MEMBER_PROPERTY("Connection::SourcePin", m_SourcePin),    
+    EZ_MEMBER_PROPERTY("Connection::TargetPin", m_TargetPin),
   }
   EZ_END_PROPERTIES;
 }
@@ -170,9 +144,7 @@ ezInternal::NewInstance<ezRenderPipeline> ezRenderPipelineResourceLoader::Create
     }
   }
 
-  auto pType = ezGetStaticRTTI<RenderPipelineResourceLoaderNodeDataInternal>();
-  RenderPipelineResourceLoaderNodeDataInternal data;
-
+  auto pType = ezGetStaticRTTI<RenderPipelineResourceLoaderConnectionInternal>();
   ezStringBuilder tmp;
 
   for (auto it = nodes.GetIterator(); it.IsValid(); ++it)
@@ -180,31 +152,32 @@ ezInternal::NewInstance<ezRenderPipeline> ezRenderPipelineResourceLoader::Create
     auto* pNode = it.Value();
     const ezUuid& guid = pNode->GetGuid();
 
-    auto objectSoure = context.GetObjectByGUID(guid);
-
-    if (!objectSoure.m_pObject || !objectSoure.m_pType->IsDerivedFrom<ezRenderPipelinePass>())
-    {
+    if (ezStringUtils::IsEqual(pNode->GetNodeName(), "Connection") == false)
       continue;
-    }
-    ezRenderPipelinePass* pSource = static_cast<ezRenderPipelinePass*>(objectSoure.m_pObject);
 
-    data.m_Connections.Clear();
+    RenderPipelineResourceLoaderConnectionInternal data;
     rttiConverter.ApplyPropertiesToObject(pNode, pType, &data);
 
-    for (const auto& con : data.m_Connections)
+    auto objectSource = context.GetObjectByGUID(data.m_Source);
+    if (objectSource.m_pObject == nullptr || !objectSource.m_pType->IsDerivedFrom<ezRenderPipelinePass>())
     {
-      auto objectTarget = context.GetObjectByGUID(con.m_Target);
-      if (!objectTarget.m_pObject || !objectTarget.m_pType->IsDerivedFrom<ezRenderPipelinePass>())
-      {
-        ezLog::Error("Failed to retrieve connection target '{0}' with pin '{1}'", ezConversionUtils::ToString(guid, tmp), con.m_TargetPin);
-        continue;
-      }
-      ezRenderPipelinePass* pTarget = static_cast<ezRenderPipelinePass*>(objectTarget.m_pObject);
+      ezLog::Error("Failed to retrieve connection target '{0}' with pin '{1}'", ezConversionUtils::ToString(guid, tmp), data.m_TargetPin);
+      continue;
+    }
 
-      if (!pPipeline->Connect(pSource, con.m_SourcePin, pTarget, con.m_TargetPin))
-      {
-        ezLog::Error("Failed to connect '{0}'::'{1}' to '{2}'::'{3}'!", pSource->GetName(), con.m_SourcePin, pTarget->GetName(), con.m_TargetPin);
-      }
+    auto objectTarget = context.GetObjectByGUID(data.m_Target);
+    if (objectTarget.m_pObject == nullptr || !objectTarget.m_pType->IsDerivedFrom<ezRenderPipelinePass>())
+    {
+      ezLog::Error("Failed to retrieve connection target '{0}' with pin '{1}'", ezConversionUtils::ToString(guid, tmp), data.m_TargetPin);
+      continue;
+    }
+
+    ezRenderPipelinePass* pSource = static_cast<ezRenderPipelinePass*>(objectSource.m_pObject);
+    ezRenderPipelinePass* pTarget = static_cast<ezRenderPipelinePass*>(objectTarget.m_pObject);
+
+    if (!pPipeline->Connect(pSource, data.m_SourcePin, pTarget, data.m_TargetPin))
+    {
+      ezLog::Error("Failed to connect '{0}'::'{1}' to '{2}'::'{3}'!", pSource->GetName(), data.m_SourcePin, pTarget->GetName(), data.m_TargetPin);
     }
   }
 
@@ -241,41 +214,42 @@ void ezRenderPipelineResourceLoader::CreateRenderPipelineResourceDescriptor(cons
     rttiConverter.AddObjectToGraph(const_cast<ezExtractor*>(pExtractor));
   }
 
-
-  auto pType = ezGetStaticRTTI<RenderPipelineResourceLoaderNodeDataInternal>();
-  RenderPipelineResourceLoaderNodeDataInternal data;
+  auto pType = ezGetStaticRTTI<RenderPipelineResourceLoaderConnectionInternal>();
   auto& nodes = graph.GetAllNodes();
   for (auto it = nodes.GetIterator(); it.IsValid(); ++it)
   {
     auto* pNode = it.Value();
-    const ezUuid& guid = pNode->GetGuid();
+    auto objectSoure = context.GetObjectByGUID(pNode->GetGuid());
 
-    auto objectSoure = context.GetObjectByGUID(guid);
-
-    if (!objectSoure.m_pObject || !objectSoure.m_pType->IsDerivedFrom<ezRenderPipelinePass>())
+    if (objectSoure.m_pObject == nullptr || !objectSoure.m_pType->IsDerivedFrom<ezRenderPipelinePass>())
     {
       continue;
     }
     ezRenderPipelinePass* pSource = static_cast<ezRenderPipelinePass*>(objectSoure.m_pObject);
 
-    data.m_Connections.Clear();
+    RenderPipelineResourceLoaderConnectionInternal data;
+    data.m_Source = pNode->GetGuid();
 
     auto outputs = pSource->GetOutputPins();
     for (const ezRenderPipelineNodePin* pPinSource : outputs)
     {
+      data.m_SourcePin = pSource->GetPinName(pPinSource).GetView();
+
       const ezRenderPipelinePassConnection* pConnection = pPipeline->GetOutputConnection(pSource, pSource->GetPinName(pPinSource));
       if (!pConnection)
         continue;
 
       for (const ezRenderPipelineNodePin* pPinTarget : pConnection->m_Inputs)
       {
-        const ezUuid targetGuid = context.GetObjectGUID(pPinTarget->m_pParent->GetDynamicRTTI(), pPinTarget->m_pParent);
-        EZ_ASSERT_DEBUG(targetGuid.IsValid(), "Connection target was not serialized in previous step!");
-        data.m_Connections.PushBack(RenderPipelineResourceLoaderConnectionInternal(pSource->GetPinName(pPinSource).GetData(), targetGuid, pPinTarget->m_pParent->GetPinName(pPinTarget).GetData()));
+        data.m_Target = context.GetObjectGUID(pPinTarget->m_pParent->GetDynamicRTTI(), pPinTarget->m_pParent);
+        data.m_TargetPin = pPinTarget->m_pParent->GetPinName(pPinTarget).GetView();
+
+        ezUuid connectionGuid;
+        connectionGuid.CreateNewUuid();
+        context.RegisterObject(connectionGuid,pType, &data);
+        rttiConverter.AddObjectToGraph(pType, &data, "Connection");
       }
     }
-
-    rttiConverter.AddProperties(pNode, pType, &data);
   }
 
   ezMemoryStreamContainerWrapperStorage<ezDynamicArray<ezUInt8>> storage(&desc.m_SerializedPipeline);

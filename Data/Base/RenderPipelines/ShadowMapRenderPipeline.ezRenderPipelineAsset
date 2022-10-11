@@ -11,7 +11,7 @@ o
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{17711001407536439736,5505436445966180118}}
-		u4 %Hash{11837901864778201383}
+		u4 %Hash{17997667719207102130}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References{}
@@ -20,18 +20,6 @@ o
 }
 Objects
 {
-o
-{
-	Uuid %id{u4{7353198259405798851,39487329320491593}}
-	s %t{"DocumentNodeManagerConnectionInternal"}
-	u3 %v{1}
-	p
-	{
-		s %SourcePin{"Output"}
-		Uuid %Target{u4{6092888042282166442,4702730995123121724}}
-		s %TargetPin{"DepthStencil"}
-	}
-}
 o
 {
 	Uuid %id{u4{13429752824947468482,581480885133407653}}
@@ -70,10 +58,6 @@ o
 		b %Active{1}
 		Uuid %DepthStencil{u4{12374590631366029646,4661154216989813148}}
 		s %Name{"ShadowDepth"}
-		VarArray %Node::Connections
-		{
-			Uuid{u4{13371694063486489051,17459386005747668061}}
-		}
 		Vec2 %Node::Pos{f{0xC8069C43,0xE821AC43}}
 	}
 }
@@ -95,7 +79,6 @@ o
 		Uuid %Color7{u4{14840978798910271837,10680096956061608223}}
 		Uuid %DepthStencil{u4{14952335550809254984,12829539749875895330}}
 		s %Name{""}
-		VarArray %Node::Connections{}
 		Vec2 %Node::Pos{f{0xD6851B44,0x30957043}}
 	}
 }
@@ -108,8 +91,20 @@ o
 	{
 		b %Active{1}
 		s %Name{""}
-		VarArray %Node::Connections{}
 		Vec2 %Node::Pos{f{0x8D5E8443,0xC8564B43}}
+	}
+}
+o
+{
+	Uuid %id{u4{3839975967945236644,5356666130192556293}}
+	s %t{"DocumentNodeManager_DefaultConnection"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Connection::Source{u4{3012569870458697352,5386212663437548644}}
+		s %Connection::SourcePin{"Output"}
+		Uuid %Connection::Target{u4{6092888042282166442,4702730995123121724}}
+		s %Connection::TargetPin{"DepthStencil"}
 	}
 }
 o
@@ -125,12 +120,21 @@ o
 		s %Format{"ezGALResourceFormat::D16"}
 		s %MSAA_Mode{"ezGALMSAASampleCount::None"}
 		s %Name{""}
-		VarArray %Node::Connections
-		{
-			Uuid{u4{7353198259405798851,39487329320491593}}
-		}
 		Vec2 %Node::Pos{f{0x7F93EF42,0xC72DB343}}
 		Uuid %Output{u4{18145787413205851195,10498656058703515073}}
+	}
+}
+o
+{
+	Uuid %id{u4{6204173561508457910,5553742337022629907}}
+	s %t{"DocumentNodeManager_DefaultConnection"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Connection::Source{u4{6092888042282166442,4702730995123121724}}
+		s %Connection::SourcePin{"DepthStencil"}
+		Uuid %Connection::Target{u4{506494092431856007,4712002059416219605}}
+		s %Connection::TargetPin{"DepthStencil"}
 	}
 }
 o
@@ -147,6 +151,8 @@ o
 			Uuid{u4{6092888042282166442,4702730995123121724}}
 			Uuid{u4{506494092431856007,4712002059416219605}}
 			Uuid{u4{4612768257152447660,5093767427298493568}}
+			Uuid{u4{6204173561508457910,5553742337022629907}}
+			Uuid{u4{3839975967945236644,5356666130192556293}}
 		}
 	}
 }
@@ -184,18 +190,6 @@ o
 	s %t{"ezRenderPipelineNodeInputPin"}
 	u3 %v{1}
 	p{}
-}
-o
-{
-	Uuid %id{u4{13371694063486489051,17459386005747668061}}
-	s %t{"DocumentNodeManagerConnectionInternal"}
-	u3 %v{1}
-	p
-	{
-		s %SourcePin{"DepthStencil"}
-		Uuid %Target{u4{506494092431856007,4712002059416219605}}
-		s %TargetPin{"DepthStencil"}
-	}
 }
 o
 {
@@ -301,6 +295,24 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezDepthOnlyPass"}
 		u3 %TypeSize{128}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{1988646526571382668,10729334715299371304}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"DocumentNodeManager_DefaultConnection"}
+		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
 	}
 }
