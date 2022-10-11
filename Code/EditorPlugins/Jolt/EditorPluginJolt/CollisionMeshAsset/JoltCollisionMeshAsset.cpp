@@ -4,13 +4,13 @@
 #include <Foundation/IO/ChunkStream.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
 #include <Foundation/Utilities/Progress.h>
+#include <JoltCooking/JoltCooking.h>
 #include <ModelImporter2/ModelImporter.h>
+#include <RendererCore/Meshes/MeshResourceDescriptor.h>
 
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
 #  include <Foundation/IO/CompressedStreamZstd.h>
 #endif
-#include <JoltCooking/JoltCooking.h>
-#include <RendererCore/Meshes/MeshResourceDescriptor.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezJoltCollisionMeshAssetDocument, 8, ezRTTINoAllocator)

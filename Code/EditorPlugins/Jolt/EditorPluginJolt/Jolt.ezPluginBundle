@@ -11,5 +11,5 @@ PluginInfo
 	string %PackageDependencies{}
 	string %RequiredPlugins{}
 	string %ExclusiveFeatures{"physics"}
-	string %EnabledInTemplates{}
+	string %EnabledInTemplates{"General3D"}
 }

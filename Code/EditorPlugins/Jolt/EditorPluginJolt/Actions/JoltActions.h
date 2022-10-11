@@ -4,7 +4,6 @@
 #include <GuiFoundation/Action/BaseActions.h>
 #include <GuiFoundation/GuiFoundationDLL.h>
 
-
 class EZ_EDITORPLUGINJOLT_DLL ezJoltActions
 {
 public:
@@ -16,7 +15,6 @@ public:
   static ezActionDescriptorHandle s_hCategoryJolt;
   static ezActionDescriptorHandle s_hProjectSettings;
 };
-
 
 class EZ_EDITORPLUGINJOLT_DLL ezJoltAction : public ezButtonAction
 {

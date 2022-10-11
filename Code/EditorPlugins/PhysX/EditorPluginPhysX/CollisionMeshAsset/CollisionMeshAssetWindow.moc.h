@@ -28,4 +28,3 @@ private:
   ezQtOrbitCamViewWidget* m_pViewWidget;
   ezAssetDocument* m_pAssetDoc;
 };
-

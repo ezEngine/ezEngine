@@ -4,12 +4,12 @@
 PluginInfo
 {
 	string %DisplayName{"PhysX"}
-	string %Description{"Adds support for 3D physics via NVidia PhysX."}
+	string %Description{"Adds support for 3D physics via Nvidia PhysX."}
 	string %EditorPlugins{"ezPhysXPlugin", "ezEditorPluginPhysX"}
 	string %EditorEnginePlugins{"ezEnginePluginPhysX"}
 	string %RuntimePlugins{"ezPhysXPlugin"}
 	string %PackageDependencies{}
 	string %RequiredPlugins{}
 	string %ExclusiveFeatures{"physics"}
-	string %EnabledInTemplates{"General3D"}
+	string %EnabledInTemplates{}
 }
