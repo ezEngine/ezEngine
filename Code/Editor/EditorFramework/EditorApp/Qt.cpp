@@ -64,7 +64,11 @@ static void QtDebugMessageHandler(QtMsgType type, const QMessageLogContext& cont
       break;
     }
     case QtCriticalMsg:
-      ezLog::Error("|Qt| {0} ({1}:{2}, {3})", sMsg, context.file, context.line, context.function);
+      // BUG in Qt 6 on winodows. Window classes are not properly unregistered so they leak into the next session and cause a warning.
+      if(!sMsg.StartsWith("QApplication::regClass: Registering window class"))
+      {
+        ezLog::Error("|Qt| {0} ({1}:{2}, {3})", sMsg, context.file, context.line, context.function);
+      }
       break;
     case QtFatalMsg:
       EZ_ASSERT_DEBUG("|Qt| {0} ({1}:{2} {3})", sMsg, context.file, context.line, context.function);
