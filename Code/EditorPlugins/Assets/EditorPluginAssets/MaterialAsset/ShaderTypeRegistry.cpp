@@ -294,7 +294,7 @@ const ezRTTI* ezShaderTypeRegistry::GetShaderType(const char* szShaderPath)
     {
       if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sAbsPath))
       {
-        ezLog::Error("Can't make path absolute: '{0}'", szShaderPath);
+        ezLog::Warning("Can't make path absolute: '{0}'", szShaderPath);
         return nullptr;
       }
       sAbsPath.MakeCleanPath();
