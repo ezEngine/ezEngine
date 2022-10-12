@@ -72,6 +72,12 @@ EZ_ALWAYS_INLINE bool ezArrayBase<T, Derived>::operator!=(const ezArrayPtr<const
 }
 
 template <typename T, typename Derived>
+EZ_ALWAYS_INLINE bool ezArrayBase<T, Derived>::operator<(const ezArrayPtr<const T>& rhs) const
+{
+  return GetArrayPtr() < rhs;
+}
+
+template <typename T, typename Derived>
 EZ_ALWAYS_INLINE const T& ezArrayBase<T, Derived>::operator[](const ezUInt32 uiIndex) const
 {
   EZ_ASSERT_DEV(uiIndex < m_uiCount, "Out of bounds access. Array has {0} elements, trying to access element at index {1}.", m_uiCount, uiIndex);

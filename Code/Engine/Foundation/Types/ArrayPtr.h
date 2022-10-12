@@ -219,6 +219,24 @@ public:
     return !(*this == other);
   }
 
+  /// \brief Compares the two arrays for less.
+  inline bool operator<(const ezArrayPtr<const T>& other) const // [tested]
+  {
+    if (GetCount() != other.GetCount())
+      return GetCount() < other.GetCount();
+
+    for (ezUInt32 i = 0; i < GetCount(); ++i)
+    {
+      if (GetPtr()[i] < other.GetPtr()[i])
+        return true;
+
+      if (other.GetPtr()[i] < GetPtr()[i])
+        return false;
+    }
+
+    return false;
+  }
+
   /// \brief Copies the data from \a other into this array. The arrays must have the exact same size.
   inline void CopyFrom(const ezArrayPtr<const T>& other) // [tested]
   {

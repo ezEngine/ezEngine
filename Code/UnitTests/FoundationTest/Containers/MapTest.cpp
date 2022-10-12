@@ -517,31 +517,77 @@ EZ_CREATE_SIMPLE_TEST(Containers, Map)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "CompatibleKeyType")
   {
-    ezMap<ezString, int> stringTable;
-    const char* szChar = "Char";
-    const char* szString = "ViewBla";
-    ezStringView sView(szString, szString + 4);
-    ezStringBuilder sBuilder("Builder");
-    ezString sString("String");
-    stringTable.Insert(szChar, 1);
-    stringTable.Insert(sView, 2);
-    stringTable.Insert(sBuilder, 3);
-    stringTable.Insert(sString, 4);
+    {
+      ezMap<ezString, int> stringTable;
+      const char* szChar = "Char";
+      const char* szString = "ViewBla";
+      ezStringView sView(szString, szString + 4);
+      ezStringBuilder sBuilder("Builder");
+      ezString sString("String");
+      stringTable.Insert(szChar, 1);
+      stringTable.Insert(sView, 2);
+      stringTable.Insert(sBuilder, 3);
+      stringTable.Insert(sString, 4);
 
-    EZ_TEST_BOOL(stringTable.Contains(szChar));
-    EZ_TEST_BOOL(stringTable.Contains(sView));
-    EZ_TEST_BOOL(stringTable.Contains(sBuilder));
-    EZ_TEST_BOOL(stringTable.Contains(sString));
+      EZ_TEST_BOOL(stringTable.Contains(szChar));
+      EZ_TEST_BOOL(stringTable.Contains(sView));
+      EZ_TEST_BOOL(stringTable.Contains(sBuilder));
+      EZ_TEST_BOOL(stringTable.Contains(sString));
 
-    EZ_TEST_INT(*stringTable.GetValue(szChar), 1);
-    EZ_TEST_INT(*stringTable.GetValue(sView), 2);
-    EZ_TEST_INT(*stringTable.GetValue(sBuilder), 3);
-    EZ_TEST_INT(*stringTable.GetValue(sString), 4);
+      EZ_TEST_INT(*stringTable.GetValue(szChar), 1);
+      EZ_TEST_INT(*stringTable.GetValue(sView), 2);
+      EZ_TEST_INT(*stringTable.GetValue(sBuilder), 3);
+      EZ_TEST_INT(*stringTable.GetValue(sString), 4);
 
-    EZ_TEST_BOOL(stringTable.Remove(szChar));
-    EZ_TEST_BOOL(stringTable.Remove(sView));
-    EZ_TEST_BOOL(stringTable.Remove(sBuilder));
-    EZ_TEST_BOOL(stringTable.Remove(sString));
+      EZ_TEST_BOOL(stringTable.Remove(szChar));
+      EZ_TEST_BOOL(stringTable.Remove(sView));
+      EZ_TEST_BOOL(stringTable.Remove(sBuilder));
+      EZ_TEST_BOOL(stringTable.Remove(sString));
+    }
+
+    // dynamic array as key, check for allocations in comparisons
+    {
+      ezProxyAllocator testAllocator("Test", ezFoundation::GetDefaultAllocator());
+      ezLocalAllocatorWrapper allocWrapper(&testAllocator);
+      using TestDynArray = ezDynamicArray<int, ezLocalAllocatorWrapper>;
+      TestDynArray a;
+      TestDynArray b;
+      for (int i = 0; i < 10; ++i)
+      {
+        a.PushBack(i);
+        b.PushBack(i * 2);
+      }
+
+      ezMap<TestDynArray, int> arrayTable;
+      arrayTable.Insert(a, 1);
+      arrayTable.Insert(b, 2);
+
+      ezArrayPtr<const int> aPtr = a.GetArrayPtr();
+      ezArrayPtr<const int> bPtr = b.GetArrayPtr();
+
+      ezUInt64 oldAllocCount = testAllocator.GetStats().m_uiNumAllocations;
+
+      bool existed;
+      auto it = arrayTable.FindOrAdd(aPtr, &existed);
+      EZ_TEST_BOOL(existed);
+
+      EZ_TEST_INT(testAllocator.GetStats().m_uiNumAllocations, oldAllocCount);
+
+      EZ_TEST_BOOL(arrayTable.Contains(aPtr));
+      EZ_TEST_BOOL(arrayTable.Contains(bPtr));
+      EZ_TEST_BOOL(arrayTable.Contains(a));
+
+      EZ_TEST_INT(testAllocator.GetStats().m_uiNumAllocations, oldAllocCount);
+
+      EZ_TEST_INT(*arrayTable.GetValue(aPtr), 1);
+      EZ_TEST_INT(*arrayTable.GetValue(bPtr), 2);
+      EZ_TEST_INT(*arrayTable.GetValue(a), 1);
+
+      EZ_TEST_INT(testAllocator.GetStats().m_uiNumAllocations, oldAllocCount);
+
+      EZ_TEST_BOOL(arrayTable.Remove(aPtr));
+      EZ_TEST_BOOL(arrayTable.Remove(bPtr));
+    }
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Swap")
