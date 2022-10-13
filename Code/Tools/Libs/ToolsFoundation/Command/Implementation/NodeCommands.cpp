@@ -86,7 +86,7 @@ ezStatus ezRemoveNodeCommand::DoInternal(bool bRedo)
   };
 
   if (!bRedo)
-  {    
+  {
     m_pObject = pManager->GetObject(m_Object);
     if (m_pObject == nullptr)
       return ezStatus("Remove Node: The given object does not exist!");
@@ -316,5 +316,3 @@ ezStatus ezNodeCommands::DisconnectAndRemoveCommand(ezCommandHistory* history, c
 
   return res;
 }
-
-

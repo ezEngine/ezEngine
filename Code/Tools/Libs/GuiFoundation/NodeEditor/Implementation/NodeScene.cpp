@@ -793,7 +793,7 @@ void ezQtNodeScene::ConnectPinsAction(const ezPin& sourcePin, const ezPin& targe
 
   // connect the two pins
   {
-    res = ezNodeCommands::AddAndConnectCommand(history, m_pManager->GetConnectionType(), sourcePin, targetPin);      
+    res = ezNodeCommands::AddAndConnectCommand(history, m_pManager->GetConnectionType(), sourcePin, targetPin);
     if (res.Failed())
     {
       history->CancelTransaction();
