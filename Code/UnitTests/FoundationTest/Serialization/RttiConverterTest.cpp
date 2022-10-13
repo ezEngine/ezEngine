@@ -315,8 +315,7 @@ EZ_CREATE_SIMPLE_TEST(Serialization, RttiConverter)
     t1.m_pArrays = EZ_DEFAULT_NEW(ezTestArrays);
     t1.m_pArraysDirect = EZ_DEFAULT_NEW(ezTestArrays);
     t1.m_ArrayPtr.PushBack(EZ_DEFAULT_NEW(ezTestArrays));
-    ezTestSets* testSets = EZ_DEFAULT_NEW(ezTestSets);
-    t1.m_SetPtr.Insert(testSets);
+    t1.m_SetPtr.Insert(EZ_DEFAULT_NEW(ezTestSets));
     TestSerialize(&t1);
 
     {

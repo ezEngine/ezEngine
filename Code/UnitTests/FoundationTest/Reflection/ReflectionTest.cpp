@@ -1288,8 +1288,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Pointer)
     containers.m_ArrayPtr.PushBack(EZ_DEFAULT_NEW(ezTestArrays));
     containers.m_ArrayPtr[0]->m_Hybrid.PushBack(5.0);
 
-    ezTestSets* testSets = EZ_DEFAULT_NEW(ezTestSets);
-    containers.m_SetPtr.Insert(testSets);
+    containers.m_SetPtr.Insert(EZ_DEFAULT_NEW(ezTestSets));
     containers.m_SetPtr.GetIterator().Key()->m_Array.PushBack("BLA");
   }
 

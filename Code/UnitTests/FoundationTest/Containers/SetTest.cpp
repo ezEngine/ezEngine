@@ -1,6 +1,7 @@
 #include <FoundationTest/FoundationTestPCH.h>
 
 #include <Foundation/Containers/Set.h>
+#include <Foundation/Memory/CommonAllocators.h>
 
 EZ_CREATE_SIMPLE_TEST(Containers, Set)
 {
@@ -519,6 +520,64 @@ EZ_CREATE_SIMPLE_TEST(Containers, Set)
     m2 = m;
 
     EZ_TEST_BOOL(m == m2);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "CompatibleKeyType")
+  {
+    {
+      ezSet<ezString> stringSet;
+      const char* szChar = "Char";
+      const char* szString = "ViewBla";
+      ezStringView sView(szString, szString + 4);
+      ezStringBuilder sBuilder("Builder");
+      ezString sString("String");
+      stringSet.Insert(szChar);
+      stringSet.Insert(sView);
+      stringSet.Insert(sBuilder);
+      stringSet.Insert(sString);
+
+      EZ_TEST_BOOL(stringSet.Contains(szChar));
+      EZ_TEST_BOOL(stringSet.Contains(sView));
+      EZ_TEST_BOOL(stringSet.Contains(sBuilder));
+      EZ_TEST_BOOL(stringSet.Contains(sString));
+
+      EZ_TEST_BOOL(stringSet.Remove(szChar));
+      EZ_TEST_BOOL(stringSet.Remove(sView));
+      EZ_TEST_BOOL(stringSet.Remove(sBuilder));
+      EZ_TEST_BOOL(stringSet.Remove(sString));
+    }
+
+    // dynamic array as key, check for allocations in comparisons
+    {
+      ezProxyAllocator testAllocator("Test", ezFoundation::GetDefaultAllocator());
+      ezLocalAllocatorWrapper allocWrapper(&testAllocator);
+      using TestDynArray = ezDynamicArray<int, ezLocalAllocatorWrapper>;
+      TestDynArray a;
+      TestDynArray b;
+      for (int i = 0; i < 10; ++i)
+      {
+        a.PushBack(i);
+        b.PushBack(i * 2);
+      }
+
+      ezSet<TestDynArray> arraySet;
+      arraySet.Insert(a);
+      arraySet.Insert(b);
+
+      ezArrayPtr<const int> aPtr = a.GetArrayPtr();
+      ezArrayPtr<const int> bPtr = b.GetArrayPtr();
+
+      ezUInt64 oldAllocCount = testAllocator.GetStats().m_uiNumAllocations;
+
+      EZ_TEST_BOOL(arraySet.Contains(aPtr));
+      EZ_TEST_BOOL(arraySet.Contains(bPtr));
+      EZ_TEST_BOOL(arraySet.Contains(a));
+
+      EZ_TEST_INT(testAllocator.GetStats().m_uiNumAllocations, oldAllocCount);
+
+      EZ_TEST_BOOL(arraySet.Remove(aPtr));
+      EZ_TEST_BOOL(arraySet.Remove(bPtr));
+    }
   }
 
   constexpr ezUInt32 uiSetSize = sizeof(ezSet<ezString>);
