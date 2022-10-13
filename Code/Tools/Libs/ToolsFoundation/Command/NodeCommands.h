@@ -3,6 +3,7 @@
 #include <ToolsFoundation/Command/Command.h>
 
 class ezDocumentObject;
+class ezPin;
 
 class EZ_TOOLSFOUNDATION_DLL ezRemoveNodeCommand : public ezCommand
 {
@@ -93,4 +94,12 @@ private:
   const ezDocumentObject* m_pObjectTarget = nullptr;
   ezString m_sSourcePin;
   ezString m_sTargetPin;
+};
+
+
+class EZ_TOOLSFOUNDATION_DLL ezNodeCommands
+{
+public:
+  static ezStatus AddAndConnectCommand(ezCommandHistory* history, const ezRTTI* pConnectionType, const ezPin& sourcePin, const ezPin& targetPin);
+  static ezStatus DisconnectAndRemoveCommand(ezCommandHistory* history, const ezUuid& connectionObject);
 };

@@ -60,10 +60,33 @@ ezRemoveNodeCommand::ezRemoveNodeCommand() = default;
 ezStatus ezRemoveNodeCommand::DoInternal(bool bRedo)
 {
   ezDocument* pDocument = GetDocument();
+  ezDocumentNodeManager* pManager = static_cast<ezDocumentNodeManager*>(pDocument->GetObjectManager());
+
+  auto RemoveConnections = [&](const ezPin& pin) {
+    while (true)
+    {
+      auto connections = pManager->GetConnections(pin);
+
+      if (connections.IsEmpty())
+        break;
+
+      ezDisconnectNodePinsCommand cmd;
+      cmd.m_ConnectionObject = connections[0]->GetParent()->GetGuid();
+      ezStatus res = AddSubCommand(cmd);
+      if (res.m_Result.Succeeded())
+      {
+        ezRemoveObjectCommand remove;
+        remove.m_Object = cmd.m_ConnectionObject;
+        res = AddSubCommand(remove);
+      }
+
+      EZ_SUCCEED_OR_RETURN(res);
+    }
+    return ezStatus(EZ_SUCCESS);
+  };
 
   if (!bRedo)
-  {
-    ezDocumentNodeManager* pManager = static_cast<ezDocumentNodeManager*>(pDocument->GetObjectManager());
+  {    
     m_pObject = pManager->GetObject(m_Object);
     if (m_pObject == nullptr)
       return ezStatus("Remove Node: The given object does not exist!");
@@ -71,56 +94,15 @@ ezStatus ezRemoveNodeCommand::DoInternal(bool bRedo)
     auto inputs = pManager->GetInputPins(m_pObject);
     for (auto& pPinTarget : inputs)
     {
-      while (true)
-      {
-        auto connections = pManager->GetConnections(*pPinTarget);
-
-        if (connections.IsEmpty())
-          break;
-
-        ezDisconnectNodePinsCommand cmd;
-        cmd.m_ConnectionObject = connections[0]->GetParent()->GetGuid();
-        auto res = AddSubCommand(cmd);
-        if (res.m_Result.Succeeded())
-        {
-          ezRemoveObjectCommand remove;
-          remove.m_Object = cmd.m_ConnectionObject;
-          res = AddSubCommand(remove);
-        }
-
-        if (res.m_Result.Failed())
-        {
-          return res;
-        }
-      }
+      EZ_SUCCEED_OR_RETURN(RemoveConnections(*pPinTarget));
     }
 
     auto outputs = pManager->GetOutputPins(m_pObject);
     for (auto& pPinSource : outputs)
     {
-      while (true)
-      {
-        auto connections = pManager->GetConnections(*pPinSource);
-
-        if (connections.IsEmpty())
-          break;
-
-        ezDisconnectNodePinsCommand cmd;
-        cmd.m_ConnectionObject = connections[0]->GetParent()->GetGuid();
-        auto res = AddSubCommand(cmd);
-        if (res.m_Result.Succeeded())
-        {
-          ezRemoveObjectCommand remove;
-          remove.m_Object = cmd.m_ConnectionObject;
-          res = AddSubCommand(remove);
-        }
-
-        if (res.m_Result.Failed())
-        {
-          return res;
-        }
-      }
+      EZ_SUCCEED_OR_RETURN(RemoveConnections(*pPinSource));
     }
+
     ezRemoveObjectCommand cmd;
     cmd.m_Object = m_Object;
     auto res = AddSubCommand(cmd);
@@ -287,3 +269,52 @@ ezStatus ezDisconnectNodePinsCommand::UndoInternal(bool bFireEvents)
   pManager->Connect(m_pConnectionObject, *pOutput, *pInput);
   return ezStatus(EZ_SUCCESS);
 }
+
+
+////////////////////////////////////////////////////////////////////////
+// ezNodeCommands
+////////////////////////////////////////////////////////////////////////
+
+// static
+ezStatus ezNodeCommands::AddAndConnectCommand(ezCommandHistory* history, const ezRTTI* pConnectionType, const ezPin& sourcePin, const ezPin& targetPin)
+{
+  ezAddObjectCommand cmd;
+  cmd.m_pType = pConnectionType;
+  cmd.m_NewObjectGuid.CreateNewUuid();
+  cmd.m_Index = -1;
+
+  ezStatus res = history->AddCommand(cmd);
+  if (res.m_Result.Succeeded())
+  {
+    ezConnectNodePinsCommand connect;
+    connect.m_ConnectionObject = cmd.m_NewObjectGuid;
+    connect.m_ObjectSource = sourcePin.GetParent()->GetGuid();
+    connect.m_ObjectTarget = targetPin.GetParent()->GetGuid();
+    connect.m_sSourcePin = sourcePin.GetName();
+    connect.m_sTargetPin = targetPin.GetName();
+
+    res = history->AddCommand(connect);
+  }
+
+  return res;
+}
+
+// static
+ezStatus ezNodeCommands::DisconnectAndRemoveCommand(ezCommandHistory* history, const ezUuid& connectionObject)
+{
+  ezDisconnectNodePinsCommand cmd;
+  cmd.m_ConnectionObject = connectionObject;
+
+  ezStatus res = history->AddCommand(cmd);
+  if (res.m_Result.Succeeded())
+  {
+    ezRemoveObjectCommand remove;
+    remove.m_Object = cmd.m_ConnectionObject;
+
+    res = history->AddCommand(remove);
+  }
+
+  return res;
+}
+
+

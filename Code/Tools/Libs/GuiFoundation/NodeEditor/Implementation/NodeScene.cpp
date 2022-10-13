@@ -767,18 +767,7 @@ void ezQtNodeScene::ConnectPinsAction(const ezPin& sourcePin, const ezPin& targe
     const ezArrayPtr<const ezConnection* const> connections = m_pManager->GetConnections(sourcePin);
     for (const ezConnection* pConnection : connections)
     {
-      ezDisconnectNodePinsCommand cmd;
-      cmd.m_ConnectionObject = pConnection->GetParent()->GetGuid();
-
-      res = history->AddCommand(cmd);
-      if (res.m_Result.Succeeded())
-      {
-        ezRemoveObjectCommand remove;
-        remove.m_Object = cmd.m_ConnectionObject;
-
-        res = history->AddCommand(remove);
-      }
-
+      res = ezNodeCommands::DisconnectAndRemoveCommand(history, pConnection->GetParent()->GetGuid());
       if (res.Failed())
       {
         history->CancelTransaction();
@@ -793,18 +782,7 @@ void ezQtNodeScene::ConnectPinsAction(const ezPin& sourcePin, const ezPin& targe
     const ezArrayPtr<const ezConnection* const> connections = m_pManager->GetConnections(targetPin);
     for (const ezConnection* pConnection : connections)
     {
-      ezDisconnectNodePinsCommand cmd;
-      cmd.m_ConnectionObject = pConnection->GetParent()->GetGuid();
-
-      res = history->AddCommand(cmd);
-      if (res.m_Result.Succeeded())
-      {
-        ezRemoveObjectCommand remove;
-        remove.m_Object = cmd.m_ConnectionObject;
-
-        res = history->AddCommand(remove);
-      }
-
+      res = ezNodeCommands::DisconnectAndRemoveCommand(history, pConnection->GetParent()->GetGuid());
       if (res.Failed())
       {
         history->CancelTransaction();
@@ -815,24 +793,7 @@ void ezQtNodeScene::ConnectPinsAction(const ezPin& sourcePin, const ezPin& targe
 
   // connect the two pins
   {
-    ezAddObjectCommand cmd;
-    cmd.m_pType = m_pManager->GetConnectionType();
-    cmd.m_NewObjectGuid.CreateNewUuid();
-    cmd.m_Index = -1;
-
-    res = history->AddCommand(cmd);
-    if (res.m_Result.Succeeded())
-    {
-      ezConnectNodePinsCommand connect;
-      connect.m_ConnectionObject = cmd.m_NewObjectGuid;
-      connect.m_ObjectSource = sourcePin.GetParent()->GetGuid();
-      connect.m_ObjectTarget = targetPin.GetParent()->GetGuid();
-      connect.m_sSourcePin = sourcePin.GetName();
-      connect.m_sTargetPin = targetPin.GetName();
-
-      res = history->AddCommand(connect);
-    }
-
+    res = ezNodeCommands::AddAndConnectCommand(history, m_pManager->GetConnectionType(), sourcePin, targetPin);      
     if (res.Failed())
     {
       history->CancelTransaction();
@@ -851,18 +812,7 @@ void ezQtNodeScene::DisconnectPinsAction(ezQtConnection* pConnection)
     ezCommandHistory* history = GetDocumentNodeManager()->GetDocument()->GetCommandHistory();
     history->StartTransaction("Disconnect Pins");
 
-    ezDisconnectNodePinsCommand cmd;
-    cmd.m_ConnectionObject = pConnection->GetConnection()->GetParent()->GetGuid();
-
-    res = history->AddCommand(cmd);
-    if (res.m_Result.Succeeded())
-    {
-      ezRemoveObjectCommand remove;
-      remove.m_Object = cmd.m_ConnectionObject;
-
-      res = history->AddCommand(remove);
-    }
-
+    res = ezNodeCommands::DisconnectAndRemoveCommand(history, pConnection->GetConnection()->GetParent()->GetGuid());
     if (res.m_Result.Failed())
       history->CancelTransaction();
     else
