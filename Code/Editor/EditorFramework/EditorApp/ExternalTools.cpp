@@ -72,7 +72,8 @@ ezStatus ezQtEditorApp::ExecuteTool(const char* szTool, const QStringList& argum
   proc.setReadChannel(QProcess::StandardOutput);
   QObject::connect(&proc, &QProcess::readyReadStandardOutput, [&proc, &logoutput]()
     { logoutput.append(proc.readAllStandardOutput()); });
-  proc.start(QString::fromUtf8(ezQtEditorApp::GetSingleton()->FindToolApplication(szTool)), arguments);
+  ezString toolPath = ezQtEditorApp::GetSingleton()->FindToolApplication(szTool);
+  proc.start(QString::fromUtf8(toolPath, toolPath.GetElementCount()), arguments);
 
   if (!proc.waitForStarted(uiSecondsTillTimeout * 1000))
     return ezStatus(ezFmt("{0} could not be started", szTool));

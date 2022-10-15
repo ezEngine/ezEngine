@@ -400,7 +400,7 @@ void ezQtEditorApp::LaunchEditor(const char* szProject, bool bCreate)
     args << "-debug";
 
   QProcess proc;
-  proc.startDetached(QString::fromUtf8(app), args);
+  proc.startDetached(QString::fromUtf8(app, app.GetElementCount()), args);
 }
 
 const ezApplicationPluginConfig ezQtEditorApp::GetRuntimePluginConfig(bool bIncludeEditorPlugins) const

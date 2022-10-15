@@ -24,7 +24,9 @@ class QWidget;
 class ezProgress;
 class ezQtProgressbar;
 class ezQtEditorApp;
-class QStringList;
+template <typename T>
+class QList;
+using QStringList = QList<QString>;
 class ezTranslatorFromFiles;
 class ezDynamicStringEnum;
 class QSplashScreen;

@@ -14,7 +14,7 @@ ezQtAssetPropertyWidget::ezQtAssetPropertyWidget()
   m_uiThumbnailID = 0;
 
   m_pLayout = new QHBoxLayout(this);
-  m_pLayout->setMargin(0);
+  m_pLayout->setContentsMargins(0, 0, 0, 0);
   m_pLayout->setSpacing(0);
   setLayout(m_pLayout);
 

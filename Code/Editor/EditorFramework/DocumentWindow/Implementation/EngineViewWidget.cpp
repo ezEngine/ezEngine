@@ -636,7 +636,7 @@ void ezQtEngineViewWidget::ShowRestartButton(bool bShow)
   if (m_pRestartButtonLayout == nullptr && bShow == true)
   {
     m_pRestartButtonLayout = new QHBoxLayout(this);
-    m_pRestartButtonLayout->setMargin(0);
+    m_pRestartButtonLayout->setContentsMargins(0, 0, 0, 0);
 
     setLayout(m_pRestartButtonLayout);
 
@@ -680,7 +680,7 @@ ezQtViewWidgetContainer::ezQtViewWidgetContainer(QWidget* pParent, ezQtEngineVie
   setAutoFillBackground(true);
 
   m_pLayout = new QVBoxLayout(this);
-  m_pLayout->setMargin(1);
+  m_pLayout->setContentsMargins(0, 0, 0, 0);
   m_pLayout->setSpacing(0);
   setLayout(m_pLayout);
 

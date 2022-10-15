@@ -171,7 +171,7 @@ void ezQtStatVisWidget::Save()
   ezStringBuilder sStatHistory;
   sStatHistory.Format("/StatWindow{0}.stats", m_iWindowNumber);
 
-  QString sFile = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+  QString sFile = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
   QDir dir;
   dir.mkpath(sFile);
 
@@ -201,7 +201,7 @@ void ezQtStatVisWidget::Load()
   ezStringBuilder sStatHistory;
   sStatHistory.Format("/StatWindow{0}.stats", m_iWindowNumber);
 
-  QString sFile = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+  QString sFile = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
   QDir dir;
   dir.mkpath(sFile);
 

@@ -3,7 +3,6 @@
 #include <GuiFoundation/Widgets/DoubleSpinBox.moc.h>
 #include <GuiFoundation/Widgets/WidgetUtils.h>
 #include <QApplication>
-#include <QDesktopWidget>
 #include <QLineEdit>
 #include <QMouseEvent>
 #include <QStyleOption>

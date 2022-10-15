@@ -589,7 +589,7 @@ void ezProjectAction::Execute(const ezVariant& value)
         ezStringBuilder path;
         ezFileSystem::ResolveSpecialDirectory(dd.m_sDataDirSpecialPath, path).IgnoreResult();
 
-        args.append(QString::fromUtf8(path));
+        args.append(QString::fromUtf8(path, path.GetElementCount()));
       }
 
       const ezStatus res = ezQtUiServices::OpenInVsCode(args);

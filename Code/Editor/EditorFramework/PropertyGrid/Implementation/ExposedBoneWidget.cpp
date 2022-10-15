@@ -14,7 +14,7 @@ ezQtExposedBoneWidget::ezQtExposedBoneWidget()
   m_pRotWidget[2] = nullptr;
 
   m_pLayout = new QHBoxLayout(this);
-  m_pLayout->setMargin(0);
+  m_pLayout->setContentsMargins(0, 0, 0, 0);
   setLayout(m_pLayout);
 
   QSizePolicy policy = sizePolicy();

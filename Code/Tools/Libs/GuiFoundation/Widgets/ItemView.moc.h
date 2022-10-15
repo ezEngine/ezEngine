@@ -45,7 +45,7 @@ public:
       case QEvent::HoverLeave:
       {
         QHoverEvent* pHoeverEvent = static_cast<QHoverEvent*>(ev);
-        QPoint pos = pHoeverEvent->pos();
+        QPoint pos = pHoeverEvent->position().toPoint();
         QModelIndex index = this->indexAt(pos);
         if (m_hovered.isValid() && (ev->type() == QEvent::HoverLeave || index != m_hovered))
         {
@@ -138,7 +138,8 @@ private:
 
     if (ezQtItemDelegate* pDelegate = qobject_cast<ezQtItemDelegate*>(this->itemDelegate(m_hovered)))
     {
-      QStyleOptionViewItem option = this->viewOptions();
+      QStyleOptionViewItem option;
+      this->initViewItemOption(&option);
       option.rect = this->visualRect(index);
       option.state |= (index == this->currentIndex() ? QStyle::State_HasFocus : QStyle::State_None);
 

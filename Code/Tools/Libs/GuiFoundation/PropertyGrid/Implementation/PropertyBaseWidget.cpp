@@ -511,7 +511,7 @@ ezQtUnsupportedPropertyWidget::ezQtUnsupportedPropertyWidget(const char* szMessa
   : ezQtPropertyWidget()
 {
   m_pLayout = new QHBoxLayout(this);
-  m_pLayout->setMargin(0);
+  m_pLayout->setContentsMargins(0, 0, 0, 0);
   setLayout(m_pLayout);
 
   m_pWidget = new QLabel(this);
@@ -526,7 +526,7 @@ void ezQtUnsupportedPropertyWidget::OnInit()
 
   QString sMessage = QStringLiteral("Unsupported Type: ") % QString::fromUtf8(m_pProp->GetSpecificType()->GetTypeName());
   if (!m_sMessage.IsEmpty())
-    sMessage += QStringLiteral(" (") % QString::fromUtf8(m_sMessage) % QStringLiteral(")");
+    sMessage += QStringLiteral(" (") % QString::fromUtf8(m_sMessage, m_sMessage.GetElementCount()) % QStringLiteral(")");
   m_pWidget->setText(sMessage);
   m_pWidget->setToolTip(sMessage);
 }
@@ -569,7 +569,7 @@ ezQtPropertyPointerWidget::ezQtPropertyPointerWidget()
   : ezQtPropertyWidget()
 {
   m_pLayout = new QHBoxLayout(this);
-  m_pLayout->setMargin(0);
+  m_pLayout->setContentsMargins(0, 0, 0, 0);
   setLayout(m_pLayout);
 
   m_pGroup = new ezQtCollapsibleGroupBox(this);
@@ -845,7 +845,7 @@ ezQtPropertyTypeWidget::ezQtPropertyTypeWidget(bool bAddCollapsibleGroup)
   : ezQtPropertyWidget()
 {
   m_pLayout = new QHBoxLayout(this);
-  m_pLayout->setMargin(0);
+  m_pLayout->setContentsMargins(0, 0, 0, 0);
   setLayout(m_pLayout);
   m_pGroup = nullptr;
   m_pGroupLayout = nullptr;
@@ -944,7 +944,7 @@ ezQtPropertyContainerWidget::ezQtPropertyContainerWidget()
   setAutoFillBackground(true);
 
   m_pLayout = new QHBoxLayout(this);
-  m_pLayout->setMargin(0);
+  m_pLayout->setContentsMargins(0, 0, 0, 0);
   setLayout(m_pLayout);
 
   m_pGroup = new ezQtCollapsibleGroupBox(this);
@@ -1697,7 +1697,7 @@ void ezQtPropertyTypeContainerWidget::CommandHistoryEventHandler(const ezCommand
 ezQtVariantPropertyWidget::ezQtVariantPropertyWidget()
 {
   m_pLayout = new QHBoxLayout(this);
-  m_pLayout->setMargin(0);
+  m_pLayout->setContentsMargins(0, 0, 0, 0);
   setLayout(m_pLayout);
 }
 
