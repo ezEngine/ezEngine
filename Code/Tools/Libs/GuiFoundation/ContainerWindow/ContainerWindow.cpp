@@ -91,14 +91,6 @@ ezQtContainerWindow::~ezQtContainerWindow()
   ezQtDocumentWindow::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtContainerWindow::DocumentWindowEventHandler, this));
   ezToolsProject::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtContainerWindow::ProjectEventHandler, this));
   ezQtUiServices::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtContainerWindow::UIServicesEventHandler, this));
-
-  // The dock manager does not take ownership of dock widgets.
-  auto dockWidgets = m_DockManager->dockWidgetsMap();
-  for (auto it = dockWidgets.begin(); it != dockWidgets.end(); ++it)
-  {
-    m_DockManager->removeDockWidget(it.value());
-    delete it.value();
-  }
 }
 
 void ezQtContainerWindow::UpdateWindowTitle()
@@ -153,10 +145,18 @@ void ezQtContainerWindow::closeEvent(QCloseEvent* e)
   {
     pWindow->DisableWindowLayoutSaving();
   }
+
+  // We need to destroy the dock manager here, doing it in the constructor leads to an access violation.
+  m_DockManager->deleteLater();
+  m_DockManager = nullptr;
+  QMainWindow::closeEvent(e);
 }
 
 void ezQtContainerWindow::SaveWindowLayout()
 {
+  if (!m_DockManager)
+    return;
+
   ezStringBuilder sFile;
   GetApplicationLayoutPath(sFile, true);
 
@@ -507,8 +507,7 @@ void ezQtContainerWindow::SlotDocumentTabCloseRequested()
   if (!pDocWindow->CanCloseWindow())
   {
     // TODO: There is no CloseRequested event so we just reopen on a timer.
-    QTimer::singleShot(1, [dock]()
-      { dock->toggleView(); });
+    QTimer::singleShot(1, [dock]() { dock->toggleView(); });
     return;
   }
   pDocWindow->CloseDocumentWindow();
