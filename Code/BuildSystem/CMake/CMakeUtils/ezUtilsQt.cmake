@@ -137,11 +137,11 @@ function(ez_link_target_qt)
 	target_include_directories(${FN_ARG_TARGET} PUBLIC ${CMAKE_BINARY_DIR}/${SUB_FOLDER})
 
 	target_compile_definitions(${FN_ARG_TARGET} PUBLIC EZ_USE_QT)
-    
-    if(EZ_CMAKE_COMPILER_MSVC)
-        # Qt6 requires runtime type information (RTTI) in debug builds.
-        target_compile_options(${FN_ARG_TARGET} PRIVATE "$<$<CONFIG:Debug>:/GR>")
-    endif()
+
+	if(EZ_CMAKE_COMPILER_MSVC)
+		# Qt6 requires runtime type information (RTTI) in debug builds.
+		target_compile_options(${FN_ARG_TARGET} PRIVATE "$<$<CONFIG:Debug>:/GR>")
+	endif()
 
 	foreach(module ${FN_ARG_COMPONENTS})
 		target_link_libraries(${FN_ARG_TARGET} PUBLIC "Qt6::${module}")
