@@ -344,7 +344,7 @@ void ezJoltCollisionMeshAssetDocumentGenerator::GetImportModes(const char* szPar
     info.m_Priority = ezAssetDocGeneratorPriority::DefaultPriority;
     info.m_sName = "Jolt_Colmesh_Triangle";
     info.m_sOutputFileParentRelative = baseOutputFile;
-    info.m_sIcon = ":/AssetIcons/Collision_Mesh.png";
+    info.m_sIcon = ":/AssetIcons/Jolt_Collision_Mesh.png";
   }
 }
 
@@ -392,7 +392,7 @@ void ezJoltConvexCollisionMeshAssetDocumentGenerator::GetImportModes(const char*
     info.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
     info.m_sName = "Jolt_Colmesh_Convex";
     info.m_sOutputFileParentRelative = baseOutputFile;
-    info.m_sIcon = ":/AssetIcons/Collision_Mesh_Convex.png";
+    info.m_sIcon = ":/AssetIcons/Jolt_Collision_Mesh_Convex.png";
   }
 }
 
