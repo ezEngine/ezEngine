@@ -11,6 +11,13 @@ struct EZ_GUIFOUNDATION_DLL ezPropertySelection
   ezVariant m_Index;
 
   bool operator==(const ezPropertySelection& rhs) const { return m_pObject == rhs.m_pObject && m_Index == rhs.m_Index; }
+
+  bool operator<(const ezPropertySelection& rhs) const
+  {
+    // Qt6 requires the less than operator but never calls it, so we use this dummy for now.
+    EZ_ASSERT_NOT_IMPLEMENTED;
+    return false;
+  }
 };
 
 struct EZ_GUIFOUNDATION_DLL ezPropertyClipboard
