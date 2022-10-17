@@ -2,6 +2,7 @@
 
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Containers/StaticArray.h>
+#include <Foundation/Memory/CommonAllocators.h>
 #include <Foundation/Strings/String.h>
 
 namespace HashTableTestDetail
@@ -449,32 +450,44 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashTable)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "CompatibleKeyType")
   {
-    ezHashTable<ezString, int> stringTable;
-    const char* szChar = "Char";
-    const char* szString = "ViewBla";
-    ezStringView sView(szString, szString + 4);
-    ezStringBuilder sBuilder("Builder");
+    ezProxyAllocator testAllocator("Test", ezFoundation::GetDefaultAllocator());
+    ezLocalAllocatorWrapper allocWrapper(&testAllocator);
+    using TestString = ezHybridString<32, ezLocalAllocatorWrapper>;
+
+    ezHashTable<TestString, int> stringTable;
+    const char* szChar = "VeryLongStringDefinitelyMoreThan32Chars1111elf!!!!";
+    const char* szString = "AnotherVeryLongStringThisTimeUsedForStringView!!!!";
+    ezStringView sView(szString);
+    ezStringBuilder sBuilder("BuilderAlsoNeedsToBeAVeryLongStringToTriggerAllocation");
     ezString sString("String");
     EZ_TEST_BOOL(!stringTable.Insert(szChar, 1));
     EZ_TEST_BOOL(!stringTable.Insert(sView, 2));
     EZ_TEST_BOOL(!stringTable.Insert(sBuilder, 3));
     EZ_TEST_BOOL(!stringTable.Insert(sString, 4));
-    EZ_TEST_BOOL(stringTable.Insert("View", 2));
+    EZ_TEST_BOOL(stringTable.Insert(szString, 2));
+
+    ezUInt64 oldAllocCount = testAllocator.GetStats().m_uiNumAllocations;
 
     EZ_TEST_BOOL(stringTable.Contains(szChar));
     EZ_TEST_BOOL(stringTable.Contains(sView));
     EZ_TEST_BOOL(stringTable.Contains(sBuilder));
     EZ_TEST_BOOL(stringTable.Contains(sString));
 
+    EZ_TEST_INT(testAllocator.GetStats().m_uiNumAllocations, oldAllocCount);
+
     EZ_TEST_INT(*stringTable.GetValue(szChar), 1);
     EZ_TEST_INT(*stringTable.GetValue(sView), 2);
     EZ_TEST_INT(*stringTable.GetValue(sBuilder), 3);
     EZ_TEST_INT(*stringTable.GetValue(sString), 4);
 
+    EZ_TEST_INT(testAllocator.GetStats().m_uiNumAllocations, oldAllocCount);
+
     EZ_TEST_BOOL(stringTable.Remove(szChar));
     EZ_TEST_BOOL(stringTable.Remove(sView));
     EZ_TEST_BOOL(stringTable.Remove(sBuilder));
     EZ_TEST_BOOL(stringTable.Remove(sString));
+
+    EZ_TEST_INT(testAllocator.GetStats().m_uiNumAllocations, oldAllocCount);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Swap")

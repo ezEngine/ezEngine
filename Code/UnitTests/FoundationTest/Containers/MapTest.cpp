@@ -589,6 +589,8 @@ EZ_CREATE_SIMPLE_TEST(Containers, Map)
 
       EZ_TEST_BOOL(arrayTable.Remove(aPtr));
       EZ_TEST_BOOL(arrayTable.Remove(bPtr));
+
+      EZ_TEST_INT(testAllocator.GetStats().m_uiNumAllocations, oldAllocCount);
     }
   }
 

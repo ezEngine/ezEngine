@@ -279,7 +279,7 @@ bool ezHashSetBase<K, H>::Insert(CompatibleKeyType&& key)
 {
   Reserve(m_uiCount + 1);
 
-  ezUInt32 uiIndex = H::Hash(key) % m_uiCapacity;
+  ezUInt32 uiIndex = H::Hash(key) & (m_uiCapacity - 1);
   ezUInt32 uiDeletedIndex = ezInvalidIndex;
 
   ezUInt32 uiCounter = 0;
@@ -314,7 +314,8 @@ bool ezHashSetBase<K, H>::Insert(CompatibleKeyType&& key)
 }
 
 template <typename K, typename H>
-bool ezHashSetBase<K, H>::Remove(const K& key)
+template <typename CompatibleKeyType>
+bool ezHashSetBase<K, H>::Remove(const CompatibleKeyType& key)
 {
   ezUInt32 uiIndex = FindEntry(key);
   if (uiIndex != ezInvalidIndex)
@@ -374,7 +375,8 @@ void ezHashSetBase<K, H>::RemoveInternal(ezUInt32 uiIndex)
 }
 
 template <typename K, typename H>
-EZ_FORCE_INLINE bool ezHashSetBase<K, H>::Contains(const K& key) const
+template <typename CompatibleKeyType>
+EZ_FORCE_INLINE bool ezHashSetBase<K, H>::Contains(const CompatibleKeyType& key) const
 {
   return FindEntry(key) != ezInvalidIndex;
 }
@@ -454,6 +456,7 @@ ezUInt64 ezHashSetBase<K, H>::GetHeapMemoryUsage() const
 template <typename K, typename H>
 void ezHashSetBase<K, H>::SetCapacity(ezUInt32 uiCapacity)
 {
+  EZ_ASSERT_DEV(ezMath::IsPowerOf2(uiCapacity), "uiCapacity must be a power of two to avoid modulo during lookup.");
   const ezUInt32 uiOldCapacity = m_uiCapacity;
   m_uiCapacity = uiCapacity;
 
@@ -480,17 +483,19 @@ void ezHashSetBase<K, H>::SetCapacity(ezUInt32 uiCapacity)
 }
 
 template <typename K, typename H>
-EZ_FORCE_INLINE ezUInt32 ezHashSetBase<K, H>::FindEntry(const K& key) const
+template <typename CompatibleKeyType>
+EZ_FORCE_INLINE ezUInt32 ezHashSetBase<K, H>::FindEntry(const CompatibleKeyType& key) const
 {
   return FindEntry(H::Hash(key), key);
 }
 
 template <typename K, typename H>
-inline ezUInt32 ezHashSetBase<K, H>::FindEntry(ezUInt32 uiHash, const K& key) const
+template <typename CompatibleKeyType>
+inline ezUInt32 ezHashSetBase<K, H>::FindEntry(ezUInt32 uiHash, const CompatibleKeyType& key) const
 {
   if (m_uiCapacity > 0)
   {
-    ezUInt32 uiIndex = uiHash % m_uiCapacity;
+    ezUInt32 uiIndex = uiHash & (m_uiCapacity - 1);
     ezUInt32 uiCounter = 0;
     while (!IsFreeEntry(uiIndex) && uiCounter < m_uiCapacity)
     {
