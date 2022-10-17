@@ -424,7 +424,7 @@ QMimeData* ezQtAssetBrowserModel::mimeData(const QModelIndexList& indexes) const
 
   ezStringBuilder tmp;
 
-  stream << indexes.size();
+  stream << (int)indexes.size();
   for (int i = 0; i < indexes.size(); ++i)
   {
     QString sGuid(ezConversionUtils::ToString(data(indexes[i], UserRoles::SubAssetGuid).value<ezUuid>(), tmp).GetData());

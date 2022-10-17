@@ -948,7 +948,7 @@ ezResult ezAssetCurator::FindBestMatchForFile(ezStringBuilder& sFile, ezArrayPtr
     if (ezFileSystem::ExistsFile(testName))
     {
       sFile = testName;
-      return EZ_SUCCESS;
+      goto found;
     }
   }
 
@@ -968,41 +968,42 @@ ezResult ezAssetCurator::FindBestMatchForFile(ezStringBuilder& sFile, ezArrayPtr
     return EZ_FAILURE;
   }
 
-  EZ_LOCK(m_CuratorMutex);
-
-  auto SearchFile = [this](ezStringBuilder& name) -> bool
   {
-    for (auto it = m_ReferencedFiles.GetIterator(); it.IsValid(); ++it)
-    {
-      if (it.Value().m_Status != ezFileStatus::Status::Valid)
-        continue;
+    EZ_LOCK(m_CuratorMutex);
 
-      const ezString& key = it.Key();
-
-      if (key.EndsWith_NoCase(name))
+    auto SearchFile = [this](ezStringBuilder& name) -> bool {
+      for (auto it = m_ReferencedFiles.GetIterator(); it.IsValid(); ++it)
       {
-        name = it.Key();
-        return true;
+        if (it.Value().m_Status != ezFileStatus::Status::Valid)
+          continue;
+
+        const ezString& key = it.Key();
+
+        if (key.EndsWith_NoCase(name))
+        {
+          name = it.Key();
+          return true;
+        }
+      }
+
+      return false;
+    };
+
+    // search for the full name
+    {
+      testName.Prepend("/"); // make sure to not find partial names
+
+      for (const auto& ext : AllowedFileExtensions)
+      {
+        testName.ChangeFileExtension(ext);
+
+        if (SearchFile(testName))
+          goto found;
       }
     }
 
-    return false;
-  };
-
-  // search for the full name
-  {
-    testName.Prepend("/"); // make sure to not find partial names
-
-    for (const auto& ext : AllowedFileExtensions)
-    {
-      testName.ChangeFileExtension(ext);
-
-      if (SearchFile(testName))
-        goto found;
-    }
+    return EZ_FAILURE;
   }
-
-  return EZ_FAILURE;
 
 found:
   if (ezQtEditorApp::GetSingleton()->MakePathDataDirectoryRelative(testName))
