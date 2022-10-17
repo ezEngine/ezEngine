@@ -16,8 +16,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Map)
 
     // EZ_TEST_INT(std::find(begin(m), end(m), 500).Key(), 499);
 
-    auto itfound = std::find_if(begin(m), end(m), [](ezMap<ezUInt32, ezUInt32>::ConstIterator val)
-      { return val.Value() == 500; });
+    auto itfound = std::find_if(begin(m), end(m), [](ezMap<ezUInt32, ezUInt32>::ConstIterator val) { return val.Value() == 500; });
 
     // EZ_TEST_BOOL(std::find(begin(m), end(m), 500) == itfound);
 
