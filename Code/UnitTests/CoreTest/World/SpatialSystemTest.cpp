@@ -120,7 +120,7 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
       ezBoundingSphere objSphere = it->GetGlobalBounds().GetSphere();
       if (testSphere.Overlaps(objSphere))
       {
-        EZ_TEST_BOOL(it->IsDynamic() || uniqueObjects.Contains(it));
+        EZ_TEST_BOOL(it->IsDynamic() || uniqueObjects.Contains((ezGameObject*)it));
       }
     }
 
@@ -149,7 +149,7 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
       ezBoundingSphere objSphere = it->GetGlobalBounds().GetSphere();
       if (testSphere.Overlaps(objSphere))
       {
-        EZ_TEST_BOOL(it->IsDynamic() || uniqueObjects.Contains(it));
+        EZ_TEST_BOOL(it->IsDynamic() || uniqueObjects.Contains((ezGameObject*)it));
       }
     }
   }
@@ -178,7 +178,7 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
       ezBoundingBox objBox = it->GetGlobalBounds().GetBox();
       if (testBox.Overlaps(objBox))
       {
-        EZ_TEST_BOOL(it->IsDynamic() || uniqueObjects.Contains(it));
+        EZ_TEST_BOOL(it->IsDynamic() || uniqueObjects.Contains((ezGameObject*)it));
       }
     }
 
@@ -207,7 +207,7 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
       ezBoundingBox objBox = it->GetGlobalBounds().GetBox();
       if (testBox.Overlaps(objBox))
       {
-        EZ_TEST_BOOL(it->IsDynamic() || uniqueObjects.Contains(it));
+        EZ_TEST_BOOL(it->IsDynamic() || uniqueObjects.Contains((ezGameObject*)it));
       }
     }
   }
