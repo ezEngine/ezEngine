@@ -291,7 +291,8 @@ private:
   Node* SkewNode(Node* root);
   Node* SplitNode(Node* root);
   void Insert(const KeyType& key, const ValueType& value, Node*& pInsertedNode);
-  Node* Remove(Node* root, const KeyType& key, bool& bRemoved);
+  template <typename CompatibleKeyType>
+  Node* Remove(Node* root, const CompatibleKeyType& key, bool& bRemoved);
 
   /// \brief Returns the left-most node of the tree(smallest key).
   Node* GetLeftMost() const;

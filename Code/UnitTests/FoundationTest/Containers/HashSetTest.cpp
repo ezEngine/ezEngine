@@ -2,6 +2,7 @@
 
 #include <Foundation/Containers/HashSet.h>
 #include <Foundation/Containers/StaticArray.h>
+#include <Foundation/Memory/CommonAllocators.h>
 
 namespace
 {
@@ -458,6 +459,41 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashSet)
 
     t[1].Insert(32);
     EZ_TEST_BOOL(t[0] == t[1]);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "CompatibleKeyType")
+  {
+    ezProxyAllocator testAllocator("Test", ezFoundation::GetDefaultAllocator());
+    ezLocalAllocatorWrapper allocWrapper(&testAllocator);
+    using TestString = ezHybridString<32, ezLocalAllocatorWrapper>;
+
+    ezHashSet<TestString> stringSet;
+    const char* szChar = "VeryLongStringDefinitelyMoreThan32Chars1111elf!!!!";
+    const char* szString = "AnotherVeryLongStringThisTimeUsedForStringView!!!!";
+    ezStringView sView(szString);
+    ezStringBuilder sBuilder("BuilderAlsoNeedsToBeAVeryLongStringToTriggerAllocation");
+    ezString sString("String");
+    EZ_TEST_BOOL(!stringSet.Insert(szChar));
+    EZ_TEST_BOOL(!stringSet.Insert(sView));
+    EZ_TEST_BOOL(!stringSet.Insert(sBuilder));
+    EZ_TEST_BOOL(!stringSet.Insert(sString));
+    EZ_TEST_BOOL(stringSet.Insert(szString));
+
+    ezUInt64 oldAllocCount = testAllocator.GetStats().m_uiNumAllocations;
+
+    EZ_TEST_BOOL(stringSet.Contains(szChar));
+    EZ_TEST_BOOL(stringSet.Contains(sView));
+    EZ_TEST_BOOL(stringSet.Contains(sBuilder));
+    EZ_TEST_BOOL(stringSet.Contains(sString));
+
+    EZ_TEST_INT(testAllocator.GetStats().m_uiNumAllocations, oldAllocCount);
+
+    EZ_TEST_BOOL(stringSet.Remove(szChar));
+    EZ_TEST_BOOL(stringSet.Remove(sView));
+    EZ_TEST_BOOL(stringSet.Remove(sBuilder));
+    EZ_TEST_BOOL(stringSet.Remove(sString));
+
+    EZ_TEST_INT(testAllocator.GetStats().m_uiNumAllocations, oldAllocCount);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Swap")

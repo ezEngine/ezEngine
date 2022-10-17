@@ -107,15 +107,15 @@ void ezReflectionPool::ExtractReflectionProbe(const ezComponent* pComponent, ezM
   {
     if (msg.m_OverrideCategory == ezInvalidRenderDataCategory)
     {
-      ezStringBuilder sEnum;
-      ezReflectionUtils::BitflagsToString(probeData.m_Flags, sEnum, ezReflectionUtils::EnumConversionMode::ValueNameOnly);
-      ezStringBuilder s;
       ezInt32 activeIndex = 0;
-      if (s_pData->m_ActiveDynamicUpdate.Contains({uiWorldIndex, id}))
+      if (s_pData->m_ActiveDynamicUpdate.Contains(ezReflectionProbeRef{uiWorldIndex, id}))
       {
         activeIndex = 1;
       }
 
+      ezStringBuilder sEnum;
+      ezReflectionUtils::BitflagsToString(probeData.m_Flags, sEnum, ezReflectionUtils::EnumConversionMode::ValueNameOnly);
+      ezStringBuilder s;
       s.Format("\n RefIdx: {}\nUpdating: {}\nFlags: {}\n", iMappedIndex, activeIndex, sEnum);
       ezDebugRenderer::Draw3DText(pWorld, s, pComponent->GetOwner()->GetGlobalPosition(), ezColor::Violet);
     }

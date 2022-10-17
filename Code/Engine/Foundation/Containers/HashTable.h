@@ -239,6 +239,7 @@ private:
   void SetCapacity(ezUInt32 uiCapacity);
 
   void RemoveInternal(ezUInt32 uiIndex);
+
   template <typename CompatibleKeyType>
   ezUInt32 FindEntry(const CompatibleKeyType& key) const;
 

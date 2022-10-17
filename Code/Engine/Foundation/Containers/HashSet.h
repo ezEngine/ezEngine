@@ -105,13 +105,15 @@ public:
   bool Insert(CompatibleKeyType&& key); // [tested]
 
   /// \brief Removes the entry with the given key. Returns if an entry was removed.
-  bool Remove(const KeyType& key); // [tested]
+  template <typename CompatibleKeyType>
+  bool Remove(const CompatibleKeyType& key); // [tested]
 
   /// \brief Erases the key at the given Iterator. Returns an iterator to the element after the given iterator.
   ConstIterator Remove(const ConstIterator& pos); // [tested]
 
   /// \brief Returns if an entry with given key exists in the table.
-  bool Contains(const KeyType& key) const; // [tested]
+  template <typename CompatibleKeyType>
+  bool Contains(const CompatibleKeyType& key) const; // [tested]
 
   /// \brief Checks whether all keys of the given set are in the container.
   bool ContainsSet(const ezHashSetBase<KeyType, Hasher>& operand) const; // [tested]
@@ -160,9 +162,14 @@ private:
   };
 
   void SetCapacity(ezUInt32 uiCapacity);
+
   void RemoveInternal(ezUInt32 uiIndex);
-  ezUInt32 FindEntry(const KeyType& key) const;
-  ezUInt32 FindEntry(ezUInt32 uiHash, const KeyType& key) const;
+
+  template <typename CompatibleKeyType>
+  ezUInt32 FindEntry(const CompatibleKeyType& key) const;
+
+  template <typename CompatibleKeyType>
+  ezUInt32 FindEntry(ezUInt32 uiHash, const CompatibleKeyType& key) const;
 
   ezUInt32 GetFlagsCapacity() const;
   ezUInt32 GetFlags(ezUInt32* pFlags, ezUInt32 uiEntryIndex) const;

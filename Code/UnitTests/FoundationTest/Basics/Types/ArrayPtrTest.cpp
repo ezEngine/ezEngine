@@ -86,7 +86,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, ArrayPtr)
     EZ_TEST_BOOL(ap.GetCount() == 0);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator== / operator!=")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator== / operator!= / operator<")
   {
     ezInt32 pIntData[] = {1, 2, 3, 4, 5};
 
@@ -98,6 +98,11 @@ EZ_CREATE_SIMPLE_TEST(Basics, ArrayPtr)
     EZ_TEST_BOOL(ap1 == ap2);
     EZ_TEST_BOOL(ap1 != ap3);
     EZ_TEST_BOOL(ap1 != ap4);
+
+    EZ_TEST_BOOL(ap1 < ap3);
+    ezInt32 pIntData2[] = {1, 2, 4};
+    ezArrayPtr<ezInt32> ap5(pIntData2, 3);
+    EZ_TEST_BOOL(ap1 < ap5);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator[]")

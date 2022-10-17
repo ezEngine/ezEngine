@@ -46,6 +46,17 @@ namespace ezInternal
     ezAllocatorBase* m_pAllocator;
   };
 
+  template <typename T>
+  EZ_ALWAYS_INLINE bool operator<(const NewInstance<T>& lhs, T* rhs)
+  {
+    return lhs.m_pInstance < rhs;
+  }
+
+  template <typename T>
+  EZ_ALWAYS_INLINE bool operator<(T* lhs, const NewInstance<T>& rhs)
+  {
+    return lhs < rhs.m_pInstance;
+  }
 
   template <typename T>
   EZ_FORCE_INLINE void Delete(ezAllocatorBase* pAllocator, T* ptr)

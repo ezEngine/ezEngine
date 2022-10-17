@@ -35,6 +35,9 @@ public:
   /// \brief Compares this array to another contiguous array type.
   bool operator!=(const ezArrayPtr<const T>& rhs) const; // [tested]
 
+  /// \brief Compares this array to another contiguous array type.
+  bool operator<(const ezArrayPtr<const T>& rhs) const; // [tested]
+
   /// \brief Returns the element at the given index. Does bounds checks in debug builds.
   const T& operator[](ezUInt32 uiIndex) const; // [tested]
 

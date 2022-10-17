@@ -88,7 +88,7 @@ public:
 
   ezDynamicArray(const ezDynamicArray<T, AllocatorWrapper>& other);
   ezDynamicArray(const ezDynamicArrayBase<T>& other);
-  ezDynamicArray(const ezArrayPtr<const T>& other);
+  explicit ezDynamicArray(const ezArrayPtr<const T>& other);
 
   ezDynamicArray(ezDynamicArray<T, AllocatorWrapper>&& other);
   ezDynamicArray(ezDynamicArrayBase<T>&& other);
