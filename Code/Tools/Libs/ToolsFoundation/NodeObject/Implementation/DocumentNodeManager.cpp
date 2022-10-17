@@ -202,9 +202,12 @@ bool ezDocumentNodeManager::IsConnected(const ezPin& source, const ezPin& target
   return false;
 }
 
-ezStatus ezDocumentNodeManager::CanConnect(const ezPin& source, const ezPin& target, CanConnectResult& out_Result) const
+ezStatus ezDocumentNodeManager::CanConnect(const ezRTTI* pObjectType, const ezPin& source, const ezPin& target, CanConnectResult& out_Result) const
 {
   out_Result = CanConnectResult::ConnectNever;
+
+  if (pObjectType == nullptr || pObjectType->IsDerivedFrom(GetConnectionType()) == false)
+    return ezStatus("Invalid connection object type");
 
   if (source.m_Type != ezPin::Type::Output)
     return ezStatus("Source pin is not an output pin.");
@@ -250,7 +253,7 @@ void ezDocumentNodeManager::Connect(const ezDocumentObject* pObject, const ezPin
 {
   ezDocumentNodeManager::CanConnectResult res;
   EZ_IGNORE_UNUSED(res);
-  EZ_ASSERT_DEBUG(CanConnect(source, target, res).m_Result.Succeeded(), "Connect: Sanity check failed!");
+  EZ_ASSERT_DEBUG(CanConnect(pObject->GetType(), source, target, res).m_Result.Succeeded(), "Connect: Sanity check failed!");
 
   auto pConnection = EZ_DEFAULT_NEW(ezConnection, source, target, pObject);
   m_ObjectToConnection.Insert(pObject->GetGuid(), pConnection);
@@ -400,7 +403,7 @@ void ezDocumentNodeManager::RestoreMetaDataAfterLoading(const ezAbstractObjectGr
         continue;
 
       ezDocumentNodeManager::CanConnectResult res;
-      if (CanConnect(*pSourcePin, *pTargetPin, res).m_Result.Succeeded())
+      if (CanConnect(pObject->GetType(), *pSourcePin, *pTargetPin, res).m_Result.Succeeded())
       {
         if (bUndoable)
         {
@@ -425,6 +428,8 @@ void ezDocumentNodeManager::GetMetaDataHash(const ezDocumentObject* pObject, ezU
 {
   if (IsNode(pObject))
   {
+    // The node position is not hashed here since the hash is only used for asset transform
+    // and for that the node position is irrelevant.
   }
   else if (IsConnection(pObject))
   {
@@ -717,10 +722,10 @@ void ezDocumentNodeManager::RestoreOldMetaDataAfterLoading(const ezAbstractObjec
     if (pSourcePin == nullptr || pTargetPin == nullptr)
       continue;
 
+    const ezRTTI* pConnectionType = GetConnectionType();
     ezDocumentNodeManager::CanConnectResult res;
-    if (CanConnect(*pSourcePin, *pTargetPin, res).m_Result.Succeeded())
+    if (CanConnect(pConnectionType, *pSourcePin, *pTargetPin, res).m_Result.Succeeded())
     {
-      const ezRTTI* pConnectionType = GetConnectionType();
       ezUuid ObjectGuid;
       ObjectGuid.CreateNewUuid();
       ezDocumentObject* pConnectionObject = CreateObject(pConnectionType, ObjectGuid);

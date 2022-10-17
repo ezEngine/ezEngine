@@ -131,7 +131,7 @@ public:
   ezArrayPtr<const ezConnection* const> GetConnections(const ezPin& pin) const;
   bool HasConnections(const ezPin& pin) const;
   bool IsConnected(const ezPin& source, const ezPin& target) const;
-  ezStatus CanConnect(const ezPin& source, const ezPin& target, CanConnectResult& result) const;
+  ezStatus CanConnect(const ezRTTI* pObjectType, const ezPin& source, const ezPin& target, CanConnectResult& result) const;
   ezStatus CanDisconnect(const ezConnection* pConnection) const;
   ezStatus CanDisconnect(const ezDocumentObject* pObject) const;
   ezStatus CanMoveNode(const ezDocumentObject* pObject, const ezVec2& vPos) const;

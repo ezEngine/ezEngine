@@ -577,9 +577,10 @@ void ezQtNodeScene::MarkupConnectablePins(ezQtPin* pQtSourcePin)
 {
   m_ConnectablePins.Clear();
 
-  const bool bConnectForward = pQtSourcePin->GetPin()->GetType() == ezPin::Type::Output;
+  const ezRTTI* pConnectionType = m_pManager->GetConnectionType();
 
   const ezPin* pSourcePin = pQtSourcePin->GetPin();
+  const bool bConnectForward = pSourcePin->GetType() == ezPin::Type::Output;
 
   for (auto it = m_Nodes.GetIterator(); it.IsValid(); ++it)
   {
@@ -596,9 +597,9 @@ void ezQtNodeScene::MarkupConnectablePins(ezQtPin* pQtSourcePin)
         ezDocumentNodeManager::CanConnectResult res;
 
         if (bConnectForward)
-          m_pManager->CanConnect(*pSourcePin, *pin, res);
+          m_pManager->CanConnect(pConnectionType, *pSourcePin, *pin, res);
         else
-          m_pManager->CanConnect(*pin, *pSourcePin, res);
+          m_pManager->CanConnect(pConnectionType, *pin, *pSourcePin, res);
 
         if (res == ezDocumentNodeManager::CanConnectResult::ConnectNever)
         {
@@ -750,7 +751,7 @@ void ezQtNodeScene::RemoveSelectedNodesAction()
 void ezQtNodeScene::ConnectPinsAction(const ezPin& sourcePin, const ezPin& targetPin)
 {
   ezDocumentNodeManager::CanConnectResult connect;
-  ezStatus res = m_pManager->CanConnect(sourcePin, targetPin, connect);
+  ezStatus res = m_pManager->CanConnect(m_pManager->GetConnectionType(), sourcePin, targetPin, connect);
 
   if (connect == ezDocumentNodeManager::CanConnectResult::ConnectNever)
   {
