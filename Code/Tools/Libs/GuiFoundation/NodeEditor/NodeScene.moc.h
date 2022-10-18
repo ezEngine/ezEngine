@@ -35,27 +35,41 @@ public:
   static ezRttiMappedObjectFactory<ezQtConnection>& GetConnectionFactory();
   static ezVec2 GetLastMouseInteractionPos() { return s_LastMouseInteraction; }
 
-  struct VisualStyleFlags
+  struct ConnectionStyle
   {
     using StorageType = ezUInt32;
 
     enum Enum
     {
-      StraightConnections = EZ_BIT(0), ///< Straight connection lines instead of bezier curves
-      ConnectionArrows = EZ_BIT(1),    ///< Draw an arrow to indicate the connection's direction. Only works with straight lines atm.
+      BezierCurve,
+      StraightLine,
+
+      Default = BezierCurve
+    };
+  };
+
+  void SetConnectionStyle(ezEnum<ConnectionStyle> style);
+  ezEnum<ConnectionStyle> GetConnectionStyle() const { return m_ConnectionStyle; }
+
+  struct ConnectionDecorationFlags
+  {
+    using StorageType = ezUInt32;
+
+    enum Enum
+    {
+      DirectionArrows = EZ_BIT(0), ///< Draw an arrow to indicate the connection's direction. Only works with straight lines atm.
 
       Default = 0
     };
 
     struct Bits
     {
-      StorageType StraightConnections : 1;
-      StorageType ConnectionArrows : 1;
+      StorageType DirectionArrows : 1;
     };
   };
 
-  void SetVisualStyleFlags(ezBitflags<VisualStyleFlags> flags);
-  ezBitflags<VisualStyleFlags> GetVisualStyleFlags() const { return m_VisualStyleFlags; }
+  void SetConnectionDecorationFlags(ezBitflags<ConnectionDecorationFlags> flags);
+  ezBitflags<ConnectionDecorationFlags> GetConnectionDecorationFlags() const { return m_ConnectionDecorationFlags; }
 
 protected:
   virtual void mouseMoveEvent(QGraphicsSceneMouseEvent* event) override;
@@ -109,9 +123,10 @@ private:
   ezVec2 m_vMousePos = ezVec2::ZeroVector();
   QString m_sContextMenuSearchText;
   ezDynamicArray<const ezQtPin*> m_ConnectablePins;
-  ezBitflags<VisualStyleFlags> m_VisualStyleFlags;
+  ezEnum<ConnectionStyle> m_ConnectionStyle;
+  ezBitflags<ConnectionDecorationFlags> m_ConnectionDecorationFlags;
 
   static ezVec2 s_LastMouseInteraction;
 };
 
-EZ_DECLARE_FLAGS_OPERATORS(ezQtNodeScene::VisualStyleFlags);
+EZ_DECLARE_FLAGS_OPERATORS(ezQtNodeScene::ConnectionDecorationFlags);

@@ -91,9 +91,15 @@ ezRttiMappedObjectFactory<ezQtConnection>& ezQtNodeScene::GetConnectionFactory()
   return s_ConnectionFactory;
 }
 
-void ezQtNodeScene::SetVisualStyleFlags(ezBitflags<VisualStyleFlags> flags)
+void ezQtNodeScene::SetConnectionStyle(ezEnum<ConnectionStyle> style)
 {
-  m_VisualStyleFlags = flags;
+  m_ConnectionStyle = style;
+  invalidate();
+}
+
+void ezQtNodeScene::SetConnectionDecorationFlags(ezBitflags<ConnectionDecorationFlags> flags)
+{
+  m_ConnectionDecorationFlags = flags;
   invalidate();
 }
 

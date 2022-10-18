@@ -60,13 +60,13 @@ void ezQtConnection::UpdateGeometry()
   QPainterPath p;
   QPointF dir = m_InPoint - m_OutPoint;
 
-  auto visualStyleFlags = static_cast<ezQtNodeScene*>(scene())->GetVisualStyleFlags();
-  if (visualStyleFlags.IsSet(ezQtNodeScene::VisualStyleFlags::StraightConnections))
+  auto pScene = static_cast<ezQtNodeScene*>(scene());
+  if (pScene->GetConnectionStyle() == ezQtNodeScene::ConnectionStyle::StraightLine)
   {
     QPointF startPoint = m_OutPoint;
     QPointF endPoint = m_InPoint;
 
-    if (visualStyleFlags.IsSet(ezQtNodeScene::VisualStyleFlags::ConnectionArrows))
+    if (pScene->GetConnectionDecorationFlags().IsSet(ezQtNodeScene::ConnectionDecorationFlags::DirectionArrows))
     {
       const float length = ezMath::Sqrt(dir.x() * dir.x() + dir.y() * dir.y());
       const float invLength = length != 0.0f ? 1.0f / length : 1.0f;
@@ -160,8 +160,8 @@ void ezQtConnection::paint(QPainter* painter, const QStyleOptionGraphicsItem* op
   }
   painter->setPen(p);
 
-  auto visualStyleFlags = static_cast<ezQtNodeScene*>(scene())->GetVisualStyleFlags();
-  if (visualStyleFlags.IsSet(ezQtNodeScene::VisualStyleFlags::ConnectionArrows))
+  auto decorationFlags = static_cast<ezQtNodeScene*>(scene())->GetConnectionDecorationFlags();
+  if (decorationFlags.IsSet(ezQtNodeScene::ConnectionDecorationFlags::DirectionArrows))
   {
     painter->setBrush(p.brush());
   }

@@ -3,6 +3,7 @@
 #include <ToolsFoundation/Command/Command.h>
 
 class ezDocumentObject;
+class ezCommandHistory;
 class ezPin;
 
 class EZ_TOOLSFOUNDATION_DLL ezRemoveNodeCommand : public ezCommand
