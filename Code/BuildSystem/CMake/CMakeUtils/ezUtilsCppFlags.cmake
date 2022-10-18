@@ -321,3 +321,17 @@ function(ez_set_build_flags TARGET_NAME)
 		ez_set_build_flags_gcc(${TARGET_NAME} ${ARGN})
 	endif()
 endfunction()
+
+# #####################################
+# ## ez_enable_strict_warnings(<target>)
+# #####################################
+function(ez_enable_strict_warnings TARGET_NAME)
+	if(MSVC)
+		# In case there is W3 already, remove it so it doesn't spam warnings when using Ninja builds.
+		get_target_property(TARGET_COMPILE_OPTS ${PROJECT_NAME} COMPILE_OPTIONS)
+		list(REMOVE_ITEM TARGET_COMPILE_OPTS /W3)
+		set_target_properties(${TARGET_NAME} PROPERTIES COMPILE_OPTIONS "${TARGET_COMPILE_OPTS}")
+		
+		target_compile_options(${PROJECT_NAME} PRIVATE /W4 /WX)
+	endif()
+endfunction()
