@@ -65,7 +65,7 @@ void ezActor::DestroyPlugin(ezActorPlugin* pPlugin)
 {
   for (ezUInt32 i = 0; i < m_pImpl->m_AllPlugins.GetCount(); ++i)
   {
-    if (m_pImpl->m_AllPlugins[i].Borrow() == pPlugin)
+    if (m_pImpl->m_AllPlugins[i] == pPlugin)
     {
       m_pImpl->m_AllPlugins.RemoveAtAndSwap(i);
       break;

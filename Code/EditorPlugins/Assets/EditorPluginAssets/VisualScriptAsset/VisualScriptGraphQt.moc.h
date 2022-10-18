@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Basics.h>
 #include <GuiFoundation/NodeEditor/Connection.h>
@@ -38,8 +38,7 @@ class ezQtVisualScriptPin : public ezQtPin
 public:
   ezQtVisualScriptPin();
 
-  virtual void SetPin(const ezPin* pPin) override;
-  virtual void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override;
+  virtual void SetPin(const ezPin& pin) override;
 };
 
 class ezQtVisualScriptConnection : public ezQtConnection

@@ -20,29 +20,17 @@ private:
   const ezVisualShaderPinDescriptor* m_pDescriptor;
 };
 
-class ezVisualShaderConnection : public ezConnection
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezVisualShaderConnection, ezConnection);
-
-public:
-};
-
 class ezVisualShaderNodeManager : public ezDocumentNodeManager
 {
 public:
   virtual bool InternalIsNode(const ezDocumentObject* pObject) const override;
   virtual void InternalCreatePins(const ezDocumentObject* pObject, NodeInternal& node) override;
-  virtual void InternalDestroyPins(const ezDocumentObject* pObject, NodeInternal& node) override;
   virtual void GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& Types) const override;
 
-  virtual ezStatus InternalCanConnect(const ezPin* pSource, const ezPin* pTarget, CanConnectResult& out_Result) const override;
+  virtual ezStatus InternalCanConnect(const ezPin& source, const ezPin& target, CanConnectResult& out_Result) const override;
   virtual const char* GetTypeCategory(const ezRTTI* pRtti) const override;
 
 private:
-  virtual ezConnection* InternalCreateConnection(const ezPin* pSource, const ezPin* pTarget) override
-  {
-    return EZ_DEFAULT_NEW(ezVisualShaderConnection);
-  }
   virtual ezStatus InternalCanAdd(
     const ezRTTI* pRtti, const ezDocumentObject* pParent, const char* szParentProperty, const ezVariant& index) const override;
 

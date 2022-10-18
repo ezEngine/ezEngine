@@ -2,7 +2,6 @@
 
 #include <Core/Messages/EventMessage.h>
 #include <Core/Utils/Blackboard.h>
-#include <Core/World/World.h>
 #include <GameEngine/GameEngineDLL.h>
 
 struct ezBlackboardEntry

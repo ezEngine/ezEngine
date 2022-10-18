@@ -8,8 +8,6 @@
 #include <ToolsFoundation/Document/Document.h>
 
 ezQtNode::ezQtNode()
-  : m_pManager(nullptr)
-  , m_pObject(nullptr)
 {
   auto palette = QApplication::palette();
 
@@ -26,9 +24,6 @@ ezQtNode::ezQtNode()
   QFont font = QApplication::font();
   font.setBold(true);
   m_pLabel->setFont(font);
-
-  m_pShadow = nullptr;
-  EnableDropShadow(true);
 
   m_HeaderColor = palette.alternateBase().color();
 }
@@ -67,8 +62,7 @@ void ezQtNode::InitNode(const ezDocumentNodeManager* pManager, const ezDocumentO
 
   UpdateGeometry();
 
-  const ezColorAttribute* pColorAttr = pObject->GetType()->GetAttributeByType<ezColorAttribute>();
-  if (pColorAttr)
+  if (const ezColorAttribute* pColorAttr = pObject->GetType()->GetAttributeByType<ezColorAttribute>())
   {
     ezColorGammaUB col = pColorAttr->GetColor();
     m_HeaderColor = qRgb(col.r, col.g, col.b);
@@ -91,10 +85,8 @@ void ezQtNode::UpdateGeometry()
 
   // Align inputs
   int maxInputWidth = 0;
-  for (ezUInt32 i = 0; i < m_Inputs.GetCount(); ++i)
+  for (ezQtPin* pQtPin : m_Inputs)
   {
-    ezQtPin* pQtPin = m_Inputs[i];
-
     auto rectPin = pQtPin->GetPinRect();
     pQtPin->setPos(QPointF(-rectPin.x(), y - rectPin.y()));
 
@@ -107,10 +99,8 @@ void ezQtNode::UpdateGeometry()
 
   // Align outputs
   int maxOutputWidth = 0;
-  for (ezUInt32 i = 0; i < m_Outputs.GetCount(); ++i)
+  for (ezQtPin* pQtPin : m_Outputs)
   {
-    ezQtPin* pQtPin = m_Outputs[i];
-
     auto rectPin = pQtPin->GetPinRect();
     pQtPin->setPos(QPointF(-rectPin.x(), y - rectPin.y()));
 
@@ -187,9 +177,8 @@ void ezQtNode::SetActive(bool active)
 void ezQtNode::CreatePins()
 {
   auto inputs = m_pManager->GetInputPins(m_pObject);
-  for (ezUInt32 i = 0; i < inputs.GetCount(); ++i)
+  for (auto& pPinTarget : inputs)
   {
-    const ezPin* pPinTarget = inputs[i];
     ezQtPin* pQtPin = ezQtNodeScene::GetPinFactory().CreateObject(pPinTarget->GetDynamicRTTI());
     if (pQtPin == nullptr)
     {
@@ -198,13 +187,12 @@ void ezQtNode::CreatePins()
     pQtPin->setParentItem(this);
     m_Inputs.PushBack(pQtPin);
 
-    pQtPin->SetPin(pPinTarget);
+    pQtPin->SetPin(*pPinTarget);
   }
 
   auto outputs = m_pManager->GetOutputPins(m_pObject);
-  for (ezUInt32 i = 0; i < outputs.GetCount(); ++i)
+  for (auto& pPinSource : outputs)
   {
-    const ezPin* pPinSource = outputs[i];
     ezQtPin* pQtPin = ezQtNodeScene::GetPinFactory().CreateObject(pPinSource->GetDynamicRTTI());
     if (pQtPin == nullptr)
     {
@@ -214,25 +202,25 @@ void ezQtNode::CreatePins()
     pQtPin->setParentItem(this);
     m_Outputs.PushBack(pQtPin);
 
-    pQtPin->SetPin(pPinSource);
+    pQtPin->SetPin(*pPinSource);
   }
 }
 
-ezQtPin* ezQtNode::GetInputPin(const ezPin* pPin)
+ezQtPin* ezQtNode::GetInputPin(const ezPin& pin)
 {
   for (ezQtPin* pQtPin : m_Inputs)
   {
-    if (pQtPin->GetPin() == pPin)
+    if (pQtPin->GetPin() == &pin)
       return pQtPin;
   }
   return nullptr;
 }
 
-ezQtPin* ezQtNode::GetOutputPin(const ezPin* pPin)
+ezQtPin* ezQtNode::GetOutputPin(const ezPin& pin)
 {
   for (ezQtPin* pQtPin : m_Outputs)
   {
-    if (pQtPin->GetPin() == pPin)
+    if (pQtPin->GetPin() == &pin)
       return pQtPin;
   }
   return nullptr;
@@ -321,12 +309,6 @@ QVariant ezQtNode::itemChange(GraphicsItemChange change, const QVariant& value)
   ezCommandHistory* pHistory = m_pManager->GetDocument()->GetCommandHistory();
   switch (change)
   {
-    case QGraphicsItem::ItemSelectedHasChanged:
-    {
-      if (!pHistory->IsInUndoRedo() && !pHistory->IsInTransaction())
-        m_DirtyFlags.Add(ezNodeFlags::SelectionChanged);
-    }
-    break;
     case QGraphicsItem::ItemPositionHasChanged:
     {
       if (!pHistory->IsInUndoRedo() && !pHistory->IsInTransaction())

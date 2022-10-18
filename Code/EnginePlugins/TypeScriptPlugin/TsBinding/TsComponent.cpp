@@ -252,7 +252,7 @@ static int __CPP_TsComponent_BroadcastEvent(duk_context* pDuk)
   ezTypeScriptBinding* pBinding = ezTypeScriptBinding::RetrieveBinding(duk);
 
   ezUniquePtr<ezMessage> pMsg = pBinding->MessageFromParameter(pDuk, 1, ezTime::Zero());
-  pComponent->BroadcastEventMsg(*ezStaticCast<ezEventMessage*>(pMsg.Borrow()));
+  pComponent->BroadcastEventMsg(ezStaticCast<ezEventMessage&>(*pMsg));
 
   EZ_DUK_RETURN_AND_VERIFY_STACK(duk, duk.ReturnVoid(), 0);
 }

@@ -99,7 +99,7 @@ void ezActorManager::DestroyActor(ezActor* pActor, DestructionMode mode)
   {
     for (ezUInt32 i = 0; i < m_pImpl->m_AllActors.GetCount(); ++i)
     {
-      if (m_pImpl->m_AllActors[i].Borrow() == pActor)
+      if (m_pImpl->m_AllActors[i] == pActor)
       {
         ezActorEvent e;
         e.m_Type = ezActorEvent::Type::BeforeActorDestruction;
@@ -178,7 +178,7 @@ void ezActorManager::DestroyApiService(ezActorApiService* pApiService, Destructi
   {
     for (ezUInt32 i = 0; i < m_pImpl->m_AllApiServices.GetCount(); ++i)
     {
-      if (m_pImpl->m_AllApiServices[i].Borrow() == pApiService)
+      if (m_pImpl->m_AllApiServices[i] == pApiService)
       {
         m_pImpl->m_AllApiServices.RemoveAtAndCopy(i);
         break;

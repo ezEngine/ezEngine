@@ -1,9 +1,10 @@
 #pragma once
 
 #include <ToolsFoundation/Command/Command.h>
-#include <ToolsFoundation/Document/Document.h>
-#include <ToolsFoundation/NodeObject/DocumentNodeManager.h>
-#include <ToolsFoundation/ToolsFoundationDLL.h>
+
+class ezDocumentObject;
+class ezCommandHistory;
+class ezPin;
 
 class EZ_TOOLSFOUNDATION_DLL ezRemoveNodeCommand : public ezCommand
 {
@@ -21,7 +22,7 @@ private:
   virtual void CleanupInternal(CommandState state) override;
 
 private:
-  ezDocumentObject* m_pObject;
+  ezDocumentObject* m_pObject = nullptr;
 };
 
 
@@ -34,7 +35,7 @@ public:
 
 public: // Properties
   ezUuid m_Object;
-  ezVec2 m_NewPos;
+  ezVec2 m_NewPos = ezVec2::ZeroVector();
 
 private:
   virtual ezStatus DoInternal(bool bRedo) override;
@@ -42,8 +43,8 @@ private:
   virtual void CleanupInternal(CommandState state) override {}
 
 private:
-  ezDocumentObject* m_pObject;
-  ezVec2 m_OldPos;
+  ezDocumentObject* m_pObject = nullptr;
+  ezVec2 m_OldPos = ezVec2::ZeroVector();
 };
 
 
@@ -55,6 +56,7 @@ public:
   ezConnectNodePinsCommand();
 
 public: // Properties
+  ezUuid m_ConnectionObject;
   ezUuid m_ObjectSource;
   ezUuid m_ObjectTarget;
   ezString m_sSourcePin;
@@ -66,8 +68,9 @@ private:
   virtual void CleanupInternal(CommandState state) override {}
 
 private:
-  ezDocumentObject* m_pObjectSource;
-  ezDocumentObject* m_pObjectTarget;
+  ezDocumentObject* m_pConnectionObject = nullptr;
+  ezDocumentObject* m_pObjectSource = nullptr;
+  ezDocumentObject* m_pObjectTarget = nullptr;
 };
 
 
@@ -79,10 +82,7 @@ public:
   ezDisconnectNodePinsCommand();
 
 public: // Properties
-  ezUuid m_ObjectSource;
-  ezUuid m_ObjectTarget;
-  ezString m_sSourcePin;
-  ezString m_sTargetPin;
+  ezUuid m_ConnectionObject;
 
 private:
   virtual ezStatus DoInternal(bool bRedo) override;
@@ -90,6 +90,17 @@ private:
   virtual void CleanupInternal(CommandState state) override {}
 
 private:
-  ezDocumentObject* m_pObjectSource;
-  ezDocumentObject* m_pObjectTarget;
+  ezDocumentObject* m_pConnectionObject = nullptr;
+  const ezDocumentObject* m_pObjectSource = nullptr;
+  const ezDocumentObject* m_pObjectTarget = nullptr;
+  ezString m_sSourcePin;
+  ezString m_sTargetPin;
+};
+
+
+class EZ_TOOLSFOUNDATION_DLL ezNodeCommands
+{
+public:
+  static ezStatus AddAndConnectCommand(ezCommandHistory* history, const ezRTTI* pConnectionType, const ezPin& sourcePin, const ezPin& targetPin);
+  static ezStatus DisconnectAndRemoveCommand(ezCommandHistory* history, const ezUuid& connectionObject);
 };

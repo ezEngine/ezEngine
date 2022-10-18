@@ -70,31 +70,16 @@ void ezProcGenNodeManager::InternalCreatePins(const ezDocumentObject* pObject, N
 
     if (pPropType->IsDerivedFrom<ezRenderPipelineNodeInputPin>())
     {
-      ezPin* pPin = EZ_DEFAULT_NEW(ezProcGenPin, ezPin::Type::Input, pProp->GetPropertyName(), pinColor, pObject);
+      auto pPin = EZ_DEFAULT_NEW(ezProcGenPin, ezPin::Type::Input, pProp->GetPropertyName(), pinColor, pObject);
       node.m_Inputs.PushBack(pPin);
     }
     else if (pPropType->IsDerivedFrom<ezRenderPipelineNodeOutputPin>())
     {
-      ezPin* pPin = EZ_DEFAULT_NEW(ezProcGenPin, ezPin::Type::Output, pProp->GetPropertyName(), pinColor, pObject);
+      auto pPin = EZ_DEFAULT_NEW(ezProcGenPin, ezPin::Type::Output, pProp->GetPropertyName(), pinColor, pObject);
       node.m_Outputs.PushBack(pPin);
     }
   }
 }
-
-void ezProcGenNodeManager::InternalDestroyPins(const ezDocumentObject* pObject, NodeInternal& node)
-{
-  for (ezPin* pPin : node.m_Inputs)
-  {
-    EZ_DEFAULT_DELETE(pPin);
-  }
-  node.m_Inputs.Clear();
-  for (ezPin* pPin : node.m_Outputs)
-  {
-    EZ_DEFAULT_DELETE(pPin);
-  }
-  node.m_Outputs.Clear();
-}
-
 
 void ezProcGenNodeManager::GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& Types) const
 {
@@ -117,24 +102,8 @@ const char* ezProcGenNodeManager::GetTypeCategory(const ezRTTI* pRtti) const
   return nullptr;
 }
 
-ezStatus ezProcGenNodeManager::InternalCanConnect(const ezPin* pSource, const ezPin* pTarget, CanConnectResult& out_Result) const
+ezStatus ezProcGenNodeManager::InternalCanConnect(const ezPin& source, const ezPin& target, CanConnectResult& out_Result) const
 {
   out_Result = CanConnectResult::ConnectNto1;
-
-  if (!pTarget->GetConnections().IsEmpty())
-    return ezStatus("Only one connection can be made to an input pin!");
-
   return ezStatus(EZ_SUCCESS);
 }
-
-#if 0
-const char* ezProcGenNodeManager::GetTypeCategory(const ezRTTI* pRtti) const
-{
-  const ezVisualScriptNodeDescriptor* pDesc = ezVisualScriptTypeRegistry::GetSingleton()->GetDescriptorForType(pRtti);
-
-  if (pDesc == nullptr)
-    return nullptr;
-
-  return pDesc->m_sCategory;
-}
-#endif

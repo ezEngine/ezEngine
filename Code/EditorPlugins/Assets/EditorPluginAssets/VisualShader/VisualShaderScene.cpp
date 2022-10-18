@@ -9,41 +9,36 @@ ezQtVisualShaderScene::ezQtVisualShaderScene(QObject* parent)
 {
 }
 
-ezQtVisualShaderScene::~ezQtVisualShaderScene() {}
-
+ezQtVisualShaderScene::~ezQtVisualShaderScene() = default;
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
+ezQtVisualShaderPin::ezQtVisualShaderPin() = default;
 
-ezQtVisualShaderPin::ezQtVisualShaderPin() {}
-
-
-void ezQtVisualShaderPin::SetPin(const ezPin* pPin)
+void ezQtVisualShaderPin::SetPin(const ezPin& pin)
 {
-  ezQtPin::SetPin(pPin);
+  ezQtPin::SetPin(pin);
 
-  const ezVisualShaderPin* pShaderPin = ezDynamicCast<const ezVisualShaderPin*>(pPin);
-  EZ_ASSERT_DEV(pShaderPin != nullptr, "Invalid pin type");
+  const ezVisualShaderPin& shaderPin = ezStaticCast<const ezVisualShaderPin&>(pin);
 
   ezStringBuilder sTooltip;
-
-  if (!pShaderPin->GetTooltip().IsEmpty())
+  if (!shaderPin.GetTooltip().IsEmpty())
   {
-    sTooltip = pShaderPin->GetTooltip();
+    sTooltip = shaderPin.GetTooltip();
   }
   else
   {
-    sTooltip = pShaderPin->GetName();
+    sTooltip = shaderPin.GetName();
   }
 
-  if (!pShaderPin->GetDescriptor()->m_sDefaultValue.IsEmpty())
+  if (!shaderPin.GetDescriptor()->m_sDefaultValue.IsEmpty())
   {
     if (!sTooltip.IsEmpty())
       sTooltip.Append("\n");
 
-    sTooltip.Append("Default is ", pShaderPin->GetDescriptor()->m_sDefaultValue);
+    sTooltip.Append("Default is ", shaderPin.GetDescriptor()->m_sDefaultValue);
   }
 
   setToolTip(sTooltip.GetData());
@@ -88,19 +83,13 @@ void ezQtVisualShaderPin::paint(QPainter* painter, const QStyleOptionGraphicsIte
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-ezQtVisualShaderNode::ezQtVisualShaderNode()
-{
-  // this costs too much performance :-(
-  EnableDropShadow(false);
-}
+ezQtVisualShaderNode::ezQtVisualShaderNode() = default;
 
 void ezQtVisualShaderNode::InitNode(const ezDocumentNodeManager* pManager, const ezDocumentObject* pObject)
 {
   ezQtNode::InitNode(pManager, pObject);
 
-  const auto* pDesc = ezVisualShaderTypeRegistry::GetSingleton()->GetDescriptorForType(pObject->GetType());
-
-  if (pDesc != nullptr)
+  if (auto pDesc = ezVisualShaderTypeRegistry::GetSingleton()->GetDescriptorForType(pObject->GetType()))
   {
     m_HeaderColor = qRgb(pDesc->m_Color.r, pDesc->m_Color.g, pDesc->m_Color.b);
   }

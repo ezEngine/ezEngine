@@ -19,7 +19,7 @@ ezQtPin::ezQtPin()
   m_pLabel = new QGraphicsTextItem(this);
 }
 
-ezQtPin::~ezQtPin() {}
+ezQtPin::~ezQtPin() = default;
 
 void ezQtPin::AddConnection(ezQtConnection* pConnection)
 {
@@ -27,6 +27,7 @@ void ezQtPin::AddConnection(ezQtConnection* pConnection)
   m_Connections.PushBack(pConnection);
 
   ConnectedStateChanged(true);
+
   UpdateConnections();
 }
 
@@ -37,8 +38,6 @@ void ezQtPin::RemoveConnection(ezQtConnection* pConnection)
 
   if (m_Connections.IsEmpty())
     ConnectedStateChanged(false);
-
-  UpdateConnections();
 }
 
 void ezQtPin::ConnectedStateChanged(bool bConnected)
@@ -53,46 +52,33 @@ void ezQtPin::ConnectedStateChanged(bool bConnected)
   }
 }
 
-void ezQtPin::SetPin(const ezPin* pPin)
+void ezQtPin::SetPin(const ezPin& pin)
 {
-  m_pPin = pPin;
+  m_pPin = &pin;
 
-  m_pLabel->setPlainText(pPin->GetName());
+  m_pLabel->setPlainText(pin.GetName());
   auto rectLabel = m_pLabel->boundingRect();
 
-  int iRadus = rectLabel.height();
-  if (pPin->GetType() == ezPin::Type::Input)
+  const int iRadus = rectLabel.height();
+  QRectF bounds;
+
+  if (pin.GetType() == ezPin::Type::Input)
   {
     m_pLabel->setPos(iRadus, 0);
-    QPainterPath p;
-    QRectF bounds(0, 0, iRadus, iRadus);
-    bounds.adjust(3, 3, -3, -3);
-    m_PinCenter = bounds.center();
-
-    switch (m_pPin->m_Shape)
-    {
-      case ezPin::Shape::Circle:
-        p.addEllipse(bounds);
-        break;
-      case ezPin::Shape::Rect:
-        p.addRect(bounds);
-        break;
-      case ezPin::Shape::RoundRect:
-        p.addRoundedRect(bounds, 2, 2);
-        break;
-        EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
-    }
-
-    setPath(p);
+    bounds = QRectF(0, 0, iRadus, iRadus);
   }
   else
   {
     m_pLabel->setPos(0, 0);
-    QPainterPath p;
-    QRectF bounds(rectLabel.width(), 0, iRadus, iRadus);
-    bounds.adjust(3, 3, -3, -3);
-    m_PinCenter = bounds.center();
+    bounds = QRectF(rectLabel.width(), 0, iRadus, iRadus);
+  }
 
+  const int shrink = 3;
+  bounds.adjust(shrink, shrink, -shrink, -shrink);
+  m_PinCenter = bounds.center();
+
+  {
+    QPainterPath p;
     switch (m_pPin->m_Shape)
     {
       case ezPin::Shape::Circle:
@@ -110,7 +96,7 @@ void ezQtPin::SetPin(const ezPin* pPin)
     setPath(p);
   }
 
-  const ezColorGammaUB col = pPin->GetColor();
+  const ezColorGammaUB col = pin.GetColor();
 
   QPen p = pen();
   p.setColor(qRgb(col.r, col.g, col.b));

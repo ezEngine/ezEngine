@@ -28,9 +28,33 @@ EZ_ALWAYS_INLINE T ezStaticCast(const ezReflectedClass* pObject)
   return static_cast<T>(pObject);
 }
 
+/// \brief Casts the given object to the given type with no runtime cost (like C++ static_cast).
+/// This function will assert when the object is not an instance of the given type.
+/// E.g. DerivedType& d = ezStaticCast<DerivedType&>(obj);
+template <typename T>
+EZ_ALWAYS_INLINE T ezStaticCast(ezReflectedClass& object)
+{
+  typedef typename ezTypeTraits<T>::NonReferenceType NonReferenceT;
+  EZ_ASSERT_DEV(object.IsInstanceOf<NonReferenceT>(), "Invalid static cast: Object of type '{0}' is not an instance of '{1}'",
+    object.GetDynamicRTTI()->GetTypeName(), ezGetStaticRTTI<NonReferenceT>()->GetTypeName());
+  return static_cast<T>(object);
+}
+
+/// \brief Casts the given object to the given type with no runtime cost (like C++ static_cast).
+/// This function will assert when the object is not an instance of the given type.
+/// E.g. const DerivedType& d = ezStaticCast<const DerivedType&>(constObj);
+template <typename T>
+EZ_ALWAYS_INLINE T ezStaticCast(const ezReflectedClass& object)
+{
+  typedef typename ezTypeTraits<T>::NonConstReferenceType NonReferenceT;
+  EZ_ASSERT_DEV(object.IsInstanceOf<NonReferenceT>(), "Invalid static cast: Object of type '{0}' is not an instance of '{1}'",
+    object.GetDynamicRTTI()->GetTypeName(), ezGetStaticRTTI<NonReferenceT>()->GetTypeName());
+  return static_cast<T>(object);
+}
+
 /// \brief Casts the given object to the given type with by checking if the object is actually an instance of the given type (like C++
-/// dynamic_cast). This function will return a nullptr if the object is not an instance of the given type. E.g. DerivedType* d =
-/// ezDynamicCast<DerivedType*>(pObj);
+/// dynamic_cast). This function will return a nullptr if the object is not an instance of the given type.
+/// E.g. DerivedType* d = ezDynamicCast<DerivedType*>(pObj);
 template <typename T>
 EZ_ALWAYS_INLINE T ezDynamicCast(ezReflectedClass* pObject)
 {
@@ -46,8 +70,8 @@ EZ_ALWAYS_INLINE T ezDynamicCast(ezReflectedClass* pObject)
 }
 
 /// \brief Casts the given object to the given type with by checking if the object is actually an instance of the given type (like C++
-/// dynamic_cast). This function will return a nullptr if the object is not an instance of the given type. E.g. const DerivedType* d =
-/// ezDynamicCast<const DerivedType*>(pConstObj);
+/// dynamic_cast). This function will return a nullptr if the object is not an instance of the given type.
+/// E.g. const DerivedType* d = ezDynamicCast<const DerivedType*>(pConstObj);
 template <typename T>
 EZ_ALWAYS_INLINE T ezDynamicCast(const ezReflectedClass* pObject)
 {
