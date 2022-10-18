@@ -50,6 +50,9 @@ public:
 
   ezArrayPtr<const SubMesh> GetSubMeshes() const;
 
+  /// \brief Merges all submeshes into just one.
+  void CollapseSubMeshes();
+
   void ComputeBounds();
   const ezBoundingBoxSphere& GetBounds() const;
   void SetBounds(const ezBoundingBoxSphere& bounds) { m_Bounds = bounds; }

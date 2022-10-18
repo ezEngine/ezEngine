@@ -195,6 +195,21 @@ ezStatus ezJoltCollisionMeshAssetDocument::CreateMeshFromFile(ezJoltCookingMesh&
   }
 
   // Extract Material Information
+  if (m_bIsConvexMesh)
+  {
+    meshDesc.CollapseSubMeshes();
+    pProp->m_Slots.SetCount(1);
+    pProp->m_Slots[0].m_sLabel = "Convex";
+    pProp->m_Slots[0].m_sResource = pProp->m_sConvexMeshSurface;
+
+    const auto subMeshInfo = meshDesc.GetSubMeshes()[0];
+
+    for (ezUInt32 tri = 0; tri < subMeshInfo.m_uiPrimitiveCount; ++tri)
+    {
+      outMesh.m_PolygonSurfaceID[subMeshInfo.m_uiFirstPrimitive + tri] = 0;
+    }
+  }
+  else
   {
     pProp->m_Slots.SetCount(meshDesc.GetSubMeshes().GetCount());
 
