@@ -44,6 +44,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezJoltCollisionMeshAssetProperties, 1, ezRTTIDef
     EZ_MEMBER_PROPERTY("Detail", m_uiDetail)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(0, 32)),
     EZ_MEMBER_PROPERTY("MeshFile", m_sMeshFile)->AddAttributes(new ezFileBrowserAttribute("Select Mesh", "*.obj;*.fbx;*.gltf;*.glb")),
     EZ_ARRAY_MEMBER_PROPERTY("Surfaces", m_Slots)->AddAttributes(new ezContainerAttribute(false, false, true)),
+    EZ_MEMBER_PROPERTY("Surface", m_sConvexMeshSurface)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface")),
   }
   EZ_END_PROPERTIES;
 }
@@ -70,6 +71,8 @@ void ezJoltCollisionMeshAssetProperties::PropertyMetaStateEventHandler(ezPropert
   props["MeshFile"].m_Visibility = ezPropertyUiState::Invisible;
   props["ConvexMeshType"].m_Visibility = ezPropertyUiState::Invisible;
   props["MaxConvexPieces"].m_Visibility = ezPropertyUiState::Invisible;
+  props["Surfaces"].m_Visibility = isConvex ? ezPropertyUiState::Invisible : ezPropertyUiState::Default;
+  props["Surface"].m_Visibility = isConvex ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
 
   if (!isConvex)
   {

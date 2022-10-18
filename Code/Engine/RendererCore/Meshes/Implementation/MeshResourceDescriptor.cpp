@@ -54,6 +54,25 @@ ezArrayPtr<const ezMeshResourceDescriptor::SubMesh> ezMeshResourceDescriptor::Ge
   return m_SubMeshes;
 }
 
+void ezMeshResourceDescriptor::CollapseSubMeshes()
+{
+  for (ezUInt32 idx = 1; idx < m_SubMeshes.GetCount(); ++idx)
+  {
+    m_SubMeshes[0].m_uiFirstPrimitive = ezMath::Min(m_SubMeshes[0].m_uiFirstPrimitive, m_SubMeshes[idx].m_uiFirstPrimitive);
+    m_SubMeshes[0].m_uiPrimitiveCount += m_SubMeshes[idx].m_uiPrimitiveCount;
+
+    if (m_SubMeshes[0].m_Bounds.IsValid() && m_SubMeshes[idx].m_Bounds.IsValid())
+    {
+      m_SubMeshes[0].m_Bounds.ExpandToInclude(m_SubMeshes[idx].m_Bounds);
+    }
+  }
+
+  m_SubMeshes.SetCount(1);
+  m_SubMeshes[0].m_uiMaterialIndex = 0;
+
+  m_Materials.SetCount(1);
+}
+
 const ezBoundingBoxSphere& ezMeshResourceDescriptor::GetBounds() const
 {
   return m_Bounds;

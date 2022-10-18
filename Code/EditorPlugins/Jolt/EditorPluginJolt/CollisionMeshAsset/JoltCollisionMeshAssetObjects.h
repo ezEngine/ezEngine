@@ -57,6 +57,7 @@ public:
 
   ezString m_sMeshFile;
   float m_fUniformScaling = 1.0f;
+  ezString m_sConvexMeshSurface;
 
   ezEnum<ezBasisAxis> m_RightDir = ezBasisAxis::PositiveX;
   ezEnum<ezBasisAxis> m_UpDir = ezBasisAxis::PositiveY;
