@@ -324,7 +324,7 @@ float GetRoughness()
   [branch]
   if (UseNormalAndRoughnessTexture)
   {
-    return RoughnessTexture.Sample(RoughnessTexture_AutoSampler, G.Input.TexCoord0.xy).r;
+    return RoughnessValue * RoughnessTexture.Sample(RoughnessTexture_AutoSampler, G.Input.TexCoord0.xy).r;
   }
   else
   {
