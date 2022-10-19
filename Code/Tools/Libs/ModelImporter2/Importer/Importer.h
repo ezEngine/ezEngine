@@ -54,6 +54,7 @@ namespace ezModelImporter2
     RoughnessMap,
     MetallicMap,
     AmbientMap,
+    AoRoughMetalMap,
     DisplacementMap,
     NormalMap,
     EmissiveMap,
