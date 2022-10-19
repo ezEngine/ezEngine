@@ -69,8 +69,10 @@ bool UseBaseTexture;
 Texture2D BaseTexture;
 Color BaseColor @Default(Color(1.0, 1.0, 1.0));
 
-bool UseNormalAndRoughnessTexture;
+bool UseNormalTexture;
 Texture2D NormalTexture;
+
+bool UseRoughnessTexture;
 Texture2D RoughnessTexture;
 float RoughnessValue @Default(0.7) @Clamp(0.0, 1.0);
 
@@ -139,6 +141,7 @@ Texture2D AoRoughMetalTexture;
 CONSTANT_BUFFER(ezMaterialConstants, 1)
 {
   COLOR4F(BaseColor);
+  COLOR4F(EmissiveColor);
   FLOAT1(MetallicValue);
   FLOAT1(ReflectanceValue);
   FLOAT1(RoughnessValue);
@@ -147,9 +150,9 @@ CONSTANT_BUFFER(ezMaterialConstants, 1)
 %endif
   BOOL1(UseBaseTexture);
   BOOL1(UseMetallicTexture);
-  BOOL1(UseNormalAndRoughnessTexture);
+  BOOL1(UseNormalTexture);
+  BOOL1(UseRoughnessTexture);
   BOOL1(UseEmissiveTexture);
-  COLOR4F(EmissiveColor);
   BOOL1(UseOcclusionTexture);
 };
 
@@ -246,7 +249,7 @@ SamplerState AoRoughMetalTexture_AutoSampler;
 float3 GetNormal()
 {
   [branch]
-  if (UseNormalAndRoughnessTexture)
+  if (UseNormalTexture)
   {
     // per-pixel normal read from the provided texture
     float3 normalTS = DecodeNormalTexture(NormalTexture.Sample(NormalTexture_AutoSampler, G.Input.TexCoord0.xy));
@@ -332,11 +335,11 @@ float GetReflectance()
 float GetRoughness()
 {
   [branch]
-  if (UseNormalAndRoughnessTexture && UseAoRoughMetalTexture)
+  if (UseRoughnessTexture && UseAoRoughMetalTexture)
   {
     return RoughnessValue * AoRoughMetalTexture.Sample(AoRoughMetalTexture_AutoSampler, G.Input.TexCoord0.xy).g;
   }
-  else if (UseNormalAndRoughnessTexture)
+  else if (UseRoughnessTexture)
   {
     return RoughnessValue * RoughnessTexture.Sample(RoughnessTexture_AutoSampler, G.Input.TexCoord0.xy).r;
   }

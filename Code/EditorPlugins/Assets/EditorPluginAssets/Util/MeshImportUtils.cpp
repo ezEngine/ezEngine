@@ -207,7 +207,7 @@ namespace ezMeshImportUtils
 
       if (!textureNormal.IsEmpty())
       {
-        pAccessor->SetValue(pMaterialProperties, "UseNormalAndRoughnessTexture", true).LogFailure();
+        pAccessor->SetValue(pMaterialProperties, "UseNormalTexture", true).LogFailure();
 
         pAccessor->SetValue(pMaterialProperties, "NormalTexture", ezVariant(ImportOrResolveTexture(szImportSourceFolder, szImportTargetFolder, textureNormal, ezModelImporter2::TextureSemantic::NormalMap, false))).LogFailure();
       }
@@ -221,7 +221,7 @@ namespace ezMeshImportUtils
     {
       if (!textureRoughness.IsEmpty())
       {
-        pAccessor->SetValue(pMaterialProperties, "UseNormalAndRoughnessTexture", true).LogFailure();
+        pAccessor->SetValue(pMaterialProperties, "UseRoughnessTexture", true).LogFailure();
 
         pAccessor->SetValue(pMaterialProperties, "RoughnessTexture", ezVariant(ImportOrResolveTexture(szImportSourceFolder, szImportTargetFolder, textureRoughness, ezModelImporter2::TextureSemantic::RoughnessMap, false))).LogFailure();
       }
@@ -320,7 +320,7 @@ namespace ezMeshImportUtils
     {
       pAccessor->SetValue(pMaterialProperties, "UseAoRoughMetalTexture", true).LogFailure();
       pAccessor->SetValue(pMaterialProperties, "UseOcclusionTexture", true).LogFailure();
-      pAccessor->SetValue(pMaterialProperties, "UseNormalAndRoughnessTexture", true).LogFailure();
+      pAccessor->SetValue(pMaterialProperties, "UseRoughnessTexture", true).LogFailure();
       pAccessor->SetValue(pMaterialProperties, "UseMetallicTexture", true).LogFailure();
 
       pAccessor->SetValue(pMaterialProperties, "MetallicTexture", "").LogFailure();

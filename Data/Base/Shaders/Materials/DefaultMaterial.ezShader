@@ -27,8 +27,10 @@ bool UseBaseTexture;
 Texture2D BaseTexture;
 Color BaseColor @Default(Color(1.0, 1.0, 1.0));
 
-bool UseNormalAndRoughnessTexture;
+bool UseNormalTexture;
 Texture2D NormalTexture;
+
+bool UseRoughnessTexture;
 Texture2D RoughnessTexture;
 float RoughnessValue @Default(0.7) @Clamp(0.0, 1.0);
 
@@ -134,7 +136,7 @@ SamplerState AoRoughMetalTexture_AutoSampler;
 float3 GetNormal()
 {
   [branch]
-  if (UseNormalAndRoughnessTexture)
+  if (UseNormalTexture)
   {
     float3 normalTS = DecodeNormalTexture(NormalTexture.Sample(NormalTexture_AutoSampler, G.Input.TexCoord0.xy));
     return TangentToWorldSpace(normalTS);
@@ -188,11 +190,11 @@ float GetReflectance()
 float GetRoughness()
 {
   [branch]
-  if (UseNormalAndRoughnessTexture && UseAoRoughMetalTexture)
+  if (UseRoughnessTexture && UseAoRoughMetalTexture)
   {
     return RoughnessValue * AoRoughMetalTexture.Sample(AoRoughMetalTexture_AutoSampler, G.Input.TexCoord0.xy).g;
   }
-  else if (UseNormalAndRoughnessTexture)
+  else if (UseRoughnessTexture)
   {
     return RoughnessValue * RoughnessTexture.Sample(RoughnessTexture_AutoSampler, G.Input.TexCoord0.xy).r;
   }
