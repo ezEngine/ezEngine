@@ -43,7 +43,7 @@ o
 		s %SHADING_MODE{"SHADING_MODE::SHADING_MODE_LIT"}
 		Color %SubsurfaceColor{f{0,0,0,0x0000803F}}
 		b %TWO_SIDED{1}
-		b %UseNormalAndRoughnessTexture{0}
+		b %UseNormalTexture{0}
 		b %UseOcclusionTexture{0}
 		Color %VariationColor{f{0,0,0,0}}
 	}

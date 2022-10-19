@@ -50,7 +50,7 @@ o
 		b %UseBaseTexture{1}
 		b %UseEmissiveTexture{0}
 		b %UseMetallicTexture{0}
-		b %UseNormalAndRoughnessTexture{0}
+		b %UseNormalTexture{0}
 		b %UseOcclusionTexture{0}
 	}
 }
