@@ -39,7 +39,13 @@ Constant
 
 Constant
 {
-  string %Variable { "UseNormalAndRoughnessTexture" }
+  string %Variable { "UseNormalTexture" }
+  u3 %Value { 1 }
+}
+
+Constant
+{
+  string %Variable { "UseRoughnessTexture" }
   u3 %Value { 1 }
 }
 
