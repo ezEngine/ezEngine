@@ -946,7 +946,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"UseNormalAndRoughnessTexture"}
+		s %Name{"UseNormalTexture"}
 		s %Type{"bool"}
 	}
 }
