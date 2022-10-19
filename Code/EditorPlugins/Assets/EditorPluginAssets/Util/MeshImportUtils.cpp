@@ -55,7 +55,11 @@ namespace ezMeshImportUtils
       ezStringBuilder relTexturePath = szImportSourceFolder;
       relTexturePath.AppendPath(szTexturePath);
 
-      ezAssetCurator::GetSingleton()->FindBestMatchForFile(relTexturePath, allowedExtensions).IgnoreResult();
+      if (ezAssetCurator::GetSingleton()->FindBestMatchForFile(relTexturePath, allowedExtensions).Failed())
+      {
+        relTexturePath = szTexturePath;
+      }
+
       pAccessor->SetValue(pTextureAsset, "Input1", relTexturePath.GetData()).LogFailure();
 
       ezEnum<ezTexture2DChannelMappingEnum> channelMapping;
