@@ -970,11 +970,11 @@ namespace ezMeshImportUtils
       float value = propertyValue.ConvertTo<float>();
 
       // probably in 0-255 range
-      if (value > 1.0f)
-        value /= 255.0f;
+      if (value >= 1.0f)
+        value = 1.0f;
+      else
+        value = 0.0f;
 
-      // for now no material should be metallic
-      value = 0.0f;
       pAccessor->SetValue(pMaterialProperties, "MetallicValue", value).LogFailure();
     }
 
@@ -987,7 +987,11 @@ namespace ezMeshImportUtils
       if (value > 1.0f)
         value /= 255.0f;
 
-      value = ezMath::Lerp(0.6f, 1.0f, value);
+      value = ezMath::Clamp(value, 0.0f, 1.0f);
+      value = ezMath::Lerp(0.4f, 1.0f, value);
+
+      // the extracted roughness value is really just a guess to get started
+
       pAccessor->SetValue(pMaterialProperties, "RoughnessValue", value).LogFailure();
     }
 
