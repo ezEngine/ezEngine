@@ -51,42 +51,14 @@ namespace ezModelImporter2
 
     DiffuseMap,
     DiffuseAlphaMap,
+    OcclusionMap,
     RoughnessMap,
     MetallicMap,
-    AmbientMap,
-    AoRoughMetalMap,
+    OrmMap,
     DisplacementMap,
     NormalMap,
     EmissiveMap,
   };
-
-  //  enum class SemanticHint : ezInt8
-  //{
-  //  Unknown = 0,
-
-  //  // Typical PBR shading model parameters.
-  //  Diffuse,       ///< Also called "Color", "BaseColor"
-  //  DiffuseAlpha,  ///<
-  //  Roughness,     ///<
-  //  MetallicColor, ///<
-  //  MetallicScale, ///< The non-PBR related "SpecularColor" maps to this. Scales the specular color of the material.
-
-  //  // Other lighting information.
-  //  Ambient,  ///< Usually found in non-PBR materials or for Ambient Occlusion in PBR materials.
-  //  Emissive, ///< Self emittance of an object.
-
-  //  /// How transparent an object is.
-  //  /// Note that some models distinguish between physical opacity and a more artificial fade/transparency that also affects specular reflections.
-  //  /// Some older shading models may use a "Transparency Color"
-  //  OpacityColor, ///<
-  //  OpacityScale, ///<
-
-  //  // Topology.
-  //  NormalMap, ///< Tangent space normal representation. Also called "bumpmap".
-
-  //  // Other rendering information.
-  //  Twosided, ///< Whether the material should be visible from both sides.
-  //};
 
   struct EZ_MODELIMPORTER2_DLL OutputTexture
   {

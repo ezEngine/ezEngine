@@ -14,5 +14,5 @@ CONSTANT_BUFFER(ezMaterialConstants, 1)
   BOOL1(UseMetallicTexture);
   BOOL1(UseEmissiveTexture);
   BOOL1(UseOcclusionTexture);
-  BOOL1(UseAoRoughMetalTexture);
+  BOOL1(UseOrmTexture);
 };

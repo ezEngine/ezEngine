@@ -72,7 +72,7 @@ namespace ezMeshImportUtils
           usage = ezTexConvUsage::Color;
           channelMapping = ezTexture2DChannelMappingEnum::RGBA1;
           break;
-        case ezModelImporter2::TextureSemantic::AmbientMap: // Making wild guesses here.
+        case ezModelImporter2::TextureSemantic::OcclusionMap: // Making wild guesses here.
         case ezModelImporter2::TextureSemantic::EmissiveMap:
           usage = ezTexConvUsage::Color;
           break;
@@ -83,7 +83,7 @@ namespace ezMeshImportUtils
           usage = ezTexConvUsage::Linear;
           break;
 
-        case ezModelImporter2::TextureSemantic::AoRoughMetalMap:
+        case ezModelImporter2::TextureSemantic::OrmMap:
           channelMapping = ezTexture2DChannelMappingEnum::RGB1;
           usage = ezTexConvUsage::Linear;
           break;
@@ -173,11 +173,11 @@ namespace ezMeshImportUtils
     ezVariant propertyValue;
 
     ezString textureAo, textureRoughness, textureMetallic;
-    material.m_TextureReferences.TryGetValue(ezModelImporter2::TextureSemantic::AmbientMap, textureAo);
+    material.m_TextureReferences.TryGetValue(ezModelImporter2::TextureSemantic::OcclusionMap, textureAo);
     material.m_TextureReferences.TryGetValue(ezModelImporter2::TextureSemantic::RoughnessMap, textureRoughness);
     material.m_TextureReferences.TryGetValue(ezModelImporter2::TextureSemantic::MetallicMap, textureMetallic);
 
-    const bool bHasArmTexture = !textureRoughness.IsEmpty() && ((textureAo == textureRoughness) || (textureMetallic == textureRoughness));
+    const bool bHasOrmTexture = !textureRoughness.IsEmpty() && ((textureAo == textureRoughness) || (textureMetallic == textureRoughness));
 
 
     // Set base texture.
@@ -217,7 +217,7 @@ namespace ezMeshImportUtils
       }
     }
 
-    if (!bHasArmTexture)
+    if (!bHasOrmTexture)
     {
       if (!textureRoughness.IsEmpty())
       {
@@ -232,7 +232,7 @@ namespace ezMeshImportUtils
     }
 
     // Set metallic texture
-    if (!bHasArmTexture)
+    if (!bHasOrmTexture)
     {
       if (!textureMetallic.IsEmpty())
       {
@@ -253,14 +253,14 @@ namespace ezMeshImportUtils
     }
 
     // Set AO texture
-    if (!bHasArmTexture)
+    if (!bHasOrmTexture)
     {
       ezString textureAo;
 
-      if (material.m_TextureReferences.TryGetValue(ezModelImporter2::TextureSemantic::AmbientMap, textureAo))
+      if (material.m_TextureReferences.TryGetValue(ezModelImporter2::TextureSemantic::OcclusionMap, textureAo))
       {
         pAccessor->SetValue(pMaterialProperties, "UseOcclusionTexture", true).LogFailure();
-        pAccessor->SetValue(pMaterialProperties, "OcclusionTexture", ezVariant(ImportOrResolveTexture(szImportSourceFolder, szImportTargetFolder, textureAo, ezModelImporter2::TextureSemantic::AmbientMap, false))).LogFailure();
+        pAccessor->SetValue(pMaterialProperties, "OcclusionTexture", ezVariant(ImportOrResolveTexture(szImportSourceFolder, szImportTargetFolder, textureAo, ezModelImporter2::TextureSemantic::OcclusionMap, false))).LogFailure();
       }
     }
 
@@ -315,13 +315,13 @@ namespace ezMeshImportUtils
       pAccessor->SetValue(pMaterialProperties, "RoughnessValue", value).LogFailure();
     }
 
-    // Set ARM Texture
-    if (bHasArmTexture)
+    // Set ORM Texture
+    if (bHasOrmTexture)
     {
-      pAccessor->SetValue(pMaterialProperties, "UseAoRoughMetalTexture", true).LogFailure();
-      pAccessor->SetValue(pMaterialProperties, "UseOcclusionTexture", true).LogFailure();
-      pAccessor->SetValue(pMaterialProperties, "UseRoughnessTexture", true).LogFailure();
-      pAccessor->SetValue(pMaterialProperties, "UseMetallicTexture", true).LogFailure();
+      pAccessor->SetValue(pMaterialProperties, "UseOrmTexture", true).LogFailure();
+      pAccessor->SetValue(pMaterialProperties, "UseOcclusionTexture", false).LogFailure();
+      pAccessor->SetValue(pMaterialProperties, "UseRoughnessTexture", false).LogFailure();
+      pAccessor->SetValue(pMaterialProperties, "UseMetallicTexture", false).LogFailure();
 
       pAccessor->SetValue(pMaterialProperties, "MetallicTexture", "").LogFailure();
       pAccessor->SetValue(pMaterialProperties, "OcclusionTexture", "").LogFailure();
@@ -329,7 +329,7 @@ namespace ezMeshImportUtils
       pAccessor->SetValue(pMaterialProperties, "RoughnessValue", 1.0f).LogFailure();
       pAccessor->SetValue(pMaterialProperties, "MetallicValue", 0.0f).LogFailure();
 
-      pAccessor->SetValue(pMaterialProperties, "AoRoughMetalTexture", ezVariant(ImportOrResolveTexture(szImportSourceFolder, szImportTargetFolder, textureRoughness, ezModelImporter2::TextureSemantic::AoRoughMetalMap, false))).LogFailure();
+      pAccessor->SetValue(pMaterialProperties, "OrmTexture", ezVariant(ImportOrResolveTexture(szImportSourceFolder, szImportTargetFolder, textureRoughness, ezModelImporter2::TextureSemantic::OrmMap, false))).LogFailure();
     }
 
     // Todo:
