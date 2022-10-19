@@ -43,6 +43,10 @@ Color EmissiveColor @Default(Color(0.0, 0.0, 0.0));
 bool UseOcclusionTexture;
 Texture2D OcclusionTexture;
 
+bool UseAoRoughMetalTexture;
+Texture2D AoRoughMetalTexture;
+
+
 [RENDERSTATE]
 
 #include <Shaders/Materials/MaterialState.h>
@@ -124,6 +128,9 @@ SamplerState EmissiveTexture_AutoSampler;
 Texture2D OcclusionTexture;
 SamplerState OcclusionTexture_AutoSampler;
 
+Texture2D AoRoughMetalTexture;
+SamplerState AoRoughMetalTexture_AutoSampler;
+
 float3 GetNormal()
 {
   [branch]
@@ -159,7 +166,11 @@ float3 GetBaseColor()
 float GetMetallic()
 {
   [branch]
-  if (UseMetallicTexture)
+  if (UseMetallicTexture && UseAoRoughMetalTexture)
+  {
+    return AoRoughMetalTexture.Sample(AoRoughMetalTexture_AutoSampler, G.Input.TexCoord0.xy).b;
+  }
+  else if (UseMetallicTexture)
   {
     return MetallicTexture.Sample(MetallicTexture_AutoSampler, G.Input.TexCoord0.xy).r;
   }
@@ -177,7 +188,11 @@ float GetReflectance()
 float GetRoughness()
 {
   [branch]
-  if (UseNormalAndRoughnessTexture)
+  if (UseNormalAndRoughnessTexture && UseAoRoughMetalTexture)
+  {
+    return RoughnessValue * AoRoughMetalTexture.Sample(AoRoughMetalTexture_AutoSampler, G.Input.TexCoord0.xy).g;
+  }
+  else if (UseNormalAndRoughnessTexture)
   {
     return RoughnessValue * RoughnessTexture.Sample(RoughnessTexture_AutoSampler, G.Input.TexCoord0.xy).r;
   }
@@ -220,7 +235,11 @@ float3 GetEmissiveColor()
 float GetOcclusion()
 {
   [branch]
-  if (UseOcclusionTexture)
+  if (UseOcclusionTexture && UseAoRoughMetalTexture)
+  {
+    return AoRoughMetalTexture.Sample(AoRoughMetalTexture_AutoSampler, G.Input.TexCoord0.xy).r;
+  }
+  else if (UseOcclusionTexture)
   {
     return OcclusionTexture.Sample(OcclusionTexture_AutoSampler, G.Input.TexCoord0.xy).r;
   }

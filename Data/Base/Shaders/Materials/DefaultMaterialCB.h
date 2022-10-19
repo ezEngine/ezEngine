@@ -13,4 +13,5 @@ CONSTANT_BUFFER(ezMaterialConstants, 1)
   BOOL1(UseEmissiveTexture);
   COLOR4F(EmissiveColor);
   BOOL1(UseOcclusionTexture);
+  BOOL1(UseAoRoughMetalTexture);
 };
