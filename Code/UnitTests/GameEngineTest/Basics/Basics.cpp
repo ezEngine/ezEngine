@@ -145,42 +145,42 @@ EZ_CREATE_SIMPLE_TEST_GROUP(00_Init);
 
 EZ_CREATE_SIMPLE_TEST(00_Init, TransformBase)
 {
-  EZ_TEST_BOOL(TranformProject("Data/Base/ezProject", 1).Succeeded());
+  EZ_TEST_BOOL(TranformProject("Data/Base/ezProject", 2).Succeeded());
 }
 
 EZ_CREATE_SIMPLE_TEST(00_Init, TransformBasics)
 {
-  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/Basics/ezProject", 1).Succeeded());
+  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/Basics/ezProject", 2).Succeeded());
 }
 
 EZ_CREATE_SIMPLE_TEST(00_Init, TransformParticles)
 {
-  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/Particles/ezProject", 2).Succeeded());
+  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/Particles/ezProject", 3).Succeeded());
 }
 
 EZ_CREATE_SIMPLE_TEST(00_Init, TransformTypeScript)
 {
-  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/TypeScript/ezProject", 2).Succeeded());
+  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/TypeScript/ezProject", 3).Succeeded());
 }
 
 EZ_CREATE_SIMPLE_TEST(00_Init, TransformEffects)
 {
-  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/Effects/ezProject", 3).Succeeded());
+  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/Effects/ezProject", 4).Succeeded());
 }
 
 EZ_CREATE_SIMPLE_TEST(00_Init, TransformAnimations)
 {
-  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/Animations/ezProject", 5).Succeeded());
+  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/Animations/ezProject", 6).Succeeded());
 }
 
 EZ_CREATE_SIMPLE_TEST(00_Init, TransformPlatformWin)
 {
-  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/PlatformWin/ezProject", 4).Succeeded());
+  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/PlatformWin/ezProject", 5).Succeeded());
 }
 
 EZ_CREATE_SIMPLE_TEST(00_Init, TransformXR)
 {
-  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/XR/ezProject", 4).Succeeded());
+  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/XR/ezProject", 5).Succeeded());
 }
 
 #endif
