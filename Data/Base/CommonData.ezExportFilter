@@ -1,5 +1,6 @@
 [EXCLUDE]
 
+*/.git/*
 *.dds
 *.jpg
 *.tga

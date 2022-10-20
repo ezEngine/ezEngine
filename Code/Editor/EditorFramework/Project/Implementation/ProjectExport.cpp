@@ -360,7 +360,7 @@ ezResult ezProjectExport::CreateLaunchConfig(const ezDynamicArray<ezString>& sce
   for (const auto& sf : sceneFiles)
   {
     ezStringBuilder cmd;
-    cmd.Format("start Bin/Player.exe -scene \"{}/Data/project/{}\"", szTargetDirectory, sf); // TODO
+    cmd.Format("start Bin/Player.exe -project \"Data/project\" -scene \"{}\"", sf);
 
     ezStringBuilder bat;
     bat.Format("{}/Launch {}.bat", szTargetDirectory, ezPathUtils::GetFileName(sf));
