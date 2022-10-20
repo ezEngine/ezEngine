@@ -313,6 +313,9 @@ ezResult ezConvexHullGenerator::ComputeHull()
 {
   const ezUInt32 uiMaxVertices = m_Vertices.GetCount();
 
+  if (uiMaxVertices < 4)
+    return EZ_FAILURE;
+
   m_Edges.Clear();
   m_Edges.SetCount(ezMath::Square(uiMaxVertices));
   m_Triangles.Clear();
