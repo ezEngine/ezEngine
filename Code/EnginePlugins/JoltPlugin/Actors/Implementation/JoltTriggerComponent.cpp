@@ -107,7 +107,7 @@ void ezJoltTriggerComponent::OnSimulationStarted()
   JPH::Body* pBody = pBodies->CreateBody(bodyCfg);
   m_uiJoltBodyID = pBody->GetID().GetIndexAndSequenceNumber();
 
-  pModule->QueueBodyToAdd(pBody);
+  pModule->QueueBodyToAdd(pBody, true);
 
   if (GetOwner()->IsDynamic())
   {

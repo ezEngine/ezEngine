@@ -633,7 +633,7 @@ void ezJoltCharacterControllerComponent::CreatePresenceBody()
   JPH::Body* pBody = pBodies->CreateBody(bodyCfg);
   m_uiPresenceBodyID = pBody->GetID().GetIndexAndSequenceNumber();
 
-  pModule->QueueBodyToAdd(pBody);
+  pModule->QueueBodyToAdd(pBody, true);
 }
 
 void ezJoltCharacterControllerComponent::RemovePresenceBody()

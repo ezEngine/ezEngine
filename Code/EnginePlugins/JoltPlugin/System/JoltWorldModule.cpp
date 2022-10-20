@@ -353,9 +353,12 @@ void ezJoltWorldModule::AddStaticCollisionBox(ezGameObject* pObject, ezVec3 boxS
   pBox->SetHalfExtents(boxSize * 0.5f);
 }
 
-void ezJoltWorldModule::QueueBodyToAdd(JPH::Body* pBody)
+void ezJoltWorldModule::QueueBodyToAdd(JPH::Body* pBody, bool bAwake)
 {
-  m_BodiesToAdd.PushBack(pBody->GetID().GetIndexAndSequenceNumber());
+  if (bAwake)
+    m_BodiesToAddAndActivate.PushBack(pBody->GetID().GetIndexAndSequenceNumber());
+  else
+    m_BodiesToAdd.PushBack(pBody->GetID().GetIndexAndSequenceNumber());
 }
 
 void ezJoltWorldModule::EnableJoinedBodiesCollisions(ezUInt32 uiObjectFilterID1, ezUInt32 uiObjectFilterID2, bool bEnable)
@@ -420,12 +423,35 @@ void ezJoltWorldModule::StartSimulation(const ezWorldModule::UpdateContext& cont
       JPH::BodyID* pIDs = reinterpret_cast<JPH::BodyID*>(&m_BodiesToAdd[uiStartIdx]);
 
       void* pHandle = m_pSystem->GetBodyInterface().AddBodiesPrepare(pIDs, uiCount);
-      m_pSystem->GetBodyInterface().AddBodiesFinalize(pIDs, uiCount, pHandle, JPH::EActivation::Activate);
+      m_pSystem->GetBodyInterface().AddBodiesFinalize(pIDs, uiCount, pHandle, JPH::EActivation::DontActivate);
 
       uiStartIdx += uiCount;
     }
 
     m_BodiesToAdd.Clear();
+  }
+
+  if (!m_BodiesToAddAndActivate.IsEmpty())
+  {
+    m_uiBodiesAddedSinceOptimize += m_BodiesToAddAndActivate.GetCount();
+
+    static_assert(sizeof(JPH::BodyID) == sizeof(ezUInt32));
+
+    ezUInt32 uiStartIdx = 0;
+
+    while (uiStartIdx < m_BodiesToAddAndActivate.GetCount())
+    {
+      const ezUInt32 uiCount = m_BodiesToAddAndActivate.GetContiguousRange(uiStartIdx);
+
+      JPH::BodyID* pIDs = reinterpret_cast<JPH::BodyID*>(&m_BodiesToAddAndActivate[uiStartIdx]);
+
+      void* pHandle = m_pSystem->GetBodyInterface().AddBodiesPrepare(pIDs, uiCount);
+      m_pSystem->GetBodyInterface().AddBodiesFinalize(pIDs, uiCount, pHandle, JPH::EActivation::Activate);
+
+      uiStartIdx += uiCount;
+    }
+
+    m_BodiesToAddAndActivate.Clear();
   }
 
   if (m_uiBodiesAddedSinceOptimize > 128)
