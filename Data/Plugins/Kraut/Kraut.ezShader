@@ -26,8 +26,10 @@ Texture2D BaseTexture;
 Color VariationColor @Default(Color(0.0, 0.0, 0.0, 0.0)); // actually variation color
 Color SubsurfaceColor @Default(Color(0.0, 0.0, 0.0));
 
-bool UseNormalAndRoughnessTexture;
+bool UseNormalTexture;
 Texture2D NormalTexture;
+
+bool UseRoughnessTexture;
 Texture2D RoughnessTexture @Default("White.color");
 float RoughnessValue @Default(1.0) @Clamp(0.0, 2.0);
 
@@ -62,15 +64,16 @@ int KrautTreeMode; // 0 == regular mesh, 1 == frond, 2 == leaf, 3 == static impo
 CONSTANT_BUFFER(ezMaterialConstants, 1)
 {
   COLOR4F(VariationColor);
+  COLOR4F(EmissiveColor);
   FLOAT1(MetallicValue);
   FLOAT1(ReflectanceValue);
   FLOAT1(RoughnessValue);
   FLOAT1(MaskThreshold);
   BOOL1(UseBaseTexture);
   BOOL1(UseMetallicTexture);
-  BOOL1(UseNormalAndRoughnessTexture);
+  BOOL1(UseNormalTexture);
+  BOOL1(UseRoughnessTexture);
   BOOL1(UseEmissiveTexture);
-  COLOR4F(EmissiveColor);
   BOOL1(UseOcclusionTexture);
   
   INT1(KrautTreeMode);
@@ -268,15 +271,16 @@ void CopyCustomInterpolators(GS_OUT output, VS_OUT input)
 CONSTANT_BUFFER(ezMaterialConstants, 1)
 {
   COLOR4F(VariationColor);
+  COLOR4F(EmissiveColor);
   FLOAT1(MetallicValue);
   FLOAT1(ReflectanceValue);
   FLOAT1(RoughnessValue);
   FLOAT1(MaskThreshold);
   BOOL1(UseBaseTexture);
   BOOL1(UseMetallicTexture);
-  BOOL1(UseNormalAndRoughnessTexture);
+  BOOL1(UseNormalTexture);
+  BOOL1(UseRoughnessTexture);
   BOOL1(UseEmissiveTexture);
-  COLOR4F(EmissiveColor);
   BOOL1(UseOcclusionTexture);
   
   INT1(KrautTreeMode);
@@ -341,7 +345,7 @@ float3 GetNormal()
   float3 wsNormal;
 
   [branch]
-  if (UseNormalAndRoughnessTexture)
+  if (UseNormalTexture)
   {
     float3 normalTS = DecodeNormalTexture(NormalTexture.Sample(NormalTexture_AutoSampler, GetTexCoord()));
 
@@ -381,7 +385,7 @@ float GetReflectance()
 float GetRoughness()
 {
   [branch]
-  if (UseNormalAndRoughnessTexture)
+  if (UseRoughnessTexture)
   {
     return RoughnessValue * RoughnessTexture.Sample(RoughnessTexture_AutoSampler, GetTexCoord()).r;
   }

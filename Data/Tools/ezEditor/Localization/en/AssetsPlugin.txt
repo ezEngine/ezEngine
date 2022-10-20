@@ -130,10 +130,11 @@ TextureImport.Diffuse;Diffuse Texture
 TextureImport.Normal;Normal Map
 TextureImport.HDR;HDR Texture
 TextureImport.Linear;Linear Texture
-TextureImport.AO;Ambient Occlusion Texture
+TextureImport.Occlusion;Occlusion Texture
 TextureImport.Height;Height Map Texture
 TextureImport.Metalness;Metalness Texture
 TextureImport.Roughness;Roughness Texture
+TextureImport.ORM;Occlusion / Roughness / Metalness
 ezDecalMode::BaseColor;Base Color
 ezDecalMode::BaseColorNormal;Base Color, Normal
 ezDecalMode::BaseColorORM;Base Color, ORM

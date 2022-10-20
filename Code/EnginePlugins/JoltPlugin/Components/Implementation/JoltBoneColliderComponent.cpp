@@ -34,7 +34,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezJoltBoneColliderComponent, 1, ezComponentMode::Dynamic
   EZ_END_FUNCTIONS;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Physics/PhysX/Animation"),
+    new ezCategoryAttribute("Physics/Jolt/Animation"),
   }
   EZ_END_ATTRIBUTES;
 }

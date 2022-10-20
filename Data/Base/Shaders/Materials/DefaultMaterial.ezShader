@@ -21,27 +21,33 @@ Permutation BLEND_MODE;
 Permutation SHADING_MODE;
 Permutation TWO_SIDED;
 
-float MaskThreshold @Default(0.25);
-
+Color BaseColor @Default(Color(1.0, 1.0, 1.0));
 bool UseBaseTexture;
 Texture2D BaseTexture;
-Color BaseColor @Default(Color(1.0, 1.0, 1.0));
 
-bool UseNormalAndRoughnessTexture;
+float MaskThreshold @Default(0.25);
+
+bool UseNormalTexture;
 Texture2D NormalTexture;
-Texture2D RoughnessTexture;
-float RoughnessValue @Default(0.7) @Clamp(0.0, 1.0);
-
-bool UseMetallicTexture;
-Texture2D MetallicTexture;
-float MetallicValue @Default(0.0) @Clamp(0.0, 1.0);
-
-bool UseEmissiveTexture;
-Texture2D EmissiveTexture;
-Color EmissiveColor @Default(Color(0.0, 0.0, 0.0));
 
 bool UseOcclusionTexture;
 Texture2D OcclusionTexture;
+
+float RoughnessValue @Default(0.7) @Clamp(0.0, 1.0);
+bool UseRoughnessTexture;
+Texture2D RoughnessTexture;
+
+float MetallicValue @Default(0.0) @Clamp(0.0, 1.0);
+bool UseMetallicTexture;
+Texture2D MetallicTexture;
+
+bool UseOrmTexture;
+Texture2D OrmTexture;
+
+Color EmissiveColor @Default(Color(0.0, 0.0, 0.0));
+bool UseEmissiveTexture;
+Texture2D EmissiveTexture;
+
 
 [RENDERSTATE]
 
@@ -124,10 +130,13 @@ SamplerState EmissiveTexture_AutoSampler;
 Texture2D OcclusionTexture;
 SamplerState OcclusionTexture_AutoSampler;
 
+Texture2D OrmTexture;
+SamplerState OrmTexture_AutoSampler;
+
 float3 GetNormal()
 {
   [branch]
-  if (UseNormalAndRoughnessTexture)
+  if (UseNormalTexture)
   {
     float3 normalTS = DecodeNormalTexture(NormalTexture.Sample(NormalTexture_AutoSampler, G.Input.TexCoord0.xy));
     return TangentToWorldSpace(normalTS);
@@ -159,7 +168,11 @@ float3 GetBaseColor()
 float GetMetallic()
 {
   [branch]
-  if (UseMetallicTexture)
+  if (UseOrmTexture)
+  {
+    return OrmTexture.Sample(OrmTexture_AutoSampler, G.Input.TexCoord0.xy).b;
+  }
+  else if (UseMetallicTexture)
   {
     return MetallicTexture.Sample(MetallicTexture_AutoSampler, G.Input.TexCoord0.xy).r;
   }
@@ -177,9 +190,13 @@ float GetReflectance()
 float GetRoughness()
 {
   [branch]
-  if (UseNormalAndRoughnessTexture)
+  if (UseOrmTexture)
   {
-    return RoughnessTexture.Sample(RoughnessTexture_AutoSampler, G.Input.TexCoord0.xy).r;
+    return RoughnessValue * OrmTexture.Sample(OrmTexture_AutoSampler, G.Input.TexCoord0.xy).g;
+  }
+  else if (UseRoughnessTexture)
+  {
+    return RoughnessValue * RoughnessTexture.Sample(RoughnessTexture_AutoSampler, G.Input.TexCoord0.xy).r;
   }
   else
   {
@@ -220,7 +237,11 @@ float3 GetEmissiveColor()
 float GetOcclusion()
 {
   [branch]
-  if (UseOcclusionTexture)
+  if (UseOrmTexture)
+  {
+    return OrmTexture.Sample(OrmTexture_AutoSampler, G.Input.TexCoord0.xy).r;
+  }
+  else if (UseOcclusionTexture)
   {
     return OcclusionTexture.Sample(OcclusionTexture_AutoSampler, G.Input.TexCoord0.xy).r;
   }

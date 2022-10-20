@@ -503,7 +503,7 @@ o
 	u3 %v{1}
 	p
 	{
-		s %Filter{";Texture Cube;"}
+		s %Filter{";CompatibleAsset_Texture_Cube;"}
 	}
 }
 o
