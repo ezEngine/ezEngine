@@ -71,7 +71,7 @@ public:
 
   const ezMap<ezJoltActorComponent*, ezUInt32>& GetActiveActors() const { return m_ActiveActors; }
 
-  void QueueBodyToAdd(JPH::Body* pBody);
+  void QueueBodyToAdd(JPH::Body* pBody, bool bAwake);
 
   JPH::GroupFilter* GetGroupFilter() const { return m_pGroupFilter; }
   JPH::GroupFilter* GetGroupFilterIgnoreSame() const { return m_pGroupFilterIgnoreSame; }
@@ -129,6 +129,7 @@ private:
 
   ezUInt32 m_uiBodiesAddedSinceOptimize = 100;
   ezDeque<ezUInt32> m_BodiesToAdd;
+  ezDeque<ezUInt32> m_BodiesToAddAndActivate;
 
   ezHybridArray<ezTime, 4> m_UpdateSteps;
   ezHybridArray<ezJoltCharacterControllerComponent*, 4> m_ActiveCharacters;

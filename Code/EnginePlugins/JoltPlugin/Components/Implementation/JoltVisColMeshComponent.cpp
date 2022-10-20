@@ -226,7 +226,10 @@ void ezJoltVisColMeshComponentManager::Deinitialize()
 
 void ezJoltVisColMeshComponentManager::Update(const ezWorldModule::UpdateContext& context)
 {
-  for (const auto& hComp : m_RequireUpdate)
+  ezDeque<ezComponentHandle> requireUpdate;
+  m_RequireUpdate.Swap(requireUpdate);
+
+  for (const auto& hComp : requireUpdate)
   {
     ezJoltVisColMeshComponent* pComp = nullptr;
     if (!TryGetComponent(hComp, pComp))
@@ -234,8 +237,6 @@ void ezJoltVisColMeshComponentManager::Update(const ezWorldModule::UpdateContext
 
     pComp->CreateCollisionRenderMesh();
   }
-
-  m_RequireUpdate.Clear();
 }
 
 void ezJoltVisColMeshComponentManager::EnqueueUpdate(ezComponentHandle hComponent)

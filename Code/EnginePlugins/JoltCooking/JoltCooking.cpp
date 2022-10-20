@@ -68,6 +68,9 @@ ezResult ezJoltCooking::CookTriangleMesh(const ezJoltCookingMesh& mesh, ezStream
 
     for (ezUInt32 i = 0; i < mesh.m_VerticesInPolygon.GetCount(); ++i)
     {
+      if (mesh.m_PolygonSurfaceID[i] == 0xFFFF)
+        continue;
+
       uiTriangles += mesh.m_VerticesInPolygon[i] - 2;
     }
 
@@ -83,22 +86,25 @@ ezResult ezJoltCooking::CookTriangleMesh(const ezJoltCookingMesh& mesh, ezStream
     {
       const ezUInt32 polyVerts = mesh.m_VerticesInPolygon[poly];
 
-      for (ezUInt32 tri = 0; tri < polyVerts - 2; ++tri)
+      if (mesh.m_PolygonSurfaceID[poly] != 0xFFFF)
       {
-        const ezUInt32 uiMaterialID = mesh.m_PolygonSurfaceID[poly];
+        for (ezUInt32 tri = 0; tri < polyVerts - 2; ++tri)
+        {
+          const ezUInt32 uiMaterialID = mesh.m_PolygonSurfaceID[poly];
 
-        uiMaxMaterialIndex = ezMath::Max(uiMaxMaterialIndex, uiMaterialID);
+          uiMaxMaterialIndex = ezMath::Max(uiMaxMaterialIndex, uiMaterialID);
 
-        const ezUInt32 idx0 = mesh.m_PolygonIndices[uiIdxOffset + 0];
-        const ezUInt32 idx1 = mesh.m_PolygonIndices[uiIdxOffset + tri + 1];
-        const ezUInt32 idx2 = mesh.m_PolygonIndices[uiIdxOffset + tri + 2];
+          const ezUInt32 idx0 = mesh.m_PolygonIndices[uiIdxOffset + 0];
+          const ezUInt32 idx1 = mesh.m_PolygonIndices[uiIdxOffset + tri + 1];
+          const ezUInt32 idx2 = mesh.m_PolygonIndices[uiIdxOffset + tri + 2];
 
-        triangleList[uiTriIdx].mMaterialIndex = uiMaterialID;
-        triangleList[uiTriIdx].mIdx[0] = idx0;
-        triangleList[uiTriIdx].mIdx[1] = idx1;
-        triangleList[uiTriIdx].mIdx[2] = idx2;
+          triangleList[uiTriIdx].mMaterialIndex = uiMaterialID;
+          triangleList[uiTriIdx].mIdx[0] = idx0;
+          triangleList[uiTriIdx].mIdx[1] = idx1;
+          triangleList[uiTriIdx].mIdx[2] = idx2;
 
-        ++uiTriIdx;
+          ++uiTriIdx;
+        }
       }
 
       uiIdxOffset += polyVerts;

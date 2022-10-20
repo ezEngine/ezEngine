@@ -223,10 +223,21 @@ ezStatus ezJoltCollisionMeshAssetDocument::CreateMeshFromFile(ezJoltCookingMesh&
 
       const auto subMeshInfo = meshDesc.GetSubMeshes()[subMeshIdx];
 
-      // update the triangle material information
-      for (ezUInt32 tri = 0; tri < subMeshInfo.m_uiPrimitiveCount; ++tri)
+      if (pProp->m_Slots[subMeshIdx].m_bExclude)
       {
-        outMesh.m_PolygonSurfaceID[subMeshInfo.m_uiFirstPrimitive + tri] = subMeshIdx;
+        // update the triangle material information
+        for (ezUInt32 tri = 0; tri < subMeshInfo.m_uiPrimitiveCount; ++tri)
+        {
+          outMesh.m_PolygonSurfaceID[subMeshInfo.m_uiFirstPrimitive + tri] = 0xFFFF;
+        }
+      }
+      else
+      {
+        // update the triangle material information
+        for (ezUInt32 tri = 0; tri < subMeshInfo.m_uiPrimitiveCount; ++tri)
+        {
+          outMesh.m_PolygonSurfaceID[subMeshInfo.m_uiFirstPrimitive + tri] = subMeshIdx;
+        }
       }
     }
 

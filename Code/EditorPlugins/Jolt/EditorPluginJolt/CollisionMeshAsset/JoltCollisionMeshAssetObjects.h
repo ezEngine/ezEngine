@@ -9,6 +9,7 @@ struct ezJoltSurfaceResourceSlot
 {
   ezString m_sLabel;
   ezString m_sResource;
+  bool m_bExclude = false;
 };
 
 struct ezJoltCollisionMeshType

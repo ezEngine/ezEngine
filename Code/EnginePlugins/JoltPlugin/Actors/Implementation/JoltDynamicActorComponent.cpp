@@ -83,11 +83,12 @@ void ezJoltDynamicActorComponentManager::UpdateKinematicActors(ezTime deltaTime)
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezJoltDynamicActorComponent, 2, ezComponentMode::Dynamic)
+EZ_BEGIN_COMPONENT_TYPE(ezJoltDynamicActorComponent, 3, ezComponentMode::Dynamic)
 {
   EZ_BEGIN_PROPERTIES
   {
       EZ_ACCESSOR_PROPERTY("Kinematic", GetKinematic, SetKinematic),
+      EZ_MEMBER_PROPERTY("StartAsleep", m_bStartAsleep),
       EZ_MEMBER_PROPERTY("Mass", m_fMass)->AddAttributes(new ezSuffixAttribute(" kg"), new ezClampValueAttribute(0.0f, ezVariant())),
       EZ_MEMBER_PROPERTY("Density", m_fDensity)->AddAttributes(new ezDefaultValueAttribute(100.0f), new ezSuffixAttribute(" kg/m^3")),
       EZ_ACCESSOR_PROPERTY("Surface", GetSurfaceFile, SetSurfaceFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface")),
@@ -147,6 +148,7 @@ void ezJoltDynamicActorComponent::SerializeComponent(ezWorldWriter& stream) cons
   s << m_OnContact;
   s << GetUseCustomCoM();
   s << m_vCenterOfMass;
+  s << m_bStartAsleep;
 }
 
 void ezJoltDynamicActorComponent::DeserializeComponent(ezWorldReader& stream)
@@ -172,6 +174,11 @@ void ezJoltDynamicActorComponent::DeserializeComponent(ezWorldReader& stream)
     s >> com;
     SetUseCustomCoM(com);
     s >> m_vCenterOfMass;
+  }
+
+  if (uiVersion >= 3)
+  {
+    s >> m_bStartAsleep;
   }
 }
 
@@ -304,7 +311,7 @@ void ezJoltDynamicActorComponent::OnSimulationStarted()
   JPH::Body* pBody = pBodies->CreateBody(bodyCfg);
   m_uiJoltBodyID = pBody->GetID().GetIndexAndSequenceNumber();
 
-  pModule->QueueBodyToAdd(pBody);
+  pModule->QueueBodyToAdd(pBody, !m_bStartAsleep);
 
   if (m_bKinematic)
   {

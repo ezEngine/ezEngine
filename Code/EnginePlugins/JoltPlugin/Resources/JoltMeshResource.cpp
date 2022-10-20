@@ -334,7 +334,10 @@ void RetrieveShapeTriangles(JPH::ShapeSettings* pShapeOpt, ezDynamicArray<ezVec3
 
 ezCpuMeshResourceHandle ezJoltMeshResource::ConvertToCpuMesh() const
 {
-  ezCpuMeshResourceHandle hCpuMesh = ezResourceManager::GetExistingResource<ezCpuMeshResource>(GetResourceID());
+  ezStringBuilder sCpuMeshName = GetResourceID();
+  sCpuMeshName.AppendFormat("-({})", GetCurrentResourceChangeCounter());
+
+  ezCpuMeshResourceHandle hCpuMesh = ezResourceManager::GetExistingResource<ezCpuMeshResource>(sCpuMeshName);
   if (hCpuMesh.IsValid())
     return hCpuMesh;
 
@@ -370,7 +373,7 @@ ezCpuMeshResourceHandle ezJoltMeshResource::ConvertToCpuMesh() const
   desc.AddSubMesh(desc.MeshBufferDesc().GetPrimitiveCount(), 0, 0);
   desc.ComputeBounds();
 
-  return ezResourceManager::GetOrCreateResource<ezCpuMeshResource>(GetResourceID(), std::move(desc), GetResourceDescription());
+  return ezResourceManager::GetOrCreateResource<ezCpuMeshResource>(sCpuMeshName, std::move(desc), GetResourceDescription());
 }
 
 JPH::Shape* ezJoltMeshResource::InstantiateTriangleMesh(ezUInt64 uiUserData, const ezDynamicArray<const ezJoltMaterial*>& materials) const

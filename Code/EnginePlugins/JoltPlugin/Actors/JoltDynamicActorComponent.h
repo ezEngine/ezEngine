@@ -58,6 +58,7 @@ public:
   const char* GetSurfaceFile() const;      // [ property ]
 
   bool m_bCCD = false;                                    // [ property ]
+  bool m_bStartAsleep = false;                            // [ property ]
   float m_fMass = 0.0f;                                   // [ property ]
   float m_fDensity = 1.0f;                                // [ property ]
   float m_fLinearDamping = 0.1f;                          // [ property ]
