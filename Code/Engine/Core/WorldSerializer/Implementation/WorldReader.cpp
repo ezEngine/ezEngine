@@ -10,7 +10,7 @@ ezWorldReader::FindComponentTypeCallback ezWorldReader::s_FindComponentTypeCallb
 ezWorldReader::ezWorldReader() = default;
 ezWorldReader::~ezWorldReader() = default;
 
-ezResult ezWorldReader::ReadWorldDescription(ezStreamReader& stream)
+ezResult ezWorldReader::ReadWorldDescription(ezStreamReader& stream, bool warningOnUknownSkip)
 {
   m_pStream = &stream;
 
@@ -71,7 +71,7 @@ ezResult ezWorldReader::ReadWorldDescription(ezStreamReader& stream)
   }
 
   // read all component data
-  ReadComponentDataToMemStream();
+  ReadComponentDataToMemStream(warningOnUknownSkip);
   m_pStringDedupReadContext->SetActive(false);
 
   return EZ_SUCCESS;
@@ -241,7 +241,7 @@ void ezWorldReader::ReadComponentTypeInfo(ezUInt32 uiComponentTypeIdx)
   m_ComponentTypeVersions[pRtti] = uiRttiVersion;
 }
 
-void ezWorldReader::ReadComponentDataToMemStream()
+void ezWorldReader::ReadComponentDataToMemStream(bool warningOnUnknownSkip)
 {
   auto WriteToMemStream = [&](ezMemoryStreamWriter& writer, bool bReadNumComponents)
   {
@@ -253,7 +253,10 @@ void ezWorldReader::ReadComponentDataToMemStream()
 
       if (compTypeInfo.m_pRtti == nullptr)
       {
-        ezLog::Warning("Skipping components of unknown type");
+        if (warningOnUnknownSkip)
+        {
+          ezLog::Warning("Skipping components of unknown type");
+        }
 
         m_pStream->SkipBytes(uiAllComponentsSize);
       }

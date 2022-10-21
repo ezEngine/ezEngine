@@ -2,6 +2,7 @@
 
 // NOTE: always save as Unicode UTF-8 with signature or compile with /utf-8 on windows.
 
+#include <Foundation/Containers/Deque.h>
 #include <Foundation/Strings/String.h>
 
 EZ_CREATE_SIMPLE_TEST(Strings, StringView)
@@ -67,7 +68,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringView)
     {
       EZ_TEST_INT(it.GetCharacter(), sz[i]);
       EZ_TEST_BOOL(it.IsValid());
-      ++it;
+      it.Shrink(1, 0);
     }
 
     EZ_TEST_BOOL(!it.IsValid());
@@ -149,7 +150,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringView)
     {
       EZ_TEST_INT(it.GetCharacter(), sz[i]);
       EZ_TEST_BOOL(it.IsValid());
-      it += 2;
+      it.Shrink(2, 0);
     }
 
     EZ_TEST_BOOL(!it.IsValid());
@@ -161,19 +162,19 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringView)
     ezStringView it = ezStringView(s.GetData());
 
     EZ_TEST_INT(it.GetCharacter(), ezUnicodeUtils::ConvertUtf8ToUtf32(&s.GetData()[0]));
-    ++it;
+    it.Shrink(1, 0);
     EZ_TEST_INT(it.GetCharacter(), ezUnicodeUtils::ConvertUtf8ToUtf32(&s.GetData()[1]));
-    ++it;
+    it.Shrink(1, 0);
     EZ_TEST_INT(it.GetCharacter(), ezUnicodeUtils::ConvertUtf8ToUtf32(&s.GetData()[2]));
-    ++it;
+    it.Shrink(1, 0);
     EZ_TEST_INT(it.GetCharacter(), ezUnicodeUtils::ConvertUtf8ToUtf32(&s.GetData()[3]));
-    ++it;
+    it.Shrink(1, 0);
     EZ_TEST_INT(it.GetCharacter(), ezUnicodeUtils::ConvertUtf8ToUtf32(&s.GetData()[5]));
-    ++it;
+    it.Shrink(1, 0);
     EZ_TEST_INT(it.GetCharacter(), ezUnicodeUtils::ConvertUtf8ToUtf32(&s.GetData()[7]));
-    ++it;
+    it.Shrink(1, 0);
     EZ_TEST_INT(it.GetCharacter(), ezUnicodeUtils::ConvertUtf8ToUtf32(&s.GetData()[9]));
-    ++it;
+    it.Shrink(1, 0);
     EZ_TEST_BOOL(!it.IsValid());
   }
 
@@ -183,28 +184,28 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringView)
     ezStringView it = ezStringView(s.GetData());
 
     EZ_TEST_INT(it.GetElementCount(), 12);
-    ++it;
+    it.Shrink(1, 0);
     EZ_TEST_BOOL(it.IsValid());
     EZ_TEST_INT(it.GetElementCount(), 11);
-    ++it;
+    it.Shrink(1, 0);
     EZ_TEST_BOOL(it.IsValid());
     EZ_TEST_INT(it.GetElementCount(), 10);
-    ++it;
+    it.Shrink(1, 0);
     EZ_TEST_BOOL(it.IsValid());
     EZ_TEST_INT(it.GetElementCount(), 9);
-    ++it;
+    it.Shrink(1, 0);
     EZ_TEST_BOOL(it.IsValid());
     EZ_TEST_INT(it.GetElementCount(), 7);
-    ++it;
+    it.Shrink(1, 0);
     EZ_TEST_BOOL(it.IsValid());
     EZ_TEST_INT(it.GetElementCount(), 5);
-    ++it;
+    it.Shrink(1, 0);
     EZ_TEST_BOOL(it.IsValid());
     EZ_TEST_INT(it.GetElementCount(), 3);
-    ++it;
+    it.Shrink(1, 0);
     EZ_TEST_BOOL(!it.IsValid());
     EZ_TEST_INT(it.GetElementCount(), 0);
-    ++it;
+    it.Shrink(1, 0);
     EZ_TEST_BOOL(!it.IsValid());
   }
 
@@ -221,7 +222,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringView)
     }
 
     EZ_TEST_BOOL(it.IsValid());
-    ++it;
+    it.Shrink(1, 0);
     EZ_TEST_BOOL(!it.IsValid());
 
     it = ezStringView(sz);
@@ -323,5 +324,370 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringView)
     view = sUnicode.GetData();
     view.Trim(ezStringUtf8(L"ですにぱ").GetData());
     EZ_TEST_BOOL(view.IsEqual(ezStringUtf8(L"A").GetData()));
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "TrimWordStart")
+  {
+    ezStringView sb;
+
+    {
+      sb = "<test>abc<test>";
+      EZ_TEST_BOOL(sb.TrimWordStart("<test>"));
+      EZ_TEST_BOOL(sb == "abc<test>");
+      EZ_TEST_BOOL(sb.TrimWordStart("<test>") == false);
+      EZ_TEST_BOOL(sb == "abc<test>");
+    }
+
+    {
+      sb = "<test><tut><test><test><tut>abc<tut><test>";
+      EZ_TEST_BOOL(sb.TrimWordStart("<tut>", "<test>"));
+      EZ_TEST_BOOL(sb == "abc<tut><test>");
+      EZ_TEST_BOOL(sb.TrimWordStart("<tut>", "<test>") == false);
+      EZ_TEST_BOOL(sb == "abc<tut><test>");
+    }
+
+    {
+      sb = "<a><b><c><d><e><a><b><c><d><e>abc";
+      EZ_TEST_BOOL(sb.TrimWordStart("<a>", "<b>", "<c>", "<d>", "<e>"));
+      EZ_TEST_BOOL(sb == "abc");
+    }
+
+    {
+      sb = "<a><b><c><d><e><a><b><c><d><e>";
+      EZ_TEST_BOOL(sb.TrimWordStart("<a>", "<b>", "<c>", "<d>", "<e>"));
+      EZ_TEST_BOOL(sb == "");
+    }
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "TrimWordEnd")
+  {
+    ezStringView sb;
+
+    {
+      sb = "<test>abc<test>";
+      EZ_TEST_BOOL(sb.TrimWordEnd("<test>"));
+      EZ_TEST_BOOL(sb == "<test>abc");
+      EZ_TEST_BOOL(sb.TrimWordEnd("<test>") == false);
+      EZ_TEST_BOOL(sb == "<test>abc");
+    }
+
+    {
+      sb = "<tut><test>abc<test><tut><test><test><tut>";
+      EZ_TEST_BOOL(sb.TrimWordEnd("<tut>", "<test>"));
+      EZ_TEST_BOOL(sb == "<tut><test>abc");
+      EZ_TEST_BOOL(sb.TrimWordEnd("<tut>", "<test>") == false);
+      EZ_TEST_BOOL(sb == "<tut><test>abc");
+    }
+
+    {
+      sb = "abc<a><b><c><d><e><a><b><c><d><e>";
+      EZ_TEST_BOOL(sb.TrimWordEnd("<a>", "<b>", "<c>", "<d>", "<e>"));
+      EZ_TEST_BOOL(sb == "abc");
+    }
+
+    {
+      sb = "<a><b><c><d><e><a><b><c><d><e>";
+      EZ_TEST_BOOL(sb.TrimWordEnd("<a>", "<b>", "<c>", "<d>", "<e>"));
+      EZ_TEST_BOOL(sb == "");
+    }
+  }
+
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Split")
+  {
+    ezStringView s = "|abc,def<>ghi|,<>jkl|mno,pqr|stu";
+
+    ezDeque<ezStringView> SubStrings;
+
+    s.Split(false, SubStrings, ",", "|", "<>");
+
+    EZ_TEST_INT(SubStrings.GetCount(), 7);
+    EZ_TEST_BOOL(SubStrings[0] == "abc");
+    EZ_TEST_BOOL(SubStrings[1] == "def");
+    EZ_TEST_BOOL(SubStrings[2] == "ghi");
+    EZ_TEST_BOOL(SubStrings[3] == "jkl");
+    EZ_TEST_BOOL(SubStrings[4] == "mno");
+    EZ_TEST_BOOL(SubStrings[5] == "pqr");
+    EZ_TEST_BOOL(SubStrings[6] == "stu");
+
+    s.Split(true, SubStrings, ",", "|", "<>");
+
+    EZ_TEST_INT(SubStrings.GetCount(), 10);
+    EZ_TEST_BOOL(SubStrings[0] == "");
+    EZ_TEST_BOOL(SubStrings[1] == "abc");
+    EZ_TEST_BOOL(SubStrings[2] == "def");
+    EZ_TEST_BOOL(SubStrings[3] == "ghi");
+    EZ_TEST_BOOL(SubStrings[4] == "");
+    EZ_TEST_BOOL(SubStrings[5] == "");
+    EZ_TEST_BOOL(SubStrings[6] == "jkl");
+    EZ_TEST_BOOL(SubStrings[7] == "mno");
+    EZ_TEST_BOOL(SubStrings[8] == "pqr");
+    EZ_TEST_BOOL(SubStrings[9] == "stu");
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "HasAnyExtension")
+  {
+    ezStringView p = "This/Is\\My//Path.dot\\file.extension";
+    EZ_TEST_BOOL(p.HasAnyExtension());
+
+    p = "This/Is\\My//Path.dot\\file_no_extension";
+    EZ_TEST_BOOL(!p.HasAnyExtension());
+    EZ_TEST_BOOL(!p.HasAnyExtension());
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "HasExtension")
+  {
+    ezStringView p;
+
+    p = "This/Is\\My//Path.dot\\file.extension";
+    EZ_TEST_BOOL(p.HasExtension(".Extension"));
+
+    p = "This/Is\\My//Path.dot\\file.ext";
+    EZ_TEST_BOOL(p.HasExtension("EXT"));
+
+    p = "This/Is\\My//Path.dot\\file.ext";
+    EZ_TEST_BOOL(!p.HasExtension("NEXT"));
+
+    p = "This/Is\\My//Path.dot\\file.extension";
+    EZ_TEST_BOOL(!p.HasExtension(".Ext"));
+
+    p = "This/Is\\My//Path.dot\\file.extension";
+    EZ_TEST_BOOL(!p.HasExtension("sion"));
+
+    p = "";
+    EZ_TEST_BOOL(!p.HasExtension("ext"));
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetFileExtension")
+  {
+    ezStringView p;
+
+    p = "This/Is\\My//Path.dot\\file.extension";
+    EZ_TEST_BOOL(p.GetFileExtension() == "extension");
+
+    p = "This/Is\\My//Path.dot\\file";
+    EZ_TEST_BOOL(p.GetFileExtension() == "");
+
+    p = "";
+    EZ_TEST_BOOL(p.GetFileExtension() == "");
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetFileNameAndExtension")
+  {
+    ezStringView p;
+
+    p = "This/Is\\My//Path.dot\\file.extension";
+    EZ_TEST_BOOL(p.GetFileNameAndExtension() == "file.extension");
+
+    p = "This/Is\\My//Path.dot\\.extension";
+    EZ_TEST_BOOL(p.GetFileNameAndExtension() == ".extension");
+
+    p = "This/Is\\My//Path.dot\\file";
+    EZ_TEST_BOOL(p.GetFileNameAndExtension() == "file");
+
+    p = "\\file";
+    EZ_TEST_BOOL(p.GetFileNameAndExtension() == "file");
+
+    p = "";
+    EZ_TEST_BOOL(p.GetFileNameAndExtension() == "");
+
+    p = "/";
+    EZ_TEST_BOOL(p.GetFileNameAndExtension() == "");
+
+    p = "This/Is\\My//Path.dot\\";
+    EZ_TEST_BOOL(p.GetFileNameAndExtension() == "");
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetFileName")
+  {
+    ezStringView p;
+
+    p = "This/Is\\My//Path.dot\\file.extension";
+    EZ_TEST_BOOL(p.GetFileName() == "file");
+
+    p = "This/Is\\My//Path.dot\\file";
+    EZ_TEST_BOOL(p.GetFileName() == "file");
+
+    p = "\\file";
+    EZ_TEST_BOOL(p.GetFileName() == "file");
+
+    p = "";
+    EZ_TEST_BOOL(p.GetFileName() == "");
+
+    p = "/";
+    EZ_TEST_BOOL(p.GetFileName() == "");
+
+    p = "This/Is\\My//Path.dot\\";
+    EZ_TEST_BOOL(p.GetFileName() == "");
+
+    // so far we treat file and folders whose names start with a '.' as extensions
+    p = "This/Is\\My//Path.dot\\.stupidfile";
+    EZ_TEST_BOOL(p.GetFileName() == "");
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetFileDirectory")
+  {
+    ezStringView p;
+
+    p = "This/Is\\My//Path.dot\\file.extension";
+    EZ_TEST_BOOL(p.GetFileDirectory() == "This/Is\\My//Path.dot\\");
+
+    p = "This/Is\\My//Path.dot\\.extension";
+    EZ_TEST_BOOL(p.GetFileDirectory() == "This/Is\\My//Path.dot\\");
+
+    p = "This/Is\\My//Path.dot\\file";
+    EZ_TEST_BOOL(p.GetFileDirectory() == "This/Is\\My//Path.dot\\");
+
+    p = "\\file";
+    EZ_TEST_BOOL(p.GetFileDirectory() == "\\");
+
+    p = "";
+    EZ_TEST_BOOL(p.GetFileDirectory() == "");
+
+    p = "/";
+    EZ_TEST_BOOL(p.GetFileDirectory() == "/");
+
+    p = "This/Is\\My//Path.dot\\";
+    EZ_TEST_BOOL(p.GetFileDirectory() == "This/Is\\My//Path.dot\\");
+
+    p = "This";
+    EZ_TEST_BOOL(p.GetFileDirectory() == "");
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsAbsolutePath / IsRelativePath / IsRootedPath")
+  {
+    ezStringView p;
+
+    p = "";
+    EZ_TEST_BOOL(!p.IsAbsolutePath());
+    EZ_TEST_BOOL(p.IsRelativePath());
+    EZ_TEST_BOOL(!p.IsRootedPath());
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+    p = "C:\\temp.stuff";
+    EZ_TEST_BOOL(p.IsAbsolutePath());
+    EZ_TEST_BOOL(!p.IsRelativePath());
+    EZ_TEST_BOOL(!p.IsRootedPath());
+
+    p = "C:/temp.stuff";
+    EZ_TEST_BOOL(p.IsAbsolutePath());
+    EZ_TEST_BOOL(!p.IsRelativePath());
+    EZ_TEST_BOOL(!p.IsRootedPath());
+
+    p = "\\\\myserver\\temp.stuff";
+    EZ_TEST_BOOL(p.IsAbsolutePath());
+    EZ_TEST_BOOL(!p.IsRelativePath());
+    EZ_TEST_BOOL(!p.IsRootedPath());
+
+    p = "\\myserver\\temp.stuff";
+    EZ_TEST_BOOL(!p.IsAbsolutePath());
+    EZ_TEST_BOOL(!p.IsRelativePath()); // neither absolute nor relativ, just stupid
+    EZ_TEST_BOOL(!p.IsRootedPath());
+
+    p = "temp.stuff";
+    EZ_TEST_BOOL(!p.IsAbsolutePath());
+    EZ_TEST_BOOL(p.IsRelativePath());
+    EZ_TEST_BOOL(!p.IsRootedPath());
+
+    p = "/temp.stuff";
+    EZ_TEST_BOOL(!p.IsAbsolutePath());
+    EZ_TEST_BOOL(!p.IsRelativePath()); // bloed
+    EZ_TEST_BOOL(!p.IsRootedPath());
+
+    p = "\\temp.stuff";
+    EZ_TEST_BOOL(!p.IsAbsolutePath());
+    EZ_TEST_BOOL(!p.IsRelativePath()); // bloed
+    EZ_TEST_BOOL(!p.IsRootedPath());
+
+    p = "..\\temp.stuff";
+    EZ_TEST_BOOL(!p.IsAbsolutePath());
+    EZ_TEST_BOOL(p.IsRelativePath());
+    EZ_TEST_BOOL(!p.IsRootedPath());
+
+    p = ".\\temp.stuff";
+    EZ_TEST_BOOL(!p.IsAbsolutePath());
+    EZ_TEST_BOOL(p.IsRelativePath());
+    EZ_TEST_BOOL(!p.IsRootedPath());
+
+    p = ":MyDataDir\bla";
+    EZ_TEST_BOOL(!p.IsAbsolutePath());
+    EZ_TEST_BOOL(!p.IsRelativePath());
+    EZ_TEST_BOOL(p.IsRootedPath());
+
+    p = ":\\MyDataDir\bla";
+    EZ_TEST_BOOL(!p.IsAbsolutePath());
+    EZ_TEST_BOOL(!p.IsRelativePath());
+    EZ_TEST_BOOL(p.IsRootedPath());
+
+    p = ":/MyDataDir/bla";
+    EZ_TEST_BOOL(!p.IsAbsolutePath());
+    EZ_TEST_BOOL(!p.IsRelativePath());
+    EZ_TEST_BOOL(p.IsRootedPath());
+
+#elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX) || EZ_ENABLED(EZ_PLATFORM_ANDROID)
+
+    p = "C:\\temp.stuff";
+    EZ_TEST_BOOL(!p.IsAbsolutePath());
+    EZ_TEST_BOOL(p.IsRelativePath());
+    EZ_TEST_BOOL(!p.IsRootedPath());
+
+    p = "temp.stuff";
+    EZ_TEST_BOOL(!p.IsAbsolutePath());
+    EZ_TEST_BOOL(p.IsRelativePath());
+    EZ_TEST_BOOL(!p.IsRootedPath());
+
+    p = "/temp.stuff";
+    EZ_TEST_BOOL(p.IsAbsolutePath());
+    EZ_TEST_BOOL(!p.IsRelativePath());
+    EZ_TEST_BOOL(!p.IsRootedPath());
+
+    p = "..\\temp.stuff";
+    EZ_TEST_BOOL(!p.IsAbsolutePath());
+    EZ_TEST_BOOL(p.IsRelativePath());
+    EZ_TEST_BOOL(!p.IsRootedPath());
+
+    p = ".\\temp.stuff";
+    EZ_TEST_BOOL(!p.IsAbsolutePath());
+    EZ_TEST_BOOL(p.IsRelativePath());
+    EZ_TEST_BOOL(!p.IsRootedPath());
+
+#else
+#  error "Unknown platform."
+#endif
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetRootedPathRootName")
+  {
+    ezStringView p;
+
+    p = ":root\\bla";
+    EZ_TEST_BOOL(p.GetRootedPathRootName() == "root");
+
+    p = ":root/bla";
+    EZ_TEST_BOOL(p.GetRootedPathRootName() == "root");
+
+    p = "://root/bla";
+    EZ_TEST_BOOL(p.GetRootedPathRootName() == "root");
+
+    p = ":/\\/root\\/bla";
+    EZ_TEST_BOOL(p.GetRootedPathRootName() == "root");
+
+    p = "://\\root";
+    EZ_TEST_BOOL(p.GetRootedPathRootName() == "root");
+
+    p = ":";
+    EZ_TEST_BOOL(p.GetRootedPathRootName() == "");
+
+    p = "";
+    EZ_TEST_BOOL(p.GetRootedPathRootName() == "");
+
+    p = "noroot\\bla";
+    EZ_TEST_BOOL(p.GetRootedPathRootName() == "");
+
+    p = "C:\\noroot/bla";
+    EZ_TEST_BOOL(p.GetRootedPathRootName() == "");
+
+    p = "/noroot/bla";
+    EZ_TEST_BOOL(p.GetRootedPathRootName() == "");
   }
 }

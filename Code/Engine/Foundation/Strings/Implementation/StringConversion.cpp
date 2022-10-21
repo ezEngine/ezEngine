@@ -4,34 +4,6 @@
 
 // **************** ezStringWChar ****************
 
-void ezStringWChar::operator=(const char* szUtf8)
-{
-  m_Data.Clear();
-
-  if (szUtf8 != nullptr)
-  {
-    EZ_ASSERT_DEV(
-      ezUnicodeUtils::IsValidUtf8(szUtf8), "Input Data is not a valid Utf8 string. Did you intend to use a Wide-String and forget the 'L' prefix?");
-
-    // skip any Utf8 Byte Order Mark
-    ezUnicodeUtils::SkipUtf8Bom(szUtf8);
-
-    ezUnicodeUtils::UtfInserter<wchar_t, ezHybridArray<wchar_t, BufferSize>> tempInserter(&m_Data);
-
-    while (*szUtf8 != '\0')
-    {
-      // decode utf8 to utf32
-      const ezUInt32 uiUtf32 = ezUnicodeUtils::DecodeUtf8ToUtf32(szUtf8);
-
-      // encode utf32 to wchar_t
-      ezUnicodeUtils::EncodeUtf32ToWChar(uiUtf32, tempInserter);
-    }
-  }
-
-  // append terminator
-  m_Data.PushBack('\0');
-}
-
 void ezStringWChar::operator=(const ezUInt16* szUtf16)
 {
   m_Data.Clear();
@@ -99,7 +71,34 @@ void ezStringWChar::operator=(const wchar_t* szWChar)
   m_Data.PushBack('\0');
 }
 
+void ezStringWChar::operator=(ezStringView sUtf8)
+{
+  m_Data.Clear();
 
+  if (!sUtf8.IsEmpty())
+  {
+    const char* szUtf8 = sUtf8.GetStartPointer();
+
+    EZ_ASSERT_DEV(ezUnicodeUtils::IsValidUtf8(szUtf8), "Input Data is not a valid Utf8 string. Did you intend to use a Wide-String and forget the 'L' prefix?");
+
+    // skip any Utf8 Byte Order Mark
+    ezUnicodeUtils::SkipUtf8Bom(szUtf8);
+
+    ezUnicodeUtils::UtfInserter<wchar_t, ezHybridArray<wchar_t, BufferSize>> tempInserter(&m_Data);
+
+    while (szUtf8 < sUtf8.GetEndPointer() && *szUtf8 != '\0')
+    {
+      // decode utf8 to utf32
+      const ezUInt32 uiUtf32 = ezUnicodeUtils::DecodeUtf8ToUtf32(szUtf8);
+
+      // encode utf32 to wchar_t
+      ezUnicodeUtils::EncodeUtf32ToWChar(uiUtf32, tempInserter);
+    }
+  }
+
+  // append terminator
+  m_Data.PushBack('\0');
+}
 
 // **************** ezStringUtf8 ****************
 

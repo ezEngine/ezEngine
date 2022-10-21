@@ -414,7 +414,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     ezStringUtf8 upr(L"ÄÖÜ€ßABCDEFGHIJKLMNOPQRSTUVWXYZ");
     ezStringView view(upr.GetData());
 
-    for (auto it = begin(s); it.IsValid(); ++it, ++view)
+    for (auto it = begin(s); it.IsValid(); ++it, view.Shrink(1, 0))
     {
       s.ChangeCharacter(it, view.GetCharacter());
 

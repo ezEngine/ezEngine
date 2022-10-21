@@ -851,9 +851,12 @@ void ezStringBuilder::ChangeFileNameAndExtension(ezStringView sNewFileNameWithEx
 
 void ezStringBuilder::ChangeFileExtension(ezStringView sNewExtension)
 {
-  EZ_ASSERT_DEV(!sNewExtension.StartsWith("."), "The given extension string must not start with a dot.");
+  while (sNewExtension.StartsWith("."))
+  {
+    sNewExtension.Shrink(1, 0);
+  }
 
-  ezStringView it = ezPathUtils::GetFileExtension(GetView());
+  const ezStringView it = ezPathUtils::GetFileExtension(GetView());
 
   if (it.IsEmpty() && !EndsWith("."))
     Append(".", sNewExtension);
@@ -953,8 +956,7 @@ ezResult ezStringBuilder::MakeRelativeTo(ezStringView sAbsolutePathToMakeThisRel
 /// IsFileBelowFolder ("", "") -> always false\n
 bool ezStringBuilder::IsPathBelowFolder(const char* szPathToFolder)
 {
-  EZ_ASSERT_DEV(
-    !ezStringUtils::IsNullOrEmpty(szPathToFolder), "The given path must not be empty. Because is 'nothing' under the empty path, or 'everything' ?");
+  EZ_ASSERT_DEV(!ezStringUtils::IsNullOrEmpty(szPathToFolder), "The given path must not be empty. Because is 'nothing' under the empty path, or 'everything' ?");
 
   // a non-existing file is never in any folder
   if (IsEmpty())
@@ -1195,6 +1197,56 @@ void ezStringBuilder::Printf(const char* szUtf8Format, ...)
   PrintfArgs(szUtf8Format, args);
 
   va_end(args);
+}
+
+bool ezStringBuilder::HasAnyExtension() const
+{
+  return GetView().HasAnyExtension();
+}
+
+bool ezStringBuilder::HasExtension(const char* szExtension) const
+{
+  return GetView().HasExtension(szExtension);
+}
+
+ezStringView ezStringBuilder::GetFileExtension() const
+{
+  return GetView().GetFileExtension();
+}
+
+ezStringView ezStringBuilder::GetFileName() const
+{
+  return GetView().GetFileName();
+}
+
+ezStringView ezStringBuilder::GetFileNameAndExtension() const
+{
+  return GetView().GetFileNameAndExtension();
+}
+
+ezStringView ezStringBuilder::GetFileDirectory() const
+{
+  return GetView().GetFileDirectory();
+}
+
+bool ezStringBuilder::IsAbsolutePath() const
+{
+  return GetView().IsAbsolutePath();
+}
+
+bool ezStringBuilder::IsRelativePath() const
+{
+  return GetView().IsRelativePath();
+}
+
+bool ezStringBuilder::IsRootedPath() const
+{
+  return GetView().IsRootedPath();
+}
+
+ezStringView ezStringBuilder::GetRootedPathRootName() const
+{
+  return GetView().GetRootedPathRootName();
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Strings_Implementation_StringBuilder);

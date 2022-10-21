@@ -77,7 +77,9 @@ public:
   /// Afterwards \a stream can be deleted.
   /// Call InstantiateWorld() or InstantiatePrefab() afterwards as often as you like
   /// to actually get an objects into an ezWorld.
-  ezResult ReadWorldDescription(ezStreamReader& stream);
+  /// By default, the method will warn if it skips bytes in the stream that are of unknown
+  /// types. The warnings can be suppressed by setting warningOnUnkownSkip to false.
+  ezResult ReadWorldDescription(ezStreamReader& stream, bool warningOnUnkownSkip = true);
 
   /// \brief Creates one instance of the world that was previously read by ReadWorldDescription().
   ///
@@ -160,7 +162,7 @@ private:
 
   void ReadGameObjectDesc(GameObjectToCreate& godesc);
   void ReadComponentTypeInfo(ezUInt32 uiComponentTypeIdx);
-  void ReadComponentDataToMemStream();
+  void ReadComponentDataToMemStream(bool warningOnUnknownSkip = true);
   void ClearHandles();
   ezUniquePtr<InstantiationContextBase> Instantiate(ezWorld& world, bool bUseTransform, const ezTransform& rootTransform, const ezPrefabInstantiationOptions& options);
 

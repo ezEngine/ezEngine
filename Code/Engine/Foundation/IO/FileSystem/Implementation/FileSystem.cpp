@@ -4,6 +4,8 @@
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Logging/Log.h>
+#include <Foundation/Strings/Implementation/StringIterator.h>
+#include <Foundation/Strings/StringView.h>
 
 // clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, FileSystem)
@@ -97,7 +99,8 @@ ezResult ezFileSystem::AddDataDirectory(const char* szDataDirectory, const char*
 
   if (!failed)
   {
-    s_Data->m_DataDirFactories.Sort([](const auto& a, const auto& b) { return a.m_fPriority < b.m_fPriority; });
+    s_Data->m_DataDirFactories.Sort([](const auto& a, const auto& b)
+      { return a.m_fPriority < b.m_fPriority; });
 
     // use the factory that was added last as the one with the highest priority -> allows to override already added factories
     for (ezInt32 i = s_Data->m_DataDirFactories.GetCount() - 1; i >= 0; --i)
@@ -428,23 +431,23 @@ const char* ezFileSystem::ExtractRootName(const char* szPath, ezString& rootName
     return szPath;
 
   ezStringBuilder sCur;
-  ezStringView it(szPath);
+  const ezStringView view(szPath);
+  ezStringIterator<ezStringView> it = view.GetIteratorFront();
   ++it;
 
-  while (!it.IsEmpty() && (it.GetCharacter() != '/'))
+  while (it.IsValid() && (it.GetCharacter() != '/'))
   {
     sCur.Append(it.GetCharacter());
-
     ++it;
   }
 
-  EZ_ASSERT_DEV(!it.IsEmpty(), "Cannot parse the path \"{0}\". The data-dir root name starts with a ':' but does not end with '/'.", szPath);
+  EZ_ASSERT_DEV(it.IsValid(), "Cannot parse the path \"{0}\". The data-dir root name starts with a ':' but does not end with '/'.", szPath);
 
   sCur.ToUpper();
   rootName = sCur;
   ++it;
 
-  return it.GetStartPointer(); // return the string after the data-dir filter declaration
+  return it.GetData(); // return the string after the data-dir filter declaration
 }
 
 ezDataDirectoryReader* ezFileSystem::GetFileReader(const char* szFile, ezFileShareMode::Enum FileShareMode, bool bAllowFileEvents)
