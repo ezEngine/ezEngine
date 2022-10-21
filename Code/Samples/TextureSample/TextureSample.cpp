@@ -205,26 +205,10 @@ public:
       m_hBBDSV = m_pDevice->GetDefaultRenderTargetView(m_hDepthStencilTexture);
     }
 
-    // Create Rasterizer State
-    {
-      ezGALRasterizerStateCreationDescription RasterStateDesc;
-      RasterStateDesc.m_CullMode = ezGALCullMode::Back;
-      RasterStateDesc.m_bFrontCounterClockwise = true;
-      m_hRasterizerState = m_pDevice->CreateRasterizerState(RasterStateDesc);
-      EZ_ASSERT_DEV(!m_hRasterizerState.IsInvalidated(), "Couldn't create rasterizer state!");
-    }
-
-    // Create Depth Stencil state
-    {
-      ezGALDepthStencilStateCreationDescription DepthStencilStateDesc;
-      DepthStencilStateDesc.m_bDepthTest = false;
-      DepthStencilStateDesc.m_bDepthWrite = true;
-      m_hDepthStencilState = m_pDevice->CreateDepthStencilState(DepthStencilStateDesc);
-      EZ_ASSERT_DEV(!m_hDepthStencilState.IsInvalidated(), "Couldn't create depth-stencil state!");
-    }
-
     // Setup Shaders and Materials
     {
+      // the shader (referenced by the material) also defines the render pipeline state, such as backface-culling and depth-testing
+
       m_hMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Materials/Texture.ezMaterial");
 
       // Create the mesh that we use for rendering
@@ -313,19 +297,16 @@ public:
       ezGALRenderingSetup renderingSetup;
       renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, m_hBBRTV).SetDepthStencilTarget(m_hBBDSV);
       renderingSetup.m_uiRenderTargetClearMask = 0xFFFFFFFF;
+      renderingSetup.m_bClearDepth = true;
 
       ezGALRenderCommandEncoder* pCommandEncoder = ezRenderContext::GetDefaultInstance()->BeginRendering(pGALPass, renderingSetup, ezRectFloat(0.0f, 0.0f, (float)g_uiWindowWidth, (float)g_uiWindowHeight));
-
-      pCommandEncoder->SetRasterizerState(m_hRasterizerState);
-      pCommandEncoder->SetDepthStencilState(m_hDepthStencilState);
 
       ezMat4 Proj = ezGraphicsUtils::CreateOrthographicProjectionMatrix(m_vCameraPosition.x + -(float)g_uiWindowWidth * 0.5f, m_vCameraPosition.x + (float)g_uiWindowWidth * 0.5f, m_vCameraPosition.y + -(float)g_uiWindowHeight * 0.5f, m_vCameraPosition.y + (float)g_uiWindowHeight * 0.5f, -1.0f, 1.0f);
 
       ezRenderContext::GetDefaultInstance()->BindConstantBuffer("ezTextureSampleConstants", m_hSampleConstants);
       ezRenderContext::GetDefaultInstance()->BindMaterial(m_hMaterial);
 
-      ezMat4 mTransform;
-      mTransform.SetIdentity();
+      ezMat4 mTransform = ezMat4::IdentityMatrix();
 
       ezInt32 iLeftBound = (ezInt32)ezMath::Floor((m_vCameraPosition.x - g_uiWindowWidth * 0.5f) / 100.0f);
       ezInt32 iLowerBound = (ezInt32)ezMath::Floor((m_vCameraPosition.y - g_uiWindowHeight * 0.5f) / 100.0f);
@@ -406,8 +387,6 @@ public:
 
     ezResourceManager::FreeAllUnusedResources();
 
-    m_pDevice->DestroyRasterizerState(m_hRasterizerState);
-    m_pDevice->DestroyDepthStencilState(m_hDepthStencilState);
     m_pDevice->DestroySwapChain(m_hSwapChain);
 
     // now we can destroy the graphics device
@@ -479,9 +458,6 @@ private:
   ezGALRenderTargetViewHandle m_hBBRTV;
   ezGALRenderTargetViewHandle m_hBBDSV;
   ezGALTextureHandle m_hDepthStencilTexture;
-
-  ezGALRasterizerStateHandle m_hRasterizerState;
-  ezGALDepthStencilStateHandle m_hDepthStencilState;
 
   ezMaterialResourceHandle m_hMaterial;
   ezMeshBufferResourceHandle m_hQuadMeshBuffer;
