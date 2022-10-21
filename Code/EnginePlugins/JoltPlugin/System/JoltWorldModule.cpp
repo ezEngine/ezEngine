@@ -208,7 +208,7 @@ void ezJoltWorldModule::Initialize()
 
   UpdateSettingsCfg();
 
-  ezStringBuilder tmp("JoltTemp-", GetWorld()->GetName());
+  ezStringBuilder tmp("Jolt-", GetWorld()->GetName());
   m_pTempAllocator = std::make_unique<ezJoltTempAlloc>(tmp);
 
   const uint32_t cMaxBodies = m_Settings.m_uiMaxBodies;

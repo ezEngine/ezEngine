@@ -48,6 +48,8 @@ private:
 
 ezResult ezJoltCooking::CookTriangleMesh(const ezJoltCookingMesh& mesh, ezStreamWriter& OutputStream)
 {
+  JPH::RegisterDefaultAllocator();
+
   JPH::VertexList vertexList;
   JPH::IndexedTriangleList triangleList;
 
@@ -163,6 +165,8 @@ EZ_DEFINE_AS_POD_TYPE(JPH::Vec3);
 
 ezResult ezJoltCooking::CookSingleConvexJoltMesh(const ezJoltCookingMesh& mesh, ezStreamWriter& OutputStream)
 {
+  JPH::RegisterDefaultAllocator();
+
   ezHybridArray<JPH::Vec3, 256> verts;
   verts.SetCountUninitialized(mesh.m_Vertices.GetCount());
 

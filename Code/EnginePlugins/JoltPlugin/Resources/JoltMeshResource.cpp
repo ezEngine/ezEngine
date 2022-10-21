@@ -395,8 +395,6 @@ JPH::Shape* ezJoltMeshResource::InstantiateTriangleMesh(ezUInt64 uiUserData, con
       return nullptr;
     }
 
-    shapeRes.Get()->AddRef();
-
     ezHybridArray<JPH::PhysicsMaterialRefC, 32> materials;
     materials.SetCount(m_Surfaces.GetCount());
 

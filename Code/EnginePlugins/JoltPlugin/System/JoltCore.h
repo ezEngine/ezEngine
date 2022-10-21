@@ -34,6 +34,13 @@ private:
 
   static void SurfaceResourceEventHandler(const ezSurfaceResourceEvent& e);
 
+  static void* JoltMalloc(size_t inSize);
+  static void JoltFree(void* inBlock);
+  static void* JoltAlignedMalloc(size_t inSize, size_t inAlignment);
+  static void JoltAlignedFree(void* inBlock);
+
   static ezJoltMaterial* s_pDefaultMaterial;
   static std::unique_ptr<JPH::JobSystem> s_pJobSystem;
+
+  static ezUniquePtr<ezProxyAllocator> s_Allocator;
 };
