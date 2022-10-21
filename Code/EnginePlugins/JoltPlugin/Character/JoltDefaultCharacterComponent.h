@@ -76,7 +76,7 @@ public:
   float GetCurrentCylinderHeight() const;
 
   /// \brief Returns the radius of the shape. This never changes at runtime.
-  float GetShapeRadius() const;
+  virtual float GetShapeRadius() const override;
 
   GroundState GetGroundState() const { return m_LastGroundState; }
   bool IsStandingOnGround() const { return m_LastGroundState == GroundState::OnGround; } // [ scriptable ]

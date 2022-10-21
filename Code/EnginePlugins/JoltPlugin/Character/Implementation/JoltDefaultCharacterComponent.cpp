@@ -398,6 +398,9 @@ void ezJoltDefaultCharacterComponent::DebugVisualizations()
       case JPH::CharacterBase::EGroundState::InAir:
         ezDebugRenderer::DrawInfoText(GetWorld(), ezDebugRenderer::ScreenPlacement::TopLeft, "JCC", "Jolt: In Air", ezColor::CornflowerBlue);
         break;
+      case JPH::CharacterBase::EGroundState::NotSupported:
+        ezDebugRenderer::DrawInfoText(GetWorld(), ezDebugRenderer::ScreenPlacement::TopLeft, "JCC", "Jolt: Not Supported", ezColor::Yellow);
+        break;
       case JPH::CharacterBase::EGroundState::OnSteepGround:
         ezDebugRenderer::DrawInfoText(GetWorld(), ezDebugRenderer::ScreenPlacement::TopLeft, "JCC", "Jolt: Steep", ezColor::OrangeRed);
         break;
@@ -573,6 +576,7 @@ void ezJoltDefaultCharacterComponent::UpdateCharacter()
   switch (GetJoltCharacter()->GetGroundState())
   {
     case JPH::CharacterBase::EGroundState::InAir:
+    case JPH::CharacterBase::EGroundState::NotSupported:
       m_LastGroundState = GroundState::InAir;
       // TODO: filter out 'sliding' when touching a ceiling (should be 'in air')
       break;

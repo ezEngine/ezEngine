@@ -8,7 +8,10 @@
 #include <Jolt/Physics/PhysicsSystem.h>
 #include <Jolt/Physics/Collision/ShapeCast.h>
 #include <Jolt/Physics/Collision/CollideShape.h>
+#include <Jolt/Physics/Collision/Shape/RotatedTranslatedShape.h>
 #include <Jolt/Core/QuickSort.h>
+#include <Jolt/Geometry/ConvexSupport.h>
+#include <Jolt/Geometry/GJKClosestPoint.h>
 #ifdef JPH_DEBUG_RENDERER
 	#include <Jolt/Renderer/DebugRenderer.h>
 #endif // JPH_DEBUG_RENDERER
@@ -175,10 +178,37 @@ bool CharacterVirtual::ValidateContact(const Contact &inContact) const
 	return mListener->OnContactValidate(this, inContact.mBodyB, inContact.mSubShapeIDB);
 }
 
+template <class T>
+inline static bool sCorrectFractionForCharacterPadding(const Shape *inShape, Mat44Arg inStart, Vec3Arg inDisplacement, const T &inPolygon, float &ioFraction)
+{
+	if (inShape->GetType() == EShapeType::Convex)
+	{
+		// Get the support function for the shape we're casting
+		const ConvexShape *convex_shape = static_cast<const ConvexShape *>(inShape);
+		ConvexShape::SupportBuffer buffer;
+		const ConvexShape::Support *support = convex_shape->GetSupportFunction(ConvexShape::ESupportMode::IncludeConvexRadius, buffer, Vec3::sReplicate(1.0f));
+
+		// Cast the shape against the polygon
+		GJKClosestPoint gjk;
+		return gjk.CastShape(inStart, inDisplacement, cDefaultCollisionTolerance, *support, inPolygon, ioFraction);
+	}
+	else if (inShape->GetSubType() == EShapeSubType::RotatedTranslated)
+	{
+		const RotatedTranslatedShape *rt_shape = static_cast<const RotatedTranslatedShape *>(inShape);
+		return sCorrectFractionForCharacterPadding(rt_shape->GetInnerShape(), inStart * Mat44::sRotation(rt_shape->GetRotation()), inDisplacement, inPolygon, ioFraction);
+	}
+	else
+	{
+		JPH_ASSERT(false, "Not supported yet!");
+		return false;
+	}
+}
+
 bool CharacterVirtual::GetFirstContactForSweep(Vec3Arg inPosition, Vec3Arg inDisplacement, Contact &outContact, const IgnoredContactList &inIgnoredContacts, const BroadPhaseLayerFilter &inBroadPhaseLayerFilter, const ObjectLayerFilter &inObjectLayerFilter, const BodyFilter &inBodyFilter, TempAllocator &inAllocator) const
 {
 	// Too small distance -> skip checking
-	if (inDisplacement.LengthSq() < 1.0e-8f)
+	float displacement_len_sq = inDisplacement.LengthSq();
+	if (displacement_len_sq < 1.0e-8f)
 		return false;
 
 	// Calculate start transform
@@ -217,15 +247,28 @@ bool CharacterVirtual::GetFirstContactForSweep(Vec3Arg inPosition, Vec3Arg inDis
 	if (!valid_contact)
 		return false;
 
-	// Correct fraction for the padding that we want to keep from geometry
-	// We want to maintain distance of cCharacterPadding (p) along plane normal outContact.mNormal (n) to the capsule by moving back along inDisplacement (d) by amount d'
-	// cos(angle between d and -n) = -n dot d / |d| = p / d'
-	// <=> d' = -p |d| / n dot d
-	// The new fraction of collision is then:
-	// f' = f - d' / |d| = f + p / n dot d
-	float dot = outContact.mContactNormal.Dot(inDisplacement);
-	if (dot < 0.0f) // We should not divide by zero and we should only update the fraction if normal is pointing towards displacement
-		outContact.mFraction = max(0.0f, outContact.mFraction + mCharacterPadding / dot);
+	// Fetch the face we're colliding with
+	TransformedShape ts = mSystem->GetBodyInterface().GetTransformedShape(outContact.mBodyB);
+	Shape::SupportingFace face;
+	ts.GetSupportingFace(outContact.mSubShapeIDB, -outContact.mContactNormal, face);
+
+	bool corrected = false;
+	if (face.size() >= 2)
+	{
+		// Inflate the colliding face by the character padding
+		PolygonConvexSupport polygon(face);
+		AddConvexRadius add_cvx(polygon, mCharacterPadding);
+
+		// Correct fraction to hit this inflated face instead of the inner shape
+		corrected = sCorrectFractionForCharacterPadding(mShape, start, inDisplacement, add_cvx, outContact.mFraction);
+	}
+	if (!corrected)
+	{
+		// When there's only a single contact point or when we were unable to correct the fraction,
+		// we can just move the fraction back so that the character and its padding don't hit the contact point anymore
+		outContact.mFraction = max(0.0f, outContact.mFraction - mCharacterPadding / sqrt(displacement_len_sq));
+	}
+
 	return true;
 }
 
@@ -267,7 +310,7 @@ void CharacterVirtual::DetermineConstraints(TempContactList &inContacts, Constra
 	}
 }
 
-bool CharacterVirtual::HandleContact(Vec3Arg inVelocity, Constraint &ioConstraint, Vec3Arg inGravity, float inDeltaTime) const
+bool CharacterVirtual::HandleContact(Vec3Arg inVelocity, Constraint &ioConstraint, float inDeltaTime) const
 {
 	Contact &contact = *ioConstraint.mContact;
 
@@ -322,17 +365,17 @@ bool CharacterVirtual::HandleContact(Vec3Arg inVelocity, Constraint &ioConstrain
 	// Calculate the world space impulse to apply
 	Vec3 world_impulse = -impulse * contact.mContactNormal;
 
-	// Add the impulse due to gravity working on the player: P = F dt = M g dt
-	float normal_dot_gravity = contact.mContactNormal.Dot(inGravity);
-	if (normal_dot_gravity < 0.0f)
-		world_impulse -= (mMass * normal_dot_gravity / inGravity.Length() * inDeltaTime) * inGravity;
+	// Cancel impulse in down direction (we apply gravity later)
+	float impulse_dot_up = world_impulse.Dot(mUp);
+	if (impulse_dot_up < 0.0f)
+		world_impulse -= impulse_dot_up * mUp;
 
 	// Now apply the impulse (body is already locked so we use the no-lock interface)
 	mSystem->GetBodyInterfaceNoLock().AddImpulse(contact.mBodyB, world_impulse, contact.mPosition);
 	return true;
 }
 
-void CharacterVirtual::SolveConstraints(Vec3Arg inVelocity, Vec3Arg inGravity, float inDeltaTime, float inTimeRemaining, ConstraintList &ioConstraints, IgnoredContactList &ioIgnoredContacts, float &outTimeSimulated, Vec3 &outDisplacement, TempAllocator &inAllocator
+void CharacterVirtual::SolveConstraints(Vec3Arg inVelocity, float inDeltaTime, float inTimeRemaining, ConstraintList &ioConstraints, IgnoredContactList &ioIgnoredContacts, float &outTimeSimulated, Vec3 &outDisplacement, TempAllocator &inAllocator
 #ifdef JPH_DEBUG_RENDERER
 	, bool inDrawConstraints
 #endif // JPH_DEBUG_RENDERER
@@ -433,7 +476,7 @@ void CharacterVirtual::SolveConstraints(Vec3Arg inVelocity, Vec3Arg inGravity, f
 			if (!c->mContact->mHadCollision)
 			{
 				// Handle the contact
-				if (!HandleContact(velocity, *c, inGravity, inDeltaTime))
+				if (!HandleContact(velocity, *c, inDeltaTime))
 				{
 					// Constraint should be ignored, remove it from the list
 					c->mContact->mWasDiscarded = true;
@@ -562,8 +605,9 @@ void CharacterVirtual::SolveConstraints(Vec3Arg inVelocity, Vec3Arg inGravity, f
 		previous_contacts[num_previous_contacts] = constraint;
 		num_previous_contacts++;
 
-		// If there's not enough velocity left, bail
-		if (velocity.LengthSq() < 1.0e-8f)
+		// Check early out
+		if (constraint->mProjectedVelocity < 1.0e-8f // Constraint should not be pushing, otherwise there may be other constraints that are pushing us
+			&& velocity.LengthSq() < 1.0e-8f) // There's not enough velocity left
 			return;
 
 		// If the constraint has velocity we accept the new velocity, otherwise check that we didn't reverse velocity
@@ -583,6 +627,9 @@ void CharacterVirtual::UpdateSupportingContact(bool inSkipContactVelocityCheck, 
 			c.mHadCollision |= c.mDistance < mCollisionTolerance
 								&& (inSkipContactVelocityCheck || c.mSurfaceNormal.Dot(mLinearVelocity - c.mLinearVelocity) <= 0.0f);
 
+	// Calculate transform that takes us to character local space
+	Mat44 inv_transform = Mat44::sInverseRotationTranslation(mRotation, mPosition);
+
 	// Determine if we're supported or not
 	int num_supported = 0;
 	int num_sliding = 0;
@@ -591,13 +638,26 @@ void CharacterVirtual::UpdateSupportingContact(bool inSkipContactVelocityCheck, 
 	Vec3 avg_velocity = Vec3::sZero();
 	const Contact *supporting_contact = nullptr;
 	float max_cos_angle = -FLT_MAX;
+	const Contact *deepest_contact = nullptr;
+	float smallest_distance = FLT_MAX;
 	for (const Contact &c : mActiveContacts)
 		if (c.mHadCollision)
 		{
 			// Calculate the angle between the plane normal and the up direction
 			float cos_angle = c.mSurfaceNormal.Dot(mUp);
 
-			// Find the contact with the normal that is pointing most upwards and store it in mSupportingContact
+			// Find the deepest contact
+			if (c.mDistance < smallest_distance)
+			{
+				deepest_contact = &c;
+				smallest_distance = c.mDistance;
+			}
+
+			// If this contact is in front of our plane, we cannot be supported by it
+			if (mSupportingVolume.SignedDistance(inv_transform * c.mPosition) > 0.0f)
+				continue;
+
+			// Find the contact with the normal that is pointing most upwards and store it
 			if (max_cos_angle < cos_angle)
 			{
 				supporting_contact = &c;
@@ -666,11 +726,19 @@ void CharacterVirtual::UpdateSupportingContact(bool inSkipContactVelocityCheck, 
 			}
 		}
 
+	// Take either the most supporting contact or the deepest contact
+	const Contact *best_contact = supporting_contact != nullptr? supporting_contact : deepest_contact;
+
 	// Calculate average normal and velocity
 	if (num_avg_normal >= 1)
 	{
 		mGroundNormal = avg_normal.Normalized();
 		mGroundVelocity = avg_velocity / float(num_avg_normal);
+	}
+	else if (best_contact != nullptr)
+	{
+		mGroundNormal = best_contact->mSurfaceNormal;
+		mGroundVelocity = best_contact->mLinearVelocity;
 	}
 	else
 	{
@@ -678,14 +746,14 @@ void CharacterVirtual::UpdateSupportingContact(bool inSkipContactVelocityCheck, 
 		mGroundVelocity = Vec3::sZero();
 	}
 
-	// Copy supporting contact properties
-	if (supporting_contact != nullptr)
+	// Copy contact properties
+	if (best_contact != nullptr)
 	{
-		mGroundBodyID = supporting_contact->mBodyB;
-		mGroundBodySubShapeID = supporting_contact->mSubShapeIDB;
-		mGroundPosition = supporting_contact->mPosition;
-		mGroundMaterial = supporting_contact->mMaterial;
-		mGroundUserData = supporting_contact->mUserData;
+		mGroundBodyID = best_contact->mBodyB;
+		mGroundBodySubShapeID = best_contact->mSubShapeIDB;
+		mGroundPosition = best_contact->mPosition;
+		mGroundMaterial = best_contact->mMaterial;
+		mGroundUserData = best_contact->mUserData;
 	}
 	else
 	{
@@ -717,7 +785,7 @@ void CharacterVirtual::UpdateSupportingContact(bool inSkipContactVelocityCheck, 
 		float time_simulated;
 		IgnoredContactList ignored_contacts(inAllocator);
 		ignored_contacts.reserve(contacts.size());
-		SolveConstraints(-mUp, mSystem->GetGravity(), 1.0f, 1.0f, constraints, ignored_contacts, time_simulated, displacement, inAllocator);
+		SolveConstraints(-mUp, 1.0f, 1.0f, constraints, ignored_contacts, time_simulated, displacement, inAllocator);
 
 		// If we're blocked then we're supported, otherwise we're sliding
 		float min_required_displacement_sq = Square(0.6f * mLastDeltaTime);
@@ -728,8 +796,8 @@ void CharacterVirtual::UpdateSupportingContact(bool inSkipContactVelocityCheck, 
 	}
 	else
 	{
-		// Not in contact with anything
-		mGroundState = EGroundState::InAir;
+		// Not supported by anything
+		mGroundState = best_contact != nullptr? EGroundState::NotSupported : EGroundState::InAir;
 	}
 }
 
@@ -740,7 +808,7 @@ void CharacterVirtual::StoreActiveContacts(const TempContactList &inContacts, Te
 	UpdateSupportingContact(true, inAllocator);
 }
 
-void CharacterVirtual::MoveShape(Vec3 &ioPosition, Vec3Arg inVelocity, Vec3Arg inGravity, float inDeltaTime, ContactList *outActiveContacts, const BroadPhaseLayerFilter &inBroadPhaseLayerFilter, const ObjectLayerFilter &inObjectLayerFilter, const BodyFilter &inBodyFilter, TempAllocator &inAllocator
+void CharacterVirtual::MoveShape(Vec3 &ioPosition, Vec3Arg inVelocity, float inDeltaTime, ContactList *outActiveContacts, const BroadPhaseLayerFilter &inBroadPhaseLayerFilter, const ObjectLayerFilter &inObjectLayerFilter, const BodyFilter &inBodyFilter, TempAllocator &inAllocator
 #ifdef JPH_DEBUG_RENDERER
 	, bool inDrawConstraints
 #endif // JPH_DEBUG_RENDERER
@@ -789,7 +857,7 @@ void CharacterVirtual::MoveShape(Vec3 &ioPosition, Vec3Arg inVelocity, Vec3Arg i
 		// Solve the displacement using these constraints
 		Vec3 displacement;
 		float time_simulated;
-		SolveConstraints(inVelocity, inGravity, inDeltaTime, time_remaining, constraints, ignored_contacts, time_simulated, displacement, inAllocator
+		SolveConstraints(inVelocity, inDeltaTime, time_remaining, constraints, ignored_contacts, time_simulated, displacement, inAllocator
 		#ifdef JPH_DEBUG_RENDERER
 			, draw_constraints
 		#endif // JPH_DEBUG_RENDERER
@@ -827,7 +895,7 @@ void CharacterVirtual::Update(float inDeltaTime, Vec3Arg inGravity, const BroadP
 	mLastDeltaTime = inDeltaTime;
 
 	// Slide the shape through the world
-	MoveShape(mPosition, mLinearVelocity, inGravity, inDeltaTime, &mActiveContacts, inBroadPhaseLayerFilter, inObjectLayerFilter, inBodyFilter, inAllocator
+	MoveShape(mPosition, mLinearVelocity, inDeltaTime, &mActiveContacts, inBroadPhaseLayerFilter, inObjectLayerFilter, inBodyFilter, inAllocator
 	#ifdef JPH_DEBUG_RENDERER
 		, sDrawConstraints
 	#endif // JPH_DEBUG_RENDERER
@@ -835,6 +903,18 @@ void CharacterVirtual::Update(float inDeltaTime, Vec3Arg inGravity, const BroadP
 
 	// Determine the object that we're standing on
 	UpdateSupportingContact(false, inAllocator);
+
+	// If we're on the ground
+	if (!mGroundBodyID.IsInvalid() && mMass > 0.0f)
+	{
+		// Add the impulse to the ground due to gravity: P = F dt = M g dt
+		float normal_dot_gravity = mGroundNormal.Dot(inGravity);
+		if (normal_dot_gravity < 0.0f)
+		{
+			Vec3 world_impulse = -(mMass * normal_dot_gravity / inGravity.Length() * inDeltaTime) * inGravity;
+			mSystem->GetBodyInterface().AddImpulse(mGroundBodyID, world_impulse, mGroundPosition);
+		}
+	}
 }
 
 void CharacterVirtual::RefreshContacts(const BroadPhaseLayerFilter &inBroadPhaseLayerFilter, const ObjectLayerFilter &inObjectLayerFilter, const BodyFilter &inBodyFilter, TempAllocator &inAllocator)
@@ -858,7 +938,7 @@ void CharacterVirtual::MoveToContact(Vec3Arg inPosition, const Contact &inContac
 	GetContactsAtPosition(mPosition, mLinearVelocity.NormalizedOr(Vec3::sZero()), mShape, contacts, inBroadPhaseLayerFilter, inObjectLayerFilter, inBodyFilter);
 
 	// Ensure that we mark inContact as colliding
-	JPH_IF_ENABLE_ASSERTS(bool found_contact = false;)
+	bool found_contact = false;
 	for (Contact &c : contacts)
 		if (c.mBodyB == inContact.mBodyB
 			&& c.mSubShapeIDB == inContact.mSubShapeIDB)
@@ -866,10 +946,16 @@ void CharacterVirtual::MoveToContact(Vec3Arg inPosition, const Contact &inContac
 			c.mHadCollision = true;
 			JPH_IF_ENABLE_ASSERTS(found_contact = true;)
 		}
-	//JPH_ASSERT(found_contact);
+	if (!found_contact)
+	{
+		contacts.push_back(inContact);
+
+		Contact &copy = contacts.back();
+		copy.mHadCollision = true;
+	}
 
 	StoreActiveContacts(contacts, inAllocator);
-	//JPH_ASSERT(mGroundState != EGroundState::InAir);
+	JPH_ASSERT(mGroundState != EGroundState::InAir);
 }
 
 bool CharacterVirtual::SetShape(const Shape *inShape, float inMaxPenetrationDepth, const BroadPhaseLayerFilter &inBroadPhaseLayerFilter, const ObjectLayerFilter &inObjectLayerFilter, const BodyFilter &inBodyFilter, TempAllocator &inAllocator)
@@ -907,6 +993,10 @@ bool CharacterVirtual::SetShape(const Shape *inShape, float inMaxPenetrationDept
 
 bool CharacterVirtual::CanWalkStairs(Vec3Arg inLinearVelocity) const
 {
+	// We can only walk stairs if we're supported
+	if (!IsSupported())
+		return false;
+
 	// Check if there's enough horizontal velocity to trigger a stair walk
 	Vec3 horizontal_velocity = inLinearVelocity - inLinearVelocity.Dot(mUp) * mUp;
 	if (horizontal_velocity.IsNearZero(1.0e-6f))
@@ -922,7 +1012,7 @@ bool CharacterVirtual::CanWalkStairs(Vec3Arg inLinearVelocity) const
 	return false;
 }
 
-bool CharacterVirtual::WalkStairs(float inDeltaTime, Vec3Arg inGravity, Vec3Arg inStepUp, Vec3Arg inStepForward, Vec3Arg inStepForwardTest, Vec3Arg inStepDownExtra, const BroadPhaseLayerFilter &inBroadPhaseLayerFilter, const ObjectLayerFilter &inObjectLayerFilter, const BodyFilter &inBodyFilter, TempAllocator &inAllocator)
+bool CharacterVirtual::WalkStairs(float inDeltaTime, Vec3Arg inStepUp, Vec3Arg inStepForward, Vec3Arg inStepForwardTest, Vec3Arg inStepDownExtra, const BroadPhaseLayerFilter &inBroadPhaseLayerFilter, const ObjectLayerFilter &inObjectLayerFilter, const BodyFilter &inBodyFilter, TempAllocator &inAllocator)
 {
 	// Move up
 	Vec3 up = inStepUp;
@@ -946,8 +1036,9 @@ bool CharacterVirtual::WalkStairs(float inDeltaTime, Vec3Arg inGravity, Vec3Arg 
 
 	// Horizontal movement
 	Vec3 new_position = up_position;
-	MoveShape(new_position, inStepForward / inDeltaTime, inGravity, inDeltaTime, nullptr, inBroadPhaseLayerFilter, inObjectLayerFilter, inBodyFilter, inAllocator);
-	if (new_position.IsClose(up_position, 1.0e-8f))
+	MoveShape(new_position, inStepForward / inDeltaTime, inDeltaTime, nullptr, inBroadPhaseLayerFilter, inObjectLayerFilter, inBodyFilter, inAllocator);
+	float horizontal_movement_sq = (new_position - up_position).LengthSq();
+	if (horizontal_movement_sq < 1.0e-8f)
 		return false; // No movement, cancel
 
 #ifdef JPH_DEBUG_RENDERER
@@ -984,28 +1075,28 @@ bool CharacterVirtual::WalkStairs(float inDeltaTime, Vec3Arg inGravity, Vec3Arg 
 		// Delta time may be very small, so it may be that we hit the edge of a step and the normal is too horizontal.
 		// In order to judge if the floor is flat further along the sweep, we test again for a floor at inStepForwardTest
 		// and check if the normal is valid there.
-		Vec3 test_position = up_position + inStepForwardTest;
-
-		// First sweep forward to the test position
-		Contact test_contact;
-		if (!GetFirstContactForSweep(up_position, inStepForwardTest, test_contact, dummy_ignored_contacts, inBroadPhaseLayerFilter, inObjectLayerFilter, inBodyFilter, inAllocator))
-		{
-			// Then sweep down
-			if (!GetFirstContactForSweep(test_position, down, test_contact, dummy_ignored_contacts, inBroadPhaseLayerFilter, inObjectLayerFilter, inBodyFilter, inAllocator))
-				return false;
-		}
-		else
-		{
-			// If we didn't move down, set the 'down' fraction to zero
-			test_contact.mFraction = 0.0f;
-		}
+		Vec3 test_position = up_position;
+		MoveShape(test_position, inStepForwardTest / inDeltaTime, inDeltaTime, nullptr, inBroadPhaseLayerFilter, inObjectLayerFilter, inBodyFilter, inAllocator);
+		float test_horizontal_movement_sq = (test_position - up_position).LengthSq();
+		if (test_horizontal_movement_sq <= horizontal_movement_sq + 1.0e-8f)
+			return false; // We didn't move any further than in the previous test
 
 	#ifdef JPH_DEBUG_RENDERER
-		// Draw 2nd sweep forward and down
+		// Draw 2nd sweep horizontal
+		if (sDrawWalkStairs)
+			DebugRenderer::sInstance->DrawArrow(up_position, test_position, Color::sCyan, 0.01f);
+	#endif // JPH_DEBUG_RENDERER
+
+		// Then sweep down
+		Contact test_contact;
+		if (!GetFirstContactForSweep(test_position, down, test_contact, dummy_ignored_contacts, inBroadPhaseLayerFilter, inObjectLayerFilter, inBodyFilter, inAllocator))
+			return false;
+
+	#ifdef JPH_DEBUG_RENDERER
+		// Draw 2nd sweep down
 		if (sDrawWalkStairs)
 		{
 			Vec3 debug_pos = test_position + test_contact.mFraction * down; 
-			DebugRenderer::sInstance->DrawArrow(up_position, test_position, Color::sCyan, 0.01f);
 			DebugRenderer::sInstance->DrawArrow(test_position, debug_pos, Color::sCyan, 0.01f);
 			DebugRenderer::sInstance->DrawArrow(test_contact.mPosition, test_contact.mPosition + test_contact.mSurfaceNormal, Color::sCyan, 0.01f);
 			mShape->Draw(DebugRenderer::sInstance, GetCenterOfMassTransform(debug_pos, mRotation, mShape), Vec3::sReplicate(1.0f), Color::sCyan, false, true);
@@ -1022,13 +1113,15 @@ bool CharacterVirtual::WalkStairs(float inDeltaTime, Vec3Arg inGravity, Vec3Arg 
 
 	// Move the character to the new location
 	MoveToContact(new_position, contact, inBroadPhaseLayerFilter, inObjectLayerFilter, inBodyFilter, inAllocator);
+
+	// Override ground state to 'on ground', it is possible that the contact normal is too steep, but in this case the inStepForwardTest has found a contact normal that is not too steep
+	mGroundState = EGroundState::OnGround;
+
 	return true;
 }
 
 bool CharacterVirtual::StickToFloor(Vec3Arg inStepDown, const BroadPhaseLayerFilter &inBroadPhaseLayerFilter, const ObjectLayerFilter &inObjectLayerFilter, const BodyFilter &inBodyFilter, TempAllocator &inAllocator)
 {
-	JPH_ASSERT(GetGroundState() == EGroundState::InAir, "Makes no sense to call this if we're not in air");
-
 	// Try to find the floor
 	Contact contact;
 	IgnoredContactList dummy_ignored_contacts(inAllocator);
