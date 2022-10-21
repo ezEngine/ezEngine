@@ -279,17 +279,7 @@ void ezComputeShaderHistogramApp::CreateHistogramQuad()
     ezMeshBufferResourceDescriptor desc;
     desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
     desc.AddStream(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::XYFloat);
-    desc.AllocateStreams(geom.GetVertices().GetCount(), ezGALPrimitiveTopology::Triangles, geom.GetPolygons().GetCount() * 2);
-
-    for (ezUInt32 v = 0; v < geom.GetVertices().GetCount(); ++v)
-    {
-      desc.SetVertexData<ezVec3>(0, v, geom.GetVertices()[v].m_vPosition);
-    }
-    // (Making use of knowledge of vertex order)
-    desc.SetVertexData<ezVec2>(1, 0, ezVec2(0.0f, 0.0f));
-    desc.SetVertexData<ezVec2>(1, 1, ezVec2(1.0f, 0.0f));
-    desc.SetVertexData<ezVec2>(1, 2, ezVec2(1.0f, 1.0f));
-    desc.SetVertexData<ezVec2>(1, 3, ezVec2(0.0f, 1.0f));
+    desc.AllocateStreamsFromGeometry(geom);
 
     ezUInt32 t = 0;
     for (ezUInt32 p = 0; p < geom.GetPolygons().GetCount(); ++p)
