@@ -173,8 +173,9 @@ void ezQtMemoryWidget::UpdateStats()
       sText.AppendFormat(" [{0}]", sSize);
 
       ezStringBuilder sTooltip;
-      sTooltip.Format("<p>Current Memory Used: <b>{0}</b><br>Max Memory Used: <b>{1}</b><br>Live Allocations: <b>{2}</b><br>Allocations: "
-                      "<b>{3}</b><br>Deallocations: <b>{4}</b><br>",
+      sTooltip.Format("<p>Allocator: <b>{}</b><br>Current Memory Used: <b>{}</b><br>Max Memory Used: <b>{}</b><br>Live Allocations: <b>{}</b><br>Allocations: "
+                      "<b>{}</b><br>Deallocations: <b>{}</b><br>",
+        it.Value().m_sName,
         sSize.GetData(), sMaxSize.GetData(), it.Value().m_uiLiveAllocs, it.Value().m_uiAllocs, it.Value().m_uiDeallocs);
 
       it.Value().m_pTreeItem->setText(0, sText.GetData());
