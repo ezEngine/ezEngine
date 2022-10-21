@@ -96,7 +96,10 @@ protected:
   /// The shape may not get applied to the character, in case this is used by things like TryResize and the next shape is
   /// determined to not fit.
   virtual JPH::Ref<JPH::Shape> MakeNextCharacterShape() = 0;
-
+  
+  /// \brief Returns the radius of the shape. This never changes at runtime.
+  virtual float GetShapeRadius() const = 0;
+  
   /// \brief Called up to once per frame, but potentially less often, if physics updates were skipped due to high framerates.
   ///
   /// All shape modifications and moves should only be executed during this step.

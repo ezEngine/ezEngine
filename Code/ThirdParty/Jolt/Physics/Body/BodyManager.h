@@ -60,12 +60,19 @@ public:
 	/// Get stats about the bodies in the body manager (slow, iterates through all bodies)
 	BodyStats						GetBodyStats() const;
 
-	/// Create a body.
-	/// This is a thread safe function. Can return null if there are no more bodies available.
-	Body *							CreateBody(const BodyCreationSettings &inBodyCreationSettings);
+	/// Create a body using creation settings. The returned body will not be part of the body manager yet.
+	Body *							AllocateBody(const BodyCreationSettings &inBodyCreationSettings) const;
 
-	/// Mark a list of bodies for destruction and remove it from this manager.
-	/// This is a thread safe function since the body is not deleted until the next PhysicsSystem::Update() (which will take all locks)
+	/// Free a body that has not been added to the body manager yet (if it has, use DestroyBodies).
+	void							FreeBody(Body *inBody) const;
+
+	/// Add a body to the body manager, assigning it the next available ID. Returns false if no more IDs are available.
+	bool							AddBody(Body *ioBody);
+
+	/// Add a body to the body manager, assigning it a custom ID. Returns false if the ID is not valid.
+	bool							AddBodyWithCustomID(Body *ioBody, const BodyID &inBodyID);
+
+	/// Remove a set of bodies from the body manager and destroy them.
 	void							DestroyBodies(const BodyID *inBodyIDs, int inNumber);
 
 	/// Activate a list of bodies.

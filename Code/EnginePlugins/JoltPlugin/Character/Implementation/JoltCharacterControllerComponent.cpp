@@ -105,6 +105,7 @@ void ezJoltCharacterControllerComponent::OnSimulationStarted()
 
   JPH::CharacterVirtualSettings opt;
   opt.mUp = JPH::Vec3::sAxisZ();
+  opt.mSupportingVolume = JPH::Plane(opt.mUp, -GetShapeRadius());
   opt.mShape = MakeNextCharacterShape();
   opt.mMaxSlopeAngle = m_MaxClimbingSlope.GetRadian();
   opt.mMass = m_fMass;
@@ -218,7 +219,7 @@ bool ezJoltCharacterControllerComponent::RawMoveWithVelocity(const ezVec3& vVelo
 
         // ezDebugRenderer::DrawInfoText(GetWorld(), ezDebugRenderer::ScreenPlacement::TopLeft, "Stair", "Walk Stairs", ezColor::OrangeRed);
 
-        bStepped = m_pCharacter->WalkStairs(GetUpdateTimeDelta(), JPH::Vec3(0, 0, -10) /*gravity*/, stepUp, step_forward, step_forward_test, JPH::Vec3::sZero(), broadphaseFilter, objectFilter, m_BodyFilter, *pModule->GetTempAllocator());
+        bStepped = m_pCharacter->WalkStairs(GetUpdateTimeDelta(), stepUp, step_forward, step_forward_test, JPH::Vec3::sZero(), broadphaseFilter, objectFilter, m_BodyFilter, *pModule->GetTempAllocator());
       }
     }
   }
@@ -325,9 +326,10 @@ void ezJoltCharacterControllerComponent::TeleportToPosition(const ezVec3& vGloba
 
 bool ezJoltCharacterControllerComponent::StickToGround(float fMaxDist)
 {
-  if (m_pCharacter->GetGroundState() != JPH::CharacterBase::EGroundState::InAir)
+  if (m_pCharacter->GetGroundState() != JPH::CharacterBase::EGroundState::InAir 
+    || m_pCharacter->GetGroundState() != JPH::CharacterBase::EGroundState::NotSupported) 
     return false;
-
+  
   ezJoltBroadPhaseLayerFilter broadphaseFilter(ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic);
   ezJoltObjectLayerFilter objectFilter(m_uiCollisionLayer);
 
