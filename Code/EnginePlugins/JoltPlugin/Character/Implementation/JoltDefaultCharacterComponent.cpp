@@ -13,7 +13,6 @@
 #include <RendererCore/AnimationSystem/Declarations.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 
-ezCVarBool cvar_JoltCcStickToGround("Jolt.CC.StickToGround", true, ezCVarFlags::Default, "Get down");
 ezCVarBool cvar_JoltCcFootCheck("Jolt.CC.FootCheck", true, ezCVarFlags::Default, "Stay down");
 
 //////////////////////////////////////////////////////////////////////////
@@ -561,7 +560,6 @@ void ezJoltDefaultCharacterComponent::DetermineConfig(Config& out_Inputs)
 
   out_Inputs.m_bAllowCrouch = true;
   out_Inputs.m_bAllowJump = (GetGroundState() == GroundState::OnGround) && !IsCrouching() && m_bFeetOnSolidGround;
-  out_Inputs.m_bApplyGravity = (GetGroundState() == GroundState::InAir) || !m_bFeetOnSolidGround;
   out_Inputs.m_bApplyGroundVelocity = true;
   out_Inputs.m_fPushDownForce = GetMass();
   out_Inputs.m_fMaxStepUp = (m_bFeetOnSolidGround && !out_Inputs.m_vVelocity.IsZero()) ? m_fMaxStepUp : 0.0f;
@@ -631,13 +629,7 @@ void ezJoltDefaultCharacterComponent::UpdateCharacter()
   vVelocityToApply += GetInverseUpdateTimeDelta() * (GetOwner()->GetGlobalRotation() * m_vAbsoluteRootMotion);
   vVelocityToApply.z = m_fVelocityUp;
 
-  const bool bSteppedStairUp = RawMoveWithVelocity(vVelocityToApply, cfg.m_fMaxStepUp);
-  bool bStuckToGround = false;
-
-  if (cfg.m_fMaxStepDown > 0 && !bSteppedStairUp && cvar_JoltCcStickToGround)
-  {
-    bStuckToGround = StickToGround(cfg.m_fMaxStepDown);
-  }
+  RawMoveWithVelocity(vVelocityToApply, cfg.m_fMaxStepUp, cfg.m_fMaxStepDown);
 
   if (!cfg.m_sGroundInteraction.IsEmpty())
   {
@@ -652,29 +644,14 @@ void ezJoltDefaultCharacterComponent::UpdateCharacter()
   // TODO: store or apply+clamp ClampLateralVelocity();
 
   // retrieve the actual up velocity
+  float groundVerticalVelocity = GetJoltCharacter()->GetGroundVelocity().GetZ();
+  if (GetJoltCharacter()->GetGroundState() == JPH::CharacterVirtual::EGroundState::OnGround // If on ground
+    && (m_fVelocityUp - groundVerticalVelocity) < 0.1f) // And not moving away from ground
   {
-    const ezVec3 endPosition = GetOwner()->GetGlobalPosition();
-    m_fVelocityUp = (endPosition.z - m_PreviousTransform.m_vPosition.z) * GetInverseUpdateTimeDelta();
-
-    // TODO: doing this has weird effects
-    // 1. sometimes I slip down step (but not too steep) slopes (but also not always?)
-    // 2. jumping against ceilings doesn't make you fall down right away
-    // 3. walking into the steep wall results in endless "step up / slide down / step up / slide down / ..."
-    // m_fVelocityUp = GetJoltCharacter()->GetLinearVelocity().GetZ();
-
-    // ezDebugRenderer::DrawInfoText(GetWorld(), ezDebugRenderer::ScreenPlacement::TopLeft, "JCC", ezFmt("Up Velocity: {}", m_fVelocityUp));
+    m_fVelocityUp = groundVerticalVelocity;
   }
 
-  if (bSteppedStairUp || bStuckToGround)
-  {
-    m_fVelocityUp = 0;
-    cfg.m_bApplyGravity = false;
-  }
-
-  if (cfg.m_bApplyGravity)
-  {
-    m_fVelocityUp += GetUpdateTimeDelta() * pModule->GetCharacterGravity().z;
-  }
+  m_fVelocityUp += GetUpdateTimeDelta() * pModule->GetCharacterGravity().z;
 
   ApplyRotationZ();
 

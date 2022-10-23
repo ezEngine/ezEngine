@@ -113,7 +113,7 @@ protected:
   ezResult TryChangeShape(JPH::Shape* pNewShape);
 
   /// \brief Moves the character using the given velocity and timestep, making it collide with and slide along obstacles.
-  bool RawMoveWithVelocity(const ezVec3& vVelocity, float fMaxStairStepUp);
+  void RawMoveWithVelocity(const ezVec3& vVelocity, float fMaxStairStepUp, float fMaxStepDown);
 
   /// \brief Variant of RawMoveWithVelocity() that takes a direction vector instead.
   void RawMoveIntoDirection(const ezVec3& vDirection);
