@@ -141,6 +141,7 @@ void ezRecastNavMeshBuilder::GenerateTriangleMeshFromDescription(const ezWorldGe
   m_TriangleAreaIDs.Clear();
   m_Vertices.Clear();
 
+
   ezUInt32 uiVertexOffset = 0;
   for (const ezWorldGeoExtractionUtil::MeshObject& object : objects)
   {
@@ -151,6 +152,9 @@ void ezRecastNavMeshBuilder::GenerateTriangleMeshFromDescription(const ezWorldGe
     }
 
     const auto& meshBufferDesc = pCpuMesh->GetDescriptor().MeshBufferDesc();
+
+    m_Triangles.Reserve(m_Triangles.GetCount() + meshBufferDesc.GetPrimitiveCount());
+    m_Vertices.Reserve(m_Vertices.GetCount() + meshBufferDesc.GetVertexCount());
 
     const ezVec3* pPositions = nullptr;
     ezUInt32 uiElementStride = 0;
@@ -181,29 +185,47 @@ void ezRecastNavMeshBuilder::GenerateTriangleMeshFromDescription(const ezWorldGe
 
     // collect all indices
     bool flip = ezGraphicsUtils::IsTriangleFlipRequired(transform.GetRotationalPart());
-    if (meshBufferDesc.Uses32BitIndices())
-    {
-      const ezUInt32* pTypedIndices = reinterpret_cast<const ezUInt32*>(meshBufferDesc.GetIndexBufferData().GetPtr());
 
-      for (ezUInt32 p = 0; p < meshBufferDesc.GetPrimitiveCount(); ++p)
+    if (meshBufferDesc.HasIndexBuffer())
+    {
+      if (meshBufferDesc.Uses32BitIndices())
       {
-        auto& triangle = m_Triangles.ExpandAndGetRef();
-        triangle.m_VertexIdx[0] = pTypedIndices[p * 3 + (flip ? 2 : 0)] + uiVertexOffset;
-        triangle.m_VertexIdx[1] = pTypedIndices[p * 3 + 1] + uiVertexOffset;
-        triangle.m_VertexIdx[2] = pTypedIndices[p * 3 + (flip ? 0 : 2)] + uiVertexOffset;
+        const ezUInt32* pTypedIndices = reinterpret_cast<const ezUInt32*>(meshBufferDesc.GetIndexBufferData().GetPtr());
+
+        for (ezUInt32 p = 0; p < meshBufferDesc.GetPrimitiveCount(); ++p)
+        {
+          auto& triangle = m_Triangles.ExpandAndGetRef();
+          triangle.m_VertexIdx[0] = pTypedIndices[p * 3 + (flip ? 2 : 0)] + uiVertexOffset;
+          triangle.m_VertexIdx[1] = pTypedIndices[p * 3 + 1] + uiVertexOffset;
+          triangle.m_VertexIdx[2] = pTypedIndices[p * 3 + (flip ? 0 : 2)] + uiVertexOffset;
+        }
+      }
+      else
+      {
+        const ezUInt16* pTypedIndices = reinterpret_cast<const ezUInt16*>(meshBufferDesc.GetIndexBufferData().GetPtr());
+
+        for (ezUInt32 p = 0; p < meshBufferDesc.GetPrimitiveCount(); ++p)
+        {
+          auto& triangle = m_Triangles.ExpandAndGetRef();
+          triangle.m_VertexIdx[0] = pTypedIndices[p * 3 + (flip ? 2 : 0)] + uiVertexOffset;
+          triangle.m_VertexIdx[1] = pTypedIndices[p * 3 + 1] + uiVertexOffset;
+          triangle.m_VertexIdx[2] = pTypedIndices[p * 3 + (flip ? 0 : 2)] + uiVertexOffset;
+        }
       }
     }
     else
     {
-      const ezUInt16* pTypedIndices = reinterpret_cast<const ezUInt16*>(meshBufferDesc.GetIndexBufferData().GetPtr());
+      ezUInt32 uiVertexIdx = uiVertexOffset;
 
-      for (ezUInt32 p = 0; p < meshBufferDesc.GetPrimitiveCount(); ++p)
-      {
-        auto& triangle = m_Triangles.ExpandAndGetRef();
-        triangle.m_VertexIdx[0] = pTypedIndices[p * 3 + (flip ? 2 : 0)] + uiVertexOffset;
-        triangle.m_VertexIdx[1] = pTypedIndices[p * 3 + 1] + uiVertexOffset;
-        triangle.m_VertexIdx[2] = pTypedIndices[p * 3 + (flip ? 0 : 2)] + uiVertexOffset;
-      }
+        for (ezUInt32 p = 0; p < meshBufferDesc.GetPrimitiveCount(); ++p)
+        {
+          auto& triangle = m_Triangles.ExpandAndGetRef();
+          triangle.m_VertexIdx[0] = uiVertexIdx + 0;
+          triangle.m_VertexIdx[1] = uiVertexIdx + (flip ? 2 : 1);
+          triangle.m_VertexIdx[2] = uiVertexIdx + (flip ? 1 : 2);
+
+          uiVertexIdx += 3;
+        }
     }
 
     uiVertexOffset += meshBufferDesc.GetVertexCount();

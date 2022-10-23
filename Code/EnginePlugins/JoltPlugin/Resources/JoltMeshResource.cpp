@@ -305,7 +305,7 @@ void RetrieveShapeTriangles(const JPH::Shape* pShape, ezDynamicArray<ezVec3>& po
   const int iMaxTris = 256;
 
   ezDynamicArray<ezVec3> positionsTmp;
-  positionsTmp.SetCount(iMaxTris * 3);
+  positionsTmp.SetCountUninitialized(iMaxTris * 3);
 
   JPH::Shape::GetTrianglesContext ctxt;
 
