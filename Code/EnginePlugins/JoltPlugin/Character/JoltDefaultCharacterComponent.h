@@ -90,7 +90,6 @@ public:
   {
     bool m_bAllowJump = true;
     bool m_bAllowCrouch = true;
-    bool m_bApplyGravity = true;
     bool m_bApplyGroundVelocity = true;
     ezVec3 m_vVelocity = ezVec3::ZeroVector();
     float m_fPushDownForce = 0;

@@ -169,64 +169,24 @@ ezResult ezJoltCharacterControllerComponent::TryChangeShape(JPH::Shape* pNewShap
   return EZ_FAILURE;
 }
 
-bool ezJoltCharacterControllerComponent::RawMoveWithVelocity(const ezVec3& vVelocity, float fMaxStairStepUp)
+void ezJoltCharacterControllerComponent::RawMoveWithVelocity(const ezVec3& vVelocity, float fMaxStairStepUp, float fMaxStepDown)
 {
   ezJoltWorldModule* pModule = GetWorld()->GetModule<ezJoltWorldModule>();
 
   ezJoltBroadPhaseLayerFilter broadphaseFilter(ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic);
   ezJoltObjectLayerFilter objectFilter(m_uiCollisionLayer);
 
-  JPH::Vec3 old_position = m_pCharacter->GetPosition();
-
   m_pCharacter->SetLinearVelocity(ezJoltConversionUtils::ToVec3(vVelocity));
-  m_pCharacter->Update(GetUpdateTimeDelta(), ezJoltConversionUtils::ToVec3(pModule->GetCharacterGravity()), broadphaseFilter, objectFilter, m_BodyFilter, *pModule->GetTempAllocator());
 
-  // TODO: set/try rotation on Jolt CC ?
-  bool bStepped = false;
+  // Settings for our update function
+  JPH::CharacterVirtual::ExtendedUpdateSettings updateSettings;
+  updateSettings.mStickToFloorStepDown = JPH::Vec3(0, 0, -fMaxStepDown);
+  updateSettings.mWalkStairsStepUp = fMaxStairStepUp > 0? JPH::Vec3(0, 0, fMaxStairStepUp) : JPH::Vec3::sZero();
 
-  if (fMaxStairStepUp > 0)
-  {
-    // ezDebugRenderer::DrawInfoText(GetWorld(), ezDebugRenderer::ScreenPlacement::TopLeft, "Stair", "Step Stairs enabled", ezColor::GreenYellow);
-
-    JPH::Vec3 mDesiredVelocity = ezJoltConversionUtils::ToVec3(vVelocity);
-    // Calculate how much we wanted to move horizontally
-    JPH::Vec3 desired_horizontal_step = mDesiredVelocity * GetUpdateTimeDelta();
-    desired_horizontal_step.SetZ(0);
-    float desired_horizontal_step_len = desired_horizontal_step.Length();
-
-    // Calculate how much we moved horizontally
-    JPH::Vec3 achieved_horizontal_step = m_pCharacter->GetPosition() - old_position;
-    achieved_horizontal_step.SetZ(0);
-    float achieved_horizontal_step_len = achieved_horizontal_step.Length();
-
-    // If we didn't move as far as we wanted and we're against a slope that's too steep
-    if (achieved_horizontal_step_len + 1.0e-4f < desired_horizontal_step_len)
-    {
-      // ezDebugRenderer::DrawInfoText(GetWorld(), ezDebugRenderer::ScreenPlacement::TopLeft, "Stair", "Not far enough", ezColor::BlueViolet);
-
-      if (m_pCharacter->CanWalkStairs(mDesiredVelocity))
-      {
-        // Calculate how much we should step forward
-        JPH::Vec3 step_forward_normalized = desired_horizontal_step / desired_horizontal_step_len;
-        JPH::Vec3 step_forward = step_forward_normalized * ezMath::Max(0.02f, desired_horizontal_step_len - achieved_horizontal_step_len);
-
-        const float cMinStepForward = 0.3f; // TODO doesn't seem to have an effect ?
-
-        // Calculate how far to scan ahead for a floor
-        JPH::Vec3 step_forward_test = step_forward_normalized * cMinStepForward;
-
-        const JPH::Vec3 stepUp(0, 0, fMaxStairStepUp);
-
-        // ezDebugRenderer::DrawInfoText(GetWorld(), ezDebugRenderer::ScreenPlacement::TopLeft, "Stair", "Walk Stairs", ezColor::OrangeRed);
-
-        bStepped = m_pCharacter->WalkStairs(GetUpdateTimeDelta(), stepUp, step_forward, step_forward_test, JPH::Vec3::sZero(), broadphaseFilter, objectFilter, m_BodyFilter, *pModule->GetTempAllocator());
-      }
-    }
-  }
+  // Update the character position
+  m_pCharacter->ExtendedUpdate(GetUpdateTimeDelta(), ezJoltConversionUtils::ToVec3(pModule->GetCharacterGravity()), updateSettings, broadphaseFilter, objectFilter, m_BodyFilter, *pModule->GetTempAllocator());
 
   GetOwner()->SetGlobalPosition(ezJoltConversionUtils::ToSimdVec3(m_pCharacter->GetPosition()));
-
-  return bStepped;
 }
 
 // float ezJoltCharacterControllerComponent::ClampedRawMoveIntoDirection(const ezVec3& vDirection)
@@ -304,7 +264,7 @@ void ezJoltCharacterControllerComponent::RawMoveIntoDirection(const ezVec3& vDir
   if (vDirection.IsZero())
     return;
 
-  RawMoveWithVelocity(vDirection * GetInverseUpdateTimeDelta(), 0.0f);
+  RawMoveWithVelocity(vDirection * GetInverseUpdateTimeDelta(), 0.0f, 0.0f);
 }
 
 void ezJoltCharacterControllerComponent::RawMoveToPosition(const ezVec3& vTargetPosition)
