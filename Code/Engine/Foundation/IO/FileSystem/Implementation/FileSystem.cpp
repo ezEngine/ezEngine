@@ -99,8 +99,7 @@ ezResult ezFileSystem::AddDataDirectory(const char* szDataDirectory, const char*
 
   if (!failed)
   {
-    s_Data->m_DataDirFactories.Sort([](const auto& a, const auto& b)
-      { return a.m_fPriority < b.m_fPriority; });
+    s_Data->m_DataDirFactories.Sort([](const auto& a, const auto& b) { return a.m_fPriority < b.m_fPriority; });
 
     // use the factory that was added last as the one with the highest priority -> allows to override already added factories
     for (ezInt32 i = s_Data->m_DataDirFactories.GetCount() - 1; i >= 0; --i)
