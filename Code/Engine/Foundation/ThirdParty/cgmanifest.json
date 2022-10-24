@@ -1,22 +1,23 @@
 {
-    "Registrations": [
-        {
-            "component": {
-                "type": "git",
-                "git": {
-                    "repositoryUrl": "https://github.com/Cyan4973/xxHash",
-                    "commitHash": "061753e16c61bae5c8494f2e2d2b1a766377d3bc"
-                }
-            }
-        },
-        {
-            "component": {
-                "type": "git",
-                "git": {
-                    "repositoryUrl": "https://github.com/jjones646/utf8-cpp",
-                    "commitHash": "290ab12774c08994c03494bd914d0cc4e038139f"
-                }
-            }
+  "Registrations": [
+    {
+      "component": {
+        "type": "git",
+        "git": {
+          "repositoryUrl": "https://github.com/Cyan4973/xxHash",
+          "commitHash": "061753e16c61bae5c8494f2e2d2b1a766377d3bc"
         }
-    ]
+      }
+    },
+    {
+      "component": {
+        "type": "git",
+        "git": {
+          "repositoryUrl": "https://github.com/jjones646/utf8-cpp",
+          "commitHash": "290ab12774c08994c03494bd914d0cc4e038139f"
+        }
+      }
+    }
+  ],
+  "$schema": "https://json.schemastore.org/component-detection-manifest.json"
 }

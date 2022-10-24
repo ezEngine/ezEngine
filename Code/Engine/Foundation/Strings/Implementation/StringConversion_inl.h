@@ -12,12 +12,6 @@ inline ezStringWChar::ezStringWChar(ezAllocatorBase* pAllocator)
   m_Data.PushBack('\0');
 }
 
-inline ezStringWChar::ezStringWChar(const char* szUtf8, ezAllocatorBase* pAllocator)
-  : m_Data(pAllocator)
-{
-  *this = szUtf8;
-}
-
 inline ezStringWChar::ezStringWChar(const ezUInt16* szUtf16, ezAllocatorBase* pAllocator)
   : m_Data(pAllocator)
 {
@@ -36,6 +30,10 @@ inline ezStringWChar::ezStringWChar(const wchar_t* szWChar, ezAllocatorBase* pAl
   *this = szWChar;
 }
 
+inline ezStringWChar::ezStringWChar(ezStringView sUtf8, ezAllocatorBase* pAllocator /*= ezFoundation::GetDefaultAllocator()*/)
+{
+  *this = sUtf8;
+}
 
 
 // **************** ezStringUtf8 ****************

@@ -20,15 +20,15 @@ class EZ_FOUNDATION_DLL ezStringWChar
 {
 public:
   ezStringWChar(ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator());
-  ezStringWChar(const char* szUtf8, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator());
   ezStringWChar(const ezUInt16* szUtf16, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator());
   ezStringWChar(const ezUInt32* szUtf32, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator());
   ezStringWChar(const wchar_t* szUtf32, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator());
+  ezStringWChar(ezStringView sUtf8, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator());
 
-  void operator=(const char* szUtf8);
   void operator=(const ezUInt16* szUtf16);
   void operator=(const ezUInt32* szUtf32);
   void operator=(const wchar_t* szUtf32);
+  void operator=(ezStringView sUtf8);
 
   EZ_ALWAYS_INLINE operator const wchar_t*() const { return &m_Data[0]; }
   EZ_ALWAYS_INLINE const wchar_t* GetData() const { return &m_Data[0]; }

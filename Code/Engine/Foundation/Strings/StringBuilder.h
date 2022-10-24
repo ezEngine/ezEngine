@@ -410,9 +410,12 @@ public:
   /// \brief Changes the file name and the extension part of the path.
   void ChangeFileNameAndExtension(ezStringView sNewFileNameWithExtension); // [tested]
 
-  /// \brief Only changes the file extension of the path. If there is no extension yet, one is appended.
+  /// \brief Only changes the file extension of the path. If there is no extension yet, one is appended (including a dot).
   ///
-  /// szNewExtension must not start with a dot.
+  /// sNewExtension may or may not start with a dot.
+  /// If sNewExtension is empty, the file extension is removed, but the dot remains.
+  /// E.g. "file.txt" -> "file."
+  /// If the full extension should be removed, including the dot, use RemoveFileExtension() instead.
   void ChangeFileExtension(ezStringView sNewExtension); // [tested]
 
   /// \brief If any extension exists, it is removed, including the dot before it.
@@ -444,10 +447,10 @@ public:
   void Trim(const char* szTrimCharsStart, const char* szTrimCharsEnd); // [tested]
 
   /// \brief If the string starts with one of the given words (case insensitive), it is removed and the function returns true.
-  bool TrimWordStart(const char* szWord1, const char* szWord2 = nullptr, const char* szWord3 = nullptr, const char* szWord4 = nullptr, const char* szWord5 = nullptr);
+  bool TrimWordStart(const char* szWord1, const char* szWord2 = nullptr, const char* szWord3 = nullptr, const char* szWord4 = nullptr, const char* szWord5 = nullptr); // [tested]
 
   /// \brief If the string ends with one of the given words (case insensitive), it is removed and the function returns true.
-  bool TrimWordEnd(const char* szWord1, const char* szWord2 = nullptr, const char* szWord3 = nullptr, const char* szWord4 = nullptr, const char* szWord5 = nullptr);
+  bool TrimWordEnd(const char* szWord1, const char* szWord2 = nullptr, const char* szWord3 = nullptr, const char* szWord4 = nullptr, const char* szWord5 = nullptr); // [tested]
 
 private:
   /// \brief Will remove all double path separators (slashes and backslashes) in a path, except if the path starts with two (back-)slashes,

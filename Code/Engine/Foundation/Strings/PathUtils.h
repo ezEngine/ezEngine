@@ -39,7 +39,7 @@ public:
   /// it will work without a '.' too.
   static bool HasExtension(ezStringView sPath, ezStringView sExtension); // [tested]
 
-  /// \brief Returns the file extension of the given path. Will be empty, if the path does not end with a proper extension.
+  /// \brief Returns the file extension of the given path. Will be empty, if the path does not end with a proper extension. The dot (.) is not included.
   static ezStringView GetFileExtension(ezStringView sPath); // [tested]
 
   /// \brief Returns the file name of a path, excluding the path and extension.
