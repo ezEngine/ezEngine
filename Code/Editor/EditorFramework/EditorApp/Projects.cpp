@@ -276,14 +276,17 @@ Explanation: For assets to work properly, they must be <a href='https://ezengine
       break;
     }
 
-    case ezToolsProjectEvent::Type::ProjectClosing:
+    case ezToolsProjectEvent::Type::ProjectSaveState:
     {
       s_RecentProjects.Insert(ezToolsProject::GetSingleton()->GetProjectFile(), 0);
       SaveSettings();
+      break;
+    }
 
+    case ezToolsProjectEvent::Type::ProjectClosing:
+    {
       ezShutdownProcessMsgToEngine msg;
       ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
-
       break;
     }
 

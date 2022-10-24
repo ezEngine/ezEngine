@@ -138,6 +138,8 @@ void ezQtContainerWindow::closeEvent(QCloseEvent* e)
     return;
   }
 
+  ezToolsProject::SaveProjectState();
+
   // do not close the documents in the main container window here,
   // as that would remove them from the recently-open documents list and not restore them when opening the editor again
   ezDynamicArray<ezQtDocumentWindow*> windows = m_DocumentWindows;

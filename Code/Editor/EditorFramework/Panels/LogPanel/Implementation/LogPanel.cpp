@@ -108,14 +108,13 @@ void ezQtLogPanel::ToolsProjectEventHandler(const ezToolsProjectEvent& e)
   switch (e.m_Type)
   {
     case ezToolsProjectEvent::Type::ProjectClosing:
-    {
       EditorLog->GetLog()->Clear();
       EngineLog->GetLog()->Clear();
-        // fallthrough
-      case ezToolsProjectEvent::Type::ProjectOpened:
-        setEnabled(e.m_Type == ezToolsProjectEvent::Type::ProjectOpened);
-    }
-    break;
+      [[fallthrough]];
+
+    case ezToolsProjectEvent::Type::ProjectOpened:
+      setEnabled(e.m_Type == ezToolsProjectEvent::Type::ProjectOpened);
+      break;
 
     default:
       break;

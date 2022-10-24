@@ -108,6 +108,19 @@ void ezToolsProject::CloseProject()
   }
 }
 
+void ezToolsProject::SaveProjectState()
+{
+  if (GetSingleton())
+  {
+    GetSingleton()->m_bIsClosing = true;
+
+    ezToolsProjectEvent e;
+    e.m_pProject = GetSingleton();
+    e.m_Type = ezToolsProjectEvent::Type::ProjectSaveState;
+    s_Events.Broadcast(e);
+  }
+}
+
 bool ezToolsProject::CanCloseProject()
 {
   if (GetSingleton() == nullptr)
