@@ -633,6 +633,11 @@ void ezFileSystemIterator::StartMultiFolderSearch(ezArrayPtr<ezString> startFold
   search.AppendPath(szSearchTerm);
 
   StartSearch(search, m_Flags);
+
+  if (!IsValid())
+  {
+    Next();
+  }
 }
 
 void ezFileSystemIterator::Next()
@@ -656,8 +661,15 @@ void ezFileSystemIterator::Next()
 
         StartSearch(search, m_Flags);
       }
+      else
+      {
+        return;
+      }
 
-      return;
+      if (IsValid())
+      {
+        return;
+      }
     }
     else
     {
