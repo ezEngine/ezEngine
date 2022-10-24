@@ -473,7 +473,7 @@ void ezProjectAction::Execute(const ezVariant& value)
       ezQtPluginSelectionDlg dlg(&ezQtEditorApp::GetSingleton()->GetPluginBundles());
       dlg.exec();
 
-      ezQtEditorApp::GetSingleton()->SaveSettings();
+      ezToolsProject::SaveProjectState();
     }
     break;
 
@@ -483,7 +483,7 @@ void ezProjectAction::Execute(const ezVariant& value)
       if (dlg.exec() == QDialog::Accepted)
       {
         // save modified preferences right away
-        ezQtEditorApp::GetSingleton()->SaveSettings();
+        ezToolsProject::SaveProjectState();
 
         ezToolsProject::BroadcastConfigChanged();
       }

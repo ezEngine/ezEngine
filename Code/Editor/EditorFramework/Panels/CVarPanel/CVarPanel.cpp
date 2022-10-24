@@ -60,15 +60,15 @@ void ezQtCVarPanel::ToolsProjectEventHandler(const ezToolsProjectEvent& e)
   switch (e.m_Type)
   {
     case ezToolsProjectEvent::Type::ProjectClosing:
-    {
       m_EngineCVarState.Clear();
       m_pCVarWidget->Clear();
 
-        // fallthrough
-      case ezToolsProjectEvent::Type::ProjectOpened:
-        setEnabled(e.m_Type == ezToolsProjectEvent::Type::ProjectOpened);
-    }
-    break;
+      [[fallthrough]];
+
+    case ezToolsProjectEvent::Type::ProjectOpened:
+      setEnabled(e.m_Type == ezToolsProjectEvent::Type::ProjectOpened);
+      break;
+
     default:
       break;
   }

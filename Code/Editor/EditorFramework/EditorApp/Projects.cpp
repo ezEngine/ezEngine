@@ -254,7 +254,8 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProjectEvent& r)
 
         if (pPreferences->m_bBackgroundAssetProcessing)
         {
-          QTimer::singleShot(1000, this, [this]() { ezAssetProcessor::GetSingleton()->RestartProcessTask(); });
+          QTimer::singleShot(1000, this, [this]()
+            { ezAssetProcessor::GetSingleton()->RestartProcessTask(); });
         }
         else if (!lastTransform.IsValid() || (ezTimestamp::CurrentTimestamp() - lastTransform).GetHours() > 5 * 24)
         {
@@ -269,21 +270,25 @@ Explanation: For assets to work properly, they must be <a href='https://ezengine
           }
 
           // check whether the project needs to be transformed
-          QTimer::singleShot(1000, this, [this]() { ezAssetCurator::GetSingleton()->TransformAllAssets(ezTransformFlags::Default); });
+          QTimer::singleShot(1000, this, [this]()
+            { ezAssetCurator::GetSingleton()->TransformAllAssets(ezTransformFlags::Default); });
         }
       }
 
       break;
     }
 
-    case ezToolsProjectEvent::Type::ProjectClosing:
+    case ezToolsProjectEvent::Type::ProjectSaveState:
     {
       s_RecentProjects.Insert(ezToolsProject::GetSingleton()->GetProjectFile(), 0);
       SaveSettings();
+      break;
+    }
 
+    case ezToolsProjectEvent::Type::ProjectClosing:
+    {
       ezShutdownProcessMsgToEngine msg;
       ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
-
       break;
     }
 

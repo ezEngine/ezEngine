@@ -138,6 +138,8 @@ void ezQtContainerWindow::closeEvent(QCloseEvent* e)
     return;
   }
 
+  ezToolsProject::SaveProjectState();
+
   // do not close the documents in the main container window here,
   // as that would remove them from the recently-open documents list and not restore them when opening the editor again
   ezDynamicArray<ezQtDocumentWindow*> windows = m_DocumentWindows;
@@ -507,7 +509,8 @@ void ezQtContainerWindow::SlotDocumentTabCloseRequested()
   if (!pDocWindow->CanCloseWindow())
   {
     // TODO: There is no CloseRequested event so we just reopen on a timer.
-    QTimer::singleShot(1, [dock]() { dock->toggleView(); });
+    QTimer::singleShot(1, [dock]()
+      { dock->toggleView(); });
     return;
   }
   pDocWindow->CloseDocumentWindow();

@@ -361,14 +361,13 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
 
 void ezQtEditorApp::ShutdownEditor()
 {
-  m_pTimer->stop();
-  ezToolsProject::CloseProject();
+  ezToolsProject::SaveProjectState();
 
-  SaveSettings();
+  m_pTimer->stop();
+
+  ezToolsProject::CloseProject();
 
   m_LongOpControllerManager.Shutdown();
-
-  ezToolsProject::CloseProject();
 
   ezEditorEngineProcessConnection::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtEditorApp::EngineProcessMsgHandler, this));
   ezToolsProject::s_Requests.RemoveEventHandler(ezMakeDelegate(&ezQtEditorApp::ProjectRequestHandler, this));

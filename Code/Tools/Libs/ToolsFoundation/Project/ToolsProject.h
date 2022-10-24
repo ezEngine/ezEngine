@@ -15,6 +15,7 @@ struct ezToolsProjectEvent
   {
     ProjectCreated,
     ProjectOpened,
+    ProjectSaveState,
     ProjectClosing,
     ProjectClosed,
     ProjectConfigChanged, ///< Sent when global project configuration data was changed and thus certain menus would need to update their content (or
@@ -61,6 +62,7 @@ public:
   static bool IsProjectOpen() { return GetSingleton() != nullptr; }
   static bool IsProjectClosing() { return (GetSingleton() != nullptr && GetSingleton()->m_bIsClosing); }
   static void CloseProject();
+  static void SaveProjectState();
   /// \brief Returns true when the project can be closed. Uses ezToolsProjectRequest::Type::CanCloseProject event.
   static bool CanCloseProject();
   /// \brief Returns true when the given list of documents can be closed. Uses ezToolsProjectRequest::Type::CanCloseDocuments event.
