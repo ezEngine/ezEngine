@@ -666,6 +666,10 @@ ezStatus ezScene2Document::SetActiveLayer(const ezUuid& layerGuid)
     m_pObjectManager->m_StructureEvents.Broadcast(e);
   }
 
+  const bool bVisualizers = ezVisualizerManager::GetSingleton()->GetVisualizersActive(GetLayerDocument(m_ActiveLayerGuid));
+
+  ezVisualizerManager::GetSingleton()->SetVisualizersActive(GetLayerDocument(m_ActiveLayerGuid), false);
+
   {
     ezSelectionManagerEvent se;
     se.m_pDocument = this;
@@ -679,10 +683,7 @@ ezStatus ezScene2Document::SetActiveLayer(const ezUuid& layerGuid)
     ce.m_Type = ezCommandHistoryEvent::Type::HistoryChanged;
     m_CommandHistory->GetStorage()->m_Events.Broadcast(ce);
   }
-  if (m_ActiveLayerGuid != GetGuid())
-  {
-    ezVisualizerManager::GetSingleton()->SetVisualizersActive(GetLayerDocument(m_ActiveLayerGuid), false);
-  }
+
   m_ActiveLayerGuid = layerGuid;
   m_pActiveSubDocument = GetLayerDocument(layerGuid);
   {
@@ -704,10 +705,8 @@ ezStatus ezScene2Document::SetActiveLayer(const ezUuid& layerGuid)
     msg.m_ActiveLayer = layerGuid;
     SendMessageToEngine(&msg);
   }
-  if (m_ActiveLayerGuid != GetGuid())
-  {
-    ezVisualizerManager::GetSingleton()->SetVisualizersActive(GetLayerDocument(m_ActiveLayerGuid), true);
-  }
+
+  ezVisualizerManager::GetSingleton()->SetVisualizersActive(GetLayerDocument(m_ActiveLayerGuid), bVisualizers);
 
   // Set selection to object that contains the active layer
   if (const ezDocumentObject* pLayerObject = GetLayerObject(layerGuid))
@@ -810,10 +809,10 @@ ezStatus ezScene2Document::SetLayerLoaded(const ezUuid& layerGuid, bool bLoaded)
     pManager->CloseDocument(pInfo->m_pLayer);
     pInfo->m_pLayer = nullptr;
 
-    //ezScene2LayerEvent e;
-    //e.m_Type = ezScene2LayerEvent::Type::LayerUnloaded;
-    //e.m_layerGuid = layerGuid;
-    //m_LayerEvents.Broadcast(e);
+    // ezScene2LayerEvent e;
+    // e.m_Type = ezScene2LayerEvent::Type::LayerUnloaded;
+    // e.m_layerGuid = layerGuid;
+    // m_LayerEvents.Broadcast(e);
 
     return ezStatus(EZ_SUCCESS);
   }

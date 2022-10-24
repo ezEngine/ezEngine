@@ -47,6 +47,11 @@ void ezVisualizerManager::SetVisualizersActive(const ezDocument* pDoc, bool bAct
   SendEventToRecreateVisualizers(pDoc);
 }
 
+bool ezVisualizerManager::GetVisualizersActive(const ezDocument* pDoc)
+{
+  return m_DocsSubscribed[pDoc].m_bActivated;
+}
+
 void ezVisualizerManager::SelectionEventHandler(const ezSelectionManagerEvent& event)
 {
   if (!m_DocsSubscribed[event.m_pDocument].m_bActivated)

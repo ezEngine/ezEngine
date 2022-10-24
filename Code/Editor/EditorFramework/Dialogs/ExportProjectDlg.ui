@@ -23,7 +23,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>Export &amp; Run</string>
+   <string>Project Export</string>
   </property>
   <property name="windowIcon">
    <iconset>

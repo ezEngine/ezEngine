@@ -817,7 +817,7 @@ void ezGameObjectDocument::SetRenderVisualizers(bool b)
 
   m_CurrentMode.m_bRenderVisualizers = b;
 
-  ezVisualizerManager::GetSingleton()->SetVisualizersActive(this, m_CurrentMode.m_bRenderVisualizers);
+  ezVisualizerManager::GetSingleton()->SetVisualizersActive(GetActiveSubDocument(), m_CurrentMode.m_bRenderVisualizers);
 
   ezGameObjectEvent e;
   e.m_Type = ezGameObjectEvent::Type::RenderVisualizersChanged;

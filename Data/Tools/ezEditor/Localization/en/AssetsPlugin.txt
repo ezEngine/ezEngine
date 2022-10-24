@@ -205,6 +205,7 @@ Common.Pause;Pause
 Common.Restart;Restart
 Common.Loop;Loop
 Common.Grid;Grid
+Common.Visualizers;Visualizers
 Common.Speed.01;10%
 Common.Speed.025;25%
 Common.Speed.05;50%
@@ -215,7 +216,6 @@ Common.Speed.3;300%
 Common.Speed.4;400%
 Common.Speed.5;500%
 Common.Speed.10;1000%
-Common.Grid;Grid
 ezComparisonOperator::Equal;=
 ezComparisonOperator::NotEqual;<>
 ezComparisonOperator::Less;<
