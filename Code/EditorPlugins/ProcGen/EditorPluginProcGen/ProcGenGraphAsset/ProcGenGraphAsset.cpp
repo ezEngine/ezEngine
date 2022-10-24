@@ -71,14 +71,6 @@ struct ezProcGenGraphAssetDocument::GenerateContext
   {
   }
 
-  ~GenerateContext()
-  {
-    for (auto it = m_DocObjToProcGenNodeTable.GetIterator(); it.IsValid(); ++it)
-    {
-      m_RttiConverterContext.DeleteObject(it.Key()->GetGuid());
-    }
-  }
-
   ezAbstractObjectGraph m_AbstractObjectGraph;
   ezDocumentObjectConverterWriter m_ObjectWriter;
   ezRttiConverterContext m_RttiConverterContext;
