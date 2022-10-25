@@ -105,7 +105,7 @@ public:
   ezStringView GetView() const; // [tested]
 
   /// \brief Returns a pointer to the internal Utf8 string.
-  EZ_ALWAYS_INLINE operator const char* () const { return InternalGetData(); }
+  EZ_ALWAYS_INLINE operator const char*() const { return InternalGetData(); }
 
   /// \brief Fills the given container with ezStringView's which represent each found substring.
   /// If bReturnEmptyStrings is true, even empty strings between separators are returned.
