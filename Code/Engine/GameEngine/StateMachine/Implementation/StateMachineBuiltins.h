@@ -34,8 +34,8 @@ private:
   ezStateMachineResourceHandle m_hResource;
   ezHashedString m_sInitialState;
 
-  // Should the inner state machine keep its current state on exit and re-enter or should it exit as well and re-enter the initial state again. 
-  bool m_bKeepCurrentStateOnExit = false; 
+  // Should the inner state machine keep its current state on exit and re-enter or should it exit as well and re-enter the initial state again.
+  bool m_bKeepCurrentStateOnExit = false;
 
   struct InstanceData
   {
@@ -45,7 +45,7 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 
-/// \brief A state machine transition implementation that checks the instance's blackboard for the given conditions. 
+/// \brief A state machine transition implementation that checks the instance's blackboard for the given conditions.
 class EZ_GAMEENGINE_DLL ezStateMachineTransition_BlackboardConditions : public ezStateMachineTransition
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezStateMachineTransition_BlackboardConditions, ezStateMachineTransition);

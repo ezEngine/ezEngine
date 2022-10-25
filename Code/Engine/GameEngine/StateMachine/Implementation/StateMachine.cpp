@@ -156,8 +156,7 @@ ezResult ezStateMachineDescription::Serialize(ezStreamWriter& originalStream) co
   {
     stream << uiNumTransitions;
 
-    auto SerializeTransitions = [&](const TransitionArray& transitions, ezUInt32 uiFromStateIndex) -> ezResult
-    {
+    auto SerializeTransitions = [&](const TransitionArray& transitions, ezUInt32 uiFromStateIndex) -> ezResult {
       for (auto& transitionContext : transitions)
       {
         const ezUInt32 uiToStateIndex = transitionContext.m_uiToStateIndex;

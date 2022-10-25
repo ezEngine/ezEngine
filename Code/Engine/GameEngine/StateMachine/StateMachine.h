@@ -12,7 +12,7 @@ class ezBlackboard;
 class ezStateMachineInstance;
 
 /// \brief Base class for a state in a state machine.
-/// 
+///
 /// Note that states are shared between multiple instances and thus
 /// shouldn't modify any data on their own but always operate on the passed instance and instance data.
 /// \see ezStateMachineInstanceDataTypeAttribute
@@ -44,7 +44,7 @@ private:
 
 /// \brief Base class for a transition in a state machine. The target state of a transition is automatically set
 /// once its condition has been met.
-/// 
+///
 /// Same as with states, transitions are also shared between multiple instances and thus
 /// should decide their condition based on the passed instance and instance data.
 /// \see ezStateMachineInstanceDataTypeAttribute
