@@ -53,7 +53,7 @@ class EZ_FOUNDATION_DLL ezTypeVersionReadContext : public ezSerializationContext
   EZ_DECLARE_SERIALIZATION_CONTEXT(ezTypeVersionReadContext);
 
 public:
-  /// \brief Setup the type info used internally.
+  /// \brief Reads the type version table from the stream
   ezTypeVersionReadContext(ezStreamReader& stream);
   ~ezTypeVersionReadContext();
 

@@ -66,7 +66,7 @@ void ezStateMachineState_NestedStateMachine::OnExit(ezStateMachineInstance& inst
     auto& pStateMachineInstance = static_cast<InstanceData*>(pStateInstanceData)->m_pStateMachineInstance;
     if (pStateMachineInstance != nullptr)
     {
-      pStateMachineInstance->SetState(nullptr);
+      pStateMachineInstance->SetState(nullptr).IgnoreResult();
     }
   }
 }

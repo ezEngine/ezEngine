@@ -26,8 +26,7 @@ ezUniquePtr<ezStateMachineInstance> ezStateMachineResource::CreateInstance(ezRef
 {
   if (m_pDescription != nullptr)
   {
-    auto pInstance = EZ_DEFAULT_NEW(ezStateMachineInstance, owner, m_pDescription);
-    return pInstance;
+    return EZ_DEFAULT_NEW(ezStateMachineInstance, owner, m_pDescription);
   }
 
   return nullptr;

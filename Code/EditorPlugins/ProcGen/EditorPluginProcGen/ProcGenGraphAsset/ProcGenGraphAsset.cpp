@@ -162,7 +162,6 @@ ezStatus ezProcGenGraphAssetDocument::WriteAsset(ezStreamWriter& stream, const e
         EZ_SUCCEED_OR_RETURN(WriteByteCode(pPlacementNode));
 
         auto pPGNode = context.m_DocObjToProcGenNodeTable.GetValue(pPlacementNode);
-        EZ_VERIFY(pPGNode != nullptr, "Implementation error");
         auto pPlacementOutput = ezStaticCast<ezProcGen_PlacementOutput*>(pPGNode->Borrow());
 
         pPlacementOutput->m_VolumeTagSetIndices = context.m_GraphContext.m_VolumeTagSetIndices;
@@ -205,7 +204,6 @@ ezStatus ezProcGenGraphAssetDocument::WriteAsset(ezStreamWriter& stream, const e
       EZ_SUCCEED_OR_RETURN(WriteByteCode(pVertexColorNode));
 
       auto pPGNode = context.m_DocObjToProcGenNodeTable.GetValue(pVertexColorNode);
-      EZ_VERIFY(pPGNode != nullptr, "Implementation error");
       auto pVertexColorOutput = ezStaticCast<ezProcGen_VertexColorOutput*>(pPGNode->Borrow());
 
       pVertexColorOutput->m_VolumeTagSetIndices = context.m_GraphContext.m_VolumeTagSetIndices;

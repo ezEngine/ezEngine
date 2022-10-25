@@ -243,10 +243,10 @@ const char* ezStateMachineComponent::GetResourceFile() const
   return m_hResource.GetResourceID();
 }
 
-void ezStateMachineComponent::SetInitialState(const char* szName)
+void ezStateMachineComponent::SetInitialState(ezStringView sName)
 {
   ezHashedString sInitialState;
-  sInitialState.Assign(szName);
+  sInitialState.Assign(sName);
 
   if (m_sInitialState == sInitialState)
     return;
@@ -259,12 +259,12 @@ void ezStateMachineComponent::SetInitialState(const char* szName)
   }
 }
 
-bool ezStateMachineComponent::SetState(const char* szName)
+bool ezStateMachineComponent::SetState(ezStringView sName)
 {
   if (m_pStateMachineInstance != nullptr)
   {
     ezHashedString sStateName;
-    sStateName.Assign(szName);
+    sStateName.Assign(sName);
 
     return m_pStateMachineInstance->SetState(sStateName).Succeeded();
   }

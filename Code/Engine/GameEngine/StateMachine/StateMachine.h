@@ -136,7 +136,7 @@ public:
   ezStateMachineInstance(ezReflectedClass& owner, const ezSharedPtr<const ezStateMachineDescription>& pDescription = nullptr);
   ~ezStateMachineInstance();
 
-  void SetState(ezStateMachineState* pState);
+  ezResult SetState(ezStateMachineState* pState);
   ezResult SetState(ezUInt32 uiStateIndex);
   ezResult SetState(const ezHashedString& sStateName);
   ezResult SetStateOrFallback(const ezHashedString& sStateName, ezUInt32 uiFallbackStateIndex = 0);

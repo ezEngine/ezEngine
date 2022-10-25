@@ -18,11 +18,6 @@ class ezQtStateMachineConnection : public ezQtConnection
 {
 public:
   ezQtStateMachineConnection(QGraphicsItem* parent = nullptr);
-
-  virtual QPen DeterminePen() const override;
-
-  bool m_bExecutionHighlight = false;
-  ezTime m_HighlightUntil;
 };
 
 class ezQtStateMachineNode : public ezQtNode

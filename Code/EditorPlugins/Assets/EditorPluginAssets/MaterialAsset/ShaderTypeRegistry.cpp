@@ -6,10 +6,10 @@
 EZ_IMPLEMENT_SINGLETON(ezShaderTypeRegistry);
 
 // clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, ShaderTypeRegistry)
+EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorPluginAssets, ShaderTypeRegistry)
 
 BEGIN_SUBSYSTEM_DEPENDENCIES
-"PluginAssets", "ReflectedTypeManager"
+  "ReflectedTypeManager"
 END_SUBSYSTEM_DEPENDENCIES
 
 ON_CORESYSTEMS_STARTUP

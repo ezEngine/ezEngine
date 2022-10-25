@@ -47,17 +47,6 @@ ezQtStateMachineConnection::ezQtStateMachineConnection(QGraphicsItem* parent /*=
   setFlag(QGraphicsItem::ItemIsSelectable);
 }
 
-QPen ezQtStateMachineConnection::DeterminePen() const
-{
-  if (m_bExecutionHighlight)
-  {
-    QPen pen(QBrush(qRgb(255, 50, 50)), 4, Qt::DashLine);
-    return pen;
-  }
-
-  return ezQtConnection::DeterminePen();
-}
-
 //////////////////////////////////////////////////////////////////////////
 
 ezQtStateMachineNode::ezQtStateMachineNode() = default;

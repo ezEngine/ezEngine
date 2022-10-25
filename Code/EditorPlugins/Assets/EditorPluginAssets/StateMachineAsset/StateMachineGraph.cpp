@@ -6,10 +6,9 @@
 #include <GuiFoundation/UIServices/DynamicStringEnum.h>
 
 // clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, StateMachine)
+EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorPluginAssets, StateMachine)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
-    "PluginAssets",
     "ReflectedTypeManager"
   END_SUBSYSTEM_DEPENDENCIES
 

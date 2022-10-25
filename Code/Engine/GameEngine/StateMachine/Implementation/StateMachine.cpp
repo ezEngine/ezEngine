@@ -320,16 +320,11 @@ ezStateMachineInstance::~ezStateMachineInstance()
   }
 }
 
-void ezStateMachineInstance::SetState(ezStateMachineState* pState)
+ezResult ezStateMachineInstance::SetState(ezStateMachineState* pState)
 {
   if (pState != nullptr && m_pDescription != nullptr)
   {
-    ezUInt32 uiStateIndex = ezInvalidIndex;
-    if (m_pDescription->m_StateNameToIndexTable.TryGetValue(pState->GetNameHashed(), uiStateIndex))
-    {
-      SetStateInternal(uiStateIndex);
-      return;
-    }
+    return SetState(pState->GetNameHashed());
   }
 
   ExitCurrentState();
@@ -339,6 +334,8 @@ void ezStateMachineInstance::SetState(ezStateMachineState* pState)
   m_pCurrentTransitions = nullptr;
 
   EnterCurrentState();
+
+  return EZ_SUCCESS;
 }
 
 ezResult ezStateMachineInstance::SetState(const ezHashedString& sStateName)
@@ -434,9 +431,9 @@ void ezStateMachineInstance::ExitCurrentState()
 
 ezUInt32 ezStateMachineInstance::FindNewStateToTransitionTo()
 {
-  if (m_pDescription != nullptr)
+  if (m_pCurrentTransitions != nullptr)
   {
-    for (auto& transitionContext : m_pDescription->m_FromAnyTransitions)
+    for (auto& transitionContext : *m_pCurrentTransitions)
     {
       void* pInstanceData = GetInstanceData(transitionContext.m_uiInstanceDataOffset);
       if (transitionContext.m_pTransition->IsConditionMet(*this, pInstanceData))
@@ -446,9 +443,9 @@ ezUInt32 ezStateMachineInstance::FindNewStateToTransitionTo()
     }
   }
 
-  if (m_pCurrentTransitions != nullptr)
+  if (m_pDescription != nullptr)
   {
-    for (auto& transitionContext : *m_pCurrentTransitions)
+    for (auto& transitionContext : m_pDescription->m_FromAnyTransitions)
     {
       void* pInstanceData = GetInstanceData(transitionContext.m_uiInstanceDataOffset);
       if (transitionContext.m_pTransition->IsConditionMet(*this, pInstanceData))
