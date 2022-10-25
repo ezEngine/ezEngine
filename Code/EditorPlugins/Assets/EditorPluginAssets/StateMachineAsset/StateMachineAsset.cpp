@@ -60,17 +60,22 @@ ezStatus ezStateMachineAssetDocument::InternalTransformAsset(ezStreamWriter& str
     return ezStatus(EZ_SUCCESS);
   };
 
-  if (auto pObject = pManager->GetInitialState())
+  auto& allObjects = pManager->GetRootObject()->GetChildren();
+
+  if (allObjects.IsEmpty() == false)
   {
-    EZ_SUCCEED_OR_RETURN(AddState(pObject));
-    EZ_ASSERT_DEV(objectToStateIndex[pObject] == 0, "Initial state has to have index 0");
-  }
-  else
-  {
-    return ezStatus("Initial state is not set");
+    if (auto pObject = pManager->GetInitialState())
+    {
+      EZ_SUCCEED_OR_RETURN(AddState(pObject));
+      EZ_ASSERT_DEV(objectToStateIndex[pObject] == 0, "Initial state has to have index 0");
+    }
+    else
+    {
+      return ezStatus("Initial state is not set");
+    }
   }
 
-  for (const ezDocumentObject* pObject : pManager->GetRootObject()->GetChildren())
+  for (const ezDocumentObject* pObject : allObjects)
   {
     if (pManager->IsNode(pObject) == false || pManager->IsInitialState(pObject) || pManager->IsAnyState(pObject))
       continue;
@@ -78,7 +83,7 @@ ezStatus ezStateMachineAssetDocument::InternalTransformAsset(ezStreamWriter& str
     EZ_SUCCEED_OR_RETURN(AddState(pObject));
   }
 
-  for (const ezDocumentObject* pObject : pManager->GetRootObject()->GetChildren())
+  for (const ezDocumentObject* pObject : allObjects)
   {
     if (pManager->IsConnection(pObject) == false)
       continue;
@@ -106,7 +111,7 @@ ezStatus ezStateMachineAssetDocument::InternalTransformAsset(ezStreamWriter& str
     }
     EZ_VERIFY(objectToStateIndex.TryGetValue(connection.GetTargetPin().GetParent(), uiToStateIndex), "Implementation error");
 
-    EZ_SUCCEED_OR_RETURN(desc.AddTransition(uiFromStateIndex, uiToStateIndex, std::move(pTransition)));
+    desc.AddTransition(uiFromStateIndex, uiToStateIndex, std::move(pTransition));
   }
 
   ezDefaultMemoryStreamStorage storage;
