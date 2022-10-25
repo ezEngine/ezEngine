@@ -230,7 +230,7 @@ bool ezPathUtils::ContainsInvalidFilenameChars(ezStringView sPath)
 {
   /// \test Not tested yet
 
-  ezStringIterator<ezStringView> it = sPath.GetIteratorFront();
+  ezStringIterator it = sPath.GetIteratorFront();
 
   for (; it.IsValid(); ++it)
   {

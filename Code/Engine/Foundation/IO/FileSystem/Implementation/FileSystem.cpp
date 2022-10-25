@@ -431,7 +431,7 @@ const char* ezFileSystem::ExtractRootName(const char* szPath, ezString& rootName
 
   ezStringBuilder sCur;
   const ezStringView view(szPath);
-  ezStringIterator<ezStringView> it = view.GetIteratorFront();
+  ezStringIterator it = view.GetIteratorFront();
   ++it;
 
   while (it.IsValid() && (it.GetCharacter() != '/'))

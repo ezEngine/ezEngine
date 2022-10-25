@@ -18,10 +18,10 @@ template <typename Derived>
 struct ezStringBase : public ezThisIsAString
 {
 public:
-  using iterator = ezStringIterator<Derived>;
-  using const_iterator = ezStringIterator<Derived>;
-  using reverse_iterator = ezStringReverseIterator<Derived>;
-  using const_reverse_iterator = ezStringReverseIterator<Derived>;
+  using iterator = ezStringIterator;
+  using const_iterator = ezStringIterator;
+  using reverse_iterator = ezStringReverseIterator;
+  using const_reverse_iterator = ezStringReverseIterator;
 
   /// Returns whether the string is an empty string.
   bool IsEmpty() const; // [tested]
@@ -110,6 +110,31 @@ private:
   const char* InternalGetDataEnd() const;
   ezUInt32 InternalGetElementCount() const;
 
+  template <typename Derived>
+  friend typename ezStringBase<Derived>::iterator begin(const ezStringBase<Derived>& container);
+
+  template <typename Derived>
+  friend typename ezStringBase<Derived>::const_iterator cbegin(const ezStringBase<Derived>& container);
+
+  template <typename Derived>
+  friend typename ezStringBase<Derived>::iterator end(const ezStringBase<Derived>& container);
+
+  template <typename Derived>
+  friend typename ezStringBase<Derived>::const_iterator cend(const ezStringBase<Derived>& container);
+
+  template <typename Derived>
+  friend typename ezStringBase<Derived>::reverse_iterator rbegin(const ezStringBase<Derived>& container);
+
+  template <typename Derived>
+  friend typename ezStringBase<Derived>::const_reverse_iterator crbegin(const ezStringBase<Derived>& container);
+
+  template <typename Derived>
+  friend typename ezStringBase<Derived>::reverse_iterator rend(const ezStringBase<Derived>& container);
+
+  template <typename Derived>
+  friend typename ezStringBase<Derived>::const_reverse_iterator crend(const ezStringBase<Derived>& container);
+
+
 private: // friends
   template <typename DerivedLhs, typename DerivedRhs>
   friend bool operator==(const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs);
@@ -132,10 +157,6 @@ private: // friends
   template <typename T, bool isString>
   friend struct ezInternal::HashHelperImpl;
 
-  friend struct ezStringIterator<Derived>;
-
-  friend struct ezStringReverseIterator<Derived>;
-
   template <typename T>
   friend struct ezCompareHelper;
 
@@ -148,50 +169,50 @@ private: // friends
 template <typename Derived>
 typename ezStringBase<Derived>::iterator begin(const ezStringBase<Derived>& container)
 {
-  return typename ezStringBase<Derived>::iterator(container, false);
+  return typename ezStringBase<Derived>::iterator(container.InternalGetData(), container.InternalGetDataEnd(), container.InternalGetData());
 }
 
 template <typename Derived>
 typename ezStringBase<Derived>::const_iterator cbegin(const ezStringBase<Derived>& container)
 {
-  return typename ezStringBase<Derived>::const_iterator(container, false);
+  return typename ezStringBase<Derived>::const_iterator(container.InternalGetData(), container.InternalGetDataEnd(), container.InternalGetData());
 }
 
 template <typename Derived>
 typename ezStringBase<Derived>::iterator end(const ezStringBase<Derived>& container)
 {
-  return typename ezStringBase<Derived>::iterator(container, true);
+  return typename ezStringBase<Derived>::iterator(container.InternalGetData(), container.InternalGetDataEnd(), container.InternalGetDataEnd());
 }
 
 template <typename Derived>
 typename ezStringBase<Derived>::const_iterator cend(const ezStringBase<Derived>& container)
 {
-  return typename ezStringBase<Derived>::const_iterator(container, true);
+  return typename ezStringBase<Derived>::const_iterator(container.InternalGetData(), container.InternalGetDataEnd(), container.InternalGetDataEnd());
 }
 
 
 template <typename Derived>
 typename ezStringBase<Derived>::reverse_iterator rbegin(const ezStringBase<Derived>& container)
 {
-  return typename ezStringBase<Derived>::reverse_iterator(container, false);
+  return typename ezStringBase<Derived>::reverse_iterator(container.InternalGetData(), container.InternalGetDataEnd(), container.InternalGetDataEnd());
 }
 
 template <typename Derived>
 typename ezStringBase<Derived>::const_reverse_iterator crbegin(const ezStringBase<Derived>& container)
 {
-  return typename ezStringBase<Derived>::const_reverse_iterator(container, false);
+  return typename ezStringBase<Derived>::const_reverse_iterator(container.InternalGetData(), container.InternalGetDataEnd(), container.InternalGetDataEnd());
 }
 
 template <typename Derived>
 typename ezStringBase<Derived>::reverse_iterator rend(const ezStringBase<Derived>& container)
 {
-  return typename ezStringBase<Derived>::reverse_iterator(container, true);
+  return typename ezStringBase<Derived>::reverse_iterator(container.InternalGetData(), container.InternalGetDataEnd(), nullptr);
 }
 
 template <typename Derived>
 typename ezStringBase<Derived>::const_reverse_iterator crend(const ezStringBase<Derived>& container)
 {
-  return typename ezStringBase<Derived>::const_reverse_iterator(container, true);
+  return typename ezStringBase<Derived>::const_reverse_iterator(container.InternalGetData(), container.InternalGetDataEnd(), nullptr);
 }
 
 #include <Foundation/Strings/Implementation/StringBase_inl.h>
