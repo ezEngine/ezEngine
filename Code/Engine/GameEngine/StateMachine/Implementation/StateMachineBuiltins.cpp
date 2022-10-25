@@ -10,13 +10,12 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStateMachineState_NestedStateMachine, 1, ezRTT
   {
     EZ_ACCESSOR_PROPERTY("Resource", GetResourceFile, SetResourceFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_StateMachine")),
     EZ_ACCESSOR_PROPERTY("InitialState", GetInitialState, SetInitialState),
-    EZ_MEMBER_PROPERTY("ResetOnEnter", m_bResetOnEnter)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_MEMBER_PROPERTY("ResetOnExit", m_bResetOnExit)->AddAttributes(new ezDefaultValueAttribute(true)),
+    EZ_MEMBER_PROPERTY("KeepCurrentStateOnExit", m_bKeepCurrentStateOnExit),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
-    EZ_INSTANCE_DATA_TYPE_ATTRIBUTE(ezStateMachineState_NestedStateMachine::InstanceData),
+    EZ_STATE_MACHINE_INSTANCE_DATA_TYPE_ATTRIBUTE(ezStateMachineState_NestedStateMachine::InstanceData),
   }
   EZ_END_ATTRIBUTES;
 }
@@ -30,11 +29,9 @@ ezStateMachineState_NestedStateMachine::ezStateMachineState_NestedStateMachine(c
 
 ezStateMachineState_NestedStateMachine::~ezStateMachineState_NestedStateMachine() = default;
 
-void ezStateMachineState_NestedStateMachine::OnEnter(ezStateMachineInstance& instance, void* pStateInstanceData) const
+void ezStateMachineState_NestedStateMachine::OnEnter(ezStateMachineInstance& instance, void* pInstanceData, const ezStateMachineState* pFromState) const
 {
-  auto& pStateMachineInstance = static_cast<InstanceData*>(pStateInstanceData)->m_pStateMachineInstance;
-
-  bool bSetInitialState = m_bResetOnEnter;
+  auto& pStateMachineInstance = static_cast<InstanceData*>(pInstanceData)->m_pStateMachineInstance;
 
   if (pStateMachineInstance == nullptr)
   {
@@ -50,20 +47,19 @@ void ezStateMachineState_NestedStateMachine::OnEnter(ezStateMachineInstance& ins
 
     pStateMachineInstance = pStateMachineResource->CreateInstance(instance.GetOwner());
     pStateMachineInstance->SetBlackboard(instance.GetBlackboard());
-    bSetInitialState = true;
   }
 
-  if (bSetInitialState)
+  if (pStateMachineInstance->GetCurrentState() == nullptr)
   {
     pStateMachineInstance->SetStateOrFallback(m_sInitialState).IgnoreResult();
   }
 }
 
-void ezStateMachineState_NestedStateMachine::OnExit(ezStateMachineInstance& instance, void* pStateInstanceData) const
+void ezStateMachineState_NestedStateMachine::OnExit(ezStateMachineInstance& instance, void* pInstanceData, const ezStateMachineState* pToState) const
 {
-  if (m_bResetOnExit)
+  if (m_bKeepCurrentStateOnExit == false)
   {
-    auto& pStateMachineInstance = static_cast<InstanceData*>(pStateInstanceData)->m_pStateMachineInstance;
+    auto& pStateMachineInstance = static_cast<InstanceData*>(pInstanceData)->m_pStateMachineInstance;
     if (pStateMachineInstance != nullptr)
     {
       pStateMachineInstance->SetState(nullptr).IgnoreResult();
@@ -71,9 +67,9 @@ void ezStateMachineState_NestedStateMachine::OnExit(ezStateMachineInstance& inst
   }
 }
 
-void ezStateMachineState_NestedStateMachine::Update(ezStateMachineInstance& instance, void* pStateInstanceData) const
+void ezStateMachineState_NestedStateMachine::Update(ezStateMachineInstance& instance, void* pInstanceData) const
 {
-  auto& pStateMachineInstance = static_cast<InstanceData*>(pStateInstanceData)->m_pStateMachineInstance;
+  auto& pStateMachineInstance = static_cast<InstanceData*>(pInstanceData)->m_pStateMachineInstance;
   if (pStateMachineInstance != nullptr)
   {
     pStateMachineInstance->Update();
@@ -86,8 +82,7 @@ ezResult ezStateMachineState_NestedStateMachine::Serialize(ezStreamWriter& strea
 
   stream << m_hResource;
   stream << m_sInitialState;
-  stream << m_bResetOnEnter;
-  stream << m_bResetOnExit;
+  stream << m_bKeepCurrentStateOnExit;
   return EZ_SUCCESS;
 }
 
@@ -98,8 +93,7 @@ ezResult ezStateMachineState_NestedStateMachine::Deserialize(ezStreamReader& str
 
   stream >> m_hResource;
   stream >> m_sInitialState;
-  stream >> m_bResetOnEnter;
-  stream >> m_bResetOnExit;
+  stream >> m_bKeepCurrentStateOnExit;
   return EZ_SUCCESS;
 }
 
@@ -151,7 +145,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezStateMachineTransition_BlackboardConditions::ezStateMachineTransition_BlackboardConditions() = default;
 ezStateMachineTransition_BlackboardConditions::~ezStateMachineTransition_BlackboardConditions() = default;
 
-bool ezStateMachineTransition_BlackboardConditions::IsConditionMet(ezStateMachineInstance& instance, void* pTransitionInstanceData) const
+bool ezStateMachineTransition_BlackboardConditions::IsConditionMet(ezStateMachineInstance& instance, void* pInstanceData) const
 {
   if (m_Conditions.IsEmpty())
     return true;

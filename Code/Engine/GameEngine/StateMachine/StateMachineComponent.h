@@ -3,19 +3,26 @@
 #include <Core/Messages/EventMessage.h>
 #include <GameEngine/StateMachine/StateMachineResource.h>
 
+/// \brief Message that is sent by ezStateMachineState_SendMsg once the state is entered.
 struct EZ_GAMEENGINE_DLL ezMsgStateMachineStateChanged : public ezEventMessage
 {
   EZ_DECLARE_MESSAGE_TYPE(ezMsgStateMachineStateChanged, ezEventMessage);
 
+  ezHashedString m_sOldStateName;
   ezHashedString m_sNewStateName;
 
 private:
+  const char* GetOldStateName() const { return m_sOldStateName; }
+  void SetOldStateName(const char* szName) { m_sOldStateName.Assign(szName); }
+
   const char* GetNewStateName() const { return m_sNewStateName; }
   void SetNewStateName(const char* szName) { m_sNewStateName.Assign(szName); }
 };
 
 //////////////////////////////////////////////////////////////////////////
 
+/// \brief A state machine state implementation that sends ezMsgStateMachineStateChanged to the owner of the
+/// state machine instance. Currently only works for ezStateMachineComponent.
 class ezStateMachineState_SendMsg : public ezStateMachineState
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezStateMachineState_SendMsg, ezStateMachineState);
@@ -24,7 +31,7 @@ public:
   ezStateMachineState_SendMsg(const char* szName = nullptr);
   ~ezStateMachineState_SendMsg();
 
-  virtual void OnEnter(ezStateMachineInstance& instance, void* pStateInstanceData) const override;
+  virtual void OnEnter(ezStateMachineInstance& instance, void* pInstanceData, const ezStateMachineState* pFromState) const override;
 
   virtual ezResult Serialize(ezStreamWriter& stream) const override;
   virtual ezResult Deserialize(ezStreamReader& stream) override;
@@ -52,6 +59,7 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 
+/// \brief A component that holds an ezStateMachineInstance using the ezStateMachineDescription from the resource assigned to this component.
 class EZ_GAMEENGINE_DLL ezStateMachineComponent : public ezComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezStateMachineComponent, ezComponent, ezStateMachineComponentManager);
@@ -77,7 +85,7 @@ public:
 
   ezStateMachineComponent& operator=(ezStateMachineComponent&& other);
 
-  /// \brief Returns the StateMachineInstance owned by this component
+  /// \brief Returns the ezStateMachineInstance owned by this component
   ezStateMachineInstance* GetStateMachineInstance() { return m_pStateMachineInstance.Borrow(); }
   const ezStateMachineInstance* GetStateMachineInstance() const { return m_pStateMachineInstance.Borrow(); }
 
@@ -92,6 +100,7 @@ public:
   void SetInitialState(ezStringView sName);                        // [ property ]
   ezStringView GetInitialState() const { return m_sInitialState; } // [ property ]
 
+  /// \brief Sets the current state with the given name.
   bool SetState(ezStringView sName); // [ scriptable ]
 
 private:

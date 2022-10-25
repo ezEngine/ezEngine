@@ -10,25 +10,26 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStateMachineState, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezStateMachineState::ezStateMachineState(const char* szName /*= nullptr*/)
+ezStateMachineState::ezStateMachineState(ezStringView sName)
 {
-  if (ezStringUtils::IsNullOrEmpty(szName) == false)
-  {
-    m_sName.Assign(szName);
-  }
+  m_sName.Assign(sName);
 }
 
-void ezStateMachineState::SetName(const char* szName)
+void ezStateMachineState::SetName(ezStringView sName)
 {
   EZ_ASSERT_DEV(m_sName.IsEmpty(), "Name can't be changed afterwards");
-  m_sName.Assign(szName);
+  m_sName.Assign(sName);
 }
 
-void ezStateMachineState::OnExit(ezStateMachineInstance& instance, void* pStateInstanceData) const
+void ezStateMachineState::OnEnter(ezStateMachineInstance& instance, void* pInstanceData, const ezStateMachineState* pFromState) const
 {
 }
 
-void ezStateMachineState::Update(ezStateMachineInstance& instance, void* pStateInstanceData) const
+void ezStateMachineState::OnExit(ezStateMachineInstance& instance, void* pInstanceData, const ezStateMachineState* pToState) const
+{
+}
+
+void ezStateMachineState::Update(ezStateMachineInstance& instance, void* pInstanceData) const
 {
 }
 
@@ -66,7 +67,7 @@ ezResult ezStateMachineTransition::Deserialize(ezStreamReader& stream)
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInstanceDataTypeAttribute, 1, ezRTTIDefaultAllocator<ezInstanceDataTypeAttribute>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStateMachineInstanceDataTypeAttribute, 1, ezRTTIDefaultAllocator<ezStateMachineInstanceDataTypeAttribute>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
@@ -87,7 +88,7 @@ ezUInt32 ezStateMachineDescription::AddState(ezUniquePtr<ezStateMachineState>&& 
   }
 
   auto& stateContext = m_States.ExpandAndGetRef();
-  if (auto pInstanceDataAttribute = pState->GetDynamicRTTI()->GetAttributeByType<ezInstanceDataTypeAttribute>())
+  if (auto pInstanceDataAttribute = pState->GetDynamicRTTI()->GetAttributeByType<ezStateMachineInstanceDataTypeAttribute>())
   {
     m_InstanceDataAttributes.PushBack(pInstanceDataAttribute);
     stateContext.m_uiInstanceDataOffset = ezMemoryUtils::AlignSize(m_uiTotalInstanceDataSize, pInstanceDataAttribute->m_uiTypeAlignment);
@@ -100,13 +101,9 @@ ezUInt32 ezStateMachineDescription::AddState(ezUniquePtr<ezStateMachineState>&& 
   return uiIndex;
 }
 
-ezResult ezStateMachineDescription::AddTransition(ezUInt32 uiFromStateIndex, ezUInt32 uiToStateIndex, ezUniquePtr<ezStateMachineTransition>&& pTransistion)
+void ezStateMachineDescription::AddTransition(ezUInt32 uiFromStateIndex, ezUInt32 uiToStateIndex, ezUniquePtr<ezStateMachineTransition>&& pTransistion)
 {
-  if (uiFromStateIndex == uiToStateIndex)
-  {
-    ezLog::Error("Can't add a transition to itself");
-    return EZ_FAILURE;
-  }
+  EZ_ASSERT_DEV(uiFromStateIndex != uiToStateIndex, "Can't add a transition to itself");
 
   TransitionArray* pTransitions = nullptr;
   if (uiFromStateIndex == ezInvalidIndex)
@@ -115,26 +112,15 @@ ezResult ezStateMachineDescription::AddTransition(ezUInt32 uiFromStateIndex, ezU
   }
   else
   {
-    if (uiFromStateIndex >= m_States.GetCount())
-    {
-      ezLog::Error("Invalid state index {}", uiFromStateIndex);
-      return EZ_FAILURE;
-    }
-
+    EZ_ASSERT_DEV(uiFromStateIndex < m_States.GetCount(), "Invalid from state index {}", uiFromStateIndex);
     pTransitions = &m_States[uiFromStateIndex].m_Transitions;
   }
 
-  if (uiToStateIndex >= m_States.GetCount())
-  {
-    ezLog::Error("Invalid state index {}", uiToStateIndex);
-    return EZ_FAILURE;
-  }
+  EZ_ASSERT_DEV(uiToStateIndex < m_States.GetCount(), "Invalid to state index {}", uiToStateIndex);
 
   auto& transitionContext = pTransitions->ExpandAndGetRef();
   transitionContext.m_pTransition = std::move(pTransistion);
   transitionContext.m_uiToStateIndex = uiToStateIndex;
-
-  return EZ_SUCCESS;
 }
 
 constexpr ezTypeVersion s_StateMachineDescriptionVersion = 1;
@@ -170,7 +156,8 @@ ezResult ezStateMachineDescription::Serialize(ezStreamWriter& originalStream) co
   {
     stream << uiNumTransitions;
 
-    auto SerializeTransitions = [&](const TransitionArray& transitions, ezUInt32 uiFromStateIndex) -> ezResult {
+    auto SerializeTransitions = [&](const TransitionArray& transitions, ezUInt32 uiFromStateIndex) -> ezResult
+    {
       for (auto& transitionContext : transitions)
       {
         const ezUInt32 uiToStateIndex = transitionContext.m_uiToStateIndex;
@@ -255,7 +242,7 @@ ezResult ezStateMachineDescription::Deserialize(ezStreamReader& stream)
         ezUniquePtr<ezStateMachineTransition> pTransition = pType->GetAllocator()->Allocate<ezStateMachineTransition>();
         EZ_SUCCEED_OR_RETURN(pTransition->Deserialize(stream));
 
-        EZ_SUCCEED_OR_RETURN(AddTransition(uiFromStateIndex, uiToStateIndex, std::move(pTransition)));
+        AddTransition(uiFromStateIndex, uiToStateIndex, std::move(pTransition));
       }
       else
       {
@@ -296,7 +283,7 @@ ezStateMachineInstance::ezStateMachineInstance(ezReflectedClass& owner, const ez
 
 ezStateMachineInstance::~ezStateMachineInstance()
 {
-  ExitCurrentState();
+  ExitCurrentState(nullptr);
 
   m_pCurrentState = nullptr;
   m_uiCurrentStateIndex = ezInvalidIndex;
@@ -327,13 +314,16 @@ ezResult ezStateMachineInstance::SetState(ezStateMachineState* pState)
     return SetState(pState->GetNameHashed());
   }
 
-  ExitCurrentState();
+  const auto pFromState = m_pCurrentState;
+  const auto pToState = pState;
+
+  ExitCurrentState(pToState);
 
   m_pCurrentState = pState;
   m_uiCurrentStateIndex = ezInvalidIndex;
   m_pCurrentTransitions = nullptr;
 
-  EnterCurrentState();
+  EnterCurrentState(pFromState);
 
   return EZ_SUCCESS;
 }
@@ -400,32 +390,34 @@ void ezStateMachineInstance::SetStateInternal(ezUInt32 uiStateIndex)
   if (m_uiCurrentStateIndex == uiStateIndex)
     return;
 
-  ExitCurrentState();
-
   const auto& stateContext = m_pDescription->m_States[uiStateIndex];
+  const auto pFromState = m_pCurrentState;
+  const auto pToState = stateContext.m_pState.Borrow();
 
-  m_pCurrentState = stateContext.m_pState.Borrow();
+  ExitCurrentState(pToState);
+
+  m_pCurrentState = pToState;
   m_uiCurrentStateIndex = uiStateIndex;
   m_pCurrentTransitions = &stateContext.m_Transitions;
 
-  EnterCurrentState();
+  EnterCurrentState(pFromState);
 }
 
-void ezStateMachineInstance::EnterCurrentState()
+void ezStateMachineInstance::EnterCurrentState(const ezStateMachineState* pFromState)
 {
   if (m_pCurrentState != nullptr)
   {
     void* pInstanceData = GetCurrentStateInstanceData();
-    m_pCurrentState->OnEnter(*this, pInstanceData);
+    m_pCurrentState->OnEnter(*this, pInstanceData, pFromState);
   }
 }
 
-void ezStateMachineInstance::ExitCurrentState()
+void ezStateMachineInstance::ExitCurrentState(const ezStateMachineState* pToState)
 {
   if (m_pCurrentState != nullptr)
   {
     void* pInstanceData = GetCurrentStateInstanceData();
-    m_pCurrentState->OnExit(*this, pInstanceData);
+    m_pCurrentState->OnExit(*this, pInstanceData, pToState);
   }
 }
 

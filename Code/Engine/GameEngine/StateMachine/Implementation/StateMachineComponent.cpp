@@ -11,6 +11,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgStateMachineStateChanged, 1, ezRTTIDefaultA
 {
   EZ_BEGIN_PROPERTIES
   {
+    EZ_ACCESSOR_PROPERTY("OldStateName", GetOldStateName, SetOldStateName),
     EZ_ACCESSOR_PROPERTY("NewStateName", GetNewStateName, SetNewStateName),
   }
   EZ_END_PROPERTIES;
@@ -44,11 +45,15 @@ ezStateMachineState_SendMsg::ezStateMachineState_SendMsg(const char* szName /*= 
 
 ezStateMachineState_SendMsg::~ezStateMachineState_SendMsg() = default;
 
-void ezStateMachineState_SendMsg::OnEnter(ezStateMachineInstance& instance, void* pStateInstanceData) const
+void ezStateMachineState_SendMsg::OnEnter(ezStateMachineInstance& instance, void* pInstanceData, const ezStateMachineState* pFromState) const
 {
   if (auto pOwner = ezDynamicCast<ezStateMachineComponent*>(&instance.GetOwner()))
   {
     ezMsgStateMachineStateChanged msg;
+    if (pFromState != nullptr)
+    {
+      msg.m_sOldStateName = pFromState->GetNameHashed();
+    }
     msg.m_sNewStateName = GetNameHashed();
 
     pOwner->SendStateChangedMsg(msg, m_Delay);

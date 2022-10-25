@@ -12,26 +12,28 @@ class ezBlackboard;
 class ezStateMachineInstance;
 
 /// \brief Base class for a state in a state machine.
+/// 
 /// Note that states are shared between multiple instances and thus
-/// shouldn't modify any data on their own but always operate on the passed instance.
+/// shouldn't modify any data on their own but always operate on the passed instance and instance data.
+/// \see ezStateMachineInstanceDataTypeAttribute
 class EZ_GAMEENGINE_DLL ezStateMachineState : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezStateMachineState, ezReflectedClass);
 
 public:
-  ezStateMachineState(const char* szName = nullptr);
+  ezStateMachineState(ezStringView sName = ezStringView());
 
-  void SetName(const char* szName);
-  const char* GetName() const { return m_sName; }
+  void SetName(ezStringView sName);
+  ezStringView GetName() const { return m_sName; }
   const ezHashedString& GetNameHashed() const { return m_sName; }
 
 protected:
   friend class ezStateMachineDescription;
   friend class ezStateMachineInstance;
 
-  virtual void OnEnter(ezStateMachineInstance& instance, void* pStateInstanceData) const = 0;
-  virtual void OnExit(ezStateMachineInstance& instance, void* pStateInstanceData) const;
-  virtual void Update(ezStateMachineInstance& instance, void* pStateInstanceData) const;
+  virtual void OnEnter(ezStateMachineInstance& instance, void* pInstanceData, const ezStateMachineState* pFromState) const;
+  virtual void OnExit(ezStateMachineInstance& instance, void* pInstanceData, const ezStateMachineState* pToState) const;
+  virtual void Update(ezStateMachineInstance& instance, void* pInstanceData) const;
 
   virtual ezResult Serialize(ezStreamWriter& stream) const;
   virtual ezResult Deserialize(ezStreamReader& stream);
@@ -40,10 +42,12 @@ private:
   ezHashedString m_sName;
 };
 
-/// \brief Base class for a transition in a state machine.
-/// The target state of a transition is automatically set once its condition has been met.
+/// \brief Base class for a transition in a state machine. The target state of a transition is automatically set
+/// once its condition has been met.
+/// 
 /// Same as with states, transitions are also shared between multiple instances and thus
-/// should decide their condition based on the passed instance.
+/// should decide their condition based on the passed instance and instance data.
+/// \see ezStateMachineInstanceDataTypeAttribute
 class EZ_GAMEENGINE_DLL ezStateMachineTransition : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezStateMachineTransition, ezReflectedClass);
@@ -52,20 +56,26 @@ protected:
   friend class ezStateMachineDescription;
   friend class ezStateMachineInstance;
 
-  virtual bool IsConditionMet(ezStateMachineInstance& instance, void* pTransitionInstanceData) const = 0;
+  virtual bool IsConditionMet(ezStateMachineInstance& instance, void* pInstanceData) const = 0;
 
   virtual ezResult Serialize(ezStreamWriter& stream) const;
   virtual ezResult Deserialize(ezStreamReader& stream);
 };
 
-/// \brief Attribute to define instance data types
-class EZ_GAMEENGINE_DLL ezInstanceDataTypeAttribute : public ezPropertyAttribute
+/// \brief Attribute to define instance data for a state or transition.
+///
+/// Since state machine states and transitions are shared between instances they can't hold their state in member
+/// variables. Use this attribute to define the type of instance data necessary for a state or transition.
+/// Instance data is then automatically allocated by the state machine instance and passed via the pInstanceData pointer
+/// in the state or transition functions.
+/// Use the EZ_STATE_MACHINE_INSTANCE_DATA_TYPE_ATTRIBUTE below to define such an attribute in the reflection section.
+class EZ_GAMEENGINE_DLL ezStateMachineInstanceDataTypeAttribute : public ezPropertyAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezInstanceDataTypeAttribute, ezPropertyAttribute);
+  EZ_ADD_DYNAMIC_REFLECTION(ezStateMachineInstanceDataTypeAttribute, ezPropertyAttribute);
 
 public:
-  ezInstanceDataTypeAttribute() = default;
-  ezInstanceDataTypeAttribute(ezUInt32 uiTypeSize, ezUInt32 uiTypeAlignment, ezMemoryUtils::ConstructorFunction constructorFunc, ezMemoryUtils::DestructorFunction destructorFunc)
+  ezStateMachineInstanceDataTypeAttribute() = default;
+  ezStateMachineInstanceDataTypeAttribute(ezUInt32 uiTypeSize, ezUInt32 uiTypeAlignment, ezMemoryUtils::ConstructorFunction constructorFunc, ezMemoryUtils::DestructorFunction destructorFunc)
     : m_uiTypeSize(uiTypeSize)
     , m_uiTypeAlignment(uiTypeAlignment)
     , m_ConstructorFunction(constructorFunc)
@@ -79,10 +89,12 @@ public:
   ezMemoryUtils::DestructorFunction m_DestructorFunction = nullptr;
 };
 
-#define EZ_INSTANCE_DATA_TYPE_ATTRIBUTE(T) new ezInstanceDataTypeAttribute(sizeof(T), EZ_ALIGNMENT_OF(T), ezMemoryUtils::MakeConstructorFunction<T>(), ezMemoryUtils::MakeDestructorFunction<T>())
+/// \brief Helper macro to define instance data. \see ezStateMachineInstanceDataTypeAttribute.
+#define EZ_STATE_MACHINE_INSTANCE_DATA_TYPE_ATTRIBUTE(T) new ezStateMachineInstanceDataTypeAttribute(sizeof(T), EZ_ALIGNMENT_OF(T), ezMemoryUtils::MakeConstructorFunction<T>(), ezMemoryUtils::MakeDestructorFunction<T>())
 
 /// \brief The state machine description defines the structure of a state machine like e.g.
 /// what states it has and how to transition between them.
+/// Once an instance is created from a description it is not allowed to change the description afterwards.
 class EZ_GAMEENGINE_DLL ezStateMachineDescription : public ezRefCounted
 {
   EZ_DISALLOW_COPY_AND_ASSIGN(ezStateMachineDescription);
@@ -91,10 +103,11 @@ public:
   ezStateMachineDescription();
   ~ezStateMachineDescription();
 
+  /// \brief Adds the given state to the description and returns the state index.
   ezUInt32 AddState(ezUniquePtr<ezStateMachineState>&& pState);
 
-  /// \brief A uiFromStateIndex of ezInvalidIndex generates a transition that can be done from any possible state.
-  ezResult AddTransition(ezUInt32 uiFromStateIndex, ezUInt32 uiToStateIndex, ezUniquePtr<ezStateMachineTransition>&& pTransistion);
+  /// \brief Adds the given transition between the two given states. A uiFromStateIndex of ezInvalidIndex generates a transition that can be done from any other possible state.
+  void AddTransition(ezUInt32 uiFromStateIndex, ezUInt32 uiToStateIndex, ezUniquePtr<ezStateMachineTransition>&& pTransistion);
 
   ezResult Serialize(ezStreamWriter& stream) const;
   ezResult Deserialize(ezStreamReader& stream);
@@ -105,7 +118,7 @@ private:
   struct TransitionContext
   {
     ezUniquePtr<ezStateMachineTransition> m_pTransition;
-    ezUInt32 m_uiToStateIndex;
+    ezUInt32 m_uiToStateIndex = 0;
     ezUInt32 m_uiInstanceDataOffset = ezInvalidIndex;
   };
 
@@ -122,7 +135,7 @@ private:
   ezDynamicArray<StateContext> m_States;
   ezHashTable<ezHashedString, ezUInt32> m_StateNameToIndexTable;
 
-  ezDynamicArray<const ezInstanceDataTypeAttribute*> m_InstanceDataAttributes;
+  ezDynamicArray<const ezStateMachineInstanceDataTypeAttribute*> m_InstanceDataAttributes;
   ezUInt32 m_uiTotalInstanceDataSize = 0;
 };
 
@@ -151,8 +164,8 @@ public:
 
 private:
   void SetStateInternal(ezUInt32 uiStateIndex);
-  void EnterCurrentState();
-  void ExitCurrentState();
+  void EnterCurrentState(const ezStateMachineState* pFromState);
+  void ExitCurrentState(const ezStateMachineState* pToState);
   ezUInt32 FindNewStateToTransitionTo();
 
   EZ_ALWAYS_INLINE void* GetInstanceData(ezUInt32 uiOffset)
