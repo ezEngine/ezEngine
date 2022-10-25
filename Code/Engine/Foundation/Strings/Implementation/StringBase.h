@@ -167,29 +167,29 @@ private:
   const char* InternalGetDataEnd() const;
   ezUInt32 InternalGetElementCount() const;
 
-  template <typename Derived>
-  friend typename ezStringBase<Derived>::iterator begin(const ezStringBase<Derived>& container);
+  template <typename Derived2>
+  friend typename ezStringBase<Derived2>::iterator begin(const ezStringBase<Derived2>& container);
 
-  template <typename Derived>
-  friend typename ezStringBase<Derived>::const_iterator cbegin(const ezStringBase<Derived>& container);
+  template <typename Derived2>
+  friend typename ezStringBase<Derived2>::const_iterator cbegin(const ezStringBase<Derived2>& container);
 
-  template <typename Derived>
-  friend typename ezStringBase<Derived>::iterator end(const ezStringBase<Derived>& container);
+  template <typename Derived2>
+  friend typename ezStringBase<Derived2>::iterator end(const ezStringBase<Derived2>& container);
 
-  template <typename Derived>
-  friend typename ezStringBase<Derived>::const_iterator cend(const ezStringBase<Derived>& container);
+  template <typename Derived2>
+  friend typename ezStringBase<Derived2>::const_iterator cend(const ezStringBase<Derived2>& container);
 
-  template <typename Derived>
-  friend typename ezStringBase<Derived>::reverse_iterator rbegin(const ezStringBase<Derived>& container);
+  template <typename Derived2>
+  friend typename ezStringBase<Derived2>::reverse_iterator rbegin(const ezStringBase<Derived2>& container);
 
-  template <typename Derived>
-  friend typename ezStringBase<Derived>::const_reverse_iterator crbegin(const ezStringBase<Derived>& container);
+  template <typename Derived2>
+  friend typename ezStringBase<Derived2>::const_reverse_iterator crbegin(const ezStringBase<Derived2>& container);
 
-  template <typename Derived>
-  friend typename ezStringBase<Derived>::reverse_iterator rend(const ezStringBase<Derived>& container);
+  template <typename Derived2>
+  friend typename ezStringBase<Derived2>::reverse_iterator rend(const ezStringBase<Derived2>& container);
 
-  template <typename Derived>
-  friend typename ezStringBase<Derived>::const_reverse_iterator crend(const ezStringBase<Derived>& container);
+  template <typename Derived2>
+  friend typename ezStringBase<Derived2>::const_reverse_iterator crend(const ezStringBase<Derived2>& container);
 };
 
 
