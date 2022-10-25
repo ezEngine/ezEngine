@@ -18,11 +18,6 @@ const char* ezStringView::GetData(ezStringBuilder& tempStorage) const
   return tempStorage.GetData();
 }
 
-const char* ezStringView::GetData() const
-{
-  return m_pStart;
-}
-
 bool ezStringView::IsEqualN(ezStringView sOther, ezUInt32 uiCharsToCompare) const
 {
   return ezStringUtils::IsEqualN(GetStartPointer(), sOther.GetStartPointer(), uiCharsToCompare, GetEndPointer(), sOther.GetEndPointer());

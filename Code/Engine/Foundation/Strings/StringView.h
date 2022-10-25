@@ -260,10 +260,6 @@ public:
   ezStringView GetRootedPathRootName() const; // [tested]
 
 private:
-  /// \brief Private because it does not guarantee zero-terminated results. Use the overload that takes an ezStringBuilder for storage.
-  const char* GetData() const;
-
-private:
   const char* m_pStart = nullptr;
   const char* m_pEnd = nullptr;
 };

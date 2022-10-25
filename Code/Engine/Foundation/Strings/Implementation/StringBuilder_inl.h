@@ -226,10 +226,4 @@ EZ_ALWAYS_INLINE void ezStringBuilder::Remove(const char* szRemoveFromPos, const
   ReplaceSubString(szRemoveFromPos, szRemoveToPos, ezStringView());
 }
 
-template <typename Container>
-void ezStringBuilder::Split(bool bReturnEmptyStrings, Container& Output, const char* szSeparator1, const char* szSeparator2 /*= nullptr*/, const char* szSeparator3 /*= nullptr*/, const char* szSeparator4 /*= nullptr*/, const char* szSeparator5 /*= nullptr*/, const char* szSeparator6 /*= nullptr*/) const
-{
-  GetView().Split(bReturnEmptyStrings, Output, szSeparator1, szSeparator2, szSeparator3, szSeparator4, szSeparator5, szSeparator6);
-}
-
 #include <Foundation/Strings/Implementation/AllStrings_inl.h>

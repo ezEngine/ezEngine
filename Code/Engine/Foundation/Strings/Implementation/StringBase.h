@@ -107,6 +107,61 @@ public:
   /// \brief Returns a pointer to the internal Utf8 string.
   EZ_ALWAYS_INLINE operator const char* () const { return InternalGetData(); }
 
+  /// \brief Fills the given container with ezStringView's which represent each found substring.
+  /// If bReturnEmptyStrings is true, even empty strings between separators are returned.
+  /// Output must be a container that stores ezStringView's and provides the functions 'Clear' and 'Append'.
+  /// szSeparator1 to szSeparator6 are strings which act as separators and indicate where to split the string.
+  /// This string itself will not be modified.
+  template <typename Container>
+  void Split(bool bReturnEmptyStrings, Container& Output, const char* szSeparator1, const char* szSeparator2 = nullptr, const char* szSeparator3 = nullptr, const char* szSeparator4 = nullptr, const char* szSeparator5 = nullptr, const char* szSeparator6 = nullptr) const; // [tested]
+
+  /// \brief Checks whether the given path has any file extension
+  bool HasAnyExtension() const; // [tested]
+
+  /// \brief Checks whether the given path ends with the given extension. szExtension should start with a '.' for performance reasons, but
+  /// it will work without a '.' too.
+  bool HasExtension(ezStringView sExtension) const; // [tested]
+
+  /// \brief Returns the file extension of the given path. Will be empty, if the path does not end with a proper extension.
+  ezStringView GetFileExtension() const; // [tested]
+
+  /// \brief Returns the file name of a path, excluding the path and extension.
+  ///
+  /// If the path already ends with a path separator, the result will be empty.
+  ezStringView GetFileName() const; // [tested]
+
+  /// \brief Returns the substring that represents the file name including the file extension.
+  ///
+  /// Returns an empty string, if sPath already ends in a path separator, or is empty itself.
+  ezStringView GetFileNameAndExtension() const; // [tested]
+
+  /// \brief Returns the directory of the given file, which is the substring up to the last path separator.
+  ///
+  /// If the path already ends in a path separator, and thus points to a folder, instead of a file, the unchanged path is returned.
+  /// "path/to/file" -> "path/to/"
+  /// "path/to/folder/" -> "path/to/folder/"
+  /// "filename" -> ""
+  /// "/file_at_root_level" -> "/"
+  ezStringView GetFileDirectory() const; // [tested]
+
+  /// \brief Returns true, if the given path represents an absolute path on the current OS.
+  bool IsAbsolutePath() const; // [tested]
+
+  /// \brief Returns true, if the given path represents a relative path on the current OS.
+  bool IsRelativePath() const; // [tested]
+
+  /// \brief Returns true, if the given path represents a 'rooted' path. See ezFileSystem for details.
+  bool IsRootedPath() const; // [tested]
+
+  /// \brief Extracts the root name from a rooted path
+  ///
+  /// ":MyRoot" -> "MyRoot"
+  /// ":MyRoot\folder" -> "MyRoot"
+  /// ":\MyRoot\folder" -> "MyRoot"
+  /// ":/MyRoot\folder" -> "MyRoot"
+  /// Returns an empty string, if the path is not rooted.
+  ezStringView GetRootedPathRootName() const; // [tested]
+
 private:
   const char* InternalGetData() const;
   const char* InternalGetDataEnd() const;
@@ -135,37 +190,8 @@ private:
 
   template <typename Derived>
   friend typename ezStringBase<Derived>::const_reverse_iterator crend(const ezStringBase<Derived>& container);
-
-
-private: // friends
-  //template <typename DerivedLhs, typename DerivedRhs>
-  //friend bool operator==(const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs);
-
-  //template <typename DerivedLhs, typename DerivedRhs>
-  //friend bool operator!=(const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs);
-
-  //template <typename DerivedLhs, typename DerivedRhs>
-  //friend bool operator<(const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs);
-
-  //template <typename DerivedLhs, typename DerivedRhs>
-  //friend bool operator>(const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs);
-
-  //template <typename DerivedLhs, typename DerivedRhs>
-  //friend bool operator<=(const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs);
-
-  //template <typename DerivedLhs, typename DerivedRhs>
-  //friend bool operator>=(const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs);
-
-  //template <typename T, bool isString>
-  //friend struct ezInternal::HashHelperImpl;
-
-  //template <typename T>
-  //friend struct ezCompareHelper;
-
-  //friend struct ezCompareString_NoCase;
-
-  //friend struct ezHashHelperString_NoCase;
 };
+
 
 template <typename Derived>
 typename ezStringBase<Derived>::iterator begin(const ezStringBase<Derived>& container)

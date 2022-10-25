@@ -306,3 +306,70 @@ EZ_ALWAYS_INLINE ezStringView ezStringBase<Derived>::GetView() const
 {
   return ezStringView(InternalGetData(), InternalGetElementCount());
 }
+
+template <typename Derived>
+template <typename Container>
+void ezStringBase<Derived>::Split(bool bReturnEmptyStrings, Container& Output, const char* szSeparator1, const char* szSeparator2 /*= nullptr*/, const char* szSeparator3 /*= nullptr*/, const char* szSeparator4 /*= nullptr*/, const char* szSeparator5 /*= nullptr*/, const char* szSeparator6 /*= nullptr*/) const
+{
+  GetView().Split(bReturnEmptyStrings, Output, szSeparator1, szSeparator2, szSeparator3, szSeparator4, szSeparator5, szSeparator6);
+}
+
+template <typename Derived>
+ezStringView ezStringBase<Derived>::GetRootedPathRootName() const
+{
+  return GetView().GetRootedPathRootName();
+}
+
+template <typename Derived>
+bool ezStringBase<Derived>::IsRootedPath() const
+{
+  return GetView().IsRootedPath();
+}
+
+template <typename Derived>
+bool ezStringBase<Derived>::IsRelativePath() const
+{
+  return GetView().IsRelativePath();
+}
+
+template <typename Derived>
+bool ezStringBase<Derived>::IsAbsolutePath() const
+{
+  return GetView().IsAbsolutePath();
+}
+
+template <typename Derived>
+ezStringView ezStringBase<Derived>::GetFileDirectory() const
+{
+  return GetView().GetFileDirectory();
+}
+
+template <typename Derived>
+ezStringView ezStringBase<Derived>::GetFileNameAndExtension() const
+{
+  return GetView().GetFileNameAndExtension();
+}
+
+template <typename Derived>
+ezStringView ezStringBase<Derived>::GetFileName() const
+{
+  return GetView().GetFileName();
+}
+
+template <typename Derived>
+ezStringView ezStringBase<Derived>::GetFileExtension() const
+{
+  return GetView().GetFileExtension();
+}
+
+template <typename Derived>
+bool ezStringBase<Derived>::HasExtension(ezStringView sExtension) const
+{
+  return GetView().HasExtension(sExtension);
+}
+
+template <typename Derived>
+bool ezStringBase<Derived>::HasAnyExtension() const
+{
+  return GetView().HasAnyExtension();
+}

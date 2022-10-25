@@ -174,8 +174,7 @@ public:
   void ChangeCharacter(iterator& it, ezUInt32 uiCharacter); // [tested]
 
   /// \brief Sets the string by concatenating all given strings.
-  void Set(ezStringView pData1, ezStringView pData2 = {}, ezStringView pData3 = {}, ezStringView pData4 = {},
-    ezStringView pData5 = {}, ezStringView pData6 = {});
+  void Set(ezStringView pData1, ezStringView pData2 = {}, ezStringView pData3 = {}, ezStringView pData4 = {}, ezStringView pData5 = {}, ezStringView pData6 = {});
 
   /// \brief Copies the string starting at \a pStart up to \a pEnd (exclusive).
   void SetSubString_FromTo(const char* pStart, const char* pEnd);
@@ -190,12 +189,10 @@ public:
   void Append(ezUInt32 uiChar); // [tested]
 
   /// \brief Appends all the given strings at the back of this string in one operation.
-  void Append(const wchar_t* pData1, const wchar_t* pData2 = nullptr, const wchar_t* pData3 = nullptr, const wchar_t* pData4 = nullptr,
-    const wchar_t* pData5 = nullptr, const wchar_t* pData6 = nullptr); // [tested]
+  void Append(const wchar_t* pData1, const wchar_t* pData2 = nullptr, const wchar_t* pData3 = nullptr, const wchar_t* pData4 = nullptr, const wchar_t* pData5 = nullptr, const wchar_t* pData6 = nullptr); // [tested]
 
   /// \brief Appends all the given strings at the back of this string in one operation.
-  void Append(ezStringView pData1, ezStringView pData2 = {}, ezStringView pData3 = {}, ezStringView pData4 = {},
-    ezStringView pData5 = {}, ezStringView pData6 = {}); // [tested]
+  void Append(ezStringView pData1, ezStringView pData2 = {}, ezStringView pData3 = {}, ezStringView pData4 = {}, ezStringView pData5 = {}, ezStringView pData6 = {}); // [tested]
 
   /// \brief Prepends a single Utf32 character.
   void Prepend(ezUInt32 uiChar); // [tested]
@@ -289,79 +286,30 @@ public:
 
   /// \brief Replaces the first occurrence of szSearchFor by szReplaceWith, if szSearchFor was found to be a 'whole word', as indicated by
   /// the delimiter function IsDelimiterCB.
+  ///
+  /// Returns the start position of where the word was replaced or nullptr if nothing got replaced.
   const char* ReplaceWholeWord(const char* szSearchFor, ezStringView szReplaceWith, ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB); // [tested]
 
   /// \brief Case-insensitive version of ReplaceWholeWord.
+  ///
+  /// Returns the start position of where the word was replaced or nullptr if nothing got replaced.
   const char* ReplaceWholeWord_NoCase(const char* szSearchFor, ezStringView szReplaceWith, ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB); // [tested]
 
   /// \brief Replaces all occurrences of szSearchFor by szReplaceWith, if szSearchFor was found to be a 'whole word', as indicated by the
   /// delimiter function IsDelimiterCB.
+  ///
+  /// Returns how many words got replaced.
   ezUInt32 ReplaceWholeWordAll(const char* szSearchFor, ezStringView szReplaceWith, ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB); // [tested]
 
   /// \brief Case-insensitive version of ReplaceWholeWordAll.
+  ///
+  /// Returns how many words got replaced.
   ezUInt32 ReplaceWholeWordAll_NoCase(const char* szSearchFor, ezStringView szReplaceWith, ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB); // [tested]
-
-  /// \brief Fills the given container with ezStringView's which represent each found substring.
-  /// If bReturnEmptyStrings is true, even empty strings between separators are returned.
-  /// Output must be a container that stores ezStringView's and provides the functions 'Clear' and 'Append'.
-  /// szSeparator1 to szSeparator6 are strings which act as separators and indicate where to split the string.
-  /// This string itself will not be modified.
-  template <typename Container>
-  void Split(bool bReturnEmptyStrings, Container& Output, const char* szSeparator1, const char* szSeparator2 = nullptr,
-    const char* szSeparator3 = nullptr, const char* szSeparator4 = nullptr, const char* szSeparator5 = nullptr,
-    const char* szSeparator6 = nullptr) const; // [tested]
 
   /// \brief Replaces the current string with the content from the stream. Reads the stream to its end.
   void ReadAll(ezStreamReader& Stream);
 
   // ******* Path Functions ********
-
-  /// \brief Checks whether the given path has any file extension
-  bool HasAnyExtension() const; // [tested]
-
-  /// \brief Checks whether the given path ends with the given extension. szExtension should start with a '.' for performance reasons, but
-  /// it will work without a '.' too.
-  bool HasExtension(const char* szExtension) const; // [tested]
-
-  /// \brief Returns the file extension of the given path. Will be empty, if the path does not end with a proper extension.
-  ezStringView GetFileExtension() const; // [tested]
-
-  /// \brief Returns the file name of a path, excluding the path and extension.
-  ///
-  /// If the path already ends with a path separator, the result will be empty.
-  ezStringView GetFileName() const; // [tested]
-
-  /// \brief Returns the substring that represents the file name including the file extension.
-  ///
-  /// Returns an empty string, if sPath already ends in a path separator, or is empty itself.
-  ezStringView GetFileNameAndExtension() const; // [tested]
-
-  /// \brief Returns the directory of the given file, which is the substring up to the last path separator.
-  ///
-  /// If the path already ends in a path separator, and thus points to a folder, instead of a file, the unchanged path is returned.
-  /// "path/to/file" -> "path/to/"
-  /// "path/to/folder/" -> "path/to/folder/"
-  /// "filename" -> ""
-  /// "/file_at_root_level" -> "/"
-  ezStringView GetFileDirectory() const; // [tested]
-
-  /// \brief Returns true, if the given path represents an absolute path on the current OS.
-  bool IsAbsolutePath() const; // [tested]
-
-  /// \brief Returns true, if the given path represents a relative path on the current OS.
-  bool IsRelativePath() const; // [tested]
-
-  /// \brief Returns true, if the given path represents a 'rooted' path. See ezFileSystem for details.
-  bool IsRootedPath() const; // [tested]
-
-  /// \brief Extracts the root name from a rooted path
-  ///
-  /// ":MyRoot" -> "MyRoot"
-  /// ":MyRoot\folder" -> "MyRoot"
-  /// ":\MyRoot\folder" -> "MyRoot"
-  /// ":/MyRoot\folder" -> "MyRoot"
-  /// Returns an empty string, if the path is not rooted.
-  ezStringView GetRootedPathRootName() const; // [tested]
 
   /// \brief Removes "../" where possible, replaces all path separators with /, removes double slashes.
   ///
@@ -392,8 +340,7 @@ public:
   /// AppendWithSeparator(", ", "a", "b");
   /// AppendWithSeparator(", ", "c", "d");
   /// results in the string "ab, cd"
-  void AppendWithSeparator(ezStringView separator, ezStringView sText1, ezStringView sText2 = ezStringView(), ezStringView sText3 = ezStringView(),
-    ezStringView sText4 = ezStringView(), ezStringView sText5 = ezStringView(), ezStringView sText6 = ezStringView());
+  void AppendWithSeparator(ezStringView separator, ezStringView sText1, ezStringView sText2 = ezStringView(), ezStringView sText3 = ezStringView(), ezStringView sText4 = ezStringView(), ezStringView sText5 = ezStringView(), ezStringView sText6 = ezStringView());
 
   /// \brief Changes the file name part of the path, keeps the extension intact (if there is any).
   void ChangeFileName(ezStringView sNewFileName); // [tested]
