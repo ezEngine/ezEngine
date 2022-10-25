@@ -183,38 +183,12 @@ EZ_CHECK_AT_COMPILETIME_MSG(ezGetTypeClass<ezString>::value == 2, "string is not
 template <ezUInt16 Size>
 struct ezCompareHelper<ezHybridString<Size>>
 {
-  template <typename DerivedLhs, typename DerivedRhs>
-  EZ_ALWAYS_INLINE bool Less(const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs) const
-  {
-    return ezStringUtils::Compare(lhs.InternalGetData(), rhs.InternalGetData(), lhs.InternalGetDataEnd(), rhs.InternalGetDataEnd()) < 0;
-  }
-
-  template <typename DerivedRhs>
-  EZ_ALWAYS_INLINE bool Less(const char* lhs, const ezStringBase<DerivedRhs>& rhs) const
-  {
-    return rhs.Compare(lhs) > 0;
-  }
-
-  template <typename DerivedLhs>
-  EZ_ALWAYS_INLINE bool Less(const ezStringBase<DerivedLhs>& lhs, const char* rhs) const
+  EZ_ALWAYS_INLINE bool Less(ezStringView lhs, ezStringView rhs) const
   {
     return lhs.Compare(rhs) < 0;
   }
 
-  template <typename DerivedLhs, typename DerivedRhs>
-  EZ_ALWAYS_INLINE bool Equal(const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs) const
-  {
-    return ezStringUtils::IsEqual(lhs.InternalGetData(), rhs.InternalGetData(), lhs.InternalGetDataEnd(), rhs.InternalGetDataEnd());
-  }
-
-  template <typename DerivedRhs>
-  EZ_ALWAYS_INLINE bool Equal(const char* lhs, const ezStringBase<DerivedRhs>& rhs) const
-  {
-    return rhs.IsEqual(lhs);
-  }
-
-  template <typename DerivedLhs>
-  EZ_ALWAYS_INLINE bool Equal(const ezStringBase<DerivedLhs>& lhs, const char* rhs) const
+  EZ_ALWAYS_INLINE bool Equal(ezStringView lhs, ezStringView rhs) const
   {
     return lhs.IsEqual(rhs);
   }
@@ -222,38 +196,12 @@ struct ezCompareHelper<ezHybridString<Size>>
 
 struct ezCompareString_NoCase
 {
-  template <typename DerivedLhs, typename DerivedRhs>
-  EZ_ALWAYS_INLINE bool Less(const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs) const
-  {
-    return ezStringUtils::Compare_NoCase(lhs.InternalGetData(), rhs.InternalGetData(), lhs.InternalGetDataEnd(), rhs.InternalGetDataEnd()) < 0;
-  }
-
-  template <typename DerivedRhs>
-  EZ_ALWAYS_INLINE bool Less(const char* lhs, const ezStringBase<DerivedRhs>& rhs) const
-  {
-    return rhs.Compare_NoCase(lhs) > 0;
-  }
-
-  template <typename DerivedLhs>
-  EZ_ALWAYS_INLINE bool Less(const ezStringBase<DerivedLhs>& lhs, const char* rhs) const
+  EZ_ALWAYS_INLINE bool Less(ezStringView lhs, ezStringView rhs) const
   {
     return lhs.Compare_NoCase(rhs) < 0;
   }
 
-  template <typename DerivedLhs, typename DerivedRhs>
-  EZ_ALWAYS_INLINE bool Equal(const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs) const
-  {
-    return ezStringUtils::IsEqual_NoCase(lhs.InternalGetData(), rhs.InternalGetData(), lhs.InternalGetDataEnd(), rhs.InternalGetDataEnd());
-  }
-
-  template <typename DerivedRhs>
-  EZ_ALWAYS_INLINE bool Equal(const char* lhs, const ezStringBase<DerivedRhs>& rhs) const
-  {
-    return rhs.IsEqual_NoCase(lhs);
-  }
-
-  template <typename DerivedLhs>
-  EZ_ALWAYS_INLINE bool Equal(const ezStringBase<DerivedLhs>& lhs, const char* rhs) const
+  EZ_ALWAYS_INLINE bool Equal(ezStringView lhs, ezStringView rhs) const
   {
     return lhs.IsEqual_NoCase(rhs);
   }

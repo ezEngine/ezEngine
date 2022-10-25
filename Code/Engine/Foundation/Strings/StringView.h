@@ -1,12 +1,13 @@
 #pragma once
 
-#include <Foundation/ThirdParty/utf8/utf8.h>
-
-#include <Foundation/Strings/StringUtils.h>
-
-#include <Foundation/Strings/Implementation/StringBase.h>
+#include <Foundation/Strings/Implementation/StringIterator.h>
 
 #include <type_traits>
+
+/// Base class which marks a class as containing string data
+struct ezThisIsAString
+{
+};
 
 class ezStringBuilder;
 
@@ -19,10 +20,16 @@ class ezStringBuilder;
 /// That means that an ezStringView is only valid as long as its source data is not modified. Once you make any kind
 /// of modification to the source data, you should not continue using the ezStringView to that data anymore,
 /// as it might now point into invalid memory.
-struct EZ_FOUNDATION_DLL ezStringView : public ezStringBase<ezStringView>
+struct EZ_FOUNDATION_DLL ezStringView : public ezThisIsAString
 {
 public:
   EZ_DECLARE_POD_TYPE();
+
+  using iterator = ezStringIterator;
+  using const_iterator = ezStringIterator;
+  using reverse_iterator = ezStringReverseIterator;
+  using const_reverse_iterator = ezStringReverseIterator;
+
   /// \brief Default constructor creates an invalid view.
   constexpr ezStringView();
 
@@ -33,7 +40,7 @@ public:
   template <typename T>                                                                                           // T is always const char*
   constexpr ezStringView(T pStart, typename std::enable_if<std::is_same<T, const char*>::value, int>::type* = 0); // [tested]
 
-  /// \brief Creates a string view from any class / struct which is implicitly conertible to const char *
+  /// \brief Creates a string view from any class / struct which is implicitly convertible to const char *
   template <typename T>
   EZ_ALWAYS_INLINE ezStringView(const T&& str, typename std::enable_if<std::is_same<T, const char*>::value == false && std::is_convertible<T, const char*>::value, int>::type* = 0); // [tested]
 
@@ -93,15 +100,74 @@ public:
   /// Accessing the value at 'GetEnd' has therefore no real use.
   const char* GetEndPointer() const { return m_pEnd; } // [tested]
 
-  using ezStringBase<ezStringView>::IsEqual;
+  /// Returns whether the string is an empty string.
+  bool IsEmpty() const; // [tested]
 
   /// \brief Compares this string view with the other string view for equality.
-  bool IsEqual(const ezStringView& sOther) const;
-
-  using ezStringBase<ezStringView>::IsEqual_NoCase;
+  bool IsEqual(ezStringView sOther) const;
 
   /// \brief Compares this string view with the other string view for equality.
-  bool IsEqual_NoCase(const ezStringView& sOther) const;
+  bool IsEqual_NoCase(ezStringView sOther) const;
+
+  /// Compares up to a given number of characters of this string with the other string for equality. Case insensitive.
+  bool IsEqualN(ezStringView sOther, ezUInt32 uiCharsToCompare) const; // [tested]
+
+  /// Compares up to a given number of characters of this string with the other string for equality. Case insensitive.
+  bool IsEqualN_NoCase(ezStringView sOther, ezUInt32 uiCharsToCompare) const; // [tested]
+
+  /// Compares this string with the other one. Returns 0 for equality, -1 if this string is 'smaller', 1 otherwise.
+  ezInt32 Compare(ezStringView sOther) const; // [tested]
+
+  /// Compares up to a given number of characters of this string with the other one. Returns 0 for equality, -1 if this string is 'smaller',
+  /// 1 otherwise.
+  ezInt32 CompareN(ezStringView sOther, ezUInt32 uiCharsToCompare) const; // [tested]
+
+  /// Compares this string with the other one. Returns 0 for equality, -1 if this string is 'smaller', 1 otherwise. Case insensitive.
+  ezInt32 Compare_NoCase(ezStringView sOther) const; // [tested]
+
+  /// Compares up to a given number of characters of this string with the other one. Returns 0 for equality, -1 if this string is 'smaller',
+  /// 1 otherwise. Case insensitive.
+  ezInt32 CompareN_NoCase(ezStringView sOther, ezUInt32 uiCharsToCompare) const; // [tested]
+
+  /// Returns true, if this string starts with the given string.
+  bool StartsWith(ezStringView sStartsWith) const; // [tested]
+
+  /// Returns true, if this string starts with the given string. Case insensitive.
+  bool StartsWith_NoCase(ezStringView sStartsWith) const; // [tested]
+
+  /// Returns true, if this string ends with the given string.
+  bool EndsWith(ezStringView sEndsWith) const; // [tested]
+
+  /// Returns true, if this string ends with the given string. Case insensitive.
+  bool EndsWith_NoCase(ezStringView sEndsWith) const; // [tested]
+
+  /// \brief Computes the pointer to the n-th character in the string. This is a linear search from the start.
+  const char* ComputeCharacterPosition(ezUInt32 uiCharacterIndex) const;
+
+  /// Returns a pointer to the first occurrence of szStringToFind, or nullptr if none was found.
+  /// To find the next occurrence, use an ezStringView which points to the next position and call FindSubString again.
+  const char* FindSubString(ezStringView sStringToFind, const char* szStartSearchAt = nullptr) const; // [tested]
+
+  /// Returns a pointer to the first occurrence of szStringToFind, or nullptr if none was found. Case insensitive.
+  /// To find the next occurrence, use an ezStringView which points to the next position and call FindSubString again.
+  const char* FindSubString_NoCase(ezStringView sStringToFind, const char* szStartSearchAt = nullptr) const; // [tested]
+
+  /// Returns a pointer to the last occurrence of szStringToFind, or nullptr if none was found.
+  /// szStartSearchAt allows to start searching at the end of the string (if it is nullptr) or at an earlier position.
+  const char* FindLastSubString(ezStringView sStringToFind, const char* szStartSearchAt = nullptr) const; // [tested]
+
+  /// Returns a pointer to the last occurrence of szStringToFind, or nullptr if none was found. Case insensitive.
+  /// szStartSearchAt allows to start searching at the end of the string (if it is nullptr) or at an earlier position.
+  const char* FindLastSubString_NoCase(ezStringView sStringToFind, const char* szStartSearchAt = nullptr) const; // [tested]
+
+  /// Searches for the word szSearchFor. If IsDelimiterCB returns true for both characters in front and back of the word, the position is
+  /// returned. Otherwise nullptr.
+  const char* FindWholeWord(const char* szSearchFor, ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB, const char* szStartSearchAt = nullptr) const; // [tested]
+
+  /// Searches for the word szSearchFor. If IsDelimiterCB returns true for both characters in front and back of the word, the position is
+  /// returned. Otherwise nullptr. Ignores case.
+  const char* FindWholeWord_NoCase(const char* szSearchFor, ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB, const char* szStartSearchAt = nullptr) const; // [tested]
+
 
   /// \brief Shrinks the view range by uiShrinkCharsFront characters at the front and by uiShrinkCharsBack characters at the back.
   ///
@@ -122,10 +188,10 @@ public:
   void Trim(const char* szTrimCharsStart, const char* szTrimCharsEnd); // [tested]
 
   /// \brief If the string starts with one of the given words (case insensitive), it is removed and the function returns true.
-  bool TrimWordStart(const char* szWord1, const char* szWord2 = nullptr, const char* szWord3 = nullptr, const char* szWord4 = nullptr, const char* szWord5 = nullptr); // [tested]
+  bool TrimWordStart(ezStringView sWord1, ezStringView sWord2 = {}, ezStringView sWord3 = {}, ezStringView sWord4 = {}, ezStringView sWord5 = {}); // [tested]
 
   /// \brief If the string ends with one of the given words (case insensitive), it is removed and the function returns true.
-  bool TrimWordEnd(const char* szWord1, const char* szWord2 = nullptr, const char* szWord3 = nullptr, const char* szWord4 = nullptr, const char* szWord5 = nullptr); // [tested]
+  bool TrimWordEnd(ezStringView sWord1, ezStringView sWord2 = {}, ezStringView sWord3 = {}, ezStringView sWord4 = {}, ezStringView sWord5 = {}); // [tested]
 
   /// \brief Fills the given container with ezStringView's which represent each found substring.
   /// If bReturnEmptyStrings is true, even empty strings between separators are returned.
@@ -135,6 +201,18 @@ public:
   template <typename Container>
   void Split(bool bReturnEmptyStrings, Container& Output, const char* szSeparator1, const char* szSeparator2 = nullptr, const char* szSeparator3 = nullptr, const char* szSeparator4 = nullptr, const char* szSeparator5 = nullptr, const char* szSeparator6 = nullptr) const; // [tested]
 
+  /// \brief Returns an iterator to this string, which points to the very first character.
+  ///
+  /// Note that this iterator will only be valid as long as this string lives.
+  /// Once the original string is destroyed, all iterators to them will point into invalid memory.
+  iterator GetIteratorFront() const;
+
+  /// \brief Returns an iterator to this string, which points to the very last character (NOT the end).
+  ///
+  /// Note that this iterator will only be valid as long as this string lives.
+  /// Once the original string is destroyed, all iterators to them will point into invalid memory.
+  reverse_iterator GetIteratorBack() const;
+
   // ******* Path Functions ********
 
   /// \brief Checks whether the given path has any file extension
@@ -142,7 +220,7 @@ public:
 
   /// \brief Checks whether the given path ends with the given extension. szExtension should start with a '.' for performance reasons, but
   /// it will work without a '.' too.
-  bool HasExtension(const char* szExtension) const; // [tested]
+  bool HasExtension(ezStringView sExtension) const; // [tested]
 
   /// \brief Returns the file extension of the given path. Will be empty, if the path does not end with a proper extension.
   ezStringView GetFileExtension() const; // [tested]
@@ -185,8 +263,6 @@ public:
   ezStringView GetRootedPathRootName() const; // [tested]
 
 private:
-  friend struct ezStringBase<ezStringView>;
-
   /// \brief Private because it does not guarantee zero-terminated results. Use the overload that takes an ezStringBuilder for storage.
   const char* GetData() const;
 
@@ -200,5 +276,46 @@ private:
 /// Example:
 /// "Hello World"
 constexpr ezStringView operator"" _ezsv(const char* pString, size_t len);
+
+EZ_ALWAYS_INLINE typename ezStringView::iterator begin(ezStringView container)
+{
+  return typename ezStringView::iterator(container.GetStartPointer(), container.GetEndPointer(), container.GetStartPointer());
+}
+
+EZ_ALWAYS_INLINE typename ezStringView::const_iterator cbegin(ezStringView container)
+{
+  return typename ezStringView::const_iterator(container.GetStartPointer(), container.GetEndPointer(), container.GetStartPointer());
+}
+
+EZ_ALWAYS_INLINE typename ezStringView::iterator end(ezStringView container)
+{
+  return typename ezStringView::iterator(container.GetStartPointer(), container.GetEndPointer(), container.GetEndPointer());
+}
+
+EZ_ALWAYS_INLINE typename ezStringView::const_iterator cend(ezStringView container)
+{
+  return typename ezStringView::const_iterator(container.GetStartPointer(), container.GetEndPointer(), container.GetEndPointer());
+}
+
+
+EZ_ALWAYS_INLINE typename ezStringView::reverse_iterator rbegin(ezStringView container)
+{
+  return typename ezStringView::reverse_iterator(container.GetStartPointer(), container.GetEndPointer(), container.GetEndPointer());
+}
+
+EZ_ALWAYS_INLINE typename ezStringView::const_reverse_iterator crbegin(ezStringView container)
+{
+  return typename ezStringView::const_reverse_iterator(container.GetStartPointer(), container.GetEndPointer(), container.GetEndPointer());
+}
+
+EZ_ALWAYS_INLINE typename ezStringView::reverse_iterator rend(ezStringView container)
+{
+  return typename ezStringView::reverse_iterator(container.GetStartPointer(), container.GetEndPointer(), nullptr);
+}
+
+EZ_ALWAYS_INLINE typename ezStringView::const_reverse_iterator crend(ezStringView container)
+{
+  return typename ezStringView::const_reverse_iterator(container.GetStartPointer(), container.GetEndPointer(), nullptr);
+}
 
 #include <Foundation/Strings/Implementation/StringView_inl.h>

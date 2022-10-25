@@ -300,3 +300,9 @@ EZ_ALWAYS_INLINE bool operator>=(const ezStringBase<DerivedLhs>& lhs, const char
 {
   return lhs.Compare(rhs) >= 0;
 }
+
+template <typename DerivedLhs>
+EZ_ALWAYS_INLINE ezStringBase<DerivedLhs>::operator ezStringView() const
+{
+  return ezStringView(InternalGetData(), InternalGetElementCount());
+}

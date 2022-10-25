@@ -11,16 +11,9 @@ namespace ezInternal
   template <typename T>
   struct HashHelperImpl<T, true>
   {
-    template <class Derived>
-    EZ_ALWAYS_INLINE static ezUInt32 Hash(const ezStringBase<Derived>& string)
+    EZ_ALWAYS_INLINE static ezUInt32 Hash(ezStringView string)
     {
-      return ezHashingUtils::StringHashTo32(ezHashingUtils::xxHash64((void*)string.InternalGetData(), string.InternalGetElementCount()));
-    }
-
-    // extra overload for const char* to prevent unnecessary string allocations on hash lookup
-    EZ_ALWAYS_INLINE static ezUInt32 Hash(const char* szValue)
-    {
-      return ezHashingUtils::StringHashTo32(ezHashingUtils::StringHash(szValue));
+      return ezHashingUtils::StringHashTo32(ezHashingUtils::StringHash(string));
     }
   };
 
@@ -114,7 +107,10 @@ struct ezHashHelper<T*>
 #endif
   }
 
-  EZ_ALWAYS_INLINE static bool Equal(T* a, T* b) { return a == b; }
+  EZ_ALWAYS_INLINE static bool Equal(T* a, T* b)
+  {
+    return a == b;
+  }
 };
 
 template <size_t N>

@@ -1,17 +1,12 @@
 #pragma once
 
-#include <Foundation/Strings/Implementation/StringIterator.h>
+#include <Foundation/Strings/StringView.h>
 
 namespace ezInternal
 {
   template <typename T, bool isString>
   struct HashHelperImpl;
 }
-
-/// Base class which marks a class as containing string data
-struct ezThisIsAString
-{
-};
 
 /// Base class for strings, which implements all read-only string functions.
 template <typename Derived>
@@ -104,6 +99,9 @@ public:
   /// Note that this iterator will only be valid as long as this string lives.
   /// Once the original string is destroyed, all iterators to them will point into invalid memory.
   reverse_iterator GetIteratorBack() const;
+
+  /// \brief Returns a string view to this string's data.
+  operator ezStringView() const; // [tested]
 
 private:
   const char* InternalGetData() const;
