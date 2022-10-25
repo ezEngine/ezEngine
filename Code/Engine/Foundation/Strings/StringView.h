@@ -70,9 +70,6 @@ public:
   /// \brief Returns true, if the current string pointed to is non empty.
   bool IsValid() const; // [tested]
 
-  // no implicit conversion to const char* because the string view may not be zero terminated
-  // operator const char* () const { return GetData(); }
-
   /// \brief Returns the data as a zero-terminated string.
   ///
   /// The string will be copied to \a tempStorage and the pointer to that is returned.

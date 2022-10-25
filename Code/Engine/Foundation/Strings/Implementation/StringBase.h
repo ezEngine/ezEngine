@@ -22,68 +22,66 @@ public:
   bool IsEmpty() const; // [tested]
 
   /// Returns true, if this string starts with the given string.
-  bool StartsWith(const char* szStartsWith) const; // [tested]
+  bool StartsWith(ezStringView sStartsWith) const; // [tested]
 
   /// Returns true, if this string starts with the given string. Case insensitive.
-  bool StartsWith_NoCase(const char* szStartsWith) const; // [tested]
+  bool StartsWith_NoCase(ezStringView sStartsWith) const; // [tested]
 
   /// Returns true, if this string ends with the given string.
-  bool EndsWith(const char* szEndsWith) const; // [tested]
+  bool EndsWith(ezStringView sEndsWith) const; // [tested]
 
   /// Returns true, if this string ends with the given string. Case insensitive.
-  bool EndsWith_NoCase(const char* szEndsWith) const; // [tested]
+  bool EndsWith_NoCase(ezStringView sEndsWith) const; // [tested]
 
   /// Returns a pointer to the first occurrence of szStringToFind, or nullptr if none was found.
   /// To find the next occurrence, use an ezStringView which points to the next position and call FindSubString again.
-  const char* FindSubString(const char* szStringToFind, const char* szStartSearchAt = nullptr) const; // [tested]
+  const char* FindSubString(ezStringView sStringToFind, const char* szStartSearchAt = nullptr) const; // [tested]
 
   /// Returns a pointer to the first occurrence of szStringToFind, or nullptr if none was found. Case insensitive.
   /// To find the next occurrence, use an ezStringView which points to the next position and call FindSubString again.
-  const char* FindSubString_NoCase(const char* szStringToFind, const char* szStartSearchAt = nullptr) const; // [tested]
+  const char* FindSubString_NoCase(ezStringView sStringToFind, const char* szStartSearchAt = nullptr) const; // [tested]
 
   /// Returns a pointer to the last occurrence of szStringToFind, or nullptr if none was found.
   /// szStartSearchAt allows to start searching at the end of the string (if it is nullptr) or at an earlier position.
-  const char* FindLastSubString(const char* szStringToFind, const char* szStartSearchAt = nullptr) const; // [tested]
+  const char* FindLastSubString(ezStringView sStringToFind, const char* szStartSearchAt = nullptr) const; // [tested]
 
   /// Returns a pointer to the last occurrence of szStringToFind, or nullptr if none was found. Case insensitive.
   /// szStartSearchAt allows to start searching at the end of the string (if it is nullptr) or at an earlier position.
-  const char* FindLastSubString_NoCase(const char* szStringToFind, const char* szStartSearchAt = nullptr) const; // [tested]
+  const char* FindLastSubString_NoCase(ezStringView sStringToFind, const char* szStartSearchAt = nullptr) const; // [tested]
 
   /// Searches for the word szSearchFor. If IsDelimiterCB returns true for both characters in front and back of the word, the position is
   /// returned. Otherwise nullptr.
-  const char* FindWholeWord(const char* szSearchFor, ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB,
-    const char* szStartSearchAt = nullptr) const; // [tested]
+  const char* FindWholeWord(const char* szSearchFor, ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB, const char* szStartSearchAt = nullptr) const; // [tested]
 
   /// Searches for the word szSearchFor. If IsDelimiterCB returns true for both characters in front and back of the word, the position is
   /// returned. Otherwise nullptr. Ignores case.
-  const char* FindWholeWord_NoCase(const char* szSearchFor, ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB,
-    const char* szStartSearchAt = nullptr) const; // [tested]
+  const char* FindWholeWord_NoCase(const char* szSearchFor, ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB, const char* szStartSearchAt = nullptr) const; // [tested]
 
   /// Compares this string with the other one. Returns 0 for equality, -1 if this string is 'smaller', 1 otherwise.
-  ezInt32 Compare(const char* pString2) const; // [tested]
+  ezInt32 Compare(ezStringView sOther) const; // [tested]
 
   /// Compares up to a given number of characters of this string with the other one. Returns 0 for equality, -1 if this string is 'smaller',
   /// 1 otherwise.
-  ezInt32 CompareN(const char* pString2, ezUInt32 uiCharsToCompare) const; // [tested]
+  ezInt32 CompareN(ezStringView sOther, ezUInt32 uiCharsToCompare) const; // [tested]
 
   /// Compares this string with the other one. Returns 0 for equality, -1 if this string is 'smaller', 1 otherwise. Case insensitive.
-  ezInt32 Compare_NoCase(const char* pString2) const; // [tested]
+  ezInt32 Compare_NoCase(ezStringView sOther) const; // [tested]
 
   /// Compares up to a given number of characters of this string with the other one. Returns 0 for equality, -1 if this string is 'smaller',
   /// 1 otherwise. Case insensitive.
-  ezInt32 CompareN_NoCase(const char* pString2, ezUInt32 uiCharsToCompare) const; // [tested]
+  ezInt32 CompareN_NoCase(ezStringView sOther, ezUInt32 uiCharsToCompare) const; // [tested]
 
   /// Compares this string with the other string for equality.
-  bool IsEqual(const char* pString2) const; // [tested]
+  bool IsEqual(ezStringView sOther) const; // [tested]
 
   /// Compares up to a given number of characters of this string with the other string for equality. Case insensitive.
-  bool IsEqualN(const char* pString2, ezUInt32 uiCharsToCompare) const; // [tested]
+  bool IsEqualN(ezStringView sOther, ezUInt32 uiCharsToCompare) const; // [tested]
 
   /// Compares this string with the other string for equality.
-  bool IsEqual_NoCase(const char* pString2) const; // [tested]
+  bool IsEqual_NoCase(ezStringView sOther) const; // [tested]
 
   /// Compares up to a given number of characters of this string with the other string for equality. Case insensitive.
-  bool IsEqualN_NoCase(const char* pString2, ezUInt32 uiCharsToCompare) const; // [tested]
+  bool IsEqualN_NoCase(ezStringView sOther, ezUInt32 uiCharsToCompare) const; // [tested]
 
   /// \brief Computes the pointer to the n-th character in the string. This is a linear search from the start.
   const char* ComputeCharacterPosition(ezUInt32 uiCharacterIndex) const;
@@ -102,6 +100,12 @@ public:
 
   /// \brief Returns a string view to this string's data.
   operator ezStringView() const; // [tested]
+
+  /// \brief Returns a string view to this string's data.
+  ezStringView GetView() const; // [tested]
+
+  /// \brief Returns a pointer to the internal Utf8 string.
+  EZ_ALWAYS_INLINE operator const char* () const { return InternalGetData(); }
 
 private:
   const char* InternalGetData() const;
@@ -134,35 +138,34 @@ private:
 
 
 private: // friends
-  template <typename DerivedLhs, typename DerivedRhs>
-  friend bool operator==(const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs);
+  //template <typename DerivedLhs, typename DerivedRhs>
+  //friend bool operator==(const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs);
 
-  template <typename DerivedLhs, typename DerivedRhs>
-  friend bool operator!=(const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs);
+  //template <typename DerivedLhs, typename DerivedRhs>
+  //friend bool operator!=(const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs);
 
-  template <typename DerivedLhs, typename DerivedRhs>
-  friend bool operator<(const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs);
+  //template <typename DerivedLhs, typename DerivedRhs>
+  //friend bool operator<(const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs);
 
-  template <typename DerivedLhs, typename DerivedRhs>
-  friend bool operator>(const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs);
+  //template <typename DerivedLhs, typename DerivedRhs>
+  //friend bool operator>(const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs);
 
-  template <typename DerivedLhs, typename DerivedRhs>
-  friend bool operator<=(const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs);
+  //template <typename DerivedLhs, typename DerivedRhs>
+  //friend bool operator<=(const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs);
 
-  template <typename DerivedLhs, typename DerivedRhs>
-  friend bool operator>=(const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs);
+  //template <typename DerivedLhs, typename DerivedRhs>
+  //friend bool operator>=(const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs);
 
-  template <typename T, bool isString>
-  friend struct ezInternal::HashHelperImpl;
+  //template <typename T, bool isString>
+  //friend struct ezInternal::HashHelperImpl;
 
-  template <typename T>
-  friend struct ezCompareHelper;
+  //template <typename T>
+  //friend struct ezCompareHelper;
 
-  friend struct ezCompareString_NoCase;
+  //friend struct ezCompareString_NoCase;
 
-  friend struct ezHashHelperString_NoCase;
+  //friend struct ezHashHelperString_NoCase;
 };
-
 
 template <typename Derived>
 typename ezStringBase<Derived>::iterator begin(const ezStringBase<Derived>& container)

@@ -139,12 +139,6 @@ public:
   /// \brief Returns the allocator that is used by this object.
   ezAllocatorBase* GetAllocator() const;
 
-  /// \brief Returns a string view to this string's data.
-  ezStringView GetView() const;
-
-  /// \brief Returns a pointer to the internal Utf8 string.
-  EZ_ALWAYS_INLINE operator const char*() const { return GetData(); }
-
   /// \brief Resets this string to be empty. Does not deallocate any previously allocated data, as it might be reused later again.
   void Clear(); // [tested]
 
