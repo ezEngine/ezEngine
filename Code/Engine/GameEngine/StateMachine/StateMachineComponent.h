@@ -28,7 +28,7 @@ class ezStateMachineState_SendMsg : public ezStateMachineState
   EZ_ADD_DYNAMIC_REFLECTION(ezStateMachineState_SendMsg, ezStateMachineState);
 
 public:
-  ezStateMachineState_SendMsg(const char* szName = nullptr);
+  ezStateMachineState_SendMsg(ezStringView sName = ezStringView());
   ~ezStateMachineState_SendMsg();
 
   virtual void OnEnter(ezStateMachineInstance& instance, void* pInstanceData, const ezStateMachineState* pFromState) const override;

@@ -38,8 +38,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStateMachineState_SendMsg, 1, ezRTTIDefaultAll
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezStateMachineState_SendMsg::ezStateMachineState_SendMsg(const char* szName /*= nullptr*/)
-  : ezStateMachineState(szName)
+ezStateMachineState_SendMsg::ezStateMachineState_SendMsg(ezStringView sName)
+  : ezStateMachineState(sName)
 {
 }
 

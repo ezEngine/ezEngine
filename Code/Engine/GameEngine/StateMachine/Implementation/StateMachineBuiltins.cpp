@@ -22,8 +22,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStateMachineState_NestedStateMachine, 1, ezRTT
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezStateMachineState_NestedStateMachine::ezStateMachineState_NestedStateMachine(const char* szName /*= nullptr*/)
-  : ezStateMachineState(szName)
+ezStateMachineState_NestedStateMachine::ezStateMachineState_NestedStateMachine(ezStringView sName)
+  : ezStateMachineState(sName)
 {
 }
 

@@ -9,7 +9,7 @@ class EZ_GAMEENGINE_DLL ezStateMachineState_NestedStateMachine : public ezStateM
   EZ_ADD_DYNAMIC_REFLECTION(ezStateMachineState_NestedStateMachine, ezStateMachineState);
 
 public:
-  ezStateMachineState_NestedStateMachine(const char* szName = nullptr);
+  ezStateMachineState_NestedStateMachine(ezStringView sName = ezStringView());
   ~ezStateMachineState_NestedStateMachine();
 
   virtual void OnEnter(ezStateMachineInstance& instance, void* pInstanceData, const ezStateMachineState* pFromState) const override;
