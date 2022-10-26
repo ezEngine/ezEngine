@@ -105,7 +105,7 @@ public:
 
   /// \brief Defines which state should be used as initial state after the state machine was instantiated.
   /// If empty the state machine resource defines the initial state.
-  void SetInitialState(const char* szName);                        // [ property ]
+  void SetInitialState(const char* szName);                       // [ property ]
   const char* GetInitialState() const { return m_sInitialState; } // [ property ]
 
   /// \brief Sets the current state with the given name.
