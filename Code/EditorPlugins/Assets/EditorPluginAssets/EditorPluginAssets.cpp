@@ -515,6 +515,28 @@ static void ConfigureImageDataAsset()
   }
 }
 
+static void ConfigureStateMachineAsset()
+{
+  // Menu Bar
+  {
+    ezActionMapManager::RegisterActionMap("StateMachineAssetMenuBar").IgnoreResult();
+
+    ezStandardMenus::MapActions("StateMachineAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+    ezProjectActions::MapActions("StateMachineAssetMenuBar");
+    ezDocumentActions::MapActions("StateMachineAssetMenuBar", "Menu.File", false);
+    ezCommandHistoryActions::MapActions("StateMachineAssetMenuBar", "Menu.Edit");
+    ezEditActions::MapActions("StateMachineAssetMenuBar", "Menu.Edit", false, false);
+  }
+
+  // Tool Bar
+  {
+    ezActionMapManager::RegisterActionMap("StateMachineAssetToolBar").IgnoreResult();
+    ezDocumentActions::MapActions("StateMachineAssetToolBar", "", true);
+    ezCommandHistoryActions::MapActions("StateMachineAssetToolBar", "");
+    ezAssetActions::MapActions("StateMachineAssetToolBar", true);
+  }
+}
+
 ezVariant CustomAction_CreateShaderFromTemplate(const ezDocument* pDoc)
 {
   ezQtShaderTemplateDlg dlg(nullptr, pDoc);
@@ -556,6 +578,7 @@ void OnLoadPlugin()
   ConfigureSkeletonAsset();
   ConfigureAnimatedMeshAsset();
   ConfigureImageDataAsset();
+  ConfigureStateMachineAsset();
 
   ezDocumentManager::s_CustomActions["CustomAction_CreateShaderFromTemplate"] = CustomAction_CreateShaderFromTemplate;
 }

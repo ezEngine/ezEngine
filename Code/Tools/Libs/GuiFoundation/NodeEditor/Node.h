@@ -65,6 +65,8 @@ public:
 
   void SetActive(bool active);
 
+  virtual void ExtendContextMenu(QMenu& menu) {}
+
 protected:
   virtual void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override;
   virtual QVariant itemChange(GraphicsItemChange change, const QVariant& value) override;

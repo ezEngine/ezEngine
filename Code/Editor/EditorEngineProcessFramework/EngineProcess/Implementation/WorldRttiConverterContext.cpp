@@ -50,7 +50,7 @@ void ezWorldRttiConverterContext::DeleteExistingObjects()
   // m_OtherPickingMap.Clear(); // do not clear this
 }
 
-void* ezWorldRttiConverterContext::CreateObject(const ezUuid& guid, const ezRTTI* pRtti)
+ezInternal::NewInstance<void> ezWorldRttiConverterContext::CreateObject(const ezUuid& guid, const ezRTTI* pRtti)
 {
   EZ_ASSERT_DEBUG(pRtti != nullptr, "Object type is unknown");
 
@@ -73,7 +73,7 @@ void* ezWorldRttiConverterContext::CreateObject(const ezUuid& guid, const ezRTTI
       e.m_ObjectGuid = guid;
       m_Events.Broadcast(e);
 
-      return pObject;
+      return {pObject, nullptr};
     }
     else
     {
@@ -96,7 +96,7 @@ void* ezWorldRttiConverterContext::CreateObject(const ezUuid& guid, const ezRTTI
     if (pMan->TryGetComponent(hComponent, pComponent))
     {
       RegisterObject(guid, pRtti, pComponent);
-      return pComponent;
+      return {pComponent, nullptr};
     }
     else
     {

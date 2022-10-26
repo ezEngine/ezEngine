@@ -451,6 +451,46 @@ export class FakeRopeComponent extends Component
   set WindInfluence(value: number) { __CPP_ComponentProperty_set(this, 47944905, value); }
 }
 
+export class FmodComponent extends Component
+{
+  public static GetTypeNameHash(): number { return 3900472244; }
+}
+
+export class FmodEventComponent extends FmodComponent
+{
+  public static GetTypeNameHash(): number { return 2814833380; }
+  Restart(): void { __CPP_ComponentFunction_Call(this, 958670764); }
+  StartOneShot(): void { __CPP_ComponentFunction_Call(this, 1161139504); }
+  StopSound(Immediate: boolean): void { __CPP_ComponentFunction_Call(this, 502299734, Immediate); }
+  SoundCue(): void { __CPP_ComponentFunction_Call(this, 366471496); }
+  SetEventParameter(ParamName: string, Value: number): void { __CPP_ComponentFunction_Call(this, 2121876374, ParamName, Value); }
+  get Paused(): boolean { return __CPP_ComponentProperty_get(this, 3424531128); }
+  set Paused(value: boolean) { __CPP_ComponentProperty_set(this, 3424531128, value); }
+  get Volume(): number { return __CPP_ComponentProperty_get(this, 4162464906); }
+  set Volume(value: number) { __CPP_ComponentProperty_set(this, 4162464906, value); }
+  get Pitch(): number { return __CPP_ComponentProperty_get(this, 3779070326); }
+  set Pitch(value: number) { __CPP_ComponentProperty_set(this, 3779070326, value); }
+  get SoundEvent(): string { return __CPP_ComponentProperty_get(this, 2550082732); }
+  set SoundEvent(value: string) { __CPP_ComponentProperty_set(this, 2550082732, value); }
+  get UseOcclusion(): boolean { return __CPP_ComponentProperty_get(this, 1709596494); }
+  set UseOcclusion(value: boolean) { __CPP_ComponentProperty_set(this, 1709596494, value); }
+  get OcclusionThreshold(): number { return __CPP_ComponentProperty_get(this, 1819793160); }
+  set OcclusionThreshold(value: number) { __CPP_ComponentProperty_set(this, 1819793160, value); }
+  get OcclusionCollisionLayer(): number { return __CPP_ComponentProperty_get(this, 372633314); }
+  set OcclusionCollisionLayer(value: number) { __CPP_ComponentProperty_set(this, 372633314, value); }
+  get OnFinishedAction(): Enum.OnComponentFinishedAction { return __CPP_ComponentProperty_get(this, 2674070426); }
+  set OnFinishedAction(value: Enum.OnComponentFinishedAction) { __CPP_ComponentProperty_set(this, 2674070426, value); }
+  get ShowDebugInfo(): boolean { return __CPP_ComponentProperty_get(this, 2784458228); }
+  set ShowDebugInfo(value: boolean) { __CPP_ComponentProperty_set(this, 2784458228, value); }
+}
+
+export class FmodListenerComponent extends FmodComponent
+{
+  public static GetTypeNameHash(): number { return 98225585; }
+  get ListenerIndex(): number { return __CPP_ComponentProperty_get(this, 826440037); }
+  set ListenerIndex(value: number) { __CPP_ComponentProperty_set(this, 826440037, value); }
+}
+
 export class FogComponent extends SettingsComponent
 {
   public static GetTypeNameHash(): number { return 3095518117; }
@@ -1029,6 +1069,16 @@ export class StageSpaceComponent extends Component
   public static GetTypeNameHash(): number { return 3814358307; }
   get StageSpace(): Enum.XRStageSpace { return __CPP_ComponentProperty_get(this, 3796859176); }
   set StageSpace(value: Enum.XRStageSpace) { __CPP_ComponentProperty_set(this, 3796859176, value); }
+}
+
+export class StateMachineComponent extends Component
+{
+  public static GetTypeNameHash(): number { return 71440247; }
+  SetState(Name: string): boolean { return __CPP_ComponentFunction_Call(this, 3119358439, Name); }
+  get Resource(): string { return __CPP_ComponentProperty_get(this, 3553976178); }
+  set Resource(value: string) { __CPP_ComponentProperty_set(this, 3553976178, value); }
+  get InitialState(): string { return __CPP_ComponentProperty_get(this, 3055923916); }
+  set InitialState(value: string) { __CPP_ComponentProperty_set(this, 3055923916, value); }
 }
 
 export class TimedDeathComponent extends Component

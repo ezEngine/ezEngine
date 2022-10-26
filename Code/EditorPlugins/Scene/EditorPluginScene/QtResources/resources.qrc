@@ -82,6 +82,7 @@
     <file>ezSensorConeComponent.svg</file>
     <file>ezSensorCylinderComponent.svg</file>
     <file>ezSensorSphereComponent.svg</file>
+    <file>ezStateMachineComponent.svg</file>
   </qresource>
   <qresource prefix="GroupIcons">
     <file>Size.png</file>

@@ -286,3 +286,12 @@ Surface;Surface
 Texture 2D;Texture 2D
 Texture Cube;Texture Cube
 Visual Script;Visual Script
+StateMachine;State Machine
+ezStateMachineNode;New State
+ezStateMachineNodeAny;New Any State
+ezStateMachineState_SendMsg;Send Message State
+ezStateMachineState_NestedStateMachine;Nested State Machine
+ezStateMachineTransition_BlackboardConditions;Blackboard Conditions
+Type;Type
+Conditions;Conditions
+ezBlackboardCondition;Blackboard Condition

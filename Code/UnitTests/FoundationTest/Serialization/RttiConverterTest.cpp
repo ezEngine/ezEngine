@@ -14,9 +14,9 @@ EZ_CREATE_SIMPLE_TEST_GROUP(Serialization);
 class TestContext : public ezRttiConverterContext
 {
 public:
-  virtual void* CreateObject(const ezUuid& guid, const ezRTTI* pRtti) override
+  virtual ezInternal::NewInstance<void> CreateObject(const ezUuid& guid, const ezRTTI* pRtti) override
   {
-    void* pObj = pRtti->GetAllocator()->Allocate<void>();
+    auto pObj = pRtti->GetAllocator()->Allocate<void>();
     RegisterObject(guid, pRtti, pObj);
     return pObj;
   }

@@ -120,32 +120,20 @@ public:
   ezVariant GetEntryValue(const ezTempHashedString& name) const;
 
   /// \brief Grants read access to the entire map of entries.
-  const ezHashTable<ezHashedString, Entry>& GetAllEntries() const
-  {
-    return m_Entries;
-  }
+  const ezHashTable<ezHashedString, Entry>& GetAllEntries() const { return m_Entries; }
 
   /// \brief Allows you to register to the OnEntryEvent. This is broadcast whenever an entry is modified that has the flag ezBlackboardEntryFlags::OnChangeEvent.
-  const ezEvent<EntryEvent>& OnEntryEvent() const
-  {
-    return m_EntryEvents;
-  }
+  const ezEvent<EntryEvent>& OnEntryEvent() const { return m_EntryEvents; }
 
   /// \brief This counter is increased every time an entry is added or removed (but not when it is modified).
   ///
   /// Comparing this value to a previous known value allows to quickly detect whether the set of entries has changed.
-  ezUInt32 GetBlackboardChangeCounter() const
-  {
-    return m_uiBlackboardChangeCounter;
-  }
+  ezUInt32 GetBlackboardChangeCounter() const { return m_uiBlackboardChangeCounter; }
 
   /// \brief This counter is increased every time any entry's value is modified.
   ///
   /// Comparing this value to a previous known value allows to quickly detect whether any entry has changed recently.
-  ezUInt32 GetBlackboardEntryChangeCounter() const
-  {
-    return m_uiBlackboardEntryChangeCounter;
-  }
+  ezUInt32 GetBlackboardEntryChangeCounter() const { return m_uiBlackboardEntryChangeCounter; }
 
   /// \brief Stores all entries that have the 'Save' flag in the stream.
   ezResult Serialize(ezStreamWriter& stream) const;
@@ -163,3 +151,22 @@ private:
   ezUInt32 m_uiBlackboardEntryChangeCounter = 0;
   ezHashTable<ezHashedString, Entry> m_Entries;
 };
+
+//////////////////////////////////////////////////////////////////////////
+
+struct EZ_CORE_DLL ezBlackboardCondition
+{
+  ezHashedString m_sEntryName;
+  double m_fComparisonValue = 0.0;
+  ezEnum<ezComparisonOperator> m_Operator;
+
+  bool IsConditionMet(const ezBlackboard& blackboard) const;
+
+  ezResult Serialize(ezStreamWriter& stream) const;
+  ezResult Deserialize(ezStreamReader& stream);
+
+  const char* GetEntryName() const { return m_sEntryName; }
+  void SetEntryName(const char* szName) { m_sEntryName.Assign(szName); }
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezBlackboardCondition);

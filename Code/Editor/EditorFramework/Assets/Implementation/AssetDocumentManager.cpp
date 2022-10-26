@@ -60,7 +60,7 @@ ezStatus ezAssetDocumentManager::ReadAssetDocumentInfo(ezUniquePtr<ezAssetDocume
   if (pHeaderNode == nullptr)
     return ezStatus("Document does not contain a 'Header'");
 
-  ezAssetDocumentInfo* pEntry = static_cast<ezAssetDocumentInfo*>(rttiConverter.CreateObjectFromNode(pHeaderNode));
+  ezAssetDocumentInfo* pEntry = rttiConverter.CreateObjectFromNode(pHeaderNode).Cast<ezAssetDocumentInfo>();
   EZ_ASSERT_DEBUG(pEntry != nullptr, "Failed to deserialize ezAssetDocumentInfo!");
   out_pInfo = ezUniquePtr<ezAssetDocumentInfo>(pEntry, ezFoundation::GetDefaultAllocator());
   return ezStatus(EZ_SUCCESS);

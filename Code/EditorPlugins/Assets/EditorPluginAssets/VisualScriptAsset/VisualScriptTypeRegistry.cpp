@@ -61,10 +61,10 @@ namespace
 EZ_IMPLEMENT_SINGLETON(ezVisualScriptTypeRegistry);
 
 // clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, VisualScript)
+EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorPluginAssets, VisualScript)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
-  "PluginAssets", "ReflectedTypeManager"
+    "ReflectedTypeManager"
   END_SUBSYSTEM_DEPENDENCIES
 
   ON_CORESYSTEMS_STARTUP

@@ -32,13 +32,13 @@ ezUuid ezRttiConverterContext::GenerateObjectGuid(const ezUuid& parentGuid, cons
   return guid;
 }
 
-void* ezRttiConverterContext::CreateObject(const ezUuid& guid, const ezRTTI* pRtti)
+ezInternal::NewInstance<void> ezRttiConverterContext::CreateObject(const ezUuid& guid, const ezRTTI* pRtti)
 {
   EZ_ASSERT_DEBUG(pRtti != nullptr, "Cannot create object, RTTI type is unknown");
   if (!pRtti->GetAllocator() || !pRtti->GetAllocator()->CanAllocate())
     return nullptr;
 
-  void* pObj = pRtti->GetAllocator()->Allocate<void>();
+  auto pObj = pRtti->GetAllocator()->Allocate<void>();
   RegisterObject(guid, pRtti, pObj);
   return pObj;
 }

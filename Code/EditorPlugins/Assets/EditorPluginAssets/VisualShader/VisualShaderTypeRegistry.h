@@ -80,7 +80,7 @@ public:
   void UpdateNodeData(const char* szCfgFileRelative);
 
 private:
-  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(EditorFramework, VisualShader);
+  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(EditorPluginAssets, VisualShader);
 
   void LoadNodeData();
   const ezRTTI* GenerateTypeFromDesc(const ezVisualShaderNodeDescriptor& desc);
