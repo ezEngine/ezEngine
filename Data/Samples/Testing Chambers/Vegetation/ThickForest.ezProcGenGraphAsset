@@ -11,7 +11,7 @@ o
 		s %AssetType{"ProcGen Graph"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{11212234289642059194,4637845551590943091}}
-		u4 %Hash{11676253133333803896}
+		u4 %Hash{636537976352460239}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -32,18 +32,6 @@ o
 }
 Objects
 {
-o
-{
-	Uuid %id{u4{9377507583075110099,254879883778411489}}
-	s %t{"DocumentNodeManagerConnectionInternal"}
-	u3 %v{1}
-	p
-	{
-		s %SourcePin{"Value"}
-		Uuid %Target{u4{17318022188094043471,10193503723611707000}}
-		s %TargetPin{"Density"}
-	}
-}
 o
 {
 	Uuid %id{u4{3185465590721845903,675580110127191340}}
@@ -74,22 +62,23 @@ o
 }
 o
 {
-	Uuid %id{u4{1910105121170792801,2510891914608110459}}
-	s %t{"DocumentNodeManagerConnectionInternal"}
-	u3 %v{1}
-	p
-	{
-		s %SourcePin{"Value"}
-		Uuid %Target{u4{11095407931685293014,15063649965740399571}}
-		s %TargetPin{"Density"}
-	}
-}
-o
-{
 	Uuid %id{u4{3624584070298217264,2542264211529665525}}
 	s %t{"ezRenderPipelineNodeInputPin"}
 	u3 %v{1}
 	p{}
+}
+o
+{
+	Uuid %id{u4{9831880711089096616,4783948115393526391}}
+	s %t{"DocumentNodeManager_DefaultConnection"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Connection::Source{u4{1609146095160100947,10350911148129115697}}
+		s %Connection::SourcePin{"Value"}
+		Uuid %Connection::Target{u4{4883770800960183447,5175797913140972920}}
+		s %Connection::TargetPin{"A"}
+	}
 }
 o
 {
@@ -98,10 +87,6 @@ o
 	u3 %v{1}
 	p
 	{
-		VarArray %Node::Connections
-		{
-			Uuid{u4{10907700307223160867,18315153807671208361}}
-		}
 		Vec2 %Node::Pos{f{0xC68D8344,0x47138744}}
 		u3 %NumOctaves{3}
 		Vec3 %Offset{f{0,0,0}}
@@ -109,6 +94,19 @@ o
 		f %OutputMin{0}
 		Vec3 %Scale{f{0x00002041,0x00002041,0x00002041}}
 		Uuid %Value{u4{1932222591278378949,15103096557360009858}}
+	}
+}
+o
+{
+	Uuid %id{u4{8098696933173837716,4856876226557470320}}
+	s %t{"DocumentNodeManager_DefaultConnection"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Connection::Source{u4{15619621848996766087,4833179476461454807}}
+		s %Connection::SourcePin{"Value"}
+		Uuid %Connection::Target{u4{4883770800960183447,5175797913140972920}}
+		s %Connection::TargetPin{"B"}
 	}
 }
 o
@@ -131,7 +129,6 @@ o
 		Vec3 %MinOffset{f{0x0000803F,0x0000803F,0x9A9919BF}}
 		Vec3 %MinScale{f{0x3333333F,0x3333333F,0x3333333F}}
 		s %Name{"Trees"}
-		VarArray %Node::Connections{}
 		Vec2 %Node::Pos{f{0x8C15B544,0xFEE63344}}
 		Uuid %ObjectIndex{u4{10962629707989849769,17680149162351132219}}
 		VarArray %Objects
@@ -148,6 +145,19 @@ o
 }
 o
 {
+	Uuid %id{u4{15371641216340233371,5001336765416267819}}
+	s %t{"DocumentNodeManager_DefaultConnection"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Connection::Source{u4{1507394232540889005,5266196713061815143}}
+		s %Connection::SourcePin{"Value"}
+		Uuid %Connection::Target{u4{8601754667010464145,4858791763714360891}}
+		s %Connection::TargetPin{"Density"}
+	}
+}
+o
+{
 	Uuid %id{u4{4883770800960183447,5175797913140972920}}
 	s %t{"ezProcGen_Blend"}
 	u3 %v{2}
@@ -158,10 +168,6 @@ o
 		b %ClampOutput{0}
 		f %InputA{0x0000803F}
 		f %InputB{0x0000803F}
-		VarArray %Node::Connections
-		{
-			Uuid{u4{9377507583075110099,254879883778411489}}
-		}
 		Vec2 %Node::Pos{f{0x9C2F9944,0xE8457944}}
 		s %Operator{"ezProcGenBinaryOperator::Multiply"}
 		Uuid %Value{u4{16112760481851050706,8205119088517237268}}
@@ -177,13 +183,35 @@ o
 		f %LowerFade{0}
 		Angle %MaxSlope{f{0x920A063F}}
 		Angle %MinSlope{f{0}}
-		VarArray %Node::Connections
-		{
-			Uuid{u4{11380840106430392520,9873587338443536785}}
-		}
 		Vec2 %Node::Pos{f{0xE3438144,0x27A53144}}
 		f %UpperFade{0xCDCC4C3E}
 		Uuid %Value{u4{6390096811003672162,17833461069784764133}}
+	}
+}
+o
+{
+	Uuid %id{u4{11742221483968822171,5449309251948438738}}
+	s %t{"DocumentNodeManager_DefaultConnection"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Connection::Source{u4{4883770800960183447,5175797913140972920}}
+		s %Connection::SourcePin{"Value"}
+		Uuid %Connection::Target{u4{17318022188094043471,10193503723611707000}}
+		s %Connection::TargetPin{"Density"}
+	}
+}
+o
+{
+	Uuid %id{u4{6345767080277350035,5454988632297665951}}
+	s %t{"DocumentNodeManager_DefaultConnection"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Connection::Source{u4{16600160950372042245,14966675785173787356}}
+		s %Connection::SourcePin{"Value"}
+		Uuid %Connection::Target{u4{11095407931685293014,15063649965740399571}}
+		s %Connection::TargetPin{"Density"}
 	}
 }
 o
@@ -204,6 +232,11 @@ o
 			Uuid{u4{16600160950372042245,14966675785173787356}}
 			Uuid{u4{15619621848996766087,4833179476461454807}}
 			Uuid{u4{4883770800960183447,5175797913140972920}}
+			Uuid{u4{8098696933173837716,4856876226557470320}}
+			Uuid{u4{11742221483968822171,5449309251948438738}}
+			Uuid{u4{15371641216340233371,5001336765416267819}}
+			Uuid{u4{9831880711089096616,4783948115393526391}}
+			Uuid{u4{6345767080277350035,5454988632297665951}}
 		}
 	}
 }
@@ -251,18 +284,6 @@ o
 }
 o
 {
-	Uuid %id{u4{11380840106430392520,9873587338443536785}}
-	s %t{"DocumentNodeManagerConnectionInternal"}
-	u3 %v{1}
-	p
-	{
-		s %SourcePin{"Value"}
-		Uuid %Target{u4{8601754667010464145,4858791763714360891}}
-		s %TargetPin{"Density"}
-	}
-}
-o
-{
 	Uuid %id{u4{17318022188094043471,10193503723611707000}}
 	s %t{"ezProcGen_PlacementOutput"}
 	u3 %v{1}
@@ -281,7 +302,6 @@ o
 		Vec3 %MinOffset{f{0x000000BF,0x000000BF,0}}
 		Vec3 %MinScale{f{0x3333333F,0x3333333F,0x3333333F}}
 		s %Name{"Fern"}
-		VarArray %Node::Connections{}
 		Vec2 %Node::Pos{f{0xFA09B444,0x82E26F44}}
 		Uuid %ObjectIndex{u4{3624584070298217264,2542264211529665525}}
 		VarArray %Objects
@@ -304,10 +324,6 @@ o
 		f %LowerFade{0}
 		Angle %MaxSlope{f{0xC2B8323F}}
 		Angle %MinSlope{f{0}}
-		VarArray %Node::Connections
-		{
-			Uuid{u4{637981378059543094,16267861196139614231}}
-		}
 		Vec2 %Node::Pos{f{0xEC2C7544,0x26D86A44}}
 		f %UpperFade{0xCDCC4C3E}
 		Uuid %Value{u4{10434017590400955329,7722508739435561052}}
@@ -344,10 +360,6 @@ o
 		f %LowerFade{0}
 		Angle %MaxSlope{f{0xF3665F3F}}
 		Angle %MinSlope{f{0}}
-		VarArray %Node::Connections
-		{
-			Uuid{u4{1910105121170792801,2510891914608110459}}
-		}
 		Vec2 %Node::Pos{f{0xA6E96E44,0xC3D69D44}}
 		f %UpperFade{0xCDCC4C3E}
 		Uuid %Value{u4{16445303618759427592,987265279439665097}}
@@ -373,7 +385,6 @@ o
 		Vec3 %MinOffset{f{0x0000003F,0x0000003F,0}}
 		Vec3 %MinScale{f{0x9A99993E,0x9A99993E,0x9A99993E}}
 		s %Name{"Rocks"}
-		VarArray %Node::Connections{}
 		Vec2 %Node::Pos{f{0x6A46B244,0x42E18F44}}
 		Uuid %ObjectIndex{u4{6465513291391804678,885770289980241172}}
 		VarArray %Objects
@@ -404,18 +415,6 @@ o
 }
 o
 {
-	Uuid %id{u4{637981378059543094,16267861196139614231}}
-	s %t{"DocumentNodeManagerConnectionInternal"}
-	u3 %v{1}
-	p
-	{
-		s %SourcePin{"Value"}
-		Uuid %Target{u4{4883770800960183447,5175797913140972920}}
-		s %TargetPin{"A"}
-	}
-}
-o
-{
 	Uuid %id{u4{14524172235168077613,16706364264459226522}}
 	s %t{"ezRenderPipelineNodeInputPin"}
 	u3 %v{1}
@@ -434,18 +433,6 @@ o
 	s %t{"ezRenderPipelineNodeOutputPin"}
 	u3 %v{1}
 	p{}
-}
-o
-{
-	Uuid %id{u4{10907700307223160867,18315153807671208361}}
-	s %t{"DocumentNodeManagerConnectionInternal"}
-	u3 %v{1}
-	p
-	{
-		s %SourcePin{"Value"}
-		Uuid %Target{u4{4883770800960183447,5175797913140972920}}
-		s %TargetPin{"B"}
-	}
 }
 }
 Types
@@ -573,6 +560,24 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezProcGen_Slope"}
 		u3 %TypeSize{40}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{1988646526571382668,10729334715299371304}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"DocumentNodeManager_DefaultConnection"}
+		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
 	}
 }

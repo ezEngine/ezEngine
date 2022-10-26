@@ -11,7 +11,7 @@ o
 		s %AssetType{"ProcGen Graph"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{12029954962534532266,5346896610498349464}}
-		u4 %Hash{5625122791755209104}
+		u4 %Hash{2687546155864030440}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -52,7 +52,6 @@ o
 		Vec3 %MinOffset{f{0x00000040,0x00000040,0xCDCC4CBE}}
 		Vec3 %MinScale{f{0x3333333F,0x3333333F,0x3333333F}}
 		s %Name{"Trees"}
-		VarArray %Node::Connections{}
 		Vec2 %Node::Pos{f{0xDB86DD44,0x12ED3644}}
 		Uuid %ObjectIndex{u4{1908035079840421668,10913566884444882326}}
 		VarArray %Objects
@@ -60,8 +59,10 @@ o
 			s{"{ 3837dd47-58a1-4659-a678-a88416d16fc0 }"}
 			s{"{ e8c45e75-2e03-4758-852c-a51ff3947c78 }"}
 		}
+		s %PlacementMode{"ezProcPlacementMode::Raycast"}
 		Uuid %Scale{u4{3802373625921773586,6217822183134204743}}
 		s %Surface{"{ 2987eede-0d7c-4750-9043-0215249e52c0 }"}
+		Angle %YawRotationSnap{f{0}}
 	}
 }
 o
@@ -140,6 +141,24 @@ o
 }
 o
 {
+	Uuid %id{u4{3627846553228186833,8172653477508236746}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginProcGen"}
+		VarArray %Properties{}
+		s %TypeName{"ezProcPlacementMode"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{6089094783765586323,8705960867921430659}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -188,7 +207,25 @@ o
 		s %PluginName{"ezEditorPluginProcGen"}
 		VarArray %Properties{}
 		s %TypeName{"ezProcGen_PlacementOutput"}
-		u3 %TypeSize{648}
+		u3 %TypeSize{664}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{2947336711354777548,15013008608905564043}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezEnumBase"}
+		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }

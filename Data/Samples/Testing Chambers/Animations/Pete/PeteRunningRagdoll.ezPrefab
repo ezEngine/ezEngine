@@ -207,7 +207,7 @@ o
 	u3 %v{1}
 	p
 	{
-		s %Category{"Physics/PhysX/Animation"}
+		s %Category{"Physics/Jolt/Animation"}
 	}
 }
 o
@@ -224,7 +224,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSimpleAnimationComponent"}
-		u3 %TypeSize{120}
+		u3 %TypeSize{112}
 		u3 %TypeVersion{1}
 	}
 }

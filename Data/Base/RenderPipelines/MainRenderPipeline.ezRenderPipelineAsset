@@ -1405,7 +1405,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSelectedObjectsContext"}
-		u3 %TypeSize{56}
+		u3 %TypeSize{48}
 		u3 %TypeVersion{1}
 	}
 }

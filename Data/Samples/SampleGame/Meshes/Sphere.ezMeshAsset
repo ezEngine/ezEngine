@@ -11,7 +11,7 @@ o
 		s %AssetType{"Mesh"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{12612663120479945137,4877644392841999796}}
-		u4 %Hash{6830440633359738889}
+		u4 %Hash{8802718559998186989}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -35,27 +35,24 @@ o
 		b %Cap2{1}
 		u2 %Detail{16}
 		u2 %Detail2{16}
-		s %ForwardDir{"ezBasisAxis::NegativeZ"}
+		b %FlipForwardDir{0}
 		f %Height{0x0000803F}
 		b %ImportMaterials{1}
-		b %InvertNormals{0}
 		VarArray %Materials
 		{
 			Uuid{u4{17871674005896261775,5301799597885528819}}
 		}
 		s %MeshFile{""}
-		Vec3 %NonUniformScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		s %NormalPrecision{"ezMeshNormalPrecision::_10Bit"}
 		s %PrimitiveType{"ezMeshPrimitive::Sphere"}
 		f %Radius{0x0000003F}
 		f %Radius2{0x0000003F}
 		b %RecalculateNormals{0}
+		b %RecalculateTangents{1}
 		s %RightDir{"ezBasisAxis::PositiveX"}
-		s %SubmeshName{""}
 		s %TexCoordPrecision{"ezMeshTexCoordPrecision::_16Bit"}
 		f %UniformScaling{0x0000803F}
 		s %UpDir{"ezBasisAxis::PositiveY"}
-		b %UseSubfolderForMaterialImport{1}
 	}
 }
 o
@@ -118,7 +115,7 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezMeshAssetProperties"}
-		u3 %TypeSize{1248}
+		u3 %TypeSize{1240}
 		u3 %TypeVersion{3}
 	}
 }
@@ -154,7 +151,7 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezMaterialResourceSlot"}
-		u3 %TypeSize{128}
+		u3 %TypeSize{136}
 		u3 %TypeVersion{1}
 	}
 }

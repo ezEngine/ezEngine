@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{11845974537797661067,5568151536736489769}}
-		u4 %Hash{13739629243316954407}
+		u4 %Hash{2580761761710769176}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -1348,7 +1348,7 @@ o
 {
 	Uuid %id{u4{2141356971737664076,1716556867664669669}}
 	s %t{"ezSphereReflectionProbeComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -1364,6 +1364,8 @@ o
 		f %Radius{0x0000A040}
 		s %ReflectionProbeMode{"ezReflectionProbeMode::Static"}
 		b %ShowDebugInfo{0}
+		b %ShowMipMaps{0}
+		b %SphereProjection{0}
 	}
 }
 o
@@ -1814,7 +1816,7 @@ o
 {
 	Uuid %id{u4{18063049908337615209,1856190910591316532}}
 	s %t{"ezSphereReflectionProbeComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -1830,6 +1832,8 @@ o
 		f %Radius{0x0000A040}
 		s %ReflectionProbeMode{"ezReflectionProbeMode::Static"}
 		b %ShowDebugInfo{0}
+		b %ShowMipMaps{0}
+		b %SphereProjection{0}
 	}
 }
 o
@@ -2458,7 +2462,7 @@ o
 {
 	Uuid %id{u4{7749500737134386538,2034561234372674091}}
 	s %t{"ezSphereReflectionProbeComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -2474,6 +2478,8 @@ o
 		f %Radius{0x0000A040}
 		s %ReflectionProbeMode{"ezReflectionProbeMode::Static"}
 		b %ShowDebugInfo{0}
+		b %ShowMipMaps{0}
+		b %SphereProjection{0}
 	}
 }
 o
@@ -2862,7 +2868,7 @@ o
 {
 	Uuid %id{u4{8517679674059968601,2148953092780283760}}
 	s %t{"ezSphereReflectionProbeComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -2878,6 +2884,8 @@ o
 		f %Radius{0x0000A040}
 		s %ReflectionProbeMode{"ezReflectionProbeMode::Static"}
 		b %ShowDebugInfo{0}
+		b %ShowMipMaps{0}
+		b %SphereProjection{0}
 	}
 }
 o
@@ -3174,10 +3182,11 @@ o
 {
 	Uuid %id{u4{8734048777533981560,2246724834232336569}}
 	s %t{"ezBoxReflectionProbeComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		b %BoxProjection{1}
 		Vec3 %CaptureOffset{f{0,0,0}}
 		VarArray %ExcludeTags{}
 		Vec3 %Extents{f{0x0000A040,0x0000A040,0x0000A040}}
@@ -3193,6 +3202,7 @@ o
 		Vec3 %PositiveFalloff{f{0xCDCCCC3D,0xCDCCCC3D,0}}
 		s %ReflectionProbeMode{"ezReflectionProbeMode::Static"}
 		b %ShowDebugInfo{0}
+		b %ShowMipMaps{0}
 	}
 }
 o
@@ -3635,7 +3645,7 @@ o
 {
 	Uuid %id{u4{2031903916507889486,2364863296638544913}}
 	s %t{"ezSphereReflectionProbeComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -3651,6 +3661,8 @@ o
 		f %Radius{0x0000A040}
 		s %ReflectionProbeMode{"ezReflectionProbeMode::Static"}
 		b %ShowDebugInfo{0}
+		b %ShowMipMaps{0}
+		b %SphereProjection{0}
 	}
 }
 o
@@ -4181,10 +4193,11 @@ o
 {
 	Uuid %id{u4{3389402955635208820,2603793694261580032}}
 	s %t{"ezBoxReflectionProbeComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		b %BoxProjection{1}
 		Vec3 %CaptureOffset{f{0,0,0}}
 		VarArray %ExcludeTags{}
 		Vec3 %Extents{f{0x0000A040,0x0000A040,0x0000A040}}
@@ -4200,6 +4213,7 @@ o
 		Vec3 %PositiveFalloff{f{0xCDCCCC3D,0xCDCCCC3D,0}}
 		s %ReflectionProbeMode{"ezReflectionProbeMode::Static"}
 		b %ShowDebugInfo{0}
+		b %ShowMipMaps{0}
 	}
 }
 o
@@ -5312,6 +5326,7 @@ o
 		s %ReflectionProbeMode{"ezReflectionProbeMode::Static"}
 		f %Saturation{0x0000803F}
 		b %ShowDebugInfo{0}
+		b %ShowMipMaps{0}
 	}
 }
 o
@@ -5347,7 +5362,7 @@ o
 {
 	Uuid %id{u4{8363711328815807621,5251604528524473782}}
 	s %t{"ezSphereReflectionProbeComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -5363,16 +5378,19 @@ o
 		f %Radius{0x0000A040}
 		s %ReflectionProbeMode{"ezReflectionProbeMode::Static"}
 		b %ShowDebugInfo{0}
+		b %ShowMipMaps{0}
+		b %SphereProjection{0}
 	}
 }
 o
 {
 	Uuid %id{u4{15808707479783124354,5275418583918303042}}
 	s %t{"ezBoxReflectionProbeComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		b %BoxProjection{1}
 		Vec3 %CaptureOffset{f{0,0,0}}
 		VarArray %ExcludeTags{}
 		Vec3 %Extents{f{0x0000A040,0x0000A040,0x0000A040}}
@@ -5388,6 +5406,7 @@ o
 		Vec3 %PositiveFalloff{f{0xCDCCCC3D,0xCDCCCC3D,0}}
 		s %ReflectionProbeMode{"ezReflectionProbeMode::Static"}
 		b %ShowDebugInfo{0}
+		b %ShowMipMaps{0}
 	}
 }
 o
@@ -5595,7 +5614,7 @@ o
 {
 	Uuid %id{u4{10901276104343519474,7034444463026178383}}
 	s %t{"ezSphereReflectionProbeComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -5611,6 +5630,8 @@ o
 		f %Radius{0x0000A040}
 		s %ReflectionProbeMode{"ezReflectionProbeMode::Static"}
 		b %ShowDebugInfo{0}
+		b %ShowMipMaps{0}
+		b %SphereProjection{0}
 	}
 }
 o
@@ -5643,7 +5664,7 @@ o
 {
 	Uuid %id{u4{587726933140290803,7212814786807535942}}
 	s %t{"ezSphereReflectionProbeComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -5659,6 +5680,8 @@ o
 		f %Radius{0x0000A040}
 		s %ReflectionProbeMode{"ezReflectionProbeMode::Static"}
 		b %ShowDebugInfo{0}
+		b %ShowMipMaps{0}
+		b %SphereProjection{0}
 	}
 }
 o
@@ -5691,7 +5714,7 @@ o
 {
 	Uuid %id{u4{16509419869740241936,7352448829734182805}}
 	s %t{"ezSphereReflectionProbeComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -5707,16 +5730,19 @@ o
 		f %Radius{0x0000A040}
 		s %ReflectionProbeMode{"ezReflectionProbeMode::Static"}
 		b %ShowDebugInfo{0}
+		b %ShowMipMaps{0}
+		b %SphereProjection{0}
 	}
 }
 o
 {
 	Uuid %id{u4{5834635946984226566,7716738371890077654}}
 	s %t{"ezBoxReflectionProbeComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		b %BoxProjection{1}
 		Vec3 %CaptureOffset{f{0,0,0}}
 		VarArray %ExcludeTags{}
 		Vec3 %Extents{f{0x0000A040,0x0000A040,0x0000A040}}
@@ -5732,6 +5758,7 @@ o
 		Vec3 %PositiveFalloff{f{0xCDCCCC3D,0xCDCCCC3D,0}}
 		s %ReflectionProbeMode{"ezReflectionProbeMode::Static"}
 		b %ShowDebugInfo{0}
+		b %ShowMipMaps{0}
 	}
 }
 o
@@ -6272,10 +6299,11 @@ o
 {
 	Uuid %id{u4{9552951759279478572,10030018190235614946}}
 	s %t{"ezBoxReflectionProbeComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		b %BoxProjection{1}
 		Vec3 %CaptureOffset{f{0,0,0}}
 		VarArray %ExcludeTags{}
 		Vec3 %Extents{f{0x0000A040,0x0000A040,0x0000A040}}
@@ -6291,6 +6319,7 @@ o
 		Vec3 %PositiveFalloff{f{0xCDCCCC3D,0xCDCCCC3D,0}}
 		s %ReflectionProbeMode{"ezReflectionProbeMode::Static"}
 		b %ShowDebugInfo{0}
+		b %ShowMipMaps{0}
 	}
 }
 o
@@ -6401,7 +6430,7 @@ o
 {
 	Uuid %id{u4{6919534345448208938,10099556018693464811}}
 	s %t{"ezSphereReflectionProbeComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -6417,13 +6446,15 @@ o
 		f %Radius{0x0000A040}
 		s %ReflectionProbeMode{"ezReflectionProbeMode::Static"}
 		b %ShowDebugInfo{0}
+		b %ShowMipMaps{0}
+		b %SphereProjection{0}
 	}
 }
 o
 {
 	Uuid %id{u4{10747307759099358494,10137095898770368405}}
 	s %t{"ezSphereReflectionProbeComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -6439,6 +6470,8 @@ o
 		f %Radius{0x0000A040}
 		s %ReflectionProbeMode{"ezReflectionProbeMode::Static"}
 		b %ShowDebugInfo{0}
+		b %ShowMipMaps{0}
+		b %SphereProjection{0}
 	}
 }
 o
@@ -6675,7 +6708,7 @@ o
 {
 	Uuid %id{u4{1201937524821711886,10429858080959335633}}
 	s %t{"ezSphereReflectionProbeComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -6691,6 +6724,8 @@ o
 		f %Radius{0x0000A040}
 		s %ReflectionProbeMode{"ezReflectionProbeMode::Static"}
 		b %ShowDebugInfo{0}
+		b %ShowMipMaps{0}
+		b %SphereProjection{0}
 	}
 }
 o
@@ -6888,10 +6923,11 @@ o
 {
 	Uuid %id{u4{12544571506688609596,10825924623996078659}}
 	s %t{"ezBoxReflectionProbeComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		b %BoxProjection{1}
 		Vec3 %CaptureOffset{f{0,0,0}}
 		VarArray %ExcludeTags{}
 		Vec3 %Extents{f{0x0000A040,0x0000A040,0x0000A040}}
@@ -6907,6 +6943,7 @@ o
 		Vec3 %PositiveFalloff{f{0xCDCCCC3D,0xCDCCCC3D,0}}
 		s %ReflectionProbeMode{"ezReflectionProbeMode::Static"}
 		b %ShowDebugInfo{0}
+		b %ShowMipMaps{0}
 	}
 }
 o
@@ -6965,7 +7002,7 @@ o
 {
 	Uuid %id{u4{9347646065746146201,12530702382169044656}}
 	s %t{"ezSphereReflectionProbeComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -6981,6 +7018,8 @@ o
 		f %Radius{0x0000A040}
 		s %ReflectionProbeMode{"ezReflectionProbeMode::Static"}
 		b %ShowDebugInfo{0}
+		b %ShowMipMaps{0}
+		b %SphereProjection{0}
 	}
 }
 o
@@ -7797,7 +7836,7 @@ o
 {
 	Uuid %id{u4{9303130775731759811,14985047388939359434}}
 	s %t{"ezSphereReflectionProbeComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -7813,6 +7852,8 @@ o
 		f %Radius{0x0000A040}
 		s %ReflectionProbeMode{"ezReflectionProbeMode::Static"}
 		b %ShowDebugInfo{0}
+		b %ShowMipMaps{0}
+		b %SphereProjection{0}
 	}
 }
 o
@@ -8467,7 +8508,7 @@ o
 {
 	Uuid %id{u4{18204504615163664819,15277809571128326662}}
 	s %t{"ezSphereReflectionProbeComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -8483,6 +8524,8 @@ o
 		f %Radius{0x0000A040}
 		s %ReflectionProbeMode{"ezReflectionProbeMode::Static"}
 		b %ShowDebugInfo{0}
+		b %ShowMipMaps{0}
+		b %SphereProjection{0}
 	}
 }
 o
@@ -8579,7 +8622,7 @@ o
 {
 	Uuid %id{u4{3585533955105262759,15315349451205230256}}
 	s %t{"ezSphereReflectionProbeComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -8595,6 +8638,8 @@ o
 		f %Radius{0x0000A040}
 		s %ReflectionProbeMode{"ezReflectionProbeMode::Static"}
 		b %ShowDebugInfo{0}
+		b %ShowMipMaps{0}
+		b %SphereProjection{0}
 	}
 }
 o
@@ -8869,7 +8914,7 @@ o
 {
 	Uuid %id{u4{15679453478054064336,15417443614054973525}}
 	s %t{"ezSphereReflectionProbeComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -8885,6 +8930,8 @@ o
 		f %Radius{0x0000A040}
 		s %ReflectionProbeMode{"ezReflectionProbeMode::Static"}
 		b %ShowDebugInfo{0}
+		b %ShowMipMaps{0}
+		b %SphereProjection{0}
 	}
 }
 o
@@ -9107,10 +9154,11 @@ o
 {
 	Uuid %id{u4{6653538928729723578,15500031727893356031}}
 	s %t{"ezBoxReflectionProbeComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		b %BoxProjection{1}
 		Vec3 %CaptureOffset{f{0,0,0}}
 		VarArray %ExcludeTags{}
 		Vec3 %Extents{f{0x0000A040,0x0000A040,0x0000A040}}
@@ -9126,6 +9174,7 @@ o
 		Vec3 %PositiveFalloff{f{0xCDCCCC3D,0xCDCCCC3D,0}}
 		s %ReflectionProbeMode{"ezReflectionProbeMode::Static"}
 		b %ShowDebugInfo{0}
+		b %ShowMipMaps{0}
 	}
 }
 o
@@ -9284,10 +9333,11 @@ o
 {
 	Uuid %id{u4{6288815786184963814,15580524230313390563}}
 	s %t{"ezBoxReflectionProbeComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		b %BoxProjection{1}
 		Vec3 %CaptureOffset{f{0,0,0}}
 		VarArray %ExcludeTags{}
 		Vec3 %Extents{f{0x0000A040,0x0000A040,0x0000A040}}
@@ -9303,6 +9353,7 @@ o
 		Vec3 %PositiveFalloff{f{0xCDCCCC3D,0xCDCCCC3D,0}}
 		s %ReflectionProbeMode{"ezReflectionProbeMode::Static"}
 		b %ShowDebugInfo{0}
+		b %ShowMipMaps{0}
 	}
 }
 o
@@ -9437,7 +9488,7 @@ o
 {
 	Uuid %id{u4{9193677720501985221,15633353817913234678}}
 	s %t{"ezSphereReflectionProbeComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -9453,6 +9504,8 @@ o
 		f %Radius{0x0000A040}
 		s %ReflectionProbeMode{"ezReflectionProbeMode::Static"}
 		b %ShowDebugInfo{0}
+		b %ShowMipMaps{0}
+		b %SphereProjection{0}
 	}
 }
 o
@@ -9923,10 +9976,11 @@ o
 {
 	Uuid %id{u4{14989804498037627342,15938869301624576281}}
 	s %t{"ezBoxReflectionProbeComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		b %BoxProjection{1}
 		Vec3 %CaptureOffset{f{0,0,0}}
 		VarArray %ExcludeTags{}
 		Vec3 %Extents{f{0x0000A040,0x0000A040,0x0000A040}}
@@ -9942,6 +9996,7 @@ o
 		Vec3 %PositiveFalloff{f{0xCDCCCC3D,0xCDCCCC3D,0}}
 		s %ReflectionProbeMode{"ezReflectionProbeMode::Static"}
 		b %ShowDebugInfo{0}
+		b %ShowMipMaps{0}
 	}
 }
 o
@@ -10352,7 +10407,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezBoxReflectionProbeComponent"}
 		u3 %TypeSize{200}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -10639,8 +10694,8 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSphereReflectionProbeComponent"}
-		u3 %TypeSize{144}
-		u3 %TypeVersion{1}
+		u3 %TypeSize{152}
+		u3 %TypeVersion{2}
 	}
 }
 o

@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{9619871107370611331,5240437655261466261}}
-		u4 %Hash{5749862597119528625}
+		u4 %Hash{8798577995491077782}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -155,11 +155,12 @@ o
 {
 	Uuid %id{u4{9055208520684024498,4843744205851761460}}
 	s %t{"ezRmlUiCanvas2DComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
 		Vec2 %AnchorPoint{f{0x0000803F,0}}
+		b %AutobindBlackboards{1}
 		Vec2i %Offset{i3{10,10}}
 		b %PassInput{1}
 		s %RmlFile{"{ 5c9dacbb-e862-4b7d-b43e-7ad5c08d9397 }"}
@@ -168,12 +169,25 @@ o
 }
 o
 {
-	Uuid %id{u4{12395792110627696549,4931489385025110831}}
-	s %t{"ezSceneDocumentSettings"}
+	Uuid %id{u4{112090577650709939,4917051080922554452}}
+	s %t{"ezSceneLayer"}
 	u3 %v{1}
 	p
 	{
-		VarArray %ExposedProperties{}
+		Uuid %Layer{u4{9619871107370611331,5240437655261466261}}
+	}
+}
+o
+{
+	Uuid %id{u4{12395792110627696549,4931489385025110831}}
+	s %t{"ezSceneDocumentSettings"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Layers
+		{
+			Uuid{u4{112090577650709939,4917051080922554452}}
+		}
 	}
 }
 o
@@ -462,11 +476,12 @@ o
 {
 	Uuid %id{u4{7229683353374316169,5677765923182134215}}
 	s %t{"ezRmlUiCanvas2DComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
 		Vec2 %AnchorPoint{f{0,0}}
+		b %AutobindBlackboards{1}
 		Vec2i %Offset{i3{10,10}}
 		b %PassInput{1}
 		s %RmlFile{"{ b718f666-139b-4ebb-8b5b-5b19e5321d12 }"}
@@ -477,7 +492,7 @@ o
 {
 	Uuid %id{u4{18096612296587978288,6449934965513159559}}
 	s %t{"ezSceneDocumentRoot"}
-	u3 %v{1}
+	u3 %v{2}
 	s %n{"ObjectTree"}
 	p
 	{
@@ -840,24 +855,6 @@ o
 }
 o
 {
-	Uuid %id{u4{11638255232360359673,3108610646416571142}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezReflectedClass"}
-		s %PluginName{"ezEditorPluginScene"}
-		VarArray %Properties{}
-		s %TypeName{"ezExposedSceneProperty"}
-		u3 %TypeSize{152}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
 	Uuid %id{u4{5944471609892995972,3373323694501583966}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -870,8 +867,8 @@ o
 		s %PluginName{"ezEditorPluginRmlUi"}
 		VarArray %Properties{}
 		s %TypeName{"ezRmlUiCanvas2DComponent"}
-		u3 %TypeSize{120}
-		u3 %TypeVersion{1}
+		u3 %TypeSize{168}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -894,6 +891,42 @@ o
 }
 o
 {
+	Uuid %id{u4{5195345338716098525,5056385137718360950}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginScene"}
+		VarArray %Properties{}
+		s %TypeName{"ezSceneLayerBase"}
+		u3 %TypeSize{16}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{5837165590562654431,6019321076980052009}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezSceneLayerBase"}
+		s %PluginName{"ezEditorPluginScene"}
+		VarArray %Properties{}
+		s %TypeName{"ezSceneLayer"}
+		u3 %TypeSize{32}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{13649880205026559927,7297274558339895637}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -906,7 +939,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezGameObject"}
-		u3 %TypeSize{168}
+		u3 %TypeSize{128}
 		u3 %TypeVersion{1}
 	}
 }
@@ -920,12 +953,12 @@ o
 		VarArray %Attributes{}
 		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
 		VarArray %Functions{}
-		s %ParentTypeName{"ezReflectedClass"}
+		s %ParentTypeName{"ezSceneDocumentSettingsBase"}
 		s %PluginName{"ezEditorPluginScene"}
 		VarArray %Properties{}
 		s %TypeName{"ezSceneDocumentSettings"}
-		u3 %TypeSize{32}
-		u3 %TypeVersion{1}
+		u3 %TypeSize{40}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -979,7 +1012,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezSceneDocumentRoot"}
 		u3 %TypeSize{80}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -1016,6 +1049,24 @@ o
 		s %TypeName{"ezDirectionalLightComponent"}
 		u3 %TypeSize{96}
 		u3 %TypeVersion{3}
+	}
+}
+o
+{
+	Uuid %id{u4{14700230518358869173,11472901527618371423}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginScene"}
+		VarArray %Properties{}
+		s %TypeName{"ezSceneDocumentSettingsBase"}
+		u3 %TypeSize{8}
+		u3 %TypeVersion{1}
 	}
 }
 o

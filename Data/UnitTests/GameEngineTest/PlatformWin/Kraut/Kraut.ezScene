@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{3634741652319539842,5586231233718699758}}
-		u4 %Hash{18100116949196892933}
+		u4 %Hash{8747392997335225841}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -41,10 +41,13 @@ o
 {
 	Uuid %id{u4{7549519578050924721,4816823872394531271}}
 	s %t{"ezSceneDocumentSettings"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
-		VarArray %ExposedProperties{}
+		VarArray %Layers
+		{
+			Uuid{u4{2383971897043392422,5434350330210781159}}
+		}
 	}
 }
 o
@@ -192,7 +195,7 @@ o
 {
 	Uuid %id{u4{17754708795502481581,5193909002444197882}}
 	s %t{"ezCameraComponent"}
-	u3 %v{9}
+	u3 %v{10}
 	p
 	{
 		b %Active{1}
@@ -220,13 +223,15 @@ o
 {
 	Uuid %id{u4{9043070896017875850,5307110199672962135}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
+		b %GenerateCollision{1}
+		b %IncludeInNavmesh{1}
 		s %Material{""}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x00002041}
@@ -291,6 +296,16 @@ o
 		Vec3 %LocalPosition{f{0x00001040,0x00006040,0x0000803F}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+	}
+}
+o
+{
+	Uuid %id{u4{2383971897043392422,5434350330210781159}}
+	s %t{"ezSceneLayer"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Layer{u4{3634741652319539842,5586231233718699758}}
 	}
 }
 o
@@ -500,7 +515,7 @@ o
 {
 	Uuid %id{u4{18096612296587978288,6449934965513159559}}
 	s %t{"ezSceneDocumentRoot"}
-	u3 %v{1}
+	u3 %v{2}
 	s %n{"ObjectTree"}
 	p
 	{
@@ -560,24 +575,6 @@ o
 }
 o
 {
-	Uuid %id{u4{11638255232360359673,3108610646416571142}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezReflectedClass"}
-		s %PluginName{"ezEditorPluginScene"}
-		VarArray %Properties{}
-		s %TypeName{"ezExposedSceneProperty"}
-		u3 %TypeSize{152}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
 	Uuid %id{u4{15272284220582915620,3290797833852729302}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -609,6 +606,42 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezMeshInstanceData"}
 		u3 %TypeSize{56}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{5195345338716098525,5056385137718360950}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginScene"}
+		VarArray %Properties{}
+		s %TypeName{"ezSceneLayerBase"}
+		u3 %TypeSize{16}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{5837165590562654431,6019321076980052009}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezSceneLayerBase"}
+		s %PluginName{"ezEditorPluginScene"}
+		VarArray %Properties{}
+		s %TypeName{"ezSceneLayer"}
+		u3 %TypeSize{32}
 		u3 %TypeVersion{1}
 	}
 }
@@ -658,12 +691,12 @@ o
 		VarArray %Attributes{}
 		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
 		VarArray %Functions{}
-		s %ParentTypeName{"ezReflectedClass"}
+		s %ParentTypeName{"ezSceneDocumentSettingsBase"}
 		s %PluginName{"ezEditorPluginScene"}
 		VarArray %Properties{}
 		s %TypeName{"ezSceneDocumentSettings"}
-		u3 %TypeSize{32}
-		u3 %TypeVersion{1}
+		u3 %TypeSize{40}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -735,7 +768,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezSceneDocumentRoot"}
 		u3 %TypeSize{80}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -771,7 +804,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezCameraComponent"}
 		u3 %TypeSize{504}
-		u3 %TypeVersion{9}
+		u3 %TypeVersion{10}
 	}
 }
 o
@@ -790,6 +823,24 @@ o
 		s %TypeName{"ezDirectionalLightComponent"}
 		u3 %TypeSize{96}
 		u3 %TypeVersion{3}
+	}
+}
+o
+{
+	Uuid %id{u4{14700230518358869173,11472901527618371423}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginScene"}
+		VarArray %Properties{}
+		s %TypeName{"ezSceneDocumentSettingsBase"}
+		u3 %TypeSize{8}
+		u3 %TypeVersion{1}
 	}
 }
 o
@@ -860,7 +911,7 @@ o
 		s %PluginName{"ezEditorPluginKraut"}
 		VarArray %Properties{}
 		s %TypeName{"ezKrautTreeComponent"}
-		u3 %TypeSize{96}
+		u3 %TypeSize{104}
 		u3 %TypeVersion{3}
 	}
 }
@@ -915,7 +966,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezGreyBoxComponent"}
 		u3 %TypeSize{128}
-		u3 %TypeVersion{3}
+		u3 %TypeVersion{4}
 	}
 }
 o

@@ -11,7 +11,7 @@ o
 		s %AssetType{"Visual Script"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{3949384846659947393,5637688191052284832}}
-		u4 %Hash{13354908550709982701}
+		u4 %Hash{9919176115600190728}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{3562346173113476036,8270073927138974508}}
@@ -35,29 +35,39 @@ Objects
 {
 o
 {
-	Uuid %id{u4{3118143113721331799,2298504755260881335}}
-	s %t{"DocumentNodeManagerConnectionInternal"}
-	u3 %v{1}
-	p
-	{
-		s %SourcePin{"Child"}
-		Uuid %Target{u4{2637648115808772797,5167344017837647598}}
-		s %TargetPin{"Object"}
-	}
-}
-o
-{
 	Uuid %id{u4{15133297846160176825,4732198566198166217}}
 	s %t{"VisualScriptNode::ezVisualScriptNode_FindChildObject"}
 	u3 %v{1}
 	p
 	{
 		s %Name{"Object"}
-		VarArray %Node::Connections
-		{
-			Uuid{u4{3118143113721331799,2298504755260881335}}
-		}
 		Vec2 %Node::Pos{f{0x954095C2,0xF8682342}}
+	}
+}
+o
+{
+	Uuid %id{u4{2966590845990411963,4788777610924472183}}
+	s %t{"ezVisualScriptConnection"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Connection::Source{u4{2637648115808772797,5167344017837647598}}
+		s %Connection::SourcePin{"Component"}
+		Uuid %Connection::Target{u4{7680083676092114585,5227582488650009750}}
+		s %Connection::TargetPin{"Component"}
+	}
+}
+o
+{
+	Uuid %id{u4{18189227263699025833,5073765142414360093}}
+	s %t{"ezVisualScriptConnection"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Connection::Source{u4{759278611469782424,5178905510288376107}}
+		s %Connection::SourcePin{"OnDeactivated"}
+		Uuid %Connection::Target{u4{7680083676092114585,5227582488650009750}}
+		s %Connection::TargetPin{"run"}
 	}
 }
 o
@@ -67,11 +77,6 @@ o
 	u3 %v{1}
 	p
 	{
-		VarArray %Node::Connections
-		{
-			Uuid{u4{16517880190460190527,15908073112877240341}}
-			Uuid{u4{15698615623467960568,11785733594183921061}}
-		}
 		Vec2 %Node::Pos{f{0x5755E542,0x90E91C42}}
 		s %Type{"ezTransformComponent"}
 	}
@@ -83,11 +88,6 @@ o
 	u3 %v{1}
 	p
 	{
-		VarArray %Node::Connections
-		{
-			Uuid{u4{492836070288298300,6743136830560714692}}
-			Uuid{u4{4477660008615398881,10705811984756258048}}
-		}
 		Vec2 %Node::Pos{f{0xAFFAA4C2,0x7F4987C3}}
 		s %TriggerMessage{"PlayerTrigger"}
 	}
@@ -100,7 +100,6 @@ o
 	p
 	{
 		s %Name{"Running"}
-		VarArray %Node::Connections{}
 		Vec2 %Node::Pos{f{0x9A24EE43,0xEB8EB3C2}}
 		b %Value{0}
 	}
@@ -119,6 +118,45 @@ o
 }
 o
 {
+	Uuid %id{u4{9123683678256021409,5398025988850586496}}
+	s %t{"ezVisualScriptConnection"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Connection::Source{u4{2637648115808772797,5167344017837647598}}
+		s %Connection::SourcePin{"Component"}
+		Uuid %Connection::Target{u4{13611487421288186664,10563286944659151943}}
+		s %Connection::TargetPin{"Component"}
+	}
+}
+o
+{
+	Uuid %id{u4{17916414264863893663,5417525873409696016}}
+	s %t{"ezVisualScriptConnection"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Connection::Source{u4{759278611469782424,5178905510288376107}}
+		s %Connection::SourcePin{"OnActivated"}
+		Uuid %Connection::Target{u4{13611487421288186664,10563286944659151943}}
+		s %Connection::TargetPin{"run"}
+	}
+}
+o
+{
+	Uuid %id{u4{15498041239958150299,5612366025328740052}}
+	s %t{"ezVisualScriptConnection"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Connection::Source{u4{15133297846160176825,4732198566198166217}}
+		s %Connection::SourcePin{"Child"}
+		Uuid %Connection::Target{u4{2637648115808772797,5167344017837647598}}
+		s %Connection::TargetPin{"Object"}
+	}
+}
+o
+{
 	Uuid %id{u4{18096612296587978288,6449934965513159559}}
 	s %t{"ezDocumentRoot"}
 	u3 %v{1}
@@ -133,19 +171,12 @@ o
 			Uuid{u4{7680083676092114585,5227582488650009750}}
 			Uuid{u4{13611487421288186664,10563286944659151943}}
 			Uuid{u4{759278611469782424,5178905510288376107}}
+			Uuid{u4{15498041239958150299,5612366025328740052}}
+			Uuid{u4{2966590845990411963,4788777610924472183}}
+			Uuid{u4{9123683678256021409,5398025988850586496}}
+			Uuid{u4{17916414264863893663,5417525873409696016}}
+			Uuid{u4{18189227263699025833,5073765142414360093}}
 		}
-	}
-}
-o
-{
-	Uuid %id{u4{492836070288298300,6743136830560714692}}
-	s %t{"DocumentNodeManagerConnectionInternal"}
-	u3 %v{1}
-	p
-	{
-		s %SourcePin{"OnActivated"}
-		Uuid %Target{u4{13611487421288186664,10563286944659151943}}
-		s %TargetPin{"run"}
 	}
 }
 o
@@ -156,45 +187,8 @@ o
 	p
 	{
 		s %Name{"Running"}
-		VarArray %Node::Connections{}
 		Vec2 %Node::Pos{f{0x62E7EE43,0xA77260C3}}
 		b %Value{1}
-	}
-}
-o
-{
-	Uuid %id{u4{4477660008615398881,10705811984756258048}}
-	s %t{"DocumentNodeManagerConnectionInternal"}
-	u3 %v{1}
-	p
-	{
-		s %SourcePin{"OnDeactivated"}
-		Uuid %Target{u4{7680083676092114585,5227582488650009750}}
-		s %TargetPin{"run"}
-	}
-}
-o
-{
-	Uuid %id{u4{15698615623467960568,11785733594183921061}}
-	s %t{"DocumentNodeManagerConnectionInternal"}
-	u3 %v{1}
-	p
-	{
-		s %SourcePin{"Component"}
-		Uuid %Target{u4{13611487421288186664,10563286944659151943}}
-		s %TargetPin{"Component"}
-	}
-}
-o
-{
-	Uuid %id{u4{16517880190460190527,15908073112877240341}}
-	s %t{"DocumentNodeManagerConnectionInternal"}
-	u3 %v{1}
-	p
-	{
-		s %SourcePin{"Component"}
-		Uuid %Target{u4{7680083676092114585,5227582488650009750}}
-		s %TargetPin{"Component"}
 	}
 }
 }
@@ -215,6 +209,24 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezVisualScriptNodeBase"}
 		u3 %TypeSize{0}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{6430620502955737911,2935301964726788852}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginAssets"}
+		VarArray %Properties{}
+		s %TypeName{"ezVisualScriptConnection"}
+		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
 	}
 }

@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{5995496585180667550,4890271506108354631}}
-		u4 %Hash{11217493327959192362}
+		u4 %Hash{12825702575883074214}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -73,21 +73,25 @@ o
 {
 	Uuid %id{u4{16940612077756001654,4449239206089231354}}
 	s %t{"ezSceneDocumentSettings"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
-		VarArray %ExposedProperties{}
+		VarArray %Layers
+		{
+			Uuid{u4{5506662628048346019,4869430136209070104}}
+		}
 	}
 }
 o
 {
 	Uuid %id{u4{4206013190931675540,4585761704826131616}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ b2416284-6da2-40af-a1a8-d58dc8ca5d64 }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0x9A9999999999B93F}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::Restart"}
 		VarDict %Parameters{}
@@ -95,6 +99,17 @@ o
 		Time %RestartDelayRange{d{0x9A9999999999B93F}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
+	}
+}
+o
+{
+	Uuid %id{u4{5506662628048346019,4869430136209070104}}
+	s %t{"ezSceneLayer"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Layer{u4{5995496585180667550,4890271506108354631}}
 	}
 }
 o
@@ -216,7 +231,7 @@ o
 {
 	Uuid %id{u4{18096612296587978288,6449934965513159559}}
 	s %t{"ezSceneDocumentRoot"}
-	u3 %v{1}
+	u3 %v{2}
 	s %n{"ObjectTree"}
 	p
 	{
@@ -254,11 +269,12 @@ o
 {
 	Uuid %id{u4{7378913744017917248,10014178589508780895}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ b2416284-6da2-40af-a1a8-d58dc8ca5d64 }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0x9A9999999999C93F}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::Restart"}
 		VarDict %Parameters{}
@@ -266,6 +282,7 @@ o
 		Time %RestartDelayRange{d{0x9A9999999999C93F}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
@@ -298,7 +315,7 @@ o
 {
 	Uuid %id{u4{4660026565733414420,10038996990690843374}}
 	s %t{"ezCameraComponent"}
-	u3 %v{9}
+	u3 %v{10}
 	p
 	{
 		b %Active{1}
@@ -326,11 +343,12 @@ o
 {
 	Uuid %id{u4{11470293407619905852,10083575469752255164}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ b2416284-6da2-40af-a1a8-d58dc8ca5d64 }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::Restart"}
 		VarDict %Parameters{}
@@ -338,6 +356,7 @@ o
 		Time %RestartDelayRange{d{0}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
@@ -474,11 +493,12 @@ o
 {
 	Uuid %id{u4{13754570801425273807,15257157826658425737}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ b2416284-6da2-40af-a1a8-d58dc8ca5d64 }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0x9A9999999999B93F}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::Restart"}
 		VarDict %Parameters{}
@@ -486,6 +506,7 @@ o
 		Time %RestartDelayRange{d{0x333333333333D33F}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
@@ -533,24 +554,6 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezComponent"}
 		u3 %TypeSize{48}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{11638255232360359673,3108610646416571142}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezReflectedClass"}
-		s %PluginName{"ezEditorPluginScene"}
-		VarArray %Properties{}
-		s %TypeName{"ezExposedSceneProperty"}
-		u3 %TypeSize{152}
 		u3 %TypeVersion{1}
 	}
 }
@@ -628,6 +631,42 @@ o
 }
 o
 {
+	Uuid %id{u4{5195345338716098525,5056385137718360950}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginScene"}
+		VarArray %Properties{}
+		s %TypeName{"ezSceneLayerBase"}
+		u3 %TypeSize{16}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{5837165590562654431,6019321076980052009}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezSceneLayerBase"}
+		s %PluginName{"ezEditorPluginScene"}
+		VarArray %Properties{}
+		s %TypeName{"ezSceneLayer"}
+		u3 %TypeSize{32}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{7605758958972330253,6687734095884105025}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -658,7 +697,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezGameObject"}
-		u3 %TypeSize{168}
+		u3 %TypeSize{128}
 		u3 %TypeVersion{1}
 	}
 }
@@ -672,12 +711,12 @@ o
 		VarArray %Attributes{}
 		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
 		VarArray %Functions{}
-		s %ParentTypeName{"ezReflectedClass"}
+		s %ParentTypeName{"ezSceneDocumentSettingsBase"}
 		s %PluginName{"ezEditorPluginScene"}
 		VarArray %Properties{}
 		s %TypeName{"ezSceneDocumentSettings"}
-		u3 %TypeSize{32}
-		u3 %TypeVersion{1}
+		u3 %TypeSize{40}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -731,7 +770,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezParticleComponent"}
 		u3 %TypeSize{328}
-		u3 %TypeVersion{3}
+		u3 %TypeVersion{5}
 	}
 }
 o
@@ -749,7 +788,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezSceneDocumentRoot"}
 		u3 %TypeSize{80}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -784,8 +823,26 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezCameraComponent"}
-		u3 %TypeSize{552}
-		u3 %TypeVersion{9}
+		u3 %TypeSize{504}
+		u3 %TypeVersion{10}
+	}
+}
+o
+{
+	Uuid %id{u4{14700230518358869173,11472901527618371423}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginScene"}
+		VarArray %Properties{}
+		s %TypeName{"ezSceneDocumentSettingsBase"}
+		u3 %TypeSize{8}
+		u3 %TypeVersion{1}
 	}
 }
 o

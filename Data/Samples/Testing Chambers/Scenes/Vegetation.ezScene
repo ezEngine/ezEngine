@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{5610093527764820148,5219027326469845793}}
-		u4 %Hash{5722535047230898883}
+		u4 %Hash{2244601184025694090}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -342,15 +342,23 @@ o
 {
 	Uuid %id{u4{17111430926857678529,5389560250686610601}}
 	s %t{"ezSkyLightComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
 		s %CubeMap{""}
+		VarArray %ExcludeTags{}
+		f %FarPlane{0x0000C842}
+		VarArray %IncludeTags
+		{
+			s{"SkyLight"}
+		}
 		f %Intensity{0xCDCCCC3D}
-		Uuid %ReflectionData{u4{14614855608879498340,8567936598705449987}}
+		f %NearPlane{0}
 		s %ReflectionProbeMode{"ezReflectionProbeMode::Dynamic"}
 		f %Saturation{0x9A99993E}
+		b %ShowDebugInfo{0}
+		b %ShowMipMaps{0}
 	}
 }
 o
@@ -533,21 +541,6 @@ o
 			Uuid{u4{15822197538874569712,4959048816156858600}}
 		}
 		Uuid %Settings{u4{8186563928453390810,4874470961855122515}}
-	}
-}
-o
-{
-	Uuid %id{u4{14614855608879498340,8567936598705449987}}
-	s %t{"ezReflectionProbeData"}
-	u3 %v{2}
-	p
-	{
-		VarArray %ExcludeTags{}
-		VarArray %IncludeTags
-		{
-			s{"SkyLight"}
-		}
-		b %ShowDebugInfo{0}
 	}
 }
 o
@@ -915,24 +908,6 @@ o
 }
 o
 {
-	Uuid %id{u4{9983459050152072191,9110934142685938562}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{""}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezReflectionProbeData"}
-		u3 %TypeSize{72}
-		u3 %TypeVersion{2}
-	}
-}
-o
-{
 	Uuid %id{u4{3251891958765718680,9159887340540620231}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -1107,8 +1082,8 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSkyLightComponent"}
-		u3 %TypeSize{136}
-		u3 %TypeVersion{2}
+		u3 %TypeSize{152}
+		u3 %TypeVersion{3}
 	}
 }
 o

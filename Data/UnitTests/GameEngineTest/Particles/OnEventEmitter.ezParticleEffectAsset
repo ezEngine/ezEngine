@@ -24,7 +24,7 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{17674349881833858187,5721672531791499156}}
-		u4 %Hash{6248020805993880112}
+		u4 %Hash{1475646376319210109}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{2850136604030941723,13816356582122382121}}
@@ -58,39 +58,6 @@ Objects
 {
 o
 {
-	Uuid %id{u4{10024915460497637267,911442251890378773}}
-	s %t{"ezVarianceTypeFloat"}
-	u3 %v{1}
-	p
-	{
-		f %Value{0xCDCCCC3D}
-		f %Variance{0}
-	}
-}
-o
-{
-	Uuid %id{u4{11561844156247593108,1567596730488160777}}
-	s %t{"ezVarianceTypeTime"}
-	u3 %v{1}
-	p
-	{
-		Time %Value{d{0x000000000000E03F}}
-		f %Variance{0}
-	}
-}
-o
-{
-	Uuid %id{u4{1727063993830953035,4064619741345372553}}
-	s %t{"ezVarianceTypeFloat"}
-	u3 %v{1}
-	p
-	{
-		f %Value{0xCDCCCC3D}
-		f %Variance{0}
-	}
-}
-o
-{
 	Uuid %id{u4{10120651197860844132,5135735017292078905}}
 	s %t{"ezParticleTypeMeshFactory"}
 	u3 %v{1}
@@ -117,21 +84,29 @@ o
 {
 	Uuid %id{u4{14849662970302443371,5310622821677361076}}
 	s %t{"ezParticleInitializerFactory_VelocityCone"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		Angle %Angle{f{0xC2B8B23E}}
-		Uuid %Speed{u4{9139779354713533800,14397939969545249923}}
+		ezVarianceTypeFloat %Speed
+		{
+			f %Variance{0}
+			f %Value{0x00008040}
+		}
 	}
 }
 o
 {
 	Uuid %id{u4{575269784762506884,5413865065265677104}}
 	s %t{"ezParticleInitializerFactory_RandomSize"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
-		Uuid %Size{u4{10024915460497637267,911442251890378773}}
+		ezVarianceTypeFloat %Size
+		{
+			f %Variance{0}
+			f %Value{0xCDCCCC3D}
+		}
 		s %SizeCurve{""}
 	}
 }
@@ -179,7 +154,7 @@ o
 {
 	Uuid %id{u4{4409231840297536375,5616588167602266811}}
 	s %t{"ezParticleSystemDescriptor"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		VarArray %Behaviors
@@ -195,7 +170,11 @@ o
 			Uuid{u4{575269784762506884,5413865065265677104}}
 		}
 		s %LifeScaleParam{""}
-		Uuid %LifeTime{u4{11561844156247593108,1567596730488160777}}
+		ezVarianceTypeTime %LifeTime
+		{
+			f %Variance{0}
+			Time %Value{d{0x000000000000E03F}}
+		}
 		s %Name{"system"}
 		s %OnDeathEvent{"spawn"}
 		VarArray %Types
@@ -209,7 +188,7 @@ o
 {
 	Uuid %id{u4{6373333535687795287,5822111108681353921}}
 	s %t{"ezParticleSystemDescriptor"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		VarArray %Behaviors
@@ -226,7 +205,11 @@ o
 			Uuid{u4{13300565057489192842,6221519434670967183}}
 		}
 		s %LifeScaleParam{""}
-		Uuid %LifeTime{u4{15083182431120232213,9636694594271450234}}
+		ezVarianceTypeTime %LifeTime
+		{
+			f %Variance{0}
+			Time %Value{d{0x000000000000F03F}}
+		}
 		s %Name{"on death"}
 		s %OnDeathEvent{""}
 		VarArray %Types
@@ -273,10 +256,14 @@ o
 {
 	Uuid %id{u4{13300565057489192842,6221519434670967183}}
 	s %t{"ezParticleInitializerFactory_RandomSize"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
-		Uuid %Size{u4{1727063993830953035,4064619741345372553}}
+		ezVarianceTypeFloat %Size
+		{
+			f %Variance{0}
+			f %Value{0xCDCCCC3D}
+		}
 		s %SizeCurve{""}
 	}
 }
@@ -292,28 +279,6 @@ o
 		{
 			Uuid{u4{7810625590390671232,5600435953859104150}}
 		}
-	}
-}
-o
-{
-	Uuid %id{u4{15083182431120232213,9636694594271450234}}
-	s %t{"ezVarianceTypeTime"}
-	u3 %v{1}
-	p
-	{
-		Time %Value{d{0x000000000000F03F}}
-		f %Variance{0}
-	}
-}
-o
-{
-	Uuid %id{u4{9139779354713533800,14397939969545249923}}
-	s %t{"ezVarianceTypeFloat"}
-	u3 %v{1}
-	p
-	{
-		f %Value{0x00008040}
-		f %Variance{0}
 	}
 }
 }
@@ -352,7 +317,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezParticleInitializerFactory_VelocityCone"}
 		u3 %TypeSize{24}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -478,7 +443,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezParticleSystemDescriptor"}
 		u3 %TypeSize{448}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -496,7 +461,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezParticleInitializerFactory_RandomSize"}
 		u3 %TypeSize{24}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -585,7 +550,7 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleEffectDescriptor"}
-		u3 %TypeSize{360}
+		u3 %TypeSize{344}
 		u3 %TypeVersion{2}
 	}
 }

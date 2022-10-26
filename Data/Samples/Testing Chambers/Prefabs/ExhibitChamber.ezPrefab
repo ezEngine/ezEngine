@@ -34,7 +34,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{3633918713593126046,5400417647074144717}}
-		u4 %Hash{13568209614980202110}
+		u4 %Hash{10008734900068442258}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{9956179725613794779,1624457817855262976}}
@@ -145,7 +145,7 @@ o
 o
 {
 	Uuid %id{u4{2135196964617971876,4768571353437376782}}
-	s %t{"ezSceneDocumentSettings"}
+	s %t{"ezPrefabDocumentSettings"}
 	u3 %v{1}
 	p
 	{
@@ -213,13 +213,15 @@ o
 {
 	Uuid %id{u4{14147466367682006170,5090014813580988553}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
+		b %GenerateCollision{1}
+		b %IncludeInNavmesh{1}
 		s %Material{"{ 1c47ee4c-0379-4280-85f5-b8cda61941d2 }"}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x0000C840}
@@ -237,13 +239,15 @@ o
 {
 	Uuid %id{u4{6479110386646672276,5274839695297119384}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
+		b %GenerateCollision{1}
+		b %IncludeInNavmesh{1}
 		s %Material{"{ a14fde66-a586-4ab3-96fa-18612f2d744d }"}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x0000803E}
@@ -261,13 +265,15 @@ o
 {
 	Uuid %id{u4{12288394016449343385,5398296369310718016}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
+		b %GenerateCollision{1}
+		b %IncludeInNavmesh{1}
 		s %Material{"{ d615cd66-0904-00ca-81f9-768ff4fc24ee }"}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x00009840}
@@ -285,13 +291,15 @@ o
 {
 	Uuid %id{u4{5601820570995543196,5409292960685058230}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
+		b %GenerateCollision{1}
+		b %IncludeInNavmesh{1}
 		s %Material{"{ 1c47ee4c-0379-4280-85f5-b8cda61941d2 }"}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0}
@@ -309,13 +317,15 @@ o
 {
 	Uuid %id{u4{3889188723983339154,5558496919784770006}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
+		b %GenerateCollision{1}
+		b %IncludeInNavmesh{1}
 		s %Material{"{ 1c47ee4c-0379-4280-85f5-b8cda61941d2 }"}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x00000040}
@@ -400,7 +410,7 @@ o
 {
 	Uuid %id{u4{18096612296587978288,6449934965513159559}}
 	s %t{"ezSceneDocumentRoot"}
-	u3 %v{1}
+	u3 %v{2}
 	s %n{"ObjectTree"}
 	p
 	{
@@ -442,13 +452,15 @@ o
 {
 	Uuid %id{u4{4540622550864571442,10231149287920060029}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
+		b %GenerateCollision{1}
+		b %IncludeInNavmesh{1}
 		s %Material{"{ 1c47ee4c-0379-4280-85f5-b8cda61941d2 }"}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x0000C840}
@@ -521,6 +533,24 @@ o
 }
 o
 {
+	Uuid %id{u4{14332645745114734426,3197497487504472660}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezSceneDocumentSettingsBase"}
+		s %PluginName{"ezEditorPluginScene"}
+		VarArray %Properties{}
+		s %TypeName{"ezPrefabDocumentSettings"}
+		u3 %TypeSize{32}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{912538319015526284,3456678183054942297}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -557,24 +587,6 @@ o
 }
 o
 {
-	Uuid %id{u4{450943844669591006,7318511461061204347}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezReflectedClass"}
-		s %PluginName{"ezEditorPluginScene"}
-		VarArray %Properties{}
-		s %TypeName{"ezSceneDocumentSettings"}
-		u3 %TypeSize{32}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
 	Uuid %id{u4{6089094783765586323,8705960867921430659}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -606,7 +618,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezSceneDocumentRoot"}
 		u3 %TypeSize{80}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -624,6 +636,24 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezObjectMode"}
 		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{14700230518358869173,11472901527618371423}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginScene"}
+		VarArray %Properties{}
+		s %TypeName{"ezSceneDocumentSettingsBase"}
+		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
 	}
 }
@@ -660,7 +690,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezGreyBoxComponent"}
 		u3 %TypeSize{128}
-		u3 %TypeVersion{3}
+		u3 %TypeVersion{4}
 	}
 }
 o

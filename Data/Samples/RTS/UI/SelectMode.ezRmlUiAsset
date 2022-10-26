@@ -14,7 +14,7 @@ o
 			s{"UI/SelectMode.rml"}
 		}
 		Uuid %DocumentID{u4{1305255426561629067,5673149715115996774}}
-		u4 %Hash{8980824737324784855}
+		u4 %Hash{13774826409222054701}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References{}
@@ -30,7 +30,9 @@ o
 	u3 %v{1}
 	p
 	{
+		Vec2u %ReferenceResolution{u3{1920,1080}}
 		s %RmlFile{"UI/SelectMode.rml"}
+		s %ScaleMode{"ezRmlUiScaleMode::Fixed"}
 	}
 }
 o
@@ -70,6 +72,42 @@ o
 }
 o
 {
+	Uuid %id{u4{1279131488575532460,14268837862471452239}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginRmlUi"}
+		VarArray %Properties{}
+		s %TypeName{"ezRmlUiScaleMode"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{2947336711354777548,15013008608905564043}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezEnumBase"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{983387834180907111,17935407260904399048}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -100,7 +138,7 @@ o
 		s %PluginName{"ezEditorPluginRmlUi"}
 		VarArray %Properties{}
 		s %TypeName{"ezRmlUiAssetProperties"}
-		u3 %TypeSize{72}
+		u3 %TypeSize{88}
 		u3 %TypeVersion{1}
 	}
 }

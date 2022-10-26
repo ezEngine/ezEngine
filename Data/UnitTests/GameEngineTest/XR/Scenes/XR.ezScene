@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{10742901808789612930,5454057602560174561}}
-		u4 %Hash{6097386794363264782}
+		u4 %Hash{4250779797225124836}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -825,6 +825,7 @@ o
 		s %ReflectionProbeMode{"ezReflectionProbeMode::Static"}
 		f %Saturation{0x0000803F}
 		b %ShowDebugInfo{0}
+		b %ShowMipMaps{0}
 	}
 }
 o

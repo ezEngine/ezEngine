@@ -626,7 +626,7 @@ o
 	u3 %v{1}
 	p
 	{
-		Angle %Value{f{0xDB0FC93F}}
+		Angle %Value{f{0xDC0FC93F}}
 	}
 }
 o
@@ -636,7 +636,7 @@ o
 	u3 %v{1}
 	p
 	{
-		s %Filter{";Prefab;"}
+		s %Filter{";CompatibleAsset_Prefab;"}
 	}
 }
 o

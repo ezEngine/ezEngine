@@ -21,7 +21,7 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{7047738391111800449,5035195747814587378}}
-		u4 %Hash{5453640450096775413}
+		u4 %Hash{15748229716277397205}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{835443991023406776,264947690456972759}}
@@ -55,7 +55,7 @@ o
 {
 	Uuid %id{u4{15724654199582466474,4832051880226862015}}
 	s %t{"ezParticleSystemDescriptor"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		VarArray %Behaviors{}
@@ -70,7 +70,11 @@ o
 			Uuid{u4{16830078647753686657,4670044315876792076}}
 		}
 		s %LifeScaleParam{""}
-		Uuid %LifeTime{u4{10662527972717007064,8818083758733914865}}
+		ezVarianceTypeTime %LifeTime
+		{
+			f %Variance{0}
+			Time %Value{d{0x0000000000001440}}
+		}
 		s %Name{"BoxPos"}
 		s %OnDeathEvent{""}
 		VarArray %Types
@@ -125,10 +129,14 @@ o
 {
 	Uuid %id{u4{12456747867179891865,5152527780434536020}}
 	s %t{"ezParticleInitializerFactory_RandomSize"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
-		Uuid %Size{u4{17828849537866303906,12943428738926175024}}
+		ezVarianceTypeFloat %Size
+		{
+			f %Variance{0}
+			f %Value{0xCDCC4C3D}
+		}
 		s %SizeCurve{""}
 	}
 }
@@ -170,28 +178,6 @@ o
 		{
 			Uuid{u4{1999109375377339562,5117808402661671672}}
 		}
-	}
-}
-o
-{
-	Uuid %id{u4{10662527972717007064,8818083758733914865}}
-	s %t{"ezVarianceTypeTime"}
-	u3 %v{1}
-	p
-	{
-		Time %Value{d{0x0000000000001440}}
-		f %Variance{0}
-	}
-}
-o
-{
-	Uuid %id{u4{17828849537866303906,12943428738926175024}}
-	s %t{"ezVarianceTypeFloat"}
-	u3 %v{1}
-	p
-	{
-		f %Value{0xCDCC4C3D}
-		f %Variance{0}
 	}
 }
 }
@@ -374,7 +360,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezParticleSystemDescriptor"}
 		u3 %TypeSize{448}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -392,7 +378,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezParticleInitializerFactory_RandomSize"}
 		u3 %TypeSize{24}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -481,7 +467,7 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleEffectDescriptor"}
-		u3 %TypeSize{360}
+		u3 %TypeSize{344}
 		u3 %TypeVersion{2}
 	}
 }

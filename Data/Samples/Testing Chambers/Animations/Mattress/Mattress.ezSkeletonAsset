@@ -104,7 +104,7 @@ o
 			s{"Animations/Mattress/Mattress.glb"}
 		}
 		Uuid %DocumentID{u4{14724287148971725713,5055962794478827092}}
-		u4 %Hash{2264348936639794665}
+		u4 %Hash{2890020191897394107}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{6016814578704130146,14861106992716424824}}
@@ -313,8 +313,8 @@ o
 		Angle %SwingLimitY{f{0xC2B8323F}}
 		Angle %SwingLimitZ{f{0xC2B8B23D}}
 		Transform %Transform{f{0,0x0000803E,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
-		Angle %TwistLimitHigh{f{0xC2B8B23D}}
-		Angle %TwistLimitLow{f{0xC2B8B23D}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0x930A063F}}
 	}
 }
 o
@@ -339,8 +339,8 @@ o
 		Angle %SwingLimitY{f{0}}
 		Angle %SwingLimitZ{f{0x920A063F}}
 		Transform %Transform{f{0,0xCDCCCC3D,0x000080BF,0x0000803F,0,0,0x4CEF2EB4,0x0000803F,0x0000803F,0x0000803F}}
-		Angle %TwistLimitHigh{f{0}}
-		Angle %TwistLimitLow{f{0}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0x930A063F}}
 	}
 }
 o
@@ -409,8 +409,8 @@ o
 		Angle %SwingLimitY{f{0xC2B8323F}}
 		Angle %SwingLimitZ{f{0xC2B8B23D}}
 		Transform %Transform{f{0,0x0000803E,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
-		Angle %TwistLimitHigh{f{0xC2B8B23D}}
-		Angle %TwistLimitLow{f{0xC2B8B23D}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0x930A063F}}
 	}
 }
 o
@@ -458,8 +458,8 @@ o
 		Angle %SwingLimitY{f{0xC2B8323F}}
 		Angle %SwingLimitZ{f{0xC2B8B23D}}
 		Transform %Transform{f{0,0x0000803E,0,0xA67717B5,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
-		Angle %TwistLimitHigh{f{0xC2B8B23D}}
-		Angle %TwistLimitLow{f{0xC2B8B23D}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0x930A063F}}
 	}
 }
 o
@@ -483,8 +483,8 @@ o
 		Angle %SwingLimitY{f{0xC2B8323F}}
 		Angle %SwingLimitZ{f{0xC2B8B23D}}
 		Transform %Transform{f{0,0x0000803E,0x000000A9,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
-		Angle %TwistLimitHigh{f{0xC2B8B23D}}
-		Angle %TwistLimitLow{f{0xC2B8B23D}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0x930A063F}}
 	}
 }
 o
@@ -574,8 +574,8 @@ o
 		Angle %SwingLimitY{f{0xC2B8323F}}
 		Angle %SwingLimitZ{f{0xC2B8B23D}}
 		Transform %Transform{f{0,0x0000803E,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
-		Angle %TwistLimitHigh{f{0xC2B8B23D}}
-		Angle %TwistLimitLow{f{0xC2B8B23D}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0x930A063F}}
 	}
 }
 o
@@ -602,8 +602,8 @@ o
 		Angle %SwingLimitY{f{0xC2B8323F}}
 		Angle %SwingLimitZ{f{0xC2B8B23D}}
 		Transform %Transform{f{0,0x0000803E,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
-		Angle %TwistLimitHigh{f{0xC2B8B23D}}
-		Angle %TwistLimitLow{f{0xC2B8B23D}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0x930A063F}}
 	}
 }
 o
@@ -624,8 +624,8 @@ o
 		Angle %SwingLimitY{f{0}}
 		Angle %SwingLimitZ{f{0x920A063F}}
 		Transform %Transform{f{0,0,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
-		Angle %TwistLimitHigh{f{0}}
-		Angle %TwistLimitLow{f{0}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0x930A063F}}
 	}
 }
 o
@@ -673,8 +673,8 @@ o
 		Angle %SwingLimitY{f{0xC2B8323F}}
 		Angle %SwingLimitZ{f{0xC2B8B23D}}
 		Transform %Transform{f{0,0,0,0xF00435BF,0,0,0xF604353F,0x0000803F,0x0100803F,0x0100803F}}
-		Angle %TwistLimitHigh{f{0xC2B8B23D}}
-		Angle %TwistLimitLow{f{0xC2B8B23D}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0x930A063F}}
 	}
 }
 o
@@ -701,8 +701,8 @@ o
 		Angle %SwingLimitY{f{0xC2B8323F}}
 		Angle %SwingLimitZ{f{0xC2B8B23D}}
 		Transform %Transform{f{0,0x0000803E,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
-		Angle %TwistLimitHigh{f{0xC2B8B23D}}
-		Angle %TwistLimitLow{f{0xC2B8B23D}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0x930A063F}}
 	}
 }
 o

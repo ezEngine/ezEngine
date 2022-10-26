@@ -1276,8 +1276,8 @@ o
 	u3 %v{1}
 	p
 	{
-		Angle %Max{f{0xDB0FC940}}
-		Angle %Min{f{0x35FA8E3C}}
+		Angle %Max{f{0xDC0FC940}}
+		Angle %Min{f{0x36FA8E3C}}
 	}
 }
 o
@@ -1458,7 +1458,7 @@ o
 	p
 	{
 		s %Anchor{"ezVisualizerAnchor::NegZ"}
-		Color %Color{f{0x06E73C3E,0x381C7C3E,0x9218A33E,0x0000803F}}
+		Color %Color{f{0x04E73C3E,0x381C7C3E,0x9218A33E,0x0000803F}}
 		s %Property1{"CrouchHeight"}
 		s %Property2{"ShapeRadius"}
 		s %Property3{""}
@@ -2322,7 +2322,7 @@ o
 	u3 %v{1}
 	p
 	{
-		Angle %Value{f{0xC2B8323F}}
+		Angle %Value{f{0xC4B8323F}}
 	}
 }
 o
@@ -2539,7 +2539,7 @@ o
 	u3 %v{1}
 	p
 	{
-		Angle %Value{f{0xDB0FC93F}}
+		Angle %Value{f{0xDC0FC93F}}
 	}
 }
 o

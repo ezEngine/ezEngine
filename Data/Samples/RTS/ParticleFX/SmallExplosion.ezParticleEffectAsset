@@ -11,7 +11,7 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{17186564394336932993,5559752034210902017}}
-		u4 %Hash{470568363206084637}
+		u4 %Hash{3863777707592745697}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{13842754148076809277,15694984236757704698}}
@@ -39,28 +39,6 @@ o
 }
 Objects
 {
-o
-{
-	Uuid %id{u4{13278224742924738167,1299391530145250717}}
-	s %t{"ezVarianceTypeTime"}
-	u3 %v{1}
-	p
-	{
-		Time %Value{d{0x333333333333C33F}}
-		f %Variance{0}
-	}
-}
-o
-{
-	Uuid %id{u4{13248966990026346828,1762932312394732519}}
-	s %t{"ezVarianceTypeFloat"}
-	u3 %v{1}
-	p
-	{
-		f %Value{0x0000C03F}
-		f %Variance{0x3D0AD73E}
-	}
-}
 o
 {
 	Uuid %id{u4{5375134517752270507,4658532168838639115}}
@@ -102,10 +80,14 @@ o
 {
 	Uuid %id{u4{2067877405109175425,4716670649691251566}}
 	s %t{"ezParticleInitializerFactory_RandomSize"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
-		Uuid %Size{u4{3063263955056981112,8607433601061825188}}
+		ezVarianceTypeFloat %Size
+		{
+			f %Variance{0xAE47613E}
+			f %Value{0xCDCC4C3F}
+		}
 		s %SizeCurve{""}
 	}
 }
@@ -113,7 +95,7 @@ o
 {
 	Uuid %id{u4{8080425991458034090,4787095973830133793}}
 	s %t{"ezParticleSystemDescriptor"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		VarArray %Behaviors
@@ -133,7 +115,11 @@ o
 			Uuid{u4{8108911685998174888,5262857671539342203}}
 		}
 		s %LifeScaleParam{""}
-		Uuid %LifeTime{u4{7116550433448212328,7454605799968115849}}
+		ezVarianceTypeTime %LifeTime
+		{
+			f %Variance{0x6666E63E}
+			Time %Value{d{0x666666666666E63F}}
+		}
 		s %Name{"Explosion Billboards"}
 		s %OnDeathEvent{""}
 		VarArray %Types
@@ -162,7 +148,7 @@ o
 {
 	Uuid %id{u4{14894051389150282401,4854805635746179317}}
 	s %t{"ezParticleSystemDescriptor"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		VarArray %Behaviors
@@ -176,7 +162,11 @@ o
 		}
 		VarArray %Initializers{}
 		s %LifeScaleParam{""}
-		Uuid %LifeTime{u4{13278224742924738167,1299391530145250717}}
+		ezVarianceTypeTime %LifeTime
+		{
+			f %Variance{0}
+			Time %Value{d{0x333333333333C33F}}
+		}
 		s %Name{"Flash"}
 		s %OnDeathEvent{""}
 		VarArray %Types
@@ -219,7 +209,7 @@ o
 {
 	Uuid %id{u4{4181821721407921828,5125585486928383389}}
 	s %t{"ezParticleEffectDescriptor"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %AlwaysShared{0}
@@ -253,10 +243,14 @@ o
 {
 	Uuid %id{u4{8108911685998174888,5262857671539342203}}
 	s %t{"ezParticleInitializerFactory_RandomRotationSpeed"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
-		Uuid %DegreesPerSecond{u4{17197796990814939082,18174670423973821260}}
+		ezVarianceTypeAngle %DegreesPerSecond
+		{
+			f %Variance{0xD7A3303F}
+			Angle %Value{f{0xDB0F4940}}
+		}
 		b %RandomStartAngle{0}
 	}
 }
@@ -264,7 +258,7 @@ o
 {
 	Uuid %id{u4{3492446451014440338,5282275545414461469}}
 	s %t{"ezParticleInitializerFactory_SpherePosition"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %OnSurface{0}
@@ -272,7 +266,11 @@ o
 		f %Radius{0x0AD7233C}
 		s %ScaleRadiusParam{""}
 		b %SetVelocity{1}
-		Uuid %Speed{u4{13248966990026346828,1762932312394732519}}
+		ezVarianceTypeFloat %Speed
+		{
+			f %Variance{0x3D0AD73E}
+			f %Value{0x0000C03F}
+		}
 	}
 }
 o
@@ -340,39 +338,6 @@ o
 		{
 			Uuid{u4{4181821721407921828,5125585486928383389}}
 		}
-	}
-}
-o
-{
-	Uuid %id{u4{7116550433448212328,7454605799968115849}}
-	s %t{"ezVarianceTypeTime"}
-	u3 %v{1}
-	p
-	{
-		Time %Value{d{0x666666666666E63F}}
-		f %Variance{0x6666E63E}
-	}
-}
-o
-{
-	Uuid %id{u4{3063263955056981112,8607433601061825188}}
-	s %t{"ezVarianceTypeFloat"}
-	u3 %v{1}
-	p
-	{
-		f %Value{0xCDCC4C3F}
-		f %Variance{0xAE47613E}
-	}
-}
-o
-{
-	Uuid %id{u4{17197796990814939082,18174670423973821260}}
-	s %t{"ezVarianceTypeAngle"}
-	u3 %v{1}
-	p
-	{
-		Angle %Value{f{0xDB0F4940}}
-		f %Variance{0xD7A3303F}
 	}
 }
 }
@@ -573,7 +538,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezParticleSystemDescriptor"}
 		u3 %TypeSize{448}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -591,7 +556,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezParticleInitializerFactory_RandomSize"}
 		u3 %TypeSize{24}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -734,8 +699,8 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleEffectDescriptor"}
-		u3 %TypeSize{360}
-		u3 %TypeVersion{1}
+		u3 %TypeSize{344}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -771,7 +736,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezParticleInitializerFactory_SpherePosition"}
 		u3 %TypeSize{104}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -807,7 +772,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezParticleInitializerFactory_RandomRotationSpeed"}
 		u3 %TypeSize{24}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o

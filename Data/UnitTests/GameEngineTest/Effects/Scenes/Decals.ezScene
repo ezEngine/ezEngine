@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{4114495068825608376,4693612569124721933}}
-		u4 %Hash{15497834163099604430}
+		u4 %Hash{2576876585152523910}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -50,13 +50,15 @@ o
 {
 	Uuid %id{u4{10837245717779351191,57595389489836995}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
+		b %GenerateCollision{1}
+		b %IncludeInNavmesh{1}
 		s %Material{"{ 2417d010-56d1-4645-bfa5-7bc347d4df55 }"}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x0000803F}
@@ -159,13 +161,15 @@ o
 {
 	Uuid %id{u4{13835641887959259316,847800651780126830}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
+		b %GenerateCollision{1}
+		b %IncludeInNavmesh{1}
 		s %Material{"{ 2417d010-56d1-4645-bfa5-7bc347d4df55 }"}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x0000803F}
@@ -314,13 +318,15 @@ o
 {
 	Uuid %id{u4{3273145589977244762,1486705629711386497}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
+		b %GenerateCollision{1}
+		b %IncludeInNavmesh{1}
 		s %Material{"{ f2c2c3fb-5dc5-4189-b246-4493392aecaa }"}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x0000803F}
@@ -338,13 +344,15 @@ o
 {
 	Uuid %id{u4{6400605357335993977,1536125437611562414}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
+		b %GenerateCollision{1}
+		b %IncludeInNavmesh{1}
 		s %Material{"{ 839dc50c-66bd-4557-91b3-4ed3c1e9a703 }"}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x0000803F}
@@ -362,13 +370,15 @@ o
 {
 	Uuid %id{u4{11170401160352055207,1581830638276777862}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
+		b %GenerateCollision{1}
+		b %IncludeInNavmesh{1}
 		s %Material{"{ 2417d010-56d1-4645-bfa5-7bc347d4df55 }"}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x0000803F}
@@ -386,13 +396,15 @@ o
 {
 	Uuid %id{u4{13144159585916968832,1666234105593053474}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
+		b %GenerateCollision{1}
+		b %IncludeInNavmesh{1}
 		s %Material{"{ f5b6801b-53d5-4749-b616-90170271cd68 }"}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x0000803F}
@@ -468,13 +480,15 @@ o
 {
 	Uuid %id{u4{11292800768999373206,3048169793882959833}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
+		b %GenerateCollision{1}
+		b %IncludeInNavmesh{1}
 		s %Material{"{ ff4ecbeb-c91a-4a38-b66e-dabf240152d5 }"}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x0000803F}
@@ -570,13 +584,15 @@ o
 {
 	Uuid %id{u4{11966117935052931185,3594080067260580558}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
+		b %GenerateCollision{1}
+		b %IncludeInNavmesh{1}
 		s %Material{"{ dc4b274a-7aa4-4663-b2d6-19d86951aa30 }"}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x0000803F}
@@ -594,13 +610,15 @@ o
 {
 	Uuid %id{u4{15093577702411680400,3643499875160756475}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
+		b %GenerateCollision{1}
+		b %IncludeInNavmesh{1}
 		s %Material{"{ 7ad63cae-bab3-4dc8-a5cf-0803c172a739 }"}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x0000803F}
@@ -618,13 +636,15 @@ o
 {
 	Uuid %id{u4{6131577433011744147,3662729483709221177}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
+		b %GenerateCollision{1}
+		b %IncludeInNavmesh{1}
 		s %Material{"{ 2417d010-56d1-4645-bfa5-7bc347d4df55 }"}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x0000803F}
@@ -668,13 +688,15 @@ o
 {
 	Uuid %id{u4{963234587291244852,4199322585090675532}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
+		b %GenerateCollision{1}
+		b %IncludeInNavmesh{1}
 		s %Material{"{ 2417d010-56d1-4645-bfa5-7bc347d4df55 }"}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x0000803F}
@@ -686,6 +708,16 @@ o
 		b %SlopedBottom{0}
 		b %SlopedTop{0}
 		f %Thickness{0x0000003F}
+	}
+}
+o
+{
+	Uuid %id{u4{4631371759611690133,4640262588539221199}}
+	s %t{"ezSceneLayer"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Layer{u4{4114495068825608376,4693612569124721933}}
 	}
 }
 o
@@ -910,10 +942,13 @@ o
 {
 	Uuid %id{u4{13359075245692352906,4808705898882851391}}
 	s %t{"ezSceneDocumentSettings"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
-		VarArray %ExposedProperties{}
+		VarArray %Layers
+		{
+			Uuid{u4{4631371759611690133,4640262588539221199}}
+		}
 	}
 }
 o
@@ -1246,7 +1281,7 @@ o
 {
 	Uuid %id{u4{13950190252157910406,5040533210089972224}}
 	s %t{"ezCameraComponent"}
-	u3 %v{9}
+	u3 %v{10}
 	p
 	{
 		b %Active{1}
@@ -1432,13 +1467,15 @@ o
 {
 	Uuid %id{u4{13865916819580947871,5220951664358615041}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
+		b %GenerateCollision{1}
+		b %IncludeInNavmesh{1}
 		s %Material{"{ d65800e7-6639-4be7-be45-c9b9071806e2 }"}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x0000803F}
@@ -1601,13 +1638,15 @@ o
 {
 	Uuid %id{u4{5096829619996339095,5413878273275796616}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
+		b %GenerateCollision{1}
+		b %IncludeInNavmesh{1}
 		s %Material{"{ cebac79d-f44f-4526-89b7-fb5826ddd065 }"}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x0000803E}
@@ -1694,7 +1733,7 @@ o
 {
 	Uuid %id{u4{2100521151010563466,5444163705681822405}}
 	s %t{"ezCameraComponent"}
-	u3 %v{9}
+	u3 %v{10}
 	p
 	{
 		b %Active{1}
@@ -1824,13 +1863,15 @@ o
 {
 	Uuid %id{u4{17218935119340022925,5648438764797614440}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
+		b %GenerateCollision{1}
+		b %IncludeInNavmesh{1}
 		s %Material{""}
 		s %Shape{"ezGreyBoxShape::Column"}
 		f %SizeNegX{0x0000003F}
@@ -1880,13 +1921,15 @@ o
 {
 	Uuid %id{u4{3702933292722027147,5735000138030956466}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
+		b %GenerateCollision{1}
+		b %IncludeInNavmesh{1}
 		s %Material{"{ ffd752af-28a6-4c87-874e-6d083761e9e4 }"}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x0000803E}
@@ -1936,13 +1979,15 @@ o
 {
 	Uuid %id{u4{13343550686406626707,5761901389017673549}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
+		b %GenerateCollision{1}
+		b %IncludeInNavmesh{1}
 		s %Material{""}
 		s %Shape{"ezGreyBoxShape::ArchX"}
 		f %SizeNegX{0x0000003F}
@@ -1960,13 +2005,15 @@ o
 {
 	Uuid %id{u4{10379134630474467409,5772663480318856377}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
+		b %GenerateCollision{1}
+		b %IncludeInNavmesh{1}
 		s %Material{"{ 2417d010-56d1-4645-bfa5-7bc347d4df55 }"}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x0000803F}
@@ -1984,13 +2031,15 @@ o
 {
 	Uuid %id{u4{4532743141098791749,5780326768691145206}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
+		b %GenerateCollision{1}
+		b %IncludeInNavmesh{1}
 		s %Material{"{ 2417d010-56d1-4645-bfa5-7bc347d4df55 }"}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x0000803F}
@@ -2034,13 +2083,15 @@ o
 {
 	Uuid %id{u4{17592252422807836773,6304088691544086273}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
+		b %GenerateCollision{1}
+		b %IncludeInNavmesh{1}
 		s %Material{"{ 2417d010-56d1-4645-bfa5-7bc347d4df55 }"}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x0000803F}
@@ -2058,7 +2109,7 @@ o
 {
 	Uuid %id{u4{18096612296587978288,6449934965513159559}}
 	s %t{"ezSceneDocumentRoot"}
-	u3 %v{1}
+	u3 %v{2}
 	s %n{"ObjectTree"}
 	p
 	{
@@ -2225,13 +2276,15 @@ o
 {
 	Uuid %id{u4{11104517490134971153,7239951162679525492}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
+		b %GenerateCollision{1}
+		b %IncludeInNavmesh{1}
 		s %Material{"{ f2c2c3fb-5dc5-4189-b246-4493392aecaa }"}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x0000803F}
@@ -2249,13 +2302,15 @@ o
 {
 	Uuid %id{u4{4302393159000814635,7276214397792880979}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
+		b %GenerateCollision{1}
+		b %IncludeInNavmesh{1}
 		s %Material{"{ 2417d010-56d1-4645-bfa5-7bc347d4df55 }"}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x0000803F}
@@ -2377,13 +2432,15 @@ o
 {
 	Uuid %id{u4{608875552960265265,8655906921266503017}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
+		b %GenerateCollision{1}
+		b %IncludeInNavmesh{1}
 		s %Material{"{ f3e61b7d-9784-4254-a0bb-df775cf6eaef }"}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x0000803F}
@@ -2401,13 +2458,15 @@ o
 {
 	Uuid %id{u4{15996712901798350382,8751995518950922911}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
+		b %GenerateCollision{1}
+		b %IncludeInNavmesh{1}
 		s %Material{"{ a96dcd7d-58ed-4a9c-ba36-746f8068e573 }"}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x0000803F}
@@ -2425,13 +2484,15 @@ o
 {
 	Uuid %id{u4{677428595447547981,8801415326851098828}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
+		b %GenerateCollision{1}
+		b %IncludeInNavmesh{1}
 		s %Material{"{ ff4ecbeb-c91a-4a38-b66e-dabf240152d5 }"}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x0000803F}
@@ -2475,13 +2536,15 @@ o
 {
 	Uuid %id{u4{13718293202184037192,8849555293021061824}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
+		b %GenerateCollision{1}
+		b %IncludeInNavmesh{1}
 		s %Material{"{ 2417d010-56d1-4645-bfa5-7bc347d4df55 }"}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x0000803F}
@@ -2499,13 +2562,15 @@ o
 {
 	Uuid %id{u4{1350745761501105960,9347325600228719553}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
+		b %GenerateCollision{1}
+		b %IncludeInNavmesh{1}
 		s %Material{"{ dc4b274a-7aa4-4663-b2d6-19d86951aa30 }"}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x0000803F}
@@ -3142,13 +3207,15 @@ o
 {
 	Uuid %id{u4{11510730784546490901,10583713692018479998}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
+		b %GenerateCollision{1}
+		b %IncludeInNavmesh{1}
 		s %Material{""}
 		s %Shape{"ezGreyBoxShape::RampX"}
 		f %SizeNegX{0x0000003F}
@@ -3166,13 +3233,15 @@ o
 {
 	Uuid %id{u4{7576531005503546428,10607913833496576420}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
+		b %GenerateCollision{1}
+		b %IncludeInNavmesh{1}
 		s %Material{"{ 2417d010-56d1-4645-bfa5-7bc347d4df55 }"}
 		s %Shape{"ezGreyBoxShape::Column"}
 		f %SizeNegX{0x0000803F}
@@ -3190,13 +3259,15 @@ o
 {
 	Uuid %id{u4{12043037473764592196,10652402299382670720}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
+		b %GenerateCollision{1}
+		b %IncludeInNavmesh{1}
 		s %Material{"{ a0ef32ce-e0ca-4b9e-b8ab-39e0b2767b79 }"}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x0000803F}
@@ -3331,13 +3402,15 @@ o
 {
 	Uuid %id{u4{123084878670373431,10924777389426578119}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
+		b %GenerateCollision{1}
+		b %IncludeInNavmesh{1}
 		s %Material{"{ 1551d6b1-7f83-4caa-96d4-900b0eb873b9 }"}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x0000803F}
@@ -3355,13 +3428,15 @@ o
 {
 	Uuid %id{u4{3250544646029122646,10974197197326754036}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
+		b %GenerateCollision{1}
+		b %IncludeInNavmesh{1}
 		s %Material{"{ d65800e7-6639-4be7-be45-c9b9071806e2 }"}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x0000803F}
@@ -3464,13 +3539,15 @@ o
 {
 	Uuid %id{u4{8289353675947369206,11236614808455104649}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
+		b %GenerateCollision{1}
+		b %IncludeInNavmesh{1}
 		s %Material{"{ 2417d010-56d1-4645-bfa5-7bc347d4df55 }"}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x0000803F}
@@ -3573,13 +3650,15 @@ o
 {
 	Uuid %id{u4{4074632053793907967,11495394859520164588}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
+		b %GenerateCollision{1}
+		b %IncludeInNavmesh{1}
 		s %Material{"{ 2417d010-56d1-4645-bfa5-7bc347d4df55 }"}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x0000803F}
@@ -3597,13 +3676,15 @@ o
 {
 	Uuid %id{u4{10724244421456596201,11998472451060189390}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
+		b %GenerateCollision{1}
+		b %IncludeInNavmesh{1}
 		s %Material{"{ 2417d010-56d1-4645-bfa5-7bc347d4df55 }"}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x0000803F}
@@ -3647,13 +3728,15 @@ o
 {
 	Uuid %id{u4{1693400390930267142,13571813346288370235}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
+		b %GenerateCollision{1}
+		b %IncludeInNavmesh{1}
 		s %Material{"{ 2417d010-56d1-4645-bfa5-7bc347d4df55 }"}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x0000803F}
@@ -3801,13 +3884,15 @@ o
 {
 	Uuid %id{u4{17015977530887819202,14229623978352975035}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
+		b %GenerateCollision{1}
+		b %IncludeInNavmesh{1}
 		s %Material{"{ 839dc50c-66bd-4557-91b3-4ed3c1e9a703 }"}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x0000803F}
@@ -3852,13 +3937,15 @@ o
 {
 	Uuid %id{u4{5312787685759242441,14359732646334466095}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
+		b %GenerateCollision{1}
+		b %IncludeInNavmesh{1}
 		s %Material{"{ f5b6801b-53d5-4749-b616-90170271cd68 }"}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x0000803F}
@@ -3908,13 +3995,15 @@ o
 {
 	Uuid %id{u4{8440247453117991656,14409152454234642012}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
+		b %GenerateCollision{1}
+		b %IncludeInNavmesh{1}
 		s %Material{"{ f3e61b7d-9784-4254-a0bb-df775cf6eaef }"}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x0000803F}
@@ -3932,13 +4021,15 @@ o
 {
 	Uuid %id{u4{5381340728246525157,14505241051919061906}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
+		b %GenerateCollision{1}
+		b %IncludeInNavmesh{1}
 		s %Material{"{ a96dcd7d-58ed-4a9c-ba36-746f8068e573 }"}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x0000803F}
@@ -3983,13 +4074,15 @@ o
 {
 	Uuid %id{u4{7413790625503477750,14572286672222370035}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
+		b %GenerateCollision{1}
+		b %IncludeInNavmesh{1}
 		s %Material{"{ 2417d010-56d1-4645-bfa5-7bc347d4df55 }"}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x0000803F}
@@ -4150,13 +4243,15 @@ o
 {
 	Uuid %id{u4{12251944924393162673,15681976559527360852}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{4}
+		b %GenerateCollision{1}
+		b %IncludeInNavmesh{1}
 		s %Material{""}
 		s %Shape{"ezGreyBoxShape::StairsX"}
 		f %SizeNegX{0x5C8F023F}
@@ -4337,13 +4432,15 @@ o
 {
 	Uuid %id{u4{7262205802253954009,16336998415902169096}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
+		b %GenerateCollision{1}
+		b %IncludeInNavmesh{1}
 		s %Material{"{ 7ad63cae-bab3-4dc8-a5cf-0803c172a739 }"}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x0000803F}
@@ -4361,13 +4458,15 @@ o
 {
 	Uuid %id{u4{15758124482714375119,16351469642444418209}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
+		b %GenerateCollision{1}
+		b %IncludeInNavmesh{1}
 		s %Material{"{ 2417d010-56d1-4645-bfa5-7bc347d4df55 }"}
 		s %Shape{"ezGreyBoxShape::Column"}
 		f %SizeNegX{0x0000803F}
@@ -4385,13 +4484,15 @@ o
 {
 	Uuid %id{u4{16746949606563569372,16356228024450633798}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
+		b %GenerateCollision{1}
+		b %IncludeInNavmesh{1}
 		s %Material{"{ 2417d010-56d1-4645-bfa5-7bc347d4df55 }"}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x0000803F}
@@ -4409,13 +4510,15 @@ o
 {
 	Uuid %id{u4{1427665300212766971,16405647832350809715}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
+		b %GenerateCollision{1}
+		b %IncludeInNavmesh{1}
 		s %Material{"{ a0ef32ce-e0ca-4b9e-b8ab-39e0b2767b79 }"}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x0000803F}
@@ -4485,13 +4588,15 @@ o
 {
 	Uuid %id{u4{7954456778828099822,16678022922394717114}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
+		b %GenerateCollision{1}
+		b %IncludeInNavmesh{1}
 		s %Material{"{ 1551d6b1-7f83-4caa-96d4-900b0eb873b9 }"}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x0000803F}
@@ -4509,13 +4614,15 @@ o
 {
 	Uuid %id{u4{1421345674596128634,16930998567971207766}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
+		b %GenerateCollision{1}
+		b %IncludeInNavmesh{1}
 		s %Material{"{ 2417d010-56d1-4645-bfa5-7bc347d4df55 }"}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x0000803F}
@@ -4533,13 +4640,15 @@ o
 {
 	Uuid %id{u4{7831242588642485424,16951682899284124031}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
+		b %GenerateCollision{1}
+		b %IncludeInNavmesh{1}
 		s %Material{"{ 2417d010-56d1-4645-bfa5-7bc347d4df55 }"}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x0000803F}
@@ -4638,24 +4747,6 @@ o
 }
 o
 {
-	Uuid %id{u4{11638255232360359673,3108610646416571142}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezReflectedClass"}
-		s %PluginName{"ezEditorPluginScene"}
-		VarArray %Properties{}
-		s %TypeName{"ezExposedSceneProperty"}
-		u3 %TypeSize{152}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
 	Uuid %id{u4{15272284220582915620,3290797833852729302}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -4688,6 +4779,42 @@ o
 		s %TypeName{"ezMeshComponent"}
 		u3 %TypeSize{104}
 		u3 %TypeVersion{3}
+	}
+}
+o
+{
+	Uuid %id{u4{5195345338716098525,5056385137718360950}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginScene"}
+		VarArray %Properties{}
+		s %TypeName{"ezSceneLayerBase"}
+		u3 %TypeSize{16}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{5837165590562654431,6019321076980052009}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezSceneLayerBase"}
+		s %PluginName{"ezEditorPluginScene"}
+		VarArray %Properties{}
+		s %TypeName{"ezSceneLayer"}
+		u3 %TypeSize{32}
+		u3 %TypeVersion{1}
 	}
 }
 o
@@ -4772,12 +4899,12 @@ o
 		VarArray %Attributes{}
 		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
 		VarArray %Functions{}
-		s %ParentTypeName{"ezReflectedClass"}
+		s %ParentTypeName{"ezSceneDocumentSettingsBase"}
 		s %PluginName{"ezEditorPluginScene"}
 		VarArray %Properties{}
 		s %TypeName{"ezSceneDocumentSettings"}
-		u3 %TypeSize{32}
-		u3 %TypeVersion{1}
+		u3 %TypeSize{40}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -4831,7 +4958,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezSceneDocumentRoot"}
 		u3 %TypeSize{80}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -4867,7 +4994,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezCameraComponent"}
 		u3 %TypeSize{504}
-		u3 %TypeVersion{9}
+		u3 %TypeVersion{10}
 	}
 }
 o
@@ -4886,6 +5013,24 @@ o
 		s %TypeName{"ezDirectionalLightComponent"}
 		u3 %TypeSize{96}
 		u3 %TypeVersion{3}
+	}
+}
+o
+{
+	Uuid %id{u4{14700230518358869173,11472901527618371423}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginScene"}
+		VarArray %Properties{}
+		s %TypeName{"ezSceneDocumentSettingsBase"}
+		u3 %TypeSize{8}
+		u3 %TypeVersion{1}
 	}
 }
 o
@@ -4957,7 +5102,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezGreyBoxComponent"}
 		u3 %TypeSize{128}
-		u3 %TypeVersion{3}
+		u3 %TypeVersion{4}
 	}
 }
 o
