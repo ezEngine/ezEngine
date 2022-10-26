@@ -62,8 +62,7 @@ public:
     {
       ezProcessAssetResponseMsg msg;
       {
-        ezLogEntryDelegate logger([&msg](ezLogEntry& entry) -> void
-          { msg.m_LogEntries.PushBack(std::move(entry)); },
+        ezLogEntryDelegate logger([&msg](ezLogEntry& entry) -> void { msg.m_LogEntries.PushBack(std::move(entry)); },
           ezLogMsgType::WarningMsg);
         ezLogSystemScope logScope(&logger);
 
@@ -153,8 +152,7 @@ public:
 
       bool bTransform = true;
 
-      ezQtEditorApp::GetSingleton()->connect(ezQtEditorApp::GetSingleton(), &ezQtEditorApp::IdleEvent, ezQtEditorApp::GetSingleton(), [this, &bTransform]()
-        {
+      ezQtEditorApp::GetSingleton()->connect(ezQtEditorApp::GetSingleton(), &ezQtEditorApp::IdleEvent, ezQtEditorApp::GetSingleton(), [this, &bTransform]() {
         if (!bTransform)
           return;
 
@@ -193,8 +191,7 @@ public:
     {
       ezQtEditorApp::GetSingleton()->OpenProject(sProject).IgnoreResult();
 
-      ezQtEditorApp::GetSingleton()->connect(ezQtEditorApp::GetSingleton(), &ezQtEditorApp::IdleEvent, ezQtEditorApp::GetSingleton(), [this]()
-        {
+      ezQtEditorApp::GetSingleton()->connect(ezQtEditorApp::GetSingleton(), &ezQtEditorApp::IdleEvent, ezQtEditorApp::GetSingleton(), [this]() {
         ezAssetCurator::GetSingleton()->ResaveAllAssets();
         
           if (opt_Debug.GetOptionValue(ezCommandLineOption::LogMode::Always))
@@ -217,8 +214,7 @@ public:
         m_IPC.m_Events.AddEventHandler(ezMakeDelegate(&ezEditorApplication::EventHandlerIPC, this));
 
         ezQtEditorApp::GetSingleton()->OpenProject(sProject).IgnoreResult();
-        ezQtEditorApp::GetSingleton()->connect(ezQtEditorApp::GetSingleton(), &ezQtEditorApp::IdleEvent, ezQtEditorApp::GetSingleton(), [this]()
-          {
+        ezQtEditorApp::GetSingleton()->connect(ezQtEditorApp::GetSingleton(), &ezQtEditorApp::IdleEvent, ezQtEditorApp::GetSingleton(), [this]() {
           static bool bRecursionBlock = false;
           if (bRecursionBlock)
             return;
