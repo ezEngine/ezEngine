@@ -76,14 +76,39 @@ EZ_ALWAYS_INLINE void ezStringView::SetStartPosition(const char* szCurPos)
   m_pStart = szCurPos;
 }
 
-EZ_ALWAYS_INLINE bool ezStringView::IsEqual(const ezStringView& sOther) const
+EZ_ALWAYS_INLINE bool ezStringView::IsEmpty() const
 {
-  return ezStringUtils::IsEqualN(m_pStart, sOther.m_pStart, static_cast<ezUInt32>(-1), m_pEnd, sOther.m_pEnd);
+  return m_pStart == m_pEnd || ezStringUtils::IsNullOrEmpty(m_pStart);
 }
 
-EZ_ALWAYS_INLINE bool ezStringView::IsEqual_NoCase(const ezStringView& sOther) const
+EZ_ALWAYS_INLINE bool ezStringView::IsEqual(ezStringView sOther) const
 {
-  return ezStringUtils::IsEqualN_NoCase(m_pStart, sOther.m_pStart, static_cast<ezUInt32>(-1), m_pEnd, sOther.m_pEnd);
+  return ezStringUtils::IsEqual(m_pStart, sOther.GetStartPointer(), m_pEnd, sOther.GetEndPointer());
+}
+
+EZ_ALWAYS_INLINE bool ezStringView::IsEqual_NoCase(ezStringView sOther) const
+{
+  return ezStringUtils::IsEqual_NoCase(m_pStart, sOther.GetStartPointer(), m_pEnd, sOther.GetEndPointer());
+}
+
+EZ_ALWAYS_INLINE bool ezStringView::StartsWith(ezStringView sStartsWith) const
+{
+  return ezStringUtils::StartsWith(m_pStart, sStartsWith.GetStartPointer(), m_pEnd, sStartsWith.GetEndPointer());
+}
+
+EZ_ALWAYS_INLINE bool ezStringView::StartsWith_NoCase(ezStringView sStartsWith) const
+{
+  return ezStringUtils::StartsWith_NoCase(m_pStart, sStartsWith.GetStartPointer(), m_pEnd, sStartsWith.GetEndPointer());
+}
+
+EZ_ALWAYS_INLINE bool ezStringView::EndsWith(ezStringView sEndsWith) const
+{
+  return ezStringUtils::EndsWith(m_pStart, sEndsWith.GetStartPointer(), m_pEnd, sEndsWith.GetEndPointer());
+}
+
+EZ_ALWAYS_INLINE bool ezStringView::EndsWith_NoCase(ezStringView sEndsWith) const
+{
+  return ezStringUtils::EndsWith_NoCase(m_pStart, sEndsWith.GetStartPointer(), m_pEnd, sEndsWith.GetEndPointer());
 }
 
 EZ_ALWAYS_INLINE void ezStringView::Trim(const char* szTrimChars)
@@ -114,12 +139,7 @@ void ezStringView::Split(bool bReturnEmptyStrings, Container& Output, const char
 
   const ezUInt32 uiParams = 6;
 
-  const char* Seps[uiParams] = {szSeparator1, szSeparator2, szSeparator3, szSeparator4, szSeparator5, szSeparator6};
-
-  ezUInt32 SepLen[uiParams];
-
-  for (ezInt32 i = 0; i < uiParams; ++i)
-    SepLen[i] = ezStringUtils::GetStringElementCount(Seps[i]);
+  const ezStringView seps[uiParams] = {szSeparator1, szSeparator2, szSeparator3, szSeparator4, szSeparator5, szSeparator6};
 
   const char* szReadPos = GetStartPointer();
 
@@ -130,7 +150,7 @@ void ezStringView::Split(bool bReturnEmptyStrings, Container& Output, const char
 
     for (ezInt32 i = 0; i < uiParams; ++i)
     {
-      const char* szFound = ezStringUtils::FindSubString(szReadPos, Seps[i], GetEndPointer());
+      const char* szFound = ezStringUtils::FindSubString(szReadPos, seps[i].GetStartPointer(), GetEndPointer(), seps[i].GetEndPointer());
 
       if ((szFound != nullptr) && (szFound < szFoundPos))
       {
@@ -153,6 +173,36 @@ void ezStringView::Split(bool bReturnEmptyStrings, Container& Output, const char
     if (bReturnEmptyStrings || (szFoundPos > szReadPos))
       Output.PushBack(ezStringView(szReadPos, szFoundPos));
 
-    szReadPos = szFoundPos + SepLen[iFoundSeparator];
+    szReadPos = szFoundPos + seps[iFoundSeparator].GetElementCount();
   }
+}
+
+EZ_ALWAYS_INLINE bool operator==(ezStringView lhs, ezStringView rhs)
+{
+  return lhs.IsEqual(rhs);
+}
+
+EZ_ALWAYS_INLINE bool operator!=(ezStringView lhs, ezStringView rhs)
+{
+  return !lhs.IsEqual(rhs);
+}
+
+EZ_ALWAYS_INLINE bool operator<(ezStringView lhs, ezStringView rhs)
+{
+  return lhs.Compare(rhs) < 0;
+}
+
+EZ_ALWAYS_INLINE bool operator<=(ezStringView lhs, ezStringView rhs)
+{
+  return lhs.Compare(rhs) <= 0;
+}
+
+EZ_ALWAYS_INLINE bool operator>(ezStringView lhs, ezStringView rhs)
+{
+  return lhs.Compare(rhs) > 0;
+}
+
+EZ_ALWAYS_INLINE bool operator>=(ezStringView lhs, ezStringView rhs)
+{
+  return lhs.Compare(rhs) >= 0;
 }

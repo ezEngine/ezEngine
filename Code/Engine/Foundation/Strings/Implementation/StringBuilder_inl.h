@@ -93,17 +93,6 @@ EZ_ALWAYS_INLINE ezUInt32 ezStringBuilder::GetCharacterCount() const
   return m_uiCharacterCount;
 }
 
-EZ_ALWAYS_INLINE ezStringBuilder::operator ezStringView() const
-{
-  return ezStringView(GetData(), GetData() + GetElementCount());
-}
-
-
-EZ_ALWAYS_INLINE ezStringView ezStringBuilder::GetView() const
-{
-  return ezStringView(GetData(), GetData() + GetElementCount());
-}
-
 EZ_FORCE_INLINE void ezStringBuilder::Clear()
 {
   m_uiCharacterCount = 0;
@@ -235,12 +224,6 @@ EZ_ALWAYS_INLINE void ezStringBuilder::Insert(const char* szInsertAtPos, ezStrin
 EZ_ALWAYS_INLINE void ezStringBuilder::Remove(const char* szRemoveFromPos, const char* szRemoveToPos)
 {
   ReplaceSubString(szRemoveFromPos, szRemoveToPos, ezStringView());
-}
-
-template <typename Container>
-void ezStringBuilder::Split(bool bReturnEmptyStrings, Container& Output, const char* szSeparator1, const char* szSeparator2 /*= nullptr*/, const char* szSeparator3 /*= nullptr*/, const char* szSeparator4 /*= nullptr*/, const char* szSeparator5 /*= nullptr*/, const char* szSeparator6 /*= nullptr*/) const
-{
-  GetView().Split(bReturnEmptyStrings, Output, szSeparator1, szSeparator2, szSeparator3, szSeparator4, szSeparator5, szSeparator6);
 }
 
 #include <Foundation/Strings/Implementation/AllStrings_inl.h>
