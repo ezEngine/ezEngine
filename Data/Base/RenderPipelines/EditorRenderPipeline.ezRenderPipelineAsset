@@ -1126,7 +1126,7 @@ o
 			Uuid{u4{16631111678292622734,8500933737344926134}}
 		}
 		s %TypeName{"ezSceneContext"}
-		u3 %TypeSize{1952}
+		u3 %TypeSize{1864}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1822,7 +1822,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezEngineProcessDocumentContext"}
-		u3 %TypeSize{1408}
+		u3 %TypeSize{1344}
 		u3 %TypeVersion{1}
 	}
 }

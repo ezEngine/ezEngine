@@ -11,7 +11,7 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{6696701476900579496,5065862237878634315}}
-		u4 %Hash{375029842634275798}
+		u4 %Hash{2456930666318341753}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{12114396868059495232,13956055699725091525}}
@@ -72,10 +72,14 @@ o
 {
 	Uuid %id{u4{4915864095262288559,4716818147510191439}}
 	s %t{"ezParticleInitializerFactory_RandomRotationSpeed"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
-		Uuid %DegreesPerSecond{u4{6038251069748588870,17828266013256300922}}
+		ezVarianceTypeAngle %DegreesPerSecond
+		{
+			f %Variance{0x295C8F3E}
+			Angle %Value{f{0xF366DF3F}}
+		}
 		b %RandomStartAngle{0}
 	}
 }
@@ -151,7 +155,7 @@ o
 {
 	Uuid %id{u4{702992980361637528,5664732969217542085}}
 	s %t{"ezParticleSystemDescriptor"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		VarArray %Behaviors
@@ -169,7 +173,11 @@ o
 			Uuid{u4{7424904410025456750,5492728491108074419}}
 		}
 		s %LifeScaleParam{""}
-		Uuid %LifeTime{u4{8024758494444626280,6539780014714069670}}
+		ezVarianceTypeTime %LifeTime
+		{
+			f %Variance{0}
+			Time %Value{d{0xCDCCCCCCCCCCFC3F}}
+		}
 		s %Name{"system"}
 		s %OnDeathEvent{""}
 		VarArray %Types
@@ -202,28 +210,6 @@ o
 		{
 			Uuid{u4{5233509145189759103,5286491623678019220}}
 		}
-	}
-}
-o
-{
-	Uuid %id{u4{8024758494444626280,6539780014714069670}}
-	s %t{"ezVarianceTypeTime"}
-	u3 %v{1}
-	p
-	{
-		Time %Value{d{0xCDCCCCCCCCCCFC3F}}
-		f %Variance{0}
-	}
-}
-o
-{
-	Uuid %id{u4{6038251069748588870,17828266013256300922}}
-	s %t{"ezVarianceTypeAngle"}
-	u3 %v{1}
-	p
-	{
-		Angle %Value{f{0xF366DF3F}}
-		f %Variance{0x295C8F3E}
 	}
 }
 }
@@ -406,7 +392,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezParticleSystemDescriptor"}
 		u3 %TypeSize{448}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -531,7 +517,7 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleEffectDescriptor"}
-		u3 %TypeSize{360}
+		u3 %TypeSize{344}
 		u3 %TypeVersion{2}
 	}
 }
@@ -568,7 +554,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezParticleInitializerFactory_RandomRotationSpeed"}
 		u3 %TypeSize{24}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o

@@ -18,7 +18,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{6046002851915323275,4632268703284350344}}
-		u4 %Hash{4316609314833975936}
+		u4 %Hash{15560293906895005101}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{18187993782677452318,14698659155014457594}}
@@ -317,8 +317,6 @@ o
 	{
 		b %Active{1}
 		u1 %CollisionLayer{9}
-		s %OnContact{""}
-		s %Surface{""}
 		s %TriggerMessage{"Pickup"}
 	}
 }
@@ -352,21 +350,6 @@ o
 }
 Types
 {
-o
-{
-	Uuid %id{u4{2426252493509594648,173597768056081955}}
-	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{2}
-	p
-	{
-		VarArray %Attributes{}
-		s %Category{"ezPropertyCategory::Constant"}
-		u3 %ConstantValue{2}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
-		s %Name{"ezOnJoltContact::ImpactReactions"}
-		s %Type{"ezUInt32"}
-	}
-}
 o
 {
 	Uuid %id{u4{6914292285925798136,1108246313736053318}}
@@ -420,7 +403,7 @@ o
 			Uuid{u4{11538623336858031912,16360406032762644394}}
 		}
 		s %TypeName{"ezJoltTriggerComponent"}
-		u3 %TypeSize{104}
+		u3 %TypeSize{88}
 		u3 %TypeVersion{1}
 	}
 }
@@ -480,30 +463,13 @@ o
 }
 o
 {
-	Uuid %id{u4{15641940968212158516,5415403041872277957}}
-	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{2}
-	p
-	{
-		VarArray %Attributes
-		{
-			Uuid{u4{5560441460529359506,16834072186638028174}}
-		}
-		s %Category{"ezPropertyCategory::Member"}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Const|ezPropertyFlags::Phantom"}
-		s %Name{"Surface"}
-		s %Type{"ezConstCharPtr"}
-	}
-}
-o
-{
 	Uuid %id{u4{15911470964782105249,5599265681763992237}}
 	s %t{"ezSphereVisualizerAttribute"}
 	u3 %v{1}
 	p
 	{
 		s %Anchor{""}
-		Color %Color{f{0x4035123F,0x70BAF53B,0x0C2E703E,0x0000803F}}
+		Color %Color{f{0x4035123F,0x70BAF53B,0x082E703E,0x0000803F}}
 		Vec3 %OffsetOrScale{f{0,0,0}}
 		s %Property1{"Radius"}
 		s %Property2{""}
@@ -607,24 +573,6 @@ o
 }
 o
 {
-	Uuid %id{u4{11005437603101136476,7368533338987833088}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{""}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezBitflagsBase"}
-		u3 %TypeSize{1}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
 	Uuid %id{u4{14959600739992083939,7823142109229508990}}
 	s %t{"ezClampValueAttribute"}
 	u3 %v{1}
@@ -649,6 +597,24 @@ o
 		s %TypeName{"ezDocumentRoot"}
 		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{6455811171020428811,8830539819506900889}}
+	s %t{"ezReflectedFunctionDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Arguments{}
+		VarArray %Attributes
+		{
+			Uuid{u4{69518745894662297,10990922075697539529}}
+		}
+		s %Flags{"ezPropertyFlags::Phantom"}
+		s %Name{"GetObjectFilterID"}
+		Uuid %ReturnValue{u4{2797605736284022243,11870783614192411682}}
+		s %Type{"ezFunctionType::Member"}
 	}
 }
 o
@@ -752,6 +718,27 @@ o
 }
 o
 {
+	Uuid %id{u4{69518745894662297,10990922075697539529}}
+	s %t{"ezScriptableFunctionAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Arg1{""}
+		s %Arg2{""}
+		s %Arg3{""}
+		s %Arg4{""}
+		s %Arg5{""}
+		s %Arg6{""}
+		u1 %ArgType1{0}
+		u1 %ArgType2{0}
+		u1 %ArgType3{0}
+		u1 %ArgType4{0}
+		u1 %ArgType5{0}
+		u1 %ArgType6{0}
+	}
+}
+o
+{
 	Uuid %id{u4{14700230518358869173,11472901527618371423}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -813,16 +800,13 @@ o
 }
 o
 {
-	Uuid %id{u4{15632703665018071409,12071449910223717842}}
-	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{2}
+	Uuid %id{u4{2797605736284022243,11870783614192411682}}
+	s %t{"ezFunctionArgumentDescriptor"}
+	u3 %v{1}
 	p
 	{
-		VarArray %Attributes{}
-		s %Category{"ezPropertyCategory::Member"}
-		s %Flags{"ezPropertyFlags::Bitflags|ezPropertyFlags::Phantom"}
-		s %Name{"OnContact"}
-		s %Type{"ezOnJoltContact"}
+		s %Flags{"ezPropertyFlags::StandardType"}
+		s %Type{"ezUInt32"}
 	}
 }
 o
@@ -860,21 +844,6 @@ o
 }
 o
 {
-	Uuid %id{u4{13921691047539658865,12133944598916634195}}
-	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{2}
-	p
-	{
-		VarArray %Attributes{}
-		s %Category{"ezPropertyCategory::Constant"}
-		u3 %ConstantValue{0}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
-		s %Name{"ezOnJoltContact::Default"}
-		s %Type{"ezUInt32"}
-	}
-}
-o
-{
 	Uuid %id{u4{6839391121561780669,12349512622905798822}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -885,33 +854,19 @@ o
 			Uuid{u4{7585678339610765090,10824635046145399990}}
 		}
 		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Phantom"}
-		VarArray %Functions{}
+		VarArray %Functions
+		{
+			Uuid{u4{6455811171020428811,8830539819506900889}}
+		}
 		s %ParentTypeName{"ezComponent"}
 		s %PluginName{"ezJoltPlugin"}
 		VarArray %Properties
 		{
 			Uuid{u4{1169733456550287353,10163373658405488592}}
-			Uuid{u4{15641940968212158516,5415403041872277957}}
-			Uuid{u4{15632703665018071409,12071449910223717842}}
 		}
 		s %TypeName{"ezJoltActorComponent"}
-		u3 %TypeSize{80}
+		u3 %TypeSize{64}
 		u3 %TypeVersion{2}
-	}
-}
-o
-{
-	Uuid %id{u4{10978320672206549557,12762230762093447539}}
-	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{2}
-	p
-	{
-		VarArray %Attributes{}
-		s %Category{"ezPropertyCategory::Constant"}
-		u3 %ConstantValue{8}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
-		s %Name{"ezOnJoltContact::RollXReactions"}
-		s %Type{"ezUInt32"}
 	}
 }
 o
@@ -940,21 +895,6 @@ o
 	p
 	{
 		f %Value{0x0000003F}
-	}
-}
-o
-{
-	Uuid %id{u4{12168407674813784746,15201450324390394320}}
-	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{2}
-	p
-	{
-		VarArray %Attributes{}
-		s %Category{"ezPropertyCategory::Constant"}
-		u3 %ConstantValue{16}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
-		s %Name{"ezOnJoltContact::RollYReactions"}
-		s %Type{"ezUInt32"}
 	}
 }
 o
@@ -989,72 +929,6 @@ o
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Const|ezPropertyFlags::Phantom"}
 		s %Name{"TriggerMessage"}
 		s %Type{"ezConstCharPtr"}
-	}
-}
-o
-{
-	Uuid %id{u4{5560441460529359506,16834072186638028174}}
-	s %t{"ezAssetBrowserAttribute"}
-	u3 %v{1}
-	p
-	{
-		s %Filter{";Surface;"}
-	}
-}
-o
-{
-	Uuid %id{u4{13959370910449580650,17446532125027196114}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Bitflags|ezTypeFlags::Phantom"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezBitflagsBase"}
-		s %PluginName{"ezJoltPlugin"}
-		VarArray %Properties
-		{
-			Uuid{u4{13921691047539658865,12133944598916634195}}
-			Uuid{u4{2426252493509594648,173597768056081955}}
-			Uuid{u4{16229933114051832847,17764046650701996163}}
-			Uuid{u4{10978320672206549557,12762230762093447539}}
-			Uuid{u4{12168407674813784746,15201450324390394320}}
-			Uuid{u4{8247671856237943234,17604851697150064637}}
-		}
-		s %TypeName{"ezOnJoltContact"}
-		u3 %TypeSize{1}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{8247671856237943234,17604851697150064637}}
-	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{2}
-	p
-	{
-		VarArray %Attributes{}
-		s %Category{"ezPropertyCategory::Constant"}
-		u3 %ConstantValue{32}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
-		s %Name{"ezOnJoltContact::RollZReactions"}
-		s %Type{"ezUInt32"}
-	}
-}
-o
-{
-	Uuid %id{u4{16229933114051832847,17764046650701996163}}
-	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{2}
-	p
-	{
-		VarArray %Attributes{}
-		s %Category{"ezPropertyCategory::Constant"}
-		u3 %ConstantValue{4}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
-		s %Name{"ezOnJoltContact::SlideReactions"}
-		s %Type{"ezUInt32"}
 	}
 }
 o

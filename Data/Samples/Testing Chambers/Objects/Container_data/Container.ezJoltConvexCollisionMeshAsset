@@ -14,7 +14,7 @@ o
 			s{"Objects/Container_data/Container.FBX"}
 		}
 		Uuid %DocumentID{u4{9737614160977163965,4909594793944982026}}
-		u4 %Hash{10648574257658958583}
+		u4 %Hash{8658885423012322559}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -33,6 +33,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Exclude{0}
 		s %Label{"14 - Default"}
 		s %Resource{"{ 72115f7a-5947-4a21-899f-868368bd41d7 }"}
 	}
@@ -54,6 +55,7 @@ o
 		f %Radius{0x0000003F}
 		f %Radius2{0x0000003F}
 		s %RightDir{"ezBasisAxis::PositiveX"}
+		s %Surface{""}
 		VarArray %Surfaces
 		{
 			Uuid{u4{2612131944489264829,5066041123431898410}}
@@ -111,7 +113,7 @@ o
 		s %PluginName{"ezEditorPluginJolt"}
 		VarArray %Properties{}
 		s %TypeName{"ezJoltSurfaceResourceSlot"}
-		u3 %TypeSize{128}
+		u3 %TypeSize{136}
 		u3 %TypeVersion{1}
 	}
 }
@@ -129,7 +131,7 @@ o
 		s %PluginName{"ezEditorPluginJolt"}
 		VarArray %Properties{}
 		s %TypeName{"ezJoltCollisionMeshAssetProperties"}
-		u3 %TypeSize{1160}
+		u3 %TypeSize{1288}
 		u3 %TypeVersion{1}
 	}
 }

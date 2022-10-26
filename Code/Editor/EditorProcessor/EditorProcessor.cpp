@@ -13,6 +13,7 @@
 ezCommandLineOptionPath opt_OutputDir("_EditorProcessor", "-outputDir", "Output directory", "");
 ezCommandLineOptionBool opt_Debug("_EditorProcessor", "-debug", "Writes various debug logs into the output folder.", false);
 ezCommandLineOptionPath opt_Project("_EditorProcessor", "-project", "Path to the project folder.", "");
+ezCommandLineOptionBool opt_Resave("_EditorProcessor", "-resave", "If specified, assets will be resaved.", "");
 ezCommandLineOptionString opt_Transform("_EditorProcessor", "-transform", "If specified, assets will be transformed for the given platform profile.\n\
 \n\
 Example:\n\
@@ -61,7 +62,8 @@ public:
     {
       ezProcessAssetResponseMsg msg;
       {
-        ezLogEntryDelegate logger([&msg](ezLogEntry& entry) -> void { msg.m_LogEntries.PushBack(std::move(entry)); }, ezLogMsgType::WarningMsg);
+        ezLogEntryDelegate logger([&msg](ezLogEntry& entry) -> void { msg.m_LogEntries.PushBack(std::move(entry)); },
+          ezLogMsgType::WarningMsg);
         ezLogSystemScope logScope(&logger);
 
         const ezUInt32 uiPlatform = ezAssetCurator::GetSingleton()->FindAssetProfileByName(pMsg->m_sPlatform);
@@ -179,8 +181,26 @@ public:
           }
         }
 
-        QApplication::quit();
-      });
+        QApplication::quit(); });
+
+      const ezInt32 iReturnCode = ezQtEditorApp::GetSingleton()->RunEditor();
+      if (iReturnCode != 0)
+        SetReturnCode(iReturnCode);
+    }
+    else if (opt_Resave.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified))
+    {
+      ezQtEditorApp::GetSingleton()->OpenProject(sProject).IgnoreResult();
+
+      ezQtEditorApp::GetSingleton()->connect(ezQtEditorApp::GetSingleton(), &ezQtEditorApp::IdleEvent, ezQtEditorApp::GetSingleton(), [this]() {
+        ezAssetCurator::GetSingleton()->ResaveAllAssets();
+        
+          if (opt_Debug.GetOptionValue(ezCommandLineOption::LogMode::Always))
+          {
+            ezActionContext context;
+            ezActionManager::ExecuteAction("Engine", "Editor.SaveProfiling", context).IgnoreResult();
+          }
+
+        QApplication::quit(); });
 
       const ezInt32 iReturnCode = ezQtEditorApp::GetSingleton()->RunEditor();
       if (iReturnCode != 0)
@@ -205,8 +225,7 @@ public:
 
           m_IPC.WaitForMessages();
 
-          bRecursionBlock = false;
-        });
+          bRecursionBlock = false; });
 
         const ezInt32 iReturnCode = ezQtEditorApp::GetSingleton()->RunEditor();
         SetReturnCode(iReturnCode);

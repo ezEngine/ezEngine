@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{17626430219778045362,5283987167320039176}}
-		u4 %Hash{17974631882476877099}
+		u4 %Hash{519253480574253226}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -2812,7 +2812,7 @@ o
 	u3 %v{1}
 	p
 	{
-		s %Category{"Physics/PhysX/Animation"}
+		s %Category{"Physics/Jolt/Animation"}
 	}
 }
 o
@@ -2829,7 +2829,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSimpleAnimationComponent"}
-		u3 %TypeSize{120}
+		u3 %TypeSize{112}
 		u3 %TypeVersion{1}
 	}
 }
@@ -3199,7 +3199,7 @@ o
 	u3 %v{1}
 	p
 	{
-		s %Filter{";Jolt_Colmesh_Triangle;Jolt_Colmesh_Convex;"}
+		s %Filter{";CompatibleAsset_Jolt_Colmesh_Triangle;"}
 	}
 }
 o
@@ -4213,7 +4213,7 @@ o
 	u3 %v{1}
 	p
 	{
-		s %Filter{";Surface;"}
+		s %Filter{";CompatibleAsset_Surface;"}
 	}
 }
 o
@@ -4224,7 +4224,7 @@ o
 	p
 	{
 		s %Anchor{""}
-		Color %Color{f{0x4035123F,0x70BAF53B,0x0C2E703E,0x0000803F}}
+		Color %Color{f{0x4035123F,0x70BAF53B,0x082E703E,0x0000803F}}
 		Vec3 %OffsetOrScale{f{0,0,0}}
 		s %Property1{"HalfExtents"}
 		s %Property2{""}

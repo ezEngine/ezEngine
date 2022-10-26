@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{18057468653562690442,4916190091500798880}}
-		u4 %Hash{14160869390350118708}
+		u4 %Hash{8291775709204944164}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -767,15 +767,23 @@ o
 {
 	Uuid %id{u4{11112061978945997207,5086723015717563688}}
 	s %t{"ezSkyLightComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
 		s %CubeMap{""}
+		VarArray %ExcludeTags{}
+		f %FarPlane{0x0000C842}
+		VarArray %IncludeTags
+		{
+			s{"SkyLight"}
+		}
 		f %Intensity{0x9A99993E}
-		Uuid %ReflectionData{u4{985152333752212664,10009268864932231227}}
+		f %NearPlane{0}
 		s %ReflectionProbeMode{"ezReflectionProbeMode::Dynamic"}
 		f %Saturation{0x9A99993E}
+		b %ShowDebugInfo{0}
+		b %ShowMipMaps{0}
 	}
 }
 o
@@ -1554,21 +1562,6 @@ o
 			s{"CastShadow"}
 			s{"AutoColMesh"}
 		}
-	}
-}
-o
-{
-	Uuid %id{u4{985152333752212664,10009268864932231227}}
-	s %t{"ezReflectionProbeData"}
-	u3 %v{2}
-	p
-	{
-		VarArray %ExcludeTags{}
-		VarArray %IncludeTags
-		{
-			s{"SkyLight"}
-		}
-		b %ShowDebugInfo{0}
 	}
 }
 o
@@ -3157,24 +3150,6 @@ o
 }
 o
 {
-	Uuid %id{u4{9983459050152072191,9110934142685938562}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{""}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezReflectionProbeData"}
-		u3 %TypeSize{72}
-		u3 %TypeVersion{2}
-	}
-}
-o
-{
 	Uuid %id{u4{3251891958765718680,9159887340540620231}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -3295,7 +3270,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezRopeRenderComponent"}
-		u3 %TypeSize{160}
+		u3 %TypeSize{192}
 		u3 %TypeVersion{2}
 	}
 }
@@ -3532,8 +3507,8 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSkyLightComponent"}
-		u3 %TypeSize{136}
-		u3 %TypeVersion{2}
+		u3 %TypeSize{152}
+		u3 %TypeVersion{3}
 	}
 }
 o

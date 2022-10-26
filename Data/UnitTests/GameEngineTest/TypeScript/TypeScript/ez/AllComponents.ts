@@ -966,6 +966,16 @@ export class StageSpaceComponent extends Component
   set StageSpace(value: Enum.XRStageSpace) { __CPP_ComponentProperty_set(this, 3796859176, value); }
 }
 
+export class StateMachineComponent extends Component
+{
+  public static GetTypeNameHash(): number { return 71440247; }
+  SetState(Name: string): boolean { return __CPP_ComponentFunction_Call(this, 3119358439, Name); }
+  get Resource(): string { return __CPP_ComponentProperty_get(this, 3553976178); }
+  set Resource(value: string) { __CPP_ComponentProperty_set(this, 3553976178, value); }
+  get InitialState(): string { return __CPP_ComponentProperty_get(this, 3055923916); }
+  set InitialState(value: string) { __CPP_ComponentProperty_set(this, 3055923916, value); }
+}
+
 export class TimedDeathComponent extends Component
 {
   public static GetTypeNameHash(): number { return 1589515529; }

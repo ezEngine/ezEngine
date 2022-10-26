@@ -14,7 +14,7 @@ o
 			s{"Animations/Pete/Pete.glb"}
 		}
 		Uuid %DocumentID{u4{3983991301869751684,5696370630169532097}}
-		u4 %Hash{6959958647790112867}
+		u4 %Hash{6688944838048446839}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -30,9 +30,10 @@ o
 {
 	Uuid %id{u4{14296896196697943692,6075494807848141084}}
 	s %t{"ezAnimationClipAssetProperties"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
+		b %Additive{0}
 		VarArray %AvailableClips
 		{
 			s{"Gun Hold Pose"}
@@ -190,8 +191,8 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezAnimationClipAssetProperties"}
-		u3 %TypeSize{288}
-		u3 %TypeVersion{2}
+		u3 %TypeSize{296}
+		u3 %TypeVersion{3}
 	}
 }
 o

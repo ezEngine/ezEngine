@@ -253,6 +253,14 @@ export class MsgSetPlaying extends Message
   Play: boolean = true;
 }
 
+export class MsgStateMachineStateChanged extends EventMessage
+{
+  public static GetTypeNameHash(): number { return 3508545104; }
+  constructor() { super(); this.TypeNameHash = 3508545104; }
+  OldStateName: string;
+  NewStateName: string;
+}
+
 export class MsgTransformChanged extends Message
 {
   public static GetTypeNameHash(): number { return 3642376348; }

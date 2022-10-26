@@ -11,7 +11,7 @@ o
 		s %AssetType{"Visual Script"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{15678985946879993750,4919886486969892708}}
-		u4 %Hash{3596063282757669394}
+		u4 %Hash{9407471743037628731}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{1409643357147491994,5265561639244126854}}
@@ -43,7 +43,6 @@ o
 		Color %Color{f{0xD8C0693F,0x74C8053B,0x74C8053B,0x0000803F}}
 		Time %Delay{d{0}}
 		s %Mode{"ezSetColorMode::SetRGBA"}
-		VarArray %Node::Connections{}
 		Vec2 %Node::Pos{f{0x506A8F43,0x2BC6B342}}
 		b %Recursive{0}
 	}
@@ -68,11 +67,20 @@ o
 	p
 	{
 		s %Message{"gun.shoot"}
-		VarArray %Node::Connections
-		{
-			Uuid{u4{7739479454527196485,17313950452510690513}}
-		}
 		Vec2 %Node::Pos{f{0xFEC83542,0x48598942}}
+	}
+}
+o
+{
+	Uuid %id{u4{9086861186389711269,5256653725148349363}}
+	s %t{"ezVisualScriptConnection"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Connection::Source{u4{641555702553320341,5099802539606428253}}
+		s %Connection::SourcePin{"OnEvent"}
+		Uuid %Connection::Target{u4{7274808154778379455,4643512214437521451}}
+		s %Connection::TargetPin{"send"}
 	}
 }
 o
@@ -88,19 +96,8 @@ o
 			Uuid{u4{3105513734216599938,4733306398637681674}}
 			Uuid{u4{641555702553320341,5099802539606428253}}
 			Uuid{u4{7274808154778379455,4643512214437521451}}
+			Uuid{u4{9086861186389711269,5256653725148349363}}
 		}
-	}
-}
-o
-{
-	Uuid %id{u4{7739479454527196485,17313950452510690513}}
-	s %t{"DocumentNodeManagerConnectionInternal"}
-	u3 %v{1}
-	p
-	{
-		s %SourcePin{"OnEvent"}
-		Uuid %Target{u4{7274808154778379455,4643512214437521451}}
-		s %TargetPin{"send"}
 	}
 }
 }
@@ -135,6 +132,24 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezVisualScriptNodeBase"}
 		u3 %TypeSize{0}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{6430620502955737911,2935301964726788852}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginAssets"}
+		VarArray %Properties{}
+		s %TypeName{"ezVisualScriptConnection"}
+		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
 	}
 }
