@@ -151,7 +151,7 @@ void ezQtCurve1DEditorWidget::MakeRepeatable(bool bAdjustLastPoint)
 
 void ezQtCurve1DEditorWidget::NormalizeCurveX(ezUInt32 uiActiveCurve)
 {
-  if (uiActiveCurve > m_Curves.m_Curves.GetCount())
+  if (uiActiveCurve >= m_Curves.m_Curves.GetCount())
     return;
 
   ezCurve1D CurveData;
@@ -200,7 +200,7 @@ void ezQtCurve1DEditorWidget::NormalizeCurveX(ezUInt32 uiActiveCurve)
 
 void ezQtCurve1DEditorWidget::NormalizeCurveY(ezUInt32 uiActiveCurve)
 {
-  if (uiActiveCurve > m_Curves.m_Curves.GetCount())
+  if (uiActiveCurve >= m_Curves.m_Curves.GetCount())
     return;
 
   ezCurve1D CurveData;
@@ -293,7 +293,7 @@ void ezQtCurve1DEditorWidget::ClearAllPoints()
 
 void ezQtCurve1DEditorWidget::MirrorHorizontally(ezUInt32 uiActiveCurve)
 {
-  if (uiActiveCurve > m_Curves.m_Curves.GetCount())
+  if (uiActiveCurve >= m_Curves.m_Curves.GetCount())
     return;
 
   ezCurve1D CurveData;
@@ -343,7 +343,7 @@ void ezQtCurve1DEditorWidget::MirrorHorizontally(ezUInt32 uiActiveCurve)
 
 void ezQtCurve1DEditorWidget::MirrorVertically(ezUInt32 uiActiveCurve)
 {
-  if (uiActiveCurve > m_Curves.m_Curves.GetCount())
+  if (uiActiveCurve >= m_Curves.m_Curves.GetCount())
     return;
 
   ezCurve1D CurveData;
@@ -528,8 +528,7 @@ void ezQtCurve1DEditorWidget::onEndOperation(bool commit)
 
 void ezQtCurve1DEditorWidget::onContextMenu(QPoint pos, QPointF scenePos)
 {
-  if (m_Curves.m_Curves.IsEmpty())
-    return;
+  const bool bIsCurveNonEmpty = !m_Curves.m_Curves.IsEmpty() && !m_Curves.m_Curves[0]->m_ControlPoints.IsEmpty();
 
   m_contextMenuScenePos = scenePos;
 
@@ -538,75 +537,81 @@ void ezQtCurve1DEditorWidget::onContextMenu(QPoint pos, QPointF scenePos)
 
   const auto& selection = CurveEdit->GetSelection();
 
-  QMenu* cmSel = m.addMenu("Selection");
-  cmSel->addAction("Select All\tCtrl+A", this, [this]() { CurveEdit->SelectAll(); });
-
-  if (!selection.IsEmpty())
+  if (bIsCurveNonEmpty)
   {
-    cmSel->addAction("Clear Selection\tESC", this, [this]() { CurveEdit->ClearSelection(); });
+    QMenu* cmSel = m.addMenu("Selection");
+    cmSel->addAction("Select All\tCtrl+A", this, [this]() { CurveEdit->SelectAll(); });
 
-    cmSel->addAction(
-      "Frame Selection\tShift+F", this, [this]() { FrameSelection(); });
+    if (!selection.IsEmpty())
+    {
+      cmSel->addAction("Clear Selection\tESC", this, [this]() { CurveEdit->ClearSelection(); });
 
-    cmSel->addSeparator();
+      cmSel->addAction(
+        "Frame Selection\tShift+F", this, [this]() { FrameSelection(); });
 
-    cmSel->addAction("Delete Points\tDel", this, SLOT(onDeleteControlPoints()));
-    cmSel->addSeparator();
-    cmSel->addAction("Link Tangents", this, SLOT(onLinkTangents()));
-    cmSel->addAction("Break Tangents", this, SLOT(onBreakTangents()));
-    cmSel->addAction("Flatten Tangents", this, SLOT(onFlattenTangents()));
+      cmSel->addSeparator();
 
-    QMenu* cmLT = cmSel->addMenu("Left Tangents");
-    QMenu* cmRT = cmSel->addMenu("Right Tangents");
-    QMenu* cmBT = cmSel->addMenu("Both Tangents");
+      cmSel->addAction("Delete Points\tDel", this, SLOT(onDeleteControlPoints()));
+      cmSel->addSeparator();
+      cmSel->addAction("Link Tangents", this, SLOT(onLinkTangents()));
+      cmSel->addAction("Break Tangents", this, SLOT(onBreakTangents()));
+      cmSel->addAction("Flatten Tangents", this, SLOT(onFlattenTangents()));
 
-    cmLT->addAction("Auto", this, [this]()
-      { SetTangentMode(ezCurveTangentMode::Auto, true, false); });
-    cmLT->addAction("Bezier", this, [this]()
-      { SetTangentMode(ezCurveTangentMode::Bezier, true, false); });
-    cmLT->addAction("Fixed Length", this, [this]()
-      { SetTangentMode(ezCurveTangentMode::FixedLength, true, false); });
-    cmLT->addAction("Linear", this, [this]()
-      { SetTangentMode(ezCurveTangentMode::Linear, true, false); });
+      QMenu* cmLT = cmSel->addMenu("Left Tangents");
+      QMenu* cmRT = cmSel->addMenu("Right Tangents");
+      QMenu* cmBT = cmSel->addMenu("Both Tangents");
 
-    cmRT->addAction("Auto", this, [this]()
-      { SetTangentMode(ezCurveTangentMode::Auto, false, true); });
-    cmRT->addAction("Bezier", this, [this]()
-      { SetTangentMode(ezCurveTangentMode::Bezier, false, true); });
-    cmRT->addAction("Fixed Length", this, [this]()
-      { SetTangentMode(ezCurveTangentMode::FixedLength, false, true); });
-    cmRT->addAction("Linear", this, [this]()
-      { SetTangentMode(ezCurveTangentMode::Linear, false, true); });
+      cmLT->addAction("Auto", this, [this]()
+        { SetTangentMode(ezCurveTangentMode::Auto, true, false); });
+      cmLT->addAction("Bezier", this, [this]()
+        { SetTangentMode(ezCurveTangentMode::Bezier, true, false); });
+      cmLT->addAction("Fixed Length", this, [this]()
+        { SetTangentMode(ezCurveTangentMode::FixedLength, true, false); });
+      cmLT->addAction("Linear", this, [this]()
+        { SetTangentMode(ezCurveTangentMode::Linear, true, false); });
 
-    cmBT->addAction("Auto", this, [this]()
-      { SetTangentMode(ezCurveTangentMode::Auto, true, true); });
-    cmBT->addAction("Bezier", this, [this]()
-      { SetTangentMode(ezCurveTangentMode::Bezier, true, true); });
-    cmBT->addAction("Fixed Length", this, [this]()
-      { SetTangentMode(ezCurveTangentMode::FixedLength, true, true); });
-    cmBT->addAction("Linear", this, [this]()
-      { SetTangentMode(ezCurveTangentMode::Linear, true, true); });
-  }
+      cmRT->addAction("Auto", this, [this]()
+        { SetTangentMode(ezCurveTangentMode::Auto, false, true); });
+      cmRT->addAction("Bezier", this, [this]()
+        { SetTangentMode(ezCurveTangentMode::Bezier, false, true); });
+      cmRT->addAction("Fixed Length", this, [this]()
+        { SetTangentMode(ezCurveTangentMode::FixedLength, false, true); });
+      cmRT->addAction("Linear", this, [this]()
+        { SetTangentMode(ezCurveTangentMode::Linear, false, true); });
 
-  {
-    QMenu* cm = m.addMenu("Curve");
-    cm->addSeparator();
-    cm->addAction("Mirror Horizontally", this, [this]() { MirrorHorizontally(0); });
-    cm->addAction("Mirror Vertically", this, [this]() { MirrorVertically(0); });
-    cm->addAction("Normalize X", this, [this]() { NormalizeCurveX(0); });
-    cm->addAction("Normalize Y", this, [this]() { NormalizeCurveY(0); });
-    cm->addAction("Loop: Adjust Last Point", this, [this]() { MakeRepeatable(true); });
-    cm->addAction("Loop: Adjust First Point", this, [this]() { MakeRepeatable(false); });
-    cm->addAction("Clear Curve", this, [this]() { ClearAllPoints(); });
+      cmBT->addAction("Auto", this, [this]()
+        { SetTangentMode(ezCurveTangentMode::Auto, true, true); });
+      cmBT->addAction("Bezier", this, [this]()
+        { SetTangentMode(ezCurveTangentMode::Bezier, true, true); });
+      cmBT->addAction("Fixed Length", this, [this]()
+        { SetTangentMode(ezCurveTangentMode::FixedLength, true, true); });
+      cmBT->addAction("Linear", this, [this]()
+        { SetTangentMode(ezCurveTangentMode::Linear, true, true); });
+    }
 
-    cm->addAction(
-      "Frame Curve\tCtrl+F", this, [this]() { FrameCurve(); });
+    {
+      QMenu* cm = m.addMenu("Curve");
+      cm->addSeparator();
+      cm->addAction("Mirror Horizontally", this, [this]() { MirrorHorizontally(0); });
+      cm->addAction("Mirror Vertically", this, [this]() { MirrorVertically(0); });
+      cm->addAction("Normalize X", this, [this]() { NormalizeCurveX(0); });
+      cm->addAction("Normalize Y", this, [this]() { NormalizeCurveY(0); });
+      cm->addAction("Loop: Adjust Last Point", this, [this]() { MakeRepeatable(true); });
+      cm->addAction("Loop: Adjust First Point", this, [this]() { MakeRepeatable(false); });
+      cm->addAction("Clear Curve", this, [this]() { ClearAllPoints(); });
+
+      cm->addAction("Frame Curve\tCtrl+F", this, [this]() { FrameCurve(); });
+    }
   }
 
   QMenu* presentsMenu = m.addMenu("Presets");
 
   {
-    presentsMenu->addAction("Save As Preset...", this, &ezQtCurve1DEditorWidget::onSaveAsPreset);
+    if (bIsCurveNonEmpty)
+    {
+      presentsMenu->addAction("Save As Preset...", this, &ezQtCurve1DEditorWidget::onSaveAsPreset);
+    }
+
     presentsMenu->addAction("Load Preset...", this, &ezQtCurve1DEditorWidget::onLoadPreset);
     presentsMenu->addSeparator();
   }
