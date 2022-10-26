@@ -121,7 +121,9 @@ private:
   bool PickCpAt(const QPoint& pos, float fMaxPixelDistance, ezSelectedCurveCP& out_Result) const;
   ClickTarget DetectClickTarget(const QPoint& pos);
   void ExecMultiSelection(ezDynamicArray<ezSelectedCurveCP>& out_Selection);
-  bool CombineSelection(ezDynamicArray<ezSelectedCurveCP>& inout_Selection, const ezDynamicArray<ezSelectedCurveCP>& change, bool add);
+  bool CombineSelectionAdd(ezDynamicArray<ezSelectedCurveCP>& inout_Selection, const ezDynamicArray<ezSelectedCurveCP>& change);
+  bool CombineSelectionRemove(ezDynamicArray<ezSelectedCurveCP>& inout_Selection, const ezDynamicArray<ezSelectedCurveCP>& change);
+  bool CombineSelectionToggle(ezDynamicArray<ezSelectedCurveCP>& inout_Selection, const ezDynamicArray<ezSelectedCurveCP>& change);
   void ComputeSelectionRect();
   SelectArea WhereIsPoint(QPoint pos) const;
   ezInt32 PickCurveAt(QPoint pos) const;

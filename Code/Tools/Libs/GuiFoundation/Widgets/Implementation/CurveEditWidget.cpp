@@ -341,7 +341,8 @@ void ezQtCurveEditWidget::paintEvent(QPaintEvent* e)
 
   if (m_pGridBar)
   {
-    m_pGridBar->SetConfig(viewportSceneRect, fRoughGridDensity, fFineGridDensity, [this](const QPointF& pt) -> QPoint { return MapFromScene(pt); });
+    m_pGridBar->SetConfig(viewportSceneRect, fRoughGridDensity, fFineGridDensity, [this](const QPointF& pt) -> QPoint
+      { return MapFromScene(pt); });
   }
 
   RenderSideLinesAndText(&painter, viewportSceneRect);
@@ -554,11 +555,15 @@ void ezQtCurveEditWidget::mouseReleaseEvent(QMouseEvent* e)
 
       if (e->modifiers().testFlag(Qt::AltModifier))
       {
-        CombineSelection(m_SelectedCPs, change, false);
+        CombineSelectionRemove(m_SelectedCPs, change);
       }
-      else if (e->modifiers().testFlag(Qt::ShiftModifier) || e->modifiers().testFlag(Qt::ControlModifier))
+      else if (e->modifiers().testFlag(Qt::ShiftModifier))
       {
-        CombineSelection(m_SelectedCPs, change, true);
+        CombineSelectionAdd(m_SelectedCPs, change);
+      }
+      else if (e->modifiers().testFlag(Qt::ControlModifier))
+      {
+        CombineSelectionToggle(m_SelectedCPs, change);
       }
       else
       {
@@ -1445,8 +1450,7 @@ void ezQtCurveEditWidget::ExecMultiSelection(ezDynamicArray<ezSelectedCurveCP>& 
   }
 }
 
-bool ezQtCurveEditWidget::CombineSelection(
-  ezDynamicArray<ezSelectedCurveCP>& inout_Selection, const ezDynamicArray<ezSelectedCurveCP>& change, bool add)
+bool ezQtCurveEditWidget::CombineSelectionAdd(ezDynamicArray<ezSelectedCurveCP>& inout_Selection, const ezDynamicArray<ezSelectedCurveCP>& change)
 {
   bool bChange = false;
 
@@ -1454,14 +1458,46 @@ bool ezQtCurveEditWidget::CombineSelection(
   {
     const auto& cp = change[i];
 
-    if (!add)
-    {
-      bChange |= inout_Selection.RemoveAndCopy(cp);
-    }
-    else if (!inout_Selection.Contains(cp))
+    if (!inout_Selection.Contains(cp))
     {
       inout_Selection.PushBack(cp);
       bChange = true;
+    }
+  }
+
+  return bChange;
+}
+
+bool ezQtCurveEditWidget::CombineSelectionRemove(ezDynamicArray<ezSelectedCurveCP>& inout_Selection, const ezDynamicArray<ezSelectedCurveCP>& change)
+{
+  bool bChange = false;
+
+  for (ezUInt32 i = 0; i < change.GetCount(); ++i)
+  {
+    const auto& cp = change[i];
+
+    bChange |= inout_Selection.RemoveAndCopy(cp);
+  }
+
+  return bChange;
+}
+
+bool ezQtCurveEditWidget::CombineSelectionToggle(ezDynamicArray<ezSelectedCurveCP>& inout_Selection, const ezDynamicArray<ezSelectedCurveCP>& change)
+{
+  bool bChange = false;
+
+  for (ezUInt32 i = 0; i < change.GetCount(); ++i)
+  {
+    const auto& cp = change[i];
+
+    if (!inout_Selection.Contains(cp))
+    {
+      inout_Selection.PushBack(cp);
+      bChange = true;
+    }
+    else
+    {
+      bChange |= inout_Selection.RemoveAndCopy(cp);
     }
   }
 
