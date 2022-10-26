@@ -31,7 +31,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStateMachineState_SendMsg, 1, ezRTTIDefaultAll
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Delay", m_Delay),
+    EZ_MEMBER_PROPERTY("MessageDelay", m_MessageDelay),
+    EZ_MEMBER_PROPERTY("SendMessageOnEnter", m_bSendMessageOnEnter)->AddAttributes(new ezDefaultValueAttribute(true)),
+    EZ_MEMBER_PROPERTY("SendMessageOnExit", m_bSendMessageOnExit),
+    EZ_MEMBER_PROPERTY("LogOnEnter", m_bLogOnEnter),
+    EZ_MEMBER_PROPERTY("LogOnExit", m_bLogOnExit),
   }
   EZ_END_PROPERTIES;
 }
@@ -47,16 +51,45 @@ ezStateMachineState_SendMsg::~ezStateMachineState_SendMsg() = default;
 
 void ezStateMachineState_SendMsg::OnEnter(ezStateMachineInstance& instance, void* pInstanceData, const ezStateMachineState* pFromState) const
 {
-  if (auto pOwner = ezDynamicCast<ezStateMachineComponent*>(&instance.GetOwner()))
-  {
-    ezMsgStateMachineStateChanged msg;
-    if (pFromState != nullptr)
-    {
-      msg.m_sOldStateName = pFromState->GetNameHashed();
-    }
-    msg.m_sNewStateName = GetNameHashed();
+  ezHashedString sFromState = (pFromState != nullptr) ? pFromState->GetNameHashed() : ezHashedString();
 
-    pOwner->SendStateChangedMsg(msg, m_Delay);
+  if (m_bSendMessageOnEnter)
+  {
+    if (auto pOwner = ezDynamicCast<ezStateMachineComponent*>(&instance.GetOwner()))
+    {
+      ezMsgStateMachineStateChanged msg;
+      msg.m_sOldStateName = sFromState;
+      msg.m_sNewStateName = GetNameHashed();
+
+      pOwner->SendStateChangedMsg(msg, m_MessageDelay);
+    }
+  }
+
+  if (m_bLogOnEnter)
+  {
+    ezLog::Info("State Machine: Entering '{}' State from '{}'", GetNameHashed(), sFromState);
+  }
+}
+
+void ezStateMachineState_SendMsg::OnExit(ezStateMachineInstance& instance, void* pInstanceData, const ezStateMachineState* pToState) const
+{
+  ezHashedString sToState = (pToState != nullptr) ? pToState->GetNameHashed() : ezHashedString();
+
+  if (m_bSendMessageOnExit)
+  {
+    if (auto pOwner = ezDynamicCast<ezStateMachineComponent*>(&instance.GetOwner()))
+    {
+      ezMsgStateMachineStateChanged msg;
+      msg.m_sOldStateName = GetNameHashed();
+      msg.m_sNewStateName = sToState;
+
+      pOwner->SendStateChangedMsg(msg, m_MessageDelay);
+    }
+  }
+
+  if (m_bLogOnExit)
+  {
+    ezLog::Info("State Machine: Exiting '{}' State to '{}'", GetNameHashed(), sToState);
   }
 }
 
@@ -64,7 +97,11 @@ ezResult ezStateMachineState_SendMsg::Serialize(ezStreamWriter& stream) const
 {
   EZ_SUCCEED_OR_RETURN(SUPER::Serialize(stream));
 
-  stream << m_Delay;
+  stream << m_MessageDelay;
+  stream << m_bSendMessageOnEnter;
+  stream << m_bSendMessageOnExit;
+  stream << m_bLogOnEnter;
+  stream << m_bLogOnExit;
   return EZ_SUCCESS;
 }
 
@@ -72,7 +109,11 @@ ezResult ezStateMachineState_SendMsg::Deserialize(ezStreamReader& stream)
 {
   EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(stream));
 
-  stream >> m_Delay;
+  stream >> m_MessageDelay;
+  stream >> m_bSendMessageOnEnter;
+  stream >> m_bSendMessageOnExit;
+  stream >> m_bLogOnEnter;
+  stream >> m_bLogOnExit;
   return EZ_SUCCESS;
 }
 
@@ -248,10 +289,10 @@ const char* ezStateMachineComponent::GetResourceFile() const
   return m_hResource.GetResourceID();
 }
 
-void ezStateMachineComponent::SetInitialState(ezStringView sName)
+void ezStateMachineComponent::SetInitialState(const char* szName)
 {
   ezHashedString sInitialState;
-  sInitialState.Assign(sName);
+  sInitialState.Assign(szName);
 
   if (m_sInitialState == sInitialState)
     return;

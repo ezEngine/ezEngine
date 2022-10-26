@@ -21,8 +21,10 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 
-/// \brief A state machine state implementation that sends ezMsgStateMachineStateChanged to the owner of the
+/// \brief A state machine state implementation that sends a ezMsgStateMachineStateChanged on state enter or exit to the owner of the
 /// state machine instance. Currently only works for ezStateMachineComponent.
+///
+/// Optionally it can also log a message on state enter or exit.
 class ezStateMachineState_SendMsg : public ezStateMachineState
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezStateMachineState_SendMsg, ezStateMachineState);
@@ -32,11 +34,17 @@ public:
   ~ezStateMachineState_SendMsg();
 
   virtual void OnEnter(ezStateMachineInstance& instance, void* pInstanceData, const ezStateMachineState* pFromState) const override;
+  virtual void OnExit(ezStateMachineInstance& instance, void* pInstanceData, const ezStateMachineState* pToState) const override;
 
   virtual ezResult Serialize(ezStreamWriter& stream) const override;
   virtual ezResult Deserialize(ezStreamReader& stream) override;
 
-  ezTime m_Delay;
+  ezTime m_MessageDelay;
+
+  bool m_bSendMessageOnEnter = true;
+  bool m_bSendMessageOnExit = false;
+  bool m_bLogOnEnter = false;
+  bool m_bLogOnExit = false;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -97,8 +105,8 @@ public:
 
   /// \brief Defines which state should be used as initial state after the state machine was instantiated.
   /// If empty the state machine resource defines the initial state.
-  void SetInitialState(ezStringView sName);                        // [ property ]
-  ezStringView GetInitialState() const { return m_sInitialState; } // [ property ]
+  void SetInitialState(const char* szName);                        // [ property ]
+  const char* GetInitialState() const { return m_sInitialState; } // [ property ]
 
   /// \brief Sets the current state with the given name.
   bool SetState(ezStringView sName); // [ scriptable ]

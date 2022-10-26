@@ -21,10 +21,6 @@ void ezStateMachineState::SetName(ezStringView sName)
   m_sName.Assign(sName);
 }
 
-void ezStateMachineState::OnEnter(ezStateMachineInstance& instance, void* pInstanceData, const ezStateMachineState* pFromState) const
-{
-}
-
 void ezStateMachineState::OnExit(ezStateMachineInstance& instance, void* pInstanceData, const ezStateMachineState* pToState) const
 {
 }

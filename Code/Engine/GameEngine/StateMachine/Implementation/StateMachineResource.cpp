@@ -3,11 +3,6 @@
 #include <Core/Assets/AssetFileHeader.h>
 #include <GameEngine/StateMachine/StateMachineResource.h>
 
-// TESTING
-#include <Core/Utils/Blackboard.h>
-#include <GameEngine/StateMachine/Implementation/StateMachineBuiltins.h>
-#include <GameEngine/StateMachine/StateMachineComponent.h>
-
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStateMachineResource, 1, ezRTTIDefaultAllocator<ezStateMachineResource>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
