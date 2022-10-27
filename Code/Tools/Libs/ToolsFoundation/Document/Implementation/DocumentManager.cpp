@@ -224,35 +224,21 @@ ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, const char* szDoc
       // it and use that as the new document instead of creating one from scratch.
       if (bCreate)
       {
-        ezString ProjectDirectory = ezToolsProject::GetSingleton()->GetProjectDirectory();
-        ezStringBuilder TemplateDocumentPath = ProjectDirectory;
-        ezStringBuilder DocumentFileName;
-        TemplateDocumentPath.AppendPath("DocumentTemplates", "Default");
-        ezStringBuilder Temp;
-        TemplateDocumentPath.ChangeFileExtension(sPath.GetFileExtension().GetData(Temp));
+        ezStringBuilder sTemplateDoc = "Editor/DocumentTemplates/Default";
+        sTemplateDoc.ChangeFileExtension(sPath.GetFileExtension());
 
-        if (ezOSFile::ExistsFile(TemplateDocumentPath))
+        if (ezFileSystem::ExistsFile(sTemplateDoc))
         {
-          EZ_PROFILE_SCOPE(szDocumentTypeName);
-
           ezUuid CloneUuid;
-          if (CloneDocument(TemplateDocumentPath, sPath, CloneUuid).Succeeded())
+          if (CloneDocument(sTemplateDoc, sPath, CloneUuid).Succeeded())
           {
-            status = OpenDocument(szDocumentTypeName, sPath, out_pDocument, flags, pOpenContext);
+            if (OpenDocument(szDocumentTypeName, sPath, out_pDocument, flags, pOpenContext).Succeeded())
+            {
+              return ezStatus(EZ_SUCCESS);
+            }
+          }
 
-            if (status.Failed())
-            {
-              ezLog::SeriousWarning("Couldn't open cloned template document, proceeding with normal creation behavior.");
-            }
-            else
-            {
-              return status;
-            }
-          }
-          else
-          {
-            ezLog::SeriousWarning("Couldn't clone template document, proceeding with normal creation behavior.");
-          }
+          ezLog::Warning("Failed to create document from template '{}'", sTemplateDoc);
         }
       }
 
