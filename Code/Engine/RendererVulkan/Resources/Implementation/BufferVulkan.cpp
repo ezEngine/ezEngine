@@ -46,7 +46,7 @@ ezResult ezGALBufferVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const 
     default:
       ezLog::Error("Unknown buffer type supplied to CreateBuffer()!");
       return EZ_FAILURE;
-  } 
+  }
 
   if (m_Description.m_bAllowShaderResourceView)
   {
