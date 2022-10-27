@@ -310,33 +310,37 @@ ezResult ezGALDeviceVulkan::InitPlatform()
     instanceCreateInfo.ppEnabledExtensionNames = instanceExtensions.GetData();
 
     instanceCreateInfo.enabledLayerCount = 0;
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-    VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
-    debugCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-    debugCreateInfo.messageSeverity = /*VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |*/ VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-    debugCreateInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
-    debugCreateInfo.pfnUserCallback = debugCallback;
-    debugCreateInfo.pUserData = nullptr;
 
-    if (isInstanceLayerPresent(layers[0]))
-    {
-      instanceCreateInfo.enabledLayerCount = EZ_ARRAY_SIZE(layers);
-      instanceCreateInfo.ppEnabledLayerNames = layers;
+    VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
+    if (m_Description.m_bDebugDevice)
+    {      
+      debugCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+      debugCreateInfo.messageSeverity = /*VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |*/ VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+      debugCreateInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+      debugCreateInfo.pfnUserCallback = debugCallback;
+      debugCreateInfo.pUserData = nullptr;
+
+      if (isInstanceLayerPresent(layers[0]))
+      {
+        instanceCreateInfo.enabledLayerCount = EZ_ARRAY_SIZE(layers);
+        instanceCreateInfo.ppEnabledLayerNames = layers;
+      }
+      else
+      {
+        ezLog::Warning("The khronos validation layer is not supported on this device. Will run without validation layer.");
+      }
+      instanceCreateInfo.pNext = &debugCreateInfo;
     }
-    else
-    {
-      ezLog::Warning("The khronos validation layer is not supported on this device. Will run without validation layer.");
-    }
-    instanceCreateInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*)&debugCreateInfo;
-#endif
 
     m_instance = vk::createInstance(instanceCreateInfo);
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-    EZ_GET_INSTANCE_PROC_ADDR(vkCreateDebugUtilsMessengerEXT);
-    EZ_GET_INSTANCE_PROC_ADDR(vkDestroyDebugUtilsMessengerEXT);
-    EZ_GET_INSTANCE_PROC_ADDR(vkSetDebugUtilsObjectNameEXT);
-    VK_SUCCEED_OR_RETURN_EZ_FAILURE(m_extensions.pfn_vkCreateDebugUtilsMessengerEXT(m_instance, &debugCreateInfo, nullptr, &m_debugMessenger));
-#endif
+
+    if (m_Description.m_bDebugDevice)
+    {
+      EZ_GET_INSTANCE_PROC_ADDR(vkCreateDebugUtilsMessengerEXT);
+      EZ_GET_INSTANCE_PROC_ADDR(vkDestroyDebugUtilsMessengerEXT);
+      EZ_GET_INSTANCE_PROC_ADDR(vkSetDebugUtilsObjectNameEXT);
+      VK_SUCCEED_OR_RETURN_EZ_FAILURE(m_extensions.pfn_vkCreateDebugUtilsMessengerEXT(m_instance, &debugCreateInfo, nullptr, &m_debugMessenger));
+    }
 
     if (!m_instance)
     {
@@ -1333,6 +1337,9 @@ void ezGALDeviceVulkan::DeletePendingResources(ezDeque<PendingDeletion>& pending
         break;
       case vk::ObjectType::eBuffer:
         ezMemoryAllocatorVulkan::DestroyBuffer(reinterpret_cast<vk::Buffer&>(deletion.m_pObject), deletion.m_allocation);
+        break;
+      case vk::ObjectType::eBufferView:
+        m_device.destroyBufferView(reinterpret_cast<vk::BufferView&>(deletion.m_pObject));
         break;
       case vk::ObjectType::eFramebuffer:
         m_device.destroyFramebuffer(reinterpret_cast<vk::Framebuffer&>(deletion.m_pObject));

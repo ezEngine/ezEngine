@@ -432,7 +432,7 @@ ezResult ezShaderCompilerDXC::FillSRVResourceBinding(ezShaderStageBinary& shader
   {
     if (info.image.dim == SpvDim::SpvDimBuffer)
     {
-      binding.m_Type = ezShaderResourceType::UAV;
+      binding.m_Type = ezShaderResourceType::GenericBuffer;
       return EZ_SUCCESS;
     }
 

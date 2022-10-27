@@ -111,9 +111,17 @@ ezResult ezGALResourceViewVulkan::InitPlatform(ezGALDevice* pDevice)
     }
     else
     {
-      m_resourceBufferInfo.offset = pBuffer->GetDescription().m_uiStructSize * m_Description.m_uiFirstElement;
-      m_resourceBufferInfo.range = pBuffer->GetDescription().m_uiStructSize * m_Description.m_uiNumElements;
-      //EZ_REPORT_FAILURE("Not implemented. Need to figure out the element size of the view format.");
+      ezGALResourceFormat::Enum viewFormat = m_Description.m_OverrideViewFormat;
+      if (viewFormat == ezGALResourceFormat::Invalid)
+        viewFormat = ezGALResourceFormat::RUInt;
+
+      vk::BufferViewCreateInfo viewCreateInfo;
+      viewCreateInfo.buffer = pParentBuffer->GetVkBuffer();
+      viewCreateInfo.format = pVulkanDevice->GetFormatLookupTable().GetFormatInfo(viewFormat).m_eResourceViewType;
+      viewCreateInfo.offset = pBuffer->GetDescription().m_uiStructSize * m_Description.m_uiFirstElement;
+      viewCreateInfo.range = pBuffer->GetDescription().m_uiStructSize * m_Description.m_uiNumElements;
+
+      VK_SUCCEED_OR_RETURN_EZ_FAILURE(pVulkanDevice->GetVulkanDevice().createBufferView(&viewCreateInfo, nullptr, &m_bufferView));
     }
   }
 
@@ -128,6 +136,7 @@ ezResult ezGALResourceViewVulkan::DeInitPlatform(ezGALDevice* pDevice)
   m_resourceImageInfo = vk::DescriptorImageInfo();
   m_resourceImageInfoArray = vk::DescriptorImageInfo();
   m_resourceBufferInfo = vk::DescriptorBufferInfo();
+  pVulkanDevice->DeleteLater(m_bufferView);
   return EZ_SUCCESS;
 }
 

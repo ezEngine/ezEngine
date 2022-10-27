@@ -1435,7 +1435,12 @@ void ezGALCommandEncoderImplVulkan::FlushDeferredStateChanges()
         break;
         case ezGALShaderVulkan::BindingMapping::ResourceView:
         {
-          const ezGALResourceViewVulkan* pResourceView = m_pBoundShaderResourceViews[mapping.m_stage][mapping.m_uiSource];
+          const ezGALResourceViewVulkan* pResourceView = nullptr;
+          if (mapping.m_uiSource < m_pBoundShaderResourceViews[mapping.m_stage].GetCount())
+          {
+            pResourceView = m_pBoundShaderResourceViews[mapping.m_stage][mapping.m_uiSource];
+          }
+
           if (!pResourceView)
           {
             ezStringBuilder bla = mapping.m_sName;
@@ -1453,7 +1458,14 @@ void ezGALCommandEncoderImplVulkan::FlushDeferredStateChanges()
           }
           else
           {
-            write.pBufferInfo = &pResourceView->GetBufferInfo();
+            if (auto& bufferView = pResourceView->GetBufferView())
+            {
+              write.pTexelBufferView = &bufferView;
+            }
+            else
+            {
+              write.pBufferInfo = &pResourceView->GetBufferInfo();
+            }
           }
         }
         break;
