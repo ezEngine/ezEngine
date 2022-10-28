@@ -1,11 +1,14 @@
 #pragma once
 
+#include <EditorPluginAssets/EditorPluginAssetsDLL.h>
+
 #include <EditorEngineProcessFramework/EngineProcess/ViewRenderSettings.h>
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <EditorPluginAssets/MeshAsset/MeshAsset.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 
 #include <QTimer>
+#include <QPointer>
 
 class ezQtOrbitCamViewWidget;
 

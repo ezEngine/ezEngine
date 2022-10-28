@@ -38,7 +38,7 @@ set (MOC_FILES
   )
 ez_qt_wrap_target_moc_files(${PROJECT_NAME} "${MOC_FILES}")
 
-if(EZ_CMAKE_PLATFORM_WINDOWS)
+if(EZ_CMAKE_COMPILER_MSVC)
   target_compile_options(${PROJECT_NAME} PRIVATE /wd4458 /wd4996 /wd4456 /wd4702)
 endif()
 

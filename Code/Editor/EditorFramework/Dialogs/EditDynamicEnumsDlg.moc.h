@@ -1,8 +1,10 @@
 #pragma once
 
 #include <EditorFramework/EditorFrameworkDLL.h>
+
 #include <EditorFramework/ui_EditDynamicEnumsDlg.h>
 #include <QDialog>
+#include <Foundation/Strings/String.h>
 
 class ezDynamicStringEnum;
 

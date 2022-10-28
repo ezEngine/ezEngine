@@ -20,26 +20,26 @@ class ezPropertyAttribute;
 template <typename T>
 struct ezIsBitflags
 {
-  static const bool value = false;
+  static constexpr bool value = false;
 };
 
 template <typename T>
 struct ezIsBitflags<ezBitflags<T>>
 {
-  static const bool value = true;
+  static constexpr bool value = true;
 };
 
 /// \brief Determines whether a type is ezIsBitflags.
 template <typename T>
 struct ezIsEnum
 {
-  static const bool value = std::is_enum<T>::value;
+  static constexpr bool value = std::is_enum<T>::value;
 };
 
 template <typename T>
 struct ezIsEnum<ezEnum<T>>
 {
-  static const bool value = true;
+  static constexpr bool value = true;
 };
 
 /// \brief Flags used to describe a property and its type.

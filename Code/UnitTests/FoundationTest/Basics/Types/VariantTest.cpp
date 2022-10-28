@@ -7,7 +7,7 @@
 
 // this file takes ages to compile in a Release build
 // since we don't care for runtime performance, just disable all optimizations
-#pragma optimize("g", off)
+#pragma optimize("", off)
 
 class Blubb : public ezReflectedClass
 {

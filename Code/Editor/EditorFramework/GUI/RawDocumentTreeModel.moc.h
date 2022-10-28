@@ -1,6 +1,7 @@
 #pragma once
 
 #include <EditorFramework/EditorFrameworkDLL.h>
+
 #include <QAbstractItemModel>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 

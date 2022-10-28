@@ -1,5 +1,7 @@
 #pragma once
-#include <EditorFramework/EditorFrameworkDLL.h>
+
+#include <EditorPluginScene/EditorPluginSceneDLL.h>
+
 #include <EditorFramework/GUI/RawDocumentTreeModel.moc.h>
 #include <GuiFoundation/Widgets/ItemView.moc.h>
 

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <EditorPluginScene/EditorPluginSceneDLL.h>
+
 #include <EditorFramework/Document/GameObjectDocument.h>
 
 class ezExposedSceneProperty;

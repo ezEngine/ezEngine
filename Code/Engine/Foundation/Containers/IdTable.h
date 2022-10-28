@@ -50,7 +50,7 @@ public:
 
     explicit ConstIterator(const ezIdTableBase<IdType, ValueType>& idTable);
 
-    const ezIdTableBase<IdType, ValueType>& m_idTable;
+    const ezIdTableBase<IdType, ValueType>& m_IdTable;
     IndexType m_uiCurrentIndex; // current element index that this iterator points to.
     IndexType m_uiCurrentCount; // current number of valid elements that this iterator has found so far.
   };

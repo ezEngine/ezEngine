@@ -1,12 +1,14 @@
 #pragma once
 
+#include <GuiFoundation/GuiFoundationDLL.h>
+
 #include <Foundation/Communication/Event.h>
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Types/Variant.h>
-#include <GuiFoundation/GuiFoundationDLL.h>
 #include <GuiFoundation/PropertyGrid/PropertyBaseWidget.moc.h>
 
 #include <QFrame>
+#include <QLabel>
 
 class QCheckBox;
 class QDoubleSpinBox;
@@ -22,6 +24,7 @@ class QToolButton;
 class QMenu;
 class ezDocumentObject;
 class ezQtDoubleSpinBox;
+class QSlider;
 
 /// *** CHECKBOX ***
 
@@ -122,6 +125,7 @@ class EZ_GUIFOUNDATION_DLL ezQtPropertyEditorIntSpinboxWidget : public ezQtStand
 
 public:
   ezQtPropertyEditorIntSpinboxWidget(ezInt8 iNumComponents, ezInt32 iMinValue, ezInt32 iMaxValue);
+  ~ezQtPropertyEditorIntSpinboxWidget();
 
 private Q_SLOTS:
   void SlotValueChanged();

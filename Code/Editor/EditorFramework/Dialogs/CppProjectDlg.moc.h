@@ -1,7 +1,9 @@
 #pragma once
 
 #include <EditorFramework/EditorFrameworkDLL.h>
+
 #include <EditorFramework/ui_CppProjectDlg.h>
+#include <Foundation/Strings/String.h>
 #include <QDialog>
 
 class EZ_EDITORFRAMEWORK_DLL ezQtCppProjectDlg : public QDialog, public Ui_ezQtCppProjectDlg

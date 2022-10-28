@@ -11,6 +11,8 @@
 #include <QPointer>
 #include <QSharedPointer>
 #include <QWidgetAction>
+#include <QWidget>
+#include <QEvent>
 
 class QAction;
 class QMenu;

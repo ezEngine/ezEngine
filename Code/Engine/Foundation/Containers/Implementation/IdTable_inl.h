@@ -3,14 +3,14 @@
 
 template <typename IdType, typename ValueType>
 ezIdTableBase<IdType, ValueType>::ConstIterator::ConstIterator(const ezIdTableBase<IdType, ValueType>& idTable)
-  : m_idTable(idTable)
+  : m_IdTable(idTable)
   , m_uiCurrentIndex(0)
   , m_uiCurrentCount(0)
 {
-  if (m_idTable.IsEmpty())
+  if (m_IdTable.IsEmpty())
     return;
 
-  while (m_idTable.m_pEntries[m_uiCurrentIndex].id.m_InstanceIndex != m_uiCurrentIndex)
+  while (m_IdTable.m_pEntries[m_uiCurrentIndex].id.m_InstanceIndex != m_uiCurrentIndex)
   {
     ++m_uiCurrentIndex;
   }
@@ -19,14 +19,14 @@ ezIdTableBase<IdType, ValueType>::ConstIterator::ConstIterator(const ezIdTableBa
 template <typename IdType, typename ValueType>
 EZ_ALWAYS_INLINE bool ezIdTableBase<IdType, ValueType>::ConstIterator::IsValid() const
 {
-  return m_uiCurrentCount < m_idTable.m_uiCount;
+  return m_uiCurrentCount < m_IdTable.m_uiCount;
 }
 
 template <typename IdType, typename ValueType>
 EZ_FORCE_INLINE bool ezIdTableBase<IdType, ValueType>::ConstIterator::operator==(
   const typename ezIdTableBase<IdType, ValueType>::ConstIterator& it2) const
 {
-  return m_idTable.m_pEntries == it2.m_idTable.m_pEntries && m_uiCurrentIndex == it2.m_uiCurrentIndex;
+  return m_IdTable.m_pEntries == it2.m_IdTable.m_pEntries && m_uiCurrentIndex == it2.m_uiCurrentIndex;
 }
 
 template <typename IdType, typename ValueType>
@@ -39,26 +39,26 @@ EZ_ALWAYS_INLINE bool ezIdTableBase<IdType, ValueType>::ConstIterator::operator!
 template <typename IdType, typename ValueType>
 EZ_ALWAYS_INLINE IdType ezIdTableBase<IdType, ValueType>::ConstIterator::Id() const
 {
-  return m_idTable.m_pEntries[m_uiCurrentIndex].id;
+  return m_IdTable.m_pEntries[m_uiCurrentIndex].id;
 }
 
 template <typename IdType, typename ValueType>
 EZ_FORCE_INLINE const ValueType& ezIdTableBase<IdType, ValueType>::ConstIterator::Value() const
 {
-  return m_idTable.m_pEntries[m_uiCurrentIndex].value;
+  return m_IdTable.m_pEntries[m_uiCurrentIndex].value;
 }
 
 template <typename IdType, typename ValueType>
 void ezIdTableBase<IdType, ValueType>::ConstIterator::Next()
 {
   ++m_uiCurrentCount;
-  if (m_uiCurrentCount == m_idTable.m_uiCount)
+  if (m_uiCurrentCount == m_IdTable.m_uiCount)
     return;
 
   do
   {
     ++m_uiCurrentIndex;
-  } while (m_idTable.m_pEntries[m_uiCurrentIndex].id.m_InstanceIndex != m_uiCurrentIndex);
+  } while (m_IdTable.m_pEntries[m_uiCurrentIndex].id.m_InstanceIndex != m_uiCurrentIndex);
 }
 
 template <typename IdType, typename ValueType>
@@ -79,7 +79,7 @@ ezIdTableBase<IdType, ValueType>::Iterator::Iterator(const ezIdTableBase<IdType,
 template <typename IdType, typename ValueType>
 EZ_ALWAYS_INLINE ValueType& ezIdTableBase<IdType, ValueType>::Iterator::Value()
 {
-  return this->m_idTable.m_pEntries[this->m_uiCurrentIndex].value;
+  return this->m_IdTable.m_pEntries[this->m_uiCurrentIndex].value;
 }
 
 
