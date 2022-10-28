@@ -610,6 +610,9 @@ void ezSensorWorldModule::UpdateSensors(const ezWorldModule::UpdateContext& cont
         // TODO: probably best to expose the ezPhysicsShapeType bitflags on the component
         params.m_ShapeTypes.Remove(ezPhysicsShapeType::Rope);
         params.m_ShapeTypes.Remove(ezPhysicsShapeType::Ragdoll);
+        params.m_ShapeTypes.Remove(ezPhysicsShapeType::Trigger);
+        params.m_ShapeTypes.Remove(ezPhysicsShapeType::Query);
+        params.m_ShapeTypes.Remove(ezPhysicsShapeType::Character);
 
         if (m_pPhysicsWorldModule->Raycast(hitResult, rayStart, rayDir, fDistance, params))
         {
