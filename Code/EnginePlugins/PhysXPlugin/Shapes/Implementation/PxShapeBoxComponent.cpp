@@ -24,8 +24,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxShapeBoxComponent, 1, ezComponentMode::Static)
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezBoxManipulatorAttribute("Extents"),
-    new ezBoxVisualizerAttribute("Extents"),
+    new ezBoxManipulatorAttribute("Extents", 1.0f, true),
+    new ezBoxVisualizerAttribute("Extents", 1.0f),
   }
   EZ_END_ATTRIBUTES;
 }
