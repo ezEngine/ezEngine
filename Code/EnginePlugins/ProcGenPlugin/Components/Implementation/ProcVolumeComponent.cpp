@@ -266,7 +266,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezProcVolumeBoxComponent, 1, ezComponentMode::Static)
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Procedural Generation"),
-    new ezBoxManipulatorAttribute("Extents"),
+    new ezBoxManipulatorAttribute("Extents", 1.0f, true),
     new ezBoxVisualizerAttribute("Extents", 1.0f, ezColor::LimeGreen),
   }
   EZ_END_ATTRIBUTES;

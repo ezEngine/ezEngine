@@ -1,12 +1,25 @@
 #include <EditorFramework/EditorFrameworkPCH.h>
 
+#include <EditorFramework/Document/GameObjectDocument.h>
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
+#include <EditorFramework/Gizmos/SnapProvider.h>
 #include <EditorFramework/Manipulators/BoxManipulatorAdapter.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
-ezBoxManipulatorAdapter::ezBoxManipulatorAdapter() {}
+ezBoxManipulatorAdapter::ezBoxManipulatorAdapter() = default;
+ezBoxManipulatorAdapter::~ezBoxManipulatorAdapter() = default;
 
-ezBoxManipulatorAdapter::~ezBoxManipulatorAdapter() {}
+void ezBoxManipulatorAdapter::QueryGridSettings(ezGridSettingsMsgToEngine& outGridSettings)
+{
+  outGridSettings.m_vGridCenter = m_Gizmo.GetTransformation().m_vPosition;
+
+  // if density != 0, it is enabled at least in ortho mode
+  outGridSettings.m_fGridDensity = ezSnapProvider::GetTranslationSnapValue();
+
+  // to be active in perspective mode, tangents have to be non-zero
+  outGridSettings.m_vGridTangent1.SetZero();
+  outGridSettings.m_vGridTangent2.SetZero();
+}
 
 void ezBoxManipulatorAdapter::Finalize()
 {
@@ -34,7 +47,12 @@ void ezBoxManipulatorAdapter::Update()
   if (!pAttr->GetSizeProperty().IsEmpty())
   {
     ezVec3 vSize = pObjectAccessor->Get<ezVec3>(m_pObject, GetProperty(pAttr->GetSizeProperty()));
-    m_Gizmo.SetSize(vSize);
+    vSize *= pAttr->m_fSizeScale;
+    vSize *= 0.5f;
+
+    m_vOldSize = vSize;
+
+    m_Gizmo.SetSize(vSize, vSize, false);
   }
 
   m_vPositionOffset.SetZero();
@@ -74,8 +92,60 @@ void ezBoxManipulatorAdapter::GizmoEventHandler(const ezGizmoEvent& e)
     {
       const ezBoxManipulatorAttribute* pAttr = static_cast<const ezBoxManipulatorAttribute*>(m_pManipulatorAttr);
 
-      ChangeProperties(pAttr->GetSizeProperty(), m_Gizmo.GetSize());
+      const char* szSizeProperty = pAttr->GetSizeProperty();
+      const ezVec3 vNewSizeNeg = m_Gizmo.GetNegSize();
+      const ezVec3 vNewSizePos = m_Gizmo.GetPosSize();
+      const ezVec3 vNewSize = (vNewSizeNeg + vNewSizePos) / pAttr->m_fSizeScale;
+
+      ezVariant oldSize;
+
+      ezObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
+
+      pObjectAccessor->GetValue(m_pObject, GetProperty(szSizeProperty), oldSize);
+
+      const ezVec3 vOldSize = oldSize.ConvertTo<ezVec3>();
+
+      ezVariant newValue = vNewSize;
+
+      pObjectAccessor->StartTransaction("Change Properties");
+
+      if (!ezStringUtils::IsNullOrEmpty(szSizeProperty))
+      {
+        pObjectAccessor->SetValue(m_pObject, GetProperty(szSizeProperty), newValue);
+      }
+
+      if (pAttr->m_bRecenterParent)
+      {
+        const ezDocumentObject* pParent = m_pObject->GetParent();
+
+        if (const ezGameObjectDocument* pGameDoc = ezDynamicCast<const ezGameObjectDocument*>(pParent->GetDocumentObjectManager()->GetDocument()))
+        {
+          ezTransform tParent = pGameDoc->GetGlobalTransform(pParent);
+
+          ezObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
+
+          if (m_vOldSize.x != vNewSizeNeg.x)
+            tParent.m_vPosition -= tParent.m_qRotation * ezVec3((vNewSizeNeg.x - m_vOldSize.x) * 0.5f, 0, 0);
+          if (m_vOldSize.x != vNewSizePos.x)
+            tParent.m_vPosition += tParent.m_qRotation * ezVec3((vNewSizePos.x - m_vOldSize.x) * 0.5f, 0, 0);
+
+          if (m_vOldSize.y != vNewSizeNeg.y)
+            tParent.m_vPosition -= tParent.m_qRotation * ezVec3(0, (vNewSizeNeg.y - m_vOldSize.y) * 0.5f, 0);
+          if (m_vOldSize.y != vNewSizePos.y)
+            tParent.m_vPosition += tParent.m_qRotation * ezVec3(0, (vNewSizePos.y - m_vOldSize.y) * 0.5f, 0);
+
+          if (m_vOldSize.z != vNewSizeNeg.z)
+            tParent.m_vPosition -= tParent.m_qRotation * ezVec3(0, 0, (vNewSizeNeg.z - m_vOldSize.z) * 0.5f);
+          if (m_vOldSize.z != vNewSizePos.z)
+            tParent.m_vPosition += tParent.m_qRotation * ezVec3(0, 0, (vNewSizePos.z - m_vOldSize.z) * 0.5f);
+
+          pGameDoc->SetGlobalTransform(pParent, tParent, TransformationChanges::Translation);
+        }
+      }
+
+      pObjectAccessor->FinishTransaction();
     }
+
     break;
   }
 }

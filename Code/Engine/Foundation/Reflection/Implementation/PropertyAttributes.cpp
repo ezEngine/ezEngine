@@ -422,9 +422,18 @@ ezCapsuleManipulatorAttribute::ezCapsuleManipulatorAttribute(const char* szLengt
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezBoxManipulatorAttribute, 1, ezRTTIDefaultAllocator<ezBoxManipulatorAttribute>)
 {
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("scale", m_fSizeScale),
+    EZ_MEMBER_PROPERTY("recenter", m_bRecenterParent),
+  }
+  EZ_END_PROPERTIES;
   EZ_BEGIN_FUNCTIONS
   {
-    EZ_CONSTRUCTOR_PROPERTY(const char*),
+    EZ_CONSTRUCTOR_PROPERTY(const char*, bool, float),
+    EZ_CONSTRUCTOR_PROPERTY(const char*, bool, float),
+    EZ_CONSTRUCTOR_PROPERTY(const char*, bool, float, const char*),
+    EZ_CONSTRUCTOR_PROPERTY(const char*, bool, float, const char*, const char*),
   }
   EZ_END_FUNCTIONS;
 }
@@ -436,9 +445,11 @@ ezBoxManipulatorAttribute::ezBoxManipulatorAttribute()
 {
 }
 
-ezBoxManipulatorAttribute::ezBoxManipulatorAttribute(const char* szSizeProperty, const char* szOffsetProperty, const char* szRotationProperty)
+ezBoxManipulatorAttribute::ezBoxManipulatorAttribute(const char* szSizeProperty, float fSizeScale, bool bRecenterParent, const char* szOffsetProperty, const char* szRotationProperty)
   : ezManipulatorAttribute(szSizeProperty, szOffsetProperty, szRotationProperty)
 {
+  m_bRecenterParent = bRecenterParent;
+  m_fSizeScale = fSizeScale;
 }
 
 //////////////////////////////////////////////////////////////////////////

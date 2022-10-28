@@ -40,7 +40,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezBoxReflectionProbeComponent, 2, ezComponentMode::Stati
   {
     new ezCategoryAttribute("Rendering/Lighting"),
     new ezBoxVisualizerAttribute("Extents", 1.0f, ezColor::AliceBlue),
-    new ezBoxManipulatorAttribute("Extents"),
+    new ezBoxManipulatorAttribute("Extents", 1.0f, true),
     new ezBoxReflectionProbeVisualizerAttribute("Extents", "InfluenceScale", "InfluenceShift"),
   }
   EZ_END_ATTRIBUTES;

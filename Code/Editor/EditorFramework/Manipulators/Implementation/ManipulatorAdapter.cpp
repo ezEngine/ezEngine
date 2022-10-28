@@ -162,9 +162,6 @@ void ezManipulatorAdapter::ChangeProperties(const char* szProperty1, ezVariant v
 
   pObjectAccessor->StartTransaction("Change Properties");
 
-  ezSetObjectPropertyCommand cmd;
-  cmd.m_Object = m_pObject->GetGuid();
-
   if (!ezStringUtils::IsNullOrEmpty(szProperty1))
   {
     ClampProperty(szProperty1, value1);

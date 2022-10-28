@@ -17,7 +17,7 @@ ezNonUniformBoxGizmo::ezNonUniformBoxGizmo()
 
   m_ManipulateMode = ManipulateMode::None;
 
-  m_Outline.ConfigureHandle(this, ezEngineGizmoHandleType::LineBox, ezColor::CornflowerBlue, ezGizmoFlags::ShowInOrtho);
+  m_Outline.ConfigureHandle(this, ezEngineGizmoHandleType::LineBox, ezColor::LawnGreen, ezGizmoFlags::ShowInOrtho);
 
   ezColor cols[6] = {
     ezColorGammaUB(255, 200, 200),

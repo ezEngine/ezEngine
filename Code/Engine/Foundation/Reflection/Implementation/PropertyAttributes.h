@@ -477,7 +477,10 @@ class EZ_FOUNDATION_DLL ezBoxManipulatorAttribute : public ezManipulatorAttribut
 
 public:
   ezBoxManipulatorAttribute();
-  ezBoxManipulatorAttribute(const char* szSizeProperty, const char* szOffsetProperty = nullptr, const char* szRotationProperty = nullptr);
+  ezBoxManipulatorAttribute(const char* szSizeProperty, float fSizeScale, bool bRecenterParent, const char* szOffsetProperty = nullptr, const char* szRotationProperty = nullptr);
+
+  bool m_bRecenterParent = false;
+  float m_fSizeScale = 1.0f;
 
   const ezUntrackedString& GetSizeProperty() const { return m_sProperty1; }
   const ezUntrackedString& GetOffsetProperty() const { return m_sProperty2; }
