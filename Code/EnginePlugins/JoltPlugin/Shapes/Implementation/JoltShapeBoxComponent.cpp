@@ -24,7 +24,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezJoltShapeBoxComponent, 1, ezComponentMode::Static)
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezBoxManipulatorAttribute("HalfExtents", 2.0f, false),
+    new ezBoxManipulatorAttribute("HalfExtents", 2.0f, true),
     new ezBoxVisualizerAttribute("HalfExtents", 2.0f),
   }
   EZ_END_ATTRIBUTES;
