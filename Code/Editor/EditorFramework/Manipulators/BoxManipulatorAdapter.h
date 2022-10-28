@@ -1,8 +1,8 @@
 #pragma once
 
 #include <EditorFramework/EditorFrameworkDLL.h>
-#include <EditorFramework/Gizmos/BoxGizmo.h>
 #include <EditorFramework/Manipulators/ManipulatorAdapter.h>
+#include <EditorFramework/Gizmos/NonUniformBoxGizmo.h>
 
 struct ezGizmoEvent;
 
@@ -11,6 +11,8 @@ class ezBoxManipulatorAdapter : public ezManipulatorAdapter
 public:
   ezBoxManipulatorAdapter();
   ~ezBoxManipulatorAdapter();
+
+  virtual void QueryGridSettings(ezGridSettingsMsgToEngine& outGridSettings) override;
 
 protected:
   virtual void Finalize() override;
@@ -21,5 +23,7 @@ protected:
 
   ezVec3 m_vPositionOffset;
   ezQuat m_Rotation;
-  ezBoxGizmo m_Gizmo;
+  ezNonUniformBoxGizmo m_Gizmo;
+
+  ezVec3 m_vOldSize;
 };

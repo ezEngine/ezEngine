@@ -57,7 +57,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezDecalComponent, 8, ezComponentMode::Static)
   {
     new ezCategoryAttribute("Effects"),
     new ezDirectionVisualizerAttribute("ProjectionAxis", 0.5f, ezColor::LightSteelBlue),
-    new ezBoxManipulatorAttribute("Extents"),
+    new ezBoxManipulatorAttribute("Extents", 1.0f, true),
     new ezBoxVisualizerAttribute("Extents"),
   }
   EZ_END_ATTRIBUTES;
