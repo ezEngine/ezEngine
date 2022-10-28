@@ -1,9 +1,9 @@
 #pragma once
 
 #include <Core/CoreDLL.h>
+#include <Foundation/Types/Delegate.h>
 #include <Foundation/Types/Variant.h>
 #include <Foundation/Utilities/EnumerableClass.h>
-#include <Foundation/Types/Delegate.h>
 
 /// \brief Base class for all types of ezConsoleFunction, represents functions to be exposed to ezConsole.
 ///
