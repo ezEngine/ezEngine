@@ -184,8 +184,9 @@ void ezEditorSceneDocumentTest::LayerOperations()
     expectedEvents.PushBack({ezScene2LayerEvent::Type::ActiveLayerChanged, sceneGuid});
     EZ_TEST_STATUS(pDoc->SetActiveLayer(sceneGuid));
     // Initial scene setup exists in the scene undo stack
-    EZ_TEST_INT(pDoc->GetCommandHistory()->GetUndoStackSize(), 2);
-    EZ_TEST_INT(pDoc->GetSceneCommandHistory()->GetUndoStackSize(), 2);
+    const ezUInt32 uiInitialUndoStackSize = pDoc->GetCommandHistory()->GetUndoStackSize();
+    EZ_TEST_BOOL(uiInitialUndoStackSize >= 1);
+    EZ_TEST_INT(pDoc->GetSceneCommandHistory()->GetUndoStackSize(), uiInitialUndoStackSize);
     expectedEvents.PushBack({ezScene2LayerEvent::Type::LayerUnloaded, layer1Guid});
     expectedEvents.PushBack({ezScene2LayerEvent::Type::LayerRemoved, layer1Guid});
     EZ_TEST_STATUS(pDoc->GetCommandHistory()->Undo(1));
