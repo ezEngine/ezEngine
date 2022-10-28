@@ -67,7 +67,7 @@ protected:
 private:
   void UpdateCpUi();
 
-  QPalette m_pal;
+  QPalette m_Pal;
   ezInt32 m_iSelectedColorCP;
   ezInt32 m_iSelectedAlphaCP;
   ezInt32 m_iSelectedIntensityCP;

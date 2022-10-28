@@ -70,8 +70,8 @@ public:
 
   const ezDocumentObjectManager* GetObjectManager() const { return m_pObjectManager.Borrow(); }
   ezDocumentObjectManager* GetObjectManager() { return m_pObjectManager.Borrow(); }
-  ezSelectionManager* GetSelectionManager() const { return m_SelectionManager.Borrow(); }
-  ezCommandHistory* GetCommandHistory() const { return m_CommandHistory.Borrow(); }
+  ezSelectionManager* GetSelectionManager() const { return m_pSelectionManager.Borrow(); }
+  ezCommandHistory* GetCommandHistory() const { return m_pCommandHistory.Borrow(); }
   virtual ezObjectAccessorBase* GetObjectAccessor() const;
 
   ///@}
@@ -268,9 +268,9 @@ protected:
   ///@}
 
   ezUniquePtr<ezDocumentObjectManager> m_pObjectManager;
-  mutable ezUniquePtr<ezCommandHistory> m_CommandHistory;
-  mutable ezUniquePtr<ezSelectionManager> m_SelectionManager;
-  mutable ezUniquePtr<ezObjectCommandAccessor> m_ObjectAccessor; ///< Default object accessor used by every doc.
+  mutable ezUniquePtr<ezCommandHistory> m_pCommandHistory;
+  mutable ezUniquePtr<ezSelectionManager> m_pSelectionManager;
+  mutable ezUniquePtr<ezObjectCommandAccessor> m_pObjectAccessor; ///< Default object accessor used by every doc.
 
   ezDocumentInfo* m_pDocumentInfo = nullptr;
   const ezDocumentTypeDescriptor* m_pTypeDescriptor = nullptr;
@@ -294,6 +294,6 @@ private:
   ezSet<ezString> m_UnknownObjectTypes;
   ezUInt32 m_uiUnknownObjectTypeInstances;
 
-  ezTaskGroupID m_activeSaveTask;
-  ezStatus m_lastSaveResult;
+  ezTaskGroupID m_ActiveSaveTask;
+  ezStatus m_LastSaveResult;
 };

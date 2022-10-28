@@ -120,10 +120,10 @@ void ezGALCommandEncoderImplDX11::SetResourceViewPlatform(ezGALShaderStage::Enum
 
 void ezGALCommandEncoderImplDX11::SetUnorderedAccessViewPlatform(ezUInt32 uiSlot, const ezGALUnorderedAccessView* pUnorderedAccessView)
 {
-  m_pBoundUnoderedAccessViews.EnsureCount(uiSlot + 1);
-  m_pBoundUnoderedAccessViews[uiSlot] =
+  m_BoundUnoderedAccessViews.EnsureCount(uiSlot + 1);
+  m_BoundUnoderedAccessViews[uiSlot] =
     pUnorderedAccessView != nullptr ? static_cast<const ezGALUnorderedAccessViewDX11*>(pUnorderedAccessView)->GetDXResourceView() : nullptr;
-  m_pBoundUnoderedAccessViewsRange.SetToIncludeValue(uiSlot);
+  m_BoundUnoderedAccessViewsRange.SetToIncludeValue(uiSlot);
 }
 
 // Query functions
@@ -870,13 +870,13 @@ void ezGALCommandEncoderImplDX11::FlushDeferredStateChanges()
   }
 
   // Do UAV bindings before SRV since UAV are outputs which need to be unbound before they are potentially rebound as SRV again.
-  if (m_pBoundUnoderedAccessViewsRange.IsValid())
+  if (m_BoundUnoderedAccessViewsRange.IsValid())
   {
-    const ezUInt32 uiStartSlot = m_pBoundUnoderedAccessViewsRange.m_uiMin;
-    const ezUInt32 uiNumSlots = m_pBoundUnoderedAccessViewsRange.GetCount();
-    m_pDXContext->CSSetUnorderedAccessViews(uiStartSlot, uiNumSlots, m_pBoundUnoderedAccessViews.GetData() + uiStartSlot, nullptr); // Todo: Count reset.
+    const ezUInt32 uiStartSlot = m_BoundUnoderedAccessViewsRange.m_uiMin;
+    const ezUInt32 uiNumSlots = m_BoundUnoderedAccessViewsRange.GetCount();
+    m_pDXContext->CSSetUnorderedAccessViews(uiStartSlot, uiNumSlots, m_BoundUnoderedAccessViews.GetData() + uiStartSlot, nullptr); // Todo: Count reset.
 
-    m_pBoundUnoderedAccessViewsRange.Reset();
+    m_BoundUnoderedAccessViewsRange.Reset();
   }
 
   for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)

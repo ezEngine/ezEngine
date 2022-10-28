@@ -41,7 +41,7 @@ void FindPlacementTilesTask::Execute()
 
   ezSimdVec4f fHalfTileSize = ezSimdVec4f(fTileSize * 0.5f);
 
-  for (ezVec3 vCameraPosition : m_vCameraPositions)
+  for (ezVec3 vCameraPosition : m_CameraPositions)
   {
     ezVec3 cameraPos = vCameraPosition / fTileSize;
     float fPosX = ezMath::Round(cameraPos.x);
@@ -119,7 +119,7 @@ void FindPlacementTilesTask::Execute()
     }
   }
 
-  m_vCameraPositions.Clear();
+  m_CameraPositions.Clear();
 
   // Find old tiles
   ezUInt32 uiMaxOldTiles = (ezUInt32)iRadius * 2;

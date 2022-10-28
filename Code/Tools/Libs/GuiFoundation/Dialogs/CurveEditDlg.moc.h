@@ -64,8 +64,8 @@ private:
   ezCurveGroupData m_Curves;
   ezUInt32 m_uiActionsUndoBaseline = 0;
 
-  QShortcut* m_shortcutUndo = nullptr;
-  QShortcut* m_shortcutRedo = nullptr;
+  QShortcut* m_pShortcutUndo = nullptr;
+  QShortcut* m_pShortcutRedo = nullptr;
 
   ezObjectAccessorBase* m_pObjectAccessor = nullptr;
   const ezDocumentObject* m_pCurveObject = nullptr;

@@ -230,7 +230,7 @@ private:
   static void DetermineTasksToExecuteOnThread(ezTaskPriority::Enum& out_FirstPriority, ezTaskPriority::Enum& out_LastPriority);
 
 private:
-  static ezUniquePtr<ezTaskSystemThreadState> s_ThreadState;
+  static ezUniquePtr<ezTaskSystemThreadState> s_pThreadState;
 
   ///@}
 
@@ -310,7 +310,7 @@ private:
   /// One mutex to rule them all.
   static ezMutex s_TaskSystemMutex;
 
-  static ezUniquePtr<ezTaskSystemState> s_State;
+  static ezUniquePtr<ezTaskSystemState> s_pState;
 
   ///@}
 };

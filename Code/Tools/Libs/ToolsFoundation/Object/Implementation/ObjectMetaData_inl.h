@@ -14,13 +14,13 @@ ezObjectMetaData<KEY, VALUE>::ezObjectMetaData()
 template <typename KEY, typename VALUE>
 const VALUE* ezObjectMetaData<KEY, VALUE>::BeginReadMetaData(const KEY ObjectKey) const
 {
-  m_pMetaStorage->m_Mutex.Lock();
-  EZ_ASSERT_DEV(m_pMetaStorage->m_AccessMode == Storage::AccessMode::Nothing, "Already accessing some data");
-  m_pMetaStorage->m_AccessMode = Storage::AccessMode::Read;
-  m_pMetaStorage->m_AcessingKey = ObjectKey;
+  m_MetaStorage->m_Mutex.Lock();
+  EZ_ASSERT_DEV(m_MetaStorage->m_AccessMode == Storage::AccessMode::Nothing, "Already accessing some data");
+  m_MetaStorage->m_AccessMode = Storage::AccessMode::Read;
+  m_MetaStorage->m_AcessingKey = ObjectKey;
 
   const VALUE* pRes = nullptr;
-  if (m_pMetaStorage->m_MetaData.TryGetValue(ObjectKey, pRes)) // TryGetValue is not const correct with the second parameter
+  if (m_MetaStorage->m_MetaData.TryGetValue(ObjectKey, pRes)) // TryGetValue is not const correct with the second parameter
     return pRes;
 
   return &m_DefaultValue;
@@ -29,67 +29,67 @@ const VALUE* ezObjectMetaData<KEY, VALUE>::BeginReadMetaData(const KEY ObjectKey
 template <typename KEY, typename VALUE>
 void ezObjectMetaData<KEY, VALUE>::ClearMetaData(const KEY ObjectKey)
 {
-  EZ_LOCK(m_pMetaStorage->m_Mutex);
-  EZ_ASSERT_DEV(m_pMetaStorage->m_AccessMode == Storage::AccessMode::Nothing, "Already accessing some data");
+  EZ_LOCK(m_MetaStorage->m_Mutex);
+  EZ_ASSERT_DEV(m_MetaStorage->m_AccessMode == Storage::AccessMode::Nothing, "Already accessing some data");
 
   if (HasMetaData(ObjectKey))
   {
-    m_pMetaStorage->m_MetaData.Remove(ObjectKey);
+    m_MetaStorage->m_MetaData.Remove(ObjectKey);
 
     EventData e;
     e.m_ObjectKey = ObjectKey;
     e.m_pValue = &m_DefaultValue;
 
-    m_pMetaStorage->m_DataModifiedEvent.Broadcast(e);
+    m_MetaStorage->m_DataModifiedEvent.Broadcast(e);
   }
 }
 
 template <typename KEY, typename VALUE>
 bool ezObjectMetaData<KEY, VALUE>::HasMetaData(const KEY ObjectKey) const
 {
-  EZ_LOCK(m_pMetaStorage->m_Mutex);
+  EZ_LOCK(m_MetaStorage->m_Mutex);
   const VALUE* pValue = nullptr;
-  return m_pMetaStorage->m_MetaData.TryGetValue(ObjectKey, pValue);
+  return m_MetaStorage->m_MetaData.TryGetValue(ObjectKey, pValue);
 }
 
 template <typename KEY, typename VALUE>
 VALUE* ezObjectMetaData<KEY, VALUE>::BeginModifyMetaData(const KEY ObjectKey)
 {
-  m_pMetaStorage->m_Mutex.Lock();
-  EZ_ASSERT_DEV(m_pMetaStorage->m_AccessMode == Storage::AccessMode::Nothing, "Already accessing some data");
-  m_pMetaStorage->m_AccessMode = Storage::AccessMode::Write;
-  m_pMetaStorage->m_AcessingKey = ObjectKey;
+  m_MetaStorage->m_Mutex.Lock();
+  EZ_ASSERT_DEV(m_MetaStorage->m_AccessMode == Storage::AccessMode::Nothing, "Already accessing some data");
+  m_MetaStorage->m_AccessMode = Storage::AccessMode::Write;
+  m_MetaStorage->m_AcessingKey = ObjectKey;
 
-  return &m_pMetaStorage->m_MetaData[ObjectKey];
+  return &m_MetaStorage->m_MetaData[ObjectKey];
 }
 
 template <typename KEY, typename VALUE>
 void ezObjectMetaData<KEY, VALUE>::EndReadMetaData() const
 {
-  EZ_ASSERT_DEV(m_pMetaStorage->m_AccessMode == Storage::AccessMode::Read, "Not accessing data at the moment");
+  EZ_ASSERT_DEV(m_MetaStorage->m_AccessMode == Storage::AccessMode::Read, "Not accessing data at the moment");
 
-  m_pMetaStorage->m_AccessMode = Storage::AccessMode::Nothing;
-  m_pMetaStorage->m_Mutex.Unlock();
+  m_MetaStorage->m_AccessMode = Storage::AccessMode::Nothing;
+  m_MetaStorage->m_Mutex.Unlock();
 }
 
 
 template <typename KEY, typename VALUE>
 void ezObjectMetaData<KEY, VALUE>::EndModifyMetaData(ezUInt32 uiModifiedFlags /*= 0xFFFFFFFF*/)
 {
-  EZ_ASSERT_DEV(m_pMetaStorage->m_AccessMode == Storage::AccessMode::Write, "Not accessing data at the moment");
-  m_pMetaStorage->m_AccessMode = Storage::AccessMode::Nothing;
+  EZ_ASSERT_DEV(m_MetaStorage->m_AccessMode == Storage::AccessMode::Write, "Not accessing data at the moment");
+  m_MetaStorage->m_AccessMode = Storage::AccessMode::Nothing;
 
   if (uiModifiedFlags != 0)
   {
     EventData e;
-    e.m_ObjectKey = m_pMetaStorage->m_AcessingKey;
-    e.m_pValue = &m_pMetaStorage->m_MetaData[m_pMetaStorage->m_AcessingKey];
+    e.m_ObjectKey = m_MetaStorage->m_AcessingKey;
+    e.m_pValue = &m_MetaStorage->m_MetaData[m_MetaStorage->m_AcessingKey];
     e.m_uiModifiedFlags = uiModifiedFlags;
 
-    m_pMetaStorage->m_DataModifiedEvent.Broadcast(e);
+    m_MetaStorage->m_DataModifiedEvent.Broadcast(e);
   }
 
-  m_pMetaStorage->m_Mutex.Unlock();
+  m_MetaStorage->m_Mutex.Unlock();
 }
 
 
@@ -98,7 +98,7 @@ void ezObjectMetaData<KEY, VALUE>::AttachMetaDataToAbstractGraph(ezAbstractObjec
 {
   auto& AllNodes = graph.GetAllNodes();
 
-  EZ_LOCK(m_pMetaStorage->m_Mutex);
+  EZ_LOCK(m_MetaStorage->m_Mutex);
 
   ezHashTable<const char*, ezVariant> DefaultValues;
 
@@ -126,7 +126,7 @@ void ezObjectMetaData<KEY, VALUE>::AttachMetaDataToAbstractGraph(ezAbstractObjec
       const ezUuid& guid = pNode->GetGuid();
 
       const VALUE* pMeta = nullptr;
-      if (!m_pMetaStorage->m_MetaData.TryGetValue(guid, pMeta)) // TryGetValue is not const correct with the second parameter
+      if (!m_MetaStorage->m_MetaData.TryGetValue(guid, pMeta)) // TryGetValue is not const correct with the second parameter
         continue;                               // it is the default object, so all values are default -> skip
 
       for (const auto& pProp : pMeta->GetDynamicRTTI()->GetProperties())
@@ -149,7 +149,7 @@ void ezObjectMetaData<KEY, VALUE>::AttachMetaDataToAbstractGraph(ezAbstractObjec
 template <typename KEY, typename VALUE>
 void ezObjectMetaData<KEY, VALUE>::RestoreMetaDataFromAbstractGraph(const ezAbstractObjectGraph& graph)
 {
-  EZ_LOCK(m_pMetaStorage->m_Mutex);
+  EZ_LOCK(m_MetaStorage->m_Mutex);
 
   ezHybridArray<ezString, 16> PropertyNames;
 
@@ -175,7 +175,7 @@ void ezObjectMetaData<KEY, VALUE>::RestoreMetaDataFromAbstractGraph(const ezAbst
     {
       if (const auto* pProp = pNode->FindProperty(name))
       {
-        VALUE* pValue = &m_pMetaStorage->m_MetaData[guid];
+        VALUE* pValue = &m_MetaStorage->m_MetaData[guid];
 
         ezReflectionUtils::SetMemberPropertyValue(
           static_cast<ezAbstractMemberProperty*>(pValue->GetDynamicRTTI()->FindPropertyByName(name)), pValue, pProp->m_Value);
@@ -189,13 +189,13 @@ ezSharedPtr<typename ezObjectMetaData<KEY, VALUE>::Storage> ezObjectMetaData<KEY
 {
   EZ_ASSERT_ALWAYS(pNewStorage != nullptr, "Need a valid history storage object");
 
-  auto retVal = m_pMetaStorage;
+  auto retVal = m_MetaStorage;
 
   m_EventsUnsubscriber.Unsubscribe();
 
-  m_pMetaStorage = pNewStorage;
+  m_MetaStorage = pNewStorage;
 
-  m_pMetaStorage->m_DataModifiedEvent.AddEventHandler([this](const EventData& e) { m_DataModifiedEvent.Broadcast(e); }, m_EventsUnsubscriber);
+  m_MetaStorage->m_DataModifiedEvent.AddEventHandler([this](const EventData& e) { m_DataModifiedEvent.Broadcast(e); }, m_EventsUnsubscriber);
 
   return retVal;
 }

@@ -53,31 +53,31 @@ public:
   double ToDouble() const; // [tested]
 
   /// \brief 'Equality' comparison.
-  bool operator==(const ezFixedPoint<DecimalBits>& rhs) const { return m_Value == rhs.m_Value; } // [tested]
+  bool operator==(const ezFixedPoint<DecimalBits>& rhs) const { return m_iValue == rhs.m_iValue; } // [tested]
 
   /// \brief 'Inequality' comparison.
-  bool operator!=(const ezFixedPoint<DecimalBits>& rhs) const { return m_Value != rhs.m_Value; } // [tested]
+  bool operator!=(const ezFixedPoint<DecimalBits>& rhs) const { return m_iValue != rhs.m_iValue; } // [tested]
 
   /// \brief 'Less than' comparison.
-  bool operator<(const ezFixedPoint<DecimalBits>& rhs) const { return m_Value < rhs.m_Value; } // [tested]
+  bool operator<(const ezFixedPoint<DecimalBits>& rhs) const { return m_iValue < rhs.m_iValue; } // [tested]
 
   /// \brief 'Greater than' comparison.
-  bool operator>(const ezFixedPoint<DecimalBits>& rhs) const { return m_Value > rhs.m_Value; } // [tested]
+  bool operator>(const ezFixedPoint<DecimalBits>& rhs) const { return m_iValue > rhs.m_iValue; } // [tested]
 
   /// \brief 'Less than or equal' comparison.
-  bool operator<=(const ezFixedPoint<DecimalBits>& rhs) const { return m_Value <= rhs.m_Value; } // [tested]
+  bool operator<=(const ezFixedPoint<DecimalBits>& rhs) const { return m_iValue <= rhs.m_iValue; } // [tested]
 
   /// \brief 'Greater than or equal' comparison.
-  bool operator>=(const ezFixedPoint<DecimalBits>& rhs) const { return m_Value >= rhs.m_Value; } // [tested]
+  bool operator>=(const ezFixedPoint<DecimalBits>& rhs) const { return m_iValue >= rhs.m_iValue; } // [tested]
 
 
-  const ezFixedPoint<DecimalBits> operator-() const { return ezFixedPoint<DecimalBits>(-m_Value, true); }
+  const ezFixedPoint<DecimalBits> operator-() const { return ezFixedPoint<DecimalBits>(-m_iValue, true); }
 
   /// \brief += operator
-  void operator+=(const ezFixedPoint<DecimalBits>& rhs) { m_Value += rhs.m_Value; } // [tested]
+  void operator+=(const ezFixedPoint<DecimalBits>& rhs) { m_iValue += rhs.m_iValue; } // [tested]
 
   /// \brief -= operator
-  void operator-=(const ezFixedPoint<DecimalBits>& rhs) { m_Value -= rhs.m_Value; } // [tested]
+  void operator-=(const ezFixedPoint<DecimalBits>& rhs) { m_iValue -= rhs.m_iValue; } // [tested]
 
   /// \brief *= operator
   void operator*=(const ezFixedPoint<DecimalBits>& rhs); // [tested]
@@ -86,19 +86,19 @@ public:
   void operator/=(const ezFixedPoint<DecimalBits>& rhs); // [tested]
 
   /// \brief *= operator with integers (more efficient)
-  void operator*=(ezInt32 rhs) { m_Value *= rhs; } // [tested]
+  void operator*=(ezInt32 rhs) { m_iValue *= rhs; } // [tested]
 
   /// \brief /= operator with integers (more efficient)
-  void operator/=(ezInt32 rhs) { m_Value /= rhs; } // [tested]
+  void operator/=(ezInt32 rhs) { m_iValue /= rhs; } // [tested]
 
   /// \brief Returns the underlying integer value. Mostly useful for serialization (or tests).
-  ezInt32 GetRawValue() const { return m_Value; }
+  ezInt32 GetRawValue() const { return m_iValue; }
 
   /// \brief Sets the underlying integer value. Mostly useful for serialization (or tests).
-  void SetRawValue(ezInt32 val) { m_Value = val; }
+  void SetRawValue(ezInt32 val) { m_iValue = val; }
 
 private:
-  ezInt32 m_Value;
+  ezInt32 m_iValue;
 };
 
 template <ezUInt8 DecimalBits>

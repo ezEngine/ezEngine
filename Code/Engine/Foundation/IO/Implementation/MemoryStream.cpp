@@ -81,7 +81,7 @@ ezUInt64 ezMemoryStreamReader::GetByteCount64() const
 
 void ezMemoryStreamReader::SetDebugSourceInformation(const char* szDebugSourceInformation)
 {
-  m_DebugSourceInformation = szDebugSourceInformation;
+  m_sDebugSourceInformation = szDebugSourceInformation;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -233,7 +233,7 @@ ezUInt64 ezRawMemoryStreamReader::GetByteCount() const
 
 void ezRawMemoryStreamReader::SetDebugSourceInformation(const char* szDebugSourceInformation)
 {
-  m_DebugSourceInformation = szDebugSourceInformation;
+  m_sDebugSourceInformation = szDebugSourceInformation;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -283,7 +283,7 @@ ezUInt64 ezRawMemoryStreamWriter::GetNumWrittenBytes() const
 
 void ezRawMemoryStreamWriter::SetDebugSourceInformation(const char* szDebugSourceInformation)
 {
-  m_DebugSourceInformation = szDebugSourceInformation;
+  m_sDebugSourceInformation = szDebugSourceInformation;
 }
 
 //////////////////////////////////////////////////////////////////////////

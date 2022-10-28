@@ -464,7 +464,7 @@ void ezTagSetTemplate<BlockStorageAllocator>::Save(ezStreamWriter& stream) const
   {
     const ezTag& tag = *it;
 
-    stream << tag.m_TagString;
+    stream << tag.m_sTagString;
   }
 }
 

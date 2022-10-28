@@ -12,6 +12,6 @@ public:
   virtual ezUuid GenerateObjectGuid(const ezUuid& parentGuid, const ezAbstractProperty* pProp, ezVariant index, void* pObject) const override;
 
 private:
-  ezRttiConverterContext& m_nativeContext;
-  const ezAbstractObjectGraph& m_originalGraph;
+  ezRttiConverterContext& m_NativeContext;
+  const ezAbstractObjectGraph& m_OriginalGraph;
 };

@@ -169,15 +169,15 @@ ezResult ezWindow::Initialize()
   // create window
   ezStringWChar sTitelWChar(m_CreationDescription.m_Title.GetData());
   const wchar_t* sTitelWCharRaw = sTitelWChar.GetData();
-  m_WindowHandle = ezMinWindows::FromNative(CreateWindowExW(dwExStyle, windowClass.lpszClassName, sTitelWCharRaw, dwWindowStyle, m_CreationDescription.m_Position.x, m_CreationDescription.m_Position.y, iWidth, iHeight, nullptr, nullptr, windowClass.hInstance, nullptr));
+  m_hWindowHandle = ezMinWindows::FromNative(CreateWindowExW(dwExStyle, windowClass.lpszClassName, sTitelWCharRaw, dwWindowStyle, m_CreationDescription.m_Position.x, m_CreationDescription.m_Position.y, iWidth, iHeight, nullptr, nullptr, windowClass.hInstance, nullptr));
 
-  if (m_WindowHandle == INVALID_HANDLE_VALUE)
+  if (m_hWindowHandle == INVALID_HANDLE_VALUE)
   {
     ezLog::Error("Failed to create window.");
     return EZ_FAILURE;
   }
 
-  auto windowHandle = ezMinWindows::ToNative(m_WindowHandle);
+  auto windowHandle = ezMinWindows::ToNative(m_hWindowHandle);
 
   // safe window pointer for lookup in ezWindowsMessageFuncTrampoline
   SetWindowLongPtrW(windowHandle, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
@@ -255,7 +255,7 @@ ezResult ezWindow::Destroy()
   //}
 
   m_bInitialized = false;
-  m_WindowHandle = INVALID_WINDOW_HANDLE_VALUE;
+  m_hWindowHandle = INVALID_WINDOW_HANDLE_VALUE;
 
   if (Res == EZ_SUCCESS)
     ezLog::Success("Window destroyed.");
@@ -267,7 +267,7 @@ ezResult ezWindow::Destroy()
 
 ezResult ezWindow::Resize(const ezSizeU32& newWindowSize)
 {
-  auto windowHandle = ezMinWindows::ToNative(m_WindowHandle);
+  auto windowHandle = ezMinWindows::ToNative(m_hWindowHandle);
   BOOL res = ::SetWindowPos(windowHandle, HWND_NOTOPMOST, 0, 0, newWindowSize.width, newWindowSize.height, SWP_NOSENDCHANGING | SWP_NOOWNERZORDER | SWP_NOMOVE | SWP_NOZORDER);
   return res == TRUE ? EZ_SUCCESS : EZ_FAILURE;
 }
@@ -298,5 +298,5 @@ void ezWindow::OnResize(const ezSizeU32& newWindowSize)
 
 ezWindowHandle ezWindow::GetNativeWindowHandle() const
 {
-  return m_WindowHandle;
+  return m_hWindowHandle;
 }

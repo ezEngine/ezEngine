@@ -409,7 +409,7 @@ void ezStandardInputDevice::WindowMessage(
       const float fPosX = (float)((short)LOWORD(lParam));
       const float fPosY = (float)((short)HIWORD(lParam));
 
-      m_iMouseIsOverWindowNumber = m_uiWindowNumber;
+      s_iMouseIsOverWindowNumber = m_uiWindowNumber;
       m_InputSlotValues[ezInputSlot_MousePositionX] = (fPosX / uiResX);
       m_InputSlotValues[ezInputSlot_MousePositionY] = (fPosY / uiResY);
 
@@ -435,7 +435,7 @@ void ezStandardInputDevice::WindowMessage(
     }
 
     case WM_CHAR:
-      m_LastCharacter = (wchar_t)wParam;
+      m_uiLastCharacter = (wchar_t)wParam;
       return;
 
       // these messages would only arrive, if the window had the flag CS_DBLCLKS

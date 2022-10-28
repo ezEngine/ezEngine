@@ -62,7 +62,7 @@ private:
   State m_OutputState;
 
   // Setup in ctor
-  HANDLE m_PipeHandle = INVALID_HANDLE_VALUE;
+  HANDLE m_hPipeHandle = INVALID_HANDLE_VALUE;
 
   // Only accessed from worker thread
   ezUInt8 m_InputBuffer[BUFFER_SIZE];

@@ -34,7 +34,7 @@ ezResult ezGameEngineTestEffects::InitializeSubTest(ezInt32 iIdentifier)
   EZ_SUCCEED_OR_RETURN(SUPER::InitializeSubTest(iIdentifier));
 
   m_iFrame = -1;
-  m_iImgCompIdx = 0;
+  m_uiImgCompIdx = 0;
   m_ImgCompFrames.Clear();
 
   if (iIdentifier == SubTests::Decals)
@@ -88,12 +88,12 @@ ezTestAppRun ezGameEngineTestEffects::RunSubTest(ezInt32 iIdentifier, ezUInt32 u
   if (m_pOwnApplication->Run() == ezApplication::Execution::Quit)
     return ezTestAppRun::Quit;
 
-  if (m_ImgCompFrames[m_iImgCompIdx] == m_iFrame)
+  if (m_ImgCompFrames[m_uiImgCompIdx] == m_iFrame)
   {
-    EZ_TEST_IMAGE(m_iImgCompIdx, 450);
-    ++m_iImgCompIdx;
+    EZ_TEST_IMAGE(m_uiImgCompIdx, 450);
+    ++m_uiImgCompIdx;
 
-    if (m_iImgCompIdx >= m_ImgCompFrames.GetCount())
+    if (m_uiImgCompIdx >= m_ImgCompFrames.GetCount())
     {
       if (false)
       {

@@ -5,7 +5,7 @@
 
 ezThreadSignal::ezThreadSignal(Mode mode /*= Mode::AutoReset*/)
 {
-  m_mode = mode;
+  m_Mode = mode;
 }
 
 ezThreadSignal::~ezThreadSignal() = default;
@@ -19,7 +19,7 @@ void ezThreadSignal::WaitForSignal() const
     m_ConditionVariable.UnlockWaitForSignalAndLock();
   }
 
-  if (m_mode == Mode::AutoReset)
+  if (m_Mode == Mode::AutoReset)
   {
     m_bSignalState = false;
   }
@@ -46,7 +46,7 @@ ezThreadSignal::WaitResult ezThreadSignal::WaitForSignal(ezTime timeout) const
     }
   }
 
-  if (m_mode == Mode::AutoReset)
+  if (m_Mode == Mode::AutoReset)
   {
     m_bSignalState = false;
   }
@@ -61,7 +61,7 @@ void ezThreadSignal::RaiseSignal()
     m_bSignalState = true;
   }
 
-  if (m_mode == Mode::AutoReset)
+  if (m_Mode == Mode::AutoReset)
   {
     // with auto-reset there is no need to wake up more than one
     m_ConditionVariable.SignalOne();

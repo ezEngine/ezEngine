@@ -2,10 +2,10 @@
 
 #include <Foundation/IO/OSFile.h>
 
-ezString64 ezOSFile::s_ApplicationPath;
-ezString64 ezOSFile::s_UserDataPath;
-ezString64 ezOSFile::s_TempDataPath;
-ezAtomicInteger32 ezOSFile::s_FileCounter;
+ezString64 ezOSFile::s_sApplicationPath;
+ezString64 ezOSFile::s_sUserDataPath;
+ezString64 ezOSFile::s_sTempDataPath;
+ezAtomicInteger32 ezOSFile::s_iFileCounter;
 ezOSFile::Event ezOSFile::s_FileEvents;
 
 ezFileStats::ezFileStats() = default;
@@ -19,7 +19,7 @@ void ezFileStats::GetFullPath(ezStringBuilder& path) const
 ezOSFile::ezOSFile()
 {
   m_FileMode = ezFileOpenMode::None;
-  m_iFileID = s_FileCounter.Increment();
+  m_iFileID = s_iFileCounter.Increment();
 }
 
 ezOSFile::~ezOSFile()
@@ -29,7 +29,7 @@ ezOSFile::~ezOSFile()
 
 ezResult ezOSFile::Open(const char* szFile, ezFileOpenMode::Enum OpenMode, ezFileShareMode::Enum FileShareMode)
 {
-  m_iFileID = s_FileCounter.Increment();
+  m_iFileID = s_iFileCounter.Increment();
 
   EZ_ASSERT_DEV(OpenMode >= ezFileOpenMode::Read && OpenMode <= ezFileOpenMode::Append, "Invalid Mode");
   EZ_ASSERT_DEV(!IsOpen(), "The file has already been opened.");
@@ -240,7 +240,7 @@ bool ezOSFile::ExistsFile(const char* szFile)
   EventData e;
   e.m_bSuccess = bRes;
   e.m_Duration = tdiff;
-  e.m_iFileID = s_FileCounter.Increment();
+  e.m_iFileID = s_iFileCounter.Increment();
   e.m_szFile = s;
   e.m_EventType = EventType::FileExists;
 
@@ -268,7 +268,7 @@ bool ezOSFile::ExistsDirectory(const char* szDirectory)
   EventData e;
   e.m_bSuccess = bRes;
   e.m_Duration = tdiff;
-  e.m_iFileID = s_FileCounter.Increment();
+  e.m_iFileID = s_iFileCounter.Increment();
   e.m_szFile = s;
   e.m_EventType = EventType::DirectoryExists;
 
@@ -293,7 +293,7 @@ ezResult ezOSFile::DeleteFile(const char* szFile)
   EventData e;
   e.m_bSuccess = Res == EZ_SUCCESS;
   e.m_Duration = tdiff;
-  e.m_iFileID = s_FileCounter.Increment();
+  e.m_iFileID = s_iFileCounter.Increment();
   e.m_szFile = szFile;
   e.m_EventType = EventType::FileDelete;
 
@@ -342,7 +342,7 @@ ezResult ezOSFile::CreateDirectoryStructure(const char* szDirectory)
   EventData e;
   e.m_bSuccess = Res == EZ_SUCCESS;
   e.m_Duration = tdiff;
-  e.m_iFileID = s_FileCounter.Increment();
+  e.m_iFileID = s_iFileCounter.Increment();
   e.m_szFile = szDirectory;
   e.m_EventType = EventType::MakeDir;
 
@@ -408,7 +408,7 @@ done:
   EventData e;
   e.m_bSuccess = Res == EZ_SUCCESS;
   e.m_Duration = tdiff;
-  e.m_iFileID = s_FileCounter.Increment();
+  e.m_iFileID = s_iFileCounter.Increment();
   e.m_szFile = szSource;
   e.m_szFile2 = szDestination;
   e.m_EventType = EventType::FileCopy;
@@ -438,7 +438,7 @@ ezResult ezOSFile::GetFileStats(const char* szFileOrFolder, ezFileStats& out_Sta
   EventData e;
   e.m_bSuccess = Res == EZ_SUCCESS;
   e.m_Duration = tdiff;
-  e.m_iFileID = s_FileCounter.Increment();
+  e.m_iFileID = s_iFileCounter.Increment();
   e.m_szFile = szFileOrFolder;
   e.m_EventType = EventType::FileStat;
 
@@ -497,7 +497,7 @@ ezResult ezOSFile::GetFileCasing(const char* szFileOrFolder, ezStringBuilder& ou
   EventData e;
   e.m_bSuccess = Res == EZ_SUCCESS;
   e.m_Duration = tdiff;
-  e.m_iFileID = s_FileCounter.Increment();
+  e.m_iFileID = s_iFileCounter.Increment();
   e.m_szFile = szFileOrFolder;
   e.m_EventType = EventType::FileCasing;
 

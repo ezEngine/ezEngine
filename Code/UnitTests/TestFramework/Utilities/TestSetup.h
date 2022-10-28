@@ -22,6 +22,6 @@ public:
   static void DeInitTestFramework(bool bSilent = false);
 
 private:
-  static int s_argc;
-  static const char** s_argv;
+  static int s_iArgc;
+  static const char** s_pArgv;
 };

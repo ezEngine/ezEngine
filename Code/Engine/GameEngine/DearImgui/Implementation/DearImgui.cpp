@@ -107,15 +107,15 @@ void ezImgui::Startup(ezImguiConfigFontCallback configFontCallback)
     hFont = ezResourceManager::GetOrCreateResource<ezTexture2DResource>("ImguiFont", std::move(desc));
   }
 
-  m_hTextures.PushBack(hFont);
+  m_Textures.PushBack(hFont);
 
-  const size_t id = (size_t)m_hTextures.GetCount() - 1;
+  const size_t id = (size_t)m_Textures.GetCount() - 1;
   m_pSharedFontAtlas->TexID = reinterpret_cast<void*>(id);
 }
 
 void ezImgui::Shutdown()
 {
-  m_hTextures.Clear();
+  m_Textures.Clear();
 
   m_pSharedFontAtlas = nullptr;
 

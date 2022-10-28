@@ -94,8 +94,8 @@ void ezRmlUiRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, 
   pRenderContext->BindConstantBuffer("ezRmlUiConstants", m_hConstantBuffer);
 
   // reset cached state
-  m_lastTransform = ezMat4::IdentityMatrix();
-  m_lastRect = ezRectFloat(0, 0);
+  m_mLastTransform = ezMat4::IdentityMatrix();
+  m_LastRect = ezRectFloat(0, 0);
 
   for (auto it = batch.GetIterator<ezRmlUiRenderData>(); it.IsValid(); ++it)
   {
@@ -114,10 +114,10 @@ void ezRmlUiRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, 
 
       if (rmlUiBatch.m_bTransformScissorRect)
       {
-        if (m_lastTransform != rmlUiBatch.m_Transform || m_lastRect != rmlUiBatch.m_ScissorRect)
+        if (m_mLastTransform != rmlUiBatch.m_Transform || m_LastRect != rmlUiBatch.m_ScissorRect)
         {
-          m_lastTransform = rmlUiBatch.m_Transform;
-          m_lastRect = rmlUiBatch.m_ScissorRect;
+          m_mLastTransform = rmlUiBatch.m_Transform;
+          m_LastRect = rmlUiBatch.m_ScissorRect;
 
           PrepareStencil(renderViewContext, rmlUiBatch.m_ScissorRect);
         }

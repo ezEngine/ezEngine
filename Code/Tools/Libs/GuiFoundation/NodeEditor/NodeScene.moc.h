@@ -33,7 +33,7 @@ public:
   static ezRttiMappedObjectFactory<ezQtNode>& GetNodeFactory();
   static ezRttiMappedObjectFactory<ezQtPin>& GetPinFactory();
   static ezRttiMappedObjectFactory<ezQtConnection>& GetConnectionFactory();
-  static ezVec2 GetLastMouseInteractionPos() { return s_LastMouseInteraction; }
+  static ezVec2 GetLastMouseInteractionPos() { return s_vLastMouseInteraction; }
 
   struct ConnectionStyle
   {
@@ -126,7 +126,7 @@ private:
   ezEnum<ConnectionStyle> m_ConnectionStyle;
   ezBitflags<ConnectionDecorationFlags> m_ConnectionDecorationFlags;
 
-  static ezVec2 s_LastMouseInteraction;
+  static ezVec2 s_vLastMouseInteraction;
 };
 
 EZ_DECLARE_FLAGS_OPERATORS(ezQtNodeScene::ConnectionDecorationFlags);

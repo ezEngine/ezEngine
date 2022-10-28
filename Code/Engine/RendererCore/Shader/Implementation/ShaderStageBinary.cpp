@@ -159,10 +159,10 @@ ezShaderStageBinary::ezShaderStageBinary() = default;
 
 ezShaderStageBinary::~ezShaderStageBinary()
 {
-  if (m_pGALByteCode)
+  if (m_GALByteCode)
   {
-    ezGALShaderByteCode* pByteCode = m_pGALByteCode;
-    m_pGALByteCode = nullptr;
+    ezGALShaderByteCode* pByteCode = m_GALByteCode;
+    m_GALByteCode = nullptr;
 
     if (pByteCode->GetRefCount() == 0)
       EZ_DEFAULT_DELETE(pByteCode);
@@ -384,9 +384,9 @@ ezShaderStageBinary* ezShaderStageBinary::LoadStageBinary(ezGALShaderStage::Enum
 
   ezShaderStageBinary* pShaderStageBinary = &itStage.Value();
 
-  if (pShaderStageBinary->m_pGALByteCode == nullptr && !pShaderStageBinary->m_ByteCode.IsEmpty())
+  if (pShaderStageBinary->m_GALByteCode == nullptr && !pShaderStageBinary->m_ByteCode.IsEmpty())
   {
-    pShaderStageBinary->m_pGALByteCode = EZ_DEFAULT_NEW(ezGALShaderByteCode, pShaderStageBinary->m_ByteCode);
+    pShaderStageBinary->m_GALByteCode = EZ_DEFAULT_NEW(ezGALShaderByteCode, pShaderStageBinary->m_ByteCode);
   }
 
   return pShaderStageBinary;

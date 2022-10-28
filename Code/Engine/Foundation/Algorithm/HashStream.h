@@ -21,7 +21,7 @@ public:
   ezUInt32 GetHashValue() const;
 
 private:
-  void* m_state = nullptr;
+  void* m_pState = nullptr;
 };
 
 
@@ -43,5 +43,5 @@ public:
   ezUInt64 GetHashValue() const;
 
 private:
-  void* m_state = nullptr;
+  void* m_pState = nullptr;
 };

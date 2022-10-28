@@ -15,7 +15,7 @@ enum Columns
 
 ezQtAssetImportDlg::ezQtAssetImportDlg(QWidget* parent, ezDynamicArray<ezAssetDocumentGenerator::ImportData>& allImports)
   : QDialog(parent)
-  , m_allImports(allImports)
+  , m_AllImports(allImports)
 {
   setupUi(this);
 
@@ -28,13 +28,13 @@ ezQtAssetImportDlg::ezQtAssetImportDlg(QWidget* parent, ezDynamicArray<ezAssetDo
 
   QTableWidget* table = AssetTable;
   table->setColumnCount(headers.size());
-  table->setRowCount(m_allImports.GetCount());
+  table->setRowCount(m_AllImports.GetCount());
   table->setHorizontalHeaderLabels(headers);
 
   {
     ezQtScopedBlockSignals _1(table);
 
-    for (ezUInt32 i = 0; i < m_allImports.GetCount(); ++i)
+    for (ezUInt32 i = 0; i < m_AllImports.GetCount(); ++i)
     {
       InitRow(i);
     }
@@ -57,7 +57,7 @@ ezQtAssetImportDlg::~ezQtAssetImportDlg() {}
 void ezQtAssetImportDlg::InitRow(ezUInt32 uiRow)
 {
   QTableWidget* table = AssetTable;
-  const auto& data2 = m_allImports[uiRow];
+  const auto& data2 = m_AllImports[uiRow];
 
   table->setItem(uiRow, Columns::InputFile, new QTableWidgetItem(data2.m_sInputFileParentRelative.GetData()));
   table->setItem(uiRow, Columns::Status, new QTableWidgetItem());
@@ -96,7 +96,7 @@ void ezQtAssetImportDlg::UpdateRow(ezUInt32 uiRow)
   QTableWidget* table = AssetTable;
   ezQtScopedBlockSignals _1(table);
 
-  const auto& data2 = m_allImports[uiRow];
+  const auto& data2 = m_AllImports[uiRow];
 
   QTableWidgetItem* pOutputItem = table->item(uiRow, Columns::GeneratedDoc);
   QTableWidgetItem* pStatusItem = table->item(uiRow, Columns::Status);
@@ -136,14 +136,14 @@ void ezQtAssetImportDlg::SelectedOptionChanged(int index)
   const ezUInt32 uiRow = pCombo->property("row").toInt();
 
   QueryRow(uiRow);
-  m_allImports[uiRow].m_iSelectedOption = index - 1;
+  m_AllImports[uiRow].m_iSelectedOption = index - 1;
   UpdateRow(uiRow);
 }
 
 void ezQtAssetImportDlg::QueryRow(ezUInt32 uiRow)
 {
   QTableWidget* table = AssetTable;
-  auto& data2 = m_allImports[uiRow];
+  auto& data2 = m_AllImports[uiRow];
 
   if (data2.m_iSelectedOption < 0)
     return;
@@ -157,7 +157,7 @@ void ezQtAssetImportDlg::QueryRow(ezUInt32 uiRow)
 
 void ezQtAssetImportDlg::UpdateAllRows()
 {
-  for (ezUInt32 i = 0; i < m_allImports.GetCount(); ++i)
+  for (ezUInt32 i = 0; i < m_AllImports.GetCount(); ++i)
   {
     UpdateRow(i);
   }
@@ -165,7 +165,7 @@ void ezQtAssetImportDlg::UpdateAllRows()
 
 void ezQtAssetImportDlg::on_ButtonImport_clicked()
 {
-  ezAssetDocumentGenerator::ExecuteImport(m_allImports);
+  ezAssetDocumentGenerator::ExecuteImport(m_AllImports);
 
   UpdateAllRows();
 }
@@ -184,7 +184,7 @@ void ezQtAssetImportDlg::BrowseButtonClicked(bool)
   QToolButton* pButton = qobject_cast<QToolButton*>(sender());
   const ezUInt32 uiRow = pButton->property("row").toInt();
 
-  auto& data2 = m_allImports[uiRow];
+  auto& data2 = m_AllImports[uiRow];
   if (data2.m_iSelectedOption < 0)
     return;
 

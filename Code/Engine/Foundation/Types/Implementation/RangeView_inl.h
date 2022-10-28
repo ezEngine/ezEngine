@@ -1,30 +1,30 @@
 
 template <typename ValueType, typename IteratorType>
 ezRangeView<ValueType, IteratorType>::ezRangeView(BeginCallback begin, EndCallback end, NextCallback next, ValueCallback value)
-  : m_begin(begin)
-  , m_end(end)
-  , m_next(next)
-  , m_value(value)
+  : m_Begin(begin)
+  , m_End(end)
+  , m_Next(next)
+  , m_Value(value)
 {
 }
 
 template <typename ValueType, typename IteratorType>
 EZ_FORCE_INLINE void ezRangeView<ValueType, IteratorType>::ConstIterator::Next()
 {
-  this->m_View->m_next(this->m_Pos);
+  this->m_pView->m_Next(this->m_Pos);
 }
 
 template <typename ValueType, typename IteratorType>
 EZ_FORCE_INLINE ValueType ezRangeView<ValueType, IteratorType>::ConstIterator::Value() const
 {
-  return this->m_View->m_value(this->m_Pos);
+  return this->m_pView->m_Value(this->m_Pos);
 }
 
 template <typename ValueType, typename IteratorType>
 EZ_FORCE_INLINE bool ezRangeView<ValueType, IteratorType>::ConstIterator::operator==(
   const typename ezRangeView<ValueType, IteratorType>::ConstIterator& it2) const
 {
-  return m_View == it2.m_View && m_Pos == it2.m_Pos;
+  return m_pView == it2.m_pView && m_Pos == it2.m_Pos;
 }
 
 template <typename ValueType, typename IteratorType>
@@ -37,7 +37,7 @@ EZ_FORCE_INLINE bool ezRangeView<ValueType, IteratorType>::ConstIterator::operat
 template <typename ValueType, typename IteratorType>
 EZ_FORCE_INLINE ezRangeView<ValueType, IteratorType>::ConstIterator::ConstIterator(const ezRangeView<ValueType, IteratorType>* view, IteratorType pos)
 {
-  m_View = view;
+  m_pView = view;
   m_Pos = pos;
 }
 

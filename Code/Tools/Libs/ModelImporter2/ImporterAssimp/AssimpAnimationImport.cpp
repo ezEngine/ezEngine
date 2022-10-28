@@ -47,28 +47,28 @@ namespace ezModelImporter2
     if (pAnimOut == nullptr)
       return EZ_SUCCESS;
 
-    if (m_aiScene->mNumAnimations == 0)
+    if (m_pScene->mNumAnimations == 0)
       return EZ_FAILURE;
 
     pAnimOut->m_bAdditive = m_Options.m_bAdditiveAnimation;
 
-    m_OutputAnimationNames.SetCount(m_aiScene->mNumAnimations);
-    for (ezUInt32 animIdx = 0; animIdx < m_aiScene->mNumAnimations; ++animIdx)
+    m_OutputAnimationNames.SetCount(m_pScene->mNumAnimations);
+    for (ezUInt32 animIdx = 0; animIdx < m_pScene->mNumAnimations; ++animIdx)
     {
-      m_OutputAnimationNames[animIdx] = m_aiScene->mAnimations[animIdx]->mName.C_Str();
+      m_OutputAnimationNames[animIdx] = m_pScene->mAnimations[animIdx]->mName.C_Str();
     }
 
     if (m_Options.m_sAnimationToImport.IsEmpty())
-      m_Options.m_sAnimationToImport = m_aiScene->mAnimations[0]->mName.C_Str();
+      m_Options.m_sAnimationToImport = m_pScene->mAnimations[0]->mName.C_Str();
 
     ezHashedString hs;
 
     ozz::animation::offline::RawAnimation orgRawAnim, sampledRawAnim;
     ozz::animation::offline::RawAnimation* pFinalRawAnim = &orgRawAnim;
 
-    for (ezUInt32 animIdx = 0; animIdx < m_aiScene->mNumAnimations; ++animIdx)
+    for (ezUInt32 animIdx = 0; animIdx < m_pScene->mNumAnimations; ++animIdx)
     {
-      const aiAnimation* pAnim = m_aiScene->mAnimations[animIdx];
+      const aiAnimation* pAnim = m_pScene->mAnimations[animIdx];
 
       if (m_Options.m_sAnimationToImport != pAnim->mName.C_Str())
         continue;

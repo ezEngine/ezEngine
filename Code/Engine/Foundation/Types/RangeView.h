@@ -53,7 +53,7 @@ public:
     EZ_FORCE_INLINE explicit ConstIterator(const ezRangeView<ValueType, IteratorType>* view, IteratorType pos);
 
     friend class ezRangeView<ValueType, IteratorType>;
-    const ezRangeView<ValueType, IteratorType>* m_View = nullptr;
+    const ezRangeView<ValueType, IteratorType>* m_pView = nullptr;
     IteratorType m_Pos;
   };
 
@@ -76,21 +76,21 @@ public:
     EZ_FORCE_INLINE explicit Iterator(const ezRangeView<ValueType, IteratorType>* view, IteratorType pos);
   };
 
-  Iterator begin() { return Iterator(this, m_begin()); }
-  Iterator end() { return Iterator(this, m_end()); }
-  ConstIterator begin() const { return ConstIterator(this, m_begin()); }
-  ConstIterator end() const { return ConstIterator(this, m_end()); }
-  ConstIterator cbegin() const { return ConstIterator(this, m_begin()); }
-  ConstIterator cend() const { return ConstIterator(this, m_end()); }
+  Iterator begin() { return Iterator(this, m_Begin()); }
+  Iterator end() { return Iterator(this, m_End()); }
+  ConstIterator begin() const { return ConstIterator(this, m_Begin()); }
+  ConstIterator end() const { return ConstIterator(this, m_End()); }
+  ConstIterator cbegin() const { return ConstIterator(this, m_Begin()); }
+  ConstIterator cend() const { return ConstIterator(this, m_End()); }
 
 private:
   friend struct Iterator;
   friend struct ConstIterator;
 
-  BeginCallback m_begin;
-  EndCallback m_end;
-  NextCallback m_next;
-  ValueCallback m_value;
+  BeginCallback m_Begin;
+  EndCallback m_End;
+  NextCallback m_Next;
+  ValueCallback m_Value;
 };
 
 template <typename V, typename I>

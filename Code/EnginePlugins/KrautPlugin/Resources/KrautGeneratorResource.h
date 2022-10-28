@@ -63,7 +63,7 @@ private:
   virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
 
-  ezUniquePtr<ezKrautGeneratorResourceDescriptor> m_Descriptor;
+  ezUniquePtr<ezKrautGeneratorResourceDescriptor> m_pDescriptor;
 
   struct BranchNodeExtraData
   {

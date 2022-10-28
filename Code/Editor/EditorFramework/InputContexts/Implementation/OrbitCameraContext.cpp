@@ -104,7 +104,7 @@ ezEditorInput ezOrbitCameraContext::DoMousePressEvent(QMouseEvent* e)
 
 activate:
 {
-  m_LastMousePos = SetMouseMode(ezEditorInputContext::MouseMode::HideAndWrapAtScreenBorders);
+  m_vLastMousePos = SetMouseMode(ezEditorInputContext::MouseMode::HideAndWrapAtScreenBorders);
   MakeActiveInputContext();
   return ezEditorInput::WasExclusivelyHandled;
 }
@@ -175,8 +175,8 @@ ezEditorInput ezOrbitCameraContext::DoMouseMoveEvent(QMouseEvent* e)
     return ezEditorInput::MayBeHandledByOthers;
 
   const ezVec2I32 CurMousePos(e->globalX(), e->globalY());
-  const ezVec2I32 diff = CurMousePos - m_LastMousePos;
-  m_LastMousePos = UpdateMouseMode(e);
+  const ezVec2I32 diff = CurMousePos - m_vLastMousePos;
+  m_vLastMousePos = UpdateMouseMode(e);
 
   SetCurrentMouseMode();
 

@@ -87,8 +87,8 @@ protected:
 
   const ezUInt64& GetSubImageOffset(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32 uiArrayIndex, ezUInt32 uiPlaneIndex) const;
 
-  ezHybridArray<ezUInt64, 16> m_subImageOffsets;
-  ezBlobPtr<ezUInt8> m_dataPtr;
+  ezHybridArray<ezUInt64, 16> m_SubImageOffsets;
+  ezBlobPtr<ezUInt8> m_DataPtr;
 };
 
 /// \brief A class containing image data and associated meta data.
@@ -196,7 +196,7 @@ public:
 private:
   bool UsesExternalStorage() const;
 
-  ezBlob m_internalStorage;
+  ezBlob m_InternalStorage;
 };
 
 #include <Texture/Image/Implementation/Image_inl.h>

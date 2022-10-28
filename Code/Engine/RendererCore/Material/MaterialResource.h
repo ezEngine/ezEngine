@@ -104,8 +104,8 @@ private:
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
 
 private:
-  ezMaterialResourceDescriptor m_OriginalDesc; // stores the state at loading, such that SetParameter etc. calls can be reset later
-  ezMaterialResourceDescriptor m_Desc;
+  ezMaterialResourceDescriptor m_mOriginalDesc; // stores the state at loading, such that SetParameter etc. calls can be reset later
+  ezMaterialResourceDescriptor m_mDesc;
 
   friend class ezRenderContext;
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(RendererCore, MaterialResource);

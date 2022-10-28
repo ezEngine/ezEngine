@@ -51,8 +51,8 @@ public:
     explicit ConstIterator(const ezIdTableBase<IdType, ValueType>& idTable);
 
     const ezIdTableBase<IdType, ValueType>& m_IdTable;
-    IndexType m_uiCurrentIndex; // current element index that this iterator points to.
-    IndexType m_uiCurrentCount; // current number of valid elements that this iterator has found so far.
+    IndexType m_CurrentIndex; // current element index that this iterator points to.
+    IndexType m_CurrentCount; // current number of valid elements that this iterator has found so far.
   };
 
   /// \brief Iterator with write access.
@@ -153,11 +153,11 @@ private:
 
   Entry* m_pEntries;
 
-  IndexType m_uiCount;
-  IndexType m_uiCapacity;
+  IndexType m_Count;
+  IndexType m_Capacity;
 
-  IndexType m_uiFreelistEnqueue;
-  IndexType m_uiFreelistDequeue;
+  IndexType m_FreelistEnqueue;
+  IndexType m_FreelistDequeue;
 
   ezAllocatorBase* m_pAllocator;
 

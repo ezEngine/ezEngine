@@ -296,7 +296,7 @@ public:
 private:
   const ezMemoryStreamStorageInterface* m_pStreamStorage = nullptr;
 
-  ezString m_DebugSourceInformation;
+  ezString m_sDebugSourceInformation;
 
   ezUInt64 m_uiReadPosition = 0;
 };
@@ -406,7 +406,7 @@ private:
   ezUInt64 m_uiChunkSize = 0;
   ezUInt64 m_uiReadPosition = 0;
 
-  ezString m_DebugSourceInformation;
+  ezString m_sDebugSourceInformation;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -461,5 +461,5 @@ private:
   ezUInt64 m_uiChunkSize = 0;
   ezUInt64 m_uiWritePosition = 0;
 
-  ezString m_DebugSourceInformation;
+  ezString m_sDebugSourceInformation;
 };

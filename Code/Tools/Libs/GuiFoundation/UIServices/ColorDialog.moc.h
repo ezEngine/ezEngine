@@ -48,11 +48,11 @@ private:
   ezUInt16 m_uiHue;
   ezUInt8 m_uiSaturation;
 
-  ezUInt8 m_GammaRed;
-  ezUInt8 m_GammaGreen;
-  ezUInt8 m_GammaBlue;
+  ezUInt8 m_uiGammaRed;
+  ezUInt8 m_uiGammaGreen;
+  ezUInt8 m_uiGammaBlue;
 
-  ezUInt8 m_Alpha;
+  ezUInt8 m_uiAlpha;
   float m_fExposureValue;
 
   ezColor m_CurrentColor;

@@ -15,7 +15,7 @@ class ezResourceManagerState;
 class EZ_CORE_DLL ezResourceManager
 {
   friend class ezResourceManagerState;
-  static ezUniquePtr<ezResourceManagerState> s_State;
+  static ezUniquePtr<ezResourceManagerState> s_pState;
 
   /// \name Events
   ///@{

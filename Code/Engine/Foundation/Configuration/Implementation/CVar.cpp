@@ -53,7 +53,7 @@ EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
 
-ezString ezCVar::s_StorageFolder;
+ezString ezCVar::s_sStorageFolder;
 ezEvent<const ezCVarEvent&> ezCVar::s_AllCVarEvents;
 
 void ezCVar::AssignSubSystemPlugin(const char* szPluginName)
@@ -137,14 +137,14 @@ ezCVar* ezCVar::FindCVarByName(const char* szName)
 
 void ezCVar::SetStorageFolder(const char* szFolder)
 {
-  s_StorageFolder = szFolder;
+  s_sStorageFolder = szFolder;
 }
 
 ezCommandLineOptionBool opt_NoFileCVars("cvar", "-no-file-cvars", "Disables loading CVar values from the user-specific, persisted configuration file.", false);
 
 void ezCVar::SaveCVars()
 {
-  if (s_StorageFolder.IsEmpty())
+  if (s_sStorageFolder.IsEmpty())
     return;
 
   // this command line disables loading and saving CVars to and from files
@@ -179,7 +179,7 @@ void ezCVar::SaveCVars()
   while (it.IsValid())
   {
     // create the plugin specific file
-    sTemp.Format("{0}/CVars_{1}.cfg", s_StorageFolder, it.Key());
+    sTemp.Format("{0}/CVars_{1}.cfg", s_sStorageFolder, it.Key());
 
     ezFileWriter File;
     if (File.Open(sTemp.GetData()) == EZ_SUCCESS)
@@ -319,7 +319,7 @@ static ezResult ParseLine(const ezStringBuilder& sLine, ezStringBuilder& VarName
 
 void ezCVar::LoadCVarsFromFile(bool bOnlyNewOnes, bool bSetAsCurrentValue)
 {
-  if (s_StorageFolder.IsEmpty())
+  if (s_sStorageFolder.IsEmpty())
     return;
 
   // this command line disables loading and saving CVars to and from files
@@ -358,7 +358,7 @@ void ezCVar::LoadCVarsFromFile(bool bOnlyNewOnes, bool bSetAsCurrentValue)
     while (it.IsValid())
     {
       // create the plugin specific file
-      sTemp.Format("{0}/CVars_{1}.cfg", s_StorageFolder, it.Key());
+      sTemp.Format("{0}/CVars_{1}.cfg", s_sStorageFolder, it.Key());
 
       ezFileReader File;
       if (File.Open(sTemp.GetData()) == EZ_SUCCESS)

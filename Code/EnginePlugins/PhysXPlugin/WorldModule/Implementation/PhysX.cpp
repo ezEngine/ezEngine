@@ -171,7 +171,7 @@ ezPhysX::ezPhysX()
   m_pAllocatorCallback = nullptr;
   m_pPhysX = nullptr;
   m_pDefaultMaterial = nullptr;
-  m_PvdConnection = nullptr;
+  m_pPvdConnection = nullptr;
 }
 
 ezPhysX::~ezPhysX() {}
@@ -199,12 +199,12 @@ void ezPhysX::Startup()
   bRecordMemoryAllocations = true;
 #endif
 
-  m_PvdConnection = PxCreatePvd(*m_pFoundation);
+  m_pPvdConnection = PxCreatePvd(*m_pFoundation);
 
-  m_pPhysX = PxCreatePhysics(PX_PHYSICS_VERSION, *m_pFoundation, PxTolerancesScale(), bRecordMemoryAllocations, m_PvdConnection);
+  m_pPhysX = PxCreatePhysics(PX_PHYSICS_VERSION, *m_pFoundation, PxTolerancesScale(), bRecordMemoryAllocations, m_pPvdConnection);
   EZ_ASSERT_DEV(m_pPhysX != nullptr, "Initializing PhysX API failed");
 
-  PxInitExtensions(*m_pPhysX, m_PvdConnection);
+  PxInitExtensions(*m_pPhysX, m_pPvdConnection);
 
   m_pDefaultMaterial = m_pPhysX->createMaterial(0.6f, 0.4f, 0.25f);
 
@@ -252,10 +252,10 @@ void ezPhysX::StartupVDB()
   // this check does not work when the PVD app was closed, instead just always call disconnect
   // if (m_PvdConnection->isConnected(false))
   {
-    m_PvdConnection->disconnect();
+    m_pPvdConnection->disconnect();
   }
 
-  PxPvdTransport* pTransport = m_PvdConnection->getTransport();
+  PxPvdTransport* pTransport = m_pPvdConnection->getTransport();
   if (pTransport != nullptr)
   {
     pTransport->release();
@@ -271,7 +271,7 @@ void ezPhysX::StartupVDB()
   unsigned int timeout = 10;
 
   pTransport = PxDefaultPvdSocketTransportCreate(pvd_host_ip, port, timeout);
-  if (m_PvdConnection->connect(*pTransport, PxPvdInstrumentationFlag::eALL))
+  if (m_pPvdConnection->connect(*pTransport, PxPvdInstrumentationFlag::eALL))
   {
     ezLog::Success("Connected to the PhysX Visual Debugger");
   }
@@ -279,19 +279,19 @@ void ezPhysX::StartupVDB()
 
 void ezPhysX::ShutdownVDB()
 {
-  if (m_PvdConnection == nullptr)
+  if (m_pPvdConnection == nullptr)
     return;
 
-  m_PvdConnection->disconnect();
+  m_pPvdConnection->disconnect();
 
-  PxPvdTransport* pTransport = m_PvdConnection->getTransport();
+  PxPvdTransport* pTransport = m_pPvdConnection->getTransport();
   if (pTransport != nullptr)
   {
     pTransport->release();
   }
 
-  m_PvdConnection->release();
-  m_PvdConnection = nullptr;
+  m_pPvdConnection->release();
+  m_pPvdConnection = nullptr;
 }
 
 void ezPhysX::LoadCollisionFilters()

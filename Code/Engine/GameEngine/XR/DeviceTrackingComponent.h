@@ -53,9 +53,9 @@ protected:
 protected:
   void Update();
 
-  ezEnum<ezXRDeviceType> m_deviceType;
-  ezEnum<ezXRPoseLocation> m_poseLocation;
-  ezEnum<ezXRTransformSpace> m_space;
+  ezEnum<ezXRDeviceType> m_DeviceType;
+  ezEnum<ezXRPoseLocation> m_PoseLocation;
+  ezEnum<ezXRTransformSpace> m_Space;
   bool m_bRotation = true;
   bool m_bScale = true;
 };

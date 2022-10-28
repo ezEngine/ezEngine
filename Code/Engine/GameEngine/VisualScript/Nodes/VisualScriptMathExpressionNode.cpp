@@ -48,7 +48,7 @@ void ezVisualScriptNode_MathExpression::Execute(ezVisualScriptInstance* pInstanc
         {s_sD, static_cast<float>(m_ValueD)},
       };
 
-    const double result = m_MathExpression.Evaluate(inputs);
+    const double result = m_mMathExpression.Evaluate(inputs);
     pInstance->SetOutputPinValue(this, 0, &result);
   }
 }
@@ -72,12 +72,12 @@ void* ezVisualScriptNode_MathExpression::GetInputPinDataPointer(ezUInt8 uiPin)
 
 const char* ezVisualScriptNode_MathExpression::GetExpression() const
 {
-  return m_MathExpression.GetExpressionString();
+  return m_mMathExpression.GetExpressionString();
 }
 
 void ezVisualScriptNode_MathExpression::SetExpression(const char* e)
 {
-  m_MathExpression.Reset(e);
+  m_mMathExpression.Reset(e);
 }
 
 

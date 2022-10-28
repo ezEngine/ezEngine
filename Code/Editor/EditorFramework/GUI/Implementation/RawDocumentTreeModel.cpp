@@ -161,7 +161,7 @@ Qt::ItemFlags ezQtNameableAdapter::flags(const ezDocumentObject* pObject, int ro
 ezQtDocumentTreeModel::ezQtDocumentTreeModel(const ezDocumentObjectManager* pTree, const ezUuid& root)
   : QAbstractItemModel(nullptr)
   , m_pDocumentTree(pTree)
-  , m_root(root)
+  , m_Root(root)
 {
   m_pDocumentTree->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezQtDocumentTreeModel::TreeEventHandler, this));
 }
@@ -316,9 +316,9 @@ ezInt32 ezQtDocumentTreeModel::ComputeIndex(const ezDocumentObject* pObject) con
 
 const ezDocumentObject* ezQtDocumentTreeModel::GetRoot() const
 {
-  if (m_root.IsValid())
+  if (m_Root.IsValid())
   {
-    return m_pDocumentTree->GetObject(m_root);
+    return m_pDocumentTree->GetObject(m_Root);
   }
   return m_pDocumentTree->GetRootObject();
 }

@@ -93,7 +93,7 @@ public:
 
   /// \brief Returns the name of the machine on which the Server is running. Only meaningful if there is an active connection (see
   /// IsConnectedToServer() ).
-  static const char* GetServerName() { return s_ServerName; }
+  static const char* GetServerName() { return s_sServerName; }
 
   /// \brief Sets the name of the telemetry server. This is broadcast to connected clients, which can display this string for usability.
   ///
@@ -104,7 +104,7 @@ public:
 
   /// \brief Returns the IP address of the machine on which the Server is running. Only meaningful if there is an active connection (see
   /// IsConnectedToServer() ).
-  static const char* GetServerIP() { return s_ServerIP.GetData(); }
+  static const char* GetServerIP() { return s_sServerIP.GetData(); }
 
   /// \brief Returns a 'unique' ID for the application instance to which this Client is connected.
   ///
@@ -211,8 +211,8 @@ private:
   static ezUInt32 s_uiApplicationID;
   static ezUInt32 s_uiServerID;
 
-  static ezString s_ServerName;
-  static ezString s_ServerIP;
+  static ezString s_sServerName;
+  static ezString s_sServerIP;
 
   static bool s_bConnectedToServer;
   static bool s_bConnectedToClient;

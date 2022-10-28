@@ -26,5 +26,5 @@ protected:
   virtual void OnTransformationChanged(const ezTransform& transform) override;
 
 private:
-  ezEngineGizmoHandle m_Shape;
+  ezEngineGizmoHandle m_hShape;
 };

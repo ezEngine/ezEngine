@@ -46,8 +46,8 @@ protected:
   void storeExpandState(const QModelIndex& parent);
   void restoreExpandState(const QModelIndex& parent, QModelIndexList& newSelection);
 
-  QSet<QString> m_notExpandedState;
-  QSet<QString> m_selectedItems;
+  QSet<QString> m_NotExpandedState;
+  QSet<QString> m_SelectedItems;
 };
 
 class ezQtPropertyAnimAssetDocumentWindow : public ezQtGameObjectDocumentWindow, public ezGameObjectGizmoInterface

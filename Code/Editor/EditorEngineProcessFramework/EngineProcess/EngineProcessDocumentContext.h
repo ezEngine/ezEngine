@@ -156,7 +156,7 @@ private:
   void CleanUpContextSyncObjects();
 
 protected:
-  ezBitflags<ezEngineProcessDocumentContextFlags> m_flags;
+  ezBitflags<ezEngineProcessDocumentContextFlags> m_Flags;
   ezUuid m_DocumentGuid;
   ezVariant m_MetaData;
 

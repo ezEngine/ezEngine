@@ -15,17 +15,17 @@ void ezSpotLightVisualizerAdapter::Finalize()
   const ezAssetDocument* pAssetDocument = ezDynamicCast<const ezAssetDocument*>(pDoc);
   EZ_ASSERT_DEV(pAssetDocument != nullptr, "Visualizers are only supported in ezAssetDocument.");
 
-  m_Gizmo.ConfigureHandle(nullptr, ezEngineGizmoHandleType::Cone, ezColor::White, ezGizmoFlags::ShowInOrtho | ezGizmoFlags::Visualizer);
+  m_hGizmo.ConfigureHandle(nullptr, ezEngineGizmoHandleType::Cone, ezColor::White, ezGizmoFlags::ShowInOrtho | ezGizmoFlags::Visualizer);
 
-  pAssetDocument->AddSyncObject(&m_Gizmo);
-  m_Gizmo.SetVisible(m_bVisualizerIsVisible);
+  pAssetDocument->AddSyncObject(&m_hGizmo);
+  m_hGizmo.SetVisible(m_bVisualizerIsVisible);
 }
 
 void ezSpotLightVisualizerAdapter::Update()
 {
   const ezSpotLightVisualizerAttribute* pAttr = static_cast<const ezSpotLightVisualizerAttribute*>(m_pVisualizerAttr);
   ezObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
-  m_Gizmo.SetVisible(m_bVisualizerIsVisible);
+  m_hGizmo.SetVisible(m_bVisualizerIsVisible);
 
   m_fAngleScale = 1.0f;
   if (!pAttr->GetAngleProperty().IsEmpty())
@@ -43,7 +43,7 @@ void ezSpotLightVisualizerAdapter::Update()
     pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetColorProperty()), value);
 
     EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<ezColor>(), "Invalid property bound to ezSpotLightVisualizerAttribute 'color'");
-    m_Gizmo.SetColor(value.ConvertTo<ezColor>());
+    m_hGizmo.SetColor(value.ConvertTo<ezColor>());
   }
 
   m_fScale = 1.0f;
@@ -60,12 +60,12 @@ void ezSpotLightVisualizerAdapter::Update()
     m_fScale = ezLightComponent::CalculateEffectiveRange(range.ConvertTo<float>(), intensity.ConvertTo<float>());
   }
 
-  m_Gizmo.SetVisible(m_fAngleScale != 0.0f && m_fScale != 0.0f);
+  m_hGizmo.SetVisible(m_fAngleScale != 0.0f && m_fScale != 0.0f);
 }
 
 void ezSpotLightVisualizerAdapter::UpdateGizmoTransform()
 {
   ezTransform t = GetObjectTransform();
   t.m_vScale = t.m_vScale.CompMul(ezVec3(1.0f, m_fAngleScale, m_fAngleScale) * m_fScale);
-  m_Gizmo.SetTransformation(t);
+  m_hGizmo.SetTransformation(t);
 }

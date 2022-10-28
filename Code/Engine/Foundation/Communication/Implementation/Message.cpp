@@ -8,7 +8,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 // clang-format on
 
-ezMessageId ezMessage::s_uiNextMsgId = 0;
+ezMessageId ezMessage::s_NextMsgId = 0;
 
 
 void ezMessage::PackageForTransfer(const ezMessage& msg, ezStreamWriter& stream)

@@ -113,9 +113,9 @@ bool ezQtVersionChecker::Check(bool bForce)
   m_bCheckInProgresss = true;
 
   // DON'T use HTTPS here, our Qt version only supports HTTP
-  m_VersionPage = new PageDownloader(QUrl("http://ezengine.net/pages/getting-started/binaries.html"));
+  m_pVersionPage = new PageDownloader(QUrl("http://ezengine.net/pages/getting-started/binaries.html"));
 
-  connect(m_VersionPage.data(), &PageDownloader::FinishedDownload, this, &ezQtVersionChecker::PageDownloaded);
+  connect(m_pVersionPage.data(), &PageDownloader::FinishedDownload, this, &ezQtVersionChecker::PageDownloaded);
 
   return true;
 }
@@ -179,7 +179,7 @@ bool ezQtVersionChecker::IsLatestNewer() const
 void ezQtVersionChecker::PageDownloaded()
 {
   m_bCheckInProgresss = false;
-  ezStringBuilder sPage = m_VersionPage->GetDownloadedData().data();
+  ezStringBuilder sPage = m_pVersionPage->GetDownloadedData().data();
 
   if (sPage.IsEmpty())
   {

@@ -44,7 +44,7 @@ private:
 
 private:
   ezDocumentObject* m_pObject = nullptr;
-  ezVec2 m_OldPos = ezVec2::ZeroVector();
+  ezVec2 m_vOldPos = ezVec2::ZeroVector();
 };
 
 

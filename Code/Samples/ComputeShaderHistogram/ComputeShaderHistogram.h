@@ -47,7 +47,7 @@ private:
 
   ezMeshBufferResourceHandle m_hHistogramQuadMeshBuffer;
 
-  ezUniquePtr<ezDirectoryWatcher> m_directoryWatcher;
+  ezUniquePtr<ezDirectoryWatcher> m_pDirectoryWatcher;
 
-  bool m_stuffChanged;
+  bool m_bStuffChanged;
 };

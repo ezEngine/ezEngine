@@ -64,9 +64,9 @@ ezDocument::ezDocument(const char* szPath, ezDocumentObjectManager* pDocumentObj
   m_sDocumentPath = szPath;
   m_pObjectManager = ezUniquePtr<ezDocumentObjectManager>(pDocumentObjectManagerImpl, ezFoundation::GetDefaultAllocator());
   m_pObjectManager->SetDocument(this);
-  m_CommandHistory = EZ_DEFAULT_NEW(ezCommandHistory, this);
-  m_SelectionManager = EZ_DEFAULT_NEW(ezSelectionManager, m_pObjectManager.Borrow());
-  m_ObjectAccessor = EZ_DEFAULT_NEW(ezObjectCommandAccessor, m_CommandHistory.Borrow());
+  m_pCommandHistory = EZ_DEFAULT_NEW(ezCommandHistory, this);
+  m_pSelectionManager = EZ_DEFAULT_NEW(ezSelectionManager, m_pObjectManager.Borrow());
+  m_pObjectAccessor = EZ_DEFAULT_NEW(ezObjectCommandAccessor, m_pCommandHistory.Borrow());
 
   m_bWindowRequested = false;
   m_bModified = true;
@@ -81,16 +81,16 @@ ezDocument::ezDocument(const char* szPath, ezDocumentObjectManager* pDocumentObj
 
 ezDocument::~ezDocument()
 {
-  if (m_activeSaveTask.IsValid())
+  if (m_ActiveSaveTask.IsValid())
   {
-    ezTaskSystem::WaitForGroup(m_activeSaveTask);
+    ezTaskSystem::WaitForGroup(m_ActiveSaveTask);
   }
-  m_SelectionManager = nullptr;
+  m_pSelectionManager = nullptr;
 
   m_pObjectManager->DestroyAllObjects();
 
-  m_CommandHistory->ClearRedoHistory();
-  m_CommandHistory->ClearUndoHistory();
+  m_pCommandHistory->ClearRedoHistory();
+  m_pCommandHistory->ClearUndoHistory();
 
   EZ_DEFAULT_DELETE(m_pDocumentInfo);
 }
@@ -141,14 +141,14 @@ ezStatus ezDocument::SaveDocument(bool bForce)
   // In the unlikely event that we manage to edit a doc and call save again while
   // an async save is already in progress we block on the first save to ensure
   // the correct chronological state on disk after both save ops are done.
-  if (m_activeSaveTask.IsValid())
+  if (m_ActiveSaveTask.IsValid())
   {
-    ezTaskSystem::WaitForGroup(m_activeSaveTask);
+    ezTaskSystem::WaitForGroup(m_ActiveSaveTask);
   }
   ezStatus result;
-  m_activeSaveTask = InternalSaveDocument([&result](ezDocument* doc, ezStatus res)
+  m_ActiveSaveTask = InternalSaveDocument([&result](ezDocument* doc, ezStatus res)
     { result = res; });
-  ezTaskSystem::WaitForGroup(m_activeSaveTask);
+  ezTaskSystem::WaitForGroup(m_ActiveSaveTask);
   return result;
 }
 
@@ -158,8 +158,8 @@ ezTaskGroupID ezDocument::SaveDocumentAsync(AfterSaveCallback callback, bool bFo
   if (!IsModified() && !bForce)
     return ezTaskGroupID();
 
-  m_activeSaveTask = InternalSaveDocument(callback);
-  return m_activeSaveTask;
+  m_ActiveSaveTask = InternalSaveDocument(callback);
+  return m_ActiveSaveTask;
 }
 
 void ezDocument::EnsureVisible()
@@ -216,9 +216,9 @@ ezTaskGroupID ezDocument::InternalSaveDocument(AfterSaveCallback callback)
     ezTaskSystem::AddTaskToGroup(afterSaveID, afterSaveTask);
   }
   ezTaskSystem::AddTaskGroupDependency(afterSaveID, saveID);
-  if (!ezTaskSystem::IsTaskGroupFinished(m_activeSaveTask))
+  if (!ezTaskSystem::IsTaskGroupFinished(m_ActiveSaveTask))
   {
-    ezTaskSystem::AddTaskGroupDependency(saveID, m_activeSaveTask);
+    ezTaskSystem::AddTaskGroupDependency(saveID, m_ActiveSaveTask);
   }
 
   ezTaskSystem::StartTaskGroup(saveID);
@@ -422,5 +422,5 @@ ezResult ezDocument::ComputeObjectTransformation(const ezDocumentObject* pObject
 
 ezObjectAccessorBase* ezDocument::GetObjectAccessor() const
 {
-  return m_ObjectAccessor.Borrow();
+  return m_pObjectAccessor.Borrow();
 }

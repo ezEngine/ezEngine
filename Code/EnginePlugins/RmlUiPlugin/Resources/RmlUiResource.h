@@ -44,7 +44,7 @@ public:
 
   const ezString& GetRmlFile() const { return m_sRmlFile; }
   const ezEnum<ezRmlUiScaleMode>& GetScaleMode() const { return m_ScaleMode; }
-  const ezVec2U32& GetReferenceResolution() const { return m_ReferenceResolution; }
+  const ezVec2U32& GetReferenceResolution() const { return m_vReferenceResolution; }
 
 private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
@@ -53,7 +53,7 @@ private:
 
   ezString m_sRmlFile;
   ezEnum<ezRmlUiScaleMode> m_ScaleMode;
-  ezVec2U32 m_ReferenceResolution = ezVec2U32::ZeroVector();
+  ezVec2U32 m_vReferenceResolution = ezVec2U32::ZeroVector();
 };
 
 class ezRmlUiResourceLoader : public ezResourceLoaderFromFile

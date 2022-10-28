@@ -45,12 +45,12 @@ void ezQtNodeView::mousePressEvent(QMouseEvent* event)
   {
     setContextMenuPolicy(Qt::NoContextMenu);
 #if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
-    m_vStartDragView = event->localPos();
+    m_StartDragView = event->localPos();
 #else
     m_vStartDragView = event->pos();
 #endif
 
-    m_vStartDragScene = m_ViewPos;
+    m_StartDragScene = m_ViewPos;
     viewport()->setCursor(Qt::ClosedHandCursor);
     event->accept();
     m_bPanning = true;
@@ -66,12 +66,12 @@ void ezQtNodeView::mouseMoveEvent(QMouseEvent* event)
   {
     m_iPanCounter++;
 #if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
-    QPointF vViewDelta = m_vStartDragView - event->localPos();
+    QPointF vViewDelta = m_StartDragView - event->localPos();
 #else
     QPointF vViewDelta = m_vStartDragView - event->pos();
 #endif
     QPointF vSceneDelta = QPointF(vViewDelta.x() / m_ViewScale.x(), vViewDelta.y() / m_ViewScale.y());
-    m_ViewPos = m_vStartDragScene + vSceneDelta;
+    m_ViewPos = m_StartDragScene + vSceneDelta;
     UpdateView();
   }
 }
@@ -117,11 +117,11 @@ void ezQtNodeView::wheelEvent(QWheelEvent* event)
   m_ViewPos -= (centerB - centerA);
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
-  m_vStartDragView = event->position();
+  m_StartDragView = event->position();
 #else
   m_vStartDragView = event->pos();
 #endif
-  m_vStartDragScene = m_ViewPos;
+  m_StartDragScene = m_ViewPos;
 
   UpdateView();
 }

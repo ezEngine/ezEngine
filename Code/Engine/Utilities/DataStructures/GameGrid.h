@@ -97,10 +97,10 @@ public:
   const ezVec3& GetWorldSpaceOrigin() const { return m_vWorldSpaceOrigin; }
 
   /// \brief Returns the matrix used to rotate coordinates from grid space to world space
-  const ezMat3& GetRotationToWorldSpace() const { return m_RotateToWorldspace; }
+  const ezMat3& GetRotationToWorldSpace() const { return m_mRotateToWorldspace; }
 
   /// \brief Returns the matrix used to rotate coordinates from world space to grid space
-  const ezMat3& GetRotationToGridSpace() const { return m_RotateToGridspace; }
+  const ezMat3& GetRotationToGridSpace() const { return m_mRotateToGridspace; }
 
   /// \brief Tests where and at which cell the given world space ray intersects the grids bounding box
   bool GetRayIntersection(const ezVec3& vRayStartWorldSpace, const ezVec3& vRayDirNormalizedWorldSpace, float fMaxLength, float& out_fIntersection,
@@ -114,8 +114,8 @@ private:
   ezUInt16 m_uiGridSizeX;
   ezUInt16 m_uiGridSizeY;
 
-  ezMat3 m_RotateToWorldspace;
-  ezMat3 m_RotateToGridspace;
+  ezMat3 m_mRotateToWorldspace;
+  ezMat3 m_mRotateToGridspace;
 
   ezVec3 m_vWorldSpaceOrigin;
   ezVec3 m_vLocalSpaceCellSize;

@@ -6,7 +6,7 @@
 #include <RendererCore/AnimationSystem/EditableSkeleton.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
-ezString ezBoneManipulatorAdapter::s_LastSelectedBone;
+ezString ezBoneManipulatorAdapter::s_sLastSelectedBone;
 
 ezBoneManipulatorAdapter::ezBoneManipulatorAdapter() = default;
 ezBoneManipulatorAdapter::~ezBoneManipulatorAdapter() = default;
@@ -22,7 +22,7 @@ void ezBoneManipulatorAdapter::MigrateSelection()
 {
   for (ezUInt32 i = 0; i < m_Bones.GetCount(); ++i)
   {
-    if (m_Bones[i].m_sName == s_LastSelectedBone)
+    if (m_Bones[i].m_sName == s_sLastSelectedBone)
     {
       m_Gizmos[i].m_RotateGizmo.SetVisible(true);
       m_Gizmos[i].m_ClickGizmo.SetVisible(false);
@@ -94,14 +94,14 @@ void ezBoneManipulatorAdapter::RotateGizmoEventHandler(const ezGizmoEvent& e)
 void ezBoneManipulatorAdapter::ClickGizmoEventHandler(const ezGizmoEvent& e)
 {
   ezUInt32 uiGizmo = ezInvalidIndex;
-  s_LastSelectedBone.Clear();
+  s_sLastSelectedBone.Clear();
 
   for (ezUInt32 gIdx = 0; gIdx < m_Gizmos.GetCount(); ++gIdx)
   {
     if (&m_Gizmos[gIdx].m_ClickGizmo == e.m_pGizmo)
     {
       uiGizmo = gIdx;
-      s_LastSelectedBone = m_Bones[gIdx].m_sName;
+      s_sLastSelectedBone = m_Bones[gIdx].m_sName;
       break;
     }
   }

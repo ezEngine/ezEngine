@@ -23,7 +23,7 @@ ezImageDataResource::~ezImageDataResource() = default;
 
 ezResourceLoadDesc ezImageDataResource::UnloadData(Unload WhatToUnload)
 {
-  m_Descriptor.Clear();
+  m_pDescriptor.Clear();
 
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
@@ -107,24 +107,24 @@ void ezImageDataResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
   out_NewMemoryUsage.m_uiMemoryCPU = sizeof(ezImageDataResource);
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 
-  if (m_Descriptor)
+  if (m_pDescriptor)
   {
-    out_NewMemoryUsage.m_uiMemoryCPU += m_Descriptor->m_Image.GetByteBlobPtr().GetCount();
+    out_NewMemoryUsage.m_uiMemoryCPU += m_pDescriptor->m_Image.GetByteBlobPtr().GetCount();
   }
 }
 
 EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezImageDataResource, ezImageDataResourceDescriptor)
 {
-  m_Descriptor = EZ_DEFAULT_NEW(ezImageDataResourceDescriptor);
+  m_pDescriptor = EZ_DEFAULT_NEW(ezImageDataResourceDescriptor);
 
-  *m_Descriptor = std::move(descriptor);
+  *m_pDescriptor = std::move(descriptor);
 
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
   res.m_State = ezResourceState::Loaded;
 
-  if (m_Descriptor->m_Image.Convert(ezImageFormat::R32G32B32A32_FLOAT).Failed())
+  if (m_pDescriptor->m_Image.Convert(ezImageFormat::R32G32B32A32_FLOAT).Failed())
   {
     res.m_State = ezResourceState::LoadedResourceMissing;
   }

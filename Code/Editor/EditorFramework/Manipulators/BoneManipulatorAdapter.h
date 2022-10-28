@@ -50,5 +50,5 @@ protected:
   ezMat4 ComputeFullTransform(ezUInt32 uiBone) const;
   ezMat4 ComputeParentTransform(ezUInt32 uiBone) const;
 
-  static ezString s_LastSelectedBone;
+  static ezString s_sLastSelectedBone;
 };

@@ -41,6 +41,6 @@ protected:
 
   float m_fMinZoom, m_fMaxZoom;
   float m_fZoom;
-  QPoint m_lastGlobalMouseMovePos;
+  QPoint m_LastGlobalMouseMovePos;
 };
 

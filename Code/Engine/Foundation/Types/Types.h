@@ -51,16 +51,16 @@ struct [[nodiscard]] EZ_FOUNDATION_DLL ezResult
 {
 public:
   ezResult(ezResultEnum res)
-    : e(res)
+    : m_E(res)
   {
   }
 
-  void operator=(ezResultEnum rhs) { e = rhs; }
-  bool operator==(ezResultEnum cmp) const { return e == cmp; }
-  bool operator!=(ezResultEnum cmp) const { return e != cmp; }
+  void operator=(ezResultEnum rhs) { m_E = rhs; }
+  bool operator==(ezResultEnum cmp) const { return m_E == cmp; }
+  bool operator!=(ezResultEnum cmp) const { return m_E != cmp; }
 
-  EZ_ALWAYS_INLINE bool Succeeded() const { return e == EZ_SUCCESS; }
-  EZ_ALWAYS_INLINE bool Failed() const { return e == EZ_FAILURE; }
+  EZ_ALWAYS_INLINE bool Succeeded() const { return m_E == EZ_SUCCESS; }
+  EZ_ALWAYS_INLINE bool Failed() const { return m_E == EZ_FAILURE; }
 
   /// \brief Used to silence compiler warnings, when success or failure doesn't matter.
   EZ_ALWAYS_INLINE void IgnoreResult()
@@ -73,7 +73,7 @@ public:
   void AssertSuccess(const char* msg = nullptr, const char* details = nullptr) const;
 
 private:
-  ezResultEnum e;
+  ezResultEnum m_E;
 };
 
 /// \brief Explicit conversion to ezResult, can be overloaded for arbitrary types.

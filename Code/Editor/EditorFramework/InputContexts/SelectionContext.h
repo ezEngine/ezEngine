@@ -13,7 +13,7 @@ class EZ_EDITORFRAMEWORK_DLL ezSelectionContext : public ezEditorInputContext
 public:
   ezSelectionContext(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView, const ezCamera* pCamera);
 
-  void SetWindowConfig(const ezVec2I32& viewport) { m_Viewport = viewport; }
+  void SetWindowConfig(const ezVec2I32& viewport) { m_vViewport = viewport; }
 
   void SetPickObjectOverride(ezDelegate<void(const ezDocumentObject*)> pickOverride);
   void ResetPickObjectOverride();
@@ -40,8 +40,8 @@ protected:
 
   ezDelegate<void(const ezDocumentObject*)> m_PickObjectOverride;
   const ezCamera* m_pCamera;
-  ezVec2I32 m_Viewport;
-  ezEngineGizmoHandle m_MarqueeGizmo;
+  ezVec2I32 m_vViewport;
+  ezEngineGizmoHandle m_hMarqueeGizmo;
   ezVec3 m_vMarqueeStartPos;
   ezUInt32 m_uiMarqueeID;
   bool m_bPressedSpace = false;

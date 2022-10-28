@@ -123,7 +123,7 @@ protected:
   ezArrayPtr<ezPerInstanceData> GetInstanceData() const;
 
   // Unpacked, reflected instance data for editing and ease of access
-  ezDynamicArray<ezMeshInstanceData> m_rawInstancedData;
+  ezDynamicArray<ezMeshInstanceData> m_RawInstancedData;
 
   ezInstanceData* m_pExplicitInstanceData = nullptr;
 

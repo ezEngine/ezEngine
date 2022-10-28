@@ -33,13 +33,13 @@ protected:
   virtual void OnVisibleChanged(bool bVisible) override;
   virtual void OnTransformationChanged(const ezTransform& transform) override;
 
-  ezEngineGizmoHandle m_Bobble;
-  ezEngineGizmoHandle m_AlignPX;
-  ezEngineGizmoHandle m_AlignNX;
-  ezEngineGizmoHandle m_AlignPY;
-  ezEngineGizmoHandle m_AlignNY;
-  ezEngineGizmoHandle m_AlignPZ;
-  ezEngineGizmoHandle m_AlignNZ;
+  ezEngineGizmoHandle m_hBobble;
+  ezEngineGizmoHandle m_hAlignPX;
+  ezEngineGizmoHandle m_hAlignNX;
+  ezEngineGizmoHandle m_hAlignPY;
+  ezEngineGizmoHandle m_hAlignNY;
+  ezEngineGizmoHandle m_hAlignPZ;
+  ezEngineGizmoHandle m_hAlignNZ;
 
   bool m_bUseExperimentalGizmo = false;
   bool m_bModifiesRotation;

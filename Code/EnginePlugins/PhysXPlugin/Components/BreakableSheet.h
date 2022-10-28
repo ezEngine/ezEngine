@@ -118,7 +118,7 @@ protected:
   float m_fThickness = 0.1f;
   float m_fBreakImpulseStrength = 25.0f;
   float m_fDensity = 1500.0f;
-  ezTime m_fDisappearTimeout;
+  ezTime m_DisappearTimeout;
   ezUInt32 m_uiFixedRandomSeed = 0;
   ezUInt32 m_uiNumPieces = 32;
   bool m_bFixedBorder = false;

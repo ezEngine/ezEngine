@@ -91,10 +91,10 @@ struct EZ_RENDERERFOUNDATION_DLL ezGALIndexType
 
 
   /// \brief The size in bytes of a single element of the given index format.
-  static ezUInt8 GetSize(ezGALIndexType::Enum format) { return Size[format]; }
+  static ezUInt8 GetSize(ezGALIndexType::Enum format) { return s_Size[format]; }
 
 private:
-  static const ezUInt8 Size[ezGALIndexType::ENUM_COUNT];
+  static const ezUInt8 s_Size[ezGALIndexType::ENUM_COUNT];
 };
 
 

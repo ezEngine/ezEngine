@@ -94,7 +94,7 @@ ezBoundingBoxSphere ezEngineProcessDocumentContext::GetWorldBounds(ezWorld* pWor
 }
 
 ezEngineProcessDocumentContext::ezEngineProcessDocumentContext(ezBitflags<ezEngineProcessDocumentContextFlags> flags)
-  : m_flags(flags)
+  : m_Flags(flags)
 {
   m_Context.m_Events.AddEventHandler(ezMakeDelegate(&ezEngineProcessDocumentContext::WorldRttiConverterContextEventHandler, this));
 }
@@ -112,7 +112,7 @@ void ezEngineProcessDocumentContext::Initialize(const ezUuid& DocumentGuid, cons
   m_MetaData = metaData;
   m_pIPC = pIPC;
 
-  if (m_flags.IsSet(ezEngineProcessDocumentContextFlags::CreateWorld))
+  if (m_Flags.IsSet(ezEngineProcessDocumentContextFlags::CreateWorld))
   {
     ezStringBuilder tmp;
     ezWorldDesc desc(ezConversionUtils::ToString(m_DocumentGuid, tmp));
@@ -137,7 +137,7 @@ void ezEngineProcessDocumentContext::Deinitialize()
   m_Context.Clear();
 
   CleanUpContextSyncObjects();
-  if (m_flags.IsSet(ezEngineProcessDocumentContextFlags::CreateWorld))
+  if (m_Flags.IsSet(ezEngineProcessDocumentContextFlags::CreateWorld))
   {
     EZ_DEFAULT_DELETE(m_pWorld);
   }

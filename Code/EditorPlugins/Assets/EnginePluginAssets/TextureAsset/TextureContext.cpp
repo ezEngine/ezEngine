@@ -71,7 +71,7 @@ void ezTextureContext::OnInitialize()
     ezResourceLock<ezTexture2DResource> pTexture(m_hTexture, ezResourceAcquireMode::PointerOnly);
 
     textureFormat = pTexture->GetFormat();
-    pTexture->m_ResourceEvents.AddEventHandler(ezMakeDelegate(&ezTextureContext::OnResourceEvent, this), m_textureResourceEventSubscriber);
+    pTexture->m_ResourceEvents.AddEventHandler(ezMakeDelegate(&ezTextureContext::OnResourceEvent, this), m_TextureResourceEventSubscriber);
   }
 
   // Preview Mesh

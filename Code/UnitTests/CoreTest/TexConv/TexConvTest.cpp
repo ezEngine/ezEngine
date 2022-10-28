@@ -17,7 +17,7 @@ public:
 
   virtual ezResult GetImage(ezImage& img) override
   {
-    img.ResetAndMove(std::move(m_State->m_image));
+    img.ResetAndMove(std::move(m_pState->m_image));
     return EZ_SUCCESS;
   }
 
@@ -39,7 +39,7 @@ private:
   {
     ezStartup::StartupCoreSystems();
 
-    m_State = EZ_DEFAULT_NEW(State);
+    m_pState = EZ_DEFAULT_NEW(State);
 
     const ezStringBuilder sReadDir(">sdk/", ezTestFramework::GetInstance()->GetRelTestDataPath());
 
@@ -55,7 +55,7 @@ private:
 
   virtual ezResult DeInitializeTest() override
   {
-    m_State.Clear();
+    m_pState.Clear();
 
     ezFileSystem::RemoveDataDirectoryGroup("TexConvTest");
     ezFileSystem::RemoveDataDirectoryGroup("TexConvDataDir");
@@ -87,15 +87,15 @@ private:
     options.AddArgument("-out");
     options.AddArgument(sOut);
 
-    if (!EZ_TEST_BOOL(m_State->m_TexConvGroup.Launch(options).Succeeded()))
+    if (!EZ_TEST_BOOL(m_pState->m_TexConvGroup.Launch(options).Succeeded()))
       return;
 
-    if (!EZ_TEST_BOOL_MSG(m_State->m_TexConvGroup.WaitToFinish(ezTime::Minutes(1.0)).Succeeded(), "TexConv did not finish in time."))
+    if (!EZ_TEST_BOOL_MSG(m_pState->m_TexConvGroup.WaitToFinish(ezTime::Minutes(1.0)).Succeeded(), "TexConv did not finish in time."))
       return;
 
-    EZ_TEST_INT_MSG(m_State->m_TexConvGroup.GetProcesses().PeekBack().GetExitCode(), 0, "TexConv failed to process the image");
+    EZ_TEST_INT_MSG(m_pState->m_TexConvGroup.GetProcesses().PeekBack().GetExitCode(), 0, "TexConv failed to process the image");
 
-    m_State->m_image.LoadFrom(sOut).IgnoreResult();
+    m_pState->m_image.LoadFrom(sOut).IgnoreResult();
   }
 
   struct State
@@ -104,7 +104,7 @@ private:
     ezImage m_image;
   };
 
-  ezUniquePtr<State> m_State;
+  ezUniquePtr<State> m_pState;
 };
 
 void ezTexConvTest::SetupSubTests()

@@ -12,7 +12,7 @@ public:
     const char* szPermVarSubDirectory = "Shaders/PermutationVars");
   static const ezString& GetPermutationVarSubDirectory() { return s_sPermVarSubDir; }
   static const ezString& GetActivePlatform() { return s_sPlatform; }
-  static const ezString& GetCacheDirectory() { return s_ShaderCacheDirectory; }
+  static const ezString& GetCacheDirectory() { return s_sShaderCacheDirectory; }
   static bool IsRuntimeCompilationEnabled() { return s_bEnableRuntimeCompilation; }
 
   static void ReloadPermutationVarConfig(const char* szName, const ezTempHashedString& sHashedName);
@@ -42,5 +42,5 @@ private:
   static bool s_bEnableRuntimeCompilation;
   static ezString s_sPlatform;
   static ezString s_sPermVarSubDir;
-  static ezString s_ShaderCacheDirectory;
+  static ezString s_sShaderCacheDirectory;
 };

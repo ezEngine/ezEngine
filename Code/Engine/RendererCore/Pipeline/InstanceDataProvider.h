@@ -34,7 +34,7 @@ private:
 
   ezUInt32 m_uiBufferSize;
   ezUInt32 m_uiBufferOffset;
-  ezDynamicArray<ezPerInstanceData, ezAlignedAllocatorWrapper> m_perInstanceData;
+  ezDynamicArray<ezPerInstanceData, ezAlignedAllocatorWrapper> m_PerInstanceData;
 };
 
 class EZ_RENDERERCORE_DLL ezInstanceDataProvider : public ezFrameDataProvider<ezInstanceData>

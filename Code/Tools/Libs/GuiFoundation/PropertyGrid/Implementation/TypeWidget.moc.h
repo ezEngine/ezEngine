@@ -103,5 +103,5 @@ private:
   QGridLayout* m_pLayout;
   ezMap<ezString, PropertyWidgetData> m_PropertyWidgets;
   ezHybridArray<ezString, 1> m_QueuedChanges;
-  QPalette m_pal;
+  QPalette m_Pal;
 };

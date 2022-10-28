@@ -898,7 +898,7 @@ void ezRenderPipeline::ExtractData(const ezView& view)
     {
       EZ_PROFILE_SCOPE(pExtractor->m_sName.GetData());
 
-      pExtractor->Extract(view, m_visibleObjects, data);
+      pExtractor->Extract(view, m_VisibleObjects, data);
     }
   }
 
@@ -910,7 +910,7 @@ void ezRenderPipeline::ExtractData(const ezView& view)
     {
       EZ_PROFILE_SCOPE(pExtractor->m_sName.GetData());
 
-      pExtractor->PostSortAndBatch(view, m_visibleObjects, data);
+      pExtractor->PostSortAndBatch(view, m_VisibleObjects, data);
     }
   }
 
@@ -921,7 +921,7 @@ void ezRenderPipeline::FindVisibleObjects(const ezView& view)
 {
   EZ_PROFILE_SCOPE("Visibility Culling");
 
-  m_visibleObjects.Clear();
+  m_VisibleObjects.Clear();
 
   ezFrustum frustum;
   view.ComputeCullingFrustum(frustum);
@@ -942,7 +942,7 @@ void ezRenderPipeline::FindVisibleObjects(const ezView& view)
   queryParams.m_pStats = bRecordStats ? &stats : nullptr;
 #endif
 
-  view.GetWorld()->GetSpatialSystem()->FindVisibleObjects(frustum, queryParams, m_visibleObjects);
+  view.GetWorld()->GetSpatialSystem()->FindVisibleObjects(frustum, queryParams, m_VisibleObjects);
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   ezViewHandle hView = view.GetHandle();

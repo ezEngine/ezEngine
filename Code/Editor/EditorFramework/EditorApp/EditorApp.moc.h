@@ -124,10 +124,10 @@ public:
   ezPluginBundleSet& GetPluginBundles() { return m_PluginBundles; }
 
   void AddRestartRequiredReason(const char* szReason);
-  const ezSet<ezString>& GetRestartRequiredReasons() { return s_RestartRequiredReasons; }
+  const ezSet<ezString>& GetRestartRequiredReasons() { return m_RestartRequiredReasons; }
 
   void AddReloadProjectRequiredReason(const char* szReason);
-  const ezSet<ezString>& GetReloadProjectRequiredReason() { return s_ReloadProjectRequiredReasons; }
+  const ezSet<ezString>& GetReloadProjectRequiredReason() { return m_ReloadProjectRequiredReasons; }
 
   void SaveSettings();
 
@@ -146,10 +146,10 @@ public:
 
   void LoadEditorPlugins();
 
-  ezRecentFilesList& GetRecentProjectsList() { return s_RecentProjects; }
-  ezRecentFilesList& GetRecentDocumentsList() { return s_RecentDocuments; }
+  ezRecentFilesList& GetRecentProjectsList() { return m_RecentProjects; }
+  ezRecentFilesList& GetRecentDocumentsList() { return m_RecentDocuments; }
 
-  ezEditorEngineProcessConnection* GetEngineViewProcess() { return s_pEngineViewProcess; }
+  ezEditorEngineProcessConnection* GetEngineViewProcess() { return m_pEngineViewProcess; }
 
   void ShowSettingsDocument();
   void CloseSettingsDocument();
@@ -265,21 +265,21 @@ private:
   ezBitflags<StartupFlags> m_StartupFlags;
   ezDynamicArray<ezString> m_DocumentsToOpen;
 
-  ezSet<ezString> s_RestartRequiredReasons;
-  ezSet<ezString> s_ReloadProjectRequiredReasons;
+  ezSet<ezString> m_RestartRequiredReasons;
+  ezSet<ezString> m_ReloadProjectRequiredReasons;
 
   ezPluginBundleSet m_PluginBundles;
 
   void SaveRecentFiles();
   void LoadRecentFiles();
 
-  ezRecentFilesList s_RecentProjects;
-  ezRecentFilesList s_RecentDocuments;
+  ezRecentFilesList m_RecentProjects;
+  ezRecentFilesList m_RecentDocuments;
 
   int m_iArgc = 0;
   QApplication* m_pQtApplication = nullptr;
   ezLongOpControllerManager m_LongOpControllerManager;
-  ezEditorEngineProcessConnection* s_pEngineViewProcess;
+  ezEditorEngineProcessConnection* m_pEngineViewProcess;
   QTimer* m_pTimer = nullptr;
 
   QSplashScreen* m_pSplashScreen = nullptr;

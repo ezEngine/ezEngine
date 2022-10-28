@@ -201,7 +201,7 @@ private:
   const char* m_szPluginName;
   ezBitflags<ezCVarFlags> m_Flags;
 
-  static ezString s_StorageFolder;
+  static ezString s_sStorageFolder;
 };
 
 /// \brief Each CVar stores several values internally. The 'Current' value is the most important one.

@@ -215,32 +215,32 @@ namespace
     {
     public:
       ScopedAccess(DeviceAndConversionTable& table)
-        : m_lock(table.m_mutex)
-        , m_table(table)
+        : m_Lock(table.m_Mutex)
+        , m_Table(table)
       {
         table.Init();
       }
 
-      DeviceAndConversionTable* operator->() { return &m_table; }
+      DeviceAndConversionTable* operator->() { return &m_Table; }
 
     private:
-      ezLock<ezMutex> m_lock;
-      DeviceAndConversionTable& m_table;
+      ezLock<ezMutex> m_Lock;
+      DeviceAndConversionTable& m_Table;
     };
 
     /// Get temporary access to the static DeviceAndConversionTable.
     static ScopedAccess getDeviceAndConversionTable() { return s_DeviceAndConversionTable; }
-    static bool IsDeviceAndConversionTableInitialized() { return s_DeviceAndTableInitialized; }
+    static bool IsDeviceAndConversionTableInitialized() { return s_bDeviceAndTableInitialized; }
 
-    ID3D11Device* getDevice() { return m_pD3dDevice.Get(); }
+    ID3D11Device* getDevice() { return m_D3dDevice.Get(); }
 
-    ezArrayPtr<const ezImageConversionEntry> getConvertors() const { return m_supportedConversions; }
+    ezArrayPtr<const ezImageConversionEntry> getConvertors() const { return m_SupportedConversions; }
 
     void Init()
     {
-      s_DeviceAndTableInitialized = true;
+      s_bDeviceAndTableInitialized = true;
 
-      if (!m_supportedConversions.IsEmpty())
+      if (!m_SupportedConversions.IsEmpty())
         return;
 
       // A high penalty for software devices.
@@ -248,7 +248,7 @@ namespace
       // currently largest step, making software DX conversions available but highly undesirable.
       float devicePenalty = 2000.0f;
 
-      if ((CreateDevice(m_pD3dDevice) == TypeOfDeviceCreated::Hardware) && !cvar_TexturePenalizeDXConversions)
+      if ((CreateDevice(m_D3dDevice) == TypeOfDeviceCreated::Hardware) && !cvar_TexturePenalizeDXConversions)
       {
         // No penalty for hardware devices.
         devicePenalty = 0.0f;
@@ -259,25 +259,25 @@ namespace
         entry.m_additionalPenalty = devicePenalty;
       }
 
-      m_supportedConversions = s_sourceConversions;
+      m_SupportedConversions = s_sourceConversions;
     }
 
     void Deinit()
     {
-      m_pD3dDevice = nullptr;
-      m_supportedConversions.Clear();
-      s_DeviceAndTableInitialized = false;
+      m_D3dDevice = nullptr;
+      m_SupportedConversions.Clear();
+      s_bDeviceAndTableInitialized = false;
     }
 
   private:
-    ComPtr<ID3D11Device> m_pD3dDevice = nullptr;
-    ezArrayPtr<const ezImageConversionEntry> m_supportedConversions;
+    ComPtr<ID3D11Device> m_D3dDevice = nullptr;
+    ezArrayPtr<const ezImageConversionEntry> m_SupportedConversions;
 
     constexpr static int s_numConversions = 5;
     static ezImageConversionEntry s_sourceConversions[s_numConversions];
 
-    ezMutex m_mutex;
-    static bool s_DeviceAndTableInitialized;
+    ezMutex m_Mutex;
+    static bool s_bDeviceAndTableInitialized;
     static DeviceAndConversionTable s_DeviceAndConversionTable;
   };
 
@@ -291,7 +291,7 @@ namespace
     ezImageConversionEntry(ezImageFormat::R8G8B8A8_UNORM_SRGB, ezImageFormat::BC7_UNORM_SRGB, ezImageConversionFlags::Default),
   };
 
-  bool DeviceAndConversionTable::s_DeviceAndTableInitialized = false;
+  bool DeviceAndConversionTable::s_bDeviceAndTableInitialized = false;
   DeviceAndConversionTable DeviceAndConversionTable::s_DeviceAndConversionTable;
 } // namespace
 

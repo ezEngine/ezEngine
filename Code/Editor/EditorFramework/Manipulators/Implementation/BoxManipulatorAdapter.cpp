@@ -62,11 +62,11 @@ void ezBoxManipulatorAdapter::Update()
     m_vPositionOffset = pObjectAccessor->Get<ezVec3>(m_pObject, GetProperty(pAttr->GetOffsetProperty()));
   }
 
-  m_Rotation.SetIdentity();
+  m_qRotation.SetIdentity();
 
   if (!pAttr->GetRotationProperty().IsEmpty())
   {
-    m_Rotation = pObjectAccessor->Get<ezQuat>(m_pObject, GetProperty(pAttr->GetRotationProperty()));
+    m_qRotation = pObjectAccessor->Get<ezQuat>(m_pObject, GetProperty(pAttr->GetRotationProperty()));
   }
 
   UpdateGizmoTransform();
@@ -155,7 +155,7 @@ void ezBoxManipulatorAdapter::UpdateGizmoTransform()
   ezTransform t;
   t.m_vScale.Set(1);
   t.m_vPosition = m_vPositionOffset;
-  t.m_qRotation = m_Rotation;
+  t.m_qRotation = m_qRotation;
 
   m_Gizmo.SetTransformation(GetObjectTransform() * t);
 }

@@ -67,7 +67,7 @@ ezRTTI::ezRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSiz
   m_uiMsgIdOffset = 0;
   m_MessageSenders = messageSenders;
 
-  m_fnVerifyParent = fnVerifyParent;
+  m_VerifyParent = fnVerifyParent;
 
   // This part is not guaranteed to always work here!
   // pParentType is (apparently) always the correct pointer to the base class BUT it is not guaranteed to have been constructed at this
@@ -155,11 +155,11 @@ void ezRTTI::SetupParentHierarchy()
 
 void ezRTTI::VerifyCorrectness() const
 {
-  if (m_fnVerifyParent != nullptr)
+  if (m_VerifyParent != nullptr)
   {
-    EZ_ASSERT_DEV(m_fnVerifyParent() == m_pParentType, "Type '{0}': The given parent type '{1}' does not match the actual parent type '{2}'",
+    EZ_ASSERT_DEV(m_VerifyParent() == m_pParentType, "Type '{0}': The given parent type '{1}' does not match the actual parent type '{2}'",
       m_szTypeName, (m_pParentType != nullptr) ? m_pParentType->GetTypeName() : "null",
-      (m_fnVerifyParent() != nullptr) ? m_fnVerifyParent()->GetTypeName() : "null");
+      (m_VerifyParent() != nullptr) ? m_VerifyParent()->GetTypeName() : "null");
   }
 
   {

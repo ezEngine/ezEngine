@@ -253,7 +253,7 @@ ezResult ezStateMachineDescription::Deserialize(ezStreamReader& stream)
 //////////////////////////////////////////////////////////////////////////
 
 ezStateMachineInstance::ezStateMachineInstance(ezReflectedClass& owner, const ezSharedPtr<const ezStateMachineDescription>& pDescription /*= nullptr*/)
-  : m_owner(owner)
+  : m_Owner(owner)
   , m_pDescription(pDescription)
 {
   if (pDescription != nullptr && pDescription->m_uiTotalInstanceDataSize > 0)

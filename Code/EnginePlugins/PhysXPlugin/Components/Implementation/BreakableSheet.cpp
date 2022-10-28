@@ -108,7 +108,7 @@ void ezBreakableSheetComponent::Update()
     }
 
     // If this breakable sheet has a disappear timeout set we decrement the time since it was broken
-    if (m_fDisappearTimeout.IsPositive() && m_TimeUntilDisappear.IsPositive())
+    if (m_DisappearTimeout.IsPositive() && m_TimeUntilDisappear.IsPositive())
     {
       m_TimeUntilDisappear -= GetWorld()->GetClock().GetTimeDiff();
 
@@ -146,7 +146,7 @@ void ezBreakableSheetComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_fThickness;
   s << m_fDensity;
   s << m_fBreakImpulseStrength;
-  s << m_fDisappearTimeout;
+  s << m_DisappearTimeout;
   s << m_bFixedBorder;
   s << m_uiFixedRandomSeed;
   s << m_uiNumPieces;
@@ -167,7 +167,7 @@ void ezBreakableSheetComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_fThickness;
   s >> m_fDensity;
   s >> m_fBreakImpulseStrength;
-  s >> m_fDisappearTimeout;
+  s >> m_DisappearTimeout;
   s >> m_bFixedBorder;
   s >> m_uiFixedRandomSeed;
   s >> m_uiNumPieces;
@@ -443,12 +443,12 @@ void ezBreakableSheetComponent::SetDisappearTimeout(ezTime fDisappearTimeout)
   if (fDisappearTimeout.IsNegative())
     return;
 
-  m_fDisappearTimeout = fDisappearTimeout;
+  m_DisappearTimeout = fDisappearTimeout;
 }
 
 ezTime ezBreakableSheetComponent::GetDisappearTimeout() const
 {
-  return m_fDisappearTimeout;
+  return m_DisappearTimeout;
 }
 
 void ezBreakableSheetComponent::SetFixedBorder(bool bFixedBorder)
@@ -554,7 +554,7 @@ void ezBreakableSheetComponent::BreakNow(const ezMsgCollision* pMessage /*= null
   m_bBroken = true;
   m_SkinningState.TransformsChanged();
 
-  m_TimeUntilDisappear = m_fDisappearTimeout;
+  m_TimeUntilDisappear = m_DisappearTimeout;
 
   DestroyUnbrokenPhysicsObject();
   CreatePiecesPhysicsObjects(pMessage ? pMessage->m_vImpulse : ezVec3::ZeroVector(), pMessage ? pMessage->m_vPosition : GetOwner()->GetGlobalPosition());

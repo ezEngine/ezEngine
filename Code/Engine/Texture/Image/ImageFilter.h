@@ -18,7 +18,7 @@ protected:
   ezImageFilter(float width);
 
 private:
-  ezSimdFloat m_width;
+  ezSimdFloat m_Width;
 };
 
 /// \brief Box filter
@@ -51,8 +51,8 @@ public:
   virtual ezSimdFloat SamplePoint(const ezSimdFloat& x) const override;
 
 private:
-  ezSimdFloat m_beta;
-  ezSimdFloat m_invBesselBeta;
+  ezSimdFloat m_Beta;
+  ezSimdFloat m_InvBesselBeta;
 };
 
 /// \brief Pre-computes the required filter weights for rescaling a sequence of image samples.
@@ -74,12 +74,12 @@ public:
   ezArrayPtr<const float> ViewWeights() const;
 
 private:
-  ezHybridArray<float, 16> m_weights;
-  ezSimdFloat m_widthInSourceSpace;
-  ezSimdFloat m_sourceToDestScale;
-  ezSimdFloat m_destToSourceScale;
-  ezUInt32 m_numWeights;
-  ezUInt32 m_dstSamplesReduced;
+  ezHybridArray<float, 16> m_Weights;
+  ezSimdFloat m_WidthInSourceSpace;
+  ezSimdFloat m_SourceToDestScale;
+  ezSimdFloat m_DestToSourceScale;
+  ezUInt32 m_uiNumWeights;
+  ezUInt32 m_uiDstSamplesReduced;
 };
 
 #include <Texture/Image/Implementation/ImageFilter_inl.h>

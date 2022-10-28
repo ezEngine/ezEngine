@@ -95,8 +95,8 @@ ezApplication::Execution ezShaderExplorerApp::Run()
     if (ezInputManager::GetInputActionState("Main", "LookNegY", &fInputValue) != ezKeyState::Up)
       mouseMotion.y += fInputValue * fMouseSpeed;
 
-    m_camera->RotateLocally(ezAngle::Radian(0.0), ezAngle::Radian(mouseMotion.y), ezAngle::Radian(0.0));
-    m_camera->RotateGlobally(ezAngle::Radian(0.0), ezAngle::Radian(mouseMotion.x), ezAngle::Radian(0.0));
+    m_pCamera->RotateLocally(ezAngle::Radian(0.0), ezAngle::Radian(mouseMotion.y), ezAngle::Radian(0.0));
+    m_pCamera->RotateGlobally(ezAngle::Radian(0.0), ezAngle::Radian(mouseMotion.x), ezAngle::Radian(0.0));
   }
   else
   {
@@ -120,8 +120,8 @@ ezApplication::Execution ezShaderExplorerApp::Run()
     if (ezInputManager::GetInputActionState("Main", "TurnNegY", &fInputValue) != ezKeyState::Up)
       mouseMotion.y -= fInputValue * fTurnSpeed;
 
-    m_camera->RotateLocally(ezAngle::Radian(0.0), ezAngle::Radian(mouseMotion.y), ezAngle::Radian(0.0));
-    m_camera->RotateGlobally(ezAngle::Radian(0.0), ezAngle::Radian(mouseMotion.x), ezAngle::Radian(0.0));
+    m_pCamera->RotateLocally(ezAngle::Radian(0.0), ezAngle::Radian(mouseMotion.y), ezAngle::Radian(0.0));
+    m_pCamera->RotateGlobally(ezAngle::Radian(0.0), ezAngle::Radian(mouseMotion.x), ezAngle::Radian(0.0));
   }
 
   // movement
@@ -138,13 +138,13 @@ ezApplication::Execution ezShaderExplorerApp::Run()
     if (ezInputManager::GetInputActionState("Main", "MoveNegY", &fInputValue) != ezKeyState::Up)
       cameraMotion.y -= fInputValue;
 
-    m_camera->MoveLocally(cameraMotion.y, cameraMotion.x, 0.0f);
+    m_pCamera->MoveLocally(cameraMotion.y, cameraMotion.x, 0.0f);
   }
 
 
-  m_stuffChanged = false;
-  m_directoryWatcher->EnumerateChanges(ezMakeDelegate(&ezShaderExplorerApp::OnFileChanged, this));
-  if (m_stuffChanged)
+  m_bStuffChanged = false;
+  m_pDirectoryWatcher->EnumerateChanges(ezMakeDelegate(&ezShaderExplorerApp::OnFileChanged, this));
+  if (m_bStuffChanged)
   {
     ezResourceManager::ReloadAllResources(false);
   }
@@ -172,8 +172,8 @@ ezApplication::Execution ezShaderExplorerApp::Run()
     auto& gc = ezRenderContext::GetDefaultInstance()->WriteGlobalConstants();
     ezMemoryUtils::ZeroFill(&gc, 1);
 
-    gc.WorldToCameraMatrix[0] = m_camera->GetViewMatrix(ezCameraEye::Left);
-    gc.WorldToCameraMatrix[1] = m_camera->GetViewMatrix(ezCameraEye::Right);
+    gc.WorldToCameraMatrix[0] = m_pCamera->GetViewMatrix(ezCameraEye::Left);
+    gc.WorldToCameraMatrix[1] = m_pCamera->GetViewMatrix(ezCameraEye::Right);
     gc.CameraToWorldMatrix[0] = gc.WorldToCameraMatrix[0].GetInverse();
     gc.CameraToWorldMatrix[1] = gc.WorldToCameraMatrix[1].GetInverse();
     gc.ViewportSize = ezVec4((float)g_uiWindowWidth, (float)g_uiWindowHeight, 1.0f / (float)g_uiWindowWidth, 1.0f / (float)g_uiWindowHeight);
@@ -207,9 +207,9 @@ ezApplication::Execution ezShaderExplorerApp::Run()
 
 void ezShaderExplorerApp::AfterCoreSystemsStartup()
 {
-  m_camera = EZ_DEFAULT_NEW(ezCamera);
-  m_camera->LookAt(ezVec3(3, 3, 1.5), ezVec3(0, 0, 0), ezVec3(0, 1, 0));
-  m_directoryWatcher = EZ_DEFAULT_NEW(ezDirectoryWatcher);
+  m_pCamera = EZ_DEFAULT_NEW(ezCamera);
+  m_pCamera->LookAt(ezVec3(3, 3, 1.5), ezVec3(0, 0, 0), ezVec3(0, 1, 0));
+  m_pDirectoryWatcher = EZ_DEFAULT_NEW(ezDirectoryWatcher);
 
   ezStringBuilder sProjectDir = ">sdk/Data/Samples/ShaderExplorer";
   ezStringBuilder sProjectDirResolved;
@@ -217,7 +217,7 @@ void ezShaderExplorerApp::AfterCoreSystemsStartup()
 
   ezFileSystem::SetSpecialDirectory("project", sProjectDirResolved);
 
-  EZ_VERIFY(m_directoryWatcher->OpenDirectory(sProjectDirResolved, ezDirectoryWatcher::Watch::Writes | ezDirectoryWatcher::Watch::Subdirectories).Succeeded(), "Failed to watch project directory");
+  EZ_VERIFY(m_pDirectoryWatcher->OpenDirectory(sProjectDirResolved, ezDirectoryWatcher::Watch::Writes | ezDirectoryWatcher::Watch::Subdirectories).Succeeded(), "Failed to watch project directory");
 
   ezFileSystem::AddDataDirectory("", "", ":", ezFileSystem::AllowWrites).IgnoreResult();
   ezFileSystem::AddDataDirectory(">appdir/", "AppBin", "bin", ezFileSystem::AllowWrites).IgnoreResult();                                   // writing to the binary directory
@@ -361,7 +361,7 @@ void ezShaderExplorerApp::AfterCoreSystemsStartup()
 
 void ezShaderExplorerApp::BeforeHighLevelSystemsShutdown()
 {
-  m_directoryWatcher->CloseDirectory();
+  m_pDirectoryWatcher->CloseDirectory();
 
   m_pDevice->DestroyTexture(m_hDepthStencilTexture);
   m_hDepthStencilTexture.Invalidate();
@@ -383,8 +383,8 @@ void ezShaderExplorerApp::BeforeHighLevelSystemsShutdown()
   m_pWindow->Destroy().IgnoreResult();
   EZ_DEFAULT_DELETE(m_pWindow);
 
-  m_camera.Clear();
-  m_directoryWatcher.Clear();
+  m_pCamera.Clear();
+  m_pDirectoryWatcher.Clear();
 }
 
 void ezShaderExplorerApp::UpdateSwapChain()
@@ -460,7 +460,7 @@ void ezShaderExplorerApp::OnFileChanged(const char* filename, ezDirectoryWatcher
   if (action == ezDirectoryWatcherAction::Modified && type == ezDirectoryWatcherType::File)
   {
     ezLog::Info("The file {0} was modified", filename);
-    m_stuffChanged = true;
+    m_bStuffChanged = true;
   }
 }
 

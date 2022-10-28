@@ -11,7 +11,7 @@
 ezApplication::ezApplication(const char* szAppName)
   : m_iReturnCode(0)
   , m_uiArgumentCount(0)
-  , m_ppArguments(nullptr)
+  , m_pArguments(nullptr)
   , m_bReportMemoryLeaks(true)
   , m_sAppName(szAppName)
 {
@@ -54,7 +54,7 @@ ezResult ezApplication::BeforeCoreSystemsStartup()
 void ezApplication::SetCommandLineArguments(ezUInt32 uiArgumentCount, const char** ppArguments)
 {
   m_uiArgumentCount = uiArgumentCount;
-  m_ppArguments = ppArguments;
+  m_pArguments = ppArguments;
 
   ezCommandLineUtils::GetGlobalInstance()->SetCommandLine(uiArgumentCount, ppArguments, ezCommandLineUtils::PreferOsArgs);
 }
@@ -64,7 +64,7 @@ const char* ezApplication::GetArgument(ezUInt32 uiArgument) const
 {
   EZ_ASSERT_DEV(uiArgument < m_uiArgumentCount, "There are only {0} arguments, cannot access argument {1}.", m_uiArgumentCount, uiArgument);
 
-  return m_ppArguments[uiArgument];
+  return m_pArguments[uiArgument];
 }
 
 

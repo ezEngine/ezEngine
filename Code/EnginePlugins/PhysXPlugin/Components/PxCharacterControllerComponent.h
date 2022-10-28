@@ -85,7 +85,7 @@ protected:
     Run = EZ_BIT(2),
   };
 
-  ezUInt8 m_InputStateBits = 0;
+  ezUInt8 m_uiInputStateBits = 0;
   ezComponentHandle m_hCharacterShape;
   ezVec3 m_vRelativeMoveDirection = ezVec3::ZeroVector();
   ezVec3 m_vAbsoluteRootMotion = ezVec3::ZeroVector();

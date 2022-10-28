@@ -267,11 +267,11 @@ ezResult ezPreprocessor::HandleInclude(const TokenStream& Tokens0, ezUInt32 uiCu
     return EZ_FAILURE;
   }
 
-  EZ_ASSERT_DEV(!m_sCurrentFileStack.IsEmpty(), "Implementation error.");
+  EZ_ASSERT_DEV(!m_CurrentFileStack.IsEmpty(), "Implementation error.");
 
   ezStringBuilder sOtherFile;
 
-  if (m_FileLocatorCallback(m_sCurrentFileStack.PeekBack().m_sFileName.GetData(), sPath, IncType, sOtherFile).Failed())
+  if (m_FileLocatorCallback(m_CurrentFileStack.PeekBack().m_sFileName.GetData(), sPath, IncType, sOtherFile).Failed())
   {
     PP_LOG(Error, "#include file '{0}' could not be located", Tokens[uiAccepted], sPath);
     return EZ_FAILURE;

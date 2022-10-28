@@ -132,7 +132,7 @@ private:
 
 protected:
   const ezDocumentObjectManager* m_pDocumentTree = nullptr;
-  const ezUuid m_root;
+  const ezUuid m_Root;
   ezHashTable<const ezRTTI*, ezQtDocumentTreeModelAdapter*> m_Adapters;
   bool m_bAllowDragDrop = false;
   ezString m_sTargetContext = "scenetree";

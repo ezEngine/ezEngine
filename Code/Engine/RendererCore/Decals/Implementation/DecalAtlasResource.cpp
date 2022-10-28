@@ -60,8 +60,8 @@ ezUInt32 ezDecalAtlasResource::s_uiDecalAtlasResources = 0;
 
 ezDecalAtlasResource::ezDecalAtlasResource()
   : ezResource(DoUpdate::OnAnyThread, 1)
-  , m_BaseColorSize(ezVec2U32::ZeroVector())
-  , m_NormalSize(ezVec2U32::ZeroVector())
+  , m_vBaseColorSize(ezVec2U32::ZeroVector())
+  , m_vNormalSize(ezVec2U32::ZeroVector())
 {
 }
 
@@ -141,9 +141,9 @@ ezResourceLoadDesc ezDecalAtlasResource::UpdateContent(ezStreamReader* Stream)
     CreateLayerTexture(normal, false, m_hNormal);
     CreateLayerTexture(orm, false, m_hORM);
 
-    m_BaseColorSize = ezVec2U32(baseColor.GetWidth(), baseColor.GetHeight());
-    m_NormalSize = ezVec2U32(normal.GetWidth(), normal.GetHeight());
-    m_ORMSize = ezVec2U32(orm.GetWidth(), orm.GetHeight());
+    m_vBaseColorSize = ezVec2U32(baseColor.GetWidth(), baseColor.GetHeight());
+    m_vNormalSize = ezVec2U32(normal.GetWidth(), normal.GetHeight());
+    m_vORMSize = ezVec2U32(orm.GetWidth(), orm.GetHeight());
   }
 
   ReadDecalInfo(Stream);

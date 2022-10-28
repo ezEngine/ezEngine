@@ -19,8 +19,8 @@ public:
   virtual ezStatus CreateRevertContainerDiff(SuperArray superPtr, ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezDeque<ezAbstractGraphDiffOperation>& out_diff) override;
 
 private:
-  const ezUuid m_rootObjectGuid;
-  const ezUuid m_createFromPrefab;
-  const ezUuid m_prefabSeedGuid;
+  const ezUuid m_RootObjectGuid;
+  const ezUuid m_CreateFromPrefab;
+  const ezUuid m_PrefabSeedGuid;
   ezInt32 m_iRootDepth = 0;
 };

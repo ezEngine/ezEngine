@@ -37,7 +37,7 @@ const ezTag& ezTagRegistry::RegisterTag(const ezHashedString& TagString)
   ezTag TempTag;
   TempTag.m_uiBlockIndex = uiNextTagIndex / (sizeof(ezTagSetBlockStorage) * 8);
   TempTag.m_uiBitIndex = uiNextTagIndex - (TempTag.m_uiBlockIndex * sizeof(ezTagSetBlockStorage) * 8);
-  TempTag.m_TagString = TagString;
+  TempTag.m_sTagString = TagString;
 
   // Store the tag
   auto it = m_RegisteredTags.Insert(TagString, TempTag);

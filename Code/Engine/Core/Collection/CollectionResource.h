@@ -85,8 +85,8 @@ private:
   virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
 
-  mutable ezMutex m_preloadMutex;
+  mutable ezMutex m_PreloadMutex;
   bool m_bRegistered = false;
   ezCollectionResourceDescriptor m_Collection;
-  ezDynamicArray<ezTypelessResourceHandle> m_hPreloadedResources;
+  ezDynamicArray<ezTypelessResourceHandle> m_PreloadedResources;
 };

@@ -324,7 +324,7 @@ private:
   };
 
   /// \brief The last (Unicode) character that was typed by the user, as reported by the OS (on Windows: WM_CHAR).
-  static ezUInt32 s_LastCharacter;
+  static ezUInt32 s_uiLastCharacter;
 
   static bool s_bInputSlotResetRequired;
 

@@ -953,7 +953,7 @@ ezQtPropertyContainerWidget::ezQtPropertyContainerWidget()
   : ezQtPropertyWidget()
   , m_pAddButton(nullptr)
 {
-  m_pal = palette();
+  m_Pal = palette();
   setAutoFillBackground(true);
 
   m_pLayout = new QHBoxLayout(this);
@@ -1069,7 +1069,7 @@ void ezQtPropertyContainerWidget::paintEvent(QPaintEvent* event)
 void ezQtPropertyContainerWidget::showEvent(QShowEvent* event)
 {
   // Use of style sheets (ADS) breaks previously set palette.
-  setPalette(m_pal);
+  setPalette(m_Pal);
   ezQtPropertyWidget::showEvent(event);
 }
 
@@ -1348,8 +1348,8 @@ void ezQtPropertyContainerWidget::UpdatePropertyMetaState()
   m_bIsDefault = defaultState.IsDefaultContainer();
   m_pGroup->SetBoldTitle(!m_bIsDefault);
 
-  QColor qColor = ezQtPropertyWidget::GetBackgroundColor(defaultState.GetBackgroundColor(), &m_pal);
-  setPalette(m_pal);
+  QColor qColor = ezQtPropertyWidget::GetBackgroundColor(defaultState.GetBackgroundColor(), &m_Pal);
+  setPalette(m_Pal);
 
   const bool bReadOnly = m_pProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly) ||
                          (m_pProp->GetAttributeByType<ezReadOnlyAttribute>() != nullptr);

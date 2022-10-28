@@ -31,8 +31,8 @@ namespace ezModelImporter2
     ezResult ImportMaterials();
     ezResult ImportAnimations();
 
-    Assimp::Importer m_aiImporter;
-    const aiScene* m_aiScene = nullptr;
+    Assimp::Importer m_Importer;
+    const aiScene* m_pScene = nullptr;
     ezUInt32 m_uiTotalMeshVertices = 0;
     ezUInt32 m_uiTotalMeshTriangles = 0;
 

@@ -108,7 +108,7 @@ void ezQtEventTrackEditorWidget::onDoubleClick(double scenePosX, double epsilon)
 
 void ezQtEventTrackEditorWidget::onMoveControlPoints(double x)
 {
-  m_ControlPointMove += x;
+  m_fControlPointMove += x;
 
   ezHybridArray<ezUInt32, 32> selection;
   EventTrackEdit->GetSelection(selection);
@@ -122,7 +122,7 @@ void ezQtEventTrackEditorWidget::onMoveControlPoints(double x)
   {
     auto& cp = m_DataCopy.m_ControlPoints[cpSel];
 
-    double newPos = cp.GetTickAsTime().GetSeconds() + m_ControlPointMove;
+    double newPos = cp.GetTickAsTime().GetSeconds() + m_fControlPointMove;
     newPos = ezMath::Max(newPos, 0.0);
 
     Q_EMIT CpMovedEvent(cpSel, m_pData->TickFromTime(ezTime::Seconds(newPos)));
@@ -158,7 +158,7 @@ void ezQtEventTrackEditorWidget::onMoveControlPoints(double x)
 
 void ezQtEventTrackEditorWidget::onBeginOperation(QString name)
 {
-  m_ControlPointMove = 0;
+  m_fControlPointMove = 0;
   m_DataCopy = *m_pData;
 
   Q_EMIT BeginOperationEvent(name);
@@ -171,7 +171,7 @@ void ezQtEventTrackEditorWidget::onEndOperation(bool commit)
 
 void ezQtEventTrackEditorWidget::onContextMenu(QPoint pos, QPointF scenePos)
 {
-  m_contextMenuScenePos = scenePos;
+  m_ContextMenuScenePos = scenePos;
 
   QMenu m(this);
   m.setDefaultAction(m.addAction("Add Event", this, SLOT(onAddPoint())));
@@ -194,7 +194,7 @@ void ezQtEventTrackEditorWidget::onContextMenu(QPoint pos, QPointF scenePos)
 
 void ezQtEventTrackEditorWidget::onAddPoint()
 {
-  InsertCpAt(m_contextMenuScenePos.x(), 0.0f);
+  InsertCpAt(m_ContextMenuScenePos.x(), 0.0f);
 }
 
 void ezQtEventTrackEditorWidget::InsertCpAt(double posX, double epsilon)

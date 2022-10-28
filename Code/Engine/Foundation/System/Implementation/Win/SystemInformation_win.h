@@ -58,7 +58,7 @@ void ezSystemInformation::Initialize()
   GlobalMemoryStatusEx(&memStatus);
 
   s_SystemInformation.m_uiInstalledMainMemory = memStatus.ullTotalPhys;
-  s_SystemInformation.m_b64BitOS = Is64BitWindows();
+  s_SystemInformation.m_bB64BitOS = Is64BitWindows();
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
   s_SystemInformation.m_szPlatformName = "Windows - UWP";
 #else

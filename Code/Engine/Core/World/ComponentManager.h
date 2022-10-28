@@ -157,8 +157,8 @@ private:
 #define EZ_ADD_COMPONENT_FUNCTIONALITY(componentType, baseType, managerType)                        \
 public:                                                                                             \
   typedef managerType ComponentManagerType;                                                         \
-  virtual ezWorldModuleTypeId GetTypeId() const override { return TYPE_ID; }                        \
-  static EZ_ALWAYS_INLINE ezWorldModuleTypeId TypeId() { return TYPE_ID; }                          \
+  virtual ezWorldModuleTypeId GetTypeId() const override { return s_TypeId; }                       \
+  static EZ_ALWAYS_INLINE ezWorldModuleTypeId TypeId() { return s_TypeId; }                         \
   virtual ezComponentMode::Enum GetMode() const override;                                           \
   static ezComponentHandle CreateComponent(ezGameObject* pOwnerObject, componentType*& pComponent); \
   static void DeleteComponent(componentType* pComponent);                                           \
@@ -166,7 +166,7 @@ public:                                                                         
                                                                                                     \
 private:                                                                                            \
   friend managerType;                                                                               \
-  static ezWorldModuleTypeId TYPE_ID
+  static ezWorldModuleTypeId s_TypeId
 
 #define EZ_ADD_ABSTRACT_COMPONENT_FUNCTIONALITY(componentType, baseType)                     \
 public:                                                                                      \
@@ -188,7 +188,7 @@ public:                                                                         
 ///
 /// \see EZ_BEGIN_DYNAMIC_REFLECTED_TYPE
 #define EZ_BEGIN_COMPONENT_TYPE(componentType, version, mode)                                                                                  \
-  ezWorldModuleTypeId componentType::TYPE_ID =                                                                                                 \
+  ezWorldModuleTypeId componentType::s_TypeId =                                                                                                 \
     ezWorldModuleFactory::GetInstance()->RegisterWorldModule<typename componentType::ComponentManagerType, componentType>();                   \
   ezComponentMode::Enum componentType::GetMode() const { return mode; }                                                                        \
   ezComponentHandle componentType::CreateComponent(ezGameObject* pOwnerObject, componentType*& out_pComponent)                                 \

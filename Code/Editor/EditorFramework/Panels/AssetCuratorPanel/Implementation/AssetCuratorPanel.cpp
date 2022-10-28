@@ -97,7 +97,7 @@ ezQtAssetCuratorPanel::ezQtAssetCuratorPanel()
     "signal/slot connection failed");
   EZ_VERIFY(connect(m_pModel, &QAbstractItemModel::dataChanged, this,
               [this](const QModelIndex& topLeft, const QModelIndex& bottomRight, const QVector<int>& roles) {
-                if (m_selectedIndex.isValid() && topLeft.row() <= m_selectedIndex.row() && m_selectedIndex.row() <= bottomRight.row())
+                if (m_SelectedIndex.isValid() && topLeft.row() <= m_SelectedIndex.row() && m_SelectedIndex.row() <= bottomRight.row())
                 {
                   UpdateIssueInfo();
                 }
@@ -106,7 +106,7 @@ ezQtAssetCuratorPanel::ezQtAssetCuratorPanel()
 
   EZ_VERIFY(connect(m_pModel, &QAbstractItemModel::modelReset, this,
               [this]() {
-                m_selectedIndex = QPersistentModelIndex();
+                m_SelectedIndex = QPersistentModelIndex();
                 UpdateIssueInfo();
               }),
     "signal/slot connection failed");
@@ -120,9 +120,9 @@ ezQtAssetCuratorPanel::~ezQtAssetCuratorPanel()
 void ezQtAssetCuratorPanel::OnAssetSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected)
 {
   if (selected.isEmpty())
-    m_selectedIndex = QModelIndex();
+    m_SelectedIndex = QModelIndex();
   else
-    m_selectedIndex = selected.indexes()[0];
+    m_SelectedIndex = selected.indexes()[0];
 
   UpdateIssueInfo();
 }
@@ -150,13 +150,13 @@ void ezQtAssetCuratorPanel::LogWriter(const ezLoggingEventData& e)
 
 void ezQtAssetCuratorPanel::UpdateIssueInfo()
 {
-  if (!m_selectedIndex.isValid())
+  if (!m_SelectedIndex.isValid())
   {
     TransformLog->GetLog()->Clear();
     return;
   }
 
-  ezUuid assetGuid = m_pModel->data(m_selectedIndex, ezQtAssetBrowserModel::UserRoles::AssetGuid).value<ezUuid>();
+  ezUuid assetGuid = m_pModel->data(m_SelectedIndex, ezQtAssetBrowserModel::UserRoles::AssetGuid).value<ezUuid>();
   auto pSubAsset = ezAssetCurator::GetSingleton()->GetSubAsset(assetGuid);
   if (pSubAsset == nullptr)
   {

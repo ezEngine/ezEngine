@@ -83,17 +83,17 @@ void ezJoltSwingTwistConstraintComponent::CreateContstraintType(JPH::Body* pBody
   JPH::SwingTwistConstraintSettings opt;
   opt.mDrawConstraintSize = 0.1f;
   opt.mSpace = JPH::EConstraintSpace::LocalToBodyCOM;
-  opt.mPosition1 = inv1 * ezJoltConversionUtils::ToVec3(m_localFrameA.m_vPosition);
-  opt.mPosition2 = inv2 * ezJoltConversionUtils::ToVec3(m_localFrameB.m_vPosition);
+  opt.mPosition1 = inv1 * ezJoltConversionUtils::ToVec3(m_LocalFrameA.m_vPosition);
+  opt.mPosition2 = inv2 * ezJoltConversionUtils::ToVec3(m_LocalFrameB.m_vPosition);
   opt.mPlaneHalfConeAngle = m_SwingLimitY.GetRadian() * 0.5f;
   opt.mNormalHalfConeAngle = m_SwingLimitZ.GetRadian() * 0.5f;
   opt.mMaxFrictionTorque = m_fFriction;
-  opt.mTwistAxis1 = inv1.Multiply3x3(ezJoltConversionUtils::ToVec3(m_localFrameA.m_qRotation * ezVec3::UnitXAxis()));
-  opt.mTwistAxis2 = inv2.Multiply3x3(ezJoltConversionUtils::ToVec3(m_localFrameB.m_qRotation * ezVec3::UnitXAxis()));
+  opt.mTwistAxis1 = inv1.Multiply3x3(ezJoltConversionUtils::ToVec3(m_LocalFrameA.m_qRotation * ezVec3::UnitXAxis()));
+  opt.mTwistAxis2 = inv2.Multiply3x3(ezJoltConversionUtils::ToVec3(m_LocalFrameB.m_qRotation * ezVec3::UnitXAxis()));
   opt.mTwistMinAngle = -m_LowerTwistLimit.GetRadian();
   opt.mTwistMaxAngle = m_UpperTwistLimit.GetRadian();
-  opt.mPlaneAxis1 = inv1.Multiply3x3(ezJoltConversionUtils::ToVec3(m_localFrameA.m_qRotation * ezVec3::UnitYAxis()));
-  opt.mPlaneAxis2 = inv2.Multiply3x3(ezJoltConversionUtils::ToVec3(m_localFrameB.m_qRotation * ezVec3::UnitYAxis()));
+  opt.mPlaneAxis1 = inv1.Multiply3x3(ezJoltConversionUtils::ToVec3(m_LocalFrameA.m_qRotation * ezVec3::UnitYAxis()));
+  opt.mPlaneAxis2 = inv2.Multiply3x3(ezJoltConversionUtils::ToVec3(m_LocalFrameB.m_qRotation * ezVec3::UnitYAxis()));
 
   m_pConstraint = opt.Create(*pBody0, *pBody1);
 }

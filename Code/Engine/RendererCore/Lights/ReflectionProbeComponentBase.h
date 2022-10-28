@@ -28,13 +28,13 @@ public:
   void InsertExcludeTag(const char* szTag); // [ property ]
   void RemoveExcludeTag(const char* szTag); // [ property ]
 
-  float GetNearPlane() const { return m_desc.m_fNearPlane; } // [ property ]
+  float GetNearPlane() const { return m_Desc.m_fNearPlane; } // [ property ]
   void SetNearPlane(float fNearPlane);                       // [ property ]
 
-  float GetFarPlane() const { return m_desc.m_fFarPlane; } // [ property ]
+  float GetFarPlane() const { return m_Desc.m_fFarPlane; } // [ property ]
   void SetFarPlane(float fFarPlane);                       // [ property ]
 
-  const ezVec3& GetCaptureOffset() const { return m_desc.m_vCaptureOffset; } // [ property ]
+  const ezVec3& GetCaptureOffset() const { return m_Desc.m_vCaptureOffset; } // [ property ]
   void SetCaptureOffset(const ezVec3& vOffset);                              // [ property ]
 
   void SetShowDebugInfo(bool bShowDebugInfo); // [ property ]
@@ -54,7 +54,7 @@ protected:
   float ComputePriority(ezMsgExtractRenderData& msg, ezReflectionProbeRenderData* pRenderData, float fVolume, const ezVec3& vScale) const;
 
 protected:
-  ezReflectionProbeDesc m_desc;
+  ezReflectionProbeDesc m_Desc;
 
   ezReflectionProbeId m_Id;
   // Set to true if a change was made that requires recomputing the cube map.

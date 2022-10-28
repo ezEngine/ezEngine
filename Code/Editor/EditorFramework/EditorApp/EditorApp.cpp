@@ -16,8 +16,8 @@ ezEvent<const ezEditorAppEvent&> ezQtEditorApp::m_Events;
 
 ezQtEditorApp::ezQtEditorApp()
   : m_SingletonRegistrar(this)
-  , s_RecentProjects(10)
-  , s_RecentDocuments(50)
+  , m_RecentProjects(10)
+  , m_RecentDocuments(50)
 {
   m_bSavePreferencesAfterOpenProject = false;
 

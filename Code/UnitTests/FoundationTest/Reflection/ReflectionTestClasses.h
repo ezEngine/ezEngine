@@ -212,12 +212,12 @@ class ezTestClass2 : public ezTestClass1
   EZ_ADD_DYNAMIC_REFLECTION(ezTestClass2, ezTestClass1);
 
 public:
-  ezTestClass2() { m_Text = "Legen"; }
+  ezTestClass2() { m_sText = "Legen"; }
 
-  bool operator==(const ezTestClass2& rhs) const { return m_Time == rhs.m_Time && m_enumClass == rhs.m_enumClass && m_bitflagsClass == rhs.m_bitflagsClass && m_array == rhs.m_array && m_Variant == rhs.m_Variant && m_Text == rhs.m_Text; }
+  bool operator==(const ezTestClass2& rhs) const { return m_Time == rhs.m_Time && m_enumClass == rhs.m_enumClass && m_bitflagsClass == rhs.m_bitflagsClass && m_array == rhs.m_array && m_Variant == rhs.m_Variant && m_sText == rhs.m_sText; }
 
-  const char* GetText() const { return m_Text.GetData(); }
-  void SetText(const char* sz) { m_Text = sz; }
+  const char* GetText() const { return m_sText.GetData(); }
+  void SetText(const char* sz) { m_sText = sz; }
 
   ezTime m_Time;
   ezEnum<ezExampleEnum> m_enumClass;
@@ -226,7 +226,7 @@ public:
   ezVariant m_Variant;
 
 private:
-  ezString m_Text;
+  ezString m_sText;
 };
 
 
@@ -257,16 +257,16 @@ class ezTestClass2b : ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(ezTestClass2b, ezReflectedClass);
 
 public:
-  ezTestClass2b() { m_Text = "Tut"; }
+  ezTestClass2b() { m_sText = "Tut"; }
 
-  const char* GetText() const { return m_Text.GetData(); }
-  void SetText(const char* sz) { m_Text = sz; }
+  const char* GetText() const { return m_sText.GetData(); }
+  void SetText(const char* sz) { m_sText = sz; }
 
   ezTestStruct3 m_Struct;
   ezColor m_Color;
 
 private:
-  ezString m_Text;
+  ezString m_sText;
 };
 
 
@@ -484,23 +484,23 @@ public:
   {
     m_enum = ezExampleEnum::Value1;
     m_enumClass = ezExampleEnum::Value1;
-    m_enum2 = ezExampleEnum::Value1;
-    m_enumClass2 = ezExampleEnum::Value1;
+    m_Enum2 = ezExampleEnum::Value1;
+    m_EnumClass2 = ezExampleEnum::Value1;
   }
 
-  bool operator==(const ezTestEnumStruct& rhs) const { return m_enum2 == rhs.m_enum2 && m_enum == rhs.m_enum && m_enumClass == rhs.m_enumClass && m_enumClass2 == rhs.m_enumClass2; }
+  bool operator==(const ezTestEnumStruct& rhs) const { return m_Enum2 == rhs.m_Enum2 && m_enum == rhs.m_enum && m_enumClass == rhs.m_enumClass && m_EnumClass2 == rhs.m_EnumClass2; }
 
   ezExampleEnum::Enum m_enum;
   ezEnum<ezExampleEnum> m_enumClass;
 
-  void SetEnum(ezExampleEnum::Enum e) { m_enum2 = e; }
-  ezExampleEnum::Enum GetEnum() const { return m_enum2; }
-  void SetEnumClass(ezEnum<ezExampleEnum> e) { m_enumClass2 = e; }
-  ezEnum<ezExampleEnum> GetEnumClass() const { return m_enumClass2; }
+  void SetEnum(ezExampleEnum::Enum e) { m_Enum2 = e; }
+  ezExampleEnum::Enum GetEnum() const { return m_Enum2; }
+  void SetEnumClass(ezEnum<ezExampleEnum> e) { m_EnumClass2 = e; }
+  ezEnum<ezExampleEnum> GetEnumClass() const { return m_EnumClass2; }
 
 private:
-  ezExampleEnum::Enum m_enum2;
-  ezEnum<ezExampleEnum> m_enumClass2;
+  ezExampleEnum::Enum m_Enum2;
+  ezEnum<ezExampleEnum> m_EnumClass2;
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezTestEnumStruct);
@@ -514,18 +514,18 @@ public:
   ezTestBitflagsStruct()
   {
     m_bitflagsClass = ezExampleBitflags::Value1;
-    m_bitflagsClass2 = ezExampleBitflags::Value1;
+    m_BitflagsClass2 = ezExampleBitflags::Value1;
   }
 
-  bool operator==(const ezTestBitflagsStruct& rhs) const { return m_bitflagsClass == rhs.m_bitflagsClass && m_bitflagsClass2 == rhs.m_bitflagsClass2; }
+  bool operator==(const ezTestBitflagsStruct& rhs) const { return m_bitflagsClass == rhs.m_bitflagsClass && m_BitflagsClass2 == rhs.m_BitflagsClass2; }
 
   ezBitflags<ezExampleBitflags> m_bitflagsClass;
 
-  void SetBitflagsClass(ezBitflags<ezExampleBitflags> e) { m_bitflagsClass2 = e; }
-  ezBitflags<ezExampleBitflags> GetBitflagsClass() const { return m_bitflagsClass2; }
+  void SetBitflagsClass(ezBitflags<ezExampleBitflags> e) { m_BitflagsClass2 = e; }
+  ezBitflags<ezExampleBitflags> GetBitflagsClass() const { return m_BitflagsClass2; }
 
 private:
-  ezBitflags<ezExampleBitflags> m_bitflagsClass2;
+  ezBitflags<ezExampleBitflags> m_BitflagsClass2;
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezTestBitflagsStruct);

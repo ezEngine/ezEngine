@@ -60,6 +60,6 @@ private:
   bool m_bCheckInProgresss = false;
   ezString m_sConfigFile;
   ezString m_sKnownLatestVersion;
-  QPointer<PageDownloader> m_VersionPage;
+  QPointer<PageDownloader> m_pVersionPage;
 };
 

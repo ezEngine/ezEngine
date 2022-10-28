@@ -56,18 +56,18 @@ namespace ezModelImporter2
       uiAssimpFlags |= aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_TransformUVCoords | aiProcess_FlipUVs | aiProcess_ImproveCacheLocality;
     }
 
-    m_aiScene = m_aiImporter.ReadFile(m_Options.m_sSourceFile, uiAssimpFlags);
-    if (m_aiScene == nullptr)
+    m_pScene = m_Importer.ReadFile(m_Options.m_sSourceFile, uiAssimpFlags);
+    if (m_pScene == nullptr)
     {
       ezLog::Error("Assimp failed to import '{}'", m_Options.m_sSourceFile);
       return EZ_FAILURE;
     }
 
-    if (m_aiScene->mMetaData != nullptr)
+    if (m_pScene->mMetaData != nullptr)
     {
       float fUnitScale = 1.0f;
 
-      if (m_aiScene->mMetaData->Get("UnitScaleFactor", fUnitScale))
+      if (m_pScene->mMetaData->Get("UnitScaleFactor", fUnitScale))
       {
         // Only FBX files have this unit scale factor and the default unit for FBX is cm. We want meters.
         fUnitScale /= 100.0f;
@@ -79,7 +79,7 @@ namespace ezModelImporter2
       }
     }
 
-    if (aiNode* node = m_aiScene->mRootNode)
+    if (aiNode* node = m_pScene->mRootNode)
     {
       ezMat4 tmp;
       tmp.SetIdentity();
@@ -128,11 +128,11 @@ namespace ezModelImporter2
     if (m_Options.m_pSkeletonOutput != nullptr)
     {
       m_Options.m_pSkeletonOutput->m_Children.PushBack(EZ_DEFAULT_NEW(ezEditableSkeletonJoint));
-      EZ_SUCCEED_OR_RETURN(TraverseAiNode(m_aiScene->mRootNode, ezMat4::IdentityMatrix(), m_Options.m_pSkeletonOutput->m_Children.PeekBack()));
+      EZ_SUCCEED_OR_RETURN(TraverseAiNode(m_pScene->mRootNode, ezMat4::IdentityMatrix(), m_Options.m_pSkeletonOutput->m_Children.PeekBack()));
     }
     else
     {
-      EZ_SUCCEED_OR_RETURN(TraverseAiNode(m_aiScene->mRootNode, ezMat4::IdentityMatrix(), nullptr));
+      EZ_SUCCEED_OR_RETURN(TraverseAiNode(m_pScene->mRootNode, ezMat4::IdentityMatrix(), nullptr));
     }
 
     return EZ_SUCCESS;
@@ -156,7 +156,7 @@ namespace ezModelImporter2
     {
       for (ezUInt32 meshIdx = 0; meshIdx < pNode->mNumMeshes; ++meshIdx)
       {
-        EZ_SUCCEED_OR_RETURN(ProcessAiMesh(m_aiScene->mMeshes[pNode->mMeshes[meshIdx]], globalTransform));
+        EZ_SUCCEED_OR_RETURN(ProcessAiMesh(m_pScene->mMeshes[pNode->mMeshes[meshIdx]], globalTransform));
       }
     }
 

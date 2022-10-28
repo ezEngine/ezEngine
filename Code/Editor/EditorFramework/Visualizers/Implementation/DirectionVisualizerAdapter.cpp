@@ -16,15 +16,15 @@ void ezDirectionVisualizerAdapter::Finalize()
 
   const ezDirectionVisualizerAttribute* pAttr = static_cast<const ezDirectionVisualizerAttribute*>(m_pVisualizerAttr);
 
-  m_Gizmo.ConfigureHandle(nullptr, ezEngineGizmoHandleType::Arrow, pAttr->m_Color, ezGizmoFlags::ShowInOrtho | ezGizmoFlags::Visualizer);
+  m_hGizmo.ConfigureHandle(nullptr, ezEngineGizmoHandleType::Arrow, pAttr->m_Color, ezGizmoFlags::ShowInOrtho | ezGizmoFlags::Visualizer);
 
-  pAssetDocument->AddSyncObject(&m_Gizmo);
-  m_Gizmo.SetVisible(m_bVisualizerIsVisible);
+  pAssetDocument->AddSyncObject(&m_hGizmo);
+  m_hGizmo.SetVisible(m_bVisualizerIsVisible);
 }
 
 void ezDirectionVisualizerAdapter::Update()
 {
-  m_Gizmo.SetVisible(m_bVisualizerIsVisible);
+  m_hGizmo.SetVisible(m_bVisualizerIsVisible);
   const ezDirectionVisualizerAttribute* pAttr = static_cast<const ezDirectionVisualizerAttribute*>(m_pVisualizerAttr);
 
   if (!pAttr->GetColorProperty().IsEmpty())
@@ -35,7 +35,7 @@ void ezDirectionVisualizerAdapter::Update()
     pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetColorProperty()), value);
 
     EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<ezColor>(), "Invalid property bound to ezDirectionVisualizerAttribute 'color'");
-    m_Gizmo.SetColor(value.ConvertTo<ezColor>() * pAttr->m_Color);
+    m_hGizmo.SetColor(value.ConvertTo<ezColor>() * pAttr->m_Color);
   }
 }
 
@@ -79,5 +79,5 @@ void ezDirectionVisualizerAdapter::UpdateGizmoTransform()
   ezTransform tObject = GetObjectTransform();
   tObject.m_vScale.Set(1.0f);
 
-  m_Gizmo.SetTransformation(tObject * t);
+  m_hGizmo.SetTransformation(tObject * t);
 }

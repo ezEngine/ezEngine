@@ -48,6 +48,6 @@ private:
 
   ezQtAssetBrowserModel* m_pModel;
   ezQtAssetCuratorFilter* m_pFilter;
-  QPersistentModelIndex m_selectedIndex;
+  QPersistentModelIndex m_SelectedIndex;
 };
 

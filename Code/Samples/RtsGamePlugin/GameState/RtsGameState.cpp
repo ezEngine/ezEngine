@@ -70,22 +70,22 @@ void RtsGameState::PreloadAssets()
 {
   // Load all assets that are referenced in some Collections
 
-  m_CollectionSpace = ezResourceManager::LoadResource<ezCollectionResource>("{ 7cd0dfa6-d2bb-433e-9fa2-b17bfae42b6b }");
-  m_CollectionFederation = ezResourceManager::LoadResource<ezCollectionResource>("{ 1edd3af8-6d59-4825-b853-ee8d7a60cb03 }");
-  m_CollectionKlingons = ezResourceManager::LoadResource<ezCollectionResource>("{ c683d049-0e54-4c42-9764-a122f9dbc69d }");
+  m_hCollectionSpace = ezResourceManager::LoadResource<ezCollectionResource>("{ 7cd0dfa6-d2bb-433e-9fa2-b17bfae42b6b }");
+  m_hCollectionFederation = ezResourceManager::LoadResource<ezCollectionResource>("{ 1edd3af8-6d59-4825-b853-ee8d7a60cb03 }");
+  m_hCollectionKlingons = ezResourceManager::LoadResource<ezCollectionResource>("{ c683d049-0e54-4c42-9764-a122f9dbc69d }");
 
   // Register the loaded assets with the names defined in the collections
   // This allows to easily spawn those objects with human readable names instead of GUIDs
   {
-    ezResourceLock<ezCollectionResource> pCollection(m_CollectionSpace, ezResourceAcquireMode::BlockTillLoaded);
+    ezResourceLock<ezCollectionResource> pCollection(m_hCollectionSpace, ezResourceAcquireMode::BlockTillLoaded);
     pCollection->RegisterNames();
   }
   {
-    ezResourceLock<ezCollectionResource> pCollection(m_CollectionFederation, ezResourceAcquireMode::BlockTillLoaded);
+    ezResourceLock<ezCollectionResource> pCollection(m_hCollectionFederation, ezResourceAcquireMode::BlockTillLoaded);
     pCollection->RegisterNames();
   }
   {
-    ezResourceLock<ezCollectionResource> pCollection(m_CollectionKlingons, ezResourceAcquireMode::BlockTillLoaded);
+    ezResourceLock<ezCollectionResource> pCollection(m_hCollectionKlingons, ezResourceAcquireMode::BlockTillLoaded);
     pCollection->RegisterNames();
   }
 }

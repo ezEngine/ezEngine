@@ -35,7 +35,7 @@ private:
 private:
   const ezHybridArray<ezPropertySelection, 8>* m_pItems;
   const ezManipulatorAttribute* m_pManipulator;
-  QFont m_font;
+  QFont m_Font;
   bool m_bActive;
   bool m_bIsDefault;
 };

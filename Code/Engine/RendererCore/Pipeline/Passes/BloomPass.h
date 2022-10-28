@@ -27,9 +27,9 @@ protected:
   float m_fRadius;
   float m_fThreshold;
   float m_fIntensity;
-  ezColorGammaUB m_innerTintColor;
-  ezColorGammaUB m_midTintColor;
-  ezColorGammaUB m_outerTintColor;
+  ezColorGammaUB m_InnerTintColor;
+  ezColorGammaUB m_MidTintColor;
+  ezColorGammaUB m_OuterTintColor;
   ezConstantBufferStorageHandle m_hConstantBuffer;
   ezShaderResourceHandle m_hShader;
 };

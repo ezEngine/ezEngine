@@ -16,9 +16,9 @@ protected:
 
   virtual void UpdateGizmoTransform() override;
 
-  ezVec3 m_Scale;
+  ezVec3 m_vScale;
   ezVec3 m_vPositionOffset;
-  ezQuat m_Rotation;
+  ezQuat m_qRotation;
 
-  ezEngineGizmoHandle m_Gizmo;
+  ezEngineGizmoHandle m_hGizmo;
 };

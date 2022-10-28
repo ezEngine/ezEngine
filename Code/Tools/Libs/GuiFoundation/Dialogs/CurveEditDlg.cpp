@@ -29,11 +29,11 @@ ezQtCurveEditDlg::ezQtCurveEditDlg(ezObjectAccessorBase* pObjectAccessor, const 
   connect(pEdit, &ezQtCurve1DEditorWidget::BeginOperationEvent, this, &ezQtCurveEditDlg::OnBeginOperationEvent);
   connect(pEdit, &ezQtCurve1DEditorWidget::EndOperationEvent, this, &ezQtCurveEditDlg::OnEndOperationEvent);
 
-  m_shortcutUndo = new QShortcut(QKeySequence("Ctrl+Z"), this);
-  m_shortcutRedo = new QShortcut(QKeySequence("Ctrl+Y"), this);
+  m_pShortcutUndo = new QShortcut(QKeySequence("Ctrl+Z"), this);
+  m_pShortcutRedo = new QShortcut(QKeySequence("Ctrl+Y"), this);
 
-  connect(m_shortcutUndo, &QShortcut::activated, this, &ezQtCurveEditDlg::on_actionUndo_triggered);
-  connect(m_shortcutRedo, &QShortcut::activated, this, &ezQtCurveEditDlg::on_actionRedo_triggered);
+  connect(m_pShortcutUndo, &QShortcut::activated, this, &ezQtCurveEditDlg::on_actionUndo_triggered);
+  connect(m_pShortcutRedo, &QShortcut::activated, this, &ezQtCurveEditDlg::on_actionRedo_triggered);
 
   m_Curves.m_Curves.PushBack(EZ_DEFAULT_NEW(ezSingleCurveData));
 

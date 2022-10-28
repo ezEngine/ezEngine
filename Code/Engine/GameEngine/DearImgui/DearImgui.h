@@ -72,7 +72,7 @@ private:
   bool m_bPassInputToImgui = true;
   bool m_bImguiWantsInput = false;
   ezSizeU32 m_CurrentWindowResolution;
-  ezHybridArray<ezTexture2DResourceHandle, 4> m_hTextures;
+  ezHybridArray<ezTexture2DResourceHandle, 4> m_Textures;
 
   ezImguiConfigStyleCallback m_ConfigStyleCallback;
 

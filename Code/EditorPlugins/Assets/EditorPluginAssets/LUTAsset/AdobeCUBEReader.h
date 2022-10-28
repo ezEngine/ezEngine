@@ -32,8 +32,8 @@ protected:
   ezUInt32 m_uiLUTSize = 0;
   ezString m_sTitle = "<UNTITLED>";
 
-  ezVec3 m_DomainMin = ezVec3::ZeroVector();
-  ezVec3 m_DomainMax = ezVec3::OneVector();
+  ezVec3 m_vDomainMin = ezVec3::ZeroVector();
+  ezVec3 m_vDomainMax = ezVec3::OneVector();
 
   ezDynamicArray<ezVec3> m_LUTValues;
 

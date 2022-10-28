@@ -218,12 +218,12 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
 
   QLocale::setDefault(QLocale(QLocale::English));
 
-  s_pEngineViewProcess = new ezEditorEngineProcessConnection;
+  m_pEngineViewProcess = new ezEditorEngineProcessConnection;
 
-  s_pEngineViewProcess->SetWaitForDebugger(m_StartupFlags.IsSet(StartupFlags::Debug));
-  s_pEngineViewProcess->SetRenderer(pCmd->GetStringOption("-renderer", 0, ""));
+  m_pEngineViewProcess->SetWaitForDebugger(m_StartupFlags.IsSet(StartupFlags::Debug));
+  m_pEngineViewProcess->SetRenderer(pCmd->GetStringOption("-renderer", 0, ""));
 
-  m_LongOpControllerManager.Startup(&s_pEngineViewProcess->GetCommunicationChannel());
+  m_LongOpControllerManager.Startup(&m_pEngineViewProcess->GetCommunicationChannel());
 
   if (!IsInHeadlessMode())
   {
@@ -337,9 +337,9 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
   }
   else if (!bNoRecent && !m_StartupFlags.IsSet(StartupFlags::Debug) && pPreferences->m_bLoadLastProjectAtStartup)
   {
-    if (!s_RecentProjects.GetFileList().IsEmpty())
+    if (!m_RecentProjects.GetFileList().IsEmpty())
     {
-      CreateOrOpenProject(false, s_RecentProjects.GetFileList()[0].m_File).IgnoreResult();
+      CreateOrOpenProject(false, m_RecentProjects.GetFileList()[0].m_File).IgnoreResult();
     }
   }
   else if (!IsInHeadlessMode() && !IsInSafeMode())
@@ -412,7 +412,7 @@ void ezQtEditorApp::ShutdownEditor()
   QCoreApplication::sendPostedEvents();
   qApp->processEvents();
 
-  delete s_pEngineViewProcess;
+  delete m_pEngineViewProcess;
 
   // Unload potential plugin referenced clipboard data to prevent crash on shutdown.
   QApplication::clipboard()->clear();

@@ -89,8 +89,8 @@ ezReflectionProbeUpdater::~ezReflectionProbeUpdater()
 
 ezUInt32 ezReflectionProbeUpdater::GetFreeUpdateSlots(ezDynamicArray<ezReflectionProbeRef>& out_updatesFinished)
 {
-  out_updatesFinished = m_finishedLastFrame;
-  m_finishedLastFrame.Clear();
+  out_updatesFinished = m_FinishedLastFrame;
+  m_FinishedLastFrame.Clear();
   ezUInt32 uiCount = 0;
   for (auto& slot : m_DynamicUpdates)
   {
@@ -150,7 +150,7 @@ ezResult ezReflectionProbeUpdater::StartFilterUpdate(const ezReflectionProbeRef&
 
 void ezReflectionProbeUpdater::CancelUpdate(const ezReflectionProbeRef& probe)
 {
-  m_finishedLastFrame.RemoveAndSwap(probe);
+  m_FinishedLastFrame.RemoveAndSwap(probe);
   for (ezUInt32 uiInfo = m_DynamicUpdates.GetCount(); uiInfo-- > 0;)
   {
     if (m_DynamicUpdates[uiInfo]->m_probe == probe)
@@ -277,7 +277,7 @@ void ezReflectionProbeUpdater::ScheduleUpdateSteps()
         info.m_UpdateSteps.Clear();
         if (bDone && !bIsLoadingResources)
         {
-          m_finishedLastFrame.PushBack(info.m_probe);
+          m_FinishedLastFrame.PushBack(info.m_probe);
           ResetProbeUpdateInfo(uiInfo);
         }
       }

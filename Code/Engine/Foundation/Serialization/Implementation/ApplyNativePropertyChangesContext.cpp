@@ -4,8 +4,8 @@
 
 
 ezApplyNativePropertyChangesContext::ezApplyNativePropertyChangesContext(ezRttiConverterContext& source, const ezAbstractObjectGraph& originalGraph)
-  : m_nativeContext(source)
-  , m_originalGraph(originalGraph)
+  : m_NativeContext(source)
+  , m_OriginalGraph(originalGraph)
 {
 }
 
@@ -16,7 +16,7 @@ ezUuid ezApplyNativePropertyChangesContext::GenerateObjectGuid(const ezUuid& par
   {
     // If the object is already known by the native context (a pointer that existed before the native changes)
     // we can just return it. Any other pointer will get a new guid assigned.
-    guid = m_nativeContext.GetObjectGUID(pProp->GetSpecificType(), pObject);
+    guid = m_NativeContext.GetObjectGUID(pProp->GetSpecificType(), pObject);
     if (guid.IsValid())
       return guid;
   }
@@ -25,7 +25,7 @@ ezUuid ezApplyNativePropertyChangesContext::GenerateObjectGuid(const ezUuid& par
     // In case of by-value classes we lookup the guid in the object manager graph by using
     // the index as the identify of the object. If the index is not valid (e.g. the array was expanded by native changes)
     // a new guid is assigned.
-    if (const ezAbstractObjectNode* originalNode = m_originalGraph.GetNode(parentGuid))
+    if (const ezAbstractObjectNode* originalNode = m_OriginalGraph.GetNode(parentGuid))
     {
       if (const ezAbstractObjectNode::Property* originalProp = originalNode->FindProperty(pProp->GetPropertyName()))
       {

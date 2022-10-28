@@ -30,9 +30,9 @@ public:
   const ezTexture2DResourceHandle& GetBaseColorTexture() const { return m_hBaseColor; }
   const ezTexture2DResourceHandle& GetNormalTexture() const { return m_hNormal; }
   const ezTexture2DResourceHandle& GetORMTexture() const { return m_hORM; }
-  const ezVec2U32& GetBaseColorTextureSize() const { return m_BaseColorSize; }
-  const ezVec2U32& GetNormalTextureSize() const { return m_NormalSize; }
-  const ezVec2U32& GetORMTextureSize() const { return m_ORMSize; }
+  const ezVec2U32& GetBaseColorTextureSize() const { return m_vBaseColorSize; }
+  const ezVec2U32& GetNormalTextureSize() const { return m_vNormalSize; }
+  const ezVec2U32& GetORMTextureSize() const { return m_vORMSize; }
   const ezTextureAtlasRuntimeDesc& GetAtlas() const { return m_Atlas; }
 
 private:
@@ -51,7 +51,7 @@ private:
   ezTexture2DResourceHandle m_hBaseColor;
   ezTexture2DResourceHandle m_hNormal;
   ezTexture2DResourceHandle m_hORM;
-  ezVec2U32 m_BaseColorSize;
-  ezVec2U32 m_NormalSize;
-  ezVec2U32 m_ORMSize;
+  ezVec2U32 m_vBaseColorSize;
+  ezVec2U32 m_vNormalSize;
+  ezVec2U32 m_vORMSize;
 };

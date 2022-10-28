@@ -64,7 +64,7 @@ private:
 private:
   mutable ezMutex m_ProcessorMutex;
   ezAssetProcessorLog m_CuratorLog;
-  ezAtomicInteger32 m_bRunProcessTask;
+  ezAtomicBool m_bRunProcessTask;
 
   struct TaskAndGroup
   {
@@ -73,7 +73,7 @@ private:
   };
 
   ezDynamicArray<TaskAndGroup> m_ProcessTasks;
-  ezAtomicInteger32 m_TicksWithIdleTasks;
+  ezAtomicInteger32 m_iTicksWithIdleTasks;
 };
 
 class ezProcessTask final : public ezTask
@@ -94,9 +94,9 @@ private:
 
   ezUInt32 m_uiProcessorID;
 
-  ezUuid m_assetGuid;
-  ezUInt64 m_AssetHash = 0;
-  ezUInt64 m_ThumbHash = 0;
+  ezUuid m_AssetGuid;
+  ezUInt64 m_uiAssetHash = 0;
+  ezUInt64 m_uiThumbHash = 0;
   ezStringBuilder m_sAssetPath;
   ezEditorProcessCommunicationChannel* m_pIPC;
   bool m_bProcessShouldBeRunning;

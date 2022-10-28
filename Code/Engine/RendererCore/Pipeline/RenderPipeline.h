@@ -99,7 +99,7 @@ private: // Member data
 
   // Pipeline render data
   ezExtractedRenderData m_Data[2];
-  ezDynamicArray<const ezGameObject*> m_visibleObjects;
+  ezDynamicArray<const ezGameObject*> m_VisibleObjects;
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   ezTime m_AverageCullingTime;

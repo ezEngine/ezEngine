@@ -26,7 +26,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezParticleEventReactionFactory_Effect::ezParticleEventReactionFactory_Effect()
 {
-  m_Parameters = EZ_DEFAULT_NEW(ezParticleEffectParameters);
+  m_pParameters = EZ_DEFAULT_NEW(ezParticleEffectParameters);
 }
 
 enum class ReactionEffectVersion
@@ -52,17 +52,17 @@ void ezParticleEventReactionFactory_Effect::Save(ezStreamWriter& stream) const
   stream << m_sEffect;
 
   // Version 2
-  stream << m_Parameters->m_FloatParams.GetCount();
-  for (ezUInt32 i = 0; i < m_Parameters->m_FloatParams.GetCount(); ++i)
+  stream << m_pParameters->m_FloatParams.GetCount();
+  for (ezUInt32 i = 0; i < m_pParameters->m_FloatParams.GetCount(); ++i)
   {
-    stream << m_Parameters->m_FloatParams[i].m_sName;
-    stream << m_Parameters->m_FloatParams[i].m_Value;
+    stream << m_pParameters->m_FloatParams[i].m_sName;
+    stream << m_pParameters->m_FloatParams[i].m_Value;
   }
-  stream << m_Parameters->m_ColorParams.GetCount();
-  for (ezUInt32 i = 0; i < m_Parameters->m_ColorParams.GetCount(); ++i)
+  stream << m_pParameters->m_ColorParams.GetCount();
+  for (ezUInt32 i = 0; i < m_pParameters->m_ColorParams.GetCount(); ++i)
   {
-    stream << m_Parameters->m_ColorParams[i].m_sName;
-    stream << m_Parameters->m_ColorParams[i].m_Value;
+    stream << m_pParameters->m_ColorParams[i].m_sName;
+    stream << m_pParameters->m_ColorParams[i].m_Value;
   }
 
   // Version 3
@@ -86,21 +86,21 @@ void ezParticleEventReactionFactory_Effect::Load(ezStreamReader& stream)
     ezUInt32 numFloats, numColors;
 
     stream >> numFloats;
-    m_Parameters->m_FloatParams.SetCountUninitialized(numFloats);
+    m_pParameters->m_FloatParams.SetCountUninitialized(numFloats);
 
-    for (ezUInt32 i = 0; i < m_Parameters->m_FloatParams.GetCount(); ++i)
+    for (ezUInt32 i = 0; i < m_pParameters->m_FloatParams.GetCount(); ++i)
     {
-      stream >> m_Parameters->m_FloatParams[i].m_sName;
-      stream >> m_Parameters->m_FloatParams[i].m_Value;
+      stream >> m_pParameters->m_FloatParams[i].m_sName;
+      stream >> m_pParameters->m_FloatParams[i].m_Value;
     }
 
     stream >> numColors;
-    m_Parameters->m_ColorParams.SetCountUninitialized(numColors);
+    m_pParameters->m_ColorParams.SetCountUninitialized(numColors);
 
-    for (ezUInt32 i = 0; i < m_Parameters->m_ColorParams.GetCount(); ++i)
+    for (ezUInt32 i = 0; i < m_pParameters->m_ColorParams.GetCount(); ++i)
     {
-      stream >> m_Parameters->m_ColorParams[i].m_sName;
-      stream >> m_Parameters->m_ColorParams[i].m_Value;
+      stream >> m_pParameters->m_ColorParams[i].m_sName;
+      stream >> m_pParameters->m_ColorParams[i].m_Value;
     }
   }
 
@@ -127,18 +127,18 @@ void ezParticleEventReactionFactory_Effect::CopyReactionProperties(ezParticleEve
   if (!m_sEffect.IsEmpty())
     pReaction->m_hEffect = ezResourceManager::LoadResource<ezParticleEffectResource>(m_sEffect);
 
-  pReaction->m_Parameters = m_Parameters;
+  pReaction->m_Parameters = m_pParameters;
 }
 
 const ezRangeView<const char*, ezUInt32> ezParticleEventReactionFactory_Effect::GetParameters() const
 {
   return ezRangeView<const char*, ezUInt32>([this]() -> ezUInt32 { return 0; },
-    [this]() -> ezUInt32 { return m_Parameters->m_FloatParams.GetCount() + m_Parameters->m_ColorParams.GetCount(); }, [this](ezUInt32& it) { ++it; },
+    [this]() -> ezUInt32 { return m_pParameters->m_FloatParams.GetCount() + m_pParameters->m_ColorParams.GetCount(); }, [this](ezUInt32& it) { ++it; },
     [this](const ezUInt32& it) -> const char* {
-      if (it < m_Parameters->m_FloatParams.GetCount())
-        return m_Parameters->m_FloatParams[it].m_sName.GetData();
+      if (it < m_pParameters->m_FloatParams.GetCount())
+        return m_pParameters->m_FloatParams[it].m_sName.GetData();
       else
-        return m_Parameters->m_ColorParams[it - m_Parameters->m_FloatParams.GetCount()].m_sName.GetData();
+        return m_pParameters->m_ColorParams[it - m_pParameters->m_FloatParams.GetCount()].m_sName.GetData();
     });
 }
 
@@ -149,19 +149,19 @@ void ezParticleEventReactionFactory_Effect::SetParameter(const char* szKey, cons
   {
     float value = var.ConvertTo<float>();
 
-    for (ezUInt32 i = 0; i < m_Parameters->m_FloatParams.GetCount(); ++i)
+    for (ezUInt32 i = 0; i < m_pParameters->m_FloatParams.GetCount(); ++i)
     {
-      if (m_Parameters->m_FloatParams[i].m_sName == th)
+      if (m_pParameters->m_FloatParams[i].m_sName == th)
       {
-        if (m_Parameters->m_FloatParams[i].m_Value != value)
+        if (m_pParameters->m_FloatParams[i].m_Value != value)
         {
-          m_Parameters->m_FloatParams[i].m_Value = value;
+          m_pParameters->m_FloatParams[i].m_Value = value;
         }
         return;
       }
     }
 
-    auto& e = m_Parameters->m_FloatParams.ExpandAndGetRef();
+    auto& e = m_pParameters->m_FloatParams.ExpandAndGetRef();
     e.m_sName.Assign(szKey);
     e.m_Value = value;
 
@@ -172,19 +172,19 @@ void ezParticleEventReactionFactory_Effect::SetParameter(const char* szKey, cons
   {
     ezColor value = var.ConvertTo<ezColor>();
 
-    for (ezUInt32 i = 0; i < m_Parameters->m_ColorParams.GetCount(); ++i)
+    for (ezUInt32 i = 0; i < m_pParameters->m_ColorParams.GetCount(); ++i)
     {
-      if (m_Parameters->m_ColorParams[i].m_sName == th)
+      if (m_pParameters->m_ColorParams[i].m_sName == th)
       {
-        if (m_Parameters->m_ColorParams[i].m_Value != value)
+        if (m_pParameters->m_ColorParams[i].m_Value != value)
         {
-          m_Parameters->m_ColorParams[i].m_Value = value;
+          m_pParameters->m_ColorParams[i].m_Value = value;
         }
         return;
       }
     }
 
-    auto& e = m_Parameters->m_ColorParams.ExpandAndGetRef();
+    auto& e = m_pParameters->m_ColorParams.ExpandAndGetRef();
     e.m_sName.Assign(szKey);
     e.m_Value = value;
 
@@ -196,20 +196,20 @@ void ezParticleEventReactionFactory_Effect::RemoveParameter(const char* szKey)
 {
   const ezTempHashedString th(szKey);
 
-  for (ezUInt32 i = 0; i < m_Parameters->m_FloatParams.GetCount(); ++i)
+  for (ezUInt32 i = 0; i < m_pParameters->m_FloatParams.GetCount(); ++i)
   {
-    if (m_Parameters->m_FloatParams[i].m_sName == th)
+    if (m_pParameters->m_FloatParams[i].m_sName == th)
     {
-      m_Parameters->m_FloatParams.RemoveAtAndSwap(i);
+      m_pParameters->m_FloatParams.RemoveAtAndSwap(i);
       return;
     }
   }
 
-  for (ezUInt32 i = 0; i < m_Parameters->m_ColorParams.GetCount(); ++i)
+  for (ezUInt32 i = 0; i < m_pParameters->m_ColorParams.GetCount(); ++i)
   {
-    if (m_Parameters->m_ColorParams[i].m_sName == th)
+    if (m_pParameters->m_ColorParams[i].m_sName == th)
     {
-      m_Parameters->m_ColorParams.RemoveAtAndSwap(i);
+      m_pParameters->m_ColorParams.RemoveAtAndSwap(i);
       return;
     }
   }
@@ -219,7 +219,7 @@ bool ezParticleEventReactionFactory_Effect::GetParameter(const char* szKey, ezVa
 {
   const ezTempHashedString th(szKey);
 
-  for (const auto& e : m_Parameters->m_FloatParams)
+  for (const auto& e : m_pParameters->m_FloatParams)
   {
     if (e.m_sName == th)
     {
@@ -227,7 +227,7 @@ bool ezParticleEventReactionFactory_Effect::GetParameter(const char* szKey, ezVa
       return true;
     }
   }
-  for (const auto& e : m_Parameters->m_ColorParams)
+  for (const auto& e : m_pParameters->m_ColorParams)
   {
     if (e.m_sName == th)
     {

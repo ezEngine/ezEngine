@@ -108,7 +108,7 @@ struct ezAnimationClipResourceDescriptor::OzzImpl
 
 ezAnimationClipResourceDescriptor::ezAnimationClipResourceDescriptor()
 {
-  m_OzzImpl = EZ_DEFAULT_NEW(OzzImpl);
+  m_pOzzImpl = EZ_DEFAULT_NEW(OzzImpl);
 }
 
 ezAnimationClipResourceDescriptor::ezAnimationClipResourceDescriptor(ezAnimationClipResourceDescriptor&& rhs)
@@ -120,7 +120,7 @@ ezAnimationClipResourceDescriptor::~ezAnimationClipResourceDescriptor() = defaul
 
 void ezAnimationClipResourceDescriptor::operator=(ezAnimationClipResourceDescriptor&& rhs) noexcept
 {
-  m_OzzImpl = std::move(rhs.m_OzzImpl);
+  m_pOzzImpl = std::move(rhs.m_pOzzImpl);
 
   m_JointInfos = std::move(rhs.m_JointInfos);
   m_Transforms = std::move(rhs.m_Transforms);
@@ -223,7 +223,7 @@ ezResult ezAnimationClipResourceDescriptor::Deserialize(ezStreamReader& stream)
 
 ezUInt64 ezAnimationClipResourceDescriptor::GetHeapMemoryUsage() const
 {
-  return m_Transforms.GetHeapMemoryUsage() + m_JointInfos.GetHeapMemoryUsage() + m_OzzImpl->m_MappedOzzAnimations.GetHeapMemoryUsage();
+  return m_Transforms.GetHeapMemoryUsage() + m_JointInfos.GetHeapMemoryUsage() + m_pOzzImpl->m_MappedOzzAnimations.GetHeapMemoryUsage();
 }
 
 ezUInt16 ezAnimationClipResourceDescriptor::GetNumJoints() const
@@ -258,7 +258,7 @@ EZ_FORCE_INLINE void ez2ozz(const ezQuat& in, ozz::math::Quaternion& out)
 
 const ozz::animation::Animation& ezAnimationClipResourceDescriptor::GetMappedOzzAnimation(const ezSkeletonResource& skeleton) const
 {
-  auto it = m_OzzImpl->m_MappedOzzAnimations.Find(&skeleton);
+  auto it = m_pOzzImpl->m_MappedOzzAnimations.Find(&skeleton);
   if (it.IsValid())
   {
     if (it.Value().m_uiResourceChangeCounter == skeleton.GetCurrentResourceChangeCounter())
@@ -358,7 +358,7 @@ const ozz::animation::Animation& ezAnimationClipResourceDescriptor::GetMappedOzz
 
   EZ_ASSERT_DEBUG(rawAnim.Validate(), "Invalid animation data");
 
-  auto& cached = m_OzzImpl->m_MappedOzzAnimations[&skeleton];
+  auto& cached = m_pOzzImpl->m_MappedOzzAnimations[&skeleton];
   cached.m_pAnim = std::move(animBuilder(rawAnim));
   cached.m_uiResourceChangeCounter = skeleton.GetCurrentResourceChangeCounter();
 

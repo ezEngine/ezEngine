@@ -979,19 +979,19 @@ void ezQtColorButtonWidget::SetColor(const ezVariant& color)
     QColor qol;
     qol.setRgb(col.r, col.g, col.b, col.a);
 
-    m_pal.setBrush(QPalette::Window, QBrush(qol, Qt::SolidPattern));
-    setPalette(m_pal);
+    m_Pal.setBrush(QPalette::Window, QBrush(qol, Qt::SolidPattern));
+    setPalette(m_Pal);
   }
   else
   {
-    setPalette(m_pal);
+    setPalette(m_Pal);
   }
 }
 
 void ezQtColorButtonWidget::showEvent(QShowEvent* event)
 {
   // Use of style sheets (ADS) breaks previously set palette.
-  setPalette(m_pal);
+  setPalette(m_Pal);
   QFrame::showEvent(event);
 }
 

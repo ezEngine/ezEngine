@@ -52,7 +52,7 @@ public:
   void EndModifyMetaData(ezUInt32 uiModifiedFlags = 0xFFFFFFFF);
 
 
-  ezMutex& GetMutex() const { return m_pMetaStorage->m_Mutex; }
+  ezMutex& GetMutex() const { return m_MetaStorage->m_Mutex; }
 
   const VALUE& GetDefaultValue() const { return m_DefaultValue; }
 
@@ -64,11 +64,11 @@ public:
   void RestoreMetaDataFromAbstractGraph(const ezAbstractObjectGraph& graph);
 
   ezSharedPtr<ezObjectMetaData<KEY, VALUE>::Storage> SwapStorage(ezSharedPtr<ezObjectMetaData<KEY, VALUE>::Storage> pNewStorage);
-  ezSharedPtr<ezObjectMetaData<KEY, VALUE>::Storage> GetStorage() { return m_pMetaStorage; }
+  ezSharedPtr<ezObjectMetaData<KEY, VALUE>::Storage> GetStorage() { return m_MetaStorage; }
 
 private:
   VALUE m_DefaultValue;
-  ezSharedPtr<ezObjectMetaData<KEY, VALUE>::Storage> m_pMetaStorage;
+  ezSharedPtr<ezObjectMetaData<KEY, VALUE>::Storage> m_MetaStorage;
   typename ezEvent<const EventData&>::Unsubscriber m_EventsUnsubscriber;
 };
 

@@ -52,8 +52,8 @@ private:
   DirEntry* AddDirectoryImpl(DirEntry* startDir, ezStringBuilder& path);
 
 private:
-  DirEntry m_topLevelDir;
-  ezString m_topLevelDirPath;
+  DirEntry m_TopLevelDir;
+  ezString m_sTopLevelDirPath;
 };
 
 namespace
@@ -88,12 +88,12 @@ ezResult ezFileSystemMirror<T>::AddDirectory(const char* path, bool* outDirector
   currentDirAbsPath.MakeCleanPath();
   EnsureTrailingSlash(currentDirAbsPath);
 
-  if (m_topLevelDirPath.IsEmpty())
+  if (m_sTopLevelDirPath.IsEmpty())
   {
-    m_topLevelDirPath = currentDirAbsPath;
+    m_sTopLevelDirPath = currentDirAbsPath;
     currentDirAbsPath.Shrink(0, 1); // remove trailing /
 
-    DirEntry* currentDir = &m_topLevelDir;
+    DirEntry* currentDir = &m_TopLevelDir;
 
     ezHybridArray<DirEntry*, 16> m_dirStack;
 
@@ -403,13 +403,13 @@ ezResult ezFileSystemMirror<T>::Enumerate(const char* path, EnumerateFunc callba
 template <typename T>
 typename ezFileSystemMirror<T>::DirEntry* ezFileSystemMirror<T>::FindDirectory(ezStringBuilder& path)
 {
-  if (!path.StartsWith(m_topLevelDirPath))
+  if (!path.StartsWith(m_sTopLevelDirPath))
   {
     return nullptr;
   }
-  path.TrimWordStart(m_topLevelDirPath);
+  path.TrimWordStart(m_sTopLevelDirPath);
 
-  DirEntry* currentDir = &m_topLevelDir;
+  DirEntry* currentDir = &m_TopLevelDir;
 
   bool found = false;
   do

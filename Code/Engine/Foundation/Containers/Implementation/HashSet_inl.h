@@ -8,19 +8,19 @@
 
 template <typename K, typename H>
 ezHashSetBase<K, H>::ConstIterator::ConstIterator(const ezHashSetBase<K, H>& hashSet)
-  : m_hashSet(&hashSet)
+  : m_pHashSet(&hashSet)
 {
 }
 
 template <typename K, typename H>
 void ezHashSetBase<K, H>::ConstIterator::SetToBegin()
 {
-  if (m_hashSet->IsEmpty())
+  if (m_pHashSet->IsEmpty())
   {
-    m_uiCurrentIndex = m_hashSet->m_uiCapacity;
+    m_uiCurrentIndex = m_pHashSet->m_uiCapacity;
     return;
   }
-  while (!m_hashSet->IsValidEntry(m_uiCurrentIndex))
+  while (!m_pHashSet->IsValidEntry(m_uiCurrentIndex))
   {
     ++m_uiCurrentIndex;
   }
@@ -29,20 +29,20 @@ void ezHashSetBase<K, H>::ConstIterator::SetToBegin()
 template <typename K, typename H>
 inline void ezHashSetBase<K, H>::ConstIterator::SetToEnd()
 {
-  m_uiCurrentCount = m_hashSet->m_uiCount;
-  m_uiCurrentIndex = m_hashSet->m_uiCapacity;
+  m_uiCurrentCount = m_pHashSet->m_uiCount;
+  m_uiCurrentIndex = m_pHashSet->m_uiCapacity;
 }
 
 template <typename K, typename H>
 EZ_ALWAYS_INLINE bool ezHashSetBase<K, H>::ConstIterator::IsValid() const
 {
-  return m_uiCurrentCount < m_hashSet->m_uiCount;
+  return m_uiCurrentCount < m_pHashSet->m_uiCount;
 }
 
 template <typename K, typename H>
 EZ_ALWAYS_INLINE bool ezHashSetBase<K, H>::ConstIterator::operator==(const typename ezHashSetBase<K, H>::ConstIterator& rhs) const
 {
-  return m_uiCurrentIndex == rhs.m_uiCurrentIndex && m_hashSet->m_pEntries == rhs.m_hashSet->m_pEntries;
+  return m_uiCurrentIndex == rhs.m_uiCurrentIndex && m_pHashSet->m_pEntries == rhs.m_pHashSet->m_pEntries;
 }
 
 template <typename K, typename H>
@@ -54,23 +54,23 @@ EZ_ALWAYS_INLINE bool ezHashSetBase<K, H>::ConstIterator::operator!=(const typen
 template <typename K, typename H>
 EZ_FORCE_INLINE const K& ezHashSetBase<K, H>::ConstIterator::Key() const
 {
-  return m_hashSet->m_pEntries[m_uiCurrentIndex];
+  return m_pHashSet->m_pEntries[m_uiCurrentIndex];
 }
 
 template <typename K, typename H>
 void ezHashSetBase<K, H>::ConstIterator::Next()
 {
   ++m_uiCurrentCount;
-  if (m_uiCurrentCount == m_hashSet->m_uiCount)
+  if (m_uiCurrentCount == m_pHashSet->m_uiCount)
   {
-    m_uiCurrentIndex = m_hashSet->m_uiCapacity;
+    m_uiCurrentIndex = m_pHashSet->m_uiCapacity;
     return;
   }
 
   do
   {
     ++m_uiCurrentIndex;
-  } while (!m_hashSet->IsValidEntry(m_uiCurrentIndex));
+  } while (!m_pHashSet->IsValidEntry(m_uiCurrentIndex));
 }
 
 template <typename K, typename H>

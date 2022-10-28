@@ -4,11 +4,11 @@
 
 ezSimdFloat ezImageFilter::GetWidth() const
 {
-  return m_width;
+  return m_Width;
 }
 
 ezImageFilter::ezImageFilter(float width)
-  : m_width(width)
+  : m_Width(width)
 {
 }
 
@@ -90,8 +90,8 @@ static ezSimdFloat modifiedBessel0(const ezSimdFloat& x)
 
 ezImageFilterSincWithKaiserWindow::ezImageFilterSincWithKaiserWindow(float width, float beta)
   : ezImageFilter(width)
-  , m_beta(beta)
-  , m_invBesselBeta(1.0f / modifiedBessel0(m_beta))
+  , m_Beta(beta)
+  , m_InvBesselBeta(1.0f / modifiedBessel0(m_Beta))
 {
 }
 
@@ -107,7 +107,7 @@ ezSimdFloat ezImageFilterSincWithKaiserWindow::SamplePoint(const ezSimdFloat& x)
   }
   else
   {
-    return sinc(x * ezSimdFloat(ezMath::Pi<float>())) * modifiedBessel0(m_beta * xSq.GetSqrt()) * m_invBesselBeta;
+    return sinc(x * ezSimdFloat(ezMath::Pi<float>())) * modifiedBessel0(m_Beta * xSq.GetSqrt()) * m_InvBesselBeta;
   }
 }
 
@@ -119,10 +119,10 @@ ezImageFilterWeights::ezImageFilterWeights(const ezImageFilter& filter, ezUInt32
   srcSamples /= commonPhase;
   dstSamples /= commonPhase;
 
-  m_dstSamplesReduced = dstSamples;
+  m_uiDstSamplesReduced = dstSamples;
 
-  m_sourceToDestScale = float(dstSamples) / float(srcSamples);
-  m_destToSourceScale = float(srcSamples) / float(dstSamples);
+  m_SourceToDestScale = float(dstSamples) / float(srcSamples);
+  m_DestToSourceScale = float(srcSamples) / float(dstSamples);
 
   ezSimdFloat filterScale, invFilterScale;
 
@@ -136,53 +136,53 @@ ezImageFilterWeights::ezImageFilterWeights(const ezImageFilter& filter, ezUInt32
   {
     // When downsampling, widen the filter in order to narrow its frequency spectrum, which effectively combines reconstruction + low-pass
     // filter
-    filterScale = m_destToSourceScale;
-    invFilterScale = m_sourceToDestScale;
+    filterScale = m_DestToSourceScale;
+    invFilterScale = m_SourceToDestScale;
   }
 
-  m_widthInSourceSpace = filter.GetWidth() * filterScale;
+  m_WidthInSourceSpace = filter.GetWidth() * filterScale;
 
-  m_numWeights = ezUInt32(ezMath::Ceil(m_widthInSourceSpace * ezSimdFloat(2.0f))) + 1;
+  m_uiNumWeights = ezUInt32(ezMath::Ceil(m_WidthInSourceSpace * ezSimdFloat(2.0f))) + 1;
 
-  m_weights.SetCountUninitialized(dstSamples * m_numWeights);
+  m_Weights.SetCountUninitialized(dstSamples * m_uiNumWeights);
 
   for (ezUInt32 dstSample = 0; dstSample < dstSamples; ++dstSample)
   {
-    ezSimdFloat dstSampleInSourceSpace = (ezSimdFloat(dstSample) + ezSimdFloat(0.5f)) * m_destToSourceScale;
+    ezSimdFloat dstSampleInSourceSpace = (ezSimdFloat(dstSample) + ezSimdFloat(0.5f)) * m_DestToSourceScale;
 
     ezInt32 firstSourceIdx = GetFirstSourceSampleIndex(dstSample);
 
     ezSimdFloat totalWeight = 0.0f;
 
-    for (ezUInt32 weightIdx = 0; weightIdx < m_numWeights; ++weightIdx)
+    for (ezUInt32 weightIdx = 0; weightIdx < m_uiNumWeights; ++weightIdx)
     {
       ezSimdFloat sourceSample = ezSimdFloat(firstSourceIdx + ezInt32(weightIdx)) + ezSimdFloat(0.5f);
 
       ezSimdFloat weight = filter.SamplePoint((dstSampleInSourceSpace - sourceSample) * invFilterScale);
       totalWeight += weight;
-      m_weights[dstSample * m_numWeights + weightIdx] = weight;
+      m_Weights[dstSample * m_uiNumWeights + weightIdx] = weight;
     }
 
     // Normalize weights
     ezSimdFloat invWeight = 1.0f / totalWeight;
 
-    for (ezUInt32 weightIdx = 0; weightIdx < m_numWeights; ++weightIdx)
+    for (ezUInt32 weightIdx = 0; weightIdx < m_uiNumWeights; ++weightIdx)
     {
-      m_weights[dstSample * m_numWeights + weightIdx] *= invWeight;
+      m_Weights[dstSample * m_uiNumWeights + weightIdx] *= invWeight;
     }
   }
 }
 
 ezUInt32 ezImageFilterWeights::GetNumWeights() const
 {
-  return m_numWeights;
+  return m_uiNumWeights;
 }
 
 ezSimdFloat ezImageFilterWeights::GetWeight(ezUInt32 dstSampleIndex, ezUInt32 weightIndex) const
 {
-  EZ_ASSERT_DEBUG(weightIndex < m_numWeights, "Invalid weight index {} (should be < {})", weightIndex, m_numWeights);
+  EZ_ASSERT_DEBUG(weightIndex < m_uiNumWeights, "Invalid weight index {} (should be < {})", weightIndex, m_uiNumWeights);
 
-  return ezSimdFloat(m_weights[(dstSampleIndex % m_dstSamplesReduced) * m_numWeights + weightIndex]);
+  return ezSimdFloat(m_Weights[(dstSampleIndex % m_uiDstSamplesReduced) * m_uiNumWeights + weightIndex]);
 }
 
 

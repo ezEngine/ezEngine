@@ -62,10 +62,10 @@ protected:
   void highlightBlock(const QString& text) override;
 
 private:
-  QSet<QString> m_keywordsBlue;
-  QSet<QString> m_keywordsPink;
-  QSet<QString> m_keywordsGreen;
-  QSet<QString> m_builtIn;
-  QHash<JSEdit::ColorComponent, QColor> m_colors;
+  QSet<QString> m_KeywordsBlue;
+  QSet<QString> m_KeywordsPink;
+  QSet<QString> m_KeywordsGreen;
+  QSet<QString> m_BuiltIn;
+  QHash<JSEdit::ColorComponent, QColor> m_Colors;
 };
 

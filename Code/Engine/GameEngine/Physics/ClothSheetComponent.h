@@ -161,5 +161,5 @@ private:
   ezUInt8 m_uiCheckEquilibriumCounter = 0;
   ezClothSimulator m_Simulator;
 
-  ezBoundingBox m_bbox;
+  ezBoundingBox m_Bbox;
 };

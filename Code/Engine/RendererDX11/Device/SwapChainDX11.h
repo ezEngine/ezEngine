@@ -32,7 +32,7 @@ protected:
 
   ezGALTextureHandle m_hBackBufferTexture;
 
-  ezEnum<ezGALPresentMode> m_currentPresentMode;
+  ezEnum<ezGALPresentMode> m_CurrentPresentMode;
   bool m_bCanMakeDirectScreenshots = true;
   // We can't do screenshots if we're using any of the FLIP swap effects.
   // If the user requests screenshots anyways, we need to put another buffer in between.

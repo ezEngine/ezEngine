@@ -38,5 +38,5 @@ protected:
   virtual void OnDeactivated() override;
 
 private:
-  ezEnum<ezXRStageSpace> m_space;
+  ezEnum<ezXRStageSpace> m_Space;
 };

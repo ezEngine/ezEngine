@@ -60,7 +60,7 @@ public:
   inline bool IsRunning() const { return m_ThreadStatus == Running; }
 
   /// \brief Returns the thread name
-  inline const char* GetThreadName() const { return m_Name.GetData(); }
+  inline const char* GetThreadName() const { return m_sName.GetData(); }
 
   /// \brief These events inform about threads starting and finishing.
   ///
@@ -75,7 +75,7 @@ private:
 
   volatile ezThreadStatus m_ThreadStatus;
 
-  ezString m_Name;
+  ezString m_sName;
 
   friend ezUInt32 RunThread(ezThread* pThread);
 };

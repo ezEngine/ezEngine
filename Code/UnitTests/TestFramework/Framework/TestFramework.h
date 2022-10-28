@@ -170,7 +170,7 @@ private:
   ezInt32 m_iTestsFailed = 0;
   ezInt32 m_iTestsPassed = 0;
   TestSettings m_Settings;
-  std::recursive_mutex m_outputMutex;
+  std::recursive_mutex m_OutputMutex;
   std::deque<OutputHandler> m_OutputHandlers;
   std::deque<ezTestEntry> m_TestEntries;
   ezTestFrameworkResult m_Result;
@@ -178,12 +178,12 @@ private:
   ImageDiffExtraInfoCallback m_ImageDiffExtraInfoCallback;
   ImageComparisonCallback m_ImageComparisonCallback;
 
-  std::mutex m_timeoutLock;
-  ezUInt32 m_timeoutMS = 5 * 60 * 1000; // 5 min default timeout
-  bool m_useTimeout = false;
-  bool m_reArm = false;
-  std::condition_variable m_timeoutCV;
-  std::thread m_timeoutThread;
+  std::mutex m_TimeoutLock;
+  ezUInt32 m_uiTimeoutMS = 5 * 60 * 1000; // 5 min default timeout
+  bool m_bUseTimeout = false;
+  bool m_bArm = false;
+  std::condition_variable m_TimeoutCV;
+  std::thread m_TimeoutThread;
 
   ezInt32 m_iExecutingTest = 0;
   ezInt32 m_iExecutingSubTest = 0;

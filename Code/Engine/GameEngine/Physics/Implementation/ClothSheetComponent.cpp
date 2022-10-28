@@ -139,7 +139,7 @@ void ezClothSheetComponent::OnSimulationStarted()
 
 void ezClothSheetComponent::SetupCloth()
 {
-  m_bbox.SetInvalid();
+  m_Bbox.SetInvalid();
 
   if (IsActiveAndSimulating())
   {
@@ -239,9 +239,9 @@ void ezClothSheetComponent::OnDeactivated()
 
 ezResult ezClothSheetComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
 {
-  if (m_bbox.IsValid())
+  if (m_Bbox.IsValid())
   {
-    bounds.ExpandToInclude(m_bbox);
+    bounds.ExpandToInclude(m_Bbox);
   }
   else
   {
@@ -435,13 +435,13 @@ void ezClothSheetComponent::Update()
 
     m_Simulator.SimulateCloth(GetWorld()->GetClock().GetTimeDiff());
 
-    auto prevBbox = m_bbox;
-    m_bbox.ExpandToInclude(ezSimdConversion::ToVec3(m_Simulator.m_Nodes[0].m_vPosition));
-    m_bbox.ExpandToInclude(ezSimdConversion::ToVec3(m_Simulator.m_Nodes[m_Simulator.m_uiWidth - 1].m_vPosition));
-    m_bbox.ExpandToInclude(ezSimdConversion::ToVec3(m_Simulator.m_Nodes[((m_Simulator.m_uiHeight - 1) * m_Simulator.m_uiWidth)].m_vPosition));
-    m_bbox.ExpandToInclude(ezSimdConversion::ToVec3(m_Simulator.m_Nodes.PeekBack().m_vPosition));
+    auto prevBbox = m_Bbox;
+    m_Bbox.ExpandToInclude(ezSimdConversion::ToVec3(m_Simulator.m_Nodes[0].m_vPosition));
+    m_Bbox.ExpandToInclude(ezSimdConversion::ToVec3(m_Simulator.m_Nodes[m_Simulator.m_uiWidth - 1].m_vPosition));
+    m_Bbox.ExpandToInclude(ezSimdConversion::ToVec3(m_Simulator.m_Nodes[((m_Simulator.m_uiHeight - 1) * m_Simulator.m_uiWidth)].m_vPosition));
+    m_Bbox.ExpandToInclude(ezSimdConversion::ToVec3(m_Simulator.m_Nodes.PeekBack().m_vPosition));
 
-    if (prevBbox != m_bbox)
+    if (prevBbox != m_Bbox)
     {
       SetUserFlag(0, true); // flag 0 => requires local bounds update
 

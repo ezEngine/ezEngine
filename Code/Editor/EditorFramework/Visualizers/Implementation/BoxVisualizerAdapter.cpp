@@ -15,23 +15,23 @@ void ezBoxVisualizerAdapter::Finalize()
 
   const ezBoxVisualizerAttribute* pAttr = static_cast<const ezBoxVisualizerAttribute*>(m_pVisualizerAttr);
 
-  m_Gizmo.ConfigureHandle(nullptr, ezEngineGizmoHandleType::LineBox, pAttr->m_Color, ezGizmoFlags::Visualizer | ezGizmoFlags::ShowInOrtho);
+  m_hGizmo.ConfigureHandle(nullptr, ezEngineGizmoHandleType::LineBox, pAttr->m_Color, ezGizmoFlags::Visualizer | ezGizmoFlags::ShowInOrtho);
 
-  pAssetDocument->AddSyncObject(&m_Gizmo);
-  m_Gizmo.SetVisible(m_bVisualizerIsVisible);
+  pAssetDocument->AddSyncObject(&m_hGizmo);
+  m_hGizmo.SetVisible(m_bVisualizerIsVisible);
 }
 
 void ezBoxVisualizerAdapter::Update()
 {
   const ezBoxVisualizerAttribute* pAttr = static_cast<const ezBoxVisualizerAttribute*>(m_pVisualizerAttr);
   ezObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
-  m_Gizmo.SetVisible(m_bVisualizerIsVisible);
+  m_hGizmo.SetVisible(m_bVisualizerIsVisible);
 
-  m_Scale.Set(pAttr->m_fSizeScale);
+  m_vScale.Set(pAttr->m_fSizeScale);
 
   if (!pAttr->GetSizeProperty().IsEmpty())
   {
-    m_Scale *= pObjectAccessor->Get<ezVec3>(m_pObject, GetProperty(pAttr->GetSizeProperty()));
+    m_vScale *= pObjectAccessor->Get<ezVec3>(m_pObject, GetProperty(pAttr->GetSizeProperty()));
   }
 
   if (!pAttr->GetColorProperty().IsEmpty())
@@ -39,7 +39,7 @@ void ezBoxVisualizerAdapter::Update()
     ezVariant value;
     pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetColorProperty()), value);
     EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<ezColor>(), "Invalid property bound to ezBoxVisualizerAttribute 'color'");
-    m_Gizmo.SetColor(value.ConvertTo<ezColor>() * pAttr->m_Color);
+    m_hGizmo.SetColor(value.ConvertTo<ezColor>() * pAttr->m_Color);
   }
 
   m_vPositionOffset = pAttr->m_vOffsetOrScale;
@@ -57,11 +57,11 @@ void ezBoxVisualizerAdapter::Update()
       m_vPositionOffset = m_vPositionOffset.CompMul(value.ConvertTo<ezVec3>());
   }
 
-  m_Rotation.SetIdentity();
+  m_qRotation.SetIdentity();
 
   if (!pAttr->GetRotationProperty().IsEmpty())
   {
-    m_Rotation = pObjectAccessor->Get<ezQuat>(m_pObject, GetProperty(pAttr->GetRotationProperty()));
+    m_qRotation = pObjectAccessor->Get<ezQuat>(m_pObject, GetProperty(pAttr->GetRotationProperty()));
   }
 
   m_Anchor = pAttr->m_Anchor;
@@ -70,9 +70,9 @@ void ezBoxVisualizerAdapter::Update()
 void ezBoxVisualizerAdapter::UpdateGizmoTransform()
 {
   ezTransform t;
-  t.m_vScale = m_Scale;
+  t.m_vScale = m_vScale;
   t.m_vPosition = m_vPositionOffset;
-  t.m_qRotation = m_Rotation;
+  t.m_qRotation = m_qRotation;
 
   ezVec3 vOffset = ezVec3::ZeroVector();
 
@@ -91,5 +91,5 @@ void ezBoxVisualizerAdapter::UpdateGizmoTransform()
 
   t.m_vPosition += vOffset;
 
-  m_Gizmo.SetTransformation(GetObjectTransform() * t);
+  m_hGizmo.SetTransformation(GetObjectTransform() * t);
 }

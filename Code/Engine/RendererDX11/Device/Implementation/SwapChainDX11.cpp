@@ -28,7 +28,7 @@ void ezGALSwapChainDX11::PresentRenderTarget(ezGALDevice* pDevice)
     pDXDevice->GetRenderCommandEncoder()->CopyTexture(this->m_hActualBackBufferTexture, this->m_hBackBufferTexture);
   }
 
-  HRESULT result = m_pDXSwapChain->Present(m_currentPresentMode == ezGALPresentMode::VSync ? 1 : 0, 0);
+  HRESULT result = m_pDXSwapChain->Present(m_CurrentPresentMode == ezGALPresentMode::VSync ? 1 : 0, 0);
   if (FAILED(result))
   {
     ezLog::Error("Swap chain Present failed with {0}", (ezUInt32)result);
@@ -59,7 +59,7 @@ void ezGALSwapChainDX11::PresentRenderTarget(ezGALDevice* pDevice)
 ezResult ezGALSwapChainDX11::UpdateSwapChain(ezGALDevice* pDevice, ezEnum<ezGALPresentMode> newPresentMode)
 {
   ezGALDeviceDX11* pDXDevice = static_cast<ezGALDeviceDX11*>(pDevice);
-  m_currentPresentMode = newPresentMode;
+  m_CurrentPresentMode = newPresentMode;
   DestroyBackBufferInternal(pDXDevice);
 
   // Need to flush dead objects or ResizeBuffers will fail as the backbuffer is still referenced.
@@ -99,7 +99,7 @@ ezGALSwapChainDX11::~ezGALSwapChainDX11() {}
 ezResult ezGALSwapChainDX11::InitPlatform(ezGALDevice* pDevice)
 {
   ezGALDeviceDX11* pDXDevice = static_cast<ezGALDeviceDX11*>(pDevice);
-  m_currentPresentMode = m_WindowDesc.m_InitialPresentMode;
+  m_CurrentPresentMode = m_WindowDesc.m_InitialPresentMode;
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
   DXGI_SWAP_CHAIN_DESC1 SwapChainDesc = {0};
 

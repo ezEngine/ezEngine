@@ -14,7 +14,7 @@ public:
   void SetImage(QPixmap pixmap);
 
 private:
-  QPixmap m_pixmap;
+  QPixmap m_Pixmap;
   QGraphicsPixmapItem* m_pImageItem;
 };
 

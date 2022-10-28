@@ -75,19 +75,19 @@ public:
 
   const ezDocumentObjectManager* GetSceneObjectManager() const { return m_pSceneObjectManager.Borrow(); }
   ezDocumentObjectManager* GetSceneObjectManager() { return m_pSceneObjectManager.Borrow(); }
-  ezSelectionManager* GetSceneSelectionManager() const { return m_sceneSelectionManager.Borrow(); }
+  ezSelectionManager* GetSceneSelectionManager() const { return m_pSceneSelectionManager.Borrow(); }
   ezCommandHistory* GetSceneCommandHistory() const { return m_pSceneCommandHistory.Borrow(); }
   ezObjectAccessorBase* GetSceneObjectAccessor() const { return m_pSceneObjectAccessor.Borrow(); }
-  const ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>* GetSceneDocumentObjectMetaData() const { return m_SceneDocumentObjectMetaData.Borrow(); }
-  ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>* GetSceneDocumentObjectMetaData() { return m_SceneDocumentObjectMetaData.Borrow(); }
-  const ezObjectMetaData<ezUuid, ezGameObjectMetaData>* GetSceneGameObjectMetaData() const { return m_SceneGameObjectMetaData.Borrow(); }
-  ezObjectMetaData<ezUuid, ezGameObjectMetaData>* GetSceneGameObjectMetaData() { return m_SceneGameObjectMetaData.Borrow(); }
+  const ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>* GetSceneDocumentObjectMetaData() const { return m_pSceneDocumentObjectMetaData.Borrow(); }
+  ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>* GetSceneDocumentObjectMetaData() { return m_pSceneDocumentObjectMetaData.Borrow(); }
+  const ezObjectMetaData<ezUuid, ezGameObjectMetaData>* GetSceneGameObjectMetaData() const { return m_pSceneGameObjectMetaData.Borrow(); }
+  ezObjectMetaData<ezUuid, ezGameObjectMetaData>* GetSceneGameObjectMetaData() { return m_pSceneGameObjectMetaData.Borrow(); }
 
   ///@}
   /// \name Layer Functions
   ///@{
 
-  ezSelectionManager* GetLayerSelectionManager() const { return m_LayerSelection.Borrow(); }
+  ezSelectionManager* GetLayerSelectionManager() const { return m_pLayerSelection.Borrow(); }
 
   ezStatus CreateLayer(const char* szName, ezUuid& out_layerGuid);
   ezStatus DeleteLayer(const ezUuid& layerGuid);
@@ -138,10 +138,10 @@ private:
 
 private:
   friend class ezSceneLayer;
-  ezCopyOnBroadcastEvent<const ezDocumentObjectStructureEvent&>::Unsubscriber m_structureEventSubscriber;
-  ezCopyOnBroadcastEvent<const ezSelectionManagerEvent&>::Unsubscriber m_layerSelectionEventSubscriber;
-  ezEvent<const ezCommandHistoryEvent&, ezMutex>::Unsubscriber m_commandHistoryEventSubscriber;
-  ezCopyOnBroadcastEvent<const ezDocumentManager::Event&>::Unsubscriber m_documentManagerEventSubscriber;
+  ezCopyOnBroadcastEvent<const ezDocumentObjectStructureEvent&>::Unsubscriber m_StructureEventSubscriber;
+  ezCopyOnBroadcastEvent<const ezSelectionManagerEvent&>::Unsubscriber m_LayerSelectionEventSubscriber;
+  ezEvent<const ezCommandHistoryEvent&, ezMutex>::Unsubscriber m_CommandHistoryEventSubscriber;
+  ezCopyOnBroadcastEvent<const ezDocumentManager::Event&>::Unsubscriber m_DocumentManagerEventSubscriber;
 
   // This is used for a flattened list of the ezSceneDocumentSettings hierarchy
   struct LayerInfo
@@ -154,13 +154,13 @@ private:
   // Scene document cache
   ezUniquePtr<ezDocumentObjectManager> m_pSceneObjectManager;
   mutable ezUniquePtr<ezCommandHistory> m_pSceneCommandHistory;
-  mutable ezUniquePtr<ezSelectionManager> m_sceneSelectionManager;
+  mutable ezUniquePtr<ezSelectionManager> m_pSceneSelectionManager;
   mutable ezUniquePtr<ezObjectCommandAccessor> m_pSceneObjectAccessor;
-  ezUniquePtr<ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>> m_SceneDocumentObjectMetaData;
-  ezUniquePtr<ezObjectMetaData<ezUuid, ezGameObjectMetaData>> m_SceneGameObjectMetaData;
+  ezUniquePtr<ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>> m_pSceneDocumentObjectMetaData;
+  ezUniquePtr<ezObjectMetaData<ezUuid, ezGameObjectMetaData>> m_pSceneGameObjectMetaData;
 
   // Layer state
-  mutable ezUniquePtr<ezSelectionManager> m_LayerSelection;
+  mutable ezUniquePtr<ezSelectionManager> m_pLayerSelection;
   ezUuid m_ActiveLayerGuid;
   ezHashTable<ezUuid, LayerInfo> m_Layers;
 };

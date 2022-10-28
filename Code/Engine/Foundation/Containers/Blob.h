@@ -22,7 +22,7 @@ public:
 
   /// \brief Initializes the ezBlobPtr to be empty.
   EZ_ALWAYS_INLINE ezBlobPtr()
-    : m_ptr(nullptr)
+    : m_pPtr(nullptr)
     , m_uiCount(0u)
   {
   }
@@ -30,13 +30,13 @@ public:
   /// \brief Initializes the ezBlobPtr with the given pointer and number of elements. No memory is allocated or copied.
   template <typename U>
   inline ezBlobPtr(U* ptr, ezUInt64 uiCount)
-    : m_ptr(ptr)
+    : m_pPtr(ptr)
     , m_uiCount(uiCount)
   {
     // If any of the arguments is invalid, we invalidate ourself.
-    if (m_ptr == nullptr || m_uiCount == 0)
+    if (m_pPtr == nullptr || m_uiCount == 0)
     {
-      m_ptr = nullptr;
+      m_pPtr = nullptr;
       m_uiCount = 0;
     }
   }
@@ -44,14 +44,14 @@ public:
   /// \brief Initializes the ezBlobPtr to encapsulate the given array.
   template <size_t N>
   EZ_ALWAYS_INLINE ezBlobPtr(ValueType (&staticArray)[N])
-    : m_ptr(staticArray)
+    : m_pPtr(staticArray)
     , m_uiCount(static_cast<ezUInt64>(N))
   {
   }
 
   /// \brief Initializes the ezBlobPtr to be a copy of \a other. No memory is allocated or copied.
   EZ_ALWAYS_INLINE ezBlobPtr(const ezBlobPtr<T>& other)
-    : m_ptr(other.m_ptr)
+    : m_pPtr(other.m_pPtr)
     , m_uiCount(other.m_uiCount)
   {
   }
@@ -62,34 +62,34 @@ public:
   /// \brief Copies the pointer and size of /a other. Does not allocate any data.
   EZ_ALWAYS_INLINE void operator=(const ezBlobPtr<T>& other)
   {
-    m_ptr = other.m_ptr;
+    m_pPtr = other.m_pPtr;
     m_uiCount = other.m_uiCount;
   }
 
   /// \brief Clears the array
   EZ_ALWAYS_INLINE void Clear()
   {
-    m_ptr = nullptr;
+    m_pPtr = nullptr;
     m_uiCount = 0;
   }
 
   EZ_ALWAYS_INLINE void operator=(std::nullptr_t)
   {
-    m_ptr = nullptr;
+    m_pPtr = nullptr;
     m_uiCount = 0;
   }
 
   /// \brief Returns the pointer to the array.
-  EZ_ALWAYS_INLINE PointerType GetPtr() const { return m_ptr; }
+  EZ_ALWAYS_INLINE PointerType GetPtr() const { return m_pPtr; }
 
   /// \brief Returns the pointer to the array.
-  EZ_ALWAYS_INLINE PointerType GetPtr() { return m_ptr; }
+  EZ_ALWAYS_INLINE PointerType GetPtr() { return m_pPtr; }
 
   /// \brief Returns the pointer behind the last element of the array
-  EZ_ALWAYS_INLINE PointerType GetEndPtr() { return m_ptr + m_uiCount; }
+  EZ_ALWAYS_INLINE PointerType GetEndPtr() { return m_pPtr + m_uiCount; }
 
   /// \brief Returns the pointer behind the last element of the array
-  EZ_ALWAYS_INLINE PointerType GetEndPtr() const { return m_ptr + m_uiCount; }
+  EZ_ALWAYS_INLINE PointerType GetEndPtr() const { return m_pPtr + m_uiCount; }
 
   /// \brief Returns whether the array is empty.
   EZ_ALWAYS_INLINE bool IsEmpty() const { return GetCount() == 0; }
@@ -180,7 +180,7 @@ public:
 
   EZ_ALWAYS_INLINE void Swap(ezBlobPtr<T>& other)
   {
-    ezMath::Swap(m_ptr, other.m_ptr);
+    ezMath::Swap(m_pPtr, other.m_pPtr);
     ezMath::Swap(m_uiCount, other.m_uiCount);
   }
 
@@ -190,7 +190,7 @@ public:
   typedef reverse_pointer_iterator<T> reverse_iterator;
 
 private:
-  PointerType m_ptr;
+  PointerType m_pPtr;
   ezUInt64 m_uiCount;
 };
 

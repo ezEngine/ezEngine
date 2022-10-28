@@ -58,7 +58,7 @@ ezQtImageDataAssetDocumentWindow::ezQtImageDataAssetDocumentWindow(ezImageDataAs
 
   UpdatePreview();
 
-  pDocument->Events().AddEventHandler(ezMakeDelegate(&ezQtImageDataAssetDocumentWindow::ImageDataAssetEventHandler, this), m_eventUnsubscriper);
+  pDocument->Events().AddEventHandler(ezMakeDelegate(&ezQtImageDataAssetDocumentWindow::ImageDataAssetEventHandler, this), m_EventUnsubscriper);
 }
 
 void ezQtImageDataAssetDocumentWindow::ImageDataAssetEventHandler(const ezImageDataAssetEvent& e)

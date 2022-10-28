@@ -82,7 +82,7 @@ public:
   bool IsStandingOnGround() const { return m_LastGroundState == GroundState::OnGround; } // [ scriptable ]
   bool IsSlidingOnGround() const { return m_LastGroundState == GroundState::Sliding; }   // [ scriptable ]
   bool IsInAir() const { return m_LastGroundState == GroundState::InAir; }               // [ scriptable ]
-  bool IsCrouching() const { return m_IsCrouchingBit; }                                  // [ scriptable ]
+  bool IsCrouching() const { return m_uiIsCrouchingBit; }                                  // [ scriptable ]
 
   void TeleportCharacter(const ezVec3& vGlobalFootPosition);
 
@@ -128,12 +128,12 @@ protected:
 
   GroundState m_LastGroundState = GroundState::InAir;
 
-  ezUInt8 m_InputJumpBit : 1;
-  ezUInt8 m_InputCrouchBit : 1;
-  ezUInt8 m_InputRunBit : 1;
-  ezUInt8 m_IsCrouchingBit : 1;
+  ezUInt8 m_uiInputJumpBit : 1;
+  ezUInt8 m_uiInputCrouchBit : 1;
+  ezUInt8 m_uiInputRunBit : 1;
+  ezUInt8 m_uiIsCrouchingBit : 1;
   ezAngle m_InputRotateZ;
-  ezVec2 m_InputDirection = ezVec2::ZeroVector();
+  ezVec2 m_vInputDirection = ezVec2::ZeroVector();
   float m_fVelocityUp = 0.0f;
   float m_fNextCylinderHeight = 0;
   float m_fAccumulatedWalkDistance = 0.0f;

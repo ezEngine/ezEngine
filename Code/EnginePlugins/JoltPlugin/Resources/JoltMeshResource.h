@@ -43,7 +43,7 @@ public:
   const ezDynamicArray<ezSurfaceResourceHandle>& GetSurfaces() const { return m_Surfaces; }
 
   /// \brief Returns whether the mesh resource contains a triangle mesh. Triangle meshes and convex meshes are mutually exclusive.
-  bool HasTriangleMesh() const { return m_TriangleMeshInstance != nullptr || !m_TriangleMeshData.IsEmpty(); }
+  bool HasTriangleMesh() const { return m_pTriangleMeshInstance != nullptr || !m_TriangleMeshData.IsEmpty(); }
 
   /// \brief Creates a new instance (shape) of the triangle mesh.
   JPH::Shape* InstantiateTriangleMesh(ezUInt64 uiUserData, const ezDynamicArray<const ezJoltMaterial*>& materials) const;
@@ -70,7 +70,7 @@ private:
   ezDynamicArray<ezSurfaceResourceHandle> m_Surfaces;
   mutable ezHybridArray<ezDataBuffer*, 1> m_ConvexMeshesData;
   mutable ezDataBuffer m_TriangleMeshData;
-  mutable JPH::Shape* m_TriangleMeshInstance = nullptr;
+  mutable JPH::Shape* m_pTriangleMeshInstance = nullptr;
   mutable ezHybridArray<JPH::Shape*, 1> m_ConvexMeshInstances;
 
   ezUInt32 m_uiNumVertices = 0;

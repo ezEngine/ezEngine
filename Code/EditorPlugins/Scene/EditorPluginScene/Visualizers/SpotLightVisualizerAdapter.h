@@ -18,5 +18,5 @@ protected:
 
   float m_fScale;
   float m_fAngleScale;
-  ezEngineGizmoHandle m_Gizmo;
+  ezEngineGizmoHandle m_hGizmo;
 };

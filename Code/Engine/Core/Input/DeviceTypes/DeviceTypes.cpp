@@ -11,7 +11,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInputDeviceController, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezInt32 ezInputDeviceMouseKeyboard::m_iMouseIsOverWindowNumber = -1;
+ezInt32 ezInputDeviceMouseKeyboard::s_iMouseIsOverWindowNumber = -1;
 
 ezInputDeviceController::ezInputDeviceController()
 {

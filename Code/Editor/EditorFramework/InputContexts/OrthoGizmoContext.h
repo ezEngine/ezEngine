@@ -14,7 +14,7 @@ class EZ_EDITORFRAMEWORK_DLL ezOrthoGizmoContext : public ezEditorInputContext
 public:
   ezOrthoGizmoContext(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView, const ezCamera* pCamera);
 
-  void SetWindowConfig(const ezVec2I32& viewport) { m_Viewport = viewport; }
+  void SetWindowConfig(const ezVec2I32& viewport) { m_vViewport = viewport; }
 
   virtual void FocusLost(bool bCancel);
 
@@ -35,7 +35,7 @@ protected:
 private:
   bool IsViewInOrthoMode() const;
 
-  ezVec2I32 m_LastMousePos;
+  ezVec2I32 m_vLastMousePos;
   ezVec3 m_vUnsnappedTranslationResult;
   ezVec3 m_vTranslationResult;
   ezVec3 m_vTranslationDiff;
@@ -46,5 +46,5 @@ private:
   float m_fUnsnappedScalingResult;
   bool m_bCanInteract;
   const ezCamera* m_pCamera;
-  ezVec2I32 m_Viewport;
+  ezVec2I32 m_vViewport;
 };

@@ -32,9 +32,9 @@ ezApplication::Execution ezComputeShaderHistogramApp::Run()
   ezClock::GetGlobalClock()->Update();
   Run_InputUpdate();
 
-  m_stuffChanged = false;
-  m_directoryWatcher->EnumerateChanges(ezMakeDelegate(&ezComputeShaderHistogramApp::OnFileChanged, this));
-  if (m_stuffChanged)
+  m_bStuffChanged = false;
+  m_pDirectoryWatcher->EnumerateChanges(ezMakeDelegate(&ezComputeShaderHistogramApp::OnFileChanged, this));
+  if (m_bStuffChanged)
   {
     ezResourceManager::ReloadAllResources(false);
   }
@@ -143,8 +143,8 @@ void ezComputeShaderHistogramApp::AfterCoreSystemsStartup()
 {
   SUPER::AfterCoreSystemsStartup();
 
-  m_directoryWatcher = EZ_DEFAULT_NEW(ezDirectoryWatcher);
-  EZ_VERIFY(m_directoryWatcher->OpenDirectory(FindProjectDirectory(), ezDirectoryWatcher::Watch::Writes | ezDirectoryWatcher::Watch::Subdirectories).Succeeded(), "Failed to watch project directory");
+  m_pDirectoryWatcher = EZ_DEFAULT_NEW(ezDirectoryWatcher);
+  EZ_VERIFY(m_pDirectoryWatcher->OpenDirectory(FindProjectDirectory(), ezDirectoryWatcher::Watch::Writes | ezDirectoryWatcher::Watch::Subdirectories).Succeeded(), "Failed to watch project directory");
 
   auto device = ezGALDevice::GetDefaultDevice();
 
@@ -301,7 +301,7 @@ void ezComputeShaderHistogramApp::OnFileChanged(const char* filename, ezDirector
   if (action == ezDirectoryWatcherAction::Modified && type == ezDirectoryWatcherType::File)
   {
     ezLog::Info("The file {0} was modified", filename);
-    m_stuffChanged = true;
+    m_bStuffChanged = true;
   }
 }
 

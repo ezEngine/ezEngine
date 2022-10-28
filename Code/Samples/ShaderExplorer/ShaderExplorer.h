@@ -41,8 +41,8 @@ private:
   ezMaterialResourceHandle m_hMaterial;
   ezMeshBufferResourceHandle m_hQuadMeshBuffer;
 
-  ezUniquePtr<ezCamera> m_camera;
-  ezUniquePtr<ezDirectoryWatcher> m_directoryWatcher;
+  ezUniquePtr<ezCamera> m_pCamera;
+  ezUniquePtr<ezDirectoryWatcher> m_pDirectoryWatcher;
 
-  bool m_stuffChanged;
+  bool m_bStuffChanged;
 };

@@ -91,19 +91,19 @@ namespace ezRmlUiInternal
     EZ_VERIFY(m_CompiledGeometry.TryGetValue(GeometryId::FromRml(geometry_handle), batch.m_CompiledGeometry), "Invalid compiled geometry");
 
     ezMat4 offsetMat;
-    offsetMat.SetTranslationMatrix(m_Offset.GetAsVec3(0));
+    offsetMat.SetTranslationMatrix(m_vOffset.GetAsVec3(0));
 
-    batch.m_Transform = offsetMat * m_Transform;
+    batch.m_Transform = offsetMat * m_mTransform;
     batch.m_Translation = ezVec2(translation.x, translation.y);
 
     batch.m_ScissorRect = m_ScissorRect;
     batch.m_bEnableScissorRect = m_bEnableScissorRect;
-    batch.m_bTransformScissorRect = (m_bEnableScissorRect && m_Transform.IsIdentity() == false);
+    batch.m_bTransformScissorRect = (m_bEnableScissorRect && m_mTransform.IsIdentity() == false);
 
     if (!batch.m_bTransformScissorRect)
     {
-      batch.m_ScissorRect.x += m_Offset.x;
-      batch.m_ScissorRect.y += m_Offset.y;
+      batch.m_ScissorRect.x += m_vOffset.x;
+      batch.m_ScissorRect.y += m_vOffset.y;
     }
   }
 
@@ -169,18 +169,18 @@ namespace ezRmlUiInternal
     if (transform != nullptr)
     {
       constexpr ezMatrixLayout::Enum matrixLayout = std::is_same<Rml::Matrix4f, Rml::ColumnMajorMatrix4f>::value ? ezMatrixLayout::ColumnMajor : ezMatrixLayout::RowMajor;
-      m_Transform.SetFromArray(transform->data(), matrixLayout);
+      m_mTransform.SetFromArray(transform->data(), matrixLayout);
     }
     else
     {
-      m_Transform.SetIdentity();
+      m_mTransform.SetIdentity();
     }
   }
 
   void Extractor::BeginExtraction(const ezVec2I32& offset)
   {
-    m_Offset = ezVec2(static_cast<float>(offset.x), static_cast<float>(offset.y));
-    m_Transform = ezMat4::IdentityMatrix();
+    m_vOffset = ezVec2(static_cast<float>(offset.x), static_cast<float>(offset.y));
+    m_mTransform = ezMat4::IdentityMatrix();
 
     m_Batches.Clear();
   }

@@ -172,7 +172,7 @@ ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObj
   pNewObject->m_Flags.AddOrRemove(ezObjectFlags::Dynamic, bDynamic);
   pNewObject->m_Flags.AddOrRemove(ezObjectFlags::ActiveFlag, desc.m_bActiveFlag);
   pNewObject->m_sName = desc.m_sName;
-  pNewObject->m_ParentIndex = uiParentIndex;
+  pNewObject->m_uiParentIndex = uiParentIndex;
   pNewObject->m_Tags = desc.m_Tags;
   pNewObject->m_uiTeamID = desc.m_uiTeamID;
 
@@ -657,19 +657,19 @@ void ezWorld::SetParent(ezGameObject* pObject, ezGameObject* pNewParent, ezGameO
   EZ_ASSERT_DEV(pNewParent == nullptr || pObject->IsDynamic() || pNewParent->IsStatic(), "Can't attach a static object to a dynamic parent!");
   CheckForWriteAccess();
 
-  if (GetObjectUnchecked(pObject->m_ParentIndex) == pNewParent)
+  if (GetObjectUnchecked(pObject->m_uiParentIndex) == pNewParent)
     return;
 
   UnlinkFromParent(pObject);
   // UnlinkFromParent does not clear these as they are still needed in DeleteObjectNow to allow deletes while iterating.
-  pObject->m_NextSiblingIndex = 0;
-  pObject->m_PrevSiblingIndex = 0;
+  pObject->m_uiNextSiblingIndex = 0;
+  pObject->m_uiPrevSiblingIndex = 0;
   if (pNewParent != nullptr)
   {
     // Ensure that the parent's global transform is up-to-date otherwise the object's local transform will be wrong afterwards.
     pNewParent->UpdateGlobalTransform();
 
-    pObject->m_ParentIndex = pNewParent->m_InternalId.m_InstanceIndex;
+    pObject->m_uiParentIndex = pNewParent->m_InternalId.m_InstanceIndex;
     LinkToParent(pObject);
   }
 
@@ -684,23 +684,23 @@ void ezWorld::SetParent(ezGameObject* pObject, ezGameObject* pNewParent, ezGameO
 
 void ezWorld::LinkToParent(ezGameObject* pObject)
 {
-  EZ_ASSERT_DEBUG(pObject->m_NextSiblingIndex == 0 && pObject->m_PrevSiblingIndex == 0, "Object is either still linked to another parent or data was not cleared.");
+  EZ_ASSERT_DEBUG(pObject->m_uiNextSiblingIndex == 0 && pObject->m_uiPrevSiblingIndex == 0, "Object is either still linked to another parent or data was not cleared.");
   if (ezGameObject* pParentObject = pObject->GetParent())
   {
     const ezUInt32 uiIndex = pObject->m_InternalId.m_InstanceIndex;
 
-    if (pParentObject->m_FirstChildIndex != 0)
+    if (pParentObject->m_uiFirstChildIndex != 0)
     {
-      pObject->m_PrevSiblingIndex = pParentObject->m_LastChildIndex;
-      GetObjectUnchecked(pParentObject->m_LastChildIndex)->m_NextSiblingIndex = uiIndex;
+      pObject->m_uiPrevSiblingIndex = pParentObject->m_uiLastChildIndex;
+      GetObjectUnchecked(pParentObject->m_uiLastChildIndex)->m_uiNextSiblingIndex = uiIndex;
     }
     else
     {
-      pParentObject->m_FirstChildIndex = uiIndex;
+      pParentObject->m_uiFirstChildIndex = uiIndex;
     }
 
-    pParentObject->m_LastChildIndex = uiIndex;
-    pParentObject->m_ChildCount++;
+    pParentObject->m_uiLastChildIndex = uiIndex;
+    pParentObject->m_uiChildCount++;
 
     pObject->m_pTransformationData->m_pParentData = pParentObject->m_pTransformationData;
 
@@ -722,20 +722,20 @@ void ezWorld::UnlinkFromParent(ezGameObject* pObject)
   {
     const ezUInt32 uiIndex = pObject->m_InternalId.m_InstanceIndex;
 
-    if (uiIndex == pParentObject->m_FirstChildIndex)
-      pParentObject->m_FirstChildIndex = pObject->m_NextSiblingIndex;
+    if (uiIndex == pParentObject->m_uiFirstChildIndex)
+      pParentObject->m_uiFirstChildIndex = pObject->m_uiNextSiblingIndex;
 
-    if (uiIndex == pParentObject->m_LastChildIndex)
-      pParentObject->m_LastChildIndex = pObject->m_PrevSiblingIndex;
+    if (uiIndex == pParentObject->m_uiLastChildIndex)
+      pParentObject->m_uiLastChildIndex = pObject->m_uiPrevSiblingIndex;
 
-    if (ezGameObject* pNextObject = GetObjectUnchecked(pObject->m_NextSiblingIndex))
-      pNextObject->m_PrevSiblingIndex = pObject->m_PrevSiblingIndex;
+    if (ezGameObject* pNextObject = GetObjectUnchecked(pObject->m_uiNextSiblingIndex))
+      pNextObject->m_uiPrevSiblingIndex = pObject->m_uiPrevSiblingIndex;
 
-    if (ezGameObject* pPrevObject = GetObjectUnchecked(pObject->m_PrevSiblingIndex))
-      pPrevObject->m_NextSiblingIndex = pObject->m_NextSiblingIndex;
+    if (ezGameObject* pPrevObject = GetObjectUnchecked(pObject->m_uiPrevSiblingIndex))
+      pPrevObject->m_uiNextSiblingIndex = pObject->m_uiNextSiblingIndex;
 
-    pParentObject->m_ChildCount--;
-    pObject->m_ParentIndex = 0;
+    pParentObject->m_uiChildCount--;
+    pObject->m_uiParentIndex = 0;
     pObject->m_pTransformationData->m_pParentData = nullptr;
 
     // Note that the sibling indices must not be set to 0 here.

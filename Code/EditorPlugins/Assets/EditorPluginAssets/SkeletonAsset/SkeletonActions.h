@@ -46,6 +46,6 @@ private:
   void AssetEventHandler(const ezSkeletonAssetEvent& e);
   void UpdateState();
 
-  ezSkeletonAssetDocument* m_SkeletonpDocument = nullptr;
+  ezSkeletonAssetDocument* m_pSkeletonpDocument = nullptr;
   ActionType m_Type;
 };

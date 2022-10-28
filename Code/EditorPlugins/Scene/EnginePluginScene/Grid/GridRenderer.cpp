@@ -57,7 +57,7 @@ void ezGridRenderer::CreateVertexBuffer()
   {
     ezGALBufferCreationDescription desc;
     desc.m_uiStructSize = sizeof(GridVertex);
-    desc.m_uiTotalSize = BufferSize;
+    desc.m_uiTotalSize = s_uiBufferSize;
     desc.m_BufferType = ezGALBufferType::VertexBuffer;
     desc.m_ResourceAccess.m_bImmutable = false;
 
@@ -187,7 +187,7 @@ void ezGridRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, c
 
     while (uiNumLineVertices > 0)
     {
-      const ezUInt32 uiNumLineVerticesInBatch = ezMath::Min<ezUInt32>(uiNumLineVertices, LineVerticesPerBatch);
+      const ezUInt32 uiNumLineVerticesInBatch = ezMath::Min<ezUInt32>(uiNumLineVertices, s_uiLineVerticesPerBatch);
       EZ_ASSERT_DEBUG(uiNumLineVerticesInBatch % 2 == 0, "Vertex count must be a multiple of 2.");
 
       pRenderContext->GetCommandEncoder()->UpdateBuffer(m_hVertexBuffer, 0, ezMakeArrayPtr(pLineData, uiNumLineVerticesInBatch).ToByteArray());
@@ -196,7 +196,7 @@ void ezGridRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, c
       pRenderContext->DrawMeshBuffer().IgnoreResult();
 
       uiNumLineVertices -= uiNumLineVerticesInBatch;
-      pLineData += LineVerticesPerBatch;
+      pLineData += s_uiLineVerticesPerBatch;
     }
   }
 }

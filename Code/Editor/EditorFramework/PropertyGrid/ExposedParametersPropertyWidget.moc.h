@@ -65,7 +65,7 @@ private:
   void UpdateActionState();
 
 private:
-  ezUniquePtr<ezExposedParameterCommandAccessor> m_Proxy;
+  ezUniquePtr<ezExposedParameterCommandAccessor> m_pProxy;
   ezObjectAccessorBase* m_pSourceObjectAccessor = nullptr;
   ezString m_sExposedParamProperty;
   mutable ezDynamicArray<ezExposedParameter> m_Parameters;

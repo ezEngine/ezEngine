@@ -43,7 +43,7 @@ protected:
 protected:
   void UpdateThumbnail(const ezUuid& guid, const char* szThumbnailPath);
 
-  QPalette m_pal;
+  QPalette m_Pal;
   QHBoxLayout* m_pLayout;
   ezQtAssetLineEdit* m_pWidget;
   QToolButton* m_pButton;

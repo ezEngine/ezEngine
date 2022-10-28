@@ -127,7 +127,7 @@ private:
   ezUInt32 m_uiSourceHash = 0;
   ezGALShaderStage::Enum m_Stage = ezGALShaderStage::ENUM_COUNT;
   ezDynamicArray<ezUInt8> m_ByteCode;
-  ezScopedRefPointer<ezGALShaderByteCode> m_pGALByteCode;
+  ezScopedRefPointer<ezGALShaderByteCode> m_GALByteCode;
   ezHybridArray<ezShaderResourceBinding, 8> m_ShaderResourceBindings;
   bool m_bWasCompiledWithDebug = false;
 

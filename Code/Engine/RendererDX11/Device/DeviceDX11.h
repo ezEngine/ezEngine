@@ -175,7 +175,7 @@ private:
 
   ezGALFormatLookupTableDX11 m_FormatLookupTable;
 
-  ezUInt32 m_FeatureLevel; // D3D_FEATURE_LEVEL can't be forward declared
+  ezUInt32 m_uiFeatureLevel; // D3D_FEATURE_LEVEL can't be forward declared
 
   ezUniquePtr<ezGALPassDX11> m_pDefaultPass;
 

@@ -146,7 +146,7 @@ void ezAssetCurator::StartInitialize(const ezApplicationFileSystemConfig& cfg)
   m_bRunUpdateTask = true;
   m_FileSystemConfig = cfg;
 
-  m_Watcher = EZ_DEFAULT_NEW(ezAssetWatcher, m_FileSystemConfig);
+  m_pWatcher = EZ_DEFAULT_NEW(ezAssetWatcher, m_FileSystemConfig);
 
   ezSharedPtr<ezDelegateTask<void>> pInitTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "", [this]()
     {
@@ -175,7 +175,7 @@ void ezAssetCurator::StartInitialize(const ezApplicationFileSystemConfig& cfg)
     }
     SaveCaches(); });
   pInitTask->ConfigureTask("Initialize Curator", ezTaskNesting::Never);
-  m_initializeCuratorTaskID = ezTaskSystem::StartSingleTask(pInitTask, ezTaskPriority::FileAccessHighPriority);
+  m_InitializeCuratorTaskID = ezTaskSystem::StartSingleTask(pInitTask, ezTaskPriority::FileAccessHighPriority);
 
   {
     ezAssetCuratorEvent e;
@@ -187,8 +187,8 @@ void ezAssetCurator::StartInitialize(const ezApplicationFileSystemConfig& cfg)
 void ezAssetCurator::WaitForInitialize()
 {
   EZ_PROFILE_SCOPE("WaitForInitialize");
-  ezTaskSystem::WaitForGroup(m_initializeCuratorTaskID);
-  m_initializeCuratorTaskID.Invalidate();
+  ezTaskSystem::WaitForGroup(m_InitializeCuratorTaskID);
+  m_InitializeCuratorTaskID.Invalidate();
 
   EZ_LOCK(m_CuratorMutex);
   ProcessAllCoreAssets();
@@ -209,7 +209,7 @@ void ezAssetCurator::Deinitialize()
 
   ShutdownUpdateTask();
   ezAssetProcessor::GetSingleton()->ShutdownProcessTask();
-  m_Watcher = nullptr;
+  m_pWatcher = nullptr;
 
   SaveCaches();
 
@@ -254,8 +254,8 @@ void ezAssetCurator::MainThreadTick(bool bTopLevel)
 
   bReentry = true;
 
-  if (m_Watcher)
-    m_Watcher->MainThreadTick();
+  if (m_pWatcher)
+    m_pWatcher->MainThreadTick();
 
   EZ_LOCK(m_CuratorMutex);
   ezHybridArray<ezAssetInfo*, 32> deletedAssets;

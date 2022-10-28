@@ -25,7 +25,7 @@ ezBlobPtr<const T> ezImageView::GetBlobPtr() const
   {
     ValidateDataTypeAccessor<T>(uiPlaneIndex);
   }
-  return ezBlobPtr<const T>(reinterpret_cast<T*>(static_cast<ezUInt8*>(m_dataPtr.GetPtr())), m_dataPtr.GetCount() / ezImageSizeofHelper<T>::Size);
+  return ezBlobPtr<const T>(reinterpret_cast<T*>(static_cast<ezUInt8*>(m_DataPtr.GetPtr())), m_DataPtr.GetCount() / ezImageSizeofHelper<T>::Size);
 }
 
 inline ezConstByteBlobPtr ezImageView::GetByteBlobPtr() const
@@ -34,7 +34,7 @@ inline ezConstByteBlobPtr ezImageView::GetByteBlobPtr() const
   {
     ValidateDataTypeAccessor<ezUInt8>(uiPlaneIndex);
   }
-  return ezConstByteBlobPtr(static_cast<ezUInt8*>(m_dataPtr.GetPtr()), m_dataPtr.GetCount());
+  return ezConstByteBlobPtr(static_cast<ezUInt8*>(m_DataPtr.GetPtr()), m_DataPtr.GetCount());
 }
 
 template <typename T>
@@ -64,8 +64,8 @@ const T* ezImageView::GetPixelPointer(ezUInt32 uiMipLevel /*= 0*/, ezUInt32 uiFa
   ezUInt64 offset = GetSubImageOffset(uiMipLevel, uiFace, uiArrayIndex, uiPlaneIndex) +
                     z * GetDepthPitch(uiMipLevel, uiPlaneIndex) +
                     y * GetRowPitch(uiMipLevel, uiPlaneIndex) +
-                    x * ezImageFormat::GetBitsPerBlock(m_format, uiPlaneIndex) / 8;
-  return reinterpret_cast<const T*>(&m_dataPtr[offset]);
+                    x * ezImageFormat::GetBitsPerBlock(m_Format, uiPlaneIndex) / 8;
+  return reinterpret_cast<const T*>(&m_DataPtr[offset]);
 }
 
 template <typename T>

@@ -41,5 +41,5 @@ public:
 protected:
   void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const; // [ msg handler ]
 
-  ezUniquePtr<ezPxCharacterCapsuleShapeData> m_Data;
+  ezUniquePtr<ezPxCharacterCapsuleShapeData> m_pData;
 };

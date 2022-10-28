@@ -42,7 +42,7 @@ private:
   void ResetCursor();
   void SetCurrentMouseMode();
 
-  ezVec2I32 m_LastMousePos;
+  ezVec2I32 m_vLastMousePos;
 
   enum class Mode
   {

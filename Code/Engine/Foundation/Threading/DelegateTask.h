@@ -11,15 +11,15 @@ public:
 
   ezDelegateTask(const char* szTaskName, FunctionType func, const T& param)
   {
-    m_func = func;
+    m_Func = func;
     m_param = param;
     ConfigureTask(szTaskName, ezTaskNesting::Never);
   }
 
 private:
-  virtual void Execute() override { m_func(m_param); }
+  virtual void Execute() override { m_Func(m_param); }
 
-  FunctionType m_func;
+  FunctionType m_Func;
   T m_param;
 };
 
@@ -31,12 +31,12 @@ public:
 
   ezDelegateTask(const char* szTaskName, FunctionType func)
   {
-    m_func = func;
+    m_Func = func;
     ConfigureTask(szTaskName, ezTaskNesting::Never);
   }
 
 private:
-  virtual void Execute() override { m_func(); }
+  virtual void Execute() override { m_Func(); }
 
-  FunctionType m_func;
+  FunctionType m_Func;
 };

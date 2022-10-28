@@ -42,7 +42,7 @@ private:
 
   ezVec3 m_vOrbitPoint;
 
-  ezVec2I32 m_LastMousePos;
+  ezVec2I32 m_vLastMousePos;
 
   bool m_bRotateCamera;
   bool m_bMoveCamera;

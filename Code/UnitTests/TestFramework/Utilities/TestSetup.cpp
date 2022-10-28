@@ -19,13 +19,13 @@
 #  include <conio.h>
 #endif
 
-int ezTestSetup::s_argc = 0;
-const char** ezTestSetup::s_argv = nullptr;
+int ezTestSetup::s_iArgc = 0;
+const char** ezTestSetup::s_pArgv = nullptr;
 
 ezTestFramework* ezTestSetup::InitTestFramework(const char* szTestName, const char* szNiceTestName, int argc, const char** argv)
 {
-  s_argc = argc;
-  s_argv = argv;
+  s_iArgc = argc;
+  s_pArgv = argv;
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
   if (FAILED(RoInitialize(RO_INIT_MULTITHREADED)))
@@ -77,8 +77,8 @@ ezTestAppRun ezTestSetup::RunTests()
 
   // Setup Qt Application
 
-  int argc = s_argc;
-  char** argv = const_cast<char**>(s_argv);
+  int argc = s_iArgc;
+  char** argv = const_cast<char**>(s_pArgv);
 
   if (qApp != nullptr)
   {

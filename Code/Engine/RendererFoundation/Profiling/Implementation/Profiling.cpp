@@ -25,9 +25,9 @@ public:
     if (e.m_Type != ezGALDeviceEvent::AfterEndFrame)
       return;
 
-    while (!m_TimingScopes.IsEmpty())
+    while (!s_TimingScopes.IsEmpty())
     {
-      auto& timingScope = m_TimingScopes.PeekFront();
+      auto& timingScope = s_TimingScopes.PeekFront();
 
       ezTime endTime;
       if (e.m_pDevice->GetTimestampResult(timingScope.m_EndTimestamp, endTime).Succeeded())
@@ -41,7 +41,7 @@ public:
           ezProfilingSystem::AddGPUScope(timingScope.m_szName, beginTime, endTime);
         }
 
-        m_TimingScopes.PopFront();
+        s_TimingScopes.PopFront();
       }
       else
       {
@@ -51,18 +51,18 @@ public:
     }
   }
 
-  static GPUTimingScope& AllocateScope() { return m_TimingScopes.ExpandAndGetRef(); }
+  static GPUTimingScope& AllocateScope() { return s_TimingScopes.ExpandAndGetRef(); }
 
 private:
   static void OnEngineStartup() { ezGALDevice::GetDefaultDevice()->m_Events.AddEventHandler(&GPUProfilingSystem::ProcessTimestamps); }
 
   static void OnEngineShutdown()
   {
-    m_TimingScopes.Clear();
+    s_TimingScopes.Clear();
     ezGALDevice::GetDefaultDevice()->m_Events.RemoveEventHandler(&GPUProfilingSystem::ProcessTimestamps);
   }
 
-  static ezDeque<GPUTimingScope, ezStaticAllocatorWrapper> m_TimingScopes;
+  static ezDeque<GPUTimingScope, ezStaticAllocatorWrapper> s_TimingScopes;
 
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(RendererFoundation, GPUProfilingSystem);
 };
@@ -88,7 +88,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererFoundation, GPUProfilingSystem)
 EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
-ezDeque<GPUTimingScope, ezStaticAllocatorWrapper> GPUProfilingSystem::m_TimingScopes;
+ezDeque<GPUTimingScope, ezStaticAllocatorWrapper> GPUProfilingSystem::s_TimingScopes;
 
 //////////////////////////////////////////////////////////////////////////
 

@@ -246,7 +246,7 @@ struct ezSpatialSystem_RegularGrid::Grid
     , m_bCanBeCached(CanBeCached(category))
   {
     ezSimdBBox overflowBox;
-    overflowBox.SetCenterAndHalfExtents(ezSimdVec4f::ZeroVector(), ezSimdVec4f((float)(system.m_iCellSize.x() * MAX_CELL_INDEX)));
+    overflowBox.SetCenterAndHalfExtents(ezSimdVec4f::ZeroVector(), ezSimdVec4f((float)(system.m_vCellSize.x() * MAX_CELL_INDEX)));
 
     auto pOverflowCell = EZ_NEW(&m_System.m_AlignedAllocator, Cell, &m_System.m_AlignedAllocator, &m_System.m_Allocator);
     pOverflowCell->m_Bounds = overflowBox;
@@ -256,8 +256,8 @@ struct ezSpatialSystem_RegularGrid::Grid
 
   ezUInt32 GetOrCreateCell(const ezSimdBBoxSphere& bounds)
   {
-    ezSimdVec4i cellIndex = ToVec3I32(bounds.m_CenterAndRadius * m_System.m_fInvCellSize);
-    ezSimdBBox cellBox = ComputeCellBoundingBox(cellIndex, m_System.m_iCellSize);
+    ezSimdVec4i cellIndex = ToVec3I32(bounds.m_CenterAndRadius * m_System.m_InvCellSize);
+    ezSimdBBox cellBox = ComputeCellBoundingBox(cellIndex, m_System.m_vCellSize);
 
     if (cellBox.Contains(bounds.GetBox()))
     {
@@ -343,8 +343,8 @@ struct ezSpatialSystem_RegularGrid::Grid
   template <typename Functor>
   EZ_FORCE_INLINE void ForEachCellInBox(const ezSimdBBox& box, Functor func) const
   {
-    ezSimdVec4i minIndex = ToVec3I32((box.m_Min - m_System.m_fOverlapSize) * m_System.m_fInvCellSize);
-    ezSimdVec4i maxIndex = ToVec3I32((box.m_Max + m_System.m_fOverlapSize) * m_System.m_fInvCellSize);
+    ezSimdVec4i minIndex = ToVec3I32((box.m_Min - m_System.m_vOverlapSize) * m_System.m_InvCellSize);
+    ezSimdVec4i maxIndex = ToVec3I32((box.m_Max + m_System.m_vOverlapSize) * m_System.m_InvCellSize);
 
     EZ_ASSERT_DEBUG((minIndex.Abs() < ezSimdVec4i(MAX_CELL_INDEX)).AllSet<3>(), "Position is too big");
     EZ_ASSERT_DEBUG((maxIndex.Abs() < ezSimdVec4i(MAX_CELL_INDEX)).AllSet<3>(), "Position is too big");
@@ -565,9 +565,9 @@ ezSpatialSystem_RegularGrid::ezSpatialSystem_RegularGrid(ezUInt32 uiCellSize /*=
   : m_AlignedAllocator("Spatial System Aligned", ezFoundation::GetAlignedAllocator())
   , m_Grids(&m_Allocator)
   , m_DataTable(&m_Allocator)
-  , m_iCellSize(uiCellSize)
-  , m_fOverlapSize(uiCellSize / 4.0f)
-  , m_fInvCellSize(1.0f / uiCellSize)
+  , m_vCellSize(uiCellSize)
+  , m_vOverlapSize(uiCellSize / 4.0f)
+  , m_InvCellSize(1.0f / uiCellSize)
 {
   EZ_CHECK_AT_COMPILETIME(sizeof(Data) == 8);
 
@@ -697,7 +697,7 @@ ezSpatialDataHandle ezSpatialSystem_RegularGrid::CreateSpatialDataAlwaysVisible(
     return ezSpatialDataHandle();
 
   ezSimdBBox hugeBox;
-  hugeBox.SetCenterAndHalfExtents(ezSimdVec4f::ZeroVector(), ezSimdVec4f((float)(m_iCellSize.x() * MAX_CELL_INDEX)));
+  hugeBox.SetCenterAndHalfExtents(ezSimdVec4f::ZeroVector(), ezSimdVec4f((float)(m_vCellSize.x() * MAX_CELL_INDEX)));
 
   return AddSpatialDataToGrids(hugeBox, pObject, uiCategoryBitmask, tags, true);
 }

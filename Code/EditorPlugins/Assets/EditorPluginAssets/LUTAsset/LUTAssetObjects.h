@@ -12,11 +12,11 @@ class ezLUTAssetProperties : public ezReflectedClass
 public:
   static void PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
 
-  const char* GetInputFile() const { return m_Input; }
-  void SetInputFile(const char* szFile) { m_Input = szFile; }
+  const char* GetInputFile() const { return m_sInput; }
+  void SetInputFile(const char* szFile) { m_sInput = szFile; }
 
   ezString GetAbsoluteInputFilePath() const;
 
 private:
-  ezString m_Input;
+  ezString m_sInput;
 };

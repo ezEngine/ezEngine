@@ -492,31 +492,31 @@ void ezTestFramework::SetAllFailedTestsEnabledStatus()
 void ezTestFramework::SetTestTimeout(ezUInt32 testTimeoutMS)
 {
   {
-    std::scoped_lock<std::mutex> lock(m_timeoutLock);
-    m_timeoutMS = testTimeoutMS;
+    std::scoped_lock<std::mutex> lock(m_TimeoutLock);
+    m_uiTimeoutMS = testTimeoutMS;
   }
   UpdateTestTimeout();
 }
 
 ezUInt32 ezTestFramework::GetTestTimeout() const
 {
-  return m_timeoutMS;
+  return m_uiTimeoutMS;
 }
 
 void ezTestFramework::TimeoutThread()
 {
-  std::unique_lock<std::mutex> lock(m_timeoutLock);
-  while (m_useTimeout)
+  std::unique_lock<std::mutex> lock(m_TimeoutLock);
+  while (m_bUseTimeout)
   {
-    if (m_timeoutMS == 0)
+    if (m_uiTimeoutMS == 0)
     {
       // If no timeout is set, we simply put the thread to sleep.
-      m_timeoutCV.wait(lock, [this] { return !m_useTimeout; });
+      m_TimeoutCV.wait(lock, [this] { return !m_bUseTimeout; });
     }
     // We want to be notified when we reach the timeout and not when we are spuriously woken up.
     // Thus we continue waiting via the predicate if we are still using a timeout until we are either
     // woken up via the CV or reach the timeout.
-    else if (!m_timeoutCV.wait_for(lock, std::chrono::milliseconds(m_timeoutMS), [this] { return !m_useTimeout || m_reArm; }))
+    else if (!m_TimeoutCV.wait_for(lock, std::chrono::milliseconds(m_uiTimeoutMS), [this] { return !m_bUseTimeout || m_bArm; }))
     {
       if (ezSystemInformation::IsDebuggerAttached())
       {
@@ -530,7 +530,7 @@ void ezTestFramework::TimeoutThread()
       // which we do not want to duplicate here so we simply throw an unhandled exception.
       throw std::runtime_error("Timeout reached, terminating app.");
     }
-    m_reArm = false;
+    m_bArm = false;
   }
 }
 
@@ -538,14 +538,14 @@ void ezTestFramework::TimeoutThread()
 void ezTestFramework::UpdateTestTimeout()
 {
   {
-    std::scoped_lock<std::mutex> lock(m_timeoutLock);
-    if (!m_useTimeout)
+    std::scoped_lock<std::mutex> lock(m_TimeoutLock);
+    if (!m_bUseTimeout)
     {
       return;
     }
-    m_reArm = true;
+    m_bArm = true;
   }
-  m_timeoutCV.notify_one();
+  m_TimeoutCV.notify_one();
 }
 
 void ezTestFramework::ResetTests()
@@ -636,10 +636,10 @@ void ezTestFramework::StartTests()
   ezTestFramework::Output(ezTestOutput::StartOutput, "");
 
   // Start timeout thread.
-  std::scoped_lock lock(m_timeoutLock);
-  m_useTimeout = true;
-  m_reArm = false;
-  m_timeoutThread = std::thread(&ezTestFramework::TimeoutThread, this);
+  std::scoped_lock lock(m_TimeoutLock);
+  m_bUseTimeout = true;
+  m_bArm = false;
+  m_TimeoutThread = std::thread(&ezTestFramework::TimeoutThread, this);
 }
 
 // Redirects engine warnings / errors to test-framework output
@@ -863,11 +863,11 @@ void ezTestFramework::EndTests()
 
   // Stop timeout thread.
   {
-    std::scoped_lock lock(m_timeoutLock);
-    m_useTimeout = false;
-    m_timeoutCV.notify_one();
+    std::scoped_lock lock(m_TimeoutLock);
+    m_bUseTimeout = false;
+    m_TimeoutCV.notify_one();
   }
-  m_timeoutThread.join();
+  m_TimeoutThread.join();
 }
 
 void ezTestFramework::AbortTests()
@@ -1028,7 +1028,7 @@ static bool g_bBlockOutput = false;
 
 void ezTestFramework::OutputImpl(ezTestOutput::Enum Type, const char* szMsg)
 {
-  std::scoped_lock _(m_outputMutex);
+  std::scoped_lock _(m_OutputMutex);
 
   if (Type == ezTestOutput::Error)
   {
@@ -1048,7 +1048,7 @@ void ezTestFramework::OutputImpl(ezTestOutput::Enum Type, const char* szMsg)
 
 void ezTestFramework::ErrorImpl(const char* szError, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg)
 {
-  std::scoped_lock _(m_outputMutex);
+  std::scoped_lock _(m_OutputMutex);
 
   m_Result.TestError(m_iCurrentTestIndex, m_iCurrentSubTestIndex, szError, ezTestFramework::s_szTestBlockName, szFile, iLine, szFunction, szMsg);
 
@@ -1072,7 +1072,7 @@ void ezTestFramework::ErrorImpl(const char* szError, const char* szFile, ezInt32
 
 void ezTestFramework::TestResultImpl(ezInt32 iSubTestIndex, bool bSuccess, double fDuration)
 {
-  std::scoped_lock _(m_outputMutex);
+  std::scoped_lock _(m_OutputMutex);
 
   m_Result.TestResult(m_iCurrentTestIndex, iSubTestIndex, bSuccess, fDuration);
 
@@ -1124,7 +1124,7 @@ void ezTestFramework::TestResultImpl(ezInt32 iSubTestIndex, bool bSuccess, doubl
 
 void ezTestFramework::FlushAsserts()
 {
-  std::scoped_lock _(m_outputMutex);
+  std::scoped_lock _(m_OutputMutex);
   m_Result.AddAsserts(m_iCurrentTestIndex, m_iCurrentSubTestIndex, s_iAssertCounter);
   s_iAssertCounter = 0;
 }

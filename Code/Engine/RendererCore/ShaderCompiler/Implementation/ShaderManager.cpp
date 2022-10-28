@@ -10,7 +10,7 @@
 bool ezShaderManager::s_bEnableRuntimeCompilation = false;
 ezString ezShaderManager::s_sPlatform;
 ezString ezShaderManager::s_sPermVarSubDir;
-ezString ezShaderManager::s_ShaderCacheDirectory;
+ezString ezShaderManager::s_sShaderCacheDirectory;
 
 namespace
 {
@@ -112,7 +112,7 @@ namespace
 
 void ezShaderManager::Configure(const char* szActivePlatform, bool bEnableRuntimeCompilation, const char* szShaderCacheDirectory, const char* szPermVarSubDirectory)
 {
-  s_ShaderCacheDirectory = szShaderCacheDirectory;
+  s_sShaderCacheDirectory = szShaderCacheDirectory;
   s_sPermVarSubDir = szPermVarSubDirectory;
 
   ezStringBuilder s = szActivePlatform;

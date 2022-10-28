@@ -52,12 +52,12 @@ void ezCamera::SetCoordinateSystem(ezBasisAxis::Enum forwardAxis, ezBasisAxis::E
   provider->m_RightAxis = rightAxis;
   provider->m_UpAxis = upAxis;
 
-  m_CoordinateSystem = provider;
+  m_pCoordinateSystem = provider;
 }
 
 void ezCamera::SetCoordinateSystem(const ezSharedPtr<ezCoordinateSystemProvider>& provider)
 {
-  m_CoordinateSystem = provider;
+  m_pCoordinateSystem = provider;
 }
 
 ezVec3 ezCamera::GetPosition(ezCameraEye eye) const
@@ -120,10 +120,10 @@ ezVec3 ezCamera::InternalGetDirRight(ezCameraEye eye) const
 
 ezVec3 ezCamera::MapExternalToInternal(const ezVec3& v) const
 {
-  if (m_CoordinateSystem)
+  if (m_pCoordinateSystem)
   {
     ezCoordinateSystem system;
-    m_CoordinateSystem->GetCoordinateSystem(m_vCameraPosition[0], system);
+    m_pCoordinateSystem->GetCoordinateSystem(m_vCameraPosition[0], system);
 
     ezMat3 m;
     m.SetRow(0, system.m_vForwardDir);
@@ -138,10 +138,10 @@ ezVec3 ezCamera::MapExternalToInternal(const ezVec3& v) const
 
 ezVec3 ezCamera::MapInternalToExternal(const ezVec3& v) const
 {
-  if (m_CoordinateSystem)
+  if (m_pCoordinateSystem)
   {
     ezCoordinateSystem system;
-    m_CoordinateSystem->GetCoordinateSystem(m_vCameraPosition[0], system);
+    m_pCoordinateSystem->GetCoordinateSystem(m_vCameraPosition[0], system);
 
     ezMat3 m;
     m.SetColumn(0, system.m_vForwardDir);

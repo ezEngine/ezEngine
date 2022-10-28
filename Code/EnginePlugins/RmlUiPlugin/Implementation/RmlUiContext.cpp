@@ -167,7 +167,7 @@ void ezRmlUiContext::UpdateInput(const ezVec2& mousePos)
 
 void ezRmlUiContext::SetOffset(const ezVec2I32& offset)
 {
-  m_Offset = offset;
+  m_vOffset = offset;
 }
 
 void ezRmlUiContext::SetSize(const ezVec2U32& size)
@@ -197,7 +197,7 @@ void ezRmlUiContext::ExtractRenderData(ezRmlUiInternal::Extractor& extractor)
 {
   if (m_uiExtractedFrame != ezRenderWorld::GetFrameCounter())
   {
-    extractor.BeginExtraction(m_Offset);
+    extractor.BeginExtraction(m_vOffset);
 
     Render();
 
