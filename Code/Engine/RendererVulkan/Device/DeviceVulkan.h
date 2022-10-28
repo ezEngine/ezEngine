@@ -297,9 +297,11 @@ private:
 
   PerFrameData m_PerFrameData[4];
 
+#if EZ_ENABLED(EZ_USE_PROFILING)
   struct GPUTimingScope* m_pFrameTimingScope = nullptr;
   struct GPUTimingScope* m_pPipelineTimingScope = nullptr;
   struct GPUTimingScope* m_pPassTimingScope = nullptr;
+#endif
 
   Extensions m_extensions;
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
