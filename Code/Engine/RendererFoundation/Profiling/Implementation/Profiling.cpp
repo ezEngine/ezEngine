@@ -1,6 +1,7 @@
 #include <RendererFoundation/RendererFoundationPCH.h>
 
 #include <Foundation/Configuration/Startup.h>
+#include <Foundation/Logging/Log.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <RendererFoundation/CommandEncoder/CommandEncoder.h>
 #include <RendererFoundation/Device/Device.h>
@@ -38,6 +39,14 @@ public:
 
         if (!beginTime.IsZero() && !endTime.IsZero())
         {
+#  if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+          static bool warnOnRingBufferOverun = true;
+          if (warnOnRingBufferOverun && endTime < beginTime)
+          {
+            warnOnRingBufferOverun = false;
+            ezLog::Error("Profiling end is before start, the DX11 timestamp ring buffer was probably overrun.");
+          }
+#  endif
           ezProfilingSystem::AddGPUScope(timingScope.m_szName, beginTime, endTime);
         }
 

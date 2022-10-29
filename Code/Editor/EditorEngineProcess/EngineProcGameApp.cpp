@@ -10,6 +10,7 @@
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
 #include <EditorEngineProcessFramework/Gizmos/GizmoRenderer.h>
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
+#include <Foundation/IO/FileSystem/FileWriter.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 
@@ -303,6 +304,29 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
       ezResourceManager::ReloadAllResources(false);
       ezRenderWorld::DeleteAllCachedRenderData();
     }
+    else if (pMsg1->m_sWhatToDo == "SaveProfiling")
+    {
+      ezProfilingSystem::ProfilingData profilingData;
+      ezProfilingSystem::Capture(profilingData);
+      ezFileWriter fileWriter;
+      if (fileWriter.Open(pMsg1->m_sPayload) == EZ_SUCCESS)
+      {
+        profilingData.Write(fileWriter).IgnoreResult();
+        ezLog::Info("Engine profiling capture saved to '{0}'.", fileWriter.GetFilePathAbsolute().GetData());
+      }
+      else
+      {
+        ezLog::Error("Could not write profiling capture to '{0}'.", pMsg1->m_sPayload);
+      }
+
+      ezSaveProfilingResponseToEditor response;
+      ezStringBuilder sAbsPath;
+      if (ezFileSystem::ResolvePath(pMsg1->m_sPayload, &sAbsPath, nullptr).Succeeded())
+      {
+        response.m_sProfilingFile = sAbsPath;
+      }
+      m_IPC.SendMessage(&response);
+    }
     else
       ezLog::Warning("Unknown ezSimpleConfigMsgToEngine '{0}'", pMsg1->m_sWhatToDo);
   }
@@ -480,8 +504,7 @@ ezEngineProcessDocumentContext* ezEngineProcessGameApplication::CreateDocumentCo
 
 void ezEngineProcessGameApplication::Init_LoadProjectPlugins()
 {
-  m_CustomPluginConfig.m_Plugins.Sort([](const ezApplicationPluginConfig::PluginConfig& lhs, const ezApplicationPluginConfig::PluginConfig& rhs) -> bool
-    {
+  m_CustomPluginConfig.m_Plugins.Sort([](const ezApplicationPluginConfig::PluginConfig& lhs, const ezApplicationPluginConfig::PluginConfig& rhs) -> bool {
     const bool isEnginePluginLhs = lhs.m_sAppDirRelativePath.FindSubString_NoCase("EnginePlugin") != nullptr;
     const bool isEnginePluginRhs = rhs.m_sAppDirRelativePath.FindSubString_NoCase("EnginePlugin") != nullptr;
 

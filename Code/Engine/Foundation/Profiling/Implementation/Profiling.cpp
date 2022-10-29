@@ -1,5 +1,6 @@
 #include <Foundation/FoundationPCH.h>
 
+#include <Foundation/Application/Application.h>
 #include <Foundation/Communication/DataTransfer.h>
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/Configuration/Startup.h>
@@ -171,8 +172,7 @@ void ezProfilingSystem::ProfilingData::Merge(ProfilingData& out_Merged, ezArrayP
 
   // merge m_ThreadInfos
   {
-    auto threadInfoAlreadyKnown = [&](ezUInt64 uiThreadId) -> bool
-    {
+    auto threadInfoAlreadyKnown = [&](ezUInt64 uiThreadId) -> bool {
       for (const auto& ti : out_Merged.m_ThreadInfos)
       {
         if (ti.m_uiThreadId == uiThreadId)
@@ -250,6 +250,37 @@ ezResult ezProfilingSystem::ProfilingData::Write(ezStreamWriter& outputStream) c
   writer.BeginObject();
   {
     writer.BeginArray("traceEvents");
+
+    // Process metadata
+    {
+      ezApplication::GetApplicationInstance()->GetApplicationName();
+
+      writer.BeginObject();
+      {
+        writer.AddVariableString("name", "process_name");
+        writer.AddVariableString("cat", "__metadata");
+        writer.AddVariableUInt32("pid", m_uiProcessID);
+        writer.AddVariableString("ph", "M");
+
+        writer.BeginObject("args");
+        writer.AddVariableString("name", ezApplication::GetApplicationInstance()->GetApplicationName());
+        writer.EndObject();
+      }
+      writer.EndObject();
+
+      writer.BeginObject();
+      {
+        writer.AddVariableString("name", "process_sort_index");
+        writer.AddVariableString("cat", "__metadata");
+        writer.AddVariableUInt32("pid", m_uiProcessID);
+        writer.AddVariableString("ph", "M");
+
+        writer.BeginObject("args");
+        writer.AddVariableInt32("sort_index", m_uiProcessSortIndex);
+        writer.EndObject();
+      }
+      writer.EndObject();
+    }
 
     // Frames thread metadata
     {
@@ -358,8 +389,7 @@ ezResult ezProfilingSystem::ProfilingData::Write(ezStreamWriter& outputStream) c
       // chrome prints the nested scope first and then scrambles everything.
       // So we sort by duration to make sure that parent scopes are written first in the json file.
       sortedScopes = eventBuffer.m_Data;
-      sortedScopes.Sort([](const CPUScope& a, const CPUScope& b)
-        { return (a.m_EndTime - a.m_BeginTime) > (b.m_EndTime - b.m_BeginTime); });
+      sortedScopes.Sort([](const CPUScope& a, const CPUScope& b) { return (a.m_EndTime - a.m_BeginTime) > (b.m_EndTime - b.m_BeginTime); });
 
       for (const CPUScope& e : sortedScopes)
       {
@@ -435,12 +465,16 @@ ezResult ezProfilingSystem::ProfilingData::Write(ezStreamWriter& outputStream) c
     // GPU data
     // Since there are no actual threads, we assign 1..gpuCount as the respective threadID
     {
+      // See comment on sortedScopes above.
+      ezDynamicArray<GPUScope> sortedGpuScopes;
       for (ezUInt32 gpuIndex = 1; gpuIndex <= m_GPUScopes.GetCount(); ++gpuIndex)
       {
-        const ezDynamicArray<GPUScope>& gpuScopes = m_GPUScopes[gpuIndex - 1];
-        for (ezUInt32 i = 0; i < gpuScopes.GetCount(); ++i)
+        sortedGpuScopes = m_GPUScopes[gpuIndex - 1];
+        sortedGpuScopes.Sort([](const GPUScope& a, const GPUScope& b) { return (a.m_EndTime - a.m_BeginTime) > (b.m_EndTime - b.m_BeginTime); });
+
+        for (ezUInt32 i = 0; i < sortedGpuScopes.GetCount(); ++i)
         {
-          const auto& e = gpuScopes[i];
+          const auto& e = sortedGpuScopes[i];
 
           writer.BeginObject();
           writer.AddVariableString("name", e.m_szName);

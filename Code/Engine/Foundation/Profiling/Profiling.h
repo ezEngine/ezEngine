@@ -98,6 +98,7 @@ public:
   struct EZ_FOUNDATION_DLL ProfilingData
   {
     ezUInt32 m_uiFramesThreadID = 0;
+    ezUInt32 m_uiProcessSortIndex = 0;
     ezOsProcessID m_uiProcessID = 0;
 
     ezHybridArray<ThreadInfo, 16> m_ThreadInfos;
