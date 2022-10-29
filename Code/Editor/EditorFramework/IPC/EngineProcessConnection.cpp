@@ -400,7 +400,7 @@ ezResult ezEditorEngineProcessConnection::RestartProcess()
   }
   docs.Sort([](const ezAssetDocument* a, const ezAssetDocument* b) {
     if (a->IsMainDocument() != b->IsMainDocument())
-      return a->IsMainDocument() > b->IsMainDocument();
+      return a->IsMainDocument();
     return a < b;
   });
 
