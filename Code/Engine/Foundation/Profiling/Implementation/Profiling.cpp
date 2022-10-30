@@ -263,7 +263,7 @@ ezResult ezProfilingSystem::ProfilingData::Write(ezStreamWriter& outputStream) c
         writer.AddVariableString("ph", "M");
 
         writer.BeginObject("args");
-        writer.AddVariableString("name", ezApplication::GetApplicationInstance()->GetApplicationName());
+        writer.AddVariableString("name", ezApplication::GetApplicationInstance() ? ezApplication::GetApplicationInstance()->GetApplicationName().GetData() : "ezEngine");
         writer.EndObject();
       }
       writer.EndObject();
