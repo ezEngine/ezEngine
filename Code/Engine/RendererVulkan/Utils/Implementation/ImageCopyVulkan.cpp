@@ -45,24 +45,6 @@ struct ezHashHelper<ezImageCopyVulkan::RenderPassCacheKey>
 };
 
 template <>
-struct ezHashHelper<ezImageCopyVulkan::PipelineCacheKey>
-{
-  EZ_ALWAYS_INLINE static ezUInt32 Hash(const ezImageCopyVulkan::PipelineCacheKey& value)
-  {
-    ezHashStreamWriter32 writer;
-    writer << (VkRenderPass)value.m_renderPass;
-    writer << value.m_sampelCount.GetValue();
-    writer << static_cast<ezUInt32>(value.m_shaderType);
-    return writer.GetHashValue();
-  }
-
-  EZ_ALWAYS_INLINE static bool Equal(const ezImageCopyVulkan::PipelineCacheKey& a, const ezImageCopyVulkan::PipelineCacheKey& b)
-  {
-    return a.m_renderPass == b.m_renderPass && a.m_sampelCount == b.m_sampelCount && a.m_shaderType == b.m_shaderType;
-  }
-};
-
-template <>
 struct ezHashHelper<vk::Image>
 {
   EZ_ALWAYS_INLINE static ezUInt32 Hash(vk::Image value)
@@ -121,7 +103,6 @@ ezUniquePtr<ezImageCopyVulkan::Cache> ezImageCopyVulkan::s_cache;
 ezImageCopyVulkan::Cache::Cache(ezAllocatorBase* pAllocator)
   : m_vertexDeclarations(pAllocator)
   , m_renderPasses(pAllocator)
-  , m_pipelines(pAllocator)
   , m_sourceImageViews(pAllocator)
   , m_imageToSourceImageViewCacheKey(pAllocator)
   , m_targetImageViews(pAllocator)
@@ -287,39 +268,22 @@ void ezImageCopyVulkan::Init(const ezGALTextureVulkan* pSource, const ezGALTextu
 
   // Pipeline
   {
-
-    PipelineCacheKey cacheEntry = {};
-    cacheEntry.m_renderPass = m_renderPass;
-    cacheEntry.m_sampelCount = targetDesc.m_SampleCount;
-    cacheEntry.m_shaderType = type;
-
-    if (auto it = s_cache->m_pipelines.Find(cacheEntry); it.IsValid())
-    {
-      m_LayoutDesc = it.Value().m_LayoutDesc;
-      m_PipelineDesc = it.Value().m_PipelineDesc;
-      m_pipeline = it.Value().m_pipeline;
-    }
-    else
-    {
-      m_PipelineDesc.m_renderPass = m_renderPass;
-      m_PipelineDesc.m_topology = ezGALPrimitiveTopology::Triangles;
-      m_PipelineDesc.m_msaa = targetDesc.m_SampleCount;
-      m_PipelineDesc.m_uiAttachmentCount = 1;
+    m_PipelineDesc.m_renderPass = m_renderPass;
+    m_PipelineDesc.m_topology = ezGALPrimitiveTopology::Triangles;
+    m_PipelineDesc.m_msaa = targetDesc.m_SampleCount;
+    m_PipelineDesc.m_uiAttachmentCount = 1;
 
 
-      m_PipelineDesc.m_pCurrentRasterizerState = static_cast<const ezGALRasterizerStateVulkan*>(m_GALDeviceVulkan.GetRasterizerState(m_shader.m_hRasterizerState));
-      m_PipelineDesc.m_pCurrentBlendState = static_cast<const ezGALBlendStateVulkan*>(m_GALDeviceVulkan.GetBlendState(m_shader.m_hBlendState));
-      m_PipelineDesc.m_pCurrentDepthStencilState = static_cast<const ezGALDepthStencilStateVulkan*>(m_GALDeviceVulkan.GetDepthStencilState(m_shader.m_hDepthStencilState));
-      m_PipelineDesc.m_pCurrentShader = static_cast<const ezGALShaderVulkan*>(m_GALDeviceVulkan.GetShader(m_shader.m_hActiveGALShader));
+    m_PipelineDesc.m_pCurrentRasterizerState = static_cast<const ezGALRasterizerStateVulkan*>(m_GALDeviceVulkan.GetRasterizerState(m_shader.m_hRasterizerState));
+    m_PipelineDesc.m_pCurrentBlendState = static_cast<const ezGALBlendStateVulkan*>(m_GALDeviceVulkan.GetBlendState(m_shader.m_hBlendState));
+    m_PipelineDesc.m_pCurrentDepthStencilState = static_cast<const ezGALDepthStencilStateVulkan*>(m_GALDeviceVulkan.GetDepthStencilState(m_shader.m_hDepthStencilState));
+    m_PipelineDesc.m_pCurrentShader = static_cast<const ezGALShaderVulkan*>(m_GALDeviceVulkan.GetShader(m_shader.m_hActiveGALShader));
 
 
-      const ezGALShaderVulkan::DescriptorSetLayoutDesc& descriptorLayoutDesc = m_PipelineDesc.m_pCurrentShader->GetDescriptorSetLayout();
-      m_LayoutDesc.m_layout = ezResourceCacheVulkan::RequestDescriptorSetLayout(descriptorLayoutDesc);
-      m_PipelineDesc.m_layout = ezResourceCacheVulkan::RequestPipelineLayout(m_LayoutDesc);
-      m_pipeline = ezResourceCacheVulkan::RequestGraphicsPipeline(m_PipelineDesc);
-
-      s_cache->m_pipelines.Insert(cacheEntry, PipelineCacheValue{m_LayoutDesc, m_PipelineDesc, m_pipeline});
-    }
+    const ezGALShaderVulkan::DescriptorSetLayoutDesc& descriptorLayoutDesc = m_PipelineDesc.m_pCurrentShader->GetDescriptorSetLayout();
+    m_LayoutDesc.m_layout = ezResourceCacheVulkan::RequestDescriptorSetLayout(descriptorLayoutDesc);
+    m_PipelineDesc.m_layout = ezResourceCacheVulkan::RequestPipelineLayout(m_LayoutDesc);
+    m_pipeline = ezResourceCacheVulkan::RequestGraphicsPipeline(m_PipelineDesc);
   }
 }
 

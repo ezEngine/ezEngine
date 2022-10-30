@@ -35,24 +35,6 @@ public:
     vk::SampleCountFlagBits targetSamples;
   };
 
-  struct PipelineCacheKey
-  {
-    EZ_DECLARE_POD_TYPE();
-
-    vk::RenderPass m_renderPass;
-    ezEnum<ezGALMSAASampleCount> m_sampelCount;
-    ezShaderUtils::ezBuiltinShaderType m_shaderType;
-  };
-
-  struct PipelineCacheValue
-  {
-    EZ_DECLARE_POD_TYPE();
-
-    ezResourceCacheVulkan::PipelineLayoutDesc m_LayoutDesc;
-    ezResourceCacheVulkan::GraphicsPipelineDesc m_PipelineDesc;
-    vk::Pipeline m_pipeline;
-  };
-
   struct FramebufferCacheKey
   {
     EZ_DECLARE_POD_TYPE();
@@ -110,7 +92,6 @@ private:
 
     ezHashTable<ezGALShaderHandle, ezGALVertexDeclarationHandle> m_vertexDeclarations;
     ezHashTable<RenderPassCacheKey, vk::RenderPass> m_renderPasses;
-    ezHashTable<PipelineCacheKey, PipelineCacheValue> m_pipelines;
     ezHashTable<ImageViewCacheKey, vk::ImageView> m_sourceImageViews;
     ezHashTable<vk::Image, ImageViewCacheValue> m_imageToSourceImageViewCacheKey;
     ezHashTable<ImageViewCacheKey, vk::ImageView> m_targetImageViews;

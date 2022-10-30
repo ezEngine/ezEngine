@@ -531,7 +531,7 @@ bool ezDocumentNodeManager::PasteObjects(const ezArrayPtr<ezDocument::PasteInfo>
       }
     }
 
-    vAvgPos /= nodeCount;
+    vAvgPos /= (float)nodeCount;
     const ezVec2 vMoveNode = -vAvgPos + pickedPosition;
 
     for (const ezDocumentObject* pObject : AddedObjects)

@@ -438,6 +438,10 @@ vk::Pipeline ezResourceCacheVulkan::RequestGraphicsPipeline(const GraphicsPipeli
   // No multisampling.
   vk::PipelineMultisampleStateCreateInfo multisample;
   multisample.rasterizationSamples = ezConversionUtilsVulkan::GetSamples(desc.m_msaa);
+  if (multisample.rasterizationSamples != vk::SampleCountFlagBits::e1 && desc.m_pCurrentBlendState->GetDescription().m_bAlphaToCoverage)
+  {
+    multisample.alphaToCoverageEnable = true;
+  }
 
   // Specify that these states will be dynamic, i.e. not part of pipeline state object.
   ezHybridArray<vk::DynamicState, 2> dynamics;
