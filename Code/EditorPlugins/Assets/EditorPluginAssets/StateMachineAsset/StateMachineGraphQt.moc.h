@@ -11,7 +11,7 @@ public:
   ezQtStateMachinePin();
 
   virtual void SetPin(const ezPin& pin) override;
-  virtual QRectF GetPinRect() const;
+  virtual QRectF GetPinRect() const override;
 };
 
 class ezQtStateMachineConnection : public ezQtConnection

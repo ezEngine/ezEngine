@@ -1,7 +1,9 @@
 #pragma once
 
 #include <EditorFramework/EditorFrameworkDLL.h>
+
 #include <EditorFramework/ui_PluginSelectionWidget.h>
+#include <Foundation/Strings/String.h>
 #include <QWidget>
 
 struct ezPluginBundleSet;

@@ -1,12 +1,13 @@
 #pragma once
 
+#include <GuiFoundation/GuiFoundationDLL.h>
+
 #include <Core/Console/Console.h>
 #include <Foundation/Basics.h>
 #include <Foundation/Containers/Deque.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Types/Variant.h>
-#include <GuiFoundation/GuiFoundationDLL.h>
 #include <GuiFoundation/ui_CVarWidget.h>
 #include <QItemDelegate>
 #include <QPointer>

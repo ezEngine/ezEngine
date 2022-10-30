@@ -18,6 +18,6 @@ target_include_directories(${PROJECT_NAME}
   "include"
 )
 
-if(EZ_CMAKE_PLATFORM_WINDOWS)
+if(EZ_CMAKE_COMPILER_MSVC)
   target_compile_options(${PROJECT_NAME} PRIVATE /wd4456 /wd4458 /wd4701)
 endif()

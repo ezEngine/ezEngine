@@ -1,5 +1,9 @@
 #pragma once
 
+#include <EditorFramework/EditorFrameworkDLL.h>
+
+#include <Foundation/Strings/String.h>
+
 #include <QByteArray>
 #include <QNetworkAccessManager>
 #include <QObject>

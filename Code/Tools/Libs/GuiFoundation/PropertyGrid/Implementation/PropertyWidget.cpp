@@ -549,6 +549,9 @@ ezQtPropertyEditorIntSpinboxWidget::ezQtPropertyEditorIntSpinboxWidget(ezInt8 iN
   }
 }
 
+
+ezQtPropertyEditorIntSpinboxWidget::~ezQtPropertyEditorIntSpinboxWidget() = default;
+
 void ezQtPropertyEditorIntSpinboxWidget::OnInit()
 {
   if (const ezClampValueAttribute* pClamp = m_pProp->GetAttributeByType<ezClampValueAttribute>())

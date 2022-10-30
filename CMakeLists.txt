@@ -49,7 +49,7 @@ if(EZ_CUSTOM_TOOLCHAIN_FILE)
 	include("${EZ_CUSTOM_TOOLCHAIN_FILE}")
 endif()
 
-ez_pull_platform_vars()
+ez_pull_all_vars()
 
 include("ezPlatformVars")
 

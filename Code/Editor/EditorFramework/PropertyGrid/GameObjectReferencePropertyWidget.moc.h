@@ -1,11 +1,13 @@
 #pragma once
 
 #include <EditorFramework/EditorFrameworkDLL.h>
+
 #include <GuiFoundation/PropertyGrid/Implementation/PropertyWidget.moc.h>
 #include <QLineEdit>
 #include <QModelIndex>
 
 class ezSelectionContext;
+struct ezSelectionManagerEvent;
 
 class EZ_EDITORFRAMEWORK_DLL ezQtGameObjectReferencePropertyWidget : public ezQtStandardPropertyWidget
 {

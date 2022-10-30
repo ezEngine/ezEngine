@@ -1,7 +1,8 @@
 #pragma once
 
-#include <Foundation/Time/Time.h>
 #include <GuiFoundation/GuiFoundationDLL.h>
+
+#include <Foundation/Time/Time.h>
 
 #include <QToolBar>
 #include <QWidget>

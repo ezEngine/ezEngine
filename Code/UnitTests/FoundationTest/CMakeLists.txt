@@ -26,6 +26,6 @@ add_dependencies(${PROJECT_NAME}
 
 ez_ci_add_test(${PROJECT_NAME})
 
-if(EZ_CMAKE_PLATFORM_WINDOWS)
+if(EZ_CMAKE_COMPILER_MSVC)
   target_compile_options(${PROJECT_NAME} PRIVATE /wd4244)
 endif()

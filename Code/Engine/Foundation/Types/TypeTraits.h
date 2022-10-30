@@ -105,13 +105,13 @@ struct ezGetStrongestTypeClass : public ezTraitInt<(T1::value == 0 || T2::value 
 template <typename T>
 struct ezIsPointer
 {
-  static const bool value = false;
+  static constexpr bool value = false;
 };
 
 template <typename T>
 struct ezIsPointer<T*>
 {
-  static const bool value = true;
+  static constexpr bool value = true;
 };
 
 

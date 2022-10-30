@@ -35,7 +35,7 @@ public:
   EZ_ALWAYS_INLINE ezUInt32 GetElementCount() const { return m_Data.GetCount() - 1; /* exclude the '\0' terminator */ }
 
 private:
-  static const ezUInt32 BufferSize = 1024;
+  static constexpr ezUInt32 BufferSize = 1024;
   ezHybridArray<wchar_t, BufferSize> m_Data;
 };
 
@@ -89,7 +89,7 @@ public:
   }
 
 private:
-  static const ezUInt32 BufferSize = 1024;
+  static constexpr ezUInt32 BufferSize = 1024;
   ezHybridArray<char, BufferSize> m_Data;
 };
 
@@ -118,7 +118,7 @@ public:
   EZ_ALWAYS_INLINE ezUInt32 GetElementCount() const { return m_Data.GetCount() - 1; /* exclude the '\0' terminator */ }
 
 private:
-  static const ezUInt32 BufferSize = 1024;
+  static constexpr ezUInt32 BufferSize = 1024;
   ezHybridArray<ezUInt16, BufferSize> m_Data;
 };
 
@@ -145,7 +145,7 @@ public:
   EZ_ALWAYS_INLINE ezUInt32 GetElementCount() const { return m_Data.GetCount() - 1; /* exclude the '\0' terminator */ }
 
 private:
-  static const ezUInt32 BufferSize = 1024;
+  static constexpr ezUInt32 BufferSize = 1024;
   ezHybridArray<ezUInt32, BufferSize> m_Data;
 };
 

@@ -11,7 +11,7 @@ class ezActor;
 
 using ezRenderPipelineResourceHandle = ezTypedResourceHandle<class ezRenderPipelineResource>;
 
-enum class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezEditorEngineProcessMode
+enum class ezEditorEngineProcessMode
 {
   Primary,
   Remote,

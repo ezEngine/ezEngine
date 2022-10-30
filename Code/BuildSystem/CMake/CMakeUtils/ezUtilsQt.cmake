@@ -50,6 +50,16 @@ macro(ez_find_qt)
 	mark_as_advanced(FORCE WINDEPLOYQT_EXECUTABLE)
 	mark_as_advanced(FORCE QT_ADDITIONAL_HOST_PACKAGES_PREFIX_PATH)
 	mark_as_advanced(FORCE QT_ADDITIONAL_PACKAGES_PREFIX_PATH)
+	
+	if(EZ_CMAKE_PLATFORM_WINDOWS AND EZ_CMAKE_COMPILER_CLANG)
+		# The qt6 interface compile options contain msvc specific flags which don't exist for clang.
+		set_target_properties(Qt6::Platform PROPERTIES INTERFACE_COMPILE_OPTIONS "")
+		
+		# Qt6 link options include '-NXCOMPAT' which does not exist on clang.
+		get_target_property(QtLinkOptions Qt6::PlatformCommonInternal INTERFACE_LINK_OPTIONS)
+		string(REPLACE "-NXCOMPAT;" "" QtLinkOptions "${QtLinkOptions}")
+		set_target_properties(Qt6::PlatformCommonInternal PROPERTIES INTERFACE_LINK_OPTIONS ${QtLinkOptions})
+	endif()
 endmacro()
 
 # #####################################

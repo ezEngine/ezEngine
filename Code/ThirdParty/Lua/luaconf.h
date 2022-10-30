@@ -12,7 +12,7 @@
 #include <stddef.h>
 
 // BEGIN EZ SPECIFIC
-#if defined(BUILDSYSTEM_COMPILE_ENGINE_AS_DLL) && defined(WIN32)
+#if defined(BUILDSYSTEM_COMPILE_ENGINE_AS_DLL) && defined(_WIN32)
   #define LUA_BUILD_AS_DLL
 #endif
 // END EZ SPECIFIC

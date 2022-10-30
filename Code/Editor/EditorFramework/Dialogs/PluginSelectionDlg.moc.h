@@ -1,7 +1,8 @@
 #pragma once
 
-#include <EditorFramework/EditorApp/Configuration/Plugins.h>
 #include <EditorFramework/EditorFrameworkDLL.h>
+
+#include <EditorFramework/EditorApp/Configuration/Plugins.h>
 #include <EditorFramework/ui_PluginSelectionDlg.h>
 #include <QDialog>
 

@@ -1,7 +1,8 @@
 #pragma once
 
-#include <EditorFramework/Document/GameObjectDocument.h>
 #include <EditorFramework/EditorFrameworkDLL.h>
+
+#include <EditorFramework/Document/GameObjectDocument.h>
 #include <EditorFramework/GUI/RawDocumentTreeModel.moc.h>
 #include <ToolsFoundation/Object/ObjectMetaData.h>
 
