@@ -18,7 +18,7 @@ protected:
   ezImageFilter(float width);
 
 private:
-  ezSimdFloat m_Width;
+  ezSimdFloat m_fWidth;
 };
 
 /// \brief Box filter
@@ -51,8 +51,8 @@ public:
   virtual ezSimdFloat SamplePoint(const ezSimdFloat& x) const override;
 
 private:
-  ezSimdFloat m_Beta;
-  ezSimdFloat m_InvBesselBeta;
+  ezSimdFloat m_fBeta;
+  ezSimdFloat m_fInvBesselBeta;
 };
 
 /// \brief Pre-computes the required filter weights for rescaling a sequence of image samples.
@@ -75,9 +75,9 @@ public:
 
 private:
   ezHybridArray<float, 16> m_Weights;
-  ezSimdFloat m_WidthInSourceSpace;
-  ezSimdFloat m_SourceToDestScale;
-  ezSimdFloat m_DestToSourceScale;
+  ezSimdFloat m_fWidthInSourceSpace;
+  ezSimdFloat m_fSourceToDestScale;
+  ezSimdFloat m_fDestToSourceScale;
   ezUInt32 m_uiNumWeights;
   ezUInt32 m_uiDstSamplesReduced;
 };

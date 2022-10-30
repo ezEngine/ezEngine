@@ -171,14 +171,14 @@ void ezWindVolumeSphereComponent::DeserializeComponent(ezWorldReader& stream)
   auto& s = stream.GetStream();
 
   s >> m_fRadius;
-  m_OneDivRadius = 1.0f / m_fRadius;
+  m_fOneDivRadius = 1.0f / m_fRadius;
 }
 
 ezSimdVec4f ezWindVolumeSphereComponent::ComputeForceAtLocalPosition(const ezSimdVec4f& localPos) const
 {
   // TODO: could do this computation in global space
 
-  ezSimdFloat lenScaled = localPos.GetLength<3>() * m_OneDivRadius;
+  ezSimdFloat lenScaled = localPos.GetLength<3>() * m_fOneDivRadius;
 
   // inverse quadratic falloff to have sharper edges
   ezSimdFloat forceFactor = ezSimdFloat(1.0f) - (lenScaled * lenScaled);
@@ -194,7 +194,7 @@ ezSimdVec4f ezWindVolumeSphereComponent::ComputeForceAtLocalPosition(const ezSim
 void ezWindVolumeSphereComponent::SetRadius(float val)
 {
   m_fRadius = ezMath::Max(val, 0.1f);
-  m_OneDivRadius = 1.0f / m_fRadius;
+  m_fOneDivRadius = 1.0f / m_fRadius;
 
   if (IsActiveAndInitialized())
   {
@@ -260,7 +260,7 @@ void ezWindVolumeCylinderComponent::DeserializeComponent(ezWorldReader& stream)
   auto& s = stream.GetStream();
 
   s >> m_fRadius;
-  m_OneDivRadius = 1.0f / m_fRadius;
+  m_fOneDivRadius = 1.0f / m_fRadius;
 
   s >> m_fLength;
   s >> m_Mode;
@@ -292,7 +292,7 @@ ezSimdVec4f ezWindVolumeCylinderComponent::ComputeForceAtLocalPosition(const ezS
 void ezWindVolumeCylinderComponent::SetRadius(float val)
 {
   m_fRadius = ezMath::Max(val, 0.1f);
-  m_OneDivRadius = 1.0f / m_fRadius;
+  m_fOneDivRadius = 1.0f / m_fRadius;
 
   if (IsActiveAndInitialized())
   {

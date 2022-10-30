@@ -4,11 +4,11 @@
 
 ezSimdFloat ezImageFilter::GetWidth() const
 {
-  return m_Width;
+  return m_fWidth;
 }
 
 ezImageFilter::ezImageFilter(float width)
-  : m_Width(width)
+  : m_fWidth(width)
 {
 }
 
@@ -90,8 +90,8 @@ static ezSimdFloat modifiedBessel0(const ezSimdFloat& x)
 
 ezImageFilterSincWithKaiserWindow::ezImageFilterSincWithKaiserWindow(float width, float beta)
   : ezImageFilter(width)
-  , m_Beta(beta)
-  , m_InvBesselBeta(1.0f / modifiedBessel0(m_Beta))
+  , m_fBeta(beta)
+  , m_fInvBesselBeta(1.0f / modifiedBessel0(m_fBeta))
 {
 }
 
@@ -107,7 +107,7 @@ ezSimdFloat ezImageFilterSincWithKaiserWindow::SamplePoint(const ezSimdFloat& x)
   }
   else
   {
-    return sinc(x * ezSimdFloat(ezMath::Pi<float>())) * modifiedBessel0(m_Beta * xSq.GetSqrt()) * m_InvBesselBeta;
+    return sinc(x * ezSimdFloat(ezMath::Pi<float>())) * modifiedBessel0(m_fBeta * xSq.GetSqrt()) * m_fInvBesselBeta;
   }
 }
 
@@ -121,8 +121,8 @@ ezImageFilterWeights::ezImageFilterWeights(const ezImageFilter& filter, ezUInt32
 
   m_uiDstSamplesReduced = dstSamples;
 
-  m_SourceToDestScale = float(dstSamples) / float(srcSamples);
-  m_DestToSourceScale = float(srcSamples) / float(dstSamples);
+  m_fSourceToDestScale = float(dstSamples) / float(srcSamples);
+  m_fDestToSourceScale = float(srcSamples) / float(dstSamples);
 
   ezSimdFloat filterScale, invFilterScale;
 
@@ -136,19 +136,19 @@ ezImageFilterWeights::ezImageFilterWeights(const ezImageFilter& filter, ezUInt32
   {
     // When downsampling, widen the filter in order to narrow its frequency spectrum, which effectively combines reconstruction + low-pass
     // filter
-    filterScale = m_DestToSourceScale;
-    invFilterScale = m_SourceToDestScale;
+    filterScale = m_fDestToSourceScale;
+    invFilterScale = m_fSourceToDestScale;
   }
 
-  m_WidthInSourceSpace = filter.GetWidth() * filterScale;
+  m_fWidthInSourceSpace = filter.GetWidth() * filterScale;
 
-  m_uiNumWeights = ezUInt32(ezMath::Ceil(m_WidthInSourceSpace * ezSimdFloat(2.0f))) + 1;
+  m_uiNumWeights = ezUInt32(ezMath::Ceil(m_fWidthInSourceSpace * ezSimdFloat(2.0f))) + 1;
 
   m_Weights.SetCountUninitialized(dstSamples * m_uiNumWeights);
 
   for (ezUInt32 dstSample = 0; dstSample < dstSamples; ++dstSample)
   {
-    ezSimdFloat dstSampleInSourceSpace = (ezSimdFloat(dstSample) + ezSimdFloat(0.5f)) * m_DestToSourceScale;
+    ezSimdFloat dstSampleInSourceSpace = (ezSimdFloat(dstSample) + ezSimdFloat(0.5f)) * m_fDestToSourceScale;
 
     ezInt32 firstSourceIdx = GetFirstSourceSampleIndex(dstSample);
 

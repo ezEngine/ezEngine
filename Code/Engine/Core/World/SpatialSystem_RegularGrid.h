@@ -53,7 +53,7 @@ private:
 
   ezSimdVec4i m_vCellSize;
   ezSimdVec4f m_vOverlapSize;
-  ezSimdFloat m_InvCellSize;
+  ezSimdFloat m_fInvCellSize;
 
   enum
   {
