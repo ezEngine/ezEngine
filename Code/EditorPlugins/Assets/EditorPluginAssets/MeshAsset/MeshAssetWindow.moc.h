@@ -7,8 +7,8 @@
 #include <EditorPluginAssets/MeshAsset/MeshAsset.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 
-#include <QTimer>
 #include <QPointer>
+#include <QTimer>
 
 class ezQtOrbitCamViewWidget;
 

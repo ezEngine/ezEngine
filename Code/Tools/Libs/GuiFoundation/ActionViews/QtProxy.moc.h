@@ -7,12 +7,12 @@
 #include <GuiFoundation/GuiFoundationDLL.h>
 #include <ToolsFoundation/Factory/RttiMappedObjectFactory.h>
 
+#include <QEvent>
 #include <QObject>
 #include <QPointer>
 #include <QSharedPointer>
-#include <QWidgetAction>
 #include <QWidget>
-#include <QEvent>
+#include <QWidgetAction>
 
 class QAction;
 class QMenu;
