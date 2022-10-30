@@ -28,8 +28,6 @@ DEALINGS IN THE SOFTWARE.
 #ifndef UTF8_FOR_CPP_CHECKED_H_2675DCD0_9480_4c0c_B92A_CC14C027B731
 #define UTF8_FOR_CPP_CHECKED_H_2675DCD0_9480_4c0c_B92A_CC14C027B731
 
-// NOLINTBEGIN(*)
-
 #include "core.h"
 #include <stdexcept>
 
@@ -330,8 +328,6 @@ namespace utf8
 #if UTF_CPP_CPLUSPLUS >= 201103L // C++ 11 or later
 #include "cpp11.h"
 #endif // C++ 11 or later
-
-// NOLINTEND(*)
 
 #endif //header guard
 

@@ -47,7 +47,6 @@ public:
 
   // *** Predefined Colors ***
 public:
-  //NOLINTBEGIN(ez*)
   static const ezColor AliceBlue;            ///< #F0F8FF
   static const ezColor AntiqueWhite;         ///< #FAEBD7
   static const ezColor Aqua;                 ///< #00FFFF
@@ -196,7 +195,6 @@ public:
   static const ezColor WhiteSmoke;           ///< #F5F5F5
   static const ezColor Yellow;               ///< #FFFF00
   static const ezColor YellowGreen;          ///< #9ACD32
-  //NOLINTEND(ez*)
 
   // A simple color table with 4 batches of 8 colors from light to dark. I.e., each
   // batch contains the same 8 colors but of increasingly darker shade. E.g., the
