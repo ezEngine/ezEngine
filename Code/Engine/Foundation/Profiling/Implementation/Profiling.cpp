@@ -285,29 +285,31 @@ ezResult ezProfilingSystem::ProfilingData::Write(ezStreamWriter& outputStream) c
     // Frames thread metadata
     {
       writer.BeginObject();
-      writer.AddVariableString("name", "thread_name");
-      writer.AddVariableString("cat", "__metadata");
-      writer.AddVariableUInt32("pid", m_uiProcessID);
-      writer.AddVariableUInt64("tid", m_uiFramesThreadID);
-      writer.AddVariableString("ph", "M");
+      {
+        writer.AddVariableString("name", "thread_name");
+        writer.AddVariableString("cat", "__metadata");
+        writer.AddVariableUInt32("pid", m_uiProcessID);
+        writer.AddVariableUInt64("tid", m_uiFramesThreadID);
+        writer.AddVariableString("ph", "M");
 
-      writer.BeginObject("args");
-      writer.AddVariableString("name", "Frames");
-      writer.EndObject();
-
+        writer.BeginObject("args");
+        writer.AddVariableString("name", "Frames");
+        writer.EndObject();
+      }
       writer.EndObject();
 
       writer.BeginObject();
-      writer.AddVariableString("name", "thread_sort_index");
-      writer.AddVariableString("cat", "__metadata");
-      writer.AddVariableUInt32("pid", m_uiProcessID);
-      writer.AddVariableUInt64("tid", m_uiFramesThreadID);
-      writer.AddVariableString("ph", "M");
+      {
+        writer.AddVariableString("name", "thread_sort_index");
+        writer.AddVariableString("cat", "__metadata");
+        writer.AddVariableUInt32("pid", m_uiProcessID);
+        writer.AddVariableUInt64("tid", m_uiFramesThreadID);
+        writer.AddVariableString("ph", "M");
 
-      writer.BeginObject("args");
-      writer.AddVariableInt32("sort_index", -1);
-      writer.EndObject();
-
+        writer.BeginObject("args");
+        writer.AddVariableInt32("sort_index", -1);
+        writer.EndObject();
+      }
       writer.EndObject();
 
       if (writer.HadWriteError())
@@ -316,37 +318,40 @@ ezResult ezProfilingSystem::ProfilingData::Write(ezStreamWriter& outputStream) c
       }
     }
 
+    const ezUInt32 uiGpuCount = m_GPUScopes.GetCount();
     // GPU thread metadata
-    // Since there are no actual threads, we assign 1..gpuCount as the respective threadID
-    for (ezUInt32 gpuIndex = 1; gpuIndex <= m_GPUScopes.GetCount(); ++gpuIndex)
+    // Since there are no actual threads, we assign 1..uiGpuCount as the respective threadID
+    for (ezUInt32 gpuIndex = 1; gpuIndex <= uiGpuCount; ++gpuIndex)
     {
       writer.BeginObject();
-      writer.AddVariableString("name", "thread_name");
-      writer.AddVariableString("cat", "__metadata");
-      writer.AddVariableUInt32("pid", m_uiProcessID);
-      writer.AddVariableUInt64("tid", gpuIndex);
-      writer.AddVariableString("ph", "M");
+      {
+        writer.AddVariableString("name", "thread_name");
+        writer.AddVariableString("cat", "__metadata");
+        writer.AddVariableUInt32("pid", m_uiProcessID);
+        writer.AddVariableUInt64("tid", gpuIndex);
+        writer.AddVariableString("ph", "M");
 
-      ezStringBuilder gpuNameBuilder;
-      gpuNameBuilder.AppendFormat("GPU {}", gpuIndex - 1);
+        ezStringBuilder gpuNameBuilder;
+        gpuNameBuilder.AppendFormat("GPU {}", gpuIndex - 1);
 
-      writer.BeginObject("args");
-      writer.AddVariableString("name", gpuNameBuilder);
-      writer.EndObject();
-
+        writer.BeginObject("args");
+        writer.AddVariableString("name", gpuNameBuilder);
+        writer.EndObject();
+      }
       writer.EndObject();
 
       writer.BeginObject();
-      writer.AddVariableString("name", "thread_sort_index");
-      writer.AddVariableString("cat", "__metadata");
-      writer.AddVariableUInt32("pid", m_uiProcessID);
-      writer.AddVariableUInt64("tid", gpuIndex);
-      writer.AddVariableString("ph", "M");
+      {
+        writer.AddVariableString("name", "thread_sort_index");
+        writer.AddVariableString("cat", "__metadata");
+        writer.AddVariableUInt32("pid", m_uiProcessID);
+        writer.AddVariableUInt64("tid", gpuIndex);
+        writer.AddVariableString("ph", "M");
 
-      writer.BeginObject("args");
-      writer.AddVariableInt32("sort_index", -2);
-      writer.EndObject();
-
+        writer.BeginObject("args");
+        writer.AddVariableInt32("sort_index", -2);
+        writer.EndObject();
+      }
       writer.EndObject();
       if (writer.HadWriteError())
       {
@@ -356,19 +361,35 @@ ezResult ezProfilingSystem::ProfilingData::Write(ezStreamWriter& outputStream) c
 
     // thread metadata
     {
-      for (const ThreadInfo& info : m_ThreadInfos)
+      for (ezUInt32 threadIndex = 0; threadIndex < m_ThreadInfos.GetCount(); ++threadIndex)
       {
+        const ThreadInfo& info = m_ThreadInfos[threadIndex];
         writer.BeginObject();
-        writer.AddVariableString("name", "thread_name");
-        writer.AddVariableString("cat", "__metadata");
-        writer.AddVariableUInt32("pid", m_uiProcessID);
-        writer.AddVariableUInt64("tid", info.m_uiThreadId + 2);
-        writer.AddVariableString("ph", "M");
+        {
+          writer.AddVariableString("name", "thread_name");
+          writer.AddVariableString("cat", "__metadata");
+          writer.AddVariableUInt32("pid", m_uiProcessID);
+          writer.AddVariableUInt64("tid", info.m_uiThreadId + uiGpuCount + 1);
+          writer.AddVariableString("ph", "M");
 
-        writer.BeginObject("args");
-        writer.AddVariableString("name", info.m_sName);
+          writer.BeginObject("args");
+          writer.AddVariableString("name", info.m_sName);
+          writer.EndObject();
+        }
         writer.EndObject();
 
+        writer.BeginObject();
+        {
+          writer.AddVariableString("name", "thread_sort_index");
+          writer.AddVariableString("cat", "__metadata");
+          writer.AddVariableUInt32("pid", m_uiProcessID);
+          writer.AddVariableUInt64("tid", info.m_uiThreadId + uiGpuCount + 1);
+          writer.AddVariableString("ph", "M");
+
+          writer.BeginObject("args");
+          writer.AddVariableInt32("sort_index", threadIndex);
+          writer.EndObject();
+        }
         writer.EndObject();
 
         if (writer.HadWriteError())
@@ -382,7 +403,8 @@ ezResult ezProfilingSystem::ProfilingData::Write(ezStreamWriter& outputStream) c
     ezDynamicArray<CPUScope> sortedScopes;
     for (const auto& eventBuffer : m_AllEventBuffers)
     {
-      const ezUInt64 uiThreadId = eventBuffer.m_uiThreadId + 2;
+      // Since we introduced fake thread IDs via the GPUs, we simply shift all real thread IDs to be in a different range to avoid collisions.
+      const ezUInt64 uiThreadId = eventBuffer.m_uiThreadId + uiGpuCount + 1;
 
       // It seems that chrome does a stable sort by scope begin time. Now that we write complete scopes at the end of a scope
       // we actually write nested scopes before their corresponding parent scope to the file. If both start at the same quantized time stamp
