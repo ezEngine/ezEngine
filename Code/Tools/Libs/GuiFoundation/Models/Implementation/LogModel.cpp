@@ -17,8 +17,9 @@ void ezQtLogModel::Invalidate()
   if (!m_bIsValid)
     return;
 
+  beginResetModel();
   m_bIsValid = false;
-  dataChanged(QModelIndex(), QModelIndex());
+  endResetModel();
 }
 
 void ezQtLogModel::Clear()
@@ -304,9 +305,9 @@ void ezQtLogModel::UpdateVisibleEntries() const
   if (m_bIsValid)
     return;
 
+
   m_bIsValid = true;
   m_VisibleMessages.Clear();
-
   for (const auto& msg : m_AllMessages)
   {
     if (IsFiltered(msg))

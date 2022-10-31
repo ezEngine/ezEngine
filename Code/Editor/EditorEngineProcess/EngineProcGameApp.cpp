@@ -157,6 +157,7 @@ bool ezEngineProcessGameApplication::ProcessIPCMessages(bool bPendingOpInProgres
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
     // Make sure that Windows doesn't show a default message box when we call abort
     _set_abort_behavior(0, _WRITE_ABORT_MSG);
+    TerminateProcess(GetCurrentProcess(), 0);
 #endif
 
     // The OS will still call destructors for our objects (even though we called abort ... what a pointless design).

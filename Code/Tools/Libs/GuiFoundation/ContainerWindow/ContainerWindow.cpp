@@ -146,6 +146,7 @@ void ezQtContainerWindow::closeEvent(QCloseEvent* e)
   for (ezQtDocumentWindow* pWindow : windows)
   {
     pWindow->DisableWindowLayoutSaving();
+    pWindow->ShutdownDocumentWindow();
   }
 
   // We need to destroy the dock manager here, doing it in the constructor leads to an access violation.

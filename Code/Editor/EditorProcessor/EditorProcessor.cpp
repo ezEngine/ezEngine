@@ -13,7 +13,7 @@
 ezCommandLineOptionPath opt_OutputDir("_EditorProcessor", "-outputDir", "Output directory", "");
 ezCommandLineOptionBool opt_Debug("_EditorProcessor", "-debug", "Writes various debug logs into the output folder.", false);
 ezCommandLineOptionPath opt_Project("_EditorProcessor", "-project", "Path to the project folder.", "");
-ezCommandLineOptionBool opt_Resave("_EditorProcessor", "-resave", "If specified, assets will be resaved.", "");
+ezCommandLineOptionBool opt_Resave("_EditorProcessor", "-resave", "If specified, assets will be resaved.", false);
 ezCommandLineOptionString opt_Transform("_EditorProcessor", "-transform", "If specified, assets will be transformed for the given platform profile.\n\
 \n\
 Example:\n\

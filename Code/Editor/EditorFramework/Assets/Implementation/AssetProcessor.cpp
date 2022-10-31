@@ -418,6 +418,11 @@ void ezProcessTask::Execute()
 
     while (m_bWaiting)
     {
+      if (!m_pIPC->IsClientAlive())
+      {
+        m_bProcessCrashed = true;
+      }
+
       if (m_bProcessCrashed)
       {
         m_bWaiting = false;

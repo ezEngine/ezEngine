@@ -2,6 +2,7 @@
 
 #include <EditorFramework/GUI/RawDocumentTreeWidget.moc.h>
 #include <GuiFoundation/Models/TreeSearchFilterModel.moc.h>
+#include <GuiFoundation/ActionViews/QtProxy.moc.h>
 
 ezQtDocumentTreeView::ezQtDocumentTreeView(QWidget* parent)
   : ezQtItemView<QTreeView>(parent)
@@ -148,7 +149,10 @@ void ezQtDocumentTreeView::SetAllowDeleteObjects(bool bAllow)
 
 void ezQtDocumentTreeView::keyPressEvent(QKeyEvent* e)
 {
-  if (e->key() == Qt::Key::Key_Delete)
+  if (ezQtProxy::TriggerDocumentAction(m_pDocument, e))
+    return;
+
+  if (e == QKeySequence::Delete)
   {
     if (m_bAllowDeleteObjects)
     {
