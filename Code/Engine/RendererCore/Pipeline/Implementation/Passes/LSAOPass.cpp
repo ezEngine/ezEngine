@@ -339,9 +339,9 @@ void ezLSAOPass::SetupLineSweepData(const ezVec3I32& imageResolution)
     {
       // Put opposing directions next to each other, so that a gather pass that doesn't sample all directions, only needs to sample an even
       // number of directions to end up with non-negative occlusion.
-      samplingDir[i * 4 + 0] = ezVec2I32(i - halfPerSide, halfPerSide) * m_iLineSamplePixelOffsetFactor; // Top
+      samplingDir[i * 4 + 0] = ezVec2I32(i - halfPerSide, halfPerSide) * m_iLineSamplePixelOffsetFactor;  // Top
       samplingDir[i * 4 + 1] = -samplingDir[i * 4 + 0];                                                   // Bottom
-      samplingDir[i * 4 + 2] = ezVec2I32(halfPerSide, halfPerSide - i) * m_iLineSamplePixelOffsetFactor; // Right
+      samplingDir[i * 4 + 2] = ezVec2I32(halfPerSide, halfPerSide - i) * m_iLineSamplePixelOffsetFactor;  // Right
       samplingDir[i * 4 + 3] = -samplingDir[i * 4 + 2];                                                   // Left
     }
 

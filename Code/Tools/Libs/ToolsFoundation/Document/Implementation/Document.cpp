@@ -146,8 +146,7 @@ ezStatus ezDocument::SaveDocument(bool bForce)
     ezTaskSystem::WaitForGroup(m_ActiveSaveTask);
   }
   ezStatus result;
-  m_ActiveSaveTask = InternalSaveDocument([&result](ezDocument* doc, ezStatus res)
-    { result = res; });
+  m_ActiveSaveTask = InternalSaveDocument([&result](ezDocument* doc, ezStatus res) { result = res; });
   ezTaskSystem::WaitForGroup(m_ActiveSaveTask);
   return result;
 }

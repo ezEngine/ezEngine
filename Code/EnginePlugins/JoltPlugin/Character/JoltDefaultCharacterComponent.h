@@ -82,7 +82,7 @@ public:
   bool IsStandingOnGround() const { return m_LastGroundState == GroundState::OnGround; } // [ scriptable ]
   bool IsSlidingOnGround() const { return m_LastGroundState == GroundState::Sliding; }   // [ scriptable ]
   bool IsInAir() const { return m_LastGroundState == GroundState::InAir; }               // [ scriptable ]
-  bool IsCrouching() const { return m_uiIsCrouchingBit; }                                  // [ scriptable ]
+  bool IsCrouching() const { return m_uiIsCrouchingBit; }                                // [ scriptable ]
 
   void TeleportCharacter(const ezVec3& vGlobalFootPosition);
 

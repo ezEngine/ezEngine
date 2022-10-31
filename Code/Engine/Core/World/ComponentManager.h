@@ -188,7 +188,7 @@ public:                                                                         
 ///
 /// \see EZ_BEGIN_DYNAMIC_REFLECTED_TYPE
 #define EZ_BEGIN_COMPONENT_TYPE(componentType, version, mode)                                                                                  \
-  ezWorldModuleTypeId componentType::s_TypeId =                                                                                                 \
+  ezWorldModuleTypeId componentType::s_TypeId =                                                                                                \
     ezWorldModuleFactory::GetInstance()->RegisterWorldModule<typename componentType::ComponentManagerType, componentType>();                   \
   ezComponentMode::Enum componentType::GetMode() const { return mode; }                                                                        \
   ezComponentHandle componentType::CreateComponent(ezGameObject* pOwnerObject, componentType*& out_pComponent)                                 \
