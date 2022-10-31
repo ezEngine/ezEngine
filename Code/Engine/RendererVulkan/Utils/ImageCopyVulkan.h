@@ -97,6 +97,7 @@ private:
     ezHashTable<ImageViewCacheKey, vk::ImageView> m_targetImageViews;
     ezHashTable<vk::Image, ImageViewCacheValue> m_imageToTargetImageViewCacheKey;
     ezHashTable<FramebufferCacheKey, vk::Framebuffer> m_framebuffers;
+    ezHashTable<ezShaderUtils::ezBuiltinShaderType, ezShaderUtils::ezBuiltinShader> m_shaders;
 
     ezEventSubscriptionID m_onBeforeImageDeletedSubscription;
   };
