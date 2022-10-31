@@ -11,9 +11,10 @@ class ezGALTextureVulkan;
 class ezGALResourceViewVulkan : public ezGALResourceView
 {
 public:
-  EZ_ALWAYS_INLINE const vk::DescriptorImageInfo& GetImageInfo(bool bIsArray) const;
+  const vk::DescriptorImageInfo& GetImageInfo(bool bIsArray) const;
   const vk::DescriptorBufferInfo& GetBufferInfo() const;
   vk::ImageSubresourceRange GetRange() const;
+  const vk::BufferView& GetBufferView() const;
 
 protected:
   friend class ezGALDeviceVulkan;
@@ -29,6 +30,7 @@ protected:
   mutable vk::DescriptorImageInfo m_resourceImageInfo;
   mutable vk::DescriptorImageInfo m_resourceImageInfoArray;
   mutable vk::DescriptorBufferInfo m_resourceBufferInfo;
+  vk::BufferView m_bufferView;
 };
 
 #include <RendererVulkan/Resources/Implementation/ResourceViewVulkan_inl.h>

@@ -310,32 +310,38 @@ ezResult ezGALDeviceVulkan::InitPlatform()
     instanceCreateInfo.ppEnabledExtensionNames = instanceExtensions.GetData();
 
     instanceCreateInfo.enabledLayerCount = 0;
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-    VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
-    debugCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-    debugCreateInfo.messageSeverity = /*VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |*/ VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-    debugCreateInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
-    debugCreateInfo.pfnUserCallback = debugCallback;
-    debugCreateInfo.pUserData = nullptr;
 
-    if (isInstanceLayerPresent(layers[0]))
+    VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
+    if (m_Description.m_bDebugDevice)
     {
-      instanceCreateInfo.enabledLayerCount = EZ_ARRAY_SIZE(layers);
-      instanceCreateInfo.ppEnabledLayerNames = layers;
+      debugCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+      debugCreateInfo.messageSeverity = /*VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |*/ VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+      debugCreateInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+      debugCreateInfo.pfnUserCallback = debugCallback;
+      debugCreateInfo.pUserData = nullptr;
+
+      if (isInstanceLayerPresent(layers[0]))
+      {
+        instanceCreateInfo.enabledLayerCount = EZ_ARRAY_SIZE(layers);
+        instanceCreateInfo.ppEnabledLayerNames = layers;
+      }
+      else
+      {
+        ezLog::Warning("The khronos validation layer is not supported on this device. Will run without validation layer.");
+      }
+      instanceCreateInfo.pNext = &debugCreateInfo;
     }
-    else
-    {
-      ezLog::Warning("The khronos validation layer is not supported on this device. Will run without validation layer.");
-    }
-    instanceCreateInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*)&debugCreateInfo;
-#endif
 
     m_instance = vk::createInstance(instanceCreateInfo);
+
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-    EZ_GET_INSTANCE_PROC_ADDR(vkCreateDebugUtilsMessengerEXT);
-    EZ_GET_INSTANCE_PROC_ADDR(vkDestroyDebugUtilsMessengerEXT);
-    EZ_GET_INSTANCE_PROC_ADDR(vkSetDebugUtilsObjectNameEXT);
-    VK_SUCCEED_OR_RETURN_EZ_FAILURE(m_extensions.pfn_vkCreateDebugUtilsMessengerEXT(m_instance, &debugCreateInfo, nullptr, &m_debugMessenger));
+    if (m_Description.m_bDebugDevice)
+    {
+      EZ_GET_INSTANCE_PROC_ADDR(vkCreateDebugUtilsMessengerEXT);
+      EZ_GET_INSTANCE_PROC_ADDR(vkDestroyDebugUtilsMessengerEXT);
+      EZ_GET_INSTANCE_PROC_ADDR(vkSetDebugUtilsObjectNameEXT);
+      VK_SUCCEED_OR_RETURN_EZ_FAILURE(m_extensions.pfn_vkCreateDebugUtilsMessengerEXT(m_instance, &debugCreateInfo, nullptr, &m_debugMessenger));
+    }
 #endif
 
     if (!m_instance)
@@ -675,7 +681,12 @@ ezResult ezGALDeviceVulkan::ShutdownPlatform()
   m_device.waitIdle();
   m_device.destroy();
 
-  m_extensions.pfn_vkDestroyDebugUtilsMessengerEXT(m_instance, m_debugMessenger, nullptr);
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  if (m_extensions.pfn_vkDestroyDebugUtilsMessengerEXT != nullptr)
+  {
+    m_extensions.pfn_vkDestroyDebugUtilsMessengerEXT(m_instance, m_debugMessenger, nullptr);
+  }
+#endif
 
   m_instance.destroy();
   ReportLiveGpuObjects();
@@ -764,7 +775,9 @@ void ezGALDeviceVulkan::BeginPipelinePlatform(const char* szName, ezGALSwapChain
   EZ_PROFILE_SCOPE("BeginPipelinePlatform");
 
   GetCurrentCommandBuffer();
+#if EZ_ENABLED(EZ_USE_PROFILING)
   m_pPipelineTimingScope = ezProfilingScopeAndMarker::Start(m_pDefaultPass->m_pRenderCommandEncoder.Borrow(), szName);
+#endif
 
   if (pSwapChain)
   {
@@ -776,7 +789,9 @@ void ezGALDeviceVulkan::EndPipelinePlatform(ezGALSwapChain* pSwapChain)
 {
   EZ_PROFILE_SCOPE("EndPipelinePlatform");
 
+#if EZ_ENABLED(EZ_USE_PROFILING)
   ezProfilingScopeAndMarker::Stop(m_pDefaultPass->m_pRenderCommandEncoder.Borrow(), m_pPipelineTimingScope);
+#endif
   if (pSwapChain)
   {
     pSwapChain->PresentRenderTarget(this);
@@ -862,13 +877,17 @@ vk::Fence ezGALDeviceVulkan::Submit(vk::Semaphore waitSemaphore, vk::PipelineSta
 ezGALPass* ezGALDeviceVulkan::BeginPassPlatform(const char* szName)
 {
   GetCurrentCommandBuffer();
+#if EZ_ENABLED(EZ_USE_PROFILING)
   m_pPassTimingScope = ezProfilingScopeAndMarker::Start(m_pDefaultPass->m_pRenderCommandEncoder.Borrow(), szName);
+#endif
   return m_pDefaultPass.Borrow();
 }
 
 void ezGALDeviceVulkan::EndPassPlatform(ezGALPass* pPass)
 {
+#if EZ_ENABLED(EZ_USE_PROFILING)
   ezProfilingScopeAndMarker::Stop(m_pDefaultPass->m_pRenderCommandEncoder.Borrow(), m_pPassTimingScope);
+#endif
 }
 
 // State creation functions
@@ -1191,18 +1210,23 @@ void ezGALDeviceVulkan::BeginFramePlatform(const ezUInt64 uiRenderFrame)
 
   m_pQueryPool->BeginFrame(GetCurrentCommandBuffer());
   GetCurrentCommandBuffer();
+
+#if EZ_ENABLED(EZ_USE_PROFILING)
   ezStringBuilder sb;
   sb.Format("Frame {}", uiRenderFrame);
   m_pFrameTimingScope = ezProfilingScopeAndMarker::Start(m_pDefaultPass->m_pRenderCommandEncoder.Borrow(), sb);
+#endif
 }
 
 void ezGALDeviceVulkan::EndFramePlatform()
 {
+#if EZ_ENABLED(EZ_USE_PROFILING)
   {
     //#TODO_VULKAN This is very wasteful, in normal cases the last endPipeline will have submitted the command buffer via the swapchain. Thus, we start and submit a command buffer here with only the timestamp in it.
     GetCurrentCommandBuffer();
     ezProfilingScopeAndMarker::Stop(m_pDefaultPass->m_pRenderCommandEncoder.Borrow(), m_pFrameTimingScope);
   }
+#endif
 
   if (m_PerFrameData[m_uiCurrentPerFrameData].m_currentCommandBuffer)
   {
@@ -1330,9 +1354,12 @@ void ezGALDeviceVulkan::DeletePendingResources(ezDeque<PendingDeletion>& pending
         OnBeforeImageDestroyed.Broadcast(OnBeforeImageDestroyedData{image, *this});
         ezMemoryAllocatorVulkan::DestroyImage(image, deletion.m_allocation);
       }
-        break;
+      break;
       case vk::ObjectType::eBuffer:
         ezMemoryAllocatorVulkan::DestroyBuffer(reinterpret_cast<vk::Buffer&>(deletion.m_pObject), deletion.m_allocation);
+        break;
+      case vk::ObjectType::eBufferView:
+        m_device.destroyBufferView(reinterpret_cast<vk::BufferView&>(deletion.m_pObject));
         break;
       case vk::ObjectType::eFramebuffer:
         m_device.destroyFramebuffer(reinterpret_cast<vk::Framebuffer&>(deletion.m_pObject));

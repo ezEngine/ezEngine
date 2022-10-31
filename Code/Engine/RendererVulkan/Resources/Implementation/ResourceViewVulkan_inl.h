@@ -8,3 +8,8 @@ EZ_ALWAYS_INLINE vk::ImageSubresourceRange ezGALResourceViewVulkan::GetRange() c
 {
   return m_range;
 }
+
+EZ_ALWAYS_INLINE const vk::BufferView& ezGALResourceViewVulkan::GetBufferView() const
+{
+  return m_bufferView;
+}

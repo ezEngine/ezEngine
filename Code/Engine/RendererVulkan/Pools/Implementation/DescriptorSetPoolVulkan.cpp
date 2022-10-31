@@ -17,9 +17,9 @@ void ezDescriptorSetPoolVulkan::Initialize(vk::Device device)
   s_descriptorWeights[vk::DescriptorType::eStorageImage] = 1.0f;  // Read / write image view.
   s_descriptorWeights[vk::DescriptorType::eUniformBuffer] = 1.0f; // Read-only struct (constant buffer)
   s_descriptorWeights[vk::DescriptorType::eStorageBuffer] = 1.0f; // Read / write struct (UAV).
+  s_descriptorWeights[vk::DescriptorType::eUniformTexelBuffer] = 0.5f; // Read-only linear texel buffer with view.
 
   // Not used by EZ so far.
-  s_descriptorWeights[vk::DescriptorType::eUniformTexelBuffer] = 0.0f;   // Read-only linear texel buffer with view.
   s_descriptorWeights[vk::DescriptorType::eStorageTexelBuffer] = 0.0f;   // Read / write linear texel buffer with view.
   s_descriptorWeights[vk::DescriptorType::eUniformBufferDynamic] = 0.0f; // Same as eUniformBuffer but allows updating the memory offset into the buffer dynamically.
   s_descriptorWeights[vk::DescriptorType::eStorageBufferDynamic] = 0.0f; // Same as eStorageBuffer but allows updating the memory offset into the buffer dynamically.

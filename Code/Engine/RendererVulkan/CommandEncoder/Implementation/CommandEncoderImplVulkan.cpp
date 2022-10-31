@@ -1411,7 +1411,7 @@ void ezGALCommandEncoderImplVulkan::FlushDeferredStateChanges()
     // Need to figure out a fast check if any buffer or buffer of a resource view was discarded.
     m_bDescriptorsDirty = false;
 
-    ezHybridArray<vk::WriteDescriptorSet, 16> descriptorWrites;
+    m_DescriptorWrites.Clear();
     vk::DescriptorSet descriptorSet = ezDescriptorSetPoolVulkan::CreateDescriptorSet(m_LayoutDesc.m_layout);
 
     ezArrayPtr<const ezGALShaderVulkan::BindingMapping> bindingMapping = m_PipelineDesc.m_pCurrentShader->GetBindingMapping();
@@ -1419,7 +1419,7 @@ void ezGALCommandEncoderImplVulkan::FlushDeferredStateChanges()
     for (ezUInt32 i = 0; i < uiCount; i++)
     {
       const ezGALShaderVulkan::BindingMapping& mapping = bindingMapping[i];
-      vk::WriteDescriptorSet& write = descriptorWrites.ExpandAndGetRef();
+      vk::WriteDescriptorSet& write = m_DescriptorWrites.ExpandAndGetRef();
       write.dstArrayElement = 0;
       write.descriptorType = mapping.m_descriptorType;
       write.dstBinding = mapping.m_uiTarget;
@@ -1435,7 +1435,12 @@ void ezGALCommandEncoderImplVulkan::FlushDeferredStateChanges()
         break;
         case ezGALShaderVulkan::BindingMapping::ResourceView:
         {
-          const ezGALResourceViewVulkan* pResourceView = m_pBoundShaderResourceViews[mapping.m_stage][mapping.m_uiSource];
+          const ezGALResourceViewVulkan* pResourceView = nullptr;
+          if (mapping.m_uiSource < m_pBoundShaderResourceViews[mapping.m_stage].GetCount())
+          {
+            pResourceView = m_pBoundShaderResourceViews[mapping.m_stage][mapping.m_uiSource];
+          }
+
           if (!pResourceView)
           {
             ezStringBuilder bla = mapping.m_sName;
@@ -1453,7 +1458,14 @@ void ezGALCommandEncoderImplVulkan::FlushDeferredStateChanges()
           }
           else
           {
-            write.pBufferInfo = &pResourceView->GetBufferInfo();
+            if (auto& bufferView = pResourceView->GetBufferView())
+            {
+              write.pTexelBufferView = &bufferView;
+            }
+            else
+            {
+              write.pBufferInfo = &pResourceView->GetBufferInfo();
+            }
           }
         }
         break;
@@ -1484,7 +1496,7 @@ void ezGALCommandEncoderImplVulkan::FlushDeferredStateChanges()
       }
     }
 
-    ezDescriptorSetPoolVulkan::UpdateDescriptorSet(descriptorSet, descriptorWrites);
+    ezDescriptorSetPoolVulkan::UpdateDescriptorSet(descriptorSet, m_DescriptorWrites);
     m_pCommandBuffer->bindDescriptorSets(m_bInsideCompute ? vk::PipelineBindPoint::eCompute : vk::PipelineBindPoint::eGraphics, m_PipelineDesc.m_layout, 0, 1, &descriptorSet, 0, nullptr);
   }
 

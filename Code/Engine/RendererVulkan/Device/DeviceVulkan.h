@@ -59,9 +59,9 @@ public:
 #endif
 
     bool m_bDebugUtils = false;
-    PFN_vkCreateDebugUtilsMessengerEXT pfn_vkCreateDebugUtilsMessengerEXT;
-    PFN_vkDestroyDebugUtilsMessengerEXT pfn_vkDestroyDebugUtilsMessengerEXT;
-    PFN_vkSetDebugUtilsObjectNameEXT pfn_vkSetDebugUtilsObjectNameEXT;
+    PFN_vkCreateDebugUtilsMessengerEXT pfn_vkCreateDebugUtilsMessengerEXT = nullptr;
+    PFN_vkDestroyDebugUtilsMessengerEXT pfn_vkDestroyDebugUtilsMessengerEXT = nullptr;
+    PFN_vkSetDebugUtilsObjectNameEXT pfn_vkSetDebugUtilsObjectNameEXT = nullptr;
 
     bool m_bDeviceSwapChain = false;
     bool m_bShaderViewportIndexLayer = false;
@@ -297,13 +297,15 @@ private:
 
   PerFrameData m_PerFrameData[4];
 
+#if EZ_ENABLED(EZ_USE_PROFILING)
   struct GPUTimingScope* m_pFrameTimingScope = nullptr;
   struct GPUTimingScope* m_pPipelineTimingScope = nullptr;
   struct GPUTimingScope* m_pPassTimingScope = nullptr;
+#endif
 
   Extensions m_extensions;
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  VkDebugUtilsMessengerEXT m_debugMessenger;
+  VkDebugUtilsMessengerEXT m_debugMessenger = VK_NULL_HANDLE;
 #endif
 };
 

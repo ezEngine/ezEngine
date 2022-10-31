@@ -40,8 +40,8 @@ ezResult ezGALBufferVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const 
       m_access |= vk::AccessFlagBits::eVertexAttributeRead;
       break;
     case ezGALBufferType::Generic:
+      m_usage = m_Description.m_bUseAsStructuredBuffer ? vk::BufferUsageFlagBits::eStorageBuffer : vk::BufferUsageFlagBits::eUniformTexelBuffer;
       m_stages |= m_pDeviceVulkan->GetSupportedStages();
-      //#TODO_VULKAN Is this correct for Vulkan?
       break;
     default:
       ezLog::Error("Unknown buffer type supplied to CreateBuffer()!");
@@ -50,14 +50,12 @@ ezResult ezGALBufferVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const 
 
   if (m_Description.m_bAllowShaderResourceView)
   {
-    m_usage |= vk::BufferUsageFlagBits::eStorageBuffer;
     m_stages |= m_pDeviceVulkan->GetSupportedStages();
     m_access |= vk::AccessFlagBits::eShaderRead;
   }
 
   if (m_Description.m_bAllowUAV)
   {
-    m_usage |= vk::BufferUsageFlagBits::eStorageBuffer;
     m_stages |= m_pDeviceVulkan->GetSupportedStages();
     m_access |= vk::AccessFlagBits::eShaderRead | vk::AccessFlagBits::eShaderWrite;
   }
@@ -91,11 +89,6 @@ ezResult ezGALBufferVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const 
   m_size = ezMemoryUtils::AlignSize((vk::DeviceSize)m_Description.m_uiTotalSize, alignment);
 
   if (m_Description.m_bAllowRawViews)
-  {
-    // TODO Vulkan?
-  }
-
-  if (m_Description.m_bUseAsStructuredBuffer)
   {
     // TODO Vulkan?
   }

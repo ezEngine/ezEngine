@@ -95,13 +95,26 @@ void ezFallbackResourcesVulkan::GALDeviceEventHandler(const ezGALDeviceEvent& e)
         desc.m_uiTotalSize = 1280;
         desc.m_ResourceAccess.m_bImmutable = false;
         ezGALBufferHandle hBuffer = s_pDevice->CreateBuffer(desc);
-        s_pDevice->GetBuffer(hBuffer)->SetDebugName("FallbackResourceVulkan");
+        s_pDevice->GetBuffer(hBuffer)->SetDebugName("FallbackStructuredBufferVulkan");
         m_Buffers.PushBack(hBuffer);
         ezGALResourceViewHandle hView = s_pDevice->GetDefaultResourceView(hBuffer);
         m_ResourceViews[{vk::DescriptorType::eUniformBuffer, ezShaderResourceType::ConstantBuffer, false}] = hView;
         m_ResourceViews[{vk::DescriptorType::eUniformBuffer, ezShaderResourceType::ConstantBuffer, true}] = hView;
         m_ResourceViews[{vk::DescriptorType::eStorageBuffer, ezShaderResourceType::GenericBuffer, false}] = hView;
         m_ResourceViews[{vk::DescriptorType::eStorageBuffer, ezShaderResourceType::GenericBuffer, true}] = hView;
+      }
+      {
+        ezGALBufferCreationDescription desc;
+        desc.m_uiStructSize = sizeof(ezUInt32);
+        desc.m_uiTotalSize = 1024;
+        desc.m_bAllowShaderResourceView = true;
+        desc.m_ResourceAccess.m_bImmutable = false;
+        ezGALBufferHandle hBuffer = s_pDevice->CreateBuffer(desc);
+        s_pDevice->GetBuffer(hBuffer)->SetDebugName("FallbackTexelBufferVulkan");
+        m_Buffers.PushBack(hBuffer);
+        ezGALResourceViewHandle hView = s_pDevice->GetDefaultResourceView(hBuffer);
+        m_ResourceViews[{vk::DescriptorType::eUniformTexelBuffer, ezShaderResourceType::GenericBuffer, false}] = hView;
+        m_ResourceViews[{vk::DescriptorType::eUniformTexelBuffer, ezShaderResourceType::GenericBuffer, true}] = hView;
       }
     }
     break;
