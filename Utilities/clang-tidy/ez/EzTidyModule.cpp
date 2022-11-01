@@ -11,27 +11,32 @@
 #include "../ClangTidyModuleRegistry.h"
 #include "NameCheck.h"
 
-namespace clang {
-namespace tidy {
-namespace ez {
+namespace clang
+{
+  namespace tidy
+  {
+    namespace ez
+    {
 
-class EzModule : public ClangTidyModule {
-public:
-  void addCheckFactories(ClangTidyCheckFactories &CheckFactories) override {
-    CheckFactories.registerCheck<NameCheck>(
-        "ez-name-check");
-  }
-};
+      class EzModule : public ClangTidyModule
+      {
+      public:
+        void addCheckFactories(ClangTidyCheckFactories& CheckFactories) override
+        {
+          CheckFactories.registerCheck<NameCheck>(
+            "ez-name-check");
+        }
+      };
 
-} // namespace misc
+    } // namespace ez
 
-// Register the MiscTidyModule using this statically initialized variable.
-static ClangTidyModuleRegistry::Add<ez::EzModule>
-    X("ez-module", "Adds ez engine specific lint checks.");
+    // Register the MiscTidyModule using this statically initialized variable.
+    static ClangTidyModuleRegistry::Add<ez::EzModule>
+      X("ez-module", "Adds ez engine specific lint checks.");
 
-// This anchor is used to force the linker to link in the generated object file
-// and thus register the EzModule.
-volatile int EzModuleAnchorSource = 0;
+    // This anchor is used to force the linker to link in the generated object file
+    // and thus register the EzModule.
+    volatile int EzModuleAnchorSource = 0;
 
-} // namespace tidy
+  } // namespace tidy
 } // namespace clang

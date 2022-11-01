@@ -7,36 +7,40 @@
 //===----------------------------------------------------------------------===//
 
 #ifndef LLVM_CLANG_TOOLS_EXTRA_CLANG_TIDY_MISC_MEMBERVARCHECKCHECK_H
-#define LLVM_CLANG_TOOLS_EXTRA_CLANG_TIDY_EZ_MEMBERVARCHECKCHECK_H
+#  define LLVM_CLANG_TOOLS_EXTRA_CLANG_TIDY_EZ_MEMBERVARCHECKCHECK_H
 
-#include "../utils/RenamerClangTidyCheck.h"
+#  include "../utils/RenamerClangTidyCheck.h"
 
-namespace clang {
-namespace tidy {
-namespace ez {
+namespace clang
+{
+  namespace tidy
+  {
+    namespace ez
+    {
 
-class NameCheck : public RenamerClangTidyCheck {
-public:
-  NameCheck(StringRef Name, ClangTidyContext *Context);
+      class NameCheck : public RenamerClangTidyCheck
+      {
+      public:
+        NameCheck(StringRef Name, ClangTidyContext* Context);
 
-protected:
-  llvm::Optional<FailureInfo>
-  getDeclFailureInfo(const NamedDecl *Decl,
-                     const SourceManager &SM) const override;
+      protected:
+        llvm::Optional<FailureInfo>
+        getDeclFailureInfo(const NamedDecl* Decl,
+          const SourceManager& SM) const override;
 
-  llvm::Optional<FailureInfo>
-  getMacroFailureInfo(const Token &MacroNameTok,
-                      const SourceManager &SM) const override;
+        llvm::Optional<FailureInfo>
+        getMacroFailureInfo(const Token& MacroNameTok,
+          const SourceManager& SM) const override;
 
-  DiagInfo getDiagInfo(const NamingCheckId &ID,
-                       const NamingCheckFailure &Failure) const override;
+        DiagInfo getDiagInfo(const NamingCheckId& ID,
+          const NamingCheckFailure& Failure) const override;
 
-private:
-  mutable const SourceManager *m_pSourceManager = nullptr;
-};
+      private:
+        mutable const SourceManager* m_pSourceManager = nullptr;
+      };
 
-} // namespace ez
-} // namespace tidy
+    } // namespace ez
+  }   // namespace tidy
 } // namespace clang
 
 #endif // LLVM_CLANG_TOOLS_EXTRA_CLANG_TIDY_EZ_MEMBERVARCHECKCHECK_H
