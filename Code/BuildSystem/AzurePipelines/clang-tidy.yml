@@ -24,7 +24,7 @@ jobs:
     displayName: 'Run clang-tidy'
     inputs:
       targetType: filePath
-      filePath: './Utilities/clang-tidy.ps1'
+      filePath: './Utilities/RunClangTidy.ps1'
       arguments: '-DiffTo "$(system.pullRequest.targetBranch)" -LlvmInstallDir "$pwd\llvm" -Workspace "workspace-clang"'
   - pwsh: |
       # Changes done by clang tidy on MemberProperty.h are always incorrect
