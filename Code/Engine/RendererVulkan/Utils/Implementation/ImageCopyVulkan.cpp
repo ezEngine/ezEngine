@@ -98,6 +98,22 @@ struct ezHashHelper<ezImageCopyVulkan::ImageViewCacheKey>
   }
 };
 
+template <>
+struct ezHashHelper<ezShaderUtils::ezBuiltinShaderType>
+{
+  EZ_ALWAYS_INLINE static ezUInt32 Hash(const ezShaderUtils::ezBuiltinShaderType& value)
+  {
+    ezHashStreamWriter32 writer;
+    writer << ezConversionUtilsVulkan::GetUnderlyingValue(value);
+    return writer.GetHashValue();
+  }
+
+  EZ_ALWAYS_INLINE static bool Equal(const ezShaderUtils::ezBuiltinShaderType& a, const ezShaderUtils::ezBuiltinShaderType& b)
+  {
+    return a == b;
+  }
+};
+
 ezUniquePtr<ezImageCopyVulkan::Cache> ezImageCopyVulkan::s_cache;
 
 ezImageCopyVulkan::Cache::Cache(ezAllocatorBase* pAllocator)
@@ -108,6 +124,7 @@ ezImageCopyVulkan::Cache::Cache(ezAllocatorBase* pAllocator)
   , m_targetImageViews(pAllocator)
   , m_imageToTargetImageViewCacheKey(pAllocator)
   , m_framebuffers(pAllocator)
+  , m_shaders(pAllocator)
 {
 }
 
@@ -150,6 +167,7 @@ void ezImageCopyVulkan::DeInitialize(ezGALDeviceVulkan& GALDeviceVulkan)
   {
     GALDeviceVulkan.GetVulkanDevice().destroyFramebuffer(kv.Value());
   }
+  s_cache->m_shaders.Clear();
   s_cache = nullptr;
 }
 
@@ -249,7 +267,15 @@ void ezImageCopyVulkan::Init(const ezGALTextureVulkan* pSource, const ezGALTextu
 
   // Vertex declaration
   {
-    ezShaderUtils::RequestBuiltinShader(type, m_shader);
+    if (auto it = s_cache->m_shaders.Find(type); it.IsValid())
+    {
+      m_shader = it.Value();
+    }
+    else
+    {
+      ezShaderUtils::RequestBuiltinShader(type, m_shader);
+      s_cache->m_shaders.Insert(type, m_shader);
+    }
     {
       if (auto it = s_cache->m_vertexDeclarations.Find(m_shader.m_hActiveGALShader); it.IsValid())
       {
@@ -273,12 +299,10 @@ void ezImageCopyVulkan::Init(const ezGALTextureVulkan* pSource, const ezGALTextu
     m_PipelineDesc.m_msaa = targetDesc.m_SampleCount;
     m_PipelineDesc.m_uiAttachmentCount = 1;
 
-
     m_PipelineDesc.m_pCurrentRasterizerState = static_cast<const ezGALRasterizerStateVulkan*>(m_GALDeviceVulkan.GetRasterizerState(m_shader.m_hRasterizerState));
     m_PipelineDesc.m_pCurrentBlendState = static_cast<const ezGALBlendStateVulkan*>(m_GALDeviceVulkan.GetBlendState(m_shader.m_hBlendState));
     m_PipelineDesc.m_pCurrentDepthStencilState = static_cast<const ezGALDepthStencilStateVulkan*>(m_GALDeviceVulkan.GetDepthStencilState(m_shader.m_hDepthStencilState));
     m_PipelineDesc.m_pCurrentShader = static_cast<const ezGALShaderVulkan*>(m_GALDeviceVulkan.GetShader(m_shader.m_hActiveGALShader));
-
 
     const ezGALShaderVulkan::DescriptorSetLayoutDesc& descriptorLayoutDesc = m_PipelineDesc.m_pCurrentShader->GetDescriptorSetLayout();
     m_LayoutDesc.m_layout = ezResourceCacheVulkan::RequestDescriptorSetLayout(descriptorLayoutDesc);

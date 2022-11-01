@@ -65,3 +65,4 @@ public:
     g_RequestBuiltinShaderCallback(type, out_shader);
   }
 };
+EZ_DEFINE_AS_POD_TYPE(ezShaderUtils::ezBuiltinShaderType);
