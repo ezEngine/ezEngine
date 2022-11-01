@@ -123,7 +123,7 @@ if($DiffTo)
 		if($_ -match "moc_.*\.cpp$")
 		{
 			$mocCpp = $_
-			$mocH1 = $_ -replace "cpp$",".h"
+			$mocH1 = $_ -replace "cpp$","h"
 			$path = Split-Path -Parent -Path $mocH1
 			$name = Split-Path -Leaf -Path $mocH1
 			$name = $name.trim("moc_")
