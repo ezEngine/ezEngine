@@ -23,6 +23,7 @@ jobs:
   - task: PowerShell@2
     displayName: 'Run clang-tidy'
     inputs:
+      pwsh: true
       targetType: filePath
       filePath: './Utilities/RunClangTidy.ps1'
       arguments: '-DiffTo "$(system.pullRequest.targetBranch)" -LlvmInstallDir "$pwd\llvm" -Workspace "workspace-clang"'
