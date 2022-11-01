@@ -85,17 +85,17 @@ else
 if($DiffTo)
 {
 	# Get list of changed files from git
-    $mergeBase = git merge-base HEAD origin/$DiffTo
+    $mergeBase = git merge-base HEAD "origin/$DiffTo"
     if($lastexitcode -ne 0)
     {
-        Write-Error "Git merge-base failed"
+        Write-Error "Git merge-base failed: $mergeBase"
         exit 1
     }
     
 	$diffFiles = (git diff --name-only HEAD $mergeBase) -replace "/","\"
     if($lastexitcode -ne 0)
     {
-        Write-Error "Git diff failed"
+        Write-Error "Git diff failed: $diffFiles"
         exit 1
     }
     
