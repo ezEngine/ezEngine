@@ -91,6 +91,8 @@ if($DiffTo)
         Write-Error "Git diff failed"
         exit 1
     }
+    
+    Write-Host "Number of files changed to merge-base:" $diffFiles.Length
 	
 	# Build a hashmap of all git diff files
 	$diffMap = @{}
