@@ -85,7 +85,12 @@ else
 if($DiffTo)
 {
 	# Get list of changed files from git
-	$diffFiles = (git diff --name-only HEAD origin/dev) -replace "/","\"
+	$diffFiles = (git diff --name-only HEAD $DiffTo) -replace "/","\"
+    if($lastexitcode -ne 0)
+    {
+        Write-Error "Git diff failed"
+        exit 1
+    }
 	
 	# Build a hashmap of all git diff files
 	$diffMap = @{}

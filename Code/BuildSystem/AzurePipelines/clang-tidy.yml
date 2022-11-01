@@ -11,6 +11,7 @@ jobs:
     submodules: recursive
     lfs: true
   - pwsh: |
+      git fetch origin
       Invoke-WebRequest https://github.com/llvm/llvm-project/releases/download/llvmorg-15.0.3/LLVM-15.0.3-win64.exe -OutFile "LLVM-15.0.3-win64.exe"
       ./Data/Tools/Precompiled/7z x -ollvm LLVM-15.0.3-win64.exe
       $WindowsSdkVersion = ((Get-ChildItem -Directory "C:\Program Files (x86)\Windows Kits\10\bin").Name | ? { $_ -match "^10\.0\." } | sort -Descending)[0]
