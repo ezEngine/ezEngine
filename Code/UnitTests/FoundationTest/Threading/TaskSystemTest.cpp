@@ -28,14 +28,14 @@ public:
 
   bool IsStarted() const { return m_bStarted; }
   bool IsDone() const { return m_bDone; }
-  bool IsMultiplicityDone() const { return m_MultiplicityCount == (int)GetMultiplicity(); }
+  bool IsMultiplicityDone() const { return m_iMultiplicityCount == (int)GetMultiplicity(); }
 
 private:
   bool m_bStarted;
   bool m_bDone;
-  mutable ezAtomicInteger32 m_MultiplicityCount;
+  mutable ezAtomicInteger32 m_iMultiplicityCount;
 
-  virtual void ExecuteWithMultiplicity(ezUInt32 uiInvocation) const override { m_MultiplicityCount.Increment(); }
+  virtual void ExecuteWithMultiplicity(ezUInt32 uiInvocation) const override { m_iMultiplicityCount.Increment(); }
 
   virtual void Execute() override
   {

@@ -64,8 +64,8 @@ void ezProcessGroupImpl::Initialize()
 
 ezProcessGroup::ezProcessGroup(ezStringView sGroupName)
 {
-  m_impl = EZ_DEFAULT_NEW(ezProcessGroupImpl);
-  m_impl->m_sName = sGroupName;
+  m_pImpl = EZ_DEFAULT_NEW(ezProcessGroupImpl);
+  m_pImpl->m_sName = sGroupName;
 }
 
 ezProcessGroup::~ezProcessGroup()
@@ -75,14 +75,14 @@ ezProcessGroup::~ezProcessGroup()
 
 ezResult ezProcessGroup::Launch(const ezProcessOptions& opt)
 {
-  m_impl->Initialize();
+  m_pImpl->Initialize();
 
   ezProcess& process = m_Processes.ExpandAndGetRef();
   EZ_SUCCEED_OR_RETURN(process.Launch(opt, ezProcessLaunchFlags::Suspended));
 
-  if (AssignProcessToJobObject(m_impl->m_hJobObject, process.GetProcessHandle()) == FALSE)
+  if (AssignProcessToJobObject(m_pImpl->m_hJobObject, process.GetProcessHandle()) == FALSE)
   {
-    ezLog::Error("Failed to add process to process group '{}' - {}", m_impl->m_sName, ezArgErrorCode(GetLastError()));
+    ezLog::Error("Failed to add process to process group '{}' - {}", m_pImpl->m_sName, ezArgErrorCode(GetLastError()));
     m_Processes.PopBack();
     return EZ_FAILURE;
   }
@@ -99,7 +99,7 @@ ezResult ezProcessGroup::Launch(const ezProcessOptions& opt)
 
 ezResult ezProcessGroup::WaitToFinish(ezTime timeout /*= ezTime::Zero()*/)
 {
-  if (m_impl->m_hJobObject == INVALID_HANDLE_VALUE)
+  if (m_pImpl->m_hJobObject == INVALID_HANDLE_VALUE)
     return EZ_SUCCESS;
 
   // check if no new processes were launched, because waiting could end up in an infinite loop,
@@ -123,7 +123,7 @@ ezResult ezProcessGroup::WaitToFinish(ezTime timeout /*= ezTime::Zero()*/)
     {
       p.WaitToFinish().IgnoreResult();
     }
-    m_impl->Close();
+    m_pImpl->Close();
     return EZ_SUCCESS;
   }
 
@@ -148,20 +148,20 @@ ezResult ezProcessGroup::WaitToFinish(ezTime timeout /*= ezTime::Zero()*/)
     // To see the actual reason for the crash, locate the call to ezCrashHandlerFunc further down in the callstack.
     // The crashing code is usually the one calling that function.
 
-    if (GetQueuedCompletionStatus(m_impl->m_hCompletionPort, &CompletionCode, &CompletionKey, &Overlapped, dwTimeout) == FALSE)
+    if (GetQueuedCompletionStatus(m_pImpl->m_hCompletionPort, &CompletionCode, &CompletionKey, &Overlapped, dwTimeout) == FALSE)
     {
       DWORD res = GetLastError();
 
       if (res != WAIT_TIMEOUT)
       {
-        ezLog::Error("Failed to wait for process group '{}' - {}", m_impl->m_sName, ezArgErrorCode(res));
+        ezLog::Error("Failed to wait for process group '{}' - {}", m_pImpl->m_sName, ezArgErrorCode(res));
       }
 
       return EZ_FAILURE;
     }
 
     // we got the expected result, all processes have finished
-    if (((HANDLE)CompletionKey == m_impl->m_hJobObject && CompletionCode == JOB_OBJECT_MSG_ACTIVE_PROCESS_ZERO))
+    if (((HANDLE)CompletionKey == m_pImpl->m_hJobObject && CompletionCode == JOB_OBJECT_MSG_ACTIVE_PROCESS_ZERO))
     {
       // We need to wait for processes even if the job is done as the threads for the pipes are potentially still alive and lead to incomplete stdout / stderr output even though the process has exited.
       for (ezProcess& p : m_Processes)
@@ -169,7 +169,7 @@ ezResult ezProcessGroup::WaitToFinish(ezTime timeout /*= ezTime::Zero()*/)
         p.WaitToFinish().IgnoreResult();
       }
 
-      m_impl->Close();
+      m_pImpl->Close();
       return EZ_SUCCESS;
     }
 
@@ -197,12 +197,12 @@ ezResult ezProcessGroup::WaitToFinish(ezTime timeout /*= ezTime::Zero()*/)
 
 ezResult ezProcessGroup::TerminateAll(ezInt32 iForcedExitCode /*= -2*/)
 {
-  if (m_impl->m_hJobObject == INVALID_HANDLE_VALUE)
+  if (m_pImpl->m_hJobObject == INVALID_HANDLE_VALUE)
     return EZ_SUCCESS;
 
-  if (TerminateJobObject(m_impl->m_hJobObject, (UINT)iForcedExitCode) == FALSE)
+  if (TerminateJobObject(m_pImpl->m_hJobObject, (UINT)iForcedExitCode) == FALSE)
   {
-    ezLog::Error("Failed to terminate process group '{}' - {}", m_impl->m_sName, ezArgErrorCode(GetLastError()));
+    ezLog::Error("Failed to terminate process group '{}' - {}", m_pImpl->m_sName, ezArgErrorCode(GetLastError()));
     return EZ_FAILURE;
   }
 

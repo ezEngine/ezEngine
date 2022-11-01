@@ -431,7 +431,7 @@ void ezStandardInputDevice::OnKey(int key, int scancode, int action, int mods)
 {
   if (key == GLFW_KEY_BACKSPACE && (action == GLFW_PRESS || action == GLFW_REPEAT))
   {
-    m_LastCharacter = 0x00000008;
+    m_uiLastCharacter = 0x00000008;
   }
 
   const char* szInputSlotName = ConvertGLFWKeyToEngineName(key);
@@ -447,12 +447,12 @@ void ezStandardInputDevice::OnKey(int key, int scancode, int action, int mods)
 
 void ezStandardInputDevice::OnCharacter(unsigned int codepoint)
 {
-  m_LastCharacter = codepoint;
+  m_uiLastCharacter = codepoint;
 }
 
 void ezStandardInputDevice::OnCursorPosition(double xpos, double ypos)
 {
-  m_iMouseIsOverWindowNumber = m_uiWindowNumber;
+  s_iMouseIsOverWindowNumber = m_uiWindowNumber;
 
   int width;
   int height;

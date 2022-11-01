@@ -29,7 +29,7 @@ public:
   ezMessageLoop_win();
   ~ezMessageLoop_win();
 
-  HANDLE GetPort() const { return m_Port; }
+  HANDLE GetPort() const { return m_hPort; }
 
 protected:
   virtual void WakeUp() override;
@@ -41,8 +41,8 @@ protected:
 
 private:
   ezDynamicArray<IOItem> m_CompletedIO;
-  LONG m_haveWork = 0;
-  HANDLE m_Port = INVALID_HANDLE_VALUE;
+  LONG m_iHaveWork = 0;
+  HANDLE m_hPort = INVALID_HANDLE_VALUE;
 };
 
 #endif

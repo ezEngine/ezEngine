@@ -48,15 +48,15 @@ namespace ezModelImporter2
 
   ezResult ImporterAssimp::ImportMaterials()
   {
-    if (!m_aiScene->HasMaterials())
+    if (!m_pScene->HasMaterials())
       return EZ_SUCCESS;
 
     ezSet<ezString> knownMaterialNames;
     knownMaterialNames.Insert("");
 
-    for (ezUInt32 matIdx = 0; matIdx < m_aiScene->mNumMaterials; ++matIdx)
+    for (ezUInt32 matIdx = 0; matIdx < m_pScene->mNumMaterials; ++matIdx)
     {
-      aiMaterial* pMat = m_aiScene->mMaterials[matIdx];
+      aiMaterial* pMat = m_pScene->mMaterials[matIdx];
 
       auto& outMaterial = m_OutputMaterials.ExpandAndGetRef();
       MakeValidMaterialName(outMaterial.m_sName, pMat->GetName().C_Str(), matIdx, knownMaterialNames);

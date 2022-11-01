@@ -287,8 +287,8 @@ void ezQtExposedParametersPropertyWidget::OnInit()
   EZ_ASSERT_DEV(
     pParameterSourceProp, "The exposed parameter source '{0}' does not exist on type '{1}'", m_sExposedParamProperty, m_pType->GetTypeName());
   m_pSourceObjectAccessor = m_pObjectAccessor;
-  m_Proxy = EZ_DEFAULT_NEW(ezExposedParameterCommandAccessor, m_pSourceObjectAccessor, m_pProp, pParameterSourceProp);
-  m_pObjectAccessor = m_Proxy.Borrow();
+  m_pProxy = EZ_DEFAULT_NEW(ezExposedParameterCommandAccessor, m_pSourceObjectAccessor, m_pProp, pParameterSourceProp);
+  m_pObjectAccessor = m_pProxy.Borrow();
 
   ezQtPropertyStandardTypeContainerWidget::OnInit();
 
@@ -421,7 +421,7 @@ bool ezQtExposedParametersPropertyWidget::RemoveUnusedKeys(bool bTestOnly)
     m_pSourceObjectAccessor->StartTransaction("Remove unused keys");
   for (const auto& item : m_Items)
   {
-    if (const ezExposedParameters* pParams = m_Proxy->GetExposedParams(item.m_pObject))
+    if (const ezExposedParameters* pParams = m_pProxy->GetExposedParams(item.m_pObject))
     {
       ezHybridArray<ezVariant, 16> keys;
       EZ_VERIFY(m_pSourceObjectAccessor->GetKeys(item.m_pObject, m_pProp, keys).Succeeded(), "");
@@ -454,7 +454,7 @@ bool ezQtExposedParametersPropertyWidget::FixKeyTypes(bool bTestOnly)
     m_pSourceObjectAccessor->StartTransaction("Remove unused keys");
   for (const auto& item : m_Items)
   {
-    if (const ezExposedParameters* pParams = m_Proxy->GetExposedParams(item.m_pObject))
+    if (const ezExposedParameters* pParams = m_pProxy->GetExposedParams(item.m_pObject))
     {
       ezHybridArray<ezVariant, 16> keys;
       EZ_VERIFY(m_pSourceObjectAccessor->GetKeys(item.m_pObject, m_pProp, keys).Succeeded(), "");

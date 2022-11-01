@@ -1239,7 +1239,7 @@ void ezQtPropertyAnimAssetTreeView::storeExpandState(const QModelIndex& parent)
     QString path = pModel->data(idx, ezQtPropertyAnimModel::UserRoles::Path).toString();
 
     if (!expanded)
-      m_notExpandedState.insert(path);
+      m_NotExpandedState.insert(path);
 
     storeExpandState(idx);
   }
@@ -1256,12 +1256,12 @@ void ezQtPropertyAnimAssetTreeView::restoreExpandState(const QModelIndex& parent
 
     QString path = pModel->data(idx, ezQtPropertyAnimModel::UserRoles::Path).toString();
 
-    const bool notExpanded = m_notExpandedState.contains(path);
+    const bool notExpanded = m_NotExpandedState.contains(path);
 
     if (!notExpanded)
       setExpanded(idx, true);
 
-    if (m_selectedItems.contains(path))
+    if (m_SelectedItems.contains(path))
       newSelection.append(idx);
 
     restoreExpandState(idx, newSelection);
@@ -1270,8 +1270,8 @@ void ezQtPropertyAnimAssetTreeView::restoreExpandState(const QModelIndex& parent
 
 void ezQtPropertyAnimAssetTreeView::onBeforeModelReset()
 {
-  m_notExpandedState.clear();
-  m_selectedItems.clear();
+  m_NotExpandedState.clear();
+  m_SelectedItems.clear();
 
   storeExpandState(QModelIndex());
 
@@ -1280,7 +1280,7 @@ void ezQtPropertyAnimAssetTreeView::onBeforeModelReset()
   for (QModelIndex idx : selectionModel()->selectedRows())
   {
     QString path = pModel->data(idx, ezQtPropertyAnimModel::UserRoles::Path).toString();
-    m_selectedItems.insert(path);
+    m_SelectedItems.insert(path);
   }
 }
 

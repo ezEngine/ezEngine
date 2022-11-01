@@ -41,7 +41,7 @@ void ezCameraComponentManager::Deinitialize()
 
 void ezCameraComponentManager::Update(const ezWorldModule::UpdateContext& context)
 {
-  for (auto hCameraComponent : m_modifiedCameras)
+  for (auto hCameraComponent : m_ModifiedCameras)
   {
     ezCameraComponent* pCameraComponent = nullptr;
     if (!TryGetComponent(hCameraComponent, pCameraComponent))
@@ -57,7 +57,7 @@ void ezCameraComponentManager::Update(const ezWorldModule::UpdateContext& contex
     pCameraComponent->m_bIsModified = false;
   }
 
-  m_modifiedCameras.Clear();
+  m_ModifiedCameras.Clear();
 
   for (auto hCameraComponent : m_RenderTargetCameras)
   {
@@ -218,8 +218,8 @@ void ezCameraComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_hRenderTarget;
 
   // Version 7
-  s << m_RenderTargetRectOffset;
-  s << m_RenderTargetRectSize;
+  s << m_vRenderTargetRectOffset;
+  s << m_vRenderTargetRectSize;
 
   // Version 8
   s << m_sRenderPipeline;
@@ -278,8 +278,8 @@ void ezCameraComponent::DeserializeComponent(ezWorldReader& stream)
 
   if (uiVersion >= 7)
   {
-    s >> m_RenderTargetRectOffset;
-    s >> m_RenderTargetRectSize;
+    s >> m_vRenderTargetRectOffset;
+    s >> m_vRenderTargetRectSize;
   }
 
   if (uiVersion >= 8)
@@ -401,8 +401,8 @@ void ezCameraComponent::SetRenderTargetRectOffset(ezVec2 value)
 {
   DeactivateRenderToTexture();
 
-  m_RenderTargetRectOffset.x = ezMath::Clamp(value.x, 0.0f, 0.9f);
-  m_RenderTargetRectOffset.y = ezMath::Clamp(value.y, 0.0f, 0.9f);
+  m_vRenderTargetRectOffset.x = ezMath::Clamp(value.x, 0.0f, 0.9f);
+  m_vRenderTargetRectOffset.y = ezMath::Clamp(value.y, 0.0f, 0.9f);
 
   ActivateRenderToTexture();
 }
@@ -411,8 +411,8 @@ void ezCameraComponent::SetRenderTargetRectSize(ezVec2 value)
 {
   DeactivateRenderToTexture();
 
-  m_RenderTargetRectSize.x = ezMath::Clamp(value.x, 0.1f, 1.0f);
-  m_RenderTargetRectSize.y = ezMath::Clamp(value.y, 0.1f, 1.0f);
+  m_vRenderTargetRectSize.x = ezMath::Clamp(value.x, 0.1f, 1.0f);
+  m_vRenderTargetRectSize.y = ezMath::Clamp(value.y, 0.1f, 1.0f);
 
   ActivateRenderToTexture();
 }
@@ -600,7 +600,7 @@ void ezCameraComponent::MarkAsModified()
 {
   if (!m_bIsModified)
   {
-    GetWorld()->GetComponentManager<ezCameraComponentManager>()->m_modifiedCameras.PushBack(GetHandle());
+    GetWorld()->GetComponentManager<ezCameraComponentManager>()->m_ModifiedCameras.PushBack(GetHandle());
     m_bIsModified = true;
   }
 }
@@ -610,7 +610,7 @@ void ezCameraComponent::MarkAsModified(ezCameraComponentManager* pCameraManager)
 {
   if (!m_bIsModified)
   {
-    pCameraManager->m_modifiedCameras.PushBack(GetHandle());
+    pCameraManager->m_ModifiedCameras.PushBack(GetHandle());
     m_bIsModified = true;
   }
 }
@@ -660,17 +660,17 @@ void ezCameraComponent::ActivateRenderToTexture()
   renderTargets.m_hRTs[0] = pRenderTarget->GetGALTexture();
   pRenderTargetView->SetRenderTargets(renderTargets);
 
-  const float maxSizeX = 1.0f - m_RenderTargetRectOffset.x;
-  const float maxSizeY = 1.0f - m_RenderTargetRectOffset.y;
+  const float maxSizeX = 1.0f - m_vRenderTargetRectOffset.x;
+  const float maxSizeY = 1.0f - m_vRenderTargetRectOffset.y;
 
   const float resX = (float)pRenderTarget->GetWidth();
   const float resY = (float)pRenderTarget->GetHeight();
 
-  const float width = resX * ezMath::Min(maxSizeX, m_RenderTargetRectSize.x);
-  const float height = resY * ezMath::Min(maxSizeY, m_RenderTargetRectSize.y);
+  const float width = resX * ezMath::Min(maxSizeX, m_vRenderTargetRectSize.x);
+  const float height = resY * ezMath::Min(maxSizeY, m_vRenderTargetRectSize.y);
 
-  const float offsetX = m_RenderTargetRectOffset.x * resX;
-  const float offsetY = m_RenderTargetRectOffset.y * resY;
+  const float offsetX = m_vRenderTargetRectOffset.x * resX;
+  const float offsetY = m_vRenderTargetRectOffset.y * resY;
 
   pRenderTargetView->SetViewport(ezRectFloat(offsetX, offsetY, width, height));
 

@@ -18,9 +18,9 @@ void ezQtImageScene::SetImage(QPixmap pixmap)
   if (m_pImageItem)
     delete m_pImageItem;
 
-  m_pixmap = pixmap;
-  m_pImageItem = addPixmap(m_pixmap);
-  setSceneRect(0, 0, m_pixmap.width(), m_pixmap.height());
+  m_Pixmap = pixmap;
+  m_pImageItem = addPixmap(m_Pixmap);
+  setSceneRect(0, 0, m_Pixmap.width(), m_Pixmap.height());
 }
 
 

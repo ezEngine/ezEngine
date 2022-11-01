@@ -55,7 +55,7 @@ struct ezMemoryMappedFileImpl
 
 ezMemoryMappedFile::ezMemoryMappedFile()
 {
-  m_Impl = EZ_DEFAULT_NEW(ezMemoryMappedFileImpl);
+  m_pImpl = EZ_DEFAULT_NEW(ezMemoryMappedFileImpl);
 }
 
 ezMemoryMappedFile::~ezMemoryMappedFile()
@@ -73,7 +73,7 @@ ezResult ezMemoryMappedFile::Open(const char* szAbsolutePath, Mode mode)
 
   Close();
 
-  m_Impl->m_Mode = mode;
+  m_pImpl->m_Mode = mode;
 
   int access = O_RDONLY;
   int prot = PROT_READ;
@@ -89,8 +89,8 @@ ezResult ezMemoryMappedFile::Open(const char* szAbsolutePath, Mode mode)
   flags |= MAP_POPULATE;
 #    endif
 #  endif
-  m_Impl->m_hFile = open(szAbsolutePath, access | O_CLOEXEC, 0);
-  if (m_Impl->m_hFile == -1)
+  m_pImpl->m_hFile = open(szAbsolutePath, access | O_CLOEXEC, 0);
+  if (m_pImpl->m_hFile == -1)
   {
     ezLog::Error("Could not open file for memory mapping - {}", strerror(errno));
     Close();
@@ -103,10 +103,10 @@ ezResult ezMemoryMappedFile::Open(const char* szAbsolutePath, Mode mode)
     Close();
     return EZ_FAILURE;
   }
-  m_Impl->m_uiFileSize = sb.st_size;
+  m_pImpl->m_uiFileSize = sb.st_size;
 
-  m_Impl->m_pMappedFilePtr = mmap(nullptr, m_Impl->m_uiFileSize, prot, flags, m_Impl->m_hFile, 0);
-  if (m_Impl->m_pMappedFilePtr == nullptr)
+  m_pImpl->m_pMappedFilePtr = mmap(nullptr, m_pImpl->m_uiFileSize, prot, flags, m_pImpl->m_hFile, 0);
+  if (m_pImpl->m_pMappedFilePtr == nullptr)
   {
     ezLog::Error("Could not create memory mapping of file - {}", strerror(errno));
     Close();
@@ -127,7 +127,7 @@ ezResult ezMemoryMappedFile::OpenShared(const char* szSharedName, ezUInt64 uiSiz
 
   Close();
 
-  m_Impl->m_Mode = mode;
+  m_pImpl->m_Mode = mode;
 
   int prot = PROT_READ;
   int oflag = O_RDONLY;
@@ -145,25 +145,25 @@ ezResult ezMemoryMappedFile::OpenShared(const char* szSharedName, ezUInt64 uiSiz
   }
   oflag |= O_CREAT;
 
-  m_Impl->m_hFile = shm_open(szSharedName, oflag, 0666);
-  if (m_Impl->m_hFile == -1)
+  m_pImpl->m_hFile = shm_open(szSharedName, oflag, 0666);
+  if (m_pImpl->m_hFile == -1)
   {
     ezLog::Error("Could not open shared memory mapping - {}", strerror(errno));
     Close();
     return EZ_FAILURE;
   }
-  m_Impl->m_sSharedMemoryName = szSharedName;
+  m_pImpl->m_sSharedMemoryName = szSharedName;
 
-  if (ftruncate(m_Impl->m_hFile, uiSize) == -1)
+  if (ftruncate(m_pImpl->m_hFile, uiSize) == -1)
   {
     ezLog::Error("Could not open shared memory mapping - {}", strerror(errno));
     Close();
     return EZ_FAILURE;
   }
-  m_Impl->m_uiFileSize = uiSize;
+  m_pImpl->m_uiFileSize = uiSize;
 
-  m_Impl->m_pMappedFilePtr = mmap(nullptr, m_Impl->m_uiFileSize, prot, flags, m_Impl->m_hFile, 0);
-  if (m_Impl->m_pMappedFilePtr == nullptr)
+  m_pImpl->m_pMappedFilePtr = mmap(nullptr, m_pImpl->m_uiFileSize, prot, flags, m_pImpl->m_hFile, 0);
+  if (m_pImpl->m_pMappedFilePtr == nullptr)
   {
     ezLog::Error("Could not create memory mapping of file - {}", strerror(errno));
     Close();
@@ -175,45 +175,45 @@ ezResult ezMemoryMappedFile::OpenShared(const char* szSharedName, ezUInt64 uiSiz
 
 void ezMemoryMappedFile::Close()
 {
-  m_Impl = EZ_DEFAULT_NEW(ezMemoryMappedFileImpl);
+  m_pImpl = EZ_DEFAULT_NEW(ezMemoryMappedFileImpl);
 }
 
 ezMemoryMappedFile::Mode ezMemoryMappedFile::GetMode() const
 {
-  return m_Impl->m_Mode;
+  return m_pImpl->m_Mode;
 }
 
 const void* ezMemoryMappedFile::GetReadPointer(ezUInt64 uiOffset /*= 0*/, OffsetBase base /*= OffsetBase::Start*/) const
 {
-  EZ_ASSERT_DEBUG(m_Impl->m_Mode >= Mode::ReadOnly, "File must be opened with read access before accessing it for reading.");
-  EZ_ASSERT_DEBUG(uiOffset <= m_Impl->m_uiFileSize, "Read offset must be smaller than mapped file size");
+  EZ_ASSERT_DEBUG(m_pImpl->m_Mode >= Mode::ReadOnly, "File must be opened with read access before accessing it for reading.");
+  EZ_ASSERT_DEBUG(uiOffset <= m_pImpl->m_uiFileSize, "Read offset must be smaller than mapped file size");
 
   if (base == OffsetBase::Start)
   {
-    return ezMemoryUtils::AddByteOffset(m_Impl->m_pMappedFilePtr, uiOffset);
+    return ezMemoryUtils::AddByteOffset(m_pImpl->m_pMappedFilePtr, uiOffset);
   }
   else
   {
-    return ezMemoryUtils::AddByteOffset(m_Impl->m_pMappedFilePtr, m_Impl->m_uiFileSize - uiOffset);
+    return ezMemoryUtils::AddByteOffset(m_pImpl->m_pMappedFilePtr, m_pImpl->m_uiFileSize - uiOffset);
   }
 }
 
 void* ezMemoryMappedFile::GetWritePointer(ezUInt64 uiOffset /*= 0*/, OffsetBase base /*= OffsetBase::Start*/)
 {
-  EZ_ASSERT_DEBUG(m_Impl->m_Mode >= Mode::ReadWrite, "File must be opened with read/write access before accessing it for writing.");
-  EZ_ASSERT_DEBUG(uiOffset <= m_Impl->m_uiFileSize, "Read offset must be smaller than mapped file size");
+  EZ_ASSERT_DEBUG(m_pImpl->m_Mode >= Mode::ReadWrite, "File must be opened with read/write access before accessing it for writing.");
+  EZ_ASSERT_DEBUG(uiOffset <= m_pImpl->m_uiFileSize, "Read offset must be smaller than mapped file size");
 
   if (base == OffsetBase::Start)
   {
-    return ezMemoryUtils::AddByteOffset(m_Impl->m_pMappedFilePtr, uiOffset);
+    return ezMemoryUtils::AddByteOffset(m_pImpl->m_pMappedFilePtr, uiOffset);
   }
   else
   {
-    return ezMemoryUtils::AddByteOffset(m_Impl->m_pMappedFilePtr, m_Impl->m_uiFileSize - uiOffset);
+    return ezMemoryUtils::AddByteOffset(m_pImpl->m_pMappedFilePtr, m_pImpl->m_uiFileSize - uiOffset);
   }
 }
 
 ezUInt64 ezMemoryMappedFile::GetFileSize() const
 {
-  return m_Impl->m_uiFileSize;
+  return m_pImpl->m_uiFileSize;
 }

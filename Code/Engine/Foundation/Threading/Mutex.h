@@ -34,10 +34,10 @@ public:
   /// Use TryLock for that instead.
   EZ_ALWAYS_INLINE bool IsLocked() const { return m_iLockCount > 0; }
 
-  ezMutexHandle& GetMutexHandle() { return m_Handle; }
+  ezMutexHandle& GetMutexHandle() { return m_hHandle; }
 
 private:
-  ezMutexHandle m_Handle;
+  ezMutexHandle m_hHandle;
   ezInt32 m_iLockCount = 0;
 };
 

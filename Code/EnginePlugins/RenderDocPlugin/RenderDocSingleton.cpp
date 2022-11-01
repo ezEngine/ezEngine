@@ -26,7 +26,7 @@ ezRenderDoc::ezRenderDoc()
   if (!dllHandle)
   {
     dllHandle = LoadLibraryW(L"renderdoc.dll");
-    m_HandleToFree = ezMinWindows::FromNative(dllHandle);
+    m_pHandleToFree = ezMinWindows::FromNative(dllHandle);
   }
 
   if (!dllHandle)
@@ -58,10 +58,10 @@ ezRenderDoc::~ezRenderDoc()
 {
   m_pRenderDocAPI = nullptr;
 
-  if (m_HandleToFree)
+  if (m_pHandleToFree)
   {
-    FreeLibrary(ezMinWindows::ToNative(m_HandleToFree));
-    m_HandleToFree = nullptr;
+    FreeLibrary(ezMinWindows::ToNative(m_pHandleToFree));
+    m_pHandleToFree = nullptr;
   }
 }
 

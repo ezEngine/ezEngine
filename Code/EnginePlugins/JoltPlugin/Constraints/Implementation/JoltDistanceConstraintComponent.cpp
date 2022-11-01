@@ -111,8 +111,8 @@ void ezJoltDistanceConstraintComponent::CreateContstraintType(JPH::Body* pBody0,
   opt.mMinDistance = 0;
   opt.mMaxDistance = 1;
   opt.mSpace = JPH::EConstraintSpace::LocalToBodyCOM;
-  opt.mPoint1 = inv1 * ezJoltConversionUtils::ToVec3(m_localFrameA.m_vPosition);
-  opt.mPoint2 = inv2 * ezJoltConversionUtils::ToVec3(m_localFrameB.m_vPosition);
+  opt.mPoint1 = inv1 * ezJoltConversionUtils::ToVec3(m_LocalFrameA.m_vPosition);
+  opt.mPoint2 = inv2 * ezJoltConversionUtils::ToVec3(m_LocalFrameB.m_vPosition);
   opt.mDamping = m_fDamping;
   opt.mFrequency = m_fFrequency;
 

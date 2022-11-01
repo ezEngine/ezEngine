@@ -45,7 +45,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezReflectionProbeComponentBase::ezReflectionProbeComponentBase()
 {
-  m_desc.m_uniqueID.CreateNewUuid();
+  m_Desc.m_uniqueID.CreateNewUuid();
 }
 
 ezReflectionProbeComponentBase::~ezReflectionProbeComponentBase()
@@ -54,88 +54,88 @@ ezReflectionProbeComponentBase::~ezReflectionProbeComponentBase()
 
 void ezReflectionProbeComponentBase::SetReflectionProbeMode(ezEnum<ezReflectionProbeMode> mode)
 {
-  m_desc.m_Mode = mode;
+  m_Desc.m_Mode = mode;
   m_bStatesDirty = true;
 }
 
 ezEnum<ezReflectionProbeMode> ezReflectionProbeComponentBase::GetReflectionProbeMode() const
 {
-  return m_desc.m_Mode;
+  return m_Desc.m_Mode;
 }
 
 const ezTagSet& ezReflectionProbeComponentBase::GetIncludeTags() const
 {
-  return m_desc.m_IncludeTags;
+  return m_Desc.m_IncludeTags;
 }
 
 void ezReflectionProbeComponentBase::InsertIncludeTag(const char* szTag)
 {
-  m_desc.m_IncludeTags.SetByName(szTag);
+  m_Desc.m_IncludeTags.SetByName(szTag);
   m_bStatesDirty = true;
 }
 
 void ezReflectionProbeComponentBase::RemoveIncludeTag(const char* szTag)
 {
-  m_desc.m_IncludeTags.RemoveByName(szTag);
+  m_Desc.m_IncludeTags.RemoveByName(szTag);
   m_bStatesDirty = true;
 }
 
 
 const ezTagSet& ezReflectionProbeComponentBase::GetExcludeTags() const
 {
-  return m_desc.m_ExcludeTags;
+  return m_Desc.m_ExcludeTags;
 }
 
 void ezReflectionProbeComponentBase::InsertExcludeTag(const char* szTag)
 {
-  m_desc.m_ExcludeTags.SetByName(szTag);
+  m_Desc.m_ExcludeTags.SetByName(szTag);
   m_bStatesDirty = true;
 }
 
 void ezReflectionProbeComponentBase::RemoveExcludeTag(const char* szTag)
 {
-  m_desc.m_ExcludeTags.RemoveByName(szTag);
+  m_Desc.m_ExcludeTags.RemoveByName(szTag);
   m_bStatesDirty = true;
 }
 
 void ezReflectionProbeComponentBase::SetNearPlane(float fNearPlane)
 {
-  m_desc.m_fNearPlane = fNearPlane;
+  m_Desc.m_fNearPlane = fNearPlane;
   m_bStatesDirty = true;
 }
 
 void ezReflectionProbeComponentBase::SetFarPlane(float fFarPlane)
 {
-  m_desc.m_fFarPlane = fFarPlane;
+  m_Desc.m_fFarPlane = fFarPlane;
   m_bStatesDirty = true;
 }
 
 void ezReflectionProbeComponentBase::SetCaptureOffset(const ezVec3& vOffset)
 {
-  m_desc.m_vCaptureOffset = vOffset;
+  m_Desc.m_vCaptureOffset = vOffset;
   m_bStatesDirty = true;
 }
 
 void ezReflectionProbeComponentBase::SetShowDebugInfo(bool bShowDebugInfo)
 {
-  m_desc.m_bShowDebugInfo = bShowDebugInfo;
+  m_Desc.m_bShowDebugInfo = bShowDebugInfo;
   m_bStatesDirty = true;
 }
 
 bool ezReflectionProbeComponentBase::GetShowDebugInfo() const
 {
-  return m_desc.m_bShowDebugInfo;
+  return m_Desc.m_bShowDebugInfo;
 }
 
 void ezReflectionProbeComponentBase::SetShowMipMaps(bool bShowMipMaps)
 {
-  m_desc.m_bShowMipMaps = bShowMipMaps;
+  m_Desc.m_bShowMipMaps = bShowMipMaps;
   m_bStatesDirty = true;
 }
 
 bool ezReflectionProbeComponentBase::GetShowMipMaps() const
 {
-  return m_desc.m_bShowMipMaps;
+  return m_Desc.m_bShowMipMaps;
 }
 
 void ezReflectionProbeComponentBase::SerializeComponent(ezWorldWriter& stream) const
@@ -144,14 +144,14 @@ void ezReflectionProbeComponentBase::SerializeComponent(ezWorldWriter& stream) c
 
   ezStreamWriter& s = stream.GetStream();
 
-  m_desc.m_IncludeTags.Save(s);
-  m_desc.m_ExcludeTags.Save(s);
-  s << m_desc.m_Mode;
-  s << m_desc.m_bShowDebugInfo;
-  s << m_desc.m_uniqueID;
-  s << m_desc.m_fNearPlane;
-  s << m_desc.m_fFarPlane;
-  s << m_desc.m_vCaptureOffset;
+  m_Desc.m_IncludeTags.Save(s);
+  m_Desc.m_ExcludeTags.Save(s);
+  s << m_Desc.m_Mode;
+  s << m_Desc.m_bShowDebugInfo;
+  s << m_Desc.m_uniqueID;
+  s << m_Desc.m_fNearPlane;
+  s << m_Desc.m_fFarPlane;
+  s << m_Desc.m_vCaptureOffset;
 }
 
 void ezReflectionProbeComponentBase::DeserializeComponent(ezWorldReader& stream)
@@ -160,14 +160,14 @@ void ezReflectionProbeComponentBase::DeserializeComponent(ezWorldReader& stream)
   //const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   ezStreamReader& s = stream.GetStream();
 
-  m_desc.m_IncludeTags.Load(s, ezTagRegistry::GetGlobalRegistry());
-  m_desc.m_ExcludeTags.Load(s, ezTagRegistry::GetGlobalRegistry());
-  s >> m_desc.m_Mode;
-  s >> m_desc.m_bShowDebugInfo;
-  s >> m_desc.m_uniqueID;
-  s >> m_desc.m_fNearPlane;
-  s >> m_desc.m_fFarPlane;
-  s >> m_desc.m_vCaptureOffset;
+  m_Desc.m_IncludeTags.Load(s, ezTagRegistry::GetGlobalRegistry());
+  m_Desc.m_ExcludeTags.Load(s, ezTagRegistry::GetGlobalRegistry());
+  s >> m_Desc.m_Mode;
+  s >> m_Desc.m_bShowDebugInfo;
+  s >> m_Desc.m_uniqueID;
+  s >> m_Desc.m_fNearPlane;
+  s >> m_Desc.m_fFarPlane;
+  s >> m_Desc.m_vCaptureOffset;
 }
 
 float ezReflectionProbeComponentBase::ComputePriority(ezMsgExtractRenderData& msg, ezReflectionProbeRenderData* pRenderData, float fVolume, const ezVec3& vScale) const

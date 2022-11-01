@@ -521,7 +521,7 @@ ezInt32 ezFileSystemIterator::InternalNext()
 
 const char* ezOSFile::GetApplicationDirectory()
 {
-  if (s_ApplicationPath.IsEmpty())
+  if (s_sApplicationPath.IsEmpty())
   {
     ezUInt32 uiRequiredLength = 512;
     ezHybridArray<wchar_t, 1024> tmp;
@@ -551,10 +551,10 @@ const char* ezOSFile::GetApplicationDirectory()
       EZ_REPORT_FAILURE("GetModuleFileNameW failed: {0}", ezArgErrorCode(error));
     }
 
-    s_ApplicationPath = ezPathUtils::GetFileDirectory(ezStringUtf8(tmp.GetData()));
+    s_sApplicationPath = ezPathUtils::GetFileDirectory(ezStringUtf8(tmp.GetData()));
   }
 
-  return s_ApplicationPath.GetData();
+  return s_sApplicationPath.GetData();
 }
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
@@ -564,7 +564,7 @@ const char* ezOSFile::GetApplicationDirectory()
 
 ezString ezOSFile::GetUserDataFolder(const char* szSubFolder)
 {
-  if (s_UserDataPath.IsEmpty())
+  if (s_sUserDataPath.IsEmpty())
   {
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
     ComPtr<ABI::Windows::Storage::IApplicationDataStatics> appDataStatics;
@@ -581,7 +581,7 @@ ezString ezOSFile::GetUserDataFolder(const char* szSubFolder)
           {
             HSTRING path;
             localFolderItem->get_Path(&path);
-            s_UserDataPath = ezStringUtf8(path).GetData();
+            s_sUserDataPath = ezStringUtf8(path).GetData();
           }
         }
       }
@@ -590,7 +590,7 @@ ezString ezOSFile::GetUserDataFolder(const char* szSubFolder)
     wchar_t* pPath = nullptr;
     if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_RoamingAppData, KF_FLAG_DEFAULT, nullptr, &pPath)))
     {
-      s_UserDataPath = ezStringWChar(pPath);
+      s_sUserDataPath = ezStringWChar(pPath);
     }
 
     if (pPath != nullptr)
@@ -600,7 +600,7 @@ ezString ezOSFile::GetUserDataFolder(const char* szSubFolder)
 #endif
   }
 
-  ezStringBuilder s = s_UserDataPath;
+  ezStringBuilder s = s_sUserDataPath;
   s.AppendPath(szSubFolder);
   s.MakeCleanPath();
   return s;
@@ -610,7 +610,7 @@ ezString ezOSFile::GetTempDataFolder(const char* szSubFolder /*= nullptr*/)
 {
   ezStringBuilder s;
 
-  if (s_TempDataPath.IsEmpty())
+  if (s_sTempDataPath.IsEmpty())
   {
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
     ComPtr<ABI::Windows::Storage::IApplicationDataStatics> appDataStatics;
@@ -627,7 +627,7 @@ ezString ezOSFile::GetTempDataFolder(const char* szSubFolder /*= nullptr*/)
           {
             HSTRING path;
             tempFolderItem->get_Path(&path);
-            s_TempDataPath = ezStringUtf8(path).GetData();
+            s_sTempDataPath = ezStringUtf8(path).GetData();
           }
         }
       }
@@ -638,7 +638,7 @@ ezString ezOSFile::GetTempDataFolder(const char* szSubFolder /*= nullptr*/)
     {
       s = ezStringWChar(pPath);
       s.AppendPath("Temp");
-      s_TempDataPath = s;
+      s_sTempDataPath = s;
     }
 
     if (pPath != nullptr)
@@ -648,7 +648,7 @@ ezString ezOSFile::GetTempDataFolder(const char* szSubFolder /*= nullptr*/)
 #endif
   }
 
-  s = s_TempDataPath;
+  s = s_sTempDataPath;
   s.AppendPath(szSubFolder);
   s.MakeCleanPath();
   return s;

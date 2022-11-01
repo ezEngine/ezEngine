@@ -95,7 +95,7 @@ void ezAssetProcessor::ShutdownProcessTask()
   {
     EZ_LOCK(m_ProcessorMutex);
     tasks.Swap(m_ProcessTasks);
-    m_bRunProcessTask = 0;
+    m_bRunProcessTask = false;
   }
 
   if (!tasks.IsEmpty())
@@ -119,7 +119,7 @@ void ezAssetProcessor::ShutdownProcessTask()
 
 bool ezAssetProcessor::IsProcessTaskRunning() const
 {
-  return m_bRunProcessTask != 0;
+  return m_bRunProcessTask;
 }
 
 void ezAssetProcessor::AddLogWriter(ezLoggingEvent::Handler handler)
@@ -143,7 +143,7 @@ void ezAssetProcessor::RunNextProcessTask()
   ezUInt32 uiNumAssets;
   ezHybridArray<ezUInt32, ezAssetInfo::TransformState::COUNT> sections;
   ezAssetCurator::GetSingleton()->GetAssetTransformStats(uiNumAssets, sections);
-  if (m_bRunProcessTask == 0 ||
+  if (!m_bRunProcessTask ||
       sections[ezAssetInfo::TransformState::NeedsTransform] == 0 && sections[ezAssetInfo::TransformState::NeedsThumbnail] == 0)
     return;
 
@@ -171,9 +171,9 @@ void ezAssetProcessor::RunNextProcessTask()
   }
   if (bAllIdle)
   {
-    if (m_TicksWithIdleTasks > 5)
+    if (m_iTicksWithIdleTasks > 5)
       return;
-    m_TicksWithIdleTasks.Increment();
+    m_iTicksWithIdleTasks.Increment();
   }
 
   for (ezUInt32 i = 0; i < m_ProcessTasks.GetCount(); ++i)
@@ -190,7 +190,7 @@ void ezAssetProcessor::AssetCuratorEventHandler(const ezAssetCuratorEvent& e)
 {
   if (e.m_Type == ezAssetCuratorEvent::Type::AssetUpdated)
   {
-    m_TicksWithIdleTasks = 0;
+    m_iTicksWithIdleTasks = 0;
   }
 }
 
@@ -380,15 +380,15 @@ void ezProcessTask::Execute()
   {
     EZ_LOCK(ezAssetCurator::GetSingleton()->m_CuratorMutex);
 
-    if (!GetNextAssetToProcess(m_assetGuid, m_sAssetPath, sAssetRelPath))
+    if (!GetNextAssetToProcess(m_AssetGuid, m_sAssetPath, sAssetRelPath))
     {
-      m_assetGuid = ezUuid();
+      m_AssetGuid = ezUuid();
       m_sAssetPath.Clear();
       m_bDidWork = false;
       return;
     }
     m_bDidWork = true;
-    ezAssetInfo::TransformState state = ezAssetCurator::GetSingleton()->IsAssetUpToDate(m_assetGuid, nullptr, nullptr, m_AssetHash, m_ThumbHash);
+    ezAssetInfo::TransformState state = ezAssetCurator::GetSingleton()->IsAssetUpToDate(m_AssetGuid, nullptr, nullptr, m_uiAssetHash, m_uiThumbHash);
     EZ_ASSERT_DEV(state == ezAssetInfo::TransformState::NeedsTransform || state == ezAssetInfo::TransformState::NeedsThumbnail,
       "An asset was selected that is already up to date.");
   }
@@ -407,9 +407,9 @@ void ezProcessTask::Execute()
     ezLog::Info(&ezAssetProcessor::GetSingleton()->m_CuratorLog, "Processing '{0}'", sAssetRelPath);
     // Send and wait
     ezProcessAssetMsg msg;
-    msg.m_AssetGuid = m_assetGuid;
-    msg.m_AssetHash = m_AssetHash;
-    msg.m_ThumbHash = m_ThumbHash;
+    msg.m_AssetGuid = m_AssetGuid;
+    msg.m_AssetHash = m_uiAssetHash;
+    msg.m_ThumbHash = m_uiThumbHash;
     msg.m_sAssetPath = m_sAssetPath;
     msg.m_sPlatform = ezAssetCurator::GetSingleton()->GetActiveAssetProfile()->GetConfigName();
 
@@ -436,15 +436,15 @@ void ezProcessTask::Execute()
 
   if (m_bSuccess)
   {
-    ezAssetCurator::GetSingleton()->NotifyOfAssetChange(m_assetGuid);
+    ezAssetCurator::GetSingleton()->NotifyOfAssetChange(m_AssetGuid);
     ezAssetCurator::GetSingleton()->NeedsReloadResources();
   }
   else
   {
-    ezAssetCurator::GetSingleton()->UpdateAssetTransformLog(m_assetGuid, m_LogEntries);
-    ezAssetCurator::GetSingleton()->UpdateAssetTransformState(m_assetGuid, ezAssetInfo::TransformState::TransformError);
+    ezAssetCurator::GetSingleton()->UpdateAssetTransformLog(m_AssetGuid, m_LogEntries);
+    ezAssetCurator::GetSingleton()->UpdateAssetTransformState(m_AssetGuid, ezAssetInfo::TransformState::TransformError);
   }
 
   EZ_LOCK(ezAssetCurator::GetSingleton()->m_CuratorMutex);
-  ezAssetCurator::GetSingleton()->m_Updating.Remove(m_assetGuid);
+  ezAssetCurator::GetSingleton()->m_Updating.Remove(m_AssetGuid);
 }

@@ -400,14 +400,14 @@ private:
   ezOSFileData m_FileData;
 
   /// \brief The application binaries' path.
-  static ezString64 s_ApplicationPath;
+  static ezString64 s_sApplicationPath;
 
   /// \brief The path where user data is stored on this OS
-  static ezString64 s_UserDataPath;
+  static ezString64 s_sUserDataPath;
 
   /// \brief The path where temp data is stored on this OS
-  static ezString64 s_TempDataPath;
+  static ezString64 s_sTempDataPath;
 
   /// \brief Counts how many different files are touched.225
-  static ezAtomicInteger32 s_FileCounter;
+  static ezAtomicInteger32 s_iFileCounter;
 };

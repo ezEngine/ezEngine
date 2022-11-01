@@ -4,7 +4,7 @@
 
 ezInputManager::ezEventInput ezInputManager::s_InputEvents;
 ezInputManager::InternalData* ezInputManager::s_pData = nullptr;
-ezUInt32 ezInputManager::s_LastCharacter = '\0';
+ezUInt32 ezInputManager::s_uiLastCharacter = '\0';
 bool ezInputManager::s_bInputSlotResetRequired = true;
 ezString ezInputManager::s_sExclusiveInputSet;
 
@@ -189,7 +189,7 @@ void ezInputManager::Update(ezTime tTimeDifference)
 
   UpdateInputSlotStates();
 
-  s_LastCharacter = ezInputDevice::RetrieveLastCharacterFromAllDevices();
+  s_uiLastCharacter = ezInputDevice::RetrieveLastCharacterFromAllDevices();
 
   UpdateInputActions(tTimeDifference);
 
@@ -284,10 +284,10 @@ void ezInputManager::RetrieveAllKnownInputSlots(ezDynamicArray<const char*>& out
 ezUInt32 ezInputManager::RetrieveLastCharacter(bool bResetCurrent)
 {
   if (!bResetCurrent)
-    return s_LastCharacter;
+    return s_uiLastCharacter;
 
-  ezUInt32 Temp = s_LastCharacter;
-  s_LastCharacter = L'\0';
+  ezUInt32 Temp = s_uiLastCharacter;
+  s_uiLastCharacter = L'\0';
   return Temp;
 }
 

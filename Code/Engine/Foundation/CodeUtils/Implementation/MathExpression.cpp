@@ -15,7 +15,7 @@ ezMathExpression::ezMathExpression(ezStringView sExpressionString)
 
 void ezMathExpression::Reset(ezStringView sExpressionString)
 {
-  m_OriginalExpression.Assign(sExpressionString);
+  m_sOriginalExpression.Assign(sExpressionString);
   m_ByteCode.Clear();
   m_bIsValid = false;
 
@@ -50,7 +50,7 @@ float ezMathExpression::Evaluate(ezArrayPtr<Input> inputs)
 
   if (!IsValid() || m_ByteCode.IsEmpty())
   {
-    ezLog::Error("Can't evaluate invalid math expression '{0}'", m_OriginalExpression);
+    ezLog::Error("Can't evaluate invalid math expression '{0}'", m_sOriginalExpression);
     return fOutput;
   }
 

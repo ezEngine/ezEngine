@@ -208,7 +208,7 @@ protected:
   virtual void mouseReleaseEvent(QMouseEvent* event) override;
 
 private:
-  QPalette m_pal;
+  QPalette m_Pal;
 };
 
 class EZ_GUIFOUNDATION_DLL ezQtPropertyEditorColorWidget : public ezQtStandardPropertyWidget

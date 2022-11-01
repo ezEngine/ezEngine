@@ -159,11 +159,11 @@ void ezJoltDefaultCharacterComponent::ResetInternalState()
 
 void ezJoltDefaultCharacterComponent::ResetInputState()
 {
-  m_InputDirection.SetZero();
+  m_vInputDirection.SetZero();
   m_InputRotateZ = ezAngle();
-  m_InputCrouchBit = 0;
-  m_InputRunBit = 0;
-  m_InputJumpBit = 0;
+  m_uiInputCrouchBit = 0;
+  m_uiInputRunBit = 0;
+  m_uiInputJumpBit = 0;
   m_vAbsoluteRootMotion.SetZero();
 }
 
@@ -171,25 +171,25 @@ void ezJoltDefaultCharacterComponent::SetInputState(ezMsgMoveCharacterController
 {
   const float fDistanceToMove = ezMath::Max(ezMath::Abs((float)(msg.m_fMoveForwards - msg.m_fMoveBackwards)), ezMath::Abs((float)(msg.m_fStrafeRight - msg.m_fStrafeLeft)));
 
-  m_InputDirection += ezVec2((float)(msg.m_fMoveForwards - msg.m_fMoveBackwards), (float)(msg.m_fStrafeRight - msg.m_fStrafeLeft));
-  m_InputDirection.NormalizeIfNotZero(ezVec2::ZeroVector()).IgnoreResult();
-  m_InputDirection *= fDistanceToMove;
+  m_vInputDirection += ezVec2((float)(msg.m_fMoveForwards - msg.m_fMoveBackwards), (float)(msg.m_fStrafeRight - msg.m_fStrafeLeft));
+  m_vInputDirection.NormalizeIfNotZero(ezVec2::ZeroVector()).IgnoreResult();
+  m_vInputDirection *= fDistanceToMove;
 
   m_InputRotateZ += m_RotateSpeed * (float)(msg.m_fRotateRight - msg.m_fRotateLeft);
 
   if (msg.m_bRun)
   {
-    m_InputRunBit = 1;
+    m_uiInputRunBit = 1;
   }
 
   if (msg.m_bJump)
   {
-    m_InputJumpBit = 1;
+    m_uiInputJumpBit = 1;
   }
 
   if (msg.m_bCrouch)
   {
-    m_InputCrouchBit = 1;
+    m_uiInputCrouchBit = 1;
   }
 }
 
@@ -301,14 +301,14 @@ const char* ezJoltDefaultCharacterComponent::GetFallbackWalkSurfaceFile() const
 
 void ezJoltDefaultCharacterComponent::ApplyCrouchState()
 {
-  if (m_InputCrouchBit == m_IsCrouchingBit)
+  if (m_uiInputCrouchBit == m_uiIsCrouchingBit)
     return;
 
-  m_fNextCylinderHeight = m_InputCrouchBit ? m_fCylinderHeightCrouch : m_fCylinderHeightStand;
+  m_fNextCylinderHeight = m_uiInputCrouchBit ? m_fCylinderHeightCrouch : m_fCylinderHeightStand;
 
   if (TryChangeShape(MakeNextCharacterShape().GetPtr()).Succeeded())
   {
-    m_IsCrouchingBit = m_InputCrouchBit;
+    m_uiIsCrouchingBit = m_uiInputCrouchBit;
     m_fCurrentCylinderHeight = m_fNextCylinderHeight;
   }
 }
@@ -513,11 +513,11 @@ void ezJoltDefaultCharacterComponent::DetermineConfig(Config& out_Inputs)
       case ezJoltDefaultCharacterComponent::GroundState::OnGround:
         fSpeed = m_fWalkSpeedStanding;
 
-        if (m_IsCrouchingBit)
+        if (m_uiIsCrouchingBit)
         {
           fSpeed = m_fWalkSpeedCrouching;
         }
-        else if (m_InputRunBit)
+        else if (m_uiInputRunBit)
         {
           fSpeed = m_fWalkSpeedRunning;
         }
@@ -526,7 +526,7 @@ void ezJoltDefaultCharacterComponent::DetermineConfig(Config& out_Inputs)
       case ezJoltDefaultCharacterComponent::GroundState::Sliding:
         fSpeed = m_fWalkSpeedStanding;
 
-        if (m_IsCrouchingBit)
+        if (m_uiIsCrouchingBit)
         {
           fSpeed = m_fWalkSpeedCrouching;
         }
@@ -537,7 +537,7 @@ void ezJoltDefaultCharacterComponent::DetermineConfig(Config& out_Inputs)
         break;
     }
 
-    out_Inputs.m_vVelocity = GetOwner()->GetGlobalRotation() * m_InputDirection.GetAsVec3(0) * fSpeed;
+    out_Inputs.m_vVelocity = GetOwner()->GetGlobalRotation() * m_vInputDirection.GetAsVec3(0) * fSpeed;
   }
 
   // ground interaction
@@ -545,8 +545,8 @@ void ezJoltDefaultCharacterComponent::DetermineConfig(Config& out_Inputs)
     switch (GetGroundState())
     {
       case ezJoltDefaultCharacterComponent::GroundState::OnGround:
-        out_Inputs.m_sGroundInteraction = (m_InputRunBit == 1) ? m_sWalkSurfaceInteraction : m_sWalkSurfaceInteraction; // TODO: run interaction
-        out_Inputs.m_fGroundInteractionDistanceThreshold = (m_InputRunBit == 1) ? m_fRunInteractionDistance : m_fWalkInteractionDistance;
+        out_Inputs.m_sGroundInteraction = (m_uiInputRunBit == 1) ? m_sWalkSurfaceInteraction : m_sWalkSurfaceInteraction; // TODO: run interaction
+        out_Inputs.m_fGroundInteractionDistanceThreshold = (m_uiInputRunBit == 1) ? m_fRunInteractionDistance : m_fWalkInteractionDistance;
         break;
 
       case ezJoltDefaultCharacterComponent::GroundState::Sliding:
@@ -595,7 +595,7 @@ void ezJoltDefaultCharacterComponent::UpdateCharacter()
 
   ApplyCrouchState();
 
-  if (m_InputJumpBit && cfg.m_bAllowJump)
+  if (m_uiInputJumpBit && cfg.m_bAllowJump)
   {
     m_fVelocityUp = m_fJumpImpulse;
     cfg.m_fMaxStepUp = 0;

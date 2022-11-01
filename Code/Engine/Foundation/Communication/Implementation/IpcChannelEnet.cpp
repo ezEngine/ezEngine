@@ -13,16 +13,16 @@ ezIpcChannelEnet::ezIpcChannelEnet(const char* szAddress, Mode::Enum mode)
   : ezIpcChannel(szAddress, mode)
 {
   m_sAddress = szAddress;
-  m_Network = ezRemoteInterfaceEnet::Make();
-  m_Network->SetMessageHandler(0, ezMakeDelegate(&ezIpcChannelEnet::NetworkMessageHandler, this));
-  m_Network->m_RemoteEvents.AddEventHandler(ezMakeDelegate(&ezIpcChannelEnet::EnetEventHandler, this));
+  m_pNetwork = ezRemoteInterfaceEnet::Make();
+  m_pNetwork->SetMessageHandler(0, ezMakeDelegate(&ezIpcChannelEnet::NetworkMessageHandler, this));
+  m_pNetwork->m_RemoteEvents.AddEventHandler(ezMakeDelegate(&ezIpcChannelEnet::EnetEventHandler, this));
 
   m_pOwner->AddChannel(this);
 }
 
 ezIpcChannelEnet::~ezIpcChannelEnet()
 {
-  m_Network->ShutdownConnection();
+  m_pNetwork->ShutdownConnection();
 
   m_pOwner->RemoveChannel(this);
 }
@@ -31,7 +31,7 @@ void ezIpcChannelEnet::InternalConnect()
 {
   if (m_Mode == Mode::Server)
   {
-    m_Network->StartServer('RMOT', m_sAddress, false).IgnoreResult();
+    m_pNetwork->StartServer('RMOT', m_sAddress, false).IgnoreResult();
   }
   else
   {
@@ -39,21 +39,21 @@ void ezIpcChannelEnet::InternalConnect()
     {
       m_sLastAddress = m_sAddress;
       m_LastConnectAttempt = ezTime::Now();
-      m_Network->ConnectToServer('RMOT', m_sAddress, false).IgnoreResult();
+      m_pNetwork->ConnectToServer('RMOT', m_sAddress, false).IgnoreResult();
     }
 
-    m_Network->WaitForConnectionToServer(ezTime::Milliseconds(10.0)).IgnoreResult();
+    m_pNetwork->WaitForConnectionToServer(ezTime::Milliseconds(10.0)).IgnoreResult();
   }
 
-  m_Connected = m_Network->IsConnectedToOther() ? 1 : 0;
+  m_bConnected = m_pNetwork->IsConnectedToOther() ? 1 : 0;
 }
 
 void ezIpcChannelEnet::InternalDisconnect()
 {
-  m_Network->ShutdownConnection();
-  m_Network->m_RemoteEvents.RemoveEventHandler(ezMakeDelegate(&ezIpcChannelEnet::EnetEventHandler, this));
+  m_pNetwork->ShutdownConnection();
+  m_pNetwork->m_RemoteEvents.RemoveEventHandler(ezMakeDelegate(&ezIpcChannelEnet::EnetEventHandler, this));
 
-  m_Connected = 0;
+  m_bConnected = 0;
 }
 
 void ezIpcChannelEnet::InternalSend()
@@ -65,13 +65,13 @@ void ezIpcChannelEnet::InternalSend()
     {
       ezContiguousMemoryStreamStorage& storage = m_OutputQueue.PeekFront();
 
-      m_Network->Send(ezRemoteTransmitMode::Reliable, 0, 0, storage);
+      m_pNetwork->Send(ezRemoteTransmitMode::Reliable, 0, 0, storage);
 
       m_OutputQueue.PopFront();
     }
   }
 
-  m_Network->UpdateRemoteInterface();
+  m_pNetwork->UpdateRemoteInterface();
 }
 
 bool ezIpcChannelEnet::NeedWakeup() const
@@ -81,11 +81,11 @@ bool ezIpcChannelEnet::NeedWakeup() const
 
 void ezIpcChannelEnet::Tick()
 {
-  m_Network->UpdateRemoteInterface();
+  m_pNetwork->UpdateRemoteInterface();
 
-  m_Connected = m_Network->IsConnectedToOther() ? 1 : 0;
+  m_bConnected = m_pNetwork->IsConnectedToOther() ? 1 : 0;
 
-  m_Network->ExecuteAllMessageHandlers();
+  m_pNetwork->ExecuteAllMessageHandlers();
 }
 
 void ezIpcChannelEnet::NetworkMessageHandler(ezRemoteMessage& msg)

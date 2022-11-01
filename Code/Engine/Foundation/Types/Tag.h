@@ -32,7 +32,7 @@ private:
   friend class ezTagSetTemplate;
   friend class ezTagRegistry;
 
-  ezHashedString m_TagString;
+  ezHashedString m_sTagString;
 
   ezUInt32 m_uiBitIndex;
   ezUInt32 m_uiBlockIndex;

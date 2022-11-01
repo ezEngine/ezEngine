@@ -49,7 +49,7 @@ protected:
   void HeaderMouseMove(QMouseEvent* me);
   void HeaderMouseRelease(QMouseEvent* me);
 
-  QPoint m_startCursor;
+  QPoint m_StartCursor;
   bool m_bDragging = false;
 
   bool m_bBoldTitle = false;

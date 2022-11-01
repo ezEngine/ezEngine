@@ -64,7 +64,7 @@ void ezQtAssetBrowserFilter::SetTextFilter(const char* szText)
   // Clear uses search cache
   m_bUsesSearchActive = false;
   m_bTransitive = false;
-  m_uses.Clear();
+  m_Uses.Clear();
 
   const char* szRefGuid = ezStringUtils::FindSubString_NoCase(szText, "ref:");
   const char* szRefAllGuid = ezStringUtils::FindSubString_NoCase(szText, "ref-all:");
@@ -77,7 +77,7 @@ void ezQtAssetBrowserFilter::SetTextFilter(const char* szText)
       m_bUsesSearchActive = true;
       m_bTransitive = bTransitive;
       ezUuid guid = ezConversionUtils::ConvertStringToUuid(szGuid);
-      ezAssetCurator::GetSingleton()->FindAllUses(guid, m_uses, m_bTransitive);
+      ezAssetCurator::GetSingleton()->FindAllUses(guid, m_Uses, m_bTransitive);
     }
   }
 
@@ -138,7 +138,7 @@ bool ezQtAssetBrowserFilter::IsAssetFiltered(const ezSubAsset* pInfo) const
   {
     if (m_bUsesSearchActive)
     {
-      if (!m_uses.Contains(pInfo->m_Data.m_Guid))
+      if (!m_Uses.Contains(pInfo->m_Data.m_Guid))
         return true;
     }
     else

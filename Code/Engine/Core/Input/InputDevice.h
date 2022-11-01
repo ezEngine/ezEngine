@@ -99,7 +99,7 @@ protected:
 
   /// \brief If this input device type handles character input, it should write the last typed character into this variable.
   /// The ezInputManager calls RetrieveLastCharacter() to query what the user typed last.
-  ezUInt32 m_LastCharacter; // [tested]
+  ezUInt32 m_uiLastCharacter; // [tested]
 
   /// \brief Override this if you need to do device specific initialization before the first use.
   virtual void InitializeDevice() = 0;

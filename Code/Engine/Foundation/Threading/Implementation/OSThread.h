@@ -34,7 +34,7 @@ public:
   static ezInt32 GetThreadCount() { return s_iThreadCount; }
 
 protected:
-  ezThreadHandle m_Handle;
+  ezThreadHandle m_hHandle;
   ezThreadID m_ThreadID;
 
   ezOSThreadEntryPoint m_EntryPoint;

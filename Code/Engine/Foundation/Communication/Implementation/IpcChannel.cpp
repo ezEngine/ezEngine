@@ -89,7 +89,7 @@ bool ezIpcChannel::Send(ezProcessMessage* pMsg)
     writer.SetWritePosition(4);
     writer << storage.GetStorageSize32();
   }
-  if (m_Connected)
+  if (m_bConnected)
   {
     if (NeedWakeup())
     {
@@ -124,7 +124,7 @@ bool ezIpcChannel::ProcessMessages()
 
 void ezIpcChannel::WaitForMessages()
 {
-  if (m_Connected)
+  if (m_bConnected)
   {
     m_IncomingMessages.WaitForSignal();
     ProcessMessages();
@@ -133,7 +133,7 @@ void ezIpcChannel::WaitForMessages()
 
 ezResult ezIpcChannel::WaitForMessages(ezTime timeout)
 {
-  if (m_Connected)
+  if (m_bConnected)
   {
     if (m_IncomingMessages.WaitForSignal(timeout) == ezThreadSignal::WaitResult::Timeout)
     {

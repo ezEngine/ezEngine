@@ -118,10 +118,10 @@ public:
   /// \brief Replaces the current command interpreter.
   ///
   /// This base class doesn't set any default interpreter, but derived classes may do so.
-  void SetCommandInterpreter(const ezSharedPtr<ezCommandInterpreter>& interpreter) { m_CommandInterpreter = interpreter; }
+  void SetCommandInterpreter(const ezSharedPtr<ezCommandInterpreter>& interpreter) { m_pCommandInterpreter = interpreter; }
 
   /// \brief Returns the currently used command interpreter.
-  const ezSharedPtr<ezCommandInterpreter>& GetCommandInterpreter() const { return m_CommandInterpreter; }
+  const ezSharedPtr<ezCommandInterpreter>& GetCommandInterpreter() const { return m_pCommandInterpreter; }
 
   /// \brief Auto-completes the given text.
   ///
@@ -135,7 +135,7 @@ public:
   virtual void ExecuteCommand(ezStringView input);
 
 protected:
-  ezSharedPtr<ezCommandInterpreter> m_CommandInterpreter;
+  ezSharedPtr<ezCommandInterpreter> m_pCommandInterpreter;
 
   /// @}
 

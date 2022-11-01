@@ -27,5 +27,5 @@ public:
   double m_ValueD = 3;
 
 private:
-  ezMathExpression m_MathExpression;
+  ezMathExpression m_mMathExpression;
 };

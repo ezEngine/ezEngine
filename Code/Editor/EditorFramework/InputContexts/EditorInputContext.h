@@ -104,9 +104,9 @@ private:
   bool m_bDisableShortcuts;
   bool m_bJustWrappedMouse;
   MouseMode m_MouseMode;
-  ezVec2I32 m_MouseRestorePosition;
-  ezVec2I32 m_MousePosBeforeWrap;
-  ezVec2I32 m_ExpectedMousePosition;
+  ezVec2I32 m_vMouseRestorePosition;
+  ezVec2I32 m_vMousePosBeforeWrap;
+  ezVec2I32 m_vExpectedMousePosition;
   ezRectU32 m_MouseWrapRect;
 
   virtual void UpdateContext() {}

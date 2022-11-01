@@ -269,7 +269,7 @@ void ezBakedProbesComponent::SetUseTestPosition(bool bUse)
 
 void ezBakedProbesComponent::SetTestPosition(const ezVec3& pos)
 {
-  m_TestPosition = pos;
+  m_vTestPosition = pos;
 
   if (IsActiveAndInitialized())
   {
@@ -325,7 +325,7 @@ void ezBakedProbesComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) co
   if (m_bUseTestPosition)
   {
     ezBakedProbesWorldModule::ProbeIndexData indexData;
-    if (pModule->GetProbeIndexData(m_TestPosition, ezVec3::UnitZAxis(), indexData).Failed())
+    if (pModule->GetProbeIndexData(m_vTestPosition, ezVec3::UnitZAxis(), indexData).Failed())
       return;
 
     if (true)
@@ -346,7 +346,7 @@ void ezBakedProbesComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) co
 
     ezCompressedSkyVisibility skyVisibility = ezBakingUtils::CompressSkyVisibility(pModule->GetSkyVisibility(indexData));
 
-    addProbeRenderData(m_TestPosition, skyVisibility, ezRenderData::Caching::Never);
+    addProbeRenderData(m_vTestPosition, skyVisibility, ezRenderData::Caching::Never);
   }
   else
   {
@@ -377,7 +377,7 @@ void ezBakedProbesComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_bShowDebugOverlay;
   s << m_bShowDebugProbes;
   s << m_bUseTestPosition;
-  s << m_TestPosition;
+  s << m_vTestPosition;
 }
 
 void ezBakedProbesComponent::DeserializeComponent(ezWorldReader& stream)
@@ -393,7 +393,7 @@ void ezBakedProbesComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_bShowDebugOverlay;
   s >> m_bShowDebugProbes;
   s >> m_bUseTestPosition;
-  s >> m_TestPosition;
+  s >> m_vTestPosition;
 }
 
 void ezBakedProbesComponent::RenderDebugOverlay()

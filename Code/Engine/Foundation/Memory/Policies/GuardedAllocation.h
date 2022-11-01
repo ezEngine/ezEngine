@@ -19,7 +19,7 @@ namespace ezMemoryPolicies
     EZ_ALWAYS_INLINE ezAllocatorBase* GetParent() const { return nullptr; }
 
   private:
-    ezMutex m_mutex;
+    ezMutex m_Mutex;
 
     ezUInt32 m_uiPageSize;
 

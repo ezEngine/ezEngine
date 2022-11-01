@@ -37,7 +37,7 @@ ezResult ezDummyXR::Initialize()
   m_Info.m_vEyeRenderTargetSize = ezSizeU32(640, 720);
 
   m_GALdeviceEventsId = ezGALDevice::GetDefaultDevice()->m_Events.AddEventHandler(ezMakeDelegate(&ezDummyXR::GALDeviceEventHandler, this));
-  m_executionEventsId = ezGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.AddEventHandler(ezMakeDelegate(&ezDummyXR::GameApplicationEventHandler, this));
+  m_ExecutionEventsId = ezGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.AddEventHandler(ezMakeDelegate(&ezDummyXR::GameApplicationEventHandler, this));
 
   m_bInitialized = true;
   return EZ_SUCCESS;
@@ -50,9 +50,9 @@ void ezDummyXR::Deinitialize()
   {
     ezGALDevice::GetDefaultDevice()->m_Events.RemoveEventHandler(m_GALdeviceEventsId);
   }
-  if (m_executionEventsId != 0)
+  if (m_ExecutionEventsId != 0)
   {
-    ezGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.RemoveEventHandler(m_executionEventsId);
+    ezGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.RemoveEventHandler(m_ExecutionEventsId);
   }
 }
 

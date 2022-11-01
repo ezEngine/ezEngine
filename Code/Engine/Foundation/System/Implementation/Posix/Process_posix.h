@@ -324,7 +324,7 @@ struct ezProcessImpl
 
 ezProcess::ezProcess()
 {
-  m_impl = EZ_DEFAULT_NEW(ezProcessImpl);
+  m_pImpl = EZ_DEFAULT_NEW(ezProcessImpl);
 }
 
 ezProcess::~ezProcess()
@@ -338,7 +338,7 @@ ezProcess::~ezProcess()
 
   // Explicitly clear the implementation here so that member
   // state (e.g. delegates) used by the impl survives the implementation.
-  m_impl.Clear();
+  m_pImpl.Clear();
 }
 
 ezResult ezProcess::Execute(const ezProcessOptions& opt, ezInt32* out_iExitCode /*= nullptr*/)
@@ -392,32 +392,32 @@ ezResult ezProcess::Execute(const ezProcessOptions& opt, ezInt32* out_iExitCode 
 
 ezResult ezProcess::Launch(const ezProcessOptions& opt, ezBitflags<ezProcessLaunchFlags> launchFlags /*= ezProcessLaunchFlags::None*/)
 {
-  EZ_ASSERT_DEV(m_impl->m_childPid == -1, "Can not reuse an instance of ezProcess");
+  EZ_ASSERT_DEV(m_pImpl->m_childPid == -1, "Can not reuse an instance of ezProcess");
 
   int stdoutFd = -1;
   int stderrFd = -1;
 
-  if (ezProcessImpl::StartChildProcess(opt, m_impl->m_childPid, launchFlags.IsSet(ezProcessLaunchFlags::Suspended), stdoutFd, stderrFd).Failed())
+  if (ezProcessImpl::StartChildProcess(opt, m_pImpl->m_childPid, launchFlags.IsSet(ezProcessLaunchFlags::Suspended), stdoutFd, stderrFd).Failed())
   {
     return EZ_FAILURE;
   }
 
-  m_impl->m_exitCodeAvailable = false;
-  m_impl->m_processSuspended = launchFlags.IsSet(ezProcessLaunchFlags::Suspended);
+  m_pImpl->m_exitCodeAvailable = false;
+  m_pImpl->m_processSuspended = launchFlags.IsSet(ezProcessLaunchFlags::Suspended);
 
   if (stdoutFd >= 0)
   {
-    m_impl->AddStream(stdoutFd, opt.m_onStdOut);
+    m_pImpl->AddStream(stdoutFd, opt.m_onStdOut);
   }
 
   if (stderrFd >= 0)
   {
-    m_impl->AddStream(stderrFd, opt.m_onStdError);
+    m_pImpl->AddStream(stderrFd, opt.m_onStdError);
   }
 
   if (stdoutFd >= 0 || stderrFd >= 0)
   {
-    if (m_impl->StartStreamWatcher().Failed())
+    if (m_pImpl->StartStreamWatcher().Failed())
     {
       return EZ_FAILURE;
     }
@@ -433,27 +433,27 @@ ezResult ezProcess::Launch(const ezProcessOptions& opt, ezBitflags<ezProcessLaun
 
 ezResult ezProcess::ResumeSuspended()
 {
-  if (m_impl->m_childPid < 0 || !m_impl->m_processSuspended)
+  if (m_pImpl->m_childPid < 0 || !m_pImpl->m_processSuspended)
   {
     return EZ_FAILURE;
   }
 
-  if (kill(m_impl->m_childPid, SIGCONT) < 0)
+  if (kill(m_pImpl->m_childPid, SIGCONT) < 0)
   {
     return EZ_FAILURE;
   }
-  m_impl->m_processSuspended = false;
+  m_pImpl->m_processSuspended = false;
   return EZ_SUCCESS;
 }
 
 ezResult ezProcess::WaitToFinish(ezTime timeout /*= ezTime::Zero()*/)
 {
   int childStatus = 0;
-  EZ_SCOPE_EXIT(m_impl->StopStreamWatcher());
+  EZ_SCOPE_EXIT(m_pImpl->StopStreamWatcher());
 
   if (timeout.IsZero())
   {
-    if (waitpid(m_impl->m_childPid, &childStatus, 0) < 0)
+    if (waitpid(m_pImpl->m_childPid, &childStatus, 0) < 0)
     {
       return EZ_FAILURE;
     }
@@ -464,7 +464,7 @@ ezResult ezProcess::WaitToFinish(ezTime timeout /*= ezTime::Zero()*/)
     ezTime startWait = ezTime::Now();
     while (true)
     {
-      waitResult = waitpid(m_impl->m_childPid, &childStatus, WNOHANG);
+      waitResult = waitpid(m_pImpl->m_childPid, &childStatus, WNOHANG);
       if (waitResult < 0)
       {
         return EZ_FAILURE;
@@ -490,28 +490,28 @@ ezResult ezProcess::WaitToFinish(ezTime timeout /*= ezTime::Zero()*/)
   {
     m_iExitCode = -1;
   }
-  m_impl->m_exitCodeAvailable = true;
+  m_pImpl->m_exitCodeAvailable = true;
 
   return EZ_SUCCESS;
 }
 
 ezResult ezProcess::Terminate()
 {
-  if (m_impl->m_childPid == -1)
+  if (m_pImpl->m_childPid == -1)
   {
     return EZ_FAILURE;
   }
 
-  EZ_SCOPE_EXIT(m_impl->StopStreamWatcher());
+  EZ_SCOPE_EXIT(m_pImpl->StopStreamWatcher());
 
-  if (kill(m_impl->m_childPid, SIGKILL) < 0)
+  if (kill(m_pImpl->m_childPid, SIGKILL) < 0)
   {
     if (errno != ESRCH) // ESRCH = Process does not exist
     {
       return EZ_FAILURE;
     }
   }
-  m_impl->m_exitCodeAvailable = true;
+  m_pImpl->m_exitCodeAvailable = true;
   m_iExitCode = -1;
 
   return EZ_SUCCESS;
@@ -519,24 +519,24 @@ ezResult ezProcess::Terminate()
 
 ezProcessState ezProcess::GetState() const
 {
-  if (m_impl->m_childPid == -1)
+  if (m_pImpl->m_childPid == -1)
   {
     return ezProcessState::NotStarted;
   }
 
-  if (m_impl->m_exitCodeAvailable)
+  if (m_pImpl->m_exitCodeAvailable)
   {
     return ezProcessState::Finished;
   }
 
   int childStatus = -1;
-  int waitResult = waitpid(m_impl->m_childPid, &childStatus, WNOHANG);
+  int waitResult = waitpid(m_pImpl->m_childPid, &childStatus, WNOHANG);
   if (waitResult > 0)
   {
     m_iExitCode = WEXITSTATUS(childStatus);
-    m_impl->m_exitCodeAvailable = true;
+    m_pImpl->m_exitCodeAvailable = true;
 
-    m_impl->StopStreamWatcher();
+    m_pImpl->StopStreamWatcher();
 
     return ezProcessState::Finished;
   }
@@ -546,7 +546,7 @@ ezProcessState ezProcess::GetState() const
 
 void ezProcess::Detach()
 {
-  m_impl->m_childPid = -1;
+  m_pImpl->m_childPid = -1;
 }
 
 ezOsProcessHandle ezProcess::GetProcessHandle() const
@@ -557,8 +557,8 @@ ezOsProcessHandle ezProcess::GetProcessHandle() const
 
 ezOsProcessID ezProcess::GetProcessID() const
 {
-  EZ_ASSERT_DEV(m_impl->m_childPid != -1, "No ProcessID available");
-  return m_impl->m_childPid;
+  EZ_ASSERT_DEV(m_pImpl->m_childPid != -1, "No ProcessID available");
+  return m_pImpl->m_childPid;
 }
 
 ezOsProcessID ezProcess::GetCurrentProcessID()

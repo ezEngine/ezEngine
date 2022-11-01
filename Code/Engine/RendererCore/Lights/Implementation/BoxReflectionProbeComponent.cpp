@@ -118,7 +118,7 @@ const ezVec3& ezBoxReflectionProbeComponent::GetExtents() const
 void ezBoxReflectionProbeComponent::OnActivated()
 {
   GetOwner()->EnableStaticTransformChangesNotifications();
-  m_Id = ezReflectionPool::RegisterReflectionProbe(GetWorld(), m_desc, this);
+  m_Id = ezReflectionPool::RegisterReflectionProbe(GetWorld(), m_Desc, this);
   GetOwner()->UpdateLocalBounds();
 }
 
@@ -132,7 +132,7 @@ void ezBoxReflectionProbeComponent::OnDeactivated()
 
 void ezBoxReflectionProbeComponent::OnObjectCreated(const ezAbstractObjectNode& node)
 {
-  m_desc.m_uniqueID = node.GetGuid();
+  m_Desc.m_uniqueID = node.GetGuid();
 }
 
 void ezBoxReflectionProbeComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
@@ -149,12 +149,12 @@ void ezBoxReflectionProbeComponent::OnMsgExtractRenderData(ezMsgExtractRenderDat
   if (m_bStatesDirty)
   {
     m_bStatesDirty = false;
-    ezReflectionPool::UpdateReflectionProbe(GetWorld(), m_Id, m_desc, this);
+    ezReflectionPool::UpdateReflectionProbe(GetWorld(), m_Id, m_Desc, this);
   }
 
   auto pRenderData = ezCreateRenderDataForThisFrame<ezReflectionProbeRenderData>(GetOwner());
   pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
-  pRenderData->m_vProbePosition = pRenderData->m_GlobalTransform * m_desc.m_vCaptureOffset;
+  pRenderData->m_vProbePosition = pRenderData->m_GlobalTransform * m_Desc.m_vCaptureOffset;
   pRenderData->m_vHalfExtents = m_vExtents / 2.0f;
   pRenderData->m_vInfluenceScale = m_vInfluenceScale;
   pRenderData->m_vInfluenceShift = m_vInfluenceShift;

@@ -37,9 +37,9 @@ ezSharedPtr<ezDefaultStateProvider> ezPrefabDefaultStateProvider::CreateProvider
 }
 
 ezPrefabDefaultStateProvider::ezPrefabDefaultStateProvider(const ezUuid& rootObjectGuid, const ezUuid& createFromPrefab, const ezUuid& prefabSeedGuid, ezInt32 iRootDepth)
-  : m_rootObjectGuid(rootObjectGuid)
-  , m_createFromPrefab(createFromPrefab)
-  , m_prefabSeedGuid(prefabSeedGuid)
+  : m_RootObjectGuid(rootObjectGuid)
+  , m_CreateFromPrefab(createFromPrefab)
+  , m_PrefabSeedGuid(prefabSeedGuid)
   , m_iRootDepth(iRootDepth)
 {
 }
@@ -58,9 +58,9 @@ ezVariant ezPrefabDefaultStateProvider::GetDefaultValue(SuperArray superPtr, ezO
 {
   const bool bIsValueType = ezReflectionUtils::IsValueType(pProp) || pProp->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags);
 
-  const ezAbstractObjectGraph* pGraph = ezPrefabCache::GetSingleton()->GetCachedPrefabGraph(m_createFromPrefab);
+  const ezAbstractObjectGraph* pGraph = ezPrefabCache::GetSingleton()->GetCachedPrefabGraph(m_CreateFromPrefab);
   ezUuid objectPrefabGuid = pObject->GetGuid();
-  objectPrefabGuid.RevertCombinationWithSeed(m_prefabSeedGuid);
+  objectPrefabGuid.RevertCombinationWithSeed(m_PrefabSeedGuid);
   if (pGraph)
   {
     bool bValueFound = true;
@@ -90,7 +90,7 @@ ezVariant ezPrefabDefaultStateProvider::GetDefaultValue(SuperArray superPtr, ezO
         case ezPropertyCategory::Member:
         {
           ezUuid& targetGuid = defaultValue.GetWritable<ezUuid>();
-          targetGuid.CombineWithSeed(m_prefabSeedGuid);
+          targetGuid.CombineWithSeed(m_PrefabSeedGuid);
         }
         break;
         case ezPropertyCategory::Array:
@@ -99,7 +99,7 @@ ezVariant ezPrefabDefaultStateProvider::GetDefaultValue(SuperArray superPtr, ezO
           if (index.IsValid())
           {
             ezUuid& targetGuid = defaultValue.GetWritable<ezUuid>();
-            targetGuid.CombineWithSeed(m_prefabSeedGuid);
+            targetGuid.CombineWithSeed(m_PrefabSeedGuid);
           }
           else
           {
@@ -107,7 +107,7 @@ ezVariant ezPrefabDefaultStateProvider::GetDefaultValue(SuperArray superPtr, ezO
             for (ezVariant& value : defaultValueArray)
             {
               ezUuid& targetGuid = value.GetWritable<ezUuid>();
-              targetGuid.CombineWithSeed(m_prefabSeedGuid);
+              targetGuid.CombineWithSeed(m_PrefabSeedGuid);
             }
           }
         }
@@ -117,7 +117,7 @@ ezVariant ezPrefabDefaultStateProvider::GetDefaultValue(SuperArray superPtr, ezO
           if (index.IsValid())
           {
             ezUuid& targetGuid = defaultValue.GetWritable<ezUuid>();
-            targetGuid.CombineWithSeed(m_prefabSeedGuid);
+            targetGuid.CombineWithSeed(m_PrefabSeedGuid);
           }
           else
           {
@@ -125,7 +125,7 @@ ezVariant ezPrefabDefaultStateProvider::GetDefaultValue(SuperArray superPtr, ezO
             for (auto it : defaultValueDict)
             {
               ezUuid& targetGuid = it.Value().GetWritable<ezUuid>();
-              targetGuid.CombineWithSeed(m_prefabSeedGuid);
+              targetGuid.CombineWithSeed(m_PrefabSeedGuid);
             }
           }
         }
@@ -144,7 +144,7 @@ ezVariant ezPrefabDefaultStateProvider::GetDefaultValue(SuperArray superPtr, ezO
         if (ezConversionUtils::IsStringUuid(sValue))
         {
           ezUuid guid = ezConversionUtils::ConvertStringToUuid(sValue);
-          guid.CombineWithSeed(m_prefabSeedGuid);
+          guid.CombineWithSeed(m_PrefabSeedGuid);
           ezStringBuilder sTemp;
           defaultValue = ezConversionUtils::ToString(guid, sTemp).GetData();
         }
@@ -162,9 +162,9 @@ ezStatus ezPrefabDefaultStateProvider::CreateRevertContainerDiff(SuperArray supe
   ezVariant currentValue;
   EZ_SUCCEED_OR_RETURN(pAccessor->GetValue(pObject, pProp, currentValue));
 
-  const ezAbstractObjectGraph* pGraph = ezPrefabCache::GetSingleton()->GetCachedPrefabGraph(m_createFromPrefab);
+  const ezAbstractObjectGraph* pGraph = ezPrefabCache::GetSingleton()->GetCachedPrefabGraph(m_CreateFromPrefab);
   ezUuid objectPrefabGuid = pObject->GetGuid();
-  objectPrefabGuid.RevertCombinationWithSeed(m_prefabSeedGuid);
+  objectPrefabGuid.RevertCombinationWithSeed(m_PrefabSeedGuid);
   if (pGraph)
   {
     // We create a sub-graph of only the parent node in both re-mapped prefab as well as from the actually object. We limit the graph to only the container property.
@@ -175,7 +175,7 @@ ezStatus ezPrefabDefaultStateProvider::CreateRevertContainerDiff(SuperArray supe
         return false;
       return true;
     });
-    prefabSubGraph.ReMapNodeGuids(m_prefabSeedGuid);
+    prefabSubGraph.ReMapNodeGuids(m_PrefabSeedGuid);
 
     ezAbstractObjectGraph instanceSubGraph;
     ezDocumentObjectConverterWriter writer(&instanceSubGraph, pObject->GetDocumentObjectManager(), [pRootObject = pObject, pRootProp = pProp](const ezDocumentObject* pObject, const ezAbstractProperty* pProp) {

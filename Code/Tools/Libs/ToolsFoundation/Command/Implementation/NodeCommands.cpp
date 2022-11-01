@@ -140,7 +140,7 @@ ezStatus ezMoveNodeCommand::DoInternal(bool bRedo)
     if (m_pObject == nullptr)
       return ezStatus("Move Node: The given object does not exist!");
 
-    m_OldPos = pManager->GetNodePos(m_pObject);
+    m_vOldPos = pManager->GetNodePos(m_pObject);
     EZ_SUCCEED_OR_RETURN(pManager->CanMoveNode(m_pObject, m_NewPos));
   }
 
@@ -154,9 +154,9 @@ ezStatus ezMoveNodeCommand::UndoInternal(bool bFireEvents)
   ezDocumentNodeManager* pManager = static_cast<ezDocumentNodeManager*>(pDocument->GetObjectManager());
   EZ_ASSERT_DEV(bFireEvents, "This command does not support temporary commands");
 
-  EZ_SUCCEED_OR_RETURN(pManager->CanMoveNode(m_pObject, m_OldPos));
+  EZ_SUCCEED_OR_RETURN(pManager->CanMoveNode(m_pObject, m_vOldPos));
 
-  pManager->MoveNode(m_pObject, m_OldPos);
+  pManager->MoveNode(m_pObject, m_vOldPos);
 
   return ezStatus(EZ_SUCCESS);
 }

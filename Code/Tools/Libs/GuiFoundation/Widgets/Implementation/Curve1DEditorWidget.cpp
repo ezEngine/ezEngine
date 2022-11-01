@@ -430,7 +430,7 @@ void ezQtCurve1DEditorWidget::onDoubleClick(const QPointF& scenePos, const QPoin
 
 void ezQtCurve1DEditorWidget::onMoveControlPoints(double x, double y)
 {
-  m_ControlPointMove += ezVec2d(x, y);
+  m_vControlPointMove += ezVec2d(x, y);
 
   const auto selection = CurveEdit->GetSelection();
 
@@ -442,7 +442,7 @@ void ezQtCurve1DEditorWidget::onMoveControlPoints(double x, double y)
   for (const auto& cpSel : selection)
   {
     const auto& cp = m_CurvesBackup.m_Curves[cpSel.m_uiCurve]->m_ControlPoints[cpSel.m_uiPoint];
-    ezVec2d newPos = ezVec2d(cp.GetTickAsTime().GetSeconds(), cp.m_fValue) + m_ControlPointMove;
+    ezVec2d newPos = ezVec2d(cp.GetTickAsTime().GetSeconds(), cp.m_fValue) + m_vControlPointMove;
 
     ClampPoint(newPos.x, newPos.y);
 
@@ -479,7 +479,7 @@ void ezQtCurve1DEditorWidget::onScaleControlPoints(QPointF refPt, double scaleX,
 
 void ezQtCurve1DEditorWidget::onMoveTangents(float x, float y)
 {
-  m_TangentMove += ezVec2(x, y);
+  m_vTangentMove += ezVec2(x, y);
 
   ezInt32 iCurve;
   ezInt32 iPoint;
@@ -495,9 +495,9 @@ void ezQtCurve1DEditorWidget::onMoveTangents(float x, float y)
     ezVec2 newPos;
 
     if (bLeftTangent)
-      newPos = cp.m_LeftTangent + m_TangentMove;
+      newPos = cp.m_LeftTangent + m_vTangentMove;
     else
-      newPos = cp.m_RightTangent + m_TangentMove;
+      newPos = cp.m_RightTangent + m_vTangentMove;
 
     newPos.y = ezMath::Clamp(newPos.y, -100000.0f, +100000.0f);
 
@@ -515,8 +515,8 @@ void ezQtCurve1DEditorWidget::onMoveTangents(float x, float y)
 void ezQtCurve1DEditorWidget::onBeginOperation(QString name)
 {
   m_CurvesBackup.CloneFrom(m_Curves);
-  m_TangentMove.SetZero();
-  m_ControlPointMove.SetZero();
+  m_vTangentMove.SetZero();
+  m_vControlPointMove.SetZero();
 
   Q_EMIT BeginOperationEvent(name);
 }
@@ -530,7 +530,7 @@ void ezQtCurve1DEditorWidget::onContextMenu(QPoint pos, QPointF scenePos)
 {
   const bool bIsCurveNonEmpty = !m_Curves.m_Curves.IsEmpty() && !m_Curves.m_Curves[0]->m_ControlPoints.IsEmpty();
 
-  m_contextMenuScenePos = scenePos;
+  m_ContextMenuScenePos = scenePos;
 
   QMenu m(this);
   m.setDefaultAction(m.addAction("Add Point\tDbl Click", this, SLOT(onAddPoint())));
@@ -767,7 +767,7 @@ void ezQtCurve1DEditorWidget::onAddPoint()
 {
   Q_EMIT BeginCpChangesEvent("Add Control Point");
 
-  InsertCpAt(m_contextMenuScenePos.x(), m_contextMenuScenePos.y(), ezVec2d::ZeroVector());
+  InsertCpAt(m_ContextMenuScenePos.x(), m_ContextMenuScenePos.y(), ezVec2d::ZeroVector());
 
   Q_EMIT EndCpChangesEvent();
 }
@@ -910,7 +910,7 @@ void ezQtCurve1DEditorWidget::onSelectionChanged()
 
 void ezQtCurve1DEditorWidget::onMoveCurve(ezInt32 iCurve, double moveY)
 {
-  m_ControlPointMove.y += moveY;
+  m_vControlPointMove.y += moveY;
 
   Q_EMIT BeginCpChangesEvent("Move Curve");
 
@@ -919,7 +919,7 @@ void ezQtCurve1DEditorWidget::onMoveCurve(ezInt32 iCurve, double moveY)
   for (ezUInt32 i = 0; i < uiNumCps; ++i)
   {
     const ezInt64 x = curve.m_ControlPoints[i].m_iTick;
-    const float y = curve.m_ControlPoints[i].m_fValue + m_ControlPointMove.y;
+    const float y = curve.m_ControlPoints[i].m_fValue + m_vControlPointMove.y;
 
     Q_EMIT CpMovedEvent(iCurve, i, x, y);
   }

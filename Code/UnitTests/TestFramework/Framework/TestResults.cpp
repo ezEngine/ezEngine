@@ -83,7 +83,7 @@ void ezTestFrameworkResult::Clear()
 
 void ezTestFrameworkResult::SetupTests(const std::deque<ezTestEntry>& tests, const ezTestConfiguration& config)
 {
-  m_config = config;
+  m_Config = config;
   Clear();
 
   const ezUInt32 uiTestCount = (ezUInt32)tests.size();
@@ -147,16 +147,16 @@ bool ezTestFrameworkResult::WriteJsonToFile(const char* szFileName) const
     {
       js.BeginObject("configuration");
       {
-        js.AddVariableUInt64("m_uiInstalledMainMemory", m_config.m_uiInstalledMainMemory);
-        js.AddVariableUInt32("m_uiMemoryPageSize", m_config.m_uiMemoryPageSize);
-        js.AddVariableUInt32("m_uiCPUCoreCount", m_config.m_uiCPUCoreCount);
-        js.AddVariableBool("m_b64BitOS", m_config.m_b64BitOS);
-        js.AddVariableBool("m_b64BitApplication", m_config.m_b64BitApplication);
-        js.AddVariableString("m_sPlatformName", m_config.m_sPlatformName.c_str());
-        js.AddVariableString("m_sBuildConfiguration", m_config.m_sBuildConfiguration.c_str());
-        js.AddVariableInt64("m_iDateTime", m_config.m_iDateTime);
-        js.AddVariableInt32("m_iRCSRevision", m_config.m_iRCSRevision);
-        js.AddVariableString("m_sHostName", m_config.m_sHostName.c_str());
+        js.AddVariableUInt64("m_uiInstalledMainMemory", m_Config.m_uiInstalledMainMemory);
+        js.AddVariableUInt32("m_uiMemoryPageSize", m_Config.m_uiMemoryPageSize);
+        js.AddVariableUInt32("m_uiCPUCoreCount", m_Config.m_uiCPUCoreCount);
+        js.AddVariableBool("m_b64BitOS", m_Config.m_b64BitOS);
+        js.AddVariableBool("m_b64BitApplication", m_Config.m_b64BitApplication);
+        js.AddVariableString("m_sPlatformName", m_Config.m_sPlatformName.c_str());
+        js.AddVariableString("m_sBuildConfiguration", m_Config.m_sBuildConfiguration.c_str());
+        js.AddVariableInt64("m_iDateTime", m_Config.m_iDateTime);
+        js.AddVariableInt32("m_iRCSRevision", m_Config.m_iRCSRevision);
+        js.AddVariableString("m_sHostName", m_Config.m_sHostName.c_str());
       }
       js.EndObject();
 

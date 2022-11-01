@@ -351,7 +351,7 @@ private:
     InlinedStruct inlined;
   } m_Data;
 
-  ezUInt32 m_Type : 31;
+  ezUInt32 m_uiType : 31;
   ezUInt32 m_bIsShared : 1; // NOLINT(ez*)
 
   template <typename T>

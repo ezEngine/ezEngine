@@ -48,9 +48,9 @@ ezUInt32 ezTaskWorkerThread::Run()
   // such that the ezTaskSystem is able to look this up (e.g. in WaitForGroup) to know which types of tasks to help with
   tl_TaskWorkerInfo.m_WorkerType = m_WorkerType;
   tl_TaskWorkerInfo.m_iWorkerIndex = m_uiWorkerThreadNumber;
-  tl_TaskWorkerInfo.m_pWorkerState = &m_WorkerState;
+  tl_TaskWorkerInfo.m_pWorkerState = &m_iWorkerState;
 
-  const bool bIsReserve = m_uiWorkerThreadNumber >= ezTaskSystem::s_ThreadState->m_uiMaxWorkersToUse[m_WorkerType];
+  const bool bIsReserve = m_uiWorkerThreadNumber >= ezTaskSystem::s_pThreadState->m_uiMaxWorkersToUse[m_WorkerType];
 
   ezTaskPriority::Enum FirstPriority;
   ezTaskPriority::Enum LastPriority;
@@ -66,7 +66,7 @@ ezUInt32 ezTaskWorkerThread::Run()
       m_StartedWorkingTime = ezTime::Now();
     }
 
-    if (!ezTaskSystem::ExecuteTask(FirstPriority, LastPriority, false, ezTaskGroupID(), &m_WorkerState))
+    if (!ezTaskSystem::ExecuteTask(FirstPriority, LastPriority, false, ezTaskGroupID(), &m_iWorkerState))
     {
       WaitForWork();
     }
@@ -76,7 +76,7 @@ ezUInt32 ezTaskWorkerThread::Run()
 
       if (bIsReserve)
       {
-        EZ_VERIFY(m_WorkerState.Set((int)ezTaskWorkerState::Idle) == (int)ezTaskWorkerState::Active, "Corrupt worker state");
+        EZ_VERIFY(m_iWorkerState.Set((int)ezTaskWorkerState::Idle) == (int)ezTaskWorkerState::Active, "Corrupt worker state");
 
         // if this thread is part of the reserve, then don't continue to process tasks indefinitely
         // instead, put this thread to sleep and wake up someone else
@@ -101,12 +101,12 @@ void ezTaskWorkerThread::WaitForWork()
   m_ThreadActiveTime += ezTime::Now() - m_StartedWorkingTime;
   m_bExecutingTask = false;
   m_WakeUpSignal.WaitForSignal();
-  EZ_ASSERT_DEBUG(m_WorkerState == (int)ezTaskWorkerState::Active, "Worker state should have been reset to 'active'");
+  EZ_ASSERT_DEBUG(m_iWorkerState == (int)ezTaskWorkerState::Active, "Worker state should have been reset to 'active'");
 }
 
 ezTaskWorkerState ezTaskWorkerThread::WakeUpIfIdle()
 {
-  ezTaskWorkerState prev = (ezTaskWorkerState)m_WorkerState.CompareAndSwap((int)ezTaskWorkerState::Idle, (int)ezTaskWorkerState::Active);
+  ezTaskWorkerState prev = (ezTaskWorkerState)m_iWorkerState.CompareAndSwap((int)ezTaskWorkerState::Idle, (int)ezTaskWorkerState::Active);
   if (prev == ezTaskWorkerState::Idle) // was idle before
   {
     m_WakeUpSignal.RaiseSignal();

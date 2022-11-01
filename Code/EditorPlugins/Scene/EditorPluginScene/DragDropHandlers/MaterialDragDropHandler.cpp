@@ -47,11 +47,11 @@ void ezMaterialDragDropHandler::OnDragUpdate(const ezDragDropInfo* pInfo)
   if (!pComponent)
     return;
 
-  if (m_AppliedToComponent == pInfo->m_TargetComponent && m_uiAppliedToSlot == pInfo->m_iTargetObjectSubID)
+  if (m_AppliedToComponent == pInfo->m_TargetComponent && m_iAppliedToSlot == pInfo->m_iTargetObjectSubID)
     return;
 
   m_AppliedToComponent = pInfo->m_TargetComponent;
-  m_uiAppliedToSlot = pInfo->m_iTargetObjectSubID;
+  m_iAppliedToSlot = pInfo->m_iTargetObjectSubID;
 
   if (pComponent->GetTypeAccessor().GetType()->IsDerivedFrom<ezMeshComponent>())
   {

@@ -5,16 +5,16 @@
 
 void ezClothSimulator::SimulateCloth(const ezTime& tDiff)
 {
-  m_leftOverTimeStep += tDiff;
+  m_LeftOverTimeStep += tDiff;
 
   constexpr ezTime tStep = ezTime::Seconds(1.0 / 60.0);
   const ezSimdFloat tStepSqr = static_cast<float>(tStep.GetSeconds() * tStep.GetSeconds());
 
-  while (m_leftOverTimeStep >= tStep)
+  while (m_LeftOverTimeStep >= tStep)
   {
     SimulateStep(tStepSqr, 32, m_vSegmentLength.x);
 
-    m_leftOverTimeStep -= tStep;
+    m_LeftOverTimeStep -= tStep;
   }
 }
 

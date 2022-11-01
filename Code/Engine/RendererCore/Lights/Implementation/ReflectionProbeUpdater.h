@@ -131,5 +131,5 @@ private:
 
   // Active Dynamic Updates
   ezDynamicArray<ezUniquePtr<ProbeUpdateInfo>> m_DynamicUpdates;
-  ezHybridArray<ezReflectionProbeRef, 4> m_finishedLastFrame;
+  ezHybridArray<ezReflectionProbeRef, 4> m_FinishedLastFrame;
 };

@@ -175,7 +175,7 @@ protected:
   ezUInt32 m_uiMsgIdOffset;
 
   bool m_bGatheredDynamicMessageHandlers;
-  const ezRTTI* (*m_fnVerifyParent)();
+  const ezRTTI* (*m_VerifyParent)();
 
   ezArrayPtr<ezAbstractMessageHandler*> m_MessageHandlers;
   ezDynamicArray<ezAbstractMessageHandler*, ezStaticAllocatorWrapper>

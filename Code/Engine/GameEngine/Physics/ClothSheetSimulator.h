@@ -50,5 +50,5 @@ private:
   void UpdateNodePositions(const ezSimdFloat tDiffSqr);
   ezSimdVec4f MoveTowards(const ezSimdVec4f posThis, const ezSimdVec4f posNext, ezSimdFloat factor, const ezSimdVec4f fallbackDir, ezSimdFloat& inout_fError, ezSimdFloat fSegLen);
 
-  ezTime m_leftOverTimeStep;
+  ezTime m_LeftOverTimeStep;
 };

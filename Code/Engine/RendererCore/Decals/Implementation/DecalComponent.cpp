@@ -106,7 +106,7 @@ void ezDecalComponent::SerializeComponent(ezWorldWriter& stream) const
 
   // version 7
   s << m_uiRandomDecalIdx;
-  s.WriteArray(m_hDecals).IgnoreResult();
+  s.WriteArray(m_Decals).IgnoreResult();
 }
 
 void ezDecalComponent::DeserializeComponent(ezWorldReader& stream)
@@ -145,8 +145,8 @@ void ezDecalComponent::DeserializeComponent(ezWorldReader& stream)
 
   if (uiVersion < 7)
   {
-    m_hDecals.SetCount(1);
-    s >> m_hDecals[0];
+    m_Decals.SetCount(1);
+    s >> m_Decals[0];
   }
 
   s >> m_FadeOutDelay.m_Value;
@@ -179,20 +179,20 @@ void ezDecalComponent::DeserializeComponent(ezWorldReader& stream)
   if (uiVersion >= 7)
   {
     s >> m_uiRandomDecalIdx;
-    s.ReadArray(m_hDecals).IgnoreResult();
+    s.ReadArray(m_Decals).IgnoreResult();
   }
 }
 
 ezResult ezDecalComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
 {
-  if (m_hDecals.IsEmpty())
+  if (m_Decals.IsEmpty())
     return EZ_FAILURE;
 
-  m_uiRandomDecalIdx = (GetOwner()->GetStableRandomSeed() % m_hDecals.GetCount()) & 0xFF;
+  m_uiRandomDecalIdx = (GetOwner()->GetStableRandomSeed() % m_Decals.GetCount()) & 0xFF;
 
-  const ezUInt32 uiDecalIndex = ezMath::Min<ezUInt32>(m_uiRandomDecalIdx, m_hDecals.GetCount() - 1);
+  const ezUInt32 uiDecalIndex = ezMath::Min<ezUInt32>(m_uiRandomDecalIdx, m_Decals.GetCount() - 1);
 
-  if (!m_hDecals[uiDecalIndex].IsValid() || m_vExtents.IsZero())
+  if (!m_Decals[uiDecalIndex].IsValid() || m_vExtents.IsZero())
     return EZ_FAILURE;
 
   float fAspectRatio = 1.0f;
@@ -202,7 +202,7 @@ ezResult ezDecalComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAl
     ezResourceLock<ezDecalAtlasResource> pDecalAtlas(hDecalAtlas, ezResourceAcquireMode::BlockTillLoaded);
 
     const auto& atlas = pDecalAtlas->GetAtlas();
-    const ezUInt32 decalIdx = atlas.m_Items.Find(ezHashingUtils::StringHashTo32(m_hDecals[uiDecalIndex].GetResourceIDHash()));
+    const ezUInt32 decalIdx = atlas.m_Items.Find(ezHashingUtils::StringHashTo32(m_Decals[uiDecalIndex].GetResourceIDHash()));
 
     if (decalIdx != ezInvalidIndex)
     {
@@ -325,14 +325,14 @@ bool ezDecalComponent::GetMapNormalToGeometry() const
 
 void ezDecalComponent::SetDecal(ezUInt32 uiIndex, const ezDecalResourceHandle& hDecal)
 {
-  m_hDecals[uiIndex] = hDecal;
+  m_Decals[uiIndex] = hDecal;
 
   TriggerLocalBoundsUpdate();
 }
 
 const ezDecalResourceHandle& ezDecalComponent::GetDecal(ezUInt32 uiIndex) const
 {
-  return m_hDecals[uiIndex];
+  return m_Decals[uiIndex];
 }
 
 void ezDecalComponent::SetProjectionAxis(ezEnum<ezBasisAxis> ProjectionAxis)
@@ -367,12 +367,12 @@ void ezDecalComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
   if (msg.m_OverrideCategory != ezInvalidRenderDataCategory)
     return;
 
-  if (m_hDecals.IsEmpty())
+  if (m_Decals.IsEmpty())
     return;
 
-  const ezUInt32 uiDecalIndex = ezMath::Min<ezUInt32>(m_uiRandomDecalIdx, m_hDecals.GetCount() - 1);
+  const ezUInt32 uiDecalIndex = ezMath::Min<ezUInt32>(m_uiRandomDecalIdx, m_Decals.GetCount() - 1);
 
-  if (!m_hDecals[uiDecalIndex].IsValid() || m_vExtents.IsZero() || GetOwner()->GetLocalScaling().IsZero())
+  if (!m_Decals[uiDecalIndex].IsValid() || m_vExtents.IsZero() || GetOwner()->GetLocalScaling().IsZero())
     return;
 
   float fFade = 1.0f;
@@ -407,7 +407,7 @@ void ezDecalComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
     ezResourceLock<ezDecalAtlasResource> pDecalAtlas(hDecalAtlas, ezResourceAcquireMode::BlockTillLoaded);
 
     const auto& atlas = pDecalAtlas->GetAtlas();
-    const ezUInt32 decalIdx = atlas.m_Items.Find(ezHashingUtils::StringHashTo32(m_hDecals[uiDecalIndex].GetResourceIDHash()));
+    const ezUInt32 decalIdx = atlas.m_Items.Find(ezHashingUtils::StringHashTo32(m_Decals[uiDecalIndex].GetResourceIDHash()));
 
     if (decalIdx != ezInvalidIndex)
     {
@@ -591,15 +591,15 @@ void ezDecalComponent::OnMsgSetColor(ezMsgSetColor& msg)
 
 ezUInt32 ezDecalComponent::DecalFile_GetCount() const
 {
-  return m_hDecals.GetCount();
+  return m_Decals.GetCount();
 }
 
 const char* ezDecalComponent::DecalFile_Get(ezUInt32 uiIndex) const
 {
-  if (!m_hDecals[uiIndex].IsValid())
+  if (!m_Decals[uiIndex].IsValid())
     return "";
 
-  return m_hDecals[uiIndex].GetResourceID();
+  return m_Decals[uiIndex].GetResourceID();
 }
 
 void ezDecalComponent::DecalFile_Set(ezUInt32 uiIndex, const char* szFile)
@@ -616,13 +616,13 @@ void ezDecalComponent::DecalFile_Set(ezUInt32 uiIndex, const char* szFile)
 
 void ezDecalComponent::DecalFile_Insert(ezUInt32 uiIndex, const char* szFile)
 {
-  m_hDecals.Insert(ezDecalResourceHandle(), uiIndex);
+  m_Decals.Insert(ezDecalResourceHandle(), uiIndex);
   DecalFile_Set(uiIndex, szFile);
 }
 
 void ezDecalComponent::DecalFile_Remove(ezUInt32 uiIndex)
 {
-  m_hDecals.RemoveAtAndCopy(uiIndex);
+  m_Decals.RemoveAtAndCopy(uiIndex);
 }
 
 //////////////////////////////////////////////////////////////////////////

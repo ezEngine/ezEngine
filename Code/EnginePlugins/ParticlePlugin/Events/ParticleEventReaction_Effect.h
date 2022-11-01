@@ -30,7 +30,7 @@ public:
   bool GetParameter(const char* szKey, ezVariant& out_value) const;
 
 private:
-  ezSharedPtr<ezParticleEffectParameters> m_Parameters;
+  ezSharedPtr<ezParticleEffectParameters> m_pParameters;
 };
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleEventReaction_Effect final : public ezParticleEventReaction

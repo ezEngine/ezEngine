@@ -158,15 +158,15 @@ void ezImguiRenderer::RenderBatch(const ezRenderViewContext& renderContext, cons
   ezGALRenderCommandEncoder* pCommandEncoder = pRenderContext->GetRenderCommandEncoder();
 
   pRenderContext->BindShader(m_hShader);
-  const auto& textures = ezImgui::GetSingleton()->m_hTextures;
+  const auto& textures = ezImgui::GetSingleton()->m_Textures;
   const ezUInt32 numTextures = textures.GetCount();
 
   for (auto it = batch.GetIterator<ezImguiRenderData>(); it.IsValid(); ++it)
   {
     const ezImguiRenderData* pRenderData = it;
 
-    EZ_ASSERT_DEV(pRenderData->m_Vertices.GetCount() < VertexBufferSize, "GUI has too many elements to render in one drawcall");
-    EZ_ASSERT_DEV(pRenderData->m_Indices.GetCount() < IndexBufferSize, "GUI has too many elements to render in one drawcall");
+    EZ_ASSERT_DEV(pRenderData->m_Vertices.GetCount() < s_uiVertexBufferSize, "GUI has too many elements to render in one drawcall");
+    EZ_ASSERT_DEV(pRenderData->m_Indices.GetCount() < s_uiIndexBufferSize, "GUI has too many elements to render in one drawcall");
 
     pCommandEncoder->UpdateBuffer(m_hVertexBuffer, 0, ezMakeArrayPtr(pRenderData->m_Vertices.GetPtr(), pRenderData->m_Vertices.GetCount()).ToByteArray());
     pCommandEncoder->UpdateBuffer(m_hIndexBuffer, 0, ezMakeArrayPtr(pRenderData->m_Indices.GetPtr(), pRenderData->m_Indices.GetCount()).ToByteArray());
@@ -205,7 +205,7 @@ void ezImguiRenderer::SetupRenderer()
   {
     ezGALBufferCreationDescription desc;
     desc.m_uiStructSize = sizeof(ezImguiVertex);
-    desc.m_uiTotalSize = VertexBufferSize * desc.m_uiStructSize;
+    desc.m_uiTotalSize = s_uiVertexBufferSize * desc.m_uiStructSize;
     desc.m_BufferType = ezGALBufferType::VertexBuffer;
     desc.m_ResourceAccess.m_bImmutable = false;
 
@@ -216,7 +216,7 @@ void ezImguiRenderer::SetupRenderer()
   {
     ezGALBufferCreationDescription desc;
     desc.m_uiStructSize = sizeof(ImDrawIdx);
-    desc.m_uiTotalSize = IndexBufferSize * desc.m_uiStructSize;
+    desc.m_uiTotalSize = s_uiIndexBufferSize * desc.m_uiStructSize;
     desc.m_BufferType = ezGALBufferType::IndexBuffer;
     desc.m_ResourceAccess.m_bImmutable = false;
 

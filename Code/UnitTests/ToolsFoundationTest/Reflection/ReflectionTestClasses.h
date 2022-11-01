@@ -9,23 +9,23 @@ public:
   ezIntegerStruct()
   {
     m_iInt8 = 1;
-    m_iUInt8 = 1;
+    m_uiUInt8 = 1;
     m_iInt16 = 1;
     m_iUInt16 = 1;
     m_iInt32 = 1;
-    m_iUInt32 = 1;
+    m_uiUInt32 = 1;
     m_iInt64 = 1;
     m_iUInt64 = 1;
   }
 
   void SetInt8(ezInt8 i) { m_iInt8 = i; }
   ezInt8 GetInt8() const { return m_iInt8; }
-  void SetUInt8(ezUInt8 i) { m_iUInt8 = i; }
-  ezUInt8 GetUInt8() const { return m_iUInt8; }
+  void SetUInt8(ezUInt8 i) { m_uiUInt8 = i; }
+  ezUInt8 GetUInt8() const { return m_uiUInt8; }
   void SetInt32(ezInt32 i) { m_iInt32 = i; }
   ezInt32 GetInt32() const { return m_iInt32; }
-  void SetUInt32(ezUInt32 i) { m_iUInt32 = i; }
-  ezUInt32 GetUInt32() const { return m_iUInt32; }
+  void SetUInt32(ezUInt32 i) { m_uiUInt32 = i; }
+  ezUInt32 GetUInt32() const { return m_uiUInt32; }
 
   ezInt16 m_iInt16;
   ezUInt16 m_iUInt16;
@@ -34,9 +34,9 @@ public:
 
 private:
   ezInt8 m_iInt8;
-  ezUInt8 m_iUInt8;
+  ezUInt8 m_uiUInt8;
   ezInt32 m_iInt32;
-  ezUInt32 m_iUInt32;
+  ezUInt32 m_uiUInt32;
 };
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezIntegerStruct);
 
@@ -118,41 +118,41 @@ class ezMathClass : public ezPODClass
 public:
   ezMathClass()
   {
-    m_Vec2 = ezVec2(1.0f, 1.0f);
-    m_Vec3 = ezVec3(1.0f, 1.0f, 1.0f);
-    m_Vec4 = ezVec4(1.0f, 1.0f, 1.0f, 1.0f);
+    m_vVec2 = ezVec2(1.0f, 1.0f);
+    m_vVec3 = ezVec3(1.0f, 1.0f, 1.0f);
+    m_vVec4 = ezVec4(1.0f, 1.0f, 1.0f, 1.0f);
     m_Vec2I = ezVec2I32(1, 1);
     m_Vec3I = ezVec3I32(1, 1, 1);
     m_Vec4I = ezVec4I32(1, 1, 1, 1);
-    m_Quat = ezQuat(1.0f, 1.0f, 1.0f, 1.0f);
-    m_Mat3.SetZero();
-    m_Mat4.SetZero();
+    m_qQuat = ezQuat(1.0f, 1.0f, 1.0f, 1.0f);
+    m_mMat3.SetZero();
+    m_mMat4.SetZero();
   }
 
-  void SetVec2(ezVec2 v) { m_Vec2 = v; }
-  ezVec2 GetVec2() const { return m_Vec2; }
-  void SetVec3(ezVec3 v) { m_Vec3 = v; }
-  ezVec3 GetVec3() const { return m_Vec3; }
-  void SetVec4(ezVec4 v) { m_Vec4 = v; }
-  ezVec4 GetVec4() const { return m_Vec4; }
-  void SetQuat(ezQuat q) { m_Quat = q; }
-  ezQuat GetQuat() const { return m_Quat; }
-  void SetMat3(ezMat3 m) { m_Mat3 = m; }
-  ezMat3 GetMat3() const { return m_Mat3; }
-  void SetMat4(ezMat4 m) { m_Mat4 = m; }
-  ezMat4 GetMat4() const { return m_Mat4; }
+  void SetVec2(ezVec2 v) { m_vVec2 = v; }
+  ezVec2 GetVec2() const { return m_vVec2; }
+  void SetVec3(ezVec3 v) { m_vVec3 = v; }
+  ezVec3 GetVec3() const { return m_vVec3; }
+  void SetVec4(ezVec4 v) { m_vVec4 = v; }
+  ezVec4 GetVec4() const { return m_vVec4; }
+  void SetQuat(ezQuat q) { m_qQuat = q; }
+  ezQuat GetQuat() const { return m_qQuat; }
+  void SetMat3(ezMat3 m) { m_mMat3 = m; }
+  ezMat3 GetMat3() const { return m_mMat3; }
+  void SetMat4(ezMat4 m) { m_mMat4 = m; }
+  ezMat4 GetMat4() const { return m_mMat4; }
 
   ezVec2I32 m_Vec2I;
   ezVec3I32 m_Vec3I;
   ezVec4I32 m_Vec4I;
 
 private:
-  ezVec2 m_Vec2;
-  ezVec3 m_Vec3;
-  ezVec4 m_Vec4;
-  ezQuat m_Quat;
-  ezMat3 m_Mat3;
-  ezMat4 m_Mat4;
+  ezVec2 m_vVec2;
+  ezVec3 m_vVec3;
+  ezVec4 m_vVec4;
+  ezQuat m_qQuat;
+  ezMat3 m_mMat3;
+  ezMat4 m_mMat4;
 };
 
 
@@ -200,18 +200,18 @@ class ezEnumerationsClass : public ezReflectedClass
 public:
   ezEnumerationsClass()
   {
-    m_enumClass = ezExampleEnum::Value2;
-    m_bitflagsClass = ezExampleBitflags::Value2;
+    m_EnumClass = ezExampleEnum::Value2;
+    m_BitflagsClass = ezExampleBitflags::Value2;
   }
 
-  void SetEnum(ezExampleEnum::Enum e) { m_enumClass = e; }
-  ezExampleEnum::Enum GetEnum() const { return m_enumClass; }
-  void SetBitflags(ezBitflags<ezExampleBitflags> e) { m_bitflagsClass = e; }
-  ezBitflags<ezExampleBitflags> GetBitflags() const { return m_bitflagsClass; }
+  void SetEnum(ezExampleEnum::Enum e) { m_EnumClass = e; }
+  ezExampleEnum::Enum GetEnum() const { return m_EnumClass; }
+  void SetBitflags(ezBitflags<ezExampleBitflags> e) { m_BitflagsClass = e; }
+  ezBitflags<ezExampleBitflags> GetBitflags() const { return m_BitflagsClass; }
 
 private:
-  ezEnum<ezExampleEnum> m_enumClass;
-  ezBitflags<ezExampleBitflags> m_bitflagsClass;
+  ezEnum<ezExampleEnum> m_EnumClass;
+  ezBitflags<ezExampleBitflags> m_BitflagsClass;
 };
 
 

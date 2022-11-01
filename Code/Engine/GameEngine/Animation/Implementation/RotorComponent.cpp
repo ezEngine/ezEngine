@@ -44,9 +44,9 @@ void ezRotorComponent::Update()
       ezQuat qRotation;
       qRotation.SetFromAxisAndAngle(m_vRotationAxis, ezAngle::Degree(fNewDistance));
 
-      GetOwner()->SetLocalRotation(GetOwner()->GetLocalRotation() * -m_LastRotation * qRotation);
+      GetOwner()->SetLocalRotation(GetOwner()->GetLocalRotation() * -m_qLastRotation * qRotation);
 
-      m_LastRotation = qRotation;
+      m_qLastRotation = qRotation;
 
       if (!m_Flags.IsAnySet(ezTransformComponentFlags::AnimationReversed))
       {
@@ -103,7 +103,7 @@ void ezRotorComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_fAcceleration;
   s << m_fDeceleration;
   s << m_Axis.GetValue();
-  s << m_LastRotation;
+  s << m_qLastRotation;
   s << m_AxisDeviation;
 }
 
@@ -119,7 +119,7 @@ void ezRotorComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_fAcceleration;
   s >> m_fDeceleration;
   s >> m_Axis;
-  s >> m_LastRotation;
+  s >> m_qLastRotation;
 
   if (uiVersion >= 3)
   {

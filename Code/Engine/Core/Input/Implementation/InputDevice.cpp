@@ -27,7 +27,7 @@ ezKeyState::Enum ezKeyState::GetNewKeyState(ezKeyState::Enum PrevState, bool bKe
 ezInputDevice::ezInputDevice()
 {
   m_bInitialized = false;
-  m_LastCharacter = '\0';
+  m_uiLastCharacter = '\0';
 }
 
 void ezInputDevice::RegisterInputSlot(const char* szName, const char* szDefaultDisplayName, ezBitflags<ezInputSlotFlags> SlotFlags)
@@ -83,8 +83,8 @@ void ezInputDevice::ResetAllDevices()
 
 ezUInt32 ezInputDevice::RetrieveLastCharacter()
 {
-  ezUInt32 Temp = m_LastCharacter;
-  m_LastCharacter = L'\0';
+  ezUInt32 Temp = m_uiLastCharacter;
+  m_uiLastCharacter = L'\0';
   return Temp;
 }
 

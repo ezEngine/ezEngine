@@ -37,7 +37,7 @@ protected:
   virtual void showEvent(QShowEvent* event) override;
 
 protected:
-  QPalette m_pal;
+  QPalette m_Pal;
   QHBoxLayout* m_pLayout = nullptr;
   QLabel* m_pWidget = nullptr;
   QString m_sInternalValue;

@@ -40,13 +40,13 @@ public:
   //////////////////////////////////////////////////////////////////////////
   // ezAnimGraphNode
 
-  const char* GetCustomNodeTitle() const { return m_CustomNodeTitle.GetString(); }
-  void SetCustomNodeTitle(const char* sz) { m_CustomNodeTitle.Assign(sz); }
+  const char* GetCustomNodeTitle() const { return m_sCustomNodeTitle.GetString(); }
+  void SetCustomNodeTitle(const char* sz) { m_sCustomNodeTitle.Assign(sz); }
 
 protected:
   friend class ezAnimGraph;
 
-  ezHashedString m_CustomNodeTitle;
+  ezHashedString m_sCustomNodeTitle;
 
   virtual ezResult SerializeNode(ezStreamWriter& stream) const = 0;
   virtual ezResult DeserializeNode(ezStreamReader& stream) = 0;

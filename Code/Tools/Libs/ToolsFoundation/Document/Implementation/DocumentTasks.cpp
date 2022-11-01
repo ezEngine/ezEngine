@@ -16,11 +16,11 @@ void ezSaveDocumentTask::Execute()
 
   if (file.Close() == EZ_FAILURE)
   {
-    m_document->m_lastSaveResult = ezStatus(ezFmt("Unable to open file '{0}' for writing!", m_document->m_sDocumentPath));
+    m_document->m_LastSaveResult = ezStatus(ezFmt("Unable to open file '{0}' for writing!", m_document->m_sDocumentPath));
   }
   else
   {
-    m_document->m_lastSaveResult = ezStatus(EZ_SUCCESS);
+    m_document->m_LastSaveResult = ezStatus(EZ_SUCCESS);
   }
 }
 
@@ -33,7 +33,7 @@ ezAfterSaveDocumentTask::~ezAfterSaveDocumentTask() = default;
 
 void ezAfterSaveDocumentTask::Execute()
 {
-  if (m_document->m_lastSaveResult.Succeeded())
+  if (m_document->m_LastSaveResult.Succeeded())
   {
     ezDocumentEvent e;
     e.m_pDocument = m_document;
@@ -48,13 +48,13 @@ void ezAfterSaveDocumentTask::Execute()
     m_document->m_UnknownObjectTypes.Clear();
   }
 
-  if (m_document->m_lastSaveResult.Succeeded())
+  if (m_document->m_LastSaveResult.Succeeded())
   {
     m_document->InternalAfterSaveDocument();
   }
   if (m_callback.IsValid())
   {
-    m_callback(m_document, m_document->m_lastSaveResult);
+    m_callback(m_document, m_document->m_LastSaveResult);
   }
-  m_document->m_activeSaveTask.Invalidate();
+  m_document->m_ActiveSaveTask.Invalidate();
 }

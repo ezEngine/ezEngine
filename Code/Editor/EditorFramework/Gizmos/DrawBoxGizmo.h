@@ -51,10 +51,10 @@ private:
   bool PickPosition(QMouseEvent* e);
 
   ManipulateMode m_ManipulateMode;
-  ezEngineGizmoHandle m_Box;
+  ezEngineGizmoHandle m_hBox;
 
   ezInt32 m_iHeightChange = 0;
-  ezVec2I32 m_LastMousePos;
+  ezVec2I32 m_vLastMousePos;
   ezVec3 m_vCurrentPosition;
   ezVec3 m_vFirstCorner;
   ezVec3 m_vSecondCorner;

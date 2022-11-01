@@ -14,7 +14,7 @@ ezConeLengthGizmo::ezConeLengthGizmo()
 
   m_ManipulateMode = ManipulateMode::None;
 
-  m_ConeRadius.ConfigureHandle(this, ezEngineGizmoHandleType::Cone, ezColorLinearUB(200, 200, 200, 128), ezGizmoFlags::Pickable | ezGizmoFlags::OnTop); // this gizmo should be rendered very last so it is always on top
+  m_hConeRadius.ConfigureHandle(this, ezEngineGizmoHandleType::Cone, ezColorLinearUB(200, 200, 200, 128), ezGizmoFlags::Pickable | ezGizmoFlags::OnTop); // this gizmo should be rendered very last so it is always on top
 
   SetVisible(false);
   SetTransformation(ezTransform::IdentityTransform());
@@ -22,12 +22,12 @@ ezConeLengthGizmo::ezConeLengthGizmo()
 
 void ezConeLengthGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
 {
-  pOwnerWindow->GetDocument()->AddSyncObject(&m_ConeRadius);
+  pOwnerWindow->GetDocument()->AddSyncObject(&m_hConeRadius);
 }
 
 void ezConeLengthGizmo::OnVisibleChanged(bool bVisible)
 {
-  m_ConeRadius.SetVisible(bVisible);
+  m_hConeRadius.SetVisible(bVisible);
 }
 
 void ezConeLengthGizmo::OnTransformationChanged(const ezTransform& transform)
@@ -35,7 +35,7 @@ void ezConeLengthGizmo::OnTransformationChanged(const ezTransform& transform)
   ezTransform t = transform;
   t.m_vScale *= ezVec3(1.0f, m_fRadiusScale, m_fRadiusScale) * m_fRadius;
 
-  m_ConeRadius.SetTransformation(t);
+  m_hConeRadius.SetTransformation(t);
 }
 
 void ezConeLengthGizmo::DoFocusLost(bool bCancel)
@@ -48,7 +48,7 @@ void ezConeLengthGizmo::DoFocusLost(bool bCancel)
   ezViewHighlightMsgToEngine msg;
   GetOwnerWindow()->GetEditorEngineConnection()->SendHighlightObjectMessage(&msg);
 
-  m_ConeRadius.SetVisible(true);
+  m_hConeRadius.SetVisible(true);
 
   m_ManipulateMode = ManipulateMode::None;
 }
@@ -63,7 +63,7 @@ ezEditorInput ezConeLengthGizmo::DoMousePressEvent(QMouseEvent* e)
   if (e->modifiers() != 0)
     return ezEditorInput::MayBeHandledByOthers;
 
-  if (m_pInteractionGizmoHandle == &m_ConeRadius)
+  if (m_pInteractionGizmoHandle == &m_hConeRadius)
   {
     m_ManipulateMode = ManipulateMode::Radius;
   }
@@ -76,7 +76,7 @@ ezEditorInput ezConeLengthGizmo::DoMousePressEvent(QMouseEvent* e)
 
   m_LastInteraction = ezTime::Now();
 
-  m_LastMousePos = SetMouseMode(ezEditorInputContext::MouseMode::HideAndWrapAtScreenBorders);
+  m_vLastMousePos = SetMouseMode(ezEditorInputContext::MouseMode::HideAndWrapAtScreenBorders);
 
   SetActiveInputContext(this);
 
@@ -115,9 +115,9 @@ ezEditorInput ezConeLengthGizmo::DoMouseMoveEvent(QMouseEvent* e)
   m_LastInteraction = tNow;
 
   const ezVec2I32 vNewMousePos = ezVec2I32(e->globalPos().x(), e->globalPos().y());
-  const ezVec2I32 vDiff = vNewMousePos - m_LastMousePos;
+  const ezVec2I32 vDiff = vNewMousePos - m_vLastMousePos;
 
-  m_LastMousePos = UpdateMouseMode(e);
+  m_vLastMousePos = UpdateMouseMode(e);
 
   const float fSpeed = 0.02f;
   const ezAngle aSpeed = ezAngle::Degree(1.0f);

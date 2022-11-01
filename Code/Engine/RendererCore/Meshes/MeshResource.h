@@ -42,7 +42,7 @@ private:
 
   ezBoundingBoxSphere m_Bounds;
 
-  static ezUInt32 s_MeshBufferNameSuffix;
+  static ezUInt32 s_uiMeshBufferNameSuffix;
 };
 
 using ezMeshResourceHandle = ezTypedResourceHandle<class ezMeshResource>;

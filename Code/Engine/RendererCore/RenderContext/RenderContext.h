@@ -35,7 +35,7 @@ private:
   ~ezRenderContext();
   friend class ezMemoryUtils;
 
-  static ezRenderContext* s_DefaultInstance;
+  static ezRenderContext* s_pDefaultInstance;
   static ezHybridArray<ezRenderContext*, 4> s_Instances;
 
 public:

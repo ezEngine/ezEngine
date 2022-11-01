@@ -8,12 +8,12 @@
 
 ezUInt32 ezTaskSystem::GetWorkerThreadCount(ezWorkerThreadType::Enum type)
 {
-  return s_ThreadState->m_uiMaxWorkersToUse[type];
+  return s_pThreadState->m_uiMaxWorkersToUse[type];
 }
 
 ezUInt32 ezTaskSystem::GetNumAllocatedWorkerThreads(ezWorkerThreadType::Enum type)
 {
-  return s_ThreadState->m_iAllocatedWorkers[type];
+  return s_pThreadState->m_iAllocatedWorkers[type];
 }
 
 void ezTaskSystem::SetWorkerThreadCount(ezInt32 iShortTasks, ezInt32 iLongTasks)
@@ -40,24 +40,24 @@ void ezTaskSystem::SetWorkerThreadCount(ezInt32 iShortTasks, ezInt32 iLongTasks)
   ezUInt32 uiLongTasks = static_cast<ezUInt32>(ezMath::Max<ezInt32>(iLongTasks, 1));
 
   // if nothing has changed, do nothing
-  if (s_ThreadState->m_uiMaxWorkersToUse[ezWorkerThreadType::ShortTasks] == uiShortTasks &&
-      s_ThreadState->m_uiMaxWorkersToUse[ezWorkerThreadType::LongTasks] == uiLongTasks)
+  if (s_pThreadState->m_uiMaxWorkersToUse[ezWorkerThreadType::ShortTasks] == uiShortTasks &&
+      s_pThreadState->m_uiMaxWorkersToUse[ezWorkerThreadType::LongTasks] == uiLongTasks)
     return;
 
   StopWorkerThreads();
 
   // this only allocates pointers, i.e. the maximum possible number of threads that we may be able to realloc at runtime
-  s_ThreadState->m_Workers[ezWorkerThreadType::ShortTasks].SetCount(1024);
-  s_ThreadState->m_Workers[ezWorkerThreadType::LongTasks].SetCount(1024);
-  s_ThreadState->m_Workers[ezWorkerThreadType::FileAccess].SetCount(128);
+  s_pThreadState->m_Workers[ezWorkerThreadType::ShortTasks].SetCount(1024);
+  s_pThreadState->m_Workers[ezWorkerThreadType::LongTasks].SetCount(1024);
+  s_pThreadState->m_Workers[ezWorkerThreadType::FileAccess].SetCount(128);
 
-  s_ThreadState->m_uiMaxWorkersToUse[ezWorkerThreadType::ShortTasks] = uiShortTasks;
-  s_ThreadState->m_uiMaxWorkersToUse[ezWorkerThreadType::LongTasks] = uiLongTasks;
-  s_ThreadState->m_uiMaxWorkersToUse[ezWorkerThreadType::FileAccess] = 1;
+  s_pThreadState->m_uiMaxWorkersToUse[ezWorkerThreadType::ShortTasks] = uiShortTasks;
+  s_pThreadState->m_uiMaxWorkersToUse[ezWorkerThreadType::LongTasks] = uiLongTasks;
+  s_pThreadState->m_uiMaxWorkersToUse[ezWorkerThreadType::FileAccess] = 1;
 
-  AllocateThreads(ezWorkerThreadType::ShortTasks, s_ThreadState->m_uiMaxWorkersToUse[ezWorkerThreadType::ShortTasks]);
-  AllocateThreads(ezWorkerThreadType::LongTasks, s_ThreadState->m_uiMaxWorkersToUse[ezWorkerThreadType::LongTasks]);
-  AllocateThreads(ezWorkerThreadType::FileAccess, s_ThreadState->m_uiMaxWorkersToUse[ezWorkerThreadType::FileAccess]);
+  AllocateThreads(ezWorkerThreadType::ShortTasks, s_pThreadState->m_uiMaxWorkersToUse[ezWorkerThreadType::ShortTasks]);
+  AllocateThreads(ezWorkerThreadType::LongTasks, s_pThreadState->m_uiMaxWorkersToUse[ezWorkerThreadType::LongTasks]);
+  AllocateThreads(ezWorkerThreadType::FileAccess, s_pThreadState->m_uiMaxWorkersToUse[ezWorkerThreadType::FileAccess]);
 }
 
 void ezTaskSystem::StopWorkerThreads()
@@ -71,11 +71,11 @@ void ezTaskSystem::StopWorkerThreads()
 
     for (ezUInt32 type = 0; type < ezWorkerThreadType::ENUM_COUNT; ++type)
     {
-      const ezUInt32 uiNumThreads = s_ThreadState->m_iAllocatedWorkers[type];
+      const ezUInt32 uiNumThreads = s_pThreadState->m_iAllocatedWorkers[type];
 
       for (ezUInt32 i = 0; i < uiNumThreads; ++i)
       {
-        if (s_ThreadState->m_Workers[type][i]->DeactivateWorker().Failed())
+        if (s_pThreadState->m_Workers[type][i]->DeactivateWorker().Failed())
         {
           bWorkersStillRunning = true;
         }
@@ -88,17 +88,17 @@ void ezTaskSystem::StopWorkerThreads()
 
   for (ezUInt32 type = 0; type < ezWorkerThreadType::ENUM_COUNT; ++type)
   {
-    const ezUInt32 uiNumWorkers = s_ThreadState->m_iAllocatedWorkers[type];
+    const ezUInt32 uiNumWorkers = s_pThreadState->m_iAllocatedWorkers[type];
 
     for (ezUInt32 i = 0; i < uiNumWorkers; ++i)
     {
-      s_ThreadState->m_Workers[type][i]->Join();
-      EZ_DEFAULT_DELETE(s_ThreadState->m_Workers[type][i]);
+      s_pThreadState->m_Workers[type][i]->Join();
+      EZ_DEFAULT_DELETE(s_pThreadState->m_Workers[type][i]);
     }
 
-    s_ThreadState->m_iAllocatedWorkers[type] = 0;
-    s_ThreadState->m_uiMaxWorkersToUse[type] = 0;
-    s_ThreadState->m_Workers[type].Clear();
+    s_pThreadState->m_iAllocatedWorkers[type] = 0;
+    s_pThreadState->m_uiMaxWorkersToUse[type] = 0;
+    s_pThreadState->m_Workers[type].Clear();
   }
 }
 
@@ -110,25 +110,25 @@ void ezTaskSystem::AllocateThreads(ezWorkerThreadType::Enum type, ezUInt32 uiAdd
     // prevent concurrent thread allocation
     EZ_LOCK(s_TaskSystemMutex);
 
-    ezUInt32 uiNextThreadIdx = s_ThreadState->m_iAllocatedWorkers[type];
+    ezUInt32 uiNextThreadIdx = s_pThreadState->m_iAllocatedWorkers[type];
 
-    EZ_ASSERT_ALWAYS(uiNextThreadIdx + uiAddThreads <= s_ThreadState->m_Workers[type].GetCount(), "Max number of worker threads ({}) exceeded.",
-      s_ThreadState->m_Workers[type].GetCount());
+    EZ_ASSERT_ALWAYS(uiNextThreadIdx + uiAddThreads <= s_pThreadState->m_Workers[type].GetCount(), "Max number of worker threads ({}) exceeded.",
+      s_pThreadState->m_Workers[type].GetCount());
 
     for (ezUInt32 i = 0; i < uiAddThreads; ++i)
     {
-      s_ThreadState->m_Workers[type][uiNextThreadIdx] = EZ_DEFAULT_NEW(ezTaskWorkerThread, (ezWorkerThreadType::Enum)type, uiNextThreadIdx);
-      s_ThreadState->m_Workers[type][uiNextThreadIdx]->Start();
+      s_pThreadState->m_Workers[type][uiNextThreadIdx] = EZ_DEFAULT_NEW(ezTaskWorkerThread, (ezWorkerThreadType::Enum)type, uiNextThreadIdx);
+      s_pThreadState->m_Workers[type][uiNextThreadIdx]->Start();
 
       ++uiNextThreadIdx;
     }
 
     // let others access the new threads now
-    s_ThreadState->m_iAllocatedWorkers[type] = uiNextThreadIdx;
+    s_pThreadState->m_iAllocatedWorkers[type] = uiNextThreadIdx;
   }
 
   ezLog::Dev("Allocated {} additional '{}' worker threads ({} total)", uiAddThreads, ezWorkerThreadType::GetThreadTypeName(type),
-    s_ThreadState->m_iAllocatedWorkers[type]);
+    s_pThreadState->m_iAllocatedWorkers[type]);
 }
 
 void ezTaskSystem::WakeUpThreads(ezWorkerThreadType::Enum type, ezUInt32 uiNumThreadsToWakeUp)
@@ -140,10 +140,10 @@ void ezTaskSystem::WakeUpThreads(ezWorkerThreadType::Enum type, ezUInt32 uiNumTh
   // and when they are unblocked, together they may exceed the 'maximum' number of active threads
   // but over time the threads at the end of the list will put themselves to sleep again
 
-  auto* s = ezTaskSystem::s_ThreadState.Borrow();
+  auto* s = ezTaskSystem::s_pThreadState.Borrow();
 
-  const ezUInt32 uiTotalThreads = s_ThreadState->m_iAllocatedWorkers[type];
-  ezUInt32 uiAllowedActiveThreads = s_ThreadState->m_uiMaxWorkersToUse[type];
+  const ezUInt32 uiTotalThreads = s_pThreadState->m_iAllocatedWorkers[type];
+  ezUInt32 uiAllowedActiveThreads = s_pThreadState->m_uiMaxWorkersToUse[type];
 
   for (ezUInt32 threadIdx = 0; threadIdx < uiTotalThreads; ++threadIdx)
   {
@@ -187,7 +187,7 @@ ezWorkerThreadType::Enum ezTaskSystem::GetCurrentThreadWorkerType()
 
 double ezTaskSystem::GetThreadUtilization(ezWorkerThreadType::Enum Type, ezUInt32 uiThreadIndex, ezUInt32* pNumTasksExecuted /*= nullptr*/)
 {
-  return s_ThreadState->m_Workers[Type][uiThreadIndex]->GetThreadUtilization(pNumTasksExecuted);
+  return s_pThreadState->m_Workers[Type][uiThreadIndex]->GetThreadUtilization(pNumTasksExecuted);
 }
 
 void ezTaskSystem::DetermineTasksToExecuteOnThread(ezTaskPriority::Enum& out_FirstPriority, ezTaskPriority::Enum& out_LastPriority)

@@ -25,6 +25,6 @@ private:
   void QueryRow(ezUInt32 uiRow);
   void UpdateAllRows();
 
-  ezDynamicArray<ezAssetDocumentGenerator::ImportData>& m_allImports;
+  ezDynamicArray<ezAssetDocumentGenerator::ImportData>& m_AllImports;
 };
 

@@ -394,7 +394,7 @@ private:
   friend class ezDirectoryUpdateTask;
 
   mutable ezCuratorMutex m_CuratorMutex; // Global lock
-  ezTaskGroupID m_initializeCuratorTaskID;
+  ezTaskGroupID m_InitializeCuratorTaskID;
   bool m_bNeedToReloadResources = false;
   ezTime m_NextReloadResources;
   ezUInt32 m_uiActiveAssetProfile = 0;
@@ -425,7 +425,7 @@ private:
   // Immutable data after StartInitialize
   ezApplicationFileSystemConfig m_FileSystemConfig;
   ezSet<ezString> m_ValidAssetExtensions;
-  ezUniquePtr<ezAssetWatcher> m_Watcher;
+  ezUniquePtr<ezAssetWatcher> m_pWatcher;
 
   // Update task
   bool m_bRunUpdateTask = false;

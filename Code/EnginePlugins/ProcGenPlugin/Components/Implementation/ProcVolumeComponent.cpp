@@ -360,7 +360,7 @@ void ezProcVolumeImageComponent::SerializeComponent(ezWorldWriter& stream) const
 
   ezStreamWriter& s = stream.GetStream();
 
-  s << m_Image;
+  s << m_hImage;
 }
 
 void ezProcVolumeImageComponent::DeserializeComponent(ezWorldReader& stream)
@@ -369,12 +369,12 @@ void ezProcVolumeImageComponent::DeserializeComponent(ezWorldReader& stream)
   // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   ezStreamReader& s = stream.GetStream();
 
-  s >> m_Image;
+  s >> m_hImage;
 }
 
 void ezProcVolumeImageComponent::OnExtractVolumes(ezMsgExtractVolumes& msg) const
 {
-  msg.m_pCollection->AddImage(GetOwner()->GetGlobalTransformSimd(), m_vExtents, m_BlendMode, m_fSortOrder, m_fValue, m_vFadeOutStart, m_Image);
+  msg.m_pCollection->AddImage(GetOwner()->GetGlobalTransformSimd(), m_vExtents, m_BlendMode, m_fSortOrder, m_fValue, m_vFadeOutStart, m_hImage);
 }
 
 void ezProcVolumeImageComponent::SetImageFile(const char* szFile)
@@ -391,13 +391,13 @@ void ezProcVolumeImageComponent::SetImageFile(const char* szFile)
 
 const char* ezProcVolumeImageComponent::GetImageFile() const
 {
-  if (!m_Image.IsValid())
+  if (!m_hImage.IsValid())
     return "";
 
-  return m_Image.GetResourceID();
+  return m_hImage.GetResourceID();
 }
 
 void ezProcVolumeImageComponent::SetImage(const ezImageDataResourceHandle& hResource)
 {
-  m_Image = hResource;
+  m_hImage = hResource;
 }

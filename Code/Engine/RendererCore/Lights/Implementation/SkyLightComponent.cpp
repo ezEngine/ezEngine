@@ -57,7 +57,7 @@ EZ_END_COMPONENT_TYPE
 
 ezSkyLightComponent::ezSkyLightComponent()
 {
-  m_desc.m_uniqueID.CreateNewUuid();
+  m_Desc.m_uniqueID.CreateNewUuid();
 }
 
 ezSkyLightComponent::~ezSkyLightComponent() = default;
@@ -65,7 +65,7 @@ ezSkyLightComponent::~ezSkyLightComponent() = default;
 void ezSkyLightComponent::OnActivated()
 {
   GetOwner()->EnableStaticTransformChangesNotifications();
-  m_Id = ezReflectionPool::RegisterSkyLight(GetWorld(), m_desc, this);
+  m_Id = ezReflectionPool::RegisterSkyLight(GetWorld(), m_Desc, this);
 
   GetOwner()->UpdateLocalBounds();
 }
@@ -80,91 +80,91 @@ void ezSkyLightComponent::OnDeactivated()
 
 void ezSkyLightComponent::SetReflectionProbeMode(ezEnum<ezReflectionProbeMode> mode)
 {
-  m_desc.m_Mode = mode;
+  m_Desc.m_Mode = mode;
   m_bStatesDirty = true;
 }
 
 ezEnum<ezReflectionProbeMode> ezSkyLightComponent::GetReflectionProbeMode() const
 {
-  return m_desc.m_Mode;
+  return m_Desc.m_Mode;
 }
 
 void ezSkyLightComponent::SetIntensity(float fIntensity)
 {
-  m_desc.m_fIntensity = fIntensity;
+  m_Desc.m_fIntensity = fIntensity;
   m_bStatesDirty = true;
 }
 
 float ezSkyLightComponent::GetIntensity() const
 {
-  return m_desc.m_fIntensity;
+  return m_Desc.m_fIntensity;
 }
 
 void ezSkyLightComponent::SetSaturation(float fSaturation)
 {
-  m_desc.m_fSaturation = fSaturation;
+  m_Desc.m_fSaturation = fSaturation;
   m_bStatesDirty = true;
 }
 
 float ezSkyLightComponent::GetSaturation() const
 {
-  return m_desc.m_fSaturation;
+  return m_Desc.m_fSaturation;
 }
 
 const ezTagSet& ezSkyLightComponent::GetIncludeTags() const
 {
-  return m_desc.m_IncludeTags;
+  return m_Desc.m_IncludeTags;
 }
 
 void ezSkyLightComponent::InsertIncludeTag(const char* szTag)
 {
-  m_desc.m_IncludeTags.SetByName(szTag);
+  m_Desc.m_IncludeTags.SetByName(szTag);
   m_bStatesDirty = true;
 }
 
 void ezSkyLightComponent::RemoveIncludeTag(const char* szTag)
 {
-  m_desc.m_IncludeTags.RemoveByName(szTag);
+  m_Desc.m_IncludeTags.RemoveByName(szTag);
   m_bStatesDirty = true;
 }
 
 const ezTagSet& ezSkyLightComponent::GetExcludeTags() const
 {
-  return m_desc.m_ExcludeTags;
+  return m_Desc.m_ExcludeTags;
 }
 
 void ezSkyLightComponent::InsertExcludeTag(const char* szTag)
 {
-  m_desc.m_ExcludeTags.SetByName(szTag);
+  m_Desc.m_ExcludeTags.SetByName(szTag);
   m_bStatesDirty = true;
 }
 
 void ezSkyLightComponent::RemoveExcludeTag(const char* szTag)
 {
-  m_desc.m_ExcludeTags.RemoveByName(szTag);
+  m_Desc.m_ExcludeTags.RemoveByName(szTag);
   m_bStatesDirty = true;
 }
 
 void ezSkyLightComponent::SetShowDebugInfo(bool bShowDebugInfo)
 {
-  m_desc.m_bShowDebugInfo = bShowDebugInfo;
+  m_Desc.m_bShowDebugInfo = bShowDebugInfo;
   m_bStatesDirty = true;
 }
 
 bool ezSkyLightComponent::GetShowDebugInfo() const
 {
-  return m_desc.m_bShowDebugInfo;
+  return m_Desc.m_bShowDebugInfo;
 }
 
 void ezSkyLightComponent::SetShowMipMaps(bool bShowMipMaps)
 {
-  m_desc.m_bShowMipMaps = bShowMipMaps;
+  m_Desc.m_bShowMipMaps = bShowMipMaps;
   m_bStatesDirty = true;
 }
 
 bool ezSkyLightComponent::GetShowMipMaps() const
 {
-  return m_desc.m_bShowMipMaps;
+  return m_Desc.m_bShowMipMaps;
 }
 
 
@@ -186,13 +186,13 @@ const char* ezSkyLightComponent::GetCubeMapFile() const
 
 void ezSkyLightComponent::SetNearPlane(float fNearPlane)
 {
-  m_desc.m_fNearPlane = fNearPlane;
+  m_Desc.m_fNearPlane = fNearPlane;
   m_bStatesDirty = true;
 }
 
 void ezSkyLightComponent::SetFarPlane(float fFarPlane)
 {
-  m_desc.m_fFarPlane = fFarPlane;
+  m_Desc.m_fFarPlane = fFarPlane;
   m_bStatesDirty = true;
 }
 
@@ -210,7 +210,7 @@ void ezSkyLightComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) co
   if (m_bStatesDirty)
   {
     m_bStatesDirty = false;
-    ezReflectionPool::UpdateSkyLight(GetWorld(), m_Id, m_desc, this);
+    ezReflectionPool::UpdateSkyLight(GetWorld(), m_Id, m_Desc, this);
   }
 
   ezReflectionPool::ExtractReflectionProbe(this, msg, nullptr, GetWorld(), m_Id, ezMath::MaxValue<float>());
@@ -227,15 +227,15 @@ void ezSkyLightComponent::SerializeComponent(ezWorldWriter& stream) const
 
   ezStreamWriter& s = stream.GetStream();
 
-  m_desc.m_IncludeTags.Save(s);
-  m_desc.m_ExcludeTags.Save(s);
-  s << m_desc.m_Mode;
-  s << m_desc.m_bShowDebugInfo;
-  s << m_desc.m_fIntensity;
-  s << m_desc.m_fSaturation;
+  m_Desc.m_IncludeTags.Save(s);
+  m_Desc.m_ExcludeTags.Save(s);
+  s << m_Desc.m_Mode;
+  s << m_Desc.m_bShowDebugInfo;
+  s << m_Desc.m_fIntensity;
+  s << m_Desc.m_fSaturation;
   s << m_hCubeMap;
-  s << m_desc.m_fNearPlane;
-  s << m_desc.m_fFarPlane;
+  s << m_Desc.m_fNearPlane;
+  s << m_Desc.m_fFarPlane;
 }
 
 void ezSkyLightComponent::DeserializeComponent(ezWorldReader& stream)
@@ -244,20 +244,20 @@ void ezSkyLightComponent::DeserializeComponent(ezWorldReader& stream)
   const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   ezStreamReader& s = stream.GetStream();
 
-  m_desc.m_IncludeTags.Load(s, ezTagRegistry::GetGlobalRegistry());
-  m_desc.m_ExcludeTags.Load(s, ezTagRegistry::GetGlobalRegistry());
-  s >> m_desc.m_Mode;
-  s >> m_desc.m_bShowDebugInfo;
-  s >> m_desc.m_fIntensity;
-  s >> m_desc.m_fSaturation;
+  m_Desc.m_IncludeTags.Load(s, ezTagRegistry::GetGlobalRegistry());
+  m_Desc.m_ExcludeTags.Load(s, ezTagRegistry::GetGlobalRegistry());
+  s >> m_Desc.m_Mode;
+  s >> m_Desc.m_bShowDebugInfo;
+  s >> m_Desc.m_fIntensity;
+  s >> m_Desc.m_fSaturation;
   if (uiVersion >= 2)
   {
     s >> m_hCubeMap;
   }
   if (uiVersion >= 3)
   {
-    s >> m_desc.m_fNearPlane;
-    s >> m_desc.m_fFarPlane;
+    s >> m_Desc.m_fNearPlane;
+    s >> m_Desc.m_fFarPlane;
   }
 }
 

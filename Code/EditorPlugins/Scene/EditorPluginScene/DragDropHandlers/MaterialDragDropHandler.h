@@ -16,5 +16,5 @@ protected:
   virtual void OnDrop(const ezDragDropInfo* pInfo) override;
 
   ezUuid m_AppliedToComponent;
-  ezInt32 m_uiAppliedToSlot;
+  ezInt32 m_iAppliedToSlot;
 };

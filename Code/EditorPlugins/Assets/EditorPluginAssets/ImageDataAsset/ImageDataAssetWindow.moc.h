@@ -24,7 +24,7 @@ public:
 
 private:
   void ImageDataAssetEventHandler(const ezImageDataAssetEvent& e);
-  ezEvent<const ezImageDataAssetEvent&>::Unsubscriber m_eventUnsubscriper;
+  ezEvent<const ezImageDataAssetEvent&>::Unsubscriber m_EventUnsubscriper;
 
   void UpdatePreview();
 

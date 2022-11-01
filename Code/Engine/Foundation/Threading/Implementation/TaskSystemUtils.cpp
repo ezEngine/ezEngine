@@ -73,9 +73,9 @@ void ezTaskSystem::WriteStateSnapshotToDGML(ezDGMLGraph& graph)
   szTaskPriorityNames[ezTaskPriority::ThisFrameMainThread] = "ThisFrameMainThread";
   szTaskPriorityNames[ezTaskPriority::SomeFrameMainThread] = "SomeFrameMainThread";
 
-  for (ezUInt32 g = 0; g < s_State->m_TaskGroups.GetCount(); ++g)
+  for (ezUInt32 g = 0; g < s_pState->m_TaskGroups.GetCount(); ++g)
   {
-    const ezTaskGroup& tg = s_State->m_TaskGroups[g];
+    const ezTaskGroup& tg = s_pState->m_TaskGroups[g];
 
     if (!tg.m_bInUse)
       continue;
@@ -107,9 +107,9 @@ void ezTaskSystem::WriteStateSnapshotToDGML(ezDGMLGraph& graph)
     }
   }
 
-  for (ezUInt32 g = 0; g < s_State->m_TaskGroups.GetCount(); ++g)
+  for (ezUInt32 g = 0; g < s_pState->m_TaskGroups.GetCount(); ++g)
   {
-    const ezTaskGroup& tg = s_State->m_TaskGroups[g];
+    const ezTaskGroup& tg = s_pState->m_TaskGroups[g];
 
     if (!tg.m_bInUse)
       continue;

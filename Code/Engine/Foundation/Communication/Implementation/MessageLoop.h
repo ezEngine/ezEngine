@@ -48,7 +48,7 @@ protected:
   /// \return Returns whether a message was received or the timeout was reached.
   virtual bool WaitForMessages(ezInt32 iTimeout, ezIpcChannel* pFilter) = 0;
 
-  ezThreadID m_threadId = 0;
+  ezThreadID m_ThreadId = 0;
   mutable ezMutex m_Mutex;
   bool m_bShouldQuit = false;
   bool m_bCallTickFunction = false;

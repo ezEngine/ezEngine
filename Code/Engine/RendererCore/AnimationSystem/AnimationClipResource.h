@@ -83,7 +83,7 @@ private:
   ezTime m_Duration;
 
   struct OzzImpl;
-  ezUniquePtr<OzzImpl> m_OzzImpl;
+  ezUniquePtr<OzzImpl> m_pOzzImpl;
 };
 
 //////////////////////////////////////////////////////////////////////////

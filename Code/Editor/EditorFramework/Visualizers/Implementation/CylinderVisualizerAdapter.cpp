@@ -16,18 +16,18 @@ void ezCylinderVisualizerAdapter::Finalize()
 
   const ezCylinderVisualizerAttribute* pAttr = static_cast<const ezCylinderVisualizerAttribute*>(m_pVisualizerAttr);
 
-  m_Cylinder.ConfigureHandle(nullptr, ezEngineGizmoHandleType::CylinderZ, pAttr->m_Color, ezGizmoFlags::ShowInOrtho | ezGizmoFlags::Visualizer);
+  m_hCylinder.ConfigureHandle(nullptr, ezEngineGizmoHandleType::CylinderZ, pAttr->m_Color, ezGizmoFlags::ShowInOrtho | ezGizmoFlags::Visualizer);
 
-  pAssetDocument->AddSyncObject(&m_Cylinder);
+  pAssetDocument->AddSyncObject(&m_hCylinder);
 
-  m_Cylinder.SetVisible(m_bVisualizerIsVisible);
+  m_hCylinder.SetVisible(m_bVisualizerIsVisible);
 }
 
 void ezCylinderVisualizerAdapter::Update()
 {
   const ezCylinderVisualizerAttribute* pAttr = static_cast<const ezCylinderVisualizerAttribute*>(m_pVisualizerAttr);
   ezObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
-  m_Cylinder.SetVisible(m_bVisualizerIsVisible);
+  m_hCylinder.SetVisible(m_bVisualizerIsVisible);
 
   m_fRadius = 1.0f;
   m_fHeight = 0.0f;
@@ -63,7 +63,7 @@ void ezCylinderVisualizerAdapter::Update()
     pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetColorProperty()), value);
 
     EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<ezColor>(), "Invalid property bound to ezCylinderVisualizerAttribute 'color'");
-    m_Cylinder.SetColor(value.ConvertTo<ezColor>() * pAttr->m_Color);
+    m_hCylinder.SetColor(value.ConvertTo<ezColor>() * pAttr->m_Color);
   }
 
   m_vPositionOffset = pAttr->m_vOffsetOrScale;
@@ -132,5 +132,5 @@ void ezCylinderVisualizerAdapter::UpdateGizmoTransform()
   ezTransform newTrans = parentTransform * t;
   newTrans.m_vScale = (axisRotation * parentTransform.m_vScale).CompMul(t.m_vScale);
 
-  m_Cylinder.SetTransformation(newTrans);
+  m_hCylinder.SetTransformation(newTrans);
 }

@@ -60,6 +60,6 @@ public:
   static ezCopyOnBroadcastEvent<const ezPhantomRttiManagerEvent&> s_Events;
 
 private:
-  static ezSet<const ezRTTI*> m_RegisteredConcreteTypes;
-  static ezHashTable<const char*, ezPhantomRTTI*> m_NameToPhantom;
+  static ezSet<const ezRTTI*> s_RegisteredConcreteTypes;
+  static ezHashTable<const char*, ezPhantomRTTI*> s_NameToPhantom;
 };

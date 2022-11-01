@@ -77,10 +77,10 @@ ezResourceLoadDesc ezJoltMeshResource::UnloadData(Unload WhatToUnload)
     }
   }
 
-  if (m_TriangleMeshInstance)
+  if (m_pTriangleMeshInstance)
   {
-    m_TriangleMeshInstance->Release();
-    m_TriangleMeshInstance = nullptr;
+    m_pTriangleMeshInstance->Release();
+    m_pTriangleMeshInstance = nullptr;
   }
 
   m_ConvexMeshesData.Clear();
@@ -357,7 +357,7 @@ ezCpuMeshResourceHandle ezJoltMeshResource::ConvertToCpuMesh() const
     }
   }
 
-  if (m_TriangleMeshInstance != nullptr || !m_TriangleMeshData.IsEmpty())
+  if (m_pTriangleMeshInstance != nullptr || !m_TriangleMeshData.IsEmpty())
   {
     auto pShape = InstantiateTriangleMesh(0, {});
     RetrieveShapeTriangles(pShape, positions);
@@ -378,7 +378,7 @@ ezCpuMeshResourceHandle ezJoltMeshResource::ConvertToCpuMesh() const
 
 JPH::Shape* ezJoltMeshResource::InstantiateTriangleMesh(ezUInt64 uiUserData, const ezDynamicArray<const ezJoltMaterial*>& materials) const
 {
-  if (m_TriangleMeshInstance == nullptr)
+  if (m_pTriangleMeshInstance == nullptr)
   {
     EZ_ASSERT_DEV(!m_TriangleMeshData.IsEmpty(), "Jolt mesh resource doesn't contain a triangle mesh.");
 
@@ -411,8 +411,8 @@ JPH::Shape* ezJoltMeshResource::InstantiateTriangleMesh(ezUInt64 uiUserData, con
 
     shapeRes.Get()->RestoreMaterialState(materials.GetData(), materials.GetCount());
 
-    m_TriangleMeshInstance = shapeRes.Get();
-    m_TriangleMeshInstance->AddRef();
+    m_pTriangleMeshInstance = shapeRes.Get();
+    m_pTriangleMeshInstance->AddRef();
 
     // not needed anymore
     m_TriangleMeshData.Clear();
@@ -420,7 +420,7 @@ JPH::Shape* ezJoltMeshResource::InstantiateTriangleMesh(ezUInt64 uiUserData, con
   }
 
   {
-    ezJoltCustomShapeInfo* pShapeDeco = new ezJoltCustomShapeInfo(m_TriangleMeshInstance);
+    ezJoltCustomShapeInfo* pShapeDeco = new ezJoltCustomShapeInfo(m_pTriangleMeshInstance);
     pShapeDeco->SetUserData(uiUserData);
 
     // only override the materials, if they differ

@@ -19,7 +19,7 @@ namespace ezProcGenInternal
     FindPlacementTilesTask(ezProcPlacementComponent* pComponent, ezUInt32 uiOutputIndex);
     ~FindPlacementTilesTask();
 
-    void AddCameraPosition(const ezVec3& vCameraPosition) { m_vCameraPositions.PushBack(vCameraPosition); }
+    void AddCameraPosition(const ezVec3& vCameraPosition) { m_CameraPositions.PushBack(vCameraPosition); }
 
     ezArrayPtr<const PlacementTileDesc> GetNewTiles() const { return m_NewTiles; }
     ezArrayPtr<const ezUInt64> GetOldTiles() const { return m_OldTileKeys; }
@@ -30,7 +30,7 @@ namespace ezProcGenInternal
     ezProcPlacementComponent* m_pComponent = nullptr;
     ezUInt32 m_uiOutputIndex = 0;
 
-    ezHybridArray<ezVec3, 2> m_vCameraPositions;
+    ezHybridArray<ezVec3, 2> m_CameraPositions;
 
     ezDynamicArray<PlacementTileDesc, ezAlignedAllocatorWrapper> m_NewTiles;
     ezDynamicArray<ezUInt64> m_OldTileKeys;

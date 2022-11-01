@@ -21,12 +21,12 @@ public:
   {
   }
 
-  void SetStreamName(ezHashedString StreamName) { m_StreamName = StreamName; }
+  void SetStreamName(ezHashedString StreamName) { m_sStreamName = StreamName; }
 
 protected:
   virtual ezResult UpdateStreamBindings() override
   {
-    m_pStream = m_pStreamGroup->GetStreamByName(m_StreamName);
+    m_pStream = m_pStreamGroup->GetStreamByName(m_sStreamName);
 
     return m_pStream ? EZ_SUCCESS : EZ_FAILURE;
   }
@@ -45,7 +45,7 @@ protected:
     }
   }
 
-  ezHashedString m_StreamName;
+  ezHashedString m_sStreamName;
   ezProcessingStream* m_pStream;
 };
 

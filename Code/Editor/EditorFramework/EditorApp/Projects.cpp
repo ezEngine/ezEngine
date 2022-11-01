@@ -232,7 +232,7 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProjectEvent& r)
       m_sLastDocumentFolder = ezToolsProject::GetSingleton()->GetProjectFile();
       m_sLastProjectFolder = ezToolsProject::GetSingleton()->GetProjectFile();
 
-      s_RecentProjects.Insert(ezToolsProject::GetSingleton()->GetProjectFile(), 0);
+      m_RecentProjects.Insert(ezToolsProject::GetSingleton()->GetProjectFile(), 0);
 
       ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
 
@@ -278,7 +278,7 @@ Explanation: For assets to work properly, they must be <a href='https://ezengine
 
     case ezToolsProjectEvent::Type::ProjectSaveState:
     {
-      s_RecentProjects.Insert(ezToolsProject::GetSingleton()->GetProjectFile(), 0);
+      m_RecentProjects.Insert(ezToolsProject::GetSingleton()->GetProjectFile(), 0);
       SaveSettings();
       break;
     }
@@ -300,7 +300,7 @@ Explanation: For assets to work properly, they must be <a href='https://ezengine
       ezApplicationFileSystemConfig::Clear();
       ezFileSystem::SetSpecialDirectory("project", nullptr); // removes this directory
 
-      s_ReloadProjectRequiredReasons.Clear();
+      m_ReloadProjectRequiredReasons.Clear();
       UpdateGlobalStatusBarMessage();
 
       ezPreferences::ClearProjectPreferences();

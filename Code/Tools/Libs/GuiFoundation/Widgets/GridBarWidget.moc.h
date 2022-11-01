@@ -19,9 +19,9 @@ protected:
   virtual void paintEvent(QPaintEvent* event) override;
 
 private:
-  QRectF m_viewportSceneRect;
+  QRectF m_ViewportSceneRect;
   double m_fTextGridStops;
   double m_fFineGridStops;
-  ezDelegate<QPointF(const QPointF&)> MapFromSceneFunc;
+  ezDelegate<QPointF(const QPointF&)> m_MapFromSceneFunc;
 };
 

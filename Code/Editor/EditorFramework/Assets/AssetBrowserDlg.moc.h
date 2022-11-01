@@ -32,8 +32,8 @@ private:
   static bool s_bShowItemsInSubFolder;
   static bool s_bShowItemsInHiddenFolder;
   static bool s_bSortByRecentUse;
-  static ezMap<ezString, ezString> s_sTextFilter;
-  static ezMap<ezString, ezString> s_sPathFilter;
-  static ezMap<ezString, ezString> s_sTypeFilter;
+  static ezMap<ezString, ezString> s_TextFilter;
+  static ezMap<ezString, ezString> s_PathFilter;
+  static ezMap<ezString, ezString> s_TypeFilter;
 };
 

@@ -30,7 +30,7 @@ ezQtTypeWidget::ezQtTypeWidget(QWidget* pParent, ezQtPropertyGridWidget* pGrid, 
   , m_pType(pType)
 {
   EZ_ASSERT_DEBUG(m_pGrid && m_pObjectAccessor && m_pType, "");
-  m_pal = palette();
+  m_Pal = palette();
   setAutoFillBackground(true);
 
   m_pLayout = new QGridLayout(this);
@@ -406,8 +406,8 @@ void ezQtTypeWidget::UpdatePropertyMetaState()
 
   ezDefaultObjectState defaultState(m_pObjectAccessor, m_Items);
 
-  QColor qColor = ezQtPropertyWidget::GetBackgroundColor(defaultState.GetBackgroundColor(), &m_pal);
-  setPalette(m_pal);
+  QColor qColor = ezQtPropertyWidget::GetBackgroundColor(defaultState.GetBackgroundColor(), &m_Pal);
+  setPalette(m_Pal);
 
   for (auto it = m_PropertyWidgets.GetIterator(); it.IsValid(); ++it)
   {
@@ -461,6 +461,6 @@ void ezQtTypeWidget::UpdatePropertyMetaState()
 void ezQtTypeWidget::showEvent(QShowEvent* event)
 {
   // Use of style sheets (ADS) breaks previously set palette.
-  setPalette(m_pal);
+  setPalette(m_Pal);
   QWidget::showEvent(event);
 }

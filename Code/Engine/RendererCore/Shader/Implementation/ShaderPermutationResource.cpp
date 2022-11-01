@@ -127,7 +127,7 @@ ezResourceLoadDesc ezShaderPermutationResource::UpdateContent(ezStreamReader* St
 
     EZ_ASSERT_DEV(pStageBin->m_Stage == stage, "Invalid shader stage! Expected stage '{0}', but loaded data is for stage '{1}'", ezGALShaderStage::Names[stage], ezGALShaderStage::Names[pStageBin->m_Stage]);
 
-    ShaderDesc.m_ByteCodes[stage] = pStageBin->m_pGALByteCode;
+    ShaderDesc.m_ByteCodes[stage] = pStageBin->m_GALByteCode;
 
     uiGPUMem += pStageBin->m_ByteCode.GetCount();
   }

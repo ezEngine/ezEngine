@@ -29,12 +29,12 @@ ezStageSpaceComponent::~ezStageSpaceComponent() = default;
 
 ezEnum<ezXRStageSpace> ezStageSpaceComponent::GetStageSpace() const
 {
-  return m_space;
+  return m_Space;
 }
 
 void ezStageSpaceComponent::SetStageSpace(ezEnum<ezXRStageSpace> space)
 {
-  m_space = space;
+  m_Space = space;
 }
 
 void ezStageSpaceComponent::SerializeComponent(ezWorldWriter& stream) const
@@ -42,7 +42,7 @@ void ezStageSpaceComponent::SerializeComponent(ezWorldWriter& stream) const
   SUPER::SerializeComponent(stream);
   ezStreamWriter& s = stream.GetStream();
 
-  s << m_space;
+  s << m_Space;
 }
 
 void ezStageSpaceComponent::DeserializeComponent(ezWorldReader& stream)
@@ -51,7 +51,7 @@ void ezStageSpaceComponent::DeserializeComponent(ezWorldReader& stream)
   // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   ezStreamReader& s = stream.GetStream();
 
-  s >> m_space;
+  s >> m_Space;
 }
 
 void ezStageSpaceComponent::OnActivated() {}

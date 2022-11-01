@@ -286,7 +286,7 @@ protected:
   ezQtGroupBoxBase* m_pGroup;
   QVBoxLayout* m_pGroupLayout;
   ezQtAddSubElementButton* m_pAddButton;
-  QPalette m_pal;
+  QPalette m_Pal;
 
   mutable ezHybridArray<ezVariant, 16> m_Keys;
   ezDynamicArray<Element> m_Elements;

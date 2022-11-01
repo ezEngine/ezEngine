@@ -138,7 +138,7 @@ EZ_ALWAYS_INLINE ezAtomicBool::ezAtomicBool(const ezAtomicBool& rhs)
 
 EZ_ALWAYS_INLINE bool ezAtomicBool::Set(bool value)
 {
-  return m_AtomicInt.Set(value ? 1 : 0) != 0;
+  return m_iAtomicInt.Set(value ? 1 : 0) != 0;
 }
 
 EZ_ALWAYS_INLINE void ezAtomicBool::operator=(bool value)
@@ -153,10 +153,10 @@ EZ_ALWAYS_INLINE void ezAtomicBool::operator=(const ezAtomicBool& rhs)
 
 EZ_ALWAYS_INLINE ezAtomicBool::operator bool() const
 {
-  return static_cast<ezInt32>(m_AtomicInt) != 0;
+  return static_cast<ezInt32>(m_iAtomicInt) != 0;
 }
 
 EZ_ALWAYS_INLINE bool ezAtomicBool::TestAndSet(bool expected, bool newValue)
 {
-  return m_AtomicInt.TestAndSet(expected ? 1 : 0, newValue ? 1 : 0) != 0;
+  return m_iAtomicInt.TestAndSet(expected ? 1 : 0, newValue ? 1 : 0) != 0;
 }

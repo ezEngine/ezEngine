@@ -12,7 +12,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezClickGizmo::ezClickGizmo()
 {
-  m_Shape.ConfigureHandle(this, ezEngineGizmoHandleType::Sphere, ezColor::White, ezGizmoFlags::Pickable);
+  m_hShape.ConfigureHandle(this, ezEngineGizmoHandleType::Sphere, ezColor::White, ezGizmoFlags::Pickable);
 
   SetVisible(false);
   SetTransformation(ezTransform::IdentityTransform());
@@ -20,22 +20,22 @@ ezClickGizmo::ezClickGizmo()
 
 void ezClickGizmo::SetColor(const ezColor& color)
 {
-  m_Shape.SetColor(color);
+  m_hShape.SetColor(color);
 }
 
 void ezClickGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
 {
-  pOwnerWindow->GetDocument()->AddSyncObject(&m_Shape);
+  pOwnerWindow->GetDocument()->AddSyncObject(&m_hShape);
 }
 
 void ezClickGizmo::OnVisibleChanged(bool bVisible)
 {
-  m_Shape.SetVisible(bVisible);
+  m_hShape.SetVisible(bVisible);
 }
 
 void ezClickGizmo::OnTransformationChanged(const ezTransform& transform)
 {
-  m_Shape.SetTransformation(transform);
+  m_hShape.SetTransformation(transform);
 }
 
 void ezClickGizmo::DoFocusLost(bool bCancel)
@@ -52,7 +52,7 @@ ezEditorInput ezClickGizmo::DoMousePressEvent(QMouseEvent* e)
   if (e->button() != Qt::MouseButton::LeftButton)
     return ezEditorInput::MayBeHandledByOthers;
 
-  if (m_pInteractionGizmoHandle != &m_Shape)
+  if (m_pInteractionGizmoHandle != &m_hShape)
     return ezEditorInput::MayBeHandledByOthers;
 
   ezViewHighlightMsgToEngine msg;

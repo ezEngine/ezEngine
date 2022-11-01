@@ -53,8 +53,8 @@ private:
   const ezEventTrackData* m_pData = nullptr;
   ezEventTrackData m_DataCopy;
 
-  double m_ControlPointMove;
-  QPointF m_contextMenuScenePos;
+  double m_fControlPointMove;
+  QPointF m_ContextMenuScenePos;
   ezEventSet m_EventSet;
 };
 

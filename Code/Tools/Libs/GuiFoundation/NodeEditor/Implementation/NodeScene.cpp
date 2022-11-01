@@ -14,7 +14,7 @@
 ezRttiMappedObjectFactory<ezQtNode> ezQtNodeScene::s_NodeFactory;
 ezRttiMappedObjectFactory<ezQtPin> ezQtNodeScene::s_PinFactory;
 ezRttiMappedObjectFactory<ezQtConnection> ezQtNodeScene::s_ConnectionFactory;
-ezVec2 ezQtNodeScene::s_LastMouseInteraction(0);
+ezVec2 ezQtNodeScene::s_vLastMouseInteraction(0);
 
 ezQtNodeScene::ezQtNodeScene(QObject* parent)
   : QGraphicsScene(parent)
@@ -106,7 +106,7 @@ void ezQtNodeScene::SetConnectionDecorationFlags(ezBitflags<ConnectionDecoration
 void ezQtNodeScene::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
 {
   m_vMousePos = ezVec2(event->scenePos().x(), event->scenePos().y());
-  s_LastMouseInteraction = m_vMousePos;
+  s_vLastMouseInteraction = m_vMousePos;
 
   if (m_pTempConnection)
   {
@@ -126,7 +126,7 @@ void ezQtNodeScene::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
       {
         const QPointF center = pin->sceneBoundingRect().center();
         const ezVec2 pt = ezVec2(center.x(), center.y());
-        const float lenSqr = (pt - s_LastMouseInteraction).GetLengthSquared();
+        const float lenSqr = (pt - s_vLastMouseInteraction).GetLengthSquared();
 
         if (lenSqr < fDistToBest)
         {

@@ -72,15 +72,15 @@ ezQtAnimatedMeshAssetDocumentWindow::ezQtAnimatedMeshAssetDocumentWindow(ezAnima
 
   UpdatePreview();
 
-  m_HighlightTimer = new QTimer();
-  connect(m_HighlightTimer, &QTimer::timeout, this, &ezQtAnimatedMeshAssetDocumentWindow::HighlightTimer);
-  m_HighlightTimer->setInterval(500);
-  m_HighlightTimer->start();
+  m_pHighlightTimer = new QTimer();
+  connect(m_pHighlightTimer, &QTimer::timeout, this, &ezQtAnimatedMeshAssetDocumentWindow::HighlightTimer);
+  m_pHighlightTimer->setInterval(500);
+  m_pHighlightTimer->start();
 }
 
 ezQtAnimatedMeshAssetDocumentWindow::~ezQtAnimatedMeshAssetDocumentWindow()
 {
-  m_HighlightTimer->stop();
+  m_pHighlightTimer->stop();
 
   GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezQtAnimatedMeshAssetDocumentWindow::PropertyEventHandler, this));
 }

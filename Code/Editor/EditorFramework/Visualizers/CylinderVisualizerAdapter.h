@@ -24,5 +24,5 @@ protected:
   ezBitflags<ezVisualizerAnchor> m_Anchor;
   ezBasisAxis::Enum m_Axis;
 
-  ezEngineGizmoHandle m_Cylinder;
+  ezEngineGizmoHandle m_hCylinder;
 };

@@ -15,7 +15,7 @@ ezConeAngleGizmo::ezConeAngleGizmo()
 
   m_ManipulateMode = ManipulateMode::None;
 
-  m_ConeAngle.ConfigureHandle(this, ezEngineGizmoHandleType::Cone, ezColorLinearUB(200, 200, 0, 128), ezGizmoFlags::Pickable);
+  m_hConeAngle.ConfigureHandle(this, ezEngineGizmoHandleType::Cone, ezColorLinearUB(200, 200, 0, 128), ezGizmoFlags::Pickable);
 
   SetVisible(false);
   SetTransformation(ezTransform::IdentityTransform());
@@ -23,12 +23,12 @@ ezConeAngleGizmo::ezConeAngleGizmo()
 
 void ezConeAngleGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
 {
-  pOwnerWindow->GetDocument()->AddSyncObject(&m_ConeAngle);
+  pOwnerWindow->GetDocument()->AddSyncObject(&m_hConeAngle);
 }
 
 void ezConeAngleGizmo::OnVisibleChanged(bool bVisible)
 {
-  m_ConeAngle.SetVisible(bVisible);
+  m_hConeAngle.SetVisible(bVisible);
 }
 
 void ezConeAngleGizmo::OnTransformationChanged(const ezTransform& transform)
@@ -36,7 +36,7 @@ void ezConeAngleGizmo::OnTransformationChanged(const ezTransform& transform)
   ezTransform t = transform;
 
   t.m_vScale *= ezVec3(1.0f, m_fAngleScale, m_fAngleScale) * m_fRadius;
-  m_ConeAngle.SetTransformation(t);
+  m_hConeAngle.SetTransformation(t);
 }
 
 void ezConeAngleGizmo::DoFocusLost(bool bCancel)
@@ -49,7 +49,7 @@ void ezConeAngleGizmo::DoFocusLost(bool bCancel)
   ezViewHighlightMsgToEngine msg;
   GetOwnerWindow()->GetEditorEngineConnection()->SendHighlightObjectMessage(&msg);
 
-  m_ConeAngle.SetVisible(true);
+  m_hConeAngle.SetVisible(true);
 
   m_ManipulateMode = ManipulateMode::None;
 }
@@ -64,7 +64,7 @@ ezEditorInput ezConeAngleGizmo::DoMousePressEvent(QMouseEvent* e)
   if (e->modifiers() != 0)
     return ezEditorInput::MayBeHandledByOthers;
 
-  if (m_pInteractionGizmoHandle == &m_ConeAngle)
+  if (m_pInteractionGizmoHandle == &m_hConeAngle)
   {
     m_ManipulateMode = ManipulateMode::Angle;
   }
@@ -77,7 +77,7 @@ ezEditorInput ezConeAngleGizmo::DoMousePressEvent(QMouseEvent* e)
 
   m_LastInteraction = ezTime::Now();
 
-  m_LastMousePos = SetMouseMode(ezEditorInputContext::MouseMode::HideAndWrapAtScreenBorders);
+  m_vLastMousePos = SetMouseMode(ezEditorInputContext::MouseMode::HideAndWrapAtScreenBorders);
 
   SetActiveInputContext(this);
 
@@ -116,9 +116,9 @@ ezEditorInput ezConeAngleGizmo::DoMouseMoveEvent(QMouseEvent* e)
   m_LastInteraction = tNow;
 
   const ezVec2I32 vNewMousePos = ezVec2I32(e->globalPos().x(), e->globalPos().y());
-  const ezVec2I32 vDiff = vNewMousePos - m_LastMousePos;
+  const ezVec2I32 vDiff = vNewMousePos - m_vLastMousePos;
 
-  m_LastMousePos = UpdateMouseMode(e);
+  m_vLastMousePos = UpdateMouseMode(e);
 
   const float fSpeed = 0.02f;
   const ezAngle aSpeed = ezAngle::Degree(1.0f);

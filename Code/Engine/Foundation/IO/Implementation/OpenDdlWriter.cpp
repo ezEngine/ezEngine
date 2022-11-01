@@ -6,17 +6,17 @@
 
 void ezOpenDdlWriter::OutputEscapedString(const ezStringView& string)
 {
-  m_Temp = string;
-  m_Temp.ReplaceAll("\\", "\\\\");
-  m_Temp.ReplaceAll("\"", "\\\"");
-  m_Temp.ReplaceAll("\b", "\\b");
-  m_Temp.ReplaceAll("\r", "\\r");
-  m_Temp.ReplaceAll("\f", "\\f");
-  m_Temp.ReplaceAll("\n", "\\n");
-  m_Temp.ReplaceAll("\t", "\\t");
+  m_sTemp = string;
+  m_sTemp.ReplaceAll("\\", "\\\\");
+  m_sTemp.ReplaceAll("\"", "\\\"");
+  m_sTemp.ReplaceAll("\b", "\\b");
+  m_sTemp.ReplaceAll("\r", "\\r");
+  m_sTemp.ReplaceAll("\f", "\\f");
+  m_sTemp.ReplaceAll("\n", "\\n");
+  m_sTemp.ReplaceAll("\t", "\\t");
 
   OutputString("\"", 1);
-  OutputString(m_Temp.GetData());
+  OutputString(m_sTemp.GetData());
   OutputString("\"", 1);
 }
 
@@ -500,13 +500,13 @@ void ezOpenDdlWriter::WriteInt8(const ezInt8* pValues, ezUInt32 count /*= 1*/)
 
   WritePrimitiveType(State::PrimitivesInt8);
 
-  m_Temp.Format("{0}", pValues[0]);
-  OutputString(m_Temp.GetData());
+  m_sTemp.Format("{0}", pValues[0]);
+  OutputString(m_sTemp.GetData());
 
   for (ezUInt32 i = 1; i < count; ++i)
   {
-    m_Temp.Format(",{0}", pValues[i]);
-    OutputString(m_Temp.GetData());
+    m_sTemp.Format(",{0}", pValues[i]);
+    OutputString(m_sTemp.GetData());
   }
 }
 
@@ -517,13 +517,13 @@ void ezOpenDdlWriter::WriteInt16(const ezInt16* pValues, ezUInt32 count /*= 1*/)
 
   WritePrimitiveType(State::PrimitivesInt16);
 
-  m_Temp.Format("{0}", pValues[0]);
-  OutputString(m_Temp.GetData());
+  m_sTemp.Format("{0}", pValues[0]);
+  OutputString(m_sTemp.GetData());
 
   for (ezUInt32 i = 1; i < count; ++i)
   {
-    m_Temp.Format(",{0}", pValues[i]);
-    OutputString(m_Temp.GetData());
+    m_sTemp.Format(",{0}", pValues[i]);
+    OutputString(m_sTemp.GetData());
   }
 }
 
@@ -534,13 +534,13 @@ void ezOpenDdlWriter::WriteInt32(const ezInt32* pValues, ezUInt32 count /*= 1*/)
 
   WritePrimitiveType(State::PrimitivesInt32);
 
-  m_Temp.Format("{0}", pValues[0]);
-  OutputString(m_Temp.GetData());
+  m_sTemp.Format("{0}", pValues[0]);
+  OutputString(m_sTemp.GetData());
 
   for (ezUInt32 i = 1; i < count; ++i)
   {
-    m_Temp.Format(",{0}", pValues[i]);
-    OutputString(m_Temp.GetData());
+    m_sTemp.Format(",{0}", pValues[i]);
+    OutputString(m_sTemp.GetData());
   }
 }
 
@@ -551,13 +551,13 @@ void ezOpenDdlWriter::WriteInt64(const ezInt64* pValues, ezUInt32 count /*= 1*/)
 
   WritePrimitiveType(State::PrimitivesInt64);
 
-  m_Temp.Format("{0}", pValues[0]);
-  OutputString(m_Temp.GetData());
+  m_sTemp.Format("{0}", pValues[0]);
+  OutputString(m_sTemp.GetData());
 
   for (ezUInt32 i = 1; i < count; ++i)
   {
-    m_Temp.Format(",{0}", pValues[i]);
-    OutputString(m_Temp.GetData());
+    m_sTemp.Format(",{0}", pValues[i]);
+    OutputString(m_sTemp.GetData());
   }
 }
 
@@ -569,13 +569,13 @@ void ezOpenDdlWriter::WriteUInt8(const ezUInt8* pValues, ezUInt32 count /*= 1*/)
 
   WritePrimitiveType(State::PrimitivesUInt8);
 
-  m_Temp.Format("{0}", pValues[0]);
-  OutputString(m_Temp.GetData());
+  m_sTemp.Format("{0}", pValues[0]);
+  OutputString(m_sTemp.GetData());
 
   for (ezUInt32 i = 1; i < count; ++i)
   {
-    m_Temp.Format(",{0}", pValues[i]);
-    OutputString(m_Temp.GetData());
+    m_sTemp.Format(",{0}", pValues[i]);
+    OutputString(m_sTemp.GetData());
   }
 }
 
@@ -586,13 +586,13 @@ void ezOpenDdlWriter::WriteUInt16(const ezUInt16* pValues, ezUInt32 count /*= 1*
 
   WritePrimitiveType(State::PrimitivesUInt16);
 
-  m_Temp.Format("{0}", pValues[0]);
-  OutputString(m_Temp.GetData());
+  m_sTemp.Format("{0}", pValues[0]);
+  OutputString(m_sTemp.GetData());
 
   for (ezUInt32 i = 1; i < count; ++i)
   {
-    m_Temp.Format(",{0}", pValues[i]);
-    OutputString(m_Temp.GetData());
+    m_sTemp.Format(",{0}", pValues[i]);
+    OutputString(m_sTemp.GetData());
   }
 }
 
@@ -603,13 +603,13 @@ void ezOpenDdlWriter::WriteUInt32(const ezUInt32* pValues, ezUInt32 count /*= 1*
 
   WritePrimitiveType(State::PrimitivesUInt32);
 
-  m_Temp.Format("{0}", pValues[0]);
-  OutputString(m_Temp.GetData());
+  m_sTemp.Format("{0}", pValues[0]);
+  OutputString(m_sTemp.GetData());
 
   for (ezUInt32 i = 1; i < count; ++i)
   {
-    m_Temp.Format(",{0}", pValues[i]);
-    OutputString(m_Temp.GetData());
+    m_sTemp.Format(",{0}", pValues[i]);
+    OutputString(m_sTemp.GetData());
   }
 }
 
@@ -620,13 +620,13 @@ void ezOpenDdlWriter::WriteUInt64(const ezUInt64* pValues, ezUInt32 count /*= 1*
 
   WritePrimitiveType(State::PrimitivesUInt64);
 
-  m_Temp.Format("{0}", pValues[0]);
-  OutputString(m_Temp.GetData());
+  m_sTemp.Format("{0}", pValues[0]);
+  OutputString(m_sTemp.GetData());
 
   for (ezUInt32 i = 1; i < count; ++i)
   {
-    m_Temp.Format(",{0}", pValues[i]);
-    OutputString(m_Temp.GetData());
+    m_sTemp.Format(",{0}", pValues[i]);
+    OutputString(m_sTemp.GetData());
   }
 }
 
@@ -639,13 +639,13 @@ void ezOpenDdlWriter::WriteFloat(const float* pValues, ezUInt32 count /*= 1*/)
 
   if (m_FloatPrecisionMode == FloatPrecisionMode::Readable)
   {
-    m_Temp.Format("{0}", pValues[0]);
-    OutputString(m_Temp.GetData());
+    m_sTemp.Format("{0}", pValues[0]);
+    OutputString(m_sTemp.GetData());
 
     for (ezUInt32 i = 1; i < count; ++i)
     {
-      m_Temp.Format(",{0}", pValues[i]);
-      OutputString(m_Temp.GetData());
+      m_sTemp.Format(",{0}", pValues[i]);
+      OutputString(m_sTemp.GetData());
     }
   }
   else
@@ -686,13 +686,13 @@ void ezOpenDdlWriter::WriteDouble(const double* pValues, ezUInt32 count /*= 1*/)
 
   if (m_FloatPrecisionMode == FloatPrecisionMode::Readable)
   {
-    m_Temp.Format("{0}", pValues[0]);
-    OutputString(m_Temp.GetData());
+    m_sTemp.Format("{0}", pValues[0]);
+    OutputString(m_sTemp.GetData());
 
     for (ezUInt32 i = 1; i < count; ++i)
     {
-      m_Temp.Format(",{0}", pValues[i]);
-      OutputString(m_Temp.GetData());
+      m_sTemp.Format(",{0}", pValues[i]);
+      OutputString(m_sTemp.GetData());
     }
   }
   else

@@ -42,5 +42,5 @@ private:
   static ezJoltMaterial* s_pDefaultMaterial;
   static std::unique_ptr<JPH::JobSystem> s_pJobSystem;
 
-  static ezUniquePtr<ezProxyAllocator> s_Allocator;
+  static ezUniquePtr<ezProxyAllocator> s_pAllocator;
 };

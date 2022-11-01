@@ -84,7 +84,7 @@ public:
   static void RegisterDataDirectoryFactory(ezDataDirFactory Factory, float fPriority = 0); // [tested]
 
   /// \brief Will remove all known data directory factories.
-  static void ClearAllDataDirectoryFactories() { s_Data->m_DataDirFactories.Clear(); } // [tested]
+  static void ClearAllDataDirectoryFactories() { s_pData->m_DataDirFactories.Clear(); } // [tested]
 
   /// \brief Adds a data directory. It will try all the registered factories to find a data directory type that can handle the given path.
   ///
@@ -322,7 +322,7 @@ private:
 
   static ezString s_sSdkRootDir;
   static ezMap<ezString, ezString> s_SpecialDirectories;
-  static FileSystemData* s_Data;
+  static FileSystemData* s_pData;
 };
 
 /// \brief Describes the type of events that are broadcast by the ezFileSystem.

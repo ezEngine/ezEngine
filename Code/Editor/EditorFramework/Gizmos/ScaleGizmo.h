@@ -27,20 +27,20 @@ protected:
   virtual void OnTransformationChanged(const ezTransform& transform) override;
 
 protected:
-  ezEngineGizmoHandle m_AxisX;
-  ezEngineGizmoHandle m_AxisY;
-  ezEngineGizmoHandle m_AxisZ;
-  ezEngineGizmoHandle m_AxisXYZ;
+  ezEngineGizmoHandle m_hAxisX;
+  ezEngineGizmoHandle m_hAxisY;
+  ezEngineGizmoHandle m_hAxisZ;
+  ezEngineGizmoHandle m_hAxisXYZ;
 
 private:
   ezVec3 m_vScalingResult;
   ezVec3 m_vScaleMouseMove;
 
-  ezVec2I32 m_LastMousePos;
+  ezVec2I32 m_vLastMousePos;
 
   ezTime m_LastInteraction;
   ezVec3 m_vMoveAxis;
-  ezMat4 m_InvViewProj;
+  ezMat4 m_mInvViewProj;
 
   bool m_bUseExperimentalGizmo = false;
 };

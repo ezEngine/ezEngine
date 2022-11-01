@@ -130,13 +130,13 @@ static bool FindAoSpheres(void* pPassThrough, ezDynamicTreeObjectConst Object)
 
 ezKrautTreeResourceHandle ezKrautGeneratorResource::GenerateTreeWithGoodSeed(ezUInt16 uiGoodSeedIndex) const
 {
-  if (uiGoodSeedIndex == 0xFFFF || m_Descriptor->m_GoodRandomSeeds.IsEmpty())
+  if (uiGoodSeedIndex == 0xFFFF || m_pDescriptor->m_GoodRandomSeeds.IsEmpty())
   {
-    return GenerateTree(m_Descriptor->m_uiDefaultDisplaySeed);
+    return GenerateTree(m_pDescriptor->m_uiDefaultDisplaySeed);
   }
 
-  uiGoodSeedIndex %= m_Descriptor->m_GoodRandomSeeds.GetCount();
-  return GenerateTree(m_Descriptor->m_GoodRandomSeeds[uiGoodSeedIndex]);
+  uiGoodSeedIndex %= m_pDescriptor->m_GoodRandomSeeds.GetCount();
+  return GenerateTree(m_pDescriptor->m_GoodRandomSeeds[uiGoodSeedIndex]);
 }
 
 class ezKrautResourceLoader : public ezResourceTypeLoader
@@ -230,16 +230,16 @@ void ezKrautGeneratorResource::GenerateTreeDescriptor(ezKrautTreeResourceDescrip
   Kraut::TreeStructure treeStructure;
 
   Kraut::TreeStructureGenerator gen;
-  gen.m_pTreeStructureDesc = &m_Descriptor->m_TreeStructureDesc;
+  gen.m_pTreeStructureDesc = &m_pDescriptor->m_TreeStructureDesc;
   gen.m_pTreeStructure = &treeStructure;
 
   gen.GenerateTreeStructure(uiRandomSeed);
 
-  const float fWoodBendiness = 0.1f / m_Descriptor->m_fTreeStiffness;
+  const float fWoodBendiness = 0.1f / m_pDescriptor->m_fTreeStiffness;
   const float fTwigBendiness = 0.1f * fWoodBendiness;
 
   TreeStructureExtraData extraData;
-  GenerateExtraData(extraData, m_Descriptor->m_TreeStructureDesc, treeStructure, uiRandomSeed, fWoodBendiness, fTwigBendiness);
+  GenerateExtraData(extraData, m_pDescriptor->m_TreeStructureDesc, treeStructure, uiRandomSeed, fWoodBendiness, fTwigBendiness);
 
   auto bbox = treeStructure.ComputeBoundingBox();
   ezBoundingBox bbox2;
@@ -303,7 +303,7 @@ void ezKrautGeneratorResource::GenerateTreeDescriptor(ezKrautTreeResourceDescrip
 
   for (ezUInt32 lodIdx = 0; lodIdx < dstDesc.m_Lods.GetCapacity(); ++lodIdx)
   {
-    const auto& lodDesc = m_Descriptor->m_LodDesc[lodIdx];
+    const auto& lodDesc = m_pDescriptor->m_LodDesc[lodIdx];
 
     if (lodDesc.m_Mode != Kraut::LodMode::Full)
     {
@@ -316,7 +316,7 @@ void ezKrautGeneratorResource::GenerateTreeDescriptor(ezKrautTreeResourceDescrip
     Kraut::TreeStructureLodGenerator lodGen;
     lodGen.m_pLodDesc = &lodDesc;
     lodGen.m_pTreeStructure = &treeStructure;
-    lodGen.m_pTreeStructureDesc = &m_Descriptor->m_TreeStructureDesc;
+    lodGen.m_pTreeStructureDesc = &m_pDescriptor->m_TreeStructureDesc;
     lodGen.m_pTreeStructureLod = &treeLod;
 
     lodGen.GenerateTreeStructureLod();
@@ -336,10 +336,10 @@ void ezKrautGeneratorResource::GenerateTreeDescriptor(ezKrautTreeResourceDescrip
     dstMesh.m_LodType = ezKrautLodType::Mesh;
 
     dstMesh.m_fMinLodDistance = fPrevMaxLodDistance;
-    dstMesh.m_fMaxLodDistance = lodDesc.m_uiLodDistance * m_Descriptor->m_fLodDistanceScale * m_Descriptor->m_fUniformScaling;
+    dstMesh.m_fMaxLodDistance = lodDesc.m_uiLodDistance * m_pDescriptor->m_fLodDistanceScale * m_pDescriptor->m_fUniformScaling;
     fPrevMaxLodDistance = dstMesh.m_fMaxLodDistance;
 
-    const float fVertexScale = m_Descriptor->m_fUniformScaling;
+    const float fVertexScale = m_pDescriptor->m_fUniformScaling;
 
     ezUInt32 uiMaxVertices = 0;
     ezUInt32 uiMaxTriangles = 0;
@@ -499,7 +499,7 @@ void ezKrautGeneratorResource::GenerateTreeDescriptor(ezKrautTreeResourceDescrip
 
         uiTriangleInSubmeshes += subMesh.m_uiNumTriangles;
 
-        for (const auto& srcMat : m_Descriptor->m_Materials)
+        for (const auto& srcMat : m_pDescriptor->m_Materials)
         {
           if ((ezUInt32)srcMat.m_BranchType == branchType && (ezUInt32)srcMat.m_MaterialType == geometryType)
           {
@@ -552,8 +552,8 @@ void ezKrautGeneratorResource::GenerateTreeDescriptor(ezKrautTreeResourceDescrip
   ezLog::Debug("AO vertices: {}, checks: {}", uiOccVertices, uiOccChecks);
 
   dstDesc.m_Details.m_Bounds = ezBoundingBoxSphere(bbox2);
-  dstDesc.m_Details.m_fStaticColliderRadius = m_Descriptor->m_fStaticColliderRadius;
-  dstDesc.m_Details.m_sSurfaceResource = m_Descriptor->m_sSurfaceResource;
+  dstDesc.m_Details.m_fStaticColliderRadius = m_pDescriptor->m_fStaticColliderRadius;
+  dstDesc.m_Details.m_sSurfaceResource = m_pDescriptor->m_sSurfaceResource;
   dstDesc.m_Details.m_vLeafCenter = dstDesc.m_Details.m_Bounds.m_vCenter;
 
   if (!vLeafCenter.IsZero())
@@ -564,7 +564,7 @@ void ezKrautGeneratorResource::GenerateTreeDescriptor(ezKrautTreeResourceDescrip
 
 ezResourceLoadDesc ezKrautGeneratorResource::UnloadData(Unload WhatToUnload)
 {
-  m_Descriptor.Clear();
+  m_pDescriptor.Clear();
 
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
@@ -625,8 +625,8 @@ ezResourceLoadDesc ezKrautGeneratorResource::UpdateContent(ezStreamReader* Strea
     return res;
   }
 
-  m_Descriptor = EZ_DEFAULT_NEW(ezKrautGeneratorResourceDescriptor);
-  if (m_Descriptor->Deserialize(*Stream).Failed())
+  m_pDescriptor = EZ_DEFAULT_NEW(ezKrautGeneratorResourceDescriptor);
+  if (m_pDescriptor->Deserialize(*Stream).Failed())
   {
     res.m_State = ezResourceState::LoadedResourceMissing;
     return res;
@@ -640,9 +640,9 @@ void ezKrautGeneratorResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage
   out_NewMemoryUsage.m_uiMemoryGPU = sizeof(*this);
   out_NewMemoryUsage.m_uiMemoryCPU = 0;
 
-  if (m_Descriptor != nullptr)
+  if (m_pDescriptor != nullptr)
   {
-    out_NewMemoryUsage.m_uiMemoryCPU += sizeof(ezKrautGeneratorResourceDescriptor) + m_Descriptor->m_Materials.GetHeapMemoryUsage();
+    out_NewMemoryUsage.m_uiMemoryCPU += sizeof(ezKrautGeneratorResourceDescriptor) + m_pDescriptor->m_Materials.GetHeapMemoryUsage();
   }
 }
 

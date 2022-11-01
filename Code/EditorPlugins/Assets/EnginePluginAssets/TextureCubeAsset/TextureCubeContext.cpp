@@ -55,7 +55,7 @@ void ezTextureCubeContext::OnInitialize()
     ezResourceLock<ezTextureCubeResource> pTexture(m_hTexture, ezResourceAcquireMode::PointerOnly);
 
     textureFormat = pTexture->GetFormat();
-    pTexture->m_ResourceEvents.AddEventHandler(ezMakeDelegate(&ezTextureCubeContext::OnResourceEvent, this), m_textureResourceEventSubscriber);
+    pTexture->m_ResourceEvents.AddEventHandler(ezMakeDelegate(&ezTextureCubeContext::OnResourceEvent, this), m_TextureResourceEventSubscriber);
   }
 
   // Preview Mesh

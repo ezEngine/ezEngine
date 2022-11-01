@@ -57,8 +57,8 @@ ezEditorInput ezEditorInputContext::MouseMoveEvent(QMouseEvent* e)
     if (m_bJustWrappedMouse)
     {
       const ezVec2I32 curPos(e->globalX(), e->globalY());
-      const ezVec2I32 diffToOld = curPos - m_MousePosBeforeWrap;
-      const ezVec2I32 diffToNew = curPos - m_ExpectedMousePosition;
+      const ezVec2I32 diffToOld = curPos - m_vMousePosBeforeWrap;
+      const ezVec2I32 diffToNew = curPos - m_vExpectedMousePosition;
 
       if (diffToOld.GetLengthSquared() < diffToNew.GetLengthSquared())
       {
@@ -141,13 +141,13 @@ ezVec2I32 ezEditorInputContext::SetMouseMode(MouseMode newMode)
 
   if (m_MouseMode == MouseMode::HideAndWrapAtScreenBorders)
   {
-    QCursor::setPos(QPoint(m_MouseRestorePosition.x, m_MouseRestorePosition.y));
+    QCursor::setPos(QPoint(m_vMouseRestorePosition.x, m_vMouseRestorePosition.y));
     QApplication::restoreOverrideCursor();
   }
 
   if (newMode == MouseMode::HideAndWrapAtScreenBorders)
   {
-    m_MouseRestorePosition.Set(curPos.x(), curPos.y());
+    m_vMouseRestorePosition.Set(curPos.x(), curPos.y());
     QApplication::setOverrideCursor(Qt::BlankCursor);
   }
 
@@ -183,8 +183,8 @@ ezVec2I32 ezEditorInputContext::UpdateMouseMode(QMouseEvent* e)
     QCursor::setPos(QPoint(newPos.x, newPos.y));
 
     // store where we expect the next mouse position
-    m_ExpectedMousePosition = newPos;
-    m_MousePosBeforeWrap = curPos;
+    m_vExpectedMousePosition = newPos;
+    m_vMousePosBeforeWrap = curPos;
 
     // next mouse message must be inspected for outliers
     m_bJustWrappedMouse = true;

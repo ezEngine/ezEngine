@@ -126,7 +126,7 @@ public:
   // const ezString& GetServerInfoName() const { return m_ServerInfoName; }
 
   /// \brief For the client to display the IP of the server
-  const ezString& GetServerInfoIP() const { return m_ServerInfoIP; }
+  const ezString& GetServerInfoIP() const { return m_sServerInfoIP; }
 
   /// \brief Some random identifier, that allows to determine after a reconnect, whether the connected instance is still the same server
   ezUInt32 GetServerID() const { return m_uiConnectedToServerWithID; }
@@ -221,7 +221,7 @@ protected:
   /// Derived classes should update this when the information is available
   // ezString m_ServerInfoName;
   /// Derived classes should update this when the information is available
-  ezString m_ServerInfoIP;
+  ezString m_sServerInfoIP;
 
   /// \brief Should be called by the implementation, when a server connection has been established
   void ReportConnectionToServer(ezUInt32 uiServerID);

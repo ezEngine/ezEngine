@@ -61,7 +61,7 @@ public:
   void ClearSignal();
 
 private:
-  Mode m_mode = Mode::AutoReset;
+  Mode m_Mode = Mode::AutoReset;
   mutable bool m_bSignalState = false;
   mutable ezConditionVariable m_ConditionVariable;
 };

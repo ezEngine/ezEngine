@@ -50,8 +50,8 @@ ezResult ezEditorSceneDocumentTest::DeInitializeTest()
 {
   m_pDoc = nullptr;
   m_pLayer = nullptr;
-  m_sceneGuid.SetInvalid();
-  m_layerGuid.SetInvalid();
+  m_SceneGuid.SetInvalid();
+  m_LayerGuid.SetInvalid();
 
   if (SUPER::DeInitializeTest().Failed())
     return EZ_FAILURE;
@@ -88,10 +88,10 @@ ezResult ezEditorSceneDocumentTest::CreateSimpleScene(const char* szSceneName)
     if (!EZ_TEST_BOOL(m_pDoc != nullptr))
       return EZ_FAILURE;
 
-    m_sceneGuid = m_pDoc->GetGuid();
+    m_SceneGuid = m_pDoc->GetGuid();
     ProcessEvents();
-    EZ_TEST_STATUS(m_pDoc->CreateLayer("Layer1", m_layerGuid));
-    m_pLayer = ezDynamicCast<ezLayerDocument*>(m_pDoc->GetLayerDocument(m_layerGuid));
+    EZ_TEST_STATUS(m_pDoc->CreateLayer("Layer1", m_LayerGuid));
+    m_pLayer = ezDynamicCast<ezLayerDocument*>(m_pDoc->GetLayerDocument(m_LayerGuid));
     if (!EZ_TEST_BOOL(m_pLayer != nullptr))
       return EZ_FAILURE;
   }
@@ -114,8 +114,8 @@ void ezEditorSceneDocumentTest::CloseSimpleScene()
     EZ_TEST_BOOL(bSaved);
     m_pDoc = nullptr;
     m_pLayer = nullptr;
-    m_sceneGuid.SetInvalid();
-    m_layerGuid.SetInvalid();
+    m_SceneGuid.SetInvalid();
+    m_LayerGuid.SetInvalid();
   }
 }
 
@@ -470,9 +470,9 @@ void ezEditorSceneDocumentTest::PrefabOperations()
     assets.PushBack(pPrefab2);
     ezDeque<const ezDocumentObject*> newObjects;
 
-    MoveObjectsToLayer(m_pDoc, assets, m_layerGuid, newObjects);
+    MoveObjectsToLayer(m_pDoc, assets, m_LayerGuid, newObjects);
 
-    EZ_TEST_BOOL(m_pDoc->GetActiveLayer() == m_sceneGuid);
+    EZ_TEST_BOOL(m_pDoc->GetActiveLayer() == m_SceneGuid);
     EZ_TEST_BOOL(m_pDoc->GetObjectManager()->GetObject(pPrefab1->GetGuid()) == nullptr);
     EZ_TEST_BOOL(m_pDoc->GetObjectManager()->GetObject(pPrefab2->GetGuid()) == nullptr);
     EZ_TEST_BOOL(m_pDoc->GetObjectManager()->GetObject(pPrefab3->GetGuid()) == nullptr);
@@ -482,7 +482,7 @@ void ezEditorSceneDocumentTest::PrefabOperations()
     pPrefab2 = newObjects[1];
     pPrefab3 = newObjects[2];
 
-    EZ_TEST_STATUS(m_pDoc->SetActiveLayer(m_layerGuid));
+    EZ_TEST_STATUS(m_pDoc->SetActiveLayer(m_LayerGuid));
 
     EZ_TEST_BOOL(pPrefab1->GetDocumentObjectManager() == m_pLayer->GetObjectManager());
     EZ_TEST_BOOL(pPrefab2->GetDocumentObjectManager() == m_pLayer->GetObjectManager());

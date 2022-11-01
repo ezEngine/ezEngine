@@ -2,7 +2,7 @@
 
 #include <Utilities/DataStructures/DynamicQuadtree.h>
 
-const float ezDynamicQuadtree::s_LooseOctreeFactor = 1.1f;
+const float ezDynamicQuadtree::s_fLooseOctreeFactor = 1.1f;
 
 ezDynamicQuadtree::ezDynamicQuadtree()
   : m_uiMaxTreeDepth(0)
@@ -41,7 +41,7 @@ void ezDynamicQuadtree::CreateTree(const ezVec3& vCenter, const ezVec3& vHalfExt
   while (fLength > fMinNodeSize)
   {
     ++m_uiMaxTreeDepth;
-    fLength = (fLength / 2.0f) * s_LooseOctreeFactor;
+    fLength = (fLength / 2.0f) * s_fLooseOctreeFactor;
   }
 
   // at every tree depth there are pow(4, depth) additional nodes, each node needs a unique ID
@@ -164,8 +164,8 @@ bool ezDynamicQuadtree::InsertObject(const ezVec3& vCenter, const ezVec3& vHalfE
   // if there are any child-nodes, try inserting there
   if (uiAddID > 0)
   {
-    const float lx = ((maxx - minx) * 0.5f) * s_LooseOctreeFactor;
-    const float lz = ((maxz - minz) * 0.5f) * s_LooseOctreeFactor;
+    const float lx = ((maxx - minx) * 0.5f) * s_fLooseOctreeFactor;
+    const float lz = ((maxz - minz) * 0.5f) * s_fLooseOctreeFactor;
 
     // to compute the ID of child node 'n', the number of children in child node 'n-1' has to be considered
     // uiAddID is the number of IDs that need to be skipped to get from the ID of child node 'n' to the ID of child 'n+1'
@@ -280,8 +280,8 @@ void ezDynamicQuadtree::FindVisibleObjects(const ezFrustum& Viewfrustum, EZ_VISI
     // if there are additional child nodes
     if (uiAddID > 0)
     {
-      const float lx = ((maxx - minx) * 0.5f) * s_LooseOctreeFactor;
-      const float lz = ((maxz - minz) * 0.5f) * s_LooseOctreeFactor;
+      const float lx = ((maxx - minx) * 0.5f) * s_fLooseOctreeFactor;
+      const float lz = ((maxz - minz) * 0.5f) * s_fLooseOctreeFactor;
 
       const ezUInt32 uiNodeIDBase = uiNodeID + 1;
       const ezUInt32 uiAddIDChild = uiAddID - uiSubAddID;
@@ -358,8 +358,8 @@ bool ezDynamicQuadtree::FindObjectsInRange(const ezVec3& vPoint, EZ_VISIBLE_OBJ_
     // if this node has children
     if (uiAddID > 0)
     {
-      const float lx = ((maxx - minx) * 0.5f) * s_LooseOctreeFactor;
-      const float lz = ((maxz - minz) * 0.5f) * s_LooseOctreeFactor;
+      const float lx = ((maxx - minx) * 0.5f) * s_fLooseOctreeFactor;
+      const float lz = ((maxz - minz) * 0.5f) * s_fLooseOctreeFactor;
 
       const ezUInt32 uiNodeIDBase = uiNodeID + 1;
       const ezUInt32 uiAddIDChild = uiAddID - uiSubAddID;
@@ -438,8 +438,8 @@ bool ezDynamicQuadtree::FindObjectsInRange(const ezVec3& vPoint, float fRadius, 
     // if the node has children
     if (uiAddID > 0)
     {
-      const float lx = ((maxx - minx) * 0.5f) * s_LooseOctreeFactor;
-      const float lz = ((maxz - minz) * 0.5f) * s_LooseOctreeFactor;
+      const float lx = ((maxx - minx) * 0.5f) * s_fLooseOctreeFactor;
+      const float lz = ((maxz - minz) * 0.5f) * s_fLooseOctreeFactor;
 
       const ezUInt32 uiNodeIDBase = uiNodeID + 1;
       const ezUInt32 uiAddIDChild = uiAddID - uiSubAddID;

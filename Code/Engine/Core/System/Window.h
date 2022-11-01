@@ -331,7 +331,7 @@ private:
 
   ezUniquePtr<ezStandardInputDevice> m_pInputDevice;
 
-  mutable ezWindowInternalHandle m_WindowHandle = ezWindowInternalHandle();
+  mutable ezWindowInternalHandle m_hWindowHandle = ezWindowInternalHandle();
 
 #if EZ_ENABLED(EZ_SUPPORTS_GLFW)
   static void SizeCallback(GLFWwindow* window, int width, int height);

@@ -126,5 +126,5 @@ protected:
   bool m_bStateWantsToQuit = false;
   bool m_bXREnabled = false;
   bool m_bXRRemotingEnabled = false;
-  ezUniquePtr<ezDummyXR> m_dummyXR;
+  ezUniquePtr<ezDummyXR> m_pDummyXR;
 };

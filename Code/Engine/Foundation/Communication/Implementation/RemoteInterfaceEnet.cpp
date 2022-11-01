@@ -200,7 +200,7 @@ void ezRemoteInterfaceEnetImpl::InternalUpdateRemoteInterface()
           enet_address_get_host_ip(&NetworkEvent.peer->address, szHostIP, 63);
           // enet_address_get_host(&NetworkEvent.peer->address, szHostName, 63);
 
-          m_ServerInfoIP = szHostIP;
+          m_sServerInfoIP = szHostIP;
           // m_ServerInfoName = szHostName;
 
           // now we are waiting for the server to send its ID

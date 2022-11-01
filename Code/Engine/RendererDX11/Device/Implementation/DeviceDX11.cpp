@@ -57,7 +57,7 @@ ezGALDeviceDX11::ezGALDeviceDX11(const ezGALDeviceCreationDescription& Descripti
   , m_pDXGIFactory(nullptr)
   , m_pDXGIAdapter(nullptr)
   , m_pDXGIDevice(nullptr)
-  , m_FeatureLevel(D3D_FEATURE_LEVEL_9_1)
+  , m_uiFeatureLevel(D3D_FEATURE_LEVEL_9_1)
   , m_uiFrameCounter(0)
 {
 }
@@ -95,7 +95,7 @@ retry:
   int FeatureLevelIdx = 0;
   for (FeatureLevelIdx = 0; FeatureLevelIdx < EZ_ARRAY_SIZE(FeatureLevels); FeatureLevelIdx++)
   {
-    if (SUCCEEDED(D3D11CreateDevice(pUsedAdapter, driverType, nullptr, dwFlags, &FeatureLevels[FeatureLevelIdx], 1, D3D11_SDK_VERSION, &m_pDevice, (D3D_FEATURE_LEVEL*)&m_FeatureLevel, &pImmediateContext)))
+    if (SUCCEEDED(D3D11CreateDevice(pUsedAdapter, driverType, nullptr, dwFlags, &FeatureLevels[FeatureLevelIdx], 1, D3D11_SDK_VERSION, &m_pDevice, (D3D_FEATURE_LEVEL*)&m_uiFeatureLevel, &pImmediateContext)))
     {
       break;
     }
@@ -829,7 +829,7 @@ void ezGALDeviceDX11::FillCapabilitiesPlatform()
 
   m_Capabilities.m_bMultithreadedResourceCreation = true;
 
-  switch (m_FeatureLevel)
+  switch (m_uiFeatureLevel)
   {
     case D3D_FEATURE_LEVEL_11_1:
       m_Capabilities.m_bB5G6R5Textures = true;
@@ -854,7 +854,7 @@ void ezGALDeviceDX11::FillCapabilitiesPlatform()
       m_Capabilities.m_uiMax3DTextureDimension = D3D11_REQ_TEXTURE3D_U_V_OR_W_DIMENSION;
       m_Capabilities.m_uiMaxAnisotropy = D3D11_REQ_MAXANISOTROPY;
       m_Capabilities.m_uiMaxRendertargets = D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT;
-      m_Capabilities.m_uiUAVCount = (m_FeatureLevel == D3D_FEATURE_LEVEL_11_1 ? 64 : 8);
+      m_Capabilities.m_uiUAVCount = (m_uiFeatureLevel == D3D_FEATURE_LEVEL_11_1 ? 64 : 8);
       m_Capabilities.m_bAlphaToCoverage = true;
       break;
 
@@ -872,7 +872,7 @@ void ezGALDeviceDX11::FillCapabilitiesPlatform()
       m_Capabilities.m_bStreamOut = true;
       m_Capabilities.m_uiMaxConstantBuffers = D3D11_COMMONSHADER_CONSTANT_BUFFER_HW_SLOT_COUNT;
       m_Capabilities.m_bTextureArrays = true;
-      m_Capabilities.m_bCubemapArrays = (m_FeatureLevel == D3D_FEATURE_LEVEL_10_1 ? true : false);
+      m_Capabilities.m_bCubemapArrays = (m_uiFeatureLevel == D3D_FEATURE_LEVEL_10_1 ? true : false);
       m_Capabilities.m_uiMaxTextureDimension = D3D10_REQ_TEXTURE2D_U_OR_V_DIMENSION;
       m_Capabilities.m_uiMaxCubemapDimension = D3D10_REQ_TEXTURECUBE_DIMENSION;
       m_Capabilities.m_uiMax3DTextureDimension = D3D10_REQ_TEXTURE3D_U_V_OR_W_DIMENSION;

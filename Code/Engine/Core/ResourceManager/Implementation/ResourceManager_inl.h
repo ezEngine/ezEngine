@@ -117,7 +117,7 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezTypedResourceHandl
   }
 #endif
 
-  ResourceType* pResource = (ResourceType*)hResource.m_Typeless.m_pResource;
+  ResourceType* pResource = (ResourceType*)hResource.m_hTypeless.m_pResource;
 
   // EZ_ASSERT_DEV(pResource->m_iLockCount < 20, "You probably forgot somewhere to call 'EndAcquireResource' in sync with 'BeginAcquireResource'.");
   EZ_ASSERT_DEBUG(pResource->GetDynamicRTTI()->template IsDerivedFrom<ResourceType>(),

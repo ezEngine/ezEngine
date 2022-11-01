@@ -230,7 +230,7 @@ private:
   ezComponentManagerBase* m_pManager = nullptr;
   ezGameObject* m_pOwner = nullptr;
 
-  static ezWorldModuleTypeId TYPE_ID;
+  static ezWorldModuleTypeId s_TypeId;
 };
 
 #include <Core/World/Implementation/Component_inl.h>

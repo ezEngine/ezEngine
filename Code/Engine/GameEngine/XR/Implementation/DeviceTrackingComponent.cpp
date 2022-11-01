@@ -40,32 +40,32 @@ ezDeviceTrackingComponent::~ezDeviceTrackingComponent() = default;
 
 void ezDeviceTrackingComponent::SetDeviceType(ezEnum<ezXRDeviceType> type)
 {
-  m_deviceType = type;
+  m_DeviceType = type;
 }
 
 ezEnum<ezXRDeviceType> ezDeviceTrackingComponent::GetDeviceType() const
 {
-  return m_deviceType;
+  return m_DeviceType;
 }
 
 void ezDeviceTrackingComponent::SetPoseLocation(ezEnum<ezXRPoseLocation> poseLocation)
 {
-  m_poseLocation = poseLocation;
+  m_PoseLocation = poseLocation;
 }
 
 ezEnum<ezXRPoseLocation> ezDeviceTrackingComponent::GetPoseLocation() const
 {
-  return m_poseLocation;
+  return m_PoseLocation;
 }
 
 void ezDeviceTrackingComponent::SetTransformSpace(ezEnum<ezXRTransformSpace> space)
 {
-  m_space = space;
+  m_Space = space;
 }
 
 ezEnum<ezXRTransformSpace> ezDeviceTrackingComponent::GetTransformSpace() const
 {
-  return m_space;
+  return m_Space;
 }
 
 void ezDeviceTrackingComponent::SerializeComponent(ezWorldWriter& stream) const
@@ -73,9 +73,9 @@ void ezDeviceTrackingComponent::SerializeComponent(ezWorldWriter& stream) const
   SUPER::SerializeComponent(stream);
   ezStreamWriter& s = stream.GetStream();
 
-  s << m_deviceType;
-  s << m_poseLocation;
-  s << m_space;
+  s << m_DeviceType;
+  s << m_PoseLocation;
+  s << m_Space;
   s << m_bRotation;
   s << m_bScale;
 }
@@ -86,12 +86,12 @@ void ezDeviceTrackingComponent::DeserializeComponent(ezWorldReader& stream)
   const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   ezStreamReader& s = stream.GetStream();
 
-  s >> m_deviceType;
+  s >> m_DeviceType;
   if (uiVersion >= 2)
   {
-    s >> m_poseLocation;
+    s >> m_PoseLocation;
   }
-  s >> m_space;
+  s >> m_Space;
   if (uiVersion >= 3)
   {
     s >> m_bRotation;
@@ -109,18 +109,18 @@ void ezDeviceTrackingComponent::Update()
     if (!pXRInterface->IsInitialized())
       return;
 
-    ezXRDeviceID deviceID = pXRInterface->GetXRInput().GetDeviceIDByType(m_deviceType);
+    ezXRDeviceID deviceID = pXRInterface->GetXRInput().GetDeviceIDByType(m_DeviceType);
     if (deviceID != -1)
     {
       const ezXRDeviceState& state = pXRInterface->GetXRInput().GetDeviceState(deviceID);
       ezVec3 vPosition;
       ezQuat qRotation;
-      if (m_poseLocation == ezXRPoseLocation::Grip && state.m_bGripPoseIsValid)
+      if (m_PoseLocation == ezXRPoseLocation::Grip && state.m_bGripPoseIsValid)
       {
         vPosition = state.m_vGripPosition;
         qRotation = state.m_qGripRotation;
       }
-      else if (m_poseLocation == ezXRPoseLocation::Aim && state.m_bAimPoseIsValid)
+      else if (m_PoseLocation == ezXRPoseLocation::Aim && state.m_bAimPoseIsValid)
       {
         vPosition = state.m_vAimPosition;
         qRotation = state.m_qAimRotation;
@@ -129,7 +129,7 @@ void ezDeviceTrackingComponent::Update()
       {
         return;
       }
-      if (m_space == ezXRTransformSpace::Local)
+      if (m_Space == ezXRTransformSpace::Local)
       {
         GetOwner()->SetLocalPosition(vPosition);
         if (m_bRotation)

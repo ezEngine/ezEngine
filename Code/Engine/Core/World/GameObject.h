@@ -582,13 +582,13 @@ private:
 
   ezBitflags<ezObjectFlags> m_Flags;
 
-  ezUInt32 m_ParentIndex = 0;
-  ezUInt32 m_FirstChildIndex = 0;
-  ezUInt32 m_LastChildIndex = 0;
+  ezUInt32 m_uiParentIndex = 0;
+  ezUInt32 m_uiFirstChildIndex = 0;
+  ezUInt32 m_uiLastChildIndex = 0;
 
-  ezUInt32 m_NextSiblingIndex = 0;
-  ezUInt32 m_PrevSiblingIndex = 0;
-  ezUInt32 m_ChildCount = 0;
+  ezUInt32 m_uiNextSiblingIndex = 0;
+  ezUInt32 m_uiPrevSiblingIndex = 0;
+  ezUInt32 m_uiChildCount = 0;
 
   ezUInt16 m_uiHierarchyLevel = 0;
 

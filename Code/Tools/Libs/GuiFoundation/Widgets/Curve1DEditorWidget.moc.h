@@ -78,11 +78,11 @@ private:
   void FindAllPresets();
 
   double m_fCurveDuration;
-  ezVec2 m_TangentMove;
-  ezVec2d m_ControlPointMove;
+  ezVec2 m_vTangentMove;
+  ezVec2d m_vControlPointMove;
   ezCurveGroupData m_Curves;
   ezCurveGroupData m_CurvesBackup;
-  QPointF m_contextMenuScenePos;
+  QPointF m_ContextMenuScenePos;
 
   static ezDynamicArray<ezString> s_CurvePresets;
 };

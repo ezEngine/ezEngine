@@ -16,10 +16,10 @@ void ezConeVisualizerAdapter::Finalize()
 
   const ezConeVisualizerAttribute* pAttr = static_cast<const ezConeVisualizerAttribute*>(m_pVisualizerAttr);
 
-  m_Gizmo.ConfigureHandle(nullptr, ezEngineGizmoHandleType::Cone, pAttr->m_Color, ezGizmoFlags::ShowInOrtho | ezGizmoFlags::Visualizer);
+  m_hGizmo.ConfigureHandle(nullptr, ezEngineGizmoHandleType::Cone, pAttr->m_Color, ezGizmoFlags::ShowInOrtho | ezGizmoFlags::Visualizer);
 
-  pAssetDocument->AddSyncObject(&m_Gizmo);
-  m_Gizmo.SetVisible(m_bVisualizerIsVisible);
+  pAssetDocument->AddSyncObject(&m_hGizmo);
+  m_hGizmo.SetVisible(m_bVisualizerIsVisible);
 }
 
 void ezConeVisualizerAdapter::Update()
@@ -43,7 +43,7 @@ void ezConeVisualizerAdapter::Update()
     pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetColorProperty()), value);
 
     EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<ezColor>(), "Invalid property bound to ezConeVisualizerAttribute 'color'");
-    m_Gizmo.SetColor(value.ConvertTo<ezColor>());
+    m_hGizmo.SetColor(value.ConvertTo<ezColor>());
   }
 
   m_fFinalScale = pAttr->m_fScale;
@@ -56,7 +56,7 @@ void ezConeVisualizerAdapter::Update()
     m_fFinalScale *= value.ConvertTo<float>();
   }
 
-  m_Gizmo.SetVisible(m_bVisualizerIsVisible && m_fAngleScale != 0.0f && m_fFinalScale != 0.0f);
+  m_hGizmo.SetVisible(m_bVisualizerIsVisible && m_fAngleScale != 0.0f && m_fFinalScale != 0.0f);
 }
 
 void ezConeVisualizerAdapter::UpdateGizmoTransform()
@@ -68,5 +68,5 @@ void ezConeVisualizerAdapter::UpdateGizmoTransform()
   ezTransform t = GetObjectTransform();
   t.m_vScale = t.m_vScale.CompMul(ezVec3(1.0f, m_fAngleScale, m_fAngleScale) * m_fFinalScale);
   t.m_qRotation = axisRotation * t.m_qRotation;
-  m_Gizmo.SetTransformation(t);
+  m_hGizmo.SetTransformation(t);
 }

@@ -67,5 +67,5 @@ private:
   static void TypeEventHandler(const ezPhantomRttiManagerEvent& e);
 
 private:
-  static ezMap<const ezRTTI*, ReflectedTypeStorageMapping*> m_ReflectedTypeToStorageMapping;
+  static ezMap<const ezRTTI*, ReflectedTypeStorageMapping*> s_ReflectedTypeToStorageMapping;
 };

@@ -32,9 +32,9 @@ protected:
 private:
   ezTime m_LastInteraction;
 
-  ezVec2I32 m_LastMousePos;
+  ezVec2I32 m_vLastMousePos;
 
-  ezEngineGizmoHandle m_ConeAngle;
+  ezEngineGizmoHandle m_hConeAngle;
 
   enum class ManipulateMode
   {

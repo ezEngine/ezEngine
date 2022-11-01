@@ -145,7 +145,7 @@ void ezQtEditorApp::DocumentManagerEventHandler(const ezDocumentManager::Event& 
       if (r.m_pDocument->GetAddToRecentFilesList())
       {
         ezQtDocumentWindow* pWindow = ezQtDocumentWindow::FindWindowByDocument(r.m_pDocument);
-        s_RecentDocuments.Insert(r.m_pDocument->GetDocumentPath(), 0);
+        m_RecentDocuments.Insert(r.m_pDocument->GetDocumentPath(), 0);
         if (!m_bLoadingProjectInProgress)
         {
           SaveOpenDocumentsList();
@@ -167,7 +167,7 @@ void ezQtEditorApp::DocumentManagerEventHandler(const ezDocumentManager::Event& 
       {
         // again, insert it into the recent documents list, such that the LAST CLOSED document is the LAST USED
         ezQtDocumentWindow* pWindow = ezQtDocumentWindow::FindWindowByDocument(r.m_pDocument);
-        s_RecentDocuments.Insert(r.m_pDocument->GetDocumentPath(), 0);
+        m_RecentDocuments.Insert(r.m_pDocument->GetDocumentPath(), 0);
       }
     }
     break;

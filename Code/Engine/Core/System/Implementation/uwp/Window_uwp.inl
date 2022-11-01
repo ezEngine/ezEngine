@@ -63,7 +63,7 @@ ezResult ezWindow::Initialize()
   EZ_HRESULT_TO_FAILURE(application->get_MainView(&mainView));
 
   EZ_HRESULT_TO_FAILURE(mainView->get_CoreWindow(&s_uwpWindowData->m_coreWindow));
-  m_WindowHandle = s_uwpWindowData->m_coreWindow.Get();
+  m_hWindowHandle = s_uwpWindowData->m_coreWindow.Get();
 
   // Activation of main window already done in Uwp application implementation.
   //  EZ_HRESULT_TO_FAILURE(s_uwpWindowData->m_coreWindow->Activate());
@@ -187,5 +187,5 @@ void ezWindow::OnResize(const ezSizeU32& newWindowSize)
 
 ezWindowHandle ezWindow::GetNativeWindowHandle() const
 {
-  return m_WindowHandle;
+  return m_hWindowHandle;
 }

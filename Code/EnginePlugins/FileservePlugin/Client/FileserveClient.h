@@ -132,7 +132,7 @@ private:
   bool m_bWaitingForUploadFinished = false;
   ezUuid m_CurFileRequestGuid;
   ezStringBuilder m_sCurFileRequest;
-  ezUniquePtr<ezRemoteInterface> m_Network;
+  ezUniquePtr<ezRemoteInterface> m_pNetwork;
   ezDynamicArray<ezUInt8> m_Download;
   ezTime m_CurrentTime;
   ezHybridArray<ezString, 4> m_TryServerAddresses;

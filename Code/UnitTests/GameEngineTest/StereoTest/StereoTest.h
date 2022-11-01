@@ -49,7 +49,7 @@ protected:
   ezInt32 m_iFrame = 0;
   ezStereoTestApplication* m_pOwnApplication = nullptr;
 
-  ezUInt32 m_iImgCompIdx = 0;
+  ezUInt32 m_uiImgCompIdx = 0;
   ezHybridArray<ezUInt32, 8> m_ImgCompFrames;
 };
 

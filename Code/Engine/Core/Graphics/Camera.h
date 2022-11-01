@@ -229,7 +229,7 @@ private:
   ezUInt32 m_uiSettingsModificationCounter = 0;
   ezUInt32 m_uiOrientationModificationCounter = 0;
 
-  ezSharedPtr<ezCoordinateSystemProvider> m_CoordinateSystem;
+  ezSharedPtr<ezCoordinateSystemProvider> m_pCoordinateSystem;
 
   ezVec3 MapExternalToInternal(const ezVec3& v) const;
   ezVec3 MapInternalToExternal(const ezVec3& v) const;

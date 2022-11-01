@@ -51,6 +51,6 @@ private:
   // Cache for uses search
   bool m_bUsesSearchActive = false;
   bool m_bTransitive = false;
-  ezSet<ezUuid> m_uses;
+  ezSet<ezUuid> m_Uses;
 };
 

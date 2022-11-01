@@ -86,6 +86,6 @@ private:
   ezPxAllocatorCallback* m_pAllocatorCallback;
   PxPhysics* m_pPhysX;
   PxMaterial* m_pDefaultMaterial;
-  PxPvd* m_PvdConnection;
+  PxPvd* m_pPvdConnection;
   ezCollisionFilterConfig m_CollisionFilterConfig;
 };

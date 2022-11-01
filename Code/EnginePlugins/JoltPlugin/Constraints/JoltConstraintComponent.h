@@ -107,9 +107,9 @@ protected:
   ezGameObjectHandle m_hActorBAnchor;
 
   // UserFlag0 specifies whether m_localFrameA is already set
-  ezTransform m_localFrameA;
+  ezTransform m_LocalFrameA;
   // UserFlag1 specifies whether m_localFrameB is already set
-  ezTransform m_localFrameB;
+  ezTransform m_LocalFrameB;
 
   JPH::Constraint* m_pConstraint = nullptr;
 

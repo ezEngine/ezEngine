@@ -35,6 +35,6 @@ private:
   ezGameObject* m_pMeshObject;
   ezMeshResourceHandle m_hMesh;
 
-  ezAtomicBool m_boundsDirty = false;
-  ezEvent<const ezResourceEvent&, ezMutex>::Unsubscriber m_meshResourceEventSubscriber;
+  ezAtomicBool m_bBoundsDirty = false;
+  ezEvent<const ezResourceEvent&, ezMutex>::Unsubscriber m_MeshResourceEventSubscriber;
 };

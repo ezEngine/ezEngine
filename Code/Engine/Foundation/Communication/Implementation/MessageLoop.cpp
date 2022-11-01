@@ -90,7 +90,7 @@ void ezMessageLoop::StopUpdateThread()
 void ezMessageLoop::RunLoop()
 {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-  m_threadId = ezThreadUtils::GetCurrentThreadID();
+  m_ThreadId = ezThreadUtils::GetCurrentThreadID();
 #endif
 
   while (true)

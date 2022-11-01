@@ -56,8 +56,8 @@ ezSkeletonAction::ezSkeletonAction(const ezActionContext& context, const char* s
 {
   m_Type = type;
 
-  m_SkeletonpDocument = const_cast<ezSkeletonAssetDocument*>(static_cast<const ezSkeletonAssetDocument*>(context.m_pDocument));
-  m_SkeletonpDocument->Events().AddEventHandler(ezMakeDelegate(&ezSkeletonAction::AssetEventHandler, this));
+  m_pSkeletonpDocument = const_cast<ezSkeletonAssetDocument*>(static_cast<const ezSkeletonAssetDocument*>(context.m_pDocument));
+  m_pSkeletonpDocument->Events().AddEventHandler(ezMakeDelegate(&ezSkeletonAction::AssetEventHandler, this));
 
   switch (m_Type)
   {
@@ -87,7 +87,7 @@ ezSkeletonAction::ezSkeletonAction(const ezActionContext& context, const char* s
 
 ezSkeletonAction::~ezSkeletonAction()
 {
-  m_SkeletonpDocument->Events().RemoveEventHandler(ezMakeDelegate(&ezSkeletonAction::AssetEventHandler, this));
+  m_pSkeletonpDocument->Events().RemoveEventHandler(ezMakeDelegate(&ezSkeletonAction::AssetEventHandler, this));
 }
 
 void ezSkeletonAction::Execute(const ezVariant& value)
@@ -95,23 +95,23 @@ void ezSkeletonAction::Execute(const ezVariant& value)
   switch (m_Type)
   {
     case ActionType::RenderBones:
-      m_SkeletonpDocument->SetRenderBones(!m_SkeletonpDocument->GetRenderBones());
+      m_pSkeletonpDocument->SetRenderBones(!m_pSkeletonpDocument->GetRenderBones());
       return;
 
     case ActionType::RenderColliders:
-      m_SkeletonpDocument->SetRenderColliders(!m_SkeletonpDocument->GetRenderColliders());
+      m_pSkeletonpDocument->SetRenderColliders(!m_pSkeletonpDocument->GetRenderColliders());
       return;
 
     case ActionType::RenderJoints:
-      m_SkeletonpDocument->SetRenderJoints(!m_SkeletonpDocument->GetRenderJoints());
+      m_pSkeletonpDocument->SetRenderJoints(!m_pSkeletonpDocument->GetRenderJoints());
       return;
 
     case ActionType::RenderSwingLimits:
-      m_SkeletonpDocument->SetRenderSwingLimits(!m_SkeletonpDocument->GetRenderSwingLimits());
+      m_pSkeletonpDocument->SetRenderSwingLimits(!m_pSkeletonpDocument->GetRenderSwingLimits());
       return;
 
     case ActionType::RenderTwistLimits:
-      m_SkeletonpDocument->SetRenderTwistLimits(!m_SkeletonpDocument->GetRenderTwistLimits());
+      m_pSkeletonpDocument->SetRenderTwistLimits(!m_pSkeletonpDocument->GetRenderTwistLimits());
       return;
   }
 }
@@ -133,30 +133,30 @@ void ezSkeletonAction::UpdateState()
   if (m_Type == ActionType::RenderBones)
   {
     SetCheckable(true);
-    SetChecked(m_SkeletonpDocument->GetRenderBones());
+    SetChecked(m_pSkeletonpDocument->GetRenderBones());
   }
 
   if (m_Type == ActionType::RenderColliders)
   {
     SetCheckable(true);
-    SetChecked(m_SkeletonpDocument->GetRenderColliders());
+    SetChecked(m_pSkeletonpDocument->GetRenderColliders());
   }
 
   if (m_Type == ActionType::RenderJoints)
   {
     SetCheckable(true);
-    SetChecked(m_SkeletonpDocument->GetRenderJoints());
+    SetChecked(m_pSkeletonpDocument->GetRenderJoints());
   }
 
   if (m_Type == ActionType::RenderSwingLimits)
   {
     SetCheckable(true);
-    SetChecked(m_SkeletonpDocument->GetRenderSwingLimits());
+    SetChecked(m_pSkeletonpDocument->GetRenderSwingLimits());
   }
 
   if (m_Type == ActionType::RenderTwistLimits)
   {
     SetCheckable(true);
-    SetChecked(m_SkeletonpDocument->GetRenderTwistLimits());
+    SetChecked(m_pSkeletonpDocument->GetRenderTwistLimits());
   }
 }

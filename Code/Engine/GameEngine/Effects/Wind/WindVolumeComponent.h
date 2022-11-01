@@ -85,7 +85,7 @@ private:
   void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg);
 
   float m_fRadius = 1.0f;
-  ezSimdFloat m_OneDivRadius;
+  ezSimdFloat m_fOneDivRadius;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -142,7 +142,7 @@ private:
 
   float m_fRadius = 1.0f;
   float m_fLength = 5.0f;
-  ezSimdFloat m_OneDivRadius;
+  ezSimdFloat m_fOneDivRadius;
 };
 
 //////////////////////////////////////////////////////////////////////////

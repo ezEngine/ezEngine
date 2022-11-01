@@ -48,7 +48,7 @@ public:
 
 private:
   ezXRInterface* m_pXrInterface = nullptr;
-  ezTime m_lastPresent;
+  ezTime m_LastPresent;
   ezUniquePtr<ezWindowOutputTargetGAL> m_pCompanionWindowOutputTarget;
   ezConstantBufferStorageHandle m_hCompanionConstantBuffer;
   ezShaderResourceHandle m_hCompanionShader;

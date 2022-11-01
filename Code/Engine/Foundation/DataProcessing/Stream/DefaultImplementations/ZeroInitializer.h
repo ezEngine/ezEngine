@@ -25,7 +25,7 @@ protected:
   virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
   virtual void Process(ezUInt64 uiNumElements) override {}
 
-  ezHashedString m_StreamName;
+  ezHashedString m_sStreamName;
 
   ezProcessingStream* m_pStream;
 };

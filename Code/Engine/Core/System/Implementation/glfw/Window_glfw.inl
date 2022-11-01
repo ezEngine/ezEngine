@@ -157,10 +157,10 @@ ezResult ezWindow::Initialize()
     return EZ_FAILURE;
   }
 #if EZ_ENABLED(EZ_PLATFORM_LINUX)
-  m_WindowHandle.type = ezWindowHandle::Type::GLFW;
-  m_WindowHandle.glfwWindow = pWindow;
+  m_hWindowHandle.type = ezWindowHandle::Type::GLFW;
+  m_hWindowHandle.glfwWindow = pWindow;
 #else
-  m_WindowHandle = pWindow;
+  m_hWindowHandle = pWindow;
 #endif
 
   if (m_CreationDescription.m_Position != ezVec2I32(0x80000000, 0x80000000))
@@ -182,10 +182,10 @@ ezResult ezWindow::Initialize()
   EZ_GLFW_RETURN_FAILURE_ON_ERROR();
 
 #if EZ_ENABLED(EZ_PLATFORM_LINUX)
-  EZ_ASSERT_DEV(m_WindowHandle.type == ezWindowHandle::Type::GLFW, "not a GLFW handle");
-  m_pInputDevice = EZ_DEFAULT_NEW(ezStandardInputDevice, m_CreationDescription.m_uiWindowNumber, m_WindowHandle.glfwWindow);
+  EZ_ASSERT_DEV(m_hWindowHandle.type == ezWindowHandle::Type::GLFW, "not a GLFW handle");
+  m_pInputDevice = EZ_DEFAULT_NEW(ezStandardInputDevice, m_CreationDescription.m_uiWindowNumber, m_hWindowHandle.glfwWindow);
 #else
-  m_pInputDevice = EZ_DEFAULT_NEW(ezStandardInputDevice, m_CreationDescription.m_uiWindowNumber, m_WindowHandle);
+  m_pInputDevice = EZ_DEFAULT_NEW(ezStandardInputDevice, m_CreationDescription.m_uiWindowNumber, m_hWindowHandle);
 #endif
 
   m_pInputDevice->SetClipMouseCursor(m_CreationDescription.m_bClipMouseCursor ? ezMouseCursorClipMode::ClipToWindowImmediate : ezMouseCursorClipMode::NoClip);
@@ -206,12 +206,12 @@ ezResult ezWindow::Destroy()
     m_pInputDevice = nullptr;
 
 #if EZ_ENABLED(EZ_PLATFORM_LINUX)
-    EZ_ASSERT_DEV(m_WindowHandle.type == ezWindowHandle::Type::GLFW, "GLFW handle expected");
-    glfwDestroyWindow(m_WindowHandle.glfwWindow);
+    EZ_ASSERT_DEV(m_hWindowHandle.type == ezWindowHandle::Type::GLFW, "GLFW handle expected");
+    glfwDestroyWindow(m_hWindowHandle.glfwWindow);
 #else
-    glfwDestroyWindow(m_WindowHandle);
+    glfwDestroyWindow(m_hWindowHandle);
 #endif
-    m_WindowHandle = INVALID_INTERNAL_WINDOW_HANDLE_VALUE;
+    m_hWindowHandle = INVALID_INTERNAL_WINDOW_HANDLE_VALUE;
 
     m_bInitialized = false;
   }
@@ -225,10 +225,10 @@ ezResult ezWindow::Resize(const ezSizeU32& newWindowSize)
     return EZ_FAILURE;
 
 #if EZ_ENABLED(EZ_PLATFORM_LINUX)
-  EZ_ASSERT_DEV(m_WindowHandle.type == ezWindowHandle::Type::GLFW, "Expected GLFW handle");
-  glfwSetWindowSize(m_WindowHandle.glfwWindow, newWindowSize.width, newWindowSize.height);
+  EZ_ASSERT_DEV(m_hWindowHandle.type == ezWindowHandle::Type::GLFW, "Expected GLFW handle");
+  glfwSetWindowSize(m_hWindowHandle.glfwWindow, newWindowSize.width, newWindowSize.height);
 #else
-  glfwSetWindowSize(m_WindowHandle, newWindowSize.width, newWindowSize.height);
+  glfwSetWindowSize(m_hWindowHandle, newWindowSize.width, newWindowSize.height);
 #endif
   EZ_GLFW_RETURN_FAILURE_ON_ERROR();
 
@@ -247,13 +247,13 @@ void ezWindow::ProcessWindowMessages()
   }
 
 #if EZ_ENABLED(EZ_PLATFORM_LINUX)
-  EZ_ASSERT_DEV(m_WindowHandle.type == ezWindowHandle::Type::GLFW, "Expected GLFW handle");
-  if (glfwWindowShouldClose(m_WindowHandle.glfwWindow))
+  EZ_ASSERT_DEV(m_hWindowHandle.type == ezWindowHandle::Type::GLFW, "Expected GLFW handle");
+  if (glfwWindowShouldClose(m_hWindowHandle.glfwWindow))
   {
     Destroy().IgnoreResult();
   }
 #else
-  if (glfwWindowShouldClose(m_WindowHandle))
+  if (glfwWindowShouldClose(m_hWindowHandle))
   {
     Destroy().IgnoreResult();
   }
@@ -349,8 +349,8 @@ void ezWindow::ScrollCallback(GLFWwindow* window, double xoffset, double yoffset
 ezWindowHandle ezWindow::GetNativeWindowHandle() const
 {
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-  return ezMinWindows::FromNative<HWND>(glfwGetWin32Window(m_WindowHandle));
+  return ezMinWindows::FromNative<HWND>(glfwGetWin32Window(m_hWindowHandle));
 #else
-  return m_WindowHandle;
+  return m_hWindowHandle;
 #endif
 }

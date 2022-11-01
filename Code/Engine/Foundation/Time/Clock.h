@@ -160,7 +160,7 @@ private:
   ezTime m_MinTimeStep;
   ezTime m_MaxTimeStep;
 
-  double m_Speed;
+  double m_fSpeed;
   bool m_bPaused;
 
   ezTimeStepSmoothing* m_pTimeStepSmoother;

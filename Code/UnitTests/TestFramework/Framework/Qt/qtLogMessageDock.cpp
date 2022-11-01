@@ -63,13 +63,13 @@ void ezQtLogMessageModel::resetModel()
 
 QModelIndex ezQtLogMessageModel::GetFirstIndexOfTestSelection()
 {
-  if (pCurrentTestSelection == nullptr || pCurrentTestSelection->m_iFirstOutput == -1)
+  if (m_pCurrentTestSelection == nullptr || m_pCurrentTestSelection->m_iFirstOutput == -1)
     return QModelIndex();
 
   ezInt32 iEntries = (ezInt32)m_VisibleEntries.size();
   for (int i = 0; i < iEntries; ++i)
   {
-    if ((ezInt32)m_VisibleEntries[i] >= pCurrentTestSelection->m_iFirstOutput)
+    if ((ezInt32)m_VisibleEntries[i] >= m_pCurrentTestSelection->m_iFirstOutput)
       return index(i, 0);
   }
   return index(rowCount() - 1, 0);
@@ -77,13 +77,13 @@ QModelIndex ezQtLogMessageModel::GetFirstIndexOfTestSelection()
 
 QModelIndex ezQtLogMessageModel::GetLastIndexOfTestSelection()
 {
-  if (pCurrentTestSelection == nullptr || pCurrentTestSelection->m_iLastOutput == -1)
+  if (m_pCurrentTestSelection == nullptr || m_pCurrentTestSelection->m_iLastOutput == -1)
     return QModelIndex();
 
   ezInt32 iEntries = (ezInt32)m_VisibleEntries.size();
   for (int i = 0; i < iEntries; ++i)
   {
-    if ((ezInt32)m_VisibleEntries[i] >= pCurrentTestSelection->m_iLastOutput)
+    if ((ezInt32)m_VisibleEntries[i] >= m_pCurrentTestSelection->m_iLastOutput)
       return index(i, 0);
   }
   return index(rowCount() - 1, 0);
@@ -97,10 +97,10 @@ void ezQtLogMessageModel::currentTestResultChanged(const ezTestResultData* pTest
 
 void ezQtLogMessageModel::currentTestSelectionChanged(const ezTestResultData* pTestResult)
 {
-  pCurrentTestSelection = pTestResult;
-  if (pCurrentTestSelection != nullptr)
+  m_pCurrentTestSelection = pTestResult;
+  if (m_pCurrentTestSelection != nullptr)
   {
-    dataChanged(index(pCurrentTestSelection->m_iFirstOutput, 0), index(pCurrentTestSelection->m_iLastOutput, 0));
+    dataChanged(index(m_pCurrentTestSelection->m_iFirstOutput, 0), index(m_pCurrentTestSelection->m_iLastOutput, 0));
   }
 }
 
@@ -169,9 +169,9 @@ QVariant ezQtLogMessageModel::data(const QModelIndex& index, int role) const
     case Qt::BackgroundRole:
     {
       QPalette palette = QApplication::palette();
-      if (pCurrentTestSelection != nullptr && pCurrentTestSelection->m_iFirstOutput != -1)
+      if (m_pCurrentTestSelection != nullptr && m_pCurrentTestSelection->m_iFirstOutput != -1)
       {
-        if (pCurrentTestSelection->m_iFirstOutput <= (ezInt32)uiLogIdx && (ezInt32)uiLogIdx <= pCurrentTestSelection->m_iLastOutput)
+        if (m_pCurrentTestSelection->m_iFirstOutput <= (ezInt32)uiLogIdx && (ezInt32)uiLogIdx <= m_pCurrentTestSelection->m_iLastOutput)
         {
           return palette.midlight().color();
         }

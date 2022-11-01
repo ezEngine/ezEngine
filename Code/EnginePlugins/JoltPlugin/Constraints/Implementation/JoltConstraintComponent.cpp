@@ -81,8 +81,8 @@ void ezJoltConstraintComponent::OnSimulationStarted()
     return;
   }
 
-  m_localFrameA.m_qRotation.Normalize();
-  m_localFrameB.m_qRotation.Normalize();
+  m_LocalFrameA.m_qRotation.Normalize();
+  m_LocalFrameB.m_qRotation.Normalize();
 
   ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
 
@@ -142,8 +142,8 @@ void ezJoltConstraintComponent::SerializeComponent(ezWorldWriter& stream) const
   stream.WriteGameObjectHandle(m_hActorA);
   stream.WriteGameObjectHandle(m_hActorB);
 
-  s << m_localFrameA;
-  s << m_localFrameB;
+  s << m_LocalFrameA;
+  s << m_LocalFrameB;
 
   stream.WriteGameObjectHandle(m_hActorBAnchor);
 }
@@ -163,8 +163,8 @@ void ezJoltConstraintComponent::DeserializeComponent(ezWorldReader& stream)
   m_hActorA = stream.ReadGameObjectHandle();
   m_hActorB = stream.ReadGameObjectHandle();
 
-  s >> m_localFrameA;
-  s >> m_localFrameB;
+  s >> m_LocalFrameA;
+  s >> m_LocalFrameB;
 
   m_hActorBAnchor = stream.ReadGameObjectHandle();
 }
@@ -228,8 +228,8 @@ void ezJoltConstraintComponent::SetActors(ezGameObjectHandle hActorA, const ezTr
   SetUserFlag(0, true);
   SetUserFlag(1, true);
 
-  m_localFrameA = localFrameA;
-  m_localFrameB = localFrameB;
+  m_LocalFrameA = localFrameA;
+  m_LocalFrameB = localFrameB;
 }
 
 void ezJoltConstraintComponent::ApplySettings()
@@ -298,7 +298,7 @@ ezResult ezJoltConstraintComponent::FindParentBody(ezUInt32& out_uiJoltBodyID)
       {
         // m_localFrameA is now valid
         SetUserFlag(0, true);
-        m_localFrameA = GetOwner()->GetGlobalTransform();
+        m_LocalFrameA = GetOwner()->GetGlobalTransform();
       }
       return EZ_SUCCESS;
     }
@@ -320,8 +320,8 @@ ezResult ezJoltConstraintComponent::FindParentBody(ezUInt32& out_uiJoltBodyID)
   {
     // m_localFrameA is now valid
     SetUserFlag(0, true);
-    m_localFrameA.SetLocalTransform(pObject->GetGlobalTransform(), GetOwner()->GetGlobalTransform());
-    m_localFrameA.m_vPosition = m_localFrameA.m_vPosition.CompMul(pObject->GetGlobalScaling());
+    m_LocalFrameA.SetLocalTransform(pObject->GetGlobalTransform(), GetOwner()->GetGlobalTransform());
+    m_LocalFrameA.m_vPosition = m_LocalFrameA.m_vPosition.CompMul(pObject->GetGlobalScaling());
   }
 
   return EZ_SUCCESS;
@@ -386,8 +386,8 @@ ezResult ezJoltConstraintComponent::FindChildBody(ezUInt32& out_uiJoltBodyID)
 
     // m_localFrameB is now valid
     SetUserFlag(1, true);
-    m_localFrameB.SetLocalTransform(pObject->GetGlobalTransform(), pAnchorObject->GetGlobalTransform());
-    m_localFrameB.m_vPosition = m_localFrameB.m_vPosition.CompMul(pObject->GetGlobalScaling());
+    m_LocalFrameB.SetLocalTransform(pObject->GetGlobalTransform(), pAnchorObject->GetGlobalTransform());
+    m_LocalFrameB.m_vPosition = m_LocalFrameB.m_vPosition.CompMul(pObject->GetGlobalScaling());
   }
 
   return EZ_SUCCESS;
@@ -401,12 +401,12 @@ ezTransform ezJoltConstraintComponent::ComputeParentBodyGlobalFrame() const
     if (GetWorld()->TryGetObject(m_hActorA, pObject))
     {
       ezTransform res;
-      res.SetGlobalTransform(pObject->GetGlobalTransform(), m_localFrameA);
+      res.SetGlobalTransform(pObject->GetGlobalTransform(), m_LocalFrameA);
       return res;
     }
   }
 
-  return m_localFrameA;
+  return m_LocalFrameA;
 }
 
 ezTransform ezJoltConstraintComponent::ComputeChildBodyGlobalFrame() const
@@ -417,12 +417,12 @@ ezTransform ezJoltConstraintComponent::ComputeChildBodyGlobalFrame() const
     if (GetWorld()->TryGetObject(m_hActorB, pObject))
     {
       ezTransform res;
-      res.SetGlobalTransform(pObject->GetGlobalTransform(), m_localFrameB);
+      res.SetGlobalTransform(pObject->GetGlobalTransform(), m_LocalFrameB);
       return res;
     }
   }
 
-  return m_localFrameB;
+  return m_LocalFrameB;
 }
 
 void ezJoltConstraintComponent::QueueApplySettings()

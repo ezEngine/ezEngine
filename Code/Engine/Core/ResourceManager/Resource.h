@@ -44,7 +44,7 @@ public:
 
   /// \brief Returns the unique ID that identifies this resource. On a file resource this might be a path. Can also be a GUID or any other
   /// scheme that uniquely identifies the resource.
-  EZ_ALWAYS_INLINE const ezString& GetResourceID() const { return m_UniqueID; }
+  EZ_ALWAYS_INLINE const ezString& GetResourceID() const { return m_sUniqueID; }
 
   /// \brief Returns the hash of the unique ID.
   EZ_ALWAYS_INLINE ezUInt64 GetResourceIDHash() const { return m_uiUniqueIDHash; }
@@ -220,7 +220,7 @@ private:
   ezUInt32 m_uiResourceChangeCounter = 0;
   ezAtomicInteger32 m_iReferenceCount = 0;
   //ezAtomicInteger32 m_iLockCount = 0; // currently not used
-  ezString m_UniqueID;
+  ezString m_sUniqueID;
   ezString m_sResourceDescription;
   MemoryUsage m_MemoryUsage;
   ezBitflags<ezResourceFlags> m_Flags;

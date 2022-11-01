@@ -31,7 +31,7 @@ public:
   bool IsValid() const { return m_bIsValid; }
 
   /// Returns the original expression string that this MathExpression can evaluate.
-  const char* GetExpressionString() const { return m_OriginalExpression; }
+  const char* GetExpressionString() const { return m_sOriginalExpression; }
 
   struct Input
   {
@@ -46,7 +46,7 @@ public:
   float Evaluate(ezArrayPtr<Input> inputs = ezArrayPtr<Input>()); // [tested]
 
 private:
-  ezHashedString m_OriginalExpression;
+  ezHashedString m_sOriginalExpression;
   bool m_bIsValid = false;
 
   ezExpressionByteCode m_ByteCode;

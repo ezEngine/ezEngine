@@ -16,7 +16,7 @@
 #include <RendererFoundation/Resources/RenderTargetView.h>
 #include <RendererFoundation/Resources/Texture.h>
 
-ezRenderContext* ezRenderContext::s_DefaultInstance = nullptr;
+ezRenderContext* ezRenderContext::s_pDefaultInstance = nullptr;
 ezHybridArray<ezRenderContext*, 4> ezRenderContext::s_Instances;
 
 ezMap<ezRenderContext::ShaderVertexDecl, ezGALVertexDeclarationHandle> ezRenderContext::s_GALVertexDeclarations;
@@ -73,10 +73,10 @@ void ezRenderContext::Statistics::Reset()
 
 ezRenderContext* ezRenderContext::GetDefaultInstance()
 {
-  if (s_DefaultInstance == nullptr)
-    s_DefaultInstance = CreateInstance();
+  if (s_pDefaultInstance == nullptr)
+    s_pDefaultInstance = CreateInstance();
 
-  return s_DefaultInstance;
+  return s_pDefaultInstance;
 }
 
 ezRenderContext* ezRenderContext::CreateInstance()
@@ -91,9 +91,9 @@ void ezRenderContext::DestroyInstance(ezRenderContext* pRenderer)
 
 ezRenderContext::ezRenderContext()
 {
-  if (s_DefaultInstance == nullptr)
+  if (s_pDefaultInstance == nullptr)
   {
-    s_DefaultInstance = this;
+    s_pDefaultInstance = this;
   }
 
   s_Instances.PushBack(this);
@@ -113,8 +113,8 @@ ezRenderContext::~ezRenderContext()
 {
   DeleteConstantBufferStorage(m_hGlobalConstantBufferStorage);
 
-  if (s_DefaultInstance == this)
-    s_DefaultInstance = nullptr;
+  if (s_pDefaultInstance == this)
+    s_pDefaultInstance = nullptr;
 
   s_Instances.RemoveAndSwap(this);
 }

@@ -65,7 +65,7 @@ public:
 private:
   ezObjectAccessorBase* m_pAccessor = nullptr;
   ezArrayPtr<ezPropertySelection> m_Selection;
-  ezHybridArray<ezHybridArray<ezSharedPtr<ezDefaultStateProvider>, 4>, 1> m_pProviders;
+  ezHybridArray<ezHybridArray<ezSharedPtr<ezDefaultStateProvider>, 4>, 1> m_Providers;
 };
 
 /// \brief Object used to query and revert to the default state of all elements of a container of an object.
@@ -100,7 +100,7 @@ private:
   ezObjectAccessorBase* m_pAccessor = nullptr;
   const ezAbstractProperty* m_pProp = nullptr;
   ezArrayPtr<ezPropertySelection> m_Selection;
-  ezHybridArray<ezHybridArray<ezSharedPtr<ezDefaultStateProvider>, 4>, 1> m_pProviders;
+  ezHybridArray<ezHybridArray<ezSharedPtr<ezDefaultStateProvider>, 4>, 1> m_Providers;
 };
 
 /// \brief Interface for querying and restoring the default state of objects and containers.

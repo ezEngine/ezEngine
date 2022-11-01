@@ -51,7 +51,7 @@ ezVariant::ezVariant(const ezVariantArray& value)
 {
   typedef typename TypeDeduction<ezVariantArray>::StorageType StorageType;
   m_Data.shared = EZ_DEFAULT_NEW(TypedSharedData<StorageType>, value, nullptr);
-  m_Type = TypeDeduction<ezVariantArray>::value;
+  m_uiType = TypeDeduction<ezVariantArray>::value;
   m_bIsShared = true;
 }
 
@@ -59,7 +59,7 @@ ezVariant::ezVariant(const ezVariantDictionary& value)
 {
   typedef typename TypeDeduction<ezVariantDictionary>::StorageType StorageType;
   m_Data.shared = EZ_DEFAULT_NEW(TypedSharedData<StorageType>, value, nullptr);
-  m_Type = TypeDeduction<ezVariantDictionary>::value;
+  m_uiType = TypeDeduction<ezVariantDictionary>::value;
   m_bIsShared = true;
 }
 
@@ -72,7 +72,7 @@ ezVariant::ezVariant(const ezTypedObject& value)
 {
   void* ptr = ezReflectionSerializer::Clone(value.m_pObject, value.m_pType);
   m_Data.shared = EZ_DEFAULT_NEW(RTTISharedData, ptr, value.m_pType);
-  m_Type = Type::TypedObject;
+  m_uiType = Type::TypedObject;
   m_bIsShared = true;
 }
 
@@ -81,7 +81,7 @@ void ezVariant::CopyTypedObject(const void* value, const ezRTTI* pType)
   Release();
   void* ptr = ezReflectionSerializer::Clone(value, pType);
   m_Data.shared = EZ_DEFAULT_NEW(RTTISharedData, ptr, pType);
-  m_Type = Type::TypedObject;
+  m_uiType = Type::TypedObject;
   m_bIsShared = true;
 }
 
@@ -89,7 +89,7 @@ void ezVariant::MoveTypedObject(void* value, const ezRTTI* pType)
 {
   Release();
   m_Data.shared = EZ_DEFAULT_NEW(RTTISharedData, value, pType);
-  m_Type = Type::TypedObject;
+  m_uiType = Type::TypedObject;
   m_bIsShared = true;
 }
 
@@ -103,7 +103,7 @@ EZ_ALWAYS_INLINE void ezVariant::InitShared(const T& value)
   const ezRTTI* pType = ezGetStaticRTTI<T>();
 
   m_Data.shared = EZ_DEFAULT_NEW(TypedSharedData<StorageType>, value, pType);
-  m_Type = TypeDeduction<T>::value;
+  m_uiType = TypeDeduction<T>::value;
   m_bIsShared = true;
 }
 
@@ -317,7 +317,7 @@ struct ConvertFunc
 
 bool ezVariant::operator==(const ezVariant& other) const
 {
-  if (m_Type == Type::Invalid && other.m_Type == Type::Invalid)
+  if (m_uiType == Type::Invalid && other.m_uiType == Type::Invalid)
   {
     return true;
   }
@@ -337,7 +337,7 @@ bool ezVariant::operator==(const ezVariant& other) const
     const ezStringView b = other.IsA<ezStringView>() ? other.Get<ezStringView>() : ezStringView(other.Get<ezString>().GetData());
     return a.IsEqual(b);
   }
-  else if (m_Type == other.m_Type)
+  else if (m_uiType == other.m_uiType)
   {
     CompareFunc compareFunc;
     compareFunc.m_pThis = this;
@@ -368,14 +368,14 @@ ezTypedPointer ezVariant::GetWriteAccess()
   }
   else
   {
-    obj.m_pObject = m_Type == Type::TypedPointer ? Cast<ezTypedPointer>().m_pObject : &m_Data;
+    obj.m_pObject = m_uiType == Type::TypedPointer ? Cast<ezTypedPointer>().m_pObject : &m_Data;
   }
   return obj;
 }
 
 const ezVariant ezVariant::operator[](ezUInt32 uiIndex) const
 {
-  if (m_Type == Type::VariantArray)
+  if (m_uiType == Type::VariantArray)
   {
     const ezVariantArray& a = Cast<ezVariantArray>();
     if (uiIndex < a.GetCount())
@@ -397,7 +397,7 @@ const ezVariant ezVariant::operator[](ezUInt32 uiIndex) const
 
 const ezVariant ezVariant::operator[](StringWrapper szKey) const
 {
-  if (m_Type == Type::VariantDictionary)
+  if (m_uiType == Type::VariantDictionary)
   {
     ezVariant result;
     Cast<ezVariantDictionary>().TryGetValue(szKey.m_str, result);
@@ -419,36 +419,36 @@ const ezVariant ezVariant::operator[](StringWrapper szKey) const
 
 bool ezVariant::CanConvertTo(Type::Enum type) const
 {
-  if (m_Type == type)
+  if (m_uiType == type)
     return true;
 
   if (!IsValid() || type == Type::Invalid)
     return false;
 
-  if (IsNumberStatic(type) && (IsNumber() || m_Type == Type::String))
+  if (IsNumberStatic(type) && (IsNumber() || m_uiType == Type::String))
     return true;
 
-  if (IsVector2Static(type) && (IsVector2Static(m_Type)))
+  if (IsVector2Static(type) && (IsVector2Static(m_uiType)))
     return true;
 
-  if (IsVector3Static(type) && (IsVector3Static(m_Type)))
+  if (IsVector3Static(type) && (IsVector3Static(m_uiType)))
     return true;
 
-  if (IsVector4Static(type) && (IsVector4Static(m_Type)))
+  if (IsVector4Static(type) && (IsVector4Static(m_uiType)))
     return true;
 
-  if (type == Type::String && m_Type < Type::LastStandardType && m_Type != Type::DataBuffer)
+  if (type == Type::String && m_uiType < Type::LastStandardType && m_uiType != Type::DataBuffer)
     return true;
-  if (type == Type::String && m_Type == Type::VariantArray)
+  if (type == Type::String && m_uiType == Type::VariantArray)
     return true;
-  if (type == Type::Color && m_Type == Type::ColorGamma)
+  if (type == Type::Color && m_uiType == Type::ColorGamma)
     return true;
-  if (type == Type::ColorGamma && m_Type == Type::Color)
+  if (type == Type::ColorGamma && m_uiType == Type::Color)
     return true;
 
-  if (type == Type::TypedPointer && m_Type == Type::TypedPointer)
+  if (type == Type::TypedPointer && m_uiType == Type::TypedPointer)
     return true;
-  if (type == Type::TypedObject && m_Type == Type::TypedObject)
+  if (type == Type::TypedObject && m_uiType == Type::TypedObject)
     return true;
 
   return false;
@@ -464,7 +464,7 @@ ezVariant ezVariant::ConvertTo(Type::Enum type, ezResult* out_pConversionStatus 
     return ezVariant(); // creates an invalid variant
   }
 
-  if (m_Type == type)
+  if (m_uiType == type)
   {
     if (out_pConversionStatus != nullptr)
       *out_pConversionStatus = EZ_SUCCESS;
@@ -547,7 +547,7 @@ EZ_ALWAYS_INLINE void GetTypeFromVariantFunc::operator()<ezTypedObject>()
 
 const ezRTTI* ezVariant::GetReflectedType() const
 {
-  if (m_Type != Type::Invalid)
+  if (m_uiType != Type::Invalid)
   {
     GetTypeFromVariantFunc func;
     func.m_pVariant = this;
@@ -566,7 +566,7 @@ void ezVariant::InitTypedPointer(void* value, const ezRTTI* pType)
 
   ezMemoryUtils::CopyConstruct(reinterpret_cast<ezTypedPointer*>(&m_Data), ptr, 1);
 
-  m_Type = TypeDeduction<ezTypedPointer>::value;
+  m_uiType = TypeDeduction<ezTypedPointer>::value;
   m_bIsShared = false;
 }
 

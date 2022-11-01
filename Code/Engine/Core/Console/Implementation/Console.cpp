@@ -286,12 +286,12 @@ bool ezConsole::AutoComplete(ezStringBuilder& text)
 {
   EZ_LOCK(m_Mutex);
 
-  if (m_CommandInterpreter)
+  if (m_pCommandInterpreter)
   {
     ezCommandInterpreterState s;
     s.m_sInput = text;
 
-    m_CommandInterpreter->AutoComplete(s);
+    m_pCommandInterpreter->AutoComplete(s);
 
     for (auto& l : s.m_sOutput)
     {
@@ -315,11 +315,11 @@ void ezConsole::ExecuteCommand(ezStringView input)
 
   EZ_LOCK(m_Mutex);
 
-  if (m_CommandInterpreter)
+  if (m_pCommandInterpreter)
   {
     ezCommandInterpreterState s;
     s.m_sInput = input;
-    m_CommandInterpreter->Interpret(s);
+    m_pCommandInterpreter->Interpret(s);
 
     for (auto& l : s.m_sOutput)
     {

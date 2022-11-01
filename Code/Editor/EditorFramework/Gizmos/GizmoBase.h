@@ -39,7 +39,7 @@ public:
     m_pInteractionGizmoHandle = pHandle;
     m_pCamera = pCamera;
     m_vInteractionPivot = vInteractionPivot;
-    m_Viewport = viewport;
+    m_vViewport = viewport;
   }
 
   ezEvent<const ezGizmoEvent&> m_GizmoEvents;
@@ -51,7 +51,7 @@ protected:
   const ezCamera* m_pCamera;
   ezGizmoHandle* m_pInteractionGizmoHandle;
   ezVec3 m_vInteractionPivot;
-  ezVec2I32 m_Viewport;
+  ezVec2I32 m_vViewport;
 
 private:
   bool m_bVisible;

@@ -157,7 +157,7 @@ public:
 
   void Update();
 
-  ezReflectedClass& GetOwner() { return m_owner; }
+  ezReflectedClass& GetOwner() { return m_Owner; }
 
   void SetBlackboard(const ezSharedPtr<ezBlackboard>& blackboard);
   const ezSharedPtr<ezBlackboard>& GetBlackboard() const { return m_pBlackboard; }
@@ -182,7 +182,7 @@ private:
     return nullptr;
   }
 
-  ezReflectedClass& m_owner;
+  ezReflectedClass& m_Owner;
   ezSharedPtr<const ezStateMachineDescription> m_pDescription;
   ezSharedPtr<ezBlackboard> m_pBlackboard;
 

@@ -120,11 +120,11 @@ ezOSThread::ezOSThread(
 
   EZ_ASSERT_ALWAYS(pThreadEntryPoint != nullptr, "Thread entry point is invalid.");
 
-  m_Handle = CreateThread(nullptr, uiStackSize, pThreadEntryPoint, pUserData, CREATE_SUSPENDED, nullptr);
-  EZ_ASSERT_RELEASE(m_Handle != INVALID_HANDLE_VALUE, "Thread creation failed!");
-  EZ_ASSERT_RELEASE(m_Handle != nullptr, "Thread creation failed!"); // makes the static code analysis happy
+  m_hHandle = CreateThread(nullptr, uiStackSize, pThreadEntryPoint, pUserData, CREATE_SUSPENDED, nullptr);
+  EZ_ASSERT_RELEASE(m_hHandle != INVALID_HANDLE_VALUE, "Thread creation failed!");
+  EZ_ASSERT_RELEASE(m_hHandle != nullptr, "Thread creation failed!"); // makes the static code analysis happy
 
-  m_ThreadID = GetThreadId(m_Handle);
+  m_ThreadID = GetThreadId(m_hHandle);
 
   m_EntryPoint = pThreadEntryPoint;
   m_pUserData = pUserData;
@@ -134,13 +134,13 @@ ezOSThread::ezOSThread(
   // If a name is given, assign it here
   if (szName != nullptr)
   {
-    SetThreadName(m_Handle, szName);
+    SetThreadName(m_hHandle, szName);
   }
 }
 
 ezOSThread::~ezOSThread()
 {
-  CloseHandle(m_Handle);
+  CloseHandle(m_hHandle);
 
   s_iThreadCount.Decrement();
 }
@@ -148,11 +148,11 @@ ezOSThread::~ezOSThread()
 /// Attempts to acquire an exclusive lock for this mutex object
 void ezOSThread::Start()
 {
-  ResumeThread(m_Handle);
+  ResumeThread(m_hHandle);
 }
 
 /// Releases a lock that has been previously acquired
 void ezOSThread::Join()
 {
-  WaitForSingleObject(m_Handle, INFINITE);
+  WaitForSingleObject(m_hHandle, INFINITE);
 }

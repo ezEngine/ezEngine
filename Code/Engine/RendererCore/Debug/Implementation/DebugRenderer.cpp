@@ -16,12 +16,12 @@
 //////////////////////////////////////////////////////////////////////////
 
 ezDebugRendererContext::ezDebugRendererContext(const ezWorld* pWorld)
-  : m_Id(pWorld != nullptr ? pWorld->GetIndex() : 0)
+  : m_uiId(pWorld != nullptr ? pWorld->GetIndex() : 0)
 {
 }
 
 ezDebugRendererContext::ezDebugRendererContext(const ezViewHandle& hView)
-  : m_Id(hView.GetInternalID().m_Data)
+  : m_uiId(hView.GetInternalID().m_Data)
 {
 }
 

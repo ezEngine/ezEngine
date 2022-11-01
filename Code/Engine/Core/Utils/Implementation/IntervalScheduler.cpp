@@ -44,10 +44,10 @@ EZ_ALWAYS_INLINE ezTime GetRandomTimeJitter(int pos, ezUInt32& seed)
 }
 
 ezIntervalSchedulerBase::ezIntervalSchedulerBase(ezTime minInterval, ezTime maxInterval)
-  : m_minInterval(minInterval)
-  , m_maxInterval(maxInterval)
+  : m_MinInterval(minInterval)
+  , m_MaxInterval(maxInterval)
 {
-  m_InvIntervalRange = 1.0 / (m_maxInterval - m_minInterval).GetSeconds();
+  m_fInvIntervalRange = 1.0 / (m_MaxInterval - m_MinInterval).GetSeconds();
 
   for (ezUInt32 i = 0; i < HistogramSize; ++i)
   {
@@ -168,7 +168,7 @@ void ezIntervalSchedulerBase::Update(ezTime deltaTime, ezDelegate<void(ezUInt64,
 ezUInt32 ezIntervalSchedulerBase::GetHistogramIndex(ezTime value)
 {
   constexpr ezUInt32 maxSlotIndex = HistogramSize - 1;
-  const double x = ezMath::Max((value - m_minInterval).GetSeconds() * m_InvIntervalRange, 0.0);
+  const double x = ezMath::Max((value - m_MinInterval).GetSeconds() * m_fInvIntervalRange, 0.0);
   const double i = ezMath::Sqrt(x) * maxSlotIndex;
   return ezMath::Min(static_cast<ezUInt32>(i), maxSlotIndex);
 }
@@ -177,7 +177,7 @@ ezTime ezIntervalSchedulerBase::GetHistogramSlotValue(ezUInt32 uiIndex)
 {
   constexpr double norm = 1.0 / (HistogramSize - 1.0);
   const double x = uiIndex * norm;
-  return (x * x) * (m_maxInterval - m_minInterval) + m_minInterval;
+  return (x * x) * (m_MaxInterval - m_MinInterval) + m_MinInterval;
 }
 
 ezIntervalSchedulerBase::DataMap::Iterator ezIntervalSchedulerBase::InsertData(Data& data)

@@ -22,7 +22,7 @@ protected:
   virtual void UpdateGizmoTransform() override;
 
   ezVec3 m_vPositionOffset;
-  ezQuat m_Rotation;
+  ezQuat m_qRotation;
   ezNonUniformBoxGizmo m_Gizmo;
 
   ezVec3 m_vOldSize;

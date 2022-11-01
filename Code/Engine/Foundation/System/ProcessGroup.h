@@ -42,7 +42,7 @@ public:
   const ezHybridArray<ezProcess, 8>& GetProcesses() const;
 
 private:
-  ezUniquePtr<struct ezProcessGroupImpl> m_impl;
+  ezUniquePtr<struct ezProcessGroupImpl> m_pImpl;
 
   ezHybridArray<ezProcess, 8> m_Processes;
 };

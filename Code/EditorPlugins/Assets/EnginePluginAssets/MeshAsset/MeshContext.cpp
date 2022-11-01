@@ -91,7 +91,7 @@ void ezMeshContext::OnInitialize()
 
     {
       ezResourceLock<ezMeshResource> pMeshRes(m_hMesh, ezResourceAcquireMode::PointerOnly);
-      pMeshRes->m_ResourceEvents.AddEventHandler(ezMakeDelegate(&ezMeshContext::OnResourceEvent, this), m_meshResourceEventSubscriber);
+      pMeshRes->m_ResourceEvents.AddEventHandler(ezMakeDelegate(&ezMeshContext::OnResourceEvent, this), m_MeshResourceEventSubscriber);
     }
   }
 }
@@ -108,13 +108,13 @@ void ezMeshContext::DestroyViewContext(ezEngineProcessViewContext* pContext)
 
 bool ezMeshContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* pThumbnailViewContext)
 {
-  if (m_boundsDirty)
+  if (m_bBoundsDirty)
   {
     EZ_LOCK(m_pWorld->GetWriteMarker());
 
     m_pMeshObject->UpdateLocalBounds();
     m_pMeshObject->UpdateGlobalTransformAndBounds();
-    m_boundsDirty = false;
+    m_bBoundsDirty = false;
   }
   ezBoundingBoxSphere bounds = GetWorldBounds(m_pWorld);
 
@@ -136,7 +136,7 @@ void ezMeshContext::QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMsg)
 
     m_pMeshObject->UpdateLocalBounds();
     m_pMeshObject->UpdateGlobalTransformAndBounds();
-    m_boundsDirty = false;
+    m_bBoundsDirty = false;
     const auto& b = m_pMeshObject->GetGlobalBounds();
 
     if (b.IsValid())
@@ -159,6 +159,6 @@ void ezMeshContext::OnResourceEvent(const ezResourceEvent& e)
 {
   if (e.m_Type == ezResourceEvent::Type::ResourceContentUpdated)
   {
-    m_boundsDirty = true;
+    m_bBoundsDirty = true;
   }
 }

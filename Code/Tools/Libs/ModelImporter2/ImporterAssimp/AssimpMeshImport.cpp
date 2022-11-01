@@ -536,7 +536,7 @@ namespace ezModelImporter2
     const bool b8BitBoneIndices = m_Options.m_pMeshOutput->m_Bones.GetCount() <= 255;
 
     StreamIndices streams;
-    AllocateMeshStreams(mb, ezArrayPtr<aiMesh*>(m_aiScene->mMeshes, m_aiScene->mNumMeshes), streams, m_uiTotalMeshVertices, m_uiTotalMeshTriangles, m_Options.m_MeshNormalsPrecision, m_Options.m_MeshTexCoordsPrecision, m_Options.m_bImportSkinningData, b8BitBoneIndices);
+    AllocateMeshStreams(mb, ezArrayPtr<aiMesh*>(m_pScene->mMeshes, m_pScene->mNumMeshes), streams, m_uiTotalMeshVertices, m_uiTotalMeshTriangles, m_Options.m_MeshNormalsPrecision, m_Options.m_MeshTexCoordsPrecision, m_Options.m_bImportSkinningData, b8BitBoneIndices);
 
     ezUInt32 uiMeshPrevTriangleIdx = 0;
     ezUInt32 uiMeshCurVertexIdx = 0;

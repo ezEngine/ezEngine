@@ -121,7 +121,7 @@ void ezQtGameObjectReferencePropertyWidget::SelectionManagerEventHandler(const e
 void ezQtGameObjectReferencePropertyWidget::showEvent(QShowEvent* event)
 {
   // Use of style sheets (ADS) breaks previously set palette.
-  m_pWidget->setPalette(m_pal);
+  m_pWidget->setPalette(m_Pal);
   ezQtStandardPropertyWidget::showEvent(event);
 }
 
@@ -143,7 +143,7 @@ void ezQtGameObjectReferencePropertyWidget::SetValue(const QString& sValue)
 
   if (pObject != nullptr)
   {
-    m_pal.setColor(QPalette::WindowText, QColor::fromRgb(182, 255, 0));
+    m_Pal.setColor(QPalette::WindowText, QColor::fromRgb(182, 255, 0));
     m_pWidget->setToolTip(QStringLiteral("The reference is a known game object."));
 
     if (auto* pGoDoc = ezDynamicCast<const ezGameObjectDocument*>(m_pGrid->GetDocument()))
@@ -153,11 +153,11 @@ void ezQtGameObjectReferencePropertyWidget::SetValue(const QString& sValue)
   }
   else
   {
-    m_pal.setColor(QPalette::WindowText, Qt::red);
+    m_Pal.setColor(QPalette::WindowText, Qt::red);
     m_pWidget->setToolTip(QStringLiteral("The reference is invalid."));
   }
 
-  m_pWidget->setPalette(m_pal);
+  m_pWidget->setPalette(m_Pal);
 
   m_pWidget->setText(sDisplayName.GetData());
   BroadcastValueChanged(m_sInternalValue.toUtf8().data());

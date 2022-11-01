@@ -50,7 +50,7 @@ public:
     void SetToBegin();
     void SetToEnd();
 
-    const ezHashSetBase<KeyType, Hasher>* m_hashSet = nullptr;
+    const ezHashSetBase<KeyType, Hasher>* m_pHashSet = nullptr;
     ezUInt32 m_uiCurrentIndex = 0; // current element index that this iterator points to.
     ezUInt32 m_uiCurrentCount = 0; // current number of valid elements that this iterator has found so far.
   };

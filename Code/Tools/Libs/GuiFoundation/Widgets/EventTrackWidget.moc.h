@@ -136,12 +136,12 @@ private:
   bool m_bBegunChanges = false;
   bool m_bFrameBeforePaint = true;
 
-  QPoint m_multiSelectionStart;
-  QRect m_multiSelectRect;
-  QRectF m_selectionBRect;
-  QPointF m_scaleReferencePoint;
-  QPointF m_scaleStartPoint;
-  QPointF m_totalPointDrag;
+  QPoint m_MultiSelectionStart;
+  QRect m_MultiSelectRect;
+  QRectF m_SelectionBRect;
+  QPointF m_ScaleReferencePoint;
+  QPointF m_ScaleStartPoint;
+  QPointF m_TotalPointDrag;
   QRubberBand* m_pRubberband = nullptr;
 
   bool m_bShowScrubber = false;

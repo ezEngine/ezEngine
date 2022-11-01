@@ -40,9 +40,9 @@ private:
   virtual void OnDeactivation() override;
   void PreloadAssets();
 
-  ezCollectionResourceHandle m_CollectionSpace;
-  ezCollectionResourceHandle m_CollectionFederation;
-  ezCollectionResourceHandle m_CollectionKlingons;
+  ezCollectionResourceHandle m_hCollectionSpace;
+  ezCollectionResourceHandle m_hCollectionFederation;
+  ezCollectionResourceHandle m_hCollectionKlingons;
 
   //////////////////////////////////////////////////////////////////////////
   // World Updates

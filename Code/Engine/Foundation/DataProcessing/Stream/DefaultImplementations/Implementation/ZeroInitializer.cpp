@@ -20,14 +20,14 @@ ezProcessingStreamSpawnerZeroInitialized::ezProcessingStreamSpawnerZeroInitializ
 
 void ezProcessingStreamSpawnerZeroInitialized::SetStreamName(ezStringView sStreamName)
 {
-  m_StreamName.Assign(sStreamName);
+  m_sStreamName.Assign(sStreamName);
 }
 
 ezResult ezProcessingStreamSpawnerZeroInitialized::UpdateStreamBindings()
 {
-  EZ_ASSERT_DEBUG(!m_StreamName.IsEmpty(), "ezProcessingStreamSpawnerZeroInitialized: Stream name has not been configured");
+  EZ_ASSERT_DEBUG(!m_sStreamName.IsEmpty(), "ezProcessingStreamSpawnerZeroInitialized: Stream name has not been configured");
 
-  m_pStream = m_pStreamGroup->GetStreamByName(m_StreamName);
+  m_pStream = m_pStreamGroup->GetStreamByName(m_sStreamName);
   return m_pStream ? EZ_SUCCESS : EZ_FAILURE;
 }
 

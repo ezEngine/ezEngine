@@ -30,19 +30,19 @@ extern "C"
 
 inline void ezMutex::Lock()
 {
-  ezWinEnterCriticalSection(&m_Handle);
+  ezWinEnterCriticalSection(&m_hHandle);
   ++m_iLockCount;
 }
 
 inline void ezMutex::Unlock()
 {
   --m_iLockCount;
-  ezWinLeaveCriticalSection(&m_Handle);
+  ezWinLeaveCriticalSection(&m_hHandle);
 }
 
 inline ezResult ezMutex::TryLock()
 {
-  if (ezWinTryEnterCriticalSection(&m_Handle) != 0)
+  if (ezWinTryEnterCriticalSection(&m_hHandle) != 0)
   {
     ++m_iLockCount;
     return EZ_SUCCESS;
@@ -57,19 +57,19 @@ inline ezResult ezMutex::TryLock()
 
 inline void ezMutex::Lock()
 {
-  EnterCriticalSection((CRITICAL_SECTION*)&m_Handle);
+  EnterCriticalSection((CRITICAL_SECTION*)&m_hHandle);
   ++m_iLockCount;
 }
 
 inline void ezMutex::Unlock()
 {
   --m_iLockCount;
-  LeaveCriticalSection((CRITICAL_SECTION*)&m_Handle);
+  LeaveCriticalSection((CRITICAL_SECTION*)&m_hHandle);
 }
 
 inline ezResult ezMutex::TryLock()
 {
-  if (TryEnterCriticalSection((CRITICAL_SECTION*)&m_Handle) != 0)
+  if (TryEnterCriticalSection((CRITICAL_SECTION*)&m_hHandle) != 0)
   {
     ++m_iLockCount;
     return EZ_SUCCESS;

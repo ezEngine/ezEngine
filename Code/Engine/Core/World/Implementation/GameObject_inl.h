@@ -141,7 +141,7 @@ EZ_ALWAYS_INLINE void ezGameObject::DetachChildren(const ezArrayPtr<const ezGame
 
 EZ_ALWAYS_INLINE ezUInt32 ezGameObject::GetChildCount() const
 {
-  return m_ChildCount;
+  return m_uiChildCount;
 }
 
 

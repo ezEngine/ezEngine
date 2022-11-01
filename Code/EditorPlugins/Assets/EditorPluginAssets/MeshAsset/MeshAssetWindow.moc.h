@@ -39,6 +39,6 @@ private:
   ezEngineViewConfig m_ViewConfig;
   ezQtOrbitCamViewWidget* m_pViewWidget;
   ezUInt32 m_uiHighlightSlots = 0;
-  QPointer<QTimer> m_HighlightTimer;
+  QPointer<QTimer> m_pHighlightTimer;
 };
 

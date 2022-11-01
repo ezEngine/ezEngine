@@ -88,10 +88,10 @@ void ezWindowOutputTargetXR::Present(bool bEnableVSync)
 void ezWindowOutputTargetXR::RenderCompanionView(bool bThrottleCompanionView)
 {
   ezTime currentTime = ezTime::Now();
-  if (bThrottleCompanionView && currentTime < (m_lastPresent + ezTime::Milliseconds(16)))
+  if (bThrottleCompanionView && currentTime < (m_LastPresent + ezTime::Milliseconds(16)))
     return;
 
-  m_lastPresent = currentTime;
+  m_LastPresent = currentTime;
 
   EZ_PROFILE_SCOPE("RenderCompanionView");
   ezGALTextureHandle m_hColorRT = m_pXrInterface->GetCurrentTexture();

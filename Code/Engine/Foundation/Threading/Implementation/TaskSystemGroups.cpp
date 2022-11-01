@@ -16,25 +16,25 @@ ezTaskGroupID ezTaskSystem::CreateTaskGroup(ezTaskPriority::Enum Priority, ezOnT
   ezUInt32 i = 0;
 
   // this search could be speed up with a stack of free groups
-  for (; i < s_State->m_TaskGroups.GetCount(); ++i)
+  for (; i < s_pState->m_TaskGroups.GetCount(); ++i)
   {
-    if (!s_State->m_TaskGroups[i].m_bInUse)
+    if (!s_pState->m_TaskGroups[i].m_bInUse)
     {
       goto foundtaskgroup;
     }
   }
 
   // no free group found, create a new one
-  s_State->m_TaskGroups.ExpandAndGetRef();
-  s_State->m_TaskGroups[i].m_uiTaskGroupIndex = static_cast<ezUInt16>(i);
+  s_pState->m_TaskGroups.ExpandAndGetRef();
+  s_pState->m_TaskGroups[i].m_uiTaskGroupIndex = static_cast<ezUInt16>(i);
 
 foundtaskgroup:
 
-  s_State->m_TaskGroups[i].Reuse(Priority, callback);
+  s_pState->m_TaskGroups[i].Reuse(Priority, callback);
 
   ezTaskGroupID id;
-  id.m_pTaskGroup = &s_State->m_TaskGroups[i];
-  id.m_uiGroupCounter = s_State->m_TaskGroups[i].m_uiGroupCounter;
+  id.m_pTaskGroup = &s_pState->m_TaskGroups[i];
+  id.m_uiGroupCounter = s_pState->m_TaskGroups[i].m_uiGroupCounter;
   return id;
 }
 
@@ -76,7 +76,7 @@ void ezTaskSystem::AddTaskGroupDependencyBatch(ezArrayPtr<const ezTaskGroupDepen
 
 void ezTaskSystem::StartTaskGroup(ezTaskGroupID groupID)
 {
-  EZ_ASSERT_DEV(s_ThreadState->m_Workers[ezWorkerThreadType::ShortTasks].GetCount() > 0, "No worker threads started.");
+  EZ_ASSERT_DEV(s_pThreadState->m_Workers[ezWorkerThreadType::ShortTasks].GetCount() > 0, "No worker threads started.");
 
   ezTaskGroup::DebugCheckTaskGroup(groupID, s_TaskSystemMutex);
 
@@ -174,9 +174,9 @@ void ezTaskSystem::ScheduleGroupTasks(ezTaskGroup* pGroup, bool bHighPriority)
         td.m_uiInvocation = mult;
 
         if (bHighPriority)
-          s_State->m_Tasks[pGroup->m_Priority].PushFront(td);
+          s_pState->m_Tasks[pGroup->m_Priority].PushFront(td);
         else
-          s_State->m_Tasks[pGroup->m_Priority].PushBack(td);
+          s_pState->m_Tasks[pGroup->m_Priority].PushBack(td);
       }
     }
 

@@ -51,8 +51,8 @@ private:
 
   ezProxyAllocator m_AlignedAllocator;
 
-  ezSimdVec4i m_iCellSize;
-  ezSimdVec4f m_fOverlapSize;
+  ezSimdVec4i m_vCellSize;
+  ezSimdVec4f m_vOverlapSize;
   ezSimdFloat m_fInvCellSize;
 
   enum

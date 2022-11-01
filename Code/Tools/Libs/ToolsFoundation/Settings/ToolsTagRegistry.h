@@ -36,5 +36,5 @@ public:
   static void GetTagsByCategory(const ezArrayPtr<ezStringView>& categories, ezHybridArray<const ezToolsTag*, 16>& out_tags);
 
 private:
-  static ezMap<ezString, ezToolsTag> m_NameToTags;
+  static ezMap<ezString, ezToolsTag> s_NameToTags;
 };

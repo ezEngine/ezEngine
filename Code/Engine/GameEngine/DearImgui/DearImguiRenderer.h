@@ -70,8 +70,8 @@ public:
 protected:
   void SetupRenderer();
 
-  static const ezUInt32 VertexBufferSize = 10000;
-  static const ezUInt32 IndexBufferSize = VertexBufferSize * 2;
+  static const ezUInt32 s_uiVertexBufferSize = 10000;
+  static const ezUInt32 s_uiIndexBufferSize = s_uiVertexBufferSize * 2;
 
   ezShaderResourceHandle m_hShader;
   ezGALBufferHandle m_hVertexBuffer;

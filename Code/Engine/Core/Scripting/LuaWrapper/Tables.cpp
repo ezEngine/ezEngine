@@ -27,7 +27,7 @@ ezResult ezLuaWrapper::OpenTable(const char* szName)
 
 ezResult ezLuaWrapper::OpenTableFromParameter(ezUInt32 iFunctionParameter)
 {
-  lua_pushvalue(m_pState, iFunctionParameter + s_ParamOffset);
+  lua_pushvalue(m_pState, iFunctionParameter + s_iParamOffset);
 
   // failed, it's no table
   if (lua_istable(m_pState, -1) == 0)

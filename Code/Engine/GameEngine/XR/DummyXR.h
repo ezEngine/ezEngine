@@ -65,7 +65,7 @@ protected:
   bool m_bInitialized = false;
 
   ezEventSubscriptionID m_GALdeviceEventsId = 0;
-  ezEventSubscriptionID m_executionEventsId = 0;
+  ezEventSubscriptionID m_ExecutionEventsId = 0;
 
   ezWorld* m_pWorld = nullptr;
   ezCamera* m_pCameraToSynchronize = nullptr;

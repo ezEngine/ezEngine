@@ -59,8 +59,8 @@ namespace
 
 ezLSAOPass::ezLSAOPass()
   : ezRenderPipelinePass("LSAOPass", true)
-  , m_uiLineToLinePixelOffset(2)
-  , m_uiLineSamplePixelOffsetFactor(1)
+  , m_iLineToLinePixelOffset(2)
+  , m_iLineSamplePixelOffsetFactor(1)
   , m_bSweepDataDirty(true)
   , m_bDistributedGathering(true)
 {
@@ -164,7 +164,7 @@ void ezLSAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezA
     renderViewContext.m_pRenderContext->BindBuffer("LineInstructions", m_hLineSweepInfoSRV);
     renderViewContext.m_pRenderContext->BindUAV("LineSweepOutputBuffer", m_hLineSweepOutputUAV);
 
-    const ezUInt32 dispatchSize = m_numSweepLines / SSAO_LINESWEEP_THREAD_GROUP + (m_numSweepLines % SSAO_LINESWEEP_THREAD_GROUP != 0 ? 1 : 0);
+    const ezUInt32 dispatchSize = m_uiNumSweepLines / SSAO_LINESWEEP_THREAD_GROUP + (m_uiNumSweepLines % SSAO_LINESWEEP_THREAD_GROUP != 0 ? 1 : 0);
     const ezUInt32 uiRenderedInstances = renderViewContext.m_pCamera->IsStereoscopic() ? 2 : 1;
     renderViewContext.m_pRenderContext->Dispatch(dispatchSize, uiRenderedInstances).IgnoreResult();
   }
@@ -256,13 +256,13 @@ void ezLSAOPass::ExecuteInactive(const ezRenderViewContext& renderViewContext, c
 
 void ezLSAOPass::SetLineToLinePixelOffset(ezUInt32 uiPixelOffset)
 {
-  m_uiLineToLinePixelOffset = uiPixelOffset;
+  m_iLineToLinePixelOffset = uiPixelOffset;
   m_bSweepDataDirty = true;
 }
 
 void ezLSAOPass::SetLineSamplePixelOffset(ezUInt32 uiPixelOffset)
 {
-  m_uiLineSamplePixelOffsetFactor = uiPixelOffset;
+  m_iLineSamplePixelOffsetFactor = uiPixelOffset;
   m_bSweepDataDirty = true;
 }
 
@@ -319,7 +319,7 @@ void ezLSAOPass::SetupLineSweepData(const ezVec3I32& imageResolution)
   ezDynamicArray<LineInstruction> lineInstructions;
   ezUInt32 totalNumberOfSamples = 0;
   ezLSAOConstants* cb = ezRenderContext::GetConstantBufferData<ezLSAOConstants>(m_hLineSweepCB);
-  cb->LineToLinePixelOffset = m_uiLineToLinePixelOffset;
+  cb->LineToLinePixelOffset = m_iLineToLinePixelOffset;
 
   // Compute general information per direction and create line instructions.
 
@@ -339,9 +339,9 @@ void ezLSAOPass::SetupLineSweepData(const ezVec3I32& imageResolution)
     {
       // Put opposing directions next to each other, so that a gather pass that doesn't sample all directions, only needs to sample an even
       // number of directions to end up with non-negative occlusion.
-      samplingDir[i * 4 + 0] = ezVec2I32(i - halfPerSide, halfPerSide) * m_uiLineSamplePixelOffsetFactor; // Top
+      samplingDir[i * 4 + 0] = ezVec2I32(i - halfPerSide, halfPerSide) * m_iLineSamplePixelOffsetFactor;  // Top
       samplingDir[i * 4 + 1] = -samplingDir[i * 4 + 0];                                                   // Bottom
-      samplingDir[i * 4 + 2] = ezVec2I32(halfPerSide, halfPerSide - i) * m_uiLineSamplePixelOffsetFactor; // Right
+      samplingDir[i * 4 + 2] = ezVec2I32(halfPerSide, halfPerSide - i) * m_iLineSamplePixelOffsetFactor;  // Right
       samplingDir[i * 4 + 3] = -samplingDir[i * 4 + 2];                                                   // Left
     }
 
@@ -365,8 +365,8 @@ void ezLSAOPass::SetupLineSweepData(const ezVec3I32& imageResolution)
     cb->Directions[dirIndex].NumLines = lineInstructions.GetCount() - totalLineCountBefore;
     cb->Directions[dirIndex].LineInstructionOffset = totalLineCountBefore;
   }
-  m_numSweepLines = lineInstructions.GetCount();
-  cb->TotalLineNumber = m_numSweepLines;
+  m_uiNumSweepLines = lineInstructions.GetCount();
+  cb->TotalLineNumber = m_uiNumSweepLines;
   cb->TotalNumberOfSamples = totalNumberOfSamples;
   // Allocate and upload data structures to GPU
   {
@@ -413,7 +413,7 @@ void ezLSAOPass::SetupLineSweepData(const ezVec3I32& imageResolution)
     {
       ezGALBufferCreationDescription bufferDesc;
       bufferDesc.m_uiStructSize = sizeof(LineInstruction);
-      bufferDesc.m_uiTotalSize = sizeof(LineInstruction) * m_numSweepLines;
+      bufferDesc.m_uiTotalSize = sizeof(LineInstruction) * m_uiNumSweepLines;
       bufferDesc.m_BufferType = ezGALBufferType::Generic;
       bufferDesc.m_bUseForIndirectArguments = false;
       bufferDesc.m_bUseAsStructuredBuffer = true;
@@ -452,7 +452,7 @@ void ezLSAOPass::AddLinesForDirection(const ezVec3I32& imageResolution, const ez
 #define SEC GetData()[secDir]
 
   // Walk along secondary axis backwards.
-  for (ezInt32 sec = imageResolution.SEC - 1; true; sec -= m_uiLineToLinePixelOffset)
+  for (ezInt32 sec = imageResolution.SEC - 1; true; sec -= m_iLineToLinePixelOffset)
   {
     LineInstruction& newLine = outinLineInstructions.ExpandAndGetRef();
     newLine.FirstSamplePos.DOM = 0.0f;

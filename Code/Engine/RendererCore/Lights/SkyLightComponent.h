@@ -64,10 +64,10 @@ public:
     return m_hCubeMap;
   }
 
-  float GetNearPlane() const { return m_desc.m_fNearPlane; } // [ property ]
+  float GetNearPlane() const { return m_Desc.m_fNearPlane; } // [ property ]
   void SetNearPlane(float fNearPlane);                       // [ property ]
 
-  float GetFarPlane() const { return m_desc.m_fFarPlane; } // [ property ]
+  float GetFarPlane() const { return m_Desc.m_fFarPlane; } // [ property ]
   void SetFarPlane(float fFarPlane);                       // [ property ]
 
 protected:
@@ -75,7 +75,7 @@ protected:
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
   void OnTransformChanged(ezMsgTransformChanged& msg);
 
-  ezReflectionProbeDesc m_desc;
+  ezReflectionProbeDesc m_Desc;
   ezTextureCubeResourceHandle m_hCubeMap;
 
   ezReflectionProbeId m_Id;

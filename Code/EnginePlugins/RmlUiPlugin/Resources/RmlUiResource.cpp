@@ -113,7 +113,7 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezRmlUiResource, ezRmlUiResourceDescriptor)
 {
   m_sRmlFile = descriptor.m_sRmlFile;
   m_ScaleMode = descriptor.m_ScaleMode;
-  m_ReferenceResolution = descriptor.m_ReferenceResolution;
+  m_vReferenceResolution = descriptor.m_ReferenceResolution;
 
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;

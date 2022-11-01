@@ -49,7 +49,7 @@ public:
     m_InputSlotValues["testdevice_stick"] = 0.2f;
     m_InputSlotValues["testdevice_wheel"] = 0.3f;
     m_InputSlotValues["testdevice_touchpoint"] = 0.4f;
-    m_LastCharacter = '\42';
+    m_uiLastCharacter = '\42';
   }
 
 private:

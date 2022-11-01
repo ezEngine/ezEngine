@@ -34,6 +34,6 @@ private:
 
   ezVertexDeclarationInfo m_VertexDeclarationInfo;
 
-  mutable ezMat4 m_lastTransform = ezMat4::IdentityMatrix();
-  mutable ezRectFloat m_lastRect = ezRectFloat(0, 0);
+  mutable ezMat4 m_mLastTransform = ezMat4::IdentityMatrix();
+  mutable ezRectFloat m_LastRect = ezRectFloat(0, 0);
 };

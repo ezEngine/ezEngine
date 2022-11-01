@@ -50,9 +50,9 @@ private:
   ezUInt32 GetHistogramIndex(ezTime value);
   ezTime GetHistogramSlotValue(ezUInt32 uiIndex);
 
-  ezTime m_minInterval;
-  ezTime m_maxInterval;
-  double m_InvIntervalRange;
+  ezTime m_MinInterval;
+  ezTime m_MaxInterval;
+  double m_fInvIntervalRange;
 
   ezTime m_CurrentTime;
   double m_fNumWorkToSchedule = 0.0;

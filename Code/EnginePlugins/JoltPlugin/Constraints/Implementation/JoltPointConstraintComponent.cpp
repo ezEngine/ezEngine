@@ -43,8 +43,8 @@ void ezJoltPointConstraintComponent::CreateContstraintType(JPH::Body* pBody0, JP
   opt.mDrawConstraintSize = 0.1f;
 
   opt.mSpace = JPH::EConstraintSpace::LocalToBodyCOM;
-  opt.mPoint1 = inv1 * ezJoltConversionUtils::ToVec3(m_localFrameA.m_vPosition);
-  opt.mPoint2 = inv2 * ezJoltConversionUtils::ToVec3(m_localFrameB.m_vPosition);
+  opt.mPoint1 = inv1 * ezJoltConversionUtils::ToVec3(m_LocalFrameA.m_vPosition);
+  opt.mPoint2 = inv2 * ezJoltConversionUtils::ToVec3(m_LocalFrameB.m_vPosition);
 
   m_pConstraint = opt.Create(*pBody0, *pBody1);
 }

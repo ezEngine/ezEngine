@@ -23,7 +23,7 @@ public:
   float GetCPUUtilization() const;
 
   /// \brief Returns true if the process is currently running on a 64-bit OS.
-  inline bool Is64BitOS() const { return m_b64BitOS; }
+  inline bool Is64BitOS() const { return m_bB64BitOS; }
 
   inline const char* GetPlatformName() const { return m_szPlatformName; }
 
@@ -51,7 +51,7 @@ private:
   const char* m_szPlatformName;
   const char* m_szBuildConfiguration;
   char m_sHostName[256];
-  bool m_b64BitOS;
+  bool m_bB64BitOS;
   bool m_bIsInitialized;
 
 

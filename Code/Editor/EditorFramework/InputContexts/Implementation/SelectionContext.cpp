@@ -14,8 +14,8 @@ ezSelectionContext::ezSelectionContext(ezQtEngineDocumentWindow* pOwnerWindow, e
 
   SetOwner(pOwnerWindow, pOwnerView);
 
-  m_MarqueeGizmo.ConfigureHandle(nullptr, ezEngineGizmoHandleType::LineBox, ezColor::CadetBlue, ezGizmoFlags::ShowInOrtho | ezGizmoFlags::OnTop);
-  pOwnerWindow->GetDocument()->AddSyncObject(&m_MarqueeGizmo);
+  m_hMarqueeGizmo.ConfigureHandle(nullptr, ezEngineGizmoHandleType::LineBox, ezColor::CadetBlue, ezGizmoFlags::ShowInOrtho | ezGizmoFlags::OnTop);
+  pOwnerWindow->GetDocument()->AddSyncObject(&m_hMarqueeGizmo);
 }
 
 void ezSelectionContext::SetPickObjectOverride(ezDelegate<void(const ezDocumentObject*)> pickOverride)
@@ -49,7 +49,7 @@ ezEditorInput ezSelectionContext::DoMousePressEvent(QMouseEvent* e)
 
           if (pGizmo)
           {
-            pGizmo->ConfigureInteraction(pGizmoHandle, m_pCamera, res.m_vPickedPosition, m_Viewport);
+            pGizmo->ConfigureInteraction(pGizmoHandle, m_pCamera, res.m_vPickedPosition, m_vViewport);
             return pGizmo->MousePressEvent(e);
           }
         }
@@ -68,9 +68,9 @@ ezEditorInput ezSelectionContext::DoMousePressEvent(QMouseEvent* e)
       MakeActiveInputContext();
 
       if (m_Mode == Mode::MarqueeAdd)
-        m_MarqueeGizmo.SetColor(ezColor::LightSkyBlue);
+        m_hMarqueeGizmo.SetColor(ezColor::LightSkyBlue);
       else
-        m_MarqueeGizmo.SetColor(ezColor::PaleVioletRed);
+        m_hMarqueeGizmo.SetColor(ezColor::PaleVioletRed);
 
       return ezEditorInput::WasExclusivelyHandled;
     }
@@ -178,7 +178,7 @@ void ezSelectionContext::SendMarqueeMsg(QMouseEvent* e, ezUInt8 uiWhatToDo)
 
   ezMat4 mView = m_pCamera->GetViewMatrix();
   ezMat4 mProj;
-  m_pCamera->GetProjectionMatrix((float)m_Viewport.x / (float)m_Viewport.y, mProj);
+  m_pCamera->GetProjectionMatrix((float)m_vViewport.x / (float)m_vViewport.y, mProj);
 
   ezMat4 mViewProj = mProj * mView;
   ezMat4 mInvViewProj = mViewProj;
@@ -190,13 +190,13 @@ void ezSelectionContext::SendMarqueeMsg(QMouseEvent* e, ezUInt8 uiWhatToDo)
 
   const ezVec3 vMousePos(e->pos().x(), e->pos().y(), 0.01f);
 
-  const ezVec3 vScreenSpacePos0(vMousePos.x, m_Viewport.y - vMousePos.y, vMousePos.z);
-  const ezVec3 vScreenSpacePos1(m_vMarqueeStartPos.x, m_Viewport.y - m_vMarqueeStartPos.y, m_vMarqueeStartPos.z);
+  const ezVec3 vScreenSpacePos0(vMousePos.x, m_vViewport.y - vMousePos.y, vMousePos.z);
+  const ezVec3 vScreenSpacePos1(m_vMarqueeStartPos.x, m_vViewport.y - m_vMarqueeStartPos.y, m_vMarqueeStartPos.z);
 
   ezVec3 vPosOnNearPlane0, vRayDir0;
   ezVec3 vPosOnNearPlane1, vRayDir1;
-  ezGraphicsUtils::ConvertScreenPosToWorldPos(mInvViewProj, 0, 0, m_Viewport.x, m_Viewport.y, vScreenSpacePos0, vPosOnNearPlane0, &vRayDir0).IgnoreResult();
-  ezGraphicsUtils::ConvertScreenPosToWorldPos(mInvViewProj, 0, 0, m_Viewport.x, m_Viewport.y, vScreenSpacePos1, vPosOnNearPlane1, &vRayDir1).IgnoreResult();
+  ezGraphicsUtils::ConvertScreenPosToWorldPos(mInvViewProj, 0, 0, m_vViewport.x, m_vViewport.y, vScreenSpacePos0, vPosOnNearPlane0, &vRayDir0).IgnoreResult();
+  ezGraphicsUtils::ConvertScreenPosToWorldPos(mInvViewProj, 0, 0, m_vViewport.x, m_vViewport.y, vScreenSpacePos1, vPosOnNearPlane1, &vRayDir1).IgnoreResult();
 
   ezTransform t;
   t.SetIdentity();
@@ -213,8 +213,8 @@ void ezSelectionContext::SendMarqueeMsg(QMouseEvent* e, ezUInt8 uiWhatToDo)
   t.m_vScale.y = ezMath::Abs(vBoxPosSS0.y - vBoxPosSS1.y);
   t.m_vScale.z = 0.0f;
 
-  m_MarqueeGizmo.SetTransformation(t);
-  m_MarqueeGizmo.SetVisible(true);
+  m_hMarqueeGizmo.SetTransformation(t);
+  m_hMarqueeGizmo.SetVisible(true);
 
   {
     ezViewMarqueePickingMsgToEngine msg;
@@ -414,7 +414,7 @@ void ezSelectionContext::DoFocusLost(bool bCancel)
 
   m_bPressedSpace = false;
   m_Mode = Mode::None;
-  m_MarqueeGizmo.SetVisible(false);
+  m_hMarqueeGizmo.SetVisible(false);
 
   if (IsActiveInputContext())
     MakeActiveInputContext(false);

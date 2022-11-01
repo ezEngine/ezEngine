@@ -10,7 +10,7 @@
 
 ezCopyOnBroadcastEvent<const ezPhantomRttiManagerEvent&> ezPhantomRttiManager::s_Events;
 
-ezHashTable<const char*, ezPhantomRTTI*> ezPhantomRttiManager::m_NameToPhantom;
+ezHashTable<const char*, ezPhantomRTTI*> ezPhantomRttiManager::s_NameToPhantom;
 
 // clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(ToolsFoundation, ReflectedTypeManager)
@@ -41,7 +41,7 @@ const ezRTTI* ezPhantomRttiManager::RegisterType(ezReflectedTypeDescriptor& desc
   EZ_PROFILE_SCOPE("RegisterType");
   ezRTTI* pType = ezRTTI::FindTypeByName(desc.m_sTypeName);
   ezPhantomRTTI* pPhantom = nullptr;
-  m_NameToPhantom.TryGetValue(desc.m_sTypeName, pPhantom);
+  s_NameToPhantom.TryGetValue(desc.m_sTypeName, pPhantom);
 
   // concrete type !
   if (pPhantom == nullptr && pType != nullptr)
@@ -62,7 +62,7 @@ const ezRTTI* ezPhantomRttiManager::RegisterType(ezReflectedTypeDescriptor& desc
     pPhantom->SetFunctions(desc.m_Functions);
     pPhantom->SetupParentHierarchy();
 
-    m_NameToPhantom[pPhantom->GetTypeName()] = pPhantom;
+    s_NameToPhantom[pPhantom->GetTypeName()] = pPhantom;
 
     ezPhantomRttiManagerEvent msg;
     msg.m_pChangedType = pPhantom;
@@ -86,7 +86,7 @@ const ezRTTI* ezPhantomRttiManager::RegisterType(ezReflectedTypeDescriptor& desc
 bool ezPhantomRttiManager::UnregisterType(const ezRTTI* pRtti)
 {
   ezPhantomRTTI* pPhantom = nullptr;
-  m_NameToPhantom.TryGetValue(pRtti->GetTypeName(), pPhantom);
+  s_NameToPhantom.TryGetValue(pRtti->GetTypeName(), pPhantom);
 
   if (pPhantom == nullptr)
     return false;
@@ -98,7 +98,7 @@ bool ezPhantomRttiManager::UnregisterType(const ezRTTI* pRtti)
     s_Events.Broadcast(msg);
   }
 
-  m_NameToPhantom.Remove(pPhantom->GetTypeName());
+  s_NameToPhantom.Remove(pPhantom->GetTypeName());
 
   EZ_DEFAULT_DELETE(pPhantom);
   return true;
@@ -112,12 +112,12 @@ void ezPhantomRttiManager::PluginEventHandler(const ezPluginEvent& e)
 {
   if (e.m_EventType == ezPluginEvent::Type::BeforeUnloading)
   {
-    while (!m_NameToPhantom.IsEmpty())
+    while (!s_NameToPhantom.IsEmpty())
     {
-      UnregisterType(m_NameToPhantom.GetIterator().Value());
+      UnregisterType(s_NameToPhantom.GetIterator().Value());
     }
 
-    EZ_ASSERT_DEV(m_NameToPhantom.IsEmpty(), "ezPhantomRttiManager::Shutdown: Removal of types failed!");
+    EZ_ASSERT_DEV(s_NameToPhantom.IsEmpty(), "ezPhantomRttiManager::Shutdown: Removal of types failed!");
   }
 }
 
@@ -131,10 +131,10 @@ void ezPhantomRttiManager::Shutdown()
 {
   ezPlugin::Events().RemoveEventHandler(&ezPhantomRttiManager::PluginEventHandler);
 
-  while (!m_NameToPhantom.IsEmpty())
+  while (!s_NameToPhantom.IsEmpty())
   {
-    UnregisterType(m_NameToPhantom.GetIterator().Value());
+    UnregisterType(s_NameToPhantom.GetIterator().Value());
   }
 
-  EZ_ASSERT_DEV(m_NameToPhantom.IsEmpty(), "ezPhantomRttiManager::Shutdown: Removal of types failed!");
+  EZ_ASSERT_DEV(s_NameToPhantom.IsEmpty(), "ezPhantomRttiManager::Shutdown: Removal of types failed!");
 }

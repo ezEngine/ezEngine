@@ -169,7 +169,7 @@ public:
   const char* GetArgument(ezUInt32 uiArgument) const;
 
   /// \brief Returns the complete array of command line arguments that were passed to the application.
-  const char** GetArgumentsArray() const { return m_ppArguments; }
+  const char** GetArgumentsArray() const { return m_pArguments; }
 
   void EnableMemoryLeakReporting(bool bEnable) { m_bReportMemoryLeaks = bEnable; }
 
@@ -194,7 +194,7 @@ private:
 
   ezUInt32 m_uiArgumentCount;
 
-  const char** m_ppArguments;
+  const char** m_pArguments;
 
   bool m_bReportMemoryLeaks;
 

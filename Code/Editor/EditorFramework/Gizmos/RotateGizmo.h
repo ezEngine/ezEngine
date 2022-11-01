@@ -11,7 +11,7 @@ class EZ_EDITORFRAMEWORK_DLL ezRotateGizmo : public ezGizmo
 public:
   ezRotateGizmo();
 
-  const ezQuat& GetRotationResult() const { return m_CurrentRotation; }
+  const ezQuat& GetRotationResult() const { return m_qCurrentRotation; }
 
   virtual void UpdateStatusBarText(ezQtEngineDocumentWindow* pWindow) override;
 
@@ -27,19 +27,19 @@ protected:
   virtual void OnTransformationChanged(const ezTransform& transform) override;
 
 private:
-  ezEngineGizmoHandle m_AxisX;
-  ezEngineGizmoHandle m_AxisY;
-  ezEngineGizmoHandle m_AxisZ;
+  ezEngineGizmoHandle m_hAxisX;
+  ezEngineGizmoHandle m_hAxisY;
+  ezEngineGizmoHandle m_hAxisZ;
 
-  ezQuat m_StartRotation;
-  ezQuat m_CurrentRotation;
+  ezQuat m_qStartRotation;
+  ezQuat m_qCurrentRotation;
   ezAngle m_Rotation;
 
-  ezVec2I32 m_LastMousePos;
+  ezVec2I32 m_vLastMousePos;
 
   ezTime m_LastInteraction;
   ezVec3 m_vRotationAxis;
-  ezMat4 m_InvViewProj;
+  ezMat4 m_mInvViewProj;
   ezVec2 m_vScreenTangent;
 
   bool m_bUseExperimentalGizmo = false;

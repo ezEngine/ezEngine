@@ -85,47 +85,47 @@ void ezLuaWrapper::DiscardReturnValues()
 
 bool ezLuaWrapper::IsReturnValueInt(ezUInt32 iReturnValue) const
 {
-  return (lua_type(m_pState, -m_States.m_iLuaReturnValues + (iReturnValue + s_ParamOffset) - 1) == LUA_TNUMBER);
+  return (lua_type(m_pState, -m_States.m_iLuaReturnValues + (iReturnValue + s_iParamOffset) - 1) == LUA_TNUMBER);
 }
 
 bool ezLuaWrapper::IsReturnValueBool(ezUInt32 iReturnValue) const
 {
-  return (lua_type(m_pState, -m_States.m_iLuaReturnValues + (iReturnValue + s_ParamOffset) - 1) == LUA_TBOOLEAN);
+  return (lua_type(m_pState, -m_States.m_iLuaReturnValues + (iReturnValue + s_iParamOffset) - 1) == LUA_TBOOLEAN);
 }
 
 bool ezLuaWrapper::IsReturnValueFloat(ezUInt32 iReturnValue) const
 {
-  return (lua_type(m_pState, -m_States.m_iLuaReturnValues + (iReturnValue + s_ParamOffset) - 1) == LUA_TNUMBER);
+  return (lua_type(m_pState, -m_States.m_iLuaReturnValues + (iReturnValue + s_iParamOffset) - 1) == LUA_TNUMBER);
 }
 
 bool ezLuaWrapper::IsReturnValueString(ezUInt32 iReturnValue) const
 {
-  return (lua_type(m_pState, -m_States.m_iLuaReturnValues + (iReturnValue + s_ParamOffset) - 1) == LUA_TSTRING);
+  return (lua_type(m_pState, -m_States.m_iLuaReturnValues + (iReturnValue + s_iParamOffset) - 1) == LUA_TSTRING);
 }
 
 bool ezLuaWrapper::IsReturnValueNil(ezUInt32 iReturnValue) const
 {
-  return (lua_type(m_pState, -m_States.m_iLuaReturnValues + (iReturnValue + s_ParamOffset) - 1) == LUA_TNIL);
+  return (lua_type(m_pState, -m_States.m_iLuaReturnValues + (iReturnValue + s_iParamOffset) - 1) == LUA_TNIL);
 }
 
 ezInt32 ezLuaWrapper::GetIntReturnValue(ezUInt32 iReturnValue) const
 {
-  return ((int)(lua_tointeger(m_pState, -m_States.m_iLuaReturnValues + (iReturnValue + s_ParamOffset) - 1)));
+  return ((int)(lua_tointeger(m_pState, -m_States.m_iLuaReturnValues + (iReturnValue + s_iParamOffset) - 1)));
 }
 
 bool ezLuaWrapper::GetBoolReturnValue(ezUInt32 iReturnValue) const
 {
-  return (lua_toboolean(m_pState, -m_States.m_iLuaReturnValues + (iReturnValue + s_ParamOffset) - 1) != 0);
+  return (lua_toboolean(m_pState, -m_States.m_iLuaReturnValues + (iReturnValue + s_iParamOffset) - 1) != 0);
 }
 
 float ezLuaWrapper::GetFloatReturnValue(ezUInt32 iReturnValue) const
 {
-  return ((float)(lua_tonumber(m_pState, -m_States.m_iLuaReturnValues + (iReturnValue + s_ParamOffset) - 1)));
+  return ((float)(lua_tonumber(m_pState, -m_States.m_iLuaReturnValues + (iReturnValue + s_iParamOffset) - 1)));
 }
 
 const char* ezLuaWrapper::GetStringReturnValue(ezUInt32 iReturnValue) const
 {
-  return (lua_tostring(m_pState, -m_States.m_iLuaReturnValues + (iReturnValue + s_ParamOffset) - 1));
+  return (lua_tostring(m_pState, -m_States.m_iLuaReturnValues + (iReturnValue + s_iParamOffset) - 1));
 }
 
 

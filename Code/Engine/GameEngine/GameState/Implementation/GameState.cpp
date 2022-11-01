@@ -67,7 +67,7 @@ void ezGameState::OnDeactivation()
       }
     }
 
-    m_dummyXR = nullptr;
+    m_pDummyXR = nullptr;
   }
 
   ezRenderWorld::DeleteView(m_hMainView);
@@ -93,7 +93,7 @@ ezUniquePtr<ezActor> ezGameState::CreateXRActor()
   if (!pXRInterface)
   {
     ezLog::Warning("No ezXRInterface interface found. Please load a XR plugin to enable XR. Loading dummyXR interface.");
-    m_dummyXR = EZ_DEFAULT_NEW(ezDummyXR);
+    m_pDummyXR = EZ_DEFAULT_NEW(ezDummyXR);
     pXRInterface = ezSingletonRegistry::GetSingletonInstance<ezXRInterface>();
     EZ_ASSERT_DEV(pXRInterface, "Creating dummyXR did not register the ezXRInterface.");
   }

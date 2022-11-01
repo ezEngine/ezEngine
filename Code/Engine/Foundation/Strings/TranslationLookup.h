@@ -118,7 +118,7 @@ private:
   static void ReloadTranslations();
   static void LoadTranslationFile(const char* szFileName);
 
-  static ezHybridArray<ezUniquePtr<ezTranslator>, 16> s_pTranslators;
+  static ezHybridArray<ezUniquePtr<ezTranslator>, 16> s_Translators;
 };
 
 /// \brief Use this macro to query a translation for a string from the ezTranslationLookup system

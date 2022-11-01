@@ -30,5 +30,5 @@ void ezWindow::OnResize(const ezSizeU32& newWindowSize)
 
 ezWindowHandle ezWindow::GetNativeWindowHandle() const
 {
-  return m_WindowHandle;
+  return m_hWindowHandle;
 }

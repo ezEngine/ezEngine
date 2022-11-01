@@ -59,7 +59,7 @@ private:
   void UpdateVisibleEntries();
 
 private:
-  const ezTestResultData* pCurrentTestSelection;
+  const ezTestResultData* m_pCurrentTestSelection;
   const ezTestFrameworkResult* m_pTestResult;
   std::vector<ezUInt32> m_VisibleEntries;
   std::vector<ezUInt8> m_VisibleEntriesIndention;

@@ -71,11 +71,11 @@ void ezPxJointComponent::OnSimulationStarted()
   if (FindChildBody(pActorB).Failed())
     return;
 
-  m_localFrameA.m_qRotation.Normalize();
-  m_localFrameB.m_qRotation.Normalize();
+  m_LocalFrameA.m_qRotation.Normalize();
+  m_LocalFrameB.m_qRotation.Normalize();
 
-  const PxTransform tLocalToActorA = ezPxConversionUtils::ToTransform(m_localFrameA);
-  const PxTransform tLocalToActorB = ezPxConversionUtils::ToTransform(m_localFrameB);
+  const PxTransform tLocalToActorA = ezPxConversionUtils::ToTransform(m_LocalFrameA);
+  const PxTransform tLocalToActorB = ezPxConversionUtils::ToTransform(m_LocalFrameB);
 
   ezPhysXWorldModule* pModule = GetWorld()->GetOrCreateModule<ezPhysXWorldModule>();
   EZ_PX_WRITE_LOCK(*(pModule->GetPxScene()));
@@ -120,8 +120,8 @@ void ezPxJointComponent::SerializeComponent(ezWorldWriter& stream) const
   stream.WriteGameObjectHandle(m_hActorA);
   stream.WriteGameObjectHandle(m_hActorB);
 
-  s << m_localFrameA;
-  s << m_localFrameB;
+  s << m_LocalFrameA;
+  s << m_LocalFrameB;
 
   stream.WriteGameObjectHandle(m_hActorBAnchor);
 }
@@ -143,8 +143,8 @@ void ezPxJointComponent::DeserializeComponent(ezWorldReader& stream)
     m_hActorA = stream.ReadGameObjectHandle();
     m_hActorB = stream.ReadGameObjectHandle();
 
-    s >> m_localFrameA;
-    s >> m_localFrameB;
+    s >> m_LocalFrameA;
+    s >> m_LocalFrameB;
   }
 
   if (uiVersion >= 3)
@@ -212,8 +212,8 @@ void ezPxJointComponent::SetActors(ezGameObjectHandle hActorA, const ezTransform
   SetUserFlag(0, true);
   SetUserFlag(1, true);
 
-  m_localFrameA = localFrameA;
-  m_localFrameB = localFrameB;
+  m_LocalFrameA = localFrameA;
+  m_LocalFrameB = localFrameB;
 }
 
 void ezPxJointComponent::ApplySettings()
@@ -282,7 +282,7 @@ ezResult ezPxJointComponent::FindParentBody(physx::PxRigidActor*& pActor)
       {
         // m_localFrameA is now valid
         SetUserFlag(0, true);
-        m_localFrameA = GetOwner()->GetGlobalTransform();
+        m_LocalFrameA = GetOwner()->GetGlobalTransform();
       }
       return EZ_SUCCESS;
     }
@@ -304,8 +304,8 @@ ezResult ezPxJointComponent::FindParentBody(physx::PxRigidActor*& pActor)
   {
     // m_localFrameA is now valid
     SetUserFlag(0, true);
-    m_localFrameA.SetLocalTransform(pObject->GetGlobalTransform(), GetOwner()->GetGlobalTransform());
-    m_localFrameA.m_vPosition = m_localFrameA.m_vPosition.CompMul(pObject->GetGlobalScaling());
+    m_LocalFrameA.SetLocalTransform(pObject->GetGlobalTransform(), GetOwner()->GetGlobalTransform());
+    m_LocalFrameA.m_vPosition = m_LocalFrameA.m_vPosition.CompMul(pObject->GetGlobalScaling());
   }
 
   return EZ_SUCCESS;
@@ -377,8 +377,8 @@ ezResult ezPxJointComponent::FindChildBody(physx::PxRigidActor*& pActor)
 
     // m_localFrameB is now valid
     SetUserFlag(1, true);
-    m_localFrameB.SetLocalTransform(pObject->GetGlobalTransform(), pAnchorObject->GetGlobalTransform());
-    m_localFrameB.m_vPosition = m_localFrameB.m_vPosition.CompMul(pObject->GetGlobalScaling());
+    m_LocalFrameB.SetLocalTransform(pObject->GetGlobalTransform(), pAnchorObject->GetGlobalTransform());
+    m_LocalFrameB.m_vPosition = m_LocalFrameB.m_vPosition.CompMul(pObject->GetGlobalScaling());
   }
 
   return EZ_SUCCESS;

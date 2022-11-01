@@ -43,10 +43,10 @@ ezDefaultObjectState::ezDefaultObjectState(ezObjectAccessorBase* pAccessor, cons
 {
   m_pAccessor = pAccessor;
   m_Selection = selection;
-  m_pProviders.Reserve(m_Selection.GetCount());
+  m_Providers.Reserve(m_Selection.GetCount());
   for (const ezPropertySelection& sel : m_Selection)
   {
-    auto& pProviders = m_pProviders.ExpandAndGetRef();
+    auto& pProviders = m_Providers.ExpandAndGetRef();
     for (auto& func : ezDefaultState::s_Factories)
     {
       ezSharedPtr<ezDefaultStateProvider> pProvider = func(pAccessor, sel.m_pObject, nullptr);
@@ -61,12 +61,12 @@ ezDefaultObjectState::ezDefaultObjectState(ezObjectAccessorBase* pAccessor, cons
 
 ezColorGammaUB ezDefaultObjectState::GetBackgroundColor() const
 {
-  return m_pProviders[0][0]->GetBackgroundColor();
+  return m_Providers[0][0]->GetBackgroundColor();
 }
 
 ezString ezDefaultObjectState::GetStateProviderName() const
 {
-  return m_pProviders[0][0]->GetStateProviderName();
+  return m_Providers[0][0]->GetStateProviderName();
 }
 
 bool ezDefaultObjectState::IsDefaultValue(const char* szProperty) const
@@ -77,11 +77,11 @@ bool ezDefaultObjectState::IsDefaultValue(const char* szProperty) const
 
 bool ezDefaultObjectState::IsDefaultValue(const ezAbstractProperty* pProp) const
 {
-  const ezUInt32 uiObjects = m_pProviders.GetCount();
+  const ezUInt32 uiObjects = m_Providers.GetCount();
   for (ezUInt32 i = 0; i < uiObjects; i++)
   {
-    ezDefaultStateProvider::SuperArray super = m_pProviders[i].GetArrayPtr().GetSubArray(1);
-    const bool bNewDefault = m_pProviders[i][0]->IsDefaultValue(super, m_pAccessor, m_Selection[i].m_pObject, pProp);
+    ezDefaultStateProvider::SuperArray super = m_Providers[i].GetArrayPtr().GetSubArray(1);
+    const bool bNewDefault = m_Providers[i][0]->IsDefaultValue(super, m_pAccessor, m_Selection[i].m_pObject, pProp);
     if (!bNewDefault)
       return false;
   }
@@ -96,11 +96,11 @@ ezStatus ezDefaultObjectState::RevertProperty(const char* szProperty)
 
 ezStatus ezDefaultObjectState::RevertProperty(const ezAbstractProperty* pProp)
 {
-  const ezUInt32 uiObjects = m_pProviders.GetCount();
+  const ezUInt32 uiObjects = m_Providers.GetCount();
   for (ezUInt32 i = 0; i < uiObjects; i++)
   {
-    ezDefaultStateProvider::SuperArray super = m_pProviders[i].GetArrayPtr().GetSubArray(1);
-    ezStatus res = m_pProviders[i][0]->RevertProperty(super, m_pAccessor, m_Selection[i].m_pObject, pProp);
+    ezDefaultStateProvider::SuperArray super = m_Providers[i].GetArrayPtr().GetSubArray(1);
+    ezStatus res = m_Providers[i][0]->RevertProperty(super, m_pAccessor, m_Selection[i].m_pObject, pProp);
     if (res.Failed())
       return res;
   }
@@ -109,10 +109,10 @@ ezStatus ezDefaultObjectState::RevertProperty(const ezAbstractProperty* pProp)
 
 ezStatus ezDefaultObjectState::RevertObject()
 {
-  const ezUInt32 uiObjects = m_pProviders.GetCount();
+  const ezUInt32 uiObjects = m_Providers.GetCount();
   for (ezUInt32 i = 0; i < uiObjects; i++)
   {
-    ezDefaultStateProvider::SuperArray super = m_pProviders[i].GetArrayPtr().GetSubArray(1);
+    ezDefaultStateProvider::SuperArray super = m_Providers[i].GetArrayPtr().GetSubArray(1);
 
     ezHybridArray<ezAbstractProperty*, 32> properties;
     m_Selection[i].m_pObject->GetType()->GetAllProperties(properties);
@@ -120,7 +120,7 @@ ezStatus ezDefaultObjectState::RevertObject()
     {
       if (pProp->GetFlags().IsAnySet(ezPropertyFlags::Hidden | ezPropertyFlags::ReadOnly))
         continue;
-      ezStatus res = m_pProviders[i][0]->RevertProperty(super, m_pAccessor, m_Selection[i].m_pObject, pProp);
+      ezStatus res = m_Providers[i][0]->RevertProperty(super, m_pAccessor, m_Selection[i].m_pObject, pProp);
       if (res.Failed())
         return res;
     }
@@ -137,8 +137,8 @@ ezVariant ezDefaultObjectState::GetDefaultValue(const char* szProperty, ezUInt32
 ezVariant ezDefaultObjectState::GetDefaultValue(const ezAbstractProperty* pProp, ezUInt32 uiSelectionIndex) const
 {
   EZ_ASSERT_DEBUG(uiSelectionIndex < m_Selection.GetCount(), "Selection index is out of bounds.");
-  ezDefaultStateProvider::SuperArray super = m_pProviders[uiSelectionIndex].GetArrayPtr().GetSubArray(1);
-  return m_pProviders[uiSelectionIndex][0]->GetDefaultValue(super, m_pAccessor, m_Selection[uiSelectionIndex].m_pObject, pProp);
+  ezDefaultStateProvider::SuperArray super = m_Providers[uiSelectionIndex].GetArrayPtr().GetSubArray(1);
+  return m_Providers[uiSelectionIndex][0]->GetDefaultValue(super, m_pAccessor, m_Selection[uiSelectionIndex].m_pObject, pProp);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -149,10 +149,10 @@ ezDefaultContainerState::ezDefaultContainerState(ezObjectAccessorBase* pAccessor
   m_Selection = selection;
   // We assume selections can only contain objects of the same (base) type.
   m_pProp = szProperty ? selection[0].m_pObject->GetTypeAccessor().GetType()->FindPropertyByName(szProperty) : nullptr;
-  m_pProviders.Reserve(m_Selection.GetCount());
+  m_Providers.Reserve(m_Selection.GetCount());
   for (const ezPropertySelection& sel : m_Selection)
   {
-    auto& pProviders = m_pProviders.ExpandAndGetRef();
+    auto& pProviders = m_Providers.ExpandAndGetRef();
     for (auto& func : ezDefaultState::s_Factories)
     {
       ezSharedPtr<ezDefaultStateProvider> pProvider = func(pAccessor, sel.m_pObject, m_pProp);
@@ -167,22 +167,22 @@ ezDefaultContainerState::ezDefaultContainerState(ezObjectAccessorBase* pAccessor
 
 ezColorGammaUB ezDefaultContainerState::GetBackgroundColor() const
 {
-  return m_pProviders[0][0]->GetBackgroundColor();
+  return m_Providers[0][0]->GetBackgroundColor();
 }
 
 ezString ezDefaultContainerState::GetStateProviderName() const
 {
-  return m_pProviders[0][0]->GetStateProviderName();
+  return m_Providers[0][0]->GetStateProviderName();
 }
 
 bool ezDefaultContainerState::IsDefaultElement(ezVariant index) const
 {
-  const ezUInt32 uiObjects = m_pProviders.GetCount();
+  const ezUInt32 uiObjects = m_Providers.GetCount();
   for (ezUInt32 i = 0; i < uiObjects; i++)
   {
-    ezDefaultStateProvider::SuperArray super = m_pProviders[i].GetArrayPtr().GetSubArray(1);
+    ezDefaultStateProvider::SuperArray super = m_Providers[i].GetArrayPtr().GetSubArray(1);
     EZ_ASSERT_DEBUG(index.IsValid() || m_Selection[i].m_Index.IsValid(), "If ezDefaultContainerState is constructed without giving an indices in the selection, one must be provided on the IsDefaultElement call.");
-    const bool bNewDefault = m_pProviders[i][0]->IsDefaultValue(super, m_pAccessor, m_Selection[i].m_pObject, m_pProp, index.IsValid() ? index : m_Selection[i].m_Index);
+    const bool bNewDefault = m_Providers[i][0]->IsDefaultValue(super, m_pAccessor, m_Selection[i].m_pObject, m_pProp, index.IsValid() ? index : m_Selection[i].m_Index);
     if (!bNewDefault)
       return false;
   }
@@ -191,11 +191,11 @@ bool ezDefaultContainerState::IsDefaultElement(ezVariant index) const
 
 bool ezDefaultContainerState::IsDefaultContainer() const
 {
-  const ezUInt32 uiObjects = m_pProviders.GetCount();
+  const ezUInt32 uiObjects = m_Providers.GetCount();
   for (ezUInt32 i = 0; i < uiObjects; i++)
   {
-    ezDefaultStateProvider::SuperArray super = m_pProviders[i].GetArrayPtr().GetSubArray(1);
-    const bool bNewDefault = m_pProviders[i][0]->IsDefaultValue(super, m_pAccessor, m_Selection[i].m_pObject, m_pProp);
+    ezDefaultStateProvider::SuperArray super = m_Providers[i].GetArrayPtr().GetSubArray(1);
+    const bool bNewDefault = m_Providers[i][0]->IsDefaultValue(super, m_pAccessor, m_Selection[i].m_pObject, m_pProp);
     if (!bNewDefault)
       return false;
   }
@@ -204,12 +204,12 @@ bool ezDefaultContainerState::IsDefaultContainer() const
 
 ezStatus ezDefaultContainerState::RevertElement(ezVariant index)
 {
-  const ezUInt32 uiObjects = m_pProviders.GetCount();
+  const ezUInt32 uiObjects = m_Providers.GetCount();
   for (ezUInt32 i = 0; i < uiObjects; i++)
   {
-    ezDefaultStateProvider::SuperArray super = m_pProviders[i].GetArrayPtr().GetSubArray(1);
+    ezDefaultStateProvider::SuperArray super = m_Providers[i].GetArrayPtr().GetSubArray(1);
     EZ_ASSERT_DEBUG(index.IsValid() || m_Selection[i].m_Index.IsValid(), "If ezDefaultContainerState is constructed without giving an indices in the selection, one must be provided on the RevertElement call.");
-    ezStatus res = m_pProviders[i][0]->RevertProperty(super, m_pAccessor, m_Selection[i].m_pObject, m_pProp, index.IsValid() ? index : m_Selection[i].m_Index);
+    ezStatus res = m_Providers[i][0]->RevertProperty(super, m_pAccessor, m_Selection[i].m_pObject, m_pProp, index.IsValid() ? index : m_Selection[i].m_Index);
     if (res.Failed())
       return res;
   }
@@ -218,11 +218,11 @@ ezStatus ezDefaultContainerState::RevertElement(ezVariant index)
 
 ezStatus ezDefaultContainerState::RevertContainer()
 {
-  const ezUInt32 uiObjects = m_pProviders.GetCount();
+  const ezUInt32 uiObjects = m_Providers.GetCount();
   for (ezUInt32 i = 0; i < uiObjects; i++)
   {
-    ezDefaultStateProvider::SuperArray super = m_pProviders[i].GetArrayPtr().GetSubArray(1);
-    ezStatus res = m_pProviders[i][0]->RevertProperty(super, m_pAccessor, m_Selection[i].m_pObject, m_pProp);
+    ezDefaultStateProvider::SuperArray super = m_Providers[i].GetArrayPtr().GetSubArray(1);
+    ezStatus res = m_Providers[i][0]->RevertProperty(super, m_pAccessor, m_Selection[i].m_pObject, m_pProp);
     if (res.Failed())
       return res;
   }
@@ -232,15 +232,15 @@ ezStatus ezDefaultContainerState::RevertContainer()
 ezVariant ezDefaultContainerState::GetDefaultElement(ezVariant index, ezUInt32 uiSelectionIndex) const
 {
   EZ_ASSERT_DEBUG(uiSelectionIndex < m_Selection.GetCount(), "Selection index is out of bounds.");
-  ezDefaultStateProvider::SuperArray super = m_pProviders[uiSelectionIndex].GetArrayPtr().GetSubArray(1);
-  return m_pProviders[uiSelectionIndex][0]->GetDefaultValue(super, m_pAccessor, m_Selection[uiSelectionIndex].m_pObject, m_pProp, index);
+  ezDefaultStateProvider::SuperArray super = m_Providers[uiSelectionIndex].GetArrayPtr().GetSubArray(1);
+  return m_Providers[uiSelectionIndex][0]->GetDefaultValue(super, m_pAccessor, m_Selection[uiSelectionIndex].m_pObject, m_pProp, index);
 }
 
 ezVariant ezDefaultContainerState::GetDefaultContainer(ezUInt32 uiSelectionIndex) const
 {
   EZ_ASSERT_DEBUG(uiSelectionIndex < m_Selection.GetCount(), "Selection index is out of bounds.");
-  ezDefaultStateProvider::SuperArray super = m_pProviders[uiSelectionIndex].GetArrayPtr().GetSubArray(1);
-  return m_pProviders[uiSelectionIndex][0]->GetDefaultValue(super, m_pAccessor, m_Selection[uiSelectionIndex].m_pObject, m_pProp);
+  ezDefaultStateProvider::SuperArray super = m_Providers[uiSelectionIndex].GetArrayPtr().GetSubArray(1);
+  return m_Providers[uiSelectionIndex][0]->GetDefaultValue(super, m_pAccessor, m_Selection[uiSelectionIndex].m_pObject, m_pProp);
 }
 
 //////////////////////////////////////////////////////////////////////////
