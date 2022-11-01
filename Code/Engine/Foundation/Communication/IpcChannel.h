@@ -58,7 +58,7 @@ public:
   /// \brief Disconnect async. On completion, m_Events will be broadcasted.
   void Disconnect();
   /// \brief Returns whether we have a connection.
-  bool IsConnected() const { return m_bConnected >= 1; }
+  bool IsConnected() const { return m_bConnected; }
 
   /// \brief Sends a message. pMsg can be destroyed after the call.
   bool Send(ezProcessMessage* pMsg);

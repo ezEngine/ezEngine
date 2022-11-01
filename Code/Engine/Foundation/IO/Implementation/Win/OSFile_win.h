@@ -581,7 +581,7 @@ ezString ezOSFile::GetUserDataFolder(const char* szSubFolder)
           {
             HSTRING path;
             localFolderItem->get_Path(&path);
-            s_UserDataPath = ezStringUtf8(path).GetData();
+            s_sUserDataPath = ezStringUtf8(path).GetData();
           }
         }
       }
@@ -627,7 +627,7 @@ ezString ezOSFile::GetTempDataFolder(const char* szSubFolder /*= nullptr*/)
           {
             HSTRING path;
             tempFolderItem->get_Path(&path);
-            s_TempDataPath = ezStringUtf8(path).GetData();
+            s_sTempDataPath = ezStringUtf8(path).GetData();
           }
         }
       }
