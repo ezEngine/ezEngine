@@ -100,7 +100,7 @@ void ezPipeChannel_linux::AddToMessageLoop(ezMessageLoop* pMessageLoop)
 
 void ezPipeChannel_linux::InternalConnect()
 {
-  if (m_Connected || m_Connecting)
+  if (m_bConnected || m_Connecting)
   {
     return;
   }
@@ -135,7 +135,7 @@ void ezPipeChannel_linux::InternalConnect()
 
 void ezPipeChannel_linux::InternalDisconnect()
 {
-  if (!m_Connected && !m_Connecting)
+  if (!m_bConnected && !m_Connecting)
   {
     return;
   }
@@ -150,7 +150,7 @@ void ezPipeChannel_linux::InternalDisconnect()
     m_OutputQueue.Clear();
   }
 
-  m_Connected = false;
+  m_bConnected = false;
   m_Connecting = false;
 
   m_Events.Broadcast(ezIpcChannelEvent(m_Mode == Mode::Server ? ezIpcChannelEvent::DisconnectedFromClient : ezIpcChannelEvent::DisconnectedFromServer, this));
@@ -227,7 +227,7 @@ void ezPipeChannel_linux::AcceptIncomingConnection()
   }
   else
   {
-    m_Connected = true;
+    m_bConnected = true;
     m_Events.Broadcast(ezIpcChannelEvent(ezIpcChannelEvent::ConnectedToClient, this));
 
     // We are connected. Register for incoming messages events.
@@ -243,7 +243,7 @@ bool ezPipeChannel_linux::NeedWakeup() const
 void ezPipeChannel_linux::ProcessConnectSuccessfull()
 {
   m_Connecting = false;
-  m_Connected = true;
+  m_bConnected = true;
   m_Events.Broadcast(ezIpcChannelEvent(ezIpcChannelEvent::ConnectedToServer, this));
 
   // We are connected. Register for incoming messages events.

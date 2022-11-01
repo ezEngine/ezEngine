@@ -45,7 +45,7 @@ void ezIpcChannelEnet::InternalConnect()
     m_pNetwork->WaitForConnectionToServer(ezTime::Milliseconds(10.0)).IgnoreResult();
   }
 
-  m_iConnected = m_pNetwork->IsConnectedToOther() ? 1 : 0;
+  m_bConnected = m_pNetwork->IsConnectedToOther() ? 1 : 0;
 }
 
 void ezIpcChannelEnet::InternalDisconnect()
@@ -53,7 +53,7 @@ void ezIpcChannelEnet::InternalDisconnect()
   m_pNetwork->ShutdownConnection();
   m_pNetwork->m_RemoteEvents.RemoveEventHandler(ezMakeDelegate(&ezIpcChannelEnet::EnetEventHandler, this));
 
-  m_iConnected = 0;
+  m_bConnected = 0;
 }
 
 void ezIpcChannelEnet::InternalSend()
@@ -83,7 +83,7 @@ void ezIpcChannelEnet::Tick()
 {
   m_pNetwork->UpdateRemoteInterface();
 
-  m_iConnected = m_pNetwork->IsConnectedToOther() ? 1 : 0;
+  m_bConnected = m_pNetwork->IsConnectedToOther() ? 1 : 0;
 
   m_pNetwork->ExecuteAllMessageHandlers();
 }
