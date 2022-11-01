@@ -85,7 +85,7 @@ else
 if($DiffTo)
 {
 	# Get list of changed files from git
-    $mergeBase = git merge-base HEAD "origin/$DiffTo"
+    $mergeBase = git merge-base HEAD "$DiffTo"
     if($lastexitcode -ne 0)
     {
         Write-Error "Git merge-base failed: $mergeBase"
