@@ -153,7 +153,7 @@ HRESULT ezStandardInputDevice::OnCharacterReceived(ICoreWindow* coreWindow, ICha
 {
   UINT32 keyCode = 0;
   EZ_SUCCEED_OR_RETURN(args->get_KeyCode(&keyCode));
-  m_LastCharacter = keyCode;
+  m_uiLastCharacter = keyCode;
 
   return S_OK;
 }
@@ -187,7 +187,7 @@ HRESULT ezStandardInputDevice::OnPointerMovePressEnter(ICoreWindow* coreWindow, 
     // RegisterInputSlot(ezInputSlot_MouseDblClick1, "Right Double Click", ezInputSlotFlags::IsDoubleClick);
     // RegisterInputSlot(ezInputSlot_MouseDblClick2, "Middle Double Click", ezInputSlotFlags::IsDoubleClick);
 
-    m_iMouseIsOverWindowNumber = 0;
+    s_iMouseIsOverWindowNumber = 0;
     m_InputSlotValues[ezInputSlot_MousePositionX] = relativePosX;
     m_InputSlotValues[ezInputSlot_MousePositionY] = relativePosY;
 
