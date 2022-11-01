@@ -33,9 +33,12 @@ jobs:
   - pwsh: |
       # Changes done by clang tidy on MemberProperty.h are always incorrect
       git checkout "Code/Engine/Foundation/Reflection/Implementation/MemberProperty.h"
-      git diff | Out-File -Encoding utf8NoBOM -FilePath "$(Build.ArtifactStagingDirectory)\clang-tidy.patch"
-    displayName: 'Fetch suggested changes'
-    condition: failed()
+      if(@(git status -s --untracked-files=no).Length -gt 0)
+      {
+        Write-Host "##vso[task.logissue type=error]clang-tidy suggested changes. Clang tidy check failed! See artifact 'clang-tidy.patch' for suggested changes. Apply patch with: git apply clang-tidy.patch" -foreground red
+        git diff | Out-File -Encoding utf8NoBOM -FilePath "$(Build.ArtifactStagingDirectory)\clang-tidy.patch"
+      }
+    displayName: 'Fetch suggested changes' 
   - task: PublishBuildArtifacts@1
     displayName: 'Publish Artifact: Suggested Changes'
     inputs:
