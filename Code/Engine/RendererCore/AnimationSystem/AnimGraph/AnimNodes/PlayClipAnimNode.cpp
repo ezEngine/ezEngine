@@ -26,7 +26,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPlayClipAnimNode, 1, ezRTTIDefaultAllocator<ez
     EZ_BEGIN_ATTRIBUTES
     {
       new ezCategoryAttribute("Animation Sampling"),
-      new ezColorAttribute(ezColor::SteelBlue),
+      new ezColorAttribute(ezColorScheme::GetColorForUI(ezColorScheme::Blue)),
       new ezTitleAttribute("Play: '{Clips[0]}' '{Clips[1]}' '{Clips[2]}'"),
     }
     EZ_END_ATTRIBUTES;

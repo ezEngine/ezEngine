@@ -136,6 +136,11 @@ inline bool ezColor::IsIdenticalRGBA(const ezColor& rhs) const
   return r == rhs.r && g == rhs.g && b == rhs.b && a == rhs.a;
 }
 
+inline ezColor ezColor::WithAlpha(float alpha) const
+{
+  return ezColor(r, g, b, alpha);
+}
+
 inline const ezColor operator+(const ezColor& c1, const ezColor& c2)
 {
   EZ_NAN_ASSERT(&c1);

@@ -37,7 +37,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMixClips1DAnimNode, 1, ezRTTIDefaultAllocator<
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Animation Sampling"),
-    new ezColorAttribute(ezColor::SteelBlue),
+    new ezColorAttribute(ezColorScheme::GetColorForUI(ezColorScheme::Blue)),
     new ezTitleAttribute("Mix1D: '{AnimationClip0}' '{AnimationClip1}' '{AnimationClip2}' '{AnimationClip3}'"),
   }
   EZ_END_ATTRIBUTES;

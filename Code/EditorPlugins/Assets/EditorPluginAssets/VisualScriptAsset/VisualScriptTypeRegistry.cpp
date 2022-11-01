@@ -4,43 +4,16 @@
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptGraph.h>
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptGraphQt.moc.h>
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptTypeRegistry.h>
+#include <Foundation/Math/ColorScheme.h>
 #include <Foundation/Serialization/ReflectionSerializer.h>
 #include <Foundation/SimdMath/SimdRandom.h>
 #include <GuiFoundation/UIServices/DynamicStringEnum.h>
 
 namespace
 {
-  ezColorGammaUB ColorFromHex(ezUInt32 hex)
-  {
-    return ezColorGammaUB((hex >> 16) & 0xFF, (hex >> 8) & 0xFF, hex & 0xFF);
-  }
-
-  ezColorGammaUB niceColors[] =
-    {
-      ColorFromHex(0x008F7A),
-      ColorFromHex(0x008E9B),
-      ColorFromHex(0x0089BA),
-      ColorFromHex(0x0081CF),
-      ColorFromHex(0x2C73D2),
-      ColorFromHex(0x845EC2),
-      ColorFromHex(0xD65DB1),
-      ColorFromHex(0xFF6F91),
-      ColorFromHex(0xFF9671),
-      ColorFromHex(0xFFC75F),
-  };
-
   ezColorGammaUB NiceColorFromFloat(float x)
   {
-    x = ezMath::Saturate(x);
-
-    constexpr ezUInt32 uiMaxIndex = (EZ_ARRAY_SIZE(niceColors) - 1);
-    const ezUInt32 uiIndexA = ezUInt32(x * uiMaxIndex);
-    const ezUInt32 uiIndexB = ezMath::Min(uiIndexA + 1, uiMaxIndex);
-    const float fFrac = (x * uiMaxIndex) - uiIndexA;
-
-    ezColor A = niceColors[uiIndexA];
-    ezColor B = niceColors[uiIndexB];
-    return ezMath::Lerp(A, B, fFrac);
+    return ezColorScheme::GetColorForUI(x);
   }
 
   ezColorGammaUB NiceColorFromString(ezStringView s)
@@ -49,13 +22,7 @@ namespace
     return NiceColorFromFloat(x);
   }
 
-  ezColorGammaUB ClampToMaxValue(ezColor c, float maxValue = 0.7f)
-  {
-    float hue, saturation, value;
-    c.GetHSV(hue, saturation, value);
-    c.SetHSV(hue, saturation, ezMath::Min(value, maxValue));
-    return c;
-  }
+  static const ezColor ExecutionPinColor = ezColorScheme::GetColorForUI(ezColorScheme::Gray);
 } // namespace
 
 EZ_IMPLEMENT_SINGLETON(ezVisualScriptTypeRegistry);
@@ -202,9 +169,6 @@ void ezVisualScriptTypeRegistry::UpdateNodeType(const ezRTTI* pRtti)
   if (!pRtti->IsDerivedFrom<ezVisualScriptNode>() || pRtti->GetTypeFlags().IsAnySet(ezTypeFlags::Abstract))
     return;
 
-  ezHybridArray<ezAbstractProperty*, 32> properties;
-  static const ezColor ExecutionPinColor = ezColor::LightSlateGrey;
-
   ezVisualScriptNodeDescriptor nd;
   nd.m_sTypeName = pRtti->GetTypeName();
 
@@ -213,7 +177,7 @@ void ezVisualScriptTypeRegistry::UpdateNodeType(const ezRTTI* pRtti)
     nd.m_sCategory = pAttr->GetCategory();
   }
 
-  nd.m_Color = ClampToMaxValue(NiceColorFromString(nd.m_sCategory));
+  nd.m_Color = NiceColorFromString(nd.m_sCategory);
 
   if (const ezTitleAttribute* pAttr = pRtti->GetAttributeByType<ezTitleAttribute>())
   {
@@ -225,6 +189,7 @@ void ezVisualScriptTypeRegistry::UpdateNodeType(const ezRTTI* pRtti)
     nd.m_Color = pAttr->GetColor();
   }
 
+  ezHybridArray<ezAbstractProperty*, 32> properties;
   pRtti->GetAllProperties(properties);
 
   ezSet<ezInt32> usedInputDataPinIDs;
@@ -337,7 +302,7 @@ void ezVisualScriptTypeRegistry::CreateMessageSenderNodeType(const ezRTTI* pRtti
 
   ezVisualScriptNodeDescriptor nd;
   nd.m_sTypeName = tmp;
-  nd.m_Color = ClampToMaxValue(NiceColorFromFloat(0.5f));
+  nd.m_Color = NiceColorFromFloat(0.5f);
   nd.m_sCategory = "Message Senders";
 
   if (const ezCategoryAttribute* pAttr = pRtti->GetAttributeByType<ezCategoryAttribute>())
@@ -355,8 +320,6 @@ void ezVisualScriptTypeRegistry::CreateMessageSenderNodeType(const ezRTTI* pRtti
 
   // Add an input execution pin
   {
-    static const ezColor ExecutionPinColor = ezColor::LightSlateGrey;
-
     ezVisualScriptPinDescriptor pd;
     pd.m_sName = "send";
     pd.m_sTooltip = "When executed, the message is sent to the object or component.";
@@ -368,8 +331,6 @@ void ezVisualScriptTypeRegistry::CreateMessageSenderNodeType(const ezRTTI* pRtti
 
   // Add an output execution pin
   {
-    static const ezColor ExecutionPinColor = ezColor::LightSlateGrey;
-
     ezVisualScriptPinDescriptor pd;
     pd.m_sName = "then";
     pd.m_sTooltip = "";
@@ -482,7 +443,7 @@ void ezVisualScriptTypeRegistry::CreateMessageHandlerNodeType(const ezRTTI* pRtt
 
   ezVisualScriptNodeDescriptor nd;
   nd.m_sTypeName = tmp;
-  nd.m_Color = ClampToMaxValue(NiceColorFromFloat(0.9f));
+  nd.m_Color = NiceColorFromFloat(0.9f);
   nd.m_sCategory = "Message Handlers";
 
   if (const ezCategoryAttribute* pAttr = pRtti->GetAttributeByType<ezCategoryAttribute>())
@@ -500,8 +461,6 @@ void ezVisualScriptTypeRegistry::CreateMessageHandlerNodeType(const ezRTTI* pRtt
 
   // Add an output execution pin
   {
-    static const ezColor ExecutionPinColor = ezColor::LightSlateGrey;
-
     ezVisualScriptPinDescriptor pd;
     pd.m_sName = "OnMsg";
     pd.m_sTooltip = "";
@@ -557,7 +516,7 @@ void ezVisualScriptTypeRegistry::CreateFunctionCallNodeType(const ezRTTI* pRtti,
     nd.m_sCategory = pAttr->GetCategory();
   }
 
-  nd.m_Color = ClampToMaxValue(NiceColorFromString(nd.m_sCategory));
+  nd.m_Color = NiceColorFromString(nd.m_sCategory);
 
   if (const ezColorAttribute* pAttr = pFunction->GetAttributeByType<ezColorAttribute>())
   {
@@ -566,8 +525,6 @@ void ezVisualScriptTypeRegistry::CreateFunctionCallNodeType(const ezRTTI* pRtti,
 
   // Add an input execution pin
   {
-    static const ezColor ExecutionPinColor = ezColor::LightSlateGrey;
-
     ezVisualScriptPinDescriptor pd;
     pd.m_sName = "call";
     pd.m_sTooltip = "When executed, the message is sent to the object or component.";
@@ -579,8 +536,6 @@ void ezVisualScriptTypeRegistry::CreateFunctionCallNodeType(const ezRTTI* pRtti,
 
   // Add an output execution pin
   {
-    static const ezColor ExecutionPinColor = ezColor::LightSlateGrey;
-
     ezVisualScriptPinDescriptor pd;
     pd.m_sName = "then";
     pd.m_sTooltip = "";

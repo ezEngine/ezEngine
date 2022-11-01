@@ -15,7 +15,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezModelPoseOutputAnimNode, 1, ezRTTIDefaultAlloc
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Output"),
-    new ezColorAttribute(ezColor::DarkMagenta),
+    new ezColorAttribute(ezColorScheme::GetColorForUI(ezColorScheme::Grape)),
     new ezTitleAttribute("Output"),
   }
   EZ_END_ATTRIBUTES;

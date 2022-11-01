@@ -3,8 +3,8 @@
 /// \file
 
 #include <Foundation/Basics.h>
-#include <Foundation/Math/Color.h>
 #include <Foundation/Reflection/Reflection.h>
+#include <Foundation/Math/ColorScheme.h>
 
 /// \brief Base class of all attributes can be used to decorate a RTTI property.
 class EZ_FOUNDATION_DLL ezPropertyAttribute : public ezReflectedClass
@@ -630,7 +630,7 @@ class EZ_FOUNDATION_DLL ezBoxVisualizerAttribute : public ezVisualizerAttribute
 
 public:
   ezBoxVisualizerAttribute();
-  ezBoxVisualizerAttribute(const char* szSizeProperty, float fSizeScale = 1.0f, const ezColor& fixedColor = ezColor::MediumVioletRed, const char* szColorProperty = nullptr, ezBitflags<ezVisualizerAnchor> anchor = ezVisualizerAnchor::Center, ezVec3 offsetOrScale = ezVec3::ZeroVector(), const char* szOffsetProperty = nullptr, const char* szRotationProperty = nullptr);
+  ezBoxVisualizerAttribute(const char* szSizeProperty, float fSizeScale = 1.0f, const ezColor& fixedColor = ezColorScheme::GetColorFor3DScene(ezColorScheme::Grape), const char* szColorProperty = nullptr, ezBitflags<ezVisualizerAnchor> anchor = ezVisualizerAnchor::Center, ezVec3 offsetOrScale = ezVec3::ZeroVector(), const char* szOffsetProperty = nullptr, const char* szRotationProperty = nullptr);
 
   const ezUntrackedString& GetSizeProperty() const { return m_sProperty1; }
   const ezUntrackedString& GetColorProperty() const { return m_sProperty2; }
@@ -650,7 +650,7 @@ class EZ_FOUNDATION_DLL ezSphereVisualizerAttribute : public ezVisualizerAttribu
 
 public:
   ezSphereVisualizerAttribute();
-  ezSphereVisualizerAttribute(const char* szRadiusProperty, const ezColor& fixedColor = ezColor::MediumVioletRed, const char* szColorProperty = nullptr, ezBitflags<ezVisualizerAnchor> anchor = ezVisualizerAnchor::Center, ezVec3 offsetOrScale = ezVec3::ZeroVector(), const char* szOffsetProperty = nullptr);
+  ezSphereVisualizerAttribute(const char* szRadiusProperty, const ezColor& fixedColor = ezColorScheme::GetColorFor3DScene(ezColorScheme::Grape), const char* szColorProperty = nullptr, ezBitflags<ezVisualizerAnchor> anchor = ezVisualizerAnchor::Center, ezVec3 offsetOrScale = ezVec3::ZeroVector(), const char* szOffsetProperty = nullptr);
 
   const ezUntrackedString& GetRadiusProperty() const { return m_sProperty1; }
   const ezUntrackedString& GetColorProperty() const { return m_sProperty2; }
@@ -669,7 +669,7 @@ class EZ_FOUNDATION_DLL ezCapsuleVisualizerAttribute : public ezVisualizerAttrib
 
 public:
   ezCapsuleVisualizerAttribute();
-  ezCapsuleVisualizerAttribute(const char* szHeightProperty, const char* szRadiusProperty, const ezColor& fixedColor = ezColor::MediumVioletRed, const char* szColorProperty = nullptr, ezBitflags<ezVisualizerAnchor> anchor = ezVisualizerAnchor::Center);
+  ezCapsuleVisualizerAttribute(const char* szHeightProperty, const char* szRadiusProperty, const ezColor& fixedColor = ezColorScheme::GetColorFor3DScene(ezColorScheme::Grape), const char* szColorProperty = nullptr, ezBitflags<ezVisualizerAnchor> anchor = ezVisualizerAnchor::Center);
 
   const ezUntrackedString& GetHeightProperty() const { return m_sProperty1; }
   const ezUntrackedString& GetRadiusProperty() const { return m_sProperty2; }
@@ -686,8 +686,8 @@ class EZ_FOUNDATION_DLL ezCylinderVisualizerAttribute : public ezVisualizerAttri
 
 public:
   ezCylinderVisualizerAttribute();
-  ezCylinderVisualizerAttribute(ezEnum<ezBasisAxis> axis, const char* szHeightProperty, const char* szRadiusProperty, const ezColor& fixedColor = ezColor::MediumVioletRed, const char* szColorProperty = nullptr, ezBitflags<ezVisualizerAnchor> anchor = ezVisualizerAnchor::Center, ezVec3 offsetOrScale = ezVec3::ZeroVector(), const char* szOffsetProperty = nullptr);
-  ezCylinderVisualizerAttribute(const char* szAxisProperty, const char* szHeightProperty, const char* szRadiusProperty, const ezColor& fixedColor = ezColor::MediumVioletRed, const char* szColorProperty = nullptr, ezBitflags<ezVisualizerAnchor> anchor = ezVisualizerAnchor::Center, ezVec3 offsetOrScale = ezVec3::ZeroVector(), const char* szOffsetProperty = nullptr);
+  ezCylinderVisualizerAttribute(ezEnum<ezBasisAxis> axis, const char* szHeightProperty, const char* szRadiusProperty, const ezColor& fixedColor = ezColorScheme::GetColorFor3DScene(ezColorScheme::Grape), const char* szColorProperty = nullptr, ezBitflags<ezVisualizerAnchor> anchor = ezVisualizerAnchor::Center, ezVec3 offsetOrScale = ezVec3::ZeroVector(), const char* szOffsetProperty = nullptr);
+  ezCylinderVisualizerAttribute(const char* szAxisProperty, const char* szHeightProperty, const char* szRadiusProperty, const ezColor& fixedColor = ezColorScheme::GetColorFor3DScene(ezColorScheme::Grape), const char* szColorProperty = nullptr, ezBitflags<ezVisualizerAnchor> anchor = ezVisualizerAnchor::Center, ezVec3 offsetOrScale = ezVec3::ZeroVector(), const char* szOffsetProperty = nullptr);
 
   const ezUntrackedString& GetAxisProperty() const { return m_sProperty5; }
   const ezUntrackedString& GetHeightProperty() const { return m_sProperty1; }
@@ -708,8 +708,8 @@ class EZ_FOUNDATION_DLL ezDirectionVisualizerAttribute : public ezVisualizerAttr
 
 public:
   ezDirectionVisualizerAttribute();
-  ezDirectionVisualizerAttribute(ezEnum<ezBasisAxis> axis, float fScale, const ezColor& fixedColor = ezColor::MediumVioletRed, const char* szColorProperty = nullptr, const char* szLengthProperty = nullptr);
-  ezDirectionVisualizerAttribute(const char* szAxisProperty, float fScale, const ezColor& fixedColor = ezColor::MediumVioletRed, const char* szColorProperty = nullptr, const char* szLengthProperty = nullptr);
+  ezDirectionVisualizerAttribute(ezEnum<ezBasisAxis> axis, float fScale, const ezColor& fixedColor = ezColorScheme::GetColorFor3DScene(ezColorScheme::Grape), const char* szColorProperty = nullptr, const char* szLengthProperty = nullptr);
+  ezDirectionVisualizerAttribute(const char* szAxisProperty, float fScale, const ezColor& fixedColor = ezColorScheme::GetColorFor3DScene(ezColorScheme::Grape), const char* szColorProperty = nullptr, const char* szLengthProperty = nullptr);
 
   const ezUntrackedString& GetColorProperty() const { return m_sProperty1; }
   const ezUntrackedString& GetLengthProperty() const { return m_sProperty2; }
@@ -735,7 +735,7 @@ public:
   /// fScale will be multiplied with value of szRadiusProperty to determine the size of the cone
   /// szColorProperty may be nullptr. In this case it is ignored and fixedColor is used instead.
   /// fixedColor is ignored if szColorProperty is valid.
-  ezConeVisualizerAttribute(ezEnum<ezBasisAxis> axis, const char* szAngleProperty, float fScale, const char* szRadiusProperty, const ezColor& fixedColor = ezColor::MediumVioletRed, const char* szColorProperty = nullptr);
+  ezConeVisualizerAttribute(ezEnum<ezBasisAxis> axis, const char* szAngleProperty, float fScale, const char* szRadiusProperty, const ezColor& fixedColor = ezColorScheme::GetColorFor3DScene(ezColorScheme::Grape), const char* szColorProperty = nullptr);
 
   const ezUntrackedString& GetAngleProperty() const { return m_sProperty1; }
   const ezUntrackedString& GetRadiusProperty() const { return m_sProperty2; }

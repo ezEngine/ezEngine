@@ -3,6 +3,7 @@
 #include <EditorPluginAssets/StateMachineAsset/StateMachineAsset.h>
 #include <EditorPluginAssets/StateMachineAsset/StateMachineGraph.h>
 #include <EditorPluginAssets/StateMachineAsset/StateMachineGraphQt.moc.h>
+#include <Foundation/Math/ColorScheme.h>
 
 ezQtStateMachinePin::ezQtStateMachinePin() = default;
 
@@ -144,19 +145,19 @@ bool ezQtStateMachineNode::IsAnyState() const
 
 void ezQtStateMachineNode::UpdateHeaderColor()
 {
+  ezColorScheme::Enum schemeColor = ezColorScheme::Gray;
+  
   if (IsAnyState())
   {
-    m_HeaderColor = qRgb(0x84, 0x5E, 0xC2);
+    schemeColor = ezColorScheme::Violet;
   }
   else if (IsInitialState())
   {
-    m_HeaderColor = qRgb(0x0, 0x8F, 0x7A);
+    schemeColor = ezColorScheme::Teal;
   }
-  else
-  {
-    auto palette = QApplication::palette();
-    m_HeaderColor = palette.alternateBase().color();
-  }
+
+  ezColorGammaUB c = ezColorScheme::GetColorForUI(schemeColor);
+  m_HeaderColor = qRgb(c.r, c.g, c.b);
 
   update();
 }

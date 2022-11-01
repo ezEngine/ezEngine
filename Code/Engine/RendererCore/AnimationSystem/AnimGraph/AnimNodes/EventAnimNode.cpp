@@ -17,7 +17,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEventAnimNode, 1, ezRTTIDefaultAllocator<ezEve
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Events"),
-    new ezColorAttribute(ezColor::DarkOrange),
+    new ezColorAttribute(ezColorScheme::GetColorForUI(ezColorScheme::Orange)),
     new ezTitleAttribute("Event: '{EventName}'"),
   }
   EZ_END_ATTRIBUTES;
