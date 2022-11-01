@@ -31,7 +31,7 @@ void ezOSThread::Start()
   pthread_attr_setdetachstate(&ThreadAttributes, PTHREAD_CREATE_JOINABLE);
   pthread_attr_setstacksize(&ThreadAttributes, m_uiStackSize);
 
-  int iReturnCode = pthread_create(&m_Handle, &ThreadAttributes, m_EntryPoint, m_pUserData);
+  int iReturnCode = pthread_create(&m_hHandle, &ThreadAttributes, m_EntryPoint, m_pUserData);
   EZ_IGNORE_UNUSED(iReturnCode);
   EZ_ASSERT_RELEASE(iReturnCode == 0, "Thread creation failed!");
 
@@ -42,19 +42,19 @@ void ezOSThread::Start()
     // This means 15 characters and the terminating '\0'
     if (strlen(m_szName) < 16)
     {
-      pthread_setname_np(m_Handle, m_szName);
+      pthread_setname_np(m_hHandle, m_szName);
     }
     else
     {
       char threadName[16];
       strncpy(threadName, m_szName, 15);
       threadName[15] = '\0';
-      pthread_setname_np(m_Handle, threadName);
+      pthread_setname_np(m_hHandle, threadName);
     }
   }
 #endif
 
-  m_ThreadID = m_Handle;
+  m_ThreadID = m_hHandle;
 
   pthread_attr_destroy(&ThreadAttributes);
 }
@@ -62,5 +62,5 @@ void ezOSThread::Start()
 /// Joins with the thread (waits for termination)
 void ezOSThread::Join()
 {
-  pthread_join(m_Handle, nullptr);
+  pthread_join(m_hHandle, nullptr);
 }

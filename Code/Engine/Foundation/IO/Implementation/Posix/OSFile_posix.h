@@ -416,20 +416,20 @@ const char* ezOSFile::GetApplicationDirectory()
 
 ezString ezOSFile::GetUserDataFolder(const char* szSubFolder)
 {
-  if (s_UserDataPath.IsEmpty())
+  if (s_sUserDataPath.IsEmpty())
   {
 #  if EZ_ENABLED(EZ_PLATFORM_ANDROID)
     android_app* app = ezAndroidUtils::GetAndroidApp();
-    s_UserDataPath = app->activity->internalDataPath;
+    s_sUserDataPath = app->activity->internalDataPath;
 #  else
-    s_UserDataPath = getenv("HOME");
+    s_sUserDataPath = getenv("HOME");
 
-    if (s_UserDataPath.IsEmpty())
-      s_UserDataPath = getpwuid(getuid())->pw_dir;
+    if (s_sUserDataPath.IsEmpty())
+      s_sUserDataPath = getpwuid(getuid())->pw_dir;
 #  endif
   }
 
-  ezStringBuilder s = s_UserDataPath;
+  ezStringBuilder s = s_sUserDataPath;
   s.AppendPath(szSubFolder);
   s.MakeCleanPath();
   return s;
@@ -437,20 +437,20 @@ ezString ezOSFile::GetUserDataFolder(const char* szSubFolder)
 
 ezString ezOSFile::GetTempDataFolder(const char* szSubFolder)
 {
-  if (s_TempDataPath.IsEmpty())
+  if (s_sTempDataPath.IsEmpty())
   {
 #  if EZ_ENABLED(EZ_PLATFORM_ANDROID)
     ezJniAttachment attachment;
 
     ezJniObject cacheDir = attachment.GetActivity().Call<ezJniObject>("getCacheDir");
     ezJniString path = cacheDir.Call<ezJniString>("getPath");
-    s_TempDataPath = path.GetData();
+    s_sTempDataPath = path.GetData();
 #  else
-    s_TempDataPath = GetUserDataFolder(".cache").GetData();
+    s_sTempDataPath = GetUserDataFolder(".cache").GetData();
 #  endif
   }
 
-  ezStringBuilder s = s_TempDataPath;
+  ezStringBuilder s = s_sTempDataPath;
   s.AppendPath(szSubFolder);
   s.MakeCleanPath();
   return s;
