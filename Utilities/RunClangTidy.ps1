@@ -248,6 +248,12 @@ if($mocCmdsToExecute.Length -gt 0)
 	}
 }
 
+if($files.Length -eq 0)
+{
+	Write-Host "No files to run clang-tidy on. All good."
+	exit 0
+}
+
 Write-Host "Running clang-tidy on" $files.Length "files"
 
 $syncStore = [hashtable]::Synchronized(@{})
