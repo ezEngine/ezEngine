@@ -3,8 +3,8 @@
 /// \file
 
 #include <Foundation/Basics.h>
-#include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Math/ColorScheme.h>
+#include <Foundation/Reflection/Reflection.h>
 
 /// \brief Base class of all attributes can be used to decorate a RTTI property.
 class EZ_FOUNDATION_DLL ezPropertyAttribute : public ezReflectedClass

@@ -90,7 +90,7 @@ namespace
       ezOpenDdlUtils::ConvertToColorGamma(pElement, out_Color).IgnoreResult();
     }
   }
-}
+} // namespace
 
 ezVisualShaderTypeRegistry::ezVisualShaderTypeRegistry()
   : m_SingletonRegistrar(this)
