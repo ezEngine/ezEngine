@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{7297922959506964864,5177324930371449723}}
-		u4 %Hash{12742942203534415258}
+		u4 %Hash{16533233542147936145}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -11591,7 +11591,7 @@ o
 	{
 		b %Active{1}
 		b %CastShadows{1}
-		f %ConstantBias{0xCDCCCC3D}
+		f %ConstantBias{0x9A99193E}
 		f %FadeOutStart{0xCDCC4C3F}
 		f %Intensity{0x00002041}
 		ColorGamma %LightColor{u1{255,255,255,255}}
@@ -11599,7 +11599,7 @@ o
 		f %NearPlaneOffset{0x0000C842}
 		u3 %NumCascades{2}
 		f %PenumbraSize{0xCDCCCC3D}
-		f %SlopeBias{0x0000803E}
+		f %SlopeBias{0x0000003F}
 		f %SplitModeWeight{0x3333333F}
 	}
 }
@@ -30886,8 +30886,8 @@ o
 	u3 %v{1}
 	p
 	{
-		Angle %Max{f{0xDC0FC93F}}
-		Angle %Min{f{0xC4B8B23D}}
+		Angle %Max{f{0xDB0FC93F}}
+		Angle %Min{f{0xC2B8B23D}}
 	}
 }
 o
@@ -31400,7 +31400,7 @@ o
 	p
 	{
 		s %Anchor{""}
-		Color %Color{f{0x4035123F,0x70BAF53B,0x082E703E,0x0000803F}}
+		Color %Color{f{0x71941A3F,0x782DE03D,0x70944E3F,0x0000803F}}
 		Vec3 %OffsetOrScale{f{0,0,0}}
 		s %Property1{"Radius"}
 		s %Property2{""}
@@ -32276,8 +32276,8 @@ o
 	u3 %v{1}
 	p
 	{
-		Angle %Max{f{0xDC0FC93F}}
-		Angle %Min{f{0xD4023739}}
+		Angle %Max{f{0xDB0FC93F}}
+		Angle %Min{f{0xD3023739}}
 	}
 }
 o
@@ -32376,7 +32376,7 @@ o
 	u3 %v{1}
 	p
 	{
-		Angle %Value{f{0x930A063F}}
+		Angle %Value{f{0x920A063F}}
 	}
 }
 o
@@ -32762,7 +32762,7 @@ o
 	u3 %v{1}
 	p
 	{
-		Angle %Value{f{0x930A863E}}
+		Angle %Value{f{0x920A863E}}
 	}
 }
 o

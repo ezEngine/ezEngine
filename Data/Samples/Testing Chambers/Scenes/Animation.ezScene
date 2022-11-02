@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{9942389368597704355,5056955079846159374}}
-		u4 %Hash{6582589485810226983}
+		u4 %Hash{16922582066601161355}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -114,7 +114,7 @@ o
 	p
 	{
 		b %Active{1}
-		Color %Color{f{0xB2CCB53F,0x52B84440,0x04904240,0x0000803F}}
+		Color %Color{f{0x5D95EC3E,0xFBFF7F3F,0xE0B87D3F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
@@ -220,7 +220,7 @@ o
 	p
 	{
 		b %Active{1}
-		Color %Color{f{0xB2CCB53F,0x52B84440,0x04904240,0x0000803F}}
+		Color %Color{f{0x5D95EC3E,0xFBFF7F3F,0xE0B87D3F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
@@ -1308,7 +1308,7 @@ o
 	p
 	{
 		b %Active{1}
-		Color %Color{f{0xB2CCB53F,0x52B84440,0x04904240,0x0000803F}}
+		Color %Color{f{0x5D95EC3E,0xFBFF7F3F,0xE0B87D3F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
@@ -2132,7 +2132,7 @@ o
 	p
 	{
 		b %Active{1}
-		Color %Color{f{0xB2CCB53F,0x52B84440,0x04904240,0x0000803F}}
+		Color %Color{f{0x5D95EC3E,0xFBFF7F3F,0xE0B87D3F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
@@ -2185,7 +2185,7 @@ o
 	p
 	{
 		b %Active{1}
-		Color %Color{f{0xB2CCB53F,0x52B84440,0x04904240,0x0000803F}}
+		Color %Color{f{0x5D95EC3E,0xFBFF7F3F,0xE0B87D3F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
@@ -2238,7 +2238,7 @@ o
 	p
 	{
 		b %Active{1}
-		Color %Color{f{0xB2CCB53F,0x52B84440,0x04904240,0x0000803F}}
+		Color %Color{f{0x5D95EC3E,0xFBFF7F3F,0xE0B87D3F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
@@ -2291,7 +2291,7 @@ o
 	p
 	{
 		b %Active{1}
-		Color %Color{f{0xB2CCB53F,0x52B84440,0x04904240,0x0000803F}}
+		Color %Color{f{0x5D95EC3E,0xFBFF7F3F,0xE0B87D3F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
@@ -2945,7 +2945,7 @@ o
 	p
 	{
 		b %Active{1}
-		Color %Color{f{0xB2CCB53F,0x52B84440,0x04904240,0x0000803F}}
+		Color %Color{f{0x5D95EC3E,0xFBFF7F3F,0xE0B87D3F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
@@ -3533,7 +3533,7 @@ o
 	p
 	{
 		b %Active{1}
-		Color %Color{f{0xB2CCB53F,0x52B84440,0x04904240,0x0000803F}}
+		Color %Color{f{0x5D95EC3E,0xFBFF7F3F,0xE0B87D3F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
@@ -3810,7 +3810,7 @@ o
 	p
 	{
 		b %Active{1}
-		Color %Color{f{0xB2CCB53F,0x52B84440,0x04904240,0x0000803F}}
+		Color %Color{f{0x5D95EC3E,0xFBFF7F3F,0xE0B87D3F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
@@ -3863,7 +3863,7 @@ o
 	p
 	{
 		b %Active{1}
-		Color %Color{f{0xB2CCB53F,0x52B84440,0x04904240,0x0000803F}}
+		Color %Color{f{0x5D95EC3E,0xFBFF7F3F,0xE0B87D3F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
@@ -3916,7 +3916,7 @@ o
 	p
 	{
 		b %Active{1}
-		Color %Color{f{0xB2CCB53F,0x52B84440,0x04904240,0x0000803F}}
+		Color %Color{f{0x5D95EC3E,0xFBFF7F3F,0xE0B87D3F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
@@ -3942,7 +3942,7 @@ o
 	p
 	{
 		b %Active{1}
-		Color %Color{f{0xB2CCB53F,0x52B84440,0x04904240,0x0000803F}}
+		Color %Color{f{0x5D95EC3E,0xFBFF7F3F,0xE0B87D3F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
@@ -4022,7 +4022,7 @@ o
 	p
 	{
 		b %Active{1}
-		Color %Color{f{0xB2CCB53F,0x52B84440,0x04904240,0x0000803F}}
+		Color %Color{f{0x5D95EC3E,0xFBFF7F3F,0xE0B87D3F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
@@ -4228,7 +4228,7 @@ o
 	p
 	{
 		b %Active{1}
-		Color %Color{f{0xB2CCB53F,0x52B84440,0x04904240,0x0000803F}}
+		Color %Color{f{0x5D95EC3E,0xFBFF7F3F,0xE0B87D3F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
@@ -4544,7 +4544,7 @@ o
 	p
 	{
 		b %Active{1}
-		Color %Color{f{0xB2CCB53F,0x52B84440,0x04904240,0x0000803F}}
+		Color %Color{f{0x5D95EC3E,0xFBFF7F3F,0xE0B87D3F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
@@ -4624,7 +4624,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSimpleAnimationComponent"}
-		u3 %TypeSize{112}
+		u3 %TypeSize{120}
 		u3 %TypeVersion{1}
 	}
 }
