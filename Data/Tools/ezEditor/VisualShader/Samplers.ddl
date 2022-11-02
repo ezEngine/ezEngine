@@ -1,14 +1,14 @@
 Node %PointSampler
 {
   string %Category { "Texturing/Samplers" }
-  unsigned_int8 %Color { 0, 96, 96 }
+  string %Color { "Cyan" }
 
   string %CodePixelSamplers { "" }
 
   OutputPin %Sampler
   {
     string %Type { "sampler" }
-    unsigned_int8 %Color { 0, 96, 96 }
+    string %Color { "Cyan" }
     string %Inline { "PointSampler" }
   }
 }
@@ -16,14 +16,14 @@ Node %PointSampler
 Node %LinearSampler
 {
   string %Category { "Texturing/Samplers" }
-  unsigned_int8 %Color { 0, 96, 96 }
+  string %Color { "Cyan" }
 
   string %CodePixelSamplers { "" }
 
   OutputPin %Sampler
   {
     string %Type { "sampler" }
-    unsigned_int8 %Color { 0, 96, 96 }
+    string %Color { "Cyan" }
     string %Inline { "LinearSampler" }
   }
 }
@@ -31,14 +31,14 @@ Node %LinearSampler
 Node %PointClampSampler
 {
   string %Category { "Texturing/Samplers" }
-  unsigned_int8 %Color { 0, 96, 96 }
+  string %Color { "Cyan" }
 
   string %CodePixelSamplers { "" }
 
   OutputPin %Sampler
   {
     string %Type { "sampler" }
-    unsigned_int8 %Color { 0, 96, 96 }
+    string %Color { "Cyan" }
     string %Inline { "PointClampSampler" }
   }
 }
@@ -46,14 +46,14 @@ Node %PointClampSampler
 Node %LinearClampSampler
 {
   string %Category { "Texturing/Samplers" }
-  unsigned_int8 %Color { 0, 96, 96 }
+  string %Color { "Cyan" }
 
   string %CodePixelSamplers { "" }
 
   OutputPin %Sampler
   {
     string %Type { "sampler" }
-    unsigned_int8 %Color { 0, 96, 96 }
+    string %Color { "Cyan" }
     string %Inline { "LinearClampSampler" }
   }
 }

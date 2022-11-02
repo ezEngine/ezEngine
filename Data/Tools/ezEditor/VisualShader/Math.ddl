@@ -2,12 +2,11 @@
 Node %Lerp
 {
   string %Category { "Math/Interpolation" }
-  unsigned_int8 %Color { 183, 153, 0 }
+  string %Color { "Yellow" }
 
   InputPin %x
   {
     string %Type { "float" }
-    unsigned_int8 %Color { 128, 50, 50 }
     bool %Expose { true }
     string %DefaultValue { "0" }
   }
@@ -15,7 +14,6 @@ Node %Lerp
   InputPin %y
   {
     string %Type { "float" }
-    unsigned_int8 %Color { 50, 128, 50 }
     bool %Expose { true }
     string %DefaultValue { "1" }
   }
@@ -23,7 +21,6 @@ Node %Lerp
   InputPin %factor
   {
     string %Type { "float" }
-    unsigned_int8 %Color { 128, 128, 0 }
     bool %Expose { true }
     string %DefaultValue { "0.5" }
     string %Tooltip { "How much to interpolate between x and y. At 0 the output is x, at 1 the output is y." }

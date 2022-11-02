@@ -1,12 +1,11 @@
 Node %Add
 {
   string %Category { "Math/Basic" }
-  unsigned_int8 %Color { 183, 153, 0 }
+  string %Color { "Yellow" }
 
   InputPin %a
   {
     string %Type { "float" }
-    unsigned_int8 %Color { 128, 50, 50 }
     bool %Expose { true }
     string %DefaultValue { "0" }
   }
@@ -14,7 +13,6 @@ Node %Add
   InputPin %b
   {
     string %Type { "float" }
-    unsigned_int8 %Color { 50, 128, 50 }
     bool %Expose { true }
     string %DefaultValue { "0" }
   }
@@ -22,7 +20,6 @@ Node %Add
   OutputPin %result
   {
     string %Type { "float" }
-    unsigned_int8 %Color { 200, 200, 200 }
     string %Inline { "(ToBiggerType($in0, $in1) + ToBiggerType($in1, $in0))" }
     string %Tooltip { "a + b" }
   }
@@ -31,12 +28,11 @@ Node %Add
 Node %Subtract
 {
   string %Category { "Math/Basic" }
-  unsigned_int8 %Color { 183, 153, 0 }
+  string %Color { "Yellow" }
 
   InputPin %a
   {
     string %Type { "float" }
-    unsigned_int8 %Color { 128, 50, 50 }
     bool %Expose { true }
     string %DefaultValue { "0" }
   }
@@ -44,7 +40,6 @@ Node %Subtract
   InputPin %b
   {
     string %Type { "float" }
-    unsigned_int8 %Color { 50, 128, 50 }
     bool %Expose { true }
     string %DefaultValue { "0" }
   }
@@ -52,7 +47,6 @@ Node %Subtract
   OutputPin %result
   {
     string %Type { "float" }
-    unsigned_int8 %Color { 200, 200, 200 }
     string %Inline { "(ToBiggerType($in0, $in1) - ToBiggerType($in1, $in0))" }
     string %Tooltip { "a - b" }
   }
@@ -61,12 +55,11 @@ Node %Subtract
 Node %Multiply
 {
   string %Category { "Math/Basic" }
-  unsigned_int8 %Color { 183, 153, 0 }
+  string %Color { "Yellow" }
 
   InputPin %a
   {
     string %Type { "float" }
-    unsigned_int8 %Color { 128, 50, 50 }
     bool %Expose { true }
     string %DefaultValue { "1" }
   }
@@ -74,7 +67,6 @@ Node %Multiply
   InputPin %b
   {
     string %Type { "float" }
-    unsigned_int8 %Color { 50, 128, 50 }
     bool %Expose { true }
     string %DefaultValue { "1" }
   }
@@ -82,7 +74,6 @@ Node %Multiply
   OutputPin %result
   {
     string %Type { "float" }
-    unsigned_int8 %Color { 200, 200, 200 }
     string %Inline { "(ToBiggerType($in0, $in1) * ToBiggerType($in1, $in0))" }
     string %Tooltip { "a * b (component-wise)" }
   }
@@ -91,12 +82,11 @@ Node %Multiply
 Node %Divide
 {
   string %Category { "Math/Basic" }
-  unsigned_int8 %Color { 216, 86, 0 }
+  string %Color { "Yellow" }
 
   InputPin %a
     {
       string %Type { "float" }
-      unsigned_int8 %Color { 128, 50, 50 }
       bool %Expose { true }
       string %DefaultValue { "1" }
     }
@@ -104,7 +94,6 @@ Node %Divide
   InputPin %b
   {
     string %Type { "float" }
-    unsigned_int8 %Color { 50, 128, 50 }
     bool %Expose { true }
     string %DefaultValue { "1" }
   }
@@ -112,7 +101,6 @@ Node %Divide
   OutputPin %result
   {
     string %Type { "float" }
-    unsigned_int8 %Color { 200, 200, 200 }
     string %Inline { "(ToBiggerType($in0, $in1) / ToBiggerType($in1, $in0))" }
     string %Tooltip { "a / b (component-wise)" }
   }
@@ -121,18 +109,16 @@ Node %Divide
 Node %Fraction
 {
   string %Category { "Math/Basic" }
-  unsigned_int8 %Color { 183, 153, 0 }
+  string %Color { "Yellow" }
 
   InputPin %a
   {
     string %Type { "float" }
-    unsigned_int8 %Color { 200, 200, 200 }
   }
 
   OutputPin %result
   {
     string %Type { "float" }
-    unsigned_int8 %Color { 200, 200, 200 }
     string %Inline { "frac($in0)" }
     string %Tooltip { "The fractional part of the input (component-wise)." }
   }
@@ -141,18 +127,16 @@ Node %Fraction
 Node %Abs
 {
   string %Category { "Math/Basic" }
-  unsigned_int8 %Color { 183, 153, 0 }
+  string %Color { "Yellow" }
 
   InputPin %a
   {
     string %Type { "float" }
-    unsigned_int8 %Color { 200, 200, 200 }
   }
 
   OutputPin %result
   {
     string %Type { "float" }
-    unsigned_int8 %Color { 200, 200, 200 }
     string %Inline { "abs($in0)" }
     string %Tooltip { "The absolute value of the input (component-wise)." }
   }
@@ -161,18 +145,16 @@ Node %Abs
 Node %Sign
 {
   string %Category { "Math/Basic" }
-  unsigned_int8 %Color { 183, 153, 0 }
+  string %Color { "Yellow" }
 
   InputPin %a
   {
     string %Type { "float" }
-    unsigned_int8 %Color { 200, 200, 200 }
   }
 
   OutputPin %result
   {
     string %Type { "float" }
-    unsigned_int8 %Color { 200, 200, 200 }
     string %Inline { "sign($in0)" }
     string %Tooltip { "Outputs the sign of the input (component-wise)." }
   }
@@ -181,18 +163,16 @@ Node %Sign
 Node %Sqrt
 {
   string %Category { "Math/Basic" }
-  unsigned_int8 %Color { 216, 86, 0 }
+  string %Color { "Yellow" }
 
   InputPin %a
   {
     string %Type { "float" }
-    unsigned_int8 %Color { 200, 200, 200 }
   }
 
   OutputPin %result
   {
     string %Type { "float" }
-    unsigned_int8 %Color { 200, 200, 200 }
     string %Inline { "sqrt($in0)" }
     string %Tooltip { "The square root of the input (component-wise)." }
   }
@@ -201,19 +181,17 @@ Node %Sqrt
 Node %Negate
 {
   string %Category { "Math/Vector" }
-  unsigned_int8 %Color { 183, 153, 0 }
+  string %Color { "Yellow" }
 
   InputPin %a
   {
     string %Type { "float" }
-    unsigned_int8 %Color { 200, 200, 200 }
     string %DefaultValue { "0" }
   }
 
   OutputPin %result
   {
     string %Type { "float" }
-    unsigned_int8 %Color { 200, 200, 200 }
     string %Inline { "-$in0" }
     string %Tooltip { "Negated input value." }
   }

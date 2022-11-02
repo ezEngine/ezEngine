@@ -164,6 +164,7 @@ ezColor ezColorScheme::s_Colors[Count][10] = {
 
 static constexpr ezUInt8 UIBrightness = 0;
 static constexpr ezUInt8 UIGrayBrightness = ezMath::Clamp<ezUInt8>(UIBrightness + 3, 0, 9); // gray is way to dark at UIBrightness
+static constexpr ezUInt8 UIYellowBrightness = ezMath::Clamp<ezUInt8>(UIBrightness + 4, 0, 9); // yellow looks to similar to orange with the default UIBrightness
 static constexpr float UISaturation = 0.85f;
 ezColor ezColorScheme::s_UIColors[Count] = {
   GetColor(ezColorScheme::Red, UIBrightness, UISaturation * 0.9f), // red is too saturated for our dark UI
@@ -176,7 +177,7 @@ ezColor ezColorScheme::s_UIColors[Count] = {
   GetColor(ezColorScheme::Teal, UIBrightness, UISaturation),
   GetColor(ezColorScheme::Green, UIBrightness, UISaturation),
   GetColor(ezColorScheme::Lime, UIBrightness, UISaturation),
-  GetColor(ezColorScheme::Yellow, UIBrightness, UISaturation * 0.9f) * 0.9f, // yellow is too saturated and too bright for our dark UI
+  GetColor(ezColorScheme::Yellow, UIYellowBrightness, UISaturation) * 0.5f, // since we select a much brighter yellow it needs to be toned down here
   GetColor(ezColorScheme::Orange, UIBrightness, UISaturation * 0.9f),        // orange is too saturated for our dark UI
   GetColor(ezColorScheme::Gray, UIGrayBrightness, UISaturation),
 };

@@ -1,7 +1,7 @@
 Node %Split
 {
   string %Category { "Components" }
-  unsigned_int8 %Color { 123, 137, 0 }
+  string %Color { "Lime" }
 
   InputPin %a
   {
@@ -13,7 +13,7 @@ Node %Split
   OutputPin %x
   {
     string %Type { "float" }
-    unsigned_int8 %Color { 128, 0, 0 }
+    string %Color { "Red" }
     string %Inline { "ToFloat1($in0)" }
     string %Tooltip { "Returns the x component of the incoming data." }
   }
@@ -21,7 +21,7 @@ Node %Split
   OutputPin %y
   {
     string %Type { "float" }
-    unsigned_int8 %Color { 0, 128, 0 }
+    string %Color { "Green" }
     string %Inline { "ToFloat2($in0).y" }
     string %Tooltip { "Returns the y component of the incoming data. Zero if the incoming data has less than 2 components." }
   }
@@ -29,7 +29,7 @@ Node %Split
   OutputPin %z
   {
     string %Type { "float" }
-    unsigned_int8 %Color { 0, 0, 128 }
+    string %Color { "Blue" }
     string %Inline { "ToFloat3($in0).z" }
     string %Tooltip { "Returns the z component of the incoming data. Zero if the incoming data has less than 3 components." }
   }
@@ -37,7 +37,6 @@ Node %Split
   OutputPin %w
   {
     string %Type { "float" }
-    unsigned_int8 %Color { 175, 175, 117 }
     string %Inline { "ToFloat4Direction($in0).w" }
     string %Tooltip { "Returns the w component of the incoming data. Zero if the incoming data has less than 4 components." }
   }
@@ -46,12 +45,12 @@ Node %Split
 Node %MergeFloat2
 {
   string %Category { "Components" }
-  unsigned_int8 %Color { 123, 137, 0 }
+  string %Color { "Lime" }
 
   InputPin %x
   {
     string %Type { "float" }
-    unsigned_int8 %Color { 128, 0, 0 }
+    string %Color { "Red" }
     bool %Expose { true }
     string %DefaultValue { "0" }
     string %Tooltip { "The first component of the incoming data is put into the x component of the output." }
@@ -60,7 +59,7 @@ Node %MergeFloat2
   InputPin %y
   {
     string %Type { "float" }
-    unsigned_int8 %Color { 0, 128, 0 }
+    string %Color { "Green" }
     bool %Expose { true }
     string %DefaultValue { "0" }
     string %Tooltip { "The first component of the incoming data is put into the y component of the output." }
@@ -78,12 +77,12 @@ Node %MergeFloat2
 Node %MergeFloat3
 {
   string %Category { "Components" }
-  unsigned_int8 %Color { 123, 137, 0 }
+  string %Color { "Lime" }
 
   InputPin %x
   {
     string %Type { "float" }
-    unsigned_int8 %Color { 128, 0, 0 }
+    string %Color { "Red" }
     bool %Expose { true }
     string %DefaultValue { "0" }
     string %Tooltip { "The first component of the incoming data is put into the x component of the output." }
@@ -92,7 +91,7 @@ Node %MergeFloat3
   InputPin %y
   {
     string %Type { "float" }
-    unsigned_int8 %Color { 0, 128, 0 }
+    string %Color { "Green" }
     bool %Expose { true }
     string %DefaultValue { "0" }
     string %Tooltip { "The first component of the incoming data is put into the y component of the output." }
@@ -101,7 +100,7 @@ Node %MergeFloat3
   InputPin %z
   {
     string %Type { "float" }
-    unsigned_int8 %Color { 0, 0, 128 }
+    string %Color { "Blue" }
     bool %Expose { true }
     string %DefaultValue { "0" }
     string %Tooltip { "The first component of the incoming data is put into the z component of the output." }
@@ -119,12 +118,12 @@ Node %MergeFloat3
 Node %MergeFloat4
 {
   string %Category { "Components" }
-  unsigned_int8 %Color { 123, 137, 0 }
+  string %Color { "Lime" }
 
   InputPin %x
   {
     string %Type { "float" }
-    unsigned_int8 %Color { 128, 0, 0 }
+    string %Color { "Red" }
     bool %Expose { true }
     string %DefaultValue { "0" }
     string %Tooltip { "The first component of the incoming data is put into the x component of the output." }
@@ -133,7 +132,7 @@ Node %MergeFloat4
   InputPin %y
   {
       string %Type { "float" }
-      unsigned_int8 %Color { 0, 128, 0 }
+      string %Color { "Green" }
       bool %Expose { true }
       string %DefaultValue { "0" }
       string %Tooltip { "The first component of the incoming data is put into the y component of the output." }
@@ -142,7 +141,7 @@ Node %MergeFloat4
   InputPin %z
   {
       string %Type { "float" }
-      unsigned_int8 %Color { 0, 0, 128 }
+      string %Color { "Blue" }
       bool %Expose { true }
       string %DefaultValue { "0" }
       string %Tooltip { "The first component of the incoming data is put into the z component of the output." }
@@ -151,7 +150,6 @@ Node %MergeFloat4
   InputPin %w
   {
       string %Type { "float" }
-      unsigned_int8 %Color { 175, 175, 117 }
       bool %Expose { true }
       string %DefaultValue { "0" }
       string %Tooltip { "The first component of the incoming data is put into the w component of the output." }

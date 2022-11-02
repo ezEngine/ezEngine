@@ -1,7 +1,7 @@
 Node %MaterialOutput
 {
   string %Category { "Output" }
-  unsigned_int8 %Color { 127, 0, 110 }
+  string %Color { "Grape" }
   string %NodeType { "Main" }
   string %CodePermutations { "
 BLEND_MODE
@@ -228,7 +228,7 @@ float3 GetSubsurfaceColor()
   InputPin %BaseColor
   {
     string %Type { "float3" }
-    unsigned_int8 %Color { 255, 255, 255 }
+    unsigned_int8 %Color { 200, 200, 200 }
     bool %Expose { true }
     string %DefaultValue { "1, 1, 1" }
   }
@@ -237,7 +237,7 @@ float3 GetSubsurfaceColor()
   InputPin %Normal
   {
     string %Type { "float3" }
-    unsigned_int8 %Color { 128, 128, 255 }
+    string %Color { "Violet" }
     string %DefaultValue { "float3(0, 0, 1)" }
     string %DefineWhenUsingDefaultValue { "USE_NORMAL" }
     string %Tooltip { "Surface normal in tangent space." }
@@ -247,7 +247,6 @@ float3 GetSubsurfaceColor()
   InputPin %Metallic
   {
     string %Type { "float" }
-    unsigned_int8 %Color { 128, 128, 128 }
     bool %Expose { true }
     string %DefaultValue { "0" }
   }
@@ -256,7 +255,7 @@ float3 GetSubsurfaceColor()
   InputPin %Reflectance
   {
     string %Type { "float" }
-    unsigned_int8 %Color { 210, 255, 100 }
+    string %Color { "Yellow" }
     bool %Expose { true }
     string %DefaultValue { "0.5" }
   }
@@ -265,7 +264,7 @@ float3 GetSubsurfaceColor()
   InputPin %Roughness
   {
     string %Type { "float" }
-    unsigned_int8 %Color { 150, 64, 64 }
+    string %Color { "Orange" }
     bool %Expose { true }
     string %DefaultValue { "0.5" }
   }
@@ -274,7 +273,7 @@ float3 GetSubsurfaceColor()
   InputPin %Opacity
   {
     string %Type { "float" }
-    unsigned_int8 %Color { 255, 0, 110 }
+    string %Color { "Red" }
     bool %Expose { true }
     string %DefaultValue { "1" }
   }
@@ -283,7 +282,7 @@ float3 GetSubsurfaceColor()
   InputPin %Emissive
   {
     string %Type { "float3" }
-    unsigned_int8 %Color { 255, 106, 0 }
+    unsigned_int8 %Color { 200, 200, 200 }
     bool %Expose { true }
     string %DefaultValue { "0" }
   }
@@ -292,7 +291,6 @@ float3 GetSubsurfaceColor()
   InputPin %Occlusion
   {
     string %Type { "float" }
-    unsigned_int8 %Color { 127, 115, 63 }
     bool %Expose { true }
     string %DefaultValue { "1" }
   }
@@ -301,7 +299,7 @@ float3 GetSubsurfaceColor()
   InputPin %RefractionColor
   {
     string %Type { "float4" }
-    unsigned_int8 %Color { 255, 106, 0 }
+    unsigned_int8 %Color { 200, 200, 200 }
     bool %Expose { true }
     string %DefaultValue { "0, 0, 0, 1" }
   }
@@ -310,7 +308,7 @@ float3 GetSubsurfaceColor()
   InputPin %SubsurfaceColor
   {
     string %Type { "float3" }
-    unsigned_int8 %Color { 255, 106, 0 }
+    unsigned_int8 %Color { 200, 200, 200 }
     bool %Expose { true }
     string %DefaultValue { "0, 0, 0" }
   }
@@ -319,7 +317,7 @@ float3 GetSubsurfaceColor()
   InputPin %LocalPosOffset
   {
     string %Type { "float3" }
-    unsigned_int8 %Color { 75, 145, 112 }
+    string %Color { "Indigo" }
     string %DefaultValue { "0" }
   }
 
@@ -327,7 +325,7 @@ float3 GetSubsurfaceColor()
   InputPin %GlobalPosOffset
   {
     string %Type { "float3" }
-    unsigned_int8 %Color { 226, 96, 93 }
+    string %Color { "Indigo" }
     string %DefaultValue { "0" }
   }
 }
