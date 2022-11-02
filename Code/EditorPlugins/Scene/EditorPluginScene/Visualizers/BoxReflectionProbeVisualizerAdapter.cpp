@@ -15,7 +15,7 @@ void ezBoxReflectionProbeVisualizerAdapter::Finalize()
   const ezAssetDocument* pAssetDocument = ezDynamicCast<const ezAssetDocument*>(pDoc);
   EZ_ASSERT_DEV(pAssetDocument != nullptr, "Visualizers are only supported in ezAssetDocument.");
 
-  m_hGizmo.ConfigureHandle(nullptr, ezEngineGizmoHandleType::LineBox, ezColorScheme::GetColorFor3DScene(ezColorScheme::Yellow), ezGizmoFlags::ShowInOrtho | ezGizmoFlags::Visualizer);
+  m_hGizmo.ConfigureHandle(nullptr, ezEngineGizmoHandleType::LineBox, ezColorScheme::LightUI(ezColorScheme::Yellow), ezGizmoFlags::ShowInOrtho | ezGizmoFlags::Visualizer);
 
   pAssetDocument->AddSyncObject(&m_hGizmo);
   m_hGizmo.SetVisible(m_bVisualizerIsVisible);

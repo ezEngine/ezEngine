@@ -139,9 +139,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_PlacementOutput, 1, ezRTTIDefaultAlloc
     EZ_MEMBER_PROPERTY("Surface", m_sSurface)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface")),
 
     EZ_MEMBER_PROPERTY("Density", m_DensityPin),
-    EZ_MEMBER_PROPERTY("Scale", m_ScalePin)->AddAttributes(new ezColorAttribute(ezColorScheme::GetColorForUI(ezColorScheme::Pink))),
-    EZ_MEMBER_PROPERTY("ColorIndex", m_ColorIndexPin)->AddAttributes(new ezColorAttribute(ezColorScheme::GetColorForUI(ezColorScheme::Violet))),
-    EZ_MEMBER_PROPERTY("ObjectIndex", m_ObjectIndexPin)->AddAttributes(new ezColorAttribute(ezColorScheme::GetColorForUI(ezColorScheme::Cyan)))
+    EZ_MEMBER_PROPERTY("Scale", m_ScalePin)->AddAttributes(new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Pink))),
+    EZ_MEMBER_PROPERTY("ColorIndex", m_ColorIndexPin)->AddAttributes(new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Violet))),
+    EZ_MEMBER_PROPERTY("ObjectIndex", m_ObjectIndexPin)->AddAttributes(new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Cyan)))
   }
   EZ_END_PROPERTIES;
 
@@ -246,9 +246,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_VertexColorOutput, 1, ezRTTIDefaultAll
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("R", m_RPin)->AddAttributes(new ezColorAttribute(ezColorScheme::GetColorForUI(ezColorScheme::Red))),
-    EZ_MEMBER_PROPERTY("G", m_GPin)->AddAttributes(new ezColorAttribute(ezColorScheme::GetColorForUI(ezColorScheme::Green))),
-    EZ_MEMBER_PROPERTY("B", m_BPin)->AddAttributes(new ezColorAttribute(ezColorScheme::GetColorForUI(ezColorScheme::Blue))),
+    EZ_MEMBER_PROPERTY("R", m_RPin)->AddAttributes(new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Red))),
+    EZ_MEMBER_PROPERTY("G", m_GPin)->AddAttributes(new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Green))),
+    EZ_MEMBER_PROPERTY("B", m_BPin)->AddAttributes(new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Blue))),
     EZ_MEMBER_PROPERTY("A", m_APin),
   }
   EZ_END_PROPERTIES;
@@ -517,9 +517,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_MeshVertexColor, 1, ezRTTIDefaultAlloc
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("R", m_RPin)->AddAttributes(new ezColorAttribute(ezColorScheme::GetColorForUI(ezColorScheme::Red))),
-    EZ_MEMBER_PROPERTY("G", m_GPin)->AddAttributes(new ezColorAttribute(ezColorScheme::GetColorForUI(ezColorScheme::Green))),
-    EZ_MEMBER_PROPERTY("B", m_BPin)->AddAttributes(new ezColorAttribute(ezColorScheme::GetColorForUI(ezColorScheme::Blue))),
+    EZ_MEMBER_PROPERTY("R", m_RPin)->AddAttributes(new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Red))),
+    EZ_MEMBER_PROPERTY("G", m_GPin)->AddAttributes(new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Green))),
+    EZ_MEMBER_PROPERTY("B", m_BPin)->AddAttributes(new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Blue))),
     EZ_MEMBER_PROPERTY("A", m_APin),
   }
   EZ_END_PROPERTIES;

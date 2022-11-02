@@ -38,7 +38,7 @@ namespace
       for (ezUInt32 y = 0; y < uiRows; ++y)
       {
         ezTestShaderData& instance = instanceData[uiSlotOffset + x * uiRows + y];
-        instance.InstanceColor = ezColorScheme::GetColorFor3DScene(float(uiColorOffset + x * uiRows + y) / (uiColumns * uiRows)).GetAsVec4();
+        instance.InstanceColor = ezColorScheme::LightUI(float(uiColorOffset + x * uiRows + y) / (uiColumns * uiRows)).GetAsVec4();
         ezTransform t = CreateTransform(uiColumns, uiRows, x, y);
         instance.InstanceTransform = t;
       }
@@ -579,7 +579,7 @@ void ezRendererTestPipelineStates::ConstantBufferTest()
         {
           {
             auto constants = ezRenderContext::GetConstantBufferData<ezTestColors>(m_hTestColorsConstantBuffer);
-            constants->VertexColor = ezColorScheme::GetColorFor3DScene(float(x * uiRows + y) / (uiColumns * uiRows)).GetAsVec4();
+            constants->VertexColor = ezColorScheme::LightUI(float(x * uiRows + y) / (uiColumns * uiRows)).GetAsVec4();
           }
           {
             ezTransform t = CreateTransform(uiColumns, uiRows, x, y);

@@ -23,7 +23,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSetBlackboardValueAnimNode, 1, ezRTTIDefaultAl
   {
     new ezTitleAttribute("Set: '{BlackboardEntry}' '{ActivationValue}''"),
     new ezCategoryAttribute("Blackboard"),
-    new ezColorAttribute(ezColorScheme::GetColorForUI(ezColorScheme::Red)),
+    new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Red)),
   }
   EZ_END_ATTRIBUTES;
 }
@@ -132,7 +132,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCheckBlackboardValueAnimNode, 1, ezRTTIDefault
   {
     new ezCategoryAttribute("Blackboard"),
     new ezTitleAttribute("Check: '{BlackboardEntry}' {Comparison} {ReferenceValue}"),
-    new ezColorAttribute(ezColorScheme::GetColorForUI(ezColorScheme::Lime)),
+    new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Lime)),
   }
   EZ_END_ATTRIBUTES;
 }
@@ -231,7 +231,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGetBlackboardNumberAnimNode, 1, ezRTTIDefaultA
   {
     new ezCategoryAttribute("Blackboard"),
     new ezTitleAttribute("Get: '{BlackboardEntry}'"),
-    new ezColorAttribute(ezColorScheme::GetColorForUI(ezColorScheme::Lime)),
+    new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Lime)),
   }
   EZ_END_ATTRIBUTES;
 }

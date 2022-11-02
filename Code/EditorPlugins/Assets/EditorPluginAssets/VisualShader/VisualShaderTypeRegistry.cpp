@@ -83,7 +83,7 @@ namespace
         }
       }
 
-      out_Color = ezColorScheme::GetColorForUI(color);
+      out_Color = ezColorScheme::DarkUI(color);
     }
     else
     {

@@ -42,36 +42,36 @@ public:
   /// Does not include gray.
   static ezColor GetColor(float fIndex, ezUInt8 uiBrightness, float fSaturation = 1.0f, float fAlpha = 1.0f);
 
-  /// \brief Get a scheme color with predefined brightness and saturation to look good with the EZ tools UI scheme.
-  EZ_ALWAYS_INLINE static ezColor GetColorForUI(Enum schemeColor)
+  /// \brief Get a scheme color with predefined brightness and saturation to look good with the EZ tools dark UI scheme.
+  EZ_ALWAYS_INLINE static ezColor DarkUI(Enum schemeColor)
   {
-    return s_UIColors[schemeColor];
+    return s_DarkUIColors[schemeColor];
   }
 
-  /// \brief Gets a scheme color by index with predefined brightness and saturation to look good with the EZ tools UI scheme.
-  EZ_FORCE_INLINE static ezColor GetColorForUI(float fIndex)
+  /// \brief Gets a scheme color by index with predefined brightness and saturation to look good with the EZ tools dark UI scheme.
+  EZ_FORCE_INLINE static ezColor DarkUI(float fIndex)
   {
     ezUInt32 uiIndexA, uiIndexB;
     float fFrac;
     GetInterpolation(fIndex, uiIndexA, uiIndexB, fFrac);
 
-    return ezMath::Lerp(s_UIColors[uiIndexA], s_UIColors[uiIndexB], fFrac);
+    return ezMath::Lerp(s_DarkUIColors[uiIndexA], s_DarkUIColors[uiIndexB], fFrac);
   }
 
-  /// \brief Get a scheme color with predefined brightness and saturation to look good inside a 3D scene. E.g. can be used for visualizers etc.
-  EZ_ALWAYS_INLINE static ezColor GetColorFor3DScene(Enum schemeColor)
+  /// \brief Get a scheme color with predefined brightness and saturation to look good as highlight color in EZ tools. Can also be used in a 3D scene for e.g. visualizers etc.
+  EZ_ALWAYS_INLINE static ezColor LightUI(Enum schemeColor)
   {
-    return s_SceneColors[schemeColor];
+    return s_LightUIColors[schemeColor];
   }
 
-  /// \brief Get a scheme color by index with predefined brightness and saturation to look good inside a 3D scene. E.g. can be used for visualizers etc.
-  EZ_FORCE_INLINE static ezColor GetColorFor3DScene(float fIndex)
+    /// \brief Get a scheme color by index with predefined brightness and saturation to look good as highlight color in EZ tools. Can also be used in a 3D scene for e.g. visualizers etc.
+  EZ_FORCE_INLINE static ezColor LightUI(float fIndex)
   {
     ezUInt32 uiIndexA, uiIndexB;
     float fFrac;
     GetInterpolation(fIndex, uiIndexA, uiIndexB, fFrac);
 
-    return ezMath::Lerp(s_SceneColors[uiIndexA], s_SceneColors[uiIndexB], fFrac);
+    return ezMath::Lerp(s_LightUIColors[uiIndexA], s_LightUIColors[uiIndexB], fFrac);
   }
 
 private:
@@ -87,6 +87,6 @@ private:
   }
 
   static ezColor s_Colors[Count][10];
-  static ezColor s_UIColors[Count];
-  static ezColor s_SceneColors[Count];
+  static ezColor s_DarkUIColors[Count];
+  static ezColor s_LightUIColors[Count];
 };

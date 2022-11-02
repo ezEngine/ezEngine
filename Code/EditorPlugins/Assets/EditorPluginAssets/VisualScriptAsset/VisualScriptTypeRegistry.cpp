@@ -13,7 +13,7 @@ namespace
 {
   ezColorGammaUB NiceColorFromFloat(float x)
   {
-    return ezColorScheme::GetColorForUI(x);
+    return ezColorScheme::DarkUI(x);
   }
 
   ezColorGammaUB NiceColorFromString(ezStringView s)
@@ -22,7 +22,7 @@ namespace
     return NiceColorFromFloat(x);
   }
 
-  static const ezColor ExecutionPinColor = ezColorScheme::GetColorForUI(ezColorScheme::Gray);
+  static const ezColor ExecutionPinColor = ezColorScheme::DarkUI(ezColorScheme::Gray);
 } // namespace
 
 EZ_IMPLEMENT_SINGLETON(ezVisualScriptTypeRegistry);

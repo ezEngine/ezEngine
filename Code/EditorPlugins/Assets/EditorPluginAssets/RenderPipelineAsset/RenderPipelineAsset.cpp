@@ -44,7 +44,7 @@ void ezRenderPipelineNodeManager::InternalCreatePins(const ezDocumentObject* pOb
       if (ezStringUtils::IsEqual(pProp->GetPropertyName(), "DepthStencil"))
         color = ezColorScheme::Pink;
 
-      pinColor = ezColorScheme::GetColorForUI(color);
+      pinColor = ezColorScheme::DarkUI(color);
     }
 
     if (pProp->GetSpecificType()->IsDerivedFrom<ezRenderPipelineNodeInputPin>())

@@ -21,9 +21,9 @@ ezTranslateGizmo::ezTranslateGizmo()
 
   if (m_bUseExperimentalGizmo)
   {
-    const ezColor colr = ezColorScheme::GetColorFor3DScene(ezColorScheme::Red);
-    const ezColor colg = ezColorScheme::GetColorFor3DScene(ezColorScheme::Green);
-    const ezColor colb = ezColorScheme::GetColorFor3DScene(ezColorScheme::Blue);
+    const ezColor colr = ezColorScheme::LightUI(ezColorScheme::Red);
+    const ezColor colg = ezColorScheme::LightUI(ezColorScheme::Green);
+    const ezColor colb = ezColorScheme::LightUI(ezColorScheme::Blue);
 
     m_hAxisX.ConfigureHandle(this, ezEngineGizmoHandleType::FromFile, colr, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable, "Editor/Meshes/TranslateArrowX.obj");
     m_hAxisY.ConfigureHandle(this, ezEngineGizmoHandleType::FromFile, colg, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable, "Editor/Meshes/TranslateArrowY.obj");

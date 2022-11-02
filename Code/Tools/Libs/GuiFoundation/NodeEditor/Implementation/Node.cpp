@@ -64,8 +64,7 @@ void ezQtNode::InitNode(const ezDocumentNodeManager* pManager, const ezDocumentO
 
   if (const ezColorAttribute* pColorAttr = pObject->GetType()->GetAttributeByType<ezColorAttribute>())
   {
-    ezColorGammaUB col = pColorAttr->GetColor();
-    m_HeaderColor = qRgb(col.r, col.g, col.b);
+    m_HeaderColor = ezToQtColor(pColorAttr->GetColor());
   }
 
   m_DirtyFlags.Add(ezNodeFlags::UpdateTitle);

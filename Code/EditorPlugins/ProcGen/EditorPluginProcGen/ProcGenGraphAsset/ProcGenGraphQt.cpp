@@ -19,7 +19,7 @@ namespace
     else if (ezStringUtils::IsEqual(szCategory, "Math"))
       color = ezColorScheme::Blue;
 
-    return ezColorScheme::GetColorForUI(color);
+    return ezColorScheme::DarkUI(color);
   }
 } // namespace
 
@@ -35,8 +35,7 @@ void ezQtProcGenNode::InitNode(const ezDocumentNodeManager* pManager, const ezDo
 
   if (const ezCategoryAttribute* pAttr = pRtti->GetAttributeByType<ezCategoryAttribute>())
   {
-    ezColorGammaUB color = CategoryColor(pAttr->GetCategory());
-    m_HeaderColor = qRgb(color.r, color.g, color.b);
+    m_HeaderColor = ezToQtColor(CategoryColor(pAttr->GetCategory()));
   }
 }
 

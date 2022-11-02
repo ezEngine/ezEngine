@@ -20,7 +20,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSelectionHighlightPass, 1, ezRTTIDefaultAlloca
     EZ_MEMBER_PROPERTY("Color", m_PinColor),
     EZ_MEMBER_PROPERTY("DepthStencil", m_PinDepthStencil),
 
-    EZ_MEMBER_PROPERTY("HighlightColor", m_HighlightColor)->AddAttributes(new ezDefaultValueAttribute(ezColorScheme::GetColorFor3DScene(ezColorScheme::Yellow))),
+    EZ_MEMBER_PROPERTY("HighlightColor", m_HighlightColor)->AddAttributes(new ezDefaultValueAttribute(ezColorScheme::LightUI(ezColorScheme::Yellow))),
     EZ_MEMBER_PROPERTY("OverlayOpacity", m_fOverlayOpacity)->AddAttributes(new ezDefaultValueAttribute(0.1f))
   }
   EZ_END_PROPERTIES;

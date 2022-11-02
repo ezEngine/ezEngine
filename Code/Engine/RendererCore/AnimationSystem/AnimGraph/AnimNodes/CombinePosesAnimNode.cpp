@@ -19,7 +19,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCombinePosesAnimNode, 1, ezRTTIDefaultAllocato
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Pose Processing"),
-    new ezColorAttribute(ezColorScheme::GetColorForUI(ezColorScheme::Indigo)),
+    new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Indigo)),
     new ezTitleAttribute("Combine Poses"),
   }
   EZ_END_ATTRIBUTES;

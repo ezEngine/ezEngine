@@ -207,7 +207,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCompareNumberAnimNode, 1, ezRTTIDefaultAllocat
   {
     new ezCategoryAttribute("Logic"),
     new ezTitleAttribute("Check: Number {Comparison} {ReferenceValue}"),
-    new ezColorAttribute(ezColorScheme::GetColorForUI(ezColorScheme::Lime)),
+    new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Lime)),
   }
   EZ_END_ATTRIBUTES;
 }

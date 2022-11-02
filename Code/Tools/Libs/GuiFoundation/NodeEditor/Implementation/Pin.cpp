@@ -96,10 +96,8 @@ void ezQtPin::SetPin(const ezPin& pin)
     setPath(p);
   }
 
-  const ezColorGammaUB col = pin.GetColor();
-
   QPen p = pen();
-  p.setColor(qRgb(col.r, col.g, col.b));
+  p.setColor(ezToQtColor(pin.GetColor()));
   setPen(p);
 }
 
@@ -190,7 +188,7 @@ bool ezQtPin::AdjustRenderingForHighlight(ezQtPinHighlightState state)
     case ezQtPinHighlightState::None:
     {
       QPen p = pen();
-      p.setColor(qRgb(pinColor.r, pinColor.g, pinColor.b));
+      p.setColor(ezToQtColor(pinColor));
       setPen(p);
 
       setBrush(GetConnections().IsEmpty() ? base : pen().color().darker(125));
@@ -212,7 +210,7 @@ bool ezQtPin::AdjustRenderingForHighlight(ezQtPinHighlightState state)
     case ezQtPinHighlightState::CanAddConnection:
     {
       QPen p = pen();
-      p.setColor(qRgb(pinColor.r, pinColor.g, pinColor.b));
+      p.setColor(ezToQtColor(pinColor));
       setPen(p);
 
       setBrush(base);

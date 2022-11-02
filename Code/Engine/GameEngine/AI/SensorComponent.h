@@ -72,7 +72,7 @@ protected:
 
   ezEnum<ezUpdateRate> m_UpdateRate;
   bool m_bShowDebugInfo = false;
-  ezColorGammaUB m_Color = ezColorScheme::GetColorFor3DScene(ezColorScheme::Orange);
+  ezColorGammaUB m_Color = ezColorScheme::LightUI(ezColorScheme::Orange);
 
   ezHashedString m_sSpatialCategory;
   ezSpatialData::Category m_SpatialCategory = ezInvalidSpatialDataCategory;

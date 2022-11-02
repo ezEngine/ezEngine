@@ -20,7 +20,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLogAnimNode, 1, ezRTTIDefaultAllocator<ezLogAn
     EZ_BEGIN_ATTRIBUTES
     {
       new ezCategoryAttribute("Debug"),
-      new ezColorAttribute(ezColorScheme::GetColorForUI(ezColorScheme::Pink)),
+      new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Pink)),
       new ezTitleAttribute("Log: '{Text}'"),
     }
     EZ_END_ATTRIBUTES;

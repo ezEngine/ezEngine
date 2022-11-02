@@ -217,7 +217,7 @@ public:
   ///
   /// To initialize the color from a Gamma color space, e.g. when using a color value that was determined with a color picker,
   /// use the constructor that takes a ezColorGammaUB object for initialization.
-  ezColor(float fLinearRed, float fLinearGreen, float fLinearBlue, float fLinearAlpha = 1.0f); // [tested]
+  constexpr ezColor(float fLinearRed, float fLinearGreen, float fLinearBlue, float fLinearAlpha = 1.0f); // [tested]
 
   /// \brief Initializes this color from a ezColorLinearUB object.
   ///

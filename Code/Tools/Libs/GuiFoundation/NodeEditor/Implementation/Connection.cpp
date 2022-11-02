@@ -141,11 +141,11 @@ QPen ezQtConnection::DeterminePen() const
   if (m_bAdjacentNodeSelected)
   {
     color = ezMath::Lerp(color, ezColorGammaUB(255, 255, 255), 0.1f);
-    return QPen(QBrush(qRgb(color.r, color.g, color.b)), 3, Qt::DashLine);
+    return QPen(QBrush(ezToQtColor(color)), 3, Qt::DashLine);
   }
   else
   {
-    return QPen(QBrush(qRgb(color.r, color.g, color.b)), 2, Qt::SolidLine);
+    return QPen(QBrush(ezToQtColor(color)), 2, Qt::SolidLine);
   }
 }
 

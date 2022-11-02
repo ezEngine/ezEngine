@@ -12,12 +12,12 @@ inline ezColor::ezColor()
 #endif
 }
 
-inline ezColor::ezColor(float fLinearRed, float fLinearGreen, float fLinearBlue, float fLinearAlpha /* = 1.0f */)
+EZ_FORCE_INLINE constexpr ezColor::ezColor(float fLinearRed, float fLinearGreen, float fLinearBlue, float fLinearAlpha /* = 1.0f */)
+  : r(fLinearRed)
+  , g(fLinearGreen)
+  , b(fLinearBlue)
+  , a(fLinearAlpha)
 {
-  r = fLinearRed;
-  g = fLinearGreen;
-  b = fLinearBlue;
-  a = fLinearAlpha;
 }
 
 inline ezColor::ezColor(const ezColorLinearUB& cc)

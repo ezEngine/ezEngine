@@ -22,6 +22,6 @@ protected:
   ezShaderResourceHandle m_hShader;
   ezConstantBufferStorageHandle m_hConstantBuffer;
 
-  ezColor m_HighlightColor = ezColorScheme::GetColorFor3DScene(ezColorScheme::Yellow);
+  ezColor m_HighlightColor = ezColorScheme::LightUI(ezColorScheme::Yellow);
   float m_fOverlayOpacity = 0.1f;
 };

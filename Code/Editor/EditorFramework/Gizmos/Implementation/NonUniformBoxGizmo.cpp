@@ -17,15 +17,15 @@ ezNonUniformBoxGizmo::ezNonUniformBoxGizmo()
 
   m_ManipulateMode = ManipulateMode::None;
 
-  m_hOutline.ConfigureHandle(this, ezEngineGizmoHandleType::LineBox, ezColor::LightGray, ezGizmoFlags::ShowInOrtho);
+  m_hOutline.ConfigureHandle(this, ezEngineGizmoHandleType::LineBox, ezColorScheme::LightUI(ezColorScheme::Gray), ezGizmoFlags::ShowInOrtho);
 
   ezColor cols[6] = {
-    ezColorScheme::GetColorFor3DScene(ezColorScheme::Red),
-    ezColorScheme::GetColorFor3DScene(ezColorScheme::Red),
-    ezColorScheme::GetColorFor3DScene(ezColorScheme::Green),
-    ezColorScheme::GetColorFor3DScene(ezColorScheme::Green),
-    ezColorScheme::GetColorFor3DScene(ezColorScheme::Blue),
-    ezColorScheme::GetColorFor3DScene(ezColorScheme::Blue),
+    ezColorScheme::LightUI(ezColorScheme::Red),
+    ezColorScheme::LightUI(ezColorScheme::Red),
+    ezColorScheme::LightUI(ezColorScheme::Green),
+    ezColorScheme::LightUI(ezColorScheme::Green),
+    ezColorScheme::LightUI(ezColorScheme::Blue),
+    ezColorScheme::LightUI(ezColorScheme::Blue),
   };
 
   for (ezUInt32 i = 0; i < 6; ++i)

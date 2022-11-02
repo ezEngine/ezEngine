@@ -91,7 +91,7 @@ void ezQtVisualShaderNode::InitNode(const ezDocumentNodeManager* pManager, const
 
   if (auto pDesc = ezVisualShaderTypeRegistry::GetSingleton()->GetDescriptorForType(pObject->GetType()))
   {
-    m_HeaderColor = qRgb(pDesc->m_Color.r, pDesc->m_Color.g, pDesc->m_Color.b);
+    m_HeaderColor = ezToQtColor(pDesc->m_Color);
   }
   else
   {

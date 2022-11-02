@@ -156,8 +156,7 @@ void ezQtStateMachineNode::UpdateHeaderColor()
     schemeColor = ezColorScheme::Teal;
   }
 
-  ezColorGammaUB c = ezColorScheme::GetColorForUI(schemeColor);
-  m_HeaderColor = qRgb(c.r, c.g, c.b);
+  m_HeaderColor = ezToQtColor(ezColorScheme::DarkUI(schemeColor));
 
   update();
 }
