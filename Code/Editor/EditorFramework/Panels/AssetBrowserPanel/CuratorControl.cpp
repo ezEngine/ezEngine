@@ -44,14 +44,14 @@ void ezQtCuratorControl::paintEvent(QPaintEvent* e)
   ezHybridArray<ezUInt32, ezAssetInfo::TransformState::COUNT> sections;
   ezAssetCurator::GetSingleton()->GetAssetTransformStats(uiNumAssets, sections);
   QColor colors[ezAssetInfo::TransformState::COUNT];
-  colors[ezAssetInfo::TransformState::Unknown] = QColor(Qt::gray);
-  colors[ezAssetInfo::TransformState::Updating] = QColor(Qt::gray);
-  colors[ezAssetInfo::TransformState::NeedsTransform] = QColor(Qt::blue);
-  colors[ezAssetInfo::TransformState::NeedsThumbnail] = QColor(Qt::darkBlue);
-  colors[ezAssetInfo::TransformState::UpToDate] = QColor(Qt::darkGreen);
-  colors[ezAssetInfo::TransformState::MissingDependency] = QColor(Qt::red);
-  colors[ezAssetInfo::TransformState::MissingReference] = QColor(Qt::red);
-  colors[ezAssetInfo::TransformState::TransformError] = QColor(Qt::red);
+  colors[ezAssetInfo::TransformState::Unknown] = ezToQtColor(ezColorScheme::DarkUI(ezColorScheme::Gray));
+  colors[ezAssetInfo::TransformState::Updating] = ezToQtColor(ezColorScheme::DarkUI(ezColorScheme::Gray));
+  colors[ezAssetInfo::TransformState::NeedsTransform] = ezToQtColor(ezColorScheme::DarkUI(ezColorScheme::Blue));
+  colors[ezAssetInfo::TransformState::NeedsThumbnail] = ezToQtColor(ezColorScheme::DarkUI(ezColorScheme::Cyan));
+  colors[ezAssetInfo::TransformState::UpToDate] = ezToQtColor(ezColorScheme::DarkUI(ezColorScheme::Green));
+  colors[ezAssetInfo::TransformState::MissingDependency] = ezToQtColor(ezColorScheme::DarkUI(ezColorScheme::Red));
+  colors[ezAssetInfo::TransformState::MissingReference] = ezToQtColor(ezColorScheme::DarkUI(ezColorScheme::Orange));
+  colors[ezAssetInfo::TransformState::TransformError] = ezToQtColor(ezColorScheme::DarkUI(ezColorScheme::Red));
 
   const float fTotalCount = uiNumAssets;
   const ezInt32 iTargetWidth = rect.width();

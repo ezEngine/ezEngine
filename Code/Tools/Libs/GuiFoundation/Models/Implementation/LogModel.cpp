@@ -127,21 +127,21 @@ QVariant ezQtLogModel::data(const QModelIndex& index, int role) const
       switch (msg.m_Type)
       {
         case ezLogMsgType::BeginGroup:
-          return QColor::fromRgb(160, 90, 255);
+          return ezToQtColor(ezColorScheme::LightUI(ezColorScheme::Gray));
         case ezLogMsgType::EndGroup:
-          return QColor::fromRgb(110, 60, 185);
+          return ezToQtColor(ezColorScheme::DarkUI(ezColorScheme::Gray));
         case ezLogMsgType::ErrorMsg:
-          return QColor::fromRgb(255, 0, 0);
+          return ezToQtColor(ezColorScheme::LightUI(ezColorScheme::Red));
         case ezLogMsgType::SeriousWarningMsg:
-          return QColor::fromRgb(255, 140, 0);
+          return ezToQtColor(ezColorScheme::LightUI(ezColorScheme::Orange));
         case ezLogMsgType::WarningMsg:
-          return QColor::fromRgb(255, 216, 0);
+          return ezToQtColor(ezColorScheme::LightUI(ezColorScheme::Yellow));
         case ezLogMsgType::SuccessMsg:
-          return QColor::fromRgb(0, 128, 0);
+          return ezToQtColor(ezColorScheme::LightUI(ezColorScheme::Green));
         case ezLogMsgType::DevMsg:
-          return QColor::fromRgb(63, 143, 210);
+          return ezToQtColor(ezColorScheme::LightUI(ezColorScheme::Blue));
         case ezLogMsgType::DebugMsg:
-          return QColor::fromRgb(128, 128, 128);
+          return ezToQtColor(ezColorScheme::LightUI(ezColorScheme::Cyan));
         default:
           return QVariant();
       }
