@@ -66,7 +66,7 @@ void ezSceneContext::DrawSelectionBounds(const ezViewHandle& hView)
 
     if (bounds.IsValid())
     {
-      ezDebugRenderer::DrawLineBoxCorners(hView, bounds.GetBox(), 0.25f, ezColor::Yellow);
+      ezDebugRenderer::DrawLineBoxCorners(hView, bounds.GetBox(), 0.25f, ezColorScheme::GetColorFor3DScene(ezColorScheme::Yellow));
     }
   }
 }

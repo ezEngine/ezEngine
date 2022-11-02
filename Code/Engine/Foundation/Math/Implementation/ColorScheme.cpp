@@ -162,24 +162,25 @@ ezColor ezColorScheme::s_Colors[Count][10] = {
   },
 };
 
-static constexpr ezUInt8 UIBrightness = 0;
-static constexpr ezUInt8 UIGrayBrightness = ezMath::Clamp<ezUInt8>(UIBrightness + 3, 0, 9); // gray is way to dark at UIBrightness
-static constexpr ezUInt8 UIYellowBrightness = ezMath::Clamp<ezUInt8>(UIBrightness + 4, 0, 9); // yellow looks to similar to orange with the default UIBrightness
-static constexpr float UISaturation = 0.85f;
+// We could use a lower brightness here for our dark UI but the colors looks much nicer at higher brightness so we just apply a scale factor instead.
+static constexpr ezUInt8 UIBrightness = 3;
+static constexpr ezUInt8 UIGrayBrightness = ezMath::Clamp<ezUInt8>(UIBrightness + 1, 0, 9); // gray is to dark at UIBrightness
+static constexpr float UISaturation = 0.95f;
+static constexpr float UIFactor = 0.5f;
 ezColor ezColorScheme::s_UIColors[Count] = {
-  GetColor(ezColorScheme::Red, UIBrightness, UISaturation * 0.9f), // red is too saturated for our dark UI
-  GetColor(ezColorScheme::Pink, UIBrightness, UISaturation),
-  GetColor(ezColorScheme::Grape, UIBrightness, UISaturation),
-  GetColor(ezColorScheme::Violet, UIBrightness, UISaturation * 0.9f), // violet is too saturated for our dark UI
-  GetColor(ezColorScheme::Indigo, UIBrightness, UISaturation),
-  GetColor(ezColorScheme::Blue, UIBrightness, UISaturation),
-  GetColor(ezColorScheme::Cyan, UIBrightness, UISaturation),
-  GetColor(ezColorScheme::Teal, UIBrightness, UISaturation),
-  GetColor(ezColorScheme::Green, UIBrightness, UISaturation),
-  GetColor(ezColorScheme::Lime, UIBrightness, UISaturation),
-  GetColor(ezColorScheme::Yellow, UIYellowBrightness, UISaturation) * 0.5f, // since we select a much brighter yellow it needs to be toned down here
-  GetColor(ezColorScheme::Orange, UIBrightness, UISaturation * 0.9f),        // orange is too saturated for our dark UI
-  GetColor(ezColorScheme::Gray, UIGrayBrightness, UISaturation),
+  GetColor(ezColorScheme::Red, UIBrightness, UISaturation) * UIFactor,
+  GetColor(ezColorScheme::Pink, UIBrightness, UISaturation) * UIFactor,
+  GetColor(ezColorScheme::Grape, UIBrightness, UISaturation) * UIFactor,
+  GetColor(ezColorScheme::Violet, UIBrightness, UISaturation) * UIFactor,
+  GetColor(ezColorScheme::Indigo, UIBrightness, UISaturation) * UIFactor,
+  GetColor(ezColorScheme::Blue, UIBrightness, UISaturation) * UIFactor,
+  GetColor(ezColorScheme::Cyan, UIBrightness, UISaturation) * UIFactor,
+  GetColor(ezColorScheme::Teal, UIBrightness, UISaturation) * UIFactor,
+  GetColor(ezColorScheme::Green, UIBrightness, UISaturation) * UIFactor,
+  GetColor(ezColorScheme::Lime, UIBrightness, UISaturation) * UIFactor,
+  GetColor(ezColorScheme::Yellow, UIBrightness, UISaturation) * UIFactor,
+  GetColor(ezColorScheme::Orange, UIBrightness, UISaturation) * UIFactor,
+  GetColor(ezColorScheme::Gray, UIGrayBrightness, UISaturation) * UIFactor,
 };
 
 static constexpr ezUInt8 SceneBrightness = 4;

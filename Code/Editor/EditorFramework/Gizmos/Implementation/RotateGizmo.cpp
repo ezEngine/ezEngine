@@ -18,9 +18,9 @@ ezRotateGizmo::ezRotateGizmo()
 
   if (m_bUseExperimentalGizmo)
   {
-    const ezColor colr = ezColorGammaUB(206, 0, 46);
-    const ezColor colg = ezColorGammaUB(101, 206, 0);
-    const ezColor colb = ezColorGammaUB(0, 125, 206);
+    const ezColor colr = ezColorScheme::GetColorFor3DScene(ezColorScheme::Red);
+    const ezColor colg = ezColorScheme::GetColorFor3DScene(ezColorScheme::Green);
+    const ezColor colb = ezColorScheme::GetColorFor3DScene(ezColorScheme::Blue);
 
     m_hAxisX.ConfigureHandle(this, ezEngineGizmoHandleType::FromFile, colr, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable, "Editor/Meshes/RotatePlaneX.obj");
     m_hAxisY.ConfigureHandle(this, ezEngineGizmoHandleType::FromFile, colg, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable, "Editor/Meshes/RotatePlaneY.obj");

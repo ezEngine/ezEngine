@@ -573,7 +573,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezProcGenBoxExtents, ezNoBase, 1, ezRTTIDefaultAl
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezBoxManipulatorAttribute("Extents", 1.0f, true, "Offset", "Rotation"),
+    new ezBoxManipulatorAttribute("Extents", 1.0f, false, "Offset", "Rotation"),
     new ezBoxVisualizerAttribute("Extents", 1.0f, ezColorScheme::GetColorFor3DScene(ezColorScheme::Blue), nullptr, ezVisualizerAnchor::Center, ezVec3::OneVector(), "Offset", "Rotation"),
     new ezTransformManipulatorAttribute("Offset", "Rotation"),
   }
