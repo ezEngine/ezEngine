@@ -64,7 +64,7 @@ public:
     return s_LightUIColors[schemeColor];
   }
 
-    /// \brief Get a scheme color by index with predefined brightness and saturation to look good as highlight color in EZ tools. Can also be used in a 3D scene for e.g. visualizers etc.
+  /// \brief Get a scheme color by index with predefined brightness and saturation to look good as highlight color in EZ tools. Can also be used in a 3D scene for e.g. visualizers etc.
   EZ_FORCE_INLINE static ezColor LightUI(float fIndex)
   {
     ezUInt32 uiIndexA, uiIndexB;

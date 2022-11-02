@@ -2,10 +2,10 @@
 
 #include <EditorPluginAssets/AnimationControllerAsset/AnimationControllerAsset.h>
 #include <EditorPluginAssets/AnimationControllerAsset/AnimationControllerGraphQt.h>
+#include <Foundation/Math/ColorScheme.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraph.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 #include <ToolsFoundation/Serialization/ToolsSerializationUtils.h>
-#include <Foundation/Math/ColorScheme.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationControllerAssetDocument, 3, ezRTTINoAllocator)

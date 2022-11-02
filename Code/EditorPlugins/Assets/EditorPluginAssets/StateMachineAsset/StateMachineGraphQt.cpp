@@ -146,7 +146,7 @@ bool ezQtStateMachineNode::IsAnyState() const
 void ezQtStateMachineNode::UpdateHeaderColor()
 {
   ezColorScheme::Enum schemeColor = ezColorScheme::Gray;
-  
+
   if (IsAnyState())
   {
     schemeColor = ezColorScheme::Violet;
