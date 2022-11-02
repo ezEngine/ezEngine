@@ -498,7 +498,7 @@ void ezJoltDefaultCharacterComponent::CheckFeet()
 
   if (m_DebugFlags.IsAnySet(ezJoltCharacterDebugFlags::VisFootCheck))
   {
-    ezDebugRenderer::DrawLineCapsuleZ(GetWorld(), halfHeight * 2.0, radius, ezColor::YellowGreen, ezTransform(shapeTrans.m_vPosition));
+    ezDebugRenderer::DrawLineCapsuleZ(GetWorld(), halfHeight * 2.0f, radius, ezColor::YellowGreen, ezTransform(shapeTrans.m_vPosition));
   }
 }
 

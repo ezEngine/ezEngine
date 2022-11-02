@@ -96,6 +96,8 @@ ezResult ezProcessCommunicationChannel::WaitForMessage(const ezRTTI* pMessageTyp
     m_WaitForMessageCallback = WaitForMessageCallback();
   }
 
+  EZ_SCOPE_EXIT(m_WaitForMessageCallback = WaitForMessageCallback(););
+
   const ezTime tStart = ezTime::Now();
 
   while (m_pWaitForMessageType != nullptr)

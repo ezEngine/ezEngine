@@ -93,6 +93,14 @@ public:
   double m_fPayload;
 };
 
+class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezSaveProfilingResponseToEditor : public ezEditorEngineMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezSaveProfilingResponseToEditor, ezEditorEngineMsg);
+
+public:
+  ezString m_sProfilingFile;
+};
+
 class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezResourceUpdateMsgToEngine : public ezEditorEngineMsg
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezResourceUpdateMsgToEngine, ezEditorEngineMsg);

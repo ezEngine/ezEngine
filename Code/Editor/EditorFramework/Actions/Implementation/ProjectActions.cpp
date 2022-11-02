@@ -14,6 +14,7 @@
 #include <EditorFramework/Dialogs/TagsDlg.moc.h>
 #include <EditorFramework/Dialogs/WindowCfgDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/OSFile.h>
 #include <GuiFoundation/Dialogs/ShortcutEditorDlg.moc.h>
 
@@ -563,19 +564,102 @@ void ezProjectAction::Execute(const ezVariant& value)
 
     case ezProjectAction::ButtonType::SaveProfiling:
     {
-      ezFileWriter fileWriter;
-      if (fileWriter.Open(":appdata/profiling.json") == EZ_SUCCESS)
+      const char* szEditorProfilingFile = ":appdata/profilingEditor.json";
       {
-        ezProfilingSystem::ProfilingData profilingData;
-        ezProfilingSystem::Capture(profilingData);
-        profilingData.Write(fileWriter).IgnoreResult();
-
-        ezLog::Info("Profiling capture saved to '{0}'.", fileWriter.GetFilePathAbsolute().GetData());
-        ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage(ezFmt("Profiling capture saved to '{0}'.", fileWriter.GetFilePathAbsolute().GetData()), ezTime::Seconds(5.0));
+        // Start capturing profiling data on engine process
+        ezSimpleConfigMsgToEngine msg;
+        msg.m_sWhatToDo = "SaveProfiling";
+        msg.m_sPayload = ":appdata/profilingEngine.json";
+        ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
       }
-      else
       {
-        ezLog::Error("Could not write profiling capture to '{0}'.", fileWriter.GetFilePathAbsolute().GetData());
+        // Capture profiling data on editor process
+        ezFileWriter fileWriter;
+        if (fileWriter.Open(szEditorProfilingFile) == EZ_SUCCESS)
+        {
+          ezProfilingSystem::ProfilingData profilingData;
+          ezProfilingSystem::Capture(profilingData);
+          // Set sort index to -1 so that the editor is always on top when opening the trace.
+          profilingData.m_uiProcessSortIndex = -1;
+          if (profilingData.Write(fileWriter).Failed())
+          {
+            ezLog::Error("Failed to write editor profiling capture: {}.", szEditorProfilingFile);
+            return;
+          }
+
+          ezLog::Info("Editor profiling capture saved to '{0}'.", fileWriter.GetFilePathAbsolute().GetData());
+        }
+        else
+        {
+          ezLog::Error("Could not write profiling capture to '{0}'.", fileWriter.GetFilePathAbsolute().GetData());
+        }
+      }
+      ezStringBuilder sEngineProfilingFile;
+      {
+        // Wait for engine process response
+        auto callback = [&](ezProcessMessage* pMsg) -> bool {
+          auto pSimpleCfg = static_cast<ezSaveProfilingResponseToEditor*>(pMsg);
+          sEngineProfilingFile = pSimpleCfg->m_sProfilingFile;
+          return true;
+        };
+        ezProcessCommunicationChannel::WaitForMessageCallback cb = callback;
+
+        if (ezEditorEngineProcessConnection::GetSingleton()->WaitForMessage(ezGetStaticRTTI<ezSaveProfilingResponseToEditor>(), ezTime::Seconds(15), &cb).Failed())
+        {
+          ezLog::Error("Timeout while waiting for engine process to create profiling capture. Captures will not be merged.");
+          return;
+        }
+        if (sEngineProfilingFile.IsEmpty())
+        {
+          ezLog::Error("Engine process failed to create profiling file.");
+          return;
+        }
+      }
+
+      // Merge editor and engine profiling files by simply merging the arrays inside
+      {
+        ezString sEngineProfilingJson;
+        {
+          ezFileReader reader;
+          if (reader.Open(sEngineProfilingFile).Failed())
+          {
+            ezLog::Error("Failed to read engine profiling capture: {}.", sEngineProfilingFile);
+            return;
+          }
+          sEngineProfilingJson.ReadAll(reader);
+        }
+        ezString sEditorProfilingJson;
+        {
+          ezFileReader reader;
+          if (reader.Open(szEditorProfilingFile).Failed())
+          {
+            ezLog::Error("Failed to read editor profiling capture: {}.", sEngineProfilingFile);
+            return;
+          }
+          sEditorProfilingJson.ReadAll(reader);
+        }
+
+        ezStringBuilder sMergedProfilingJson;
+        {
+          // Just glue the array together
+          sMergedProfilingJson.Reserve(sEngineProfilingJson.GetElementCount() + 1 + sEditorProfilingJson.GetElementCount());
+          const char* szEndArray = sEngineProfilingJson.FindLastSubString("]");
+          sMergedProfilingJson.Append(ezStringView(sEngineProfilingJson.GetData(), szEndArray - sEngineProfilingJson.GetData()));
+          sMergedProfilingJson.Append(",");
+          const char* szStartArray = sEditorProfilingJson.FindSubString("[") + 1;
+          sMergedProfilingJson.Append(ezStringView(szStartArray, sEditorProfilingJson.GetElementCount() - (szStartArray - sEditorProfilingJson.GetData())));
+        }
+        ezStringBuilder sMergedFile;
+        const ezDateTime dt = ezTimestamp::CurrentTimestamp();
+        sMergedFile.AppendFormat(":appdata/profiling_{0}-{1}-{2}_{3}-{4}-{5}-{6}.json", dt.GetYear(), ezArgU(dt.GetMonth(), 2, true), ezArgU(dt.GetDay(), 2, true), ezArgU(dt.GetHour(), 2, true), ezArgU(dt.GetMinute(), 2, true), ezArgU(dt.GetSecond(), 2, true), ezArgU(dt.GetMicroseconds() / 1000, 3, true));
+        ezFileWriter fileWriter;
+        if (fileWriter.Open(sMergedFile).Failed() || fileWriter.WriteBytes(sMergedProfilingJson.GetData(), sMergedProfilingJson.GetElementCount()).Failed())
+        {
+          ezLog::Error("Failed to write merged profiling capture: {}.", sMergedFile);
+          return;
+        }
+        ezLog::Info("Merged profiling capture saved to '{0}'.", fileWriter.GetFilePathAbsolute().GetData());
+        ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage(ezFmt("Merged profiling capture saved to '{0}'.", fileWriter.GetFilePathAbsolute().GetData()), ezTime::Seconds(5.0));
       }
     }
     break;

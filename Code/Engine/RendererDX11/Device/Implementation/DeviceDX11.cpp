@@ -224,7 +224,8 @@ retry:
       }
   }
 
-  m_Timestamps.SetCountUninitialized(1024);
+  //#TODO_DX11 Replace ring buffer with proper pool like in Vulkan to prevent buffer overrun.
+  m_Timestamps.SetCountUninitialized(2048);
   for (ezUInt32 i = 0; i < m_Timestamps.GetCount(); ++i)
   {
     if (FAILED(m_pDevice->CreateQuery(&timerQueryDesc, &m_Timestamps[i])))

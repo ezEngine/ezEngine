@@ -99,6 +99,16 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSimpleConfigMsgToEngine, 1, ezRTTIDefaultAlloc
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSaveProfilingResponseToEditor, 1, ezRTTIDefaultAllocator<ezSaveProfilingResponseToEditor>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("ProfilingFile", m_sProfilingFile),
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezResourceUpdateMsgToEngine, 1, ezRTTIDefaultAllocator<ezResourceUpdateMsgToEngine>)
 {
   EZ_BEGIN_PROPERTIES
