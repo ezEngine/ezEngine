@@ -1,7 +1,7 @@
 #include <Foundation/FoundationPCH.h>
 
-#include <Foundation/Math/ColorScheme.h>
 #include <Foundation/Math/Color8UNorm.h>
+#include <Foundation/Math/ColorScheme.h>
 
 ezColor ezColorScheme::s_Colors[Count][10] = {
   {
@@ -169,15 +169,15 @@ ezColor ezColorScheme::s_UIColors[Count] = {
   GetColor(ezColorScheme::Red, UIBrightness, UISaturation * 0.9f), // red is too saturated for our dark UI
   GetColor(ezColorScheme::Pink, UIBrightness, UISaturation),
   GetColor(ezColorScheme::Grape, UIBrightness, UISaturation),
-  GetColor(ezColorScheme::Violet, UIBrightness, UISaturation),
+  GetColor(ezColorScheme::Violet, UIBrightness, UISaturation * 0.9f), // violet is too saturated for our dark UI
   GetColor(ezColorScheme::Indigo, UIBrightness, UISaturation),
   GetColor(ezColorScheme::Blue, UIBrightness, UISaturation),
   GetColor(ezColorScheme::Cyan, UIBrightness, UISaturation),
   GetColor(ezColorScheme::Teal, UIBrightness, UISaturation),
   GetColor(ezColorScheme::Green, UIBrightness, UISaturation),
   GetColor(ezColorScheme::Lime, UIBrightness, UISaturation),
-  GetColor(ezColorScheme::Yellow, UIBrightness, UISaturation),
-  GetColor(ezColorScheme::Orange, UIBrightness, UISaturation * 0.9f), // orange is too saturated for our dark UI
+  GetColor(ezColorScheme::Yellow, UIBrightness, UISaturation * 0.9f) * 0.9f, // yellow is too saturated and too bright for our dark UI
+  GetColor(ezColorScheme::Orange, UIBrightness, UISaturation * 0.9f),        // orange is too saturated for our dark UI
   GetColor(ezColorScheme::Gray, UIGrayBrightness, UISaturation),
 };
 
@@ -212,4 +212,3 @@ ezColor ezColorScheme::GetColor(float fIndex, ezUInt8 uiBrightness, float fSatur
   const float l = c.GetLuminance();
   return ezMath::Lerp(ezColor(l, l, l), c, fSaturation).WithAlpha(fAlpha);
 }
-
