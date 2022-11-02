@@ -414,9 +414,9 @@ ezSkeletonPoseMode::CustomPose;Custom Pose
 ezSkeletonPoseMode::RestPose;Rest Pose
 ezSkeletonPoseMode::Disabled;Disabled
 Bones;Bones
-ezSensorConeComponent;Cone Sensor
-ezSensorCylinderComponent;Cylinder Sensor
-ezSensorSphereComponent;Sphere Sensor
+ezSensorConeComponent;Cone Sensor;;https://ezengine.net/pages/docs/ai/sensor-components.html
+ezSensorCylinderComponent;Cylinder Sensor;;https://ezengine.net/pages/docs/ai/sensor-components.html
+ezSensorSphereComponent;Sphere Sensor;;https://ezengine.net/pages/docs/ai/sensor-components.html
 ezUpdateRate::EveryFrame;Every Frame
 ezUpdateRate::Max30fps;Max 30 FPS
 ezUpdateRate::Max20fps;Max 20 FPS
@@ -431,4 +431,4 @@ ezPhysicsShapeType::Trigger;Trigger
 ezPhysicsShapeType::Character;Character
 ezPhysicsShapeType::Ragdoll;Ragdoll
 ezPhysicsShapeType::Rope;Rope
-ezStateMachineComponent;State Machine
+ezStateMachineComponent;State Machine;;http://ezengine.net/pages/docs/ai/state-machine-component.html
