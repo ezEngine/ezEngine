@@ -32,7 +32,7 @@ public:
   /// \brief Get the scheme color with the given brightness (0..9) and with optional saturation and alpha.
   EZ_FORCE_INLINE static ezColor GetColor(Enum schemeColor, ezUInt8 uiBrightness, float fSaturation = 1.0f, float fAlpha = 1.0f)
   {
-    EZ_ASSERT_DEV(uiBrightness <= 9, "Brighness is too large");
+    EZ_ASSERT_DEV(uiBrightness <= 9, "Brightness is too large");
     const ezColor c = s_Colors[schemeColor][uiBrightness];
     const float l = c.GetLuminance();
     return ezMath::Lerp(ezColor(l, l, l), c, fSaturation).WithAlpha(fAlpha);
@@ -82,7 +82,7 @@ private:
     constexpr ezUInt32 uiCountWithoutGray = Count - 1;
     constexpr ezUInt32 uiMaxIndex = uiCountWithoutGray - 1;
     out_uiIndexA = ezUInt32(fIndex * uiMaxIndex);
-    out_uiIndexB = out_uiIndexA + 1 % uiCountWithoutGray;
+    out_uiIndexB = (out_uiIndexA + 1) % uiCountWithoutGray;
     out_fFrac = (fIndex * uiMaxIndex) - out_uiIndexA;
   }
 

@@ -38,7 +38,8 @@ namespace
       for (ezUInt32 y = 0; y < uiRows; ++y)
       {
         ezTestShaderData& instance = instanceData[uiSlotOffset + x * uiRows + y];
-        instance.InstanceColor = ezColorScheme::LightUI(float(uiColorOffset + x * uiRows + y) / (uiColumns * uiRows)).GetAsVec4();
+        const float fColorIndex = float(uiColorOffset + x * uiRows + y) / 32.0f;
+        instance.InstanceColor = ezColorScheme::LightUI(fColorIndex).GetAsVec4();
         ezTransform t = CreateTransform(uiColumns, uiRows, x, y);
         instance.InstanceTransform = t;
       }
