@@ -42,7 +42,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMixClips2DAnimNode, 1, ezRTTIDefaultAllocator<
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Animation Sampling"),
-    new ezColorAttribute(ezColor::SteelBlue),
+    new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Blue)),
     new ezTitleAttribute("Mix2D '{CenterClip}'"),
   }
   EZ_END_ATTRIBUTES;

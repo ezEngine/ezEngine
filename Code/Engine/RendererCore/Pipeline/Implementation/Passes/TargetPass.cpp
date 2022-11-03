@@ -18,7 +18,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTargetPass, 1, ezRTTIDefaultAllocator<ezTarget
     EZ_MEMBER_PROPERTY("Color5", m_PinColor5),
     EZ_MEMBER_PROPERTY("Color6", m_PinColor6),
     EZ_MEMBER_PROPERTY("Color7", m_PinColor7),
-    EZ_MEMBER_PROPERTY("DepthStencil", m_PinDepthStencil)->AddAttributes(new ezColorAttribute(ezColor::LightCoral)),
+    EZ_MEMBER_PROPERTY("DepthStencil", m_PinDepthStencil),
   }
   EZ_END_PROPERTIES;
 }

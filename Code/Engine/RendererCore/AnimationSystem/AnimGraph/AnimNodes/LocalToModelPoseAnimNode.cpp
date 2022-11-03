@@ -16,7 +16,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLocalToModelPoseAnimNode, 1, ezRTTIDefaultAllo
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Pose Processing"),
-    new ezColorAttribute(ezColor::DarkSlateBlue),
+    new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Blue)),
     new ezTitleAttribute("Local To Model Space"),
   }
   EZ_END_ATTRIBUTES;

@@ -49,6 +49,49 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorPluginAssets, VisualShader)
 EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
+namespace
+{
+  static const char* s_szColorNames[] = {
+    "Red",
+    "Pink",
+    "Grape",
+    "Violet",
+    "Indigo",
+    "Blue",
+    "Cyan",
+    "Teal",
+    "Green",
+    "Lime",
+    "Yellow",
+    "Orange",
+    "Gray",
+  };
+  static_assert(EZ_ARRAY_SIZE(s_szColorNames) == ezColorScheme::Count);
+
+  static void GetColorFromDdl(const ezOpenDdlReaderElement* pElement, ezColorGammaUB& out_Color)
+  {
+    if (pElement->GetPrimitivesType() == ezOpenDdlPrimitiveType::String)
+    {
+      ezColorScheme::Enum color = ezColorScheme::Gray;
+      const ezStringView* pValue = pElement->GetPrimitivesString();
+      for (ezUInt32 i = 0; i < ezColorScheme::Count; ++i)
+      {
+        if (pValue->IsEqual_NoCase(s_szColorNames[i]))
+        {
+          color = static_cast<ezColorScheme::Enum>(i);
+          break;
+        }
+      }
+
+      out_Color = ezColorScheme::DarkUI(color);
+    }
+    else
+    {
+      ezOpenDdlUtils::ConvertToColorGamma(pElement, out_Color).IgnoreResult();
+    }
+  }
+} // namespace
+
 ezVisualShaderTypeRegistry::ezVisualShaderTypeRegistry()
   : m_SingletonRegistrar(this)
 {
@@ -312,7 +355,7 @@ void ezVisualShaderTypeRegistry::ExtractNodePins(const ezOpenDdlReaderElement* p
       // this is optional
       if (auto pColor = pElement->FindChild("Color"))
       {
-        ezOpenDdlUtils::ConvertToColorGamma(pColor, pin.m_Color).IgnoreResult();
+        GetColorFromDdl(pColor, pin.m_Color);
       }
 
       // this is optional
@@ -484,7 +527,7 @@ void ezVisualShaderTypeRegistry::ExtractNodeConfig(const ezOpenDdlReaderElement*
   {
     if (ezStringUtils::IsEqual(pElement->GetName(), "Color"))
     {
-      ezOpenDdlUtils::ConvertToColorGamma(pElement, nd.m_Color).IgnoreResult();
+      GetColorFromDdl(pElement, nd.m_Color);
     }
     else if (pElement->HasPrimitives(ezOpenDdlPrimitiveType::String))
     {

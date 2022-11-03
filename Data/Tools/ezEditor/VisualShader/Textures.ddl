@@ -2,7 +2,7 @@ Node %BaseTexture
 {
   string %Category { "Texturing" }
   string %NodeType { "Texture" }
-  unsigned_int8 %Color { 0, 89, 153 }
+  string %Color { "Blue" }
   string %CodeMaterialParams { "Texture2D BaseTexture @Default(\"$prop0\");" }
 
   string %CodePixelSamplers { "
@@ -18,7 +18,7 @@ SamplerState BaseTexture_AutoSampler;
 
   InputPin %UV
   {
-    unsigned_int8 %Color { 50, 50, 128 }
+    string %Color { "Teal" }
     string %Type { "float2" }
     string %DefaultValue { "G.Input.TexCoord0" }
     string %DefineWhenUsingDefaultValue { "USE_TEXCOORD0" }
@@ -35,28 +35,27 @@ SamplerState BaseTexture_AutoSampler;
   OutputPin %Red
   {
     string %Type { "float" }
-    unsigned_int8 %Color { 128, 0, 0 }
+    string %Color { "Red" }
     string %Inline { "BaseTexture.Sample(BaseTexture_AutoSampler, ToFloat2($in0)).x" }
   }
 
   OutputPin %Green
   {
     string %Type { "float" }
-    unsigned_int8 %Color { 0, 128, 0 }
+    string %Color { "Green" }
     string %Inline { "BaseTexture.Sample(BaseTexture_AutoSampler, ToFloat2($in0)).y" }
   }
 
   OutputPin %Blue
   {
     string %Type { "float" }
-    unsigned_int8 %Color { 0, 0, 128 }
+    string %Color { "Blue" }
     string %Inline { "BaseTexture.Sample(BaseTexture_AutoSampler, ToFloat2($in0)).z" }
   }
 
   OutputPin %Alpha
   {
     string %Type { "float" }
-    unsigned_int8 %Color { 175, 175, 117 }
     string %Inline { "BaseTexture.Sample(BaseTexture_AutoSampler, ToFloat2($in0)).w" }
   }
 }
@@ -65,7 +64,7 @@ Node %NormalTexture
 {
   string %Category { "Texturing" }
   string %NodeType { "Texture" }
-  unsigned_int8 %Color { 0, 89, 153 }
+  string %Color { "Blue" }
   string %CodeMaterialParams { "
 Texture2D $prop0 @Default(\"$prop1\");
 " }
@@ -90,7 +89,7 @@ SamplerState $prop0_AutoSampler;
   InputPin %UV
   {
     string %Type { "float2" }
-    unsigned_int8 %Color { 50, 50, 128 }
+    string %Color { "Teal" }
     string %DefaultValue { "G.Input.TexCoord0" }
     string %DefineWhenUsingDefaultValue { "USE_TEXCOORD0" }
     string %Tooltip { "Optional UV coordinates to sample the texture. Default uses the mesh UV coordinates." }
@@ -99,7 +98,7 @@ SamplerState $prop0_AutoSampler;
   OutputPin %Normal
   {
     string %Type { "float3" }
-    unsigned_int8 %Color { 128, 128, 255 }
+    string %Color { "Violet" }
     string %Inline { "DecodeNormalTexture($prop0.Sample($prop0_AutoSampler, ToFloat2($in0)))" }
     string %Tooltip { "Normal in Tangent Space" }
   }
@@ -109,7 +108,7 @@ Node %EmissiveTexture
 {
   string %Category { "Texturing" }
   string %NodeType { "Texture" }
-  unsigned_int8 %Color { 0, 89, 153 }
+  string %Color { "Blue" }
   string %CodeMaterialParams {"Texture2D EmissiveTexture @Default(\"$prop0\"); " }
 
   string %CodePixelSamplers { "
@@ -126,7 +125,7 @@ SamplerState EmissiveTexture_AutoSampler;
   InputPin %UV
   {
     string %Type { "float2" }
-    unsigned_int8 %Color { 50, 50, 128 }
+    string %Color { "Teal" }
     string %DefaultValue { "G.Input.TexCoord0" }
     string %DefineWhenUsingDefaultValue { "USE_TEXCOORD0" }
     string %Tooltip { "Optional UV coordinates to sample the texture. Default uses the mesh UV coordinates." }
@@ -142,21 +141,21 @@ SamplerState EmissiveTexture_AutoSampler;
   OutputPin %Red
   {
     string %Type { "float" }
-    unsigned_int8 %Color { 128, 0, 0 }
+    string %Color { "Red" }
     string %Inline { "EmissiveTexture.Sample(EmissiveTexture_AutoSampler, ToFloat2($in0)).x" }
   }
 
   OutputPin %Green
   {
     string %Type { "float" }
-    unsigned_int8 %Color { 0, 128, 0 }
+    string %Color { "Green" }
     string %Inline { "EmissiveTexture.Sample(EmissiveTexture_AutoSampler, ToFloat2($in0)).y" }
   }
 
   OutputPin %Blue
   {
     string %Type { "float" }
-    unsigned_int8 %Color { 0, 0, 128 }
+    string %Color { "Blue" }
     string %Inline { "EmissiveTexture.Sample(EmissiveTexture_AutoSampler, ToFloat2($in0)).z" }
   }
 }
@@ -165,7 +164,7 @@ Node %MetallicTexture
 {
   string %Category { "Texturing" }
   string %NodeType { "Texture" }
-  unsigned_int8 %Color { 0, 89, 153 }
+  string %Color { "Blue" }
   string %CodeMaterialParams { "Texture2D MetallicTexture @Default(\"$prop0\"); " }
 
   string %CodePixelSamplers { "
@@ -182,7 +181,7 @@ SamplerState MetallicTexture_AutoSampler;
   InputPin %UV
   {
     string %Type { "float2" }
-    unsigned_int8 %Color { 50, 50, 128 }
+    string %Color { "Teal" }
     string %DefaultValue { "G.Input.TexCoord0" }
     string %DefineWhenUsingDefaultValue { "USE_TEXCOORD0" }
     string %Tooltip { "Optional UV coordinates to sample the texture. Default uses the mesh UV coordinates." }
@@ -191,7 +190,6 @@ SamplerState MetallicTexture_AutoSampler;
   OutputPin %Metallic
   {
     string %Type { "float" }
-    unsigned_int8 %Color { 128, 128, 128 }
     string %Inline { "MetallicTexture.Sample(MetallicTexture_AutoSampler, ToFloat2($in0)).x" }
     string %Tooltip { "Outputs only the red component of the sampled texture." }
   }
@@ -201,7 +199,7 @@ Node %RoughnessTexture
 {
   string %Category { "Texturing" }
   string %NodeType { "Texture" }
-  unsigned_int8 %Color { 0, 89, 153 }
+  string %Color { "Blue" }
   string %CodeMaterialParams { "Texture2D RoughnessTexture @Default(\"$prop0\"); " }
 
   string %CodePixelSamplers { "
@@ -218,7 +216,7 @@ SamplerState RoughnessTexture_AutoSampler;
   InputPin %UV
   {
     string %Type { "float2" }
-    unsigned_int8 %Color { 50, 50, 128 }
+    string %Color { "Teal" }
     string %DefaultValue { "G.Input.TexCoord0" }
     string %DefineWhenUsingDefaultValue { "USE_TEXCOORD0" }
     string %Tooltip { "Optional UV coordinates to sample the texture. Default uses the mesh UV coordinates." }
@@ -227,7 +225,7 @@ SamplerState RoughnessTexture_AutoSampler;
   OutputPin %Roughness
   {
     string %Type { "float" }
-    unsigned_int8 %Color { 150, 64, 64 }
+    string %Color { "Orange" }
     string %Inline { "RoughnessTexture.Sample(RoughnessTexture_AutoSampler, ToFloat2($in0)).x" }
     string %Tooltip { "Outputs only the red component of the sampled texture." }
   }
@@ -239,7 +237,7 @@ Node %Texture2D
 {
   string %Category { "Texturing" }
   string %NodeType { "Texture" }
-  unsigned_int8 %Color { 0, 89, 153 }
+  string %Color { "Blue" }
   string %CodeMaterialParams { "
 Texture2D $prop0 @Default(\"$prop1\");
 " }
@@ -264,7 +262,7 @@ SamplerState $prop0_AutoSampler;
   InputPin %UV
   {
     string %Type { "float2" }
-    unsigned_int8 %Color { 50, 50, 128 }
+    string %Color { "Teal" }
     string %DefaultValue { "G.Input.TexCoord0" }
     string %DefineWhenUsingDefaultValue { "USE_TEXCOORD0" }
     string %Tooltip { "Optional UV coordinates to sample the texture. Default uses the mesh UV coordinates." }
@@ -273,7 +271,7 @@ SamplerState $prop0_AutoSampler;
   InputPin %Sampler
   {
     string %Type { "sampler" }
-    unsigned_int8 %Color { 0, 96, 96 }
+    string %Color { "Cyan" }
     string %DefaultValue { "$prop0_AutoSampler" }
     string %Tooltip { "Optional sampler state to use." }
   }
@@ -288,28 +286,27 @@ SamplerState $prop0_AutoSampler;
   OutputPin %Red
   {
     string %Type { "float" }
-    unsigned_int8 %Color { 128, 0, 0 }
+    string %Color { "Red" }
     string %Inline { "$prop0.Sample($in1, ToFloat2($in0)).x" }
   }
 
   OutputPin %Green
   {
     string %Type { "float" }
-    unsigned_int8 %Color { 0, 128, 0 }
+    string %Color { "Green" }
     string %Inline { "$prop0.Sample($in1, ToFloat2($in0)).y" }
   }
 
   OutputPin %Blue
   {
     string %Type { "float" }
-    unsigned_int8 %Color { 0, 0, 128 }
+    string %Color { "Blue" }
     string %Inline { "$prop0.Sample($in1, ToFloat2($in0)).z" }
   }
 
   OutputPin %Alpha
   {
     string %Type { "float" }
-    unsigned_int8 %Color { 175, 175, 117 }
     string %Inline { "$prop0.Sample($in1, ToFloat2($in0)).w" }
   }
 }
@@ -318,7 +315,7 @@ Node %Texture3Way
 {
   string %Category { "Texturing" }
   string %NodeType { "Texture" }
-  unsigned_int8 %Color { 0, 89, 153 }
+  string %Color { "Blue" }
   string %CodeMaterialParams { "
 Texture2D $prop0 @Default(\"$prop1\");
 " }
@@ -349,7 +346,7 @@ SamplerState $prop0_AutoSampler;
   InputPin %WorldNormal
   {
     string %Type { "float3" }
-    unsigned_int8 %Color { 128, 128, 255 }
+    string %Color { "Violet" }
     string %DefaultValue { "G.Input.Normal" }
     string %DefineWhenUsingDefaultValue { "USE_NORMAL" }
   }
@@ -365,24 +362,24 @@ SamplerState $prop0_AutoSampler;
 Node %BlendNormals
 {
   string %Category { "Texturing" }
-  unsigned_int8 %Color { 216, 86, 0 }
+  string %Color { "Violet" }
 
   InputPin %BaseNormal
   {
     string %Type { "float3" }
-    unsigned_int8 %Color { 200, 200, 200 }
+    string %Color { "Violet" }
   }
   
   InputPin %DetailNormal
   {
     string %Type { "float3" }
-    unsigned_int8 %Color { 200, 200, 200 }
+    string %Color { "Violet" }
   }
 
   OutputPin %Normal
   {
     string %Type { "float3" }
-    unsigned_int8 %Color { 128, 128, 255 }
+    string %Color { "Violet" }
     string %Inline { "BlendNormals($in0, $in1)" }
     string %Tooltip { "Blended Normal" }
   }

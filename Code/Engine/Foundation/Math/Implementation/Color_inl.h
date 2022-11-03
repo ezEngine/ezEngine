@@ -12,12 +12,12 @@ inline ezColor::ezColor()
 #endif
 }
 
-inline ezColor::ezColor(float fLinearRed, float fLinearGreen, float fLinearBlue, float fLinearAlpha /* = 1.0f */)
+EZ_FORCE_INLINE constexpr ezColor::ezColor(float fLinearRed, float fLinearGreen, float fLinearBlue, float fLinearAlpha /* = 1.0f */)
+  : r(fLinearRed)
+  , g(fLinearGreen)
+  , b(fLinearBlue)
+  , a(fLinearAlpha)
 {
-  r = fLinearRed;
-  g = fLinearGreen;
-  b = fLinearBlue;
-  a = fLinearAlpha;
 }
 
 inline ezColor::ezColor(const ezColorLinearUB& cc)
@@ -134,6 +134,11 @@ inline bool ezColor::IsIdenticalRGBA(const ezColor& rhs) const
   EZ_NAN_ASSERT(&rhs);
 
   return r == rhs.r && g == rhs.g && b == rhs.b && a == rhs.a;
+}
+
+inline ezColor ezColor::WithAlpha(float alpha) const
+{
+  return ezColor(r, g, b, alpha);
 }
 
 inline const ezColor operator+(const ezColor& c1, const ezColor& c2)

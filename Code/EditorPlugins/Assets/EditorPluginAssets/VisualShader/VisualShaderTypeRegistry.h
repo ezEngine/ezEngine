@@ -11,9 +11,9 @@ class ezOpenDdlReaderElement;
 struct ezVisualShaderPinDescriptor
 {
   ezString m_sName;
-  const ezRTTI* m_pDataType;
+  const ezRTTI* m_pDataType = nullptr;
   ezReflectedPropertyDescriptor m_PropertyDesc;
-  ezColorGammaUB m_Color;
+  ezColorGammaUB m_Color = ezColorScheme::DarkUI(ezColorScheme::Gray);
   bool m_bExposeAsProperty = false;
   ezString m_sDefaultValue;
   ezDynamicArray<ezString> m_sDefinesWhenUsingDefaultValue;
@@ -42,7 +42,7 @@ struct ezVisualShaderNodeDescriptor
   ezString m_sName;
   ezString m_sCategory;
   ezString m_sCheckPermutations;
-  ezColorGammaUB m_Color;
+  ezColorGammaUB m_Color = ezColorScheme::DarkUI(ezColorScheme::Gray);
   ezString m_sShaderCodePixelDefines;
   ezString m_sShaderCodePixelIncludes;
   ezString m_sShaderCodePixelSamplers;

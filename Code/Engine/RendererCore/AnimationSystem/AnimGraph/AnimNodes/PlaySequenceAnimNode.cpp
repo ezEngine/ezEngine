@@ -33,7 +33,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPlaySequenceAnimNode, 1, ezRTTIDefaultAllocato
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Animation Sampling"),
-    new ezColorAttribute(ezColor::RoyalBlue),
+    new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Indigo)),
     new ezTitleAttribute("Sequence: '{StartClip}' '{MiddleClips[0]}' '{EndClip}'"),
   }
   EZ_END_ATTRIBUTES;

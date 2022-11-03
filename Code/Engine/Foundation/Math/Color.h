@@ -196,12 +196,6 @@ public:
   static const ezColor Yellow;               ///< #FFFF00
   static const ezColor YellowGreen;          ///< #9ACD32
 
-  // A simple color table with 4 batches of 8 colors from light to dark. I.e., each
-  // batch contains the same 8 colors but of increasingly darker shade. E.g., the
-  // first batch (from index 0) contains lighter versions of the colors in the
-  // second batch (from index 8).
-  static const ezColor s_PaletteColors[32];
-
   // *** Data ***
 public:
   float r;
@@ -211,9 +205,6 @@ public:
 
   // *** Static Functions ***
 public:
-  /// \brief Get the i-th color from s_PaletteColors with optional alpha.
-  static ezColor GetPaletteColor(ezUInt32 colorIndex, ezUInt8 alpha = 0xFF);
-
   /// \brief Returns a color with all four RGBA components set to zero. This is different to ezColor::Black, which has alpha still set to 1.0.
   static ezColor ZeroColor();
 
@@ -226,7 +217,7 @@ public:
   ///
   /// To initialize the color from a Gamma color space, e.g. when using a color value that was determined with a color picker,
   /// use the constructor that takes a ezColorGammaUB object for initialization.
-  ezColor(float fLinearRed, float fLinearGreen, float fLinearBlue, float fLinearAlpha = 1.0f); // [tested]
+  constexpr ezColor(float fLinearRed, float fLinearGreen, float fLinearBlue, float fLinearAlpha = 1.0f); // [tested]
 
   /// \brief Initializes this color from a ezColorLinearUB object.
   ///

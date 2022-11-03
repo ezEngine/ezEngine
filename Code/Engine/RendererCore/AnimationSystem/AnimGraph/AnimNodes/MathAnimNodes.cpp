@@ -19,7 +19,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMathExpressionAnimNode, 1, ezRTTIDefaultAlloca
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Math"),
-    new ezColorAttribute(ezColor::DarkOliveGreen),
+    new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Lime)),
     new ezTitleAttribute("= {Expression}"),
   }
   EZ_END_ATTRIBUTES;

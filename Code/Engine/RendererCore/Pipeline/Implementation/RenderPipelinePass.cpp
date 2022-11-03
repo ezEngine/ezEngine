@@ -18,7 +18,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderPipelinePass, 1, ezRTTINoAllocator)
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezColorAttribute(ezColorGammaUB(64, 32, 96))
+    new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Grape))
   }
   EZ_END_ATTRIBUTES;
 }

@@ -2,6 +2,7 @@
 
 #include <Core/GameState/GameStateWindow.h>
 #include <Core/Graphics/Camera.h>
+#include <Foundation/Math/ColorScheme.h>
 #include <Foundation/Threading/ThreadUtils.h>
 #include <RendererTest/Basics/PipelineStates.h>
 
@@ -37,7 +38,8 @@ namespace
       for (ezUInt32 y = 0; y < uiRows; ++y)
       {
         ezTestShaderData& instance = instanceData[uiSlotOffset + x * uiRows + y];
-        instance.InstanceColor = ezColor::GetPaletteColor(uiColorOffset + x * uiRows + y).GetAsVec4();
+        const float fColorIndex = float(uiColorOffset + x * uiRows + y) / 32.0f;
+        instance.InstanceColor = ezColorScheme::LightUI(fColorIndex).GetAsVec4();
         ezTransform t = CreateTransform(uiColumns, uiRows, x, y);
         instance.InstanceTransform = t;
       }
@@ -239,7 +241,7 @@ ezResult ezRendererTestPipelineStates::InitializeSubTest(ezInt32 iIdentifier)
   }
 
   {
-    //Texture2DArray
+    // Texture2DArray
     ezGALTextureCreationDescription desc;
     desc.m_uiWidth = 8;
     desc.m_uiHeight = 8;
@@ -578,7 +580,7 @@ void ezRendererTestPipelineStates::ConstantBufferTest()
         {
           {
             auto constants = ezRenderContext::GetConstantBufferData<ezTestColors>(m_hTestColorsConstantBuffer);
-            constants->VertexColor = ezColor::GetPaletteColor(x * uiRows + y).GetAsVec4();
+            constants->VertexColor = ezColorScheme::LightUI(float(x * uiRows + y) / (uiColumns * uiRows)).GetAsVec4();
           }
           {
             ezTransform t = CreateTransform(uiColumns, uiRows, x, y);

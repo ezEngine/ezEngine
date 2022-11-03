@@ -1,7 +1,9 @@
 #pragma once
 
 #include <Foundation/Basics.h>
+#include <Foundation/Math/Color8UNorm.h>
 #include <Foundation/Types/Uuid.h>
+#include <QColor>
 #include <QMetaType>
 #include <ToolsFoundation/ToolsFoundationDLL.h>
 
@@ -46,3 +48,8 @@ public:
 private:
   QObject* m_pObjects[6];
 };
+
+EZ_ALWAYS_INLINE QColor ezToQtColor(const ezColorGammaUB& c)
+{
+  return QColor(c.r, c.g, c.b, c.a);
+}

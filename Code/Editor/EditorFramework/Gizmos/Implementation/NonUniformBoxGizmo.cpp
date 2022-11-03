@@ -17,15 +17,15 @@ ezNonUniformBoxGizmo::ezNonUniformBoxGizmo()
 
   m_ManipulateMode = ManipulateMode::None;
 
-  m_hOutline.ConfigureHandle(this, ezEngineGizmoHandleType::LineBox, ezColor::LawnGreen, ezGizmoFlags::ShowInOrtho);
+  m_hOutline.ConfigureHandle(this, ezEngineGizmoHandleType::LineBox, ezColorScheme::LightUI(ezColorScheme::Gray), ezGizmoFlags::ShowInOrtho);
 
   ezColor cols[6] = {
-    ezColorGammaUB(255, 200, 200),
-    ezColorGammaUB(255, 200, 200),
-    ezColorGammaUB(200, 255, 200),
-    ezColorGammaUB(200, 255, 200),
-    ezColorGammaUB(200, 200, 255),
-    ezColorGammaUB(200, 200, 255),
+    ezColorScheme::LightUI(ezColorScheme::Red),
+    ezColorScheme::LightUI(ezColorScheme::Red),
+    ezColorScheme::LightUI(ezColorScheme::Green),
+    ezColorScheme::LightUI(ezColorScheme::Green),
+    ezColorScheme::LightUI(ezColorScheme::Blue),
+    ezColorScheme::LightUI(ezColorScheme::Blue),
   };
 
   for (ezUInt32 i = 0; i < 6; ++i)

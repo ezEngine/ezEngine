@@ -1,11 +1,10 @@
 Node %SceneColor
 {
   string %Category { "Utils" }
-  unsigned_int8 %Color { 38, 105, 0 }
+  string %Color { "Green" }
   
   InputPin %ScreenPosition
   {
-    unsigned_int8 %Color { 50, 50, 128 }
     string %Type { "float2" }
     string %DefaultValue { "G.Input.Position.xy" }
   }
@@ -13,7 +12,7 @@ Node %SceneColor
   OutputPin %Color
   {
     string %Type { "float3" }
-    unsigned_int8 %Color { 200, 0, 0 }
+    unsigned_int8 %Color { 200, 200, 200 }
     string %Inline { "SampleSceneColor(ToFloat2($in0))" }
   }
 }
@@ -21,11 +20,10 @@ Node %SceneColor
 Node %SceneDepth
 {
   string %Category { "Utils" }
-  unsigned_int8 %Color { 38, 105, 0 }
+  string %Color { "Green" }
   
   InputPin %ScreenPosition
   {
-    unsigned_int8 %Color { 50, 50, 128 }
     string %Type { "float2" }
     string %DefaultValue { "G.Input.Position.xy" }
   }
@@ -33,7 +31,6 @@ Node %SceneDepth
   OutputPin %Depth
   {
     string %Type { "float3" }
-    unsigned_int8 %Color { 200, 0, 0 }
     string %Inline { "SampleSceneDepth(ToFloat2($in0))" }
   }
 }
@@ -41,11 +38,10 @@ Node %SceneDepth
 Node %ScenePosition
 {
   string %Category { "Utils" }
-  unsigned_int8 %Color { 38, 105, 0 }
+  string %Color { "Green" }
   
   InputPin %ScreenPosition
   {
-    unsigned_int8 %Color { 50, 50, 128 }
     string %Type { "float2" }
     string %DefaultValue { "G.Input.Position.xy" }
   }
@@ -53,7 +49,7 @@ Node %ScenePosition
   OutputPin %Position
   {
     string %Type { "float3" }
-    unsigned_int8 %Color { 200, 0, 0 }
+    string %Color { "Indigo" }
     string %Inline { "SampleScenePosition(ToFloat2($in0))" }
   }
 }
@@ -61,11 +57,10 @@ Node %ScenePosition
 Node %DepthFade
 {
   string %Category { "Utils" }
-  unsigned_int8 %Color { 38, 105, 0 }
+  string %Color { "Green" }
   
   InputPin %FadeDistance
   {
-    unsigned_int8 %Color { 50, 50, 128 }
     string %Type { "float" }
     bool %Expose { true }
     string %DefaultValue { "1.0f" }
@@ -74,7 +69,6 @@ Node %DepthFade
   OutputPin %Fade
   {
     string %Type { "float" }
-    unsigned_int8 %Color { 200, 0, 0 }
     string %Inline { "DepthFade(G.Input.Position.xyw, ToFloat1($in0))" }
   }
 }
@@ -82,7 +76,7 @@ Node %DepthFade
 Node %Fresnel
 {
   string %Category { "Utils" }
-  unsigned_int8 %Color { 38, 105, 0 }
+  string %Color { "Green" }
   
   string %CodePixelBody { "
 
@@ -98,7 +92,6 @@ float VisualShaderFresnel(float3 normal, float f0, float exponent)
   
   InputPin %Exponent
   {
-    unsigned_int8 %Color { 50, 50, 128 }
     string %Type { "float" }
     bool %Expose { true }
     string %DefaultValue { "5.0f" }
@@ -106,7 +99,6 @@ float VisualShaderFresnel(float3 normal, float f0, float exponent)
   
   InputPin %F0
   {
-    unsigned_int8 %Color { 50, 50, 128 }
     string %Type { "float" }
     bool %Expose { true }
     string %DefaultValue { "0.04f" }
@@ -114,7 +106,6 @@ float VisualShaderFresnel(float3 normal, float f0, float exponent)
   
   InputPin %Normal
   {
-    unsigned_int8 %Color { 50, 50, 128 }
     string %Type { "float3" }
     string %DefaultValue { "GetNormal()" }
   }
@@ -122,7 +113,6 @@ float VisualShaderFresnel(float3 normal, float f0, float exponent)
   OutputPin %Fresnel
   {
     string %Type { "float" }
-    unsigned_int8 %Color { 200, 0, 0 }
     string %Inline { "VisualShaderFresnel(ToFloat3($in2), ToFloat1($in1), ToFloat1($in0))" }
   }
 }
@@ -130,7 +120,7 @@ float VisualShaderFresnel(float3 normal, float f0, float exponent)
 Node %Refraction
 {
   string %Category { "Utils" }
-  unsigned_int8 %Color { 38, 105, 0 }
+  string %Color { "Green" }
   
   string %CodePixelBody { "
 
@@ -143,14 +133,13 @@ float4 VisualShaderRefraction(float3 worldNormal, float IoR, float thickness, fl
 
   InputPin %Normal
   {
-    unsigned_int8 %Color { 50, 50, 128 }
+    string %Color { "Violet" }
     string %Type { "float3" }
     string %DefaultValue { "GetNormal()" }
   }
   
   InputPin %IoR
   {
-    unsigned_int8 %Color { 50, 50, 128 }
     string %Type { "float" }
     bool %Expose { true }
     string %DefaultValue { "1.3f" }
@@ -158,7 +147,6 @@ float4 VisualShaderRefraction(float3 worldNormal, float IoR, float thickness, fl
   
   InputPin %Thickness
   {
-    unsigned_int8 %Color { 50, 50, 128 }
     string %Type { "float" }
     bool %Expose { true }
     string %DefaultValue { "1.0f" }
@@ -167,14 +155,14 @@ float4 VisualShaderRefraction(float3 worldNormal, float IoR, float thickness, fl
   InputPin %TintColor
   {
     string %Type { "float3" }
-    unsigned_int8 %Color { 200, 0, 0 }
+    unsigned_int8 %Color { 200, 200, 200 }
     bool %Expose { true }
     string %DefaultValue { "1, 1, 1" }
   }
   
   InputPin %NewOpacity
   {
-    unsigned_int8 %Color { 50, 50, 128 }
+    string %Color { "Red" }
     string %Type { "float" }
     bool %Expose { true }
     string %DefaultValue { "1.0f" }
@@ -183,7 +171,7 @@ float4 VisualShaderRefraction(float3 worldNormal, float IoR, float thickness, fl
   OutputPin %Refraction
   {
     string %Type { "float4" }
-    unsigned_int8 %Color { 200, 0, 0 }
+    unsigned_int8 %Color { 200, 200, 200 }
     string %Inline { "VisualShaderRefraction(ToFloat3($in0), ToFloat1($in1), ToFloat1($in2), ToFloat3($in3), ToFloat1($in4))" }
   }
 }

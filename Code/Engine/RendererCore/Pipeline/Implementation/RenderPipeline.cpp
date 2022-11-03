@@ -2,6 +2,7 @@
 
 #include <Core/World/World.h>
 #include <Foundation/Application/Application.h>
+#include <Foundation/Math/ColorScheme.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
 #include <Foundation/Time/Clock.h>
 #include <Foundation/Utilities/DGMLWriter.h>
@@ -981,7 +982,7 @@ void ezRenderPipeline::FindVisibleObjects(const ezView& view)
 
 void ezRenderPipeline::Render(ezRenderContext* pRenderContext)
 {
-  //EZ_PROFILE_AND_MARKER(pRenderContext->GetGALContext(), m_sName.GetData());
+  // EZ_PROFILE_AND_MARKER(pRenderContext->GetGALContext(), m_sName.GetData());
   EZ_PROFILE_SCOPE(m_sName.GetData());
 
   EZ_ASSERT_DEV(m_PipelineState != PipelineState::Uninitialized, "Pipeline must be rebuild before rendering.");
@@ -1219,7 +1220,7 @@ void ezRenderPipeline::CreateDgmlGraph(ezDGMLGraph& graph)
     for (const ezRenderPipelinePassConnection* pCon : data.m_UsedBy)
     {
       ezDGMLGraph::NodeDesc nd;
-      nd.m_Color = data.m_iTargetTextureIndex != -1 ? ezColor::Black : ezColor::GetPaletteColor(i, 64);
+      nd.m_Color = data.m_iTargetTextureIndex != -1 ? ezColor::Black : ezColorScheme::GetColor(static_cast<ezColorScheme::Enum>(i % ezColorScheme::Count), 4);
       nd.m_Shape = ezDGMLGraph::NodeShape::RoundedRectangle;
 
       ezStringBuilder sFormat;

@@ -4,6 +4,11 @@
 
 void ezQtEditorApp::SetStyleSheet()
 {
+  ezColorGammaUB highlightColor = ezColorScheme::DarkUI(ezColorScheme::Yellow);
+  ezColorGammaUB highlightColorDisabled = ezColorScheme::DarkUI(ezColorScheme::Yellow) * 0.5f;
+  ezColorGammaUB linkColor = ezColorScheme::LightUI(ezColorScheme::Blue);
+  ezColorGammaUB linkVisitedColor = ezColorScheme::LightUI(ezColorScheme::Grape);
+
   QApplication::setStyle(QStyleFactory::create("fusion"));
   QPalette palette;
 
@@ -19,10 +24,10 @@ void ezQtEditorApp::SetStyleSheet()
   palette.setColor(QPalette::Base, QColor(42, 42, 42, 255));
   palette.setColor(QPalette::Window, QColor(68, 68, 68, 255));
   palette.setColor(QPalette::Shadow, QColor(0, 0, 0, 255));
-  palette.setColor(QPalette::Highlight, QColor(177, 135, 27, 255));
+  palette.setColor(QPalette::Highlight, ezToQtColor(highlightColor));
   palette.setColor(QPalette::HighlightedText, QColor(255, 255, 255, 255));
-  palette.setColor(QPalette::Link, QColor(0, 148, 255, 255));
-  palette.setColor(QPalette::LinkVisited, QColor(255, 0, 220, 255));
+  palette.setColor(QPalette::Link, ezToQtColor(linkColor));
+  palette.setColor(QPalette::LinkVisited, ezToQtColor(linkVisitedColor));
   palette.setColor(QPalette::AlternateBase, QColor(46, 46, 46, 255));
   QBrush NoRoleBrush(QColor(0, 0, 0, 255), Qt::NoBrush);
   palette.setBrush(QPalette::NoRole, NoRoleBrush);
@@ -35,7 +40,7 @@ void ezQtEditorApp::SetStyleSheet()
   palette.setColor(QPalette::Disabled, QPalette::Text, QColor(105, 105, 105, 255));
   palette.setColor(QPalette::Disabled, QPalette::BrightText, QColor(255, 255, 255, 255));
   palette.setColor(QPalette::Disabled, QPalette::ButtonText, QColor(128, 128, 128, 255));
-  palette.setColor(QPalette::Disabled, QPalette::Highlight, QColor(86, 117, 148, 255));
+  palette.setColor(QPalette::Disabled, QPalette::Highlight, ezToQtColor(highlightColorDisabled));
 
   QApplication::setPalette(palette);
 }

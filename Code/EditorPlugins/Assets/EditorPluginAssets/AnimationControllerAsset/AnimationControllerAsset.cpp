@@ -2,6 +2,7 @@
 
 #include <EditorPluginAssets/AnimationControllerAsset/AnimationControllerAsset.h>
 #include <EditorPluginAssets/AnimationControllerAsset/AnimationControllerGraphQt.h>
+#include <Foundation/Math/ColorScheme.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraph.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 #include <ToolsFoundation/Serialization/ToolsSerializationUtils.h>
@@ -49,11 +50,11 @@ void ezAnimationControllerNodeManager::InternalCreatePins(const ezDocumentObject
   ezHybridArray<ezAbstractProperty*, 32> properties;
   pType->GetAllProperties(properties);
 
-  const ezColor triggerPinColor = ezColorGammaUB(0xa1, 0x12, 0x6c);
-  const ezColor numberPinColor = ezColor::OliveDrab;
-  const ezColor weightPinColor = ezColor::LightSeaGreen;
-  const ezColor localPosePinColor = ezColor::SteelBlue;
-  const ezColor modelPosePinColor = ezColorGammaUB(0x52, 0x46, 0xa0);
+  const ezColor triggerPinColor = ezColorScheme::DarkUI(ezColorScheme::Grape);
+  const ezColor numberPinColor = ezColorScheme::DarkUI(ezColorScheme::Lime);
+  const ezColor weightPinColor = ezColorScheme::DarkUI(ezColorScheme::Teal);
+  const ezColor localPosePinColor = ezColorScheme::DarkUI(ezColorScheme::Blue);
+  const ezColor modelPosePinColor = ezColorScheme::DarkUI(ezColorScheme::Violet);
   // EXTEND THIS if a new type is introduced
 
   for (ezAbstractProperty* pProp : properties)

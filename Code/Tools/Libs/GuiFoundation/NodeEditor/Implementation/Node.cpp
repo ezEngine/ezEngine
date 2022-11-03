@@ -64,8 +64,7 @@ void ezQtNode::InitNode(const ezDocumentNodeManager* pManager, const ezDocumentO
 
   if (const ezColorAttribute* pColorAttr = pObject->GetType()->GetAttributeByType<ezColorAttribute>())
   {
-    ezColorGammaUB col = pColorAttr->GetColor();
-    m_HeaderColor = qRgb(col.r, col.g, col.b);
+    m_HeaderColor = ezToQtColor(pColorAttr->GetColor());
   }
 
   m_DirtyFlags.Add(ezNodeFlags::UpdateTitle);
@@ -253,9 +252,6 @@ void ezQtNode::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, 
   painter->drawPath(path());
 
   QColor headerColor = m_HeaderColor;
-
-  const bool bBackgroundIsLight = m_HeaderColor.lightnessF() > 0.5f;
-
   if (!m_bIsActive)
     headerColor.setAlpha(50);
 
@@ -288,6 +284,7 @@ void ezQtNode::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, 
   if (!m_bIsActive)
     labelColor = labelColor.darker(150);
 
+  const bool bBackgroundIsLight = m_HeaderColor.lightnessF() > 0.6f;
   if (bBackgroundIsLight)
   {
     labelColor.setRed(255 - labelColor.red());

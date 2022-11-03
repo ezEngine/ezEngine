@@ -217,11 +217,12 @@ void ezProcPlacementComponentManager::PreparePlace(const ezWorldModule::UpdateCo
     ezStringBuilder sb;
     sb.Format("Procedural Placement Stats:\nNum Tiles to process: {}", m_NewTiles.GetCount());
 
-    ezDebugRenderer::DrawInfoText(GetWorld(), ezDebugRenderer::ScreenPlacement::TopLeft, "ProcPlaceStats", sb, ezColor::Magenta);
+    ezColor textColor = ezColorScheme::LightUI(ezColorScheme::Grape);
+    ezDebugRenderer::DrawInfoText(GetWorld(), ezDebugRenderer::ScreenPlacement::TopLeft, "ProcPlaceStats", sb, textColor);
 
     for (ezUInt32 i = 0; i < m_NewTiles.GetCount(); ++i)
     {
-      DebugDrawTile(m_NewTiles[i], ezColor::Magenta, m_NewTiles.GetCount() - i - 1);
+      DebugDrawTile(m_NewTiles[i], textColor, m_NewTiles.GetCount() - i - 1);
     }
 
     for (auto& activeTile : m_ActiveTiles)
@@ -572,8 +573,8 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezProcGenBoxExtents, ezNoBase, 1, ezRTTIDefaultAl
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezBoxManipulatorAttribute("Extents", 1.0f, true, "Offset", "Rotation"),
-    new ezBoxVisualizerAttribute("Extents", 1.0f, ezColor::CornflowerBlue, nullptr, ezVisualizerAnchor::Center, ezVec3::OneVector(), "Offset", "Rotation"),
+    new ezBoxManipulatorAttribute("Extents", 1.0f, false, "Offset", "Rotation"),
+    new ezBoxVisualizerAttribute("Extents", 1.0f, ezColorScheme::LightUI(ezColorScheme::Blue), nullptr, ezVisualizerAnchor::Center, ezVec3::OneVector(), "Offset", "Rotation"),
     new ezTransformManipulatorAttribute("Offset", "Rotation"),
   }
   EZ_END_ATTRIBUTES;

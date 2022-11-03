@@ -11,7 +11,7 @@ o
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{5189305147899033520,5264929536831011917}}
-		u4 %Hash{15745672483463650818}
+		u4 %Hash{1394242861671256051}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -237,7 +237,7 @@ o
 		b %Active{1}
 		Uuid %Color{u4{8636865610212998896,9717409422292610101}}
 		Uuid %DepthStencil{u4{16636081782414471294,6584189353919992959}}
-		Color %HighlightColor{f{0xB2B1313F,0x8887073F,0xD9D8D83D,0x0000803F}}
+		Color %HighlightColor{f{0xB933793F,0xA2500D3F,0xC0451F3C,0x0000803F}}
 		s %Name{"EditorSelectionPass"}
 		Vec2 %Node::Pos{f{0x19FF4A44,0x352679C3}}
 		f %OverlayOpacity{0}
@@ -1126,7 +1126,7 @@ o
 			Uuid{u4{16631111678292622734,8500933737344926134}}
 		}
 		s %TypeName{"ezSceneContext"}
-		u3 %TypeSize{1864}
+		u3 %TypeSize{1952}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1822,7 +1822,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezEngineProcessDocumentContext"}
-		u3 %TypeSize{1344}
+		u3 %TypeSize{1408}
 		u3 %TypeVersion{1}
 	}
 }

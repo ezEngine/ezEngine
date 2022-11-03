@@ -61,7 +61,7 @@ void ezProcGenNodeManager::InternalCreatePins(const ezDocumentObject* pObject, N
     if (!pPropType->IsDerivedFrom<ezRenderPipelineNodePin>())
       continue;
 
-    ezColor pinColor = ezColor::Grey;
+    ezColor pinColor = ezColorScheme::DarkUI(ezColorScheme::Gray);
     if (const ezColorAttribute* pAttr = pProp->GetAttributeByType<ezColorAttribute>())
     {
       pinColor = pAttr->GetColor();
