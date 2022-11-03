@@ -239,7 +239,6 @@ void ezToolsReflectionUtils::GetMinimalReflectedTypeDescriptorFromRtti(const ezR
   out_desc.m_sTypeName = pRtti->GetTypeName();
   out_desc.m_sPluginName = pRtti->GetPluginName();
   out_desc.m_Flags = pRtti->GetTypeFlags() | ezTypeFlags::Minimal;
-  out_desc.m_uiTypeSize = pRtti->GetTypeSize();
   out_desc.m_uiTypeVersion = pRtti->GetTypeVersion();
   const ezRTTI* pParentRtti = pRtti->GetParentType();
   out_desc.m_sParentTypeName = pParentRtti ? pParentRtti->GetTypeName() : nullptr;

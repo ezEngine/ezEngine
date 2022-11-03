@@ -120,7 +120,7 @@ void ezPhantomRTTI::SetAttributes(ezHybridArray<ezPropertyAttribute*, 2>& attrib
 
 void ezPhantomRTTI::UpdateType(ezReflectedTypeDescriptor& desc)
 {
-  ezRTTI::UpdateType(ezRTTI::FindTypeByName(desc.m_sParentTypeName), desc.m_uiTypeSize, desc.m_uiTypeVersion, ezVariantType::Invalid, desc.m_Flags);
+  ezRTTI::UpdateType(ezRTTI::FindTypeByName(desc.m_sParentTypeName), 0, desc.m_uiTypeVersion, ezVariantType::Invalid, desc.m_Flags);
 
   m_sPluginNameStorage = desc.m_sPluginName;
   m_szPluginName = m_sPluginNameStorage.GetData();

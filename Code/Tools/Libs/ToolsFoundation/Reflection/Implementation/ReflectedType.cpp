@@ -284,7 +284,6 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezReflectedTypeDescriptor, ezAttributeHolder, 1, 
     EZ_BITFLAGS_MEMBER_PROPERTY("Flags", ezTypeFlags, m_Flags),
     EZ_ARRAY_MEMBER_PROPERTY("Properties", m_Properties),
     EZ_ARRAY_MEMBER_PROPERTY("Functions", m_Functions),
-    EZ_MEMBER_PROPERTY("TypeSize", m_uiTypeSize),
     EZ_MEMBER_PROPERTY("TypeVersion", m_uiTypeVersion),
   }
   EZ_END_PROPERTIES;

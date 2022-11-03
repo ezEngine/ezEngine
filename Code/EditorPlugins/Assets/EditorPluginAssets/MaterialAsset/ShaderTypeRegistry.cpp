@@ -89,7 +89,6 @@ namespace
         descEnum.m_sPluginName = "ShaderTypes";
         descEnum.m_sParentTypeName = ezGetStaticRTTI<ezEnumBase>()->GetTypeName();
         descEnum.m_Flags = ezTypeFlags::IsEnum | ezTypeFlags::Phantom;
-        descEnum.m_uiTypeSize = 0;
         descEnum.m_uiTypeVersion = 1;
 
         ezArrayPtr<ezPropertyAttribute* const> noAttributes;
@@ -129,7 +128,6 @@ namespace
     descEnum.m_sPluginName = "ShaderTypes";
     descEnum.m_sParentTypeName = ezGetStaticRTTI<ezEnumBase>()->GetTypeName();
     descEnum.m_Flags = ezTypeFlags::IsEnum | ezTypeFlags::Phantom;
-    descEnum.m_uiTypeSize = 0;
     descEnum.m_uiTypeVersion = 1;
 
     ezArrayPtr<ezPropertyAttribute* const> noAttributes;
@@ -248,7 +246,6 @@ ezShaderTypeRegistry::ezShaderTypeRegistry()
   desc.m_sPluginName = "ShaderTypes";
   desc.m_sParentTypeName = ezGetStaticRTTI<ezReflectedClass>()->GetTypeName();
   desc.m_Flags = ezTypeFlags::Phantom | ezTypeFlags::Abstract | ezTypeFlags::Class;
-  desc.m_uiTypeSize = 0;
   desc.m_uiTypeVersion = 2;
 
   m_pBaseType = ezPhantomRttiManager::RegisterType(desc);
@@ -336,7 +333,6 @@ void ezShaderTypeRegistry::UpdateShaderType(ShaderData& data)
   desc.m_sPluginName = "ShaderTypes";
   desc.m_sParentTypeName = m_pBaseType->GetTypeName();
   desc.m_Flags = ezTypeFlags::Phantom | ezTypeFlags::Class;
-  desc.m_uiTypeSize = 0;
   desc.m_uiTypeVersion = 2;
 
   for (auto& enumDef : enumDefinitions)
@@ -438,7 +434,6 @@ public:
       desc.m_sPluginName = "ShaderTypes";
       desc.m_sParentTypeName = ezGetStaticRTTI<ezReflectedClass>()->GetTypeName();
       desc.m_Flags = ezTypeFlags::Phantom | ezTypeFlags::Abstract | ezTypeFlags::Class;
-      desc.m_uiTypeSize = 0;
       desc.m_uiTypeVersion = 1;
 
       context.RegisterObject(ezUuid::StableUuidForString(desc.m_sTypeName.GetData()), ezGetStaticRTTI<ezReflectedTypeDescriptor>(), &desc);

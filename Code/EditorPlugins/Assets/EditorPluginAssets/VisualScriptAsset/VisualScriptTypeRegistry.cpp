@@ -112,7 +112,6 @@ void ezVisualScriptTypeRegistry::UpdateNodeTypes()
     desc.m_sPluginName = "VisualScriptTypes";
     desc.m_sParentTypeName = ezGetStaticRTTI<ezReflectedClass>()->GetTypeName();
     desc.m_Flags = ezTypeFlags::Phantom | ezTypeFlags::Abstract | ezTypeFlags::Class;
-    desc.m_uiTypeSize = 0;
     desc.m_uiTypeVersion = 1;
 
     m_pBaseType = ezPhantomRttiManager::RegisterType(desc);
@@ -289,7 +288,6 @@ const ezRTTI* ezVisualScriptTypeRegistry::GenerateTypeFromDesc(const ezVisualScr
   desc.m_sPluginName = "VisualScriptTypes";
   desc.m_sParentTypeName = m_pBaseType->GetTypeName();
   desc.m_Flags = ezTypeFlags::Phantom | ezTypeFlags::Class;
-  desc.m_uiTypeSize = 0;
   desc.m_uiTypeVersion = 1;
   desc.m_Properties = nd.m_Properties;
 
