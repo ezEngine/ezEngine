@@ -10,6 +10,7 @@
 #include <Foundation/Time/Time.h>
 #include <GuiFoundation/GuiFoundationDLL.h>
 #include <QAbstractItemModel>
+#include <QIcon>
 #include <QPixmap>
 #include <QString>
 
