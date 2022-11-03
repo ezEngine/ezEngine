@@ -6,6 +6,8 @@
 
 void UpdateCollisionLayerDynamicEnumValues();
 
+constexpr const char* g_szJoltConfigFile = ":project/RuntimeConfigs/CollisionLayers.cfg";
+
 ezQtJoltProjectSettingsDlg::ezQtJoltProjectSettingsDlg(QWidget* parent)
   : QDialog(parent)
 {
@@ -14,8 +16,85 @@ ezQtJoltProjectSettingsDlg::ezQtJoltProjectSettingsDlg(QWidget* parent)
   ButtonRemoveLayer->setEnabled(false);
   ButtonRenameLayer->setEnabled(false);
 
+  EnsureConfigFileExists();
+
   Load().IgnoreResult();
   SetupTable();
+}
+
+
+void ezQtJoltProjectSettingsDlg::EnsureConfigFileExists()
+{
+  if (ezFileSystem::ExistsFile(g_szJoltConfigFile))
+    return;
+
+  ezCollisionFilterConfig cfg;
+
+  cfg.SetGroupName(0, "Default");
+  cfg.SetGroupName(1, "Transparent");
+  cfg.SetGroupName(2, "Debris");
+  cfg.SetGroupName(3, "Water");
+  cfg.SetGroupName(4, "Foliage");
+  cfg.SetGroupName(5, "AI");
+  cfg.SetGroupName(6, "Player");
+  cfg.SetGroupName(7, "Visibility Raycast");
+  cfg.SetGroupName(8, "Interaction Raycast");
+
+  cfg.EnableCollision(0, 0);
+  cfg.EnableCollision(0, 1);
+  cfg.EnableCollision(0, 2);
+  cfg.EnableCollision(0, 3, false);
+  cfg.EnableCollision(0, 4, false);
+  cfg.EnableCollision(0, 5);
+  cfg.EnableCollision(0, 6);
+  cfg.EnableCollision(0, 7);
+  cfg.EnableCollision(0, 8);
+
+  cfg.EnableCollision(1, 1);
+  cfg.EnableCollision(1, 2);
+  cfg.EnableCollision(1, 3, false);
+  cfg.EnableCollision(1, 4, false);
+  cfg.EnableCollision(1, 5);
+  cfg.EnableCollision(1, 6);
+  cfg.EnableCollision(1, 7, false);
+  cfg.EnableCollision(1, 8);
+
+  cfg.EnableCollision(2, 2, false);
+  cfg.EnableCollision(2, 3, false);
+  cfg.EnableCollision(2, 4, false);
+  cfg.EnableCollision(2, 5, false);
+  cfg.EnableCollision(2, 6, false);
+  cfg.EnableCollision(2, 7, false);
+  cfg.EnableCollision(2, 8, false);
+
+  cfg.EnableCollision(3, 3, false);
+  cfg.EnableCollision(3, 4, false);
+  cfg.EnableCollision(3, 5, false);
+  cfg.EnableCollision(3, 6, false);
+  cfg.EnableCollision(3, 7, false);
+  cfg.EnableCollision(3, 8);
+
+  cfg.EnableCollision(4, 4, false);
+  cfg.EnableCollision(4, 5, false);
+  cfg.EnableCollision(4, 6, false);
+  cfg.EnableCollision(4, 7);
+  cfg.EnableCollision(4, 8, false);
+
+  cfg.EnableCollision(5, 5);
+  cfg.EnableCollision(5, 6);
+  cfg.EnableCollision(5, 7);
+  cfg.EnableCollision(5, 8);
+
+  cfg.EnableCollision(6, 6);
+  cfg.EnableCollision(6, 7);
+  cfg.EnableCollision(6, 8);
+
+  cfg.EnableCollision(7, 7, false);
+  cfg.EnableCollision(7, 8, false);
+
+  cfg.EnableCollision(8, 8, false);
+
+  cfg.Save(g_szJoltConfigFile).IgnoreResult();
 }
 
 void ezQtJoltProjectSettingsDlg::SetupTable()
@@ -66,11 +145,10 @@ void ezQtJoltProjectSettingsDlg::SetupTable()
 
 ezResult ezQtJoltProjectSettingsDlg::Save()
 {
-  const char* szFile = ":project/RuntimeConfigs/CollisionLayers.cfg";
-  if (m_Config.Save(szFile).Failed())
+  if (m_Config.Save(g_szJoltConfigFile).Failed())
   {
     ezStringBuilder sError;
-    sError.Format("Failed to save the Collision Layer file\n'{0}'", szFile);
+    sError.Format("Failed to save the Collision Layer file\n'{0}'", g_szJoltConfigFile);
 
     ezQtUiServices::GetSingleton()->MessageBoxWarning(sError);
 
@@ -84,74 +162,7 @@ ezResult ezQtJoltProjectSettingsDlg::Save()
 
 ezResult ezQtJoltProjectSettingsDlg::Load()
 {
-  auto res = m_Config.Load(":project/RuntimeConfigs/CollisionLayers.cfg");
-
-  if (res.Failed())
-  {
-    m_Config.SetGroupName(0, "Default");
-    m_Config.SetGroupName(1, "Transparent");
-    m_Config.SetGroupName(2, "Debris");
-    m_Config.SetGroupName(3, "Water");
-    m_Config.SetGroupName(4, "Foliage");
-    m_Config.SetGroupName(5, "AI");
-    m_Config.SetGroupName(6, "Player");
-    m_Config.SetGroupName(7, "Visibility Raycast");
-    m_Config.SetGroupName(8, "Interaction Raycast");
-
-    m_Config.EnableCollision(0, 0);
-    m_Config.EnableCollision(0, 1);
-    m_Config.EnableCollision(0, 2);
-    m_Config.EnableCollision(0, 3, false);
-    m_Config.EnableCollision(0, 4, false);
-    m_Config.EnableCollision(0, 5);
-    m_Config.EnableCollision(0, 6);
-    m_Config.EnableCollision(0, 7);
-    m_Config.EnableCollision(0, 8);
-
-    m_Config.EnableCollision(1, 1);
-    m_Config.EnableCollision(1, 2);
-    m_Config.EnableCollision(1, 3, false);
-    m_Config.EnableCollision(1, 4, false);
-    m_Config.EnableCollision(1, 5);
-    m_Config.EnableCollision(1, 6);
-    m_Config.EnableCollision(1, 7, false);
-    m_Config.EnableCollision(1, 8);
-
-    m_Config.EnableCollision(2, 2, false);
-    m_Config.EnableCollision(2, 3, false);
-    m_Config.EnableCollision(2, 4, false);
-    m_Config.EnableCollision(2, 5, false);
-    m_Config.EnableCollision(2, 6, false);
-    m_Config.EnableCollision(2, 7, false);
-    m_Config.EnableCollision(2, 8, false);
-
-    m_Config.EnableCollision(3, 3, false);
-    m_Config.EnableCollision(3, 4, false);
-    m_Config.EnableCollision(3, 5, false);
-    m_Config.EnableCollision(3, 6, false);
-    m_Config.EnableCollision(3, 7, false);
-    m_Config.EnableCollision(3, 8);
-
-    m_Config.EnableCollision(4, 4, false);
-    m_Config.EnableCollision(4, 5, false);
-    m_Config.EnableCollision(4, 6, false);
-    m_Config.EnableCollision(4, 7);
-    m_Config.EnableCollision(4, 8, false);
-
-    m_Config.EnableCollision(5, 5);
-    m_Config.EnableCollision(5, 6);
-    m_Config.EnableCollision(5, 7);
-    m_Config.EnableCollision(5, 8);
-
-    m_Config.EnableCollision(6, 6);
-    m_Config.EnableCollision(6, 7);
-    m_Config.EnableCollision(6, 8);
-
-    m_Config.EnableCollision(7, 7, false);
-    m_Config.EnableCollision(7, 8, false);
-
-    m_Config.EnableCollision(8, 8, false);
-  }
+  auto res = m_Config.Load(g_szJoltConfigFile);
 
   m_ConfigReset = m_Config;
   return res;

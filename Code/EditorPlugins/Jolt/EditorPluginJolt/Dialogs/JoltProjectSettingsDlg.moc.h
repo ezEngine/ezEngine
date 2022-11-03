@@ -13,6 +13,8 @@ public:
 public:
   ezQtJoltProjectSettingsDlg(QWidget* parent);
 
+  static void EnsureConfigFileExists();
+
 private Q_SLOTS:
   void onCheckBoxClicked(bool checked);
   void on_DefaultButtons_clicked(QAbstractButton* pButton);

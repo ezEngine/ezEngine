@@ -240,6 +240,7 @@ private:
   void EngineProcessMsgHandler(const ezEditorEngineProcessConnection::Event& e);
   void UiServicesEvents(const ezQtUiServices::Event& e);
 
+  void SetupNewProject();
   void LoadEditorPreferences();
   void LoadProjectPreferences();
   void StoreEnginePluginModificationTimes();

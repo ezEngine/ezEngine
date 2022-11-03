@@ -45,12 +45,6 @@ ezStatus ezToolsProject::Create()
     }
   }
 
-  // Create default folders
-  {
-    CreateSubFolder("Scenes");
-    CreateSubFolder("Prefabs");
-  }
-
   ezToolsProjectEvent e;
   e.m_pProject = this;
   e.m_Type = ezToolsProjectEvent::Type::ProjectCreated;
@@ -180,7 +174,10 @@ ezStatus ezToolsProject::CreateOrOpenProject(const char* szProjectPath, bool bCr
   ezStatus ret;
 
   if (bCreate)
+  {
     ret = GetSingleton()->Create();
+    ezToolsProject::SaveProjectState();
+  }
   else
     ret = GetSingleton()->Open();
 

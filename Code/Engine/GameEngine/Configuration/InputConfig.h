@@ -10,10 +10,7 @@ class ezOpenDdlReaderElement;
 class EZ_GAMEENGINE_DLL ezGameAppInputConfig
 {
 public:
-  enum
-  {
-    MaxInputSlotAlternatives = 3
-  };
+  constexpr static ezUInt32 MaxInputSlotAlternatives = 3;
 
   ezGameAppInputConfig();
 
@@ -25,8 +22,6 @@ public:
   static void WriteToDDL(ezStreamWriter& stream, const ezArrayPtr<ezGameAppInputConfig>& actions);
   static void ReadFromDDL(ezStreamReader& stream, ezHybridArray<ezGameAppInputConfig, 32>& out_actions);
 
-
-
   ezString m_sInputSet;
   ezString m_sInputAction;
 
@@ -34,5 +29,5 @@ public:
 
   float m_fInputSlotScale[MaxInputSlotAlternatives];
 
-  bool m_bApplyTimeScaling;
+  bool m_bApplyTimeScaling = true;
 };
