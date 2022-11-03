@@ -97,16 +97,16 @@ void ezGridRenderer::CreateGrid(const ezGridRenderData& rd) const
   const float maxExtent1 = iNumLines1 * rd.m_fDensity;
   const float maxExtent2 = iNumLines2 * rd.m_fDensity;
 
-  ezColor cCenter = ezColor::LightSkyBlue;
-  ezColor cTen = ezColor::LightSteelBlue;
-  ezColor cOther = ezColor::LightSlateGray;
+  ezColor cCenter = ezColorScheme::GetColor(ezColorScheme::Blue, 6, 0.5f);
+  ezColor cTen = ezColorScheme::LightUI(ezColorScheme::Gray) * 0.7f;
+  ezColor cOther = ezColorScheme::LightUI(ezColorScheme::Gray) * 0.5f;
 
   if (rd.m_bOrthoMode)
   {
     // dimmer colors in ortho mode, to be more in the background
-    cCenter = ezColorGammaUB(85, 120, 20);
-    cTen = ezColorGammaUB(50, 90, 128);
-    cOther = ezColorGammaUB(80, 80, 80);
+    cCenter *= 0.5f;
+    cTen *= 0.4f;
+    cOther *= 0.4f;
 
     // in ortho mode, the origin lines are highlighted when global space is enabled
     if (!rd.m_bGlobal)

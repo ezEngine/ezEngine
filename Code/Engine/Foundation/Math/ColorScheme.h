@@ -29,6 +29,9 @@ public:
     Count
   };
 
+  /// \brief Normalization factor for getting colors by index. E.g. ezColorScheme::Blue * s_fIndexNormalizer would get exactly Blue as color.
+  constexpr static float s_fIndexNormalizer = 1.0f / (Count - 2);
+
   /// \brief Get the scheme color with the given brightness (0..9) and with optional saturation and alpha.
   EZ_FORCE_INLINE static ezColor GetColor(Enum schemeColor, ezUInt8 uiBrightness, float fSaturation = 1.0f, float fAlpha = 1.0f)
   {

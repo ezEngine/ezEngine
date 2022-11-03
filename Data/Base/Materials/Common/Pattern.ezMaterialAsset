@@ -20,7 +20,7 @@ o
 			s{":app/VisualShader/Textures.ddl"}
 		}
 		Uuid %DocumentID{u4{15150418825657775493,4791833822222609996}}
-		u4 %Hash{6447407660454488152}
+		u4 %Hash{10548999125324942675}
 		VarArray %MetaInfo{}
 		VarArray %Outputs
 		{
@@ -89,7 +89,7 @@ o
 	u3 %v{1}
 	p
 	{
-		Color %Default{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Color %Default{f{0x9218A33E,0x9218A33E,0x9218A33E,0x0000803F}}
 		Vec2 %Node::Pos{f{0xCB07C343,0x1C152842}}
 		s %ParamName{"Color"}
 	}
@@ -238,7 +238,7 @@ o
 	{
 		s %BLEND_MODE{"BLEND_MODE::BLEND_MODE_OPAQUE"}
 		s %BaseTexture{"{ f962fc28-661b-485c-a527-c997e239a3f0 }"}
-		Color %Color{f{0xBE96C23E,0xBE96C23E,0xBE96C23E,0x0000803F}}
+		Color %Color{f{0x9818A33E,0x9818A33E,0x9818A33E,0x0000803F}}
 		f %MaskThreshold{0x0000803E}
 		s %SHADING_MODE{"SHADING_MODE::SHADING_MODE_LIT"}
 		b %TWO_SIDED{0}
@@ -393,7 +393,7 @@ o
 	u3 %v{1}
 	p
 	{
-		Color %Value{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Color %Value{f{0x9818A33E,0x9818A33E,0x9818A33E,0x0000803F}}
 	}
 }
 o
