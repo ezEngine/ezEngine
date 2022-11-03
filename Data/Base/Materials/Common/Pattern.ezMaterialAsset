@@ -20,7 +20,7 @@ o
 			s{":app/VisualShader/Textures.ddl"}
 		}
 		Uuid %DocumentID{u4{15150418825657775493,4791833822222609996}}
-		u4 %Hash{4064741877975694037}
+		u4 %Hash{6447407660454488152}
 		VarArray %MetaInfo{}
 		VarArray %Outputs
 		{
@@ -42,9 +42,21 @@ o
 	u3 %v{1}
 	p
 	{
-		Vec2 %Node::Pos{f{0x02D00344,0xB913F142}}
+		Vec2 %Node::Pos{f{0x37BFC343,0x8863EE42}}
 		f %a{0x0000803F}
 		f %b{0x0000803F}
+	}
+}
+o
+{
+	Uuid %id{u4{7349474629313198467,4810738493151362545}}
+	s %t{"ShaderNode::Multiply"}
+	u3 %v{1}
+	p
+	{
+		Vec2 %Node::Pos{f{0xF733E643,0xE61B8343}}
+		f %a{0x0000803F}
+		f %b{0x0000003F}
 	}
 }
 o
@@ -54,7 +66,7 @@ o
 	u3 %v{1}
 	p
 	{
-		Vec2 %Node::Pos{f{0x0E15AB43,0x01E98942}}
+		Vec2 %Node::Pos{f{0x83684E43,0xD0388742}}
 	}
 }
 o
@@ -78,7 +90,7 @@ o
 	p
 	{
 		Color %Default{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
-		Vec2 %Node::Pos{f{0x4C740344,0x7D752D42}}
+		Vec2 %Node::Pos{f{0xCB07C343,0x1C152842}}
 		s %ParamName{"Color"}
 	}
 }
@@ -111,9 +123,22 @@ o
 	p
 	{
 		s %Name{"BaseTexture"}
-		Vec2 %Node::Pos{f{0x59F97743,0x001D1943}}
+		Vec2 %Node::Pos{f{0x7F6FE042,0xE8C41743}}
 		s %Texture{"{ f962fc28-661b-485c-a527-c997e239a3f0 }"}
 		f %Tiling{0x0000803E}
+	}
+}
+o
+{
+	Uuid %id{u4{15088359648894619524,4996394559286021889}}
+	s %t{"DocumentNodeManager_DefaultConnection"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Connection::Source{u4{10944281192714901918,4966421183176252690}}
+		s %Connection::SourcePin{"RGBA"}
+		Uuid %Connection::Target{u4{7349474629313198467,4810738493151362545}}
+		s %Connection::TargetPin{"a"}
 	}
 }
 o
@@ -157,25 +182,25 @@ o
 }
 o
 {
-	Uuid %id{u4{2151323731284472503,5072342673078416229}}
-	s %t{"DocumentNodeManager_DefaultConnection"}
-	u3 %v{1}
-	p
-	{
-		Uuid %Connection::Source{u4{10944281192714901918,4966421183176252690}}
-		s %Connection::SourcePin{"RGBA"}
-		Uuid %Connection::Target{u4{15117791089842229394,5558965522422809899}}
-		s %Connection::TargetPin{"b"}
-	}
-}
-o
-{
 	Uuid %id{u4{18164215943830731940,5171638345806463557}}
 	s %t{"ShaderNode::Split"}
 	u3 %v{1}
 	p
 	{
 		Vec2 %Node::Pos{f{0xA79B6344,0x90DE9943}}
+	}
+}
+o
+{
+	Uuid %id{u4{15545298105995977356,5194159505050198860}}
+	s %t{"DocumentNodeManager_DefaultConnection"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Connection::Source{u4{7349474629313198467,4810738493151362545}}
+		s %Connection::SourcePin{"result"}
+		Uuid %Connection::Target{u4{15117791089842229394,5558965522422809899}}
+		s %Connection::TargetPin{"b"}
 	}
 }
 o
@@ -239,7 +264,7 @@ o
 	u3 %v{1}
 	p
 	{
-		Vec2 %Node::Pos{f{0x5A973044,0x5F866D43}}
+		Vec2 %Node::Pos{f{0x05BD3944,0xBE8E6F43}}
 	}
 }
 o
@@ -262,8 +287,8 @@ o
 	u3 %v{1}
 	p
 	{
-		Vec2 %Node::Pos{f{0x08BC0444,0xF2F86B43}}
-		f %a{0x6666E63F}
+		Vec2 %Node::Pos{f{0x3A441644,0x81056F43}}
+		f %a{0x6666A63F}
 		f %b{0}
 	}
 }
@@ -287,7 +312,7 @@ o
 	u3 %v{1}
 	p
 	{
-		Vec2 %Node::Pos{f{0x73532E44,0xBA15C942}}
+		Vec2 %Node::Pos{f{0x0D630C44,0x8965C642}}
 		f %a{0x0000803F}
 		f %b{0x0000803F}
 	}
@@ -332,10 +357,12 @@ o
 			Uuid{u4{4662199427941981878,5366641751202611600}}
 			Uuid{u4{13222497084817888430,5054079070018530379}}
 			Uuid{u4{15117791089842229394,5558965522422809899}}
-			Uuid{u4{2151323731284472503,5072342673078416229}}
 			Uuid{u4{17647047357382570685,5387283873938896650}}
 			Uuid{u4{16800557665973799072,4881531428617865611}}
 			Uuid{u4{2330531622256203166,5273914467009442304}}
+			Uuid{u4{7349474629313198467,4810738493151362545}}
+			Uuid{u4{15088359648894619524,4996394559286021889}}
+			Uuid{u4{15545298105995977356,5194159505050198860}}
 		}
 	}
 }
