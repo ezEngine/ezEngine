@@ -104,6 +104,6 @@ struct EZ_TOOLSFOUNDATION_DLL ezReflectedTypeDescriptor : public ezAttributeHold
   ezBitflags<ezTypeFlags> m_Flags;
   ezDynamicArray<ezReflectedPropertyDescriptor> m_Properties;
   ezDynamicArray<ezReflectedFunctionDescriptor> m_Functions;
-  ezUInt32 m_uiTypeVersion;
+  ezUInt32 m_uiTypeVersion = 1;
 };
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_TOOLSFOUNDATION_DLL, ezReflectedTypeDescriptor);
