@@ -1,16 +1,16 @@
 #include <EditorPluginJolt/EditorPluginJoltPCH.h>
 
 #include <EditorFramework/Actions/AssetActions.h>
+#include <EditorFramework/Actions/CommonAssetActions.h>
 #include <EditorFramework/Actions/ProjectActions.h>
+#include <EditorPluginJolt/Actions/JoltActions.h>
+#include <EditorPluginJolt/CollisionMeshAsset/JoltCollisionMeshAssetObjects.h>
+#include <EditorPluginJolt/Dialogs/JoltProjectSettingsDlg.moc.h>
+#include <GameEngine/Physics/CollisionFilter.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
 #include <GuiFoundation/Action/CommandHistoryActions.h>
 #include <GuiFoundation/Action/DocumentActions.h>
 #include <GuiFoundation/Action/StandardMenus.h>
-
-#include <EditorFramework/Actions/CommonAssetActions.h>
-#include <EditorPluginJolt/Actions/JoltActions.h>
-#include <EditorPluginJolt/CollisionMeshAsset/JoltCollisionMeshAssetObjects.h>
-#include <GameEngine/Physics/CollisionFilter.h>
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 #include <GuiFoundation/UIServices/DynamicEnums.h>
 
@@ -100,6 +100,11 @@ void UpdateCollisionLayerDynamicEnumValues()
 
 static void ToolsProjectEventHandler(const ezToolsProjectEvent& e)
 {
+  if (e.m_Type == ezToolsProjectEvent::Type::ProjectSaveState)
+  {
+    ezQtJoltProjectSettingsDlg::EnsureConfigFileExists();
+  }
+
   if (e.m_Type == ezToolsProjectEvent::Type::ProjectOpened)
   {
     UpdateCollisionLayerDynamicEnumValues();

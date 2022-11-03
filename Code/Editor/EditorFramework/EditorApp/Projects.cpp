@@ -1,11 +1,14 @@
 #include <EditorFramework/EditorFrameworkPCH.h>
 
+#include <Core/System/Window.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Assets/AssetProcessor.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Preferences/EditorPreferences.h>
+#include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <Foundation/Time/Timestamp.h>
 #include <Foundation/Utilities/CommandLineUtils.h>
+#include <GameEngine/Configuration/InputConfig.h>
 #include <GuiFoundation/Dialogs/ModifiedDocumentsDlg.moc.h>
 #include <GuiFoundation/UIServices/DynamicStringEnum.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
@@ -199,6 +202,7 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProjectEvent& r)
   switch (r.m_Type)
   {
     case ezToolsProjectEvent::Type::ProjectCreated:
+      SetupNewProject();
       m_bSavePreferencesAfterOpenProject = true;
       break;
 
@@ -254,7 +258,8 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProjectEvent& r)
 
         if (pPreferences->m_bBackgroundAssetProcessing)
         {
-          QTimer::singleShot(1000, this, [this]() { ezAssetProcessor::GetSingleton()->RestartProcessTask(); });
+          QTimer::singleShot(1000, this, [this]()
+            { ezAssetProcessor::GetSingleton()->RestartProcessTask(); });
         }
         else if (!lastTransform.IsValid() || (ezTimestamp::CurrentTimestamp() - lastTransform).GetHours() > 5 * 24)
         {
@@ -269,7 +274,8 @@ Explanation: For assets to work properly, they must be <a href='https://ezengine
           }
 
           // check whether the project needs to be transformed
-          QTimer::singleShot(1000, this, [this]() { ezAssetCurator::GetSingleton()->TransformAllAssets(ezTransformFlags::Default); });
+          QTimer::singleShot(1000, this, [this]()
+            { ezAssetCurator::GetSingleton()->TransformAllAssets(ezTransformFlags::Default); });
         }
       }
 
@@ -319,7 +325,7 @@ Explanation: For assets to work properly, they must be <a href='https://ezengine
 
     case ezToolsProjectEvent::Type::SaveAll:
     {
-      SaveSettings();
+      ezToolsProject::SaveProjectState();
       SaveAllOpenDocuments();
       break;
     }
@@ -392,5 +398,45 @@ void ezQtEditorApp::ProjectRequestHandler(ezToolsProjectRequest& r)
       }
     }
     break;
+  }
+}
+
+void ezQtEditorApp::SetupNewProject()
+{
+  ezToolsProject::GetSingleton()->CreateSubFolder("Editor");
+  ezToolsProject::GetSingleton()->CreateSubFolder("RuntimeConfigs");
+  ezToolsProject::GetSingleton()->CreateSubFolder("Scenes");
+  ezToolsProject::GetSingleton()->CreateSubFolder("Prefabs");
+
+  // write the default window config
+  {
+    ezStringBuilder sPath = ezToolsProject::GetSingleton()->GetProjectDirectory();
+    sPath.AppendPath("Window.ddl");
+
+    ezWindowCreationDesc desc;
+    desc.m_Title = ezToolsProject::GetSingleton()->GetProjectName(false);
+    desc.SaveToDDL(sPath).IgnoreResult();
+  }
+
+  // write a stub input mapping
+  {
+    ezStringBuilder sPath = ezToolsProject::GetSingleton()->GetProjectDirectory();
+    sPath.AppendPath("InputConfig.ddl");
+
+    ezDeferredFileWriter file;
+    file.SetOutput(sPath);
+
+    ezHybridArray<ezGameAppInputConfig, 4> actions;
+    ezGameAppInputConfig& a = actions.ExpandAndGetRef();
+    a.m_sInputSet = "Default";
+    a.m_sInputAction = "Interact";
+    a.m_bApplyTimeScaling = false;
+    a.m_sInputSlotTrigger[0] = ezInputSlot_KeySpace;
+    a.m_sInputSlotTrigger[1] = ezInputSlot_MouseButton0;
+    a.m_sInputSlotTrigger[2] = ezInputSlot_Controller0_ButtonA;
+
+    ezGameAppInputConfig::WriteToDDL(file, actions);
+
+    file.Close().IgnoreResult();
   }
 }

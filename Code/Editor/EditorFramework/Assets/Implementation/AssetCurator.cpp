@@ -137,6 +137,7 @@ void ezAssetCurator::StartInitialize(const ezApplicationFileSystemConfig& cfg)
     {
       ezLog::Warning("Asset profiles file does not exist or contains invalid data. Setting up default profiles.");
       SaveAssetProfiles().IgnoreResult();
+      SaveRuntimeProfiles();
     }
   }
 

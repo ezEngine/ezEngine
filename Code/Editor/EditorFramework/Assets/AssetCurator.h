@@ -211,6 +211,8 @@ public:
   /// \brief Saves the current asset configurations. Returns failure if the output file could not be written to.
   ezResult SaveAssetProfiles();
 
+  void SaveRuntimeProfiles();
+
 private:
   void ClearAssetProfiles();
   void SetupDefaultAssetProfiles();
