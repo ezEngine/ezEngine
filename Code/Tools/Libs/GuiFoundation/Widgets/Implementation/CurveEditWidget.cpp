@@ -18,17 +18,17 @@ ezQtCurveEditWidget::ezQtCurveEditWidget(QWidget* parent)
   m_SceneTranslation = QPointF(-2, 0);
   m_SceneToPixelScale = QPointF(1, -1);
 
-  m_ControlPointBrush.setColor(QColor(200, 150, 0));
+  m_ControlPointBrush.setColor(ezToQtColor(ezColorScheme::LightUI(ezColorScheme::Gray)));
   m_ControlPointBrush.setStyle(Qt::BrushStyle::SolidPattern);
 
-  m_SelectedControlPointBrush.setColor(QColor(220, 200, 50));
+  m_SelectedControlPointBrush.setColor(ezToQtColor(ezColorScheme::LightUI(ezColorScheme::Yellow)));
   m_SelectedControlPointBrush.setStyle(Qt::BrushStyle::SolidPattern);
 
   m_TangentLinePen.setCosmetic(true);
-  m_TangentLinePen.setColor(QColor(100, 100, 255));
+  m_TangentLinePen.setColor(ezToQtColor(ezColorScheme::LightUI(ezColorScheme::Orange)));
   m_TangentLinePen.setStyle(Qt::PenStyle::DashLine);
 
-  m_TangentHandleBrush.setColor(QColor(100, 100, 255));
+  m_TangentHandleBrush.setColor(ezToQtColor(ezColorScheme::LightUI(ezColorScheme::Orange)));
   m_TangentHandleBrush.setStyle(Qt::BrushStyle::SolidPattern);
 }
 
