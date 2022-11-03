@@ -91,6 +91,8 @@ ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, const char* szFile)
   if (!ezToolsProject::CanCloseProject())
     return EZ_FAILURE;
 
+  ezToolsProject::CloseProject();
+
   // create default plugin selection
   if (!ExistsPluginSelectionStateDDL(sProjectFile))
     CreatePluginSelectionDDL(sProjectFile, "General3D");
@@ -258,8 +260,7 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProjectEvent& r)
 
         if (pPreferences->m_bBackgroundAssetProcessing)
         {
-          QTimer::singleShot(1000, this, [this]()
-            { ezAssetProcessor::GetSingleton()->RestartProcessTask(); });
+          QTimer::singleShot(1000, this, [this]() { ezAssetProcessor::GetSingleton()->RestartProcessTask(); });
         }
         else if (!lastTransform.IsValid() || (ezTimestamp::CurrentTimestamp() - lastTransform).GetHours() > 5 * 24)
         {
@@ -274,8 +275,7 @@ Explanation: For assets to work properly, they must be <a href='https://ezengine
           }
 
           // check whether the project needs to be transformed
-          QTimer::singleShot(1000, this, [this]()
-            { ezAssetCurator::GetSingleton()->TransformAllAssets(ezTransformFlags::Default); });
+          QTimer::singleShot(1000, this, [this]() { ezAssetCurator::GetSingleton()->TransformAllAssets(ezTransformFlags::Default); });
         }
       }
 
