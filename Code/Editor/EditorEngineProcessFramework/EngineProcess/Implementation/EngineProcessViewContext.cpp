@@ -202,6 +202,9 @@ void ezEngineProcessViewContext::Redraw(bool bRenderEditorGizmos)
 
 bool ezEngineProcessViewContext::FocusCameraOnObject(ezCamera& camera, const ezBoundingBoxSphere& objectBounds, float fFov, const ezVec3& vViewDir)
 {
+  if (!objectBounds.IsValid())
+    return false;
+
   ezVec3 vDir = vViewDir;
   bool bChanged = false;
   ezVec3 vCameraPos = camera.GetCenterPosition();
@@ -218,6 +221,9 @@ bool ezEngineProcessViewContext::FocusCameraOnObject(ezCamera& camera, const ezB
 
   if (bChanged)
   {
+    if (!vNewCameraPos.IsValid())
+      return false;
+
     camera.SetCameraMode(ezCameraMode::PerspectiveFixedFovX, fFov, 0.1f, 1000.0f);
     camera.LookAt(vNewCameraPos, vCenterPos, ezVec3(0.0f, 0.0f, 1.0f));
   }
