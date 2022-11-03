@@ -140,7 +140,6 @@ void ezVisualShaderTypeRegistry::LoadNodeData()
     desc.m_sPluginName = "VisualShaderTypes";
     desc.m_sParentTypeName = ezGetStaticRTTI<ezReflectedClass>()->GetTypeName();
     desc.m_Flags = ezTypeFlags::Phantom | ezTypeFlags::Abstract | ezTypeFlags::Class;
-    desc.m_uiTypeSize = 0;
     desc.m_uiTypeVersion = 1;
 
     m_pBaseType = ezPhantomRttiManager::RegisterType(desc);
@@ -153,7 +152,6 @@ void ezVisualShaderTypeRegistry::LoadNodeData()
     desc.m_sPluginName = "VisualShaderTypes";
     desc.m_sParentTypeName = ezGetStaticRTTI<ezReflectedClass>()->GetTypeName();
     desc.m_Flags = ezTypeFlags::Phantom | ezTypeFlags::Class;
-    desc.m_uiTypeSize = 0;
     desc.m_uiTypeVersion = 1;
 
     m_pSamplerPinType = ezPhantomRttiManager::RegisterType(desc);
@@ -172,7 +170,6 @@ const ezRTTI* ezVisualShaderTypeRegistry::GenerateTypeFromDesc(const ezVisualSha
   desc.m_sPluginName = "VisualShaderTypes";
   desc.m_sParentTypeName = m_pBaseType->GetTypeName();
   desc.m_Flags = ezTypeFlags::Phantom | ezTypeFlags::Class;
-  desc.m_uiTypeSize = 0;
   desc.m_uiTypeVersion = 1;
   desc.m_Properties = nd.m_Properties;
 
