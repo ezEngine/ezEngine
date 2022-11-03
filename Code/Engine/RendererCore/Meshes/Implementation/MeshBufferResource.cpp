@@ -476,9 +476,13 @@ ezResult ezMeshBufferResourceDescriptor::RecomputeNormals()
     const ezVec3 d02 = p2 - p0;
 
     const ezVec3 triNormal = d01.CrossRH(d02);
-    newNormals[v0] += triNormal;
-    newNormals[v1] += triNormal;
-    newNormals[v2] += triNormal;
+
+    if (triNormal.IsValid())
+    {
+      newNormals[v0] += triNormal;
+      newNormals[v1] += triNormal;
+      newNormals[v2] += triNormal;
+    }
   }
 
   for (ezUInt32 i = 0; i < newNormals.GetCount(); ++i)

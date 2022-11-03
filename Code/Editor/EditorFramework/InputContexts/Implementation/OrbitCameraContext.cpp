@@ -33,6 +33,9 @@ ezCamera* ezOrbitCameraContext::GetCamera() const
 
 void ezOrbitCameraContext::SetOrbitVolume(const ezVec3& vCenterPos, const ezVec3& vHalfBoxSize, const ezVec3& vDefaultCameraPosition, bool bSetCamLookat)
 {
+  if (!vDefaultCameraPosition.IsValid())
+    return;
+
   if (!m_Volume.GetCenter().IsEqual(vCenterPos, 0.01f) || !m_Volume.GetHalfExtents().IsEqual(vHalfBoxSize, 0.01f))
   {
     bSetCamLookat = true;
