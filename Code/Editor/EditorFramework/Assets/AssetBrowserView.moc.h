@@ -4,6 +4,7 @@
 #include <GuiFoundation/Widgets/ItemView.moc.h>
 #include <QItemDelegate>
 #include <QListView>
+#include <ToolsFoundation/Declarations.h>
 
 class ezQtIconViewDelegate;
 
@@ -59,7 +60,7 @@ private:
 private:
   enum
   {
-    MaxSize = 256,
+    MaxSize = ezThumbnailSize,
     HighlightBorderWidth = 3,
     ItemSideMargin = 5,
     TextSpacing = 5
@@ -69,4 +70,3 @@ private:
   ezInt32 m_iIconSizePercentage;
   ezQtAssetBrowserView* m_pView;
 };
-

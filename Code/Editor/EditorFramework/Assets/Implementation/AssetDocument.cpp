@@ -540,24 +540,24 @@ ezStatus ezAssetDocument::SaveThumbnail(const QImage& qimg0, const ThumbnailInfo
   if (qimg.width() == qimg.height())
   {
     // if necessary scale the image to the proper size
-    if (qimg.width() != 256)
-      qimg = qimg.scaled(256, 256, Qt::AspectRatioMode::IgnoreAspectRatio, Qt::TransformationMode::SmoothTransformation);
+    if (qimg.width() != ezThumbnailSize)
+      qimg = qimg.scaled(ezThumbnailSize, ezThumbnailSize, Qt::AspectRatioMode::IgnoreAspectRatio, Qt::TransformationMode::SmoothTransformation);
   }
   else
   {
     // center the image in a square canvas
 
-    // scale the longer edge to 256
+    // scale the longer edge to ezThumbnailSize
     if (qimg.width() > qimg.height())
-      qimg = qimg.scaledToWidth(256, Qt::TransformationMode::SmoothTransformation);
+      qimg = qimg.scaledToWidth(ezThumbnailSize, Qt::TransformationMode::SmoothTransformation);
     else
-      qimg = qimg.scaledToHeight(256, Qt::TransformationMode::SmoothTransformation);
+      qimg = qimg.scaledToHeight(ezThumbnailSize, Qt::TransformationMode::SmoothTransformation);
 
     // create a black canvas
-    QImage img2(256, 256, QImage::Format_RGBA8888);
+    QImage img2(ezThumbnailSize, ezThumbnailSize, QImage::Format_RGBA8888);
     img2.fill(Qt::GlobalColor::black);
 
-    QPoint destPos = QPoint((256 - qimg.width()) / 2, (256 - qimg.height()) / 2);
+    QPoint destPos = QPoint((ezThumbnailSize - qimg.width()) / 2, (ezThumbnailSize - qimg.height()) / 2);
 
     // paint the smaller image such that it ends up centered
     QPainter painter(&img2);

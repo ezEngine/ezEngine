@@ -208,12 +208,15 @@ void ezQtImageCache::EnableRequestProcessing()
 
 void ezQtImageCache::RegisterTypeImage(const char* szType, QPixmap pixmap)
 {
-  m_TypeIamges[QString::fromUtf8(szType)] = pixmap;
+  int width = pixmap.width();
+  int height = pixmap.height();
+
+  m_TypeImages[QString::fromUtf8(szType)] = pixmap;
 }
 
 const QPixmap* ezQtImageCache::QueryTypeImage(const char* szType) const
 {
-  auto it = m_TypeIamges.Find(QString::fromUtf8(szType));
+  auto it = m_TypeImages.Find(QString::fromUtf8(szType));
 
   if (it.IsValid())
     return &it.Value();

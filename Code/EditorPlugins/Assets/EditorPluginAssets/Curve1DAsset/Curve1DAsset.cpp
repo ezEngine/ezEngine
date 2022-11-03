@@ -51,7 +51,7 @@ ezStatus ezCurve1DAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& Th
 {
   const ezCurveGroupData* pProp = GetProperties();
 
-  QImage qimg(256, 256, QImage::Format_RGBA8888);
+  QImage qimg(ezThumbnailSize, ezThumbnailSize, QImage::Format_RGBA8888);
   qimg.fill(QColor(50, 50, 50));
 
   QPainter p(&qimg);

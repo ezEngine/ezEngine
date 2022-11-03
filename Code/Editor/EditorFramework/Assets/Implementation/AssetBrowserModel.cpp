@@ -350,7 +350,7 @@ QVariant ezQtAssetBrowserModel::data(const QModelIndex& index, int role) const
       return QString::fromUtf8(pSubAsset->m_pAssetInfo->m_sDataDirParentRelativePath, pSubAsset->m_pAssetInfo->m_sDataDirParentRelativePath.GetElementCount());
 
     case UserRoles::AssetIconPath:
-      return ezQtUiServices::GetCachedPixmapResource(pSubAsset->m_pAssetInfo->m_pDocumentTypeDescriptor->m_sIcon);
+      return ezQtUiServices::GetCachedIconResource(pSubAsset->m_pAssetInfo->m_pDocumentTypeDescriptor->m_sIcon);
 
     case UserRoles::TransformState:
       return (int)pSubAsset->m_pAssetInfo->m_TransformState;
