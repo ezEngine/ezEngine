@@ -6,7 +6,6 @@
 #include <Foundation/Communication/RemoteMessage.h>
 #include <Foundation/Logging/LogEntry.h>
 #include <RendererCore/Pipeline/Declarations.h>
-#include <ToolsFoundation/Declarations.h>
 #include <ToolsFoundation/Object/DocumentObjectMirror.h>
 #include <ToolsFoundation/Reflection/ReflectedType.h>
 
@@ -335,8 +334,8 @@ class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezCreateThumbnailMsgToEngine : public 
   EZ_ADD_DYNAMIC_REFLECTION(ezCreateThumbnailMsgToEngine, ezEditorEngineDocumentMsg);
 
 public:
-  ezUInt16 m_uiWidth = ezThumbnailSize;
-  ezUInt16 m_uiHeight = ezThumbnailSize;
+  ezUInt16 m_uiWidth = 0;
+  ezUInt16 m_uiHeight = 0;
   ezHybridArray<ezString, 1> m_ViewExcludeTags;
 };
 

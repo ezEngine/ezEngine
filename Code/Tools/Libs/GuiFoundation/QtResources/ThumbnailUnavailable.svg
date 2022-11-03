@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 128 128" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+    <g transform="matrix(1,0,0,1,-4.39517,29.25)">
+        <text x="44.924px" y="66.163px" style="font-family:'ArialMT', 'Arial', sans-serif;font-size:10px;fill:rgb(191,191,191);">Thumbnail</text>
+        <text x="39.174px" y="76.49px" style="font-family:'ArialMT', 'Arial', sans-serif;font-size:10px;fill:rgb(191,191,191);">Not <tspan x="56.963px 63.452px 68.452px " y="76.49px 76.49px 76.49px ">Ava</tspan>ilable</text>
+    </g>
+    <g transform="matrix(1.125,0,0,1.125,-5.75,-6.375)">
+        <circle cx="50" cy="47" r="4" style="fill:rgb(191,191,191);"/>
+    </g>
+    <path d="M77.441,33L91,33L91,76L64.406,76L65.619,72L87,72L87,37L76.228,37L77.441,33ZM71.403,33L70.19,37L41,37C41,37 41,72 41,72L59.581,72L58.368,76L37,76L37,33L71.403,33ZM60.49,69L62.533,62.26C59.787,60.48 57.909,56.113 55,56C51.3,55.856 50,67 44,67L44,69L60.49,69ZM73.098,47.327L66.528,69L84,69L84,63C81,61 80.213,46.537 75,46.5C74.285,46.495 73.658,46.799 73.098,47.327Z" style="fill:rgb(191,191,191);"/>
+    <g transform="matrix(0.956999,0.290091,-0.255936,0.844323,9.10725,-9.65926)">
+        <rect x="69" y="16" width="4" height="71" style="fill:rgb(191,191,191);"/>
+    </g>
+</svg>

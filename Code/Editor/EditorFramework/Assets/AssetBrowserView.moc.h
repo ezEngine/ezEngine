@@ -1,10 +1,10 @@
 #pragma once
 
 #include <EditorFramework/EditorFrameworkDLL.h>
+#include <GuiFoundation/UIServices/ImageCache.moc.h>
 #include <GuiFoundation/Widgets/ItemView.moc.h>
 #include <QItemDelegate>
 #include <QListView>
-#include <ToolsFoundation/Declarations.h>
 
 class ezQtIconViewDelegate;
 

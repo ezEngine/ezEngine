@@ -129,3 +129,9 @@ private:
   ezMap<QString, QPixmap> m_TypeImages;
 };
 
+constexpr static ezUInt32 ezThumbnailSize = 256;
+
+EZ_ALWAYS_INLINE QPixmap ezSvgThumbnailToPixmap(const char* szFilePath)
+{
+  return QIcon(szFilePath).pixmap(QSize(ezThumbnailSize, ezThumbnailSize));
+}

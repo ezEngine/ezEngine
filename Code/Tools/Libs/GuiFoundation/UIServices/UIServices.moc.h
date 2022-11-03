@@ -151,4 +151,3 @@ private:
   static TickEvent s_LastTickEvent;
   bool m_bIsDrawingATM = false;
 };
-
