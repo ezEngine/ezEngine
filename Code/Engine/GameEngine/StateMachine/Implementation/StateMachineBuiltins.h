@@ -14,7 +14,7 @@ public:
 
   virtual void OnEnter(ezStateMachineInstance& instance, void* pInstanceData, const ezStateMachineState* pFromState) const override;
   virtual void OnExit(ezStateMachineInstance& instance, void* pInstanceData, const ezStateMachineState* pToState) const override;
-  virtual void Update(ezStateMachineInstance& instance, void* pInstanceData) const override;
+  virtual void Update(ezStateMachineInstance& instance, void* pInstanceData, ezTime deltaTime) const override;
 
   virtual ezResult Serialize(ezStreamWriter& stream) const override;
   virtual ezResult Deserialize(ezStreamReader& stream) override;
@@ -60,4 +60,23 @@ public:
   virtual ezResult Deserialize(ezStreamReader& stream) override;
 
   ezHybridArray<ezBlackboardCondition, 2> m_Conditions;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+/// \brief A state machine transition implementation that triggers after the given time
+class EZ_GAMEENGINE_DLL ezStateMachineTransition_Timeout : public ezStateMachineTransition
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezStateMachineTransition_Timeout, ezStateMachineTransition);
+
+public:
+  ezStateMachineTransition_Timeout();
+  ~ezStateMachineTransition_Timeout();
+
+  virtual bool IsConditionMet(ezStateMachineInstance& instance, void* pInstanceData) const override;
+
+  virtual ezResult Serialize(ezStreamWriter& stream) const override;
+  virtual ezResult Deserialize(ezStreamReader& stream) override;
+
+  ezTime m_Timeout;
 };

@@ -33,7 +33,7 @@ protected:
 
   virtual void OnEnter(ezStateMachineInstance& instance, void* pInstanceData, const ezStateMachineState* pFromState) const = 0;
   virtual void OnExit(ezStateMachineInstance& instance, void* pInstanceData, const ezStateMachineState* pToState) const;
-  virtual void Update(ezStateMachineInstance& instance, void* pInstanceData) const;
+  virtual void Update(ezStateMachineInstance& instance, void* pInstanceData, ezTime deltaTime) const;
 
   virtual ezResult Serialize(ezStreamWriter& stream) const;
   virtual ezResult Deserialize(ezStreamReader& stream);
@@ -155,12 +155,15 @@ public:
   ezResult SetStateOrFallback(const ezHashedString& sStateName, ezUInt32 uiFallbackStateIndex = 0);
   ezStateMachineState* GetCurrentState() { return m_pCurrentState; }
 
-  void Update();
+  void Update(ezTime deltaTime);
 
   ezReflectedClass& GetOwner() { return m_Owner; }
 
   void SetBlackboard(const ezSharedPtr<ezBlackboard>& blackboard);
   const ezSharedPtr<ezBlackboard>& GetBlackboard() const { return m_pBlackboard; }
+
+  /// \brief Returns how long the state machine is in its current state
+  ezTime GetTimeInCurrentState() const { return m_TimeInCurrentState; }
 
 private:
   void SetStateInternal(ezUInt32 uiStateIndex);
@@ -188,6 +191,7 @@ private:
 
   ezStateMachineState* m_pCurrentState = nullptr;
   ezUInt32 m_uiCurrentStateIndex = ezInvalidIndex;
+  ezTime m_TimeInCurrentState;
 
   const ezStateMachineDescription::TransitionArray* m_pCurrentTransitions = nullptr;
 

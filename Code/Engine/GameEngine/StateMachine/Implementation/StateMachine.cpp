@@ -25,7 +25,7 @@ void ezStateMachineState::OnExit(ezStateMachineInstance& instance, void* pInstan
 {
 }
 
-void ezStateMachineState::Update(ezStateMachineInstance& instance, void* pInstanceData) const
+void ezStateMachineState::Update(ezStateMachineInstance& instance, void* pInstanceData, ezTime deltaTime) const
 {
 }
 
@@ -360,7 +360,7 @@ ezResult ezStateMachineInstance::SetStateOrFallback(const ezHashedString& sState
   return EZ_SUCCESS;
 }
 
-void ezStateMachineInstance::Update()
+void ezStateMachineInstance::Update(ezTime deltaTime)
 {
   ezUInt32 uiNewStateIndex = FindNewStateToTransitionTo();
   if (uiNewStateIndex != ezInvalidIndex)
@@ -371,8 +371,10 @@ void ezStateMachineInstance::Update()
   if (m_pCurrentState != nullptr)
   {
     void* pInstanceData = GetCurrentStateInstanceData();
-    m_pCurrentState->Update(*this, pInstanceData);
+    m_pCurrentState->Update(*this, pInstanceData, deltaTime);
   }
+
+  m_TimeInCurrentState += deltaTime;
 }
 
 void ezStateMachineInstance::SetBlackboard(const ezSharedPtr<ezBlackboard>& blackboard)
@@ -404,6 +406,8 @@ void ezStateMachineInstance::EnterCurrentState(const ezStateMachineState* pFromS
   {
     void* pInstanceData = GetCurrentStateInstanceData();
     m_pCurrentState->OnEnter(*this, pInstanceData, pFromState);
+
+    m_TimeInCurrentState.SetZero();
   }
 }
 

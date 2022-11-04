@@ -292,6 +292,7 @@ ezStateMachineNodeAny;New Any State
 ezStateMachineState_SendMsg;Send Message State
 ezStateMachineState_NestedStateMachine;Nested State Machine
 ezStateMachineTransition_BlackboardConditions;Blackboard Conditions
+ezStateMachineTransition_Timeout;Timeout Transition
 Type;Type
 Conditions;Conditions
 ezBlackboardCondition;Blackboard Condition

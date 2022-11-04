@@ -99,7 +99,7 @@ ezStatus ezStateMachineAssetDocument::InternalTransformAsset(ezStreamWriter& str
     }
     else
     {
-      pTransition = EZ_DEFAULT_NEW(ezStateMachineTransition_BlackboardConditions);
+      pTransition = EZ_DEFAULT_NEW(ezStateMachineTransition_Timeout);
     }
 
     const ezConnection& connection = pManager->GetConnection(pObject);

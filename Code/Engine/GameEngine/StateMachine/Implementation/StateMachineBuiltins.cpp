@@ -67,12 +67,12 @@ void ezStateMachineState_NestedStateMachine::OnExit(ezStateMachineInstance& inst
   }
 }
 
-void ezStateMachineState_NestedStateMachine::Update(ezStateMachineInstance& instance, void* pInstanceData) const
+void ezStateMachineState_NestedStateMachine::Update(ezStateMachineInstance& instance, void* pInstanceData, ezTime deltaTime) const
 {
   auto& pStateMachineInstance = static_cast<InstanceData*>(pInstanceData)->m_pStateMachineInstance;
   if (pStateMachineInstance != nullptr)
   {
-    pStateMachineInstance->Update();
+    pStateMachineInstance->Update(deltaTime);
   }
 }
 
@@ -175,4 +175,42 @@ ezResult ezStateMachineTransition_BlackboardConditions::Deserialize(ezStreamRead
   EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(stream));
 
   return stream.ReadArray(m_Conditions);
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStateMachineTransition_Timeout, 1, ezRTTIDefaultAllocator<ezStateMachineTransition_Timeout>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Timeout", m_Timeout),
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+ezStateMachineTransition_Timeout::ezStateMachineTransition_Timeout() = default;
+ezStateMachineTransition_Timeout::~ezStateMachineTransition_Timeout() = default;
+
+bool ezStateMachineTransition_Timeout::IsConditionMet(ezStateMachineInstance& instance, void* pInstanceData) const
+{
+  return instance.GetTimeInCurrentState() >= m_Timeout;
+}
+
+ezResult ezStateMachineTransition_Timeout::Serialize(ezStreamWriter& stream) const
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Serialize(stream));
+
+  stream << m_Timeout;
+  return EZ_SUCCESS;
+}
+
+ezResult ezStateMachineTransition_Timeout::Deserialize(ezStreamReader& stream)
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(stream));
+
+  stream >> m_Timeout;
+  return EZ_SUCCESS;
 }
