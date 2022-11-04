@@ -45,6 +45,30 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 
+/// \brief A state machine state implementation that combines multiple sub states into one.
+///
+/// Can be used to build states in a more modular way. All calls are simply redirected to all sub states,
+/// e.g. when entered it calls OnEnter on all its sub states.
+class EZ_GAMEENGINE_DLL ezStateMachineState_Compound : public ezStateMachineState
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezStateMachineState_Compound, ezStateMachineState);
+
+public:
+  ezStateMachineState_Compound(ezStringView sName = ezStringView());
+  ~ezStateMachineState_Compound();
+
+  virtual void OnEnter(ezStateMachineInstance& instance, void* pInstanceData, const ezStateMachineState* pFromState) const override;
+  virtual void OnExit(ezStateMachineInstance& instance, void* pInstanceData, const ezStateMachineState* pToState) const override;
+  virtual void Update(ezStateMachineInstance& instance, void* pInstanceData, ezTime deltaTime) const override;
+
+  virtual ezResult Serialize(ezStreamWriter& stream) const override;
+  virtual ezResult Deserialize(ezStreamReader& stream) override;
+
+  ezHybridArray<ezStateMachineState*, 2> m_SubStates;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
 /// \brief A state machine transition implementation that checks the instance's blackboard for the given conditions.
 class EZ_GAMEENGINE_DLL ezStateMachineTransition_BlackboardConditions : public ezStateMachineTransition
 {

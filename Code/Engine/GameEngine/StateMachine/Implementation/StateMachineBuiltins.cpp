@@ -1,7 +1,7 @@
 #include <GameEngine/GameEnginePCH.h>
 
 #include <Foundation/IO/TypeVersionContext.h>
-#include <GameEngine/StateMachine/Implementation/StateMachineBuiltins.h>
+#include <GameEngine/StateMachine/StateMachineBuiltins.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStateMachineState_NestedStateMachine, 1, ezRTTIDefaultAllocator<ezStateMachineState_NestedStateMachine>)
@@ -126,6 +126,61 @@ const char* ezStateMachineState_NestedStateMachine::GetResourceFile() const
 void ezStateMachineState_NestedStateMachine::SetInitialState(const char* szName)
 {
   m_sInitialState.Assign(szName);
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStateMachineState_Compound, 1, ezRTTIDefaultAllocator<ezStateMachineState_Compound>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_ARRAY_MEMBER_PROPERTY("SubStates", m_SubStates)->AddFlags(ezPropertyFlags::PointerOwner),
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+ezStateMachineState_Compound::ezStateMachineState_Compound(ezStringView sName)
+  : ezStateMachineState(sName)
+{
+}
+
+ezStateMachineState_Compound::~ezStateMachineState_Compound() = default;
+
+void ezStateMachineState_Compound::OnEnter(ezStateMachineInstance& instance, void* pInstanceData, const ezStateMachineState* pFromState) const
+{
+  for (const ezStateMachineState* pSubState : m_SubStates)
+  {
+    pSubState->OnEnter(instance, nullptr, pFromState);
+  }
+}
+
+void ezStateMachineState_Compound::OnExit(ezStateMachineInstance& instance, void* pInstanceData, const ezStateMachineState* pToState) const
+{
+  
+}
+
+void ezStateMachineState_Compound::Update(ezStateMachineInstance& instance, void* pInstanceData, ezTime deltaTime) const
+{
+  
+}
+
+ezResult ezStateMachineState_Compound::Serialize(ezStreamWriter& stream) const
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Serialize(stream));
+
+  
+  return EZ_SUCCESS;
+}
+
+ezResult ezStateMachineState_Compound::Deserialize(ezStreamReader& stream)
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(stream));
+  const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+
+  return EZ_SUCCESS;
 }
 
 //////////////////////////////////////////////////////////////////////////

@@ -27,10 +27,6 @@ public:
   ezStringView GetName() const { return m_sName; }
   const ezHashedString& GetNameHashed() const { return m_sName; }
 
-protected:
-  friend class ezStateMachineDescription;
-  friend class ezStateMachineInstance;
-
   virtual void OnEnter(ezStateMachineInstance& instance, void* pInstanceData, const ezStateMachineState* pFromState) const = 0;
   virtual void OnExit(ezStateMachineInstance& instance, void* pInstanceData, const ezStateMachineState* pToState) const;
   virtual void Update(ezStateMachineInstance& instance, void* pInstanceData, ezTime deltaTime) const;
