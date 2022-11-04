@@ -21,7 +21,7 @@ ezStateMachineAssetManager::ezStateMachineAssetManager()
   m_DocTypeDesc.m_sResourceFileExtension = "ezStateMachineBin";
   m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoTransformOnSave;
 
-  ezQtImageCache::GetSingleton()->RegisterTypeImage("StateMachine", QPixmap(":/AssetIcons/StateMachine.svg"));
+  ezQtImageCache::GetSingleton()->RegisterTypeImage("StateMachine", ezSvgThumbnailToPixmap(":/AssetIcons/StateMachine.svg"));
 }
 
 ezStateMachineAssetManager::~ezStateMachineAssetManager()

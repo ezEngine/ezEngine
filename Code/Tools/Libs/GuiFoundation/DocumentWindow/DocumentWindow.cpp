@@ -520,15 +520,15 @@ void ezQtDocumentWindow::OnStatusBarMessageChanged(const QString& sNewText)
 
   if (sNewText.startsWith("Error:"))
   {
-    pal.setColor(QPalette::WindowText, QColor(Qt::red));
+    pal.setColor(QPalette::WindowText, ezToQtColor(ezColorScheme::LightUI(ezColorScheme::Red)));
   }
   else if (sNewText.startsWith("Warning:"))
   {
-    pal.setColor(QPalette::WindowText, QColor(255, 216, 0));
+    pal.setColor(QPalette::WindowText, ezToQtColor(ezColorScheme::LightUI(ezColorScheme::Yellow)));
   }
   else if (sNewText.startsWith("Note:"))
   {
-    pal.setColor(QPalette::WindowText, QColor(0, 255, 255));
+    pal.setColor(QPalette::WindowText, ezToQtColor(ezColorScheme::LightUI(ezColorScheme::Blue)));
   }
 
   statusBar()->setPalette(pal);

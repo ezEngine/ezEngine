@@ -6,8 +6,8 @@ void ezQtEditorApp::SetStyleSheet()
 {
   ezColorGammaUB highlightColor = ezColorScheme::DarkUI(ezColorScheme::Yellow);
   ezColorGammaUB highlightColorDisabled = ezColorScheme::DarkUI(ezColorScheme::Yellow) * 0.5f;
-  ezColorGammaUB linkColor = ezColorScheme::LightUI(ezColorScheme::Blue);
-  ezColorGammaUB linkVisitedColor = ezColorScheme::LightUI(ezColorScheme::Grape);
+  ezColorGammaUB linkColor = ezColorScheme::LightUI(ezColorScheme::Orange);
+  ezColorGammaUB linkVisitedColor = ezColorScheme::LightUI(ezColorScheme::Yellow);
 
   QApplication::setStyle(QStyleFactory::create("fusion"));
   QPalette palette;

@@ -51,7 +51,7 @@ ezInt32 ezPrefabDefaultStateProvider::GetRootDepth() const
 
 ezColorGammaUB ezPrefabDefaultStateProvider::GetBackgroundColor() const
 {
-  return ezColorGammaUB(0, 128, 196);
+  return ezColorScheme::DarkUI(ezColorScheme::Blue).WithAlpha(0.25f);
 }
 
 ezVariant ezPrefabDefaultStateProvider::GetDefaultValue(SuperArray superPtr, ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index)

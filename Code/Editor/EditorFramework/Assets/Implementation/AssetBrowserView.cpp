@@ -200,8 +200,8 @@ void ezQtIconViewDelegate::paint(QPainter* painter, const QStyleOptionViewItem& 
   {
     QRect thumbnailRect = opt.rect.adjusted(ItemSideMargin - 2, ItemSideMargin + uiThumbnailSize - 16 + 2, 0, 0);
     thumbnailRect.setSize(QSize(16, 16));
-    QPixmap pixmap = qvariant_cast<QPixmap>(index.data(ezQtAssetBrowserModel::UserRoles::AssetIconPath));
-    painter->drawPixmap(thumbnailRect, pixmap);
+    QIcon icon = qvariant_cast<QIcon>(index.data(ezQtAssetBrowserModel::UserRoles::AssetIconPath));
+    icon.paint(painter, thumbnailRect);
   }
 
   // Draw Transform State Icon

@@ -406,7 +406,7 @@ void ezQtTypeWidget::UpdatePropertyMetaState()
 
   ezDefaultObjectState defaultState(m_pObjectAccessor, m_Items);
 
-  QColor qColor = ezQtPropertyWidget::GetBackgroundColor(defaultState.GetBackgroundColor(), &m_Pal);
+  ezQtPropertyWidget::SetPaletteBackgroundColor(defaultState.GetBackgroundColor(), m_Pal);
   setPalette(m_Pal);
 
   for (auto it = m_PropertyWidgets.GetIterator(); it.IsValid(); ++it)

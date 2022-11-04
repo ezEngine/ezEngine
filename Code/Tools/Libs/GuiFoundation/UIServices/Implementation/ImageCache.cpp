@@ -42,10 +42,24 @@ ezQtImageCache::ezQtImageCache()
 void ezQtImageCache::SetFallbackImages(const char* szLoading, const char* szUnavailable)
 {
   delete m_pImageLoading;
-  m_pImageLoading = new QPixmap(szLoading);
+  if (ezStringUtils::EndsWith(szLoading, ".svg"))
+  {
+    m_pImageLoading = new QPixmap(ezSvgThumbnailToPixmap(szLoading));
+  }
+  else
+  {
+    m_pImageLoading = new QPixmap(szLoading);
+  }
 
   delete m_pImageUnavailable;
-  m_pImageUnavailable = new QPixmap(szUnavailable);
+  if (ezStringUtils::EndsWith(szUnavailable, ".svg"))
+  {
+    m_pImageUnavailable = new QPixmap(ezSvgThumbnailToPixmap(szUnavailable));
+  }
+  else
+  {
+    m_pImageUnavailable = new QPixmap(szUnavailable);
+  }
 }
 
 void ezQtImageCache::InvalidateCache(const char* szAbsolutePath)
@@ -75,7 +89,7 @@ const QPixmap* ezQtImageCache::QueryPixmap(
     *out_pImageID = 0;
 
   if (m_pImageLoading == nullptr)
-    SetFallbackImages(":/GuiFoundation/ThumbnailLoading.png", ":/GuiFoundation/ThumbnailUnavailable.png");
+    SetFallbackImages(":/GuiFoundation/ThumbnailLoading.svg", ":/GuiFoundation/ThumbnailUnavailable.svg");
 
   ezStringBuilder sCleanPath = szAbsolutePath;
   sCleanPath.MakeCleanPath();
@@ -208,12 +222,15 @@ void ezQtImageCache::EnableRequestProcessing()
 
 void ezQtImageCache::RegisterTypeImage(const char* szType, QPixmap pixmap)
 {
-  m_TypeIamges[QString::fromUtf8(szType)] = pixmap;
+  int width = pixmap.width();
+  int height = pixmap.height();
+
+  m_TypeImages[QString::fromUtf8(szType)] = pixmap;
 }
 
 const QPixmap* ezQtImageCache::QueryTypeImage(const char* szType) const
 {
-  auto it = m_TypeIamges.Find(QString::fromUtf8(szType));
+  auto it = m_TypeImages.Find(QString::fromUtf8(szType));
 
   if (it.IsValid())
     return &it.Value();

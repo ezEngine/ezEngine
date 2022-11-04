@@ -47,7 +47,7 @@ void ezQtCuratorControl::paintEvent(QPaintEvent* e)
   colors[ezAssetInfo::TransformState::Unknown] = ezToQtColor(ezColorScheme::DarkUI(ezColorScheme::Gray));
   colors[ezAssetInfo::TransformState::Updating] = ezToQtColor(ezColorScheme::DarkUI(ezColorScheme::Gray));
   colors[ezAssetInfo::TransformState::NeedsTransform] = ezToQtColor(ezColorScheme::DarkUI(ezColorScheme::Blue));
-  colors[ezAssetInfo::TransformState::NeedsThumbnail] = ezToQtColor(ezColorScheme::DarkUI(ezColorScheme::Cyan));
+  colors[ezAssetInfo::TransformState::NeedsThumbnail] = ezToQtColor(ezColorScheme::DarkUI(float(ezColorScheme::Blue + ezColorScheme::Green) * 0.5f * ezColorScheme::s_fIndexNormalizer));
   colors[ezAssetInfo::TransformState::UpToDate] = ezToQtColor(ezColorScheme::DarkUI(ezColorScheme::Green));
   colors[ezAssetInfo::TransformState::MissingDependency] = ezToQtColor(ezColorScheme::DarkUI(ezColorScheme::Red));
   colors[ezAssetInfo::TransformState::MissingReference] = ezToQtColor(ezColorScheme::DarkUI(ezColorScheme::Orange));

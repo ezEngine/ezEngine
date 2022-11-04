@@ -127,7 +127,7 @@ QVariant ezQtGameObjectAdapter::data(const ezDocumentObject* pObject, int row, i
 
       if (bPrefab)
       {
-        return QColor(0, 128, 196);
+        return ezToQtColor(ezColorScheme::LightUI(ezColorScheme::Blue));
       }
 
       if (sName.IsEmpty())

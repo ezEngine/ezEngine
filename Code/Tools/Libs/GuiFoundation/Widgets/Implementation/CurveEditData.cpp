@@ -29,7 +29,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSingleCurveData, 3, ezRTTIDefaultAllocator<ezS
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Color", m_CurveColor)->AddAttributes(new ezDefaultValueAttribute(ezColorGammaUB(ezColor::GreenYellow))),
+    EZ_MEMBER_PROPERTY("Color", m_CurveColor)->AddAttributes(new ezDefaultValueAttribute(ezColorScheme::LightUI(ezColorScheme::Lime))),
     EZ_ARRAY_MEMBER_PROPERTY("ControlPoints", m_ControlPoints),
   }
   EZ_END_PROPERTIES;

@@ -322,26 +322,20 @@ const ezRTTI* ezQtPropertyWidget::GetCommonBaseType(const ezHybridArray<ezProper
   return pSubtype;
 }
 
-QColor ezQtPropertyWidget::GetBackgroundColor(ezColorGammaUB inputColor, QPalette* pPalette)
+QColor ezQtPropertyWidget::SetPaletteBackgroundColor(ezColorGammaUB inputColor, QPalette& palette)
 {
-  QColor qColor;
-  qColor.setRgb(inputColor.r, inputColor.g, inputColor.b, inputColor.a);
+  QColor qColor = qApp->palette().color(QPalette::Window);
   if (inputColor.a != 0)
   {
-    qColor.setHsv(qColor.hue(), 32, qApp->palette().color(QPalette::Window).value());
-    if (pPalette)
-    {
-      pPalette->setBrush(QPalette::Window, QBrush(qColor, Qt::SolidPattern));
-    }
+    const ezColor paletteColorLinear = qtToEzColor(qColor);
+    const ezColor inputColorLinear = inputColor;
+
+    ezColor blendedColor = ezMath::Lerp(paletteColorLinear, inputColorLinear, inputColorLinear.a);
+    blendedColor.a = 1.0f;
+    qColor = ezToQtColor(blendedColor);
   }
-  else
-  {
-    qColor = qApp->palette().color(QPalette::Window);
-    if (pPalette)
-    {
-      pPalette->setBrush(QPalette::Window, QBrush(qColor, Qt::SolidPattern));
-    }
-  }
+
+  palette.setBrush(QPalette::Window, QBrush(qColor, Qt::SolidPattern));
   return qColor;
 }
 
@@ -1348,7 +1342,7 @@ void ezQtPropertyContainerWidget::UpdatePropertyMetaState()
   m_bIsDefault = defaultState.IsDefaultContainer();
   m_pGroup->SetBoldTitle(!m_bIsDefault);
 
-  QColor qColor = ezQtPropertyWidget::GetBackgroundColor(defaultState.GetBackgroundColor(), &m_Pal);
+  QColor qColor = ezQtPropertyWidget::SetPaletteBackgroundColor(defaultState.GetBackgroundColor(), m_Pal);
   setPalette(m_Pal);
 
   const bool bReadOnly = m_pProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly) ||

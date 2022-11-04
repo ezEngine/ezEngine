@@ -53,3 +53,8 @@ EZ_ALWAYS_INLINE QColor ezToQtColor(const ezColorGammaUB& c)
 {
   return QColor(c.r, c.g, c.b, c.a);
 }
+
+EZ_ALWAYS_INLINE ezColorGammaUB qtToEzColor(const QColor& c)
+{
+  return ezColorGammaUB(c.red(), c.green(), c.blue(), c.alpha());
+}

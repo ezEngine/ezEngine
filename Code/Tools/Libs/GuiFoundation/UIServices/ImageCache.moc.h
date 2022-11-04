@@ -10,6 +10,7 @@
 #include <Foundation/Time/Time.h>
 #include <GuiFoundation/GuiFoundationDLL.h>
 #include <QAbstractItemModel>
+#include <QIcon>
 #include <QPixmap>
 #include <QString>
 
@@ -126,6 +127,12 @@ private:
   };
 
   ezMap<QString, CacheEntry> m_ImageCache;
-  ezMap<QString, QPixmap> m_TypeIamges;
+  ezMap<QString, QPixmap> m_TypeImages;
 };
 
+constexpr static ezUInt32 ezThumbnailSize = 256;
+
+EZ_ALWAYS_INLINE QPixmap ezSvgThumbnailToPixmap(const char* szFilePath)
+{
+  return QIcon(szFilePath).pixmap(QSize(ezThumbnailSize, ezThumbnailSize));
+}

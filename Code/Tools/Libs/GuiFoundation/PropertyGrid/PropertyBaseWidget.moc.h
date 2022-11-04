@@ -62,7 +62,7 @@ public:
 
 public:
   static const ezRTTI* GetCommonBaseType(const ezHybridArray<ezPropertySelection, 8>& items);
-  static QColor GetBackgroundColor(ezColorGammaUB inputColor, QPalette* pPalette = nullptr);
+  static QColor SetPaletteBackgroundColor(ezColorGammaUB inputColor, QPalette& palette);
 
 public Q_SLOTS:
   void OnCustomContextMenu(const QPoint& pt);

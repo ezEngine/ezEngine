@@ -305,6 +305,10 @@ void ezEngineProcessViewContext::DrawSimpleGrid() const
   ezDynamicArray<ezDebugRenderer::Line> lines;
   lines.Reserve(2 * (10 + 1 + 10) + 4);
 
+  const ezColor xAxisColor = ezColorScheme::LightUI(ezColorScheme::Red) * 0.7f;
+  const ezColor yAxisColor = ezColorScheme::LightUI(ezColorScheme::Green) * 0.7f;
+  const ezColor gridColor = ezColorScheme::LightUI(ezColorScheme::Gray) * 0.5f;
+
   // arrows
 
   const float f = 1.0f;
@@ -313,32 +317,32 @@ void ezEngineProcessViewContext::DrawSimpleGrid() const
     auto& l = lines.ExpandAndGetRef();
     l.m_start.Set(f, 0.0f, 0.0f);
     l.m_end.Set(f - 0.25f, 0.25f, 0.0f);
-    l.m_startColor = ezColor(0.5f, 0, 0);
-    l.m_endColor = l.m_startColor;
+    l.m_startColor = xAxisColor;
+    l.m_endColor = xAxisColor;
   }
 
   {
     auto& l = lines.ExpandAndGetRef();
     l.m_start.Set(f, 0.0f, 0.0f);
     l.m_end.Set(f - 0.25f, -0.25f, 0.0f);
-    l.m_startColor = ezColor(0.5f, 0, 0);
-    l.m_endColor = l.m_startColor;
+    l.m_startColor = xAxisColor;
+    l.m_endColor = xAxisColor;
   }
 
   {
     auto& l = lines.ExpandAndGetRef();
     l.m_start.Set(0.0f, f, 0.0f);
     l.m_end.Set(0.25f, f - 0.25f, 0.0f);
-    l.m_startColor = ezColor(0, 0.5f, 0);
-    l.m_endColor = l.m_startColor;
+    l.m_startColor = yAxisColor;
+    l.m_endColor = yAxisColor;
   }
 
   {
     auto& l = lines.ExpandAndGetRef();
     l.m_start.Set(0.0f, f, 0.0f);
     l.m_end.Set(-0.25f, f - 0.25f, 0.0f);
-    l.m_startColor = ezColor(0, 0.5f, 0);
-    l.m_endColor = l.m_startColor;
+    l.m_startColor = yAxisColor;
+    l.m_endColor = yAxisColor;
   }
 
   {
@@ -353,11 +357,11 @@ void ezEngineProcessViewContext::DrawSimpleGrid() const
 
       if (y == 0)
       {
-        line.m_startColor = ezColor(0.5f, 0, 0);
+        line.m_startColor = xAxisColor;
       }
       else
       {
-        line.m_startColor = ezColor(0.3f, 0.3f, 0.3f);
+        line.m_startColor = gridColor;
       }
 
       line.m_endColor = line.m_startColor;
@@ -376,11 +380,11 @@ void ezEngineProcessViewContext::DrawSimpleGrid() const
 
       if (x == 0)
       {
-        line.m_startColor = ezColor(0, 0.5f, 0);
+        line.m_startColor = yAxisColor;
       }
       else
       {
-        line.m_startColor = ezColor(0.3f, 0.3f, 0.3f);
+        line.m_startColor = gridColor;
       }
 
       line.m_endColor = line.m_startColor;
