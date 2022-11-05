@@ -45,7 +45,7 @@ void ezQtCuratorControl::paintEvent(QPaintEvent* e)
   ezAssetCurator::GetSingleton()->GetAssetTransformStats(uiNumAssets, sections);
   QColor colors[ezAssetInfo::TransformState::COUNT];
   colors[ezAssetInfo::TransformState::Unknown] = ezToQtColor(ezColorScheme::DarkUI(ezColorScheme::Gray));
-  colors[ezAssetInfo::TransformState::Updating] = ezToQtColor(ezColorScheme::DarkUI(ezColorScheme::Gray));
+  colors[ezAssetInfo::TransformState::NeedsImport] = ezToQtColor(ezColorScheme::DarkUI(ezColorScheme::Yellow));
   colors[ezAssetInfo::TransformState::NeedsTransform] = ezToQtColor(ezColorScheme::DarkUI(ezColorScheme::Blue));
   colors[ezAssetInfo::TransformState::NeedsThumbnail] = ezToQtColor(ezColorScheme::DarkUI(float(ezColorScheme::Blue + ezColorScheme::Green) * 0.5f * ezColorScheme::s_fIndexNormalizer));
   colors[ezAssetInfo::TransformState::UpToDate] = ezToQtColor(ezColorScheme::DarkUI(ezColorScheme::Green));
@@ -73,10 +73,10 @@ void ezQtCuratorControl::paintEvent(QPaintEvent* e)
   }
 
   ezStringBuilder s;
-  s.Format("[Un: {0}, Tr: {1}, Th: {2}, Err: {3}]", sections[ezAssetInfo::TransformState::Unknown],
+  s.Format("[Un: {0}, Imp: {4}, Tr: {1}, Th: {2}, Err: {3}]", sections[ezAssetInfo::TransformState::Unknown],
     sections[ezAssetInfo::TransformState::NeedsTransform], sections[ezAssetInfo::TransformState::NeedsThumbnail],
     sections[ezAssetInfo::TransformState::MissingDependency] + sections[ezAssetInfo::TransformState::MissingReference] +
-      sections[ezAssetInfo::TransformState::TransformError]);
+      sections[ezAssetInfo::TransformState::TransformError], sections[ezAssetInfo::TransformState::NeedsImport]);
 
   painter.setPen(QPen(Qt::white));
   painter.drawText(rect, s.GetData(), QTextOption(Qt::AlignCenter));
@@ -116,11 +116,11 @@ void ezQtCuratorControl::SlotUpdateTransformStats()
 
   if (uiNumAssets > 0)
   {
-    s.Format("Unknown: {0}\nTransform Needed: {1}\nThumbnail Needed: {2}\nMissing Dependency: {3}\nMissing Reference: {4}\nFailed "
+    s.Format("Unknown: {0}\nImport Needed: {6}\nTransform Needed: {1}\nThumbnail Needed: {2}\nMissing Dependency: {3}\nMissing Reference: {4}\nFailed "
              "Transform: {5}",
       sections[ezAssetInfo::TransformState::Unknown], sections[ezAssetInfo::TransformState::NeedsTransform],
       sections[ezAssetInfo::TransformState::NeedsThumbnail], sections[ezAssetInfo::TransformState::MissingDependency],
-      sections[ezAssetInfo::TransformState::MissingReference], sections[ezAssetInfo::TransformState::TransformError]);
+      sections[ezAssetInfo::TransformState::MissingReference], sections[ezAssetInfo::TransformState::TransformError], sections[ezAssetInfo::TransformState::NeedsImport]);
     setToolTip(s.GetData());
   }
   else

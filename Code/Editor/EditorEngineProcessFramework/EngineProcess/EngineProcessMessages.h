@@ -24,6 +24,7 @@ public:
   ezUInt64 m_ThumbHash = 0;
   ezString m_sAssetPath;
   ezString m_sPlatform;
+  ezDynamicArray<ezString> m_DepRefHull;
 };
 
 class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezProcessAssetResponseMsg : public ezProcessMessage
@@ -33,6 +34,9 @@ class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezProcessAssetResponseMsg : public ezP
 public:
   mutable ezDynamicArray<ezLogEntry> m_LogEntries;
   bool m_bSuccess = false;
+  ezString m_sStatus;
+
+  // TODO
 };
 
 ///////////////////////////////////// ezEditorEngineMsg /////////////////////////////////////

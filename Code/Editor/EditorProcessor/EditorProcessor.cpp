@@ -87,7 +87,23 @@ public:
           if ((state != ezAssetInfo::NeedsThumbnail && state != ezAssetInfo::NeedsTransform) || uiAssetHash != pMsg->m_AssetHash || uiThumbHash != pMsg->m_ThumbHash)
           {
             // Force update the state. If the asset was created automatically the file might not be known yet.
+            for (const ezString& sDepOrRef : pMsg->m_DepRefHull)
+            {
+              if (sDepOrRef.IsAbsolutePath())
+              {
+                ezAssetCurator::GetSingleton()->NotifyOfFileChange(sDepOrRef);
+              }
+              else
+              {
+                ezStringBuilder sTemp = sDepOrRef;
+                if (ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sTemp))
+                {
+                  ezAssetCurator::GetSingleton()->NotifyOfFileChange(sTemp);
+                }
+              }
+            }
             ezAssetCurator::GetSingleton()->NotifyOfFileChange(pMsg->m_sAssetPath);
+
             state = ezAssetCurator::GetSingleton()->IsAssetUpToDate(pMsg->m_AssetGuid, ezAssetCurator::GetSingleton()->GetAssetProfile(uiPlatform), nullptr, uiAssetHash, uiThumbHash, true);
           }
 
@@ -100,7 +116,11 @@ public:
           {
             const ezStatus res = ezAssetCurator::GetSingleton()->TransformAsset(pMsg->m_AssetGuid, ezTransformFlags::None, ezAssetCurator::GetSingleton()->GetAssetProfile(uiPlatform));
 
+            // TODO
+
             msg.m_bSuccess = res.m_Result.Succeeded();
+            msg.m_sStatus = res.m_sMessage;
+
             if (res.m_Result.Failed())
             {
               // make sure the result message ends up in the log
@@ -115,7 +135,7 @@ public:
           else
           {
             msg.m_bSuccess = false;
-            ezLog::Error("Asset {} is in state {}, can't process asset.", pMsg->m_sAssetPath, (int)state);
+            ezLog::Error("Asset {} is in state {}, can't process asset.", pMsg->m_sAssetPath, (int)state); // TODO nicer state to string
           }
         }
       }

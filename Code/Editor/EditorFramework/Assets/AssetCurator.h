@@ -62,7 +62,7 @@ struct EZ_EDITORFRAMEWORK_DLL ezAssetInfo
   {
     Unknown = 0,
     UpToDate,
-    Updating,
+    NeedsImport,
     NeedsTransform,
     NeedsThumbnail,
     TransformError,
@@ -263,6 +263,8 @@ public:
 
   /// \brief Computes the combined hash for the asset and its references. Returns 0 if anything went wrong.
   ezUInt64 GetAssetReferenceHash(ezUuid assetGuid);
+
+  void GenerateTransitiveHull(const ezStringView assetOrPath, ezSet<ezString>* pDependencies, ezSet<ezString>* pReferences);
 
   ezAssetInfo::TransformState IsAssetUpToDate(const ezUuid& assetGuid, const ezPlatformProfile* pAssetProfile, const ezAssetDocumentTypeDescriptor* pTypeDescriptor, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash, bool bForce = false);
   /// \brief Returns the number of assets in the system and how many are in what transform state

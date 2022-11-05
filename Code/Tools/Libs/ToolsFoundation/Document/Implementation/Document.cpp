@@ -176,6 +176,7 @@ ezTaskGroupID ezDocument::InternalSaveDocument(AfterSaveCallback callback)
   EZ_PROFILE_SCOPE("InternalSaveDocument");
   ezTaskGroupID saveID = ezTaskSystem::CreateTaskGroup(ezTaskPriority::LongRunningHighPriority);
   auto saveTask = EZ_DEFAULT_NEW(ezSaveDocumentTask);
+
   {
     saveTask->m_document = this;
     saveTask->file.SetOutput(m_sDocumentPath);

@@ -19,7 +19,7 @@ protected:
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
 
   void CreateMeshFromGeom(ezMeshAssetProperties* pProp, ezMeshResourceDescriptor& desc);
-  ezStatus CreateMeshFromFile(ezMeshAssetProperties* pProp, ezMeshResourceDescriptor& desc);
+  ezStatus CreateMeshFromFile(ezMeshAssetProperties* pProp, ezMeshResourceDescriptor& desc, bool bAllowMaterialImport);
 
   virtual ezStatus InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo) override;
 

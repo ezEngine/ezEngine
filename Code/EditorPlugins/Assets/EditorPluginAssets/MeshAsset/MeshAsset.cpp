@@ -39,7 +39,7 @@ ezStatus ezMeshAssetDocument::InternalTransformAsset(ezStreamWriter& stream, con
 
   if (pProp->m_PrimitiveType == ezMeshPrimitive::File)
   {
-    EZ_SUCCEED_OR_RETURN(CreateMeshFromFile(pProp, desc));
+    EZ_SUCCEED_OR_RETURN(CreateMeshFromFile(pProp, desc, transformFlags.IsSet(ezTransformFlags::TriggeredManually)));
   }
   else
   {
@@ -190,7 +190,7 @@ void ezMeshAssetDocument::CreateMeshFromGeom(ezMeshAssetProperties* pProp, ezMes
   desc.AddSubMesh(mbd.GetPrimitiveCount(), 0, 0);
 }
 
-ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, ezMeshResourceDescriptor& desc)
+ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, ezMeshResourceDescriptor& desc, bool bAllowMaterialImport)
 {
   ezProgressRange range("Mesh Import", 5, false);
 
@@ -222,8 +222,14 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
   range.BeginNextStep("Importing Materials");
 
   // correct the number of material slots
-  if (pProp->m_bImportMaterials || pProp->m_Slots.GetCount() != desc.GetSubMeshes().GetCount())
+  bool bSlotCountMissmatch = pProp->m_Slots.GetCount() != desc.GetSubMeshes().GetCount();
+  if (pProp->m_bImportMaterials || bSlotCountMissmatch)
   {
+    if (!bAllowMaterialImport && bSlotCountMissmatch)
+    {
+      return ezStatus("IMPORT NEEDED!"); // fixing the problem once and for all!
+    }
+
     GetObjectAccessor()->StartTransaction("Update Mesh Materials");
 
     ezMeshImportUtils::SetMeshAssetMaterialSlots(pProp->m_Slots, pImporter.Borrow());

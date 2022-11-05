@@ -309,7 +309,16 @@ void ezAssetCurator::MainThreadTick(bool bTopLevel)
   }
 
   RunNextUpdateTask();
-  ezAssetProcessor::GetSingleton()->RunNextProcessTask();
+
+  if (bTopLevel && !m_TransformState[ezAssetInfo::TransformState::NeedsImport].IsEmpty())
+  {
+    const ezUuid assetToImport = *m_TransformState[ezAssetInfo::TransformState::NeedsImport].GetIterator();
+
+    ezAssetInfo* pInfo = GetAssetInfo(assetToImport);
+
+    ProcessAsset(pInfo, nullptr, ezTransformFlags::TriggeredManually);
+    UpdateAssetTransformState(assetToImport, ezAssetInfo::TransformState::Unknown);
+  }
 
   // TODO: Probably needs to be done in headless as well to make proper thumbnails
   if (!ezQtEditorApp::GetSingleton()->IsInHeadlessMode())
@@ -765,10 +774,56 @@ ezUInt64 ezAssetCurator::GetAssetReferenceHash(ezUuid assetGuid)
   return thumbHash;
 }
 
+void ezAssetCurator::GenerateTransitiveHull(const ezStringView assetOrPath, ezSet<ezString>* pDependencies, ezSet<ezString>* pReferences)
+{
+  if (ezConversionUtils::IsStringUuid(assetOrPath))
+  {
+    auto it = m_KnownSubAssets.Find(ezConversionUtils::ConvertStringToUuid(assetOrPath));
+    ezAssetInfo* pAssetInfo = it.Value().m_pAssetInfo;
+    const bool bInsertDep = pDependencies && !pDependencies->Contains(pAssetInfo->m_sAbsolutePath);
+    const bool bInsertRef = pReferences && !pReferences->Contains(pAssetInfo->m_sAbsolutePath);
+
+    if (bInsertDep)
+    {
+      pDependencies->Insert(pAssetInfo->m_sAbsolutePath);
+    }
+    if (bInsertRef)
+    {
+      pReferences->Insert(pAssetInfo->m_sAbsolutePath);
+    }
+
+    if (pDependencies)
+    {
+      for (const ezString& dep : pAssetInfo->m_Info->m_AssetTransformDependencies)
+      {
+        GenerateTransitiveHull(dep, pDependencies, nullptr);
+      }
+    }
+
+    if (pReferences)
+    {
+      for (const ezString& ref : pAssetInfo->m_Info->m_RuntimeDependencies)
+      {
+        GenerateTransitiveHull(ref, nullptr, pReferences);
+      }
+    }
+  }
+  else
+  {
+    if (pDependencies && !pDependencies->Contains(assetOrPath))
+    {
+      pDependencies->Insert(assetOrPath);
+    }
+    if (pReferences && !pReferences->Contains(assetOrPath))
+    {
+      pReferences->Insert(assetOrPath);
+    }
+  }
+}
+
 ezAssetInfo::TransformState ezAssetCurator::IsAssetUpToDate(const ezUuid& assetGuid, const ezPlatformProfile*, const ezAssetDocumentTypeDescriptor* pTypeDescriptor, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash, bool bForce)
 {
-  ezAssetInfo::TransformState res = ezAssetCurator::UpdateAssetTransformState(assetGuid, out_AssetHash, out_ThumbHash, bForce);
-  return res;
+  return ezAssetCurator::UpdateAssetTransformState(assetGuid, out_AssetHash, out_ThumbHash, bForce);
 }
 
 ezAssetInfo::TransformState ezAssetCurator::UpdateAssetTransformState(ezUuid assetGuid, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash, bool bForce)
@@ -972,7 +1027,8 @@ ezResult ezAssetCurator::FindBestMatchForFile(ezStringBuilder& sFile, ezArrayPtr
   {
     EZ_LOCK(m_CuratorMutex);
 
-    auto SearchFile = [this](ezStringBuilder& name) -> bool {
+    auto SearchFile = [this](ezStringBuilder& name) -> bool
+    {
       for (auto it = m_ReferencedFiles.GetIterator(); it.IsValid(); ++it)
       {
         if (it.Value().m_Status != ezFileStatus::Status::Valid)
@@ -1144,8 +1200,15 @@ ezCommandLineOptionEnum opt_AssetThumbnails("_Editor", "-AssetThumbnails", "Whet
 
 ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const ezPlatformProfile* pAssetProfile, ezBitflags<ezTransformFlags> transformFlags)
 {
+  ezLog::Warning("AAAAAAA Process: {} | {}", ezProcess::GetCurrentProcessID(), pAssetInfo->m_sAbsolutePath);
+
   if (transformFlags.IsSet(ezTransformFlags::ForceTransform))
     ezLog::Dev("Asset transform forced.");
+
+  const ezAssetDocumentTypeDescriptor* pTypeDesc = pAssetInfo->m_pDocumentTypeDescriptor;
+  ezUInt64 uiHash = 0;
+  ezUInt64 uiThumbHash = 0;
+  ezAssetInfo::TransformState state = IsAssetUpToDate(pAssetInfo->m_Info->m_DocumentID, pAssetProfile, pTypeDesc, uiHash, uiThumbHash);
 
   for (const auto& dep : pAssetInfo->m_Info->m_AssetTransformDependencies)
   {
@@ -1170,7 +1233,6 @@ ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const ezPlatformP
     }
   }
 
-  const ezAssetDocumentTypeDescriptor* pTypeDesc = pAssetInfo->m_pDocumentTypeDescriptor;
 
   EZ_ASSERT_DEV(pTypeDesc->m_pDocumentType->IsDerivedFrom<ezAssetDocument>(), "Asset document does not derive from correct base class ('{0}')", pAssetInfo->m_sDataDirParentRelativePath);
 
@@ -1191,9 +1253,13 @@ ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const ezPlatformP
     return resReferences;
   }
 
-  ezUInt64 uiHash = 0;
-  ezUInt64 uiThumbHash = 0;
-  ezAssetInfo::TransformState state = IsAssetUpToDate(pAssetInfo->m_Info->m_DocumentID, pAssetProfile, pTypeDesc, uiHash, uiThumbHash);
+  ezUInt64 uiHash2 = 0;
+  ezUInt64 uiThumbHash2 = 0;
+  ezAssetInfo::TransformState state2 = IsAssetUpToDate(pAssetInfo->m_Info->m_DocumentID, pAssetProfile, pTypeDesc, uiHash2, uiThumbHash2);
+  EZ_ASSERT_DEV(uiHash == uiHash2, "");
+  EZ_ASSERT_DEV(uiThumbHash == uiThumbHash2, "");
+  EZ_ASSERT_DEV(state == state2, "State {}, State2 {}", state, state2);
+
 
   if (transformFlags.IsSet(ezTransformFlags::ForceTransform))
   {
@@ -1223,7 +1289,7 @@ ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const ezPlatformP
 
   ezStatus ret(EZ_SUCCESS);
   ezAssetDocument* pAsset = static_cast<ezAssetDocument*>(pDoc);
-  if (state == ezAssetInfo::TransformState::NeedsTransform || (state == ezAssetInfo::TransformState::NeedsThumbnail && assetFlags.IsSet(ezAssetDocumentFlags::AutoThumbnailOnTransform)))
+  if (state == ezAssetInfo::TransformState::NeedsTransform || (state == ezAssetInfo::TransformState::NeedsThumbnail && assetFlags.IsSet(ezAssetDocumentFlags::AutoThumbnailOnTransform)) || (transformFlags.IsSet(ezTransformFlags::TriggeredManually) && state == ezAssetInfo::TransformState::NeedsImport))
   {
     ret = pAsset->TransformAsset(transformFlags, pAssetProfile);
   }
@@ -1239,7 +1305,9 @@ ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const ezPlatformP
 
     if (assetFlags.IsSet(ezAssetDocumentFlags::SupportsThumbnail) && !assetFlags.IsSet(ezAssetDocumentFlags::AutoThumbnailOnTransform) && !resReferences.m_Result.Failed())
     {
-      if (ret.m_Result.Succeeded() && state <= ezAssetInfo::TransformState::NeedsThumbnail)
+      ezAssetInfo::TransformState state3 = IsAssetUpToDate(pAssetInfo->m_Info->m_DocumentID, pAssetProfile, pTypeDesc, uiHash2, uiThumbHash2);
+
+      if (ret.m_Result.Succeeded() && state3 == ezAssetInfo::TransformState::NeedsThumbnail)
       {
         ret = pAsset->CreateThumbnail();
       }

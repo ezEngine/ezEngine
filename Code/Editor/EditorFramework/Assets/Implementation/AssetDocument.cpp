@@ -362,7 +362,8 @@ ezUInt64 ezAssetDocument::GetDocumentHash() const
   {
     typesSorted.PushBack(pType);
   }
-  typesSorted.Sort([](const ezRTTI* a, const ezRTTI* b) { return ezStringUtils::Compare(a->GetTypeName(), b->GetTypeName()) < 0; });
+  typesSorted.Sort([](const ezRTTI* a, const ezRTTI* b)
+    { return ezStringUtils::Compare(a->GetTypeName(), b->GetTypeName()) < 0; });
   for (const ezRTTI* pType : typesSorted)
   {
     uiHash = ezHashingUtils::xxHash64(pType->GetTypeName(), std::strlen(pType->GetTypeName()), uiHash);
@@ -406,7 +407,8 @@ ezStatus ezAssetDocument::DoTransformAsset(const ezPlatformProfile* pAssetProfil
     AssetHeader.SetFileHashAndVersion(uiHash, GetAssetTypeVersion());
     const auto& outputs = GetAssetDocumentInfo()->m_Outputs;
 
-    auto GenerateOutput = [this, pAssetProfile, &AssetHeader, transformFlags](const char* szOutputTag) -> ezStatus {
+    auto GenerateOutput = [this, pAssetProfile, &AssetHeader, transformFlags](const char* szOutputTag) -> ezStatus
+    {
       const ezString sTargetFile = GetAssetDocumentManager()->GetAbsoluteOutputFileName(GetAssetDocumentTypeDescriptor(), GetDocumentPath(), szOutputTag, pAssetProfile);
       auto ret = InternalTransformAsset(sTargetFile, szOutputTag, pAssetProfile, AssetHeader, transformFlags);
 
@@ -439,35 +441,44 @@ ezStatus ezAssetDocument::DoTransformAsset(const ezPlatformProfile* pAssetProfil
 ezStatus ezAssetDocument::TransformAsset(ezBitflags<ezTransformFlags> transformFlags, const ezPlatformProfile* pAssetProfile)
 {
   EZ_PROFILE_SCOPE("TransformAsset");
+
   if (!transformFlags.IsSet(ezTransformFlags::ForceTransform))
   {
-    if (IsModified())
-    {
-      auto res = SaveDocument().m_Result;
-      if (res.Failed())
-        return ezStatus(res);
-    }
+    EZ_SUCCEED_OR_RETURN(SaveDocument().m_Result);
 
-    const auto flags = GetAssetFlags();
+    const auto assetFlags = GetAssetFlags();
+
+    if (assetFlags.IsSet(ezAssetDocumentFlags::DisableTransform) || (assetFlags.IsSet(ezAssetDocumentFlags::OnlyTransformManually) && !transformFlags.IsSet(ezTransformFlags::TriggeredManually)))
     {
-      if (flags.IsSet(ezAssetDocumentFlags::DisableTransform) || (flags.IsSet(ezAssetDocumentFlags::OnlyTransformManually) && !transformFlags.IsSet(ezTransformFlags::TriggeredManually)))
-        return ezStatus(EZ_SUCCESS, "Transform is disabled for this asset");
+      return ezStatus(EZ_SUCCESS, "Transform is disabled for this asset");
     }
   }
 
-  return DoTransformAsset(pAssetProfile, transformFlags);
+  const auto res = DoTransformAsset(pAssetProfile, transformFlags);
+
+  if (transformFlags.IsSet(ezTransformFlags::TriggeredManually))
+  {
+    SaveDocument();
+    ezAssetCurator::GetSingleton()->NotifyOfAssetChange(GetGuid());
+  }
+
+  return res;
 }
 
 ezStatus ezAssetDocument::CreateThumbnail()
 {
   ezUInt64 uiHash = 0;
   ezUInt64 uiThumbHash = 0;
-  if (ezAssetCurator::GetSingleton()->IsAssetUpToDate(GetGuid(), ezAssetCurator::GetSingleton()->GetActiveAssetProfile(), GetAssetDocumentTypeDescriptor(), uiHash, uiThumbHash) == ezAssetInfo::TransformState::UpToDate)
+
+  ezAssetInfo::TransformState state = ezAssetCurator::GetSingleton()->IsAssetUpToDate(GetGuid(), ezAssetCurator::GetSingleton()->GetActiveAssetProfile(), GetAssetDocumentTypeDescriptor(), uiHash, uiThumbHash);
+
+  if (state == ezAssetInfo::TransformState::UpToDate)
     return ezStatus(EZ_SUCCESS, "Transformed asset is already up to date");
 
   if (uiHash == 0)
     return ezStatus("Computing the hash for this asset or any dependency failed");
 
+  if (state == ezAssetInfo::NeedsThumbnail)
   {
     ThumbnailInfo ThumbnailInfo;
     ThumbnailInfo.SetFileHashAndVersion(uiThumbHash, GetAssetTypeVersion());
@@ -477,6 +488,7 @@ ezStatus ezAssetDocument::CreateThumbnail()
     ezAssetCurator::GetSingleton()->NotifyOfAssetChange(GetGuid());
     return res;
   }
+  return ezStatus(ezFmt("Asset state is {}", state));
 }
 
 ezStatus ezAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
@@ -637,7 +649,8 @@ ezStatus ezAssetDocument::RemoteExport(const ezAssetFileHeader& header, const ch
   GetEditorEngineConnection()->SendMessage(&msg);
 
   bool bSuccess = false;
-  ezProcessCommunicationChannel::WaitForMessageCallback callback = [&bSuccess](ezProcessMessage* pMsg) -> bool {
+  ezProcessCommunicationChannel::WaitForMessageCallback callback = [&bSuccess](ezProcessMessage* pMsg) -> bool
+  {
     ezExportDocumentMsgToEditor* pMsg2 = ezDynamicCast<ezExportDocumentMsgToEditor*>(pMsg);
     bSuccess = pMsg2->m_bOutputSuccess;
     return true;
@@ -698,7 +711,8 @@ ezStatus ezAssetDocument::RemoteCreateThumbnail(const ThumbnailInfo& thumbnailIn
   GetEditorEngineConnection()->SendMessage(&msg);
 
   ezDataBuffer data;
-  ezProcessCommunicationChannel::WaitForMessageCallback callback = [&data](ezProcessMessage* pMsg) -> bool {
+  ezProcessCommunicationChannel::WaitForMessageCallback callback = [&data](ezProcessMessage* pMsg) -> bool
+  {
     ezCreateThumbnailMsgToEditor* pThumbnailMsg = ezDynamicCast<ezCreateThumbnailMsgToEditor*>(pMsg);
     data = pThumbnailMsg->m_ThumbnailData;
     return true;
@@ -770,7 +784,8 @@ void ezAssetDocument::HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg)
 
 void ezAssetDocument::AddSyncObject(ezEditorEngineSyncObject* pSync) const
 {
-  pSync->Configure(GetGuid(), [this](ezEditorEngineSyncObject* pSync) { RemoveSyncObject(pSync); });
+  pSync->Configure(GetGuid(), [this](ezEditorEngineSyncObject* pSync)
+    { RemoveSyncObject(pSync); });
 
   m_SyncObjects.PushBack(pSync);
   m_AllSyncObjects[pSync->GetGuid()] = pSync;
