@@ -13,11 +13,6 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStateMachineState_NestedStateMachine, 1, ezRTT
     EZ_MEMBER_PROPERTY("KeepCurrentStateOnExit", m_bKeepCurrentStateOnExit),
   }
   EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
-  {
-    EZ_STATE_MACHINE_INSTANCE_DATA_TYPE_ATTRIBUTE(ezStateMachineState_NestedStateMachine::InstanceData),
-  }
-  EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
@@ -95,6 +90,12 @@ ezResult ezStateMachineState_NestedStateMachine::Deserialize(ezStreamReader& str
   stream >> m_sInitialState;
   stream >> m_bKeepCurrentStateOnExit;
   return EZ_SUCCESS;
+}
+
+bool ezStateMachineState_NestedStateMachine::GetInstanceDataDesc(ezStateMachineInstanceDataDesc& out_desc)
+{
+  out_desc.Fill<InstanceData>();
+  return true;
 }
 
 void ezStateMachineState_NestedStateMachine::SetResource(const ezStateMachineResourceHandle& hResource)
@@ -181,6 +182,39 @@ ezResult ezStateMachineState_Compound::Deserialize(ezStreamReader& stream)
   const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
 
   return EZ_SUCCESS;
+}
+
+bool ezStateMachineState_Compound::GetInstanceDataDesc(ezStateMachineInstanceDataDesc& out_desc)
+{
+  m_InstanceDataOffsets.Clear();
+  m_InstanceDataAllocator.ClearDescs();
+
+  ezUInt32 uiMaxAlignment = 0;
+
+  ezStateMachineInstanceDataDesc instanceDataDesc;
+  for (ezStateMachineState* pSubState : m_SubStates)
+  {
+    ezUInt32 uiOffset = ezInvalidIndex;
+    if (pSubState->GetInstanceDataDesc(instanceDataDesc))
+    {
+      uiOffset = m_InstanceDataAllocator.AddDesc(instanceDataDesc);
+      uiMaxAlignment = ezMath::Max(uiMaxAlignment, instanceDataDesc.m_uiTypeAlignment);
+    }
+    m_InstanceDataOffsets.PushBack(uiOffset);
+  }
+
+  if (uiMaxAlignment > 0)
+  {
+    out_desc.Fill<InstanceData>();
+
+    const ezUInt32 uiOffset = ezMemoryUtils::AlignSize(out_desc.m_uiTypeSize, uiMaxAlignment);
+    out_desc.m_uiTypeSize = uiOffset + m_InstanceDataAllocator.GetTotalDataSize();
+    out_desc.m_uiTypeAlignment = ezMath::Max(out_desc.m_uiTypeAlignment, uiMaxAlignment);
+
+    return true;
+  }
+
+  return false;
 }
 
 //////////////////////////////////////////////////////////////////////////

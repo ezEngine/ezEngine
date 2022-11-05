@@ -19,6 +19,8 @@ public:
   virtual ezResult Serialize(ezStreamWriter& stream) const override;
   virtual ezResult Deserialize(ezStreamReader& stream) override;
 
+  virtual bool GetInstanceDataDesc(ezStateMachineInstanceDataDesc& out_desc) override;
+
   void SetResource(const ezStateMachineResourceHandle& hResource);
   const ezStateMachineResourceHandle& GetResource() const { return m_hResource; }
 
@@ -64,7 +66,18 @@ public:
   virtual ezResult Serialize(ezStreamWriter& stream) const override;
   virtual ezResult Deserialize(ezStreamReader& stream) override;
 
-  ezHybridArray<ezStateMachineState*, 2> m_SubStates;
+  virtual bool GetInstanceDataDesc(ezStateMachineInstanceDataDesc& out_desc) override;
+
+  ezSmallArray<ezStateMachineState*, 2> m_SubStates;
+
+private:
+  ezSmallArray<ezUInt32, 2> m_InstanceDataOffsets;
+  ezStateMachineInstanceDataAllocator m_InstanceDataAllocator;
+
+  struct InstanceData
+  {
+    const ezStateMachineInstanceDataAllocator* m_pAllocator = nullptr;
+  };
 };
 
 //////////////////////////////////////////////////////////////////////////

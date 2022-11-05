@@ -43,6 +43,11 @@ ezResult ezStateMachineState::Deserialize(ezStreamReader& stream)
   return EZ_SUCCESS;
 }
 
+bool ezStateMachineState::GetInstanceDataDesc(ezStateMachineInstanceDataDesc& out_desc)
+{
+  return false;
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
@@ -60,12 +65,10 @@ ezResult ezStateMachineTransition::Deserialize(ezStreamReader& stream)
   return EZ_SUCCESS;
 }
 
-//////////////////////////////////////////////////////////////////////////
-
-// clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStateMachineInstanceDataTypeAttribute, 1, ezRTTIDefaultAllocator<ezStateMachineInstanceDataTypeAttribute>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-// clang-format on
+bool ezStateMachineTransition::GetInstanceDataDesc(ezStateMachineInstanceDataDesc& out_desc)
+{
+  return false;
+}
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -83,13 +86,12 @@ ezUInt32 ezStateMachineDescription::AddState(ezUniquePtr<ezStateMachineState>&& 
     m_StateNameToIndexTable.Insert(sStateName, uiIndex);
   }
 
-  auto& stateContext = m_States.ExpandAndGetRef();
-  if (auto pInstanceDataAttribute = pState->GetDynamicRTTI()->GetAttributeByType<ezStateMachineInstanceDataTypeAttribute>())
-  {
-    m_InstanceDataAttributes.PushBack(pInstanceDataAttribute);
-    stateContext.m_uiInstanceDataOffset = ezMemoryUtils::AlignSize(m_uiTotalInstanceDataSize, pInstanceDataAttribute->m_uiTypeAlignment);
+  StateContext& stateContext = m_States.ExpandAndGetRef();
 
-    m_uiTotalInstanceDataSize = stateContext.m_uiInstanceDataOffset + pInstanceDataAttribute->m_uiTypeSize;
+  ezStateMachineInstanceDataDesc instanceDataDesc;
+  if (pState->GetInstanceDataDesc(instanceDataDesc))
+  {
+    stateContext.m_uiInstanceDataOffset = m_InstanceDataAllocator.AddDesc(instanceDataDesc);
   }
 
   stateContext.m_pState = std::move(pState);
@@ -114,7 +116,14 @@ void ezStateMachineDescription::AddTransition(ezUInt32 uiFromStateIndex, ezUInt3
 
   EZ_ASSERT_DEV(uiToStateIndex < m_States.GetCount(), "Invalid to state index {}", uiToStateIndex);
 
-  auto& transitionContext = pTransitions->ExpandAndGetRef();
+  TransitionContext& transitionContext = pTransitions->ExpandAndGetRef();
+
+  ezStateMachineInstanceDataDesc instanceDataDesc;
+  if (pTransistion->GetInstanceDataDesc(instanceDataDesc))
+  {
+    transitionContext.m_uiInstanceDataOffset = m_InstanceDataAllocator.AddDesc(instanceDataDesc);
+  }
+
   transitionContext.m_pTransition = std::move(pTransistion);
   transitionContext.m_uiToStateIndex = uiToStateIndex;
 }
@@ -256,23 +265,9 @@ ezStateMachineInstance::ezStateMachineInstance(ezReflectedClass& owner, const ez
   : m_Owner(owner)
   , m_pDescription(pDescription)
 {
-  if (pDescription != nullptr && pDescription->m_uiTotalInstanceDataSize > 0)
+  if (pDescription != nullptr)
   {
-    m_InstanceData.SetCountUninitialized(pDescription->m_uiTotalInstanceDataSize);
-    m_InstanceData.ZeroFill();
-
-    ezUInt32 uiOffset = 0;
-    for (auto pAttribute : pDescription->m_InstanceDataAttributes)
-    {
-      uiOffset = ezMemoryUtils::AlignSize(uiOffset, pAttribute->m_uiTypeAlignment);
-
-      if (pAttribute->m_ConstructorFunction != nullptr)
-      {
-        pAttribute->m_ConstructorFunction(GetInstanceData(uiOffset));
-      }
-
-      uiOffset += pAttribute->m_uiTypeSize;
-    }
+    m_InstanceData = pDescription->m_InstanceDataAllocator.AllocateAndConstruct();
   }
 }
 
@@ -283,22 +278,9 @@ ezStateMachineInstance::~ezStateMachineInstance()
   m_pCurrentState = nullptr;
   m_uiCurrentStateIndex = ezInvalidIndex;
 
-  if (m_pDescription != nullptr && m_pDescription->m_uiTotalInstanceDataSize > 0)
+  if (m_pDescription != nullptr)
   {
-    ezUInt32 uiOffset = 0;
-    for (auto pAttribute : m_pDescription->m_InstanceDataAttributes)
-    {
-      uiOffset = ezMemoryUtils::AlignSize(uiOffset, pAttribute->m_uiTypeAlignment);
-
-      if (pAttribute->m_DestructorFunction != nullptr)
-      {
-        pAttribute->m_DestructorFunction(GetInstanceData(uiOffset));
-      }
-
-      uiOffset += pAttribute->m_uiTypeSize;
-    }
-
-    m_InstanceData.Clear();
+    m_pDescription->m_InstanceDataAllocator.DestructAndDeallocate(m_InstanceData);
   }
 }
 
