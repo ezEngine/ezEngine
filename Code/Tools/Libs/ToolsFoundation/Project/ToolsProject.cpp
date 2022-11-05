@@ -111,7 +111,7 @@ void ezToolsProject::SaveProjectState()
     ezToolsProjectEvent e;
     e.m_pProject = GetSingleton();
     e.m_Type = ezToolsProjectEvent::Type::ProjectSaveState;
-    s_Events.Broadcast(e);
+    s_Events.Broadcast(e, 1);
   }
 }
 
