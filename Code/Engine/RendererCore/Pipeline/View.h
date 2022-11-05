@@ -151,6 +151,7 @@ private:
   const ezCamera* m_pCullingCamera = nullptr;
   const ezCamera* m_pLodCamera = nullptr;
 
+
 private:
   ezRenderPipelineNodeInputPin m_PinRenderTarget0;
   ezRenderPipelineNodeInputPin m_PinRenderTarget1;

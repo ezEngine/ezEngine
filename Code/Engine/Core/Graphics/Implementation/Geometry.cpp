@@ -428,9 +428,9 @@ void ezGeometry::AddRectXY(const ezVec2& size, ezUInt32 uiTesselationX, ezUInt32
   }
 }
 
-void ezGeometry::AddBox(const ezVec3& size, bool bExtraVerticesForTexturing, const GeoOptions& options)
+void ezGeometry::AddBox(const ezVec3& vFullExtents, bool bExtraVerticesForTexturing, const GeoOptions& options)
 {
-  const ezVec3 halfSize = size * 0.5f;
+  const ezVec3 halfSize = vFullExtents * 0.5f;
   const bool bFlipWinding = options.IsFlipWindingNecessary();
 
   if (bExtraVerticesForTexturing)

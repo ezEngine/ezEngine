@@ -40,6 +40,8 @@ void ezSystemInformation::Initialize()
   if (s_SystemInformation.m_bIsInitialized)
     return;
 
+  m_CpuFeatures.Detect();
+
   // Get system information via various APIs
   s_SystemInformation.m_uiCPUCoreCount = sysconf(_SC_NPROCESSORS_ONLN);
 

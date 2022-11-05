@@ -145,6 +145,7 @@ void ezView::ExtractData()
   extractionEvent.m_uiFrameCounter = ezRenderWorld::GetFrameCounter();
   ezRenderWorld::s_ExtractionEvent.Broadcast(extractionEvent);
 
+
   m_pRenderPipeline->m_sName = m_sName;
   m_pRenderPipeline->ExtractData(*this);
 

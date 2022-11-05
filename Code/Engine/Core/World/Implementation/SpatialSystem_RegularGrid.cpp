@@ -16,7 +16,10 @@ namespace
     CELL_INDEX_MASK = (1 << 21) - 1
   };
 
-  EZ_ALWAYS_INLINE ezSimdVec4f ToVec3(const ezSimdVec4i& v) { return v.ToFloat(); }
+  EZ_ALWAYS_INLINE ezSimdVec4f ToVec3(const ezSimdVec4i& v)
+  {
+    return v.ToFloat();
+  }
 
   EZ_ALWAYS_INLINE ezSimdVec4i ToVec3I32(const ezSimdVec4f& v)
   {
@@ -469,6 +472,7 @@ namespace ezInternal
       PlaneData m_PlaneData;
       ezDynamicArray<const ezGameObject*>* m_pOutObjects;
       ezUInt64 m_uiFrameCounter;
+      ezSpatialSystem::IsOccludedFunc m_IsOccludedCB;
     };
 
     template <bool UseTagsFilter>
@@ -481,6 +485,15 @@ namespace ezInternal
       if (!SphereFrustumIntersect(cellSphere, planeData))
         return ezVisitorExecution::Continue;
 
+      if (pQueryData->m_IsOccludedCB.IsValid())
+      {
+        if (pQueryData->m_IsOccludedCB(cell.m_Bounds.GetBox()))
+        {
+          return ezVisitorExecution::Continue;
+        }
+      }
+
+      ezSimdBBox bbox;
       auto boundingSpheres = cell.m_BoundingSpheres.GetData();
       auto tagSets = cell.m_TagSets.GetData();
       auto objectPointers = cell.m_ObjectPointers.GetData();
@@ -502,7 +515,9 @@ namespace ezInternal
             auto& objectSphereA = boundingSpheres[currentIndex + i + 0];
             auto& objectSphereB = boundingSpheres[currentIndex + i + 1];
 
-            mask |= SphereFrustumIntersect(objectSphereA, objectSphereB, planeData) << i;
+            ezUInt32 resMask = SphereFrustumIntersect(objectSphereA, objectSphereB, planeData) << i;
+
+            mask |= resMask;
           }
 
           while (mask > 0)
@@ -515,6 +530,15 @@ namespace ezInternal
               if (FilterByTags(tagSets[i], queryParams.m_IncludeTags, queryParams.m_ExcludeTags))
               {
                 stats.m_uiNumObjectsFiltered++;
+                continue;
+              }
+            }
+
+            if (pQueryData->m_IsOccludedCB.IsValid())
+            {
+              bbox.SetCenterAndHalfExtents(boundingSpheres[i].GetCenter(), ezSimdVec4f(boundingSpheres[i].GetRadius()));
+              if (pQueryData->m_IsOccludedCB(bbox))
+              {
                 continue;
               }
             }
@@ -540,6 +564,16 @@ namespace ezInternal
             if (FilterByTags(tagSets[i], queryParams.m_IncludeTags, queryParams.m_ExcludeTags))
             {
               stats.m_uiNumObjectsFiltered++;
+              continue;
+            }
+          }
+
+          if (pQueryData->m_IsOccludedCB.IsValid())
+          {
+            bbox.SetCenterAndHalfExtents(boundingSpheres[i].GetCenter(), ezSimdVec4f(boundingSpheres[i].GetRadius()));
+
+            if (pQueryData->m_IsOccludedCB(bbox))
+            {
               continue;
             }
           }
@@ -573,12 +607,12 @@ ezSpatialSystem_RegularGrid::ezSpatialSystem_RegularGrid(ezUInt32 uiCellSize /*=
 
   m_Grids.SetCount(MAX_NUM_GRIDS);
 
-  cvar_SpatialQueriesCachingThreshold.m_CVarEvents.AddEventHandler([&](const ezCVarEvent& e) {
+  cvar_SpatialQueriesCachingThreshold.m_CVarEvents.AddEventHandler([&](const ezCVarEvent& e)
+    {
     if (e.m_EventType == ezCVarEvent::ValueChanged)
     {
       RemoveAllCachedGrids();
-    }
-  });
+    } });
 }
 
 ezSpatialSystem_RegularGrid::~ezSpatialSystem_RegularGrid() = default;
@@ -590,7 +624,8 @@ ezResult ezSpatialSystem_RegularGrid::GetCellBoxForSpatialData(const ezSpatialDa
     return EZ_FAILURE;
 
   ForEachGrid(*pData, hData,
-    [&](Grid& grid, const CellDataMapping& mapping) {
+    [&](Grid& grid, const CellDataMapping& mapping)
+    {
       auto& pCell = grid.m_Cells[mapping.m_uiCellIndex];
 
       out_BoundingBox = pCell->GetBoundingBox();
@@ -708,7 +743,8 @@ void ezSpatialSystem_RegularGrid::DeleteSpatialData(const ezSpatialDataHandle& h
   EZ_VERIFY(m_DataTable.Remove(hData.GetInternalID(), &oldData), "Invalid spatial data handle");
 
   ForEachGrid(oldData, hData,
-    [&](Grid& grid, const CellDataMapping& mapping) {
+    [&](Grid& grid, const CellDataMapping& mapping)
+    {
       grid.RemoveSpatialData(hData);
       return ezVisitorExecution::Continue;
     });
@@ -724,7 +760,8 @@ void ezSpatialSystem_RegularGrid::UpdateSpatialDataBounds(const ezSpatialDataHan
     return;
 
   ForEachGrid(*pData, hData,
-    [&](Grid& grid, const CellDataMapping& mapping) {
+    [&](Grid& grid, const CellDataMapping& mapping)
+    {
       auto& pOldCell = grid.m_Cells[mapping.m_uiCellIndex];
 
       if (pOldCell->m_Bounds.GetBox().Contains(bounds.GetBox()))
@@ -752,7 +789,8 @@ void ezSpatialSystem_RegularGrid::UpdateSpatialDataObject(const ezSpatialDataHan
   EZ_VERIFY(m_DataTable.TryGetValue(hData.GetInternalID(), pData), "Invalid spatial data handle");
 
   ForEachGrid(*pData, hData,
-    [&](Grid& grid, const CellDataMapping& mapping) {
+    [&](Grid& grid, const CellDataMapping& mapping)
+    {
       auto& pCell = grid.m_Cells[mapping.m_uiCellIndex];
       pCell->m_ObjectPointers[mapping.m_uiCellDataIndex] = pObject;
       return ezVisitorExecution::Continue;
@@ -789,7 +827,7 @@ void ezSpatialSystem_RegularGrid::FindObjectsInBox(const ezBoundingBox& box, con
     &queryData);
 }
 
-void ezSpatialSystem_RegularGrid::FindVisibleObjects(const ezFrustum& frustum, const QueryParams& queryParams, ezDynamicArray<const ezGameObject*>& out_Objects) const
+void ezSpatialSystem_RegularGrid::FindVisibleObjects(const ezFrustum& frustum, const QueryParams& queryParams, ezDynamicArray<const ezGameObject*>& out_Objects, ezSpatialSystem::IsOccludedFunc IsOccluded) const
 {
   EZ_PROFILE_SCOPE("FindVisibleObjects");
 
@@ -836,6 +874,8 @@ void ezSpatialSystem_RegularGrid::FindVisibleObjects(const ezFrustum& frustum, c
 
     queryData.m_pOutObjects = &out_Objects;
     queryData.m_uiFrameCounter = m_uiFrameCounter;
+
+    queryData.m_IsOccludedCB = IsOccluded;
   }
 
   ForEachCellInBoxInMatchingGrids(simdBox, queryParams,
@@ -861,7 +901,8 @@ ezUInt64 ezSpatialSystem_RegularGrid::GetNumFramesSinceVisible(const ezSpatialDa
 
   ezUInt64 uiLastFrameVisible = 0;
   ForEachGrid(*pData, hData,
-    [&](const Grid& grid, const CellDataMapping& mapping) {
+    [&](const Grid& grid, const CellDataMapping& mapping)
+    {
       auto& pCell = grid.m_Cells[mapping.m_uiCellIndex];
       uiLastFrameVisible = ezMath::Max(uiLastFrameVisible, pCell->m_LastVisibleFrames[mapping.m_uiCellDataIndex]);
       return ezVisitorExecution::Continue;
@@ -996,7 +1037,8 @@ void ezSpatialSystem_RegularGrid::ForEachCellInBoxInMatchingGrids(const ezSimdBB
 
     Stats stats;
     pGrid->ForEachCellInBox(box,
-      [&](const Cell& cell) {
+      [&](const Cell& cell)
+      {
         return noFilterCallback(cell, queryParams, stats, pUserData);
       });
 
@@ -1026,7 +1068,8 @@ void ezSpatialSystem_RegularGrid::ForEachCellInBoxInMatchingGrids(const ezSimdBB
 
     Stats stats;
     pGrid->ForEachCellInBox(box,
-      [&](const Cell& cell) {
+      [&](const Cell& cell)
+      {
         return cellCallback(cell, queryParams, stats, pUserData);
       });
 

@@ -42,6 +42,8 @@ void ezSystemInformation::Initialize()
   if (s_SystemInformation.m_bIsInitialized)
     return;
 
+  s_SystemInformation.m_CpuFeatures.Detect();
+
   s_SystemInformation.m_sHostName[0] = '\0';
 
   // Get system information via various APIs
@@ -84,7 +86,8 @@ void ezSystemInformation::Initialize()
     ComPtr<ABI::Windows::Foundation::Collections::IVectorView<HostName*>> hostNames;
     if (SUCCEEDED(networkInformation->GetHostNames(&hostNames)))
     {
-      ezUwpUtils::ezWinRtIterateIVectorView<IHostName*>(hostNames, [](UINT, IHostName* hostName) {
+      ezUwpUtils::ezWinRtIterateIVectorView<IHostName*>(hostNames, [](UINT, IHostName* hostName)
+        {
         HostNameType hostNameType;
         if (FAILED(hostName->get_Type(&hostNameType)))
           return true;
@@ -99,8 +102,7 @@ void ezSystemInformation::Initialize()
           return false;
         }
 
-        return true;
-      });
+        return true; });
     }
   }
 

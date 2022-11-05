@@ -57,6 +57,8 @@ const ezBitflags<ezSpatialData::Flags>& ezSpatialData::GetCategoryFlags(Category
 
 ezSpatialData::Category ezDefaultSpatialDataCategories::RenderStatic = ezSpatialData::RegisterCategory("RenderStatic", ezSpatialData::Flags::None);
 ezSpatialData::Category ezDefaultSpatialDataCategories::RenderDynamic = ezSpatialData::RegisterCategory("RenderDynamic", ezSpatialData::Flags::FrequentChanges);
+ezSpatialData::Category ezDefaultSpatialDataCategories::OcclusionStatic = ezSpatialData::RegisterCategory("OcclusionStatic", ezSpatialData::Flags::None);
+ezSpatialData::Category ezDefaultSpatialDataCategories::OcclusionDynamic = ezSpatialData::RegisterCategory("OcclusionDynamic", ezSpatialData::Flags::FrequentChanges);
 
 
 EZ_STATICLINK_FILE(Core, Core_World_Implementation_SpatialData);

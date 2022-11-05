@@ -170,7 +170,7 @@ public:
   /// \brief Adds a box.
   /// If bExtraVerticesForTexturing is false, 8 shared vertices are added.
   /// If bExtraVerticesForTexturing is true, 24 separate vertices with UV coordinates are added.
-  void AddBox(const ezVec3& size, bool bExtraVerticesForTexturing, const GeoOptions& options = GeoOptions());
+  void AddBox(const ezVec3& vFullExtents, bool bExtraVerticesForTexturing, const GeoOptions& options = GeoOptions());
 
   /// \brief Adds box out of lines (8 vertices).
   void AddLineBox(const ezVec3& size, const GeoOptions& options = GeoOptions());

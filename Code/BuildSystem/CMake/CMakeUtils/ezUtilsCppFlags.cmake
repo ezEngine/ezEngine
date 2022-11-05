@@ -32,8 +32,8 @@ function(ez_set_build_flags_msvc TARGET_NAME)
 		target_compile_options(${TARGET_NAME} PRIVATE "/GR-")
 	endif()
 
-	# use fast floating point model
-	target_compile_options(${TARGET_NAME} PRIVATE "/fp:fast")
+	# use precise floating point model
+	target_compile_options(${TARGET_NAME} PRIVATE "/fp:precise")
 
 	# enable floating point exceptions
 	# target_compile_options(${TARGET_NAME} PRIVATE "/fp:except")

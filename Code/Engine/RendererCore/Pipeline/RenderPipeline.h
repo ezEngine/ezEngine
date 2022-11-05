@@ -13,6 +13,8 @@ class ezRenderPipelinePass;
 class ezFrameDataProviderBase;
 struct ezPermutationVar;
 class ezDGMLGraph;
+class ezFrustum;
+class ezRasterizerView;
 
 class EZ_RENDERERCORE_DLL ezRenderPipeline : public ezRefCounted
 {
@@ -91,6 +93,9 @@ private:
   void FindVisibleObjects(const ezView& view);
 
   void Render(ezRenderContext* pRenderer);
+
+  ezRasterizerView* PrepareOcclusionCulling(const ezFrustum& frustum, const ezView& view);
+  void PreviewOcclusionBuffer(const ezRasterizerView& rasterizer, const ezView& view);
 
 private: // Member data
   // Thread data
