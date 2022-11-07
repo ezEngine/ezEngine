@@ -71,25 +71,26 @@ public:
   ezSmallArray<ezStateMachineState*, 2> m_SubStates;
 
 private:
-  ezSmallArray<ezUInt32, 2> m_InstanceDataOffsets;
-  ezStateMachineInstanceDataAllocator m_InstanceDataAllocator;
+  ezStateMachineInternal::Compound m_Compound;
+};
 
-  ezUInt32 GetBaseOffset() const { return m_InstanceDataOffsets.GetUserData<ezUInt32>(); }
-  ezUInt32 GetDataSize() const { return m_InstanceDataAllocator.GetTotalDataSize(); }
+//////////////////////////////////////////////////////////////////////////
 
-  struct InstanceData
+/// \brief An enum that represents the operator of a comparison
+struct EZ_GAMEENGINE_DLL ezStateMachineLogicOperator
+{
+  using StorageType = ezUInt8;
+
+  enum Enum
   {
-    const ezStateMachineState_Compound* m_pOwner = nullptr;
+    And,
+    Or,
 
-    void Initialize(const ezStateMachineState_Compound& owner);
-    ~InstanceData();
-
-    ezByteBlobPtr GetBlobPtr()
-    {
-      return ezByteBlobPtr(ezMemoryUtils::AddByteOffset(reinterpret_cast<ezUInt8*>(this), m_pOwner->GetBaseOffset()), m_pOwner->GetDataSize());
-    }
+    Default = And
   };
 };
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezStateMachineLogicOperator);
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -107,6 +108,7 @@ public:
   virtual ezResult Serialize(ezStreamWriter& stream) const override;
   virtual ezResult Deserialize(ezStreamReader& stream) override;
 
+  ezEnum<ezStateMachineLogicOperator> m_Operator;
   ezHybridArray<ezBlackboardCondition, 2> m_Conditions;
 };
 

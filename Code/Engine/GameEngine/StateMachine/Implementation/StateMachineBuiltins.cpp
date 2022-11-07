@@ -131,21 +131,6 @@ void ezStateMachineState_NestedStateMachine::SetInitialState(const char* szName)
 
 //////////////////////////////////////////////////////////////////////////
 
-void ezStateMachineState_Compound::InstanceData::Initialize(const ezStateMachineState_Compound& owner)
-{
-  m_pOwner = &owner;
-
-  m_pOwner->m_InstanceDataAllocator.Construct(GetBlobPtr());
-}
-
-ezStateMachineState_Compound::InstanceData::~InstanceData()
-{
-  if (m_pOwner == nullptr)
-    return;
-
-  m_pOwner->m_InstanceDataAllocator.Destruct(GetBlobPtr());
-}
-
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStateMachineState_Compound, 1, ezRTTIDefaultAllocator<ezStateMachineState_Compound>)
 {
@@ -174,38 +159,35 @@ ezStateMachineState_Compound::~ezStateMachineState_Compound()
 
 void ezStateMachineState_Compound::OnEnter(ezStateMachineInstance& instance, void* pInstanceData, const ezStateMachineState* pFromState) const
 {
-  auto pData = static_cast<InstanceData*>(pInstanceData);
-  if (pData->m_pOwner == nullptr)
-  {
-    pData->Initialize(*this);
-  }
+  auto pData = static_cast<ezStateMachineInternal::Compound::InstanceData*>(pInstanceData);
+  m_Compound.Initialize(pData);
 
   ezByteBlobPtr blobPtr = pData->GetBlobPtr();
   for (ezUInt32 i = 0; i < m_SubStates.GetCount(); ++i)
   {
-    void* pInstanceData = m_InstanceDataAllocator.GetInstanceData(blobPtr, m_InstanceDataOffsets[i]);
+    void* pInstanceData = m_Compound.GetInstanceData(blobPtr, i);
     m_SubStates[i]->OnEnter(instance, pInstanceData, pFromState);
   }
 }
 
 void ezStateMachineState_Compound::OnExit(ezStateMachineInstance& instance, void* pInstanceData, const ezStateMachineState* pToState) const
 {
-  auto pData = static_cast<InstanceData*>(pInstanceData);
+  auto pData = static_cast<ezStateMachineInternal::Compound::InstanceData*>(pInstanceData);
   ezByteBlobPtr blobPtr = pData->GetBlobPtr();
   for (ezUInt32 i = 0; i < m_SubStates.GetCount(); ++i)
   {
-    void* pInstanceData = m_InstanceDataAllocator.GetInstanceData(blobPtr, m_InstanceDataOffsets[i]);
+    void* pInstanceData = m_Compound.GetInstanceData(blobPtr, i);
     m_SubStates[i]->OnExit(instance, pInstanceData, pToState);
   }
 }
 
 void ezStateMachineState_Compound::Update(ezStateMachineInstance& instance, void* pInstanceData, ezTime deltaTime) const
 {
-  auto pData = static_cast<InstanceData*>(pInstanceData);
+  auto pData = static_cast<ezStateMachineInternal::Compound::InstanceData*>(pInstanceData);
   ezByteBlobPtr blobPtr = pData->GetBlobPtr();
   for (ezUInt32 i = 0; i < m_SubStates.GetCount(); ++i)
   {
-    void* pInstanceData = m_InstanceDataAllocator.GetInstanceData(blobPtr, m_InstanceDataOffsets[i]);
+    void* pInstanceData = m_Compound.GetInstanceData(blobPtr, i);
     m_SubStates[i]->Update(instance, pInstanceData, deltaTime);
   }
 }
@@ -214,7 +196,8 @@ ezResult ezStateMachineState_Compound::Serialize(ezStreamWriter& stream) const
 {
   EZ_SUCCEED_OR_RETURN(SUPER::Serialize(stream));
 
-  
+  EZ_ASSERT_NOT_IMPLEMENTED;
+
   return EZ_SUCCESS;
 }
 
@@ -223,44 +206,23 @@ ezResult ezStateMachineState_Compound::Deserialize(ezStreamReader& stream)
   EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(stream));
   const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
 
+  EZ_ASSERT_NOT_IMPLEMENTED;
+
   return EZ_SUCCESS;
 }
 
 bool ezStateMachineState_Compound::GetInstanceDataDesc(ezStateMachineInstanceDataDesc& out_desc)
 {
-  m_InstanceDataOffsets.Clear();
-  m_InstanceDataAllocator.ClearDescs();
-
-  ezUInt32 uiMaxAlignment = 0;
-
-  ezStateMachineInstanceDataDesc instanceDataDesc;
-  for (ezStateMachineState* pSubState : m_SubStates)
-  {
-    ezUInt32 uiOffset = ezInvalidIndex;
-    if (pSubState->GetInstanceDataDesc(instanceDataDesc))
-    {
-      uiOffset = m_InstanceDataAllocator.AddDesc(instanceDataDesc);
-      uiMaxAlignment = ezMath::Max(uiMaxAlignment, instanceDataDesc.m_uiTypeAlignment);
-    }
-    m_InstanceDataOffsets.PushBack(uiOffset);
-  }
-
-  if (uiMaxAlignment > 0)
-  {
-    out_desc.FillFromType<InstanceData>();
-    out_desc.m_ConstructorFunction = nullptr; // not needed, instance data is constructed on first OnEnter
-
-    ezUInt32 uiBaseOffset = ezMemoryUtils::AlignSize(out_desc.m_uiTypeSize, uiMaxAlignment);
-    m_InstanceDataOffsets.GetUserData<ezUInt32>() = uiBaseOffset;
-
-    out_desc.m_uiTypeSize = uiBaseOffset + m_InstanceDataAllocator.GetTotalDataSize();
-    out_desc.m_uiTypeAlignment = ezMath::Max(out_desc.m_uiTypeAlignment, uiMaxAlignment);
-
-    return true;
-  }
-
-  return false;
+  return m_Compound.GetInstanceDataDesc(m_SubStates.GetArrayPtr(), out_desc);
 }
+
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezStateMachineLogicOperator, 1)
+  EZ_ENUM_CONSTANTS(ezStateMachineLogicOperator::And, ezStateMachineLogicOperator::Or)
+EZ_END_STATIC_REFLECTED_ENUM;
+// clang-format on
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -269,6 +231,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStateMachineTransition_BlackboardConditions, 1
 {
   EZ_BEGIN_PROPERTIES
   {
+    EZ_ENUM_MEMBER_PROPERTY("Operator", ezStateMachineLogicOperator, m_Operator),
     EZ_ARRAY_MEMBER_PROPERTY("Conditions", m_Conditions),
   }
   EZ_END_PROPERTIES;
@@ -288,19 +251,21 @@ bool ezStateMachineTransition_BlackboardConditions::IsConditionMet(ezStateMachin
   if (pBlackboard == nullptr)
     return false;
 
+  bool bCheckFor = (m_Operator == ezStateMachineLogicOperator::Or) ? true : false;
   for (auto& condition : m_Conditions)
   {
-    if (condition.IsConditionMet(*pBlackboard) == false)
-      return false;
+    if (condition.IsConditionMet(*pBlackboard) == bCheckFor)
+      return bCheckFor;
   }
 
-  return true;
+  return !bCheckFor;
 }
 
 ezResult ezStateMachineTransition_BlackboardConditions::Serialize(ezStreamWriter& stream) const
 {
   EZ_SUCCEED_OR_RETURN(SUPER::Serialize(stream));
 
+  stream << m_Operator;
   return stream.WriteArray(m_Conditions);
 }
 
@@ -308,6 +273,7 @@ ezResult ezStateMachineTransition_BlackboardConditions::Deserialize(ezStreamRead
 {
   EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(stream));
 
+  stream >> m_Operator;
   return stream.ReadArray(m_Conditions);
 }
 

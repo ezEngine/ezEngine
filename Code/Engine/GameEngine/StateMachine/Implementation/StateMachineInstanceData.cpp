@@ -2,72 +2,76 @@
 
 #include <GameEngine/StateMachine/Implementation/StateMachineInstanceData.h>
 
-ezUInt32 ezStateMachineInstanceDataAllocator::AddDesc(const ezStateMachineInstanceDataDesc& desc)
+namespace ezStateMachineInternal
 {
-  m_Descs.PushBack(desc);
-
-  const ezUInt32 uiOffset = ezMemoryUtils::AlignSize(m_uiTotalDataSize, desc.m_uiTypeAlignment);
-  m_uiTotalDataSize = uiOffset + desc.m_uiTypeSize;
-
-  return uiOffset;
-}
-
-void ezStateMachineInstanceDataAllocator::ClearDescs()
-{
-  m_Descs.Clear();
-  m_uiTotalDataSize = 0;
-}
-
-ezBlob ezStateMachineInstanceDataAllocator::AllocateAndConstruct() const
-{
-  ezBlob blob;
-  if (m_uiTotalDataSize > 0)
+  ezUInt32 InstanceDataAllocator::AddDesc(const ezStateMachineInstanceDataDesc& desc)
   {
-    blob.SetCountUninitialized(m_uiTotalDataSize);
-    blob.ZeroFill();
+    m_Descs.PushBack(desc);
 
-    Construct(blob.GetByteBlobPtr());
+    const ezUInt32 uiOffset = ezMemoryUtils::AlignSize(m_uiTotalDataSize, desc.m_uiTypeAlignment);
+    m_uiTotalDataSize = uiOffset + desc.m_uiTypeSize;
+
+    return uiOffset;
   }
 
-  return blob;
-}
-
-void ezStateMachineInstanceDataAllocator::DestructAndDeallocate(ezBlob& blob) const
-{
-  EZ_ASSERT_DEV(blob.GetByteBlobPtr().GetCount() == m_uiTotalDataSize, "Passed blob has not the expected size");
-  Destruct(blob.GetByteBlobPtr());
-
-  blob.Clear();
-}
-
-void ezStateMachineInstanceDataAllocator::Construct(const ezByteBlobPtr& blobPtr) const
-{
-  ezUInt32 uiOffset = 0;
-  for (auto& desc : m_Descs)
+  void InstanceDataAllocator::ClearDescs()
   {
-    uiOffset = ezMemoryUtils::AlignSize(uiOffset, desc.m_uiTypeAlignment);
+    m_Descs.Clear();
+    m_uiTotalDataSize = 0;
+  }
 
-    if (desc.m_ConstructorFunction != nullptr)
+  ezBlob InstanceDataAllocator::AllocateAndConstruct() const
+  {
+    ezBlob blob;
+    if (m_uiTotalDataSize > 0)
     {
-      desc.m_ConstructorFunction(GetInstanceData(blobPtr, uiOffset));
+      blob.SetCountUninitialized(m_uiTotalDataSize);
+      blob.ZeroFill();
+
+      Construct(blob.GetByteBlobPtr());
     }
 
-    uiOffset += desc.m_uiTypeSize;
+    return blob;
   }
-}
 
-void ezStateMachineInstanceDataAllocator::Destruct(const ezByteBlobPtr& blobPtr) const
-{
-  ezUInt32 uiOffset = 0;
-  for (auto& desc : m_Descs)
+  void InstanceDataAllocator::DestructAndDeallocate(ezBlob& blob) const
   {
-    uiOffset = ezMemoryUtils::AlignSize(uiOffset, desc.m_uiTypeAlignment);
+    EZ_ASSERT_DEV(blob.GetByteBlobPtr().GetCount() == m_uiTotalDataSize, "Passed blob has not the expected size");
+    Destruct(blob.GetByteBlobPtr());
 
-    if (desc.m_DestructorFunction != nullptr)
-    {
-      desc.m_DestructorFunction(GetInstanceData(blobPtr, uiOffset));
-    }
-
-    uiOffset += desc.m_uiTypeSize;
+    blob.Clear();
   }
-}
+
+  void InstanceDataAllocator::Construct(const ezByteBlobPtr& blobPtr) const
+  {
+    ezUInt32 uiOffset = 0;
+    for (auto& desc : m_Descs)
+    {
+      uiOffset = ezMemoryUtils::AlignSize(uiOffset, desc.m_uiTypeAlignment);
+
+      if (desc.m_ConstructorFunction != nullptr)
+      {
+        desc.m_ConstructorFunction(GetInstanceData(blobPtr, uiOffset));
+      }
+
+      uiOffset += desc.m_uiTypeSize;
+    }
+  }
+
+  void InstanceDataAllocator::Destruct(const ezByteBlobPtr& blobPtr) const
+  {
+    ezUInt32 uiOffset = 0;
+    for (auto& desc : m_Descs)
+    {
+      uiOffset = ezMemoryUtils::AlignSize(uiOffset, desc.m_uiTypeAlignment);
+
+      if (desc.m_DestructorFunction != nullptr)
+      {
+        desc.m_DestructorFunction(GetInstanceData(blobPtr, uiOffset));
+      }
+
+      uiOffset += desc.m_uiTypeSize;
+    }
+  }  
+
+} // namespace ezStateMachineInternal

@@ -192,37 +192,82 @@ EZ_CREATE_SIMPLE_TEST(StateMachine, Builtins)
     auto pStateB = EZ_DEFAULT_NEW(TestState, "B");
     pDesc->AddState(pStateB);
 
-    ezHashedString sTestVal;
-    sTestVal.Assign("TestVal");
+    auto pStateC = EZ_DEFAULT_NEW(TestState, "C");
+    pDesc->AddState(pStateC);
 
-    auto pTransition = EZ_DEFAULT_NEW(ezStateMachineTransition_BlackboardConditions);
-    auto& cond = pTransition->m_Conditions.ExpandAndGetRef();
-    cond.m_sEntryName = sTestVal;
-    cond.m_fComparisonValue = 2;
-    cond.m_Operator = ezComparisonOperator::Greater;
-    pDesc->AddTransition(0, 1, pTransition);
+    ezHashedString sTestVal = ezMakeHashedString("TestVal");
+    ezHashedString sTestVal2 = ezMakeHashedString("TestVal2");
+
+    {
+      auto pTransition = EZ_DEFAULT_NEW(ezStateMachineTransition_BlackboardConditions);
+      auto& cond = pTransition->m_Conditions.ExpandAndGetRef();
+      cond.m_sEntryName = sTestVal;
+      cond.m_fComparisonValue = 2;
+      cond.m_Operator = ezComparisonOperator::Greater;
+
+      auto& cond2 = pTransition->m_Conditions.ExpandAndGetRef();
+      cond2.m_sEntryName = sTestVal2;
+      cond2.m_fComparisonValue = 10;
+      cond2.m_Operator = ezComparisonOperator::Equal;
+
+      pDesc->AddTransition(0, 1, pTransition);
+    }
+
+    {
+      auto pTransition = EZ_DEFAULT_NEW(ezStateMachineTransition_BlackboardConditions);
+      pTransition->m_Operator = ezStateMachineLogicOperator::Or;
+
+      auto& cond = pTransition->m_Conditions.ExpandAndGetRef();
+      cond.m_sEntryName = sTestVal;
+      cond.m_fComparisonValue = 3;
+      cond.m_Operator = ezComparisonOperator::Greater;
+
+      auto& cond2 = pTransition->m_Conditions.ExpandAndGetRef();
+      cond2.m_sEntryName = sTestVal2;
+      cond2.m_fComparisonValue = 20;
+      cond2.m_Operator = ezComparisonOperator::Equal;
+
+      pDesc->AddTransition(1, 2, pTransition);
+    }
 
     {
       ezSharedPtr<ezBlackboard> pBlackboard = EZ_DEFAULT_NEW(ezBlackboard);
       pBlackboard->RegisterEntry(sTestVal, 2);
+      pBlackboard->RegisterEntry(sTestVal2, 0);
 
       ezStateMachineInstance sm(fakeOwner, pDesc);
       sm.SetBlackboard(pBlackboard);
       EZ_TEST_BOOL(sm.SetState(pStateA).Succeeded());
 
+      // no transition yet since only part of the conditions is true
+      EZ_TEST_BOOL(pBlackboard->SetEntryValue(sTestVal, 3).Succeeded());
       sm.Update(s_TimeStep);
       EZ_TEST_INT(pStateA->m_CounterTable[&sm].m_uiEnterCounter, 1);
       EZ_TEST_INT(pStateA->m_CounterTable[&sm].m_uiExitCounter, 0);
       EZ_TEST_INT(pStateB->m_CounterTable[&sm].m_uiEnterCounter, 0);
       EZ_TEST_INT(pStateB->m_CounterTable[&sm].m_uiExitCounter, 0);
+      EZ_TEST_INT(pStateC->m_CounterTable[&sm].m_uiEnterCounter, 0);
+      EZ_TEST_INT(pStateC->m_CounterTable[&sm].m_uiExitCounter, 0);
 
-      EZ_TEST_BOOL(pBlackboard->SetEntryValue(sTestVal, 3).Succeeded());
+      // transition to B
+      EZ_TEST_BOOL(pBlackboard->SetEntryValue(sTestVal2, 10).Succeeded());
       sm.Update(s_TimeStep);
-
       EZ_TEST_INT(pStateA->m_CounterTable[&sm].m_uiEnterCounter, 1);
       EZ_TEST_INT(pStateA->m_CounterTable[&sm].m_uiExitCounter, 1);
       EZ_TEST_INT(pStateB->m_CounterTable[&sm].m_uiEnterCounter, 1);
       EZ_TEST_INT(pStateB->m_CounterTable[&sm].m_uiExitCounter, 0);
+      EZ_TEST_INT(pStateC->m_CounterTable[&sm].m_uiEnterCounter, 0);
+      EZ_TEST_INT(pStateC->m_CounterTable[&sm].m_uiExitCounter, 0);
+
+      // transition to C, only part of the condition needed because of 'OR' operator
+      EZ_TEST_BOOL(pBlackboard->SetEntryValue(sTestVal2, 20).Succeeded());
+      sm.Update(s_TimeStep);
+      EZ_TEST_INT(pStateA->m_CounterTable[&sm].m_uiEnterCounter, 1);
+      EZ_TEST_INT(pStateA->m_CounterTable[&sm].m_uiExitCounter, 1);
+      EZ_TEST_INT(pStateB->m_CounterTable[&sm].m_uiEnterCounter, 1);
+      EZ_TEST_INT(pStateB->m_CounterTable[&sm].m_uiExitCounter, 1);
+      EZ_TEST_INT(pStateC->m_CounterTable[&sm].m_uiEnterCounter, 1);
+      EZ_TEST_INT(pStateC->m_CounterTable[&sm].m_uiExitCounter, 0);
     }
   }
 

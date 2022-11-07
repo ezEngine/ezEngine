@@ -2,7 +2,6 @@
 
 #include <GameEngine/StateMachine/Implementation/StateMachineInstanceData.h>
 
-#include <Foundation/Containers/SmallArray.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Types/SharedPtr.h>
@@ -106,7 +105,7 @@ private:
   ezDynamicArray<StateContext> m_States;
   ezHashTable<ezHashedString, ezUInt32> m_StateNameToIndexTable;
 
-  ezStateMachineInstanceDataAllocator m_InstanceDataAllocator;
+  ezStateMachineInternal::InstanceDataAllocator m_InstanceDataAllocator;
 };
 
 /// \brief The state machine instance represents the actual state machine.
@@ -143,7 +142,7 @@ private:
 
   EZ_ALWAYS_INLINE void* GetInstanceData(ezUInt32 uiOffset)
   {
-    return ezStateMachineInstanceDataAllocator::GetInstanceData(m_InstanceData.GetByteBlobPtr(), uiOffset);
+    return ezStateMachineInternal::InstanceDataAllocator::GetInstanceData(m_InstanceData.GetByteBlobPtr(), uiOffset);
   }
 
   EZ_ALWAYS_INLINE void* GetCurrentStateInstanceData()
