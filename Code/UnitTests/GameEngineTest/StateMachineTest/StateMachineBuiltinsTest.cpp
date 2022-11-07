@@ -312,28 +312,73 @@ EZ_CREATE_SIMPLE_TEST(StateMachine, Builtins)
     ezSharedPtr<ezStateMachineDescription> pDesc = EZ_DEFAULT_NEW(ezStateMachineDescription);
 
     auto pCompoundState = EZ_DEFAULT_NEW(ezStateMachineState_Compound, "A");
-
-    auto pTestStateAllocator = ezGetStaticRTTI<TestState>()->GetAllocator();
-    pCompoundState->m_SubStates.PushBack(pTestStateAllocator->Allocate<TestState>());
-    pCompoundState->m_SubStates.PushBack(pTestStateAllocator->Allocate<TestState>());
-
+    {
+      auto pAllocator = ezGetStaticRTTI<TestState>()->GetAllocator();
+      pCompoundState->m_SubStates.PushBack(pAllocator->Allocate<TestState>());
+      pCompoundState->m_SubStates.PushBack(pAllocator->Allocate<TestState>());
+    }
     pDesc->AddState(pCompoundState);
 
-    ezStateMachineInstance* pInstance = nullptr;
+    auto pStateB = EZ_DEFAULT_NEW(TestState, "B");
+    pDesc->AddState(pStateB);
+
+    ezHashedString sTestVal = ezMakeHashedString("TestVal");
+
     {
-      ezStateMachineInstance sm(fakeOwner, pDesc);
-      EZ_TEST_INT(TestState::InstanceData::s_uiConstructionCounter, 0); // Compound instance data not constructed yet
+      auto pCompoundTransition = EZ_DEFAULT_NEW(ezStateMachineTransition_Compound);
 
-      EZ_TEST_BOOL(sm.SetState(pCompoundState).Succeeded());
-      EZ_TEST_INT(TestState::InstanceData::s_uiConstructionCounter, 2);
-      EZ_TEST_INT(ezStaticCast<TestState*>(pCompoundState->m_SubStates[0])->m_CounterTable[&sm].m_uiEnterCounter, 1);
-      EZ_TEST_INT(ezStaticCast<TestState*>(pCompoundState->m_SubStates[1])->m_CounterTable[&sm].m_uiEnterCounter, 1);
+      {
+        auto pAllocator = ezGetStaticRTTI<ezStateMachineTransition_BlackboardConditions>()->GetAllocator();
+        auto pSubTransition = pAllocator->Allocate<ezStateMachineTransition_BlackboardConditions>();
 
-      pInstance = &sm; // will be dead after this line but we only need the pointer
+        auto& cond = pSubTransition->m_Conditions.ExpandAndGetRef();
+        cond.m_sEntryName = sTestVal;
+        cond.m_fComparisonValue = 2;
+        cond.m_Operator = ezComparisonOperator::Greater;
+
+        pCompoundTransition->m_SubTransitions.PushBack(pSubTransition);
+      }
+
+      {
+        auto pAllocator = ezGetStaticRTTI<ezStateMachineTransition_Timeout>()->GetAllocator();
+        auto pSubTransition = pAllocator->Allocate<ezStateMachineTransition_Timeout>();
+        pSubTransition->m_Timeout = ezTime::Milliseconds(5);
+
+        pCompoundTransition->m_SubTransitions.PushBack(pSubTransition);
+      }
+
+      pDesc->AddTransition(0, 1, pCompoundTransition);
     }
 
-    EZ_TEST_INT(TestState::InstanceData::s_uiDestructionCounter, 2);
-    EZ_TEST_INT(ezStaticCast<TestState*>(pCompoundState->m_SubStates[0])->m_CounterTable[pInstance].m_uiExitCounter, 1);
-    EZ_TEST_INT(ezStaticCast<TestState*>(pCompoundState->m_SubStates[1])->m_CounterTable[pInstance].m_uiExitCounter, 1);
+    {
+      ezSharedPtr<ezBlackboard> pBlackboard = EZ_DEFAULT_NEW(ezBlackboard);
+      pBlackboard->RegisterEntry(sTestVal, 2);
+
+      ezStateMachineInstance sm(fakeOwner, pDesc);
+      sm.SetBlackboard(pBlackboard);
+      EZ_TEST_INT(TestState::InstanceData::s_uiConstructionCounter, 1); // Compound instance data not constructed yet
+
+      EZ_TEST_BOOL(sm.SetState(pCompoundState).Succeeded());
+      EZ_TEST_INT(TestState::InstanceData::s_uiConstructionCounter, 3);
+      EZ_TEST_INT(ezStaticCast<TestState*>(pCompoundState->m_SubStates[0])->m_CounterTable[&sm].m_uiEnterCounter, 1);
+      EZ_TEST_INT(ezStaticCast<TestState*>(pCompoundState->m_SubStates[1])->m_CounterTable[&sm].m_uiEnterCounter, 1);
+      EZ_TEST_INT(pStateB->m_CounterTable[&sm].m_uiEnterCounter, 0);
+      EZ_TEST_INT(pStateB->m_CounterTable[&sm].m_uiExitCounter, 0);
+
+      // no transition yet because timeout is not reached yet
+      EZ_TEST_BOOL(pBlackboard->SetEntryValue(sTestVal, 3).Succeeded());
+      sm.Update(s_TimeStep);
+      EZ_TEST_INT(pStateB->m_CounterTable[&sm].m_uiEnterCounter, 0);
+      EZ_TEST_INT(pStateB->m_CounterTable[&sm].m_uiExitCounter, 0);
+
+      // all conditions met, transition to B
+      sm.Update(s_TimeStep);
+      EZ_TEST_INT(ezStaticCast<TestState*>(pCompoundState->m_SubStates[0])->m_CounterTable[&sm].m_uiExitCounter, 1);
+      EZ_TEST_INT(ezStaticCast<TestState*>(pCompoundState->m_SubStates[1])->m_CounterTable[&sm].m_uiExitCounter, 1);
+      EZ_TEST_INT(pStateB->m_CounterTable[&sm].m_uiEnterCounter, 1);
+      EZ_TEST_INT(pStateB->m_CounterTable[&sm].m_uiExitCounter, 0);
+    }
+
+    EZ_TEST_INT(TestState::InstanceData::s_uiDestructionCounter, 3);
   }
 }

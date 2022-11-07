@@ -61,19 +61,16 @@ namespace ezStateMachineInternal
   /// \brief Helper class to manage instance data for compound states or transitions
   struct EZ_GAMEENGINE_DLL Compound
   {
-    EZ_ALWAYS_INLINE void* GetInstanceData(const ezByteBlobPtr& blobPtr, ezUInt32 index) const
-    {
-      return m_InstanceDataAllocator.GetInstanceData(blobPtr, m_InstanceDataOffsets[index]);
-    }
-
     EZ_ALWAYS_INLINE ezUInt32 GetBaseOffset() const { return m_InstanceDataOffsets.GetUserData<ezUInt32>(); }
     EZ_ALWAYS_INLINE ezUInt32 GetDataSize() const { return m_InstanceDataAllocator.GetTotalDataSize(); }
 
     ezSmallArray<ezUInt32, 2> m_InstanceDataOffsets;
     InstanceDataAllocator m_InstanceDataAllocator;
 
-    struct InstanceData
+    class InstanceData
     {
+      friend class Compound;
+      friend class ezMemoryUtils;
       const Compound* m_pOwner = nullptr;
 
       ~InstanceData()
@@ -90,9 +87,14 @@ namespace ezStateMachineInternal
       }
     };
 
-    void Initialize(InstanceData* pData) const
+    EZ_ALWAYS_INLINE void* GetSubInstanceData(InstanceData* pData, ezUInt32 index) const
     {
-      if (pData->m_pOwner == nullptr)
+      return pData != nullptr ? m_InstanceDataAllocator.GetInstanceData(pData->GetBlobPtr(), m_InstanceDataOffsets[index]) : nullptr;
+    }
+
+    EZ_FORCE_INLINE void Initialize(InstanceData* pData) const
+    {
+      if (pData != nullptr && pData->m_pOwner == nullptr)
       {
         pData->m_pOwner = this;
         m_InstanceDataAllocator.Construct(pData->GetBlobPtr());

@@ -294,7 +294,11 @@ ezStateMachineState_NestedStateMachine;Nested State Machine
 ezStateMachineState_Compound;Compound State
 ezStateMachineTransition_BlackboardConditions;Blackboard Conditions
 ezStateMachineTransition_Timeout;Timeout Transition
+ezStateMachineTransition_Compound;Compound Transition
+ezStateMachineLogicOperator::And;AND
+ezStateMachineLogicOperator::Or;OR
 Type;Type
 Conditions;Conditions
-SubStates;Sub States
 ezBlackboardCondition;Blackboard Condition
+SubStates;Sub States
+SubTransitions;Sub Transitions

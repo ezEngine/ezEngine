@@ -130,3 +130,31 @@ public:
 
   ezTime m_Timeout;
 };
+
+//////////////////////////////////////////////////////////////////////////
+
+/// \brief A state machine transition implementation that combines multiple sub transition into one.
+///
+/// Can be used to build transitions in a more modular way. All calls are simply redirected to all sub transitions
+/// and then combined with the given logic operator (AND, OR).
+class EZ_GAMEENGINE_DLL ezStateMachineTransition_Compound : public ezStateMachineTransition
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezStateMachineTransition_Compound, ezStateMachineTransition);
+
+public:
+  ezStateMachineTransition_Compound();
+  ~ezStateMachineTransition_Compound();
+
+  virtual bool IsConditionMet(ezStateMachineInstance& instance, void* pInstanceData) const override;
+
+  virtual ezResult Serialize(ezStreamWriter& stream) const override;
+  virtual ezResult Deserialize(ezStreamReader& stream) override;
+
+  virtual bool GetInstanceDataDesc(ezStateMachineInstanceDataDesc& out_desc) override;
+
+  ezEnum<ezStateMachineLogicOperator> m_Operator;
+  ezSmallArray<ezStateMachineTransition*, 2> m_SubTransitions;
+
+private:
+  ezStateMachineInternal::Compound m_Compound;
+};

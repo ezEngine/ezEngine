@@ -162,33 +162,32 @@ void ezStateMachineState_Compound::OnEnter(ezStateMachineInstance& instance, voi
   auto pData = static_cast<ezStateMachineInternal::Compound::InstanceData*>(pInstanceData);
   m_Compound.Initialize(pData);
 
-  ezByteBlobPtr blobPtr = pData->GetBlobPtr();
   for (ezUInt32 i = 0; i < m_SubStates.GetCount(); ++i)
   {
-    void* pInstanceData = m_Compound.GetInstanceData(blobPtr, i);
-    m_SubStates[i]->OnEnter(instance, pInstanceData, pFromState);
+    void* pSubInstanceData = m_Compound.GetSubInstanceData(pData, i);
+    m_SubStates[i]->OnEnter(instance, pSubInstanceData, pFromState);
   }
 }
 
 void ezStateMachineState_Compound::OnExit(ezStateMachineInstance& instance, void* pInstanceData, const ezStateMachineState* pToState) const
 {
   auto pData = static_cast<ezStateMachineInternal::Compound::InstanceData*>(pInstanceData);
-  ezByteBlobPtr blobPtr = pData->GetBlobPtr();
+
   for (ezUInt32 i = 0; i < m_SubStates.GetCount(); ++i)
   {
-    void* pInstanceData = m_Compound.GetInstanceData(blobPtr, i);
-    m_SubStates[i]->OnExit(instance, pInstanceData, pToState);
+    void* pSubInstanceData = m_Compound.GetSubInstanceData(pData, i);
+    m_SubStates[i]->OnExit(instance, pSubInstanceData, pToState);
   }
 }
 
 void ezStateMachineState_Compound::Update(ezStateMachineInstance& instance, void* pInstanceData, ezTime deltaTime) const
 {
   auto pData = static_cast<ezStateMachineInternal::Compound::InstanceData*>(pInstanceData);
-  ezByteBlobPtr blobPtr = pData->GetBlobPtr();
+
   for (ezUInt32 i = 0; i < m_SubStates.GetCount(); ++i)
   {
-    void* pInstanceData = m_Compound.GetInstanceData(blobPtr, i);
-    m_SubStates[i]->Update(instance, pInstanceData, deltaTime);
+    void* pSubInstanceData = m_Compound.GetSubInstanceData(pData, i);
+    m_SubStates[i]->Update(instance, pSubInstanceData, deltaTime);
   }
 }
 
@@ -251,7 +250,7 @@ bool ezStateMachineTransition_BlackboardConditions::IsConditionMet(ezStateMachin
   if (pBlackboard == nullptr)
     return false;
 
-  bool bCheckFor = (m_Operator == ezStateMachineLogicOperator::Or) ? true : false;
+  const bool bCheckFor = (m_Operator == ezStateMachineLogicOperator::Or) ? true : false;
   for (auto& condition : m_Conditions)
   {
     if (condition.IsConditionMet(*pBlackboard) == bCheckFor)
@@ -314,3 +313,71 @@ ezResult ezStateMachineTransition_Timeout::Deserialize(ezStreamReader& stream)
   stream >> m_Timeout;
   return EZ_SUCCESS;
 }
+
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStateMachineTransition_Compound, 1, ezRTTIDefaultAllocator<ezStateMachineTransition_Compound>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_ENUM_MEMBER_PROPERTY("Operator", ezStateMachineLogicOperator, m_Operator),
+    EZ_ARRAY_MEMBER_PROPERTY("SubTransitions", m_SubTransitions)->AddFlags(ezPropertyFlags::PointerOwner),
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+ezStateMachineTransition_Compound::ezStateMachineTransition_Compound() = default;
+
+ezStateMachineTransition_Compound::~ezStateMachineTransition_Compound()
+{
+  for (auto pSubState : m_SubTransitions)
+  {
+    auto pAllocator = pSubState->GetDynamicRTTI()->GetAllocator();
+    pAllocator->Deallocate(pSubState);
+  }
+}
+
+bool ezStateMachineTransition_Compound::IsConditionMet(ezStateMachineInstance& instance, void* pInstanceData) const
+{
+  auto pData = static_cast<ezStateMachineInternal::Compound::InstanceData*>(pInstanceData);
+  m_Compound.Initialize(pData);
+
+  const bool bCheckFor = (m_Operator == ezStateMachineLogicOperator::Or) ? true : false;
+  for (ezUInt32 i = 0; i < m_SubTransitions.GetCount(); ++i)
+  {
+    void* pSubInstanceData = m_Compound.GetSubInstanceData(pData, i);
+    if (m_SubTransitions[i]->IsConditionMet(instance, pSubInstanceData) == bCheckFor)
+      return bCheckFor;
+  }
+
+  return !bCheckFor;
+}
+
+ezResult ezStateMachineTransition_Compound::Serialize(ezStreamWriter& stream) const
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Serialize(stream));
+
+  EZ_ASSERT_NOT_IMPLEMENTED;
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezStateMachineTransition_Compound::Deserialize(ezStreamReader& stream)
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(stream));
+  const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+
+  EZ_ASSERT_NOT_IMPLEMENTED;
+
+  return EZ_SUCCESS;
+}
+
+bool ezStateMachineTransition_Compound::GetInstanceDataDesc(ezStateMachineInstanceDataDesc& out_desc)
+{
+  return m_Compound.GetInstanceDataDesc(m_SubTransitions.GetArrayPtr(), out_desc);
+}
+
+
