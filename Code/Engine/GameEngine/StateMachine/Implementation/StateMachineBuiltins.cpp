@@ -94,7 +94,7 @@ ezResult ezStateMachineState_NestedStateMachine::Deserialize(ezStreamReader& str
 
 bool ezStateMachineState_NestedStateMachine::GetInstanceDataDesc(ezStateMachineInstanceDataDesc& out_desc)
 {
-  out_desc.Fill<InstanceData>();
+  out_desc.FillFromType<InstanceData>();
   return true;
 }
 
@@ -205,7 +205,7 @@ bool ezStateMachineState_Compound::GetInstanceDataDesc(ezStateMachineInstanceDat
 
   if (uiMaxAlignment > 0)
   {
-    out_desc.Fill<InstanceData>();
+    out_desc.FillFromType<InstanceData>();
 
     const ezUInt32 uiOffset = ezMemoryUtils::AlignSize(out_desc.m_uiTypeSize, uiMaxAlignment);
     out_desc.m_uiTypeSize = uiOffset + m_InstanceDataAllocator.GetTotalDataSize();

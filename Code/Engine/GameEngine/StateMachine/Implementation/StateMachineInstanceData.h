@@ -19,7 +19,7 @@ struct ezStateMachineInstanceDataDesc
   ezMemoryUtils::DestructorFunction m_DestructorFunction = nullptr;
 
   template <typename T>
-  EZ_ALWAYS_INLINE void Fill()
+  EZ_ALWAYS_INLINE void FillFromType()
   {
     m_uiTypeSize = sizeof(T);
     m_uiTypeAlignment = EZ_ALIGNMENT_OF(T);
