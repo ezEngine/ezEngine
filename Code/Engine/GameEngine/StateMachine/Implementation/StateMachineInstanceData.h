@@ -36,17 +36,17 @@ public:
 
   void ClearDescs();
 
-  void Construct(ezBlob& blob) const;
-  void Destruct(ezBlob& blob) const;
+  void Construct(const ezByteBlobPtr& blobPtr) const;
+  void Destruct(const ezByteBlobPtr& blobPtr) const;
 
   ezBlob AllocateAndConstruct() const;
   void DestructAndDeallocate(ezBlob& blob) const;
 
   ezUInt32 GetTotalDataSize() const { return m_uiTotalDataSize; }
 
-  EZ_ALWAYS_INLINE static void* GetInstanceData(ezBlob& blob, ezUInt32 uiOffset)
+  EZ_ALWAYS_INLINE static void* GetInstanceData(const ezByteBlobPtr& blobPtr, ezUInt32 uiOffset)
   {
-    return (uiOffset != ezInvalidIndex) ? blob.GetByteBlobPtr().GetPtr() + uiOffset : nullptr;
+    return (uiOffset != ezInvalidIndex) ? blobPtr.GetPtr() + uiOffset : nullptr;
   }
 
 private:

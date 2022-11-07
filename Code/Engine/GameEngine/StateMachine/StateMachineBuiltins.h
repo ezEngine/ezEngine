@@ -74,9 +74,20 @@ private:
   ezSmallArray<ezUInt32, 2> m_InstanceDataOffsets;
   ezStateMachineInstanceDataAllocator m_InstanceDataAllocator;
 
+  ezUInt32 GetBaseOffset() const { return m_InstanceDataOffsets.GetUserData<ezUInt32>(); }
+  ezUInt32 GetDataSize() const { return m_InstanceDataAllocator.GetTotalDataSize(); }
+
   struct InstanceData
   {
-    const ezStateMachineInstanceDataAllocator* m_pAllocator = nullptr;
+    const ezStateMachineState_Compound* m_pOwner = nullptr;
+
+    void Initialize(const ezStateMachineState_Compound& owner);
+    ~InstanceData();
+
+    ezByteBlobPtr GetBlobPtr()
+    {
+      return ezByteBlobPtr(ezMemoryUtils::AddByteOffset(reinterpret_cast<ezUInt8*>(this), m_pOwner->GetBaseOffset()), m_pOwner->GetDataSize());
+    }
   };
 };
 

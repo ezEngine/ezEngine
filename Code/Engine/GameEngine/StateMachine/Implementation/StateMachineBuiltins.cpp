@@ -131,6 +131,21 @@ void ezStateMachineState_NestedStateMachine::SetInitialState(const char* szName)
 
 //////////////////////////////////////////////////////////////////////////
 
+void ezStateMachineState_Compound::InstanceData::Initialize(const ezStateMachineState_Compound& owner)
+{
+  m_pOwner = &owner;
+
+  m_pOwner->m_InstanceDataAllocator.Construct(GetBlobPtr());
+}
+
+ezStateMachineState_Compound::InstanceData::~InstanceData()
+{
+  if (m_pOwner == nullptr)
+    return;
+
+  m_pOwner->m_InstanceDataAllocator.Destruct(GetBlobPtr());
+}
+
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStateMachineState_Compound, 1, ezRTTIDefaultAllocator<ezStateMachineState_Compound>)
 {
@@ -148,24 +163,51 @@ ezStateMachineState_Compound::ezStateMachineState_Compound(ezStringView sName)
 {
 }
 
-ezStateMachineState_Compound::~ezStateMachineState_Compound() = default;
+ezStateMachineState_Compound::~ezStateMachineState_Compound()
+{
+  for (auto pSubState : m_SubStates)
+  {
+    auto pAllocator = pSubState->GetDynamicRTTI()->GetAllocator();
+    pAllocator->Deallocate(pSubState);
+  }
+}
 
 void ezStateMachineState_Compound::OnEnter(ezStateMachineInstance& instance, void* pInstanceData, const ezStateMachineState* pFromState) const
 {
-  for (const ezStateMachineState* pSubState : m_SubStates)
+  auto pData = static_cast<InstanceData*>(pInstanceData);
+  if (pData->m_pOwner == nullptr)
   {
-    pSubState->OnEnter(instance, nullptr, pFromState);
+    pData->Initialize(*this);
+  }
+
+  ezByteBlobPtr blobPtr = pData->GetBlobPtr();
+  for (ezUInt32 i = 0; i < m_SubStates.GetCount(); ++i)
+  {
+    void* pInstanceData = m_InstanceDataAllocator.GetInstanceData(blobPtr, m_InstanceDataOffsets[i]);
+    m_SubStates[i]->OnEnter(instance, pInstanceData, pFromState);
   }
 }
 
 void ezStateMachineState_Compound::OnExit(ezStateMachineInstance& instance, void* pInstanceData, const ezStateMachineState* pToState) const
 {
-  
+  auto pData = static_cast<InstanceData*>(pInstanceData);
+  ezByteBlobPtr blobPtr = pData->GetBlobPtr();
+  for (ezUInt32 i = 0; i < m_SubStates.GetCount(); ++i)
+  {
+    void* pInstanceData = m_InstanceDataAllocator.GetInstanceData(blobPtr, m_InstanceDataOffsets[i]);
+    m_SubStates[i]->OnExit(instance, pInstanceData, pToState);
+  }
 }
 
 void ezStateMachineState_Compound::Update(ezStateMachineInstance& instance, void* pInstanceData, ezTime deltaTime) const
 {
-  
+  auto pData = static_cast<InstanceData*>(pInstanceData);
+  ezByteBlobPtr blobPtr = pData->GetBlobPtr();
+  for (ezUInt32 i = 0; i < m_SubStates.GetCount(); ++i)
+  {
+    void* pInstanceData = m_InstanceDataAllocator.GetInstanceData(blobPtr, m_InstanceDataOffsets[i]);
+    m_SubStates[i]->Update(instance, pInstanceData, deltaTime);
+  }
 }
 
 ezResult ezStateMachineState_Compound::Serialize(ezStreamWriter& stream) const
@@ -206,9 +248,12 @@ bool ezStateMachineState_Compound::GetInstanceDataDesc(ezStateMachineInstanceDat
   if (uiMaxAlignment > 0)
   {
     out_desc.FillFromType<InstanceData>();
+    out_desc.m_ConstructorFunction = nullptr; // not needed, instance data is constructed on first OnEnter
 
-    const ezUInt32 uiOffset = ezMemoryUtils::AlignSize(out_desc.m_uiTypeSize, uiMaxAlignment);
-    out_desc.m_uiTypeSize = uiOffset + m_InstanceDataAllocator.GetTotalDataSize();
+    ezUInt32 uiBaseOffset = ezMemoryUtils::AlignSize(out_desc.m_uiTypeSize, uiMaxAlignment);
+    m_InstanceDataOffsets.GetUserData<ezUInt32>() = uiBaseOffset;
+
+    out_desc.m_uiTypeSize = uiBaseOffset + m_InstanceDataAllocator.GetTotalDataSize();
     out_desc.m_uiTypeAlignment = ezMath::Max(out_desc.m_uiTypeAlignment, uiMaxAlignment);
 
     return true;

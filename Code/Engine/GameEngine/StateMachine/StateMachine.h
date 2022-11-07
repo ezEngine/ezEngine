@@ -143,7 +143,7 @@ private:
 
   EZ_ALWAYS_INLINE void* GetInstanceData(ezUInt32 uiOffset)
   {
-    return ezStateMachineInstanceDataAllocator::GetInstanceData(m_InstanceData, uiOffset);
+    return ezStateMachineInstanceDataAllocator::GetInstanceData(m_InstanceData.GetByteBlobPtr(), uiOffset);
   }
 
   EZ_ALWAYS_INLINE void* GetCurrentStateInstanceData()
