@@ -195,7 +195,17 @@ ezResult ezStateMachineState_Compound::Serialize(ezStreamWriter& stream) const
 {
   EZ_SUCCEED_OR_RETURN(SUPER::Serialize(stream));
 
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  const ezUInt32 uiNumSubStates = m_SubStates.GetCount();
+  stream << uiNumSubStates;
+
+  for (auto pSubState : m_SubStates)
+  {
+    auto pStateType = pSubState->GetDynamicRTTI();
+    ezTypeVersionWriteContext::GetContext()->AddType(pStateType);
+
+    stream << pStateType->GetTypeName();
+    EZ_SUCCEED_OR_RETURN(pSubState->Serialize(stream));
+  }
 
   return EZ_SUCCESS;
 }
@@ -205,7 +215,27 @@ ezResult ezStateMachineState_Compound::Deserialize(ezStreamReader& stream)
   EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(stream));
   const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
 
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  ezUInt32 uiNumSubStates = 0;
+  stream >> uiNumSubStates;
+  m_SubStates.Reserve(uiNumSubStates);
+
+  ezStringBuilder sTypeName;
+  for (ezUInt32 i = 0; i < uiNumSubStates; ++i)
+  {
+    stream >> sTypeName;
+    if (const ezRTTI* pType = ezRTTI::FindTypeByName(sTypeName))
+    {
+      ezUniquePtr<ezStateMachineState> pSubState = pType->GetAllocator()->Allocate<ezStateMachineState>();
+      EZ_SUCCEED_OR_RETURN(pSubState->Deserialize(stream));
+
+      m_SubStates.PushBack(pSubState.Release());
+    }
+    else
+    {
+      ezLog::Error("Unknown state machine state type '{}'", sTypeName);
+      return EZ_FAILURE;
+    }
+  }
 
   return EZ_SUCCESS;
 }
@@ -360,7 +390,19 @@ ezResult ezStateMachineTransition_Compound::Serialize(ezStreamWriter& stream) co
 {
   EZ_SUCCEED_OR_RETURN(SUPER::Serialize(stream));
 
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  stream << m_Operator;
+
+  const ezUInt32 uiNumSubTransitions = m_SubTransitions.GetCount();
+  stream << uiNumSubTransitions;
+
+  for (auto pSubTransition : m_SubTransitions)
+  {
+    auto pStateType = pSubTransition->GetDynamicRTTI();
+    ezTypeVersionWriteContext::GetContext()->AddType(pStateType);
+
+    stream << pStateType->GetTypeName();
+    EZ_SUCCEED_OR_RETURN(pSubTransition->Serialize(stream));
+  }
 
   return EZ_SUCCESS;
 }
@@ -370,7 +412,29 @@ ezResult ezStateMachineTransition_Compound::Deserialize(ezStreamReader& stream)
   EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(stream));
   const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
 
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  stream >> m_Operator;
+
+  ezUInt32 uiNumSubTransitions = 0;
+  stream >> uiNumSubTransitions;
+  m_SubTransitions.Reserve(uiNumSubTransitions);
+
+  ezStringBuilder sTypeName;
+  for (ezUInt32 i = 0; i < uiNumSubTransitions; ++i)
+  {
+    stream >> sTypeName;
+    if (const ezRTTI* pType = ezRTTI::FindTypeByName(sTypeName))
+    {
+      ezUniquePtr<ezStateMachineTransition> pSubTransition = pType->GetAllocator()->Allocate<ezStateMachineTransition>();
+      EZ_SUCCEED_OR_RETURN(pSubTransition->Deserialize(stream));
+
+      m_SubTransitions.PushBack(pSubTransition.Release());
+    }
+    else
+    {
+      ezLog::Error("Unknown state machine state type '{}'", sTypeName);
+      return EZ_FAILURE;
+    }
+  }
 
   return EZ_SUCCESS;
 }
@@ -379,5 +443,3 @@ bool ezStateMachineTransition_Compound::GetInstanceDataDesc(ezStateMachineInstan
 {
   return m_Compound.GetInstanceDataDesc(m_SubTransitions.GetArrayPtr(), out_desc);
 }
-
-
