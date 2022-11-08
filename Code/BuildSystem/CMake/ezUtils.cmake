@@ -193,7 +193,7 @@ function(ez_set_common_target_definitions TARGET_NAME)
 
 	# set the BUILDSYSTEM_BUILDTYPE definition
 	target_compile_definitions(${TARGET_NAME} PRIVATE "BUILDSYSTEM_BUILDTYPE=\"${ORIGINAL_BUILD_TYPE}\"")
-	target_compile_definitions(${TARGET_NAME} PRIVATE "BUILDSYSTEM_BUILDTYPE_${ORIGINAL_BUILD_TYPE}")
+	target_compile_definitions(${TARGET_NAME} PUBLIC "BUILDSYSTEM_BUILDTYPE_${ORIGINAL_BUILD_TYPE}")
 
 	# set the BUILDSYSTEM_BUILDING_XYZ_LIB definition
 	string(TOUPPER ${TARGET_NAME} PROJECT_NAME_UPPER)
