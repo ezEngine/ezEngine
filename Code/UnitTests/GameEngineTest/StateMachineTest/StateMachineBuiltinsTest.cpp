@@ -1,5 +1,6 @@
 #include <GameEngineTest/GameEngineTestPCH.h>
 
+#include "StateMachineTest.h"
 #include <GameEngine/StateMachine/StateMachineBuiltins.h>
 
 namespace
@@ -108,9 +109,7 @@ namespace
 
 } // namespace
 
-EZ_CREATE_SIMPLE_TEST_GROUP(StateMachine);
-
-EZ_CREATE_SIMPLE_TEST(StateMachine, Builtins)
+void ezGameEngineTestStateMachine::RunBuiltinsTest()
 {
   ezReflectedClass fakeOwner;
 

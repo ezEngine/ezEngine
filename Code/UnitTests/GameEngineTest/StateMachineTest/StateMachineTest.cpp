@@ -19,6 +19,7 @@ ezGameEngineTestApplication* ezGameEngineTestStateMachine::CreateApplication()
 
 void ezGameEngineTestStateMachine::SetupSubTests()
 {
+  AddSubTest("Builtins", SubTests::Builtins);
   AddSubTest("SimpleTransitions", SubTests::SimpleTransitions);
 }
 
@@ -30,7 +31,11 @@ ezResult ezGameEngineTestStateMachine::InitializeSubTest(ezInt32 iIdentifier)
   m_uiImgCompIdx = 0;
   m_ImgCompFrames.Clear();
 
-  if (iIdentifier == SubTests::SimpleTransitions)
+  if (iIdentifier == SubTests::Builtins)
+  {
+    return EZ_SUCCESS;
+  }
+  else if (iIdentifier == SubTests::SimpleTransitions)
   {
     m_ImgCompFrames.PushBack(1);
     m_ImgCompFrames.PushBack(17);
@@ -46,6 +51,12 @@ ezResult ezGameEngineTestStateMachine::InitializeSubTest(ezInt32 iIdentifier)
 
 ezTestAppRun ezGameEngineTestStateMachine::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount)
 {
+  if (iIdentifier == SubTests::Builtins)
+  {
+    RunBuiltinsTest();
+    return ezTestAppRun::Quit;
+  }
+
   const bool bVulkan = ezStringUtils::IsEqual_NoCase(ezGameApplication::GetActiveRenderer(), "Vulkan");
   ++m_iFrame;
 
