@@ -3,7 +3,6 @@
 #include "AnimationsTest.h"
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
-#include <ParticlePlugin/Components/ParticleComponent.h>
 
 static ezGameEngineTestAnimations s_GameEngineTestAnimations;
 
