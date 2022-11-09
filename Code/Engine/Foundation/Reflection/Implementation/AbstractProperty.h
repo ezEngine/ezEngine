@@ -480,7 +480,7 @@ struct ezContainerSubTypeResolver<ezStaticArray<T, Size>>
   using Type = typename ezTypeTraits<T>::NonConstReferenceType;
 };
 
-template <typename T, ezUInt32 Size>
+template <typename T, ezUInt16 Size>
 struct ezContainerSubTypeResolver<ezSmallArray<T, Size>>
 {
   using Type = typename ezTypeTraits<T>::NonConstReferenceType;

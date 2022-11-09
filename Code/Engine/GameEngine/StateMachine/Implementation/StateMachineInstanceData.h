@@ -67,10 +67,8 @@ namespace ezStateMachineInternal
     ezSmallArray<ezUInt32, 2> m_InstanceDataOffsets;
     InstanceDataAllocator m_InstanceDataAllocator;
 
-    class InstanceData
+    struct InstanceData
     {
-      friend class Compound;
-      friend class ezMemoryUtils;
       const Compound* m_pOwner = nullptr;
 
       ~InstanceData()
