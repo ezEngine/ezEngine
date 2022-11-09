@@ -236,7 +236,10 @@ public:
   /// If any such parent object exists, the search is stopped there, even if that component does not handle messages of the given type.
   /// If no such parent object exists, it searches for all ezEventMessageHandlerComponent instances that are set to 'handle global events'
   /// that handle messages of the given type.
-  void FindEventMsgHandlers(ezEventMessage& msg, const ezGameObject* pSearchObject, ezDynamicArray<const ezComponent*>& out_components) const;
+  void FindEventMsgHandlers(const ezEventMessage& msg, ezGameObject* pSearchObject, ezDynamicArray<ezComponent*>& out_components);
+
+  /// \copydoc ezWorld::FindEventMsgHandlers()
+  void FindEventMsgHandlers(const ezEventMessage& msg, const ezGameObject* pSearchObject, ezDynamicArray<const ezComponent*>& out_components) const;
 
   ///@}
 
@@ -367,6 +370,9 @@ private:
   void PostMessage(const ezGameObjectHandle& receiverObject, const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay, bool bRecursive) const;
   void ProcessQueuedMessage(const ezInternal::WorldData::MessageQueue::Entry& entry);
   void ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType);
+
+  template <typename World, typename GameObject, typename Component>
+  static void FindEventMsgHandlers(World& world, const ezEventMessage& msg, GameObject pSearchObject, ezDynamicArray<Component>& out_components);
 
   void RegisterUpdateFunction(const ezWorldModule::UpdateFunctionDesc& desc);
   void DeregisterUpdateFunction(const ezWorldModule::UpdateFunctionDesc& desc);

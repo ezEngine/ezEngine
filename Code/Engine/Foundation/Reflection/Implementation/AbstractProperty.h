@@ -8,6 +8,7 @@
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Containers/Set.h>
+#include <Foundation/Containers/SmallArray.h>
 #include <Foundation/Containers/StaticArray.h>
 #include <Foundation/Reflection/Implementation/RTTI.h>
 #include <Foundation/Types/Bitflags.h>
@@ -475,6 +476,12 @@ struct ezContainerSubTypeResolver<ezHybridArray<T, Size>>
 
 template <typename T, ezUInt32 Size>
 struct ezContainerSubTypeResolver<ezStaticArray<T, Size>>
+{
+  using Type = typename ezTypeTraits<T>::NonConstReferenceType;
+};
+
+template <typename T, ezUInt16 Size>
+struct ezContainerSubTypeResolver<ezSmallArray<T, Size>>
 {
   using Type = typename ezTypeTraits<T>::NonConstReferenceType;
 };

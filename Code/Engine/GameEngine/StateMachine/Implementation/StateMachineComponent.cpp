@@ -133,7 +133,6 @@ ezStateMachineComponentManager::~ezStateMachineComponentManager()
 void ezStateMachineComponentManager::Initialize()
 {
   auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezStateMachineComponentManager::Update, this);
-  desc.m_bOnlyUpdateWhenSimulating = true;
 
   RegisterUpdateFunction(desc);
 }
@@ -154,11 +153,12 @@ void ezStateMachineComponentManager::Update(const ezWorldModule::UpdateContext& 
   }
 
   // update
+  if (GetWorld()->GetWorldSimulationEnabled())
   {
     for (auto it = this->m_ComponentStorage.GetIterator(context.m_uiFirstComponentIndex, context.m_uiComponentCount); it.IsValid(); ++it)
     {
       ComponentType* pComponent = it;
-      if (pComponent->IsActiveAndInitialized())
+      if (pComponent->IsActiveAndSimulating())
       {
         pComponent->Update();
       }
@@ -353,6 +353,6 @@ void ezStateMachineComponent::Update()
 {
   if (m_pStateMachineInstance != nullptr)
   {
-    m_pStateMachineInstance->Update();
+    m_pStateMachineInstance->Update(GetWorld()->GetClock().GetTimeDiff());
   }
 }

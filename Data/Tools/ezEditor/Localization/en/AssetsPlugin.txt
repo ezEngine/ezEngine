@@ -291,7 +291,14 @@ ezStateMachineNode;New State
 ezStateMachineNodeAny;New Any State
 ezStateMachineState_SendMsg;Send Message State
 ezStateMachineState_NestedStateMachine;Nested State Machine
+ezStateMachineState_Compound;Compound State
 ezStateMachineTransition_BlackboardConditions;Blackboard Conditions
+ezStateMachineTransition_Timeout;Timeout Transition
+ezStateMachineTransition_Compound;Compound Transition
+ezStateMachineLogicOperator::And;AND
+ezStateMachineLogicOperator::Or;OR
 Type;Type
 Conditions;Conditions
 ezBlackboardCondition;Blackboard Condition
+SubStates;Sub States
+SubTransitions;Sub Transitions

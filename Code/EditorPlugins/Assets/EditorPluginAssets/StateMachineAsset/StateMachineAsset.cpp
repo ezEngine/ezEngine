@@ -2,7 +2,7 @@
 
 #include <EditorPluginAssets/StateMachineAsset/StateMachineAsset.h>
 #include <EditorPluginAssets/StateMachineAsset/StateMachineGraph.h>
-#include <GameEngine/StateMachine/Implementation/StateMachineBuiltins.h>
+#include <GameEngine/StateMachine/StateMachineBuiltins.h>
 #include <GuiFoundation/NodeEditor/NodeScene.moc.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
@@ -99,7 +99,7 @@ ezStatus ezStateMachineAssetDocument::InternalTransformAsset(ezStreamWriter& str
     }
     else
     {
-      pTransition = EZ_DEFAULT_NEW(ezStateMachineTransition_BlackboardConditions);
+      pTransition = EZ_DEFAULT_NEW(ezStateMachineTransition_Timeout);
     }
 
     const ezConnection& connection = pManager->GetConnection(pObject);

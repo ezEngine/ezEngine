@@ -111,7 +111,26 @@ void ezQtStateMachineNode::UpdateState()
   }
   else
   {
-    ezQtNode::UpdateState();
+    ezStringBuilder sName;
+
+    auto& typeAccessor = GetObject()->GetTypeAccessor();
+
+    ezVariant name = typeAccessor.GetValue("Name");
+    if (name.IsA<ezString>() && name.Get<ezString>().IsEmpty() == false)
+    {
+      sName = name.Get<ezString>();
+    }
+    else
+    {
+      sName = typeAccessor.GetType()->GetTypeName();
+    }
+
+    if (IsInitialState())
+    {
+      sName.Append(" [Initial State]");
+    }
+
+    m_pLabel->setPlainText(sName.GetData());
   }
 }
 

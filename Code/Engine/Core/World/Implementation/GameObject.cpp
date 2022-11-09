@@ -897,7 +897,7 @@ void ezGameObject::PostMessageRecursive(const ezMessage& msg, ezTime delay, ezOb
 
 void ezGameObject::SendEventMessage(ezEventMessage& msg, const ezComponent* pSenderComponent)
 {
-  ezHybridArray<const ezComponent*, 4> eventMsgHandlers;
+  ezHybridArray<ezComponent*, 4> eventMsgHandlers;
   GetWorld()->FindEventMsgHandlers(msg, this, eventMsgHandlers);
 
   if (eventMsgHandlers.IsEmpty() == false && pSenderComponent != nullptr)
@@ -908,7 +908,7 @@ void ezGameObject::SendEventMessage(ezEventMessage& msg, const ezComponent* pSen
 
   for (auto pEventMsgHandler : eventMsgHandlers)
   {
-    const_cast<ezComponent*>(pEventMsgHandler)->SendMessage(msg);
+    pEventMsgHandler->SendMessage(msg);
   }
 }
 
