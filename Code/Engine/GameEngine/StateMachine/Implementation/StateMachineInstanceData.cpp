@@ -72,6 +72,6 @@ namespace ezStateMachineInternal
 
       uiOffset += desc.m_uiTypeSize;
     }
-  }  
+  }
 
 } // namespace ezStateMachineInternal

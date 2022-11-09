@@ -894,7 +894,7 @@ void ezWorld::FindEventMsgHandlers(World& world, const ezEventMessage& msg, Game
         for (auto pEventMessageHandlerComponent : eventMessageHandlerComponents)
         {
           if constexpr (std::is_const<World>::value == false)
-          {            
+          {
             pEventMessageHandlerComponent->EnsureInitialized();
           }
 
