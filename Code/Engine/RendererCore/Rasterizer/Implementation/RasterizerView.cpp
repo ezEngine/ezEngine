@@ -4,7 +4,9 @@
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/SimdMath/SimdBBox.h>
 #include <Foundation/SimdMath/SimdConversion.h>
+#include <RendererCore/Rasterizer/RasterizerObject.h>
 #include <RendererCore/Rasterizer/RasterizerView.h>
+#include <RendererCore/Rasterizer/Thirdparty/Occluder.h>
 #include <RendererCore/Rasterizer/Thirdparty/Rasterizer.h>
 
 ezRasterizerView::ezRasterizerView() = default;
