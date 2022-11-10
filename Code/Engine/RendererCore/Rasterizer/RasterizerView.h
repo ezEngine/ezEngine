@@ -21,7 +21,7 @@ public:
   ~ezRasterizerView();
 
   /// \brief Changes the resolution of the view. Has to be called at least once before starting to render anything.
-  void SetResolution(ezUInt32 width, ezUInt32 height);
+  void SetResolution(ezUInt32 width, ezUInt32 height, float fAspectRatio);
 
   ezUInt32 GetResolutionX() const { return m_uiResolutionX; }
   ezUInt32 GetResolutionY() const { return m_uiResolutionY; }
@@ -87,7 +87,7 @@ private:
 class ezRasterizerViewPool
 {
 public:
-  ezRasterizerView* GetRasterizerView(ezUInt32 width, ezUInt32 height);
+  ezRasterizerView* GetRasterizerView(ezUInt32 width, ezUInt32 height, float fAspectRatio);
   void ReturnRasterizerView(ezRasterizerView* pView);
 
 private:

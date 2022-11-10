@@ -12,16 +12,20 @@
 ezRasterizerView::ezRasterizerView() = default;
 ezRasterizerView::~ezRasterizerView() = default;
 
-void ezRasterizerView::SetResolution(ezUInt32 width, ezUInt32 height)
+void ezRasterizerView::SetResolution(ezUInt32 width, ezUInt32 height, float fAspectRatio)
 {
   if (m_uiResolutionX != width || m_uiResolutionY != height)
   {
     m_uiResolutionX = width;
     m_uiResolutionY = height;
-    m_fAspectRation = float(m_uiResolutionX) / float(m_uiResolutionY);
 
     m_pRasterizer = EZ_DEFAULT_NEW(Rasterizer, width, height);
   }
+
+  if (fAspectRatio == 0.0f)
+    m_fAspectRation = float(m_uiResolutionX) / float(m_uiResolutionY);
+  else
+    m_fAspectRation = fAspectRatio;
 }
 
 void ezRasterizerView::BeginScene()
@@ -160,7 +164,7 @@ bool ezRasterizerView::IsVisible(const ezSimdBBox& aabb) const
   return m_pRasterizer->queryVisibility(vmin.m_v, vmax.m_v, needsClipping);
 }
 
-ezRasterizerView* ezRasterizerViewPool::GetRasterizerView(ezUInt32 width, ezUInt32 height)
+ezRasterizerView* ezRasterizerViewPool::GetRasterizerView(ezUInt32 width, ezUInt32 height, float fAspectRatio)
 {
   EZ_PROFILE_SCOPE("Occlusion::GetViewFromPool");
 
@@ -180,12 +184,13 @@ ezRasterizerView* ezRasterizerViewPool::GetRasterizerView(ezUInt32 width, ezUInt
     if (entry.m_RasterizerView.GetResolutionX() == width && entry.m_RasterizerView.GetResolutionY() == height)
     {
       entry.m_bInUse = true;
+      entry.m_RasterizerView.SetResolution(width, height, fAspectRatio);
       return &entry.m_RasterizerView;
     }
   }
 
   auto& ne = m_Entries.ExpandAndGetRef();
-  ne.m_RasterizerView.SetResolution(width, height);
+  ne.m_RasterizerView.SetResolution(width, height, fAspectRatio);
   ne.m_bInUse = true;
 
   return &ne.m_RasterizerView;

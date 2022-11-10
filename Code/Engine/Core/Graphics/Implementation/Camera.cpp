@@ -277,8 +277,7 @@ void ezCamera::SetViewMatrix(const ezMat4& mLookAtMatrix, ezCameraEye eye)
   CameraOrientationChanged(true, true);
 }
 
-void ezCamera::GetProjectionMatrix(
-  float fAspectRatioWidthDivHeight, ezMat4& out_projectionMatrix, ezCameraEye eye, ezClipSpaceDepthRange::Enum depthRange) const
+void ezCamera::GetProjectionMatrix(float fAspectRatioWidthDivHeight, ezMat4& out_projectionMatrix, ezCameraEye eye, ezClipSpaceDepthRange::Enum depthRange) const
 {
   switch (m_Mode)
   {

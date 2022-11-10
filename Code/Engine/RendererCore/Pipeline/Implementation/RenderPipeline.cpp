@@ -1306,7 +1306,7 @@ ezRasterizerView* ezRenderPipeline::PrepareOcclusionCulling(const ezFrustum& fru
   // extract all occlusion geometry from the scene
   EZ_PROFILE_SCOPE("Occlusion::RasterizeView");
 
-  pRasterizer = g_pRasterizerViewPool->GetRasterizerView(view.GetViewport().width / 3, view.GetViewport().height / 3);
+  pRasterizer = g_pRasterizerViewPool->GetRasterizerView(view.GetViewport().width / 3, view.GetViewport().height / 3, (float)view.GetViewport().width / (float)view.GetViewport().height);
   pRasterizer->SetCamera(view.GetCullingCamera());
 
   {
