@@ -81,7 +81,7 @@ EZ_END_COMPONENT_TYPE;
 ezSpriteComponent::ezSpriteComponent() = default;
 ezSpriteComponent::~ezSpriteComponent() = default;
 
-ezResult ezSpriteComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
+ezResult ezSpriteComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg)
 {
   bounds = ezBoundingSphere(ezVec3::ZeroVector(), m_fSize * 0.5f);
   return EZ_SUCCESS;

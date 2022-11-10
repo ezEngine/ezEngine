@@ -6,12 +6,14 @@
 #include <GameEngine/GameEngineDLL.h>
 #include <RendererCore/Components/RenderComponent.h>
 #include <RendererCore/Pipeline/RenderData.h>
+#include <RendererCore/Rasterizer/RasterizerObject.h>
 
 class ezMeshRenderData;
 class ezGeometry;
 struct ezMsgExtractRenderData;
 struct ezMsgBuildStaticMesh;
 struct ezMsgExtractGeometry;
+struct ezMsgExtractOccluderData;
 using ezMeshResourceHandle = ezTypedResourceHandle<class ezMeshResource>;
 using ezMaterialResourceHandle = ezTypedResourceHandle<class ezMaterialResource>;
 
@@ -54,7 +56,7 @@ class EZ_GAMEENGINE_DLL ezGreyBoxComponent : public ezRenderComponent
   //////////////////////////////////////////////////////////////////////////
   // ezRenderComponent
 protected:
-  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible) override;
+  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg) override;
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
 
   //////////////////////////////////////////////////////////////////////////
@@ -103,6 +105,7 @@ public:
 protected:
   void OnBuildStaticMesh(ezMsgBuildStaticMesh& msg) const;
   void OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const;
+  void OnMsgExtractOccluderData(ezMsgExtractOccluderData& msg) const;
 
   ezEnum<ezGreyBoxShape> m_Shape;
   ezMaterialResourceHandle m_hMaterial;
@@ -128,4 +131,6 @@ protected:
   ezTypedResourceHandle<ResourceType> GenerateMesh() const;
 
   ezMeshResourceHandle m_hMesh;
+
+  mutable ezSharedPtr<ezRasterizerObject> m_pOccluderObject;
 };

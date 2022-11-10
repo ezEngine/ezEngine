@@ -237,7 +237,7 @@ void ezClothSheetComponent::OnDeactivated()
   SUPER::OnDeactivated();
 }
 
-ezResult ezClothSheetComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
+ezResult ezClothSheetComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg)
 {
   if (m_Bbox.IsValid())
   {

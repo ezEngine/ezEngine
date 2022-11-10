@@ -180,7 +180,7 @@ void ezBreakableSheetComponent::DeserializeComponent(ezWorldReader& stream)
   m_vExtents = ezVec3(m_fWidth, m_fThickness, m_fHeight);
 }
 
-ezResult ezBreakableSheetComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
+ezResult ezBreakableSheetComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg)
 {
   if (m_bBroken)
   {

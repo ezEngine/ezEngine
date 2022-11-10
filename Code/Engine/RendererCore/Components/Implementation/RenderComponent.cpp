@@ -43,7 +43,7 @@ void ezRenderComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
 
   bool bAlwaysVisible = false;
 
-  if (GetLocalBounds(bounds, bAlwaysVisible).Succeeded())
+  if (GetLocalBounds(bounds, bAlwaysVisible, msg).Succeeded())
   {
     // TODO: add occlusion category
 

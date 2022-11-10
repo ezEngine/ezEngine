@@ -54,7 +54,7 @@ void ezPxVisColMeshComponent::DeserializeComponent(ezWorldReader& stream)
   GetWorld()->GetOrCreateComponentManager<ezPxVisColMeshComponentManager>()->EnqueueUpdate(GetHandle());
 }
 
-ezResult ezPxVisColMeshComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
+ezResult ezPxVisColMeshComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg)
 {
   // have to assume this isn't thread safe
   // CreateCollisionRenderMesh();

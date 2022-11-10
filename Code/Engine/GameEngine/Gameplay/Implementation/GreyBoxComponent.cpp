@@ -49,6 +49,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezGreyBoxComponent, 4, ezComponentMode::Static)
     EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
     EZ_MESSAGE_HANDLER(ezMsgBuildStaticMesh, OnBuildStaticMesh),
     EZ_MESSAGE_HANDLER(ezMsgExtractGeometry, OnMsgExtractGeometry),
+    EZ_MESSAGE_HANDLER(ezMsgExtractOccluderData, OnMsgExtractOccluderData),
   }
   EZ_END_MESSAGEHANDLERS;
 }
@@ -134,12 +135,18 @@ void ezGreyBoxComponent::OnActivated()
   SUPER::OnActivated();
 }
 
-ezResult ezGreyBoxComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
+ezResult ezGreyBoxComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg)
 {
   if (m_hMesh.IsValid())
   {
     ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::AllowLoadingFallback);
     bounds = pMesh->GetBounds();
+
+    if (m_Shape == ezGreyBoxShape::Box)
+    {
+      msg.AddBounds(bounds, ezDefaultSpatialDataCategories::OcclusionStatic);
+    }
+
     return EZ_SUCCESS;
   }
 
@@ -383,6 +390,39 @@ void ezGreyBoxComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const
     return;
 
   msg.AddMeshObject(GetOwner()->GetGlobalTransform(), GenerateMesh<ezCpuMeshResource>());
+}
+
+void ezGreyBoxComponent::OnMsgExtractOccluderData(ezMsgExtractOccluderData& msg) const
+{
+  if (!IsActiveAndInitialized())
+    return;
+
+  if (m_Shape == ezGreyBoxShape::Box)
+  {
+    if (m_pOccluderObject == nullptr)
+    {
+      m_pOccluderObject = EZ_DEFAULT_NEW(ezRasterizerObject);
+
+      ezVec3 size;
+      size.x = m_fSizeNegX + m_fSizePosX;
+      size.y = m_fSizeNegY + m_fSizePosY;
+      size.z = m_fSizeNegZ + m_fSizePosZ;
+
+      ezVec3 offset(0);
+      offset.x = (m_fSizePosX - m_fSizeNegX) * 0.5f;
+      offset.y = (m_fSizePosY - m_fSizeNegY) * 0.5f;
+      offset.z = (m_fSizePosZ - m_fSizeNegZ) * 0.5f;
+
+      ezMat4 mTrans = GetOwner()->GetGlobalTransform().GetAsMat4();
+
+      ezMat4 mOff;
+      mOff.SetTranslationMatrix(offset);
+
+      m_pOccluderObject->CreateBox(size, mTrans * mOff);
+    }
+
+    msg.AddOccluder(m_pOccluderObject.Borrow(), ezTransform::IdentityTransform());
+  }
 }
 
 void ezGreyBoxComponent::InvalidateMesh()

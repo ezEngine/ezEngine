@@ -50,7 +50,7 @@ ezSpotLightComponent::ezSpotLightComponent()
 
 ezSpotLightComponent::~ezSpotLightComponent() = default;
 
-ezResult ezSpotLightComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
+ezResult ezSpotLightComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg)
 {
   m_fEffectiveRange = CalculateEffectiveRange(m_fRange, m_fIntensity);
 

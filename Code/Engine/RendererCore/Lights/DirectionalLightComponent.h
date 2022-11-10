@@ -30,7 +30,7 @@ public:
   // ezRenderComponent
 
 public:
-  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible) override;
+  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg) override;
 
   //////////////////////////////////////////////////////////////////////////
   // ezDirectionalLightComponent

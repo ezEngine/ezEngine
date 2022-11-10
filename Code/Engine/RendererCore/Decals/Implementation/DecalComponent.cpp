@@ -183,7 +183,7 @@ void ezDecalComponent::DeserializeComponent(ezWorldReader& stream)
   }
 }
 
-ezResult ezDecalComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
+ezResult ezDecalComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg)
 {
   if (m_Decals.IsEmpty())
     return EZ_FAILURE;

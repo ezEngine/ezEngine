@@ -231,7 +231,7 @@ void ezInstancedMeshComponent::OnDeactivated()
 
 void ezInstancedMeshComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& msg) {}
 
-ezResult ezInstancedMeshComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
+ezResult ezInstancedMeshComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg)
 {
   ezBoundingBoxSphere singleBounds;
   if (m_hMesh.IsValid())
