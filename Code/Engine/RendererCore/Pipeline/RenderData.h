@@ -7,6 +7,8 @@
 #include <Foundation/Strings/HashedString.h>
 #include <RendererCore/Pipeline/Declarations.h>
 
+class ezRasterizerObject;
+
 /// \brief Base class for all render data. Render data must contain all information that is needed to render the corresponding object.
 class EZ_RENDERERCORE_DLL ezRenderData : public ezReflectedClass
 {
@@ -127,6 +129,29 @@ private:
 
   ezHybridArray<Data, 16> m_ExtractedRenderData;
   ezUInt32 m_uiNumCacheIfStatic = 0;
+};
+
+struct EZ_RENDERERCORE_DLL ezMsgExtractOccluderData : public ezMessage
+{
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgExtractOccluderData, ezMessage);
+
+  void AddOccluder(const ezRasterizerObject* pObject, const ezTransform& transform)
+  {
+    auto& d = m_ExtractedOccluderData.ExpandAndGetRef();
+    d.m_pObject = pObject;
+    d.m_Transform = transform;
+  }
+
+private:
+  friend class ezRenderPipeline;
+
+  struct Data
+  {
+    const ezRasterizerObject* m_pObject = nullptr;
+    ezTransform m_Transform;
+  };
+
+  ezHybridArray<Data, 16> m_ExtractedOccluderData;
 };
 
 #include <RendererCore/Pipeline/Implementation/RenderData_inl.h>

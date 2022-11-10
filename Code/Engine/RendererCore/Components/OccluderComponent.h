@@ -7,6 +7,7 @@
 
 struct ezMsgTransformChanged;
 struct ezMsgUpdateLocalBounds;
+struct ezMsgExtractOccluderData;
 
 class EZ_RENDERERCORE_DLL ezOccluderComponentManager final : public ezComponentManager<class ezOccluderComponent, ezBlockStorageType::FreeList>
 {
@@ -43,8 +44,6 @@ public:
 
   void SetExtents(const ezVec3& extents);
 
-  const ezRasterizerObject& GetRasterizerObject() const;
-
 private:
   mutable bool m_bColliderValid = false;
   mutable ezSimdTransform m_LastGlobalTransform;
@@ -54,4 +53,5 @@ private:
 
   void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg);
   void OnMsgTransformChanged(ezMsgTransformChanged& msg);
+  void OnMsgExtractOccluderData(ezMsgExtractOccluderData& msg) const;
 };

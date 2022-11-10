@@ -12,7 +12,6 @@
 #include <Foundation/Time/Clock.h>
 #include <Foundation/Utilities/DGMLWriter.h>
 #include <RendererCore/Components/AlwaysVisibleComponent.h>
-#include <RendererCore/Components/OccluderComponent.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/GPUResourcePool/GPUResourcePool.h>
 #include <RendererCore/Pipeline/Extractor.h>
@@ -1322,18 +1321,16 @@ ezRasterizerView* ezRenderPipeline::PrepareOcclusionCulling(const ezFrustum& fru
     view.GetWorld()->GetSpatialSystem()->FindVisibleObjects(frustum, queryParams, m_VisibleObjects, {});
   }
 
-  // TODO
-  // -> SendMessage (extract occluder mesh)
-
   pRasterizer->BeginScene();
 
   for (const ezGameObject* pObj : m_VisibleObjects)
   {
-    const ezOccluderComponent* pOccluder = nullptr;
+    ezMsgExtractOccluderData msg;
+    pObj->SendMessage(msg);
 
-    if (pObj->TryGetComponentOfBaseType(pOccluder) && pOccluder->GetRasterizerObject().IsValid())
+    for (const auto& ed : msg.m_ExtractedOccluderData)
     {
-      pRasterizer->AddObject(&pOccluder->GetRasterizerObject());
+      pRasterizer->AddObject(ed.m_pObject);
     }
   }
 

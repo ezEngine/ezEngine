@@ -5,6 +5,7 @@
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <RendererCore/Components/OccluderComponent.h>
+#include <RendererCore/Pipeline/RenderData.h>
 
 // clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezOccluderComponent, 1, ezComponentMode::Static)
@@ -18,6 +19,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezOccluderComponent, 1, ezComponentMode::Static)
   {
     EZ_MESSAGE_HANDLER(ezMsgTransformChanged, OnMsgTransformChanged),
     EZ_MESSAGE_HANDLER(ezMsgUpdateLocalBounds, OnUpdateLocalBounds),
+    EZ_MESSAGE_HANDLER(ezMsgExtractOccluderData, OnMsgExtractOccluderData),
   }
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_ATTRIBUTES
@@ -52,7 +54,20 @@ void ezOccluderComponent::SetExtents(const ezVec3& extents)
   }
 }
 
-const ezRasterizerObject& ezOccluderComponent::GetRasterizerObject() const
+void ezOccluderComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
+{
+  if (GetOwner()->IsStatic())
+    msg.AddBounds(ezBoundingBox(-m_vExtents * 0.5f, m_vExtents * 0.5f), ezDefaultSpatialDataCategories::OcclusionStatic);
+  else
+    msg.AddBounds(ezBoundingBox(-m_vExtents * 0.5f, m_vExtents * 0.5f), ezDefaultSpatialDataCategories::OcclusionDynamic);
+}
+
+void ezOccluderComponent::OnMsgTransformChanged(ezMsgTransformChanged& msg)
+{
+  m_bColliderValid = false;
+}
+
+void ezOccluderComponent::OnMsgExtractOccluderData(ezMsgExtractOccluderData& msg) const
 {
   if (IsActiveAndInitialized())
   {
@@ -69,22 +84,9 @@ const ezRasterizerObject& ezOccluderComponent::GetRasterizerObject() const
 
       m_Object.CreateBox(m_vExtents, GetOwner()->GetGlobalTransform().GetAsMat4());
     }
+
+    msg.AddOccluder(&m_Object, ezTransform::IdentityTransform());
   }
-
-  return m_Object;
-}
-
-void ezOccluderComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
-{
-  if (GetOwner()->IsStatic())
-    msg.AddBounds(ezBoundingBox(-m_vExtents * 0.5f, m_vExtents * 0.5f), ezDefaultSpatialDataCategories::OcclusionStatic);
-  else
-    msg.AddBounds(ezBoundingBox(-m_vExtents * 0.5f, m_vExtents * 0.5f), ezDefaultSpatialDataCategories::OcclusionDynamic);
-}
-
-void ezOccluderComponent::OnMsgTransformChanged(ezMsgTransformChanged& msg)
-{
-  m_bColliderValid = false;
 }
 
 void ezOccluderComponent::SerializeComponent(ezWorldWriter& stream) const
