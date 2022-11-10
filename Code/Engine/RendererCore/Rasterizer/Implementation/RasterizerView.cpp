@@ -1,6 +1,7 @@
 #include <RendererCore/RendererCorePCH.h>
 
 #include <Core/Graphics/Camera.h>
+#include <Foundation/Configuration/CVar.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/SimdMath/SimdBBox.h>
 #include <Foundation/SimdMath/SimdConversion.h>
@@ -8,6 +9,8 @@
 #include <RendererCore/Rasterizer/RasterizerView.h>
 #include <RendererCore/Rasterizer/Thirdparty/Occluder.h>
 #include <RendererCore/Rasterizer/Thirdparty/Rasterizer.h>
+
+ezCVarInt cvar_SpatialCullingOcclusionVisView("Spatial.Occlusion.MaxResolution", 256 + 128, ezCVarFlags::Default, "Max resolution for occlusion buffers.");
 
 ezRasterizerView::ezRasterizerView() = default;
 ezRasterizerView::~ezRasterizerView() = default;
@@ -173,8 +176,8 @@ ezRasterizerView* ezRasterizerViewPool::GetRasterizerView(ezUInt32 width, ezUInt
   width = ezMath::RoundDown(width, 64);
   height = ezMath::RoundDown(height, 64);
 
-  width = ezMath::Clamp(width, 16u, 256u);
-  height = ezMath::Clamp(height, 16u, 256u);
+  width = ezMath::Clamp<ezUInt32>(width, 32u, cvar_SpatialCullingOcclusionVisView);
+  height = ezMath::Clamp<ezUInt32>(height, 32u, cvar_SpatialCullingOcclusionVisView);
 
   for (PoolEntry& entry : m_Entries)
   {

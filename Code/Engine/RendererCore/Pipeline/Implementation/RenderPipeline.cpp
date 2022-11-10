@@ -27,7 +27,9 @@
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
 ezCVarBool ezRenderPipeline::cvar_SpatialCullingVis("Spatial.Culling.Vis", false, ezCVarFlags::Default, "Enables debug visualization of visibility culling");
 ezCVarBool cvar_SpatialCullingShowStats("Spatial.Culling.ShowStats", false, ezCVarFlags::Default, "Display some stats of the visibility culling");
-ezCVarBool cvar_SpatialOcclusionVisMainView("Spatial.Occlusion.VisMainView", false, ezCVarFlags::Default, "Render the occlusion framebuffer as an overlay.");
+ezCVarBool cvar_SpatialCullingOcclusionEnable("Spatial.Occlusion.Enable", true, ezCVarFlags::Default, "Use software rasterization for occlusion culling.");
+ezCVarBool cvar_SpatialCullingOcclusionVisView("Spatial.Occlusion.VisView", false, ezCVarFlags::Default, "Render the occlusion framebuffer as an overlay.");
+ezCVarFloat cvar_SpatialCullingOcclusionBoundsInlation("Spatial.Occlusion.BoundsInflation", 1.0f, ezCVarFlags::Default, "How much to inflate bounds during occlusion check.");
 #endif
 
 ezRenderPipeline::ezRenderPipeline()
@@ -978,7 +980,16 @@ void ezRenderPipeline::FindVisibleObjects(const ezView& view)
     EZ_PROFILE_SCOPE("Occlusion::FindVisibleObjects");
 
     auto IsOccluded = [=](const ezSimdBBox& aabb)
-    { return !pRasterizer->IsVisible(aabb); };
+    {
+      // grow the bbox by some percent to counter the low precision of the occlusion buffer
+
+      ezSimdBBox aabb2;
+      const ezSimdVec4f c = aabb.GetCenter();
+      const ezSimdVec4f e = aabb.GetHalfExtents();
+      aabb2.SetCenterAndHalfExtents(c, e.CompMul(ezSimdVec4f(1.0f + cvar_SpatialCullingOcclusionBoundsInlation)));
+
+      return !pRasterizer->IsVisible(aabb2);
+    };
 
     m_VisibleObjects.Clear();
     view.GetWorld()->GetSpatialSystem()->FindVisibleObjects(frustum, queryParams, m_VisibleObjects, IsOccluded);
@@ -1298,6 +1309,9 @@ void ezRenderPipeline::CreateDgmlGraph(ezDGMLGraph& graph)
 
 ezRasterizerView* ezRenderPipeline::PrepareOcclusionCulling(const ezFrustum& frustum, const ezView& view)
 {
+  if (!cvar_SpatialCullingOcclusionEnable)
+    return nullptr;
+
   if (!ezSystemInformation::Get().GetCpuFeatures().IsAvx1Available())
     return nullptr;
 
@@ -1341,7 +1355,7 @@ ezRasterizerView* ezRenderPipeline::PrepareOcclusionCulling(const ezFrustum& fru
 
 void ezRenderPipeline::PreviewOcclusionBuffer(const ezRasterizerView& rasterizer, const ezView& view)
 {
-  if (!cvar_SpatialOcclusionVisMainView || !rasterizer.HasRasterizedAnyOccluders())
+  if (!cvar_SpatialCullingOcclusionVisView || !rasterizer.HasRasterizedAnyOccluders())
     return;
 
   EZ_PROFILE_SCOPE("Occlusion::DebugPreview");
