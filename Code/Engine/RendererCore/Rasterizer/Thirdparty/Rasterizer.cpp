@@ -8,7 +8,7 @@
 
 static constexpr float floatCompressionBias = 2.5237386e-29f; // 0xFFFF << 12 reinterpreted as float
 static constexpr float minEdgeOffset = -0.45f;
-static const     float maxInvW = std::sqrt(std::numeric_limits<float>::max());
+static const float maxInvW = std::sqrt(std::numeric_limits<float>::max());
 
 static constexpr int OFFSET_QUANTIZATION_BITS = 6;
 static constexpr int OFFSET_QUANTIZATION_FACTOR = 1 << OFFSET_QUANTIZATION_BITS;
@@ -28,47 +28,275 @@ enum PrimitiveMode
 };
 
 static constexpr int modeTable[256] =
-{
-  Convex,        Triangle1,     ConcaveLeft,   Triangle1,     Triangle0,     Culled,        Triangle0,     Culled,
-  ConcaveRight,  Triangle1,     Culled,        Triangle1,     Triangle0,     Culled,        Triangle0,     Culled,
-  Convex,        Triangle1,     ConcaveLeft,   Triangle1,     Triangle0,     Culled,        Triangle0,     Culled,
-  Culled,        Triangle1,     ConcaveCenter, Triangle1,     Triangle0,     Culled,        Triangle0,     Culled,
-  Convex,        Culled,        ConcaveLeft,   Triangle1,     Triangle0,     Culled,        Triangle0,     Culled,
-  ConcaveRight,  Triangle1,     ConcaveCenter, Triangle1,     Triangle0,     Culled,        Culled,        Culled,
-  Convex,        Triangle1,     ConcaveLeft,   Culled,        Triangle0,     Culled,        Triangle0,     Culled,
-  ConcaveRight,  Triangle1,     ConcaveCenter, Triangle1,     Culled,        Culled,        Triangle0,     Culled,
-  Convex,        Triangle1,     Culled,        Triangle1,     Triangle0,     Culled,        Triangle0,     Culled,
-  ConcaveRight,  Triangle1,     ConcaveCenter, Triangle1,     Triangle0,     Culled,        Triangle0,     Culled,
-  Culled,        Triangle1,     ConcaveCenter, Triangle1,     Triangle0,     Culled,        Triangle0,     Culled,
-  ConcaveCenter, Triangle1,     ConcaveCenter, Triangle1,     Triangle0,     Culled,        Triangle0,     Culled,
-  Convex,        Triangle1,     ConcaveLeft,   Triangle1,     Triangle0,     Culled,        Culled,        Culled,
-  ConcaveRight,  Culled,        ConcaveCenter, Triangle1,     Triangle0,     Culled,        Triangle0,     Culled,
-  Triangle1,     Triangle1,     Triangle1,     Triangle1,     Culled,        Culled,        Culled,        Culled,
-  Triangle1,     Triangle1,     Triangle1,     Culled,        Culled,        Culled,        Culled,        Culled,
-  Convex,        Triangle1,     ConcaveLeft,   Triangle1,     Culled,        Culled,        Triangle0,     Culled,
-  ConcaveRight,  Triangle1,     ConcaveCenter, Culled,        Triangle0,     Culled,        Triangle0,     Culled,
-  Convex,        Triangle1,     ConcaveLeft,   Triangle1,     Triangle0,     Culled,        Culled,        Culled,
-  ConcaveRight,  Culled,        ConcaveCenter, Triangle1,     Triangle0,     Culled,        Triangle0,     Culled,
-  Culled,        Triangle1,     ConcaveLeft,   Triangle1,     Triangle0,     Culled,        Triangle0,     Culled,
-  ConcaveRight,  Triangle1,     ConcaveCenter, Triangle1,     Triangle0,     Culled,        Triangle0,     Culled,
-  ConcaveRight,  Triangle1,     Culled,        Triangle1,     Triangle0,     Culled,        Triangle0,     Culled,
-  ConcaveRight,  Triangle1,     ConcaveCenter, Triangle1,     Triangle0,     Culled,        Triangle0,     Culled,
-  Convex,        Triangle1,     ConcaveLeft,   Culled,        Triangle0,     Culled,        Triangle0,     Culled,
-  ConcaveRight,  Triangle1,     ConcaveCenter, Triangle1,     Culled,        Culled,        Triangle0,     Culled,
-  Triangle0,     Culled,        Triangle0,     Culled,        Triangle0,     Culled,        Triangle0,     Culled,
-  Triangle0,     Culled,        Triangle0,     Culled,        Triangle0,     Culled,        Culled,        Culled,
-  ConcaveLeft,   Triangle1,     ConcaveLeft,   Triangle1,     Triangle0,     Culled,        Triangle0,     Culled,
-  Culled,        Triangle1,     ConcaveCenter, Triangle1,     Triangle0,     Culled,        Triangle0,     Culled,
-  Culled,        Culled,        Culled,        Culled,        Culled,        Culled,        Culled,        Culled,
-  Culled,        Culled,        Culled,        Culled,        Culled,        Culled,        Culled,        Culled,
+  {
+    Convex,
+    Triangle1,
+    ConcaveLeft,
+    Triangle1,
+    Triangle0,
+    Culled,
+    Triangle0,
+    Culled,
+    ConcaveRight,
+    Triangle1,
+    Culled,
+    Triangle1,
+    Triangle0,
+    Culled,
+    Triangle0,
+    Culled,
+    Convex,
+    Triangle1,
+    ConcaveLeft,
+    Triangle1,
+    Triangle0,
+    Culled,
+    Triangle0,
+    Culled,
+    Culled,
+    Triangle1,
+    ConcaveCenter,
+    Triangle1,
+    Triangle0,
+    Culled,
+    Triangle0,
+    Culled,
+    Convex,
+    Culled,
+    ConcaveLeft,
+    Triangle1,
+    Triangle0,
+    Culled,
+    Triangle0,
+    Culled,
+    ConcaveRight,
+    Triangle1,
+    ConcaveCenter,
+    Triangle1,
+    Triangle0,
+    Culled,
+    Culled,
+    Culled,
+    Convex,
+    Triangle1,
+    ConcaveLeft,
+    Culled,
+    Triangle0,
+    Culled,
+    Triangle0,
+    Culled,
+    ConcaveRight,
+    Triangle1,
+    ConcaveCenter,
+    Triangle1,
+    Culled,
+    Culled,
+    Triangle0,
+    Culled,
+    Convex,
+    Triangle1,
+    Culled,
+    Triangle1,
+    Triangle0,
+    Culled,
+    Triangle0,
+    Culled,
+    ConcaveRight,
+    Triangle1,
+    ConcaveCenter,
+    Triangle1,
+    Triangle0,
+    Culled,
+    Triangle0,
+    Culled,
+    Culled,
+    Triangle1,
+    ConcaveCenter,
+    Triangle1,
+    Triangle0,
+    Culled,
+    Triangle0,
+    Culled,
+    ConcaveCenter,
+    Triangle1,
+    ConcaveCenter,
+    Triangle1,
+    Triangle0,
+    Culled,
+    Triangle0,
+    Culled,
+    Convex,
+    Triangle1,
+    ConcaveLeft,
+    Triangle1,
+    Triangle0,
+    Culled,
+    Culled,
+    Culled,
+    ConcaveRight,
+    Culled,
+    ConcaveCenter,
+    Triangle1,
+    Triangle0,
+    Culled,
+    Triangle0,
+    Culled,
+    Triangle1,
+    Triangle1,
+    Triangle1,
+    Triangle1,
+    Culled,
+    Culled,
+    Culled,
+    Culled,
+    Triangle1,
+    Triangle1,
+    Triangle1,
+    Culled,
+    Culled,
+    Culled,
+    Culled,
+    Culled,
+    Convex,
+    Triangle1,
+    ConcaveLeft,
+    Triangle1,
+    Culled,
+    Culled,
+    Triangle0,
+    Culled,
+    ConcaveRight,
+    Triangle1,
+    ConcaveCenter,
+    Culled,
+    Triangle0,
+    Culled,
+    Triangle0,
+    Culled,
+    Convex,
+    Triangle1,
+    ConcaveLeft,
+    Triangle1,
+    Triangle0,
+    Culled,
+    Culled,
+    Culled,
+    ConcaveRight,
+    Culled,
+    ConcaveCenter,
+    Triangle1,
+    Triangle0,
+    Culled,
+    Triangle0,
+    Culled,
+    Culled,
+    Triangle1,
+    ConcaveLeft,
+    Triangle1,
+    Triangle0,
+    Culled,
+    Triangle0,
+    Culled,
+    ConcaveRight,
+    Triangle1,
+    ConcaveCenter,
+    Triangle1,
+    Triangle0,
+    Culled,
+    Triangle0,
+    Culled,
+    ConcaveRight,
+    Triangle1,
+    Culled,
+    Triangle1,
+    Triangle0,
+    Culled,
+    Triangle0,
+    Culled,
+    ConcaveRight,
+    Triangle1,
+    ConcaveCenter,
+    Triangle1,
+    Triangle0,
+    Culled,
+    Triangle0,
+    Culled,
+    Convex,
+    Triangle1,
+    ConcaveLeft,
+    Culled,
+    Triangle0,
+    Culled,
+    Triangle0,
+    Culled,
+    ConcaveRight,
+    Triangle1,
+    ConcaveCenter,
+    Triangle1,
+    Culled,
+    Culled,
+    Triangle0,
+    Culled,
+    Triangle0,
+    Culled,
+    Triangle0,
+    Culled,
+    Triangle0,
+    Culled,
+    Triangle0,
+    Culled,
+    Triangle0,
+    Culled,
+    Triangle0,
+    Culled,
+    Triangle0,
+    Culled,
+    Culled,
+    Culled,
+    ConcaveLeft,
+    Triangle1,
+    ConcaveLeft,
+    Triangle1,
+    Triangle0,
+    Culled,
+    Triangle0,
+    Culled,
+    Culled,
+    Triangle1,
+    ConcaveCenter,
+    Triangle1,
+    Triangle0,
+    Culled,
+    Triangle0,
+    Culled,
+    Culled,
+    Culled,
+    Culled,
+    Culled,
+    Culled,
+    Culled,
+    Culled,
+    Culled,
+    Culled,
+    Culled,
+    Culled,
+    Culled,
+    Culled,
+    Culled,
+    Culled,
+    Culled,
 };
 
-Rasterizer::Rasterizer(uint32_t width, uint32_t height) : m_width(width), m_height(height), m_blocksX(width / 8), m_blocksY(height / 8)
+Rasterizer::Rasterizer(uint32_t width, uint32_t height)
+  : m_width(width)
+  , m_height(height)
+  , m_blocksX(width / 8)
+  , m_blocksY(height / 8)
 {
   assert(width % 8 == 0 && height % 8 == 0);
 
   m_depthBuffer.resize(width * height / 8);
-  m_hiZ.resize(m_blocksX * m_blocksY + 8, 0);	// Add some extra padding to support out-of-bounds reads
+  m_hiZ.resize(m_blocksX * m_blocksY + 8, 0); // Add some extra padding to support out-of-bounds reads
 
   precomputeRasterizationTable();
 }
@@ -106,9 +334,9 @@ void Rasterizer::setModelViewProjection(const float* matrix)
 
 void Rasterizer::clear()
 {
-  // Mark blocks as cleared by setting Hi Z to 1 (one unit separated from far plane). 
+  // Mark blocks as cleared by setting Hi Z to 1 (one unit separated from far plane).
   // This value is extremely unlikely to occur during normal rendering, so we don't
-  // need to guard against a HiZ of 1 occuring naturally. This is different from a value of 0, 
+  // need to guard against a HiZ of 1 occuring naturally. This is different from a value of 0,
   // which will occur every time a block is partially covered for the first time.
   __m128i clearValue = _mm_set1_epi16(1);
   uint32_t count = static_cast<uint32_t>(m_hiZ.size()) / 8;
@@ -124,7 +352,7 @@ bool Rasterizer::queryVisibility(__m128 boundsMin, __m128 boundsMax, bool& needs
 {
   // Frustum cull
   __m128 extents = _mm_sub_ps(boundsMax, boundsMin);
-  __m128 center = _mm_add_ps(boundsMax, boundsMin);	// Bounding box center times 2 - but since W = 2, the plane equations work out correctly
+  __m128 center = _mm_add_ps(boundsMax, boundsMin); // Bounding box center times 2 - but since W = 2, the plane equations work out correctly
   __m128 minusZero = _mm_set1_ps(-0.0f);
 
   __m128 row0 = _mm_loadu_ps(m_modelViewProjectionRaw + 0);
@@ -412,6 +640,7 @@ __forceinline float Rasterizer::decompressFloat(uint16_t depth)
   return f * bias;
 }
 
+// turned this into a macro, because MSVC 2022 crashes in debug builds when passing these arguments into the (non-inlined (despite __forceinline)) function
 #define transpose256(A, B, C, D, out0)                      \
   {                                                         \
     __m128* out = out0;                                     \
@@ -433,6 +662,7 @@ __forceinline float Rasterizer::decompressFloat(uint16_t depth)
     _mm256_store_ps(reinterpret_cast<float*>(out + 6), D2); \
   }
 
+// turned this into a macro, because MSVC 2022 crashes in debug builds when passing these arguments into the (non-inlined (despite __forceinline)) function
 #define transpose256i(A, B, C, D, out0)                          \
   {                                                              \
     __m128i* out = out0;                                         \
@@ -453,7 +683,7 @@ __forceinline float Rasterizer::decompressFloat(uint16_t depth)
     _mm256_store_si256(reinterpret_cast<__m256i*>(out + 6), D2); \
   }
 
-template<bool possiblyNearClipped>
+template <bool possiblyNearClipped>
 __forceinline void Rasterizer::normalizeEdge(__m256& nx, __m256& ny, __m256 edgeFlipMask)
 {
   __m256 minusZero = _mm256_set1_ps(-0.0f);
@@ -530,10 +760,10 @@ __forceinline __m256i Rasterizer::packDepthPremultiplied(__m256 depthA, __m256 d
 
 uint64_t Rasterizer::transposeMask(uint64_t mask)
 {
-  #if 0
+#if 0
   uint64_t maskA = _pdep_u64(_pext_u64(mask, 0x5555555555555555ull), 0xF0F0F0F0F0F0F0F0ull);
   uint64_t maskB = _pdep_u64(_pext_u64(mask, 0xAAAAAAAAAAAAAAAAull), 0x0F0F0F0F0F0F0F0Full);
-  #else
+#else
   uint64_t maskA = 0;
   uint64_t maskB = 0;
   for (uint32_t group = 0; group < 8; ++group)
@@ -544,7 +774,7 @@ uint64_t Rasterizer::transposeMask(uint64_t mask)
       maskB |= ((mask >> (8 * group + 2 * bit + 1)) & 1) << (0 + group * 8 + bit);
     }
   }
-  #endif
+#endif
   return maskA | maskB;
 }
 
@@ -613,7 +843,7 @@ void Rasterizer::precomputeRasterizationTable()
   }
 }
 
-template<bool possiblyNearClipped>
+template <bool possiblyNearClipped>
 void Rasterizer::rasterize(const Occluder& occluder)
 {
   const __m256i* vertexData = occluder.m_vertexData;
@@ -787,14 +1017,14 @@ void Rasterizer::rasterize(const Occluder& occluder)
     if (possiblyNearClipped)
     {
       // Flip areas for each vertex with W < 0. This needs to be done before comparison against 0 rather than afterwards to make sure zero-are triangles are handled correctly.
-      areaSign0 =                             _mm256_cmp_ps(_mm256_xor_ps(_mm256_xor_ps(area0, wSign0), _mm256_xor_ps(wSign1, wSign2)), _mm256_setzero_ps(), _CMP_LE_OQ);
+      areaSign0 = _mm256_cmp_ps(_mm256_xor_ps(_mm256_xor_ps(area0, wSign0), _mm256_xor_ps(wSign1, wSign2)), _mm256_setzero_ps(), _CMP_LE_OQ);
       areaSign1 = _mm256_and_ps(minusZero256, _mm256_cmp_ps(_mm256_xor_ps(_mm256_xor_ps(area1, wSign1), _mm256_xor_ps(wSign2, wSign3)), _mm256_setzero_ps(), _CMP_LE_OQ));
       areaSign2 = _mm256_and_ps(minusZero256, _mm256_cmp_ps(_mm256_xor_ps(_mm256_xor_ps(area2, wSign0), _mm256_xor_ps(wSign2, wSign3)), _mm256_setzero_ps(), _CMP_LE_OQ));
       areaSign3 = _mm256_and_ps(minusZero256, _mm256_cmp_ps(_mm256_xor_ps(_mm256_xor_ps(area3, wSign1), _mm256_xor_ps(wSign0, wSign3)), _mm256_setzero_ps(), _CMP_LE_OQ));
     }
     else
     {
-      areaSign0 =                             _mm256_cmp_ps(area0, _mm256_setzero_ps(), _CMP_LE_OQ);
+      areaSign0 = _mm256_cmp_ps(area0, _mm256_setzero_ps(), _CMP_LE_OQ);
       areaSign1 = _mm256_and_ps(minusZero256, _mm256_cmp_ps(area1, _mm256_setzero_ps(), _CMP_LE_OQ));
       areaSign2 = _mm256_and_ps(minusZero256, _mm256_cmp_ps(area2, _mm256_setzero_ps(), _CMP_LE_OQ));
       areaSign3 = _mm256_and_ps(minusZero256, _mm256_cmp_ps(area3, _mm256_setzero_ps(), _CMP_LE_OQ));
@@ -1133,12 +1363,12 @@ void Rasterizer::rasterize(const Occluder& occluder)
       uint32_t primitiveMode = primModes[primitiveIdx];
 
       for (uint32_t blockY = 0;
-        blockY < blockRangeY;
-        ++blockY,
-        pPrimitiveHiZ += blocksX,
-        pPrimitiveOut += 4 * blocksX,
-        lineDepth = _mm256_add_ps(lineDepth, depthDy),
-        lineOffset = _mm_add_ps(lineOffset, edgeNormalY))
+           blockY < blockRangeY;
+           ++blockY,
+                    pPrimitiveHiZ += blocksX,
+                    pPrimitiveOut += 4 * blocksX,
+                    lineDepth = _mm256_add_ps(lineDepth, depthDy),
+                    lineOffset = _mm_add_ps(lineOffset, edgeNormalY))
       {
         uint16_t* pBlockRowHiZ = pPrimitiveHiZ;
         __m256i* out = pPrimitiveOut;
@@ -1148,12 +1378,12 @@ void Rasterizer::rasterize(const Occluder& occluder)
 
         bool anyBlockHit = false;
         for (uint32_t blockX = 0;
-          blockX < blockRangeX;
-          ++blockX,
-          pBlockRowHiZ += 1,
-          out += 4,
-          depth = _mm256_add_ps(depthDx, depth),
-          offset = _mm_add_ps(edgeNormalX, offset))
+             blockX < blockRangeX;
+             ++blockX,
+                      pBlockRowHiZ += 1,
+                      out += 4,
+                      depth = _mm256_add_ps(depthDx, depth),
+                      offset = _mm_add_ps(edgeNormalX, offset))
         {
           uint16_t hiZ = *pBlockRowHiZ;
           if (hiZ >= primitiveMaxZ)
@@ -1162,7 +1392,7 @@ void Rasterizer::rasterize(const Occluder& occluder)
           }
 
           uint64_t blockMask;
-          if (primitiveMode == Convex)	// 83-97%
+          if (primitiveMode == Convex) // 83-97%
           {
             // Simplified conservative test: combined block mask will be zero if any offset is outside of range
             __m128 anyOffsetOutsideMask = _mm_cmpge_ps(offset, _mm_set1_ps(OFFSET_QUANTIZATION_FACTOR - 1));
@@ -1211,34 +1441,34 @@ void Rasterizer::rasterize(const Occluder& occluder)
             // ConcaveCenter otherwise) we avoid the last branch in the ladder.
             switch (primitiveMode)
             {
-            case Triangle0:				// 2.3-11%
-              blockMask = A & B & C;
-              break;
-
-            case Triangle1:				// 0.1-4%
-              blockMask = A & C & D;
-              break;
-
-            case ConcaveRight:			// 0.01-0.9%
-              blockMask = (A | D) & (B & C);
-              break;
-
-            default:
-              // Case ConcaveCenter can only occur if any W < 0
-              if (possiblyNearClipped)
-              {
-                // case ConcaveCenter:			// < 1e-6%
-                blockMask = (A & B) | (C & D);
+              case Triangle0: // 2.3-11%
+                blockMask = A & B & C;
                 break;
-              }
-              else
-              {
-                // Fall-through
-              }
 
-            case ConcaveLeft:			// 0.01-0.6%
-              blockMask = (A & D) & (B | C);
-              break;
+              case Triangle1: // 0.1-4%
+                blockMask = A & C & D;
+                break;
+
+              case ConcaveRight: // 0.01-0.9%
+                blockMask = (A | D) & (B & C);
+                break;
+
+              default:
+                // Case ConcaveCenter can only occur if any W < 0
+                if (possiblyNearClipped)
+                {
+                  // case ConcaveCenter:			// < 1e-6%
+                  blockMask = (A & B) | (C & D);
+                  break;
+                }
+                else
+                {
+                  // Fall-through
+                }
+
+              case ConcaveLeft: // 0.01-0.6%
+                blockMask = (A & D) & (B | C);
+                break;
             }
 
             // No pixels covered => skip block
@@ -1263,7 +1493,7 @@ void Rasterizer::rasterize(const Occluder& occluder)
           __m256i d1 = _mm256_avg_epu16(d0, d2);
           __m256i d3 = _mm256_avg_epu16(d2, d4);
 
-          // Not all pixels covered - mask depth 
+          // Not all pixels covered - mask depth
           if (blockMask != -1)
           {
             __m128i A = _mm_cvtsi64x_si128(blockMask);

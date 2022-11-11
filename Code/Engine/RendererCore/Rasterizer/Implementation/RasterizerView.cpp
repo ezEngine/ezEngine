@@ -75,19 +75,19 @@ void ezRasterizerView::RasterizeObjects(ezUInt32 uiMaxObjects)
   for (const ezRasterizerObject* pObj : m_Objects)
   {
     bool bNeedsClipping;
-    const Occluder* pOccluder = pObj->GetInternalOccluder();
+    const Occluder& occluder = pObj->GetInternalOccluder();
 
-    if (m_pRasterizer->queryVisibility(pOccluder->m_boundsMin, pOccluder->m_boundsMax, bNeedsClipping))
+    if (m_pRasterizer->queryVisibility(occluder.m_boundsMin, occluder.m_boundsMax, bNeedsClipping))
     {
       m_bAnyOccludersRasterized = true;
 
       if (bNeedsClipping)
       {
-        m_pRasterizer->rasterize<true>(*pOccluder);
+        m_pRasterizer->rasterize<true>(occluder);
       }
       else
       {
-        m_pRasterizer->rasterize<false>(*pOccluder);
+        m_pRasterizer->rasterize<false>(occluder);
       }
 
       if (--uiMaxObjects == 0)
@@ -117,8 +117,8 @@ void ezRasterizerView::SortObjectsFrontToBack()
 
   m_Objects.Sort([&](const ezRasterizerObject* o1, const ezRasterizerObject* o2)
     {
-        __m128 dist1 = _mm_sub_ps(o1->GetInternalOccluder()->m_center, camPos.m_v);
-        __m128 dist2 = _mm_sub_ps(o2->GetInternalOccluder()->m_center, camPos.m_v);
+        __m128 dist1 = _mm_sub_ps(o1->GetInternalOccluder().m_center, camPos.m_v);
+        __m128 dist2 = _mm_sub_ps(o2->GetInternalOccluder().m_center, camPos.m_v);
 
         return _mm_comilt_ss(_mm_dp_ps(dist1, dist1, 0x7f), _mm_dp_ps(dist2, dist2, 0x7f)); });
 }
@@ -145,7 +145,7 @@ bool ezRasterizerView::IsVisible(const ezRasterizerObject& object) const
   EZ_PROFILE_SCOPE("Occlusion::IsVisible");
 
   bool needsClipping = false;
-  return m_pRasterizer->queryVisibility(object.GetInternalOccluder()->m_boundsMin, object.GetInternalOccluder()->m_boundsMax, needsClipping);
+  return m_pRasterizer->queryVisibility(object.GetInternalOccluder().m_boundsMin, object.GetInternalOccluder().m_boundsMax, needsClipping);
 }
 
 bool ezRasterizerView::IsVisible(const ezSimdBBox& aabb) const

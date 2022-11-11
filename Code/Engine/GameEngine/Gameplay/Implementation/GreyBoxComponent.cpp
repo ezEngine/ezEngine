@@ -401,7 +401,7 @@ void ezGreyBoxComponent::OnMsgExtractOccluderData(ezMsgExtractOccluderData& msg)
   {
     if (m_pOccluderObject == nullptr)
     {
-      m_pOccluderObject = EZ_DEFAULT_NEW(ezRasterizerObject);
+      m_pOccluderObject = EZ_NEW(ezFoundation::GetAlignedAllocator(), ezRasterizerObject);
 
       ezVec3 size;
       size.x = m_fSizeNegX + m_fSizePosX;

@@ -2,10 +2,9 @@
 
 #include <Foundation/Math/Mat4.h>
 #include <Foundation/Types/RefCounted.h>
+#include <RendererCore/Rasterizer/Thirdparty/Occluder.h>
 #include <RendererCore/RendererCoreDLL.h>
-#include <memory>
 
-struct Occluder;
 class ezGeometry;
 
 class EZ_RENDERERCORE_DLL ezRasterizerObject : public ezRefCounted
@@ -23,16 +22,11 @@ public:
 
   void CreateMesh(const ezGeometry& geometry);
 
-  bool IsValid() const
+  const Occluder& GetInternalOccluder() const
   {
-    return m_pOccluder != nullptr;
-  }
-
-  const Occluder* GetInternalOccluder() const
-  {
-    return m_pOccluder.get();
+    return m_Occluder;
   }
 
 private:
-  std::unique_ptr<Occluder> m_pOccluder;
+  Occluder m_Occluder;
 };

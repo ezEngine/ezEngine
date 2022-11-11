@@ -10,19 +10,17 @@ ezRasterizerObject::ezRasterizerObject() = default;
 
 ezRasterizerObject::~ezRasterizerObject()
 {
-  if (m_pOccluder)
-  {
-    // TODO: the occluder class currently doesn't deallocate its own data
-    _aligned_free(m_pOccluder->m_vertexData);
-    m_pOccluder->m_vertexData = nullptr;
-
-    m_pOccluder = nullptr;
-  }
+  Clear();
 }
 
 void ezRasterizerObject::Clear()
 {
-  m_pOccluder = nullptr;
+  if (m_Occluder.m_vertexData)
+  {
+    // TODO: the occluder class currently doesn't deallocate its own data
+    _aligned_free(m_Occluder.m_vertexData);
+    m_Occluder.m_vertexData = nullptr;
+  }
 }
 
 void ezRasterizerObject::CreateBox(const ezVec3& vFullExtents, const ezMat4& mTransform)
@@ -47,10 +45,13 @@ void ezRasterizerObject::CreateSphere(float fRadius, const ezMat4& mTransform)
   CreateMesh(geo);
 }
 
+// needed for ezHybridArray below
+EZ_DEFINE_AS_POD_TYPE(__m128);
+
 void ezRasterizerObject::CreateMesh(const ezGeometry& geo)
 {
-  std::vector<__m128> vertices;
-  vertices.reserve(geo.GetPolygons().GetCount() * 4);
+  ezHybridArray<__m128, 64, ezAlignedAllocatorWrapper> vertices;
+  vertices.Reserve(geo.GetPolygons().GetCount() * 4);
 
   Aabb bounds;
 
@@ -58,7 +59,7 @@ void ezRasterizerObject::CreateMesh(const ezGeometry& geo)
   {
     ezSimdVec4f v;
     v.Load<4>(vtxPos.GetAsPositionVec4().GetData());
-    vertices.push_back(v.m_v);
+    vertices.PushBack(v.m_v);
   };
 
   for (const auto& poly : geo.GetPolygons())
@@ -78,20 +79,20 @@ void ezRasterizerObject::CreateMesh(const ezGeometry& geo)
 
       addVtx(geo.GetVertices()[vtxIdx].m_vPosition);
 
-      bounds.include(vertices.back());
+      bounds.include(vertices.PeekBack());
       ++uiQuadVtx;
     }
 
     // if the polygon is a triangle, duplicate the last vertex to make it a degenerate quad
     if (uiQuadVtx == 3)
     {
-      vertices.push_back(vertices.back());
+      vertices.PushBack(vertices.PeekBack());
       ++uiQuadVtx;
     }
 
     if (uiQuadVtx == 4)
     {
-      const size_t n = vertices.size();
+      const size_t n = vertices.GetCount();
 
       // swap two vertices in the quad to flip the front face (different convention between EZ and the rasterizer)
       ezMath::Swap(vertices[n - 1], vertices[n - 3]);
@@ -101,11 +102,10 @@ void ezRasterizerObject::CreateMesh(const ezGeometry& geo)
   }
 
   // pad vertices to 32 for proper alignment during baking
-  while (vertices.size() % 32 != 0)
+  while (vertices.GetCount() % 32 != 0)
   {
-    vertices.push_back(vertices[0]);
+    vertices.PushBack(vertices[0]);
   }
 
-  // TODO: Occluder::bake only takes std::vector, would like to use ezHybridArray instead (e.g. could take a std::span for better interop)
-  m_pOccluder = Occluder::bake(vertices, bounds.m_min, bounds.m_max);
+  m_Occluder.bake(vertices.GetData(), vertices.GetCount(), bounds.m_min, bounds.m_max);
 }
