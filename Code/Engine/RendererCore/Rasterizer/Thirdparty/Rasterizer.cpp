@@ -352,7 +352,7 @@ bool Rasterizer::queryVisibility(__m128 boundsMin, __m128 boundsMax, bool& needs
 {
   // Frustum cull
   __m128 extents = _mm_sub_ps(boundsMax, boundsMin);
-  __m128 center = _mm_add_ps(boundsMax, boundsMin); // Bounding box center times 2 - but since W = 2, the plane equations work out correctly
+  __m128 center = _mm_add_ps(boundsMax, boundsMin); // Bounding box center times 2 - but since W = 2, the plane equations work out correctly (TODO: this comment about 2 seems to be wrong)
   __m128 minusZero = _mm_set1_ps(-0.0f);
 
   __m128 row0 = _mm_loadu_ps(m_modelViewProjectionRaw + 0);
@@ -460,9 +460,14 @@ bool Rasterizer::queryVisibility(__m128 boundsMin, __m128 boundsMax, bool& needs
   __m128 minsY = _mm_min_ps(corners[1], corners[5]);
   __m128 maxsY = _mm_max_ps(corners[1], corners[5]);
 
+
   // Horizontal reduction, step 1
   __m128 minsXY = _mm_min_ps(_mm_unpacklo_ps(minsX, minsY), _mm_unpackhi_ps(minsX, minsY));
   __m128 maxsXY = _mm_max_ps(_mm_unpacklo_ps(maxsX, maxsY), _mm_unpackhi_ps(maxsX, maxsY));
+
+  // TODO: inflate bbox artificially to prevent incorrect occlusion due to low precision
+  minsXY = _mm_sub_ps(minsXY, _mm_setr_ps(3, 3, 3, 3));
+  maxsXY = _mm_add_ps(maxsXY, _mm_setr_ps(3, 3, 3, 3));
 
   // Clamp bounds
   minsXY = _mm_max_ps(minsXY, _mm_setzero_ps());

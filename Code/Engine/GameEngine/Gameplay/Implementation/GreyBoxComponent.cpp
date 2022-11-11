@@ -16,7 +16,7 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezGreyBoxShape, 1)
   EZ_ENUM_CONSTANTS(ezGreyBoxShape::StairsX, ezGreyBoxShape::StairsY, ezGreyBoxShape::ArchX, ezGreyBoxShape::ArchY, ezGreyBoxShape::SpiralStairs)
 EZ_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_COMPONENT_TYPE(ezGreyBoxComponent, 4, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezGreyBoxComponent, 5, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -36,6 +36,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezGreyBoxComponent, 4, ezComponentMode::Static)
     EZ_ACCESSOR_PROPERTY("SlopedBottom", GetSlopedBottom, SetSlopedBottom),
     EZ_ACCESSOR_PROPERTY("GenerateCollision", GetGenerateCollision, SetGenerateCollision)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_ACCESSOR_PROPERTY("IncludeInNavmesh", GetIncludeInNavmesh, SetIncludeInNavmesh)->AddAttributes(new ezDefaultValueAttribute(true)),
+    EZ_MEMBER_PROPERTY("UseAsOccluder", m_bUseAsOccluder)->AddAttributes(new ezDefaultValueAttribute(true)),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
@@ -86,6 +87,9 @@ void ezGreyBoxComponent::SerializeComponent(ezWorldWriter& stream) const
   // Version 4
   s << m_bGenerateCollision;
   s << m_bIncludeInNavmesh;
+
+  // Version 5
+  s << m_bUseAsOccluder;
 }
 
 void ezGreyBoxComponent::DeserializeComponent(ezWorldReader& stream)
@@ -122,6 +126,11 @@ void ezGreyBoxComponent::DeserializeComponent(ezWorldReader& stream)
     s >> m_bGenerateCollision;
     s >> m_bIncludeInNavmesh;
   }
+
+  if (uiVersion >= 5)
+  {
+    s >> m_bUseAsOccluder;
+  }
 }
 
 void ezGreyBoxComponent::OnActivated()
@@ -142,7 +151,7 @@ ezResult ezGreyBoxComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& b
     ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::AllowLoadingFallback);
     bounds = pMesh->GetBounds();
 
-    if (m_Shape == ezGreyBoxShape::Box)
+    if (GetOwner()->IsStatic() && m_bUseAsOccluder)
     {
       msg.AddBounds(bounds, ezDefaultSpatialDataCategories::OcclusionStatic);
     }
@@ -325,7 +334,7 @@ void ezGreyBoxComponent::OnBuildStaticMesh(ezMsgBuildStaticMesh& msg) const
     return;
 
   ezGeometry geom;
-  BuildGeometry(geom);
+  BuildGeometry(geom, m_Shape, ezMat4::IdentityMatrix());
   geom.TriangulatePolygons();
 
   auto* pDesc = msg.m_pStaticMeshDescription;
@@ -394,39 +403,32 @@ void ezGreyBoxComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const
 
 void ezGreyBoxComponent::OnMsgExtractOccluderData(ezMsgExtractOccluderData& msg) const
 {
-  if (!IsActiveAndInitialized())
+  if (!IsActiveAndInitialized() || !m_bUseAsOccluder)
     return;
 
-  if (m_Shape == ezGreyBoxShape::Box)
+  ezEnum<ezGreyBoxShape> shape = m_Shape;
+  if (shape == ezGreyBoxShape::StairsX)
+    shape = ezGreyBoxShape::RampX;
+  if (shape == ezGreyBoxShape::StairsY)
+    shape = ezGreyBoxShape::RampY;
+
+  if (m_pOccluderObject == nullptr)
   {
-    if (m_pOccluderObject == nullptr)
-    {
-      m_pOccluderObject = EZ_NEW(ezFoundation::GetAlignedAllocator(), ezRasterizerObject);
+    m_pOccluderObject = EZ_NEW(ezFoundation::GetAlignedAllocator(), ezRasterizerObject);
 
-      ezVec3 size;
-      size.x = m_fSizeNegX + m_fSizePosX;
-      size.y = m_fSizeNegY + m_fSizePosY;
-      size.z = m_fSizeNegZ + m_fSizePosZ;
+    ezGeometry geom;
+    BuildGeometry(geom, shape, GetOwner()->GetGlobalTransform().GetAsMat4());
 
-      ezVec3 offset(0);
-      offset.x = (m_fSizePosX - m_fSizeNegX) * 0.5f;
-      offset.y = (m_fSizePosY - m_fSizeNegY) * 0.5f;
-      offset.z = (m_fSizePosZ - m_fSizeNegZ) * 0.5f;
-
-      ezMat4 mTrans = GetOwner()->GetGlobalTransform().GetAsMat4();
-
-      ezMat4 mOff;
-      mOff.SetTranslationMatrix(offset);
-
-      m_pOccluderObject->CreateBox(size, mTrans * mOff);
-    }
-
-    msg.AddOccluder(m_pOccluderObject.Borrow(), ezTransform::IdentityTransform());
+    m_pOccluderObject->CreateMesh(geom);
   }
+
+  msg.AddOccluder(m_pOccluderObject.Borrow(), ezTransform::IdentityTransform());
 }
 
 void ezGreyBoxComponent::InvalidateMesh()
 {
+  m_pOccluderObject = nullptr;
+
   if (m_hMesh.IsValid())
   {
     m_hMesh.Invalidate();
@@ -437,7 +439,7 @@ void ezGreyBoxComponent::InvalidateMesh()
   }
 }
 
-void ezGreyBoxComponent::BuildGeometry(ezGeometry& geom) const
+void ezGreyBoxComponent::BuildGeometry(ezGeometry& geom, ezEnum<ezGreyBoxShape> shape, const ezMat4& transform) const
 {
   ezVec3 size;
   size.x = m_fSizeNegX + m_fSizePosX;
@@ -454,8 +456,9 @@ void ezGreyBoxComponent::BuildGeometry(ezGeometry& geom) const
   ezGeometry::GeoOptions opt;
   opt.m_Color = m_Color;
   opt.m_Transform.SetTranslationMatrix(offset);
+  opt.m_Transform = transform * opt.m_Transform;
 
-  switch (m_Shape)
+  switch (shape)
   {
     case ezGreyBoxShape::Box:
       geom.AddBox(size, true, opt);
@@ -469,6 +472,7 @@ void ezGreyBoxComponent::BuildGeometry(ezGeometry& geom) const
       ezMath::Swap(size.x, size.y);
       opt.m_Transform.SetRotationMatrixZ(ezAngle::Degree(-90.0f));
       opt.m_Transform.SetTranslationVector(offset);
+      opt.m_Transform = transform * opt.m_Transform;
       geom.AddTexturedRamp(size, opt);
       break;
 
@@ -485,6 +489,7 @@ void ezGreyBoxComponent::BuildGeometry(ezGeometry& geom) const
       ezMath::Swap(size.x, size.y);
       opt.m_Transform.SetRotationMatrixZ(ezAngle::Degree(-90.0f));
       opt.m_Transform.SetTranslationVector(offset);
+      opt.m_Transform = transform * opt.m_Transform;
       geom.AddStairs(size, m_uiDetail, m_Curvature, m_bSlopedTop, opt);
       break;
 
@@ -498,6 +503,7 @@ void ezGreyBoxComponent::BuildGeometry(ezGeometry& geom) const
       t2.SetRotationMatrixX(ezAngle::Degree(90));
       opt.m_Transform = t2 * opt.m_Transform;
       opt.m_Transform.SetTranslationVector(offset);
+      opt.m_Transform = transform * opt.m_Transform;
       geom.AddArch(size, m_uiDetail, m_fThickness, m_Curvature, false, false, false, opt);
     }
     break;
@@ -510,7 +516,7 @@ void ezGreyBoxComponent::BuildGeometry(ezGeometry& geom) const
       ezMath::Swap(size.y, size.z);
       opt.m_Transform = t3 * t2 * opt.m_Transform;
       opt.m_Transform.SetTranslationVector(offset);
-
+      opt.m_Transform = transform * opt.m_Transform;
       geom.AddArch(size, m_uiDetail, m_fThickness, m_Curvature, false, false, false, opt);
     }
     break;
@@ -578,7 +584,7 @@ ezTypedResourceHandle<ResourceType> ezGreyBoxComponent::GenerateMesh() const
     return hResource;
 
   ezGeometry geom;
-  BuildGeometry(geom);
+  BuildGeometry(geom, m_Shape, ezMat4::IdentityMatrix());
 
   geom.TriangulatePolygons();
   geom.ComputeTangents();

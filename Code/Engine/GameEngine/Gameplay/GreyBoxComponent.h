@@ -123,9 +123,10 @@ protected:
   bool m_bSlopedBottom = false;
   bool m_bGenerateCollision = true;
   bool m_bIncludeInNavmesh = true;
+  bool m_bUseAsOccluder = true;
 
   void InvalidateMesh();
-  void BuildGeometry(ezGeometry& geom) const;
+  void BuildGeometry(ezGeometry& geom, ezEnum<ezGreyBoxShape> shape, const ezMat4& transform) const;
 
   template <typename ResourceType>
   ezTypedResourceHandle<ResourceType> GenerateMesh() const;

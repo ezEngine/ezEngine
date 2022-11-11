@@ -10,7 +10,8 @@
 #include <RendererCore/Rasterizer/Thirdparty/Occluder.h>
 #include <RendererCore/Rasterizer/Thirdparty/Rasterizer.h>
 
-ezCVarInt cvar_SpatialCullingOcclusionVisView("Spatial.Occlusion.MaxResolution", 256 + 128, ezCVarFlags::Default, "Max resolution for occlusion buffers.");
+ezCVarInt cvar_SpatialCullingOcclusionMaxResolution("Spatial.Occlusion.MaxResolution", 256 + 128, ezCVarFlags::Default, "Max resolution for occlusion buffers.");
+ezCVarInt cvar_SpatialCullingOcclusionMaxOccluders("Spatial.Occlusion.MaxOccluders", 64, ezCVarFlags::Default, "Max number of occluders to rasterize per frame.");
 
 ezRasterizerView::ezRasterizerView() = default;
 ezRasterizerView::~ezRasterizerView() = default;
@@ -63,7 +64,7 @@ void ezRasterizerView::EndScene()
   ApplyModelViewProjectionMatrix();
 
   // only rasterize a limited number of the closest objects
-  RasterizeObjects(32);
+  RasterizeObjects(cvar_SpatialCullingOcclusionMaxOccluders);
 
   m_Objects.Clear();
 }
@@ -176,8 +177,8 @@ ezRasterizerView* ezRasterizerViewPool::GetRasterizerView(ezUInt32 width, ezUInt
   width = ezMath::RoundDown(width, 64);
   height = ezMath::RoundDown(height, 64);
 
-  width = ezMath::Clamp<ezUInt32>(width, 32u, cvar_SpatialCullingOcclusionVisView);
-  height = ezMath::Clamp<ezUInt32>(height, 32u, cvar_SpatialCullingOcclusionVisView);
+  width = ezMath::Clamp<ezUInt32>(width, 32u, cvar_SpatialCullingOcclusionMaxResolution);
+  height = ezMath::Clamp<ezUInt32>(height, 32u, cvar_SpatialCullingOcclusionMaxResolution);
 
   for (PoolEntry& entry : m_Entries)
   {

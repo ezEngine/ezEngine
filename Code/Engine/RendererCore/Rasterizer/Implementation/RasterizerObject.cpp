@@ -15,12 +15,7 @@ ezRasterizerObject::~ezRasterizerObject()
 
 void ezRasterizerObject::Clear()
 {
-  if (m_Occluder.m_vertexData)
-  {
-    // TODO: the occluder class currently doesn't deallocate its own data
-    _aligned_free(m_Occluder.m_vertexData);
-    m_Occluder.m_vertexData = nullptr;
-  }
+  m_Occluder.Clear();
 }
 
 void ezRasterizerObject::CreateBox(const ezVec3& vFullExtents, const ezMat4& mTransform)
@@ -66,6 +61,10 @@ void ezRasterizerObject::CreateMesh(const ezGeometry& geo)
   {
     const ezUInt32 uiNumVertices = poly.m_Vertices.GetCount();
     ezUInt32 uiQuadVtx = 0;
+
+    // ignore complex polygons entirely
+    if (uiNumVertices > 4)
+      continue;
 
     for (ezUInt32 i = 0; i < uiNumVertices; ++i)
     {

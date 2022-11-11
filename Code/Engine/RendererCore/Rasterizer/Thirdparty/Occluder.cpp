@@ -9,6 +9,17 @@
 // needed for ezHybridArray below
 EZ_DEFINE_AS_POD_TYPE(__m128);
 
+Occluder::~Occluder()
+{
+  Clear();
+}
+
+void Occluder::Clear()
+{
+  EZ_DELETE_RAW_BUFFER(ezFoundation::GetAlignedAllocator(), m_vertexData);
+  m_vertexData = nullptr;
+}
+
 void Occluder::bake(const __m128* vertices, size_t numVertices, __m128 refMin, __m128 refMax)
 {
   assert(numVertices % 16 == 0);
@@ -108,7 +119,7 @@ void Occluder::bake(const __m128* vertices, size_t numVertices, __m128 refMin, _
   __m128 half = _mm_set1_ps(0.5f);
 
   occluder->m_packetCount = 0;
-  occluder->m_vertexData = reinterpret_cast<__m256i*>(_aligned_malloc(orderedVertices.GetCount() * 4, 32));
+  occluder->m_vertexData = EZ_NEW_RAW_BUFFER(ezFoundation::GetAlignedAllocator(), __m256i, orderedVertices.GetCount() * 4);
 
   for (size_t i = 0; i < orderedVertices.GetCount(); i += 32)
   {

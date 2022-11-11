@@ -27,10 +27,12 @@
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
 ezCVarBool ezRenderPipeline::cvar_SpatialCullingVis("Spatial.Culling.Vis", false, ezCVarFlags::Default, "Enables debug visualization of visibility culling");
 ezCVarBool cvar_SpatialCullingShowStats("Spatial.Culling.ShowStats", false, ezCVarFlags::Default, "Display some stats of the visibility culling");
+#endif
+
 ezCVarBool cvar_SpatialCullingOcclusionEnable("Spatial.Occlusion.Enable", true, ezCVarFlags::Default, "Use software rasterization for occlusion culling.");
 ezCVarBool cvar_SpatialCullingOcclusionVisView("Spatial.Occlusion.VisView", false, ezCVarFlags::Default, "Render the occlusion framebuffer as an overlay.");
-ezCVarFloat cvar_SpatialCullingOcclusionBoundsInlation("Spatial.Occlusion.BoundsInflation", 1.0f, ezCVarFlags::Default, "How much to inflate bounds during occlusion check.");
-#endif
+ezCVarFloat cvar_SpatialCullingOcclusionBoundsInlation("Spatial.Occlusion.BoundsInflation", 0.0f, ezCVarFlags::Default, "How much to inflate bounds during occlusion check.");
+ezCVarFloat cvar_SpatialCullingOcclusionFarPlane("Spatial.Occlusion.FarPlane", 50.0f, ezCVarFlags::Default, "Far plane distance for finding occluders.");
 
 ezRenderPipeline::ezRenderPipeline()
   : m_PipelineState(PipelineState::Uninitialized)
@@ -972,7 +974,11 @@ void ezRenderPipeline::FindVisibleObjects(const ezView& view)
   queryParams.m_pStats = bRecordStats ? &stats : nullptr;
 #endif
 
-  ezRasterizerView* pRasterizer = PrepareOcclusionCulling(frustum, view);
+  ezFrustum limitedFrustum = frustum;
+  const ezPlane far = limitedFrustum.GetPlane(ezFrustum::FarPlane);
+  limitedFrustum.AccessPlane(ezFrustum::FarPlane).SetFromNormalAndPoint(far.m_vNormal, view.GetCullingCamera()->GetCenterPosition() + far.m_vNormal * cvar_SpatialCullingOcclusionFarPlane.GetValue()); // only use occluders closer than this
+
+  ezRasterizerView* pRasterizer = PrepareOcclusionCulling(limitedFrustum, view);
   EZ_SCOPE_EXIT(g_pRasterizerViewPool->ReturnRasterizerView(pRasterizer));
 
   if (pRasterizer != nullptr && pRasterizer->HasRasterizedAnyOccluders())
