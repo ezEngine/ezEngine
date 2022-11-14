@@ -1,13 +1,10 @@
-#include "Occluder.h"
-
-#include "VectorMath.h"
-
+#include <Foundation/Containers/HybridArray.h>
+#include <RendererCore/Rasterizer/Thirdparty/Occluder.h>
 #include <cassert>
 
-#include <Foundation/Containers/HybridArray.h>
+#if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
 
-// needed for ezHybridArray below
-EZ_DEFINE_AS_POD_TYPE(__m128);
+#  include "VectorMath.h"
 
 Occluder::~Occluder()
 {
@@ -19,6 +16,10 @@ void Occluder::Clear()
   EZ_DELETE_RAW_BUFFER(ezFoundation::GetAlignedAllocator(), m_vertexData);
   m_vertexData = nullptr;
 }
+
+
+// needed for ezHybridArray below
+EZ_DEFINE_AS_POD_TYPE(__m128);
 
 void Occluder::bake(const __m128* vertices, size_t numVertices, __m128 refMin, __m128 refMax)
 {
@@ -193,3 +194,5 @@ void Occluder::bake(const __m128* vertices, size_t numVertices, __m128 refMin, _
 
   occluder->m_center = _mm_mul_ps(_mm_add_ps(max, min), _mm_set1_ps(0.5f));
 }
+
+#endif

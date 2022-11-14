@@ -71,6 +71,8 @@ void ezRasterizerView::EndScene()
 
 void ezRasterizerView::RasterizeObjects(ezUInt32 uiMaxObjects)
 {
+#if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
+
   EZ_PROFILE_SCOPE("Occlusion::RasterizeObjects");
 
   for (const ezRasterizerObject* pObj : m_Objects)
@@ -95,6 +97,7 @@ void ezRasterizerView::RasterizeObjects(ezUInt32 uiMaxObjects)
         return;
     }
   }
+#endif
 }
 
 void ezRasterizerView::ApplyModelViewProjectionMatrix()
@@ -110,21 +113,25 @@ void ezRasterizerView::ApplyModelViewProjectionMatrix()
 
 void ezRasterizerView::SortObjectsFrontToBack()
 {
+#if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
   EZ_PROFILE_SCOPE("Occlusion::SortObjects");
 
   ezSimdVec4f camPos;
   camPos.Load<3>(m_pCamera->GetCenterPosition().GetData());
   camPos.SetW(1);
 
-  m_Objects.Sort([&](const ezRasterizerObject* o1, const ezRasterizerObject* o2) {
+  m_Objects.Sort([&](const ezRasterizerObject* o1, const ezRasterizerObject* o2)
+    {
         __m128 dist1 = _mm_sub_ps(o1->GetInternalOccluder().m_center, camPos.m_v);
         __m128 dist2 = _mm_sub_ps(o2->GetInternalOccluder().m_center, camPos.m_v);
 
         return _mm_comilt_ss(_mm_dp_ps(dist1, dist1, 0x7f), _mm_dp_ps(dist2, dist2, 0x7f)); });
+#endif
 }
 
 bool ezRasterizerView::IsVisible(const ezBoundingBox& aabb) const
 {
+#if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
   if (!m_bAnyOccludersRasterized)
     return true; // assume that people already do frustum culling anyway
 
@@ -135,10 +142,14 @@ bool ezRasterizerView::IsVisible(const ezBoundingBox& aabb) const
 
   bool needsClipping = false;
   return m_pRasterizer->queryVisibility(vMin.m_v, vMax.m_v, needsClipping);
+#else
+  return true;
+#endif
 }
 
 bool ezRasterizerView::IsVisible(const ezRasterizerObject& object) const
 {
+#if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
   if (!m_bAnyOccludersRasterized)
     return true; // assume that people already do frustum culling anyway
 
@@ -146,10 +157,14 @@ bool ezRasterizerView::IsVisible(const ezRasterizerObject& object) const
 
   bool needsClipping = false;
   return m_pRasterizer->queryVisibility(object.GetInternalOccluder().m_boundsMin, object.GetInternalOccluder().m_boundsMax, needsClipping);
+#else
+  return true;
+#endif
 }
 
 bool ezRasterizerView::IsVisible(const ezSimdBBox& aabb) const
 {
+#if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
   if (!m_bAnyOccludersRasterized)
     return true; // assume that people already do frustum culling anyway
 
@@ -165,6 +180,9 @@ bool ezRasterizerView::IsVisible(const ezSimdBBox& aabb) const
 
   bool needsClipping = false;
   return m_pRasterizer->queryVisibility(vmin.m_v, vmax.m_v, needsClipping);
+#else
+  return true;
+#endif
 }
 
 ezRasterizerView* ezRasterizerViewPool::GetRasterizerView(ezUInt32 width, ezUInt32 height, float fAspectRatio)

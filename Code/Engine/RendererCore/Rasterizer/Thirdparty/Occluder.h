@@ -1,8 +1,17 @@
 #pragma once
 
-#include <intrin.h>
 #include <memory>
 #include <vector>
+
+#include <Foundation/Basics.h>
+
+#define EZ_RASTERIZER_SUPPORTED EZ_COMPILER_MSVC_PURE
+
+#if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
+#  include <intrin.h>
+#endif
+
+#if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
 
 struct Occluder
 {
@@ -22,3 +31,10 @@ struct Occluder
   __m256i* m_vertexData = nullptr;
   uint32_t m_packetCount;
 };
+#else
+
+struct Occluder
+{
+};
+
+#endif

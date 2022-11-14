@@ -13,6 +13,8 @@ ezRasterizerObject::~ezRasterizerObject()
   Clear();
 }
 
+#if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
+
 void ezRasterizerObject::Clear()
 {
   m_Occluder.Clear();
@@ -50,7 +52,8 @@ void ezRasterizerObject::CreateMesh(const ezGeometry& geo)
 
   Aabb bounds;
 
-  auto addVtx = [&](ezVec3 vtxPos) {
+  auto addVtx = [&](ezVec3 vtxPos)
+  {
     ezSimdVec4f v;
     v.Load<4>(vtxPos.GetAsPositionVec4().GetData());
     vertices.PushBack(v.m_v);
@@ -107,3 +110,23 @@ void ezRasterizerObject::CreateMesh(const ezGeometry& geo)
 
   m_Occluder.bake(vertices.GetData(), vertices.GetCount(), bounds.m_min, bounds.m_max);
 }
+
+#else
+
+void ezRasterizerObject::Clear()
+{
+}
+
+void ezRasterizerObject::CreateBox(const ezVec3& vFullExtents, const ezMat4& mTransform)
+{
+}
+
+void ezRasterizerObject::CreateSphere(float fRadius, const ezMat4& mTransform)
+{
+}
+
+void ezRasterizerObject::CreateMesh(const ezGeometry& geo)
+{
+}
+
+#endif

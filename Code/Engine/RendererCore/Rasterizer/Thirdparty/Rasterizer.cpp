@@ -1,10 +1,11 @@
-#include "Rasterizer.h"
+#include <RendererCore/Rasterizer/Thirdparty/Occluder.h>
+#include <RendererCore/Rasterizer/Thirdparty/Rasterizer.h>
 
-#include "Occluder.h"
+#if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
 
-#include <algorithm>
-#include <cassert>
-#include <cmath>
+#  include <algorithm>
+#  include <cassert>
+#  include <cmath>
 
 static constexpr float floatCompressionBias = 2.5237386e-29f; // 0xFFFF << 12 reinterpreted as float
 static constexpr float minEdgeOffset = -0.45f;
@@ -647,47 +648,47 @@ __forceinline float Rasterizer::decompressFloat(uint16_t depth)
 }
 
 // turned this into a macro, because MSVC 2022 crashes in debug builds when passing these arguments into the (non-inlined (despite __forceinline)) function
-#define transpose256(A, B, C, D, out0)                      \
-  {                                                         \
-    __m128* out = out0;                                     \
-                                                            \
-    __m256 _Tmp3, _Tmp2, _Tmp1, _Tmp0;                      \
-    _Tmp0 = _mm256_shuffle_ps(A, B, 0x44);                  \
-    _Tmp2 = _mm256_shuffle_ps(A, B, 0xEE);                  \
-    _Tmp1 = _mm256_shuffle_ps(C, D, 0x44);                  \
-    _Tmp3 = _mm256_shuffle_ps(C, D, 0xEE);                  \
-                                                            \
-    __m256 A2 = _mm256_shuffle_ps(_Tmp0, _Tmp1, 0x88);      \
-    __m256 B2 = _mm256_shuffle_ps(_Tmp0, _Tmp1, 0xDD);      \
-    __m256 C2 = _mm256_shuffle_ps(_Tmp2, _Tmp3, 0x88);      \
-    __m256 D2 = _mm256_shuffle_ps(_Tmp2, _Tmp3, 0xDD);      \
-                                                            \
-    _mm256_store_ps(reinterpret_cast<float*>(out + 0), A2); \
-    _mm256_store_ps(reinterpret_cast<float*>(out + 2), B2); \
-    _mm256_store_ps(reinterpret_cast<float*>(out + 4), C2); \
-    _mm256_store_ps(reinterpret_cast<float*>(out + 6), D2); \
-  }
+#  define transpose256(A, B, C, D, out0)                      \
+    {                                                         \
+      __m128* out = out0;                                     \
+                                                              \
+      __m256 _Tmp3, _Tmp2, _Tmp1, _Tmp0;                      \
+      _Tmp0 = _mm256_shuffle_ps(A, B, 0x44);                  \
+      _Tmp2 = _mm256_shuffle_ps(A, B, 0xEE);                  \
+      _Tmp1 = _mm256_shuffle_ps(C, D, 0x44);                  \
+      _Tmp3 = _mm256_shuffle_ps(C, D, 0xEE);                  \
+                                                              \
+      __m256 A2 = _mm256_shuffle_ps(_Tmp0, _Tmp1, 0x88);      \
+      __m256 B2 = _mm256_shuffle_ps(_Tmp0, _Tmp1, 0xDD);      \
+      __m256 C2 = _mm256_shuffle_ps(_Tmp2, _Tmp3, 0x88);      \
+      __m256 D2 = _mm256_shuffle_ps(_Tmp2, _Tmp3, 0xDD);      \
+                                                              \
+      _mm256_store_ps(reinterpret_cast<float*>(out + 0), A2); \
+      _mm256_store_ps(reinterpret_cast<float*>(out + 2), B2); \
+      _mm256_store_ps(reinterpret_cast<float*>(out + 4), C2); \
+      _mm256_store_ps(reinterpret_cast<float*>(out + 6), D2); \
+    }
 
 // turned this into a macro, because MSVC 2022 crashes in debug builds when passing these arguments into the (non-inlined (despite __forceinline)) function
-#define transpose256i(A, B, C, D, out0)                          \
-  {                                                              \
-    __m128i* out = out0;                                         \
-                                                                 \
-    __m256i _Tmp3, _Tmp2, _Tmp1, _Tmp0;                          \
-    _Tmp0 = _mm256_unpacklo_epi32(A, B);                         \
-    _Tmp1 = _mm256_unpacklo_epi32(C, D);                         \
-    _Tmp2 = _mm256_unpackhi_epi32(A, B);                         \
-    _Tmp3 = _mm256_unpackhi_epi32(C, D);                         \
-    __m256i A2 = _mm256_unpacklo_epi64(_Tmp0, _Tmp1);            \
-    __m256i B2 = _mm256_unpackhi_epi64(_Tmp0, _Tmp1);            \
-    __m256i C2 = _mm256_unpacklo_epi64(_Tmp2, _Tmp3);            \
-    __m256i D2 = _mm256_unpackhi_epi64(_Tmp2, _Tmp3);            \
-                                                                 \
-    _mm256_store_si256(reinterpret_cast<__m256i*>(out + 0), A2); \
-    _mm256_store_si256(reinterpret_cast<__m256i*>(out + 2), B2); \
-    _mm256_store_si256(reinterpret_cast<__m256i*>(out + 4), C2); \
-    _mm256_store_si256(reinterpret_cast<__m256i*>(out + 6), D2); \
-  }
+#  define transpose256i(A, B, C, D, out0)                          \
+    {                                                              \
+      __m128i* out = out0;                                         \
+                                                                   \
+      __m256i _Tmp3, _Tmp2, _Tmp1, _Tmp0;                          \
+      _Tmp0 = _mm256_unpacklo_epi32(A, B);                         \
+      _Tmp1 = _mm256_unpacklo_epi32(C, D);                         \
+      _Tmp2 = _mm256_unpackhi_epi32(A, B);                         \
+      _Tmp3 = _mm256_unpackhi_epi32(C, D);                         \
+      __m256i A2 = _mm256_unpacklo_epi64(_Tmp0, _Tmp1);            \
+      __m256i B2 = _mm256_unpackhi_epi64(_Tmp0, _Tmp1);            \
+      __m256i C2 = _mm256_unpacklo_epi64(_Tmp2, _Tmp3);            \
+      __m256i D2 = _mm256_unpackhi_epi64(_Tmp2, _Tmp3);            \
+                                                                   \
+      _mm256_store_si256(reinterpret_cast<__m256i*>(out + 0), A2); \
+      _mm256_store_si256(reinterpret_cast<__m256i*>(out + 2), B2); \
+      _mm256_store_si256(reinterpret_cast<__m256i*>(out + 4), C2); \
+      _mm256_store_si256(reinterpret_cast<__m256i*>(out + 6), D2); \
+    }
 
 template <bool possiblyNearClipped>
 __forceinline void Rasterizer::normalizeEdge(__m256& nx, __m256& ny, __m256 edgeFlipMask)
@@ -766,10 +767,10 @@ __forceinline __m256i Rasterizer::packDepthPremultiplied(__m256 depthA, __m256 d
 
 uint64_t Rasterizer::transposeMask(uint64_t mask)
 {
-#if 0
+#  if 0
   uint64_t maskA = _pdep_u64(_pext_u64(mask, 0x5555555555555555ull), 0xF0F0F0F0F0F0F0F0ull);
   uint64_t maskB = _pdep_u64(_pext_u64(mask, 0xAAAAAAAAAAAAAAAAull), 0x0F0F0F0F0F0F0F0Full);
-#else
+#  else
   uint64_t maskA = 0;
   uint64_t maskB = 0;
   for (uint32_t group = 0; group < 8; ++group)
@@ -780,7 +781,7 @@ uint64_t Rasterizer::transposeMask(uint64_t mask)
       maskB |= ((mask >> (8 * group + 2 * bit + 1)) & 1) << (0 + group * 8 + bit);
     }
   }
-#endif
+#  endif
   return maskA | maskB;
 }
 
@@ -1543,3 +1544,5 @@ void Rasterizer::rasterize(const Occluder& occluder)
 // Force template instantiations
 template void Rasterizer::rasterize<true>(const Occluder& occluder);
 template void Rasterizer::rasterize<false>(const Occluder& occluder);
+
+#endif

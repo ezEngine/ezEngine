@@ -1,19 +1,20 @@
 #pragma once
 
-#include <immintrin.h>
-
 #include <memory>
 #include <vector>
+
+#if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
+#  include <immintrin.h>
+#endif
 
 struct Occluder;
 
 class Rasterizer
 {
 public:
+#if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
   Rasterizer(uint32_t width, uint32_t height);
-
   void setModelViewProjection(const float* matrix);
-
   void clear();
 
   template <bool possiblyNearClipped>
@@ -24,13 +25,39 @@ public:
   bool query2D(uint32_t minX, uint32_t maxX, uint32_t minY, uint32_t maxY, uint32_t maxZ) const;
 
   void readBackDepth(void* target) const;
+#else
+  Rasterizer(uint32_t width, uint32_t height)
+  {
+  }
+
+  void setModelViewProjection(const float* matrix) {}
+  void clear() {}
+
+  template <bool possiblyNearClipped>
+  void rasterize(const Occluder& occluder)
+  {
+  }
+
+  bool queryVisibility(...)
+  {
+    return true;
+  }
+
+  bool query2D(uint32_t minX, uint32_t maxX, uint32_t minY, uint32_t maxY, uint32_t maxZ) const
+  {
+    return true;
+  }
+
+  void readBackDepth(void* target) const {}
+#endif
 
 private:
+#if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
   static float decompressFloat(uint16_t depth);
 
   // these functions don't always work in MSVC debug builds
-  //static void transpose256(__m256 A, __m256 B, __m256 C, __m256 D, __m128* out);
-  //static void transpose256i(__m256i A, __m256i B, __m256i C, __m256i D, __m128i* out);
+  // static void transpose256(__m256 A, __m256 B, __m256 C, __m256 D, __m128* out);
+  // static void transpose256i(__m256i A, __m256i B, __m256i C, __m256i D, __m128i* out);
 
   template <bool possiblyNearClipped>
   static void normalizeEdge(__m256& nx, __m256& ny, __m256 edgeFlipMask);
@@ -59,4 +86,5 @@ private:
   uint32_t m_height;
   uint32_t m_blocksX;
   uint32_t m_blocksY;
+#endif
 };
