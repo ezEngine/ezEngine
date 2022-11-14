@@ -1625,7 +1625,7 @@ void ezGeometry::AddStairs(const ezVec3& size, ezUInt32 uiNumSteps, ezAngle curv
 }
 
 
-void ezGeometry::AddArch(const ezVec3& size, ezUInt32 uiNumSegments, float fThickness, ezAngle angle, bool bMakeSteps, bool bSmoothBottom, bool bSmoothTop, const GeoOptions& options)
+void ezGeometry::AddArch(const ezVec3& size, ezUInt32 uiNumSegments, float fThickness, ezAngle angle, bool bMakeSteps, bool bSmoothBottom, bool bSmoothTop, bool bCapTopAndBottom, const GeoOptions& options)
 {
   // sanitize input values
   {
@@ -1687,6 +1687,8 @@ void ezGeometry::AddArch(const ezVec3& size, ezUInt32 uiNumSegments, float fThic
       vNextTopOuter.z += fStepHeight * 0.5f;
     }
   }
+
+  const bool isFullCircle = ezMath::Abs(angle.GetRadian()) >= ezAngle::Degree(360).GetRadian();
 
   const float fOuterUstep = 3.0f / uiNumSegments;
   for (ezUInt32 segment = 0; segment < uiNumSegments; ++segment)
@@ -1754,6 +1756,7 @@ void ezGeometry::AddArch(const ezVec3& size, ezUInt32 uiNumSegments, float fThic
     }
 
     // Bottom
+    if (bCapTopAndBottom)
     {
       poly[0] = AddVertex(vCurBottomInner, ezVec3(0, 0, -1), vCurBottomInner.GetAsVec2(), options);
       poly[1] = AddVertex(vNextBottomInner, ezVec3(0, 0, -1), vNextBottomInner.GetAsVec2(), options);
@@ -1763,6 +1766,7 @@ void ezGeometry::AddArch(const ezVec3& size, ezUInt32 uiNumSegments, float fThic
     }
 
     // Top
+    if (bCapTopAndBottom)
     {
       poly[0] = AddVertex(vCurTopInner, ezVec3(0, 0, 1), vCurTopInner.GetAsVec2(), options);
       poly[3] = AddVertex(vNextTopInner, ezVec3(0, 0, 1), vNextTopInner.GetAsVec2(), options);
@@ -1772,6 +1776,7 @@ void ezGeometry::AddArch(const ezVec3& size, ezUInt32 uiNumSegments, float fThic
     }
 
     // Front
+    if (bMakeSteps || (!isFullCircle && segment == 0))
     {
       const ezVec3 vNormal = (bFlipWinding ? -1.0f : 1.0f) * vCurDirOutwards.CrossRH(ezVec3(0, 0, 1));
       poly[0] = AddVertex(vCurBottomInner, vNormal, ezVec2(0, 0), options);
@@ -1782,6 +1787,7 @@ void ezGeometry::AddArch(const ezVec3& size, ezUInt32 uiNumSegments, float fThic
     }
 
     // Back
+    if (bMakeSteps || (!isFullCircle && segment == uiNumSegments - 1))
     {
       const ezVec3 vNormal = (bFlipWinding ? -1.0f : 1.0f) * -vNextDirOutwards.CrossRH(ezVec3(0, 0, 1));
       poly[0] = AddVertex(vNextBottomInner, vNormal, ezVec2(0, 0), options);

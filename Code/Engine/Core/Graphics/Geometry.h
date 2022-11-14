@@ -254,7 +254,7 @@ public:
   /// \brief Generates a straight stair mesh along the X axis. The number of steps determines the step height and depth.
   void AddStairs(const ezVec3& size, ezUInt32 uiNumSteps, ezAngle curvature, bool bSmoothSloped, const GeoOptions& options = GeoOptions());
 
-  void AddArch(const ezVec3& size, ezUInt32 uiNumSegments, float fThickness, ezAngle angle, bool bMakeSteps, bool bSmoothBottom, bool bSmoothTop, const GeoOptions& options = GeoOptions());
+  void AddArch(const ezVec3& size, ezUInt32 uiNumSegments, float fThickness, ezAngle angle, bool bMakeSteps, bool bSmoothBottom, bool bSmoothTop, bool bCapTopAndBottom, const GeoOptions& options = GeoOptions());
 
   /// \todo GeomUtils improvements:
   // ThickLine

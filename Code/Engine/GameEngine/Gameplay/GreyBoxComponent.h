@@ -14,6 +14,7 @@ struct ezMsgExtractRenderData;
 struct ezMsgBuildStaticMesh;
 struct ezMsgExtractGeometry;
 struct ezMsgExtractOccluderData;
+struct ezMsgTransformChanged;
 using ezMeshResourceHandle = ezTypedResourceHandle<class ezMeshResource>;
 using ezMaterialResourceHandle = ezTypedResourceHandle<class ezMaterialResource>;
 
@@ -106,6 +107,7 @@ protected:
   void OnBuildStaticMesh(ezMsgBuildStaticMesh& msg) const;
   void OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const;
   void OnMsgExtractOccluderData(ezMsgExtractOccluderData& msg) const;
+  void OnMsgTransformChanged(ezMsgTransformChanged& msg);
 
   ezEnum<ezGreyBoxShape> m_Shape;
   ezMaterialResourceHandle m_hMaterial;
@@ -126,7 +128,7 @@ protected:
   bool m_bUseAsOccluder = true;
 
   void InvalidateMesh();
-  void BuildGeometry(ezGeometry& geom, ezEnum<ezGreyBoxShape> shape, const ezMat4& transform) const;
+  void BuildGeometry(ezGeometry& geom, ezEnum<ezGreyBoxShape> shape, const ezMat4& transform, bool bOnlyRoughDetails) const;
 
   template <typename ResourceType>
   ezTypedResourceHandle<ResourceType> GenerateMesh() const;
