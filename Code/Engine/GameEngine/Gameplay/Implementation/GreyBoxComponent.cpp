@@ -532,7 +532,7 @@ void ezGreyBoxComponent::BuildGeometry(ezGeometry& geom, ezEnum<ezGreyBoxShape> 
     break;
 
     case ezGreyBoxShape::SpiralStairs:
-      geom.AddArch(size, m_uiDetail, m_fThickness, m_Curvature, true, m_bSlopedBottom, m_bSlopedTop, !bOnlyRoughDetails, opt);
+      geom.AddArch(size, m_uiDetail, m_fThickness, m_Curvature, true, m_bSlopedBottom, m_bSlopedTop, true, opt);
       break;
 
     default:

@@ -466,8 +466,9 @@ bool Rasterizer::queryVisibility(__m128 boundsMin, __m128 boundsMax, bool& needs
   __m128 maxsXY = _mm_max_ps(_mm_unpacklo_ps(maxsX, maxsY), _mm_unpackhi_ps(maxsX, maxsY));
 
   // TODO: inflate bbox artificially to prevent incorrect occlusion due to low precision
-  minsXY = _mm_sub_ps(minsXY, _mm_setr_ps(3, 3, 3, 3));
-  maxsXY = _mm_add_ps(maxsXY, _mm_setr_ps(3, 3, 3, 3));
+  constexpr uint32_t inc = 2;
+  minsXY = _mm_sub_ps(minsXY, _mm_setr_ps(inc, inc, inc, inc));
+  maxsXY = _mm_add_ps(maxsXY, _mm_setr_ps(inc, inc, inc, inc));
 
   // Clamp bounds
   minsXY = _mm_max_ps(minsXY, _mm_setzero_ps());

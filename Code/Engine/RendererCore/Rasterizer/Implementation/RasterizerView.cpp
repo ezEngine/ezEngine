@@ -10,7 +10,7 @@
 #include <RendererCore/Rasterizer/Thirdparty/Occluder.h>
 #include <RendererCore/Rasterizer/Thirdparty/Rasterizer.h>
 
-ezCVarInt cvar_SpatialCullingOcclusionMaxResolution("Spatial.Occlusion.MaxResolution", 256 + 128, ezCVarFlags::Default, "Max resolution for occlusion buffers.");
+ezCVarInt cvar_SpatialCullingOcclusionMaxResolution("Spatial.Occlusion.MaxResolution", 512, ezCVarFlags::Default, "Max resolution for occlusion buffers.");
 ezCVarInt cvar_SpatialCullingOcclusionMaxOccluders("Spatial.Occlusion.MaxOccluders", 64, ezCVarFlags::Default, "Max number of occluders to rasterize per frame.");
 
 ezRasterizerView::ezRasterizerView() = default;
@@ -174,8 +174,18 @@ ezRasterizerView* ezRasterizerViewPool::GetRasterizerView(ezUInt32 width, ezUInt
 
   EZ_LOCK(m_Mutex);
 
-  width = ezMath::RoundDown(width, 64);
-  height = ezMath::RoundDown(height, 64);
+  const float divX = (float)width / (float)cvar_SpatialCullingOcclusionMaxResolution;
+  const float divY = (float)height / (float)cvar_SpatialCullingOcclusionMaxResolution;
+  const float div = ezMath::Max(divX, divY);
+
+  if (div > 1.0)
+  {
+    width = (ezUInt32)(width / div);
+    height = (ezUInt32)(height / div);
+  }
+
+  width = ezMath::RoundDown(width, 8);
+  height = ezMath::RoundDown(height, 8);
 
   width = ezMath::Clamp<ezUInt32>(width, 32u, cvar_SpatialCullingOcclusionMaxResolution);
   height = ezMath::Clamp<ezUInt32>(height, 32u, cvar_SpatialCullingOcclusionMaxResolution);

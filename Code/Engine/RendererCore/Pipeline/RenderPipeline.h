@@ -149,4 +149,7 @@ private: // Member data
   mutable ezHashTable<const ezRTTI*, ezUInt32> m_TypeToDataProviderIndex;
 
   ezDynamicArray<ezPermutationVar> m_PermutationVars;
+
+  // Occlusion Culling
+  ezGALTextureHandle m_hOcclusionDebugViewTexture;
 };
