@@ -432,3 +432,4 @@ ezPhysicsShapeType::Character;Character
 ezPhysicsShapeType::Ragdoll;Ragdoll
 ezPhysicsShapeType::Rope;Rope
 ezStateMachineComponent;State Machine;;http://ezengine.net/pages/docs/ai/state-machine-component.html
+ezOccluderComponent;Occluder Component
