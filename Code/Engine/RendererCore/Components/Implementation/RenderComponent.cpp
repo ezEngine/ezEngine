@@ -45,8 +45,6 @@ void ezRenderComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
 
   if (GetLocalBounds(bounds, bAlwaysVisible, msg).Succeeded())
   {
-    // TODO: add occlusion category
-
     ezSpatialData::Category category = GetOwner()->IsDynamic() ? ezDefaultSpatialDataCategories::RenderDynamic : ezDefaultSpatialDataCategories::RenderStatic;
 
     if (bounds.IsValid())

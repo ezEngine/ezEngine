@@ -7,6 +7,7 @@
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Math/Color8UNorm.h>
 #include <Foundation/Math/ColorScheme.h>
+#include <Foundation/Math/Frustum.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
 #include <Foundation/SimdMath/SimdBBox.h>
 #include <Foundation/Time/Clock.h>
@@ -995,7 +996,8 @@ void ezRenderPipeline::FindVisibleObjects(const ezView& view)
   {
     EZ_PROFILE_SCOPE("Occlusion::FindVisibleObjects");
 
-    auto IsOccluded = [=](const ezSimdBBox& aabb) {
+    auto IsOccluded = [=](const ezSimdBBox& aabb)
+    {
       // grow the bbox by some percent to counter the lower precision of the occlusion buffer
 
       ezSimdBBox aabb2;
