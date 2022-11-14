@@ -9,7 +9,7 @@ function(ez_link_target_dx11 TARGET_NAME)
 
 	# only execute find_package once
 	if(NOT EZ_DX11_LIBRARY)
-		find_package(DirectX11)
+		find_package(DirectX11 REQUIRED)
 
 		if(DirectX11_FOUND)
 			set_property(GLOBAL PROPERTY EZ_DX11_LIBRARY ${DirectX11_LIBRARY})
