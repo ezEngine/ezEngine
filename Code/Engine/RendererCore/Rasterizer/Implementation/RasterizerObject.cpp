@@ -52,8 +52,7 @@ void ezRasterizerObject::CreateMesh(const ezGeometry& geo)
 
   Aabb bounds;
 
-  auto addVtx = [&](ezVec3 vtxPos)
-  {
+  auto addVtx = [&](ezVec3 vtxPos) {
     ezSimdVec4f v;
     v.Load<4>(vtxPos.GetAsPositionVec4().GetData());
     vertices.PushBack(v.m_v);
