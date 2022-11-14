@@ -62,7 +62,7 @@ public:
   ///@}
   /// \name Visibility Queries
   ///@{
-  
+
   using IsOccludedFunc = ezDelegate<bool(const ezSimdBBox&)>;
 
   virtual void FindVisibleObjects(const ezFrustum& frustum, const QueryParams& queryParams, ezDynamicArray<const ezGameObject*>& out_Objects, IsOccludedFunc IsOccluded) const = 0;

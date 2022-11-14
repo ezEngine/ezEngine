@@ -14,7 +14,7 @@ inline __m128 cross(__m128 a, __m128 b)
 // Normal vector of triangle
 inline __m128 normal(__m128 v0, __m128 v1, __m128 v2)
 {
-	return cross(_mm_sub_ps(v1, v0), _mm_sub_ps(v2, v0));
+  return cross(_mm_sub_ps(v1, v0), _mm_sub_ps(v2, v0));
 }
 
 inline __m128 normalize(__m128 v)

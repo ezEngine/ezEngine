@@ -116,8 +116,7 @@ void ezRasterizerView::SortObjectsFrontToBack()
   camPos.Load<3>(m_pCamera->GetCenterPosition().GetData());
   camPos.SetW(1);
 
-  m_Objects.Sort([&](const ezRasterizerObject* o1, const ezRasterizerObject* o2)
-    {
+  m_Objects.Sort([&](const ezRasterizerObject* o1, const ezRasterizerObject* o2) {
         __m128 dist1 = _mm_sub_ps(o1->GetInternalOccluder().m_center, camPos.m_v);
         __m128 dist2 = _mm_sub_ps(o2->GetInternalOccluder().m_center, camPos.m_v);
 
