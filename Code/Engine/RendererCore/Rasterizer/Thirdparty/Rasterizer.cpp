@@ -351,49 +351,51 @@ void Rasterizer::clear()
 
 bool Rasterizer::queryVisibility(__m128 boundsMin, __m128 boundsMax, bool& needsClipping)
 {
+  // Frustum culling is not necessary, because EZ only calls this functions for objects that are definitely inside the frustum
+  // 
   // Frustum cull
   __m128 extents = _mm_sub_ps(boundsMax, boundsMin);
-  __m128 center = _mm_add_ps(boundsMax, boundsMin); // Bounding box center times 2 - but since W = 2, the plane equations work out correctly
+  //__m128 center = _mm_add_ps(boundsMax, boundsMin); // Bounding box center times 2 - but since W = 2, the plane equations work out correctly
   __m128 minusZero = _mm_set1_ps(-0.0f);
 
-  __m128 row0 = _mm_loadu_ps(m_modelViewProjectionRaw + 0);
-  __m128 row1 = _mm_loadu_ps(m_modelViewProjectionRaw + 4);
-  __m128 row2 = _mm_loadu_ps(m_modelViewProjectionRaw + 8);
-  __m128 row3 = _mm_loadu_ps(m_modelViewProjectionRaw + 12);
+  //__m128 row0 = _mm_loadu_ps(m_modelViewProjectionRaw + 0);
+  //__m128 row1 = _mm_loadu_ps(m_modelViewProjectionRaw + 4);
+  //__m128 row2 = _mm_loadu_ps(m_modelViewProjectionRaw + 8);
+  //__m128 row3 = _mm_loadu_ps(m_modelViewProjectionRaw + 12);
 
-  // Compute distance from each frustum plane
-  __m128 plane0 = _mm_add_ps(row3, row0);
-  __m128 offset0 = _mm_add_ps(center, _mm_xor_ps(extents, _mm_and_ps(plane0, minusZero)));
-  __m128 dist0 = _mm_dp_ps(plane0, offset0, 0xff);
+  //// Compute distance from each frustum plane
+  //__m128 plane0 = _mm_add_ps(row3, row0);
+  //__m128 offset0 = _mm_add_ps(center, _mm_xor_ps(extents, _mm_and_ps(plane0, minusZero)));
+  //__m128 dist0 = _mm_dp_ps(plane0, offset0, 0xff);
 
-  __m128 plane1 = _mm_sub_ps(row3, row0);
-  __m128 offset1 = _mm_add_ps(center, _mm_xor_ps(extents, _mm_and_ps(plane1, minusZero)));
-  __m128 dist1 = _mm_dp_ps(plane1, offset1, 0xff);
+  //__m128 plane1 = _mm_sub_ps(row3, row0);
+  //__m128 offset1 = _mm_add_ps(center, _mm_xor_ps(extents, _mm_and_ps(plane1, minusZero)));
+  //__m128 dist1 = _mm_dp_ps(plane1, offset1, 0xff);
 
-  __m128 plane2 = _mm_add_ps(row3, row1);
-  __m128 offset2 = _mm_add_ps(center, _mm_xor_ps(extents, _mm_and_ps(plane2, minusZero)));
-  __m128 dist2 = _mm_dp_ps(plane2, offset2, 0xff);
+  //__m128 plane2 = _mm_add_ps(row3, row1);
+  //__m128 offset2 = _mm_add_ps(center, _mm_xor_ps(extents, _mm_and_ps(plane2, minusZero)));
+  //__m128 dist2 = _mm_dp_ps(plane2, offset2, 0xff);
 
-  __m128 plane3 = _mm_sub_ps(row3, row1);
-  __m128 offset3 = _mm_add_ps(center, _mm_xor_ps(extents, _mm_and_ps(plane3, minusZero)));
-  __m128 dist3 = _mm_dp_ps(plane3, offset3, 0xff);
+  //__m128 plane3 = _mm_sub_ps(row3, row1);
+  //__m128 offset3 = _mm_add_ps(center, _mm_xor_ps(extents, _mm_and_ps(plane3, minusZero)));
+  //__m128 dist3 = _mm_dp_ps(plane3, offset3, 0xff);
 
-  __m128 plane4 = _mm_add_ps(row3, row2);
-  __m128 offset4 = _mm_add_ps(center, _mm_xor_ps(extents, _mm_and_ps(plane4, minusZero)));
-  __m128 dist4 = _mm_dp_ps(plane4, offset4, 0xff);
+  //__m128 plane4 = _mm_add_ps(row3, row2);
+  //__m128 offset4 = _mm_add_ps(center, _mm_xor_ps(extents, _mm_and_ps(plane4, minusZero)));
+  //__m128 dist4 = _mm_dp_ps(plane4, offset4, 0xff);
 
-  __m128 plane5 = _mm_sub_ps(row3, row2);
-  __m128 offset5 = _mm_add_ps(center, _mm_xor_ps(extents, _mm_and_ps(plane5, minusZero)));
-  __m128 dist5 = _mm_dp_ps(plane5, offset5, 0xff);
+  //__m128 plane5 = _mm_sub_ps(row3, row2);
+  //__m128 offset5 = _mm_add_ps(center, _mm_xor_ps(extents, _mm_and_ps(plane5, minusZero)));
+  //__m128 dist5 = _mm_dp_ps(plane5, offset5, 0xff);
 
-  // Combine plane distance signs
-  __m128 combined = _mm_or_ps(_mm_or_ps(_mm_or_ps(dist0, dist1), _mm_or_ps(dist2, dist3)), _mm_or_ps(dist4, dist5));
+  //// Combine plane distance signs
+  //__m128 combined = _mm_or_ps(_mm_or_ps(_mm_or_ps(dist0, dist1), _mm_or_ps(dist2, dist3)), _mm_or_ps(dist4, dist5));
 
-  // Can't use _mm_testz_ps or _mm_comile_ss here because the OR's above created garbage in the non-sign bits
-  if (_mm_movemask_ps(combined))
-  {
-    return false;
-  }
+  //// Can't use _mm_testz_ps or _mm_comile_ss here because the OR's above created garbage in the non-sign bits
+  // if (_mm_movemask_ps(combined))
+  //{
+  //   return false;
+  // }
 
   // Load prebaked projection matrix
   __m128 col0 = _mm_loadu_ps(m_modelViewProjection + 0);
