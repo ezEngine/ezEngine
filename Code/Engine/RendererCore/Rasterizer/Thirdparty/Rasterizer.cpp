@@ -352,7 +352,7 @@ void Rasterizer::clear()
 bool Rasterizer::queryVisibility(__m128 boundsMin, __m128 boundsMax, bool& needsClipping)
 {
   // Frustum culling is not necessary, because EZ only calls this functions for objects that are definitely inside the frustum
-  // 
+  //
   // Frustum cull
   __m128 extents = _mm_sub_ps(boundsMax, boundsMin);
   //__m128 center = _mm_add_ps(boundsMax, boundsMin); // Bounding box center times 2 - but since W = 2, the plane equations work out correctly
