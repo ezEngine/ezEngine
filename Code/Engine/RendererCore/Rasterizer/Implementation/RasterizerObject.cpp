@@ -134,19 +134,21 @@ ezSharedPtr<const ezRasterizerObject> ezRasterizerObject::CreateMesh(ezStringVie
 
 #else
 
-void ezRasterizerObject::CreateBox(const ezVec3& vFullExtents, const ezMat4& mTransform)
-{
-}
-
-void ezRasterizerObject::CreateSphere(float fRadius, const ezMat4& mTransform)
-{
-}
-
 void ezRasterizerObject::CreateMesh(const ezGeometry& geo)
 {
 }
 
-ezSharedPtr<ezRasterizerObject> ezRasterizerObject::CreateBox(const ezVec3& vFullExtents)
+ezSharedPtr<const ezRasterizerObject> ezRasterizerObject::GetObject(ezStringView sUniqueName)
+{
+  return nullptr;
+}
+
+ezSharedPtr<const ezRasterizerObject> ezRasterizerObject::CreateBox(const ezVec3& vFullExtents)
+{
+  return nullptr;
+}
+
+ezSharedPtr<const ezRasterizerObject> ezRasterizerObject::CreateMesh(ezStringView sUniqueName, const ezGeometry& geometry)
 {
   return nullptr;
 }
