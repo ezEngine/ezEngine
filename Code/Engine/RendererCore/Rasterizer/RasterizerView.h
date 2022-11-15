@@ -44,25 +44,17 @@ public:
   }
 
   /// \brief Adds an object as an occluder to the scene. Once all occluders have been rasterized, visibility queries can be done.
-  void AddObject(const ezRasterizerObject* pObject)
+  void AddObject(const ezRasterizerObject* pObject, const ezTransform& transform)
   {
-    m_Objects.PushBack(pObject);
+    auto& inst = m_Instances.ExpandAndGetRef();
+    inst.m_pObject = pObject;
+    inst.m_Transform = transform;
   }
 
   /// \brief Checks whether a box would be visible, or is fully occluded by the existing scene geometry.
   ///
   /// Note: This only works after EndScene().
-  bool IsVisible(const ezBoundingBox& aabb) const;
-
-  /// \brief Checks whether a box would be visible, or is fully occluded by the existing scene geometry.
-  ///
-  /// Note: This only works after EndScene().
   bool IsVisible(const ezSimdBBox& aabb) const;
-
-  /// \brief Checks whether an object would be visible, or is fully occluded by the existing scene geometry.
-  ///
-  /// Note: This only works after EndScene().
-  bool IsVisible(const ezRasterizerObject& object) const;
 
   /// \brief Wether any occluder was actually added and also rasterized. If not, no need to do any visibility checks.
   bool HasRasterizedAnyOccluders() const
@@ -73,7 +65,8 @@ public:
 private:
   void SortObjectsFrontToBack();
   void RasterizeObjects(ezUInt32 uiMaxObjects);
-  void ApplyModelViewProjectionMatrix();
+  void UpdateViewProjectionMatrix();
+  void ApplyModelViewProjectionMatrix(const ezTransform& modelTransform);
 
   bool m_bAnyOccludersRasterized = false;
   const ezCamera* m_pCamera = nullptr;
@@ -81,7 +74,15 @@ private:
   ezUInt32 m_uiResolutionY = 0;
   float m_fAspectRation = 1.0f;
   ezUniquePtr<Rasterizer> m_pRasterizer;
-  ezDeque<const ezRasterizerObject*> m_Objects;
+
+  struct Instance
+  {
+    ezTransform m_Transform;
+    const ezRasterizerObject* m_pObject;
+  };
+
+  ezDeque<Instance> m_Instances;
+  ezMat4 m_mViewProjection;
 };
 
 class ezRasterizerViewPool

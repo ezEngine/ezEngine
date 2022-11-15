@@ -107,7 +107,6 @@ protected:
   void OnBuildStaticMesh(ezMsgBuildStaticMesh& msg) const;
   void OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const;
   void OnMsgExtractOccluderData(ezMsgExtractOccluderData& msg) const;
-  void OnMsgTransformChanged(ezMsgTransformChanged& msg);
 
   ezEnum<ezGreyBoxShape> m_Shape;
   ezMaterialResourceHandle m_hMaterial;

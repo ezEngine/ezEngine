@@ -54,19 +54,21 @@ void ezRasterizerView::ReadBackFrame(ezArrayPtr<ezColorLinearUB> targetBuffer) c
 
 void ezRasterizerView::EndScene()
 {
-  if (m_Objects.IsEmpty())
+  if (m_Instances.IsEmpty())
     return;
 
   EZ_PROFILE_SCOPE("Occlusion::RasterizeScene");
 
   SortObjectsFrontToBack();
 
-  ApplyModelViewProjectionMatrix();
+  UpdateViewProjectionMatrix();
 
   // only rasterize a limited number of the closest objects
   RasterizeObjects(cvar_SpatialCullingOcclusionMaxOccluders);
 
-  m_Objects.Clear();
+  m_Instances.Clear();
+
+  m_pRasterizer->setModelViewProjection(m_mViewProjection.m_fElementsCM);
 }
 
 void ezRasterizerView::RasterizeObjects(ezUInt32 uiMaxObjects)
@@ -75,10 +77,12 @@ void ezRasterizerView::RasterizeObjects(ezUInt32 uiMaxObjects)
 
   EZ_PROFILE_SCOPE("Occlusion::RasterizeObjects");
 
-  for (const ezRasterizerObject* pObj : m_Objects)
+  for (const Instance& inst : m_Instances)
   {
+    ApplyModelViewProjectionMatrix(inst.m_Transform);
+
     bool bNeedsClipping;
-    const Occluder& occluder = pObj->GetInternalOccluder();
+    const Occluder& occluder = inst.m_pObject->GetInternalOccluder();
 
     if (m_pRasterizer->queryVisibility(occluder.m_boundsMin, occluder.m_boundsMax, bNeedsClipping))
     {
@@ -100,13 +104,18 @@ void ezRasterizerView::RasterizeObjects(ezUInt32 uiMaxObjects)
 #endif
 }
 
-void ezRasterizerView::ApplyModelViewProjectionMatrix()
+void ezRasterizerView::UpdateViewProjectionMatrix()
 {
   ezMat4 mProjection;
-  m_pCamera->GetProjectionMatrix(m_fAspectRation, mProjection);
+  m_pCamera->GetProjectionMatrix(m_fAspectRation, mProjection, ezCameraEye::Left, ezClipSpaceDepthRange::ZeroToOne);
 
-  const ezMat4 mView = m_pCamera->GetViewMatrix();
-  const ezMat4 mMVP = mProjection * mView;
+  m_mViewProjection = mProjection * m_pCamera->GetViewMatrix();
+}
+
+void ezRasterizerView::ApplyModelViewProjectionMatrix(const ezTransform& modelTransform)
+{
+  const ezMat4 mModel = modelTransform.GetAsMat4();
+  const ezMat4 mMVP = m_mViewProjection * mModel;
 
   m_pRasterizer->setModelViewProjection(mMVP.m_fElementsCM);
 }
@@ -116,48 +125,14 @@ void ezRasterizerView::SortObjectsFrontToBack()
 #if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
   EZ_PROFILE_SCOPE("Occlusion::SortObjects");
 
-  ezSimdVec4f camPos;
-  camPos.Load<3>(m_pCamera->GetCenterPosition().GetData());
-  camPos.SetW(1);
+  const ezVec3 camPos = m_pCamera->GetCenterPosition();
 
-  m_Objects.Sort([&](const ezRasterizerObject* o1, const ezRasterizerObject* o2) {
-        __m128 dist1 = _mm_sub_ps(o1->GetInternalOccluder().m_center, camPos.m_v);
-        __m128 dist2 = _mm_sub_ps(o2->GetInternalOccluder().m_center, camPos.m_v);
+  m_Instances.Sort([&](const Instance& i1, const Instance& i2)
+    {
+      const float d1 = (i1.m_Transform.m_vPosition - camPos).GetLengthSquared();
+      const float d2 = (i2.m_Transform.m_vPosition - camPos).GetLengthSquared();
 
-        return _mm_comilt_ss(_mm_dp_ps(dist1, dist1, 0x7f), _mm_dp_ps(dist2, dist2, 0x7f)); });
-#endif
-}
-
-bool ezRasterizerView::IsVisible(const ezBoundingBox& aabb) const
-{
-#if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
-  if (!m_bAnyOccludersRasterized)
-    return true; // assume that people already do frustum culling anyway
-
-  EZ_PROFILE_SCOPE("Occlusion::IsVisible");
-
-  const ezSimdVec4f vMin = ezSimdConversion::ToVec4(aabb.m_vMin.GetAsPositionVec4());
-  const ezSimdVec4f vMax = ezSimdConversion::ToVec4(aabb.m_vMax.GetAsPositionVec4());
-
-  bool needsClipping = false;
-  return m_pRasterizer->queryVisibility(vMin.m_v, vMax.m_v, needsClipping);
-#else
-  return true;
-#endif
-}
-
-bool ezRasterizerView::IsVisible(const ezRasterizerObject& object) const
-{
-#if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
-  if (!m_bAnyOccludersRasterized)
-    return true; // assume that people already do frustum culling anyway
-
-  EZ_PROFILE_SCOPE("Occlusion::IsVisible");
-
-  bool needsClipping = false;
-  return m_pRasterizer->queryVisibility(object.GetInternalOccluder().m_boundsMin, object.GetInternalOccluder().m_boundsMax, needsClipping);
-#else
-  return true;
+      return d1 < d2; });
 #endif
 }
 

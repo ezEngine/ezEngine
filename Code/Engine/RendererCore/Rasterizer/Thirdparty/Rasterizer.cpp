@@ -353,7 +353,7 @@ bool Rasterizer::queryVisibility(__m128 boundsMin, __m128 boundsMax, bool& needs
 {
   // Frustum cull
   __m128 extents = _mm_sub_ps(boundsMax, boundsMin);
-  __m128 center = _mm_add_ps(boundsMax, boundsMin); // Bounding box center times 2 - but since W = 2, the plane equations work out correctly (TODO: this comment about 2 seems to be wrong)
+  __m128 center = _mm_add_ps(boundsMax, boundsMin); // Bounding box center times 2 - but since W = 2, the plane equations work out correctly
   __m128 minusZero = _mm_set1_ps(-0.0f);
 
   __m128 row0 = _mm_loadu_ps(m_modelViewProjectionRaw + 0);

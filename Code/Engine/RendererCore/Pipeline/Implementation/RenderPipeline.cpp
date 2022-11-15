@@ -996,7 +996,8 @@ void ezRenderPipeline::FindVisibleObjects(const ezView& view)
   {
     EZ_PROFILE_SCOPE("Occlusion::FindVisibleObjects");
 
-    auto IsOccluded = [=](const ezSimdBBox& aabb) {
+    auto IsOccluded = [=](const ezSimdBBox& aabb)
+    {
       // grow the bbox by some percent to counter the lower precision of the occlusion buffer
 
       ezSimdBBox aabb2;
@@ -1360,7 +1361,7 @@ ezRasterizerView* ezRenderPipeline::PrepareOcclusionCulling(const ezFrustum& fru
 
     for (const auto& ed : msg.m_ExtractedOccluderData)
     {
-      pRasterizer->AddObject(ed.m_pObject);
+      pRasterizer->AddObject(ed.m_pObject, ed.m_Transform);
     }
   }
 

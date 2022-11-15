@@ -17,7 +17,6 @@ EZ_BEGIN_COMPONENT_TYPE(ezOccluderComponent, 1, ezComponentMode::Static)
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgTransformChanged, OnMsgTransformChanged),
     EZ_MESSAGE_HANDLER(ezMsgUpdateLocalBounds, OnUpdateLocalBounds),
     EZ_MESSAGE_HANDLER(ezMsgExtractOccluderData, OnMsgExtractOccluderData),
   }
@@ -46,7 +45,7 @@ ezOccluderComponent::~ezOccluderComponent() = default;
 void ezOccluderComponent::SetExtents(const ezVec3& extents)
 {
   m_vExtents = extents;
-  m_bColliderValid = false;
+  m_pOccluderObject = nullptr;
 
   if (IsActiveAndInitialized())
   {
@@ -62,30 +61,18 @@ void ezOccluderComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
     msg.AddBounds(ezBoundingBox(-m_vExtents * 0.5f, m_vExtents * 0.5f), ezDefaultSpatialDataCategories::OcclusionDynamic);
 }
 
-void ezOccluderComponent::OnMsgTransformChanged(ezMsgTransformChanged& msg)
-{
-  m_bColliderValid = false;
-}
-
 void ezOccluderComponent::OnMsgExtractOccluderData(ezMsgExtractOccluderData& msg) const
 {
   if (IsActiveAndInitialized())
   {
-    // if this object is dynamic, we have to check the last transform with which we generated the collider mesh
-    if (GetOwner()->IsDynamic() && GetOwner()->GetGlobalTransformSimd() != m_LastGlobalTransform)
+    if (m_pOccluderObject == nullptr)
     {
-      m_bColliderValid = false;
-      m_LastGlobalTransform = GetOwner()->GetGlobalTransformSimd();
+      m_pOccluderObject = EZ_NEW(ezFoundation::GetAlignedAllocator(), ezRasterizerObject);
+
+      m_pOccluderObject->CreateBox(m_vExtents, ezMat4::IdentityMatrix());
     }
 
-    if (!m_bColliderValid)
-    {
-      m_bColliderValid = true;
-
-      m_Object.CreateBox(m_vExtents, GetOwner()->GetGlobalTransform().GetAsMat4());
-    }
-
-    msg.AddOccluder(&m_Object, ezTransform::IdentityTransform());
+    msg.AddOccluder(m_pOccluderObject.Borrow(), GetOwner()->GetGlobalTransform());
   }
 }
 
@@ -109,15 +96,11 @@ void ezOccluderComponent::DeserializeComponent(ezWorldReader& stream)
 
 void ezOccluderComponent::OnActivated()
 {
-  // if this is a static object (not usually moving), inform us if the object moves anyway (editor use case)
-  GetOwner()->EnableStaticTransformChangesNotifications();
-
-  m_bColliderValid = false;
+  m_pOccluderObject.Clear();
   GetOwner()->UpdateLocalBounds();
 }
 
 void ezOccluderComponent::OnDeactivated()
 {
-  m_bColliderValid = false;
-  m_Object.Clear();
+  m_pOccluderObject.Clear();
 }

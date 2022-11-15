@@ -52,7 +52,6 @@ EZ_BEGIN_COMPONENT_TYPE(ezGreyBoxComponent, 5, ezComponentMode::Static)
     EZ_MESSAGE_HANDLER(ezMsgBuildStaticMesh, OnBuildStaticMesh),
     EZ_MESSAGE_HANDLER(ezMsgExtractGeometry, OnMsgExtractGeometry),
     EZ_MESSAGE_HANDLER(ezMsgExtractOccluderData, OnMsgExtractOccluderData),
-    EZ_MESSAGE_HANDLER(ezMsgTransformChanged, OnMsgTransformChanged),
   }
   EZ_END_MESSAGEHANDLERS;
 }
@@ -137,9 +136,6 @@ void ezGreyBoxComponent::DeserializeComponent(ezWorldReader& stream)
 
 void ezGreyBoxComponent::OnActivated()
 {
-  // if this is a static object (not usually moving), inform us if the object moves anyway (editor use case)
-  GetOwner()->EnableStaticTransformChangesNotifications();
-
   if (!m_hMesh.IsValid())
   {
     m_hMesh = GenerateMesh<ezMeshResource>();
@@ -156,9 +152,9 @@ ezResult ezGreyBoxComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& b
     ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::AllowLoadingFallback);
     bounds = pMesh->GetBounds();
 
-    if (GetOwner()->IsStatic() && m_bUseAsOccluder)
+    if (m_bUseAsOccluder)
     {
-      msg.AddBounds(bounds, ezDefaultSpatialDataCategories::OcclusionStatic);
+      msg.AddBounds(bounds, GetOwner()->IsStatic() ? ezDefaultSpatialDataCategories::OcclusionStatic : ezDefaultSpatialDataCategories::OcclusionDynamic);
     }
 
     return EZ_SUCCESS;
@@ -406,11 +402,6 @@ void ezGreyBoxComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const
   msg.AddMeshObject(GetOwner()->GetGlobalTransform(), GenerateMesh<ezCpuMeshResource>());
 }
 
-void ezGreyBoxComponent::OnMsgTransformChanged(ezMsgTransformChanged& msg)
-{
-  m_pOccluderObject = nullptr;
-}
-
 void ezGreyBoxComponent::OnMsgExtractOccluderData(ezMsgExtractOccluderData& msg) const
 {
   if (!IsActiveAndInitialized() || !m_bUseAsOccluder)
@@ -427,12 +418,12 @@ void ezGreyBoxComponent::OnMsgExtractOccluderData(ezMsgExtractOccluderData& msg)
     m_pOccluderObject = EZ_NEW(ezFoundation::GetAlignedAllocator(), ezRasterizerObject);
 
     ezGeometry geom;
-    BuildGeometry(geom, shape, GetOwner()->GetGlobalTransform().GetAsMat4(), true);
+    BuildGeometry(geom, shape, ezMat4::IdentityMatrix(), true);
 
     m_pOccluderObject->CreateMesh(geom);
   }
 
-  msg.AddOccluder(m_pOccluderObject.Borrow(), ezTransform::IdentityTransform());
+  msg.AddOccluder(m_pOccluderObject.Borrow(), GetOwner()->GetGlobalTransform());
 }
 
 void ezGreyBoxComponent::InvalidateMesh()

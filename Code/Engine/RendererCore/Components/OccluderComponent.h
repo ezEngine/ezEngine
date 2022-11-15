@@ -45,13 +45,10 @@ public:
   void SetExtents(const ezVec3& extents);
 
 private:
-  mutable bool m_bColliderValid = false;
-  mutable ezSimdTransform m_LastGlobalTransform;
-  mutable ezRasterizerObject m_Object;
-
   ezVec3 m_vExtents = ezVec3(5.0f);
 
+  mutable ezSharedPtr<ezRasterizerObject> m_pOccluderObject;
+
   void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg);
-  void OnMsgTransformChanged(ezMsgTransformChanged& msg);
   void OnMsgExtractOccluderData(ezMsgExtractOccluderData& msg) const;
 };
