@@ -47,7 +47,7 @@ public:
 private:
   ezVec3 m_vExtents = ezVec3(5.0f);
 
-  mutable ezSharedPtr<ezRasterizerObject> m_pOccluderObject;
+  mutable ezSharedPtr<const ezRasterizerObject> m_pOccluderObject;
 
   void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg);
   void OnMsgExtractOccluderData(ezMsgExtractOccluderData& msg) const;

@@ -16,7 +16,6 @@
 struct Occluder
 {
   ~Occluder();
-  void Clear();
 
   void bake(const __m128* vertices, size_t numVertices, __m128 refMin, __m128 refMax);
 

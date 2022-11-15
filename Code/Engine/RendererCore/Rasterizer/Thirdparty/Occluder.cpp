@@ -8,15 +8,9 @@
 
 Occluder::~Occluder()
 {
-  Clear();
-}
-
-void Occluder::Clear()
-{
   EZ_DELETE_RAW_BUFFER(ezFoundation::GetAlignedAllocator(), m_vertexData);
   m_vertexData = nullptr;
 }
-
 
 // needed for ezHybridArray below
 EZ_DEFINE_AS_POD_TYPE(__m128);

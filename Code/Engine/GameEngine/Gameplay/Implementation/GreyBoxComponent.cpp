@@ -407,20 +407,26 @@ void ezGreyBoxComponent::OnMsgExtractOccluderData(ezMsgExtractOccluderData& msg)
   if (!IsActiveAndInitialized() || !m_bUseAsOccluder)
     return;
 
-  ezEnum<ezGreyBoxShape> shape = m_Shape;
-  if (shape == ezGreyBoxShape::StairsX && m_Curvature == ezAngle())
-    shape = ezGreyBoxShape::RampX;
-  if (shape == ezGreyBoxShape::StairsY && m_Curvature == ezAngle())
-    shape = ezGreyBoxShape::RampY;
-
   if (m_pOccluderObject == nullptr)
   {
-    m_pOccluderObject = EZ_NEW(ezFoundation::GetAlignedAllocator(), ezRasterizerObject);
+    ezEnum<ezGreyBoxShape> shape = m_Shape;
+    if (shape == ezGreyBoxShape::StairsX && m_Curvature == ezAngle())
+      shape = ezGreyBoxShape::RampX;
+    if (shape == ezGreyBoxShape::StairsY && m_Curvature == ezAngle())
+      shape = ezGreyBoxShape::RampY;
 
-    ezGeometry geom;
-    BuildGeometry(geom, shape, ezMat4::IdentityMatrix(), true);
+    ezStringBuilder sResourceName;
+    GenerateMeshName(sResourceName);
 
-    m_pOccluderObject->CreateMesh(geom);
+    m_pOccluderObject = ezRasterizerObject::GetObject(sResourceName);
+
+    if (m_pOccluderObject == nullptr)
+    {
+      ezGeometry geom;
+      BuildGeometry(geom, shape, ezMat4::IdentityMatrix(), true);
+
+      m_pOccluderObject = ezRasterizerObject::CreateMesh(sResourceName, geom);
+    }
   }
 
   msg.AddOccluder(m_pOccluderObject.Borrow(), GetOwner()->GetGlobalTransform());
@@ -531,66 +537,60 @@ void ezGreyBoxComponent::BuildGeometry(ezGeometry& geom, ezEnum<ezGreyBoxShape> 
   }
 }
 
-template <typename ResourceType>
-ezTypedResourceHandle<ResourceType> ezGreyBoxComponent::GenerateMesh() const
+void ezGreyBoxComponent::GenerateMeshName(ezStringBuilder& out_sName) const
 {
-  ezStringBuilder sResourceName;
-
   switch (m_Shape)
   {
     case ezGreyBoxShape::Box:
-      sResourceName.Format("Grey-Box:{0}-{1},{2}-{3},{4}-{5}", m_fSizeNegX, m_fSizePosX, m_fSizeNegY, m_fSizePosY, m_fSizeNegZ, m_fSizePosZ);
+      out_sName.Format("Grey-Box:{0}-{1},{2}-{3},{4}-{5}", m_fSizeNegX, m_fSizePosX, m_fSizeNegY, m_fSizePosY, m_fSizeNegZ, m_fSizePosZ);
       break;
 
     case ezGreyBoxShape::RampX:
-      sResourceName.Format("Grey-RampX:{0}-{1},{2}-{3},{4}-{5}", m_fSizeNegX, m_fSizePosX, m_fSizeNegY, m_fSizePosY, m_fSizeNegZ, m_fSizePosZ);
+      out_sName.Format("Grey-RampX:{0}-{1},{2}-{3},{4}-{5}", m_fSizeNegX, m_fSizePosX, m_fSizeNegY, m_fSizePosY, m_fSizeNegZ, m_fSizePosZ);
       break;
 
     case ezGreyBoxShape::RampY:
-      sResourceName.Format("Grey-RampY:{0}-{1},{2}-{3},{4}-{5}", m_fSizeNegX, m_fSizePosX, m_fSizeNegY, m_fSizePosY, m_fSizeNegZ, m_fSizePosZ);
+      out_sName.Format("Grey-RampY:{0}-{1},{2}-{3},{4}-{5}", m_fSizeNegX, m_fSizePosX, m_fSizeNegY, m_fSizePosY, m_fSizeNegZ, m_fSizePosZ);
       break;
 
     case ezGreyBoxShape::Column:
-      sResourceName.Format("Grey-Column:{0}-{1},{2}-{3},{4}-{5}-d{6}", m_fSizeNegX, m_fSizePosX, m_fSizeNegY, m_fSizePosY, m_fSizeNegZ, m_fSizePosZ, m_uiDetail);
+      out_sName.Format("Grey-Column:{0}-{1},{2}-{3},{4}-{5}-d{6}", m_fSizeNegX, m_fSizePosX, m_fSizeNegY, m_fSizePosY, m_fSizeNegZ, m_fSizePosZ, m_uiDetail);
       break;
 
     case ezGreyBoxShape::StairsX:
-      sResourceName.Format("Grey-StairsX:{0}-{1},{2}-{3},{4}-{5}-d{6}-c{7}-st{8}", m_fSizeNegX, m_fSizePosX, m_fSizeNegY, m_fSizePosY, m_fSizeNegZ, m_fSizePosZ, m_uiDetail, m_Curvature.GetDegree(), m_bSlopedTop);
+      out_sName.Format("Grey-StairsX:{0}-{1},{2}-{3},{4}-{5}-d{6}-c{7}-st{8}", m_fSizeNegX, m_fSizePosX, m_fSizeNegY, m_fSizePosY, m_fSizeNegZ, m_fSizePosZ, m_uiDetail, m_Curvature.GetDegree(), m_bSlopedTop);
       break;
 
     case ezGreyBoxShape::StairsY:
-      sResourceName.Format("Grey-StairsY:{0}-{1},{2}-{3},{4}-{5}-d{6}-c{7}-st{8}", m_fSizeNegX, m_fSizePosX, m_fSizeNegY, m_fSizePosY, m_fSizeNegZ, m_fSizePosZ, m_uiDetail, m_Curvature.GetDegree(), m_bSlopedTop);
+      out_sName.Format("Grey-StairsY:{0}-{1},{2}-{3},{4}-{5}-d{6}-c{7}-st{8}", m_fSizeNegX, m_fSizePosX, m_fSizeNegY, m_fSizePosY, m_fSizeNegZ, m_fSizePosZ, m_uiDetail, m_Curvature.GetDegree(), m_bSlopedTop);
       break;
 
     case ezGreyBoxShape::ArchX:
-      sResourceName.Format("Grey-ArchX:{0}-{1},{2}-{3},{4}-{5}-d{6}-c{7}-t{8}", m_fSizeNegX, m_fSizePosX, m_fSizeNegY, m_fSizePosY, m_fSizeNegZ, m_fSizePosZ, m_uiDetail, m_Curvature.GetDegree(), m_fThickness);
+      out_sName.Format("Grey-ArchX:{0}-{1},{2}-{3},{4}-{5}-d{6}-c{7}-t{8}", m_fSizeNegX, m_fSizePosX, m_fSizeNegY, m_fSizePosY, m_fSizeNegZ, m_fSizePosZ, m_uiDetail, m_Curvature.GetDegree(), m_fThickness);
       break;
 
     case ezGreyBoxShape::ArchY:
-      sResourceName.Format("Grey-ArchY:{0}-{1},{2}-{3},{4}-{5}-d{6}-c{7}-t{8}", m_fSizeNegX, m_fSizePosX, m_fSizeNegY, m_fSizePosY, m_fSizeNegZ, m_fSizePosZ, m_uiDetail, m_Curvature.GetDegree(), m_fThickness);
+      out_sName.Format("Grey-ArchY:{0}-{1},{2}-{3},{4}-{5}-d{6}-c{7}-t{8}", m_fSizeNegX, m_fSizePosX, m_fSizeNegY, m_fSizePosY, m_fSizeNegZ, m_fSizePosZ, m_uiDetail, m_Curvature.GetDegree(), m_fThickness);
       break;
 
     case ezGreyBoxShape::SpiralStairs:
-      sResourceName.Format("Grey-Spiral:{0}-{1},{2}-{3},{4}-{5}-d{6}-c{7}-t{8}-st{9}", m_fSizeNegX, m_fSizePosX, m_fSizeNegY, m_fSizePosY, m_fSizeNegZ, m_fSizePosZ, m_uiDetail, m_Curvature.GetDegree(), m_fThickness, m_bSlopedTop);
-      sResourceName.AppendFormat("-sb{0}", m_bSlopedBottom);
+      out_sName.Format("Grey-Spiral:{0}-{1},{2}-{3},{4}-{5}-d{6}-c{7}-t{8}-st{9}", m_fSizeNegX, m_fSizePosX, m_fSizeNegY, m_fSizePosY, m_fSizeNegZ, m_fSizePosZ, m_uiDetail, m_Curvature.GetDegree(), m_fThickness, m_bSlopedTop);
+      out_sName.AppendFormat("-sb{0}", m_bSlopedBottom);
       break;
 
 
     default:
       EZ_ASSERT_NOT_IMPLEMENTED;
   }
+}
 
-  ezTypedResourceHandle<ResourceType> hResource = ezResourceManager::GetExistingResource<ResourceType>(sResourceName);
-  if (hResource.IsValid())
-    return hResource;
-
+void ezGreyBoxComponent::GenerateMeshResourceDescriptor(ezMeshResourceDescriptor& desc) const
+{
   ezGeometry geom;
   BuildGeometry(geom, m_Shape, ezMat4::IdentityMatrix(), false);
 
   geom.TriangulatePolygons();
   geom.ComputeTangents();
-
-  ezMeshResourceDescriptor desc;
 
   // Data/Base/Materials/Common/Pattern.ezMaterialAsset
   desc.SetMaterial(0, "{ 1c47ee4c-0379-4280-85f5-b8cda61941d2 }");
@@ -601,10 +601,23 @@ ezTypedResourceHandle<ResourceType> ezGreyBoxComponent::GenerateMesh() const
   desc.AddSubMesh(desc.MeshBufferDesc().GetPrimitiveCount(), 0, 0);
 
   desc.ComputeBounds();
+}
+
+template <typename ResourceType>
+ezTypedResourceHandle<ResourceType> ezGreyBoxComponent::GenerateMesh() const
+{
+  ezStringBuilder sResourceName;
+  GenerateMeshName(sResourceName);
+
+  ezTypedResourceHandle<ResourceType> hResource = ezResourceManager::GetExistingResource<ResourceType>(sResourceName);
+  if (hResource.IsValid())
+    return hResource;
+
+  ezMeshResourceDescriptor desc;
+  GenerateMeshResourceDescriptor(desc);
 
   return ezResourceManager::GetOrCreateResource<ResourceType>(sResourceName, std::move(desc), sResourceName);
 }
-
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Gameplay_Implementation_GreyBoxComponent);

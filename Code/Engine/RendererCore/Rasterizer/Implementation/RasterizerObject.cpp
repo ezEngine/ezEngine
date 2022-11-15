@@ -6,41 +6,13 @@
 #include <RendererCore/Rasterizer/Thirdparty/Occluder.h>
 #include <RendererCore/Rasterizer/Thirdparty/VectorMath.h>
 
-ezRasterizerObject::ezRasterizerObject() = default;
+ezMutex ezRasterizerObject::s_Mutex;
+ezMap<ezString, ezSharedPtr<ezRasterizerObject>> ezRasterizerObject::s_Objects;
 
-ezRasterizerObject::~ezRasterizerObject()
-{
-  Clear();
-}
+ezRasterizerObject::ezRasterizerObject() = default;
+ezRasterizerObject::~ezRasterizerObject() = default;
 
 #if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
-
-void ezRasterizerObject::Clear()
-{
-  m_Occluder.Clear();
-}
-
-void ezRasterizerObject::CreateBox(const ezVec3& vFullExtents, const ezMat4& mTransform)
-{
-  ezGeometry::GeoOptions opt;
-  ezGeometry geo;
-
-  opt.m_Transform = mTransform;
-  geo.AddBox(vFullExtents, false, opt);
-
-  CreateMesh(geo);
-}
-
-void ezRasterizerObject::CreateSphere(float fRadius, const ezMat4& mTransform)
-{
-  ezGeometry::GeoOptions opt;
-  ezGeometry geo;
-
-  opt.m_Transform = mTransform;
-  geo.AddGeodesicSphere(fRadius, 0, opt);
-
-  CreateMesh(geo);
-}
 
 // needed for ezHybridArray below
 EZ_DEFINE_AS_POD_TYPE(__m128);
@@ -52,7 +24,8 @@ void ezRasterizerObject::CreateMesh(const ezGeometry& geo)
 
   Aabb bounds;
 
-  auto addVtx = [&](ezVec3 vtxPos) {
+  auto addVtx = [&](ezVec3 vtxPos)
+  {
     ezSimdVec4f v;
     v.Load<4>(vtxPos.GetAsPositionVec4().GetData());
     vertices.PushBack(v.m_v);
@@ -110,11 +83,57 @@ void ezRasterizerObject::CreateMesh(const ezGeometry& geo)
   m_Occluder.bake(vertices.GetData(), vertices.GetCount(), bounds.m_min, bounds.m_max);
 }
 
-#else
-
-void ezRasterizerObject::Clear()
+ezSharedPtr<const ezRasterizerObject> ezRasterizerObject::GetObject(ezStringView sUniqueName)
 {
+  EZ_LOCK(s_Mutex);
+
+  auto it = s_Objects.Find(sUniqueName);
+
+  if (it.IsValid())
+    return it.Value();
+
+  return nullptr;
 }
+
+ezSharedPtr<const ezRasterizerObject> ezRasterizerObject::CreateBox(const ezVec3& vFullExtents)
+{
+  EZ_LOCK(s_Mutex);
+
+  ezStringBuilder sName;
+  sName.Format("Box-{}-{}-{}", vFullExtents.x, vFullExtents.y, vFullExtents.z);
+
+  ezSharedPtr<ezRasterizerObject>& pObj = s_Objects[sName];
+
+  if (pObj == nullptr)
+  {
+    pObj = EZ_NEW(ezFoundation::GetAlignedAllocator(), ezRasterizerObject);
+
+    ezGeometry geometry;
+    geometry.AddBox(vFullExtents, false, {});
+
+    pObj->CreateMesh(geometry);
+  }
+
+  return pObj;
+}
+
+ezSharedPtr<const ezRasterizerObject> ezRasterizerObject::CreateMesh(ezStringView sUniqueName, const ezGeometry& geometry)
+{
+  EZ_LOCK(s_Mutex);
+
+  ezSharedPtr<ezRasterizerObject>& pObj = s_Objects[sUniqueName];
+
+  if (pObj == nullptr)
+  {
+    pObj = EZ_NEW(ezFoundation::GetAlignedAllocator(), ezRasterizerObject);
+
+    pObj->CreateMesh(geometry);
+  }
+
+  return pObj;
+}
+
+#else
 
 void ezRasterizerObject::CreateBox(const ezVec3& vFullExtents, const ezMat4& mTransform)
 {
@@ -126,6 +145,11 @@ void ezRasterizerObject::CreateSphere(float fRadius, const ezMat4& mTransform)
 
 void ezRasterizerObject::CreateMesh(const ezGeometry& geo)
 {
+}
+
+ezSharedPtr<ezRasterizerObject> ezRasterizerObject::CreateBox(const ezVec3& vFullExtents)
+{
+  return nullptr;
 }
 
 #endif

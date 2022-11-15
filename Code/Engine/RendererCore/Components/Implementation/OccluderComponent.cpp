@@ -45,7 +45,7 @@ ezOccluderComponent::~ezOccluderComponent() = default;
 void ezOccluderComponent::SetExtents(const ezVec3& extents)
 {
   m_vExtents = extents;
-  m_pOccluderObject = nullptr;
+  m_pOccluderObject.Clear();
 
   if (IsActiveAndInitialized())
   {
@@ -67,9 +67,7 @@ void ezOccluderComponent::OnMsgExtractOccluderData(ezMsgExtractOccluderData& msg
   {
     if (m_pOccluderObject == nullptr)
     {
-      m_pOccluderObject = EZ_NEW(ezFoundation::GetAlignedAllocator(), ezRasterizerObject);
-
-      m_pOccluderObject->CreateBox(m_vExtents, ezMat4::IdentityMatrix());
+      m_pOccluderObject = ezRasterizerObject::CreateBox(m_vExtents);
     }
 
     msg.AddOccluder(m_pOccluderObject.Borrow(), GetOwner()->GetGlobalTransform());

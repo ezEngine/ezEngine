@@ -82,7 +82,7 @@ void ezRasterizerView::RasterizeObjects(ezUInt32 uiMaxObjects)
     ApplyModelViewProjectionMatrix(inst.m_Transform);
 
     bool bNeedsClipping;
-    const Occluder& occluder = inst.m_pObject->GetInternalOccluder();
+    const Occluder& occluder = inst.m_pObject->m_Occluder;
 
     if (m_pRasterizer->queryVisibility(occluder.m_boundsMin, occluder.m_boundsMax, bNeedsClipping))
     {

@@ -15,6 +15,7 @@ struct ezMsgBuildStaticMesh;
 struct ezMsgExtractGeometry;
 struct ezMsgExtractOccluderData;
 struct ezMsgTransformChanged;
+class ezMeshResourceDescriptor;
 using ezMeshResourceHandle = ezTypedResourceHandle<class ezMeshResource>;
 using ezMaterialResourceHandle = ezTypedResourceHandle<class ezMaterialResource>;
 
@@ -132,7 +133,10 @@ protected:
   template <typename ResourceType>
   ezTypedResourceHandle<ResourceType> GenerateMesh() const;
 
+  void GenerateMeshName(ezStringBuilder& out_sName) const;
+  void GenerateMeshResourceDescriptor(ezMeshResourceDescriptor& desc) const;
+
   ezMeshResourceHandle m_hMesh;
 
-  mutable ezSharedPtr<ezRasterizerObject> m_pOccluderObject;
+  mutable ezSharedPtr<const ezRasterizerObject> m_pOccluderObject;
 };
