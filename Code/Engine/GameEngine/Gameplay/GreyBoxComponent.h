@@ -128,7 +128,7 @@ protected:
   bool m_bUseAsOccluder = true;
 
   void InvalidateMesh();
-  void BuildGeometry(ezGeometry& geom, ezEnum<ezGreyBoxShape> shape, const ezMat4& transform, bool bOnlyRoughDetails) const;
+  void BuildGeometry(ezGeometry& geom, ezEnum<ezGreyBoxShape> shape, bool bOnlyRoughDetails) const;
 
   template <typename ResourceType>
   ezTypedResourceHandle<ResourceType> GenerateMesh() const;
