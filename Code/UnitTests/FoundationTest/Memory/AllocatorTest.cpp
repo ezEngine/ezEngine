@@ -98,7 +98,7 @@ EZ_CREATE_SIMPLE_TEST(Memory, Allocator)
     };
     const ezUInt32 uiPageSize = ezSystemInformation::Get().GetMemoryPageSize();
 
-    ezLargeBlockAllocator<BLOCK_SIZE_IN_BYTES> allocator("Test", ezFoundation::GetDefaultAllocator());
+    ezLargeBlockAllocator<BLOCK_SIZE_IN_BYTES> allocator("Test", ezFoundation::GetDefaultAllocator(), ezMemoryTrackingFlags::EnableAllocationTracking);
 
     ezDynamicArray<ezDataBlock<int, BLOCK_SIZE_IN_BYTES>> blocks;
     blocks.Reserve(1000);

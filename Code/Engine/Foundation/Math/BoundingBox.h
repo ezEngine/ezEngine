@@ -112,11 +112,10 @@ public:
   /// \brief Scales the box's corners by the given factors, thus also moves the box around.
   void ScaleFromOrigin(const ezVec3Template<Type>& vScale); // [tested]
 
-  /// \brief Transforms the corners of the box and recomputes the aabb of those transformed points. Rotations and scalings will influence the center
-  /// position of the box.
+  /// \brief Transforms the corners of the box in its local space. The center of the box does not change, unless the transform contains a translation.
   void TransformFromCenter(const ezMat4Template<Type>& mTransform); // [tested]
 
-  /// \brief Transforms the corners of the box in its local space. The center of the box does not change, unless the transform contains a translation.
+  /// \brief Transforms the corners of the box and recomputes the AABB of those transformed points. Rotations and scalings will influence the center position of the box.
   void TransformFromOrigin(const ezMat4Template<Type>& mTransform); // [tested]
 
   /// \brief The given point is clamped to the volume of the box, i.e. it will be either inside the box or on its surface and it will have the closest

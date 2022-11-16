@@ -162,7 +162,10 @@ void* ezLargeBlockAllocator<BlockSize>::Allocate(size_t uiAlign)
     ptr = pMemory;
   }
 
-  ezMemoryTracker::AddAllocation(m_Id, m_TrackingFlags, ptr, BlockSize, uiAlign, ezTime::Now() - fAllocationTime);
+  if ((ezMemoryTrackingFlags::Default & ezMemoryTrackingFlags::EnableAllocationTracking) != 0)
+  {
+    ezMemoryTracker::AddAllocation(m_Id, m_TrackingFlags, ptr, BlockSize, uiAlign, ezTime::Now() - fAllocationTime);
+  }
 
   return ptr;
 }
@@ -172,7 +175,10 @@ void ezLargeBlockAllocator<BlockSize>::Deallocate(void* ptr)
 {
   EZ_LOCK(m_Mutex);
 
-  ezMemoryTracker::RemoveAllocation(m_Id, ptr);
+  if ((ezMemoryTrackingFlags::Default & ezMemoryTrackingFlags::EnableAllocationTracking) != 0)
+  {
+    ezMemoryTracker::RemoveAllocation(m_Id, ptr);
+  }
 
   // find super block
   bool bFound = false;

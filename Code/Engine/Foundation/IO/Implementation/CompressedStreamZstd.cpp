@@ -163,6 +163,9 @@ void ezCompressedStreamWriterZstd::SetOutputStream(ezStreamWriter* pOutputStream
   if (m_pOutputStream == pOutputStream)
     return;
 
+  // limit the cache to 63KB, because at 64KB we run into an endless loop due to a 16 bit overflow
+  uiCompressionCacheSizeKB = ezMath::Min(uiCompressionCacheSizeKB, 63u);
+
   // finish anything done on a previous output stream
   FinishCompressedStream().IgnoreResult();
 

@@ -14,7 +14,10 @@ void* ezPageAllocator::AllocatePage(size_t uiSize)
 
   EZ_CHECK_ALIGNMENT(ptr, uiAlign);
 
-  ezMemoryTracker::AddAllocation(GetPageAllocatorId(), ezMemoryTrackingFlags::Default, ptr, uiSize, uiAlign, ezTime::Now() - fAllocationTime);
+  if ((ezMemoryTrackingFlags::Default & ezMemoryTrackingFlags::EnableAllocationTracking) != 0)
+  {
+    ezMemoryTracker::AddAllocation(GetPageAllocatorId(), ezMemoryTrackingFlags::Default, ptr, uiSize, uiAlign, ezTime::Now() - fAllocationTime);
+  }
 
   return ptr;
 }
@@ -22,7 +25,10 @@ void* ezPageAllocator::AllocatePage(size_t uiSize)
 // static
 void ezPageAllocator::DeallocatePage(void* ptr)
 {
-  ezMemoryTracker::RemoveAllocation(GetPageAllocatorId(), ptr);
+  if ((ezMemoryTrackingFlags::Default & ezMemoryTrackingFlags::EnableAllocationTracking) != 0)
+  {
+    ezMemoryTracker::RemoveAllocation(GetPageAllocatorId(), ptr);
+  }
 
   free(ptr);
 }
