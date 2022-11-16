@@ -106,7 +106,7 @@ void ezBeamComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_Color;
 }
 
-ezResult ezBeamComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
+ezResult ezBeamComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg)
 {
   ezGameObject* pTargetObject = nullptr;
   if (GetWorld()->TryGetObject(m_hTargetObject, pTargetObject))

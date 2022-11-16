@@ -1,0 +1,14 @@
+{
+  "Registrations": [
+    {
+      "component": {
+        "type": "git",
+        "git": {
+          "repositoryUrl": "https://github.com/rawrunprotected/rasterizer",
+          "commitHash": "50a1c132c24e85aaa7ef00a6337610ffc04c403e"
+        }
+      }
+    }
+  ],
+  "$schema": "https://json.schemastore.org/component-detection-manifest.json"
+}

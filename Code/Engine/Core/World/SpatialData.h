@@ -69,6 +69,8 @@ struct EZ_CORE_DLL ezDefaultSpatialDataCategories
 {
   static ezSpatialData::Category RenderStatic;
   static ezSpatialData::Category RenderDynamic;
+  static ezSpatialData::Category OcclusionStatic;
+  static ezSpatialData::Category OcclusionDynamic;
 };
 
 #define ezInvalidSpatialDataCategory ezSpatialData::Category()

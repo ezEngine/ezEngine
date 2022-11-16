@@ -232,7 +232,7 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
 
     ezDynamicArray<const ezGameObject*> visibleObjects;
     ezHashSet<const ezGameObject*> uniqueObjects;
-    world.GetSpatialSystem()->FindVisibleObjects(testFrustum, queryParams, visibleObjects);
+    world.GetSpatialSystem()->FindVisibleObjects(testFrustum, queryParams, visibleObjects, {});
 
     EZ_TEST_BOOL(!visibleObjects.IsEmpty());
 

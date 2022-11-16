@@ -13,6 +13,8 @@ class ezRenderPipelinePass;
 class ezFrameDataProviderBase;
 struct ezPermutationVar;
 class ezDGMLGraph;
+class ezFrustum;
+class ezRasterizerView;
 
 class EZ_RENDERERCORE_DLL ezRenderPipeline : public ezRefCounted
 {
@@ -92,6 +94,9 @@ private:
 
   void Render(ezRenderContext* pRenderer);
 
+  ezRasterizerView* PrepareOcclusionCulling(const ezFrustum& frustum, const ezView& view);
+  void PreviewOcclusionBuffer(const ezRasterizerView& rasterizer, const ezView& view);
+
 private: // Member data
   // Thread data
   ezThreadID m_CurrentExtractThread;
@@ -144,4 +149,7 @@ private: // Member data
   mutable ezHashTable<const ezRTTI*, ezUInt32> m_TypeToDataProviderIndex;
 
   ezDynamicArray<ezPermutationVar> m_PermutationVars;
+
+  // Occlusion Culling
+  ezGALTextureHandle m_hOcclusionDebugViewTexture;
 };

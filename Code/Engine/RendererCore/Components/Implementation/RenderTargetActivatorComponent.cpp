@@ -50,7 +50,7 @@ void ezRenderTargetActivatorComponent::DeserializeComponent(ezWorldReader& strea
   s >> m_hRenderTarget;
 }
 
-ezResult ezRenderTargetActivatorComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
+ezResult ezRenderTargetActivatorComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg)
 {
   if (m_hRenderTarget.IsValid())
   {

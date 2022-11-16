@@ -114,7 +114,7 @@ public:
   // ezRenderComponent
 
 public:
-  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible) override;
+  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg) override;
 
 private:
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;

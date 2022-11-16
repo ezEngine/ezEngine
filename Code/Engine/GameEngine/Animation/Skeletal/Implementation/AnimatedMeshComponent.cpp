@@ -208,7 +208,7 @@ void ezAnimatedMeshComponent::OnQueryAnimationSkeleton(ezMsgQueryAnimationSkelet
   }
 }
 
-ezResult ezAnimatedMeshComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
+ezResult ezAnimatedMeshComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg)
 {
   if (!m_MaxBounds.IsValid() || !m_hMesh.IsValid())
     return EZ_FAILURE;

@@ -13,7 +13,7 @@ class EZ_RENDERERCORE_DLL ezAlwaysVisibleComponent : public ezRenderComponent
   // ezRenderComponent
 
 public:
-  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible) override;
+  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg) override;
 
   //////////////////////////////////////////////////////////////////////////
   // ezAlwaysVisibleComponent

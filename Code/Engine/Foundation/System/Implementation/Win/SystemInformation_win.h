@@ -42,6 +42,8 @@ void ezSystemInformation::Initialize()
   if (s_SystemInformation.m_bIsInitialized)
     return;
 
+  s_SystemInformation.m_CpuFeatures.Detect();
+
   s_SystemInformation.m_sHostName[0] = '\0';
 
   // Get system information via various APIs
@@ -99,8 +101,7 @@ void ezSystemInformation::Initialize()
           return false;
         }
 
-        return true;
-      });
+        return true; });
     }
   }
 

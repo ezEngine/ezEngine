@@ -39,9 +39,9 @@ ezResult ezGameEngineTestEffects::InitializeSubTest(ezInt32 iIdentifier)
 
   if (iIdentifier == SubTests::Decals)
   {
-    m_ImgCompFrames.PushBack(1);
-    m_ImgCompFrames.PushBack(30);
-    m_ImgCompFrames.PushBack(60);
+    m_ImgCompFrames.PushBack({1});
+    m_ImgCompFrames.PushBack({30});
+    m_ImgCompFrames.PushBack({60});
 
     EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("Effects/AssetCache/Common/Scenes/Decals.ezObjectGraph"));
     return EZ_SUCCESS;
@@ -49,7 +49,7 @@ ezResult ezGameEngineTestEffects::InitializeSubTest(ezInt32 iIdentifier)
 
   if (iIdentifier == SubTests::Heightfield)
   {
-    m_ImgCompFrames.PushBack(20);
+    m_ImgCompFrames.PushBack({20});
 
     EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("Effects/AssetCache/Common/Scenes/Heightfield.ezObjectGraph"));
     return EZ_SUCCESS;
@@ -57,22 +57,22 @@ ezResult ezGameEngineTestEffects::InitializeSubTest(ezInt32 iIdentifier)
 
   if (iIdentifier == SubTests::WindClothRopes)
   {
-    m_ImgCompFrames.PushBack(20);
-    m_ImgCompFrames.PushBack(100);
+    m_ImgCompFrames.PushBack({20, 550});
+    m_ImgCompFrames.PushBack({100, 600});
 
     EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("Effects/AssetCache/Common/Scenes/Wind.ezObjectGraph"));
     return EZ_SUCCESS;
   }
   if (iIdentifier == SubTests::Reflections)
   {
-    m_ImgCompFrames.PushBack(30);
+    m_ImgCompFrames.PushBack({30});
 
     EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("Effects/AssetCache/Common/Scenes/Reflections.ezObjectGraph"));
     return EZ_SUCCESS;
   }
   if (iIdentifier == SubTests::StressTest)
   {
-    m_ImgCompFrames.PushBack(100);
+    m_ImgCompFrames.PushBack({100});
 
     EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("Effects/AssetCache/Common/Scenes/StressTest.ezObjectGraph"));
     return EZ_SUCCESS;
@@ -88,9 +88,9 @@ ezTestAppRun ezGameEngineTestEffects::RunSubTest(ezInt32 iIdentifier, ezUInt32 u
   if (m_pOwnApplication->Run() == ezApplication::Execution::Quit)
     return ezTestAppRun::Quit;
 
-  if (m_ImgCompFrames[m_uiImgCompIdx] == m_iFrame)
+  if (m_ImgCompFrames[m_uiImgCompIdx].m_uiFrame == m_iFrame)
   {
-    EZ_TEST_IMAGE(m_uiImgCompIdx, 450);
+    EZ_TEST_IMAGE(m_uiImgCompIdx, m_ImgCompFrames[m_uiImgCompIdx].m_uiThreshold);
     ++m_uiImgCompIdx;
 
     if (m_uiImgCompIdx >= m_ImgCompFrames.GetCount())

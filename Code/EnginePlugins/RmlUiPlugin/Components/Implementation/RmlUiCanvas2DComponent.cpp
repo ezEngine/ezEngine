@@ -322,7 +322,7 @@ void ezRmlUiCanvas2DComponent::DeserializeComponent(ezWorldReader& stream)
   }
 }
 
-ezResult ezRmlUiCanvas2DComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
+ezResult ezRmlUiCanvas2DComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg)
 {
   bAlwaysVisible = true;
   return EZ_SUCCESS;

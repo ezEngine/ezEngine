@@ -90,7 +90,7 @@ void ezRopeRenderComponent::OnDeactivated()
   SUPER::OnDeactivated();
 }
 
-ezResult ezRopeRenderComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
+ezResult ezRopeRenderComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg)
 {
   bounds = m_LocalBounds;
   return EZ_SUCCESS;

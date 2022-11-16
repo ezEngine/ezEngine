@@ -43,9 +43,9 @@ ezMeshRenderData* ezGizmoComponent::CreateRenderData() const
   return pRenderData;
 }
 
-ezResult ezGizmoComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
+ezResult ezGizmoComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg)
 {
-  ezResult r = SUPER::GetLocalBounds(bounds, bAlwaysVisible);
+  ezResult r = SUPER::GetLocalBounds(bounds, bAlwaysVisible, msg);
 
   // adjust the bounds to be mirrored and pretty large, to combat the constant size and face camera modes that are implemented by the shader
   //bounds.m_vBoxHalfExtends = (bounds.m_vCenter + bounds.m_vBoxHalfExtends) * 3.0f;

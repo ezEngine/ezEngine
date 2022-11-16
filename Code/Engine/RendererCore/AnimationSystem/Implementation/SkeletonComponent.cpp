@@ -43,7 +43,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezSkeletonComponent::ezSkeletonComponent() = default;
 ezSkeletonComponent::~ezSkeletonComponent() = default;
 
-ezResult ezSkeletonComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
+ezResult ezSkeletonComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg)
 {
   if (m_MaxBounds.IsValid())
   {

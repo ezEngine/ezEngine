@@ -81,7 +81,7 @@ void ezSkyBoxComponent::Initialize()
   UpdateMaterials();
 }
 
-ezResult ezSkyBoxComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
+ezResult ezSkyBoxComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg)
 {
   bAlwaysVisible = true;
   return EZ_SUCCESS;

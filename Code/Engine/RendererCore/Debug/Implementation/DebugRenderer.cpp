@@ -2,7 +2,6 @@
 
 #include <Core/Graphics/Geometry.h>
 #include <Core/World/World.h>
-#include <Foundation/Configuration/Startup.h>
 #include <Foundation/Containers/HybridArray.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Debug/SimpleASCIIFont.h>
@@ -869,28 +868,28 @@ void ezDebugRenderer::Draw2DRectangle(const ezDebugRendererContext& context, con
   data.m_triangle2DVertices.PushBackRange(ezMakeArrayPtr(vertices));
 }
 
-void ezDebugRenderer::Draw2DRectangle(const ezDebugRendererContext& context, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color, const ezTexture2DResourceHandle& hTexture)
+void ezDebugRenderer::Draw2DRectangle(const ezDebugRendererContext& context, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color, const ezTexture2DResourceHandle& hTexture, ezVec2 uvScale)
 {
   ezResourceLock<ezTexture2DResource> pTexture(hTexture, ezResourceAcquireMode::AllowLoadingFallback);
-  Draw2DRectangle(context, rectInPixel, fDepth, color, ezGALDevice::GetDefaultDevice()->GetDefaultResourceView(pTexture->GetGALTexture()));
+  Draw2DRectangle(context, rectInPixel, fDepth, color, ezGALDevice::GetDefaultDevice()->GetDefaultResourceView(pTexture->GetGALTexture()), uvScale);
 }
 
-void ezDebugRenderer::Draw2DRectangle(const ezDebugRendererContext& context, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color, ezGALResourceViewHandle hResourceView)
+void ezDebugRenderer::Draw2DRectangle(const ezDebugRendererContext& context, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color, ezGALResourceViewHandle hResourceView, ezVec2 uvScale)
 {
   TexVertex vertices[6];
 
   vertices[0].m_position = ezVec3(rectInPixel.Left(), rectInPixel.Top(), fDepth);
-  vertices[0].m_texCoord = ezVec2(0, 0);
+  vertices[0].m_texCoord = ezVec2(0, 0).CompMul(uvScale);
   vertices[1].m_position = ezVec3(rectInPixel.Right(), rectInPixel.Bottom(), fDepth);
-  vertices[1].m_texCoord = ezVec2(1, 1);
+  vertices[1].m_texCoord = ezVec2(1, 1).CompMul(uvScale);
   vertices[2].m_position = ezVec3(rectInPixel.Left(), rectInPixel.Bottom(), fDepth);
-  vertices[2].m_texCoord = ezVec2(0, 1);
+  vertices[2].m_texCoord = ezVec2(0, 1).CompMul(uvScale);
   vertices[3].m_position = ezVec3(rectInPixel.Left(), rectInPixel.Top(), fDepth);
-  vertices[3].m_texCoord = ezVec2(0, 0);
+  vertices[3].m_texCoord = ezVec2(0, 0).CompMul(uvScale);
   vertices[4].m_position = ezVec3(rectInPixel.Right(), rectInPixel.Top(), fDepth);
-  vertices[4].m_texCoord = ezVec2(1, 0);
+  vertices[4].m_texCoord = ezVec2(1, 0).CompMul(uvScale);
   vertices[5].m_position = ezVec3(rectInPixel.Right(), rectInPixel.Bottom(), fDepth);
-  vertices[5].m_texCoord = ezVec2(1, 1);
+  vertices[5].m_texCoord = ezVec2(1, 1).CompMul(uvScale);
 
   for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(vertices); ++i)
   {

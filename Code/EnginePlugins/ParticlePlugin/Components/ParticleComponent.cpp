@@ -301,7 +301,7 @@ const char* ezParticleComponent::GetParticleEffectFile() const
 }
 
 
-ezResult ezParticleComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
+ezResult ezParticleComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg)
 {
   if (m_EffectController.IsAlive())
   {

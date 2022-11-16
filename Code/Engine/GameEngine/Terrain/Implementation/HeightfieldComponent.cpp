@@ -120,7 +120,7 @@ void ezHeightfieldComponent::OnActivated()
   SUPER::OnActivated();
 }
 
-ezResult ezHeightfieldComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
+ezResult ezHeightfieldComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg)
 {
   if (m_hMesh.IsValid())
   {

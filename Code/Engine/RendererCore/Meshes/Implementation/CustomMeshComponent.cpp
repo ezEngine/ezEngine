@@ -75,7 +75,7 @@ void ezCustomMeshComponent::DeserializeComponent(ezWorldReader& stream)
   m_RenderDataCategory.m_uiValue = static_cast<ezUInt16>(uiCategory);
 }
 
-ezResult ezCustomMeshComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
+ezResult ezCustomMeshComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg)
 {
   if (m_Bounds.IsValid())
   {

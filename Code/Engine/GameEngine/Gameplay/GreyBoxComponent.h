@@ -6,12 +6,16 @@
 #include <GameEngine/GameEngineDLL.h>
 #include <RendererCore/Components/RenderComponent.h>
 #include <RendererCore/Pipeline/RenderData.h>
+#include <RendererCore/Rasterizer/RasterizerObject.h>
 
 class ezMeshRenderData;
 class ezGeometry;
 struct ezMsgExtractRenderData;
 struct ezMsgBuildStaticMesh;
 struct ezMsgExtractGeometry;
+struct ezMsgExtractOccluderData;
+struct ezMsgTransformChanged;
+class ezMeshResourceDescriptor;
 using ezMeshResourceHandle = ezTypedResourceHandle<class ezMeshResource>;
 using ezMaterialResourceHandle = ezTypedResourceHandle<class ezMaterialResource>;
 
@@ -54,7 +58,7 @@ class EZ_GAMEENGINE_DLL ezGreyBoxComponent : public ezRenderComponent
   //////////////////////////////////////////////////////////////////////////
   // ezRenderComponent
 protected:
-  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible) override;
+  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg) override;
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
 
   //////////////////////////////////////////////////////////////////////////
@@ -103,6 +107,7 @@ public:
 protected:
   void OnBuildStaticMesh(ezMsgBuildStaticMesh& msg) const;
   void OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const;
+  void OnMsgExtractOccluderData(ezMsgExtractOccluderData& msg) const;
 
   ezEnum<ezGreyBoxShape> m_Shape;
   ezMaterialResourceHandle m_hMaterial;
@@ -120,12 +125,18 @@ protected:
   bool m_bSlopedBottom = false;
   bool m_bGenerateCollision = true;
   bool m_bIncludeInNavmesh = true;
+  bool m_bUseAsOccluder = true;
 
   void InvalidateMesh();
-  void BuildGeometry(ezGeometry& geom) const;
+  void BuildGeometry(ezGeometry& geom, ezEnum<ezGreyBoxShape> shape, bool bOnlyRoughDetails) const;
 
   template <typename ResourceType>
   ezTypedResourceHandle<ResourceType> GenerateMesh() const;
 
+  void GenerateMeshName(ezStringBuilder& out_sName) const;
+  void GenerateMeshResourceDescriptor(ezMeshResourceDescriptor& desc) const;
+
   ezMeshResourceHandle m_hMesh;
+
+  mutable ezSharedPtr<const ezRasterizerObject> m_pOccluderObject;
 };

@@ -38,7 +38,7 @@ EZ_END_COMPONENT_TYPE
 ezDirectionalLightComponent::ezDirectionalLightComponent() = default;
 ezDirectionalLightComponent::~ezDirectionalLightComponent() = default;
 
-ezResult ezDirectionalLightComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
+ezResult ezDirectionalLightComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg)
 {
   bAlwaysVisible = true;
   return EZ_SUCCESS;

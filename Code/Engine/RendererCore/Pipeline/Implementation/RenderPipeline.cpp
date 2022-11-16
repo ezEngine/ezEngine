@@ -1,11 +1,18 @@
 #include <RendererCore/RendererCorePCH.h>
 
+#include <Core/ResourceManager/ResourceManager.h>
 #include <Core/World/World.h>
 #include <Foundation/Application/Application.h>
+#include <Foundation/Configuration/CVar.h>
+#include <Foundation/Containers/DynamicArray.h>
+#include <Foundation/Math/Color8UNorm.h>
 #include <Foundation/Math/ColorScheme.h>
+#include <Foundation/Math/Frustum.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
+#include <Foundation/SimdMath/SimdBBox.h>
 #include <Foundation/Time/Clock.h>
 #include <Foundation/Utilities/DGMLWriter.h>
+#include <RendererCore/Components/AlwaysVisibleComponent.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/GPUResourcePool/GPUResourcePool.h>
 #include <RendererCore/Pipeline/Extractor.h>
@@ -13,15 +20,21 @@
 #include <RendererCore/Pipeline/Passes/TargetPass.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/View.h>
+#include <RendererCore/Rasterizer/RasterizerView.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererFoundation/Profiling/Profiling.h>
+#include <RendererFoundation/Resources/Texture.h>
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
 ezCVarBool ezRenderPipeline::cvar_SpatialCullingVis("Spatial.Culling.Vis", false, ezCVarFlags::Default, "Enables debug visualization of visibility culling");
-
 ezCVarBool cvar_SpatialCullingShowStats("Spatial.Culling.ShowStats", false, ezCVarFlags::Default, "Display some stats of the visibility culling");
 #endif
+
+ezCVarBool cvar_SpatialCullingOcclusionEnable("Spatial.Occlusion.Enable", true, ezCVarFlags::Default, "Use software rasterization for occlusion culling.");
+ezCVarBool cvar_SpatialCullingOcclusionVisView("Spatial.Occlusion.VisView", false, ezCVarFlags::Default, "Render the occlusion framebuffer as an overlay.");
+ezCVarFloat cvar_SpatialCullingOcclusionBoundsInlation("Spatial.Occlusion.BoundsInflation", 0.5f, ezCVarFlags::Default, "How much to inflate bounds during occlusion check.");
+ezCVarFloat cvar_SpatialCullingOcclusionFarPlane("Spatial.Occlusion.FarPlane", 50.0f, ezCVarFlags::Default, "Far plane distance for finding occluders.");
 
 ezRenderPipeline::ezRenderPipeline()
   : m_PipelineState(PipelineState::Uninitialized)
@@ -38,6 +51,15 @@ ezRenderPipeline::ezRenderPipeline()
 
 ezRenderPipeline::~ezRenderPipeline()
 {
+  if (!m_hOcclusionDebugViewTexture.IsInvalidated())
+  {
+    ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+    const ezGALTexture* pTexture = pDevice->GetTexture(m_hOcclusionDebugViewTexture);
+
+    pDevice->DestroyTexture(m_hOcclusionDebugViewTexture);
+    m_hOcclusionDebugViewTexture.Invalidate();
+  }
+
   m_Data[0].Clear();
   m_Data[1].Clear();
 
@@ -918,11 +940,31 @@ void ezRenderPipeline::ExtractData(const ezView& view)
   m_CurrentExtractThread = (ezThreadID)0;
 }
 
+ezUniquePtr<ezRasterizerViewPool> g_pRasterizerViewPool;
+
+// clang-format off
+EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, SwRasterizer)
+
+  BEGIN_SUBSYSTEM_DEPENDENCIES
+    "Core"
+  END_SUBSYSTEM_DEPENDENCIES
+
+  ON_CORESYSTEMS_STARTUP
+  {
+    g_pRasterizerViewPool = EZ_DEFAULT_NEW(ezRasterizerViewPool);
+  }
+
+  ON_CORESYSTEMS_SHUTDOWN
+  {
+    g_pRasterizerViewPool.Clear();
+  }
+
+EZ_END_SUBSYSTEM_DECLARATION;
+// clang-format on
+
 void ezRenderPipeline::FindVisibleObjects(const ezView& view)
 {
   EZ_PROFILE_SCOPE("Visibility Culling");
-
-  m_VisibleObjects.Clear();
 
   ezFrustum frustum;
   view.ComputeCullingFrustum(frustum);
@@ -943,7 +985,46 @@ void ezRenderPipeline::FindVisibleObjects(const ezView& view)
   queryParams.m_pStats = bRecordStats ? &stats : nullptr;
 #endif
 
-  view.GetWorld()->GetSpatialSystem()->FindVisibleObjects(frustum, queryParams, m_VisibleObjects);
+  ezFrustum limitedFrustum = frustum;
+  const ezPlane farPlane = limitedFrustum.GetPlane(ezFrustum::PlaneType::FarPlane);
+  limitedFrustum.AccessPlane(ezFrustum::PlaneType::FarPlane).SetFromNormalAndPoint(farPlane.m_vNormal, view.GetCullingCamera()->GetCenterPosition() + farPlane.m_vNormal * cvar_SpatialCullingOcclusionFarPlane.GetValue()); // only use occluders closer than this
+
+  ezRasterizerView* pRasterizer = PrepareOcclusionCulling(limitedFrustum, view);
+  EZ_SCOPE_EXIT(g_pRasterizerViewPool->ReturnRasterizerView(pRasterizer));
+
+  if (pRasterizer != nullptr && pRasterizer->HasRasterizedAnyOccluders())
+  {
+    EZ_PROFILE_SCOPE("Occlusion::FindVisibleObjects");
+
+    auto IsOccluded = [=](const ezSimdBBox& aabb) {
+      // grow the bbox by some percent to counter the lower precision of the occlusion buffer
+
+      ezSimdBBox aabb2;
+      const ezSimdVec4f c = aabb.GetCenter();
+      const ezSimdVec4f e = aabb.GetHalfExtents();
+      aabb2.SetCenterAndHalfExtents(c, e.CompMul(ezSimdVec4f(1.0f + cvar_SpatialCullingOcclusionBoundsInlation)));
+
+      return !pRasterizer->IsVisible(aabb2);
+    };
+
+    m_VisibleObjects.Clear();
+    view.GetWorld()->GetSpatialSystem()->FindVisibleObjects(frustum, queryParams, m_VisibleObjects, IsOccluded);
+  }
+  else
+  {
+    m_VisibleObjects.Clear();
+    view.GetWorld()->GetSpatialSystem()->FindVisibleObjects(frustum, queryParams, m_VisibleObjects, {});
+  }
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  if (pRasterizer)
+  {
+    if (view.GetCameraUsageHint() == ezCameraUsageHint::EditorView || view.GetCameraUsageHint() == ezCameraUsageHint::MainView)
+    {
+      PreviewOcclusionBuffer(*pRasterizer, view);
+    }
+  }
+#endif
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   ezViewHandle hView = view.GetHandle();
@@ -1239,6 +1320,152 @@ void ezRenderPipeline::CreateDgmlGraph(ezDGMLGraph& graph)
         graph.AddConnection(uiTextureNode, uiInputNode, pInput->m_pParent->GetPinName(pInput));
       }
     }
+  }
+}
+
+ezRasterizerView* ezRenderPipeline::PrepareOcclusionCulling(const ezFrustum& frustum, const ezView& view)
+{
+  if (!cvar_SpatialCullingOcclusionEnable)
+    return nullptr;
+
+  if (!ezSystemInformation::Get().GetCpuFeatures().IsAvx1Available())
+    return nullptr;
+
+  ezRasterizerView* pRasterizer = nullptr;
+
+  // extract all occlusion geometry from the scene
+  EZ_PROFILE_SCOPE("Occlusion::RasterizeView");
+
+  pRasterizer = g_pRasterizerViewPool->GetRasterizerView(view.GetViewport().width / 2, view.GetViewport().height / 2, (float)view.GetViewport().width / (float)view.GetViewport().height);
+  pRasterizer->SetCamera(view.GetCullingCamera());
+
+  {
+    EZ_PROFILE_SCOPE("Occlusion::FindOccluders");
+
+    ezSpatialSystem::QueryParams queryParams;
+    queryParams.m_uiCategoryBitmask = ezDefaultSpatialDataCategories::OcclusionStatic.GetBitmask() | ezDefaultSpatialDataCategories::OcclusionDynamic.GetBitmask();
+    queryParams.m_IncludeTags = view.m_IncludeTags;
+    queryParams.m_ExcludeTags = view.m_ExcludeTags;
+
+    m_VisibleObjects.Clear();
+    view.GetWorld()->GetSpatialSystem()->FindVisibleObjects(frustum, queryParams, m_VisibleObjects, {});
+  }
+
+  pRasterizer->BeginScene();
+
+  for (const ezGameObject* pObj : m_VisibleObjects)
+  {
+    ezMsgExtractOccluderData msg;
+    pObj->SendMessage(msg);
+
+    for (const auto& ed : msg.m_ExtractedOccluderData)
+    {
+      pRasterizer->AddObject(ed.m_pObject, ed.m_Transform);
+    }
+  }
+
+  pRasterizer->EndScene();
+
+  return pRasterizer;
+}
+
+void ezRenderPipeline::PreviewOcclusionBuffer(const ezRasterizerView& rasterizer, const ezView& view)
+{
+  if (!cvar_SpatialCullingOcclusionVisView || !rasterizer.HasRasterizedAnyOccluders())
+    return;
+
+  EZ_PROFILE_SCOPE("Occlusion::DebugPreview");
+
+  const ezUInt32 uiImgWidth = rasterizer.GetResolutionX();
+  const ezUInt32 uiImgHeight = rasterizer.GetResolutionY();
+
+  // get the debug image from the rasterizer
+  ezDynamicArray<ezColorLinearUB> fb;
+  fb.SetCountUninitialized(uiImgWidth * uiImgHeight);
+  rasterizer.ReadBackFrame(fb);
+
+  const float w = (float)uiImgWidth;
+  const float h = (float)uiImgHeight;
+  ezRectFloat rectInPixel1 = ezRectFloat(5.0f, 5.0f, w + 10, h + 10);
+  ezRectFloat rectInPixel2 = ezRectFloat(10.0f, 10.0f, w, h);
+
+  ezDebugRenderer::Draw2DRectangle(view.GetHandle(), rectInPixel1, 0.0f, ezColor::MediumPurple);
+
+  // TODO: it would be better to update a single texture every frame, however since this is a render pass,
+  // we currently can't create nested passes
+  // so either this has to be done elsewhere, or nested passes have to be allowed
+  if (false)
+  {
+    ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+
+    // check whether we need to re-create the texture
+    if (!m_hOcclusionDebugViewTexture.IsInvalidated())
+    {
+      const ezGALTexture* pTexture = pDevice->GetTexture(m_hOcclusionDebugViewTexture);
+
+      if (pTexture->GetDescription().m_uiWidth != uiImgWidth ||
+          pTexture->GetDescription().m_uiHeight != uiImgHeight)
+      {
+        pDevice->DestroyTexture(m_hOcclusionDebugViewTexture);
+        m_hOcclusionDebugViewTexture.Invalidate();
+      }
+    }
+
+    // create the texture
+    if (m_hOcclusionDebugViewTexture.IsInvalidated())
+    {
+      ezGALTextureCreationDescription desc;
+      desc.m_uiWidth = uiImgWidth;
+      desc.m_uiHeight = uiImgHeight;
+      desc.m_Format = ezGALResourceFormat::RGBAUByteNormalized;
+      desc.m_ResourceAccess.m_bImmutable = false;
+
+      m_hOcclusionDebugViewTexture = pDevice->CreateTexture(desc);
+    }
+
+    // upload the image to the texture
+    {
+      ezGALPass* pGALPass = pDevice->BeginPass("RasterizerDebugViewUpdate");
+      auto pCommandEncoder = pGALPass->BeginCompute();
+
+      ezBoundingBoxu32 destBox;
+      destBox.m_vMin.SetZero();
+      destBox.m_vMax = ezVec3U32(uiImgWidth, uiImgHeight, 1);
+
+      ezGALSystemMemoryDescription sourceData;
+      sourceData.m_pData = fb.GetData();
+      sourceData.m_uiRowPitch = uiImgWidth * sizeof(ezColorLinearUB);
+
+      pCommandEncoder->UpdateTexture(m_hOcclusionDebugViewTexture, ezGALTextureSubresource(), destBox, sourceData);
+
+      pGALPass->EndCompute(pCommandEncoder);
+      pDevice->EndPass(pGALPass);
+    }
+
+    ezDebugRenderer::Draw2DRectangle(view.GetHandle(), rectInPixel2, 0.0f, ezColor::White, pDevice->GetDefaultResourceView(m_hOcclusionDebugViewTexture), ezVec2(1, -1));
+  }
+  else
+  {
+    ezTexture2DResourceDescriptor d;
+    d.m_DescGAL.m_uiWidth = rasterizer.GetResolutionX();
+    d.m_DescGAL.m_uiHeight = rasterizer.GetResolutionY();
+    d.m_DescGAL.m_Format = ezGALResourceFormat::RGBAByteNormalized;
+
+    ezGALSystemMemoryDescription content[1];
+    content[0].m_pData = fb.GetData();
+    content[0].m_uiRowPitch = sizeof(ezColorLinearUB) * d.m_DescGAL.m_uiWidth;
+    content[0].m_uiSlicePitch = content[0].m_uiRowPitch * d.m_DescGAL.m_uiHeight;
+    d.m_InitialContent = content;
+
+    static ezAtomicInteger32 name = 0;
+    name.Increment();
+
+    ezStringBuilder sName;
+    sName.Format("RasterizerPreview-{}", name);
+
+    ezTexture2DResourceHandle hDebug = ezResourceManager::CreateResource<ezTexture2DResource>(sName, std::move(d));
+
+    ezDebugRenderer::Draw2DRectangle(view.GetHandle(), rectInPixel2, 0.0f, ezColor::White, hDebug, ezVec2(1, -1));
   }
 }
 
