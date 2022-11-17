@@ -100,7 +100,7 @@ void ezQtManipulatorLabel::mousePressEvent(QMouseEvent* ev)
     ezManipulatorManager::GetSingleton()->SetActiveManipulator(pDoc, m_pManipulator, *m_pItems);
 }
 
-void ezQtManipulatorLabel::enterEvent(QEnterEvent* ev)
+void ezQtManipulatorLabel::enterEvent(QEvent* ev)
 {
   if (m_pManipulator)
   {

@@ -251,7 +251,7 @@ EZ_CREATE_SIMPLE_TEST(Utility, GraphicsUtils)
 
     { // Test failure on broken projection matrix
       // This matrix has a 0 in the w-component of the third column (invalid perspective divide)
-      float vals[] = {0.770734549, 0.000000000, 0.000000000, 0.000000000, 0.000000000, 1.73205078, 0.000000000, 0.000000000, 0.000000000, 0.000000000, -1.00000000, 0.00000000, 0.000000000, 0.000000000, -0.100000001, 0.000000000};
+      float vals[] = {0.770734549f, 0.000000000f, 0.000000000f, 0.000000000f, 0.000000000f, 1.73205078f, 0.000000000f, 0.000000000f, 0.000000000f, 0.000000000f, -1.00000000f, 0.00000000f, 0.000000000, 0.000000000f, -0.100000001f, 0.000000000f};
       ezMat4 mProj;
       memcpy(mProj.m_fElementsCM, vals, 16 * sizeof(float));
       float fNearOut = 0.f, fFarOut = 0.f;
@@ -262,7 +262,7 @@ EZ_CREATE_SIMPLE_TEST(Utility, GraphicsUtils)
 
     { // Test failure on broken projection matrix
       // This matrix has a 0 in the z-component of the fourth column (one or both projection planes are zero)
-      float vals[] = {0.770734549, 0.000000000, 0.000000000, 0.000000000, 0.000000000, 1.73205078, 0.000000000, 0.000000000, 0.000000000, 0.000000000, -1.00000000, -1.00000000, 0.000000000, 0.000000000, 0.000000000, 0.000000000};
+      float vals[] = {0.770734549f, 0.000000000f, 0.000000000f, 0.000000000f, 0.000000000f, 1.73205078f, 0.000000000f, 0.000000000f, 0.000000000f, 0.000000000f, -1.00000000f, -1.00000000f, 0.000000000f, 0.000000000f, 0.000000000f, 0.000000000f};
       ezMat4 mProj;
       memcpy(mProj.m_fElementsCM, vals, 16 * sizeof(float));
       float fNearOut = 0.f, fFarOut = 0.f;

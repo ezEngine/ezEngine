@@ -30,12 +30,12 @@ EZ_CREATE_SIMPLE_TEST(Math, Color)
     ezColor init3F(0.5f, 0.6f, 0.7f);
     EZ_TEST_BOOL(init3F.r == 0.5f && init3F.g == 0.6f && init3F.b == 0.7f && init3F.a == 1.0f);
 
-    ezColor init4F(0.5f, 0.6f, 0.7f, 0.8);
+    ezColor init4F(0.5f, 0.6f, 0.7f, 0.8f);
     EZ_TEST_BOOL(init4F.r == 0.5f && init4F.g == 0.6f && init4F.b == 0.7f && init4F.a == 0.8f);
   }
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor copy")
   {
-    ezColor init4F(0.5f, 0.6f, 0.7f, 0.8);
+    ezColor init4F(0.5f, 0.6f, 0.7f, 0.8f);
     ezColor copy(init4F);
     EZ_TEST_BOOL(copy.r == 0.5f && copy.g == 0.6f && copy.b == 0.7f && copy.a == 0.8f);
   }
