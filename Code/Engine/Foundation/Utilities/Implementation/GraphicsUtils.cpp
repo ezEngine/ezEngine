@@ -220,13 +220,25 @@ ezResult ezGraphicsUtils::ExtractNearAndFarClipPlaneDistances(float& out_fNear, 
   const float nearLength = nearPlane.GetAsVec3().GetLength();
   const float farLength = farPlane.GetAsVec3().GetLength();
 
-  if (nearLength < ezMath::SmallEpsilon<float>() || farLength < ezMath::SmallEpsilon<float>())
+  const float nearW = ezMath::Abs(nearPlane.w);
+  const float farW = ezMath::Abs(farPlane.w);
+
+  if ((nearLength < ezMath::SmallEpsilon<float>() && farLength < ezMath::SmallEpsilon<float>()) ||
+      nearW < ezMath::SmallEpsilon<float>() || farW < ezMath::SmallEpsilon<float>())
   {
     return EZ_FAILURE;
   }
 
-  out_fNear = ezMath::Abs(nearPlane.w / nearLength);
-  out_fFar = ezMath::Abs(farPlane.w / farLength);
+  const float fNear = nearW / nearLength;
+  const float fFar = farW / farLength;
+
+  if (ezMath::IsEqual(fNear, fFar, ezMath::SmallEpsilon<float>()))
+  {
+    return EZ_FAILURE;
+  }
+
+  out_fNear = fNear;
+  out_fFar = fFar;
 
   return EZ_SUCCESS;
 }

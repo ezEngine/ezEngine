@@ -45,7 +45,13 @@ public:
       case QEvent::HoverLeave:
       {
         QHoverEvent* pHoeverEvent = static_cast<QHoverEvent*>(ev);
+
+
+#if QT_VERSION <= QT_VERSION_CHECK(5, 14, 0)
+        QPoint pos = pHoeverEvent->pos();
+#else
         QPoint pos = pHoeverEvent->position().toPoint();
+#endif
         QModelIndex index = this->indexAt(pos);
         if (m_Hovered.isValid() && (ev->type() == QEvent::HoverLeave || index != m_Hovered))
         {
@@ -178,4 +184,3 @@ private:
   QPersistentModelIndex m_Hovered;
   QPersistentModelIndex m_Focused;
 };
-

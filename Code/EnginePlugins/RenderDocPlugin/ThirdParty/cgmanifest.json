@@ -1,13 +1,14 @@
 {
-    "Registrations": [
-        {
-            "component": {
-                "type": "git",
-                "git": {
-                    "repositoryUrl": "https://github.com/baldurk/renderdoc",
-                    "commitHash": "40b86b63fbb990b26cc083ced32cb55f11ad263c"
-                }
-            }
+  "Registrations": [
+    {
+      "component": {
+        "type": "git",
+        "git": {
+          "repositoryUrl": "https://github.com/baldurk/renderdoc",
+          "commitHash": "40b86b63fbb990b26cc083ced32cb55f11ad263c"
         }
-    ]
+      }
+    }
+  ],
+  "$schema": "https://json.schemastore.org/component-detection-manifest.json"
 }

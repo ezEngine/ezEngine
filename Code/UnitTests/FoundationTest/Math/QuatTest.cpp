@@ -96,8 +96,8 @@ EZ_CREATE_SIMPLE_TEST(Math, Quaternion)
     EZ_TEST_BOOL(ezQuatT::IdentityQuaternion().IsEqualRotation(ezQuatT::IdentityQuaternion(), ezMath::LargeEpsilon<float>()));
     EZ_TEST_BOOL(ezQuatT::IdentityQuaternion().IsEqualRotation(ezQuatT(0, 0, 0, -1), ezMath::LargeEpsilon<float>()));
 
-    ezQuatT q4{0, 0, 0, 1.00000012};
-    ezQuatT q5{0, 0, 0, 1.00000023};
+    ezQuatT q4{0, 0, 0, 1.00000012f};
+    ezQuatT q5{0, 0, 0, 1.00000023f};
     EZ_TEST_BOOL(q4.IsEqualRotation(q5, ezMath::LargeEpsilon<float>()));
   }
 

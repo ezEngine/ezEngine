@@ -269,5 +269,6 @@ namespace utf8
     } // namespace utf8::unchecked
 } // namespace utf8 
 
+
 #endif // header guard
 

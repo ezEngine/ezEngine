@@ -100,7 +100,11 @@ void ezQtManipulatorLabel::mousePressEvent(QMouseEvent* ev)
     ezManipulatorManager::GetSingleton()->SetActiveManipulator(pDoc, m_pManipulator, *m_pItems);
 }
 
+#if QT_VERSION > QT_VERSION_CHECK(6, 0, 0)
 void ezQtManipulatorLabel::enterEvent(QEnterEvent* ev)
+#else
+void ezQtManipulatorLabel::enterEvent(QEvent* ev)
+#endif
 {
   if (m_pManipulator)
   {

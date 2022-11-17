@@ -15,7 +15,10 @@ void* ezPageAllocator::AllocatePage(size_t uiSize)
   size_t uiAlign = ezSystemInformation::Get().GetMemoryPageSize();
   EZ_CHECK_ALIGNMENT(ptr, uiAlign);
 
-  ezMemoryTracker::AddAllocation(GetPageAllocatorId(), ezMemoryTrackingFlags::Default, ptr, uiSize, uiAlign, ezTime::Now() - fAllocationTime);
+  if ((ezMemoryTrackingFlags::Default & ezMemoryTrackingFlags::EnableAllocationTracking) != 0)
+  {
+    ezMemoryTracker::AddAllocation(GetPageAllocatorId(), ezMemoryTrackingFlags::Default, ptr, uiSize, uiAlign, ezTime::Now() - fAllocationTime);
+  }
 
   return ptr;
 }
@@ -23,7 +26,10 @@ void* ezPageAllocator::AllocatePage(size_t uiSize)
 // static
 void ezPageAllocator::DeallocatePage(void* ptr)
 {
-  ezMemoryTracker::RemoveAllocation(GetPageAllocatorId(), ptr);
+  if ((ezMemoryTrackingFlags::Default & ezMemoryTrackingFlags::EnableAllocationTracking) != 0)
+  {
+    ezMemoryTracker::RemoveAllocation(GetPageAllocatorId(), ptr);
+  }
 
   EZ_VERIFY(::VirtualFree(ptr, 0, MEM_RELEASE), "Could not free memory pages. Error Code '{0}'", ezArgErrorCode(::GetLastError()));
 }

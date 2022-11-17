@@ -732,8 +732,8 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
   {
     // Determined through the scientific method of manually comparing the result of the function with an online Bezier curve generator:
     // https://www.desmos.com/calculator/cahqdxeshd
-    const ezVec2 res[] = {ezVec2(1, 5), ezVec2(0.893, 4.455), ezVec2(1.112, 4.008), ezVec2(1.557, 3.631), ezVec2(2.136, 3.304), ezVec2(2.750, 3.000),
-      ezVec2(3.303, 2.695), ezVec2(3.701, 2.368), ezVec2(3.847, 1.991), ezVec2(3.645, 1.543), ezVec2(3, 1)};
+    const ezVec2 res[] = {ezVec2(1, 5), ezVec2(0.893f, 4.455f), ezVec2(1.112f, 4.008f), ezVec2(1.557f, 3.631f), ezVec2(2.136f, 3.304f), ezVec2(2.750f, 3.000f),
+      ezVec2(3.303f, 2.695f), ezVec2(3.701f, 2.368f), ezVec2(3.847f, 1.991f), ezVec2(3.645f, 1.543f), ezVec2(3, 1)};
 
     const float step = 1.0f / (EZ_ARRAY_SIZE(res) - 1);
     for (int i = 0; i < EZ_ARRAY_SIZE(res); ++i)
