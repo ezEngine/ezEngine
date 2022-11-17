@@ -4,9 +4,9 @@
       "component": {
         "type": "git",
         "git": {
-          "Version": "1.5.0",
+          "Version": "1.5.2",
           "repositoryUrl": "https://github.com/facebook/zstd",
-          "commitHash": "a488ba114ec17ea1054b9057c26a046fc122b3b6"
+          "commitHash": "e47e674cd09583ff0503f0f6defd6d23d8b718d3"
         }
       }
     }
