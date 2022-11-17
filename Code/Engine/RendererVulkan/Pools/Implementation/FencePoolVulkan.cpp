@@ -1,5 +1,6 @@
 #include <RendererVulkan/RendererVulkanPCH.h>
 
+#include <RendererVulkan/Device/DeviceVulkan.h>
 #include <RendererVulkan/Pools/FencePoolVulkan.h>
 
 vk::Device ezFencePoolVulkan::s_device;

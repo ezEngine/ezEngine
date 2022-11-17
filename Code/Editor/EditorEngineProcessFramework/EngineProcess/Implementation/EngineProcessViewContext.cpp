@@ -88,18 +88,25 @@ void ezEngineProcessViewContext::HandleWindowUpdate(ezWindowHandle hWnd, ezUInt1
 
   if (m_pEditorWndActor != nullptr)
   {
+    // Update window size
     ezActorPluginWindow* pWindowPlugin = m_pEditorWndActor->GetPlugin<ezActorPluginWindow>();
 
     const ezSizeU32 wndSize = pWindowPlugin->GetWindow()->GetClientAreaSize();
 
+    EZ_ASSERT_DEV(pWindowPlugin->GetWindow()->GetNativeWindowHandle() == hWnd, "Editor view handle must never change. View needs to be destroyed and recreated.");
+
     if (wndSize.width == uiWidth && wndSize.height == uiHeight)
       return;
 
-    ezActorManager::GetSingleton()->DestroyActor(m_pEditorWndActor);
-    m_pEditorWndActor = nullptr;
+    if (static_cast<ezEditorProcessViewWindow*>(pWindowPlugin->GetWindow())->UpdateWindow(hWnd, uiWidth, uiHeight).Failed())
+    {
+      ezLog::Error("Failed to update Editor Process View Window");
+    }
+    return;
   }
 
   {
+    // Create new actor
     ezUniquePtr<ezActor> pActor = EZ_DEFAULT_NEW(ezActor, "EditorView", this);
     m_pEditorWndActor = pActor.Borrow();
 
@@ -120,7 +127,9 @@ void ezEngineProcessViewContext::HandleWindowUpdate(ezWindowHandle hWnd, ezUInt1
 
     // create output target
     {
-      ezUniquePtr<ezWindowOutputTargetGAL> pOutput = EZ_DEFAULT_NEW(ezWindowOutputTargetGAL);
+      ezUniquePtr<ezWindowOutputTargetGAL> pOutput = EZ_DEFAULT_NEW(ezWindowOutputTargetGAL, [this](ezGALSwapChainHandle hSwapChain, ezSizeU32 size) {
+        OnSwapChainChanged(hSwapChain, size);
+      });
 
       ezGALWindowSwapChainCreationDescription desc;
       desc.m_pWindow = pWindowPlugin->m_pWindow.Borrow();
@@ -143,6 +152,16 @@ void ezEngineProcessViewContext::HandleWindowUpdate(ezWindowHandle hWnd, ezUInt1
 
     pActor->AddPlugin(std::move(pWindowPlugin));
     ezActorManager::GetSingleton()->AddActor(std::move(pActor));
+  }
+}
+
+void ezEngineProcessViewContext::OnSwapChainChanged(ezGALSwapChainHandle hSwapChain, ezSizeU32 size)
+{
+  ezView* pView = nullptr;
+  if (ezRenderWorld::TryGetView(m_hView, pView))
+  {
+    pView->SetViewport(ezRectFloat(0.0f, 0.0f, (float)size.width, (float)size.height));
+    pView->ForceUpdate();
   }
 }
 

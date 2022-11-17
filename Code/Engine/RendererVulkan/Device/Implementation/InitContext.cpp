@@ -53,6 +53,12 @@ void ezInitContextVulkan::EnsureCommandBufferExists()
   }
 }
 
+void ezInitContextVulkan::TextureDestroyed(const ezGALTextureVulkan* pTexture)
+{
+  EZ_LOCK(m_Lock);
+  m_pPipelineBarrier->TextureDestroyed(pTexture);
+}
+
 void ezInitContextVulkan::InitTexture(const ezGALTextureVulkan* pTexture, vk::ImageCreateInfo& createInfo, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData)
 {
   EZ_LOCK(m_Lock);

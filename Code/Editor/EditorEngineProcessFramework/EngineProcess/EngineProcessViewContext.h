@@ -36,12 +36,16 @@ public:
   virtual ezWindowHandle GetNativeWindowHandle() const override { return m_hWnd; }
   virtual void ProcessWindowMessages() override {}
   virtual bool IsFullscreenWindow(bool bOnlyProperFullscreenMode = false) const override { return false; }
+  virtual void AddReference() override { m_iReferenceCount.Increment(); }
+  virtual void RemoveReference() override { m_iReferenceCount.Decrement(); }
+
 
   ezUInt16 m_uiWidth;
   ezUInt16 m_uiHeight;
 
 private:
   ezWindowHandle m_hWnd;
+  ezAtomicInteger32 m_iReferenceCount = 0;
 };
 
 /// \brief Represents the view/window on the engine process side, holds all data necessary for rendering
@@ -69,6 +73,8 @@ public:
 protected:
   void SendViewMessage(ezEditorEngineViewMsg* pViewMsg);
   void HandleWindowUpdate(ezWindowHandle hWnd, ezUInt16 uiWidth, ezUInt16 uiHeight);
+  void OnSwapChainChanged(ezGALSwapChainHandle hSwapChain, ezSizeU32 size);
+
   virtual void SetCamera(const ezViewRedrawMsgToEngine* pMsg);
 
   /// \brief Returns the handle to the default render pipeline.

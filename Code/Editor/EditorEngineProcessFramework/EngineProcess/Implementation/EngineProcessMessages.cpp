@@ -256,6 +256,9 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewDestroyedMsgToEngine, 1, ezRTTIDefaultAllocator<ezViewDestroyedMsgToEngine>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewDestroyedResponseMsgToEditor, 1, ezRTTIDefaultAllocator<ezViewDestroyedResponseMsgToEditor>)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewRedrawMsgToEngine, 1, ezRTTIDefaultAllocator<ezViewRedrawMsgToEngine>)
 {
   EZ_BEGIN_PROPERTIES

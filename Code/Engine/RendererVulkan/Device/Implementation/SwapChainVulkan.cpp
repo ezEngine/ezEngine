@@ -187,6 +187,8 @@ ezResult ezGALSwapChainVulkan::InitPlatform(ezGALDevice* pDevice)
     return EZ_FAILURE;
   }
 
+  // We have created a surface on a window, the window must not be destroyed while the surface is still alive.
+  m_WindowDesc.m_pWindow->AddReference();
   vk::Bool32 surfaceSupported = false;
 
   VK_SUCCEED_OR_RETURN_EZ_FAILURE(m_pVulkanDevice->GetVulkanPhysicalDevice().getSurfaceSupportKHR(m_pVulkanDevice->GetGraphicsQueue().m_uiQueueFamily, m_vulkanSurface, &surfaceSupported));
@@ -322,6 +324,7 @@ ezResult ezGALSwapChainVulkan::CreateSwapChainInternal()
     TexDesc.m_ResourceAccess.m_bReadBack = m_WindowDesc.m_bAllowScreenshots;
     m_swapChainTextures.PushBack(m_pVulkanDevice->CreateTextureInternal(TexDesc, ezArrayPtr<ezGALSystemMemoryDescription>(), desiredFormat));
   }
+  m_CurrentSize = ezSizeU32(swapChainCreateInfo.imageExtent.width, swapChainCreateInfo.imageExtent.height);
   m_RenderTargets.m_hRTs[0] = m_swapChainTextures[0];
   return EZ_SUCCESS;
 }
@@ -347,7 +350,8 @@ ezResult ezGALSwapChainVulkan::DeInitPlatform(ezGALDevice* pDevice)
   DestroySwapChainInternal(pVulkanDevice);
   if (m_vulkanSurface)
   {
-    pVulkanDevice->DeleteLater(m_vulkanSurface);
+    ezVulkanAllocation context = reinterpret_cast<ezVulkanAllocation>(m_WindowDesc.m_pWindow);
+    pVulkanDevice->DeleteLater(m_vulkanSurface, context);
   }
   return EZ_SUCCESS;
 }

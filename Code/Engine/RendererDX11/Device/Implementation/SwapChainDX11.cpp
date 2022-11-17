@@ -195,6 +195,9 @@ ezResult ezGALSwapChainDX11::InitPlatform(ezGALDevice* pDevice)
   }
   else
 #endif
+  // We have created a surface on a window, the window must not be destroyed while the surface is still alive.
+  m_WindowDesc.m_pWindow->AddReference();
+
   m_bCanMakeDirectScreenshots = (SwapChainDesc.SwapEffect != DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL);
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
   m_bCanMakeDirectScreenshots = m_bCanMakeDirectScreenshots && (SwapChainDesc.SwapEffect != DXGI_SWAP_EFFECT_FLIP_DISCARD);
@@ -254,7 +257,7 @@ ezResult ezGALSwapChainDX11::CreateBackBufferInternal(ezGALDeviceDX11* pDXDevice
   }
 
   m_RenderTargets.m_hRTs[0] = m_hBackBufferTexture;
-
+  m_CurrentSize = ezSizeU32(TexDesc.m_uiWidth, TexDesc.m_uiHeight);
   return EZ_SUCCESS;
 }
 
@@ -276,14 +279,18 @@ ezResult ezGALSwapChainDX11::DeInitPlatform(ezGALDevice* pDevice)
 {
   DestroyBackBufferInternal(static_cast<ezGALDeviceDX11*>(pDevice));
 
+  if (m_pDXSwapChain)
+  {
 #if EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
-  // Full screen swap chains must be switched to windowed mode before destruction.
-  // See: https://msdn.microsoft.com/en-us/library/windows/desktop/bb205075(v=vs.85).aspx#Destroying
-  m_pDXSwapChain->SetFullscreenState(FALSE, NULL);
+    // Full screen swap chains must be switched to windowed mode before destruction.
+    // See: https://msdn.microsoft.com/en-us/library/windows/desktop/bb205075(v=vs.85).aspx#Destroying
+    m_pDXSwapChain->SetFullscreenState(FALSE, NULL);
 #endif
 
-  EZ_GAL_DX11_RELEASE(m_pDXSwapChain);
+    EZ_GAL_DX11_RELEASE(m_pDXSwapChain);
 
+    m_WindowDesc.m_pWindow->RemoveReference();
+  }
   return EZ_SUCCESS;
 }
 

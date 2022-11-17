@@ -75,6 +75,9 @@ public:
   void SetViewport(const ezRectFloat& viewport);
   const ezRectFloat& GetViewport() const;
 
+  /// \brief Forces the render pipeline to be rebuilt.
+  void ForceUpdate();
+
   const ezViewData& GetData() const;
 
   bool IsValid() const;

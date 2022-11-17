@@ -141,17 +141,15 @@ ezUInt32 ezGameEngineTestParticles::GetImageCompareThreshold(ezInt32 iIdentifier
     switch (iIdentifier)
     {
       case SubTests::BurstEmitter:
-        return 500;
-      case SubTests::ContinuousEmitter:
-        return 400;
+        return 200;
       case SubTests::EventReactionEffect:
-        return 700;
+        return 200;
       case SubTests::GravityBehavior:
-        return 800;
+        return 700;
       case SubTests::TrailRenderer:
-        return 900;
+        return 150;
       case SubTests::VelocityBehavior:
-        return 1300;
+        return 350;
       case SubTests::VelocityConeInitializer:
         return 200;
       default:

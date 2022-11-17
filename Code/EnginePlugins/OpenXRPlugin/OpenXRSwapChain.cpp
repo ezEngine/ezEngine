@@ -223,7 +223,7 @@ XrResult ezGALOpenXRSwapChain::InitSwapChain(ezGALMSAASampleCount::Enum msaaCoun
   swapchainCreateInfo.sampleCount = (int)msaaCount;
   swapchainCreateInfo.usageFlags = XR_SWAPCHAIN_USAGE_SAMPLED_BIT | XR_SWAPCHAIN_USAGE_COLOR_ATTACHMENT_BIT;
 
-  m_renderTargetSize = {swapchainCreateInfo.width, swapchainCreateInfo.height};
+  m_CurrentSize = {swapchainCreateInfo.width, swapchainCreateInfo.height};
 
   auto CreateSwapChain = [this](const XrSwapchainCreateInfo& swapchainCreateInfo, Swapchain& swapchain, SwapchainType type) -> XrResult {
     XR_SUCCEED_OR_CLEANUP_LOG(xrCreateSwapchain(m_session, &swapchainCreateInfo, &swapchain.handle), voidFunction);
@@ -245,7 +245,7 @@ XrResult ezGALOpenXRSwapChain::InitSwapChain(ezGALMSAASampleCount::Enum msaaCoun
     // Create depth buffer in case the API does not support it
     ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
     ezGALTextureCreationDescription tcd;
-    tcd.SetAsRenderTarget(m_renderTargetSize.width, m_renderTargetSize.height, ezGALResourceFormat::DFloat, msaaCount);
+    tcd.SetAsRenderTarget(m_CurrentSize.width, m_CurrentSize.height, ezGALResourceFormat::DFloat, msaaCount);
     tcd.m_uiArraySize = 2;
     m_hDepthRT = pDevice->CreateTexture(tcd);
   }

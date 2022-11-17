@@ -11,7 +11,7 @@ EZ_DEFINE_AS_POD_TYPE(XrSwapchainImageD3D11KHR);
 class EZ_OPENXRPLUGIN_DLL ezGALOpenXRSwapChain : public ezGALXRSwapChain
 {
 public:
-  ezSizeU32 GetRenderTargetSize() const { return m_renderTargetSize; }
+  ezSizeU32 GetRenderTargetSize() const { return m_CurrentSize; }
   XrSwapchain GetColorSwapchain() const { return m_colorSwapchain.handle; }
   XrSwapchain GetDepthSwapchain() const { return m_depthSwapchain.handle; }
 
@@ -54,7 +54,6 @@ private:
 
   // Swapchain
   XrViewConfigurationView m_primaryConfigView;
-  ezSizeU32 m_renderTargetSize;
   Swapchain m_colorSwapchain;
   Swapchain m_depthSwapchain;
 

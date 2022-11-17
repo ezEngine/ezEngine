@@ -69,9 +69,25 @@ ezQtEngineViewWidget::~ezQtEngineViewWidget()
 {
   ezEditorEngineProcessConnection::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtEngineViewWidget::EngineViewProcessEventHandler, this));
 
-  ezViewDestroyedMsgToEngine msg;
-  msg.m_uiViewID = GetViewID();
-  m_pDocumentWindow->GetDocument()->SendMessageToEngine(&msg);
+  {
+    // Ensure the engine process swap chain is destroyed before the window.
+    ezViewDestroyedMsgToEngine msg;
+    msg.m_uiViewID = GetViewID();
+    m_pDocumentWindow->GetDocument()->SendMessageToEngine(&msg);
+
+    // Wait for engine process response
+    auto callback = [&](ezProcessMessage* pMsg) -> bool {
+      auto pResponse = static_cast<ezViewDestroyedResponseMsgToEditor*>(pMsg);
+      return pResponse->m_DocumentGuid == m_pDocumentWindow->GetDocument()->GetGuid() && pResponse->m_uiViewID == msg.m_uiViewID;
+    };
+    ezProcessCommunicationChannel::WaitForMessageCallback cb = callback;
+
+    if (ezEditorEngineProcessConnection::GetSingleton()->WaitForMessage(ezGetStaticRTTI<ezViewDestroyedResponseMsgToEditor>(), ezTime::Seconds(5), &cb).Failed())
+    {
+      ezLog::Error("Timeout while waiting for engine process to destroy view.");
+    }
+  }
+
   m_pDocumentWindow->RemoveViewWidget(this);
 }
 

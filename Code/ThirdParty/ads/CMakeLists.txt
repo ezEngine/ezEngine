@@ -44,4 +44,5 @@ endif()
 
 if(EZ_CMAKE_PLATFORM_LINUX)
   target_link_libraries(${PROJECT_NAME} PRIVATE xcb Qt6::GuiPrivate)
+  target_compile_definitions(${PROJECT_NAME} PUBLIC Q_OS_LINUX)
 endif()
