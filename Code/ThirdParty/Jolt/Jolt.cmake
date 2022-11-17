@@ -8,6 +8,7 @@ set(JOLT_PHYSICS_SRC_FILES
 	${JOLT_PHYSICS_ROOT}/AABBTree/AABBTreeToBuffer.h
 	${JOLT_PHYSICS_ROOT}/AABBTree/NodeCodec/NodeCodecQuadTreeHalfFloat.h
 	${JOLT_PHYSICS_ROOT}/AABBTree/TriangleCodec/TriangleCodecIndexed8BitPackSOA4Flags.h
+	${JOLT_PHYSICS_ROOT}/Core/ARMNeon.h
 	${JOLT_PHYSICS_ROOT}/Core/Atomics.h
 	${JOLT_PHYSICS_ROOT}/Core/ByteBuffer.h
 	${JOLT_PHYSICS_ROOT}/Core/Color.cpp
@@ -92,6 +93,7 @@ set(JOLT_PHYSICS_SRC_FILES
 	${JOLT_PHYSICS_ROOT}/Jolt.h
 	${JOLT_PHYSICS_ROOT}/Math/DVec3.h
 	${JOLT_PHYSICS_ROOT}/Math/DVec3.inl
+	${JOLT_PHYSICS_ROOT}/Math/DynMatrix.h
 	${JOLT_PHYSICS_ROOT}/Math/EigenValueSymmetric.h
 	${JOLT_PHYSICS_ROOT}/Math/FindRoot.h
 	${JOLT_PHYSICS_ROOT}/Math/Float2.h
