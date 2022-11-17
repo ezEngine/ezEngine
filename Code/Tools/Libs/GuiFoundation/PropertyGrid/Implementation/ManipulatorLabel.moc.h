@@ -45,4 +45,3 @@ private:
   bool m_bActive;
   bool m_bIsDefault;
 };
-
