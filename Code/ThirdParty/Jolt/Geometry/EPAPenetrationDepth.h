@@ -98,7 +98,7 @@ public:
 		JPH_PROFILE_FUNCTION();
 
 		// Don't supply a zero ioV, we only want to get points on the hull of the Minkowsky sum and not internal points
-		JPH_ASSERT(!ioV.IsNearZero());
+		//JPH_ASSERT(!ioV.IsNearZero());
 
 		// Get closest points
 		float combined_radius = inConvexRadiusA + inConvexRadiusB;

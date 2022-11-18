@@ -585,7 +585,7 @@ void ezJoltCharacterControllerComponent::CreatePresenceBody()
   ezUInt32 m_uiObjectFilterID = pModule->CreateObjectFilterID();
 
   bodyCfg.mPosition = ezJoltConversionUtils::ToVec3(trans.m_Position);
-  bodyCfg.mRotation = ezJoltConversionUtils::ToQuat(trans.m_Rotation);
+  bodyCfg.mRotation = ezJoltConversionUtils::ToQuat(trans.m_Rotation).Normalized();
   bodyCfg.mMotionType = JPH::EMotionType::Kinematic;
   bodyCfg.mObjectLayer = ezJoltCollisionFiltering::ConstructObjectLayer(m_uiPresenceCollisionLayer, ezJoltBroadphaseLayer::Character);
   bodyCfg.mCollisionGroup.SetGroupID(m_uiObjectFilterID);
