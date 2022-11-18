@@ -70,7 +70,7 @@ struct ezWindowHandle
     ezXcbWindowHandle xcbWindow;
   };
 
-  bool operator == (ezWindowHandle& rhs)
+  bool operator==(ezWindowHandle& rhs)
   {
     if (type != rhs.type)
       return false;

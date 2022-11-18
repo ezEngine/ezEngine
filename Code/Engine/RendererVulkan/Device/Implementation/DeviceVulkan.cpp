@@ -4,6 +4,7 @@
 #  include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 #endif
 
+#include <Core/System/Window.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/System/PlatformFeatures.h>
@@ -35,7 +36,6 @@
 #include <RendererVulkan/State/StateVulkan.h>
 #include <RendererVulkan/Utils/ImageCopyVulkan.h>
 #include <RendererVulkan/Utils/PipelineBarrierVulkan.h>
-#include <Core/System/Window.h>
 
 #if EZ_ENABLED(EZ_SUPPORTS_GLFW)
 #  include <GLFW/glfw3.h>
@@ -1021,7 +1021,7 @@ void ezGALDeviceVulkan::DestroyTexturePlatform(ezGALTexture* pTexture)
 {
   ezGALTextureVulkan* pVulkanTexture = static_cast<ezGALTextureVulkan*>(pTexture);
   GetCurrentPipelineBarrier().TextureDestroyed(pVulkanTexture);
-m_pInitContext->TextureDestroyed(pVulkanTexture);
+  m_pInitContext->TextureDestroyed(pVulkanTexture);
 
   pVulkanTexture->DeInitPlatform(this).IgnoreResult();
   EZ_DELETE(&m_Allocator, pVulkanTexture);
