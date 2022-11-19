@@ -2,11 +2,11 @@
 
 #include <EditorFramework/EditorFrameworkDLL.h>
 
+#include <Foundation/Reflection/Implementation/StaticRTTI.h>
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Types/Bitflags.h>
 #include <Foundation/Types/Uuid.h>
-#include <Foundation/Reflection/Implementation/StaticRTTI.h>
 
 class ezImage;
 class ezAssetFileHeader;

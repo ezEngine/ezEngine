@@ -362,8 +362,7 @@ ezUInt64 ezAssetDocument::GetDocumentHash() const
   {
     typesSorted.PushBack(pType);
   }
-  typesSorted.Sort([](const ezRTTI* a, const ezRTTI* b)
-    { return ezStringUtils::Compare(a->GetTypeName(), b->GetTypeName()) < 0; });
+  typesSorted.Sort([](const ezRTTI* a, const ezRTTI* b) { return ezStringUtils::Compare(a->GetTypeName(), b->GetTypeName()) < 0; });
   for (const ezRTTI* pType : typesSorted)
   {
     uiHash = ezHashingUtils::xxHash64(pType->GetTypeName(), std::strlen(pType->GetTypeName()), uiHash);
@@ -407,8 +406,7 @@ ezTransformStatus ezAssetDocument::DoTransformAsset(const ezPlatformProfile* pAs
     AssetHeader.SetFileHashAndVersion(uiHash, GetAssetTypeVersion());
     const auto& outputs = GetAssetDocumentInfo()->m_Outputs;
 
-    auto GenerateOutput = [this, pAssetProfile, &AssetHeader, transformFlags](const char* szOutputTag) -> ezTransformStatus
-    {
+    auto GenerateOutput = [this, pAssetProfile, &AssetHeader, transformFlags](const char* szOutputTag) -> ezTransformStatus {
       const ezString sTargetFile = GetAssetDocumentManager()->GetAbsoluteOutputFileName(GetAssetDocumentTypeDescriptor(), GetDocumentPath(), szOutputTag, pAssetProfile);
       ezTransformStatus ret = InternalTransformAsset(sTargetFile, szOutputTag, pAssetProfile, AssetHeader, transformFlags);
 
@@ -649,8 +647,7 @@ ezStatus ezAssetDocument::RemoteExport(const ezAssetFileHeader& header, const ch
   GetEditorEngineConnection()->SendMessage(&msg);
 
   bool bSuccess = false;
-  ezProcessCommunicationChannel::WaitForMessageCallback callback = [&bSuccess](ezProcessMessage* pMsg) -> bool
-  {
+  ezProcessCommunicationChannel::WaitForMessageCallback callback = [&bSuccess](ezProcessMessage* pMsg) -> bool {
     ezExportDocumentMsgToEditor* pMsg2 = ezDynamicCast<ezExportDocumentMsgToEditor*>(pMsg);
     bSuccess = pMsg2->m_bOutputSuccess;
     return true;
@@ -711,8 +708,7 @@ ezStatus ezAssetDocument::RemoteCreateThumbnail(const ThumbnailInfo& thumbnailIn
   GetEditorEngineConnection()->SendMessage(&msg);
 
   ezDataBuffer data;
-  ezProcessCommunicationChannel::WaitForMessageCallback callback = [&data](ezProcessMessage* pMsg) -> bool
-  {
+  ezProcessCommunicationChannel::WaitForMessageCallback callback = [&data](ezProcessMessage* pMsg) -> bool {
     ezCreateThumbnailMsgToEditor* pThumbnailMsg = ezDynamicCast<ezCreateThumbnailMsgToEditor*>(pMsg);
     data = pThumbnailMsg->m_ThumbnailData;
     return true;
@@ -784,8 +780,7 @@ void ezAssetDocument::HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg)
 
 void ezAssetDocument::AddSyncObject(ezEditorEngineSyncObject* pSync) const
 {
-  pSync->Configure(GetGuid(), [this](ezEditorEngineSyncObject* pSync)
-    { RemoveSyncObject(pSync); });
+  pSync->Configure(GetGuid(), [this](ezEditorEngineSyncObject* pSync) { RemoveSyncObject(pSync); });
 
   m_SyncObjects.PushBack(pSync);
   m_AllSyncObjects[pSync->GetGuid()] = pSync;

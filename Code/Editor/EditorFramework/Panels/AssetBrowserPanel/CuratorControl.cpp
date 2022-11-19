@@ -76,7 +76,8 @@ void ezQtCuratorControl::paintEvent(QPaintEvent* e)
   s.Format("[Un: {0}, Imp: {4}, Tr: {1}, Th: {2}, Err: {3}]", sections[ezAssetInfo::TransformState::Unknown],
     sections[ezAssetInfo::TransformState::NeedsTransform], sections[ezAssetInfo::TransformState::NeedsThumbnail],
     sections[ezAssetInfo::TransformState::MissingDependency] + sections[ezAssetInfo::TransformState::MissingReference] +
-      sections[ezAssetInfo::TransformState::TransformError], sections[ezAssetInfo::TransformState::NeedsImport]);
+      sections[ezAssetInfo::TransformState::TransformError],
+    sections[ezAssetInfo::TransformState::NeedsImport]);
 
   painter.setPen(QPen(Qt::white));
   painter.drawText(rect, s.GetData(), QTextOption(Qt::AlignCenter));
@@ -87,20 +88,20 @@ void ezQtCuratorControl::UpdateBackgroundProcessState()
   ezAssetProcessor::ProcessTaskState state = ezAssetProcessor::GetSingleton()->GetProcessTaskState();
   switch (state)
   {
-  case ezAssetProcessor::ProcessTaskState::Stopped:
-    m_pBackgroundProcess->setToolTip("Start background asset processing");
-    m_pBackgroundProcess->setIcon(ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetProcessingStart16.png"));
-    break;
-  case ezAssetProcessor::ProcessTaskState::Running:
-    m_pBackgroundProcess->setToolTip("Stop background asset processing");
-    m_pBackgroundProcess->setIcon(ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetProcessingPause16.png"));
-    break;
-  case ezAssetProcessor::ProcessTaskState::Stopping:
-    m_pBackgroundProcess->setToolTip("Force stop background asset processing");
-    m_pBackgroundProcess->setIcon(ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetProcessingForceStop16.png"));
-    break;
-  default:
-    break;
+    case ezAssetProcessor::ProcessTaskState::Stopped:
+      m_pBackgroundProcess->setToolTip("Start background asset processing");
+      m_pBackgroundProcess->setIcon(ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetProcessingStart16.png"));
+      break;
+    case ezAssetProcessor::ProcessTaskState::Running:
+      m_pBackgroundProcess->setToolTip("Stop background asset processing");
+      m_pBackgroundProcess->setIcon(ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetProcessingPause16.png"));
+      break;
+    case ezAssetProcessor::ProcessTaskState::Stopping:
+      m_pBackgroundProcess->setToolTip("Force stop background asset processing");
+      m_pBackgroundProcess->setIcon(ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetProcessingForceStop16.png"));
+      break;
+    default:
+      break;
   }
 
   m_pBackgroundProcess->setCheckable(true);

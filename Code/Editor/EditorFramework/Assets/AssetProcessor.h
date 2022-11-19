@@ -95,8 +95,8 @@ class EZ_EDITORFRAMEWORK_DLL ezAssetProcessor
 public:
   enum class ProcessTaskState : ezUInt8
   {
-    Stopped, ///< No EditorProcessor or the process thread is running.
-    Running, ///< Everything is active.
+    Stopped,  ///< No EditorProcessor or the process thread is running.
+    Running,  ///< Everything is active.
     Stopping, ///< Everything is still running but no new tasks are put into the EditorProcessors.
   };
 
@@ -129,7 +129,7 @@ private:
 
   // Process thread and its state
   ezUniquePtr<ezProcessThread> m_Thread;
-  std::atomic<bool> m_bForceStop = false;  ///< If set, background processes will be killed when stopping without waiting for their current task to finish.
+  std::atomic<bool> m_bForceStop = false; ///< If set, background processes will be killed when stopping without waiting for their current task to finish.
 
   // Locks writes to m_ProcessTaskState to make sure the state machine does not go from running to stopped before having fired stopping.
   mutable ezMutex m_ProcessorMutex;
