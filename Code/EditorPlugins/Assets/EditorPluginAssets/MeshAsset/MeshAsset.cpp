@@ -39,7 +39,7 @@ ezTransformStatus ezMeshAssetDocument::InternalTransformAsset(ezStreamWriter& st
 
   if (pProp->m_PrimitiveType == ezMeshPrimitive::File)
   {
-    EZ_SUCCEED_OR_RETURN(CreateMeshFromFile(pProp, desc, transformFlags.IsSet(ezTransformFlags::TriggeredManually)));
+    EZ_SUCCEED_OR_RETURN(CreateMeshFromFile(pProp, desc, !transformFlags.IsSet(ezTransformFlags::BackgroundProcessing)));
   }
   else
   {
@@ -227,7 +227,7 @@ ezTransformStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties*
   {
     if (!bAllowMaterialImport && bSlotCountMissmatch)
     {
-      return ezStatus("IMPORT NEEDED!"); // fixing the problem once and for all!
+      return ezTransformStatus(ezTransformResult::NeedsImport);
     }
 
     GetObjectAccessor()->StartTransaction("Update Mesh Materials");

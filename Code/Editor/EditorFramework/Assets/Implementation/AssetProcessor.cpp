@@ -72,12 +72,30 @@ ezAssetProcessor::ezAssetProcessor()
 
 ezAssetProcessor::~ezAssetProcessor()
 {
+  if (m_Thread)
+  {
+    m_Thread->Join();
+    m_Thread.Clear();
+  }
+  EZ_ASSERT_DEV(m_ProcessTaskState == ProcessTaskState::Stopped, "Call StopProcessTask first before destroying the ezAssetProcessor.");
 }
 
-void ezAssetProcessor::RestartProcessTask()
+void ezAssetProcessor::StartProcessTask()
 {
   EZ_LOCK(m_ProcessorMutex);
-  m_bRunProcessTask = true;
+  if (m_ProcessTaskState != ProcessTaskState::Stopped)
+  {
+    return;
+  }
+
+  // Join old thread.
+  if (m_Thread)
+  {
+    m_Thread->Join();
+    m_Thread.Clear();
+  }
+
+  m_ProcessTaskState = ProcessTaskState::Running;
 
   const ezUInt32 uiWorkerCount = ezTaskSystem::GetWorkerThreadCount(ezWorkerThreadType::LongTasks);
   m_ProcessRunning.SetCount(uiWorkerCount, false);
@@ -88,7 +106,8 @@ void ezAssetProcessor::RestartProcessTask()
     m_ProcessTasks[idx].m_uiProcessorID = idx;
   }
 
-  m_Thread.Start();
+  m_Thread = EZ_DEFAULT_NEW(ezProcessThread);
+  m_Thread->Start();
 
   {
     ezAssetProcessorEvent e;
@@ -97,24 +116,39 @@ void ezAssetProcessor::RestartProcessTask()
   }
 }
 
-void ezAssetProcessor::ShutdownProcessTask()
+void ezAssetProcessor::StopProcessTask(bool bForce)
 {
-  m_bRunProcessTask = false;
-  m_Thread.Join();
-
-  m_ProcessRunning.Clear();
-  m_ProcessTasks.Clear();
-
   {
-    ezAssetProcessorEvent e;
-    e.m_Type = ezAssetProcessorEvent::Type::ProcessTaskStateChanged;
-    m_Events.Broadcast(e);
+    EZ_LOCK(m_ProcessorMutex);
+    switch (m_ProcessTaskState)
+    {
+      case ProcessTaskState::Running:
+      {
+        m_ProcessTaskState = ProcessTaskState::Stopping;
+        {
+          ezAssetProcessorEvent e;
+          e.m_Type = ezAssetProcessorEvent::Type::ProcessTaskStateChanged;
+          m_Events.Broadcast(e);
+        }
+      }
+      break;
+      case ProcessTaskState::Stopping:
+        if (!bForce)
+          return;
+        break;
+      default:
+      case ProcessTaskState::Stopped:
+        return;
+    }
   }
-}
 
-bool ezAssetProcessor::IsProcessTaskRunning() const
-{
-  return m_bRunProcessTask;
+  if (bForce)
+  {
+    m_bForceStop = true;
+    m_Thread->Join();
+    m_Thread.Clear();
+    EZ_ASSERT_DEV(m_ProcessTaskState == ProcessTaskState::Stopped, "Process task shoul have set the state to stopped.");
+  }
 }
 
 void ezAssetProcessor::AddLogWriter(ezLoggingEvent::Handler handler)
@@ -129,7 +163,7 @@ void ezAssetProcessor::RemoveLogWriter(ezLoggingEvent::Handler handler)
 
 void ezAssetProcessor::Run()
 {
-  while (m_bRunProcessTask)
+  while (m_ProcessTaskState == ProcessTaskState::Running)
   {
     for (ezUInt32 i = 0; i < m_ProcessTasks.GetCount(); i++)
     {
@@ -153,6 +187,9 @@ void ezAssetProcessor::Run()
     {
       if (m_ProcessRunning[i])
       {
+        if (m_bForceStop)
+          m_ProcessTasks[i].ShutdownProcess();
+
         m_ProcessRunning[i] = !m_ProcessTasks[i].FinishExecute();
         bAnyRunning |= m_ProcessRunning[i];
       }
@@ -162,6 +199,17 @@ void ezAssetProcessor::Run()
       ezThreadUtils::Sleep(ezTime::Milliseconds(100));
     else
       break;
+  }
+
+  EZ_LOCK(m_ProcessorMutex);
+  m_ProcessRunning.Clear();
+  m_ProcessTasks.Clear();
+  m_ProcessTaskState = ProcessTaskState::Stopped;
+  m_bForceStop = false;
+  {
+    ezAssetProcessorEvent e;
+    e.m_Type = ezAssetProcessorEvent::Type::ProcessTaskStateChanged;
+    m_Events.Broadcast(e);
   }
 }
 
@@ -432,7 +480,7 @@ bool ezProcessTask::FinishExecute()
   }
   else
   {
-    if (m_Status.m_sMessage == "IMPORT NEEDED!")
+    if (m_Status.m_Result == ezTransformResult::NeedsImport)
     {
       ezAssetCurator::GetSingleton()->UpdateAssetTransformState(m_AssetGuid, ezAssetInfo::TransformState::NeedsImport);
     }

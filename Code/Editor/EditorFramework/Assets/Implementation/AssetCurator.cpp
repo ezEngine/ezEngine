@@ -149,8 +149,7 @@ void ezAssetCurator::StartInitialize(const ezApplicationFileSystemConfig& cfg)
 
   m_pWatcher = EZ_DEFAULT_NEW(ezAssetWatcher, m_FileSystemConfig);
 
-  ezSharedPtr<ezDelegateTask<void>> pInitTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "", [this]()
-    {
+  ezSharedPtr<ezDelegateTask<void>> pInitTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "", [this]() {
     EZ_LOCK(m_CuratorMutex);
     LoadCaches();
 
@@ -209,7 +208,7 @@ void ezAssetCurator::Deinitialize()
   SaveAssetProfiles().IgnoreResult();
 
   ShutdownUpdateTask();
-  ezAssetProcessor::GetSingleton()->ShutdownProcessTask();
+  ezAssetProcessor::GetSingleton()->StopProcessTask(true);
   m_pWatcher = nullptr;
 
   SaveCaches();
@@ -663,8 +662,7 @@ const ezAssetCurator::ezLockedSubAsset ezAssetCurator::FindSubAsset(const char* 
   // TODO: This is the old slow code path that will find the longest substring match.
   // Should be removed or folded into FindBestMatchForFile once it's surely not needed anymore.
 
-  auto FindAsset = [this](ezStringView path) -> ezAssetInfo*
-  {
+  auto FindAsset = [this](ezStringView path) -> ezAssetInfo* {
     // try to find the 'exact' relative path
     // otherwise find the shortest possible path
     ezUInt32 uiMinLength = 0xFFFFFFFF;
@@ -1027,8 +1025,7 @@ ezResult ezAssetCurator::FindBestMatchForFile(ezStringBuilder& sFile, ezArrayPtr
   {
     EZ_LOCK(m_CuratorMutex);
 
-    auto SearchFile = [this](ezStringBuilder& name) -> bool
-    {
+    auto SearchFile = [this](ezStringBuilder& name) -> bool {
       for (auto it = m_ReferencedFiles.GetIterator(); it.IsValid(); ++it)
       {
         if (it.Value().m_Status != ezFileStatus::Status::Valid)
@@ -1079,8 +1076,7 @@ void ezAssetCurator::FindAllUses(ezUuid assetGuid, ezSet<ezUuid>& uses, bool tra
   ezSet<ezUuid> todoList;
   todoList.Insert(assetGuid);
 
-  auto GatherReferences = [&](const ezMap<ezString, ezHybridArray<ezUuid, 1>>& inverseTracker, const ezStringBuilder& sAsset)
-  {
+  auto GatherReferences = [&](const ezMap<ezString, ezHybridArray<ezUuid, 1>>& inverseTracker, const ezStringBuilder& sAsset) {
     auto it = inverseTracker.Find(sAsset);
     if (it.IsValid())
     {
@@ -1200,8 +1196,6 @@ ezCommandLineOptionEnum opt_AssetThumbnails("_Editor", "-AssetThumbnails", "Whet
 
 ezTransformStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const ezPlatformProfile* pAssetProfile, ezBitflags<ezTransformFlags> transformFlags)
 {
-  ezLog::Warning("AAAAAAA Process: {} | {}", ezProcess::GetCurrentProcessID(), pAssetInfo->m_sAbsolutePath);
-
   if (transformFlags.IsSet(ezTransformFlags::ForceTransform))
     ezLog::Dev("Asset transform forced.");
 
@@ -1253,13 +1247,23 @@ ezTransformStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const ez
     return resReferences;
   }
 
-  ezUInt64 uiHash2 = 0;
-  ezUInt64 uiThumbHash2 = 0;
-  ezAssetInfo::TransformState state2 = IsAssetUpToDate(pAssetInfo->m_Info->m_DocumentID, pAssetProfile, pTypeDesc, uiHash2, uiThumbHash2);
-  EZ_ASSERT_DEV(uiHash == uiHash2, "");
-  EZ_ASSERT_DEV(uiThumbHash == uiThumbHash2, "");
-  EZ_ASSERT_DEV(state == state2, "State {}, State2 {}", state, state2);
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+  {
+    // Sanity check that transforming the dependencies did not change the asset's transform state.
+    // In theory this can happen if an asset is transformed by multiple processes at the same time or changes to the file system are being made in the middle of the transform.
+    // If this can be reproduced consistently, it is usually a bug in the dependency tracking or other part of the asset curator.
+    ezUInt64 uiHash2 = 0;
+    ezUInt64 uiThumbHash2 = 0;
+    ezAssetInfo::TransformState state2 = IsAssetUpToDate(pAssetInfo->m_Info->m_DocumentID, pAssetProfile, pTypeDesc, uiHash2, uiThumbHash2);
 
+    if (uiHash != uiHash2)
+      return ezTransformStatus(ezFmt("Asset hash changed while prosessing dependencies from {} to {}", uiHash, uiHash2));
+    if (uiThumbHash != uiThumbHash2)
+      return ezTransformStatus(ezFmt("Asset thumbnail hash changed while prosessing dependencies from {} to {}", uiThumbHash, uiThumbHash2));
+    if (state != state2)
+      return ezTransformStatus(ezFmt("Asset state changed while prosessing dependencies from {} to {}", state, state2));
+  }
+#endif
 
   if (transformFlags.IsSet(ezTransformFlags::ForceTransform))
   {
@@ -1303,13 +1307,21 @@ ezTransformStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const ez
   {
     // skip thumbnail generation, if disabled globally
 
-    if (assetFlags.IsSet(ezAssetDocumentFlags::SupportsThumbnail) && !assetFlags.IsSet(ezAssetDocumentFlags::AutoThumbnailOnTransform) && !resReferences.Failed())
+    if (ret.Succeeded() && assetFlags.IsSet(ezAssetDocumentFlags::SupportsThumbnail) && !assetFlags.IsSet(ezAssetDocumentFlags::AutoThumbnailOnTransform) && !resReferences.Failed())
     {
-      ezAssetInfo::TransformState state3 = IsAssetUpToDate(pAssetInfo->m_Info->m_DocumentID, pAssetProfile, pTypeDesc, uiHash2, uiThumbHash2);
-
-      if (ret.Succeeded() && state3 == ezAssetInfo::TransformState::NeedsThumbnail)
+      // If the transformed succeeded, the asset should now be in the NeedsThumbnail state unless the thumbnail already exists in which case we are done.
+      ezAssetInfo::TransformState state3 = IsAssetUpToDate(pAssetInfo->m_Info->m_DocumentID, pAssetProfile, pTypeDesc, uiHash, uiThumbHash);
+      if (state3 == ezAssetInfo::TransformState::NeedsThumbnail)
       {
         ret = pAsset->CreateThumbnail();
+      }
+      else if (state3 == ezAssetInfo::TransformState::UpToDate)
+      {
+        return ret;
+      }
+      else
+      {
+        ezLog::Error("Thumbnail generation skipped as asset was in state: {}", state3);
       }
     }
   }
@@ -1560,8 +1572,7 @@ ezResult ezAssetCurator::WriteAssetTable(const char* szDataDirectory, const ezPl
 
     ezAssetDocumentManager* pManager = it.Value()->GetManager();
 
-    auto WriteEntry = [this, &sDataDir, &pAssetProfile, &GuidToPath, pManager, &sTemp, &sTemp2](const ezUuid& guid)
-    {
+    auto WriteEntry = [this, &sDataDir, &pAssetProfile, &GuidToPath, pManager, &sTemp, &sTemp2](const ezUuid& guid) {
       ezSubAsset* pSub = GetSubAssetInternal(guid);
       ezString sEntry = pManager->GetAssetTableEntry(pSub, sDataDir, pAssetProfile);
 

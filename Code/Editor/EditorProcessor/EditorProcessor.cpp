@@ -81,32 +81,26 @@ public:
           // TODO: there is currently no 'nice' way to switch the active platform for the asset processors
           // it is also not clear whether this is actually safe to execute here
           ezAssetCurator::GetSingleton()->SetActiveAssetProfileByIndex(uiPlatform);
-
-          ezAssetInfo::TransformState state = ezAssetCurator::GetSingleton()->IsAssetUpToDate(pMsg->m_AssetGuid, ezAssetCurator::GetSingleton()->GetAssetProfile(uiPlatform), nullptr, uiAssetHash, uiThumbHash);
-
-          // Check if asset matches the state of the editor
-          if ((state != ezAssetInfo::NeedsThumbnail && state != ezAssetInfo::NeedsTransform) || uiAssetHash != pMsg->m_AssetHash || uiThumbHash != pMsg->m_ThumbHash)
+          // First, force checking for file system changes for the asset and the transitive hull of all dependencies and runtime references. This needs to be done as this EditorProcessor instance might not know all the files yet as some might just have been written. We can't rely on the filesystem watcher as it is not instant and also might just miss some events.
+          for (const ezString& sDepOrRef : pMsg->m_DepRefHull)
           {
-            // Force update the state. If the asset was created automatically the file might not be known yet.
-            for (const ezString& sDepOrRef : pMsg->m_DepRefHull)
+            if (sDepOrRef.IsAbsolutePath())
             {
-              if (sDepOrRef.IsAbsolutePath())
+              ezAssetCurator::GetSingleton()->NotifyOfFileChange(sDepOrRef);
+            }
+            else
+            {
+              ezStringBuilder sTemp = sDepOrRef;
+              if (ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sTemp))
               {
-                ezAssetCurator::GetSingleton()->NotifyOfFileChange(sDepOrRef);
-              }
-              else
-              {
-                ezStringBuilder sTemp = sDepOrRef;
-                if (ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sTemp))
-                {
-                  ezAssetCurator::GetSingleton()->NotifyOfFileChange(sTemp);
-                }
+                ezAssetCurator::GetSingleton()->NotifyOfFileChange(sTemp);
               }
             }
-            ezAssetCurator::GetSingleton()->NotifyOfFileChange(pMsg->m_sAssetPath);
-
-            state = ezAssetCurator::GetSingleton()->IsAssetUpToDate(pMsg->m_AssetGuid, ezAssetCurator::GetSingleton()->GetAssetProfile(uiPlatform), nullptr, uiAssetHash, uiThumbHash, true);
           }
+          ezAssetCurator::GetSingleton()->NotifyOfFileChange(pMsg->m_sAssetPath);
+
+          // Next, we force checking that the asset is up to date. This EditorProcessor instance might not have observed the generation of the output files of various dependencies yet and incorrectly assume that some dependencies still need to be transformed. To prevent this, we force checking the asset and all its dependencies via the filesystem, ignoring the caching.
+          ezAssetInfo::TransformState state = ezAssetCurator::GetSingleton()->IsAssetUpToDate(pMsg->m_AssetGuid, ezAssetCurator::GetSingleton()->GetAssetProfile(uiPlatform), nullptr, uiAssetHash, uiThumbHash, true);
 
           if (uiAssetHash != pMsg->m_AssetHash || uiThumbHash != pMsg->m_ThumbHash)
           {

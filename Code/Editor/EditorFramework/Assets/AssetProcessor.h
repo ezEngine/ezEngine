@@ -9,6 +9,7 @@
 #include <Foundation/Threading/TaskSystem.h>
 #include <Foundation/Threading/Thread.h>
 #include <Foundation/Types/UniquePtr.h>
+#include <atomic>
 
 struct ezAssetCuratorEvent;
 class ezTask;
@@ -61,9 +62,10 @@ public:
 
   bool FinishExecute();
 
+  void ShutdownProcess();
+
 private:
   void StartProcess();
-  void ShutdownProcess();
   void EventHandlerIPC(const ezProcessCommunicationChannel::Event& e);
 
   bool GetNextAssetToProcess(ezAssetInfo* pInfo, ezUuid& out_guid, ezStringBuilder& out_sAbsPath, ezStringBuilder& out_sRelPath);
@@ -91,17 +93,28 @@ class EZ_EDITORFRAMEWORK_DLL ezAssetProcessor
   EZ_DECLARE_SINGLETON(ezAssetProcessor);
 
 public:
+  enum class ProcessTaskState : ezUInt8
+  {
+    Stopped, ///< No EditorProcessor or the process thread is running.
+    Running, ///< Everything is active.
+    Stopping, ///< Everything is still running but no new tasks are put into the EditorProcessors.
+  };
+
   ezAssetProcessor();
   ~ezAssetProcessor();
 
-  void RestartProcessTask();
-  void ShutdownProcessTask();
-  bool IsProcessTaskRunning() const;
+  void StartProcessTask();
+  void StopProcessTask(bool bForce);
+  ProcessTaskState GetProcessTaskState() const
+  {
+    return m_ProcessTaskState;
+  }
 
   void AddLogWriter(ezLoggingEvent::Handler handler);
   void RemoveLogWriter(ezLoggingEvent::Handler handler);
 
 public:
+  // Can be called from worker threads!
   ezEvent<const ezAssetProcessorEvent&> m_Events;
 
 private:
@@ -112,11 +125,17 @@ private:
   void Run();
 
 private:
-  mutable ezMutex m_ProcessorMutex;
   ezAssetProcessorLog m_CuratorLog;
-  ezAtomicBool m_bRunProcessTask;
 
-  ezProcessThread m_Thread;
+  // Process thread and its state
+  ezUniquePtr<ezProcessThread> m_Thread;
+  std::atomic<bool> m_bForceStop = false;  ///< If set, background processes will be killed when stopping without waiting for their current task to finish.
+
+  // Locks writes to m_ProcessTaskState to make sure the state machine does not go from running to stopped before having fired stopping.
+  mutable ezMutex m_ProcessorMutex;
+  std::atomic<ProcessTaskState> m_ProcessTaskState = ProcessTaskState::Stopped;
+
+  // Data owned by the process thread.
   ezDynamicArray<bool> m_ProcessRunning;
   ezDynamicArray<ezProcessTask> m_ProcessTasks;
 };

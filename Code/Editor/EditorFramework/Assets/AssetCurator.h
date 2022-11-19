@@ -233,7 +233,7 @@ public:
   ezStatus TransformAllAssets(ezBitflags<ezTransformFlags> transformFlags, const ezPlatformProfile* pAssetProfile = nullptr);
   void ResaveAllAssets();
   ezTransformStatus TransformAsset(const ezUuid& assetGuid, ezBitflags<ezTransformFlags> transformFlags, const ezPlatformProfile* pAssetProfile = nullptr);
-  ezTransformStatus  CreateThumbnail(const ezUuid& assetGuid);
+  ezTransformStatus CreateThumbnail(const ezUuid& assetGuid);
 
   /// \brief Writes the asset lookup table for the given platform, or the currently active platform if nullptr is passed.
   ezResult WriteAssetTables(const ezPlatformProfile* pAssetProfile = nullptr);
