@@ -117,7 +117,7 @@ public:
   {
     if (object)
     {
-      DeleteLater({ object.objectType, (void*)object, allocation });
+      DeleteLater({object.objectType, (void*)object, allocation});
     }
     object = nullptr;
     allocation = nullptr;
@@ -128,7 +128,7 @@ public:
   {
     if (object)
     {
-      PendingDeletion del = { object.objectType, (void*)object, nullptr };
+      PendingDeletion del = {object.objectType, (void*)object, nullptr};
       del.m_pContext = pContext;
       DeleteLater(static_cast<const PendingDeletion&>(del));
     }
