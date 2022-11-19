@@ -404,8 +404,8 @@ ezStatus ezAssetCurator::TransformAllAssets(ezBitflags<ezTransformFlags> transfo
       --uiNumStepsLeft;
     }
 
-    auto res = ProcessAsset(pAssetInfo, pAssetProfile, transformFlags);
-    if (res.m_Result.Failed())
+    ezTransformStatus res = ProcessAsset(pAssetInfo, pAssetProfile, transformFlags);
+    if (res.Failed())
     {
       uiNumFailedSteps++;
       ezLog::Error("{0} ({1})", res.m_sMessage, pAssetInfo->m_sDataDirParentRelativePath);
@@ -492,9 +492,9 @@ void ezAssetCurator::ResaveAllAssets()
   }
 }
 
-ezStatus ezAssetCurator::TransformAsset(const ezUuid& assetGuid, ezBitflags<ezTransformFlags> transformFlags, const ezPlatformProfile* pAssetProfile)
+ezTransformStatus ezAssetCurator::TransformAsset(const ezUuid& assetGuid, ezBitflags<ezTransformFlags> transformFlags, const ezPlatformProfile* pAssetProfile)
 {
-  ezStatus res = ezResult(EZ_FAILURE);
+  ezTransformStatus res;
   ezStringBuilder sAbsPath;
   ezStopwatch timer;
   const ezAssetDocumentTypeDescriptor* pTypeDesc = nullptr;
@@ -503,7 +503,7 @@ ezStatus ezAssetCurator::TransformAsset(const ezUuid& assetGuid, ezBitflags<ezTr
 
     ezAssetInfo* pInfo = nullptr;
     if (!m_KnownAssets.TryGetValue(assetGuid, pInfo))
-      return ezStatus("Transform failed, unknown asset.");
+      return ezTransformStatus("Transform failed, unknown asset.");
 
     sAbsPath = pInfo->m_sAbsolutePath;
     res = ProcessAsset(pInfo, pAssetProfile, transformFlags);
@@ -522,7 +522,7 @@ ezStatus ezAssetCurator::TransformAsset(const ezUuid& assetGuid, ezBitflags<ezTr
   return res;
 }
 
-ezStatus ezAssetCurator::CreateThumbnail(const ezUuid& assetGuid)
+ezTransformStatus ezAssetCurator::CreateThumbnail(const ezUuid& assetGuid)
 {
   EZ_LOCK(m_CuratorMutex);
 
@@ -1198,7 +1198,7 @@ void ezAssetCurator::NeedsReloadResources()
 
 ezCommandLineOptionEnum opt_AssetThumbnails("_Editor", "-AssetThumbnails", "Whether to generate thumbnails for transformed assets.", "default = 0 | never = 1", 0);
 
-ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const ezPlatformProfile* pAssetProfile, ezBitflags<ezTransformFlags> transformFlags)
+ezTransformStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const ezPlatformProfile* pAssetProfile, ezBitflags<ezTransformFlags> transformFlags)
 {
   ezLog::Warning("AAAAAAA Process: {} | {}", ezProcess::GetCurrentProcessID(), pAssetInfo->m_sAbsolutePath);
 
@@ -1220,7 +1220,7 @@ ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const ezPlatformP
     }
   }
 
-  ezStatus resReferences(EZ_SUCCESS);
+  ezTransformStatus resReferences;
   for (const auto& ref : pAssetInfo->m_Info->m_RuntimeDependencies)
   {
     ezBitflags<ezTransformFlags> transformFlagsRefs = transformFlags;
@@ -1228,7 +1228,7 @@ ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const ezPlatformP
     if (ezAssetInfo* pInfo = GetAssetInfo(ref))
     {
       resReferences = ProcessAsset(pInfo, pAssetProfile, transformFlagsRefs);
-      if (resReferences.m_Result.Failed())
+      if (resReferences.Failed())
         break;
     }
   }
@@ -1248,7 +1248,7 @@ ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const ezPlatformP
   }
 
   // If references are not complete and we generate thumbnails on transform we can cancel right away.
-  if (assetFlags.IsSet(ezAssetDocumentFlags::AutoThumbnailOnTransform) && resReferences.m_Result.Failed())
+  if (assetFlags.IsSet(ezAssetDocumentFlags::AutoThumbnailOnTransform) && resReferences.Failed())
   {
     return resReferences;
   }
@@ -1271,7 +1271,7 @@ ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const ezPlatformP
 
   if (state == ezAssetInfo::TransformState::MissingDependency)
   {
-    return ezStatus(ezFmt("Missing dependency for asset '{0}', can't transform.", pAssetInfo->m_sAbsolutePath));
+    return ezTransformStatus(ezFmt("Missing dependency for asset '{0}', can't transform.", pAssetInfo->m_sAbsolutePath));
   }
 
   // does the document already exist and is open ?
@@ -1283,11 +1283,11 @@ ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const ezPlatformP
     pDoc = ezQtEditorApp::GetSingleton()->OpenDocument(pAssetInfo->m_sAbsolutePath, ezDocumentFlags::None);
 
   if (pDoc == nullptr)
-    return ezStatus(ezFmt("Could not open asset document '{0}'", pAssetInfo->m_sDataDirParentRelativePath));
+    return ezTransformStatus(ezFmt("Could not open asset document '{0}'", pAssetInfo->m_sDataDirParentRelativePath));
 
   EZ_SCOPE_EXIT(if (!pDoc->HasWindowBeenRequested() && !bWasOpen) pDoc->GetDocumentManager()->CloseDocument(pDoc););
 
-  ezStatus ret(EZ_SUCCESS);
+  ezTransformStatus ret;
   ezAssetDocument* pAsset = static_cast<ezAssetDocument*>(pDoc);
   if (state == ezAssetInfo::TransformState::NeedsTransform || (state == ezAssetInfo::TransformState::NeedsThumbnail && assetFlags.IsSet(ezAssetDocumentFlags::AutoThumbnailOnTransform)) || (transformFlags.IsSet(ezTransformFlags::TriggeredManually) && state == ezAssetInfo::TransformState::NeedsImport))
   {
@@ -1296,18 +1296,18 @@ ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const ezPlatformP
 
   if (state == ezAssetInfo::TransformState::MissingReference)
   {
-    return ezStatus(ezFmt("Missing reference for asset '{0}', can't create thumbnail.", pAssetInfo->m_sAbsolutePath));
+    return ezTransformStatus(ezFmt("Missing reference for asset '{0}', can't create thumbnail.", pAssetInfo->m_sAbsolutePath));
   }
 
   if (opt_AssetThumbnails.GetOptionValue(ezCommandLineOption::LogMode::FirstTimeIfSpecified) != 1)
   {
     // skip thumbnail generation, if disabled globally
 
-    if (assetFlags.IsSet(ezAssetDocumentFlags::SupportsThumbnail) && !assetFlags.IsSet(ezAssetDocumentFlags::AutoThumbnailOnTransform) && !resReferences.m_Result.Failed())
+    if (assetFlags.IsSet(ezAssetDocumentFlags::SupportsThumbnail) && !assetFlags.IsSet(ezAssetDocumentFlags::AutoThumbnailOnTransform) && !resReferences.Failed())
     {
       ezAssetInfo::TransformState state3 = IsAssetUpToDate(pAssetInfo->m_Info->m_DocumentID, pAssetProfile, pTypeDesc, uiHash2, uiThumbHash2);
 
-      if (ret.m_Result.Succeeded() && state3 == ezAssetInfo::TransformState::NeedsThumbnail)
+      if (ret.Succeeded() && state3 == ezAssetInfo::TransformState::NeedsThumbnail)
       {
         ret = pAsset->CreateThumbnail();
       }
@@ -1635,7 +1635,7 @@ void ezAssetCurator::ProcessAllCoreAssets()
         transformOrder.PushBack(ezTempHashedString("RenderPipeline"));
         transformOrder.PushBack(ezTempHashedString(""));
 
-        ezStatus resReferences(EZ_SUCCESS);
+        ezTransformStatus resReferences(EZ_SUCCESS);
 
         for (const ezTempHashedString& name : transformOrder)
         {
@@ -1646,7 +1646,7 @@ void ezAssetCurator::ProcessAllCoreAssets()
               if (name.GetHash() == 0ull || pInfo->m_Info->m_sAssetsDocumentTypeName == name)
               {
                 resReferences = ProcessAsset(pInfo, pAssetProfile, ezTransformFlags::TriggeredManually);
-                if (resReferences.m_Result.Failed())
+                if (resReferences.Failed())
                   break;
               }
             }

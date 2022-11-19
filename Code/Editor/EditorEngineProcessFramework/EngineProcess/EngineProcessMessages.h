@@ -1,6 +1,7 @@
 #pragma once
 
 #include <EditorEngineProcessFramework/EditorEngineProcessFrameworkDLL.h>
+
 #include <Foundation/Application/Config/FileSystemConfig.h>
 #include <Foundation/Application/Config/PluginConfig.h>
 #include <Foundation/Communication/RemoteMessage.h>
@@ -11,33 +12,7 @@
 
 ///////////////////////////////////// ezProcessMessages /////////////////////////////////////
 
-///////////////////////////////////// Curator /////////////////////////////////////
 
-
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezProcessAssetMsg : public ezProcessMessage
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezProcessAssetMsg, ezProcessMessage);
-
-public:
-  ezUuid m_AssetGuid;
-  ezUInt64 m_AssetHash = 0;
-  ezUInt64 m_ThumbHash = 0;
-  ezString m_sAssetPath;
-  ezString m_sPlatform;
-  ezDynamicArray<ezString> m_DepRefHull;
-};
-
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezProcessAssetResponseMsg : public ezProcessMessage
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezProcessAssetResponseMsg, ezProcessMessage);
-
-public:
-  mutable ezDynamicArray<ezLogEntry> m_LogEntries;
-  bool m_bSuccess = false;
-  ezString m_sStatus;
-
-  // TODO
-};
 
 ///////////////////////////////////// ezEditorEngineMsg /////////////////////////////////////
 

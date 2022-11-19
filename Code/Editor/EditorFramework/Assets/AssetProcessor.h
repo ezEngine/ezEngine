@@ -79,7 +79,7 @@ private:
   bool m_bProcessShouldBeRunning;
   bool m_bProcessCrashed;
   bool m_bWaiting;
-  ezStatus m_Status;
+  ezTransformStatus m_Status;
   ezDynamicArray<ezLogEntry> m_LogEntries;
   ezDynamicArray<ezString> m_TransitiveHull;
 };

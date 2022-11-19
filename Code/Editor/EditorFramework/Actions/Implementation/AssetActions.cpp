@@ -101,9 +101,9 @@ void ezAssetAction::Execute(const ezVariant& value)
         }
       }
 
-      auto ret = ezAssetCurator::GetSingleton()->TransformAsset(m_Context.m_pDocument->GetGuid(), ezTransformFlags::ForceTransform | ezTransformFlags::TriggeredManually);
+      ezTransformStatus ret = ezAssetCurator::GetSingleton()->TransformAsset(m_Context.m_pDocument->GetGuid(), ezTransformFlags::ForceTransform | ezTransformFlags::TriggeredManually);
 
-      if (ret.m_Result.Failed())
+      if (ret.Failed())
       {
         ezLog::Error("Transform failed: '{0}' ({1})", ret.m_sMessage, m_Context.m_pDocument->GetDocumentPath());
       }

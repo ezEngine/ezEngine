@@ -5,6 +5,7 @@
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessCommunicationChannel.h>
 #include <EditorFramework/Assets/AssetCurator.h>
+#include <EditorFramework/Assets/AssetProcessorMessages.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/Application/Application.h>
 #include <Foundation/Utilities/CommandLineOptions.h>
@@ -114,28 +115,23 @@ public:
 
           if (state == ezAssetInfo::NeedsThumbnail || state == ezAssetInfo::NeedsTransform)
           {
-            const ezStatus res = ezAssetCurator::GetSingleton()->TransformAsset(pMsg->m_AssetGuid, ezTransformFlags::None, ezAssetCurator::GetSingleton()->GetAssetProfile(uiPlatform));
+            msg.m_Status = ezAssetCurator::GetSingleton()->TransformAsset(pMsg->m_AssetGuid, ezTransformFlags::BackgroundProcessing, ezAssetCurator::GetSingleton()->GetAssetProfile(uiPlatform));
 
-            // TODO
-
-            msg.m_bSuccess = res.m_Result.Succeeded();
-            msg.m_sStatus = res.m_sMessage;
-
-            if (res.m_Result.Failed())
+            if (msg.m_Status.Failed())
             {
               // make sure the result message ends up in the log
-              ezLog::Error(res.m_sMessage);
+              ezLog::Error("{}", msg.m_Status.m_sMessage);
             }
           }
           else if (state == ezAssetInfo::UpToDate)
           {
-            msg.m_bSuccess = true;
+            msg.m_Status = ezTransformStatus();
             ezLog::Warning("Asset already up to date: '{}'", pMsg->m_sAssetPath);
           }
           else
           {
-            msg.m_bSuccess = false;
-            ezLog::Error("Asset {} is in state {}, can't process asset.", pMsg->m_sAssetPath, (int)state); // TODO nicer state to string
+            msg.m_Status = ezTransformStatus(ezFmt("Asset {} is in state {}, can't process asset.", pMsg->m_sAssetPath, (int)state)); // TODO nicer state to string
+            ezLog::Error("{}", msg.m_Status.m_sMessage);
           }
         }
       }

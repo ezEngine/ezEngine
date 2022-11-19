@@ -121,9 +121,9 @@ void ezAssetDocument::InternalAfterSaveDocument()
     if (m_EngineConnectionType == ezAssetDocEngineConnection::None || m_pEngineConnection)
     {
       /// \todo Should only be done for platform agnostic assets
-      auto ret = ezAssetCurator::GetSingleton()->TransformAsset(GetGuid(), ezTransformFlags::TriggeredManually);
+      ezTransformStatus ret = ezAssetCurator::GetSingleton()->TransformAsset(GetGuid(), ezTransformFlags::TriggeredManually);
 
-      if (ret.m_Result.Failed())
+      if (ret.Failed())
       {
         ezLog::Error("Transform failed: '{0}' ({1})", ret.m_sMessage, GetDocumentPath());
       }
@@ -383,7 +383,7 @@ void ezAssetDocument::GetChildHash(const ezDocumentObject* pObject, ezUInt64& ui
   }
 }
 
-ezStatus ezAssetDocument::DoTransformAsset(const ezPlatformProfile* pAssetProfile0 /*= nullptr*/, ezBitflags<ezTransformFlags> transformFlags)
+ezTransformStatus ezAssetDocument::DoTransformAsset(const ezPlatformProfile* pAssetProfile0 /*= nullptr*/, ezBitflags<ezTransformFlags> transformFlags)
 {
   const auto flags = GetAssetFlags();
 
@@ -407,13 +407,13 @@ ezStatus ezAssetDocument::DoTransformAsset(const ezPlatformProfile* pAssetProfil
     AssetHeader.SetFileHashAndVersion(uiHash, GetAssetTypeVersion());
     const auto& outputs = GetAssetDocumentInfo()->m_Outputs;
 
-    auto GenerateOutput = [this, pAssetProfile, &AssetHeader, transformFlags](const char* szOutputTag) -> ezStatus
+    auto GenerateOutput = [this, pAssetProfile, &AssetHeader, transformFlags](const char* szOutputTag) -> ezTransformStatus
     {
       const ezString sTargetFile = GetAssetDocumentManager()->GetAbsoluteOutputFileName(GetAssetDocumentTypeDescriptor(), GetDocumentPath(), szOutputTag, pAssetProfile);
-      auto ret = InternalTransformAsset(sTargetFile, szOutputTag, pAssetProfile, AssetHeader, transformFlags);
+      ezTransformStatus ret = InternalTransformAsset(sTargetFile, szOutputTag, pAssetProfile, AssetHeader, transformFlags);
 
       // if writing failed, make sure the output file does not exist
-      if (ret.m_Result.Failed())
+      if (ret.Failed())
       {
         ezFileSystem::DeleteFile(sTargetFile);
       }
@@ -421,7 +421,7 @@ ezStatus ezAssetDocument::DoTransformAsset(const ezPlatformProfile* pAssetProfil
       return ret;
     };
 
-    ezStatus res(EZ_SUCCESS);
+    ezTransformStatus res;
     for (auto it = outputs.GetIterator(); it.IsValid(); ++it)
     {
       res = GenerateOutput(it.Key());
@@ -438,7 +438,7 @@ ezStatus ezAssetDocument::DoTransformAsset(const ezPlatformProfile* pAssetProfil
   }
 }
 
-ezStatus ezAssetDocument::TransformAsset(ezBitflags<ezTransformFlags> transformFlags, const ezPlatformProfile* pAssetProfile)
+ezTransformStatus ezAssetDocument::TransformAsset(ezBitflags<ezTransformFlags> transformFlags, const ezPlatformProfile* pAssetProfile)
 {
   EZ_PROFILE_SCOPE("TransformAsset");
 
@@ -454,7 +454,7 @@ ezStatus ezAssetDocument::TransformAsset(ezBitflags<ezTransformFlags> transformF
     }
   }
 
-  const auto res = DoTransformAsset(pAssetProfile, transformFlags);
+  const ezTransformStatus res = DoTransformAsset(pAssetProfile, transformFlags);
 
   if (transformFlags.IsSet(ezTransformFlags::TriggeredManually))
   {
@@ -465,7 +465,7 @@ ezStatus ezAssetDocument::TransformAsset(ezBitflags<ezTransformFlags> transformF
   return res;
 }
 
-ezStatus ezAssetDocument::CreateThumbnail()
+ezTransformStatus ezAssetDocument::CreateThumbnail()
 {
   ezUInt64 uiHash = 0;
   ezUInt64 uiThumbHash = 0;
@@ -482,16 +482,16 @@ ezStatus ezAssetDocument::CreateThumbnail()
   {
     ThumbnailInfo ThumbnailInfo;
     ThumbnailInfo.SetFileHashAndVersion(uiThumbHash, GetAssetTypeVersion());
-    ezStatus res = InternalCreateThumbnail(ThumbnailInfo);
+    ezTransformStatus res = InternalCreateThumbnail(ThumbnailInfo);
 
     InvalidateAssetThumbnail();
     ezAssetCurator::GetSingleton()->NotifyOfAssetChange(GetGuid());
     return res;
   }
-  return ezStatus(ezFmt("Asset state is {}", state));
+  return ezTransformStatus(ezFmt("Asset state is {}", state));
 }
 
-ezStatus ezAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezTransformStatus ezAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   ezDeferredFileWriter file;
   file.SetOutput(szTargetFile);
@@ -675,7 +675,7 @@ ezStatus ezAssetDocument::RemoteExport(const ezAssetFileHeader& header, const ch
   }
 }
 
-ezStatus ezAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& thumbnailInfo)
+ezTransformStatus ezAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& thumbnailInfo)
 {
   EZ_ASSERT_NOT_IMPLEMENTED;
   return ezStatus("Not implemented");

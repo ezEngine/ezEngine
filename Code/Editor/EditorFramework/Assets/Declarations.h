@@ -1,9 +1,12 @@
 #pragma once
 
+#include <EditorFramework/EditorFrameworkDLL.h>
+
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Types/Bitflags.h>
 #include <Foundation/Types/Uuid.h>
+#include <Foundation/Reflection/Implementation/StaticRTTI.h>
 
 class ezImage;
 class ezAssetFileHeader;
@@ -53,9 +56,10 @@ struct ezTransformFlags
   enum Enum
   {
     None = 0,
-    TriggeredManually = EZ_BIT(0), ///< Transform triggered by user directly. Needs to be set to transform assets marked with
-                                   ///< ezAssetDocumentFlags::Enum::OnlyTransformManually.
-    ForceTransform = EZ_BIT(1),    ///< Will transform the asset regardless of its current transform state.
+    TriggeredManually = EZ_BIT(0),    ///< Transform triggered by user directly. Needs to be set to transform assets marked with
+                                      ///< ezAssetDocumentFlags::Enum::OnlyTransformManually.
+    ForceTransform = EZ_BIT(1),       ///< Will transform the asset regardless of its current transform state.
+    BackgroundProcessing = EZ_BIT(1), ///< If changes need to be made that requires re-saving the asset transform will be aborted and ezTransformResult::NeedsImport is returned.
     Default = None
   };
 
@@ -63,6 +67,7 @@ struct ezTransformFlags
   {
     StorageType TriggeredManually : 1;
     StorageType ForceTransform : 1;
+    StorageType BackgroundProcessing : 1;
   };
 };
 EZ_DECLARE_FLAGS_OPERATORS(ezTransformFlags);
@@ -82,3 +87,81 @@ struct EZ_EDITORFRAMEWORK_DLL ezAssetDocumentTypeDescriptor : public ezDocumentT
   ezString m_sResourceFileExtension;
   ezBitflags<ezAssetDocumentFlags> m_AssetDocumentFlags;
 };
+
+
+struct ezTransformResult
+{
+  using StorageType = ezUInt8;
+
+  enum Enum : ezUInt8
+  {
+    Success = 0,
+    Failure,
+    NeedsImport,
+    Default = Success,
+  };
+};
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_EDITORFRAMEWORK_DLL, ezTransformResult);
+
+
+struct EZ_EDITORFRAMEWORK_DLL ezTransformStatus
+{
+  EZ_ALWAYS_INLINE explicit ezTransformStatus()
+    : m_Result(ezTransformResult::Success)
+  {
+  }
+
+  explicit ezTransformStatus(const char* szError)
+    : m_Result(ezTransformResult::Failure)
+    , m_sMessage(szError)
+  {
+  }
+
+  explicit ezTransformStatus(ezTransformResult::Enum r, ezStringView sError)
+    : m_Result(r)
+    , m_sMessage(sError)
+  {
+  }
+
+  explicit ezTransformStatus(ezStringView sError)
+    : m_Result(ezTransformResult::Failure)
+    , m_sMessage(sError)
+  {
+  }
+
+  EZ_ALWAYS_INLINE ezTransformStatus(ezTransformResult::Enum r)
+    : m_Result(r)
+  {
+  }
+
+  EZ_ALWAYS_INLINE ezTransformStatus(ezStatus r)
+    : m_Result(r.Succeeded() ? ezTransformResult::Success : ezTransformResult::Failure)
+    , m_sMessage(r.m_sMessage)
+  {
+  }
+
+  EZ_ALWAYS_INLINE ezTransformStatus(ezResult r)
+    : m_Result(r.Succeeded() ? ezTransformResult::Success : ezTransformResult::Failure)
+  {
+  }
+
+  explicit ezTransformStatus(const ezFormatString& fmt)
+    : m_Result(ezTransformResult::Failure)
+  {
+    ezStringBuilder sMsg;
+    m_sMessage = fmt.GetText(sMsg);
+  }
+
+  EZ_ALWAYS_INLINE bool Succeeded() const { return m_Result == ezTransformResult::Success; }
+  EZ_ALWAYS_INLINE bool Failed() const { return m_Result == ezTransformResult::Failure; }
+  //void LogFailure(ezLogInterface* pLog = nullptr);
+
+  ezEnum<ezTransformResult> m_Result;
+  ezString m_sMessage;
+};
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_EDITORFRAMEWORK_DLL, ezTransformStatus);
+
+EZ_ALWAYS_INLINE ezResult ezToResult(const ezTransformStatus& result)
+{
+  return result.m_Result == ezTransformResult::Success ? EZ_SUCCESS : EZ_FAILURE;
+}

@@ -92,11 +92,12 @@ public:
   ///
   /// If ezTransformFlags::ForceTransform is set, it will try to transform the asset, ignoring whether the transform is up to date.
   /// If ezTransformFlags::TriggeredManually is set, transform produced changes will be saved back to the document.
-  ezStatus TransformAsset(ezBitflags<ezTransformFlags> transformFlags, const ezPlatformProfile* pAssetProfile = nullptr);
+  /// If ezTransformFlags::BackgroundProcessing is set and transforming the asset would require re-saving it, nothing is done.
+  ezTransformStatus TransformAsset(ezBitflags<ezTransformFlags> transformFlags, const ezPlatformProfile* pAssetProfile = nullptr);
 
   /// \brief Updates the thumbnail of the asset.
   ///   Should never be called manually. Called only by the curator which takes care of dependencies first.
-  ezStatus CreateThumbnail();
+  ezTransformStatus CreateThumbnail();
 
   /// \brief Returns the RTTI type version of this asset document type. E.g. when the algorithm to transform an asset changes,
   /// Increase the RTTI version. This will ensure that assets get re-transformed, even though their settings and dependencies might not have changed.
@@ -195,7 +196,7 @@ protected:
   /// \param szPlatform Platform for which is the output is to be created. Default is 'PC'.
   /// \param AssetHeader Header already written to the stream, provided for reference.
   /// \param transformFlags flags that affect the transform process, see ezTransformFlags.
-  virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
+  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
     const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) = 0;
 
   /// \brief Only override this function, if the transformed file for the given szOutputTag must be written from another process.
@@ -203,7 +204,7 @@ protected:
   /// szTargetFile is where the transformed asset should be written to. The overriding function must ensure to first
   /// write \a AssetHeader to the file, to make it a valid asset file or provide a custom ezAssetDocumentManager::IsOutputUpToDate function.
   /// See ezTransformFlags for definition of transform flags.
-  virtual ezStatus InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
+  virtual ezTransformStatus InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
     const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags);
 
   ezStatus RemoteExport(const ezAssetFileHeader& header, const char* szOutputTarget) const;
@@ -213,7 +214,7 @@ protected:
   ///@{
 
   /// \brief Override this function to generate a thumbnail. Only called if GetAssetFlags returns ezAssetDocumentFlags::SupportsThumbnail.
-  virtual ezStatus InternalCreateThumbnail(const ThumbnailInfo& thumbnailInfo);
+  virtual ezTransformStatus InternalCreateThumbnail(const ThumbnailInfo& thumbnailInfo);
 
   /// \brief Returns the full path to the jpg file in which the thumbnail for this asset is supposed to be
   ezString GetThumbnailFilePath() const;
@@ -274,7 +275,7 @@ protected:
   virtual ezDocumentInfo* CreateDocumentInfo() override;
 
 private:
-  ezStatus DoTransformAsset(const ezPlatformProfile* pAssetProfile, ezBitflags<ezTransformFlags> transformFlags);
+  ezTransformStatus DoTransformAsset(const ezPlatformProfile* pAssetProfile, ezBitflags<ezTransformFlags> transformFlags);
 
   EngineStatus m_EngineStatus;
   ezAssetDocEngineConnection m_EngineConnectionType = ezAssetDocEngineConnection::None;

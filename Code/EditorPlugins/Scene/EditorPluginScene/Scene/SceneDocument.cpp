@@ -1425,7 +1425,7 @@ void ezSceneDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
   pInfo->m_MetaInfo.PushBack(pExposedParams);
 }
 
-ezStatus ezSceneDocument::ExportScene(bool bCreateThumbnail)
+ezTransformStatus ezSceneDocument::ExportScene(bool bCreateThumbnail)
 {
   //#TODO export layers
   auto saveres = SaveDocument();
@@ -1433,7 +1433,7 @@ ezStatus ezSceneDocument::ExportScene(bool bCreateThumbnail)
   if (saveres.m_Result.Failed())
     return saveres;
 
-  ezStatus res;
+  ezTransformStatus res;
 
   if (bCreateThumbnail)
   {
@@ -1443,7 +1443,7 @@ ezStatus ezSceneDocument::ExportScene(bool bCreateThumbnail)
   else
     res = TransformAsset(ezTransformFlags::ForceTransform | ezTransformFlags::TriggeredManually);
 
-  if (res.m_Result.Failed())
+  if (res.Failed())
     ezLog::Error(res.m_sMessage);
   else
     ezLog::Success(res.m_sMessage);
@@ -1493,7 +1493,7 @@ void ezSceneDocument::HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg)
   }
 }
 
-ezStatus ezSceneDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezTransformStatus ezSceneDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   if (m_DocumentType == DocumentType::Prefab)
   {
@@ -1511,7 +1511,7 @@ ezStatus ezSceneDocument::InternalTransformAsset(const char* szTargetFile, const
 }
 
 
-ezStatus ezSceneDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezTransformStatus ezSceneDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   EZ_ASSERT_NOT_IMPLEMENTED;
 
@@ -1520,7 +1520,7 @@ ezStatus ezSceneDocument::InternalTransformAsset(ezStreamWriter& stream, const c
 }
 
 
-ezStatus ezSceneDocument::InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo)
+ezTransformStatus ezSceneDocument::InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo)
 {
   ezStatus status = ezAssetDocument::RemoteCreateThumbnail(ThumbnailInfo, {});
 

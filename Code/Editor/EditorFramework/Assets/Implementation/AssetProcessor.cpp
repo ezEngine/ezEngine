@@ -2,6 +2,7 @@
 
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Assets/AssetProcessor.h>
+#include <EditorFramework/Assets/AssetProcessorMessages.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/Configuration/SubSystem.h>
 #include <GameEngine/GameApplication/GameApplication.h>
@@ -228,7 +229,7 @@ void ezProcessTask::EventHandlerIPC(const ezProcessCommunicationChannel::Event& 
 {
   if (const ezProcessAssetResponseMsg* pMsg = ezDynamicCast<const ezProcessAssetResponseMsg*>(e.m_pMessage))
   {
-    m_Status = ezStatus(pMsg->m_bSuccess ? EZ_SUCCESS : EZ_FAILURE, pMsg->m_sStatus);
+    m_Status = pMsg->m_Status;
     m_bWaiting = false;
     m_LogEntries.Swap(pMsg->m_LogEntries);
   }
@@ -247,8 +248,7 @@ bool ezProcessTask::GetNextAssetToProcess(ezAssetInfo* pInfo, ezUuid& out_guid, 
       return false;
   }
 
-  auto TestFunc = [this, &bComplete](const ezSet<ezString>& Files) -> ezAssetInfo*
-  {
+  auto TestFunc = [this, &bComplete](const ezSet<ezString>& Files) -> ezAssetInfo* {
     for (const auto& sFile : Files)
     {
       if (ezAssetInfo* pFileInfo = ezAssetCurator::GetSingleton()->GetAssetInfo(sFile))
@@ -339,8 +339,7 @@ bool ezProcessTask::GetNextAssetToProcess(ezUuid& out_guid, ezStringBuilder& out
 void ezProcessTask::OnProcessCrashed()
 {
   m_Status = ezStatus("Asset processor crashed");
-  ezLogEntryDelegate logger([this](ezLogEntry& entry)
-    { m_LogEntries.PushBack(std::move(entry)); });
+  ezLogEntryDelegate logger([this](ezLogEntry& entry) { m_LogEntries.PushBack(std::move(entry)); });
   ezLog::Error(&logger, "AssetProcessor crashed!");
   ezLog::Error(&ezAssetProcessor::GetSingleton()->m_CuratorLog, "AssetProcessor crashed!");
 }

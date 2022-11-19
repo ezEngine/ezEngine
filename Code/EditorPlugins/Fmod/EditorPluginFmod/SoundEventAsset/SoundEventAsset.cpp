@@ -22,7 +22,7 @@ void ezSoundEventAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pIn
   const ezSoundEventAssetProperties* pProp = GetProperties();
 }
 
-ezStatus ezSoundEventAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
+ezTransformStatus ezSoundEventAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
   const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   const ezSoundEventAssetProperties* pProp = GetProperties();

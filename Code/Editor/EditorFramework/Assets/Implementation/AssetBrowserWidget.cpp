@@ -696,8 +696,8 @@ void ezQtAssetBrowserWidget::OnTransform()
     ezUuid guid = m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::AssetGuid).value<ezUuid>();
     QString sPath = m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::RelativePath).toString();
     range.BeginNextStep(sPath.toUtf8());
-    auto res = ezAssetCurator::GetSingleton()->TransformAsset(guid, ezTransformFlags::TriggeredManually);
-    if (res.m_Result.Failed())
+    ezTransformStatus res = ezAssetCurator::GetSingleton()->TransformAsset(guid, ezTransformFlags::BackgroundProcessing);
+    if (res.Failed())
     {
       ezLog::Error("{0} ({1})", res.m_sMessage, sPath.toUtf8().data());
     }

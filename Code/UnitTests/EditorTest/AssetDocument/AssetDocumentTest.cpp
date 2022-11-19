@@ -127,7 +127,7 @@ void ezEditorAssetDocumentTest::SaveOnTransform()
     EZ_TEST_BOOL(pAcc->SetValue(pMeshAsset, "MeshFile", "Meshes/Cube.obj").Succeeded());
     pAcc->FinishTransaction();
 
-    ezStatus res = pDoc->SaveDocument();
+    ezTransformStatus res = pDoc->SaveDocument();
     EZ_TEST_BOOL(res.Succeeded());
 
     // Transforming a mesh asset with a mesh reference will trigger the material import and update
