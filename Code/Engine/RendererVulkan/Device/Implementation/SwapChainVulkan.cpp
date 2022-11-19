@@ -350,8 +350,7 @@ ezResult ezGALSwapChainVulkan::DeInitPlatform(ezGALDevice* pDevice)
   DestroySwapChainInternal(pVulkanDevice);
   if (m_vulkanSurface)
   {
-    ezVulkanAllocation context = reinterpret_cast<ezVulkanAllocation>(m_WindowDesc.m_pWindow);
-    pVulkanDevice->DeleteLater(m_vulkanSurface, context);
+    pVulkanDevice->DeleteLater(m_vulkanSurface, (void*)m_WindowDesc.m_pWindow);
   }
   return EZ_SUCCESS;
 }

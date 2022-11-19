@@ -37,7 +37,11 @@ public:
     EZ_DECLARE_POD_TYPE();
     vk::ObjectType m_type;
     void* m_pObject;
-    ezVulkanAllocation m_allocation;
+    union
+    {
+      ezVulkanAllocation m_allocation;
+      void* m_pContext;
+    };
   };
 
   struct ReclaimResource
@@ -107,15 +111,28 @@ public:
   vk::Fence Submit(vk::Semaphore waitSemaphore, vk::PipelineStageFlags waitStage, vk::Semaphore signalSemaphore);
 
   void DeleteLater(const PendingDeletion& deletion);
+
   template <typename T>
   void DeleteLater(T& object, ezVulkanAllocation& allocation)
   {
     if (object)
     {
-      DeleteLater({object.objectType, (void*)object, allocation});
+      DeleteLater({ object.objectType, (void*)object, allocation });
     }
     object = nullptr;
     allocation = nullptr;
+  }
+
+  template <typename T>
+  void DeleteLater(T& object, void* pContext)
+  {
+    if (object)
+    {
+      PendingDeletion del = { object.objectType, (void*)object, nullptr };
+      del.m_pContext = pContext;
+      DeleteLater(static_cast<const PendingDeletion&>(del));
+    }
+    object = nullptr;
   }
 
   template <typename T>

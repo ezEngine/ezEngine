@@ -1384,7 +1384,7 @@ void ezGALDeviceVulkan::DeletePendingResources(ezDeque<PendingDeletion>& pending
         break;
       case vk::ObjectType::eSurfaceKHR:
         m_instance.destroySurfaceKHR(reinterpret_cast<vk::SurfaceKHR&>(deletion.m_pObject));
-        if (ezWindowBase* pWindow = reinterpret_cast<ezWindowBase*>(deletion.m_allocation))
+        if (ezWindowBase* pWindow = reinterpret_cast<ezWindowBase*>(deletion.m_pContext))
         {
           pWindow->RemoveReference();
         }
