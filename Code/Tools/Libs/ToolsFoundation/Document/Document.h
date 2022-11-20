@@ -257,6 +257,8 @@ protected:
   virtual void InitializeAfterLoading(bool bFirstTimeCreation) {}
   virtual void InitializeAfterLoadingAndSaving() {}
 
+  virtual void BeforeClosing();
+
   void SetUnknownObjectTypes(const ezSet<ezString>& Types, ezUInt32 uiInstances);
 
   /// \name Prefab Functions

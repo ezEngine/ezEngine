@@ -81,10 +81,6 @@ ezDocument::ezDocument(const char* szPath, ezDocumentObjectManager* pDocumentObj
 
 ezDocument::~ezDocument()
 {
-  if (m_ActiveSaveTask.IsValid())
-  {
-    ezTaskSystem::WaitForGroup(m_ActiveSaveTask);
-  }
   m_pSelectionManager = nullptr;
 
   m_pObjectManager->DestroyAllObjects();
@@ -144,10 +140,12 @@ ezStatus ezDocument::SaveDocument(bool bForce)
   if (m_ActiveSaveTask.IsValid())
   {
     ezTaskSystem::WaitForGroup(m_ActiveSaveTask);
+    m_ActiveSaveTask.Invalidate();
   }
   ezStatus result;
   m_ActiveSaveTask = InternalSaveDocument([&result](ezDocument* doc, ezStatus res) { result = res; });
   ezTaskSystem::WaitForGroup(m_ActiveSaveTask);
+  m_ActiveSaveTask.Invalidate();
   return result;
 }
 
@@ -176,6 +174,7 @@ ezTaskGroupID ezDocument::InternalSaveDocument(AfterSaveCallback callback)
   EZ_PROFILE_SCOPE("InternalSaveDocument");
   ezTaskGroupID saveID = ezTaskSystem::CreateTaskGroup(ezTaskPriority::LongRunningHighPriority);
   auto saveTask = EZ_DEFAULT_NEW(ezSaveDocumentTask);
+
   {
     saveTask->m_document = this;
     saveTask->file.SetOutput(m_sDocumentPath);
@@ -351,6 +350,16 @@ void ezDocument::AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph) const
 void ezDocument::RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph, bool bUndoable)
 {
   m_DocumentObjectMetaData->RestoreMetaDataFromAbstractGraph(graph);
+}
+
+void ezDocument::BeforeClosing()
+{
+  // This can't be done in the dtor as the task uses virtual functions on this object.
+  if (m_ActiveSaveTask.IsValid())
+  {
+    ezTaskSystem::WaitForGroup(m_ActiveSaveTask);
+    m_ActiveSaveTask.Invalidate();
+  }
 }
 
 void ezDocument::SetUnknownObjectTypes(const ezSet<ezString>& Types, ezUInt32 uiInstances)

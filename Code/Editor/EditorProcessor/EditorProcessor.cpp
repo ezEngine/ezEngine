@@ -5,6 +5,7 @@
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessCommunicationChannel.h>
 #include <EditorFramework/Assets/AssetCurator.h>
+#include <EditorFramework/Assets/AssetProcessorMessages.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/Application/Application.h>
 #include <Foundation/Utilities/CommandLineOptions.h>
@@ -80,16 +81,26 @@ public:
           // TODO: there is currently no 'nice' way to switch the active platform for the asset processors
           // it is also not clear whether this is actually safe to execute here
           ezAssetCurator::GetSingleton()->SetActiveAssetProfileByIndex(uiPlatform);
-
-          ezAssetInfo::TransformState state = ezAssetCurator::GetSingleton()->IsAssetUpToDate(pMsg->m_AssetGuid, ezAssetCurator::GetSingleton()->GetAssetProfile(uiPlatform), nullptr, uiAssetHash, uiThumbHash);
-
-          // Check if asset matches the state of the editor
-          if ((state != ezAssetInfo::NeedsThumbnail && state != ezAssetInfo::NeedsTransform) || uiAssetHash != pMsg->m_AssetHash || uiThumbHash != pMsg->m_ThumbHash)
+          // First, force checking for file system changes for the asset and the transitive hull of all dependencies and runtime references. This needs to be done as this EditorProcessor instance might not know all the files yet as some might just have been written. We can't rely on the filesystem watcher as it is not instant and also might just miss some events.
+          for (const ezString& sDepOrRef : pMsg->m_DepRefHull)
           {
-            // Force update the state. If the asset was created automatically the file might not be known yet.
-            ezAssetCurator::GetSingleton()->NotifyOfFileChange(pMsg->m_sAssetPath);
-            state = ezAssetCurator::GetSingleton()->IsAssetUpToDate(pMsg->m_AssetGuid, ezAssetCurator::GetSingleton()->GetAssetProfile(uiPlatform), nullptr, uiAssetHash, uiThumbHash, true);
+            if (sDepOrRef.IsAbsolutePath())
+            {
+              ezAssetCurator::GetSingleton()->NotifyOfFileChange(sDepOrRef);
+            }
+            else
+            {
+              ezStringBuilder sTemp = sDepOrRef;
+              if (ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sTemp))
+              {
+                ezAssetCurator::GetSingleton()->NotifyOfFileChange(sTemp);
+              }
+            }
           }
+          ezAssetCurator::GetSingleton()->NotifyOfFileChange(pMsg->m_sAssetPath);
+
+          // Next, we force checking that the asset is up to date. This EditorProcessor instance might not have observed the generation of the output files of various dependencies yet and incorrectly assume that some dependencies still need to be transformed. To prevent this, we force checking the asset and all its dependencies via the filesystem, ignoring the caching.
+          ezAssetInfo::TransformState state = ezAssetCurator::GetSingleton()->IsAssetUpToDate(pMsg->m_AssetGuid, ezAssetCurator::GetSingleton()->GetAssetProfile(uiPlatform), nullptr, uiAssetHash, uiThumbHash, true);
 
           if (uiAssetHash != pMsg->m_AssetHash || uiThumbHash != pMsg->m_ThumbHash)
           {
@@ -98,24 +109,23 @@ public:
 
           if (state == ezAssetInfo::NeedsThumbnail || state == ezAssetInfo::NeedsTransform)
           {
-            const ezStatus res = ezAssetCurator::GetSingleton()->TransformAsset(pMsg->m_AssetGuid, ezTransformFlags::None, ezAssetCurator::GetSingleton()->GetAssetProfile(uiPlatform));
+            msg.m_Status = ezAssetCurator::GetSingleton()->TransformAsset(pMsg->m_AssetGuid, ezTransformFlags::BackgroundProcessing, ezAssetCurator::GetSingleton()->GetAssetProfile(uiPlatform));
 
-            msg.m_bSuccess = res.m_Result.Succeeded();
-            if (res.m_Result.Failed())
+            if (msg.m_Status.Failed())
             {
               // make sure the result message ends up in the log
-              ezLog::Error(res.m_sMessage);
+              ezLog::Error("{}", msg.m_Status.m_sMessage);
             }
           }
           else if (state == ezAssetInfo::UpToDate)
           {
-            msg.m_bSuccess = true;
+            msg.m_Status = ezTransformStatus();
             ezLog::Warning("Asset already up to date: '{}'", pMsg->m_sAssetPath);
           }
           else
           {
-            msg.m_bSuccess = false;
-            ezLog::Error("Asset {} is in state {}, can't process asset.", pMsg->m_sAssetPath, (int)state);
+            msg.m_Status = ezTransformStatus(ezFmt("Asset {} is in state {}, can't process asset.", pMsg->m_sAssetPath, (int)state)); // TODO nicer state to string
+            ezLog::Error("{}", msg.m_Status.m_sMessage);
           }
         }
       }

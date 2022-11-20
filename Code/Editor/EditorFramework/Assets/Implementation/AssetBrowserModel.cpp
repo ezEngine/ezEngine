@@ -290,9 +290,6 @@ QVariant ezQtAssetBrowserModel::data(const QModelIndex& index, int role) const
         case ezAssetInfo::UpToDate:
           sToolTip.Append("Up To Date");
           break;
-        case ezAssetInfo::Updating:
-          sToolTip.Append("Updating");
-          break;
         case ezAssetInfo::NeedsTransform:
           sToolTip.Append("Needs Transform");
           break;

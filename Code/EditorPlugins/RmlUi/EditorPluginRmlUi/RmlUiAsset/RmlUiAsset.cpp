@@ -51,7 +51,7 @@ ezRmlUiAssetDocument::ezRmlUiAssetDocument(const char* szDocumentPath)
 {
 }
 
-ezStatus ezRmlUiAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezTransformStatus ezRmlUiAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   ezRmlUiAssetProperties* pProp = GetProperties();
 
@@ -108,7 +108,7 @@ ezStatus ezRmlUiAssetDocument::InternalTransformAsset(ezStreamWriter& stream, co
   return ezStatus(EZ_SUCCESS);
 }
 
-ezStatus ezRmlUiAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo)
+ezTransformStatus ezRmlUiAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo)
 {
   ezStatus status = ezAssetDocument::RemoteCreateThumbnail(ThumbnailInfo);
   return status;

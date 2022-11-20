@@ -11,8 +11,7 @@
 // ezAssetCurator Asset Hashing and Status Updates
 ////////////////////////////////////////////////////////////////////////
 
-ezAssetInfo::TransformState ezAssetCurator::HashAsset(
-  ezUInt64 uiSettingsHash, const ezHybridArray<ezString, 16>& assetTransformDependencies, const ezHybridArray<ezString, 16>& runtimeDependencies, ezSet<ezString>& missingDependencies, ezSet<ezString>& missingReferences, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash, bool bForce)
+ezAssetInfo::TransformState ezAssetCurator::HashAsset(ezUInt64 uiSettingsHash, const ezHybridArray<ezString, 16>& assetTransformDependencies, const ezHybridArray<ezString, 16>& runtimeDependencies, ezSet<ezString>& missingDependencies, ezSet<ezString>& missingReferences, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash, bool bForce)
 {
   CURATOR_PROFILE("HashAsset");
   ezStringBuilder tmp;
@@ -752,15 +751,27 @@ void ezAssetCurator::SetAssetExistanceState(ezAssetInfo& assetInfo, ezAssetExist
 {
   EZ_ASSERT_DEBUG(m_CuratorMutex.IsLocked(), "");
 
-  assetInfo.m_ExistanceState = state;
+  // Only the main thread tick function is allowed to change from FileAdded to FileModified to inform views.
+  // A modified 'added' file is still added until the added state was addressed.
+  if (assetInfo.m_ExistanceState != ezAssetExistanceState::FileAdded || state != ezAssetExistanceState::FileModified)
+    assetInfo.m_ExistanceState = state;
+
   for (ezUuid subGuid : assetInfo.m_SubAssets)
   {
-    GetSubAssetInternal(subGuid)->m_ExistanceState = state;
-    m_SubAssetChanged.Insert(subGuid);
+    auto& existanceState = GetSubAssetInternal(subGuid)->m_ExistanceState;
+    if (existanceState != ezAssetExistanceState::FileAdded || state != ezAssetExistanceState::FileModified)
+    {
+      existanceState = state;
+      m_SubAssetChanged.Insert(subGuid);
+    }
   }
 
-  GetSubAssetInternal(assetInfo.m_Info->m_DocumentID)->m_ExistanceState = state;
-  m_SubAssetChanged.Insert(assetInfo.m_Info->m_DocumentID);
+  auto& existanceState = GetSubAssetInternal(assetInfo.m_Info->m_DocumentID)->m_ExistanceState;
+  if (existanceState != ezAssetExistanceState::FileAdded || state != ezAssetExistanceState::FileModified)
+  {
+    existanceState = state;
+    m_SubAssetChanged.Insert(assetInfo.m_Info->m_DocumentID);
+  }
 }
 
 

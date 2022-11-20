@@ -16,7 +16,7 @@ ezStateMachineAssetDocument::ezStateMachineAssetDocument(const char* szDocumentP
 {
 }
 
-ezStatus ezStateMachineAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezTransformStatus ezStateMachineAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   auto pManager = static_cast<ezStateMachineNodeManager*>(GetObjectManager());
 

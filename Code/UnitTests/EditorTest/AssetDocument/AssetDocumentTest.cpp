@@ -127,8 +127,12 @@ void ezEditorAssetDocumentTest::SaveOnTransform()
     EZ_TEST_BOOL(pAcc->SetValue(pMeshAsset, "MeshFile", "Meshes/Cube.obj").Succeeded());
     pAcc->FinishTransaction();
 
-    ezStatus res = pDoc->SaveDocument();
+    ezTransformStatus res = pDoc->SaveDocument();
     EZ_TEST_BOOL(res.Succeeded());
+
+    // Transforming an asset in the background should fail and return NeedsImport as the asset needs to be modified which the background is not allowed to do, e.g. materials need to be created.
+    res = ezAssetCurator::GetSingleton()->TransformAsset(pDoc->GetGuid(), ezTransformFlags::ForceTransform | ezTransformFlags::BackgroundProcessing);
+    EZ_TEST_BOOL(res.m_Result == ezTransformResult::NeedsImport);
 
     // Transforming a mesh asset with a mesh reference will trigger the material import and update
     // the materials table which requires a save during transform.

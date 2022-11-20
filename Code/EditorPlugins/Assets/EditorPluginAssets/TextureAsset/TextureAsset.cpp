@@ -374,7 +374,7 @@ void ezTextureAssetDocument::InitializeAfterLoading(bool bFirstTimeCreation)
   }
 }
 
-ezStatus ezTextureAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezTransformStatus ezTextureAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   // EZ_ASSERT_DEV(ezStringUtils::IsEqual(szPlatform, "PC"), "Platform '{0}' is not supported", szPlatform);
 
@@ -469,15 +469,15 @@ ezStatus ezTextureAssetDocument::InternalTransformAsset(const char* szTargetFile
 
 
     if (file.Close().Failed())
-      return ezStatus(ezFmt("Writing to target file failed: '{0}'", szTargetFile));
+      return ezTransformStatus(ezFmt("Writing to target file failed: '{0}'", szTargetFile));
 
-    return ezStatus(EZ_SUCCESS);
+    return ezTransformStatus();
   }
   else
   {
     const bool bUpdateThumbnail = pAssetProfile == ezAssetCurator::GetSingleton()->GetDevelopmentAssetProfile();
 
-    ezStatus result = RunTexConv(szTargetFile, AssetHeader, bUpdateThumbnail, pAssetConfig);
+    ezTransformStatus result = RunTexConv(szTargetFile, AssetHeader, bUpdateThumbnail, pAssetConfig);
 
     ezFileStats stat;
     if (ezOSFile::GetFileStats(szTargetFile, stat).Succeeded() && stat.m_uiFileSize == 0)
@@ -485,7 +485,9 @@ ezStatus ezTextureAssetDocument::InternalTransformAsset(const char* szTargetFile
       // if the file was touched, but nothing written to it, delete the file
       // might happen if TexConv crashed or had an error
       ezOSFile::DeleteFile(szTargetFile).IgnoreResult();
-      result.m_Result = EZ_FAILURE;
+
+      if (result.Succeeded())
+        result = ezTransformStatus("TexConv did not write an output file");
     }
 
     return result;

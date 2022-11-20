@@ -45,7 +45,7 @@ void ezQtCuratorControl::paintEvent(QPaintEvent* e)
   ezAssetCurator::GetSingleton()->GetAssetTransformStats(uiNumAssets, sections);
   QColor colors[ezAssetInfo::TransformState::COUNT];
   colors[ezAssetInfo::TransformState::Unknown] = ezToQtColor(ezColorScheme::DarkUI(ezColorScheme::Gray));
-  colors[ezAssetInfo::TransformState::Updating] = ezToQtColor(ezColorScheme::DarkUI(ezColorScheme::Gray));
+  colors[ezAssetInfo::TransformState::NeedsImport] = ezToQtColor(ezColorScheme::DarkUI(ezColorScheme::Yellow));
   colors[ezAssetInfo::TransformState::NeedsTransform] = ezToQtColor(ezColorScheme::DarkUI(ezColorScheme::Blue));
   colors[ezAssetInfo::TransformState::NeedsThumbnail] = ezToQtColor(ezColorScheme::DarkUI(float(ezColorScheme::Blue + ezColorScheme::Green) * 0.5f * ezColorScheme::s_fIndexNormalizer));
   colors[ezAssetInfo::TransformState::UpToDate] = ezToQtColor(ezColorScheme::DarkUI(ezColorScheme::Green));
@@ -73,10 +73,11 @@ void ezQtCuratorControl::paintEvent(QPaintEvent* e)
   }
 
   ezStringBuilder s;
-  s.Format("[Un: {0}, Tr: {1}, Th: {2}, Err: {3}]", sections[ezAssetInfo::TransformState::Unknown],
+  s.Format("[Un: {0}, Imp: {4}, Tr: {1}, Th: {2}, Err: {3}]", sections[ezAssetInfo::TransformState::Unknown],
     sections[ezAssetInfo::TransformState::NeedsTransform], sections[ezAssetInfo::TransformState::NeedsThumbnail],
     sections[ezAssetInfo::TransformState::MissingDependency] + sections[ezAssetInfo::TransformState::MissingReference] +
-      sections[ezAssetInfo::TransformState::TransformError]);
+      sections[ezAssetInfo::TransformState::TransformError],
+    sections[ezAssetInfo::TransformState::NeedsImport]);
 
   painter.setPen(QPen(Qt::white));
   painter.drawText(rect, s.GetData(), QTextOption(Qt::AlignCenter));
@@ -84,24 +85,43 @@ void ezQtCuratorControl::paintEvent(QPaintEvent* e)
 
 void ezQtCuratorControl::UpdateBackgroundProcessState()
 {
-  bool bRunning = ezAssetProcessor::GetSingleton()->IsProcessTaskRunning();
-  if (bRunning)
-    m_pBackgroundProcess->setIcon(ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetProcessingPause16.png"));
-  else
-    m_pBackgroundProcess->setIcon(ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetProcessingStart16.png"));
+  ezAssetProcessor::ProcessTaskState state = ezAssetProcessor::GetSingleton()->GetProcessTaskState();
+  switch (state)
+  {
+    case ezAssetProcessor::ProcessTaskState::Stopped:
+      m_pBackgroundProcess->setToolTip("Start background asset processing");
+      m_pBackgroundProcess->setIcon(ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetProcessingStart16.png"));
+      break;
+    case ezAssetProcessor::ProcessTaskState::Running:
+      m_pBackgroundProcess->setToolTip("Stop background asset processing");
+      m_pBackgroundProcess->setIcon(ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetProcessingPause16.png"));
+      break;
+    case ezAssetProcessor::ProcessTaskState::Stopping:
+      m_pBackgroundProcess->setToolTip("Force stop background asset processing");
+      m_pBackgroundProcess->setIcon(ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetProcessingForceStop16.png"));
+      break;
+    default:
+      break;
+  }
+
   m_pBackgroundProcess->setCheckable(true);
-  m_pBackgroundProcess->setChecked(bRunning);
+  m_pBackgroundProcess->setChecked(state == ezAssetProcessor::ProcessTaskState::Running);
 }
 
 void ezQtCuratorControl::BackgroundProcessClicked(bool checked)
 {
-  if (checked)
+  ezAssetProcessor::ProcessTaskState state = ezAssetProcessor::GetSingleton()->GetProcessTaskState();
+
+  if (state == ezAssetProcessor::ProcessTaskState::Stopped)
   {
     ezAssetCurator::GetSingleton()->CheckFileSystem();
-    ezAssetProcessor::GetSingleton()->RestartProcessTask();
+    ezAssetProcessor::GetSingleton()->StartProcessTask();
   }
   else
-    ezAssetProcessor::GetSingleton()->ShutdownProcessTask();
+  {
+    bool bForce = state == ezAssetProcessor::ProcessTaskState::Stopping;
+    ezAssetProcessor::GetSingleton()->StopProcessTask(bForce);
+  }
 }
 
 void ezQtCuratorControl::SlotUpdateTransformStats()
@@ -116,11 +136,11 @@ void ezQtCuratorControl::SlotUpdateTransformStats()
 
   if (uiNumAssets > 0)
   {
-    s.Format("Unknown: {0}\nTransform Needed: {1}\nThumbnail Needed: {2}\nMissing Dependency: {3}\nMissing Reference: {4}\nFailed "
+    s.Format("Unknown: {0}\nImport Needed: {6}\nTransform Needed: {1}\nThumbnail Needed: {2}\nMissing Dependency: {3}\nMissing Reference: {4}\nFailed "
              "Transform: {5}",
       sections[ezAssetInfo::TransformState::Unknown], sections[ezAssetInfo::TransformState::NeedsTransform],
       sections[ezAssetInfo::TransformState::NeedsThumbnail], sections[ezAssetInfo::TransformState::MissingDependency],
-      sections[ezAssetInfo::TransformState::MissingReference], sections[ezAssetInfo::TransformState::TransformError]);
+      sections[ezAssetInfo::TransformState::MissingReference], sections[ezAssetInfo::TransformState::TransformError], sections[ezAssetInfo::TransformState::NeedsImport]);
     setToolTip(s.GetData());
   }
   else
@@ -157,7 +177,7 @@ void ezQtCuratorControl::AssetProcessorEvents(const ezAssetProcessorEvent& e)
   {
     case ezAssetProcessorEvent::Type::ProcessTaskStateChanged:
     {
-      UpdateBackgroundProcessState();
+      QMetaObject::invokeMethod(this, "UpdateBackgroundProcessState", Qt::QueuedConnection);
     }
     break;
     default:

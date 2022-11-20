@@ -75,12 +75,12 @@ ezDecalAssetDocument::ezDecalAssetDocument(const char* szDocumentPath)
 {
 }
 
-ezStatus ezDecalAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezTransformStatus ezDecalAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   return static_cast<ezDecalAssetDocumentManager*>(GetAssetDocumentManager())->GenerateDecalTexture(pAssetProfile);
 }
 
-ezStatus ezDecalAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& Unused)
+ezTransformStatus ezDecalAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& Unused)
 {
   const ezDecalAssetProperties* pProp = GetProperties();
 

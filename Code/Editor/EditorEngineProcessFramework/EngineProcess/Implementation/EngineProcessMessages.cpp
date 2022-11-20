@@ -26,34 +26,6 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ///////////////////////////////////// ezEditorEngineMsg /////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcessAssetMsg, 1, ezRTTIDefaultAllocator<ezProcessAssetMsg>)
-{
-  EZ_BEGIN_PROPERTIES
-  {
-    EZ_MEMBER_PROPERTY("AssetGuid", m_AssetGuid),
-    EZ_MEMBER_PROPERTY("AssetHash", m_AssetHash),
-    EZ_MEMBER_PROPERTY("ThumbHash", m_ThumbHash),
-    EZ_MEMBER_PROPERTY("AssetPath", m_sAssetPath),
-    EZ_MEMBER_PROPERTY("Platform", m_sPlatform),
-  }
-  EZ_END_PROPERTIES;
-}
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcessAssetResponseMsg, 1, ezRTTIDefaultAllocator<ezProcessAssetResponseMsg>)
-{
-  EZ_BEGIN_PROPERTIES
-  {
-    EZ_MEMBER_PROPERTY("Success", m_bSuccess),
-    EZ_ARRAY_MEMBER_PROPERTY("LogEntries", m_LogEntries),
-  }
-  EZ_END_PROPERTIES;
-}
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-
-
-///////////////////////////////////// ezEditorEngineMsg /////////////////////////////////////
-
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorEngineMsg, 1, ezRTTINoAllocator )
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 

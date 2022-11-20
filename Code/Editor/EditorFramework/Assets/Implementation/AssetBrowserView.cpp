@@ -124,9 +124,9 @@ bool ezQtIconViewDelegate::mouseReleaseEvent(QMouseEvent* event, const QStyleOpt
   {
     ezUuid guid = index.data(ezQtAssetBrowserModel::UserRoles::AssetGuid).value<ezUuid>();
 
-    auto ret = ezAssetCurator::GetSingleton()->TransformAsset(guid, ezTransformFlags::TriggeredManually);
+    ezTransformStatus ret = ezAssetCurator::GetSingleton()->TransformAsset(guid, ezTransformFlags::TriggeredManually);
 
-    if (ret.m_Result.Failed())
+    if (ret.Failed())
     {
       QString path = index.data(ezQtAssetBrowserModel::UserRoles::RelativePath).toString();
       ezLog::Error("Transform failed: '{0}' ({1})", ret.m_sMessage, path.toUtf8().data());
@@ -215,7 +215,6 @@ void ezQtIconViewDelegate::paint(QPainter* painter, const QStyleOptionViewItem& 
     switch (state)
     {
       case ezAssetInfo::TransformState::Unknown:
-      case ezAssetInfo::TransformState::Updating:
         ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetUnknown16.png").paint(painter, thumbnailRect);
         break;
       case ezAssetInfo::TransformState::NeedsThumbnail:
@@ -235,6 +234,9 @@ void ezQtIconViewDelegate::paint(QPainter* painter, const QStyleOptionViewItem& 
         break;
       case ezAssetInfo::TransformState::TransformError:
         ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetFailedTransform16.png").paint(painter, thumbnailRect);
+        break;
+      case ezAssetInfo::TransformState::NeedsImport:
+        ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetNeedsImport16.png").paint(painter, thumbnailRect);
         break;
       case ezAssetInfo::TransformState::COUNT:
         break;
