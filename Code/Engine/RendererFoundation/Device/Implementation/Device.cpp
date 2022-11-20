@@ -1244,6 +1244,11 @@ ezUInt64 ezGALDevice::GetMemoryConsumptionForBuffer(const ezGALBufferCreationDes
 }
 
 
+void ezGALDevice::WaitIdle()
+{
+  WaitIdlePlatform();
+}
+
 void ezGALDevice::DestroyViews(ezGALResourceBase* pResource)
 {
   EZ_GALDEVICE_LOCK_AND_CHECK();

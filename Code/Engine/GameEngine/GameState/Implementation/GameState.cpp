@@ -217,6 +217,7 @@ void ezGameState::SetupMainView(ezGALSwapChainHandle hSwapChain, ezSizeU32 viewp
       pView->SetRenderPipelineResource(renderPipeline);
       pView->SetSwapChain(hSwapChain);
       pView->SetViewport(ezRectFloat(0.0f, 0.0f, (float)viewportSize.width, (float)viewportSize.height));
+      pView->ForceUpdate();
     }
   }
 }

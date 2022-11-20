@@ -927,6 +927,12 @@ void ezGALDeviceDX11::FillCapabilitiesPlatform()
   }
 }
 
+void ezGALDeviceDX11::WaitIdlePlatform()
+{
+  m_pImmediateContext->Flush();
+  DestroyDeadObjects();
+}
+
 ID3D11Resource* ezGALDeviceDX11::FindTempBuffer(ezUInt32 uiSize)
 {
   const ezUInt32 uiExpGrowthLimit = 16 * 1024 * 1024;

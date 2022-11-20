@@ -4,6 +4,7 @@
 #  include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 #endif
 
+#include <Core/System/Window.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/System/PlatformFeatures.h>
@@ -631,35 +632,7 @@ ezResult ezGALDeviceVulkan::ShutdownPlatform()
     return EZ_SUCCESS;
   }
 
-  m_device.waitIdle();
-  for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_PerFrameData); ++i)
-  {
-    // First, we wait for all fences for all submit calls. This is necessary to make sure no resources of the frame are still in use by the GPU.
-    auto& perFrameData = m_PerFrameData[i];
-    for (vk::Fence fence : perFrameData.m_CommandBufferFences)
-    {
-      vk::Result fenceStatus = m_device.getFenceStatus(fence);
-      if (fenceStatus == vk::Result::eNotReady)
-      {
-        m_device.waitForFences(1, &fence, true, 1000000000);
-      }
-    }
-    perFrameData.m_CommandBufferFences.Clear();
-  }
-
-  for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_PerFrameData); ++i)
-  {
-    {
-      EZ_LOCK(m_PerFrameData[i].m_pendingDeletionsMutex);
-      DeletePendingResources(m_PerFrameData[i].m_pendingDeletionsPrevious);
-      DeletePendingResources(m_PerFrameData[i].m_pendingDeletions);
-    }
-    {
-      EZ_LOCK(m_PerFrameData[i].m_reclaimResourcesMutex);
-      ReclaimResources(m_PerFrameData[i].m_reclaimResourcesPrevious);
-      ReclaimResources(m_PerFrameData[i].m_reclaimResources);
-    }
-  }
+  WaitIdlePlatform();
 
   m_pDefaultPass = nullptr;
   m_pPipelineBarrier = nullptr;
@@ -1048,6 +1021,8 @@ void ezGALDeviceVulkan::DestroyTexturePlatform(ezGALTexture* pTexture)
 {
   ezGALTextureVulkan* pVulkanTexture = static_cast<ezGALTextureVulkan*>(pTexture);
   GetCurrentPipelineBarrier().TextureDestroyed(pVulkanTexture);
+  m_pInitContext->TextureDestroyed(pVulkanTexture);
+
   pVulkanTexture->DeInitPlatform(this).IgnoreResult();
   EZ_DELETE(&m_Allocator, pVulkanTexture);
 }
@@ -1307,6 +1282,40 @@ void ezGALDeviceVulkan::FillCapabilitiesPlatform()
   m_Capabilities.m_bConservativeRasterization = false; // need to query for VK_EXT_CONSERVATIVE_RASTERIZATION
 }
 
+void ezGALDeviceVulkan::WaitIdlePlatform()
+{
+  m_device.waitIdle();
+  DestroyDeadObjects();
+  for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_PerFrameData); ++i)
+  {
+    // First, we wait for all fences for all submit calls. This is necessary to make sure no resources of the frame are still in use by the GPU.
+    auto& perFrameData = m_PerFrameData[i];
+    for (vk::Fence fence : perFrameData.m_CommandBufferFences)
+    {
+      vk::Result fenceStatus = m_device.getFenceStatus(fence);
+      if (fenceStatus == vk::Result::eNotReady)
+      {
+        m_device.waitForFences(1, &fence, true, 1000000000);
+      }
+    }
+    perFrameData.m_CommandBufferFences.Clear();
+  }
+
+  for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_PerFrameData); ++i)
+  {
+    {
+      EZ_LOCK(m_PerFrameData[i].m_pendingDeletionsMutex);
+      DeletePendingResources(m_PerFrameData[i].m_pendingDeletionsPrevious);
+      DeletePendingResources(m_PerFrameData[i].m_pendingDeletions);
+    }
+    {
+      EZ_LOCK(m_PerFrameData[i].m_reclaimResourcesMutex);
+      ReclaimResources(m_PerFrameData[i].m_reclaimResourcesPrevious);
+      ReclaimResources(m_PerFrameData[i].m_reclaimResources);
+    }
+  }
+}
+
 vk::PipelineStageFlags ezGALDeviceVulkan::GetSupportedStages() const
 {
   return m_supportedStages;
@@ -1375,6 +1384,10 @@ void ezGALDeviceVulkan::DeletePendingResources(ezDeque<PendingDeletion>& pending
         break;
       case vk::ObjectType::eSurfaceKHR:
         m_instance.destroySurfaceKHR(reinterpret_cast<vk::SurfaceKHR&>(deletion.m_pObject));
+        if (ezWindowBase* pWindow = reinterpret_cast<ezWindowBase*>(deletion.m_pContext))
+        {
+          pWindow->RemoveReference();
+        }
         break;
       case vk::ObjectType::eShaderModule:
         m_device.destroyShaderModule(reinterpret_cast<vk::ShaderModule&>(deletion.m_pObject));

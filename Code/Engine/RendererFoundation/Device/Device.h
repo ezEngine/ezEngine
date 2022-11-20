@@ -147,6 +147,9 @@ public:
   static ezGALDevice* GetDefaultDevice();
   static bool HasDefaultDevice();
 
+  /// \brief Waits for the GPU to be idle and destroys any pending resources and GPU objects.
+  void WaitIdle();
+
   // public in case someone external needs to lock multiple operations
   mutable ezMutex m_Mutex;
 
@@ -305,6 +308,9 @@ protected:
   virtual void EndFramePlatform() = 0;
 
   virtual void FillCapabilitiesPlatform() = 0;
+
+  virtual void WaitIdlePlatform() = 0;
+
 
   /// \endcond
 

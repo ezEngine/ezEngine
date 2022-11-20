@@ -135,6 +135,14 @@ void ezView::SetViewport(const ezRectFloat& viewport)
   UpdateViewData(ezRenderWorld::GetDataIndexForExtraction());
 }
 
+void ezView::ForceUpdate()
+{
+  if (m_pRenderPipeline)
+  {
+    ezRenderWorld::AddRenderPipelineToRebuild(m_pRenderPipeline, GetHandle());
+  }
+}
+
 void ezView::ExtractData()
 {
   EZ_ASSERT_DEV(IsValid(), "Cannot extract data from an invalid view");

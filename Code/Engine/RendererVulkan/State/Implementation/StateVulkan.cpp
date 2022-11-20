@@ -198,7 +198,10 @@ ezResult ezGALSamplerStateVulkan::InitPlatform(ezGALDevice* pDevice)
   samplerCreateInfo.addressModeU = GALTextureAddressModeToVulkan[m_Description.m_AddressU];
   samplerCreateInfo.addressModeV = GALTextureAddressModeToVulkan[m_Description.m_AddressV];
   samplerCreateInfo.addressModeW = GALTextureAddressModeToVulkan[m_Description.m_AddressW];
-  samplerCreateInfo.anisotropyEnable = (m_Description.m_uiMaxAnisotropy > 1.f && m_Description.m_MipFilter == ezGALTextureFilterMode::Anisotropic) ? VK_TRUE : VK_FALSE;
+  if (m_Description.m_MagFilter == ezGALTextureFilterMode::Anisotropic || m_Description.m_MinFilter == ezGALTextureFilterMode::Anisotropic || m_Description.m_MipFilter == ezGALTextureFilterMode::Anisotropic)
+  {
+    samplerCreateInfo.anisotropyEnable = VK_TRUE;
+  }
 
   vk::SamplerCustomBorderColorCreateInfoEXT customBorderColor;
   if (samplerCreateInfo.addressModeU == vk::SamplerAddressMode::eClampToBorder || samplerCreateInfo.addressModeV == vk::SamplerAddressMode::eClampToBorder || samplerCreateInfo.addressModeW == vk::SamplerAddressMode::eClampToBorder)

@@ -19,6 +19,8 @@ ezWindowOutputTargetGAL::~ezWindowOutputTargetGAL()
 {
   ezGALDevice::GetDefaultDevice()->DestroySwapChain(m_hSwapChain);
   m_hSwapChain.Invalidate();
+  // After the swapchain is destroyed it can still be used in the renderer. As right after this usually the window is destroyed we must ensure that nothing still renders to it.
+  ezGALDevice::GetDefaultDevice()->WaitIdle();
 }
 
 void ezWindowOutputTargetGAL::CreateSwapchain(const ezGALWindowSwapChainCreationDescription& desc)
@@ -31,11 +33,14 @@ void ezWindowOutputTargetGAL::CreateSwapchain(const ezGALWindowSwapChainCreation
   const bool bSwapChainExisted = !m_hSwapChain.IsInvalidated();
   if (bSwapChainExisted)
   {
-    ezGALDevice::GetDefaultDevice()->UpdateSwapChain(m_hSwapChain, ezGameApplication::cvar_AppVSync ? ezGALPresentMode::VSync : ezGALPresentMode::Immediate).AssertSuccess("");
-
+    ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+    auto* pSwapchain = pDevice->GetSwapChain<ezGALWindowSwapChain>(m_hSwapChain);
+    pDevice->UpdateSwapChain(m_hSwapChain, ezGameApplication::cvar_AppVSync ? ezGALPresentMode::VSync : ezGALPresentMode::Immediate).AssertSuccess("");
     if (bSwapChainExisted && m_OnSwapChainChanged.IsValid())
     {
-      m_OnSwapChainChanged(m_hSwapChain, m_Size);
+      // The swapchain may have a different size than the window advertised, e.g. if the window has been resized further in the meantime.
+      ezSizeU32 currentSize = pSwapchain->GetCurrentSize();
+      m_OnSwapChainChanged(m_hSwapChain, currentSize);
     }
   }
   else

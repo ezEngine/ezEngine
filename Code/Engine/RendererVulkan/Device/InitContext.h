@@ -25,6 +25,9 @@ public:
   /// \param pInitialData The initial data of the texture. If not set, the initial content will be undefined.
   void InitTexture(const ezGALTextureVulkan* pTexture, vk::ImageCreateInfo& createInfo, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData);
 
+  /// \brief Needs to be called by the ezGALDeviceVulkan just before a texture is destroyed to clean up stale barriers.
+  void TextureDestroyed(const ezGALTextureVulkan* pTexture);
+
 private:
   void EnsureCommandBufferExists();
 

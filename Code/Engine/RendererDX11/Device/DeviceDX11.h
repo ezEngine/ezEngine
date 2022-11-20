@@ -130,6 +130,8 @@ protected:
 
   virtual void FillCapabilitiesPlatform() override;
 
+  virtual void WaitIdlePlatform() override;
+
   /// \endcond
 
 private:

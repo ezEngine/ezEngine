@@ -69,6 +69,22 @@ struct ezWindowHandle
     GLFWwindow* glfwWindow;
     ezXcbWindowHandle xcbWindow;
   };
+
+  bool operator==(ezWindowHandle& rhs)
+  {
+    if (type != rhs.type)
+      return false;
+
+    if (type == Type::GLFW)
+    {
+      return glfwWindow == rhs.glfwWindow;
+    }
+    else
+    {
+      // We don't compare the connection because we only want to know if we reference the same window.
+      return xcbWindow.m_Window == rhs.xcbWindow.m_Window;
+    }
+  }
 };
 
 using ezWindowInternalHandle = ezWindowHandle;
@@ -121,6 +137,9 @@ public:
   virtual bool IsFullscreenWindow(bool bOnlyProperFullscreenMode = false) const = 0;
 
   virtual void ProcessWindowMessages() = 0;
+
+  virtual void AddReference() = 0;
+  virtual void RemoveReference() = 0;
 };
 
 /// \brief Determines how the position and resolution for a window are picked
@@ -238,6 +257,9 @@ public:
     return ezWindowMode::IsFullscreen(m_CreationDescription.m_WindowMode);
   }
 
+  virtual void AddReference() override { m_iReferenceCount.Increment(); }
+  virtual void RemoveReference() override { m_iReferenceCount.Decrement(); }
+
 
   /// \brief Runs the platform specific message pump.
   ///
@@ -347,4 +369,5 @@ private:
 
   /// increased every time an ezWindow is created, to be able to get a free window index easily
   static ezUInt8 s_uiNextUnusedWindowNumber;
+  ezAtomicInteger32 m_iReferenceCount = 0;
 };

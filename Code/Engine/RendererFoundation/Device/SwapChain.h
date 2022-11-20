@@ -3,6 +3,7 @@
 
 #include <RendererFoundation/RendererFoundationDLL.h>
 
+#include <Foundation/Math/Size.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
 
@@ -11,6 +12,7 @@ class EZ_RENDERERFOUNDATION_DLL ezGALSwapChain : public ezGALObject<ezGALSwapCha
 public:
   const ezGALRenderTargets& GetRenderTargets() const { return m_RenderTargets; }
   ezGALTextureHandle GetBackBufferTexture() const { return m_RenderTargets.m_hRTs[0]; }
+  ezSizeU32 GetCurrentSize() const { return m_CurrentSize; }
 
   virtual void AcquireNextRenderTarget(ezGALDevice* pDevice) = 0;
   virtual void PresentRenderTarget(ezGALDevice* pDevice) = 0;
@@ -27,6 +29,7 @@ protected:
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) = 0;
 
   ezGALRenderTargets m_RenderTargets;
+  ezSizeU32 m_CurrentSize = {};
 };
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERFOUNDATION_DLL, ezGALSwapChain);
 

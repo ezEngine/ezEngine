@@ -203,7 +203,9 @@ void ezGraphicsTest::DestroyWindow()
       m_pDevice->DestroyTexture(m_hDepthStencilTexture);
       m_hDepthStencilTexture.Invalidate();
     }
+    m_pDevice->WaitIdle();
   }
+
 
   if (m_pWindow)
   {

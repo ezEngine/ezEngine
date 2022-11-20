@@ -379,7 +379,19 @@ void ezPipelineBarrierVulkan::TextureDestroyed(const ezGALTextureVulkan* pTextur
   auto it = m_imageState.Find(pTexture->GetImage());
   if (it.IsValid())
   {
-    //#TODO_VULKAN do we need to flush here in case the resource is dirty?
+    // If the resource is dirty we don't care about any dirty state, just remove the barriers again from the list.
+    if (it.Value().m_dirty.IsAnyBitSet())
+    {
+      vk::Image img = pTexture->GetImage();
+      for (ezInt32 i = ((ezInt32)m_imageBarriers.GetCount()) - 1; i >= 0; --i)
+      {
+        if (m_imageBarriers[i].image == img)
+        {
+          m_imageBarriers.RemoveAtAndSwap(i);
+        }
+      }
+    }
+
     m_imageState.Remove(it);
   }
 }

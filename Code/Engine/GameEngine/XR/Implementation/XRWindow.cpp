@@ -24,7 +24,10 @@ ezWindowXR::ezWindowXR(ezXRInterface* pVrInterface, ezUniquePtr<ezWindowBase> pC
 {
 }
 
-ezWindowXR::~ezWindowXR() {}
+ezWindowXR::~ezWindowXR()
+{
+  EZ_ASSERT_DEV(m_iReferenceCount == 0, "The window is still being referenced, probably by a swapchain. Make sure to destroy all swapchains and call ezGALDevice::WaitIdle before destroying a window.");
+}
 
 ezSizeU32 ezWindowXR::GetClientAreaSize() const
 {

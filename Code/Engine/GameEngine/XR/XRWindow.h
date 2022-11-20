@@ -24,12 +24,16 @@ public:
 
   virtual void ProcessWindowMessages() override;
 
+  virtual void AddReference() override { m_iReferenceCount.Increment(); }
+  virtual void RemoveReference() override { m_iReferenceCount.Decrement(); }
+
   /// \brief Returns the companion window if present.
   const ezWindowBase* GetCompanionWindow() const;
 
 private:
   ezXRInterface* m_pVrInterface = nullptr;
   ezUniquePtr<ezWindowBase> m_pCompanionWindow;
+  ezAtomicInteger32 m_iReferenceCount = 0;
 };
 
 /// \brief XR Window output target base implementation. Optionally wraps a companion window output target.

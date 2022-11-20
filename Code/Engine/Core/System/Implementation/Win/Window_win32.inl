@@ -234,16 +234,19 @@ ezResult ezWindow::Destroy()
     ChangeDisplaySettingsW(nullptr, 0);
 
   HWND hWindow = ezMinWindows::ToNative(GetNativeWindowHandle());
+  // the following line of code is a work around, because 'LONG_PTR pNull = reinterpret_cast<LONG_PTR>(nullptr)' crashes the VS 2010 32 Bit
+  // compiler :-(
+  LONG_PTR pNull = 0;
+  // Set the window ptr to null before calling DestroyWindow as it might trigger callbacks and we are potentially already in the destructor, making any virtual function call unsafe.
+  SetWindowLongPtrW(hWindow, GWLP_USERDATA, pNull);
+
   if (!DestroyWindow(hWindow))
   {
     ezLog::SeriousWarning("DestroyWindow failed.");
     Res = EZ_FAILURE;
   }
 
-  // the following line of code is a work around, because 'LONG_PTR pNull = reinterpret_cast<LONG_PTR>(nullptr)' crashes the VS 2010 32 Bit
-  // compiler :-(
-  LONG_PTR pNull = 0;
-  SetWindowLongPtrW(hWindow, GWLP_USERDATA, pNull);
+
 
   // actually nobody cares about this, all Window Classes are cleared when the application closes
   // in the mean time, having multiple windows will just result in errors when one is closed,
