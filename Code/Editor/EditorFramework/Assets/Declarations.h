@@ -154,7 +154,6 @@ struct EZ_EDITORFRAMEWORK_DLL ezTransformStatus
 
   EZ_ALWAYS_INLINE bool Succeeded() const { return m_Result == ezTransformResult::Success; }
   EZ_ALWAYS_INLINE bool Failed() const { return m_Result == ezTransformResult::Failure; }
-  //void LogFailure(ezLogInterface* pLog = nullptr);
 
   ezEnum<ezTransformResult> m_Result;
   ezString m_sMessage;

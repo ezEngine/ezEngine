@@ -149,7 +149,7 @@ void ezAssetCurator::StartInitialize(const ezApplicationFileSystemConfig& cfg)
 
   m_pWatcher = EZ_DEFAULT_NEW(ezAssetWatcher, m_FileSystemConfig);
 
-  ezSharedPtr<ezDelegateTask<void>> pInitTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "", [this]() {
+  ezSharedPtr<ezDelegateTask<void>> pInitTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "AssetCuratorUpdateCache", [this]() {
     EZ_LOCK(m_CuratorMutex);
     LoadCaches();
 

@@ -178,7 +178,6 @@ void ezQtCuratorControl::AssetProcessorEvents(const ezAssetProcessorEvent& e)
     case ezAssetProcessorEvent::Type::ProcessTaskStateChanged:
     {
       QMetaObject::invokeMethod(this, "UpdateBackgroundProcessState", Qt::QueuedConnection);
-      //UpdateBackgroundProcessState();
     }
     break;
     default:

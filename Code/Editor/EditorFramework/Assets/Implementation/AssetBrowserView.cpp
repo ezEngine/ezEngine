@@ -236,7 +236,7 @@ void ezQtIconViewDelegate::paint(QPainter* painter, const QStyleOptionViewItem& 
         ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetFailedTransform16.png").paint(painter, thumbnailRect);
         break;
       case ezAssetInfo::TransformState::NeedsImport:
-        ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetFailedTransform16.png").paint(painter, thumbnailRect); // TODO
+        ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetNeedsImport16.png").paint(painter, thumbnailRect);
         break;
       case ezAssetInfo::TransformState::COUNT:
         break;
