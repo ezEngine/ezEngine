@@ -59,7 +59,7 @@ struct ezTransformFlags
     TriggeredManually = EZ_BIT(0),    ///< Transform triggered by user directly. Needs to be set to transform assets marked with
                                       ///< ezAssetDocumentFlags::Enum::OnlyTransformManually.
     ForceTransform = EZ_BIT(1),       ///< Will transform the asset regardless of its current transform state.
-    BackgroundProcessing = EZ_BIT(1), ///< If changes need to be made that requires re-saving the asset transform will be aborted and ezTransformResult::NeedsImport is returned.
+    BackgroundProcessing = EZ_BIT(2), ///< If changes need to be made that requires re-saving the asset transform will be aborted and ezTransformResult::NeedsImport is returned.
     Default = None
   };
 

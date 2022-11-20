@@ -1309,19 +1309,11 @@ ezTransformStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const ez
 
     if (ret.Succeeded() && assetFlags.IsSet(ezAssetDocumentFlags::SupportsThumbnail) && !assetFlags.IsSet(ezAssetDocumentFlags::AutoThumbnailOnTransform) && !resReferences.Failed())
     {
-      // If the transformed succeeded, the asset should now be in the NeedsThumbnail state unless the thumbnail already exists in which case we are done.
+      // If the transformed succeeded, the asset should now be in the NeedsThumbnail state unless the thumbnail already exists in which case we are done or the transform made changes to the asset, e.g. a mesh imported new materials in which case we will revert to transform needed as our dependencies need transform. We simply skip the thumbnail generation in this case.
       ezAssetInfo::TransformState state3 = IsAssetUpToDate(pAssetInfo->m_Info->m_DocumentID, pAssetProfile, pTypeDesc, uiHash, uiThumbHash);
       if (state3 == ezAssetInfo::TransformState::NeedsThumbnail)
       {
         ret = pAsset->CreateThumbnail();
-      }
-      else if (state3 == ezAssetInfo::TransformState::UpToDate)
-      {
-        return ret;
-      }
-      else
-      {
-        ezLog::Error("Thumbnail generation skipped as asset was in state: {}", state3);
       }
     }
   }

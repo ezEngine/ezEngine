@@ -416,6 +416,7 @@ void ezDocumentManager::CloseDocument(ezDocument* pDocument)
   e.m_Type = Event::Type::DocumentClosing2;
   s_Events.Broadcast(e);
 
+  pDocument->BeforeClosing();
   delete pDocument;
 
   e.m_pDocument = pDocument;

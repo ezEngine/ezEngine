@@ -494,9 +494,20 @@ ezTransformStatus ezAssetDocument::InternalTransformAsset(const char* szTargetFi
   ezDeferredFileWriter file;
   file.SetOutput(szTargetFile);
 
-  EZ_SUCCEED_OR_RETURN(AssetHeader.Write(file));
+  if (AssetHeader.Write(file) == EZ_FAILURE)
+  {
+    file.Discard();
+    return ezTransformStatus("Failed to write asset header");
+  }
 
-  EZ_SUCCEED_OR_RETURN(InternalTransformAsset(file, szOutputTag, pAssetProfile, AssetHeader, transformFlags));
+  ezTransformStatus res = InternalTransformAsset(file, szOutputTag, pAssetProfile, AssetHeader, transformFlags);
+  if (res.m_Result != ezTransformResult::Success)
+  {
+    // We do not want to overwrite the old output file if we failed to transform the asset.
+    file.Discard();
+    return res;
+  }
+
 
   if (file.Close().Failed())
   {
