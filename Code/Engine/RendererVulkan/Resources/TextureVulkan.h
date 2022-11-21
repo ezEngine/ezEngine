@@ -7,7 +7,7 @@
 class ezGALBufferVulkan;
 class ezGALDeviceVulkan;
 
-class ezGALTextureVulkan : public ezGALTexture
+class ezGALTextureVulkan : public ezGALTexture, public ezGALSharedTexture
 {
 public:
   enum class StagingMode : ezUInt8
@@ -24,6 +24,13 @@ public:
     ezUInt32 m_uiSize;
     ezUInt32 m_uiRowLength;
     ezUInt32 m_uiImageHeight;
+  };
+
+  enum class SharedType : ezUInt8
+  {
+    None,     ///< Not shared
+    Exported, ///< Allocation owned by this process
+    Imported  ///< Allocation owned by a different process
   };
 
   EZ_ALWAYS_INLINE vk::Image GetImage() const;
@@ -49,11 +56,14 @@ public:
   EZ_ALWAYS_INLINE ezGALBufferHandle GetStagingBuffer() const;
   ezUInt32 ComputeSubResourceOffsets(ezDynamicArray<SubResourceOffset>& out_subResourceOffsets) const;
 
+  // Shared Texture
+  EZ_ALWAYS_INLINE SharedType GetSharedType() const;
+
 protected:
   friend class ezGALDeviceVulkan;
   friend class ezMemoryUtils;
 
-  ezGALTextureVulkan(const ezGALTextureCreationDescription& Description);
+  ezGALTextureVulkan(const ezGALTextureCreationDescription& Description, bool bExportShared = false);
   ezGALTextureVulkan(const ezGALTextureCreationDescription& Description, vk::Format OverrideFormat, bool bLinearCPU);
 
   ~ezGALTextureVulkan();
@@ -62,6 +72,7 @@ protected:
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
 
   virtual void SetDebugNamePlatform(const char* szName) const override;
+  virtual ezGALPlatformSharedHandle GetSharedHandle() const override;
 
   StagingMode ComputeStagingMode(const vk::ImageCreateInfo& createInfo) const;
   ezResult CreateStagingBuffer(const vk::ImageCreateInfo& createInfo);
@@ -81,9 +92,13 @@ protected:
   bool m_formatOverride = false;
   bool m_bLinearCPU = false;
 
+  SharedType m_sharedType = SharedType::None;
   StagingMode m_stagingMode = StagingMode::None;
   ezGALTextureHandle m_hStagingTexture;
   ezGALBufferHandle m_hStagingBuffer;
+
+  ezGALPlatformSharedHandle m_sharedHandle;
+  vk::Semaphore m_sharedSemaphore;
 };
 
 #include <RendererVulkan/Resources/Implementation/TextureVulkan_inl.h>

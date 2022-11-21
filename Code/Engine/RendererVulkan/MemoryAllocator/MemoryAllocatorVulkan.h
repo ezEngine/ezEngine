@@ -70,6 +70,7 @@ struct ezVulkanAllocationCreateInfo
   ezBitflags<ezVulkanAllocationCreateFlags> m_flags;
   ezEnum<ezVulkanMemoryUsage> m_usage;
   const char* m_pUserData = nullptr;
+  bool m_bExportSharedAllocation = false; // If this allocation should be exported so other processes can access it.
 };
 
 /// \brief Subset of VmaAllocationInfo. Duplicated for abstraction purposes.

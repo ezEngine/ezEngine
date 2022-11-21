@@ -8,6 +8,17 @@
 #include <Foundation/Utilities/GraphicsUtils.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 
+#ifdef BUILDSYSTEM_ENGINE_PROCESS_SHARED_TEXTURE
+#  include <Core/System/Window.h>
+#  include <RendererCore/RenderContext/RenderContext.h>
+#  include <RendererCore/ShaderCompiler/ShaderManager.h>
+#  include <RendererFoundation/Device/Device.h>
+#  include <RendererFoundation/Device/DeviceFactory.h>
+#  include <RendererFoundation/Device/SwapChain.h>
+
+#  include <xcb/xcb.h>
+#endif
+
 ezUInt32 ezQtEngineViewWidget::s_uiNextViewID = 0;
 
 ezQtEngineViewWidget::InteractionContext ezQtEngineViewWidget::s_InteractionContext;
@@ -23,6 +34,139 @@ void ezObjectPickingResult::Reset()
   m_vPickingRayStart.SetZero();
 }
 
+#ifdef BUILDSYSTEM_ENGINE_PROCESS_SHARED_TEXTURE
+/// \brief Represents the window inside the editor process, into which the engine process renders
+class ezEngineViewWindow : public ezWindowBase
+{
+public:
+  ezEngineViewWindow(ezGALDevice* pDevice)
+  {
+    m_hWnd = INVALID_WINDOW_HANDLE_VALUE;
+    m_uiWidth = 0;
+    m_uiHeight = 0;
+    m_pDevice = pDevice;
+  }
+
+  ~ezEngineViewWindow()
+  {
+    if (m_hWnd.type == ezWindowHandle::Type::XCB)
+    {
+      if(!m_hSwapchain.IsInvalidated())
+      {
+        m_pDevice->DestroySwapChain(m_hSwapchain);
+      }
+      m_pDevice->WaitIdle();
+
+      EZ_ASSERT_DEV(m_iReferenceCount == 0, "The window is still being referenced, probably by a swapchain. Make sure to destroy all swapchains and call ezGALDevice::WaitIdle before destroying a window.");
+      xcb_disconnect(m_hWnd.xcbWindow.m_pConnection);
+      m_hWnd.xcbWindow.m_pConnection = nullptr;
+      m_hWnd.type = ezWindowHandle::Type::Invalid;
+    }
+  }
+
+  ezResult UpdateWindow(ezWindowHandle hParentWindow, ezUInt16 uiWidth, ezUInt16 uiHeight)
+  {
+    if (m_hWnd.type == ezWindowHandle::Type::Invalid)
+    {
+      // xcb_connect always returns a non-NULL pointer to a xcb_connection_t,
+      // even on failure. Callers need to use xcb_connection_has_error() to
+      // check for failure. When finished, use xcb_disconnect() to close the
+      // connection and free the structure.
+      int scr = 0;
+      m_hWnd.type = ezWindowHandle::Type::XCB;
+      m_hWnd.xcbWindow.m_pConnection = xcb_connect(NULL, &scr);
+      if (auto err = xcb_connection_has_error(m_hWnd.xcbWindow.m_pConnection); err != 0)
+      {
+        ezLog::Error("Could not connect to x11 via xcb. Error-Code '{}'", err);
+        xcb_disconnect(m_hWnd.xcbWindow.m_pConnection);
+        m_hWnd.xcbWindow.m_pConnection = nullptr;
+        m_hWnd.type = ezWindowHandle::Type::Invalid;
+        return EZ_FAILURE;
+      }
+
+      m_hWnd.xcbWindow.m_Window = hParentWindow.xcbWindow.m_Window;
+
+      // create output target
+      {
+        ezGALWindowSwapChainCreationDescription desc = {};
+        desc.m_BackBufferFormat = ezGALResourceFormat::RGBAUByteNormalizedsRGB;
+        desc.m_bDoubleBuffered = true;
+        desc.m_InitialPresentMode = ezGALPresentMode::VSync;
+        desc.m_pWindow = this;
+
+        m_hSwapchain = ezGALWindowSwapChain::Create(desc);
+        EZ_ASSERT_ALWAYS(!m_hSwapchain.IsInvalidated(), "Failed to create swapchain"); // TODO better error handling
+
+        ezLog::Info("Creating swapchain at {0}x{1}", uiWidth, uiHeight);
+      }
+    }
+    else if(m_uiWidth != uiWidth || m_uiHeight != uiHeight)
+    {
+      ezLog::Info("Re-creating the swapchain at {0}x{1}", uiWidth, uiHeight);
+      // If the size of the window changed, update the swapchain.
+      m_pDevice->UpdateSwapChain(m_hSwapchain, ezGALPresentMode::VSync).AssertSuccess("Failed to resize swapchain");
+    }
+
+    m_uiWidth = uiWidth;
+    m_uiHeight = uiHeight;
+    EZ_ASSERT_DEV(hParentWindow.type == ezWindowHandle::Type::XCB && hParentWindow.xcbWindow.m_Window != 0, "Invalid handle passed");
+    EZ_ASSERT_DEV(m_hWnd.xcbWindow.m_Window == hParentWindow.xcbWindow.m_Window, "Remote window handle should never change. Window must be destroyed and recreated.");
+
+    return EZ_SUCCESS;
+  }
+
+  void Render()
+  {
+    // Begin frame
+    m_pDevice->BeginFrame();
+    m_pDevice->BeginPipeline("GraphicsTest", m_hSwapchain);
+
+    ezGALPass* pPass = m_pDevice->BeginPass("Clear");
+
+    const ezGALSwapChain* pPrimarySwapChain = m_pDevice->GetSwapChain(m_hSwapchain);
+
+    ezGALRenderingSetup setup;
+
+    setup.m_RenderTargetSetup.SetRenderTarget(0, m_pDevice->GetDefaultRenderTargetView(pPrimarySwapChain->GetBackBufferTexture()));
+    setup.m_ClearColor = ezColor(1.0f, 0.0f, 0.0f, 1.0f);
+    setup.m_uiRenderTargetClearMask = 0xFFFFFFFF;
+
+    // TODO might not actually need ezRenderContext here
+    ezGALCommandEncoder* pEncoder = ezRenderContext::GetDefaultInstance()->BeginRendering(pPass, setup, ezRectFloat(static_cast<float>(m_uiWidth), static_cast<float>(m_uiHeight)));
+
+    // End Frame
+    ezRenderContext::GetDefaultInstance()->EndRendering();
+    m_pDevice->EndPass(pPass);
+    pPass = nullptr;
+
+    ezRenderContext::GetDefaultInstance()->ResetContextState();
+    m_pDevice->EndPipeline(m_hSwapchain);
+
+    m_pDevice->EndFrame();
+
+    //ezTaskSystem::FinishFrameTasks();
+  }
+
+  // Inherited via ezWindowBase
+  virtual ezSizeU32 GetClientAreaSize() const override { return ezSizeU32(m_uiWidth, m_uiHeight); }
+  virtual ezWindowHandle GetNativeWindowHandle() const override { return m_hWnd; }
+  virtual void ProcessWindowMessages() override {}
+  virtual bool IsFullscreenWindow(bool bOnlyProperFullscreenMode = false) const override { return false; }
+  virtual void AddReference() override { m_iReferenceCount.Increment(); }
+  virtual void RemoveReference() override { m_iReferenceCount.Decrement(); }
+
+
+  ezUInt16 m_uiWidth;
+  ezUInt16 m_uiHeight;
+
+private:
+  ezWindowHandle m_hWnd;
+  ezAtomicInteger32 m_iReferenceCount = 0;
+  ezGALDevice* m_pDevice = nullptr;
+  ezGALSwapChainHandle m_hSwapchain;
+};
+#endif
+
 ////////////////////////////////////////////////////////////////////////
 // ezQtEngineViewWidget public functions
 ////////////////////////////////////////////////////////////////////////
@@ -34,6 +178,40 @@ ezQtEngineViewWidget::ezQtEngineViewWidget(QWidget* pParent, ezQtEngineDocumentW
   , m_pDocumentWindow(pDocumentWindow)
   , m_pViewConfig(pViewConfig)
 {
+  // TODO move this somewhere better
+#ifdef BUILDSYSTEM_ENGINE_PROCESS_SHARED_TEXTURE
+  if (!ezGALDevice::HasDefaultDevice())
+  {
+    const char* szRendererName = "Vulkan";
+    const char* szShaderModel = "";
+    const char* szShaderCompiler = "";
+    ezGALDeviceFactory::GetShaderModelAndCompiler(szRendererName, szShaderModel, szShaderCompiler);
+
+    ezShaderManager::Configure(szShaderModel, true);
+    EZ_VERIFY(ezPlugin::LoadPlugin(szShaderCompiler).Succeeded(), "Shader compiler '{}' plugin not found", szShaderCompiler);
+
+    // Create a device
+    {
+      ezGALDeviceCreationDescription DeviceInit;
+      DeviceInit.m_bDebugDevice = true;
+      m_pGALDevice = ezGALDeviceFactory::CreateDevice(szRendererName, ezFoundation::GetDefaultAllocator(), DeviceInit);
+      if (m_pGALDevice->Init().Failed())
+      {
+        // TODO better error handling
+        EZ_REPORT_FAILURE("Failed to initialize GALDevice");
+      }
+
+      ezGALDevice::SetDefaultDevice(m_pGALDevice);
+    }
+  }
+  else
+  {
+    m_pGALDevice = ezGALDevice::GetDefaultDevice();
+  }
+
+  m_pWindow = EZ_DEFAULT_NEW(ezEngineViewWindow, m_pGALDevice);
+#endif
+
   m_pRestartButtonLayout = nullptr;
   m_pRestartButton = nullptr;
 
@@ -88,12 +266,32 @@ ezQtEngineViewWidget::~ezQtEngineViewWidget()
     }
   }
 
+  #ifdef BUILDSYSTEM_ENGINE_PROCESS_SHARED_TEXTURE
+  m_pWindow = nullptr;
+  #endif
+
   m_pDocumentWindow->RemoveViewWidget(this);
 }
 
 void ezQtEngineViewWidget::SyncToEngine()
 {
-  ezViewRedrawMsgToEngine cam;
+#ifdef BUILDSYSTEM_ENGINE_PROCESS_SHARED_TEXTURE
+  ezWindowHandle hWindow = {};
+  hWindow.type = ezWindowHandle::Type::XCB;
+  hWindow.xcbWindow.m_Window = winId();
+
+  // TODO what about s_FixedResolution?
+  if (m_pWindow->UpdateWindow(hWindow, width() * this->devicePixelRatio(), height() * this->devicePixelRatio()).Failed())
+  {
+    ezLog::Error("Failed to update window for ezQtEngineViewWidget");
+  }
+
+  m_pWindow->Render();
+#endif
+
+
+  // TODO re-enable
+  /*ezViewRedrawMsgToEngine cam;
   cam.m_uiRenderMode = m_pViewConfig->m_RenderMode;
 
   float fov = m_pViewConfig->m_Camera.GetFovOrDim();
@@ -129,7 +327,7 @@ void ezQtEngineViewWidget::SyncToEngine()
     cam.m_uiWindowHeight = s_FixedResolution.height;
   }
 
-  m_pDocumentWindow->GetEditorEngineConnection()->SendMessage(&cam);
+  m_pDocumentWindow->GetEditorEngineConnection()->SendMessage(&cam);*/
 }
 
 
@@ -347,6 +545,7 @@ void ezQtEngineViewWidget::paintEvent(QPaintEvent* event)
 void ezQtEngineViewWidget::resizeEvent(QResizeEvent* event)
 {
   m_pDocumentWindow->TriggerRedraw();
+  ezLog::Info("QtResizeEvent {0}x{1} to {2}x{3}", event->oldSize().width(), event->oldSize().height(), event->size().width(), event->size().height());
 }
 
 void ezQtEngineViewWidget::keyPressEvent(QKeyEvent* e)

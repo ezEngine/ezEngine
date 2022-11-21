@@ -71,20 +71,44 @@ void ezGALSwapChainVulkan::AcquireNextRenderTarget(ezGALDevice* pDevice)
     m_swapChainImageInUseFences[m_uiCurrentSwapChainImage] = nullptr;
   }
 
-  vk::Result result = m_pVulkanDevice->GetVulkanDevice().acquireNextImageKHR(m_vulkanSwapChain, std::numeric_limits<uint64_t>::max(), m_currentPipelineImageAvailableSemaphore, nullptr, &m_uiCurrentSwapChainImage);
-  if (result == vk::Result::eErrorOutOfDateKHR)
+  int retryCount = 0;
+  while (true)
   {
-    ezLog::Warning("Swap-chain is incompatible with target window and will be recreated.");
-    CreateSwapChainInternal().AssertSuccess("Failed to recreate swapchain");
     vk::Result result = m_pVulkanDevice->GetVulkanDevice().acquireNextImageKHR(m_vulkanSwapChain, std::numeric_limits<uint64_t>::max(), m_currentPipelineImageAvailableSemaphore, nullptr, &m_uiCurrentSwapChainImage);
-    if (result == vk::Result::eErrorOutOfDateKHR)
+    if (result == vk::Result::eErrorOutOfDateKHR || result == vk::Result::eSuboptimalKHR)
     {
-      ezLog::Error("Failed to acquire image from recreated swapchain.");
+      const vk::SurfaceCapabilitiesKHR surfaceCapabilities = m_pVulkanDevice->GetVulkanPhysicalDevice().getSurfaceCapabilitiesKHR(m_vulkanSurface);
+      if (result == vk::Result::eSuboptimalKHR && (surfaceCapabilities.currentExtent.width != m_CurrentSize.width || surfaceCapabilities.currentExtent.height != m_CurrentSize.height))
+      {
+        ezLog::Warning("Swap-chain does not match the target window size and should be recreated. Expected size {0}x{1}, current size {2}x{3}.", surfaceCapabilities.currentExtent.width, surfaceCapabilities.currentExtent.height, m_CurrentSize.width, m_CurrentSize.height);
+        break;
+      }
+      else
+      {
+        if(retryCount > 0)
+        {
+          ezLog::Error("Automatic swap-chain re-creation didn't have an effect");
+          break;
+        }
+        else
+        {
+          // It is not a size issue, re-create automatically
+          if(CreateSwapChainInternal().Failed())
+          {
+            ezLog::Error("Failed automatic swapchain re-creation");
+          }
+          else
+          {
+            ezLog::Info("Automatic swapchain re-creation succeeded");
+          }
+          retryCount++;
+        }
+      }
     }
-  }
-  else if (result == vk::Result::eSuboptimalKHR)
-  {
-    ezLog::Warning("Swap-chain does not match the target window size and should be recreated.");
+    else
+    {
+      break;
+    }
   }
 
 #ifdef VK_LOG_LAYOUT_CHANGES

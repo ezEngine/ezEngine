@@ -44,6 +44,7 @@ class ezGALSwapChain;
 class ezGALShader;
 class ezGALResourceBase;
 class ezGALTexture;
+class ezGALSharedTexture;
 class ezGALBuffer;
 class ezGALDepthStencilState;
 class ezGALBlendState;

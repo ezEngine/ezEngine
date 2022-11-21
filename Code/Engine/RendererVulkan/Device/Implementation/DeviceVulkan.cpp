@@ -279,7 +279,15 @@ vk::Result ezGALDeviceVulkan::SelectDeviceExtensions(vk::DeviceCreateInfo& devic
       deviceCreateInfo.pNext = &m_extensions.m_borderColorEXT;
     }
   }
+
   AddExtIfSupported(VK_KHR_IMAGE_FORMAT_LIST_EXTENSION_NAME, m_extensions.m_bImageFormatList);
+
+  AddExtIfSupported(VK_KHR_TIMELINE_SEMAPHORE_EXTENSION_NAME, m_extensions.m_bTimelineSemaphore);
+
+#if EZ_ENABLED(EZ_PLATFORM_LINUX)
+  AddExtIfSupported(VK_KHR_EXTERNAL_MEMORY_FD_EXTENSION_NAME, m_extensions.m_bExternalMemoryFd);
+  AddExtIfSupported(VK_KHR_EXTERNAL_SEMAPHORE_FD_EXTENSION_NAME, m_extensions.m_bExternalSemaphoreFd);
+#endif
 
   return vk::Result::eSuccess;
 }
@@ -1339,7 +1347,7 @@ ezInt32 ezGALDeviceVulkan::GetMemoryIndex(vk::MemoryPropertyFlags properties, co
   return -1;
 }
 
-void ezGALDeviceVulkan::DeleteLater(const PendingDeletion& deletion)
+void ezGALDeviceVulkan::DeleteLaterImpl(const PendingDeletion& deletion)
 {
   EZ_LOCK(m_PerFrameData[m_uiCurrentPerFrameData].m_pendingDeletionsMutex);
   m_PerFrameData[m_uiCurrentPerFrameData].m_pendingDeletions.PushBack(deletion);
@@ -1364,7 +1372,16 @@ void ezGALDeviceVulkan::DeletePendingResources(ezDeque<PendingDeletion>& pending
       {
         auto& image = reinterpret_cast<vk::Image&>(deletion.m_pObject);
         OnBeforeImageDestroyed.Broadcast(OnBeforeImageDestroyedData{image, *this});
-        ezMemoryAllocatorVulkan::DestroyImage(image, deletion.m_allocation);
+        if(deletion.m_flags.IsSet(PendingDeletionFlags::UsesExternalMemory))
+        {
+          m_device.destroyImage(image);
+          auto& deviceMemory = reinterpret_cast<vk::DeviceMemory&>(deletion.m_pContext);
+          m_device.freeMemory(deviceMemory);
+        }
+        else 
+        {
+          ezMemoryAllocatorVulkan::DestroyImage(image, deletion.m_allocation);
+        }
       }
       break;
       case vk::ObjectType::eBuffer:
@@ -1605,5 +1622,12 @@ void ezGALDeviceVulkan::FillFormatLookupTable()
     }
   }
 }
+
+ezGALSharedTexture* ezGALDeviceVulkan::GetSharedTexture(ezGALTextureHandle hTexture) const
+{
+  EZ_ASSERT_NOT_IMPLEMENTED
+  return nullptr;
+}
+
 
 EZ_STATICLINK_FILE(RendererVulkan, RendererVulkan_Device_Implementation_DeviceVulkan);

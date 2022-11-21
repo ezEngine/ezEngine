@@ -29,6 +29,8 @@ struct EZ_EDITORFRAMEWORK_DLL ezObjectPickingResult
   ezVec3 m_vPickingRayStart;
 };
 
+class ezEngineViewWindow;
+
 /// \brief Base class for views that show engine output
 class EZ_EDITORFRAMEWORK_DLL ezQtEngineViewWidget : public QWidget
 {
@@ -160,6 +162,11 @@ protected:
   mutable ezObjectPickingResult m_LastPickingResult;
 
   static InteractionContext s_InteractionContext;
+
+  #ifdef BUILDSYSTEM_ENGINE_PROCESS_SHARED_TEXTURE
+  ezGALDevice* m_pGALDevice;
+  ezUniquePtr<ezEngineViewWindow> m_pWindow;
+  #endif
 };
 
 /// \brief Wraps and decorates a view widget with a toolbar and layout.

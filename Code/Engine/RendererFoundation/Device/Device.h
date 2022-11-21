@@ -10,6 +10,7 @@
 #include <RendererFoundation/RendererFoundationDLL.h>
 
 class ezColor;
+struct ezGALPlatformSharedHandle;
 
 /// \brief The ezRenderDevice class is the primary interface for interactions with rendering APIs
 /// It contains a set of (non-virtual) functions to set state, create resources etc. which rely on
@@ -66,6 +67,9 @@ public:
 
   ezGALTextureHandle CreateProxyTexture(ezGALTextureHandle hParentTexture, ezUInt32 uiSlice);
   void DestroyProxyTexture(ezGALTextureHandle hProxyTexture);
+
+  ezGALTextureHandle CreateSharedTexture(const ezGALTextureCreationDescription& Description);
+  ezGALTextureHandle OpenSharedTexture(const ezGALTextureCreationDescription& Description, ezGALPlatformSharedHandle hSharedHandle);
 
   // Resource views
   ezGALResourceViewHandle GetDefaultResourceView(ezGALTextureHandle hTexture);
@@ -127,6 +131,7 @@ public:
 
   const ezGALShader* GetShader(ezGALShaderHandle hShader) const;
   const ezGALTexture* GetTexture(ezGALTextureHandle hTexture) const;
+  virtual const ezGALSharedTexture* GetSharedTexture(ezGALTextureHandle hTexture) const = 0;
   const ezGALBuffer* GetBuffer(ezGALBufferHandle hBuffer) const;
   const ezGALDepthStencilState* GetDepthStencilState(ezGALDepthStencilStateHandle hDepthStencilState) const;
   const ezGALBlendState* GetBlendState(ezGALBlendStateHandle hBlendState) const;

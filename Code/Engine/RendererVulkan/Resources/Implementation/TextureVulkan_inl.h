@@ -59,3 +59,8 @@ ezGALBufferHandle ezGALTextureVulkan::GetStagingBuffer() const
 {
   return m_hStagingBuffer;
 }
+
+ezGALTextureVulkan::SharedType ezGALTextureVulkan::GetSharedType() const
+{
+  return m_sharedType;
+}

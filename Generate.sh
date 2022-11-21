@@ -2,7 +2,7 @@
 
 # read arguments
 opts=$(getopt \
-  --longoptions help,clang,setup,no-cmake,build-type: \
+  --longoptions help,clang,setup,no-cmake,no-unity,build-type: \
   --name "$(basename "$0")" \
   --options "" \
   -- "$@"
@@ -11,6 +11,7 @@ opts=$(getopt \
 eval set --$opts
 
 RunCMake=true
+UnityBuilds="ON"
 BuildType="Dev"
 
 
@@ -21,6 +22,7 @@ while [[ $# -gt 0 ]]; do
       echo "  --setup       Run first time setup. This installs dependencies and makes sure the git repository is setup correctly."
       echo "  --clang       Use clang instead of gcc"
       echo "  --no-cmake    Do not invoke cmake (usefull when only --setup is needed)"
+      echo "  --no-unity    Disable unity builds"
       echo "  --build-type  Which build type cmake should be invoked with Debug|Dev|Shipping"
       exit 0
       ;;
@@ -43,6 +45,11 @@ while [[ $# -gt 0 ]]; do
     --build-type)
       BuildType=$2
       shift 2
+      ;;
+
+    --no-unity)
+      UnityBuilds="OFF"
+      shift 1;
       ;;
 	  
     *)
@@ -108,6 +115,6 @@ fi
 
 if [ "$RunCMake" = true ]; then
   BuildDir="build-${BuildType}-${CompilerShort}"
-  cmake -B $BuildDir -S . -G Ninja -DCMAKE_CXX_COMPILER=$cxx_compiler -DCMAKE_C_COMPILER=$c_compiler -DEZ_EXPERIMENTAL_EDITOR_ON_LINUX=ON -DEZ_BUILD_EXPERIMENTAL_VULKAN=ON -DCMAKE_BUILD_TYPE=$BuildType -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+  cmake -B $BuildDir -S . -G Ninja -DCMAKE_CXX_COMPILER=$cxx_compiler -DCMAKE_C_COMPILER=$c_compiler -DEZ_EXPERIMENTAL_EDITOR_ON_LINUX=ON -DEZ_BUILD_EXPERIMENTAL_VULKAN=ON -DEZ_ENABLE_FOLDER_UNITY_FILES=OFF -DCMAKE_BUILD_TYPE=$BuildType -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
   echo -e "\nRun 'ninja -C ${BuildDir}' to build"
 fi

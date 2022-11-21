@@ -6,6 +6,7 @@
 #include <Foundation/Types/UniquePtr.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererVulkan/RendererVulkanDLL.h>
+#include <RendererVulkan/Device/DispatchContext.h>
 
 #include <vulkan/vulkan.hpp>
 
@@ -60,10 +61,28 @@ public:
   virtual ~ezGALDeviceVulkan();
 
 public:
+  struct PendingDeletionFlags
+  {
+    using StorageType = ezUInt32;
+
+    enum Enum
+    {
+      UsesExternalMemory = EZ_BIT(0),
+
+      Default = 0
+    };
+
+    struct Bits
+    {
+      StorageType UsesExternalMemory : 1;
+    };
+  };
+
   struct PendingDeletion
   {
     EZ_DECLARE_POD_TYPE();
     vk::ObjectType m_type;
+    ezBitflags<PendingDeletionFlags> m_flags;
     void* m_pObject;
     union
     {
@@ -102,6 +121,9 @@ public:
     bool m_bBorderColorFloat = false;
 
     bool m_bImageFormatList = false;
+    bool m_bTimelineSemaphore = false;
+    bool m_bExternalMemoryFd = false;
+    bool m_bExternalSemaphoreFd = false;
   };
 
   struct Queue
@@ -122,6 +144,7 @@ public:
   vk::PhysicalDevice GetVulkanPhysicalDevice() const;
   const vk::PhysicalDeviceProperties& GetPhysicalDeviceProperties() const { return m_properties; }
   const Extensions& GetExtensions() const { return m_extensions; }
+  const ezVulkanDispatchContext& GetDispatchContext() const { return m_dispatchContext; }
   vk::PipelineStageFlags GetSupportedStages() const;
 
   vk::CommandBuffer& GetCurrentCommandBuffer();
@@ -140,14 +163,26 @@ public:
 
   vk::Fence Submit(vk::Semaphore waitSemaphore, vk::PipelineStageFlags waitStage, vk::Semaphore signalSemaphore);
 
-  void DeleteLater(const PendingDeletion& deletion);
+  void DeleteLaterImpl(const PendingDeletion& deletion);
+
+  void DeleteLater(vk::Image& image, vk::DeviceMemory& externalMemory)
+  {
+    if(image)
+    {
+      PendingDeletion del = {vk::ObjectType::eImage, {PendingDeletionFlags::UsesExternalMemory}, (void*)image, nullptr};
+      del.m_pContext = (void*)externalMemory;
+      DeleteLaterImpl(del);
+    }
+    image = nullptr;
+    externalMemory = nullptr;
+  }
 
   template <typename T>
   void DeleteLater(T& object, ezVulkanAllocation& allocation)
   {
     if (object)
     {
-      DeleteLater({object.objectType, (void*)object, allocation});
+      DeleteLaterImpl({object.objectType, {}, (void*)object, allocation});
     }
     object = nullptr;
     allocation = nullptr;
@@ -158,9 +193,9 @@ public:
   {
     if (object)
     {
-      PendingDeletion del = {object.objectType, (void*)object, nullptr};
+      PendingDeletion del = {object.objectType, {}, (void*)object, nullptr};
       del.m_pContext = pContext;
-      DeleteLater(static_cast<const PendingDeletion&>(del));
+      DeleteLaterImpl(static_cast<const PendingDeletion&>(del));
     }
     object = nullptr;
   }
@@ -170,7 +205,7 @@ public:
   {
     if (object)
     {
-      DeleteLater({object.objectType, (void*)object, nullptr});
+      DeleteLaterImpl({object.objectType, {}, (void*)object, nullptr});
     }
     object = nullptr;
   }
@@ -213,6 +248,8 @@ public:
     ezGALDeviceVulkan& GALDeviceVulkan;
   };
   ezEvent<OnBeforeImageDestroyedData> OnBeforeImageDestroyed;
+
+  virtual ezGALSharedTexture* GetSharedTexture(ezGALTextureHandle hTexture) const override;
 
 
   // These functions need to be implemented by a render API abstraction
@@ -353,6 +390,7 @@ private:
 #endif
 
   Extensions m_extensions;
+  ezVulkanDispatchContext m_dispatchContext;
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   VkDebugUtilsMessengerEXT m_debugMessenger = VK_NULL_HANDLE;
 #endif

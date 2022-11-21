@@ -36,10 +36,11 @@ vk::ImageAspectFlags ezGALTextureVulkan::GetAspectMask() const
   return mask;
 }
 
-ezGALTextureVulkan::ezGALTextureVulkan(const ezGALTextureCreationDescription& Description)
+ezGALTextureVulkan::ezGALTextureVulkan(const ezGALTextureCreationDescription& Description, bool exportShared)
   : ezGALTexture(Description)
   , m_image(nullptr)
   , m_pExisitingNativeObject(Description.m_pExisitingNativeObject)
+  , m_sharedType(exportShared ? SharedType::Exported : SharedType::None)
 {
 }
 
@@ -183,22 +184,135 @@ ezResult ezGALTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGAL
 
   if (m_pExisitingNativeObject == nullptr)
   {
-    ezVulkanAllocationCreateInfo allocInfo;
-    allocInfo.m_usage = ezVulkanMemoryUsage::Auto;
-    if (m_bLinearCPU)
+    if (m_sharedType != SharedType::Imported)
     {
-      createInfo.tiling = vk::ImageTiling::eLinear;
-      createInfo.usage |= vk::ImageUsageFlagBits::eTransferSrc;
-      m_stages |= vk::PipelineStageFlagBits::eHost;
-      m_access |= vk::AccessFlagBits::eHostRead;
-      createInfo.flags = {}; // Clear all flags as we don't need them and they usually are not supported on NVidia in linear mode.
 
-      allocInfo.m_flags = ezVulkanAllocationCreateFlags::HostAccessRandom;
+      ezVulkanAllocationCreateInfo allocInfo;
+      allocInfo.m_usage = ezVulkanMemoryUsage::Auto;
+      if (m_bLinearCPU)
+      {
+        createInfo.tiling = vk::ImageTiling::eLinear;
+        createInfo.usage |= vk::ImageUsageFlagBits::eTransferSrc;
+        m_stages |= vk::PipelineStageFlagBits::eHost;
+        m_access |= vk::AccessFlagBits::eHostRead;
+        createInfo.flags = {}; // Clear all flags as we don't need them and they usually are not supported on NVidia in linear mode.
+
+        allocInfo.m_flags = ezVulkanAllocationCreateFlags::HostAccessRandom;
+      }
+      vk::ImageFormatProperties props2;
+      VK_ASSERT_DEBUG(m_pDevice->GetVulkanPhysicalDevice().getImageFormatProperties(createInfo.format, createInfo.imageType, createInfo.tiling, createInfo.usage, createInfo.flags, &props2));
+
+      VK_SUCCEED_OR_RETURN_EZ_FAILURE(ezMemoryAllocatorVulkan::CreateImage(createInfo, allocInfo, m_image, m_alloc, &m_allocInfo));
+
+      if (m_sharedType == SharedType::Exported)
+      {
+#if EZ_ENABLED(EZ_PLATFORM_LINUX)
+        if (!m_pDevice->GetExtensions().m_bTimelineSemaphore)
+        {
+          ezLog::Error("Can not create shared textures because timeline semaphores are not supported");
+          return EZ_FAILURE;
+        }
+
+        if (!m_pDevice->GetExtensions().m_bExternalMemoryFd)
+        {
+          ezLog::Error("Can not create shared textures because external memory fd is not supported");
+          return EZ_FAILURE;
+        }
+
+        if (!m_pDevice->GetExtensions().m_bExternalSemaphoreFd)
+        {
+          ezLog::Error("Can not create shared textures because external semaphore fd is not supported");
+          return EZ_FAILURE;
+        }
+
+        vk::MemoryGetFdInfoKHR getFdInfo{m_allocInfo.m_deviceMemory, vk::ExternalMemoryHandleTypeFlagBits::eOpaqueFd};
+        int fd = -1;
+        vk::Device device = m_pDevice->GetVulkanDevice();
+        VK_SUCCEED_OR_RETURN_EZ_FAILURE(device.getMemoryFdKHR(&getFdInfo, &fd, m_pDevice->GetDispatchContext()));
+        m_sharedHandle.a = (size_t)fd;
+
+        vk::ExportSemaphoreCreateInfoKHR exportInfo{vk::ExternalSemaphoreHandleTypeFlagBits::eOpaqueFd};
+        vk::SemaphoreTypeCreateInfoKHR semTypeCreateInfo{vk::SemaphoreType::eTimeline, 0, &exportInfo};
+        vk::SemaphoreCreateInfo semCreateInfo{{}, &semTypeCreateInfo};
+        m_sharedSemaphore = device.createSemaphore(semCreateInfo);
+
+        int semaphoreFd = -1;
+        vk::SemaphoreGetFdInfoKHR getSemaphoreFdInfo{m_sharedSemaphore, vk::ExternalSemaphoreHandleTypeFlagBits::eOpaqueFd};
+        VK_SUCCEED_OR_RETURN_EZ_FAILURE(device.getSemaphoreFdKHR(&getSemaphoreFdInfo, &semaphoreFd, m_pDevice->GetDispatchContext()));
+        m_sharedHandle.b = (size_t)semaphoreFd;
+#else
+        EZ_ASSERT_NOT_IMPLEMENTED
+#endif
+      }
     }
-    vk::ImageFormatProperties props2;
-    VK_ASSERT_DEBUG(m_pDevice->GetVulkanPhysicalDevice().getImageFormatProperties(createInfo.format, createInfo.imageType, createInfo.tiling, createInfo.usage, createInfo.flags, &props2));
+    else
+    {
+#if EZ_ENABLED(EZ_PLATFORM_LINUX)
+      if (m_sharedHandle.a == 0 || m_sharedHandle.b == 0)
+      {
+        ezLog::Error("Can not open shared texture: invalid handle given");
+        return EZ_FAILURE;
+      }
 
-    VK_SUCCEED_OR_RETURN_EZ_FAILURE(ezMemoryAllocatorVulkan::CreateImage(createInfo, allocInfo, m_image, m_alloc, &m_allocInfo));
+      if (!m_pDevice->GetExtensions().m_bTimelineSemaphore)
+      {
+        ezLog::Error("Can not open shared texture: timeline semaphores not supported");
+        return EZ_FAILURE;
+      }
+
+      if (!m_pDevice->GetExtensions().m_bExternalMemoryFd)
+      {
+        ezLog::Error("Can not open shared texture: external memory fd not supported");
+        return EZ_FAILURE;
+      }
+
+      if (!m_pDevice->GetExtensions().m_bExternalSemaphoreFd)
+      {
+        ezLog::Error("Can not open shared texture: external semaphore fd not supported");
+        return EZ_FAILURE;
+      }
+
+      vk::Device device = m_pDevice->GetVulkanDevice();
+
+      // Import semaphore
+      vk::SemaphoreTypeCreateInfoKHR semTypeCreateInfo{vk::SemaphoreType::eTimeline, 0};
+      vk::SemaphoreCreateInfo semCreateInfo{{}, &semTypeCreateInfo};
+      m_sharedSemaphore = device.createSemaphore(semCreateInfo);
+
+      vk::ImportSemaphoreFdInfoKHR importSemaphoreInfo{m_sharedSemaphore, {}, vk::ExternalSemaphoreHandleTypeFlagBits::eOpaqueFd, static_cast<int>(m_sharedHandle.b)};
+      VK_SUCCEED_OR_RETURN_EZ_FAILURE(device.importSemaphoreFdKHR(&importSemaphoreInfo, m_pDevice->GetDispatchContext()));
+
+      // Create Image
+      VK_SUCCEED_OR_RETURN_EZ_FAILURE(device.createImage(&createInfo, nullptr, &m_image));
+
+      vk::ImageMemoryRequirementsInfo2 imageRequirementsInfo{m_image};
+      vk::MemoryRequirements2 imageMemoryRequirements;
+      device.getImageMemoryRequirements2(&imageRequirementsInfo, &imageMemoryRequirements);
+
+      // Import memory
+      vk::MemoryFdPropertiesKHR importInfo;
+      VK_SUCCEED_OR_RETURN_EZ_FAILURE(device.getMemoryFdPropertiesKHR(vk::ExternalMemoryHandleTypeFlagBits::eOpaqueFd, m_sharedHandle.a, &importInfo, m_pDevice->GetDispatchContext()));
+
+      EZ_ASSERT_DEBUG(ezMath::CountBits(importInfo.memoryTypeBits) == 1, "There should only be one valid memory type");
+      ezUInt32 memoryTypeIndex = ezMath::FirstBitHigh(importInfo.memoryTypeBits);
+      EZ_ASSERT_DEBUG(importInfo.memoryTypeBits == imageMemoryRequirements.memoryRequirements.memoryTypeBits, "Required and imported memory type bits do not match");
+
+
+      vk::ImportMemoryFdInfoKHR fdInfo{vk::ExternalMemoryHandleTypeFlagBits::eOpaqueFd, static_cast<int>(m_sharedHandle.b)};
+      vk::MemoryAllocateInfo allocateInfo{imageMemoryRequirements.memoryRequirements.size, memoryTypeIndex, &fdInfo};
+
+      m_allocInfo = {};
+      VK_SUCCEED_OR_RETURN_EZ_FAILURE(device.allocateMemory(&allocateInfo, nullptr, &m_allocInfo.m_deviceMemory));
+      m_allocInfo.m_offset = 0;
+      m_allocInfo.m_size = imageMemoryRequirements.memoryRequirements.size;
+      m_allocInfo.m_memoryType = memoryTypeIndex;
+
+      device.bindImageMemory(m_image, m_allocInfo.m_deviceMemory, 0);
+
+#else
+      EZ_ASSERT_NOT_IMPLEMENTED
+#endif
+    }
   }
   else
   {
@@ -327,9 +441,16 @@ ezResult ezGALTextureVulkan::CreateStagingBuffer(const vk::ImageCreateInfo& crea
 ezResult ezGALTextureVulkan::DeInitPlatform(ezGALDevice* pDevice)
 {
   ezGALDeviceVulkan* pVulkanDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
-  if (m_image && !m_pExisitingNativeObject)
+  if (m_sharedType == SharedType::Imported)
   {
-    pVulkanDevice->DeleteLater(m_image, m_alloc);
+    pVulkanDevice->DeleteLater(m_image, m_allocInfo.m_deviceMemory);
+  }
+  else
+  {
+    if (m_image && !m_pExisitingNativeObject)
+    {
+      pVulkanDevice->DeleteLater(m_image, m_alloc);
+    }
   }
   m_image = nullptr;
 
@@ -343,6 +464,19 @@ ezResult ezGALTextureVulkan::DeInitPlatform(ezGALDevice* pDevice)
     pDevice->DestroyBuffer(m_hStagingBuffer);
     m_hStagingBuffer.Invalidate();
   }
+
+#if EZ_ENABLED(EZ_PLATFORM_LINUX)
+  if (m_sharedHandle.a != 0)
+  {
+    close(m_sharedHandle.a);
+    m_sharedHandle.a = 0;
+  }
+  if (m_sharedHandle.b != 0)
+  {
+    close(m_sharedHandle.b);
+    m_sharedHandle.b = 0;
+  }
+#endif
   return EZ_SUCCESS;
 }
 
@@ -361,6 +495,11 @@ void ezGALTextureVulkan::SetDebugNamePlatform(const char* szName) const
   }
 }
 
+ezGALPlatformSharedHandle ezGALTextureVulkan::GetSharedHandle() const
+{
+  // TODO
+  return {};
+}
 
 
 EZ_STATICLINK_FILE(RendererVulkan, RendererVulkan_Resources_Implementation_TextureVulkan);

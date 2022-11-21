@@ -10,6 +10,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetDeviceBufferMemoryRequirements(
 }
 
 #include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#include <Foundation/Types/UniquePtr.h>
 
 #define VMA_VULKAN_VERSION 1001000
 #define VMA_STATIC_VULKAN_FUNCTIONS 0
@@ -57,11 +58,22 @@ EZ_CHECK_AT_COMPILETIME(sizeof(ezVulkanAllocation) == sizeof(VmaAllocation));
 
 EZ_CHECK_AT_COMPILETIME(sizeof(ezVulkanAllocationInfo) == sizeof(VmaAllocationInfo));
 
+EZ_DEFINE_AS_POD_TYPE(VkExportMemoryAllocateInfo);
+
+namespace
+{
+  struct ExportedSharedPool
+  {
+    VmaPool m_pool = nullptr;
+    ezUniquePtr<VkExportMemoryAllocateInfo> m_exportInfo; // must outlive the pool and remain at the same address.
+  };
+} // namespace
 
 struct ezMemoryAllocatorVulkan::Impl
 {
-  EZ_DECLARE_POD_TYPE();
   VmaAllocator m_allocator;
+  ezMutex m_exportedSharedPoolsMutex;
+  ezHashTable<uint32_t, ExportedSharedPool> m_exportedSharedPools;
 };
 
 ezMemoryAllocatorVulkan::Impl* ezMemoryAllocatorVulkan::m_pImpl = nullptr;
@@ -87,6 +99,7 @@ vk::Result ezMemoryAllocatorVulkan::Initialize(vk::PhysicalDevice physicalDevice
   {
     EZ_DEFAULT_DELETE(m_pImpl);
   }
+
   return res;
 }
 
@@ -104,6 +117,49 @@ vk::Result ezMemoryAllocatorVulkan::CreateImage(const vk::ImageCreateInfo& image
   allocCreateInfo.usage = (VmaMemoryUsage)allocationCreateInfo.m_usage.GetValue();
   allocCreateInfo.flags = allocationCreateInfo.m_flags.GetValue() | VMA_ALLOCATION_CREATE_USER_DATA_COPY_STRING_BIT;
   allocCreateInfo.pUserData = (void*)allocationCreateInfo.m_pUserData;
+
+  if (allocationCreateInfo.m_bExportSharedAllocation)
+  {
+    allocCreateInfo.flags |= VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT;
+
+    EZ_LOCK(m_pImpl->m_exportedSharedPoolsMutex);
+
+    uint32_t memoryTypeIndex = 0;
+    if (auto res = vmaFindMemoryTypeIndexForImageInfo(m_pImpl->m_allocator, reinterpret_cast<const VkImageCreateInfo*>(&imageCreateInfo), &allocCreateInfo, &memoryTypeIndex); res != VK_SUCCESS)
+    {
+      return (vk::Result)res;
+    }
+
+    ExportedSharedPool* pool = m_pImpl->m_exportedSharedPools.GetValue(memoryTypeIndex);
+    if (pool == nullptr)
+    {
+      ExportedSharedPool newPool;
+      {
+        VkExportMemoryAllocateInfo exportInfo = {};
+        exportInfo.sType = VK_STRUCTURE_TYPE_EXPORT_MEMORY_ALLOCATE_INFO;
+#if EZ_ENABLED(EZ_PLATFORM_LINUX)
+        exportInfo.handleTypes = VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD_BIT;
+#else
+        EZ_ASSERT_NOT_IMPLEMENTED
+#endif
+        newPool.m_exportInfo = EZ_DEFAULT_NEW(VkExportMemoryAllocateInfo, exportInfo);
+      }
+
+      VmaPoolCreateInfo poolCreateInfo = {};
+      poolCreateInfo.memoryTypeIndex = memoryTypeIndex;
+      poolCreateInfo.pMemoryAllocateNext = newPool.m_exportInfo.Borrow();
+
+      if (auto res = vmaCreatePool(m_pImpl->m_allocator, &poolCreateInfo, &newPool.m_pool); res != VK_SUCCESS)
+      {
+        return (vk::Result)res;
+      }
+
+      m_pImpl->m_exportedSharedPools.Insert(memoryTypeIndex, std::move(newPool));
+      pool = m_pImpl->m_exportedSharedPools.GetValue(memoryTypeIndex);
+    }
+    
+    allocCreateInfo.pool = pool->m_pool;
+  }
 
   return (vk::Result)vmaCreateImage(m_pImpl->m_allocator, reinterpret_cast<const VkImageCreateInfo*>(&imageCreateInfo), &allocCreateInfo, reinterpret_cast<VkImage*>(&out_image), reinterpret_cast<VmaAllocation*>(&out_alloc), reinterpret_cast<VmaAllocationInfo*>(pAllocInfo));
 }
