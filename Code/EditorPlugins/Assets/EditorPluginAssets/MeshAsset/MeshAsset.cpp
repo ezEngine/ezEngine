@@ -34,7 +34,7 @@ ezTransformStatus ezMeshAssetDocument::InternalTransformAsset(ezStreamWriter& st
 
   ezMeshResourceDescriptor desc;
 
-  range.SetStepWeighting(0, 0.9);
+  range.SetStepWeighting(0, 0.9f);
   range.BeginNextStep("Importing Mesh");
 
   if (pProp->m_PrimitiveType == ezMeshPrimitive::File)

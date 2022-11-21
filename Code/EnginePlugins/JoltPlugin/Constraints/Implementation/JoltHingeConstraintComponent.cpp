@@ -28,7 +28,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezJoltHingeConstraintComponent, 1, ezComponentMode::Stat
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 0.2, ezColor::BurlyWood)
+    new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 0.2f, ezColor::BurlyWood)
   }
   EZ_END_ATTRIBUTES;
 }

@@ -15,13 +15,13 @@ Occluder::~Occluder()
 // needed for ezHybridArray below
 EZ_DEFINE_AS_POD_TYPE(__m128);
 
-void Occluder::bake(const __m128* vertices, size_t numVertices, __m128 refMin, __m128 refMax)
+void Occluder::bake(const __m128* vertices, ezUInt32 numVertices, __m128 refMin, __m128 refMax)
 {
   assert(numVertices % 16 == 0);
 
   // Simple k-means clustering by normal direction to improve backface culling efficiency
   ezHybridArray<__m128, 32, ezAlignedAllocatorWrapper> quadNormals;
-  for (auto i = 0; i < numVertices; i += 4)
+  for (ezUInt32 i = 0; i < numVertices; i += 4)
   {
     auto v0 = vertices[i + 0];
     auto v1 = vertices[i + 1];
@@ -47,13 +47,13 @@ void Occluder::bake(const __m128* vertices, size_t numVertices, __m128 refMin, _
   {
     anyChanged = false;
 
-    for (auto j = 0; j < quadNormals.GetCount(); ++j)
+    for (ezUInt32 j = 0; j < quadNormals.GetCount(); ++j)
     {
       __m128 normal = quadNormals[j];
 
       __m128 bestDistance = _mm_set1_ps(-std::numeric_limits<float>::infinity());
       uint32_t bestCentroid = 0;
-      for (int k = 0; k < centroids.GetCount(); ++k)
+      for (ezUInt32 k = 0; k < centroids.GetCount(); ++k)
       {
         __m128 distance = _mm_dp_ps(centroids[k], normal, 0x7F);
         if (_mm_comige_ss(distance, bestDistance))
@@ -70,19 +70,19 @@ void Occluder::bake(const __m128* vertices, size_t numVertices, __m128 refMin, _
       }
     }
 
-    for (int k = 0; k < centroids.GetCount(); ++k)
+    for (ezUInt32 k = 0; k < centroids.GetCount(); ++k)
     {
       centroids[k] = _mm_setzero_ps();
     }
 
-    for (int j = 0; j < quadNormals.GetCount(); ++j)
+    for (ezUInt32 j = 0; j < quadNormals.GetCount(); ++j)
     {
       int k = centroidAssignment[j];
 
       centroids[k] = _mm_add_ps(centroids[k], quadNormals[j]);
     }
 
-    for (int k = 0; k < centroids.GetCount(); ++k)
+    for (ezUInt32 k = 0; k < centroids.GetCount(); ++k)
     {
       centroids[k] = normalize(centroids[k]);
     }
@@ -91,7 +91,7 @@ void Occluder::bake(const __m128* vertices, size_t numVertices, __m128 refMin, _
   ezHybridArray<__m128, 64, ezAlignedAllocatorWrapper> orderedVertices;
   for (uint32_t k = 0; k < centroids.GetCount(); ++k)
   {
-    for (int j = 0; j < numVertices / 4; ++j)
+    for (ezUInt32 j = 0; j < numVertices / 4; ++j)
     {
       if (centroidAssignment[j] == k)
       {
@@ -116,11 +116,11 @@ void Occluder::bake(const __m128* vertices, size_t numVertices, __m128 refMin, _
   occluder->m_packetCount = 0;
   occluder->m_vertexData = EZ_NEW_RAW_BUFFER(ezFoundation::GetAlignedAllocator(), __m256i, orderedVertices.GetCount() * 4);
 
-  for (size_t i = 0; i < orderedVertices.GetCount(); i += 32)
+  for (ezUInt32 i = 0; i < orderedVertices.GetCount(); i += 32)
   {
     __m128i v[8];
 
-    for (auto j = 0; j < 4; ++j)
+    for (ezUInt32 j = 0; j < 4; ++j)
     {
       // Transform into [0,1] space relative to bounding box
       __m128 v0 = _mm_mul_ps(_mm_sub_ps(orderedVertices[i + j + 0], refMin), invExtents);
@@ -173,7 +173,7 @@ void Occluder::bake(const __m128* vertices, size_t numVertices, __m128 refMin, _
   __m128 min = _mm_set1_ps(+std::numeric_limits<float>::infinity());
   __m128 max = _mm_set1_ps(-std::numeric_limits<float>::infinity());
 
-  for (size_t i = 0; i < orderedVertices.GetCount(); ++i)
+  for (ezUInt32 i = 0; i < orderedVertices.GetCount(); ++i)
   {
     min = _mm_min_ps(vertices[i], min);
     max = _mm_max_ps(vertices[i], max);

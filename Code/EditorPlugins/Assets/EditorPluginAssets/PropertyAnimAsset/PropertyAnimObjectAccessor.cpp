@@ -129,7 +129,7 @@ ezStatus ezPropertyAnimObjectAccessor::SetValue(
         float iRounds = ezMath::RoundToMultiple(fDiff, 360.0f);
         fDiff -= iRounds;
         newEuler[c] = oldEuler[c] + ezAngle::Degree(fDiff);
-        if (oldEuler[c].IsEqualSimple(newEuler[c], ezAngle::Degree(0.01)))
+        if (oldEuler[c].IsEqualSimple(newEuler[c], ezAngle::Degree(0.01f)))
           continue;
 
         EZ_SUCCEED_OR_RETURN(SetCurveCp(pObject, pProp, index, static_cast<ezPropertyAnimTarget::Enum>((int)ezPropertyAnimTarget::RotationX + c),

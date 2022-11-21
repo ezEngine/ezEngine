@@ -29,7 +29,7 @@ ezTransformStatus ezAnimatedMeshAssetDocument::InternalTransformAsset(ezStreamWr
 
   ezMeshResourceDescriptor desc;
 
-  range.SetStepWeighting(0, 0.9);
+  range.SetStepWeighting(0, 0.9f);
   range.BeginNextStep("Importing Mesh");
 
   EZ_SUCCEED_OR_RETURN(CreateMeshFromFile(pProp, desc));
