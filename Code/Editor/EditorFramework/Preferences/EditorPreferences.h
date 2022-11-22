@@ -26,7 +26,7 @@ public:
   bool m_bLoadLastProjectAtStartup = true;
   bool m_bShowSplashscreen = true;
   bool m_bExpandSceneTreeOnSelection = true;
-  bool m_bBackgroundAssetProcessing = false;
+  bool m_bBackgroundAssetProcessing = true;
   bool m_bAssetFilterCombobox = true;
 
   bool m_bSkyBox = true;
