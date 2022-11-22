@@ -47,9 +47,11 @@ ezSceneDocument::ezSceneDocument(const char* szDocumentPath, DocumentType Docume
 void ezSceneDocument::InitializeAfterLoading(bool bFirstTimeCreation)
 {
   // (Local mirror only mirrors settings)
-  m_ObjectMirror.SetFilterFunction([pManager = GetObjectManager()](const ezDocumentObject* pObject, const char* szProperty) -> bool { return pManager->IsUnderRootProperty("Settings", pObject, szProperty); });
+  m_ObjectMirror.SetFilterFunction([pManager = GetObjectManager()](const ezDocumentObject* pObject, const char* szProperty) -> bool
+    { return pManager->IsUnderRootProperty("Settings", pObject, szProperty); });
   // (Remote IPC mirror only sends scene)
-  m_Mirror.SetFilterFunction([pManager = GetObjectManager()](const ezDocumentObject* pObject, const char* szProperty) -> bool { return pManager->IsUnderRootProperty("Children", pObject, szProperty); });
+  m_Mirror.SetFilterFunction([pManager = GetObjectManager()](const ezDocumentObject* pObject, const char* szProperty) -> bool
+    { return pManager->IsUnderRootProperty("Children", pObject, szProperty); });
 
   SUPER::InitializeAfterLoading(bFirstTimeCreation);
   EnsureSettingsObjectExist();
@@ -470,7 +472,8 @@ void ezSceneDocument::ShowOrHideSelectedObjects(ShowOrHide action)
     if (!pItem->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
       continue;
 
-    ApplyRecursive(pItem, [this, bHide](const ezDocumentObject* pObj) {
+    ApplyRecursive(pItem, [this, bHide](const ezDocumentObject* pObj)
+      {
       // if (!pObj->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
       // return;
 
@@ -481,8 +484,7 @@ void ezSceneDocument::ShowOrHideSelectedObjects(ShowOrHide action)
         m_DocumentObjectMetaData->EndModifyMetaData(ezDocumentObjectMetaData::HiddenFlag);
       }
       else
-        m_DocumentObjectMetaData->EndModifyMetaData(0);
-    });
+        m_DocumentObjectMetaData->EndModifyMetaData(0); });
   }
 }
 
@@ -533,8 +535,7 @@ void ezSceneDocument::SetGameMode(GameMode::Enum mode)
   ScheduleSendObjectSelection();
 }
 
-ezStatus ezSceneDocument::CreatePrefabDocumentFromSelection(
-  const char* szFile, const ezRTTI* pRootType, ezDelegate<void(ezAbstractObjectNode*)> AdjustGraphNodeCB /* = ezDelegate<void(ezAbstractObjectNode * )>() */, ezDelegate<void(ezDocumentObject*)> AdjustNewNodesCB /*= ezDelegate<void(ezDocumentObject*)>()*/)
+ezStatus ezSceneDocument::CreatePrefabDocumentFromSelection(const char* szFile, const ezRTTI* pRootType, ezDelegate<void(ezAbstractObjectNode*)> AdjustGraphNodeCB /* = ezDelegate<void(ezAbstractObjectNode * )>() */, ezDelegate<void(ezDocumentObject*)> AdjustNewNodesCB /*= ezDelegate<void(ezDocumentObject*)>()*/)
 {
   EZ_ASSERT_DEV(!AdjustGraphNodeCB.IsValid(), "Not allowed");
   EZ_ASSERT_DEV(!AdjustNewNodesCB.IsValid(), "Not allowed");
@@ -546,7 +547,8 @@ ezStatus ezSceneDocument::CreatePrefabDocumentFromSelection(
 
   const ezTransform tReference = QueryLocalTransform(Selection.PeekBack());
 
-  auto centerNodes = [tReference](ezAbstractObjectNode* pGraphNode) {
+  auto centerNodes = [tReference](ezAbstractObjectNode* pGraphNode)
+  {
     if (auto pPosition = pGraphNode->FindProperty("LocalPosition"))
     {
       ezVec3 pos = pPosition->m_Value.ConvertTo<ezVec3>();
@@ -554,16 +556,29 @@ ezStatus ezSceneDocument::CreatePrefabDocumentFromSelection(
 
       pGraphNode->ChangeProperty("LocalPosition", pos);
     }
+
+    if (auto pRotation = pGraphNode->FindProperty("LocalRotation"))
+    {
+      ezQuat rot = pRotation->m_Value.ConvertTo<ezQuat>();
+      rot = -tReference.m_qRotation * rot;
+
+      pGraphNode->ChangeProperty("LocalRotation", rot);
+    }
   };
 
-  auto adjustResult = [tReference, this](ezDocumentObject* pObject) {
+  auto adjustResult = [tReference, this](ezDocumentObject* pObject)
+  {
     const ezTransform tOld = QueryLocalTransform(pObject);
 
     ezSetObjectPropertyCommand cmd;
     cmd.m_Object = pObject->GetGuid();
+
     cmd.m_sProperty = "LocalPosition";
     cmd.m_NewValue = tOld.m_vPosition + tReference.m_vPosition;
+    GetCommandHistory()->AddCommand(cmd);
 
+    cmd.m_sProperty = "LocalRotation";
+    cmd.m_NewValue = tReference.m_qRotation * tOld.m_qRotation;
     GetCommandHistory()->AddCommand(cmd);
   };
 
@@ -676,7 +691,8 @@ void ezSceneDocument::ShowOrHideAllObjects(ShowOrHide action)
 {
   const bool bHide = action == ShowOrHide::Hide;
 
-  ApplyRecursive(GetObjectManager()->GetRootObject(), [this, bHide](const ezDocumentObject* pObj) {
+  ApplyRecursive(GetObjectManager()->GetRootObject(), [this, bHide](const ezDocumentObject* pObj)
+    {
     // if (!pObj->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
     // return;
 
@@ -690,8 +706,7 @@ void ezSceneDocument::ShowOrHideAllObjects(ShowOrHide action)
       uiFlags = ezDocumentObjectMetaData::HiddenFlag;
     }
 
-    m_DocumentObjectMetaData->EndModifyMetaData(uiFlags);
-  });
+    m_DocumentObjectMetaData->EndModifyMetaData(uiFlags); });
 }
 void ezSceneDocument::GetSupportedMimeTypesForPasting(ezHybridArray<ezString, 4>& out_MimeTypes) const
 {
@@ -1329,7 +1344,7 @@ void ezSceneDocument::GatherObjectsOfType(ezDocumentObject* pRoot, ezGatherObjec
 
 void ezSceneDocument::OnInterDocumentMessage(ezReflectedClass* pMessage, ezDocument* pSender)
 {
-  //#TODO needs to be overwritten by Scene2
+  // #TODO needs to be overwritten by Scene2
   if (pMessage->GetDynamicRTTI()->IsDerivedFrom<ezGatherObjectsOfTypeMsgInterDoc>())
   {
     GatherObjectsOfType(GetObjectManager()->GetRootObject(), static_cast<ezGatherObjectsOfTypeMsgInterDoc*>(pMessage));
@@ -1427,7 +1442,7 @@ void ezSceneDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
 
 ezTransformStatus ezSceneDocument::ExportScene(bool bCreateThumbnail)
 {
-  //#TODO export layers
+  // #TODO export layers
   auto saveres = SaveDocument();
 
   if (saveres.m_Result.Failed())
@@ -1536,7 +1551,7 @@ ezTransformStatus ezSceneDocument::InternalCreateThumbnail(const ThumbnailInfo& 
 
 void ezSceneDocument::SyncObjectHiddenState()
 {
-  //#TODO Scene2 handling
+  // #TODO Scene2 handling
   for (auto pChild : GetObjectManager()->GetRootObject()->GetChildren())
   {
     SyncObjectHiddenState(pChild);

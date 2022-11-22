@@ -224,7 +224,7 @@ public:
     ezDelegate<void(ezAbstractObjectNode*)> AdjustGraphNodeCB = ezDelegate<void(ezAbstractObjectNode*)>(),
     ezDelegate<void(ezDocumentObject*)> AdjustNewNodesCB = ezDelegate<void(ezDocumentObject*)>());
   virtual ezStatus CreatePrefabDocument(const char* szFile, ezArrayPtr<const ezDocumentObject*> rootObjects, const ezUuid& invPrefabSeed,
-    ezUuid& out_NewDocumentGuid, ezDelegate<void(ezAbstractObjectNode*)> AdjustGraphNodeCB = ezDelegate<void(ezAbstractObjectNode*)>());
+    ezUuid& out_NewDocumentGuid, ezDelegate<void(ezAbstractObjectNode*)> AdjustGraphNodeCB = {}, bool bKeepOpen = false);
   // Returns new guid of replaced object.
   virtual ezUuid ReplaceByPrefab(
     const ezDocumentObject* pRootObject, const char* szPrefabFile, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed, bool bEnginePrefab);
