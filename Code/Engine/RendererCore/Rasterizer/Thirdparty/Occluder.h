@@ -17,7 +17,7 @@ struct Occluder
 {
   ~Occluder();
 
-  void bake(const __m128* vertices, size_t numVertices, __m128 refMin, __m128 refMax);
+  void bake(const __m128* vertices, ezUInt32 numVertices, __m128 refMin, __m128 refMax);
 
   __m128 m_center;
 

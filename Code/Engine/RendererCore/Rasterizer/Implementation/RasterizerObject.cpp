@@ -64,7 +64,7 @@ void ezRasterizerObject::CreateMesh(const ezGeometry& geo)
 
     if (uiQuadVtx == 4)
     {
-      const size_t n = vertices.GetCount();
+      const ezUInt32 n = vertices.GetCount();
 
       // swap two vertices in the quad to flip the front face (different convention between EZ and the rasterizer)
       ezMath::Swap(vertices[n - 1], vertices[n - 3]);
