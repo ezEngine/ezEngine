@@ -306,12 +306,18 @@ function(ez_detect_compiler_and_architecture)
 	set_property(GLOBAL PROPERTY EZ_CMAKE_COMPILER_CLANG OFF)
 	set_property(GLOBAL PROPERTY EZ_CMAKE_COMPILER_GCC OFF)
 
+	set(FILE_TO_COMPILE "${CMAKE_SOURCE_DIR}/${EZ_SUBMODULE_PREFIX_PATH}/${EZ_CMAKE_RELPATH}/ProbingSrc/ArchitectureDetect.c")
+	
+	if (EZ_SDK_DIR)
+		set(FILE_TO_COMPILE "${EZ_SDK_DIR}/${EZ_CMAKE_RELPATH}/ProbingSrc/ArchitectureDetect.c")
+	endif()
+
 	# Only compile the detect file if we don't have a cached result from the last run
 	if((NOT EZ_DETECTED_COMPILER) OR (NOT EZ_DETECTED_ARCH) OR (NOT EZ_DETECTED_MSVC_VER))
 		set(CMAKE_TRY_COMPILE_TARGET_TYPE "STATIC_LIBRARY")
 		try_compile(COMPILE_RESULT
 			${CMAKE_CURRENT_BINARY_DIR}
-			${CMAKE_SOURCE_DIR}/${EZ_SUBMODULE_PREFIX_PATH}/${EZ_CMAKE_RELPATH}/ProbingSrc/ArchitectureDetect.c
+			${FILE_TO_COMPILE}
 			OUTPUT_VARIABLE COMPILE_OUTPUT
 		)
 

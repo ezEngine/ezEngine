@@ -90,20 +90,22 @@ jobs:
           mkdir _package\Output
           mkdir _package\Data
           mkdir _package\Code
+          copy repo\version.txt _package
+          copy repo\ezCMakeConfig.cmake _package
           xcopy repo\Output _package\Output /s
           xcopy repo\Data _package\Data /s
           xcopy repo\Code _package\Code /s
 
           xcopy template_repo\package _package /s /y
 
-      - name: Create 7z Archive
+      - name: Create Zip Archive
         run: |
-          repo\Data\Tools\Precompiled\7z.exe a ezEngine.Release.${{ steps.sdk-version.outputs.content }}.7z .\_package\* -mx9
+          repo\Data\Tools\Precompiled\7z.exe a ezEngine.Release.${{ steps.sdk-version.outputs.content }}.zip .\_package\* -mx9
 
       - name: Artifact - Release Package
         if: github.event.inputs.release-artifact == 'true'
         uses: actions/upload-artifact@v2
         with:
           name: ezEngine.Release.${{ steps.sdk-version.outputs.content }}
-          path: ezEngine.Release.${{ steps.sdk-version.outputs.content }}.7z
+          path: ezEngine.Release.${{ steps.sdk-version.outputs.content }}.zip
           retention-days: 3

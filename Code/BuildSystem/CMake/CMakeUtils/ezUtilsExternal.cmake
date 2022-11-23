@@ -32,13 +32,19 @@ endmacro()
 # ## ez_configure_external_project()
 # #####################################
 macro(ez_configure_external_project)
-	file(RELATIVE_PATH EZ_SUBMODULE_PREFIX_PATH ${CMAKE_SOURCE_DIR} ${EZ_SDK_DIR})
+
+	if (EZ_SDK_DIR STREQUAL "")
+		file(RELATIVE_PATH EZ_SUBMODULE_PREFIX_PATH ${CMAKE_SOURCE_DIR} ${EZ_SDK_DIR})
+	else()
+		set(EZ_SUBMODULE_PREFIX_PATH "")
+	endif()
+	
 	set_property(GLOBAL PROPERTY EZ_SUBMODULE_PREFIX_PATH ${EZ_SUBMODULE_PREFIX_PATH})
 
 	if(EZ_SUBMODULE_PREFIX_PATH STREQUAL "")
 		set(EZ_SUBMODULE_MODE FALSE)
 	else()
-		set(EZ_SUBMODULE_MODE FALSE)
+		set(EZ_SUBMODULE_MODE TRUE)
 	endif()
 
 	set_property(GLOBAL PROPERTY EZ_SUBMODULE_MODE ${EZ_SUBMODULE_MODE})
