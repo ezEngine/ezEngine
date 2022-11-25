@@ -10,77 +10,94 @@ namespace
 {
   ezSpatialData::Category s_ProcVolumeCategory = ezSpatialData::RegisterCategory("ProcVolume", ezSpatialData::Flags::None);
   static ezHashedString s_sVolumes = ezMakeHashedString("Volumes");
-} // namespace
 
-void ezProcGenExpressionFunctions::ApplyVolumes(ezExpression::Inputs inputs, ezExpression::Output output, const ezExpression::GlobalData& globalData)
-{
-  const ezVariantArray& volumes = globalData.GetValue(s_sVolumes)->Get<ezVariantArray>();
-  if (volumes.IsEmpty())
-    return;
+  static const ezEnum<ezExpression::RegisterType> s_ApplyVolumesTypes[] = {
+    ezExpression::RegisterType::Float, // PosX
+    ezExpression::RegisterType::Float, // PosY
+    ezExpression::RegisterType::Float, // PosZ
+    ezExpression::RegisterType::Float, // InitialValue
+    ezExpression::RegisterType::Int,   // TagSetIndex
+    ezExpression::RegisterType::Int,   // ImageMode
+    ezExpression::RegisterType::Float, // RefColorR
+    ezExpression::RegisterType::Float, // RefColorG
+    ezExpression::RegisterType::Float, // RefColorB
+    ezExpression::RegisterType::Float, // RefColorA
+  };
 
-  ezUInt32 uiTagSetIndex = 0;
-  if (inputs.GetCount() > 4)
+  static void ApplyVolumes(ezExpression::Inputs inputs, ezExpression::Output output, const ezExpression::GlobalData& globalData)
   {
-    uiTagSetIndex = ezSimdVec4i::Truncate(inputs[4][0]).x();
-  }
+    const ezVariantArray& volumes = globalData.GetValue(s_sVolumes)->Get<ezVariantArray>();
+    if (volumes.IsEmpty())
+      return;
 
-  auto pVolumeCollection = ezDynamicCast<const ezVolumeCollection*>(volumes[uiTagSetIndex].Get<ezReflectedClass*>());
-  if (pVolumeCollection == nullptr)
-    return;
+    ezUInt32 uiTagSetIndex = inputs[4].GetPtr()->i.x();
+    auto pVolumeCollection = ezDynamicCast<const ezVolumeCollection*>(volumes[uiTagSetIndex].Get<ezReflectedClass*>());
+    if (pVolumeCollection == nullptr)
+      return;
 
-  const ezSimdVec4f* pPosX = inputs[0].GetPtr();
-  const ezSimdVec4f* pPosY = inputs[1].GetPtr();
-  const ezSimdVec4f* pPosZ = inputs[2].GetPtr();
-  const ezSimdVec4f* pPosXEnd = pPosX + inputs[0].GetCount();
+    const ezExpression::Register* pPosX = inputs[0].GetPtr();
+    const ezExpression::Register* pPosY = inputs[1].GetPtr();
+    const ezExpression::Register* pPosZ = inputs[2].GetPtr();
+    const ezExpression::Register* pPosXEnd = pPosX + inputs[0].GetCount();
 
-  const ezSimdVec4f* pInitialValues = inputs[3].GetPtr();
+    const ezExpression::Register* pInitialValues = inputs[3].GetPtr();
 
-  ezProcVolumeImageMode::Enum imgMode = ezProcVolumeImageMode::Default;
-  ezColor refColor = ezColor::White;
-  if (inputs.GetCount() > 5)
-  {
-    const ezSimdVec4f* pImgMode = inputs[5].GetPtr();
-    const ezSimdVec4f* pRefColR = inputs[6].GetPtr();
-    const ezSimdVec4f* pRefColG = inputs[7].GetPtr();
-    const ezSimdVec4f* pRefColB = inputs[8].GetPtr();
-    const ezSimdVec4f* pRefColA = inputs[9].GetPtr();
-
-    imgMode = static_cast<ezProcVolumeImageMode::Enum>((float)pImgMode->x());
-    refColor = ezColor(pRefColR->x(), pRefColG->x(), pRefColB->x(), pRefColA->x());
-  }
-
-  ezSimdVec4f* pOutput = output.GetPtr();
-
-  while (pPosX < pPosXEnd)
-  {
-    pOutput->SetX(pVolumeCollection->EvaluateAtGlobalPosition(ezVec3(pPosX->x(), pPosY->x(), pPosZ->x()), pInitialValues->x(), imgMode, refColor));
-    pOutput->SetY(pVolumeCollection->EvaluateAtGlobalPosition(ezVec3(pPosX->y(), pPosY->y(), pPosZ->y()), pInitialValues->y(), imgMode, refColor));
-    pOutput->SetZ(pVolumeCollection->EvaluateAtGlobalPosition(ezVec3(pPosX->z(), pPosY->z(), pPosZ->z()), pInitialValues->z(), imgMode, refColor));
-    pOutput->SetW(pVolumeCollection->EvaluateAtGlobalPosition(ezVec3(pPosX->w(), pPosY->w(), pPosZ->w()), pInitialValues->w(), imgMode, refColor));
-
-    ++pPosX;
-    ++pPosY;
-    ++pPosZ;
-    ++pInitialValues;
-    ++pOutput;
-  }
-}
-
-ezResult ezProcGenExpressionFunctions::ApplyVolumesValidate(const ezExpression::GlobalData& globalData)
-{
-  if (!globalData.IsEmpty())
-  {
-    if (const ezVariant* pValue = globalData.GetValue("Volumes"))
+    ezProcVolumeImageMode::Enum imgMode = ezProcVolumeImageMode::Default;
+    ezColor refColor = ezColor::White;
+    if (inputs.GetCount() >= 10)
     {
-      if (pValue->GetType() == ezVariantType::VariantArray)
-      {
-        return EZ_SUCCESS;
-      }
+      imgMode = static_cast<ezProcVolumeImageMode::Enum>(inputs[5].GetPtr()->i.x());
+
+      const float refColR = inputs[6].GetPtr()->f.x();
+      const float refColG = inputs[7].GetPtr()->f.x();
+      const float refColB = inputs[8].GetPtr()->f.x();
+      const float refColA = inputs[9].GetPtr()->f.x();      
+      refColor = ezColor(refColR, refColG, refColB, refColA);
+    }
+
+    ezExpression::Register* pOutput = output.GetPtr();
+
+    ezSimdMat4f helperMat;
+    while (pPosX < pPosXEnd)
+    {
+      helperMat.SetRows(pPosX->f, pPosY->f, pPosZ->f, ezSimdVec4f::ZeroVector());
+
+      const float x = pVolumeCollection->EvaluateAtGlobalPosition(helperMat.m_col0, pInitialValues->f.x(), imgMode, refColor);
+      const float y = pVolumeCollection->EvaluateAtGlobalPosition(helperMat.m_col1, pInitialValues->f.y(), imgMode, refColor);
+      const float z = pVolumeCollection->EvaluateAtGlobalPosition(helperMat.m_col2, pInitialValues->f.z(), imgMode, refColor);
+      const float w = pVolumeCollection->EvaluateAtGlobalPosition(helperMat.m_col3, pInitialValues->f.w(), imgMode, refColor);
+      pOutput->f.Set(x, y, z, w);
+
+      ++pPosX;
+      ++pPosY;
+      ++pPosZ;
+      ++pInitialValues;
+      ++pOutput;
     }
   }
 
-  return EZ_FAILURE;
-}
+  static ezResult ApplyVolumesValidate(const ezExpression::GlobalData& globalData)
+  {
+    if (!globalData.IsEmpty())
+    {
+      if (const ezVariant* pValue = globalData.GetValue("Volumes"))
+      {
+        if (pValue->GetType() == ezVariantType::VariantArray)
+        {
+          return EZ_SUCCESS;
+        }
+      }
+    }
+
+    return EZ_FAILURE;
+  }
+} // namespace
+
+ezExpressionFunction ezProcGenExpressionFunctions::s_ApplyVolumesFunc = {
+  {ezMakeHashedString("ApplyVolumes"), ezMakeArrayPtr(s_ApplyVolumesTypes), 5, ezExpression::RegisterType::Float},
+  &ApplyVolumes,
+  &ApplyVolumesValidate,
+};
 
 //////////////////////////////////////////////////////////////////////////
 

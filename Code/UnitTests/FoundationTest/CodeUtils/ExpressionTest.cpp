@@ -6,17 +6,19 @@
 #include <Foundation/CodeUtils/Expression/ExpressionVM.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
+#include <Foundation/Math/Float16.h>
+#include <Foundation/Types/UniquePtr.h>
 #include <Foundation/Utilities/DGMLWriter.h>
 
 namespace
 {
-  void DumpAST(const ezExpressionAST& ast, ezStringView sOutputName)
+  void DumpAST(const ezExpressionAST& ast, ezStringView sOutputName, ezUInt32 uiCounter)
   {
     ezDGMLGraph dgmlGraph;
     ast.PrintGraph(dgmlGraph);
 
     ezStringBuilder sFileName;
-    sFileName.Format(":output/Expression/{}_AST.dgml", sOutputName);
+    sFileName.Format(":output/Expression/{}_{}_AST.dgml", ezArgU(uiCounter, 2, true), sOutputName);
 
     ezDGMLGraphWriter dgmlGraphWriter;
     if (dgmlGraphWriter.WriteGraphToFile(sFileName, dgmlGraph).Succeeded())
@@ -72,6 +74,262 @@ namespace
   static ezHashedString s_sC = ezMakeHashedString("c");
   static ezHashedString s_sD = ezMakeHashedString("d");
   static ezHashedString s_sOutput = ezMakeHashedString("output");
+
+  static ezUniquePtr<ezExpressionParser> s_pParser;
+  static ezUniquePtr<ezExpressionCompiler> s_pCompiler;
+  static ezUniquePtr<ezExpressionVM> s_pVM;
+
+  template <typename T>
+  struct StreamDataTypeDeduction
+  {
+  };
+
+  template <>
+  struct StreamDataTypeDeduction<ezFloat16>
+  {
+    static constexpr ezProcessingStream::DataType Type = ezProcessingStream::DataType::Half;
+  };
+
+  template <>
+  struct StreamDataTypeDeduction<float>
+  {
+    static constexpr ezProcessingStream::DataType Type = ezProcessingStream::DataType::Float;
+  };
+
+  template <>
+  struct StreamDataTypeDeduction<ezInt8>
+  {
+    static constexpr ezProcessingStream::DataType Type = ezProcessingStream::DataType::Byte;
+  };
+
+  template <>
+  struct StreamDataTypeDeduction<ezInt16>
+  {
+    static constexpr ezProcessingStream::DataType Type = ezProcessingStream::DataType::Short;
+  };
+
+  template <>
+  struct StreamDataTypeDeduction<int>
+  {
+    static constexpr ezProcessingStream::DataType Type = ezProcessingStream::DataType::Int;
+  };
+
+  template <typename T>
+  void Compile(ezStringView code, ezExpressionByteCode& out_ByteCode, ezStringView sDumpAstOutputName = ezStringView())
+  {
+    ezExpression::StreamDesc inputs[] = {
+      {s_sA, StreamDataTypeDeduction<T>::Type},
+      {s_sB, StreamDataTypeDeduction<T>::Type},
+      {s_sC, StreamDataTypeDeduction<T>::Type},
+      {s_sD, StreamDataTypeDeduction<T>::Type},
+    };
+
+    ezExpression::StreamDesc outputs[] = {
+      {s_sOutput, StreamDataTypeDeduction<T>::Type},
+    };
+
+    ezExpressionAST ast;
+    EZ_TEST_BOOL(s_pParser->Parse(code, inputs, outputs, {}, ast).Succeeded());
+
+    if (sDumpAstOutputName.IsEmpty() == false)
+    {
+      DumpAST(ast, sDumpAstOutputName, s_uiNumByteCodeComparisons);
+    }
+
+    EZ_TEST_BOOL(s_pCompiler->Compile(ast, out_ByteCode).Succeeded());
+
+    if (sDumpAstOutputName.IsEmpty() == false)
+    {
+      ezStringBuilder sOutputName = sDumpAstOutputName;
+      sOutputName.Append("_Opt");
+
+      DumpAST(ast, sOutputName, s_uiNumByteCodeComparisons);
+    }
+  }
+
+  template <typename T>
+  T Execute(const ezExpressionByteCode& byteCode, T a = 0, T b = 0, T c = 0, T d = 0)
+  {
+    ezProcessingStream inputs[] = {
+      ezProcessingStream(s_sA, ezMakeArrayPtr(&a, 1).ToByteArray(), StreamDataTypeDeduction<T>::Type),
+      ezProcessingStream(s_sB, ezMakeArrayPtr(&b, 1).ToByteArray(), StreamDataTypeDeduction<T>::Type),
+      ezProcessingStream(s_sC, ezMakeArrayPtr(&c, 1).ToByteArray(), StreamDataTypeDeduction<T>::Type),
+      ezProcessingStream(s_sD, ezMakeArrayPtr(&d, 1).ToByteArray(), StreamDataTypeDeduction<T>::Type),
+    };
+
+    T output = ezMath::MinValue<T>();
+    ezProcessingStream outputs[] = {
+      ezProcessingStream(s_sOutput, ezMakeArrayPtr(&output, 1).ToByteArray(), StreamDataTypeDeduction<T>::Type),
+    };
+
+    EZ_TEST_BOOL(s_pVM->Execute(byteCode, inputs, outputs, 1).Succeeded());
+
+    return output;
+  };
+
+  template <typename T>
+  T TestInstruction(ezStringView code, T a = 0, T b = 0, T c = 0, T d = 0, bool dumpASTs = false)
+  {
+    ezExpressionByteCode byteCode;
+    Compile<T>(code, byteCode, dumpASTs ? "TestInstruction" : "");
+    return Execute<T>(byteCode, a, b, c, d);
+  }
+
+  template <typename T>
+  T TestConstant(ezStringView code, bool dumpASTs = false)
+  {
+    ezExpressionByteCode byteCode;
+    Compile<T>(code, byteCode, dumpASTs ? "TestConstant" : "");
+    EZ_TEST_INT(byteCode.GetNumInstructions(), 2); // MovX_C, StoreX
+    EZ_TEST_INT(byteCode.GetNumTempRegisters(), 1);
+    return Execute<T>(byteCode);
+  }
+
+  enum TestBinaryFlags
+  {
+    LeftConstantOptimization = EZ_BIT(0),
+    NoInstructionsCountCheck = EZ_BIT(2),
+  };
+
+  template <typename R, typename T, ezUInt32 flags>
+  void TestBinaryInstruction(ezStringView op, T a, T b, R expectedResult, bool dumpASTs = false)
+  {
+    auto TestRes = [](R res, R expectedRes)
+    {
+      if constexpr (std::is_same<R, float>::value)
+      {
+        EZ_TEST_FLOAT(res, expectedRes, ezMath::DefaultEpsilon<float>());
+      }
+      else if constexpr (std::is_same<R, int>::value)
+      {
+        EZ_TEST_INT(res, expectedRes);
+      }
+      else
+      {
+        EZ_TEST_BOOL(res == expectedRes);
+      }
+    };
+
+    constexpr bool boolInputs = std::is_same<T, bool>::value;
+    using U = typename std::conditional<boolInputs, int, T>::type;
+
+    const bool functionStyleSyntax = op.FindSubString("(");
+    const char* formatString = functionStyleSyntax ? "output = {0}{1}, {2})" : "output = {1} {0} {2}";
+    const char* aInput = boolInputs ? "(a != 0)" : "a";
+    const char* bInput = boolInputs ? "(b != 0)" : "b";
+
+    int oneConstantInstructions = 3; // LoadX, OpX_RC, StoreX
+    int oneConstantRegisters = 1;
+    if constexpr (std::is_same<R, bool>::value)
+    {
+      oneConstantInstructions += 3; // + MovX_C, MovX_C, SelI_RRR
+      oneConstantRegisters += 2;    // Two more registers needed for constants above
+    }
+    if constexpr (boolInputs)
+    {
+      oneConstantInstructions += 1; // + NotEqI_RC
+    }
+
+    ezStringBuilder code;
+    ezExpressionByteCode byteCode;
+
+    code.Format(formatString, op, aInput, bInput);
+    Compile<U>(code, byteCode, dumpASTs ? "BinaryNoConstants" : "");
+    TestRes(Execute<U>(byteCode, a, b), expectedResult);
+
+    code.Format(formatString, op, a, bInput);
+    Compile<U>(code, byteCode, dumpASTs ? "BinaryLeftConstant" : "");
+    if constexpr ((flags & NoInstructionsCountCheck) == 0)
+    {
+      int leftConstantInstructions = oneConstantInstructions;
+      int leftConstantRegisters = oneConstantRegisters;
+      if constexpr ((flags & LeftConstantOptimization) == 0)
+      {
+        leftConstantInstructions += 1;
+        leftConstantRegisters += 1;
+      }
+
+      if (byteCode.GetNumInstructions() != leftConstantInstructions || byteCode.GetNumTempRegisters() != leftConstantRegisters)
+      {
+        DumpDisassembly(byteCode, "BinaryLeftConstant", 0);
+        EZ_TEST_INT(byteCode.GetNumInstructions(), leftConstantInstructions);
+        EZ_TEST_INT(byteCode.GetNumTempRegisters(), leftConstantRegisters);
+      }
+    }
+    TestRes(Execute<U>(byteCode, a, b), expectedResult);
+
+    code.Format(formatString, op, aInput, b);
+    Compile<U>(code, byteCode, dumpASTs ? "BinaryRightConstant" : "");
+    if constexpr ((flags & NoInstructionsCountCheck) == 0)
+    {
+      if (byteCode.GetNumInstructions() != oneConstantInstructions || byteCode.GetNumTempRegisters() != oneConstantRegisters)
+      {
+        DumpDisassembly(byteCode, "BinaryRightConstant", 0);
+        EZ_TEST_INT(byteCode.GetNumInstructions(), oneConstantInstructions);
+        EZ_TEST_INT(byteCode.GetNumTempRegisters(), oneConstantRegisters);
+      }
+    }
+    TestRes(Execute<U>(byteCode, a, b), expectedResult);
+
+    code.Format(formatString, op, a, b);
+    Compile<U>(code, byteCode, dumpASTs ? "BinaryConstant" : "");
+    EZ_TEST_INT(byteCode.GetNumInstructions(), 2); // MovX_C, StoreX
+    EZ_TEST_INT(byteCode.GetNumTempRegisters(), 1);
+    TestRes(Execute<U>(byteCode), expectedResult);
+  }
+
+  template <typename T>
+  bool CompareCode(ezStringView testCode, ezStringView referenceCode, ezExpressionByteCode& out_testByteCode, bool dumpASTs = false)
+  {
+    Compile<T>(testCode, out_testByteCode, dumpASTs ? "Test" : "");
+
+    ezExpressionByteCode referenceByteCode;
+    Compile<T>(referenceCode, referenceByteCode, dumpASTs ? "Reference" : "");
+
+    return CompareByteCode(out_testByteCode, referenceByteCode);
+  }
+
+  template <typename T>
+  void TestInputOutput()
+  {
+    ezStringView testCode = "output = a + b * 2";
+    ezExpressionByteCode testByteCode;
+    Compile<T>(testCode, testByteCode);
+
+    constexpr ezUInt32 uiCount = 17;
+    ezHybridArray<T, uiCount> a;
+    ezHybridArray<T, uiCount> b;
+    ezHybridArray<T, uiCount> o;
+    ezHybridArray<float, uiCount> expectedOutput;
+    a.SetCountUninitialized(uiCount);
+    b.SetCountUninitialized(uiCount);
+    o.SetCount(uiCount);
+    expectedOutput.SetCountUninitialized(uiCount);
+
+    for (ezUInt32 i = 0; i < uiCount; ++i)
+    {
+      a[i] = static_cast<T>(3.0f * i);
+      b[i] = static_cast<T>(1.5f * i);
+      expectedOutput[i] = a[i] + b[i] * 2.0f;
+    }
+
+    ezProcessingStream inputs[] = {
+      ezProcessingStream(s_sA, a.GetByteArrayPtr(), StreamDataTypeDeduction<T>::Type),
+      ezProcessingStream(s_sB, b.GetByteArrayPtr(), StreamDataTypeDeduction<T>::Type),
+    };
+
+    ezProcessingStream outputs[] = {
+      ezProcessingStream(s_sOutput, o.GetByteArrayPtr(), StreamDataTypeDeduction<T>::Type),
+    };
+
+    EZ_TEST_BOOL(s_pVM->Execute(testByteCode, inputs, outputs, uiCount).Succeeded());
+
+    for (ezUInt32 i = 0; i < uiCount; ++i)
+    {
+      EZ_TEST_FLOAT(static_cast<float>(o[i]), expectedOutput[i], ezMath::DefaultEpsilon<float>());
+    }
+  }
+
 } // namespace
 
 EZ_CREATE_SIMPLE_TEST(CodeUtils, Expression)
@@ -81,107 +339,419 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Expression)
   ezStringBuilder outputPath = ezTestFramework::GetInstance()->GetAbsOutputPath();
   EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(outputPath.GetData(), "test", "output", ezFileSystem::AllowWrites) == EZ_SUCCESS);
 
-  ezExpressionParser parser;
-  ezExpressionCompiler compiler;
-  ezExpressionVM vm;
+  s_pParser = EZ_DEFAULT_NEW(ezExpressionParser);
+  s_pCompiler = EZ_DEFAULT_NEW(ezExpressionCompiler);
+  s_pVM = EZ_DEFAULT_NEW(ezExpressionVM);
+  EZ_SCOPE_EXIT(s_pParser = nullptr; s_pCompiler = nullptr; s_pVM = nullptr;);
 
-  auto Compile = [&](ezStringView code, ezExpressionByteCode& out_ByteCode, bool dumpASTs = false) {
-    ezExpressionParser::Stream inputs[] = {
-      ezExpressionParser::Stream(s_sA, ezProcessingStream::DataType::Float),
-      ezExpressionParser::Stream(s_sB, ezProcessingStream::DataType::Float),
-      ezExpressionParser::Stream(s_sC, ezProcessingStream::DataType::Float),
-      ezExpressionParser::Stream(s_sD, ezProcessingStream::DataType::Float),
-    };
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Unary instructions")
+  {
+    // Negate
+    EZ_TEST_INT(TestInstruction("output = -a", 2), -2);
+    EZ_TEST_FLOAT(TestInstruction("output = -a", 2.5f), -2.5f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_INT(TestConstant<int>("output = -2"), -2);
+    EZ_TEST_FLOAT(TestConstant<float>("output = -2.5"), -2.5f, ezMath::DefaultEpsilon<float>());
 
-    ezExpressionParser::Stream outputs[] = {
-      ezExpressionParser::Stream(s_sOutput, ezProcessingStream::DataType::Float),
-    };
+    // Absolute
+    EZ_TEST_INT(TestInstruction("output = abs(a)", -2), 2);
+    EZ_TEST_FLOAT(TestInstruction("output = abs(a)", -2.5f), 2.5f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_INT(TestConstant<int>("output = abs(-2)"), 2);
+    EZ_TEST_FLOAT(TestConstant<float>("output = abs(-2.5)"), 2.5f, ezMath::DefaultEpsilon<float>());
 
-    ezExpressionAST ast;
-    EZ_TEST_BOOL(parser.Parse(code, inputs, outputs, {}, ast).Succeeded());
+    // Saturate
+    EZ_TEST_INT(TestInstruction("output = saturate(a)", -1), 0);
+    EZ_TEST_INT(TestInstruction("output = saturate(a)", 2), 1);
+    EZ_TEST_FLOAT(TestInstruction("output = saturate(a)", -1.5f), 0.0f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestInstruction("output = saturate(a)", 2.5f), 1.0f, ezMath::DefaultEpsilon<float>());
 
-    if (dumpASTs)
+    EZ_TEST_INT(TestConstant<int>("output = saturate(-1)"), 0);
+    EZ_TEST_INT(TestConstant<int>("output = saturate(2)"), 1);
+    EZ_TEST_FLOAT(TestConstant<float>("output = saturate(-1.5)"), 0.0f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestConstant<float>("output = saturate(2.5)"), 1.0f, ezMath::DefaultEpsilon<float>());
+
+    // Sqrt
+    EZ_TEST_FLOAT(TestInstruction("output = sqrt(a)", 25.0f), 5.0f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestInstruction("output = sqrt(a)", 2.0f), ezMath::Sqrt(2.0f), ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestConstant<float>("output = sqrt(25)"), 5.0f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestConstant<float>("output = sqrt(2)"), ezMath::Sqrt(2.0f), ezMath::DefaultEpsilon<float>());
+
+    // Exp
+    EZ_TEST_FLOAT(TestInstruction("output = exp(a)", 0.0f), 1.0f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestInstruction("output = exp(a)", 2.0f), ezMath::Exp(2.0f), ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestConstant<float>("output = exp(0.0)"), 1.0f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestConstant<float>("output = exp(2.0)"), ezMath::Exp(2.0f), ezMath::DefaultEpsilon<float>());
+
+    // Ln
+    EZ_TEST_FLOAT(TestInstruction("output = ln(a)", 1.0f), 0.0f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestInstruction("output = ln(a)", 2.0f), ezMath::Ln(2.0f), ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestConstant<float>("output = ln(1.0)"), 0.0f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestConstant<float>("output = ln(2.0)"), ezMath::Ln(2.0f), ezMath::DefaultEpsilon<float>());
+
+    // Log2
+    EZ_TEST_INT(TestInstruction("output = log2(a)", 1), 0);
+    EZ_TEST_INT(TestInstruction("output = log2(a)", 8), 3);
+    EZ_TEST_FLOAT(TestInstruction("output = log2(a)", 1.0f), 0.0f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestInstruction("output = log2(a)", 4.0f), 2.0f, ezMath::DefaultEpsilon<float>());
+
+    EZ_TEST_INT(TestConstant<int>("output = log2(1)"), 0);
+    EZ_TEST_INT(TestConstant<int>("output = log2(16)"), 4);
+    EZ_TEST_FLOAT(TestConstant<float>("output = log2(1.0)"), 0.0f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestConstant<float>("output = log2(32.0)"), 5.0f, ezMath::DefaultEpsilon<float>());
+
+    // Log10
+    EZ_TEST_FLOAT(TestInstruction("output = log10(a)", 10.0f), 1.0f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestInstruction("output = log10(a)", 1000.0f), 3.0f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestConstant<float>("output = log10(10.0)"), 1.0f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestConstant<float>("output = log10(100.0)"), 2.0f, ezMath::DefaultEpsilon<float>());
+
+    // Pow2
+    EZ_TEST_INT(TestInstruction("output = pow2(a)", 0), 1);
+    EZ_TEST_INT(TestInstruction("output = pow2(a)", 3), 8);
+    EZ_TEST_FLOAT(TestInstruction("output = pow2(a)", 4.0f), 16.0f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestInstruction("output = pow2(a)", 6.0f), 64.0f, ezMath::DefaultEpsilon<float>());
+
+    EZ_TEST_INT(TestConstant<int>("output = pow2(0)"), 1);
+    EZ_TEST_INT(TestConstant<int>("output = pow2(3)"), 8);
+    EZ_TEST_FLOAT(TestConstant<float>("output = pow2(3.0)"), 8.0f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestConstant<float>("output = pow2(5.0)"), 32.0f, ezMath::DefaultEpsilon<float>());
+
+    // Sin
+    EZ_TEST_FLOAT(TestInstruction("output = sin(a)", ezAngle::Degree(90.0f).GetRadian()), 1.0f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestInstruction("output = sin(a)", ezAngle::Degree(45.0f).GetRadian()), ezMath::Sin(ezAngle::Degree(45.0f)), ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestConstant<float>("output = sin(PI / 2)"), 1.0f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestConstant<float>("output = sin(PI / 4)"), ezMath::Sin(ezAngle::Degree(45.0f)), ezMath::DefaultEpsilon<float>());
+
+    // Cos
+    EZ_TEST_FLOAT(TestInstruction("output = cos(a)", 0.0f), 1.0f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestInstruction("output = cos(a)", ezAngle::Degree(45.0f).GetRadian()), ezMath::Cos(ezAngle::Degree(45.0f)), ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestConstant<float>("output = cos(0)"), 1.0f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestConstant<float>("output = cos(PI / 4)"), ezMath::Cos(ezAngle::Degree(45.0f)), ezMath::DefaultEpsilon<float>());
+
+    // Tan
+    EZ_TEST_FLOAT(TestInstruction("output = tan(a)", 0.0f), 0.0f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestInstruction("output = tan(a)", ezAngle::Degree(45.0f).GetRadian()), 1.0f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestConstant<float>("output = tan(0)"), 0.0f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestConstant<float>("output = tan(PI / 4)"), 1.0f, ezMath::DefaultEpsilon<float>());
+
+    // ASin
+    EZ_TEST_FLOAT(TestInstruction("output = asin(a)", 1.0f), ezAngle::Degree(90.0f).GetRadian(), ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestInstruction("output = asin(a)", ezMath::Sin(ezAngle::Degree(45.0f))), ezAngle::Degree(45.0f).GetRadian(), ezMath::LargeEpsilon<float>());
+    EZ_TEST_FLOAT(TestConstant<float>("output = asin(1)"), ezAngle::Degree(90.0f).GetRadian(), ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestConstant<float>("output = asin(sin(PI / 4))"), ezAngle::Degree(45.0f).GetRadian(), ezMath::LargeEpsilon<float>());
+
+    // ACos
+    EZ_TEST_FLOAT(TestInstruction("output = acos(a)", 1.0f), 0.0f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestInstruction("output = acos(a)", ezMath::Cos(ezAngle::Degree(45.0f))), ezAngle::Degree(45.0f).GetRadian(), ezMath::LargeEpsilon<float>());
+    EZ_TEST_FLOAT(TestConstant<float>("output = acos(1)"), 0.0f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestConstant<float>("output = acos(cos(PI / 4))"), ezAngle::Degree(45.0f).GetRadian(), ezMath::LargeEpsilon<float>());
+
+    // ATan
+    EZ_TEST_FLOAT(TestInstruction("output = atan(a)", 0.0f), 0.0f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestInstruction("output = atan(a)", 1.0f), ezAngle::Degree(45.0f).GetRadian(), ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestConstant<float>("output = atan(0)"), 0.0f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestConstant<float>("output = atan(1)"), ezAngle::Degree(45.0f).GetRadian(), ezMath::DefaultEpsilon<float>());
+
+    // RadToDeg
+    EZ_TEST_FLOAT(TestInstruction("output = radToDeg(a)", ezAngle::Degree(135.0f).GetRadian()), 135.0f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestInstruction("output = rad_to_deg(a)", ezAngle::Degree(180.0f).GetRadian()), 180.0f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestConstant<float>("output = radToDeg(PI / 2)"), 90.0f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestConstant<float>("output = rad_to_deg(PI/4)"), 45.0f, ezMath::DefaultEpsilon<float>());
+
+    // DegToRad
+    EZ_TEST_FLOAT(TestInstruction("output = degToRad(a)", 135.0f), ezAngle::Degree(135.0f).GetRadian(), ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestInstruction("output = deg_to_rad(a)", 180.0f), ezAngle::Degree(180.0f).GetRadian(), ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestConstant<float>("output = degToRad(90.0)"), ezAngle ::Degree(90.0f).GetRadian(), ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestConstant<float>("output = deg_to_rad(45)"), ezAngle ::Degree(45.0f).GetRadian(), ezMath::DefaultEpsilon<float>());
+
+    // Round
+    EZ_TEST_FLOAT(TestInstruction("output = round(a)", 12.34f), 12, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestInstruction("output = round(a)", -12.34f), -12, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestInstruction("output = round(a)", 12.54f), 13, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestInstruction("output = round(a)", -12.54f), -13, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestConstant<float>("output = round(4.3)"), 4, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestConstant<float>("output = round(4.51)"), 5, ezMath::DefaultEpsilon<float>());
+
+    // Floor
+    EZ_TEST_FLOAT(TestInstruction("output = floor(a)", 12.34f), 12, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestInstruction("output = floor(a)", -12.34f), -13, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestInstruction("output = floor(a)", 12.54f), 12, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestInstruction("output = floor(a)", -12.54f), -13, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestConstant<float>("output = floor(4.3)"), 4, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestConstant<float>("output = floor(4.51)"), 4, ezMath::DefaultEpsilon<float>());
+
+    // Ceil
+    EZ_TEST_FLOAT(TestInstruction("output = ceil(a)", 12.34f), 13, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestInstruction("output = ceil(a)", -12.34f), -12, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestInstruction("output = ceil(a)", 12.54f), 13, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestInstruction("output = ceil(a)", -12.54f), -12, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestConstant<float>("output = ceil(4.3)"), 5, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestConstant<float>("output = ceil(4.51)"), 5, ezMath::DefaultEpsilon<float>());
+
+    // Trunc
+    EZ_TEST_FLOAT(TestInstruction("output = trunc(a)", 12.34f), 12, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestInstruction("output = trunc(a)", -12.34f), -12, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestInstruction("output = trunc(a)", 12.54f), 12, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestInstruction("output = trunc(a)", -12.54f), -12, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestConstant<float>("output = trunc(4.3)"), 4, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestConstant<float>("output = trunc(4.51)"), 4, ezMath::DefaultEpsilon<float>());
+
+    // Frac
+    EZ_TEST_FLOAT(TestInstruction("output = frac(a)", 12.34f), 0.34f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestInstruction("output = frac(a)", -12.34f), -0.34f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestInstruction("output = frac(a)", 12.54f), 0.54f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestInstruction("output = frac(a)", -12.54f), -0.54f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestConstant<float>("output = frac(4.3)"), 0.3f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestConstant<float>("output = frac(4.51)"), 0.51f, ezMath::DefaultEpsilon<float>());
+
+    // BitwiseNot
+    EZ_TEST_INT(TestInstruction("output = ~a", 1), ~1);
+    EZ_TEST_INT(TestInstruction("output = ~a", 8), ~8);
+    EZ_TEST_INT(TestConstant<int>("output = ~1"), ~1);
+    EZ_TEST_INT(TestConstant<int>("output = ~17"), ~17);
+
+    // LogicalNot
+    EZ_TEST_INT(TestInstruction("output = !(a == 1)", 1), 0);
+    EZ_TEST_INT(TestInstruction("output = !(a == 1)", 8), 1);
+    EZ_TEST_INT(TestConstant<int>("output = !(1 == 1)"), 0);
+    EZ_TEST_INT(TestConstant<int>("output = !(8 == 1)"), 1);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Binary instructions")
+  {
+    // Add
+    TestBinaryInstruction<int, int, LeftConstantOptimization>("+", 3, 5, 8);
+    TestBinaryInstruction<float, float, LeftConstantOptimization>("+", 3.5f, 5.3f, 8.8f);
+
+    // Subtract
+    TestBinaryInstruction<int, int, 0>("-", 9, 5, 4);
+    TestBinaryInstruction<float, float, 0>("-", 9.5f, 5.3f, 4.2f);
+
+    // Multiply
+    TestBinaryInstruction<int, int, LeftConstantOptimization>("*", 3, 5, 15);
+    TestBinaryInstruction<float, float, LeftConstantOptimization>("*", 3.5f, 5.3f, 18.55f);
+
+    // Divide
+    TestBinaryInstruction<int, int, 0>("/", 11, 5, 2);
+    TestBinaryInstruction<int, int, NoInstructionsCountCheck>("/", -11, 4, -2); // divide by power of 2 optimization
+    TestBinaryInstruction<int, int, 0>("/", 11, -4, -2);                        // divide by power of 2 optimization only works for positive divisors
+    TestBinaryInstruction<float, float, 0>("/", 12.6f, 3.0f, 4.2f);
+
+    // Modulo
+    TestBinaryInstruction<int, int, NoInstructionsCountCheck>("%", 13, 5, 3);
+    TestBinaryInstruction<int, int, NoInstructionsCountCheck>("%", -13, 5, -3);
+    TestBinaryInstruction<int, int, NoInstructionsCountCheck>("%", 13, 4, 1);
+    TestBinaryInstruction<int, int, NoInstructionsCountCheck>("%", -13, 4, -1);
+    TestBinaryInstruction<float, float, NoInstructionsCountCheck>("%", 13.5, 5.0, 3.5);
+    TestBinaryInstruction<float, float, NoInstructionsCountCheck>("mod(", -13.5, 5.0, -3.5);
+
+    // Log
+    TestBinaryInstruction<float, float, NoInstructionsCountCheck>("log(", 2.0f, 1024.0f, 10.0f);
+    TestBinaryInstruction<float, float, NoInstructionsCountCheck>("log(", 7.1f, 81.62f, ezMath::Log(7.1f, 81.62f));
+
+    // Pow
+    TestBinaryInstruction<int, int, NoInstructionsCountCheck>("pow(", 2, 5, 32);
+    TestBinaryInstruction<int, int, NoInstructionsCountCheck>("pow(", 3, 3, 27);
+
+    // Pow is replaced by multiplication for constant exponents up until 16.
+    // Test all of them to ensure the multiplication tables are correct.
+    for (int i = 0; i <= 16; ++i)
     {
-      DumpAST(ast, "ParserTest");
+      ezStringBuilder testCode;
+      testCode.Format("output = pow(a, {})", i);
+
+      ezExpressionByteCode testByteCode;
+      Compile<int>(testCode, testByteCode);
+      EZ_TEST_INT(Execute(testByteCode, 3), ezMath::Pow(3, i));
     }
 
-    EZ_TEST_BOOL(compiler.Compile(ast, out_ByteCode).Succeeded());
-
-    if (dumpASTs)
     {
-      DumpAST(ast, "ParserTest_Opt");
+      ezStringView testCode = "output = pow(a, 7)";
+      ezStringView referenceCode = "var a2 = a * a; var a3 = a2 * a; var a6 = a3 * a3; output = a6 * a";
+
+      ezExpressionByteCode testByteCode;
+      EZ_TEST_BOOL(CompareCode<int>(testCode, referenceCode, testByteCode));
+      EZ_TEST_INT(Execute(testByteCode, 3), 2187);
     }
-  };
 
-  auto Execute = [&](const ezExpressionByteCode& byteCode, float a = 0.0f, float b = 0.0f, float c = 0.0f, float d = 0.0f) {
-    ezProcessingStream inputs[] = {
-      ezProcessingStream(s_sA, ezMakeArrayPtr(&a, 1).ToByteArray(), ezProcessingStream::DataType::Float),
-      ezProcessingStream(s_sB, ezMakeArrayPtr(&b, 1).ToByteArray(), ezProcessingStream::DataType::Float),
-      ezProcessingStream(s_sC, ezMakeArrayPtr(&c, 1).ToByteArray(), ezProcessingStream::DataType::Float),
-      ezProcessingStream(s_sD, ezMakeArrayPtr(&d, 1).ToByteArray(), ezProcessingStream::DataType::Float),
-    };
+    TestBinaryInstruction<float, float, NoInstructionsCountCheck>("pow(", 2.0, 5.0, 32.0);
+    TestBinaryInstruction<float, float, NoInstructionsCountCheck>("pow(", 3.0f, 7.9f, ezMath::Pow(3.0f, 7.9f));
 
-    float fOutput = ezMath::NaN<float>();
-    ezProcessingStream outputs[] = {
-      ezProcessingStream(s_sOutput, ezMakeArrayPtr(&fOutput, 1).ToByteArray(), ezProcessingStream::DataType::Float),
-    };
+    {
+      ezStringView testCode = "output = pow(a, 15.0)";
+      ezStringView referenceCode = "var a2 = a * a; var a3 = a2 * a; var a6 = a3 * a3; var a12 = a6 * a6; output = a12 * a3";
 
-    EZ_TEST_BOOL(vm.Execute(byteCode, inputs, outputs, 1).Succeeded());
+      ezExpressionByteCode testByteCode;
+      EZ_TEST_BOOL(CompareCode<float>(testCode, referenceCode, testByteCode));
+      EZ_TEST_FLOAT(Execute(testByteCode, 2.1f), ezMath::Pow(2.1f, 15.0f), ezMath::DefaultEpsilon<float>());
+    }
 
-    return fOutput;
-  };
+    // Min
+    TestBinaryInstruction<int, int, LeftConstantOptimization>("min(", 11, 5, 5);
+    TestBinaryInstruction<float, float, LeftConstantOptimization>("min(", 12.6f, 3.0f, 3.0f);
+
+    // Max
+    TestBinaryInstruction<int, int, LeftConstantOptimization>("max(", 11, 5, 11);
+    TestBinaryInstruction<float, float, LeftConstantOptimization>("max(", 12.6f, 3.0f, 12.6f);
+
+    // BitshiftLeft
+    TestBinaryInstruction<int, int, 0>("<<", 11, 5, 11 << 5);
+
+    // BitshiftRight
+    TestBinaryInstruction<int, int, 0>(">>", 0xABCD, 8, 0xAB);
+
+    // BitwiseAnd
+    TestBinaryInstruction<int, int, LeftConstantOptimization>("&", 0xFFCD, 0xABFF, 0xABCD);
+
+    // BitwiseXor
+    TestBinaryInstruction<int, int, LeftConstantOptimization>("^", 0xFFCD, 0xABFF, 0xFFCD ^ 0xABFF);
+
+    // BitwiseOr
+    TestBinaryInstruction<int, int, LeftConstantOptimization>("|", 0x00CD, 0xAB00, 0xABCD);
+
+    // Equal
+    TestBinaryInstruction<bool, int, LeftConstantOptimization>("==", 11, 5, 0);
+    TestBinaryInstruction<bool, float, LeftConstantOptimization>("==", 12.6f, 3.0f, 0.0f);
+    TestBinaryInstruction<bool, bool, LeftConstantOptimization>("==", true, false, false);
+
+    // NotEqual
+    TestBinaryInstruction<bool, int, LeftConstantOptimization>("!=", 11, 5, 1);
+    TestBinaryInstruction<bool, float, LeftConstantOptimization>("!=", 12.6f, 3.0f, 1.0f);
+    TestBinaryInstruction<bool, bool, LeftConstantOptimization>("!=", true, false, true);
+
+    // Less
+    TestBinaryInstruction<bool, int, LeftConstantOptimization>("<", 11, 5, 0);
+    TestBinaryInstruction<bool, int, LeftConstantOptimization>("<", 11, 11, 0);
+    TestBinaryInstruction<bool, float, LeftConstantOptimization>("<", 12.6f, 3.0f, 0.0f);
+    TestBinaryInstruction<bool, float, LeftConstantOptimization>("<", 12.6f, 12.6f, 0.0f);
+
+    // LessEqual
+    TestBinaryInstruction<bool, int, LeftConstantOptimization>("<=", 11, 5, 0);
+    TestBinaryInstruction<bool, int, LeftConstantOptimization>("<=", 11, 11, 1);
+    TestBinaryInstruction<bool, float, LeftConstantOptimization>("<=", 12.6f, 3.0f, 0.0f);
+    TestBinaryInstruction<bool, float, LeftConstantOptimization>("<=", 12.6f, 12.6f, 1.0f);
+
+    // Greater
+    TestBinaryInstruction<bool, int, LeftConstantOptimization>(">", 11, 5, 1);
+    TestBinaryInstruction<bool, int, LeftConstantOptimization>(">", 11, 11, 0);
+    TestBinaryInstruction<bool, float, LeftConstantOptimization>(">", 12.6f, 3.0f, 1.0f);
+    TestBinaryInstruction<bool, float, LeftConstantOptimization>(">", 12.6f, 12.6f, 0.0f);
+
+    // GreaterEqual
+    TestBinaryInstruction<bool, int, LeftConstantOptimization>(">=", 11, 5, 1);
+    TestBinaryInstruction<bool, int, LeftConstantOptimization>(">=", 11, 11, 1);
+    TestBinaryInstruction<bool, float, LeftConstantOptimization>(">=", 12.6f, 3.0f, 1.0f);
+    TestBinaryInstruction<bool, float, LeftConstantOptimization>(">=", 12.6f, 12.6f, 1.0f);
+
+    // LogicalAnd
+    TestBinaryInstruction<bool, bool, LeftConstantOptimization | NoInstructionsCountCheck>("&&", true, false, false);
+    TestBinaryInstruction<bool, bool, LeftConstantOptimization>("&&", true, true, true);
+
+    // LogicalOr
+    TestBinaryInstruction<bool, bool, LeftConstantOptimization | NoInstructionsCountCheck>("||", true, false, true);
+    TestBinaryInstruction<bool, bool, LeftConstantOptimization>("||", false, false, false);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Ternary instructions")
+  {
+    // Clamp
+    EZ_TEST_INT(TestInstruction("output = clamp(a, b, c)", -1, 0, 10), 0);
+    EZ_TEST_INT(TestInstruction("output = clamp(a, b, c)", 2, 0, 10), 2);
+    EZ_TEST_FLOAT(TestInstruction("output = clamp(a, b, c)", -1.5f, 0.0f, 1.0f), 0.0f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestInstruction("output = clamp(a, b, c)", 2.5f, 0.0f, 1.0f), 1.0f, ezMath::DefaultEpsilon<float>());
+
+    EZ_TEST_INT(TestConstant<int>("output = clamp(-1, 0, 10)"), 0);
+    EZ_TEST_INT(TestConstant<int>("output = clamp(2, 0, 10)"), 2);
+    EZ_TEST_FLOAT(TestConstant<float>("output = clamp(-1.5, 0, 2)"), 0.0f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestConstant<float>("output = clamp(2.5, 0, 2)"), 2.0f, ezMath::DefaultEpsilon<float>());
+
+    // Select
+    EZ_TEST_INT(TestInstruction("output = (a == 1) ? b : c", 1, 2, 3), 2);
+    EZ_TEST_INT(TestInstruction("output = a != 1 ? b : c", 1, 2, 3), 3);
+    EZ_TEST_FLOAT(TestInstruction("output = (a == 1) ? b : c", 1.0f, 2.4f, 3.5f), 2.4f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestInstruction("output = a != 1 ? b : c", 1.0f, 2.4f, 3.5f), 3.5f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_INT(TestInstruction("output = (a == 1) ? (b > 2) : (c > 2)", 1, 2, 3), 0);
+    EZ_TEST_INT(TestInstruction("output = a != 1 ? b > 2 : c > 2", 1, 2, 3), 1);
+
+    EZ_TEST_INT(TestConstant<int>("output = (1 == 1) ? 2 : 3"), 2);
+    EZ_TEST_INT(TestConstant<int>("output = 1 != 1 ? 2 : 3"), 3);
+    EZ_TEST_FLOAT(TestConstant<float>("output = (1.0 == 1.0) ? 2.4 : 3.5"), 2.4f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestConstant<float>("output = 1.0 != 1.0 ? 2.4 : 3.5"), 3.5f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_INT(TestConstant<int>("output = (1 == 1) ? false : true"), 0);
+    EZ_TEST_INT(TestConstant<int>("output = 1 != 1 ? false : true"), 1);
+
+    // Lerp
+    EZ_TEST_FLOAT(TestInstruction("output = lerp(a, b, c)", 1.0f, 5.0f, 0.75f), 4.0f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestInstruction("output = lerp(a, b, c)", -1.0f, -11.0f, 0.1f), -2.0f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestConstant<float>("output = lerp(1, 5, 0.75)"), 4.0f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestConstant<float>("output = lerp(-1, -11, 0.1)"), -2.0f, ezMath::DefaultEpsilon<float>());
+  }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Local variables")
   {
     ezExpressionByteCode referenceByteCode;
     {
       ezStringView code = "output = (a + b) * 2";
-      Compile(code, referenceByteCode);
+      Compile<float>(code, referenceByteCode);
     }
 
     ezExpressionByteCode testByteCode;
 
     ezStringView code = "var e = a + b; output = e * 2";
-    Compile(code, testByteCode);
+    Compile<float>(code, testByteCode);
     EZ_TEST_BOOL(CompareByteCode(testByteCode, referenceByteCode));
 
     code = "var e = a + b; e = e * 2; output = e";
-    Compile(code, testByteCode);
+    Compile<float>(code, testByteCode);
     EZ_TEST_BOOL(CompareByteCode(testByteCode, referenceByteCode));
 
     code = "var e = a + b; e *= 2; output = e";
-    Compile(code, testByteCode);
+    Compile<float>(code, testByteCode);
     EZ_TEST_BOOL(CompareByteCode(testByteCode, referenceByteCode));
 
     code = "var e = a + b; var f = e; e = 2; output = f * e";
-    Compile(code, testByteCode);
+    Compile<float>(code, testByteCode);
     EZ_TEST_BOOL(CompareByteCode(testByteCode, referenceByteCode));
 
-    const float a = 2;
-    const float b = 3;
-    EZ_TEST_FLOAT(Execute(testByteCode, a, b), 10.0f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(Execute(testByteCode, 2.0f, 3.0f), 10.0f, ezMath::DefaultEpsilon<float>());
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Integer arithmetic")
+  {
+    ezExpressionByteCode testByteCode;
+
+    ezStringView code = "output = ((a & 0xFF) << 8) | (b & 0xFFFF >> 8)";
+    Compile<int>(code, testByteCode);
+
+    const int a = 0xABABABAB;
+    const int b = 0xCDCDCDCD;
+    EZ_TEST_INT(Execute(testByteCode, a, b), 0xABCD);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constant folding")
   {
-    ezExpressionByteCode referenceByteCode;
+    ezStringView testCode = "var x = abs(-7) + saturate(2) + 2\n"
+                            "var v = (sqrt(25) - 4) * 5\n"
+                            "var m = min(300, 1000) / max(1, 3);"
+                            "var r = m - x * 5 - v - clamp(13, 1, 3);\n"
+                            "output = r";
+
+    ezStringView referenceCode = "output = 42";
+
     {
-      ezStringView code = "output = 42";
-      Compile(code, referenceByteCode);
+      ezExpressionByteCode testByteCode;
+      EZ_TEST_BOOL(CompareCode<float>(testCode, referenceCode, testByteCode));
+
+      EZ_TEST_FLOAT(Execute<float>(testByteCode), 42.0f, ezMath::DefaultEpsilon<float>());
     }
 
-    ezExpressionByteCode testByteCode;
+    {
+      ezExpressionByteCode testByteCode;
+      EZ_TEST_BOOL(CompareCode<int>(testCode, referenceCode, testByteCode));
 
-    ezStringView code = "var x = abs(-7) + saturate(2) + 2\n"
-                        "var v = (sqrt(25) - 4) * 5\n"
-                        "var m = min(300, 1000) / max(1, 3);"
-                        "var r = m - x * 5 - v - clamp(13, 1, 3);\n"
-                        "output = r";
+      EZ_TEST_INT(Execute<int>(testByteCode), 42);
+    }
 
-    Compile(code, testByteCode);
-    EZ_TEST_BOOL(CompareByteCode(testByteCode, referenceByteCode));
-
-    EZ_TEST_FLOAT(Execute(testByteCode), 42.0f, ezMath::DefaultEpsilon<float>());
+    testCode = "";
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constant instructions")
@@ -190,22 +760,97 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Expression)
     // don't require an extra mov for the constant.
     // This test checks whether the compiler transforms operations with constants as second operands to the preferred form.
 
+    ezStringView testCode = "output = (2 + a) + (-1 + b) + (2 * c) + (d / 5) + min(1, c) + max(2, d)";
+
+    {
+      ezStringView referenceCode = "output = (a + 2) + (b + -1) + (c * 2) + (d * 0.2) + min(c, 1) + max(d, 2)";
+
+      ezExpressionByteCode testByteCode;
+      EZ_TEST_BOOL(CompareCode<float>(testCode, referenceCode, testByteCode));
+      EZ_TEST_INT(testByteCode.GetNumInstructions(), 16);
+      EZ_TEST_INT(testByteCode.GetNumTempRegisters(), 4);
+      EZ_TEST_FLOAT(Execute(testByteCode, 1.0f, 2.0f, 3.0f, 40.f), 59.0f, ezMath::DefaultEpsilon<float>());
+    }
+
+    {
+      ezStringView referenceCode = "output = (a + 2) + (b + -1) + (c * 2) + (d / 5) + min(c, 1) + max(d, 2)";
+
+      ezExpressionByteCode testByteCode;
+      EZ_TEST_BOOL(CompareCode<int>(testCode, referenceCode, testByteCode));
+      EZ_TEST_INT(testByteCode.GetNumInstructions(), 16);
+      EZ_TEST_INT(testByteCode.GetNumTempRegisters(), 4);
+      EZ_TEST_INT(Execute(testByteCode, 1, 2, 3, 40), 59);
+    }
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Integer and float conversions")
+  {
+    ezStringView testCode = "var x = 7; var y = 0.6\n"
+                            "var e = a * x * b * y\n"
+                            "int i = c * 2; i *= i; e += i\n"
+                            "output = e";
+
+    ezStringView referenceCode = "int i = (int(c) * 2); output = int((float(a * 7 * b) * 0.6) + float(i * i))";
+
+    ezExpressionByteCode testByteCode;
+    EZ_TEST_BOOL(CompareCode<int>(testCode, referenceCode, testByteCode));
+    EZ_TEST_INT(Execute(testByteCode, 1, 2, 3), 44);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Bool conversions")
+  {
+    ezStringView testCode = "var x = true\n"
+                            "bool y = a\n"
+                            "output = x == y";
+
+    {
+      ezStringView referenceCode = "bool r = true == (a != 0); output = r ? 1 : 0";
+
+      ezExpressionByteCode testByteCode;
+      EZ_TEST_BOOL(CompareCode<int>(testCode, referenceCode, testByteCode));
+      EZ_TEST_INT(Execute(testByteCode, 14), 1);
+    }
+
+    {
+      ezStringView referenceCode = "bool r = true == (a != 0); output = r ? 1.0 : 0.0";
+
+      ezExpressionByteCode testByteCode;
+      EZ_TEST_BOOL(CompareCode<float>(testCode, referenceCode, testByteCode));
+      EZ_TEST_FLOAT(Execute(testByteCode, 15.0f), 1.0f, ezMath::DefaultEpsilon<float>());
+    }
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Load Inputs/Store Outputs")
+  {
+    TestInputOutput<float>();
+    TestInputOutput<ezFloat16>();
+
+    TestInputOutput<int>();
+    TestInputOutput<ezInt16>();
+    TestInputOutput<ezInt8>();
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Function overloads")
+  {
+  }
+
+#if 0
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Scalarization")
+  {
+    // The VM does only support scalar data types.
+    // This test checks whether the compiler transforms everything correctly to scalar operation.
+
     ezExpressionByteCode referenceByteCode;
     {
-      ezStringView code = "output = (2 + a) + (-1 + b) + (2 * c) + (0.1 * d) + min(1, c) + max(2, d)";
-      Compile(code, referenceByteCode);
+      ezStringView code = "output = a * vec3(1, 2, 3) + b";
+      Compile<ezVec3>(code, referenceByteCode);
     }
 
     ezExpressionByteCode testByteCode;
 
-    ezStringView code = "output = (a + 2) + (b - 1) + (c * 2) + (d / 10) + min(c, 1) + max(d, 2)";
-    Compile(code, testByteCode);
+    ezStringView code = "output = a * vec3(1, 2, 3) + b";
+    Compile<ezVec3>(code, testByteCode);
     EZ_TEST_BOOL(CompareByteCode(testByteCode, referenceByteCode));
-
-    const float a = 1;
-    const float b = 2;
-    const float c = 3;
-    const float d = 40;
-    EZ_TEST_FLOAT(Execute(testByteCode, a, b, c, d), 55.0f, ezMath::DefaultEpsilon<float>());
   }
+#endif
 }

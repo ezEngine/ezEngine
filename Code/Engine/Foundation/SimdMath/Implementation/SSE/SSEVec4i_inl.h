@@ -43,6 +43,56 @@ EZ_ALWAYS_INLINE void ezSimdVec4i::SetZero()
   m_v = _mm_setzero_si128();
 }
 
+template <>
+EZ_ALWAYS_INLINE void ezSimdVec4i::Load<1>(const ezInt32* pInts)
+{
+  m_v = _mm_loadu_si32(pInts);
+}
+
+template <>
+EZ_ALWAYS_INLINE void ezSimdVec4i::Load<2>(const ezInt32* pInts)
+{
+  m_v = _mm_loadu_si64(pInts);
+}
+
+template <>
+EZ_ALWAYS_INLINE void ezSimdVec4i::Load<3>(const ezInt32* pInts)
+{
+  m_v = _mm_setr_epi32(pInts[0], pInts[1], pInts[2], 0);
+}
+
+template <>
+EZ_ALWAYS_INLINE void ezSimdVec4i::Load<4>(const ezInt32* pInts)
+{
+  m_v = _mm_loadu_si128(reinterpret_cast<const __m128i*>(pInts));
+}
+
+template <>
+EZ_ALWAYS_INLINE void ezSimdVec4i::Store<1>(ezInt32* pInts) const
+{
+  _mm_storeu_si32(pInts, m_v);
+}
+
+template <>
+EZ_ALWAYS_INLINE void ezSimdVec4i::Store<2>(ezInt32* pInts) const
+{
+  _mm_storeu_si64(pInts, m_v);
+}
+
+template <>
+EZ_ALWAYS_INLINE void ezSimdVec4i::Store<3>(ezInt32* pInts) const
+{
+  pInts[0] = m_v.m128i_i32[0];
+  pInts[1] = m_v.m128i_i32[1];
+  pInts[2] = m_v.m128i_i32[2];
+}
+
+template <>
+EZ_ALWAYS_INLINE void ezSimdVec4i::Store<4>(ezInt32* pInts) const
+{
+  _mm_storeu_si128(reinterpret_cast<__m128i*>(pInts), m_v);
+}
+
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4i::ToFloat() const
 {
   return _mm_cvtepi32_ps(m_v);
@@ -117,6 +167,11 @@ EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::CompMul(const ezSimdVec4i& v) const
 #endif
 }
 
+EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::CompDiv(const ezSimdVec4i& v) const
+{
+  return _mm_div_epi32(m_v, v.m_v);
+}
+
 EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::operator|(const ezSimdVec4i& v) const
 {
   return _mm_or_si128(m_v, v.m_v);
@@ -146,6 +201,26 @@ EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::operator<<(ezUInt32 uiShift) const
 EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::operator>>(ezUInt32 uiShift) const
 {
   return _mm_srai_epi32(m_v, uiShift);
+}
+
+EZ_FORCE_INLINE ezSimdVec4i ezSimdVec4i::operator<<(const ezSimdVec4i& v) const
+{
+  ezSimdVec4i r;
+  for (ezUInt32 i = 0; i < 4; ++i)
+  {
+    r.m_v.m128i_i32[i] = m_v.m128i_i32[i] << v.m_v.m128i_i32[i];
+  }
+  return r;
+}
+
+EZ_FORCE_INLINE ezSimdVec4i ezSimdVec4i::operator>>(const ezSimdVec4i& v) const
+{
+  ezSimdVec4i r;
+  for (ezUInt32 i = 0; i < 4; ++i)
+  {
+    r.m_v.m128i_i32[i] = m_v.m128i_i32[i] >> v.m_v.m128i_i32[i];
+  }
+  return r;
 }
 
 EZ_ALWAYS_INLINE ezSimdVec4i& ezSimdVec4i::operator+=(const ezSimdVec4i& v)
@@ -255,6 +330,16 @@ EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4i::operator>(const ezSimdVec4i& v) const
 EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::ZeroVector()
 {
   return _mm_setzero_si128();
+}
+
+// static
+EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::Select(const ezSimdVec4b& cmp, const ezSimdVec4i& ifTrue, const ezSimdVec4i& ifFalse)
+{
+#if EZ_SSE_LEVEL >= EZ_SSE_41
+  return _mm_castps_si128(_mm_blendv_ps(_mm_castsi128_ps(ifFalse.m_v), _mm_castsi128_ps(ifTrue.m_v), cmp.m_v));
+#else
+  return _mm_castps_si128(_mm_or_ps(_mm_andnot_ps(cmp.m_v, _mm_castsi128_ps(ifFalse.m_v)), _mm_and_ps(cmp.m_v, _mm_castsi128_ps(ifTrue.m_v))));
+#endif
 }
 
 // not needed atm

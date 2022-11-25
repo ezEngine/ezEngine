@@ -65,9 +65,8 @@ ezUInt32 ezVolumeCollection::ComputeSortingKey(float fSortOrder, float fMaxScale
   return uiSortingKey;
 }
 
-float ezVolumeCollection::EvaluateAtGlobalPosition(const ezVec3& vPosition, float fInitialValue, ezProcVolumeImageMode::Enum imgMode, const ezColor& refColor) const
+float ezVolumeCollection::EvaluateAtGlobalPosition(const ezSimdVec4f& vPosition, float fInitialValue, ezProcVolumeImageMode::Enum imgMode, const ezColor& refColor) const
 {
-  ezSimdVec4f globalPos = ezSimdConversion::ToVec3(vPosition);
   float fValue = fInitialValue;
 
   for (auto pShape : m_SortedShapes)
@@ -75,7 +74,7 @@ float ezVolumeCollection::EvaluateAtGlobalPosition(const ezVec3& vPosition, floa
     if (pShape->m_Type == ShapeType::Sphere)
     {
       auto& sphere = *static_cast<const Sphere*>(pShape);
-      const ezSimdVec4f localPos = sphere.GetGlobalToLocalTransform().TransformPosition(globalPos);
+      const ezSimdVec4f localPos = sphere.GetGlobalToLocalTransform().TransformPosition(vPosition);
       const float distSquared = localPos.GetLengthSquared<3>();
       if (distSquared <= 1.0f)
       {
@@ -87,7 +86,7 @@ float ezVolumeCollection::EvaluateAtGlobalPosition(const ezVec3& vPosition, floa
     else if (pShape->m_Type == ShapeType::Box)
     {
       auto& box = *static_cast<const Box*>(pShape);
-      const ezSimdVec4f absLocalPos = box.GetGlobalToLocalTransform().TransformPosition(globalPos).Abs();
+      const ezSimdVec4f absLocalPos = box.GetGlobalToLocalTransform().TransformPosition(vPosition).Abs();
       if ((absLocalPos <= ezSimdVec4f(1.0f)).AllSet<3>())
       {
         const float fNewValue = ApplyValue(box.m_BlendMode, fValue, box.m_fValue);
@@ -101,7 +100,7 @@ float ezVolumeCollection::EvaluateAtGlobalPosition(const ezVec3& vPosition, floa
     {
       auto& image = *static_cast<const Image*>(pShape);
 
-      const ezSimdVec4f localPos = image.GetGlobalToLocalTransform().TransformPosition(globalPos);
+      const ezSimdVec4f localPos = image.GetGlobalToLocalTransform().TransformPosition(vPosition);
       const ezSimdVec4f absLocalPos = localPos.Abs();
 
       if ((absLocalPos <= ezSimdVec4f(1.0f)).AllSet<3>() && image.m_pPixelData != nullptr)

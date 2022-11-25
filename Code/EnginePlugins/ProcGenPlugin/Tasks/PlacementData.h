@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Foundation/CodeUtils/Expression/ExpressionFunctions.h>
+#include <Foundation/CodeUtils/Expression/ExpressionDeclarations.h>
 #include <ProcGenPlugin/Declarations.h>
 
 class ezPhysicsWorldModuleInterface;

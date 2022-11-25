@@ -24,6 +24,12 @@ public:
 
   void SetZero(); // [tested]
 
+  template <int N>
+  void Load(const ezInt32* pInts); // [tested]
+
+  template <int N>
+  void Store(ezInt32* pInts) const; // [tested]
+
 public:
   explicit ezSimdVec4i(const ezSimdVec4u& u); // [tested]
 
@@ -50,6 +56,7 @@ public:
   ezSimdVec4i operator-(const ezSimdVec4i& v) const; // [tested]
 
   ezSimdVec4i CompMul(const ezSimdVec4i& v) const; // [tested]
+  ezSimdVec4i CompDiv(const ezSimdVec4i& v) const; // [tested]
 
   ezSimdVec4i operator|(const ezSimdVec4i& v) const; // [tested]
   ezSimdVec4i operator&(const ezSimdVec4i& v) const; // [tested]
@@ -58,6 +65,8 @@ public:
 
   ezSimdVec4i operator<<(ezUInt32 uiShift) const; // [tested]
   ezSimdVec4i operator>>(ezUInt32 uiShift) const; // [tested]
+  ezSimdVec4i operator<<(const ezSimdVec4i& v) const; // [tested]
+  ezSimdVec4i operator>>(const ezSimdVec4i& v) const; // [tested]
 
   ezSimdVec4i& operator+=(const ezSimdVec4i& v); // [tested]
   ezSimdVec4i& operator-=(const ezSimdVec4i& v); // [tested]
@@ -81,6 +90,8 @@ public:
   ezSimdVec4b operator>(const ezSimdVec4i& v) const;  // [tested]
 
   static ezSimdVec4i ZeroVector(); // [tested]
+
+  static ezSimdVec4i Select(const ezSimdVec4b& cmp, const ezSimdVec4i& ifTrue, const ezSimdVec4i& ifFalse); // [tested]
 
 public:
   ezInternal::QuadInt m_v;

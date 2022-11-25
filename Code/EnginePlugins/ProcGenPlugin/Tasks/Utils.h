@@ -1,13 +1,12 @@
 #pragma once
 
-#include <Foundation/CodeUtils/Expression/ExpressionFunctions.h>
+#include <Foundation/CodeUtils/Expression/ExpressionDeclarations.h>
 
 class ezVolumeCollection;
 
 struct EZ_PROCGENPLUGIN_DLL ezProcGenExpressionFunctions
 {
-  static void ApplyVolumes(ezExpression::Inputs inputs, ezExpression::Output output, const ezExpression::GlobalData& globalData);
-  static ezResult ApplyVolumesValidate(const ezExpression::GlobalData& globalData);
+  static ezExpressionFunction s_ApplyVolumesFunc;
 };
 
 namespace ezProcGenInternal

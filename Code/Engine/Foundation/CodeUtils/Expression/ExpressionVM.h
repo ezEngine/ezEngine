@@ -1,10 +1,6 @@
 #pragma once
 
-#include <Foundation/CodeUtils/Expression/ExpressionFunctions.h>
-#include <Foundation/Containers/DynamicArray.h>
-#include <Foundation/DataProcessing/Stream/ProcessingStream.h>
-
-class ezExpressionByteCode;
+#include <Foundation/CodeUtils/Expression/ExpressionByteCode.h>
 
 class EZ_FOUNDATION_DLL ezExpressionVM
 {
@@ -12,28 +8,23 @@ public:
   ezExpressionVM();
   ~ezExpressionVM();
 
-  void RegisterFunction(const char* szName, ezExpressionFunction func, ezExpressionValidateGlobalData validationFunc = ezExpressionValidateGlobalData());
-
-  void RegisterDefaultFunctions();
+  void RegisterFunction(const ezExpressionFunction& func);
 
   ezResult Execute(const ezExpressionByteCode& byteCode, ezArrayPtr<const ezProcessingStream> inputs, ezArrayPtr<ezProcessingStream> outputs, ezUInt32 uiNumInstances, const ezExpression::GlobalData& globalData = ezExpression::GlobalData());
 
 private:
-  void ValidateDataSize(const ezProcessingStream& stream, ezUInt32 uiNumInstances, const char* szDataName) const;
+  void RegisterDefaultFunctions();
 
-  ezDynamicArray<ezSimdVec4f, ezAlignedAllocatorWrapper> m_Registers;
+  template <typename StreamType>
+  ezResult MapStreams(ezArrayPtr<const ezExpression::StreamDesc> streamDescs, ezArrayPtr<StreamType> streams, const char* szStreamType, ezUInt32 uiNumInstances, ezDynamicArray<StreamType*>& out_MappedStreams);
+  ezResult MapFunctions(ezArrayPtr<const ezExpression::FunctionDesc> functionDescs, const ezExpression::GlobalData& globalData);
 
-  ezDynamicArray<ezUInt32> m_InputMapping;
-  ezDynamicArray<ezUInt32> m_OutputMapping;
-  ezDynamicArray<ezUInt32> m_FunctionMapping;
+  ezDynamicArray<ezExpression::Register, ezAlignedAllocatorWrapper> m_Registers;
 
-  struct FunctionInfo
-  {
-    ezHashedString m_sName;
-    ezExpressionFunction m_Func;
-    ezExpressionValidateGlobalData m_ValidationFunc;
-  };
+  ezDynamicArray<const ezProcessingStream*> m_MappedInputs;
+  ezDynamicArray<ezProcessingStream*> m_MappedOutputs;
+  ezDynamicArray<ezExpressionFunction*> m_MappedFunctions;
 
-  ezDynamicArray<FunctionInfo> m_Functions;
-  ezHashTable<ezHashedString, ezUInt32> m_FunctionNamesToIndex;
+  ezDynamicArray<ezExpressionFunction> m_Functions;
+  ezHashTable<ezHashedString, ezUInt32> m_FunctionNamesToIndex;  
 };

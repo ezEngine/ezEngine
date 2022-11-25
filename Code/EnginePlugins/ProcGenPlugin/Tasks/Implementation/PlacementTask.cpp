@@ -20,8 +20,7 @@ PlacementTask::PlacementTask(PlacementData* pData, const char* szName)
 {
   ConfigureTask(szName, ezTaskNesting::Maybe);
 
-  m_VM.RegisterDefaultFunctions();
-  m_VM.RegisterFunction("ApplyVolumes", &ezProcGenExpressionFunctions::ApplyVolumes, &ezProcGenExpressionFunctions::ApplyVolumesValidate);
+  m_VM.RegisterFunction(ezProcGenExpressionFunctions::s_ApplyVolumesFunc);
 }
 
 PlacementTask::~PlacementTask() = default;

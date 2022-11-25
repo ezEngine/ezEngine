@@ -500,11 +500,20 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4f)
       c = a.Abs();
       EZ_TEST_BOOL(c.x() == 3.4f && c.y() == 5.4f && c.z() == 7.6f && c.w() == 9.6f);
 
+      c = a.Round();
+      EZ_TEST_BOOL(c.x() == -3.0f && c.y() == 5.0f && c.z() == -8.0f && c.w() == 10.0f);
+
       c = a.Floor();
       EZ_TEST_BOOL(c.x() == -4.0f && c.y() == 5.0f && c.z() == -8.0f && c.w() == 9.0f);
 
       c = a.Ceil();
       EZ_TEST_BOOL(c.x() == -3.0f && c.y() == 6.0f && c.z() == -7.0f && c.w() == 10.0f);
+
+      c = a.Trunc();
+      EZ_TEST_BOOL(c.x() == -3.0f && c.y() == 5.0f && c.z() == -7.0f && c.w() == 9.0f);
+
+      c = a.Fraction();
+      EZ_TEST_BOOL(c.IsEqual(ezSimdVec4f(-0.4f, 0.4f, -0.6f, 0.6f), ezMath::SmallEpsilon<float>()).AllSet());
     }
 
     {

@@ -115,9 +115,13 @@ public:
 
   ezSimdVec4f CompMin(const ezSimdVec4f& rhs) const; // [tested]
   ezSimdVec4f CompMax(const ezSimdVec4f& rhs) const; // [tested]
-  ezSimdVec4f Abs() const;                           // [tested]
-  ezSimdVec4f Floor() const;                         // [tested]
-  ezSimdVec4f Ceil() const;                          // [tested]
+
+  ezSimdVec4f Abs() const;      // [tested]
+  ezSimdVec4f Round() const;    // [tested]
+  ezSimdVec4f Floor() const;    // [tested]
+  ezSimdVec4f Ceil() const;     // [tested]
+  ezSimdVec4f Trunc() const;    // [tested]
+  ezSimdVec4f Fraction() const; // [tested]
 
   ezSimdVec4f FlipSign(const ezSimdVec4b& cmp) const; // [tested]
 

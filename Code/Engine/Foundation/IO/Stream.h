@@ -6,6 +6,7 @@
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Containers/Set.h>
+#include <Foundation/Containers/SmallArray.h>
 #include <Foundation/Math/Math.h>
 #include <Foundation/Memory/EndianHelper.h>
 
@@ -47,6 +48,10 @@ public:
   /// \brief Reads an array of elements from the stream
   template <typename ArrayType, typename ValueType>
   ezResult ReadArray(ezArrayBase<ValueType, ArrayType>& Array); // [tested]
+
+  /// \brief Reads a small array of elements from the stream
+  template <typename ValueType, ezUInt16 uiSize, typename AllocatorWrapper>
+  ezResult ReadArray(ezSmallArray<ValueType, uiSize, AllocatorWrapper>& Array);
 
   /// \brief Writes a C style fixed array
   template <typename ValueType, ezUInt32 uiSize>
@@ -138,6 +143,10 @@ public:
   /// \brief Writes an array of elements to the stream
   template <typename ArrayType, typename ValueType>
   ezResult WriteArray(const ezArrayBase<ValueType, ArrayType>& Array); // [tested]
+
+  /// \brief Writes a small array of elements to the stream
+  template <typename ValueType, ezUInt16 uiSize>
+  ezResult WriteArray(const ezSmallArrayBase<ValueType, uiSize>& Array);
 
   /// \brief Writes a C style fixed array
   template <typename ValueType, ezUInt32 uiSize>

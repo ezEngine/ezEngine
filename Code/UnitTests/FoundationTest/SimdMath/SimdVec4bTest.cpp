@@ -88,7 +88,17 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4b)
     EZ_TEST_BOOL(!c.AllSet<4>());
     EZ_TEST_BOOL(c.NoneSet<4>());
 
+    c = a == b;
+    EZ_TEST_BOOL(!c.x() && !c.y() && c.z() && c.w());
+
+    c = a != b;
+    EZ_TEST_BOOL(c.x() && c.y() && !c.z() && !c.w());
+
     EZ_TEST_BOOL(a.AllSet<1>());
     EZ_TEST_BOOL(b.NoneSet<1>());
+
+    ezSimdVec4b cmp(false, true, false, true);
+    c = ezSimdVec4b::Select(cmp, a, b);
+    EZ_TEST_BOOL(!c.x() && !c.y() && c.z() && !c.w());
   }
 }

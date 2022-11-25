@@ -1,3 +1,4 @@
+#include "ExpressionParser.h"
 
 inline bool ezExpressionParser::AcceptStatementTerminator()
 {

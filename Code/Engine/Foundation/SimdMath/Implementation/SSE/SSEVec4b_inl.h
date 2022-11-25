@@ -75,6 +75,16 @@ EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4b::operator!() const
   return _mm_xor_ps(m_v, allTrue);
 }
 
+EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4b::operator==(const ezSimdVec4b& v) const
+{
+  return !(*this != v);
+}
+
+EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4b::operator!=(const ezSimdVec4b& v) const
+{
+  return _mm_xor_ps(m_v, v.m_v);
+}
+
 template <int N>
 EZ_ALWAYS_INLINE bool ezSimdVec4b::AllSet() const
 {
@@ -94,4 +104,14 @@ EZ_ALWAYS_INLINE bool ezSimdVec4b::NoneSet() const
 {
   const int mask = EZ_BIT(N) - 1;
   return (_mm_movemask_ps(m_v) & mask) == 0;
+}
+
+// static
+EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4b::Select(const ezSimdVec4b& cmp, const ezSimdVec4b& ifTrue, const ezSimdVec4b& ifFalse)
+{
+#if EZ_SSE_LEVEL >= EZ_SSE_41
+  return _mm_blendv_ps(ifFalse.m_v, ifTrue.m_v, cmp.m_v);
+#else
+  return _mm_or_ps(_mm_andnot_ps(cmp.m_v, ifFalse.m_v), _mm_and_ps(cmp.m_v, ifTrue.m_v));
+#endif
 }

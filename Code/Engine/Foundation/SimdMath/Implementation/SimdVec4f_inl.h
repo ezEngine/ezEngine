@@ -71,6 +71,11 @@ inline ezSimdFloat ezSimdVec4f::GetComponent(int i) const
   }
 }
 
+EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::Fraction() const
+{
+  return *this - Trunc();
+}
+
 // static
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::Lerp(const ezSimdVec4f& a, const ezSimdVec4f& b, const ezSimdVec4f& t)
 {

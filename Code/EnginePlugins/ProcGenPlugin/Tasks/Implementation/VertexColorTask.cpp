@@ -32,8 +32,7 @@ using namespace ezProcGenInternal;
 
 VertexColorTask::VertexColorTask()
 {
-  m_VM.RegisterDefaultFunctions();
-  m_VM.RegisterFunction("ApplyVolumes", &ezProcGenExpressionFunctions::ApplyVolumes, &ezProcGenExpressionFunctions::ApplyVolumesValidate);
+  m_VM.RegisterFunction(ezProcGenExpressionFunctions::s_ApplyVolumesFunc);
 }
 
 VertexColorTask::~VertexColorTask() = default;

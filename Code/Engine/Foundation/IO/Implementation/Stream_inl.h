@@ -223,7 +223,16 @@ ezResult ezStreamWriter::WriteArray(const ezArrayBase<ValueType, ArrayType>& Arr
   const ezUInt64 uiCount = Array.GetCount();
   EZ_SUCCEED_OR_RETURN(WriteQWordValue(&uiCount));
 
-  return ezStreamWriterUtil::SerializeArray<ValueType>(*this, Array.GetArrayPtr().GetPtr(), Array.GetCount());
+  return ezStreamWriterUtil::SerializeArray<ValueType>(*this, Array.GetData(), Array.GetCount());
+}
+
+template <typename ValueType, ezUInt16 uiSize>
+ezResult ezStreamWriter::WriteArray(const ezSmallArrayBase<ValueType, uiSize>& Array)
+{
+  const ezUInt32 uiCount = Array.GetCount();
+  EZ_SUCCEED_OR_RETURN(WriteDWordValue(&uiCount));
+
+  return ezStreamWriterUtil::SerializeArray<ValueType>(*this, Array.GetData(), Array.GetCount());
 }
 
 template <typename ValueType, ezUInt32 uiSize>
@@ -358,6 +367,32 @@ ezResult ezStreamReader::ReadArray(ezArrayBase<ValueType, ArrayType>& Array)
   else
   {
     // Containers currently use 32 bit for counts internally. Value from file is too large.
+    return EZ_FAILURE;
+  }
+}
+
+template <typename ValueType, ezUInt16 uiSize, typename AllocatorWrapper>
+ezResult ezStreamReader::ReadArray(ezSmallArray<ValueType, uiSize, AllocatorWrapper>& Array)
+{
+  ezUInt32 uiCount = 0;
+  EZ_SUCCEED_OR_RETURN(ReadDWordValue(&uiCount));
+
+  if (uiCount < ezMath::MaxValue<ezUInt16>())
+  {
+    Array.Clear();
+
+    if (uiCount > 0)
+    {
+      Array.SetCount(static_cast<ezUInt16>(uiCount));
+
+      EZ_SUCCEED_OR_RETURN(ezStreamReaderUtil::DeserializeArray<ValueType>(*this, Array.GetData(), uiCount));
+    }
+
+    return EZ_SUCCESS;
+  }
+  else
+  {
+    // Small array uses 16 bit for counts internally. Value from file is too large.
     return EZ_FAILURE;
   }
 }
