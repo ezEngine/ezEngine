@@ -37,14 +37,14 @@ public:
   static void SnapTranslation(ezVec3& value);
 
   /// \brief Inverts the rotation, applies that to the translation, snaps it and then transforms it back into the original space
-  static void SnapTranslationInLocalSpace(const ezQuat& rotation, ezVec3& translation);
+  static void SnapTranslationInLocalSpace(const ezQuat& qRotation, ezVec3& ref_vTranslation);
 
-  static void SnapRotation(ezAngle& rotation);
+  static void SnapRotation(ezAngle& ref_rotation);
 
-  static void SnapScale(float& scale);
-  static void SnapScale(ezVec3& scale);
+  static void SnapScale(float& ref_fScale);
+  static void SnapScale(ezVec3& ref_vScale);
 
-  static ezVec3 GetScaleSnapped(const ezVec3& scale);
+  static ezVec3 GetScaleSnapped(const ezVec3& vScale);
 
   static ezEvent<const ezSnapProviderEvent&> s_Events;
 

@@ -16,7 +16,7 @@ public:
 
   void SetIPC(ezEditorEngineConnection* pIPC);
   ezEditorEngineConnection* GetIPC();
-  virtual void ApplyOp(ezObjectChange& change) override;
+  virtual void ApplyOp(ezObjectChange& ref_change) override;
 
 private:
   void SendOp(ezObjectChange& change);

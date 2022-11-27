@@ -527,14 +527,14 @@ void ezSceneContext::UnregisterLayer(ezLayerContext* pLayer)
     m_Layers.PopBack();
 }
 
-void ezSceneContext::AddLayerIndexTag(const ezEntityMsgToEngine& msg, ezWorldRttiConverterContext& context, const ezTag& layerTag)
+void ezSceneContext::AddLayerIndexTag(const ezEntityMsgToEngine& msg, ezWorldRttiConverterContext& ref_context, const ezTag& layerTag)
 {
   if (msg.m_change.m_Change.m_Operation == ezObjectChangeType::NodeAdded)
   {
     if ((msg.m_change.m_Change.m_sProperty == "Children" || msg.m_change.m_Change.m_sProperty.IsEmpty()) && msg.m_change.m_Change.m_Value.IsA<ezUuid>())
     {
       const ezUuid& object = msg.m_change.m_Change.m_Value.Get<ezUuid>();
-      ezRttiConverterObject target = context.GetObjectByGUID(object);
+      ezRttiConverterObject target = ref_context.GetObjectByGUID(object);
       if (target.m_pType == ezGetStaticRTTI<ezGameObject>() && target.m_pObject != nullptr)
       {
         // We do postpone tagging until after the first frame so that prefab references are instantiated and affected as well.

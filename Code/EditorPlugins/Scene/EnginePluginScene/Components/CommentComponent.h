@@ -21,7 +21,7 @@ public:
   ezCommentComponent();
   ~ezCommentComponent();
 
-  void SetComment(const char* text);
+  void SetComment(const char* szText);
   const char* GetComment() const;
 
 private:
@@ -35,5 +35,5 @@ class EZ_ENGINEPLUGINSCENE_DLL ezSceneExportModifier_RemoveCommentComponents : p
   EZ_ADD_DYNAMIC_REFLECTION(ezSceneExportModifier_RemoveCommentComponents, ezSceneExportModifier);
 
 public:
-  virtual void ModifyWorld(ezWorld& world, const ezUuid& documentGuid, bool bForExport) override;
+  virtual void ModifyWorld(ezWorld& ref_world, const ezUuid& documentGuid, bool bForExport) override;
 };

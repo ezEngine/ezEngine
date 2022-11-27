@@ -21,12 +21,12 @@ const ezTag& ezTagRegistry::RegisterTag(ezStringView sTagString)
   return RegisterTag(TagString);
 }
 
-const ezTag& ezTagRegistry::RegisterTag(const ezHashedString& TagString)
+const ezTag& ezTagRegistry::RegisterTag(const ezHashedString& sTagString)
 {
   EZ_LOCK(m_TagRegistryMutex);
 
   // Early out if the tag is already registered
-  const ezTag* pResult = GetTagByName(TagString);
+  const ezTag* pResult = GetTagByName(sTagString);
 
   if (pResult != nullptr)
     return *pResult;
@@ -37,22 +37,22 @@ const ezTag& ezTagRegistry::RegisterTag(const ezHashedString& TagString)
   ezTag TempTag;
   TempTag.m_uiBlockIndex = uiNextTagIndex / (sizeof(ezTagSetBlockStorage) * 8);
   TempTag.m_uiBitIndex = uiNextTagIndex - (TempTag.m_uiBlockIndex * sizeof(ezTagSetBlockStorage) * 8);
-  TempTag.m_sTagString = TagString;
+  TempTag.m_sTagString = sTagString;
 
   // Store the tag
-  auto it = m_RegisteredTags.Insert(TagString, TempTag);
+  auto it = m_RegisteredTags.Insert(sTagString, TempTag);
 
   m_TagsByIndex.PushBack(&it.Value());
 
-  ezLog::Debug("Registered Tag '{0}'", TagString);
+  ezLog::Debug("Registered Tag '{0}'", sTagString);
   return *m_TagsByIndex.PeekBack();
 }
 
-const ezTag* ezTagRegistry::GetTagByName(const ezTempHashedString& TagString) const
+const ezTag* ezTagRegistry::GetTagByName(const ezTempHashedString& sTagString) const
 {
   EZ_LOCK(m_TagRegistryMutex);
 
-  auto It = m_RegisteredTags.Find(TagString);
+  auto It = m_RegisteredTags.Find(sTagString);
   if (It.IsValid())
   {
     return &It.Value();
@@ -88,12 +88,12 @@ ezUInt32 ezTagRegistry::GetNumTags() const
   return m_TagsByIndex.GetCount();
 }
 
-ezResult ezTagRegistry::Load(ezStreamReader& stream)
+ezResult ezTagRegistry::Load(ezStreamReader& inout_stream)
 {
   EZ_LOCK(m_TagRegistryMutex);
 
   ezUInt8 uiVersion = 0;
-  stream >> uiVersion;
+  inout_stream >> uiVersion;
 
   if (uiVersion != 1)
   {
@@ -102,7 +102,7 @@ ezResult ezTagRegistry::Load(ezStreamReader& stream)
   }
 
   ezUInt32 uiNumTags = 0;
-  stream >> uiNumTags;
+  inout_stream >> uiNumTags;
 
   if (uiNumTags > 16 * 1024)
   {
@@ -113,7 +113,7 @@ ezResult ezTagRegistry::Load(ezStreamReader& stream)
   ezStringBuilder temp;
   for (ezUInt32 i = 0; i < uiNumTags; ++i)
   {
-    stream >> temp;
+    inout_stream >> temp;
 
     RegisterTag(temp);
   }

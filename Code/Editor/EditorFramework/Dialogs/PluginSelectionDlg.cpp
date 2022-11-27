@@ -4,8 +4,8 @@
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/IO/OpenDdlWriter.h>
 
-ezQtPluginSelectionDlg::ezQtPluginSelectionDlg(ezPluginBundleSet* pPluginSet, QWidget* parent)
-  : QDialog(parent)
+ezQtPluginSelectionDlg::ezQtPluginSelectionDlg(ezPluginBundleSet* pPluginSet, QWidget* pParent)
+  : QDialog(pParent)
 {
   setupUi(this);
 

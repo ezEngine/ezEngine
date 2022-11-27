@@ -15,8 +15,8 @@ void CreateFileserveMainWindow(ezApplication* pApp)
   pMainWnd->show();
 }
 
-ezQtFileserveMainWnd::ezQtFileserveMainWnd(ezApplication* pApp, QWidget* parent)
-  : QMainWindow(parent)
+ezQtFileserveMainWnd::ezQtFileserveMainWnd(ezApplication* pApp, QWidget* pParent)
+  : QMainWindow(pParent)
   , m_pApp(pApp)
 {
   OnServerStopped();

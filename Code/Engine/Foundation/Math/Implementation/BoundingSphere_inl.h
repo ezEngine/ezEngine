@@ -339,7 +339,7 @@ Type ezBoundingSphereTemplate<Type>::GetDistanceTo(
 
 template <typename Type>
 bool ezBoundingSphereTemplate<Type>::GetRayIntersection(const ezVec3Template<Type>& vRayStartPos, const ezVec3Template<Type>& vRayDirNormalized,
-  Type* out_fIntersection /* = nullptr */, ezVec3Template<Type>* out_vIntersection /* = nullptr */) const
+  Type* out_pIntersectionDistance /* = nullptr */, ezVec3Template<Type>* out_pIntersection /* = nullptr */) const
 {
   EZ_ASSERT_DEBUG(vRayDirNormalized.IsNormalized(), "The ray direction must be normalized.");
 
@@ -368,17 +368,17 @@ bool ezBoundingSphereTemplate<Type>::GetRayIntersection(const ezVec3Template<Typ
   else
     fIntersectionTime = d + q;
 
-  if (out_fIntersection)
-    *out_fIntersection = fIntersectionTime;
-  if (out_vIntersection)
-    *out_vIntersection = vRayStartPos + vRayDirNormalized * fIntersectionTime;
+  if (out_pIntersectionDistance)
+    *out_pIntersectionDistance = fIntersectionTime;
+  if (out_pIntersection)
+    *out_pIntersection = vRayStartPos + vRayDirNormalized * fIntersectionTime;
 
   return true;
 }
 
 template <typename Type>
 bool ezBoundingSphereTemplate<Type>::GetLineSegmentIntersection(const ezVec3Template<Type>& vLineStartPos, const ezVec3Template<Type>& vLineEndPos,
-  Type* out_fHitFraction /* = nullptr */, ezVec3Template<Type>* out_vIntersection /* = nullptr */) const
+  Type* out_pHitFraction /* = nullptr */, ezVec3Template<Type>* out_pIntersection /* = nullptr */) const
 {
   Type fIntersection = 0.0f;
 
@@ -392,11 +392,11 @@ bool ezBoundingSphereTemplate<Type>::GetLineSegmentIntersection(const ezVec3Temp
   if (fIntersection > fLen)
     return false;
 
-  if (out_fHitFraction)
-    *out_fHitFraction = fIntersection / fLen;
+  if (out_pHitFraction)
+    *out_pHitFraction = fIntersection / fLen;
 
-  if (out_vIntersection)
-    *out_vIntersection = vLineStartPos + vDirNorm * fIntersection;
+  if (out_pIntersection)
+    *out_pIntersection = vLineStartPos + vDirNorm * fIntersection;
 
   return true;
 }

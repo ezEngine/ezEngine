@@ -60,7 +60,7 @@ public:
   void SetCount(ezUInt16 uiCount, ezAllocatorBase* pAllocator); // [tested]
 
   /// \brief Resizes the array to have exactly uiCount elements. Constructs all new elements by copying the FillValue.
-  void SetCount(ezUInt16 uiCount, const T& FillValue, ezAllocatorBase* pAllocator); // [tested]
+  void SetCount(ezUInt16 uiCount, const T& fillValue, ezAllocatorBase* pAllocator); // [tested]
 
   /// \brief Resizes the array to have exactly uiCount elements. Extra elements might be uninitialized.
   template <typename = void>                                                 // Template is used to only conditionally compile this function in when it is actually used.
@@ -234,7 +234,7 @@ public:
   void operator=(ezSmallArray<T, Size, AllocatorWrapper>&& rhs) noexcept;
 
   void SetCount(ezUInt16 uiCount);                     // [tested]
-  void SetCount(ezUInt16 uiCount, const T& FillValue); // [tested]
+  void SetCount(ezUInt16 uiCount, const T& fillValue); // [tested]
   void EnsureCount(ezUInt16 uiCount);                  // [tested]
 
   template <typename = void>

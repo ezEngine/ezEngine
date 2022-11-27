@@ -34,20 +34,20 @@ EZ_END_COMPONENT_TYPE
 ezAnimationControllerComponent::ezAnimationControllerComponent() = default;
 ezAnimationControllerComponent::~ezAnimationControllerComponent() = default;
 
-void ezAnimationControllerComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezAnimationControllerComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
-  auto& s = stream.GetStream();
+  SUPER::SerializeComponent(inout_stream);
+  auto& s = inout_stream.GetStream();
 
   s << m_hAnimationController;
   s << m_RootMotionMode;
 }
 
-void ezAnimationControllerComponent::DeserializeComponent(ezWorldReader& stream)
+void ezAnimationControllerComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  auto& s = stream.GetStream();
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  auto& s = inout_stream.GetStream();
 
   s >> m_hAnimationController;
   s >> m_RootMotionMode;

@@ -18,19 +18,19 @@ public:
 
   void Clear();
 
-  void StoreBool(const ezTempHashedString& name, bool value);
-  void StoreInteger(const ezTempHashedString& name, ezInt64 value);
-  void StoreDouble(const ezTempHashedString& name, double value);
-  void StoreVec3(const ezTempHashedString& name, const ezVec3& value);
-  void StoreColor(const ezTempHashedString& name, const ezColor& value);
-  void StoreString(const ezTempHashedString& name, const ezString& value);
+  void StoreBool(const ezTempHashedString& sName, bool value);
+  void StoreInteger(const ezTempHashedString& sName, ezInt64 value);
+  void StoreDouble(const ezTempHashedString& sName, double value);
+  void StoreVec3(const ezTempHashedString& sName, const ezVec3& value);
+  void StoreColor(const ezTempHashedString& sName, const ezColor& value);
+  void StoreString(const ezTempHashedString& sName, const ezString& value);
 
-  void RetrieveBool(const ezTempHashedString& name, bool& out_Value, bool defaultValue = false);
-  void RetrieveInteger(const ezTempHashedString& name, ezInt64& out_Value, ezInt64 defaultValue = 0);
-  void RetrieveDouble(const ezTempHashedString& name, double& out_Value, double defaultValue = 0);
-  void RetrieveVec3(const ezTempHashedString& name, ezVec3& out_Value, ezVec3 defaultValue = ezVec3(0));
-  void RetrieveColor(const ezTempHashedString& name, ezColor& out_Value, ezColor defaultValue = ezColor::White);
-  void RetrieveString(const ezTempHashedString& name, ezString& out_Value, const char* defaultValue = nullptr);
+  void RetrieveBool(const ezTempHashedString& sName, bool& out_bValue, bool bDefaultValue = false);
+  void RetrieveInteger(const ezTempHashedString& sName, ezInt64& out_iValue, ezInt64 iDefaultValue = 0);
+  void RetrieveDouble(const ezTempHashedString& sName, double& out_fValue, double fDefaultValue = 0);
+  void RetrieveVec3(const ezTempHashedString& sName, ezVec3& out_vValue, ezVec3 vDefaultValue = ezVec3(0));
+  void RetrieveColor(const ezTempHashedString& sName, ezColor& out_value, ezColor defaultValue = ezColor::White);
+  void RetrieveString(const ezTempHashedString& sName, ezString& out_sValue, const char* szDefaultValue = nullptr);
 
 private:
   ezHashTable<ezTempHashedString, bool> m_Bools;

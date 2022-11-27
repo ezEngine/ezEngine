@@ -50,29 +50,29 @@ enum class InitializerRandomRotationVersion
   Version_Current = Version_Count - 1
 };
 
-void ezParticleInitializerFactory_RandomRotationSpeed::Save(ezStreamWriter& stream) const
+void ezParticleInitializerFactory_RandomRotationSpeed::Save(ezStreamWriter& inout_stream) const
 {
   const ezUInt8 uiVersion = (int)InitializerRandomRotationVersion::Version_Current;
-  stream << uiVersion;
+  inout_stream << uiVersion;
 
-  stream << m_RotationSpeed.m_Value;
-  stream << m_RotationSpeed.m_fVariance;
+  inout_stream << m_RotationSpeed.m_Value;
+  inout_stream << m_RotationSpeed.m_fVariance;
 
   // Version 2
-  stream << m_bRandomStartAngle;
+  inout_stream << m_bRandomStartAngle;
 }
 
-void ezParticleInitializerFactory_RandomRotationSpeed::Load(ezStreamReader& stream)
+void ezParticleInitializerFactory_RandomRotationSpeed::Load(ezStreamReader& inout_stream)
 {
   ezUInt8 uiVersion = 0;
-  stream >> uiVersion;
+  inout_stream >> uiVersion;
 
-  stream >> m_RotationSpeed.m_Value;
-  stream >> m_RotationSpeed.m_fVariance;
+  inout_stream >> m_RotationSpeed.m_Value;
+  inout_stream >> m_RotationSpeed.m_fVariance;
 
   if (uiVersion >= 2)
   {
-    stream >> m_bRandomStartAngle;
+    inout_stream >> m_bRandomStartAngle;
   }
 }
 
@@ -143,7 +143,7 @@ public:
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
     pNode->InlineProperty("DegreesPerSecond").IgnoreResult();
   }

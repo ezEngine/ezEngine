@@ -22,7 +22,7 @@ public:
   ///@{
 
   /// \brief Enables support for loading modules via the 'require' function
-  void EnableModuleSupport(duk_c_function pModuleSearchFunction);
+  void EnableModuleSupport(duk_c_function moduleSearchFunction);
 
   ///@}
 

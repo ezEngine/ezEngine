@@ -117,7 +117,7 @@ public:
   virtual ~ezDataDirectoryReaderWriterBase() = default;
 
   /// \brief Used by ezDataDirectoryType's to try to open the given file. They need to pass along their own pointer.
-  ezResult Open(ezStringView sFile, ezDataDirectoryType* pOwnerDataDirectory, ezFileShareMode::Enum FileShareMode);
+  ezResult Open(ezStringView sFile, ezDataDirectoryType* pOwnerDataDirectory, ezFileShareMode::Enum fileShareMode);
 
   /// \brief Closes this data stream.
   void Close();

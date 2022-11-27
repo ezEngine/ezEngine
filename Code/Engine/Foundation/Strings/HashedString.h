@@ -74,16 +74,16 @@ public:
   /// If you need to create an object to compare ezHashedString objects against, prefer to use ezTempHashedString. It will only compute
   /// the strings hash value, but does not require any thread synchronization.
   template <size_t N>
-  void Assign(const char (&szString)[N]); // [tested]
+  void Assign(const char (&string)[N]); // [tested]
 
   template <size_t N>
-  void Assign(char (&szString)[N]) = delete;
+  void Assign(char (&string)[N]) = delete;
 
   /// \brief Assigning a new string from a non-hashed string is a very slow operation, this should be used rarely.
   ///
   /// If you need to create an object to compare ezHashedString objects against, prefer to use ezTempHashedString. It will only compute
   /// the strings hash value, but does not require any thread synchronization.
-  void Assign(ezStringView szString); // [tested]
+  void Assign(ezStringView sString); // [tested]
 
   /// \brief Comparing whether two hashed strings are identical is just a pointer comparison. This operation is what ezHashedString is
   /// optimized for.
@@ -141,7 +141,7 @@ private:
 
 /// \brief Helper function to create an ezHashedString. This can be used to initialize static hashed string variables.
 template <size_t N>
-ezHashedString ezMakeHashedString(const char (&szString)[N]);
+ezHashedString ezMakeHashedString(const char (&string)[N]);
 
 
 /// \brief A class to use together with ezHashedString for quick comparisons with temporary strings that need not be stored further.
@@ -158,14 +158,14 @@ public:
 
   /// \brief Creates an ezTempHashedString object from the given string constant. The hash can be computed at compile time.
   template <size_t N>
-  ezTempHashedString(const char (&szString)[N]); // [tested]
+  ezTempHashedString(const char (&string)[N]); // [tested]
 
   template <size_t N>
-  ezTempHashedString(char (&szString)[N]) = delete;
+  ezTempHashedString(char (&string)[N]) = delete;
 
   /// \brief Creates an ezTempHashedString object from the given string. Computes the hash of the given string during runtime, which might
   /// be slow.
-  ezTempHashedString(ezStringView szString); // [tested]
+  ezTempHashedString(ezStringView sString); // [tested]
 
   /// \brief Copies the hash from rhs.
   ezTempHashedString(const ezTempHashedString& rhs); // [tested]
@@ -180,10 +180,10 @@ public:
 
   /// \brief The hash of the given string can be computed at compile time.
   template <size_t N>
-  void operator=(const char (&szString)[N]); // [tested]
+  void operator=(const char (&string)[N]); // [tested]
 
   /// \brief Computes and stores the hash of the given string during runtime, which might be slow.
-  void operator=(ezStringView szString); // [tested]
+  void operator=(ezStringView sString); // [tested]
 
   /// \brief Copies the hash from rhs.
   void operator=(const ezTempHashedString& rhs); // [tested]
@@ -214,6 +214,6 @@ private:
 };
 
 // For ezFormatString
-EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezHashedString& arg);
+EZ_FOUNDATION_DLL ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezHashedString& sArg);
 
 #include <Foundation/Strings/Implementation/HashedString_inl.h>

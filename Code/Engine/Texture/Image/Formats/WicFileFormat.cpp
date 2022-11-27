@@ -76,25 +76,25 @@ ezResult ezWicFileFormat::ReadFileData(ezStreamReader& stream, ezDynamicArray<ez
   return EZ_SUCCESS;
 }
 
-static void SetHeader(ezImageHeader& header, ezImageFormat::Enum imageFormat, const TexMetadata& metadata)
+static void SetHeader(ezImageHeader& ref_header, ezImageFormat::Enum imageFormat, const TexMetadata& metadata)
 {
-  header.SetImageFormat(imageFormat);
+  ref_header.SetImageFormat(imageFormat);
 
-  header.SetWidth(ezUInt32(metadata.width));
-  header.SetHeight(ezUInt32(metadata.height));
-  header.SetDepth(ezUInt32(metadata.depth));
+  ref_header.SetWidth(ezUInt32(metadata.width));
+  ref_header.SetHeight(ezUInt32(metadata.height));
+  ref_header.SetDepth(ezUInt32(metadata.depth));
 
-  header.SetNumMipLevels(1);
-  header.SetNumArrayIndices(ezUInt32(metadata.IsCubemap() ? (metadata.arraySize / 6) : metadata.arraySize));
-  header.SetNumFaces(metadata.IsCubemap() ? 6 : 1);
+  ref_header.SetNumMipLevels(1);
+  ref_header.SetNumArrayIndices(ezUInt32(metadata.IsCubemap() ? (metadata.arraySize / 6) : metadata.arraySize));
+  ref_header.SetNumFaces(metadata.IsCubemap() ? 6 : 1);
 }
 
-ezResult ezWicFileFormat::ReadImageHeader(ezStreamReader& stream, ezImageHeader& header, const char* szFileExtension) const
+ezResult ezWicFileFormat::ReadImageHeader(ezStreamReader& inout_stream, ezImageHeader& ref_header, const char* szFileExtension) const
 {
   EZ_PROFILE_SCOPE("ezWicFileFormat::ReadImageHeader");
 
   ezDynamicArray<ezUInt8> storage;
-  EZ_SUCCEED_OR_RETURN(ReadFileData(stream, storage));
+  EZ_SUCCEED_OR_RETURN(ReadFileData(inout_stream, storage));
 
   TexMetadata metadata;
   ScratchImage scratchImage;
@@ -123,17 +123,17 @@ ezResult ezWicFileFormat::ReadImageHeader(ezStreamReader& stream, ezImageHeader&
     return EZ_FAILURE;
   }
 
-  SetHeader(header, imageFormat, metadata);
+  SetHeader(ref_header, imageFormat, metadata);
 
   return EZ_SUCCESS;
 }
 
-ezResult ezWicFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, const char* szFileExtension) const
+ezResult ezWicFileFormat::ReadImage(ezStreamReader& inout_stream, ezImage& ref_image, const char* szFileExtension) const
 {
   EZ_PROFILE_SCOPE("ezWicFileFormat::ReadImage");
 
   ezDynamicArray<ezUInt8> storage;
-  EZ_SUCCEED_OR_RETURN(ReadFileData(stream, storage));
+  EZ_SUCCEED_OR_RETURN(ReadFileData(inout_stream, storage));
 
   TexMetadata metadata;
   ScratchImage scratchImage;
@@ -170,7 +170,7 @@ ezResult ezWicFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, cons
   ezImageHeader imageHeader;
   SetHeader(imageHeader, imageFormat, metadata);
 
-  image.ResetAndAlloc(imageHeader);
+  ref_image.ResetAndAlloc(imageHeader);
 
   // Read image data into destination image
   ezUInt64 destRowPitch = imageHeader.GetRowPitch();
@@ -182,7 +182,7 @@ ezResult ezWicFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, cons
       for (ezUInt32 sliceIdx = 0; sliceIdx < imageHeader.GetDepth(); ++sliceIdx)
       {
         const Image* sourceImage = scratchImage.GetImage(0, itemIdx, sliceIdx);
-        ezUInt8* destPixels = image.GetPixelPointer<ezUInt8>(0, faceIdx, arrayIdx, 0, 0, sliceIdx);
+        ezUInt8* destPixels = ref_image.GetPixelPointer<ezUInt8>(0, faceIdx, arrayIdx, 0, 0, sliceIdx);
 
         if (sourceImage && destPixels && sourceImage->pixels)
         {
@@ -212,7 +212,7 @@ ezResult ezWicFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, cons
   return EZ_SUCCESS;
 }
 
-ezResult ezWicFileFormat::WriteImage(ezStreamWriter& stream, const ezImageView& image, const char* szFileExtension) const
+ezResult ezWicFileFormat::WriteImage(ezStreamWriter& inout_stream, const ezImageView& image, const char* szFileExtension) const
 {
   if (m_bTryCoInit)
   {
@@ -253,7 +253,7 @@ ezResult ezWicFileFormat::WriteImage(ezStreamWriter& stream, const ezImageView& 
       return EZ_FAILURE;
     }
 
-    return WriteImage(stream, convertedImage, szFileExtension);
+    return WriteImage(inout_stream, convertedImage, szFileExtension);
   }
 
   // Store ezImage data in DirectXTex images
@@ -289,7 +289,7 @@ ezResult ezWicFileFormat::WriteImage(ezStreamWriter& stream, const ezImageView& 
     }
 
     // Push blob into output stream
-    if (stream.WriteBytes(targetBlob.GetBufferPointer(), targetBlob.GetBufferSize()) != EZ_SUCCESS)
+    if (inout_stream.WriteBytes(targetBlob.GetBufferPointer(), targetBlob.GetBufferSize()) != EZ_SUCCESS)
     {
       ezLog::Error("Failed to write image data!");
       return EZ_FAILURE;

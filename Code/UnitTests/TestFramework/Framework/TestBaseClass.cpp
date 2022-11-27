@@ -15,34 +15,34 @@ const char* ezTestBaseClass::GetSubTestName(ezInt32 iIdentifier) const
   return m_Entries[iIdentifier].m_szName;
 }
 
-void ezTestBaseClass::UpdateConfiguration(ezTestConfiguration& config) const
+void ezTestBaseClass::UpdateConfiguration(ezTestConfiguration& ref_config) const
 {
   // If the configuration hasn't been set yet this is the first instance of ezTestBaseClass being called
   // to fill in the configuration and we thus have to do so.
   // Derived classes can have more information (e.g.GPU info) and there is no way to know which instance
   // of ezTestBaseClass may have additional information so we ask all of them and each one early outs
   // if the information it knows about is already present.
-  if (config.m_uiInstalledMainMemory == 0)
+  if (ref_config.m_uiInstalledMainMemory == 0)
   {
     const ezSystemInformation& pSysInfo = ezSystemInformation::Get();
-    config.m_uiInstalledMainMemory = pSysInfo.GetInstalledMainMemory();
-    config.m_uiMemoryPageSize = pSysInfo.GetMemoryPageSize();
-    config.m_uiCPUCoreCount = pSysInfo.GetCPUCoreCount();
-    config.m_sPlatformName = pSysInfo.GetPlatformName();
-    config.m_b64BitOS = pSysInfo.Is64BitOS();
-    config.m_b64BitApplication = EZ_ENABLED(EZ_PLATFORM_64BIT);
-    config.m_sBuildConfiguration = pSysInfo.GetBuildConfiguration();
-    config.m_iDateTime = ezTimestamp::CurrentTimestamp().GetInt64(ezSIUnitOfTime::Second);
-    config.m_iRCSRevision = ezTestFramework::GetInstance()->GetSettings().m_iRevision;
-    config.m_sHostName = pSysInfo.GetHostName();
+    ref_config.m_uiInstalledMainMemory = pSysInfo.GetInstalledMainMemory();
+    ref_config.m_uiMemoryPageSize = pSysInfo.GetMemoryPageSize();
+    ref_config.m_uiCPUCoreCount = pSysInfo.GetCPUCoreCount();
+    ref_config.m_sPlatformName = pSysInfo.GetPlatformName();
+    ref_config.m_b64BitOS = pSysInfo.Is64BitOS();
+    ref_config.m_b64BitApplication = EZ_ENABLED(EZ_PLATFORM_64BIT);
+    ref_config.m_sBuildConfiguration = pSysInfo.GetBuildConfiguration();
+    ref_config.m_iDateTime = ezTimestamp::CurrentTimestamp().GetInt64(ezSIUnitOfTime::Second);
+    ref_config.m_iRCSRevision = ezTestFramework::GetInstance()->GetSettings().m_iRevision;
+    ref_config.m_sHostName = pSysInfo.GetHostName();
   }
 }
 
 void ezTestBaseClass::MapImageNumberToString(
-  const char* szTestName, const char* szSubTestName, ezUInt32 uiImageNumber, ezStringBuilder& out_String) const
+  const char* szTestName, const char* szSubTestName, ezUInt32 uiImageNumber, ezStringBuilder& out_sString) const
 {
-  out_String.Format("{0}_{1}_{2}", szTestName, szSubTestName, ezArgI(uiImageNumber, 3, true));
-  out_String.ReplaceAll(" ", "_");
+  out_sString.Format("{0}_{1}_{2}", szTestName, szSubTestName, ezArgI(uiImageNumber, 3, true));
+  out_sString.ReplaceAll(" ", "_");
 }
 
 void ezTestBaseClass::ClearSubTests()

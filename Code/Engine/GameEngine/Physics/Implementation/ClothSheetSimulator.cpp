@@ -3,9 +3,9 @@
 #include <Foundation/SimdMath/SimdConversion.h>
 #include <GameEngine/Physics/ClothSheetSimulator.h>
 
-void ezClothSimulator::SimulateCloth(const ezTime& tDiff)
+void ezClothSimulator::SimulateCloth(const ezTime& diff)
 {
-  m_LeftOverTimeStep += tDiff;
+  m_LeftOverTimeStep += diff;
 
   constexpr ezTime tStep = ezTime::Seconds(1.0 / 60.0);
   const ezSimdFloat tStepSqr = static_cast<float>(tStep.GetSeconds() * tStep.GetSeconds());
@@ -18,12 +18,12 @@ void ezClothSimulator::SimulateCloth(const ezTime& tDiff)
   }
 }
 
-void ezClothSimulator::SimulateStep(const ezSimdFloat tDiffSqr, ezUInt32 uiMaxIterations, ezSimdFloat fAllowedError)
+void ezClothSimulator::SimulateStep(const ezSimdFloat fDiffSqr, ezUInt32 uiMaxIterations, ezSimdFloat fAllowedError)
 {
   if (m_Nodes.GetCount() < 4)
     return;
 
-  UpdateNodePositions(tDiffSqr);
+  UpdateNodePositions(fDiffSqr);
 
   // repeatedly apply the distance constraint, until the overall error is low enough
   for (ezUInt32 i = 0; i < uiMaxIterations; ++i)

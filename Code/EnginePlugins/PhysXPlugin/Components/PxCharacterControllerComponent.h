@@ -27,8 +27,8 @@ class EZ_PHYSXPLUGIN_DLL ezPxCharacterControllerComponent : public ezCharacterCo
   // ezComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
 protected:
   virtual void OnSimulationStarted() override;
@@ -38,7 +38,7 @@ protected:
 
 public:
   virtual void RawMove(const ezVec3& vMoveDeltaGlobal) override;
-  virtual void MoveCharacter(ezMsgMoveCharacterController& msg) override;
+  virtual void MoveCharacter(ezMsgMoveCharacterController& ref_msg) override;
   virtual void TeleportCharacter(const ezVec3& vGlobalFootPos) override;
   virtual bool IsDestinationUnobstructed(const ezVec3& vGlobalFootPos, float fCharacterHeight) override;
   virtual bool IsTouchingGround() override;
@@ -46,12 +46,12 @@ public:
 
   //////////////////////////////////////////////////////////////////////////
   // ezPxCharacterControllerComponent
-  virtual void OnApplyRootMotion(ezMsgApplyRootMotion& msg);
+  virtual void OnApplyRootMotion(ezMsgApplyRootMotion& ref_msg);
 
 public:
   ezPxCharacterControllerComponent();
 
-  void OnCollision(ezMsgCollision& msg); // [ msg handler ]
+  void OnCollision(ezMsgCollision& ref_msg); // [ msg handler ]
 
   float m_fWalkSpeed = 5.0f;                      ///< [ property ] How many meters the character walks per second
   float m_fRunSpeed = 15.0f;                      ///< [ property ] How many meters the character runs per second
@@ -67,7 +67,7 @@ public:
   float m_fWalkInteractionDistance = 1.0f;        ///< [ property ] How far the CC has to walk for spawning another surface interaction
   float m_fRunInteractionDistance = 3.0f;         ///< [ property ] How far the CC has to run for spawning another surface interaction
 
-  void SetWalkSurfaceInteraction(const char* sz) { m_sWalkSurfaceInteraction.Assign(sz); }      // [ property ]
+  void SetWalkSurfaceInteraction(const char* szSz) { m_sWalkSurfaceInteraction.Assign(szSz); }  // [ property ]
   const char* GetWalkSurfaceInteraction() const { return m_sWalkSurfaceInteraction.GetData(); } // [ property ]
 
   void SetFallbackWalkSurfaceFile(const char* szFile); // [ property ]

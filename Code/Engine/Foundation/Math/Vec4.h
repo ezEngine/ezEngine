@@ -23,10 +23,10 @@ public:
   ezVec4Template(); // [tested]
 
   /// \brief Initializes the vector with x,y,z,w
-  ezVec4Template(Type X, Type Y, Type Z, Type W); // [tested]
+  ezVec4Template(Type x, Type y, Type z, Type w); // [tested]
 
   /// \brief Initializes all 4 components with xyzw
-  explicit ezVec4Template(Type xyzw); // [tested]
+  explicit ezVec4Template(Type v); // [tested]
   // no copy-constructor and operator= since the default-generated ones will be faster
 
   /// \brief Returns a vector with all components set to zero.
@@ -123,10 +123,10 @@ public:
   const ezVec4Template<Type> operator-() const; // [tested]
 
   /// \brief Adds cc component-wise to this vector.
-  void operator+=(const ezVec4Template<Type>& cc); // [tested]
+  void operator+=(const ezVec4Template<Type>& vCc); // [tested]
 
   /// \brief Subtracts cc component-wise from this vector.
-  void operator-=(const ezVec4Template<Type>& cc); // [tested]
+  void operator-=(const ezVec4Template<Type>& vCc); // [tested]
 
   /// \brief Multiplies all components of this vector with f.
   void operator*=(Type f); // [tested]
@@ -153,7 +153,7 @@ public:
   const ezVec4Template<Type> CompMax(const ezVec4Template<Type>& rhs) const; // [tested]
 
   /// \brief Returns the component-wise clamped value of *this between low and high.
-  const ezVec4Template<Type> CompClamp(const ezVec4Template<Type>& low, const ezVec4Template<Type>& high) const; // [tested]
+  const ezVec4Template<Type> CompClamp(const ezVec4Template<Type>& vLow, const ezVec4Template<Type>& vHigh) const; // [tested]
 
   /// \brief Returns the component-wise multiplication of *this and rhs.
   const ezVec4Template<Type> CompMul(const ezVec4Template<Type>& rhs) const; // [tested]

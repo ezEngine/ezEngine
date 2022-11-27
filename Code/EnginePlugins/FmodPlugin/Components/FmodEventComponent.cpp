@@ -285,11 +285,11 @@ ezFmodEventComponent::ezFmodEventComponent()
 
 ezFmodEventComponent::~ezFmodEventComponent() = default;
 
-void ezFmodEventComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezFmodEventComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s << m_bPaused;
   s << m_bUseOcclusion;
@@ -319,12 +319,12 @@ void ezFmodEventComponent::SerializeComponent(ezWorldWriter& stream) const
   s << iTimelinePosition;
 }
 
-void ezFmodEventComponent::DeserializeComponent(ezWorldReader& stream)
+void ezFmodEventComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s >> m_bPaused;
 
@@ -650,9 +650,9 @@ void ezFmodEventComponent::SetEventParameter(const char* szParamName, float fVal
   SetParameter(paramId, fValue);
 }
 
-void ezFmodEventComponent::OnMsgSetFloatParameter(ezMsgSetFloatParameter& msg)
+void ezFmodEventComponent::OnMsgSetFloatParameter(ezMsgSetFloatParameter& ref_msg)
 {
-  SetEventParameter(msg.m_sParameterName, msg.m_fValue);
+  SetEventParameter(ref_msg.m_sParameterName, ref_msg.m_fValue);
 }
 
 void ezFmodEventComponent::Update()

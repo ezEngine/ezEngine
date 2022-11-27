@@ -8,8 +8,8 @@
 #include <Foundation/Strings/TranslationLookup.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 
-ezQtAssetBrowserWidget::ezQtAssetBrowserWidget(QWidget* parent)
-  : QWidget(parent)
+ezQtAssetBrowserWidget::ezQtAssetBrowserWidget(QWidget* pParent)
+  : QWidget(pParent)
 {
   m_uiKnownAssetFolderCount = 0;
   m_bDialogMode = false;

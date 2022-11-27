@@ -34,27 +34,27 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTransformComponent, 3, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezTransformComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezTransformComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 
-  stream.GetStream() << m_Flags.GetValue();
-  stream.GetStream() << m_AnimationTime;
-  stream.GetStream() << m_fAnimationSpeed;
+  inout_stream.GetStream() << m_Flags.GetValue();
+  inout_stream.GetStream() << m_AnimationTime;
+  inout_stream.GetStream() << m_fAnimationSpeed;
 }
 
 
-void ezTransformComponent::DeserializeComponent(ezWorldReader& stream)
+void ezTransformComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
+  SUPER::DeserializeComponent(inout_stream);
   // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
 
   ezTransformComponentFlags::StorageType flags;
-  stream.GetStream() >> flags;
+  inout_stream.GetStream() >> flags;
   m_Flags.SetValue(flags);
 
-  stream.GetStream() >> m_AnimationTime;
-  stream.GetStream() >> m_fAnimationSpeed;
+  inout_stream.GetStream() >> m_AnimationTime;
+  inout_stream.GetStream() >> m_fAnimationSpeed;
 }
 
 bool ezTransformComponent::IsRunning(void) const
@@ -112,16 +112,16 @@ negative, internally the absolute value is used. Distance, acceleration, max vel
 */
 
 float CalculateAcceleratedMovement(
-  float fDistanceInMeters, float fAcceleration, float fMaxVelocity, float fDeceleration, ezTime& fTimeSinceStartInSec)
+  float fDistanceInMeters, float fAcceleration, float fMaxVelocity, float fDeceleration, ezTime& ref_timeSinceStartInSec)
 {
   // linear motion, if no acceleration or deceleration is present
   if ((fAcceleration <= 0.0f) && (fDeceleration <= 0.0f))
   {
-    const float fDist = fMaxVelocity * (float)fTimeSinceStartInSec.GetSeconds();
+    const float fDist = fMaxVelocity * (float)ref_timeSinceStartInSec.GetSeconds();
 
     if (fDist > fDistanceInMeters)
     {
-      fTimeSinceStartInSec = ezTime::Seconds(fDistanceInMeters / fMaxVelocity);
+      ref_timeSinceStartInSec = ezTime::Seconds(fDistanceInMeters / fMaxVelocity);
       return fDistanceInMeters;
     }
 
@@ -129,7 +129,7 @@ float CalculateAcceleratedMovement(
   }
 
   // do some sanity-checks
-  if ((fTimeSinceStartInSec.GetSeconds() <= 0.0) || (fMaxVelocity <= 0.0f) || (fDistanceInMeters <= 0.0f))
+  if ((ref_timeSinceStartInSec.GetSeconds() <= 0.0) || (fMaxVelocity <= 0.0f) || (fDistanceInMeters <= 0.0f))
     return 0.0f;
 
   // calculate the duration and distance of accelerated movement
@@ -165,26 +165,26 @@ float CalculateAcceleratedMovement(
   }
 
   // if the time is still within the acceleration phase, return accelerated distance
-  if (fTimeSinceStartInSec.GetSeconds() <= fAccTime)
-    return static_cast<float>(0.5 * fAcceleration * ezMath::Square(fTimeSinceStartInSec.GetSeconds()));
+  if (ref_timeSinceStartInSec.GetSeconds() <= fAccTime)
+    return static_cast<float>(0.5 * fAcceleration * ezMath::Square(ref_timeSinceStartInSec.GetSeconds()));
 
   // calculate duration and length of the path, that has maximum velocity
   const double fMaxVelDistance = fDistanceInMeters - (fAccDist + fDecDist);
   const double fMaxVelTime = fMaxVelDistance / fMaxVelocity;
 
   // if the time is within this phase, return the accelerated path plus the constant velocity path
-  if (fTimeSinceStartInSec.GetSeconds() <= fAccTime + fMaxVelTime)
-    return static_cast<float>(fAccDist + (fTimeSinceStartInSec.GetSeconds() - fAccTime) * fMaxVelocity);
+  if (ref_timeSinceStartInSec.GetSeconds() <= fAccTime + fMaxVelTime)
+    return static_cast<float>(fAccDist + (ref_timeSinceStartInSec.GetSeconds() - fAccTime) * fMaxVelocity);
 
   // if the time is, however, outside the whole path, just return the upper end
-  if (fTimeSinceStartInSec.GetSeconds() >= fAccTime + fMaxVelTime + fDecTime)
+  if (ref_timeSinceStartInSec.GetSeconds() >= fAccTime + fMaxVelTime + fDecTime)
   {
-    fTimeSinceStartInSec = ezTime::Seconds(fAccTime + fMaxVelTime + fDecTime); // clamp the time
+    ref_timeSinceStartInSec = ezTime::Seconds(fAccTime + fMaxVelTime + fDecTime); // clamp the time
     return fDistanceInMeters;
   }
 
   // calculate the time into the decelerated movement
-  const double fDecTime2 = fTimeSinceStartInSec.GetSeconds() - (fAccTime + fMaxVelTime);
+  const double fDecTime2 = ref_timeSinceStartInSec.GetSeconds() - (fAccTime + fMaxVelTime);
 
   // return the distance with the decelerated movement
   return static_cast<float>(fDistanceInMeters - 0.5 * fDeceleration * ezMath::Square(fDecTime - fDecTime2));
@@ -205,7 +205,7 @@ public:
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
     pNode->RenameProperty("Run at Startup", "RunAtStartup");
     pNode->RenameProperty("Reverse at Start", "ReverseAtStart");
@@ -225,7 +225,7 @@ public:
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
     pNode->RenameProperty("RunAtStartup", "Running");
   }

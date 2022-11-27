@@ -173,16 +173,16 @@ void ezRmlUiCanvas2DComponent::SetRmlResource(const ezRmlUiResourceHandle& hReso
   }
 }
 
-void ezRmlUiCanvas2DComponent::SetOffset(const ezVec2I32& offset)
+void ezRmlUiCanvas2DComponent::SetOffset(const ezVec2I32& vOffset)
 {
-  m_vOffset = offset;
+  m_vOffset = vOffset;
 }
 
-void ezRmlUiCanvas2DComponent::SetSize(const ezVec2U32& size)
+void ezRmlUiCanvas2DComponent::SetSize(const ezVec2U32& vSize)
 {
-  if (m_vSize != size)
+  if (m_vSize != vSize)
   {
-    m_vSize = size;
+    m_vSize = vSize;
 
     if (m_pContext != nullptr)
     {
@@ -191,9 +191,9 @@ void ezRmlUiCanvas2DComponent::SetSize(const ezVec2U32& size)
   }
 }
 
-void ezRmlUiCanvas2DComponent::SetAnchorPoint(const ezVec2& anchorPoint)
+void ezRmlUiCanvas2DComponent::SetAnchorPoint(const ezVec2& vAnchorPoint)
 {
-  m_vAnchorPoint = anchorPoint;
+  m_vAnchorPoint = vAnchorPoint;
 }
 
 void ezRmlUiCanvas2DComponent::SetPassInput(bool bPassInput)
@@ -211,12 +211,12 @@ void ezRmlUiCanvas2DComponent::SetAutobindBlackboards(bool bAutobind)
   }
 }
 
-ezUInt32 ezRmlUiCanvas2DComponent::AddDataBinding(ezUniquePtr<ezRmlUiDataBinding>&& dataBinding)
+ezUInt32 ezRmlUiCanvas2DComponent::AddDataBinding(ezUniquePtr<ezRmlUiDataBinding>&& pDataBinding)
 {
   // Document needs to be loaded again since data bindings have to be set before document load
   if (m_pContext != nullptr)
   {
-    if (dataBinding->Initialize(*m_pContext).Succeeded())
+    if (pDataBinding->Initialize(*m_pContext).Succeeded())
     {
       if (m_pContext->LoadDocumentFromResource(m_hResource).Succeeded() && IsActive())
       {
@@ -227,15 +227,15 @@ ezUInt32 ezRmlUiCanvas2DComponent::AddDataBinding(ezUniquePtr<ezRmlUiDataBinding
 
   for (ezUInt32 i = 0; i < m_DataBindings.GetCount(); ++i)
   {
-    if (dataBinding == nullptr)
+    if (pDataBinding == nullptr)
     {
-      m_DataBindings[i] = std::move(dataBinding);
+      m_DataBindings[i] = std::move(pDataBinding);
       return i;
     }
   }
 
   ezUInt32 uiDataBindingIndex = m_DataBindings.GetCount();
-  m_DataBindings.PushBack(std::move(dataBinding));
+  m_DataBindings.PushBack(std::move(pDataBinding));
   return uiDataBindingIndex;
 }
 
@@ -290,11 +290,11 @@ ezRmlUiContext* ezRmlUiCanvas2DComponent::GetOrCreateRmlContext()
   return m_pContext;
 }
 
-void ezRmlUiCanvas2DComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezRmlUiCanvas2DComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 
-  ezStreamWriter& s = stream.GetStream();
+  ezStreamWriter& s = inout_stream.GetStream();
 
   s << m_hResource;
   s << m_vOffset;
@@ -304,11 +304,11 @@ void ezRmlUiCanvas2DComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_bAutobindBlackboards;
 }
 
-void ezRmlUiCanvas2DComponent::DeserializeComponent(ezWorldReader& stream)
+void ezRmlUiCanvas2DComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  ezStreamReader& s = stream.GetStream();
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  ezStreamReader& s = inout_stream.GetStream();
 
   s >> m_hResource;
   s >> m_vOffset;
@@ -322,9 +322,9 @@ void ezRmlUiCanvas2DComponent::DeserializeComponent(ezWorldReader& stream)
   }
 }
 
-ezResult ezRmlUiCanvas2DComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg)
+ezResult ezRmlUiCanvas2DComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg)
 {
-  bAlwaysVisible = true;
+  ref_bAlwaysVisible = true;
   return EZ_SUCCESS;
 }
 

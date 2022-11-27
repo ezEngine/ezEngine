@@ -7,7 +7,7 @@ param
     [string]
     $ExcludeRootFiles = "DirectXTex|ThirdParty|\.rc$|qrc_resources.cpp$",
     [string]
-    $HeaderPattern = "^((?!ThirdParty|DirectXTex).)*$",
+    $HeaderPattern = "^((?!ThirdParty|DirectXTex|ogt_vox|ui_).)*$",
     [string]
     $LlvmInstallDir = "C:\Program Files\LLVM",
     [string]
@@ -19,7 +19,11 @@ param
 	[string]
 	$DiffTo,
 	[string]
-	$SingleFile
+	$SingleFile,
+	[int]
+	$FileLimit = 0,
+	[string]
+	$FilterPattern
 )
 
 $ErrorActionPreference = "Stop"
@@ -254,10 +258,20 @@ if($files.Length -eq 0)
 	exit 0
 }
 
-Write-Host "Running clang-tidy on" $files.Length "files"
-
 $syncStore = [hashtable]::Synchronized(@{})
 $syncStore.NumErrors = 0
+
+if($FilterPattern)
+{
+	$files = $files | ? {$_ -match $FilterPattern}
+}
+
+if($FileLimit -gt 0)
+{
+	$files = $files[0..($FileLimit - 1)]
+}
+
+Write-Host "Running clang-tidy on" $files.Length "files"
 
 $job = $files | Foreach-Object -Parallel `
 {
@@ -273,8 +287,9 @@ $job = $files | Foreach-Object -Parallel `
    
    $output += "////////////////////////////////////////////////////////////////////////////////////////////////////////////`r`n"
    $output += "// $_`r`n"
+   $output += "// $ClangTidy -p $Workspace --checks=$Checks --header-filter=$HeaderPattern --export-fixes=$fixesFile `"--extra-arg=-isystem$ClangLibPath`" $_ `r`n"
    $output += "////////////////////////////////////////////////////////////////////////////////////////////////////////////`r`n"
-   $output += (& $ClangTidy -p $Workspace --checks=$Checks --header-filter=$HeaderPattern --export-fixes=$fixesFile "--extra-arg=`"-isystem$ClangLibPath`"" $_ *>&1) | Out-String
+   $output += (& $ClangTidy -p $Workspace --checks=$Checks --header-filter=$HeaderPattern --export-fixes=$fixesFile "--extra-arg=-isystem$ClangLibPath" $_ *>&1) | Out-String
    if($lastexitcode -ne 0)
    {
        $syncStore.NumErrors++

@@ -14,7 +14,7 @@ public:
 
   void SetDebugPin(const ezPin* pDebugPin);
 
-  ezStatus WriteAsset(ezStreamWriter& stream, const ezPlatformProfile* pAssetProfile, bool bAllowDebug) const;
+  ezStatus WriteAsset(ezStreamWriter& inout_stream, const ezPlatformProfile* pAssetProfile, bool bAllowDebug) const;
 
 protected:
   virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;

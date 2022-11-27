@@ -25,10 +25,10 @@ public:
   static ezReflectionProbeId RegisterReflectionProbe(const ezWorld* pWorld, const ezReflectionProbeDesc& desc, const ezReflectionProbeComponentBase* pComponent);
   static void DeregisterReflectionProbe(const ezWorld* pWorld, ezReflectionProbeId id);
   static void UpdateReflectionProbe(const ezWorld* pWorld, ezReflectionProbeId id, const ezReflectionProbeDesc& desc, const ezReflectionProbeComponentBase* pComponent);
-  static void ExtractReflectionProbe(const ezComponent* pComponent, ezMsgExtractRenderData& msg, ezReflectionProbeRenderData* pRenderData, const ezWorld* pWorld, ezReflectionProbeId id, float fPriority);
+  static void ExtractReflectionProbe(const ezComponent* pComponent, ezMsgExtractRenderData& ref_msg, ezReflectionProbeRenderData* pRenderData, const ezWorld* pWorld, ezReflectionProbeId id, float fPriority);
 
   // SkyLight
-  static ezReflectionProbeId RegisterSkyLight(const ezWorld* pWorld, ezReflectionProbeDesc& desc, const ezSkyLightComponent* pComponent);
+  static ezReflectionProbeId RegisterSkyLight(const ezWorld* pWorld, ezReflectionProbeDesc& ref_desc, const ezSkyLightComponent* pComponent);
   static void DeregisterSkyLight(const ezWorld* pWorld, ezReflectionProbeId id);
   static void UpdateSkyLight(const ezWorld* pWorld, ezReflectionProbeId id, const ezReflectionProbeDesc& desc, const ezSkyLightComponent* pComponent);
 

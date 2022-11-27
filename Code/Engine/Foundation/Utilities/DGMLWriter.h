@@ -50,20 +50,20 @@ public:
   };
 
   /// \brief Constructor for the graph.
-  ezDGMLGraph(Direction GraphDirection = Direction::LeftToRight, Layout GraphLayout = Layout::Tree);
+  ezDGMLGraph(Direction graphDirection = Direction::LeftToRight, Layout graphLayout = Layout::Tree);
 
   /// \brief Adds a node to the graph.
   /// Adds a node to the graph and returns the node id which can be used to reference the node later to add connections etc.
-  NodeId AddNode(const char* szTitle, const NodeDesc* desc = nullptr);
+  NodeId AddNode(const char* szTitle, const NodeDesc* pDesc = nullptr);
 
   /// \brief Adds a DGML node that can act as a group for other nodes
-  NodeId AddGroup(const char* szTitle, GroupType type, const NodeDesc* desc = nullptr);
+  NodeId AddGroup(const char* szTitle, GroupType type, const NodeDesc* pDesc = nullptr);
 
   /// \brief Inserts a node into an existing group node.
   void AddNodeToGroup(NodeId node, NodeId group);
 
   /// \brief Adds a directed connection to the graph (an arrow pointing from source to target node).
-  ConnectionId AddConnection(NodeId Source, NodeId Target, const char* szLabel = nullptr);
+  ConnectionId AddConnection(NodeId source, NodeId target, const char* szLabel = nullptr);
 
   /// \brief Adds a property type. All properties currently use the data type 'string'
   PropertyId AddPropertyType(const char* szName);
@@ -117,8 +117,8 @@ class EZ_FOUNDATION_DLL ezDGMLGraphWriter
 {
 public:
   /// \brief Helper method to write the graph to a file.
-  static ezResult WriteGraphToFile(ezStringView sFileName, const ezDGMLGraph& Graph);
+  static ezResult WriteGraphToFile(ezStringView sFileName, const ezDGMLGraph& graph);
 
   /// \brief Writes the graph as a DGML formatted document to the given string builder.
-  static ezResult WriteGraphToString(ezStringBuilder& StringBuilder, const ezDGMLGraph& Graph);
+  static ezResult WriteGraphToString(ezStringBuilder& ref_sStringBuilder, const ezDGMLGraph& graph);
 };

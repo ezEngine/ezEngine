@@ -7,7 +7,7 @@ void RtsGuardLocationAiUtility::Activate(ezGameObject* pOwnerObject, ezComponent
 
 void RtsGuardLocationAiUtility::Deactivate(ezGameObject* pOwnerObject, ezComponent* pOwnerComponent) {}
 
-void RtsGuardLocationAiUtility::Execute(ezGameObject* pOwnerObject, ezComponent* pOwnerComponent, ezTime tNow)
+void RtsGuardLocationAiUtility::Execute(ezGameObject* pOwnerObject, ezComponent* pOwnerComponent, ezTime now)
 {
   RtsUnitComponent* pUnit = static_cast<RtsUnitComponent*>(pOwnerComponent);
 

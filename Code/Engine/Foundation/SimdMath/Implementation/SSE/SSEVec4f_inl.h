@@ -10,18 +10,18 @@ EZ_ALWAYS_INLINE ezSimdVec4f::ezSimdVec4f()
 #endif
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4f::ezSimdVec4f(float xyzw)
+EZ_ALWAYS_INLINE ezSimdVec4f::ezSimdVec4f(float fXyzw)
 {
   EZ_CHECK_SIMD_ALIGNMENT(this);
 
-  m_v = _mm_set1_ps(xyzw);
+  m_v = _mm_set1_ps(fXyzw);
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4f::ezSimdVec4f(const ezSimdFloat& xyzw)
+EZ_ALWAYS_INLINE ezSimdVec4f::ezSimdVec4f(const ezSimdFloat& fXyzw)
 {
   EZ_CHECK_SIMD_ALIGNMENT(this);
 
-  m_v = xyzw.m_v;
+  m_v = fXyzw.m_v;
 }
 
 EZ_ALWAYS_INLINE ezSimdVec4f::ezSimdVec4f(float x, float y, float z, float w)
@@ -31,9 +31,9 @@ EZ_ALWAYS_INLINE ezSimdVec4f::ezSimdVec4f(float x, float y, float z, float w)
   m_v = _mm_setr_ps(x, y, z, w);
 }
 
-EZ_ALWAYS_INLINE void ezSimdVec4f::Set(float xyzw)
+EZ_ALWAYS_INLINE void ezSimdVec4f::Set(float fXyzw)
 {
-  m_v = _mm_set1_ps(xyzw);
+  m_v = _mm_set1_ps(fXyzw);
 }
 
 EZ_ALWAYS_INLINE void ezSimdVec4f::Set(float x, float y, float z, float w)
@@ -388,16 +388,16 @@ EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::Trunc() const
 #endif
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::FlipSign(const ezSimdVec4b& cmp) const
+EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::FlipSign(const ezSimdVec4b& vCmp) const
 {
-  return _mm_xor_ps(m_v, _mm_and_ps(cmp.m_v, _mm_set1_ps(-0.0f)));
+  return _mm_xor_ps(m_v, _mm_and_ps(vCmp.m_v, _mm_set1_ps(-0.0f)));
 }
 
 // static
-EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::Select(const ezSimdVec4b& cmp, const ezSimdVec4f& ifTrue, const ezSimdVec4f& ifFalse)
+EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::Select(const ezSimdVec4b& vCmp, const ezSimdVec4f& vTrue, const ezSimdVec4f& vFalse)
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_41
-  return _mm_blendv_ps(ifFalse.m_v, ifTrue.m_v, cmp.m_v);
+  return _mm_blendv_ps(vFalse.m_v, vTrue.m_v, vCmp.m_v);
 #else
   return _mm_or_ps(_mm_andnot_ps(cmp.m_v, ifFalse.m_v), _mm_and_ps(cmp.m_v, ifTrue.m_v));
 #endif
@@ -627,8 +627,8 @@ EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::MulSub(const ezSimdVec4f& a, const ezS
 }
 
 // static
-EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::CopySign(const ezSimdVec4f& magnitude, const ezSimdVec4f& sign)
+EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::CopySign(const ezSimdVec4f& vMagnitude, const ezSimdVec4f& vSign)
 {
   __m128 minusZero = _mm_set1_ps(-0.0f);
-  return _mm_or_ps(_mm_andnot_ps(minusZero, magnitude.m_v), _mm_and_ps(minusZero, sign.m_v));
+  return _mm_or_ps(_mm_andnot_ps(minusZero, vMagnitude.m_v), _mm_and_ps(minusZero, vSign.m_v));
 }

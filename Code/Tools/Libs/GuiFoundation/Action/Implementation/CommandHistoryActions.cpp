@@ -65,9 +65,9 @@ ezCommandHistoryAction::~ezCommandHistoryAction()
   m_Context.m_pDocument->GetCommandHistory()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezCommandHistoryAction::CommandHistoryEventHandler, this));
 }
 
-void ezCommandHistoryAction::GetEntries(ezHybridArray<ezDynamicMenuAction::Item, 16>& out_Entries)
+void ezCommandHistoryAction::GetEntries(ezHybridArray<ezDynamicMenuAction::Item, 16>& out_entries)
 {
-  out_Entries.Clear();
+  out_entries.Clear();
 
   ezCommandHistory* pHistory = m_Context.m_pDocument->GetCommandHistory();
 
@@ -78,7 +78,7 @@ void ezCommandHistoryAction::GetEntries(ezHybridArray<ezDynamicMenuAction::Item,
     ezDynamicMenuAction::Item entryItem;
     entryItem.m_sDisplay = pTransaction->m_sDisplayString;
     entryItem.m_UserValue = (ezUInt32)i + 1; // Number of steps to undo / redo.
-    out_Entries.PushBack(entryItem);
+    out_entries.PushBack(entryItem);
   }
 }
 

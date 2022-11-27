@@ -17,32 +17,32 @@ public:
 
   void SetScrubberPosition(double fPosition);
 
-  void setColorGradientData(const ezColorGradient* gradient);
+  void setColorGradientData(const ezColorGradient* pGradient);
 
-  void setEditMode(bool edit);
-  void setShowColorCPs(bool show);
-  void setShowAlphaCPs(bool show);
-  void setShowIntensityCPs(bool show);
-  void setShowCoords(bool top, bool bottom);
+  void setEditMode(bool bEdit);
+  void setShowColorCPs(bool bShow);
+  void setShowAlphaCPs(bool bShow);
+  void setShowIntensityCPs(bool bShow);
+  void setShowCoords(bool bTop, bool bBottom);
 
   void FrameExtents();
   void ClearSelectedCP();
-  void SelectCP(ezInt32 colorCP, ezInt32 alphaCP, ezInt32 intensityCP);
+  void SelectCP(ezInt32 iColorCP, ezInt32 iAlphaCP, ezInt32 iIntensityCP);
 
 Q_SIGNALS:
   void GradientClicked();
-  void addColorCp(double posX, const ezColorGammaUB& color);
-  void addAlphaCp(double posX, ezUInt8 value);
-  void addIntensityCp(double posX, float intensity);
-  void moveColorCpToPos(ezInt32 index, double newPosX);
-  void moveAlphaCpToPos(ezInt32 index, double newPosX);
-  void moveIntensityCpToPos(ezInt32 index, double newPosX);
-  void deleteColorCp(ezInt32 index);
-  void deleteAlphaCp(ezInt32 index);
-  void deleteIntensityCp(ezInt32 index);
-  void selectionChanged(ezInt32 colorCP, ezInt32 alphaCP, ezInt32 intensityCP);
+  void addColorCp(double fPosX, const ezColorGammaUB& color);
+  void addAlphaCp(double fPosX, ezUInt8 value);
+  void addIntensityCp(double fPosX, float fIntensity);
+  void moveColorCpToPos(ezInt32 iIndex, double fNewPosX);
+  void moveAlphaCpToPos(ezInt32 iIndex, double fNewPosX);
+  void moveIntensityCpToPos(ezInt32 iIndex, double fNewPosX);
+  void deleteColorCp(ezInt32 iIndex);
+  void deleteAlphaCp(ezInt32 iIndex);
+  void deleteIntensityCp(ezInt32 iIndex);
+  void selectionChanged(ezInt32 iColorCP, ezInt32 iAlphaCP, ezInt32 iIntensityCP);
   void beginOperation();
-  void endOperation(bool commit);
+  void endOperation(bool bCommit);
   void triggerPickColor();
 
 private:

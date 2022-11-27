@@ -39,15 +39,15 @@ public:
 
   /// \brief Interface, do not use this directly, always use the new/delete macros below
   virtual void* Allocate(size_t uiSize, size_t uiAlign, ezMemoryUtils::DestructorFunction destructorFunc = nullptr) = 0;
-  virtual void Deallocate(void* ptr) = 0;
-  virtual void* Reallocate(void* ptr, size_t uiCurrentSize, size_t uiNewSize, size_t uiAlign);
+  virtual void Deallocate(void* pPtr) = 0;
+  virtual void* Reallocate(void* pPtr, size_t uiCurrentSize, size_t uiNewSize, size_t uiAlign);
 
   /// \brief Returns the number of bytes allocated at this address.
   /// 
   /// \note Careful! This information is only available, if allocation tracking is enabled!
   /// Otherwise 0 is returned.
   /// See ezMemoryTrackingFlags::EnableAllocationTracking and EZ_USE_ALLOCATION_TRACKING.
-  virtual size_t AllocatedSize(const void* ptr) = 0;
+  virtual size_t AllocatedSize(const void* pPtr) = 0;
 
   virtual ezAllocatorId GetId() const = 0;
   virtual Stats GetStats() const = 0;

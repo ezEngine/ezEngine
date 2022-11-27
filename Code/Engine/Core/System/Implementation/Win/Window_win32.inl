@@ -4,16 +4,16 @@
 #include <Foundation/Basics.h>
 #include <Foundation/Logging/Log.h>
 
-static LRESULT CALLBACK ezWindowsMessageFuncTrampoline(HWND hWnd, UINT Msg, WPARAM WParam, LPARAM LParam)
+static LRESULT CALLBACK ezWindowsMessageFuncTrampoline(HWND hWnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
   ezWindow* pWindow = reinterpret_cast<ezWindow*>(GetWindowLongPtrW(hWnd, GWLP_USERDATA));
 
   if (pWindow != nullptr && pWindow->IsInitialized())
   {
     if (pWindow->GetInputDevice())
-      pWindow->GetInputDevice()->WindowMessage(ezMinWindows::FromNative(hWnd), Msg, WParam, LParam);
+      pWindow->GetInputDevice()->WindowMessage(ezMinWindows::FromNative(hWnd), msg, wparam, lparam);
 
-    switch (Msg)
+    switch (msg)
     {
       case WM_CLOSE:
         pWindow->OnClickClose();
@@ -29,7 +29,7 @@ static LRESULT CALLBACK ezWindowsMessageFuncTrampoline(HWND hWnd, UINT Msg, WPAR
 
       case WM_SIZE:
       {
-        ezSizeU32 size(LOWORD(LParam), HIWORD(LParam));
+        ezSizeU32 size(LOWORD(lparam), HIWORD(lparam));
         pWindow->OnResize(size);
       }
       break;
@@ -43,15 +43,15 @@ static LRESULT CALLBACK ezWindowsMessageFuncTrampoline(HWND hWnd, UINT Msg, WPAR
 
       case WM_MOVE:
       {
-        pWindow->OnWindowMove((int)(short)LOWORD(LParam), (int)(short)HIWORD(LParam));
+        pWindow->OnWindowMove((int)(short)LOWORD(lparam), (int)(short)HIWORD(lparam));
       }
       break;
     }
 
-    pWindow->OnWindowMessage(ezMinWindows::FromNative(hWnd), Msg, WParam, LParam);
+    pWindow->OnWindowMessage(ezMinWindows::FromNative(hWnd), msg, wparam, lparam);
   }
 
-  return DefWindowProcW(hWnd, Msg, WParam, LParam);
+  return DefWindowProcW(hWnd, msg, wparam, lparam);
 }
 
 ezResult ezWindow::Initialize()

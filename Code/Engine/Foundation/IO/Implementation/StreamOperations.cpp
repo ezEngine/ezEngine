@@ -8,33 +8,33 @@
 // C-style strings
 // No read equivalent for C-style strings (but can be read as ezString & ezStringBuilder instances)
 
-ezStreamWriter& operator<<(ezStreamWriter& Stream, const char* szValue)
+ezStreamWriter& operator<<(ezStreamWriter& inout_stream, const char* szValue)
 {
   ezStringView szView(szValue);
-  Stream.WriteString(szView).AssertSuccess();
+  inout_stream.WriteString(szView).AssertSuccess();
 
-  return Stream;
+  return inout_stream;
 }
 
-ezStreamWriter& operator<<(ezStreamWriter& Stream, ezStringView sValue)
+ezStreamWriter& operator<<(ezStreamWriter& inout_stream, ezStringView sValue)
 {
-  Stream.WriteString(sValue).AssertSuccess();
+  inout_stream.WriteString(sValue).AssertSuccess();
 
-  return Stream;
+  return inout_stream;
 }
 
 // ezStringBuilder
 
-ezStreamWriter& operator<<(ezStreamWriter& Stream, const ezStringBuilder& sValue)
+ezStreamWriter& operator<<(ezStreamWriter& inout_stream, const ezStringBuilder& sValue)
 {
-  Stream.WriteString(sValue.GetView()).AssertSuccess();
-  return Stream;
+  inout_stream.WriteString(sValue.GetView()).AssertSuccess();
+  return inout_stream;
 }
 
-ezStreamReader& operator>>(ezStreamReader& Stream, ezStringBuilder& sValue)
+ezStreamReader& operator>>(ezStreamReader& inout_stream, ezStringBuilder& out_sValue)
 {
-  Stream.ReadString(sValue).AssertSuccess();
-  return Stream;
+  inout_stream.ReadString(out_sValue).AssertSuccess();
+  return inout_stream;
 }
 
 

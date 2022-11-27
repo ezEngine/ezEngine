@@ -57,14 +57,14 @@ constexpr EZ_ALWAYS_INLINE void ezTime::operator+=(const ezTime& other)
   m_fTime += other.m_fTime;
 }
 
-constexpr EZ_ALWAYS_INLINE void ezTime::operator*=(double factor)
+constexpr EZ_ALWAYS_INLINE void ezTime::operator*=(double fFactor)
 {
-  m_fTime *= factor;
+  m_fTime *= fFactor;
 }
 
-constexpr EZ_ALWAYS_INLINE void ezTime::operator/=(double factor)
+constexpr EZ_ALWAYS_INLINE void ezTime::operator/=(double fFactor)
 {
-  m_fTime /= factor;
+  m_fTime /= fFactor;
 }
 
 constexpr EZ_ALWAYS_INLINE ezTime ezTime::operator-() const

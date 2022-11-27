@@ -26,10 +26,10 @@ public:
   ezRectTemplate();
 
   /// \brief Constructor to set all values.
-  ezRectTemplate(Type X, Type Y, Type Width, Type Height);
+  ezRectTemplate(Type x, Type y, Type width, Type height);
 
   /// \brief Initializes x and y with zero, width and height with the given values.
-  ezRectTemplate(Type Width, Type Height);
+  ezRectTemplate(Type width, Type height);
 
   /// The smaller value along x.
   Type Left() const { return x; }
@@ -74,7 +74,7 @@ public:
   bool HasNonZeroArea() const;
 
   /// \brief Returns true if the rectangle contains the provided point
-  bool Contains(const ezVec2Template<Type>& point) const;
+  bool Contains(const ezVec2Template<Type>& vPoint) const;
 
   /// \brief Returns true if the rectangle overlaps the provided rectangle.
   /// Also returns true if the rectangles are contained within each other completely(no intersecting edges).

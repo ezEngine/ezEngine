@@ -174,7 +174,7 @@ ezDecalAssetDocumentGenerator::ezDecalAssetDocumentGenerator()
 
 ezDecalAssetDocumentGenerator::~ezDecalAssetDocumentGenerator() {}
 
-void ezDecalAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
+void ezDecalAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_modes) const
 {
   ezStringBuilder baseOutputFile = szParentDirRelativePath;
 
@@ -186,7 +186,7 @@ void ezDecalAssetDocumentGenerator::GetImportModes(const char* szParentDirRelati
   const bool isDecal = (baseFilename.FindSubString_NoCase("decal") != nullptr);
 
   {
-    ezAssetDocumentGenerator::Info& info = out_Modes.ExpandAndGetRef();
+    ezAssetDocumentGenerator::Info& info = out_modes.ExpandAndGetRef();
     info.m_Priority = isDecal ? ezAssetDocGeneratorPriority::HighPriority : ezAssetDocGeneratorPriority::LowPriority;
     info.m_sName = "DecalImport.All";
     info.m_sOutputFileParentRelative = baseOutputFile;

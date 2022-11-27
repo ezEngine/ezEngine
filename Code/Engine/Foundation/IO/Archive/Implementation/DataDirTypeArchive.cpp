@@ -25,7 +25,7 @@ EZ_END_SUBSYSTEM_DECLARATION;
 ezDataDirectory::ArchiveType::ArchiveType() = default;
 ezDataDirectory::ArchiveType::~ArchiveType() = default;
 
-ezDataDirectoryType* ezDataDirectory::ArchiveType::Factory(ezStringView sDataDirectory, ezStringView sGroup, ezStringView sRootName, ezFileSystem::DataDirUsage Usage)
+ezDataDirectoryType* ezDataDirectory::ArchiveType::Factory(ezStringView sDataDirectory, ezStringView sGroup, ezStringView sRootName, ezFileSystem::DataDirUsage usage)
 {
   ArchiveType* pDataDir = EZ_DEFAULT_NEW(ArchiveType);
 

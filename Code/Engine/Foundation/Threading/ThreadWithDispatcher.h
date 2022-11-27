@@ -19,7 +19,7 @@ public:
   virtual ~ezThreadWithDispatcher();
 
   /// \brief Use this to enqueue a function call to the given delegate at some later point running in the given thread context.
-  void Dispatch(DispatchFunction&& pDelegate);
+  void Dispatch(DispatchFunction&& delegate);
 
 protected:
   /// \brief Needs to be called by derived thread implementations to dispatch the function calls.

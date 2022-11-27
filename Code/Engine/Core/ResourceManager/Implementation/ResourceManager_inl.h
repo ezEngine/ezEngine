@@ -113,7 +113,7 @@ EZ_FORCE_INLINE ezResource* ezResourceManager::BeginAcquireResourcePointer(const
 
 template <typename ResourceType>
 ResourceType* ezResourceManager::BeginAcquireResource(const ezTypedResourceHandle<ResourceType>& hResource, ezResourceAcquireMode mode,
-  const ezTypedResourceHandle<ResourceType>& hFallbackResource, ezResourceAcquireResult* out_AcquireResult /*= nullptr*/)
+  const ezTypedResourceHandle<ResourceType>& hFallbackResource, ezResourceAcquireResult* out_pAcquireResult /*= nullptr*/)
 {
   EZ_ASSERT_DEV(hResource.IsValid(), "Cannot acquire a resource through an invalid handle!");
 
@@ -144,8 +144,8 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezTypedResourceHandl
 
   if (mode == ezResourceAcquireMode::PointerOnly)
   {
-    if (out_AcquireResult)
-      *out_AcquireResult = ezResourceAcquireResult::Final;
+    if (out_pAcquireResult)
+      *out_pAcquireResult = ezResourceAcquireResult::Final;
 
     // pResource->m_iLockCount.Increment();
     return pResource;
@@ -166,8 +166,8 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezTypedResourceHandl
           (pResource->m_hLoadingFallback.IsValid() || hFallbackResource.IsValid() || GetResourceTypeLoadingFallback<ResourceType>().IsValid()))
       {
         // return the fallback resource for now, if there is one
-        if (out_AcquireResult)
-          *out_AcquireResult = ezResourceAcquireResult::LoadingFallback;
+        if (out_pAcquireResult)
+          *out_pAcquireResult = ezResourceAcquireResult::LoadingFallback;
 
         // Fallback order is as follows:
         //  1) Prefer any resource specific fallback resource
@@ -201,8 +201,8 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezTypedResourceHandl
 
     if (ezResourceManager::GetResourceTypeMissingFallback<ResourceType>().IsValid())
     {
-      if (out_AcquireResult)
-        *out_AcquireResult = ezResourceAcquireResult::MissingFallback;
+      if (out_pAcquireResult)
+        *out_pAcquireResult = ezResourceAcquireResult::MissingFallback;
 
       return (ResourceType*)BeginAcquireResource(
         ezResourceManager::GetResourceTypeMissingFallback<ResourceType>(), ezResourceAcquireMode::BlockTillLoaded);
@@ -214,14 +214,14 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezTypedResourceHandl
         ezGetStaticRTTI<ResourceType>()->GetTypeName());
     }
 
-    if (out_AcquireResult)
-      *out_AcquireResult = ezResourceAcquireResult::None;
+    if (out_pAcquireResult)
+      *out_pAcquireResult = ezResourceAcquireResult::None;
 
     return nullptr;
   }
 
-  if (out_AcquireResult)
-    *out_AcquireResult = ezResourceAcquireResult::Final;
+  if (out_pAcquireResult)
+    *out_pAcquireResult = ezResourceAcquireResult::Final;
 
   // pResource->m_iLockCount.Increment();
   return pResource;
@@ -306,11 +306,11 @@ ezUInt32 ezResourceManager::ReloadResourcesOfType(bool bForce)
 }
 
 template <typename ResourceType>
-void ezResourceManager::SetResourceTypeLoader(ezResourceTypeLoader* creator)
+void ezResourceManager::SetResourceTypeLoader(ezResourceTypeLoader* pCreator)
 {
   EZ_LOCK(s_ResourceMutex);
 
-  GetResourceTypeLoaders()[ezGetStaticRTTI<ResourceType>()] = creator;
+  GetResourceTypeLoaders()[ezGetStaticRTTI<ResourceType>()] = pCreator;
 }
 
 template <typename ResourceType>

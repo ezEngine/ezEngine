@@ -20,7 +20,7 @@ ezSimdPerlinNoise::ezSimdPerlinNoise(ezUInt32 uiSeed)
   }
 }
 
-ezSimdVec4f ezSimdPerlinNoise::NoiseZeroToOne(const ezSimdVec4f& inX, const ezSimdVec4f& inY, const ezSimdVec4f& inZ, ezUInt32 uiNumOctaves /*= 1*/)
+ezSimdVec4f ezSimdPerlinNoise::NoiseZeroToOne(const ezSimdVec4f& vX, const ezSimdVec4f& vY, const ezSimdVec4f& vZ, ezUInt32 uiNumOctaves /*= 1*/)
 {
   ezSimdVec4f result = ezSimdVec4f::ZeroVector();
   ezSimdFloat amplitude = 1.0f;
@@ -31,9 +31,9 @@ ezSimdVec4f ezSimdPerlinNoise::NoiseZeroToOne(const ezSimdVec4f& inX, const ezSi
   {
     ezSimdFloat scale = static_cast<float>(EZ_BIT(i));
     ezSimdVec4f offset = Permute(ezSimdVec4i(uiOffset) + ezSimdVec4i(0, 1, 2, 3)).ToFloat();
-    ezSimdVec4f x = inX * scale + offset.Get<ezSwizzle::XXXX>();
-    ezSimdVec4f y = inY * scale + offset.Get<ezSwizzle::YYYY>();
-    ezSimdVec4f z = inZ * scale + offset.Get<ezSwizzle::ZZZZ>();
+    ezSimdVec4f x = vX * scale + offset.Get<ezSwizzle::XXXX>();
+    ezSimdVec4f y = vY * scale + offset.Get<ezSwizzle::YYYY>();
+    ezSimdVec4f z = vZ * scale + offset.Get<ezSwizzle::ZZZZ>();
 
     result += Noise(x, y, z) * amplitude;
 
@@ -51,10 +51,10 @@ namespace
     return t.CompMul(t).CompMul(t).CompMul(t.CompMul(t * 6.0f - ezSimdVec4f(15.0f)) + ezSimdVec4f(10.0f));
   }
 
-  EZ_FORCE_INLINE ezSimdVec4f Grad(ezSimdVec4i hash, const ezSimdVec4f& x, const ezSimdVec4f& y, const ezSimdVec4f& z)
+  EZ_FORCE_INLINE ezSimdVec4f Grad(ezSimdVec4i vHash, const ezSimdVec4f& x, const ezSimdVec4f& y, const ezSimdVec4f& z)
   {
     // convert low 4 bits of hash code into 12 gradient directions.
-    const ezSimdVec4i h = hash & ezSimdVec4i(15);
+    const ezSimdVec4i h = vHash & ezSimdVec4i(15);
     const ezSimdVec4f u = ezSimdVec4f::Select(h < ezSimdVec4i(8), x, y);
     const ezSimdVec4f v = ezSimdVec4f::Select(h < ezSimdVec4i(4), y, ezSimdVec4f::Select(h == ezSimdVec4i(12) || h == ezSimdVec4i(14), x, z));
     return ezSimdVec4f::Select((h & ezSimdVec4i(1)) == ezSimdVec4i::ZeroVector(), u, -u) +

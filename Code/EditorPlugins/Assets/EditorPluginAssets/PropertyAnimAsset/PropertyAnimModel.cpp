@@ -19,7 +19,7 @@ ezQtPropertyAnimModel::~ezQtPropertyAnimModel()
   m_pAssetDoc->GetObjectManager()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezQtPropertyAnimModel::DocumentStructureEventHandler, this));
 }
 
-QVariant ezQtPropertyAnimModel::data(const QModelIndex& index, int role) const
+QVariant ezQtPropertyAnimModel::data(const QModelIndex& index, int iRole) const
 {
   if (!index.isValid() || index.column() != 0)
     return QVariant();
@@ -27,7 +27,7 @@ QVariant ezQtPropertyAnimModel::data(const QModelIndex& index, int role) const
   ezQtPropertyAnimModelTreeEntry* pItem = static_cast<ezQtPropertyAnimModelTreeEntry*>(index.internalPointer());
   EZ_ASSERT_DEBUG(pItem != nullptr, "Invalid model index");
 
-  switch (role)
+  switch (iRole)
   {
     case Qt::DisplayRole:
       return QString(pItem->m_sDisplay.GetData());
@@ -59,22 +59,22 @@ Qt::ItemFlags ezQtPropertyAnimModel::flags(const QModelIndex& index) const
   return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 }
 
-QModelIndex ezQtPropertyAnimModel::index(int row, int column, const QModelIndex& parent /*= QModelIndex()*/) const
+QModelIndex ezQtPropertyAnimModel::index(int iRow, int iColumn, const QModelIndex& parent /*= QModelIndex()*/) const
 {
-  if (column != 0)
+  if (iColumn != 0)
     return QModelIndex();
 
   ezQtPropertyAnimModelTreeEntry* pParentItem = static_cast<ezQtPropertyAnimModelTreeEntry*>(parent.internalPointer());
   if (pParentItem != nullptr)
   {
-    return createIndex(row, column, (void*)&m_AllEntries[m_iInUse][pParentItem->m_Children[row]]);
+    return createIndex(iRow, iColumn, (void*)&m_AllEntries[m_iInUse][pParentItem->m_Children[iRow]]);
   }
   else
   {
-    if (row >= (int)m_TopLevelEntries[m_iInUse].GetCount())
+    if (iRow >= (int)m_TopLevelEntries[m_iInUse].GetCount())
       return QModelIndex();
 
-    return createIndex(row, column, (void*)&m_AllEntries[m_iInUse][m_TopLevelEntries[m_iInUse][row]]);
+    return createIndex(iRow, iColumn, (void*)&m_AllEntries[m_iInUse][m_TopLevelEntries[m_iInUse][iRow]]);
   }
 }
 

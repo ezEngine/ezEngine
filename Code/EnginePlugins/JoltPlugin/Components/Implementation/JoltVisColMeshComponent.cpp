@@ -33,29 +33,29 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezJoltVisColMeshComponent::ezJoltVisColMeshComponent() = default;
 ezJoltVisColMeshComponent::~ezJoltVisColMeshComponent() = default;
 
-void ezJoltVisColMeshComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezJoltVisColMeshComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s << m_hCollisionMesh;
 }
 
 
-void ezJoltVisColMeshComponent::DeserializeComponent(ezWorldReader& stream)
+void ezJoltVisColMeshComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s >> m_hCollisionMesh;
 
   GetWorld()->GetOrCreateComponentManager<ezJoltVisColMeshComponentManager>()->EnqueueUpdate(GetHandle());
 }
 
-ezResult ezJoltVisColMeshComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg)
+ezResult ezJoltVisColMeshComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg)
 {
   // have to assume this isn't thread safe
   // CreateCollisionRenderMesh();
@@ -63,7 +63,7 @@ ezResult ezJoltVisColMeshComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, 
   if (m_hMesh.IsValid())
   {
     ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::BlockTillLoaded);
-    bounds = pMesh->GetBounds();
+    ref_bounds = pMesh->GetBounds();
     return EZ_SUCCESS;
   }
 

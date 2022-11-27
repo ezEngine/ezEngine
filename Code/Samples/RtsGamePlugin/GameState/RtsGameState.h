@@ -50,7 +50,7 @@ private:
   // Camera
 public:
   float GetCameraZoom() const;
-  float SetCameraZoom(float zoom);
+  float SetCameraZoom(float fZoom);
 
 protected:
   virtual void ConfigureMainCamera() override;
@@ -89,7 +89,7 @@ private:
 public:
   ezResult PickGroundPlanePosition(ezVec3& out_vPositon) const;
   ezGameObject* PickSelectableObject() const;
-  void InspectObjectsInArea(const ezVec2& position, float radius, ezSpatialSystem::QueryCallback callback) const;
+  void InspectObjectsInArea(const ezVec2& vPosition, float fRadius, ezSpatialSystem::QueryCallback callback) const;
 
 private:
   ezResult ComputePickingRay();

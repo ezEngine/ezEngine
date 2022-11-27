@@ -63,7 +63,7 @@ public:
     {
       ezProcessAssetResponseMsg msg;
       {
-        ezLogEntryDelegate logger([&msg](ezLogEntry& entry) -> void { msg.m_LogEntries.PushBack(std::move(entry)); },
+        ezLogEntryDelegate logger([&msg](ezLogEntry& ref_entry) -> void { msg.m_LogEntries.PushBack(std::move(ref_entry)); },
           ezLogMsgType::WarningMsg);
         ezLogSystemScope logScope(&logger);
 

@@ -37,24 +37,24 @@ void ezParticleBehaviorFactory_SizeCurve::CopyBehaviorProperties(ezParticleBehav
   pBehavior->m_fCurveScale = m_fCurveScale;
 }
 
-void ezParticleBehaviorFactory_SizeCurve::Save(ezStreamWriter& stream) const
+void ezParticleBehaviorFactory_SizeCurve::Save(ezStreamWriter& inout_stream) const
 {
   const ezUInt8 uiVersion = 1;
-  stream << uiVersion;
+  inout_stream << uiVersion;
 
-  stream << m_hCurve;
-  stream << m_fBaseSize;
-  stream << m_fCurveScale;
+  inout_stream << m_hCurve;
+  inout_stream << m_fBaseSize;
+  inout_stream << m_fCurveScale;
 }
 
-void ezParticleBehaviorFactory_SizeCurve::Load(ezStreamReader& stream)
+void ezParticleBehaviorFactory_SizeCurve::Load(ezStreamReader& inout_stream)
 {
   ezUInt8 uiVersion = 0;
-  stream >> uiVersion;
+  inout_stream >> uiVersion;
 
-  stream >> m_hCurve;
-  stream >> m_fBaseSize;
-  stream >> m_fCurveScale;
+  inout_stream >> m_hCurve;
+  inout_stream >> m_fBaseSize;
+  inout_stream >> m_fCurveScale;
 }
 
 void ezParticleBehaviorFactory_SizeCurve::SetSizeCurveFile(const char* szFile)

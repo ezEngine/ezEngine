@@ -50,7 +50,7 @@ public:
   ezImguiExtractor(const char* szName = "ImguiExtractor");
 
   virtual void Extract(
-    const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& extractedRenderData) override;
+    const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData) override;
 };
 
 class EZ_GAMEENGINE_DLL ezImguiRenderer : public ezRenderer
@@ -62,8 +62,8 @@ public:
   ezImguiRenderer();
   ~ezImguiRenderer();
 
-  virtual void GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types) const override;
-  virtual void GetSupportedRenderDataCategories(ezHybridArray<ezRenderData::Category, 8>& categories) const override;
+  virtual void GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& ref_types) const override;
+  virtual void GetSupportedRenderDataCategories(ezHybridArray<ezRenderData::Category, 8>& ref_categories) const override;
   virtual void RenderBatch(
     const ezRenderViewContext& renderContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const override;
 

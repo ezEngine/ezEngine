@@ -409,9 +409,9 @@ void ezMaterialResource::ResetResource()
   }
 }
 
-const char* ezMaterialResource::GetDefaultMaterialFileName(DefaultMaterialType MaterialType)
+const char* ezMaterialResource::GetDefaultMaterialFileName(DefaultMaterialType materialType)
 {
-  switch (MaterialType)
+  switch (materialType)
   {
     case DefaultMaterialType::Fullbright:
       return "Base/Materials/BaseMaterials/Fullbright.ezMaterialAsset";

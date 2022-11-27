@@ -13,7 +13,7 @@ public:
   ezSoundBankAssetDocumentManager();
   ~ezSoundBankAssetDocumentManager();
 
-  virtual void FillOutSubAssetList(const ezAssetDocumentInfo& assetInfo, ezHybridArray<ezSubAssetData, 4>& out_SubAssets) const override;
+  virtual void FillOutSubAssetList(const ezAssetDocumentInfo& assetInfo, ezHybridArray<ezSubAssetData, 4>& out_subAssets) const override;
   virtual ezString GetAssetTableEntry(
     const ezSubAsset* pSubAsset, const char* szDataDirectory, const ezPlatformProfile* pAssetProfile) const override;
 

@@ -31,13 +31,13 @@ void ezGameAppInputConfig::Apply() const
   ezInputManager::SetInputActionConfig(m_sInputSet, m_sInputAction, cfg, true);
 }
 
-void ezGameAppInputConfig::WriteToDDL(ezStreamWriter& stream, const ezArrayPtr<ezGameAppInputConfig>& actions)
+void ezGameAppInputConfig::WriteToDDL(ezStreamWriter& inout_stream, const ezArrayPtr<ezGameAppInputConfig>& actions)
 {
   ezOpenDdlWriter writer;
   writer.SetCompactMode(false);
   writer.SetFloatPrecisionMode(ezOpenDdlWriter::FloatPrecisionMode::Readable);
   writer.SetPrimitiveTypeStringMode(ezOpenDdlWriter::TypeStringMode::Compliant);
-  writer.SetOutputStream(&stream);
+  writer.SetOutputStream(&inout_stream);
 
   for (const ezGameAppInputConfig& config : actions)
   {
@@ -45,35 +45,35 @@ void ezGameAppInputConfig::WriteToDDL(ezStreamWriter& stream, const ezArrayPtr<e
   }
 }
 
-void ezGameAppInputConfig::WriteToDDL(ezOpenDdlWriter& writer) const
+void ezGameAppInputConfig::WriteToDDL(ezOpenDdlWriter& ref_writer) const
 {
-  writer.BeginObject("InputAction");
+  ref_writer.BeginObject("InputAction");
   {
-    ezOpenDdlUtils::StoreString(writer, m_sInputSet, "Set");
-    ezOpenDdlUtils::StoreString(writer, m_sInputAction, "Action");
-    ezOpenDdlUtils::StoreBool(writer, m_bApplyTimeScaling, "TimeScale");
+    ezOpenDdlUtils::StoreString(ref_writer, m_sInputSet, "Set");
+    ezOpenDdlUtils::StoreString(ref_writer, m_sInputAction, "Action");
+    ezOpenDdlUtils::StoreBool(ref_writer, m_bApplyTimeScaling, "TimeScale");
 
     for (int i = 0; i < 3; ++i)
     {
       if (!m_sInputSlotTrigger[i].IsEmpty())
       {
-        writer.BeginObject("Slot");
+        ref_writer.BeginObject("Slot");
         {
-          ezOpenDdlUtils::StoreString(writer, m_sInputSlotTrigger[i], "Key");
-          ezOpenDdlUtils::StoreFloat(writer, m_fInputSlotScale[i], "Scale");
+          ezOpenDdlUtils::StoreString(ref_writer, m_sInputSlotTrigger[i], "Key");
+          ezOpenDdlUtils::StoreFloat(ref_writer, m_fInputSlotScale[i], "Scale");
         }
-        writer.EndObject();
+        ref_writer.EndObject();
       }
     }
   }
-  writer.EndObject();
+  ref_writer.EndObject();
 }
 
-void ezGameAppInputConfig::ReadFromDDL(ezStreamReader& stream, ezHybridArray<ezGameAppInputConfig, 32>& out_actions)
+void ezGameAppInputConfig::ReadFromDDL(ezStreamReader& inout_stream, ezHybridArray<ezGameAppInputConfig, 32>& out_actions)
 {
   ezOpenDdlReader reader;
 
-  if (reader.ParseDocument(stream, 0, ezLog::GetThreadLocalLogSystem()).Failed())
+  if (reader.ParseDocument(inout_stream, 0, ezLog::GetThreadLocalLogSystem()).Failed())
     return;
 
   const ezOpenDdlReaderElement* pRoot = reader.GetRootElement();

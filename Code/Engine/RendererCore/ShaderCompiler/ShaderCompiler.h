@@ -56,9 +56,9 @@ public:
     bool m_bWriteToDisk[ezGALShaderStage::ENUM_COUNT];
   };
 
-  virtual void GetSupportedPlatforms(ezHybridArray<ezString, 4>& Platforms) = 0;
+  virtual void GetSupportedPlatforms(ezHybridArray<ezString, 4>& ref_platforms) = 0;
 
-  virtual ezResult Compile(ezShaderProgramData& inout_Data, ezLogInterface* pLog) = 0;
+  virtual ezResult Compile(ezShaderProgramData& inout_data, ezLogInterface* pLog) = 0;
 };
 
 class EZ_RENDERERCORE_DLL ezShaderCompiler

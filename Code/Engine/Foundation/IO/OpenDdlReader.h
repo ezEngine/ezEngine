@@ -127,7 +127,7 @@ public:
   /// larger file. \param pLog is used for outputting details about parsing errors. If nullptr is given, no details are logged. \param uiCacheSizeInKB
   /// is the internal cache size that the parser uses. If the parsed documents contain primitives lists with several thousand elements in a single
   /// list, increasing the cache size can improve performance, but typically this doesn't need to be adjusted.
-  ezResult ParseDocument(ezStreamReader& stream, ezUInt32 uiFirstLineOffset = 0, ezLogInterface* pLog = ezLog::GetThreadLocalLogSystem(),
+  ezResult ParseDocument(ezStreamReader& inout_stream, ezUInt32 uiFirstLineOffset = 0, ezLogInterface* pLog = ezLog::GetThreadLocalLogSystem(),
     ezUInt32 uiCacheSizeInKB = 4); // [tested]
 
   /// \brief Every document has exactly one root element.

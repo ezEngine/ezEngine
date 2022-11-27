@@ -292,9 +292,9 @@ void ezDrawBoxGizmo::UpdateGrid(QMouseEvent* e)
   }
 }
 
-void ezDrawBoxGizmo::GetResult(ezVec3& out_Origin, float& out_fSizeNegX, float& out_fSizePosX, float& out_fSizeNegY, float& out_fSizePosY, float& out_fSizeNegZ, float& out_fSizePosZ) const
+void ezDrawBoxGizmo::GetResult(ezVec3& out_vOrigin, float& out_fSizeNegX, float& out_fSizePosX, float& out_fSizeNegY, float& out_fSizePosY, float& out_fSizeNegZ, float& out_fSizePosZ) const
 {
-  out_Origin = m_vFirstCorner;
+  out_vOrigin = m_vFirstCorner;
 
   float fBoxX = m_vSecondCorner.x - m_vFirstCorner.x;
   float fBoxY = m_vSecondCorner.y - m_vFirstCorner.y;

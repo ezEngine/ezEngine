@@ -168,10 +168,10 @@ void ezQtAssetCuratorPanel::UpdateIssueInfo()
 
   ezAssetInfo* pAssetInfo = pSubAsset->m_pAssetInfo;
 
-  auto getNiceName = [](const ezString& dep) -> ezStringBuilder {
-    if (ezConversionUtils::IsStringUuid(dep))
+  auto getNiceName = [](const ezString& sDep) -> ezStringBuilder {
+    if (ezConversionUtils::IsStringUuid(sDep))
     {
-      ezUuid guid = ezConversionUtils::ConvertStringToUuid(dep);
+      ezUuid guid = ezConversionUtils::ConvertStringToUuid(sDep);
       auto assetInfoDep = ezAssetCurator::GetSingleton()->GetSubAsset(guid);
       if (assetInfoDep)
       {
@@ -182,15 +182,15 @@ void ezQtAssetCuratorPanel::UpdateIssueInfo()
       ezUInt64 uiHigh;
       guid.GetValues(uiLow, uiHigh);
       ezStringBuilder sTmp;
-      sTmp.Format("{} - u4{{},{}}", dep, uiLow, uiHigh);
+      sTmp.Format("{} - u4{{},{}}", sDep, uiLow, uiHigh);
 
       return sTmp;
     }
 
-    return dep;
+    return sDep;
   };
 
-  ezLogEntryDelegate logger(([this](ezLogEntry& entry) -> void { TransformLog->GetLog()->AddLogMsg(std::move(entry)); }));
+  ezLogEntryDelegate logger(([this](ezLogEntry& ref_entry) -> void { TransformLog->GetLog()->AddLogMsg(std::move(ref_entry)); }));
   ezStringBuilder text;
   if (pAssetInfo->m_TransformState == ezAssetInfo::MissingDependency)
   {

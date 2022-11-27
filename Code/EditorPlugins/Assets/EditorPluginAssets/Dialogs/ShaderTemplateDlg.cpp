@@ -6,8 +6,8 @@
 #include <RendererCore/ShaderCompiler/ShaderParser.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 
-ezQtShaderTemplateDlg::ezQtShaderTemplateDlg(QWidget* parent, const ezDocument* pSceneDoc)
-  : QDialog(parent)
+ezQtShaderTemplateDlg::ezQtShaderTemplateDlg(QWidget* pParent, const ezDocument* pSceneDoc)
+  : QDialog(pParent)
 {
   setupUi(this);
 
@@ -125,9 +125,9 @@ void ezQtShaderTemplateDlg::on_Buttons_accepted()
   ezPreprocessor pp;
   pp.SetPassThroughLine(false);
   pp.SetPassThroughPragma(false);
-  pp.SetFileOpenFunction([code](const char* szAbsoluteFile, ezDynamicArray<ezUInt8>& FileContent, ezTimestamp& out_FileModification) {
-    FileContent.SetCountUninitialized(code.GetElementCount());
-    ezMemoryUtils::RawByteCopy(FileContent.GetData(), code.GetData(), code.GetElementCount());
+  pp.SetFileOpenFunction([code](const char* szAbsoluteFile, ezDynamicArray<ezUInt8>& ref_fileContent, ezTimestamp& out_fileModification) {
+    ref_fileContent.SetCountUninitialized(code.GetElementCount());
+    ezMemoryUtils::RawByteCopy(ref_fileContent.GetData(), code.GetData(), code.GetElementCount());
     return EZ_SUCCESS;
   });
 

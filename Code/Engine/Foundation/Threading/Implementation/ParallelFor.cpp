@@ -40,13 +40,13 @@ private:
 };
 
 template <typename IndexType, typename Callback>
-void ParallelForIndexedInternal(IndexType uiStartIndex, IndexType uiNumItems, const Callback& taskCallback, const char* taskName, const ezParallelForParams& params)
+void ParallelForIndexedInternal(IndexType uiStartIndex, IndexType uiNumItems, const Callback& taskCallback, const char* szTaskName, const ezParallelForParams& params)
 {
   typedef IndexedTask<IndexType, Callback> Task;
 
-  if (!taskName)
+  if (!szTaskName)
   {
-    taskName = "Generic Indexed Task";
+    szTaskName = "Generic Indexed Task";
   }
 
   if (uiNumItems <= params.m_uiBinSize)
@@ -54,9 +54,9 @@ void ParallelForIndexedInternal(IndexType uiStartIndex, IndexType uiNumItems, co
     // If we have not exceeded the threading threshold we use serial execution
 
     Task indexedTask(uiStartIndex, uiNumItems, std::move(taskCallback), uiNumItems);
-    indexedTask.ConfigureTask(taskName, ezTaskNesting::Never);
+    indexedTask.ConfigureTask(szTaskName, ezTaskNesting::Never);
 
-    EZ_PROFILE_SCOPE(taskName);
+    EZ_PROFILE_SCOPE(szTaskName);
     indexedTask.Execute();
   }
   else
@@ -68,7 +68,7 @@ void ParallelForIndexedInternal(IndexType uiStartIndex, IndexType uiNumItems, co
     ezAllocatorBase* pAllocator = (params.m_pTaskAllocator != nullptr) ? params.m_pTaskAllocator : ezFoundation::GetDefaultAllocator();
 
     ezSharedPtr<Task> pIndexedTask = EZ_NEW(pAllocator, Task, uiStartIndex, uiNumItems, std::move(taskCallback), static_cast<IndexType>(uiItemsPerInvocation));
-    pIndexedTask->ConfigureTask(taskName, ezTaskNesting::Never);
+    pIndexedTask->ConfigureTask(szTaskName, ezTaskNesting::Never);
 
     pIndexedTask->SetMultiplicity(uiMultiplicity);
     ezTaskGroupID taskGroupId = ezTaskSystem::StartSingleTask(pIndexedTask, ezTaskPriority::EarlyThisFrame);
@@ -129,14 +129,14 @@ void ezParallelForParams::DetermineThreading(ezUInt64 uiNumItemsToExecute, ezUIn
   }
 }
 
-void ezTaskSystem::ParallelForIndexed(ezUInt32 uiStartIndex, ezUInt32 uiNumItems, ezParallelForIndexedFunction32 taskCallback, const char* taskName, const ezParallelForParams& params)
+void ezTaskSystem::ParallelForIndexed(ezUInt32 uiStartIndex, ezUInt32 uiNumItems, ezParallelForIndexedFunction32 taskCallback, const char* szTaskName, const ezParallelForParams& params)
 {
-  ParallelForIndexedInternal<ezUInt32, ezParallelForIndexedFunction32>(uiStartIndex, uiNumItems, taskCallback, taskName, params);
+  ParallelForIndexedInternal<ezUInt32, ezParallelForIndexedFunction32>(uiStartIndex, uiNumItems, taskCallback, szTaskName, params);
 }
 
-void ezTaskSystem::ParallelForIndexed(ezUInt64 uiStartIndex, ezUInt64 uiNumItems, ezParallelForIndexedFunction64 taskCallback, const char* taskName, const ezParallelForParams& params)
+void ezTaskSystem::ParallelForIndexed(ezUInt64 uiStartIndex, ezUInt64 uiNumItems, ezParallelForIndexedFunction64 taskCallback, const char* szTaskName, const ezParallelForParams& params)
 {
-  ParallelForIndexedInternal<ezUInt64, ezParallelForIndexedFunction64>(uiStartIndex, uiNumItems, taskCallback, taskName, params);
+  ParallelForIndexedInternal<ezUInt64, ezParallelForIndexedFunction64>(uiStartIndex, uiNumItems, taskCallback, szTaskName, params);
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Threading_Implementation_ParallelFor);

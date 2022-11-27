@@ -86,50 +86,50 @@ enum class TypeTrailVersion
   Version_Current = Version_Count - 1
 };
 
-void ezParticleTypeTrailFactory::Save(ezStreamWriter& stream) const
+void ezParticleTypeTrailFactory::Save(ezStreamWriter& inout_stream) const
 {
   const ezUInt8 uiVersion = (int)TypeTrailVersion::Version_Current;
-  stream << uiVersion;
+  inout_stream << uiVersion;
 
-  stream << m_sTexture;
-  stream << m_uiMaxPoints;
-  stream << m_UpdateDiff;
-  stream << m_RenderMode;
+  inout_stream << m_sTexture;
+  inout_stream << m_uiMaxPoints;
+  inout_stream << m_UpdateDiff;
+  inout_stream << m_RenderMode;
 
   // version 3
-  stream << m_TextureAtlasType;
-  stream << m_uiNumSpritesX;
-  stream << m_uiNumSpritesY;
+  inout_stream << m_TextureAtlasType;
+  inout_stream << m_uiNumSpritesX;
+  inout_stream << m_uiNumSpritesY;
 
   // version 4
-  stream << m_sTintColorParameter;
+  inout_stream << m_sTintColorParameter;
 
   // version 5
-  stream << m_sDistortionTexture;
-  stream << m_fDistortionStrength;
+  inout_stream << m_sDistortionTexture;
+  inout_stream << m_fDistortionStrength;
 }
 
-void ezParticleTypeTrailFactory::Load(ezStreamReader& stream)
+void ezParticleTypeTrailFactory::Load(ezStreamReader& inout_stream)
 {
   ezUInt8 uiVersion = 0;
-  stream >> uiVersion;
+  inout_stream >> uiVersion;
 
   EZ_ASSERT_DEV(uiVersion <= (int)TypeTrailVersion::Version_Current, "Invalid version {0}", uiVersion);
 
-  stream >> m_sTexture;
-  stream >> m_uiMaxPoints;
-  stream >> m_UpdateDiff;
+  inout_stream >> m_sTexture;
+  inout_stream >> m_uiMaxPoints;
+  inout_stream >> m_UpdateDiff;
 
   if (uiVersion >= 2)
   {
-    stream >> m_RenderMode;
+    inout_stream >> m_RenderMode;
   }
 
   if (uiVersion >= 3)
   {
-    stream >> m_TextureAtlasType;
-    stream >> m_uiNumSpritesX;
-    stream >> m_uiNumSpritesY;
+    inout_stream >> m_TextureAtlasType;
+    inout_stream >> m_uiNumSpritesX;
+    inout_stream >> m_uiNumSpritesY;
 
     if (m_TextureAtlasType == ezParticleTextureAtlasType::None)
     {
@@ -140,13 +140,13 @@ void ezParticleTypeTrailFactory::Load(ezStreamReader& stream)
 
   if (uiVersion >= 4)
   {
-    stream >> m_sTintColorParameter;
+    inout_stream >> m_sTintColorParameter;
   }
 
   if (uiVersion >= 5)
   {
-    stream >> m_sDistortionTexture;
-    stream >> m_fDistortionStrength;
+    inout_stream >> m_sDistortionTexture;
+    inout_stream >> m_fDistortionStrength;
   }
 }
 
@@ -178,7 +178,7 @@ void ezParticleTypeTrail::CreateRequiredStreams()
   }
 }
 
-void ezParticleTypeTrail::ExtractTypeRenderData(ezMsgExtractRenderData& msg, const ezTransform& instanceTransform) const
+void ezParticleTypeTrail::ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg, const ezTransform& instanceTransform) const
 {
   EZ_PROFILE_SCOPE("PFX: Trail");
 
@@ -288,7 +288,7 @@ void ezParticleTypeTrail::ExtractTypeRenderData(ezMsgExtractRenderData& msg, con
       break;
   }
 
-  msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::LitTransparent, ezRenderData::Caching::Never);
+  ref_msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::LitTransparent, ezRenderData::Caching::Never);
 }
 
 void ezParticleTypeTrail::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)

@@ -31,8 +31,8 @@ class EZ_JOLTPLUGIN_DLL ezJoltTriggerComponent : public ezJoltActorComponent
   // ezComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
 public:
   virtual void OnSimulationStarted() override;
@@ -45,7 +45,7 @@ public:
   ezJoltTriggerComponent();
   ~ezJoltTriggerComponent();
 
-  void SetTriggerMessage(const char* sz) { m_sTriggerMessage.Assign(sz); }      // [ property ]
+  void SetTriggerMessage(const char* szSz) { m_sTriggerMessage.Assign(szSz); }  // [ property ]
   const char* GetTriggerMessage() const { return m_sTriggerMessage.GetData(); } // [ property ]
 
 protected:

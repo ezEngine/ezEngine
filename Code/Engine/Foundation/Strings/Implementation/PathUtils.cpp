@@ -161,10 +161,10 @@ bool ezPathUtils::IsRootedPath(ezStringView sPath)
   return !sPath.IsEmpty() && *sPath.GetStartPointer() == ':';
 }
 
-void ezPathUtils::GetRootedPathParts(ezStringView sPath, ezStringView& root, ezStringView& relPath)
+void ezPathUtils::GetRootedPathParts(ezStringView sPath, ezStringView& ref_sRoot, ezStringView& ref_sRelPath)
 {
-  root = ezStringView();
-  relPath = sPath;
+  ref_sRoot = ezStringView();
+  ref_sRelPath = sPath;
 
   if (!IsRootedPath(sPath))
     return;
@@ -187,16 +187,16 @@ void ezPathUtils::GetRootedPathParts(ezStringView sPath, ezStringView& root, ezS
   while (*szEnd != '\0' && !IsPathSeparator(*szEnd))
     ezUnicodeUtils::MoveToNextUtf8(szEnd, szPathEnd);
 
-  root = ezStringView(szStart, szEnd);
+  ref_sRoot = ezStringView(szStart, szEnd);
   if (*szEnd == '\0')
   {
-    relPath = ezStringView();
+    ref_sRelPath = ezStringView();
   }
   else
   {
     // skip path separator for the relative path
     ezUnicodeUtils::MoveToNextUtf8(szEnd, szPathEnd);
-    relPath = ezStringView(szEnd, szPathEnd);
+    ref_sRelPath = ezStringView(szEnd, szPathEnd);
   }
 }
 
@@ -207,7 +207,7 @@ ezStringView ezPathUtils::GetRootedPathRootName(ezStringView sPath)
   return root;
 }
 
-bool ezPathUtils::IsValidFilenameChar(ezUInt32 character)
+bool ezPathUtils::IsValidFilenameChar(ezUInt32 uiCharacter)
 {
   /// \test Not tested yet
 
@@ -219,7 +219,7 @@ bool ezPathUtils::IsValidFilenameChar(ezUInt32 character)
 
   for (int i = 0; i < EZ_ARRAY_SIZE(forbiddenFilenameChars); ++i)
   {
-    if (forbiddenFilenameChars[i] == character)
+    if (forbiddenFilenameChars[i] == uiCharacter)
       return false;
   }
 
@@ -241,20 +241,20 @@ bool ezPathUtils::ContainsInvalidFilenameChars(ezStringView sPath)
   return false;
 }
 
-void ezPathUtils::MakeValidFilename(ezStringView sFilename, ezUInt32 replacementCharacter, ezStringBuilder& outFilename)
+void ezPathUtils::MakeValidFilename(ezStringView sFilename, ezUInt32 uiReplacementCharacter, ezStringBuilder& out_sFilename)
 {
-  EZ_ASSERT_DEBUG(IsValidFilenameChar(replacementCharacter), "Given replacement character is not allowed for filenames.");
+  EZ_ASSERT_DEBUG(IsValidFilenameChar(uiReplacementCharacter), "Given replacement character is not allowed for filenames.");
 
-  outFilename.Clear();
+  out_sFilename.Clear();
 
   for (auto it = sFilename.GetIteratorFront(); it.IsValid(); ++it)
   {
     ezUInt32 currentChar = it.GetCharacter();
 
     if (IsValidFilenameChar(currentChar) == false)
-      outFilename.Append(replacementCharacter);
+      out_sFilename.Append(uiReplacementCharacter);
     else
-      outFilename.Append(currentChar);
+      out_sFilename.Append(currentChar);
   }
 }
 

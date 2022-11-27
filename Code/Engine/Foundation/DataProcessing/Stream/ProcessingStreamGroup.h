@@ -45,7 +45,7 @@ public:
 
   /// \brief Adds a stream with the given name to the stream group. Adding a stream two times with the same name will return nullptr for the second
   /// attempt to signal an error.
-  ezProcessingStream* AddStream(ezStringView sName, ezProcessingStream::DataType Type);
+  ezProcessingStream* AddStream(ezStringView sName, ezProcessingStream::DataType type);
 
   /// \brief Removes the stream with the given name, if it exists.
   void RemoveStreamByName(ezStringView sName);

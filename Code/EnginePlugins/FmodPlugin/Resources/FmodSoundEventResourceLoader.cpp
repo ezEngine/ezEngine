@@ -82,9 +82,9 @@ ezResourceLoadData ezFmodSoundEventResourceLoader::OpenDataStream(const ezResour
   return res;
 }
 
-void ezFmodSoundEventResourceLoader::CloseDataStream(const ezResource* pResource, const ezResourceLoadData& LoaderData)
+void ezFmodSoundEventResourceLoader::CloseDataStream(const ezResource* pResource, const ezResourceLoadData& loaderData)
 {
-  LoadedData* pData = (LoadedData*)LoaderData.m_pCustomLoaderData;
+  LoadedData* pData = (LoadedData*)loaderData.m_pCustomLoaderData;
 
   EZ_DEFAULT_DELETE(pData);
 }

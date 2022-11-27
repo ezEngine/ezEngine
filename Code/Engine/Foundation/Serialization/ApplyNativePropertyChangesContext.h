@@ -7,7 +7,7 @@
 class EZ_FOUNDATION_DLL ezApplyNativePropertyChangesContext : public ezRttiConverterContext
 {
 public:
-  ezApplyNativePropertyChangesContext(ezRttiConverterContext& source, const ezAbstractObjectGraph& originalGraph);
+  ezApplyNativePropertyChangesContext(ezRttiConverterContext& ref_source, const ezAbstractObjectGraph& originalGraph);
 
   virtual ezUuid GenerateObjectGuid(const ezUuid& parentGuid, const ezAbstractProperty* pProp, ezVariant index, void* pObject) const override;
 

@@ -189,10 +189,10 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezCameraComponent::ezCameraComponent() = default;
 ezCameraComponent::~ezCameraComponent() = default;
 
-void ezCameraComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezCameraComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
-  auto& s = stream.GetStream();
+  SUPER::SerializeComponent(inout_stream);
+  auto& s = inout_stream.GetStream();
 
   s << m_UsageHint.GetValue();
   s << m_Mode.GetValue();
@@ -228,11 +228,11 @@ void ezCameraComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_bShowStats;
 }
 
-void ezCameraComponent::DeserializeComponent(ezWorldReader& stream)
+void ezCameraComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  auto& s = stream.GetStream();
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  auto& s = inout_stream.GetStream();
 
   ezCameraUsageHint::StorageType usage;
   s >> usage;
@@ -427,41 +427,41 @@ void ezCameraComponent::SetCameraMode(ezEnum<ezCameraMode> val)
 }
 
 
-void ezCameraComponent::SetNearPlane(float val)
+void ezCameraComponent::SetNearPlane(float fVal)
 {
-  if (val == m_fNearPlane)
+  if (fVal == m_fNearPlane)
     return;
-  m_fNearPlane = val;
+  m_fNearPlane = fVal;
 
   MarkAsModified();
 }
 
 
-void ezCameraComponent::SetFarPlane(float val)
+void ezCameraComponent::SetFarPlane(float fVal)
 {
-  if (val == m_fFarPlane)
+  if (fVal == m_fFarPlane)
     return;
-  m_fFarPlane = val;
+  m_fFarPlane = fVal;
 
   MarkAsModified();
 }
 
 
-void ezCameraComponent::SetFieldOfView(float val)
+void ezCameraComponent::SetFieldOfView(float fVal)
 {
-  if (val == m_fPerspectiveFieldOfView)
+  if (fVal == m_fPerspectiveFieldOfView)
     return;
-  m_fPerspectiveFieldOfView = val;
+  m_fPerspectiveFieldOfView = fVal;
 
   MarkAsModified();
 }
 
 
-void ezCameraComponent::SetOrthoDimension(float val)
+void ezCameraComponent::SetOrthoDimension(float fVal)
 {
-  if (val == m_fOrthoDimension)
+  if (fVal == m_fOrthoDimension)
     return;
-  m_fOrthoDimension = val;
+  m_fOrthoDimension = fVal;
 
   MarkAsModified();
 }
@@ -496,11 +496,11 @@ void ezCameraComponent::SetAperture(float fAperture)
   MarkAsModified();
 }
 
-void ezCameraComponent::SetShutterTime(ezTime ShutterTime)
+void ezCameraComponent::SetShutterTime(ezTime shutterTime)
 {
-  if (m_ShutterTime == ShutterTime)
+  if (m_ShutterTime == shutterTime)
     return;
-  m_ShutterTime = ShutterTime;
+  m_ShutterTime = shutterTime;
 
   MarkAsModified();
 }
@@ -735,7 +735,7 @@ public:
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
     pNode->RenameProperty("Usage Hint", "UsageHint");
     pNode->RenameProperty("Near Plane", "NearPlane");
@@ -760,7 +760,7 @@ public:
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
     // convert the "ShutterTime" property from float to ezTime
     if (auto pProp = pNode->FindProperty("ShutterTime"))

@@ -15,7 +15,7 @@ public:
   Q_OBJECT
 
 public:
-  ezQtPluginSelectionWidget(QWidget* parent);
+  ezQtPluginSelectionWidget(QWidget* pParent);
   ~ezQtPluginSelectionWidget();
 
   void SetPluginSet(ezPluginBundleSet* pPluginSet);

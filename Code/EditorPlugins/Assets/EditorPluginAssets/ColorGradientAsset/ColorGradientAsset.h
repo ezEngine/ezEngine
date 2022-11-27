@@ -10,7 +10,7 @@ class ezColorControlPoint : public ezReflectedClass
 
 public:
   ezTime GetTickAsTime() const { return ezTime::Seconds(m_iTick / 4800.0); }
-  void SetTickFromTime(ezTime time, ezInt64 fps);
+  void SetTickFromTime(ezTime time, ezInt64 iFps);
 
   // double m_fPositionX;
   ezInt64 m_iTick; // 4800 ticks per second
@@ -25,7 +25,7 @@ class ezAlphaControlPoint : public ezReflectedClass
 
 public:
   ezTime GetTickAsTime() const { return ezTime::Seconds(m_iTick / 4800.0); }
-  void SetTickFromTime(ezTime time, ezInt64 fps);
+  void SetTickFromTime(ezTime time, ezInt64 iFps);
 
   // double m_fPositionX;
   ezInt64 m_iTick; // 4800 ticks per second
@@ -38,7 +38,7 @@ class ezIntensityControlPoint : public ezReflectedClass
 
 public:
   ezTime GetTickAsTime() const { return ezTime::Seconds(m_iTick / 4800.0); }
-  void SetTickFromTime(ezTime time, ezInt64 fps);
+  void SetTickFromTime(ezTime time, ezInt64 iFps);
 
   // double m_fPositionX;
   ezInt64 m_iTick; // 4800 ticks per second
@@ -58,7 +58,7 @@ public:
 
   /// \brief Fills out the ezColorGradient structure with an exact copy of the data in the asset.
   /// Does NOT yet sort the control points, so before evaluating the color gradient, that must be called manually.
-  void FillGradientData(ezColorGradient& out_Result) const;
+  void FillGradientData(ezColorGradient& out_result) const;
   ezColor Evaluate(ezInt64 iTick) const;
 };
 
@@ -69,7 +69,7 @@ class ezColorGradientAssetDocument : public ezSimpleAssetDocument<ezColorGradien
 public:
   ezColorGradientAssetDocument(const char* szDocumentPath);
 
-  void WriteResource(ezStreamWriter& stream) const;
+  void WriteResource(ezStreamWriter& inout_stream) const;
 
 protected:
   virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,

@@ -12,8 +12,8 @@ class EZ_PHYSXPLUGIN_DLL ezPxShapeBoxComponent : public ezPxShapeComponent
   // ezComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
 
   //////////////////////////////////////////////////////////////////////////
@@ -33,7 +33,7 @@ public:
   void SetExtents(const ezVec3& value);                   // [ property ]
   const ezVec3& GetExtents() const { return m_vExtents; } // [ property ]
 
-  virtual void ExtractGeometry(ezMsgExtractGeometry& msg) const override;
+  virtual void ExtractGeometry(ezMsgExtractGeometry& ref_msg) const override;
 
 protected:
   void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const;

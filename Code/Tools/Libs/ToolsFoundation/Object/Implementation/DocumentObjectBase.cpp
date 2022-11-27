@@ -85,13 +85,13 @@ void ezDocumentObject::RemoveSubObject(ezDocumentObject* pObject)
   pObject->m_pParent = nullptr;
 }
 
-void ezDocumentObject::ComputeObjectHash(ezUInt64& uiHash) const
+void ezDocumentObject::ComputeObjectHash(ezUInt64& ref_uiHash) const
 {
   const ezIReflectedTypeAccessor& acc = GetTypeAccessor();
   auto pType = acc.GetType();
 
-  uiHash = ezHashingUtils::xxHash64(&m_Guid, sizeof(ezUuid), uiHash);
-  HashPropertiesRecursive(acc, uiHash, pType);
+  ref_uiHash = ezHashingUtils::xxHash64(&m_Guid, sizeof(ezUuid), ref_uiHash);
+  HashPropertiesRecursive(acc, ref_uiHash, pType);
 }
 
 

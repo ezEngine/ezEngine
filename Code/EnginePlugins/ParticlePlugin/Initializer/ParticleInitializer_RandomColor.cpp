@@ -60,24 +60,24 @@ const char* ezParticleInitializerFactory_RandomColor::GetColorGradientFile() con
   return m_hGradient.GetResourceID();
 }
 
-void ezParticleInitializerFactory_RandomColor::Save(ezStreamWriter& stream) const
+void ezParticleInitializerFactory_RandomColor::Save(ezStreamWriter& inout_stream) const
 {
   const ezUInt8 uiVersion = 1;
-  stream << uiVersion;
+  inout_stream << uiVersion;
 
-  stream << m_hGradient;
-  stream << m_Color1;
-  stream << m_Color2;
+  inout_stream << m_hGradient;
+  inout_stream << m_Color1;
+  inout_stream << m_Color2;
 }
 
-void ezParticleInitializerFactory_RandomColor::Load(ezStreamReader& stream)
+void ezParticleInitializerFactory_RandomColor::Load(ezStreamReader& inout_stream)
 {
   ezUInt8 uiVersion = 0;
-  stream >> uiVersion;
+  inout_stream >> uiVersion;
 
-  stream >> m_hGradient;
-  stream >> m_Color1;
-  stream >> m_Color2;
+  inout_stream >> m_hGradient;
+  inout_stream >> m_Color1;
+  inout_stream >> m_Color2;
 }
 
 

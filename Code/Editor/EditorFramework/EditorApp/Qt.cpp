@@ -45,9 +45,9 @@ void ezQtEditorApp::SetStyleSheet()
   QApplication::setPalette(palette);
 }
 
-static void QtDebugMessageHandler(QtMsgType type, const QMessageLogContext& context, const QString& msg)
+static void QtDebugMessageHandler(QtMsgType type, const QMessageLogContext& context, const QString& sQMsg)
 {
-  QByteArray localMsg = msg.toLocal8Bit();
+  QByteArray localMsg = sQMsg.toLocal8Bit();
   ezStringBuilder sMsg = localMsg.constData();
 
   switch (type)
@@ -82,7 +82,7 @@ static void QtDebugMessageHandler(QtMsgType type, const QMessageLogContext& cont
   }
 }
 
-void ezQtEditorApp::InitQt(int argc, char** argv)
+void ezQtEditorApp::InitQt(int iArgc, char** pArgv)
 {
   qInstallMessageHandler(QtDebugMessageHandler);
 
@@ -98,8 +98,8 @@ void ezQtEditorApp::InitQt(int argc, char** argv)
   }
   else
   {
-    m_iArgc = argc;
-    m_pQtApplication = new QApplication(m_iArgc, argv);
+    m_iArgc = iArgc;
+    m_pQtApplication = new QApplication(m_iArgc, pArgv);
     m_pQtApplication->setProperty("Shared", QVariant::fromValue((int)1));
     QFont font = m_pQtApplication->font();
     int ps = font.pixelSize();

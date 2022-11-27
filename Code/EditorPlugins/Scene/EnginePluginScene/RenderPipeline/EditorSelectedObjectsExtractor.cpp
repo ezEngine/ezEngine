@@ -38,7 +38,7 @@ const ezDeque<ezGameObjectHandle>* ezEditorSelectedObjectsExtractor::GetSelectio
 }
 
 void ezEditorSelectedObjectsExtractor::Extract(
-  const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& extractedRenderData)
+  const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData)
 {
   const bool bShowCameraOverlays = view.GetCameraUsageHint() == ezCameraUsageHint::EditorView;
 
@@ -81,7 +81,7 @@ void ezEditorSelectedObjectsExtractor::Extract(
     }
   }
 
-  ezSelectedObjectsExtractorBase::Extract(view, visibleObjects, extractedRenderData);
+  ezSelectedObjectsExtractorBase::Extract(view, visibleObjects, ref_extractedRenderData);
 }
 
 void ezEditorSelectedObjectsExtractor::CreateRenderTargetTexture(const ezView& view)

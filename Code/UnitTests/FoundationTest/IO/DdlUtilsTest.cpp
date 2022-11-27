@@ -8,7 +8,7 @@
 #include <Foundation/Strings/StringUtils.h>
 #include <FoundationTest/IO/JSONTestHelpers.h>
 
-static ezVariant CreateVariant(ezVariant::Type::Enum t, const void* data);
+static ezVariant CreateVariant(ezVariant::Type::Enum t, const void* pData);
 
 EZ_CREATE_SIMPLE_TEST(IO, DdlUtils)
 {
@@ -576,80 +576,80 @@ Angle $v12 { float { 45.23 } }\
   }
 }
 
-static ezVariant CreateVariant(ezVariant::Type::Enum t, const void* data)
+static ezVariant CreateVariant(ezVariant::Type::Enum t, const void* pData)
 {
   switch (t)
   {
     case ezVariant::Type::Bool:
-      return ezVariant(*((bool*)data));
+      return ezVariant(*((bool*)pData));
     case ezVariant::Type::Int8:
-      return ezVariant(*((ezInt8*)data));
+      return ezVariant(*((ezInt8*)pData));
     case ezVariant::Type::UInt8:
-      return ezVariant(*((ezUInt8*)data));
+      return ezVariant(*((ezUInt8*)pData));
     case ezVariant::Type::Int16:
-      return ezVariant(*((ezInt16*)data));
+      return ezVariant(*((ezInt16*)pData));
     case ezVariant::Type::UInt16:
-      return ezVariant(*((ezUInt16*)data));
+      return ezVariant(*((ezUInt16*)pData));
     case ezVariant::Type::Int32:
-      return ezVariant(*((ezInt32*)data));
+      return ezVariant(*((ezInt32*)pData));
     case ezVariant::Type::UInt32:
-      return ezVariant(*((ezUInt32*)data));
+      return ezVariant(*((ezUInt32*)pData));
     case ezVariant::Type::Int64:
-      return ezVariant(*((ezInt64*)data));
+      return ezVariant(*((ezInt64*)pData));
     case ezVariant::Type::UInt64:
-      return ezVariant(*((ezUInt64*)data));
+      return ezVariant(*((ezUInt64*)pData));
     case ezVariant::Type::Float:
-      return ezVariant(*((float*)data));
+      return ezVariant(*((float*)pData));
     case ezVariant::Type::Double:
-      return ezVariant(*((double*)data));
+      return ezVariant(*((double*)pData));
     case ezVariant::Type::Color:
-      return ezVariant(*((ezColor*)data));
+      return ezVariant(*((ezColor*)pData));
     case ezVariant::Type::Vector2:
-      return ezVariant(*((ezVec2*)data));
+      return ezVariant(*((ezVec2*)pData));
     case ezVariant::Type::Vector3:
-      return ezVariant(*((ezVec3*)data));
+      return ezVariant(*((ezVec3*)pData));
     case ezVariant::Type::Vector4:
-      return ezVariant(*((ezVec4*)data));
+      return ezVariant(*((ezVec4*)pData));
     case ezVariant::Type::Vector2I:
-      return ezVariant(*((ezVec2I32*)data));
+      return ezVariant(*((ezVec2I32*)pData));
     case ezVariant::Type::Vector3I:
-      return ezVariant(*((ezVec3I32*)data));
+      return ezVariant(*((ezVec3I32*)pData));
     case ezVariant::Type::Vector4I:
-      return ezVariant(*((ezVec4I32*)data));
+      return ezVariant(*((ezVec4I32*)pData));
     case ezVariant::Type::Vector2U:
-      return ezVariant(*((ezVec2U32*)data));
+      return ezVariant(*((ezVec2U32*)pData));
     case ezVariant::Type::Vector3U:
-      return ezVariant(*((ezVec3U32*)data));
+      return ezVariant(*((ezVec3U32*)pData));
     case ezVariant::Type::Vector4U:
-      return ezVariant(*((ezVec4U32*)data));
+      return ezVariant(*((ezVec4U32*)pData));
     case ezVariant::Type::Quaternion:
-      return ezVariant(*((ezQuat*)data));
+      return ezVariant(*((ezQuat*)pData));
     case ezVariant::Type::Matrix3:
-      return ezVariant(*((ezMat3*)data));
+      return ezVariant(*((ezMat3*)pData));
     case ezVariant::Type::Matrix4:
-      return ezVariant(*((ezMat4*)data));
+      return ezVariant(*((ezMat4*)pData));
     case ezVariant::Type::Transform:
-      return ezVariant(*((ezTransform*)data));
+      return ezVariant(*((ezTransform*)pData));
     case ezVariant::Type::String:
     case ezVariant::Type::StringView: // string views are stored as full strings as well
-      return ezVariant((const char*)data);
+      return ezVariant((const char*)pData);
     case ezVariant::Type::DataBuffer:
     {
       ezDataBuffer db;
       db.SetCountUninitialized(sizeof(float) * 16);
       for (ezUInt32 i = 0; i < db.GetCount(); ++i)
-        db[i] = ((ezUInt8*)data)[i];
+        db[i] = ((ezUInt8*)pData)[i];
 
       return ezVariant(db);
     }
     case ezVariant::Type::Time:
-      return ezVariant(*((ezTime*)data));
+      return ezVariant(*((ezTime*)pData));
     case ezVariant::Type::Uuid:
-      return ezVariant(*((ezUuid*)data));
+      return ezVariant(*((ezUuid*)pData));
     case ezVariant::Type::Angle:
-      return ezVariant(*((ezAngle*)data));
+      return ezVariant(*((ezAngle*)pData));
     case ezVariant::Type::ColorGamma:
-      return ezVariant(*((ezColorGammaUB*)data));
+      return ezVariant(*((ezColorGammaUB*)pData));
 
     default:
       EZ_REPORT_FAILURE("Unknown type");

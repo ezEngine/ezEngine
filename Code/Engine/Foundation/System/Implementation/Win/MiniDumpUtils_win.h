@@ -43,7 +43,7 @@ ezMinWindows::HANDLE ezMiniDumpUtils::GetProcessHandleWithNecessaryRights(ezUInt
 }
 
 ezStatus ezMiniDumpUtils::WriteProcessMiniDump(
-  const char* szDumpFile, ezUInt32 uiProcessID, ezMinWindows::HANDLE hProcess, struct _EXCEPTION_POINTERS* pExceptionInfo)
+  const char* szDumpFile, ezUInt32 uiProcessID, ezMinWindows::HANDLE pProcess, struct _EXCEPTION_POINTERS* pExceptionInfo)
 {
   HMODULE hDLL = ::LoadLibraryA("dbghelp.dll");
 
@@ -90,7 +90,7 @@ ezStatus ezMiniDumpUtils::WriteProcessMiniDump(
   exceptionParam.ClientPointers = TRUE;
 
   if (MiniDumpWriteDumpFunc(
-        hProcess, uiProcessID, hFile, (MINIDUMP_TYPE)dumpType, pExceptionInfo != nullptr ? &exceptionParam : nullptr, nullptr, nullptr) == FALSE)
+        pProcess, uiProcessID, hFile, (MINIDUMP_TYPE)dumpType, pExceptionInfo != nullptr ? &exceptionParam : nullptr, nullptr, nullptr) == FALSE)
   {
     return ezStatus(ezFmt("Writing dump file failed: '{}'.", ezArgErrorCode(GetLastError())));
   }
@@ -103,9 +103,9 @@ ezStatus ezMiniDumpUtils::WriteOwnProcessMiniDump(const char* szDumpFile, struct
   return WriteProcessMiniDump(szDumpFile, GetCurrentProcessId(), GetCurrentProcess(), pExceptionInfo);
 }
 
-ezStatus ezMiniDumpUtils::WriteExternalProcessMiniDump(const char* szDumpFile, ezUInt32 uiProcessID, ezMinWindows::HANDLE hProcess)
+ezStatus ezMiniDumpUtils::WriteExternalProcessMiniDump(const char* szDumpFile, ezUInt32 uiProcessID, ezMinWindows::HANDLE pProcess)
 {
-  return WriteProcessMiniDump(szDumpFile, uiProcessID, hProcess, nullptr);
+  return WriteProcessMiniDump(szDumpFile, uiProcessID, pProcess, nullptr);
 }
 
 #endif

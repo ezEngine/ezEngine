@@ -12,11 +12,11 @@ public:
 
   ezSimdMat4f(const float* const pData, ezMatrixLayout::Enum layout); // [tested]
 
-  ezSimdMat4f(const ezSimdVec4f& col0, const ezSimdVec4f& col1, const ezSimdVec4f& col2, const ezSimdVec4f& col3); // [tested]
+  ezSimdMat4f(const ezSimdVec4f& vCol0, const ezSimdVec4f& vCol1, const ezSimdVec4f& vCol2, const ezSimdVec4f& vCol3); // [tested]
 
   /// \brief Sets each element manually: Naming is "column-n row-m"
-  ezSimdMat4f(float c1r1, float c2r1, float c3r1, float c4r1, float c1r2, float c2r2, float c3r2, float c4r2, float c1r3, float c2r3, float c3r3,
-    float c4r3, float c1r4, float c2r4, float c3r4, float c4r4); // [tested]
+  ezSimdMat4f(float f1r1, float f2r1, float f3r1, float f4r1, float f1r2, float f2r2, float f3r2, float f4r2, float f1r3, float f2r3, float f3r3,
+    float f4r3, float f1r4, float f2r4, float f3r4, float f4r4); // [tested]
 
   void SetFromArray(const float* const pData, ezMatrixLayout::Enum layout); // [tested]
 
@@ -55,8 +55,8 @@ public:
   bool IsNaN() const; // [tested]
 
 public:
-  void SetRows(const ezSimdVec4f& row0, const ezSimdVec4f& row1, const ezSimdVec4f& row2, const ezSimdVec4f& row3); // [tested]
-  void GetRows(ezSimdVec4f& row0, ezSimdVec4f& row1, ezSimdVec4f& row2, ezSimdVec4f& row3) const;                   // [tested]
+  void SetRows(const ezSimdVec4f& vRow0, const ezSimdVec4f& vRow1, const ezSimdVec4f& vRow2, const ezSimdVec4f& vRow3); // [tested]
+  void GetRows(ezSimdVec4f& ref_vRow0, ezSimdVec4f& ref_vRow1, ezSimdVec4f& ref_vRow2, ezSimdVec4f& ref_vRow3) const;   // [tested]
 
 public:
   /// \brief Matrix-vector multiplication, assuming the 4th component of the vector is one (default behavior).

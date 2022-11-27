@@ -48,11 +48,11 @@ enum PrefabComponentFlags
 ezPrefabReferenceComponent::ezPrefabReferenceComponent() = default;
 ezPrefabReferenceComponent::~ezPrefabReferenceComponent() = default;
 
-void ezPrefabReferenceComponent::SerializePrefabParameters(const ezWorld& world, ezWorldWriter& stream, ezArrayMap<ezHashedString, ezVariant> parameters)
+void ezPrefabReferenceComponent::SerializePrefabParameters(const ezWorld& world, ezWorldWriter& inout_stream, ezArrayMap<ezHashedString, ezVariant> parameters)
 {
   // we need a copy of the parameters here, therefore we don't take it by reference
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
   const ezUInt32 numParams = parameters.GetCount();
 
   ezHybridArray<ezGameObjectHandle, 8> GoReferences;
@@ -98,7 +98,7 @@ void ezPrefabReferenceComponent::SerializePrefabParameters(const ezWorld& world,
 
     for (ezUInt8 i = 0; i < numRefs; ++i)
     {
-      stream.WriteGameObjectHandle(GoReferences[i]);
+      inout_stream.WriteGameObjectHandle(GoReferences[i]);
     }
   }
 
@@ -111,13 +111,13 @@ void ezPrefabReferenceComponent::SerializePrefabParameters(const ezWorld& world,
   }
 }
 
-void ezPrefabReferenceComponent::DeserializePrefabParameters(ezArrayMap<ezHashedString, ezVariant>& out_parameters, ezWorldReader& stream)
+void ezPrefabReferenceComponent::DeserializePrefabParameters(ezArrayMap<ezHashedString, ezVariant>& out_parameters, ezWorldReader& inout_stream)
 {
   out_parameters.Clear();
 
   // versioning of this stuff is tied to the version number of ezPrefabReferenceComponent
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(ezGetStaticRTTI<ezPrefabReferenceComponent>());
-  auto& s = stream.GetStream();
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(ezGetStaticRTTI<ezPrefabReferenceComponent>());
+  auto& s = inout_stream.GetStream();
 
   // temp array to hold (and remap) the serialized game object handles
   ezHybridArray<ezGameObjectHandle, 8> GoReferences;
@@ -131,7 +131,7 @@ void ezPrefabReferenceComponent::DeserializePrefabParameters(ezArrayMap<ezHashed
     // just read them all, this will remap as necessary to the ezWorldReader
     for (ezUInt8 i = 0; i < numRefs; ++i)
     {
-      GoReferences[i] = stream.ReadGameObjectHandle();
+      GoReferences[i] = inout_stream.ReadGameObjectHandle();
     }
   }
 
@@ -180,21 +180,21 @@ void ezPrefabReferenceComponent::DeserializePrefabParameters(ezArrayMap<ezHashed
   }
 }
 
-void ezPrefabReferenceComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezPrefabReferenceComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
-  auto& s = stream.GetStream();
+  SUPER::SerializeComponent(inout_stream);
+  auto& s = inout_stream.GetStream();
 
   s << m_hPrefab;
 
-  ezPrefabReferenceComponent::SerializePrefabParameters(*GetWorld(), stream, m_Parameters);
+  ezPrefabReferenceComponent::SerializePrefabParameters(*GetWorld(), inout_stream, m_Parameters);
 }
 
-void ezPrefabReferenceComponent::DeserializeComponent(ezWorldReader& stream)
+void ezPrefabReferenceComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  auto& s = stream.GetStream();
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  auto& s = inout_stream.GetStream();
 
   s >> m_hPrefab;
 
@@ -204,7 +204,7 @@ void ezPrefabReferenceComponent::DeserializeComponent(ezWorldReader& stream)
     s >> bDummy;
   }
 
-  ezPrefabReferenceComponent::DeserializePrefabParameters(m_Parameters, stream);
+  ezPrefabReferenceComponent::DeserializePrefabParameters(m_Parameters, inout_stream);
 }
 
 void ezPrefabReferenceComponent::SetPrefabFile(const char* szFile)
@@ -357,7 +357,7 @@ void ezPrefabReferenceComponent::OnSimulationStarted()
 
 const ezRangeView<const char*, ezUInt32> ezPrefabReferenceComponent::GetParameters() const
 {
-  return ezRangeView<const char*, ezUInt32>([]() -> ezUInt32 { return 0; }, [this]() -> ezUInt32 { return m_Parameters.GetCount(); }, [](ezUInt32& it) { ++it; }, [this](const ezUInt32& it) -> const char* { return m_Parameters.GetKey(it).GetString().GetData(); });
+  return ezRangeView<const char*, ezUInt32>([]() -> ezUInt32 { return 0; }, [this]() -> ezUInt32 { return m_Parameters.GetCount(); }, [](ezUInt32& ref_uiIt) { ++ref_uiIt; }, [this](const ezUInt32& uiIt) -> const char* { return m_Parameters.GetKey(uiIt).GetString().GetData(); });
 }
 
 void ezPrefabReferenceComponent::SetParameter(const char* szKey, const ezVariant& value)

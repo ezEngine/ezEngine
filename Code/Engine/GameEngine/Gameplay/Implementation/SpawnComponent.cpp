@@ -140,10 +140,10 @@ void ezSpawnComponent::ScheduleSpawn()
   PostMessage(msg, tKill);
 }
 
-void ezSpawnComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezSpawnComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
-  auto& s = stream.GetStream();
+  SUPER::SerializeComponent(inout_stream);
+  auto& s = inout_stream.GetStream();
 
   s << m_SpawnFlags.GetValue();
   s << m_hPrefab;
@@ -153,15 +153,15 @@ void ezSpawnComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_MaxDeviation;
   s << m_LastManualSpawn;
 
-  ezPrefabReferenceComponent::SerializePrefabParameters(*GetWorld(), stream, m_Parameters);
+  ezPrefabReferenceComponent::SerializePrefabParameters(*GetWorld(), inout_stream, m_Parameters);
 }
 
-void ezSpawnComponent::DeserializeComponent(ezWorldReader& stream)
+void ezSpawnComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   ezSpawnComponentFlags::StorageType flags;
   s >> flags;
@@ -176,7 +176,7 @@ void ezSpawnComponent::DeserializeComponent(ezWorldReader& stream)
 
   if (uiVersion >= 3)
   {
-    ezPrefabReferenceComponent::DeserializePrefabParameters(m_Parameters, stream);
+    ezPrefabReferenceComponent::DeserializePrefabParameters(m_Parameters, inout_stream);
   }
 }
 
@@ -275,7 +275,7 @@ void ezSpawnComponent::OnTriggered(ezMsgComponentInternalTrigger& msg)
 
 const ezRangeView<const char*, ezUInt32> ezSpawnComponent::GetParameters() const
 {
-  return ezRangeView<const char*, ezUInt32>([]() -> ezUInt32 { return 0; }, [this]() -> ezUInt32 { return m_Parameters.GetCount(); }, [](ezUInt32& it) { ++it; }, [this](const ezUInt32& it) -> const char* { return m_Parameters.GetKey(it).GetString().GetData(); });
+  return ezRangeView<const char*, ezUInt32>([]() -> ezUInt32 { return 0; }, [this]() -> ezUInt32 { return m_Parameters.GetCount(); }, [](ezUInt32& ref_uiIt) { ++ref_uiIt; }, [this](const ezUInt32& uiIt) -> const char* { return m_Parameters.GetKey(uiIt).GetString().GetData(); });
 }
 
 void ezSpawnComponent::SetParameter(const char* szKey, const ezVariant& value)
@@ -320,7 +320,7 @@ public:
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
     pNode->RenameProperty("Attach as Child", "AttachAsChild");
     pNode->RenameProperty("Spawn at Start", "SpawnAtStart");

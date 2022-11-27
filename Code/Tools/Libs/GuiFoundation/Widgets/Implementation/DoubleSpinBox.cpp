@@ -26,9 +26,9 @@ ezQtDoubleSpinBox::ezQtDoubleSpinBox(QWidget* pParent, bool bIntMode)
   connect(this, &QWidget::customContextMenuRequested, this, &ezQtDoubleSpinBox::onCustomContextMenuRequested);
 }
 
-void ezQtDoubleSpinBox::SetIntMode(bool enable)
+void ezQtDoubleSpinBox::SetIntMode(bool bEnable)
 {
-  m_bIntMode = enable;
+  m_bIntMode = bEnable;
 }
 
 void ezQtDoubleSpinBox::setDisplaySuffix(const char* szSuffix)
@@ -64,17 +64,17 @@ void ezQtDoubleSpinBox::setMaximum(const ezVariant& val)
     setMaximum(fValue);
 }
 
-QString ezQtDoubleSpinBox::textFromValue(double val) const
+QString ezQtDoubleSpinBox::textFromValue(double fVal) const
 {
   if (m_bInvalid)
     return QString();
 
-  if (hasFocus() && val == m_fDisplayedValue && !ezMath::IsNaN(m_fDisplayedValue))
+  if (hasFocus() && fVal == m_fDisplayedValue && !ezMath::IsNaN(m_fDisplayedValue))
   {
     return m_sDisplayedText;
   }
 
-  if (val == 0.0)
+  if (fVal == 0.0)
   {
     m_fDisplayedValue = 0;
     m_sDisplayedText = "0";
@@ -84,9 +84,9 @@ QString ezQtDoubleSpinBox::textFromValue(double val) const
   }
 
   if (m_bIntMode)
-    val = ezMath::Round(QDoubleSpinBox::value());
+    fVal = ezMath::Round(QDoubleSpinBox::value());
 
-  QString sText = QDoubleSpinBox::textFromValue(val);
+  QString sText = QDoubleSpinBox::textFromValue(fVal);
 
   while (sText.startsWith('0'))
     sText.remove(0, 1);
@@ -101,7 +101,7 @@ QString ezQtDoubleSpinBox::textFromValue(double val) const
       sText.insert(0, '0');
   }
 
-  m_fDisplayedValue = val;
+  m_fDisplayedValue = fVal;
   m_sDisplayedText = sText;
 
   if (!hasFocus())
@@ -112,14 +112,14 @@ QString ezQtDoubleSpinBox::textFromValue(double val) const
   return sText;
 }
 
-double ezQtDoubleSpinBox::valueFromText(const QString& text) const
+double ezQtDoubleSpinBox::valueFromText(const QString& sText) const
 {
   if (m_bInvalid)
   {
     m_bInvalid = false;
   }
 
-  QString sFixedText = text;
+  QString sFixedText = sText;
 
   if (sFixedText.isEmpty())
   {
@@ -138,7 +138,7 @@ double ezQtDoubleSpinBox::valueFromText(const QString& text) const
 
   if (hasFocus())
   {
-    m_sDisplayedText = text;
+    m_sDisplayedText = sText;
     m_fDisplayedValue = val;
   }
 
@@ -153,12 +153,12 @@ void ezQtDoubleSpinBox::setValueInvalid()
   QDoubleSpinBox::setValue(minimum());
 }
 
-void ezQtDoubleSpinBox::setValue(double val)
+void ezQtDoubleSpinBox::setValue(double fVal)
 {
-  EZ_ASSERT_DEBUG(ezMath::IsFinite(val), "Spin box value must be finite!");
+  EZ_ASSERT_DEBUG(ezMath::IsFinite(fVal), "Spin box value must be finite!");
   m_bInvalid = false;
   m_fDisplayedValue = ezMath::NaN<float>();
-  QDoubleSpinBox::setValue(val);
+  QDoubleSpinBox::setValue(fVal);
 }
 
 void ezQtDoubleSpinBox::setValue(const ezVariant& val)

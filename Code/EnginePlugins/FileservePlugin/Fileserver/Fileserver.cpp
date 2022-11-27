@@ -453,7 +453,7 @@ void ezFileserver::HandleUploadFileFinished(ezFileserveClientContext& client, ez
 }
 
 
-ezResult ezFileserver::SendConnectionInfo(const char* szClientAddress, ezUInt16 uiMyPort, const ezArrayPtr<ezStringBuilder>& MyIPs, ezTime timeout)
+ezResult ezFileserver::SendConnectionInfo(const char* szClientAddress, ezUInt16 uiMyPort, const ezArrayPtr<ezStringBuilder>& myIPs, ezTime timeout)
 {
   ezStringBuilder sAddress = szClientAddress;
   sAddress.Append(":2042"); // hard-coded port
@@ -467,13 +467,13 @@ ezResult ezFileserver::SendConnectionInfo(const char* szClientAddress, ezUInt16 
     return EZ_FAILURE;
   }
 
-  const ezUInt8 uiCount = static_cast<ezUInt8>(MyIPs.GetCount());
+  const ezUInt8 uiCount = static_cast<ezUInt8>(myIPs.GetCount());
 
   ezRemoteMessage msg('FSRV', 'MYIP');
   msg.GetWriter() << uiMyPort;
   msg.GetWriter() << uiCount;
 
-  for (const auto& info : MyIPs)
+  for (const auto& info : myIPs)
   {
     msg.GetWriter() << info;
   }

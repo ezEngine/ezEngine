@@ -47,11 +47,11 @@ EZ_END_COMPONENT_TYPE
 ezPxGrabObjectComponent::ezPxGrabObjectComponent() = default;
 ezPxGrabObjectComponent::~ezPxGrabObjectComponent() = default;
 
-void ezPxGrabObjectComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezPxGrabObjectComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s << m_fBreakDistance;
   s << m_fSpringStiffness;
@@ -60,15 +60,15 @@ void ezPxGrabObjectComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_uiCollisionLayer;
   s << m_fAllowGrabAnyObjectWithSize;
 
-  stream.WriteGameObjectHandle(m_hAttachTo);
+  inout_stream.WriteGameObjectHandle(m_hAttachTo);
 }
 
-void ezPxGrabObjectComponent::DeserializeComponent(ezWorldReader& stream)
+void ezPxGrabObjectComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s >> m_fBreakDistance;
   s >> m_fSpringStiffness;
@@ -77,10 +77,10 @@ void ezPxGrabObjectComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_uiCollisionLayer;
   s >> m_fAllowGrabAnyObjectWithSize;
 
-  m_hAttachTo = stream.ReadGameObjectHandle();
+  m_hAttachTo = inout_stream.ReadGameObjectHandle();
 }
 
-bool ezPxGrabObjectComponent::FindNearbyObject(ezGameObject*& out_pObject, ezTransform& out_LocalGrabPoint) const
+bool ezPxGrabObjectComponent::FindNearbyObject(ezGameObject*& out_pObject, ezTransform& out_localGrabPoint) const
 {
   const ezPhysicsWorldModuleInterface* pPhysicsModule = GetWorld()->GetModuleReadOnly<ezPhysicsWorldModuleInterface>();
 
@@ -105,7 +105,7 @@ bool ezPxGrabObjectComponent::FindNearbyObject(ezGameObject*& out_pObject, ezTra
   const ezPxDynamicActorComponent* pActorComp = nullptr;
   if (pActorObj->TryGetComponentOfBaseType(pActorComp) && !pActorComp->GetKinematic())
   {
-    if (DetermineGrabPoint(pActorComp, out_LocalGrabPoint).Failed())
+    if (DetermineGrabPoint(pActorComp, out_localGrabPoint).Failed())
       return false;
   }
   else
@@ -113,7 +113,7 @@ bool ezPxGrabObjectComponent::FindNearbyObject(ezGameObject*& out_pObject, ezTra
     if (hit.m_fDistance > m_fMaxGrabPointDistance)
       return false;
 
-    out_LocalGrabPoint = ezTransform::IdentityTransform();
+    out_localGrabPoint = ezTransform::IdentityTransform();
   }
 
   out_pObject = const_cast<ezGameObject*>(pActorObj);

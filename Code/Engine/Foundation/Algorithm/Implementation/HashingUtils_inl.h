@@ -11,9 +11,9 @@ namespace ezInternal
   template <typename T>
   struct HashHelperImpl<T, true>
   {
-    EZ_ALWAYS_INLINE static ezUInt32 Hash(ezStringView string)
+    EZ_ALWAYS_INLINE static ezUInt32 Hash(ezStringView sString)
     {
-      return ezHashingUtils::StringHashTo32(ezHashingUtils::StringHash(string));
+      return ezHashingUtils::StringHashTo32(ezHashingUtils::StringHash(sString));
     }
   };
 
@@ -119,19 +119,19 @@ constexpr EZ_ALWAYS_INLINE ezUInt64 ezHashingUtils::StringHash(const char (&str)
   return xxHash64String(str, uiSeed);
 }
 
-EZ_ALWAYS_INLINE ezUInt64 ezHashingUtils::StringHash(ezStringView str, ezUInt64 uiSeed)
+EZ_ALWAYS_INLINE ezUInt64 ezHashingUtils::StringHash(ezStringView sStr, ezUInt64 uiSeed)
 {
-  return xxHash64String(str, uiSeed);
+  return xxHash64String(sStr, uiSeed);
 }
 
-constexpr EZ_ALWAYS_INLINE ezUInt32 ezHashingUtils::StringHashTo32(ezUInt64 hash)
+constexpr EZ_ALWAYS_INLINE ezUInt32 ezHashingUtils::StringHashTo32(ezUInt64 uiHash)
 {
   // just throw away the upper bits
-  return static_cast<ezUInt32>(hash);
+  return static_cast<ezUInt32>(uiHash);
 }
 
-constexpr EZ_ALWAYS_INLINE ezUInt32 ezHashingUtils::CombineHashValues32(ezUInt32 h0, ezUInt32 h1)
+constexpr EZ_ALWAYS_INLINE ezUInt32 ezHashingUtils::CombineHashValues32(ezUInt32 ui0, ezUInt32 ui1)
 {
   // See boost::hash_combine
-  return h0 ^ (h1 + 0x9e3779b9 + (h0 << 6) + (h1 >> 2));
+  return ui0 ^ (ui1 + 0x9e3779b9 + (ui0 << 6) + (ui1 >> 2));
 }

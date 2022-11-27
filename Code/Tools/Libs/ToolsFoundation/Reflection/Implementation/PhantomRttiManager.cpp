@@ -36,12 +36,12 @@ EZ_END_SUBSYSTEM_DECLARATION;
 // ezPhantomRttiManager public functions
 ////////////////////////////////////////////////////////////////////////
 
-const ezRTTI* ezPhantomRttiManager::RegisterType(ezReflectedTypeDescriptor& desc)
+const ezRTTI* ezPhantomRttiManager::RegisterType(ezReflectedTypeDescriptor& ref_desc)
 {
   EZ_PROFILE_SCOPE("RegisterType");
-  ezRTTI* pType = ezRTTI::FindTypeByName(desc.m_sTypeName);
+  ezRTTI* pType = ezRTTI::FindTypeByName(ref_desc.m_sTypeName);
   ezPhantomRTTI* pPhantom = nullptr;
-  s_NameToPhantom.TryGetValue(desc.m_sTypeName, pPhantom);
+  s_NameToPhantom.TryGetValue(ref_desc.m_sTypeName, pPhantom);
 
   // concrete type !
   if (pPhantom == nullptr && pType != nullptr)
@@ -49,17 +49,17 @@ const ezRTTI* ezPhantomRttiManager::RegisterType(ezReflectedTypeDescriptor& desc
     return pType;
   }
 
-  if (pPhantom != nullptr && pPhantom->IsEqualToDescriptor(desc))
+  if (pPhantom != nullptr && pPhantom->IsEqualToDescriptor(ref_desc))
     return pPhantom;
 
   if (pPhantom == nullptr)
   {
-    pPhantom = EZ_DEFAULT_NEW(ezPhantomRTTI, desc.m_sTypeName.GetData(), ezRTTI::FindTypeByName(desc.m_sParentTypeName), 0,
-      desc.m_uiTypeVersion, ezVariantType::Invalid, desc.m_Flags, desc.m_sPluginName.GetData());
+    pPhantom = EZ_DEFAULT_NEW(ezPhantomRTTI, ref_desc.m_sTypeName.GetData(), ezRTTI::FindTypeByName(ref_desc.m_sParentTypeName), 0,
+      ref_desc.m_uiTypeVersion, ezVariantType::Invalid, ref_desc.m_Flags, ref_desc.m_sPluginName.GetData());
 
-    pPhantom->SetProperties(desc.m_Properties);
-    pPhantom->SetAttributes(desc.m_Attributes);
-    pPhantom->SetFunctions(desc.m_Functions);
+    pPhantom->SetProperties(ref_desc.m_Properties);
+    pPhantom->SetAttributes(ref_desc.m_Attributes);
+    pPhantom->SetFunctions(ref_desc.m_Functions);
     pPhantom->SetupParentHierarchy();
 
     s_NameToPhantom[pPhantom->GetTypeName()] = pPhantom;
@@ -72,7 +72,7 @@ const ezRTTI* ezPhantomRttiManager::RegisterType(ezReflectedTypeDescriptor& desc
   }
   else
   {
-    pPhantom->UpdateType(desc);
+    pPhantom->UpdateType(ref_desc);
 
     ezPhantomRttiManagerEvent msg;
     msg.m_pChangedType = pPhantom;

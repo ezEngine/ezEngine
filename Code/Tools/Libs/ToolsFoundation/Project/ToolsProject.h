@@ -99,7 +99,7 @@ public:
   /// \brief Starts at the  given document and then searches the tree upwards until it finds an ezProject file.
   static ezString FindProjectDirectoryForDocument(const char* szDocumentPath);
 
-  bool IsDocumentInAllowedRoot(const char* szDocumentPath, ezString* out_RelativePath = nullptr) const;
+  bool IsDocumentInAllowedRoot(const char* szDocumentPath, ezString* out_pRelativePath = nullptr) const;
 
   void AddAllowedDocumentRoot(const char* szPath);
 

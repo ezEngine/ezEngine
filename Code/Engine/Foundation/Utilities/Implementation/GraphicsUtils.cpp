@@ -2,11 +2,11 @@
 
 #include <Foundation/Utilities/GraphicsUtils.h>
 
-ezResult ezGraphicsUtils::ConvertWorldPosToScreenPos(const ezMat4& ModelViewProjection, const ezUInt32 uiViewportX, const ezUInt32 uiViewportY, const ezUInt32 uiViewportWidth, const ezUInt32 uiViewportHeight, const ezVec3& vPoint, ezVec3& out_vScreenPos, ezClipSpaceDepthRange::Enum DepthRange)
+ezResult ezGraphicsUtils::ConvertWorldPosToScreenPos(const ezMat4& mModelViewProjection, const ezUInt32 uiViewportX, const ezUInt32 uiViewportY, const ezUInt32 uiViewportWidth, const ezUInt32 uiViewportHeight, const ezVec3& vPoint, ezVec3& out_vScreenPos, ezClipSpaceDepthRange::Enum depthRange)
 {
   const ezVec4 vToProject = vPoint.GetAsVec4(1.0f);
 
-  ezVec4 vClipSpace = ModelViewProjection * vToProject;
+  ezVec4 vClipSpace = mModelViewProjection * vToProject;
 
   if (vClipSpace.w == 0.0f)
     return EZ_FAILURE;
@@ -20,7 +20,7 @@ ezResult ezGraphicsUtils::ConvertWorldPosToScreenPos(const ezMat4& ModelViewProj
 
   // normalize the output z value to always be in [0; 1] range
   // That means when the projection matrix spits out values between -1 and +1, rescale those values
-  if (DepthRange == ezClipSpaceDepthRange::MinusOneToOne)
+  if (depthRange == ezClipSpaceDepthRange::MinusOneToOne)
     out_vScreenPos.z = vProjected.z * 0.5f + 0.5f;
   else
     out_vScreenPos.z = vProjected.z;
@@ -29,7 +29,7 @@ ezResult ezGraphicsUtils::ConvertWorldPosToScreenPos(const ezMat4& ModelViewProj
 }
 
 ezResult ezGraphicsUtils::ConvertScreenPosToWorldPos(
-  const ezMat4& InverseModelViewProjection, const ezUInt32 uiViewportX, const ezUInt32 uiViewportY, const ezUInt32 uiViewportWidth, const ezUInt32 uiViewportHeight, const ezVec3& vScreenPos, ezVec3& out_vPoint, ezVec3* out_vDirection, ezClipSpaceDepthRange::Enum DepthRange)
+  const ezMat4& mInverseModelViewProjection, const ezUInt32 uiViewportX, const ezUInt32 uiViewportY, const ezUInt32 uiViewportWidth, const ezUInt32 uiViewportHeight, const ezVec3& vScreenPos, ezVec3& out_vPoint, ezVec3* out_pDirection, ezClipSpaceDepthRange::Enum depthRange)
 {
   ezVec3 vClipSpace = vScreenPos;
 
@@ -42,36 +42,36 @@ ezResult ezGraphicsUtils::ConvertScreenPosToWorldPos(
   vClipSpace.y = vClipSpace.y * 2.0f - 1.0f;
 
   // The OpenGL matrix expects the z values to be between -1 and +1, so rescale the incoming value to that range
-  if (DepthRange == ezClipSpaceDepthRange::MinusOneToOne)
+  if (depthRange == ezClipSpaceDepthRange::MinusOneToOne)
     vClipSpace.z = vClipSpace.z * 2.0f - 1.0f;
 
   ezVec4 vToUnProject = vClipSpace.GetAsVec4(1.0f);
 
-  ezVec4 vWorldSpacePoint = InverseModelViewProjection * vToUnProject;
+  ezVec4 vWorldSpacePoint = mInverseModelViewProjection * vToUnProject;
 
   if (vWorldSpacePoint.w == 0.0f)
     return EZ_FAILURE;
 
   out_vPoint = vWorldSpacePoint.GetAsVec3() / vWorldSpacePoint.w;
 
-  if (out_vDirection != nullptr)
+  if (out_pDirection != nullptr)
   {
     vToUnProject.z += 0.1f; // a point that is a bit further away
 
-    const ezVec4 vWorldSpacePoint2 = InverseModelViewProjection * vToUnProject;
+    const ezVec4 vWorldSpacePoint2 = mInverseModelViewProjection * vToUnProject;
 
     EZ_ASSERT_DEV(vWorldSpacePoint2.w != 0.0f, "It should not be possible that the first projected point has a w other than zero, but the second one has!");
 
     const ezVec3 vPoint2 = vWorldSpacePoint2.GetAsVec3() / vWorldSpacePoint2.w;
 
-    *out_vDirection = (vPoint2 - out_vPoint).GetNormalized();
+    *out_pDirection = (vPoint2 - out_vPoint).GetNormalized();
   }
 
   return EZ_SUCCESS;
 }
 
-ezResult ezGraphicsUtils::ConvertScreenPosToWorldPos(const ezMat4d& InverseModelViewProjection, const ezUInt32 uiViewportX, const ezUInt32 uiViewportY, const ezUInt32 uiViewportWidth, const ezUInt32 uiViewportHeight, const ezVec3& vScreenPos, ezVec3& out_vPoint, ezVec3* out_vDirection /*= nullptr*/,
-  ezClipSpaceDepthRange::Enum DepthRange /*= ezClipSpaceDepthRange::Default*/)
+ezResult ezGraphicsUtils::ConvertScreenPosToWorldPos(const ezMat4d& mInverseModelViewProjection, const ezUInt32 uiViewportX, const ezUInt32 uiViewportY, const ezUInt32 uiViewportWidth, const ezUInt32 uiViewportHeight, const ezVec3& vScreenPos, ezVec3& out_vPoint, ezVec3* out_pDirection /*= nullptr*/,
+  ezClipSpaceDepthRange::Enum depthRange /*= ezClipSpaceDepthRange::Default*/)
 {
   ezVec3 vClipSpace = vScreenPos;
 
@@ -84,12 +84,12 @@ ezResult ezGraphicsUtils::ConvertScreenPosToWorldPos(const ezMat4d& InverseModel
   vClipSpace.y = vClipSpace.y * 2.0f - 1.0f;
 
   // The OpenGL matrix expects the z values to be between -1 and +1, so rescale the incoming value to that range
-  if (DepthRange == ezClipSpaceDepthRange::MinusOneToOne)
+  if (depthRange == ezClipSpaceDepthRange::MinusOneToOne)
     vClipSpace.z = vClipSpace.z * 2.0f - 1.0f;
 
   ezVec4d vToUnProject = ezVec4d(vClipSpace.x, vClipSpace.y, vClipSpace.z, 1.0);
 
-  ezVec4d vWorldSpacePoint = InverseModelViewProjection * vToUnProject;
+  ezVec4d vWorldSpacePoint = mInverseModelViewProjection * vToUnProject;
 
   if (vWorldSpacePoint.w == 0.0)
     return EZ_FAILURE;
@@ -97,18 +97,18 @@ ezResult ezGraphicsUtils::ConvertScreenPosToWorldPos(const ezMat4d& InverseModel
   ezVec3d outTemp = vWorldSpacePoint.GetAsVec3() / vWorldSpacePoint.w;
   out_vPoint.Set((float)outTemp.x, (float)outTemp.y, (float)outTemp.z);
 
-  if (out_vDirection != nullptr)
+  if (out_pDirection != nullptr)
   {
     vToUnProject.z += 0.1f; // a point that is a bit further away
 
-    const ezVec4d vWorldSpacePoint2 = InverseModelViewProjection * vToUnProject;
+    const ezVec4d vWorldSpacePoint2 = mInverseModelViewProjection * vToUnProject;
 
     EZ_ASSERT_DEV(vWorldSpacePoint2.w != 0.0, "It should not be possible that the first projected point has a w other than zero, but the second one has!");
 
     const ezVec3d vPoint2 = vWorldSpacePoint2.GetAsVec3() / vWorldSpacePoint2.w;
 
     ezVec3d outDir = (vPoint2 - outTemp).GetNormalized();
-    out_vDirection->Set((float)outDir.x, (float)outDir.y, (float)outDir.z);
+    out_pDirection->Set((float)outDir.x, (float)outDir.y, (float)outDir.z);
   }
 
   return EZ_SUCCESS;
@@ -119,17 +119,17 @@ bool ezGraphicsUtils::IsTriangleFlipRequired(const ezMat3& mTransformation)
   return (mTransformation.GetColumn(0).CrossRH(mTransformation.GetColumn(1)).Dot(mTransformation.GetColumn(2)) < 0.0f);
 }
 
-void ezGraphicsUtils::ConvertProjectionMatrixDepthRange(ezMat4& inout_Matrix, ezClipSpaceDepthRange::Enum SrcDepthRange, ezClipSpaceDepthRange::Enum DstDepthRange)
+void ezGraphicsUtils::ConvertProjectionMatrixDepthRange(ezMat4& inout_mMatrix, ezClipSpaceDepthRange::Enum srcDepthRange, ezClipSpaceDepthRange::Enum dstDepthRange)
 {
   // exclude identity transformations
-  if (SrcDepthRange == DstDepthRange)
+  if (srcDepthRange == dstDepthRange)
     return;
 
-  ezVec4 row2 = inout_Matrix.GetRow(2);
-  ezVec4 row3 = inout_Matrix.GetRow(3);
+  ezVec4 row2 = inout_mMatrix.GetRow(2);
+  ezVec4 row3 = inout_mMatrix.GetRow(3);
 
   // only need to check SrcDepthRange, the rest is the logical conclusion from being not equal
-  if (SrcDepthRange == ezClipSpaceDepthRange::MinusOneToOne /*&& DstDepthRange == ezClipSpaceDepthRange::ZeroToOne*/)
+  if (srcDepthRange == ezClipSpaceDepthRange::MinusOneToOne /*&& DstDepthRange == ezClipSpaceDepthRange::ZeroToOne*/)
   {
     // map z => (z + w)/2
     row2 += row3;
@@ -143,50 +143,50 @@ void ezGraphicsUtils::ConvertProjectionMatrixDepthRange(ezMat4& inout_Matrix, ez
   }
 
 
-  inout_Matrix.SetRow(2, row2);
-  inout_Matrix.SetRow(3, row3);
+  inout_mMatrix.SetRow(2, row2);
+  inout_mMatrix.SetRow(3, row3);
 }
 
-void ezGraphicsUtils::ExtractPerspectiveMatrixFieldOfView(const ezMat4& ProjectionMatrix, ezAngle& out_fFovX, ezAngle& out_fFovY)
+void ezGraphicsUtils::ExtractPerspectiveMatrixFieldOfView(const ezMat4& mProjectionMatrix, ezAngle& out_fovX, ezAngle& out_fovY)
 {
 
-  const ezVec3 row0 = ProjectionMatrix.GetRow(0).GetAsVec3();
-  const ezVec3 row1 = ProjectionMatrix.GetRow(1).GetAsVec3();
-  const ezVec3 row3 = ProjectionMatrix.GetRow(3).GetAsVec3();
+  const ezVec3 row0 = mProjectionMatrix.GetRow(0).GetAsVec3();
+  const ezVec3 row1 = mProjectionMatrix.GetRow(1).GetAsVec3();
+  const ezVec3 row3 = mProjectionMatrix.GetRow(3).GetAsVec3();
 
   const ezVec3 leftPlane = (row3 + row0).GetNormalized();
   const ezVec3 rightPlane = (row3 - row0).GetNormalized();
   const ezVec3 bottomPlane = (row3 + row1).GetNormalized();
   const ezVec3 topPlane = (row3 - row1).GetNormalized();
 
-  out_fFovX = ezAngle::Radian(ezMath::Pi<float>()) - ezMath::ACos(leftPlane.Dot(rightPlane));
-  out_fFovY = ezAngle::Radian(ezMath::Pi<float>()) - ezMath::ACos(topPlane.Dot(bottomPlane));
+  out_fovX = ezAngle::Radian(ezMath::Pi<float>()) - ezMath::ACos(leftPlane.Dot(rightPlane));
+  out_fovY = ezAngle::Radian(ezMath::Pi<float>()) - ezMath::ACos(topPlane.Dot(bottomPlane));
 }
 
-void ezGraphicsUtils::ExtractPerspectiveMatrixFieldOfView(const ezMat4& ProjectionMatrix, ezAngle& out_fFovLeft, ezAngle& out_fFovRight, ezAngle& out_fFovBottom, ezAngle& out_fFovTop, ezClipSpaceYMode::Enum yRange)
+void ezGraphicsUtils::ExtractPerspectiveMatrixFieldOfView(const ezMat4& mProjectionMatrix, ezAngle& out_fovLeft, ezAngle& out_fovRight, ezAngle& out_fovBottom, ezAngle& out_fovTop, ezClipSpaceYMode::Enum range)
 {
-  const ezVec3 row0 = ProjectionMatrix.GetRow(0).GetAsVec3();
-  const ezVec3 row1 = ProjectionMatrix.GetRow(1).GetAsVec3();
-  const ezVec3 row3 = ProjectionMatrix.GetRow(3).GetAsVec3();
+  const ezVec3 row0 = mProjectionMatrix.GetRow(0).GetAsVec3();
+  const ezVec3 row1 = mProjectionMatrix.GetRow(1).GetAsVec3();
+  const ezVec3 row3 = mProjectionMatrix.GetRow(3).GetAsVec3();
 
   const ezVec3 leftPlane = (row3 + row0).GetNormalized();
   const ezVec3 rightPlane = (row3 - row0).GetNormalized();
   const ezVec3 bottomPlane = (row3 + row1).GetNormalized();
   const ezVec3 topPlane = (row3 - row1).GetNormalized();
 
-  out_fFovLeft = -ezMath::ACos(leftPlane.Dot(ezVec3(1.0f, 0, 0)));
-  out_fFovRight = ezAngle::Radian(ezMath::Pi<float>()) - ezMath::ACos(rightPlane.Dot(ezVec3(1.0f, 0, 0)));
-  out_fFovBottom = -ezMath::ACos(bottomPlane.Dot(ezVec3(0, 1.0f, 0)));
-  out_fFovTop = ezAngle::Radian(ezMath::Pi<float>()) - ezMath::ACos(topPlane.Dot(ezVec3(0, 1.0f, 0)));
+  out_fovLeft = -ezMath::ACos(leftPlane.Dot(ezVec3(1.0f, 0, 0)));
+  out_fovRight = ezAngle::Radian(ezMath::Pi<float>()) - ezMath::ACos(rightPlane.Dot(ezVec3(1.0f, 0, 0)));
+  out_fovBottom = -ezMath::ACos(bottomPlane.Dot(ezVec3(0, 1.0f, 0)));
+  out_fovTop = ezAngle::Radian(ezMath::Pi<float>()) - ezMath::ACos(topPlane.Dot(ezVec3(0, 1.0f, 0)));
 
-  if (yRange == ezClipSpaceYMode::Flipped)
-    ezMath::Swap(out_fFovBottom, out_fFovTop);
+  if (range == ezClipSpaceYMode::Flipped)
+    ezMath::Swap(out_fovBottom, out_fovTop);
 }
 
-ezResult ezGraphicsUtils::ExtractPerspectiveMatrixFieldOfView(const ezMat4& ProjectionMatrix, float& out_fLeft, float& out_fRight, float& out_fBottom, float& out_fTop, ezClipSpaceDepthRange::Enum DepthRange, ezClipSpaceYMode::Enum yRange)
+ezResult ezGraphicsUtils::ExtractPerspectiveMatrixFieldOfView(const ezMat4& mProjectionMatrix, float& out_fLeft, float& out_fRight, float& out_fBottom, float& out_fTop, ezClipSpaceDepthRange::Enum depthRange, ezClipSpaceYMode::Enum range)
 {
   float fNear, fFar;
-  EZ_SUCCEED_OR_RETURN(ExtractNearAndFarClipPlaneDistances(fNear, fFar, ProjectionMatrix, DepthRange));
+  EZ_SUCCEED_OR_RETURN(ExtractNearAndFarClipPlaneDistances(fNear, fFar, mProjectionMatrix, depthRange));
   // Compensate for inverse-Z.
   const float fMinDepth = ezMath::Min(fNear, fFar);
 
@@ -194,7 +194,7 @@ ezResult ezGraphicsUtils::ExtractPerspectiveMatrixFieldOfView(const ezMat4& Proj
   ezAngle fFovRight;
   ezAngle fFovBottom;
   ezAngle fFovTop;
-  ExtractPerspectiveMatrixFieldOfView(ProjectionMatrix, fFovLeft, fFovRight, fFovBottom, fFovTop, yRange);
+  ExtractPerspectiveMatrixFieldOfView(mProjectionMatrix, fFovLeft, fFovRight, fFovBottom, fFovTop, range);
 
   out_fLeft = ezMath::Tan(fFovLeft) * fMinDepth;
   out_fRight = ezMath::Tan(fFovRight) * fMinDepth;
@@ -203,14 +203,14 @@ ezResult ezGraphicsUtils::ExtractPerspectiveMatrixFieldOfView(const ezMat4& Proj
   return EZ_SUCCESS;
 }
 
-ezResult ezGraphicsUtils::ExtractNearAndFarClipPlaneDistances(float& out_fNear, float& out_fFar, const ezMat4& ProjectionMatrix, ezClipSpaceDepthRange::Enum DepthRange)
+ezResult ezGraphicsUtils::ExtractNearAndFarClipPlaneDistances(float& out_fNear, float& out_fFar, const ezMat4& mProjectionMatrix, ezClipSpaceDepthRange::Enum depthRange)
 {
-  const ezVec4 row2 = ProjectionMatrix.GetRow(2);
-  const ezVec4 row3 = ProjectionMatrix.GetRow(3);
+  const ezVec4 row2 = mProjectionMatrix.GetRow(2);
+  const ezVec4 row3 = mProjectionMatrix.GetRow(3);
 
   ezVec4 nearPlane = row2;
 
-  if (DepthRange == ezClipSpaceDepthRange::MinusOneToOne)
+  if (depthRange == ezClipSpaceDepthRange::MinusOneToOne)
   {
     nearPlane += row3;
   }
@@ -243,32 +243,32 @@ ezResult ezGraphicsUtils::ExtractNearAndFarClipPlaneDistances(float& out_fNear, 
   return EZ_SUCCESS;
 }
 
-ezPlane ezGraphicsUtils::ComputeInterpolatedFrustumPlane(FrustumPlaneInterpolation direction, float fLerpFactor, const ezMat4& ProjectionMatrix, ezClipSpaceDepthRange::Enum DepthRange)
+ezPlane ezGraphicsUtils::ComputeInterpolatedFrustumPlane(FrustumPlaneInterpolation direction, float fLerpFactor, const ezMat4& mProjectionMatrix, ezClipSpaceDepthRange::Enum depthRange)
 {
   ezVec4 rowA;
-  ezVec4 rowB = ProjectionMatrix.GetRow(3);
+  ezVec4 rowB = mProjectionMatrix.GetRow(3);
   const float factorMinus1to1 = (fLerpFactor - 0.5f) * 2.0f; // bring into [-1; +1] range
 
   switch (direction)
   {
     case FrustumPlaneInterpolation::LeftToRight:
     {
-      rowA = ProjectionMatrix.GetRow(0);
+      rowA = mProjectionMatrix.GetRow(0);
       rowB *= factorMinus1to1;
       break;
     }
 
     case FrustumPlaneInterpolation::BottomToTop:
     {
-      rowA = ProjectionMatrix.GetRow(1);
+      rowA = mProjectionMatrix.GetRow(1);
       rowB *= factorMinus1to1;
       break;
     }
 
     case FrustumPlaneInterpolation::NearToFar:
-      rowA = ProjectionMatrix.GetRow(2);
+      rowA = mProjectionMatrix.GetRow(2);
 
-      if (DepthRange == ezClipSpaceDepthRange::ZeroToOne)
+      if (depthRange == ezClipSpaceDepthRange::ZeroToOne)
         rowB *= fLerpFactor; // [0; 1] range
       else
         rowB *= factorMinus1to1;
@@ -282,47 +282,47 @@ ezPlane ezGraphicsUtils::ComputeInterpolatedFrustumPlane(FrustumPlaneInterpolati
   return res;
 }
 
-ezMat4 ezGraphicsUtils::CreatePerspectiveProjectionMatrix(float fViewWidth, float fViewHeight, float fNearZ, float fFarZ, ezClipSpaceDepthRange::Enum DepthRange, ezClipSpaceYMode::Enum yRange, ezHandedness::Enum handedness)
+ezMat4 ezGraphicsUtils::CreatePerspectiveProjectionMatrix(float fViewWidth, float fViewHeight, float fNearZ, float fFarZ, ezClipSpaceDepthRange::Enum depthRange, ezClipSpaceYMode::Enum range, ezHandedness::Enum handedness)
 {
   const float vw = fViewWidth * 0.5f;
   const float vh = fViewHeight * 0.5f;
 
-  return CreatePerspectiveProjectionMatrix(-vw, vw, -vh, vh, fNearZ, fFarZ, DepthRange, yRange, handedness);
+  return CreatePerspectiveProjectionMatrix(-vw, vw, -vh, vh, fNearZ, fFarZ, depthRange, range, handedness);
 }
 
-ezMat4 ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovX(ezAngle fieldOfViewX, float fAspectRatioWidthDivHeight, float fNearZ, float fFarZ, ezClipSpaceDepthRange::Enum DepthRange, ezClipSpaceYMode::Enum yRange, ezHandedness::Enum handedness)
+ezMat4 ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovX(ezAngle fieldOfViewX, float fAspectRatioWidthDivHeight, float fNearZ, float fFarZ, ezClipSpaceDepthRange::Enum depthRange, ezClipSpaceYMode::Enum range, ezHandedness::Enum handedness)
 {
   // Taking the minimum allows the function to be used to create
   // inverse z matrices (fNearZ > fFarZ) as well.
   const float xm = ezMath::Min(fNearZ, fFarZ) * ezMath::Tan(fieldOfViewX * 0.5f);
   const float ym = xm / fAspectRatioWidthDivHeight;
 
-  return CreatePerspectiveProjectionMatrix(-xm, xm, -ym, ym, fNearZ, fFarZ, DepthRange, yRange, handedness);
+  return CreatePerspectiveProjectionMatrix(-xm, xm, -ym, ym, fNearZ, fFarZ, depthRange, range, handedness);
 }
 
-ezMat4 ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovY(ezAngle fieldOfViewY, float fAspectRatioWidthDivHeight, float fNearZ, float fFarZ, ezClipSpaceDepthRange::Enum DepthRange, ezClipSpaceYMode::Enum yRange, ezHandedness::Enum handedness)
+ezMat4 ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovY(ezAngle fieldOfViewY, float fAspectRatioWidthDivHeight, float fNearZ, float fFarZ, ezClipSpaceDepthRange::Enum depthRange, ezClipSpaceYMode::Enum range, ezHandedness::Enum handedness)
 {
   // Taking the minimum allows the function to be used to create
   // inverse z matrices (fNearZ > fFarZ) as well.
   const float ym = ezMath::Min(fNearZ, fFarZ) * ezMath::Tan(fieldOfViewY * 0.5);
   const float xm = ym * fAspectRatioWidthDivHeight;
 
-  return CreatePerspectiveProjectionMatrix(-xm, xm, -ym, ym, fNearZ, fFarZ, DepthRange, yRange, handedness);
+  return CreatePerspectiveProjectionMatrix(-xm, xm, -ym, ym, fNearZ, fFarZ, depthRange, range, handedness);
 }
 
-ezMat4 ezGraphicsUtils::CreateOrthographicProjectionMatrix(float fViewWidth, float fViewHeight, float fNearZ, float fFarZ, ezClipSpaceDepthRange::Enum depthRange, ezClipSpaceYMode::Enum yRange, ezHandedness::Enum handedness)
+ezMat4 ezGraphicsUtils::CreateOrthographicProjectionMatrix(float fViewWidth, float fViewHeight, float fNearZ, float fFarZ, ezClipSpaceDepthRange::Enum depthRange, ezClipSpaceYMode::Enum range, ezHandedness::Enum handedness)
 {
-  return CreateOrthographicProjectionMatrix(-fViewWidth * 0.5f, fViewWidth * 0.5f, -fViewHeight * 0.5f, fViewHeight * 0.5f, fNearZ, fFarZ, depthRange, yRange, handedness);
+  return CreateOrthographicProjectionMatrix(-fViewWidth * 0.5f, fViewWidth * 0.5f, -fViewHeight * 0.5f, fViewHeight * 0.5f, fNearZ, fFarZ, depthRange, range, handedness);
 }
 
-ezMat4 ezGraphicsUtils::CreateOrthographicProjectionMatrix(float fLeft, float fRight, float fBottom, float fTop, float fNearZ, float fFarZ, ezClipSpaceDepthRange::Enum DepthRange, ezClipSpaceYMode::Enum yRange, ezHandedness::Enum handedness)
+ezMat4 ezGraphicsUtils::CreateOrthographicProjectionMatrix(float fLeft, float fRight, float fBottom, float fTop, float fNearZ, float fFarZ, ezClipSpaceDepthRange::Enum depthRange, ezClipSpaceYMode::Enum range, ezHandedness::Enum handedness)
 {
   EZ_ASSERT_DEBUG(ezMath::IsFinite(fNearZ) && ezMath::IsFinite(fFarZ), "Infinite plane values are not supported for orthographic projections!");
 
   ezMat4 res;
   res.SetIdentity();
 
-  if (yRange == ezClipSpaceYMode::Flipped)
+  if (range == ezClipSpaceYMode::Flipped)
   {
     ezMath::Swap(fBottom, fTop);
   }
@@ -339,7 +339,7 @@ ezMat4 ezGraphicsUtils::CreateOrthographicProjectionMatrix(float fLeft, float fR
   res.Element(3, 1) = -(fTop + fBottom) * fOneDivTopMinusBottom;
 
 
-  if (DepthRange == ezClipSpaceDepthRange::MinusOneToOne)
+  if (depthRange == ezClipSpaceDepthRange::MinusOneToOne)
   {
     // The OpenGL Way: http://wiki.delphigl.com/index.php/glFrustum
     res.Element(2, 2) = -2.0f * fOneDivFarMinusNear;
@@ -362,14 +362,14 @@ ezMat4 ezGraphicsUtils::CreateOrthographicProjectionMatrix(float fLeft, float fR
   return res;
 }
 
-ezMat4 ezGraphicsUtils::CreatePerspectiveProjectionMatrix(float fLeft, float fRight, float fBottom, float fTop, float fNearZ, float fFarZ, ezClipSpaceDepthRange::Enum DepthRange, ezClipSpaceYMode::Enum yRange, ezHandedness::Enum handedness)
+ezMat4 ezGraphicsUtils::CreatePerspectiveProjectionMatrix(float fLeft, float fRight, float fBottom, float fTop, float fNearZ, float fFarZ, ezClipSpaceDepthRange::Enum depthRange, ezClipSpaceYMode::Enum range, ezHandedness::Enum handedness)
 {
   EZ_ASSERT_DEBUG(ezMath::IsFinite(fNearZ) || ezMath::IsFinite(fFarZ), "fNearZ and fFarZ cannot both be infinite at the same time!");
 
   ezMat4 res;
   res.SetZero();
 
-  if (yRange == ezClipSpaceYMode::Flipped)
+  if (range == ezClipSpaceYMode::Flipped)
   {
     ezMath::Swap(fBottom, fTop);
   }
@@ -396,7 +396,7 @@ ezMat4 ezGraphicsUtils::CreatePerspectiveProjectionMatrix(float fLeft, float fRi
   // and letting the respective variable approach infinity in the original expressions for P(2, 2) and P(3, 2).
   // The result is that a couple of terms from the original fraction get reduced to 0 by being divided by infinity,
   // which fortunately yields 1) finite and 2) much simpler expressions for P(2, 2) and P(3, 2).
-  if (DepthRange == ezClipSpaceDepthRange::MinusOneToOne)
+  if (depthRange == ezClipSpaceDepthRange::MinusOneToOne)
   {
     // The OpenGL Way: http://wiki.delphigl.com/index.php/glFrustum
     // Algebraically reordering the z-row fractions from the above source in a way so infinite fNearZ or fFarZ will zero out
@@ -590,24 +590,24 @@ ezMat4 ezGraphicsUtils::CreateInverseViewMatrix(const ezVec3& vPosition, const e
   return res;
 }
 
-void ezGraphicsUtils::DecomposeViewMatrix(ezVec3& vPosition, ezVec3& vForwardDir, ezVec3& vRightDir, ezVec3& vUpDir, const ezMat4& viewMatrix, ezHandedness::Enum handedness)
+void ezGraphicsUtils::DecomposeViewMatrix(ezVec3& ref_vPosition, ezVec3& ref_vForwardDir, ezVec3& ref_vRightDir, ezVec3& ref_vUpDir, const ezMat4& mViewMatrix, ezHandedness::Enum handedness)
 {
-  const ezMat3 rotation = viewMatrix.GetRotationalPart();
+  const ezMat3 rotation = mViewMatrix.GetRotationalPart();
 
   if (handedness == ezHandedness::LeftHanded)
   {
-    vRightDir = rotation.GetRow(0);
-    vUpDir = rotation.GetRow(1);
-    vForwardDir = rotation.GetRow(2);
+    ref_vRightDir = rotation.GetRow(0);
+    ref_vUpDir = rotation.GetRow(1);
+    ref_vForwardDir = rotation.GetRow(2);
   }
   else
   {
-    vRightDir = rotation.GetRow(0);
-    vUpDir = rotation.GetRow(1);
-    vForwardDir = -rotation.GetRow(2);
+    ref_vRightDir = rotation.GetRow(0);
+    ref_vUpDir = rotation.GetRow(1);
+    ref_vForwardDir = -rotation.GetRow(2);
   }
 
-  vPosition = rotation.GetTranspose() * -viewMatrix.GetTranslationVector();
+  ref_vPosition = rotation.GetTranspose() * -mViewMatrix.GetTranslationVector();
 }
 
 ezResult ezGraphicsUtils::ComputeBarycentricCoordinates(ezVec3& out_vCoordinates, const ezVec3& a, const ezVec3& b, const ezVec3& c, const ezVec3& p)

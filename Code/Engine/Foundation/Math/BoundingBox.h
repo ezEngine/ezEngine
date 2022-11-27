@@ -139,13 +139,13 @@ public:
 
   /// \brief Returns whether the given ray intersects the box. Optionally returns the intersection distance and position.
   /// Note that vRayDir is not required to be normalized.
-  bool GetRayIntersection(const ezVec3Template<Type>& vStartPos, const ezVec3Template<Type>& vRayDir, Type* out_fIntersection = nullptr,
-    ezVec3Template<Type>* out_vIntersection = nullptr) const; // [tested]
+  bool GetRayIntersection(const ezVec3Template<Type>& vStartPos, const ezVec3Template<Type>& vRayDir, Type* out_pIntersectionDistance = nullptr,
+    ezVec3Template<Type>* out_pIntersection = nullptr) const; // [tested]
 
   /// \brief Checks whether the line segment intersects the box. Optionally returns the intersection point and the fraction along the line segment
   /// where the intersection occurred.
-  bool GetLineSegmentIntersection(const ezVec3Template<Type>& vStartPos, const ezVec3Template<Type>& vEndPos, Type* out_fLineFraction = nullptr,
-    ezVec3Template<Type>* out_vIntersection = nullptr) const; // [tested]
+  bool GetLineSegmentIntersection(const ezVec3Template<Type>& vStartPos, const ezVec3Template<Type>& vEndPos, Type* out_pLineFraction = nullptr,
+    ezVec3Template<Type>* out_pIntersection = nullptr) const; // [tested]
 
   /// \brief Returns a bounding sphere that encloses this box.
   const ezBoundingSphereTemplate<Type> GetBoundingSphere() const; // [tested]

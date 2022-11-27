@@ -38,9 +38,9 @@ EZ_END_COMPONENT_TYPE
 ezDirectionalLightComponent::ezDirectionalLightComponent() = default;
 ezDirectionalLightComponent::~ezDirectionalLightComponent() = default;
 
-ezResult ezDirectionalLightComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg)
+ezResult ezDirectionalLightComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg)
 {
-  bAlwaysVisible = true;
+  ref_bAlwaysVisible = true;
   return EZ_SUCCESS;
 }
 
@@ -126,10 +126,10 @@ void ezDirectionalLightComponent::OnMsgExtractRenderData(ezMsgExtractRenderData&
   msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::Light, caching);
 }
 
-void ezDirectionalLightComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezDirectionalLightComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
-  ezStreamWriter& s = stream.GetStream();
+  SUPER::SerializeComponent(inout_stream);
+  ezStreamWriter& s = inout_stream.GetStream();
 
   s << m_uiNumCascades;
   s << m_fMinShadowRange;
@@ -138,11 +138,11 @@ void ezDirectionalLightComponent::SerializeComponent(ezWorldWriter& stream) cons
   s << m_fNearPlaneOffset;
 }
 
-void ezDirectionalLightComponent::DeserializeComponent(ezWorldReader& stream)
+void ezDirectionalLightComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  ezStreamReader& s = stream.GetStream();
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  ezStreamReader& s = inout_stream.GetStream();
 
   if (uiVersion >= 3)
   {
@@ -169,9 +169,9 @@ public:
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
-    context.PatchBaseClass("ezLightComponent", 2, true);
+    ref_context.PatchBaseClass("ezLightComponent", 2, true);
   }
 };
 

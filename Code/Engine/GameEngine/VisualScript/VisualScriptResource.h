@@ -12,8 +12,8 @@ using ezVisualScriptResourceHandle = ezTypedResourceHandle<class ezVisualScriptR
 /// \brief Describes a visual script graph (node types and connections)
 struct EZ_GAMEENGINE_DLL ezVisualScriptResourceDescriptor
 {
-  void Load(ezStreamReader& stream);
-  void Save(ezStreamWriter& stream) const;
+  void Load(ezStreamReader& inout_stream);
+  void Save(ezStreamWriter& inout_stream) const;
   void PrecomputeMessageHandlers();
 
   struct Node
@@ -84,7 +84,7 @@ struct EZ_GAMEENGINE_DLL ezVisualScriptResourceDescriptor
     ezString m_sValue;
   };
 
-  void AssignNodeProperties(ezVisualScriptNode& vsNode, const Node& properties) const;
+  void AssignNodeProperties(ezVisualScriptNode& ref_node, const Node& properties) const;
 
   ezDynamicArray<Node> m_Nodes;
   ezDynamicArray<ExecutionConnection> m_ExecutionPaths;

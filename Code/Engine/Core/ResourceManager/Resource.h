@@ -81,7 +81,7 @@ public:
   EZ_ALWAYS_INLINE ezUInt8 GetNumQualityLevelsLoadable() const { return m_uiQualityLevelsLoadable; }
 
   /// \brief Returns the priority that is used by the resource manager to determine which resource to load next.
-  float GetLoadingPriority(ezTime tNow) const;
+  float GetLoadingPriority(ezTime now) const;
 
   /// \brief Returns the current resource priority.
   ezResourcePriority GetPriority() const { return m_Priority; }

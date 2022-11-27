@@ -9,8 +9,8 @@
 
 ezQtGlobalEventsWidget* ezQtGlobalEventsWidget::s_pWidget = nullptr;
 
-ezQtGlobalEventsWidget::ezQtGlobalEventsWidget(QWidget* parent)
-  : ads::CDockWidget("Global Events", parent)
+ezQtGlobalEventsWidget::ezQtGlobalEventsWidget(QWidget* pParent)
+  : ads::CDockWidget("Global Events", pParent)
 {
   s_pWidget = this;
 

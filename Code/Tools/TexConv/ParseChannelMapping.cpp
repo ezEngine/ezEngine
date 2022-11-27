@@ -163,24 +163,24 @@ ezResult ezTexConv::ParseChannelSliceMapping(ezInt32 iSlice)
   return EZ_SUCCESS;
 }
 
-ezResult ezTexConv::ParseChannelMappingConfig(ezTexConvChannelMapping& out_Mapping, const char* cfg, ezInt32 iChannelIndex, bool bSingleChannel)
+ezResult ezTexConv::ParseChannelMappingConfig(ezTexConvChannelMapping& out_mapping, const char* szCfg, ezInt32 iChannelIndex, bool bSingleChannel)
 {
-  out_Mapping.m_iInputImageIndex = -1;
-  out_Mapping.m_ChannelValue = ezTexConvChannelValue::White;
+  out_mapping.m_iInputImageIndex = -1;
+  out_mapping.m_ChannelValue = ezTexConvChannelValue::White;
 
-  ezStringBuilder tmp = cfg;
+  ezStringBuilder tmp = szCfg;
 
   // '-r black' for setting it to zero
   if (tmp.IsEqual_NoCase("black"))
   {
-    out_Mapping.m_ChannelValue = ezTexConvChannelValue::Black;
+    out_mapping.m_ChannelValue = ezTexConvChannelValue::Black;
     return EZ_SUCCESS;
   }
 
   // '-r white' for setting it to 255
   if (tmp.IsEqual_NoCase("white"))
   {
-    out_Mapping.m_ChannelValue = ezTexConvChannelValue::White;
+    out_mapping.m_ChannelValue = ezTexConvChannelValue::White;
     return EZ_SUCCESS;
   }
 
@@ -194,7 +194,7 @@ ezResult ezTexConv::ParseChannelMappingConfig(ezTexConvChannelMapping& out_Mappi
     // no index given, e.g. '-r in.r'
     // in is equal to in0
 
-    out_Mapping.m_iInputImageIndex = 0;
+    out_mapping.m_iInputImageIndex = 0;
   }
   else
   {
@@ -202,14 +202,14 @@ ezResult ezTexConv::ParseChannelMappingConfig(ezTexConvChannelMapping& out_Mappi
     const char* szLastPos = nullptr;
     if (ezConversionUtils::StringToInt(tmp, num, &szLastPos).Failed())
     {
-      ezLog::Error("Could not parse channel mapping '{0}'", cfg);
+      ezLog::Error("Could not parse channel mapping '{0}'", szCfg);
       return EZ_FAILURE;
     }
 
     // valid index after the 'in'
     if (num >= 0 && num < (ezInt32)m_Processor.m_Descriptor.m_InputFiles.GetCount())
     {
-      out_Mapping.m_iInputImageIndex = (ezInt8)num;
+      out_mapping.m_iInputImageIndex = (ezInt8)num;
     }
     else
     {
@@ -226,13 +226,13 @@ ezResult ezTexConv::ParseChannelMappingConfig(ezTexConvChannelMapping& out_Mappi
   // no additional info, e.g. '-g in2' is identical to '-g in2.g' (same channel)
   if (tmp.IsEmpty())
   {
-    out_Mapping.m_ChannelValue = (ezTexConvChannelValue::Enum)((ezInt32)ezTexConvChannelValue::Red + iChannelIndex);
+    out_mapping.m_ChannelValue = (ezTexConvChannelValue::Enum)((ezInt32)ezTexConvChannelValue::Red + iChannelIndex);
     return EZ_SUCCESS;
   }
 
   if (!tmp.StartsWith("."))
   {
-    ezLog::Error("Invalid channel mapping: Expected '.' after input file index in '{0}'", cfg);
+    ezLog::Error("Invalid channel mapping: Expected '.' after input file index in '{0}'", szCfg);
     return EZ_FAILURE;
   }
 
@@ -249,7 +249,7 @@ ezResult ezTexConv::ParseChannelMappingConfig(ezTexConvChannelMapping& out_Mappi
   // no additional info, e.g. '-rgb in2.rg'
   if (tmp.IsEmpty())
   {
-    ezLog::Error("Invalid channel mapping: Too few channel identifiers '{0}'", cfg);
+    ezLog::Error("Invalid channel mapping: Too few channel identifiers '{0}'", szCfg);
     return EZ_FAILURE;
   }
 
@@ -258,23 +258,23 @@ ezResult ezTexConv::ParseChannelMappingConfig(ezTexConvChannelMapping& out_Mappi
 
     if (uiChar == 'r')
     {
-      out_Mapping.m_ChannelValue = ezTexConvChannelValue::Red;
+      out_mapping.m_ChannelValue = ezTexConvChannelValue::Red;
     }
     else if (uiChar == 'g')
     {
-      out_Mapping.m_ChannelValue = ezTexConvChannelValue::Green;
+      out_mapping.m_ChannelValue = ezTexConvChannelValue::Green;
     }
     else if (uiChar == 'b')
     {
-      out_Mapping.m_ChannelValue = ezTexConvChannelValue::Blue;
+      out_mapping.m_ChannelValue = ezTexConvChannelValue::Blue;
     }
     else if (uiChar == 'a')
     {
-      out_Mapping.m_ChannelValue = ezTexConvChannelValue::Alpha;
+      out_mapping.m_ChannelValue = ezTexConvChannelValue::Alpha;
     }
     else
     {
-      ezLog::Error("Invalid channel mapping: Unexpected channel identifier in '{}'", cfg);
+      ezLog::Error("Invalid channel mapping: Unexpected channel identifier in '{}'", szCfg);
       return EZ_FAILURE;
     }
 

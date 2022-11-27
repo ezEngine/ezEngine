@@ -30,7 +30,7 @@ struct EZ_RENDERERCORE_DLL ezSkinningState
   /// \brief Call this, after modifying m_Transforms, to make the renderer apply the update.
   void TransformsChanged();
 
-  void FillSkinnedMeshRenderData(ezSkinnedMeshRenderData& renderData) const;
+  void FillSkinnedMeshRenderData(ezSkinnedMeshRenderData& ref_renderData) const;
 
 private:
   ezGALBufferHandle m_hGpuBuffer;

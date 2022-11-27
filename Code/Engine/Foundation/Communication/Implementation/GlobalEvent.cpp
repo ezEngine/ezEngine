@@ -14,12 +14,12 @@ ezGlobalEvent::EventData::EventData()
   m_uiNumEventHandlersRegular = 0;
 }
 
-ezGlobalEvent::ezGlobalEvent(const char* szEventName, EZ_GLOBAL_EVENT_HANDLER Handler, bool bOnlyOnce)
+ezGlobalEvent::ezGlobalEvent(const char* szEventName, EZ_GLOBAL_EVENT_HANDLER handler, bool bOnlyOnce)
 {
   m_szEventName = szEventName;
   m_bOnlyOnce = bOnlyOnce;
   m_bHasBeenFired = false;
-  m_EventHandler = Handler;
+  m_EventHandler = handler;
 }
 
 void ezGlobalEvent::Broadcast(const char* szEventName, ezVariant p1, ezVariant p2, ezVariant p3, ezVariant p4)

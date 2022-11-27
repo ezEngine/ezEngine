@@ -34,13 +34,13 @@ static ezGameObjectHandle DefaultGameObjectReferenceResolver(const void* pData, 
   return ezGameObjectHandle();
 }
 
-ezWorld::ezWorld(ezWorldDesc& desc)
-  : m_Data(desc)
+ezWorld::ezWorld(ezWorldDesc& ref_desc)
+  : m_Data(ref_desc)
 {
   m_pUpdateTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "", ezMakeDelegate(&ezWorld::UpdateFromThread, this));
   m_Data.m_pCoordinateSystemProvider->m_pOwnerWorld = this;
 
-  ezStringBuilder sb = desc.m_sName.GetString();
+  ezStringBuilder sb = ref_desc.m_sName.GetString();
   sb.Append(".Update");
   m_pUpdateTask->ConfigureTask(sb, ezTaskNesting::Maybe);
 
@@ -133,10 +133,10 @@ const ezWorld::ReferenceResolver& ezWorld::GetGameObjectReferenceResolver() cons
 }
 
 // a super simple, but also efficient random number generator
-inline static ezUInt32 NextStableRandomSeed(ezUInt32& seed)
+inline static ezUInt32 NextStableRandomSeed(ezUInt32& ref_uiSeed)
 {
-  seed = 214013L * seed + 2531011L;
-  return ((seed >> 16) & 0x7FFFF);
+  ref_uiSeed = 214013L * ref_uiSeed + 2531011L;
+  return ((ref_uiSeed >> 16) & 0x7FFFF);
 }
 
 ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObject*& out_pObject)
@@ -310,34 +310,34 @@ ezComponentInitBatchHandle ezWorld::CreateComponentInitBatch(ezStringView sBatch
   return ezComponentInitBatchHandle(m_Data.m_InitBatches.Insert(pInitBatch));
 }
 
-void ezWorld::DeleteComponentInitBatch(const ezComponentInitBatchHandle& batch)
+void ezWorld::DeleteComponentInitBatch(const ezComponentInitBatchHandle& hBatch)
 {
-  auto& pInitBatch = m_Data.m_InitBatches[batch.GetInternalID()];
+  auto& pInitBatch = m_Data.m_InitBatches[hBatch.GetInternalID()];
   EZ_ASSERT_DEV(pInitBatch->m_ComponentsToInitialize.IsEmpty() && pInitBatch->m_ComponentsToStartSimulation.IsEmpty(), "Init batch has not been completely processed");
-  m_Data.m_InitBatches.Remove(batch.GetInternalID());
+  m_Data.m_InitBatches.Remove(hBatch.GetInternalID());
 }
 
-void ezWorld::BeginAddingComponentsToInitBatch(const ezComponentInitBatchHandle& batch)
+void ezWorld::BeginAddingComponentsToInitBatch(const ezComponentInitBatchHandle& hBatch)
 {
   EZ_ASSERT_DEV(m_Data.m_pCurrentInitBatch == m_Data.m_pDefaultInitBatch, "Nested init batches are not supported");
-  m_Data.m_pCurrentInitBatch = m_Data.m_InitBatches[batch.GetInternalID()].Borrow();
+  m_Data.m_pCurrentInitBatch = m_Data.m_InitBatches[hBatch.GetInternalID()].Borrow();
 }
 
-void ezWorld::EndAddingComponentsToInitBatch(const ezComponentInitBatchHandle& batch)
+void ezWorld::EndAddingComponentsToInitBatch(const ezComponentInitBatchHandle& hBatch)
 {
-  EZ_ASSERT_DEV(m_Data.m_InitBatches[batch.GetInternalID()] == m_Data.m_pCurrentInitBatch, "Init batch with id {} is currently not active", batch.GetInternalID().m_Data);
+  EZ_ASSERT_DEV(m_Data.m_InitBatches[hBatch.GetInternalID()] == m_Data.m_pCurrentInitBatch, "Init batch with id {} is currently not active", hBatch.GetInternalID().m_Data);
   m_Data.m_pCurrentInitBatch = m_Data.m_pDefaultInitBatch;
 }
 
-void ezWorld::SubmitComponentInitBatch(const ezComponentInitBatchHandle& batch)
+void ezWorld::SubmitComponentInitBatch(const ezComponentInitBatchHandle& hBatch)
 {
-  m_Data.m_InitBatches[batch.GetInternalID()]->m_bIsReady = true;
+  m_Data.m_InitBatches[hBatch.GetInternalID()]->m_bIsReady = true;
   m_Data.m_pCurrentInitBatch = m_Data.m_pDefaultInitBatch;
 }
 
-bool ezWorld::IsComponentInitBatchCompleted(const ezComponentInitBatchHandle& batch, double* pCompletionFactor /*= nullptr*/)
+bool ezWorld::IsComponentInitBatchCompleted(const ezComponentInitBatchHandle& hBatch, double* pCompletionFactor /*= nullptr*/)
 {
-  auto& pInitBatch = m_Data.m_InitBatches[batch.GetInternalID()];
+  auto& pInitBatch = m_Data.m_InitBatches[hBatch.GetInternalID()];
   EZ_ASSERT_DEV(pInitBatch->m_bIsReady, "Batch is not submitted yet");
 
   if (pCompletionFactor != nullptr)
@@ -357,9 +357,9 @@ bool ezWorld::IsComponentInitBatchCompleted(const ezComponentInitBatchHandle& ba
   return pInitBatch->m_ComponentsToInitialize.IsEmpty() && pInitBatch->m_ComponentsToStartSimulation.IsEmpty();
 }
 
-void ezWorld::CancelComponentInitBatch(const ezComponentInitBatchHandle& batch)
+void ezWorld::CancelComponentInitBatch(const ezComponentInitBatchHandle& hBatch)
 {
-  auto& pInitBatch = m_Data.m_InitBatches[batch.GetInternalID()];
+  auto& pInitBatch = m_Data.m_InitBatches[hBatch.GetInternalID()];
   pInitBatch->m_ComponentsToInitialize.Clear();
   pInitBatch->m_ComponentsToStartSimulation.Clear();
 }
@@ -389,14 +389,14 @@ void ezWorld::PostMessage(const ezGameObjectHandle& receiverObject, const ezMess
   }
 }
 
-void ezWorld::PostMessage(const ezComponentHandle& receiverComponent, const ezMessage& msg, ezTime delay, ezObjectMsgQueueType::Enum queueType) const
+void ezWorld::PostMessage(const ezComponentHandle& hReceiverComponent, const ezMessage& msg, ezTime delay, ezObjectMsgQueueType::Enum queueType) const
 {
   // This method is allowed to be called from multiple threads.
 
-  EZ_ASSERT_DEBUG((receiverComponent.m_InternalId.m_Data >> 62) == 0, "Upper 2 bits in component id must not be set");
+  EZ_ASSERT_DEBUG((hReceiverComponent.m_InternalId.m_Data >> 62) == 0, "Upper 2 bits in component id must not be set");
 
   QueuedMsgMetaData metaData;
-  metaData.m_uiReceiverObjectOrComponent = receiverComponent.m_InternalId.m_Data;
+  metaData.m_uiReceiverObjectOrComponent = hReceiverComponent.m_InternalId.m_Data;
   metaData.m_uiReceiverIsComponent = true;
   metaData.m_uiRecursive = false;
 

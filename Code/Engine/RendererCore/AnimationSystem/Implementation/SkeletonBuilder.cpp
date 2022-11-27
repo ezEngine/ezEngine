@@ -26,10 +26,10 @@ ezUInt16 ezSkeletonBuilder::AddJoint(const char* szName, const ezTransform& loca
   return static_cast<ezUInt16>(m_Joints.GetCount() - 1);
 }
 
-void ezSkeletonBuilder::SetJointLimit(ezUInt16 uiJointIndex, const ezQuat& localOrientation, bool bLimitSwing, ezAngle halfSwingLimitY, ezAngle halfSwingLimitZ, bool bLimitTwist, ezAngle twistLimitHalfAngle, ezAngle twistLimitCenterAngle)
+void ezSkeletonBuilder::SetJointLimit(ezUInt16 uiJointIndex, const ezQuat& qLocalOrientation, bool bLimitSwing, ezAngle halfSwingLimitY, ezAngle halfSwingLimitZ, bool bLimitTwist, ezAngle twistLimitHalfAngle, ezAngle twistLimitCenterAngle)
 {
   auto& j = m_Joints[uiJointIndex];
-  j.m_qLocalJointOrientation = localOrientation;
+  j.m_qLocalJointOrientation = qLocalOrientation;
   j.m_HalfSwingLimitY = halfSwingLimitY;
   j.m_HalfSwingLimitZ = halfSwingLimitZ;
   j.m_TwistLimitHalfAngle = twistLimitHalfAngle;
@@ -38,26 +38,26 @@ void ezSkeletonBuilder::SetJointLimit(ezUInt16 uiJointIndex, const ezQuat& local
   j.m_bLimitTwist = bLimitTwist;
 }
 
-void ezSkeletonBuilder::BuildSkeleton(ezSkeleton& skeleton) const
+void ezSkeletonBuilder::BuildSkeleton(ezSkeleton& ref_skeleton) const
 {
   // EZ_ASSERT_DEV(HasJoints(), "Can't build a skeleton with no joints!");
 
   const ezUInt32 numJoints = m_Joints.GetCount();
 
   // Copy joints to skeleton
-  skeleton.m_Joints.SetCount(numJoints);
+  ref_skeleton.m_Joints.SetCount(numJoints);
 
   for (ezUInt32 i = 0; i < numJoints; ++i)
   {
-    skeleton.m_Joints[i].m_sName = m_Joints[i].m_sName;
-    skeleton.m_Joints[i].m_uiParentIndex = m_Joints[i].m_uiParentIndex;
-    skeleton.m_Joints[i].m_BindPoseLocal = m_Joints[i].m_BindPoseLocal;
+    ref_skeleton.m_Joints[i].m_sName = m_Joints[i].m_sName;
+    ref_skeleton.m_Joints[i].m_uiParentIndex = m_Joints[i].m_uiParentIndex;
+    ref_skeleton.m_Joints[i].m_BindPoseLocal = m_Joints[i].m_BindPoseLocal;
 
-    skeleton.m_Joints[i].m_qLocalJointOrientation = m_Joints[i].m_qLocalJointOrientation;
-    skeleton.m_Joints[i].m_HalfSwingLimitY = m_Joints[i].m_bLimitSwing ? m_Joints[i].m_HalfSwingLimitY : ezAngle();
-    skeleton.m_Joints[i].m_HalfSwingLimitZ = m_Joints[i].m_bLimitSwing ? m_Joints[i].m_HalfSwingLimitZ : ezAngle();
-    skeleton.m_Joints[i].m_TwistLimitHalfAngle = m_Joints[i].m_bLimitTwist ? m_Joints[i].m_TwistLimitHalfAngle : ezAngle();
-    skeleton.m_Joints[i].m_TwistLimitCenterAngle = m_Joints[i].m_bLimitTwist ? m_Joints[i].m_TwistLimitCenterAngle : ezAngle();
+    ref_skeleton.m_Joints[i].m_qLocalJointOrientation = m_Joints[i].m_qLocalJointOrientation;
+    ref_skeleton.m_Joints[i].m_HalfSwingLimitY = m_Joints[i].m_bLimitSwing ? m_Joints[i].m_HalfSwingLimitY : ezAngle();
+    ref_skeleton.m_Joints[i].m_HalfSwingLimitZ = m_Joints[i].m_bLimitSwing ? m_Joints[i].m_HalfSwingLimitZ : ezAngle();
+    ref_skeleton.m_Joints[i].m_TwistLimitHalfAngle = m_Joints[i].m_bLimitTwist ? m_Joints[i].m_TwistLimitHalfAngle : ezAngle();
+    ref_skeleton.m_Joints[i].m_TwistLimitCenterAngle = m_Joints[i].m_bLimitTwist ? m_Joints[i].m_TwistLimitCenterAngle : ezAngle();
   }
 }
 

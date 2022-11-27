@@ -205,7 +205,7 @@ void ezProcPlacementComponentManager::PreparePlace(const ezWorldModule::UpdateCo
       }
 
       // Sort by distance, larger distances come first since new tiles are processed in reverse order.
-      m_NewTiles.Sort([](auto& tileA, auto& tileB) { return tileA.m_fDistanceToCamera > tileB.m_fDistanceToCamera; });
+      m_NewTiles.Sort([](auto& ref_tileA, auto& ref_tileB) { return ref_tileA.m_fDistanceToCamera > ref_tileB.m_fDistanceToCamera; });
     }
 
     ClearVisibleComponents();
@@ -305,7 +305,7 @@ void ezProcPlacementComponentManager::PlaceObjects(const ezWorldModule::UpdateCo
     sortedTask.m_uiTaskIndex = i;
   }
 
-  m_SortedProcessingTasks.Sort([](auto& taskA, auto& taskB) { return taskA.m_uiScheduledFrame < taskB.m_uiScheduledFrame; });
+  m_SortedProcessingTasks.Sort([](auto& ref_taskA, auto& ref_taskB) { return ref_taskA.m_uiScheduledFrame < ref_taskB.m_uiScheduledFrame; });
 
   ezUInt32 uiTotalNumPlacedObjects = 0;
 
@@ -662,7 +662,7 @@ void ezProcPlacementComponent::SetResource(const ezProcGenGraphResourceHandle& h
   }
 }
 
-void ezProcPlacementComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
+void ezProcPlacementComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& ref_msg)
 {
   if (m_BoxExtents.IsEmpty())
     return;
@@ -678,18 +678,18 @@ void ezProcPlacementComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
     bounds.ExpandToInclude(localBox);
   }
 
-  msg.AddBounds(bounds, GetOwner()->IsDynamic() ? ezDefaultSpatialDataCategories::RenderDynamic : ezDefaultSpatialDataCategories::RenderStatic);
+  ref_msg.AddBounds(bounds, GetOwner()->IsDynamic() ? ezDefaultSpatialDataCategories::RenderDynamic : ezDefaultSpatialDataCategories::RenderStatic);
 }
 
-void ezProcPlacementComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
+void ezProcPlacementComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& ref_msg) const
 {
   // Don't extract render data for selection or in shadow views.
-  if (msg.m_OverrideCategory != ezInvalidRenderDataCategory)
+  if (ref_msg.m_OverrideCategory != ezInvalidRenderDataCategory)
     return;
 
-  if (msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::MainView || msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::EditorView)
+  if (ref_msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::MainView || ref_msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::EditorView)
   {
-    const ezCamera* pCamera = msg.m_pView->GetCullingCamera();
+    const ezCamera* pCamera = ref_msg.m_pView->GetCullingCamera();
 
     ezVec3 cameraPosition = pCamera->GetCenterPosition();
     ezVec3 cameraDirection = pCamera->GetCenterDirForwards();
@@ -702,21 +702,21 @@ void ezProcPlacementComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& ms
   }
 }
 
-void ezProcPlacementComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezProcPlacementComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 
-  ezStreamWriter& s = stream.GetStream();
+  ezStreamWriter& s = inout_stream.GetStream();
 
   s << m_hResource;
   s.WriteArray(m_BoxExtents).IgnoreResult();
 }
 
-void ezProcPlacementComponent::DeserializeComponent(ezWorldReader& stream)
+void ezProcPlacementComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
+  SUPER::DeserializeComponent(inout_stream);
   // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  ezStreamReader& s = stream.GetStream();
+  ezStreamReader& s = inout_stream.GetStream();
 
   s >> m_hResource;
   s.ReadArray(m_BoxExtents).IgnoreResult();
@@ -794,20 +794,20 @@ void ezProcPlacementComponent::UpdateBoundsAndTiles()
 
 //////////////////////////////////////////////////////////////////////////
 
-ezResult ezProcGenBoxExtents::Serialize(ezStreamWriter& stream) const
+ezResult ezProcGenBoxExtents::Serialize(ezStreamWriter& inout_stream) const
 {
-  stream << m_vOffset;
-  stream << m_Rotation;
-  stream << m_vExtents;
+  inout_stream << m_vOffset;
+  inout_stream << m_Rotation;
+  inout_stream << m_vExtents;
 
   return EZ_SUCCESS;
 }
 
-ezResult ezProcGenBoxExtents::Deserialize(ezStreamReader& stream)
+ezResult ezProcGenBoxExtents::Deserialize(ezStreamReader& inout_stream)
 {
-  stream >> m_vOffset;
-  stream >> m_Rotation;
-  stream >> m_vExtents;
+  inout_stream >> m_vOffset;
+  inout_stream >> m_Rotation;
+  inout_stream >> m_vExtents;
 
   return EZ_SUCCESS;
 }

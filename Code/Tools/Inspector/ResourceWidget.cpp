@@ -17,8 +17,8 @@ void FormatSize(ezStringBuilder& s, const char* szPrefix, ezUInt64 uiSize);
 
 ezQtResourceWidget* ezQtResourceWidget::s_pWidget = nullptr;
 
-ezQtResourceWidget::ezQtResourceWidget(QWidget* parent)
-  : ads::CDockWidget("Resource Widget", parent)
+ezQtResourceWidget::ezQtResourceWidget(QWidget* pParent)
+  : ads::CDockWidget("Resource Widget", pParent)
 {
   s_pWidget = this;
 

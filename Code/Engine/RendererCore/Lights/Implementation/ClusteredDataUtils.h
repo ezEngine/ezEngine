@@ -161,49 +161,49 @@ namespace
     }
   }
 
-  EZ_ALWAYS_INLINE void FillLightData(ezPerLightData& perLightData, const ezLightRenderData* pLightRenderData, ezUInt8 uiType)
+  EZ_ALWAYS_INLINE void FillLightData(ezPerLightData& ref_perLightData, const ezLightRenderData* pLightRenderData, ezUInt8 uiType)
   {
-    ezMemoryUtils::ZeroFill(&perLightData, 1);
+    ezMemoryUtils::ZeroFill(&ref_perLightData, 1);
 
     ezColorLinearUB lightColor = pLightRenderData->m_LightColor;
     lightColor.a = uiType;
 
-    perLightData.colorAndType = *reinterpret_cast<ezUInt32*>(&lightColor.r);
-    perLightData.intensity = pLightRenderData->m_fIntensity;
-    perLightData.shadowDataOffset = pLightRenderData->m_uiShadowDataOffset;
+    ref_perLightData.colorAndType = *reinterpret_cast<ezUInt32*>(&lightColor.r);
+    ref_perLightData.intensity = pLightRenderData->m_fIntensity;
+    ref_perLightData.shadowDataOffset = pLightRenderData->m_uiShadowDataOffset;
   }
 
-  void FillPointLightData(ezPerLightData& perLightData, const ezPointLightRenderData* pPointLightRenderData)
+  void FillPointLightData(ezPerLightData& ref_perLightData, const ezPointLightRenderData* pPointLightRenderData)
   {
-    FillLightData(perLightData, pPointLightRenderData, LIGHT_TYPE_POINT);
+    FillLightData(ref_perLightData, pPointLightRenderData, LIGHT_TYPE_POINT);
 
-    perLightData.position = pPointLightRenderData->m_GlobalTransform.m_vPosition;
-    perLightData.invSqrAttRadius = 1.0f / (pPointLightRenderData->m_fRange * pPointLightRenderData->m_fRange);
+    ref_perLightData.position = pPointLightRenderData->m_GlobalTransform.m_vPosition;
+    ref_perLightData.invSqrAttRadius = 1.0f / (pPointLightRenderData->m_fRange * pPointLightRenderData->m_fRange);
   }
 
-  void FillSpotLightData(ezPerLightData& perLightData, const ezSpotLightRenderData* pSpotLightRenderData)
+  void FillSpotLightData(ezPerLightData& ref_perLightData, const ezSpotLightRenderData* pSpotLightRenderData)
   {
-    FillLightData(perLightData, pSpotLightRenderData, LIGHT_TYPE_SPOT);
+    FillLightData(ref_perLightData, pSpotLightRenderData, LIGHT_TYPE_SPOT);
 
-    perLightData.direction = ezShaderUtils::Float3ToRGB10(pSpotLightRenderData->m_GlobalTransform.m_qRotation * ezVec3(-1, 0, 0));
-    perLightData.position = pSpotLightRenderData->m_GlobalTransform.m_vPosition;
-    perLightData.invSqrAttRadius = 1.0f / (pSpotLightRenderData->m_fRange * pSpotLightRenderData->m_fRange);
+    ref_perLightData.direction = ezShaderUtils::Float3ToRGB10(pSpotLightRenderData->m_GlobalTransform.m_qRotation * ezVec3(-1, 0, 0));
+    ref_perLightData.position = pSpotLightRenderData->m_GlobalTransform.m_vPosition;
+    ref_perLightData.invSqrAttRadius = 1.0f / (pSpotLightRenderData->m_fRange * pSpotLightRenderData->m_fRange);
 
     const float fCosInner = ezMath::Cos(pSpotLightRenderData->m_InnerSpotAngle * 0.5f);
     const float fCosOuter = ezMath::Cos(pSpotLightRenderData->m_OuterSpotAngle * 0.5f);
     const float fSpotParamScale = 1.0f / ezMath::Max(0.001f, (fCosInner - fCosOuter));
     const float fSpotParamOffset = -fCosOuter * fSpotParamScale;
-    perLightData.spotParams = ezShaderUtils::Float2ToRG16F(ezVec2(fSpotParamScale, fSpotParamOffset));
+    ref_perLightData.spotParams = ezShaderUtils::Float2ToRG16F(ezVec2(fSpotParamScale, fSpotParamOffset));
   }
 
-  void FillDirLightData(ezPerLightData& perLightData, const ezDirectionalLightRenderData* pDirLightRenderData)
+  void FillDirLightData(ezPerLightData& ref_perLightData, const ezDirectionalLightRenderData* pDirLightRenderData)
   {
-    FillLightData(perLightData, pDirLightRenderData, LIGHT_TYPE_DIR);
+    FillLightData(ref_perLightData, pDirLightRenderData, LIGHT_TYPE_DIR);
 
-    perLightData.direction = ezShaderUtils::Float3ToRGB10(pDirLightRenderData->m_GlobalTransform.m_qRotation * ezVec3(-1, 0, 0));
+    ref_perLightData.direction = ezShaderUtils::Float3ToRGB10(pDirLightRenderData->m_GlobalTransform.m_qRotation * ezVec3(-1, 0, 0));
   }
 
-  void FillDecalData(ezPerDecalData& perDecalData, const ezDecalRenderData* pDecalRenderData)
+  void FillDecalData(ezPerDecalData& ref_perDecalData, const ezDecalRenderData* pDecalRenderData)
   {
     ezVec3 position = pDecalRenderData->m_GlobalTransform.m_vPosition;
     ezVec3 dirForwards = pDecalRenderData->m_GlobalTransform.m_qRotation * ezVec3(1.0f, 0.0, 0.0f);
@@ -218,22 +218,22 @@ namespace
     ezMat4 scaleMat;
     scaleMat.SetScalingMatrix(ezVec3(scale.y, -scale.z, scale.x));
 
-    perDecalData.worldToDecalMatrix = scaleMat * lookAt;
-    perDecalData.applyOnlyToId = pDecalRenderData->m_uiApplyOnlyToId;
-    perDecalData.decalFlags = pDecalRenderData->m_uiFlags;
-    perDecalData.angleFadeParams = pDecalRenderData->m_uiAngleFadeParams;
-    perDecalData.baseColor = *reinterpret_cast<const ezUInt32*>(&pDecalRenderData->m_BaseColor.r);
-    perDecalData.emissiveColorRG = ezShaderUtils::PackFloat16intoUint(pDecalRenderData->m_EmissiveColor.r, pDecalRenderData->m_EmissiveColor.g);
-    perDecalData.emissiveColorBA = ezShaderUtils::PackFloat16intoUint(pDecalRenderData->m_EmissiveColor.b, pDecalRenderData->m_EmissiveColor.a);
-    perDecalData.baseColorAtlasScale = pDecalRenderData->m_uiBaseColorAtlasScale;
-    perDecalData.baseColorAtlasOffset = pDecalRenderData->m_uiBaseColorAtlasOffset;
-    perDecalData.normalAtlasScale = pDecalRenderData->m_uiNormalAtlasScale;
-    perDecalData.normalAtlasOffset = pDecalRenderData->m_uiNormalAtlasOffset;
-    perDecalData.ormAtlasScale = pDecalRenderData->m_uiORMAtlasScale;
-    perDecalData.ormAtlasOffset = pDecalRenderData->m_uiORMAtlasOffset;
+    ref_perDecalData.worldToDecalMatrix = scaleMat * lookAt;
+    ref_perDecalData.applyOnlyToId = pDecalRenderData->m_uiApplyOnlyToId;
+    ref_perDecalData.decalFlags = pDecalRenderData->m_uiFlags;
+    ref_perDecalData.angleFadeParams = pDecalRenderData->m_uiAngleFadeParams;
+    ref_perDecalData.baseColor = *reinterpret_cast<const ezUInt32*>(&pDecalRenderData->m_BaseColor.r);
+    ref_perDecalData.emissiveColorRG = ezShaderUtils::PackFloat16intoUint(pDecalRenderData->m_EmissiveColor.r, pDecalRenderData->m_EmissiveColor.g);
+    ref_perDecalData.emissiveColorBA = ezShaderUtils::PackFloat16intoUint(pDecalRenderData->m_EmissiveColor.b, pDecalRenderData->m_EmissiveColor.a);
+    ref_perDecalData.baseColorAtlasScale = pDecalRenderData->m_uiBaseColorAtlasScale;
+    ref_perDecalData.baseColorAtlasOffset = pDecalRenderData->m_uiBaseColorAtlasOffset;
+    ref_perDecalData.normalAtlasScale = pDecalRenderData->m_uiNormalAtlasScale;
+    ref_perDecalData.normalAtlasOffset = pDecalRenderData->m_uiNormalAtlasOffset;
+    ref_perDecalData.ormAtlasScale = pDecalRenderData->m_uiORMAtlasScale;
+    ref_perDecalData.ormAtlasOffset = pDecalRenderData->m_uiORMAtlasOffset;
   }
 
-  void FillReflectionProbeData(ezPerReflectionProbeData& perReflectionProbeData, const ezReflectionProbeRenderData* pReflectionProbeRenderData)
+  void FillReflectionProbeData(ezPerReflectionProbeData& ref_perReflectionProbeData, const ezReflectionProbeRenderData* pReflectionProbeRenderData)
   {
     ezVec3 position = pReflectionProbeRenderData->m_GlobalTransform.m_vPosition;
     ezVec3 scale = pReflectionProbeRenderData->m_GlobalTransform.m_vScale.CompMul(pReflectionProbeRenderData->m_vHalfExtents);
@@ -246,23 +246,23 @@ namespace
     // the CompMax prevents division by zero (thus inf, thus NaN later, then crash)
     // if negative scaling should be allowed, this would need to be changed
     scale = ezVec3(1.0f).CompDiv(scale.CompMax(ezVec3(0.00001f)));
-    perReflectionProbeData.WorldToProbeProjectionMatrix = inverse;
+    ref_perReflectionProbeData.WorldToProbeProjectionMatrix = inverse;
 
-    perReflectionProbeData.ProbePosition = pReflectionProbeRenderData->m_vProbePosition.GetAsVec4(1.0f); // W isn't used.
-    perReflectionProbeData.Scale = scale.GetAsVec4(0.0f);                                                // W isn't used.
+    ref_perReflectionProbeData.ProbePosition = pReflectionProbeRenderData->m_vProbePosition.GetAsVec4(1.0f); // W isn't used.
+    ref_perReflectionProbeData.Scale = scale.GetAsVec4(0.0f);                                                // W isn't used.
 
-    perReflectionProbeData.InfluenceScale = pReflectionProbeRenderData->m_vInfluenceScale.GetAsVec4(0.0f);
-    perReflectionProbeData.InfluenceShift = pReflectionProbeRenderData->m_vInfluenceShift.CompMul(ezVec3(1.0f) - pReflectionProbeRenderData->m_vInfluenceScale).GetAsVec4(0.0f);
+    ref_perReflectionProbeData.InfluenceScale = pReflectionProbeRenderData->m_vInfluenceScale.GetAsVec4(0.0f);
+    ref_perReflectionProbeData.InfluenceShift = pReflectionProbeRenderData->m_vInfluenceShift.CompMul(ezVec3(1.0f) - pReflectionProbeRenderData->m_vInfluenceScale).GetAsVec4(0.0f);
 
-    perReflectionProbeData.PositiveFalloff = pReflectionProbeRenderData->m_vPositiveFalloff.GetAsVec4(0.0f);
-    perReflectionProbeData.NegativeFalloff = pReflectionProbeRenderData->m_vNegativeFalloff.GetAsVec4(0.0f);
-    perReflectionProbeData.Index = pReflectionProbeRenderData->m_uiIndex;
+    ref_perReflectionProbeData.PositiveFalloff = pReflectionProbeRenderData->m_vPositiveFalloff.GetAsVec4(0.0f);
+    ref_perReflectionProbeData.NegativeFalloff = pReflectionProbeRenderData->m_vNegativeFalloff.GetAsVec4(0.0f);
+    ref_perReflectionProbeData.Index = pReflectionProbeRenderData->m_uiIndex;
   }
 
 
-  EZ_FORCE_INLINE ezSimdBBox GetScreenSpaceBounds(const ezSimdBSphere& sphere, const ezSimdMat4f& viewMatrix, const ezSimdMat4f& projectionMatrix)
+  EZ_FORCE_INLINE ezSimdBBox GetScreenSpaceBounds(const ezSimdBSphere& sphere, const ezSimdMat4f& mViewMatrix, const ezSimdMat4f& mProjectionMatrix)
   {
-    ezSimdVec4f viewSpaceCenter = viewMatrix.TransformPosition(sphere.GetCenter());
+    ezSimdVec4f viewSpaceCenter = mViewMatrix.TransformPosition(sphere.GetCenter());
     ezSimdFloat depth = viewSpaceCenter.z();
     ezSimdFloat radius = sphere.GetRadius();
 
@@ -282,7 +282,7 @@ namespace
       ezSimdVec4f nom = (pRadius2.CompMul(xxyy.CompMul(xxyy) - pRadius2 + one)).GetSqrt() - xxyy.CompMul(oneNegOne);
       ezSimdVec4f denom = pRadius2 - one;
 
-      ezSimdVec4f projection = projectionMatrix.m_col0.GetCombined<ezSwizzle::XXYY>(projectionMatrix.m_col1);
+      ezSimdVec4f projection = mProjectionMatrix.m_col0.GetCombined<ezSwizzle::XXYY>(mProjectionMatrix.m_col1);
       ezSimdVec4f minXmaxX_minYmaxY = nom.CompDiv(denom).CompMul(oneNegOne).CompMul(projection);
 
       mi = minXmaxX_minYmaxY.Get<ezSwizzle::XZXX>();
@@ -302,7 +302,7 @@ namespace
 
   template <typename Cluster, typename IntersectionFunc>
   EZ_FORCE_INLINE void FillCluster(
-    const ezSimdBBox& screenSpaceBounds, ezUInt32 uiBlockIndex, ezUInt32 uiMask, Cluster* clusters, IntersectionFunc func)
+    const ezSimdBBox& screenSpaceBounds, ezUInt32 uiBlockIndex, ezUInt32 uiMask, Cluster* pClusters, IntersectionFunc func)
   {
     ezSimdVec4f scale = ezSimdVec4f(0.5f * NUM_CLUSTERS_X, -0.5f * NUM_CLUSTERS_Y, 1.0f, 1.0f);
     ezSimdVec4f bias = ezSimdVec4f(0.5f * NUM_CLUSTERS_X, 0.5f * NUM_CLUSTERS_Y, 0.0f, 0.0f);
@@ -334,7 +334,7 @@ namespace
           ezUInt32 uiClusterIndex = GetClusterIndexFromCoord(x, y, z);
           if (func(uiClusterIndex))
           {
-            clusters[uiClusterIndex].m_BitMask[uiBlockIndex] |= uiMask;
+            pClusters[uiClusterIndex].m_BitMask[uiBlockIndex] |= uiMask;
           }
         }
       }
@@ -342,16 +342,16 @@ namespace
   }
 
   template <typename Cluster>
-  void RasterizeSphere(const ezSimdBSphere& pointLightSphere, ezUInt32 uiLightIndex, const ezSimdMat4f& viewMatrix,
-    const ezSimdMat4f& projectionMatrix, Cluster* clusters, ezSimdBSphere* clusterBoundingSpheres)
+  void RasterizeSphere(const ezSimdBSphere& pointLightSphere, ezUInt32 uiLightIndex, const ezSimdMat4f& mViewMatrix,
+    const ezSimdMat4f& mProjectionMatrix, Cluster* pClusters, ezSimdBSphere* pClusterBoundingSpheres)
   {
-    ezSimdBBox screenSpaceBounds = GetScreenSpaceBounds(pointLightSphere, viewMatrix, projectionMatrix);
+    ezSimdBBox screenSpaceBounds = GetScreenSpaceBounds(pointLightSphere, mViewMatrix, mProjectionMatrix);
 
     const ezUInt32 uiBlockIndex = uiLightIndex / 32;
     const ezUInt32 uiMask = 1 << (uiLightIndex - uiBlockIndex * 32);
 
-    FillCluster(screenSpaceBounds, uiBlockIndex, uiMask, clusters,
-      [&](ezUInt32 uiClusterIndex) { return pointLightSphere.Overlaps(clusterBoundingSpheres[uiClusterIndex]); });
+    FillCluster(screenSpaceBounds, uiBlockIndex, uiMask, pClusters,
+      [&](ezUInt32 uiClusterIndex) { return pointLightSphere.Overlaps(pClusterBoundingSpheres[uiClusterIndex]); });
   }
 
   struct BoundingCone
@@ -363,8 +363,8 @@ namespace
   };
 
   template <typename Cluster>
-  void RasterizeSpotLight(const BoundingCone& spotLightCone, ezUInt32 uiLightIndex, const ezSimdMat4f& viewMatrix,
-    const ezSimdMat4f& projectionMatrix, Cluster* clusters, ezSimdBSphere* clusterBoundingSpheres)
+  void RasterizeSpotLight(const BoundingCone& spotLightCone, ezUInt32 uiLightIndex, const ezSimdMat4f& mViewMatrix,
+    const ezSimdMat4f& mProjectionMatrix, Cluster* pClusters, ezSimdBSphere* pClusterBoundingSpheres)
   {
     ezSimdVec4f position = spotLightCone.m_PositionAndRange;
     ezSimdFloat range = spotLightCone.m_PositionAndRange.w();
@@ -387,13 +387,13 @@ namespace
     }
 
     ezSimdBSphere spotLightSphere(bSphereCenter, bSphereRadius);
-    ezSimdBBox screenSpaceBounds = GetScreenSpaceBounds(spotLightSphere, viewMatrix, projectionMatrix);
+    ezSimdBBox screenSpaceBounds = GetScreenSpaceBounds(spotLightSphere, mViewMatrix, mProjectionMatrix);
 
     const ezUInt32 uiBlockIndex = uiLightIndex / 32;
     const ezUInt32 uiMask = 1 << (uiLightIndex - uiBlockIndex * 32);
 
-    FillCluster(screenSpaceBounds, uiBlockIndex, uiMask, clusters, [&](ezUInt32 uiClusterIndex) {
-      ezSimdBSphere clusterSphere = clusterBoundingSpheres[uiClusterIndex];
+    FillCluster(screenSpaceBounds, uiBlockIndex, uiMask, pClusters, [&](ezUInt32 uiClusterIndex) {
+      ezSimdBSphere clusterSphere = pClusterBoundingSpheres[uiClusterIndex];
       ezSimdFloat clusterRadius = clusterSphere.GetRadius();
 
       ezSimdVec4f toConePos = clusterSphere.m_CenterAndRadius - position;
@@ -422,8 +422,8 @@ namespace
   }
 
   template <typename Cluster>
-  void RasterizeBox(const ezTransform& transform, ezUInt32 uiDecalIndex, const ezSimdMat4f& viewProjectionMatrix, Cluster* clusters,
-    ezSimdBSphere* clusterBoundingSpheres)
+  void RasterizeBox(const ezTransform& transform, ezUInt32 uiDecalIndex, const ezSimdMat4f& mViewProjectionMatrix, Cluster* pClusters,
+    ezSimdBSphere* pClusterBoundingSpheres)
   {
     ezSimdMat4f decalToWorld = ezSimdConversion::ToTransform(transform).GetAsMat4();
     ezSimdMat4f worldToDecal = decalToWorld.GetInverse();
@@ -431,7 +431,7 @@ namespace
     ezVec3 corners[8];
     ezBoundingBox(ezVec3(-1), ezVec3(1)).GetCorners(corners);
 
-    ezSimdMat4f decalToScreen = viewProjectionMatrix * decalToWorld;
+    ezSimdMat4f decalToScreen = mViewProjectionMatrix * decalToWorld;
     ezSimdBBox screenSpaceBounds;
     screenSpaceBounds.SetInvalid();
     bool bInsideBox = false;
@@ -461,8 +461,8 @@ namespace
     const ezUInt32 uiBlockIndex = uiDecalIndex / 32;
     const ezUInt32 uiMask = 1 << (uiDecalIndex - uiBlockIndex * 32);
 
-    FillCluster(screenSpaceBounds, uiBlockIndex, uiMask, clusters, [&](ezUInt32 uiClusterIndex) {
-      ezSimdBSphere clusterSphere = clusterBoundingSpheres[uiClusterIndex];
+    FillCluster(screenSpaceBounds, uiBlockIndex, uiMask, pClusters, [&](ezUInt32 uiClusterIndex) {
+      ezSimdBSphere clusterSphere = pClusterBoundingSpheres[uiClusterIndex];
       clusterSphere.Transform(worldToDecal);
 
       return localDecalBounds.Overlaps(clusterSphere);

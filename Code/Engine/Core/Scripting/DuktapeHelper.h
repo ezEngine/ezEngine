@@ -118,12 +118,12 @@ public:
 
   bool HasProperty(const char* szPropertyName, ezInt32 iParentObjectIndex = -1) const;
 
-  bool GetBoolProperty(const char* szPropertyName, bool fallback, ezInt32 iParentObjectIndex = -1) const;
-  ezInt32 GetIntProperty(const char* szPropertyName, ezInt32 fallback, ezInt32 iParentObjectIndex = -1) const;
-  ezUInt32 GetUIntProperty(const char* szPropertyName, ezUInt32 fallback, ezInt32 iParentObjectIndex = -1) const;
-  float GetFloatProperty(const char* szPropertyName, float fallback, ezInt32 iParentObjectIndex = -1) const;
-  double GetNumberProperty(const char* szPropertyName, double fallback, ezInt32 iParentObjectIndex = -1) const;
-  const char* GetStringProperty(const char* szPropertyName, const char* fallback, ezInt32 iParentObjectIndex = -1) const;
+  bool GetBoolProperty(const char* szPropertyName, bool bFallback, ezInt32 iParentObjectIndex = -1) const;
+  ezInt32 GetIntProperty(const char* szPropertyName, ezInt32 iFallback, ezInt32 iParentObjectIndex = -1) const;
+  ezUInt32 GetUIntProperty(const char* szPropertyName, ezUInt32 uiFallback, ezInt32 iParentObjectIndex = -1) const;
+  float GetFloatProperty(const char* szPropertyName, float fFallback, ezInt32 iParentObjectIndex = -1) const;
+  double GetNumberProperty(const char* szPropertyName, double fFallback, ezInt32 iParentObjectIndex = -1) const;
+  const char* GetStringProperty(const char* szPropertyName, const char* szFallback, ezInt32 iParentObjectIndex = -1) const;
 
   void SetBoolProperty(const char* szPropertyName, bool value, ezInt32 iParentObjectIndex = -1) const;
   void SetNumberProperty(const char* szPropertyName, double value, ezInt32 iParentObjectIndex = -1) const;
@@ -162,11 +162,11 @@ public:
   /// \name C Functions
   ///@{
 
-  void RegisterGlobalFunction(const char* szFunctionName, duk_c_function pFunction, ezUInt8 uiNumArguments, ezInt16 iMagicValue = 0);
-  void RegisterGlobalFunctionWithVarArgs(const char* szFunctionName, duk_c_function pFunction, ezInt16 iMagicValue = 0);
+  void RegisterGlobalFunction(const char* szFunctionName, duk_c_function function, ezUInt8 uiNumArguments, ezInt16 iMagicValue = 0);
+  void RegisterGlobalFunctionWithVarArgs(const char* szFunctionName, duk_c_function function, ezInt16 iMagicValue = 0);
 
   void RegisterObjectFunction(
-    const char* szFunctionName, duk_c_function pFunction, ezUInt8 uiNumArguments, ezInt32 iParentObjectIndex = -1, ezInt16 iMagicValue = 0);
+    const char* szFunctionName, duk_c_function function, ezUInt8 uiNumArguments, ezInt32 iParentObjectIndex = -1, ezInt16 iMagicValue = 0);
 
   ezResult PrepareGlobalFunctionCall(const char* szFunctionName);
   ezResult PrepareObjectFunctionCall(const char* szFunctionName, ezInt32 iParentObjectIndex = -1);
@@ -187,14 +187,14 @@ public:
   void PushString(const ezStringView& sParam);
   void PushNull();
   void PushUndefined();
-  void PushCustom(ezUInt32 num = 1);
+  void PushCustom(ezUInt32 uiNum = 1);
 
-  bool GetBoolValue(ezInt32 iStackElement, bool fallback = false) const;
-  ezInt32 GetIntValue(ezInt32 iStackElement, ezInt32 fallback = 0) const;
-  ezUInt32 GetUIntValue(ezInt32 iStackElement, ezUInt32 fallback = 0) const;
-  float GetFloatValue(ezInt32 iStackElement, float fallback = 0) const;
-  double GetNumberValue(ezInt32 iStackElement, double fallback = 0) const;
-  const char* GetStringValue(ezInt32 iStackElement, const char* fallback = "") const;
+  bool GetBoolValue(ezInt32 iStackElement, bool bFallback = false) const;
+  ezInt32 GetIntValue(ezInt32 iStackElement, ezInt32 iFallback = 0) const;
+  ezUInt32 GetUIntValue(ezInt32 iStackElement, ezUInt32 uiFallback = 0) const;
+  float GetFloatValue(ezInt32 iStackElement, float fFallback = 0) const;
+  double GetNumberValue(ezInt32 iStackElement, double fFallback = 0) const;
+  const char* GetStringValue(ezInt32 iStackElement, const char* szFallback = "") const;
 
   ///@}
   /// \name Executing Scripts
@@ -202,7 +202,7 @@ public:
 
   ezResult ExecuteString(const char* szString, const char* szDebugName = "eval");
 
-  ezResult ExecuteStream(ezStreamReader& stream, const char* szDebugName);
+  ezResult ExecuteStream(ezStreamReader& inout_stream, const char* szDebugName);
 
   ezResult ExecuteFile(const char* szFile);
 

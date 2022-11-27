@@ -40,7 +40,7 @@ public:
   ezJoltShapeComponent();
   ~ezJoltShapeComponent();
 
-  virtual void ExtractGeometry(ezMsgExtractGeometry& msg) const {}
+  virtual void ExtractGeometry(ezMsgExtractGeometry& ref_msg) const {}
 
 protected:
   friend class ezJoltActorComponent;

@@ -62,9 +62,9 @@ struct ezConstructionCounter
   bool operator<(const ezConstructionCounter& rhs) const { return m_iData < rhs.m_iData; }
 
   /// Checks whether n constructions have been done since the last check.
-  static bool HasConstructed(ezInt32 cons)
+  static bool HasConstructed(ezInt32 iCons)
   {
-    const bool b = s_iConstructions == s_iConstructionsLast + cons;
+    const bool b = s_iConstructions == s_iConstructionsLast + iCons;
     s_iConstructionsLast = s_iConstructions;
     s_iDestructionsLast = s_iDestructions;
 
@@ -75,9 +75,9 @@ struct ezConstructionCounter
   }
 
   /// Checks whether n destructions have been done since the last check.
-  static bool HasDestructed(ezInt32 cons)
+  static bool HasDestructed(ezInt32 iCons)
   {
-    const bool b = s_iDestructions == s_iDestructionsLast + cons;
+    const bool b = s_iDestructions == s_iDestructionsLast + iCons;
     s_iConstructionsLast = s_iConstructions;
     s_iDestructionsLast = s_iDestructions;
 
@@ -88,10 +88,10 @@ struct ezConstructionCounter
   }
 
   /// Checks whether n constructions and destructions have been done since the last check.
-  static bool HasDone(ezInt32 cons, ezInt32 des)
+  static bool HasDone(ezInt32 iCons, ezInt32 iDes)
   {
-    const bool bc = (s_iConstructions == (s_iConstructionsLast + cons));
-    const bool bd = (s_iDestructions == (s_iDestructionsLast + des));
+    const bool bc = (s_iConstructions == (s_iConstructionsLast + iCons));
+    const bool bd = (s_iDestructions == (s_iDestructionsLast + iDes));
 
     if (!(bc && bd))
       PrintStats();
@@ -187,10 +187,10 @@ struct ezConstructionCounterRelocatable
   }
 
   /// Checks whether n constructions and destructions have been done since the last check.
-  static bool HasDone(ezInt32 cons, ezInt32 des)
+  static bool HasDone(ezInt32 iCons, ezInt32 iDes)
   {
-    const bool bc = (s_iConstructions == (s_iConstructionsLast + cons));
-    const bool bd = (s_iDestructions == (s_iDestructionsLast + des));
+    const bool bc = (s_iConstructions == (s_iConstructionsLast + iCons));
+    const bool bd = (s_iDestructions == (s_iDestructionsLast + iDes));
 
     if (!(bc && bd))
       PrintStats();

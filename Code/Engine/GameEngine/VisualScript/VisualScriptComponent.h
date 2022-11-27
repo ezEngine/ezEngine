@@ -42,8 +42,8 @@ class EZ_GAMEENGINE_DLL ezVisualScriptComponent : public ezEventMessageHandlerCo
   // ezComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
 protected:
   virtual bool OnUnhandledMessage(ezMessage& msg, bool bWasPostedMsg) override;

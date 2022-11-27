@@ -47,10 +47,10 @@ void ezEnumerationMenuAction::InitEnumerationType(const ezRTTI* pEnumerationType
   m_pEnumerationType = pEnumerationType;
 }
 
-void ezEnumerationMenuAction::GetEntries(ezHybridArray<ezDynamicMenuAction::Item, 16>& out_Entries)
+void ezEnumerationMenuAction::GetEntries(ezHybridArray<ezDynamicMenuAction::Item, 16>& out_entries)
 {
-  out_Entries.Clear();
-  out_Entries.Reserve(m_pEnumerationType->GetProperties().GetCount() - 1);
+  out_entries.Clear();
+  out_entries.Reserve(m_pEnumerationType->GetProperties().GetCount() - 1);
   ezInt64 iCurrentValue = ezReflectionUtils::MakeEnumerationValid(m_pEnumerationType, GetValue());
 
   // sort entries by group / category
@@ -84,15 +84,15 @@ void ezEnumerationMenuAction::GetEntries(ezHybridArray<ezDynamicMenuAction::Item
 
     unsortedItems.Sort();
 
-    if (!out_Entries.IsEmpty())
+    if (!out_entries.IsEmpty())
     {
       // add a separator between groups
-      out_Entries.ExpandAndGetRef().m_ItemFlags.Add(ezDynamicMenuAction::Item::ItemFlags::Separator);
+      out_entries.ExpandAndGetRef().m_ItemFlags.Add(ezDynamicMenuAction::Item::ItemFlags::Separator);
     }
 
     for (const auto& sortedItem : unsortedItems)
     {
-      out_Entries.PushBack(sortedItem.m_Item);
+      out_entries.PushBack(sortedItem.m_Item);
     }
 
     unsortedItems.Clear();
@@ -172,9 +172,9 @@ void ezSliderAction::SetRange(ezInt32 iMin, ezInt32 iMax, bool bTriggerUpdate /*
     TriggerUpdate();
 }
 
-void ezSliderAction::SetValue(ezInt32 val, bool bTriggerUpdate /*= true*/)
+void ezSliderAction::SetValue(ezInt32 iVal, bool bTriggerUpdate /*= true*/)
 {
-  m_iCurValue = ezMath::Clamp(val, m_iMinValue, m_iMaxValue);
+  m_iCurValue = ezMath::Clamp(iVal, m_iMinValue, m_iMaxValue);
   if (bTriggerUpdate)
     TriggerUpdate();
 }

@@ -48,26 +48,26 @@ EZ_BEGIN_COMPONENT_TYPE(ezPowerConnectorComponent, 1, ezComponentMode::Static)
 EZ_END_COMPONENT_TYPE;
 // clang-format on
 
-void ezPowerConnectorComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezPowerConnectorComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
-  stream.WriteGameObjectHandle(m_hBuddy);
-  stream.WriteGameObjectHandle(m_hConnectedTo);
+  inout_stream.WriteGameObjectHandle(m_hBuddy);
+  inout_stream.WriteGameObjectHandle(m_hConnectedTo);
 
   s << m_uiOutput;
 }
 
-void ezPowerConnectorComponent::DeserializeComponent(ezWorldReader& stream)
+void ezPowerConnectorComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
+  SUPER::DeserializeComponent(inout_stream);
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
-  m_hBuddy = stream.ReadGameObjectHandle();
-  m_hConnectedTo = stream.ReadGameObjectHandle();
+  m_hBuddy = inout_stream.ReadGameObjectHandle();
+  m_hConnectedTo = inout_stream.ReadGameObjectHandle();
 
   s >> m_uiOutput;
 }

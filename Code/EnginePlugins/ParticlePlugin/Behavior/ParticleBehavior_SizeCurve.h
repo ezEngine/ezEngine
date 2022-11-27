@@ -11,8 +11,8 @@ public:
   virtual const ezRTTI* GetBehaviorType() const override;
   virtual void CopyBehaviorProperties(ezParticleBehavior* pObject, bool bFirstTime) const override;
 
-  virtual void Save(ezStreamWriter& stream) const override;
-  virtual void Load(ezStreamReader& stream) override;
+  virtual void Save(ezStreamWriter& inout_stream) const override;
+  virtual void Load(ezStreamReader& inout_stream) override;
 
   void SetSizeCurveFile(const char* szFile);
   const char* GetSizeCurveFile() const;

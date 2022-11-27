@@ -140,11 +140,11 @@ public:
   ///
   /// Returns true if an existing value was replaced and optionally writes out the old value to out_oldValue.
   template <typename CompatibleKeyType, typename CompatibleValueType>
-  bool Insert(CompatibleKeyType&& key, CompatibleValueType&& value, ValueType* out_oldValue = nullptr); // [tested]
+  bool Insert(CompatibleKeyType&& key, CompatibleValueType&& value, ValueType* out_pOldValue = nullptr); // [tested]
 
   /// \brief Removes the entry with the given key. Returns whether an entry was removed and optionally writes out the old value to out_oldValue.
   template <typename CompatibleKeyType>
-  bool Remove(const CompatibleKeyType& key, ValueType* out_oldValue = nullptr); // [tested]
+  bool Remove(const CompatibleKeyType& key, ValueType* out_pOldValue = nullptr); // [tested]
 
   /// \brief Erases the key/value pair at the given Iterator. Returns an iterator to the element after the given iterator.
   Iterator Remove(const Iterator& pos); // [tested]
@@ -184,7 +184,7 @@ public:
   ValueType& operator[](const KeyType& key); // [tested]
 
   /// \brief Returns the value stored at the given key. If none exists, one is created. \a bExisted indicates whether an element needed to be created.
-  ValueType& FindOrAdd(const KeyType& key, bool* bExisted); // [tested]
+  ValueType& FindOrAdd(const KeyType& key, bool* out_pExisted); // [tested]
 
   /// \brief Returns if an entry with given key exists in the table.
   template <typename CompatibleKeyType>
@@ -285,9 +285,9 @@ public:
 // begin() /end() for range-based for-loop support
 
 template <typename KeyType, typename ValueType, typename Hasher>
-typename ezHashTableBase<KeyType, ValueType, Hasher>::Iterator begin(ezHashTableBase<KeyType, ValueType, Hasher>& container)
+typename ezHashTableBase<KeyType, ValueType, Hasher>::Iterator begin(ezHashTableBase<KeyType, ValueType, Hasher>& ref_container)
 {
-  return container.GetIterator();
+  return ref_container.GetIterator();
 }
 
 template <typename KeyType, typename ValueType, typename Hasher>
@@ -303,9 +303,9 @@ typename ezHashTableBase<KeyType, ValueType, Hasher>::ConstIterator cbegin(const
 }
 
 template <typename KeyType, typename ValueType, typename Hasher>
-typename ezHashTableBase<KeyType, ValueType, Hasher>::Iterator end(ezHashTableBase<KeyType, ValueType, Hasher>& container)
+typename ezHashTableBase<KeyType, ValueType, Hasher>::Iterator end(ezHashTableBase<KeyType, ValueType, Hasher>& ref_container)
 {
-  return container.GetEndIterator();
+  return ref_container.GetEndIterator();
 }
 
 template <typename KeyType, typename ValueType, typename Hasher>

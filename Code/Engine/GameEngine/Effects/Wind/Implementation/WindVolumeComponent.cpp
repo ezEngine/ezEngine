@@ -66,10 +66,10 @@ void ezWindVolumeComponent::OnSimulationStarted()
   }
 }
 
-void ezWindVolumeComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezWindVolumeComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
-  auto& s = stream.GetStream();
+  SUPER::SerializeComponent(inout_stream);
+  auto& s = inout_stream.GetStream();
 
   s << m_BurstDuration;
   s << m_OnFinishedAction;
@@ -77,11 +77,11 @@ void ezWindVolumeComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_bReverseDirection;
 }
 
-void ezWindVolumeComponent::DeserializeComponent(ezWorldReader& stream)
+void ezWindVolumeComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  auto& s = stream.GetStream();
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  auto& s = inout_stream.GetStream();
 
   s >> m_BurstDuration;
   s >> m_OnFinishedAction;
@@ -93,11 +93,11 @@ void ezWindVolumeComponent::DeserializeComponent(ezWorldReader& stream)
   }
 }
 
-ezSimdVec4f ezWindVolumeComponent::ComputeForceAtGlobalPosition(const ezSimdVec4f& globalPos) const
+ezSimdVec4f ezWindVolumeComponent::ComputeForceAtGlobalPosition(const ezSimdVec4f& vGlobalPos) const
 {
   const ezSimdTransform t = GetOwner()->GetGlobalTransformSimd();
   const ezSimdTransform tInv = t.GetInverse();
-  const ezSimdVec4f localPos = tInv.TransformPosition(globalPos);
+  const ezSimdVec4f localPos = tInv.TransformPosition(vGlobalPos);
 
   const ezSimdVec4f force = ComputeForceAtLocalPosition(localPos);
 
@@ -156,44 +156,44 @@ EZ_END_COMPONENT_TYPE;
 ezWindVolumeSphereComponent::ezWindVolumeSphereComponent() = default;
 ezWindVolumeSphereComponent::~ezWindVolumeSphereComponent() = default;
 
-void ezWindVolumeSphereComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezWindVolumeSphereComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
-  auto& s = stream.GetStream();
+  SUPER::SerializeComponent(inout_stream);
+  auto& s = inout_stream.GetStream();
 
   s << m_fRadius;
 }
 
-void ezWindVolumeSphereComponent::DeserializeComponent(ezWorldReader& stream)
+void ezWindVolumeSphereComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  auto& s = stream.GetStream();
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  auto& s = inout_stream.GetStream();
 
   s >> m_fRadius;
   m_fOneDivRadius = 1.0f / m_fRadius;
 }
 
-ezSimdVec4f ezWindVolumeSphereComponent::ComputeForceAtLocalPosition(const ezSimdVec4f& localPos) const
+ezSimdVec4f ezWindVolumeSphereComponent::ComputeForceAtLocalPosition(const ezSimdVec4f& vLocalPos) const
 {
   // TODO: could do this computation in global space
 
-  ezSimdFloat lenScaled = localPos.GetLength<3>() * m_fOneDivRadius;
+  ezSimdFloat lenScaled = vLocalPos.GetLength<3>() * m_fOneDivRadius;
 
   // inverse quadratic falloff to have sharper edges
   ezSimdFloat forceFactor = ezSimdFloat(1.0f) - (lenScaled * lenScaled);
 
   const ezSimdFloat force = GetWindInMetersPerSecond() * forceFactor.Max(0.0f);
 
-  ezSimdVec4f dir = localPos;
+  ezSimdVec4f dir = vLocalPos;
   dir.NormalizeIfNotZero<3>();
 
   return dir * force;
 }
 
-void ezWindVolumeSphereComponent::SetRadius(float val)
+void ezWindVolumeSphereComponent::SetRadius(float fVal)
 {
-  m_fRadius = ezMath::Max(val, 0.1f);
+  m_fRadius = ezMath::Max(fVal, 0.1f);
   m_fOneDivRadius = 1.0f / m_fRadius;
 
   if (IsActiveAndInitialized())
@@ -243,21 +243,21 @@ EZ_END_COMPONENT_TYPE;
 ezWindVolumeCylinderComponent::ezWindVolumeCylinderComponent() = default;
 ezWindVolumeCylinderComponent::~ezWindVolumeCylinderComponent() = default;
 
-void ezWindVolumeCylinderComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezWindVolumeCylinderComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
-  auto& s = stream.GetStream();
+  SUPER::SerializeComponent(inout_stream);
+  auto& s = inout_stream.GetStream();
 
   s << m_fRadius;
   s << m_fLength;
   s << m_Mode;
 }
 
-void ezWindVolumeCylinderComponent::DeserializeComponent(ezWorldReader& stream)
+void ezWindVolumeCylinderComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  auto& s = stream.GetStream();
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  auto& s = inout_stream.GetStream();
 
   s >> m_fRadius;
   m_fOneDivRadius = 1.0f / m_fRadius;
@@ -266,14 +266,14 @@ void ezWindVolumeCylinderComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_Mode;
 }
 
-ezSimdVec4f ezWindVolumeCylinderComponent::ComputeForceAtLocalPosition(const ezSimdVec4f& localPos) const
+ezSimdVec4f ezWindVolumeCylinderComponent::ComputeForceAtLocalPosition(const ezSimdVec4f& vLocalPos) const
 {
-  const ezSimdFloat fCylDist = localPos.x();
+  const ezSimdFloat fCylDist = vLocalPos.x();
 
   if (fCylDist <= -m_fLength * 0.5f || fCylDist >= m_fLength * 0.5f)
     return ezSimdVec4f::ZeroVector();
 
-  ezSimdVec4f orthoDir = localPos;
+  ezSimdVec4f orthoDir = vLocalPos;
   orthoDir.SetX(0.0f);
 
   if (orthoDir.GetLengthSquared<3>() >= ezMath::Square(m_fRadius))
@@ -289,9 +289,9 @@ ezSimdVec4f ezWindVolumeCylinderComponent::ComputeForceAtLocalPosition(const ezS
   return ezSimdVec4f(GetWindInMetersPerSecond(), 0, 0);
 }
 
-void ezWindVolumeCylinderComponent::SetRadius(float val)
+void ezWindVolumeCylinderComponent::SetRadius(float fVal)
 {
-  m_fRadius = ezMath::Max(val, 0.1f);
+  m_fRadius = ezMath::Max(fVal, 0.1f);
   m_fOneDivRadius = 1.0f / m_fRadius;
 
   if (IsActiveAndInitialized())
@@ -300,9 +300,9 @@ void ezWindVolumeCylinderComponent::SetRadius(float val)
   }
 }
 
-void ezWindVolumeCylinderComponent::SetLength(float val)
+void ezWindVolumeCylinderComponent::SetLength(float fVal)
 {
-  m_fLength = ezMath::Max(val, 0.1f);
+  m_fLength = ezMath::Max(fVal, 0.1f);
 
   if (IsActiveAndInitialized())
   {
@@ -348,28 +348,28 @@ EZ_END_COMPONENT_TYPE;
 ezWindVolumeConeComponent::ezWindVolumeConeComponent() = default;
 ezWindVolumeConeComponent::~ezWindVolumeConeComponent() = default;
 
-void ezWindVolumeConeComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezWindVolumeConeComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
-  auto& s = stream.GetStream();
+  SUPER::SerializeComponent(inout_stream);
+  auto& s = inout_stream.GetStream();
 
   s << m_fLength;
   s << m_Angle;
 }
 
-void ezWindVolumeConeComponent::DeserializeComponent(ezWorldReader& stream)
+void ezWindVolumeConeComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  auto& s = stream.GetStream();
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  auto& s = inout_stream.GetStream();
 
   s >> m_fLength;
   s >> m_Angle;
 }
 
-ezSimdVec4f ezWindVolumeConeComponent::ComputeForceAtLocalPosition(const ezSimdVec4f& localPos) const
+ezSimdVec4f ezWindVolumeConeComponent::ComputeForceAtLocalPosition(const ezSimdVec4f& vLocalPos) const
 {
-  const ezSimdFloat fConeDist = localPos.x();
+  const ezSimdFloat fConeDist = vLocalPos.x();
 
   if (fConeDist <= ezSimdFloat::Zero() || fConeDist >= m_fLength)
     return ezSimdVec4f::ZeroVector();
@@ -380,18 +380,18 @@ ezSimdVec4f ezWindVolumeConeComponent::ComputeForceAtLocalPosition(const ezSimdV
   // TODO: precompute 1/length
   const ezSimdFloat fConeRadius = (fConeDist / ezSimdFloat(m_fLength)) * ezSimdFloat(fBaseRadius);
 
-  ezSimdVec4f orthoDir = localPos;
+  ezSimdVec4f orthoDir = vLocalPos;
   orthoDir.SetX(0.0f);
 
   if (orthoDir.GetLengthSquared<3>() >= fConeRadius * fConeRadius)
     return ezSimdVec4f::ZeroVector();
 
-  return localPos.GetNormalized<3>() * GetWindInMetersPerSecond();
+  return vLocalPos.GetNormalized<3>() * GetWindInMetersPerSecond();
 }
 
-void ezWindVolumeConeComponent::SetLength(float val)
+void ezWindVolumeConeComponent::SetLength(float fVal)
 {
-  m_fLength = ezMath::Max(val, 0.1f);
+  m_fLength = ezMath::Max(fVal, 0.1f);
 
   if (IsActiveAndInitialized())
   {

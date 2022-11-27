@@ -15,20 +15,20 @@ namespace
     {
     }
 
-    virtual void OnEnter(ezStateMachineInstance& instance, void* pInstanceData, const ezStateMachineState* pFromState) const override
+    virtual void OnEnter(ezStateMachineInstance& ref_instance, void* pInstanceData, const ezStateMachineState* pFromState) const override
     {
       auto pData = static_cast<InstanceData*>(pInstanceData);
       pData->m_Counter.m_uiEnterCounter++;
 
-      m_CounterTable[&instance] = pData->m_Counter;
+      m_CounterTable[&ref_instance] = pData->m_Counter;
     }
 
-    virtual void OnExit(ezStateMachineInstance& instance, void* pInstanceData, const ezStateMachineState* pToState) const override
+    virtual void OnExit(ezStateMachineInstance& ref_instance, void* pInstanceData, const ezStateMachineState* pToState) const override
     {
       auto pData = static_cast<InstanceData*>(pInstanceData);
       pData->m_Counter.m_uiExitCounter++;
 
-      m_CounterTable[&instance] = pData->m_Counter;
+      m_CounterTable[&ref_instance] = pData->m_Counter;
     }
 
     virtual bool GetInstanceDataDesc(ezStateMachineInstanceDataDesc& out_desc) override
@@ -68,7 +68,7 @@ namespace
   class TestTransition : public ezStateMachineTransition
   {
   public:
-    bool IsConditionMet(ezStateMachineInstance& instance, void* pInstanceData) const override
+    bool IsConditionMet(ezStateMachineInstance& ref_instance, void* pInstanceData) const override
     {
       auto pData = static_cast<InstanceData*>(pInstanceData);
       pData->m_uiConditionCounter++;

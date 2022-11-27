@@ -289,10 +289,10 @@ ezEditorInput ezNonUniformBoxGizmo::DoMouseMoveEvent(QMouseEvent* e)
   return ezEditorInput::WasExclusivelyHandled;
 }
 
-void ezNonUniformBoxGizmo::SetSize(const ezVec3& negSize, const ezVec3& posSize, bool bLinkAxis)
+void ezNonUniformBoxGizmo::SetSize(const ezVec3& vNegSize, const ezVec3& vPosSize, bool bLinkAxis)
 {
-  m_vNegSize = negSize;
-  m_vPosSize = posSize;
+  m_vNegSize = vNegSize;
+  m_vPosSize = vPosSize;
   m_bLinkAxis = bLinkAxis;
 
   // update the scale

@@ -257,12 +257,12 @@ void ezExtractor::ExtractRenderData(const ezView& view, const ezGameObject* pObj
   }
 }
 
-void ezExtractor::Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& extractedRenderData)
+void ezExtractor::Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData)
 {
 }
 
 void ezExtractor::PostSortAndBatch(
-  const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& extractedRenderData)
+  const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData)
 {
 }
 
@@ -279,7 +279,7 @@ ezVisibleObjectsExtractor::ezVisibleObjectsExtractor(const char* szName)
 ezVisibleObjectsExtractor::~ezVisibleObjectsExtractor() = default;
 
 void ezVisibleObjectsExtractor::Extract(
-  const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& extractedRenderData)
+  const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData)
 {
   ezMsgExtractRenderData msg;
   msg.m_pView = &view;
@@ -295,7 +295,7 @@ void ezVisibleObjectsExtractor::Extract(
 
   for (auto pObject : visibleObjects)
   {
-    ExtractRenderData(view, pObject, msg, extractedRenderData);
+    ExtractRenderData(view, pObject, msg, ref_extractedRenderData);
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
     if (cvar_SpatialVisBounds || cvar_SpatialVisLocalBBox || cvar_SpatialVisData)
@@ -344,7 +344,7 @@ ezSelectedObjectsExtractorBase::ezSelectedObjectsExtractorBase(const char* szNam
 ezSelectedObjectsExtractorBase::~ezSelectedObjectsExtractorBase() = default;
 
 void ezSelectedObjectsExtractorBase::Extract(
-  const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& extractedRenderData)
+  const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData)
 {
   const ezDeque<ezGameObjectHandle>* pSelection = GetSelection();
   if (pSelection == nullptr)
@@ -362,7 +362,7 @@ void ezSelectedObjectsExtractorBase::Extract(
     if (!view.GetWorld()->TryGetObject(hObj, pObject))
       continue;
 
-    ExtractRenderData(view, pObject, msg, extractedRenderData);
+    ExtractRenderData(view, pObject, msg, ref_extractedRenderData);
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
     if (cvar_SpatialVisBounds || cvar_SpatialVisLocalBBox || cvar_SpatialVisData)

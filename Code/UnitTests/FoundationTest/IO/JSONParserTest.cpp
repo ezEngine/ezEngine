@@ -75,9 +75,9 @@ public:
     EZ_TEST_INT(m_Results.GetCount(), 0);
   }
 
-  void ParseStream(ezStreamReader& stream)
+  void ParseStream(ezStreamReader& inout_stream)
   {
-    SetInputStream(stream);
+    SetInputStream(inout_stream);
     ParseAll();
   }
 

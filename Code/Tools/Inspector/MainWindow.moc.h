@@ -26,7 +26,7 @@ public:
 
   static void ProcessTelemetry(void* pUnuseed);
 
-  virtual void closeEvent(QCloseEvent* event);
+  virtual void closeEvent(QCloseEvent* pEvent);
 
 public Q_SLOTS:
   void DockWidgetVisibilityChanged(bool bVisible);

@@ -13,8 +13,8 @@ class EZ_JOLTPLUGIN_DLL ezJoltShapeConvexHullComponent : public ezJoltShapeCompo
   // ezComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
 
   //////////////////////////////////////////////////////////////////////////
@@ -31,7 +31,7 @@ public:
   ezJoltShapeConvexHullComponent();
   ~ezJoltShapeConvexHullComponent();
 
-  virtual void ExtractGeometry(ezMsgExtractGeometry& msg) const override;
+  virtual void ExtractGeometry(ezMsgExtractGeometry& ref_msg) const override;
 
   void SetMeshFile(const char* szFile); // [ property ]
   const char* GetMeshFile() const;      // [ property ]

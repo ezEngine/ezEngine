@@ -45,11 +45,11 @@ ezUInt64 ezAssetDocumentManager::ComputeAssetProfileHashImpl(const ezPlatformPro
   return 0;
 }
 
-ezStatus ezAssetDocumentManager::ReadAssetDocumentInfo(ezUniquePtr<ezAssetDocumentInfo>& out_pInfo, ezStreamReader& stream) const
+ezStatus ezAssetDocumentManager::ReadAssetDocumentInfo(ezUniquePtr<ezAssetDocumentInfo>& out_pInfo, ezStreamReader& inout_stream) const
 {
   ezAbstractObjectGraph graph;
 
-  if (ezAbstractGraphDdlSerializer::ReadHeader(stream, &graph).Failed())
+  if (ezAbstractGraphDdlSerializer::ReadHeader(inout_stream, &graph).Failed())
     return ezStatus("Failed to read asset document");
 
   ezRttiConverterContext context;

@@ -11,7 +11,7 @@ public:
   ezExpressionCompiler();
   ~ezExpressionCompiler();
 
-  ezResult Compile(ezExpressionAST& ast, ezExpressionByteCode& out_byteCode, ezStringView sDebugAstOutputPath = ezStringView());
+  ezResult Compile(ezExpressionAST& ref_ast, ezExpressionByteCode& out_byteCode, ezStringView sDebugAstOutputPath = ezStringView());
 
 private:
   ezResult TransformAndOptimizeAST(ezExpressionAST& ast, ezStringView sDebugAstOutputPath);

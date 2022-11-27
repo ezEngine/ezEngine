@@ -67,10 +67,10 @@ void ezGrabbableItemComponent::GrabPoints_Remove(ezUInt32 uiIndex)
   m_GrabPoints.RemoveAtAndCopy(uiIndex);
 }
 
-void ezGrabbableItemComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezGrabbableItemComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
-  auto& s = stream.GetStream();
+  SUPER::SerializeComponent(inout_stream);
+  auto& s = inout_stream.GetStream();
 
   const ezUInt8 uiNumGrabPoints = static_cast<ezUInt8>(m_GrabPoints.GetCount());
   s << uiNumGrabPoints;
@@ -81,11 +81,11 @@ void ezGrabbableItemComponent::SerializeComponent(ezWorldWriter& stream) const
   }
 }
 
-void ezGrabbableItemComponent::DeserializeComponent(ezWorldReader& stream)
+void ezGrabbableItemComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
+  SUPER::DeserializeComponent(inout_stream);
   // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   ezUInt8 uiNumGrabPoints;
   s >> uiNumGrabPoints;

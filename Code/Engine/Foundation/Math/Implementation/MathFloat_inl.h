@@ -30,7 +30,7 @@ namespace ezMath
 
   EZ_ALWAYS_INLINE float Round(float f) { return Floor(f + 0.5f); }
 
-  EZ_ALWAYS_INLINE float RoundToMultiple(float f, float multiple) { return Round(f / multiple) * multiple; }
+  EZ_ALWAYS_INLINE float RoundToMultiple(float f, float fMultiple) { return Round(f / fMultiple) * fMultiple; }
 
 
   inline float RoundDown(float f, float fMultiple)
@@ -73,11 +73,11 @@ namespace ezMath
 
   EZ_ALWAYS_INLINE float Pow2(float f) { return exp2f(f); }
 
-  EZ_ALWAYS_INLINE float Pow(float base, float exp) { return powf(base, exp); }
+  EZ_ALWAYS_INLINE float Pow(float fBase, float fExp) { return powf(fBase, fExp); }
 
-  EZ_ALWAYS_INLINE float Root(float f, float NthRoot) { return powf(f, 1.0f / NthRoot); }
+  EZ_ALWAYS_INLINE float Root(float f, float fNthRoot) { return powf(f, 1.0f / fNthRoot); }
 
   EZ_ALWAYS_INLINE float Sqrt(float f) { return sqrtf(f); }
 
-  EZ_ALWAYS_INLINE float Mod(float f, float div) { return fmodf(f, div); }
+  EZ_ALWAYS_INLINE float Mod(float f, float fDiv) { return fmodf(f, fDiv); }
 } // namespace ezMath

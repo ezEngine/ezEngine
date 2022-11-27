@@ -36,11 +36,11 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezJoltSwingTwistConstraintComponent::ezJoltSwingTwistConstraintComponent() = default;
 ezJoltSwingTwistConstraintComponent::~ezJoltSwingTwistConstraintComponent() = default;
 
-void ezJoltSwingTwistConstraintComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezJoltSwingTwistConstraintComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s << m_SwingLimitY;
   s << m_SwingLimitZ;
@@ -55,12 +55,12 @@ void ezJoltSwingTwistConstraintComponent::SerializeComponent(ezWorldWriter& stre
   // s << m_fTwistDriveStrength;
 }
 
-void ezJoltSwingTwistConstraintComponent::DeserializeComponent(ezWorldReader& stream)
+void ezJoltSwingTwistConstraintComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s >> m_SwingLimitY;
   s >> m_SwingLimitZ;

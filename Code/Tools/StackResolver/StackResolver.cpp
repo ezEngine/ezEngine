@@ -61,8 +61,8 @@ public:
   ezResult ParseCallstack();
 
   void ResolveStackFrames();
-  void FormatAsText(ezStringBuilder& output);
-  void FormatAsJSON(ezStringBuilder& output);
+  void FormatAsText(ezStringBuilder& ref_sOutput);
+  void FormatAsJSON(ezStringBuilder& ref_sOutput);
 
   HANDLE m_hProcess;
   ezDynamicArray<Module> m_Modules;
@@ -221,7 +221,7 @@ void ezStackResolver::ResolveStackFrames()
   }
 }
 
-void ezStackResolver::FormatAsText(ezStringBuilder& output)
+void ezStackResolver::FormatAsText(ezStringBuilder& ref_sOutput)
 {
   ezLog::Info("Formatting callstack as text.");
 
@@ -246,11 +246,11 @@ void ezStackResolver::FormatAsText(ezStringBuilder& output)
       szSymbol = frame.m_sSymbol;
     }
 
-    output.AppendFormat("[][{}] {}({}): '{}'\n", szModuleName, szFileName, frame.m_uiLineNumber, szSymbol);
+    ref_sOutput.AppendFormat("[][{}] {}({}): '{}'\n", szModuleName, szFileName, frame.m_uiLineNumber, szSymbol);
   }
 }
 
-void ezStackResolver::FormatAsJSON(ezStringBuilder& output)
+void ezStackResolver::FormatAsJSON(ezStringBuilder& ref_sOutput)
 {
   ezLog::Info("Formatting callstack as JSON.");
 
@@ -298,7 +298,7 @@ void ezStackResolver::FormatAsJSON(ezStringBuilder& output)
 
   ezStringView text((const char*)storage.GetData(), storage.GetStorageSize32());
 
-  output.Append(text);
+  ref_sOutput.Append(text);
 }
 
 ezApplication::Execution ezStackResolver::Run()

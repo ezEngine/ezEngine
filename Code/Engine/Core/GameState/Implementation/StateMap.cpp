@@ -16,81 +16,81 @@ void ezStateMap::Clear()
   m_Strings.Clear();
 }
 
-void ezStateMap::StoreBool(const ezTempHashedString& name, bool value)
+void ezStateMap::StoreBool(const ezTempHashedString& sName, bool value)
 {
-  m_Bools[name] = value;
+  m_Bools[sName] = value;
 }
 
-void ezStateMap::StoreInteger(const ezTempHashedString& name, ezInt64 value)
+void ezStateMap::StoreInteger(const ezTempHashedString& sName, ezInt64 value)
 {
-  m_Integers[name] = value;
+  m_Integers[sName] = value;
 }
 
-void ezStateMap::StoreDouble(const ezTempHashedString& name, double value)
+void ezStateMap::StoreDouble(const ezTempHashedString& sName, double value)
 {
-  m_Doubles[name] = value;
+  m_Doubles[sName] = value;
 }
 
-void ezStateMap::StoreVec3(const ezTempHashedString& name, const ezVec3& value)
+void ezStateMap::StoreVec3(const ezTempHashedString& sName, const ezVec3& value)
 {
-  m_Vec3s[name] = value;
+  m_Vec3s[sName] = value;
 }
 
-void ezStateMap::StoreColor(const ezTempHashedString& name, const ezColor& value)
+void ezStateMap::StoreColor(const ezTempHashedString& sName, const ezColor& value)
 {
-  m_Colors[name] = value;
+  m_Colors[sName] = value;
 }
 
-void ezStateMap::StoreString(const ezTempHashedString& name, const ezString& value)
+void ezStateMap::StoreString(const ezTempHashedString& sName, const ezString& value)
 {
-  m_Strings[name] = value;
+  m_Strings[sName] = value;
 }
 
-void ezStateMap::RetrieveBool(const ezTempHashedString& name, bool& out_Value, bool defaultValue /*= false*/)
+void ezStateMap::RetrieveBool(const ezTempHashedString& sName, bool& out_bValue, bool bDefaultValue /*= false*/)
 {
-  if (!m_Bools.TryGetValue(name, out_Value))
+  if (!m_Bools.TryGetValue(sName, out_bValue))
   {
-    out_Value = defaultValue;
+    out_bValue = bDefaultValue;
   }
 }
 
-void ezStateMap::RetrieveInteger(const ezTempHashedString& name, ezInt64& out_Value, ezInt64 defaultValue /*= 0*/)
+void ezStateMap::RetrieveInteger(const ezTempHashedString& sName, ezInt64& out_iValue, ezInt64 iDefaultValue /*= 0*/)
 {
-  if (!m_Integers.TryGetValue(name, out_Value))
+  if (!m_Integers.TryGetValue(sName, out_iValue))
   {
-    out_Value = defaultValue;
+    out_iValue = iDefaultValue;
   }
 }
 
-void ezStateMap::RetrieveDouble(const ezTempHashedString& name, double& out_Value, double defaultValue /*= 0*/)
+void ezStateMap::RetrieveDouble(const ezTempHashedString& sName, double& out_fValue, double fDefaultValue /*= 0*/)
 {
-  if (!m_Doubles.TryGetValue(name, out_Value))
+  if (!m_Doubles.TryGetValue(sName, out_fValue))
   {
-    out_Value = defaultValue;
+    out_fValue = fDefaultValue;
   }
 }
 
-void ezStateMap::RetrieveVec3(const ezTempHashedString& name, ezVec3& out_Value, ezVec3 defaultValue /*= ezVec3(0)*/)
+void ezStateMap::RetrieveVec3(const ezTempHashedString& sName, ezVec3& out_vValue, ezVec3 vDefaultValue /*= ezVec3(0)*/)
 {
-  if (!m_Vec3s.TryGetValue(name, out_Value))
+  if (!m_Vec3s.TryGetValue(sName, out_vValue))
   {
-    out_Value = defaultValue;
+    out_vValue = vDefaultValue;
   }
 }
 
-void ezStateMap::RetrieveColor(const ezTempHashedString& name, ezColor& out_Value, ezColor defaultValue /*= ezColor::White*/)
+void ezStateMap::RetrieveColor(const ezTempHashedString& sName, ezColor& out_value, ezColor defaultValue /*= ezColor::White*/)
 {
-  if (!m_Colors.TryGetValue(name, out_Value))
+  if (!m_Colors.TryGetValue(sName, out_value))
   {
-    out_Value = defaultValue;
+    out_value = defaultValue;
   }
 }
 
-void ezStateMap::RetrieveString(const ezTempHashedString& name, ezString& out_Value, const char* defaultValue /*= nullptr*/)
+void ezStateMap::RetrieveString(const ezTempHashedString& sName, ezString& out_sValue, const char* szDefaultValue /*= nullptr*/)
 {
-  if (!m_Strings.TryGetValue(name, out_Value))
+  if (!m_Strings.TryGetValue(sName, out_sValue))
   {
-    out_Value = defaultValue;
+    out_sValue = szDefaultValue;
   }
 }
 

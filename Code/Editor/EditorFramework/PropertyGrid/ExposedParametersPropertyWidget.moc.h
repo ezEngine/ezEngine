@@ -12,7 +12,7 @@ class QAction;
 class EZ_EDITORFRAMEWORK_DLL ezExposedParameterCommandAccessor : public ezObjectProxyAccessor
 {
 public:
-  ezExposedParameterCommandAccessor(ezObjectAccessorBase* pSource, const ezAbstractProperty* pParameterProp, const ezAbstractProperty* m_pParameterSourceProp);
+  ezExposedParameterCommandAccessor(ezObjectAccessorBase* pSource, const ezAbstractProperty* pParameterProp, const ezAbstractProperty* pM_pParameterSourceProp);
 
   virtual ezStatus GetValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant& out_value, ezVariant index = ezVariant()) override;
   virtual ezStatus SetValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezVariant& newValue, ezVariant index = ezVariant()) override;

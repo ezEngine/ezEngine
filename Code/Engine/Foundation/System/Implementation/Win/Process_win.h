@@ -51,7 +51,7 @@ struct ezPipeWin
     }
   }
 
-  void StartRead(ezDelegate<void(ezStringView)>& onStdOut)
+  void StartRead(ezDelegate<void(ezStringView)>& ref_onStdOut)
   {
     if (m_pipeWrite)
     {
@@ -69,7 +69,7 @@ struct ezPipeWin
           {
             if (!overflowBuffer.IsEmpty())
             {
-              onStdOut(overflowBuffer);
+              ref_onStdOut(overflowBuffer);
             }
             break;
           }
@@ -84,13 +84,13 @@ struct ezPipeWin
               if (overflowBuffer.IsEmpty())
               {
                 // If there is nothing in the overflow buffer this is a complete line and can be fired as is.
-                onStdOut(ezStringView(szCurrentPos, szFound + 1));
+                ref_onStdOut(ezStringView(szCurrentPos, szFound + 1));
               }
               else
               {
                 // We have data in the overflow buffer so this is the final part of a partial line so we need to complete and fire the overflow buffer.
                 overflowBuffer.Append(ezStringView(szCurrentPos, szFound + 1));
-                onStdOut(overflowBuffer);
+                ref_onStdOut(overflowBuffer);
                 overflowBuffer.Clear();
               }
               szCurrentPos = szFound + 1;
@@ -176,23 +176,23 @@ ezOsProcessID ezProcess::GetCurrentProcessID()
 
 // Taken from "Programmatically controlling which handles are inherited by new processes in Win32" by Raymond Chen
 // https://devblogs.microsoft.com/oldnewthing/20111216-00/?p=8873
-static BOOL CreateProcessWithExplicitHandles(LPCWSTR lpApplicationName, LPWSTR lpCommandLine, LPSECURITY_ATTRIBUTES lpProcessAttributes,
-  LPSECURITY_ATTRIBUTES lpThreadAttributes, BOOL bInheritHandles, DWORD dwCreationFlags, LPVOID lpEnvironment, LPCWSTR lpCurrentDirectory,
-  LPSTARTUPINFOW lpStartupInfo, LPPROCESS_INFORMATION lpProcessInformation,
+static BOOL CreateProcessWithExplicitHandles(LPCWSTR pApplicationName, LPWSTR pCommandLine, LPSECURITY_ATTRIBUTES pProcessAttributes,
+  LPSECURITY_ATTRIBUTES pThreadAttributes, BOOL inheritHandles, DWORD uiCreationFlags, LPVOID pEnvironment, LPCWSTR pCurrentDirectory,
+  LPSTARTUPINFOW pStartupInfo, LPPROCESS_INFORMATION pProcessInformation,
   // here is the new stuff
-  DWORD cHandlesToInherit, HANDLE* rgHandlesToInherit)
+  DWORD uiHandlesToInherit, HANDLE* pHandlesToInherit)
 {
   BOOL fSuccess;
   BOOL fInitialized = FALSE;
   SIZE_T size = 0;
   LPPROC_THREAD_ATTRIBUTE_LIST lpAttributeList = nullptr;
-  fSuccess = cHandlesToInherit < 0xFFFFFFFF / sizeof(HANDLE) && lpStartupInfo->cb == sizeof(*lpStartupInfo);
+  fSuccess = uiHandlesToInherit < 0xFFFFFFFF / sizeof(HANDLE) && pStartupInfo->cb == sizeof(*pStartupInfo);
   if (!fSuccess)
   {
     SetLastError(ERROR_INVALID_PARAMETER);
   }
 
-  if (cHandlesToInherit > 0)
+  if (uiHandlesToInherit > 0)
   {
     if (fSuccess)
     {
@@ -211,7 +211,7 @@ static BOOL CreateProcessWithExplicitHandles(LPCWSTR lpApplicationName, LPWSTR l
     {
       fInitialized = TRUE;
       fSuccess = UpdateProcThreadAttribute(
-        lpAttributeList, 0, PROC_THREAD_ATTRIBUTE_HANDLE_LIST, rgHandlesToInherit, cHandlesToInherit * sizeof(HANDLE), nullptr, nullptr);
+        lpAttributeList, 0, PROC_THREAD_ATTRIBUTE_HANDLE_LIST, pHandlesToInherit, uiHandlesToInherit * sizeof(HANDLE), nullptr, nullptr);
     }
   }
 
@@ -219,13 +219,13 @@ static BOOL CreateProcessWithExplicitHandles(LPCWSTR lpApplicationName, LPWSTR l
   {
     STARTUPINFOEXW info;
     ZeroMemory(&info, sizeof(info));
-    info.StartupInfo = *lpStartupInfo;
+    info.StartupInfo = *pStartupInfo;
     info.StartupInfo.cb = sizeof(info);
     info.lpAttributeList = lpAttributeList;
 
     // it is both possible to pass in (STARTUPINFOW*)&info OR info.StartupInfo ...
-    fSuccess = CreateProcessW(lpApplicationName, lpCommandLine, lpProcessAttributes, lpThreadAttributes, bInheritHandles,
-      dwCreationFlags | EXTENDED_STARTUPINFO_PRESENT, lpEnvironment, lpCurrentDirectory, &info.StartupInfo, lpProcessInformation);
+    fSuccess = CreateProcessW(pApplicationName, pCommandLine, pProcessAttributes, pThreadAttributes, inheritHandles,
+      uiCreationFlags | EXTENDED_STARTUPINFO_PRESENT, pEnvironment, pCurrentDirectory, &info.StartupInfo, pProcessInformation);
   }
   if (fInitialized)
     DeleteProcThreadAttributeList(lpAttributeList);
@@ -386,16 +386,16 @@ ezResult ezProcess::WaitToFinish(ezTime timeout /*= ezTime::Zero()*/)
   return EZ_SUCCESS;
 }
 
-ezResult ezProcess::Execute(const ezProcessOptions& opt, ezInt32* out_iExitCode /*= nullptr*/)
+ezResult ezProcess::Execute(const ezProcessOptions& opt, ezInt32* out_pExitCode /*= nullptr*/)
 {
   ezProcess proc;
 
   EZ_SUCCEED_OR_RETURN(proc.Launch(opt));
   EZ_SUCCEED_OR_RETURN(proc.WaitToFinish());
 
-  if (out_iExitCode != nullptr)
+  if (out_pExitCode != nullptr)
   {
-    *out_iExitCode = proc.GetExitCode();
+    *out_pExitCode = proc.GetExitCode();
   }
 
   return EZ_SUCCESS;

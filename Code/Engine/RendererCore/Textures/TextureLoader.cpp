@@ -155,9 +155,9 @@ ezResourceLoadData ezTextureResourceLoader::OpenDataStream(const ezResource* pRe
   return res;
 }
 
-void ezTextureResourceLoader::CloseDataStream(const ezResource* pResource, const ezResourceLoadData& LoaderData)
+void ezTextureResourceLoader::CloseDataStream(const ezResource* pResource, const ezResourceLoadData& loaderData)
 {
-  LoadedData* pData = (LoadedData*)LoaderData.m_pCustomLoaderData;
+  LoadedData* pData = (LoadedData*)loaderData.m_pCustomLoaderData;
 
   EZ_DEFAULT_DELETE(pData);
 }
@@ -189,18 +189,18 @@ bool ezTextureResourceLoader::IsResourceOutdated(const ezResource* pResource) co
   return true;
 }
 
-ezResult ezTextureResourceLoader::LoadTexFile(ezStreamReader& stream, LoadedData& data)
+ezResult ezTextureResourceLoader::LoadTexFile(ezStreamReader& inout_stream, LoadedData& ref_data)
 {
   // read the hash, ignore it
   ezAssetFileHeader AssetHash;
-  EZ_SUCCEED_OR_RETURN(AssetHash.Read(stream));
+  EZ_SUCCEED_OR_RETURN(AssetHash.Read(inout_stream));
 
-  data.m_TexFormat.ReadHeader(stream);
+  ref_data.m_TexFormat.ReadHeader(inout_stream);
 
-  if (data.m_TexFormat.m_iRenderTargetResolutionX == 0)
+  if (ref_data.m_TexFormat.m_iRenderTargetResolutionX == 0)
   {
     ezDdsFileFormat fmt;
-    return fmt.ReadImage(stream, data.m_Image, "dds");
+    return fmt.ReadImage(inout_stream, ref_data.m_Image, "dds");
   }
   else
   {

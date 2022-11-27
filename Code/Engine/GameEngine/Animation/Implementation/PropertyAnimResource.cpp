@@ -93,7 +93,7 @@ void ezPropertyAnimResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
   }
 }
 
-void ezPropertyAnimResourceDescriptor::Save(ezStreamWriter& stream) const
+void ezPropertyAnimResourceDescriptor::Save(ezStreamWriter& inout_stream) const
 {
   const ezUInt8 uiVersion = 6;
   const ezUInt8 uiIdentifier = 0x0A; // dummy to fill the header to 32 Bit
@@ -102,77 +102,77 @@ void ezPropertyAnimResourceDescriptor::Save(ezStreamWriter& stream) const
 
   EZ_ASSERT_DEV(m_AnimationDuration.GetSeconds() > 0, "Animation duration must be positive");
 
-  stream << uiVersion;
-  stream << uiIdentifier;
-  stream << m_AnimationDuration;
-  stream << uiNumFloatAnimations;
+  inout_stream << uiVersion;
+  inout_stream << uiIdentifier;
+  inout_stream << m_AnimationDuration;
+  inout_stream << uiNumFloatAnimations;
 
   ezCurve1D tmpCurve;
 
   for (ezUInt32 i = 0; i < uiNumFloatAnimations; ++i)
   {
-    stream << m_FloatAnimations[i].m_sObjectSearchSequence;
-    stream << m_FloatAnimations[i].m_sComponentType;
-    stream << m_FloatAnimations[i].m_sPropertyPath;
-    stream << m_FloatAnimations[i].m_Target;
+    inout_stream << m_FloatAnimations[i].m_sObjectSearchSequence;
+    inout_stream << m_FloatAnimations[i].m_sComponentType;
+    inout_stream << m_FloatAnimations[i].m_sPropertyPath;
+    inout_stream << m_FloatAnimations[i].m_Target;
 
     tmpCurve = m_FloatAnimations[i].m_Curve;
     tmpCurve.SortControlPoints();
     tmpCurve.ApplyTangentModes();
     tmpCurve.ClampTangents();
-    tmpCurve.Save(stream);
+    tmpCurve.Save(inout_stream);
   }
 
   ezColorGradient tmpGradient;
-  stream << uiNumColorAnimations;
+  inout_stream << uiNumColorAnimations;
   for (ezUInt32 i = 0; i < uiNumColorAnimations; ++i)
   {
-    stream << m_ColorAnimations[i].m_sObjectSearchSequence;
-    stream << m_ColorAnimations[i].m_sComponentType;
-    stream << m_ColorAnimations[i].m_sPropertyPath;
-    stream << m_ColorAnimations[i].m_Target;
+    inout_stream << m_ColorAnimations[i].m_sObjectSearchSequence;
+    inout_stream << m_ColorAnimations[i].m_sComponentType;
+    inout_stream << m_ColorAnimations[i].m_sPropertyPath;
+    inout_stream << m_ColorAnimations[i].m_Target;
 
     tmpGradient = m_ColorAnimations[i].m_Gradient;
     tmpGradient.SortControlPoints();
-    tmpGradient.Save(stream);
+    tmpGradient.Save(inout_stream);
   }
 
   // Version 6
-  m_EventTrack.Save(stream);
+  m_EventTrack.Save(inout_stream);
 }
 
-void ezPropertyAnimResourceDescriptor::Load(ezStreamReader& stream)
+void ezPropertyAnimResourceDescriptor::Load(ezStreamReader& inout_stream)
 {
   ezUInt8 uiVersion = 0;
   ezUInt8 uiIdentifier = 0;
   ezUInt16 uiNumAnimations = 0;
 
-  stream >> uiVersion;
-  stream >> uiIdentifier;
+  inout_stream >> uiVersion;
+  inout_stream >> uiIdentifier;
 
   EZ_ASSERT_DEV(uiIdentifier == 0x0A, "File does not contain a valid ezPropertyAnimResourceDescriptor");
   EZ_ASSERT_DEV(uiVersion == 4 || uiVersion == 5 || uiVersion == 6, "Invalid file version {0}", uiVersion);
 
-  stream >> m_AnimationDuration;
+  inout_stream >> m_AnimationDuration;
 
   if (uiVersion == 4)
   {
     ezEnum<ezPropertyAnimMode> mode;
-    stream >> mode;
+    inout_stream >> mode;
   }
 
-  stream >> uiNumAnimations;
+  inout_stream >> uiNumAnimations;
   m_FloatAnimations.SetCount(uiNumAnimations);
 
   for (ezUInt32 i = 0; i < uiNumAnimations; ++i)
   {
     auto& anim = m_FloatAnimations[i];
 
-    stream >> anim.m_sObjectSearchSequence;
-    stream >> anim.m_sComponentType;
-    stream >> anim.m_sPropertyPath;
-    stream >> anim.m_Target;
-    anim.m_Curve.Load(stream);
+    inout_stream >> anim.m_sObjectSearchSequence;
+    inout_stream >> anim.m_sComponentType;
+    inout_stream >> anim.m_sPropertyPath;
+    inout_stream >> anim.m_Target;
+    anim.m_Curve.Load(inout_stream);
     anim.m_Curve.SortControlPoints();
     anim.m_Curve.CreateLinearApproximation();
 
@@ -180,18 +180,18 @@ void ezPropertyAnimResourceDescriptor::Load(ezStreamReader& stream)
       anim.m_pComponentRtti = ezRTTI::FindTypeByName(anim.m_sComponentType);
   }
 
-  stream >> uiNumAnimations;
+  inout_stream >> uiNumAnimations;
   m_ColorAnimations.SetCount(uiNumAnimations);
 
   for (ezUInt32 i = 0; i < uiNumAnimations; ++i)
   {
     auto& anim = m_ColorAnimations[i];
 
-    stream >> anim.m_sObjectSearchSequence;
-    stream >> anim.m_sComponentType;
-    stream >> anim.m_sPropertyPath;
-    stream >> anim.m_Target;
-    anim.m_Gradient.Load(stream);
+    inout_stream >> anim.m_sObjectSearchSequence;
+    inout_stream >> anim.m_sComponentType;
+    inout_stream >> anim.m_sPropertyPath;
+    inout_stream >> anim.m_Target;
+    anim.m_Gradient.Load(inout_stream);
 
     if (!anim.m_sComponentType.IsEmpty())
       anim.m_pComponentRtti = ezRTTI::FindTypeByName(anim.m_sComponentType);
@@ -199,7 +199,7 @@ void ezPropertyAnimResourceDescriptor::Load(ezStreamReader& stream)
 
   if (uiVersion >= 6)
   {
-    m_EventTrack.Load(stream);
+    m_EventTrack.Load(inout_stream);
   }
 }
 

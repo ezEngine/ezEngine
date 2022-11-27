@@ -13,8 +13,8 @@ enum class ezCompressionMethod : ezUInt16
 namespace ezCompressionUtils
 {
   ///\brief Compresses the given data using the compression method eMethod into the dynamic array given in out_Data.
-  EZ_FOUNDATION_DLL ezResult Compress(ezArrayPtr<const ezUInt8> pUncompressedData, ezCompressionMethod eMethod, ezDynamicArray<ezUInt8>& out_Data);
+  EZ_FOUNDATION_DLL ezResult Compress(ezArrayPtr<const ezUInt8> uncompressedData, ezCompressionMethod method, ezDynamicArray<ezUInt8>& out_data);
 
   ///\brief Decompresses the given data using the compression method eMethod into the dynamic array given in out_Data.
-  EZ_FOUNDATION_DLL ezResult Decompress(ezArrayPtr<const ezUInt8> pCompressedData, ezCompressionMethod eMethod, ezDynamicArray<ezUInt8>& out_Data);
+  EZ_FOUNDATION_DLL ezResult Decompress(ezArrayPtr<const ezUInt8> compressedData, ezCompressionMethod method, ezDynamicArray<ezUInt8>& out_data);
 } // namespace ezCompressionUtils

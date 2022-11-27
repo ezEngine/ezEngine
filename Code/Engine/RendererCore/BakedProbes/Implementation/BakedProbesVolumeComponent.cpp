@@ -43,11 +43,11 @@ void ezBakedProbesVolumeComponent::OnDeactivated()
   GetOwner()->UpdateLocalBounds();
 }
 
-void ezBakedProbesVolumeComponent::SetExtents(const ezVec3& extents)
+void ezBakedProbesVolumeComponent::SetExtents(const ezVec3& vExtents)
 {
-  if (m_vExtents != extents)
+  if (m_vExtents != vExtents)
   {
-    m_vExtents = extents;
+    m_vExtents = vExtents;
 
     if (IsActiveAndInitialized())
     {
@@ -56,27 +56,27 @@ void ezBakedProbesVolumeComponent::SetExtents(const ezVec3& extents)
   }
 }
 
-void ezBakedProbesVolumeComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezBakedProbesVolumeComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 
-  ezStreamWriter& s = stream.GetStream();
+  ezStreamWriter& s = inout_stream.GetStream();
 
   s << m_vExtents;
 }
 
-void ezBakedProbesVolumeComponent::DeserializeComponent(ezWorldReader& stream)
+void ezBakedProbesVolumeComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
+  SUPER::DeserializeComponent(inout_stream);
   // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  ezStreamReader& s = stream.GetStream();
+  ezStreamReader& s = inout_stream.GetStream();
 
   s >> m_vExtents;
 }
 
-void ezBakedProbesVolumeComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const
+void ezBakedProbesVolumeComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& ref_msg) const
 {
-  msg.AddBounds(ezBoundingBox(-m_vExtents * 0.5f, m_vExtents * 0.5f), ezInvalidSpatialDataCategory);
+  ref_msg.AddBounds(ezBoundingBox(-m_vExtents * 0.5f, m_vExtents * 0.5f), ezInvalidSpatialDataCategory);
 }
 
 

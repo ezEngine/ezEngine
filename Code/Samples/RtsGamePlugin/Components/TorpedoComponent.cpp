@@ -36,31 +36,31 @@ RtsTorpedoComponent::RtsTorpedoComponent()
 
 RtsTorpedoComponent::~RtsTorpedoComponent() = default;
 
-void RtsTorpedoComponent::SerializeComponent(ezWorldWriter& stream) const
+void RtsTorpedoComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s << m_fSpeed;
   s << m_iDamage;
 }
 
-void RtsTorpedoComponent::DeserializeComponent(ezWorldReader& stream)
+void RtsTorpedoComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s >> m_fSpeed;
   s >> m_iDamage;
 }
 
-void RtsTorpedoComponent::OnMsgSetTarget(RtsMsgSetTarget& msg)
+void RtsTorpedoComponent::OnMsgSetTarget(RtsMsgSetTarget& ref_msg)
 {
   m_vTargetPosition.SetZero();
-  m_hTargetObject = msg.m_hObject;
+  m_hTargetObject = ref_msg.m_hObject;
 }
 
 void RtsTorpedoComponent::Update()

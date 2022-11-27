@@ -4,8 +4,8 @@
 #include <GuiFoundation/NodeEditor/NodeView.moc.h>
 #include <QMouseEvent>
 
-ezQtNodeView::ezQtNodeView(QWidget* parent)
-  : QGraphicsView(parent)
+ezQtNodeView::ezQtNodeView(QWidget* pParent)
+  : QGraphicsView(pParent)
   , m_pScene(nullptr)
   , m_bPanning(false)
   , m_iPanCounter(0)

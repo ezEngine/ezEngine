@@ -47,9 +47,9 @@ const char* ezMarkerComponent::GetMarkerType() const
   return m_sMarkerType;
 }
 
-void ezMarkerComponent::SetRadius(float radius)
+void ezMarkerComponent::SetRadius(float fRadius)
 {
-  m_fRadius = radius;
+  m_fRadius = fRadius;
 
   UpdateMarker();
 }
@@ -81,20 +81,20 @@ void ezMarkerComponent::UpdateMarker()
   }
 }
 
-void ezMarkerComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezMarkerComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
-  auto& s = stream.GetStream();
+  SUPER::SerializeComponent(inout_stream);
+  auto& s = inout_stream.GetStream();
 
   s << m_sMarkerType;
   s << m_fRadius;
 }
 
-void ezMarkerComponent::DeserializeComponent(ezWorldReader& stream)
+void ezMarkerComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
+  SUPER::DeserializeComponent(inout_stream);
   // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s >> m_sMarkerType;
   s >> m_fRadius;

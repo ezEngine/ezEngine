@@ -69,7 +69,7 @@ namespace
       : ezGraphPatch("ezPatchTestP", 2)
     {
     }
-    virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+    virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
     {
       pNode->RenameProperty("Int", "IntRenamed");
       pNode->ChangeProperty("IntRenamed", 2);
@@ -85,7 +85,7 @@ namespace
       : ezGraphPatch("ezPatchTestBaseBP", 2)
     {
     }
-    virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+    virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
     {
       pNode->ChangeProperty("String", "BaseClassPatched");
     }
@@ -100,9 +100,9 @@ namespace
       : ezGraphPatch("ezPatchTestRN", 2)
     {
     }
-    virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+    virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
     {
-      context.RenameClass("ezPatchTestRN2");
+      ref_context.RenameClass("ezPatchTestRN2");
       pNode->ChangeProperty("String", "RenameExecuted");
     }
   };
@@ -116,7 +116,7 @@ namespace
       : ezGraphPatch("ezPatchTestRN2", 3)
     {
     }
-    virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+    virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
     {
       pNode->ChangeProperty("String2", "Patched");
     }
@@ -131,18 +131,18 @@ namespace
       : ezGraphPatch("ezPatchTestCB", 2)
     {
     }
-    virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+    virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
     {
       ezVersionKey bases[] = {{"ezPatchTestBaseBP", 1}};
-      context.ChangeBaseClass(bases);
+      ref_context.ChangeBaseClass(bases);
       pNode->ChangeProperty("String2", "ChangedBase");
     }
   };
   ezPatchTestCB g_ezPatchTestCB;
 
-  void ReplaceTypeName(ezAbstractObjectGraph& graph, ezAbstractObjectGraph& typesGraph, const char* szOldName, const char* szNewName)
+  void ReplaceTypeName(ezAbstractObjectGraph& ref_graph, ezAbstractObjectGraph& ref_typesGraph, const char* szOldName, const char* szNewName)
   {
-    for (auto it : graph.GetAllNodes())
+    for (auto it : ref_graph.GetAllNodes())
     {
       auto* pNode = it.Value();
 
@@ -150,7 +150,7 @@ namespace
         pNode->SetType(szNewName);
     }
 
-    for (auto it : typesGraph.GetAllNodes())
+    for (auto it : ref_typesGraph.GetAllNodes())
     {
       auto* pNode = it.Value();
 
@@ -170,13 +170,13 @@ namespace
     }
   }
 
-  ezAbstractObjectNode* SerializeObject(ezAbstractObjectGraph& graph, ezAbstractObjectGraph& typesGraph, const ezRTTI* pRtti, void* pObject)
+  ezAbstractObjectNode* SerializeObject(ezAbstractObjectGraph& ref_graph, ezAbstractObjectGraph& ref_typesGraph, const ezRTTI* pRtti, void* pObject)
   {
     ezAbstractObjectNode* pNode = nullptr;
     {
       // Object
       ezRttiConverterContext context;
-      ezRttiConverterWriter rttiConverter(&graph, &context, true, true);
+      ezRttiConverterWriter rttiConverter(&ref_graph, &context, true, true);
       context.RegisterObject(ezUuid::StableUuidForString(pRtti->GetTypeName()), pRtti, pObject);
       pNode = rttiConverter.AddObjectToGraph(pRtti, pObject, "ROOT");
     }
@@ -185,15 +185,15 @@ namespace
       ezSet<const ezRTTI*> types;
       types.Insert(pRtti);
       ezReflectionUtils::GatherDependentTypes(pRtti, types);
-      ezToolsSerializationUtils::SerializeTypes(types, typesGraph);
+      ezToolsSerializationUtils::SerializeTypes(types, ref_typesGraph);
     }
     return pNode;
   }
 
-  void PatchGraph(ezAbstractObjectGraph& graph, ezAbstractObjectGraph& typesGraph)
+  void PatchGraph(ezAbstractObjectGraph& ref_graph, ezAbstractObjectGraph& ref_typesGraph)
   {
-    ezGraphVersioning::GetSingleton()->PatchGraph(&typesGraph);
-    ezGraphVersioning::GetSingleton()->PatchGraph(&graph, &typesGraph);
+    ezGraphVersioning::GetSingleton()->PatchGraph(&ref_typesGraph);
+    ezGraphVersioning::GetSingleton()->PatchGraph(&ref_graph, &ref_typesGraph);
   }
 } // namespace
 

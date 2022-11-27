@@ -10,13 +10,13 @@ public:
 
   ezSimdVec4u(); // [tested]
 
-  explicit ezSimdVec4u(ezUInt32 xyzw); // [tested]
+  explicit ezSimdVec4u(ezUInt32 uiXyzw); // [tested]
 
   ezSimdVec4u(ezUInt32 x, ezUInt32 y, ezUInt32 z, ezUInt32 w = 1); // [tested]
 
   ezSimdVec4u(ezInternal::QuadUInt v); // [tested]
 
-  void Set(ezUInt32 xyzw); // [tested]
+  void Set(ezUInt32 uiXyzw); // [tested]
 
   void Set(ezUInt32 x, ezUInt32 y, ezUInt32 z, ezUInt32 w); // [tested]
 

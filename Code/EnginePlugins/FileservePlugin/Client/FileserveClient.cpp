@@ -763,8 +763,8 @@ ezResult ezFileserveClient::TryConnectWithFileserver(const char* szAddress, ezTi
     return EZ_FAILURE;
 
   bool bServerFound = false;
-  network->SetMessageHandler('FSRV', [&bServerFound](ezRemoteMessage& msg) {
-    switch (msg.GetMessageID())
+  network->SetMessageHandler('FSRV', [&bServerFound](ezRemoteMessage& ref_msg) {
+    switch (ref_msg.GetMessageID())
     {
       case ' YES':
         bServerFound = true;
@@ -809,21 +809,21 @@ ezResult ezFileserveClient::WaitForServerInfo(ezTime timeout /*= ezTime::Seconds
 
   {
     ezUniquePtr<ezRemoteInterfaceEnet> network = ezRemoteInterfaceEnet::Make(); /// \todo Abstract this somehow ?
-    network->SetMessageHandler('FSRV', [&sServerIPs, &uiPort](ezRemoteMessage& msg)
+    network->SetMessageHandler('FSRV', [&sServerIPs, &uiPort](ezRemoteMessage& ref_msg)
 
       {
-        switch (msg.GetMessageID())
+        switch (ref_msg.GetMessageID())
         {
           case 'MYIP':
-            msg.GetReader() >> uiPort;
+            ref_msg.GetReader() >> uiPort;
 
             ezUInt8 uiCount = 0;
-            msg.GetReader() >> uiCount;
+            ref_msg.GetReader() >> uiCount;
 
             sServerIPs.SetCount(uiCount);
             for (ezUInt32 i = 0; i < uiCount; ++i)
             {
-              msg.GetReader() >> sServerIPs[i];
+              ref_msg.GetReader() >> sServerIPs[i];
             }
 
             break;

@@ -98,24 +98,24 @@ bool ezDependencyFile::HasAnyFileChanged() const
   return false;
 }
 
-ezResult ezDependencyFile::WriteDependencyFile(ezStreamWriter& stream) const
+ezResult ezDependencyFile::WriteDependencyFile(ezStreamWriter& inout_stream) const
 {
-  stream << (ezUInt8)ezDependencyFileVersion::Current;
+  inout_stream << (ezUInt8)ezDependencyFileVersion::Current;
 
-  stream << m_iMaxTimeStampStored;
-  stream << m_uiSumTimeStampStored;
-  stream << m_AssetTransformDependencies.GetCount();
+  inout_stream << m_iMaxTimeStampStored;
+  inout_stream << m_uiSumTimeStampStored;
+  inout_stream << m_AssetTransformDependencies.GetCount();
 
   for (const auto& sFile : m_AssetTransformDependencies)
-    stream << sFile;
+    inout_stream << sFile;
 
   return EZ_SUCCESS;
 }
 
-ezResult ezDependencyFile::ReadDependencyFile(ezStreamReader& stream)
+ezResult ezDependencyFile::ReadDependencyFile(ezStreamReader& inout_stream)
 {
   ezUInt8 uiVersion = (ezUInt8)ezDependencyFileVersion::Version0;
-  stream >> uiVersion;
+  inout_stream >> uiVersion;
 
   if (uiVersion > (ezUInt8)ezDependencyFileVersion::Current)
   {
@@ -125,19 +125,19 @@ ezResult ezDependencyFile::ReadDependencyFile(ezStreamReader& stream)
 
   EZ_ASSERT_DEV(uiVersion <= (ezUInt8)ezDependencyFileVersion::Current, "Invalid file version {0}", uiVersion);
 
-  stream >> m_iMaxTimeStampStored;
+  inout_stream >> m_iMaxTimeStampStored;
 
   if (uiVersion >= (ezUInt8)ezDependencyFileVersion::Version2)
   {
-    stream >> m_uiSumTimeStampStored;
+    inout_stream >> m_uiSumTimeStampStored;
   }
 
   ezUInt32 count = 0;
-  stream >> count;
+  inout_stream >> count;
   m_AssetTransformDependencies.SetCount(count);
 
   for (ezUInt32 i = 0; i < m_AssetTransformDependencies.GetCount(); ++i)
-    stream >> m_AssetTransformDependencies[i];
+    inout_stream >> m_AssetTransformDependencies[i];
 
   return EZ_SUCCESS;
 }

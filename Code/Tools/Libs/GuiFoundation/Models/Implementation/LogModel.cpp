@@ -5,8 +5,8 @@
 #include <QThread>
 
 
-ezQtLogModel::ezQtLogModel(QObject* parent)
-  : QAbstractItemModel(parent)
+ezQtLogModel::ezQtLogModel(QObject* pParent)
+  : QAbstractItemModel(pParent)
 {
   m_bIsValid = true;
   m_LogLevel = ezLogMsgType::InfoMsg;
@@ -44,12 +44,12 @@ void ezQtLogModel::Clear()
   Q_EMIT NewErrorsOrWarnings(nullptr, false);
 }
 
-void ezQtLogModel::SetLogLevel(ezLogMsgType::Enum LogLevel)
+void ezQtLogModel::SetLogLevel(ezLogMsgType::Enum logLevel)
 {
-  if (m_LogLevel == LogLevel)
+  if (m_LogLevel == logLevel)
     return;
 
-  m_LogLevel = LogLevel;
+  m_LogLevel = logLevel;
   Invalidate();
 }
 
@@ -102,7 +102,7 @@ bool ezQtLogModel::IsFiltered(const ezLogEntry& lm) const
 // ezQtLogModel QAbstractItemModel functions
 ////////////////////////////////////////////////////////////////////////
 
-QVariant ezQtLogModel::data(const QModelIndex& index, int role) const
+QVariant ezQtLogModel::data(const QModelIndex& index, int iRole) const
 {
   if (!index.isValid() || index.column() != 0)
     return QVariant();
@@ -115,7 +115,7 @@ QVariant ezQtLogModel::data(const QModelIndex& index, int role) const
 
   const ezLogEntry& msg = *m_VisibleMessages[iRow];
 
-  switch (role)
+  switch (iRole)
   {
     case Qt::DisplayRole:
     case Qt::ToolTipRole:
@@ -160,17 +160,17 @@ Qt::ItemFlags ezQtLogModel::flags(const QModelIndex& index) const
   return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 }
 
-QVariant ezQtLogModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant ezQtLogModel::headerData(int iSection, Qt::Orientation orientation, int iRole) const
 {
   return QVariant();
 }
 
-QModelIndex ezQtLogModel::index(int row, int column, const QModelIndex& parent) const
+QModelIndex ezQtLogModel::index(int iRow, int iColumn, const QModelIndex& parent) const
 {
-  if (parent.isValid() || column != 0)
+  if (parent.isValid() || iColumn != 0)
     return QModelIndex();
 
-  return createIndex(row, column, row);
+  return createIndex(iRow, iColumn, iRow);
 }
 
 QModelIndex ezQtLogModel::parent(const QModelIndex& index) const

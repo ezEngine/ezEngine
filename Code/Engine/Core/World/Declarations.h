@@ -47,12 +47,12 @@ struct ezGameObjectId
 
   static_assert(EZ_WORLD_INDEX_BITS > 0 && EZ_WORLD_INDEX_BITS <= 24);
 
-  EZ_FORCE_INLINE ezGameObjectId(StorageType instanceIndex, ezUInt8 generation, ezUInt8 worldIndex = 0)
+  EZ_FORCE_INLINE ezGameObjectId(StorageType instanceIndex, ezUInt8 uiGeneration, ezUInt8 uiWorldIndex = 0)
   {
     m_Data = 0;
     m_InstanceIndex = static_cast<ezUInt32>(instanceIndex);
-    m_Generation = generation;
-    m_WorldIndex = worldIndex;
+    m_Generation = uiGeneration;
+    m_WorldIndex = uiWorldIndex;
   }
 
   union
@@ -90,8 +90,8 @@ struct ezHashHelper<ezGameObjectHandle>
 };
 
 /// \brief Currently not implemented as it is not needed for game object handles.
-EZ_CORE_DLL void operator<<(ezStreamWriter& Stream, const ezGameObjectHandle& Value);
-EZ_CORE_DLL void operator>>(ezStreamReader& Stream, ezGameObjectHandle& Value);
+EZ_CORE_DLL void operator<<(ezStreamWriter& inout_stream, const ezGameObjectHandle& hValue);
+EZ_CORE_DLL void operator>>(ezStreamReader& inout_stream, ezGameObjectHandle& ref_hValue);
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezGameObjectHandle);
 EZ_DECLARE_CUSTOM_VARIANT_TYPE(ezGameObjectHandle);
@@ -107,13 +107,13 @@ struct ezComponentId
 
   static_assert(EZ_COMPONENT_TYPE_INDEX_BITS > 0 && EZ_COMPONENT_TYPE_INDEX_BITS <= 16);
 
-  EZ_ALWAYS_INLINE ezComponentId(StorageType instanceIndex, ezUInt8 generation, ezUInt16 typeId = 0, ezUInt8 worldIndex = 0)
+  EZ_ALWAYS_INLINE ezComponentId(StorageType instanceIndex, ezUInt8 uiGeneration, ezUInt16 uiTypeId = 0, ezUInt8 uiWorldIndex = 0)
   {
     m_Data = 0;
     m_InstanceIndex = static_cast<ezUInt32>(instanceIndex);
-    m_Generation = generation;
-    m_TypeId = typeId;
-    m_WorldIndex = worldIndex;
+    m_Generation = uiGeneration;
+    m_TypeId = uiTypeId;
+    m_WorldIndex = uiWorldIndex;
   }
 
   union
@@ -158,8 +158,8 @@ struct ezHashHelper<ezComponentHandle>
 };
 
 /// \brief Currently not implemented as it is not needed for component handles.
-EZ_CORE_DLL void operator<<(ezStreamWriter& Stream, const ezComponentHandle& Value);
-EZ_CORE_DLL void operator>>(ezStreamReader& Stream, ezComponentHandle& Value);
+EZ_CORE_DLL void operator<<(ezStreamWriter& inout_stream, const ezComponentHandle& hValue);
+EZ_CORE_DLL void operator>>(ezStreamReader& inout_stream, ezComponentHandle& ref_hValue);
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezComponentHandle);
 EZ_DECLARE_CUSTOM_VARIANT_TYPE(ezComponentHandle);
@@ -302,7 +302,7 @@ struct EZ_CORE_DLL ezOnComponentFinishedAction
   /// ezOnComponentFinishedAction mechanism.
   /// Depending on the state of this component, the function will either execute the object deletion,
   /// or delay it, until its own work is done.
-  static void HandleDeleteObjectMsg(ezMsgDeleteGameObject& msg, ezEnum<ezOnComponentFinishedAction>& action);
+  static void HandleDeleteObjectMsg(ezMsgDeleteGameObject& ref_msg, ezEnum<ezOnComponentFinishedAction>& ref_action);
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezOnComponentFinishedAction);
@@ -326,7 +326,7 @@ struct EZ_CORE_DLL ezOnComponentFinishedAction2
   static void HandleFinishedAction(ezComponent* pComponent, ezOnComponentFinishedAction2::Enum action);
 
   /// \brief See ezOnComponentFinishedAction::HandleDeleteObjectMsg()
-  static void HandleDeleteObjectMsg(ezMsgDeleteGameObject& msg, ezEnum<ezOnComponentFinishedAction2>& action);
+  static void HandleDeleteObjectMsg(ezMsgDeleteGameObject& ref_msg, ezEnum<ezOnComponentFinishedAction2>& ref_action);
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezOnComponentFinishedAction2);

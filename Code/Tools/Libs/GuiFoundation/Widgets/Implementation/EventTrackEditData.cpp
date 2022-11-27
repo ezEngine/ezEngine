@@ -31,9 +31,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEventTrackData, 3, ezRTTIDefaultAllocator<ezEv
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezEventTrackControlPointData::SetTickFromTime(ezTime time, ezInt64 fps)
+void ezEventTrackControlPointData::SetTickFromTime(ezTime time, ezInt64 iFps)
 {
-  const ezUInt32 uiTicksPerStep = 4800 / fps;
+  const ezUInt32 uiTicksPerStep = 4800 / iFps;
   m_iTick = (ezInt64)ezMath::RoundToMultiple(time.GetSeconds() * 4800.0, (double)uiTicksPerStep);
 }
 
@@ -43,13 +43,13 @@ ezInt64 ezEventTrackData::TickFromTime(ezTime time) const
   return (ezInt64)ezMath::RoundToMultiple(time.GetSeconds() * 4800.0, (double)uiTicksPerStep);
 }
 
-void ezEventTrackData::ConvertToRuntimeData(ezEventTrack& out_Result) const
+void ezEventTrackData::ConvertToRuntimeData(ezEventTrack& out_result) const
 {
-  out_Result.Clear();
+  out_result.Clear();
 
   for (const auto& cp : m_ControlPoints)
   {
-    out_Result.AddControlPoint(cp.GetTickAsTime(), cp.m_sEvent);
+    out_result.AddControlPoint(cp.GetTickAsTime(), cp.m_sEvent);
   }
 }
 

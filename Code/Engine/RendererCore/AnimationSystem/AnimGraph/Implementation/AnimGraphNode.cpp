@@ -95,7 +95,7 @@ bool ezAnimState::WillStateBeOff(bool bTriggerActive) const
   return m_State == State::Off && !bTriggerActive;
 }
 
-void ezAnimState::UpdateState(ezTime tDiff)
+void ezAnimState::UpdateState(ezTime diff)
 {
   EZ_ASSERT_DEV(!m_Duration.IsZeroOrNegative(), "Invalid animation clip duration");
 
@@ -104,7 +104,7 @@ void ezAnimState::UpdateState(ezTime tDiff)
   m_bHasLoopedEnd = false;
 
   // how much time delta to apply to the weight ramp
-  ezTime tRampUpDownDiff = tDiff;
+  ezTime tRampUpDownDiff = diff;
 
   // first update the state machine transitions
 
@@ -179,7 +179,7 @@ void ezAnimState::UpdateState(ezTime tDiff)
   const float fSpeed = m_fPlaybackSpeed * m_fPlaybackSpeedFactor;
 
   float fInvDuration = 1.0f / m_Duration.AsFloatInSeconds();
-  float fNormalizedStep = tDiff.AsFloatInSeconds() * fInvDuration;
+  float fNormalizedStep = diff.AsFloatInSeconds() * fInvDuration;
 
   // calculate the new playback position
   {
@@ -191,11 +191,11 @@ void ezAnimState::UpdateState(ezTime tDiff)
 
       m_bHasTransitioned = true;
 
-      tDiff = m_fNormalizedPlaybackPosition * m_Duration;
+      diff = m_fNormalizedPlaybackPosition * m_Duration;
 
       m_Duration = m_DurationOfQueued;
       fInvDuration = 1.0f / m_Duration.AsFloatInSeconds();
-      fNormalizedStep = tDiff.AsFloatInSeconds() * fInvDuration;
+      fNormalizedStep = diff.AsFloatInSeconds() * fInvDuration;
     }
   }
 
@@ -296,34 +296,34 @@ void ezAnimState::UpdateState(ezTime tDiff)
   }
 }
 
-ezResult ezAnimState::Serialize(ezStreamWriter& stream) const
+ezResult ezAnimState::Serialize(ezStreamWriter& inout_stream) const
 {
-  stream.WriteVersion(1);
+  inout_stream.WriteVersion(1);
 
-  stream << m_FadeIn;
-  stream << m_FadeOut;
+  inout_stream << m_FadeIn;
+  inout_stream << m_FadeOut;
 
-  stream << m_bImmediateFadeIn;
-  stream << m_bImmediateFadeOut;
-  stream << m_bLoop;
-  stream << m_fPlaybackSpeed;
-  stream << m_bApplyRootMotion;
+  inout_stream << m_bImmediateFadeIn;
+  inout_stream << m_bImmediateFadeOut;
+  inout_stream << m_bLoop;
+  inout_stream << m_fPlaybackSpeed;
+  inout_stream << m_bApplyRootMotion;
 
   return EZ_SUCCESS;
 }
 
-ezResult ezAnimState::Deserialize(ezStreamReader& stream)
+ezResult ezAnimState::Deserialize(ezStreamReader& inout_stream)
 {
-  stream.ReadVersion(1);
+  inout_stream.ReadVersion(1);
 
-  stream >> m_FadeIn;
-  stream >> m_FadeOut;
+  inout_stream >> m_FadeIn;
+  inout_stream >> m_FadeOut;
 
-  stream >> m_bImmediateFadeIn;
-  stream >> m_bImmediateFadeOut;
-  stream >> m_bLoop;
-  stream >> m_fPlaybackSpeed;
-  stream >> m_bApplyRootMotion;
+  inout_stream >> m_bImmediateFadeIn;
+  inout_stream >> m_bImmediateFadeOut;
+  inout_stream >> m_bLoop;
+  inout_stream >> m_fPlaybackSpeed;
+  inout_stream >> m_bApplyRootMotion;
 
   return EZ_SUCCESS;
 }

@@ -39,19 +39,19 @@ void ezRandom::InitializeFromCurrentTime()
   Initialize(static_cast<ezUInt64>(ts.GetInt64(ezSIUnitOfTime::Nanosecond)));
 }
 
-void ezRandom::Save(ezStreamWriter& stream) const
+void ezRandom::Save(ezStreamWriter& inout_stream) const
 {
-  stream << m_uiIndex;
+  inout_stream << m_uiIndex;
 
-  stream.WriteBytes(&m_uiState[0], sizeof(ezUInt32) * 16).IgnoreResult();
+  inout_stream.WriteBytes(&m_uiState[0], sizeof(ezUInt32) * 16).IgnoreResult();
 }
 
 
-void ezRandom::Load(ezStreamReader& stream)
+void ezRandom::Load(ezStreamReader& inout_stream)
 {
-  stream >> m_uiIndex;
+  inout_stream >> m_uiIndex;
 
-  stream.ReadBytes(&m_uiState[0], sizeof(ezUInt32) * 16);
+  inout_stream.ReadBytes(&m_uiState[0], sizeof(ezUInt32) * 16);
 }
 
 ezUInt32 ezRandom::UInt()
@@ -225,24 +225,24 @@ ezInt32 ezRandomGauss::SignedValue()
   }
 }
 
-void ezRandomGauss::Save(ezStreamWriter& stream) const
+void ezRandomGauss::Save(ezStreamWriter& inout_stream) const
 {
-  stream << m_GaussAreaSum.GetCount();
-  stream << m_fSigma;
-  m_Generator.Save(stream);
+  inout_stream << m_GaussAreaSum.GetCount();
+  inout_stream << m_fSigma;
+  m_Generator.Save(inout_stream);
 }
 
-void ezRandomGauss::Load(ezStreamReader& stream)
+void ezRandomGauss::Load(ezStreamReader& inout_stream)
 {
   ezUInt32 uiMax = 0;
-  stream >> uiMax;
+  inout_stream >> uiMax;
 
   float fVariance = 0.0f;
-  stream >> fVariance;
+  inout_stream >> fVariance;
 
   SetupTable(uiMax, fVariance);
 
-  m_Generator.Load(stream);
+  m_Generator.Load(inout_stream);
 }
 
 

@@ -83,7 +83,7 @@ namespace ezMemoryPolicies
       return ptr;
     }
 
-    EZ_FORCE_INLINE void Deallocate(void* ptr)
+    EZ_FORCE_INLINE void Deallocate(void* pPtr)
     {
       // Individual deallocation is not supported by this allocator
     }
@@ -94,12 +94,12 @@ namespace ezMemoryPolicies
       m_pNextAllocation = !m_Buckets.IsEmpty() ? m_Buckets[0].GetPtr() : nullptr;
     }
 
-    EZ_FORCE_INLINE void FillStats(ezAllocatorBase::Stats& stats)
+    EZ_FORCE_INLINE void FillStats(ezAllocatorBase::Stats& ref_stats)
     {
-      stats.m_uiNumAllocations = m_Buckets.GetCount();
+      ref_stats.m_uiNumAllocations = m_Buckets.GetCount();
       for (auto& bucket : m_Buckets)
       {
-        stats.m_uiAllocationSize += bucket.GetCount();
+        ref_stats.m_uiAllocationSize += bucket.GetCount();
       }
     }
 

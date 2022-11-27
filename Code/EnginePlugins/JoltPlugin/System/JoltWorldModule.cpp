@@ -44,16 +44,16 @@ ezJoltWorldModule::~ezJoltWorldModule() = default;
 class ezJoltBodyActivationListener : public JPH::BodyActivationListener
 {
 public:
-  virtual void OnBodyActivated(const JPH::BodyID& inBodyID, JPH::uint64 inBodyUserData) override
+  virtual void OnBodyActivated(const JPH::BodyID& bodyID, JPH::uint64 inBodyUserData) override
   {
     const ezJoltUserData* pUserData = reinterpret_cast<const ezJoltUserData*>(inBodyUserData);
     if (ezJoltActorComponent* pActor = ezJoltUserData::GetActorComponent(pUserData))
     {
-      m_pActiveActors->Insert(pActor, inBodyID.GetIndexAndSequenceNumber());
+      m_pActiveActors->Insert(pActor, bodyID.GetIndexAndSequenceNumber());
     }
   }
 
-  virtual void OnBodyDeactivated(const JPH::BodyID& inBodyID, JPH::uint64 inBodyUserData) override
+  virtual void OnBodyDeactivated(const JPH::BodyID& bodyID, JPH::uint64 inBodyUserData) override
   {
     const ezJoltUserData* pUserData = reinterpret_cast<const ezJoltUserData*>(inBodyUserData);
     if (ezJoltActorComponent* pActor = ezJoltUserData::GetActorComponent(pUserData))
@@ -68,9 +68,9 @@ public:
 class ezJoltGroupFilter : public JPH::GroupFilter
 {
 public:
-  virtual bool CanCollide(const JPH::CollisionGroup& inGroup1, const JPH::CollisionGroup& inGroup2) const override
+  virtual bool CanCollide(const JPH::CollisionGroup& group1, const JPH::CollisionGroup& group2) const override
   {
-    const ezUInt64 id = static_cast<ezUInt64>(inGroup1.GetGroupID()) << 32 | inGroup2.GetGroupID();
+    const ezUInt64 id = static_cast<ezUInt64>(group1.GetGroupID()) << 32 | group2.GetGroupID();
 
     return !m_IgnoreCollisions.Contains(id);
   }
@@ -81,9 +81,9 @@ public:
 class ezJoltGroupFilterIgnoreSame : public JPH::GroupFilter
 {
 public:
-  virtual bool CanCollide(const JPH::CollisionGroup& inGroup1, const JPH::CollisionGroup& inGroup2) const override
+  virtual bool CanCollide(const JPH::CollisionGroup& group1, const JPH::CollisionGroup& group2) const override
   {
-    return inGroup1.GetGroupID() != inGroup2.GetGroupID();
+    return group1.GetGroupID() != group2.GetGroupID();
   }
 };
 
@@ -146,9 +146,9 @@ public:
     return pRes;
   }
 
-  virtual void Free(void* inAddress, JPH::uint inSize) override
+  virtual void Free(void* pInAddress, JPH::uint inSize) override
   {
-    if (inAddress == nullptr)
+    if (pInAddress == nullptr)
       return;
 
     const ezUInt32 uiAllocSize = ezMemoryUtils::AlignSize(inSize, 16u);
@@ -289,14 +289,14 @@ ezUInt32 ezJoltWorldModule::CreateObjectFilterID()
   return m_uiNextObjectFilterID++;
 }
 
-void ezJoltWorldModule::DeleteObjectFilterID(ezUInt32& uiObjectFilterID)
+void ezJoltWorldModule::DeleteObjectFilterID(ezUInt32& ref_uiObjectFilterID)
 {
-  if (uiObjectFilterID == ezInvalidIndex)
+  if (ref_uiObjectFilterID == ezInvalidIndex)
     return;
 
-  m_FreeObjectFilterIDs.PushBack(uiObjectFilterID);
+  m_FreeObjectFilterIDs.PushBack(ref_uiObjectFilterID);
 
-  uiObjectFilterID = ezInvalidIndex;
+  ref_uiObjectFilterID = ezInvalidIndex;
 }
 
 ezUInt32 ezJoltWorldModule::AllocateUserData(ezJoltUserData*& out_pUserData)
@@ -314,16 +314,16 @@ ezUInt32 ezJoltWorldModule::AllocateUserData(ezJoltUserData*& out_pUserData)
   return m_AllocatedUserData.GetCount() - 1;
 }
 
-void ezJoltWorldModule::DeallocateUserData(ezUInt32& uiUserDataId)
+void ezJoltWorldModule::DeallocateUserData(ezUInt32& ref_uiUserDataId)
 {
-  if (uiUserDataId == ezInvalidIndex)
+  if (ref_uiUserDataId == ezInvalidIndex)
     return;
 
-  m_AllocatedUserData[uiUserDataId].Invalidate();
+  m_AllocatedUserData[ref_uiUserDataId].Invalidate();
 
-  m_FreeUserDataAfterSimulationStep.PushBack(uiUserDataId);
+  m_FreeUserDataAfterSimulationStep.PushBack(ref_uiUserDataId);
 
-  uiUserDataId = ezInvalidIndex;
+  ref_uiUserDataId = ezInvalidIndex;
 }
 
 const ezJoltUserData& ezJoltWorldModule::GetUserData(ezUInt32 uiUserDataId) const
@@ -333,10 +333,10 @@ const ezJoltUserData& ezJoltWorldModule::GetUserData(ezUInt32 uiUserDataId) cons
   return m_AllocatedUserData[uiUserDataId];
 }
 
-void ezJoltWorldModule::SetGravity(const ezVec3& objectGravity, const ezVec3& characterGravity)
+void ezJoltWorldModule::SetGravity(const ezVec3& vObjectGravity, const ezVec3& vCharacterGravity)
 {
-  m_Settings.m_vObjectGravity = objectGravity;
-  m_Settings.m_vCharacterGravity = characterGravity;
+  m_Settings.m_vObjectGravity = vObjectGravity;
+  m_Settings.m_vCharacterGravity = vCharacterGravity;
 
   if (m_pSystem)
   {
@@ -344,14 +344,14 @@ void ezJoltWorldModule::SetGravity(const ezVec3& objectGravity, const ezVec3& ch
   }
 }
 
-void ezJoltWorldModule::AddStaticCollisionBox(ezGameObject* pObject, ezVec3 boxSize)
+void ezJoltWorldModule::AddStaticCollisionBox(ezGameObject* pObject, ezVec3 vBoxSize)
 {
   ezJoltStaticActorComponent* pActor = nullptr;
   ezJoltStaticActorComponent::CreateComponent(pObject, pActor);
 
   ezJoltShapeBoxComponent* pBox;
   ezJoltShapeBoxComponent::CreateComponent(pObject, pBox);
-  pBox->SetHalfExtents(boxSize * 0.5f);
+  pBox->SetHalfExtents(vBoxSize * 0.5f);
 }
 
 void ezJoltWorldModule::AddFixedJointComponent(ezGameObject* pOwner, const ezPhysicsWorldModuleInterface::FixedJointConfig& cfg)

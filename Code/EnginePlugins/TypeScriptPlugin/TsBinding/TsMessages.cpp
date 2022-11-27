@@ -67,9 +67,9 @@ import Flags = require("./AllFlags")
   }
 }
 
-static void CreateMessageTypeList(ezSet<const ezRTTI*>& found, ezDynamicArray<const ezRTTI*>& sorted, const ezRTTI* pRtti)
+static void CreateMessageTypeList(ezSet<const ezRTTI*>& ref_found, ezDynamicArray<const ezRTTI*>& ref_sorted, const ezRTTI* pRtti)
 {
-  if (found.Contains(pRtti))
+  if (ref_found.Contains(pRtti))
     return;
 
   if (!pRtti->IsDerivedFrom<ezMessage>())
@@ -78,10 +78,10 @@ static void CreateMessageTypeList(ezSet<const ezRTTI*>& found, ezDynamicArray<co
   if (pRtti == ezGetStaticRTTI<ezMessage>() || pRtti == ezGetStaticRTTI<ezEventMessage>())
     return;
 
-  found.Insert(pRtti);
-  CreateMessageTypeList(found, sorted, pRtti->GetParentType());
+  ref_found.Insert(pRtti);
+  CreateMessageTypeList(ref_found, ref_sorted, pRtti->GetParentType());
 
-  sorted.PushBack(pRtti);
+  ref_sorted.PushBack(pRtti);
 }
 
 void ezTypeScriptBinding::GenerateAllMessagesCode(ezStringBuilder& out_Code)
@@ -181,28 +181,28 @@ void ezTypeScriptBinding::InjectMessageImportExport(ezStringBuilder& content, co
   AppendToTextFile(content, sImportExport);
 }
 
-static ezUniquePtr<ezMessage> CreateMessage(ezUInt32 uiTypeHash, const ezRTTI*& pRtti)
+static ezUniquePtr<ezMessage> CreateMessage(ezUInt32 uiTypeHash, const ezRTTI*& ref_pRtti)
 {
   static ezHashTable<ezUInt32, const ezRTTI*, ezHashHelper<ezUInt32>, ezStaticAllocatorWrapper> MessageTypes;
 
-  if (!MessageTypes.TryGetValue(uiTypeHash, pRtti))
+  if (!MessageTypes.TryGetValue(uiTypeHash, ref_pRtti))
   {
     MessageTypes[uiTypeHash] = nullptr;
 
-    for (pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
+    for (ref_pRtti = ezRTTI::GetFirstInstance(); ref_pRtti != nullptr; ref_pRtti = ref_pRtti->GetNextInstance())
     {
-      if (ezHashingUtils::StringHashTo32(pRtti->GetTypeNameHash()) == uiTypeHash)
+      if (ezHashingUtils::StringHashTo32(ref_pRtti->GetTypeNameHash()) == uiTypeHash)
       {
-        MessageTypes[uiTypeHash] = pRtti;
+        MessageTypes[uiTypeHash] = ref_pRtti;
         break;
       }
     }
   }
 
-  if (pRtti == nullptr || !pRtti->GetAllocator()->CanAllocate())
+  if (ref_pRtti == nullptr || !ref_pRtti->GetAllocator()->CanAllocate())
     return nullptr;
 
-  return pRtti->GetAllocator()->Allocate<ezMessage>();
+  return ref_pRtti->GetAllocator()->Allocate<ezMessage>();
 }
 
 ezUniquePtr<ezMessage> ezTypeScriptBinding::MessageFromParameter(duk_context* pDuk, ezInt32 iObjIdx, ezTime delay)
@@ -357,7 +357,7 @@ bool ezTypeScriptBinding::HasMessageHandler(const TsComponentTypeInfo& typeInfo,
   return false;
 }
 
-bool ezTypeScriptBinding::DeliverMessage(const TsComponentTypeInfo& typeInfo, ezTypeScriptComponent* pComponent, ezMessage& msg, bool bSynchronizeAfterwards)
+bool ezTypeScriptBinding::DeliverMessage(const TsComponentTypeInfo& typeInfo, ezTypeScriptComponent* pComponent, ezMessage& ref_msg, bool bSynchronizeAfterwards)
 {
   if (!typeInfo.IsValid())
     return false;
@@ -367,7 +367,7 @@ bool ezTypeScriptBinding::DeliverMessage(const TsComponentTypeInfo& typeInfo, ez
   if (tsc.m_MessageHandlers.IsEmpty())
     return false;
 
-  const ezRTTI* pMsgRtti = msg.GetDynamicRTTI();
+  const ezRTTI* pMsgRtti = ref_msg.GetDynamicRTTI();
 
   ++m_iMsgDeliveryRecursion;
   EZ_SCOPE_EXIT(--m_iMsgDeliveryRecursion);
@@ -384,7 +384,7 @@ bool ezTypeScriptBinding::DeliverMessage(const TsComponentTypeInfo& typeInfo, ez
 
       if (duk.PrepareMethodCall(mh.m_sHandlerFunc).Succeeded()) // [ comp func comp ]
       {
-        ezTypeScriptBinding::DukPutMessage(duk, msg); // [ comp func comp msg ]
+        ezTypeScriptBinding::DukPutMessage(duk, ref_msg); // [ comp func comp msg ]
 
         if (bSynchronizeAfterwards)
         {
@@ -404,7 +404,7 @@ bool ezTypeScriptBinding::DeliverMessage(const TsComponentTypeInfo& typeInfo, ez
         {
           duk.PushGlobalStash();                                                // [ ... stash ]
           duk_get_prop_string(duk, -1, sStashMsgName);                          // [ ... stash msg ]
-          ezTypeScriptBinding::SyncTsObjectEzTsObject(duk, pMsgRtti, &msg, -1); // [ ... stash msg ]
+          ezTypeScriptBinding::SyncTsObjectEzTsObject(duk, pMsgRtti, &ref_msg, -1); // [ ... stash msg ]
           duk_pop_2(duk);                                                       // [ ... ]
         }
 

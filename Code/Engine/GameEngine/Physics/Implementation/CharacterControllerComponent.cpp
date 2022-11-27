@@ -60,15 +60,15 @@ EZ_END_ABSTRACT_COMPONENT_TYPE;
 
 ezCharacterControllerComponent::ezCharacterControllerComponent() {}
 
-void ezCharacterControllerComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezCharacterControllerComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
   // auto& s = stream.GetStream();
 }
 
-void ezCharacterControllerComponent::DeserializeComponent(ezWorldReader& stream)
+void ezCharacterControllerComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
+  SUPER::DeserializeComponent(inout_stream);
   // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   // auto& s = stream.GetStream();
 }

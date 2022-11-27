@@ -33,9 +33,9 @@ void ezPrefabUtils::LoadGraph(ezAbstractObjectGraph& out_graph, const char* szGr
 }
 
 
-ezAbstractObjectNode* ezPrefabUtils::GetFirstRootNode(ezAbstractObjectGraph& graph)
+ezAbstractObjectNode* ezPrefabUtils::GetFirstRootNode(ezAbstractObjectGraph& ref_graph)
 {
-  auto& nodes = graph.GetAllNodes();
+  auto& nodes = ref_graph.GetAllNodes();
   for (auto it = nodes.GetIterator(); it.IsValid(); ++it)
   {
     auto* pNode = it.Value();
@@ -54,7 +54,7 @@ ezAbstractObjectNode* ezPrefabUtils::GetFirstRootNode(ezAbstractObjectGraph& gra
 
             const ezUuid& rootObjectGuid = childGuid.Get<ezUuid>();
 
-            return graph.GetNode(rootObjectGuid);
+            return ref_graph.GetNode(rootObjectGuid);
           }
         }
       }
@@ -63,9 +63,9 @@ ezAbstractObjectNode* ezPrefabUtils::GetFirstRootNode(ezAbstractObjectGraph& gra
   return nullptr;
 }
 
-void ezPrefabUtils::GetRootNodes(ezAbstractObjectGraph& graph, ezHybridArray<ezAbstractObjectNode*, 4>& out_Nodes)
+void ezPrefabUtils::GetRootNodes(ezAbstractObjectGraph& ref_graph, ezHybridArray<ezAbstractObjectNode*, 4>& out_nodes)
 {
-  auto& nodes = graph.GetAllNodes();
+  auto& nodes = ref_graph.GetAllNodes();
   for (auto it = nodes.GetIterator(); it.IsValid(); ++it)
   {
     auto* pNode = it.Value();
@@ -84,7 +84,7 @@ void ezPrefabUtils::GetRootNodes(ezAbstractObjectGraph& graph, ezHybridArray<ezA
 
             const ezUuid& rootObjectGuid = childGuid.Get<ezUuid>();
 
-            out_Nodes.PushBack(graph.GetNode(rootObjectGuid));
+            out_nodes.PushBack(ref_graph.GetNode(rootObjectGuid));
           }
 
           return;
@@ -244,7 +244,7 @@ void ezPrefabUtils::Merge(const ezAbstractObjectGraph& baseGraph, const ezAbstra
   }
 }
 
-void ezPrefabUtils::Merge(const char* szBase, const char* szLeft, ezDocumentObject* pRight, bool bRightIsNotPartOfPrefab, const ezUuid& PrefabSeed, ezStringBuilder& out_sNewGraph)
+void ezPrefabUtils::Merge(const char* szBase, const char* szLeft, ezDocumentObject* pRight, bool bRightIsNotPartOfPrefab, const ezUuid& prefabSeed, ezStringBuilder& out_sNewGraph)
 {
   // prepare the original prefab as a graph
   ezAbstractObjectGraph baseGraph;
@@ -283,7 +283,7 @@ void ezPrefabUtils::Merge(const char* szBase, const char* szLeft, ezDocumentObje
         children.PushBack(pRight->GetGuid());
       }
 
-      rightGraph.ReMapNodeGuids(PrefabSeed, true);
+      rightGraph.ReMapNodeGuids(prefabSeed, true);
       // just take the entire ObjectTree node as is TODO: this may cause a crash if the root object is replaced
       ezAbstractObjectNode* pRightObjectTree = rightGraph.CopyNodeIntoGraph(leftGraph.GetNodeByName("ObjectTree"));
       // The root node should always have a property 'children' where all the root objects are attached to. We need to replace that property's value as the prefab instance graph can have less or more objects than the template.

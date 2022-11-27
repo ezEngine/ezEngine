@@ -28,9 +28,9 @@
 #  include <d3d11_1.h>
 #endif
 
-ezInternal::NewInstance<ezGALDevice> CreateDX11Device(ezAllocatorBase* pAllocator, const ezGALDeviceCreationDescription& Description)
+ezInternal::NewInstance<ezGALDevice> CreateDX11Device(ezAllocatorBase* pAllocator, const ezGALDeviceCreationDescription& description)
 {
-  return EZ_NEW(pAllocator, ezGALDeviceDX11, Description);
+  return EZ_NEW(pAllocator, ezGALDeviceDX11, description);
 }
 
 // clang-format off

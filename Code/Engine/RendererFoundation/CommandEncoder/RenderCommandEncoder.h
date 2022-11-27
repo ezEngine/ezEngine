@@ -7,7 +7,7 @@
 class EZ_RENDERERFOUNDATION_DLL ezGALRenderCommandEncoder : public ezGALCommandEncoder
 {
 public:
-  ezGALRenderCommandEncoder(ezGALDevice& device, ezGALCommandEncoderRenderState& renderState, ezGALCommandEncoderCommonPlatformInterface& commonImpl, ezGALCommandEncoderRenderPlatformInterface& renderImpl);
+  ezGALRenderCommandEncoder(ezGALDevice& ref_device, ezGALCommandEncoderRenderState& ref_renderState, ezGALCommandEncoderCommonPlatformInterface& ref_commonImpl, ezGALCommandEncoderRenderPlatformInterface& ref_renderImpl);
   virtual ~ezGALRenderCommandEncoder();
 
   // Draw functions
@@ -16,7 +16,7 @@ public:
   ///
   /// \param uiRenderTargetClearMask
   ///   Each bit represents a bound color target. If all bits are set, all bound color targets will be cleared.
-  void Clear(const ezColor& ClearColor, ezUInt32 uiRenderTargetClearMask = 0xFFFFFFFFu, bool bClearDepth = true, bool bClearStencil = true, float fDepthClear = 1.0f, ezUInt8 uiStencilClear = 0x0u);
+  void Clear(const ezColor& clearColor, ezUInt32 uiRenderTargetClearMask = 0xFFFFFFFFu, bool bClearDepth = true, bool bClearStencil = true, float fDepthClear = 1.0f, ezUInt8 uiStencilClear = 0x0u);
 
   void Draw(ezUInt32 uiVertexCount, ezUInt32 uiStartVertex);
   void DrawIndexed(ezUInt32 uiIndexCount, ezUInt32 uiStartIndex);
@@ -36,9 +36,9 @@ public:
   void SetVertexDeclaration(ezGALVertexDeclarationHandle hVertexDeclaration);
 
   ezGALPrimitiveTopology::Enum GetPrimitiveTopology() const { return m_RenderState.m_Topology; }
-  void SetPrimitiveTopology(ezGALPrimitiveTopology::Enum Topology);
+  void SetPrimitiveTopology(ezGALPrimitiveTopology::Enum topology);
 
-  void SetBlendState(ezGALBlendStateHandle hBlendState, const ezColor& BlendFactor = ezColor::White, ezUInt32 uiSampleMask = 0xFFFFFFFFu);
+  void SetBlendState(ezGALBlendStateHandle hBlendState, const ezColor& blendFactor = ezColor::White, ezUInt32 uiSampleMask = 0xFFFFFFFFu);
   void SetDepthStencilState(ezGALDepthStencilStateHandle hDepthStencilState, ezUInt8 uiStencilRefValue = 0xFFu);
   void SetRasterizerState(ezGALRasterizerStateHandle hRasterizerState);
 

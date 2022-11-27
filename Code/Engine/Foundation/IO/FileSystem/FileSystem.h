@@ -81,7 +81,7 @@ public:
   using ezDataDirFactory = ezDataDirectoryType* (*)(ezStringView, ezStringView, ezStringView, ezFileSystem::DataDirUsage);
 
   /// \brief This function allows to register another data directory factory, which might be invoked when a new data directory is to be added.
-  static void RegisterDataDirectoryFactory(ezDataDirFactory Factory, float fPriority = 0); // [tested]
+  static void RegisterDataDirectoryFactory(ezDataDirFactory factory, float fPriority = 0); // [tested]
 
   /// \brief Will remove all known data directory factories.
   static void ClearAllDataDirectoryFactories() { s_pData->m_DataDirFactories.Clear(); } // [tested]
@@ -98,7 +98,7 @@ public:
   /// that data directory. It must be used when writing to a file in this directory. For instance, if a data dir root name is "mydata", then the path
   /// ":mydata/SomeFile.txt" can be used to write to the top level folder of this data directory. The same can be used for reading exactly that file
   /// and ignoring the other data dirs.
-  static ezResult AddDataDirectory(ezStringView sDataDirectory, ezStringView sGroup = {}, ezStringView sRootName = {}, ezFileSystem::DataDirUsage Usage = ReadOnly); // [tested]
+  static ezResult AddDataDirectory(ezStringView sDataDirectory, ezStringView sGroup = {}, ezStringView sRootName = {}, ezFileSystem::DataDirUsage usage = ReadOnly); // [tested]
 
   /// \brief Searches for a data directory with the given root name and removes it
   ///
@@ -180,7 +180,7 @@ public:
   /// ">appdir/" - Resolves to what ezOSFile::GetApplicationDirectory() returns.
   ///
   /// Returns EZ_FAILURE if \a szDirectory starts with an unknown special directory.
-  static ezResult ResolveSpecialDirectory(ezStringView sDirectory, ezStringBuilder& out_Path);
+  static ezResult ResolveSpecialDirectory(ezStringView sDirectory, ezStringBuilder& out_sPath);
 
   ///@}
 
@@ -193,7 +193,7 @@ public:
 
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS)
   /// \brief Starts a multi-folder search for \a szSearchTerm on all current data directories.
-  static void StartSearch(ezFileSystemIterator& iterator, ezStringView sSearchTerm, ezBitflags<ezFileSystemIteratorFlags> flags = ezFileSystemIteratorFlags::Default);
+  static void StartSearch(ezFileSystemIterator& ref_iterator, ezStringView sSearchTerm, ezBitflags<ezFileSystemIteratorFlags> flags = ezFileSystemIteratorFlags::Default);
 #endif
 
   ///@}
@@ -215,7 +215,7 @@ public:
   /// \brief Tries to get the ezFileStats for the given file.
   /// Typically should give the same results as ezOSFile::GetFileStats, but some data dir implementations may not support
   /// retrieving all data (e.g. GetFileStats on folders might not always work).
-  static ezResult GetFileStats(ezStringView sFileOrFolder, ezFileStats& out_Stats);
+  static ezResult GetFileStats(ezStringView sFileOrFolder, ezFileStats& out_stats);
 
   /// \brief Tries to resolve the given path and returns the absolute and relative path to the final file.
   ///
@@ -233,7 +233,7 @@ public:
   /// \param out_ppDataDir If not null, it will be set to the data directory that would handle this path.
   ///
   /// \returns The function will return EZ_FAILURE if it was not able to determine any location where the file could be read from or written to.
-  static ezResult ResolvePath(ezStringView sPath, ezStringBuilder* out_sAbsolutePath, ezStringBuilder* out_sDataDirRelativePath, ezDataDirectoryType** out_ppDataDir = nullptr); // [tested]
+  static ezResult ResolvePath(ezStringView sPath, ezStringBuilder* out_pAbsolutePath, ezStringBuilder* out_pDataDirRelativePath, ezDataDirectoryType** out_pDataDir = nullptr); // [tested]
 
   /// \brief Starts at szStartDirectory and goes up until it finds a folder that contains the given sub folder structure.
   ///
@@ -243,7 +243,7 @@ public:
   /// \param szStartDirectory The directory in which to start the search and iterate upwards.
   /// \param szSubPath the relative path to look for in each visited directory. The function succeeds if such a file or folder is found.
   /// \param szRedirectionFileName An optional file name for a redirection file. If in any visited folder a file with this name is found, it will be opened, read entirely, and appended to the current search path, and it is checked whether \a szSubPath can be found there. This step is not recursive and can't result in an endless loop. It allows to relocate the SDK folder and still have it found, by placing such a redirection file. A common use case, is when ezEngine is used as a Git submodule and therefore the overall file structure is slightly different.
-  static ezResult FindFolderWithSubPath(ezStringBuilder& result, ezStringView sStartDirectory, ezStringView sSubPath, ezStringView sRedirectionFileName = {}); // [tested]
+  static ezResult FindFolderWithSubPath(ezStringBuilder& ref_sResult, ezStringView sStartDirectory, ezStringView sSubPath, ezStringView sRedirectionFileName = {}); // [tested]
 
   /// \brief Returns true, if any data directory knows how to redirect the given path. Otherwise the original string is returned in out_sRedirection.
   static bool ResolveAssetRedirection(ezStringView sPathOrAssetGuid, ezStringBuilder& out_sRedirection);

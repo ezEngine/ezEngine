@@ -358,7 +358,7 @@ const ezTestResultData& ezTestFrameworkResult::GetTestResultData(ezUInt32 uiTest
   return (iSubTestIndex == -1) ? m_Tests[uiTestIndex].m_Result : m_Tests[uiTestIndex].m_SubTests[iSubTestIndex].m_Result;
 }
 
-void ezTestFrameworkResult::TestOutput(ezUInt32 uiTestIndex, ezInt32 iSubTestIndex, ezTestOutput::Enum Type, const char* szMsg)
+void ezTestFrameworkResult::TestOutput(ezUInt32 uiTestIndex, ezInt32 iSubTestIndex, ezTestOutput::Enum type, const char* szMsg)
 {
   if (uiTestIndex != -1)
   {
@@ -371,7 +371,7 @@ void ezTestFrameworkResult::TestOutput(ezUInt32 uiTestIndex, ezInt32 iSubTestInd
 
   m_TestOutput.push_back(ezTestOutputMessage());
   ezTestOutputMessage& outputMessage = *m_TestOutput.rbegin();
-  outputMessage.m_Type = Type;
+  outputMessage.m_Type = type;
   outputMessage.m_sMessage.assign(szMsg);
 }
 
@@ -422,9 +422,9 @@ void ezTestFrameworkResult::AddAsserts(ezUInt32 uiTestIndex, ezInt32 iSubTestInd
   }
 }
 
-ezUInt32 ezTestFrameworkResult::GetOutputMessageCount(ezInt32 iTestIndex, ezInt32 iSubTestIndex, ezTestOutput::Enum Type) const
+ezUInt32 ezTestFrameworkResult::GetOutputMessageCount(ezInt32 iTestIndex, ezInt32 iSubTestIndex, ezTestOutput::Enum type) const
 {
-  if (iTestIndex == -1 && Type == ezTestOutput::AllOutputTypes)
+  if (iTestIndex == -1 && type == ezTestOutput::AllOutputTypes)
     return (ezUInt32)m_TestOutput.size();
 
   ezInt32 iStartIdx = 0;
@@ -441,14 +441,14 @@ ezUInt32 ezTestFrameworkResult::GetOutputMessageCount(ezInt32 iTestIndex, ezInt3
       return 0;
 
     // If all message types should be counted we can simply return the range.
-    if (Type == ezTestOutput::AllOutputTypes)
+    if (type == ezTestOutput::AllOutputTypes)
       return iEndIdx - iStartIdx + 1;
   }
 
   ezUInt32 uiAccumulator = 0;
   for (ezInt32 uiOutputMessageIdx = iStartIdx; uiOutputMessageIdx <= iEndIdx; ++uiOutputMessageIdx)
   {
-    if (m_TestOutput[uiOutputMessageIdx].m_Type == Type)
+    if (m_TestOutput[uiOutputMessageIdx].m_Type == type)
       uiAccumulator++;
   }
   return uiAccumulator;

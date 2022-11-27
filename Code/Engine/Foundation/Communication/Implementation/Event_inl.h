@@ -44,7 +44,7 @@ ezEventSubscriptionID ezEventBase<EventData, MutexType, EventType>::AddEventHand
 }
 
 template <typename EventData, typename MutexType, ezEventType EventType>
-void ezEventBase<EventData, MutexType, EventType>::AddEventHandler(Handler handler, Unsubscriber& unsubscriber) const
+void ezEventBase<EventData, MutexType, EventType>::AddEventHandler(Handler handler, Unsubscriber& inout_unsubscriber) const
 {
   EZ_LOCK(m_Mutex);
 
@@ -56,9 +56,9 @@ void ezEventBase<EventData, MutexType, EventType>::AddEventHandler(Handler handl
     }
   }
 
-  unsubscriber.Unsubscribe();
-  unsubscriber.m_pEvent = this;
-  unsubscriber.m_SubscriptionID = AddEventHandler(std::move(handler));
+  inout_unsubscriber.Unsubscribe();
+  inout_unsubscriber.m_pEvent = this;
+  inout_unsubscriber.m_SubscriptionID = AddEventHandler(std::move(handler));
 }
 
 
@@ -107,13 +107,13 @@ void ezEventBase<EventData, MutexType, EventType>::RemoveEventHandler(const Hand
 }
 
 template <typename EventData, typename MutexType, ezEventType EventType>
-void ezEventBase<EventData, MutexType, EventType>::RemoveEventHandler(ezEventSubscriptionID& id) const
+void ezEventBase<EventData, MutexType, EventType>::RemoveEventHandler(ezEventSubscriptionID& inout_id) const
 {
-  if (id == 0)
+  if (inout_id == 0)
     return;
 
-  const ezEventSubscriptionID subId = id;
-  id = 0;
+  const ezEventSubscriptionID subId = inout_id;
+  inout_id = 0;
 
   EZ_LOCK(m_Mutex);
 

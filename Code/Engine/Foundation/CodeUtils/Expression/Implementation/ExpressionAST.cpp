@@ -802,7 +802,7 @@ namespace
   };
 } // namespace
 
-void ezExpressionAST::PrintGraph(ezDGMLGraph& graph) const
+void ezExpressionAST::PrintGraph(ezDGMLGraph& inout_graph) const
 {
   ezHybridArray<NodeInfo, 64> nodeStack;
 
@@ -818,7 +818,7 @@ void ezExpressionAST::PrintGraph(ezDGMLGraph& graph) const
 
     ezDGMLGraph::NodeDesc nd;
     nd.m_Color = ezColorScheme::LightUI(ezColorScheme::Blue);
-    ezUInt32 uiGraphNode = graph.AddNode(sTmp, &nd);
+    ezUInt32 uiGraphNode = inout_graph.AddNode(sTmp, &nd);
 
     nodeStack.PushBack({pOutputNode->m_pExpression, uiGraphNode});
   }
@@ -876,7 +876,7 @@ void ezExpressionAST::PrintGraph(ezDGMLGraph& graph) const
 
         ezDGMLGraph::NodeDesc nd;
         nd.m_Color = color;
-        uiGraphNode = graph.AddNode(sTmp, &nd);
+        uiGraphNode = inout_graph.AddNode(sTmp, &nd);
         nodeCache.Insert(currentNodeInfo.m_pNode, uiGraphNode);
 
         // push children
@@ -891,10 +891,10 @@ void ezExpressionAST::PrintGraph(ezDGMLGraph& graph) const
     {
       ezDGMLGraph::NodeDesc nd;
       nd.m_Color = ezColor::OrangeRed;
-      uiGraphNode = graph.AddNode("Invalid", &nd);
+      uiGraphNode = inout_graph.AddNode("Invalid", &nd);
     }
 
-    graph.AddConnection(uiGraphNode, currentNodeInfo.m_uiParentGraphNode);
+    inout_graph.AddConnection(uiGraphNode, currentNodeInfo.m_uiParentGraphNode);
   }
 }
 
@@ -914,14 +914,14 @@ void ezExpressionAST::ResolveOverloads(Node* pNode)
     return;
   }
 
-  auto CalculateMatchDistance = [](ezArrayPtr<Node*> children, ezArrayPtr<const ezEnum<ezExpression::RegisterType>> expectedTypes, ezUInt32 uiNumRequiredArgs, ezUInt32& uiMaxNumElements) {
+  auto CalculateMatchDistance = [](ezArrayPtr<Node*> children, ezArrayPtr<const ezEnum<ezExpression::RegisterType>> expectedTypes, ezUInt32 uiNumRequiredArgs, ezUInt32& ref_uiMaxNumElements) {
     if (children.GetCount() < uiNumRequiredArgs)
     {
       return ezInvalidIndex;
     }
 
     ezUInt32 uiMatchDistance = 0;
-    uiMaxNumElements = 1;
+    ref_uiMaxNumElements = 1;
     for (ezUInt32 i = 0; i < ezMath::Min(children.GetCount(), expectedTypes.GetCount()); ++i)
     {
       auto& pChildNode = children[i];
@@ -935,7 +935,7 @@ void ezExpressionAST::ResolveOverloads(Node* pNode)
         iDistance *= -ezExpression::RegisterType::Count;
       }
       uiMatchDistance += iDistance;
-      uiMaxNumElements = ezMath::Max(uiMaxNumElements, DataType::GetElementCount(pChildNode->m_ReturnType));
+      ref_uiMaxNumElements = ezMath::Max(ref_uiMaxNumElements, DataType::GetElementCount(pChildNode->m_ReturnType));
     }
     return uiMatchDistance;
   };

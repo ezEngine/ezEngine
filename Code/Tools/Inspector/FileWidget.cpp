@@ -9,8 +9,8 @@
 
 ezQtFileWidget* ezQtFileWidget::s_pWidget = nullptr;
 
-ezQtFileWidget::ezQtFileWidget(QWidget* parent)
-  : ads::CDockWidget("File Operations", parent)
+ezQtFileWidget::ezQtFileWidget(QWidget* pParent)
+  : ads::CDockWidget("File Operations", pParent)
 {
   s_pWidget = this;
 

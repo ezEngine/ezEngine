@@ -40,7 +40,7 @@ public:
 
   /// \brief The message is dispatched to all nodes, which may react on it, for instance by tagging themselves for execution in the next
   /// ExecuteScript() call.
-  bool HandleMessage(ezMessage& msg);
+  bool HandleMessage(ezMessage& ref_msg);
 
   /// \brief Called by ezVisualScriptNode classes to pass the new value of an output pin to all connected nodes.
   void SetOutputPinValue(const ezVisualScriptNode* pNode, ezUInt8 uiPin, const void* pValue);

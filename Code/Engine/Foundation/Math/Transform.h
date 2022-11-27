@@ -48,7 +48,7 @@ public:
     const ezVec3Template<Type>& vScale = ezVec3Template<Type>(1)); // [tested]
 
   /// \brief Attempts to extract position, scale and rotation from the matrix. Negative scaling and shearing will get lost in the process.
-  void SetFromMat4(const ezMat4Template<Type>& mat);
+  void SetFromMat4(const ezMat4Template<Type>& mMat);
 
   /// \brief Sets the position to be zero and the rotation to identity.
   void SetIdentity(); // [tested]
@@ -90,10 +90,10 @@ public:
   // *** Conversion operations ***
 public:
   /// \brief Sets this transform to be the local transformation needed to get from the parent's transform to the child's.
-  void SetLocalTransform(const ezTransformTemplate& GlobalTransformParent, const ezTransformTemplate& GlobalTransformChild); // [tested]
+  void SetLocalTransform(const ezTransformTemplate& globalTransformParent, const ezTransformTemplate& globalTransformChild); // [tested]
 
   /// \brief Sets this transform to the global transform, that is reached by applying the child's local transform to the parent's global one.
-  void SetGlobalTransform(const ezTransformTemplate& GlobalTransformParent, const ezTransformTemplate& LocalTransformChild); // [tested]
+  void SetGlobalTransform(const ezTransformTemplate& globalTransformParent, const ezTransformTemplate& localTransformChild); // [tested]
 
   /// \brief Returns the transformation as a matrix.
   const ezMat4Template<Type> GetAsMat4() const; // [tested]

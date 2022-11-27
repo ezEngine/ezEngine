@@ -40,15 +40,15 @@ public:
 
   ezObjectMetaData();
 
-  bool HasMetaData(const KEY ObjectKey) const;
+  bool HasMetaData(const KEY objectKey) const;
 
-  void ClearMetaData(const KEY ObjectKey);
+  void ClearMetaData(const KEY objectKey);
 
   /// \brief Will always return a non-null result. May be a default object.
-  const VALUE* BeginReadMetaData(const KEY ObjectKey) const;
+  const VALUE* BeginReadMetaData(const KEY objectKey) const;
   void EndReadMetaData() const;
 
-  VALUE* BeginModifyMetaData(const KEY ObjectKey);
+  VALUE* BeginModifyMetaData(const KEY objectKey);
   void EndModifyMetaData(ezUInt32 uiModifiedFlags = 0xFFFFFFFF);
 
 
@@ -58,7 +58,7 @@ public:
 
   /// \brief Uses reflection information from VALUE to store all properties that differ from the default value as additional properties for the graph
   /// objects.
-  void AttachMetaDataToAbstractGraph(ezAbstractObjectGraph& graph) const;
+  void AttachMetaDataToAbstractGraph(ezAbstractObjectGraph& inout_graph) const;
 
   /// \brief Uses reflection information from VALUE to restore all meta data properties from the graph.
   void RestoreMetaDataFromAbstractGraph(const ezAbstractObjectGraph& graph);

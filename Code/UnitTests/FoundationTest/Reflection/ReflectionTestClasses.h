@@ -217,7 +217,7 @@ public:
   bool operator==(const ezTestClass2& rhs) const { return m_Time == rhs.m_Time && m_enumClass == rhs.m_enumClass && m_bitflagsClass == rhs.m_bitflagsClass && m_array == rhs.m_array && m_Variant == rhs.m_Variant && m_sText == rhs.m_sText; }
 
   const char* GetText() const { return m_sText.GetData(); }
-  void SetText(const char* sz) { m_sText = sz; }
+  void SetText(const char* szSz) { m_sText = szSz; }
 
   ezTime m_Time;
   ezEnum<ezExampleEnum> m_enumClass;
@@ -260,7 +260,7 @@ public:
   ezTestClass2b() { m_sText = "Tut"; }
 
   const char* GetText() const { return m_sText.GetData(); }
-  void SetText(const char* sz) { m_sText = sz; }
+  void SetText(const char* szSz) { m_sText = szSz; }
 
   ezTestStruct3 m_Struct;
   ezColor m_Color;
@@ -460,7 +460,7 @@ public:
     return *m_SetPtr.GetIterator().Key() == *rhs.m_SetPtr.GetIterator().Key();
   }
 
-  void SetString(const char* pzValue) { m_sString = pzValue; }
+  void SetString(const char* szValue) { m_sString = szValue; }
   const char* GetString() const { return m_sString; }
 
   void SetArrays(ezTestArrays* pValue) { m_pArrays = pValue; }

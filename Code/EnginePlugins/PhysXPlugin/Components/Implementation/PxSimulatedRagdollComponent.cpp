@@ -31,17 +31,17 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezPxSimulatedRagdollComponent::ezPxSimulatedRagdollComponent() = default;
 ezPxSimulatedRagdollComponent::~ezPxSimulatedRagdollComponent() = default;
 
-void ezPxSimulatedRagdollComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezPxSimulatedRagdollComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
-  auto& s = stream.GetStream();
+  SUPER::SerializeComponent(inout_stream);
+  auto& s = inout_stream.GetStream();
 }
 
-void ezPxSimulatedRagdollComponent::DeserializeComponent(ezWorldReader& stream)
+void ezPxSimulatedRagdollComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  auto& s = stream.GetStream();
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  auto& s = inout_stream.GetStream();
 }
 
 void ezPxSimulatedRagdollComponent::OnSimulationStarted()

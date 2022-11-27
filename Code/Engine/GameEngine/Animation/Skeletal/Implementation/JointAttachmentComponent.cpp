@@ -36,21 +36,21 @@ EZ_END_COMPONENT_TYPE
 ezJointAttachmentComponent::ezJointAttachmentComponent() = default;
 ezJointAttachmentComponent::~ezJointAttachmentComponent() = default;
 
-void ezJointAttachmentComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezJointAttachmentComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
-  auto& s = stream.GetStream();
+  SUPER::SerializeComponent(inout_stream);
+  auto& s = inout_stream.GetStream();
 
   s << m_sJointToAttachTo;
   s << m_vLocalPositionOffset;
   s << m_vLocalRotationOffset;
 }
 
-void ezJointAttachmentComponent::DeserializeComponent(ezWorldReader& stream)
+void ezJointAttachmentComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  auto& s = stream.GetStream();
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  auto& s = inout_stream.GetStream();
 
   s >> m_sJointToAttachTo;
   s >> m_vLocalPositionOffset;

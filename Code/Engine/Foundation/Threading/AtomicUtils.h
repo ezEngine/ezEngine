@@ -14,96 +14,96 @@
 struct EZ_FOUNDATION_DLL ezAtomicUtils
 {
   /// \brief Returns src as an atomic operation and returns its value.
-  static ezInt32 Read(volatile const ezInt32& src); // [tested]
+  static ezInt32 Read(volatile const ezInt32& iSrc); // [tested]
 
   /// \brief Returns src as an atomic operation and returns its value.
-  static ezInt64 Read(volatile const ezInt64& src); // [tested]
+  static ezInt64 Read(volatile const ezInt64& iSrc); // [tested]
 
   /// \brief Increments dest as an atomic operation and returns the new value.
-  static ezInt32 Increment(volatile ezInt32& dest); // [tested]
+  static ezInt32 Increment(volatile ezInt32& ref_iDest); // [tested]
 
   /// \brief Increments dest as an atomic operation and returns the new value.
-  static ezInt64 Increment(volatile ezInt64& dest); // [tested]
+  static ezInt64 Increment(volatile ezInt64& ref_iDest); // [tested]
 
   /// \brief Decrements dest as an atomic operation and returns the new value.
-  static ezInt32 Decrement(volatile ezInt32& dest); // [tested]
+  static ezInt32 Decrement(volatile ezInt32& ref_iDest); // [tested]
 
   /// \brief Decrements dest as an atomic operation and returns the new value.
-  static ezInt64 Decrement(volatile ezInt64& dest); // [tested]
+  static ezInt64 Decrement(volatile ezInt64& ref_iDest); // [tested]
 
   /// \brief Increments dest as an atomic operation and returns the old value.
-  static ezInt32 PostIncrement(volatile ezInt32& dest); // [tested]
+  static ezInt32 PostIncrement(volatile ezInt32& ref_iDest); // [tested]
 
   /// \brief Increments dest as an atomic operation and returns the old value.
-  static ezInt64 PostIncrement(volatile ezInt64& dest); // [tested]
+  static ezInt64 PostIncrement(volatile ezInt64& ref_iDest); // [tested]
 
   /// \brief Decrements dest as an atomic operation and returns the old value.
-  static ezInt32 PostDecrement(volatile ezInt32& dest); // [tested]
+  static ezInt32 PostDecrement(volatile ezInt32& ref_iDest); // [tested]
 
   /// \brief Decrements dest as an atomic operation and returns the old value.
-  static ezInt64 PostDecrement(volatile ezInt64& dest); // [tested]
+  static ezInt64 PostDecrement(volatile ezInt64& ref_iDest); // [tested]
 
   /// \brief Adds value to dest as an atomic operation.
-  static void Add(volatile ezInt32& dest, ezInt32 value); // [tested]
+  static void Add(volatile ezInt32& ref_iDest, ezInt32 value); // [tested]
 
   /// \brief Adds value to dest as an atomic operation.
-  static void Add(volatile ezInt64& dest, ezInt64 value); // [tested]
+  static void Add(volatile ezInt64& ref_iDest, ezInt64 value); // [tested]
 
   /// \brief Performs an atomic bitwise AND on dest using value.
-  static void And(volatile ezInt32& dest, ezInt32 value); // [tested]
+  static void And(volatile ezInt32& ref_iDest, ezInt32 value); // [tested]
 
   /// \brief Performs an atomic bitwise AND on dest using value.
-  static void And(volatile ezInt64& dest, ezInt64 value); // [tested]
+  static void And(volatile ezInt64& ref_iDest, ezInt64 value); // [tested]
 
   /// \brief Performs an atomic bitwise OR on dest using value.
-  static void Or(volatile ezInt32& dest, ezInt32 value); // [tested]
+  static void Or(volatile ezInt32& ref_iDest, ezInt32 value); // [tested]
 
   /// \brief Performs an atomic bitwise OR on dest using value.
-  static void Or(volatile ezInt64& dest, ezInt64 value); // [tested]
+  static void Or(volatile ezInt64& ref_iDest, ezInt64 value); // [tested]
 
   /// \brief Performs an atomic bitwise XOR on dest using value.
-  static void Xor(volatile ezInt32& dest, ezInt32 value); // [tested]
+  static void Xor(volatile ezInt32& ref_iDest, ezInt32 value); // [tested]
 
   /// \brief Performs an atomic bitwise XOR on dest using value.
-  static void Xor(volatile ezInt64& dest, ezInt64 value); // [tested]
+  static void Xor(volatile ezInt64& ref_iDest, ezInt64 value); // [tested]
 
   /// \brief Performs an atomic min operation on dest using value.
-  static void Min(volatile ezInt32& dest, ezInt32 value); // [tested]
+  static void Min(volatile ezInt32& ref_iDest, ezInt32 value); // [tested]
 
   /// \brief Performs an atomic min operation on dest using value.
-  static void Min(volatile ezInt64& dest, ezInt64 value); // [tested]
+  static void Min(volatile ezInt64& ref_iDest, ezInt64 value); // [tested]
 
   /// \brief Performs an atomic max operation on dest using value.
-  static void Max(volatile ezInt32& dest, ezInt32 value); // [tested]
+  static void Max(volatile ezInt32& ref_iDest, ezInt32 value); // [tested]
 
   /// \brief Performs an atomic max operation on dest using value.
-  static void Max(volatile ezInt64& dest, ezInt64 value); // [tested]
+  static void Max(volatile ezInt64& ref_iDest, ezInt64 value); // [tested]
 
   /// \brief Sets dest to value as an atomic operation and returns the original value of dest.
-  static ezInt32 Set(volatile ezInt32& dest, ezInt32 value); // [tested]
+  static ezInt32 Set(volatile ezInt32& ref_iDest, ezInt32 value); // [tested]
 
   /// \brief Sets dest to value as an atomic operation and returns the original value of dest.
-  static ezInt64 Set(volatile ezInt64& dest, ezInt64 value); // [tested]
+  static ezInt64 Set(volatile ezInt64& ref_iDest, ezInt64 value); // [tested]
 
   /// \brief If *dest* is equal to *expected*, this function sets *dest* to *value* and returns true. Otherwise *dest* will not be modified and the
   /// function returns false.
-  static bool TestAndSet(volatile ezInt32& dest, ezInt32 expected, ezInt32 value); // [tested]
+  static bool TestAndSet(volatile ezInt32& ref_iDest, ezInt32 iExpected, ezInt32 value); // [tested]
 
   /// \brief If *dest* is equal to *expected*, this function sets *dest* to *value* and returns true. Otherwise *dest* will not be modified and the
   /// function returns false.
-  static bool TestAndSet(volatile ezInt64& dest, ezInt64 expected, ezInt64 value); // [tested]
+  static bool TestAndSet(volatile ezInt64& ref_iDest, ezInt64 iExpected, ezInt64 value); // [tested]
 
   /// \brief If *dest* is equal to *expected*, this function sets *dest* to *value* and returns true. Otherwise *dest* will not be modified and the
   /// function returns false.
-  static bool TestAndSet(void** volatile dest, void* expected, void* value); // [tested]
+  static bool TestAndSet(void** volatile pDest, void* pExpected, void* value); // [tested]
 
   /// \brief If *dest* is equal to *expected*, this function sets *dest* to *value*. Otherwise *dest* will not be modified. Always returns the value
   /// of *dest* before the modification.
-  static ezInt32 CompareAndSwap(volatile ezInt32& dest, ezInt32 expected, ezInt32 value); // [tested]
+  static ezInt32 CompareAndSwap(volatile ezInt32& ref_iDest, ezInt32 iExpected, ezInt32 value); // [tested]
 
   /// \brief If *dest* is equal to *expected*, this function sets *dest* to *value*. Otherwise *dest* will not be modified. Always returns the value
   /// of *dest* before the modification.
-  static ezInt64 CompareAndSwap(volatile ezInt64& dest, ezInt64 expected, ezInt64 value); // [tested]
+  static ezInt64 CompareAndSwap(volatile ezInt64& ref_iDest, ezInt64 iExpected, ezInt64 value); // [tested]
 };
 
 // Include inline file

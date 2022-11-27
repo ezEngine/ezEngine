@@ -214,15 +214,15 @@ void ezTelemetry::UpdateNetwork()
 #endif // BUILDSYSTEM_ENABLE_ENET_SUPPORT
 }
 
-void ezTelemetry::SetServerName(const char* name)
+void ezTelemetry::SetServerName(const char* szName)
 {
   if (s_ConnectionMode == ConnectionMode::Client)
     return;
 
-  if (s_sServerName == name)
+  if (s_sServerName == szName)
     return;
 
-  s_sServerName = name;
+  s_sServerName = szName;
 
   SendServerName();
 }
@@ -238,7 +238,7 @@ void ezTelemetry::SendServerName()
   Broadcast(ezTelemetry::Reliable, 'EZBC', 'NAME', data, EZ_ARRAY_SIZE(data));
 }
 
-ezResult ezTelemetry::RetrieveMessage(ezUInt32 uiSystemID, ezTelemetryMessage& out_Message)
+ezResult ezTelemetry::RetrieveMessage(ezUInt32 uiSystemID, ezTelemetryMessage& out_message)
 {
   if (s_SystemMessages[uiSystemID].m_IncomingQueue.IsEmpty())
     return EZ_FAILURE;
@@ -249,7 +249,7 @@ ezResult ezTelemetry::RetrieveMessage(ezUInt32 uiSystemID, ezTelemetryMessage& o
   if (s_SystemMessages[uiSystemID].m_IncomingQueue.IsEmpty())
     return EZ_FAILURE;
 
-  out_Message = s_SystemMessages[uiSystemID].m_IncomingQueue.PeekFront();
+  out_message = s_SystemMessages[uiSystemID].m_IncomingQueue.PeekFront();
   s_SystemMessages[uiSystemID].m_IncomingQueue.PopFront();
 
   return EZ_SUCCESS;

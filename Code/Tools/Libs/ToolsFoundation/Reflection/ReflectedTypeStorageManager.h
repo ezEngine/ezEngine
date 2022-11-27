@@ -43,10 +43,10 @@ private:
     /// The functions first adds all parent class properties and then adds its own properties.
     /// POD type properties are added under the current path.
     void AddProperties(const ezRTTI* pType);
-    void AddPropertiesRecursive(const ezRTTI* pType, ezSet<const ezDocumentObject*>& requiresPatchingEmbeddedClass);
+    void AddPropertiesRecursive(const ezRTTI* pType, ezSet<const ezDocumentObject*>& ref_requiresPatchingEmbeddedClass);
 
-    void UpdateInstances(ezUInt32 uiIndex, const ezAbstractProperty* pProperty, ezSet<const ezDocumentObject*>& requiresPatchingEmbeddedClass);
-    void AddPropertyToInstances(ezUInt32 uiIndex, const ezAbstractProperty* pProperty, ezSet<const ezDocumentObject*>& requiresPatchingEmbeddedClass);
+    void UpdateInstances(ezUInt32 uiIndex, const ezAbstractProperty* pProperty, ezSet<const ezDocumentObject*>& ref_requiresPatchingEmbeddedClass);
+    void AddPropertyToInstances(ezUInt32 uiIndex, const ezAbstractProperty* pProperty, ezSet<const ezDocumentObject*>& ref_requiresPatchingEmbeddedClass);
 
     ezVariantType::Enum GetStorageType(const ezAbstractProperty* pProperty);
 

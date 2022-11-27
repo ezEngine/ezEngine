@@ -11,7 +11,7 @@ public:
   Q_OBJECT
 
 public:
-  ezQtPhysxProjectSettingsDlg(QWidget* parent);
+  ezQtPhysxProjectSettingsDlg(QWidget* pParent);
 
 private Q_SLOTS:
   void onCheckBoxClicked(bool checked);

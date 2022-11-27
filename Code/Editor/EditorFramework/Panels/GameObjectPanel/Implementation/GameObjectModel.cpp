@@ -30,9 +30,9 @@ ezQtGameObjectAdapter::~ezQtGameObjectAdapter()
   m_pObjectMetaData->m_DataModifiedEvent.RemoveEventHandler(m_DocumentObjectMetaDataSubscription);
 }
 
-QVariant ezQtGameObjectAdapter::data(const ezDocumentObject* pObject, int row, int column, int role) const
+QVariant ezQtGameObjectAdapter::data(const ezDocumentObject* pObject, int iRow, int iColumn, int iRole) const
 {
-  switch (role)
+  switch (iRole)
   {
     case Qt::DisplayRole:
     {
@@ -139,12 +139,12 @@ QVariant ezQtGameObjectAdapter::data(const ezDocumentObject* pObject, int row, i
     break;
   }
 
-  return ezQtNameableAdapter::data(pObject, row, column, role);
+  return ezQtNameableAdapter::data(pObject, iRow, iColumn, iRole);
 }
 
-bool ezQtGameObjectAdapter::setData(const ezDocumentObject* pObject, int row, int column, const QVariant& value, int role) const
+bool ezQtGameObjectAdapter::setData(const ezDocumentObject* pObject, int iRow, int iColumn, const QVariant& value, int iRole) const
 {
-  if (role == Qt::EditRole)
+  if (iRole == Qt::EditRole)
   {
     auto pMetaWrite = m_pGameObjectMetaData->BeginModifyMetaData(pObject->GetGuid());
 
@@ -160,7 +160,7 @@ bool ezQtGameObjectAdapter::setData(const ezDocumentObject* pObject, int row, in
 
     sNewValue.Trim("[]{}() \t\r"); // forbid these
 
-    return ezQtNameableAdapter::setData(pObject, row, column, QString::fromUtf8(sNewValue.GetData()), role);
+    return ezQtNameableAdapter::setData(pObject, iRow, iColumn, QString::fromUtf8(sNewValue.GetData()), iRole);
   }
 
   return false;

@@ -4,9 +4,9 @@
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Resources/Buffer.h>
 
-ezGALComputeCommandEncoder::ezGALComputeCommandEncoder(ezGALDevice& device, ezGALCommandEncoderState& state, ezGALCommandEncoderCommonPlatformInterface& commonImpl, ezGALCommandEncoderComputePlatformInterface& computeImpl)
-  : ezGALCommandEncoder(device, state, commonImpl)
-  , m_ComputeImpl(computeImpl)
+ezGALComputeCommandEncoder::ezGALComputeCommandEncoder(ezGALDevice& ref_device, ezGALCommandEncoderState& ref_state, ezGALCommandEncoderCommonPlatformInterface& ref_commonImpl, ezGALCommandEncoderComputePlatformInterface& ref_computeImpl)
+  : ezGALCommandEncoder(ref_device, ref_state, ref_commonImpl)
+  , m_ComputeImpl(ref_computeImpl)
 {
 }
 

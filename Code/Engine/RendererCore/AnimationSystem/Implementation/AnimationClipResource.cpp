@@ -130,50 +130,50 @@ void ezAnimationClipResourceDescriptor::operator=(ezAnimationClipResourceDescrip
   m_Duration = rhs.m_Duration;
 }
 
-ezResult ezAnimationClipResourceDescriptor::Serialize(ezStreamWriter& stream) const
+ezResult ezAnimationClipResourceDescriptor::Serialize(ezStreamWriter& inout_stream) const
 {
-  stream.WriteVersion(9);
+  inout_stream.WriteVersion(9);
 
   const ezUInt16 uiNumJoints = static_cast<ezUInt16>(m_JointInfos.GetCount());
-  stream << uiNumJoints;
+  inout_stream << uiNumJoints;
   for (ezUInt32 i = 0; i < m_JointInfos.GetCount(); ++i)
   {
     const auto& val = m_JointInfos.GetValue(i);
 
-    stream << m_JointInfos.GetKey(i);
-    stream << val.m_uiPositionIdx;
-    stream << val.m_uiPositionCount;
-    stream << val.m_uiRotationIdx;
-    stream << val.m_uiRotationCount;
-    stream << val.m_uiScaleIdx;
-    stream << val.m_uiScaleCount;
+    inout_stream << m_JointInfos.GetKey(i);
+    inout_stream << val.m_uiPositionIdx;
+    inout_stream << val.m_uiPositionCount;
+    inout_stream << val.m_uiRotationIdx;
+    inout_stream << val.m_uiRotationCount;
+    inout_stream << val.m_uiScaleIdx;
+    inout_stream << val.m_uiScaleCount;
   }
 
-  stream << m_Duration;
-  stream << m_uiNumTotalPositions;
-  stream << m_uiNumTotalRotations;
-  stream << m_uiNumTotalScales;
+  inout_stream << m_Duration;
+  inout_stream << m_uiNumTotalPositions;
+  inout_stream << m_uiNumTotalRotations;
+  inout_stream << m_uiNumTotalScales;
 
-  EZ_SUCCEED_OR_RETURN(stream.WriteArray(m_Transforms));
+  EZ_SUCCEED_OR_RETURN(inout_stream.WriteArray(m_Transforms));
 
-  stream << m_vConstantRootMotion;
+  inout_stream << m_vConstantRootMotion;
 
-  m_EventTrack.Save(stream);
+  m_EventTrack.Save(inout_stream);
 
-  stream << m_bAdditive;
+  inout_stream << m_bAdditive;
 
   return EZ_SUCCESS;
 }
 
-ezResult ezAnimationClipResourceDescriptor::Deserialize(ezStreamReader& stream)
+ezResult ezAnimationClipResourceDescriptor::Deserialize(ezStreamReader& inout_stream)
 {
-  const ezTypeVersion uiVersion = stream.ReadVersion(9);
+  const ezTypeVersion uiVersion = inout_stream.ReadVersion(9);
 
   if (uiVersion < 6)
     return EZ_FAILURE;
 
   ezUInt16 uiNumJoints = 0;
-  stream >> uiNumJoints;
+  inout_stream >> uiNumJoints;
 
   m_JointInfos.Reserve(uiNumJoints);
 
@@ -181,41 +181,41 @@ ezResult ezAnimationClipResourceDescriptor::Deserialize(ezStreamReader& stream)
 
   for (ezUInt16 i = 0; i < uiNumJoints; ++i)
   {
-    stream >> hs;
+    inout_stream >> hs;
 
     JointInfo ji;
-    stream >> ji.m_uiPositionIdx;
-    stream >> ji.m_uiPositionCount;
-    stream >> ji.m_uiRotationIdx;
-    stream >> ji.m_uiRotationCount;
-    stream >> ji.m_uiScaleIdx;
-    stream >> ji.m_uiScaleCount;
+    inout_stream >> ji.m_uiPositionIdx;
+    inout_stream >> ji.m_uiPositionCount;
+    inout_stream >> ji.m_uiRotationIdx;
+    inout_stream >> ji.m_uiRotationCount;
+    inout_stream >> ji.m_uiScaleIdx;
+    inout_stream >> ji.m_uiScaleCount;
 
     m_JointInfos.Insert(hs, ji);
   }
 
   m_JointInfos.Sort();
 
-  stream >> m_Duration;
-  stream >> m_uiNumTotalPositions;
-  stream >> m_uiNumTotalRotations;
-  stream >> m_uiNumTotalScales;
+  inout_stream >> m_Duration;
+  inout_stream >> m_uiNumTotalPositions;
+  inout_stream >> m_uiNumTotalRotations;
+  inout_stream >> m_uiNumTotalScales;
 
-  EZ_SUCCEED_OR_RETURN(stream.ReadArray(m_Transforms));
+  EZ_SUCCEED_OR_RETURN(inout_stream.ReadArray(m_Transforms));
 
   if (uiVersion >= 7)
   {
-    stream >> m_vConstantRootMotion;
+    inout_stream >> m_vConstantRootMotion;
   }
 
   if (uiVersion >= 8)
   {
-    m_EventTrack.Load(stream);
+    m_EventTrack.Load(inout_stream);
   }
 
   if (uiVersion >= 9)
   {
-    stream >> m_bAdditive;
+    inout_stream >> m_bAdditive;
   }
 
   return EZ_SUCCESS;
@@ -241,19 +241,19 @@ void ezAnimationClipResourceDescriptor::SetDuration(ezTime duration)
   m_Duration = duration;
 }
 
-EZ_FORCE_INLINE void ez2ozz(const ezVec3& in, ozz::math::Float3& out)
+EZ_FORCE_INLINE void ez2ozz(const ezVec3& vIn, ozz::math::Float3& ref_out)
 {
-  out.x = in.x;
-  out.y = in.y;
-  out.z = in.z;
+  ref_out.x = vIn.x;
+  ref_out.y = vIn.y;
+  ref_out.z = vIn.z;
 }
 
-EZ_FORCE_INLINE void ez2ozz(const ezQuat& in, ozz::math::Quaternion& out)
+EZ_FORCE_INLINE void ez2ozz(const ezQuat& qIn, ozz::math::Quaternion& ref_out)
 {
-  out.x = in.v.x;
-  out.y = in.v.y;
-  out.z = in.v.z;
-  out.w = in.w;
+  ref_out.x = qIn.v.x;
+  ref_out.y = qIn.v.y;
+  ref_out.z = qIn.v.z;
+  ref_out.w = qIn.w;
 }
 
 const ozz::animation::Animation& ezAnimationClipResourceDescriptor::GetMappedOzzAnimation(const ezSkeletonResource& skeleton) const

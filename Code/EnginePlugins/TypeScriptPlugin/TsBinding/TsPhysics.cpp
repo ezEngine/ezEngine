@@ -36,33 +36,33 @@ ezResult ezTypeScriptBinding::Init_Physics()
   return EZ_SUCCESS;
 }
 
-static void PutHitResult(ezDuktapeHelper& duk, const ezPhysicsCastResult& res)
+static void PutHitResult(ezDuktapeHelper& ref_duk, const ezPhysicsCastResult& res)
 {
-  ezTypeScriptBinding* pBinding = ezTypeScriptBinding::RetrieveBinding(duk);
+  ezTypeScriptBinding* pBinding = ezTypeScriptBinding::RetrieveBinding(ref_duk);
 
-  duk.PushGlobalObject();                                       // [ global ]
-  duk.PushLocalObject("__Physics").IgnoreResult();              // [ global __Physics ]
-  duk.PushLocalObject("Physics").IgnoreResult();                // [ global __Physics Physics ]
-  duk_get_prop_string(duk, -1, "HitResult");                    // [ global __Physics Physics HitResult ]
-  duk_new(duk, 0);                                              // [ global __Physics Physics HitResultObj ]
-  duk_remove(duk, -2);                                          // [ global __Physics HitResultObj ]
-  duk_remove(duk, -2);                                          // [ global HitResultObj ]
-  duk_remove(duk, -2);                                          // [ HitResultObj ]
+  ref_duk.PushGlobalObject();                                   // [ global ]
+  ref_duk.PushLocalObject("__Physics").IgnoreResult();          // [ global __Physics ]
+  ref_duk.PushLocalObject("Physics").IgnoreResult();            // [ global __Physics Physics ]
+  duk_get_prop_string(ref_duk, -1, "HitResult");                // [ global __Physics Physics HitResult ]
+  duk_new(ref_duk, 0);                                          // [ global __Physics Physics HitResultObj ]
+  duk_remove(ref_duk, -2);                                      // [ global __Physics HitResultObj ]
+  duk_remove(ref_duk, -2);                                      // [ global HitResultObj ]
+  duk_remove(ref_duk, -2);                                      // [ HitResultObj ]
   ;                                                             //
-  duk.SetNumberProperty("distance", res.m_fDistance, -1);       // [ HitResultObj ]
-  duk.SetNumberProperty("shapeId", res.m_uiObjectFilterID, -1); // [ HitResultObj ]
+  ref_duk.SetNumberProperty("distance", res.m_fDistance, -1);   // [ HitResultObj ]
+  ref_duk.SetNumberProperty("shapeId", res.m_uiObjectFilterID, -1); // [ HitResultObj ]
   ;                                                             //
-  ezTypeScriptBinding::PushVec3(duk, res.m_vPosition);          // [ HitResultObj pos ]
-  duk.SetCustomProperty("position", -1);                        // [ HitResultObj ]
+  ezTypeScriptBinding::PushVec3(ref_duk, res.m_vPosition);      // [ HitResultObj pos ]
+  ref_duk.SetCustomProperty("position", -1);                    // [ HitResultObj ]
   ;                                                             //
-  ezTypeScriptBinding::PushVec3(duk, res.m_vNormal);            // [ HitResultObj normal ]
-  duk.SetCustomProperty("normal", -1);                          // [ HitResultObj ]
+  ezTypeScriptBinding::PushVec3(ref_duk, res.m_vNormal);        // [ HitResultObj normal ]
+  ref_duk.SetCustomProperty("normal", -1);                      // [ HitResultObj ]
   ;                                                             //
   pBinding->DukPutGameObject(res.m_hShapeObject);               // [ HitResultObj GO ]
-  duk.SetCustomProperty("shapeObject", -1);                     // [ HitResultObj ]
+  ref_duk.SetCustomProperty("shapeObject", -1);                 // [ HitResultObj ]
   ;                                                             //
   pBinding->DukPutGameObject(res.m_hActorObject);               // [ HitResultObj GO ]
-  duk.SetCustomProperty("actorObject", -1);                     // [ HitResultObj ]
+  ref_duk.SetCustomProperty("actorObject", -1);                 // [ HitResultObj ]
 }
 
 static int __CPP_Physics_Raycast(duk_context* pDuk)

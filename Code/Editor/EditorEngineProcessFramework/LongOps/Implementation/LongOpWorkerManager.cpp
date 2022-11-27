@@ -149,13 +149,13 @@ void ezLongOpWorkerManager::RemoveOperation(ezUuid opGuid)
   }
 }
 
-ezLongOpWorkerManager::WorkerOpInfo* ezLongOpWorkerManager::GetOperation(const ezUuid& guid) const
+ezLongOpWorkerManager::WorkerOpInfo* ezLongOpWorkerManager::GetOperation(const ezUuid& opGuid) const
 {
   EZ_LOCK(m_Mutex);
 
   for (auto& opInfoPtr : m_WorkerOps)
   {
-    if (opInfoPtr->m_OperationGuid == guid)
+    if (opInfoPtr->m_OperationGuid == opGuid)
       return opInfoPtr.Borrow();
   }
 

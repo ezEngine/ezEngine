@@ -15,8 +15,8 @@ namespace ezProcGenInternal
     PlacementTile(PlacementTile&& other);
     ~PlacementTile();
 
-    void Initialize(const PlacementTileDesc& desc, ezSharedPtr<const PlacementOutput>& pOutput);
-    void Deinitialize(ezWorld& world);
+    void Initialize(const PlacementTileDesc& desc, ezSharedPtr<const PlacementOutput>& ref_pOutput);
+    void Deinitialize(ezWorld& ref_world);
 
     bool IsValid() const;
 
@@ -26,9 +26,9 @@ namespace ezProcGenInternal
     ezBoundingBox GetBoundingBox() const;
     ezColor GetDebugColor() const;
 
-    void PreparePlacementData(const ezWorld* pWorld, const ezPhysicsWorldModuleInterface* pPhysicsModule, PlacementData& placementData);
+    void PreparePlacementData(const ezWorld* pWorld, const ezPhysicsWorldModuleInterface* pPhysicsModule, PlacementData& ref_placementData);
 
-    ezUInt32 PlaceObjects(ezWorld& world, ezArrayPtr<const PlacementTransform> objectTransforms);
+    ezUInt32 PlaceObjects(ezWorld& ref_world, ezArrayPtr<const PlacementTransform> objectTransforms);
 
   private:
     PlacementTileDesc m_Desc;

@@ -117,7 +117,7 @@ ezInt32 ezEventTrack::FindControlPointBefore(ezTime x) const
   return -1;
 }
 
-void ezEventTrack::Sample(ezTime rangeStart, ezTime rangeEnd, ezDynamicArray<ezHashedString>& out_Events) const
+void ezEventTrack::Sample(ezTime rangeStart, ezTime rangeEnd, ezDynamicArray<ezHashedString>& out_events) const
 {
   if (m_ControlPoints.IsEmpty())
     return;
@@ -137,7 +137,7 @@ void ezEventTrack::Sample(ezTime rangeStart, ezTime rangeEnd, ezDynamicArray<ezH
     {
       const ezHashedString& sEvent = m_Events[m_ControlPoints[curCpIdx].m_uiEvent];
 
-      out_Events.PushBack(sEvent);
+      out_events.PushBack(sEvent);
 
       ++curCpIdx;
     }
@@ -150,14 +150,14 @@ void ezEventTrack::Sample(ezTime rangeStart, ezTime rangeEnd, ezDynamicArray<ezH
     {
       const ezHashedString& sEvent = m_Events[m_ControlPoints[curCpIdx].m_uiEvent];
 
-      out_Events.PushBack(sEvent);
+      out_events.PushBack(sEvent);
 
       --curCpIdx;
     }
   }
 }
 
-void ezEventTrack::Save(ezStreamWriter& stream) const
+void ezEventTrack::Save(ezStreamWriter& inout_stream) const
 {
   if (m_bSort)
   {
@@ -166,49 +166,49 @@ void ezEventTrack::Save(ezStreamWriter& stream) const
   }
 
   ezUInt8 uiVersion = 1;
-  stream << uiVersion;
+  inout_stream << uiVersion;
 
-  stream << m_Events.GetCount();
+  inout_stream << m_Events.GetCount();
   for (const ezHashedString& name : m_Events)
   {
-    stream << name.GetString();
+    inout_stream << name.GetString();
   }
 
-  stream << m_ControlPoints.GetCount();
+  inout_stream << m_ControlPoints.GetCount();
   for (const ControlPoint& cp : m_ControlPoints)
   {
-    stream << cp.m_Time;
-    stream << cp.m_uiEvent;
+    inout_stream << cp.m_Time;
+    inout_stream << cp.m_uiEvent;
   }
 }
 
-void ezEventTrack::Load(ezStreamReader& stream)
+void ezEventTrack::Load(ezStreamReader& inout_stream)
 {
   // don't rely on the data being sorted
   m_bSort = true;
 
   ezUInt8 uiVersion = 0;
-  stream >> uiVersion;
+  inout_stream >> uiVersion;
 
   EZ_ASSERT_DEV(uiVersion == 1, "Invalid event track version {0}", uiVersion);
 
   ezUInt32 count = 0;
   ezStringBuilder tmp;
 
-  stream >> count;
+  inout_stream >> count;
   m_Events.SetCount(count);
   for (ezHashedString& name : m_Events)
   {
-    stream >> tmp;
+    inout_stream >> tmp;
     name.Assign(tmp);
   }
 
-  stream >> count;
+  inout_stream >> count;
   m_ControlPoints.SetCount(count);
   for (ControlPoint& cp : m_ControlPoints)
   {
-    stream >> cp.m_Time;
-    stream >> cp.m_uiEvent;
+    inout_stream >> cp.m_Time;
+    inout_stream >> cp.m_uiEvent;
   }
 }
 

@@ -34,21 +34,21 @@ ezSpatialData::Category RtsSelectableComponent::s_SelectableCategory = ezSpatial
 RtsSelectableComponent::RtsSelectableComponent() = default;
 RtsSelectableComponent::~RtsSelectableComponent() = default;
 
-void RtsSelectableComponent::SerializeComponent(ezWorldWriter& stream) const
+void RtsSelectableComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s << m_fSelectionRadius;
 }
 
-void RtsSelectableComponent::DeserializeComponent(ezWorldReader& stream)
+void RtsSelectableComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s >> m_fSelectionRadius;
 }
@@ -60,13 +60,13 @@ void RtsSelectableComponent::OnActivated()
 }
 
 // BEGIN-DOCS-CODE-SNIPPET: spatial-bounds-update
-void RtsSelectableComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
+void RtsSelectableComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& ref_msg)
 {
   ezBoundingBoxSphere bounds;
   bounds.m_fSphereRadius = m_fSelectionRadius;
   bounds.m_vCenter.SetZero();
   bounds.m_vBoxHalfExtends.Set(m_fSelectionRadius);
 
-  msg.AddBounds(bounds, s_SelectableCategory);
+  ref_msg.AddBounds(bounds, s_SelectableCategory);
 }
 // END-DOCS-CODE-SNIPPET

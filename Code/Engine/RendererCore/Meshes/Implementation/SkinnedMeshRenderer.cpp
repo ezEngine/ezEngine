@@ -14,9 +14,9 @@ ezUInt32 ezSkinnedMeshRenderer::s_uiSkinningBufferUpdates = 0;
 ezSkinnedMeshRenderer::ezSkinnedMeshRenderer() = default;
 ezSkinnedMeshRenderer::~ezSkinnedMeshRenderer() = default;
 
-void ezSkinnedMeshRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types) const
+void ezSkinnedMeshRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& ref_types) const
 {
-  types.PushBack(ezGetStaticRTTI<ezSkinnedMeshRenderData>());
+  ref_types.PushBack(ezGetStaticRTTI<ezSkinnedMeshRenderData>());
 }
 
 void ezSkinnedMeshRenderer::SetAdditionalData(const ezRenderViewContext& renderViewContext, const ezMeshRenderData* pRenderData) const

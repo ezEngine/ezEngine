@@ -12,9 +12,9 @@ namespace ezRmlUiInternal
   class EventListener final : public Rml::EventListener
   {
   public:
-    virtual void ProcessEvent(Rml::Event& event) override;
+    virtual void ProcessEvent(Rml::Event& ref_event) override;
 
-    virtual void OnDetach(Rml::Element* element) override;
+    virtual void OnDetach(Rml::Element* pElement) override;
 
   private:
     friend class EventListenerInstancer;
@@ -28,9 +28,9 @@ namespace ezRmlUiInternal
     EventListenerInstancer();
     ~EventListenerInstancer();
 
-    virtual Rml::EventListener* InstanceEventListener(const Rml::String& value, Rml::Element* element) override;
+    virtual Rml::EventListener* InstanceEventListener(const Rml::String& value, Rml::Element* pElement) override;
 
-    void ReturnToPool(EventListener& listener);
+    void ReturnToPool(EventListener& ref_listener);
 
   private:
     ezDeque<EventListener> m_EventListenerPool;

@@ -122,13 +122,13 @@ void ezSetAssertHandler(ezAssertHandler handler)
   g_AssertHandler = handler;
 }
 
-bool ezFailedCheck(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* msg)
+bool ezFailedCheck(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szMsg)
 {
   // always do a debug-break if no assert handler is installed
   if (g_AssertHandler == nullptr)
     return true;
 
-  return (*g_AssertHandler)(szSourceFile, uiLine, szFunction, szExpression, msg);
+  return (*g_AssertHandler)(szSourceFile, uiLine, szFunction, szExpression, szMsg);
 }
 
 bool ezFailedCheck(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const class ezFormatString& msg)

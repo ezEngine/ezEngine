@@ -23,7 +23,7 @@ public:
 
   /// \brief Call this method to begin collecting type version info. You need to use the returned stream writer for subsequent serialization operations until
   /// End() is called.
-  ezStreamWriter& Begin(ezStreamWriter& originalStream);
+  ezStreamWriter& Begin(ezStreamWriter& ref_originalStream);
 
   /// \brief Ends the type version collection and writes the data to the original stream.
   ezResult End();
@@ -33,7 +33,7 @@ public:
 
   /// \brief Manually write the version table to the given stream.
   /// Can be used instead of Begin()/End() if all necessary types are available in one place anyways.
-  void WriteTypeVersions(ezStreamWriter& stream) const;
+  void WriteTypeVersions(ezStreamWriter& inout_stream) const;
 
   /// \brief Returns the original stream that was passed to Begin().
   ezStreamWriter& GetOriginalStream() { return *m_pOriginalStream; }
@@ -54,7 +54,7 @@ class EZ_FOUNDATION_DLL ezTypeVersionReadContext : public ezSerializationContext
 
 public:
   /// \brief Reads the type version table from the stream
-  ezTypeVersionReadContext(ezStreamReader& stream);
+  ezTypeVersionReadContext(ezStreamReader& inout_stream);
   ~ezTypeVersionReadContext();
 
   ezUInt32 GetTypeVersion(const ezRTTI* pRtti) const;

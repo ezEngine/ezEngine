@@ -126,9 +126,9 @@ ezRmlUi::~ezRmlUi()
   Rml::Shutdown();
 }
 
-ezRmlUiContext* ezRmlUi::CreateContext(const char* szName, const ezVec2U32& initialSize)
+ezRmlUiContext* ezRmlUi::CreateContext(const char* szName, const ezVec2U32& vInitialSize)
 {
-  ezRmlUiContext* pContext = static_cast<ezRmlUiContext*>(Rml::CreateContext(szName, Rml::Vector2i(initialSize.x, initialSize.y)));
+  ezRmlUiContext* pContext = static_cast<ezRmlUiContext*>(Rml::CreateContext(szName, Rml::Vector2i(vInitialSize.x, vInitialSize.y)));
 
   m_pData->m_Contexts.PushBack(pContext);
 
@@ -153,18 +153,18 @@ bool ezRmlUi::AnyContextWantsInput()
   return false;
 }
 
-void ezRmlUi::ExtractContext(ezRmlUiContext& context, ezMsgExtractRenderData& msg)
+void ezRmlUi::ExtractContext(ezRmlUiContext& ref_context, ezMsgExtractRenderData& ref_msg)
 {
-  if (context.HasDocument() == false)
+  if (ref_context.HasDocument() == false)
     return;
 
   // Unfortunately we need to hold a lock for the whole extraction of a context since RmlUi is not thread safe.
   EZ_LOCK(m_pData->m_ExtractionMutex);
 
-  context.ExtractRenderData(m_pData->m_Extractor);
+  ref_context.ExtractRenderData(m_pData->m_Extractor);
 
-  if (context.m_pRenderData != nullptr)
+  if (ref_context.m_pRenderData != nullptr)
   {
-    msg.AddRenderData(context.m_pRenderData, ezDefaultRenderDataCategories::GUI, ezRenderData::Caching::Never);
+    ref_msg.AddRenderData(ref_context.m_pRenderData, ezDefaultRenderDataCategories::GUI, ezRenderData::Caching::Never);
   }
 }

@@ -9,7 +9,7 @@
 #include <Foundation/Threading/TaskSystem.h>
 
 
-ezTaskGroupID ezTaskSystem::CreateTaskGroup(ezTaskPriority::Enum Priority, ezOnTaskGroupFinishedCallback callback)
+ezTaskGroupID ezTaskSystem::CreateTaskGroup(ezTaskPriority::Enum priority, ezOnTaskGroupFinishedCallback callback)
 {
   EZ_LOCK(s_TaskSystemMutex);
 
@@ -30,7 +30,7 @@ ezTaskGroupID ezTaskSystem::CreateTaskGroup(ezTaskPriority::Enum Priority, ezOnT
 
 foundtaskgroup:
 
-  s_pState->m_TaskGroups[i].Reuse(Priority, callback);
+  s_pState->m_TaskGroups[i].Reuse(priority, callback);
 
   ezTaskGroupID id;
   id.m_pTaskGroup = &s_pState->m_TaskGroups[i];
@@ -51,14 +51,14 @@ void ezTaskSystem::AddTaskToGroup(ezTaskGroupID groupID, const ezSharedPtr<ezTas
   groupID.m_pTaskGroup->m_Tasks.PushBack(pTask);
 }
 
-void ezTaskSystem::AddTaskGroupDependency(ezTaskGroupID groupID, ezTaskGroupID DependsOn)
+void ezTaskSystem::AddTaskGroupDependency(ezTaskGroupID groupID, ezTaskGroupID dependsOn)
 {
-  EZ_ASSERT_DEBUG(DependsOn.IsValid(), "Invalid dependency");
-  EZ_ASSERT_DEBUG(groupID.m_pTaskGroup != DependsOn.m_pTaskGroup || groupID.m_uiGroupCounter != DependsOn.m_uiGroupCounter, "Group cannot depend on itselfs");
+  EZ_ASSERT_DEBUG(dependsOn.IsValid(), "Invalid dependency");
+  EZ_ASSERT_DEBUG(groupID.m_pTaskGroup != dependsOn.m_pTaskGroup || groupID.m_uiGroupCounter != dependsOn.m_uiGroupCounter, "Group cannot depend on itselfs");
 
   ezTaskGroup::DebugCheckTaskGroup(groupID, s_TaskSystemMutex);
 
-  groupID.m_pTaskGroup->m_DependsOnGroups.PushBack(DependsOn);
+  groupID.m_pTaskGroup->m_DependsOnGroups.PushBack(dependsOn);
 }
 
 void ezTaskSystem::AddTaskGroupDependencyBatch(ezArrayPtr<const ezTaskGroupDependency> batch)
@@ -126,10 +126,10 @@ void ezTaskSystem::StartTaskGroupBatch(ezArrayPtr<const ezTaskGroupID> batch)
   }
 }
 
-bool ezTaskSystem::IsTaskGroupFinished(ezTaskGroupID Group)
+bool ezTaskSystem::IsTaskGroupFinished(ezTaskGroupID group)
 {
   // if the counters differ, the task group has been reused since the GroupID was created, so that group has finished
-  return (Group.m_pTaskGroup == nullptr) || (Group.m_pTaskGroup->m_uiGroupCounter != Group.m_uiGroupCounter);
+  return (group.m_pTaskGroup == nullptr) || (group.m_pTaskGroup->m_uiGroupCounter != group.m_uiGroupCounter);
 }
 
 void ezTaskSystem::ScheduleGroupTasks(ezTaskGroup* pGroup, bool bHighPriority)
@@ -235,9 +235,9 @@ void ezTaskSystem::DependencyHasFinished(ezTaskGroup* pGroup)
   }
 }
 
-ezResult ezTaskSystem::CancelGroup(ezTaskGroupID Group, ezOnTaskRunning::Enum OnTaskRunning)
+ezResult ezTaskSystem::CancelGroup(ezTaskGroupID group, ezOnTaskRunning::Enum onTaskRunning)
 {
-  if (ezTaskSystem::IsTaskGroupFinished(Group))
+  if (ezTaskSystem::IsTaskGroupFinished(group))
     return EZ_SUCCESS;
 
   EZ_PROFILE_SCOPE("CancelGroup");
@@ -246,7 +246,7 @@ ezResult ezTaskSystem::CancelGroup(ezTaskGroupID Group, ezOnTaskRunning::Enum On
 
   ezResult res = EZ_SUCCESS;
 
-  auto TasksCopy = Group.m_pTaskGroup->m_Tasks;
+  auto TasksCopy = group.m_pTaskGroup->m_Tasks;
 
   // first cancel ALL the tasks in the group, without waiting for anything
   for (ezUInt32 task = 0; task < TasksCopy.GetCount(); ++task)
@@ -259,7 +259,7 @@ ezResult ezTaskSystem::CancelGroup(ezTaskGroupID Group, ezOnTaskRunning::Enum On
 
   // if all tasks could be removed without problems, we do not need to try it again with blocking
 
-  if (OnTaskRunning == ezOnTaskRunning::WaitTillFinished && res == EZ_FAILURE)
+  if (onTaskRunning == ezOnTaskRunning::WaitTillFinished && res == EZ_FAILURE)
   {
     // now cancel the tasks in the group again, this time wait for those that are already running
     for (ezUInt32 task = 0; task < TasksCopy.GetCount(); ++task)
@@ -271,7 +271,7 @@ ezResult ezTaskSystem::CancelGroup(ezTaskGroupID Group, ezOnTaskRunning::Enum On
   return res;
 }
 
-void ezTaskSystem::WaitForGroup(ezTaskGroupID Group)
+void ezTaskSystem::WaitForGroup(ezTaskGroupID group)
 {
   EZ_PROFILE_SCOPE("WaitForGroup");
 
@@ -280,9 +280,9 @@ void ezTaskSystem::WaitForGroup(ezTaskGroupID Group)
   const auto ThreadTaskType = tl_TaskWorkerInfo.m_WorkerType;
   const bool bAllowSleep = ThreadTaskType != ezWorkerThreadType::MainThread;
 
-  while (!ezTaskSystem::IsTaskGroupFinished(Group))
+  while (!ezTaskSystem::IsTaskGroupFinished(group))
   {
-    if (!HelpExecutingTasks(Group))
+    if (!HelpExecutingTasks(group))
     {
       if (bAllowSleep)
       {
@@ -295,7 +295,7 @@ void ezTaskSystem::WaitForGroup(ezTaskGroupID Group)
 
         WakeUpThreads(typeToWakeUp, 1);
 
-        Group.m_pTaskGroup->WaitForFinish(Group);
+        group.m_pTaskGroup->WaitForFinish(group);
 
         if (tl_TaskWorkerInfo.m_pWorkerState)
         {

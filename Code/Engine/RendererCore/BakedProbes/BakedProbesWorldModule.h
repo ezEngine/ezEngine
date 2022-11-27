@@ -27,7 +27,7 @@ public:
     float m_probeWeights[NumProbes];
   };
 
-  ezResult GetProbeIndexData(const ezVec3& globalPosition, const ezVec3& normal, ProbeIndexData& out_ProbeIndexData) const;
+  ezResult GetProbeIndexData(const ezVec3& vGlobalPosition, const ezVec3& vNormal, ProbeIndexData& out_probeIndexData) const;
 
   ezAmbientCube<float> GetSkyVisibility(const ProbeIndexData& indexData) const;
 

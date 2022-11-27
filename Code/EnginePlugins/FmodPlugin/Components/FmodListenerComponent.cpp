@@ -21,21 +21,21 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezFmodListenerComponent::ezFmodListenerComponent() = default;
 ezFmodListenerComponent::~ezFmodListenerComponent() = default;
 
-void ezFmodListenerComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezFmodListenerComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s << m_uiListenerIndex;
 }
 
-void ezFmodListenerComponent::DeserializeComponent(ezWorldReader& stream)
+void ezFmodListenerComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
+  SUPER::DeserializeComponent(inout_stream);
   // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s >> m_uiListenerIndex;
 }

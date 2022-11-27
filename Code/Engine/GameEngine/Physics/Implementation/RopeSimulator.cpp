@@ -6,9 +6,9 @@
 ezRopeSimulator::ezRopeSimulator() = default;
 ezRopeSimulator::~ezRopeSimulator() = default;
 
-void ezRopeSimulator::SimulateRope(const ezTime& tDiff)
+void ezRopeSimulator::SimulateRope(const ezTime& diff)
 {
-  m_LeftOverTimeStep += tDiff;
+  m_LeftOverTimeStep += diff;
 
   constexpr ezTime tStep = ezTime::Seconds(1.0 / 60.0);
   const ezSimdFloat tStepSqr = static_cast<float>(tStep.GetSeconds() * tStep.GetSeconds());
@@ -22,12 +22,12 @@ void ezRopeSimulator::SimulateRope(const ezTime& tDiff)
   }
 }
 
-void ezRopeSimulator::SimulateStep(const ezSimdFloat tDiffSqr, ezUInt32 uiMaxIterations, ezSimdFloat fAllowedError)
+void ezRopeSimulator::SimulateStep(const ezSimdFloat fDiffSqr, ezUInt32 uiMaxIterations, ezSimdFloat fAllowedError)
 {
   if (m_Nodes.GetCount() < 2)
     return;
 
-  UpdateNodePositions(tDiffSqr);
+  UpdateNodePositions(fDiffSqr);
 
   // repeatedly apply the distance constraint, until the overall error is low enough
   for (ezUInt32 i = 0; i < uiMaxIterations; ++i)

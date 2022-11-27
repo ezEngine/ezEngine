@@ -21,7 +21,7 @@ public:
   ezParticleRenderer();
   ~ezParticleRenderer();
 
-  virtual void GetSupportedRenderDataCategories(ezHybridArray<ezRenderData::Category, 8>& categories) const override;
+  virtual void GetSupportedRenderDataCategories(ezHybridArray<ezRenderData::Category, 8>& ref_categories) const override;
 
 protected:
   struct TempSystemCB
@@ -29,7 +29,7 @@ protected:
     TempSystemCB(ezRenderContext* pRenderContext);
     ~TempSystemCB();
 
-    void SetGenericData(bool bApplyObjectTransform, const ezTransform& ObjectTransform, ezTime effectLifeTime, ezUInt8 uiNumVariationsX,
+    void SetGenericData(bool bApplyObjectTransform, const ezTransform& objectTransform, ezTime effectLifeTime, ezUInt8 uiNumVariationsX,
       ezUInt8 uiNumVariationsY, ezUInt8 uiNumFlipbookAnimsX, ezUInt8 uiNumFlipbookAnimsY, float fDistortionStrength = 0);
     void SetTrailData(float fSnapshotFraction, ezInt32 iNumUsedTrailPoints);
 

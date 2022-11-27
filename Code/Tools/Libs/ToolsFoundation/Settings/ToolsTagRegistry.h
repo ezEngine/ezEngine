@@ -26,8 +26,8 @@ public:
   /// \brief Removes all tags that are not specified as 'built-in'
   static void Clear();
 
-  static void WriteToDDL(ezStreamWriter& stream);
-  static ezStatus ReadFromDDL(ezStreamReader& stream);
+  static void WriteToDDL(ezStreamWriter& inout_stream);
+  static ezStatus ReadFromDDL(ezStreamReader& inout_stream);
 
   static bool AddTag(const ezToolsTag& tag);
   static bool RemoveTag(const char* szName);

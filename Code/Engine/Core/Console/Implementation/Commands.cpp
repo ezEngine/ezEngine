@@ -3,15 +3,15 @@
 #include <Core/Console/QuakeConsole.h>
 #include <Foundation/Configuration/CVar.h>
 
-void ezQuakeConsole::ExecuteCommand(ezStringView input)
+void ezQuakeConsole::ExecuteCommand(ezStringView sInput)
 {
-  const bool bBind = input.StartsWith_NoCase("bind ");
-  const bool bUnbind = input.StartsWith_NoCase("unbind ");
+  const bool bBind = sInput.StartsWith_NoCase("bind ");
+  const bool bUnbind = sInput.StartsWith_NoCase("unbind ");
 
   if (bBind || bUnbind)
   {
     ezStringBuilder tmp;
-    const char* szAfterCmd = ezStringUtils::FindWordEnd(input.GetData(tmp), ezStringUtils::IsWhiteSpace); // skip the word 'bind' or 'unbind'
+    const char* szAfterCmd = ezStringUtils::FindWordEnd(sInput.GetData(tmp), ezStringUtils::IsWhiteSpace); // skip the word 'bind' or 'unbind'
 
     const char* szKeyNameStart = ezStringUtils::SkipCharacters(szAfterCmd, ezStringUtils::IsWhiteSpace);                // go to the next word
     const char* szKeyNameEnd = ezStringUtils::FindWordEnd(szKeyNameStart, ezStringUtils::IsIdentifierDelimiter_C_Code); // find its end
@@ -31,7 +31,7 @@ void ezQuakeConsole::ExecuteCommand(ezStringView input)
     return;
   }
 
-  ezConsole::ExecuteCommand(input);
+  ezConsole::ExecuteCommand(sInput);
 }
 
 void ezQuakeConsole::BindKey(const char* szKey, const char* szCommand)

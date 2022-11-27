@@ -28,17 +28,17 @@ EZ_END_ABSTRACT_COMPONENT_TYPE
 ezAgentSteeringComponent::ezAgentSteeringComponent() = default;
 ezAgentSteeringComponent::~ezAgentSteeringComponent() = default;
 
-void ezAgentSteeringComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezAgentSteeringComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
-  auto& s = stream.GetStream();
+  SUPER::SerializeComponent(inout_stream);
+  auto& s = inout_stream.GetStream();
 }
 
-void ezAgentSteeringComponent::DeserializeComponent(ezWorldReader& stream)
+void ezAgentSteeringComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
+  SUPER::DeserializeComponent(inout_stream);
   // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 }
 
 

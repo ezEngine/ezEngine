@@ -29,8 +29,8 @@ public:
 
   /// \brief Initializes the ezBlobPtr with the given pointer and number of elements. No memory is allocated or copied.
   template <typename U>
-  inline ezBlobPtr(U* ptr, ezUInt64 uiCount)
-    : m_pPtr(ptr)
+  inline ezBlobPtr(U* pPtr, ezUInt64 uiCount)
+    : m_pPtr(pPtr)
     , m_uiCount(uiCount)
   {
     // If any of the arguments is invalid, we invalidate ourself.
@@ -203,9 +203,9 @@ using ezConstByteBlobPtr = ezBlobPtr<const ezUInt8>;
 
 /// \brief Helper function to create ezBlobPtr from a pointer of some type and a count.
 template <typename T>
-EZ_ALWAYS_INLINE ezBlobPtr<T> ezMakeBlobPtr(T* ptr, ezUInt64 uiCount)
+EZ_ALWAYS_INLINE ezBlobPtr<T> ezMakeBlobPtr(T* pPtr, ezUInt64 uiCount)
 {
-  return ezBlobPtr<T>(ptr, uiCount);
+  return ezBlobPtr<T>(pPtr, uiCount);
 }
 
 /// \brief Helper function to create ezBlobPtr from a static array the a size known at compile-time.
@@ -217,36 +217,36 @@ EZ_ALWAYS_INLINE ezBlobPtr<T> ezMakeBlobPtr(T (&staticArray)[N])
 
 /// \brief Helper function to create ezConstByteBlobPtr from a pointer of some type and a count.
 template <typename T>
-EZ_ALWAYS_INLINE ezConstByteBlobPtr ezMakeByteBlobPtr(const T* ptr, ezUInt32 uiCount)
+EZ_ALWAYS_INLINE ezConstByteBlobPtr ezMakeByteBlobPtr(const T* pPtr, ezUInt32 uiCount)
 {
-  return ezConstByteBlobPtr(static_cast<const ezUInt8*>(ptr), uiCount * sizeof(T));
+  return ezConstByteBlobPtr(static_cast<const ezUInt8*>(pPtr), uiCount * sizeof(T));
 }
 
 /// \brief Helper function to create ezByteBlobPtr from a pointer of some type and a count.
 template <typename T>
-EZ_ALWAYS_INLINE ezByteBlobPtr ezMakeByteBlobPtr(T* ptr, ezUInt32 uiCount)
+EZ_ALWAYS_INLINE ezByteBlobPtr ezMakeByteBlobPtr(T* pPtr, ezUInt32 uiCount)
 {
-  return ezByteBlobPtr(reinterpret_cast<ezUInt8*>(ptr), uiCount * sizeof(T));
+  return ezByteBlobPtr(reinterpret_cast<ezUInt8*>(pPtr), uiCount * sizeof(T));
 }
 
 /// \brief Helper function to create ezByteBlobPtr from a void pointer and a count.
-EZ_ALWAYS_INLINE ezByteBlobPtr ezMakeByteBlobPtr(void* ptr, ezUInt32 uiBytes)
+EZ_ALWAYS_INLINE ezByteBlobPtr ezMakeByteBlobPtr(void* pPtr, ezUInt32 uiBytes)
 {
-  return ezByteBlobPtr(reinterpret_cast<ezUInt8*>(ptr), uiBytes);
+  return ezByteBlobPtr(reinterpret_cast<ezUInt8*>(pPtr), uiBytes);
 }
 
 /// \brief Helper function to create ezConstByteBlobPtr from a const void pointer and a count.
-EZ_ALWAYS_INLINE ezConstByteBlobPtr ezMakeByteBlobPtr(const void* ptr, ezUInt32 uiBytes)
+EZ_ALWAYS_INLINE ezConstByteBlobPtr ezMakeByteBlobPtr(const void* pPtr, ezUInt32 uiBytes)
 {
-  return ezConstByteBlobPtr(static_cast<const ezUInt8*>(ptr), uiBytes);
+  return ezConstByteBlobPtr(static_cast<const ezUInt8*>(pPtr), uiBytes);
 }
 
 //////////////////////////////////////////////////////////////////////////
 
 template <typename T>
-typename ezBlobPtr<T>::iterator begin(ezBlobPtr<T>& container)
+typename ezBlobPtr<T>::iterator begin(ezBlobPtr<T>& in_container)
 {
-  return container.GetPtr();
+  return in_container.GetPtr();
 }
 
 template <typename T>
@@ -262,9 +262,9 @@ typename ezBlobPtr<T>::const_iterator cbegin(const ezBlobPtr<T>& container)
 }
 
 template <typename T>
-typename ezBlobPtr<T>::reverse_iterator rbegin(ezBlobPtr<T>& container)
+typename ezBlobPtr<T>::reverse_iterator rbegin(ezBlobPtr<T>& in_container)
 {
-  return typename ezBlobPtr<T>::reverse_iterator(container.GetPtr() + container.GetCount() - 1);
+  return typename ezBlobPtr<T>::reverse_iterator(in_container.GetPtr() + in_container.GetCount() - 1);
 }
 
 template <typename T>
@@ -280,9 +280,9 @@ typename ezBlobPtr<T>::const_reverse_iterator crbegin(const ezBlobPtr<T>& contai
 }
 
 template <typename T>
-typename ezBlobPtr<T>::iterator end(ezBlobPtr<T>& container)
+typename ezBlobPtr<T>::iterator end(ezBlobPtr<T>& in_container)
 {
-  return container.GetPtr() + container.GetCount();
+  return in_container.GetPtr() + in_container.GetCount();
 }
 
 template <typename T>
@@ -298,9 +298,9 @@ typename ezBlobPtr<T>::const_iterator cend(const ezBlobPtr<T>& container)
 }
 
 template <typename T>
-typename ezBlobPtr<T>::reverse_iterator rend(ezBlobPtr<T>& container)
+typename ezBlobPtr<T>::reverse_iterator rend(ezBlobPtr<T>& in_container)
 {
-  return typename ezBlobPtr<T>::reverse_iterator(container.GetPtr() - 1);
+  return typename ezBlobPtr<T>::reverse_iterator(in_container.GetPtr() - 1);
 }
 
 template <typename T>

@@ -84,10 +84,10 @@ void ezJoltDefaultCharacterComponent::OnApplyRootMotion(ezMsgApplyRootMotion& ms
   m_InputRotateZ += msg.m_RotationZ;
 }
 
-void ezJoltDefaultCharacterComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezJoltDefaultCharacterComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
-  auto& s = stream.GetStream();
+  SUPER::SerializeComponent(inout_stream);
+  auto& s = inout_stream.GetStream();
 
   s << m_RotateSpeed;
   s << m_fShapeRadius;
@@ -107,14 +107,14 @@ void ezJoltDefaultCharacterComponent::SerializeComponent(ezWorldWriter& stream) 
   s << m_fAirSpeed;
   s << m_fFootRadius;
 
-  stream.WriteGameObjectHandle(m_hHeadObject);
+  inout_stream.WriteGameObjectHandle(m_hHeadObject);
 }
 
-void ezJoltDefaultCharacterComponent::DeserializeComponent(ezWorldReader& stream)
+void ezJoltDefaultCharacterComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  auto& s = stream.GetStream();
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  auto& s = inout_stream.GetStream();
 
   s >> m_RotateSpeed;
   s >> m_fShapeRadius;
@@ -134,7 +134,7 @@ void ezJoltDefaultCharacterComponent::DeserializeComponent(ezWorldReader& stream
   s >> m_fAirSpeed;
   s >> m_fFootRadius;
 
-  m_hHeadObject = stream.ReadGameObjectHandle();
+  m_hHeadObject = inout_stream.ReadGameObjectHandle();
 
   ResetInternalState();
 }
@@ -167,27 +167,27 @@ void ezJoltDefaultCharacterComponent::ResetInputState()
   m_vAbsoluteRootMotion.SetZero();
 }
 
-void ezJoltDefaultCharacterComponent::SetInputState(ezMsgMoveCharacterController& msg)
+void ezJoltDefaultCharacterComponent::SetInputState(ezMsgMoveCharacterController& ref_msg)
 {
-  const float fDistanceToMove = ezMath::Max(ezMath::Abs((float)(msg.m_fMoveForwards - msg.m_fMoveBackwards)), ezMath::Abs((float)(msg.m_fStrafeRight - msg.m_fStrafeLeft)));
+  const float fDistanceToMove = ezMath::Max(ezMath::Abs((float)(ref_msg.m_fMoveForwards - ref_msg.m_fMoveBackwards)), ezMath::Abs((float)(ref_msg.m_fStrafeRight - ref_msg.m_fStrafeLeft)));
 
-  m_vInputDirection += ezVec2((float)(msg.m_fMoveForwards - msg.m_fMoveBackwards), (float)(msg.m_fStrafeRight - msg.m_fStrafeLeft));
+  m_vInputDirection += ezVec2((float)(ref_msg.m_fMoveForwards - ref_msg.m_fMoveBackwards), (float)(ref_msg.m_fStrafeRight - ref_msg.m_fStrafeLeft));
   m_vInputDirection.NormalizeIfNotZero(ezVec2::ZeroVector()).IgnoreResult();
   m_vInputDirection *= fDistanceToMove;
 
-  m_InputRotateZ += m_RotateSpeed * (float)(msg.m_fRotateRight - msg.m_fRotateLeft);
+  m_InputRotateZ += m_RotateSpeed * (float)(ref_msg.m_fRotateRight - ref_msg.m_fRotateLeft);
 
-  if (msg.m_bRun)
+  if (ref_msg.m_bRun)
   {
     m_uiInputRunBit = 1;
   }
 
-  if (msg.m_bJump)
+  if (ref_msg.m_bJump)
   {
     m_uiInputJumpBit = 1;
   }
 
-  if (msg.m_bCrouch)
+  if (ref_msg.m_bCrouch)
   {
     m_uiInputCrouchBit = 1;
   }
@@ -502,7 +502,7 @@ void ezJoltDefaultCharacterComponent::CheckFeet()
   }
 }
 
-void ezJoltDefaultCharacterComponent::DetermineConfig(Config& out_Inputs)
+void ezJoltDefaultCharacterComponent::DetermineConfig(Config& out_inputs)
 {
   // velocity
   {
@@ -537,7 +537,7 @@ void ezJoltDefaultCharacterComponent::DetermineConfig(Config& out_Inputs)
         break;
     }
 
-    out_Inputs.m_vVelocity = GetOwner()->GetGlobalRotation() * m_vInputDirection.GetAsVec3(0) * fSpeed;
+    out_inputs.m_vVelocity = GetOwner()->GetGlobalRotation() * m_vInputDirection.GetAsVec3(0) * fSpeed;
   }
 
   // ground interaction
@@ -545,8 +545,8 @@ void ezJoltDefaultCharacterComponent::DetermineConfig(Config& out_Inputs)
     switch (GetGroundState())
     {
       case ezJoltDefaultCharacterComponent::GroundState::OnGround:
-        out_Inputs.m_sGroundInteraction = (m_uiInputRunBit == 1) ? m_sWalkSurfaceInteraction : m_sWalkSurfaceInteraction; // TODO: run interaction
-        out_Inputs.m_fGroundInteractionDistanceThreshold = (m_uiInputRunBit == 1) ? m_fRunInteractionDistance : m_fWalkInteractionDistance;
+        out_inputs.m_sGroundInteraction = (m_uiInputRunBit == 1) ? m_sWalkSurfaceInteraction : m_sWalkSurfaceInteraction; // TODO: run interaction
+        out_inputs.m_fGroundInteractionDistanceThreshold = (m_uiInputRunBit == 1) ? m_fRunInteractionDistance : m_fWalkInteractionDistance;
         break;
 
       case ezJoltDefaultCharacterComponent::GroundState::Sliding:
@@ -558,12 +558,12 @@ void ezJoltDefaultCharacterComponent::DetermineConfig(Config& out_Inputs)
     }
   }
 
-  out_Inputs.m_bAllowCrouch = true;
-  out_Inputs.m_bAllowJump = (GetGroundState() == GroundState::OnGround) && !IsCrouching() && m_bFeetOnSolidGround;
-  out_Inputs.m_bApplyGroundVelocity = true;
-  out_Inputs.m_fPushDownForce = GetMass();
-  out_Inputs.m_fMaxStepUp = (m_bFeetOnSolidGround && !out_Inputs.m_vVelocity.IsZero()) ? m_fMaxStepUp : 0.0f;
-  out_Inputs.m_fMaxStepDown = ((GetGroundState() == GroundState::OnGround) || (GetGroundState() == GroundState::Sliding)) && m_bFeetOnSolidGround ? m_fMaxStepDown : 0.0f;
+  out_inputs.m_bAllowCrouch = true;
+  out_inputs.m_bAllowJump = (GetGroundState() == GroundState::OnGround) && !IsCrouching() && m_bFeetOnSolidGround;
+  out_inputs.m_bApplyGroundVelocity = true;
+  out_inputs.m_fPushDownForce = GetMass();
+  out_inputs.m_fMaxStepUp = (m_bFeetOnSolidGround && !out_inputs.m_vVelocity.IsZero()) ? m_fMaxStepUp : 0.0f;
+  out_inputs.m_fMaxStepDown = ((GetGroundState() == GroundState::OnGround) || (GetGroundState() == GroundState::Sliding)) && m_bFeetOnSolidGround ? m_fMaxStepDown : 0.0f;
 }
 
 void ezJoltDefaultCharacterComponent::UpdateCharacter()

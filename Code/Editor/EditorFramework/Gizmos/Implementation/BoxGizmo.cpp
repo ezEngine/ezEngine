@@ -218,9 +218,9 @@ ezEditorInput ezBoxGizmo::DoMouseMoveEvent(QMouseEvent* e)
   return ezEditorInput::WasExclusivelyHandled;
 }
 
-void ezBoxGizmo::SetSize(const ezVec3& size)
+void ezBoxGizmo::SetSize(const ezVec3& vSize)
 {
-  m_vSize = size;
+  m_vSize = vSize;
 
   // update the scale
   OnTransformationChanged(GetTransformation());

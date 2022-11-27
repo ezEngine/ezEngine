@@ -59,18 +59,18 @@ inline double ezClock::GetSpeed() const
   return m_fSpeed;
 }
 
-inline void ezClock::SetMinimumTimeStep(ezTime tMin)
+inline void ezClock::SetMinimumTimeStep(ezTime min)
 {
-  EZ_ASSERT_DEV(tMin >= ezTime::Seconds(0.0), "Time flows in one direction only.");
+  EZ_ASSERT_DEV(min >= ezTime::Seconds(0.0), "Time flows in one direction only.");
 
-  m_MinTimeStep = tMin;
+  m_MinTimeStep = min;
 }
 
-inline void ezClock::SetMaximumTimeStep(ezTime tMax)
+inline void ezClock::SetMaximumTimeStep(ezTime max)
 {
-  EZ_ASSERT_DEV(tMax >= ezTime::Seconds(0.0), "Time flows in one direction only.");
+  EZ_ASSERT_DEV(max >= ezTime::Seconds(0.0), "Time flows in one direction only.");
 
-  m_MaxTimeStep = tMax;
+  m_MaxTimeStep = max;
 }
 
 inline ezTime ezClock::GetMinimumTimeStep() const
@@ -83,11 +83,11 @@ inline ezTime ezClock::GetMaximumTimeStep() const
   return m_MaxTimeStep;
 }
 
-inline void ezClock::SetFixedTimeStep(ezTime tDiff)
+inline void ezClock::SetFixedTimeStep(ezTime diff)
 {
   EZ_ASSERT_DEV(m_FixedTimeStep.GetSeconds() >= 0.0, "Fixed Time Stepping cannot reverse time!");
 
-  m_FixedTimeStep = tDiff;
+  m_FixedTimeStep = diff;
 }
 
 inline void ezClock::SetSpeed(double fFactor)

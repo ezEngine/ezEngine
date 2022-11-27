@@ -102,8 +102,8 @@ public:
   static void DeregisterAllocator(ezAllocatorId allocatorId);
 
   static void AddAllocation(
-    ezAllocatorId allocatorId, ezBitflags<ezMemoryTrackingFlags> flags, const void* ptr, size_t uiSize, size_t uiAlign, ezTime allocationTime);
-  static void RemoveAllocation(ezAllocatorId allocatorId, const void* ptr);
+    ezAllocatorId allocatorId, ezBitflags<ezMemoryTrackingFlags> flags, const void* pPtr, size_t uiSize, size_t uiAlign, ezTime allocationTime);
+  static void RemoveAllocation(ezAllocatorId allocatorId, const void* pPtr);
   static void RemoveAllAllocations(ezAllocatorId allocatorId);
   static void SetAllocatorStats(ezAllocatorId allocatorId, const ezAllocatorBase::Stats& stats);
 
@@ -112,7 +112,7 @@ public:
   static const char* GetAllocatorName(ezAllocatorId allocatorId);
   static const ezAllocatorBase::Stats& GetAllocatorStats(ezAllocatorId allocatorId);
   static ezAllocatorId GetAllocatorParentId(ezAllocatorId allocatorId);
-  static const AllocationInfo& GetAllocationInfo(ezAllocatorId allocatorId, const void* ptr);
+  static const AllocationInfo& GetAllocationInfo(ezAllocatorId allocatorId, const void* pPtr);
 
   static void DumpMemoryLeaks();
 

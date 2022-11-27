@@ -17,7 +17,7 @@ class EZ_GUIFOUNDATION_DLL ezQtMenuBarActionMapView : public QMenuBar
   EZ_DISALLOW_COPY_AND_ASSIGN(ezQtMenuBarActionMapView);
 
 public:
-  explicit ezQtMenuBarActionMapView(QWidget* parent);
+  explicit ezQtMenuBarActionMapView(QWidget* pParent);
   ~ezQtMenuBarActionMapView();
 
   void SetActionContext(const ezActionContext& context);

@@ -70,7 +70,7 @@ public:
   /// \brief Asserts that the function succeeded. In case of failure, the program will terminate.
   ///
   /// If \a msg is given, this will be the assert message. If \a details is provided, \a msg should contain a formatting element ({}), e.g. "Error: {}".
-  void AssertSuccess(const char* msg = nullptr, const char* details = nullptr) const;
+  void AssertSuccess(const char* szMsg = nullptr, const char* szDetails = nullptr) const;
 
 private:
   ezResultEnum m_E;

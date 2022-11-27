@@ -13,7 +13,7 @@ class ezQtFileserveMainWnd : public QMainWindow
 {
   Q_OBJECT
 public:
-  ezQtFileserveMainWnd(ezApplication* pApp, QWidget* parent = nullptr);
+  ezQtFileserveMainWnd(ezApplication* pApp, QWidget* pParent = nullptr);
 
 private Q_SLOTS:
   void UpdateNetworkSlot();

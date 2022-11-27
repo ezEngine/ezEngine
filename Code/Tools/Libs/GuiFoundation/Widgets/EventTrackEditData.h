@@ -13,9 +13,9 @@ class EZ_GUIFOUNDATION_DLL ezEventTrackControlPointData : public ezReflectedClas
 
 public:
   ezTime GetTickAsTime() const { return ezTime::Seconds(m_iTick / 4800.0); }
-  void SetTickFromTime(ezTime time, ezInt64 fps);
+  void SetTickFromTime(ezTime time, ezInt64 iFps);
   const char* GetEventName() const { return m_sEvent.GetData(); }
-  void SetEventName(const char* sz) { m_sEvent.Assign(sz); }
+  void SetEventName(const char* szSz) { m_sEvent.Assign(szSz); }
 
   ezInt64 m_iTick; // 4800 ticks per second
   ezHashedString m_sEvent;
@@ -27,7 +27,7 @@ class EZ_GUIFOUNDATION_DLL ezEventTrackData : public ezReflectedClass
 
 public:
   ezInt64 TickFromTime(ezTime time) const;
-  void ConvertToRuntimeData(ezEventTrack& out_Result) const;
+  void ConvertToRuntimeData(ezEventTrack& out_result) const;
 
   ezUInt16 m_uiFramesPerSecond = 60;
   ezDynamicArray<ezEventTrackControlPointData> m_ControlPoints;

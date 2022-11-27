@@ -44,18 +44,18 @@ ezSpriteRenderer::ezSpriteRenderer()
 
 ezSpriteRenderer::~ezSpriteRenderer() {}
 
-void ezSpriteRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types) const
+void ezSpriteRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& ref_types) const
 {
-  types.PushBack(ezGetStaticRTTI<ezSpriteRenderData>());
+  ref_types.PushBack(ezGetStaticRTTI<ezSpriteRenderData>());
 }
 
-void ezSpriteRenderer::GetSupportedRenderDataCategories(ezHybridArray<ezRenderData::Category, 8>& categories) const
+void ezSpriteRenderer::GetSupportedRenderDataCategories(ezHybridArray<ezRenderData::Category, 8>& ref_categories) const
 {
-  categories.PushBack(ezDefaultRenderDataCategories::LitMasked);
-  categories.PushBack(ezDefaultRenderDataCategories::LitTransparent);
-  categories.PushBack(ezDefaultRenderDataCategories::SimpleOpaque);
-  categories.PushBack(ezDefaultRenderDataCategories::SimpleTransparent);
-  categories.PushBack(ezDefaultRenderDataCategories::Selection);
+  ref_categories.PushBack(ezDefaultRenderDataCategories::LitMasked);
+  ref_categories.PushBack(ezDefaultRenderDataCategories::LitTransparent);
+  ref_categories.PushBack(ezDefaultRenderDataCategories::SimpleOpaque);
+  ref_categories.PushBack(ezDefaultRenderDataCategories::SimpleTransparent);
+  ref_categories.PushBack(ezDefaultRenderDataCategories::Selection);
 }
 
 void ezSpriteRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const

@@ -95,7 +95,7 @@ struct ezWorkerThreadType
     ENUM_COUNT
   };
 
-  static const char* GetThreadTypeName(ezWorkerThreadType::Enum ThreadType);
+  static const char* GetThreadTypeName(ezWorkerThreadType::Enum threadType);
 };
 
 /// \brief Given out by ezTaskSystem::CreateTaskGroup to identify a task group.

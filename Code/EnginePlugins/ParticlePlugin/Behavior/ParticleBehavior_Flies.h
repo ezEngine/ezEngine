@@ -13,10 +13,10 @@ public:
   virtual const ezRTTI* GetBehaviorType() const override;
   virtual void CopyBehaviorProperties(ezParticleBehavior* pObject, bool bFirstTime) const override;
 
-  virtual void QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_FinalizerDeps) const override;
+  virtual void QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_finalizerDeps) const override;
 
-  virtual void Save(ezStreamWriter& stream) const override;
-  virtual void Load(ezStreamReader& stream) override;
+  virtual void Save(ezStreamWriter& inout_stream) const override;
+  virtual void Load(ezStreamReader& inout_stream) override;
 
   float m_fSpeed = 0.2f;
   float m_fPathLength = 0.2f;

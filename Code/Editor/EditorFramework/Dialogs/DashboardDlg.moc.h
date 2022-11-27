@@ -18,7 +18,7 @@ public:
     Documentation
   };
 
-  ezQtDashboardDlg(QWidget* parent, DashboardTab activeTab = DashboardTab::Projects);
+  ezQtDashboardDlg(QWidget* pParent, DashboardTab activeTab = DashboardTab::Projects);
 
 private:
 

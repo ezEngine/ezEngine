@@ -48,10 +48,10 @@ ezPropertyAnimComponent::ezPropertyAnimComponent()
 
 ezPropertyAnimComponent::~ezPropertyAnimComponent() = default;
 
-void ezPropertyAnimComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezPropertyAnimComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
-  auto& s = stream.GetStream();
+  SUPER::SerializeComponent(inout_stream);
+  auto& s = inout_stream.GetStream();
 
   s << m_hPropertyAnim;
   s << m_AnimationMode;
@@ -67,11 +67,11 @@ void ezPropertyAnimComponent::SerializeComponent(ezWorldWriter& stream) const
   /// \todo Somehow store the animation state (not necessary for new scenes, but for quicksaves)
 }
 
-void ezPropertyAnimComponent::DeserializeComponent(ezWorldReader& stream)
+void ezPropertyAnimComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  auto& s = stream.GetStream();
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  auto& s = inout_stream.GetStream();
 
   s >> m_hPropertyAnim;
 
@@ -117,10 +117,10 @@ void ezPropertyAnimComponent::SetPropertyAnim(const ezPropertyAnimResourceHandle
   m_hPropertyAnim = hPropertyAnim;
 }
 
-void ezPropertyAnimComponent::PlayAnimationRange(ezTime RangeLow, ezTime RangeHigh)
+void ezPropertyAnimComponent::PlayAnimationRange(ezTime rangeLow, ezTime rangeHigh)
 {
-  m_AnimationRangeLow = RangeLow;
-  m_AnimationRangeHigh = RangeHigh;
+  m_AnimationRangeLow = rangeLow;
+  m_AnimationRangeHigh = rangeHigh;
 
   m_bPlaying = true;
 
@@ -128,9 +128,9 @@ void ezPropertyAnimComponent::PlayAnimationRange(ezTime RangeLow, ezTime RangeHi
 }
 
 
-void ezPropertyAnimComponent::OnMsgSetPlaying(ezMsgSetPlaying& msg)
+void ezPropertyAnimComponent::OnMsgSetPlaying(ezMsgSetPlaying& ref_msg)
 {
-  m_bPlaying = msg.m_bPlay;
+  m_bPlaying = ref_msg.m_bPlay;
 }
 
 void ezPropertyAnimComponent::CreatePropertyBindings()

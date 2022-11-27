@@ -14,84 +14,84 @@ namespace ezInternal
   template <typename T>
   struct WriteObjectHelper<T*>
   {
-    static const T* GetAddress(const T* obj) { return obj; }
+    static const T* GetAddress(const T* pObj) { return pObj; }
   };
 } // namespace ezInternal
 
 template <typename T>
-EZ_ALWAYS_INLINE ezResult ezDeduplicationWriteContext::WriteObject(ezStreamWriter& stream, const T& obj)
+EZ_ALWAYS_INLINE ezResult ezDeduplicationWriteContext::WriteObject(ezStreamWriter& inout_stream, const T& obj)
 {
-  return WriteObjectInternal(stream, ezInternal::WriteObjectHelper<T>::GetAddress(obj));
+  return WriteObjectInternal(inout_stream, ezInternal::WriteObjectHelper<T>::GetAddress(obj));
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE ezResult ezDeduplicationWriteContext::WriteObject(ezStreamWriter& stream, const ezSharedPtr<T>& pObject)
+EZ_ALWAYS_INLINE ezResult ezDeduplicationWriteContext::WriteObject(ezStreamWriter& inout_stream, const ezSharedPtr<T>& pObject)
 {
-  return WriteObjectInternal(stream, pObject.Borrow());
+  return WriteObjectInternal(inout_stream, pObject.Borrow());
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE ezResult ezDeduplicationWriteContext::WriteObject(ezStreamWriter& stream, const ezUniquePtr<T>& pObject)
+EZ_ALWAYS_INLINE ezResult ezDeduplicationWriteContext::WriteObject(ezStreamWriter& inout_stream, const ezUniquePtr<T>& pObject)
 {
-  return WriteObjectInternal(stream, pObject.Borrow());
+  return WriteObjectInternal(inout_stream, pObject.Borrow());
 }
 
 template <typename ArrayType, typename ValueType>
-ezResult ezDeduplicationWriteContext::WriteArray(ezStreamWriter& stream, const ezArrayBase<ValueType, ArrayType>& Array)
+ezResult ezDeduplicationWriteContext::WriteArray(ezStreamWriter& inout_stream, const ezArrayBase<ValueType, ArrayType>& array)
 {
-  const ezUInt64 uiCount = Array.GetCount();
-  EZ_SUCCEED_OR_RETURN(stream.WriteQWordValue(&uiCount));
+  const ezUInt64 uiCount = array.GetCount();
+  EZ_SUCCEED_OR_RETURN(inout_stream.WriteQWordValue(&uiCount));
 
   for (ezUInt32 i = 0; i < static_cast<ezUInt32>(uiCount); ++i)
   {
-    EZ_SUCCEED_OR_RETURN(WriteObject(stream, Array[i]));
+    EZ_SUCCEED_OR_RETURN(WriteObject(inout_stream, array[i]));
   }
 
   return EZ_SUCCESS;
 }
 
 template <typename KeyType, typename Comparer>
-ezResult ezDeduplicationWriteContext::WriteSet(ezStreamWriter& stream, const ezSetBase<KeyType, Comparer>& Set)
+ezResult ezDeduplicationWriteContext::WriteSet(ezStreamWriter& inout_stream, const ezSetBase<KeyType, Comparer>& set)
 {
-  const ezUInt64 uiWriteSize = Set.GetCount();
-  EZ_SUCCEED_OR_RETURN(stream.WriteQWordValue(&uiWriteSize));
+  const ezUInt64 uiWriteSize = set.GetCount();
+  EZ_SUCCEED_OR_RETURN(inout_stream.WriteQWordValue(&uiWriteSize));
 
-  for (const auto& item : Set)
+  for (const auto& item : set)
   {
-    EZ_SUCCEED_OR_RETURN(WriteObject(stream, item));
+    EZ_SUCCEED_OR_RETURN(WriteObject(inout_stream, item));
   }
 
   return EZ_SUCCESS;
 }
 
 template <typename KeyType, typename ValueType, typename Comparer>
-ezResult ezDeduplicationWriteContext::WriteMap(ezStreamWriter& stream, const ezMapBase<KeyType, ValueType, Comparer>& Map, WriteMapMode mode)
+ezResult ezDeduplicationWriteContext::WriteMap(ezStreamWriter& inout_stream, const ezMapBase<KeyType, ValueType, Comparer>& map, WriteMapMode mode)
 {
-  const ezUInt64 uiWriteSize = Map.GetCount();
-  EZ_SUCCEED_OR_RETURN(stream.WriteQWordValue(&uiWriteSize));
+  const ezUInt64 uiWriteSize = map.GetCount();
+  EZ_SUCCEED_OR_RETURN(inout_stream.WriteQWordValue(&uiWriteSize));
 
   if (mode == WriteMapMode::DedupKey)
   {
-    for (auto It = Map.GetIterator(); It.IsValid(); ++It)
+    for (auto It = map.GetIterator(); It.IsValid(); ++It)
     {
-      EZ_SUCCEED_OR_RETURN(WriteObject(stream, It.Key()));
-      EZ_SUCCEED_OR_RETURN(ezStreamWriterUtil::Serialize<ValueType>(stream, It.Value()));
+      EZ_SUCCEED_OR_RETURN(WriteObject(inout_stream, It.Key()));
+      EZ_SUCCEED_OR_RETURN(ezStreamWriterUtil::Serialize<ValueType>(inout_stream, It.Value()));
     }
   }
   else if (mode == WriteMapMode::DedupValue)
   {
-    for (auto It = Map.GetIterator(); It.IsValid(); ++It)
+    for (auto It = map.GetIterator(); It.IsValid(); ++It)
     {
-      EZ_SUCCEED_OR_RETURN(ezStreamWriterUtil::Serialize<KeyType>(stream, It.Key()));
-      EZ_SUCCEED_OR_RETURN(WriteObject(stream, It.Value()));
+      EZ_SUCCEED_OR_RETURN(ezStreamWriterUtil::Serialize<KeyType>(inout_stream, It.Key()));
+      EZ_SUCCEED_OR_RETURN(WriteObject(inout_stream, It.Value()));
     }
   }
   else
   {
-    for (auto It = Map.GetIterator(); It.IsValid(); ++It)
+    for (auto It = map.GetIterator(); It.IsValid(); ++It)
     {
-      EZ_SUCCEED_OR_RETURN(WriteObject(stream, It.Key()));
-      EZ_SUCCEED_OR_RETURN(WriteObject(stream, It.Value()));
+      EZ_SUCCEED_OR_RETURN(WriteObject(inout_stream, It.Key()));
+      EZ_SUCCEED_OR_RETURN(WriteObject(inout_stream, It.Value()));
     }
   }
 

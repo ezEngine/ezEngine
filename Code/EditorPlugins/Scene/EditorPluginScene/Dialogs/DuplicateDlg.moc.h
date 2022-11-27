@@ -10,7 +10,7 @@ class ezQtDuplicateDlg : public QDialog, public Ui_DuplicateDlg
   Q_OBJECT
 
 public:
-  ezQtDuplicateDlg(QWidget* parent = nullptr);
+  ezQtDuplicateDlg(QWidget* pParent = nullptr);
 
   static ezUInt32 s_uiNumberOfCopies;
   static bool s_bGroupCopies;
@@ -24,7 +24,7 @@ public:
   static int s_iRevolveAxis;
 
 public Q_SLOTS:
-  virtual void on_DefaultButtons_clicked(QAbstractButton* button);
+  virtual void on_DefaultButtons_clicked(QAbstractButton* pButton);
 
   virtual void on_toolButtonTransX_clicked();
   virtual void on_toolButtonTransY_clicked();

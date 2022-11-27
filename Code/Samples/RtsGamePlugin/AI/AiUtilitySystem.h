@@ -12,8 +12,8 @@ public:
 
   void AddUtility(ezUniquePtr<RtsAiUtility>&& pUtility);
 
-  void Reevaluate(ezGameObject* pOwnerObject, ezComponent* pOwnerComponent, ezTime tNow, ezTime frequency);
-  bool Execute(ezGameObject* pOwnerObject, ezComponent* pOwnerComponent, ezTime tNow);
+  void Reevaluate(ezGameObject* pOwnerObject, ezComponent* pOwnerComponent, ezTime now, ezTime frequency);
+  bool Execute(ezGameObject* pOwnerObject, ezComponent* pOwnerComponent, ezTime now);
 
 private:
   ezTime m_LastUpdate;
@@ -29,7 +29,7 @@ public:
 
   virtual void Activate(ezGameObject* pOwnerObject, ezComponent* pOwnerComponent) = 0;
   virtual void Deactivate(ezGameObject* pOwnerObject, ezComponent* pOwnerComponent) = 0;
-  virtual void Execute(ezGameObject* pOwnerObject, ezComponent* pOwnerComponent, ezTime tNow) = 0;
+  virtual void Execute(ezGameObject* pOwnerObject, ezComponent* pOwnerComponent, ezTime now) = 0;
   virtual double ComputePriority(ezGameObject* pOwnerObject, ezComponent* pOwnerComponent) const = 0;
 };
 

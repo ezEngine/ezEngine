@@ -13,7 +13,7 @@ public:
   Q_OBJECT
 
 public:
-  ezQtTagsDlg(QWidget* parent);
+  ezQtTagsDlg(QWidget* pParent);
 
 private Q_SLOTS:
   void on_ButtonNewCategory_clicked();

@@ -18,12 +18,12 @@ class EZ_GUIFOUNDATION_DLL ezQtToolBarActionMapView : public QToolBar
   EZ_DISALLOW_COPY_AND_ASSIGN(ezQtToolBarActionMapView);
 
 public:
-  explicit ezQtToolBarActionMapView(QString title, QWidget* parent);
+  explicit ezQtToolBarActionMapView(QString sTitle, QWidget* pParent);
   ~ezQtToolBarActionMapView();
 
   void SetActionContext(const ezActionContext& context);
 
-  virtual void setVisible(bool visible) override;
+  virtual void setVisible(bool bVisible) override;
 
 private:
   void TreeEventHandler(const ezDocumentObjectStructureEvent& e);

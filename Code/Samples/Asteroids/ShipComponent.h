@@ -12,8 +12,8 @@ class ShipComponent : public ezComponent
 public:
   ShipComponent();
 
-  virtual void SerializeComponent(ezWorldWriter& stream) const override {}
-  virtual void DeserializeComponent(ezWorldReader& stream) override {}
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override {}
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override {}
 
   void Update();
 

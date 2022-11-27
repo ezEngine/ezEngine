@@ -43,16 +43,16 @@ ezSceneObjectManager::ezSceneObjectManager()
 {
 }
 
-void ezSceneObjectManager::GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& Types) const
+void ezSceneObjectManager::GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& ref_types) const
 {
-  Types.PushBack(ezRTTI::FindTypeByName(ezGetStaticRTTI<ezGameObject>()->GetTypeName()));
+  ref_types.PushBack(ezRTTI::FindTypeByName(ezGetStaticRTTI<ezGameObject>()->GetTypeName()));
 
   const ezRTTI* pComponentType = ezRTTI::FindTypeByName(ezGetStaticRTTI<ezComponent>()->GetTypeName());
 
   for (auto it = ezRTTI::GetFirstInstance(); it != nullptr; it = it->GetNextInstance())
   {
     if (it->IsDerivedFrom(pComponentType) && !it->GetTypeFlags().IsSet(ezTypeFlags::Abstract))
-      Types.PushBack(it);
+      ref_types.PushBack(it);
   }
 }
 
@@ -137,12 +137,12 @@ namespace
       : ezGraphPatch("ezSceneDocumentSettings", 2)
     {
     }
-    virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+    virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
     {
       // Previously, ezSceneDocumentSettings only contained prefab settings. As these only apply to prefab documents, we switch the old version to prefab.
-      context.RenameClass("ezPrefabDocumentSettings", 1);
+      ref_context.RenameClass("ezPrefabDocumentSettings", 1);
       ezVersionKey bases[] = {{"ezSceneDocumentSettingsBase", 1}, {"ezReflectedClass", 1}};
-      context.ChangeBaseClass(bases);
+      ref_context.ChangeBaseClass(bases);
     }
   };
   ezSceneDocumentSettings_1_2 g_ezSceneDocumentSettings_1_2;

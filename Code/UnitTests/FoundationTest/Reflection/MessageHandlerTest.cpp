@@ -70,11 +70,11 @@ public:
   {
   }
 
-  void OnAddMessage(AddMessage& msg) { m_iValue += msg.m_iValue; }
+  void OnAddMessage(AddMessage& ref_msg) { m_iValue += ref_msg.m_iValue; }
 
-  void OnMulMessage(MulMessage& msg) { m_iValue *= msg.m_iValue; }
+  void OnMulMessage(MulMessage& ref_msg) { m_iValue *= ref_msg.m_iValue; }
 
-  void OnGetMessage(GetMessage& msg) const { msg.m_iValue = m_iValue; }
+  void OnGetMessage(GetMessage& ref_msg) const { ref_msg.m_iValue = m_iValue; }
 
   ezInt32 m_iValue;
 };
@@ -96,9 +96,9 @@ class DerivedHandler : public BaseHandler
   EZ_ADD_DYNAMIC_REFLECTION(DerivedHandler, BaseHandler);
 
 public:
-  void OnAddMessage(AddMessage& msg) { m_iValue += msg.m_iValue * 2; }
+  void OnAddMessage(AddMessage& ref_msg) { m_iValue += ref_msg.m_iValue * 2; }
 
-  void OnSubMessage(SubMessage& msg) { m_iValue -= msg.m_iValue; }
+  void OnSubMessage(SubMessage& ref_msg) { m_iValue -= ref_msg.m_iValue; }
 };
 
 // clang-format off

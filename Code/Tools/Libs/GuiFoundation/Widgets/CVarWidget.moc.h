@@ -23,14 +23,14 @@ class ezQtCVarItemDelegate : public QItemDelegate
   Q_OBJECT
 
 public:
-  explicit ezQtCVarItemDelegate(QObject* parent = nullptr)
-    : QItemDelegate(parent)
+  explicit ezQtCVarItemDelegate(QObject* pParent = nullptr)
+    : QItemDelegate(pParent)
   {
   }
 
-  virtual QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
-  virtual void setEditorData(QWidget* editor, const QModelIndex& index) const override;
-  virtual void setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const override;
+  virtual QWidget* createEditor(QWidget* pParent, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
+  virtual void setEditorData(QWidget* pEditor, const QModelIndex& index) const override;
+  virtual void setModelData(QWidget* pEditor, QAbstractItemModel* pModel, const QModelIndex& index) const override;
 
   ezQtCVarModel* m_pModel = nullptr;
 
@@ -45,18 +45,18 @@ class ezQtCVarModel : public QAbstractItemModel
 {
   Q_OBJECT
 public:
-  ezQtCVarModel(ezQtCVarWidget* owner);
+  ezQtCVarModel(ezQtCVarWidget* pOwner);
   ~ezQtCVarModel();
 
   void BeginResetModel();
   void EndResetModel();
 
 public: // QAbstractItemModel interface
-  virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
-  virtual QVariant data(const QModelIndex& index, int role) const override;
-  virtual bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole) override;
+  virtual QVariant headerData(int iSection, Qt::Orientation orientation, int iRole = Qt::DisplayRole) const override;
+  virtual QVariant data(const QModelIndex& index, int iRole) const override;
+  virtual bool setData(const QModelIndex& index, const QVariant& value, int iRole = Qt::EditRole) override;
   virtual Qt::ItemFlags flags(const QModelIndex& index) const override;
-  virtual QModelIndex index(int row, int column, const QModelIndex& parent = QModelIndex()) const override;
+  virtual QModelIndex index(int iRow, int iColumn, const QModelIndex& parent = QModelIndex()) const override;
   virtual QModelIndex parent(const QModelIndex& index) const override;
   virtual int rowCount(const QModelIndex& parent = QModelIndex()) const override;
   virtual int columnCount(const QModelIndex& parent = QModelIndex()) const override;
@@ -74,7 +74,7 @@ public:
     ezVariant m_Value;
   };
 
-  Entry* CreateEntry(const char* name);
+  Entry* CreateEntry(const char* szName);
 
   ezQtCVarWidget* m_pOwner = nullptr;
   ezDynamicArray<Entry*> m_RootEntries;
@@ -103,7 +103,7 @@ class EZ_GUIFOUNDATION_DLL ezQtCVarWidget : public QWidget, public Ui_CVarWidget
   Q_OBJECT
 
 public:
-  ezQtCVarWidget(QWidget* parent);
+  ezQtCVarWidget(QWidget* pParent);
   ~ezQtCVarWidget();
 
   /// \brief Clears the table
@@ -115,15 +115,15 @@ public:
   /// \brief Updates the existing UI. This is sufficient if values changed only.
   void UpdateCVarUI(const ezMap<ezString, ezCVarWidgetData>& cvars);
 
-  void AddConsoleStrings(const ezStringBuilder& encoded);
+  void AddConsoleStrings(const ezStringBuilder& sEncoded);
 
   ezConsole& GetConsole() { return m_Console; }
 
 Q_SIGNALS:
-  void onBoolChanged(const char* szCVar, bool newValue);
-  void onFloatChanged(const char* szCVar, float newValue);
-  void onIntChanged(const char* szCVar, int newValue);
-  void onStringChanged(const char* szCVar, const char* newValue);
+  void onBoolChanged(const char* szCVar, bool bNewValue);
+  void onFloatChanged(const char* szCVar, float fNewValue);
+  void onIntChanged(const char* szCVar, int iNewValue);
+  void onStringChanged(const char* szCVar, const char* szNewValue);
 
 private Q_SLOTS:
   void SearchTextChanged(const QString& text);

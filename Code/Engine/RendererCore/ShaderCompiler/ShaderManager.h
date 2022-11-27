@@ -26,10 +26,10 @@ public:
 
   /// \brief Same as GetPermutationEnumValues() but also returns values for other types of variables.
   /// E.g. returns TRUE and FALSE for boolean variables.
-  static void GetPermutationValues(const ezHashedString& sName, ezDynamicArray<ezHashedString>& out_Values);
+  static void GetPermutationValues(const ezHashedString& sName, ezDynamicArray<ezHashedString>& out_values);
 
   static void PreloadPermutations(
-    ezShaderResourceHandle hShader, const ezHashTable<ezHashedString, ezHashedString>& permVars, ezTime tShouldBeAvailableIn);
+    ezShaderResourceHandle hShader, const ezHashTable<ezHashedString, ezHashedString>& permVars, ezTime shouldBeAvailableIn);
   static ezShaderPermutationResourceHandle PreloadSinglePermutation(
     ezShaderResourceHandle hShader, const ezHashTable<ezHashedString, ezHashedString>& permVars, bool bAllowFallback);
 

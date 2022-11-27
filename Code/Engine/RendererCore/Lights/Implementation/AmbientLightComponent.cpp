@@ -105,22 +105,22 @@ void ezAmbientLightComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
   msg.SetAlwaysVisible(GetOwner()->IsDynamic() ? ezDefaultSpatialDataCategories::RenderDynamic : ezDefaultSpatialDataCategories::RenderStatic);
 }
 
-void ezAmbientLightComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezAmbientLightComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 
-  ezStreamWriter& s = stream.GetStream();
+  ezStreamWriter& s = inout_stream.GetStream();
 
   s << m_TopColor;
   s << m_BottomColor;
   s << m_fIntensity;
 }
 
-void ezAmbientLightComponent::DeserializeComponent(ezWorldReader& stream)
+void ezAmbientLightComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
+  SUPER::DeserializeComponent(inout_stream);
   // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  ezStreamReader& s = stream.GetStream();
+  ezStreamReader& s = inout_stream.GetStream();
 
   s >> m_TopColor;
   s >> m_BottomColor;
@@ -159,7 +159,7 @@ public:
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
     pNode->RenameProperty("Top Color", "TopColor");
     pNode->RenameProperty("Bottom Color", "BottomColor");

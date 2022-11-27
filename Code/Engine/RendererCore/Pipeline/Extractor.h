@@ -18,9 +18,9 @@ public:
   /// \brief returns the name of the extractor.
   const char* GetName() const;
 
-  virtual void Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& extractedRenderData);
+  virtual void Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData);
 
-  virtual void PostSortAndBatch(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& extractedRenderData);
+  virtual void PostSortAndBatch(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData);
 
 protected:
   /// \brief returns true if the given object should be filtered by view tags.
@@ -54,7 +54,7 @@ public:
   ezVisibleObjectsExtractor(const char* szName = "VisibleObjectsExtractor");
   ~ezVisibleObjectsExtractor();
 
-  virtual void Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& extractedRenderData) override;
+  virtual void Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData) override;
 };
 
 class EZ_RENDERERCORE_DLL ezSelectedObjectsExtractorBase : public ezExtractor
@@ -65,7 +65,7 @@ public:
   ezSelectedObjectsExtractorBase(const char* szName = "SelectedObjectsExtractor");
   ~ezSelectedObjectsExtractorBase();
 
-  virtual void Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& extractedRenderData) override;
+  virtual void Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData) override;
 
   virtual const ezDeque<ezGameObjectHandle>* GetSelection() = 0;
 

@@ -20,10 +20,10 @@ public:
 
   ezParticleBehavior* CreateBehavior(ezParticleSystemInstance* pOwner) const;
 
-  virtual void Save(ezStreamWriter& stream) const = 0;
-  virtual void Load(ezStreamReader& stream) = 0;
+  virtual void Save(ezStreamWriter& inout_stream) const = 0;
+  virtual void Load(ezStreamReader& inout_stream) = 0;
 
-  virtual void QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_FinalizerDeps) const {}
+  virtual void QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_finalizerDeps) const {}
 };
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior : public ezParticleModule

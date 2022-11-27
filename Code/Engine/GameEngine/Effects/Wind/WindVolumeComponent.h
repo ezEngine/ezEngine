@@ -18,8 +18,8 @@ class EZ_GAMEENGINE_DLL ezWindVolumeComponent : public ezComponent
   // ezComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
 protected:
   virtual void OnActivated() override;
@@ -39,9 +39,9 @@ public:
   ezEnum<ezWindStrength> m_Strength; // [ property ]
   bool m_bReverseDirection = false;  // [ property ]
 
-  ezSimdVec4f ComputeForceAtGlobalPosition(const ezSimdVec4f& globalPos) const;
+  ezSimdVec4f ComputeForceAtGlobalPosition(const ezSimdVec4f& vGlobalPos) const;
 
-  virtual ezSimdVec4f ComputeForceAtLocalPosition(const ezSimdVec4f& localPos) const = 0;
+  virtual ezSimdVec4f ComputeForceAtLocalPosition(const ezSimdVec4f& vLocalPos) const = 0;
 
   ezEnum<ezOnComponentFinishedAction> m_OnFinishedAction; // [ property ]
 
@@ -66,8 +66,8 @@ class EZ_GAMEENGINE_DLL ezWindVolumeSphereComponent : public ezWindVolumeCompone
   // ezComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
   //////////////////////////////////////////////////////////////////////////
   // ezWindVolumeSphereComponent
@@ -76,10 +76,10 @@ public:
   ezWindVolumeSphereComponent();
   ~ezWindVolumeSphereComponent();
 
-  virtual ezSimdVec4f ComputeForceAtLocalPosition(const ezSimdVec4f& localPos) const override;
+  virtual ezSimdVec4f ComputeForceAtLocalPosition(const ezSimdVec4f& vLocalPos) const override;
 
   float GetRadius() const { return m_fRadius; } // [ property ]
-  void SetRadius(float val);                    // [ property ]
+  void SetRadius(float fVal);                   // [ property ]
 
 private:
   void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg);
@@ -117,8 +117,8 @@ class EZ_GAMEENGINE_DLL ezWindVolumeCylinderComponent : public ezWindVolumeCompo
   // ezComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
   //////////////////////////////////////////////////////////////////////////
   // ezWindVolumeCylinderComponent
@@ -127,13 +127,13 @@ public:
   ezWindVolumeCylinderComponent();
   ~ezWindVolumeCylinderComponent();
 
-  virtual ezSimdVec4f ComputeForceAtLocalPosition(const ezSimdVec4f& localPos) const override;
+  virtual ezSimdVec4f ComputeForceAtLocalPosition(const ezSimdVec4f& vLocalPos) const override;
 
   float GetRadius() const { return m_fRadius; } // [ property ]
-  void SetRadius(float val);                    // [ property ]
+  void SetRadius(float fVal);                   // [ property ]
 
   float GetLength() const { return m_fLength; } // [ property ]
-  void SetLength(float val);                    // [ property ]
+  void SetLength(float fVal);                   // [ property ]
 
   ezEnum<ezWindVolumeCylinderMode> m_Mode; // [ property ]
 
@@ -159,8 +159,8 @@ class EZ_GAMEENGINE_DLL ezWindVolumeConeComponent : public ezWindVolumeComponent
   // ezComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
   //////////////////////////////////////////////////////////////////////////
   // ezWindVolumeCylinderComponent
@@ -169,10 +169,10 @@ public:
   ezWindVolumeConeComponent();
   ~ezWindVolumeConeComponent();
 
-  virtual ezSimdVec4f ComputeForceAtLocalPosition(const ezSimdVec4f& localPos) const override;
+  virtual ezSimdVec4f ComputeForceAtLocalPosition(const ezSimdVec4f& vLocalPos) const override;
 
   float GetLength() const { return m_fLength; } // [ property ]
-  void SetLength(float val);                    // [ property ]
+  void SetLength(float fVal);                   // [ property ]
 
   ezAngle GetAngle() const { return m_Angle; } // [ property ]
   void SetAngle(ezAngle val);                  // [ property ]

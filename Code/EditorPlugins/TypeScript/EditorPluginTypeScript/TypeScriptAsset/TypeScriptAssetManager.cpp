@@ -408,12 +408,12 @@ ezResult ezTypeScriptAssetDocumentManager::GenerateScriptCompendium(ezBitflags<e
   return EZ_SUCCESS;
 }
 
-ezStatus ezTypeScriptAssetDocumentManager::GetAdditionalOutputs(ezDynamicArray<ezString>& files)
+ezStatus ezTypeScriptAssetDocumentManager::GetAdditionalOutputs(ezDynamicArray<ezString>& ref_files)
 {
   if (GenerateScriptCompendium(ezTransformFlags::Default).Failed())
     return ezStatus("Failed to build TypeScript compendium.");
 
-  files.PushBack("AssetCache/Common/Scripts.ezScriptCompendium");
+  ref_files.PushBack("AssetCache/Common/Scripts.ezScriptCompendium");
 
   return ezStatus(EZ_SUCCESS);
 }

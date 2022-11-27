@@ -34,8 +34,8 @@ class EZ_GAMEENGINE_DLL ezCharacterControllerComponent : public ezComponent
   // ezComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
 
   //////////////////////////////////////////////////////////////////////////
@@ -54,7 +54,7 @@ public:
   /// \brief Instructs the CC to move in certain directions. An implementation can queue the request for later processing.
   ///
   /// It can also add further functionality, such as adding gravity, stair stepping, etc.
-  virtual void MoveCharacter(ezMsgMoveCharacterController& msg) = 0; // [ msg handler ]
+  virtual void MoveCharacter(ezMsgMoveCharacterController& ref_msg) = 0; // [ msg handler ]
 
   /// \brief Teleports the CC to the desired global position. Ignores obstacles on the path.
   ///

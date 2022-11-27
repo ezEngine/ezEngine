@@ -168,7 +168,7 @@ ezQtMainWindow::~ezQtMainWindow()
   }
 }
 
-void ezQtMainWindow::closeEvent(QCloseEvent* event)
+void ezQtMainWindow::closeEvent(QCloseEvent* pEvent)
 {
   const bool bMaximized = isMaximized();
   if (bMaximized)

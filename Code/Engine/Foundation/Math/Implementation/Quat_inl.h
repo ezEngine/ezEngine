@@ -14,9 +14,9 @@ EZ_ALWAYS_INLINE ezQuatTemplate<Type>::ezQuatTemplate()
 }
 
 template <typename Type>
-EZ_ALWAYS_INLINE ezQuatTemplate<Type>::ezQuatTemplate(Type X, Type Y, Type Z, Type W)
-  : v(X, Y, Z)
-  , w(W)
+EZ_ALWAYS_INLINE ezQuatTemplate<Type>::ezQuatTemplate(Type x, Type y, Type z, Type w)
+  : v(x, y, z)
+  , w(w)
 {
 }
 
@@ -27,10 +27,10 @@ EZ_ALWAYS_INLINE const ezQuatTemplate<Type> ezQuatTemplate<Type>::IdentityQuater
 }
 
 template <typename Type>
-EZ_ALWAYS_INLINE void ezQuatTemplate<Type>::SetElements(Type X, Type Y, Type Z, Type W)
+EZ_ALWAYS_INLINE void ezQuatTemplate<Type>::SetElements(Type inX, Type inY, Type inZ, Type inW)
 {
-  v.Set(X, Y, Z);
-  w = W;
+  v.Set(inX, inY, inZ);
+  w = inW;
 }
 
 template <typename Type>
@@ -63,7 +63,7 @@ void ezQuatTemplate<Type>::Normalize()
 }
 
 template <typename Type>
-ezResult ezQuatTemplate<Type>::GetRotationAxisAndAngle(ezVec3Template<Type>& vAxis, ezAngle& angle, Type fEpsilon) const
+ezResult ezQuatTemplate<Type>::GetRotationAxisAndAngle(ezVec3Template<Type>& out_vAxis, ezAngle& out_angle, Type fEpsilon) const
 {
   EZ_NAN_ASSERT(this);
 
@@ -72,14 +72,14 @@ ezResult ezQuatTemplate<Type>::GetRotationAxisAndAngle(ezVec3Template<Type>& vAx
 
   if (d < fEpsilon)
   {
-    vAxis.Set(1, 0, 0);
+    out_vAxis.Set(1, 0, 0);
   }
   else
   {
-    vAxis = (v / static_cast<Type>(d));
+    out_vAxis = (v / static_cast<Type>(d));
   }
 
-  angle = acos * 2;
+  out_angle = acos * 2;
 
   return EZ_SUCCESS;
 }
@@ -285,10 +285,10 @@ void ezQuatTemplate<Type>::SetFromMat3(const ezMat3Template<Type>& m)
 }
 
 template <typename Type>
-void ezQuatTemplate<Type>::ReconstructFromMat3(const ezMat3Template<Type>& mat)
+void ezQuatTemplate<Type>::ReconstructFromMat3(const ezMat3Template<Type>& mMat)
 {
-  const ezVec3 x = (mat * ezVec3(1, 0, 0)).GetNormalized();
-  const ezVec3 y = (mat * ezVec3(0, 1, 0)).GetNormalized();
+  const ezVec3 x = (mMat * ezVec3(1, 0, 0)).GetNormalized();
+  const ezVec3 y = (mMat * ezVec3(0, 1, 0)).GetNormalized();
   const ezVec3 z = x.CrossRH(y);
 
   ezMat3 m;
@@ -300,10 +300,10 @@ void ezQuatTemplate<Type>::ReconstructFromMat3(const ezMat3Template<Type>& mat)
 }
 
 template <typename Type>
-void ezQuatTemplate<Type>::ReconstructFromMat4(const ezMat4Template<Type>& mat)
+void ezQuatTemplate<Type>::ReconstructFromMat4(const ezMat4Template<Type>& mMat)
 {
-  const ezVec3 x = mat.TransformDirection(ezVec3(1, 0, 0)).GetNormalized();
-  const ezVec3 y = mat.TransformDirection(ezVec3(0, 1, 0)).GetNormalized();
+  const ezVec3 x = mMat.TransformDirection(ezVec3(1, 0, 0)).GetNormalized();
+  const ezVec3 y = mMat.TransformDirection(ezVec3(0, 1, 0)).GetNormalized();
   const ezVec3 z = x.CrossRH(y);
 
   ezMat3 m;

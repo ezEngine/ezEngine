@@ -25,7 +25,7 @@ private:
 class EZ_TEXTURE_DLL ezImageFilterBox : public ezImageFilter
 {
 public:
-  ezImageFilterBox(float width = 0.5f);
+  ezImageFilterBox(float fWidth = 0.5f);
 
   virtual ezSimdFloat SamplePoint(const ezSimdFloat& x) const override;
 };
@@ -34,7 +34,7 @@ public:
 class EZ_TEXTURE_DLL ezImageFilterTriangle : public ezImageFilter
 {
 public:
-  ezImageFilterTriangle(float width = 1.0f);
+  ezImageFilterTriangle(float fWidth = 1.0f);
 
   virtual ezSimdFloat SamplePoint(const ezSimdFloat& x) const override;
 };
@@ -46,7 +46,7 @@ public:
   /// \brief Construct a sinc filter with a Kaiser window of the given window width and beta parameter.
   /// Note that the beta parameter (equaling alpha * pi in the mathematical definition of the Kaiser window) is often incorrectly alpha by other
   /// filtering tools.
-  ezImageFilterSincWithKaiserWindow(float windowWidth = 3.0f, float beta = 4.0f);
+  ezImageFilterSincWithKaiserWindow(float fWindowWidth = 3.0f, float fBeta = 4.0f);
 
   virtual ezSimdFloat SamplePoint(const ezSimdFloat& x) const override;
 
@@ -60,16 +60,16 @@ class EZ_TEXTURE_DLL ezImageFilterWeights
 {
 public:
   /// \brief Pre-compute the weights for the given filter for scaling between the given number of samples.
-  ezImageFilterWeights(const ezImageFilter& filter, ezUInt32 srcSamples, ezUInt32 dstSamples);
+  ezImageFilterWeights(const ezImageFilter& filter, ezUInt32 uiSrcSamples, ezUInt32 uiDstSamples);
 
   /// \brief Returns the number of weights.
   ezUInt32 GetNumWeights() const;
 
   /// \brief Returns the weight used for the source sample GetFirstSourceSampleIndex(dstSampleIndex) + weightIndex
-  ezSimdFloat GetWeight(ezUInt32 dstSampleIndex, ezUInt32 weightIndex) const;
+  ezSimdFloat GetWeight(ezUInt32 uiDstSampleIndex, ezUInt32 uiWeightIndex) const;
 
   /// \brief Returns the index of the first source sample that needs to be weighted to evaluate the destination sample
-  inline ezInt32 GetFirstSourceSampleIndex(ezUInt32 dstSampleIndex) const;
+  inline ezInt32 GetFirstSourceSampleIndex(ezUInt32 uiDstSampleIndex) const;
 
   ezArrayPtr<const float> ViewWeights() const;
 

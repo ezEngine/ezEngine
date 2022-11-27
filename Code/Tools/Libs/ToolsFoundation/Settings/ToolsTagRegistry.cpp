@@ -41,10 +41,10 @@ void ezToolsTagRegistry::Clear()
   }
 }
 
-void ezToolsTagRegistry::WriteToDDL(ezStreamWriter& stream)
+void ezToolsTagRegistry::WriteToDDL(ezStreamWriter& inout_stream)
 {
   ezOpenDdlWriter writer;
-  writer.SetOutputStream(&stream);
+  writer.SetOutputStream(&inout_stream);
   writer.SetCompactMode(false);
   writer.SetPrimitiveTypeStringMode(ezOpenDdlWriter::TypeStringMode::ShortenedUnsignedInt);
 
@@ -64,10 +64,10 @@ void ezToolsTagRegistry::WriteToDDL(ezStreamWriter& stream)
   }
 }
 
-ezStatus ezToolsTagRegistry::ReadFromDDL(ezStreamReader& stream)
+ezStatus ezToolsTagRegistry::ReadFromDDL(ezStreamReader& inout_stream)
 {
   ezOpenDdlReader reader;
-  if (reader.ParseDocument(stream).Failed())
+  if (reader.ParseDocument(inout_stream).Failed())
   {
     return ezStatus("Failed to read data from ToolsTagRegistry stream!");
   }
@@ -157,7 +157,7 @@ void ezToolsTagRegistry::GetTagsByCategory(const ezArrayPtr<ezStringView>& categ
   out_tags.Clear();
   for (auto it = s_NameToTags.GetIterator(); it.IsValid(); ++it)
   {
-    if (std::any_of(cbegin(categories), cend(categories), [&it](const ezStringView& cat) { return it.Value().m_sCategory == cat; }))
+    if (std::any_of(cbegin(categories), cend(categories), [&it](const ezStringView& sCat) { return it.Value().m_sCategory == sCat; }))
     {
       out_tags.PushBack(&it.Value());
     }

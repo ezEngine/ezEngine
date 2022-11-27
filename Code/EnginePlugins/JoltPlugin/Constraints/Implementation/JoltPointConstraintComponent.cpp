@@ -15,16 +15,16 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezJoltPointConstraintComponent::ezJoltPointConstraintComponent() = default;
 ezJoltPointConstraintComponent::~ezJoltPointConstraintComponent() = default;
 
-void ezJoltPointConstraintComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezJoltPointConstraintComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 
   // auto& s = stream.GetStream();
 }
 
-void ezJoltPointConstraintComponent::DeserializeComponent(ezWorldReader& stream)
+void ezJoltPointConstraintComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
+  SUPER::DeserializeComponent(inout_stream);
   // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   // auto& s = stream.GetStream();
 }

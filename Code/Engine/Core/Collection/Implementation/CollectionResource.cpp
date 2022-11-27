@@ -14,7 +14,7 @@ ezCollectionResource::ezCollectionResource()
 {
 }
 
-bool ezCollectionResource::PreloadResources(ezUInt32 numResourcesToPreload)
+bool ezCollectionResource::PreloadResources(ezUInt32 uiNumResourcesToPreload)
 {
   EZ_LOCK(m_PreloadMutex);
   EZ_PROFILE_SCOPE("Inject Resources to Preload");
@@ -31,7 +31,7 @@ bool ezCollectionResource::PreloadResources(ezUInt32 numResourcesToPreload)
   m_PreloadedResources.Reserve(m_Collection.m_Resources.GetCount());
 
   const ezUInt32 remainingResources = m_Collection.m_Resources.GetCount() - m_PreloadedResources.GetCount();
-  const ezUInt32 end = ezMath::Min(remainingResources, numResourcesToPreload) + m_PreloadedResources.GetCount();
+  const ezUInt32 end = ezMath::Min(remainingResources, uiNumResourcesToPreload) + m_PreloadedResources.GetCount();
   for (ezUInt32 i = m_PreloadedResources.GetCount(); i < end; ++i)
   {
     const ezCollectionEntry& e = m_Collection.m_Resources[i];
@@ -66,7 +66,7 @@ bool ezCollectionResource::PreloadResources(ezUInt32 numResourcesToPreload)
   return m_PreloadedResources.GetCount() < m_Collection.m_Resources.GetCount();
 }
 
-bool ezCollectionResource::IsLoadingFinished(float* out_progress) const
+bool ezCollectionResource::IsLoadingFinished(float* out_pProgress) const
 {
   EZ_LOCK(m_PreloadMutex);
 
@@ -94,16 +94,16 @@ bool ezCollectionResource::IsLoadingFinished(float* out_progress) const
     }
   }
 
-  if (out_progress != nullptr)
+  if (out_pProgress != nullptr)
   {
     const float maxLoadedFraction = m_Collection.m_Resources.GetCount() == 0 ? 1.f : (float)m_PreloadedResources.GetCount() / m_Collection.m_Resources.GetCount();
     if (totalWeight != 0 && totalWeight != loadedWeight)
     {
-      *out_progress = static_cast<float>(static_cast<double>(loadedWeight) / totalWeight) * maxLoadedFraction;
+      *out_pProgress = static_cast<float>(static_cast<double>(loadedWeight) / totalWeight) * maxLoadedFraction;
     }
     else
     {
-      *out_progress = maxLoadedFraction;
+      *out_pProgress = maxLoadedFraction;
     }
   }
 
@@ -232,43 +232,43 @@ void ezCollectionResource::UnregisterNames()
   }
 }
 
-void ezCollectionResourceDescriptor::Save(ezStreamWriter& stream) const
+void ezCollectionResourceDescriptor::Save(ezStreamWriter& inout_stream) const
 {
   const ezUInt8 uiVersion = 3;
   const ezUInt8 uiIdentifier = 0xC0;
   const ezUInt32 uiNumResources = m_Resources.GetCount();
 
-  stream << uiVersion;
-  stream << uiIdentifier;
-  stream << uiNumResources;
+  inout_stream << uiVersion;
+  inout_stream << uiIdentifier;
+  inout_stream << uiNumResources;
 
   for (ezUInt32 i = 0; i < uiNumResources; ++i)
   {
-    stream << m_Resources[i].m_sAssetTypeName;
-    stream << m_Resources[i].m_sOptionalNiceLookupName;
-    stream << m_Resources[i].m_sResourceID;
-    stream << m_Resources[i].m_uiFileSize;
+    inout_stream << m_Resources[i].m_sAssetTypeName;
+    inout_stream << m_Resources[i].m_sOptionalNiceLookupName;
+    inout_stream << m_Resources[i].m_sResourceID;
+    inout_stream << m_Resources[i].m_uiFileSize;
   }
 }
 
-void ezCollectionResourceDescriptor::Load(ezStreamReader& stream)
+void ezCollectionResourceDescriptor::Load(ezStreamReader& inout_stream)
 {
   ezUInt8 uiVersion = 0;
   ezUInt8 uiIdentifier = 0;
   ezUInt32 uiNumResources = 0;
 
-  stream >> uiVersion;
-  stream >> uiIdentifier;
+  inout_stream >> uiVersion;
+  inout_stream >> uiIdentifier;
 
   if (uiVersion == 1)
   {
     ezUInt16 uiNumResourcesShort;
-    stream >> uiNumResourcesShort;
+    inout_stream >> uiNumResourcesShort;
     uiNumResources = uiNumResourcesShort;
   }
   else
   {
-    stream >> uiNumResources;
+    inout_stream >> uiNumResources;
   }
 
   EZ_ASSERT_DEV(uiIdentifier == 0xC0, "File does not contain a valid ezCollectionResourceDescriptor");
@@ -278,12 +278,12 @@ void ezCollectionResourceDescriptor::Load(ezStreamReader& stream)
 
   for (ezUInt32 i = 0; i < uiNumResources; ++i)
   {
-    stream >> m_Resources[i].m_sAssetTypeName;
-    stream >> m_Resources[i].m_sOptionalNiceLookupName;
-    stream >> m_Resources[i].m_sResourceID;
+    inout_stream >> m_Resources[i].m_sAssetTypeName;
+    inout_stream >> m_Resources[i].m_sOptionalNiceLookupName;
+    inout_stream >> m_Resources[i].m_sResourceID;
     if (uiVersion >= 3)
     {
-      stream >> m_Resources[i].m_uiFileSize;
+      inout_stream >> m_Resources[i].m_uiFileSize;
     }
   }
 }

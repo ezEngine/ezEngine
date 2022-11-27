@@ -35,8 +35,8 @@ class EZ_PHYSXPLUGIN_DLL ezBreakableSheetComponent : public ezRenderComponent
   // ezComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
 protected:
   virtual void OnActivated() override;
@@ -48,7 +48,7 @@ protected:
   // ezRenderComponent
 
 public:
-  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg) override;
+  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg) override;
 
 
   //////////////////////////////////////////////////////////////////////////
@@ -75,7 +75,7 @@ public:
   void SetBreakImpulseStrength(float fBreakImpulseStrength); // [ property ]
   float GetBreakImpulseStrength() const;                     // [ property ]
 
-  void SetDisappearTimeout(ezTime fDisappearTimeout); // [ property ]
+  void SetDisappearTimeout(ezTime disappearTimeout);  // [ property ]
   ezTime GetDisappearTimeout() const;                 // [ property ]
 
   void SetFixedBorder(bool bFixedBorder); // [ property ]
@@ -100,12 +100,12 @@ public:
   ezMaterialResourceHandle GetMaterial() const;
   ezMaterialResourceHandle GetBrokenMaterial() const;
 
-  void AddImpulseAtPos(ezMsgPhysicsAddImpulse& msg); // [ msg handler ]
+  void AddImpulseAtPos(ezMsgPhysicsAddImpulse& ref_msg); // [ msg handler ]
 
   void Break();                               // [ scriptable ]
   bool IsBroken() const { return m_bBroken; } // [ scriptable ]
 
-  void OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const; // [ msg handler ]
+  void OnMsgExtractGeometry(ezMsgExtractGeometry& ref_msg) const; // [ msg handler ]
 
 protected:
   void Update();

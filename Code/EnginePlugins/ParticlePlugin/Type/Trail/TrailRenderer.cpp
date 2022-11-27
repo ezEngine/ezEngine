@@ -44,9 +44,9 @@ ezParticleTrailRenderer::~ezParticleTrailRenderer()
   DestroyParticleDataBuffer(m_hTrailPointsDataBuffer64);
 }
 
-void ezParticleTrailRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types) const
+void ezParticleTrailRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& ref_types) const
 {
-  types.PushBack(ezGetStaticRTTI<ezParticleTrailRenderData>());
+  ref_types.PushBack(ezGetStaticRTTI<ezParticleTrailRenderData>());
 }
 
 void ezParticleTrailRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const

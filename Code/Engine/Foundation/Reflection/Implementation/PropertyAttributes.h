@@ -59,7 +59,7 @@ public:
   };
 
   ezInDevelopmentAttribute() = default;
-  ezInDevelopmentAttribute(ezInt32 phase) { m_Phase = phase; }
+  ezInDevelopmentAttribute(ezInt32 iPhase) { m_Phase = iPhase; }
 
   const char* GetString() const;
 
@@ -630,7 +630,7 @@ class EZ_FOUNDATION_DLL ezBoxVisualizerAttribute : public ezVisualizerAttribute
 
 public:
   ezBoxVisualizerAttribute();
-  ezBoxVisualizerAttribute(const char* szSizeProperty, float fSizeScale = 1.0f, const ezColor& fixedColor = ezColorScheme::LightUI(ezColorScheme::Grape), const char* szColorProperty = nullptr, ezBitflags<ezVisualizerAnchor> anchor = ezVisualizerAnchor::Center, ezVec3 offsetOrScale = ezVec3::ZeroVector(), const char* szOffsetProperty = nullptr, const char* szRotationProperty = nullptr);
+  ezBoxVisualizerAttribute(const char* szSizeProperty, float fSizeScale = 1.0f, const ezColor& fixedColor = ezColorScheme::LightUI(ezColorScheme::Grape), const char* szColorProperty = nullptr, ezBitflags<ezVisualizerAnchor> anchor = ezVisualizerAnchor::Center, ezVec3 vOffsetOrScale = ezVec3::ZeroVector(), const char* szOffsetProperty = nullptr, const char* szRotationProperty = nullptr);
 
   const ezUntrackedString& GetSizeProperty() const { return m_sProperty1; }
   const ezUntrackedString& GetColorProperty() const { return m_sProperty2; }
@@ -650,7 +650,7 @@ class EZ_FOUNDATION_DLL ezSphereVisualizerAttribute : public ezVisualizerAttribu
 
 public:
   ezSphereVisualizerAttribute();
-  ezSphereVisualizerAttribute(const char* szRadiusProperty, const ezColor& fixedColor = ezColorScheme::LightUI(ezColorScheme::Grape), const char* szColorProperty = nullptr, ezBitflags<ezVisualizerAnchor> anchor = ezVisualizerAnchor::Center, ezVec3 offsetOrScale = ezVec3::ZeroVector(), const char* szOffsetProperty = nullptr);
+  ezSphereVisualizerAttribute(const char* szRadiusProperty, const ezColor& fixedColor = ezColorScheme::LightUI(ezColorScheme::Grape), const char* szColorProperty = nullptr, ezBitflags<ezVisualizerAnchor> anchor = ezVisualizerAnchor::Center, ezVec3 vOffsetOrScale = ezVec3::ZeroVector(), const char* szOffsetProperty = nullptr);
 
   const ezUntrackedString& GetRadiusProperty() const { return m_sProperty1; }
   const ezUntrackedString& GetColorProperty() const { return m_sProperty2; }
@@ -686,8 +686,8 @@ class EZ_FOUNDATION_DLL ezCylinderVisualizerAttribute : public ezVisualizerAttri
 
 public:
   ezCylinderVisualizerAttribute();
-  ezCylinderVisualizerAttribute(ezEnum<ezBasisAxis> axis, const char* szHeightProperty, const char* szRadiusProperty, const ezColor& fixedColor = ezColorScheme::LightUI(ezColorScheme::Grape), const char* szColorProperty = nullptr, ezBitflags<ezVisualizerAnchor> anchor = ezVisualizerAnchor::Center, ezVec3 offsetOrScale = ezVec3::ZeroVector(), const char* szOffsetProperty = nullptr);
-  ezCylinderVisualizerAttribute(const char* szAxisProperty, const char* szHeightProperty, const char* szRadiusProperty, const ezColor& fixedColor = ezColorScheme::LightUI(ezColorScheme::Grape), const char* szColorProperty = nullptr, ezBitflags<ezVisualizerAnchor> anchor = ezVisualizerAnchor::Center, ezVec3 offsetOrScale = ezVec3::ZeroVector(), const char* szOffsetProperty = nullptr);
+  ezCylinderVisualizerAttribute(ezEnum<ezBasisAxis> axis, const char* szHeightProperty, const char* szRadiusProperty, const ezColor& fixedColor = ezColorScheme::LightUI(ezColorScheme::Grape), const char* szColorProperty = nullptr, ezBitflags<ezVisualizerAnchor> anchor = ezVisualizerAnchor::Center, ezVec3 vOffsetOrScale = ezVec3::ZeroVector(), const char* szOffsetProperty = nullptr);
+  ezCylinderVisualizerAttribute(const char* szAxisProperty, const char* szHeightProperty, const char* szRadiusProperty, const ezColor& fixedColor = ezColorScheme::LightUI(ezColorScheme::Grape), const char* szColorProperty = nullptr, ezBitflags<ezVisualizerAnchor> anchor = ezVisualizerAnchor::Center, ezVec3 vOffsetOrScale = ezVec3::ZeroVector(), const char* szOffsetProperty = nullptr);
 
   const ezUntrackedString& GetAxisProperty() const { return m_sProperty5; }
   const ezUntrackedString& GetHeightProperty() const { return m_sProperty1; }
@@ -851,13 +851,13 @@ class EZ_FOUNDATION_DLL ezScriptableFunctionAttribute : public ezPropertyAttribu
     Inout
   };
 
-  ezScriptableFunctionAttribute(ArgType ArgType1 = In, const char* szArg1 = nullptr, ArgType ArgType2 = In, const char* szArg2 = nullptr,
-    ArgType ArgType3 = In, const char* szArg3 = nullptr, ArgType ArgType4 = In, const char* szArg4 = nullptr, ArgType ArgType5 = In,
-    const char* szArg5 = nullptr, ArgType ArgType6 = In, const char* szArg6 = nullptr);
+  ezScriptableFunctionAttribute(ArgType argType1 = In, const char* szArg1 = nullptr, ArgType argType2 = In, const char* szArg2 = nullptr,
+    ArgType argType3 = In, const char* szArg3 = nullptr, ArgType argType4 = In, const char* szArg4 = nullptr, ArgType argType5 = In,
+    const char* szArg5 = nullptr, ArgType argType6 = In, const char* szArg6 = nullptr);
 
-  const char* GetArgumentName(ezUInt32 index) const;
+  const char* GetArgumentName(ezUInt32 uiIndex) const;
 
-  ArgType GetArgumentType(ezUInt32 index) const;
+  ArgType GetArgumentType(ezUInt32 uiIndex) const;
 
   ezUntrackedString m_sArg1;
   ezUntrackedString m_sArg2;
@@ -880,8 +880,8 @@ class EZ_FOUNDATION_DLL ezVisScriptMappingAttribute : public ezPropertyAttribute
   EZ_ADD_DYNAMIC_REFLECTION(ezVisScriptMappingAttribute, ezPropertyAttribute);
 
   ezVisScriptMappingAttribute() = default;
-  ezVisScriptMappingAttribute(ezInt32 mapping)
-    : m_iMapping(mapping)
+  ezVisScriptMappingAttribute(ezInt32 iMapping)
+    : m_iMapping(iMapping)
   {
   }
 

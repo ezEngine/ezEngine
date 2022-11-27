@@ -95,10 +95,10 @@ struct ezBmpBgrxQuad
 
   ezBmpBgrxQuad() {}
 
-  ezBmpBgrxQuad(ezUInt8 red, ezUInt8 green, ezUInt8 blue)
-    : m_blue(blue)
-    , m_green(green)
-    , m_red(red)
+  ezBmpBgrxQuad(ezUInt8 uiRed, ezUInt8 uiGreen, ezUInt8 uiBlue)
+    : m_blue(uiBlue)
+    , m_green(uiGreen)
+    , m_red(uiRed)
     , m_reserved(0)
   {
   }
@@ -109,7 +109,7 @@ struct ezBmpBgrxQuad
   ezUInt8 m_reserved;
 };
 
-ezResult ezBmpFileFormat::WriteImage(ezStreamWriter& stream, const ezImageView& image, const char* szFileExtension) const
+ezResult ezBmpFileFormat::WriteImage(ezStreamWriter& inout_stream, const ezImageView& image, const char* szFileExtension) const
 {
   // Technically almost arbitrary formats are supported, but we only use the common ones.
   ezImageFormat::Enum compatibleFormats[] = {
@@ -140,7 +140,7 @@ ezResult ezBmpFileFormat::WriteImage(ezStreamWriter& stream, const ezImageView& 
       return EZ_FAILURE;
     }
 
-    return WriteImage(stream, convertedImage, szFileExtension);
+    return WriteImage(inout_stream, convertedImage, szFileExtension);
   }
 
   ezUInt64 uiRowPitch = image.GetRowPitch(0);
@@ -220,13 +220,13 @@ ezResult ezBmpFileFormat::WriteImage(ezStreamWriter& stream, const ezImageView& 
   header.m_offBits = uiHeaderSize;
 
   // Write all data
-  if (stream.WriteBytes(&header, sizeof(header)) != EZ_SUCCESS)
+  if (inout_stream.WriteBytes(&header, sizeof(header)) != EZ_SUCCESS)
   {
     ezLog::Error("Failed to write header.");
     return EZ_FAILURE;
   }
 
-  if (stream.WriteBytes(&fileInfoHeader, sizeof(fileInfoHeader)) != EZ_SUCCESS)
+  if (inout_stream.WriteBytes(&fileInfoHeader, sizeof(fileInfoHeader)) != EZ_SUCCESS)
   {
     ezLog::Error("Failed to write fileInfoHeader.");
     return EZ_FAILURE;
@@ -242,7 +242,7 @@ ezResult ezBmpFileFormat::WriteImage(ezStreamWriter& stream, const ezImageView& 
     fileInfoHeaderV4.m_blueMask = ezImageFormat::GetBlueMask(format);
     fileInfoHeaderV4.m_alphaMask = ezImageFormat::GetAlphaMask(format);
 
-    if (stream.WriteBytes(&fileInfoHeaderV4, sizeof(fileInfoHeaderV4)) != EZ_SUCCESS)
+    if (inout_stream.WriteBytes(&fileInfoHeaderV4, sizeof(fileInfoHeaderV4)) != EZ_SUCCESS)
     {
       ezLog::Error("Failed to write fileInfoHeaderV4.");
       return EZ_FAILURE;
@@ -262,7 +262,7 @@ ezResult ezBmpFileFormat::WriteImage(ezStreamWriter& stream, const ezImageView& 
     colorMask.m_green = ezImageFormat::GetGreenMask(format);
     colorMask.m_blue = ezImageFormat::GetBlueMask(format);
 
-    if (stream.WriteBytes(&colorMask, sizeof(colorMask)) != EZ_SUCCESS)
+    if (inout_stream.WriteBytes(&colorMask, sizeof(colorMask)) != EZ_SUCCESS)
     {
       ezLog::Error("Failed to write colorMask.");
       return EZ_FAILURE;
@@ -273,14 +273,14 @@ ezResult ezBmpFileFormat::WriteImage(ezStreamWriter& stream, const ezImageView& 
   // Write rows in reverse order
   for (ezInt32 iRow = uiHeight - 1; iRow >= 0; iRow--)
   {
-    if (stream.WriteBytes(image.GetPixelPointer<void>(0, 0, 0, 0, iRow, 0), uiRowPitch) != EZ_SUCCESS)
+    if (inout_stream.WriteBytes(image.GetPixelPointer<void>(0, 0, 0, 0, iRow, 0), uiRowPitch) != EZ_SUCCESS)
     {
       ezLog::Error("Failed to write data.");
       return EZ_FAILURE;
     }
 
     ezUInt8 zeroes[4] = {0, 0, 0, 0};
-    if (stream.WriteBytes(zeroes, uiPaddedRowPitch - uiRowPitch) != EZ_SUCCESS)
+    if (inout_stream.WriteBytes(zeroes, uiPaddedRowPitch - uiRowPitch) != EZ_SUCCESS)
     {
       ezLog::Error("Failed to write data.");
       return EZ_FAILURE;
@@ -301,17 +301,17 @@ namespace
     return (reinterpret_cast<const ezUInt8*>(pData)[uiByteAddress] >> uiShiftAmount) & uiMask;
   }
 
-  ezResult ReadImageInfo(ezStreamReader& stream, ezImageHeader& header, ezBmpFileHeader& fileHeader, ezBmpFileInfoHeader& fileInfoHeader, bool& bIndexed,
-    bool& bCompressed, ezUInt32& uiBpp, ezUInt32& uiDataSize)
+  ezResult ReadImageInfo(ezStreamReader& inout_stream, ezImageHeader& ref_header, ezBmpFileHeader& ref_fileHeader, ezBmpFileInfoHeader& ref_fileInfoHeader, bool& ref_bIndexed,
+    bool& ref_bCompressed, ezUInt32& ref_uiBpp, ezUInt32& ref_uiDataSize)
   {
-    if (stream.ReadBytes(&fileHeader, sizeof(ezBmpFileHeader)) != sizeof(ezBmpFileHeader))
+    if (inout_stream.ReadBytes(&ref_fileHeader, sizeof(ezBmpFileHeader)) != sizeof(ezBmpFileHeader))
     {
       ezLog::Error("Failed to read header data.");
       return EZ_FAILURE;
     }
 
     // Some very old BMP variants may have different magic numbers, but we don't support them.
-    if (fileHeader.m_type != ezBmpFileMagic)
+    if (ref_fileHeader.m_type != ezBmpFileMagic)
     {
       ezLog::Error("The file is not a recognized BMP file.");
       return EZ_FAILURE;
@@ -319,13 +319,13 @@ namespace
 
     // We expect at least header version 3
     ezUInt32 uiHeaderVersion = 3;
-    if (stream.ReadBytes(&fileInfoHeader, sizeof(ezBmpFileInfoHeader)) != sizeof(ezBmpFileInfoHeader))
+    if (inout_stream.ReadBytes(&ref_fileInfoHeader, sizeof(ezBmpFileInfoHeader)) != sizeof(ezBmpFileInfoHeader))
     {
       ezLog::Error("Failed to read header data (V3).");
       return EZ_FAILURE;
     }
 
-    int remainingHeaderBytes = fileInfoHeader.m_size - sizeof(fileInfoHeader);
+    int remainingHeaderBytes = ref_fileInfoHeader.m_size - sizeof(ref_fileInfoHeader);
 
     // File header shorter than expected - happens with corrupt files or e.g. with OS/2 BMP files which may have shorter headers
     if (remainingHeaderBytes < 0)
@@ -339,7 +339,7 @@ namespace
     if (remainingHeaderBytes >= sizeof(ezBmpFileInfoHeaderV4))
     {
       uiHeaderVersion = 4;
-      if (stream.ReadBytes(&fileInfoHeaderV4, sizeof(ezBmpFileInfoHeaderV4)) != sizeof(ezBmpFileInfoHeaderV4))
+      if (inout_stream.ReadBytes(&fileInfoHeaderV4, sizeof(ezBmpFileInfoHeaderV4)) != sizeof(ezBmpFileInfoHeaderV4))
       {
         ezLog::Error("Failed to read header data (V4).");
         return EZ_FAILURE;
@@ -348,27 +348,27 @@ namespace
     }
 
     // Skip rest of header
-    if (stream.SkipBytes(remainingHeaderBytes) != remainingHeaderBytes)
+    if (inout_stream.SkipBytes(remainingHeaderBytes) != remainingHeaderBytes)
     {
       ezLog::Error("Failed to skip remaining header data.");
       return EZ_FAILURE;
     }
 
-    uiBpp = fileInfoHeader.m_bitCount;
+    ref_uiBpp = ref_fileInfoHeader.m_bitCount;
 
     // Find target format to load the image
     ezImageFormat::Enum format = ezImageFormat::UNKNOWN;
 
-    switch (fileInfoHeader.m_compression)
+    switch (ref_fileInfoHeader.m_compression)
     {
         // RGB or indexed data
       case RGB:
-        switch (uiBpp)
+        switch (ref_uiBpp)
         {
           case 1:
           case 4:
           case 8:
-            bIndexed = true;
+            ref_bIndexed = true;
 
             // We always decompress indexed to BGRX, since the palette is specified in this format
             format = ezImageFormat::B8G8R8X8_UNORM;
@@ -389,7 +389,7 @@ namespace
 
         // RGB data, but with the color masks specified in place of the palette
       case BITFIELDS:
-        switch (uiBpp)
+        switch (ref_uiBpp)
         {
           case 16:
           case 32:
@@ -404,18 +404,18 @@ namespace
                 ezUInt32 m_blue;
               } colorMask;
 
-              if (stream.ReadBytes(&colorMask, sizeof(colorMask)) != sizeof(colorMask))
+              if (inout_stream.ReadBytes(&colorMask, sizeof(colorMask)) != sizeof(colorMask))
               {
                 return EZ_FAILURE;
               }
 
-              format = ezImageFormat::FromPixelMask(colorMask.m_red, colorMask.m_green, colorMask.m_blue, 0, uiBpp);
+              format = ezImageFormat::FromPixelMask(colorMask.m_red, colorMask.m_green, colorMask.m_blue, 0, ref_uiBpp);
             }
             else
             {
               // For header version four and higher, the color masks are part of the header
               format = ezImageFormat::FromPixelMask(
-                fileInfoHeaderV4.m_redMask, fileInfoHeaderV4.m_greenMask, fileInfoHeaderV4.m_blueMask, fileInfoHeaderV4.m_alphaMask, uiBpp);
+                fileInfoHeaderV4.m_redMask, fileInfoHeaderV4.m_greenMask, fileInfoHeaderV4.m_blueMask, fileInfoHeaderV4.m_alphaMask, ref_uiBpp);
             }
 
             break;
@@ -423,19 +423,19 @@ namespace
         break;
 
       case RLE4:
-        if (uiBpp == 4)
+        if (ref_uiBpp == 4)
         {
-          bIndexed = true;
-          bCompressed = true;
+          ref_bIndexed = true;
+          ref_bCompressed = true;
           format = ezImageFormat::B8G8R8X8_UNORM;
         }
         break;
 
       case RLE8:
-        if (uiBpp == 8)
+        if (ref_uiBpp == 8)
         {
-          bIndexed = true;
-          bCompressed = true;
+          ref_bIndexed = true;
+          ref_bCompressed = true;
           format = ezImageFormat::B8G8R8X8_UNORM;
         }
         break;
@@ -450,7 +450,7 @@ namespace
       return EZ_FAILURE;
     }
 
-    const ezUInt32 uiWidth = fileInfoHeader.m_width;
+    const ezUInt32 uiWidth = ref_fileInfoHeader.m_width;
 
     if (uiWidth > 65536)
     {
@@ -458,7 +458,7 @@ namespace
       return EZ_FAILURE;
     }
 
-    const ezUInt32 uiHeight = fileInfoHeader.m_height;
+    const ezUInt32 uiHeight = ref_fileInfoHeader.m_height;
 
     if (uiHeight > 65536)
     {
@@ -466,42 +466,42 @@ namespace
       return EZ_FAILURE;
     }
 
-    uiDataSize = fileInfoHeader.m_sizeImage;
+    ref_uiDataSize = ref_fileInfoHeader.m_sizeImage;
 
-    if (uiDataSize > 1024 * 1024 * 1024)
+    if (ref_uiDataSize > 1024 * 1024 * 1024)
     {
       ezLog::Error("Image specifies data size > 1GiB. Header corrupted?");
       return EZ_FAILURE;
     }
 
-    const int uiRowPitchIn = (uiWidth * uiBpp + 31) / 32 * 4;
+    const int uiRowPitchIn = (uiWidth * ref_uiBpp + 31) / 32 * 4;
 
-    if (uiDataSize == 0)
+    if (ref_uiDataSize == 0)
     {
-      if (fileInfoHeader.m_compression != RGB)
+      if (ref_fileInfoHeader.m_compression != RGB)
       {
         ezLog::Error("The data size wasn't specified in the header.");
         return EZ_FAILURE;
       }
-      uiDataSize = uiRowPitchIn * uiHeight;
+      ref_uiDataSize = uiRowPitchIn * uiHeight;
     }
 
     // Set image data
-    header.SetImageFormat(format);
-    header.SetNumMipLevels(1);
-    header.SetNumArrayIndices(1);
-    header.SetNumFaces(1);
+    ref_header.SetImageFormat(format);
+    ref_header.SetNumMipLevels(1);
+    ref_header.SetNumArrayIndices(1);
+    ref_header.SetNumFaces(1);
 
-    header.SetWidth(uiWidth);
-    header.SetHeight(uiHeight);
-    header.SetDepth(1);
+    ref_header.SetWidth(uiWidth);
+    ref_header.SetHeight(uiHeight);
+    ref_header.SetDepth(1);
 
     return EZ_SUCCESS;
   }
 
 } // namespace
 
-ezResult ezBmpFileFormat::ReadImageHeader(ezStreamReader& stream, ezImageHeader& header, const char* szFileExtension) const
+ezResult ezBmpFileFormat::ReadImageHeader(ezStreamReader& inout_stream, ezImageHeader& ref_header, const char* szFileExtension) const
 {
   EZ_PROFILE_SCOPE("ezBmpFileFormat::ReadImage");
 
@@ -511,10 +511,10 @@ ezResult ezBmpFileFormat::ReadImageHeader(ezStreamReader& stream, ezImageHeader&
   ezUInt32 uiBpp = 0;
   ezUInt32 uiDataSize = 0;
 
-  return ReadImageInfo(stream, header, fileHeader, fileInfoHeader, bIndexed, bCompressed, uiBpp, uiDataSize);
+  return ReadImageInfo(inout_stream, ref_header, fileHeader, fileInfoHeader, bIndexed, bCompressed, uiBpp, uiDataSize);
 }
 
-ezResult ezBmpFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, const char* szFileExtension) const
+ezResult ezBmpFileFormat::ReadImage(ezStreamReader& inout_stream, ezImage& ref_image, const char* szFileExtension) const
 {
   EZ_PROFILE_SCOPE("ezBmpFileFormat::ReadImage");
 
@@ -525,11 +525,11 @@ ezResult ezBmpFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, cons
   ezUInt32 uiBpp = 0;
   ezUInt32 uiDataSize = 0;
 
-  EZ_SUCCEED_OR_RETURN(ReadImageInfo(stream, header, fileHeader, fileInfoHeader, bIndexed, bCompressed, uiBpp, uiDataSize));
+  EZ_SUCCEED_OR_RETURN(ReadImageInfo(inout_stream, header, fileHeader, fileInfoHeader, bIndexed, bCompressed, uiBpp, uiDataSize));
 
-  image.ResetAndAlloc(header);
+  ref_image.ResetAndAlloc(header);
 
-  ezUInt64 uiRowPitch = image.GetRowPitch(0);
+  ezUInt64 uiRowPitch = ref_image.GetRowPitch(0);
 
   const int uiRowPitchIn = (header.GetWidth() * uiBpp + 31) / 32 * 4;
 
@@ -549,7 +549,7 @@ ezResult ezBmpFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, cons
 
     ezDynamicArray<ezBmpBgrxQuad> palette;
     palette.SetCountUninitialized(paletteSize);
-    if (stream.ReadBytes(&palette[0], paletteSize * sizeof(ezBmpBgrxQuad)) != paletteSize * sizeof(ezBmpBgrxQuad))
+    if (inout_stream.ReadBytes(&palette[0], paletteSize * sizeof(ezBmpBgrxQuad)) != paletteSize * sizeof(ezBmpBgrxQuad))
     {
       ezLog::Error("Failed to read palette data.");
       return EZ_FAILURE;
@@ -567,7 +567,7 @@ ezResult ezBmpFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, cons
       ezDynamicArray<ezUInt8> compressedData;
       compressedData.SetCountUninitialized(uiDataSize);
 
-      if (stream.ReadBytes(&compressedData[0], uiDataSize) != uiDataSize)
+      if (inout_stream.ReadBytes(&compressedData[0], uiDataSize) != uiDataSize)
       {
         ezLog::Error("Failed to read data.");
         return EZ_FAILURE;
@@ -580,7 +580,7 @@ ezResult ezBmpFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, cons
       ezUInt32 uiRow = fileInfoHeader.m_height - 1;
       ezUInt32 uiCol = 0;
 
-      ezBmpBgrxQuad* pLine = image.GetPixelPointer<ezBmpBgrxQuad>(0, 0, 0, 0, uiRow, 0);
+      ezBmpBgrxQuad* pLine = ref_image.GetPixelPointer<ezBmpBgrxQuad>(0, 0, 0, 0, uiRow, 0);
 
       // Decode RLE data directly to RGBX
       while (pIn < pInEnd)
@@ -700,7 +700,7 @@ ezResult ezBmpFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, cons
     {
       ezDynamicArray<ezUInt8> indexedData;
       indexedData.SetCountUninitialized(uiDataSize);
-      if (stream.ReadBytes(&indexedData[0], uiDataSize) != uiDataSize)
+      if (inout_stream.ReadBytes(&indexedData[0], uiDataSize) != uiDataSize)
       {
         ezLog::Error("Failed to read data.");
         return EZ_FAILURE;
@@ -712,8 +712,8 @@ ezResult ezBmpFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, cons
         ezUInt8* pIn = &indexedData[uiRowPitchIn * uiRow];
 
         // Convert flipped vertically
-        ezBmpBgrxQuad* pOut = image.GetPixelPointer<ezBmpBgrxQuad>(0, 0, 0, 0, fileInfoHeader.m_height - uiRow - 1, 0);
-        for (ezUInt32 uiCol = 0; uiCol < image.GetWidth(0); uiCol++)
+        ezBmpBgrxQuad* pOut = ref_image.GetPixelPointer<ezBmpBgrxQuad>(0, 0, 0, 0, fileInfoHeader.m_height - uiRow - 1, 0);
+        for (ezUInt32 uiCol = 0; uiCol < ref_image.GetWidth(0); uiCol++)
         {
           ezUInt32 uiIndex = ExtractBits(pIn, uiCol * uiBpp, uiBpp);
           if (uiIndex >= palette.GetCount())
@@ -738,7 +738,7 @@ ezResult ezBmpFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, cons
 
     // Skip palette data. Having a palette here doesn't make sense, but is not explicitly disallowed by the standard.
     ezUInt32 paletteSize = fileInfoHeader.m_clrUsed * sizeof(ezBmpBgrxQuad);
-    if (stream.SkipBytes(paletteSize) != paletteSize)
+    if (inout_stream.SkipBytes(paletteSize) != paletteSize)
     {
       ezLog::Error("Failed to skip palette data.");
       return EZ_FAILURE;
@@ -747,12 +747,12 @@ ezResult ezBmpFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, cons
     // Read rows in reverse order
     for (ezInt32 iRow = fileInfoHeader.m_height - 1; iRow >= 0; iRow--)
     {
-      if (stream.ReadBytes(image.GetPixelPointer<void>(0, 0, 0, 0, iRow, 0), uiRowPitch) != uiRowPitch)
+      if (inout_stream.ReadBytes(ref_image.GetPixelPointer<void>(0, 0, 0, 0, iRow, 0), uiRowPitch) != uiRowPitch)
       {
         ezLog::Error("Failed to read row data.");
         return EZ_FAILURE;
       }
-      if (stream.SkipBytes(uiRowPitchIn - uiRowPitch) != uiRowPitchIn - uiRowPitch)
+      if (inout_stream.SkipBytes(uiRowPitchIn - uiRowPitch) != uiRowPitchIn - uiRowPitch)
       {
         ezLog::Error("Failed to skip row data.");
         return EZ_FAILURE;

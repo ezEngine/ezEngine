@@ -3,9 +3,9 @@
 #include <EditorPluginRmlUi/RmlUiAsset/RmlUiAsset.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 
-ezStringView FindRCSSReference(ezStringView& sRml)
+ezStringView FindRCSSReference(ezStringView& ref_sRml)
 {
-  const char* szCurrent = sRml.FindSubString("href");
+  const char* szCurrent = ref_sRml.FindSubString("href");
   if (szCurrent == nullptr)
     return ezStringView();
 
@@ -31,7 +31,7 @@ ezStringView FindRCSSReference(ezStringView& sRml)
 
   if (szStart != nullptr && szEnd != nullptr)
   {
-    sRml.SetStartPosition(szEnd);
+    ref_sRml.SetStartPosition(szEnd);
 
     ezStringView rcss = ezStringView(szStart, szEnd);
     if (rcss.EndsWith_NoCase(".rcss"))

@@ -20,7 +20,7 @@ public:
   void operator=(float f); // [tested]
 
   /// \brief Create float16 from raw data.
-  void SetRawData(ezUInt16 data) { m_uiData = data; } // [tested]
+  void SetRawData(ezUInt16 uiData) { m_uiData = uiData; } // [tested]
 
   /// \brief Returns the raw 16 Bit data.
   ezUInt16 GetRawData() const { return m_uiData; } // [tested]
@@ -47,9 +47,9 @@ public:
   EZ_DECLARE_POD_TYPE();
 
   ezFloat16Vec2() = default;
-  ezFloat16Vec2(const ezVec2& vec);
+  ezFloat16Vec2(const ezVec2& vVec);
 
-  void operator=(const ezVec2& vec);
+  void operator=(const ezVec2& vVec);
   operator ezVec2() const;
 
   ezFloat16 x, y;
@@ -63,9 +63,9 @@ public:
   EZ_DECLARE_POD_TYPE();
 
   ezFloat16Vec3() = default;
-  ezFloat16Vec3(const ezVec3& vec);
+  ezFloat16Vec3(const ezVec3& vVec);
 
-  void operator=(const ezVec3& vec);
+  void operator=(const ezVec3& vVec);
   operator ezVec3() const;
 
   ezFloat16 x, y, z;
@@ -79,9 +79,9 @@ public:
   EZ_DECLARE_POD_TYPE();
 
   ezFloat16Vec4() = default;
-  ezFloat16Vec4(const ezVec4& vec);
+  ezFloat16Vec4(const ezVec4& vVec);
 
-  void operator=(const ezVec4& vec);
+  void operator=(const ezVec4& vVec);
   operator ezVec4() const;
 
   ezFloat16 x, y, z, w;

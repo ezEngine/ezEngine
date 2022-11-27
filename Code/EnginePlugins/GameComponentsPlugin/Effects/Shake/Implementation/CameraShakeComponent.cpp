@@ -116,22 +116,22 @@ float ezCameraShakeComponent::GetStrengthAtPosition() const
   return force;
 }
 
-void ezCameraShakeComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezCameraShakeComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s << m_MinShake;
   s << m_MaxShake;
 }
 
-void ezCameraShakeComponent::DeserializeComponent(ezWorldReader& stream)
+void ezCameraShakeComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
+  SUPER::DeserializeComponent(inout_stream);
   // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s >> m_MinShake;
   s >> m_MaxShake;

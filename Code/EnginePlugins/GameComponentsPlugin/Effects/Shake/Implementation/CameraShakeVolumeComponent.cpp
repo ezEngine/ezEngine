@@ -65,32 +65,32 @@ void ezCameraShakeVolumeComponent::OnSimulationStarted()
   }
 }
 
-void ezCameraShakeVolumeComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezCameraShakeVolumeComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
-  auto& s = stream.GetStream();
+  SUPER::SerializeComponent(inout_stream);
+  auto& s = inout_stream.GetStream();
 
   s << m_BurstDuration;
   s << m_OnFinishedAction;
   s << m_fStrength;
 }
 
-void ezCameraShakeVolumeComponent::DeserializeComponent(ezWorldReader& stream)
+void ezCameraShakeVolumeComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  auto& s = stream.GetStream();
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  auto& s = inout_stream.GetStream();
 
   s >> m_BurstDuration;
   s >> m_OnFinishedAction;
   s >> m_fStrength;
 }
 
-float ezCameraShakeVolumeComponent::ComputeForceAtGlobalPosition(const ezSimdVec4f& globalPos) const
+float ezCameraShakeVolumeComponent::ComputeForceAtGlobalPosition(const ezSimdVec4f& vGlobalPos) const
 {
   const ezSimdTransform t = GetOwner()->GetGlobalTransformSimd();
   const ezSimdTransform tInv = t.GetInverse();
-  const ezSimdVec4f localPos = tInv.TransformPosition(globalPos);
+  const ezSimdVec4f localPos = tInv.TransformPosition(vGlobalPos);
 
   return ComputeForceAtLocalPosition(localPos);
 }
@@ -142,27 +142,27 @@ EZ_END_COMPONENT_TYPE;
 ezCameraShakeVolumeSphereComponent::ezCameraShakeVolumeSphereComponent() = default;
 ezCameraShakeVolumeSphereComponent::~ezCameraShakeVolumeSphereComponent() = default;
 
-void ezCameraShakeVolumeSphereComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezCameraShakeVolumeSphereComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
-  auto& s = stream.GetStream();
+  SUPER::SerializeComponent(inout_stream);
+  auto& s = inout_stream.GetStream();
 
   s << m_fRadius;
 }
 
-void ezCameraShakeVolumeSphereComponent::DeserializeComponent(ezWorldReader& stream)
+void ezCameraShakeVolumeSphereComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  auto& s = stream.GetStream();
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  auto& s = inout_stream.GetStream();
 
   s >> m_fRadius;
   m_fOneDivRadius = 1.0f / m_fRadius;
 }
 
-float ezCameraShakeVolumeSphereComponent::ComputeForceAtLocalPosition(const ezSimdVec4f& localPos) const
+float ezCameraShakeVolumeSphereComponent::ComputeForceAtLocalPosition(const ezSimdVec4f& vLocalPos) const
 {
-  ezSimdFloat lenScaled = localPos.GetLength<3>() * m_fOneDivRadius;
+  ezSimdFloat lenScaled = vLocalPos.GetLength<3>() * m_fOneDivRadius;
 
   // inverse quadratic falloff to have sharper edges
   ezSimdFloat forceFactor = ezSimdFloat(1.0f) - lenScaled;
@@ -172,9 +172,9 @@ float ezCameraShakeVolumeSphereComponent::ComputeForceAtLocalPosition(const ezSi
   return m_fStrength * force;
 }
 
-void ezCameraShakeVolumeSphereComponent::SetRadius(float val)
+void ezCameraShakeVolumeSphereComponent::SetRadius(float fVal)
 {
-  m_fRadius = ezMath::Max(val, 0.1f);
+  m_fRadius = ezMath::Max(fVal, 0.1f);
   m_fOneDivRadius = 1.0f / m_fRadius;
 
   if (IsActiveAndInitialized())

@@ -71,14 +71,14 @@ ezVolumePosition::Enum ezFrustum::GetObjectPosition(const ezVec3* pVertices, ezU
   return ezVolumePosition::Inside;
 }
 
-static ezPositionOnPlane::Enum GetPlaneObjectPosition(const ezPlane& p, const ezVec3* const vPoints, ezUInt32 iVertices, const ezMat4& mTransform)
+static ezPositionOnPlane::Enum GetPlaneObjectPosition(const ezPlane& p, const ezVec3* const pPoints, ezUInt32 uiVertices, const ezMat4& mTransform)
 {
   bool bFront = false;
   bool bBack = false;
 
-  for (ezUInt32 i = 0; i < iVertices; ++i)
+  for (ezUInt32 i = 0; i < uiVertices; ++i)
   {
-    switch (p.GetPointPosition(mTransform * vPoints[i]))
+    switch (p.GetPointPosition(mTransform * pPoints[i]))
     {
       case ezPositionOnPlane::Front:
       {
@@ -132,7 +132,7 @@ ezVolumePosition::Enum ezFrustum::GetObjectPosition(const ezVec3* pVertices, ezU
   return ezVolumePosition::Inside;
 }
 
-ezVolumePosition::Enum ezFrustum::GetObjectPosition(const ezBoundingSphere& Sphere) const
+ezVolumePosition::Enum ezFrustum::GetObjectPosition(const ezBoundingSphere& sphere) const
 {
   /// \test Not yet tested
 
@@ -140,7 +140,7 @@ ezVolumePosition::Enum ezFrustum::GetObjectPosition(const ezBoundingSphere& Sphe
 
   for (ezUInt32 i = 0; i < PLANE_COUNT; ++i)
   {
-    const ezPositionOnPlane::Enum pos = m_Planes[i].GetObjectPosition(Sphere);
+    const ezPositionOnPlane::Enum pos = m_Planes[i].GetObjectPosition(sphere);
 
     if (pos == ezPositionOnPlane::Back)
       continue;
@@ -157,7 +157,7 @@ ezVolumePosition::Enum ezFrustum::GetObjectPosition(const ezBoundingSphere& Sphe
   return ezVolumePosition::Inside;
 }
 
-ezVolumePosition::Enum ezFrustum::GetObjectPosition(const ezBoundingBox& Box) const
+ezVolumePosition::Enum ezFrustum::GetObjectPosition(const ezBoundingBox& box) const
 {
   /// \test Not yet tested
 
@@ -165,7 +165,7 @@ ezVolumePosition::Enum ezFrustum::GetObjectPosition(const ezBoundingBox& Box) co
 
   for (ezUInt32 i = 0; i < PLANE_COUNT; ++i)
   {
-    const ezPositionOnPlane::Enum pos = m_Planes[i].GetObjectPosition(Box);
+    const ezPositionOnPlane::Enum pos = m_Planes[i].GetObjectPosition(box);
 
     if (pos == ezPositionOnPlane::Back)
       continue;
@@ -188,29 +188,29 @@ void ezFrustum::InvertFrustum()
     m_Planes[i].Flip();
 }
 
-void ezFrustum::ComputeCornerPoints(ezVec3 out_Points[FrustumCorner::CORNER_COUNT]) const
+void ezFrustum::ComputeCornerPoints(ezVec3 out_pPoints[FrustumCorner::CORNER_COUNT]) const
 {
   // clang-format off
-  ezPlane::GetPlanesIntersectionPoint(m_Planes[NearPlane], m_Planes[TopPlane], m_Planes[LeftPlane], out_Points[FrustumCorner::NearTopLeft]).IgnoreResult();
-  ezPlane::GetPlanesIntersectionPoint(m_Planes[NearPlane], m_Planes[TopPlane], m_Planes[RightPlane], out_Points[FrustumCorner::NearTopRight]).IgnoreResult();
-  ezPlane::GetPlanesIntersectionPoint(m_Planes[NearPlane], m_Planes[BottomPlane], m_Planes[LeftPlane], out_Points[FrustumCorner::NearBottomLeft]).IgnoreResult();
-  ezPlane::GetPlanesIntersectionPoint(m_Planes[NearPlane], m_Planes[BottomPlane], m_Planes[RightPlane], out_Points[FrustumCorner::NearBottomRight]).IgnoreResult();
+  ezPlane::GetPlanesIntersectionPoint(m_Planes[NearPlane], m_Planes[TopPlane], m_Planes[LeftPlane], out_pPoints[FrustumCorner::NearTopLeft]).IgnoreResult();
+  ezPlane::GetPlanesIntersectionPoint(m_Planes[NearPlane], m_Planes[TopPlane], m_Planes[RightPlane], out_pPoints[FrustumCorner::NearTopRight]).IgnoreResult();
+  ezPlane::GetPlanesIntersectionPoint(m_Planes[NearPlane], m_Planes[BottomPlane], m_Planes[LeftPlane], out_pPoints[FrustumCorner::NearBottomLeft]).IgnoreResult();
+  ezPlane::GetPlanesIntersectionPoint(m_Planes[NearPlane], m_Planes[BottomPlane], m_Planes[RightPlane], out_pPoints[FrustumCorner::NearBottomRight]).IgnoreResult();
 
-  ezPlane::GetPlanesIntersectionPoint(m_Planes[FarPlane], m_Planes[TopPlane], m_Planes[LeftPlane], out_Points[FrustumCorner::FarTopLeft]).IgnoreResult();
-  ezPlane::GetPlanesIntersectionPoint(m_Planes[FarPlane], m_Planes[TopPlane], m_Planes[RightPlane], out_Points[FrustumCorner::FarTopRight]).IgnoreResult();
-  ezPlane::GetPlanesIntersectionPoint(m_Planes[FarPlane], m_Planes[BottomPlane], m_Planes[LeftPlane], out_Points[FrustumCorner::FarBottomLeft]).IgnoreResult();
-  ezPlane::GetPlanesIntersectionPoint(m_Planes[FarPlane], m_Planes[BottomPlane], m_Planes[RightPlane], out_Points[FrustumCorner::FarBottomRight]).IgnoreResult();
+  ezPlane::GetPlanesIntersectionPoint(m_Planes[FarPlane], m_Planes[TopPlane], m_Planes[LeftPlane], out_pPoints[FrustumCorner::FarTopLeft]).IgnoreResult();
+  ezPlane::GetPlanesIntersectionPoint(m_Planes[FarPlane], m_Planes[TopPlane], m_Planes[RightPlane], out_pPoints[FrustumCorner::FarTopRight]).IgnoreResult();
+  ezPlane::GetPlanesIntersectionPoint(m_Planes[FarPlane], m_Planes[BottomPlane], m_Planes[LeftPlane], out_pPoints[FrustumCorner::FarBottomLeft]).IgnoreResult();
+  ezPlane::GetPlanesIntersectionPoint(m_Planes[FarPlane], m_Planes[BottomPlane], m_Planes[RightPlane], out_pPoints[FrustumCorner::FarBottomRight]).IgnoreResult();
   // clang-format on
 }
 
-void ezFrustum::SetFrustum(const ezMat4& ModelViewProjection0, ezClipSpaceDepthRange::Enum DepthRange, ezHandedness::Enum Handedness)
+void ezFrustum::SetFrustum(const ezMat4& mModelViewProjection0, ezClipSpaceDepthRange::Enum depthRange, ezHandedness::Enum handedness)
 {
-  ezMat4 ModelViewProjection = ModelViewProjection0;
-  ezGraphicsUtils::ConvertProjectionMatrixDepthRange(ModelViewProjection, DepthRange, ezClipSpaceDepthRange::MinusOneToOne);
+  ezMat4 ModelViewProjection = mModelViewProjection0;
+  ezGraphicsUtils::ConvertProjectionMatrixDepthRange(ModelViewProjection, depthRange, ezClipSpaceDepthRange::MinusOneToOne);
 
   ezVec4 planes[6];
 
-  if (Handedness == ezHandedness::LeftHanded)
+  if (handedness == ezHandedness::LeftHanded)
   {
     ModelViewProjection.SetRow(0, -ModelViewProjection.GetRow(0));
   }
@@ -259,7 +259,7 @@ void ezFrustum::SetFrustum(const ezMat4& ModelViewProjection0, ezClipSpaceDepthR
   ezMemoryUtils::Copy(m_Planes, (ezPlane*)planes, 6);
 }
 
-void ezFrustum::SetFrustum(const ezVec3& vPosition, const ezVec3& vForwards, const ezVec3& vUp, ezAngle FovX, ezAngle FovY, float fNearPlane, float fFarPlane)
+void ezFrustum::SetFrustum(const ezVec3& vPosition, const ezVec3& vForwards, const ezVec3& vUp, ezAngle fovX, ezAngle fovY, float fNearPlane, float fFarPlane)
 {
   EZ_ASSERT_DEBUG(ezMath::Abs(vForwards.GetNormalized().Dot(vUp.GetNormalized())) < 0.999f, "Up dir must be different from forward direction");
 
@@ -284,11 +284,11 @@ void ezFrustum::SetFrustum(const ezVec3& vPosition, const ezVec3& vForwards, con
   mLocalFrame.SetColumn(1, vUpNorm);
   mLocalFrame.SetColumn(2, -vForwardsNorm);
 
-  const float fCosFovX = ezMath::Cos(FovX * 0.5f);
-  const float fSinFovX = ezMath::Sin(FovX * 0.5f);
+  const float fCosFovX = ezMath::Cos(fovX * 0.5f);
+  const float fSinFovX = ezMath::Sin(fovX * 0.5f);
 
-  const float fCosFovY = ezMath::Cos(FovY * 0.5f);
-  const float fSinFovY = ezMath::Sin(FovY * 0.5f);
+  const float fCosFovY = ezMath::Cos(fovY * 0.5f);
+  const float fSinFovY = ezMath::Sin(fovY * 0.5f);
 
   // Left Plane
   {

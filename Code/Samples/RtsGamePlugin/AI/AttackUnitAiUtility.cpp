@@ -18,7 +18,7 @@ void RtsAttackUnitAiUtility::Activate(ezGameObject* pOwnerObject, ezComponent* p
 
 void RtsAttackUnitAiUtility::Deactivate(ezGameObject* pOwnerObject, ezComponent* pOwnerComponent) {}
 
-void RtsAttackUnitAiUtility::Execute(ezGameObject* pOwnerObject, ezComponent* pOwnerComponent, ezTime tNow)
+void RtsAttackUnitAiUtility::Execute(ezGameObject* pOwnerObject, ezComponent* pOwnerComponent, ezTime now)
 {
   RtsUnitComponent* pUnit = static_cast<RtsUnitComponent*>(pOwnerComponent);
 

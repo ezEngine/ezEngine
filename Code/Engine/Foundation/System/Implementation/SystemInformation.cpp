@@ -27,9 +27,9 @@ namespace cpu_x86
 #    include <Windows.h>
 #    include <intrin.h>
 
-  static void cpuid(int32_t out[4], int32_t eax, int32_t ecx)
+  static void cpuid(int32_t pOut[4], int32_t eax, int32_t ecx)
   {
-    __cpuidex(out, eax, ecx);
+    __cpuidex(pOut, eax, ecx);
   }
   static __int64 xgetbv(unsigned int x)
   {

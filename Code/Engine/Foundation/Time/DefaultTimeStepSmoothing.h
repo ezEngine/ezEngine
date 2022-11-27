@@ -16,7 +16,7 @@ class EZ_FOUNDATION_DLL ezDefaultTimeStepSmoothing : public ezTimeStepSmoothing
 public:
   ezDefaultTimeStepSmoothing();
 
-  virtual ezTime GetSmoothedTimeStep(ezTime RawTimeStep, const ezClock* pClock) override;
+  virtual ezTime GetSmoothedTimeStep(ezTime rawTimeStep, const ezClock* pClock) override;
 
   virtual void Reset(const ezClock* pClock) override;
 

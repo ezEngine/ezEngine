@@ -10,12 +10,12 @@ ezWorldReader::FindComponentTypeCallback ezWorldReader::s_FindComponentTypeCallb
 ezWorldReader::ezWorldReader() = default;
 ezWorldReader::~ezWorldReader() = default;
 
-ezResult ezWorldReader::ReadWorldDescription(ezStreamReader& stream, bool warningOnUknownSkip)
+ezResult ezWorldReader::ReadWorldDescription(ezStreamReader& inout_stream, bool bWarningOnUknownSkip)
 {
-  m_pStream = &stream;
+  m_pStream = &inout_stream;
 
   m_uiVersion = 0;
-  stream >> m_uiVersion;
+  inout_stream >> m_uiVersion;
 
   if (m_uiVersion < 8 || m_uiVersion > 10)
   {
@@ -25,22 +25,22 @@ ezResult ezWorldReader::ReadWorldDescription(ezStreamReader& stream, bool warnin
 
   // destroy old context first
   m_pStringDedupReadContext = nullptr;
-  m_pStringDedupReadContext = EZ_DEFAULT_NEW(ezStringDeduplicationReadContext, stream);
+  m_pStringDedupReadContext = EZ_DEFAULT_NEW(ezStringDeduplicationReadContext, inout_stream);
 
   if (m_uiVersion == 8)
   {
     // add tags from the stream
-    EZ_SUCCEED_OR_RETURN(ezTagRegistry::GetGlobalRegistry().Load(stream));
+    EZ_SUCCEED_OR_RETURN(ezTagRegistry::GetGlobalRegistry().Load(inout_stream));
   }
 
   ezUInt32 uiNumRootObjects = 0;
-  stream >> uiNumRootObjects;
+  inout_stream >> uiNumRootObjects;
 
   ezUInt32 uiNumChildObjects = 0;
-  stream >> uiNumChildObjects;
+  inout_stream >> uiNumChildObjects;
 
   ezUInt32 uiNumComponentTypes = 0;
-  stream >> uiNumComponentTypes;
+  inout_stream >> uiNumComponentTypes;
 
   if (uiNumComponentTypes > ezMath::MaxValue<ezUInt16>())
   {
@@ -71,13 +71,13 @@ ezResult ezWorldReader::ReadWorldDescription(ezStreamReader& stream, bool warnin
   }
 
   // read all component data
-  ReadComponentDataToMemStream(warningOnUknownSkip);
+  ReadComponentDataToMemStream(bWarningOnUknownSkip);
   m_pStringDedupReadContext->SetActive(false);
 
   return EZ_SUCCESS;
 }
 
-ezUniquePtr<ezWorldReader::InstantiationContextBase> ezWorldReader::InstantiateWorld(ezWorld& world, const ezUInt16* pOverrideTeamID, ezTime maxStepTime, ezProgress* pProgress)
+ezUniquePtr<ezWorldReader::InstantiationContextBase> ezWorldReader::InstantiateWorld(ezWorld& ref_world, const ezUInt16* pOverrideTeamID, ezTime maxStepTime, ezProgress* pProgress)
 {
   ezPrefabInstantiationOptions options;
   options.m_pOverrideTeamID = pOverrideTeamID;
@@ -85,12 +85,12 @@ ezUniquePtr<ezWorldReader::InstantiationContextBase> ezWorldReader::InstantiateW
   options.m_pProgress = pProgress;
   options.m_RandomSeedMode = ezPrefabInstantiationOptions::RandomSeedMode::FixedFromSerialization;
 
-  return Instantiate(world, false, ezTransform(), options);
+  return Instantiate(ref_world, false, ezTransform(), options);
 }
 
-ezUniquePtr<ezWorldReader::InstantiationContextBase> ezWorldReader::InstantiatePrefab(ezWorld& world, const ezTransform& rootTransform, const ezPrefabInstantiationOptions& options)
+ezUniquePtr<ezWorldReader::InstantiationContextBase> ezWorldReader::InstantiatePrefab(ezWorld& ref_world, const ezTransform& rootTransform, const ezPrefabInstantiationOptions& options)
 {
-  return Instantiate(world, true, rootTransform, options);
+  return Instantiate(ref_world, true, rootTransform, options);
 }
 
 ezGameObjectHandle ezWorldReader::ReadGameObjectHandle()
@@ -170,14 +170,14 @@ ezUInt32 ezWorldReader::GetChildObjectCount() const
   return m_ChildObjectsToCreate.GetCount();
 }
 
-void ezWorldReader::SetMaxStepTime(InstantiationContextBase* context, ezTime maxStepTime)
+void ezWorldReader::SetMaxStepTime(InstantiationContextBase* pContext, ezTime maxStepTime)
 {
-  return static_cast<InstantiationContext*>(context)->SetMaxStepTime(maxStepTime);
+  return static_cast<InstantiationContext*>(pContext)->SetMaxStepTime(maxStepTime);
 }
 
-ezTime ezWorldReader::GetMaxStepTime(InstantiationContextBase* context)
+ezTime ezWorldReader::GetMaxStepTime(InstantiationContextBase* pContext)
 {
-  return static_cast<InstantiationContext*>(context)->GetMaxStepTime();
+  return static_cast<InstantiationContext*>(pContext)->GetMaxStepTime();
 }
 
 void ezWorldReader::ReadGameObjectDesc(GameObjectToCreate& godesc)
@@ -243,7 +243,7 @@ void ezWorldReader::ReadComponentTypeInfo(ezUInt32 uiComponentTypeIdx)
 
 void ezWorldReader::ReadComponentDataToMemStream(bool warningOnUnknownSkip)
 {
-  auto WriteToMemStream = [&](ezMemoryStreamWriter& writer, bool bReadNumComponents) {
+  auto WriteToMemStream = [&](ezMemoryStreamWriter& ref_writer, bool bReadNumComponents) {
     ezUInt8 Temp[4096];
     for (auto& compTypeInfo : m_ComponentTypes)
     {
@@ -273,7 +273,7 @@ void ezWorldReader::ReadComponentDataToMemStream(bool warningOnUnknownSkip)
         {
           const ezUInt64 uiRead = m_pStream->ReadBytes(Temp, ezMath::Min<ezUInt32>(uiAllComponentsSize, EZ_ARRAY_SIZE(Temp)));
 
-          writer.WriteBytes(Temp, uiRead).IgnoreResult();
+          ref_writer.WriteBytes(Temp, uiRead).IgnoreResult();
 
           uiAllComponentsSize -= (ezUInt32)uiRead;
         }
@@ -323,8 +323,8 @@ ezUniquePtr<ezWorldReader::InstantiationContextBase> ezWorldReader::Instantiate(
   return std::move(pContext);
 }
 
-ezWorldReader::InstantiationContext::InstantiationContext(ezWorldReader& worldReader, bool bUseTransform, const ezTransform& rootTransform, const ezPrefabInstantiationOptions& options)
-  : m_WorldReader(worldReader)
+ezWorldReader::InstantiationContext::InstantiationContext(ezWorldReader& ref_worldReader, bool bUseTransform, const ezTransform& rootTransform, const ezPrefabInstantiationOptions& options)
+  : m_WorldReader(ref_worldReader)
   , m_bUseTransform(bUseTransform)
   , m_RootTransform(rootTransform)
   , m_Options(options)
@@ -338,7 +338,7 @@ ezWorldReader::InstantiationContext::InstantiationContext(ezWorldReader& worldRe
 
   if (options.m_MaxStepTime.IsPositive())
   {
-    m_hComponentInitBatch = worldReader.m_pWorld->CreateComponentInitBatch("WorldReaderBatch", options.m_MaxStepTime.IsPositive() ? false : true);
+    m_hComponentInitBatch = ref_worldReader.m_pWorld->CreateComponentInitBatch("WorldReaderBatch", options.m_MaxStepTime.IsPositive() ? false : true);
   }
 
   if (options.m_pProgress != nullptr)
@@ -483,14 +483,14 @@ void ezWorldReader::InstantiationContext::Cancel()
 }
 
 // a super simple, but also efficient random number generator
-inline static ezUInt32 NextStableRandomSeed(ezUInt32& seed)
+inline static ezUInt32 NextStableRandomSeed(ezUInt32& ref_uiSeed)
 {
-  seed = 214013L * seed + 2531011L;
-  return ((seed >> 16) & 0x7FFFF);
+  ref_uiSeed = 214013L * ref_uiSeed + 2531011L;
+  return ((ref_uiSeed >> 16) & 0x7FFFF);
 }
 
 template <bool UseTransform>
-bool ezWorldReader::InstantiationContext::CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& objects, ezGameObjectHandle hParent, ezDynamicArray<ezGameObject*>* out_CreatedObjects, ezTime endTime)
+bool ezWorldReader::InstantiationContext::CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& objects, ezGameObjectHandle hParent, ezDynamicArray<ezGameObject*>* out_pCreatedObjects, ezTime endTime)
 {
   EZ_PROFILE_SCOPE("ezWorldReader::CreateGameObjects");
 
@@ -546,9 +546,9 @@ bool ezWorldReader::InstantiationContext::CreateGameObjects(const ezDynamicArray
       pObject->SetGlobalKey(godesc.m_sGlobalKey);
     }
 
-    if (out_CreatedObjects)
+    if (out_pCreatedObjects)
     {
-      out_CreatedObjects->PushBack(pObject);
+      out_pCreatedObjects->PushBack(pObject);
     }
 
     ++m_uiCurrentIndex;

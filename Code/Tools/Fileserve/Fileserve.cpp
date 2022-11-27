@@ -12,7 +12,7 @@
 #endif
 
 #ifdef EZ_USE_QT
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine, int iCmdShow)
 {
 #else
 int main(int argc, const char** argv)

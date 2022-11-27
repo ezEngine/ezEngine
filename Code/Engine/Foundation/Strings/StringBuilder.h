@@ -77,14 +77,14 @@ public:
   }
 
   /// \brief Constructor that appends all the given strings.
-  ezStringBuilder(ezStringView pData1, ezStringView pData2, ezStringView pData3 = {}, ezStringView pData4 = {},
-    ezStringView pData5 = {}, ezStringView pData6 = {}); // [tested]
+  ezStringBuilder(ezStringView sData1, ezStringView sData2, ezStringView sData3 = {}, ezStringView sData4 = {},
+    ezStringView sData5 = {}, ezStringView sData6 = {}); // [tested]
 
   /// \brief Copies the given Utf8 string into this one.
   /* implicit */ ezStringBuilder(const char* szUTF8, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator()); // [tested]
 
   /// \brief Copies the given wchar_t string into this one.
-  /* implicit */ ezStringBuilder(const wchar_t* szWChar, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator()); // [tested]
+  /* implicit */ ezStringBuilder(const wchar_t* pWChar, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator()); // [tested]
 
   /// \brief Copies the given substring into this one. The ezStringView might actually be a substring of this very string.
   /* implicit */ ezStringBuilder(ezStringView rhs, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator()); // [tested]
@@ -99,7 +99,7 @@ public:
   void operator=(const char* szUTF8); // [tested]
 
   /// \brief Copies the given wchar_t string into this one.
-  void operator=(const wchar_t* szWChar); // [tested]
+  void operator=(const wchar_t* pWChar); // [tested]
 
   /// \brief Copies the given substring into this one. The ezStringView might actually be a substring of this very string.
   void operator=(ezStringView rhs); // [tested]
@@ -171,10 +171,10 @@ public:
   /// This can be a very costly operation (unless this string is pure ASCII).
   /// It is only provided for the few rare cases where it is more convenient and performance is not of concern.
   /// If possible, do not use this function, at all.
-  void ChangeCharacter(iterator& it, ezUInt32 uiCharacter); // [tested]
+  void ChangeCharacter(iterator& ref_it, ezUInt32 uiCharacter); // [tested]
 
   /// \brief Sets the string by concatenating all given strings.
-  void Set(ezStringView pData1, ezStringView pData2 = {}, ezStringView pData3 = {}, ezStringView pData4 = {}, ezStringView pData5 = {}, ezStringView pData6 = {});
+  void Set(ezStringView sData1, ezStringView sData2 = {}, ezStringView sData3 = {}, ezStringView sData4 = {}, ezStringView sData5 = {}, ezStringView sData6 = {});
 
   /// \brief Copies the string starting at \a pStart up to \a pEnd (exclusive).
   void SetSubString_FromTo(const char* pStart, const char* pEnd);
@@ -192,7 +192,7 @@ public:
   void Append(const wchar_t* pData1, const wchar_t* pData2 = nullptr, const wchar_t* pData3 = nullptr, const wchar_t* pData4 = nullptr, const wchar_t* pData5 = nullptr, const wchar_t* pData6 = nullptr); // [tested]
 
   /// \brief Appends all the given strings at the back of this string in one operation.
-  void Append(ezStringView pData1, ezStringView pData2 = {}, ezStringView pData3 = {}, ezStringView pData4 = {}, ezStringView pData5 = {}, ezStringView pData6 = {}); // [tested]
+  void Append(ezStringView sData1, ezStringView sData2 = {}, ezStringView sData3 = {}, ezStringView sData4 = {}, ezStringView sData5 = {}, ezStringView sData6 = {}); // [tested]
 
   /// \brief Prepends a single Utf32 character.
   void Prepend(ezUInt32 uiChar); // [tested]
@@ -202,14 +202,14 @@ public:
     const wchar_t* pData5 = nullptr, const wchar_t* pData6 = nullptr); // [tested]
 
   /// \brief Prepends all the given strings to the front of this string in one operation.
-  void Prepend(ezStringView pData1, ezStringView pData2 = {}, ezStringView pData3 = {}, ezStringView pData4 = {},
-    ezStringView pData5 = {}, ezStringView pData6 = {}); // [tested]
+  void Prepend(ezStringView sData1, ezStringView sData2 = {}, ezStringView sData3 = {}, ezStringView sData4 = {},
+    ezStringView sData5 = {}, ezStringView sData6 = {}); // [tested]
 
   /// \brief Sets this string to the formatted string, uses printf-style formatting.
   void Printf(const char* szUtf8Format, ...); // [tested]
 
   /// \brief Sets this string to the formatted string, uses printf-style formatting.
-  void PrintfArgs(const char* szUtf8Format, va_list args); // [tested]
+  void PrintfArgs(const char* szUtf8Format, va_list szArgs); // [tested]
 
   /// \brief Replaces this with a formatted string. Uses '{}' formatting placeholders, see ezFormatString for details.
   void Format(const ezFormatString& string);
@@ -253,10 +253,10 @@ public:
 
 
   /// \brief Replaces the string that starts at szStartPos and ends at szEndPos with the string szReplaceWith.
-  void ReplaceSubString(const char* szStartPos, const char* szEndPos, ezStringView szReplaceWith); // [tested]
+  void ReplaceSubString(const char* szStartPos, const char* szEndPos, ezStringView sReplaceWith); // [tested]
 
   /// \brief A wrapper around ReplaceSubString. Will insert the given string at szInsertAtPos.
-  void Insert(const char* szInsertAtPos, ezStringView szTextToInsert); // [tested]
+  void Insert(const char* szInsertAtPos, ezStringView sTextToInsert); // [tested]
 
   /// \brief A wrapper around ReplaceSubString. Will remove the substring which starts at szRemoveFromPos and ends at szRemoveToPos.
   void Remove(const char* szRemoveFromPos, const char* szRemoveToPos); // [tested]
@@ -288,26 +288,26 @@ public:
   /// the delimiter function IsDelimiterCB.
   ///
   /// Returns the start position of where the word was replaced or nullptr if nothing got replaced.
-  const char* ReplaceWholeWord(const char* szSearchFor, ezStringView szReplaceWith, ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB); // [tested]
+  const char* ReplaceWholeWord(const char* szSearchFor, ezStringView sReplaceWith, ezStringUtils::EZ_CHARACTER_FILTER isDelimiterCB); // [tested]
 
   /// \brief Case-insensitive version of ReplaceWholeWord.
   ///
   /// Returns the start position of where the word was replaced or nullptr if nothing got replaced.
-  const char* ReplaceWholeWord_NoCase(const char* szSearchFor, ezStringView szReplaceWith, ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB); // [tested]
+  const char* ReplaceWholeWord_NoCase(const char* szSearchFor, ezStringView sReplaceWith, ezStringUtils::EZ_CHARACTER_FILTER isDelimiterCB); // [tested]
 
   /// \brief Replaces all occurrences of szSearchFor by szReplaceWith, if szSearchFor was found to be a 'whole word', as indicated by the
   /// delimiter function IsDelimiterCB.
   ///
   /// Returns how many words got replaced.
-  ezUInt32 ReplaceWholeWordAll(const char* szSearchFor, ezStringView szReplaceWith, ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB); // [tested]
+  ezUInt32 ReplaceWholeWordAll(const char* szSearchFor, ezStringView sReplaceWith, ezStringUtils::EZ_CHARACTER_FILTER isDelimiterCB); // [tested]
 
   /// \brief Case-insensitive version of ReplaceWholeWordAll.
   ///
   /// Returns how many words got replaced.
-  ezUInt32 ReplaceWholeWordAll_NoCase(const char* szSearchFor, ezStringView szReplaceWith, ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB); // [tested]
+  ezUInt32 ReplaceWholeWordAll_NoCase(const char* szSearchFor, ezStringView sReplaceWith, ezStringUtils::EZ_CHARACTER_FILTER isDelimiterCB); // [tested]
 
   /// \brief Replaces the current string with the content from the stream. Reads the stream to its end.
-  void ReadAll(ezStreamReader& Stream);
+  void ReadAll(ezStreamReader& inout_stream);
 
   // ******* Path Functions ********
 
@@ -340,7 +340,7 @@ public:
   /// AppendWithSeparator(", ", "a", "b");
   /// AppendWithSeparator(", ", "c", "d");
   /// results in the string "ab, cd"
-  void AppendWithSeparator(ezStringView separator, ezStringView sText1, ezStringView sText2 = ezStringView(), ezStringView sText3 = ezStringView(), ezStringView sText4 = ezStringView(), ezStringView sText5 = ezStringView(), ezStringView sText6 = ezStringView());
+  void AppendWithSeparator(ezStringView sSeparator, ezStringView sText1, ezStringView sText2 = ezStringView(), ezStringView sText3 = ezStringView(), ezStringView sText4 = ezStringView(), ezStringView sText5 = ezStringView(), ezStringView sText6 = ezStringView());
 
   /// \brief Changes the file name part of the path, keeps the extension intact (if there is any).
   void ChangeFileName(ezStringView sNewFileName); // [tested]

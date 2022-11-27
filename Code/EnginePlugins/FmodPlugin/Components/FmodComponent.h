@@ -13,8 +13,8 @@ class EZ_FMODPLUGIN_DLL ezFmodComponent : public ezComponent
   // ezComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override {}
-  virtual void DeserializeComponent(ezWorldReader& stream) override {}
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override {}
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override {}
 
   //////////////////////////////////////////////////////////////////////////
   // ezFmodComponent

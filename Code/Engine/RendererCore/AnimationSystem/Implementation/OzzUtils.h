@@ -24,8 +24,8 @@ public:
   ~ezOzzArchiveData();
 
   ezResult FetchRegularFile(const char* szFile);
-  ezResult FetchEmbeddedArchive(ezStreamReader& stream);
-  ezResult StoreEmbeddedArchive(ezStreamWriter& stream) const;
+  ezResult FetchEmbeddedArchive(ezStreamReader& inout_stream);
+  ezResult StoreEmbeddedArchive(ezStreamWriter& inout_stream) const;
 
   ezDefaultMemoryStreamStorage m_Storage;
 };
@@ -40,11 +40,11 @@ public:
 
   virtual bool opened() const override;
 
-  virtual size_t Read(void* _buffer, size_t _size) override;
+  virtual size_t Read(void* pBuffer, size_t uiSize) override;
 
-  virtual size_t Write(const void* _buffer, size_t _size) override;
+  virtual size_t Write(const void* pBuffer, size_t uiSize) override;
 
-  virtual int Seek(int _offset, Origin _origin) override;
+  virtual int Seek(int iOffset, Origin origin) override;
 
   virtual int Tell() const override;
 
@@ -60,15 +60,15 @@ private:
 class EZ_RENDERERCORE_DLL ezOzzStreamWriter : public ozz::io::Stream
 {
 public:
-  ezOzzStreamWriter(ezOzzArchiveData& data);
+  ezOzzStreamWriter(ezOzzArchiveData& ref_data);
 
   virtual bool opened() const override;
 
-  virtual size_t Read(void* _buffer, size_t _size) override;
+  virtual size_t Read(void* pBuffer, size_t uiSize) override;
 
-  virtual size_t Write(const void* _buffer, size_t _size) override;
+  virtual size_t Write(const void* pBuffer, size_t uiSize) override;
 
-  virtual int Seek(int _offset, Origin _origin) override;
+  virtual int Seek(int iOffset, Origin origin) override;
 
   virtual int Tell() const override;
 

@@ -49,10 +49,10 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezRopeRenderComponent::ezRopeRenderComponent() = default;
 ezRopeRenderComponent::~ezRopeRenderComponent() = default;
 
-void ezRopeRenderComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezRopeRenderComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
-  auto& s = stream.GetStream();
+  SUPER::SerializeComponent(inout_stream);
+  auto& s = inout_stream.GetStream();
 
   s << m_Color;
   s << m_hMaterial;
@@ -62,11 +62,11 @@ void ezRopeRenderComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_fUScale;
 }
 
-void ezRopeRenderComponent::DeserializeComponent(ezWorldReader& stream)
+void ezRopeRenderComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  auto& s = stream.GetStream();
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  auto& s = inout_stream.GetStream();
 
   s >> m_Color;
   s >> m_hMaterial;
@@ -274,14 +274,14 @@ void ezRopeRenderComponent::SetUScale(float fUScale)
   }
 }
 
-void ezRopeRenderComponent::OnMsgSetColor(ezMsgSetColor& msg)
+void ezRopeRenderComponent::OnMsgSetColor(ezMsgSetColor& ref_msg)
 {
-  msg.ModifyColor(m_Color);
+  ref_msg.ModifyColor(m_Color);
 }
 
-void ezRopeRenderComponent::OnMsgSetMeshMaterial(ezMsgSetMeshMaterial& msg)
+void ezRopeRenderComponent::OnMsgSetMeshMaterial(ezMsgSetMeshMaterial& ref_msg)
 {
-  SetMaterial(msg.m_hMaterial);
+  SetMaterial(ref_msg.m_hMaterial);
 }
 
 void ezRopeRenderComponent::OnRopePoseUpdated(ezMsgRopePoseUpdated& msg)
@@ -324,11 +324,10 @@ void ezRopeRenderComponent::GenerateRenderMesh(ezUInt32 uiNumRopePieces)
   const ezAngle fDegStep = ezAngle::Degree(360.0f / m_uiDetail);
   const float fVStep = 1.0f / m_uiDetail;
 
-  auto addCap = [&](float x, const ezVec3& normal, ezUInt16 boneIndex, bool flipWinding)
-  {
-    ezVec4U16 boneIndices(boneIndex, 0, 0, 0);
+  auto addCap = [&](float x, const ezVec3& vNormal, ezUInt16 uiBoneIndex, bool bFlipWinding) {
+    ezVec4U16 boneIndices(uiBoneIndex, 0, 0, 0);
 
-    ezUInt32 centerIndex = geom.AddVertex(ezVec3(x, 0, 0), normal, ezVec2(0.5f, 0.5f), ezColor::White, boneIndices);
+    ezUInt32 centerIndex = geom.AddVertex(ezVec3(x, 0, 0), vNormal, ezVec2(0.5f, 0.5f), ezColor::White, boneIndices);
 
     ezAngle deg = ezAngle::Radian(0);
     for (ezUInt32 s = 0; s < m_uiDetail; ++s)
@@ -336,7 +335,7 @@ void ezRopeRenderComponent::GenerateRenderMesh(ezUInt32 uiNumRopePieces)
       const float fY = ezMath::Cos(deg);
       const float fZ = ezMath::Sin(deg);
 
-      geom.AddVertex(ezVec3(x, fY, fZ), normal, ezVec2(fY, fZ), ezColor::White, boneIndices);
+      geom.AddVertex(ezVec3(x, fY, fZ), vNormal, ezVec2(fY, fZ), ezColor::White, boneIndices);
 
       deg += fDegStep;
     }
@@ -348,12 +347,11 @@ void ezRopeRenderComponent::GenerateRenderMesh(ezUInt32 uiNumRopePieces)
       triangle[1] = s + triangle[0] + 1;
       triangle[2] = ((s + 1) % m_uiDetail) + triangle[0] + 1;
 
-      geom.AddPolygon(triangle, flipWinding);
+      geom.AddPolygon(triangle, bFlipWinding);
     }
   };
 
-  auto addPiece = [&](float x, const ezVec4U16& boneIndices, const ezColorLinearUB& boneWeights, bool createPolygons)
-  {
+  auto addPiece = [&](float x, const ezVec4U16& vBoneIndices, const ezColorLinearUB& boneWeights, bool bCreatePolygons) {
     ezAngle deg = ezAngle::Radian(0);
     float fU = x * m_fUScale;
     float fV = 0;
@@ -366,13 +364,13 @@ void ezRopeRenderComponent::GenerateRenderMesh(ezUInt32 uiNumRopePieces)
       const ezVec3 pos(x, fY, fZ);
       const ezVec3 normal(0, fY, fZ);
 
-      geom.AddVertex(pos, normal, ezVec2(fU, fV), ezColor::White, boneIndices, boneWeights);
+      geom.AddVertex(pos, normal, ezVec2(fU, fV), ezColor::White, vBoneIndices, boneWeights);
 
       deg += fDegStep;
       fV += fVStep;
     }
 
-    if (createPolygons)
+    if (bCreatePolygons)
     {
       ezUInt32 endIndex = geom.GetVertices().GetCount() - (m_uiDetail + 1);
       ezUInt32 startIndex = endIndex - (m_uiDetail + 1);

@@ -28,7 +28,7 @@ class ezQtPropertyAnimAssetTreeView : public QTreeView
   Q_OBJECT
 
 public:
-  ezQtPropertyAnimAssetTreeView(QWidget* parent);
+  ezQtPropertyAnimAssetTreeView(QWidget* pParent);
   void initialize();
 
 Q_SIGNALS:

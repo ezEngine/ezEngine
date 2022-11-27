@@ -36,8 +36,8 @@ void FormatSize(ezStringBuilder& s, const char* szPrefix, ezUInt64 uiSize)
     s.Format("{0}{1} GB", szPrefix, ezArgF(uiSize / 1024.0 / 1024.0 / 1024.0, 2));
 }
 
-ezQtMemoryWidget::ezQtMemoryWidget(QWidget* parent)
-  : ads::CDockWidget("Memory Widget", parent)
+ezQtMemoryWidget::ezQtMemoryWidget(QWidget* pParent)
+  : ads::CDockWidget("Memory Widget", pParent)
 {
   s_pWidget = this;
 

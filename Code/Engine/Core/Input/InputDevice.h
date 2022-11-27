@@ -47,7 +47,7 @@ public:
   ezInputDevice();
 
   /// \brief Allows to query current input values for the given slot
-  float GetInputSlotState(const char* slot) const;
+  float GetInputSlotState(const char* szSlot) const;
 
   /// \brief Returns true, if the device was 'used' during the last frame, ie. when it generated input due to some user interaction.
   ///

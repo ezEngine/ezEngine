@@ -494,7 +494,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Set)
 
     EZ_TEST_INT(std::find(begin(m), end(m), 500).Key(), 500);
 
-    auto itfound = std::find_if(begin(m), end(m), [](ezUInt32 val) { return val == 500; });
+    auto itfound = std::find_if(begin(m), end(m), [](ezUInt32 uiVal) { return uiVal == 500; });
 
     EZ_TEST_BOOL(std::find(begin(m), end(m), 500) == itfound);
 

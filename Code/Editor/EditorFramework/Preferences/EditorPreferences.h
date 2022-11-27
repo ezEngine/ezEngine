@@ -14,7 +14,7 @@ public:
   ezEditorPreferencesUser();
   ~ezEditorPreferencesUser();
 
-  void ApplyDefaultValues(ezEngineViewLightSettings& settings);
+  void ApplyDefaultValues(ezEngineViewLightSettings& ref_settings);
   void SetAsDefaultValues(const ezEngineViewLightSettings& settings);
 
   float m_fPerspectiveFieldOfView = 70.0f;

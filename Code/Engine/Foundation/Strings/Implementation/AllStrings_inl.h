@@ -57,7 +57,7 @@ EZ_ALWAYS_INLINE void ezHybridString<Size, A>::operator=(ezStringBuilder&& rhs)
 }
 
 template <ezUInt16 Size>
-void ezHybridStringBase<Size>::ReadAll(ezStreamReader& Stream)
+void ezHybridStringBase<Size>::ReadAll(ezStreamReader& inout_stream)
 {
   Clear();
 
@@ -66,7 +66,7 @@ void ezHybridStringBase<Size>::ReadAll(ezStreamReader& Stream)
 
   while (true)
   {
-    const ezUInt32 uiRead = (ezUInt32)Stream.ReadBytes(Temp, 1024);
+    const ezUInt32 uiRead = (ezUInt32)inout_stream.ReadBytes(Temp, 1024);
 
     if (uiRead == 0)
       break;

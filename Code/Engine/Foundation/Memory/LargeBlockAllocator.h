@@ -46,7 +46,7 @@ public:
   ezDataBlock<T, BlockSizeInByte> AllocateBlock();
 
   template <typename T>
-  void DeallocateBlock(ezDataBlock<T, BlockSizeInByte>& block);
+  void DeallocateBlock(ezDataBlock<T, BlockSizeInByte>& ref_block);
 
 
   const char* GetName() const;

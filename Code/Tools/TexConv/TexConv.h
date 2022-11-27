@@ -11,9 +11,9 @@ public:
 
   struct KeyEnumValuePair
   {
-    KeyEnumValuePair(const char* key, ezInt32 val)
-      : m_szKey(key)
-      , m_iEnumValue(val)
+    KeyEnumValuePair(const char* szKey, ezInt32 iVal)
+      : m_szKey(szKey)
+      , m_iEnumValue(iVal)
     {
     }
 
@@ -36,7 +36,7 @@ public:
   ezResult ParseOutputFiles();
   ezResult ParseChannelMappings();
   ezResult ParseChannelSliceMapping(ezInt32 iSlice);
-  ezResult ParseChannelMappingConfig(ezTexConvChannelMapping& out_Mapping, const char* cfg, ezInt32 iChannelIndex, bool bSingleChannel);
+  ezResult ParseChannelMappingConfig(ezTexConvChannelMapping& out_mapping, const char* szCfg, ezInt32 iChannelIndex, bool bSingleChannel);
   ezResult ParseUsage();
   ezResult ParseMipmapMode();
   ezResult ParseTargetPlatform();
@@ -48,14 +48,14 @@ public:
   ezResult ParseAssetHeader();
   ezResult ParseBumpMapFilter();
 
-  ezResult ParseUIntOption(const char* szOption, ezInt32 iMinValue, ezInt32 iMaxValue, ezUInt32& uiResult) const;
-  ezResult ParseStringOption(const char* szOption, const ezDynamicArray<KeyEnumValuePair>& allowed, ezInt32& iResult) const;
+  ezResult ParseUIntOption(const char* szOption, ezInt32 iMinValue, ezInt32 iMaxValue, ezUInt32& ref_uiResult) const;
+  ezResult ParseStringOption(const char* szOption, const ezDynamicArray<KeyEnumValuePair>& allowed, ezInt32& ref_iResult) const;
   void PrintOptionValues(const char* szOption, const ezDynamicArray<KeyEnumValuePair>& allowed) const;
   void PrintOptionValuesHelp(const char* szOption, const ezDynamicArray<KeyEnumValuePair>& allowed) const;
-  bool ParseFile(const char* szOption, ezString& result) const;
+  bool ParseFile(const char* szOption, ezString& ref_sResult) const;
 
   bool IsTexFormat() const;
-  ezResult WriteTexFile(ezStreamWriter& stream, const ezImage& image);
+  ezResult WriteTexFile(ezStreamWriter& inout_stream, const ezImage& image);
   ezResult WriteOutputFile(const char* szFile, const ezImage& image);
 
 private:

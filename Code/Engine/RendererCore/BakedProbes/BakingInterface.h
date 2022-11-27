@@ -10,8 +10,8 @@ struct EZ_RENDERERCORE_DLL ezBakingSettings
   ezUInt32 m_uiNumSamplesPerProbe = 128;
   float m_fMaxRayDistance = 1000.0f;
 
-  ezResult Serialize(ezStreamWriter& stream) const;
-  ezResult Deserialize(ezStreamReader& stream);
+  ezResult Serialize(ezStreamWriter& inout_stream) const;
+  ezResult Deserialize(ezStreamReader& inout_stream);
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezBakingSettings);
@@ -22,5 +22,5 @@ class ezBakingInterface
 {
 public:
   /// \brief Renders a debug view of the baking scene
-  virtual ezResult RenderDebugView(const ezWorld& world, const ezMat4& InverseViewProjection, ezUInt32 uiWidth, ezUInt32 uiHeight, ezDynamicArray<ezColorGammaUB>& out_Pixels, ezProgress& progress) const = 0;
+  virtual ezResult RenderDebugView(const ezWorld& world, const ezMat4& mInverseViewProjection, ezUInt32 uiWidth, ezUInt32 uiHeight, ezDynamicArray<ezColorGammaUB>& out_pixels, ezProgress& ref_progress) const = 0;
 };

@@ -122,10 +122,10 @@ public:
   ///
   /// If the entry already exists, it will add the entry flags that hadn't been set before, but NOT change the value.
   /// Thus you can use it to make sure that a value exists with a given start value, but keep it unchanged, if it already existed.
-  void RegisterEntry(const ezHashedString& name, const ezVariant& initialValue, ezBitflags<ezBlackboardEntryFlags> flags = ezBlackboardEntryFlags::None);
+  void RegisterEntry(const ezHashedString& sName, const ezVariant& initialValue, ezBitflags<ezBlackboardEntryFlags> flags = ezBlackboardEntryFlags::None);
 
   /// \brief Removes the named entry. Does nothing, if no such entry exists.
-  void UnregisterEntry(const ezHashedString& name);
+  void UnregisterEntry(const ezHashedString& sName);
 
   ///  \brief Removes all entries.
   void UnregisterAllEntries();
@@ -138,16 +138,16 @@ public:
   /// However, if the new value is no different to the old, no event will be broadcast, unless 'force' is set to true.
   ///
   /// Returns EZ_FAILURE, if the named entry hasn't been registered before.
-  ezResult SetEntryValue(const ezTempHashedString& name, const ezVariant& value, bool force = false);
+  ezResult SetEntryValue(const ezTempHashedString& sName, const ezVariant& value, bool bForce = false);
 
   /// \brief Returns a pointer to the named entry, or nullptr if no such entry was registered.
-  const Entry* GetEntry(const ezTempHashedString& name) const;
+  const Entry* GetEntry(const ezTempHashedString& sName) const;
 
   /// \brief Returns the flags of the named entry, or ezBlackboardEntryFlags::Invalid, if no such entry was registered.
-  ezBitflags<ezBlackboardEntryFlags> GetEntryFlags(const ezTempHashedString& name) const;
+  ezBitflags<ezBlackboardEntryFlags> GetEntryFlags(const ezTempHashedString& sName) const;
 
   /// \brief Returns the value of the named entry, or the fallback ezVariant, if no such entry was registered.
-  ezVariant GetEntryValue(const ezTempHashedString& name, ezVariant fallback = {}) const;
+  ezVariant GetEntryValue(const ezTempHashedString& sName, ezVariant fallback = {}) const;
 
   /// \brief Grants read access to the entire map of entries.
   const ezHashTable<ezHashedString, Entry>& GetAllEntries() const { return m_Entries; }
@@ -166,13 +166,13 @@ public:
   ezUInt32 GetBlackboardEntryChangeCounter() const { return m_uiBlackboardEntryChangeCounter; }
 
   /// \brief Stores all entries that have the 'Save' flag in the stream.
-  ezResult Serialize(ezStreamWriter& stream) const;
+  ezResult Serialize(ezStreamWriter& inout_stream) const;
 
   /// \brief Restores entries from the stream.
   ///
   /// If the blackboard already contains entries, the deserialized data is ADDED to the blackboard.
   /// If deserialized entries overlap with existing ones, the deserialized entries will overwrite the existing ones (both values and flags).
-  ezResult Deserialize(ezStreamReader& stream);
+  ezResult Deserialize(ezStreamReader& inout_stream);
 
 private:
   ezHashedString m_sName;
@@ -196,8 +196,8 @@ struct EZ_CORE_DLL ezBlackboardCondition
 
   bool IsConditionMet(const ezBlackboard& blackboard) const;
 
-  ezResult Serialize(ezStreamWriter& stream) const;
-  ezResult Deserialize(ezStreamReader& stream);
+  ezResult Serialize(ezStreamWriter& inout_stream) const;
+  ezResult Deserialize(ezStreamReader& inout_stream);
 
   const char* GetEntryName() const { return m_sEntryName; }
   void SetEntryName(const char* szName) { m_sEntryName.Assign(szName); }

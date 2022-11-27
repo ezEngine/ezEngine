@@ -21,33 +21,33 @@ public:
 
   /// \brief Reads a single object inplace.
   template <typename T>
-  ezResult ReadObjectInplace(ezStreamReader& stream, T& obj); // [tested]
+  ezResult ReadObjectInplace(ezStreamReader& inout_stream, T& ref_obj); // [tested]
 
   /// \brief Reads a single object and sets the pointer to it. The given allocator is used to create the object if it doesn't exist yet.
   template <typename T>
-  ezResult ReadObject(ezStreamReader& stream, T*& pObject,
+  ezResult ReadObject(ezStreamReader& inout_stream, T*& ref_pObject,
     ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator()); // [tested]
 
   /// \brief Reads a single object and sets the shared pointer to it. The given allocator is used to create the object if it doesn't exist
   /// yet.
   template <typename T>
-  ezResult ReadObject(ezStreamReader& stream, ezSharedPtr<T>& pObject,
+  ezResult ReadObject(ezStreamReader& inout_stream, ezSharedPtr<T>& ref_pObject,
     ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator()); // [tested]
 
   /// \brief Reads a single object and sets the unique pointer to it. The given allocator is used to create the object if it doesn't exist
   /// yet.
   template <typename T>
-  ezResult ReadObject(ezStreamReader& stream, ezUniquePtr<T>& pObject,
+  ezResult ReadObject(ezStreamReader& inout_stream, ezUniquePtr<T>& ref_pObject,
     ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator()); // [tested]
 
   /// \brief Reads an array of de-duplicated objects.
   template <typename ArrayType, typename ValueType>
-  ezResult ReadArray(ezStreamReader& stream, ezArrayBase<ValueType, ArrayType>& Array,
+  ezResult ReadArray(ezStreamReader& inout_stream, ezArrayBase<ValueType, ArrayType>& ref_array,
     ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator()); // [tested]
 
   /// \brief Reads a set of de-duplicated objects.
   template <typename KeyType, typename Comparer>
-  ezResult ReadSet(ezStreamReader& stream, ezSetBase<KeyType, Comparer>& Set,
+  ezResult ReadSet(ezStreamReader& inout_stream, ezSetBase<KeyType, Comparer>& ref_set,
     ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator()); // [tested]
 
   enum class ReadMapMode
@@ -59,7 +59,7 @@ public:
 
   /// \brief Reads a map. Mode controls whether key or value or both should de-duplicated.
   template <typename KeyType, typename ValueType, typename Comparer>
-  ezResult ReadMap(ezStreamReader& stream, ezMapBase<KeyType, ValueType, Comparer>& Map, ReadMapMode mode,
+  ezResult ReadMap(ezStreamReader& inout_stream, ezMapBase<KeyType, ValueType, Comparer>& ref_map, ReadMapMode mode,
     ezAllocatorBase* pKeyAllocator = ezFoundation::GetDefaultAllocator(),
     ezAllocatorBase* pValueAllocator = ezFoundation::GetDefaultAllocator()); // [tested]
 

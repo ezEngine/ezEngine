@@ -49,23 +49,23 @@ void ezLineToComponent::Update()
   ezDebugRenderer::DrawLines(GetWorld(), lines, m_LineColor);
 }
 
-void ezLineToComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezLineToComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
-  auto& s = stream.GetStream();
+  SUPER::SerializeComponent(inout_stream);
+  auto& s = inout_stream.GetStream();
 
-  stream.WriteGameObjectHandle(m_hTargetObject);
+  inout_stream.WriteGameObjectHandle(m_hTargetObject);
   s << m_LineColor;
 }
 
-void ezLineToComponent::DeserializeComponent(ezWorldReader& stream)
+void ezLineToComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
+  SUPER::DeserializeComponent(inout_stream);
   // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
-  m_hTargetObject = stream.ReadGameObjectHandle();
+  m_hTargetObject = inout_stream.ReadGameObjectHandle();
   s >> m_LineColor;
 }
 

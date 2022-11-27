@@ -385,14 +385,14 @@ void ezQtPropertyAnimAssetDocumentWindow::UpdateSelectionData()
 
     ezQtPropertyAnimModel* pModel = m_pPropertiesModel;
 
-    auto addRecursive = [&tracks, pModel](auto& self, const ezQtPropertyAnimModelTreeEntry* pTreeItem) -> void {
+    auto addRecursive = [&tracks, pModel](auto& ref_self, const ezQtPropertyAnimModelTreeEntry* pTreeItem) -> void {
       if (pTreeItem->m_pTrack != nullptr)
         tracks.Insert(pTreeItem->m_iTrackIdx);
 
       for (ezInt32 iChild : pTreeItem->m_Children)
       {
         // cannot use 'addRecursive' here, because the name is not yet fully defined
-        self(self, &pModel->GetAllEntries()[iChild]);
+        ref_self(ref_self, &pModel->GetAllEntries()[iChild]);
       }
     };
 
@@ -1213,8 +1213,8 @@ void ezQtPropertyAnimAssetDocumentWindow::onEventTrackEndCpChanges()
 
 //////////////////////////////////////////////////////////////////////////
 
-ezQtPropertyAnimAssetTreeView::ezQtPropertyAnimAssetTreeView(QWidget* parent)
-  : QTreeView(parent)
+ezQtPropertyAnimAssetTreeView::ezQtPropertyAnimAssetTreeView(QWidget* pParent)
+  : QTreeView(pParent)
 {
   setContextMenuPolicy(Qt::ContextMenuPolicy::DefaultContextMenu);
 }

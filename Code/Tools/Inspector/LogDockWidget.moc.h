@@ -13,9 +13,9 @@ public:
   Q_OBJECT
 
 public:
-  ezQtLogDockWidget(QWidget* parent = 0);
+  ezQtLogDockWidget(QWidget* pParent = 0);
 
-  void Log(const ezFormatString& sText);
+  void Log(const ezFormatString& text);
 
   static ezQtLogDockWidget* s_pWidget;
 

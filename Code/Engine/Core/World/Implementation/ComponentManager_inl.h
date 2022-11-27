@@ -1,18 +1,18 @@
 
-EZ_FORCE_INLINE bool ezComponentManagerBase::IsValidComponent(const ezComponentHandle& component) const
+EZ_FORCE_INLINE bool ezComponentManagerBase::IsValidComponent(const ezComponentHandle& hComponent) const
 {
-  return m_Components.Contains(component);
+  return m_Components.Contains(hComponent);
 }
 
-EZ_FORCE_INLINE bool ezComponentManagerBase::TryGetComponent(const ezComponentHandle& component, ezComponent*& out_pComponent)
+EZ_FORCE_INLINE bool ezComponentManagerBase::TryGetComponent(const ezComponentHandle& hComponent, ezComponent*& out_pComponent)
 {
-  return m_Components.TryGetValue(component, out_pComponent);
+  return m_Components.TryGetValue(hComponent, out_pComponent);
 }
 
-EZ_FORCE_INLINE bool ezComponentManagerBase::TryGetComponent(const ezComponentHandle& component, const ezComponent*& out_pComponent) const
+EZ_FORCE_INLINE bool ezComponentManagerBase::TryGetComponent(const ezComponentHandle& hComponent, const ezComponent*& out_pComponent) const
 {
   ezComponent* pComponent = nullptr;
-  bool res = m_Components.TryGetValue(component, pComponent);
+  bool res = m_Components.TryGetValue(hComponent, pComponent);
   out_pComponent = pComponent;
   return res;
 }
@@ -53,32 +53,32 @@ ezComponentManager<T, StorageType>::~ezComponentManager()
 }
 
 template <typename T, ezBlockStorageType::Enum StorageType>
-EZ_FORCE_INLINE bool ezComponentManager<T, StorageType>::TryGetComponent(const ezComponentHandle& component, ComponentType*& out_pComponent)
+EZ_FORCE_INLINE bool ezComponentManager<T, StorageType>::TryGetComponent(const ezComponentHandle& hComponent, ComponentType*& out_pComponent)
 {
-  EZ_ASSERT_DEV(ComponentType::TypeId() == component.GetInternalID().m_TypeId,
+  EZ_ASSERT_DEV(ComponentType::TypeId() == hComponent.GetInternalID().m_TypeId,
     "The given component handle is not of the expected type. Expected type id {0}, got type id {1}", ComponentType::TypeId(),
-    component.GetInternalID().m_TypeId);
-  EZ_ASSERT_DEV(component.GetInternalID().m_WorldIndex == GetWorldIndex(),
-    "Component does not belong to this world. Expected world id {0} got id {1}", GetWorldIndex(), component.GetInternalID().m_WorldIndex);
+    hComponent.GetInternalID().m_TypeId);
+  EZ_ASSERT_DEV(hComponent.GetInternalID().m_WorldIndex == GetWorldIndex(),
+    "Component does not belong to this world. Expected world id {0} got id {1}", GetWorldIndex(), hComponent.GetInternalID().m_WorldIndex);
 
   ezComponent* pComponent = nullptr;
-  bool bResult = ezComponentManagerBase::TryGetComponent(component, pComponent);
+  bool bResult = ezComponentManagerBase::TryGetComponent(hComponent, pComponent);
   out_pComponent = static_cast<ComponentType*>(pComponent);
   return bResult;
 }
 
 template <typename T, ezBlockStorageType::Enum StorageType>
 EZ_FORCE_INLINE bool ezComponentManager<T, StorageType>::TryGetComponent(
-  const ezComponentHandle& component, const ComponentType*& out_pComponent) const
+  const ezComponentHandle& hComponent, const ComponentType*& out_pComponent) const
 {
-  EZ_ASSERT_DEV(ComponentType::TypeId() == component.GetInternalID().m_TypeId,
+  EZ_ASSERT_DEV(ComponentType::TypeId() == hComponent.GetInternalID().m_TypeId,
     "The given component handle is not of the expected type. Expected type id {0}, got type id {1}", ComponentType::TypeId(),
-    component.GetInternalID().m_TypeId);
-  EZ_ASSERT_DEV(component.GetInternalID().m_WorldIndex == GetWorldIndex(),
-    "Component does not belong to this world. Expected world id {0} got id {1}", GetWorldIndex(), component.GetInternalID().m_WorldIndex);
+    hComponent.GetInternalID().m_TypeId);
+  EZ_ASSERT_DEV(hComponent.GetInternalID().m_WorldIndex == GetWorldIndex(),
+    "Component does not belong to this world. Expected world id {0} got id {1}", GetWorldIndex(), hComponent.GetInternalID().m_WorldIndex);
 
   const ezComponent* pComponent = nullptr;
-  bool bResult = ezComponentManagerBase::TryGetComponent(component, pComponent);
+  bool bResult = ezComponentManagerBase::TryGetComponent(hComponent, pComponent);
   out_pComponent = static_cast<const ComponentType*>(pComponent);
   return bResult;
 }
@@ -104,29 +104,29 @@ EZ_ALWAYS_INLINE ezWorldModuleTypeId ezComponentManager<T, StorageType>::TypeId(
 }
 
 template <typename T, ezBlockStorageType::Enum StorageType>
-void ezComponentManager<T, StorageType>::CollectAllComponents(ezDynamicArray<ezComponentHandle>& out_AllComponents, bool bOnlyActive)
+void ezComponentManager<T, StorageType>::CollectAllComponents(ezDynamicArray<ezComponentHandle>& out_allComponents, bool bOnlyActive)
 {
-  out_AllComponents.Reserve(out_AllComponents.GetCount() + m_ComponentStorage.GetCount());
+  out_allComponents.Reserve(out_allComponents.GetCount() + m_ComponentStorage.GetCount());
 
   for (auto it = GetComponents(); it.IsValid(); it.Next())
   {
     if (!bOnlyActive || it->IsActive())
     {
-      out_AllComponents.PushBack(it->GetHandle());
+      out_allComponents.PushBack(it->GetHandle());
     }
   }
 }
 
 template <typename T, ezBlockStorageType::Enum StorageType>
-void ezComponentManager<T, StorageType>::CollectAllComponents(ezDynamicArray<ezComponent*>& out_AllComponents, bool bOnlyActive)
+void ezComponentManager<T, StorageType>::CollectAllComponents(ezDynamicArray<ezComponent*>& out_allComponents, bool bOnlyActive)
 {
-  out_AllComponents.Reserve(out_AllComponents.GetCount() + m_ComponentStorage.GetCount());
+  out_allComponents.Reserve(out_allComponents.GetCount() + m_ComponentStorage.GetCount());
 
   for (auto it = GetComponents(); it.IsValid(); it.Next())
   {
     if (!bOnlyActive || it->IsActive())
     {
-      out_AllComponents.PushBack(it);
+      out_allComponents.PushBack(it);
     }
   }
 }

@@ -38,21 +38,21 @@ EZ_END_ABSTRACT_COMPONENT_TYPE
 ezJoltActorComponent::ezJoltActorComponent() = default;
 ezJoltActorComponent::~ezJoltActorComponent() = default;
 
-void ezJoltActorComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezJoltActorComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s << m_uiCollisionLayer;
 }
 
-void ezJoltActorComponent::DeserializeComponent(ezWorldReader& stream)
+void ezJoltActorComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s >> m_uiCollisionLayer;
 }

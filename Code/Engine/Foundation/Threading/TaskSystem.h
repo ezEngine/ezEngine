@@ -30,12 +30,12 @@ public:
 public:
   /// \brief A helper function to insert a single task into the system and start it right away. Returns ID of the Group into which the task
   /// has been put.
-  static ezTaskGroupID StartSingleTask(const ezSharedPtr<ezTask>& pTask, ezTaskPriority::Enum Priority,
+  static ezTaskGroupID StartSingleTask(const ezSharedPtr<ezTask>& pTask, ezTaskPriority::Enum priority,
     ezOnTaskGroupFinishedCallback callback = ezOnTaskGroupFinishedCallback()); // [tested]
 
   /// \brief A helper function to insert a single task into the system and start it right away. Returns ID of the Group into which the task
   /// has been put. This overload allows to additionally specify a single dependency.
-  static ezTaskGroupID StartSingleTask(const ezSharedPtr<ezTask>& pTask, ezTaskPriority::Enum Priority, ezTaskGroupID Dependency,
+  static ezTaskGroupID StartSingleTask(const ezSharedPtr<ezTask>& pTask, ezTaskPriority::Enum priority, ezTaskGroupID dependency,
     ezOnTaskGroupFinishedCallback callback = ezOnTaskGroupFinishedCallback()); // [tested]
 
   /// \brief Call this function once at the end of a frame. It will ensure that all tasks for 'this frame' get finished properly.
@@ -72,7 +72,7 @@ public:
   /// Therefore when bWaitForIt is true, this function might block for a very long time.
   /// It is advised to implement tasks that need to be canceled regularly (e.g. path searches for units that might die)
   /// in a way that allows for quick canceling.
-  static ezResult CancelTask(const ezSharedPtr<ezTask>& pTask, ezOnTaskRunning::Enum OnTaskRunning = ezOnTaskRunning::WaitTillFinished); // [tested]
+  static ezResult CancelTask(const ezSharedPtr<ezTask>& pTask, ezOnTaskRunning::Enum onTaskRunning = ezOnTaskRunning::WaitTillFinished); // [tested]
 
   struct TaskData
   {
@@ -115,10 +115,10 @@ public:
   /// All tasks that are added to this group will be run with the same given \a Priority.
   /// Once all tasks in the group are finished and thus the group is finished, an optional \a Callback can be executed.
   static ezTaskGroupID CreateTaskGroup(
-    ezTaskPriority::Enum Priority, ezOnTaskGroupFinishedCallback callback = ezOnTaskGroupFinishedCallback()); // [tested]
+    ezTaskPriority::Enum priority, ezOnTaskGroupFinishedCallback callback = ezOnTaskGroupFinishedCallback()); // [tested]
 
   /// \brief Adds a task to the given task group. The group must not yet have been started.
-  static void AddTaskToGroup(ezTaskGroupID Group, const ezSharedPtr<ezTask>& pTask); // [tested]
+  static void AddTaskToGroup(ezTaskGroupID group, const ezSharedPtr<ezTask>& pTask); // [tested]
 
   /// \brief Adds a dependency on another group to \a Group. This means \a Group will not be execute before \a DependsOn has finished.
   ///
@@ -128,13 +128,13 @@ public:
   /// its dependencies are fulfilled. So you might add a long running task and a short task which depends on it, but the system will
   /// not block at the end of the frame, to wait for the long running task (to finish the short task thereafter), as that short task
   /// won't get scheduled for execution, at all, until all its dependencies are actually finished.
-  static void AddTaskGroupDependency(ezTaskGroupID Group, ezTaskGroupID DependsOn); // [tested]
+  static void AddTaskGroupDependency(ezTaskGroupID group, ezTaskGroupID dependsOn); // [tested]
 
   /// \brief Same as AddTaskGroupDependency() but batches multiple dependency additions
   static void AddTaskGroupDependencyBatch(ezArrayPtr<const ezTaskGroupDependency> batch);
 
   /// \brief Starts the task group. After this no further modifications on the group (new tasks or dependencies) are allowed.
-  static void StartTaskGroup(ezTaskGroupID Group); // [tested]
+  static void StartTaskGroup(ezTaskGroupID group); // [tested]
 
   /// \brief Same as StartTaskGroup() but batches multiple actions
   static void StartTaskGroupBatch(ezArrayPtr<const ezTaskGroupID> batch);
@@ -143,7 +143,7 @@ public:
   ///
   /// There is no time frame in which group IDs are valid. You may call this function at any time, even 10 minutes later,
   /// and it will correctly determine the results.
-  static bool IsTaskGroupFinished(ezTaskGroupID Group); // [tested]
+  static bool IsTaskGroupFinished(ezTaskGroupID group); // [tested]
 
   /// \brief Cancels all the tasks in the given group.
   ///
@@ -151,14 +151,14 @@ public:
   /// EZ_FAILURE is returned, if at least one task was being processed by another thread and could not be removed without waiting.
   /// If bWaitForIt is false, the function cancels all tasks, but returns without blocking, even if not all tasks have been finished.
   /// If bWaitForIt is true, the function returns only after it is guaranteed that all tasks are properly terminated.
-  static ezResult CancelGroup(ezTaskGroupID Group, ezOnTaskRunning::Enum OnTaskRunning = ezOnTaskRunning::WaitTillFinished); // [tested]
+  static ezResult CancelGroup(ezTaskGroupID group, ezOnTaskRunning::Enum onTaskRunning = ezOnTaskRunning::WaitTillFinished); // [tested]
 
   /// \brief Blocks until all tasks in the given group have finished.
   ///
   /// If you need to wait for some other task to finish, this should always be the preferred method to do so.
   /// WaitForGroup will put the current thread to sleep and use thread signals to only wake it up again once the group is indeed
   /// finished. This is the most efficient way to wait for a task.
-  static void WaitForGroup(ezTaskGroupID Group); // [tested]
+  static void WaitForGroup(ezTaskGroupID group); // [tested]
 
   /// \brief Blocks the current thread until the given delegate returns true.
   ///
@@ -212,7 +212,7 @@ public:
   /// per frame.
   ///
   /// Also optionally returns the number of tasks that were finished during the last frame.
-  static double GetThreadUtilization(ezWorkerThreadType::Enum Type, ezUInt32 uiThreadIndex, ezUInt32* pNumTasksExecuted = nullptr);
+  static double GetThreadUtilization(ezWorkerThreadType::Enum type, ezUInt32 uiThreadIndex, ezUInt32* pNumTasksExecuted = nullptr);
 
   /// \brief [internal] Wakes up or allocates up to \a uiNumThreads, unless enough threads are currently active and not blocked
   static void WakeUpThreads(ezWorkerThreadType::Enum type, ezUInt32 uiNumThreads);
@@ -240,11 +240,11 @@ private:
 public:
   /// A helper function to process task items in a parallel fashion by having per-worker index ranges generated.
   static void ParallelForIndexed(ezUInt32 uiStartIndex, ezUInt32 uiNumItems, ezParallelForIndexedFunction32 taskCallback,
-    const char* taskName = nullptr, const ezParallelForParams& params = ezParallelForParams());
+    const char* szTaskName = nullptr, const ezParallelForParams& params = ezParallelForParams());
 
   /// A helper function to process task items in a parallel fashion by having per-worker index ranges generated.
   static void ParallelForIndexed(ezUInt64 uiStartIndex, ezUInt64 uiNumItems, ezParallelForIndexedFunction64 taskCallback,
-    const char* taskName = nullptr, const ezParallelForParams& params = ezParallelForParams());
+    const char* szTaskName = nullptr, const ezParallelForParams& params = ezParallelForParams());
 
   /// A helper function to process task items in a parallel fashion by generating per-worker sub-ranges
   /// from an initial item array pointer.
@@ -252,7 +252,7 @@ public:
   ///   - ParallelFor(taskItems, [](ezArrayPtr<ElemType> taskItemSlice) { });
   template <typename ElemType, typename Callback>
   static void ParallelFor(
-    ezArrayPtr<ElemType> taskItems, Callback taskCallback, const char* taskName = nullptr, const ezParallelForParams& params = ezParallelForParams());
+    ezArrayPtr<ElemType> taskItems, Callback taskCallback, const char* szTaskName = nullptr, const ezParallelForParams& params = ezParallelForParams());
   /// A helper function to process task items in a parallel fashion and one-by-one (without global index).
   /// Given an array pointer 'taskItems' with elements of type ElemType, the following invocations are possible:
   ///   - ParallelFor(taskItems, [](ElemType taskItem) { });
@@ -260,7 +260,7 @@ public:
   ///   - ParallelFor(taskItems, [](const ElemType& taskItem) { });
   template <typename ElemType, typename Callback>
   static void ParallelForSingle(
-    ezArrayPtr<ElemType> taskItems, Callback taskCallback, const char* taskName = nullptr, const ezParallelForParams& params = ezParallelForParams());
+    ezArrayPtr<ElemType> taskItems, Callback taskCallback, const char* szTaskName = nullptr, const ezParallelForParams& params = ezParallelForParams());
   /// A helper function to process task items in a parallel fashion and one-by-one (with global index).
   /// Given an array pointer 'taskItems' with elements of type ElemType, the following invocations are possible:
   ///   - ParallelFor(taskItems, [](ezUInt32 globalTaskItemIndex, ElemType taskItem) { });
@@ -268,7 +268,7 @@ public:
   ///   - ParallelFor(taskItems, [](ezUInt32 globalTaskItemIndex, const ElemType& taskItem) { });
   template <typename ElemType, typename Callback>
   static void ParallelForSingleIndex(
-    ezArrayPtr<ElemType> taskItems, Callback taskCallback, const char* taskName = nullptr, const ezParallelForParams& params = ezParallelForParams());
+    ezArrayPtr<ElemType> taskItems, Callback taskCallback, const char* szTaskName = nullptr, const ezParallelForParams& params = ezParallelForParams());
 
 private:
   template <typename ElemType>
@@ -282,7 +282,7 @@ private:
 
 public:
   /// \brief Writes the internal state of the ezTaskSystem as a DGML graph.
-  static void WriteStateSnapshotToDGML(ezDGMLGraph& graph);
+  static void WriteStateSnapshotToDGML(ezDGMLGraph& ref_graph);
 
   /// \brief Convenience function to write the task graph snapshot to a file. If no path is given, the file is written to
   /// ":appdata/TaskGraphs/__date__.dgml"

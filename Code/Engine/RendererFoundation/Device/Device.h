@@ -35,33 +35,33 @@ public:
 
   // State creation functions
 
-  ezGALBlendStateHandle CreateBlendState(const ezGALBlendStateCreationDescription& Description);
+  ezGALBlendStateHandle CreateBlendState(const ezGALBlendStateCreationDescription& description);
   void DestroyBlendState(ezGALBlendStateHandle hBlendState);
 
-  ezGALDepthStencilStateHandle CreateDepthStencilState(const ezGALDepthStencilStateCreationDescription& Description);
+  ezGALDepthStencilStateHandle CreateDepthStencilState(const ezGALDepthStencilStateCreationDescription& description);
   void DestroyDepthStencilState(ezGALDepthStencilStateHandle hDepthStencilState);
 
-  ezGALRasterizerStateHandle CreateRasterizerState(const ezGALRasterizerStateCreationDescription& Description);
+  ezGALRasterizerStateHandle CreateRasterizerState(const ezGALRasterizerStateCreationDescription& description);
   void DestroyRasterizerState(ezGALRasterizerStateHandle hRasterizerState);
 
-  ezGALSamplerStateHandle CreateSamplerState(const ezGALSamplerStateCreationDescription& Description);
+  ezGALSamplerStateHandle CreateSamplerState(const ezGALSamplerStateCreationDescription& description);
   void DestroySamplerState(ezGALSamplerStateHandle hSamplerState);
 
   // Resource creation functions
 
-  ezGALShaderHandle CreateShader(const ezGALShaderCreationDescription& Description);
+  ezGALShaderHandle CreateShader(const ezGALShaderCreationDescription& description);
   void DestroyShader(ezGALShaderHandle hShader);
 
-  ezGALBufferHandle CreateBuffer(const ezGALBufferCreationDescription& Description, ezArrayPtr<const ezUInt8> pInitialData = ezArrayPtr<const ezUInt8>());
+  ezGALBufferHandle CreateBuffer(const ezGALBufferCreationDescription& description, ezArrayPtr<const ezUInt8> initialData = ezArrayPtr<const ezUInt8>());
   void DestroyBuffer(ezGALBufferHandle hBuffer);
 
   // Helper functions for buffers (for common, simple use cases)
 
-  ezGALBufferHandle CreateVertexBuffer(ezUInt32 uiVertexSize, ezUInt32 uiVertexCount, ezArrayPtr<const ezUInt8> pInitialData = ezArrayPtr<const ezUInt8>(), bool bDataIsMutable = false);
-  ezGALBufferHandle CreateIndexBuffer(ezGALIndexType::Enum IndexType, ezUInt32 uiIndexCount, ezArrayPtr<const ezUInt8> pInitialData = ezArrayPtr<const ezUInt8>(), bool bDataIsMutable = false);
+  ezGALBufferHandle CreateVertexBuffer(ezUInt32 uiVertexSize, ezUInt32 uiVertexCount, ezArrayPtr<const ezUInt8> initialData = ezArrayPtr<const ezUInt8>(), bool bDataIsMutable = false);
+  ezGALBufferHandle CreateIndexBuffer(ezGALIndexType::Enum indexType, ezUInt32 uiIndexCount, ezArrayPtr<const ezUInt8> initialData = ezArrayPtr<const ezUInt8>(), bool bDataIsMutable = false);
   ezGALBufferHandle CreateConstantBuffer(ezUInt32 uiBufferSize);
 
-  ezGALTextureHandle CreateTexture(const ezGALTextureCreationDescription& Description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData = ezArrayPtr<ezGALSystemMemoryDescription>());
+  ezGALTextureHandle CreateTexture(const ezGALTextureCreationDescription& description, ezArrayPtr<ezGALSystemMemoryDescription> initialData = ezArrayPtr<ezGALSystemMemoryDescription>());
   void DestroyTexture(ezGALTextureHandle hTexture);
 
   ezGALTextureHandle CreateProxyTexture(ezGALTextureHandle hParentTexture, ezUInt32 uiSlice);
@@ -71,17 +71,17 @@ public:
   ezGALResourceViewHandle GetDefaultResourceView(ezGALTextureHandle hTexture);
   ezGALResourceViewHandle GetDefaultResourceView(ezGALBufferHandle hBuffer);
 
-  ezGALResourceViewHandle CreateResourceView(const ezGALResourceViewCreationDescription& Description);
+  ezGALResourceViewHandle CreateResourceView(const ezGALResourceViewCreationDescription& description);
   void DestroyResourceView(ezGALResourceViewHandle hResourceView);
 
   // Render target views
   ezGALRenderTargetViewHandle GetDefaultRenderTargetView(ezGALTextureHandle hTexture);
 
-  ezGALRenderTargetViewHandle CreateRenderTargetView(const ezGALRenderTargetViewCreationDescription& Description);
+  ezGALRenderTargetViewHandle CreateRenderTargetView(const ezGALRenderTargetViewCreationDescription& description);
   void DestroyRenderTargetView(ezGALRenderTargetViewHandle hRenderTargetView);
 
   // Unordered access views
-  ezGALUnorderedAccessViewHandle CreateUnorderedAccessView(const ezGALUnorderedAccessViewCreationDescription& Description);
+  ezGALUnorderedAccessViewHandle CreateUnorderedAccessView(const ezGALUnorderedAccessViewCreationDescription& description);
   void DestroyUnorderedAccessView(ezGALUnorderedAccessViewHandle hUnorderedAccessView);
 
 
@@ -92,15 +92,15 @@ public:
   ezResult UpdateSwapChain(ezGALSwapChainHandle hSwapChain, ezEnum<ezGALPresentMode> newPresentMode);
   void DestroySwapChain(ezGALSwapChainHandle hSwapChain);
 
-  ezGALQueryHandle CreateQuery(const ezGALQueryCreationDescription& Description);
+  ezGALQueryHandle CreateQuery(const ezGALQueryCreationDescription& description);
   void DestroyQuery(ezGALQueryHandle hQuery);
 
-  ezGALVertexDeclarationHandle CreateVertexDeclaration(const ezGALVertexDeclarationCreationDescription& Description);
+  ezGALVertexDeclarationHandle CreateVertexDeclaration(const ezGALVertexDeclarationCreationDescription& description);
   void DestroyVertexDeclaration(ezGALVertexDeclarationHandle hVertexDeclaration);
 
   // Timestamp functions
 
-  ezResult GetTimestampResult(ezGALTimestampHandle hTimestamp, ezTime& result);
+  ezResult GetTimestampResult(ezGALTimestampHandle hTimestamp, ezTime& ref_result);
 
   /// \todo Map functions to save on memcpys
 
@@ -140,8 +140,8 @@ public:
 
   const ezGALDeviceCapabilities& GetCapabilities() const;
 
-  virtual ezUInt64 GetMemoryConsumptionForTexture(const ezGALTextureCreationDescription& Description) const;
-  virtual ezUInt64 GetMemoryConsumptionForBuffer(const ezGALBufferCreationDescription& Description) const;
+  virtual ezUInt64 GetMemoryConsumptionForTexture(const ezGALTextureCreationDescription& description) const;
+  virtual ezUInt64 GetMemoryConsumptionForBuffer(const ezGALBufferCreationDescription& description) const;
 
   static void SetDefaultDevice(ezGALDevice* pDefaultDevice);
   static ezGALDevice* GetDefaultDevice();

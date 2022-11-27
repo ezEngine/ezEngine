@@ -9,75 +9,75 @@
 
 // ezAllocatorBase::Stats
 
-void operator<<(ezStreamWriter& Stream, const ezAllocatorBase::Stats& rhs)
+void operator<<(ezStreamWriter& inout_stream, const ezAllocatorBase::Stats& rhs)
 {
-  Stream << rhs.m_uiNumAllocations;
-  Stream << rhs.m_uiNumDeallocations;
-  Stream << rhs.m_uiAllocationSize;
+  inout_stream << rhs.m_uiNumAllocations;
+  inout_stream << rhs.m_uiNumDeallocations;
+  inout_stream << rhs.m_uiAllocationSize;
 }
 
-void operator>>(ezStreamReader& Stream, ezAllocatorBase::Stats& rhs)
+void operator>>(ezStreamReader& inout_stream, ezAllocatorBase::Stats& rhs)
 {
-  Stream >> rhs.m_uiNumAllocations;
-  Stream >> rhs.m_uiNumDeallocations;
-  Stream >> rhs.m_uiAllocationSize;
+  inout_stream >> rhs.m_uiNumAllocations;
+  inout_stream >> rhs.m_uiNumDeallocations;
+  inout_stream >> rhs.m_uiAllocationSize;
 }
 
 // ezTime
 
-void operator<<(ezStreamWriter& Stream, ezTime Value)
+void operator<<(ezStreamWriter& inout_stream, ezTime value)
 {
-  Stream << Value.GetSeconds();
+  inout_stream << value.GetSeconds();
 }
 
-void operator>>(ezStreamReader& Stream, ezTime& Value)
+void operator>>(ezStreamReader& inout_stream, ezTime& ref_value)
 {
   double d = 0;
-  Stream.ReadQWordValue(&d).IgnoreResult();
+  inout_stream.ReadQWordValue(&d).IgnoreResult();
 
-  Value = ezTime::Seconds(d);
+  ref_value = ezTime::Seconds(d);
 }
 
 // ezUuid
 
-void operator<<(ezStreamWriter& Stream, const ezUuid& Value)
+void operator<<(ezStreamWriter& inout_stream, const ezUuid& value)
 {
-  Stream << Value.m_uiHigh;
-  Stream << Value.m_uiLow;
+  inout_stream << value.m_uiHigh;
+  inout_stream << value.m_uiLow;
 }
 
-void operator>>(ezStreamReader& Stream, ezUuid& Value)
+void operator>>(ezStreamReader& inout_stream, ezUuid& ref_value)
 {
-  Stream >> Value.m_uiHigh;
-  Stream >> Value.m_uiLow;
+  inout_stream >> ref_value.m_uiHigh;
+  inout_stream >> ref_value.m_uiLow;
 }
 
 // ezHashedString
 
-void operator<<(ezStreamWriter& Stream, const ezHashedString& Value)
+void operator<<(ezStreamWriter& inout_stream, const ezHashedString& sValue)
 {
-  Stream.WriteString(Value.GetView()).AssertSuccess();
+  inout_stream.WriteString(sValue.GetView()).AssertSuccess();
 }
 
-void operator>>(ezStreamReader& Stream, ezHashedString& Value)
+void operator>>(ezStreamReader& inout_stream, ezHashedString& ref_sValue)
 {
   ezStringBuilder sTemp;
-  Stream >> sTemp;
-  Value.Assign(sTemp);
+  inout_stream >> sTemp;
+  ref_sValue.Assign(sTemp);
 }
 
 // ezTempHashedString
 
-void operator<<(ezStreamWriter& Stream, const ezTempHashedString& Value)
+void operator<<(ezStreamWriter& inout_stream, const ezTempHashedString& sValue)
 {
-  Stream << (ezUInt64)Value.GetHash();
+  inout_stream << (ezUInt64)sValue.GetHash();
 }
 
-void operator>>(ezStreamReader& Stream, ezTempHashedString& Value)
+void operator>>(ezStreamReader& inout_stream, ezTempHashedString& ref_sValue)
 {
   ezUInt64 hash;
-  Stream >> hash;
-  Value = ezTempHashedString(hash);
+  inout_stream >> hash;
+  ref_sValue = ezTempHashedString(hash);
 }
 
 // ezVariant
@@ -241,101 +241,101 @@ EZ_FORCE_INLINE void ReadValueFunc::operator()<ezDataBuffer>()
   *m_pValue = data;
 }
 
-void operator<<(ezStreamWriter& Stream, const ezVariant& Value)
+void operator<<(ezStreamWriter& inout_stream, const ezVariant& value)
 {
   ezUInt8 variantVersion = (ezUInt8)ezGetStaticRTTI<ezVariant>()->GetTypeVersion();
-  Stream << variantVersion;
-  ezVariant::Type::Enum type = Value.GetType();
+  inout_stream << variantVersion;
+  ezVariant::Type::Enum type = value.GetType();
   ezUInt8 typeStorage = type;
   if (typeStorage == ezVariantType::StringView)
     typeStorage = ezVariantType::String;
-  Stream << typeStorage;
+  inout_stream << typeStorage;
 
   if (type != ezVariant::Type::Invalid)
   {
     WriteValueFunc func;
-    func.m_pStream = &Stream;
-    func.m_pValue = &Value;
+    func.m_pStream = &inout_stream;
+    func.m_pValue = &value;
 
     ezVariant::DispatchTo(func, type);
   }
 }
 
-void operator>>(ezStreamReader& Stream, ezVariant& Value)
+void operator>>(ezStreamReader& inout_stream, ezVariant& ref_value)
 {
   ezUInt8 variantVersion;
-  Stream >> variantVersion;
+  inout_stream >> variantVersion;
   EZ_ASSERT_DEBUG(ezGetStaticRTTI<ezVariant>()->GetTypeVersion() == variantVersion, "Older variant serialization not supported!");
 
   ezUInt8 typeStorage;
-  Stream >> typeStorage;
+  inout_stream >> typeStorage;
   ezVariant::Type::Enum type = (ezVariant::Type::Enum)typeStorage;
 
   if (type != ezVariant::Type::Invalid)
   {
     ReadValueFunc func;
-    func.m_pStream = &Stream;
-    func.m_pValue = &Value;
+    func.m_pStream = &inout_stream;
+    func.m_pValue = &ref_value;
 
     ezVariant::DispatchTo(func, type);
   }
   else
   {
-    Value = ezVariant();
+    ref_value = ezVariant();
   }
 }
 
 // ezTimestamp
 
-void operator<<(ezStreamWriter& Stream, ezTimestamp Value)
+void operator<<(ezStreamWriter& inout_stream, ezTimestamp value)
 {
-  Stream << Value.GetInt64(ezSIUnitOfTime::Microsecond);
+  inout_stream << value.GetInt64(ezSIUnitOfTime::Microsecond);
 }
 
-void operator>>(ezStreamReader& Stream, ezTimestamp& Value)
+void operator>>(ezStreamReader& inout_stream, ezTimestamp& ref_value)
 {
   ezInt64 value;
-  Stream >> value;
+  inout_stream >> value;
 
-  Value.SetInt64(value, ezSIUnitOfTime::Microsecond);
+  ref_value.SetInt64(value, ezSIUnitOfTime::Microsecond);
 }
 
 // ezVarianceTypeFloat
 
-void operator<<(ezStreamWriter& Stream, const ezVarianceTypeFloat& Value)
+void operator<<(ezStreamWriter& inout_stream, const ezVarianceTypeFloat& value)
 {
-  Stream << Value.m_fVariance;
-  Stream << Value.m_Value;
+  inout_stream << value.m_fVariance;
+  inout_stream << value.m_Value;
 }
-void operator>>(ezStreamReader& Stream, ezVarianceTypeFloat& Value)
+void operator>>(ezStreamReader& inout_stream, ezVarianceTypeFloat& ref_value)
 {
-  Stream >> Value.m_fVariance;
-  Stream >> Value.m_Value;
+  inout_stream >> ref_value.m_fVariance;
+  inout_stream >> ref_value.m_Value;
 }
 
 // ezVarianceTypeTime
 
-void operator<<(ezStreamWriter& Stream, const ezVarianceTypeTime& Value)
+void operator<<(ezStreamWriter& inout_stream, const ezVarianceTypeTime& value)
 {
-  Stream << Value.m_fVariance;
-  Stream << Value.m_Value;
+  inout_stream << value.m_fVariance;
+  inout_stream << value.m_Value;
 }
-void operator>>(ezStreamReader& Stream, ezVarianceTypeTime& Value)
+void operator>>(ezStreamReader& inout_stream, ezVarianceTypeTime& ref_value)
 {
-  Stream >> Value.m_fVariance;
-  Stream >> Value.m_Value;
+  inout_stream >> ref_value.m_fVariance;
+  inout_stream >> ref_value.m_Value;
 }
 
 // ezVarianceTypeAngle
 
-void operator<<(ezStreamWriter& Stream, const ezVarianceTypeAngle& Value)
+void operator<<(ezStreamWriter& inout_stream, const ezVarianceTypeAngle& value)
 {
-  Stream << Value.m_fVariance;
-  Stream << Value.m_Value;
+  inout_stream << value.m_fVariance;
+  inout_stream << value.m_Value;
 }
-void operator>>(ezStreamReader& Stream, ezVarianceTypeAngle& Value)
+void operator>>(ezStreamReader& inout_stream, ezVarianceTypeAngle& ref_value)
 {
-  Stream >> Value.m_fVariance;
-  Stream >> Value.m_Value;
+  inout_stream >> ref_value.m_fVariance;
+  inout_stream >> ref_value.m_Value;
 }
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_StreamOperationsOther);

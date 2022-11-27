@@ -20,10 +20,10 @@ public:
   ezQtProcGenPin();
   ~ezQtProcGenPin();
 
-  virtual void ExtendContextMenu(QMenu& menu) override;
+  virtual void ExtendContextMenu(QMenu& ref_menu) override;
 
-  virtual void keyPressEvent(QKeyEvent* event) override;
-  virtual void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override;
+  virtual void keyPressEvent(QKeyEvent* pEvent) override;
+  virtual void paint(QPainter* pPainter, const QStyleOptionGraphicsItem* pOption, QWidget* pWidget) override;
   virtual QRectF boundingRect() const override;
 
   void SetDebug(bool bDebug);
@@ -35,7 +35,7 @@ private:
 class ezQtProcGenScene : public ezQtNodeScene
 {
 public:
-  ezQtProcGenScene(QObject* parent = nullptr);
+  ezQtProcGenScene(QObject* pParent = nullptr);
   ~ezQtProcGenScene();
 
   void SetDebugPin(ezQtProcGenPin* pDebugPin);

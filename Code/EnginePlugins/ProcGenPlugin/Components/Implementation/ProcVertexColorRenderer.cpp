@@ -14,9 +14,9 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezProcVertexColorRenderer::ezProcVertexColorRenderer() = default;
 ezProcVertexColorRenderer::~ezProcVertexColorRenderer() = default;
 
-void ezProcVertexColorRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types) const
+void ezProcVertexColorRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& ref_types) const
 {
-  types.PushBack(ezGetStaticRTTI<ezProcVertexColorRenderData>());
+  ref_types.PushBack(ezGetStaticRTTI<ezProcVertexColorRenderData>());
 }
 
 void ezProcVertexColorRenderer::SetAdditionalData(const ezRenderViewContext& renderViewContext, const ezMeshRenderData* pRenderData) const

@@ -29,8 +29,8 @@ public:
     EZ_DECLARE_POD_TYPE();
 
     Line();
-    Line(const ezVec3& start, const ezVec3& end);
-    Line(const ezVec3& start, const ezVec3& end, const ezColor& color);
+    Line(const ezVec3& vStart, const ezVec3& vEnd);
+    Line(const ezVec3& vStart, const ezVec3& vEnd, const ezColor& color);
 
     ezVec3 m_start;
     ezVec3 m_end;
@@ -44,7 +44,7 @@ public:
     EZ_DECLARE_POD_TYPE();
 
     Triangle();
-    Triangle(const ezVec3& p0, const ezVec3& p1, const ezVec3& p2);
+    Triangle(const ezVec3& v0, const ezVec3& v1, const ezVec3& v2);
 
     ezVec3 m_position[3];
     ezColor m_color = ezColor::White;
@@ -92,7 +92,7 @@ public:
   static void Draw2DLines(const ezDebugRendererContext& context, ezArrayPtr<const Line> lines, const ezColor& color);
 
   /// \brief Renders a cross for one frame.
-  static void DrawCross(const ezDebugRendererContext& context, const ezVec3& globalPosition, float fLineLength, const ezColor& color, const ezTransform& transform = ezTransform::IdentityTransform());
+  static void DrawCross(const ezDebugRendererContext& context, const ezVec3& vGlobalPosition, float fLineLength, const ezColor& color, const ezTransform& transform = ezTransform::IdentityTransform());
 
   /// \brief Renders a wireframe box for one frame.
   static void DrawLineBox(const ezDebugRendererContext& context, const ezBoundingBox& box, const ezColor& color, const ezTransform& transform = ezTransform::IdentityTransform());
@@ -122,10 +122,10 @@ public:
   static void Draw2DRectangle(const ezDebugRendererContext& context, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color);
 
   /// \brief Renders a textured 2D rectangle in screen-space for one frame.
-  static void Draw2DRectangle(const ezDebugRendererContext& context, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color, const ezTexture2DResourceHandle& hTexture, ezVec2 uvScale = ezVec2(1, 1));
+  static void Draw2DRectangle(const ezDebugRendererContext& context, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color, const ezTexture2DResourceHandle& hTexture, ezVec2 vScale = ezVec2(1, 1));
 
   /// \brief Renders a textured 2D rectangle in screen-space for one frame.
-  static void Draw2DRectangle(const ezDebugRendererContext& context, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color, ezGALResourceViewHandle hResourceView, ezVec2 uvScale = ezVec2(1, 1));
+  static void Draw2DRectangle(const ezDebugRendererContext& context, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color, ezGALResourceViewHandle hResourceView, ezVec2 vScale = ezVec2(1, 1));
 
   /// \brief Displays a string in screen-space for one frame.
   ///
@@ -137,7 +137,7 @@ public:
   /// "| Col 1\t| Col 2\t| Col 3\t|\n| abc\t| 42\t| 11.23\t|"
   ///
   /// Returns the number of lines that the text was split up into.
-  static ezUInt32 Draw2DText(const ezDebugRendererContext& context, const ezFormatString& text, const ezVec2I32& positionInPixel, const ezColor& color, ezUInt32 uiSizeInPixel = 16, HorizontalAlignment horizontalAlignment = HorizontalAlignment::Left, VerticalAlignment verticalAlignment = VerticalAlignment::Top);
+  static ezUInt32 Draw2DText(const ezDebugRendererContext& context, const ezFormatString& text, const ezVec2I32& vPositionInPixel, const ezColor& color, ezUInt32 uiSizeInPixel = 16, HorizontalAlignment horizontalAlignment = HorizontalAlignment::Left, VerticalAlignment verticalAlignment = VerticalAlignment::Top);
 
   /// \brief Draws a piece of text in one of the screen corners.
   ///
@@ -150,10 +150,10 @@ public:
   /// it is not displayed anywhere, though.
   ///
   /// Text size cannot be changed.
-  static void DrawInfoText(const ezDebugRendererContext& context, ScreenPlacement placement, const char* groupName, const ezFormatString& text, const ezColor& color = ezColor::White);
+  static void DrawInfoText(const ezDebugRendererContext& context, ScreenPlacement placement, const char* szGroupName, const ezFormatString& text, const ezColor& color = ezColor::White);
 
   /// \brief Displays a string in 3D space for one frame.
-  static ezUInt32 Draw3DText(const ezDebugRendererContext& context, const ezFormatString& text, const ezVec3& globalPosition, const ezColor& color, ezUInt32 uiSizeInPixel = 16, HorizontalAlignment horizontalAlignment = HorizontalAlignment::Center, VerticalAlignment verticalAlignment = VerticalAlignment::Bottom);
+  static ezUInt32 Draw3DText(const ezDebugRendererContext& context, const ezFormatString& text, const ezVec3& vGlobalPosition, const ezColor& color, ezUInt32 uiSizeInPixel = 16, HorizontalAlignment horizontalAlignment = HorizontalAlignment::Center, VerticalAlignment verticalAlignment = VerticalAlignment::Bottom);
 
   /// \brief Renders a cross at the given location for as many frames until \a duration has passed.
   static void AddPersistentCross(const ezDebugRendererContext& context, float fSize, const ezColor& color, const ezTransform& transform, ezTime duration);
@@ -162,17 +162,17 @@ public:
   static void AddPersistentLineSphere(const ezDebugRendererContext& context, float fRadius, const ezColor& color, const ezTransform& transform, ezTime duration);
 
   /// \brief Renders a wireframe box at the given location for as many frames until \a duration has passed.
-  static void AddPersistentLineBox(const ezDebugRendererContext& context, const ezVec3& halfSize, const ezColor& color, const ezTransform& transform, ezTime duration);
+  static void AddPersistentLineBox(const ezDebugRendererContext& context, const ezVec3& vHalfSize, const ezColor& color, const ezTransform& transform, ezTime duration);
 
   /// \brief Renders a solid 2D cone in a plane with a given angle.
   ///
   /// The rotation goes around the given \a rotationAxis.
   /// An angle of zero is pointing into forwardAxis direction.
   /// Both angles may be negative.
-  static void DrawAngle(const ezDebugRendererContext& context, ezAngle startAngle, ezAngle endAngle, const ezColor& solidColor, const ezColor& lineColor, const ezTransform& transform, ezVec3 forwardAxis = ezVec3::UnitXAxis(), ezVec3 rotationAxis = ezVec3::UnitZAxis());
+  static void DrawAngle(const ezDebugRendererContext& context, ezAngle startAngle, ezAngle endAngle, const ezColor& solidColor, const ezColor& lineColor, const ezTransform& transform, ezVec3 vForwardAxis = ezVec3::UnitXAxis(), ezVec3 vRotationAxis = ezVec3::UnitZAxis());
 
   /// \brief Renders a cone with the tip at the center position, opening up with the given angle.
-  static void DrawOpeningCone(const ezDebugRendererContext& context, ezAngle halfAngle, const ezColor& colorInside, const ezColor& colorOutside, const ezTransform& transform, ezVec3 forwardAxis = ezVec3::UnitXAxis());
+  static void DrawOpeningCone(const ezDebugRendererContext& context, ezAngle halfAngle, const ezColor& colorInside, const ezColor& colorOutside, const ezTransform& transform, ezVec3 vForwardAxis = ezVec3::UnitXAxis());
 
   /// \brief Renders a bent cone with the tip at the center position, pointing into the +X direction opening up with halfAngle1 and halfAngle2 along the Y and Z axis.
   ///
@@ -184,7 +184,7 @@ public:
   /// \brief Renders a cylinder starting at the center position, along the +X axis.
   ///
   /// If the start and end radius are different, a cone or arrow can be created.
-  static void DrawCylinder(const ezDebugRendererContext& context, float radiusStart, float radiusEnd, float length, const ezColor& solidColor, const ezColor& lineColor, const ezTransform& transform, bool capStart = false, bool capEnd = false);
+  static void DrawCylinder(const ezDebugRendererContext& context, float fRadiusStart, float fRadiusEnd, float fLength, const ezColor& solidColor, const ezColor& lineColor, const ezTransform& transform, bool bCapStart = false, bool bCapEnd = false);
 
 private:
   friend class ezSimpleRenderPass;

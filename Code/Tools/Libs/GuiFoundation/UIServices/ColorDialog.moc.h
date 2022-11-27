@@ -16,11 +16,11 @@ class EZ_GUIFOUNDATION_DLL ezQtColorDialog : public QDialog, Ui_ColorDialog
 {
   Q_OBJECT
 public:
-  ezQtColorDialog(const ezColor& initial, QWidget* parent);
+  ezQtColorDialog(const ezColor& initial, QWidget* pParent);
   ~ezQtColorDialog();
 
-  void ShowAlpha(bool enable);
-  void ShowHDR(bool enable);
+  void ShowAlpha(bool bEnable);
+  void ShowHDR(bool bEnable);
 
   static QByteArray GetLastDialogGeometry() { return s_LastDialogGeometry; }
 

@@ -56,26 +56,26 @@ EZ_FORCE_INLINE void ezHashedString::operator=(ezHashedString&& rhs)
 }
 
 template <size_t N>
-EZ_FORCE_INLINE void ezHashedString::Assign(const char (&szString)[N])
+EZ_FORCE_INLINE void ezHashedString::Assign(const char (&string)[N])
 {
 #if EZ_ENABLED(EZ_HASHED_STRING_REF_COUNTING)
   HashedType tmp = m_Data;
 #endif
   // this function will already increase the refcount as needed
-  m_Data = AddHashedString(szString, ezHashingUtils::StringHash(szString));
+  m_Data = AddHashedString(string, ezHashingUtils::StringHash(string));
 
 #if EZ_ENABLED(EZ_HASHED_STRING_REF_COUNTING)
   tmp.Value().m_iRefCount.Decrement();
 #endif
 }
 
-EZ_FORCE_INLINE void ezHashedString::Assign(ezStringView szString)
+EZ_FORCE_INLINE void ezHashedString::Assign(ezStringView sString)
 {
 #if EZ_ENABLED(EZ_HASHED_STRING_REF_COUNTING)
   HashedType tmp = m_Data;
 #endif
   // this function will already increase the refcount as needed
-  m_Data = AddHashedString(szString, ezHashingUtils::StringHash(szString));
+  m_Data = AddHashedString(sString, ezHashingUtils::StringHash(sString));
 
 #if EZ_ENABLED(EZ_HASHED_STRING_REF_COUNTING)
   tmp.Value().m_iRefCount.Decrement();
@@ -128,10 +128,10 @@ EZ_ALWAYS_INLINE ezUInt64 ezHashedString::GetHash() const
 }
 
 template <size_t N>
-EZ_FORCE_INLINE ezHashedString ezMakeHashedString(const char (&szString)[N])
+EZ_FORCE_INLINE ezHashedString ezMakeHashedString(const char (&string)[N])
 {
   ezHashedString sResult;
-  sResult.Assign(szString);
+  sResult.Assign(string);
   return sResult;
 }
 
@@ -144,14 +144,14 @@ EZ_ALWAYS_INLINE ezTempHashedString::ezTempHashedString()
 }
 
 template <size_t N>
-EZ_ALWAYS_INLINE ezTempHashedString::ezTempHashedString(const char (&szString)[N])
+EZ_ALWAYS_INLINE ezTempHashedString::ezTempHashedString(const char (&string)[N])
 {
-  m_uiHash = ezHashingUtils::StringHash<N>(szString);
+  m_uiHash = ezHashingUtils::StringHash<N>(string);
 }
 
-EZ_ALWAYS_INLINE ezTempHashedString::ezTempHashedString(ezStringView szString)
+EZ_ALWAYS_INLINE ezTempHashedString::ezTempHashedString(ezStringView sString)
 {
-  m_uiHash = ezHashingUtils::StringHash(szString);
+  m_uiHash = ezHashingUtils::StringHash(sString);
 }
 
 EZ_ALWAYS_INLINE ezTempHashedString::ezTempHashedString(const ezTempHashedString& rhs)
@@ -170,14 +170,14 @@ EZ_ALWAYS_INLINE ezTempHashedString::ezTempHashedString(ezUInt64 uiHash)
 }
 
 template <size_t N>
-EZ_ALWAYS_INLINE void ezTempHashedString::operator=(const char (&szString)[N])
+EZ_ALWAYS_INLINE void ezTempHashedString::operator=(const char (&string)[N])
 {
-  m_uiHash = ezHashingUtils::StringHash<N>(szString);
+  m_uiHash = ezHashingUtils::StringHash<N>(string);
 }
 
-EZ_ALWAYS_INLINE void ezTempHashedString::operator=(ezStringView szString)
+EZ_ALWAYS_INLINE void ezTempHashedString::operator=(ezStringView sString)
 {
-  m_uiHash = ezHashingUtils::StringHash(szString);
+  m_uiHash = ezHashingUtils::StringHash(sString);
 }
 
 EZ_ALWAYS_INLINE void ezTempHashedString::operator=(const ezTempHashedString& rhs)

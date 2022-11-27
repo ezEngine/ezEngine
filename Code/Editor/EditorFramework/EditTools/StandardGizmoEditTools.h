@@ -20,7 +20,7 @@ public:
 
   virtual ezEditToolSupportedSpaces GetSupportedSpaces() const override { return ezEditToolSupportedSpaces::LocalAndWorldSpace; }
   virtual bool GetSupportsMoveParentOnly() const override { return true; }
-  virtual void GetGridSettings(ezGridSettingsMsgToEngine& outGridSettings) override;
+  virtual void GetGridSettings(ezGridSettingsMsgToEngine& out_gridSettings) override;
 
 protected:
   virtual void OnConfigured() override;

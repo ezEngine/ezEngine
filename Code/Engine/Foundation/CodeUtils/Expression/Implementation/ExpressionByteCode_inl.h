@@ -35,42 +35,42 @@ EZ_ALWAYS_INLINE ezArrayPtr<const ezExpression::FunctionDesc> ezExpressionByteCo
 }
 
 // static
-EZ_ALWAYS_INLINE ezExpressionByteCode::OpCode::Enum ezExpressionByteCode::GetOpCode(const StorageType*& pByteCode)
+EZ_ALWAYS_INLINE ezExpressionByteCode::OpCode::Enum ezExpressionByteCode::GetOpCode(const StorageType*& ref_pByteCode)
 {
-  ezUInt32 uiOpCode = *pByteCode;
-  ++pByteCode;
+  ezUInt32 uiOpCode = *ref_pByteCode;
+  ++ref_pByteCode;
   return static_cast<OpCode::Enum>((uiOpCode >= 0 && uiOpCode < OpCode::Count) ? uiOpCode : 0);
 }
 
 // static
-EZ_ALWAYS_INLINE ezUInt32 ezExpressionByteCode::GetRegisterIndex(const StorageType*& pByteCode)
+EZ_ALWAYS_INLINE ezUInt32 ezExpressionByteCode::GetRegisterIndex(const StorageType*& ref_pByteCode)
 {
-  ezUInt32 uiIndex = *pByteCode;
-  ++pByteCode;
+  ezUInt32 uiIndex = *ref_pByteCode;
+  ++ref_pByteCode;
   return uiIndex;
 }
 
 // static
-EZ_ALWAYS_INLINE ezExpression::Register ezExpressionByteCode::GetConstant(const StorageType*& pByteCode)
+EZ_ALWAYS_INLINE ezExpression::Register ezExpressionByteCode::GetConstant(const StorageType*& ref_pByteCode)
 {
   ezExpression::Register r;
-  r.i = ezSimdVec4i(*pByteCode);
-  ++pByteCode;
+  r.i = ezSimdVec4i(*ref_pByteCode);
+  ++ref_pByteCode;
   return r;
 }
 
 // static
-EZ_ALWAYS_INLINE ezUInt32 ezExpressionByteCode::GetFunctionIndex(const StorageType*& pByteCode)
+EZ_ALWAYS_INLINE ezUInt32 ezExpressionByteCode::GetFunctionIndex(const StorageType*& ref_pByteCode)
 {
-  ezUInt32 uiIndex = *pByteCode;
-  ++pByteCode;
+  ezUInt32 uiIndex = *ref_pByteCode;
+  ++ref_pByteCode;
   return uiIndex;
 }
 
 // static
-EZ_ALWAYS_INLINE ezUInt32 ezExpressionByteCode::GetFunctionArgCount(const StorageType*& pByteCode)
+EZ_ALWAYS_INLINE ezUInt32 ezExpressionByteCode::GetFunctionArgCount(const StorageType*& ref_pByteCode)
 {
-  ezUInt32 uiArgCount = *pByteCode;
-  ++pByteCode;
+  ezUInt32 uiArgCount = *ref_pByteCode;
+  ++ref_pByteCode;
   return uiArgCount;
 }

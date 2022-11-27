@@ -125,22 +125,22 @@ bool ezTypeScriptComponent::HandleUnhandledMessage(ezMessage& msg, bool bWasPost
   return binding.DeliverMessage(m_ComponentTypeInfo, this, msg, bWasPostedMsg == false);
 }
 
-void ezTypeScriptComponent::BroadcastEventMsg(ezEventMessage& msg)
+void ezTypeScriptComponent::BroadcastEventMsg(ezEventMessage& ref_msg)
 {
-  const ezRTTI* pType = msg.GetDynamicRTTI();
+  const ezRTTI* pType = ref_msg.GetDynamicRTTI();
 
   for (auto& sender : m_EventSenders)
   {
     if (sender.m_pMsgType == pType)
     {
-      sender.m_Sender.SendEventMessage(msg, this, GetOwner()->GetParent());
+      sender.m_Sender.SendEventMessage(ref_msg, this, GetOwner()->GetParent());
       return;
     }
   }
 
   auto& sender = m_EventSenders.ExpandAndGetRef();
   sender.m_pMsgType = pType;
-  sender.m_Sender.SendEventMessage(msg, this, GetOwner()->GetParent());
+  sender.m_Sender.SendEventMessage(ref_msg, this, GetOwner()->GetParent());
 }
 
 bool ezTypeScriptComponent::CallTsFunc(const char* szFuncName)
@@ -341,9 +341,9 @@ const char* ezTypeScriptComponent::GetTypeScriptComponentFile() const
   return "";
 }
 
-void ezTypeScriptComponent::SetTypeScriptComponentGuid(const ezUuid& hResource)
+void ezTypeScriptComponent::SetTypeScriptComponentGuid(const ezUuid& resource)
 {
-  m_TypeScriptComponentGuid = hResource;
+  m_TypeScriptComponentGuid = resource;
 }
 
 const ezUuid& ezTypeScriptComponent::GetTypeScriptComponentGuid() const
@@ -365,8 +365,8 @@ const ezRangeView<const char*, ezUInt32> ezTypeScriptComponent::GetParameters() 
 {
   return ezRangeView<const char*, ezUInt32>([]() -> ezUInt32 { return 0; },
     [this]() -> ezUInt32 { return m_Parameters.GetCount(); },
-    [](ezUInt32& it) { ++it; },
-    [this](const ezUInt32& it) -> const char* { return m_Parameters.GetKey(it).GetString().GetData(); });
+    [](ezUInt32& ref_uiIt) { ++ref_uiIt; },
+    [this](const ezUInt32& uiIt) -> const char* { return m_Parameters.GetKey(uiIt).GetString().GetData(); });
 }
 
 void ezTypeScriptComponent::SetParameter(const char* szKey, const ezVariant& value)

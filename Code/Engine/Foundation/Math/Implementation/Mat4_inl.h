@@ -27,9 +27,9 @@ ezMat4Template<Type>::ezMat4Template(Type c1r1, Type c2r1, Type c3r1, Type c4r1,
 }
 
 template <typename Type>
-ezMat4Template<Type>::ezMat4Template(const ezMat3Template<Type>& Rotation, const ezVec3Template<Type>& vTranslation)
+ezMat4Template<Type>::ezMat4Template(const ezMat3Template<Type>& mRotation, const ezVec3Template<Type>& vTranslation)
 {
-  SetTransformationMatrix(Rotation, vTranslation);
+  SetTransformationMatrix(mRotation, vTranslation);
 }
 
 template <typename Type>
@@ -64,9 +64,9 @@ void ezMat4Template<Type>::SetFromArray(const Type* const pData, ezMatrixLayout:
 }
 
 template <typename Type>
-void ezMat4Template<Type>::SetTransformationMatrix(const ezMat3Template<Type>& Rotation, const ezVec3Template<Type>& vTranslation)
+void ezMat4Template<Type>::SetTransformationMatrix(const ezMat3Template<Type>& mRotation, const ezVec3Template<Type>& vTranslation)
 {
-  SetRotationalPart(Rotation);
+  SetRotationalPart(mRotation);
   SetTranslationVector(vTranslation);
   SetRow(3, ezVec4Template<Type>(0, 0, 0, 1));
 }
@@ -211,14 +211,14 @@ ezVec4Template<Type> ezMat4Template<Type>::GetRow(ezUInt32 uiRow) const
 }
 
 template <typename Type>
-void ezMat4Template<Type>::SetRow(ezUInt32 uiRow, const ezVec4Template<Type>& row)
+void ezMat4Template<Type>::SetRow(ezUInt32 uiRow, const ezVec4Template<Type>& vRow)
 {
   EZ_ASSERT_DEBUG(uiRow <= 3, "Invalid Row Index {0}", uiRow);
 
-  Element(0, uiRow) = row.x;
-  Element(1, uiRow) = row.y;
-  Element(2, uiRow) = row.z;
-  Element(3, uiRow) = row.w;
+  Element(0, uiRow) = vRow.x;
+  Element(1, uiRow) = vRow.y;
+  Element(2, uiRow) = vRow.z;
+  Element(3, uiRow) = vRow.w;
 }
 
 template <typename Type>
@@ -237,14 +237,14 @@ ezVec4Template<Type> ezMat4Template<Type>::GetColumn(ezUInt32 uiColumn) const
 }
 
 template <typename Type>
-void ezMat4Template<Type>::SetColumn(ezUInt32 uiColumn, const ezVec4Template<Type>& column)
+void ezMat4Template<Type>::SetColumn(ezUInt32 uiColumn, const ezVec4Template<Type>& vColumn)
 {
   EZ_ASSERT_DEBUG(uiColumn <= 3, "Invalid Column Index {0}", uiColumn);
 
-  Element(uiColumn, 0) = column.x;
-  Element(uiColumn, 1) = column.y;
-  Element(uiColumn, 2) = column.z;
-  Element(uiColumn, 3) = column.w;
+  Element(uiColumn, 0) = vColumn.x;
+  Element(uiColumn, 1) = vColumn.y;
+  Element(uiColumn, 2) = vColumn.z;
+  Element(uiColumn, 3) = vColumn.w;
 }
 
 template <typename Type>
@@ -256,12 +256,12 @@ ezVec4Template<Type> ezMat4Template<Type>::GetDiagonal() const
 }
 
 template <typename Type>
-void ezMat4Template<Type>::SetDiagonal(const ezVec4Template<Type>& diag)
+void ezMat4Template<Type>::SetDiagonal(const ezVec4Template<Type>& vDiag)
 {
-  Element(0, 0) = diag.x;
-  Element(1, 1) = diag.y;
-  Element(2, 2) = diag.z;
-  Element(3, 3) = diag.w;
+  Element(0, 0) = vDiag.x;
+  Element(1, 1) = vDiag.y;
+  Element(2, 2) = vDiag.z;
+  Element(3, 3) = vDiag.w;
 }
 
 template <typename Type>
@@ -278,12 +278,12 @@ const ezVec3Template<Type> ezMat4Template<Type>::TransformPosition(const ezVec3T
 
 template <typename Type>
 void ezMat4Template<Type>::TransformPosition(
-  ezVec3Template<Type>* inout_v, ezUInt32 uiNumVectors, ezUInt32 uiStride /* = sizeof(ezVec3Template) */) const
+  ezVec3Template<Type>* pV, ezUInt32 uiNumVectors, ezUInt32 uiStride /* = sizeof(ezVec3Template) */) const
 {
-  EZ_ASSERT_DEBUG(inout_v != nullptr, "Array must not be nullptr.");
+  EZ_ASSERT_DEBUG(pV != nullptr, "Array must not be nullptr.");
   EZ_ASSERT_DEBUG(uiStride >= sizeof(ezVec3Template<Type>), "Data must not overlap.");
 
-  ezVec3Template<Type>* pCur = inout_v;
+  ezVec3Template<Type>* pCur = pV;
 
   for (ezUInt32 i = 0; i < uiNumVectors; ++i)
   {
@@ -306,12 +306,12 @@ const ezVec3Template<Type> ezMat4Template<Type>::TransformDirection(const ezVec3
 
 template <typename Type>
 void ezMat4Template<Type>::TransformDirection(
-  ezVec3Template<Type>* inout_v, ezUInt32 uiNumVectors, ezUInt32 uiStride /* = sizeof(ezVec3Template<Type>) */) const
+  ezVec3Template<Type>* pV, ezUInt32 uiNumVectors, ezUInt32 uiStride /* = sizeof(ezVec3Template<Type>) */) const
 {
-  EZ_ASSERT_DEBUG(inout_v != nullptr, "Array must not be nullptr.");
+  EZ_ASSERT_DEBUG(pV != nullptr, "Array must not be nullptr.");
   EZ_ASSERT_DEBUG(uiStride >= sizeof(ezVec3Template<Type>), "Data must not overlap.");
 
-  ezVec3Template<Type>* pCur = inout_v;
+  ezVec3Template<Type>* pCur = pV;
 
   for (ezUInt32 i = 0; i < uiNumVectors; ++i)
   {
@@ -334,12 +334,12 @@ const ezVec4Template<Type> ezMat4Template<Type>::Transform(const ezVec4Template<
 }
 
 template <typename Type>
-void ezMat4Template<Type>::Transform(ezVec4Template<Type>* inout_v, ezUInt32 uiNumVectors, ezUInt32 uiStride /* = sizeof(ezVec4Template) */) const
+void ezMat4Template<Type>::Transform(ezVec4Template<Type>* pV, ezUInt32 uiNumVectors, ezUInt32 uiStride /* = sizeof(ezVec4Template) */) const
 {
-  EZ_ASSERT_DEBUG(inout_v != nullptr, "Array must not be nullptr.");
+  EZ_ASSERT_DEBUG(pV != nullptr, "Array must not be nullptr.");
   EZ_ASSERT_DEBUG(uiStride >= sizeof(ezVec4Template<Type>), "Data must not overlap.");
 
-  ezVec4Template<Type>* pCur = inout_v;
+  ezVec4Template<Type>* pCur = pV;
 
   for (ezUInt32 i = 0; i < uiNumVectors; ++i)
   {
@@ -365,13 +365,13 @@ EZ_ALWAYS_INLINE void ezMat4Template<Type>::SetTranslationVector(const ezVec3Tem
 }
 
 template <typename Type>
-void ezMat4Template<Type>::SetRotationalPart(const ezMat3Template<Type>& Rotation)
+void ezMat4Template<Type>::SetRotationalPart(const ezMat3Template<Type>& mRotation)
 {
   for (ezUInt32 col = 0; col < 3; ++col)
   {
     for (ezUInt32 row = 0; row < 3; ++row)
     {
-      Element(col, row) = Rotation.Element(col, row);
+      Element(col, row) = mRotation.Element(col, row);
     }
   }
 }

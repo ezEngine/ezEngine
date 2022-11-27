@@ -12,7 +12,7 @@ public:
   Q_OBJECT
 
 public:
-  ezQtPluginSelectionDlg(ezPluginBundleSet* pPluginSet, QWidget* parent = nullptr);
+  ezQtPluginSelectionDlg(ezPluginBundleSet* pPluginSet, QWidget* pParent = nullptr);
   ~ezQtPluginSelectionDlg();
 
 

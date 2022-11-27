@@ -4,9 +4,9 @@
 
 namespace
 {
-  ezSimdVec4f SimdDegree(float degree)
+  ezSimdVec4f SimdDegree(float fDegree)
   {
-    return ezSimdVec4f(ezAngle::Degree(degree));
+    return ezSimdVec4f(ezAngle::Degree(fDegree));
   }
 } // namespace
 

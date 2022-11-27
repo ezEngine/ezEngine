@@ -38,10 +38,10 @@ public:
   virtual void UpdateConnections();
   void SetHighlightState(ezQtPinHighlightState state);
 
-  void SetActive(bool active);
+  void SetActive(bool bActive);
 
-  virtual void ExtendContextMenu(QMenu& menu) {}
-  virtual void keyPressEvent(QKeyEvent* event) override {}
+  virtual void ExtendContextMenu(QMenu& ref_menu) {}
+  virtual void keyPressEvent(QKeyEvent* pEvent) override {}
 
 protected:
   virtual bool AdjustRenderingForHighlight(ezQtPinHighlightState state);

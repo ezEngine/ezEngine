@@ -285,13 +285,13 @@ ezMeshAssetDocumentGenerator::ezMeshAssetDocumentGenerator()
 
 ezMeshAssetDocumentGenerator::~ezMeshAssetDocumentGenerator() {}
 
-void ezMeshAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
+void ezMeshAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_modes) const
 {
   ezStringBuilder baseOutputFile = szParentDirRelativePath;
   baseOutputFile.ChangeFileExtension(GetDocumentExtension());
 
   {
-    ezAssetDocumentGenerator::Info& info = out_Modes.ExpandAndGetRef();
+    ezAssetDocumentGenerator::Info& info = out_modes.ExpandAndGetRef();
     info.m_Priority = ezAssetDocGeneratorPriority::DefaultPriority;
     info.m_sName = "MeshImport.WithMaterials";
     info.m_sOutputFileParentRelative = baseOutputFile;
@@ -299,7 +299,7 @@ void ezMeshAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativ
   }
 
   {
-    ezAssetDocumentGenerator::Info& info = out_Modes.ExpandAndGetRef();
+    ezAssetDocumentGenerator::Info& info = out_modes.ExpandAndGetRef();
     info.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
     info.m_sName = "MeshImport.NoMaterials";
     info.m_sOutputFileParentRelative = baseOutputFile;

@@ -202,9 +202,9 @@ bool ezDocumentNodeManager::IsConnected(const ezPin& source, const ezPin& target
   return false;
 }
 
-ezStatus ezDocumentNodeManager::CanConnect(const ezRTTI* pObjectType, const ezPin& source, const ezPin& target, CanConnectResult& out_Result) const
+ezStatus ezDocumentNodeManager::CanConnect(const ezRTTI* pObjectType, const ezPin& source, const ezPin& target, CanConnectResult& out_result) const
 {
-  out_Result = CanConnectResult::ConnectNever;
+  out_result = CanConnectResult::ConnectNever;
 
   if (pObjectType == nullptr || pObjectType->IsDerivedFrom(GetConnectionType()) == false)
     return ezStatus("Invalid connection object type");
@@ -220,7 +220,7 @@ ezStatus ezDocumentNodeManager::CanConnect(const ezRTTI* pObjectType, const ezPi
   if (IsConnected(source, target))
     return ezStatus("Pins already connected.");
 
-  return InternalCanConnect(source, target, out_Result);
+  return InternalCanConnect(source, target, out_result);
 }
 
 ezStatus ezDocumentNodeManager::CanDisconnect(const ezConnection* pConnection) const
@@ -299,15 +299,15 @@ void ezDocumentNodeManager::MoveNode(const ezDocumentObject* pObject, const ezVe
   m_NodeEvents.Broadcast(e);
 }
 
-void ezDocumentNodeManager::AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph) const
+void ezDocumentNodeManager::AttachMetaDataBeforeSaving(ezAbstractObjectGraph& ref_graph) const
 {
   auto pNodeMetaDataType = ezGetStaticRTTI<DocumentNodeManager_NodeMetaData>();
   auto pConnectionMetaDataType = ezGetStaticRTTI<DocumentNodeManager_ConnectionMetaData>();
 
   ezRttiConverterContext context;
-  ezRttiConverterWriter rttiConverter(&graph, &context, true, true);
+  ezRttiConverterWriter rttiConverter(&ref_graph, &context, true, true);
 
-  for (auto it = graph.GetAllNodes().GetIterator(); it.IsValid(); ++it)
+  for (auto it = ref_graph.GetAllNodes().GetIterator(); it.IsValid(); ++it)
   {
     auto* pAbstractObject = it.Value();
     const ezUuid& guid = pAbstractObject->GetGuid();
@@ -495,7 +495,7 @@ bool ezDocumentNodeManager::CopySelectedObjects(ezAbstractObjectGraph& out_objec
   return true;
 }
 
-bool ezDocumentNodeManager::PasteObjects(const ezArrayPtr<ezDocument::PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, const ezVec2& pickedPosition, bool bAllowPickedPosition)
+bool ezDocumentNodeManager::PasteObjects(const ezArrayPtr<ezDocument::PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, const ezVec2& vPickedPosition, bool bAllowPickedPosition)
 {
   bool bAddedAll = true;
   ezDeque<const ezDocumentObject*> AddedObjects;
@@ -532,7 +532,7 @@ bool ezDocumentNodeManager::PasteObjects(const ezArrayPtr<ezDocument::PasteInfo>
     }
 
     vAvgPos /= (float)nodeCount;
-    const ezVec2 vMoveNode = -vAvgPos + pickedPosition;
+    const ezVec2 vMoveNode = -vAvgPos + vPickedPosition;
 
     for (const ezDocumentObject* pObject : AddedObjects)
     {

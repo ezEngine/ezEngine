@@ -294,8 +294,8 @@ template <typename CreationDescription>
 class ezGALObject : public ezRefCounted
 {
 public:
-  ezGALObject(const CreationDescription& Description)
-    : m_Description(Description)
+  ezGALObject(const CreationDescription& description)
+    : m_Description(description)
   {
   }
 

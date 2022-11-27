@@ -111,7 +111,7 @@ public:
   ezStringView GetLast(ezUInt32 uiNumCharacters) const; // [tested]
 
   /// \brief Replaces the current string with the content from the stream. Reads the stream to its end.
-  void ReadAll(ezStreamReader& Stream);
+  void ReadAll(ezStreamReader& inout_stream);
 
   /// \brief Returns the amount of bytes that are currently allocated on the heap.
   ezUInt64 GetHeapMemoryUsage() const { return m_Data.GetHeapMemoryUsage(); }
@@ -149,7 +149,7 @@ public:
   void operator=(const ezHybridString<Size, AllocatorWrapper>& rhs);
   void operator=(const ezHybridStringBase<Size>& rhs);
   void operator=(const char* szString);
-  void operator=(const wchar_t* szString);
+  void operator=(const wchar_t* pString);
   void operator=(const ezStringView& rhs);
   void operator=(const ezStringBuilder& rhs);
   void operator=(ezStringBuilder&& rhs);
@@ -209,7 +209,7 @@ struct CompareConstChar
 };
 
 // For ezFormatString
-EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezString& arg);
-EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezUntrackedString& arg);
+EZ_FOUNDATION_DLL ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezString& sArg);
+EZ_FOUNDATION_DLL ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezUntrackedString& sArg);
 
 #include <Foundation/Strings/Implementation/String_inl.h>

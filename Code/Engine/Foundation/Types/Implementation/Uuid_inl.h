@@ -11,24 +11,24 @@ void ezUuid::SetInvalid()
   m_uiLow = 0;
 }
 
-bool ezUuid::operator==(const ezUuid& Other) const
+bool ezUuid::operator==(const ezUuid& other) const
 {
-  return m_uiHigh == Other.m_uiHigh && m_uiLow == Other.m_uiLow;
+  return m_uiHigh == other.m_uiHigh && m_uiLow == other.m_uiLow;
 }
 
-bool ezUuid::operator!=(const ezUuid& Other) const
+bool ezUuid::operator!=(const ezUuid& other) const
 {
-  return m_uiHigh != Other.m_uiHigh || m_uiLow != Other.m_uiLow;
+  return m_uiHigh != other.m_uiHigh || m_uiLow != other.m_uiLow;
 }
 
-bool ezUuid::operator<(const ezUuid& Other) const
+bool ezUuid::operator<(const ezUuid& other) const
 {
-  if (m_uiHigh < Other.m_uiHigh)
+  if (m_uiHigh < other.m_uiHigh)
     return true;
-  if (m_uiHigh > Other.m_uiHigh)
+  if (m_uiHigh > other.m_uiHigh)
     return false;
 
-  return m_uiLow < Other.m_uiLow;
+  return m_uiLow < other.m_uiLow;
 }
 
 bool ezUuid::IsValid() const

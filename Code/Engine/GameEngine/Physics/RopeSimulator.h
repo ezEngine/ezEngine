@@ -46,8 +46,8 @@ public:
   bool m_bFirstNodeIsFixed = true;
   bool m_bLastNodeIsFixed = true;
 
-  void SimulateRope(const ezTime& tDiff);
-  void SimulateStep(const ezSimdFloat tDiffSqr, ezUInt32 uiMaxIterations, ezSimdFloat fAllowedError);
+  void SimulateRope(const ezTime& diff);
+  void SimulateStep(const ezSimdFloat fDiffSqr, ezUInt32 uiMaxIterations, ezSimdFloat fAllowedError);
   void SimulateTillEquilibrium(ezSimdFloat fAllowedMovement = 0.005f, ezUInt32 uiMaxIterations = 1000);
   bool HasEquilibrium(ezSimdFloat fAllowedMovement) const;
 

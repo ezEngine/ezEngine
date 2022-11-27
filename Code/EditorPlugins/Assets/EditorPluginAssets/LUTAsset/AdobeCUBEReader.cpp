@@ -10,42 +10,42 @@
 
 namespace
 {
-  bool GetVec3FromLine(ezHybridArray<const ezToken*, 32> line, ezUInt32 skip, ezVec3& out)
+  bool GetVec3FromLine(ezHybridArray<const ezToken*, 32> line, ezUInt32 uiSkip, ezVec3& ref_vOut)
   {
-    if (line.GetCount() < (skip + 3 + 2))
+    if (line.GetCount() < (uiSkip + 3 + 2))
     {
       return false;
     }
 
-    if ((line[skip + 0]->m_iType != ezTokenType::Float && line[skip + 0]->m_iType != ezTokenType::Integer) ||
-        line[skip + 1]->m_iType != ezTokenType::Whitespace ||
-        (line[skip + 2]->m_iType != ezTokenType::Float && line[skip + 2]->m_iType != ezTokenType::Integer) ||
-        line[skip + 3]->m_iType != ezTokenType::Whitespace ||
-        (line[skip + 4]->m_iType != ezTokenType::Float && line[skip + 4]->m_iType != ezTokenType::Integer))
+    if ((line[uiSkip + 0]->m_iType != ezTokenType::Float && line[uiSkip + 0]->m_iType != ezTokenType::Integer) ||
+        line[uiSkip + 1]->m_iType != ezTokenType::Whitespace ||
+        (line[uiSkip + 2]->m_iType != ezTokenType::Float && line[uiSkip + 2]->m_iType != ezTokenType::Integer) ||
+        line[uiSkip + 3]->m_iType != ezTokenType::Whitespace ||
+        (line[uiSkip + 4]->m_iType != ezTokenType::Float && line[uiSkip + 4]->m_iType != ezTokenType::Integer))
     {
       return false;
     }
 
     double res = 0;
-    ezString sVal = line[skip + 0]->m_DataView;
+    ezString sVal = line[uiSkip + 0]->m_DataView;
 
     if (ezConversionUtils::StringToFloat(sVal, res).Failed())
       return false;
 
-    out.x = static_cast<float>(res);
+    ref_vOut.x = static_cast<float>(res);
 
-    sVal = line[skip + 2]->m_DataView;
+    sVal = line[uiSkip + 2]->m_DataView;
     if (ezConversionUtils::StringToFloat(sVal, res).Failed())
       return false;
 
-    out.y = static_cast<float>(res);
+    ref_vOut.y = static_cast<float>(res);
 
 
-    sVal = line[skip + 4]->m_DataView;
+    sVal = line[uiSkip + 4]->m_DataView;
     if (ezConversionUtils::StringToFloat(sVal, res).Failed())
       return false;
 
-    out.z = static_cast<float>(res);
+    ref_vOut.z = static_cast<float>(res);
 
     return true;
   }
@@ -54,10 +54,10 @@ namespace
 ezAdobeCUBEReader::ezAdobeCUBEReader() = default;
 ezAdobeCUBEReader::~ezAdobeCUBEReader() = default;
 
-ezStatus ezAdobeCUBEReader::ParseFile(ezStreamReader& Stream, ezLogInterface* pLog /*= nullptr*/)
+ezStatus ezAdobeCUBEReader::ParseFile(ezStreamReader& inout_stream, ezLogInterface* pLog /*= nullptr*/)
 {
   ezString sContent;
-  sContent.ReadAll(Stream);
+  sContent.ReadAll(inout_stream);
 
   ezTokenizer tokenizer;
   tokenizer.SetTreatHashSignAsLineComment(true);

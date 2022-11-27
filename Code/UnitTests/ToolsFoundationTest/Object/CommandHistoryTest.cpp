@@ -17,18 +17,18 @@ EZ_CREATE_SIMPLE_TEST(DocumentObject, CommandHistory)
     return pAccessor->GetObject(objGuid);
   };
 
-  auto StoreOriginalState = [&doc](ezAbstractObjectGraph& graph, const ezDocumentObject* pRoot) {
-    ezDocumentObjectConverterWriter writer(&graph, doc.GetObjectManager(), [](const ezDocumentObject*, const ezAbstractProperty* p) { return p->GetAttributeByType<ezHiddenAttribute>() == nullptr; });
+  auto StoreOriginalState = [&doc](ezAbstractObjectGraph& ref_graph, const ezDocumentObject* pRoot) {
+    ezDocumentObjectConverterWriter writer(&ref_graph, doc.GetObjectManager(), [](const ezDocumentObject*, const ezAbstractProperty* p) { return p->GetAttributeByType<ezHiddenAttribute>() == nullptr; });
     ezAbstractObjectNode* pAbstractObj = writer.AddObjectToGraph(pRoot);
   };
 
-  auto CompareAgainstOriginalState = [&doc](ezAbstractObjectGraph& original, const ezDocumentObject* pRoot) {
+  auto CompareAgainstOriginalState = [&doc](ezAbstractObjectGraph& ref_original, const ezDocumentObject* pRoot) {
     ezAbstractObjectGraph graph;
     ezDocumentObjectConverterWriter writer2(&graph, doc.GetObjectManager(), [](const ezDocumentObject*, const ezAbstractProperty* p) { return p->GetAttributeByType<ezHiddenAttribute>() == nullptr; });
     ezAbstractObjectNode* pAbstractObj2 = writer2.AddObjectToGraph(pRoot);
 
     ezDeque<ezAbstractGraphDiffOperation> diff;
-    graph.CreateDiffWithBaseGraph(original, diff);
+    graph.CreateDiffWithBaseGraph(ref_original, diff);
     EZ_TEST_BOOL(diff.GetCount() == 0);
   };
 

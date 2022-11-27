@@ -106,15 +106,15 @@ ezFloat16::operator float() const
 
 //////////////////////////////////////////////////////////////////////////
 
-ezFloat16Vec2::ezFloat16Vec2(const ezVec2& vec)
+ezFloat16Vec2::ezFloat16Vec2(const ezVec2& vVec)
 {
-  operator=(vec);
+  operator=(vVec);
 }
 
-void ezFloat16Vec2::operator=(const ezVec2& vec)
+void ezFloat16Vec2::operator=(const ezVec2& vVec)
 {
-  x = vec.x;
-  y = vec.y;
+  x = vVec.x;
+  y = vVec.y;
 }
 
 ezFloat16Vec2::operator ezVec2() const
@@ -124,16 +124,16 @@ ezFloat16Vec2::operator ezVec2() const
 
 //////////////////////////////////////////////////////////////////////////
 
-ezFloat16Vec3::ezFloat16Vec3(const ezVec3& vec)
+ezFloat16Vec3::ezFloat16Vec3(const ezVec3& vVec)
 {
-  operator=(vec);
+  operator=(vVec);
 }
 
-void ezFloat16Vec3::operator=(const ezVec3& vec)
+void ezFloat16Vec3::operator=(const ezVec3& vVec)
 {
-  x = vec.x;
-  y = vec.y;
-  z = vec.z;
+  x = vVec.x;
+  y = vVec.y;
+  z = vVec.z;
 }
 
 ezFloat16Vec3::operator ezVec3() const
@@ -143,17 +143,17 @@ ezFloat16Vec3::operator ezVec3() const
 
 //////////////////////////////////////////////////////////////////////////
 
-ezFloat16Vec4::ezFloat16Vec4(const ezVec4& vec)
+ezFloat16Vec4::ezFloat16Vec4(const ezVec4& vVec)
 {
-  operator=(vec);
+  operator=(vVec);
 }
 
-void ezFloat16Vec4::operator=(const ezVec4& vec)
+void ezFloat16Vec4::operator=(const ezVec4& vVec)
 {
-  x = vec.x;
-  y = vec.y;
-  z = vec.z;
-  w = vec.w;
+  x = vVec.x;
+  y = vVec.y;
+  z = vVec.z;
+  w = vVec.w;
 }
 
 ezFloat16Vec4::operator ezVec4() const

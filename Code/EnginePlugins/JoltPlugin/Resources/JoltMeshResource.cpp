@@ -25,9 +25,9 @@ public:
   ezStreamReader* m_pStream = nullptr;
   bool m_bEOF = false;
 
-  virtual void ReadBytes(void* outData, size_t inNumBytes) override
+  virtual void ReadBytes(void* pData, size_t uiInNumBytes) override
   {
-    if (m_pStream->ReadBytes(outData, inNumBytes) < inNumBytes)
+    if (m_pStream->ReadBytes(pData, uiInNumBytes) < uiInNumBytes)
       m_bEOF = true;
   }
 
@@ -106,24 +106,24 @@ ezResourceLoadDesc ezJoltMeshResource::UnloadData(Unload WhatToUnload)
 
 EZ_DEFINE_AS_POD_TYPE(JPH::Vec3);
 
-static void ReadConvexMesh(ezStreamReader& stream, ezDataBuffer* pBuffer)
+static void ReadConvexMesh(ezStreamReader& inout_stream, ezDataBuffer* pBuffer)
 {
   ezUInt32 uiSize = 0;
 
-  stream >> uiSize;
+  inout_stream >> uiSize;
   pBuffer->SetCountUninitialized(uiSize);
-  EZ_VERIFY(stream.ReadBytes(pBuffer->GetData(), uiSize) == uiSize, "Reading cooked convex mesh data failed.");
+  EZ_VERIFY(inout_stream.ReadBytes(pBuffer->GetData(), uiSize) == uiSize, "Reading cooked convex mesh data failed.");
 }
 
-static void AddStats(ezStreamReader& stream, ezUInt32& uiVertices, ezUInt32& uiTriangles)
+static void AddStats(ezStreamReader& inout_stream, ezUInt32& ref_uiVertices, ezUInt32& ref_uiTriangles)
 {
   ezUInt32 verts = 0, tris = 0;
 
-  stream >> verts;
-  stream >> tris;
+  inout_stream >> verts;
+  inout_stream >> tris;
 
-  uiVertices += verts;
-  uiTriangles += tris;
+  ref_uiVertices += verts;
+  ref_uiTriangles += tris;
 }
 
 ezResourceLoadDesc ezJoltMeshResource::UpdateContent(ezStreamReader* Stream)
@@ -300,7 +300,7 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezJoltMeshResource, ezJoltMeshResourceDescripto
   return res;
 }
 
-void RetrieveShapeTriangles(const JPH::Shape* pShape, ezDynamicArray<ezVec3>& positions)
+void RetrieveShapeTriangles(const JPH::Shape* pShape, ezDynamicArray<ezVec3>& ref_positions)
 {
   const int iMaxTris = 256;
 
@@ -315,21 +315,21 @@ void RetrieveShapeTriangles(const JPH::Shape* pShape, ezDynamicArray<ezVec3>& po
   {
     int found = pShape->GetTrianglesNext(ctxt, iMaxTris, reinterpret_cast<JPH::Float3*>(positionsTmp.GetData()), nullptr);
 
-    positions.PushBackRange(positionsTmp.GetArrayPtr().GetSubArray(0, found * 3));
+    ref_positions.PushBackRange(positionsTmp.GetArrayPtr().GetSubArray(0, found * 3));
 
     if (found == 0)
       return;
   }
 }
 
-void RetrieveShapeTriangles(JPH::ShapeSettings* pShapeOpt, ezDynamicArray<ezVec3>& positions)
+void RetrieveShapeTriangles(JPH::ShapeSettings* pShapeOpt, ezDynamicArray<ezVec3>& ref_positions)
 {
   auto res = pShapeOpt->Create();
 
   if (res.HasError())
     return;
 
-  RetrieveShapeTriangles(res.Get(), positions);
+  RetrieveShapeTriangles(res.Get(), ref_positions);
 }
 
 ezCpuMeshResourceHandle ezJoltMeshResource::ConvertToCpuMesh() const

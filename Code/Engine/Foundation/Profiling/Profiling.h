@@ -111,18 +111,18 @@ public:
     ezDynamicArray<ezDynamicArray<GPUScope>> m_GPUScopes;
 
     /// \brief Writes profiling data as JSON to the output stream.
-    ezResult Write(ezStreamWriter& outputStream) const;
+    ezResult Write(ezStreamWriter& ref_outputStream) const;
 
     void Clear();
 
     /// \brief Concatenates all given ProfilingData instances into one merge struct
-    static void Merge(ProfilingData& out_Merged, ezArrayPtr<const ProfilingData*> inputs);
+    static void Merge(ProfilingData& out_merged, ezArrayPtr<const ProfilingData*> inputs);
   };
 
 public:
   static void Clear();
 
-  static void Capture(ezProfilingSystem::ProfilingData& out_Capture, bool bClearAfterCapture = false);
+  static void Capture(ezProfilingSystem::ProfilingData& out_capture, bool bClearAfterCapture = false);
 
   /// \brief Scopes are discarded if their duration is shorter than the specified threshold. Default is 0.1ms.
   static void SetDiscardThreshold(ezTime threshold);
@@ -157,10 +157,10 @@ private:
 
 public:
   /// \brief Initialized internal data structures for GPU profiling data. Needs to be called before adding any data.
-  static void InitializeGPUData(ezUInt32 gpuCount = 1);
+  static void InitializeGPUData(ezUInt32 uiGpuCount = 1);
 
   /// \brief Adds a GPU profiling scope in the internal event ringbuffer.
-  static void AddGPUScope(ezStringView sName, ezTime beginTime, ezTime endTime, ezUInt32 gpuIndex = 0);
+  static void AddGPUScope(ezStringView sName, ezTime beginTime, ezTime endTime, ezUInt32 uiGpuIndex = 0);
 };
 
 #if EZ_ENABLED(EZ_USE_PROFILING) || defined(EZ_DOCS)

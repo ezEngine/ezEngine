@@ -310,46 +310,46 @@ ezImageFormat::Enum ezTextureUtils::GalFormatToImageFormat(ezGALResourceFormat::
   return imageFormat;
 }
 
-void ezTextureUtils::ConfigureSampler(ezTextureFilterSetting::Enum filter, ezGALSamplerStateCreationDescription& out_Sampler)
+void ezTextureUtils::ConfigureSampler(ezTextureFilterSetting::Enum filter, ezGALSamplerStateCreationDescription& out_sampler)
 {
   const ezTextureFilterSetting::Enum thisFilter = ezRenderContext::GetDefaultInstance()->GetSpecificTextureFilter(filter);
 
-  out_Sampler.m_MinFilter = ezGALTextureFilterMode::Linear;
-  out_Sampler.m_MagFilter = ezGALTextureFilterMode::Linear;
-  out_Sampler.m_MipFilter = ezGALTextureFilterMode::Linear;
-  out_Sampler.m_uiMaxAnisotropy = 1;
+  out_sampler.m_MinFilter = ezGALTextureFilterMode::Linear;
+  out_sampler.m_MagFilter = ezGALTextureFilterMode::Linear;
+  out_sampler.m_MipFilter = ezGALTextureFilterMode::Linear;
+  out_sampler.m_uiMaxAnisotropy = 1;
 
   switch (thisFilter)
   {
     case ezTextureFilterSetting::FixedNearest:
-      out_Sampler.m_MinFilter = ezGALTextureFilterMode::Point;
-      out_Sampler.m_MagFilter = ezGALTextureFilterMode::Point;
-      out_Sampler.m_MipFilter = ezGALTextureFilterMode::Point;
+      out_sampler.m_MinFilter = ezGALTextureFilterMode::Point;
+      out_sampler.m_MagFilter = ezGALTextureFilterMode::Point;
+      out_sampler.m_MipFilter = ezGALTextureFilterMode::Point;
       break;
     case ezTextureFilterSetting::FixedBilinear:
-      out_Sampler.m_MipFilter = ezGALTextureFilterMode::Point;
+      out_sampler.m_MipFilter = ezGALTextureFilterMode::Point;
       break;
     case ezTextureFilterSetting::FixedTrilinear:
       break;
     case ezTextureFilterSetting::FixedAnisotropic2x:
-      out_Sampler.m_MinFilter = ezGALTextureFilterMode::Anisotropic;
-      out_Sampler.m_MagFilter = ezGALTextureFilterMode::Anisotropic;
-      out_Sampler.m_uiMaxAnisotropy = 2;
+      out_sampler.m_MinFilter = ezGALTextureFilterMode::Anisotropic;
+      out_sampler.m_MagFilter = ezGALTextureFilterMode::Anisotropic;
+      out_sampler.m_uiMaxAnisotropy = 2;
       break;
     case ezTextureFilterSetting::FixedAnisotropic4x:
-      out_Sampler.m_MinFilter = ezGALTextureFilterMode::Anisotropic;
-      out_Sampler.m_MagFilter = ezGALTextureFilterMode::Anisotropic;
-      out_Sampler.m_uiMaxAnisotropy = 4;
+      out_sampler.m_MinFilter = ezGALTextureFilterMode::Anisotropic;
+      out_sampler.m_MagFilter = ezGALTextureFilterMode::Anisotropic;
+      out_sampler.m_uiMaxAnisotropy = 4;
       break;
     case ezTextureFilterSetting::FixedAnisotropic8x:
-      out_Sampler.m_MinFilter = ezGALTextureFilterMode::Anisotropic;
-      out_Sampler.m_MagFilter = ezGALTextureFilterMode::Anisotropic;
-      out_Sampler.m_uiMaxAnisotropy = 8;
+      out_sampler.m_MinFilter = ezGALTextureFilterMode::Anisotropic;
+      out_sampler.m_MagFilter = ezGALTextureFilterMode::Anisotropic;
+      out_sampler.m_uiMaxAnisotropy = 8;
       break;
     case ezTextureFilterSetting::FixedAnisotropic16x:
-      out_Sampler.m_MinFilter = ezGALTextureFilterMode::Anisotropic;
-      out_Sampler.m_MagFilter = ezGALTextureFilterMode::Anisotropic;
-      out_Sampler.m_uiMaxAnisotropy = 16;
+      out_sampler.m_MinFilter = ezGALTextureFilterMode::Anisotropic;
+      out_sampler.m_MagFilter = ezGALTextureFilterMode::Anisotropic;
+      out_sampler.m_uiMaxAnisotropy = 16;
       break;
     default:
       break;

@@ -5,10 +5,10 @@
 #include <Foundation/IO/OSFile.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 
-void ezQtEditorApp::GetKnownInputSlots(ezDynamicArray<ezString>& slotList) const
+void ezQtEditorApp::GetKnownInputSlots(ezDynamicArray<ezString>& ref_slotList) const
 {
-  if (slotList.IndexOf("") == ezInvalidIndex)
-    slotList.PushBack("");
+  if (ref_slotList.IndexOf("") == ezInvalidIndex)
+    ref_slotList.PushBack("");
 
   ezStringBuilder sFile;
   ezDynamicArray<ezStringView> Lines;
@@ -35,8 +35,8 @@ void ezQtEditorApp::GetKnownInputSlots(ezDynamicArray<ezString>& slotList) const
       {
         sSlot = Lines[s];
 
-        if (slotList.IndexOf(sSlot) == ezInvalidIndex)
-          slotList.PushBack(sSlot);
+        if (ref_slotList.IndexOf(sSlot) == ezInvalidIndex)
+          ref_slotList.PushBack(sSlot);
       }
     }
   }

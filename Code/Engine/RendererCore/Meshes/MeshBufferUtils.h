@@ -48,40 +48,40 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezMeshTexCoordPrecision);
 
 struct EZ_RENDERERCORE_DLL ezMeshBufferUtils
 {
-  static ezResult EncodeNormal(const ezVec3& normal, ezArrayPtr<ezUInt8> dest, ezMeshNormalPrecision::Enum normalPrecision);
-  static ezResult EncodeTangent(const ezVec3& tangent, float biTangentSign, ezArrayPtr<ezUInt8> dest, ezMeshNormalPrecision::Enum tangentPrecision);
-  static ezResult EncodeTexCoord(const ezVec2& texCoord, ezArrayPtr<ezUInt8> dest, ezMeshTexCoordPrecision::Enum texCoordPrecision);
+  static ezResult EncodeNormal(const ezVec3& vNormal, ezArrayPtr<ezUInt8> dest, ezMeshNormalPrecision::Enum normalPrecision);
+  static ezResult EncodeTangent(const ezVec3& vTangent, float fTangentSign, ezArrayPtr<ezUInt8> dest, ezMeshNormalPrecision::Enum tangentPrecision);
+  static ezResult EncodeTexCoord(const ezVec2& vTexCoord, ezArrayPtr<ezUInt8> dest, ezMeshTexCoordPrecision::Enum texCoordPrecision);
 
-  static ezResult EncodeNormal(const ezVec3& normal, ezArrayPtr<ezUInt8> dest, ezGALResourceFormat::Enum destFormat);
-  static ezResult EncodeTangent(const ezVec3& tangent, float biTangentSign, ezArrayPtr<ezUInt8> dest, ezGALResourceFormat::Enum destFormat);
-  static ezResult EncodeTexCoord(const ezVec2& texCoord, ezArrayPtr<ezUInt8> dest, ezGALResourceFormat::Enum destFormat);
+  static ezResult EncodeNormal(const ezVec3& vNormal, ezArrayPtr<ezUInt8> dest, ezGALResourceFormat::Enum destFormat);
+  static ezResult EncodeTangent(const ezVec3& vTangent, float fTangentSign, ezArrayPtr<ezUInt8> dest, ezGALResourceFormat::Enum destFormat);
+  static ezResult EncodeTexCoord(const ezVec2& vTexCoord, ezArrayPtr<ezUInt8> dest, ezGALResourceFormat::Enum destFormat);
 
-  static ezResult DecodeNormal(ezArrayPtr<const ezUInt8> source, ezVec3& destNormal, ezMeshNormalPrecision::Enum normalPrecision);
+  static ezResult DecodeNormal(ezArrayPtr<const ezUInt8> source, ezVec3& ref_vDestNormal, ezMeshNormalPrecision::Enum normalPrecision);
   static ezResult DecodeTangent(
-    ezArrayPtr<const ezUInt8> source, ezVec3& destTangent, float& destBiTangentSign, ezMeshNormalPrecision::Enum tangentPrecision);
-  static ezResult DecodeTexCoord(ezArrayPtr<const ezUInt8> source, ezVec2& destTexCoord, ezMeshTexCoordPrecision::Enum texCoordPrecision);
+    ezArrayPtr<const ezUInt8> source, ezVec3& ref_vDestTangent, float& ref_fDestBiTangentSign, ezMeshNormalPrecision::Enum tangentPrecision);
+  static ezResult DecodeTexCoord(ezArrayPtr<const ezUInt8> source, ezVec2& ref_vDestTexCoord, ezMeshTexCoordPrecision::Enum texCoordPrecision);
 
-  static ezResult DecodeNormal(ezArrayPtr<const ezUInt8> source, ezGALResourceFormat::Enum sourceFormat, ezVec3& destNormal);
+  static ezResult DecodeNormal(ezArrayPtr<const ezUInt8> source, ezGALResourceFormat::Enum sourceFormat, ezVec3& ref_vDestNormal);
   static ezResult DecodeTangent(
-    ezArrayPtr<const ezUInt8> source, ezGALResourceFormat::Enum sourceFormat, ezVec3& destTangent, float& destBiTangentSign);
-  static ezResult DecodeTexCoord(ezArrayPtr<const ezUInt8> source, ezGALResourceFormat::Enum sourceFormat, ezVec2& destTexCoord);
+    ezArrayPtr<const ezUInt8> source, ezGALResourceFormat::Enum sourceFormat, ezVec3& ref_vDestTangent, float& ref_fDestBiTangentSign);
+  static ezResult DecodeTexCoord(ezArrayPtr<const ezUInt8> source, ezGALResourceFormat::Enum sourceFormat, ezVec2& ref_vDestTexCoord);
 
   // low level conversion functions
-  static ezResult EncodeFromFloat(const float source, ezArrayPtr<ezUInt8> dest, ezGALResourceFormat::Enum destFormat);
-  static ezResult EncodeFromVec2(const ezVec2& source, ezArrayPtr<ezUInt8> dest, ezGALResourceFormat::Enum destFormat);
-  static ezResult EncodeFromVec3(const ezVec3& source, ezArrayPtr<ezUInt8> dest, ezGALResourceFormat::Enum destFormat);
-  static ezResult EncodeFromVec4(const ezVec4& source, ezArrayPtr<ezUInt8> dest, ezGALResourceFormat::Enum destFormat);
+  static ezResult EncodeFromFloat(const float fSource, ezArrayPtr<ezUInt8> dest, ezGALResourceFormat::Enum destFormat);
+  static ezResult EncodeFromVec2(const ezVec2& vSource, ezArrayPtr<ezUInt8> dest, ezGALResourceFormat::Enum destFormat);
+  static ezResult EncodeFromVec3(const ezVec3& vSource, ezArrayPtr<ezUInt8> dest, ezGALResourceFormat::Enum destFormat);
+  static ezResult EncodeFromVec4(const ezVec4& vSource, ezArrayPtr<ezUInt8> dest, ezGALResourceFormat::Enum destFormat);
 
-  static ezResult DecodeToFloat(ezArrayPtr<const ezUInt8> source, ezGALResourceFormat::Enum sourceFormat, float& dest);
-  static ezResult DecodeToVec2(ezArrayPtr<const ezUInt8> source, ezGALResourceFormat::Enum sourceFormat, ezVec2& dest);
-  static ezResult DecodeToVec3(ezArrayPtr<const ezUInt8> source, ezGALResourceFormat::Enum sourceFormat, ezVec3& dest);
-  static ezResult DecodeToVec4(ezArrayPtr<const ezUInt8> source, ezGALResourceFormat::Enum sourceFormat, ezVec4& dest);
+  static ezResult DecodeToFloat(ezArrayPtr<const ezUInt8> source, ezGALResourceFormat::Enum sourceFormat, float& ref_fDest);
+  static ezResult DecodeToVec2(ezArrayPtr<const ezUInt8> source, ezGALResourceFormat::Enum sourceFormat, ezVec2& ref_vDest);
+  static ezResult DecodeToVec3(ezArrayPtr<const ezUInt8> source, ezGALResourceFormat::Enum sourceFormat, ezVec3& ref_vDest);
+  static ezResult DecodeToVec4(ezArrayPtr<const ezUInt8> source, ezGALResourceFormat::Enum sourceFormat, ezVec4& ref_vDest);
 
   /// \brief Helper function to get the position stream from the given mesh buffer descriptor
   static ezResult GetPositionStream(const ezMeshBufferResourceDescriptor& meshBufferDesc, const ezVec3*& out_pPositions, ezUInt32& out_uiElementStride);
 
   /// \brief Helper function to get the position and normal stream from the given mesh buffer descriptor
-  static ezResult GetPositionAndNormalStream(const ezMeshBufferResourceDescriptor& meshBufferDesc, const ezVec3*& out_pPositions, const ezUInt8*& out_pNormals, ezGALResourceFormat::Enum& out_NormalFormat, ezUInt32& out_uiElementStride);
+  static ezResult GetPositionAndNormalStream(const ezMeshBufferResourceDescriptor& meshBufferDesc, const ezVec3*& out_pPositions, const ezUInt8*& out_pNormals, ezGALResourceFormat::Enum& out_normalFormat, ezUInt32& out_uiElementStride);
 };
 
 #include <RendererCore/Meshes/Implementation/MeshBufferUtils_inl.h>

@@ -29,9 +29,9 @@ void ezScenePreferencesUser::SetCameraSpeed(ezInt32 value)
   TriggerPreferencesChangedEvent();
 }
 
-void ezScenePreferencesUser::SetShowGrid(bool show)
+void ezScenePreferencesUser::SetShowGrid(bool bShow)
 {
-  m_bShowGrid = show;
+  m_bShowGrid = bShow;
 
   TriggerPreferencesChangedEvent();
 }

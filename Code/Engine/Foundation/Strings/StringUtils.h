@@ -21,7 +21,7 @@ public:
 
   /// \brief Recomputes the end pointer of a string (\a szStringEnd), if that is currently set to ezMaxStringEnd. Otherwise does nothing.
   template <typename T>
-  static void UpdateStringEnd(const T* szStringStart, const T*& szStringEnd);
+  static void UpdateStringEnd(const T* pStringStart, const T*& ref_pStringEnd);
 
   /// \brief Returns the number of elements of type T that the string contains, until it hits an element that is zero OR until it hits the
   /// end pointer.
@@ -47,7 +47,7 @@ public:
   static ezUInt32 GetCharacterCount(const char* szUtf8, const char* pStringEnd = ezUnicodeUtils::GetMaxStringEnd<char>()); // [tested]
 
   /// \brief Returns both the number of characters and the number of bytes in a Utf8 string, until it hits zero or the end pointer.
-  static void GetCharacterAndElementCount(const char* szUtf8, ezUInt32& uiCharacterCount, ezUInt32& uiElementCount,
+  static void GetCharacterAndElementCount(const char* szUtf8, ezUInt32& ref_uiCharacterCount, ezUInt32& ref_uiElementCount,
     const char* pStringEnd = ezUnicodeUtils::GetMaxStringEnd<char>()); // [tested]
 
   /// \brief Copies the string from szSource into the given buffer, which can hold at least uiDstSize bytes.
@@ -190,7 +190,7 @@ public:
   /// This can be used to query how much storage is required, then allocate it and call snprintf again to fill it.\n
   /// Formatting works exactly like printf, except that it additionally supports outputting binary with the 'b' modifier and it will
   /// output float NaN and Infinity as proper text.
-  static ezInt32 vsnprintf(char* szDst, ezUInt32 uiDstSize, const char* szFormat, va_list ap); // [tested]
+  static ezInt32 vsnprintf(char* szDst, ezUInt32 uiDstSize, const char* szFormat, va_list szAp); // [tested]
 
   /// \brief Returns true if szString starts with the string given in szStartsWith.
   static bool StartsWith(const char* szString, const char* szStartsWith, const char* pStringEnd = ezUnicodeUtils::GetMaxStringEnd<char>(),
@@ -233,13 +233,13 @@ public:
   /// return immediately and nothing will change.
   /// If \a bAlwaysSkipFirst is true, the first character will always be skipped, regardless what it is (unless it is the zero terminator).
   /// The latter is useful to skip an entire word and get to the next word in a string.\n
-  static const char* SkipCharacters(const char* szString, EZ_CHARACTER_FILTER SkipCharacterCB, bool bAlwaysSkipFirst = false); // [tested]
+  static const char* SkipCharacters(const char* szString, EZ_CHARACTER_FILTER skipCharacterCB, bool bAlwaysSkipFirst = false); // [tested]
 
   /// \brief Returns the position in szString at which \a IsDelimiterCB returns true.
   ///
   /// This is basically the inverse of SkipCharacters. SkipCharacters advances over all characters that fulfill the filter,
   /// FindWordEnd advances over all characters that do not fulfill it.
-  static const char* FindWordEnd(const char* szString, EZ_CHARACTER_FILTER IsDelimiterCB, bool bAlwaysSkipFirst = true); // [tested]
+  static const char* FindWordEnd(const char* szString, EZ_CHARACTER_FILTER isDelimiterCB, bool bAlwaysSkipFirst = true); // [tested]
 
   /// \brief Removes all characters at the start and end of the string that match the respective characters and updates the new start and
   /// end of the string.
@@ -248,7 +248,7 @@ public:
   /// \param pStringEnd The end pointer into pString, either the end pointer for the not zero terminated string or ezMaxStringEnd for zero
   /// terminated ones. \param szTrimCharsStart A string compromised of characters to trim from the start of the string. \param
   /// szTrimCharsEnd A string compromised of characters to trim from the end of the string.
-  static void Trim(const char*& pString, const char*& pStringEnd, const char* szTrimCharsStart,
+  static void Trim(const char*& ref_pString, const char*& ref_pStringEnd, const char* szTrimCharsStart,
     const char* szTrimCharsEnd); // [tested] via ezStringView and ezStringBuilder
 
   /// \brief A default word delimiter function that returns true for ' ' (space), '\r' (carriage return), '\n' (newline), '\t' (tab) and
@@ -272,12 +272,12 @@ public:
 
   /// \brief Searches szString for the word szSearchFor. If IsDelimiterCB returns true for both characters in front and back of the word,
   /// the position is returned. Otherwise nullptr.
-  static const char* FindWholeWord(const char* szString, const char* szSearchFor, EZ_CHARACTER_FILTER IsDelimiterCB,
+  static const char* FindWholeWord(const char* szString, const char* szSearchFor, EZ_CHARACTER_FILTER isDelimiterCB,
     const char* pStringEnd = ezUnicodeUtils::GetMaxStringEnd<char>()); // [tested]
 
   /// \brief Searches szString for the word szSearchFor. If IsDelimiterCB returns true for both characters in front and back of the word,
   /// the position is returned. Otherwise nullptr. Ignores case.
-  static const char* FindWholeWord_NoCase(const char* szString, const char* szSearchFor, EZ_CHARACTER_FILTER IsDelimiterCB,
+  static const char* FindWholeWord_NoCase(const char* szString, const char* szSearchFor, EZ_CHARACTER_FILTER isDelimiterCB,
     const char* pStringEnd = ezUnicodeUtils::GetMaxStringEnd<char>()); // [tested]
 
   /// \brief Checks if the given szString ends with an unsigned integer (e.g. "MyString123").
@@ -286,12 +286,12 @@ public:
   static ezResult FindUIntAtTheEnd(const char* szString, ezUInt32& out_uiValue, ezUInt32* pStringLengthBeforeUInt = nullptr); // [tested]
 
   /// \brief [internal] Prefer to use snprintf.
-  static void OutputFormattedInt(char* szOutputBuffer, ezUInt32 uiBufferSize, ezUInt32& uiWritePos, ezInt64 value, ezUInt8 uiWidth, bool bPadZeros, ezUInt8 uiBase);
+  static void OutputFormattedInt(char* szOutputBuffer, ezUInt32 uiBufferSize, ezUInt32& ref_uiWritePos, ezInt64 value, ezUInt8 uiWidth, bool bPadZeros, ezUInt8 uiBase);
   /// \brief [internal] Prefer to use snprintf.
-  static void OutputFormattedUInt(char* szOutputBuffer, ezUInt32 uiBufferSize, ezUInt32& uiWritePos, ezUInt64 value, ezUInt8 uiWidth, bool bPadZeros,
+  static void OutputFormattedUInt(char* szOutputBuffer, ezUInt32 uiBufferSize, ezUInt32& ref_uiWritePos, ezUInt64 value, ezUInt8 uiWidth, bool bPadZeros,
     ezUInt8 uiBase, bool bUpperCase);
   /// \brief [internal] Prefer to use snprintf.
-  static void OutputFormattedFloat(char* szOutputBuffer, ezUInt32 uiBufferSize, ezUInt32& uiWritePos, double value, ezUInt8 uiWidth, bool bPadZeros,
+  static void OutputFormattedFloat(char* szOutputBuffer, ezUInt32 uiBufferSize, ezUInt32& ref_uiWritePos, double value, ezUInt8 uiWidth, bool bPadZeros,
     ezInt8 iPrecision, bool bScientific, bool bRemoveTrailingZeroes = false);
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)

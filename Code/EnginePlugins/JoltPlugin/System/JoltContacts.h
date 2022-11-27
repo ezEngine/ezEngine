@@ -50,12 +50,12 @@ public:
 
   SlideAndRollInfo* FindSlideOrRollInfo(const JPH::Body* pBody, const ezVec3& vAvgPos);
 
-  void OnContact_SlideReaction(const JPH::Body& inBody0, const JPH::Body& inBody1, const JPH::ContactManifold& inManifold, ezBitflags<ezOnJoltContact> onContact0, ezBitflags<ezOnJoltContact> onContact1, const ezVec3& vAvgPos, const ezVec3& vAvgNormal);
+  void OnContact_SlideReaction(const JPH::Body& body0, const JPH::Body& body1, const JPH::ContactManifold& manifold, ezBitflags<ezOnJoltContact> onContact0, ezBitflags<ezOnJoltContact> onContact1, const ezVec3& vAvgPos, const ezVec3& vAvgNormal);
 
-  void OnContact_RollReaction(const JPH::Body& inBody0, const JPH::Body& inBody1, const JPH::ContactManifold& inManifold, ezBitflags<ezOnJoltContact> onContact0, ezBitflags<ezOnJoltContact> onContact1, const ezVec3& vAvgPos, const ezVec3& vAvgNormal0);
+  void OnContact_RollReaction(const JPH::Body& body0, const JPH::Body& body1, const JPH::ContactManifold& manifold, ezBitflags<ezOnJoltContact> onContact0, ezBitflags<ezOnJoltContact> onContact1, const ezVec3& vAvgPos, const ezVec3& vAvgNormal0);
 
   void OnContact_ImpactReaction(const ezVec3& vAvgPos, const ezVec3& vAvgNormal, float fMaxImpactSqr, const ezSurfaceResource* pSurface1, const ezSurfaceResource* pSurface2, bool bActor1StaticOrKinematic);
-  void OnContact_SlideAndRollReaction(const JPH::Body& inBody0, const JPH::Body& inBody1, const JPH::ContactManifold& inManifold, ezBitflags<ezOnJoltContact> onContact0, ezBitflags<ezOnJoltContact> onContact1, const ezVec3& vAvgPos, const ezVec3& vAvgNormal, ezBitflags<ezOnJoltContact> CombinedContactFlags);
+  void OnContact_SlideAndRollReaction(const JPH::Body& body0, const JPH::Body& body1, const JPH::ContactManifold& manifold, ezBitflags<ezOnJoltContact> onContact0, ezBitflags<ezOnJoltContact> onContact1, const ezVec3& vAvgPos, const ezVec3& vAvgNormal, ezBitflags<ezOnJoltContact> combinedContactFlags);
 
   void SpawnPhysicsImpactReactions();
   void UpdatePhysicsSlideReactions();
@@ -79,14 +79,14 @@ public:
 
   void RemoveTrigger(const ezJoltTriggerComponent* pTrigger);
 
-  virtual void OnContactAdded(const JPH::Body& inBody1, const JPH::Body& inBody2, const JPH::ContactManifold& inManifold, JPH::ContactSettings& ioSettings) override;
-  virtual void OnContactPersisted(const JPH::Body& inBody1, const JPH::Body& inBody2, const JPH::ContactManifold& inManifold, JPH::ContactSettings& ioSettings) override;
+  virtual void OnContactAdded(const JPH::Body& body1, const JPH::Body& body2, const JPH::ContactManifold& manifold, JPH::ContactSettings& ref_settings) override;
+  virtual void OnContactPersisted(const JPH::Body& body1, const JPH::Body& body2, const JPH::ContactManifold& manifold, JPH::ContactSettings& ref_settings) override;
 
-  virtual void OnContactRemoved(const JPH::SubShapeIDPair& inSubShapePair) override;
+  virtual void OnContactRemoved(const JPH::SubShapeIDPair& subShapePair) override;
 
-  void OnContact(const JPH::Body& inBody0, const JPH::Body& inBody1, const JPH::ContactManifold& inManifold, JPH::ContactSettings& ioSettings, bool bPersistent);
+  void OnContact(const JPH::Body& body0, const JPH::Body& body1, const JPH::ContactManifold& manifold, JPH::ContactSettings& ref_settings, bool bPersistent);
 
-  bool ActivateTrigger(const JPH::Body& inBody1, const JPH::Body& inBody2, ezUInt64 uiBody1id, ezUInt64 uiBody2id);
+  bool ActivateTrigger(const JPH::Body& body1, const JPH::Body& body2, ezUInt64 uiBody1id, ezUInt64 uiBody2id);
 
   void DeactivateTrigger(ezUInt64 uiBody1id, ezUInt64 uiBody2id);
 };

@@ -34,12 +34,12 @@ ezResult ezTypeScriptBinding::Init_Component()
   return EZ_SUCCESS;
 }
 
-ezResult ezTypeScriptBinding::RegisterComponent(const char* szTypeName, ezComponentHandle handle, ezUInt32& out_uiStashIdx, bool bIsNativeComponent)
+ezResult ezTypeScriptBinding::RegisterComponent(const char* szTypeName, ezComponentHandle hHandle, ezUInt32& out_uiStashIdx, bool bIsNativeComponent)
 {
-  if (handle.IsInvalidated())
+  if (hHandle.IsInvalidated())
     return EZ_FAILURE;
 
-  ezUInt32& uiStashIdx = m_ComponentToStashIdx[handle];
+  ezUInt32& uiStashIdx = m_ComponentToStashIdx[hHandle];
 
   if (uiStashIdx != 0)
   {
@@ -85,7 +85,7 @@ ezResult ezTypeScriptBinding::RegisterComponent(const char* szTypeName, ezCompon
   {
     ezComponentHandle* pBuffer =
       reinterpret_cast<ezComponentHandle*>(duk_push_fixed_buffer(duk, sizeof(ezComponentHandle))); // [ global __CompModule object buffer ]
-    *pBuffer = handle;
+    *pBuffer = hHandle;
     duk_put_prop_index(duk, -2, ezTypeScriptBindingIndexProperty::ComponentHandle); // [ global __CompModule object ]
   }
 

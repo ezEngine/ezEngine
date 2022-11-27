@@ -63,8 +63,8 @@ public:
   }
 
   /// \brief Initializes the ezArrayPtr with the given pointer and number of elements. No memory is allocated or copied.
-  inline ezArrayPtr(T* ptr, ezUInt32 uiCount) // [tested]
-    : m_pPtr(ptr)
+  inline ezArrayPtr(T* pPtr, ezUInt32 uiCount) // [tested]
+    : m_pPtr(pPtr)
     , m_uiCount(uiCount)
   {
     // If any of the arguments is invalid, we invalidate ourself.
@@ -300,9 +300,9 @@ using ezConstByteArrayPtr = ezArrayPtr<const ezUInt8>;
 
 /// \brief Helper function to create ezArrayPtr from a pointer of some type and a count.
 template <typename T>
-EZ_ALWAYS_INLINE ezArrayPtr<T> ezMakeArrayPtr(T* ptr, ezUInt32 uiCount)
+EZ_ALWAYS_INLINE ezArrayPtr<T> ezMakeArrayPtr(T* pPtr, ezUInt32 uiCount)
 {
-  return ezArrayPtr<T>(ptr, uiCount);
+  return ezArrayPtr<T>(pPtr, uiCount);
 }
 
 /// \brief Helper function to create ezArrayPtr from a static array the a size known at compile-time.
@@ -314,36 +314,36 @@ EZ_ALWAYS_INLINE ezArrayPtr<T> ezMakeArrayPtr(T (&staticArray)[N])
 
 /// \brief Helper function to create ezConstByteArrayPtr from a pointer of some type and a count.
 template <typename T>
-EZ_ALWAYS_INLINE ezConstByteArrayPtr ezMakeByteArrayPtr(const T* ptr, ezUInt32 uiCount)
+EZ_ALWAYS_INLINE ezConstByteArrayPtr ezMakeByteArrayPtr(const T* pPtr, ezUInt32 uiCount)
 {
-  return ezConstByteArrayPtr(static_cast<const ezUInt8*>(ptr), uiCount * sizeof(T));
+  return ezConstByteArrayPtr(static_cast<const ezUInt8*>(pPtr), uiCount * sizeof(T));
 }
 
 /// \brief Helper function to create ezByteArrayPtr from a pointer of some type and a count.
 template <typename T>
-EZ_ALWAYS_INLINE ezByteArrayPtr ezMakeByteArrayPtr(T* ptr, ezUInt32 uiCount)
+EZ_ALWAYS_INLINE ezByteArrayPtr ezMakeByteArrayPtr(T* pPtr, ezUInt32 uiCount)
 {
-  return ezByteArrayPtr(reinterpret_cast<ezUInt8*>(ptr), uiCount * sizeof(T));
+  return ezByteArrayPtr(reinterpret_cast<ezUInt8*>(pPtr), uiCount * sizeof(T));
 }
 
 /// \brief Helper function to create ezByteArrayPtr from a void pointer and a count.
-EZ_ALWAYS_INLINE ezByteArrayPtr ezMakeByteArrayPtr(void* ptr, ezUInt32 uiBytes)
+EZ_ALWAYS_INLINE ezByteArrayPtr ezMakeByteArrayPtr(void* pPtr, ezUInt32 uiBytes)
 {
-  return ezByteArrayPtr(reinterpret_cast<ezUInt8*>(ptr), uiBytes);
+  return ezByteArrayPtr(reinterpret_cast<ezUInt8*>(pPtr), uiBytes);
 }
 
 /// \brief Helper function to create ezConstByteArrayPtr from a const void pointer and a count.
-EZ_ALWAYS_INLINE ezConstByteArrayPtr ezMakeByteArrayPtr(const void* ptr, ezUInt32 uiBytes)
+EZ_ALWAYS_INLINE ezConstByteArrayPtr ezMakeByteArrayPtr(const void* pPtr, ezUInt32 uiBytes)
 {
-  return ezConstByteArrayPtr(static_cast<const ezUInt8*>(ptr), uiBytes);
+  return ezConstByteArrayPtr(static_cast<const ezUInt8*>(pPtr), uiBytes);
 }
 
 //////////////////////////////////////////////////////////////////////////
 
 template <typename T>
-typename ezArrayPtr<T>::iterator begin(ezArrayPtr<T>& container)
+typename ezArrayPtr<T>::iterator begin(ezArrayPtr<T>& ref_container)
 {
-  return container.GetPtr();
+  return ref_container.GetPtr();
 }
 
 template <typename T>
@@ -359,9 +359,9 @@ typename ezArrayPtr<T>::const_iterator cbegin(const ezArrayPtr<T>& container)
 }
 
 template <typename T>
-typename ezArrayPtr<T>::reverse_iterator rbegin(ezArrayPtr<T>& container)
+typename ezArrayPtr<T>::reverse_iterator rbegin(ezArrayPtr<T>& ref_container)
 {
-  return typename ezArrayPtr<T>::reverse_iterator(container.GetPtr() + container.GetCount() - 1);
+  return typename ezArrayPtr<T>::reverse_iterator(ref_container.GetPtr() + ref_container.GetCount() - 1);
 }
 
 template <typename T>
@@ -377,9 +377,9 @@ typename ezArrayPtr<T>::const_reverse_iterator crbegin(const ezArrayPtr<T>& cont
 }
 
 template <typename T>
-typename ezArrayPtr<T>::iterator end(ezArrayPtr<T>& container)
+typename ezArrayPtr<T>::iterator end(ezArrayPtr<T>& ref_container)
 {
-  return container.GetPtr() + container.GetCount();
+  return ref_container.GetPtr() + ref_container.GetCount();
 }
 
 template <typename T>
@@ -395,9 +395,9 @@ typename ezArrayPtr<T>::const_iterator cend(const ezArrayPtr<T>& container)
 }
 
 template <typename T>
-typename ezArrayPtr<T>::reverse_iterator rend(ezArrayPtr<T>& container)
+typename ezArrayPtr<T>::reverse_iterator rend(ezArrayPtr<T>& ref_container)
 {
-  return typename ezArrayPtr<T>::reverse_iterator(container.GetPtr() - 1);
+  return typename ezArrayPtr<T>::reverse_iterator(ref_container.GetPtr() - 1);
 }
 
 template <typename T>

@@ -37,7 +37,7 @@ public:
   ezUInt32 GetCount() const { return m_Objects.GetCount(); }
 
   /// \brief Returns the n-th object in the selection.
-  ezGameObjectHandle GetObject(ezUInt32 index) const { return m_Objects[index]; }
+  ezGameObjectHandle GetObject(ezUInt32 uiIndex) const { return m_Objects[uiIndex]; }
 
 private:
   ezWorld* m_pWorld;

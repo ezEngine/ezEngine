@@ -9,8 +9,8 @@
 
 ezQtLogDockWidget* ezQtLogDockWidget::s_pWidget = nullptr;
 
-ezQtLogDockWidget::ezQtLogDockWidget(QWidget* parent)
-  : ads::CDockWidget("Log", parent)
+ezQtLogDockWidget::ezQtLogDockWidget(QWidget* pParent)
+  : ads::CDockWidget("Log", pParent)
 {
   s_pWidget = this;
   setupUi(this);
@@ -24,12 +24,12 @@ void ezQtLogDockWidget::ResetStats()
   LogWidget->GetLog()->Clear();
 }
 
-void ezQtLogDockWidget::Log(const ezFormatString& sText)
+void ezQtLogDockWidget::Log(const ezFormatString& text)
 {
   ezStringBuilder tmp;
 
   ezLogEntry lm;
-  lm.m_sMsg = sText.GetText(tmp);
+  lm.m_sMsg = text.GetText(tmp);
   lm.m_Type = ezLogMsgType::InfoMsg;
   lm.m_uiIndentation = 0;
   LogWidget->GetLog()->AddLogMsg(lm);

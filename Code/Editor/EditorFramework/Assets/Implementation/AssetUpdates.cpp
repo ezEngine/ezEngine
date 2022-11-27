@@ -804,7 +804,7 @@ void ezUpdateTask::Execute()
 
   // Do not log update errors done on the background thread. Only if done explicitly on the main thread or the GUI will not be responsive
   // if the user deleted some base asset and everything starts complaining about it.
-  ezLogEntryDelegate logger([&](ezLogEntry& entry) -> void {}, ezLogMsgType::All);
+  ezLogEntryDelegate logger([&](ezLogEntry& ref_entry) -> void {}, ezLogMsgType::All);
   ezLogSystemScope logScope(&logger);
 
   ezAssetCurator::GetSingleton()->IsAssetUpToDate(assetGuid, ezAssetCurator::GetSingleton()->GetActiveAssetProfile(), static_cast<const ezAssetDocumentTypeDescriptor*>(pTypeDescriptor), uiAssetHash, uiThumbHash);

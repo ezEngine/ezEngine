@@ -19,12 +19,12 @@ inline void SetConsoleColorInl(WORD ui)
 inline void SetConsoleColorInl(ezUInt8 ui) {}
 #endif
 
-inline void OutputToConsole(ezTestOutput::Enum Type, const char* szMsg)
+inline void OutputToConsole(ezTestOutput::Enum type, const char* szMsg)
 {
   static ezInt32 iIndentation = 0;
   static bool bAnyError = false;
 
-  switch (Type)
+  switch (type)
   {
     case ezTestOutput::StartOutput:
       break;
@@ -128,7 +128,7 @@ inline void OutputToConsole(ezTestOutput::Enum Type, const char* szMsg)
   __android_log_print(ANDROID_LOG_DEBUG, "ezEngine", "%*s%s\n", iIndentation, "", szMsg);
 #endif
 
-  if (Type >= ezTestOutput::Error)
+  if (type >= ezTestOutput::Error)
   {
     fflush(stdout);
   }

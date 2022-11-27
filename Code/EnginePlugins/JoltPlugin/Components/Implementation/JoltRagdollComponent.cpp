@@ -80,27 +80,27 @@ EZ_BEGIN_COMPONENT_TYPE(ezJoltRagdollComponent, 1, ezComponentMode::Dynamic)
 EZ_END_ABSTRACT_COMPONENT_TYPE;
 // clang-format on
 
-ezResult ezJoltRagdollConstraint::Serialize(ezStreamWriter& stream) const
+ezResult ezJoltRagdollConstraint::Serialize(ezStreamWriter& inout_stream) const
 {
-  stream << m_sBone;
-  stream << m_vRelativePosition;
+  inout_stream << m_sBone;
+  inout_stream << m_vRelativePosition;
   return EZ_SUCCESS;
 }
 
-ezResult ezJoltRagdollConstraint::Deserialize(ezStreamReader& stream)
+ezResult ezJoltRagdollConstraint::Deserialize(ezStreamReader& inout_stream)
 {
-  stream >> m_sBone;
-  stream >> m_vRelativePosition;
+  inout_stream >> m_sBone;
+  inout_stream >> m_vRelativePosition;
   return EZ_SUCCESS;
 }
 
 ezJoltRagdollComponent::ezJoltRagdollComponent() = default;
 ezJoltRagdollComponent::~ezJoltRagdollComponent() = default;
 
-void ezJoltRagdollComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezJoltRagdollComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
-  auto& s = stream.GetStream();
+  SUPER::SerializeComponent(inout_stream);
+  auto& s = inout_stream.GetStream();
 
   s << m_Start;
   s << m_fGravityFactor;
@@ -109,11 +109,11 @@ void ezJoltRagdollComponent::SerializeComponent(ezWorldWriter& stream) const
   s.WriteArray(m_Constraints).AssertSuccess();
 }
 
-void ezJoltRagdollComponent::DeserializeComponent(ezWorldReader& stream)
+void ezJoltRagdollComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  auto& s = stream.GetStream();
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  auto& s = inout_stream.GetStream();
 
   s >> m_Start;
   s >> m_fGravityFactor;
@@ -189,12 +189,12 @@ void ezJoltRagdollComponent::ClearPhysicsObjects()
   m_NextImpulse = {};
 }
 
-void ezJoltRagdollComponent::SetGravityFactor(float factor)
+void ezJoltRagdollComponent::SetGravityFactor(float fFactor)
 {
-  if (m_fGravityFactor == factor)
+  if (m_fGravityFactor == fFactor)
     return;
 
-  m_fGravityFactor = factor;
+  m_fGravityFactor = fFactor;
 
   if (!m_pRagdoll)
     return;
@@ -209,7 +209,7 @@ void ezJoltRagdollComponent::SetGravityFactor(float factor)
   m_pRagdoll->Activate();
 }
 
-void ezJoltRagdollComponent::AddForceAtPos(ezMsgPhysicsAddForce& msg)
+void ezJoltRagdollComponent::AddForceAtPos(ezMsgPhysicsAddForce& ref_msg)
 {
   // if (m_pPxAggregate != nullptr)
   //{
@@ -224,7 +224,7 @@ void ezJoltRagdollComponent::AddForceAtPos(ezMsgPhysicsAddForce& msg)
   //}
 }
 
-void ezJoltRagdollComponent::AddImpulseAtPos(ezMsgPhysicsAddImpulse& msg)
+void ezJoltRagdollComponent::AddImpulseAtPos(ezMsgPhysicsAddImpulse& ref_msg)
 {
   // EZ_ASSERT_DEV(!msg.m_vImpulse.IsNaN() && !msg.m_vGlobalPosition.IsNaN(), "ezMsgPhysicsAddImpulse contains invalid (NaN) impulse or position");
 
@@ -275,7 +275,7 @@ void ezJoltRagdollComponent::ApplyImpulse()
   // m_NextImpulse = {};
 }
 
-void ezJoltRagdollComponent::OnAnimationPoseProposal(ezMsgAnimationPoseProposal& msg)
+void ezJoltRagdollComponent::OnAnimationPoseProposal(ezMsgAnimationPoseProposal& ref_msg)
 {
   // if (!m_bShapesCreated)
   //   return;
@@ -307,7 +307,7 @@ void ezJoltRagdollComponent::OnAnimationPoseProposal(ezMsgAnimationPoseProposal&
   //}
 }
 
-void ezJoltRagdollComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& poseMsg)
+void ezJoltRagdollComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& ref_poseMsg)
 {
   if (!IsActiveAndSimulating())
     return;
@@ -315,7 +315,7 @@ void ezJoltRagdollComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& p
   if (m_Start == ezJoltRagdollStart::Wait)
     return;
 
-  poseMsg.m_bContinueAnimating = false; // TODO: change this
+  ref_poseMsg.m_bContinueAnimating = false; // TODO: change this
 
   if (m_bLimbsSetup)
   {
@@ -324,12 +324,12 @@ void ezJoltRagdollComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& p
     return;
   }
 
-  m_LimbPoses = poseMsg.m_ModelTransforms;
+  m_LimbPoses = ref_poseMsg.m_ModelTransforms;
 
-  SetupLimbs(poseMsg);
+  SetupLimbs(ref_poseMsg);
 }
 
-void ezJoltRagdollComponent::OnRetrieveBoneState(ezMsgRetrieveBoneState& msg) const
+void ezJoltRagdollComponent::OnRetrieveBoneState(ezMsgRetrieveBoneState& ref_msg) const
 {
   if (!m_bLimbsSetup)
     return;
@@ -351,7 +351,7 @@ void ezJoltRagdollComponent::OnRetrieveBoneState(ezMsgRetrieveBoneState& msg) co
       mJoint = mParent * mJoint;
     }
 
-    auto& t = msg.m_BoneTransforms[joint.GetName().GetString()];
+    auto& t = ref_msg.m_BoneTransforms[joint.GetName().GetString()];
     t.m_vPosition = mJoint.GetTranslationVector();
     t.m_qRotation.ReconstructFromMat4(mJoint);
     t.m_vScale.Set(1.0f);

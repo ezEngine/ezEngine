@@ -21,7 +21,7 @@ public:
 
   bool IsVisible() const { return m_bVisible; }
 
-  void SetEmitterEnabled(bool enable) { m_bEmitterEnabled = enable; }
+  void SetEmitterEnabled(bool bEnable) { m_bEmitterEnabled = bEnable; }
   bool GetEmitterEnabled() const { return m_bEmitterEnabled; }
 
   bool HasActiveParticles() const;
@@ -39,7 +39,7 @@ public:
   const ezTransform& GetTransform() const { return m_Transform; }
   const ezVec3& GetParticleStartVelocity() const { return m_vParticleStartVelocity; }
 
-  ezParticleSystemState::Enum Update(const ezTime& tDiff);
+  ezParticleSystemState::Enum Update(const ezTime& diff);
 
   ezWorld* GetWorld() const { return m_pWorld; }
 
@@ -49,17 +49,17 @@ public:
 
 
   /// \brief Returns the desired stream, if it already exists, nullptr otherwise.
-  ezProcessingStream* QueryStream(const char* szName, ezProcessingStream::DataType Type) const;
+  ezProcessingStream* QueryStream(const char* szName, ezProcessingStream::DataType type) const;
 
   /// \brief Returns the desired stream, if it already exists, creates it otherwise.
-  void CreateStream(const char* szName, ezProcessingStream::DataType Type, ezProcessingStream** ppStream, ezParticleStreamBinding& binding, bool bExpectInitializedValue);
+  void CreateStream(const char* szName, ezProcessingStream::DataType type, ezProcessingStream** pStream, ezParticleStreamBinding& ref_binding, bool bExpectInitializedValue);
 
   void ProcessEventQueue(ezParticleEventQueue queue);
 
   ezParticleEffectInstance* GetOwnerEffect() const { return m_pOwnerEffect; }
   ezParticleWorldModule* GetOwnerWorldModule() const;
 
-  void ExtractSystemRenderData(ezMsgExtractRenderData& msg, const ezTransform& instanceTransform) const;
+  void ExtractSystemRenderData(ezMsgExtractRenderData& ref_msg, const ezTransform& instanceTransform) const;
 
   typedef ezEvent<const ezStreamGroupElementRemovedEvent&>::Handler ParticleDeathHandler;
 

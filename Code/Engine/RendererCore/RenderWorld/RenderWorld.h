@@ -56,7 +56,7 @@ public:
   static void DeleteCachedRenderData(const ezGameObjectHandle& hOwnerObject, const ezComponentHandle& hOwnerComponent);
   static void DeleteCachedRenderDataForObject(const ezGameObject* pOwnerObject);
   static void DeleteCachedRenderDataForObjectRecursive(const ezGameObject* pOwnerObject);
-  static void ResetRenderDataCache(ezView& view);
+  static void ResetRenderDataCache(ezView& ref_view);
   static ezArrayPtr<const ezInternal::RenderDataCacheEntry> GetCachedRenderData(const ezView& view, const ezGameObjectHandle& hOwner, ezUInt16 uiComponentVersion);
 
   static void AddViewToRender(const ezViewHandle& hView);

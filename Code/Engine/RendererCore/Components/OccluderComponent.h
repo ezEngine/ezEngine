@@ -23,8 +23,8 @@ class EZ_RENDERERCORE_DLL ezOccluderComponent : public ezComponent
   // ezComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
 protected:
   virtual void OnActivated() override;
@@ -42,7 +42,7 @@ public:
     return m_vExtents;
   }
 
-  void SetExtents(const ezVec3& extents);
+  void SetExtents(const ezVec3& vExtents);
 
 private:
   ezVec3 m_vExtents = ezVec3(5.0f);

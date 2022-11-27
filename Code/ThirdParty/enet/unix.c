@@ -54,6 +54,10 @@
 #endif
 
 // BEGIN EZ-SPECIFIC BUGFIX
+#ifdef __ANDROID__
+#define HAS_SOCKLEN_T 1
+#endif
+
 // see https://github.com/lsalzman/enet/issues/90
 #ifndef HAS_SOCKLEN_T
 #ifndef __socklen_t_defined

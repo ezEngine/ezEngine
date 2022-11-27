@@ -35,8 +35,8 @@ class EZ_JOLTPLUGIN_DLL ezJoltQueryShapeActorComponent : public ezJoltActorCompo
   // ezComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
   virtual void OnSimulationStarted() override;
   virtual void OnDeactivated() override;

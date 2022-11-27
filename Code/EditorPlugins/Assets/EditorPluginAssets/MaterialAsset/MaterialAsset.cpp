@@ -787,7 +787,7 @@ void ezMaterialAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo
   }
 }
 
-ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& stream0, const ezPlatformProfile* pAssetProfile, bool bEmbedLowResData) const
+ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& inout_stream0, const ezPlatformProfile* pAssetProfile, bool bEmbedLowResData) const
 {
   const ezMaterialAssetProperties* pProp = GetProperties();
 
@@ -797,18 +797,18 @@ ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& stream0, co
   {
     const ezUInt8 uiVersion = 6;
 
-    stream0 << uiVersion;
+    inout_stream0 << uiVersion;
 
     ezUInt8 uiCompressionMode = 0;
 
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
     uiCompressionMode = 1;
-    ezCompressedStreamWriterZstd stream(&stream0, ezCompressedStreamWriterZstd::Compression::Average);
+    ezCompressedStreamWriterZstd stream(&inout_stream0, ezCompressedStreamWriterZstd::Compression::Average);
 #else
     ezStreamWriter& stream = stream0;
 #endif
 
-    stream0 << uiCompressionMode;
+    inout_stream0 << uiCompressionMode;
 
     stream << pProp->m_sBaseMaterial;
     stream << pProp->m_sSurface;
@@ -1027,7 +1027,7 @@ void ezMaterialAssetDocument::TagVisualShaderFileInvalid(const ezPlatformProfile
   }
 }
 
-ezStatus ezMaterialAssetDocument::RecreateVisualShaderFile(const ezAssetFileHeader& AssetHeader)
+ezStatus ezMaterialAssetDocument::RecreateVisualShaderFile(const ezAssetFileHeader& assetHeader)
 {
   if (GetProperties()->m_ShaderMode != ezMaterialShaderMode::Custom)
   {
@@ -1045,7 +1045,7 @@ ezStatus ezMaterialAssetDocument::RecreateVisualShaderFile(const ezAssetFileHead
   if (file.Open(sAutoGenShader).Succeeded())
   {
     ezStringBuilder shader = codeGen.GetFinalShaderCode();
-    shader.PrependFormat("//{0}|{1}\n", AssetHeader.GetFileHash(), AssetHeader.GetFileVersion());
+    shader.PrependFormat("//{0}|{1}\n", assetHeader.GetFileHash(), assetHeader.GetFileVersion());
 
     EZ_SUCCEED_OR_RETURN(file.WriteBytes(shader.GetData(), shader.GetElementCount()));
     file.Close();
@@ -1084,12 +1084,12 @@ void ezMaterialAssetDocument::EditorEventHandler(const ezEditorAppEvent& e)
   }
 }
 
-static void MarkReachableNodes(ezMap<const ezDocumentObject*, bool>& AllNodes, const ezDocumentObject* pRoot, ezDocumentNodeManager* pNodeManager)
+static void MarkReachableNodes(ezMap<const ezDocumentObject*, bool>& ref_allNodes, const ezDocumentObject* pRoot, ezDocumentNodeManager* pNodeManager)
 {
-  if (AllNodes[pRoot])
+  if (ref_allNodes[pRoot])
     return;
 
-  AllNodes[pRoot] = true;
+  ref_allNodes[pRoot] = true;
 
   auto allInputs = pNodeManager->GetInputPins(pRoot);
 
@@ -1105,7 +1105,7 @@ static void MarkReachableNodes(ezMap<const ezDocumentObject*, bool>& AllNodes, c
       const ezPin& sourcePin = pConnection->GetSourcePin();
 
       // recurse from here
-      MarkReachableNodes(AllNodes, sourcePin.GetParent(), pNodeManager);
+      MarkReachableNodes(ref_allNodes, sourcePin.GetParent(), pNodeManager);
     }
   }
 }
@@ -1205,14 +1205,14 @@ ezUuid ezMaterialAssetDocument::GetNeutralNormalMap()
   return s_NeutralNormalMap;
 }
 
-void ezMaterialAssetDocument::GetSupportedMimeTypesForPasting(ezHybridArray<ezString, 4>& out_MimeTypes) const
+void ezMaterialAssetDocument::GetSupportedMimeTypesForPasting(ezHybridArray<ezString, 4>& out_mimeTypes) const
 {
-  out_MimeTypes.PushBack("application/ezEditor.NodeGraph");
+  out_mimeTypes.PushBack("application/ezEditor.NodeGraph");
 }
 
-bool ezMaterialAssetDocument::CopySelectedObjects(ezAbstractObjectGraph& out_objectGraph, ezStringBuilder& out_MimeType) const
+bool ezMaterialAssetDocument::CopySelectedObjects(ezAbstractObjectGraph& out_objectGraph, ezStringBuilder& out_sMimeType) const
 {
-  out_MimeType = "application/ezEditor.NodeGraph";
+  out_sMimeType = "application/ezEditor.NodeGraph";
 
   const ezDocumentNodeManager* pManager = static_cast<const ezDocumentNodeManager*>(GetObjectManager());
   return pManager->CopySelectedObjects(out_objectGraph);
@@ -1238,7 +1238,7 @@ public:
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
     pNode->RenameProperty("Shader Mode", "ShaderMode");
     pNode->RenameProperty("Base Material", "BaseMaterial");
@@ -1256,7 +1256,7 @@ public:
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
     auto* pBaseMatProp = pNode->FindProperty("BaseMaterial");
     auto* pShaderModeProp = pNode->FindProperty("ShaderMode");

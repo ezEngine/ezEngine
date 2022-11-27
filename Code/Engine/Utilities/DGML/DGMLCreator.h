@@ -11,5 +11,5 @@ class EZ_UTILITIES_DLL ezDGMLGraphCreator
 {
 public:
   /// \brief Adds the world hierarchy (game objects and components) to the given graph object.
-  static void FillGraphFromWorld(ezWorld* pWorld, ezDGMLGraph& Graph);
+  static void FillGraphFromWorld(ezWorld* pWorld, ezDGMLGraph& ref_graph);
 };

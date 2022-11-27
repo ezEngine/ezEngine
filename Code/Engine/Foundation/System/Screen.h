@@ -22,7 +22,7 @@ class EZ_FOUNDATION_DLL ezScreen
 {
 public:
   /// \brief Enumerates all available screens. When it returns EZ_SUCCESS, at least one screen has been found.
-  static ezResult EnumerateScreens(ezHybridArray<ezScreenInfo, 2>& out_Screens);
+  static ezResult EnumerateScreens(ezHybridArray<ezScreenInfo, 2>& out_screens);
 
   /// \brief Prints the available screen information to the provided log.
   static void PrintScreenInfo(const ezHybridArray<ezScreenInfo, 2>& screens, ezLogInterface* pLog = ezLog::GetThreadLocalLogSystem());

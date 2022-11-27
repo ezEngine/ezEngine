@@ -10,7 +10,7 @@ class EZ_GUIFOUNDATION_DLL ezQtNodeView : public QGraphicsView
 {
   Q_OBJECT
 public:
-  explicit ezQtNodeView(QWidget* parent = nullptr);
+  explicit ezQtNodeView(QWidget* pParent = nullptr);
   ~ezQtNodeView();
 
   void SetScene(ezQtNodeScene* pScene);

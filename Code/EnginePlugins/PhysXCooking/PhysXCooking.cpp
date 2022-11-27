@@ -74,9 +74,9 @@ public:
   {
   }
 
-  virtual PxU32 write(const void* src, PxU32 count) override
+  virtual PxU32 write(const void* pSrc, PxU32 count) override
   {
-    if (m_pStream->WriteBytes(src, count).Succeeded())
+    if (m_pStream->WriteBytes(pSrc, count).Succeeded())
       return count;
 
     return 0;
@@ -88,24 +88,24 @@ public:
 class ezPxAllocator : public PxAllocatorCallback
 {
 public:
-  virtual void* allocate(size_t size, const char* typeName, const char* filename, int line) override
+  virtual void* allocate(size_t uiSize, const char* szTypeName, const char* szFilename, int iLine) override
   {
-    if (size == 0)
+    if (uiSize == 0)
       return nullptr;
 
-    return new unsigned char[size];
+    return new unsigned char[uiSize];
   }
 
-  virtual void deallocate(void* ptr) override
+  virtual void deallocate(void* pPtr) override
   {
-    if (ptr != nullptr)
+    if (pPtr != nullptr)
     {
-      delete[] static_cast<unsigned char*>(ptr);
+      delete[] static_cast<unsigned char*>(pPtr);
     }
   }
 };
 
-ezResult ezPhysXCooking::CookTriangleMesh(const ezPhysXCookingMesh& mesh, ezStreamWriter& OutputStream)
+ezResult ezPhysXCooking::CookTriangleMesh(const ezPhysXCookingMesh& mesh, ezStreamWriter& ref_outputStream)
 {
   // ezPhysXCookingMesh mesh;
   // if (ComputeConvexHull(mesh0, mesh).Failed())
@@ -126,7 +126,7 @@ ezResult ezPhysXCooking::CookTriangleMesh(const ezPhysXCookingMesh& mesh, ezStre
   ezDynamicArray<ezUInt32> TriangleIndices;
   CreateMeshDesc(mesh, desc, TriangleIndices);
 
-  ezPxOutStream PassThroughStream(&OutputStream);
+  ezPxOutStream PassThroughStream(&ref_outputStream);
 
   range.BeginNextStep("PhysX Cooking");
 
@@ -136,7 +136,7 @@ ezResult ezPhysXCooking::CookTriangleMesh(const ezPhysXCookingMesh& mesh, ezStre
   return EZ_SUCCESS;
 }
 
-ezResult ezPhysXCooking::CookConvexMesh(const ezPhysXCookingMesh& mesh0, ezStreamWriter& OutputStream)
+ezResult ezPhysXCooking::CookConvexMesh(const ezPhysXCookingMesh& mesh0, ezStreamWriter& ref_outputStream)
 {
   ezProgressRange range("Cooking Convex Mesh", 2, false);
 
@@ -147,7 +147,7 @@ ezResult ezPhysXCooking::CookConvexMesh(const ezPhysXCookingMesh& mesh0, ezStrea
 
   range.BeginNextStep("Cooking Convex Hull");
 
-  EZ_SUCCEED_OR_RETURN(CookSingleConvexPxMesh(mesh, OutputStream));
+  EZ_SUCCEED_OR_RETURN(CookSingleConvexPxMesh(mesh, ref_outputStream));
 
   return EZ_SUCCESS;
 }
@@ -240,11 +240,11 @@ ezResult ezPhysXCooking::CookSingleConvexPxMesh(const ezPhysXCookingMesh& mesh, 
   return EZ_SUCCESS;
 }
 
-ezResult ezPhysXCooking::ComputeConvexHull(const ezPhysXCookingMesh& mesh, ezPhysXCookingMesh& outMesh)
+ezResult ezPhysXCooking::ComputeConvexHull(const ezPhysXCookingMesh& mesh, ezPhysXCookingMesh& out_mesh)
 {
   ezStopwatch timer;
 
-  outMesh.m_bFlipNormals = mesh.m_bFlipNormals;
+  out_mesh.m_bFlipNormals = mesh.m_bFlipNormals;
 
 
   ezConvexHullGenerator gen;
@@ -255,7 +255,7 @@ ezResult ezPhysXCooking::ComputeConvexHull(const ezPhysXCookingMesh& mesh, ezPhy
   }
 
   ezDynamicArray<ezConvexHullGenerator::Face> faces;
-  gen.Retrieve(outMesh.m_Vertices, faces);
+  gen.Retrieve(out_mesh.m_Vertices, faces);
 
   if (faces.GetCount() >= 255)
   {
@@ -264,23 +264,23 @@ ezResult ezPhysXCooking::ComputeConvexHull(const ezPhysXCookingMesh& mesh, ezPhy
     gen2.SetSimplificationFlatVertexNormalThreshold(ezAngle::Degree(10));
     gen2.SetSimplificationMinTriangleEdgeLength(0.08f);
 
-    if (gen2.Build(outMesh.m_Vertices).Failed())
+    if (gen2.Build(out_mesh.m_Vertices).Failed())
     {
       ezLog::Error("Computing the convex hull failed (second try).");
       return EZ_FAILURE;
     }
 
-    gen2.Retrieve(outMesh.m_Vertices, faces);
+    gen2.Retrieve(out_mesh.m_Vertices, faces);
   }
 
 
   for (const auto& face : faces)
   {
-    outMesh.m_VerticesInPolygon.ExpandAndGetRef() = 3;
-    outMesh.m_PolygonSurfaceID.ExpandAndGetRef() = 0;
+    out_mesh.m_VerticesInPolygon.ExpandAndGetRef() = 3;
+    out_mesh.m_PolygonSurfaceID.ExpandAndGetRef() = 0;
 
     for (int vert = 0; vert < 3; ++vert)
-      outMesh.m_PolygonIndices.ExpandAndGetRef() = face.m_uiVertexIdx[vert];
+      out_mesh.m_PolygonIndices.ExpandAndGetRef() = face.m_uiVertexIdx[vert];
   }
 
   ezLog::Dev("Computed the convex hull in {0} milliseconds", ezArgF(timer.GetRunningTotal().GetMilliseconds(), 1));
@@ -326,66 +326,66 @@ void ezPhysXCooking::CreateMeshDesc(const ezPhysXCookingMesh& mesh, PxSimpleTria
   EZ_ASSERT_DEV(desc.isValid(), "PhysX PxTriangleMeshDesc is invalid");
 }
 
-ezStatus ezPhysXCooking::WriteResourceToStream(ezChunkStreamWriter& stream, const ezPhysXCookingMesh& mesh, const ezArrayPtr<ezString>& surfaces, MeshType meshType, ezUInt32 uiMaxConvexPieces)
+ezStatus ezPhysXCooking::WriteResourceToStream(ezChunkStreamWriter& inout_stream, const ezPhysXCookingMesh& mesh, const ezArrayPtr<ezString>& surfaces, MeshType meshType, ezUInt32 uiMaxConvexPieces)
 {
   ezResult resCooking = EZ_FAILURE;
 
   {
-    stream.BeginChunk("Surfaces", 1);
+    inout_stream.BeginChunk("Surfaces", 1);
 
-    stream << surfaces.GetCount();
+    inout_stream << surfaces.GetCount();
 
     for (const auto& slot : surfaces)
     {
-      stream << slot;
+      inout_stream << slot;
     }
 
-    stream.EndChunk();
+    inout_stream.EndChunk();
   }
 
   {
-    stream.BeginChunk("Details", 1);
+    inout_stream.BeginChunk("Details", 1);
 
     ezBoundingBoxSphere aabb;
     aabb.SetFromPoints(mesh.m_Vertices.GetData(), mesh.m_Vertices.GetCount());
 
-    stream << aabb;
+    inout_stream << aabb;
 
-    stream.EndChunk();
+    inout_stream.EndChunk();
   }
 
   if (meshType == MeshType::Triangle)
   {
-    stream.BeginChunk("TriangleMesh", 1);
+    inout_stream.BeginChunk("TriangleMesh", 1);
 
     ezStopwatch timer;
-    resCooking = ezPhysXCooking::CookTriangleMesh(mesh, stream);
+    resCooking = ezPhysXCooking::CookTriangleMesh(mesh, inout_stream);
     ezLog::Dev("Triangle Mesh Cooking time: {0}s", ezArgF(timer.GetRunningTotal().GetSeconds(), 2));
 
-    stream.EndChunk();
+    inout_stream.EndChunk();
   }
   else
   {
     if (meshType == MeshType::ConvexDecomposition)
     {
-      stream.BeginChunk("ConvexDecompositionMesh", 1);
+      inout_stream.BeginChunk("ConvexDecompositionMesh", 1);
 
       ezStopwatch timer;
-      resCooking = ezPhysXCooking::CookDecomposedConvexMesh(mesh, stream, uiMaxConvexPieces);
+      resCooking = ezPhysXCooking::CookDecomposedConvexMesh(mesh, inout_stream, uiMaxConvexPieces);
       ezLog::Dev("Decomposed Convex Mesh Cooking time: {0}s", ezArgF(timer.GetRunningTotal().GetSeconds(), 2));
 
-      stream.EndChunk();
+      inout_stream.EndChunk();
     }
 
     if (meshType == MeshType::ConvexHull)
     {
-      stream.BeginChunk("ConvexMesh", 1);
+      inout_stream.BeginChunk("ConvexMesh", 1);
 
       ezStopwatch timer;
-      resCooking = ezPhysXCooking::CookConvexMesh(mesh, stream);
+      resCooking = ezPhysXCooking::CookConvexMesh(mesh, inout_stream);
       ezLog::Dev("Convex Mesh Cooking time: {0}s", ezArgF(timer.GetRunningTotal().GetSeconds(), 2));
 
-      stream.EndChunk();
+      inout_stream.EndChunk();
     }
   }
 
@@ -396,7 +396,7 @@ ezStatus ezPhysXCooking::WriteResourceToStream(ezChunkStreamWriter& stream, cons
   return ezStatus(EZ_SUCCESS);
 }
 
-ezResult ezPhysXCooking::CookDecomposedConvexMesh(const ezPhysXCookingMesh& mesh, ezStreamWriter& OutputStream, ezUInt32 uiMaxConvexPieces)
+ezResult ezPhysXCooking::CookDecomposedConvexMesh(const ezPhysXCookingMesh& mesh, ezStreamWriter& ref_outputStream, ezUInt32 uiMaxConvexPieces)
 {
   EZ_LOG_BLOCK("Decomposing Mesh");
 
@@ -450,7 +450,7 @@ ezResult ezPhysXCooking::CookDecomposedConvexMesh(const ezPhysXCookingMesh& mesh
 
   ezLog::Dev("Convex mesh parts: {}", uiNumParts);
 
-  OutputStream << uiNumParts;
+  ref_outputStream << uiNumParts;
 
   for (ezUInt32 i = 0; i < pConDec->GetNConvexHulls(); ++i)
   {
@@ -483,7 +483,7 @@ ezResult ezPhysXCooking::CookDecomposedConvexMesh(const ezPhysXCookingMesh& mesh
       chm.m_PolygonIndices[t * 3 + 2] = ch.m_triangles[t].mI2;
     }
 
-    EZ_SUCCEED_OR_RETURN(CookSingleConvexPxMesh(chm, OutputStream));
+    EZ_SUCCEED_OR_RETURN(CookSingleConvexPxMesh(chm, ref_outputStream));
   }
 
   return EZ_SUCCESS;

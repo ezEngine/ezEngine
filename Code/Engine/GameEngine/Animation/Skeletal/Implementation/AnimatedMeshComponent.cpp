@@ -51,17 +51,17 @@ EZ_END_STATIC_REFLECTED_ENUM;
 ezAnimatedMeshComponent::ezAnimatedMeshComponent() = default;
 ezAnimatedMeshComponent::~ezAnimatedMeshComponent() = default;
 
-void ezAnimatedMeshComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezAnimatedMeshComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
-  auto& s = stream.GetStream();
+  SUPER::SerializeComponent(inout_stream);
+  auto& s = inout_stream.GetStream();
 }
 
-void ezAnimatedMeshComponent::DeserializeComponent(ezWorldReader& stream)
+void ezAnimatedMeshComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  auto& s = stream.GetStream();
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  auto& s = inout_stream.GetStream();
 
   EZ_ASSERT_DEV(uiVersion >= 13, "Unsupported version, delete the file and reexport it");
 }
@@ -224,7 +224,7 @@ ezResult ezAnimatedMeshComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bo
   return EZ_SUCCESS;
 }
 
-void ezRootMotionMode::Apply(ezRootMotionMode::Enum mode, ezGameObject* pObject, const ezVec3& translation, ezAngle rotationX, ezAngle rotationY, ezAngle rotationZ)
+void ezRootMotionMode::Apply(ezRootMotionMode::Enum mode, ezGameObject* pObject, const ezVec3& vTranslation, ezAngle rotationX, ezAngle rotationY, ezAngle rotationZ)
 {
   switch (mode)
   {
@@ -234,7 +234,7 @@ void ezRootMotionMode::Apply(ezRootMotionMode::Enum mode, ezGameObject* pObject,
     case ezRootMotionMode::ApplyToOwner:
     {
       ezVec3 vNewPos = pObject->GetLocalPosition();
-      vNewPos += pObject->GetLocalRotation() * translation;
+      vNewPos += pObject->GetLocalRotation() * vTranslation;
       pObject->SetLocalPosition(vNewPos);
 
       // not tested whether this is actually correct
@@ -249,7 +249,7 @@ void ezRootMotionMode::Apply(ezRootMotionMode::Enum mode, ezGameObject* pObject,
     case ezRootMotionMode::SendMoveCharacterMsg:
     {
       ezMsgApplyRootMotion msg;
-      msg.m_vTranslation = translation;
+      msg.m_vTranslation = vTranslation;
       msg.m_RotationX = rotationX;
       msg.m_RotationY = rotationY;
       msg.m_RotationZ = rotationZ;

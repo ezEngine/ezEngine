@@ -38,10 +38,10 @@ ezLogEntry::ezLogEntry(const ezLoggingEventData& le)
 #endif
 }
 
-ezLogEntryDelegate::ezLogEntryDelegate(Callback callback, ezLogMsgType::Enum LogLevel)
+ezLogEntryDelegate::ezLogEntryDelegate(Callback callback, ezLogMsgType::Enum logLevel)
   : m_Callback(callback)
 {
-  SetLogLevel(LogLevel);
+  SetLogLevel(logLevel);
 }
 
 void ezLogEntryDelegate::HandleLogMessage(const ezLoggingEventData& le)

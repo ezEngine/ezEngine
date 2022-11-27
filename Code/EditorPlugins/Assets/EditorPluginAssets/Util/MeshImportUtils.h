@@ -34,7 +34,7 @@ namespace ezMeshImportUtils
 
   // EZ_EDITORPLUGINASSETS_DLL ezStatus TryImportMesh(ezSharedPtr<ezModelImporter::Scene>& out_pScene, ezModelImporter::Mesh*& out_pMesh, const char* szMeshFile, const char* szSubMeshName, const ezMat3& mMeshTransform, bool bRecalculateNormals, bool bInvertNormals, ezMeshNormalPrecision::Enum normalPrecision, ezMeshTexCoordPrecision::Enum texCoordPrecision, ezProgressRange& range, ezMeshResourceDescriptor& meshDescriptor, bool bSkinnedMesh);
 
-  EZ_EDITORPLUGINASSETS_DLL void SetMeshAssetMaterialSlots(ezHybridArray<ezMaterialResourceSlot, 8>& inout_MaterialSlots, const ezModelImporter2::Importer* pImporter);
-  EZ_EDITORPLUGINASSETS_DLL void CopyMeshAssetMaterialSlotToResource(ezMeshResourceDescriptor& desc, const ezHybridArray<ezMaterialResourceSlot, 8>& materialSlots);
-  EZ_EDITORPLUGINASSETS_DLL void ImportMeshAssetMaterials(ezHybridArray<ezMaterialResourceSlot, 8>& inout_MaterialSlots, const char* szDocumentDirectory, const ezModelImporter2::Importer* pImporter);
+  EZ_EDITORPLUGINASSETS_DLL void SetMeshAssetMaterialSlots(ezHybridArray<ezMaterialResourceSlot, 8>& inout_materialSlots, const ezModelImporter2::Importer* pImporter);
+  EZ_EDITORPLUGINASSETS_DLL void CopyMeshAssetMaterialSlotToResource(ezMeshResourceDescriptor& ref_desc, const ezHybridArray<ezMaterialResourceSlot, 8>& materialSlots);
+  EZ_EDITORPLUGINASSETS_DLL void ImportMeshAssetMaterials(ezHybridArray<ezMaterialResourceSlot, 8>& inout_materialSlots, const char* szDocumentDirectory, const ezModelImporter2::Importer* pImporter);
 } // namespace ezMeshImportUtils

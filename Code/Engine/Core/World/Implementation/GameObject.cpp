@@ -341,12 +341,12 @@ const char* ezGameObject::GetGlobalKeyInternal() const
   return GetWorld()->GetObjectGlobalKey(this).GetStartPointer(); // we know that it's zero terminated
 }
 
-void ezGameObject::SetParent(const ezGameObjectHandle& parent, ezGameObject::TransformPreservation preserve)
+void ezGameObject::SetParent(const ezGameObjectHandle& hParent, ezGameObject::TransformPreservation preserve)
 {
   ezWorld* pWorld = GetWorld();
 
   ezGameObject* pParent = nullptr;
-  bool _ = pWorld->TryGetObject(parent, pParent);
+  bool _ = pWorld->TryGetObject(hParent, pParent);
   pWorld->SetParent(this, pParent, preserve);
 }
 
@@ -360,23 +360,23 @@ const ezGameObject* ezGameObject::GetParent() const
   return GetWorld()->GetObjectUnchecked(m_uiParentIndex);
 }
 
-void ezGameObject::AddChild(const ezGameObjectHandle& child, ezGameObject::TransformPreservation preserve)
+void ezGameObject::AddChild(const ezGameObjectHandle& hChild, ezGameObject::TransformPreservation preserve)
 {
   ezWorld* pWorld = GetWorld();
 
   ezGameObject* pChild = nullptr;
-  if (pWorld->TryGetObject(child, pChild))
+  if (pWorld->TryGetObject(hChild, pChild))
   {
     pWorld->SetParent(pChild, this, preserve);
   }
 }
 
-void ezGameObject::DetachChild(const ezGameObjectHandle& child, ezGameObject::TransformPreservation preserve)
+void ezGameObject::DetachChild(const ezGameObjectHandle& hChild, ezGameObject::TransformPreservation preserve)
 {
   ezWorld* pWorld = GetWorld();
 
   ezGameObject* pChild = nullptr;
-  if (pWorld->TryGetObject(child, pChild))
+  if (pWorld->TryGetObject(hChild, pChild))
   {
     if (pChild->GetParent() == this)
     {
@@ -397,13 +397,13 @@ ezGameObject::ConstChildIterator ezGameObject::GetChildren() const
   return ConstChildIterator(pWorld->GetObjectUnchecked(m_uiFirstChildIndex), pWorld);
 }
 
-ezGameObject* ezGameObject::FindChildByName(const ezTempHashedString& name, bool bRecursive /*= true*/)
+ezGameObject* ezGameObject::FindChildByName(const ezTempHashedString& sName, bool bRecursive /*= true*/)
 {
   /// \test Needs a unit test
 
   for (auto it = GetChildren(); it.IsValid(); ++it)
   {
-    if (it->m_sName == name)
+    if (it->m_sName == sName)
     {
       return &(*it);
     }
@@ -413,7 +413,7 @@ ezGameObject* ezGameObject::FindChildByName(const ezTempHashedString& name, bool
   {
     for (auto it = GetChildren(); it.IsValid(); ++it)
     {
-      ezGameObject* pChild = it->FindChildByName(name, bRecursive);
+      ezGameObject* pChild = it->FindChildByName(sName, bRecursive);
 
       if (pChild != nullptr)
         return pChild;
@@ -509,7 +509,7 @@ ezGameObject* ezGameObject::SearchForChildByNameSequence(ezStringView sObjectSeq
 }
 
 
-void ezGameObject::SearchForChildrenByNameSequence(ezStringView sObjectSequence, const ezRTTI* pExpectedComponent, ezHybridArray<ezGameObject*, 8>& out_Objects)
+void ezGameObject::SearchForChildrenByNameSequence(ezStringView sObjectSequence, const ezRTTI* pExpectedComponent, ezHybridArray<ezGameObject*, 8>& out_objects)
 {
   /// \test Needs a unit test
 
@@ -523,7 +523,7 @@ void ezGameObject::SearchForChildrenByNameSequence(ezStringView sObjectSequence,
         return;
     }
 
-    out_Objects.PushBack(this);
+    out_objects.PushBack(this);
     return;
   }
 
@@ -549,7 +549,7 @@ void ezGameObject::SearchForChildrenByNameSequence(ezStringView sObjectSequence,
   {
     if (it->m_sName == name)
     {
-      it->SearchForChildrenByNameSequence(sNextSequence, pExpectedComponent, out_Objects);
+      it->SearchForChildrenByNameSequence(sNextSequence, pExpectedComponent, out_objects);
     }
   }
 
@@ -560,7 +560,7 @@ void ezGameObject::SearchForChildrenByNameSequence(ezStringView sObjectSequence,
   {
     if (it->m_sName != name) // TODO: in this function it is actually debatable whether to skip these or not
     {
-      it->SearchForChildrenByNameSequence(sObjectSequence, pExpectedComponent, out_Objects);
+      it->SearchForChildrenByNameSequence(sObjectSequence, pExpectedComponent, out_objects);
     }
   }
 }
@@ -709,13 +709,13 @@ void ezGameObject::TryGetComponentsOfBaseType(const ezRTTI* pType, ezDynamicArra
   }
 }
 
-void ezGameObject::SetTeamID(ezUInt16 id)
+void ezGameObject::SetTeamID(ezUInt16 uiId)
 {
-  m_uiTeamID = id;
+  m_uiTeamID = uiId;
 
   for (auto it = GetChildren(); it.IsValid(); ++it)
   {
-    it->SetTeamID(id);
+    it->SetTeamID(uiId);
   }
 }
 
@@ -895,61 +895,61 @@ void ezGameObject::PostMessageRecursive(const ezMessage& msg, ezTime delay, ezOb
   GetWorld()->PostMessageRecursive(GetHandle(), msg, delay, queueType);
 }
 
-void ezGameObject::SendEventMessage(ezMessage& msg, const ezComponent* pSenderComponent)
+void ezGameObject::SendEventMessage(ezMessage& ref_msg, const ezComponent* pSenderComponent)
 {
-  if (auto pEventMsg = ezDynamicCast<ezEventMessage*>(&msg))
+  if (auto pEventMsg = ezDynamicCast<ezEventMessage*>(&ref_msg))
   {
     pEventMsg->FillFromSenderComponent(pSenderComponent);
   }
 
   ezHybridArray<ezComponent*, 4> eventMsgHandlers;
-  GetWorld()->FindEventMsgHandlers(msg, this, eventMsgHandlers);
+  GetWorld()->FindEventMsgHandlers(ref_msg, this, eventMsgHandlers);
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-  if (msg.GetDebugMessageRouting())
+  if (ref_msg.GetDebugMessageRouting())
   {
     if (eventMsgHandlers.IsEmpty())
     {
-      ezLog::Warning("ezGameObject::SendEventMessage: None of the target object's components had a handler for messages of type {0}.", msg.GetId());
+      ezLog::Warning("ezGameObject::SendEventMessage: None of the target object's components had a handler for messages of type {0}.", ref_msg.GetId());
     }
   }
 #endif
 
   for (auto pEventMsgHandler : eventMsgHandlers)
   {
-    pEventMsgHandler->SendMessage(msg);
+    pEventMsgHandler->SendMessage(ref_msg);
   }
 }
 
-void ezGameObject::SendEventMessage(ezMessage& msg, const ezComponent* pSenderComponent) const
+void ezGameObject::SendEventMessage(ezMessage& ref_msg, const ezComponent* pSenderComponent) const
 {
-  if (auto pEventMsg = ezDynamicCast<ezEventMessage*>(&msg))
+  if (auto pEventMsg = ezDynamicCast<ezEventMessage*>(&ref_msg))
   {
     pEventMsg->FillFromSenderComponent(pSenderComponent);
   }
 
   ezHybridArray<const ezComponent*, 4> eventMsgHandlers;
-  GetWorld()->FindEventMsgHandlers(msg, this, eventMsgHandlers);
+  GetWorld()->FindEventMsgHandlers(ref_msg, this, eventMsgHandlers);
 
   for (auto pEventMsgHandler : eventMsgHandlers)
   {
-    pEventMsgHandler->SendMessage(msg);
+    pEventMsgHandler->SendMessage(ref_msg);
   }
 }
 
-void ezGameObject::PostEventMessage(ezMessage& msg, const ezComponent* pSenderComponent, ezTime delay, ezObjectMsgQueueType::Enum queueType) const
+void ezGameObject::PostEventMessage(ezMessage& ref_msg, const ezComponent* pSenderComponent, ezTime delay, ezObjectMsgQueueType::Enum queueType) const
 {
-  if (auto pEventMsg = ezDynamicCast<ezEventMessage*>(&msg))
+  if (auto pEventMsg = ezDynamicCast<ezEventMessage*>(&ref_msg))
   {
     pEventMsg->FillFromSenderComponent(pSenderComponent);
   }
 
   ezHybridArray<const ezComponent*, 4> eventMsgHandlers;
-  GetWorld()->FindEventMsgHandlers(msg, this, eventMsgHandlers);
+  GetWorld()->FindEventMsgHandlers(ref_msg, this, eventMsgHandlers);
 
   for (auto pEventMsgHandler : eventMsgHandlers)
   {
-    pEventMsgHandler->PostMessage(msg);
+    pEventMsgHandler->PostMessage(ref_msg);
   }
 }
 
@@ -1077,7 +1077,7 @@ void ezGameObject::TransformationData::UpdateGlobalBounds(ezSpatialSystem* pSpat
   }
 }
 
-void ezGameObject::TransformationData::UpdateGlobalBoundsAndSpatialData(ezSpatialSystem& spatialSystem)
+void ezGameObject::TransformationData::UpdateGlobalBoundsAndSpatialData(ezSpatialSystem& ref_spatialSystem)
 {
   ezSimdBBoxSphere oldGlobalBounds = m_globalBounds;
 
@@ -1086,27 +1086,27 @@ void ezGameObject::TransformationData::UpdateGlobalBoundsAndSpatialData(ezSpatia
   const bool bIsAlwaysVisible = m_localBounds.m_BoxHalfExtents.w() != ezSimdFloat::Zero();
   if (m_hSpatialData.IsInvalidated() == false && bIsAlwaysVisible == false && m_globalBounds != oldGlobalBounds)
   {
-    spatialSystem.UpdateSpatialDataBounds(m_hSpatialData, m_globalBounds);
+    ref_spatialSystem.UpdateSpatialDataBounds(m_hSpatialData, m_globalBounds);
   }
 }
 
-void ezGameObject::TransformationData::RecreateSpatialData(ezSpatialSystem& spatialSystem)
+void ezGameObject::TransformationData::RecreateSpatialData(ezSpatialSystem& ref_spatialSystem)
 {
   if (m_hSpatialData.IsInvalidated() == false)
   {
-    spatialSystem.DeleteSpatialData(m_hSpatialData);
+    ref_spatialSystem.DeleteSpatialData(m_hSpatialData);
     m_hSpatialData.Invalidate();
   }
 
   const bool bIsAlwaysVisible = m_localBounds.m_BoxHalfExtents.w() != ezSimdFloat::Zero();
   if (bIsAlwaysVisible)
   {
-    m_hSpatialData = spatialSystem.CreateSpatialDataAlwaysVisible(m_pObject, m_uiSpatialDataCategoryBitmask, m_pObject->m_Tags);
+    m_hSpatialData = ref_spatialSystem.CreateSpatialDataAlwaysVisible(m_pObject, m_uiSpatialDataCategoryBitmask, m_pObject->m_Tags);
   }
   else if (m_localBounds.IsValid())
   {
     UpdateGlobalBounds();
-    m_hSpatialData = spatialSystem.CreateSpatialData(m_globalBounds, m_pObject, m_uiSpatialDataCategoryBitmask, m_pObject->m_Tags);
+    m_hSpatialData = ref_spatialSystem.CreateSpatialData(m_globalBounds, m_pObject, m_uiSpatialDataCategoryBitmask, m_pObject->m_Tags);
   }
 }
 

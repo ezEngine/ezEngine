@@ -3,8 +3,8 @@
 #include <EditorFramework/Dialogs/SnapSettingsDlg.moc.h>
 #include <EditorFramework/Gizmos/SnapProvider.h>
 
-ezQtSnapSettingsDlg::ezQtSnapSettingsDlg(QWidget* parent)
-  : QDialog(parent)
+ezQtSnapSettingsDlg::ezQtSnapSettingsDlg(QWidget* pParent)
+  : QDialog(pParent)
 {
   setupUi(this);
 

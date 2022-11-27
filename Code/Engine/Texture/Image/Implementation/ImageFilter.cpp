@@ -12,8 +12,8 @@ ezImageFilter::ezImageFilter(float width)
 {
 }
 
-ezImageFilterBox::ezImageFilterBox(float width)
-  : ezImageFilter(width)
+ezImageFilterBox::ezImageFilterBox(float fWidth)
+  : ezImageFilter(fWidth)
 {
 }
 
@@ -31,8 +31,8 @@ ezSimdFloat ezImageFilterBox::SamplePoint(const ezSimdFloat& x) const
   }
 }
 
-ezImageFilterTriangle::ezImageFilterTriangle(float width)
-  : ezImageFilter(width)
+ezImageFilterTriangle::ezImageFilterTriangle(float fWidth)
+  : ezImageFilter(fWidth)
 {
 }
 
@@ -88,9 +88,9 @@ static ezSimdFloat modifiedBessel0(const ezSimdFloat& x)
   return sum;
 }
 
-ezImageFilterSincWithKaiserWindow::ezImageFilterSincWithKaiserWindow(float width, float beta)
-  : ezImageFilter(width)
-  , m_fBeta(beta)
+ezImageFilterSincWithKaiserWindow::ezImageFilterSincWithKaiserWindow(float fWidth, float fBeta)
+  : ezImageFilter(fWidth)
+  , m_fBeta(fBeta)
   , m_fInvBesselBeta(1.0f / modifiedBessel0(m_fBeta))
 {
 }
@@ -111,22 +111,22 @@ ezSimdFloat ezImageFilterSincWithKaiserWindow::SamplePoint(const ezSimdFloat& x)
   }
 }
 
-ezImageFilterWeights::ezImageFilterWeights(const ezImageFilter& filter, ezUInt32 srcSamples, ezUInt32 dstSamples)
+ezImageFilterWeights::ezImageFilterWeights(const ezImageFilter& filter, ezUInt32 uiSrcSamples, ezUInt32 uiDstSamples)
 {
   // Filter weights repeat after the common phase
-  ezUInt32 commonPhase = ezMath::GreatestCommonDivisor(srcSamples, dstSamples);
+  ezUInt32 commonPhase = ezMath::GreatestCommonDivisor(uiSrcSamples, uiDstSamples);
 
-  srcSamples /= commonPhase;
-  dstSamples /= commonPhase;
+  uiSrcSamples /= commonPhase;
+  uiDstSamples /= commonPhase;
 
-  m_uiDstSamplesReduced = dstSamples;
+  m_uiDstSamplesReduced = uiDstSamples;
 
-  m_fSourceToDestScale = float(dstSamples) / float(srcSamples);
-  m_fDestToSourceScale = float(srcSamples) / float(dstSamples);
+  m_fSourceToDestScale = float(uiDstSamples) / float(uiSrcSamples);
+  m_fDestToSourceScale = float(uiSrcSamples) / float(uiDstSamples);
 
   ezSimdFloat filterScale, invFilterScale;
 
-  if (dstSamples > srcSamples)
+  if (uiDstSamples > uiSrcSamples)
   {
     // When upsampling, reconstruct the source by applying the filter in source space and resampling
     filterScale = 1.0f;
@@ -144,9 +144,9 @@ ezImageFilterWeights::ezImageFilterWeights(const ezImageFilter& filter, ezUInt32
 
   m_uiNumWeights = ezUInt32(ezMath::Ceil(m_fWidthInSourceSpace * ezSimdFloat(2.0f))) + 1;
 
-  m_Weights.SetCountUninitialized(dstSamples * m_uiNumWeights);
+  m_Weights.SetCountUninitialized(uiDstSamples * m_uiNumWeights);
 
-  for (ezUInt32 dstSample = 0; dstSample < dstSamples; ++dstSample)
+  for (ezUInt32 dstSample = 0; dstSample < uiDstSamples; ++dstSample)
   {
     ezSimdFloat dstSampleInSourceSpace = (ezSimdFloat(dstSample) + ezSimdFloat(0.5f)) * m_fDestToSourceScale;
 
@@ -178,11 +178,11 @@ ezUInt32 ezImageFilterWeights::GetNumWeights() const
   return m_uiNumWeights;
 }
 
-ezSimdFloat ezImageFilterWeights::GetWeight(ezUInt32 dstSampleIndex, ezUInt32 weightIndex) const
+ezSimdFloat ezImageFilterWeights::GetWeight(ezUInt32 uiDstSampleIndex, ezUInt32 uiWeightIndex) const
 {
-  EZ_ASSERT_DEBUG(weightIndex < m_uiNumWeights, "Invalid weight index {} (should be < {})", weightIndex, m_uiNumWeights);
+  EZ_ASSERT_DEBUG(uiWeightIndex < m_uiNumWeights, "Invalid weight index {} (should be < {})", uiWeightIndex, m_uiNumWeights);
 
-  return ezSimdFloat(m_Weights[(dstSampleIndex % m_uiDstSamplesReduced) * m_uiNumWeights + weightIndex]);
+  return ezSimdFloat(m_Weights[(uiDstSampleIndex % m_uiDstSamplesReduced) * m_uiNumWeights + uiWeightIndex]);
 }
 
 

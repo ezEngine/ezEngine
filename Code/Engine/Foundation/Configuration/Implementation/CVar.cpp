@@ -236,21 +236,21 @@ void ezCVar::LoadCVars(bool bOnlyNewOnes /*= true*/, bool bSetAsCurrentValue /*=
   LoadCVarsFromFile(bOnlyNewOnes, bSetAsCurrentValue);
 }
 
-static ezResult ReadLine(ezStreamReader& Stream, ezStringBuilder& sLine)
+static ezResult ReadLine(ezStreamReader& inout_stream, ezStringBuilder& ref_sLine)
 {
-  sLine.Clear();
+  ref_sLine.Clear();
 
   char c[2];
   c[0] = '\0';
   c[1] = '\0';
 
   // read the first character
-  if (Stream.ReadBytes(c, 1) == 0)
+  if (inout_stream.ReadBytes(c, 1) == 0)
     return EZ_FAILURE;
 
   // skip all white-spaces at the beginning
   // also skip all empty lines
-  while ((c[0] == '\n' || c[0] == '\r' || c[0] == ' ' || c[0] == '\t') && (Stream.ReadBytes(c, 1) > 0))
+  while ((c[0] == '\n' || c[0] == '\r' || c[0] == ' ' || c[0] == '\t') && (inout_stream.ReadBytes(c, 1) > 0))
   {
   }
 
@@ -260,21 +260,21 @@ static ezResult ReadLine(ezStreamReader& Stream, ezStringBuilder& sLine)
     // skip all tabs and carriage returns
     if (c[0] != '\r' && c[0] != '\t')
     {
-      sLine.Append(c);
+      ref_sLine.Append(c);
     }
 
     // stop if we reached the end of the file
-    if (Stream.ReadBytes(c, 1) == 0)
+    if (inout_stream.ReadBytes(c, 1) == 0)
       break;
   }
 
-  if (sLine.IsEmpty())
+  if (ref_sLine.IsEmpty())
     return EZ_FAILURE;
 
   return EZ_SUCCESS;
 }
 
-static ezResult ParseLine(const ezStringBuilder& sLine, ezStringBuilder& VarName, ezStringBuilder& VarValue)
+static ezResult ParseLine(const ezStringBuilder& sLine, ezStringBuilder& ref_sVarName, ezStringBuilder& ref_sVarValue)
 {
   const char* szSign = sLine.FindSubString("=");
 
@@ -288,7 +288,7 @@ static ezResult ParseLine(const ezStringBuilder& sLine, ezStringBuilder& VarName
     while (sSubString.EndsWith(" "))
       sSubString.Shrink(0, 1);
 
-    VarName = sSubString;
+    ref_sVarName = sSubString;
   }
 
   {
@@ -311,7 +311,7 @@ static ezResult ParseLine(const ezStringBuilder& sLine, ezStringBuilder& VarName
     if (sSubString.EndsWith("\""))
       sSubString.Shrink(0, 1);
 
-    VarValue = sSubString;
+    ref_sVarValue = sSubString;
   }
 
   return EZ_SUCCESS;

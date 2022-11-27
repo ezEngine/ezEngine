@@ -78,8 +78,8 @@ struct ezProcVertexColorMapping
   ezEnum<ezProcVertexColorChannelMapping> m_B = ezProcVertexColorChannelMapping::B;
   ezEnum<ezProcVertexColorChannelMapping> m_A = ezProcVertexColorChannelMapping::A;
 
-  ezResult Serialize(ezStreamWriter& stream) const;
-  ezResult Deserialize(ezStreamReader& stream);
+  ezResult Serialize(ezStreamWriter& inout_stream) const;
+  ezResult Deserialize(ezStreamReader& inout_stream);
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_PROCGENPLUGIN_DLL, ezProcVertexColorMapping);

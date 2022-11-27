@@ -6,20 +6,20 @@ EZ_ALWAYS_INLINE ezRectTemplate<Type>::ezRectTemplate()
 }
 
 template <typename Type>
-EZ_ALWAYS_INLINE ezRectTemplate<Type>::ezRectTemplate(Type X, Type Y, Type Width, Type Height)
-  : x(X)
-  , y(Y)
-  , width(Width)
-  , height(Height)
+EZ_ALWAYS_INLINE ezRectTemplate<Type>::ezRectTemplate(Type x, Type y, Type width, Type height)
+  : x(x)
+  , y(y)
+  , width(width)
+  , height(height)
 {
 }
 
 template <typename Type>
-EZ_ALWAYS_INLINE ezRectTemplate<Type>::ezRectTemplate(Type Width, Type Height)
+EZ_ALWAYS_INLINE ezRectTemplate<Type>::ezRectTemplate(Type width, Type height)
   : x(0)
   , y(0)
-  , width(Width)
-  , height(Height)
+  , width(width)
+  , height(height)
 {
 }
 
@@ -42,11 +42,11 @@ EZ_ALWAYS_INLINE bool ezRectTemplate<Type>::HasNonZeroArea() const
 }
 
 template <typename Type>
-EZ_ALWAYS_INLINE bool ezRectTemplate<Type>::Contains(const ezVec2Template<Type>& point) const
+EZ_ALWAYS_INLINE bool ezRectTemplate<Type>::Contains(const ezVec2Template<Type>& vPoint) const
 {
-  if (point.x >= x && point.x <= Right())
+  if (vPoint.x >= x && vPoint.x <= Right())
   {
-    if (point.y >= y && point.y <= Bottom())
+    if (vPoint.y >= y && vPoint.y <= Bottom())
       return true;
   }
 

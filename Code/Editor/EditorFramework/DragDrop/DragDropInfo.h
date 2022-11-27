@@ -74,4 +74,4 @@ public:
 ///   QDataStream stream(&encodedData, QIODevice::ReadOnly);
 ///   stream >> Dragged;
 /// \endcode
-EZ_EDITORFRAMEWORK_DLL void operator>>(QDataStream& stream, ezDynamicArray<ezDocumentObject*>& rhs);
+EZ_EDITORFRAMEWORK_DLL void operator>>(QDataStream& inout_stream, ezDynamicArray<ezDocumentObject*>& rhs);

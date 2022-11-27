@@ -19,8 +19,8 @@ class EZ_CORE_DLL ezEventMessageHandlerComponent : public ezComponent
   // ezComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
 protected:
   virtual void Deinitialize() override;
@@ -35,13 +35,13 @@ public:
   ~ezEventMessageHandlerComponent();
 
   /// \brief Sets the debug output object flag. The effect is type specific, most components will not do anything different.
-  void SetDebugOutput(bool enable);
+  void SetDebugOutput(bool bEnable);
 
   /// \brief Gets the debug output object flag.
   bool GetDebugOutput() const;
 
   /// \brief Registers or de-registers this component as a global event handler.
-  void SetGlobalEventHandlerMode(bool enable); // [ property ]
+  void SetGlobalEventHandlerMode(bool bEnable); // [ property ]
 
   /// \brief Returns whether this component is registered as a global event handler.
   bool GetGlobalEventHandlerMode() const { return m_bIsGlobalEventHandler; } // [ property ]

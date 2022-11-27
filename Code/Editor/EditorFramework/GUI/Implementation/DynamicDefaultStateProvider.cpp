@@ -96,7 +96,7 @@ ezVariant ezDynamicDefaultStateProvider::GetDefaultValue(SuperArray superPtr, ez
     }
 
     ezVariant defaultValue;
-    ezResult res = propertyPath.ReadProperty(const_cast<ezReflectedClass*>(pMeta), *pMeta->GetDynamicRTTI(), [&](void* pLeaf, const ezRTTI& pType, const ezAbstractProperty* pNativeProp, const ezVariant& index) {
+    ezResult res = propertyPath.ReadProperty(const_cast<ezReflectedClass*>(pMeta), *pMeta->GetDynamicRTTI(), [&](void* pLeaf, const ezRTTI& type, const ezAbstractProperty* pNativeProp, const ezVariant& index) {
       EZ_ASSERT_DEBUG(pProp->GetCategory() == pNativeProp->GetCategory(), "While properties don't need to match exactly, they need to be of the same category and type.");
 
       switch (pNativeProp->GetCategory())
@@ -298,10 +298,10 @@ ezStatus ezDynamicDefaultStateProvider::CreateRevertContainerDiff(SuperArray sup
         return true;
       });
 
-      auto WriteObject = [&](void* pLeafObject, const ezRTTI& pLeafType, const ezAbstractProperty* pLeafProp, const ezVariant& index) {
+      auto WriteObject = [&](void* pLeafObject, const ezRTTI& leafType, const ezAbstractProperty* pLeafProp, const ezVariant& index) {
         pNativeRootObject = pLeafObject;
-        context.RegisterObject(pObject->GetGuid(), &pLeafType, pLeafObject);
-        pPrefabSubRoot = rttiConverter.AddObjectToGraph(&pLeafType, pLeafObject);
+        context.RegisterObject(pObject->GetGuid(), &leafType, pLeafObject);
+        pPrefabSubRoot = rttiConverter.AddObjectToGraph(&leafType, pLeafObject);
         pPrefabSubRoot->RenameProperty(sRootPropertyName, pProp->GetPropertyName());
       };
 

@@ -11,9 +11,9 @@ ezQtJointAdapter::ezQtJointAdapter(const ezSkeletonAssetDocument* pDocument)
 
 ezQtJointAdapter::~ezQtJointAdapter() {}
 
-QVariant ezQtJointAdapter::data(const ezDocumentObject* pObject, int row, int column, int role) const
+QVariant ezQtJointAdapter::data(const ezDocumentObject* pObject, int iRow, int iColumn, int iRole) const
 {
-  switch (role)
+  switch (iRole)
   {
     case Qt::DecorationRole:
     {
@@ -22,5 +22,5 @@ QVariant ezQtJointAdapter::data(const ezDocumentObject* pObject, int row, int co
     }
     break;
   }
-  return ezQtNamedAdapter::data(pObject, row, column, role);
+  return ezQtNamedAdapter::data(pObject, iRow, iColumn, iRole);
 }

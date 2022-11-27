@@ -65,7 +65,7 @@ void ezWindowOutputTargetGAL::Present(bool bEnableVSync)
   }
 }
 
-ezResult ezWindowOutputTargetGAL::CaptureImage(ezImage& out_Image)
+ezResult ezWindowOutputTargetGAL::CaptureImage(ezImage& out_image)
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
@@ -103,8 +103,8 @@ ezResult ezWindowOutputTargetGAL::CaptureImage(ezImage& out_Image)
   header.SetWidth(uiWidth);
   header.SetHeight(uiHeight);
   header.SetImageFormat(ezTextureUtils::GalFormatToImageFormat(format, true));
-  out_Image.ResetAndAlloc(header);
-  ezUInt8* pData = out_Image.GetPixelPointer<ezUInt8>();
+  out_image.ResetAndAlloc(header);
+  ezUInt8* pData = out_image.GetPixelPointer<ezUInt8>();
 
   ezMemoryUtils::Copy(pData, backbufferData.GetData(), backbufferData.GetCount());
 

@@ -31,12 +31,12 @@ class EZ_EDITORPLUGINFILESERVE_DLL ezQtFileserveActivityModel : public QAbstract
   Q_OBJECT
 
 public:
-  ezQtFileserveActivityModel(QWidget* parent);
+  ezQtFileserveActivityModel(QWidget* pParent);
 
   virtual int rowCount(const QModelIndex& parent = QModelIndex()) const override;
   virtual int columnCount(const QModelIndex& parent = QModelIndex()) const override;
-  virtual QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
-  virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+  virtual QVariant data(const QModelIndex& index, int iRole = Qt::DisplayRole) const override;
+  virtual QVariant headerData(int iSection, Qt::Orientation orientation, int iRole = Qt::DisplayRole) const override;
 
   ezQtFileserveActivityItem& AppendItem();
   void UpdateView();

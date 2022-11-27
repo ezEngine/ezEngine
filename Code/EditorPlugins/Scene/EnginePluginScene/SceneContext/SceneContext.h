@@ -46,7 +46,7 @@ public:
 
   ezUInt32 RegisterLayer(ezLayerContext* pLayer);
   void UnregisterLayer(ezLayerContext* pLayer);
-  void AddLayerIndexTag(const ezEntityMsgToEngine& msg, ezWorldRttiConverterContext& context, const ezTag& layerTag);
+  void AddLayerIndexTag(const ezEntityMsgToEngine& msg, ezWorldRttiConverterContext& ref_context, const ezTag& layerTag);
   const ezArrayPtr<const ezTag> GetInvisibleLayerTags() const;
 
   ezEngineProcessDocumentContext* GetActiveDocumentContext();

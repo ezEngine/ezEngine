@@ -48,9 +48,9 @@ EZ_END_ABSTRACT_COMPONENT_TYPE
 ezLightComponent::ezLightComponent() = default;
 ezLightComponent::~ezLightComponent() = default;
 
-void ezLightComponent::SetLightColor(ezColorGammaUB LightColor)
+void ezLightComponent::SetLightColor(ezColorGammaUB lightColor)
 {
-  m_LightColor = LightColor;
+  m_LightColor = lightColor;
 
   InvalidateCachedRenderData();
 }
@@ -120,10 +120,10 @@ float ezLightComponent::GetConstantBias() const
   return m_fConstantBias;
 }
 
-void ezLightComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezLightComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
-  ezStreamWriter& s = stream.GetStream();
+  SUPER::SerializeComponent(inout_stream);
+  ezStreamWriter& s = inout_stream.GetStream();
 
   s << m_LightColor;
   s << m_fIntensity;
@@ -133,12 +133,12 @@ void ezLightComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_bCastShadows;
 }
 
-void ezLightComponent::DeserializeComponent(ezWorldReader& stream)
+void ezLightComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
-  ezStreamReader& s = stream.GetStream();
+  ezStreamReader& s = inout_stream.GetStream();
 
   s >> m_LightColor;
   s >> m_fIntensity;
@@ -157,9 +157,9 @@ void ezLightComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_bCastShadows;
 }
 
-void ezLightComponent::OnMsgSetColor(ezMsgSetColor& msg)
+void ezLightComponent::OnMsgSetColor(ezMsgSetColor& ref_msg)
 {
-  msg.ModifyColor(m_LightColor);
+  ref_msg.ModifyColor(m_LightColor);
 
   InvalidateCachedRenderData();
 }
@@ -211,7 +211,7 @@ public:
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override { pNode->RenameProperty("Light Color", "LightColor"); }
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override { pNode->RenameProperty("Light Color", "LightColor"); }
 };
 
 ezLightComponentPatch_1_2 g_ezLightComponentPatch_1_2;

@@ -49,8 +49,8 @@ class EZ_KRAUTPLUGIN_DLL ezKrautTreeComponent : public ezRenderComponent
   // ezComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
 protected:
   virtual void OnActivated() override;
@@ -72,8 +72,8 @@ public:
   // see ezKrautTreeComponent::GetLocalBounds for details
   static const int s_iLocalBoundsScale = 3;
 
-  void OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const;
-  void OnBuildStaticMesh(ezMsgBuildStaticMesh& msg) const;
+  void OnMsgExtractGeometry(ezMsgExtractGeometry& ref_msg) const;
+  void OnBuildStaticMesh(ezMsgBuildStaticMesh& ref_msg) const;
 
   void SetKrautFile(const char* szFile); // [ property ]
   const char* GetKrautFile() const;      // [ property ]

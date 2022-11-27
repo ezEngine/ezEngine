@@ -86,10 +86,10 @@ ezPxCharacterControllerComponent::ezPxCharacterControllerComponent()
   m_sWalkSurfaceInteraction.Assign("Footstep");
 }
 
-void ezPxCharacterControllerComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezPxCharacterControllerComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
-  auto& s = stream.GetStream();
+  SUPER::SerializeComponent(inout_stream);
+  auto& s = inout_stream.GetStream();
 
   s << m_fWalkSpeed;
   s << m_fRunSpeed;
@@ -110,14 +110,14 @@ void ezPxCharacterControllerComponent::SerializeComponent(ezWorldWriter& stream)
 
   // Version 6
   s << m_fCrouchHeight;
-  stream.WriteGameObjectHandle(m_hHeadObject);
+  inout_stream.WriteGameObjectHandle(m_hHeadObject);
 }
 
-void ezPxCharacterControllerComponent::DeserializeComponent(ezWorldReader& stream)
+void ezPxCharacterControllerComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  auto& s = stream.GetStream();
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  auto& s = inout_stream.GetStream();
 
   if (uiVersion < 2)
   {
@@ -168,7 +168,7 @@ void ezPxCharacterControllerComponent::DeserializeComponent(ezWorldReader& strea
   if (uiVersion >= 6)
   {
     s >> m_fCrouchHeight;
-    m_hHeadObject = stream.ReadGameObjectHandle();
+    m_hHeadObject = inout_stream.ReadGameObjectHandle();
   }
 }
 
@@ -460,27 +460,27 @@ void ezPxCharacterControllerComponent::SetHeadObjectReference(const char* szRefe
   m_hHeadObject = resolver(szReference, GetHandle(), "HeadObject");
 }
 
-void ezPxCharacterControllerComponent::MoveCharacter(ezMsgMoveCharacterController& msg)
+void ezPxCharacterControllerComponent::MoveCharacter(ezMsgMoveCharacterController& ref_msg)
 {
-  const float fDistanceToMove = ezMath::Max(ezMath::Abs((float)(msg.m_fMoveForwards - msg.m_fMoveBackwards)), ezMath::Abs((float)(msg.m_fStrafeRight - msg.m_fStrafeLeft)));
+  const float fDistanceToMove = ezMath::Max(ezMath::Abs((float)(ref_msg.m_fMoveForwards - ref_msg.m_fMoveBackwards)), ezMath::Abs((float)(ref_msg.m_fStrafeRight - ref_msg.m_fStrafeLeft)));
 
-  m_vRelativeMoveDirection += ezVec3((float)(msg.m_fMoveForwards - msg.m_fMoveBackwards), (float)(msg.m_fStrafeRight - msg.m_fStrafeLeft), 0);
+  m_vRelativeMoveDirection += ezVec3((float)(ref_msg.m_fMoveForwards - ref_msg.m_fMoveBackwards), (float)(ref_msg.m_fStrafeRight - ref_msg.m_fStrafeLeft), 0);
   m_vRelativeMoveDirection.NormalizeIfNotZero(ezVec3::ZeroVector()).IgnoreResult();
   m_vRelativeMoveDirection *= fDistanceToMove;
 
-  m_RotateZ += m_RotateSpeed * (float)(msg.m_fRotateRight - msg.m_fRotateLeft);
+  m_RotateZ += m_RotateSpeed * (float)(ref_msg.m_fRotateRight - ref_msg.m_fRotateLeft);
 
-  if (msg.m_bRun)
+  if (ref_msg.m_bRun)
   {
     m_uiInputStateBits |= InputStateBits::Run;
   }
 
-  if (msg.m_bJump)
+  if (ref_msg.m_bJump)
   {
     m_uiInputStateBits |= InputStateBits::Jump;
   }
 
-  if (msg.m_bCrouch)
+  if (ref_msg.m_bCrouch)
   {
     m_uiInputStateBits |= InputStateBits::Crouch;
   }
@@ -518,10 +518,10 @@ bool ezPxCharacterControllerComponent::IsCrouching()
   return m_bIsCrouching;
 }
 
-void ezPxCharacterControllerComponent::OnApplyRootMotion(ezMsgApplyRootMotion& msg)
+void ezPxCharacterControllerComponent::OnApplyRootMotion(ezMsgApplyRootMotion& ref_msg)
 {
-  m_vAbsoluteRootMotion = msg.m_vTranslation;
-  m_RotateZ += msg.m_RotationZ;
+  m_vAbsoluteRootMotion = ref_msg.m_vTranslation;
+  m_RotateZ += ref_msg.m_RotationZ;
 }
 
 void ezPxCharacterControllerComponent::RawMove(const ezVec3& vMoveDeltaGlobal)
@@ -533,18 +533,18 @@ void ezPxCharacterControllerComponent::RawMove(const ezVec3& vMoveDeltaGlobal)
   pShape->MoveShape(vMoveDeltaGlobal);
 }
 
-void ezPxCharacterControllerComponent::OnCollision(ezMsgCollision& msg)
+void ezPxCharacterControllerComponent::OnCollision(ezMsgCollision& ref_msg)
 {
   ezWorld* pWorld = GetWorld();
   ezGameObject* pOwner = GetOwner();
 
-  if (msg.m_hObjectA == pOwner->GetHandle())
+  if (ref_msg.m_hObjectA == pOwner->GetHandle())
   {
     // This object was the source of collision thus we want to push the other body.
     ezPxDynamicActorComponent* pDynamicActorComponent = nullptr;
-    if (pWorld->TryGetComponent(msg.m_hComponentB, pDynamicActorComponent))
+    if (pWorld->TryGetComponent(ref_msg.m_hComponentB, pDynamicActorComponent))
     {
-      const ezVec3 vImpulse = msg.m_vImpulse;
+      const ezVec3 vImpulse = ref_msg.m_vImpulse;
       if (ezMath::Abs(vImpulse.z) < 0.01f)
       {
         ezVec3 vAbs = m_vAbsoluteRootMotion;
@@ -554,7 +554,7 @@ void ezPxCharacterControllerComponent::OnCollision(ezMsgCollision& msg)
           vAbs /= pWorld->GetClock().GetTimeDiff().AsFloatInSeconds();
         }
 
-        ezVec3 vHitPos = msg.m_vPosition;
+        ezVec3 vHitPos = ref_msg.m_vPosition;
         ezVec3 vCenterOfMass = pDynamicActorComponent->GetGlobalCenterOfMass();
 
         // Move the hit pos closer to the center of mass in the up direction. Otherwise we tip over objects pretty easily.

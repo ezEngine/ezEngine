@@ -74,28 +74,28 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezClothSheetComponent::ezClothSheetComponent() = default;
 ezClothSheetComponent::~ezClothSheetComponent() = default;
 
-void ezClothSheetComponent::SetSize(ezVec2 val)
+void ezClothSheetComponent::SetSize(ezVec2 vVal)
 {
-  m_vSize = val;
+  m_vSize = vVal;
   SetupCloth();
 }
 
-void ezClothSheetComponent::SetSlack(ezVec2 val)
+void ezClothSheetComponent::SetSlack(ezVec2 vVal)
 {
-  m_vSlack = val;
+  m_vSlack = vVal;
   SetupCloth();
 }
 
-void ezClothSheetComponent::SetSegments(ezVec2U32 val)
+void ezClothSheetComponent::SetSegments(ezVec2U32 vVal)
 {
-  m_vSegments = val;
+  m_vSegments = vVal;
   SetupCloth();
 }
 
-void ezClothSheetComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezClothSheetComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
-  auto& s = stream.GetStream();
+  SUPER::SerializeComponent(inout_stream);
+  auto& s = inout_stream.GetStream();
 
   s << m_vSize;
   s << m_vSegments;
@@ -107,11 +107,11 @@ void ezClothSheetComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_Color;
 }
 
-void ezClothSheetComponent::DeserializeComponent(ezWorldReader& stream)
+void ezClothSheetComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  auto& s = stream.GetStream();
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  auto& s = inout_stream.GetStream();
 
   s >> m_vSize;
   s >> m_vSegments;
@@ -237,11 +237,11 @@ void ezClothSheetComponent::OnDeactivated()
   SUPER::OnDeactivated();
 }
 
-ezResult ezClothSheetComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg)
+ezResult ezClothSheetComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg)
 {
   if (m_Bbox.IsValid())
   {
-    bounds.ExpandToInclude(m_Bbox);
+    ref_bounds.ExpandToInclude(m_Bbox);
   }
   else
   {
@@ -252,7 +252,7 @@ ezResult ezClothSheetComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool
     box.ExpandToInclude(ezVec3(0, m_vSize.y, +0.1f));
     box.ExpandToInclude(ezVec3(m_vSize.x, m_vSize.y, 0));
 
-    bounds.ExpandToInclude(box);
+    ref_bounds.ExpandToInclude(box);
   }
 
   return EZ_SUCCESS;
@@ -473,17 +473,17 @@ ezClothSheetRenderer::ezClothSheetRenderer()
 
 ezClothSheetRenderer::~ezClothSheetRenderer() = default;
 
-void ezClothSheetRenderer::GetSupportedRenderDataCategories(ezHybridArray<ezRenderData::Category, 8>& categories) const
+void ezClothSheetRenderer::GetSupportedRenderDataCategories(ezHybridArray<ezRenderData::Category, 8>& ref_categories) const
 {
-  categories.PushBack(ezDefaultRenderDataCategories::LitOpaque);
-  categories.PushBack(ezDefaultRenderDataCategories::LitMasked);
-  categories.PushBack(ezDefaultRenderDataCategories::LitTransparent);
-  categories.PushBack(ezDefaultRenderDataCategories::Selection);
+  ref_categories.PushBack(ezDefaultRenderDataCategories::LitOpaque);
+  ref_categories.PushBack(ezDefaultRenderDataCategories::LitMasked);
+  ref_categories.PushBack(ezDefaultRenderDataCategories::LitTransparent);
+  ref_categories.PushBack(ezDefaultRenderDataCategories::Selection);
 }
 
-void ezClothSheetRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types) const
+void ezClothSheetRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& ref_types) const
 {
-  types.PushBack(ezGetStaticRTTI<ezClothSheetRenderData>());
+  ref_types.PushBack(ezGetStaticRTTI<ezClothSheetRenderData>());
 }
 
 void ezClothSheetRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const

@@ -136,12 +136,12 @@ bool ezTexConv::IsTexFormat() const
   return ext.StartsWith_NoCase("ez");
 }
 
-ezResult ezTexConv::WriteTexFile(ezStreamWriter& stream, const ezImage& image)
+ezResult ezTexConv::WriteTexFile(ezStreamWriter& inout_stream, const ezImage& image)
 {
   ezAssetFileHeader asset;
   asset.SetFileHashAndVersion(m_Processor.m_Descriptor.m_uiAssetHash, m_Processor.m_Descriptor.m_uiAssetVersion);
 
-  EZ_SUCCEED_OR_RETURN(asset.Write(stream));
+  EZ_SUCCEED_OR_RETURN(asset.Write(inout_stream));
 
   ezTexFormat texFormat;
   texFormat.m_bSRGB = ezImageFormat::IsSrgb(image.GetImageFormat());
@@ -150,10 +150,10 @@ ezResult ezTexConv::WriteTexFile(ezStreamWriter& stream, const ezImage& image)
   texFormat.m_AddressModeW = m_Processor.m_Descriptor.m_AddressModeW;
   texFormat.m_TextureFilter = m_Processor.m_Descriptor.m_FilterMode;
 
-  texFormat.WriteTextureHeader(stream);
+  texFormat.WriteTextureHeader(inout_stream);
 
   ezDdsFileFormat ddsWriter;
-  if (ddsWriter.WriteImage(stream, image, "dds").Failed())
+  if (ddsWriter.WriteImage(inout_stream, image, "dds").Failed())
   {
     ezLog::Error("Failed to write DDS image chunk to ezTex file.");
     return EZ_FAILURE;

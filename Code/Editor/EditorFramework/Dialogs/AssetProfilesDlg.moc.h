@@ -19,7 +19,7 @@ public:
   Q_OBJECT
 
 public:
-  ezQtAssetProfilesDlg(QWidget* parent);
+  ezQtAssetProfilesDlg(QWidget* pParent);
   ~ezQtAssetProfilesDlg();
 
   ezUInt32 m_uiActiveConfig = 0;

@@ -6,8 +6,8 @@
 
 ezDynamicArray<ezQtDocumentPanel*> ezQtDocumentPanel::s_AllDocumentPanels;
 
-ezQtDocumentPanel::ezQtDocumentPanel(QWidget* parent, ezDocument* pDocument)
-  : QDockWidget(parent)
+ezQtDocumentPanel::ezQtDocumentPanel(QWidget* pParent, ezDocument* pDocument)
+  : QDockWidget(pParent)
 {
   m_pDocument = pDocument;
   s_AllDocumentPanels.PushBack(this);
@@ -27,13 +27,13 @@ void ezQtDocumentPanel::closeEvent(QCloseEvent* e)
   e->ignore();
 }
 
-bool ezQtDocumentPanel::event(QEvent* event)
+bool ezQtDocumentPanel::event(QEvent* pEvent)
 {
-  if (event->type() == QEvent::ShortcutOverride)
+  if (pEvent->type() == QEvent::ShortcutOverride)
   {
-    QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
+    QKeyEvent* keyEvent = static_cast<QKeyEvent*>(pEvent);
     if (ezQtProxy::TriggerDocumentAction(m_pDocument, keyEvent))
       return true;
   }
-  return QDockWidget::event(event);
+  return QDockWidget::event(pEvent);
 }

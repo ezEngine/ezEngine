@@ -21,15 +21,15 @@ public:
   void FrameCurve();
 
 Q_SIGNALS:
-  void CpMovedEvent(ezUInt32 cpIdx, ezInt64 iTickX);
-  void CpDeletedEvent(ezUInt32 cpIdx);
-  void InsertCpEvent(ezInt64 tickX, const char* value);
+  void CpMovedEvent(ezUInt32 uiIdx, ezInt64 iTickX);
+  void CpDeletedEvent(ezUInt32 uiIdx);
+  void InsertCpEvent(ezInt64 iTickX, const char* value);
 
-  void BeginCpChangesEvent(QString name);
+  void BeginCpChangesEvent(QString sName);
   void EndCpChangesEvent();
 
-  void BeginOperationEvent(QString name);
-  void EndOperationEvent(bool commit);
+  void BeginOperationEvent(QString sName);
+  void EndOperationEvent(bool bCommit);
 
 private Q_SLOTS:
   void on_LinePosition_editingFinished();

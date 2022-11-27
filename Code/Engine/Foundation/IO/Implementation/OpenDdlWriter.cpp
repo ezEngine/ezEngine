@@ -285,7 +285,7 @@ void ezOpenDdlWriter::OutputObjectBeginning()
   m_iIndentation++;
 }
 
-bool IsDdlIdentifierCharacter(ezUInt8 byte);
+bool IsDdlIdentifierCharacter(ezUInt8 uiByte);
 
 void ezOpenDdlWriter::OutputObjectName(const char* szName, bool bGlobalName)
 {
@@ -452,10 +452,10 @@ void ezOpenDdlWriter::WriteBinaryAsHex(const void* pData, ezUInt32 uiBytes)
   }
 }
 
-void ezOpenDdlWriter::WriteBool(const bool* pValues, ezUInt32 count /*= 1*/)
+void ezOpenDdlWriter::WriteBool(const bool* pValues, ezUInt32 uiCount /*= 1*/)
 {
   EZ_ASSERT_DEBUG(pValues != nullptr, "Invalid value array");
-  EZ_ASSERT_DEBUG(count > 0, "This is pointless");
+  EZ_ASSERT_DEBUG(uiCount > 0, "This is pointless");
 
   WritePrimitiveType(State::PrimitivesBool);
 
@@ -468,7 +468,7 @@ void ezOpenDdlWriter::WriteBool(const bool* pValues, ezUInt32 count /*= 1*/)
     else
       OutputString("0", 1);
 
-    for (ezUInt32 i = 1; i < count; ++i)
+    for (ezUInt32 i = 1; i < uiCount; ++i)
     {
       if (pValues[i])
         OutputString(",1", 2);
@@ -483,7 +483,7 @@ void ezOpenDdlWriter::WriteBool(const bool* pValues, ezUInt32 count /*= 1*/)
     else
       OutputString("false", 5);
 
-    for (ezUInt32 i = 1; i < count; ++i)
+    for (ezUInt32 i = 1; i < uiCount; ++i)
     {
       if (pValues[i])
         OutputString(",true", 5);
@@ -493,68 +493,68 @@ void ezOpenDdlWriter::WriteBool(const bool* pValues, ezUInt32 count /*= 1*/)
   }
 }
 
-void ezOpenDdlWriter::WriteInt8(const ezInt8* pValues, ezUInt32 count /*= 1*/)
+void ezOpenDdlWriter::WriteInt8(const ezInt8* pValues, ezUInt32 uiCount /*= 1*/)
 {
   EZ_ASSERT_DEBUG(pValues != nullptr, "Invalid value array");
-  EZ_ASSERT_DEBUG(count > 0, "This is pointless");
+  EZ_ASSERT_DEBUG(uiCount > 0, "This is pointless");
 
   WritePrimitiveType(State::PrimitivesInt8);
 
   m_sTemp.Format("{0}", pValues[0]);
   OutputString(m_sTemp.GetData());
 
-  for (ezUInt32 i = 1; i < count; ++i)
+  for (ezUInt32 i = 1; i < uiCount; ++i)
   {
     m_sTemp.Format(",{0}", pValues[i]);
     OutputString(m_sTemp.GetData());
   }
 }
 
-void ezOpenDdlWriter::WriteInt16(const ezInt16* pValues, ezUInt32 count /*= 1*/)
+void ezOpenDdlWriter::WriteInt16(const ezInt16* pValues, ezUInt32 uiCount /*= 1*/)
 {
   EZ_ASSERT_DEBUG(pValues != nullptr, "Invalid value array");
-  EZ_ASSERT_DEBUG(count > 0, "This is pointless");
+  EZ_ASSERT_DEBUG(uiCount > 0, "This is pointless");
 
   WritePrimitiveType(State::PrimitivesInt16);
 
   m_sTemp.Format("{0}", pValues[0]);
   OutputString(m_sTemp.GetData());
 
-  for (ezUInt32 i = 1; i < count; ++i)
+  for (ezUInt32 i = 1; i < uiCount; ++i)
   {
     m_sTemp.Format(",{0}", pValues[i]);
     OutputString(m_sTemp.GetData());
   }
 }
 
-void ezOpenDdlWriter::WriteInt32(const ezInt32* pValues, ezUInt32 count /*= 1*/)
+void ezOpenDdlWriter::WriteInt32(const ezInt32* pValues, ezUInt32 uiCount /*= 1*/)
 {
   EZ_ASSERT_DEBUG(pValues != nullptr, "Invalid value array");
-  EZ_ASSERT_DEBUG(count > 0, "This is pointless");
+  EZ_ASSERT_DEBUG(uiCount > 0, "This is pointless");
 
   WritePrimitiveType(State::PrimitivesInt32);
 
   m_sTemp.Format("{0}", pValues[0]);
   OutputString(m_sTemp.GetData());
 
-  for (ezUInt32 i = 1; i < count; ++i)
+  for (ezUInt32 i = 1; i < uiCount; ++i)
   {
     m_sTemp.Format(",{0}", pValues[i]);
     OutputString(m_sTemp.GetData());
   }
 }
 
-void ezOpenDdlWriter::WriteInt64(const ezInt64* pValues, ezUInt32 count /*= 1*/)
+void ezOpenDdlWriter::WriteInt64(const ezInt64* pValues, ezUInt32 uiCount /*= 1*/)
 {
   EZ_ASSERT_DEBUG(pValues != nullptr, "Invalid value array");
-  EZ_ASSERT_DEBUG(count > 0, "This is pointless");
+  EZ_ASSERT_DEBUG(uiCount > 0, "This is pointless");
 
   WritePrimitiveType(State::PrimitivesInt64);
 
   m_sTemp.Format("{0}", pValues[0]);
   OutputString(m_sTemp.GetData());
 
-  for (ezUInt32 i = 1; i < count; ++i)
+  for (ezUInt32 i = 1; i < uiCount; ++i)
   {
     m_sTemp.Format(",{0}", pValues[i]);
     OutputString(m_sTemp.GetData());
@@ -562,78 +562,78 @@ void ezOpenDdlWriter::WriteInt64(const ezInt64* pValues, ezUInt32 count /*= 1*/)
 }
 
 
-void ezOpenDdlWriter::WriteUInt8(const ezUInt8* pValues, ezUInt32 count /*= 1*/)
+void ezOpenDdlWriter::WriteUInt8(const ezUInt8* pValues, ezUInt32 uiCount /*= 1*/)
 {
   EZ_ASSERT_DEBUG(pValues != nullptr, "Invalid value array");
-  EZ_ASSERT_DEBUG(count > 0, "This is pointless");
+  EZ_ASSERT_DEBUG(uiCount > 0, "This is pointless");
 
   WritePrimitiveType(State::PrimitivesUInt8);
 
   m_sTemp.Format("{0}", pValues[0]);
   OutputString(m_sTemp.GetData());
 
-  for (ezUInt32 i = 1; i < count; ++i)
+  for (ezUInt32 i = 1; i < uiCount; ++i)
   {
     m_sTemp.Format(",{0}", pValues[i]);
     OutputString(m_sTemp.GetData());
   }
 }
 
-void ezOpenDdlWriter::WriteUInt16(const ezUInt16* pValues, ezUInt32 count /*= 1*/)
+void ezOpenDdlWriter::WriteUInt16(const ezUInt16* pValues, ezUInt32 uiCount /*= 1*/)
 {
   EZ_ASSERT_DEBUG(pValues != nullptr, "Invalid value array");
-  EZ_ASSERT_DEBUG(count > 0, "This is pointless");
+  EZ_ASSERT_DEBUG(uiCount > 0, "This is pointless");
 
   WritePrimitiveType(State::PrimitivesUInt16);
 
   m_sTemp.Format("{0}", pValues[0]);
   OutputString(m_sTemp.GetData());
 
-  for (ezUInt32 i = 1; i < count; ++i)
+  for (ezUInt32 i = 1; i < uiCount; ++i)
   {
     m_sTemp.Format(",{0}", pValues[i]);
     OutputString(m_sTemp.GetData());
   }
 }
 
-void ezOpenDdlWriter::WriteUInt32(const ezUInt32* pValues, ezUInt32 count /*= 1*/)
+void ezOpenDdlWriter::WriteUInt32(const ezUInt32* pValues, ezUInt32 uiCount /*= 1*/)
 {
   EZ_ASSERT_DEBUG(pValues != nullptr, "Invalid value array");
-  EZ_ASSERT_DEBUG(count > 0, "This is pointless");
+  EZ_ASSERT_DEBUG(uiCount > 0, "This is pointless");
 
   WritePrimitiveType(State::PrimitivesUInt32);
 
   m_sTemp.Format("{0}", pValues[0]);
   OutputString(m_sTemp.GetData());
 
-  for (ezUInt32 i = 1; i < count; ++i)
+  for (ezUInt32 i = 1; i < uiCount; ++i)
   {
     m_sTemp.Format(",{0}", pValues[i]);
     OutputString(m_sTemp.GetData());
   }
 }
 
-void ezOpenDdlWriter::WriteUInt64(const ezUInt64* pValues, ezUInt32 count /*= 1*/)
+void ezOpenDdlWriter::WriteUInt64(const ezUInt64* pValues, ezUInt32 uiCount /*= 1*/)
 {
   EZ_ASSERT_DEBUG(pValues != nullptr, "Invalid value array");
-  EZ_ASSERT_DEBUG(count > 0, "This is pointless");
+  EZ_ASSERT_DEBUG(uiCount > 0, "This is pointless");
 
   WritePrimitiveType(State::PrimitivesUInt64);
 
   m_sTemp.Format("{0}", pValues[0]);
   OutputString(m_sTemp.GetData());
 
-  for (ezUInt32 i = 1; i < count; ++i)
+  for (ezUInt32 i = 1; i < uiCount; ++i)
   {
     m_sTemp.Format(",{0}", pValues[i]);
     OutputString(m_sTemp.GetData());
   }
 }
 
-void ezOpenDdlWriter::WriteFloat(const float* pValues, ezUInt32 count /*= 1*/)
+void ezOpenDdlWriter::WriteFloat(const float* pValues, ezUInt32 uiCount /*= 1*/)
 {
   EZ_ASSERT_DEBUG(pValues != nullptr, "Invalid value array");
-  EZ_ASSERT_DEBUG(count > 0, "This is pointless");
+  EZ_ASSERT_DEBUG(uiCount > 0, "This is pointless");
 
   WritePrimitiveType(State::PrimitivesFloat);
 
@@ -642,7 +642,7 @@ void ezOpenDdlWriter::WriteFloat(const float* pValues, ezUInt32 count /*= 1*/)
     m_sTemp.Format("{0}", pValues[0]);
     OutputString(m_sTemp.GetData());
 
-    for (ezUInt32 i = 1; i < count; ++i)
+    for (ezUInt32 i = 1; i < uiCount; ++i)
     {
       m_sTemp.Format(",{0}", pValues[i]);
       OutputString(m_sTemp.GetData());
@@ -662,7 +662,7 @@ void ezOpenDdlWriter::WriteFloat(const float* pValues, ezUInt32 count /*= 1*/)
       WriteBinaryAsHex(&pValues[0], 4);
     }
 
-    for (ezUInt32 i = 1; i < count; ++i)
+    for (ezUInt32 i = 1; i < uiCount; ++i)
     {
       if (pValues[i] == 0)
       {
@@ -677,10 +677,10 @@ void ezOpenDdlWriter::WriteFloat(const float* pValues, ezUInt32 count /*= 1*/)
   }
 }
 
-void ezOpenDdlWriter::WriteDouble(const double* pValues, ezUInt32 count /*= 1*/)
+void ezOpenDdlWriter::WriteDouble(const double* pValues, ezUInt32 uiCount /*= 1*/)
 {
   EZ_ASSERT_DEBUG(pValues != nullptr, "Invalid value array");
-  EZ_ASSERT_DEBUG(count > 0, "This is pointless");
+  EZ_ASSERT_DEBUG(uiCount > 0, "This is pointless");
 
   WritePrimitiveType(State::PrimitivesDouble);
 
@@ -689,7 +689,7 @@ void ezOpenDdlWriter::WriteDouble(const double* pValues, ezUInt32 count /*= 1*/)
     m_sTemp.Format("{0}", pValues[0]);
     OutputString(m_sTemp.GetData());
 
-    for (ezUInt32 i = 1; i < count; ++i)
+    for (ezUInt32 i = 1; i < uiCount; ++i)
     {
       m_sTemp.Format(",{0}", pValues[i]);
       OutputString(m_sTemp.GetData());
@@ -709,7 +709,7 @@ void ezOpenDdlWriter::WriteDouble(const double* pValues, ezUInt32 count /*= 1*/)
       WriteBinaryAsHex(&pValues[0], 8);
     }
 
-    for (ezUInt32 i = 1; i < count; ++i)
+    for (ezUInt32 i = 1; i < uiCount; ++i)
     {
       if (pValues[i] == 0)
       {
@@ -724,11 +724,11 @@ void ezOpenDdlWriter::WriteDouble(const double* pValues, ezUInt32 count /*= 1*/)
   }
 }
 
-void ezOpenDdlWriter::WriteString(const ezStringView& string)
+void ezOpenDdlWriter::WriteString(const ezStringView& sString)
 {
   WritePrimitiveType(State::PrimitivesString);
 
-  OutputEscapedString(string);
+  OutputEscapedString(sString);
 }
 
 void ezOpenDdlWriter::WriteBinaryAsString(const void* pData, ezUInt32 uiBytes)

@@ -54,8 +54,8 @@ struct EZ_RENDERERCORE_DLL ezMsgSetMeshMaterial : public ezMessage
   ezMaterialResourceHandle m_hMaterial;
   ezUInt32 m_uiMaterialSlot = 0xFFFFFFFFu;
 
-  virtual void Serialize(ezStreamWriter& stream) const override;
-  virtual void Deserialize(ezStreamReader& stream, ezUInt8 uiTypeVersion) override;
+  virtual void Serialize(ezStreamWriter& inout_stream) const override;
+  virtual void Deserialize(ezStreamReader& inout_stream, ezUInt8 uiTypeVersion) override;
 };
 
 class EZ_RENDERERCORE_DLL ezMeshComponentBase : public ezRenderComponent
@@ -66,14 +66,14 @@ class EZ_RENDERERCORE_DLL ezMeshComponentBase : public ezRenderComponent
   // ezComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
   //////////////////////////////////////////////////////////////////////////
   // ezRenderComponent
 
 public:
-  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg) override;
+  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg) override;
 
   //////////////////////////////////////////////////////////////////////////
   // ezRenderMeshComponent
@@ -96,8 +96,8 @@ public:
   void SetColor(const ezColor& color); // [ property ]
   const ezColor& GetColor() const;     // [ property ]
 
-  void OnMsgSetMeshMaterial(ezMsgSetMeshMaterial& msg); // [ msg handler ]
-  void OnMsgSetColor(ezMsgSetColor& msg);               // [ msg handler ]
+  void OnMsgSetMeshMaterial(ezMsgSetMeshMaterial& ref_msg); // [ msg handler ]
+  void OnMsgSetColor(ezMsgSetColor& ref_msg);               // [ msg handler ]
 
 protected:
   virtual ezMeshRenderData* CreateRenderData() const;

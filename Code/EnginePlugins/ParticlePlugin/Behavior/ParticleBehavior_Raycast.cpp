@@ -69,47 +69,47 @@ enum class BehaviorRaycastVersion
 };
 
 
-void ezParticleBehaviorFactory_Raycast::Save(ezStreamWriter& stream) const
+void ezParticleBehaviorFactory_Raycast::Save(ezStreamWriter& inout_stream) const
 {
   const ezUInt8 uiVersion = (int)BehaviorRaycastVersion::Version_Current;
-  stream << uiVersion;
+  inout_stream << uiVersion;
 
-  stream << m_uiCollisionLayer;
-  stream << m_sOnCollideEvent;
+  inout_stream << m_uiCollisionLayer;
+  inout_stream << m_sOnCollideEvent;
 
   ezParticleRaycastHitReaction::StorageType hr = m_Reaction.GetValue();
-  stream << hr;
+  inout_stream << hr;
 
-  stream << m_fBounceFactor;
+  inout_stream << m_fBounceFactor;
 }
 
-void ezParticleBehaviorFactory_Raycast::Load(ezStreamReader& stream)
+void ezParticleBehaviorFactory_Raycast::Load(ezStreamReader& inout_stream)
 {
   ezUInt8 uiVersion = 0;
-  stream >> uiVersion;
+  inout_stream >> uiVersion;
 
   EZ_ASSERT_DEV(uiVersion <= (int)BehaviorRaycastVersion::Version_Current, "Invalid version {0}", uiVersion);
 
   if (uiVersion >= 2)
   {
-    stream >> m_uiCollisionLayer;
-    stream >> m_sOnCollideEvent;
+    inout_stream >> m_uiCollisionLayer;
+    inout_stream >> m_sOnCollideEvent;
 
     ezParticleRaycastHitReaction::StorageType hr;
-    stream >> hr;
+    inout_stream >> hr;
     m_Reaction.SetValue(hr);
   }
 
   if (uiVersion >= 3)
   {
-    stream >> m_fBounceFactor;
+    inout_stream >> m_fBounceFactor;
   }
 }
 
-void ezParticleBehaviorFactory_Raycast::QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_FinalizerDeps) const
+void ezParticleBehaviorFactory_Raycast::QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_finalizerDeps) const
 {
-  inout_FinalizerDeps.Insert(ezGetStaticRTTI<ezParticleFinalizerFactory_ApplyVelocity>());
-  inout_FinalizerDeps.Insert(ezGetStaticRTTI<ezParticleFinalizerFactory_LastPosition>());
+  inout_finalizerDeps.Insert(ezGetStaticRTTI<ezParticleFinalizerFactory_ApplyVelocity>());
+  inout_finalizerDeps.Insert(ezGetStaticRTTI<ezParticleFinalizerFactory_LastPosition>());
 }
 
 //////////////////////////////////////////////////////////////////////////

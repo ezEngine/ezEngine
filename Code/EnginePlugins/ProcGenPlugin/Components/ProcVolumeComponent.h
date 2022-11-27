@@ -30,10 +30,10 @@ public:
   void SetBlendMode(ezEnum<ezProcGenBlendMode> blendMode);
   ezEnum<ezProcGenBlendMode> GetBlendMode() const { return m_BlendMode; }
 
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
-  void OnTransformChanged(ezMsgTransformChanged& msg);
+  void OnTransformChanged(ezMsgTransformChanged& ref_msg);
 
   static const ezEvent<const ezProcGenInternal::InvalidatedArea&>& GetAreaInvalidatedEvent() { return s_AreaInvalidatedEvent; }
 
@@ -66,11 +66,11 @@ public:
   float GetFadeOutStart() const { return m_fFadeOutStart; }
   void SetFadeOutStart(float fFadeOutStart);
 
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
-  void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const;
-  void OnExtractVolumes(ezMsgExtractVolumes& msg) const;
+  void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& ref_msg) const;
+  void OnExtractVolumes(ezMsgExtractVolumes& ref_msg) const;
 
 protected:
   float m_fRadius = 5.0f;
@@ -90,16 +90,16 @@ public:
   ~ezProcVolumeBoxComponent();
 
   const ezVec3& GetExtents() const { return m_vExtents; }
-  void SetExtents(const ezVec3& extents);
+  void SetExtents(const ezVec3& vExtents);
 
   const ezVec3& GetFadeOutStart() const { return m_vFadeOutStart; }
-  void SetFadeOutStart(const ezVec3& fadeOutStart);
+  void SetFadeOutStart(const ezVec3& vFadeOutStart);
 
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
-  void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const;
-  void OnExtractVolumes(ezMsgExtractVolumes& msg) const;
+  void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& ref_msg) const;
+  void OnExtractVolumes(ezMsgExtractVolumes& ref_msg) const;
 
 protected:
   ezVec3 m_vExtents = ezVec3(10.0f);
@@ -118,10 +118,10 @@ public:
   ezProcVolumeImageComponent();
   ~ezProcVolumeImageComponent();
 
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
-  void OnExtractVolumes(ezMsgExtractVolumes& msg) const;
+  void OnExtractVolumes(ezMsgExtractVolumes& ref_msg) const;
 
   void SetImageFile(const char* szFile); // [ property ]
   const char* GetImageFile() const;      // [ property ]

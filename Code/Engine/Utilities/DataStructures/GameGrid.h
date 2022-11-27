@@ -66,32 +66,32 @@ public:
   const CellData& GetCell(ezUInt32 uiIndex) const { return m_Cells[uiIndex]; }
 
   /// \brief Gives access to a cell by cell coordinates.
-  CellData& GetCell(const ezVec2I32& Coord) { return m_Cells[ConvertCellCoordinateToIndex(Coord)]; }
+  CellData& GetCell(const ezVec2I32& vCoord) { return m_Cells[ConvertCellCoordinateToIndex(vCoord)]; }
 
   /// \brief Gives access to a cell by cell coordinates.
-  const CellData& GetCell(const ezVec2I32& Coord) const { return m_Cells[ConvertCellCoordinateToIndex(Coord)]; }
+  const CellData& GetCell(const ezVec2I32& vCoord) const { return m_Cells[ConvertCellCoordinateToIndex(vCoord)]; }
 
   /// \brief Converts a cell index into a 2D cell coordinate.
   ezVec2I32 ConvertCellIndexToCoordinate(ezUInt32 uiIndex) const { return ezVec2I32(uiIndex % m_uiGridSizeX, uiIndex / m_uiGridSizeX); }
 
   /// \brief Converts a cell coordinate into a cell index.
-  ezUInt32 ConvertCellCoordinateToIndex(const ezVec2I32& Coord) const { return Coord.y * m_uiGridSizeX + Coord.x; }
+  ezUInt32 ConvertCellCoordinateToIndex(const ezVec2I32& vCoord) const { return vCoord.y * m_uiGridSizeX + vCoord.x; }
 
   /// \brief Returns the lower left world space position of the cell with the given coordinates.
-  ezVec3 GetCellWorldSpaceOrigin(const ezVec2I32& Coord) const;
-  ezVec3 GetCellLocalSpaceOrigin(const ezVec2I32& Coord) const;
+  ezVec3 GetCellWorldSpaceOrigin(const ezVec2I32& vCoord) const;
+  ezVec3 GetCellLocalSpaceOrigin(const ezVec2I32& vCoord) const;
 
   /// \brief Returns the center world space position of the cell with the given coordinates.
-  ezVec3 GetCellWorldSpaceCenter(const ezVec2I32& Coord) const;
-  ezVec3 GetCellLocalSpaceCenter(const ezVec2I32& Coord) const;
+  ezVec3 GetCellWorldSpaceCenter(const ezVec2I32& vCoord) const;
+  ezVec3 GetCellLocalSpaceCenter(const ezVec2I32& vCoord) const;
 
   /// \brief Checks whether the given cell coordinate is inside valid ranges.
-  bool IsValidCellCoordinate(const ezVec2I32& Coord) const;
+  bool IsValidCellCoordinate(const ezVec2I32& vCoord) const;
 
   /// \brief Casts a world space ray through the grid and determines which cell is hit (if any).
   /// \note The picked cell is determined from where the ray hits the 'ground plane', ie. the plane that goes through the world space
   /// origin.
-  bool PickCell(const ezVec3& vRayStartPos, const ezVec3& vRayDirNorm, ezVec2I32* out_CellCoord, ezVec3* out_vIntersection = nullptr) const;
+  bool PickCell(const ezVec3& vRayStartPos, const ezVec3& vRayDirNorm, ezVec2I32* out_pCellCoord, ezVec3* out_pIntersection = nullptr) const;
 
   /// \brief Returns the lower left corner position in world space of the grid
   const ezVec3& GetWorldSpaceOrigin() const { return m_vWorldSpaceOrigin; }
@@ -104,7 +104,7 @@ public:
 
   /// \brief Tests where and at which cell the given world space ray intersects the grids bounding box
   bool GetRayIntersection(const ezVec3& vRayStartWorldSpace, const ezVec3& vRayDirNormalizedWorldSpace, float fMaxLength, float& out_fIntersection,
-    ezVec2I32& out_CellCoord) const;
+    ezVec2I32& out_vCellCoord) const;
 
   /// \brief Tests whether a ray would hit the grid bounding box, if it were expanded by a constant.
   bool GetRayIntersectionExpandedBBox(const ezVec3& vRayStartWorldSpace, const ezVec3& vRayDirNormalizedWorldSpace, float fMaxLength,

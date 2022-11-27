@@ -15,7 +15,7 @@ public:
   Q_OBJECT
 
 public:
-  ezQtInputConfigDlg(QWidget* parent);
+  ezQtInputConfigDlg(QWidget* pParent);
 
 private Q_SLOTS:
   void on_ButtonNewInputSet_clicked();

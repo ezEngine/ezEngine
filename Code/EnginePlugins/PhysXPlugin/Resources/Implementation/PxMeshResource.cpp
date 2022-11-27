@@ -69,7 +69,7 @@ public:
   {
   }
 
-  virtual PxU32 read(void* dest, PxU32 count) override { return (PxU32)m_pStream->ReadBytes(dest, count); }
+  virtual PxU32 read(void* pDest, PxU32 count) override { return (PxU32)m_pStream->ReadBytes(pDest, count); }
 
   ezStreamReader* m_pStream;
 };

@@ -24,9 +24,9 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezCommentComponent::ezCommentComponent() = default;
 ezCommentComponent::~ezCommentComponent() = default;
 
-void ezCommentComponent::SetComment(const char* text)
+void ezCommentComponent::SetComment(const char* szText)
 {
-  m_sComment.Assign(text);
+  m_sComment.Assign(szText);
 }
 
 const char* ezCommentComponent::GetComment() const
@@ -41,11 +41,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneExportModifier_RemoveCommentComponents, 1
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezSceneExportModifier_RemoveCommentComponents::ModifyWorld(ezWorld& world, const ezUuid& documentGuid, bool bForExport)
+void ezSceneExportModifier_RemoveCommentComponents::ModifyWorld(ezWorld& ref_world, const ezUuid& documentGuid, bool bForExport)
 {
-  EZ_LOCK(world.GetWriteMarker());
+  EZ_LOCK(ref_world.GetWriteMarker());
 
-  if (ezCommentComponentManager* pMan = world.GetComponentManager<ezCommentComponentManager>())
+  if (ezCommentComponentManager* pMan = ref_world.GetComponentManager<ezCommentComponentManager>())
   {
     for (auto it = pMan->GetComponents(); it.IsValid(); it.Next())
     {

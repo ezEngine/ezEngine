@@ -35,7 +35,7 @@ public:
   void SetOutputStream(ezStreamWriter* pOutput) { m_pOutput = pOutput; } // [tested]
 
   /// \brief Configures how much whitespace is output.
-  void SetCompactMode(bool compact) { m_bCompactMode = compact; } // [tested]
+  void SetCompactMode(bool bCompact) { m_bCompactMode = bCompact; } // [tested]
 
   /// \brief Configures how verbose the type strings are going to be written.
   void SetPrimitiveTypeStringMode(TypeStringMode mode) { m_TypeStringMode = mode; }
@@ -63,40 +63,40 @@ public:
   void EndPrimitiveList(); // [tested]
 
   /// \brief Writes a number of values to the primitive list. Can be called multiple times between BeginPrimitiveList() / EndPrimitiveList().
-  void WriteBool(const bool* pValues, ezUInt32 count = 1); // [tested]
+  void WriteBool(const bool* pValues, ezUInt32 uiCount = 1); // [tested]
 
   /// \brief Writes a number of values to the primitive list. Can be called multiple times between BeginPrimitiveList() / EndPrimitiveList().
-  void WriteInt8(const ezInt8* pValues, ezUInt32 count = 1); // [tested]
+  void WriteInt8(const ezInt8* pValues, ezUInt32 uiCount = 1); // [tested]
 
   /// \brief Writes a number of values to the primitive list. Can be called multiple times between BeginPrimitiveList() / EndPrimitiveList().
-  void WriteInt16(const ezInt16* pValues, ezUInt32 count = 1); // [tested]
+  void WriteInt16(const ezInt16* pValues, ezUInt32 uiCount = 1); // [tested]
 
   /// \brief Writes a number of values to the primitive list. Can be called multiple times between BeginPrimitiveList() / EndPrimitiveList().
-  void WriteInt32(const ezInt32* pValues, ezUInt32 count = 1); // [tested]
+  void WriteInt32(const ezInt32* pValues, ezUInt32 uiCount = 1); // [tested]
 
   /// \brief Writes a number of values to the primitive list. Can be called multiple times between BeginPrimitiveList() / EndPrimitiveList().
-  void WriteInt64(const ezInt64* pValues, ezUInt32 count = 1); // [tested]
+  void WriteInt64(const ezInt64* pValues, ezUInt32 uiCount = 1); // [tested]
 
   /// \brief Writes a number of values to the primitive list. Can be called multiple times between BeginPrimitiveList() / EndPrimitiveList().
-  void WriteUInt8(const ezUInt8* pValues, ezUInt32 count = 1); // [tested]
+  void WriteUInt8(const ezUInt8* pValues, ezUInt32 uiCount = 1); // [tested]
 
   /// \brief Writes a number of values to the primitive list. Can be called multiple times between BeginPrimitiveList() / EndPrimitiveList().
-  void WriteUInt16(const ezUInt16* pValues, ezUInt32 count = 1); // [tested]
+  void WriteUInt16(const ezUInt16* pValues, ezUInt32 uiCount = 1); // [tested]
 
   /// \brief Writes a number of values to the primitive list. Can be called multiple times between BeginPrimitiveList() / EndPrimitiveList().
-  void WriteUInt32(const ezUInt32* pValues, ezUInt32 count = 1); // [tested]
+  void WriteUInt32(const ezUInt32* pValues, ezUInt32 uiCount = 1); // [tested]
 
   /// \brief Writes a number of values to the primitive list. Can be called multiple times between BeginPrimitiveList() / EndPrimitiveList().
-  void WriteUInt64(const ezUInt64* pValues, ezUInt32 count = 1); // [tested]
+  void WriteUInt64(const ezUInt64* pValues, ezUInt32 uiCount = 1); // [tested]
 
   /// \brief Writes a number of values to the primitive list. Can be called multiple times between BeginPrimitiveList() / EndPrimitiveList().
-  void WriteFloat(const float* pValues, ezUInt32 count = 1); // [tested]
+  void WriteFloat(const float* pValues, ezUInt32 uiCount = 1); // [tested]
 
   /// \brief Writes a number of values to the primitive list. Can be called multiple times between BeginPrimitiveList() / EndPrimitiveList().
-  void WriteDouble(const double* pValues, ezUInt32 count = 1); // [tested]
+  void WriteDouble(const double* pValues, ezUInt32 uiCount = 1); // [tested]
 
   /// \brief Writes a single string to the primitive list. Can be called multiple times between BeginPrimitiveList() / EndPrimitiveList().
-  void WriteString(const ezStringView& string); // [tested]
+  void WriteString(const ezStringView& sString); // [tested]
 
   /// \brief Writes a single string to the primitive list, but the value is a HEX representation of the given binary data.
   void WriteBinaryAsString(const void* pData, ezUInt32 uiBytes);

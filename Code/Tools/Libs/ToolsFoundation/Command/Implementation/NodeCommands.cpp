@@ -276,14 +276,14 @@ ezStatus ezDisconnectNodePinsCommand::UndoInternal(bool bFireEvents)
 ////////////////////////////////////////////////////////////////////////
 
 // static
-ezStatus ezNodeCommands::AddAndConnectCommand(ezCommandHistory* history, const ezRTTI* pConnectionType, const ezPin& sourcePin, const ezPin& targetPin)
+ezStatus ezNodeCommands::AddAndConnectCommand(ezCommandHistory* pHistory, const ezRTTI* pConnectionType, const ezPin& sourcePin, const ezPin& targetPin)
 {
   ezAddObjectCommand cmd;
   cmd.m_pType = pConnectionType;
   cmd.m_NewObjectGuid.CreateNewUuid();
   cmd.m_Index = -1;
 
-  ezStatus res = history->AddCommand(cmd);
+  ezStatus res = pHistory->AddCommand(cmd);
   if (res.m_Result.Succeeded())
   {
     ezConnectNodePinsCommand connect;
@@ -293,25 +293,25 @@ ezStatus ezNodeCommands::AddAndConnectCommand(ezCommandHistory* history, const e
     connect.m_sSourcePin = sourcePin.GetName();
     connect.m_sTargetPin = targetPin.GetName();
 
-    res = history->AddCommand(connect);
+    res = pHistory->AddCommand(connect);
   }
 
   return res;
 }
 
 // static
-ezStatus ezNodeCommands::DisconnectAndRemoveCommand(ezCommandHistory* history, const ezUuid& connectionObject)
+ezStatus ezNodeCommands::DisconnectAndRemoveCommand(ezCommandHistory* pHistory, const ezUuid& connectionObject)
 {
   ezDisconnectNodePinsCommand cmd;
   cmd.m_ConnectionObject = connectionObject;
 
-  ezStatus res = history->AddCommand(cmd);
+  ezStatus res = pHistory->AddCommand(cmd);
   if (res.m_Result.Succeeded())
   {
     ezRemoveObjectCommand remove;
     remove.m_Object = cmd.m_ConnectionObject;
 
-    res = history->AddCommand(remove);
+    res = pHistory->AddCommand(remove);
   }
 
   return res;

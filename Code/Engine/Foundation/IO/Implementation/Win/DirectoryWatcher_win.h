@@ -309,8 +309,8 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezTime 
               {
                 if (mirror && whatToWatch.IsSet(Watch::Subdirectories))
                 {
-                  mirror->Enumerate(eventFilePath, [&](const ezStringBuilder& path, ezFileSystemMirrorType::Type type) {
-                          func(path, ezDirectoryWatcherAction::Removed, (type == ezFileSystemMirrorType::Type::File) ? ezDirectoryWatcherType::File : ezDirectoryWatcherType::Directory);
+                  mirror->Enumerate(eventFilePath, [&](const ezStringBuilder& sPath, ezFileSystemMirrorType::Type type) {
+                          func(sPath, ezDirectoryWatcherAction::Removed, (type == ezFileSystemMirrorType::Type::File) ? ezDirectoryWatcherType::File : ezDirectoryWatcherType::Directory);
                         })
                     .AssertSuccess();
                 }

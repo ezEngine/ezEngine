@@ -37,37 +37,44 @@ namespace clang
       std::string StripPrefix(std::string& name)
       {
         std::string result;
-        if (name.size() == 0 || isUppercase(name[0]))
+        if (name.size() == 0 || isUppercase(name[0]) || isDigit(name[0]))
         {
           return {};
         }
-        if (name.size() > 1 && isUppercase(name[1]))
+        if (name.size() > 1 && (isUppercase(name[1]) || isDigit(name[1])))
         {
           result = std::string(name.begin(), name.begin() + 1);
           name.erase(0, 1);
         }
-        else if (name.size() > 2 && isUppercase(name[2]))
+        else if (name.size() > 2 && (isUppercase(name[2]) || isDigit(name[2])))
         {
           result = std::string(name.begin(), name.begin() + 2);
-          if (result == "is" || result == "on" || result == "id")
+          if (result == "ui" || result == "pp" || result == "sz")
+          {
+            name.erase(0, 2);
+          }
+          else
           {
             return {};
           }
-          name.erase(0, 2);
         }
         return result;
       }
 
-      std::string AddPrefixForType(clang::StringRef typeName, std::string newName)
+      std::string AddPrefixForType(clang::StringRef typeName, std::string newName, bool* prefixAdded = nullptr)
       {
         if (typeName.endswith("Handle"))
         {
+          if (prefixAdded)
+            *prefixAdded = true;
           return newName.insert(0, "h");
         }
         else if (typeName == "ezSharedPtr" || typeName == "ezUniquePtr" ||
                  typeName == "ezPointerWithFlags" || typeName == "QPointer" ||
                  typeName == "shared_ptr" || typeName == "unique_ptr")
         {
+          if (prefixAdded)
+            *prefixAdded = true;
           return newName.insert(0, "p");
         }
         else if (typeName == "ezStringView" || typeName == "ezHybridString" ||
@@ -75,36 +82,52 @@ namespace clang
                  typeName == "basic_string" || typeName == "ezStringBuilder" ||
                  typeName == "QString")
         {
+          if (prefixAdded)
+            *prefixAdded = true;
           return newName.insert(0, "s");
         }
         else if (typeName == "ezAtomicBool")
         {
+          if (prefixAdded)
+            *prefixAdded = true;
           return newName.insert(0, "b");
         }
         else if (typeName == "ezAtomicInteger")
         {
+          if (prefixAdded)
+            *prefixAdded = true;
           return newName.insert(0, "i");
         }
         else if (typeName.startswith("ezVec") || typeName.startswith("ezSimdVec"))
         {
+          if (prefixAdded)
+            *prefixAdded = true;
           return newName.insert(0, "v");
         }
         else if (typeName.startswith("ezMat") || typeName.startswith("ezSimdMat"))
         {
+          if (prefixAdded)
+            *prefixAdded = true;
           return newName.insert(0, "m");
         }
         else if (typeName.startswith("ezQuat") || typeName == "ezSimdQuat")
         {
+          if (prefixAdded)
+            *prefixAdded = true;
           return newName.insert(0, "q");
         }
         else if (typeName == "ezSimdFloat")
         {
+          if (prefixAdded)
+            *prefixAdded = true;
           return newName.insert(0, "f");
         }
+        if (prefixAdded)
+          *prefixAdded = false;
         return newName;
       }
 
-      std::string AddPrefix(const std::string& baseName, const Type* type)
+      std::string AddPrefix(const std::string& baseName, const Type* type, bool* prefixAdded = nullptr)
       {
         std::string newName = baseName;
         auto oldPrefix = StripPrefix(newName);
@@ -115,28 +138,34 @@ namespace clang
         {
           // If we hit a template parameter, don't apply any of the type specific
           // rules
+          if (prefixAdded)
+            *prefixAdded = false;
           return baseName;
         }
 
         // Leave fixed size arrays as is (e.g. bool m_bSomeBools[3];)
         if (dyn_cast<ConstantArrayType>(type))
         {
+          if (prefixAdded)
+            *prefixAdded = false;
           return baseName;
         }
 
         // TODO: Enforce PascalCase
-
         if (isLowercase(newName[0]))
         {
           const char upperChar[] = {toUppercase(newName[0]), '\0'};
           newName.replace(0, 1, upperChar);
         }
 
+        if (prefixAdded)
+          *prefixAdded = true;
+
         const TypedefType* typedefType = dyn_cast<TypedefType>(type);
         if (typedefType)
         {
           auto typedefName = typedefType->getDecl()->getName();
-          if (typedefName.endswith("Handle") || typedefName == "HANDLE")
+          if (typedefName.endswith("Handle") || typedefName == "HANDLE" || typedefName == "HWND" || typedefName == "HINSTANCE")
           {
             return newName.insert(0, "h");
           }
@@ -163,6 +192,8 @@ namespace clang
                 type->isMemberFunctionPointerType() ||
                 type->isMemberDataPointerType())
             {
+              if (prefixAdded)
+                *prefixAdded = false;
               return newName;
             }
             else
@@ -177,7 +208,12 @@ namespace clang
           if (recordDecl)
           {
             auto recordName = recordDecl->getName();
-            return AddPrefixForType(recordName, std::move(newName));
+            bool localPrefixAdded = false;
+            newName = AddPrefixForType(recordName, std::move(newName), &localPrefixAdded);
+            if (localPrefixAdded)
+            {
+              return newName;
+            }
           }
           else
           {
@@ -230,11 +266,26 @@ namespace clang
                   auto templateName = templateSpecialization->getTemplateName()
                                         .getAsTemplateDecl()
                                         ->getName();
-                  return AddPrefixForType(templateName, std::move(newName));
+                  bool localPrefixAdded = false;
+                  newName = AddPrefixForType(templateName, std::move(newName), &localPrefixAdded);
+                  if (localPrefixAdded)
+                  {
+                    return newName;
+                  }
                 }
               }
             }
           }
+        }
+
+        if (prefixAdded)
+          *prefixAdded = false;
+
+        // if we have a variable like p0 we strip the 'p' and are only left with "0"
+        // this is no longer a valid identifier, so add back the 'p' in case we didn't add any other prefix.
+        if (isDigit(newName[0]))
+        {
+          newName = oldPrefix + newName;
         }
 
         return newName;
@@ -251,7 +302,8 @@ namespace clang
       {
         const FieldDecl* field = dyn_cast<FieldDecl>(Decl);
         const VarDecl* var = dyn_cast<VarDecl>(Decl);
-        if (field && field->getIdentifier())
+        const ParmVarDecl* param = dyn_cast<ParmVarDecl>(Decl);
+        if (field && field->getIdentifier()) // struct / class members
         {
           // No rules on public fields
           if (field->getAccess() == AS_public)
@@ -293,7 +345,140 @@ namespace clang
             return FailureInfo{"field", std::move(newName)};
           }
         }
-        else if (var && var->getIdentifier())
+        else if (param && param->getIdentifier()) // function / method parameters
+        {
+          const DeclContext* declContext = param->getDeclContext();
+          const FunctionDecl* owningFunc = dyn_cast<FunctionDecl>(declContext);
+
+          if (!owningFunc || (owningFunc->getAccess() != AS_public && owningFunc->getAccess() != AS_none))
+          {
+            return llvm::None;
+          }
+
+          std::string newName = param->getNameAsString();
+
+          // Single character names are ok if they are lowercase
+          if (newName.length() == 1)
+          {
+            newName[0] = toLowercase(newName[0]);
+            if (newName != param->getName())
+            {
+              return FailureInfo{"param", std::move(newName)};
+            }
+            return llvm::None;
+          }
+
+          // Special names
+          if (newName == "lhs" || newName == "rhs" || newName == "other" || newName == "value")
+          {
+            return llvm::None;
+          }
+
+          // If the var is templated, all types have already been substituted. E.g.
+          // "T*" -> "int*". We need the original type "T*" so find it in the lexcial
+          // context.
+          const clang::Type* type = param->getType().getTypePtr();
+          std::string typeString = param->getType().getAsString();
+          if (!param->isTemplated())
+          {
+            FunctionDecl* templatedFuncDecl = owningFunc->getInstantiatedFromMemberFunction();
+            if (templatedFuncDecl == nullptr)
+            {
+              templatedFuncDecl = owningFunc->getTemplateInstantiationPattern();
+            }
+            if (templatedFuncDecl != nullptr)
+            {
+              unsigned paramIndex = param->getFunctionScopeIndex();
+              if (paramIndex >= templatedFuncDecl->getNumParams())
+              {
+                // This is a expanded vararg template (ARGS...), ignore it.
+                return llvm::None;
+              }
+              clang::ParmVarDecl* templatedParamDecl = templatedFuncDecl->getParamDecl(paramIndex);
+              type = templatedParamDecl->getType().getTypePtr();
+              typeString = templatedParamDecl->getType().getAsString();
+            }
+          }
+
+          const char* refPrefix = "ref_";
+          bool refPrefixFound = false;
+
+          {
+            llvm::StringRef newNameRef = newName;
+            if (newNameRef.startswith("out_"))
+            {
+              newName.erase(0, 4);
+              refPrefix = "out_";
+              refPrefixFound = true;
+            }
+            else if (newNameRef.startswith("inout_"))
+            {
+              newName.erase(0, 6);
+              refPrefix = "inout_";
+              refPrefixFound = true;
+            }
+            else if (newNameRef.startswith("in_"))
+            {
+              newName.erase(0, 3);
+              refPrefix = "in_";
+              refPrefixFound = true;
+            }
+            else if (newNameRef.startswith("ref_"))
+            {
+              newName.erase(0, 4);
+              refPrefixFound = true;
+            }
+            else if (newNameRef.startswith("out") && newNameRef.size() > 3 && (isUppercase(newNameRef[3]) || isDigit(newNameRef[3])))
+            {
+              newName.erase(0, 3);
+              refPrefix = "out_";
+            }
+            else if (newNameRef.startswith("inout") && newNameRef.size() > 5 && (isUppercase(newNameRef[5]) || isDigit(newNameRef[5])))
+            {
+              newName.erase(0, 5);
+              refPrefix = "inout_";
+            }
+            else if (type->isReferenceType() && newNameRef.startswith("in") && newNameRef.size() > 2 && (isUppercase(newNameRef[2]) || isDigit(newNameRef[2])))
+            {
+              newName.erase(0, 2);
+              refPrefix = "in_";
+            }
+          }
+
+          const clang::Type* prefixType = type;
+          if (type->isReferenceType())
+          {
+            prefixType = type->getPointeeType().getTypePtr();
+          }
+          bool prefixAdded = false;
+          newName = AddPrefix(newName, prefixType, &prefixAdded);
+          if (!prefixAdded)
+          {
+            newName[0] = toLowercase(newName[0]);
+          }
+
+          const char* warningHint = "param";
+
+          if (type->isReferenceType() && !type->isRValueReferenceType() && !type->getPointeeType().isConstQualified() && !type->getPointeeType()->isArrayType())
+          {
+            if (!refPrefixFound)
+            {
+              warningHint = "paramRef";
+            }
+            newName = refPrefix + newName;
+          }
+
+          if (type->isPointerType() && refPrefixFound && strcmp(refPrefix, "out_") == 0)
+          {
+            newName = refPrefix + newName;
+          }
+
+          if (newName != param->getName())
+          {
+            return FailureInfo{warningHint, std::move(newName)};
+          }
+        }
+        else if (var && var->getIdentifier()) // static variables
         {
           // s_ rule only applies to static members of structs or classes
           if (!var->isStaticDataMember())
@@ -382,9 +567,25 @@ namespace clang
       NameCheck::getDiagInfo(const NamingCheckId& ID,
         const NamingCheckFailure& Failure) const
       {
-        return DiagInfo{
-          "class / struct member '%0' does not follow naming convention",
-          [&](DiagnosticBuilder& Diag) { Diag << ID.second; }};
+        if (Failure.Info.KindName == "field")
+        {
+          return DiagInfo{
+            "class / struct member '%0' does not follow the naming convention",
+            [&](DiagnosticBuilder& Diag) { Diag << ID.second; }};
+        }
+        else if (Failure.Info.KindName == "param")
+        {
+          return DiagInfo{
+            "parameter '%0' does not follow the naming convention (%1)",
+            [&](DiagnosticBuilder& Diag) { Diag << ID.second << Failure.Info.Fixup; }};
+        }
+        else if (Failure.Info.KindName == "paramRef")
+        {
+          return DiagInfo{
+            "non const reference parameter '%0' does not follow the naming convention. non-const reference parameters should start with 'in_', 'out_' or 'inout_'.",
+            [&](DiagnosticBuilder& Diag) { Diag << ID.second; }};
+        }
+        return {};
       }
 
     } // namespace ez

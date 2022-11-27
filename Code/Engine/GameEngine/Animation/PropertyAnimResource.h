@@ -78,8 +78,8 @@ struct EZ_GAMEENGINE_DLL ezPropertyAnimResourceDescriptor : public ezRefCounted
   ezDynamicArray<ezColorPropertyAnimEntry> m_ColorAnimations;
   ezEventTrack m_EventTrack;
 
-  void Save(ezStreamWriter& stream) const;
-  void Load(ezStreamReader& stream);
+  void Save(ezStreamWriter& inout_stream) const;
+  void Load(ezStreamReader& inout_stream);
 };
 
 //////////////////////////////////////////////////////////////////////////

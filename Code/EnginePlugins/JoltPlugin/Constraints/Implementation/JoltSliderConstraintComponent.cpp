@@ -35,11 +35,11 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezJoltSliderConstraintComponent::ezJoltSliderConstraintComponent() = default;
 ezJoltSliderConstraintComponent::~ezJoltSliderConstraintComponent() = default;
 
-void ezJoltSliderConstraintComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezJoltSliderConstraintComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s << m_fLowerLimitDistance;
   s << m_fUpperLimitDistance;
@@ -51,12 +51,12 @@ void ezJoltSliderConstraintComponent::SerializeComponent(ezWorldWriter& stream) 
   s << m_fDriveStrength;
 }
 
-void ezJoltSliderConstraintComponent::DeserializeComponent(ezWorldReader& stream)
+void ezJoltSliderConstraintComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s >> m_fLowerLimitDistance;
   s >> m_fUpperLimitDistance;

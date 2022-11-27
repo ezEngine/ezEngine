@@ -17,7 +17,7 @@ public:
 class ezQtStateMachineConnection : public ezQtConnection
 {
 public:
-  ezQtStateMachineConnection(QGraphicsItem* parent = nullptr);
+  ezQtStateMachineConnection(QGraphicsItem* pParent = nullptr);
 };
 
 class ezQtStateMachineNode : public ezQtNode
@@ -28,7 +28,7 @@ public:
   virtual void InitNode(const ezDocumentNodeManager* pManager, const ezDocumentObject* pObject) override;
   virtual void UpdateGeometry() override;
   virtual void UpdateState() override;
-  virtual void ExtendContextMenu(QMenu& menu) override;
+  virtual void ExtendContextMenu(QMenu& ref_menu) override;
 
   bool IsInitialState() const;
   bool IsAnyState() const;
@@ -42,7 +42,7 @@ class ezQtStateMachineAssetScene : public ezQtNodeScene
   Q_OBJECT
 
 public:
-  ezQtStateMachineAssetScene(QObject* parent = nullptr);
+  ezQtStateMachineAssetScene(QObject* pParent = nullptr);
   ~ezQtStateMachineAssetScene();
 
   void SetInitialState(ezQtStateMachineNode* pNode);

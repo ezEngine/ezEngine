@@ -50,7 +50,7 @@ public:
   ezGameEngineTest();
   ~ezGameEngineTest();
 
-  virtual ezResult GetImage(ezImage& img) override;
+  virtual ezResult GetImage(ezImage& ref_img) override;
   virtual ezGameEngineTestApplication* CreateApplication() = 0;
 
 protected:

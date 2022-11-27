@@ -139,40 +139,40 @@ void ezQtProcGenNode::UpdateState()
 ezQtProcGenPin::ezQtProcGenPin() = default;
 ezQtProcGenPin::~ezQtProcGenPin() = default;
 
-void ezQtProcGenPin::ExtendContextMenu(QMenu& menu)
+void ezQtProcGenPin::ExtendContextMenu(QMenu& ref_menu)
 {
-  QAction* pAction = new QAction("Debug", &menu);
+  QAction* pAction = new QAction("Debug", &ref_menu);
   pAction->setCheckable(true);
   pAction->setChecked(m_bDebug);
   pAction->connect(pAction, &QAction::triggered, [this](bool bChecked) { SetDebug(bChecked); });
 
-  menu.addAction(pAction);
+  ref_menu.addAction(pAction);
 }
 
-void ezQtProcGenPin::keyPressEvent(QKeyEvent* event)
+void ezQtProcGenPin::keyPressEvent(QKeyEvent* pEvent)
 {
-  if (event->key() == Qt::Key_D || event->key() == Qt::Key_F9)
+  if (pEvent->key() == Qt::Key_D || pEvent->key() == Qt::Key_F9)
   {
     SetDebug(!m_bDebug);
   }
 }
 
-void ezQtProcGenPin::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget)
+void ezQtProcGenPin::paint(QPainter* pPainter, const QStyleOptionGraphicsItem* pOption, QWidget* pWidget)
 {
-  ezQtPin::paint(painter, option, widget);
+  ezQtPin::paint(pPainter, pOption, pWidget);
 
-  painter->save();
-  painter->setPen(QPen(QColor(220, 0, 0), 3.5f, Qt::DotLine));
-  painter->setBrush(Qt::NoBrush);
+  pPainter->save();
+  pPainter->setPen(QPen(QColor(220, 0, 0), 3.5f, Qt::DotLine));
+  pPainter->setBrush(Qt::NoBrush);
 
   if (m_bDebug)
   {
     float pad = 3.5f;
     QRectF bounds = path().boundingRect().adjusted(-pad, -pad, pad, pad);
-    painter->drawEllipse(bounds);
+    pPainter->drawEllipse(bounds);
   }
 
-  painter->restore();
+  pPainter->restore();
 }
 
 QRectF ezQtProcGenPin::boundingRect() const
@@ -196,8 +196,8 @@ void ezQtProcGenPin::SetDebug(bool bDebug)
 
 //////////////////////////////////////////////////////////////////////////
 
-ezQtProcGenScene::ezQtProcGenScene(QObject* parent /*= nullptr*/)
-  : ezQtNodeScene(parent)
+ezQtProcGenScene::ezQtProcGenScene(QObject* pParent /*= nullptr*/)
+  : ezQtNodeScene(pParent)
 {
 }
 

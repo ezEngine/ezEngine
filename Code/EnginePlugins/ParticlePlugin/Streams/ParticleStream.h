@@ -21,7 +21,7 @@ public:
   ezProcessingStream::DataType GetStreamDataType() const;
   const char* GetStreamName() const;
 
-  static void GetFullStreamName(const char* szName, ezProcessingStream::DataType type, ezStringBuilder& out_Result);
+  static void GetFullStreamName(const char* szName, ezProcessingStream::DataType type, ezStringBuilder& out_sResult);
 
   ezParticleStream* CreateParticleStream(ezParticleSystemInstance* pOwner) const;
 

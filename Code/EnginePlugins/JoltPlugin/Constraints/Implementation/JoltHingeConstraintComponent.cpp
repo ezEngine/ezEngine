@@ -38,11 +38,11 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezJoltHingeConstraintComponent::ezJoltHingeConstraintComponent() = default;
 ezJoltHingeConstraintComponent::~ezJoltHingeConstraintComponent() = default;
 
-void ezJoltHingeConstraintComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezJoltHingeConstraintComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s << m_LimitMode;
   s << m_LowerLimit;
@@ -55,12 +55,12 @@ void ezJoltHingeConstraintComponent::SerializeComponent(ezWorldWriter& stream) c
   s << m_fFriction;
 }
 
-void ezJoltHingeConstraintComponent::DeserializeComponent(ezWorldReader& stream)
+void ezJoltHingeConstraintComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s >> m_LimitMode;
   s >> m_LowerLimit;

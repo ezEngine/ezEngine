@@ -63,11 +63,11 @@ public:
   void ScheduleRestoreWindowLayout();
 
   bool IsVisibleInContainer() const { return m_bIsVisibleInContainer; }
-  void SetTargetFramerate(ezInt16 uiTargetFPS);
+  void SetTargetFramerate(ezInt16 iTargetFPS);
 
   void TriggerRedraw();
 
-  virtual void RequestWindowTabContextMenu(const QPoint& GlobalPos);
+  virtual void RequestWindowTabContextMenu(const QPoint& globalPos);
 
   static const ezDynamicArray<ezQtDocumentWindow*>& GetAllDocumentWindows() { return s_AllDocumentWindows; }
 
@@ -75,10 +75,10 @@ public:
   ezQtContainerWindow* GetContainerWindow() const;
 
   /// \brief Shows the given message for the given duration in the statusbar, then shows the permanent message again.
-  void ShowTemporaryStatusBarMsg(const ezFormatString& sText, ezTime duration = ezTime::Seconds(5));
+  void ShowTemporaryStatusBarMsg(const ezFormatString& text, ezTime duration = ezTime::Seconds(5));
 
   /// \brief Sets which text to show permanently in the statusbar. Set an empty string to clear the message.
-  void SetPermanentStatusBarMsg(const ezFormatString& sText);
+  void SetPermanentStatusBarMsg(const ezFormatString& text);
 
   /// \brief For unit tests to take a screenshot of the window (may include multiple views) to do image comparisons.
   virtual void CreateImageCapture(const char* szOutputPath);

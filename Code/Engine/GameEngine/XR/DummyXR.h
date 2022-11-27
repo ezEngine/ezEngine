@@ -17,11 +17,11 @@ class EZ_GAMEENGINE_DLL ezDummyXRInput : public ezXRInputDevice
 {
 
 public:
-  void GetDeviceList(ezHybridArray<ezXRDeviceID, 64>& out_Devices) const override;
+  void GetDeviceList(ezHybridArray<ezXRDeviceID, 64>& out_devices) const override;
   ezXRDeviceID GetDeviceIDByType(ezXRDeviceType::Enum type) const override;
-  const ezXRDeviceState& GetDeviceState(ezXRDeviceID iDeviceID) const override;
-  ezString GetDeviceName(ezXRDeviceID iDeviceID) const override;
-  ezBitflags<ezXRDeviceFeatures> GetDeviceFeatures(ezXRDeviceID iDeviceID) const override;
+  const ezXRDeviceState& GetDeviceState(ezXRDeviceID deviceID) const override;
+  ezString GetDeviceName(ezXRDeviceID deviceID) const override;
+  ezBitflags<ezXRDeviceFeatures> GetDeviceFeatures(ezXRDeviceID deviceID) const override;
 
 protected:
   void InitializeDevice() override;
@@ -49,7 +49,7 @@ public:
   const ezHMDInfo& GetHmdInfo() const override;
   ezXRInputDevice& GetXRInput() const override;
   bool SupportsCompanionView() override;
-  ezUniquePtr<ezActor> CreateActor(ezView* pView, ezGALMSAASampleCount::Enum msaaCount = ezGALMSAASampleCount::None, ezUniquePtr<ezWindowBase> companionWindow = nullptr, ezUniquePtr<ezWindowOutputTargetGAL> companionWindowOutput = nullptr) override;
+  ezUniquePtr<ezActor> CreateActor(ezView* pView, ezGALMSAASampleCount::Enum msaaCount = ezGALMSAASampleCount::None, ezUniquePtr<ezWindowBase> pCompanionWindow = nullptr, ezUniquePtr<ezWindowOutputTargetGAL> pCompanionWindowOutput = nullptr) override;
   ezGALTextureHandle GetCurrentTexture() override;
   void OnActorDestroyed() override;
   void GALDeviceEventHandler(const ezGALDeviceEvent& e);

@@ -78,47 +78,47 @@ void ezQtEditorApp::SetupDataDirectories()
   m_FileSystemConfig.Apply();
 }
 
-bool ezQtEditorApp::MakeParentDataDirectoryRelativePathAbsolute(ezStringBuilder& sPath, bool bCheckExists) const
+bool ezQtEditorApp::MakeParentDataDirectoryRelativePathAbsolute(ezStringBuilder& ref_sPath, bool bCheckExists) const
 {
-  sPath.MakeCleanPath();
+  ref_sPath.MakeCleanPath();
 
-  if (ezPathUtils::IsAbsolutePath(sPath))
+  if (ezPathUtils::IsAbsolutePath(ref_sPath))
     return true;
 
-  if (ezPathUtils::IsRootedPath(sPath))
+  if (ezPathUtils::IsRootedPath(ref_sPath))
   {
     ezStringBuilder sAbsPath;
-    if (ezFileSystem::ResolvePath(sPath, &sAbsPath, nullptr).Succeeded())
+    if (ezFileSystem::ResolvePath(ref_sPath, &sAbsPath, nullptr).Succeeded())
     {
-      sPath = sAbsPath;
+      ref_sPath = sAbsPath;
       return true;
     }
 
     return false;
   }
 
-  if (ezConversionUtils::IsStringUuid(sPath))
+  if (ezConversionUtils::IsStringUuid(ref_sPath))
   {
-    ezUuid guid = ezConversionUtils::ConvertStringToUuid(sPath);
+    ezUuid guid = ezConversionUtils::ConvertStringToUuid(ref_sPath);
     auto pAsset = ezAssetCurator::GetSingleton()->GetSubAsset(guid);
 
     if (pAsset == nullptr)
       return false;
 
-    sPath = pAsset->m_pAssetInfo->m_sAbsolutePath;
+    ref_sPath = pAsset->m_pAssetInfo->m_sAbsolutePath;
     return true;
   }
 
   ezStringBuilder sTemp, sFolder, sDataDirName;
 
-  const char* szEnd = sPath.FindSubString("/");
+  const char* szEnd = ref_sPath.FindSubString("/");
   if (szEnd)
   {
-    sDataDirName.SetSubString_FromTo(sPath.GetData(), szEnd);
+    sDataDirName.SetSubString_FromTo(ref_sPath.GetData(), szEnd);
   }
   else
   {
-    sDataDirName = sPath;
+    sDataDirName = ref_sPath;
   }
 
   for (ezUInt32 i = m_FileSystemConfig.m_DataDirs.GetCount(); i > 0; --i)
@@ -137,12 +137,12 @@ bool ezQtEditorApp::MakeParentDataDirectoryRelativePathAbsolute(ezStringBuilder&
       continue;
 
     sTemp.PathParentDirectory(); // the secret sauce is here
-    sTemp.AppendPath(sPath);
+    sTemp.AppendPath(ref_sPath);
     sTemp.MakeCleanPath();
 
     if (!bCheckExists || ezOSFile::ExistsFile(sTemp) || ezOSFile::ExistsDirectory(sTemp))
     {
-      sPath = sTemp;
+      ref_sPath = sTemp;
       return true;
     }
   }
@@ -150,32 +150,32 @@ bool ezQtEditorApp::MakeParentDataDirectoryRelativePathAbsolute(ezStringBuilder&
   return false;
 }
 
-bool ezQtEditorApp::MakeDataDirectoryRelativePathAbsolute(ezStringBuilder& sPath) const
+bool ezQtEditorApp::MakeDataDirectoryRelativePathAbsolute(ezStringBuilder& ref_sPath) const
 {
-  if (ezPathUtils::IsAbsolutePath(sPath))
+  if (ezPathUtils::IsAbsolutePath(ref_sPath))
     return true;
 
-  if (ezPathUtils::IsRootedPath(sPath))
+  if (ezPathUtils::IsRootedPath(ref_sPath))
   {
     ezStringBuilder sAbsPath;
-    if (ezFileSystem::ResolvePath(sPath, &sAbsPath, nullptr).Succeeded())
+    if (ezFileSystem::ResolvePath(ref_sPath, &sAbsPath, nullptr).Succeeded())
     {
-      sPath = sAbsPath;
+      ref_sPath = sAbsPath;
       return true;
     }
 
     return false;
   }
 
-  if (ezConversionUtils::IsStringUuid(sPath))
+  if (ezConversionUtils::IsStringUuid(ref_sPath))
   {
-    ezUuid guid = ezConversionUtils::ConvertStringToUuid(sPath);
+    ezUuid guid = ezConversionUtils::ConvertStringToUuid(ref_sPath);
     auto pAsset = ezAssetCurator::GetSingleton()->GetSubAsset(guid);
 
     if (pAsset == nullptr)
       return false;
 
-    sPath = pAsset->m_pAssetInfo->m_sAbsolutePath;
+    ref_sPath = pAsset->m_pAssetInfo->m_sAbsolutePath;
     return true;
   }
 
@@ -188,12 +188,12 @@ bool ezQtEditorApp::MakeDataDirectoryRelativePathAbsolute(ezStringBuilder& sPath
     if (ezFileSystem::ResolveSpecialDirectory(dd.m_sDataDirSpecialPath, sTemp).Failed())
       continue;
 
-    sTemp.AppendPath(sPath);
+    sTemp.AppendPath(ref_sPath);
     sTemp.MakeCleanPath();
 
     if (ezOSFile::ExistsFile(sTemp) || ezOSFile::ExistsDirectory(sTemp))
     {
-      sPath = sTemp;
+      ref_sPath = sTemp;
       return true;
     }
   }
@@ -201,15 +201,15 @@ bool ezQtEditorApp::MakeDataDirectoryRelativePathAbsolute(ezStringBuilder& sPath
   return false;
 }
 
-bool ezQtEditorApp::MakeDataDirectoryRelativePathAbsolute(ezString& sPath) const
+bool ezQtEditorApp::MakeDataDirectoryRelativePathAbsolute(ezString& ref_sPath) const
 {
-  ezStringBuilder sTemp = sPath;
+  ezStringBuilder sTemp = ref_sPath;
   bool bRes = MakeDataDirectoryRelativePathAbsolute(sTemp);
-  sPath = sTemp;
+  ref_sPath = sTemp;
   return bRes;
 }
 
-bool ezQtEditorApp::MakePathDataDirectoryRelative(ezStringBuilder& sPath) const
+bool ezQtEditorApp::MakePathDataDirectoryRelative(ezStringBuilder& ref_sPath) const
 {
   ezStringBuilder sTemp;
 
@@ -220,18 +220,18 @@ bool ezQtEditorApp::MakePathDataDirectoryRelative(ezStringBuilder& sPath) const
     if (ezFileSystem::ResolveSpecialDirectory(dd.m_sDataDirSpecialPath, sTemp).Failed())
       continue;
 
-    if (sPath.IsPathBelowFolder(sTemp))
+    if (ref_sPath.IsPathBelowFolder(sTemp))
     {
-      sPath.MakeRelativeTo(sTemp).IgnoreResult();
+      ref_sPath.MakeRelativeTo(sTemp).IgnoreResult();
       return true;
     }
   }
 
-  sPath.MakeRelativeTo(ezFileSystem::GetSdkRootDirectory()).IgnoreResult();
+  ref_sPath.MakeRelativeTo(ezFileSystem::GetSdkRootDirectory()).IgnoreResult();
   return false;
 }
 
-bool ezQtEditorApp::MakePathDataDirectoryParentRelative(ezStringBuilder& sPath) const
+bool ezQtEditorApp::MakePathDataDirectoryParentRelative(ezStringBuilder& ref_sPath) const
 {
   ezStringBuilder sTemp;
 
@@ -242,23 +242,23 @@ bool ezQtEditorApp::MakePathDataDirectoryParentRelative(ezStringBuilder& sPath) 
     if (ezFileSystem::ResolveSpecialDirectory(dd.m_sDataDirSpecialPath, sTemp).Failed())
       continue;
 
-    if (sPath.IsPathBelowFolder(sTemp))
+    if (ref_sPath.IsPathBelowFolder(sTemp))
     {
       sTemp.PathParentDirectory();
 
-      sPath.MakeRelativeTo(sTemp).IgnoreResult();
+      ref_sPath.MakeRelativeTo(sTemp).IgnoreResult();
       return true;
     }
   }
 
-  sPath.MakeRelativeTo(ezFileSystem::GetSdkRootDirectory()).IgnoreResult();
+  ref_sPath.MakeRelativeTo(ezFileSystem::GetSdkRootDirectory()).IgnoreResult();
   return false;
 }
 
-bool ezQtEditorApp::MakePathDataDirectoryRelative(ezString& sPath) const
+bool ezQtEditorApp::MakePathDataDirectoryRelative(ezString& ref_sPath) const
 {
-  ezStringBuilder sTemp = sPath;
+  ezStringBuilder sTemp = ref_sPath;
   bool bRes = MakePathDataDirectoryRelative(sTemp);
-  sPath = sTemp;
+  ref_sPath = sTemp;
   return bRes;
 }

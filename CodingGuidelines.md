@@ -39,3 +39,20 @@ For private and protected members, the following rules apply:
  * If the member is a constant, it should be marked `constexpr`: `static constexpr ezInt32 MyConstant = 5;`
  * Otherwise the member must start with 's_' (this comes before the type dependent prefix)
  * The name of the static member must be in PascalCase: `s_MyMember` 
+
+ ### Method / Function Parameters
+ 
+ * Parameters use the same type specific prefixes
+ * If a parameter is a regular reference, it is treated as if the reference didn't exist in regards to the type specific prefixes. E.g. `const bool& bValue`.
+ * Single character parameters are allowed without type specific prefix.
+ * The following special names are also allowed without type specific prefix: 
+   - `lhs`
+   - `rhs`
+   - `other`
+   - `value`
+ * Non-const regular references must either start with `in_`, `inout_` or `out_`. Clang-tidy will automatically insert `ref_` as it can't decide the correct usage.
+   - Use `in_` if the referenced value is not modified inside the function (for example when casting it to another type)
+   - Use `inout_` if the referenced value is modified and the inital state of the object matters.
+   - Use `out_` if the referenced value is completely overwritten inside the function and the original value doesn't matter.
+   - Look out for `ref_` inserted by clang-tidy and replace it with either `in_`, `inout_` or `out_`
+ * Pointers can have an `out_` prefix to indicate that this is a optional out parameter. 

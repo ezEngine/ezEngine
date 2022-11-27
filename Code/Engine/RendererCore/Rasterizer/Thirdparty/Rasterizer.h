@@ -30,7 +30,7 @@ public:
   {
   }
 
-  void setModelViewProjection(const float* matrix) {}
+  void setModelViewProjection(const float* pMatrix) {}
   void clear() {}
 
   template <bool possiblyNearClipped>
@@ -48,7 +48,7 @@ public:
     return true;
   }
 
-  void readBackDepth(void* target) const {}
+  void readBackDepth(void* pTarget) const {}
 #endif
 
 private:

@@ -81,9 +81,9 @@ EZ_END_COMPONENT_TYPE;
 ezSpriteComponent::ezSpriteComponent() = default;
 ezSpriteComponent::~ezSpriteComponent() = default;
 
-ezResult ezSpriteComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg)
+ezResult ezSpriteComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg)
 {
-  bounds = ezBoundingSphere(ezVec3::ZeroVector(), m_fSize * 0.5f);
+  ref_bounds = ezBoundingSphere(ezVec3::ZeroVector(), m_fSize * 0.5f);
   return EZ_SUCCESS;
 }
 
@@ -123,10 +123,10 @@ void ezSpriteComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) cons
   msg.AddRenderData(pRenderData, category, ezRenderData::Caching::IfStatic);
 }
 
-void ezSpriteComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezSpriteComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
-  ezStreamWriter& s = stream.GetStream();
+  SUPER::SerializeComponent(inout_stream);
+  ezStreamWriter& s = inout_stream.GetStream();
 
   s << m_hTexture;
   s << m_fSize;
@@ -138,12 +138,12 @@ void ezSpriteComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_BlendMode;
 }
 
-void ezSpriteComponent::DeserializeComponent(ezWorldReader& stream)
+void ezSpriteComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
-  ezStreamReader& s = stream.GetStream();
+  ezStreamReader& s = inout_stream.GetStream();
 
   s >> m_hTexture;
 
@@ -227,9 +227,9 @@ float ezSpriteComponent::GetMaxScreenSize() const
   return m_fMaxScreenSize;
 }
 
-void ezSpriteComponent::OnMsgSetColor(ezMsgSetColor& msg)
+void ezSpriteComponent::OnMsgSetColor(ezMsgSetColor& ref_msg)
 {
-  msg.ModifyColor(m_Color);
+  ref_msg.ModifyColor(m_Color);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -247,7 +247,7 @@ public:
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override { pNode->RenameProperty("Max Screen Size", "MaxScreenSize"); }
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override { pNode->RenameProperty("Max Screen Size", "MaxScreenSize"); }
 };
 
 ezSpriteComponentPatch_1_2 g_ezSpriteComponentPatch_1_2;

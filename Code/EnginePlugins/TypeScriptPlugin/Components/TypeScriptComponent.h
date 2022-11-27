@@ -72,11 +72,11 @@ public:
   ezTypeScriptComponent();
   ~ezTypeScriptComponent();
 
-  void BroadcastEventMsg(ezEventMessage& msg);
+  void BroadcastEventMsg(ezEventMessage& ref_msg);
 
   void SetUpdateInterval(ezTime interval) { m_UpdateInterval = interval; }
 
-  void SetTypeScriptComponentGuid(const ezUuid& hResource);
+  void SetTypeScriptComponentGuid(const ezUuid& resource);
   const ezUuid& GetTypeScriptComponentGuid() const;
 
 private:

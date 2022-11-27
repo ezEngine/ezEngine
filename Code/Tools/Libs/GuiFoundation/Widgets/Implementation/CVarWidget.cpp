@@ -11,8 +11,8 @@
 #include <QSortFilterProxyModel>
 #include <QStandardItemModel>
 
-ezQtCVarWidget::ezQtCVarWidget(QWidget* parent)
-  : QWidget(parent)
+ezQtCVarWidget::ezQtCVarWidget(QWidget* pParent)
+  : QWidget(pParent)
 {
   setupUi(this);
 
@@ -97,10 +97,10 @@ void ezQtCVarWidget::UpdateCVarUI(const ezMap<ezString, ezCVarWidgetData>& cvars
   CVarsView->resizeColumnToContents(1);
 }
 
-void ezQtCVarWidget::AddConsoleStrings(const ezStringBuilder& encoded)
+void ezQtCVarWidget::AddConsoleStrings(const ezStringBuilder& sEncoded)
 {
   ezHybridArray<ezStringView, 64> lines;
-  encoded.Split(false, lines, ";;");
+  sEncoded.Split(false, lines, ";;");
 
   ezStringBuilder tmp;
 
@@ -195,10 +195,10 @@ void ezQtCVarWidget::OnConsoleEvent(const ezConsoleEvent& e)
   }
 }
 
-ezQtCVarModel::ezQtCVarModel(ezQtCVarWidget* owner)
-  : QAbstractItemModel(owner)
+ezQtCVarModel::ezQtCVarModel(ezQtCVarWidget* pOwner)
+  : QAbstractItemModel(pOwner)
 {
-  m_pOwner = owner;
+  m_pOwner = pOwner;
 }
 
 ezQtCVarModel::~ezQtCVarModel() = default;
@@ -215,11 +215,11 @@ void ezQtCVarModel::EndResetModel()
   endResetModel();
 }
 
-QVariant ezQtCVarModel::headerData(int section, Qt::Orientation orientation, int role /*= Qt::DisplayRole*/) const
+QVariant ezQtCVarModel::headerData(int iSection, Qt::Orientation orientation, int iRole /*= Qt::DisplayRole*/) const
 {
-  if (role == Qt::DisplayRole)
+  if (iRole == Qt::DisplayRole)
   {
-    switch (section)
+    switch (iSection)
     {
       case 0:
         return "Name";
@@ -235,12 +235,12 @@ QVariant ezQtCVarModel::headerData(int section, Qt::Orientation orientation, int
     }
   }
 
-  return QAbstractItemModel::headerData(section, orientation, role);
+  return QAbstractItemModel::headerData(iSection, orientation, iRole);
 }
 
-bool ezQtCVarModel::setData(const QModelIndex& index, const QVariant& value, int role /*= Qt::EditRole*/)
+bool ezQtCVarModel::setData(const QModelIndex& index, const QVariant& value, int iRole /*= Qt::EditRole*/)
 {
-  if (index.column() == 1 && role == Qt::EditRole)
+  if (index.column() == 1 && iRole == Qt::EditRole)
   {
     ezQtCVarModel::Entry* e = reinterpret_cast<ezQtCVarModel::Entry*>(index.internalId());
 
@@ -267,22 +267,22 @@ bool ezQtCVarModel::setData(const QModelIndex& index, const QVariant& value, int
     }
   }
 
-  return QAbstractItemModel::setData(index, value, role);
+  return QAbstractItemModel::setData(index, value, iRole);
 }
 
-QVariant ezQtCVarModel::data(const QModelIndex& index, int role) const
+QVariant ezQtCVarModel::data(const QModelIndex& index, int iRole) const
 {
   if (!index.isValid())
     return QVariant();
 
   ezQtCVarModel::Entry* e = reinterpret_cast<ezQtCVarModel::Entry*>(index.internalId());
 
-  if (role == Qt::UserRole)
+  if (iRole == Qt::UserRole)
   {
     return e->m_sFullName.GetData();
   }
 
-  if (role == Qt::DisplayRole)
+  if (iRole == Qt::DisplayRole)
   {
     switch (index.column())
     {
@@ -297,7 +297,7 @@ QVariant ezQtCVarModel::data(const QModelIndex& index, int role) const
     }
   }
 
-  if (role == Qt::DecorationRole && index.column() == 0)
+  if (iRole == Qt::DecorationRole && index.column() == 0)
   {
     if (e->m_Value.IsValid())
     {
@@ -305,7 +305,7 @@ QVariant ezQtCVarModel::data(const QModelIndex& index, int role) const
     }
   }
 
-  if (role == Qt::ToolTipRole)
+  if (iRole == Qt::ToolTipRole)
   {
     if (e->m_Value.IsValid())
     {
@@ -321,7 +321,7 @@ QVariant ezQtCVarModel::data(const QModelIndex& index, int role) const
     }
   }
 
-  if (role == Qt::EditRole && index.column() == 1)
+  if (iRole == Qt::EditRole && index.column() == 1)
   {
     switch (e->m_Value.GetType())
     {
@@ -355,16 +355,16 @@ Qt::ItemFlags ezQtCVarModel::flags(const QModelIndex& index) const
   return Qt::ItemFlag::ItemIsSelectable | Qt::ItemFlag::ItemIsEnabled;
 }
 
-QModelIndex ezQtCVarModel::index(int row, int column, const QModelIndex& parent /*= QModelIndex()*/) const
+QModelIndex ezQtCVarModel::index(int iRow, int iColumn, const QModelIndex& parent /*= QModelIndex()*/) const
 {
   if (parent.isValid())
   {
     ezQtCVarModel::Entry* e = reinterpret_cast<ezQtCVarModel::Entry*>(parent.internalId());
-    return createIndex(row, column, const_cast<ezQtCVarModel::Entry*>(e->m_ChildEntries[row]));
+    return createIndex(iRow, iColumn, const_cast<ezQtCVarModel::Entry*>(e->m_ChildEntries[iRow]));
   }
   else
   {
-    return createIndex(row, column, const_cast<ezQtCVarModel::Entry*>(m_RootEntries[row]));
+    return createIndex(iRow, iColumn, const_cast<ezQtCVarModel::Entry*>(m_RootEntries[iRow]));
   }
 }
 
@@ -426,9 +426,9 @@ int ezQtCVarModel::columnCount(const QModelIndex& index /*= QModelIndex()*/) con
   return 3;
 }
 
-ezQtCVarModel::Entry* ezQtCVarModel::CreateEntry(const char* name)
+ezQtCVarModel::Entry* ezQtCVarModel::CreateEntry(const char* szName)
 {
-  ezStringBuilder tmp = name;
+  ezStringBuilder tmp = szName;
   ezStringBuilder tmp2;
 
   ezHybridArray<ezStringView, 8> pieces;
@@ -452,7 +452,7 @@ ezQtCVarModel::Entry* ezQtCVarModel::CreateEntry(const char* name)
 
     {
       auto& newItem = m_AllEntries.ExpandAndGetRef();
-      newItem.m_sFullName = name;
+      newItem.m_sFullName = szName;
       newItem.m_sDisplayString = piece;
       newItem.m_pParentEntry = parentEntry;
 
@@ -467,7 +467,7 @@ ezQtCVarModel::Entry* ezQtCVarModel::CreateEntry(const char* name)
   return parentEntry;
 }
 
-QWidget* ezQtCVarItemDelegate::createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& idx) const
+QWidget* ezQtCVarItemDelegate::createEditor(QWidget* pParent, const QStyleOptionViewItem& option, const QModelIndex& idx) const
 {
   m_Index = static_cast<const QSortFilterProxyModel*>(idx.model())->mapToSource(idx);
   ezQtCVarModel::Entry* e = reinterpret_cast<ezQtCVarModel::Entry*>(m_Index.internalPointer());
@@ -477,7 +477,7 @@ QWidget* ezQtCVarItemDelegate::createEditor(QWidget* parent, const QStyleOptionV
 
   if (e->m_Value.IsA<bool>())
   {
-    QComboBox* ret = new QComboBox(parent);
+    QComboBox* ret = new QComboBox(pParent);
     ret->addItem("true");
     ret->addItem("false");
 
@@ -487,14 +487,14 @@ QWidget* ezQtCVarItemDelegate::createEditor(QWidget* parent, const QStyleOptionV
 
   if (e->m_Value.IsA<ezInt32>())
   {
-    QLineEdit* ret = new QLineEdit(parent);
+    QLineEdit* ret = new QLineEdit(pParent);
     ret->setValidator(new QIntValidator(ret));
     return ret;
   }
 
   if (e->m_Value.IsA<float>())
   {
-    QLineEdit* ret = new QLineEdit(parent);
+    QLineEdit* ret = new QLineEdit(pParent);
     auto val = new QDoubleValidator(ret);
     val->setDecimals(3);
     ret->setValidator(val);
@@ -503,18 +503,18 @@ QWidget* ezQtCVarItemDelegate::createEditor(QWidget* parent, const QStyleOptionV
 
   if (e->m_Value.IsA<ezString>())
   {
-    QLineEdit* ret = new QLineEdit(parent);
+    QLineEdit* ret = new QLineEdit(pParent);
     return ret;
   }
 
   return nullptr;
 }
 
-void ezQtCVarItemDelegate::setEditorData(QWidget* editor, const QModelIndex& index) const
+void ezQtCVarItemDelegate::setEditorData(QWidget* pEditor, const QModelIndex& index) const
 {
   QVariant value = index.model()->data(index, Qt::EditRole);
 
-  if (QLineEdit* pLine = qobject_cast<QLineEdit*>(editor))
+  if (QLineEdit* pLine = qobject_cast<QLineEdit*>(pEditor))
   {
     if (value.type() == QVariant::Type::Double)
     {
@@ -530,23 +530,23 @@ void ezQtCVarItemDelegate::setEditorData(QWidget* editor, const QModelIndex& ind
     pLine->selectAll();
   }
 
-  if (QComboBox* pLine = qobject_cast<QComboBox*>(editor))
+  if (QComboBox* pLine = qobject_cast<QComboBox*>(pEditor))
   {
     pLine->setCurrentIndex(value.toBool() ? 0 : 1);
     pLine->showPopup();
   }
 }
 
-void ezQtCVarItemDelegate::setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const
+void ezQtCVarItemDelegate::setModelData(QWidget* pEditor, QAbstractItemModel* pModel, const QModelIndex& index) const
 {
-  if (QLineEdit* pLine = qobject_cast<QLineEdit*>(editor))
+  if (QLineEdit* pLine = qobject_cast<QLineEdit*>(pEditor))
   {
-    model->setData(index, pLine->text(), Qt::EditRole);
+    pModel->setData(index, pLine->text(), Qt::EditRole);
   }
 
-  if (QComboBox* pLine = qobject_cast<QComboBox*>(editor))
+  if (QComboBox* pLine = qobject_cast<QComboBox*>(pEditor))
   {
-    model->setData(index, pLine->currentText(), Qt::EditRole);
+    pModel->setData(index, pLine->currentText(), Qt::EditRole);
   }
 }
 

@@ -139,15 +139,15 @@ void ezActorManager::DestroyAllActors(const void* pCreatedBy, DestructionMode mo
   }
 }
 
-void ezActorManager::GetAllActors(ezHybridArray<ezActor*, 8>& out_AllActors)
+void ezActorManager::GetAllActors(ezHybridArray<ezActor*, 8>& out_allActors)
 {
   EZ_LOCK(m_pImpl->m_Mutex);
 
-  out_AllActors.Clear();
+  out_allActors.Clear();
 
   for (auto& pActor : m_pImpl->m_AllActors)
   {
-    out_AllActors.PushBack(pActor.Borrow());
+    out_allActors.PushBack(pActor.Borrow());
   }
 }
 

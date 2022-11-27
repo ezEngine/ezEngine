@@ -135,14 +135,14 @@ public:
   const ezTestResultData& GetTestResultData(ezUInt32 uiTestIndex, ezInt32 iSubTestIndex) const;
 
   // Test output
-  void TestOutput(ezUInt32 uiTestIndex, ezInt32 iSubTestIndex, ezTestOutput::Enum Type, const char* szMsg);
+  void TestOutput(ezUInt32 uiTestIndex, ezInt32 iSubTestIndex, ezTestOutput::Enum type, const char* szMsg);
   void TestError(ezUInt32 uiTestIndex, ezInt32 iSubTestIndex, const char* szError, const char* szBlock, const char* szFile, ezInt32 iLine,
     const char* szFunction, const char* szMsg);
   void TestResult(ezUInt32 uiTestIndex, ezInt32 iSubTestIndex, bool bSuccess, double fDuration);
   void AddAsserts(ezUInt32 uiTestIndex, ezInt32 iSubTestIndex, int iCount);
 
   // Messages / Errors
-  ezUInt32 GetOutputMessageCount(ezInt32 iTestIndex = -1, ezInt32 iSubTestIndex = -1, ezTestOutput::Enum Type = ezTestOutput::AllOutputTypes) const;
+  ezUInt32 GetOutputMessageCount(ezInt32 iTestIndex = -1, ezInt32 iSubTestIndex = -1, ezTestOutput::Enum type = ezTestOutput::AllOutputTypes) const;
   const ezTestOutputMessage* GetOutputMessage(ezUInt32 uiOutputMessageIdx) const;
 
   ezUInt32 GetErrorMessageCount(ezInt32 iTestIndex = -1, ezInt32 iSubTestIndex = -1) const;

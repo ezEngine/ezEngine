@@ -73,24 +73,24 @@ void ezColorGradientResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
   out_NewMemoryUsage.m_uiMemoryCPU = static_cast<ezUInt32>(m_Descriptor.m_Gradient.GetHeapMemoryUsage()) + static_cast<ezUInt32>(sizeof(m_Descriptor));
 }
 
-void ezColorGradientResourceDescriptor::Save(ezStreamWriter& stream) const
+void ezColorGradientResourceDescriptor::Save(ezStreamWriter& inout_stream) const
 {
   const ezUInt8 uiVersion = 1;
 
-  stream << uiVersion;
+  inout_stream << uiVersion;
 
-  m_Gradient.Save(stream);
+  m_Gradient.Save(inout_stream);
 }
 
-void ezColorGradientResourceDescriptor::Load(ezStreamReader& stream)
+void ezColorGradientResourceDescriptor::Load(ezStreamReader& inout_stream)
 {
   ezUInt8 uiVersion = 0;
 
-  stream >> uiVersion;
+  inout_stream >> uiVersion;
 
   EZ_ASSERT_DEV(uiVersion == 1, "Invalid file version {0}", uiVersion);
 
-  m_Gradient.Load(stream);
+  m_Gradient.Load(inout_stream);
 }
 
 

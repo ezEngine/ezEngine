@@ -62,9 +62,9 @@ const ezWorld* ezComponent::GetWorld() const
   return m_pManager->GetWorld();
 }
 
-void ezComponent::SerializeComponent(ezWorldWriter& stream) const {}
+void ezComponent::SerializeComponent(ezWorldWriter& inout_stream) const {}
 
-void ezComponent::DeserializeComponent(ezWorldReader& stream) {}
+void ezComponent::DeserializeComponent(ezWorldReader& inout_stream) {}
 
 void ezComponent::EnsureInitialized()
 {
@@ -206,18 +206,18 @@ bool ezComponent::OnUnhandledMessage(ezMessage& msg, bool bWasPostedMsg) const
   return false;
 }
 
-void ezComponent::SetUserFlag(ezUInt8 flagIndex, bool set)
+void ezComponent::SetUserFlag(ezUInt8 uiFlagIndex, bool bSet)
 {
-  EZ_ASSERT_DEBUG(flagIndex < 8, "Flag index {0} is out of the valid range [0 - 7]", flagIndex);
+  EZ_ASSERT_DEBUG(uiFlagIndex < 8, "Flag index {0} is out of the valid range [0 - 7]", uiFlagIndex);
 
-  m_ComponentFlags.AddOrRemove(static_cast<ezObjectFlags::Enum>(ezObjectFlags::UserFlag0 << flagIndex), set);
+  m_ComponentFlags.AddOrRemove(static_cast<ezObjectFlags::Enum>(ezObjectFlags::UserFlag0 << uiFlagIndex), bSet);
 }
 
-bool ezComponent::GetUserFlag(ezUInt8 flagIndex) const
+bool ezComponent::GetUserFlag(ezUInt8 uiFlagIndex) const
 {
-  EZ_ASSERT_DEBUG(flagIndex < 8, "Flag index {0} is out of the valid range [0 - 7]", flagIndex);
+  EZ_ASSERT_DEBUG(uiFlagIndex < 8, "Flag index {0} is out of the valid range [0 - 7]", uiFlagIndex);
 
-  return m_ComponentFlags.IsSet(static_cast<ezObjectFlags::Enum>(ezObjectFlags::UserFlag0 << flagIndex));
+  return m_ComponentFlags.IsSet(static_cast<ezObjectFlags::Enum>(ezObjectFlags::UserFlag0 << uiFlagIndex));
 }
 
 

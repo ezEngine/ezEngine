@@ -405,11 +405,11 @@ namespace ezMath
     return 0.0;
   }
 
-  inline double GetCurveValue(ezCurveFunction function, double x, bool inverse)
+  inline double GetCurveValue(ezCurveFunction function, double x, bool bInverse)
   {
     double value = GetCurveValue(function, x);
 
-    return inverse ? (1.0 - value) : value;
+    return bInverse ? (1.0 - value) : value;
   }
 
 } // namespace ezMath

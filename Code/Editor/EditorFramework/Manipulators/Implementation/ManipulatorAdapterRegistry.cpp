@@ -43,11 +43,11 @@ ezManipulatorAdapterRegistry::~ezManipulatorAdapterRegistry()
   }
 }
 
-void ezManipulatorAdapterRegistry::QueryGridSettings(const ezDocument* pDocument, ezGridSettingsMsgToEngine& outGridSettings)
+void ezManipulatorAdapterRegistry::QueryGridSettings(const ezDocument* pDocument, ezGridSettingsMsgToEngine& out_gridSettings)
 {
   for (auto& adapt : m_DocumentAdapters[pDocument].m_Adapters)
   {
-    adapt->QueryGridSettings(outGridSettings);
+    adapt->QueryGridSettings(out_gridSettings);
   }
 }
 

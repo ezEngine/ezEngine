@@ -71,7 +71,7 @@ void ezReflectionPool::UpdateReflectionProbe(const ezWorld* pWorld, ezReflection
   data.m_mapping.UpdateProbe(id, probeData.m_Flags);
 }
 
-void ezReflectionPool::ExtractReflectionProbe(const ezComponent* pComponent, ezMsgExtractRenderData& msg, ezReflectionProbeRenderData* pRenderData0, const ezWorld* pWorld, ezReflectionProbeId id, float fPriority)
+void ezReflectionPool::ExtractReflectionProbe(const ezComponent* pComponent, ezMsgExtractRenderData& ref_msg, ezReflectionProbeRenderData* pRenderData0, const ezWorld* pWorld, ezReflectionProbeId id, float fPriority)
 {
   EZ_LOCK(s_pData->m_Mutex);
   s_pData->m_ReflectionProbeUpdater.ScheduleUpdateSteps();
@@ -98,14 +98,14 @@ void ezReflectionPool::ExtractReflectionProbe(const ezComponent* pComponent, ezM
   {
     // Index and flags are stored in m_uiIndex so we can't just overwrite it.
     pRenderData0->m_uiIndex |= (ezUInt32)iMappedIndex;
-    msg.AddRenderData(pRenderData0, ezDefaultRenderDataCategories::ReflectionProbe, ezRenderData::Caching::Never);
+    ref_msg.AddRenderData(pRenderData0, ezDefaultRenderDataCategories::ReflectionProbe, ezRenderData::Caching::Never);
   }
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   const ezUInt32 uiMipLevels = GetMipLevels();
   if (probeData.m_desc.m_bShowDebugInfo && s_pData->m_hDebugMaterial.GetCount() == uiMipLevels * s_uiNumReflectionProbeCubeMaps)
   {
-    if (msg.m_OverrideCategory == ezInvalidRenderDataCategory)
+    if (ref_msg.m_OverrideCategory == ezInvalidRenderDataCategory)
     {
       ezInt32 activeIndex = 0;
       if (s_pData->m_ActiveDynamicUpdate.Contains(ezReflectionProbeRef{uiWorldIndex, id}))
@@ -146,7 +146,7 @@ void ezReflectionPool::ExtractReflectionProbe(const ezComponent* pComponent, ezM
       pRenderData->m_uiUniqueID = ezRenderComponent::GetUniqueIdForRendering(pComponent, 0);
 
       pRenderData->FillBatchIdAndSortingKey();
-      msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::LitOpaque, ezRenderData::Caching::Never);
+      ref_msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::LitOpaque, ezRenderData::Caching::Never);
     }
   }
 #endif
@@ -155,7 +155,7 @@ void ezReflectionPool::ExtractReflectionProbe(const ezComponent* pComponent, ezM
 //////////////////////////////////////////////////////////////////////////
 /// SkyLight
 
-ezReflectionProbeId ezReflectionPool::RegisterSkyLight(const ezWorld* pWorld, ezReflectionProbeDesc& desc, const ezSkyLightComponent* pComponent)
+ezReflectionProbeId ezReflectionPool::RegisterSkyLight(const ezWorld* pWorld, ezReflectionProbeDesc& ref_desc, const ezSkyLightComponent* pComponent)
 {
   EZ_LOCK(s_pData->m_Mutex);
   const ezUInt32 uiWorldIndex = pWorld->GetIndex();
@@ -163,7 +163,7 @@ ezReflectionProbeId ezReflectionPool::RegisterSkyLight(const ezWorld* pWorld, ez
   s_pData->m_uiSkyIrradianceChanged |= EZ_BIT(uiWorldIndex);
 
   Data::ProbeData probe;
-  s_pData->UpdateSkyLightData(probe, desc, pComponent);
+  s_pData->UpdateSkyLightData(probe, ref_desc, pComponent);
 
   ezReflectionProbeId id = s_pData->AddProbe(pWorld, std::move(probe));
   return id;

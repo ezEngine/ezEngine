@@ -42,22 +42,22 @@ public:
   const ezHybridArray<ezTreeNode<T>*, 8>& GetChildren() const { return m_Children; }
   ezHybridArray<ezTreeNode<T>*, 8>& GetChildren() { return m_Children; }
 
-  ezTreeNode<T>* InsertChild(const T& data, ezUInt32 iIndex)
+  ezTreeNode<T>* InsertChild(const T& data, ezUInt32 uiIndex)
   {
     ezTreeNode<T>* pNode = EZ_DEFAULT_NEW(ezTreeNode<T>, data);
     pNode->m_Guid.CreateNewUuid();
-    m_Children.Insert(pNode, iIndex);
+    m_Children.Insert(pNode, uiIndex);
     pNode->m_pParent = this;
     return pNode;
   }
 
-  bool RemoveChild(ezUInt32 iIndex)
+  bool RemoveChild(ezUInt32 uiIndex)
   {
-    if (iIndex > m_Children.GetCount())
+    if (uiIndex > m_Children.GetCount())
       return false;
 
-    ezTreeNode<T>* pChild = m_Children[iIndex];
-    m_Children.RemoveAtAndCopy(iIndex);
+    ezTreeNode<T>* pChild = m_Children[uiIndex];
+    m_Children.RemoveAtAndCopy(uiIndex);
     EZ_DEFAULT_DELETE(pChild);
     return true;
   }
@@ -90,7 +90,7 @@ public:
   ezActionMap();
   ~ezActionMap();
 
-  void MapAction(ezActionDescriptorHandle hAction, const char* szPath, float m_fOrder);
+  void MapAction(ezActionDescriptorHandle hAction, const char* szPath, float fM_fOrder);
   ezUuid MapAction(const ezActionMapDescriptor& desc);
   ezResult UnmapAction(ezActionDescriptorHandle hAction, const char* szPath);
   ezResult UnmapAction(const ezActionMapDescriptor& desc);

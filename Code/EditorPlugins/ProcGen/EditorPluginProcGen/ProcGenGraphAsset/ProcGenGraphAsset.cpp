@@ -106,7 +106,7 @@ void ezProcGenGraphAssetDocument::SetDebugPin(const ezPin* pDebugPin)
   GetObjectManager()->m_PropertyEvents.Broadcast(e);
 }
 
-ezStatus ezProcGenGraphAssetDocument::WriteAsset(ezStreamWriter& stream, const ezPlatformProfile* pAssetProfile, bool bAllowDebug) const
+ezStatus ezProcGenGraphAssetDocument::WriteAsset(ezStreamWriter& inout_stream, const ezPlatformProfile* pAssetProfile, bool bAllowDebug) const
 {
   GenerateContext context(GetObjectManager());
 
@@ -116,7 +116,7 @@ ezStatus ezProcGenGraphAssetDocument::WriteAsset(ezStreamWriter& stream, const e
 
   const bool bDebug = bAllowDebug && (m_pDebugPin != nullptr);
 
-  ezStringDeduplicationWriteContext stringDedupContext(stream);
+  ezStringDeduplicationWriteContext stringDedupContext(inout_stream);
 
   ezChunkStreamWriter chunk(stringDedupContext.Begin());
   chunk.BeginStream(1);

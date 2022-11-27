@@ -67,8 +67,8 @@ private:
   ~ezShaderConstantBufferLayout();
 
 public:
-  ezResult Write(ezStreamWriter& stream) const;
-  ezResult Read(ezStreamReader& stream);
+  ezResult Write(ezStreamWriter& inout_stream) const;
+  ezResult Read(ezStreamReader& inout_stream);
 
   ezUInt32 m_uiTotalSize;
   ezHybridArray<Constant, 16> m_Constants;
@@ -107,8 +107,8 @@ public:
   ezShaderStageBinary();
   ~ezShaderStageBinary();
 
-  ezResult Write(ezStreamWriter& Stream) const;
-  ezResult Read(ezStreamReader& Stream);
+  ezResult Write(ezStreamWriter& inout_stream) const;
+  ezResult Read(ezStreamReader& inout_stream);
 
   ezDynamicArray<ezUInt8>& GetByteCode();
 

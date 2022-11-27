@@ -78,7 +78,7 @@ ezSoundBankAssetDocumentManager::~ezSoundBankAssetDocumentManager()
   m_pFmod.Clear();
 }
 
-void ezSoundBankAssetDocumentManager::FillOutSubAssetList(const ezAssetDocumentInfo& assetInfo, ezHybridArray<ezSubAssetData, 4>& out_SubAssets) const
+void ezSoundBankAssetDocumentManager::FillOutSubAssetList(const ezAssetDocumentInfo& assetInfo, ezHybridArray<ezSubAssetData, 4>& out_subAssets) const
 {
   ezHashedString sAssetsDocumentTypeName;
   sAssetsDocumentTypeName.Assign("Sound Event");
@@ -167,7 +167,7 @@ void ezSoundBankAssetDocumentManager::FillOutSubAssetList(const ezAssetDocumentI
           sGuidNoSpace = sGuid;
           sGuidNoSpace.ReplaceAll(" ", "");
 
-          auto& sub = out_SubAssets.ExpandAndGetRef();
+          auto& sub = out_subAssets.ExpandAndGetRef();
           sub.m_Guid = *ezGuid;
           sub.m_sName = sEventName;
           sub.m_sSubAssetsDocumentTypeName = sAssetsDocumentTypeName;

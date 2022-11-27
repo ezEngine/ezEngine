@@ -11,7 +11,7 @@ class ezQtExportAndRunDlg : public QDialog, public Ui_ExportAndRunDlg
   Q_OBJECT
 
 public:
-  ezQtExportAndRunDlg(QWidget* parent);
+  ezQtExportAndRunDlg(QWidget* pParent);
 
   static bool s_bTransformAll;
   static bool s_bUpdateThumbnail;

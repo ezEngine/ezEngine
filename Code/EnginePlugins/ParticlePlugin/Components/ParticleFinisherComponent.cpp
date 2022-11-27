@@ -55,11 +55,11 @@ void ezParticleFinisherComponent::OnDeactivated()
   ezRenderComponent::OnDeactivated();
 }
 
-ezResult ezParticleFinisherComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg)
+ezResult ezParticleFinisherComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg)
 {
   if (m_EffectController.IsAlive())
   {
-    m_EffectController.GetBoundingVolume(bounds);
+    m_EffectController.GetBoundingVolume(ref_bounds);
     return EZ_SUCCESS;
   }
 

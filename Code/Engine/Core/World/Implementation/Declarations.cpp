@@ -28,22 +28,22 @@ EZ_END_STATIC_REFLECTED_ENUM;
 
 //////////////////////////////////////////////////////////////////////////
 
-void operator<<(ezStreamWriter& Stream, const ezGameObjectHandle& Value)
+void operator<<(ezStreamWriter& inout_stream, const ezGameObjectHandle& hValue)
 {
   EZ_ASSERT_DEV(false, "This function should not be called. Use ezWorldWriter::WriteGameObjectHandle instead.");
 }
 
-void operator>>(ezStreamReader& Stream, ezGameObjectHandle& Value)
+void operator>>(ezStreamReader& inout_stream, ezGameObjectHandle& ref_hValue)
 {
   EZ_ASSERT_DEV(false, "This function should not be called. Use ezWorldReader::ReadGameObjectHandle instead.");
 }
 
-void operator<<(ezStreamWriter& Stream, const ezComponentHandle& Value)
+void operator<<(ezStreamWriter& inout_stream, const ezComponentHandle& hValue)
 {
   EZ_ASSERT_DEV(false, "This function should not be called. Use ezWorldWriter::WriteComponentHandle instead.");
 }
 
-void operator>>(ezStreamReader& Stream, ezComponentHandle& Value)
+void operator>>(ezStreamReader& inout_stream, ezComponentHandle& ref_hValue)
 {
   EZ_ASSERT_DEV(false, "This function should not be called. Use ezWorldReader::ReadComponentHandle instead.");
 }
@@ -89,16 +89,16 @@ namespace
   }
 
   template <typename T>
-  void HandleDeleteObjectMsgImpl(ezMsgDeleteGameObject& msg, ezEnum<T>& action)
+  void HandleDeleteObjectMsgImpl(ezMsgDeleteGameObject& ref_msg, ezEnum<T>& ref_action)
   {
-    if (action == T::DeleteComponent)
+    if (ref_action == T::DeleteComponent)
     {
-      msg.m_bCancel = true;
-      action = T::DeleteGameObject;
+      ref_msg.m_bCancel = true;
+      ref_action = T::DeleteGameObject;
     }
-    else if (action == T::DeleteGameObject)
+    else if (ref_action == T::DeleteGameObject)
     {
-      msg.m_bCancel = true;
+      ref_msg.m_bCancel = true;
     }
   }
 } // namespace
@@ -110,9 +110,9 @@ void ezOnComponentFinishedAction::HandleFinishedAction(ezComponent* pComponent, 
   HandleFinishedActionImpl<ezOnComponentFinishedAction>(pComponent, action);
 }
 
-void ezOnComponentFinishedAction::HandleDeleteObjectMsg(ezMsgDeleteGameObject& msg, ezEnum<ezOnComponentFinishedAction>& action)
+void ezOnComponentFinishedAction::HandleDeleteObjectMsg(ezMsgDeleteGameObject& ref_msg, ezEnum<ezOnComponentFinishedAction>& ref_action)
 {
-  HandleDeleteObjectMsgImpl(msg, action);
+  HandleDeleteObjectMsgImpl(ref_msg, ref_action);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -122,9 +122,9 @@ void ezOnComponentFinishedAction2::HandleFinishedAction(ezComponent* pComponent,
   HandleFinishedActionImpl<ezOnComponentFinishedAction2>(pComponent, action);
 }
 
-void ezOnComponentFinishedAction2::HandleDeleteObjectMsg(ezMsgDeleteGameObject& msg, ezEnum<ezOnComponentFinishedAction2>& action)
+void ezOnComponentFinishedAction2::HandleDeleteObjectMsg(ezMsgDeleteGameObject& ref_msg, ezEnum<ezOnComponentFinishedAction2>& ref_action)
 {
-  HandleDeleteObjectMsgImpl(msg, action);
+  HandleDeleteObjectMsgImpl(ref_msg, ref_action);
 }
 
 EZ_STATICLINK_FILE(Core, Core_World_Implementation_Declarations);

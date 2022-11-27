@@ -60,7 +60,7 @@ public:
   static void ClearApplicationPreferences();
 
   //// \brief Fills the list with all currently known preferences
-  static void GatherAllPreferences(ezHybridArray<ezPreferences*, 16>& out_AllPreferences);
+  static void GatherAllPreferences(ezHybridArray<ezPreferences*, 16>& out_allPreferences);
 
   /// \brief Whether the preferences are app, project or document specific
   Domain GetDomain() const { return m_Domain; }

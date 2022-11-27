@@ -117,7 +117,7 @@ ezArrayPtr<const T> ezMakeArrayPtr(const ezDynamicArray<T, AllocatorWrapper>& dy
 
 /// Overload of ezMakeArrayPtr for dynamic arrays.
 template <typename T, typename AllocatorWrapper>
-ezArrayPtr<T> ezMakeArrayPtr(ezDynamicArray<T, AllocatorWrapper>& dynArray);
+ezArrayPtr<T> ezMakeArrayPtr(ezDynamicArray<T, AllocatorWrapper>& in_dynArray);
 
 
 EZ_CHECK_AT_COMPILETIME_MSG(ezGetTypeClass<ezDynamicArray<int>>::value == 2, "dynamic array is not memory relocatable");

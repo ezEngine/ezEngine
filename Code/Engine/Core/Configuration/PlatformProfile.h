@@ -33,8 +33,8 @@ public:
   ezProfileConfigData();
   ~ezProfileConfigData();
 
-  virtual void SaveRuntimeData(ezChunkStreamWriter& stream) const;
-  virtual void LoadRuntimeData(ezChunkStreamReader& stream);
+  virtual void SaveRuntimeData(ezChunkStreamWriter& inout_stream) const;
+  virtual void LoadRuntimeData(ezChunkStreamReader& inout_stream);
 };
 
 //////////////////////////////////////////////////////////////////////////

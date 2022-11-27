@@ -3,8 +3,8 @@
 #include <EditorFramework/Dialogs/LaunchFileserveDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 
-ezQtLaunchFileserveDlg::ezQtLaunchFileserveDlg(QWidget* parent)
-  : QDialog(parent)
+ezQtLaunchFileserveDlg::ezQtLaunchFileserveDlg(QWidget* pParent)
+  : QDialog(pParent)
 {
   setupUi(this);
 }

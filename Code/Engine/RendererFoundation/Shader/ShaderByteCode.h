@@ -14,7 +14,7 @@ class EZ_RENDERERFOUNDATION_DLL ezGALShaderByteCode : public ezRefCounted
 public:
   ezGALShaderByteCode();
 
-  ezGALShaderByteCode(const ezArrayPtr<const ezUInt8>& pByteCode);
+  ezGALShaderByteCode(const ezArrayPtr<const ezUInt8>& byteCode);
 
   inline const void* GetByteCode() const;
 

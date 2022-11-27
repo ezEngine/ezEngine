@@ -8,11 +8,11 @@ template <typename POINTTYPE>
 class ezPointOfInterestGraph
 {
 public:
-  void Initialize(const ezVec3& center, const ezVec3& halfExtents, float cellSize = 1.0f);
+  void Initialize(const ezVec3& vCenter, const ezVec3& vHalfExtents, float fCellSize = 1.0f);
 
-  POINTTYPE& AddPoint(const ezVec3& position);
+  POINTTYPE& AddPoint(const ezVec3& vPosition);
 
-  void FindPointsOfInterest(const ezVec3& position, float radius, ezDynamicArray<ezUInt32>& out_Points) const;
+  void FindPointsOfInterest(const ezVec3& vPosition, float fRadius, ezDynamicArray<ezUInt32>& out_points) const;
 
   const ezDeque<POINTTYPE>& GetPoints() const { return m_Points; }
   ezDeque<POINTTYPE>& AccessPoints() { return m_Points; }

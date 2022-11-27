@@ -21,8 +21,8 @@ public:
   ezParticleEmitter* CreateEmitter(ezParticleSystemInstance* pOwner) const;
   virtual void QueryMaxParticleCount(ezUInt32& out_uiMaxParticlesAbs, ezUInt32& out_uiMaxParticlesPerSecond) const = 0;
 
-  virtual void Save(ezStreamWriter& stream) const = 0;
-  virtual void Load(ezStreamReader& stream) = 0;
+  virtual void Save(ezStreamWriter& inout_stream) const = 0;
+  virtual void Load(ezStreamReader& inout_stream) = 0;
 };
 
 enum class ezParticleEmitterState

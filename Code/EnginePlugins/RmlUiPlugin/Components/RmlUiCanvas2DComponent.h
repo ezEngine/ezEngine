@@ -37,13 +37,13 @@ public:
   void SetRmlResource(const ezRmlUiResourceHandle& hResource);
   const ezRmlUiResourceHandle& GetRmlResource() const { return m_hResource; }
 
-  void SetOffset(const ezVec2I32& offset);                // [ property ]
+  void SetOffset(const ezVec2I32& vOffset);                // [ property ]
   const ezVec2I32& GetOffset() const { return m_vOffset; } // [ property ]
 
-  void SetSize(const ezVec2U32& size);                // [ property ]
+  void SetSize(const ezVec2U32& vSize);                // [ property ]
   const ezVec2U32& GetSize() const { return m_vSize; } // [ property ]
 
-  void SetAnchorPoint(const ezVec2& anchorPoint);                // [ property ]
+  void SetAnchorPoint(const ezVec2& vAnchorPoint);                // [ property ]
   const ezVec2& GetAnchorPoint() const { return m_vAnchorPoint; } // [ property ]
 
   void SetPassInput(bool bPassInput);                // [ property ]
@@ -53,7 +53,7 @@ public:
   void SetAutobindBlackboards(bool bAutobind);                           // [ property ]
   bool GetAutobindBlackboards() const { return m_bAutobindBlackboards; } // [ property ]
 
-  ezUInt32 AddDataBinding(ezUniquePtr<ezRmlUiDataBinding>&& dataBinding);
+  ezUInt32 AddDataBinding(ezUniquePtr<ezRmlUiDataBinding>&& pDataBinding);
   void RemoveDataBinding(ezUInt32 uiDataBindingIndex);
 
   /// \brief Adds the given blackboard as data binding. The name of the board is used as model name for the binding.
@@ -63,10 +63,10 @@ public:
   ezRmlUiContext* GetOrCreateRmlContext();
   ezRmlUiContext* GetRmlContext() { return m_pContext; }
 
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
-  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg) override;
+  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg) override;
 
 protected:
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;

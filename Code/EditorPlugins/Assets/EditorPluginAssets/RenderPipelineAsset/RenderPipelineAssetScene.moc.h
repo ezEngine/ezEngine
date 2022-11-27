@@ -11,7 +11,7 @@ class ezQtRenderPipelineAssetScene : public ezQtNodeScene
   Q_OBJECT
 
 public:
-  ezQtRenderPipelineAssetScene(QObject* parent = nullptr);
+  ezQtRenderPipelineAssetScene(QObject* pParent = nullptr);
   ~ezQtRenderPipelineAssetScene();
 };
 

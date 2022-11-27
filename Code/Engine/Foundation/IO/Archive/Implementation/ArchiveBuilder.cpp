@@ -92,9 +92,9 @@ ezResult ezArchiveBuilder::WriteArchive(ezStringView sFile) const
   return WriteArchive(file);
 }
 
-ezResult ezArchiveBuilder::WriteArchive(ezStreamWriter& stream) const
+ezResult ezArchiveBuilder::WriteArchive(ezStreamWriter& inout_stream) const
 {
-  EZ_SUCCEED_OR_RETURN(ezArchiveUtils::WriteHeader(stream));
+  EZ_SUCCEED_OR_RETURN(ezArchiveUtils::WriteHeader(inout_stream));
 
   ezArchiveTOC toc;
 
@@ -122,12 +122,12 @@ ezResult ezArchiveBuilder::WriteArchive(ezStreamWriter& stream) const
 
     ezArchiveEntry& tocEntry = toc.m_Entries.ExpandAndGetRef();
 
-    EZ_SUCCEED_OR_RETURN(ezArchiveUtils::WriteEntryOptimal(stream, e.m_sAbsSourcePath, uiPathStringOffset, e.m_CompressionMode, e.m_iCompressionLevel, tocEntry, uiStreamSize, ezMakeDelegate(&ezArchiveBuilder::WriteFileProgressCallback, this)));
+    EZ_SUCCEED_OR_RETURN(ezArchiveUtils::WriteEntryOptimal(inout_stream, e.m_sAbsSourcePath, uiPathStringOffset, e.m_CompressionMode, e.m_iCompressionLevel, tocEntry, uiStreamSize, ezMakeDelegate(&ezArchiveBuilder::WriteFileProgressCallback, this)));
 
     WriteFileResultCallback(i + 1, uiNumEntries, e.m_sAbsSourcePath, tocEntry.m_uiUncompressedDataSize, tocEntry.m_uiStoredDataSize, sw.Checkpoint());
   }
 
-  EZ_SUCCEED_OR_RETURN(ezArchiveUtils::AppendTOC(stream, toc));
+  EZ_SUCCEED_OR_RETURN(ezArchiveUtils::AppendTOC(inout_stream, toc));
 
   return EZ_SUCCESS;
 }

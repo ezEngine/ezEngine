@@ -23,8 +23,8 @@ class EZ_GAMEENGINE_DLL ezTimedDeathComponent : public ezComponent
   // ezComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
 protected:
   /// \brief Once this function has been executed, the timeout for deletion is fixed and cannot be reset.

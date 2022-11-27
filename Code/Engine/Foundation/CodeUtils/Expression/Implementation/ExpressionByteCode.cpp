@@ -181,10 +181,10 @@ namespace
 
 } // namespace
 
-const char* ezExpressionByteCode::OpCode::GetName(Enum opCode)
+const char* ezExpressionByteCode::OpCode::GetName(Enum code)
 {
-  EZ_ASSERT_DEBUG(opCode >= 0 && opCode < EZ_ARRAY_SIZE(s_szOpCodeNames), "Out of bounds access");
-  return s_szOpCodeNames[opCode];
+  EZ_ASSERT_DEBUG(code >= 0 && code < EZ_ARRAY_SIZE(s_szOpCodeNames), "Out of bounds access");
+  return s_szOpCodeNames[code];
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -244,8 +244,8 @@ void ezExpressionByteCode::Disassemble(ezStringBuilder& out_sDisassembly) const
   out_sDisassembly.AppendFormat("\n// Temp Registers: {}\n", m_uiNumTempRegisters);
   out_sDisassembly.AppendFormat("// Instructions: {}\n\n", m_uiNumInstructions);
 
-  auto AppendConstant = [](ezUInt32 x, ezStringBuilder& out_String) {
-    out_String.AppendFormat("0x{}({})", ezArgU(x, 8, true, 16), ezArgF(*reinterpret_cast<float*>(&x), 6));
+  auto AppendConstant = [](ezUInt32 x, ezStringBuilder& out_sString) {
+    out_sString.AppendFormat("0x{}({})", ezArgU(x, 8, true, 16), ezArgF(*reinterpret_cast<float*>(&x), 6));
   };
 
   const StorageType* pByteCode = GetByteCode();
@@ -360,9 +360,9 @@ void ezExpressionByteCode::Disassemble(ezStringBuilder& out_sDisassembly) const
 static constexpr ezUInt32 s_uiMetaDataVersion = 4;
 static constexpr ezUInt32 s_uiCodeVersion = 3;
 
-void ezExpressionByteCode::Save(ezStreamWriter& stream) const
+void ezExpressionByteCode::Save(ezStreamWriter& inout_stream) const
 {
-  ezChunkStreamWriter chunk(stream);
+  ezChunkStreamWriter chunk(inout_stream);
 
   chunk.BeginStream(1);
 
@@ -390,9 +390,9 @@ void ezExpressionByteCode::Save(ezStreamWriter& stream) const
   chunk.EndStream();
 }
 
-ezResult ezExpressionByteCode::Load(ezStreamReader& stream)
+ezResult ezExpressionByteCode::Load(ezStreamReader& inout_stream)
 {
-  ezChunkStreamReader chunk(stream);
+  ezChunkStreamReader chunk(inout_stream);
   chunk.SetEndChunkFileMode(ezChunkStreamReader::EndChunkFileMode::SkipToEnd);
 
   chunk.BeginStream();

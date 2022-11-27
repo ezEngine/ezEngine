@@ -21,7 +21,7 @@ ezQtSkeletonPanel::ezQtSkeletonPanel(QWidget* pParent, ezSkeletonAssetDocument* 
   m_pMainWidget->layout()->setContentsMargins(0, 0, 0, 0);
   m_pFilterWidget = new ezQtSearchWidget(this);
   connect(m_pFilterWidget, &ezQtSearchWidget::textChanged, this,
-    [this](const QString& text) { m_pTreeWidget->GetProxyFilterModel()->SetFilterText(text); });
+    [this](const QString& sText) { m_pTreeWidget->GetProxyFilterModel()->SetFilterText(sText); });
 
   m_pMainWidget->layout()->addWidget(m_pFilterWidget);
 

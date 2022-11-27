@@ -18,7 +18,7 @@ namespace ezRmlUiInternal
 class EZ_RMLUIPLUGIN_DLL ezRmlUiContext final : public Rml::Context
 {
 public:
-  ezRmlUiContext(const Rml::String& name);
+  ezRmlUiContext(const Rml::String& sName);
   ~ezRmlUiContext();
 
 public:
@@ -31,11 +31,11 @@ public:
   void ShowDocument();
   void HideDocument();
 
-  void UpdateInput(const ezVec2& mousePos);
+  void UpdateInput(const ezVec2& vMousePos);
   bool WantsInput() const { return m_bWantsInput; }
 
-  void SetOffset(const ezVec2I32& offset);
-  void SetSize(const ezVec2U32& size);
+  void SetOffset(const ezVec2I32& vOffset);
+  void SetSize(const ezVec2U32& vSize);
   void SetDpiScale(float fScale);
 
   using EventHandler = ezDelegate<void(Rml::Event&)>;
@@ -67,8 +67,8 @@ namespace ezRmlUiInternal
   class ContextInstancer : public Rml::ContextInstancer
   {
   public:
-    virtual Rml::ContextPtr InstanceContext(const Rml::String& name) override;
-    virtual void ReleaseContext(Rml::Context* context) override;
+    virtual Rml::ContextPtr InstanceContext(const Rml::String& sName) override;
+    virtual void ReleaseContext(Rml::Context* pContext) override;
 
   private:
     virtual void Release() override;

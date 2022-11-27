@@ -21,7 +21,7 @@ public:
   static bool IsPathSeparator(ezUInt32 c); // [tested]
 
   /// \brief Checks if a given character is allowed in a filename (not path!)
-  static bool IsValidFilenameChar(ezUInt32 character);
+  static bool IsValidFilenameChar(ezUInt32 uiCharacter);
 
   /// \brief Checks every character in the string with IsValidFilenameChar()
   ///
@@ -78,7 +78,7 @@ public:
   /// ":\MyRoot\folder\file.txt" -> root = "MyRoot", relPath = "folder\file.txt"
   /// ":/MyRoot\folder\file.txt" -> root = "MyRoot", relPath = "folder\file.txt"
   /// If the path is not rooted, then root will be an empty string and relPath is set to the full input path.
-  static void GetRootedPathParts(ezStringView sPath, ezStringView& root, ezStringView& relPath); // [tested]
+  static void GetRootedPathParts(ezStringView sPath, ezStringView& ref_sRoot, ezStringView& ref_sRelPath); // [tested]
 
   /// \brief Special case of GetRootedPathParts that returns the root of the input path and discards the relative path
   static ezStringView GetRootedPathRootName(ezStringView sPath); // [tested]
@@ -88,7 +88,7 @@ public:
   /// Note that path separators in the given string will be replaced as well!
   /// Asserts that replacementCharacter is an allowed character.
   /// \see IsValidFilenameChar()
-  static void MakeValidFilename(ezStringView sFilename, ezUInt32 replacementCharacter, ezStringBuilder& outFilename);
+  static void MakeValidFilename(ezStringView sFilename, ezUInt32 uiReplacementCharacter, ezStringBuilder& out_sFilename);
 
   /// \brief Checks whether \a sFullPath starts with \a sPrefixPath.
   static bool IsSubPath(ezStringView sPrefixPath, ezStringView sFullPath);

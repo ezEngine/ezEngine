@@ -3,8 +3,8 @@
 #include <EditorFramework/Dialogs/PluginSelectionWidget.moc.h>
 #include <EditorFramework/EditorApp/Configuration/Plugins.h>
 
-ezQtPluginSelectionWidget::ezQtPluginSelectionWidget(QWidget* parent)
-  : QWidget(parent)
+ezQtPluginSelectionWidget::ezQtPluginSelectionWidget(QWidget* pParent)
+  : QWidget(pParent)
 {
   setupUi(this);
 }

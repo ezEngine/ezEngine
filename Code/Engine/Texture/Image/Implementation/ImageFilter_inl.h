@@ -1,6 +1,6 @@
-ezInt32 ezImageFilterWeights::GetFirstSourceSampleIndex(ezUInt32 dstSampleIndex) const
+ezInt32 ezImageFilterWeights::GetFirstSourceSampleIndex(ezUInt32 uiDstSampleIndex) const
 {
-  ezSimdFloat dstSampleInSourceSpace = (ezSimdFloat(dstSampleIndex) + ezSimdFloat(0.5f)) * m_fDestToSourceScale;
+  ezSimdFloat dstSampleInSourceSpace = (ezSimdFloat(uiDstSampleIndex) + ezSimdFloat(0.5f)) * m_fDestToSourceScale;
 
   return ezInt32(ezMath::Floor(dstSampleInSourceSpace - m_fWidthInSourceSpace));
 }

@@ -68,9 +68,9 @@ const char* ezAssetDocumentInfo::GetAssetsDocumentTypeName() const
   return m_sAssetsDocumentTypeName.GetData();
 }
 
-void ezAssetDocumentInfo::SetAssetsDocumentTypeName(const char* sz)
+void ezAssetDocumentInfo::SetAssetsDocumentTypeName(const char* szSz)
 {
-  m_sAssetsDocumentTypeName.Assign(sz);
+  m_sAssetsDocumentTypeName.Assign(szSz);
 }
 
 const ezReflectedClass* ezAssetDocumentInfo::GetMetaInfo(const ezRTTI* pType) const

@@ -19,10 +19,10 @@ public:
   ~ezSpatialSystem_RegularGrid();
 
   /// \brief Returns the bounding box of the cell associated with the given spatial data. Useful for debug visualizations.
-  ezResult GetCellBoxForSpatialData(const ezSpatialDataHandle& hData, ezBoundingBox& out_BoundingBox) const;
+  ezResult GetCellBoxForSpatialData(const ezSpatialDataHandle& hData, ezBoundingBox& out_boundingBox) const;
 
   /// \brief Returns bounding boxes of all existing cells.
-  void GetAllCellBoxes(ezDynamicArray<ezBoundingBox>& out_BoundingBoxes, ezSpatialData::Category filterCategory = ezInvalidSpatialDataCategory) const;
+  void GetAllCellBoxes(ezDynamicArray<ezBoundingBox>& out_boundingBoxes, ezSpatialData::Category filterCategory = ezInvalidSpatialDataCategory) const;
 
 private:
   friend ezInternal::QueryHelper;

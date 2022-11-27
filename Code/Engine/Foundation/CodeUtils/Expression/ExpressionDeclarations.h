@@ -62,8 +62,8 @@ namespace ezExpression
       return m_sName == other.m_sName && m_DataType == other.m_DataType;
     }
 
-    ezResult Serialize(ezStreamWriter& stream) const;
-    ezResult Deserialize(ezStreamReader& stream);
+    ezResult Serialize(ezStreamWriter& inout_stream) const;
+    ezResult Deserialize(ezStreamReader& inout_stream);
   };
 
   /// \brief Describes an expression function and its signature, e.g. how many input parameter it has and their type
@@ -84,8 +84,8 @@ namespace ezExpression
 
     bool operator<(const FunctionDesc& other) const;
 
-    ezResult Serialize(ezStreamWriter& stream) const;
-    ezResult Deserialize(ezStreamReader& stream);
+    ezResult Serialize(ezStreamWriter& inout_stream) const;
+    ezResult Deserialize(ezStreamReader& inout_stream);
 
     ezHashedString GetMangledName() const;
   };

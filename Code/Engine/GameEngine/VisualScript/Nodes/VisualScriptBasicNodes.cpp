@@ -666,13 +666,13 @@ void* ezVisualScriptNode_FunctionCall::GetInputPinDataPointer(ezUInt8 uiPin)
   return m_Arguments[uiPin - 2].GetWriteAccess().m_pObject;
 }
 
-ezResult ezVisualScriptNode_FunctionCall::ConvertArgumentToRequiredType(ezVariant& var, ezVariantType::Enum type)
+ezResult ezVisualScriptNode_FunctionCall::ConvertArgumentToRequiredType(ezVariant& ref_var, ezVariantType::Enum type)
 {
-  if (var.GetType() == type)
+  if (ref_var.GetType() == type)
     return EZ_SUCCESS;
 
   ezResult couldConvert = EZ_FAILURE;
-  var = var.ConvertTo(type, &couldConvert);
+  ref_var = ref_var.ConvertTo(type, &couldConvert);
 
   return couldConvert;
 }

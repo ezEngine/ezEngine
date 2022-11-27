@@ -52,10 +52,10 @@ void ezJoltCharacterControllerComponent::ClearObjectToIgnore()
   m_BodyFilter.ClearFilter();
 }
 
-void ezJoltCharacterControllerComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezJoltCharacterControllerComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
-  auto& s = stream.GetStream();
+  SUPER::SerializeComponent(inout_stream);
+  auto& s = inout_stream.GetStream();
 
   s << m_DebugFlags;
 
@@ -66,11 +66,11 @@ void ezJoltCharacterControllerComponent::SerializeComponent(ezWorldWriter& strea
   s << m_MaxClimbingSlope;
 }
 
-void ezJoltCharacterControllerComponent::DeserializeComponent(ezWorldReader& stream)
+void ezJoltCharacterControllerComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  auto& s = stream.GetStream();
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  auto& s = inout_stream.GetStream();
 
   s >> m_DebugFlags;
 
@@ -131,9 +131,9 @@ void ezJoltCharacterControllerComponent::SetMaxClimbingSlope(ezAngle slope)
   }
 }
 
-void ezJoltCharacterControllerComponent::SetMass(float mass)
+void ezJoltCharacterControllerComponent::SetMass(float fMass)
 {
-  m_fMass = mass;
+  m_fMass = fMass;
 
   if (m_pCharacter)
   {
@@ -141,9 +141,9 @@ void ezJoltCharacterControllerComponent::SetMass(float mass)
   }
 }
 
-void ezJoltCharacterControllerComponent::SetStrength(float strength)
+void ezJoltCharacterControllerComponent::SetStrength(float fStrength)
 {
-  m_fStrength = strength;
+  m_fStrength = fStrength;
 
   if (m_pCharacter)
   {
@@ -307,17 +307,17 @@ void ezJoltCharacterControllerComponent::CollectCastContacts(ezDynamicArray<Cont
     ezDynamicArray<ContactPoint>* m_pContacts = nullptr;
     const JPH::BodyLockInterface* m_pLockInterface = nullptr;
 
-    virtual void AddHit(const JPH::ShapeCastResult& inResult) override
+    virtual void AddHit(const JPH::ShapeCastResult& result) override
     {
       auto& contact = m_pContacts->ExpandAndGetRef();
-      contact.m_vPosition = ezJoltConversionUtils::ToVec3(inResult.mContactPointOn2);
-      contact.m_vContactNormal = ezJoltConversionUtils::ToVec3(-inResult.mPenetrationAxis.Normalized());
-      contact.m_BodyID = inResult.mBodyID2;
-      contact.m_fCastFraction = inResult.mFraction;
-      contact.m_SubShapeID = inResult.mSubShapeID2;
+      contact.m_vPosition = ezJoltConversionUtils::ToVec3(result.mContactPointOn2);
+      contact.m_vContactNormal = ezJoltConversionUtils::ToVec3(-result.mPenetrationAxis.Normalized());
+      contact.m_BodyID = result.mBodyID2;
+      contact.m_fCastFraction = result.mFraction;
+      contact.m_SubShapeID = result.mSubShapeID2;
 
       JPH::BodyLockRead lock(*m_pLockInterface, contact.m_BodyID);
-      contact.m_vSurfaceNormal = ezJoltConversionUtils::ToVec3(lock.GetBody().GetWorldSpaceSurfaceNormal(inResult.mSubShapeID2, inResult.mContactPointOn2));
+      contact.m_vSurfaceNormal = ezJoltConversionUtils::ToVec3(lock.GetBody().GetWorldSpaceSurfaceNormal(result.mSubShapeID2, result.mContactPointOn2));
     }
   };
 
@@ -349,16 +349,16 @@ void ezJoltCharacterControllerComponent::CollectContacts(ezDynamicArray<ContactP
     ezDynamicArray<ContactPoint>* m_pContacts = nullptr;
     const JPH::BodyLockInterface* m_pLockInterface = nullptr;
 
-    virtual void AddHit(const JPH::CollideShapeResult& inResult) override
+    virtual void AddHit(const JPH::CollideShapeResult& result) override
     {
       auto& contact = m_pContacts->ExpandAndGetRef();
-      contact.m_vPosition = ezJoltConversionUtils::ToVec3(inResult.mContactPointOn2);
-      contact.m_vContactNormal = ezJoltConversionUtils::ToVec3(-inResult.mPenetrationAxis.Normalized());
-      contact.m_BodyID = inResult.mBodyID2;
-      contact.m_SubShapeID = inResult.mSubShapeID2;
+      contact.m_vPosition = ezJoltConversionUtils::ToVec3(result.mContactPointOn2);
+      contact.m_vContactNormal = ezJoltConversionUtils::ToVec3(-result.mPenetrationAxis.Normalized());
+      contact.m_BodyID = result.mBodyID2;
+      contact.m_SubShapeID = result.mSubShapeID2;
 
       JPH::BodyLockRead lock(*m_pLockInterface, contact.m_BodyID);
-      contact.m_vSurfaceNormal = ezJoltConversionUtils::ToVec3(lock.GetBody().GetWorldSpaceSurfaceNormal(inResult.mSubShapeID2, inResult.mContactPointOn2));
+      contact.m_vSurfaceNormal = ezJoltConversionUtils::ToVec3(lock.GetBody().GetWorldSpaceSurfaceNormal(result.mSubShapeID2, result.mContactPointOn2));
     }
   };
 

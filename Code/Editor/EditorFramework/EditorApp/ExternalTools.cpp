@@ -38,7 +38,7 @@ ezString ezQtEditorApp::FindToolApplication(const char* szToolName)
   return szToolName;
 }
 
-ezStatus ezQtEditorApp::ExecuteTool(const char* szTool, const QStringList& arguments, ezUInt32 uiSecondsTillTimeout, ezLogInterface* pLogOutput /*= nullptr*/, ezLogMsgType::Enum LogLevel /*= ezLogMsgType::InfoMsg*/, const char* szCWD /*= nullptr*/)
+ezStatus ezQtEditorApp::ExecuteTool(const char* szTool, const QStringList& arguments, ezUInt32 uiSecondsTillTimeout, ezLogInterface* pLogOutput /*= nullptr*/, ezLogMsgType::Enum logLevel /*= ezLogMsgType::InfoMsg*/, const char* szCWD /*= nullptr*/)
 {
   // this block is supposed to be in the global log, not the given log interface
   EZ_LOG_BLOCK("Executing Tool", szTool);
@@ -152,7 +152,7 @@ ezStatus ezQtEditorApp::ExecuteTool(const char* szTool, const QStringList& argum
         // TODO: output all logged data in one big message, if the tool failed
       }
 
-      if (msgType > LogLevel || szMsg == nullptr)
+      if (msgType > logLevel || szMsg == nullptr)
         continue;
 
       ezLog::BroadcastLoggingEvent(pLogOutput, msgType, szMsg);

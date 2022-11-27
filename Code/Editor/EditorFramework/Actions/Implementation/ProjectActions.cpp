@@ -199,9 +199,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRecentDocumentsMenuAction, 0, ezRTTINoAllocato
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 
-void ezRecentDocumentsMenuAction::GetEntries(ezHybridArray<ezDynamicMenuAction::Item, 16>& out_Entries)
+void ezRecentDocumentsMenuAction::GetEntries(ezHybridArray<ezDynamicMenuAction::Item, 16>& out_entries)
 {
-  out_Entries.Clear();
+  out_entries.Clear();
 
   if (ezQtEditorApp::GetSingleton()->GetRecentDocumentsList().GetFileList().IsEmpty())
     return;
@@ -231,13 +231,13 @@ void ezRecentDocumentsMenuAction::GetEntries(ezHybridArray<ezDynamicMenuAction::
 
       item.m_sDisplay = sRelativePath;
 
-      out_Entries.PushBack(item);
+      out_entries.PushBack(item);
     }
     else
     {
       item.m_sDisplay = file.m_File;
 
-      out_Entries.PushBack(item);
+      out_entries.PushBack(item);
     }
 
     --iMaxDocumentsToAdd;
@@ -262,9 +262,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRecentProjectsMenuAction, 1, ezRTTINoAllocator
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 
-void ezRecentProjectsMenuAction::GetEntries(ezHybridArray<ezDynamicMenuAction::Item, 16>& out_Entries)
+void ezRecentProjectsMenuAction::GetEntries(ezHybridArray<ezDynamicMenuAction::Item, 16>& out_entries)
 {
-  out_Entries.Clear();
+  out_entries.Clear();
 
   if (ezQtEditorApp::GetSingleton()->GetRecentProjectsList().GetFileList().IsEmpty())
     return;
@@ -284,7 +284,7 @@ void ezRecentProjectsMenuAction::GetEntries(ezHybridArray<ezDynamicMenuAction::I
     item.m_sDisplay = sTemp;
     item.m_UserValue = file.m_File;
 
-    out_Entries.PushBack(item);
+    out_entries.PushBack(item);
   }
 }
 

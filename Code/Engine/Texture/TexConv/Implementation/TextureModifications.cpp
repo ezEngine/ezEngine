@@ -298,12 +298,12 @@ ezResult ezTexConvProcessor::ClampInputValues(ezImage& image, float maxValue) co
   return EZ_SUCCESS;
 }
 
-static bool FillAvgImageColor(ezImage& img)
+static bool FillAvgImageColor(ezImage& ref_img)
 {
   ezColor avg = ezColor::ZeroColor();
   ezUInt32 uiValidCount = 0;
 
-  for (const ezColor& col : img.GetBlobPtr<ezColor>())
+  for (const ezColor& col : ref_img.GetBlobPtr<ezColor>())
   {
     if (col.a > 0.0f)
     {
@@ -312,7 +312,7 @@ static bool FillAvgImageColor(ezImage& img)
     }
   }
 
-  if (uiValidCount == 0 || uiValidCount == img.GetBlobPtr<ezColor>().GetCount())
+  if (uiValidCount == 0 || uiValidCount == ref_img.GetBlobPtr<ezColor>().GetCount())
   {
     // nothing to do
     return false;
@@ -322,7 +322,7 @@ static bool FillAvgImageColor(ezImage& img)
   avg.NormalizeToLdrRange();
   avg.a = 0.0f;
 
-  for (ezColor& col : img.GetBlobPtr<ezColor>())
+  for (ezColor& col : ref_img.GetBlobPtr<ezColor>())
   {
     if (col.a == 0.0f)
     {
@@ -333,9 +333,9 @@ static bool FillAvgImageColor(ezImage& img)
   return true;
 }
 
-static void ClearAlpha(ezImage& img, float fAlphaThreshold)
+static void ClearAlpha(ezImage& ref_img, float fAlphaThreshold)
 {
-  for (ezColor& col : img.GetBlobPtr<ezColor>())
+  for (ezColor& col : ref_img.GetBlobPtr<ezColor>())
   {
     if (col.a <= fAlphaThreshold)
     {

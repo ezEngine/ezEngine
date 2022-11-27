@@ -14,8 +14,8 @@ public:
   virtual void CopyEmitterProperties(ezParticleEmitter* pEmitter, bool bFirstTime) const override;
   virtual void QueryMaxParticleCount(ezUInt32& out_uiMaxParticlesAbs, ezUInt32& out_uiMaxParticlesPerSecond) const override;
 
-  virtual void Save(ezStreamWriter& stream) const override;
-  virtual void Load(ezStreamReader& stream) override;
+  virtual void Save(ezStreamWriter& inout_stream) const override;
+  virtual void Load(ezStreamReader& inout_stream) override;
 
 public:
   ezTime m_Duration;

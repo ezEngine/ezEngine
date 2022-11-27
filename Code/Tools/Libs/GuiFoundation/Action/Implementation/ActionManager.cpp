@@ -74,27 +74,27 @@ ezActionDescriptorHandle ezActionManager::RegisterAction(const ezActionDescripto
   return hType;
 }
 
-bool ezActionManager::UnregisterAction(ezActionDescriptorHandle& hAction)
+bool ezActionManager::UnregisterAction(ezActionDescriptorHandle& ref_hAction)
 {
   ezActionDescriptor* pDesc = nullptr;
-  if (!s_ActionTable.TryGetValue(hAction, pDesc))
+  if (!s_ActionTable.TryGetValue(ref_hAction, pDesc))
   {
-    hAction.Invalidate();
+    ref_hAction.Invalidate();
     return false;
   }
 
   auto it = s_CategoryPathToActions.Find(pDesc->m_sCategoryPath);
   EZ_ASSERT_DEV(it.IsValid(), "Action is present but not mapped in its category path!");
-  EZ_VERIFY(it.Value().m_Actions.Remove(hAction), "Action is present but not in its category data!");
+  EZ_VERIFY(it.Value().m_Actions.Remove(ref_hAction), "Action is present but not in its category data!");
   EZ_VERIFY(it.Value().m_ActionNameToHandle.Remove(pDesc->m_sActionName), "Action is present but its name is not in the map!");
   if (it.Value().m_Actions.IsEmpty())
   {
     s_CategoryPathToActions.Remove(it);
   }
 
-  s_ActionTable.Remove(hAction);
+  s_ActionTable.Remove(ref_hAction);
   DeleteActionDesc(pDesc);
-  hAction.Invalidate();
+  ref_hAction.Invalidate();
   return true;
 }
 

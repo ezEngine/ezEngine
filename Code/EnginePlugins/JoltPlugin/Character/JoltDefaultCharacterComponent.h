@@ -14,8 +14,8 @@ class EZ_JOLTPLUGIN_DLL ezJoltDefaultCharacterComponent : public ezJoltCharacter
   // ezComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
 protected:
   virtual void OnSimulationStarted() override;
@@ -55,7 +55,7 @@ public:
   float m_fWalkInteractionDistance = 1.0f;        ///< [ property ] How far the CC has to walk for spawning another surface interaction
   float m_fRunInteractionDistance = 3.0f;         ///< [ property ] How far the CC has to run for spawning another surface interaction
 
-  void SetWalkSurfaceInteraction(const char* sz) { m_sWalkSurfaceInteraction.Assign(sz); }      // [ property ]
+  void SetWalkSurfaceInteraction(const char* szSz) { m_sWalkSurfaceInteraction.Assign(szSz); }  // [ property ]
   const char* GetWalkSurfaceInteraction() const { return m_sWalkSurfaceInteraction.GetData(); } // [ property ]
 
   void SetFallbackWalkSurfaceFile(const char* szFile); // [ property ]
@@ -66,7 +66,7 @@ public:
 
   void SetHeadObjectReference(const char* szReference); // [ property ]
 
-  void SetInputState(ezMsgMoveCharacterController& msg);
+  void SetInputState(ezMsgMoveCharacterController& ref_msg);
 
 
   /// \brief Returns the current height of the entire capsule (crouching or standing).
@@ -99,7 +99,7 @@ public:
     float m_fMaxStepDown = 0;
   };
 
-  virtual void DetermineConfig(Config& out_Inputs);
+  virtual void DetermineConfig(Config& out_inputs);
 
 protected:
   void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const;

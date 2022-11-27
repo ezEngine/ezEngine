@@ -8,7 +8,7 @@ struct EZ_RENDERERCORE_DLL ezAnimClip2D
   ezAnimationClipResourceHandle m_hAnimation;
   ezVec2 m_vPosition;
 
-  void SetAnimationFile(const char* sz);
+  void SetAnimationFile(const char* szSz);
   const char* GetAnimationFile() const;
 };
 
@@ -31,7 +31,7 @@ protected:
   // ezMixClips2DAnimNode
 
 public:
-  void SetCenterClipFile(const char* sz);
+  void SetCenterClipFile(const char* szSz);
   const char* GetCenterClipFile() const;
 
   ezAnimationClipResourceHandle m_hCenterClip; // [ property ]

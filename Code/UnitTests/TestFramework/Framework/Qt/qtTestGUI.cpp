@@ -15,12 +15,12 @@
 // ezQtTestGUI public functions
 ////////////////////////////////////////////////////////////////////////
 
-ezQtTestGUI::ezQtTestGUI(ezQtTestFramework& testFramework)
+ezQtTestGUI::ezQtTestGUI(ezQtTestFramework& ref_testFramework)
   : QMainWindow()
-  , m_pTestFramework(&testFramework)
+  , m_pTestFramework(&ref_testFramework)
 {
   this->setupUi(this);
-  this->setWindowTitle(testFramework.GetTestName());
+  this->setWindowTitle(ref_testFramework.GetTestName());
 
   QCoreApplication::setOrganizationDomain("www.ezengine.net");
   QCoreApplication::setOrganizationName("ezEngine Project");
@@ -90,7 +90,7 @@ ezQtTestGUI::ezQtTestGUI(ezQtTestFramework& testFramework)
   UpdateButtonStates();
   LoadGUILayout();
 
-  if (testFramework.GetSettings().m_bRunTests)
+  if (ref_testFramework.GetSettings().m_bRunTests)
   {
     QTimer::singleShot(10, this, SLOT(on_actionRunTests_triggered()));
   }

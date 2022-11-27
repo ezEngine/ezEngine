@@ -97,8 +97,8 @@ public:
 
   bool IsLayerLoaded(const ezUuid& layerGuid) const;
   ezStatus SetLayerLoaded(const ezUuid& layerGuid, bool bLoaded);
-  void GetAllLayers(ezDynamicArray<ezUuid>& out_LayerGuids);
-  void GetLoadedLayers(ezDynamicArray<ezSceneDocument*>& out_Layers) const;
+  void GetAllLayers(ezDynamicArray<ezUuid>& out_layerGuids);
+  void GetLoadedLayers(ezDynamicArray<ezSceneDocument*>& out_layers) const;
 
   bool IsLayerVisible(const ezUuid& layerGuid) const;
   ezStatus SetLayerVisible(const ezUuid& layerGuid, bool bVisible);

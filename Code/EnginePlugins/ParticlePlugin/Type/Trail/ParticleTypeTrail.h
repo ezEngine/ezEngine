@@ -16,8 +16,8 @@ public:
   virtual const ezRTTI* GetTypeType() const override;
   virtual void CopyTypeProperties(ezParticleType* pObject, bool bFirstTime) const override;
 
-  virtual void Save(ezStreamWriter& stream) const override;
-  virtual void Load(ezStreamReader& stream) override;
+  virtual void Save(ezStreamWriter& inout_stream) const override;
+  virtual void Load(ezStreamReader& inout_stream) override;
 
   ezEnum<ezParticleTypeRenderMode> m_RenderMode;
   ezUInt16 m_uiMaxPoints;
@@ -51,7 +51,7 @@ public:
   float m_fDistortionStrength = 0;
 
   virtual void CreateRequiredStreams() override;
-  virtual void ExtractTypeRenderData(ezMsgExtractRenderData& msg, const ezTransform& instanceTransform) const override;
+  virtual void ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg, const ezTransform& instanceTransform) const override;
   /// \todo This is a hacky guess, one would actually need to inspect the trail positions
   virtual float GetMaxParticleRadius(float fParticleSize) const override { return fParticleSize + m_uiMaxPoints * 0.05f; }
 

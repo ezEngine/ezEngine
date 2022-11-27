@@ -48,7 +48,7 @@ public:
   /// \brief Sends the redraw message to the engine
   virtual void SyncToEngine();
 
-  void GetCameraMatrices(ezMat4& out_ViewMatrix, ezMat4& out_ProjectionMatrix) const;
+  void GetCameraMatrices(ezMat4& out_mViewMatrix, ezMat4& out_mProjectionMatrix) const;
 
   ezEngineViewConfig* m_pViewConfig;
 
@@ -90,7 +90,7 @@ public:
   const ezObjectPickingResult& PickObject(ezUInt16 uiScreenPosX, ezUInt16 uiScreenPosY) const;
 
   /// \brief Similar to PickObject, but computes the intersection with the given plane instead.
-  ezResult PickPlane(ezUInt16 uiScreenPosX, ezUInt16 uiScreenPosY, const ezPlane& plane, ezVec3& out_Position) const;
+  ezResult PickPlane(ezUInt16 uiScreenPosX, ezUInt16 uiScreenPosY, const ezPlane& plane, ezVec3& out_vPosition) const;
 
   /// \brief Processes incoming messages from the engine that are meant for this particular view. Mostly picking results.
   void HandleViewMessage(const ezEditorEngineViewMsg* pMsg);

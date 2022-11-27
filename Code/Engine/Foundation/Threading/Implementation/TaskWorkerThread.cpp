@@ -6,18 +6,18 @@
 
 thread_local ezTaskWorkerInfo tl_TaskWorkerInfo;
 
-static const char* GenerateThreadName(ezWorkerThreadType::Enum ThreadType, ezUInt32 uiThreadNumber)
+static const char* GenerateThreadName(ezWorkerThreadType::Enum threadType, ezUInt32 uiThreadNumber)
 {
   static ezStringBuilder sTemp;
-  sTemp.Format("{} {}", ezWorkerThreadType::GetThreadTypeName(ThreadType), uiThreadNumber);
+  sTemp.Format("{} {}", ezWorkerThreadType::GetThreadTypeName(threadType), uiThreadNumber);
   return sTemp.GetData();
 }
 
-ezTaskWorkerThread::ezTaskWorkerThread(ezWorkerThreadType::Enum ThreadType, ezUInt32 uiThreadNumber)
+ezTaskWorkerThread::ezTaskWorkerThread(ezWorkerThreadType::Enum threadType, ezUInt32 uiThreadNumber)
   // We need at least 256 kb of stack size, otherwise the shader compilation tasks will run out of stack space.
-  : ezThread(GenerateThreadName(ThreadType, uiThreadNumber), 256 * 1024)
+  : ezThread(GenerateThreadName(threadType, uiThreadNumber), 256 * 1024)
 {
-  m_WorkerType = ThreadType;
+  m_WorkerType = threadType;
   m_uiWorkerThreadNumber = uiThreadNumber & 0xFFFF;
 }
 
@@ -115,7 +115,7 @@ ezTaskWorkerState ezTaskWorkerThread::WakeUpIfIdle()
   return static_cast<ezTaskWorkerState>(prev);
 }
 
-void ezTaskWorkerThread::UpdateThreadUtilization(ezTime TimePassed)
+void ezTaskWorkerThread::UpdateThreadUtilization(ezTime timePassed)
 {
   ezTime tActive = m_ThreadActiveTime;
 
@@ -132,7 +132,7 @@ void ezTaskWorkerThread::UpdateThreadUtilization(ezTime TimePassed)
     }
   }
 
-  m_fLastThreadUtilization = tActive.GetSeconds() / TimePassed.GetSeconds();
+  m_fLastThreadUtilization = tActive.GetSeconds() / timePassed.GetSeconds();
   m_uiLastNumTasksExecuted = m_uiNumTasksExecuted;
   m_uiNumTasksExecuted = 0;
 }

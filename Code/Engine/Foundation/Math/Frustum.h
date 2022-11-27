@@ -71,15 +71,15 @@ public:
   /// If the matrix is just the projection matrix, the frustum will be in local space. Pass the full ModelViewProjection
   /// matrix to create the frustum in world-space. If the projection matrix contained in ModelViewProjection is an infinite
   /// plane projection matrix, the resulting frustum will yield a far plane with infinite distance.
-  void SetFrustum(const ezMat4& ModelViewProjection, ezClipSpaceDepthRange::Enum DepthRange = ezClipSpaceDepthRange::Default,
-    ezHandedness::Enum Handedness = ezHandedness::Default); // [tested]
+  void SetFrustum(const ezMat4& mModelViewProjection, ezClipSpaceDepthRange::Enum depthRange = ezClipSpaceDepthRange::Default,
+    ezHandedness::Enum handedness = ezHandedness::Default); // [tested]
 
   /// \brief Creates a frustum from the given camera position, direction vectors and the field-of-view along X and Y.
   ///
   /// The up vector does not need to be exactly orthogonal to the forwards vector, it will get recomputed properly.
   /// FOV X and Y define the entire field-of-view, so a FOV of 180 degree would mean the entire half-space in front of the camera.
   void SetFrustum(
-    const ezVec3& vPosition, const ezVec3& vForwards, const ezVec3& vUp, ezAngle FovX, ezAngle FovY, float fNearPlane, float fFarPlane); // [tested]
+    const ezVec3& vPosition, const ezVec3& vForwards, const ezVec3& vUp, ezAngle fovX, ezAngle fovY, float fNearPlane, float fFarPlane); // [tested]
 
   /// \brief Returns the n-th plane of the frustum.
   const ezPlane& GetPlane(ezUInt8 uiPlane) const; // [tested]
@@ -101,7 +101,7 @@ public:
   ///
   /// Note: If the frustum contains an infinite far plane, the far plane corners (out_points[4..7])
   /// will be at infinity.
-  void ComputeCornerPoints(ezVec3 out_Points[FrustumCorner::CORNER_COUNT]) const; // [tested]
+  void ComputeCornerPoints(ezVec3 out_pPoints[FrustumCorner::CORNER_COUNT]) const; // [tested]
 
   /// \brief Checks whether the given object is inside or outside the frustum.
   ///
@@ -114,10 +114,10 @@ public:
   ezVolumePosition::Enum GetObjectPosition(const ezVec3* pVertices, ezUInt32 uiNumVertices, const ezMat4& mObjectTransform) const; // [tested]
 
   /// \brief Checks whether the given object is inside or outside the frustum.
-  ezVolumePosition::Enum GetObjectPosition(const ezBoundingSphere& Sphere) const; // [tested]
+  ezVolumePosition::Enum GetObjectPosition(const ezBoundingSphere& sphere) const; // [tested]
 
   /// \brief Checks whether the given object is inside or outside the frustum.
-  ezVolumePosition::Enum GetObjectPosition(const ezBoundingBox& Box) const; // [tested]
+  ezVolumePosition::Enum GetObjectPosition(const ezBoundingBox& box) const; // [tested]
 
   /// \brief Returns true if the object is fully inside the frustum or partially overlaps it. Returns false when the object is fully outside
   /// the frustum.

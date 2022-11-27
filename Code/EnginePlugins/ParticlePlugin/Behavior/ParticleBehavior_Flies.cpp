@@ -45,9 +45,9 @@ void ezParticleBehaviorFactory_Flies::CopyBehaviorProperties(ezParticleBehavior*
   pBehavior->m_MaxSteeringAngle = m_MaxSteeringAngle;
 }
 
-void ezParticleBehaviorFactory_Flies::QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_FinalizerDeps) const
+void ezParticleBehaviorFactory_Flies::QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_finalizerDeps) const
 {
-  inout_FinalizerDeps.Insert(ezGetStaticRTTI<ezParticleFinalizerFactory_ApplyVelocity>());
+  inout_finalizerDeps.Insert(ezGetStaticRTTI<ezParticleFinalizerFactory_ApplyVelocity>());
 }
 
 enum class BehaviorFliesVersion
@@ -60,28 +60,28 @@ enum class BehaviorFliesVersion
   Version_Current = Version_Count - 1
 };
 
-void ezParticleBehaviorFactory_Flies::Save(ezStreamWriter& stream) const
+void ezParticleBehaviorFactory_Flies::Save(ezStreamWriter& inout_stream) const
 {
   const ezUInt8 uiVersion = (int)BehaviorFliesVersion::Version_Current;
-  stream << uiVersion;
+  inout_stream << uiVersion;
 
-  stream << m_fSpeed;
-  stream << m_fPathLength;
-  stream << m_fMaxEmitterDistance;
-  stream << m_MaxSteeringAngle;
+  inout_stream << m_fSpeed;
+  inout_stream << m_fPathLength;
+  inout_stream << m_fMaxEmitterDistance;
+  inout_stream << m_MaxSteeringAngle;
 }
 
-void ezParticleBehaviorFactory_Flies::Load(ezStreamReader& stream)
+void ezParticleBehaviorFactory_Flies::Load(ezStreamReader& inout_stream)
 {
   ezUInt8 uiVersion = 0;
-  stream >> uiVersion;
+  inout_stream >> uiVersion;
 
   EZ_ASSERT_DEV(uiVersion <= (int)BehaviorFliesVersion::Version_Current, "Invalid version {0}", uiVersion);
 
-  stream >> m_fSpeed;
-  stream >> m_fPathLength;
-  stream >> m_fMaxEmitterDistance;
-  stream >> m_MaxSteeringAngle;
+  inout_stream >> m_fSpeed;
+  inout_stream >> m_fPathLength;
+  inout_stream >> m_fMaxEmitterDistance;
+  inout_stream >> m_MaxSteeringAngle;
 }
 
 void ezParticleBehavior_Flies::CreateRequiredStreams()

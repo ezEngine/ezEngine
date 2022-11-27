@@ -87,9 +87,9 @@ void ezExpressionParser::UnregisterFunction(const ezExpression::FunctionDesc& fu
   }
 }
 
-ezResult ezExpressionParser::Parse(ezStringView code, ezArrayPtr<ezExpression::StreamDesc> inputs, ezArrayPtr<ezExpression::StreamDesc> outputs, const Options& options, ezExpressionAST& out_ast)
+ezResult ezExpressionParser::Parse(ezStringView sCode, ezArrayPtr<ezExpression::StreamDesc> inputs, ezArrayPtr<ezExpression::StreamDesc> outputs, const Options& options, ezExpressionAST& out_ast)
 {
-  if (code.IsEmpty())
+  if (sCode.IsEmpty())
     return EZ_FAILURE;
 
   m_Options = options;
@@ -98,7 +98,7 @@ ezResult ezExpressionParser::Parse(ezStringView code, ezArrayPtr<ezExpression::S
   SetupInAndOutputs(inputs, outputs);
 
   ezTokenizer tokenizer;
-  tokenizer.Tokenize(ezArrayPtr<const ezUInt8>((const ezUInt8*)code.GetStartPointer(), code.GetElementCount()), ezLog::GetThreadLocalLogSystem());
+  tokenizer.Tokenize(ezArrayPtr<const ezUInt8>((const ezUInt8*)sCode.GetStartPointer(), sCode.GetElementCount()), ezLog::GetThreadLocalLogSystem());
 
   ezUInt32 readTokens = 0;
   while (tokenizer.GetNextLine(readTokens, m_TokenStream).Succeeded())

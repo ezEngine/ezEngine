@@ -16,47 +16,47 @@ namespace
 #endif
 
   template <typename Functor, class... Args>
-  void DispatchTo(Functor& functor, const ezAbstractProperty* pProp, Args&&... args)
+  void DispatchTo(Functor& ref_functor, const ezAbstractProperty* pProp, Args&&... args)
   {
     const bool bIsPtr = pProp->GetFlags().IsSet(ezPropertyFlags::Pointer);
     if (bIsPtr)
     {
-      CALL_FUNCTOR(functor, ezTypedPointer);
+      CALL_FUNCTOR(ref_functor, ezTypedPointer);
       return;
     }
     else if (pProp->GetSpecificType() == ezGetStaticRTTI<const char*>())
     {
-      CALL_FUNCTOR(functor, const char*);
+      CALL_FUNCTOR(ref_functor, const char*);
       return;
     }
     else if (pProp->GetSpecificType() == ezGetStaticRTTI<ezUntrackedString>())
     {
-      CALL_FUNCTOR(functor, ezUntrackedString);
+      CALL_FUNCTOR(ref_functor, ezUntrackedString);
       return;
     }
     else if (pProp->GetSpecificType() == ezGetStaticRTTI<ezVariant>())
     {
-      CALL_FUNCTOR(functor, ezVariant);
+      CALL_FUNCTOR(ref_functor, ezVariant);
       return;
     }
     else if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType))
     {
-      ezVariant::DispatchTo(functor, pProp->GetSpecificType()->GetVariantType(), std::forward<Args>(args)...);
+      ezVariant::DispatchTo(ref_functor, pProp->GetSpecificType()->GetVariantType(), std::forward<Args>(args)...);
       return;
     }
     else if (pProp->GetFlags().IsSet(ezPropertyFlags::IsEnum))
     {
-      CALL_FUNCTOR(functor, ezEnumBase);
+      CALL_FUNCTOR(ref_functor, ezEnumBase);
       return;
     }
     else if (pProp->GetFlags().IsSet(ezPropertyFlags::Bitflags))
     {
-      CALL_FUNCTOR(functor, ezBitflagsBase);
+      CALL_FUNCTOR(ref_functor, ezBitflagsBase);
       return;
     }
     else if (pProp->GetSpecificType()->GetVariantType() == ezVariantType::TypedObject)
     {
-      CALL_FUNCTOR(functor, ezTypedObject);
+      CALL_FUNCTOR(ref_functor, ezTypedObject);
       return;
     }
 
@@ -427,16 +427,16 @@ namespace
   template <typename T>
   struct SetComponentValueImpl
   {
-    EZ_FORCE_INLINE static void impl(ezVariant* pVector, ezUInt32 iComponent, double fValue) { EZ_ASSERT_DEBUG(false, "ezReflectionUtils::SetComponent was called with a non-vector variant '{0}'", pVector->GetType()); }
+    EZ_FORCE_INLINE static void impl(ezVariant* pVector, ezUInt32 uiComponent, double fValue) { EZ_ASSERT_DEBUG(false, "ezReflectionUtils::SetComponent was called with a non-vector variant '{0}'", pVector->GetType()); }
   };
 
   template <typename T>
   struct SetComponentValueImpl<ezVec2Template<T>>
   {
-    EZ_FORCE_INLINE static void impl(ezVariant* pVector, ezUInt32 iComponent, double fValue)
+    EZ_FORCE_INLINE static void impl(ezVariant* pVector, ezUInt32 uiComponent, double fValue)
     {
       auto vec = pVector->Get<ezVec2Template<T>>();
-      switch (iComponent)
+      switch (uiComponent)
       {
         case 0:
           vec.x = static_cast<T>(fValue);
@@ -452,10 +452,10 @@ namespace
   template <typename T>
   struct SetComponentValueImpl<ezVec3Template<T>>
   {
-    EZ_FORCE_INLINE static void impl(ezVariant* pVector, ezUInt32 iComponent, double fValue)
+    EZ_FORCE_INLINE static void impl(ezVariant* pVector, ezUInt32 uiComponent, double fValue)
     {
       auto vec = pVector->Get<ezVec3Template<T>>();
-      switch (iComponent)
+      switch (uiComponent)
       {
         case 0:
           vec.x = static_cast<T>(fValue);
@@ -474,10 +474,10 @@ namespace
   template <typename T>
   struct SetComponentValueImpl<ezVec4Template<T>>
   {
-    EZ_FORCE_INLINE static void impl(ezVariant* pVector, ezUInt32 iComponent, double fValue)
+    EZ_FORCE_INLINE static void impl(ezVariant* pVector, ezUInt32 uiComponent, double fValue)
     {
       auto vec = pVector->Get<ezVec4Template<T>>();
-      switch (iComponent)
+      switch (uiComponent)
       {
         case 0:
           vec.x = static_cast<T>(fValue);
@@ -511,22 +511,22 @@ namespace
   template <typename T>
   struct GetComponentValueImpl
   {
-    EZ_FORCE_INLINE static void impl(const ezVariant* pVector, ezUInt32 iComponent, double& fValue) { EZ_ASSERT_DEBUG(false, "ezReflectionUtils::SetComponent was called with a non-vector variant '{0}'", pVector->GetType()); }
+    EZ_FORCE_INLINE static void impl(const ezVariant* pVector, ezUInt32 uiComponent, double& ref_fValue) { EZ_ASSERT_DEBUG(false, "ezReflectionUtils::SetComponent was called with a non-vector variant '{0}'", pVector->GetType()); }
   };
 
   template <typename T>
   struct GetComponentValueImpl<ezVec2Template<T>>
   {
-    EZ_FORCE_INLINE static void impl(const ezVariant* pVector, ezUInt32 iComponent, double& fValue)
+    EZ_FORCE_INLINE static void impl(const ezVariant* pVector, ezUInt32 uiComponent, double& ref_fValue)
     {
       const auto& vec = pVector->Get<ezVec2Template<T>>();
-      switch (iComponent)
+      switch (uiComponent)
       {
         case 0:
-          fValue = static_cast<double>(vec.x);
+          ref_fValue = static_cast<double>(vec.x);
           break;
         case 1:
-          fValue = static_cast<double>(vec.y);
+          ref_fValue = static_cast<double>(vec.y);
           break;
       }
     }
@@ -535,19 +535,19 @@ namespace
   template <typename T>
   struct GetComponentValueImpl<ezVec3Template<T>>
   {
-    EZ_FORCE_INLINE static void impl(const ezVariant* pVector, ezUInt32 iComponent, double& fValue)
+    EZ_FORCE_INLINE static void impl(const ezVariant* pVector, ezUInt32 uiComponent, double& ref_fValue)
     {
       const auto& vec = pVector->Get<ezVec3Template<T>>();
-      switch (iComponent)
+      switch (uiComponent)
       {
         case 0:
-          fValue = static_cast<double>(vec.x);
+          ref_fValue = static_cast<double>(vec.x);
           break;
         case 1:
-          fValue = static_cast<double>(vec.y);
+          ref_fValue = static_cast<double>(vec.y);
           break;
         case 2:
-          fValue = static_cast<double>(vec.z);
+          ref_fValue = static_cast<double>(vec.z);
           break;
       }
     }
@@ -556,22 +556,22 @@ namespace
   template <typename T>
   struct GetComponentValueImpl<ezVec4Template<T>>
   {
-    EZ_FORCE_INLINE static void impl(const ezVariant* pVector, ezUInt32 iComponent, double& fValue)
+    EZ_FORCE_INLINE static void impl(const ezVariant* pVector, ezUInt32 uiComponent, double& ref_fValue)
     {
       const auto& vec = pVector->Get<ezVec4Template<T>>();
-      switch (iComponent)
+      switch (uiComponent)
       {
         case 0:
-          fValue = static_cast<double>(vec.x);
+          ref_fValue = static_cast<double>(vec.x);
           break;
         case 1:
-          fValue = static_cast<double>(vec.y);
+          ref_fValue = static_cast<double>(vec.y);
           break;
         case 2:
-          fValue = static_cast<double>(vec.z);
+          ref_fValue = static_cast<double>(vec.z);
           break;
         case 3:
-          fValue = static_cast<double>(vec.w);
+          ref_fValue = static_cast<double>(vec.w);
           break;
       }
     }
@@ -661,20 +661,20 @@ ezUInt32 ezReflectionUtils::GetComponentCount(ezVariantType::Enum type)
   }
 }
 
-void ezReflectionUtils::SetComponent(ezVariant& vector, ezUInt32 iComponent, double fValue)
+void ezReflectionUtils::SetComponent(ezVariant& ref_vector, ezUInt32 uiComponent, double fValue)
 {
   SetComponentValueFunc func;
-  func.m_pVector = &vector;
-  func.m_iComponent = iComponent;
+  func.m_pVector = &ref_vector;
+  func.m_iComponent = uiComponent;
   func.m_fValue = fValue;
-  ezVariant::DispatchTo(func, vector.GetType());
+  ezVariant::DispatchTo(func, ref_vector.GetType());
 }
 
-double ezReflectionUtils::GetComponent(const ezVariant& vector, ezUInt32 iComponent)
+double ezReflectionUtils::GetComponent(const ezVariant& vector, ezUInt32 uiComponent)
 {
   GetComponentValueFunc func;
   func.m_pVector = &vector;
-  func.m_iComponent = iComponent;
+  func.m_iComponent = uiComponent;
   ezVariant::DispatchTo(func, vector.GetType());
   return func.m_fValue;
 }
@@ -1001,11 +1001,11 @@ bool ezReflectionUtils::EnumerationToString(const ezRTTI* pEnumerationRtti, ezIn
   }
 }
 
-void ezReflectionUtils::GetEnumKeysAndValues(const ezRTTI* pEnumerationRtti, ezDynamicArray<EnumKeyValuePair>& entries, ezEnum<EnumConversionMode> conversionMode)
+void ezReflectionUtils::GetEnumKeysAndValues(const ezRTTI* pEnumerationRtti, ezDynamicArray<EnumKeyValuePair>& ref_entries, ezEnum<EnumConversionMode> conversionMode)
 {
   /// \test This is new.
 
-  entries.Clear();
+  ref_entries.Clear();
 
   if (pEnumerationRtti->IsDerivedFrom<ezEnumBase>())
   {
@@ -1015,7 +1015,7 @@ void ezReflectionUtils::GetEnumKeysAndValues(const ezRTTI* pEnumerationRtti, ezD
       {
         ezVariant value = static_cast<const ezAbstractConstantProperty*>(pProp)->GetConstant();
 
-        auto& e = entries.ExpandAndGetRef();
+        auto& e = ref_entries.ExpandAndGetRef();
         e.m_sKey = conversionMode == EnumConversionMode::FullyQualifiedName ? pProp->GetPropertyName() : ezStringUtils::FindLastSubString(pProp->GetPropertyName(), "::") + 2;
         e.m_iValue = value.ConvertTo<ezInt32>();
       }

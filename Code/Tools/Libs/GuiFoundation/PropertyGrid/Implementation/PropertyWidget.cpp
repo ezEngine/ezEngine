@@ -49,9 +49,9 @@ void ezQtPropertyEditorCheckboxWidget::InternalSetValue(const ezVariant& value)
   }
 }
 
-void ezQtPropertyEditorCheckboxWidget::mousePressEvent(QMouseEvent* ev)
+void ezQtPropertyEditorCheckboxWidget::mousePressEvent(QMouseEvent* pEv)
 {
-  QWidget::mousePressEvent(ev);
+  QWidget::mousePressEvent(pEv);
 
   m_pWidget->toggle();
 }
@@ -960,8 +960,8 @@ void ezQtPropertyEditorLineEditWidget::on_TextFinished_triggered()
 
 /// *** COLOR ***
 
-ezQtColorButtonWidget::ezQtColorButtonWidget(QWidget* parent)
-  : QFrame(parent)
+ezQtColorButtonWidget::ezQtColorButtonWidget(QWidget* pParent)
+  : QFrame(pParent)
 {
   setAutoFillBackground(true);
   setCursor(Qt::PointingHandCursor);
@@ -1255,8 +1255,8 @@ void ezQtPropertyEditorBitflagsWidget::on_Menu_aboutToHide()
 
 /// *** CURVE1D ***
 
-ezQtCurve1DButtonWidget::ezQtCurve1DButtonWidget(QWidget* parent)
-  : QLabel(parent)
+ezQtCurve1DButtonWidget::ezQtCurve1DButtonWidget(QWidget* pParent)
+  : QLabel(pParent)
 {
   setAutoFillBackground(true);
   setCursor(Qt::PointingHandCursor);

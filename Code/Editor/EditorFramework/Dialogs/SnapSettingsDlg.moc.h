@@ -10,7 +10,7 @@ class ezQtSnapSettingsDlg : public QDialog, public Ui_SnapSettingsDlg
   Q_OBJECT
 
 public:
-  ezQtSnapSettingsDlg(QWidget* parent);
+  ezQtSnapSettingsDlg(QWidget* pParent);
 
 private Q_SLOTS:
   void on_ButtonBox_clicked(QAbstractButton* button);

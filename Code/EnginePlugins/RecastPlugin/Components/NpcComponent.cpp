@@ -22,17 +22,17 @@ EZ_END_ABSTRACT_COMPONENT_TYPE
 ezNpcComponent::ezNpcComponent() = default;
 ezNpcComponent::~ezNpcComponent() = default;
 
-void ezNpcComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezNpcComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
-  auto& s = stream.GetStream();
+  SUPER::SerializeComponent(inout_stream);
+  auto& s = inout_stream.GetStream();
 }
 
-void ezNpcComponent::DeserializeComponent(ezWorldReader& stream)
+void ezNpcComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
+  SUPER::DeserializeComponent(inout_stream);
   // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 }
 
 

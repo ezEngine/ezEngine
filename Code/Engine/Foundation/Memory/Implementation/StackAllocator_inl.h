@@ -33,19 +33,19 @@ void* ezStackAllocator<TrackingFlags>::Allocate(size_t uiSize, size_t uiAlign, e
 }
 
 template <ezUInt32 TrackingFlags>
-void ezStackAllocator<TrackingFlags>::Deallocate(void* ptr)
+void ezStackAllocator<TrackingFlags>::Deallocate(void* pPtr)
 {
   EZ_LOCK(m_Mutex);
 
   ezUInt32 uiIndex;
-  if (m_PtrToDestructDataIndexTable.Remove(ptr, &uiIndex))
+  if (m_PtrToDestructDataIndexTable.Remove(pPtr, &uiIndex))
   {
     auto& data = m_DestructData[uiIndex];
     data.m_Func = nullptr;
     data.m_Ptr = nullptr;
   }
 
-  ezAllocator<ezMemoryPolicies::ezStackAllocation, TrackingFlags>::Deallocate(ptr);
+  ezAllocator<ezMemoryPolicies::ezStackAllocation, TrackingFlags>::Deallocate(pPtr);
 }
 
 EZ_MSVC_ANALYSIS_WARNING_PUSH

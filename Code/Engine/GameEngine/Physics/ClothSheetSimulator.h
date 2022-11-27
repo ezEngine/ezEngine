@@ -41,8 +41,8 @@ public:
   /// All cloth nodes.
   ezDynamicArray<Node, ezAlignedAllocatorWrapper> m_Nodes;
 
-  void SimulateCloth(const ezTime& tDiff);
-  void SimulateStep(const ezSimdFloat tDiffSqr, ezUInt32 uiMaxIterations, ezSimdFloat fAllowedError);
+  void SimulateCloth(const ezTime& diff);
+  void SimulateStep(const ezSimdFloat fDiffSqr, ezUInt32 uiMaxIterations, ezSimdFloat fAllowedError);
   bool HasEquilibrium(ezSimdFloat fAllowedMovement) const;
 
 private:

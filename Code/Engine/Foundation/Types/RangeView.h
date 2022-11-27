@@ -94,9 +94,9 @@ private:
 };
 
 template <typename V, typename I>
-typename ezRangeView<V, I>::Iterator begin(ezRangeView<V, I>& container)
+typename ezRangeView<V, I>::Iterator begin(ezRangeView<V, I>& in_container)
 {
-  return container.begin();
+  return in_container.begin();
 }
 
 template <typename V, typename I>
@@ -112,9 +112,9 @@ typename ezRangeView<V, I>::ConstIterator cbegin(const ezRangeView<V, I>& contai
 }
 
 template <typename V, typename I>
-typename ezRangeView<V, I>::Iterator end(ezRangeView<V, I>& container)
+typename ezRangeView<V, I>::Iterator end(ezRangeView<V, I>& in_container)
 {
-  return container.end();
+  return in_container.end();
 }
 
 template <typename V, typename I>

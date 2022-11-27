@@ -20,7 +20,7 @@ namespace
     ezGameObject* pObjects[4];
   };
 
-  TestWorldObjects CreateTestWorld(ezWorld& world, bool bDynamic)
+  TestWorldObjects CreateTestWorld(ezWorld& ref_world, bool bDynamic)
   {
     TestWorldObjects testWorldObjects;
     ezMemoryUtils::ZeroFill(&testWorldObjects, 1);
@@ -35,23 +35,23 @@ namespace
     desc.m_LocalScaling = ezVec3(1.5f, 1.5f, 1.5f);
     desc.m_sName.Assign("Parent1");
 
-    world.CreateObject(desc, testWorldObjects.pParent1);
+    ref_world.CreateObject(desc, testWorldObjects.pParent1);
 
     desc.m_sName.Assign("Parent2");
-    world.CreateObject(desc, testWorldObjects.pParent2);
+    ref_world.CreateObject(desc, testWorldObjects.pParent2);
 
     desc.m_hParent = testWorldObjects.pParent1->GetHandle();
     desc.m_sName.Assign("Child11");
-    world.CreateObject(desc, testWorldObjects.pChild11);
+    ref_world.CreateObject(desc, testWorldObjects.pChild11);
 
     desc.m_hParent = testWorldObjects.pParent2->GetHandle();
     desc.m_sName.Assign("Child21");
-    world.CreateObject(desc, testWorldObjects.pChild21);
+    ref_world.CreateObject(desc, testWorldObjects.pChild21);
 
     return testWorldObjects;
   }
 
-  void TestTransforms(const TestWorldObjects& o, ezVec3 offset = ezVec3(100.0f, 0.0f, 0.0f))
+  void TestTransforms(const TestWorldObjects& o, ezVec3 vOffset = ezVec3(100.0f, 0.0f, 0.0f))
   {
     const float eps = ezMath::DefaultEpsilon<float>();
     ezQuat q;
@@ -59,25 +59,25 @@ namespace
 
     for (ezUInt32 i = 0; i < 2; ++i)
     {
-      EZ_TEST_VEC3(o.pObjects[i]->GetGlobalPosition(), offset, 0);
+      EZ_TEST_VEC3(o.pObjects[i]->GetGlobalPosition(), vOffset, 0);
       EZ_TEST_BOOL(o.pObjects[i]->GetGlobalRotation().IsEqualRotation(q, eps * 10.0f));
       EZ_TEST_VEC3(o.pObjects[i]->GetGlobalScaling(), ezVec3(1.5f, 1.5f, 1.5f), 0);
     }
 
     for (ezUInt32 i = 2; i < 4; ++i)
     {
-      EZ_TEST_VEC3(o.pObjects[i]->GetGlobalPosition(), offset + ezVec3(0.0f, 150.0f, 0.0f), eps * 2.0f);
+      EZ_TEST_VEC3(o.pObjects[i]->GetGlobalPosition(), vOffset + ezVec3(0.0f, 150.0f, 0.0f), eps * 2.0f);
       EZ_TEST_BOOL(o.pObjects[i]->GetGlobalRotation().IsEqualRotation(q * q, eps * 10.0f));
       EZ_TEST_VEC3(o.pObjects[i]->GetGlobalScaling(), ezVec3(2.25f, 2.25f, 2.25f), 0);
     }
   }
 
-  void SanityCheckWorld(ezWorld& world)
+  void SanityCheckWorld(ezWorld& ref_world)
   {
     struct Traverser
     {
-      Traverser(ezWorld& world)
-        : m_World(world)
+      Traverser(ezWorld& ref_world)
+        : m_World(ref_world)
       {
       }
 
@@ -108,8 +108,8 @@ namespace
       }
     };
 
-    Traverser traverser(world);
-    world.Traverse(ezWorld::VisitorFunc(&Traverser::Visit, &traverser), ezWorld::TraversalMethod::BreadthFirst);
+    Traverser traverser(ref_world);
+    ref_world.Traverse(ezWorld::VisitorFunc(&Traverser::Visit, &traverser), ezWorld::TraversalMethod::BreadthFirst);
   }
 
   class CustomCoordinateSystemProvider : public ezCoordinateSystemProvider
@@ -120,13 +120,13 @@ namespace
     {
     }
 
-    virtual void GetCoordinateSystem(const ezVec3& vGlobalPosition, ezCoordinateSystem& out_CoordinateSystem) const override
+    virtual void GetCoordinateSystem(const ezVec3& vGlobalPosition, ezCoordinateSystem& out_coordinateSystem) const override
     {
       const ezMat3 mTmp = ezGraphicsUtils::CreateLookAtViewMatrix(-vGlobalPosition, ezVec3(0, 0, 1), ezHandedness::LeftHanded);
 
-      out_CoordinateSystem.m_vRightDir = mTmp.GetRow(0);
-      out_CoordinateSystem.m_vUpDir = mTmp.GetRow(1);
-      out_CoordinateSystem.m_vForwardDir = mTmp.GetRow(2);
+      out_coordinateSystem.m_vRightDir = mTmp.GetRow(0);
+      out_coordinateSystem.m_vUpDir = mTmp.GetRow(1);
+      out_coordinateSystem.m_vForwardDir = mTmp.GetRow(2);
     }
   };
 } // namespace

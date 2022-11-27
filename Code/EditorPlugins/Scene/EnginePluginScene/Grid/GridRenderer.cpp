@@ -33,14 +33,14 @@ ezGridRenderer::ezGridRenderer()
   CreateVertexBuffer();
 }
 
-void ezGridRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types) const
+void ezGridRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& ref_types) const
 {
-  types.PushBack(ezGetStaticRTTI<ezGridRenderData>());
+  ref_types.PushBack(ezGetStaticRTTI<ezGridRenderData>());
 }
 
-void ezGridRenderer::GetSupportedRenderDataCategories(ezHybridArray<ezRenderData::Category, 8>& categories) const
+void ezGridRenderer::GetSupportedRenderDataCategories(ezHybridArray<ezRenderData::Category, 8>& ref_categories) const
 {
-  categories.PushBack(ezDefaultRenderDataCategories::SimpleTransparent);
+  ref_categories.PushBack(ezDefaultRenderDataCategories::SimpleTransparent);
 }
 
 void ezGridRenderer::CreateVertexBuffer()
@@ -221,7 +221,7 @@ float AdjustGridDensity(float fDensity, ezUInt32 uiWindowWidth, float fOrthoDimX
   return fNewDensity;
 }
 
-void ezEditorGridExtractor::Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& extractedRenderData)
+void ezEditorGridExtractor::Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData)
 {
   if (m_pSceneContext == nullptr || m_pSceneContext->GetGridDensity() == 0.0f)
     return;
@@ -293,5 +293,5 @@ void ezEditorGridExtractor::Extract(const ezView& view, const ezDynamicArray<con
     pRenderData->m_iLastLine2 = iNumLines;
   }
 
-  extractedRenderData.AddRenderData(pRenderData, ezDefaultRenderDataCategories::SimpleTransparent);
+  ref_extractedRenderData.AddRenderData(pRenderData, ezDefaultRenderDataCategories::SimpleTransparent);
 }

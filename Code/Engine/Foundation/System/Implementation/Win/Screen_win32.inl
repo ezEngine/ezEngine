@@ -3,14 +3,14 @@ EZ_FOUNDATION_INTERNAL_HEADER
 
 #include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 
-BOOL CALLBACK ezMonitorEnumProc(HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMonitor, LPARAM dwData)
+BOOL CALLBACK ezMonitorEnumProc(HMONITOR pMonitor, HDC pHdcMonitor, LPRECT pLprcMonitor, LPARAM data)
 {
-  ezHybridArray<ezScreenInfo, 2>* pScreens = (ezHybridArray<ezScreenInfo, 2>*)dwData;
+  ezHybridArray<ezScreenInfo, 2>* pScreens = (ezHybridArray<ezScreenInfo, 2>*)data;
 
   MONITORINFOEXW info;
   info.cbSize = sizeof(info);
 
-  if (!GetMonitorInfoW(hMonitor, &info))
+  if (!GetMonitorInfoW(pMonitor, &info))
     return TRUE;
 
   // In Windows screen coordinates are from top/left to bottom/right
@@ -35,13 +35,13 @@ BOOL CALLBACK ezMonitorEnumProc(HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMo
   return TRUE;
 }
 
-ezResult ezScreen::EnumerateScreens(ezHybridArray<ezScreenInfo, 2>& out_Screens)
+ezResult ezScreen::EnumerateScreens(ezHybridArray<ezScreenInfo, 2>& out_screens)
 {
-  out_Screens.Clear();
-  if (EnumDisplayMonitors(nullptr, nullptr, ezMonitorEnumProc, (LPARAM)&out_Screens) == FALSE)
+  out_screens.Clear();
+  if (EnumDisplayMonitors(nullptr, nullptr, ezMonitorEnumProc, (LPARAM)&out_screens) == FALSE)
     return EZ_FAILURE;
 
-  if (out_Screens.IsEmpty())
+  if (out_screens.IsEmpty())
     return EZ_FAILURE;
 
   return EZ_SUCCESS;

@@ -19,8 +19,8 @@ class EZ_RENDERERCORE_DLL ezBoxReflectionProbeComponent : public ezReflectionPro
   // ezComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
 protected:
   virtual void OnActivated() override;
@@ -35,7 +35,7 @@ public:
   ~ezBoxReflectionProbeComponent();
 
   const ezVec3& GetExtents() const;       // [ property ]
-  void SetExtents(const ezVec3& extents); // [ property ]
+  void SetExtents(const ezVec3& vExtents); // [ property ]
 
   const ezVec3& GetInfluenceScale() const;               // [ property ]
   void SetInfluenceScale(const ezVec3& vInfluenceScale); // [ property ]

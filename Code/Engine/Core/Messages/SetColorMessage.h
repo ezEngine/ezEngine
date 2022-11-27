@@ -30,13 +30,13 @@ struct EZ_CORE_DLL ezMsgSetColor : public ezMessage
   ezColor m_Color;
   ezEnum<ezSetColorMode> m_Mode;
 
-  void ModifyColor(ezColor& color) const;
-  void ModifyColor(ezColorGammaUB& color) const;
+  void ModifyColor(ezColor& ref_color) const;
+  void ModifyColor(ezColorGammaUB& ref_color) const;
 
   //////////////////////////////////////////////////////////////////////////
   // ezMessage interface
   //
 
-  virtual void Serialize(ezStreamWriter& stream) const override;
-  virtual void Deserialize(ezStreamReader& stream, ezUInt8 uiTypeVersion) override;
+  virtual void Serialize(ezStreamWriter& inout_stream) const override;
+  virtual void Deserialize(ezStreamReader& inout_stream, ezUInt8 uiTypeVersion) override;
 };

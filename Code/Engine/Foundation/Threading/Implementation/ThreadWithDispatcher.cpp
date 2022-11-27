@@ -10,10 +10,10 @@ ezThreadWithDispatcher::ezThreadWithDispatcher(const char* szName /*= "ezThreadW
 
 ezThreadWithDispatcher::~ezThreadWithDispatcher() = default;
 
-void ezThreadWithDispatcher::Dispatch(DispatchFunction&& pDelegate)
+void ezThreadWithDispatcher::Dispatch(DispatchFunction&& delegate)
 {
   EZ_LOCK(m_QueueMutex);
-  m_ActiveQueue.PushBack(std::move(pDelegate));
+  m_ActiveQueue.PushBack(std::move(delegate));
 }
 
 void ezThreadWithDispatcher::DispatchQueue()

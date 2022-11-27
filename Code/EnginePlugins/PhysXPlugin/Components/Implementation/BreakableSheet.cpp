@@ -136,11 +136,11 @@ void ezBreakableSheetComponent::Update()
   }
 }
 
-void ezBreakableSheetComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezBreakableSheetComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
   s << m_fWidth;
   s << m_fHeight;
   s << m_fThickness;
@@ -157,11 +157,11 @@ void ezBreakableSheetComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_bIncludeInNavmesh;
 }
 
-void ezBreakableSheetComponent::DeserializeComponent(ezWorldReader& stream)
+void ezBreakableSheetComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
+  SUPER::DeserializeComponent(inout_stream);
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
   s >> m_fWidth;
   s >> m_fHeight;
   s >> m_fThickness;
@@ -180,11 +180,11 @@ void ezBreakableSheetComponent::DeserializeComponent(ezWorldReader& stream)
   m_vExtents = ezVec3(m_fWidth, m_fThickness, m_fHeight);
 }
 
-ezResult ezBreakableSheetComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg)
+ezResult ezBreakableSheetComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg)
 {
   if (m_bBroken)
   {
-    bounds = m_BrokenPiecesBoundingSphere;
+    ref_bounds = m_BrokenPiecesBoundingSphere;
     return EZ_SUCCESS;
   }
   else
@@ -192,7 +192,7 @@ ezResult ezBreakableSheetComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, 
     if (m_hUnbrokenMesh.IsValid())
     {
       ezResourceLock<ezMeshResource> pMesh(m_hUnbrokenMesh, ezResourceAcquireMode::BlockTillLoaded);
-      bounds = pMesh->GetBounds();
+      ref_bounds = pMesh->GetBounds();
       return EZ_SUCCESS;
     }
   }
@@ -200,13 +200,13 @@ ezResult ezBreakableSheetComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, 
   return EZ_FAILURE;
 }
 
-void ezBreakableSheetComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const
+void ezBreakableSheetComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& ref_msg) const
 {
-  if (msg.m_Mode == ezWorldGeoExtractionUtil::ExtractionMode::CollisionMesh || (msg.m_Mode == ezWorldGeoExtractionUtil::ExtractionMode::NavMeshGeneration && m_bIncludeInNavmesh))
+  if (ref_msg.m_Mode == ezWorldGeoExtractionUtil::ExtractionMode::CollisionMesh || (ref_msg.m_Mode == ezWorldGeoExtractionUtil::ExtractionMode::NavMeshGeneration && m_bIncludeInNavmesh))
   {
     const ezVec3 vExtents(m_fWidth, m_fThickness, m_fHeight);
 
-    msg.AddBox(GetOwner()->GetGlobalTransform(), vExtents);
+    ref_msg.AddBox(GetOwner()->GetGlobalTransform(), vExtents);
   }
 }
 
@@ -330,31 +330,31 @@ void ezBreakableSheetComponent::OnCollision(ezMsgCollision& msg)
   }
 }
 
-void ezBreakableSheetComponent::AddImpulseAtPos(ezMsgPhysicsAddImpulse& msg)
+void ezBreakableSheetComponent::AddImpulseAtPos(ezMsgPhysicsAddImpulse& ref_msg)
 {
-  if (msg.m_uiObjectFilterID == ezInvalidIndex)
+  if (ref_msg.m_uiObjectFilterID == ezInvalidIndex)
     return;
 
   if (!m_bBroken)
   {
-    if (msg.m_vImpulse.GetLength() > m_fBreakImpulseStrength)
+    if (ref_msg.m_vImpulse.GetLength() > m_fBreakImpulseStrength)
     {
       ezMsgCollision fakeMsg;
-      fakeMsg.m_vPosition = msg.m_vGlobalPosition;
-      fakeMsg.m_vImpulse = msg.m_vImpulse;
+      fakeMsg.m_vPosition = ref_msg.m_vGlobalPosition;
+      fakeMsg.m_vImpulse = ref_msg.m_vImpulse;
 
       BreakNow(&fakeMsg);
     }
   }
   else
   {
-    physx::PxRigidDynamic* pActor = m_ShapeIDsToActors.GetValueOrDefault(msg.m_uiObjectFilterID, nullptr);
+    physx::PxRigidDynamic* pActor = m_ShapeIDsToActors.GetValueOrDefault(ref_msg.m_uiObjectFilterID, nullptr);
 
     if (pActor != nullptr)
     {
       EZ_PX_WRITE_LOCK(*pActor->getScene());
 
-      PxRigidBodyExt::addForceAtPos(*pActor, ezPxConversionUtils::ToVec3(msg.m_vImpulse), ezPxConversionUtils::ToVec3(msg.m_vGlobalPosition), PxForceMode::eIMPULSE);
+      PxRigidBodyExt::addForceAtPos(*pActor, ezPxConversionUtils::ToVec3(ref_msg.m_vImpulse), ezPxConversionUtils::ToVec3(ref_msg.m_vGlobalPosition), PxForceMode::eIMPULSE);
     }
   }
 }
@@ -438,12 +438,12 @@ float ezBreakableSheetComponent::GetBreakImpulseStrength() const
   return m_fBreakImpulseStrength;
 }
 
-void ezBreakableSheetComponent::SetDisappearTimeout(ezTime fDisappearTimeout)
+void ezBreakableSheetComponent::SetDisappearTimeout(ezTime disappearTimeout)
 {
-  if (fDisappearTimeout.IsNegative())
+  if (disappearTimeout.IsNegative())
     return;
 
-  m_DisappearTimeout = fDisappearTimeout;
+  m_DisappearTimeout = disappearTimeout;
 }
 
 ezTime ezBreakableSheetComponent::GetDisappearTimeout() const

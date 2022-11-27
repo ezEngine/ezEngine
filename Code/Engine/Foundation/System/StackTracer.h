@@ -13,7 +13,7 @@ public:
   /// The trace will contain not more than trace.GetCount() entries.
   /// [Windows] If called in an exception handler, set pContext to PEXCEPTION_POINTERS::ContextRecord.
   /// Returns the actual number of captured entries.
-  static ezUInt32 GetStackTrace(ezArrayPtr<void*>& trace, void* pContext = nullptr);
+  static ezUInt32 GetStackTrace(ezArrayPtr<void*>& ref_trace, void* pContext = nullptr);
 
   /// \brief Callback-function to print a text somewhere
   using PrintFunc = ezDelegate<void(const char* szText)>;

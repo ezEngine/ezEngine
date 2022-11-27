@@ -79,9 +79,9 @@ public:
 
   ezEvent<const ezPropertyAnimAssetDocumentEvent&> m_PropertyAnimEvents;
 
-  void SetPlayAnimation(bool play);
+  void SetPlayAnimation(bool bPlay);
   bool GetPlayAnimation() const { return m_bPlayAnimation; }
-  void SetRepeatAnimation(bool repeat);
+  void SetRepeatAnimation(bool bRepeat);
   bool GetRepeatAnimation() const { return m_bRepeatAnimation; }
   void ExecuteAnimationPlaybackStep();
 
@@ -93,19 +93,19 @@ public:
   ezUuid FindTrack(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, ezPropertyAnimTarget::Enum target) const;
   ezUuid CreateTrack(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, ezPropertyAnimTarget::Enum target);
 
-  ezUuid FindCurveCp(const ezUuid& trackGuid, ezInt64 tickX);
-  ezUuid InsertCurveCpAt(const ezUuid& trackGuid, ezInt64 tickX, double newPosY);
+  ezUuid FindCurveCp(const ezUuid& trackGuid, ezInt64 iTickX);
+  ezUuid InsertCurveCpAt(const ezUuid& trackGuid, ezInt64 iTickX, double fNewPosY);
 
-  ezUuid FindGradientColorCp(const ezUuid& trackGuid, ezInt64 tickX);
-  ezUuid InsertGradientColorCpAt(const ezUuid& trackGuid, ezInt64 tickX, const ezColorGammaUB& color);
+  ezUuid FindGradientColorCp(const ezUuid& trackGuid, ezInt64 iTickX);
+  ezUuid InsertGradientColorCpAt(const ezUuid& trackGuid, ezInt64 iTickX, const ezColorGammaUB& color);
 
-  ezUuid FindGradientAlphaCp(const ezUuid& trackGuid, ezInt64 tickX);
-  ezUuid InsertGradientAlphaCpAt(const ezUuid& trackGuid, ezInt64 tickX, ezUInt8 alpha);
+  ezUuid FindGradientAlphaCp(const ezUuid& trackGuid, ezInt64 iTickX);
+  ezUuid InsertGradientAlphaCpAt(const ezUuid& trackGuid, ezInt64 iTickX, ezUInt8 uiAlpha);
 
-  ezUuid FindGradientIntensityCp(const ezUuid& trackGuid, ezInt64 tickX);
-  ezUuid InsertGradientIntensityCpAt(const ezUuid& trackGuid, ezInt64 tickX, float intensity);
+  ezUuid FindGradientIntensityCp(const ezUuid& trackGuid, ezInt64 iTickX);
+  ezUuid InsertGradientIntensityCpAt(const ezUuid& trackGuid, ezInt64 iTickX, float fIntensity);
 
-  ezUuid InsertEventTrackCpAt(ezInt64 tickX, const char* szValue);
+  ezUuid InsertEventTrackCpAt(ezInt64 iTickX, const char* szValue);
 
   virtual ezManipulatorSearchStrategy GetManipulatorSearchStrategy() const override
   {

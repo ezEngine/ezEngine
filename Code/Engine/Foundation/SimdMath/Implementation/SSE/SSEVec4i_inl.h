@@ -9,11 +9,11 @@ EZ_ALWAYS_INLINE ezSimdVec4i::ezSimdVec4i()
 #endif
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4i::ezSimdVec4i(ezInt32 xyzw)
+EZ_ALWAYS_INLINE ezSimdVec4i::ezSimdVec4i(ezInt32 iXyzw)
 {
   EZ_CHECK_SIMD_ALIGNMENT(this);
 
-  m_v = _mm_set1_epi32(xyzw);
+  m_v = _mm_set1_epi32(iXyzw);
 }
 
 EZ_ALWAYS_INLINE ezSimdVec4i::ezSimdVec4i(ezInt32 x, ezInt32 y, ezInt32 z, ezInt32 w)
@@ -28,9 +28,9 @@ EZ_ALWAYS_INLINE ezSimdVec4i::ezSimdVec4i(ezInternal::QuadInt v)
   m_v = v;
 }
 
-EZ_ALWAYS_INLINE void ezSimdVec4i::Set(ezInt32 xyzw)
+EZ_ALWAYS_INLINE void ezSimdVec4i::Set(ezInt32 iXyzw)
 {
-  m_v = _mm_set1_epi32(xyzw);
+  m_v = _mm_set1_epi32(iXyzw);
 }
 
 EZ_ALWAYS_INLINE void ezSimdVec4i::Set(ezInt32 x, ezInt32 y, ezInt32 z, ezInt32 w)
@@ -362,10 +362,10 @@ EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::ZeroVector()
 }
 
 // static
-EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::Select(const ezSimdVec4b& cmp, const ezSimdVec4i& ifTrue, const ezSimdVec4i& ifFalse)
+EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::Select(const ezSimdVec4b& vCmp, const ezSimdVec4i& vTrue, const ezSimdVec4i& vFalse)
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_41
-  return _mm_castps_si128(_mm_blendv_ps(_mm_castsi128_ps(ifFalse.m_v), _mm_castsi128_ps(ifTrue.m_v), cmp.m_v));
+  return _mm_castps_si128(_mm_blendv_ps(_mm_castsi128_ps(vFalse.m_v), _mm_castsi128_ps(vTrue.m_v), vCmp.m_v));
 #else
   return _mm_castps_si128(_mm_or_ps(_mm_andnot_ps(cmp.m_v, _mm_castsi128_ps(ifFalse.m_v)), _mm_and_ps(cmp.m_v, _mm_castsi128_ps(ifTrue.m_v))));
 #endif

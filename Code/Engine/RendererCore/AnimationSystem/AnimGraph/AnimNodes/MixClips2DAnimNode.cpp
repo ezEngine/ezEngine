@@ -50,13 +50,13 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMixClips2DAnimNode, 1, ezRTTIDefaultAllocator<
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezAnimClip2D::SetAnimationFile(const char* sz)
+void ezAnimClip2D::SetAnimationFile(const char* szSz)
 {
   ezAnimationClipResourceHandle hResource;
 
-  if (!ezStringUtils::IsNullOrEmpty(sz))
+  if (!ezStringUtils::IsNullOrEmpty(szSz))
   {
-    hResource = ezResourceManager::LoadResource<ezAnimationClipResource>(sz);
+    hResource = ezResourceManager::LoadResource<ezAnimationClipResource>(szSz);
   }
 
   m_hAnimation = hResource;
@@ -279,13 +279,13 @@ void ezMixClips2DAnimNode::ComputeClipsAndWeights(const ezVec2& p, ezDynamicArra
   }
 }
 
-void ezMixClips2DAnimNode::SetCenterClipFile(const char* sz)
+void ezMixClips2DAnimNode::SetCenterClipFile(const char* szSz)
 {
   ezAnimationClipResourceHandle hResource;
 
-  if (!ezStringUtils::IsNullOrEmpty(sz))
+  if (!ezStringUtils::IsNullOrEmpty(szSz))
   {
-    hResource = ezResourceManager::LoadResource<ezAnimationClipResource>(sz);
+    hResource = ezResourceManager::LoadResource<ezAnimationClipResource>(szSz);
   }
 
   m_hCenterClip = hResource;

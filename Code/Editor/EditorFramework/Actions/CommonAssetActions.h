@@ -13,7 +13,7 @@ public:
   static void RegisterActions();
   static void UnregisterActions();
 
-  static void MapActions(const char* szMapping, const char* szPath, ezUInt32 stateMask);
+  static void MapActions(const char* szMapping, const char* szPath, ezUInt32 uiStateMask);
 
   static ezActionDescriptorHandle s_hCategory;
   static ezActionDescriptorHandle s_hPause;

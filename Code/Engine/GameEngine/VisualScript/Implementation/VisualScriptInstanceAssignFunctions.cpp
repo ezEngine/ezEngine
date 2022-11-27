@@ -5,132 +5,132 @@
 
 ezMap<ezVisualScriptInstance::AssignFuncKey, ezVisualScriptDataPinAssignFunc> ezVisualScriptInstance::s_DataPinAssignFunctions;
 
-bool ezVisualScriptAssignNumberNumber(const void* src, void* dst)
+bool ezVisualScriptAssignNumberNumber(const void* pSrc, void* pDst)
 {
-  const bool res = *reinterpret_cast<double*>(dst) != *reinterpret_cast<const double*>(src);
-  *reinterpret_cast<double*>(dst) = *reinterpret_cast<const double*>(src);
+  const bool res = *reinterpret_cast<double*>(pDst) != *reinterpret_cast<const double*>(pSrc);
+  *reinterpret_cast<double*>(pDst) = *reinterpret_cast<const double*>(pSrc);
   return res;
 }
 
-bool ezVisualScriptAssignNumberBool(const void* src, void* dst)
+bool ezVisualScriptAssignNumberBool(const void* pSrc, void* pDst)
 {
-  const bool res = (*reinterpret_cast<bool*>(dst) != (*reinterpret_cast<const double*>(src) > 0.0));
-  *reinterpret_cast<bool*>(dst) = *reinterpret_cast<const double*>(src) > 0.0;
+  const bool res = (*reinterpret_cast<bool*>(pDst) != (*reinterpret_cast<const double*>(pSrc) > 0.0));
+  *reinterpret_cast<bool*>(pDst) = *reinterpret_cast<const double*>(pSrc) > 0.0;
   return res;
 }
 
-bool ezVisualScriptAssignNumberVec3(const void* src, void* dst)
+bool ezVisualScriptAssignNumberVec3(const void* pSrc, void* pDst)
 {
-  const bool res = *reinterpret_cast<ezVec3*>(dst) != ezVec3(static_cast<float>(*reinterpret_cast<const double*>(src)));
-  *reinterpret_cast<ezVec3*>(dst) = ezVec3(static_cast<float>(*reinterpret_cast<const double*>(src)));
+  const bool res = *reinterpret_cast<ezVec3*>(pDst) != ezVec3(static_cast<float>(*reinterpret_cast<const double*>(pSrc)));
+  *reinterpret_cast<ezVec3*>(pDst) = ezVec3(static_cast<float>(*reinterpret_cast<const double*>(pSrc)));
   return res;
 }
 
-bool ezVisualScriptAssignNumberString(const void* src, void* dst)
+bool ezVisualScriptAssignNumberString(const void* pSrc, void* pDst)
 {
-  double newValue = *reinterpret_cast<const double*>(src);
+  double newValue = *reinterpret_cast<const double*>(pSrc);
   ezStringBuilder sb;
   ezConversionUtils::ToString(newValue, sb);
 
-  const bool res = *reinterpret_cast<ezString*>(dst) != sb;
-  *reinterpret_cast<ezString*>(dst) = sb;
+  const bool res = *reinterpret_cast<ezString*>(pDst) != sb;
+  *reinterpret_cast<ezString*>(pDst) = sb;
   return res;
 }
 
-bool ezVisualScriptAssignNumberVariant(const void* src, void* dst)
+bool ezVisualScriptAssignNumberVariant(const void* pSrc, void* pDst)
 {
-  ezVariant newValue = *reinterpret_cast<const double*>(src);
-  const bool res = *reinterpret_cast<ezVariant*>(dst) != newValue;
-  *reinterpret_cast<ezVariant*>(dst) = newValue;
+  ezVariant newValue = *reinterpret_cast<const double*>(pSrc);
+  const bool res = *reinterpret_cast<ezVariant*>(pDst) != newValue;
+  *reinterpret_cast<ezVariant*>(pDst) = newValue;
   return res;
 }
 
 
-bool ezVisualScriptAssignBoolBool(const void* src, void* dst)
+bool ezVisualScriptAssignBoolBool(const void* pSrc, void* pDst)
 {
-  const bool res = *reinterpret_cast<bool*>(dst) != *reinterpret_cast<const bool*>(src);
-  *reinterpret_cast<bool*>(dst) = *reinterpret_cast<const bool*>(src);
+  const bool res = *reinterpret_cast<bool*>(pDst) != *reinterpret_cast<const bool*>(pSrc);
+  *reinterpret_cast<bool*>(pDst) = *reinterpret_cast<const bool*>(pSrc);
   return res;
 }
 
-bool ezVisualScriptAssignBoolNumber(const void* src, void* dst)
+bool ezVisualScriptAssignBoolNumber(const void* pSrc, void* pDst)
 {
-  double newValue = *reinterpret_cast<const bool*>(src) ? 1.0 : 0.0;
-  const bool res = *reinterpret_cast<double*>(dst) != newValue;
-  *reinterpret_cast<double*>(dst) = newValue;
+  double newValue = *reinterpret_cast<const bool*>(pSrc) ? 1.0 : 0.0;
+  const bool res = *reinterpret_cast<double*>(pDst) != newValue;
+  *reinterpret_cast<double*>(pDst) = newValue;
   return res;
 }
 
-bool ezVisualScriptAssignBoolString(const void* src, void* dst)
+bool ezVisualScriptAssignBoolString(const void* pSrc, void* pDst)
 {
-  bool newValue = *reinterpret_cast<const bool*>(src);
+  bool newValue = *reinterpret_cast<const bool*>(pSrc);
   ezStringBuilder sb;
   ezConversionUtils::ToString(newValue, sb);
 
-  const bool res = *reinterpret_cast<ezString*>(dst) != sb;
-  *reinterpret_cast<ezString*>(dst) = sb;
+  const bool res = *reinterpret_cast<ezString*>(pDst) != sb;
+  *reinterpret_cast<ezString*>(pDst) = sb;
   return res;
 }
 
-bool ezVisualScriptAssignBoolVariant(const void* src, void* dst)
+bool ezVisualScriptAssignBoolVariant(const void* pSrc, void* pDst)
 {
-  ezVariant newValue = *reinterpret_cast<const bool*>(src);
-  const bool res = *reinterpret_cast<ezVariant*>(dst) != newValue;
-  *reinterpret_cast<ezVariant*>(dst) = newValue;
-  return res;
-}
-
-
-bool ezVisualScriptAssignVec3Vec3(const void* src, void* dst)
-{
-  const bool res = *reinterpret_cast<ezVec3*>(dst) != *reinterpret_cast<const ezVec3*>(src);
-  *reinterpret_cast<ezVec3*>(dst) = *reinterpret_cast<const ezVec3*>(src);
-  return res;
-}
-
-bool ezVisualScriptAssignVec3Variant(const void* src, void* dst)
-{
-  ezVariant newValue = *reinterpret_cast<const ezVec3*>(src);
-  const bool res = *reinterpret_cast<ezVariant*>(dst) != newValue;
-  *reinterpret_cast<ezVariant*>(dst) = newValue;
+  ezVariant newValue = *reinterpret_cast<const bool*>(pSrc);
+  const bool res = *reinterpret_cast<ezVariant*>(pDst) != newValue;
+  *reinterpret_cast<ezVariant*>(pDst) = newValue;
   return res;
 }
 
 
-bool ezVisualScriptAssignStringString(const void* src, void* dst)
+bool ezVisualScriptAssignVec3Vec3(const void* pSrc, void* pDst)
 {
-  const bool res = *reinterpret_cast<ezString*>(dst) != *reinterpret_cast<const ezString*>(src);
-  *reinterpret_cast<ezString*>(dst) = *reinterpret_cast<const ezString*>(src);
+  const bool res = *reinterpret_cast<ezVec3*>(pDst) != *reinterpret_cast<const ezVec3*>(pSrc);
+  *reinterpret_cast<ezVec3*>(pDst) = *reinterpret_cast<const ezVec3*>(pSrc);
   return res;
 }
 
-bool ezVisualScriptAssignStringVariant(const void* src, void* dst)
+bool ezVisualScriptAssignVec3Variant(const void* pSrc, void* pDst)
 {
-  ezVariant newValue = *reinterpret_cast<const ezString*>(src);
-  const bool res = *reinterpret_cast<ezVariant*>(dst) != newValue;
-  *reinterpret_cast<ezVariant*>(dst) = newValue;
+  ezVariant newValue = *reinterpret_cast<const ezVec3*>(pSrc);
+  const bool res = *reinterpret_cast<ezVariant*>(pDst) != newValue;
+  *reinterpret_cast<ezVariant*>(pDst) = newValue;
   return res;
 }
 
 
-bool ezVisualScriptAssignGameObject(const void* src, void* dst)
+bool ezVisualScriptAssignStringString(const void* pSrc, void* pDst)
 {
-  const bool res = *reinterpret_cast<ezGameObjectHandle*>(dst) != *reinterpret_cast<const ezGameObjectHandle*>(src);
-  *reinterpret_cast<ezGameObjectHandle*>(dst) = *reinterpret_cast<const ezGameObjectHandle*>(src);
+  const bool res = *reinterpret_cast<ezString*>(pDst) != *reinterpret_cast<const ezString*>(pSrc);
+  *reinterpret_cast<ezString*>(pDst) = *reinterpret_cast<const ezString*>(pSrc);
   return res;
 }
 
-bool ezVisualScriptAssignComponent(const void* src, void* dst)
+bool ezVisualScriptAssignStringVariant(const void* pSrc, void* pDst)
 {
-  const bool res = *reinterpret_cast<ezComponentHandle*>(dst) != *reinterpret_cast<const ezComponentHandle*>(src);
-  *reinterpret_cast<ezComponentHandle*>(dst) = *reinterpret_cast<const ezComponentHandle*>(src);
+  ezVariant newValue = *reinterpret_cast<const ezString*>(pSrc);
+  const bool res = *reinterpret_cast<ezVariant*>(pDst) != newValue;
+  *reinterpret_cast<ezVariant*>(pDst) = newValue;
   return res;
 }
 
-bool ezVisualScriptAssignVariantVariant(const void* src, void* dst)
+
+bool ezVisualScriptAssignGameObject(const void* pSrc, void* pDst)
 {
-  const bool res = *reinterpret_cast<ezVariant*>(dst) != *reinterpret_cast<const ezVariant*>(src);
-  *reinterpret_cast<ezVariant*>(dst) = *reinterpret_cast<const ezVariant*>(src);
+  const bool res = *reinterpret_cast<ezGameObjectHandle*>(pDst) != *reinterpret_cast<const ezGameObjectHandle*>(pSrc);
+  *reinterpret_cast<ezGameObjectHandle*>(pDst) = *reinterpret_cast<const ezGameObjectHandle*>(pSrc);
+  return res;
+}
+
+bool ezVisualScriptAssignComponent(const void* pSrc, void* pDst)
+{
+  const bool res = *reinterpret_cast<ezComponentHandle*>(pDst) != *reinterpret_cast<const ezComponentHandle*>(pSrc);
+  *reinterpret_cast<ezComponentHandle*>(pDst) = *reinterpret_cast<const ezComponentHandle*>(pSrc);
+  return res;
+}
+
+bool ezVisualScriptAssignVariantVariant(const void* pSrc, void* pDst)
+{
+  const bool res = *reinterpret_cast<ezVariant*>(pDst) != *reinterpret_cast<const ezVariant*>(pSrc);
+  *reinterpret_cast<ezVariant*>(pDst) = *reinterpret_cast<const ezVariant*>(pSrc);
   return res;
 }
 

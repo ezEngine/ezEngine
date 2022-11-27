@@ -25,7 +25,7 @@ public:
     ezUInt32 m_uiSortedIdx;
   };
 
-  ezQtEventTrackWidget(QWidget* parent);
+  ezQtEventTrackWidget(QWidget* pParent);
 
   void SetData(const ezEventTrackData* pData, double fMinCurveLength);
   void SetGridBarWidget(ezQGridBarWidget* pGridBar) { m_pGridBar = pGridBar; }
@@ -38,15 +38,15 @@ public:
   QPointF MapToScene(const QPoint& pos) const;
 
   void ClearSelection();
-  void GetSelection(ezHybridArray<ezUInt32, 32>& out_Selection) const;
+  void GetSelection(ezHybridArray<ezUInt32, 32>& out_selection) const;
 
 Q_SIGNALS:
-  void DoubleClickEvent(double scenePosX, double epsilon);
+  void DoubleClickEvent(double fScenePosX, double fEpsilon);
   void DeleteControlPointsEvent();
-  void MoveControlPointsEvent(double moveX);
-  void BeginOperationEvent(QString name);
+  void MoveControlPointsEvent(double fMoveX);
+  void BeginOperationEvent(QString sName);
   void EndOperationEvent(bool bCommit);
-  void ScaleControlPointsEvent(const QPointF& centerPos, double scaleX);
+  void ScaleControlPointsEvent(const QPointF& centerPos, double fScaleX);
   void ContextMenuEvent(QPoint pos, QPointF scenePos);
   void SelectionChangedEvent();
 

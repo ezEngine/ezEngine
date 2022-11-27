@@ -14,7 +14,7 @@
 // ezReflectionSerializer public static functions
 ////////////////////////////////////////////////////////////////////////
 
-void ezReflectionSerializer::WriteObjectToDDL(ezStreamWriter& stream, const ezRTTI* pRtti, const void* pObject, bool bCompactMmode /*= true*/, ezOpenDdlWriter::TypeStringMode typeMode /*= ezOpenDdlWriter::TypeStringMode::Shortest*/)
+void ezReflectionSerializer::WriteObjectToDDL(ezStreamWriter& inout_stream, const ezRTTI* pRtti, const void* pObject, bool bCompactMmode /*= true*/, ezOpenDdlWriter::TypeStringMode typeMode /*= ezOpenDdlWriter::TypeStringMode::Shortest*/)
 {
   ezAbstractObjectGraph graph;
   ezRttiConverterContext context;
@@ -26,10 +26,10 @@ void ezReflectionSerializer::WriteObjectToDDL(ezStreamWriter& stream, const ezRT
   context.RegisterObject(guid, pRtti, const_cast<void*>(pObject));
   conv.AddObjectToGraph(pRtti, const_cast<void*>(pObject), "root");
 
-  ezAbstractGraphDdlSerializer::Write(stream, &graph, nullptr, bCompactMmode, typeMode);
+  ezAbstractGraphDdlSerializer::Write(inout_stream, &graph, nullptr, bCompactMmode, typeMode);
 }
 
-void ezReflectionSerializer::WriteObjectToDDL(ezOpenDdlWriter& ddl, const ezRTTI* pRtti, const void* pObject, ezUuid guid /*= ezUuid()*/)
+void ezReflectionSerializer::WriteObjectToDDL(ezOpenDdlWriter& ref_ddl, const ezRTTI* pRtti, const void* pObject, ezUuid guid /*= ezUuid()*/)
 {
   ezAbstractObjectGraph graph;
   ezRttiConverterContext context;
@@ -41,10 +41,10 @@ void ezReflectionSerializer::WriteObjectToDDL(ezOpenDdlWriter& ddl, const ezRTTI
   context.RegisterObject(guid, pRtti, const_cast<void*>(pObject));
   conv.AddObjectToGraph(pRtti, const_cast<void*>(pObject), "root");
 
-  ezAbstractGraphDdlSerializer::Write(ddl, &graph, nullptr);
+  ezAbstractGraphDdlSerializer::Write(ref_ddl, &graph, nullptr);
 }
 
-void ezReflectionSerializer::WriteObjectToBinary(ezStreamWriter& stream, const ezRTTI* pRtti, const void* pObject)
+void ezReflectionSerializer::WriteObjectToBinary(ezStreamWriter& inout_stream, const ezRTTI* pRtti, const void* pObject)
 {
   ezAbstractObjectGraph graph;
   ezRttiConverterContext context;
@@ -56,22 +56,22 @@ void ezReflectionSerializer::WriteObjectToBinary(ezStreamWriter& stream, const e
   context.RegisterObject(guid, pRtti, const_cast<void*>(pObject));
   conv.AddObjectToGraph(pRtti, const_cast<void*>(pObject), "root");
 
-  ezAbstractGraphBinarySerializer::Write(stream, &graph);
+  ezAbstractGraphBinarySerializer::Write(inout_stream, &graph);
 }
 
-void* ezReflectionSerializer::ReadObjectFromDDL(ezStreamReader& stream, const ezRTTI*& pRtti)
+void* ezReflectionSerializer::ReadObjectFromDDL(ezStreamReader& inout_stream, const ezRTTI*& ref_pRtti)
 {
   ezOpenDdlReader reader;
-  if (reader.ParseDocument(stream, 0, ezLog::GetThreadLocalLogSystem()).Failed())
+  if (reader.ParseDocument(inout_stream, 0, ezLog::GetThreadLocalLogSystem()).Failed())
   {
     ezLog::Error("Failed to parse DDL graph");
     return nullptr;
   }
 
-  return ReadObjectFromDDL(reader.GetRootElement(), pRtti);
+  return ReadObjectFromDDL(reader.GetRootElement(), ref_pRtti);
 }
 
-void* ezReflectionSerializer::ReadObjectFromDDL(const ezOpenDdlReaderElement* pRootElement, const ezRTTI*& pRtti)
+void* ezReflectionSerializer::ReadObjectFromDDL(const ezOpenDdlReaderElement* pRootElement, const ezRTTI*& ref_pRtti)
 {
   ezAbstractObjectGraph graph;
   ezRttiConverterContext context;
@@ -83,42 +83,42 @@ void* ezReflectionSerializer::ReadObjectFromDDL(const ezOpenDdlReaderElement* pR
 
   EZ_ASSERT_DEV(pRootNode != nullptr, "invalid document");
 
-  pRtti = ezRTTI::FindTypeByName(pRootNode->GetType());
+  ref_pRtti = ezRTTI::FindTypeByName(pRootNode->GetType());
 
-  void* pTarget = context.CreateObject(pRootNode->GetGuid(), pRtti);
+  void* pTarget = context.CreateObject(pRootNode->GetGuid(), ref_pRtti);
 
-  convRead.ApplyPropertiesToObject(pRootNode, pRtti, pTarget);
+  convRead.ApplyPropertiesToObject(pRootNode, ref_pRtti, pTarget);
 
   return pTarget;
 }
 
-void* ezReflectionSerializer::ReadObjectFromBinary(ezStreamReader& stream, const ezRTTI*& pRtti)
+void* ezReflectionSerializer::ReadObjectFromBinary(ezStreamReader& inout_stream, const ezRTTI*& ref_pRtti)
 {
   ezAbstractObjectGraph graph;
   ezRttiConverterContext context;
 
-  ezAbstractGraphBinarySerializer::Read(stream, &graph);
+  ezAbstractGraphBinarySerializer::Read(inout_stream, &graph);
 
   ezRttiConverterReader convRead(&graph, &context);
   auto* pRootNode = graph.GetNodeByName("root");
 
   EZ_ASSERT_DEV(pRootNode != nullptr, "invalid document");
 
-  pRtti = ezRTTI::FindTypeByName(pRootNode->GetType());
+  ref_pRtti = ezRTTI::FindTypeByName(pRootNode->GetType());
 
-  void* pTarget = context.CreateObject(pRootNode->GetGuid(), pRtti);
+  void* pTarget = context.CreateObject(pRootNode->GetGuid(), ref_pRtti);
 
-  convRead.ApplyPropertiesToObject(pRootNode, pRtti, pTarget);
+  convRead.ApplyPropertiesToObject(pRootNode, ref_pRtti, pTarget);
 
   return pTarget;
 }
 
-void ezReflectionSerializer::ReadObjectPropertiesFromDDL(ezStreamReader& stream, const ezRTTI& rtti, void* pObject)
+void ezReflectionSerializer::ReadObjectPropertiesFromDDL(ezStreamReader& inout_stream, const ezRTTI& rtti, void* pObject)
 {
   ezAbstractObjectGraph graph;
   ezRttiConverterContext context;
 
-  ezAbstractGraphDdlSerializer::Read(stream, &graph).IgnoreResult();
+  ezAbstractGraphDdlSerializer::Read(inout_stream, &graph).IgnoreResult();
 
   ezRttiConverterReader convRead(&graph, &context);
   auto* pRootNode = graph.GetNodeByName("root");
@@ -131,12 +131,12 @@ void ezReflectionSerializer::ReadObjectPropertiesFromDDL(ezStreamReader& stream,
   convRead.ApplyPropertiesToObject(pRootNode, &rtti, pObject);
 }
 
-void ezReflectionSerializer::ReadObjectPropertiesFromBinary(ezStreamReader& stream, const ezRTTI& rtti, void* pObject)
+void ezReflectionSerializer::ReadObjectPropertiesFromBinary(ezStreamReader& inout_stream, const ezRTTI& rtti, void* pObject)
 {
   ezAbstractObjectGraph graph;
   ezRttiConverterContext context;
 
-  ezAbstractGraphBinarySerializer::Read(stream, &graph);
+  ezAbstractGraphBinarySerializer::Read(inout_stream, &graph);
 
   ezRttiConverterReader convRead(&graph, &context);
   auto* pRootNode = graph.GetNodeByName("root");

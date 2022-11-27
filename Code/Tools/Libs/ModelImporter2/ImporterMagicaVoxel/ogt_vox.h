@@ -230,28 +230,28 @@ typedef void (*ogt_vox_free_func)(void* ptr);
 
 // override the default scene memory allocator if you need to control memory precisely.
 void ogt_vox_set_memory_allocator(ogt_vox_alloc_func alloc_func, ogt_vox_free_func free_func);
-void* ogt_vox_malloc(size_t size);
-void ogt_vox_free(void* mem);
+void* ogt_vox_malloc(size_t uiSize);
+void ogt_vox_free(void* pMem);
 
 // flags for ogt_vox_read_scene_with_flags
 static const uint32_t k_read_scene_flags_groups = 1 << 0; // if not specified, all instance transforms will be flattened into world space. If specified, will read group information and keep all transforms as local transform relative to the group they are in.
 
 // creates a scene from a vox file within a memory buffer of a given size.
 // you can destroy the input buffer once you have the scene as this function will allocate separate memory for the scene objecvt.
-const ogt_vox_scene* ogt_vox_read_scene(const uint8_t* buffer, uint32_t buffer_size);
+const ogt_vox_scene* ogt_vox_read_scene(const uint8_t* pBuffer, uint32_t buffer_size);
 
 // just like ogt_vox_read_scene, but you can additionally pass a union of k_read_scene_flags
-const ogt_vox_scene* ogt_vox_read_scene_with_flags(const uint8_t* buffer, uint32_t buffer_size, uint32_t read_flags);
+const ogt_vox_scene* ogt_vox_read_scene_with_flags(const uint8_t* pBuffer, uint32_t buffer_size, uint32_t read_flags);
 
 // destroys a scene object to release its memory.
-void ogt_vox_destroy_scene(const ogt_vox_scene* scene);
+void ogt_vox_destroy_scene(const ogt_vox_scene* pScene);
 
 // writes the scene to a new buffer and returns the buffer size. free the buffer with ogt_vox_free
-uint8_t* ogt_vox_write_scene(const ogt_vox_scene* scene, uint32_t* buffer_size);
+uint8_t* ogt_vox_write_scene(const ogt_vox_scene* pScene, uint32_t* pBuffer_size);
 
 // merges the specified scenes together to create a bigger scene. Merged scene can be destroyed using ogt_vox_destroy_scene
 // If you require specific colors in the merged scene palette, provide up to and including 255 of them via required_colors/required_color_count.
-ogt_vox_scene* ogt_vox_merge_scenes(const ogt_vox_scene** scenes, uint32_t scene_count, const ogt_vox_rgba* required_colors, const uint32_t required_color_count);
+ogt_vox_scene* ogt_vox_merge_scenes(const ogt_vox_scene** pScenes, uint32_t scene_count, const ogt_vox_rgba* pRequired_colors, const uint32_t required_color_count);
 
 #endif // OGT_VOX_H__
 
@@ -1369,46 +1369,46 @@ struct _vox_file
   uint32_t offset;            // current offset in the buffer data.
 };
 
-static bool _vox_file_read(_vox_file* fp, void* data, uint32_t data_size)
+static bool _vox_file_read(_vox_file* pFp, void* pData, uint32_t data_size)
 {
-  size_t data_to_read = _vox_min(fp->buffer_size - fp->offset, data_size);
-  memcpy(data, &fp->buffer[fp->offset], data_to_read);
-  fp->offset += data_size;
+  size_t data_to_read = _vox_min(pFp->buffer_size - pFp->offset, data_size);
+  memcpy(pData, &pFp->buffer[pFp->offset], data_to_read);
+  pFp->offset += data_size;
   return data_to_read == data_size;
 }
 
-static void _vox_file_seek_forwards(_vox_file* fp, uint32_t offset)
+static void _vox_file_seek_forwards(_vox_file* pFp, uint32_t offset)
 {
-  fp->offset += offset;
+  pFp->offset += offset;
 }
 
-static bool _vox_file_eof(const _vox_file* fp)
+static bool _vox_file_eof(const _vox_file* pFp)
 {
-  return fp->offset >= fp->buffer_size;
+  return pFp->offset >= pFp->buffer_size;
 }
 
-static const void* _vox_file_data_pointer(const _vox_file* fp)
+static const void* _vox_file_data_pointer(const _vox_file* pFp)
 {
-  return &fp->buffer[fp->offset];
+  return &pFp->buffer[pFp->offset];
 }
 
 // hash utilities
-static uint32_t _vox_hash(const uint8_t* data, uint32_t data_size)
+static uint32_t _vox_hash(const uint8_t* pData, uint32_t data_size)
 {
   uint32_t hash = 0;
   for (uint32_t i = 0; i < data_size; i++)
-    hash = data[i] + (hash * 65559);
+    hash = pData[i] + (hash * 65559);
   return hash;
 }
 
 // memory allocation utils.
-static void* _ogt_priv_alloc_default(size_t size)
+static void* _ogt_priv_alloc_default(size_t uiSize)
 {
-  return malloc(size);
+  return malloc(uiSize);
 }
-static void _ogt_priv_free_default(void* ptr)
+static void _ogt_priv_free_default(void* pPtr)
 {
-  free(ptr);
+  free(pPtr);
 }
 static ogt_vox_alloc_func g_alloc_func = _ogt_priv_alloc_default; // default function for allocating
 static ogt_vox_free_func g_free_func = _ogt_priv_free_default;    // default  function for freeing.
@@ -1431,45 +1431,45 @@ void ogt_vox_set_memory_allocator(ogt_vox_alloc_func alloc_func, ogt_vox_free_fu
   }
 }
 
-static void* _vox_malloc(size_t size)
+static void* _vox_malloc(size_t uiSize)
 {
-  return size ? g_alloc_func(size) : NULL;
+  return uiSize ? g_alloc_func(uiSize) : NULL;
 }
 
-static void* _vox_calloc(size_t size)
+static void* _vox_calloc(size_t uiSize)
 {
-  void* pMem = _vox_malloc(size);
+  void* pMem = _vox_malloc(uiSize);
   if (pMem)
-    memset(pMem, 0, size);
+    memset(pMem, 0, uiSize);
   return pMem;
 }
 
-static void _vox_free(void* old_ptr)
+static void _vox_free(void* pOld_ptr)
 {
-  if (old_ptr)
-    g_free_func(old_ptr);
+  if (pOld_ptr)
+    g_free_func(pOld_ptr);
 }
 
-static void* _vox_realloc(void* old_ptr, size_t old_size, size_t new_size)
+static void* _vox_realloc(void* pOld_ptr, size_t uiOld_size, size_t uiNew_size)
 {
   // early out if new size is non-zero and no resize is required.
-  if (new_size && old_size >= new_size)
-    return old_ptr;
+  if (uiNew_size && uiOld_size >= uiNew_size)
+    return pOld_ptr;
 
   // memcpy from the old ptr only if both sides are valid.
-  void* new_ptr = _vox_malloc(new_size);
+  void* new_ptr = _vox_malloc(uiNew_size);
   if (new_ptr)
   {
     // copy any existing elements over
-    if (old_ptr && old_size)
-      memcpy(new_ptr, old_ptr, old_size);
+    if (pOld_ptr && uiOld_size)
+      memcpy(new_ptr, pOld_ptr, uiOld_size);
     // zero out any new tail elements
-    assert(new_size > old_size); // this should be guaranteed by the _vox_realloc early out case above.
-    uintptr_t new_tail_ptr = (uintptr_t)new_ptr + old_size;
-    memset((void*)new_tail_ptr, 0, new_size - old_size);
+    assert(uiNew_size > uiOld_size); // this should be guaranteed by the _vox_realloc early out case above.
+    uintptr_t new_tail_ptr = (uintptr_t)new_ptr + uiOld_size;
+    memset((void*)new_tail_ptr, 0, uiNew_size - uiOld_size);
   }
-  if (old_ptr)
-    _vox_free(old_ptr);
+  if (pOld_ptr)
+    _vox_free(pOld_ptr);
   return new_ptr;
 }
 
@@ -1490,21 +1490,21 @@ struct _vox_array
     count = 0;
     capacity = 0;
   }
-  void reserve(size_t new_capacity)
+  void reserve(size_t uiNew_capacity)
   {
-    data = (T*)_vox_realloc(data, capacity * sizeof(T), new_capacity * sizeof(T));
-    capacity = new_capacity;
+    data = (T*)_vox_realloc(data, capacity * sizeof(T), uiNew_capacity * sizeof(T));
+    capacity = uiNew_capacity;
   }
-  void grow_to_fit_index(size_t index)
+  void grow_to_fit_index(size_t uiIndex)
   {
-    if (index >= count)
-      resize(index + 1);
+    if (uiIndex >= count)
+      resize(uiIndex + 1);
   }
-  void resize(size_t new_count)
+  void resize(size_t uiNew_count)
   {
-    if (new_count > capacity)
-      reserve(new_count);
-    count = new_count;
+    if (uiNew_count > capacity)
+      reserve(uiNew_count);
+    count = uiNew_count;
   }
   void push_back(const T& new_element)
   {
@@ -1516,32 +1516,32 @@ struct _vox_array
     }
     data[count++] = new_element;
   }
-  void push_back_many(const T* new_elements, size_t num_elements)
+  void push_back_many(const T* pNew_elements, size_t uiNum_elements)
   {
-    if (count + num_elements > capacity)
+    if (count + uiNum_elements > capacity)
     {
-      size_t new_capacity = capacity + num_elements;
+      size_t new_capacity = capacity + uiNum_elements;
       new_capacity = new_capacity ? (new_capacity * 3) >> 1 : 2; // grow by 50% each time, otherwise start at 2 elements.
       reserve(new_capacity);
-      assert(capacity >= (count + num_elements));
+      assert(capacity >= (count + uiNum_elements));
     }
-    for (size_t i = 0; i < num_elements; i++)
-      data[count + i] = new_elements[i];
-    count += num_elements;
+    for (size_t i = 0; i < uiNum_elements; i++)
+      data[count + i] = pNew_elements[i];
+    count += uiNum_elements;
   }
   size_t size() const
   {
     return count;
   }
-  T& operator[](size_t index)
+  T& operator[](size_t uiIndex)
   {
-    assert(index < count);
-    return data[index];
+    assert(uiIndex < count);
+    return data[uiIndex];
   }
-  const T& operator[](size_t index) const
+  const T& operator[](size_t uiIndex) const
   {
-    assert(index < count);
-    return data[index];
+    assert(uiIndex < count);
+    return data[uiIndex];
   }
   T* data;         // data for the array
   size_t capacity; // capacity of the array
@@ -1605,55 +1605,55 @@ struct _vox_dictionary
   uint32_t buffer_mem_used;
 };
 
-static bool _vox_file_read_dict(_vox_dictionary* dict, _vox_file* fp)
+static bool _vox_file_read_dict(_vox_dictionary* pDict, _vox_file* pFp)
 {
   uint32_t num_pairs_to_read = 0;
-  _vox_file_read(fp, &num_pairs_to_read, sizeof(uint32_t));
+  _vox_file_read(pFp, &num_pairs_to_read, sizeof(uint32_t));
   assert(num_pairs_to_read <= k_vox_max_dict_key_value_pairs);
 
-  dict->buffer_mem_used = 0;
-  dict->num_key_value_pairs = 0;
+  pDict->buffer_mem_used = 0;
+  pDict->num_key_value_pairs = 0;
   for (uint32_t i = 0; i < num_pairs_to_read; i++)
   {
     // get the size of the key string
     uint32_t key_string_size = 0;
-    _vox_file_read(fp, &key_string_size, sizeof(uint32_t));
+    _vox_file_read(pFp, &key_string_size, sizeof(uint32_t));
     // allocate space for the key, and read it in.
-    if (dict->buffer_mem_used + key_string_size > k_vox_max_dict_buffer_size)
+    if (pDict->buffer_mem_used + key_string_size > k_vox_max_dict_buffer_size)
       return false;
-    char* key = &dict->buffer[dict->buffer_mem_used];
-    dict->buffer_mem_used += key_string_size + 1; // + 1 for zero terminator
-    _vox_file_read(fp, key, key_string_size);
+    char* key = &pDict->buffer[pDict->buffer_mem_used];
+    pDict->buffer_mem_used += key_string_size + 1; // + 1 for zero terminator
+    _vox_file_read(pFp, key, key_string_size);
     key[key_string_size] = 0;                    // zero-terminate
     assert(_vox_strlen(key) == key_string_size); // sanity check
 
     // get the size of the value string
     uint32_t value_string_size = 0;
-    _vox_file_read(fp, &value_string_size, sizeof(uint32_t));
+    _vox_file_read(pFp, &value_string_size, sizeof(uint32_t));
     // allocate space for the value, and read it in.
-    if (dict->buffer_mem_used + value_string_size > k_vox_max_dict_buffer_size)
+    if (pDict->buffer_mem_used + value_string_size > k_vox_max_dict_buffer_size)
       return (false);
-    char* value = &dict->buffer[dict->buffer_mem_used];
-    dict->buffer_mem_used += value_string_size + 1; // + 1 for zero terminator
-    _vox_file_read(fp, value, value_string_size);
+    char* value = &pDict->buffer[pDict->buffer_mem_used];
+    pDict->buffer_mem_used += value_string_size + 1; // + 1 for zero terminator
+    _vox_file_read(pFp, value, value_string_size);
     value[value_string_size] = 0;                    // zero-terminate
     assert(_vox_strlen(value) == value_string_size); // sanity check
     // now assign it in the dictionary
-    dict->keys[dict->num_key_value_pairs] = key;
-    dict->values[dict->num_key_value_pairs] = value;
-    dict->num_key_value_pairs++;
+    pDict->keys[pDict->num_key_value_pairs] = key;
+    pDict->values[pDict->num_key_value_pairs] = value;
+    pDict->num_key_value_pairs++;
   }
 
   return true;
 }
 
 // helper for looking up in the dictionary
-static const char* _vox_dict_get_value_as_string(const _vox_dictionary* dict, const char* key_to_find, const char* default_value = NULL)
+static const char* _vox_dict_get_value_as_string(const _vox_dictionary* pDict, const char* szKey_to_find, const char* szDefault_value = NULL)
 {
-  for (uint32_t i = 0; i < dict->num_key_value_pairs; i++)
-    if (_vox_strcasecmp(dict->keys[i], key_to_find) == 0)
-      return dict->values[i];
-  return default_value;
+  for (uint32_t i = 0; i < pDict->num_key_value_pairs; i++)
+    if (_vox_strcasecmp(pDict->keys[i], szKey_to_find) == 0)
+      return pDict->values[i];
+  return szDefault_value;
 }
 
 // lookup table for _vox_make_transform_from_dict_strings
@@ -1668,18 +1668,18 @@ static const vec3 k_vectors[4] = {
 static const uint32_t k_row2_index[] = {UINT32_MAX, UINT32_MAX, UINT32_MAX, 2, UINT32_MAX, 1, 0, UINT32_MAX};
 
 
-static ogt_vox_transform _vox_make_transform_from_dict_strings(const char* rotation_string, const char* translation_string)
+static ogt_vox_transform _vox_make_transform_from_dict_strings(const char* szRotation_string, const char* szTranslation_string)
 {
   ogt_vox_transform transform = _vox_transform_identity();
 
-  if (rotation_string != NULL)
+  if (szRotation_string != NULL)
   {
     // compute the per-row indexes into k_vectors[] array.
     // unpack rotation bits.
     //  bits  : meaning
     //  0 - 1 : index of the non-zero entry in the first row
     //  2 - 3 : index of the non-zero entry in the second row
-    uint32_t packed_rotation_bits = atoi(rotation_string);
+    uint32_t packed_rotation_bits = atoi(szRotation_string);
     uint32_t row0_vec_index = (packed_rotation_bits >> 0) & 3;
     uint32_t row1_vec_index = (packed_rotation_bits >> 2) & 3;
     uint32_t row2_vec_index = k_row2_index[(1 << row0_vec_index) | (1 << row1_vec_index)]; // process of elimination to determine row 2 index based on row0/row1 being one of {0,1,2} choose 2.
@@ -1712,12 +1712,12 @@ static ogt_vox_transform _vox_make_transform_from_dict_strings(const char* rotat
     transform.m22 = row2.z;
   }
 
-  if (translation_string != NULL)
+  if (szTranslation_string != NULL)
   {
     int32_t x = 0;
     int32_t y = 0;
     int32_t z = 0;
-    _vox_str_scanf(translation_string, "%i %i %i", &x, &y, &z);
+    _vox_str_scanf(szTranslation_string, "%i %i %i", &x, &y, &z);
     transform.m30 = (float)x;
     transform.m31 = (float)y;
     transform.m32 = (float)z;
@@ -1763,8 +1763,8 @@ struct _vox_scene_node_
 
 static void generate_instances_for_node(
   const _vox_array<_vox_scene_node_>& nodes, uint32_t node_index, const _vox_array<uint32_t>& child_id_array, uint32_t layer_index,
-  const ogt_vox_transform& transform, const _vox_array<ogt_vox_model*>& model_ptrs, const char* transform_last_name, bool transform_last_hidden,
-  _vox_array<ogt_vox_instance>& instances, _vox_array<char>& string_data, _vox_array<ogt_vox_group>& groups, uint32_t group_index, bool generate_groups)
+  const ogt_vox_transform& transform, const _vox_array<ogt_vox_model*>& model_ptrs, const char* szTransform_last_name, bool bTransform_last_hidden,
+  _vox_array<ogt_vox_instance>& ref_instances, _vox_array<char>& ref_string_data, _vox_array<ogt_vox_group>& ref_groups, uint32_t group_index, bool bGenerate_groups)
 {
   const _vox_scene_node_* node = &nodes[node_index];
   assert(node);
@@ -1772,34 +1772,34 @@ static void generate_instances_for_node(
   {
     case k_nodetype_transform:
     {
-      ogt_vox_transform new_transform = (generate_groups) ? node->u.transform.transform                                      // don't multiply by the parent transform. caller wants the group-relative transform
-                                                          : _vox_transform_multiply(node->u.transform.transform, transform); // flatten the transform if we're not generating groups: child transform * parent transform
+      ogt_vox_transform new_transform = (bGenerate_groups) ? node->u.transform.transform                                      // don't multiply by the parent transform. caller wants the group-relative transform
+                                                           : _vox_transform_multiply(node->u.transform.transform, transform); // flatten the transform if we're not generating groups: child transform * parent transform
       const char* new_transform_name = node->u.transform.name[0] ? node->u.transform.name : NULL;
-      transform_last_name = new_transform_name ? new_transform_name : transform_last_name; // if this node has a name, use it instead of our parent name
-      generate_instances_for_node(nodes, node->u.transform.child_node_id, child_id_array, node->u.transform.layer_id, new_transform, model_ptrs, transform_last_name, node->u.transform.hidden, instances, string_data, groups, group_index, generate_groups);
+      szTransform_last_name = new_transform_name ? new_transform_name : szTransform_last_name; // if this node has a name, use it instead of our parent name
+      generate_instances_for_node(nodes, node->u.transform.child_node_id, child_id_array, node->u.transform.layer_id, new_transform, model_ptrs, szTransform_last_name, node->u.transform.hidden, ref_instances, ref_string_data, ref_groups, group_index, bGenerate_groups);
       break;
     }
     case k_nodetype_group:
     {
       // create a new group only if we're generating groups.
       uint32_t next_group_index = 0;
-      if (generate_groups)
+      if (bGenerate_groups)
       {
-        next_group_index = (uint32_t)groups.size();
+        next_group_index = (uint32_t)ref_groups.size();
         ogt_vox_group group;
         group.parent_group_index = group_index;
         group.transform = transform;
-        group.hidden = transform_last_hidden;
+        group.hidden = bTransform_last_hidden;
         group.layer_index = layer_index;
-        groups.push_back(group);
+        ref_groups.push_back(group);
       }
       // child nodes will only be hidden if their immediate transform is hidden.
-      transform_last_hidden = false;
+      bTransform_last_hidden = false;
 
       const uint32_t* child_node_ids = (const uint32_t*)&child_id_array[node->u.group.first_child_node_id_index];
       for (uint32_t i = 0; i < node->u.group.num_child_nodes; i++)
       {
-        generate_instances_for_node(nodes, child_node_ids[i], child_id_array, layer_index, transform, model_ptrs, transform_last_name, transform_last_hidden, instances, string_data, groups, next_group_index, generate_groups);
+        generate_instances_for_node(nodes, child_node_ids[i], child_id_array, layer_index, transform, model_ptrs, szTransform_last_name, bTransform_last_hidden, ref_instances, ref_string_data, ref_groups, next_group_index, bGenerate_groups);
       }
       break;
     }
@@ -1809,24 +1809,24 @@ static void generate_instances_for_node(
       if (node->u.shape.model_id < model_ptrs.size() && // model ID is valid
           model_ptrs[node->u.shape.model_id] != NULL)   // model is non-NULL.
       {
-        assert(generate_groups || group_index == 0); // if we're not generating groups, group_index should be zero to map to the root group.
+        assert(bGenerate_groups || group_index == 0); // if we're not generating groups, group_index should be zero to map to the root group.
         ogt_vox_instance new_instance;
         new_instance.model_index = node->u.shape.model_id;
         new_instance.transform = transform;
         new_instance.layer_index = layer_index;
         new_instance.group_index = group_index;
-        new_instance.hidden = transform_last_hidden;
+        new_instance.hidden = bTransform_last_hidden;
         // if we got a transform name, allocate space in string_data for it and keep track of the index
         // within string data. This will be patched to a real pointer at the very end.
         new_instance.name = 0;
-        if (transform_last_name && transform_last_name[0])
+        if (szTransform_last_name && szTransform_last_name[0])
         {
-          new_instance.name = (const char*)(string_data.size());
-          size_t name_size = _vox_strlen(transform_last_name) + 1; // +1 for terminator
-          string_data.push_back_many(transform_last_name, name_size);
+          new_instance.name = (const char*)(ref_string_data.size());
+          size_t name_size = _vox_strlen(szTransform_last_name) + 1; // +1 for terminator
+          ref_string_data.push_back_many(szTransform_last_name, name_size);
         }
         // create the instance
-        instances.push_back(new_instance);
+        ref_instances.push_back(new_instance);
       }
       break;
     }
@@ -1838,10 +1838,10 @@ static void generate_instances_for_node(
 }
 
 // ensure instances are ordered in order of increasing model_index
-static int _vox_ordered_compare_instance(const void* _lhs, const void* _rhs)
+static int _vox_ordered_compare_instance(const void* p_lhs, const void* p_rhs)
 {
-  const ogt_vox_instance* lhs = (const ogt_vox_instance*)_lhs;
-  const ogt_vox_instance* rhs = (const ogt_vox_instance*)_rhs;
+  const ogt_vox_instance* lhs = (const ogt_vox_instance*)p_lhs;
+  const ogt_vox_instance* rhs = (const ogt_vox_instance*)p_rhs;
   return lhs->model_index < rhs->model_index ? -1 : lhs->model_index > rhs->model_index ? 1
                                                                                         : 0;
 }
@@ -1863,9 +1863,9 @@ static bool _vox_models_are_equal(const ogt_vox_model* lhs, const ogt_vox_model*
   return memcmp(lhs->voxel_data, rhs->voxel_data, num_voxels_lhs) == 0 ? true : false;
 }
 
-const ogt_vox_scene* ogt_vox_read_scene_with_flags(const uint8_t* buffer, uint32_t buffer_size, uint32_t read_flags)
+const ogt_vox_scene* ogt_vox_read_scene_with_flags(const uint8_t* pBuffer, uint32_t buffer_size, uint32_t read_flags)
 {
-  _vox_file file = {buffer, buffer_size, 0};
+  _vox_file file = {pBuffer, buffer_size, 0};
   _vox_file* fp = &file;
 
   // parsing state/context
@@ -2375,14 +2375,14 @@ const ogt_vox_scene* ogt_vox_read_scene_with_flags(const uint8_t* buffer, uint32
   return scene;
 }
 
-const ogt_vox_scene* ogt_vox_read_scene(const uint8_t* buffer, uint32_t buffer_size)
+const ogt_vox_scene* ogt_vox_read_scene(const uint8_t* pBuffer, uint32_t buffer_size)
 {
-  return ogt_vox_read_scene_with_flags(buffer, buffer_size, 0);
+  return ogt_vox_read_scene_with_flags(pBuffer, buffer_size, 0);
 }
 
-void ogt_vox_destroy_scene(const ogt_vox_scene* _scene)
+void ogt_vox_destroy_scene(const ogt_vox_scene* p_scene)
 {
-  ogt_vox_scene* scene = const_cast<ogt_vox_scene*>(_scene);
+  ogt_vox_scene* scene = const_cast<ogt_vox_scene*>(p_scene);
   // free models from model array
   for (uint32_t i = 0; i < scene->num_models; i++)
     _vox_free((void*)scene->models[i]);
@@ -2437,12 +2437,12 @@ static bool _vox_get_vec3_rotation_bits(const vec3& vec, uint32_t& out_index)
   return is_negative;
 }
 
-static uint8_t _vox_make_packed_rotation_from_transform(const ogt_vox_transform* transform)
+static uint8_t _vox_make_packed_rotation_from_transform(const ogt_vox_transform* pTransform)
 {
   // magicavoxel stores rows, and we have columns, so we do the swizzle here into rows
-  vec3 row0 = vec3_make(transform->m00, transform->m10, transform->m20);
-  vec3 row1 = vec3_make(transform->m01, transform->m11, transform->m21);
-  vec3 row2 = vec3_make(transform->m02, transform->m12, transform->m22);
+  vec3 row0 = vec3_make(pTransform->m00, pTransform->m10, pTransform->m20);
+  vec3 row1 = vec3_make(pTransform->m01, pTransform->m11, pTransform->m21);
+  vec3 row2 = vec3_make(pTransform->m02, pTransform->m12, pTransform->m22);
   uint32_t row0_index = 3, row1_index = 3, row2_index = 3;
   bool row0_negative = _vox_get_vec3_rotation_bits(row0, row0_index);
   bool row1_negative = _vox_get_vec3_rotation_bits(row1, row1_index);
@@ -2456,64 +2456,64 @@ struct _vox_file_writeable
   _vox_array<uint8_t> data;
 };
 
-static void _vox_file_writeable_init(_vox_file_writeable* fp)
+static void _vox_file_writeable_init(_vox_file_writeable* pFp)
 {
-  fp->data.reserve(1024);
+  pFp->data.reserve(1024);
 }
-static void _vox_file_write(_vox_file_writeable* fp, const void* data, uint32_t data_size)
+static void _vox_file_write(_vox_file_writeable* pFp, const void* pData, uint32_t data_size)
 {
-  fp->data.push_back_many((const uint8_t*)data, data_size);
+  pFp->data.push_back_many((const uint8_t*)pData, data_size);
 }
-static void _vox_file_write_uint32(_vox_file_writeable* fp, uint32_t data)
+static void _vox_file_write_uint32(_vox_file_writeable* pFp, uint32_t data)
 {
-  fp->data.push_back_many((const uint8_t*)&data, sizeof(uint32_t));
+  pFp->data.push_back_many((const uint8_t*)&data, sizeof(uint32_t));
 }
-static void _vox_file_write_uint8(_vox_file_writeable* fp, uint8_t data)
+static void _vox_file_write_uint8(_vox_file_writeable* pFp, uint8_t data)
 {
-  fp->data.push_back_many((const uint8_t*)&data, sizeof(uint8_t));
+  pFp->data.push_back_many((const uint8_t*)&data, sizeof(uint8_t));
 }
-static uint32_t _vox_file_get_offset(const _vox_file_writeable* fp)
+static uint32_t _vox_file_get_offset(const _vox_file_writeable* pFp)
 {
-  return (uint32_t)fp->data.count;
+  return (uint32_t)pFp->data.count;
 }
-static uint8_t* _vox_file_get_data(_vox_file_writeable* fp)
+static uint8_t* _vox_file_get_data(_vox_file_writeable* pFp)
 {
-  return &fp->data[0];
+  return &pFp->data[0];
 }
-static void _vox_file_write_dict_key_value(_vox_file_writeable* fp, const char* key, const char* value)
+static void _vox_file_write_dict_key_value(_vox_file_writeable* pFp, const char* szKey, const char* value)
 {
-  if (key == NULL || value == NULL)
+  if (szKey == NULL || value == NULL)
     return;
-  uint32_t key_len = (uint32_t)_vox_strlen(key);
+  uint32_t key_len = (uint32_t)_vox_strlen(szKey);
   uint32_t value_len = (uint32_t)_vox_strlen(value);
-  _vox_file_write_uint32(fp, key_len);
-  _vox_file_write(fp, key, key_len);
-  _vox_file_write_uint32(fp, value_len);
-  _vox_file_write(fp, value, value_len);
+  _vox_file_write_uint32(pFp, key_len);
+  _vox_file_write(pFp, szKey, key_len);
+  _vox_file_write_uint32(pFp, value_len);
+  _vox_file_write(pFp, value, value_len);
 }
 
-static uint32_t _vox_dict_key_value_size(const char* key, const char* value)
+static uint32_t _vox_dict_key_value_size(const char* szKey, const char* value)
 {
-  if (key == NULL || value == NULL)
+  if (szKey == NULL || value == NULL)
     return 0;
-  size_t size = sizeof(uint32_t) + _vox_strlen(key) + sizeof(uint32_t) + _vox_strlen(value);
+  size_t size = sizeof(uint32_t) + _vox_strlen(szKey) + sizeof(uint32_t) + _vox_strlen(value);
   return (uint32_t)size;
 }
 
-static void _vox_file_write_chunk_nTRN(_vox_file_writeable* fp, uint32_t node_id, uint32_t child_node_id, const char* name, bool hidden, const ogt_vox_transform* transform, uint32_t layer_id)
+static void _vox_file_write_chunk_nTRN(_vox_file_writeable* pFp, uint32_t node_id, uint32_t child_node_id, const char* szName, bool bHidden, const ogt_vox_transform* pTransform, uint32_t layer_id)
 {
   // obtain dictionary string pointers
-  const char* hidden_string = hidden ? "1" : NULL;
+  const char* hidden_string = bHidden ? "1" : NULL;
   const char* t_string = NULL;
   const char* r_string = NULL;
   char t_string_buf[64];
   char r_string_buf[64];
   t_string_buf[0] = 0;
   r_string_buf[0] = 0;
-  if (transform != NULL)
+  if (pTransform != NULL)
   {
-    uint8_t packed_rotation_bits = _vox_make_packed_rotation_from_transform(transform);
-    _vox_sprintf(t_string_buf, sizeof(t_string_buf), "%i %i %i", (int32_t)transform->m30, (int32_t)transform->m31, (int32_t)transform->m32);
+    uint8_t packed_rotation_bits = _vox_make_packed_rotation_from_transform(pTransform);
+    _vox_sprintf(t_string_buf, sizeof(t_string_buf), "%i %i %i", (int32_t)pTransform->m30, (int32_t)pTransform->m31, (int32_t)pTransform->m32);
     _vox_sprintf(r_string_buf, sizeof(r_string_buf), "%u", packed_rotation_bits);
     t_string = t_string_buf;
     r_string = r_string_buf;
@@ -2521,7 +2521,7 @@ static void _vox_file_write_chunk_nTRN(_vox_file_writeable* fp, uint32_t node_id
 
   uint32_t node_dict_size =
     sizeof(uint32_t) + // num key value pairs
-    _vox_dict_key_value_size("_name", name) +
+    _vox_dict_key_value_size("_name", szName) +
     _vox_dict_key_value_size("_hidden", hidden_string);
 
   uint32_t frame_dict_size =
@@ -2536,33 +2536,33 @@ static void _vox_file_write_chunk_nTRN(_vox_file_writeable* fp, uint32_t node_id
     frame_dict_size;
 
   // write the nTRN header
-  _vox_file_write_uint32(fp, CHUNK_ID_nTRN);
-  _vox_file_write_uint32(fp, chunk_size_ntrn);
-  _vox_file_write_uint32(fp, 0);
+  _vox_file_write_uint32(pFp, CHUNK_ID_nTRN);
+  _vox_file_write_uint32(pFp, chunk_size_ntrn);
+  _vox_file_write_uint32(pFp, 0);
 
   // write the nTRN payload
-  _vox_file_write_uint32(fp, node_id);
+  _vox_file_write_uint32(pFp, node_id);
 
   // write the node dictionary
-  uint32_t node_dict_keyvalue_count = (name ? 1 : 0) + (hidden_string ? 1 : 0);
-  _vox_file_write_uint32(fp, node_dict_keyvalue_count); // num key values
-  _vox_file_write_dict_key_value(fp, "_name", name);
-  _vox_file_write_dict_key_value(fp, "_hidden", hidden_string);
+  uint32_t node_dict_keyvalue_count = (szName ? 1 : 0) + (hidden_string ? 1 : 0);
+  _vox_file_write_uint32(pFp, node_dict_keyvalue_count); // num key values
+  _vox_file_write_dict_key_value(pFp, "_name", szName);
+  _vox_file_write_dict_key_value(pFp, "_hidden", hidden_string);
 
   // get other properties.
-  _vox_file_write_uint32(fp, child_node_id);
-  _vox_file_write_uint32(fp, UINT32_MAX); // reserved_id must have all bits set.
-  _vox_file_write_uint32(fp, layer_id);
-  _vox_file_write_uint32(fp, 1); // num_frames must be 1
+  _vox_file_write_uint32(pFp, child_node_id);
+  _vox_file_write_uint32(pFp, UINT32_MAX); // reserved_id must have all bits set.
+  _vox_file_write_uint32(pFp, layer_id);
+  _vox_file_write_uint32(pFp, 1); // num_frames must be 1
 
   // write the frame dictionary
-  _vox_file_write_uint32(fp, (r_string ? 1 : 0) + (t_string ? 1 : 0)); // num key values
-  _vox_file_write_dict_key_value(fp, "_r", r_string);
-  _vox_file_write_dict_key_value(fp, "_t", t_string);
+  _vox_file_write_uint32(pFp, (r_string ? 1 : 0) + (t_string ? 1 : 0)); // num key values
+  _vox_file_write_dict_key_value(pFp, "_r", r_string);
+  _vox_file_write_dict_key_value(pFp, "_t", t_string);
 }
 
 // saves the scene out to a buffer that when saved as a .vox file can be loaded with magicavoxel.
-uint8_t* ogt_vox_write_scene(const ogt_vox_scene* scene, uint32_t* buffer_size)
+uint8_t* ogt_vox_write_scene(const ogt_vox_scene* pScene, uint32_t* pBuffer_size)
 {
   _vox_file_writeable file;
   _vox_file_writeable_init(&file);
@@ -2581,9 +2581,9 @@ uint8_t* ogt_vox_write_scene(const ogt_vox_scene* scene, uint32_t* buffer_size)
   const uint32_t offset_post_main_chunk = _vox_file_get_offset(fp);
 
   // write out all model chunks
-  for (uint32_t i = 0; i < scene->num_models; i++)
+  for (uint32_t i = 0; i < pScene->num_models; i++)
   {
-    const ogt_vox_model* model = scene->models[i];
+    const ogt_vox_model* model = pScene->models[i];
     assert(model->size_x <= 126 && model->size_y <= 126 && model->size_z <= 126);
     // count the number of solid voxels in the grid
     uint32_t num_voxels_in_grid = model->size_x * model->size_y * model->size_z;
@@ -2631,33 +2631,33 @@ uint8_t* ogt_vox_write_scene(const ogt_vox_scene* scene, uint32_t* buffer_size)
   }
 
   // define our node_id ranges.
-  assert(scene->num_groups);
+  assert(pScene->num_groups);
   uint32_t first_group_transform_node_id = 0;
-  uint32_t first_group_node_id = first_group_transform_node_id + scene->num_groups;
-  uint32_t first_shape_node_id = first_group_node_id + scene->num_groups;
-  uint32_t first_instance_transform_node_id = first_shape_node_id + scene->num_models;
+  uint32_t first_group_node_id = first_group_transform_node_id + pScene->num_groups;
+  uint32_t first_shape_node_id = first_group_node_id + pScene->num_groups;
+  uint32_t first_instance_transform_node_id = first_shape_node_id + pScene->num_models;
 
   // write the nTRN nodes for each of the groups in the scene.
-  for (uint32_t group_index = 0; group_index < scene->num_groups; group_index++)
+  for (uint32_t group_index = 0; group_index < pScene->num_groups; group_index++)
   {
-    const ogt_vox_group* group = &scene->groups[group_index];
+    const ogt_vox_group* group = &pScene->groups[group_index];
     _vox_file_write_chunk_nTRN(fp, first_group_transform_node_id + group_index, first_group_node_id + group_index, NULL, group->hidden, &group->transform, group->layer_index);
   }
   // write the group nodes for each of the groups in the scene
-  for (uint32_t group_index = 0; group_index < scene->num_groups; group_index++)
+  for (uint32_t group_index = 0; group_index < pScene->num_groups; group_index++)
   {
     // count how many childnodes  there are. This is simply the sum of all
     // groups and instances that have this group as its parent
     uint32_t num_child_nodes = 0;
-    for (uint32_t child_group_index = 0; child_group_index < scene->num_groups; child_group_index++)
-      if (scene->groups[child_group_index].parent_group_index == group_index)
+    for (uint32_t child_group_index = 0; child_group_index < pScene->num_groups; child_group_index++)
+      if (pScene->groups[child_group_index].parent_group_index == group_index)
         num_child_nodes++;
-    for (uint32_t child_instance_index = 0; child_instance_index < scene->num_instances; child_instance_index++)
-      if (scene->instances[child_instance_index].group_index == group_index)
+    for (uint32_t child_instance_index = 0; child_instance_index < pScene->num_instances; child_instance_index++)
+      if (pScene->instances[child_instance_index].group_index == group_index)
         num_child_nodes++;
 
     // count number of dictionary items
-    const char* hidden_string = scene->groups[group_index].hidden ? "1" : NULL;
+    const char* hidden_string = pScene->groups[group_index].hidden ? "1" : NULL;
     uint32_t group_dict_keyvalue_count = (hidden_string ? 1 : 0);
 
     // compute the chunk size.
@@ -2678,17 +2678,17 @@ uint8_t* ogt_vox_write_scene(const ogt_vox_scene* scene, uint32_t* buffer_size)
     _vox_file_write_dict_key_value(fp, "_hidden", hidden_string);
     _vox_file_write_uint32(fp, num_child_nodes);
     // write the child group transform nodes
-    for (uint32_t child_group_index = 0; child_group_index < scene->num_groups; child_group_index++)
-      if (scene->groups[child_group_index].parent_group_index == group_index)
+    for (uint32_t child_group_index = 0; child_group_index < pScene->num_groups; child_group_index++)
+      if (pScene->groups[child_group_index].parent_group_index == group_index)
         _vox_file_write_uint32(fp, first_group_transform_node_id + child_group_index);
     // write the child instance transform nodes
-    for (uint32_t child_instance_index = 0; child_instance_index < scene->num_instances; child_instance_index++)
-      if (scene->instances[child_instance_index].group_index == group_index)
+    for (uint32_t child_instance_index = 0; child_instance_index < pScene->num_instances; child_instance_index++)
+      if (pScene->instances[child_instance_index].group_index == group_index)
         _vox_file_write_uint32(fp, first_instance_transform_node_id + child_instance_index);
   }
 
   // write out an nSHP chunk for each of the models
-  for (uint32_t i = 0; i < scene->num_models; i++)
+  for (uint32_t i = 0; i < pScene->num_models; i++)
   {
     // compute the size of the nSHP chunk
     uint32_t chunk_size_nshp =
@@ -2709,9 +2709,9 @@ uint8_t* ogt_vox_write_scene(const ogt_vox_scene* scene, uint32_t* buffer_size)
     _vox_file_write_uint32(fp, 0);                       // num keyvalue pairs in model dictionary
   }
   // write out an nTRN chunk for all instances - and make them point to the relevant nSHP chunk
-  for (uint32_t i = 0; i < scene->num_instances; i++)
+  for (uint32_t i = 0; i < pScene->num_instances; i++)
   {
-    const ogt_vox_instance* instance = &scene->instances[i];
+    const ogt_vox_instance* instance = &pScene->instances[i];
     uint32_t node_id = first_instance_transform_node_id + i;
     uint32_t child_node_id = first_shape_node_id + instance->model_index;
     _vox_file_write_chunk_nTRN(fp, node_id, child_node_id, instance->name, instance->hidden, &instance->transform, instance->layer_index);
@@ -2722,7 +2722,7 @@ uint8_t* ogt_vox_write_scene(const ogt_vox_scene* scene, uint32_t* buffer_size)
     // .vox stores palette rotated by 1 color index, so do that now.
     ogt_vox_palette rotated_palette;
     for (uint32_t i = 0; i < 256; i++)
-      rotated_palette.color[i] = scene->palette.color[(i + 1) & 255];
+      rotated_palette.color[i] = pScene->palette.color[(i + 1) & 255];
 
     // write the palette chunk header
     _vox_file_write_uint32(fp, CHUNK_ID_RGBA);
@@ -2733,10 +2733,10 @@ uint8_t* ogt_vox_write_scene(const ogt_vox_scene* scene, uint32_t* buffer_size)
   }
 
   // write all layer chunks out.
-  for (uint32_t i = 0; i < scene->num_layers; i++)
+  for (uint32_t i = 0; i < pScene->num_layers; i++)
   {
-    const char* layer_name_string = scene->layers[i].name;
-    const char* hidden_string = scene->layers[i].hidden ? "1" : NULL;
+    const char* layer_name_string = pScene->layers[i].name;
+    const char* hidden_string = pScene->layers[i].hidden ? "1" : NULL;
     uint32_t layer_chunk_size =
       sizeof(int32_t) +  // layer_id
       sizeof(uint32_t) + // num key value pairs
@@ -2757,7 +2757,7 @@ uint8_t* ogt_vox_write_scene(const ogt_vox_scene* scene, uint32_t* buffer_size)
   }
 
   // we deliberately don't free the fp->data field, just pass the buffer pointer and size out to the caller
-  *buffer_size = (uint32_t)fp->data.count;
+  *pBuffer_size = (uint32_t)fp->data.count;
   uint8_t* buffer_data = _vox_file_get_data(fp);
   // we deliberately clear this pointer so it doesn't get auto-freed on exiting. The caller will own the memory hereafter.
   fp->data.data = NULL;
@@ -2765,45 +2765,45 @@ uint8_t* ogt_vox_write_scene(const ogt_vox_scene* scene, uint32_t* buffer_size)
   // patch up the main chunk's child chunk size now that we've written everything we're going to write.
   {
     uint32_t* main_chunk_child_size = (uint32_t*)&buffer_data[offset_post_main_chunk - sizeof(uint32_t)];
-    *main_chunk_child_size = *buffer_size - offset_post_main_chunk;
+    *main_chunk_child_size = *pBuffer_size - offset_post_main_chunk;
   }
 
   return buffer_data;
 }
 
-void* ogt_vox_malloc(size_t size)
+void* ogt_vox_malloc(size_t uiSize)
 {
-  return _vox_malloc(size);
+  return _vox_malloc(uiSize);
 }
 
-void ogt_vox_free(void* mem)
+void ogt_vox_free(void* pMem)
 {
-  _vox_free(mem);
+  _vox_free(pMem);
 }
 
 // compute the minimum and maximum x coordinate within the scene.
-static void compute_scene_bounding_box_x(const ogt_vox_scene* scene, int32_t& out_min_x, int32_t& out_max_x)
+static void compute_scene_bounding_box_x(const ogt_vox_scene* pScene, int32_t& out_min_x, int32_t& out_max_x)
 {
-  if (scene->num_instances && scene->num_models)
+  if (pScene->num_instances && pScene->num_models)
   {
     // We don't apply orientation to the model dimensions and compute the exact min/max.
     // Instead we just conservatively use the maximum dimension of the model.
     int32_t scene_min_x = 0x7ffffff;
     int32_t scene_max_x = -0x7ffffff;
-    for (uint32_t instance_index = 0; instance_index < scene->num_instances; instance_index++)
+    for (uint32_t instance_index = 0; instance_index < pScene->num_instances; instance_index++)
     {
-      const ogt_vox_instance* instance = &scene->instances[instance_index];
+      const ogt_vox_instance* instance = &pScene->instances[instance_index];
       // compute the instance transform, taking into account the group hierarchy.
       ogt_vox_transform instance_transform = instance->transform;
       uint32_t parent_group_index = instance->group_index;
       while (parent_group_index != k_invalid_group_index)
       {
-        const ogt_vox_group* group = &scene->groups[parent_group_index];
+        const ogt_vox_group* group = &pScene->groups[parent_group_index];
         instance_transform = _vox_transform_multiply(instance_transform, group->transform);
         parent_group_index = group->parent_group_index;
       }
 
-      const ogt_vox_model* model = scene->models[instance->model_index];
+      const ogt_vox_model* model = pScene->models[instance->model_index];
       // the instance_transform can be rotated, so we try to figure out whether the
       // model's local x, y or z size is aligned along the world x axis.
       // One of the column vectors of the transform must have a non-zero in its
@@ -2831,27 +2831,27 @@ static void compute_scene_bounding_box_x(const ogt_vox_scene* scene, int32_t& ou
 // returns a mask of which color indices are used by the specified scene.
 // used_mask[0] can be false at the end of this if all models 100% fill their voxel grid with solid voxels, so callers
 // should handle that case properly.
-static void compute_scene_used_color_index_mask(bool* used_mask, const ogt_vox_scene* scene)
+static void compute_scene_used_color_index_mask(bool* pUsed_mask, const ogt_vox_scene* pScene)
 {
-  memset(used_mask, 0, 256);
-  for (uint32_t model_index = 0; model_index < scene->num_models; model_index++)
+  memset(pUsed_mask, 0, 256);
+  for (uint32_t model_index = 0; model_index < pScene->num_models; model_index++)
   {
-    const ogt_vox_model* model = scene->models[model_index];
+    const ogt_vox_model* model = pScene->models[model_index];
     uint32_t voxel_count = model->size_x * model->size_y * model->size_z;
     for (uint32_t voxel_index = 0; voxel_index < voxel_count; voxel_index++)
     {
       uint8_t color_index = model->voxel_data[voxel_index];
-      used_mask[color_index] = true;
+      pUsed_mask[color_index] = true;
     }
   }
 }
 
 // finds an exact color in the specified palette if it exists, and UINT32_MAX otherwise
-static uint32_t find_exact_color_in_palette(const ogt_vox_rgba* palette, uint32_t palette_count, const ogt_vox_rgba color_to_find)
+static uint32_t find_exact_color_in_palette(const ogt_vox_rgba* pPalette, uint32_t palette_count, const ogt_vox_rgba color_to_find)
 {
   for (uint32_t color_index = 1; color_index < palette_count; color_index++)
   {
-    const ogt_vox_rgba color_to_match = palette[color_index];
+    const ogt_vox_rgba color_to_match = pPalette[color_index];
     // we only try to match r,g,b components exactly.
     if (color_to_match.r == color_to_find.r && color_to_match.g == color_to_find.g && color_to_match.b == color_to_find.b)
       return color_index;
@@ -2861,7 +2861,7 @@ static uint32_t find_exact_color_in_palette(const ogt_vox_rgba* palette, uint32_
 }
 
 // finds the index within the specified palette that is closest to the color we want to find
-static uint32_t find_closest_color_in_palette(const ogt_vox_rgba* palette, uint32_t palette_count, const ogt_vox_rgba color_to_find)
+static uint32_t find_closest_color_in_palette(const ogt_vox_rgba* pPalette, uint32_t palette_count, const ogt_vox_rgba color_to_find)
 {
   // the lower the score the better, so initialize this to the maximum possible score
   int32_t best_score = INT32_MAX;
@@ -2870,9 +2870,9 @@ static uint32_t find_closest_color_in_palette(const ogt_vox_rgba* palette, uint3
   // The distance is in R,G,B space, and we choose the color with the lowest score.
   for (uint32_t color_index = 1; color_index < palette_count; color_index++)
   {
-    int32_t r_diff = (int32_t)color_to_find.r - (int32_t)palette[color_index].r;
-    int32_t g_diff = (int32_t)color_to_find.g - (int32_t)palette[color_index].g;
-    int32_t b_diff = (int32_t)color_to_find.b - (int32_t)palette[color_index].b;
+    int32_t r_diff = (int32_t)color_to_find.r - (int32_t)pPalette[color_index].r;
+    int32_t g_diff = (int32_t)color_to_find.g - (int32_t)pPalette[color_index].g;
+    int32_t b_diff = (int32_t)color_to_find.b - (int32_t)pPalette[color_index].b;
     // There are 2 aspects of our treatment of color here you may want to experiment with:
     // 1. differences in R, differences in G, differences in B are weighted the same rather than perceptually. Different weightings may be better for you.
     // 2. We treat R,G,B as if they are in a perceptually linear within each channel. eg. the differences between
@@ -2888,32 +2888,32 @@ static uint32_t find_closest_color_in_palette(const ogt_vox_rgba* palette, uint3
   return best_index;
 }
 
-static void update_master_palette_from_scene(ogt_vox_rgba* master_palette, uint32_t& master_palette_count, const ogt_vox_scene* scene, uint32_t* scene_to_master_map)
+static void update_master_palette_from_scene(ogt_vox_rgba* pMaster_palette, uint32_t& ref_master_palette_count, const ogt_vox_scene* pScene, uint32_t* pScene_to_master_map)
 {
   // compute the mask of used colors in the scene.
   bool scene_used_mask[256];
-  compute_scene_used_color_index_mask(scene_used_mask, scene);
+  compute_scene_used_color_index_mask(scene_used_mask, pScene);
 
   // initialize the map that converts from scene color_index to master color_index
-  scene_to_master_map[0] = 0; // zero/empty always maps to zero/empty in the master palette
+  pScene_to_master_map[0] = 0; // zero/empty always maps to zero/empty in the master palette
   for (uint32_t i = 1; i < 256; i++)
-    scene_to_master_map[i] = UINT32_MAX; // UINT32_MAX means unassigned
+    pScene_to_master_map[i] = UINT32_MAX; // UINT32_MAX means unassigned
 
   // for each used color in the scene, now allocate it into the master palette.
   for (uint32_t color_index = 1; color_index < 256; color_index++)
   {
     if (scene_used_mask[color_index])
     {
-      const ogt_vox_rgba color = scene->palette.color[color_index];
+      const ogt_vox_rgba color = pScene->palette.color[color_index];
       // find the exact color in the master palette. Will be UINT32_MAX if the color doesn't already exist
-      uint32_t master_index = find_exact_color_in_palette(master_palette, master_palette_count, color);
+      uint32_t master_index = find_exact_color_in_palette(pMaster_palette, ref_master_palette_count, color);
       if (master_index == UINT32_MAX)
       {
-        if (master_palette_count < 256)
+        if (ref_master_palette_count < 256)
         {
           // master palette capacity hasn't been exceeded so far, allocate the color to it.
-          master_palette[master_palette_count] = color;
-          master_index = master_palette_count++;
+          pMaster_palette[ref_master_palette_count] = color;
+          master_index = ref_master_palette_count++;
         }
         else
         {
@@ -2928,16 +2928,16 @@ static void update_master_palette_from_scene(ogt_vox_rgba* master_palette, uint3
           // similarity/frequency metrics to reduce the palette from that down to 256 entries. This
           // will mean all scenes will have be equally important if they have a high-frequency
           // usage of a color.
-          master_index = find_closest_color_in_palette(master_palette, master_palette_count, color);
+          master_index = find_closest_color_in_palette(pMaster_palette, ref_master_palette_count, color);
         }
       }
       // caller needs to know how to map its original color index into the master palette
-      scene_to_master_map[color_index] = master_index;
+      pScene_to_master_map[color_index] = master_index;
     }
   }
 }
 
-ogt_vox_scene* ogt_vox_merge_scenes(const ogt_vox_scene** scenes, uint32_t scene_count, const ogt_vox_rgba* required_colors, const uint32_t required_color_count)
+ogt_vox_scene* ogt_vox_merge_scenes(const ogt_vox_scene** pScenes, uint32_t scene_count, const ogt_vox_rgba* pRequired_colors, const uint32_t required_color_count)
 {
   assert(required_color_count <= 255); // can't exceed the maximum colors in the master palette plus the empty slot.
 
@@ -2946,7 +2946,7 @@ ogt_vox_scene* ogt_vox_merge_scenes(const ogt_vox_scene** scenes, uint32_t scene
   uint32_t master_palette_count = 1; // color_index 0 is reserved for empty color!
   memset(&master_palette, 0, sizeof(master_palette));
   for (uint32_t required_index = 0; required_index < required_color_count; required_index++)
-    master_palette[master_palette_count++] = required_colors[required_index];
+    master_palette[master_palette_count++] = pRequired_colors[required_index];
 
   // count the number of required models, instances in the master scene
   uint32_t max_layers = 1; // we don't actually merge layers. Every instance will be in layer 0.
@@ -2955,11 +2955,11 @@ ogt_vox_scene* ogt_vox_merge_scenes(const ogt_vox_scene** scenes, uint32_t scene
   uint32_t max_groups = 1; // we add 1 root global group that everything will ultimately be parented to.
   for (uint32_t scene_index = 0; scene_index < scene_count; scene_index++)
   {
-    if (!scenes[scene_index])
+    if (!pScenes[scene_index])
       continue;
-    max_instances += scenes[scene_index]->num_instances;
-    max_models += scenes[scene_index]->num_models;
-    max_groups += scenes[scene_index]->num_groups;
+    max_instances += pScenes[scene_index]->num_instances;
+    max_models += pScenes[scene_index]->num_models;
+    max_groups += pScenes[scene_index]->num_groups;
   }
 
   // allocate the master instances array
@@ -2996,7 +2996,7 @@ ogt_vox_scene* ogt_vox_merge_scenes(const ogt_vox_scene** scenes, uint32_t scene
   int32_t offset_x = 0;
   for (uint32_t scene_index = 0; scene_index < scene_count; scene_index++)
   {
-    const ogt_vox_scene* scene = scenes[scene_index];
+    const ogt_vox_scene* scene = pScenes[scene_index];
     if (!scene)
       continue;
 

@@ -51,15 +51,15 @@ void ezProcessCommunicationChannel::WaitForMessages()
   m_pChannel->WaitForMessages();
 }
 
-void ezProcessCommunicationChannel::MessageFunc(const ezProcessMessage* msg)
+void ezProcessCommunicationChannel::MessageFunc(const ezProcessMessage* pMsg)
 {
-  const ezRTTI* pRtti = msg->GetDynamicRTTI();
+  const ezRTTI* pRtti = pMsg->GetDynamicRTTI();
 
-  if (m_pWaitForMessageType != nullptr && msg->GetDynamicRTTI()->IsDerivedFrom(m_pWaitForMessageType))
+  if (m_pWaitForMessageType != nullptr && pMsg->GetDynamicRTTI()->IsDerivedFrom(m_pWaitForMessageType))
   {
     if (m_WaitForMessageCallback.IsValid())
     {
-      if (m_WaitForMessageCallback(const_cast<ezProcessMessage*>(msg)))
+      if (m_WaitForMessageCallback(const_cast<ezProcessMessage*>(pMsg)))
       {
         m_WaitForMessageCallback = WaitForMessageCallback();
         m_pWaitForMessageType = nullptr;
@@ -72,15 +72,15 @@ void ezProcessCommunicationChannel::MessageFunc(const ezProcessMessage* msg)
   }
 
   EZ_ASSERT_DEV(pRtti != nullptr, "Message Type unknown");
-  EZ_ASSERT_DEV(msg != nullptr, "Object could not be allocated");
+  EZ_ASSERT_DEV(pMsg != nullptr, "Object could not be allocated");
   EZ_ASSERT_DEV(pRtti->IsDerivedFrom<ezProcessMessage>(), "Msg base type is invalid");
 
   Event e;
-  e.m_pMessage = msg;
+  e.m_pMessage = pMsg;
   m_Events.Broadcast(e);
 }
 
-ezResult ezProcessCommunicationChannel::WaitForMessage(const ezRTTI* pMessageType, ezTime tTimeout, WaitForMessageCallback* pMessageCallack)
+ezResult ezProcessCommunicationChannel::WaitForMessage(const ezRTTI* pMessageType, ezTime timeout, WaitForMessageCallback* pMessageCallack)
 {
   EZ_ASSERT_DEV(m_pChannel != nullptr, "Need to connect first before waiting for a message.");
   // EZ_ASSERT_DEV(ezThreadUtils::IsMainThread(), "This function is not thread safe");
@@ -102,18 +102,18 @@ ezResult ezProcessCommunicationChannel::WaitForMessage(const ezRTTI* pMessageTyp
 
   while (m_pWaitForMessageType != nullptr)
   {
-    if (tTimeout == ezTime())
+    if (timeout == ezTime())
     {
       m_pChannel->WaitForMessages();
     }
     else
     {
-      ezTime tTimeLeft = tTimeout - (ezTime::Now() - tStart);
+      ezTime tTimeLeft = timeout - (ezTime::Now() - tStart);
 
       if (tTimeLeft < ezTime::Zero())
       {
         m_pWaitForMessageType = nullptr;
-        ezLog::Dev("Reached time-out of {0} seconds while waiting for {1}", ezArgF(tTimeout.GetSeconds(), 1), pMessageType->GetTypeName());
+        ezLog::Dev("Reached time-out of {0} seconds while waiting for {1}", ezArgF(timeout.GetSeconds(), 1), pMessageType->GetTypeName());
         return EZ_FAILURE;
       }
 
@@ -131,7 +131,7 @@ ezResult ezProcessCommunicationChannel::WaitForMessage(const ezRTTI* pMessageTyp
   return EZ_SUCCESS;
 }
 
-ezResult ezProcessCommunicationChannel::WaitForConnection(ezTime tTimeout)
+ezResult ezProcessCommunicationChannel::WaitForConnection(ezTime timeout)
 {
   if (m_pChannel->IsConnected())
   {
@@ -161,13 +161,13 @@ ezResult ezProcessCommunicationChannel::WaitForConnection(ezTime tTimeout)
     return EZ_SUCCESS;
   }
 
-  if (tTimeout == ezTime())
+  if (timeout == ezTime())
   {
     waitForConnectionSignal.WaitForSignal();
   }
   else
   {
-    if (waitForConnectionSignal.WaitForSignal(tTimeout) == ezThreadSignal::WaitResult::Timeout)
+    if (waitForConnectionSignal.WaitForSignal(timeout) == ezThreadSignal::WaitResult::Timeout)
     {
       return EZ_FAILURE;
     }

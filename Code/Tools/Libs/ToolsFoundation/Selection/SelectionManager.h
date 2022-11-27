@@ -45,7 +45,7 @@ public:
   void AddObject(const ezDocumentObject* pObject);
   void RemoveObject(const ezDocumentObject* pObject, bool bRecurseChildren = false);
   void SetSelection(const ezDocumentObject* pSingleObject);
-  void SetSelection(const ezDeque<const ezDocumentObject*>& Selection);
+  void SetSelection(const ezDeque<const ezDocumentObject*>& selection);
   void ToggleObject(const ezDocumentObject* pObject);
 
   /// \brief Returns the last selected object in the selection or null if empty.

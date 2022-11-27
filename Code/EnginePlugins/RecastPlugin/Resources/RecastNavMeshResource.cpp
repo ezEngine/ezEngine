@@ -43,13 +43,13 @@ void ezRecastNavMeshResourceDescriptor::Clear()
 
 //////////////////////////////////////////////////////////////////////////
 
-ezResult ezRecastNavMeshResourceDescriptor::Serialize(ezStreamWriter& stream) const
+ezResult ezRecastNavMeshResourceDescriptor::Serialize(ezStreamWriter& inout_stream) const
 {
-  stream.WriteVersion(1);
-  EZ_SUCCEED_OR_RETURN(stream.WriteArray(m_DetourNavmeshData));
+  inout_stream.WriteVersion(1);
+  EZ_SUCCEED_OR_RETURN(inout_stream.WriteArray(m_DetourNavmeshData));
 
   const bool hasPolygons = m_pNavMeshPolygons != nullptr;
-  stream << hasPolygons;
+  inout_stream << hasPolygons;
 
   if (hasPolygons)
   {
@@ -57,42 +57,42 @@ ezResult ezRecastNavMeshResourceDescriptor::Serialize(ezStreamWriter& stream) co
 
     const auto& mesh = *m_pNavMeshPolygons;
 
-    stream << (int)mesh.nverts;
-    stream << (int)mesh.npolys;
-    stream << (int)mesh.npolys; // do not use mesh.maxpolys
-    stream << (int)mesh.nvp;
-    stream << (float)mesh.bmin[0];
-    stream << (float)mesh.bmin[1];
-    stream << (float)mesh.bmin[2];
-    stream << (float)mesh.bmax[0];
-    stream << (float)mesh.bmax[1];
-    stream << (float)mesh.bmax[2];
-    stream << (float)mesh.cs;
-    stream << (float)mesh.ch;
-    stream << (int)mesh.borderSize;
-    stream << (float)mesh.maxEdgeError;
+    inout_stream << (int)mesh.nverts;
+    inout_stream << (int)mesh.npolys;
+    inout_stream << (int)mesh.npolys; // do not use mesh.maxpolys
+    inout_stream << (int)mesh.nvp;
+    inout_stream << (float)mesh.bmin[0];
+    inout_stream << (float)mesh.bmin[1];
+    inout_stream << (float)mesh.bmin[2];
+    inout_stream << (float)mesh.bmax[0];
+    inout_stream << (float)mesh.bmax[1];
+    inout_stream << (float)mesh.bmax[2];
+    inout_stream << (float)mesh.cs;
+    inout_stream << (float)mesh.ch;
+    inout_stream << (int)mesh.borderSize;
+    inout_stream << (float)mesh.maxEdgeError;
 
     EZ_ASSERT_DEBUG(mesh.maxpolys >= mesh.npolys, "Invalid navmesh polygon count");
 
-    EZ_SUCCEED_OR_RETURN(stream.WriteBytes(mesh.verts, sizeof(ezUInt16) * mesh.nverts * 3));
-    EZ_SUCCEED_OR_RETURN(stream.WriteBytes(mesh.polys, sizeof(ezUInt16) * mesh.npolys * mesh.nvp * 2));
-    EZ_SUCCEED_OR_RETURN(stream.WriteBytes(mesh.regs, sizeof(ezUInt16) * mesh.npolys));
-    EZ_SUCCEED_OR_RETURN(stream.WriteBytes(mesh.flags, sizeof(ezUInt16) * mesh.npolys));
-    EZ_SUCCEED_OR_RETURN(stream.WriteBytes(mesh.areas, sizeof(ezUInt8) * mesh.npolys));
+    EZ_SUCCEED_OR_RETURN(inout_stream.WriteBytes(mesh.verts, sizeof(ezUInt16) * mesh.nverts * 3));
+    EZ_SUCCEED_OR_RETURN(inout_stream.WriteBytes(mesh.polys, sizeof(ezUInt16) * mesh.npolys * mesh.nvp * 2));
+    EZ_SUCCEED_OR_RETURN(inout_stream.WriteBytes(mesh.regs, sizeof(ezUInt16) * mesh.npolys));
+    EZ_SUCCEED_OR_RETURN(inout_stream.WriteBytes(mesh.flags, sizeof(ezUInt16) * mesh.npolys));
+    EZ_SUCCEED_OR_RETURN(inout_stream.WriteBytes(mesh.areas, sizeof(ezUInt8) * mesh.npolys));
   }
 
   return EZ_SUCCESS;
 }
 
-ezResult ezRecastNavMeshResourceDescriptor::Deserialize(ezStreamReader& stream)
+ezResult ezRecastNavMeshResourceDescriptor::Deserialize(ezStreamReader& inout_stream)
 {
   Clear();
 
-  const ezTypeVersion version = stream.ReadVersion(1);
-  EZ_SUCCEED_OR_RETURN(stream.ReadArray(m_DetourNavmeshData));
+  const ezTypeVersion version = inout_stream.ReadVersion(1);
+  EZ_SUCCEED_OR_RETURN(inout_stream.ReadArray(m_DetourNavmeshData));
 
   bool hasPolygons = false;
-  stream >> hasPolygons;
+  inout_stream >> hasPolygons;
 
   if (hasPolygons)
   {
@@ -102,20 +102,20 @@ ezResult ezRecastNavMeshResourceDescriptor::Deserialize(ezStreamReader& stream)
 
     auto& mesh = *m_pNavMeshPolygons;
 
-    stream >> mesh.nverts;
-    stream >> mesh.npolys;
-    stream >> mesh.maxpolys;
-    stream >> mesh.nvp;
-    stream >> mesh.bmin[0];
-    stream >> mesh.bmin[1];
-    stream >> mesh.bmin[2];
-    stream >> mesh.bmax[0];
-    stream >> mesh.bmax[1];
-    stream >> mesh.bmax[2];
-    stream >> mesh.cs;
-    stream >> mesh.ch;
-    stream >> mesh.borderSize;
-    stream >> mesh.maxEdgeError;
+    inout_stream >> mesh.nverts;
+    inout_stream >> mesh.npolys;
+    inout_stream >> mesh.maxpolys;
+    inout_stream >> mesh.nvp;
+    inout_stream >> mesh.bmin[0];
+    inout_stream >> mesh.bmin[1];
+    inout_stream >> mesh.bmin[2];
+    inout_stream >> mesh.bmax[0];
+    inout_stream >> mesh.bmax[1];
+    inout_stream >> mesh.bmax[2];
+    inout_stream >> mesh.cs;
+    inout_stream >> mesh.ch;
+    inout_stream >> mesh.borderSize;
+    inout_stream >> mesh.maxEdgeError;
 
     EZ_ASSERT_DEBUG(mesh.maxpolys >= mesh.npolys, "Invalid navmesh polygon count");
 
@@ -124,11 +124,11 @@ ezResult ezRecastNavMeshResourceDescriptor::Deserialize(ezStreamReader& stream)
     mesh.regs = (ezUInt16*)rcAlloc(sizeof(ezUInt16) * mesh.maxpolys, RC_ALLOC_PERM);
     mesh.areas = (ezUInt8*)rcAlloc(sizeof(ezUInt8) * mesh.maxpolys, RC_ALLOC_PERM);
 
-    stream.ReadBytes(mesh.verts, sizeof(ezUInt16) * mesh.nverts * 3);
-    stream.ReadBytes(mesh.polys, sizeof(ezUInt16) * mesh.maxpolys * mesh.nvp * 2);
-    stream.ReadBytes(mesh.regs, sizeof(ezUInt16) * mesh.maxpolys);
-    stream.ReadBytes(mesh.flags, sizeof(ezUInt16) * mesh.maxpolys);
-    stream.ReadBytes(mesh.areas, sizeof(ezUInt8) * mesh.maxpolys);
+    inout_stream.ReadBytes(mesh.verts, sizeof(ezUInt16) * mesh.nverts * 3);
+    inout_stream.ReadBytes(mesh.polys, sizeof(ezUInt16) * mesh.maxpolys * mesh.nvp * 2);
+    inout_stream.ReadBytes(mesh.regs, sizeof(ezUInt16) * mesh.maxpolys);
+    inout_stream.ReadBytes(mesh.flags, sizeof(ezUInt16) * mesh.maxpolys);
+    inout_stream.ReadBytes(mesh.areas, sizeof(ezUInt8) * mesh.maxpolys);
   }
 
   return EZ_SUCCESS;

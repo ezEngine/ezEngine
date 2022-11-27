@@ -121,20 +121,20 @@ ezPxCharacterCapsuleShapeComponent::ezPxCharacterCapsuleShapeComponent()
 
 ezPxCharacterCapsuleShapeComponent::~ezPxCharacterCapsuleShapeComponent() = default;
 
-void ezPxCharacterCapsuleShapeComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezPxCharacterCapsuleShapeComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
-  auto& s = stream.GetStream();
+  SUPER::SerializeComponent(inout_stream);
+  auto& s = inout_stream.GetStream();
 
   s << m_fCapsuleHeight;
   s << m_fCapsuleRadius;
 }
 
-void ezPxCharacterCapsuleShapeComponent::DeserializeComponent(ezWorldReader& stream)
+void ezPxCharacterCapsuleShapeComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  auto& s = stream.GetStream();
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  auto& s = inout_stream.GetStream();
 
   s >> m_fCapsuleHeight;
   s >> m_fCapsuleRadius;
@@ -279,9 +279,9 @@ public:
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
-    context.RenameClass("ezPxCharacterCapsuleShapeComponent");
+    ref_context.RenameClass("ezPxCharacterCapsuleShapeComponent");
   }
 };
 

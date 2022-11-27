@@ -18,7 +18,7 @@ public:
   ezAdobeCUBEReader();
   ~ezAdobeCUBEReader();
 
-  ezStatus ParseFile(ezStreamReader& Stream, ezLogInterface* pLog = nullptr);
+  ezStatus ParseFile(ezStreamReader& inout_stream, ezLogInterface* pLog = nullptr);
 
   ezVec3 GetDomainMin() const;
   ezVec3 GetDomainMax() const;

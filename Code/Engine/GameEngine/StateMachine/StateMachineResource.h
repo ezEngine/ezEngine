@@ -16,7 +16,7 @@ public:
 
   const ezSharedPtr<const ezStateMachineDescription>& GetDescription() const { return m_pDescription; }
 
-  ezUniquePtr<ezStateMachineInstance> CreateInstance(ezReflectedClass& owner);
+  ezUniquePtr<ezStateMachineInstance> CreateInstance(ezReflectedClass& ref_owner);
 
 private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;

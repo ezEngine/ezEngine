@@ -42,7 +42,7 @@ public:
 
   static ezResult EnsureVisibleAnyContainer(ezDocument* pDocument);
 
-  void GetDocumentWindows(ezHybridArray<ezQtDocumentWindow*, 16>& windows);
+  void GetDocumentWindows(ezHybridArray<ezQtDocumentWindow*, 16>& ref_windows);
 
   void SaveWindowLayout();
   void SaveDocumentLayouts();
