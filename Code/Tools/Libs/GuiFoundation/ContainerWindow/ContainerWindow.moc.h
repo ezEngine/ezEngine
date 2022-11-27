@@ -38,7 +38,7 @@ public:
   void AddDocumentWindow(ezQtDocumentWindow* pDocWindow);
   void AddApplicationPanel(ezQtApplicationPanel* pPanel);
 
-  ads::CDockManager* GetDockManager() { return m_DockManager; }
+  ads::CDockManager* GetDockManager() { return m_pDockManager; }
 
   static ezResult EnsureVisibleAnyContainer(ezDocument* pDocument);
 
@@ -87,7 +87,7 @@ private:
   virtual void closeEvent(QCloseEvent* e) override;
 
 private:
-  ads::CDockManager* m_DockManager = nullptr;
+  ads::CDockManager* m_pDockManager = nullptr;
   QLabel* m_pStatusBarLabel;
   ezDynamicArray<ezQtDocumentWindow*> m_DocumentWindows;
   ezDynamicArray<ads::CDockWidget*> m_DocumentDocks;

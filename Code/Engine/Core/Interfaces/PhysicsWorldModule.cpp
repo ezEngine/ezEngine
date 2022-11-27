@@ -6,6 +6,16 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPhysicsWorldModuleInterface, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
+EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(ezPhysicsShapeType, 1)
+  EZ_BITFLAGS_CONSTANT(ezPhysicsShapeType::Static),
+  EZ_BITFLAGS_CONSTANT(ezPhysicsShapeType::Dynamic),
+  EZ_BITFLAGS_CONSTANT(ezPhysicsShapeType::Query),
+  EZ_BITFLAGS_CONSTANT(ezPhysicsShapeType::Trigger),
+  EZ_BITFLAGS_CONSTANT(ezPhysicsShapeType::Character),
+  EZ_BITFLAGS_CONSTANT(ezPhysicsShapeType::Ragdoll),
+  EZ_BITFLAGS_CONSTANT(ezPhysicsShapeType::Rope),
+EZ_END_STATIC_REFLECTED_BITFLAGS;
+
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgPhysicsAddImpulse);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgPhysicsAddImpulse, 1, ezRTTIDefaultAllocator<ezMsgPhysicsAddImpulse>)
 {
@@ -13,7 +23,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgPhysicsAddImpulse, 1, ezRTTIDefaultAllocato
   {
     EZ_MEMBER_PROPERTY("GlobalPosition", m_vGlobalPosition),
     EZ_MEMBER_PROPERTY("Impulse", m_vImpulse),
-    EZ_MEMBER_PROPERTY("ShapeID", m_uiShapeId),
+    EZ_MEMBER_PROPERTY("ObjectFilterID", m_uiObjectFilterID),
   }
   EZ_END_PROPERTIES;
 }

@@ -16,6 +16,7 @@ ezSoundEventAssetDocumentManager::ezSoundEventAssetDocumentManager()
   m_DocTypeDesc.m_sIcon = ":/AssetIcons/Sound_Event.png";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezSoundEventAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
+  m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Fmod_Event");
 
   m_DocTypeDesc.m_sResourceFileExtension = "ezFmodSoundEvent";
   m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::None;
@@ -40,6 +41,8 @@ void ezSoundEventAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMa
       }
     }
     break;
+    default:
+      break;
   }
 }
 

@@ -5,7 +5,7 @@
 #include <RmlUiPlugin/Resources/RmlUiResource.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRmlUiContext, 1, ezRTTIDefaultAllocator<ezRmlUiContext>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRmlUiDocumentContext, 1, ezRTTIDefaultAllocator<ezRmlUiDocumentContext>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -16,12 +16,14 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRmlUiContext, 1, ezRTTIDefaultAllocator<ezRmlU
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezRmlUiContext::ezRmlUiContext()
+ezRmlUiDocumentContext::ezRmlUiDocumentContext()
   : ezEngineProcessDocumentContext(ezEngineProcessDocumentContextFlags::CreateWorld)
 {
 }
 
-void ezRmlUiContext::OnInitialize()
+ezRmlUiDocumentContext::~ezRmlUiDocumentContext() = default;
+
+void ezRmlUiDocumentContext::OnInitialize()
 {
   auto pWorld = m_pWorld;
   EZ_LOCK(pWorld->GetWriteMarker());
@@ -44,17 +46,17 @@ void ezRmlUiContext::OnInitialize()
   }
 }
 
-ezEngineProcessViewContext* ezRmlUiContext::CreateViewContext()
+ezEngineProcessViewContext* ezRmlUiDocumentContext::CreateViewContext()
 {
   return EZ_DEFAULT_NEW(ezRmlUiViewContext, this);
 }
 
-void ezRmlUiContext::DestroyViewContext(ezEngineProcessViewContext* pContext)
+void ezRmlUiDocumentContext::DestroyViewContext(ezEngineProcessViewContext* pContext)
 {
   EZ_DEFAULT_DELETE(pContext);
 }
 
-bool ezRmlUiContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* pThumbnailViewContext)
+bool ezRmlUiDocumentContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* pThumbnailViewContext)
 {
   EZ_LOCK(m_pMainObject->GetWorld()->GetWriteMarker());
 

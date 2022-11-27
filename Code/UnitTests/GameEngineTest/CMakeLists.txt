@@ -1,6 +1,6 @@
 ez_cmake_init()
 
-ez_build_filter_everything()
+
 
 ez_requires_d3d()
 

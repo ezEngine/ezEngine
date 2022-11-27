@@ -19,7 +19,7 @@ namespace ezLogWriter
     void LogMessageHandler(const ezLoggingEventData& eventData);
 
     /// \brief Opens the given file for writing the log. From now on all incoming log messages are written into it.
-    void BeginLog(const char* szFile, const char* szAppTitle);
+    void BeginLog(ezStringView sFile, ezStringView sAppTitle);
 
     /// \brief Closes the HTML file and stops logging the incoming message.
     void EndLog();

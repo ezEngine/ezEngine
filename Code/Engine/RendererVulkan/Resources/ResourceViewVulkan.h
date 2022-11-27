@@ -5,29 +5,32 @@
 
 #include <vulkan/vulkan.hpp>
 
+class ezGALBufferVulkan;
+class ezGALTextureVulkan;
+
 class ezGALResourceViewVulkan : public ezGALResourceView
 {
 public:
-  EZ_ALWAYS_INLINE const vk::DescriptorSetLayoutBinding& GetResourceBinding() const;
-  EZ_ALWAYS_INLINE const vk::WriteDescriptorSet& GetResourceBindingData() const;
+  const vk::DescriptorImageInfo& GetImageInfo(bool bIsArray) const;
+  const vk::DescriptorBufferInfo& GetBufferInfo() const;
+  vk::ImageSubresourceRange GetRange() const;
+  const vk::BufferView& GetBufferView() const;
 
 protected:
   friend class ezGALDeviceVulkan;
   friend class ezMemoryUtils;
 
   ezGALResourceViewVulkan(ezGALResourceBase* pResource, const ezGALResourceViewCreationDescription& Description);
-
   ~ezGALResourceViewVulkan();
 
   virtual ezResult InitPlatform(ezGALDevice* pDevice) override;
-
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
 
-  vk::ImageView m_imageView;
-  vk::DescriptorSetLayoutBinding m_resourceBinding;
-  vk::WriteDescriptorSet m_resourceBindingData;
-  vk::DescriptorBufferInfo m_resourceBufferInfo;
-  vk::DescriptorImageInfo m_resourceImageInfo;
+  vk::ImageSubresourceRange m_range;
+  mutable vk::DescriptorImageInfo m_resourceImageInfo;
+  mutable vk::DescriptorImageInfo m_resourceImageInfoArray;
+  mutable vk::DescriptorBufferInfo m_resourceBufferInfo;
+  vk::BufferView m_bufferView;
 };
 
 #include <RendererVulkan/Resources/Implementation/ResourceViewVulkan_inl.h>

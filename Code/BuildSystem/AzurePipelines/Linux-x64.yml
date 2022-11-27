@@ -12,38 +12,19 @@ jobs:
 - job: Job_1
   displayName: Linux-x64
   pool:
-    vmImage: 'ubuntu-20.04'
+    vmImage: 'ubuntu-22.04'
   steps:
   - checkout: self
     submodules: true
     lfs: true
   - task: Bash@3
-    displayName: QT
-    inputs:
-      targetType: inline
-      filePath: sudo apt-get update
-      script: |
-        # For now qt5-default on ubuntu-20.04 is good enough for us and we don't need to add a custom repo.
-        #sudo add-apt-repository ppa:beineri/opt-qt-5.11.1-xenial
-        #sudo apt update
-        #sudo apt install qt511-meta-full
-  - task: Bash@3
-    displayName: SFML
-    inputs:
-      targetType: inline
-      script: >-
-        wget https://www.sfml-dev.org/files/SFML-2.5.1-linux-gcc-64-bit.tar.gz
-
-        sudo mkdir /usr/SFML
-
-        sudo tar xf SFML-2.5.1-linux-gcc-64-bit.tar.gz -C /usr/SFML/
-  - task: Bash@3
     displayName: Apt-Get
     inputs:
       targetType: inline
       script: |
+        sudo add-apt-repository ppa:kisak/kisak-mesa -y 
         sudo apt-get update
-        sudo apt-get install -y cmake uuid-dev libx11-dev build-essential qt5-default libqt5svg5-dev
+        sudo apt-get install -y cmake uuid-dev gcc-12 g++-12 libx11-dev build-essential qt6-base-dev libqt6svg6-dev qt6-base-private-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev xvfb lightdm mesa-vulkan-drivers vulkan-tools libtinfo5 libgl1-mesa-dev
   - task: Bash@3
     displayName: Info
     inputs:
@@ -51,20 +32,18 @@ jobs:
       script: >-
         lscpu | grep -E '^Thread|^Core|^Socket|^CPU\('
 
-        # dpkg -L libsfml-dev
-
         git config --list
 
         dpkg --list | grep compiler
   - task: CMake@1
     displayName: CMake
     inputs:
-      cmakeArgs: -DCMAKE_PREFIX_PATH=/opt/qt511/;/usr/SFML/SFML-2.5.1;/usr/SFML/SFML-2.5.1/lib/cmake/SFML -DCMAKE_BUILD_TYPE=Dev -DCMAKE_CXX_COMPILER=g++-10 -DCMAKE_C_COMPILER=gcc-10 -DEZ_ENABLE_FOLDER_UNITY_FILES=$(unityfiles) -G "Unix Makefiles" ../
+      cmakeArgs: -DCMAKE_BUILD_TYPE=Dev -DCMAKE_CXX_COMPILER=g++-12 -DCMAKE_C_COMPILER=gcc-12 -DEZ_ENABLE_FOLDER_UNITY_FILES=$(unityfiles) -DEZ_BUILD_EXPERIMENTAL_VULKAN=ON -DEZ_EXPERIMENTAL_EDITOR_ON_LINUX=ON -G "Unix Makefiles" ../
   - task: Bash@3
     displayName: Make
     inputs:
       targetType: inline
-      script: make -C ./build -j2
+      script: make -C ./build -j$(nproc)
   - task: PowerShell@2
     displayName: PowerShell Script
     inputs:
@@ -81,13 +60,29 @@ jobs:
     condition: eq(variables['task.MSBuild.status'], 'success')
     inputs:
       targetType: inline
-      script: ./Output/Bin/LinuxMakeGccDev64/CoreTest -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)/CoreTest
+      script: | 
+        export DISPLAY=:1
+        Xvfb :1 -screen 0 1024x768x16 &
+        sleep 1
+        exec lightdm-session &
+        sleep 2
+        ./Output/Bin/LinuxMakeGccDev64/CoreTest -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)/CoreTest
   - task: Bash@3
     displayName: ToolsFoundationTest
     condition: eq(variables['task.MSBuild.status'], 'success')
     inputs:
       targetType: inline
       script: ./Output/Bin/LinuxMakeGccDev64/ToolsFoundationTest -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)/ToolsFoundationTest
+  - task: Bash@3
+    displayName: RendererTest
+    condition: eq(variables['task.MSBuild.status'], 'success')
+    inputs:
+      targetType: inline
+      script: |
+        export DISPLAY=:1
+        export VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/lvp_icd.x86_64.json
+        vulkaninfo --summary
+        ./Output/Bin/LinuxMakeGccDev64/RendererTest -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)/RendererTest
   - task: PublishBuildArtifacts@1
     displayName: 'Publish Artifact: drop'
     condition: succeededOrFailed()

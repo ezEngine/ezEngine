@@ -17,20 +17,20 @@ ezNonUniformBoxGizmo::ezNonUniformBoxGizmo()
 
   m_ManipulateMode = ManipulateMode::None;
 
-  m_Outline.Configure(this, ezEngineGizmoHandleType::LineBox, ezColor::CornflowerBlue, false, false, false, true, false);
+  m_hOutline.ConfigureHandle(this, ezEngineGizmoHandleType::LineBox, ezColorScheme::LightUI(ezColorScheme::Gray), ezGizmoFlags::ShowInOrtho);
 
   ezColor cols[6] = {
-    ezColorGammaUB(255, 200, 200),
-    ezColorGammaUB(255, 200, 200),
-    ezColorGammaUB(200, 255, 200),
-    ezColorGammaUB(200, 255, 200),
-    ezColorGammaUB(200, 200, 255),
-    ezColorGammaUB(200, 200, 255),
+    ezColorScheme::LightUI(ezColorScheme::Red),
+    ezColorScheme::LightUI(ezColorScheme::Red),
+    ezColorScheme::LightUI(ezColorScheme::Green),
+    ezColorScheme::LightUI(ezColorScheme::Green),
+    ezColorScheme::LightUI(ezColorScheme::Blue),
+    ezColorScheme::LightUI(ezColorScheme::Blue),
   };
 
   for (ezUInt32 i = 0; i < 6; ++i)
   {
-    m_Nobs[i].Configure(this, ezEngineGizmoHandleType::Box, cols[i], true, true, false, true);
+    m_Nobs[i].ConfigureHandle(this, ezEngineGizmoHandleType::Box, cols[i], ezGizmoFlags::ConstantSize | ezGizmoFlags::OnTop | ezGizmoFlags::ShowInOrtho | ezGizmoFlags::Pickable);
   }
 
   SetVisible(false);
@@ -39,7 +39,7 @@ ezNonUniformBoxGizmo::ezNonUniformBoxGizmo()
 
 void ezNonUniformBoxGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
 {
-  pOwnerWindow->GetDocument()->AddSyncObject(&m_Outline);
+  pOwnerWindow->GetDocument()->AddSyncObject(&m_hOutline);
 
   for (ezUInt32 i = 0; i < 6; ++i)
   {
@@ -49,7 +49,7 @@ void ezNonUniformBoxGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ez
 
 void ezNonUniformBoxGizmo::OnVisibleChanged(bool bVisible)
 {
-  m_Outline.SetVisible(bVisible);
+  m_hOutline.SetVisible(bVisible);
 
   for (ezUInt32 i = 0; i < 6; ++i)
   {
@@ -67,7 +67,7 @@ void ezNonUniformBoxGizmo::OnTransformationChanged(const ezTransform& transform)
   scale.SetTranslationVector(center);
   scale = transform.GetAsMat4() * scale;
 
-  m_Outline.SetTransformation(scale);
+  m_hOutline.SetTransformation(scale);
 
   for (ezUInt32 i = 0; i < 6; ++i)
   {
@@ -155,15 +155,15 @@ modify:
 {
   ezMat4 mView = m_pCamera->GetViewMatrix();
   ezMat4 mProj;
-  m_pCamera->GetProjectionMatrix((float)m_Viewport.x / (float)m_Viewport.y, mProj);
+  m_pCamera->GetProjectionMatrix((float)m_vViewport.x / (float)m_vViewport.y, mProj);
   ezMat4 mViewProj = mProj * mView;
-  m_InvViewProj = mViewProj.GetInverse();
+  m_mInvViewProj = mViewProj.GetInverse();
 }
 
   m_vStartNegSize = m_vNegSize;
   m_vStartPosSize = m_vPosSize;
 
-  GetPointOnAxis(e->pos().x(), m_Viewport.y - e->pos().y(), m_vInteractionPivot).IgnoreResult();
+  GetPointOnAxis(e->pos().x(), m_vViewport.y - e->pos().y(), m_vInteractionPivot).IgnoreResult();
 
   ezViewHighlightMsgToEngine msg;
   msg.m_HighlightObject = m_pInteractionGizmoHandle->GetGuid();
@@ -171,7 +171,7 @@ modify:
 
   m_LastInteraction = ezTime::Now();
 
-  m_LastMousePos = SetMouseMode(ezEditorInputContext::MouseMode::Normal);
+  m_vLastMousePos = SetMouseMode(ezEditorInputContext::MouseMode::Normal);
 
   SetActiveInputContext(this);
 
@@ -212,7 +212,7 @@ ezEditorInput ezNonUniformBoxGizmo::DoMouseMoveEvent(QMouseEvent* e)
   m_LastInteraction = tNow;
 
   const ezVec2I32 vNewMousePos = ezVec2I32(e->globalPos().x(), e->globalPos().y());
-  const ezVec2I32 vDiff = vNewMousePos - m_LastMousePos;
+  const ezVec2I32 vDiff = vNewMousePos - m_vLastMousePos;
 
   m_vNegSize = m_vStartNegSize;
   m_vPosSize = m_vStartPosSize;
@@ -220,9 +220,9 @@ ezEditorInput ezNonUniformBoxGizmo::DoMouseMoveEvent(QMouseEvent* e)
   {
     ezVec3 vCurrentInteractionPoint;
 
-    if (GetPointOnAxis(e->pos().x(), m_Viewport.y - e->pos().y(), vCurrentInteractionPoint).Failed())
+    if (GetPointOnAxis(e->pos().x(), m_vViewport.y - e->pos().y(), vCurrentInteractionPoint).Failed())
     {
-      m_LastMousePos = UpdateMouseMode(e);
+      m_vLastMousePos = UpdateMouseMode(e);
       return ezEditorInput::WasExclusivelyHandled;
     }
 
@@ -276,7 +276,7 @@ ezEditorInput ezNonUniformBoxGizmo::DoMouseMoveEvent(QMouseEvent* e)
     }
   }
 
-  m_LastMousePos = UpdateMouseMode(e);
+  m_vLastMousePos = UpdateMouseMode(e);
 
   // update the scale
   OnTransformationChanged(GetTransformation());
@@ -304,7 +304,7 @@ ezResult ezNonUniformBoxGizmo::GetPointOnAxis(ezInt32 iScreenPosX, ezInt32 iScre
   out_Result = m_vStartPosition;
 
   ezVec3 vPos, vRayDir;
-  if (ezGraphicsUtils::ConvertScreenPosToWorldPos(m_InvViewProj, 0, 0, m_Viewport.x, m_Viewport.y, ezVec3(iScreenPosX, iScreenPosY, 0), vPos, &vRayDir).Failed())
+  if (ezGraphicsUtils::ConvertScreenPosToWorldPos(m_mInvViewProj, 0, 0, m_vViewport.x, m_vViewport.y, ezVec3(iScreenPosX, iScreenPosY, 0), vPos, &vRayDir).Failed())
     return EZ_FAILURE;
 
   const ezVec3 vDir = m_pCamera->GetDirForwards();

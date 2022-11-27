@@ -124,6 +124,19 @@ void ezAssetCurator::SetActiveAssetProfileByIndex(ezUInt32 index, bool bForceRee
   }
 }
 
+void ezAssetCurator::SaveRuntimeProfiles()
+{
+  for (ezUInt32 i = 0; i < GetNumAssetProfiles(); ++i)
+  {
+    ezStringBuilder sProfileRuntimeDataFile;
+
+    ezPlatformProfile* pProfile = GetAssetProfile(i);
+
+    sProfileRuntimeDataFile.Set(":project/RuntimeConfigs/", pProfile->GetConfigName(), ".ezProfile");
+
+    pProfile->SaveForRuntime(sProfileRuntimeDataFile).IgnoreResult();
+  }
+}
 
 ezResult ezAssetCurator::SaveAssetProfiles()
 {

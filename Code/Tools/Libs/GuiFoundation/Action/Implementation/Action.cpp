@@ -25,7 +25,7 @@ ezAction* ezActionDescriptor::CreateAction(const ezActionContext& context) const
 {
   EZ_ASSERT_DEV(!m_Handle.IsInvalidated(), "Handle invalid!");
   auto pAction = m_CreateAction(context);
-  pAction->m_DescriptorHandle = m_Handle;
+  pAction->m_hDescriptorHandle = m_Handle;
 
   m_CreatedActions.PushBack(pAction);
   return pAction;

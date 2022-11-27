@@ -35,5 +35,5 @@ public:
 
 private:
   RENDERDOC_API_1_4_1* m_pRenderDocAPI = nullptr;
-  ezMinWindows::HMODULE m_HandleToFree = nullptr;
+  ezMinWindows::HMODULE m_pHandleToFree = nullptr;
 };

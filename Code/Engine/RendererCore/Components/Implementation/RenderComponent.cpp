@@ -43,10 +43,9 @@ void ezRenderComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
 
   bool bAlwaysVisible = false;
 
-  if (GetLocalBounds(bounds, bAlwaysVisible).Succeeded())
+  if (GetLocalBounds(bounds, bAlwaysVisible, msg).Succeeded())
   {
-    ezSpatialData::Category category =
-      GetOwner()->IsDynamic() ? ezDefaultSpatialDataCategories::RenderDynamic : ezDefaultSpatialDataCategories::RenderStatic;
+    ezSpatialData::Category category = GetOwner()->IsDynamic() ? ezDefaultSpatialDataCategories::RenderDynamic : ezDefaultSpatialDataCategories::RenderStatic;
 
     if (bounds.IsValid())
     {

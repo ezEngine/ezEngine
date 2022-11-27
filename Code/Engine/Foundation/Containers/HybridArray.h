@@ -24,7 +24,7 @@ public:
   ezHybridArray(const ezHybridArray<T, Size, AllocatorWrapper>& other); // [tested]
 
   /// \brief Creates a copy of the given array.
-  ezHybridArray(const ezArrayPtr<const T>& other); // [tested]
+  explicit ezHybridArray(const ezArrayPtr<const T>& other); // [tested]
 
   /// \brief Moves the given array.
   ezHybridArray(ezHybridArray<T, Size, AllocatorWrapper>&& other); // [tested]
@@ -40,7 +40,7 @@ public:
 
 protected:
   /// \brief The fixed size array.
-  struct : ezAligned<EZ_ALIGNMENT_OF(T)>
+  struct alignas(EZ_ALIGNMENT_OF(T))
   {
     ezUInt8 m_StaticData[Size * sizeof(T)];
   };

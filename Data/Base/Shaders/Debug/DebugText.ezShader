@@ -11,6 +11,7 @@ TOPOLOGY
 BlendingEnabled0 = true
 DestBlend0 = Blend_InvSrcAlpha
 SourceBlend0 = Blend_SrcAlpha
+DestBlendAlpha0 = Blend_InvSrcAlpha
 
 DepthTest = false
 DepthWrite = false

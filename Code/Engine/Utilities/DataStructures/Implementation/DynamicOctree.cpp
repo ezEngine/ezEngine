@@ -2,7 +2,7 @@
 
 #include <Utilities/DataStructures/DynamicOctree.h>
 
-const float ezDynamicOctree::s_LooseOctreeFactor = 1.1f;
+const float ezDynamicOctree::s_fLooseOctreeFactor = 1.1f;
 
 ezDynamicOctree::ezDynamicOctree()
   : m_uiMaxTreeDepth(0)
@@ -36,7 +36,7 @@ void ezDynamicOctree::CreateTree(const ezVec3& vCenter, const ezVec3& vHalfExten
   while (fLength > fMinNodeSize)
   {
     ++m_uiMaxTreeDepth;
-    fLength = (fLength / 2.0f) * s_LooseOctreeFactor;
+    fLength = (fLength / 2.0f) * s_fLooseOctreeFactor;
   }
 
   m_uiAddIDTopLevel = 0;
@@ -122,9 +122,9 @@ bool ezDynamicOctree::InsertObject(const ezVec3& vCenter, const ezVec3& vHalfExt
 
   if (uiAddID > 0)
   {
-    const float lx = ((maxx - minx) * 0.5f) * s_LooseOctreeFactor;
-    const float ly = ((maxy - miny) * 0.5f) * s_LooseOctreeFactor;
-    const float lz = ((maxz - minz) * 0.5f) * s_LooseOctreeFactor;
+    const float lx = ((maxx - minx) * 0.5f) * s_fLooseOctreeFactor;
+    const float ly = ((maxy - miny) * 0.5f) * s_fLooseOctreeFactor;
+    const float lz = ((maxz - minz) * 0.5f) * s_fLooseOctreeFactor;
 
     const ezUInt32 uiNodeIDBase = uiNodeID + 1;
     const ezUInt32 uiAddIDChild = uiAddID - uiSubAddID;
@@ -247,9 +247,9 @@ void ezDynamicOctree::FindVisibleObjects(const ezFrustum& Viewfrustum, EZ_VISIBL
 
     if (uiAddID > 0)
     {
-      const float lx = ((maxx - minx) * 0.5f) * s_LooseOctreeFactor;
-      const float ly = ((maxy - miny) * 0.5f) * s_LooseOctreeFactor;
-      const float lz = ((maxz - minz) * 0.5f) * s_LooseOctreeFactor;
+      const float lx = ((maxx - minx) * 0.5f) * s_fLooseOctreeFactor;
+      const float ly = ((maxy - miny) * 0.5f) * s_fLooseOctreeFactor;
+      const float lz = ((maxz - minz) * 0.5f) * s_fLooseOctreeFactor;
 
       const ezUInt32 uiNodeIDBase = uiNodeID + 1;
       const ezUInt32 uiAddIDChild = uiAddID - uiSubAddID;
@@ -354,9 +354,9 @@ bool ezDynamicOctree::FindObjectsInRange(const ezVec3& vPoint, EZ_VISIBLE_OBJ_CA
 
     if (uiAddID > 0)
     {
-      const float lx = ((maxx - minx) * 0.5f) * s_LooseOctreeFactor;
-      const float ly = ((maxy - miny) * 0.5f) * s_LooseOctreeFactor;
-      const float lz = ((maxz - minz) * 0.5f) * s_LooseOctreeFactor;
+      const float lx = ((maxx - minx) * 0.5f) * s_fLooseOctreeFactor;
+      const float ly = ((maxy - miny) * 0.5f) * s_fLooseOctreeFactor;
+      const float lz = ((maxz - minz) * 0.5f) * s_fLooseOctreeFactor;
 
       const ezUInt32 uiNodeIDBase = uiNodeID + 1;
       const ezUInt32 uiAddIDChild = uiAddID - uiSubAddID;
@@ -446,9 +446,9 @@ bool ezDynamicOctree::FindObjectsInRange(const ezVec3& vPoint, float fRadius, EZ
     // if the node has children
     if (uiAddID > 0)
     {
-      const float lx = ((maxx - minx) * 0.5f) * s_LooseOctreeFactor;
-      const float ly = ((maxy - miny) * 0.5f) * s_LooseOctreeFactor;
-      const float lz = ((maxz - minz) * 0.5f) * s_LooseOctreeFactor;
+      const float lx = ((maxx - minx) * 0.5f) * s_fLooseOctreeFactor;
+      const float ly = ((maxy - miny) * 0.5f) * s_fLooseOctreeFactor;
+      const float lz = ((maxz - minz) * 0.5f) * s_fLooseOctreeFactor;
 
       const ezUInt32 uiNodeIDBase = uiNodeID + 1;
       const ezUInt32 uiAddIDChild = uiAddID - uiSubAddID;

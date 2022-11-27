@@ -19,11 +19,6 @@ EZ_ALWAYS_INLINE ezGALTimestampHandle ezGALDevice::GetTimestamp()
   return GetTimestampPlatform();
 }
 
-EZ_ALWAYS_INLINE ezGALSwapChainHandle ezGALDevice::GetPrimarySwapChain() const
-{
-  return m_hPrimarySwapChain;
-}
-
 template <typename IdTableType, typename ReturnType>
 EZ_ALWAYS_INLINE ReturnType* ezGALDevice::Get(typename IdTableType::TypeOfId hHandle, const IdTableType& IdTable) const
 {
@@ -92,11 +87,6 @@ inline const ezGALRenderTargetView* ezGALDevice::GetRenderTargetView(ezGALRender
 inline const ezGALUnorderedAccessView* ezGALDevice::GetUnorderedAccessView(ezGALUnorderedAccessViewHandle hUnorderedAccessView) const
 {
   return Get<UnorderedAccessViewTable, ezGALUnorderedAccessView>(hUnorderedAccessView, m_UnorderedAccessViews);
-}
-
-inline const ezGALFence* ezGALDevice::GetFence(ezGALFenceHandle hFence) const
-{
-  return Get<FenceTable, ezGALFence>(hFence, m_Fences);
 }
 
 inline const ezGALQuery* ezGALDevice::GetQuery(ezGALQueryHandle hQuery) const

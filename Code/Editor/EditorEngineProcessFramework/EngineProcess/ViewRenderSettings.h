@@ -98,8 +98,8 @@ public:
 
   mutable ezEvent<const ezEngineViewLightSettingsEvent&> m_EngineViewLightSettingsEvents;
 
-  virtual bool SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextComponentPickingID);
-  virtual void UpdateForEngine(ezWorld* pWorld);
+  virtual bool SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextComponentPickingID) override;
+  virtual void UpdateForEngine(ezWorld* pWorld) override;
 
 private:
   void SetModifiedInternal(ezEngineViewLightSettingsEvent::Type type);

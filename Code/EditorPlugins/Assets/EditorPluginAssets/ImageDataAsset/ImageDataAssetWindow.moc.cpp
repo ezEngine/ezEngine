@@ -37,7 +37,7 @@ ezQtImageDataAssetDocumentWindow::ezQtImageDataAssetDocumentWindow(ezImageDataAs
   }
 
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this);
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
     pPropertyPanel->setObjectName("ImageDataAssetDockWidget");
     pPropertyPanel->setWindowTitle("Properties");
     pPropertyPanel->show();
@@ -58,7 +58,7 @@ ezQtImageDataAssetDocumentWindow::ezQtImageDataAssetDocumentWindow(ezImageDataAs
 
   UpdatePreview();
 
-  pDocument->Events().AddEventHandler(ezMakeDelegate(&ezQtImageDataAssetDocumentWindow::ImageDataAssetEventHandler, this), m_eventUnsubscriper);
+  pDocument->Events().AddEventHandler(ezMakeDelegate(&ezQtImageDataAssetDocumentWindow::ImageDataAssetEventHandler, this), m_EventUnsubscriper);
 }
 
 void ezQtImageDataAssetDocumentWindow::ImageDataAssetEventHandler(const ezImageDataAssetEvent& e)

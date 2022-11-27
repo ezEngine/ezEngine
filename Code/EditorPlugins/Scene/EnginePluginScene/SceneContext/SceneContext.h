@@ -12,7 +12,6 @@ class ezGameModeMsgToEngine;
 class ezWorldSettingsMsgToEngine;
 class ezObjectsForDebugVisMsgToEngine;
 struct ezVisualScriptComponentActivityEvent;
-class ezGlobalSettingsMsgToEngine;
 class ezGridSettingsMsgToEngine;
 class ezSimulationSettingsMsgToEngine;
 struct ezResourceManagerEvent;
@@ -87,7 +86,6 @@ private:
   void HandleGameModeMsg(const ezGameModeMsgToEngine* pMsg);
   void HandleSimulationSettingsMsg(const ezSimulationSettingsMsgToEngine* msg);
   void HandleGridSettingsMsg(const ezGridSettingsMsgToEngine* msg);
-  void HandleGlobalSettingsMsg(const ezGlobalSettingsMsgToEngine* msg);
   void HandleWorldSettingsMsg(const ezWorldSettingsMsgToEngine* msg);
   void HandleObjectsForDebugVisMsg(const ezObjectsForDebugVisMsgToEngine* pMsg);
   void ComputeHierarchyBounds(ezGameObject* pObj, ezBoundingBoxSphere& bounds);
@@ -131,7 +129,7 @@ private:
   ezDynamicArray<ezLayerContext*> m_Layers;
   ezDynamicArray<ezWorldRttiConverterContext*> m_Contexts;
 
-  // We use tags in the form of Layer_4 (Layer_main for the scene itself) to not pollute the tag registry with hundreds of unique tags. The tags do not need to be unique across documents so we can just use the layer index but that requires the Tags to be recomputed whenever we remove / add layers.
+  // We use tags in the form of Layer_4 (Layer_Scene for the scene itself) to not pollute the tag registry with hundreds of unique tags. The tags do not need to be unique across documents so we can just use the layer index but that requires the Tags to be recomputed whenever we remove / add layers.
   // By caching the guids we do not need to send another message each time a layer is loaded as we send also guids of unloaded layers.
   ezTag m_LayerTag;
   ezHybridArray<ezUuid, 1> m_InvisibleLayers;

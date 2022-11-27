@@ -45,7 +45,7 @@ const ezTokenizer* ezTokenizedFileCache::Tokenize(const ezString& sFileName, ezA
   ezDeque<ezToken>& Tokens = pTokenizer->GetTokens();
 
   ezHashedString sFile;
-  sFile.Assign(sFileName.GetData());
+  sFile.Assign(sFileName);
 
   ezInt32 iLineOffset = 0;
 
@@ -86,7 +86,7 @@ const ezTokenizer* ezTokenizedFileCache::Tokenize(const ezString& sFileName, ezA
                 ezStringBuilder sFileName2 = Tokens[uiNext].m_DataView;
                 sFileName2.Shrink(1, 1); // remove surrounding "
 
-                sFile.Assign(sFileName2.GetData());
+                sFile.Assign(sFileName2);
               }
             }
           }
@@ -267,17 +267,17 @@ ezResult ezPreprocessor::HandleInclude(const TokenStream& Tokens0, ezUInt32 uiCu
     return EZ_FAILURE;
   }
 
-  EZ_ASSERT_DEV(!m_sCurrentFileStack.IsEmpty(), "Implementation error.");
+  EZ_ASSERT_DEV(!m_CurrentFileStack.IsEmpty(), "Implementation error.");
 
   ezStringBuilder sOtherFile;
 
-  if (m_FileLocatorCallback(m_sCurrentFileStack.PeekBack().m_sFileName.GetData(), sPath, IncType, sOtherFile).Failed())
+  if (m_FileLocatorCallback(m_CurrentFileStack.PeekBack().m_sFileName.GetData(), sPath, IncType, sOtherFile).Failed())
   {
     PP_LOG(Error, "#include file '{0}' could not be located", Tokens[uiAccepted], sPath);
     return EZ_FAILURE;
   }
 
-  const ezTempHashedString sOtherFileHashed(sOtherFile.GetData());
+  const ezTempHashedString sOtherFileHashed(sOtherFile);
 
   // if this has been included before, and contains a #pragma once, do not include it again
   if (m_PragmaOnce.Find(sOtherFileHashed).IsValid())

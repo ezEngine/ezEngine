@@ -1,12 +1,12 @@
 Node %ConstantColor
 {
   string %Category { "Constants" }
-  unsigned_int8 %Color { 0, 53, 91 }
+  string %Color { "Orange" }
 
   OutputPin %RGBA
   {
     string %Type { "float4" }
-    unsigned_int8 %Color { 0, 53, 91 }
+    unsigned_int8 %Color { 200, 200, 200 }
     string %Inline { "$prop0" }
   }
 
@@ -20,12 +20,11 @@ Node %ConstantColor
 Node %Constant1
 {
   string %Category { "Constants" }
-  unsigned_int8 %Color { 0, 53, 91 }
+  string %Color { "Orange" }
 
   OutputPin %Value
   {
     string %Type { "float" }
-    unsigned_int8 %Color { 0, 53, 91 }
     string %Inline { "$prop0" }
   }
 
@@ -39,12 +38,11 @@ Node %Constant1
 Node %Constant2
 {
   string %Category { "Constants" }
-  unsigned_int8 %Color { 0, 53, 91 }
+  string %Color { "Orange" }
 
   OutputPin %Value
   {
     string %Type { "float2" }
-    unsigned_int8 %Color { 0, 53, 91 }
     string %Inline { "$prop0" }
   }
 
@@ -58,12 +56,11 @@ Node %Constant2
 Node %Constant3
 {
   string %Category { "Constants" }
-  unsigned_int8 %Color { 0, 53, 91 }
+  string %Color { "Orange" }
 
   OutputPin %Value
   {
     string %Type { "float3" }
-    unsigned_int8 %Color { 0, 53, 91 }
     string %Inline { "$prop0" }
   }
 
@@ -77,12 +74,12 @@ Node %Constant3
 Node %Constant4
 {
   string %Category { "Constants" }
-  unsigned_int8 %Color { 0, 53, 91 }
+  string %Color { "Orange" }
 
   OutputPin %Value
   {
     string %Type { "float4" }
-    unsigned_int8 %Color { 0, 53, 91 }
+    unsigned_int8 %Color { 200, 200, 200 }
     string %Inline { "$prop0" }
   }
 

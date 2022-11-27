@@ -21,8 +21,10 @@
     <file>Icons/AssetUnknown16.png</file>
     <file>Icons/AssetNeedsTransform16.png</file>
     <file>Icons/AssetNeedsThumbnail16.png</file>
+	<file>Icons/AssetNeedsImport16.png</file>
     <file>Icons/AssetProcessingPause16.png</file>
     <file>Icons/AssetProcessingStart16.png</file>
+	<file>Icons/AssetProcessingForceStop16.png</file>
     <file>Icons/AssetOk16.png</file>
     <file>Icons/ResavAllAssets16.png</file>
     <file>Icons/AssetMissingDependency16.png</file>
@@ -54,6 +56,7 @@
     <file>Icons/GitHub.svg</file>
     <file>Icons/GitHub-Light.png</file>
     <file>Icons/ViewLightMenu.png</file>
+	<file>Icons/VisualStudio.svg</file>
   </qresource>
   <qresource prefix="AssetIcons">
     <file>All.png</file>

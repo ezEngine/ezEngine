@@ -5,7 +5,7 @@
 #  undef EZ_COMPILER_MSVC
 #  define EZ_COMPILER_MSVC EZ_ON
 
-#  ifdef __clang__
+#  if __clang__ || __castxml__
 #    undef EZ_COMPILER_MSVC_CLANG
 #    define EZ_COMPILER_MSVC_CLANG EZ_ON
 #  else
@@ -28,18 +28,10 @@
 #    define EZ_FORCE_INLINE __forceinline
 #  endif
 
-#  ifdef __INTELLISENSE__
-#    define EZ_ALIGN(decl, alignment) decl
-#    define EZ_ALIGN_VARIABLE(decl, alignment) decl
-#  else
-#    define EZ_ALIGN(decl, alignment) __declspec(align(alignment)) decl
-#    define EZ_ALIGN_VARIABLE(decl, alignment) __declspec(align(alignment)) decl
-#  endif
-
 // workaround for MSVC compiler issue with alignment determination of dependent types
 #  define EZ_ALIGNMENT_OF(type) EZ_COMPILE_TIME_MAX(EZ_ALIGNMENT_MINIMUM, EZ_COMPILE_TIME_MIN(sizeof(type), __alignof(type)))
 
-#  if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#  if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG) || (_MSC_VER >= 1929 /* broken in early VS2019 but works again in VS2022 and later 2019 versions*/)
 
 #    define EZ_DEBUG_BREAK \
       {                    \

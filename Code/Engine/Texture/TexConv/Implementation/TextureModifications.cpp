@@ -1,5 +1,6 @@
 #include <Texture/TexturePCH.h>
 
+#include <Foundation/Profiling/Profiling.h>
 #include <Texture/Image/ImageUtils.h>
 #include <Texture/TexConv/TexConvProcessor.h>
 
@@ -28,6 +29,8 @@ ezResult ezTexConvProcessor::ForceSRGBFormats()
 
 ezResult ezTexConvProcessor::GenerateMipmaps(ezImage& img, ezUInt32 uiNumMips, MipmapChannelMode channelMode /*= MipmapChannelMode::AllChannels*/) const
 {
+  EZ_PROFILE_SCOPE("GenerateMipmaps");
+
   ezImageUtils::MipMapOptions opt;
   opt.m_numMipMaps = uiNumMips;
 
@@ -96,6 +99,8 @@ ezResult ezTexConvProcessor::GenerateMipmaps(ezImage& img, ezUInt32 uiNumMips, M
 
 ezResult ezTexConvProcessor::PremultiplyAlpha(ezImage& image) const
 {
+  EZ_PROFILE_SCOPE("PremultiplyAlpha");
+
   if (!m_Descriptor.m_bPremultiplyAlpha)
     return EZ_SUCCESS;
 
@@ -111,12 +116,16 @@ ezResult ezTexConvProcessor::PremultiplyAlpha(ezImage& image) const
 
 ezResult ezTexConvProcessor::AdjustHdrExposure(ezImage& img) const
 {
+  EZ_PROFILE_SCOPE("AdjustHdrExposure");
+
   ezImageUtils::ChangeExposure(img, m_Descriptor.m_fHdrExposureBias);
   return EZ_SUCCESS;
 }
 
 ezResult ezTexConvProcessor::ConvertToNormalMap(ezArrayPtr<ezImage> imgs) const
 {
+  EZ_PROFILE_SCOPE("ConvertToNormalMap");
+
   for (ezImage& img : imgs)
   {
     EZ_SUCCEED_OR_RETURN(ConvertToNormalMap(img));
@@ -144,13 +153,15 @@ ezResult ezTexConvProcessor::ConvertToNormalMap(ezImage& bumpMap) const
   EZ_ASSERT_DEV(bumpMap.GetImageFormat() == ezImageFormat::R32G32B32A32_FLOAT && bumpMap.GetRowPitch() % sizeof(ezColor) == 0, "");
 
   const ezColor* bumpPixels = bumpMap.GetPixelPointer<ezColor>(0, 0, 0, 0, 0, 0);
-  const auto getBumpPixel = [&](ezUInt32 x, ezUInt32 y) -> float {
+  const auto getBumpPixel = [&](ezUInt32 x, ezUInt32 y) -> float
+  {
     const ezColor* ptr = bumpPixels + y * bumpMap.GetWidth() + x;
     return ptr->r;
   };
 
   ezColor* newPixels = newImage.GetPixelPointer<ezColor>(0, 0, 0, 0, 0, 0);
-  auto getNewPixel = [&](ezUInt32 x, ezUInt32 y) -> ezColor& {
+  auto getNewPixel = [&](ezUInt32 x, ezUInt32 y) -> ezColor&
+  {
     ezColor* ptr = newPixels + y * newImage.GetWidth() + x;
     return *ptr;
   };
@@ -158,7 +169,8 @@ ezResult ezTexConvProcessor::ConvertToNormalMap(ezImage& bumpMap) const
   switch (m_Descriptor.m_BumpMapFilter)
   {
     case ezTexConvBumpMapFilter::Finite:
-      filterKernel = [&](ezUInt32 x, ezUInt32 y) {
+      filterKernel = [&](ezUInt32 x, ezUInt32 y)
+      {
         constexpr float linearKernel[3] = {-1, 0, 1};
 
         Accum accum;
@@ -178,7 +190,8 @@ ezResult ezTexConvProcessor::ConvertToNormalMap(ezImage& bumpMap) const
       };
       break;
     case ezTexConvBumpMapFilter::Sobel:
-      filterKernel = [&](ezUInt32 x, ezUInt32 y) {
+      filterKernel = [&](ezUInt32 x, ezUInt32 y)
+      {
         constexpr float kernel[3][3] = {{-1, 0, 1}, {-2, 0, 2}, {-1, 0, 1}};
         constexpr float weight = 1.f / 4.f;
 
@@ -204,7 +217,8 @@ ezResult ezTexConvProcessor::ConvertToNormalMap(ezImage& bumpMap) const
       };
       break;
     case ezTexConvBumpMapFilter::Scharr:
-      filterKernel = [&](ezUInt32 x, ezUInt32 y) {
+      filterKernel = [&](ezUInt32 x, ezUInt32 y)
+      {
         constexpr float kernel[3][3] = {{-3, 0, 3}, {-10, 0, 10}, {-3, 0, 3}};
         constexpr float weight = 1.f / 16.f;
 
@@ -393,6 +407,8 @@ ezResult ezTexConvProcessor::DilateColor2D(ezImage& img) const
 {
   if (m_Descriptor.m_uiDilateColor == 0)
     return EZ_SUCCESS;
+
+  EZ_PROFILE_SCOPE("DilateColor2D");
 
   if (!FillAvgImageColor(img))
     return EZ_SUCCESS;

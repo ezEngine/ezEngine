@@ -12,6 +12,16 @@ ezString ezQtEditorApp::GetExternalToolsFolder(bool bForceUseCustomTools)
 
 ezString ezQtEditorApp::FindToolApplication(const char* szToolName)
 {
+  ezStringBuilder toolExe = szToolName;
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+  toolExe.ChangeFileExtension("exe");
+#else
+  toolExe.RemoveFileExtension();
+#endif
+
+  szToolName = toolExe;
+
   ezStringBuilder sTool = ezQtEditorApp::GetSingleton()->GetExternalToolsFolder();
   sTool.AppendPath(szToolName);
 
@@ -33,6 +43,16 @@ ezStatus ezQtEditorApp::ExecuteTool(const char* szTool, const QStringList& argum
   // this block is supposed to be in the global log, not the given log interface
   EZ_LOG_BLOCK("Executing Tool", szTool);
 
+  ezStringBuilder toolExe = szTool;
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+  toolExe.ChangeFileExtension("exe");
+#else
+  toolExe.RemoveFileExtension();
+#endif
+
+  szTool = toolExe;
+
   ezStringBuilder cmd;
   for (ezInt32 i = 0; i < arguments.size(); ++i)
     cmd.Append(" ", arguments[i].toUtf8().data());
@@ -50,8 +70,10 @@ ezStatus ezQtEditorApp::ExecuteTool(const char* szTool, const QStringList& argum
   QString logoutput;
   proc.setProcessChannelMode(QProcess::MergedChannels);
   proc.setReadChannel(QProcess::StandardOutput);
-  QObject::connect(&proc, &QProcess::readyReadStandardOutput, [&proc, &logoutput]() { logoutput.append(proc.readAllStandardOutput()); });
-  proc.start(QString::fromUtf8(ezQtEditorApp::GetSingleton()->FindToolApplication(szTool)), arguments);
+  QObject::connect(&proc, &QProcess::readyReadStandardOutput, [&proc, &logoutput]()
+    { logoutput.append(proc.readAllStandardOutput()); });
+  ezString toolPath = ezQtEditorApp::GetSingleton()->FindToolApplication(szTool);
+  proc.start(QString::fromUtf8(toolPath, toolPath.GetElementCount()), arguments);
 
   if (!proc.waitForStarted(uiSecondsTillTimeout * 1000))
     return ezStatus(ezFmt("{0} could not be started", szTool));
@@ -154,7 +176,7 @@ ezStatus ezQtEditorApp::ExecuteTool(const char* szTool, const QStringList& argum
 
 ezString ezQtEditorApp::BuildFileserveCommandLine() const
 {
-  const ezStringBuilder sToolPath = ezQtEditorApp::GetSingleton()->FindToolApplication("Fileserve.exe");
+  const ezStringBuilder sToolPath = ezQtEditorApp::GetSingleton()->FindToolApplication("Fileserve");
   const ezStringBuilder sProjectDir = ezToolsProject::GetSingleton()->GetProjectDirectory();
   ezStringBuilder params;
 
@@ -166,7 +188,7 @@ ezString ezQtEditorApp::BuildFileserveCommandLine() const
 
 void ezQtEditorApp::RunFileserve()
 {
-  const ezStringBuilder sToolPath = ezQtEditorApp::GetSingleton()->FindToolApplication("Fileserve.exe");
+  const ezStringBuilder sToolPath = ezQtEditorApp::GetSingleton()->FindToolApplication("Fileserve");
   const ezStringBuilder sProjectDir = ezToolsProject::GetSingleton()->GetProjectDirectory();
 
   QStringList args;
@@ -178,7 +200,7 @@ void ezQtEditorApp::RunFileserve()
 
 void ezQtEditorApp::RunInspector()
 {
-  const ezStringBuilder sToolPath = ezQtEditorApp::GetSingleton()->FindToolApplication("Inspector.exe");
+  const ezStringBuilder sToolPath = ezQtEditorApp::GetSingleton()->FindToolApplication("Inspector");
   QStringList args;
 
   QProcess::startDetached(sToolPath.GetData(), args);

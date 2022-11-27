@@ -7,11 +7,12 @@ RENDER_PASS
 GIZMO_CONSTANT_SIZE
 PREPARE_DEPTH
 CAMERA_MODE
+GIZMO_FACE_CAMERA
 
 [RENDERSTATE]
 
 #if GIZMO_CONSTANT_SIZE == 1
-  CullMode = CullMode_None
+  CullMode = CullMode_Back
 #else
   CullMode = CullMode_Back
 #endif
@@ -33,11 +34,13 @@ CAMERA_MODE
 	BlendOp0 = BlendOp_Add
 	DestBlend0 = Blend_InvSrcAlpha
 	SourceBlend0 = Blend_SrcAlpha
+	DestBlendAlpha0 = Blend_InvSrcAlpha
 #endif
 
 [VERTEXSHADER]
 
 #define USE_COLOR0
+#define USE_NORMAL
 
 #include <Shaders/Common/GlobalConstants.h>
 #include <Shaders/Editor/GizmoConstants.h>
@@ -53,16 +56,35 @@ VS_OUT main(VS_IN Input)
 			float scale = 1.0f;
 		#else
 			float scale = length(centerPosition - GetCameraPosition()) * GizmoScale;
+
 		#endif
 	#else
 		float scale = 1.0f;
 	#endif
 
-	float4 worldSpacePos = mul(ObjectToWorldMatrix, float4(Input.Position * scale, 1.0f));
+	float expand = 0.0;
+#if (RENDER_PASS == RENDER_PASS_PICKING) || (RENDER_PASS == RENDER_PASS_PICKING_WIREFRAME)
+	expand = 0.04;
+#endif
+
+	float3 inpos = Input.Position.xyz + (Input.Normal.xyz * 2 - 1) * expand;
+
+	#if GIZMO_FACE_CAMERA == 1
+		float3 localCamPos = mul(WorldToObjectMatrix, float4(GetCameraPosition().xyz, 1)).xyz;
+		if (localCamPos.x < 0)
+			inpos.x = -inpos.x;
+		if (localCamPos.y < 0)
+			inpos.y = -inpos.y;
+		if (localCamPos.z < 0)
+			inpos.z = -inpos.z;
+	#endif
+
+	float4 worldSpacePos = mul(ObjectToWorldMatrix, float4(inpos * scale, 1.0f));
 
 	VS_OUT RetVal;
 	RetVal.Position = mul(GetWorldToScreenMatrix(), worldSpacePos);
 	RetVal.Color0 = GizmoColor;
+	RetVal.Normal = float3(0, 1, 0);
 
 	return RetVal;
 }
@@ -70,6 +92,7 @@ VS_OUT main(VS_IN Input)
 [PIXELSHADER]
 
 #define USE_COLOR0
+#define USE_NORMAL
 
 #include <Shaders/Common/GlobalConstants.h>
 #include <Shaders/Editor/GizmoConstants.h>

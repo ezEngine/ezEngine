@@ -15,6 +15,7 @@ ezRmlUiAssetDocumentManager::ezRmlUiAssetDocumentManager()
   m_DocTypeDesc.m_sIcon = ":/AssetIcons/RmlUi.png";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezRmlUiAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
+  m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Rml_UI");
 
   m_DocTypeDesc.m_sResourceFileExtension = "ezRmlUi";
   m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::SupportsThumbnail;
@@ -37,6 +38,9 @@ void ezRmlUiAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager
       }
     }
     break;
+
+    default:
+      break;
   }
 }
 

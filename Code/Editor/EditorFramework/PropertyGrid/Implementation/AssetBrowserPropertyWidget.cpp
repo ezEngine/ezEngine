@@ -14,7 +14,7 @@ ezQtAssetPropertyWidget::ezQtAssetPropertyWidget()
   m_uiThumbnailID = 0;
 
   m_pLayout = new QHBoxLayout(this);
-  m_pLayout->setMargin(0);
+  m_pLayout->setContentsMargins(0, 0, 0, 0);
   m_pLayout->setSpacing(0);
   setLayout(m_pLayout);
 
@@ -34,6 +34,7 @@ ezQtAssetPropertyWidget::ezQtAssetPropertyWidget()
   m_pButton->setPopupMode(QToolButton::InstantPopup);
 
   QMenu* pMenu = new QMenu();
+  pMenu->setToolTipsVisible(true);
   m_pButton->setMenu(pMenu);
 
   connect(pMenu, &QMenu::aboutToShow, this, &ezQtAssetPropertyWidget::OnShowMenu);
@@ -78,8 +79,23 @@ bool ezQtAssetPropertyWidget::IsValidAssetType(const char* szAssetReference) con
   if (ezStringUtils::IsEqual(pAssetAttribute->GetTypeFilter(), ";;")) // empty type list -> allows everything
     return true;
 
-  const ezStringBuilder sTypeFilter(";", pAsset->m_Data.m_sSubAssetsDocumentTypeName.GetData(), ";");
-  return ezStringUtils::FindSubString_NoCase(pAssetAttribute->GetTypeFilter(), sTypeFilter) != nullptr;
+  ezStringBuilder sTypeFilter(";", pAsset->m_Data.m_sSubAssetsDocumentTypeName, ";");
+
+  if (ezStringUtils::FindSubString_NoCase(pAssetAttribute->GetTypeFilter(), sTypeFilter) != nullptr)
+    return true;
+
+  if (const ezDocumentTypeDescriptor* pDesc = ezDocumentManager::GetDescriptorForDocumentType(pAsset->m_Data.m_sSubAssetsDocumentTypeName))
+  {
+    for (const ezString& comp : pDesc->m_CompatibleTypes)
+    {
+      sTypeFilter.Set(";", comp, ";");
+
+      if (ezStringUtils::FindSubString_NoCase(pAssetAttribute->GetTypeFilter(), sTypeFilter) != nullptr)
+        return true;
+    }
+  }
+
+  return false;
 }
 
 void ezQtAssetPropertyWidget::OnInit()
@@ -146,8 +162,8 @@ void ezQtAssetPropertyWidget::InternalSetValue(const ezVariant& value)
         m_pButton->setIcon(QIcon());
         m_pButton->setToolButtonStyle(Qt::ToolButtonStyle::ToolButtonTextOnly);
 
-        m_pal.setColor(QPalette::Text, Qt::red);
-        m_pWidget->setPalette(m_pal);
+        m_Pal.setColor(QPalette::Text, Qt::red);
+        m_pWidget->setPalette(m_Pal);
 
         return;
       }
@@ -169,8 +185,11 @@ void ezQtAssetPropertyWidget::InternalSetValue(const ezVariant& value)
     UpdateThumbnail(m_AssetGuid, sThumbnailPath);
 
     {
-      m_pal.setColor(QPalette::Text, m_AssetGuid.IsValid() ? QColor::fromRgb(182, 255, 0) : QColor::fromRgb(255, 170, 0));
-      m_pWidget->setPalette(m_pal);
+      const QColor validColor = ezToQtColor(ezColorScheme::LightUI(ezColorScheme::Green));
+      const QColor invalidColor = ezToQtColor(ezColorScheme::LightUI(ezColorScheme::Red));
+
+      m_Pal.setColor(QPalette::Text, m_AssetGuid.IsValid() ? validColor : invalidColor);
+      m_pWidget->setPalette(m_Pal);
 
       if (m_AssetGuid.IsValid())
         m_pWidget->setToolTip(QStringLiteral("The selected file resolved to a valid asset GUID"));
@@ -186,7 +205,7 @@ void ezQtAssetPropertyWidget::InternalSetValue(const ezVariant& value)
 void ezQtAssetPropertyWidget::showEvent(QShowEvent* event)
 {
   // Use of style sheets (ADS) breaks previously set palette.
-  m_pWidget->setPalette(m_pal);
+  m_pWidget->setPalette(m_Pal);
   ezQtStandardPropertyWidget::showEvent(event);
 }
 
@@ -324,12 +343,12 @@ void ezQtAssetPropertyWidget::OnCreateNewAsset()
   const ezAssetBrowserAttribute* pAssetAttribute = m_pProp->GetAttributeByType<ezAssetBrowserAttribute>();
   ezStringBuilder sTypeFilter = pAssetAttribute->GetTypeFilter();
 
-  ezHybridArray<ezString, 4> types;
-  sTypeFilter.Split(false, types, ";");
+  ezHybridArray<ezString, 4> allowedTypes;
+  sTypeFilter.Split(false, allowedTypes, ";");
 
   ezStringBuilder tmp;
 
-  for (ezString& type : types)
+  for (ezString& type : allowedTypes)
   {
     tmp = type;
     tmp.Trim(" ");
@@ -342,9 +361,7 @@ void ezQtAssetPropertyWidget::OnCreateNewAsset()
     const ezDocumentTypeDescriptor* pDocType = nullptr;
   };
 
-  ezHybridArray<info, 4> typesToUse;
-  typesToUse.SetCount(types.GetCount());
-  bool bFoundAny = false;
+  ezMap<ezString, info> typesToUse;
 
   {
     const ezHybridArray<ezDocumentManager*, 16>& managers = ezDocumentManager::GetAllDocumentManagers();
@@ -356,31 +373,39 @@ void ezQtAssetPropertyWidget::OnCreateNewAsset()
         ezHybridArray<const ezDocumentTypeDescriptor*, 4> documentTypes;
         pAssetMan->GetSupportedDocumentTypes(documentTypes);
 
-        for (auto pType : documentTypes)
+        for (const ezDocumentTypeDescriptor* pType : documentTypes)
         {
-          ezUInt32 idx = types.IndexOf(pType->m_sDocumentTypeName);
+          if (allowedTypes.IndexOf(pType->m_sDocumentTypeName) == ezInvalidIndex)
+          {
+            for (const ezString& compType : pType->m_CompatibleTypes)
+            {
+              if (allowedTypes.IndexOf(compType) != ezInvalidIndex)
+                goto allowed;
+            }
 
-          if (idx == ezInvalidIndex)
             continue;
+          }
 
-          typesToUse[idx].pAssetMan = pAssetMan;
-          typesToUse[idx].pDocType = pType;
-          bFoundAny = true;
+        allowed:
+
+          auto& toUse = typesToUse[pType->m_sDocumentTypeName];
+
+          toUse.pAssetMan = pAssetMan;
+          toUse.pDocType = pType;
         }
       }
     }
   }
 
-  if (!bFoundAny)
+  if (typesToUse.IsEmpty())
     return;
 
   ezStringBuilder sFilter;
   QString sSelectedFilter;
 
-  for (const auto& ttu : typesToUse)
+  for (auto it : typesToUse)
   {
-    if (ttu.pAssetMan == nullptr)
-      continue;
+    const auto& ttu = it.Value();
 
     const ezString sAssetType = ttu.pDocType->m_sDocumentTypeName;
     const ezString sExtension = ttu.pDocType->m_sFileExtension;
@@ -409,10 +434,9 @@ void ezQtAssetPropertyWidget::OnCreateNewAsset()
 
   sFilter = sOutput.GetFileExtension();
 
-  for (const auto& ttu : typesToUse)
+  for (auto it : typesToUse)
   {
-    if (ttu.pAssetMan == nullptr)
-      continue;
+    const auto& ttu = it.Value();
 
     if (sFilter.IsEqual_NoCase(ttu.pDocType->m_sFileExtension))
     {

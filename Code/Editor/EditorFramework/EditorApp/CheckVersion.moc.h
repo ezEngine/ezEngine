@@ -1,5 +1,9 @@
 #pragma once
 
+#include <EditorFramework/EditorFrameworkDLL.h>
+
+#include <Foundation/Strings/String.h>
+
 #include <QByteArray>
 #include <QNetworkAccessManager>
 #include <QObject>
@@ -56,6 +60,6 @@ private:
   bool m_bCheckInProgresss = false;
   ezString m_sConfigFile;
   ezString m_sKnownLatestVersion;
-  QPointer<PageDownloader> m_VersionPage;
+  QPointer<PageDownloader> m_pVersionPage;
 };
 

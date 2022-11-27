@@ -17,8 +17,8 @@ bool ezTelemetry::s_bConnectedToServer = false;
 bool ezTelemetry::s_bConnectedToClient = false;
 bool ezTelemetry::s_bAllowNetworkUpdate = true;
 ezTime ezTelemetry::s_PingToServer;
-ezString ezTelemetry::s_ServerName;
-ezString ezTelemetry::s_ServerIP;
+ezString ezTelemetry::s_sServerName;
+ezString ezTelemetry::s_sServerIP;
 static bool g_bInitialized = false;
 ezTelemetry::ConnectionMode ezTelemetry::s_ConnectionMode = ezTelemetry::None;
 ezMap<ezUInt64, ezTelemetry::MessageQueue> ezTelemetry::s_SystemMessages;
@@ -82,7 +82,7 @@ void ezTelemetry::UpdateNetwork()
           // Querying host IP and name can take a lot of time which can lead to timeouts
           // enet_address_get_host(&NetworkEvent.peer->address, szHostName, 63);
 
-          ezTelemetry::s_ServerIP = szHostIP;
+          ezTelemetry::s_sServerIP = szHostIP;
           // ezTelemetry::s_ServerName = szHostName;
 
           // now we are waiting for the server to send its ID
@@ -179,7 +179,7 @@ void ezTelemetry::UpdateNetwork()
 
             case 'NAME':
             {
-              s_ServerName = reinterpret_cast<const char*>(pData);
+              s_sServerName = reinterpret_cast<const char*>(pData);
             }
             break;
           }
@@ -219,10 +219,10 @@ void ezTelemetry::SetServerName(const char* name)
   if (s_ConnectionMode == ConnectionMode::Client)
     return;
 
-  if (s_ServerName == name)
+  if (s_sServerName == name)
     return;
 
-  s_ServerName = name;
+  s_sServerName = name;
 
   SendServerName();
 }
@@ -233,7 +233,7 @@ void ezTelemetry::SendServerName()
     return;
 
   char data[48];
-  ezStringUtils::Copy(data, EZ_ARRAY_SIZE(data), s_ServerName.GetData());
+  ezStringUtils::Copy(data, EZ_ARRAY_SIZE(data), s_sServerName.GetData());
 
   Broadcast(ezTelemetry::Reliable, 'EZBC', 'NAME', data, EZ_ARRAY_SIZE(data));
 }

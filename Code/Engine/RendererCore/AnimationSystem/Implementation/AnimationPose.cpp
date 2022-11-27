@@ -13,6 +13,10 @@ EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgAnimationPoseUpdated);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgAnimationPoseUpdated, 1, ezRTTIDefaultAllocator<ezMsgAnimationPoseUpdated>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
+EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgAnimationPoseProposal);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgAnimationPoseProposal, 1, ezRTTIDefaultAllocator<ezMsgAnimationPoseProposal>)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgRopePoseUpdated);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgRopePoseUpdated, 1, ezRTTIDefaultAllocator<ezMsgRopePoseUpdated>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -34,6 +38,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgApplyRootMotion, 1, ezRTTIDefaultAllocator<
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgRetrieveBoneState);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgRetrieveBoneState, 1, ezRTTIDefaultAllocator<ezMsgRetrieveBoneState>)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 void ezMsgAnimationPoseUpdated::ComputeFullBoneTransform(ezUInt32 uiJointIndex, ezMat4& fullTransform) const
@@ -41,54 +49,18 @@ void ezMsgAnimationPoseUpdated::ComputeFullBoneTransform(ezUInt32 uiJointIndex, 
   fullTransform = m_pRootTransform->GetAsMat4() * m_ModelTransforms[uiJointIndex];
 }
 
-void ezMsgAnimationPoseUpdated::ComputeFullBoneTransform(ezUInt32 uiJointIndex, ezMat4& fullTransform, ezQuat& rotationOnly) const
+void ezMsgAnimationPoseUpdated::ComputeFullBoneTransform(const ezMat4& rootTransform, const ezMat4& modelTransform, ezMat4& fullTransform, ezQuat& rotationOnly)
 {
-  fullTransform = m_pRootTransform->GetAsMat4() * m_ModelTransforms[uiJointIndex];
+  fullTransform = rootTransform * modelTransform;
 
   // the bone might contain (non-uniform) scaling and mirroring, which the quaternion can't represent
   // so reconstruct a representable rotation matrix
-  {
-    const ezVec3 x = fullTransform.TransformDirection(ezVec3(1, 0, 0)).GetNormalized();
-    const ezVec3 y = fullTransform.TransformDirection(ezVec3(0, 1, 0)).GetNormalized();
-    const ezVec3 z = x.CrossRH(y);
-
-    ezMat3 m;
-    m.SetColumn(0, x);
-    m.SetColumn(1, y);
-    m.SetColumn(2, z);
-
-    rotationOnly.SetFromMat3(m);
-  }
+  rotationOnly.ReconstructFromMat4(fullTransform);
 }
 
-ezSkinningSpaceAnimationPose::ezSkinningSpaceAnimationPose() = default;
-ezSkinningSpaceAnimationPose::~ezSkinningSpaceAnimationPose() = default;
-
-void ezSkinningSpaceAnimationPose::Clear()
+void ezMsgAnimationPoseUpdated::ComputeFullBoneTransform(ezUInt32 uiJointIndex, ezMat4& fullTransform, ezQuat& rotationOnly) const
 {
-  m_Transforms.Clear();
-  m_Transforms.Compact();
+  ComputeFullBoneTransform(m_pRootTransform->GetAsMat4(), m_ModelTransforms[uiJointIndex], fullTransform, rotationOnly);
 }
-
-void ezSkinningSpaceAnimationPose::Configure(ezUInt32 uiNumTransforms)
-{
-  m_Transforms.SetCountUninitialized(uiNumTransforms);
-}
-
-void ezSkinningSpaceAnimationPose::MapModelSpacePoseToSkinningSpace(const ezHashTable<ezHashedString, ezMeshResourceDescriptor::BoneData>& bones, const ezSkeleton& skeleton, ezArrayPtr<const ezMat4> modelSpaceTransforms)
-{
-  Configure(bones.GetCount());
-
-  for (auto itBone : bones)
-  {
-    const ezUInt16 uiJointIdx = skeleton.FindJointByName(itBone.Key());
-
-    if (uiJointIdx == ezInvalidJointIndex)
-      continue;
-
-    m_Transforms[itBone.Value().m_uiBoneIndex] = modelSpaceTransforms[uiJointIdx] * itBone.Value().m_GlobalInverseBindPoseMatrix;
-  }
-}
-
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_Implementation_AnimationPose);

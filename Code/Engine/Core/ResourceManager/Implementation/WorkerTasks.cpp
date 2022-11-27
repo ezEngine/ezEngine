@@ -19,21 +19,21 @@ void ezResourceManagerWorkerDataLoad::Execute()
   {
     EZ_LOCK(ezResourceManager::s_ResourceMutex);
 
-    if (ezResourceManager::s_State->s_LoadingQueue.IsEmpty())
+    if (ezResourceManager::s_pState->m_LoadingQueue.IsEmpty())
     {
-      ezResourceManager::s_State->s_bAllowLaunchDataLoadTask = true;
+      ezResourceManager::s_pState->m_bAllowLaunchDataLoadTask = true;
       return;
     }
 
     ezResourceManager::UpdateLoadingDeadlines();
 
-    auto it = ezResourceManager::s_State->s_LoadingQueue.PeekFront();
+    auto it = ezResourceManager::s_pState->m_LoadingQueue.PeekFront();
     pResourceToLoad = it.m_pResource;
-    ezResourceManager::s_State->s_LoadingQueue.PopFront();
+    ezResourceManager::s_pState->m_LoadingQueue.PopFront();
 
     if (pResourceToLoad->m_Flags.IsSet(ezResourceFlags::HasCustomDataLoader))
     {
-      pCustomLoader = std::move(ezResourceManager::s_State->s_CustomLoaders[pResourceToLoad]);
+      pCustomLoader = std::move(ezResourceManager::s_pState->m_CustomLoaders[pResourceToLoad]);
       pLoader = pCustomLoader.Borrow();
       pResourceToLoad->m_Flags.Remove(ezResourceFlags::HasCustomDataLoader);
       pResourceToLoad->m_Flags.Add(ezResourceFlags::PreventFileReload);
@@ -59,9 +59,9 @@ void ezResourceManagerWorkerDataLoad::Execute()
   EZ_LOCK(ezResourceManager::s_ResourceMutex);
 
   // try to find an update content task that has finished and can be reused
-  for (ezUInt32 i = 0; i < ezResourceManager::s_State->s_WorkerTasksUpdateContent.GetCount(); ++i)
+  for (ezUInt32 i = 0; i < ezResourceManager::s_pState->m_WorkerTasksUpdateContent.GetCount(); ++i)
   {
-    auto& td = ezResourceManager::s_State->s_WorkerTasksUpdateContent[i];
+    auto& td = ezResourceManager::s_pState->m_WorkerTasksUpdateContent[i];
 
     if (ezTaskSystem::IsTaskGroupFinished(td.m_GroupId))
     {
@@ -75,9 +75,9 @@ void ezResourceManagerWorkerDataLoad::Execute()
   if (pUpdateContentTask == nullptr)
   {
     ezStringBuilder s;
-    s.Format("Resource Content Updater {0}", ezResourceManager::s_State->s_WorkerTasksUpdateContent.GetCount());
+    s.Format("Resource Content Updater {0}", ezResourceManager::s_pState->m_WorkerTasksUpdateContent.GetCount());
 
-    auto& td = ezResourceManager::s_State->s_WorkerTasksUpdateContent.ExpandAndGetRef();
+    auto& td = ezResourceManager::s_pState->m_WorkerTasksUpdateContent.ExpandAndGetRef();
     td.m_pTask = EZ_DEFAULT_NEW(ezResourceManagerWorkerUpdateContent);
     td.m_pTask->ConfigureTask(s, ezTaskNesting::Maybe);
 
@@ -100,7 +100,7 @@ void ezResourceManagerWorkerDataLoad::Execute()
       pUpdateContentTask, bResourceIsLoadedOnMainThread ? ezTaskPriority::SomeFrameMainThread : ezTaskPriority::LateNextFrame);
 
     // restart the next loading task (this one is about to finish)
-    ezResourceManager::s_State->s_bAllowLaunchDataLoadTask = true;
+    ezResourceManager::s_pState->m_bAllowLaunchDataLoadTask = true;
     ezResourceManager::RunWorkerTask(nullptr);
 
     pCustomLoader.Clear();

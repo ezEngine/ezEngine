@@ -732,8 +732,8 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
   {
     // Determined through the scientific method of manually comparing the result of the function with an online Bezier curve generator:
     // https://www.desmos.com/calculator/cahqdxeshd
-    const ezVec2 res[] = {ezVec2(1, 5), ezVec2(0.893, 4.455), ezVec2(1.112, 4.008), ezVec2(1.557, 3.631), ezVec2(2.136, 3.304), ezVec2(2.750, 3.000),
-      ezVec2(3.303, 2.695), ezVec2(3.701, 2.368), ezVec2(3.847, 1.991), ezVec2(3.645, 1.543), ezVec2(3, 1)};
+    const ezVec2 res[] = {ezVec2(1, 5), ezVec2(0.893f, 4.455f), ezVec2(1.112f, 4.008f), ezVec2(1.557f, 3.631f), ezVec2(2.136f, 3.304f), ezVec2(2.750f, 3.000f),
+      ezVec2(3.303f, 2.695f), ezVec2(3.701f, 2.368f), ezVec2(3.847f, 1.991f), ezVec2(3.645f, 1.543f), ezVec2(3, 1)};
 
     const float step = 1.0f / (EZ_ARRAY_SIZE(res) - 1);
     for (int i = 0; i < EZ_ARRAY_SIZE(res); ++i)
@@ -756,6 +756,10 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
     EZ_TEST_INT(ezMath::FirstBitLow(ezUInt64(0xFF000000FF00000C)), 2);
     EZ_TEST_INT(ezMath::FirstBitLow(ezUInt64(0xFF000000FF000008)), 3);
     EZ_TEST_INT(ezMath::FirstBitLow(ezUInt64(0xFFFFFFFFFFFFFFFF)), 0);
+
+    // Edge cases specifically for 32-bit systems where upper and lower 32-bit are handled individually.
+    EZ_TEST_INT(ezMath::FirstBitLow(ezUInt64(0x00000000FFFFFFFF)), 0);
+    EZ_TEST_INT(ezMath::FirstBitLow(ezUInt64(0xFFFFFFFF00000000)), 32);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "FirstBitHigh")
@@ -771,6 +775,10 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
     EZ_TEST_INT(ezMath::FirstBitHigh(ezUInt64(0x003F000000FF000F)), 53);
     EZ_TEST_INT(ezMath::FirstBitHigh(ezUInt64(0x001F000000FF000F)), 52);
     EZ_TEST_INT(ezMath::FirstBitHigh(ezUInt64(0xFFFFFFFFFFFFFFFF)), 63);
+
+    // Edge cases specifically for 32-bit systems where upper and lower 32-bit are handled individually.
+    EZ_TEST_INT(ezMath::FirstBitHigh(ezUInt64(0x00000000FFFFFFFF)), 31);
+    EZ_TEST_INT(ezMath::FirstBitHigh(ezUInt64(0xFFFFFFFF00000000)), 63);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "CountTrailingZeros (32)")

@@ -8,6 +8,7 @@
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Containers/Set.h>
+#include <Foundation/Containers/SmallArray.h>
 #include <Foundation/Containers/StaticArray.h>
 #include <Foundation/Reflection/Implementation/RTTI.h>
 #include <Foundation/Types/Bitflags.h>
@@ -20,26 +21,26 @@ class ezPropertyAttribute;
 template <typename T>
 struct ezIsBitflags
 {
-  static const bool value = false;
+  static constexpr bool value = false;
 };
 
 template <typename T>
 struct ezIsBitflags<ezBitflags<T>>
 {
-  static const bool value = true;
+  static constexpr bool value = true;
 };
 
 /// \brief Determines whether a type is ezIsBitflags.
 template <typename T>
 struct ezIsEnum
 {
-  static const bool value = std::is_enum<T>::value;
+  static constexpr bool value = std::is_enum<T>::value;
 };
 
 template <typename T>
 struct ezIsEnum<ezEnum<T>>
 {
-  static const bool value = true;
+  static constexpr bool value = true;
 };
 
 /// \brief Flags used to describe a property and its type.
@@ -337,7 +338,7 @@ public:
   virtual bool Contains(const void* pInstance, const void* pObject) const = 0;
 
   /// \brief Writes the content of the set to out_keys.
-  virtual void GetValues(const void* pInstance, ezHybridArray<ezVariant, 16>& out_keys) const = 0;
+  virtual void GetValues(const void* pInstance, ezDynamicArray<ezVariant>& out_keys) const = 0;
 };
 
 
@@ -475,6 +476,12 @@ struct ezContainerSubTypeResolver<ezHybridArray<T, Size>>
 
 template <typename T, ezUInt32 Size>
 struct ezContainerSubTypeResolver<ezStaticArray<T, Size>>
+{
+  using Type = typename ezTypeTraits<T>::NonConstReferenceType;
+};
+
+template <typename T, ezUInt16 Size>
+struct ezContainerSubTypeResolver<ezSmallArray<T, Size>>
 {
   using Type = typename ezTypeTraits<T>::NonConstReferenceType;
 };

@@ -9,9 +9,11 @@
 #include <EditorEngineProcessFramework/Gizmos/GizmoHandle.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
+#include <RendererCore/Textures/TextureUtils.h>
 #include <RendererFoundation/CommandEncoder/RenderCommandEncoder.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Device/Pass.h>
+#include <RendererFoundation/Resources/Texture.h>
 #include <Texture/Image/ImageUtils.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEngineProcessDocumentContext, 1, ezRTTINoAllocator)
@@ -46,6 +48,7 @@ bool ezEngineProcessDocumentContext::PendingOperationsInProgress()
 
 void ezEngineProcessDocumentContext::UpdateDocumentContexts()
 {
+  EZ_PROFILE_SCOPE("UpdateDocumentContexts");
   for (auto it = s_DocumentContexts.GetIterator(); it.IsValid(); ++it)
   {
     it.Value()->UpdateDocumentContext();
@@ -91,7 +94,7 @@ ezBoundingBoxSphere ezEngineProcessDocumentContext::GetWorldBounds(ezWorld* pWor
 }
 
 ezEngineProcessDocumentContext::ezEngineProcessDocumentContext(ezBitflags<ezEngineProcessDocumentContextFlags> flags)
-  : m_flags(flags)
+  : m_Flags(flags)
 {
   m_Context.m_Events.AddEventHandler(ezMakeDelegate(&ezEngineProcessDocumentContext::WorldRttiConverterContextEventHandler, this));
 }
@@ -109,7 +112,7 @@ void ezEngineProcessDocumentContext::Initialize(const ezUuid& DocumentGuid, cons
   m_MetaData = metaData;
   m_pIPC = pIPC;
 
-  if (m_flags.IsSet(ezEngineProcessDocumentContextFlags::CreateWorld))
+  if (m_Flags.IsSet(ezEngineProcessDocumentContextFlags::CreateWorld))
   {
     ezStringBuilder tmp;
     ezWorldDesc desc(ezConversionUtils::ToString(m_DocumentGuid, tmp));
@@ -134,7 +137,7 @@ void ezEngineProcessDocumentContext::Deinitialize()
   m_Context.Clear();
 
   CleanUpContextSyncObjects();
-  if (m_flags.IsSet(ezEngineProcessDocumentContextFlags::CreateWorld))
+  if (m_Flags.IsSet(ezEngineProcessDocumentContextFlags::CreateWorld))
   {
     EZ_DEFAULT_DELETE(m_pWorld);
   }
@@ -244,6 +247,10 @@ void ezEngineProcessDocumentContext::HandleMessage(const ezEditorEngineDocumentM
 
         ezLog::Debug("Destroyed View {0}", pViewMsg->m_uiViewID);
       }
+      ezViewDestroyedResponseMsgToEditor response;
+      response.m_DocumentGuid = pViewMsg->m_DocumentGuid;
+      response.m_uiViewID = pViewMsg->m_uiViewID;
+      m_pIPC->SendMessage(&response);
     }
     else
     {
@@ -438,6 +445,8 @@ void ezEngineProcessDocumentContext::UpdateDocumentContext()
         EZ_SCOPE_EXIT(pGALPass->EndRendering(pGALCommandEncoder));
 
         pGALCommandEncoder->ReadbackTexture(m_hThumbnailColorRT);
+        const ezGALTexture* pThumbnailColor = ezGALDevice::GetDefaultDevice()->GetTexture(m_hThumbnailColorRT);
+        const ezEnum<ezGALResourceFormat> format = pThumbnailColor->GetDescription().m_Format;
 
         ezGALSystemMemoryDescription MemDesc;
         {
@@ -446,7 +455,7 @@ void ezEngineProcessDocumentContext::UpdateDocumentContext()
         }
 
         ezImageHeader header;
-        header.SetImageFormat(ezImageFormat::R8G8B8A8_UNORM);
+        header.SetImageFormat(ezTextureUtils::GalFormatToImageFormat(format, true));
         header.SetWidth(m_uiThumbnailWidth);
         header.SetHeight(m_uiThumbnailHeight);
         ezImage image;
@@ -532,8 +541,9 @@ void ezEngineProcessDocumentContext::CreateThumbnailViewContext(const ezCreateTh
 
   m_hThumbnailDepthRT = pDevice->CreateTexture(tcd);
 
-  m_ThumbnailRenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(m_hThumbnailColorRT)).SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(m_hThumbnailDepthRT));
-  m_pThumbnailViewContext->SetupRenderTarget(m_ThumbnailRenderTargetSetup, m_uiThumbnailWidth, m_uiThumbnailHeight);
+  m_ThumbnailRenderTargets.m_hRTs[0] = m_hThumbnailColorRT;
+  m_ThumbnailRenderTargets.m_hDSTarget = m_hThumbnailDepthRT;
+  m_pThumbnailViewContext->SetupRenderTarget({}, &m_ThumbnailRenderTargets, m_uiThumbnailWidth, m_uiThumbnailHeight);
 
   ezResourceManager::ForceNoFallbackAcquisition(3);
   OnThumbnailViewContextRequested();
@@ -569,7 +579,6 @@ void ezEngineProcessDocumentContext::DestroyThumbnailViewContext()
   DestroyViewContext(m_pThumbnailViewContext);
   m_pThumbnailViewContext = nullptr;
 
-  m_ThumbnailRenderTargetSetup.DestroyAllAttachedViews();
   if (!m_hThumbnailColorRT.IsInvalidated())
   {
     pDevice->DestroyTexture(m_hThumbnailColorRT);

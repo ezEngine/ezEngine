@@ -3,13 +3,6 @@
 #include <EditorFramework/Dialogs/DashboardDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 
-void ezQtEditorApp::InternalGuiOpenDashboard()
-{
-  ezQtDashboardDlg dlg(nullptr);
-
-  dlg.exec();
-}
-
 void ezQtEditorApp::GuiCreateOrOpenDocument(bool bCreate)
 {
   const ezString sAllFilters = BuildDocumentTypeFileFilter(bCreate);
@@ -75,7 +68,14 @@ ezString ezQtEditorApp::BuildDocumentTypeFileFilter(bool bForCreation)
     sepsep = ";;";
   }
 
-  const auto& allDesc = ezDocumentManager::GetAllDocumentDescriptors();
+  const auto& assetTypes = ezDocumentManager::GetAllDocumentDescriptors();
+
+  // use translated strings
+  ezMap<ezString, const ezDocumentTypeDescriptor*> allDesc;
+  for (auto it : assetTypes)
+  {
+    allDesc[ezTranslate(it.Key())] = it.Value();
+  }
 
   for (auto it : allDesc)
   {
@@ -87,7 +87,7 @@ ezString ezQtEditorApp::BuildDocumentTypeFileFilter(bool bForCreation)
     if (desc->m_sFileExtension.IsEmpty())
       continue;
 
-    sAllFilters.Append(sepsep, desc->m_sDocumentTypeName, " (*.", desc->m_sFileExtension, ")");
+    sAllFilters.Append(sepsep, ezTranslate(desc->m_sDocumentTypeName), " (*.", desc->m_sFileExtension, ")");
     sepsep = ";;";
   }
 

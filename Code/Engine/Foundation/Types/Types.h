@@ -47,33 +47,40 @@ enum ezResultEnum
 };
 
 /// \brief Default enum for returning failure or success, instead of using a bool.
-struct [[nodiscard]] ezResult
+struct [[nodiscard]] EZ_FOUNDATION_DLL ezResult
 {
 public:
   ezResult(ezResultEnum res)
-    : e(res)
+    : m_E(res)
   {
   }
 
-  void operator=(ezResultEnum rhs) { e = rhs; }
-  bool operator==(ezResultEnum cmp) const { return e == cmp; }
-  bool operator!=(ezResultEnum cmp) const { return e != cmp; }
+  void operator=(ezResultEnum rhs) { m_E = rhs; }
+  bool operator==(ezResultEnum cmp) const { return m_E == cmp; }
+  bool operator!=(ezResultEnum cmp) const { return m_E != cmp; }
 
-  EZ_ALWAYS_INLINE bool Succeeded() const { return e == EZ_SUCCESS; }
-  EZ_ALWAYS_INLINE bool Failed() const { return e == EZ_FAILURE; }
+  EZ_ALWAYS_INLINE bool Succeeded() const { return m_E == EZ_SUCCESS; }
+  EZ_ALWAYS_INLINE bool Failed() const { return m_E == EZ_FAILURE; }
+
+  /// \brief Used to silence compiler warnings, when success or failure doesn't matter.
   EZ_ALWAYS_INLINE void IgnoreResult()
   { /* dummy to be called when a return value is [[nodiscard]] but the result is not needed */
   }
 
+  /// \brief Asserts that the function succeeded. In case of failure, the program will terminate.
+  ///
+  /// If \a msg is given, this will be the assert message. If \a details is provided, \a msg should contain a formatting element ({}), e.g. "Error: {}".
+  void AssertSuccess(const char* msg = nullptr, const char* details = nullptr) const;
+
 private:
-  ezResultEnum e;
+  ezResultEnum m_E;
 };
 
 /// \brief Explicit conversion to ezResult, can be overloaded for arbitrary types.
 ///
 /// This is intentionally not done via casting operator overload (or even additional constructors) since this usually comes with a
 /// considerable data loss.
-inline ezResult ezToResult(ezResult result)
+EZ_ALWAYS_INLINE ezResult ezToResult(ezResult result)
 {
   return result;
 }
@@ -132,68 +139,6 @@ class ezEnumBase
 class ezBitflagsBase
 {
 };
-
-/// \brief Alignment helper. Derive from this struct if alignment is depending on a template parameter.
-/// If alignment is fixed always use the EZ_ALIGN macro.
-template <size_t Alignment>
-struct ezAligned;
-template <>
-struct EZ_ALIGN(ezAligned<1>, 1)
-{
-};
-template <>
-struct EZ_ALIGN(ezAligned<2>, 2)
-{
-};
-template <>
-struct EZ_ALIGN(ezAligned<4>, 4)
-{
-};
-template <>
-struct EZ_ALIGN(ezAligned<8>, 8)
-{
-};
-template <>
-struct EZ_ALIGN(ezAligned<16>, 16)
-{
-};
-template <>
-struct EZ_ALIGN(ezAligned<32>, 32)
-{
-};
-template <>
-struct EZ_ALIGN(ezAligned<64>, 64)
-{
-};
-template <>
-struct EZ_ALIGN(ezAligned<128>, 128)
-{
-};
-template <>
-struct EZ_ALIGN(ezAligned<256>, 256)
-{
-};
-template <>
-struct EZ_ALIGN(ezAligned<512>, 512)
-{
-};
-template <>
-struct EZ_ALIGN(ezAligned<1024>, 1024)
-{
-};
-template <>
-struct EZ_ALIGN(ezAligned<2048>, 2048)
-{
-};
-template <>
-struct EZ_ALIGN(ezAligned<4096>, 4096)
-{
-};
-template <>
-struct EZ_ALIGN(ezAligned<8192>, 8192)
-{
-};
-
 
 /// \brief Helper struct to get a storage type from a size in byte.
 template <size_t SizeInByte>

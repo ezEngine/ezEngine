@@ -1,0 +1,15 @@
+// for a description of the options see:
+// Code/EditorPlugins/Assets/EditorPluginAssets/Assets.ezPluginBundle
+
+PluginInfo
+{
+	string %DisplayName{"FMOD Sound"}
+	string %Description{"Adds support for sound via FMOD."}
+	string %EditorPlugins{"ezEditorPluginFmod"}
+	string %EditorEnginePlugins{}
+	string %RuntimePlugins{"ezFmodPlugin"}
+	string %PackageDependencies{}
+	string %RequiredPlugins{}
+	string %ExclusiveFeatures{"Sound"}
+	string %EnabledInTemplates{"General2D", "General3D"}
+}

@@ -4,6 +4,7 @@
 
 #include <Core/ActorSystem/Actor.h>
 #include <Core/ResourceManager/ResourceHandle.h>
+#include <GameEngine/GameApplication/WindowOutputTarget.h>
 #include <GameEngine/XR/Declarations.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
 
@@ -64,15 +65,15 @@ public:
   ///
   /// If SupportsCompanionView is true (VR only), a normal window and window output can be passed in.
   /// The window will be used to blit the VR output into the window.
-  virtual ezUniquePtr<ezActor> CreateActor(ezView* pView, ezGALMSAASampleCount::Enum msaaCount = ezGALMSAASampleCount::None, ezUniquePtr<ezWindowBase> companionWindow = nullptr, ezUniquePtr<ezWindowOutputTargetBase> companionWindowOutput = nullptr) = 0;
+  virtual ezUniquePtr<ezActor> CreateActor(ezView* pView, ezGALMSAASampleCount::Enum msaaCount = ezGALMSAASampleCount::None, ezUniquePtr<ezWindowBase> companionWindow = nullptr, ezUniquePtr<ezWindowOutputTargetGAL> companionWindowOutput = nullptr) = 0;
 
   ///@}
   /// \name Internal
   ///@{
 
-  /// \brief Called by ezWindowOutputTargetXR::Present
+  /// \brief Called by ezWindowOutputTargetXR::RenderCompanionView
   /// Returns the color texture to be used by the companion view if enabled, otherwise an invalid handle.
-  virtual ezGALTextureHandle Present() = 0;
+  virtual ezGALTextureHandle GetCurrentTexture() = 0;
 
   /// \brief Called when the actor created by 'CreateActor' is destroyed.
   virtual void OnActorDestroyed() = 0;

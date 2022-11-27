@@ -38,7 +38,7 @@ public:
   /// parentGuid + property name + index and ignores the address of pObject.
   virtual ezUuid GenerateObjectGuid(const ezUuid& parentGuid, const ezAbstractProperty* pProp, ezVariant index, void* pObject) const;
 
-  virtual void* CreateObject(const ezUuid& guid, const ezRTTI* pRtti);
+  virtual ezInternal::NewInstance<void> CreateObject(const ezUuid& guid, const ezRTTI* pRtti);
   virtual void DeleteObject(const ezUuid& guid);
 
   virtual void RegisterObject(const ezUuid& guid, const ezRTTI* pRtti, void* pObject);
@@ -60,13 +60,10 @@ protected:
 class EZ_FOUNDATION_DLL ezRttiConverterWriter
 {
 public:
-  ezRttiConverterWriter(ezAbstractObjectGraph* pGraph, ezRttiConverterContext* pContext, bool bSerializeReadOnly, bool bSerializeOwnerPtrs)
-  {
-    m_pGraph = pGraph;
-    m_pContext = pContext;
-    m_bSerializeReadOnly = bSerializeReadOnly;
-    m_bSerializeOwnerPtrs = bSerializeOwnerPtrs;
-  }
+  using FilterFunction = ezDelegate<bool(const void* pObject, const ezAbstractProperty* pProp)>;
+
+  ezRttiConverterWriter(ezAbstractObjectGraph* pGraph, ezRttiConverterContext* pContext, bool bSerializeReadOnly, bool bSerializeOwnerPtrs);
+  ezRttiConverterWriter(ezAbstractObjectGraph* pGraph, ezRttiConverterContext* pContext, FilterFunction filter);
 
   ezAbstractObjectNode* AddObjectToGraph(ezReflectedClass* pObject, const char* szNodeName = nullptr)
   {
@@ -82,6 +79,7 @@ public:
 private:
   ezRttiConverterContext* m_pContext;
   ezAbstractObjectGraph* m_pGraph;
+  FilterFunction m_Filter;
   bool m_bSerializeReadOnly;
   bool m_bSerializeOwnerPtrs;
 };
@@ -91,7 +89,7 @@ class EZ_FOUNDATION_DLL ezRttiConverterReader
 public:
   ezRttiConverterReader(const ezAbstractObjectGraph* pGraph, ezRttiConverterContext* pContext);
 
-  void* CreateObjectFromNode(const ezAbstractObjectNode* pNode);
+  ezInternal::NewInstance<void> CreateObjectFromNode(const ezAbstractObjectNode* pNode);
   void ApplyPropertiesToObject(const ezAbstractObjectNode* pNode, const ezRTTI* pRtti, void* pObject);
 
 private:

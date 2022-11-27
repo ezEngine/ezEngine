@@ -127,6 +127,7 @@ void ezGameApplicationBase::ExecuteTakeScreenshot(ezWindowOutputTargetBase* pOut
 {
   if (m_bTakeScreenshot)
   {
+    EZ_PROFILE_SCOPE("ExecuteTakeScreenshot");
     ezImage img;
     if (pOutputTarget->CaptureImage(img).Succeeded())
     {
@@ -168,6 +169,7 @@ void ezGameApplicationBase::ExecuteFrameCapture(ezWindowHandle targetWindowHandl
     return;
   }
 
+  EZ_PROFILE_SCOPE("ExecuteFrameCapture");
   // If we still have a running capture (i.e., if no one else has taken the capture so far), finish it
   if (pCaptureInterface->IsFrameCapturing())
   {
@@ -376,6 +378,7 @@ EZ_ON_GLOBAL_EVENT(GameApp_UpdatePlugins)
 
 ezApplication::Execution ezGameApplicationBase::Run()
 {
+  EZ_PROFILE_SCOPE("Run");
   if (m_bWasQuitRequested)
     return ezApplication::Execution::Quit;
 
@@ -388,8 +391,8 @@ ezApplication::Execution ezGameApplicationBase::Run()
 
   {
     // for plugins that need to hook into this without a link dependency on this lib
+    EZ_PROFILE_SCOPE("GameApp_BeginAppTick");
     EZ_BROADCAST_EVENT(GameApp_BeginAppTick);
-
     ezGameApplicationExecutionEvent e;
     e.m_Type = ezGameApplicationExecutionEvent::Type::BeginAppTick;
     m_ExecutionEvents.Broadcast(e);
@@ -409,6 +412,7 @@ ezApplication::Execution ezGameApplicationBase::Run()
 
   {
     // for plugins that need to hook into this without a link dependency on this lib
+    EZ_PROFILE_SCOPE("GameApp_EndAppTick");
     EZ_BROADCAST_EVENT(GameApp_EndAppTick);
 
     ezGameApplicationExecutionEvent e;
@@ -417,29 +421,36 @@ ezApplication::Execution ezGameApplicationBase::Run()
   }
 
   {
+    EZ_PROFILE_SCOPE("BeforePresent");
     ezGameApplicationExecutionEvent e;
     e.m_Type = ezGameApplicationExecutionEvent::Type::BeforePresent;
     m_ExecutionEvents.Broadcast(e);
   }
 
-  Run_Present();
-
+  {
+    EZ_PROFILE_SCOPE("Run_Present");
+    Run_Present();
+  }
   ezClock::GetGlobalClock()->Update();
   UpdateFrameTime();
 
   {
+    EZ_PROFILE_SCOPE("AfterPresent");
     ezGameApplicationExecutionEvent e;
     e.m_Type = ezGameApplicationExecutionEvent::Type::AfterPresent;
     m_ExecutionEvents.Broadcast(e);
   }
 
-  Run_FinishFrame();
-
+  {
+    EZ_PROFILE_SCOPE("Run_FinishFrame");
+    Run_FinishFrame();
+  }
   return ezApplication::Execution::Continue;
 }
 
 void ezGameApplicationBase::Run_InputUpdate()
 {
+  EZ_PROFILE_SCOPE("Run_InputUpdate");
   ezInputManager::Update(ezClock::GetGlobalClock()->GetTimeDiff());
 
   if (!Run_ProcessApplicationInput())
@@ -490,6 +501,7 @@ void ezGameApplicationBase::Run_AfterWorldUpdate()
 
 void ezGameApplicationBase::Run_UpdatePlugins()
 {
+  EZ_PROFILE_SCOPE("Run_UpdatePlugins");
   {
     ezGameApplicationExecutionEvent e;
     e.m_Type = ezGameApplicationExecutionEvent::Type::BeforeUpdatePlugins;

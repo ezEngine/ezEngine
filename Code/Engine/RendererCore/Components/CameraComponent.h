@@ -33,7 +33,7 @@ private:
   void OnViewCreated(ezView* pView);
   void OnCameraConfigsChanged(void* dummy);
 
-  ezDynamicArray<ezComponentHandle> m_modifiedCameras;
+  ezDynamicArray<ezComponentHandle> m_ModifiedCameras;
   ezDynamicArray<ezComponentHandle> m_RenderTargetCameras;
 };
 
@@ -67,10 +67,10 @@ public:
   const char* GetRenderTargetFile() const;      // [ property ]
 
   void SetRenderTargetRectOffset(ezVec2 value);                                 // [ property ]
-  ezVec2 GetRenderTargetRectOffset() const { return m_RenderTargetRectOffset; } // [ property ]
+  ezVec2 GetRenderTargetRectOffset() const { return m_vRenderTargetRectOffset; } // [ property ]
 
   void SetRenderTargetRectSize(ezVec2 value);                               // [ property ]
-  ezVec2 GetRenderTargetRectSize() const { return m_RenderTargetRectSize; } // [ property ]
+  ezVec2 GetRenderTargetRectSize() const { return m_vRenderTargetRectSize; } // [ property ]
 
   ezEnum<ezCameraMode> GetCameraMode() const { return m_Mode; } // [ property ]
   void SetCameraMode(ezEnum<ezCameraMode> val);                 // [ property ]
@@ -146,8 +146,8 @@ private:
   void DeactivateRenderToTexture();
 
   ezViewHandle m_hRenderTargetView;
-  ezVec2 m_RenderTargetRectOffset = ezVec2(0.0f);
-  ezVec2 m_RenderTargetRectSize = ezVec2(1.0f);
+  ezVec2 m_vRenderTargetRectOffset = ezVec2(0.0f);
+  ezVec2 m_vRenderTargetRectSize = ezVec2(1.0f);
   ezCamera m_RenderTargetCamera;
   ezHashedString m_sRenderPipeline;
 };

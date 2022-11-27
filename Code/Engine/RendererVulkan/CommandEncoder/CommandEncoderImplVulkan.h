@@ -1,10 +1,12 @@
 
 #pragma once
 
+#include <RendererVulkan/RendererVulkanDLL.h>
+
 #include <Foundation/Types/Bitflags.h>
 #include <RendererFoundation/CommandEncoder/CommandEncoderPlatformInterface.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
-#include <RendererVulkan/RendererVulkanDLL.h>
+#include <RendererVulkan/Cache/ResourceCacheVulkan.h>
 
 #include <vulkan/vulkan.hpp>
 
@@ -24,6 +26,10 @@ public:
   ezGALCommandEncoderImplVulkan(ezGALDeviceVulkan& device);
   ~ezGALCommandEncoderImplVulkan();
 
+  void Reset();
+  void MarkDirty();
+  void SetCurrentCommandBuffer(vk::CommandBuffer* commandBuffer, ezPipelineBarrierVulkan* pipelineBarrier);
+
   // ezGALCommandEncoderCommonPlatformInterface
   // State setting functions
 
@@ -34,11 +40,7 @@ public:
   virtual void SetResourceViewPlatform(ezGALShaderStage::Enum Stage, ezUInt32 uiSlot, const ezGALResourceView* pResourceView) override;
   virtual void SetUnorderedAccessViewPlatform(ezUInt32 uiSlot, const ezGALUnorderedAccessView* pUnorderedAccessView) override;
 
-  // Fence & Query functions
-
-  virtual void InsertFencePlatform(const ezGALFence* pFence) override;
-  virtual bool IsFenceReachedPlatform(const ezGALFence* pFence) override;
-  virtual void WaitForFencePlatform(const ezGALFence* pFence) override;
+  // Query functions
 
   virtual void BeginQueryPlatform(const ezGALQuery* pQuery) override;
   virtual void EndQueryPlatform(const ezGALQuery* pQuery) override;
@@ -67,9 +69,11 @@ public:
 
   virtual void ReadbackTexturePlatform(const ezGALTexture* pTexture) override;
 
-  virtual void CopyTextureReadbackResultPlatform(const ezGALTexture* pTexture, const ezArrayPtr<ezGALSystemMemoryDescription>* pData) override;
+  virtual void CopyTextureReadbackResultPlatform(const ezGALTexture* pTexture, ezArrayPtr<ezGALTextureSubresource> SourceSubResource, ezArrayPtr<ezGALSystemMemoryDescription> TargetData) override;
 
   virtual void GenerateMipMapsPlatform(const ezGALResourceView* pResourceView) override;
+
+  void CopyImageToBuffer(const ezGALTextureVulkan* pSource, const ezGALBufferVulkan* pDestination);
 
   // Misc
 
@@ -82,7 +86,7 @@ public:
   virtual void InsertEventMarkerPlatform(const char* szMarker) override;
 
   // ezGALCommandEncoderRenderPlatformInterface
-  void BeginRendering(vk::CommandBuffer& commandBuffer, const ezGALRenderingSetup& renderingSetup);
+  void BeginRendering(const ezGALRenderingSetup& renderingSetup);
   void EndRendering();
 
   // Draw functions
@@ -119,7 +123,7 @@ public:
 
   // ezGALCommandEncoderComputePlatformInterface
   // Dispatch
-  void BeginCompute(vk::CommandBuffer& commandBuffer);
+  void BeginCompute();
   void EndCompute();
 
   virtual void DispatchPlatform(ezUInt32 uiThreadGroupCountX, ezUInt32 uiThreadGroupCountY, ezUInt32 uiThreadGroupCountZ) override;
@@ -129,42 +133,49 @@ private:
   void FlushDeferredStateChanges();
 
   ezGALDeviceVulkan& m_GALDeviceVulkan;
-
   vk::Device m_vkDevice;
 
   vk::CommandBuffer* m_pCommandBuffer = nullptr;
+  ezPipelineBarrierVulkan* m_pPipelineBarrier = nullptr;
 
-  const ezGALShaderVulkan* m_pCurrentShader;
-  const ezGALBlendStateVulkan* m_pCurrentBlendState;
-  const ezGALDepthStencilStateVulkan* m_pCurrentDepthStencilState;
-  const ezGALRasterizerStateVulkan* m_pCurrentRasterizerState;
-  const vk::PipelineVertexInputStateCreateInfo* m_pCurrentVertexLayout;
-  vk::PrimitiveTopology m_currentPrimitiveTopology;
 
-  bool m_bPipelineStateDirty = false;
-  bool m_bFrameBufferDirty = false;
+  // Cache flags.
+  bool m_bPipelineStateDirty = true;
+  bool m_bViewportDirty = true;
+  bool m_bIndexBufferDirty = false;
   bool m_bDescriptorsDirty = false;
+  ezGAL::ModifiedRange m_BoundVertexBuffersRange;
+  bool m_bRenderPassActive = false; ///< #TODO_VULKAN Disabling and re-enabling the render pass is buggy as we might execute a clear twice.
+  bool m_bClearSubmitted = false; ///< Start render pass is lazy so if no draw call is executed we need to make sure the clear is executed anyways.
+  bool m_bInsideCompute = false;  ///< Within BeginCompute / EndCompute block.
+
 
   // Bound objects for deferred state flushes
-  const ezGALRenderTargetView* m_pBoundRenderTargets[EZ_GAL_MAX_RENDERTARGET_COUNT];
-  const ezGALRenderTargetView* m_pBoundDepthStencilTarget;
+  ezResourceCacheVulkan::PipelineLayoutDesc m_LayoutDesc;
+  ezResourceCacheVulkan::GraphicsPipelineDesc m_PipelineDesc;
+  ezResourceCacheVulkan::ComputePipelineDesc m_ComputeDesc;
+  vk::Framebuffer m_frameBuffer;
+  vk::RenderPassBeginInfo m_renderPass;
+  ezHybridArray<vk::ClearValue, EZ_GAL_MAX_RENDERTARGET_COUNT + 1> m_clearValues;
+  vk::ImageAspectFlags m_depthMask = {};
+  ezUInt32 m_uiLayers = 0;
+
+  vk::Viewport m_viewport;
+  vk::Rect2D m_scissor;
+  bool m_bScissorEnabled = false;
+
+  const ezGALRenderTargetView* m_pBoundRenderTargets[EZ_GAL_MAX_RENDERTARGET_COUNT] = {};
+  const ezGALRenderTargetView* m_pBoundDepthStencilTarget = nullptr;
   ezUInt32 m_uiBoundRenderTargetCount;
 
+  const ezGALBufferVulkan* m_pIndexBuffer = nullptr;
   vk::Buffer m_pBoundVertexBuffers[EZ_GAL_MAX_VERTEX_BUFFER_COUNT];
-  ezGAL::ModifiedRange m_BoundVertexBuffersRange;
+  vk::DeviceSize m_VertexBufferOffsets[EZ_GAL_MAX_VERTEX_BUFFER_COUNT] = {};
 
-  ezUInt32 m_VertexBufferStrides[EZ_GAL_MAX_VERTEX_BUFFER_COUNT];
-  ezUInt32 m_VertexBufferOffsets[EZ_GAL_MAX_VERTEX_BUFFER_COUNT];
-
-  const ezGALBufferVulkan* m_pBoundConstantBuffers[EZ_GAL_MAX_CONSTANT_BUFFER_COUNT];
-  ezGAL::ModifiedRange m_BoundConstantBuffersRange[ezGALShaderStage::ENUM_COUNT];
-
-  ezHybridArray<const ezGALResourceViewVulkan*, 16> m_pBoundShaderResourceViews[ezGALShaderStage::ENUM_COUNT];
-  ezGAL::ModifiedRange m_BoundShaderResourceViewsRange[ezGALShaderStage::ENUM_COUNT];
-
+  const ezGALBufferVulkan* m_pBoundConstantBuffers[EZ_GAL_MAX_CONSTANT_BUFFER_COUNT] = {};
+  ezHybridArray<const ezGALResourceViewVulkan*, 16> m_pBoundShaderResourceViews[ezGALShaderStage::ENUM_COUNT] = {};
   ezHybridArray<const ezGALUnorderedAccessViewVulkan*, 16> m_pBoundUnoderedAccessViews;
-  ezGAL::ModifiedRange m_pBoundUnoderedAccessViewsRange;
+  const ezGALSamplerStateVulkan* m_pBoundSamplerStates[ezGALShaderStage::ENUM_COUNT][EZ_GAL_MAX_SAMPLER_COUNT] = {};
 
-  const ezGALSamplerStateVulkan* m_pBoundSamplerStates[ezGALShaderStage::ENUM_COUNT][EZ_GAL_MAX_SAMPLER_COUNT];
-  ezGAL::ModifiedRange m_BoundSamplerStatesRange[ezGALShaderStage::ENUM_COUNT];
+  ezHybridArray<vk::WriteDescriptorSet, 16> m_DescriptorWrites;
 };

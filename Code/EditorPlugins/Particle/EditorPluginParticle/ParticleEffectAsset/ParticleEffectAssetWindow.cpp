@@ -53,13 +53,13 @@ ezQtParticleEffectAssetDocumentWindow::ezQtParticleEffectAssetDocumentWindow(ezA
   ezDocumentObject* pRootObject = pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0];
 
   // ezQtDocumentPanel* pMainPropertyPanel = new ezQtDocumentPanel(this);
-  ezQtDocumentPanel* pEffectPanel = new ezQtDocumentPanel(this);
-  ezQtDocumentPanel* pReactionsPanel = new ezQtDocumentPanel(this);
-  ezQtDocumentPanel* pSystemsPanel = new ezQtDocumentPanel(this);
-  ezQtDocumentPanel* pEmitterPanel = new ezQtDocumentPanel(this);
-  ezQtDocumentPanel* pInitializerPanel = new ezQtDocumentPanel(this);
-  ezQtDocumentPanel* pBehaviorPanel = new ezQtDocumentPanel(this);
-  ezQtDocumentPanel* pTypePanel = new ezQtDocumentPanel(this);
+  ezQtDocumentPanel* pEffectPanel = new ezQtDocumentPanel(this, pDocument);
+  ezQtDocumentPanel* pReactionsPanel = new ezQtDocumentPanel(this, pDocument);
+  ezQtDocumentPanel* pSystemsPanel = new ezQtDocumentPanel(this, pDocument);
+  ezQtDocumentPanel* pEmitterPanel = new ezQtDocumentPanel(this, pDocument);
+  ezQtDocumentPanel* pInitializerPanel = new ezQtDocumentPanel(this, pDocument);
+  ezQtDocumentPanel* pBehaviorPanel = new ezQtDocumentPanel(this, pDocument);
+  ezQtDocumentPanel* pTypePanel = new ezQtDocumentPanel(this, pDocument);
 
   // Property Grid
   //{
@@ -223,7 +223,7 @@ ezQtParticleEffectAssetDocumentWindow::ezQtParticleEffectAssetDocumentWindow(ezA
   {
     SetTargetFramerate(25);
 
-    m_ViewConfig.m_Camera.LookAt(ezVec3(-1.6, 0, 0), ezVec3(0, 0, 0), ezVec3(0, 0, 1));
+    m_ViewConfig.m_Camera.LookAt(ezVec3(-1.6f, 0, 0), ezVec3(0, 0, 0), ezVec3(0, 0, 1));
     m_ViewConfig.ApplyPerspectiveSetting(90);
 
     m_pViewWidget = new ezQtOrbitCamViewWidget(this, &m_ViewConfig);
@@ -636,7 +636,7 @@ void ezQtParticleEffectAssetDocumentWindow::SendLiveResourcePreview()
   ezStringBuilder tmp;
   msg.m_sResourceID = ezConversionUtils::ToString(GetDocument()->GetGuid(), tmp);
 
-  ezMemoryStreamStorage streamStorage;
+  ezContiguousMemoryStreamStorage streamStorage;
   ezMemoryStreamWriter memoryWriter(&streamStorage);
 
   // Write Path
@@ -652,7 +652,7 @@ void ezQtParticleEffectAssetDocumentWindow::SendLiveResourcePreview()
 
   // Write Asset Data
   GetParticleDocument()->WriteResource(memoryWriter);
-  msg.m_Data = ezArrayPtr<const ezUInt8>(streamStorage.GetData(), streamStorage.GetStorageSize());
+  msg.m_Data = ezArrayPtr<const ezUInt8>(streamStorage.GetData(), streamStorage.GetStorageSize32());
 
   ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
 }

@@ -1,19 +1,20 @@
 #include <EditorFramework/EditorFrameworkPCH.h>
 
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <EditorFramework/Preferences/EditorPreferences.h>
 #include <EditorFramework/Preferences/Preferences.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 
 void ezQtEditorApp::SaveRecentFiles()
 {
-  s_RecentProjects.Save(":appdata/Settings/RecentProjects.txt");
-  s_RecentDocuments.Save(":appdata/Settings/RecentDocuments.txt");
+  m_RecentProjects.Save(":appdata/Settings/RecentProjects.txt");
+  m_RecentDocuments.Save(":appdata/Settings/RecentDocuments.txt");
 }
 
 void ezQtEditorApp::LoadRecentFiles()
 {
-  s_RecentProjects.Load(":appdata/Settings/RecentProjects.txt");
-  s_RecentDocuments.Load(":appdata/Settings/RecentDocuments.txt");
+  m_RecentProjects.Load(":appdata/Settings/RecentProjects.txt");
+  m_RecentDocuments.Load(":appdata/Settings/RecentDocuments.txt");
 }
 
 void ezQtEditorApp::SaveOpenDocumentsList()
@@ -30,9 +31,9 @@ void ezQtEditorApp::SaveOpenDocumentsList()
   allWindows.Reserve(windows.GetCount());
   {
     auto* container = ezQtContainerWindow::GetContainerWindow();
-    ezHybridArray<ezQtDocumentWindow*, 16> windows;
-    container->GetDocumentWindows(windows);
-    for (auto* pWindow : windows)
+    ezHybridArray<ezQtDocumentWindow*, 16> docWindows;
+    container->GetDocumentWindows(docWindows);
+    for (auto* pWindow : docWindows)
     {
       allWindows.PushBack(pWindow);
     }
@@ -73,12 +74,22 @@ void ezQtEditorApp::SaveSettings()
 
   ezPreferences::SaveApplicationPreferences();
 
+  // this setting is needed before we have loaded the preferences, so we duplicate it in the QSettings (registry)
+  {
+    ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
+
+    QSettings s;
+    s.beginGroup("EditorPreferences");
+    s.setValue("ShowSplashscreen", pPreferences->m_bShowSplashscreen);
+    s.endGroup();
+  }
+
   if (ezToolsProject::IsProjectOpen())
   {
     ezPreferences::SaveProjectPreferences();
     SaveOpenDocumentsList();
 
     m_FileSystemConfig.Save().IgnoreResult();
-    m_EnginePluginConfig.Save().IgnoreResult();
+    GetRuntimePluginConfig(false).Save().IgnoreResult();
   }
 }

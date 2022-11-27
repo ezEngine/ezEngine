@@ -22,9 +22,9 @@ class ezGraphVersioning;
 struct ezVersionKey
 {
   ezVersionKey() {}
-  ezVersionKey(const char* szType, ezUInt32 uiTypeVersion)
+  ezVersionKey(ezStringView sType, ezUInt32 uiTypeVersion)
   {
-    m_sType.Assign(szType);
+    m_sType.Assign(sType);
     m_uiTypeVersion = uiTypeVersion;
   }
   EZ_DECLARE_POD_TYPE();

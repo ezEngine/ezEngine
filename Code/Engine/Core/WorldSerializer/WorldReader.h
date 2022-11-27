@@ -77,7 +77,9 @@ public:
   /// Afterwards \a stream can be deleted.
   /// Call InstantiateWorld() or InstantiatePrefab() afterwards as often as you like
   /// to actually get an objects into an ezWorld.
-  ezResult ReadWorldDescription(ezStreamReader& stream);
+  /// By default, the method will warn if it skips bytes in the stream that are of unknown
+  /// types. The warnings can be suppressed by setting warningOnUnkownSkip to false.
+  ezResult ReadWorldDescription(ezStreamReader& stream, bool warningOnUnkownSkip = true);
 
   /// \brief Creates one instance of the world that was previously read by ReadWorldDescription().
   ///
@@ -147,6 +149,9 @@ public:
   ezUInt32 GetRootObjectCount() const;
   ezUInt32 GetChildObjectCount() const;
 
+  static void SetMaxStepTime(InstantiationContextBase* context, ezTime maxStepTime);
+  static ezTime GetMaxStepTime(InstantiationContextBase* context);
+
 private:
   struct GameObjectToCreate
   {
@@ -157,7 +162,7 @@ private:
 
   void ReadGameObjectDesc(GameObjectToCreate& godesc);
   void ReadComponentTypeInfo(ezUInt32 uiComponentTypeIdx);
-  void ReadComponentDataToMemStream();
+  void ReadComponentDataToMemStream(bool warningOnUnknownSkip = true);
   void ClearHandles();
   ezUniquePtr<InstantiationContextBase> Instantiate(ezWorld& world, bool bUseTransform, const ezTransform& rootTransform, const ezPrefabInstantiationOptions& options);
 
@@ -179,8 +184,8 @@ private:
 
   ezDynamicArray<ComponentTypeInfo> m_ComponentTypes;
   ezHashTable<const ezRTTI*, ezUInt32> m_ComponentTypeVersions;
-  ezMemoryStreamStorage m_ComponentCreationStream;
-  ezMemoryStreamStorage m_ComponentDataStream;
+  ezDefaultMemoryStreamStorage m_ComponentCreationStream;
+  ezDefaultMemoryStreamStorage m_ComponentDataStream;
   ezUInt64 m_uiTotalNumComponents = 0;
 
   ezUniquePtr<ezStringDeduplicationReadContext> m_pStringDedupReadContext;
@@ -200,6 +205,9 @@ private:
     bool CreateComponents(ezTime endTime);
     bool DeserializeComponents(ezTime endTime);
     bool AddComponentsToBatch(ezTime endTime);
+
+    void SetMaxStepTime(ezTime stepTime);
+    ezTime GetMaxStepTime() const;
 
   private:
     void BeginNextProgressStep(const char* szName);

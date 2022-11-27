@@ -65,7 +65,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezParticleComponent, 5, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Effect", GetParticleEffectFile, SetParticleEffectFile)->AddAttributes(new ezAssetBrowserAttribute("Particle Effect")),
+    EZ_ACCESSOR_PROPERTY("Effect", GetParticleEffectFile, SetParticleEffectFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Particle_Effect")),
     EZ_MEMBER_PROPERTY("SpawnAtStart", m_bSpawnAtStart)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_ENUM_MEMBER_PROPERTY("OnFinishedAction", ezOnComponentFinishedAction2, m_OnFinishedAction),
     EZ_MEMBER_PROPERTY("MinRestartDelay", m_MinRestartDelay),
@@ -301,7 +301,7 @@ const char* ezParticleComponent::GetParticleEffectFile() const
 }
 
 
-ezResult ezParticleComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
+ezResult ezParticleComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg)
 {
   if (m_EffectController.IsAlive())
   {
@@ -408,6 +408,8 @@ void ezParticleComponent::Update()
         m_EffectController.SetParameter(e.m_sName, e.m_Value);
       }
     }
+
+    m_EffectController.UpdateWindSamples();
   }
   else
   {

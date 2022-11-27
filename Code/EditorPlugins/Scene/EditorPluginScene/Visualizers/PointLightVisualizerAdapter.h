@@ -17,5 +17,5 @@ protected:
   virtual void UpdateGizmoTransform() override;
 
   float m_fScale;
-  ezEngineGizmoHandle m_Gizmo;
+  ezEngineGizmoHandle m_hGizmo;
 };

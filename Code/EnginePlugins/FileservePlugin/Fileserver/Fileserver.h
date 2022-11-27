@@ -102,7 +102,7 @@ private:
   void HandleUploadFileFinished(ezFileserveClientContext& client, ezRemoteMessage& msg);
 
   ezHashTable<ezUInt32, ezFileserveClientContext> m_Clients;
-  ezUniquePtr<ezRemoteInterface> m_Network;
+  ezUniquePtr<ezRemoteInterface> m_pNetwork;
   ezDynamicArray<ezUInt8> m_SendToClient;   // ie. 'downloads' from server to client
   ezDynamicArray<ezUInt8> m_SentFromClient; // ie. 'uploads' from client to server
   ezStringBuilder m_sCurFileUpload;

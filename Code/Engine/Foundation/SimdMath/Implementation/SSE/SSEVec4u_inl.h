@@ -68,8 +68,8 @@ EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4u::ToFloat() const
 // static
 EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::Truncate(const ezSimdVec4f& f)
 {
-  const float EZ_ALIGN_16(fmax[4]) = {2.14748364e+009f, 2.14748364e+009f, 2.14748364e+009f, 2.14748364e+009f};
-  const float EZ_ALIGN_16(fmax_unsigned[4]) = {4.29496729e+009f, 4.29496729e+009f, 4.29496729e+009f, 4.29496729e+009f};
+  alignas(16) const float fmax[4] = {2.14748364e+009f, 2.14748364e+009f, 2.14748364e+009f, 2.14748364e+009f};
+  alignas(16) const float fmax_unsigned[4] = {4.29496729e+009f, 4.29496729e+009f, 4.29496729e+009f, 4.29496729e+009f};
   __m128i zero = _mm_setzero_si128();
   __m128i mask = _mm_cmpgt_epi32(_mm_castps_si128(f.m_v), zero);
   __m128 min = _mm_and_ps(_mm_castsi128_ps(mask), f.m_v);

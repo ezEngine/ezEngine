@@ -372,14 +372,18 @@ extern "C" {
 // Start ezEngine edit
 // Configure the DLL Import/Export Define
 #undef STBIDEF
-#  ifdef BUILDSYSTEM_COMPILE_ENGINE_AS_DLL
+#ifdef BUILDSYSTEM_COMPILE_ENGINE_AS_DLL
+#  ifdef _WIN32
 #    ifdef BUILDSYSTEM_BUILDING_STB_IMAGE_LIB
 #      define STBIDEF __declspec(dllexport)
-#else
+#    else
 #      define STBIDEF __declspec(dllimport)
-#endif
+#    endif
 #  else
-#    define STBIDEF
+#    define STBIDEF __attribute__ ((visibility ("default")))
+#  endif
+#else
+#  define STBIDEF
 #endif
 // End ezEngine edit
 //////////////////////////////////////////////////////////////////////////

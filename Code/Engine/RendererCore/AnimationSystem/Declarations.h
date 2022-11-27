@@ -13,7 +13,7 @@ struct ezAnimationClipResourceDescriptor;
 
 using ezSkeletonResourceHandle = ezTypedResourceHandle<class ezSkeletonResource>;
 
-#define ezInvalidJointIndex 0xFFFFu
+#define ezInvalidJointIndex static_cast<ezUInt16>(0xFFFFu)
 
 namespace ozz::animation
 {
@@ -56,8 +56,19 @@ struct EZ_RENDERERCORE_DLL ezMsgAnimationPoseUpdated : public ezMessage
 {
   EZ_DECLARE_MESSAGE_TYPE(ezMsgAnimationPoseUpdated, ezMessage);
 
+  static void ComputeFullBoneTransform(const ezMat4& rootTransform, const ezMat4& modelTransform, ezMat4& fullTransform, ezQuat& rotationOnly);
   void ComputeFullBoneTransform(ezUInt32 uiJointIndex, ezMat4& fullTransform) const;
   void ComputeFullBoneTransform(ezUInt32 uiJointIndex, ezMat4& fullTransform, ezQuat& rotationOnly) const;
+
+  const ezTransform* m_pRootTransform = nullptr;
+  const ezSkeleton* m_pSkeleton = nullptr;
+  ezArrayPtr<const ezMat4> m_ModelTransforms;
+  bool m_bContinueAnimating = true;
+};
+
+struct EZ_RENDERERCORE_DLL ezMsgAnimationPoseProposal : public ezMessage
+{
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgAnimationPoseProposal, ezMessage);
 
   const ezTransform* m_pRootTransform = nullptr;
   const ezSkeleton* m_pSkeleton = nullptr;
@@ -100,4 +111,15 @@ struct EZ_RENDERERCORE_DLL ezMsgApplyRootMotion : public ezMessage
   ezAngle m_RotationX;
   ezAngle m_RotationY;
   ezAngle m_RotationZ;
+};
+
+/// \brief Queries the local transforms of each bone in an object with a skeleton
+///
+/// Used to retrieve the pose of a ragdoll after simulation.
+struct EZ_RENDERERCORE_DLL ezMsgRetrieveBoneState : public ezMessage
+{
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgRetrieveBoneState, ezMessage);
+
+  // maps from bone name to its local transform
+  ezMap<ezString, ezTransform> m_BoneTransforms;
 };

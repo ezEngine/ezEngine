@@ -39,7 +39,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPx6DOFJointComponent, 2, ezComponentMode::Static)
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 0.2, ezColor::SlateGray)
+    new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 0.2f, ezColor::SlateGray)
   }
   EZ_END_ATTRIBUTES;
 }

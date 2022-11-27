@@ -41,7 +41,7 @@ ezProcGenGraphAssetDocumentWindow::ezProcGenGraphAssetDocumentWindow(ezProcGenGr
   }
 
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this);
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
     pPropertyPanel->setObjectName("ProcGenAssetDockWidget");
     pPropertyPanel->setWindowTitle("Node Properties");
     pPropertyPanel->show();
@@ -87,7 +87,7 @@ void ezProcGenGraphAssetDocumentWindow::UpdatePreview()
   ezStringBuilder tmp;
   msg.m_sResourceID = ezConversionUtils::ToString(GetDocument()->GetGuid(), tmp);
 
-  ezMemoryStreamStorage streamStorage;
+  ezContiguousMemoryStreamStorage streamStorage;
   ezMemoryStreamWriter memoryWriter(&streamStorage);
 
   // Write Path
@@ -102,7 +102,7 @@ void ezProcGenGraphAssetDocumentWindow::UpdatePreview()
   // Write Asset Data
   if (GetProcGenGraphDocument()->WriteAsset(memoryWriter, ezAssetCurator::GetSingleton()->GetActiveAssetProfile(), true).Succeeded())
   {
-    msg.m_Data = ezArrayPtr<const ezUInt8>(streamStorage.GetData(), streamStorage.GetStorageSize());
+    msg.m_Data = ezArrayPtr<const ezUInt8>(streamStorage.GetData(), streamStorage.GetStorageSize32());
 
     ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
   }

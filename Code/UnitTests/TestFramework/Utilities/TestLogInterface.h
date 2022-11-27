@@ -30,7 +30,7 @@ private:
   };
 
   mutable ezMutex m_Mutex;
-  ezHybridArray<ExpectedMsg, 8> m_expectedMessages;
+  ezHybridArray<ExpectedMsg, 8> m_ExpectedMessages;
 };
 
 /// \brief A class that sets a custom ezTestLogInterface as the thread local default log system,

@@ -51,32 +51,39 @@
     <file>ezDebugTextComponent.png</file>
     <file>ezRaycastComponent.png</file>
     <file>ezBeamComponent.png</file>
-	<file>ezSkeletonComponent.png</file>
-	<file>ezSimpleWindComponent.png</file>
-	<file>ezPlayerStartPointComponent.png</file>
-	<file>ezColorAnimationComponent.png</file>
-	<file>ezMarkerComponent.png</file>
-	<file>ezAnimatedMeshComponent.png</file>
-	<file>ezInstancedMeshComponent.png</file>
-	<file>ezJointAttachmentComponent.png</file>
-	<file>ezMoveToComponent.png</file>
-	<file>ezSkyLightComponent.png</file>
-	<file>ezAlwaysVisibleComponent.png</file>
-	<file>ezLineToComponent.png</file>
-	<file>ezSpatialAnchorComponent.png</file>
-	<file>ezDeviceTrackingComponent.png</file>
-	<file>ezStageSpaceComponent.png</file>
-	<file>ezSrmRenderComponent.png</file>
-	<file>ezMotionMatchingComponent.png</file>
-	<file>ezAnimationControllerComponent.png</file>
-	<file>ezSimpleAnimationComponent.png</file>
-	<file>ezHeightfieldComponent.png</file>
-	<file>ezRopeRenderComponent.png</file>
-	<file>ezFakeRopeComponent.png</file>
-	<file>ezWindVolumeConeComponent.png</file>
-	<file>ezWindVolumeCylinderComponent.png</file>
-	<file>ezWindVolumeSphereComponent.png</file>
-	<file>ezClothSheetComponent.png</file>
+    <file>ezSkeletonComponent.png</file>
+    <file>ezSimpleWindComponent.png</file>
+    <file>ezPlayerStartPointComponent.png</file>
+    <file>ezColorAnimationComponent.png</file>
+    <file>ezMarkerComponent.png</file>
+    <file>ezAnimatedMeshComponent.png</file>
+    <file>ezInstancedMeshComponent.png</file>
+    <file>ezJointAttachmentComponent.png</file>
+    <file>ezMoveToComponent.png</file>
+    <file>ezSkyLightComponent.png</file>
+    <file>ezAlwaysVisibleComponent.png</file>
+    <file>ezLineToComponent.png</file>
+    <file>ezSpatialAnchorComponent.png</file>
+    <file>ezDeviceTrackingComponent.png</file>
+    <file>ezStageSpaceComponent.png</file>
+    <file>ezSrmRenderComponent.png</file>
+    <file>ezMotionMatchingComponent.png</file>
+    <file>ezAnimationControllerComponent.png</file>
+    <file>ezSimpleAnimationComponent.png</file>
+    <file>ezHeightfieldComponent.png</file>
+    <file>ezRopeRenderComponent.png</file>
+    <file>ezFakeRopeComponent.png</file>
+    <file>ezWindVolumeConeComponent.png</file>
+    <file>ezWindVolumeCylinderComponent.png</file>
+    <file>ezWindVolumeSphereComponent.png</file>
+    <file>ezClothSheetComponent.png</file>
+    <file>ezBoxReflectionProbeComponent.png</file>
+    <file>ezSphereReflectionProbeComponent.png</file>
+    <file>ezSensorConeComponent.svg</file>
+    <file>ezSensorCylinderComponent.svg</file>
+    <file>ezSensorSphereComponent.svg</file>
+    <file>ezStateMachineComponent.svg</file>
+	<file>ezOccluderComponent.png</file>
   </qresource>
   <qresource prefix="GroupIcons">
     <file>Size.png</file>

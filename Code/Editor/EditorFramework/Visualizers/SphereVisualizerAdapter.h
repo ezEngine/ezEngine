@@ -18,8 +18,8 @@ protected:
 
   virtual void UpdateGizmoTransform() override;
 
-  float m_Scale;
+  float m_fScale;
   ezVec3 m_vPositionOffset;
-  ezEngineGizmoHandle m_Gizmo;
+  ezEngineGizmoHandle m_hGizmo;
   ezBitflags<ezVisualizerAnchor> m_Anchor;
 };

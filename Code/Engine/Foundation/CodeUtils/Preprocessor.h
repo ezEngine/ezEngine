@@ -168,7 +168,7 @@ public:
   /// \brief Adds a #define to the preprocessor, even before any file is processed.
   ///
   /// This allows to have global macros that are always defined for all processed files, such as the current platform etc.
-  /// \a szDefinition must be in the form of the test that follows a #define statement. So to define the macro "WIN32", just
+  /// \a szDefinition must be in the form of the text that follows a #define statement. So to define the macro "WIN32", just
   /// pass that string. You can define any macro that could also be defined in the source files.
   ///
   /// If the definition is invalid, EZ_FAILURE is returned. Also the preprocessor might end up in an invalid state, so using it any
@@ -232,7 +232,7 @@ private:
   // pointer to the file cache that is in use
   ezTokenizedFileCache* m_pUsedFileCache;
 
-  ezDeque<FileData> m_sCurrentFileStack;
+  ezDeque<FileData> m_CurrentFileStack;
 
   ezLogInterface* m_pLog;
 
@@ -287,7 +287,7 @@ private: // *** Macro Definition ***
 
   ezMap<ezString256, MacroDefinition> m_Macros;
 
-  static const ezInt32 s_MacroParameter0 = ezTokenType::ENUM_COUNT + 2;
+  static const ezInt32 s_iMacroParameter0 = ezTokenType::ENUM_COUNT + 2;
   static ezString s_ParamNames[32];
   ezToken m_ParameterTokens[32];
 
@@ -345,9 +345,9 @@ private: // *** Macro Expansion ***
 
   ezToken m_TokenFile;
   ezToken m_TokenLine;
-  const ezToken* m_TokenOpenParenthesis;
-  const ezToken* m_TokenClosedParenthesis;
-  const ezToken* m_TokenComma;
+  const ezToken* m_pTokenOpenParenthesis;
+  const ezToken* m_pTokenClosedParenthesis;
+  const ezToken* m_pTokenComma;
 
   ezDeque<const MacroParameters*> m_MacroParamStack;
   ezDeque<const MacroParameters*> m_MacroParamStackExpanded;
@@ -378,8 +378,8 @@ private: // *** Other ***
     pe.m_szInfo = FormatStr;                                                                                                                        \
     if (pe.m_pToken->m_uiLine == 0 && pe.m_pToken->m_uiColumn == 0)                                                                                 \
     {                                                                                                                                               \
-      const_cast<ezToken*>(pe.m_pToken)->m_uiLine = m_sCurrentFileStack.PeekBack().m_iCurrentLine;                                                  \
-      const_cast<ezToken*>(pe.m_pToken)->m_File.Assign(m_sCurrentFileStack.PeekBack().m_sVirtualFileName.GetData());                                \
+      const_cast<ezToken*>(pe.m_pToken)->m_uiLine = m_CurrentFileStack.PeekBack().m_iCurrentLine;                                                   \
+      const_cast<ezToken*>(pe.m_pToken)->m_File = m_CurrentFileStack.PeekBack().m_sVirtualFileName;                                                 \
     }                                                                                                                                               \
     m_ProcessingEvents.Broadcast(pe);                                                                                                               \
     ezLog::Type(m_pLog, "File '{0}', Line {1} ({2}): " FormatStr, pe.m_pToken->m_File.GetString(), pe.m_pToken->m_uiLine, pe.m_pToken->m_uiColumn); \
@@ -392,8 +392,8 @@ private: // *** Other ***
     _pe.m_pToken = ErrorToken;                                                                                                                         \
     if (_pe.m_pToken->m_uiLine == 0 && _pe.m_pToken->m_uiColumn == 0)                                                                                  \
     {                                                                                                                                                  \
-      const_cast<ezToken*>(_pe.m_pToken)->m_uiLine = m_sCurrentFileStack.PeekBack().m_iCurrentLine;                                                    \
-      const_cast<ezToken*>(_pe.m_pToken)->m_File.Assign(m_sCurrentFileStack.PeekBack().m_sVirtualFileName.GetData());                                  \
+      const_cast<ezToken*>(_pe.m_pToken)->m_uiLine = m_CurrentFileStack.PeekBack().m_iCurrentLine;                                                     \
+      const_cast<ezToken*>(_pe.m_pToken)->m_File = m_CurrentFileStack.PeekBack().m_sVirtualFileName;                                                   \
     }                                                                                                                                                  \
     ezStringBuilder sInfo;                                                                                                                             \
     sInfo.Format(FormatStr, ##__VA_ARGS__);                                                                                                            \

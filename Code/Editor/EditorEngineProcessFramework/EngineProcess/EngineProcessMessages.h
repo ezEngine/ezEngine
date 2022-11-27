@@ -1,6 +1,7 @@
 #pragma once
 
 #include <EditorEngineProcessFramework/EditorEngineProcessFrameworkDLL.h>
+
 #include <Foundation/Application/Config/FileSystemConfig.h>
 #include <Foundation/Application/Config/PluginConfig.h>
 #include <Foundation/Communication/RemoteMessage.h>
@@ -11,29 +12,7 @@
 
 ///////////////////////////////////// ezProcessMessages /////////////////////////////////////
 
-///////////////////////////////////// Curator /////////////////////////////////////
 
-
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezProcessAssetMsg : public ezProcessMessage
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezProcessAssetMsg, ezProcessMessage);
-
-public:
-  ezUuid m_AssetGuid;
-  ezUInt64 m_AssetHash = 0;
-  ezUInt64 m_ThumbHash = 0;
-  ezString m_sAssetPath;
-  ezString m_sPlatform;
-};
-
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezProcessAssetResponseMsg : public ezProcessMessage
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezProcessAssetResponseMsg, ezProcessMessage);
-
-public:
-  mutable ezDynamicArray<ezLogEntry> m_LogEntries;
-  bool m_bSuccess = false;
-};
 
 ///////////////////////////////////// ezEditorEngineMsg /////////////////////////////////////
 
@@ -91,6 +70,14 @@ public:
   ezString m_sWhatToDo;
   ezString m_sPayload;
   double m_fPayload;
+};
+
+class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezSaveProfilingResponseToEditor : public ezEditorEngineMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezSaveProfilingResponseToEditor, ezEditorEngineMsg);
+
+public:
+  ezString m_sProfilingFile;
 };
 
 class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezResourceUpdateMsgToEngine : public ezEditorEngineMsg
@@ -169,17 +156,17 @@ public:
   double m_fPayload;
 };
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezSyncWithProcessMsgToEngine : public ezEditorEngineDocumentMsg
+class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezSyncWithProcessMsgToEngine : public ezProcessMessage
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSyncWithProcessMsgToEngine, ezEditorEngineDocumentMsg);
+  EZ_ADD_DYNAMIC_REFLECTION(ezSyncWithProcessMsgToEngine, ezProcessMessage);
 
 public:
   ezUInt32 m_uiRedrawCount;
 };
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezSyncWithProcessMsgToEditor : public ezEditorEngineDocumentMsg
+class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezSyncWithProcessMsgToEditor : public ezProcessMessage
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSyncWithProcessMsgToEditor, ezEditorEngineDocumentMsg);
+  EZ_ADD_DYNAMIC_REFLECTION(ezSyncWithProcessMsgToEditor, ezProcessMessage);
 
 public:
   ezUInt32 m_uiRedrawCount;
@@ -240,6 +227,11 @@ public:
 class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezViewDestroyedMsgToEngine : public ezEditorEngineViewMsg
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezViewDestroyedMsgToEngine, ezEditorEngineViewMsg);
+};
+
+class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezViewDestroyedResponseMsgToEditor : public ezEditorEngineViewMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezViewDestroyedResponseMsgToEditor, ezEditorEngineViewMsg);
 };
 
 class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezViewRedrawMsgToEngine : public ezEditorEngineViewMsg
@@ -326,13 +318,8 @@ class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezCreateThumbnailMsgToEngine : public 
   EZ_ADD_DYNAMIC_REFLECTION(ezCreateThumbnailMsgToEngine, ezEditorEngineDocumentMsg);
 
 public:
-  ezCreateThumbnailMsgToEngine()
-    : m_uiWidth(256)
-    , m_uiHeight(256)
-  {
-  }
-  ezUInt16 m_uiWidth;
-  ezUInt16 m_uiHeight;
+  ezUInt16 m_uiWidth = 0;
+  ezUInt16 m_uiHeight = 0;
   ezHybridArray<ezString, 1> m_ViewExcludeTags;
 };
 
@@ -515,9 +502,9 @@ public:
   ezVec3 m_vGridTangent2;
 };
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezGlobalSettingsMsgToEngine : public ezEditorEngineDocumentMsg
+class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezGlobalSettingsMsgToEngine : public ezEditorEngineMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezGlobalSettingsMsgToEngine, ezEditorEngineDocumentMsg);
+  EZ_ADD_DYNAMIC_REFLECTION(ezGlobalSettingsMsgToEngine, ezEditorEngineMsg);
 
 public:
   float m_fGizmoScale = 0.0f;

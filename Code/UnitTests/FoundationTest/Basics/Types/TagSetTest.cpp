@@ -128,8 +128,13 @@ EZ_CREATE_SIMPLE_TEST(Basics, TagSet)
     // Set all tags
     ezTagSet BigTagSet;
 
-    BigTagSet.Set(RegisteredTags[0]);
+    BigTagSet.Set(RegisteredTags[128]);
     BigTagSet.Set(RegisteredTags[64]);
+    BigTagSet.Set(RegisteredTags[0]);
+
+    EZ_TEST_BOOL(BigTagSet.IsSet(RegisteredTags[0]));
+    EZ_TEST_BOOL(BigTagSet.IsSet(RegisteredTags[64]));
+    EZ_TEST_BOOL(BigTagSet.IsSet(RegisteredTags[128]));
 
     for (ezUInt32 i = 0; i < 250; ++i)
     {

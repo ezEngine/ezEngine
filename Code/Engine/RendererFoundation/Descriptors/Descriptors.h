@@ -13,7 +13,51 @@
 
 class ezWindowBase;
 
-struct ezGALSwapChainCreationDescription : public ezHashableStruct<ezGALSwapChainCreationDescription>
+struct EZ_RENDERERFOUNDATION_DLL ezShaderResourceType
+{
+  typedef ezUInt8 StorageType;
+  enum Enum : ezUInt8
+  {
+    Unknown = 0,
+
+    Texture1D = 1,
+    Texture1DArray = 2,
+    Texture2D = 3,
+    Texture2DArray = 4,
+    Texture2DMS = 5,
+    Texture2DMSArray = 6,
+    Texture3D = 7,
+    TextureCube = 8,
+    TextureCubeArray = 9,
+
+    UAV = 10,            ///< RW textures and buffers
+    ConstantBuffer = 20, ///< Constant buffers
+    GenericBuffer = 21,  ///< Read only (structured) buffers
+    Sampler = 22,        ///< Separate sampler states
+
+    Default = Unknown,
+  };
+
+  static bool IsArray(ezShaderResourceType::Enum format);
+};
+
+
+/// \brief Defines a swap chain's present mode.
+/// \sa ezGALWindowSwapChainCreationDescription
+struct EZ_RENDERERFOUNDATION_DLL ezGALPresentMode
+{
+  typedef ezUInt8 StorageType;
+
+  enum Enum
+  {
+    Immediate,
+    VSync,
+    ENUM_COUNT,
+    Default = VSync
+  };
+};
+
+struct ezGALWindowSwapChainCreationDescription : public ezHashableStruct<ezGALWindowSwapChainCreationDescription>
 {
   ezWindowBase* m_pWindow = nullptr;
 
@@ -21,16 +65,20 @@ struct ezGALSwapChainCreationDescription : public ezHashableStruct<ezGALSwapChai
   // Note however, that different platforms may enforce restrictions on this.
   ezGALMSAASampleCount::Enum m_SampleCount = ezGALMSAASampleCount::None;
   ezGALResourceFormat::Enum m_BackBufferFormat = ezGALResourceFormat::RGBAUByteNormalizedsRGB;
+  ezEnum<ezGALPresentMode> m_InitialPresentMode = ezGALPresentMode::VSync;
 
   bool m_bDoubleBuffered = true;
   bool m_bAllowScreenshots = false;
 };
 
+struct ezGALSwapChainCreationDescription : public ezHashableStruct<ezGALSwapChainCreationDescription>
+{
+  const ezRTTI* m_pSwapChainType = nullptr;
+};
+
 struct ezGALDeviceCreationDescription
 {
-  ezGALSwapChainCreationDescription m_PrimarySwapChainDescription;
   bool m_bDebugDevice = false;
-  bool m_bCreatePrimarySwapChain = true;
 };
 
 struct ezGALShaderCreationDescription : public ezHashableStruct<ezGALShaderCreationDescription>
@@ -130,7 +178,7 @@ struct ezGALSamplerStateCreationDescription : public ezHashableStruct<ezGALSampl
 
 struct ezGALVertexAttributeSemantic
 {
-  enum Enum
+  enum Enum : ezUInt8
   {
     Position,
     Normal,
@@ -263,6 +311,7 @@ struct ezGALResourceViewCreationDescription : public ezHashableStruct<ezGALResou
 
   ezEnum<ezGALResourceFormat> m_OverrideViewFormat = ezGALResourceFormat::Invalid;
 
+  // Texture only
   ezUInt32 m_uiMostDetailedMipLevel = 0;
   ezUInt32 m_uiMipLevelsToUse = 0xFFFFFFFFu;
 

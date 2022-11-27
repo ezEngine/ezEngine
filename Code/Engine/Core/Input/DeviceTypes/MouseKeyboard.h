@@ -53,14 +53,22 @@ public:
   ezVec2 GetMouseSpeed() const { return m_vMouseScale; }
 
   /// \brief Returns the number of the ezWindow over which the mouse moved last.
-  static ezInt32 GetWindowNumberMouseIsOver() { return m_iMouseIsOverWindowNumber; }
+  static ezInt32 GetWindowNumberMouseIsOver() { return s_iMouseIsOverWindowNumber; }
 
   /// \brief Returns if the associated ezWindow has focus
   bool IsFocused() { return m_bIsFocused; }
 
 protected:
+  virtual void UpdateInputSlotValues() override;
+
+  ezTime m_DoubleClickTime = ezTime::Milliseconds(500);
+  static ezInt32 s_iMouseIsOverWindowNumber;
+
+private:
   ezVec2 m_vMouseScale;
 
-  static ezInt32 m_iMouseIsOverWindowNumber;
   bool m_bIsFocused = true;
+
+  ezTime m_LastMouseClick[3];
+  bool m_bMouseDown[3] = {false, false, false};
 };

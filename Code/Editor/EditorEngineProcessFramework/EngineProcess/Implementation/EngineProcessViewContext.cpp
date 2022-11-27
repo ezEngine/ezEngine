@@ -8,6 +8,7 @@
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessViewContext.h>
 #include <GameEngine/GameApplication/WindowOutputTarget.h>
+#include <RendererCore/Components/CameraComponent.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
@@ -37,7 +38,7 @@ void ezEngineProcessViewContext::SetViewID(ezUInt32 id)
 
 void ezEngineProcessViewContext::HandleViewMessage(const ezEditorEngineViewMsg* pMsg)
 {
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP) || EZ_ENABLED(EZ_PLATFORM_LINUX)
   if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewRedrawMsgToEngine>())
   {
     const ezViewRedrawMsgToEngine* pMsg2 = static_cast<const ezViewRedrawMsgToEngine*>(pMsg);
@@ -46,7 +47,15 @@ void ezEngineProcessViewContext::HandleViewMessage(const ezEditorEngineViewMsg* 
 
     if (pMsg2->m_uiWindowWidth > 0 && pMsg2->m_uiWindowHeight > 0)
     {
+#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
       HandleWindowUpdate(reinterpret_cast<ezWindowHandle>(pMsg2->m_uiHWND), pMsg2->m_uiWindowWidth, pMsg2->m_uiWindowHeight);
+#  else
+      ezWindowHandle windowHandle;
+      windowHandle.type = ezWindowHandle::Type::XCB;
+      windowHandle.xcbWindow.m_Window = static_cast<ezUInt32>(pMsg2->m_uiHWND);
+      windowHandle.xcbWindow.m_pConnection = nullptr;
+      HandleWindowUpdate(windowHandle, pMsg2->m_uiWindowWidth, pMsg2->m_uiWindowHeight);
+#  endif
       Redraw(true);
     }
   }
@@ -60,7 +69,7 @@ void ezEngineProcessViewContext::HandleViewMessage(const ezEditorEngineViewMsg* 
   }
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
   EZ_REPORT_FAILURE("This code path should never be executed on UWP.");
-#elif
+#else
 #  error "Unsupported platform."
 #endif
 }
@@ -79,18 +88,25 @@ void ezEngineProcessViewContext::HandleWindowUpdate(ezWindowHandle hWnd, ezUInt1
 
   if (m_pEditorWndActor != nullptr)
   {
+    // Update window size
     ezActorPluginWindow* pWindowPlugin = m_pEditorWndActor->GetPlugin<ezActorPluginWindow>();
 
     const ezSizeU32 wndSize = pWindowPlugin->GetWindow()->GetClientAreaSize();
 
+    EZ_ASSERT_DEV(pWindowPlugin->GetWindow()->GetNativeWindowHandle() == hWnd, "Editor view handle must never change. View needs to be destroyed and recreated.");
+
     if (wndSize.width == uiWidth && wndSize.height == uiHeight)
       return;
 
-    ezActorManager::GetSingleton()->DestroyActor(m_pEditorWndActor);
-    m_pEditorWndActor = nullptr;
+    if (static_cast<ezEditorProcessViewWindow*>(pWindowPlugin->GetWindow())->UpdateWindow(hWnd, uiWidth, uiHeight).Failed())
+    {
+      ezLog::Error("Failed to update Editor Process View Window");
+    }
+    return;
   }
 
   {
+    // Create new actor
     ezUniquePtr<ezActor> pActor = EZ_DEFAULT_NEW(ezActor, "EditorView", this);
     m_pEditorWndActor = pActor.Borrow();
 
@@ -99,18 +115,23 @@ void ezEngineProcessViewContext::HandleWindowUpdate(ezWindowHandle hWnd, ezUInt1
     // create window
     {
       ezUniquePtr<ezEditorProcessViewWindow> pWindow = EZ_DEFAULT_NEW(ezEditorProcessViewWindow);
-      pWindow->m_hWnd = hWnd;
-      pWindow->m_uiWidth = uiWidth;
-      pWindow->m_uiHeight = uiHeight;
-
-      pWindowPlugin->m_pWindow = std::move(pWindow);
+      if (pWindow->UpdateWindow(hWnd, uiWidth, uiHeight).Succeeded())
+      {
+        pWindowPlugin->m_pWindow = std::move(pWindow);
+      }
+      else
+      {
+        ezLog::Error("Failed to create Editor Process View Window");
+      }
     }
 
     // create output target
     {
-      ezUniquePtr<ezWindowOutputTargetGAL> pOutput = EZ_DEFAULT_NEW(ezWindowOutputTargetGAL);
+      ezUniquePtr<ezWindowOutputTargetGAL> pOutput = EZ_DEFAULT_NEW(ezWindowOutputTargetGAL, [this](ezGALSwapChainHandle hSwapChain, ezSizeU32 size) {
+        OnSwapChainChanged(hSwapChain, size);
+      });
 
-      ezGALSwapChainCreationDescription desc;
+      ezGALWindowSwapChainCreationDescription desc;
       desc.m_pWindow = pWindowPlugin->m_pWindow.Borrow();
       desc.m_BackBufferFormat = ezGALResourceFormat::RGBAUByteNormalizedsRGB;
       desc.m_bAllowScreenshots = true;
@@ -124,14 +145,9 @@ void ezEngineProcessViewContext::HandleWindowUpdate(ezWindowHandle hWnd, ezUInt1
     {
       ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
       ezWindowOutputTargetGAL* pOutput = static_cast<ezWindowOutputTargetGAL*>(pWindowPlugin->m_pWindowOutputTarget.Borrow());
-      const ezGALSwapChain* pPrimarySwapChain = pDevice->GetSwapChain(pOutput->m_hSwapChain);
-      auto hSwapChainRTV = pDevice->GetDefaultRenderTargetView(pPrimarySwapChain->GetBackBufferTexture());
-
-      ezGALRenderTargetSetup BackBufferRenderTargetSetup;
-      BackBufferRenderTargetSetup.SetRenderTarget(0, hSwapChainRTV);
 
       const ezSizeU32 wndSize = pWindowPlugin->m_pWindow->GetClientAreaSize();
-      SetupRenderTarget(BackBufferRenderTargetSetup, wndSize.width, wndSize.height);
+      SetupRenderTarget(pOutput->m_hSwapChain, nullptr, static_cast<ezUInt16>(wndSize.width), static_cast<ezUInt16>(wndSize.height));
     }
 
     pActor->AddPlugin(std::move(pWindowPlugin));
@@ -139,9 +155,20 @@ void ezEngineProcessViewContext::HandleWindowUpdate(ezWindowHandle hWnd, ezUInt1
   }
 }
 
-void ezEngineProcessViewContext::SetupRenderTarget(ezGALRenderTargetSetup& renderTargetSetup, ezUInt16 uiWidth, ezUInt16 uiHeight)
+void ezEngineProcessViewContext::OnSwapChainChanged(ezGALSwapChainHandle hSwapChain, ezSizeU32 size)
+{
+  ezView* pView = nullptr;
+  if (ezRenderWorld::TryGetView(m_hView, pView))
+  {
+    pView->SetViewport(ezRectFloat(0.0f, 0.0f, (float)size.width, (float)size.height));
+    pView->ForceUpdate();
+  }
+}
+
+void ezEngineProcessViewContext::SetupRenderTarget(ezGALSwapChainHandle hSwapChain, const ezGALRenderTargets* renderTargets, ezUInt16 uiWidth, ezUInt16 uiHeight)
 {
   EZ_LOG_BLOCK("ezEngineProcessViewContext::SetupRenderTarget");
+  EZ_ASSERT_DEV(hSwapChain.IsInvalidated() || renderTargets == nullptr, "hSwapChain and renderTargetSetup are mutually exclusive.");
 
   // setup view
   {
@@ -153,7 +180,10 @@ void ezEngineProcessViewContext::SetupRenderTarget(ezGALRenderTargetSetup& rende
     ezView* pView = nullptr;
     if (ezRenderWorld::TryGetView(m_hView, pView))
     {
-      pView->SetRenderTargetSetup(renderTargetSetup);
+      if (!hSwapChain.IsInvalidated())
+        pView->SetSwapChain(hSwapChain);
+      else
+        pView->SetRenderTargets(*renderTargets);
       pView->SetViewport(ezRectFloat(0.0f, 0.0f, (float)uiWidth, (float)uiHeight));
     }
   }
@@ -191,6 +221,9 @@ void ezEngineProcessViewContext::Redraw(bool bRenderEditorGizmos)
 
 bool ezEngineProcessViewContext::FocusCameraOnObject(ezCamera& camera, const ezBoundingBoxSphere& objectBounds, float fFov, const ezVec3& vViewDir)
 {
+  if (!objectBounds.IsValid())
+    return false;
+
   ezVec3 vDir = vViewDir;
   bool bChanged = false;
   ezVec3 vCameraPos = camera.GetCenterPosition();
@@ -207,6 +240,9 @@ bool ezEngineProcessViewContext::FocusCameraOnObject(ezCamera& camera, const ezB
 
   if (bChanged)
   {
+    if (!vNewCameraPos.IsValid())
+      return false;
+
     camera.SetCameraMode(ezCameraMode::PerspectiveFixedFovX, fFov, 0.1f, 1000.0f);
     camera.LookAt(vNewCameraPos, vCenterPos, ezVec3(0.0f, 0.0f, 1.0f));
   }
@@ -233,8 +269,20 @@ void ezEngineProcessViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
 
   if (m_Camera.GetCameraMode() != ezCameraMode::Stereo)
   {
-    ezCameraMode::Enum cameraMode = (ezCameraMode::Enum)pMsg->m_iCameraMode;
-    m_Camera.SetCameraMode(cameraMode, pMsg->m_fFovOrDim, pMsg->m_fNearPlane, pMsg->m_fFarPlane);
+    bool bCameraIsActive = false;
+    if (pView && pView->GetWorld())
+    {
+      ezEnum<ezCameraUsageHint> usageHint = pView->GetCameraUsageHint();
+      ezCameraComponent* pComp = pView->GetWorld()->GetOrCreateComponentManager<ezCameraComponentManager>()->GetCameraByUsageHint(usageHint);
+      bCameraIsActive = pComp != nullptr && pComp->IsActive();
+    }
+
+    // Camera mode should be controlled by a matching camera component if one exists.
+    if (!bCameraIsActive)
+    {
+      ezCameraMode::Enum cameraMode = (ezCameraMode::Enum)pMsg->m_iCameraMode;
+      m_Camera.SetCameraMode(cameraMode, pMsg->m_fFovOrDim, pMsg->m_fNearPlane, pMsg->m_fFarPlane);
+    }
 
     // prevent too large values
     // sometimes this can happen when imported data is badly scaled and thus way too large
@@ -276,6 +324,10 @@ void ezEngineProcessViewContext::DrawSimpleGrid() const
   ezDynamicArray<ezDebugRenderer::Line> lines;
   lines.Reserve(2 * (10 + 1 + 10) + 4);
 
+  const ezColor xAxisColor = ezColorScheme::LightUI(ezColorScheme::Red) * 0.7f;
+  const ezColor yAxisColor = ezColorScheme::LightUI(ezColorScheme::Green) * 0.7f;
+  const ezColor gridColor = ezColorScheme::LightUI(ezColorScheme::Gray) * 0.5f;
+
   // arrows
 
   const float f = 1.0f;
@@ -284,32 +336,32 @@ void ezEngineProcessViewContext::DrawSimpleGrid() const
     auto& l = lines.ExpandAndGetRef();
     l.m_start.Set(f, 0.0f, 0.0f);
     l.m_end.Set(f - 0.25f, 0.25f, 0.0f);
-    l.m_startColor = ezColor(0.5f, 0, 0);
-    l.m_endColor = l.m_startColor;
+    l.m_startColor = xAxisColor;
+    l.m_endColor = xAxisColor;
   }
 
   {
     auto& l = lines.ExpandAndGetRef();
     l.m_start.Set(f, 0.0f, 0.0f);
     l.m_end.Set(f - 0.25f, -0.25f, 0.0f);
-    l.m_startColor = ezColor(0.5f, 0, 0);
-    l.m_endColor = l.m_startColor;
+    l.m_startColor = xAxisColor;
+    l.m_endColor = xAxisColor;
   }
 
   {
     auto& l = lines.ExpandAndGetRef();
     l.m_start.Set(0.0f, f, 0.0f);
     l.m_end.Set(0.25f, f - 0.25f, 0.0f);
-    l.m_startColor = ezColor(0, 0.5f, 0);
-    l.m_endColor = l.m_startColor;
+    l.m_startColor = yAxisColor;
+    l.m_endColor = yAxisColor;
   }
 
   {
     auto& l = lines.ExpandAndGetRef();
     l.m_start.Set(0.0f, f, 0.0f);
     l.m_end.Set(-0.25f, f - 0.25f, 0.0f);
-    l.m_startColor = ezColor(0, 0.5f, 0);
-    l.m_endColor = l.m_startColor;
+    l.m_startColor = yAxisColor;
+    l.m_endColor = yAxisColor;
   }
 
   {
@@ -324,11 +376,11 @@ void ezEngineProcessViewContext::DrawSimpleGrid() const
 
       if (y == 0)
       {
-        line.m_startColor = ezColor(0.5f, 0, 0);
+        line.m_startColor = xAxisColor;
       }
       else
       {
-        line.m_startColor = ezColor(0.3f, 0.3f, 0.3f);
+        line.m_startColor = gridColor;
       }
 
       line.m_endColor = line.m_startColor;
@@ -347,11 +399,11 @@ void ezEngineProcessViewContext::DrawSimpleGrid() const
 
       if (x == 0)
       {
-        line.m_startColor = ezColor(0, 0.5f, 0);
+        line.m_startColor = yAxisColor;
       }
       else
       {
-        line.m_startColor = ezColor(0.3f, 0.3f, 0.3f);
+        line.m_startColor = gridColor;
       }
 
       line.m_endColor = line.m_startColor;
@@ -360,3 +412,11 @@ void ezEngineProcessViewContext::DrawSimpleGrid() const
 
   ezDebugRenderer::DrawLines(m_hView, lines, ezColor::White);
 }
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#  include <EditorEngineProcessFramework/EngineProcess/Implementation/Win/EngineProcessViewContext_win.h>
+#elif EZ_ENABLED(EZ_PLATFORM_LINUX)
+#  include <EditorEngineProcessFramework/EngineProcess/Implementation/Linux/EngineProcessViewContext_linux.h>
+#else
+#  error Platform not supported
+#endif

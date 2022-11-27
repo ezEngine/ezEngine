@@ -4,6 +4,7 @@
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <ParticlePlugin/Components/ParticleComponent.h>
+#include <RendererFoundation/Device/Device.h>
 
 static ezGameEngineTestParticles s_GameEngineTestParticles;
 
@@ -57,6 +58,7 @@ ezResult ezGameEngineTestParticles::InitializeSubTest(ezInt32 iIdentifier)
 {
   EZ_SUCCEED_OR_RETURN(SUPER::InitializeSubTest(iIdentifier));
 
+  m_pOwnApplication->m_uiImageCompareThreshold = GetImageCompareThreshold(iIdentifier);
   m_iFrame = -1;
 
   if (iIdentifier == SubTests::Billboards)
@@ -121,8 +123,6 @@ ezResult ezGameEngineTestParticles::InitializeSubTest(ezInt32 iIdentifier)
     m_pOwnApplication->SetupParticleSubTest(szEffects[iIdentifier]);
     return EZ_SUCCESS;
   }
-
-  return EZ_FAILURE;
 }
 
 ezTestAppRun ezGameEngineTestParticles::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount)
@@ -130,6 +130,33 @@ ezTestAppRun ezGameEngineTestParticles::RunSubTest(ezInt32 iIdentifier, ezUInt32
   ++m_iFrame;
 
   return m_pOwnApplication->ExecParticleSubTest(m_iFrame);
+}
+
+ezUInt32 ezGameEngineTestParticles::GetImageCompareThreshold(ezInt32 iIdentifier)
+{
+  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  if (pDevice->GetCapabilities().m_sAdapterName.FindSubString_NoCase("llvmpipe"))
+  {
+    // All these tests sample a sphere texture and lavapipe consistently samples a lower mip-level for this texture which results in slightly blurrier results. Images are identical to AMD if mip-maps are disabled for the texture.
+    switch (iIdentifier)
+    {
+      case SubTests::BurstEmitter:
+        return 200;
+      case SubTests::EventReactionEffect:
+        return 200;
+      case SubTests::GravityBehavior:
+        return 700;
+      case SubTests::TrailRenderer:
+        return 150;
+      case SubTests::VelocityBehavior:
+        return 350;
+      case SubTests::VelocityConeInitializer:
+        return 200;
+      default:
+        break;
+    }
+  }
+  return 110;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -170,15 +197,15 @@ ezTestAppRun ezGameEngineTestApplication_Particles::ExecParticleSubTest(ezInt32 
   switch (iCurFrame)
   {
     case 15:
-      EZ_TEST_IMAGE(0, 110);
+      EZ_TEST_IMAGE(0, m_uiImageCompareThreshold);
       break;
 
     case 30:
-      EZ_TEST_IMAGE(1, 110);
+      EZ_TEST_IMAGE(1, m_uiImageCompareThreshold);
       break;
 
     case 60:
-      EZ_TEST_IMAGE(2, 110);
+      EZ_TEST_IMAGE(2, m_uiImageCompareThreshold);
       return ezTestAppRun::Quit;
   }
 

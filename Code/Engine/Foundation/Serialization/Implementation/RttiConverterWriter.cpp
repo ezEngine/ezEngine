@@ -32,13 +32,13 @@ ezUuid ezRttiConverterContext::GenerateObjectGuid(const ezUuid& parentGuid, cons
   return guid;
 }
 
-void* ezRttiConverterContext::CreateObject(const ezUuid& guid, const ezRTTI* pRtti)
+ezInternal::NewInstance<void> ezRttiConverterContext::CreateObject(const ezUuid& guid, const ezRTTI* pRtti)
 {
   EZ_ASSERT_DEBUG(pRtti != nullptr, "Cannot create object, RTTI type is unknown");
   if (!pRtti->GetAllocator() || !pRtti->GetAllocator()->CanAllocate())
     return nullptr;
 
-  void* pObj = pRtti->GetAllocator()->Allocate<void>();
+  auto pObj = pRtti->GetAllocator()->Allocate<void>();
   RegisterObject(guid, pRtti, pObj);
   return pObj;
 }
@@ -141,6 +141,29 @@ ezRttiConverterObject ezRttiConverterContext::DequeueObject()
 }
 
 
+ezRttiConverterWriter::ezRttiConverterWriter(ezAbstractObjectGraph* pGraph, ezRttiConverterContext* pContext, bool bSerializeReadOnly, bool bSerializeOwnerPtrs)
+{
+  m_pGraph = pGraph;
+  m_pContext = pContext;
+
+  m_Filter = [bSerializeReadOnly, bSerializeOwnerPtrs](const void* pObject, const ezAbstractProperty* pProp) {
+    if (pProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly) && !bSerializeReadOnly)
+      return false;
+
+    if (pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner) && !bSerializeOwnerPtrs)
+      return false;
+
+    return true;
+  };
+}
+
+ezRttiConverterWriter::ezRttiConverterWriter(ezAbstractObjectGraph* pGraph, ezRttiConverterContext* pContext, FilterFunction filter)
+{
+  EZ_ASSERT_DEBUG(filter.IsValid(), "Either filter function must be valid or a different ctor must be chosen.");
+  m_pGraph = pGraph;
+  m_pContext = pContext;
+  m_Filter = filter;
+}
 
 ezAbstractObjectNode* ezRttiConverterWriter::AddObjectToGraph(const ezRTTI* pRtti, const void* pObject, const char* szNodeName)
 {
@@ -169,10 +192,7 @@ ezAbstractObjectNode* ezRttiConverterWriter::AddSubObjectToGraph(const ezRTTI* p
 
 void ezRttiConverterWriter::AddProperty(ezAbstractObjectNode* pNode, const ezAbstractProperty* pProp, const void* pObject)
 {
-  if (pProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly) && !m_bSerializeReadOnly)
-    return;
-
-  if (pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner) && !m_bSerializeOwnerPtrs)
+  if (!m_Filter(pObject, pProp))
     return;
 
   ezVariant vTemp;

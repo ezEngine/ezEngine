@@ -117,6 +117,10 @@ public:
   template <typename T>
   static void Prepend(T* pDestination, T&& source, size_t uiCount);
 
+  /// \brief Moves \a uiCount objects in \a pDestination by \a uiSourceCount objects and copies \a source to the free space.
+  template <typename T>
+  static void Prepend(T* pDestination, const T* source, size_t uiSourceCount, size_t uiCount);
+
   /// \brief Tests if objects of type T from \a pSource and \a pDestination are equal.
   template <typename T>
   static bool IsEqual(const T* a, const T* b, size_t uiCount = 1); // [tested]
@@ -263,6 +267,13 @@ private:
   static void Prepend(T* pDestination, T&& source, size_t uiCount, ezTypeIsMemRelocatable);
   template <typename T>
   static void Prepend(T* pDestination, T&& source, size_t uiCount, ezTypeIsClass);
+
+  template <typename T>
+  static void Prepend(T* pDestination, const T* pSource, size_t uiSourceCount, size_t uiCount, ezTypeIsPod);
+  template <typename T>
+  static void Prepend(T* pDestination, const T* pSource, size_t uiSourceCount, size_t uiCount, ezTypeIsMemRelocatable);
+  template <typename T>
+  static void Prepend(T* pDestination, const T* pSource, size_t uiSourceCount, size_t uiCount, ezTypeIsClass);
 
   template <typename T>
   static bool IsEqual(const T* a, const T* b, size_t uiCount, ezTypeIsPod);

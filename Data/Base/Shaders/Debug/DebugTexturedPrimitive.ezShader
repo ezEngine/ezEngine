@@ -12,6 +12,7 @@ TOPOLOGY
 BlendingEnabled0 = false
 DestBlend0 = Blend_InvSrcAlpha
 SourceBlend0 = Blend_SrcAlpha
+DestBlendAlpha0 = Blend_InvSrcAlpha
 
 DepthTest = true
 #if PRE_TRANSFORMED_VERTICES

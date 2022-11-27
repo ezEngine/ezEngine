@@ -1,11 +1,11 @@
 #ifndef AE_FOUNDATION_MEMORY_MEMORYMANAGEMENT_INL
 #  define AE_FOUNDATION_MEMORY_MEMORYMANAGEMENT_INL
 
-#  include "../Basics/Checks.h"
-#  include "../Defines.h"
-#  include "../Math/Math.h"
-#  include "../Memory/Memory.h"
-#  include "../Memory/MemoryManagement.h"
+#  include "../../Basics/Checks.h"
+#  include "../../Defines.h"
+#  include "../../Math/Math.h"
+#  include "../Memory.h"
+#  include "../MemoryManagement.h"
 
 // Make sure new/delete are not already defined, otherwise the placement new functions might break
 #  ifdef new

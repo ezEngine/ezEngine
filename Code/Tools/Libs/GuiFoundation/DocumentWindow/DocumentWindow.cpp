@@ -1,10 +1,12 @@
 #include <GuiFoundation/GuiFoundationPCH.h>
 
 #include <Foundation/Logging/Log.h>
+#include <Foundation/Profiling/Profiling.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
 #include <GuiFoundation/Action/DocumentActions.h>
 #include <GuiFoundation/ActionViews/MenuActionMapView.moc.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
+#include <GuiFoundation/ActionViews/QtProxy.moc.h>
 #include <GuiFoundation/ContainerWindow/ContainerWindow.moc.h>
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
@@ -15,6 +17,7 @@
 #include <QStatusBar>
 #include <QTimer>
 #include <ToolsFoundation/Document/Document.h>
+#include <ads/DockWidget.h>
 
 ezEvent<const ezQtDocumentWindowEvent&> ezQtDocumentWindow::s_Events;
 ezDynamicArray<ezQtDocumentWindow*> ezQtDocumentWindow::s_AllDocumentWindows;
@@ -49,6 +52,7 @@ void ezQtDocumentWindow::Constructor()
   pContainer->AddDocumentWindow(this);
 
   ezQtUiServices::s_Events.AddEventHandler(ezMakeDelegate(&ezQtDocumentWindow::UIServicesEventHandler, this));
+  ezQtUiServices::s_TickEvent.AddEventHandler(ezMakeDelegate(&ezQtDocumentWindow::UIServicesTickEventHandler, this));
 }
 
 ezQtDocumentWindow::ezQtDocumentWindow(ezDocument* pDocument)
@@ -76,6 +80,7 @@ ezQtDocumentWindow::ezQtDocumentWindow(const char* szUniqueName)
 ezQtDocumentWindow::~ezQtDocumentWindow()
 {
   ezQtUiServices::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtDocumentWindow::UIServicesEventHandler, this));
+  ezQtUiServices::s_TickEvent.RemoveEventHandler(ezMakeDelegate(&ezQtDocumentWindow::UIServicesTickEventHandler, this));
 
   s_AllDocumentWindows.RemoveAndSwap(this);
 
@@ -112,57 +117,48 @@ void ezQtDocumentWindow::SetTargetFramerate(ezInt16 iTargetFPS)
     SlotRedraw();
 }
 
-void ezQtDocumentWindow::TriggerRedraw(ezTime LastFrameTime)
+void ezQtDocumentWindow::TriggerRedraw()
 {
-  if (m_bRedrawIsTriggered)
-    return;
-
-  // to not set up the timer while we are drawing, this could lead to recursive drawing, which will fail
-  if (m_bIsDrawingATM)
-  {
-    // just store that we got a redraw request while drawing
-    m_bTriggerRedrawQueued = true;
-    return;
-  }
-
-
-  m_bRedrawIsTriggered = true;
-  m_bTriggerRedrawQueued = false;
-
-  ezTime delay = ezTime::Milliseconds(1000.0f / 25.0f);
-
-  int iTargetFramerate = m_iTargetFramerate;
-
-  // if the application does not have focus, drastically reduce the update rate to limit CPU draw etc.
-  if (QApplication::activeWindow() == nullptr)
-    iTargetFramerate = ezMath::Min(10, m_iTargetFramerate / 4);
-
-  if (iTargetFramerate > 0)
-    delay = ezTime::Milliseconds(1000.0f / iTargetFramerate);
-
-  if (iTargetFramerate < 0)
-    delay.SetZero();
-
-  // Subtract the time it took to render the last frame.
-  delay -= LastFrameTime;
-  delay = ezMath::Max(delay, ezTime::Zero());
-
-  QTimer::singleShot((ezInt32)ezMath::Floor(delay.GetMilliseconds()), this, SLOT(SlotRedraw()));
+  SlotRedraw();
 }
+
+void ezQtDocumentWindow::UIServicesTickEventHandler(const ezQtUiServices::TickEvent& e)
+{
+  if (e.m_Type == ezQtUiServices::TickEvent::Type::StartFrame && m_bIsVisibleInContainer)
+  {
+    const ezInt32 iSystemFramerate = static_cast<ezInt32>(ezMath::Round(e.m_fRefreshRate));
+
+    ezInt32 iTargetFramerate = m_iTargetFramerate;
+    if (iTargetFramerate <= 0)
+      iTargetFramerate = iSystemFramerate;
+
+    // if the application does not have focus, drastically reduce the update rate to limit CPU draw etc.
+    if (QApplication::activeWindow() == nullptr)
+      iTargetFramerate = ezMath::Min(10, iTargetFramerate / 4);
+
+    // We do not hit the requested framerate directly if the system framerate can't be evenly divided. We will chose the next higher framerate.
+    if (iTargetFramerate < iSystemFramerate)
+    {
+      ezUInt32 mod = ezMath::Max(1u, (ezUInt32)ezMath::Floor(iSystemFramerate / (double)iTargetFramerate));
+      if ((e.m_uiFrame % mod) != 0)
+        return;
+    }
+
+    SlotRedraw();
+  }
+}
+
 
 void ezQtDocumentWindow::SlotRedraw()
 {
+  ezStringBuilder sFilename = ezPathUtils::GetFileName(this->GetUniqueName());
+  EZ_PROFILE_SCOPE(sFilename.GetData());
   {
     ezQtDocumentWindowEvent e;
     e.m_Type = ezQtDocumentWindowEvent::Type::BeforeRedraw;
     e.m_pWindow = this;
     s_Events.Broadcast(e, 1);
   }
-
-  EZ_ASSERT_DEV(!m_bIsDrawingATM, "Implementation error");
-  ezTime startTime = ezTime::Now();
-
-  m_bRedrawIsTriggered = false;
 
   // if our window is not visible, interrupt the redrawing, and do nothing
   if (!m_bIsVisibleInContainer)
@@ -171,13 +167,6 @@ void ezQtDocumentWindow::SlotRedraw()
   m_bIsDrawingATM = true;
   InternalRedraw();
   m_bIsDrawingATM = false;
-
-  // immediately trigger the next redraw, if a constant framerate is desired
-  if (m_iTargetFramerate != 0 || m_bTriggerRedrawQueued)
-  {
-    const ezTime endTime = ezTime::Now();
-    TriggerRedraw(endTime - startTime);
-  }
 }
 
 void ezQtDocumentWindow::DocumentEventHandler(const ezDocumentEvent& e)
@@ -261,7 +250,7 @@ void ezQtDocumentWindow::UIServicesEventHandler(const ezQtUiServices::Event& e)
         }
 
         m_pPermanentGlobalStatusButton->setPalette(pal);
-        m_pPermanentGlobalStatusButton->setText(QString::fromUtf8(e.m_sText));
+        m_pPermanentGlobalStatusButton->setText(QString::fromUtf8(e.m_sText, e.m_sText.GetElementCount()));
         m_pPermanentGlobalStatusButton->setVisible(!m_pPermanentGlobalStatusButton->text().isEmpty());
       }
     }
@@ -293,6 +282,33 @@ void ezQtDocumentWindow::hideEvent(QHideEvent* event)
 {
   QMainWindow::hideEvent(event);
   SetVisibleInContainer(false);
+}
+
+bool ezQtDocumentWindow::eventFilter(QObject* obj, QEvent* e)
+{
+  if (e->type() == QEvent::ShortcutOverride)
+  {
+    // This filter is added by ezQtContainerWindow::AddDocumentWindow as that ones is the ony code path that can connect dock container to their content.
+    // This filter is necessary as clicking any action in a menu bar sets the focus to the parent CDockWidget at which point further shortcuts would stop working.
+    if (qobject_cast<ads::CDockWidget*>(obj))
+    {
+      QKeyEvent* keyEvent = static_cast<QKeyEvent*>(e);
+      if (ezQtProxy::TriggerDocumentAction(m_pDocument, keyEvent))
+        return true;
+    }
+  }
+  return false;
+}
+
+bool ezQtDocumentWindow::event(QEvent* event)
+{
+  if (event->type() == QEvent::ShortcutOverride)
+  {
+    QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
+    if (ezQtProxy::TriggerDocumentAction(m_pDocument, keyEvent))
+      return true;
+  }
+  return QMainWindow::event(event);
 }
 
 void ezQtDocumentWindow::FinishWindowCreation()
@@ -328,7 +344,7 @@ void ezQtDocumentWindow::SaveWindowLayout()
   sGroup.Format("DocumentWnd_{0}", GetWindowLayoutGroupName());
 
   QSettings Settings;
-  Settings.beginGroup(QString::fromUtf8(sGroup));
+  Settings.beginGroup(QString::fromUtf8(sGroup, sGroup.GetElementCount()));
   {
     // All other properties are defined by the outer container window.
     Settings.setValue("WindowState", saveState());
@@ -348,7 +364,7 @@ void ezQtDocumentWindow::RestoreWindowLayout()
 
   {
     QSettings Settings;
-    Settings.beginGroup(QString::fromUtf8(sGroup));
+    Settings.beginGroup(QString::fromUtf8(sGroup, sGroup.GetElementCount()));
     {
       restoreState(Settings.value("WindowState", saveState()).toByteArray());
     }
@@ -449,7 +465,7 @@ bool ezQtDocumentWindow::InternalCanCloseWindow()
 
   if (m_pDocument && m_pDocument->IsModified())
   {
-    QMessageBox::StandardButton res = QMessageBox::question(this, QLatin1String("ezEditor"), QLatin1String("Save before closing?"), QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No | QMessageBox::StandardButton::Cancel, QMessageBox::StandardButton::Cancel);
+    QMessageBox::StandardButton res = ezQtUiServices::MessageBoxQuestion("Save before closing?", QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No | QMessageBox::StandardButton::Cancel, QMessageBox::StandardButton::Cancel);
 
     if (res == QMessageBox::StandardButton::Cancel)
       return false;
@@ -504,15 +520,15 @@ void ezQtDocumentWindow::OnStatusBarMessageChanged(const QString& sNewText)
 
   if (sNewText.startsWith("Error:"))
   {
-    pal.setColor(QPalette::WindowText, QColor(Qt::red));
+    pal.setColor(QPalette::WindowText, ezToQtColor(ezColorScheme::LightUI(ezColorScheme::Red)));
   }
   else if (sNewText.startsWith("Warning:"))
   {
-    pal.setColor(QPalette::WindowText, QColor(255, 216, 0));
+    pal.setColor(QPalette::WindowText, ezToQtColor(ezColorScheme::LightUI(ezColorScheme::Yellow)));
   }
   else if (sNewText.startsWith("Note:"))
   {
-    pal.setColor(QPalette::WindowText, QColor(0, 255, 255));
+    pal.setColor(QPalette::WindowText, ezToQtColor(ezColorScheme::LightUI(ezColorScheme::Blue)));
   }
 
   statusBar()->setPalette(pal);

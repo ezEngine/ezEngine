@@ -6,7 +6,7 @@
 ezFileserveFileState ezFileserveClientContext::GetFileStatus(ezUInt16& inout_uiDataDirID, const char* szRequestedFile, FileStatus& inout_Status,
   ezDynamicArray<ezUInt8>& out_FileContent, bool bForceThisDataDir) const
 {
-  for (ezUInt32 i = m_MountedDataDirs.GetCount(); i > 0; --i)
+  for (ezUInt16 i = static_cast<ezUInt16>(m_MountedDataDirs.GetCount()); i > 0; --i)
   {
     const ezUInt16 uiDataDirID = i - 1;
 

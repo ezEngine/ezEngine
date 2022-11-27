@@ -129,7 +129,7 @@ ezViewLightButtonAction::ezViewLightButtonAction(const ezActionContext& context,
       SetIconPath(":/EditorFramework/Icons/ViewLightMenu.png");
       break;
     default:
-      EZ_ASSERT_NOT_IMPLEMENTED("Wrong view light event type");
+      EZ_ASSERT_NOT_IMPLEMENTED;
   }
 
   UpdateAction();
@@ -161,7 +161,7 @@ void ezViewLightButtonAction::Execute(const ezVariant& value)
       ezStringBuilder sFile = m_pSettings->GetSkyLightCubeMap();
       ezUuid assetGuid = ezConversionUtils::ConvertStringToUuid(sFile);
 
-      ezQtAssetBrowserDlg dlg(pView, assetGuid, "Texture Cube");
+      ezQtAssetBrowserDlg dlg(pView, assetGuid, "CompatibleAsset_Texture_Cube");
       if (dlg.exec() == 0)
         return;
 
@@ -212,6 +212,8 @@ void ezViewLightButtonAction::Execute(const ezVariant& value)
       }
     }
     break;
+    default:
+      break;
   }
 }
 
@@ -286,7 +288,7 @@ ezViewLightSliderAction::ezViewLightSliderAction(const ezActionContext& context,
       SetRange(0, 200);
       break;
     default:
-      EZ_ASSERT_NOT_IMPLEMENTED("Wrong view light event type");
+      EZ_ASSERT_NOT_IMPLEMENTED;
   }
 
   UpdateAction();
@@ -318,6 +320,8 @@ void ezViewLightSliderAction::Execute(const ezVariant& value)
       m_pSettings->SetDirectionalLightIntensity(value.ConvertTo<float>() / 10.0f);
     }
     break;
+    default:
+      break;
   }
 }
 
@@ -348,5 +352,7 @@ void ezViewLightSliderAction::UpdateAction()
       SetValue(ezMath::Clamp((ezInt32)(m_pSettings->GetDirectionalLightIntensity() * 10.0f), 1, 200));
     }
     break;
+    default:
+      break;
   }
 }

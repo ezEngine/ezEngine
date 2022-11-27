@@ -15,15 +15,15 @@ void ezPointLightVisualizerAdapter::Finalize()
   const ezAssetDocument* pAssetDocument = ezDynamicCast<const ezAssetDocument*>(pDoc);
   EZ_ASSERT_DEV(pAssetDocument != nullptr, "Visualizers are only supported in ezAssetDocument.");
 
-  m_Gizmo.Configure(nullptr, ezEngineGizmoHandleType::Sphere, ezColor::White, false, false, true);
+  m_hGizmo.ConfigureHandle(nullptr, ezEngineGizmoHandleType::Sphere, ezColor::White, ezGizmoFlags::ShowInOrtho | ezGizmoFlags::Visualizer);
 
-  pAssetDocument->AddSyncObject(&m_Gizmo);
-  m_Gizmo.SetVisible(m_bVisualizerIsVisible);
+  pAssetDocument->AddSyncObject(&m_hGizmo);
+  m_hGizmo.SetVisible(m_bVisualizerIsVisible);
 }
 
 void ezPointLightVisualizerAdapter::Update()
 {
-  m_Gizmo.SetVisible(m_bVisualizerIsVisible);
+  m_hGizmo.SetVisible(m_bVisualizerIsVisible);
   ezObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
   const ezPointLightVisualizerAttribute* pAttr = static_cast<const ezPointLightVisualizerAttribute*>(m_pVisualizerAttr);
 
@@ -48,7 +48,7 @@ void ezPointLightVisualizerAdapter::Update()
     pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetColorProperty()), value);
 
     EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<ezColor>(), "Invalid property bound to ezPointLightVisualizerAdapter 'color'");
-    m_Gizmo.SetColor(value.ConvertTo<ezColor>());
+    m_hGizmo.SetColor(value.ConvertTo<ezColor>());
   }
 }
 
@@ -57,5 +57,5 @@ void ezPointLightVisualizerAdapter::UpdateGizmoTransform()
   ezTransform t = GetObjectTransform();
   t.m_vScale *= m_fScale;
 
-  m_Gizmo.SetTransformation(t);
+  m_hGizmo.SetTransformation(t);
 }

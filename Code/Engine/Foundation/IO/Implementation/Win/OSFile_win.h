@@ -278,6 +278,15 @@ ezResult ezOSFile::InternalCreateDirectory(const char* szDirectory)
   return EZ_SUCCESS;
 }
 
+ezResult ezOSFile::InternalMoveFileOrDirectory(const char* szDirectoryFrom, const char* szDirectoryTo)
+{
+  if (MoveFileW(ezDosDevicePath(szDirectoryFrom), ezDosDevicePath(szDirectoryTo)) == 0)
+  {
+    return EZ_FAILURE;
+  }
+  return EZ_SUCCESS;
+}
+
 #endif // not EZ_USE_POSIX_FILE_API
 
 ezResult ezOSFile::InternalGetFileStats(const char* szFileOrFolder, ezFileStats& out_Stats)
@@ -319,9 +328,7 @@ ezResult ezOSFile::InternalGetFileStats(const char* szFileOrFolder, ezFileStats&
 
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS)
 
-ezFileSystemIterator::ezFileSystemIterator()
-{
-}
+ezFileSystemIterator::ezFileSystemIterator() = default;
 
 ezFileSystemIterator::~ezFileSystemIterator()
 {
@@ -340,6 +347,8 @@ bool ezFileSystemIterator::IsValid() const
 void ezFileSystemIterator::StartSearch(const char* szSearchStart, ezBitflags<ezFileSystemIteratorFlags> flags /*= ezFileSystemIteratorFlags::All*/)
 {
   EZ_ASSERT_DEV(m_Data.m_Handles.IsEmpty(), "Cannot start another search.");
+
+  m_sSearchTerm = szSearchStart;
 
   ezStringBuilder sSearch = szSearchStart;
   sSearch.MakeCleanPath();
@@ -417,31 +426,18 @@ void ezFileSystemIterator::StartSearch(const char* szSearchStart, ezBitflags<ezF
   }
 }
 
-void ezFileSystemIterator::Next()
-{
-  while (true)
-  {
-    const ezInt32 res = InternalNext();
-
-    if (res == EZ_SUCCESS)
-      return;
-
-    if (res == EZ_FAILURE)
-      return;
-  }
-}
-
-
 ezInt32 ezFileSystemIterator::InternalNext()
 {
-  constexpr ezInt32 CallInternalNext = 2;
+  constexpr ezInt32 ReturnFailure = 0;
+  constexpr ezInt32 ReturnSuccess = 1;
+  constexpr ezInt32 ReturnCallInternalNext = 2;
 
   if (m_Data.m_Handles.IsEmpty())
-    return EZ_FAILURE;
+    return ReturnFailure;
 
   if (m_Flags.IsSet(ezFileSystemIteratorFlags::Recursive) && m_CurFile.m_bIsDirectory && (m_CurFile.m_sName != "..") && (m_CurFile.m_sName != "."))
   {
-    m_sCurPath.AppendPath(m_CurFile.m_sName.GetData());
+    m_sCurPath.AppendPath(m_CurFile.m_sName);
 
     ezStringBuilder sNewSearch = m_sCurPath;
     sNewSearch.AppendPath("*");
@@ -460,20 +456,20 @@ ezInt32 ezFileSystemIterator::InternalNext()
       m_Data.m_Handles.PushBack(hSearch);
 
       if ((m_CurFile.m_sName == "..") || (m_CurFile.m_sName == "."))
-        return CallInternalNext; // will search for the next file or folder that is not ".." or "." ; might return false though
+        return ReturnCallInternalNext; // will search for the next file or folder that is not ".." or "." ; might return false though
 
       if (m_CurFile.m_bIsDirectory)
       {
         if (!m_Flags.IsSet(ezFileSystemIteratorFlags::ReportFolders))
-          return CallInternalNext;
+          return ReturnCallInternalNext;
       }
       else
       {
         if (!m_Flags.IsSet(ezFileSystemIteratorFlags::ReportFiles))
-          return CallInternalNext;
+          return ReturnCallInternalNext;
       }
 
-      return EZ_SUCCESS;
+      return ReturnSuccess;
     }
 
     // if the recursion did not work, just iterate in this folder further
@@ -487,11 +483,15 @@ ezInt32 ezFileSystemIterator::InternalNext()
     m_Data.m_Handles.PopBack();
 
     if (m_Data.m_Handles.IsEmpty())
-      return EZ_FAILURE;
+      return ReturnFailure;
 
     m_sCurPath.PathParentDirectory();
+    if (m_sCurPath.EndsWith("/"))
+    {
+      m_sCurPath.Shrink(0, 1); // Remove trailing /
+    }
 
-    return CallInternalNext;
+    return ReturnCallInternalNext;
   }
 
   m_CurFile.m_uiFileSize = HighLowToUInt64(data.nFileSizeHigh, data.nFileSizeLow);
@@ -501,39 +501,27 @@ ezInt32 ezFileSystemIterator::InternalNext()
   m_CurFile.m_LastModificationTime.SetInt64(FileTimeToEpoch(data.ftLastWriteTime), ezSIUnitOfTime::Microsecond);
 
   if ((m_CurFile.m_sName == "..") || (m_CurFile.m_sName == "."))
-    return CallInternalNext;
+    return ReturnCallInternalNext;
 
   if (m_CurFile.m_bIsDirectory)
   {
     if (!m_Flags.IsSet(ezFileSystemIteratorFlags::ReportFolders))
-      return CallInternalNext;
+      return ReturnCallInternalNext;
   }
   else
   {
     if (!m_Flags.IsSet(ezFileSystemIteratorFlags::ReportFiles))
-      return CallInternalNext;
+      return ReturnCallInternalNext;
   }
 
-  return EZ_SUCCESS;
-}
-
-void ezFileSystemIterator::SkipFolder()
-{
-  EZ_ASSERT_DEBUG(m_Flags.IsSet(ezFileSystemIteratorFlags::Recursive), "SkipFolder has no meaning when the iterator is not set to be recursive.");
-  EZ_ASSERT_DEBUG(m_CurFile.m_bIsDirectory, "SkipFolder can only be called when the current object is a folder.");
-
-  m_Flags.Remove(ezFileSystemIteratorFlags::Recursive);
-
-  Next();
-
-  m_Flags.Add(ezFileSystemIteratorFlags::Recursive);
+  return ReturnSuccess;
 }
 
 #endif
 
 const char* ezOSFile::GetApplicationDirectory()
 {
-  if (s_ApplicationPath.IsEmpty())
+  if (s_sApplicationPath.IsEmpty())
   {
     ezUInt32 uiRequiredLength = 512;
     ezHybridArray<wchar_t, 1024> tmp;
@@ -563,10 +551,10 @@ const char* ezOSFile::GetApplicationDirectory()
       EZ_REPORT_FAILURE("GetModuleFileNameW failed: {0}", ezArgErrorCode(error));
     }
 
-    s_ApplicationPath = ezPathUtils::GetFileDirectory(ezStringUtf8(tmp.GetData()));
+    s_sApplicationPath = ezPathUtils::GetFileDirectory(ezStringUtf8(tmp.GetData()));
   }
 
-  return s_ApplicationPath.GetData();
+  return s_sApplicationPath.GetData();
 }
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
@@ -576,7 +564,7 @@ const char* ezOSFile::GetApplicationDirectory()
 
 ezString ezOSFile::GetUserDataFolder(const char* szSubFolder)
 {
-  if (s_UserDataPath.IsEmpty())
+  if (s_sUserDataPath.IsEmpty())
   {
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
     ComPtr<ABI::Windows::Storage::IApplicationDataStatics> appDataStatics;
@@ -593,7 +581,7 @@ ezString ezOSFile::GetUserDataFolder(const char* szSubFolder)
           {
             HSTRING path;
             localFolderItem->get_Path(&path);
-            s_UserDataPath = ezStringUtf8(path).GetData();
+            s_sUserDataPath = ezStringUtf8(path).GetData();
           }
         }
       }
@@ -602,7 +590,7 @@ ezString ezOSFile::GetUserDataFolder(const char* szSubFolder)
     wchar_t* pPath = nullptr;
     if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_RoamingAppData, KF_FLAG_DEFAULT, nullptr, &pPath)))
     {
-      s_UserDataPath = ezStringWChar(pPath);
+      s_sUserDataPath = ezStringWChar(pPath);
     }
 
     if (pPath != nullptr)
@@ -612,7 +600,7 @@ ezString ezOSFile::GetUserDataFolder(const char* szSubFolder)
 #endif
   }
 
-  ezStringBuilder s = s_UserDataPath;
+  ezStringBuilder s = s_sUserDataPath;
   s.AppendPath(szSubFolder);
   s.MakeCleanPath();
   return s;
@@ -622,7 +610,7 @@ ezString ezOSFile::GetTempDataFolder(const char* szSubFolder /*= nullptr*/)
 {
   ezStringBuilder s;
 
-  if (s_TempDataPath.IsEmpty())
+  if (s_sTempDataPath.IsEmpty())
   {
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
     ComPtr<ABI::Windows::Storage::IApplicationDataStatics> appDataStatics;
@@ -639,7 +627,7 @@ ezString ezOSFile::GetTempDataFolder(const char* szSubFolder /*= nullptr*/)
           {
             HSTRING path;
             tempFolderItem->get_Path(&path);
-            s_TempDataPath = ezStringUtf8(path).GetData();
+            s_sTempDataPath = ezStringUtf8(path).GetData();
           }
         }
       }
@@ -650,7 +638,7 @@ ezString ezOSFile::GetTempDataFolder(const char* szSubFolder /*= nullptr*/)
     {
       s = ezStringWChar(pPath);
       s.AppendPath("Temp");
-      s_TempDataPath = s;
+      s_sTempDataPath = s;
     }
 
     if (pPath != nullptr)
@@ -660,7 +648,7 @@ ezString ezOSFile::GetTempDataFolder(const char* szSubFolder /*= nullptr*/)
 #endif
   }
 
-  s = s_TempDataPath;
+  s = s_sTempDataPath;
   s.AppendPath(szSubFolder);
   s.MakeCleanPath();
   return s;

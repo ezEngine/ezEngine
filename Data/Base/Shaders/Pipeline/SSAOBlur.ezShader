@@ -3,7 +3,8 @@ ALL
 
 [PERMUTATIONS]
 
-CAMERA_MODE = CAMERA_MODE_PERSPECTIVE
+CAMERA_MODE
+VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX
 
 [RENDERSTATE]
 
@@ -15,19 +16,18 @@ CullMode = CullMode_None
 
 #include <Shaders/Pipeline/FullscreenTriangleVertexShader.h>
 
+[GEOMETRYSHADER]
+
+#include <Shaders/Pipeline/FullscreenTriangleStereoGeometryShader.h>
+
 [PIXELSHADER]
 
-struct PS_IN
-{
-  float4 Position : SV_Position;
-  float2 TexCoord0 : TEXCOORD0;
-};
-
+#include <Shaders/Pipeline/FullscreenTriangleInterpolator.h>
 #include <Shaders/Common/Common.h>
 #include <Shaders/Common/GlobalConstants.h>
 #include "SSAOConstants.h"
 
-Texture2D SSAOTexture;
+Texture2DArray SSAOTexture;
 
 float CalculateDepthWeight(float depthA, float depthB, float scale)
 {
@@ -36,7 +36,11 @@ float CalculateDepthWeight(float depthA, float depthB, float scale)
 
 float4 main(PS_IN Input) : SV_Target
 {
-  float2 ssaoAndCenterDepth = SSAOTexture.Sample(PointClampSampler, Input.TexCoord0).rg;
+#if CAMERA_MODE == CAMERA_MODE_STEREO
+  s_ActiveCameraEyeIndex = Input.RenderTargetArrayIndex;
+#endif
+
+  float2 ssaoAndCenterDepth = SSAOTexture.Sample(PointClampSampler, float3(Input.TexCoord0, s_ActiveCameraEyeIndex)).rg;
 
   float centerDepth = ssaoAndCenterDepth.y;
   if (centerDepth >= ClipPlanes.y)
@@ -72,7 +76,7 @@ float4 main(PS_IN Input) : SV_Target
   [unroll]
   for (int i = 0; i < 16; ++i)
   {
-    float2 ssaoAndDepth = SSAOTexture.SampleLevel(PointClampSampler, Input.TexCoord0 + offsets[i] * blurRadius, 0.0f).rg;
+    float2 ssaoAndDepth = SSAOTexture.SampleLevel(PointClampSampler, float3(Input.TexCoord0 + offsets[i] * blurRadius, s_ActiveCameraEyeIndex), 0.0f).rg;
     float weight = CalculateDepthWeight(centerDepth, ssaoAndDepth.y, DepthBlurScale) / length(offsets[i]);
 
     totalSSAO += ssaoAndDepth.x * weight;

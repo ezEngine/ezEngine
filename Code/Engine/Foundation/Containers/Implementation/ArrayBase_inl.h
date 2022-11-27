@@ -72,6 +72,12 @@ EZ_ALWAYS_INLINE bool ezArrayBase<T, Derived>::operator!=(const ezArrayPtr<const
 }
 
 template <typename T, typename Derived>
+EZ_ALWAYS_INLINE bool ezArrayBase<T, Derived>::operator<(const ezArrayPtr<const T>& rhs) const
+{
+  return GetArrayPtr() < rhs;
+}
+
+template <typename T, typename Derived>
 EZ_ALWAYS_INLINE const T& ezArrayBase<T, Derived>::operator[](const ezUInt32 uiIndex) const
 {
   EZ_ASSERT_DEV(uiIndex < m_uiCount, "Out of bounds access. Array has {0} elements, trying to access element at index {1}.", m_uiCount, uiIndex);
@@ -202,6 +208,16 @@ void ezArrayBase<T, Derived>::Insert(T&& value, ezUInt32 uiIndex)
 }
 
 template <typename T, typename Derived>
+void ezArrayBase<T, Derived>::InsertRange(const ezArrayPtr<const T>& range, ezUInt32 uiIndex)
+{
+  const ezUInt32 uiRangeCount = range.GetCount();
+  static_cast<Derived*>(this)->Reserve(m_uiCount + uiRangeCount);
+
+  ezMemoryUtils::Prepend(static_cast<Derived*>(this)->GetElementsPtr() + uiIndex, range.GetPtr(), uiRangeCount, m_uiCount - uiIndex);
+  m_uiCount += uiRangeCount;
+}
+
+template <typename T, typename Derived>
 bool ezArrayBase<T, Derived>::RemoveAndCopy(const T& value)
 {
   ezUInt32 uiIndex = IndexOf(value);
@@ -298,6 +314,13 @@ T& ezArrayBase<T, Derived>::ExpandAndGetRef()
   m_uiCount++;
 
   return ReturnRef;
+}
+
+template <typename T, typename Derived>
+T* ezArrayBase<T, Derived>::ExpandBy(ezUInt32 numNewItems)
+{
+  this->SetCount(this->GetCount() + numNewItems);
+  return GetArrayPtr().GetEndPtr() - numNewItems;
 }
 
 template <typename T, typename Derived>

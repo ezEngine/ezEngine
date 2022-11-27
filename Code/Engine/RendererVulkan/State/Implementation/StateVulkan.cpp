@@ -1,12 +1,8 @@
-#include <RendererVulkanPCH.h>
+#include <RendererVulkan/RendererVulkanPCH.h>
 
 #include <RendererVulkan/Device/DeviceVulkan.h>
 #include <RendererVulkan/RendererVulkanDLL.h>
 #include <RendererVulkan/State/StateVulkan.h>
-
-#include <d3d11.h>
-#include <d3d11_3.h>
-
 
 // Mapping tables to map ezGAL constants to Vulkan constants
 #include <RendererVulkan/State/Implementation/StateVulkan_MappingTables.inl>
@@ -185,20 +181,14 @@ ezResult ezGALRasterizerStateVulkan::DeInitPlatform(ezGALDevice* pDevice)
   return EZ_SUCCESS;
 }
 
-
 // Sampler state
 
 ezGALSamplerStateVulkan::ezGALSamplerStateVulkan(const ezGALSamplerStateCreationDescription& Description)
   : ezGALSamplerState(Description)
-  , m_samplerState({})
-  , m_sampler(nullptr)
 {
 }
 
 ezGALSamplerStateVulkan::~ezGALSamplerStateVulkan() {}
-
-/*
- */
 
 ezResult ezGALSamplerStateVulkan::InitPlatform(ezGALDevice* pDevice)
 {
@@ -208,8 +198,48 @@ ezResult ezGALSamplerStateVulkan::InitPlatform(ezGALDevice* pDevice)
   samplerCreateInfo.addressModeU = GALTextureAddressModeToVulkan[m_Description.m_AddressU];
   samplerCreateInfo.addressModeV = GALTextureAddressModeToVulkan[m_Description.m_AddressV];
   samplerCreateInfo.addressModeW = GALTextureAddressModeToVulkan[m_Description.m_AddressW];
-  samplerCreateInfo.anisotropyEnable = m_Description.m_uiMaxAnisotropy > 1.f ? VK_TRUE : VK_FALSE;
-  samplerCreateInfo.borderColor = vk::BorderColor::eFloatTransparentBlack; // TODO cannot support custom ezColor here
+  if (m_Description.m_MagFilter == ezGALTextureFilterMode::Anisotropic || m_Description.m_MinFilter == ezGALTextureFilterMode::Anisotropic || m_Description.m_MipFilter == ezGALTextureFilterMode::Anisotropic)
+  {
+    samplerCreateInfo.anisotropyEnable = VK_TRUE;
+  }
+
+  vk::SamplerCustomBorderColorCreateInfoEXT customBorderColor;
+  if (samplerCreateInfo.addressModeU == vk::SamplerAddressMode::eClampToBorder || samplerCreateInfo.addressModeV == vk::SamplerAddressMode::eClampToBorder || samplerCreateInfo.addressModeW == vk::SamplerAddressMode::eClampToBorder)
+  {
+    const ezColor col = m_Description.m_BorderColor;
+    if (col == ezColor(0, 0, 0, 0))
+    {
+      samplerCreateInfo.borderColor = vk::BorderColor::eFloatTransparentBlack;
+    }
+    else if (col == ezColor(0, 0, 0, 1))
+    {
+      samplerCreateInfo.borderColor = vk::BorderColor::eFloatOpaqueBlack;
+    }
+    else if (col == ezColor(1, 1, 1, 1))
+    {
+      samplerCreateInfo.borderColor = vk::BorderColor::eFloatOpaqueWhite;
+    }
+    else if (pVulkanDevice->GetExtensions().m_bBorderColorFloat)
+    {
+      customBorderColor.customBorderColor.setFloat32({col.r, col.g, col.b, col.a});
+      samplerCreateInfo.borderColor = vk::BorderColor::eFloatCustomEXT;
+      samplerCreateInfo.pNext = &customBorderColor;
+    }
+    else
+    {
+      // Fallback to close enough.
+      const bool bTransparent = m_Description.m_BorderColor.a == 0.0f;
+      const bool bBlack = m_Description.m_BorderColor.r == 0.0f;
+      if (bBlack)
+      {
+        samplerCreateInfo.borderColor = bTransparent ? vk::BorderColor::eFloatTransparentBlack : vk::BorderColor::eFloatOpaqueBlack;
+      }
+      else
+      {
+        samplerCreateInfo.borderColor = vk::BorderColor::eFloatOpaqueWhite;
+      }
+    }
+  }
   samplerCreateInfo.compareEnable = m_Description.m_SampleCompareFunc == ezGALCompareFunc::Never ? VK_FALSE : VK_TRUE;
   samplerCreateInfo.compareOp = GALCompareFuncToVulkan[m_Description.m_SampleCompareFunc];
   samplerCreateInfo.magFilter = GALFilterToVulkanFilter[m_Description.m_MagFilter];
@@ -220,28 +250,17 @@ ezResult ezGALSamplerStateVulkan::InitPlatform(ezGALDevice* pDevice)
   samplerCreateInfo.mipLodBias = m_Description.m_fMipLodBias;
   samplerCreateInfo.mipmapMode = GALFilterToVulkanMipmapMode[m_Description.m_MipFilter];
 
-  m_sampler = pVulkanDevice->GetVulkanDevice().createSampler(samplerCreateInfo);
-
-  if (!m_sampler)
-  {
-    return EZ_FAILURE;
-  }
-  else
-  {
-    return EZ_SUCCESS;
-  }
-
-  m_samplerState.descriptorType = vk::DescriptorType::eSampledImage;
-
-  // TODO sampler binding info
+  m_resourceImageInfo.imageLayout = vk::ImageLayout::eUndefined;
+  VK_SUCCEED_OR_RETURN_EZ_FAILURE(pVulkanDevice->GetVulkanDevice().createSampler(&samplerCreateInfo, nullptr, &m_resourceImageInfo.sampler));
+  return EZ_SUCCESS;
 }
 
 
 ezResult ezGALSamplerStateVulkan::DeInitPlatform(ezGALDevice* pDevice)
 {
+  ezGALDeviceVulkan* pVulkanDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
+  pVulkanDevice->DeleteLater(m_resourceImageInfo.sampler);
   return EZ_SUCCESS;
 }
-
-
 
 EZ_STATICLINK_FILE(RendererVulkan, RendererVulkan_State_Implementation_StateVulkan);

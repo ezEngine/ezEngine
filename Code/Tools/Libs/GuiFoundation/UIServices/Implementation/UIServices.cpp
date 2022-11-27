@@ -1,25 +1,47 @@
 #include <GuiFoundation/GuiFoundationPCH.h>
 
+#include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
+#include <Foundation/Profiling/Profiling.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <QDesktopServices>
 #include <QDir>
 #include <QIcon>
 #include <QProcess>
+#include <QScreen>
 #include <QSettings>
 #include <QUrl>
 
 EZ_IMPLEMENT_SINGLETON(ezQtUiServices);
 
 ezEvent<const ezQtUiServices::Event&> ezQtUiServices::s_Events;
+ezEvent<const ezQtUiServices::TickEvent&> ezQtUiServices::s_TickEvent;
+
 ezMap<ezString, QIcon> ezQtUiServices::s_IconsCache;
 ezMap<ezString, QImage> ezQtUiServices::s_ImagesCache;
 ezMap<ezString, QPixmap> ezQtUiServices::s_PixmapsCache;
 bool ezQtUiServices::s_bHeadless;
+ezQtUiServices::TickEvent ezQtUiServices::s_LastTickEvent;
 
+static ezQtUiServices* g_pInstance = nullptr;
 
-static ezQtUiServices g_instance;
+// clang-format off
+EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, QtUiServices)
+
+  ON_CORESYSTEMS_STARTUP
+  {
+    g_pInstance = EZ_DEFAULT_NEW(ezQtUiServices);
+    ezQtUiServices::GetSingleton()->Init();
+  }
+
+  ON_CORESYSTEMS_SHUTDOWN
+  {
+    EZ_DEFAULT_DELETE(g_pInstance);
+  }
+
+EZ_END_SUBSYSTEM_DECLARATION;
+// clang-format on
 
 ezQtUiServices::ezQtUiServices()
   : m_SingletonRegistrar(this)
@@ -154,6 +176,44 @@ void ezQtUiServices::CheckForUpdates()
   s_Events.Broadcast(e);
 }
 
+void ezQtUiServices::Init()
+{
+  s_LastTickEvent.m_fRefreshRate = 60.0;
+  if (QScreen* pScreen = QApplication::primaryScreen())
+  {
+    s_LastTickEvent.m_fRefreshRate = pScreen->refreshRate();
+  }
+
+  QTimer::singleShot((ezInt32)ezMath::Floor(1000.0 / s_LastTickEvent.m_fRefreshRate), this, SLOT(TickEventHandler()));
+}
+
+void ezQtUiServices::TickEventHandler()
+{
+  EZ_PROFILE_SCOPE("TickEvent");
+
+  EZ_ASSERT_DEV(!m_bIsDrawingATM, "Implementation error");
+  ezTime startTime = ezTime::Now();
+
+  m_bIsDrawingATM = true;
+  s_LastTickEvent.m_uiFrame++;
+  s_LastTickEvent.m_Time = startTime;
+  s_LastTickEvent.m_Type = TickEvent::Type::StartFrame;
+  s_TickEvent.Broadcast(s_LastTickEvent);
+
+  s_LastTickEvent.m_Type = TickEvent::Type::EndFrame;
+  s_TickEvent.Broadcast(s_LastTickEvent);
+  m_bIsDrawingATM = false;
+
+  const ezTime endTime = ezTime::Now();
+  ezTime lastFrameTime = endTime - startTime;
+
+  ezTime delay = ezTime::Milliseconds(1000.0 / s_LastTickEvent.m_fRefreshRate);
+  delay -= lastFrameTime;
+  delay = ezMath::Max(delay, ezTime::Zero());
+
+  QTimer::singleShot((ezInt32)ezMath::Floor(delay.GetMilliseconds()), this, SLOT(TickEventHandler()));
+}
+
 void ezQtUiServices::LoadState()
 {
   QSettings Settings;
@@ -210,12 +270,28 @@ void ezQtUiServices::OpenInExplorer(const char* szPath, bool bIsFile)
 {
   QStringList args;
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
   if (bIsFile)
     args << "/select,";
 
   args << QDir::toNativeSeparators(szPath);
 
   QProcess::startDetached("explorer", args);
+#elif EZ_ENABLED(EZ_PLATFORM_LINUX)
+  ezStringBuilder parentDir;
+
+  if (bIsFile)
+  {
+    parentDir = szPath;
+    parentDir = parentDir.GetFileDirectory();
+    szPath = parentDir.GetData();
+  }
+  args << QDir::toNativeSeparators(szPath);
+
+  QProcess::startDetached("xdg-open", args);
+#else
+  EZ_ASSERT_NOT_IMPLEMENTED
+#endif
 }
 
 ezStatus ezQtUiServices::OpenInVsCode(const QStringList& arguments)

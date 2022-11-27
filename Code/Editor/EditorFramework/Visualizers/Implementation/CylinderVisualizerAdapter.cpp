@@ -16,18 +16,18 @@ void ezCylinderVisualizerAdapter::Finalize()
 
   const ezCylinderVisualizerAttribute* pAttr = static_cast<const ezCylinderVisualizerAttribute*>(m_pVisualizerAttr);
 
-  m_Cylinder.Configure(nullptr, ezEngineGizmoHandleType::CylinderZ, pAttr->m_Color, false, false, true);
+  m_hCylinder.ConfigureHandle(nullptr, ezEngineGizmoHandleType::CylinderZ, pAttr->m_Color, ezGizmoFlags::ShowInOrtho | ezGizmoFlags::Visualizer);
 
-  pAssetDocument->AddSyncObject(&m_Cylinder);
+  pAssetDocument->AddSyncObject(&m_hCylinder);
 
-  m_Cylinder.SetVisible(m_bVisualizerIsVisible);
+  m_hCylinder.SetVisible(m_bVisualizerIsVisible);
 }
 
 void ezCylinderVisualizerAdapter::Update()
 {
   const ezCylinderVisualizerAttribute* pAttr = static_cast<const ezCylinderVisualizerAttribute*>(m_pVisualizerAttr);
   ezObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
-  m_Cylinder.SetVisible(m_bVisualizerIsVisible);
+  m_hCylinder.SetVisible(m_bVisualizerIsVisible);
 
   m_fRadius = 1.0f;
   m_fHeight = 0.0f;
@@ -63,7 +63,7 @@ void ezCylinderVisualizerAdapter::Update()
     pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetColorProperty()), value);
 
     EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<ezColor>(), "Invalid property bound to ezCylinderVisualizerAttribute 'color'");
-    m_Cylinder.SetColor(value.ConvertTo<ezColor>() * pAttr->m_Color);
+    m_hCylinder.SetColor(value.ConvertTo<ezColor>() * pAttr->m_Color);
   }
 
   m_vPositionOffset = pAttr->m_vOffsetOrScale;
@@ -81,13 +81,28 @@ void ezCylinderVisualizerAdapter::Update()
       m_vPositionOffset = m_vPositionOffset.CompMul(value.ConvertTo<ezVec3>());
   }
 
+  if (!pAttr->GetAxisProperty().IsEmpty())
+  {
+    ezVariant value;
+    pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetAxisProperty()), value);
+
+    EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<ezInt32>(), "Invalid property bound to ezCylinderVisualizerAttribute 'axis'");
+
+    m_Axis = static_cast<ezBasisAxis::Enum>(value.ConvertTo<ezInt32>());
+  }
+  else
+  {
+    m_Axis = pAttr->m_Axis;
+  }
+
   m_Anchor = pAttr->m_Anchor;
 }
 
 void ezCylinderVisualizerAdapter::UpdateGizmoTransform()
 {
   const ezCylinderVisualizerAttribute* pAttr = static_cast<const ezCylinderVisualizerAttribute*>(m_pVisualizerAttr);
-  const ezQuat axisRotation = ezBasisAxis::GetBasisRotation(ezBasisAxis::PositiveZ, pAttr->m_Axis);
+
+  const ezQuat axisRotation = ezBasisAxis::GetBasisRotation(ezBasisAxis::PositiveZ, m_Axis);
 
   ezTransform t;
   t.m_qRotation = axisRotation;
@@ -117,5 +132,5 @@ void ezCylinderVisualizerAdapter::UpdateGizmoTransform()
   ezTransform newTrans = parentTransform * t;
   newTrans.m_vScale = (axisRotation * parentTransform.m_vScale).CompMul(t.m_vScale);
 
-  m_Cylinder.SetTransformation(newTrans);
+  m_hCylinder.SetTransformation(newTrans);
 }

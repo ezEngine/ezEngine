@@ -42,7 +42,7 @@ void ezRaycastComponentManager::Update(const ezWorldModule::UpdateContext& conte
 }
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezRaycastComponent, 2, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezRaycastComponent, 3, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -50,9 +50,10 @@ EZ_BEGIN_COMPONENT_TYPE(ezRaycastComponent, 2, ezComponentMode::Static)
     EZ_MEMBER_PROPERTY("DisableTargetObjectOnNoHit", m_bDisableTargetObjectOnNoHit),
     EZ_ACCESSOR_PROPERTY("RaycastEndObject", DummyGetter, SetRaycastEndObject)->AddAttributes(new ezGameObjectReferenceAttribute()),
     EZ_MEMBER_PROPERTY("ForceTargetParentless", m_bForceTargetParentless),
+    EZ_BITFLAGS_MEMBER_PROPERTY("ShapeTypesToHit", ezPhysicsShapeType, m_ShapeTypesToHit)->AddAttributes(new ezDefaultValueAttribute(ezPhysicsShapeType::Default & ~(ezPhysicsShapeType::Trigger))),
     EZ_MEMBER_PROPERTY("CollisionLayerEndPoint", m_uiCollisionLayerEndPoint)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
     EZ_MEMBER_PROPERTY("CollisionLayerTrigger", m_uiCollisionLayerTrigger)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
-    EZ_ACCESSOR_PROPERTY("TriggerMessage", GetTriggerMessage, SetTriggerMessage)
+    EZ_ACCESSOR_PROPERTY("TriggerMessage", GetTriggerMessage, SetTriggerMessage),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
@@ -124,9 +125,8 @@ void ezRaycastComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_uiCollisionLayerEndPoint;
   s << m_uiCollisionLayerTrigger;
   s << m_sTriggerMessage;
-
-  // version 2
   s << m_bForceTargetParentless;
+  s << m_ShapeTypesToHit;
 }
 
 void ezRaycastComponent::DeserializeComponent(ezWorldReader& stream)
@@ -145,6 +145,11 @@ void ezRaycastComponent::DeserializeComponent(ezWorldReader& stream)
   if (uiVersion >= 2)
   {
     s >> m_bForceTargetParentless;
+  }
+
+  if (uiVersion >= 3)
+  {
+    s >> m_ShapeTypesToHit;
   }
 }
 
@@ -194,15 +199,13 @@ void ezRaycastComponent::Update()
   const ezVec3 rayStartPosition = GetOwner()->GetGlobalPosition();
   const ezVec3 rayDir = GetOwner()->GetGlobalDirForwards().GetNormalized(); // PhysX is very picky about normalized vectors
 
-  // ezDebugRenderer::Line lines[] = { {rayStartPosition, rayStartPosition + rayDir * m_fMaxDistance} };
-  // ezDebugRenderer::DrawLines(GetWorld(), lines, ezColor::RebeccaPurple);
-
   float fHitDistance = m_fMaxDistance;
   ezPhysicsCastResult hit;
 
   {
     ezPhysicsQueryParameters queryParams(m_uiCollisionLayerEndPoint);
     queryParams.m_bIgnoreInitialOverlap = true;
+    queryParams.m_ShapeTypes = m_ShapeTypesToHit;
 
     if (m_pPhysicsWorldModule->Raycast(hit, rayStartPosition, rayDir, m_fMaxDistance, queryParams))
     {
@@ -229,11 +232,18 @@ void ezRaycastComponent::Update()
     }
   }
 
+  if (false)
+  {
+    ezDebugRenderer::Line lines[] = {{rayStartPosition, rayStartPosition + rayDir * fHitDistance}};
+    ezDebugRenderer::DrawLines(GetWorld(), lines, ezColor::GreenYellow);
+  }
+
   if (!m_sTriggerMessage.IsEmpty() && m_uiCollisionLayerEndPoint != m_uiCollisionLayerTrigger)
   {
     ezPhysicsCastResult triggerHit;
     ezPhysicsQueryParameters queryParams2(m_uiCollisionLayerTrigger);
     queryParams2.m_bIgnoreInitialOverlap = true;
+    queryParams2.m_ShapeTypes = m_ShapeTypesToHit;
 
     if (m_pPhysicsWorldModule->Raycast(triggerHit, rayStartPosition, rayDir, fHitDistance, queryParams2) && triggerHit.m_fDistance < fHitDistance)
     {

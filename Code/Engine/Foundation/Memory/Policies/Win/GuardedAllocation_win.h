@@ -73,7 +73,7 @@ namespace ezMemoryPolicies
 
   void ezGuardedAllocation::Deallocate(void* ptr)
   {
-    ezLock<ezMutex> lock(m_mutex);
+    ezLock<ezMutex> lock(m_Mutex);
 
     if (!m_AllocationsToFreeLater.CanAppend())
     {

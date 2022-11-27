@@ -8,10 +8,9 @@ class ezRenderPipelineNodeManager : public ezDocumentNodeManager
 public:
   virtual bool InternalIsNode(const ezDocumentObject* pObject) const override;
   virtual void InternalCreatePins(const ezDocumentObject* pObject, NodeInternal& node) override;
-  virtual void InternalDestroyPins(const ezDocumentObject* pObject, NodeInternal& node) override;
   virtual void GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& Types) const override;
 
-  virtual ezStatus InternalCanConnect(const ezPin* pSource, const ezPin* pTarget, CanConnectResult& out_Result) const override;
+  virtual ezStatus InternalCanConnect(const ezPin& source, const ezPin& target, CanConnectResult& out_Result) const override;
 };
 
 class ezRenderPipelineAssetDocument : public ezAssetDocument
@@ -22,7 +21,7 @@ public:
   ezRenderPipelineAssetDocument(const char* szDocumentPath);
 
 protected:
-  virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
+  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
     const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
 
   virtual void GetSupportedMimeTypesForPasting(ezHybridArray<ezString, 4>& out_MimeTypes) const override;

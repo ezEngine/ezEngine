@@ -301,9 +301,7 @@ void ezAssetDocumentGenerator::SortAndSelectBestImportOption(ezDynamicArray<ezAs
 
   for (auto& singleImport : allImports)
   {
-
-    singleImport.m_ImportOptions.Sort(
-      [](const ezAssetDocumentGenerator::Info& lhs, const ezAssetDocumentGenerator::Info& rhs) -> bool { return lhs.m_sName < rhs.m_sName; });
+    singleImport.m_ImportOptions.Sort([](const ezAssetDocumentGenerator::Info& lhs, const ezAssetDocumentGenerator::Info& rhs) -> bool { return ezStringUtils::Compare_NoCase(ezTranslate(lhs.m_sName), ezTranslate(rhs.m_sName)) < 0; });
 
     ezUInt32 uiNumPrios[(ezUInt32)ezAssetDocGeneratorPriority::ENUM_COUNT] = {0};
     ezUInt32 uiBestPrio[(ezUInt32)ezAssetDocGeneratorPriority::ENUM_COUNT] = {0};

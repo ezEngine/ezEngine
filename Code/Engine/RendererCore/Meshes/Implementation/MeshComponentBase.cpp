@@ -15,7 +15,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgSetMeshMaterial, 1, ezRTTIDefaultAllocator<
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Material", GetMaterialFile, SetMaterialFile)->AddAttributes(new ezAssetBrowserAttribute("Material")),
+    EZ_ACCESSOR_PROPERTY("Material", GetMaterialFile, SetMaterialFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Material")),
     EZ_MEMBER_PROPERTY("MaterialSlot", m_uiMaterialSlot),
   }
   EZ_END_PROPERTIES;
@@ -81,19 +81,19 @@ void ezMeshRenderData::FillBatchIdAndSortingKey()
 
 // clang-format off
 EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezMeshComponentBase, 1)
+{
+  EZ_BEGIN_ATTRIBUTES
   {
-    EZ_BEGIN_ATTRIBUTES
-    {
-      new ezCategoryAttribute("Rendering"),
-    }
-    EZ_END_ATTRIBUTES;
-    EZ_BEGIN_MESSAGEHANDLERS
-    {
-      EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
-      EZ_MESSAGE_HANDLER(ezMsgSetMeshMaterial, OnMsgSetMeshMaterial),
-      EZ_MESSAGE_HANDLER(ezMsgSetColor, OnMsgSetColor),
-    } EZ_END_MESSAGEHANDLERS;
+    new ezCategoryAttribute("Rendering"),
   }
+  EZ_END_ATTRIBUTES;
+  EZ_BEGIN_MESSAGEHANDLERS
+  {
+    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
+    EZ_MESSAGE_HANDLER(ezMsgSetMeshMaterial, OnMsgSetMeshMaterial),
+    EZ_MESSAGE_HANDLER(ezMsgSetColor, OnMsgSetColor),
+  } EZ_END_MESSAGEHANDLERS;
+}
 EZ_END_ABSTRACT_COMPONENT_TYPE;
 // clang-format on
 
@@ -133,7 +133,7 @@ void ezMeshComponentBase::DeserializeComponent(ezWorldReader& stream)
 
   ezUInt32 uiCategory = 0;
   s >> uiCategory;
-  m_RenderDataCategory.m_uiValue = uiCategory;
+  m_RenderDataCategory.m_uiValue = static_cast<ezUInt16>(uiCategory);
 
   ezUInt32 uiMaterials = 0;
   s >> uiMaterials;
@@ -148,7 +148,7 @@ void ezMeshComponentBase::DeserializeComponent(ezWorldReader& stream)
   s >> m_Color;
 }
 
-ezResult ezMeshComponentBase::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
+ezResult ezMeshComponentBase::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg)
 {
   if (m_hMesh.IsValid())
   {
@@ -231,18 +231,25 @@ void ezMeshComponentBase::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) co
 
 void ezMeshComponentBase::SetMesh(const ezMeshResourceHandle& hMesh)
 {
-  m_hMesh = hMesh;
+  if (m_hMesh != hMesh)
+  {
+    m_hMesh = hMesh;
 
-  TriggerLocalBoundsUpdate();
+    TriggerLocalBoundsUpdate();
+    InvalidateCachedRenderData();
+  }
 }
 
 void ezMeshComponentBase::SetMaterial(ezUInt32 uiIndex, const ezMaterialResourceHandle& hMaterial)
 {
   m_Materials.EnsureCount(uiIndex + 1);
 
-  m_Materials[uiIndex] = hMaterial;
+  if (m_Materials[uiIndex] != hMaterial)
+  {
+    m_Materials[uiIndex] = hMaterial;
 
-  InvalidateCachedRenderData();
+    InvalidateCachedRenderData();
+  }
 }
 
 ezMaterialResourceHandle ezMeshComponentBase::GetMaterial(ezUInt32 uiIndex) const

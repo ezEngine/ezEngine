@@ -171,7 +171,7 @@ ezPhysX::ezPhysX()
   m_pAllocatorCallback = nullptr;
   m_pPhysX = nullptr;
   m_pDefaultMaterial = nullptr;
-  m_PvdConnection = nullptr;
+  m_pPvdConnection = nullptr;
 }
 
 ezPhysX::~ezPhysX() {}
@@ -199,12 +199,12 @@ void ezPhysX::Startup()
   bRecordMemoryAllocations = true;
 #endif
 
-  m_PvdConnection = PxCreatePvd(*m_pFoundation);
+  m_pPvdConnection = PxCreatePvd(*m_pFoundation);
 
-  m_pPhysX = PxCreatePhysics(PX_PHYSICS_VERSION, *m_pFoundation, PxTolerancesScale(), bRecordMemoryAllocations, m_PvdConnection);
+  m_pPhysX = PxCreatePhysics(PX_PHYSICS_VERSION, *m_pFoundation, PxTolerancesScale(), bRecordMemoryAllocations, m_pPvdConnection);
   EZ_ASSERT_DEV(m_pPhysX != nullptr, "Initializing PhysX API failed");
 
-  PxInitExtensions(*m_pPhysX, m_PvdConnection);
+  PxInitExtensions(*m_pPhysX, m_pPvdConnection);
 
   m_pDefaultMaterial = m_pPhysX->createMaterial(0.6f, 0.4f, 0.25f);
 
@@ -252,10 +252,10 @@ void ezPhysX::StartupVDB()
   // this check does not work when the PVD app was closed, instead just always call disconnect
   // if (m_PvdConnection->isConnected(false))
   {
-    m_PvdConnection->disconnect();
+    m_pPvdConnection->disconnect();
   }
 
-  PxPvdTransport* pTransport = m_PvdConnection->getTransport();
+  PxPvdTransport* pTransport = m_pPvdConnection->getTransport();
   if (pTransport != nullptr)
   {
     pTransport->release();
@@ -271,7 +271,7 @@ void ezPhysX::StartupVDB()
   unsigned int timeout = 10;
 
   pTransport = PxDefaultPvdSocketTransportCreate(pvd_host_ip, port, timeout);
-  if (m_PvdConnection->connect(*pTransport, PxPvdInstrumentationFlag::eALL))
+  if (m_pPvdConnection->connect(*pTransport, PxPvdInstrumentationFlag::eALL))
   {
     ezLog::Success("Connected to the PhysX Visual Debugger");
   }
@@ -279,19 +279,19 @@ void ezPhysX::StartupVDB()
 
 void ezPhysX::ShutdownVDB()
 {
-  if (m_PvdConnection == nullptr)
+  if (m_pPvdConnection == nullptr)
     return;
 
-  m_PvdConnection->disconnect();
+  m_pPvdConnection->disconnect();
 
-  PxPvdTransport* pTransport = m_PvdConnection->getTransport();
+  PxPvdTransport* pTransport = m_pPvdConnection->getTransport();
   if (pTransport != nullptr)
   {
     pTransport->release();
   }
 
-  m_PvdConnection->release();
-  m_PvdConnection = nullptr;
+  m_pPvdConnection->release();
+  m_pPvdConnection = nullptr;
 }
 
 void ezPhysX::LoadCollisionFilters()
@@ -314,8 +314,7 @@ ezAllocatorBase* ezPhysX::GetAllocator()
   return &(m_pAllocatorCallback->m_Allocator);
 }
 
-PxFilterData ezPhysX::CreateFilterData(
-  ezUInt32 uiCollisionLayer, ezUInt32 uiShapeId /*= ezInvalidIndex*/, ezBitflags<ezOnPhysXContact> flags /*= ezOnPhysXContact::None*/)
+PxFilterData ezPhysX::CreateFilterData(ezUInt32 uiCollisionLayer, ezUInt32 uiShapeId /*= ezInvalidIndex*/, ezBitflags<ezOnPhysXContact> flags /*= ezOnPhysXContact::None*/)
 {
   PxFilterData filter;
   filter.word0 = EZ_BIT(uiCollisionLayer);
@@ -326,9 +325,9 @@ PxFilterData ezPhysX::CreateFilterData(
   return filter;
 }
 
-void ezPhysX::SurfaceResourceEventHandler(const ezSurfaceResource::Event& e)
+void ezPhysX::SurfaceResourceEventHandler(const ezSurfaceResourceEvent& e)
 {
-  if (e.m_Type == ezSurfaceResource::Event::Type::Created)
+  if (e.m_Type == ezSurfaceResourceEvent::Type::Created)
   {
     const auto& desc = e.m_pSurface->GetDescriptor();
 
@@ -337,20 +336,20 @@ void ezPhysX::SurfaceResourceEventHandler(const ezSurfaceResource::Event& e)
     pxUserData->Init(e.m_pSurface);
     pMaterial->userData = pxUserData;
 
-    e.m_pSurface->m_pPhysicsMaterial = pMaterial;
+    e.m_pSurface->m_pPhysicsMaterialPhysX = pMaterial;
   }
-  else if (e.m_Type == ezSurfaceResource::Event::Type::Destroyed)
+  else if (e.m_Type == ezSurfaceResourceEvent::Type::Destroyed)
   {
-    if (e.m_pSurface->m_pPhysicsMaterial != nullptr)
+    if (e.m_pSurface->m_pPhysicsMaterialPhysX != nullptr)
     {
-      PxMaterial* pMaterial = static_cast<PxMaterial*>(e.m_pSurface->m_pPhysicsMaterial);
+      PxMaterial* pMaterial = static_cast<PxMaterial*>(e.m_pSurface->m_pPhysicsMaterialPhysX);
 
       ezPxUserData* pUserData = static_cast<ezPxUserData*>(pMaterial->userData);
       EZ_DEFAULT_DELETE(pUserData);
 
       pMaterial->release();
 
-      e.m_pSurface->m_pPhysicsMaterial = nullptr;
+      e.m_pSurface->m_pPhysicsMaterialPhysX = nullptr;
     }
   }
 }

@@ -2,6 +2,7 @@
 
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Memory/CommonAllocators.h>
+#include <Foundation/Time/Stopwatch.h>
 #include <Foundation/Types/UniquePtr.h>
 
 namespace DynamicArrayTestDetail
@@ -195,7 +196,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
     EZ_TEST_BOOL(a2 == arrayPtr);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator == / !=")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator == / !=/ <")
   {
     ezDynamicArray<ezInt32> a1, a2;
 
@@ -219,6 +220,12 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
     EZ_TEST_BOOL(a1 == a2);
 
     EZ_TEST_BOOL((a1 != a2) == false);
+
+    EZ_TEST_BOOL((a1 < a2) == false);
+    a2.PushBack(100);
+    EZ_TEST_BOOL(a1 < a2);
+    a1.PushBack(99);
+    EZ_TEST_BOOL(a1 < a2);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Index operator")
@@ -371,12 +378,16 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
 
     for (ezInt32 i = 0; i < 100; ++i)
       a1.PushBack(i);
+    for (ezInt32 i = 0; i < 100; ++i)
+      a1.PushBack(i);
 
     for (ezInt32 i = 0; i < 100; ++i)
     {
       EZ_TEST_BOOL(a1.Contains(i));
       EZ_TEST_INT(a1.IndexOf(i), i);
-      EZ_TEST_INT(a1.LastIndexOf(i), i);
+      EZ_TEST_INT(a1.IndexOf(i, 100), i + 100);
+      EZ_TEST_INT(a1.LastIndexOf(i), i + 100);
+      EZ_TEST_INT(a1.LastIndexOf(i, 100), i);
     }
   }
 
@@ -429,6 +440,123 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
     }
 
     EZ_TEST_BOOL(DynamicArrayTestDetail::st::HasAllDestructed());
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "InsertRange")
+  {
+    // Pod element tests
+    ezDynamicArray<ezInt32> intTestRange;
+    ezDynamicArray<ezInt32> a1;
+
+    ezInt32 intTemp1[] = {91, 92, 93, 94, 95};
+    ezArrayPtr<ezInt32> intRange1(intTemp1);
+
+    ezInt32 intTemp2[] = {96, 97, 98, 99, 100};
+    ezArrayPtr<ezInt32> intRange2(intTemp2);
+
+    ezInt32 intTemp3[] = {100, 101, 102, 103, 104};
+    ezArrayPtr<ezInt32> intRange3(intTemp3);
+
+    {
+      intTestRange.PushBackRange(intRange3);
+
+      a1.InsertRange(intRange3, 0);
+
+      EZ_TEST_INT(a1.GetCount(), 5);
+
+      for (ezUInt32 i = 0; i < a1.GetCount(); ++i)
+        EZ_TEST_INT(a1[i], intTestRange[i]);
+    }
+
+    {
+      intTestRange.Clear();
+      intTestRange.PushBackRange(intRange1);
+      intTestRange.PushBackRange(intRange3);
+
+      a1.InsertRange(intRange1, 0);
+
+      EZ_TEST_INT(a1.GetCount(), 10);
+      for (ezUInt32 i = 0; i < a1.GetCount(); ++i)
+        EZ_TEST_INT(a1[i], intTestRange[i]);
+    }
+
+    {
+      intTestRange.Clear();
+      intTestRange.PushBackRange(intRange1);
+      intTestRange.PushBackRange(intRange2);
+      intTestRange.PushBackRange(intRange3);
+
+      a1.InsertRange(intRange2, 5);
+
+      EZ_TEST_INT(a1.GetCount(), 15);
+      for (ezUInt32 i = 0; i < a1.GetCount(); ++i)
+        EZ_TEST_INT(a1[i], intTestRange[i]);
+    }
+
+    // Class element tests
+    ezDynamicArray<ezDeque<ezString>> classTestRange;
+    ezDynamicArray<ezDeque<ezString>> a2;
+
+    ezDeque<ezString> strTemp1[4];
+    {
+      strTemp1[0].PushBack("One");
+      strTemp1[1].PushBack("Two");
+      strTemp1[2].PushBack("Three");
+      strTemp1[3].PushBack("Four");
+    }
+    ezArrayPtr<ezDeque<ezString>> classRange1(strTemp1);
+
+    ezDeque<ezString> strTemp2[3];
+    {
+      strTemp2[0].PushBack("Five");
+      strTemp2[1].PushBack("Six");
+      strTemp2[2].PushBack("Seven");
+    }
+    ezArrayPtr<ezDeque<ezString>> classRange2(strTemp2);
+
+    ezDeque<ezString> strTemp3[3];
+    {
+      strTemp3[0].PushBack("Eight");
+      strTemp3[1].PushBack("Nine");
+      strTemp3[2].PushBack("Ten");
+    }
+    ezArrayPtr<ezDeque<ezString>> classRange3(strTemp3);
+
+    {
+      classTestRange.PushBackRange(classRange3);
+
+      a2.InsertRange(classRange3, 0);
+
+      EZ_TEST_INT(a2.GetCount(), 3);
+
+      for (ezUInt32 i = 0; i < a2.GetCount(); ++i)
+        EZ_TEST_STRING(a2[i].PeekFront(), classTestRange[i].PeekFront());
+    }
+
+    {
+      classTestRange.Clear();
+      classTestRange.PushBackRange(classRange1);
+      classTestRange.PushBackRange(classRange3);
+
+      a2.InsertRange(classRange1, 0);
+
+      EZ_TEST_INT(a2.GetCount(), 7);
+      for (ezUInt32 i = 0; i < a2.GetCount(); ++i)
+        EZ_TEST_STRING(a2[i].PeekFront(), classTestRange[i].PeekFront());
+    }
+
+    {
+      classTestRange.Clear();
+      classTestRange.PushBackRange(classRange1);
+      classTestRange.PushBackRange(classRange2);
+      classTestRange.PushBackRange(classRange3);
+
+      a2.InsertRange(classRange2, 4);
+
+      EZ_TEST_INT(a2.GetCount(), 10);
+      for (ezUInt32 i = 0; i < a2.GetCount(); ++i)
+        EZ_TEST_STRING(a2[i].PeekFront(), classTestRange[i].PeekFront());
+    }
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "RemoveAndCopy")
@@ -1008,4 +1136,119 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
     }
   }
 #endif
+
+
+  const ezUInt32 uiNumSortItems = 1'000'000;
+
+  struct Item
+  {
+    bool operator<(const Item& rhs) const { return m_iKey < rhs.m_iKey; }
+
+    ezInt32 m_iKey = 0;
+    ezInt32 m_iIndex = 0;
+  };
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SortLargeArray (ez-sort)")
+  {
+    ezDynamicArray<Item> list;
+    list.Reserve(uiNumSortItems);
+
+    for (ezUInt32 i = 0; i < uiNumSortItems; i++)
+    {
+      auto& item = list.ExpandAndGetRef();
+      item.m_iIndex = i;
+      item.m_iKey = std::rand();
+    }
+
+    ezStopwatch sw;
+    list.Sort();
+
+    ezTime t = sw.GetRunningTotal();
+    ezStringBuilder s;
+    s.Format("ez-sort (random keys): {}", t);
+    ezTestFramework::Output(ezTestOutput::Details, s);
+
+    for (ezUInt32 i = 1; i < list.GetCount(); i++)
+    {
+      EZ_TEST_BOOL(list[i - 1].m_iKey <= list[i].m_iKey);
+    }
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SortLargeArray (std::sort)")
+  {
+    ezDynamicArray<Item> list;
+    list.Reserve(uiNumSortItems);
+
+    for (ezUInt32 i = 0; i < uiNumSortItems; i++)
+    {
+      auto& item = list.ExpandAndGetRef();
+      item.m_iIndex = i;
+      item.m_iKey = std::rand();
+    }
+
+    ezStopwatch sw;
+    std::sort(begin(list), end(list));
+
+    ezTime t = sw.GetRunningTotal();
+    ezStringBuilder s;
+    s.Format("std::sort (random keys): {}", t);
+    ezTestFramework::Output(ezTestOutput::Details, s);
+
+    for (ezUInt32 i = 1; i < list.GetCount(); i++)
+    {
+      EZ_TEST_BOOL(list[i - 1].m_iKey <= list[i].m_iKey);
+    }
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SortLargeArray (equal keys) (ez-sort)")
+  {
+    ezDynamicArray<Item> list;
+    list.Reserve(uiNumSortItems);
+
+    for (ezUInt32 i = 0; i < uiNumSortItems; i++)
+    {
+      auto& item = list.ExpandAndGetRef();
+      item.m_iIndex = i;
+      item.m_iKey = 42;
+    }
+
+    ezStopwatch sw;
+    list.Sort();
+
+    ezTime t = sw.GetRunningTotal();
+    ezStringBuilder s;
+    s.Format("ez-sort (equal keys): {}", t);
+    ezTestFramework::Output(ezTestOutput::Details, s);
+
+    for (ezUInt32 i = 1; i < list.GetCount(); i++)
+    {
+      EZ_TEST_BOOL(list[i - 1].m_iKey <= list[i].m_iKey);
+    }
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SortLargeArray (equal keys) (std::sort)")
+  {
+    ezDynamicArray<Item> list;
+    list.Reserve(uiNumSortItems);
+
+    for (ezUInt32 i = 0; i < uiNumSortItems; i++)
+    {
+      auto& item = list.ExpandAndGetRef();
+      item.m_iIndex = i;
+      item.m_iKey = 42;
+    }
+
+    ezStopwatch sw;
+    std::sort(begin(list), end(list));
+
+    ezTime t = sw.GetRunningTotal();
+    ezStringBuilder s;
+    s.Format("std::sort (equal keys): {}", t);
+    ezTestFramework::Output(ezTestOutput::Details, s);
+
+    for (ezUInt32 i = 1; i < list.GetCount(); i++)
+    {
+      EZ_TEST_BOOL(list[i - 1].m_iKey <= list[i].m_iKey);
+    }
+  }
 }

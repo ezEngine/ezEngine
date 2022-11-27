@@ -1,5 +1,6 @@
 #include <GuiFoundation/GuiFoundationPCH.h>
 
+#include <Foundation/Application/Application.h>
 #include <Foundation/Logging/Log.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
@@ -41,7 +42,7 @@ void ezQtUiServices::MessageBoxInformation(const ezFormatString& msg)
   if (s_bHeadless)
     ezLog::Info(msg.GetText(tmp));
   else
-    QMessageBox::information(QApplication::activeWindow(), QString::fromUtf8(ezApplicationServices::GetSingleton()->GetApplicationName()),
+    QMessageBox::information(QApplication::activeWindow(), ezApplication::GetApplicationInstance()->GetApplicationName().GetData(),
       QString::fromUtf8(msg.GetText(tmp)), QMessageBox::StandardButton::Ok);
 }
 
@@ -52,7 +53,7 @@ void ezQtUiServices::MessageBoxWarning(const ezFormatString& msg)
   if (s_bHeadless)
     ezLog::Warning(msg.GetText(tmp));
   else
-    QMessageBox::warning(QApplication::activeWindow(), QString::fromUtf8(ezApplicationServices::GetSingleton()->GetApplicationName()),
+    QMessageBox::warning(QApplication::activeWindow(), ezApplication::GetApplicationInstance()->GetApplicationName().GetData(),
       QString::fromUtf8(msg.GetText(tmp)), QMessageBox::StandardButton::Ok);
 }
 
@@ -66,7 +67,7 @@ QMessageBox::StandardButton ezQtUiServices::MessageBoxQuestion(
   else
   {
     ezStringBuilder tmp;
-    return QMessageBox::question(QApplication::activeWindow(), QString::fromUtf8(ezApplicationServices::GetSingleton()->GetApplicationName()),
+    return QMessageBox::question(QApplication::activeWindow(), ezApplication::GetApplicationInstance()->GetApplicationName().GetData(),
       QString::fromUtf8(msg.GetText(tmp)), buttons, defaultButton);
   }
 }

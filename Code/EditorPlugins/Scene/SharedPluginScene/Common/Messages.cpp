@@ -48,7 +48,8 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezPushObjectStateData, ezNoBase, 1, ezRTTIDefault
     EZ_MEMBER_PROPERTY("LayerGuid", m_LayerGuid),
     EZ_MEMBER_PROPERTY("Guid", m_ObjectGuid),
     EZ_MEMBER_PROPERTY("Pos", m_vPosition),
-    EZ_MEMBER_PROPERTY("Rot", m_qRotation)
+    EZ_MEMBER_PROPERTY("Rot", m_qRotation),
+    EZ_MAP_MEMBER_PROPERTY("Bones", m_BoneTransforms),
   }
   EZ_END_PROPERTIES;
 }

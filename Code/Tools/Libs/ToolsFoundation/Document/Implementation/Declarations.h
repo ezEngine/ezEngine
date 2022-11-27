@@ -37,6 +37,13 @@ struct EZ_TOOLSFOUNDATION_DLL ezDocumentTypeDescriptor
   ezString m_sIcon;
   const ezRTTI* m_pDocumentType = nullptr;
   ezDocumentManager* m_pManager = nullptr;
+
+  /// This list is used to decide which asset types can be picked from the asset browser for a property.
+  /// The strings are arbitrary and don't need to be registered anywhere else.
+  /// An asset may be compatible for multiple scenarios, e.g. a skinned mesh may also be used as a static mesh, but not the other way round.
+  /// In such a case the skinned mesh is set to be compatible to both "CompatibleAsset_Mesh_Static" and "CompatibleAsset_Mesh_Skinned", but the non-skinned mesh only to "CompatibleAsset_Mesh_Static".
+  /// A component then only needs to specify that it takes an "CompatibleAsset_Mesh_Static" as input, and all asset types that are compatible to that will be browseable.
+  ezHybridArray<ezString, 1> m_CompatibleTypes;
 };
 
 

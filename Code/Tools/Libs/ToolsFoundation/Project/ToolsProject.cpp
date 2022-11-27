@@ -45,12 +45,6 @@ ezStatus ezToolsProject::Create()
     }
   }
 
-  // Create default folders
-  {
-    CreateSubFolder("Scenes");
-    CreateSubFolder("Prefabs");
-  }
-
   ezToolsProjectEvent e;
   e.m_pProject = this;
   e.m_Type = ezToolsProjectEvent::Type::ProjectCreated;
@@ -105,6 +99,19 @@ void ezToolsProject::CloseProject()
 
     e.m_Type = ezToolsProjectEvent::Type::ProjectClosed;
     s_Events.Broadcast(e);
+  }
+}
+
+void ezToolsProject::SaveProjectState()
+{
+  if (GetSingleton())
+  {
+    GetSingleton()->m_bIsClosing = true;
+
+    ezToolsProjectEvent e;
+    e.m_pProject = GetSingleton();
+    e.m_Type = ezToolsProjectEvent::Type::ProjectSaveState;
+    s_Events.Broadcast(e, 1);
   }
 }
 
@@ -167,7 +174,10 @@ ezStatus ezToolsProject::CreateOrOpenProject(const char* szProjectPath, bool bCr
   ezStatus ret;
 
   if (bCreate)
+  {
     ret = GetSingleton()->Create();
+    ezToolsProject::SaveProjectState();
+  }
   else
     ret = GetSingleton()->Open();
 
@@ -244,13 +254,58 @@ bool ezToolsProject::IsDocumentInAllowedRoot(const char* szDocumentPath, ezStrin
   return false;
 }
 
-const ezString ezToolsProject::GetProjectName() const
+const ezString ezToolsProject::GetProjectName(bool bSanitize) const
 {
   ezStringBuilder sTemp = ezToolsProject::GetSingleton()->GetProjectFile();
   sTemp.PathParentDirectory();
   sTemp.Trim("/");
 
-  return sTemp.GetFileName();
+  if (!bSanitize)
+    return sTemp.GetFileName();
+
+  const ezStringBuilder sOrgName = sTemp.GetFileName();
+  sTemp.Clear();
+
+  bool bAnyAscii = false;
+
+  for (ezStringIterator it = sOrgName.GetIteratorFront(); it.IsValid(); ++it)
+  {
+    const ezUInt32 c = it.GetCharacter();
+
+    if (!ezStringUtils::IsIdentifierDelimiter_C_Code(c))
+    {
+      bAnyAscii = true;
+
+      // valid character to be used in C as an identifier
+      sTemp.Append(c);
+    }
+    else if (c == ' ')
+    {
+      // skip
+    }
+    else
+    {
+      sTemp.AppendFormat("{}", ezArgU(c, 1, false, 16));
+    }
+  }
+
+  if (!bAnyAscii)
+  {
+    const ezUInt32 uiHash = ezHashingUtils::xxHash32String(sTemp);
+    sTemp.Format("Project{}", uiHash);
+  }
+
+  if (sTemp.IsEmpty())
+  {
+    sTemp = "Project";
+  }
+
+  if (sTemp.GetCharacterCount() > 20)
+  {
+    sTemp.Shrink(0, sTemp.GetCharacterCount() - 20);
+  }
+
+  return sTemp;
 }
 
 ezString ezToolsProject::GetProjectDirectory() const

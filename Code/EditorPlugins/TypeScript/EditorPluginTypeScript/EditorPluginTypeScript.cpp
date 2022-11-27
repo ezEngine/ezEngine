@@ -18,8 +18,6 @@
 
 void OnLoadPlugin()
 {
-  ezQtEditorApp::GetSingleton()->AddRuntimePluginDependency("EditorPluginTypeScript", "ezTypeScriptPlugin");
-
   ezTypeScriptActions::RegisterActions();
 
   // TypeScript
@@ -27,8 +25,8 @@ void OnLoadPlugin()
     // Menu Bar
     {
       ezActionMapManager::RegisterActionMap("TypeScriptAssetMenuBar").IgnoreResult();
-      ezProjectActions::MapActions("TypeScriptAssetMenuBar");
       ezStandardMenus::MapActions("TypeScriptAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+      ezProjectActions::MapActions("TypeScriptAssetMenuBar");
       ezDocumentActions::MapActions("TypeScriptAssetMenuBar", "Menu.File", false);
       ezCommandHistoryActions::MapActions("TypeScriptAssetMenuBar", "Menu.Edit");
     }
@@ -48,8 +46,6 @@ void OnUnloadPlugin()
 {
   ezTypeScriptActions::UnregisterActions();
 }
-
-EZ_PLUGIN_DEPENDENCY(ezEditorPluginScene);
 
 EZ_PLUGIN_ON_LOADED()
 {

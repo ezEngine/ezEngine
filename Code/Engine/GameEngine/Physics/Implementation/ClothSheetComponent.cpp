@@ -22,8 +22,8 @@
 #include <RendererFoundation/Device/Device.h>
 
 /* TODO:
-* cache render category
-*/
+ * cache render category
+ */
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezClothSheetRenderData, 1, ezRTTINoAllocator)
@@ -53,7 +53,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezClothSheetComponent, 1, ezComponentMode::Static)
       EZ_MEMBER_PROPERTY("Damping", m_fDamping)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, 1.0f)),
       EZ_MEMBER_PROPERTY("WindInfluence", m_fWindInfluence)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 10.0f)),
       EZ_BITFLAGS_ACCESSOR_PROPERTY("Flags", ezClothSheetFlags, GetFlags, SetFlags),
-      EZ_ACCESSOR_PROPERTY("Material", GetMaterialFile, SetMaterialFile)->AddAttributes(new ezAssetBrowserAttribute("Material")),
+      EZ_ACCESSOR_PROPERTY("Material", GetMaterialFile, SetMaterialFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Material")),
       EZ_MEMBER_PROPERTY("Color", m_Color)->AddAttributes(new ezDefaultValueAttribute(ezColor::White)),
     }
     EZ_END_PROPERTIES;
@@ -139,15 +139,15 @@ void ezClothSheetComponent::OnSimulationStarted()
 
 void ezClothSheetComponent::SetupCloth()
 {
-  m_bbox.SetInvalid();
+  m_Bbox.SetInvalid();
 
   if (IsActiveAndSimulating())
   {
     m_uiSleepCounter = 0;
     m_uiVisibleCounter = 5;
 
-    m_Simulator.m_uiWidth = m_vSegments.x + 1;
-    m_Simulator.m_uiHeight = m_vSegments.y + 1;
+    m_Simulator.m_uiWidth = static_cast<ezUInt8>(m_vSegments.x + 1);
+    m_Simulator.m_uiHeight = static_cast<ezUInt8>(m_vSegments.y + 1);
     m_Simulator.m_vAcceleration.Set(0, 0, -10);
     m_Simulator.m_vSegmentLength = m_vSize.CompMul(ezVec2(1.0f) + m_vSlack);
     m_Simulator.m_vSegmentLength.x /= (float)m_vSegments.x;
@@ -237,11 +237,11 @@ void ezClothSheetComponent::OnDeactivated()
   SUPER::OnDeactivated();
 }
 
-ezResult ezClothSheetComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
+ezResult ezClothSheetComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg)
 {
-  if (m_bbox.IsValid())
+  if (m_Bbox.IsValid())
   {
-    bounds.ExpandToInclude(m_bbox);
+    bounds.ExpandToInclude(m_Bbox);
   }
   else
   {
@@ -314,7 +314,7 @@ void ezClothSheetComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) 
 
     {
       ezUInt32 tidx = 0;
-      ezUInt32 vidx = 0;
+      ezUInt16 vidx = 0;
       for (ezUInt16 y = 0; y < pRenderData->m_uiVerticesY - 1; ++y)
       {
         for (ezUInt16 x = 0; x < pRenderData->m_uiVerticesX - 1; ++x, ++vidx)
@@ -435,18 +435,18 @@ void ezClothSheetComponent::Update()
 
     m_Simulator.SimulateCloth(GetWorld()->GetClock().GetTimeDiff());
 
-    auto prevBbox = m_bbox;
-    m_bbox.ExpandToInclude(ezSimdConversion::ToVec3(m_Simulator.m_Nodes[0].m_vPosition));
-    m_bbox.ExpandToInclude(ezSimdConversion::ToVec3(m_Simulator.m_Nodes[m_Simulator.m_uiWidth - 1].m_vPosition));
-    m_bbox.ExpandToInclude(ezSimdConversion::ToVec3(m_Simulator.m_Nodes[((m_Simulator.m_uiHeight - 1) * m_Simulator.m_uiWidth)].m_vPosition));
-    m_bbox.ExpandToInclude(ezSimdConversion::ToVec3(m_Simulator.m_Nodes.PeekBack().m_vPosition));
+    auto prevBbox = m_Bbox;
+    m_Bbox.ExpandToInclude(ezSimdConversion::ToVec3(m_Simulator.m_Nodes[0].m_vPosition));
+    m_Bbox.ExpandToInclude(ezSimdConversion::ToVec3(m_Simulator.m_Nodes[m_Simulator.m_uiWidth - 1].m_vPosition));
+    m_Bbox.ExpandToInclude(ezSimdConversion::ToVec3(m_Simulator.m_Nodes[((m_Simulator.m_uiHeight - 1) * m_Simulator.m_uiWidth)].m_vPosition));
+    m_Bbox.ExpandToInclude(ezSimdConversion::ToVec3(m_Simulator.m_Nodes.PeekBack().m_vPosition));
 
-    if (prevBbox != m_bbox)
+    if (prevBbox != m_Bbox)
     {
       SetUserFlag(0, true); // flag 0 => requires local bounds update
 
       // can't call this here in the async phase
-      //TriggerLocalBoundsUpdate();
+      // TriggerLocalBoundsUpdate();
     }
 
     ++m_uiCheckEquilibriumCounter;
@@ -503,9 +503,6 @@ void ezClothSheetRenderer::RenderBatch(const ezRenderViewContext& renderViewCont
 
   ezResourceLock<ezDynamicMeshBufferResource> pBuffer(m_hDynamicMeshBuffer, ezResourceAcquireMode::BlockTillLoaded);
 
-  auto pVertexData = pBuffer->AccessVertexData();
-  auto pIndexData = pBuffer->AccessIndex16Data();
-
   for (auto it = batch.GetIterator<ezClothSheetRenderData>(0, batch.GetCount()); it.IsValid(); ++it)
   {
     const ezClothSheetRenderData* pRenderData = it;
@@ -525,6 +522,9 @@ void ezClothSheetRenderer::RenderBatch(const ezRenderViewContext& renderViewCont
     pInstanceData->UpdateInstanceData(pRenderContext, 1);
 
     {
+      auto pVertexData = pBuffer->AccessVertexData();
+      auto pIndexData = pBuffer->AccessIndex16Data();
+
       const float fDivU = 1.0f / (pRenderData->m_uiVerticesX - 1);
       const float fDivY = 1.0f / (pRenderData->m_uiVerticesY - 1);
 
@@ -593,13 +593,14 @@ void ezClothSheetRenderer::RenderBatch(const ezRenderViewContext& renderViewCont
       ezMemoryUtils::Copy<ezUInt16>(pIndexData.GetPtr(), pRenderData->m_Indices.GetPtr(), pRenderData->m_Indices.GetCount());
     }
 
-    pBuffer->SetPrimitiveCount((pRenderData->m_uiVerticesX - 1) * (pRenderData->m_uiVerticesY - 1) * 2);
-    pBuffer->UpdateGpuBuffer(pGALCommandEncoder, 0, pRenderData->m_uiVerticesX * pRenderData->m_uiVerticesY, 0, pBuffer->GetPrimitiveCount() * 3);
+    const ezUInt32 uiNumPrimitives = (pRenderData->m_uiVerticesX - 1) * (pRenderData->m_uiVerticesY - 1) * 2;
+
+    pBuffer->UpdateGpuBuffer(pGALCommandEncoder, 0, pRenderData->m_uiVerticesX * pRenderData->m_uiVerticesY);
 
     // redo this after the primitive count has changed
     pRenderContext->BindMeshBuffer(m_hDynamicMeshBuffer);
 
-    renderViewContext.m_pRenderContext->DrawMeshBuffer(pBuffer->GetPrimitiveCount()).IgnoreResult();
+    renderViewContext.m_pRenderContext->DrawMeshBuffer(uiNumPrimitives).IgnoreResult();
   }
 }
 
@@ -615,10 +616,11 @@ void ezClothSheetRenderer::CreateVertexBuffer()
     const ezUInt32 uiMaxVerts = 32;
 
     ezDynamicMeshBufferResourceDescriptor desc;
-    desc.m_uiNumVertices = uiMaxVerts * uiMaxVerts;
-    desc.m_uiNumIndices16 = ezMath::Square(uiMaxVerts - 1) * 2;
+    desc.m_uiMaxVertices = uiMaxVerts * uiMaxVerts;
+    desc.m_IndexType = ezGALIndexType::UShort;
+    desc.m_uiMaxPrimitives = ezMath::Square(uiMaxVerts - 1) * 2;
 
-    m_hDynamicMeshBuffer = ezResourceManager::CreateResource<ezDynamicMeshBufferResource>("ClothSheet", std::move(desc), "Cloth Sheet Buffer");
+    m_hDynamicMeshBuffer = ezResourceManager::GetOrCreateResource<ezDynamicMeshBufferResource>("ClothSheet", std::move(desc), "Cloth Sheet Buffer");
   }
 }
 

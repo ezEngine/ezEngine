@@ -11,6 +11,9 @@
 #include <EditorFramework/Actions/ViewActions.h>
 #include <EditorFramework/Actions/ViewLightActions.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <EditorFramework/GUI/DynamicDefaultStateProvider.h>
+#include <EditorFramework/GUI/ExposedParametersDefaultStateProvider.h>
+#include <EditorFramework/Manipulators/BoneManipulatorAdapter.h>
 #include <EditorFramework/Manipulators/BoxManipulatorAdapter.h>
 #include <EditorFramework/Manipulators/CapsuleManipulatorAdapter.h>
 #include <EditorFramework/Manipulators/ConeAngleManipulatorAdapter.h>
@@ -28,6 +31,7 @@
 #include <EditorFramework/PropertyGrid/AssetBrowserPropertyWidget.moc.h>
 #include <EditorFramework/PropertyGrid/DynamicEnumPropertyWidget.moc.h>
 #include <EditorFramework/PropertyGrid/DynamicStringEnumPropertyWidget.moc.h>
+#include <EditorFramework/PropertyGrid/ExposedBoneWidget.moc.h>
 #include <EditorFramework/PropertyGrid/ExposedParametersPropertyWidget.moc.h>
 #include <EditorFramework/PropertyGrid/FileBrowserPropertyWidget.moc.h>
 #include <EditorFramework/PropertyGrid/GameObjectReferencePropertyWidget.moc.h>
@@ -39,17 +43,22 @@
 #include <EditorFramework/Visualizers/DirectionVisualizerAdapter.h>
 #include <EditorFramework/Visualizers/SphereVisualizerAdapter.h>
 #include <EditorFramework/Visualizers/VisualizerAdapterRegistry.h>
+#include <Foundation/Application/Application.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Logging/ConsoleWriter.h>
 #include <Foundation/Logging/VisualStudioWriter.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <Foundation/Reflection/Implementation/PropertyAttributes.h>
 #include <Foundation/Utilities/CommandLineOptions.h>
 #include <GuiFoundation/Action/StandardMenus.h>
+#include <GuiFoundation/PropertyGrid/DefaultState.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
 #include <GuiFoundation/UIServices/QtProgressbar.h>
 #include <QSvgRenderer>
 #include <ToolsFoundation/Application/ApplicationServices.h>
+#include <ToolsFoundation/Document/PrefabCache.h>
+#include <ToolsFoundation/Document/PrefabUtils.h>
 #include <ads/DockManager.h>
 
 // clang-format off
@@ -58,11 +67,14 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
   BEGIN_SUBSYSTEM_DEPENDENCIES
     "GuiFoundation",
     "PropertyGrid",
-    "ManipulatorAdapterRegistry"
+    "ManipulatorAdapterRegistry",
+    "DefaultState"
   END_SUBSYSTEM_DEPENDENCIES
 
   ON_CORESYSTEMS_STARTUP
   {
+    ezDefaultState::RegisterDefaultStateProvider(ezExposedParametersDefaultStateProvider::CreateProvider);
+    ezDefaultState::RegisterDefaultStateProvider(ezDynamicDefaultStateProvider::CreateProvider);
     ezProjectActions::RegisterActions();
     ezAssetActions::RegisterActions();
     ezViewActions::RegisterActions();
@@ -76,39 +88,43 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
     ezCommonAssetActions::RegisterActions();
 
     ezActionMapManager::RegisterActionMap("SettingsTabMenuBar").IgnoreResult();
+    ezStandardMenus::MapActions("SettingsTabMenuBar", ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
     ezProjectActions::MapActions("SettingsTabMenuBar");
-    ezStandardMenus::MapActions("SettingsTabMenuBar", ezStandardMenuTypes::Panels);
 
     ezActionMapManager::RegisterActionMap("AssetBrowserToolBar").IgnoreResult();
     ezAssetActions::MapActions("AssetBrowserToolBar", false);
 
-    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezFileBrowserAttribute>(), [](const ezRTTI* pRtti)->ezQtPropertyWidget* { return new ezQtFilePropertyWidget(); }).IgnoreResult();
-    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezAssetBrowserAttribute>(), [](const ezRTTI* pRtti)->ezQtPropertyWidget* { return new ezQtAssetPropertyWidget(); }).IgnoreResult();
-    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezDynamicEnumAttribute>(), [](const ezRTTI* pRtti)->ezQtPropertyWidget* { return new ezQtDynamicEnumPropertyWidget(); }).IgnoreResult();
-    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezDynamicStringEnumAttribute>(), [](const ezRTTI* pRtti)->ezQtPropertyWidget* { return new ezQtDynamicStringEnumPropertyWidget(); }).IgnoreResult();
-    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezExposedParametersAttribute>(), [](const ezRTTI* pRtti)->ezQtPropertyWidget* { return new ezQtExposedParametersPropertyWidget(); }).IgnoreResult();
-    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezGameObjectReferenceAttribute>(), [](const ezRTTI* pRtti)->ezQtPropertyWidget* { return new ezQtGameObjectReferencePropertyWidget(); }).IgnoreResult();
+    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezFileBrowserAttribute>(), [](const ezRTTI* pRtti)->ezQtPropertyWidget* { return new ezQtFilePropertyWidget(); });
+    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezAssetBrowserAttribute>(), [](const ezRTTI* pRtti)->ezQtPropertyWidget* { return new ezQtAssetPropertyWidget(); });
+    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezDynamicEnumAttribute>(), [](const ezRTTI* pRtti)->ezQtPropertyWidget* { return new ezQtDynamicEnumPropertyWidget(); });
+    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezDynamicStringEnumAttribute>(), [](const ezRTTI* pRtti)->ezQtPropertyWidget* { return new ezQtDynamicStringEnumPropertyWidget(); });
+    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezExposedParametersAttribute>(), [](const ezRTTI* pRtti)->ezQtPropertyWidget* { return new ezQtExposedParametersPropertyWidget(); });
+    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezGameObjectReferenceAttribute>(), [](const ezRTTI* pRtti)->ezQtPropertyWidget* { return new ezQtGameObjectReferencePropertyWidget(); });
+    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezExposedBone>(), [](const ezRTTI* pRtti)->ezQtPropertyWidget* { return new ezQtExposedBoneWidget(); });
 
-    ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezSphereManipulatorAttribute>(), [](const ezRTTI* pRtti)->ezManipulatorAdapter* { return EZ_DEFAULT_NEW(ezSphereManipulatorAdapter); }).IgnoreResult();
-    ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezCapsuleManipulatorAttribute>(), [](const ezRTTI* pRtti)->ezManipulatorAdapter* { return EZ_DEFAULT_NEW(ezCapsuleManipulatorAdapter); }).IgnoreResult();
-    ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezBoxManipulatorAttribute>(), [](const ezRTTI* pRtti)->ezManipulatorAdapter* { return EZ_DEFAULT_NEW(ezBoxManipulatorAdapter); }).IgnoreResult();
-    ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezConeAngleManipulatorAttribute>(), [](const ezRTTI* pRtti)->ezManipulatorAdapter* { return EZ_DEFAULT_NEW(ezConeAngleManipulatorAdapter); }).IgnoreResult();
-    ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezConeLengthManipulatorAttribute>(), [](const ezRTTI* pRtti)->ezManipulatorAdapter* { return EZ_DEFAULT_NEW(ezConeLengthManipulatorAdapter); }).IgnoreResult();
-    ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezNonUniformBoxManipulatorAttribute>(), [](const ezRTTI* pRtti)->ezManipulatorAdapter* { return EZ_DEFAULT_NEW(ezNonUniformBoxManipulatorAdapter); }).IgnoreResult();
-    ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezTransformManipulatorAttribute>(), [](const ezRTTI* pRtti)->ezManipulatorAdapter* { return EZ_DEFAULT_NEW(ezTransformManipulatorAdapter); }).IgnoreResult();
+    ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezSphereManipulatorAttribute>(), [](const ezRTTI* pRtti)->ezManipulatorAdapter* { return EZ_DEFAULT_NEW(ezSphereManipulatorAdapter); });
+    ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezCapsuleManipulatorAttribute>(), [](const ezRTTI* pRtti)->ezManipulatorAdapter* { return EZ_DEFAULT_NEW(ezCapsuleManipulatorAdapter); });
+    ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezBoxManipulatorAttribute>(), [](const ezRTTI* pRtti)->ezManipulatorAdapter* { return EZ_DEFAULT_NEW(ezBoxManipulatorAdapter); });
+    ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezConeAngleManipulatorAttribute>(), [](const ezRTTI* pRtti)->ezManipulatorAdapter* { return EZ_DEFAULT_NEW(ezConeAngleManipulatorAdapter); });
+    ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezConeLengthManipulatorAttribute>(), [](const ezRTTI* pRtti)->ezManipulatorAdapter* { return EZ_DEFAULT_NEW(ezConeLengthManipulatorAdapter); });
+    ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezNonUniformBoxManipulatorAttribute>(), [](const ezRTTI* pRtti)->ezManipulatorAdapter* { return EZ_DEFAULT_NEW(ezNonUniformBoxManipulatorAdapter); });
+    ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezTransformManipulatorAttribute>(), [](const ezRTTI* pRtti)->ezManipulatorAdapter* { return EZ_DEFAULT_NEW(ezTransformManipulatorAdapter); });
+    ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezBoneManipulatorAttribute>(), [](const ezRTTI* pRtti)->ezManipulatorAdapter* { return EZ_DEFAULT_NEW(ezBoneManipulatorAdapter); });
 
-    ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezBoxVisualizerAttribute>(), [](const ezRTTI* pRtti)->ezVisualizerAdapter* { return EZ_DEFAULT_NEW(ezBoxVisualizerAdapter); }).IgnoreResult();
-    ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezSphereVisualizerAttribute>(), [](const ezRTTI* pRtti)->ezVisualizerAdapter* { return EZ_DEFAULT_NEW(ezSphereVisualizerAdapter); }).IgnoreResult();
-    ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezCapsuleVisualizerAttribute>(), [](const ezRTTI* pRtti)->ezVisualizerAdapter* { return EZ_DEFAULT_NEW(ezCapsuleVisualizerAdapter); }).IgnoreResult();
-    ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezCylinderVisualizerAttribute>(), [](const ezRTTI* pRtti)->ezVisualizerAdapter* { return EZ_DEFAULT_NEW(ezCylinderVisualizerAdapter); }).IgnoreResult();
-    ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezDirectionVisualizerAttribute>(), [](const ezRTTI* pRtti)->ezVisualizerAdapter* { return EZ_DEFAULT_NEW(ezDirectionVisualizerAdapter); }).IgnoreResult();
-    ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezConeVisualizerAttribute>(), [](const ezRTTI* pRtti)->ezVisualizerAdapter* { return EZ_DEFAULT_NEW(ezConeVisualizerAdapter); }).IgnoreResult();
-    ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezCameraVisualizerAttribute>(), [](const ezRTTI* pRtti)->ezVisualizerAdapter* { return EZ_DEFAULT_NEW(ezCameraVisualizerAdapter); }).IgnoreResult();
+    ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezBoxVisualizerAttribute>(), [](const ezRTTI* pRtti)->ezVisualizerAdapter* { return EZ_DEFAULT_NEW(ezBoxVisualizerAdapter); });
+    ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezSphereVisualizerAttribute>(), [](const ezRTTI* pRtti)->ezVisualizerAdapter* { return EZ_DEFAULT_NEW(ezSphereVisualizerAdapter); });
+    ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezCapsuleVisualizerAttribute>(), [](const ezRTTI* pRtti)->ezVisualizerAdapter* { return EZ_DEFAULT_NEW(ezCapsuleVisualizerAdapter); });
+    ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezCylinderVisualizerAttribute>(), [](const ezRTTI* pRtti)->ezVisualizerAdapter* { return EZ_DEFAULT_NEW(ezCylinderVisualizerAdapter); });
+    ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezDirectionVisualizerAttribute>(), [](const ezRTTI* pRtti)->ezVisualizerAdapter* { return EZ_DEFAULT_NEW(ezDirectionVisualizerAdapter); });
+    ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezConeVisualizerAttribute>(), [](const ezRTTI* pRtti)->ezVisualizerAdapter* { return EZ_DEFAULT_NEW(ezConeVisualizerAdapter); });
+    ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezCameraVisualizerAttribute>(), [](const ezRTTI* pRtti)->ezVisualizerAdapter* { return EZ_DEFAULT_NEW(ezCameraVisualizerAdapter); });
 
   }
 
   ON_CORESYSTEMS_SHUTDOWN
   {
+    ezDefaultState::UnregisterDefaultStateProvider(ezExposedParametersDefaultStateProvider::CreateProvider);
+    ezDefaultState::UnregisterDefaultStateProvider(ezDynamicDefaultStateProvider::CreateProvider);
     ezProjectActions::UnregisterActions();
     ezAssetActions::UnregisterActions();
     ezViewActions::UnregisterActions();
@@ -121,11 +137,30 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
     ezTranslateGizmoAction::UnregisterActions();
     ezCommonAssetActions::UnregisterActions();
 
-    ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezFileBrowserAttribute>()).IgnoreResult();
-    ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezAssetBrowserAttribute>()).IgnoreResult();
-    ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezDynamicEnumAttribute>()).IgnoreResult();
-    ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezDynamicStringEnumAttribute>()).IgnoreResult();
-    ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezGameObjectReferenceAttribute>()).IgnoreResult();
+    ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezFileBrowserAttribute>());
+    ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezAssetBrowserAttribute>());
+    ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezDynamicEnumAttribute>());
+    ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezDynamicStringEnumAttribute>());
+    ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezGameObjectReferenceAttribute>());
+    ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezExposedParametersAttribute>());
+    ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezExposedBone>());
+
+    ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(ezGetStaticRTTI<ezSphereManipulatorAttribute>());
+    ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(ezGetStaticRTTI<ezCapsuleManipulatorAttribute>());
+    ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(ezGetStaticRTTI<ezBoxManipulatorAttribute>());
+    ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(ezGetStaticRTTI<ezConeAngleManipulatorAttribute>());
+    ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(ezGetStaticRTTI<ezConeLengthManipulatorAttribute>());
+    ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(ezGetStaticRTTI<ezNonUniformBoxManipulatorAttribute>());
+    ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(ezGetStaticRTTI<ezTransformManipulatorAttribute>());
+    ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(ezGetStaticRTTI<ezBoneManipulatorAttribute>());
+
+    ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(ezGetStaticRTTI<ezBoxVisualizerAttribute>());
+    ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(ezGetStaticRTTI<ezSphereVisualizerAttribute>());
+    ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(ezGetStaticRTTI<ezCapsuleVisualizerAttribute>());
+    ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(ezGetStaticRTTI<ezCylinderVisualizerAttribute>());
+    ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(ezGetStaticRTTI<ezDirectionVisualizerAttribute>());
+    ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(ezGetStaticRTTI<ezConeVisualizerAttribute>());
+    ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(ezGetStaticRTTI<ezCameraVisualizerAttribute>());
   }
 
 EZ_END_SUBSYSTEM_DECLARATION;
@@ -150,6 +185,11 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
 {
   EZ_PROFILE_SCOPE("StartupEditor");
 
+  QCoreApplication::setOrganizationDomain("www.ezengine.net");
+  QCoreApplication::setOrganizationName("ezEngine Project");
+  QCoreApplication::setApplicationName(ezApplication::GetApplicationInstance()->GetApplicationName().GetData());
+  QCoreApplication::setApplicationVersion("1.0.0");
+
   m_StartupFlags = startupFlags;
 
   auto* pCmd = ezCommandLineUtils::GetGlobalInstance();
@@ -173,22 +213,17 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
 
   const bool bNoRecent = m_StartupFlags.IsAnySet(StartupFlags::UnitTest | StartupFlags::SafeMode | StartupFlags::Headless | StartupFlags::NoRecent);
 
-  ezString sApplicationName = pCmd->GetStringOption("-appname", 0, "ezEditor");
-  ezApplicationServices::GetSingleton()->SetApplicationName(sApplicationName);
+  const ezString sApplicationName = pCmd->GetStringOption("-appname", 0, ezApplication::GetApplicationInstance()->GetApplicationName());
+  ezApplication::GetApplicationInstance()->SetApplicationName(sApplicationName);
 
   QLocale::setDefault(QLocale(QLocale::English));
 
-  s_pEngineViewProcess = new ezEditorEngineProcessConnection;
+  m_pEngineViewProcess = new ezEditorEngineProcessConnection;
 
-  s_pEngineViewProcess->SetWaitForDebugger(m_StartupFlags.IsSet(StartupFlags::Debug));
-  s_pEngineViewProcess->SetRenderer(pCmd->GetStringOption("-renderer", 0, ""));
+  m_pEngineViewProcess->SetWaitForDebugger(m_StartupFlags.IsSet(StartupFlags::Debug));
+  m_pEngineViewProcess->SetRenderer(pCmd->GetStringOption("-renderer", 0, ""));
 
-  m_LongOpControllerManager.Startup(&s_pEngineViewProcess->GetCommunicationChannel());
-
-  QCoreApplication::setOrganizationDomain("www.ezEngine.net");
-  QCoreApplication::setOrganizationName("ezEngine Project");
-  QCoreApplication::setApplicationName(ezApplicationServices::GetSingleton()->GetApplicationName());
-  QCoreApplication::setApplicationVersion("1.0.0");
+  m_LongOpControllerManager.Startup(&m_pEngineViewProcess->GetCommunicationChannel());
 
   if (!IsInHeadlessMode())
   {
@@ -235,10 +270,10 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
 
   {
     EZ_PROFILE_SCOPE("Logging");
-    ezString sApplicationID = pCmd->GetStringOption("-appid", 0, "ezEditor");
+    ezInt32 iApplicationID = pCmd->GetIntOption("-appid", 0);
     ezStringBuilder sLogFile;
-    sLogFile.Format(":appdata/Log_{0}.htm", sApplicationID);
-    m_LogHTML.BeginLog(sLogFile, sApplicationID);
+    sLogFile.Format(":appdata/Log_{0}.htm", iApplicationID);
+    m_LogHTML.BeginLog(sLogFile, sApplicationName);
 
     ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
     ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
@@ -270,17 +305,28 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
 
     ShowSettingsDocument();
 
-    connect(&m_VersionChecker, &ezQtVersionChecker::VersionCheckCompleted, this, &ezQtEditorApp::SlotVersionCheckCompleted);
+    connect(&m_VersionChecker, &ezQtVersionChecker::VersionCheckCompleted, this, &ezQtEditorApp::SlotVersionCheckCompleted, Qt::QueuedConnection);
 
     m_VersionChecker.Initialize();
     m_VersionChecker.Check(false);
   }
 
   LoadEditorPlugins();
+  CloseSplashScreen();
+
+  {
+    ezEditorAppEvent e;
+    e.m_Type = ezEditorAppEvent::Type::EditorStarted;
+    m_Events.Broadcast(e);
+  }
 
   ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
 
-  if (pCmd->GetStringOptionArguments("-project") > 0)
+  if (pCmd->GetStringOptionArguments("-newproject") > 0)
+  {
+    CreateOrOpenProject(true, pCmd->GetAbsolutePathOption("-newproject")).IgnoreResult();
+  }
+  else if (pCmd->GetStringOptionArguments("-project") > 0)
   {
     for (ezUInt32 doc = 0; doc < pCmd->GetStringOptionArguments("-documents"); ++doc)
     {
@@ -291,9 +337,9 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
   }
   else if (!bNoRecent && !m_StartupFlags.IsSet(StartupFlags::Debug) && pPreferences->m_bLoadLastProjectAtStartup)
   {
-    if (!s_RecentProjects.GetFileList().IsEmpty())
+    if (!m_RecentProjects.GetFileList().IsEmpty())
     {
-      CreateOrOpenProject(false, s_RecentProjects.GetFileList()[0].m_File).IgnoreResult();
+      CreateOrOpenProject(false, m_RecentProjects.GetFileList()[0].m_File).IgnoreResult();
     }
   }
   else if (!IsInHeadlessMode() && !IsInSafeMode())
@@ -315,14 +361,13 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
 
 void ezQtEditorApp::ShutdownEditor()
 {
-  m_pTimer->stop();
-  ezToolsProject::CloseProject();
+  ezToolsProject::SaveProjectState();
 
-  SaveSettings();
+  m_pTimer->stop();
+
+  ezToolsProject::CloseProject();
 
   m_LongOpControllerManager.Shutdown();
-
-  ezToolsProject::CloseProject();
 
   ezEditorEngineProcessConnection::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtEditorApp::EngineProcessMsgHandler, this));
   ezToolsProject::s_Requests.RemoveEventHandler(ezMakeDelegate(&ezQtEditorApp::ProjectRequestHandler, this));
@@ -367,7 +412,7 @@ void ezQtEditorApp::ShutdownEditor()
   QCoreApplication::sendPostedEvents();
   qApp->processEvents();
 
-  delete s_pEngineViewProcess;
+  delete m_pEngineViewProcess;
 
   // Unload potential plugin referenced clipboard data to prevent crash on shutdown.
   QApplication::clipboard()->clear();
@@ -415,32 +460,52 @@ void ezQtEditorApp::SetupAndShowSplashScreen()
 {
   EZ_ASSERT_DEV(m_pSplashScreen == nullptr, "Splash screen shouldn't exist already.");
 
+  if (m_StartupFlags.IsAnySet(ezQtEditorApp::StartupFlags::UnitTest))
+    return;
+
   if (opt_NoSplashScreen.GetOptionValue(ezCommandLineOption::LogMode::Never))
     return;
 
-  //QSvgRenderer svgRenderer(QString(":/Splash/Splash/splash.svg"));
+  bool bShowSplashScreen = true;
 
-  //const qreal PixelRatio = qApp->primaryScreen()->devicePixelRatio();
+  // preferences are not yet available here
+  {
+    QSettings s;
+    s.beginGroup("EditorPreferences");
+    bShowSplashScreen = s.value("ShowSplashscreen", true).toBool();
+    s.endGroup();
+  }
+
+  if (!bShowSplashScreen)
+    return;
+
+  // QSvgRenderer svgRenderer(QString(":/Splash/Splash/splash.svg"));
+
+  // const qreal PixelRatio = qApp->primaryScreen()->devicePixelRatio();
 
   //// TODO: When migrating to Qt 5.15 or newer this should have a fixed square size and
   //// let the aspect ratio mode of the svg renderer handle the difference
-  //QPixmap splashPixmap(QSize(187, 256) * PixelRatio);
-  //splashPixmap.fill(Qt::transparent);
+  // QPixmap splashPixmap(QSize(187, 256) * PixelRatio);
+  // splashPixmap.fill(Qt::transparent);
   //{
-  //  QPainter painter;
-  //  painter.begin(&splashPixmap);
-  //  svgRenderer.render(&painter);
-  //  painter.end();
-  //}
+  //   QPainter painter;
+  //   painter.begin(&splashPixmap);
+  //   svgRenderer.render(&painter);
+  //   painter.end();
+  // }
 
   QPixmap splashPixmap(QString(":/Splash/Splash/splash.png"));
 
-  //splashPixmap.setDevicePixelRatio(PixelRatio);
+  // splashPixmap.setDevicePixelRatio(PixelRatio);
 
   m_pSplashScreen = new QSplashScreen(splashPixmap);
   m_pSplashScreen->setMask(splashPixmap.mask());
-  m_pSplashScreen->setWindowFlag(Qt::WindowStaysOnTopHint, true);
 
+  // Don't set always on top if a debugger is attached to prevent it being stuck over the debugger.
+  if (!ezSystemInformation::IsDebuggerAttached())
+  {
+    m_pSplashScreen->setWindowFlag(Qt::WindowStaysOnTopHint, true);
+  }
   m_pSplashScreen->show();
 }
 
@@ -449,6 +514,12 @@ void ezQtEditorApp::CloseSplashScreen()
   if (!m_pSplashScreen)
     return;
 
-  m_pSplashScreen->deleteLater();
+  EZ_ASSERT_DEBUG(QThread::currentThread() == this->thread(), "CloseSplashScreen must be called from the main thread");
+  QSplashScreen* pLocalSplashScreen = m_pSplashScreen;
   m_pSplashScreen = nullptr;
+
+  pLocalSplashScreen->finish(ezQtContainerWindow::GetContainerWindow());
+  // if the deletion is done 'later', the splashscreen can end up as the parent window of other things
+  // like messageboxes, and then the deletion will make the app crash
+  delete pLocalSplashScreen;
 }

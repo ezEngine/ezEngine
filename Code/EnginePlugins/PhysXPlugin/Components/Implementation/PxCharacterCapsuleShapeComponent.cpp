@@ -116,7 +116,7 @@ EZ_END_COMPONENT_TYPE
 
 ezPxCharacterCapsuleShapeComponent::ezPxCharacterCapsuleShapeComponent()
 {
-  m_Data = EZ_DEFAULT_NEW(ezPxCharacterCapsuleShapeData);
+  m_pData = EZ_DEFAULT_NEW(ezPxCharacterCapsuleShapeData);
 }
 
 ezPxCharacterCapsuleShapeComponent::~ezPxCharacterCapsuleShapeComponent() = default;
@@ -164,8 +164,8 @@ void ezPxCharacterCapsuleShapeComponent::OnSimulationStarted()
   cd.slopeLimit = ezMath::Cos(m_MaxClimbingSlope);
   cd.contactOffset = ezMath::Max(m_fCapsuleRadius * 0.1f, 0.01f);
   cd.stepOffset = m_fMaxStepHeight;
-  cd.reportCallback = &(m_Data->m_HitCallback);
-  cd.behaviorCallback = &(m_Data->m_BehaviorCallback);
+  cd.reportCallback = &(m_pData->m_HitCallback);
+  cd.behaviorCallback = &(m_pData->m_BehaviorCallback);
   cd.nonWalkableMode = m_bForceSlopeSliding ? PxControllerNonWalkableMode::ePREVENT_CLIMBING_AND_FORCE_SLIDING : PxControllerNonWalkableMode::ePREVENT_CLIMBING;
   cd.material = ezPhysX::GetSingleton()->GetDefaultMaterial();
   cd.userData = GetUserData();
@@ -183,14 +183,14 @@ void ezPxCharacterCapsuleShapeComponent::OnSimulationStarted()
   }
 
   // Setup filter data
-  m_Data->m_FilterData = ezPhysX::CreateFilterData(m_uiCollisionLayer, GetShapeId());
+  m_pData->m_FilterData = ezPhysX::CreateFilterData(m_uiCollisionLayer, GetShapeId());
 
-  m_Data->m_QueryFilter.m_bIncludeQueryShapes = false;
+  m_pData->m_QueryFilter.m_bIncludeQueryShapes = false;
 
-  m_Data->m_ControllerFilter.mCCTFilterCallback = nullptr;
-  m_Data->m_ControllerFilter.mFilterCallback = &(m_Data->m_QueryFilter);
-  m_Data->m_ControllerFilter.mFilterData = &(m_Data->m_FilterData);
-  m_Data->m_ControllerFilter.mFilterFlags = PxQueryFlag::eSTATIC | PxQueryFlag::eDYNAMIC | PxQueryFlag::ePREFILTER;
+  m_pData->m_ControllerFilter.mCCTFilterCallback = nullptr;
+  m_pData->m_ControllerFilter.mFilterCallback = &(m_pData->m_QueryFilter);
+  m_pData->m_ControllerFilter.mFilterData = &(m_pData->m_FilterData);
+  m_pData->m_ControllerFilter.mFilterFlags = PxQueryFlag::eSTATIC | PxQueryFlag::eDYNAMIC | PxQueryFlag::ePREFILTER;
 
   {
     EZ_PX_WRITE_LOCK(*(pModule->GetPxScene()));
@@ -203,8 +203,8 @@ void ezPxCharacterCapsuleShapeComponent::OnSimulationStarted()
 
     PxShape* pShape = nullptr;
     pActor->getShapes(&pShape, 1);
-    pShape->setSimulationFilterData(m_Data->m_FilterData);
-    pShape->setQueryFilterData(m_Data->m_FilterData);
+    pShape->setSimulationFilterData(m_pData->m_FilterData);
+    pShape->setQueryFilterData(m_pData->m_FilterData);
     pShape->userData = cd.userData;
   }
 }
@@ -219,7 +219,10 @@ ezBitflags<ezPxCharacterShapeCollisionFlags> ezPxCharacterCapsuleShapeComponent:
   const float fElapsedTime = (float)GetWorld()->GetClock().GetTimeDiff().GetSeconds();
 
   EZ_PX_WRITE_LOCK(*(m_pController->getScene()));
-  PxControllerCollisionFlags collisionFlags = m_pController->move(ezPxConversionUtils::ToVec3(vMoveDeltaGlobal), 0.0f, fElapsedTime, m_Data->m_ControllerFilter);
+
+  // TODO: this call will crash, if the CC stands on an object that gets deleted during this frame
+  // maybe have to do this update at some other time?
+  PxControllerCollisionFlags collisionFlags = m_pController->move(ezPxConversionUtils::ToVec3(vMoveDeltaGlobal), 0.0f, fElapsedTime, m_pData->m_ControllerFilter);
 
   const ezVec3 vNewFootPos = ezPxConversionUtils::ToVec3(m_pController->getFootPosition());
   pOwner->SetGlobalPosition(vNewFootPos);
@@ -238,7 +241,6 @@ bool ezPxCharacterCapsuleShapeComponent::TestShapeSweep(ezPhysicsCastResult& out
   t.m_vPosition.z += 0.01f;
 
   ezPhysicsQueryParameters params(m_uiCollisionLayer, ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic, GetShapeId());
-  params.m_bIncludeQueryShapes = false;
 
   return pModule->SweepTestCapsule(out_sweepResult, m_fCapsuleRadius, GetCurrentHeightValue(), t, vDirGlobal, fDistance, params);
 }
@@ -256,7 +258,6 @@ bool ezPxCharacterCapsuleShapeComponent::TestShapeOverlap(const ezVec3& vGlobalF
   fNewHeightValue += 0.005f;
 
   ezPhysicsQueryParameters params(m_uiCollisionLayer, ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic, GetShapeId());
-  params.m_bIncludeQueryShapes = false;
 
   return pModule->OverlapTestCapsule(m_fCapsuleRadius, fNewHeightValue, ezTransform(vCenterPos), params);
 }

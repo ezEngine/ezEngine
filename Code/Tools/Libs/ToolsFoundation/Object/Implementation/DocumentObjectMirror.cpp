@@ -36,11 +36,11 @@ void ezObjectChange::GetGraph(ezAbstractObjectGraph& graph) const
 
 void ezObjectChange::SetGraph(ezAbstractObjectGraph& graph)
 {
-  ezMemoryStreamStorage storage;
+  ezContiguousMemoryStreamStorage storage;
   ezMemoryStreamWriter writer(&storage);
   ezAbstractGraphBinarySerializer::Write(writer, &graph);
 
-  m_GraphData = ezArrayPtr<const ezUInt8>(storage.GetData(), storage.GetStorageSize());
+  m_GraphData = {storage.GetData(), storage.GetStorageSize32()};
 }
 
 ezObjectChange::ezObjectChange(ezObjectChange&& rhs)
@@ -445,7 +445,8 @@ void ezDocumentObjectMirror::ApplyOp(ezObjectChange& change)
     return;
   }
   propPath.WriteToLeafObject(
-    object.m_pObject, *object.m_pType, [this, &change](void* pLeaf, const ezRTTI& pType) { ApplyOp(ezRttiConverterObject(&pType, pLeaf), change); });
+            object.m_pObject, *object.m_pType, [this, &change](void* pLeaf, const ezRTTI& pType) { ApplyOp(ezRttiConverterObject(&pType, pLeaf), change); })
+    .IgnoreResult();
 }
 
 void ezDocumentObjectMirror::ApplyOp(ezRttiConverterObject object, const ezObjectChange& change)

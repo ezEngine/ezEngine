@@ -25,5 +25,5 @@ private:
 
   ezComponentHandle m_hEditUIComponent;
 
-  ezUniquePtr<ezBlackboard> m_pBlackboard;
+  ezSharedPtr<ezBlackboard> m_pBlackboard;
 };

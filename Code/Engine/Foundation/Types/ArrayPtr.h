@@ -50,7 +50,7 @@ public:
 
   /// \brief Initializes the ezArrayPtr to be empty.
   EZ_ALWAYS_INLINE ezArrayPtr() // [tested]
-    : m_ptr(nullptr)
+    : m_pPtr(nullptr)
     , m_uiCount(0u)
   {
   }
@@ -58,19 +58,19 @@ public:
   /// \brief Copies the pointer and size of /a other. Does not allocate any data.
   EZ_ALWAYS_INLINE ezArrayPtr(const ezArrayPtr<T>& other) // [tested]
   {
-    m_ptr = other.m_ptr;
+    m_pPtr = other.m_pPtr;
     m_uiCount = other.m_uiCount;
   }
 
   /// \brief Initializes the ezArrayPtr with the given pointer and number of elements. No memory is allocated or copied.
   inline ezArrayPtr(T* ptr, ezUInt32 uiCount) // [tested]
-    : m_ptr(ptr)
+    : m_pPtr(ptr)
     , m_uiCount(uiCount)
   {
     // If any of the arguments is invalid, we invalidate ourself.
-    if (m_ptr == nullptr || m_uiCount == 0)
+    if (m_pPtr == nullptr || m_uiCount == 0)
     {
-      m_ptr = nullptr;
+      m_pPtr = nullptr;
       m_uiCount = 0;
     }
   }
@@ -78,7 +78,7 @@ public:
   /// \brief Initializes the ezArrayPtr to encapsulate the given array.
   template <size_t N>
   EZ_ALWAYS_INLINE ezArrayPtr(T (&staticArray)[N]) // [tested]
-    : m_ptr(staticArray)
+    : m_pPtr(staticArray)
     , m_uiCount(static_cast<ezUInt32>(N))
   {
   }
@@ -86,7 +86,7 @@ public:
   /// \brief Initializes the ezArrayPtr to be a copy of \a other. No memory is allocated or copied.
   template <typename U>
   EZ_ALWAYS_INLINE ezArrayPtr(const ezArrayPtr<U>& other) // [tested]
-    : m_ptr(other.m_ptr)
+    : m_pPtr(other.m_pPtr)
     , m_uiCount(other.m_uiCount)
   {
   }
@@ -97,40 +97,40 @@ public:
   /// \brief Copies the pointer and size of /a other. Does not allocate any data.
   EZ_ALWAYS_INLINE void operator=(const ezArrayPtr<T>& other) // [tested]
   {
-    m_ptr = other.m_ptr;
+    m_pPtr = other.m_pPtr;
     m_uiCount = other.m_uiCount;
   }
 
   /// \brief Clears the array
   EZ_ALWAYS_INLINE void Clear()
   {
-    m_ptr = nullptr;
+    m_pPtr = nullptr;
     m_uiCount = 0;
   }
 
   EZ_ALWAYS_INLINE void operator=(std::nullptr_t) // [tested]
   {
-    m_ptr = nullptr;
+    m_pPtr = nullptr;
     m_uiCount = 0;
   }
 
   /// \brief Returns the pointer to the array.
   EZ_ALWAYS_INLINE PointerType GetPtr() const // [tested]
   {
-    return m_ptr;
+    return m_pPtr;
   }
 
   /// \brief Returns the pointer to the array.
   EZ_ALWAYS_INLINE PointerType GetPtr() // [tested]
   {
-    return m_ptr;
+    return m_pPtr;
   }
 
   /// \brief Returns the pointer behind the last element of the array
-  EZ_ALWAYS_INLINE PointerType GetEndPtr() { return m_ptr + m_uiCount; }
+  EZ_ALWAYS_INLINE PointerType GetEndPtr() { return m_pPtr + m_uiCount; }
 
   /// \brief Returns the pointer behind the last element of the array
-  EZ_ALWAYS_INLINE PointerType GetEndPtr() const { return m_ptr + m_uiCount; }
+  EZ_ALWAYS_INLINE PointerType GetEndPtr() const { return m_pPtr + m_uiCount; }
 
   /// \brief Returns whether the array is empty.
   EZ_ALWAYS_INLINE bool IsEmpty() const // [tested]
@@ -219,6 +219,24 @@ public:
     return !(*this == other);
   }
 
+  /// \brief Compares the two arrays for less.
+  inline bool operator<(const ezArrayPtr<const T>& other) const // [tested]
+  {
+    if (GetCount() != other.GetCount())
+      return GetCount() < other.GetCount();
+
+    for (ezUInt32 i = 0; i < GetCount(); ++i)
+    {
+      if (GetPtr()[i] < other.GetPtr()[i])
+        return true;
+
+      if (other.GetPtr()[i] < GetPtr()[i])
+        return false;
+    }
+
+    return false;
+  }
+
   /// \brief Copies the data from \a other into this array. The arrays must have the exact same size.
   inline void CopyFrom(const ezArrayPtr<const T>& other) // [tested]
   {
@@ -230,8 +248,37 @@ public:
 
   EZ_ALWAYS_INLINE void Swap(ezArrayPtr<T>& other)
   {
-    ::ezMath::Swap(m_ptr, other.m_ptr);
+    ::ezMath::Swap(m_pPtr, other.m_pPtr);
     ::ezMath::Swap(m_uiCount, other.m_uiCount);
+  }
+
+  /// \brief Checks whether the given value can be found in the array. O(n) complexity.
+  EZ_ALWAYS_INLINE bool Contains(const T& value) const // [tested]
+  {
+    return IndexOf(value) != ezInvalidIndex;
+  }
+
+  /// \brief Searches for the first occurrence of the given value and returns its index or ezInvalidIndex if not found.
+  inline ezUInt32 IndexOf(const T& value, ezUInt32 uiStartIndex = 0) const // [tested]
+  {
+    for (ezUInt32 i = uiStartIndex; i < m_uiCount; ++i)
+    {
+      if (ezMemoryUtils::IsEqual(m_pPtr + i, &value))
+        return i;
+    }
+
+    return ezInvalidIndex;
+  }
+
+  /// \brief Searches for the last occurrence of the given value and returns its index or ezInvalidIndex if not found.
+  inline ezUInt32 LastIndexOf(const T& value, ezUInt32 uiStartIndex = ezInvalidIndex) const // [tested]
+  {
+    for (ezUInt32 i = ::ezMath::Min(uiStartIndex, m_uiCount); i-- > 0;)
+    {
+      if (ezMemoryUtils::IsEqual(m_pPtr + i, &value))
+        return i;
+    }
+    return ezInvalidIndex;
   }
 
   using const_iterator = const T*;
@@ -240,7 +287,7 @@ public:
   using reverse_iterator = reverse_pointer_iterator<T>;
 
 private:
-  PointerType m_ptr;
+  PointerType m_pPtr;
   ezUInt32 m_uiCount;
 };
 

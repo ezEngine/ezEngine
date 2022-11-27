@@ -221,7 +221,7 @@ void ezQtDataWidget::on_ComboItems_currentIndexChanged(int index)
   }
   else if (sMime == "text/xml" || sMime == "application/json" || sMime == "text/plain")
   {
-    const ezUInt32 uiMaxBytes = ezMath::Min<ezUInt32>(1024 * 16, Reader.GetByteCount());
+    const ezUInt32 uiMaxBytes = ezMath::Min<ezUInt32>(1024 * 16, Reader.GetByteCount32());
 
     ezHybridArray<ezUInt8, 1024> Temp;
     Temp.SetCountUninitialized(uiMaxBytes + 1);
@@ -253,9 +253,9 @@ bool ezQtDataWidget::SaveToFile(TransferDataObject& item, const char* szFile)
   }
 
   ezHybridArray<ezUInt8, 1024> Temp;
-  Temp.SetCountUninitialized(Reader.GetByteCount());
+  Temp.SetCountUninitialized(Reader.GetByteCount32());
 
-  Reader.ReadBytes(&Temp[0], Reader.GetByteCount());
+  Reader.ReadBytes(&Temp[0], Reader.GetByteCount32());
 
   if (!Temp.IsEmpty())
     FileOut.write((const char*)&Temp[0], Temp.GetCount());

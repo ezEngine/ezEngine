@@ -84,7 +84,7 @@ void ezShaderCompilerHLSL::ReflectShaderStage(ezShaderProgramData& inout_Data, e
     // ezLog::Info("Bound Resource: '{0}' at slot {1} (Count: {2}, Flags: {3})", sibd.Name, sibd.BindPoint, sibd.BindCount, sibd.uFlags);
 
     ezShaderResourceBinding shaderResourceBinding;
-    shaderResourceBinding.m_Type = ezShaderResourceBinding::Unknown;
+    shaderResourceBinding.m_Type = ezShaderResourceType::Unknown;
     shaderResourceBinding.m_iSlot = shaderInputBindDesc.BindPoint;
     shaderResourceBinding.m_sName.Assign(shaderInputBindDesc.Name);
 
@@ -93,34 +93,34 @@ void ezShaderCompilerHLSL::ReflectShaderStage(ezShaderProgramData& inout_Data, e
       switch (shaderInputBindDesc.Dimension)
       {
         case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE1D:
-          shaderResourceBinding.m_Type = ezShaderResourceBinding::Texture1D;
+          shaderResourceBinding.m_Type = ezShaderResourceType::Texture1D;
           break;
         case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE1DARRAY:
-          shaderResourceBinding.m_Type = ezShaderResourceBinding::Texture1DArray;
+          shaderResourceBinding.m_Type = ezShaderResourceType::Texture1DArray;
           break;
         case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE2D:
-          shaderResourceBinding.m_Type = ezShaderResourceBinding::Texture2D;
+          shaderResourceBinding.m_Type = ezShaderResourceType::Texture2D;
           break;
         case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE2DARRAY:
-          shaderResourceBinding.m_Type = ezShaderResourceBinding::Texture2DArray;
+          shaderResourceBinding.m_Type = ezShaderResourceType::Texture2DArray;
           break;
         case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE2DMS:
-          shaderResourceBinding.m_Type = ezShaderResourceBinding::Texture2DMS;
+          shaderResourceBinding.m_Type = ezShaderResourceType::Texture2DMS;
           break;
         case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE2DMSARRAY:
-          shaderResourceBinding.m_Type = ezShaderResourceBinding::Texture2DMSArray;
+          shaderResourceBinding.m_Type = ezShaderResourceType::Texture2DMSArray;
           break;
         case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE3D:
-          shaderResourceBinding.m_Type = ezShaderResourceBinding::Texture3D;
+          shaderResourceBinding.m_Type = ezShaderResourceType::Texture3D;
           break;
         case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURECUBE:
-          shaderResourceBinding.m_Type = ezShaderResourceBinding::TextureCube;
+          shaderResourceBinding.m_Type = ezShaderResourceType::TextureCube;
           break;
         case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURECUBEARRAY:
-          shaderResourceBinding.m_Type = ezShaderResourceBinding::TextureCubeArray;
+          shaderResourceBinding.m_Type = ezShaderResourceType::TextureCubeArray;
           break;
         case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_BUFFER:
-          shaderResourceBinding.m_Type = ezShaderResourceBinding::GenericBuffer;
+          shaderResourceBinding.m_Type = ezShaderResourceType::GenericBuffer;
           break;
 
         default:
@@ -139,7 +139,7 @@ void ezShaderCompilerHLSL::ReflectShaderStage(ezShaderProgramData& inout_Data, e
         case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE2DARRAY:
         case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_BUFFER:
         case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_BUFFEREX:
-          shaderResourceBinding.m_Type = ezShaderResourceBinding::UAV;
+          shaderResourceBinding.m_Type = ezShaderResourceType::UAV;
           break;
 
         default:
@@ -149,28 +149,28 @@ void ezShaderCompilerHLSL::ReflectShaderStage(ezShaderProgramData& inout_Data, e
     }
 
     else if (shaderInputBindDesc.Type == D3D_SIT_UAV_RWSTRUCTURED)
-      shaderResourceBinding.m_Type = ezShaderResourceBinding::UAV;
+      shaderResourceBinding.m_Type = ezShaderResourceType::UAV;
 
     else if (shaderInputBindDesc.Type == D3D_SIT_UAV_RWBYTEADDRESS)
-      shaderResourceBinding.m_Type = ezShaderResourceBinding::UAV;
+      shaderResourceBinding.m_Type = ezShaderResourceType::UAV;
 
     else if (shaderInputBindDesc.Type == D3D_SIT_UAV_APPEND_STRUCTURED)
-      shaderResourceBinding.m_Type = ezShaderResourceBinding::UAV;
+      shaderResourceBinding.m_Type = ezShaderResourceType::UAV;
 
     else if (shaderInputBindDesc.Type == D3D_SIT_UAV_CONSUME_STRUCTURED)
-      shaderResourceBinding.m_Type = ezShaderResourceBinding::UAV;
+      shaderResourceBinding.m_Type = ezShaderResourceType::UAV;
 
     else if (shaderInputBindDesc.Type == D3D_SIT_UAV_RWSTRUCTURED_WITH_COUNTER)
-      shaderResourceBinding.m_Type = ezShaderResourceBinding::UAV;
+      shaderResourceBinding.m_Type = ezShaderResourceType::UAV;
 
     else if (shaderInputBindDesc.Type == D3D_SIT_CBUFFER)
     {
-      shaderResourceBinding.m_Type = ezShaderResourceBinding::ConstantBuffer;
+      shaderResourceBinding.m_Type = ezShaderResourceType::ConstantBuffer;
       shaderResourceBinding.m_pLayout = ReflectConstantBufferLayout(inout_Data.m_StageBinary[Stage], pReflector->GetConstantBufferByName(shaderInputBindDesc.Name));
     }
     else if (shaderInputBindDesc.Type == D3D_SIT_SAMPLER)
     {
-      shaderResourceBinding.m_Type = ezShaderResourceBinding::Sampler;
+      shaderResourceBinding.m_Type = ezShaderResourceType::Sampler;
       if (ezStringUtils::EndsWith(shaderInputBindDesc.Name, "_AutoSampler"))
       {
         ezStringBuilder sb = shaderInputBindDesc.Name;
@@ -180,10 +180,10 @@ void ezShaderCompilerHLSL::ReflectShaderStage(ezShaderProgramData& inout_Data, e
     }
     else
     {
-      shaderResourceBinding.m_Type = ezShaderResourceBinding::GenericBuffer;
+      shaderResourceBinding.m_Type = ezShaderResourceType::GenericBuffer;
     }
 
-    if (shaderResourceBinding.m_Type != ezShaderResourceBinding::Unknown)
+    if (shaderResourceBinding.m_Type != ezShaderResourceType::Unknown)
     {
       inout_Data.m_StageBinary[Stage].AddShaderResourceBinding(shaderResourceBinding);
     }
@@ -222,7 +222,7 @@ ezShaderConstantBufferLayout* ezShaderCompilerHLSL::ReflectConstantBufferLayout(
 
     ezShaderConstantBufferLayout::Constant constant;
     constant.m_uiArrayElements = static_cast<ezUInt8>(ezMath::Max(std.Elements, 1u));
-    constant.m_uiOffset = svd.StartOffset;
+    constant.m_uiOffset = static_cast<ezUInt16>(svd.StartOffset);
     constant.m_sName.Assign(svd.Name);
 
     if (std.Class == D3D_SVC_SCALAR || std.Class == D3D_SVC_VECTOR)

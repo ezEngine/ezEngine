@@ -16,6 +16,7 @@ class ezView;
 struct ezActorEvent;
 class ezWindowOutputTargetGAL;
 class ezActor;
+class ezDummyXR;
 
 using ezRenderPipelineResourceHandle = ezTypedResourceHandle<class ezRenderPipelineResource>;
 
@@ -95,8 +96,8 @@ protected:
   /// \brief Creates an XR Actor if XR is configured and available for the project.
   ezUniquePtr<ezActor> CreateXRActor();
 
-  /// \brief Creates a default main view with the given render pipeline.
-  ezView* CreateMainView(ezTypedResourceHandle<ezRenderPipelineResource> hRenderPipeline);
+  /// \brief Creates a default main view.
+  ezView* CreateMainView();
 
   /// \brief Sets m_pMainWorld and updates m_pMainView to use that new world for rendering
   void ChangeMainWorld(ezWorld* pNewMainWorld);
@@ -108,10 +109,10 @@ protected:
   virtual ezUniquePtr<ezWindow> CreateMainWindow();
 
   /// \brief Override this to modify the default output target creation behavior. Called by CreateActors().
-  virtual ezUniquePtr<ezWindowOutputTargetBase> CreateMainOutputTarget(ezWindow* pMainWindow);
+  virtual ezUniquePtr<ezWindowOutputTargetGAL> CreateMainOutputTarget(ezWindow* pMainWindow);
 
   /// \brief Creates a default render view. Unless overridden, OnActivation() will do this for the main window.
-  virtual void SetupMainView(ezWindowOutputTargetBase* pOutputTarget, ezSizeU32 viewportSize);
+  virtual void SetupMainView(ezGALSwapChainHandle hSwapChain, ezSizeU32 viewportSize);
 
   /// \brief Configures available input devices, e.g. sets mouse speed, cursor clipping, etc.
   /// Called by CreateActors() with the result of CreateMainWindow().
@@ -125,4 +126,5 @@ protected:
   bool m_bStateWantsToQuit = false;
   bool m_bXREnabled = false;
   bool m_bXRRemotingEnabled = false;
+  ezUniquePtr<ezDummyXR> m_pDummyXR;
 };

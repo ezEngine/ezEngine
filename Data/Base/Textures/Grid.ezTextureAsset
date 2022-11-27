@@ -11,10 +11,10 @@ o
 		s %AssetType{"Texture 2D"}
 		VarArray %Dependencies
 		{
-			s{"Textures/Grid.tga"}
+			s{"Textures/Grid.png"}
 		}
 		Uuid %DocumentID{u4{17339766635678476197,5214154738922355752}}
-		u4 %Hash{16248584228138815392}
+		u4 %Hash{6179317496564565210}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References{}
@@ -41,7 +41,7 @@ o
 		b %FlipHorizontal{0}
 		s %Format{"ezRenderTargetFormat::RGBA8sRgb"}
 		f %HdrExposureBias{0}
-		s %Input1{"Textures/Grid.tga"}
+		s %Input1{"Textures/Grid.png"}
 		s %Input2{""}
 		s %Input3{""}
 		s %Input4{""}

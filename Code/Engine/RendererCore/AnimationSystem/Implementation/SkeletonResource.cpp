@@ -106,12 +106,12 @@ ezUInt64 ezSkeletonResourceDescriptor::GetHeapMemoryUsage() const
 
 ezResult ezSkeletonResourceDescriptor::Serialize(ezStreamWriter& stream) const
 {
-  stream.WriteVersion(5);
+  stream.WriteVersion(6);
 
   m_Skeleton.Save(stream);
   stream << m_RootTransform;
 
-  const ezUInt16 uiNumGeom = m_Geometry.GetCount();
+  const ezUInt16 uiNumGeom = static_cast<ezUInt16>(m_Geometry.GetCount());
   stream << uiNumGeom;
 
   for (ezUInt32 i = 0; i < uiNumGeom; ++i)
@@ -122,7 +122,7 @@ ezResult ezSkeletonResourceDescriptor::Serialize(ezStreamWriter& stream) const
     stream << geo.m_Type;
     stream << geo.m_Transform;
     stream << geo.m_sName;
-    stream << geo.m_sSurface;
+    stream << geo.m_hSurface;
     stream << geo.m_uiCollisionLayer;
   }
 
@@ -131,9 +131,9 @@ ezResult ezSkeletonResourceDescriptor::Serialize(ezStreamWriter& stream) const
 
 ezResult ezSkeletonResourceDescriptor::Deserialize(ezStreamReader& stream)
 {
-  const ezTypeVersion version = stream.ReadVersion(5);
+  const ezTypeVersion version = stream.ReadVersion(6);
 
-  if (version != 5)
+  if (version != 6)
     return EZ_FAILURE;
 
   m_Skeleton.Load(stream);
@@ -154,7 +154,7 @@ ezResult ezSkeletonResourceDescriptor::Deserialize(ezStreamReader& stream)
     stream >> geo.m_Type;
     stream >> geo.m_Transform;
     stream >> geo.m_sName;
-    stream >> geo.m_sSurface;
+    stream >> geo.m_hSurface;
     stream >> geo.m_uiCollisionLayer;
   }
 

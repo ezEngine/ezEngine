@@ -135,7 +135,7 @@ void ezBakedProbesComponentManager::CreateDebugResources()
   if (!m_hDebugSphere.IsValid())
   {
     ezGeometry geom;
-    geom.AddSphere(0.3f, 32, 16, ezColor::White);
+    geom.AddSphere(0.3f, 32, 16);
 
     const char* szBufferResourceName = "IrradianceProbeDebugSphereBuffer";
     ezMeshBufferResourceHandle hMeshBuffer = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szBufferResourceName);
@@ -146,7 +146,7 @@ void ezBakedProbesComponentManager::CreateDebugResources()
       desc.AddStream(ezGALVertexAttributeSemantic::Normal, ezGALResourceFormat::XYZFloat);
       desc.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
 
-      hMeshBuffer = ezResourceManager::CreateResource<ezMeshBufferResource>(szBufferResourceName, std::move(desc), szBufferResourceName);
+      hMeshBuffer = ezResourceManager::GetOrCreateResource<ezMeshBufferResource>(szBufferResourceName, std::move(desc), szBufferResourceName);
     }
 
     const char* szMeshResourceName = "IrradianceProbeDebugSphere";
@@ -158,7 +158,7 @@ void ezBakedProbesComponentManager::CreateDebugResources()
       desc.AddSubMesh(geom.CalculateTriangleCount(), 0, 0);
       desc.ComputeBounds();
 
-      m_hDebugSphere = ezResourceManager::CreateResource<ezMeshResource>(szMeshResourceName, std::move(desc), szMeshResourceName);
+      m_hDebugSphere = ezResourceManager::GetOrCreateResource<ezMeshResource>(szMeshResourceName, std::move(desc), szMeshResourceName);
     }
   }
 
@@ -199,6 +199,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezBakedProbesComponent, 1, ezComponentMode::Static)
     new ezCategoryAttribute("Rendering/Baking"),
     new ezLongOpAttribute("ezLongOpProxy_BakeScene"),
     new ezTransformManipulatorAttribute("TestPosition"),
+    new ezInDevelopmentAttribute(ezInDevelopmentAttribute::Phase::Beta),
   }
   EZ_END_ATTRIBUTES;
 }
@@ -268,7 +269,7 @@ void ezBakedProbesComponent::SetUseTestPosition(bool bUse)
 
 void ezBakedProbesComponent::SetTestPosition(const ezVec3& pos)
 {
-  m_TestPosition = pos;
+  m_vTestPosition = pos;
 
   if (IsActiveAndInitialized())
   {
@@ -324,7 +325,7 @@ void ezBakedProbesComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) co
   if (m_bUseTestPosition)
   {
     ezBakedProbesWorldModule::ProbeIndexData indexData;
-    if (pModule->GetProbeIndexData(m_TestPosition, ezVec3::UnitZAxis(), indexData).Failed())
+    if (pModule->GetProbeIndexData(m_vTestPosition, ezVec3::UnitZAxis(), indexData).Failed())
       return;
 
     if (true)
@@ -345,7 +346,7 @@ void ezBakedProbesComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) co
 
     ezCompressedSkyVisibility skyVisibility = ezBakingUtils::CompressSkyVisibility(pModule->GetSkyVisibility(indexData));
 
-    addProbeRenderData(m_TestPosition, skyVisibility, ezRenderData::Caching::Never);
+    addProbeRenderData(m_vTestPosition, skyVisibility, ezRenderData::Caching::Never);
   }
   else
   {
@@ -376,7 +377,7 @@ void ezBakedProbesComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_bShowDebugOverlay;
   s << m_bShowDebugProbes;
   s << m_bUseTestPosition;
-  s << m_TestPosition;
+  s << m_vTestPosition;
 }
 
 void ezBakedProbesComponent::DeserializeComponent(ezWorldReader& stream)
@@ -392,7 +393,7 @@ void ezBakedProbesComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_bShowDebugOverlay;
   s >> m_bShowDebugProbes;
   s >> m_bUseTestPosition;
-  s >> m_TestPosition;
+  s >> m_vTestPosition;
 }
 
 void ezBakedProbesComponent::RenderDebugOverlay()

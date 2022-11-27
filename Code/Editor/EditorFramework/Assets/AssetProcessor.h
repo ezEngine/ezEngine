@@ -7,6 +7,9 @@
 #include <Foundation/Logging/LogEntry.h>
 #include <Foundation/Threading/AtomicInteger.h>
 #include <Foundation/Threading/TaskSystem.h>
+#include <Foundation/Threading/Thread.h>
+#include <Foundation/Types/UniquePtr.h>
+#include <atomic>
 
 struct ezAssetCuratorEvent;
 class ezTask;
@@ -33,6 +36,56 @@ struct ezAssetProcessorEvent
   Type m_Type;
 };
 
+
+class ezProcessThread : public ezThread
+{
+public:
+  ezProcessThread()
+    : ezThread("ezProcessThread")
+  {
+  }
+
+
+  virtual ezUInt32 Run() override;
+};
+
+class ezProcessTask
+{
+public:
+  ezProcessTask();
+  ~ezProcessTask();
+
+  ezAtomicInteger32 m_bDidWork = true;
+  ezUInt32 m_uiProcessorID;
+
+  bool BeginExecute();
+
+  bool FinishExecute();
+
+  void ShutdownProcess();
+
+private:
+  void StartProcess();
+  void EventHandlerIPC(const ezProcessCommunicationChannel::Event& e);
+
+  bool GetNextAssetToProcess(ezAssetInfo* pInfo, ezUuid& out_guid, ezStringBuilder& out_sAbsPath, ezStringBuilder& out_sRelPath);
+  bool GetNextAssetToProcess(ezUuid& out_guid, ezStringBuilder& out_sAbsPath, ezStringBuilder& out_sRelPath);
+  void OnProcessCrashed();
+
+
+  ezUuid m_AssetGuid;
+  ezUInt64 m_uiAssetHash = 0;
+  ezUInt64 m_uiThumbHash = 0;
+  ezStringBuilder m_sAssetPath;
+  ezEditorProcessCommunicationChannel* m_pIPC;
+  bool m_bProcessShouldBeRunning;
+  bool m_bProcessCrashed;
+  bool m_bWaiting;
+  ezTransformStatus m_Status;
+  ezDynamicArray<ezLogEntry> m_LogEntries;
+  ezDynamicArray<ezString> m_TransitiveHull;
+};
+
 /// \brief Background asset processing is handled by this class.
 /// Creates EditorProcessor processes.
 class EZ_EDITORFRAMEWORK_DLL ezAssetProcessor
@@ -40,69 +93,49 @@ class EZ_EDITORFRAMEWORK_DLL ezAssetProcessor
   EZ_DECLARE_SINGLETON(ezAssetProcessor);
 
 public:
+  enum class ProcessTaskState : ezUInt8
+  {
+    Stopped,  ///< No EditorProcessor or the process thread is running.
+    Running,  ///< Everything is active.
+    Stopping, ///< Everything is still running but no new tasks are put into the EditorProcessors.
+  };
+
   ezAssetProcessor();
   ~ezAssetProcessor();
 
-  void RestartProcessTask();
-  void ShutdownProcessTask();
-  bool IsProcessTaskRunning() const;
+  void StartProcessTask();
+  void StopProcessTask(bool bForce);
+  ProcessTaskState GetProcessTaskState() const
+  {
+    return m_ProcessTaskState;
+  }
 
   void AddLogWriter(ezLoggingEvent::Handler handler);
   void RemoveLogWriter(ezLoggingEvent::Handler handler);
 
 public:
+  // Can be called from worker threads!
   ezEvent<const ezAssetProcessorEvent&> m_Events;
 
 private:
   friend class ezProcessTask;
+  friend class ezProcessThread;
   friend class ezAssetCurator;
 
-  void OnProcessTaskFinished(const ezSharedPtr<ezTask>& pTask);
-  void RunNextProcessTask();
-  void AssetCuratorEventHandler(const ezAssetCuratorEvent& e);
+  void Run();
 
 private:
-  mutable ezMutex m_ProcessorMutex;
   ezAssetProcessorLog m_CuratorLog;
-  ezAtomicInteger32 m_bRunProcessTask;
 
-  struct TaskAndGroup
-  {
-    ezSharedPtr<ezProcessTask> m_pTask;
-    ezTaskGroupID m_GroupID;
-  };
+  // Process thread and its state
+  ezUniquePtr<ezProcessThread> m_Thread;
+  std::atomic<bool> m_bForceStop = false; ///< If set, background processes will be killed when stopping without waiting for their current task to finish.
 
-  ezDynamicArray<TaskAndGroup> m_ProcessTasks;
-  ezAtomicInteger32 m_TicksWithIdleTasks;
-};
+  // Locks writes to m_ProcessTaskState to make sure the state machine does not go from running to stopped before having fired stopping.
+  mutable ezMutex m_ProcessorMutex;
+  std::atomic<ProcessTaskState> m_ProcessTaskState = ProcessTaskState::Stopped;
 
-class ezProcessTask final : public ezTask
-{
-public:
-  ezProcessTask(ezUInt32 uiProcessorID, ezOnTaskFinishedCallback onFinished);
-  ~ezProcessTask();
-  ezAtomicInteger32 m_bDidWork = true;
-
-private:
-  void StartProcess();
-  void ShutdownProcess();
-  void EventHandlerIPC(const ezProcessCommunicationChannel::Event& e);
-
-  bool GetNextAssetToProcess(ezAssetInfo* pInfo, ezUuid& out_guid, ezStringBuilder& out_sAbsPath, ezStringBuilder& out_sRelPath);
-  bool GetNextAssetToProcess(ezUuid& out_guid, ezStringBuilder& out_sAbsPath, ezStringBuilder& out_sRelPath);
-  void OnProcessCrashed();
-
-  ezUInt32 m_uiProcessorID;
-
-  ezUuid m_assetGuid;
-  ezUInt64 m_AssetHash = 0;
-  ezUInt64 m_ThumbHash = 0;
-  ezStringBuilder m_sAssetPath;
-  ezEditorProcessCommunicationChannel* m_pIPC;
-  bool m_bProcessShouldBeRunning;
-  bool m_bProcessCrashed;
-  bool m_bWaiting;
-  bool m_bSuccess;
-  ezDynamicArray<ezLogEntry> m_LogEntries;
-  virtual void Execute() override;
+  // Data owned by the process thread.
+  ezDynamicArray<bool> m_ProcessRunning;
+  ezDynamicArray<ezProcessTask> m_ProcessTasks;
 };

@@ -21,7 +21,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezProjectileSurfaceInteraction, ezNoBase, 3, ezRT
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Surface", GetSurface, SetSurface)->AddAttributes(new ezAssetBrowserAttribute("Surface")),
+    EZ_ACCESSOR_PROPERTY("Surface", GetSurface, SetSurface)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface")),
     EZ_ENUM_MEMBER_PROPERTY("Reaction", ezProjectileReaction, m_Reaction),
     EZ_MEMBER_PROPERTY("Interaction", m_sInteraction)->AddAttributes(new ezDynamicStringEnumAttribute("SurfaceInteractionTypeEnum")),
     EZ_MEMBER_PROPERTY("Impulse", m_fImpulse),
@@ -38,9 +38,9 @@ EZ_BEGIN_COMPONENT_TYPE(ezProjectileComponent, 4, ezComponentMode::Dynamic)
     EZ_MEMBER_PROPERTY("Speed", m_fMetersPerSecond)->AddAttributes(new ezDefaultValueAttribute(10.0f), new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_MEMBER_PROPERTY("GravityMultiplier", m_fGravityMultiplier),
     EZ_MEMBER_PROPERTY("MaxLifetime", m_MaxLifetime)->AddAttributes(new ezClampValueAttribute(ezTime(), ezVariant())),
-    EZ_ACCESSOR_PROPERTY("OnTimeoutSpawn", GetTimeoutPrefab, SetTimeoutPrefab)->AddAttributes(new ezAssetBrowserAttribute("Prefab")),
+    EZ_ACCESSOR_PROPERTY("OnTimeoutSpawn", GetTimeoutPrefab, SetTimeoutPrefab)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Prefab")),
     EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
-    EZ_ACCESSOR_PROPERTY("FallbackSurface", GetFallbackSurfaceFile, SetFallbackSurfaceFile)->AddAttributes(new ezAssetBrowserAttribute("Surface")),
+    EZ_ACCESSOR_PROPERTY("FallbackSurface", GetFallbackSurfaceFile, SetFallbackSurfaceFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface")),
     EZ_ARRAY_MEMBER_PROPERTY("Interactions", m_SurfaceInteractions),
   }
   EZ_END_PROPERTIES;
@@ -117,6 +117,8 @@ void ezProjectileComponent::Update()
 
     ezPhysicsQueryParameters queryParams(m_uiCollisionLayer);
     queryParams.m_bIgnoreInitialOverlap = true;
+    queryParams.m_ShapeTypes.Remove(ezPhysicsShapeType::Trigger);
+    //queryParams.m_ShapeTypes.Remove(ezPhysicsShapeType::Character); // TODO: expose this ??
 
     ezPhysicsCastResult castResult;
     if (pPhysicsInterface->Raycast(castResult, pEntity->GetGlobalPosition(), vCurDirection, fDistance, queryParams))
@@ -152,7 +154,7 @@ void ezProjectileComponent::Update()
               ezMsgPhysicsAddImpulse msg;
               msg.m_vGlobalPosition = castResult.m_vPosition;
               msg.m_vImpulse = vCurDirection * interaction.m_fImpulse;
-              msg.m_uiShapeId = castResult.m_uiShapeId;
+              msg.m_uiObjectFilterID = castResult.m_uiObjectFilterID;
               msg.m_pInternalPhysicsShape = castResult.m_pInternalPhysicsShape;
               msg.m_pInternalPhysicsActor = castResult.m_pInternalPhysicsActor;
 
@@ -175,6 +177,10 @@ void ezProjectileComponent::Update()
               if (GetWorld()->TryGetObject(castResult.m_hShapeObject, pHitShape))
               {
                 msg.m_sHitObjectName = pHitShape->GetName();
+              }
+              else
+              {
+                msg.m_sHitObjectName = pObject->GetName();
               }
 
               pObject->SendEventMessage(msg, this);

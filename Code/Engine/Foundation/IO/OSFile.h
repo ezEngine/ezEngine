@@ -99,7 +99,7 @@ public:
 
   /// \brief Starts a search at the given folder. Use * and ? as wildcards.
   ///
-  /// To iterate all files from on folder, use '/Some/Folder'
+  /// To iterate all files from one folder, use '/Some/Folder'
   /// To iterate over all files of a certain type (in one folder) use '/Some/Folder/*.ext'
   /// Only the final path segment can use placeholders, folders in between must be fully named.
   /// If bRecursive is false, the iterator will only iterate over the files in the start folder, and will not recurse into subdirectories.
@@ -108,7 +108,17 @@ public:
   /// If EZ_SUCCESS is returned, the iterator points to a valid file, and the functions GetCurrentPath() and GetStats() will return
   /// the information about that file. To advance to the next file, use Next() or SkipFolder().
   /// When no iteration is possible (the directory does not exist or the wild-cards are used incorrectly), EZ_FAILURE is returned.
-  void StartSearch(const char* szSearchStart, ezBitflags<ezFileSystemIteratorFlags> flags = ezFileSystemIteratorFlags::Default); // [tested]
+  void StartSearch(const char* szSearchTerm, ezBitflags<ezFileSystemIteratorFlags> flags = ezFileSystemIteratorFlags::Default); // [tested]
+
+  /// \brief The same as StartSearch() but executes the same search on multiple folders.
+  ///
+  /// The search term is appended to each start folder and they are searched one after the other.
+  void StartMultiFolderSearch(ezArrayPtr<ezString> startFolders, const char* szSearchTerm, ezBitflags<ezFileSystemIteratorFlags> flags = ezFileSystemIteratorFlags::Default);
+
+  /// \brief Returns the search string with which StartSearch() was called.
+  ///
+  /// If StartMultiFolderSearch() is used, every time a new top-level folder is entered, StartSearch() is executed. In this case GetCurrentSearchTerm() can be used to know in which top-level folder the search is currently running.
+  const ezStringView GetCurrentSearchTerm() const { return m_sSearchTerm; }
 
   /// \brief Returns the current path in which files are searched. Changes when 'Next' moves in or out of a sub-folder.
   ///
@@ -140,6 +150,11 @@ private:
 
   /// \brief Platform specific data, required by the implementation.
   ezFileIterationData m_Data;
+
+  ezString m_sSearchTerm;
+  ezString m_sMultiSearchTerm;
+  ezUInt32 m_uiCurrentStartFolder = 0;
+  ezHybridArray<ezString, 8> m_StartFolders;
 };
 
 #endif
@@ -219,6 +234,10 @@ public:
   /// be created.
   static ezResult CreateDirectoryStructure(const char* szDirectory); // [tested]
 
+  /// \brief Renames / Moves an existing directory. The file / directory at szFrom must exist. The parent directory of szTo must exist.
+  /// Returns EZ_FAILURE if the move failed.
+  static ezResult MoveFileOrDirectory(const char* szFrom, const char* szTo);
+
   /// \brief Copies the source file into the destination file.
   static ezResult CopyFile(const char* szSource, const char* szDestination); // [tested]
 
@@ -239,7 +258,9 @@ public:
   static void GatherAllItemsInFolder(ezDynamicArray<ezFileStats>& out_ItemList, const char* szFolder, ezBitflags<ezFileSystemIteratorFlags> flags = ezFileSystemIteratorFlags::Default);
 
   /// \brief Copies \a szSourceFolder to \a szDestinationFolder. Overwrites existing files.
-  static ezResult CopyFolder(const char* szSourceFolder, const char* szDestinationFolder);
+  ///
+  /// If \a out_FilesCopied is provided, the destination path of every successfully copied file is appended to it.
+  static ezResult CopyFolder(const char* szSourceFolder, const char* szDestinationFolder, ezDynamicArray<ezString>* out_FilesCopied = nullptr);
 
   /// \brief Deletes all files recursively in \a szFolder.
   ///
@@ -355,6 +376,7 @@ private:
   static ezResult InternalDeleteFile(const char* szFile);
   static ezResult InternalDeleteDirectory(const char* szDirectory);
   static ezResult InternalCreateDirectory(const char* szFile);
+  static ezResult InternalMoveFileOrDirectory(const char* szDirectoryFrom, const char* szDirectoryTo);
 
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
   static ezResult InternalGetFileStats(const char* szFileOrFolder, ezFileStats& out_Stats);
@@ -378,14 +400,14 @@ private:
   ezOSFileData m_FileData;
 
   /// \brief The application binaries' path.
-  static ezString64 s_ApplicationPath;
+  static ezString64 s_sApplicationPath;
 
   /// \brief The path where user data is stored on this OS
-  static ezString64 s_UserDataPath;
+  static ezString64 s_sUserDataPath;
 
   /// \brief The path where temp data is stored on this OS
-  static ezString64 s_TempDataPath;
+  static ezString64 s_sTempDataPath;
 
   /// \brief Counts how many different files are touched.225
-  static ezAtomicInteger32 s_FileCounter;
+  static ezAtomicInteger32 s_iFileCounter;
 };

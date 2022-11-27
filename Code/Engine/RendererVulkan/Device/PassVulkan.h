@@ -1,12 +1,12 @@
 
 #pragma once
 
+#include <Foundation/Types/UniquePtr.h>
 #include <RendererFoundation/Device/Pass.h>
 
 struct ezGALCommandEncoderRenderState;
 class ezGALRenderCommandEncoder;
 class ezGALComputeCommandEncoder;
-
 class ezGALCommandEncoderImplVulkan;
 
 class ezGALPassVulkan : public ezGALPass
@@ -14,6 +14,9 @@ class ezGALPassVulkan : public ezGALPass
 protected:
   friend class ezGALDeviceVulkan;
   friend class ezMemoryUtils;
+  void Reset();
+  void MarkDirty();
+  void SetCurrentCommandBuffer(vk::CommandBuffer* commandBuffer, ezPipelineBarrierVulkan* pipelineBarrier);
 
   virtual ezGALRenderCommandEncoder* BeginRenderingPlatform(const ezGALRenderingSetup& renderingSetup, const char* szName) override;
   virtual void EndRenderingPlatform(ezGALRenderCommandEncoder* pCommandEncoder) override;

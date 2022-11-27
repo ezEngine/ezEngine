@@ -153,7 +153,7 @@ protected:
   TypeStringMode m_TypeStringMode;
   FloatPrecisionMode m_FloatPrecisionMode;
   ezStreamWriter* m_pOutput;
-  ezStringBuilder m_Temp;
+  ezStringBuilder m_sTemp;
 
   ezHybridArray<DdlState, 16> m_StateStack;
 };

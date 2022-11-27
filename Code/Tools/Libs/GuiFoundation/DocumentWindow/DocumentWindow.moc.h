@@ -65,7 +65,7 @@ public:
   bool IsVisibleInContainer() const { return m_bIsVisibleInContainer; }
   void SetTargetFramerate(ezInt16 uiTargetFPS);
 
-  void TriggerRedraw(ezTime LastFrameTime = ezTime::Zero());
+  void TriggerRedraw();
 
   virtual void RequestWindowTabContextMenu(const QPoint& GlobalPos);
 
@@ -89,6 +89,8 @@ public:
 protected:
   virtual void showEvent(QShowEvent* event) override;
   virtual void hideEvent(QHideEvent* event) override;
+  virtual bool event(QEvent* event) override;
+  virtual bool eventFilter(QObject* obj, QEvent* e) override;
 
   void FinishWindowCreation();
 
@@ -127,6 +129,7 @@ private:
   void DocumentManagerEventHandler(const ezDocumentManager::Event& e);
   void DocumentEventHandler(const ezDocumentEvent& e);
   void UIServicesEventHandler(const ezQtUiServices::Event& e);
+  void UIServicesTickEventHandler(const ezQtUiServices::TickEvent& e);
 
   virtual void InternalDeleteThis() { delete this; }
   virtual bool InternalCanCloseWindow();

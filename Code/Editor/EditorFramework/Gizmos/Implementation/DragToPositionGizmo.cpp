@@ -5,6 +5,7 @@
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
 #include <EditorFramework/Gizmos/DragToPositionGizmo.h>
 #include <EditorFramework/Gizmos/SnapProvider.h>
+#include <EditorFramework/Preferences/EditorPreferences.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDragToPositionGizmo, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -13,17 +14,42 @@ ezDragToPositionGizmo::ezDragToPositionGizmo()
 {
   m_bModifiesRotation = false;
 
-  float b = 0.1f;
-  float l = 0.5f;
-  float h = 0.9f;
+  ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
+  m_bUseExperimentalGizmo = !pPreferences->m_bOldGizmos;
 
-  m_Bobble.Configure(this, ezEngineGizmoHandleType::Box, ezColor::DodgerBlue);
-  m_AlignPX.Configure(this, ezEngineGizmoHandleType::HalfPiston, ezColor(h, b, b));
-  m_AlignNX.Configure(this, ezEngineGizmoHandleType::HalfPiston, ezColor(l, b, b));
-  m_AlignPY.Configure(this, ezEngineGizmoHandleType::HalfPiston, ezColor(b, h, b));
-  m_AlignNY.Configure(this, ezEngineGizmoHandleType::HalfPiston, ezColor(b, l, b));
-  m_AlignPZ.Configure(this, ezEngineGizmoHandleType::HalfPiston, ezColor(b, b, h));
-  m_AlignNZ.Configure(this, ezEngineGizmoHandleType::HalfPiston, ezColor(b, b, l / 3));
+  if (m_bUseExperimentalGizmo)
+  {
+    // TODO: adjust colors for +/- axis
+    const ezColor colr1 = ezColorGammaUB(206, 0, 46);
+    const ezColor colr2 = ezColorGammaUB(206, 0, 46);
+    const ezColor colg1 = ezColorGammaUB(101, 206, 0);
+    const ezColor colg2 = ezColorGammaUB(101, 206, 0);
+    const ezColor colb1 = ezColorGammaUB(0, 125, 206);
+    const ezColor colb2 = ezColorGammaUB(0, 125, 206);
+    const ezColor coly = ezColorGammaUB(128, 128, 0);
+
+    m_hBobble.ConfigureHandle(this, ezEngineGizmoHandleType::FromFile, coly, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable, "Editor/Meshes/DragCenter.obj");
+    m_hAlignPX.ConfigureHandle(this, ezEngineGizmoHandleType::FromFile, colr1, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable, "Editor/Meshes/DragArrowPX.obj");
+    m_hAlignNX.ConfigureHandle(this, ezEngineGizmoHandleType::FromFile, colr2, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable, "Editor/Meshes/DragArrowNX.obj");
+    m_hAlignPY.ConfigureHandle(this, ezEngineGizmoHandleType::FromFile, colg1, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable, "Editor/Meshes/DragArrowPY.obj");
+    m_hAlignNY.ConfigureHandle(this, ezEngineGizmoHandleType::FromFile, colg2, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable, "Editor/Meshes/DragArrowNY.obj");
+    m_hAlignPZ.ConfigureHandle(this, ezEngineGizmoHandleType::FromFile, colb1, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable, "Editor/Meshes/DragArrowPZ.obj");
+    m_hAlignNZ.ConfigureHandle(this, ezEngineGizmoHandleType::FromFile, colb2, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable, "Editor/Meshes/DragArrowNZ.obj");
+  }
+  else
+  {
+    const float b = 0.1f;
+    const float l = 0.5f;
+    const float h = 0.9f;
+
+    m_hBobble.ConfigureHandle(this, ezEngineGizmoHandleType::Box, ezColor::DodgerBlue, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
+    m_hAlignPX.ConfigureHandle(this, ezEngineGizmoHandleType::HalfPiston, ezColor(h, b, b), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
+    m_hAlignNX.ConfigureHandle(this, ezEngineGizmoHandleType::HalfPiston, ezColor(l, b, b), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
+    m_hAlignPY.ConfigureHandle(this, ezEngineGizmoHandleType::HalfPiston, ezColor(b, h, b), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
+    m_hAlignNY.ConfigureHandle(this, ezEngineGizmoHandleType::HalfPiston, ezColor(b, l, b), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
+    m_hAlignPZ.ConfigureHandle(this, ezEngineGizmoHandleType::HalfPiston, ezColor(b, b, h), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
+    m_hAlignNZ.ConfigureHandle(this, ezEngineGizmoHandleType::HalfPiston, ezColor(b, b, l / 3), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
+  }
 
   SetVisible(false);
   SetTransformation(ezTransform::IdentityTransform());
@@ -33,19 +59,19 @@ void ezDragToPositionGizmo::UpdateStatusBarText(ezQtEngineDocumentWindow* pWindo
 {
   if (m_pInteractionGizmoHandle != nullptr)
   {
-    if (m_pInteractionGizmoHandle == &m_Bobble)
+    if (m_pInteractionGizmoHandle == &m_hBobble)
       GetOwnerWindow()->SetPermanentStatusBarMsg(ezFmt("Drag to Position: Center"));
-    else if (m_pInteractionGizmoHandle == &m_AlignPX)
+    else if (m_pInteractionGizmoHandle == &m_hAlignPX)
       GetOwnerWindow()->SetPermanentStatusBarMsg(ezFmt("Drag to Position: +X"));
-    else if (m_pInteractionGizmoHandle == &m_AlignNX)
+    else if (m_pInteractionGizmoHandle == &m_hAlignNX)
       GetOwnerWindow()->SetPermanentStatusBarMsg(ezFmt("Drag to Position: -X"));
-    else if (m_pInteractionGizmoHandle == &m_AlignPY)
+    else if (m_pInteractionGizmoHandle == &m_hAlignPY)
       GetOwnerWindow()->SetPermanentStatusBarMsg(ezFmt("Drag to Position: +Y"));
-    else if (m_pInteractionGizmoHandle == &m_AlignNY)
+    else if (m_pInteractionGizmoHandle == &m_hAlignNY)
       GetOwnerWindow()->SetPermanentStatusBarMsg(ezFmt("Drag to Position: -Y"));
-    else if (m_pInteractionGizmoHandle == &m_AlignPZ)
+    else if (m_pInteractionGizmoHandle == &m_hAlignPZ)
       GetOwnerWindow()->SetPermanentStatusBarMsg(ezFmt("Drag to Position: +Z"));
-    else if (m_pInteractionGizmoHandle == &m_AlignNZ)
+    else if (m_pInteractionGizmoHandle == &m_hAlignNZ)
       GetOwnerWindow()->SetPermanentStatusBarMsg(ezFmt("Drag to Position: -Z"));
   }
   else
@@ -56,48 +82,61 @@ void ezDragToPositionGizmo::UpdateStatusBarText(ezQtEngineDocumentWindow* pWindo
 
 void ezDragToPositionGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
 {
-  pOwnerWindow->GetDocument()->AddSyncObject(&m_Bobble);
-  pOwnerWindow->GetDocument()->AddSyncObject(&m_AlignPX);
-  pOwnerWindow->GetDocument()->AddSyncObject(&m_AlignNX);
-  pOwnerWindow->GetDocument()->AddSyncObject(&m_AlignPY);
-  pOwnerWindow->GetDocument()->AddSyncObject(&m_AlignNY);
-  pOwnerWindow->GetDocument()->AddSyncObject(&m_AlignPZ);
-  pOwnerWindow->GetDocument()->AddSyncObject(&m_AlignNZ);
+  pOwnerWindow->GetDocument()->AddSyncObject(&m_hBobble);
+  pOwnerWindow->GetDocument()->AddSyncObject(&m_hAlignPX);
+  pOwnerWindow->GetDocument()->AddSyncObject(&m_hAlignNX);
+  pOwnerWindow->GetDocument()->AddSyncObject(&m_hAlignPY);
+  pOwnerWindow->GetDocument()->AddSyncObject(&m_hAlignNY);
+  pOwnerWindow->GetDocument()->AddSyncObject(&m_hAlignPZ);
+  pOwnerWindow->GetDocument()->AddSyncObject(&m_hAlignNZ);
 }
 
 void ezDragToPositionGizmo::OnVisibleChanged(bool bVisible)
 {
-  m_Bobble.SetVisible(bVisible);
-  m_AlignPX.SetVisible(bVisible);
-  m_AlignNX.SetVisible(bVisible);
-  m_AlignPY.SetVisible(bVisible);
-  m_AlignNY.SetVisible(bVisible);
-  m_AlignPZ.SetVisible(bVisible);
-  m_AlignNZ.SetVisible(bVisible);
+  m_hBobble.SetVisible(bVisible);
+  m_hAlignPX.SetVisible(bVisible);
+  m_hAlignNX.SetVisible(bVisible);
+  m_hAlignPY.SetVisible(bVisible);
+  m_hAlignNY.SetVisible(bVisible);
+  m_hAlignPZ.SetVisible(bVisible);
+  m_hAlignNZ.SetVisible(bVisible);
 }
 
 void ezDragToPositionGizmo::OnTransformationChanged(const ezTransform& transform)
 {
-  ezTransform m;
-  m.SetIdentity();
+  if (m_bUseExperimentalGizmo)
+  {
+    m_hBobble.SetTransformation(transform);
+    m_hAlignPX.SetTransformation(transform);
+    m_hAlignNX.SetTransformation(transform);
+    m_hAlignPY.SetTransformation(transform);
+    m_hAlignNY.SetTransformation(transform);
+    m_hAlignPZ.SetTransformation(transform);
+    m_hAlignNZ.SetTransformation(transform);
+  }
+  else
+  {
+    ezTransform m;
+    m.SetIdentity();
 
-  m.m_vScale = ezVec3(0.2f);
-  m_Bobble.SetTransformation(transform * m);
+    m.m_vScale = ezVec3(0.2f);
+    m_hBobble.SetTransformation(transform * m);
 
-  m.SetIdentity();
-  m_AlignPX.SetTransformation(transform * m);
-  m.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(180));
-  m_AlignNX.SetTransformation(transform * m);
+    m.SetIdentity();
+    m_hAlignPX.SetTransformation(transform * m);
+    m.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(180));
+    m_hAlignNX.SetTransformation(transform * m);
 
-  m.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(+90));
-  m_AlignPY.SetTransformation(transform * m);
-  m.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(-90));
-  m_AlignNY.SetTransformation(transform * m);
+    m.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(+90));
+    m_hAlignPY.SetTransformation(transform * m);
+    m.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(-90));
+    m_hAlignNY.SetTransformation(transform * m);
 
-  m.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(-90));
-  m_AlignPZ.SetTransformation(transform * m);
-  m.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(+90));
-  m_AlignNZ.SetTransformation(transform * m);
+    m.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(-90));
+    m_hAlignPZ.SetTransformation(transform * m);
+    m.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(+90));
+    m_hAlignNZ.SetTransformation(transform * m);
+  }
 }
 
 void ezDragToPositionGizmo::DoFocusLost(bool bCancel)
@@ -110,13 +149,13 @@ void ezDragToPositionGizmo::DoFocusLost(bool bCancel)
   ezViewHighlightMsgToEngine msg;
   GetOwnerWindow()->GetEditorEngineConnection()->SendHighlightObjectMessage(&msg);
 
-  m_Bobble.SetVisible(true);
-  m_AlignPX.SetVisible(true);
-  m_AlignNX.SetVisible(true);
-  m_AlignPY.SetVisible(true);
-  m_AlignNY.SetVisible(true);
-  m_AlignPZ.SetVisible(true);
-  m_AlignNZ.SetVisible(true);
+  m_hBobble.SetVisible(true);
+  m_hAlignPX.SetVisible(true);
+  m_hAlignNX.SetVisible(true);
+  m_hAlignPY.SetVisible(true);
+  m_hAlignNY.SetVisible(true);
+  m_hAlignPZ.SetVisible(true);
+  m_hAlignNZ.SetVisible(true);
 
   m_pInteractionGizmoHandle = nullptr;
 }
@@ -145,6 +184,7 @@ ezEditorInput ezDragToPositionGizmo::DoMousePressEvent(QMouseEvent* e)
   // m_pInteractionGizmoHandle->SetVisible(true);
 
   m_vStartPosition = GetTransformation().m_vPosition;
+  m_qStartOrientation = GetTransformation().m_qRotation;
 
   m_LastInteraction = ezTime::Now();
 
@@ -174,14 +214,6 @@ ezEditorInput ezDragToPositionGizmo::DoMouseReleaseEvent(QMouseEvent* e)
   return ezEditorInput::WasExclusivelyHandled;
 }
 
-static const ezVec3 GetOrthogonalVector(const ezVec3& vDir)
-{
-  if (ezMath::Abs(vDir.Dot(ezVec3(0, 0, 1))) < 0.999f)
-    return -vDir.CrossRH(ezVec3(0, 0, 1));
-
-  return -vDir.CrossRH(ezVec3(1, 0, 0));
-}
-
 ezEditorInput ezDragToPositionGizmo::DoMouseMoveEvent(QMouseEvent* e)
 {
   if (!IsActiveInputContext())
@@ -202,64 +234,72 @@ ezEditorInput ezDragToPositionGizmo::DoMouseMoveEvent(QMouseEvent* e)
   if (res.m_vPickedPosition.IsNaN() || res.m_vPickedNormal.IsNaN() || res.m_vPickedNormal.IsZero())
     return ezEditorInput::WasExclusivelyHandled;
 
-  const ezVec3 vTangent = GetOrthogonalVector(res.m_vPickedNormal).GetNormalized();
-  const ezVec3 vBiTangent = res.m_vPickedNormal.CrossRH(vTangent).GetNormalized();
-
   ezVec3 vSnappedPosition = res.m_vPickedPosition;
 
   // disable snapping when ALT is pressed
   if (!e->modifiers().testFlag(Qt::AltModifier))
     ezSnapProvider::SnapTranslation(vSnappedPosition);
 
-  ezMat3 mRot;
   ezTransform mTrans = GetTransformation();
   mTrans.m_vPosition = vSnappedPosition;
 
-  m_bModifiesRotation = true;
+  ezQuat rot;
+  ezVec3 alignAxis, orthoAxis;
 
-  if (m_pInteractionGizmoHandle == &m_AlignPX)
+  if (m_pInteractionGizmoHandle == &m_hAlignPX)
   {
-    mRot.SetColumn(0, res.m_vPickedNormal);
-    mRot.SetColumn(1, vTangent);
-    mRot.SetColumn(2, vBiTangent);
+    alignAxis.Set(1, 0, 0);
+    orthoAxis.Set(0, 0, 1);
   }
-  else if (m_pInteractionGizmoHandle == &m_AlignNX)
+  else if (m_pInteractionGizmoHandle == &m_hAlignNX)
   {
-    mRot.SetColumn(0, -res.m_vPickedNormal);
-    mRot.SetColumn(2, vBiTangent);
-    mRot.SetColumn(1, -vTangent);
+    alignAxis.Set(-1, 0, 0);
+    orthoAxis.Set(0, 0, 1);
   }
-  else if (m_pInteractionGizmoHandle == &m_AlignPY)
+  else if (m_pInteractionGizmoHandle == &m_hAlignPY)
   {
-    mRot.SetColumn(0, -vTangent);
-    mRot.SetColumn(1, res.m_vPickedNormal);
-    mRot.SetColumn(2, vBiTangent);
+    alignAxis.Set(0, 1, 0);
+    orthoAxis.Set(0, 0, 1);
   }
-  else if (m_pInteractionGizmoHandle == &m_AlignNY)
+  else if (m_pInteractionGizmoHandle == &m_hAlignNY)
   {
-    mRot.SetColumn(0, vTangent);
-    mRot.SetColumn(1, -res.m_vPickedNormal);
-    mRot.SetColumn(2, vBiTangent);
+    alignAxis.Set(0, -1, 0);
+    orthoAxis.Set(0, 0, 1);
   }
-  else if (m_pInteractionGizmoHandle == &m_AlignPZ)
+  else if (m_pInteractionGizmoHandle == &m_hAlignPZ)
   {
-    mRot.SetColumn(0, vTangent);
-    mRot.SetColumn(1, vBiTangent);
-    mRot.SetColumn(2, res.m_vPickedNormal);
+    alignAxis.Set(0, 0, 1);
+    orthoAxis.Set(1, 0, 0);
   }
-  else if (m_pInteractionGizmoHandle == &m_AlignNZ)
+  else if (m_pInteractionGizmoHandle == &m_hAlignNZ)
   {
-    mRot.SetColumn(0, -vTangent);
-    mRot.SetColumn(1, vBiTangent);
-    mRot.SetColumn(2, -res.m_vPickedNormal);
+    alignAxis.Set(0, 0, -1);
+    orthoAxis.Set(1, 0, 0);
   }
   else
   {
     m_bModifiesRotation = false;
-    mRot.SetIdentity();
+    rot.SetIdentity();
   }
 
-  mTrans.m_qRotation.SetFromMat3(mRot);
+  if (m_pInteractionGizmoHandle != &m_hBobble)
+  {
+    m_bModifiesRotation = true;
+
+    alignAxis = m_qStartOrientation * alignAxis;
+    alignAxis.Normalize();
+
+    if (alignAxis.GetAngleBetween(res.m_vPickedNormal) > ezAngle::Degree(179))
+    {
+      rot.SetFromAxisAndAngle(m_qStartOrientation * orthoAxis, ezAngle::Degree(180));
+    }
+    else
+    {
+      rot.SetShortestRotation(alignAxis, res.m_vPickedNormal);
+    }
+  }
+
+  mTrans.m_qRotation = rot * m_qStartOrientation;
   SetTransformation(mTrans);
 
   ezGizmoEvent ev;

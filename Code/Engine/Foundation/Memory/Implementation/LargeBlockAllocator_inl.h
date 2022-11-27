@@ -45,8 +45,8 @@ EZ_FORCE_INLINE T& ezDataBlock<T, SizeInBytes>::operator[](ezUInt32 uiIndex) con
 template <ezUInt32 BlockSize>
 ezLargeBlockAllocator<BlockSize>::ezLargeBlockAllocator(const char* szName, ezAllocatorBase* pParent, ezBitflags<ezMemoryTrackingFlags> flags)
   : m_TrackingFlags(flags)
-  , m_superBlocks(pParent)
-  , m_freeBlocks(pParent)
+  , m_SuperBlocks(pParent)
+  , m_FreeBlocks(pParent)
 {
   EZ_CHECK_AT_COMPILETIME_MSG(BlockSize >= 4096, "Block size must be 4096 or bigger");
 
@@ -65,9 +65,9 @@ ezLargeBlockAllocator<BlockSize>::~ezLargeBlockAllocator()
   EZ_ASSERT_RELEASE(m_ThreadID == ezThreadUtils::GetCurrentThreadID(), "Allocator is deleted from another thread");
   ezMemoryTracker::DeregisterAllocator(m_Id);
 
-  for (ezUInt32 i = 0; i < m_superBlocks.GetCount(); ++i)
+  for (ezUInt32 i = 0; i < m_SuperBlocks.GetCount(); ++i)
   {
-    ezPageAllocator::DeallocatePage(m_superBlocks[i].m_pBasePtr);
+    ezPageAllocator::DeallocatePage(m_SuperBlocks[i].m_pBasePtr);
   }
 }
 
@@ -124,19 +124,19 @@ void* ezLargeBlockAllocator<BlockSize>::Allocate(size_t uiAlign)
 
   ezTime fAllocationTime = ezTime::Now();
 
-  EZ_LOCK(m_mutex);
+  EZ_LOCK(m_Mutex);
 
   void* ptr = nullptr;
 
-  if (!m_freeBlocks.IsEmpty())
+  if (!m_FreeBlocks.IsEmpty())
   {
     // Re-use a super block
-    ezUInt32 uiFreeBlockIndex = m_freeBlocks.PeekBack();
-    m_freeBlocks.PopBack();
+    ezUInt32 uiFreeBlockIndex = m_FreeBlocks.PeekBack();
+    m_FreeBlocks.PopBack();
 
     const ezUInt32 uiSuperBlockIndex = uiFreeBlockIndex / SuperBlock::NUM_BLOCKS;
     const ezUInt32 uiInnerBlockIndex = uiFreeBlockIndex & (SuperBlock::NUM_BLOCKS - 1);
-    SuperBlock& superBlock = m_superBlocks[uiSuperBlockIndex];
+    SuperBlock& superBlock = m_SuperBlocks[uiSuperBlockIndex];
     ++superBlock.m_uiUsedBlocks;
 
     ptr = ezMemoryUtils::AddByteOffset(superBlock.m_pBasePtr, uiInnerBlockIndex * BlockSize);
@@ -151,18 +151,21 @@ void* ezLargeBlockAllocator<BlockSize>::Allocate(size_t uiAlign)
     superBlock.m_pBasePtr = pMemory;
     superBlock.m_uiUsedBlocks = 1;
 
-    m_superBlocks.PushBack(superBlock);
+    m_SuperBlocks.PushBack(superBlock);
 
-    const ezUInt32 uiBlockBaseIndex = (m_superBlocks.GetCount() - 1) * SuperBlock::NUM_BLOCKS;
+    const ezUInt32 uiBlockBaseIndex = (m_SuperBlocks.GetCount() - 1) * SuperBlock::NUM_BLOCKS;
     for (ezUInt32 i = SuperBlock::NUM_BLOCKS - 1; i > 0; --i)
     {
-      m_freeBlocks.PushBack(uiBlockBaseIndex + i);
+      m_FreeBlocks.PushBack(uiBlockBaseIndex + i);
     }
 
     ptr = pMemory;
   }
 
-  ezMemoryTracker::AddAllocation(m_Id, m_TrackingFlags, ptr, BlockSize, uiAlign, ezTime::Now() - fAllocationTime);
+  if ((m_TrackingFlags & ezMemoryTrackingFlags::EnableAllocationTracking) != 0)
+  {
+    ezMemoryTracker::AddAllocation(m_Id, m_TrackingFlags, ptr, BlockSize, uiAlign, ezTime::Now() - fAllocationTime);
+  }
 
   return ptr;
 }
@@ -170,18 +173,21 @@ void* ezLargeBlockAllocator<BlockSize>::Allocate(size_t uiAlign)
 template <ezUInt32 BlockSize>
 void ezLargeBlockAllocator<BlockSize>::Deallocate(void* ptr)
 {
-  EZ_LOCK(m_mutex);
+  EZ_LOCK(m_Mutex);
 
-  ezMemoryTracker::RemoveAllocation(m_Id, ptr);
+  if ((m_TrackingFlags & ezMemoryTrackingFlags::EnableAllocationTracking) != 0)
+  {
+    ezMemoryTracker::RemoveAllocation(m_Id, ptr);
+  }
 
   // find super block
   bool bFound = false;
-  ezUInt32 uiSuperBlockIndex = m_superBlocks.GetCount();
+  ezUInt32 uiSuperBlockIndex = m_SuperBlocks.GetCount();
   ptrdiff_t diff = 0;
 
   for (; uiSuperBlockIndex-- > 0;)
   {
-    diff = (char*)ptr - (char*)m_superBlocks[uiSuperBlockIndex].m_pBasePtr;
+    diff = (char*)ptr - (char*)m_SuperBlocks[uiSuperBlockIndex].m_pBasePtr;
     if (diff >= 0 && diff < SuperBlock::SIZE_IN_BYTES)
     {
       bFound = true;
@@ -191,33 +197,33 @@ void ezLargeBlockAllocator<BlockSize>::Deallocate(void* ptr)
 
   EZ_ASSERT_DEV(bFound, "'{0}' was not allocated with this allocator", ezArgP(ptr));
 
-  SuperBlock& superBlock = m_superBlocks[uiSuperBlockIndex];
+  SuperBlock& superBlock = m_SuperBlocks[uiSuperBlockIndex];
   --superBlock.m_uiUsedBlocks;
 
-  if (superBlock.m_uiUsedBlocks == 0 && m_freeBlocks.GetCount() > SuperBlock::NUM_BLOCKS * 4)
+  if (superBlock.m_uiUsedBlocks == 0 && m_FreeBlocks.GetCount() > SuperBlock::NUM_BLOCKS * 4)
   {
     // give memory back
     ezPageAllocator::DeallocatePage(superBlock.m_pBasePtr);
 
-    m_superBlocks.RemoveAtAndSwap(uiSuperBlockIndex);
-    const ezUInt32 uiLastSuperBlockIndex = m_superBlocks.GetCount();
+    m_SuperBlocks.RemoveAtAndSwap(uiSuperBlockIndex);
+    const ezUInt32 uiLastSuperBlockIndex = m_SuperBlocks.GetCount();
 
     // patch free list
-    for (ezUInt32 i = 0; i < m_freeBlocks.GetCount(); ++i)
+    for (ezUInt32 i = 0; i < m_FreeBlocks.GetCount(); ++i)
     {
-      const ezUInt32 uiIndex = m_freeBlocks[i];
+      const ezUInt32 uiIndex = m_FreeBlocks[i];
       const ezUInt32 uiSBIndex = uiIndex / SuperBlock::NUM_BLOCKS;
 
       if (uiSBIndex == uiSuperBlockIndex)
       {
         // points to the block we just removed
-        m_freeBlocks.RemoveAtAndSwap(i);
+        m_FreeBlocks.RemoveAtAndSwap(i);
         --i;
       }
       else if (uiSBIndex == uiLastSuperBlockIndex)
       {
         // points to the block we just swapped
-        m_freeBlocks[i] = uiSuperBlockIndex * SuperBlock::NUM_BLOCKS + (uiIndex & (SuperBlock::NUM_BLOCKS - 1));
+        m_FreeBlocks[i] = uiSuperBlockIndex * SuperBlock::NUM_BLOCKS + (uiIndex & (SuperBlock::NUM_BLOCKS - 1));
       }
     }
   }
@@ -225,6 +231,6 @@ void ezLargeBlockAllocator<BlockSize>::Deallocate(void* ptr)
   {
     // add block to free list
     const ezUInt32 uiInnerBlockIndex = (ezUInt32)(diff / BlockSize);
-    m_freeBlocks.PushBack(uiSuperBlockIndex * SuperBlock::NUM_BLOCKS + uiInnerBlockIndex);
+    m_FreeBlocks.PushBack(uiSuperBlockIndex * SuperBlock::NUM_BLOCKS + uiInnerBlockIndex);
   }
 }

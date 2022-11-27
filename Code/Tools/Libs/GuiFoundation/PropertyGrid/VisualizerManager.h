@@ -24,6 +24,7 @@ public:
   ~ezVisualizerManager();
 
   void SetVisualizersActive(const ezDocument* pDoc, bool bActive);
+  bool GetVisualizersActive(const ezDocument* pDoc);
 
   ezEvent<const ezVisualizerManagerEvent&> m_Events;
 

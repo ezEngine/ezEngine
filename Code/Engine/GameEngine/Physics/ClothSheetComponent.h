@@ -114,7 +114,7 @@ public:
   // ezRenderComponent
 
 public:
-  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible) override;
+  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg) override;
 
 private:
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
@@ -161,5 +161,5 @@ private:
   ezUInt8 m_uiCheckEquilibriumCounter = 0;
   ezClothSimulator m_Simulator;
 
-  ezBoundingBox m_bbox;
+  ezBoundingBox m_Bbox;
 };

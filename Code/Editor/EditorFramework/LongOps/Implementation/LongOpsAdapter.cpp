@@ -48,8 +48,9 @@ void ezLongOpsAdapter::DocumentManagerEventHandler(const ezDocumentManager::Even
 {
   if (e.m_Type == ezDocumentManager::Event::Type::DocumentOpened)
   {
-    const char* szDocType = e.m_pDocument->GetDocumentTypeDescriptor()->m_pDocumentType->GetTypeName();
-    if (ezStringUtils::IsEqual(szDocType, "ezSceneDocument"))
+    const ezRTTI* pRttiScene = ezRTTI::FindTypeByName("ezSceneDocument");
+    const bool bIsScene = e.m_pDocument->GetDocumentTypeDescriptor()->m_pDocumentType->IsDerivedFrom(pRttiScene);
+    if (bIsScene)
     {
       CheckAllTypes();
 
@@ -61,8 +62,9 @@ void ezLongOpsAdapter::DocumentManagerEventHandler(const ezDocumentManager::Even
 
   if (e.m_Type == ezDocumentManager::Event::Type::DocumentClosing)
   {
-    const char* szDocType = e.m_pDocument->GetDocumentTypeDescriptor()->m_pDocumentType->GetTypeName();
-    if (ezStringUtils::IsEqual(szDocType, "ezSceneDocument"))
+    const ezRTTI* pRttiScene = ezRTTI::FindTypeByName("ezSceneDocument");
+    const bool bIsScene = e.m_pDocument->GetDocumentTypeDescriptor()->m_pDocumentType->IsDerivedFrom(pRttiScene);
+    if (bIsScene)
     {
       ezLongOpControllerManager::GetSingleton()->CancelAndRemoveAllOpsForDocument(e.m_pDocument->GetGuid());
 
@@ -137,14 +139,15 @@ void ezLongOpsAdapter::ObjectAdded(const ezDocumentObject* pObject)
         {
           if (auto pOpAttr = ezDynamicCast<ezLongOpAttribute*>(pAttr))
           {
-            ezLongOpControllerManager::GetSingleton()->RegisterLongOp(
-              pObject->GetDocumentObjectManager()->GetDocument()->GetGuid(), pObject->GetGuid(), pOpAttr->m_sOpTypeName);
+            ezLongOpControllerManager::GetSingleton()->RegisterLongOp(pObject->GetDocumentObjectManager()->GetDocument()->GetGuid(), pObject->GetGuid(), pOpAttr->m_sOpTypeName);
           }
         }
 
         pRtti = pRtti->GetParentType();
       }
     }
+
+    return;
   }
 
   if (pRtti->IsDerivedFrom<ezGameObject>() || pObject->GetParent() == nullptr /*document root object*/)
@@ -170,8 +173,7 @@ void ezLongOpsAdapter::ObjectRemoved(const ezDocumentObject* pObject)
         {
           if (auto pOpAttr = ezDynamicCast<ezLongOpAttribute*>(pAttr))
           {
-            ezLongOpControllerManager::GetSingleton()->UnregisterLongOp(
-              pObject->GetDocumentObjectManager()->GetDocument()->GetGuid(), pObject->GetGuid(), pOpAttr->m_sOpTypeName);
+            ezLongOpControllerManager::GetSingleton()->UnregisterLongOp(pObject->GetDocumentObjectManager()->GetDocument()->GetGuid(), pObject->GetGuid(), pOpAttr->m_sOpTypeName);
           }
         }
 
@@ -179,8 +181,7 @@ void ezLongOpsAdapter::ObjectRemoved(const ezDocumentObject* pObject)
       }
     }
   }
-
-  if (pRtti->IsDerivedFrom<ezGameObject>())
+  else if (pRtti->IsDerivedFrom<ezGameObject>())
   {
     for (const ezDocumentObject* pChild : pObject->GetChildren())
     {

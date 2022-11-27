@@ -48,7 +48,7 @@ protected:
   /// \return Returns whether a message was received or the timeout was reached.
   virtual bool WaitForMessages(ezInt32 iTimeout, ezIpcChannel* pFilter) = 0;
 
-  ezThreadID m_threadId = 0;
+  ezThreadID m_ThreadId = 0;
   mutable ezMutex m_Mutex;
   bool m_bShouldQuit = false;
   bool m_bCallTickFunction = false;
@@ -58,5 +58,11 @@ protected:
   ezDynamicArray<ezIpcChannel*> m_ConnectQueue;
   ezDynamicArray<ezIpcChannel*> m_DisconnectQueue;
   ezDynamicArray<ezIpcChannel*> m_SendQueue;
+
+  // Thread local copies of the different queues for the ProcessTasks method
+  ezDynamicArray<ezIpcChannel*> m_ConnectQueueTask;
+  ezDynamicArray<ezIpcChannel*> m_DisconnectQueueTask;
+  ezDynamicArray<ezIpcChannel*> m_SendQueueTask;
+
   ezDynamicArray<ezIpcChannel*> m_AllAddedChannels;
 };

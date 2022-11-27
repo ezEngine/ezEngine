@@ -214,7 +214,10 @@ void ezQtFmodProjectSettingsDlg::on_ButtonMB_clicked()
   ezStringBuilder sRelative = sFile.toUtf8().data();
 
   if (!ezQtEditorApp::GetSingleton()->MakePathDataDirectoryRelative(sRelative))
+  {
+    ezQtUiServices::GetSingleton()->MessageBoxWarning("<html>The selected sound bank is not in a data directory of the project.<br><br>Either choose another sound bank or add the necessary folder as a <a href='https://ezengine.net/pages/docs/projects/data-directories.html'>data directory</a> to the project.</html>");
     return;
+  }
 
   sLastPath = sFile;
 

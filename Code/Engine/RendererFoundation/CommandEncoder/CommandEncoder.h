@@ -24,11 +24,7 @@ public:
   // Returns whether a unordered access view has been unset for the given resource
   bool UnsetUnorderedAccessViews(const ezGALResourceBase* pResource);
 
-  // Fence & Query functions
-
-  void InsertFence(ezGALFenceHandle hFence);
-  bool IsFenceReached(ezGALFenceHandle hFence);
-  void WaitForFence(ezGALFenceHandle hFence);
+  // Query functions
 
   void BeginQuery(ezGALQueryHandle hQuery);
   void EndQuery(ezGALQueryHandle hQuery);
@@ -77,6 +73,8 @@ public:
   virtual void ClearStatisticsCounters();
 
   EZ_ALWAYS_INLINE ezGALDevice& GetDevice() { return m_Device; }
+  // Don't use light hearted ;)
+  void InvalidateState();
 
 protected:
   friend class ezGALDevice;
@@ -84,8 +82,6 @@ protected:
   ezGALCommandEncoder(ezGALDevice& device, ezGALCommandEncoderState& state, ezGALCommandEncoderCommonPlatformInterface& commonImpl);
   virtual ~ezGALCommandEncoder();
 
-  // Don't use light hearted ;)
-  void InvalidateState();
 
   void AssertRenderingThread()
   {

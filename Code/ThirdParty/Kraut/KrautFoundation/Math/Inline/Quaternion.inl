@@ -1,8 +1,8 @@
 #ifndef AE_FOUNDATION_MATH_QUATERNION_INL
 #define AE_FOUNDATION_MATH_QUATERNION_INL
 
-#include "../Math/Vec3.h"
-#include "../Math/Matrix.h"
+#include "../Vec3.h"
+#include "../Matrix.h"
 
 namespace AE_NS_FOUNDATION
 {

@@ -14,9 +14,9 @@ EZ_CREATE_SIMPLE_TEST_GROUP(Serialization);
 class TestContext : public ezRttiConverterContext
 {
 public:
-  virtual void* CreateObject(const ezUuid& guid, const ezRTTI* pRtti) override
+  virtual ezInternal::NewInstance<void> CreateObject(const ezUuid& guid, const ezRTTI* pRtti) override
   {
-    void* pObj = pRtti->GetAllocator()->Allocate<void>();
+    auto pObj = pRtti->GetAllocator()->Allocate<void>();
     RegisterObject(guid, pRtti, pObj);
     return pObj;
   }
@@ -49,14 +49,14 @@ void TestSerialize(T* pObject)
   EZ_TEST_INT(pNode->GetProperties().GetCount(), pNode->GetProperties().GetCount());
 
   {
-    ezMemoryStreamStorage storage;
+    ezContiguousMemoryStreamStorage storage;
     ezMemoryStreamWriter writer(&storage);
     ezMemoryStreamReader reader(&storage);
 
     ezAbstractGraphDdlSerializer::Write(writer, &graph);
 
     ezStringBuilder sData, sData2;
-    sData.SetSubString_ElementCount((const char*)storage.GetData(), storage.GetStorageSize());
+    sData.SetSubString_ElementCount((const char*)storage.GetData(), storage.GetStorageSize32());
 
 
     ezRttiConverterReader convRead(&graph, &context);
@@ -92,17 +92,17 @@ void TestSerialize(T* pObject)
     ezAbstractObjectGraph graph2;
     ezAbstractGraphDdlSerializer::Read(reader, &graph2).IgnoreResult();
 
-    ezMemoryStreamStorage storage2;
+    ezContiguousMemoryStreamStorage storage2;
     ezMemoryStreamWriter writer2(&storage2);
 
     ezAbstractGraphDdlSerializer::Write(writer2, &graph2);
-    sData2.SetSubString_ElementCount((const char*)storage2.GetData(), storage2.GetStorageSize());
+    sData2.SetSubString_ElementCount((const char*)storage2.GetData(), storage2.GetStorageSize32());
 
     EZ_TEST_BOOL(sData == sData2);
   }
 
   {
-    ezMemoryStreamStorage storage;
+    ezContiguousMemoryStreamStorage storage;
     ezMemoryStreamWriter writer(&storage);
     ezMemoryStreamReader reader(&storage);
 
@@ -119,16 +119,16 @@ void TestSerialize(T* pObject)
     ezAbstractObjectGraph graph2;
     ezAbstractGraphBinarySerializer::Read(reader, &graph2);
 
-    ezMemoryStreamStorage storage2;
+    ezContiguousMemoryStreamStorage storage2;
     ezMemoryStreamWriter writer2(&storage2);
 
     ezAbstractGraphBinarySerializer::Write(writer2, &graph2);
 
-    EZ_TEST_INT(storage.GetStorageSize(), storage2.GetStorageSize());
+    EZ_TEST_INT(storage.GetStorageSize32(), storage2.GetStorageSize32());
 
-    if (storage.GetStorageSize() == storage2.GetStorageSize())
+    if (storage.GetStorageSize32() == storage2.GetStorageSize32())
     {
-      EZ_TEST_BOOL(ezMemoryUtils::Compare<ezUInt8>(storage.GetData(), storage2.GetData(), storage.GetStorageSize()) == 0);
+      EZ_TEST_BOOL(ezMemoryUtils::RawByteCompare(storage.GetData(), storage2.GetData(), storage.GetStorageSize32()) == 0);
     }
   }
 }

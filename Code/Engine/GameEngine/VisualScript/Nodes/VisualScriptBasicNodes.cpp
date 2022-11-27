@@ -412,7 +412,7 @@ void ezVisualScriptNode_MessageSender::SetMessageToSend(ezUniquePtr<ezMessage>&&
       if (dataPinType == ezVisualScriptDataPinType::None)
         continue;
 
-      m_PropertyIndexToMemoryOffset[uiProp] = uiScratchMemorySize;
+      m_PropertyIndexToMemoryOffset[uiProp] = static_cast<ezUInt16>(uiScratchMemorySize);
       m_PropertyIndexToDataPinType[uiProp] = dataPinType;
 
       uiScratchMemorySize += ezMath::Max<ezUInt32>(ezVisualScriptDataPinType::GetStorageByteSize(dataPinType), EZ_ALIGNMENT_MINIMUM);

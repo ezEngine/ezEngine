@@ -5,6 +5,8 @@
 #endif
 
 struct android_app;
+struct _JavaVM;
+typedef _JavaVM JavaVM;
 struct _JNIEnv;
 typedef _JNIEnv JNIEnv;
 
@@ -14,6 +16,10 @@ public:
   static void SetAndroidApp(android_app* app);
   static android_app* GetAndroidApp();
 
+  static void SetAndroidJavaVM(JavaVM* vm);
+  static JavaVM* GetAndroidJavaVM();
+
 private:
   static android_app* s_app;
+  static JavaVM* s_vm;
 };

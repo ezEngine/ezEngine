@@ -17,11 +17,7 @@ public:
   virtual void SetResourceViewPlatform(ezGALShaderStage::Enum Stage, ezUInt32 uiSlot, const ezGALResourceView* pResourceView) = 0;
   virtual void SetUnorderedAccessViewPlatform(ezUInt32 uiSlot, const ezGALUnorderedAccessView* pUnorderedAccessView) = 0;
 
-  // Fence & Query functions
-
-  virtual void InsertFencePlatform(const ezGALFence* pFence) = 0;
-  virtual bool IsFenceReachedPlatform(const ezGALFence* pFence) = 0;
-  virtual void WaitForFencePlatform(const ezGALFence* pFence) = 0;
+  // Query functions
 
   virtual void BeginQueryPlatform(const ezGALQuery* pQuery) = 0;
   virtual void EndQueryPlatform(const ezGALQuery* pQuery) = 0;

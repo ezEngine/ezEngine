@@ -14,19 +14,14 @@
 ezRttiMappedObjectFactory<ezQtNode> ezQtNodeScene::s_NodeFactory;
 ezRttiMappedObjectFactory<ezQtPin> ezQtNodeScene::s_PinFactory;
 ezRttiMappedObjectFactory<ezQtConnection> ezQtNodeScene::s_ConnectionFactory;
-ezVec2 ezQtNodeScene::s_LastMouseInteraction(0);
+ezVec2 ezQtNodeScene::s_vLastMouseInteraction(0);
 
 ezQtNodeScene::ezQtNodeScene(QObject* parent)
   : QGraphicsScene(parent)
-  , m_pManager(nullptr)
-  , m_pStartPin(nullptr)
-  , m_pTempConnection(nullptr)
 {
   setItemIndexMethod(QGraphicsScene::NoIndex);
-  m_vPos = ezVec2::ZeroVector();
-  m_bIgnoreSelectionChange = false;
 
-  // setSceneRect(-1000, -1000, 2000, 2000);
+  connect(this, &QGraphicsScene::selectionChanged, this, &ezQtNodeScene::OnSelectionChanged);
 }
 
 ezQtNodeScene::~ezQtNodeScene()
@@ -61,21 +56,11 @@ void ezQtNodeScene::SetDocumentNodeManager(const ezDocumentNodeManager* pManager
     {
       if (pManager->IsNode(pObject))
       {
-        CreateNode(pObject);
+        CreateQtNode(pObject);
       }
-    }
-
-    // Connect Pins
-    for (auto it = m_Nodes.GetIterator(); it.IsValid(); ++it)
-    {
-      auto outputs = pManager->GetOutputPins(it.Value()->GetObject());
-      for (const ezPin* pOutPin : outputs)
+      else if (pManager->IsConnection(pObject))
       {
-        auto connections = pOutPin->GetConnections();
-        for (const ezConnection* pConnection : connections)
-        {
-          ConnectPins(pConnection);
-        }
+        CreateQtConnection(pObject);
       }
     }
   }
@@ -106,30 +91,42 @@ ezRttiMappedObjectFactory<ezQtConnection>& ezQtNodeScene::GetConnectionFactory()
   return s_ConnectionFactory;
 }
 
+void ezQtNodeScene::SetConnectionStyle(ezEnum<ConnectionStyle> style)
+{
+  m_ConnectionStyle = style;
+  invalidate();
+}
+
+void ezQtNodeScene::SetConnectionDecorationFlags(ezBitflags<ConnectionDecorationFlags> flags)
+{
+  m_ConnectionDecorationFlags = flags;
+  invalidate();
+}
+
 void ezQtNodeScene::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
 {
-  m_vPos = ezVec2(event->scenePos().x(), event->scenePos().y());
-  s_LastMouseInteraction = m_vPos;
+  m_vMousePos = ezVec2(event->scenePos().x(), event->scenePos().y());
+  s_vLastMouseInteraction = m_vMousePos;
 
   if (m_pTempConnection)
   {
     event->accept();
 
-    ezVec2 bestPos = m_vPos;
+    ezVec2 bestPos = m_vMousePos;
 
     // snap to the closest pin that we can connect to
     if (!m_ConnectablePins.IsEmpty())
     {
-      const float fPinWidth = m_ConnectablePins[0]->sceneBoundingRect().width();
+      const float fPinSize = m_ConnectablePins[0]->sceneBoundingRect().height();
 
       // this is also the threshold at which we snap to another position
-      float fDistToBest = ezMath::Square(fPinWidth * 2.5f);
+      float fDistToBest = ezMath::Square(fPinSize * 2.5f);
 
       for (auto pin : m_ConnectablePins)
       {
         const QPointF center = pin->sceneBoundingRect().center();
         const ezVec2 pt = ezVec2(center.x(), center.y());
-        const float lenSqr = (pt - s_LastMouseInteraction).GetLengthSquared();
+        const float lenSqr = (pt - s_vLastMouseInteraction).GetLengthSquared();
 
         if (lenSqr < fDistToBest)
         {
@@ -139,7 +136,14 @@ void ezQtNodeScene::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
       }
     }
 
-    m_pTempConnection->SetPosOut(QPointF(bestPos.x, bestPos.y));
+    if (m_pStartPin->GetPin()->GetType() == ezPin::Type::Input)
+    {
+      m_pTempConnection->SetPosOut(QPointF(bestPos.x, bestPos.y));
+    }
+    else
+    {
+      m_pTempConnection->SetPosIn(QPointF(bestPos.x, bestPos.y));
+    }
     return;
   }
 
@@ -152,20 +156,30 @@ void ezQtNodeScene::mousePressEvent(QGraphicsSceneMouseEvent* event)
   {
     case Qt::LeftButton:
     {
-      QTransform id;
-
-      QGraphicsItem* item = itemAt(event->scenePos(), id);
-      if (item && item->type() == Type::Pin)
+      QList<QGraphicsItem*> itemList = items(event->scenePos(), Qt::IntersectsItemBoundingRect);
+      for (QGraphicsItem* item : itemList)
       {
+        if (item->type() != Type::Pin)
+          continue;
+
         event->accept();
         ezQtPin* pPin = static_cast<ezQtPin*>(item);
         m_pStartPin = pPin;
         m_pTempConnection = new ezQtConnection(nullptr);
         addItem(m_pTempConnection);
         m_pTempConnection->SetPosIn(pPin->GetPinPos());
-        m_pTempConnection->SetDirIn(pPin->GetPinDir());
         m_pTempConnection->SetPosOut(pPin->GetPinPos());
-        m_pTempConnection->SetDirOut(-pPin->GetPinDir());
+
+        if (pPin->GetPin()->GetType() == ezPin::Type::Input)
+        {
+          m_pTempConnection->SetDirIn(pPin->GetPinDir());
+          m_pTempConnection->SetDirOut(-pPin->GetPinDir());
+        }
+        else
+        {
+          m_pTempConnection->SetDirIn(-pPin->GetPinDir());
+          m_pTempConnection->SetDirOut(pPin->GetPinDir());
+        }
 
         MarkupConnectablePins(pPin);
         return;
@@ -181,7 +195,6 @@ void ezQtNodeScene::mousePressEvent(QGraphicsSceneMouseEvent* event)
     default:
       break;
   }
-  GetSelection(m_Selection);
 
   QGraphicsScene::mousePressEvent(event);
 }
@@ -192,16 +205,22 @@ void ezQtNodeScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
   {
     event->accept();
 
-    QTransform id;
-    QGraphicsItem* item = itemAt(m_pTempConnection->GetOutPos(), id);
-    if (item && item->type() == Type::Pin)
+    const bool startWasInput = m_pStartPin->GetPin()->GetType() == ezPin::Type::Input;
+    const QPointF releasePos = startWasInput ? m_pTempConnection->GetOutPos() : m_pTempConnection->GetInPos();
+
+    QList<QGraphicsItem*> itemList = items(releasePos, Qt::IntersectsItemBoundingRect);
+    for (QGraphicsItem* item : itemList)
     {
+      if (item->type() != Type::Pin)
+        continue;
+
       ezQtPin* pPin = static_cast<ezQtPin*>(item);
       if (pPin != m_pStartPin && pPin->GetPin()->GetType() != m_pStartPin->GetPin()->GetType())
       {
-        const ezPin* pSourcePin = (m_pStartPin->GetPin()->GetType() == ezPin::Type::Input) ? pPin->GetPin() : m_pStartPin->GetPin();
-        const ezPin* pTargetPin = (m_pStartPin->GetPin()->GetType() == ezPin::Type::Input) ? m_pStartPin->GetPin() : pPin->GetPin();
-        ConnectPinsAction(pSourcePin, pTargetPin);
+        const ezPin* pSourcePin = startWasInput ? pPin->GetPin() : m_pStartPin->GetPin();
+        const ezPin* pTargetPin = startWasInput ? m_pStartPin->GetPin() : pPin->GetPin();
+        ConnectPinsAction(*pSourcePin, *pTargetPin);
+        break;
       }
     }
 
@@ -215,7 +234,6 @@ void ezQtNodeScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
 
   QGraphicsScene::mouseReleaseEvent(event);
 
-  bool bSelectionChanged = false;
   ezSet<const ezDocumentObject*> moved;
   for (auto it = m_Nodes.GetIterator(); it.IsValid(); ++it)
   {
@@ -223,21 +241,7 @@ void ezQtNodeScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
     {
       moved.Insert(it.Key());
     }
-    if (it.Value()->GetFlags().IsSet(ezNodeFlags::SelectionChanged))
-    {
-      bSelectionChanged = true;
-    }
     it.Value()->ResetFlags();
-  }
-
-  if (bSelectionChanged)
-  {
-    ezDeque<const ezDocumentObject*> selection;
-    GetSelection(selection);
-
-    m_bIgnoreSelectionChange = true;
-    ((ezSelectionManager*)m_pManager->GetDocument()->GetSelectionManager())->SetSelection(selection);
-    m_bIgnoreSelectionChange = false;
   }
 
   if (!moved.IsEmpty())
@@ -305,6 +309,8 @@ void ezQtNodeScene::contextMenuEvent(QGraphicsSceneContextMenuEvent* contextMenu
       menu.addAction(pAction);
       connect(pAction, &QAction::triggered, this, [this](bool bChecked) { RemoveSelectedNodesAction(); });
     }
+
+    pNode->ExtendContextMenu(menu);
   }
   else if (iType == Type::Connection)
   {
@@ -312,6 +318,8 @@ void ezQtNodeScene::contextMenuEvent(QGraphicsSceneContextMenuEvent* contextMenu
     QAction* pAction = new QAction("Delete Connection", &menu);
     menu.addAction(pAction);
     connect(pAction, &QAction::triggered, this, [this, pConnection](bool bChecked) { DisconnectPinsAction(pConnection); });
+
+    pConnection->ExtendContextMenu(menu);
   }
   else
   {
@@ -325,7 +333,7 @@ void ezQtNodeScene::contextMenuEvent(QGraphicsSceneContextMenuEvent* contextMenu
 void ezQtNodeScene::keyPressEvent(QKeyEvent* event)
 {
   QTransform id;
-  QGraphicsItem* pItem = itemAt(QPointF(m_vPos.x, m_vPos.y), id);
+  QGraphicsItem* pItem = itemAt(QPointF(m_vMousePos.x, m_vMousePos.y), id);
   if (pItem && pItem->type() == Type::Pin)
   {
     ezQtPin* pin = static_cast<ezQtPin*>(pItem);
@@ -349,20 +357,18 @@ void ezQtNodeScene::keyPressEvent(QKeyEvent* event)
 
 void ezQtNodeScene::Clear()
 {
-  while (!m_ConnectionsSourceTarget.IsEmpty())
+  while (!m_Connections.IsEmpty())
   {
-    DisconnectPins(m_ConnectionsSourceTarget.GetIterator().Key());
+    DeleteQtConnection(m_Connections.GetIterator().Key());
   }
-
-  m_ConnectionsSourceTarget.Clear();
 
   while (!m_Nodes.IsEmpty())
   {
-    DeleteNode(m_Nodes.GetIterator().Key());
+    DeleteQtNode(m_Nodes.GetIterator().Key());
   }
 }
 
-void ezQtNodeScene::CreateNode(const ezDocumentObject* pObject)
+void ezQtNodeScene::CreateQtNode(const ezDocumentObject* pObject)
 {
   ezVec2 vPos = m_pManager->GetNodePos(pObject);
 
@@ -379,7 +385,65 @@ void ezQtNodeScene::CreateNode(const ezDocumentObject* pObject)
   pNode->ResetFlags();
 }
 
-void ezQtNodeScene::CreateNode(const ezRTTI* pRtti)
+void ezQtNodeScene::DeleteQtNode(const ezDocumentObject* pObject)
+{
+  ezQtNode* pNode = m_Nodes[pObject];
+  m_Nodes.Remove(pObject);
+
+  removeItem(pNode);
+  delete pNode;
+}
+
+void ezQtNodeScene::CreateQtConnection(const ezDocumentObject* pObject)
+{
+  const ezConnection& connection = m_pManager->GetConnection(pObject);
+  const ezPin& pinSource = connection.GetSourcePin();
+  const ezPin& pinTarget = connection.GetTargetPin();
+
+  ezQtNode* pSource = m_Nodes[pinSource.GetParent()];
+  ezQtNode* pTarget = m_Nodes[pinTarget.GetParent()];
+  ezQtPin* pOutput = pSource->GetOutputPin(pinSource);
+  ezQtPin* pInput = pTarget->GetInputPin(pinTarget);
+  EZ_ASSERT_DEV(pOutput != nullptr && pInput != nullptr, "Node does not contain pin!");
+
+  ezQtConnection* pQtConnection = s_ConnectionFactory.CreateObject(pObject->GetTypeAccessor().GetType());
+  if (pQtConnection == nullptr)
+  {
+    pQtConnection = new ezQtConnection(nullptr);
+  }
+
+  addItem(pQtConnection);
+  pQtConnection->InitConnection(pObject, &connection);
+  pOutput->AddConnection(pQtConnection);
+  pInput->AddConnection(pQtConnection);
+  m_Connections[pObject] = pQtConnection;
+}
+
+void ezQtNodeScene::DeleteQtConnection(const ezDocumentObject* pObject)
+{
+  ezQtConnection* pQtConnection = m_Connections[pObject];
+  m_Connections.Remove(pObject);
+
+  const ezConnection* pConnection = pQtConnection->GetConnection();
+  EZ_ASSERT_DEV(pConnection != nullptr, "No connection");
+
+  const ezPin& pinSource = pConnection->GetSourcePin();
+  const ezPin& pinTarget = pConnection->GetTargetPin();
+
+  ezQtNode* pSource = m_Nodes[pinSource.GetParent()];
+  ezQtNode* pTarget = m_Nodes[pinTarget.GetParent()];
+  ezQtPin* pOutput = pSource->GetOutputPin(pinSource);
+  ezQtPin* pInput = pTarget->GetInputPin(pinTarget);
+  EZ_ASSERT_DEV(pOutput != nullptr && pInput != nullptr, "Node does not contain pin!");
+
+  pOutput->RemoveConnection(pQtConnection);
+  pInput->RemoveConnection(pQtConnection);
+
+  removeItem(pQtConnection);
+  delete pQtConnection;
+}
+
+void ezQtNodeScene::CreateNodeObject(const ezRTTI* pRtti)
 {
   ezCommandHistory* history = m_pManager->GetDocument()->GetCommandHistory();
   history->StartTransaction("Add Node");
@@ -389,8 +453,6 @@ void ezQtNodeScene::CreateNode(const ezRTTI* pRtti)
     ezAddObjectCommand cmd;
     cmd.m_pType = pRtti;
     cmd.m_NewObjectGuid.CreateNewUuid();
-    // cmd.m_sParentProperty
-    // cmd.m_Parent
     cmd.m_Index = -1;
 
     res = history->AddCommand(cmd);
@@ -398,7 +460,7 @@ void ezQtNodeScene::CreateNode(const ezRTTI* pRtti)
     {
       ezMoveNodeCommand move;
       move.m_Object = cmd.m_NewObjectGuid;
-      move.m_NewPos = m_vPos;
+      move.m_NewPos = m_vMousePos;
       res = history->AddCommand(move);
     }
   }
@@ -409,15 +471,6 @@ void ezQtNodeScene::CreateNode(const ezRTTI* pRtti)
     history->FinishTransaction();
 
   ezQtUiServices::GetSingleton()->MessageBoxStatus(res, "Adding sub-element to the property failed.");
-}
-
-void ezQtNodeScene::DeleteNode(const ezDocumentObject* pObject)
-{
-  ezQtNode* pNode = m_Nodes[pObject];
-  m_Nodes.Remove(pObject);
-
-  removeItem(pNode);
-  delete pNode;
 }
 
 void ezQtNodeScene::NodeEventsHandler(const ezDocumentNodeManagerEvent& e)
@@ -432,47 +485,25 @@ void ezQtNodeScene::NodeEventsHandler(const ezDocumentNodeManagerEvent& e)
     }
     break;
     case ezDocumentNodeManagerEvent::Type::AfterPinsConnected:
-    {
-      ConnectPins(e.m_pConnection);
-    }
-    break;
+      CreateQtConnection(e.m_pObject);
+      break;
+
     case ezDocumentNodeManagerEvent::Type::BeforePinsDisonnected:
-    {
-      DisconnectPins(e.m_pConnection);
-    }
-    break;
-    case ezDocumentNodeManagerEvent::Type::BeforePinsChanged:
-    {
-    }
-    break;
-    case ezDocumentNodeManagerEvent::Type::AfterPinsChanged:
-    {
-    }
-    break;
-      // case ezDocumentNodeManagerEvent::Type::BeforeNodeAdded:
-      //  {
-      //  }
-      //  break;
+      DeleteQtConnection(e.m_pObject);
+      break;
+
     case ezDocumentNodeManagerEvent::Type::AfterNodeAdded:
-    {
-      CreateNode(e.m_pObject);
-    }
-    break;
+      CreateQtNode(e.m_pObject);
+      break;
+
     case ezDocumentNodeManagerEvent::Type::BeforeNodeRemoved:
-    {
-      DeleteNode(e.m_pObject);
-    }
-    break;
-      // case ezDocumentNodeManagerEvent::Type::AfterNodeRemoved:
-      //  {
-      //  }
-      //  break;
+      DeleteQtNode(e.m_pObject);
+      break;
 
     default:
       break;
   }
 }
-
 
 void ezQtNodeScene::PropertyEventsHandler(const ezDocumentObjectPropertyEvent& e)
 {
@@ -508,7 +539,7 @@ void ezQtNodeScene::SelectionEventsHandler(const ezSelectionManagerEvent& e)
 
   bool bAnyPaintChanges = false;
 
-  for (auto itCon : m_ConnectionsSourceTarget)
+  for (auto itCon : m_Connections)
   {
     auto pQtCon = itCon.Value();
     auto pCon = pQtCon->GetConnection();
@@ -519,7 +550,7 @@ void ezQtNodeScene::SelectionEventsHandler(const ezSelectionManagerEvent& e)
 
     for (const ezDocumentObject* pObject : selection)
     {
-      if (pCon->GetSourcePin()->GetParent() == pObject || pCon->GetTargetPin()->GetParent() == pObject)
+      if (pCon->GetSourcePin().GetParent() == pObject || pCon->GetTargetPin().GetParent() == pObject)
       {
         pQtCon->m_bAdjacentNodeSelected = true;
         break;
@@ -538,20 +569,6 @@ void ezQtNodeScene::SelectionEventsHandler(const ezSelectionManagerEvent& e)
   }
 }
 
-void ezQtNodeScene::GetSelection(ezDeque<const ezDocumentObject*>& selection) const
-{
-  selection.Clear();
-  auto items = selectedItems();
-  for (QGraphicsItem* pItem : items)
-  {
-    if (pItem->type() == ezQtNodeScene::Node)
-    {
-      ezQtNode* pNode = static_cast<ezQtNode*>(pItem);
-      selection.PushBack(pNode->GetObject());
-    }
-  }
-}
-
 void ezQtNodeScene::GetSelectedNodes(ezDeque<ezQtNode*>& selection) const
 {
   selection.Clear();
@@ -566,56 +583,14 @@ void ezQtNodeScene::GetSelectedNodes(ezDeque<ezQtNode*>& selection) const
   }
 }
 
-void ezQtNodeScene::ConnectPins(const ezConnection* pConnection)
-{
-  const ezPin* pPinSource = pConnection->GetSourcePin();
-  const ezPin* pPinTarget = pConnection->GetTargetPin();
-
-  ezQtNode* pSource = m_Nodes[pPinSource->GetParent()];
-  ezQtNode* pTarget = m_Nodes[pPinTarget->GetParent()];
-  ezQtPin* pOutput = pSource->GetOutputPin(pPinSource);
-  ezQtPin* pInput = pTarget->GetInputPin(pPinTarget);
-  EZ_ASSERT_DEV(pOutput != nullptr && pInput != nullptr, "Node does not contain pin!");
-
-  ezQtConnection* pQtConnection = s_ConnectionFactory.CreateObject(pConnection->GetDynamicRTTI());
-  if (pQtConnection == nullptr)
-  {
-    pQtConnection = new ezQtConnection(nullptr);
-  }
-
-  addItem(pQtConnection);
-  pQtConnection->SetConnection(pConnection);
-  pOutput->AddConnection(pQtConnection);
-  pInput->AddConnection(pQtConnection);
-  m_ConnectionsSourceTarget[pConnection] = pQtConnection;
-}
-
-void ezQtNodeScene::DisconnectPins(const ezConnection* pConnection)
-{
-  const ezPin* pPinSource = pConnection->GetSourcePin();
-  const ezPin* pPinTarget = pConnection->GetTargetPin();
-
-  ezQtNode* pSource = m_Nodes[pPinSource->GetParent()];
-  ezQtNode* pTarget = m_Nodes[pPinTarget->GetParent()];
-  ezQtPin* pOutput = pSource->GetOutputPin(pPinSource);
-  ezQtPin* pInput = pTarget->GetInputPin(pPinTarget);
-  EZ_ASSERT_DEV(pOutput != nullptr && pInput != nullptr, "Node does not contain pin!");
-
-  ezQtConnection* pQtConnection = m_ConnectionsSourceTarget[pConnection];
-  m_ConnectionsSourceTarget.Remove(pConnection);
-  pOutput->RemoveConnection(pQtConnection);
-  pInput->RemoveConnection(pQtConnection);
-  removeItem(pQtConnection);
-  delete pQtConnection;
-}
-
 void ezQtNodeScene::MarkupConnectablePins(ezQtPin* pQtSourcePin)
 {
   m_ConnectablePins.Clear();
 
-  const bool bConnectForward = pQtSourcePin->GetPin()->GetType() == ezPin::Type::Output;
+  const ezRTTI* pConnectionType = m_pManager->GetConnectionType();
 
   const ezPin* pSourcePin = pQtSourcePin->GetPin();
+  const bool bConnectForward = pSourcePin->GetType() == ezPin::Type::Output;
 
   for (auto it = m_Nodes.GetIterator(); it.IsValid(); ++it)
   {
@@ -623,18 +598,18 @@ void ezQtNodeScene::MarkupConnectablePins(ezQtPin* pQtSourcePin)
     ezQtNode* pTargetNode = it.Value();
 
     {
-      const ezArrayPtr<ezPin* const> pinArray = bConnectForward ? m_pManager->GetInputPins(pDocObject) : m_pManager->GetOutputPins(pDocObject);
+      auto pinArray = bConnectForward ? m_pManager->GetInputPins(pDocObject) : m_pManager->GetOutputPins(pDocObject);
 
-      for (auto pin : pinArray)
+      for (auto& pin : pinArray)
       {
-        ezQtPin* pQtTargetPin = bConnectForward ? pTargetNode->GetInputPin(pin) : pTargetNode->GetOutputPin(pin);
+        ezQtPin* pQtTargetPin = bConnectForward ? pTargetNode->GetInputPin(*pin) : pTargetNode->GetOutputPin(*pin);
 
         ezDocumentNodeManager::CanConnectResult res;
 
         if (bConnectForward)
-          m_pManager->CanConnect(pSourcePin, pin, res);
+          m_pManager->CanConnect(pConnectionType, *pSourcePin, *pin, res);
         else
-          m_pManager->CanConnect(pin, pSourcePin, res);
+          m_pManager->CanConnect(pConnectionType, *pin, *pSourcePin, res);
 
         if (res == ezDocumentNodeManager::CanConnectResult::ConnectNever)
         {
@@ -657,11 +632,11 @@ void ezQtNodeScene::MarkupConnectablePins(ezQtPin* pQtSourcePin)
     }
 
     {
-      const ezArrayPtr<ezPin* const> pinArray = !bConnectForward ? m_pManager->GetInputPins(pDocObject) : m_pManager->GetOutputPins(pDocObject);
+      auto pinArray = !bConnectForward ? m_pManager->GetInputPins(pDocObject) : m_pManager->GetOutputPins(pDocObject);
 
-      for (auto pin : pinArray)
+      for (auto& pin : pinArray)
       {
-        ezQtPin* pQtTargetPin = !bConnectForward ? pTargetNode->GetInputPin(pin) : pTargetNode->GetOutputPin(pin);
+        ezQtPin* pQtTargetPin = !bConnectForward ? pTargetNode->GetInputPin(*pin) : pTargetNode->GetOutputPin(*pin);
         pQtTargetPin->SetHighlightState(ezQtPinHighlightState::CannotConnectSameDirection);
       }
     }
@@ -677,15 +652,15 @@ void ezQtNodeScene::ResetConnectablePinMarkup()
     const ezDocumentObject* pDocObject = it.Key();
     ezQtNode* pTargetNode = it.Value();
 
-    for (auto pin : m_pManager->GetInputPins(pDocObject))
+    for (auto& pin : m_pManager->GetInputPins(pDocObject))
     {
-      ezQtPin* pQtTargetPin = pTargetNode->GetInputPin(pin);
+      ezQtPin* pQtTargetPin = pTargetNode->GetInputPin(*pin);
       pQtTargetPin->SetHighlightState(ezQtPinHighlightState::None);
     }
 
-    for (auto pin : m_pManager->GetOutputPins(pDocObject))
+    for (auto& pin : m_pManager->GetOutputPins(pDocObject))
     {
-      ezQtPin* pQtTargetPin = pTargetNode->GetOutputPin(pin);
+      ezQtPin* pQtTargetPin = pTargetNode->GetOutputPin(*pin);
       pQtTargetPin->SetHighlightState(ezQtPinHighlightState::None);
     }
   }
@@ -783,10 +758,10 @@ void ezQtNodeScene::RemoveSelectedNodesAction()
   history->FinishTransaction();
 }
 
-void ezQtNodeScene::ConnectPinsAction(const ezPin* pSourcePin, const ezPin* pTargetPin)
+void ezQtNodeScene::ConnectPinsAction(const ezPin& sourcePin, const ezPin& targetPin)
 {
   ezDocumentNodeManager::CanConnectResult connect;
-  ezStatus res = m_pManager->CanConnect(pSourcePin, pTargetPin, connect);
+  ezStatus res = m_pManager->CanConnect(m_pManager->GetConnectionType(), sourcePin, targetPin, connect);
 
   if (connect == ezDocumentNodeManager::CanConnectResult::ConnectNever)
   {
@@ -800,17 +775,10 @@ void ezQtNodeScene::ConnectPinsAction(const ezPin* pSourcePin, const ezPin* pTar
   // disconnect everything from the source pin
   if (connect == ezDocumentNodeManager::CanConnectResult::Connect1to1 || connect == ezDocumentNodeManager::CanConnectResult::Connect1toN)
   {
-    const ezArrayPtr<const ezConnection* const> connections = pSourcePin->GetConnections();
+    const ezArrayPtr<const ezConnection* const> connections = m_pManager->GetConnections(sourcePin);
     for (const ezConnection* pConnection : connections)
     {
-      ezDisconnectNodePinsCommand cmd;
-      cmd.m_ObjectSource = pConnection->GetSourcePin()->GetParent()->GetGuid();
-      cmd.m_ObjectTarget = pConnection->GetTargetPin()->GetParent()->GetGuid();
-      cmd.m_sSourcePin = pConnection->GetSourcePin()->GetName();
-      cmd.m_sTargetPin = pConnection->GetTargetPin()->GetName();
-
-      res = history->AddCommand(cmd);
-
+      res = ezNodeCommands::DisconnectAndRemoveCommand(history, pConnection->GetParent()->GetGuid());
       if (res.Failed())
       {
         history->CancelTransaction();
@@ -822,17 +790,10 @@ void ezQtNodeScene::ConnectPinsAction(const ezPin* pSourcePin, const ezPin* pTar
   // disconnect everything from the target pin
   if (connect == ezDocumentNodeManager::CanConnectResult::Connect1to1 || connect == ezDocumentNodeManager::CanConnectResult::ConnectNto1)
   {
-    const ezArrayPtr<const ezConnection* const> connections = pTargetPin->GetConnections();
+    const ezArrayPtr<const ezConnection* const> connections = m_pManager->GetConnections(targetPin);
     for (const ezConnection* pConnection : connections)
     {
-      ezDisconnectNodePinsCommand cmd;
-      cmd.m_ObjectSource = pConnection->GetSourcePin()->GetParent()->GetGuid();
-      cmd.m_ObjectTarget = pConnection->GetTargetPin()->GetParent()->GetGuid();
-      cmd.m_sSourcePin = pConnection->GetSourcePin()->GetName();
-      cmd.m_sTargetPin = pConnection->GetTargetPin()->GetName();
-
-      res = history->AddCommand(cmd);
-
+      res = ezNodeCommands::DisconnectAndRemoveCommand(history, pConnection->GetParent()->GetGuid());
       if (res.Failed())
       {
         history->CancelTransaction();
@@ -843,14 +804,7 @@ void ezQtNodeScene::ConnectPinsAction(const ezPin* pSourcePin, const ezPin* pTar
 
   // connect the two pins
   {
-    ezConnectNodePinsCommand cmd;
-    cmd.m_ObjectSource = pSourcePin->GetParent()->GetGuid();
-    cmd.m_ObjectTarget = pTargetPin->GetParent()->GetGuid();
-    cmd.m_sSourcePin = pSourcePin->GetName();
-    cmd.m_sTargetPin = pTargetPin->GetName();
-
-    res = history->AddCommand(cmd);
-
+    res = ezNodeCommands::AddAndConnectCommand(history, m_pManager->GetConnectionType(), sourcePin, targetPin);
     if (res.Failed())
     {
       history->CancelTransaction();
@@ -869,39 +823,23 @@ void ezQtNodeScene::DisconnectPinsAction(ezQtConnection* pConnection)
     ezCommandHistory* history = GetDocumentNodeManager()->GetDocument()->GetCommandHistory();
     history->StartTransaction("Disconnect Pins");
 
-    ezDisconnectNodePinsCommand cmd;
-    cmd.m_ObjectSource = pConnection->GetConnection()->GetSourcePin()->GetParent()->GetGuid();
-    cmd.m_ObjectTarget = pConnection->GetConnection()->GetTargetPin()->GetParent()->GetGuid();
-    cmd.m_sSourcePin = pConnection->GetConnection()->GetSourcePin()->GetName();
-    cmd.m_sTargetPin = pConnection->GetConnection()->GetTargetPin()->GetName();
-
-    res = history->AddCommand(cmd);
+    res = ezNodeCommands::DisconnectAndRemoveCommand(history, pConnection->GetConnection()->GetParent()->GetGuid());
     if (res.m_Result.Failed())
       history->CancelTransaction();
     else
       history->FinishTransaction();
+  }
 
-    ezQtUiServices::GetSingleton()->MessageBoxStatus(res, "Node disconnect failed.");
-  }
-  else
-  {
-    ezQtUiServices::GetSingleton()->MessageBoxStatus(res, "Node disconnect failed.");
-  }
+  ezQtUiServices::GetSingleton()->MessageBoxStatus(res, "Node disconnect failed.");
 }
 
 void ezQtNodeScene::DisconnectPinsAction(ezQtPin* pPin)
 {
-  ezHybridArray<ezQtConnection*, 6> connections;
-  for (ezQtConnection* pConnection : pPin->GetConnections())
-  {
-    connections.PushBack(pConnection);
-  }
-
   ezCommandHistory* history = m_pManager->GetDocument()->GetCommandHistory();
   history->StartTransaction("Disconnect Pins");
 
   ezStatus res = ezStatus(EZ_SUCCESS);
-  for (ezQtConnection* pConnection : connections)
+  for (ezQtConnection* pConnection : pPin->GetConnections())
   {
     DisconnectPinsAction(pConnection);
   }
@@ -914,16 +852,36 @@ void ezQtNodeScene::DisconnectPinsAction(ezQtPin* pPin)
   ezQtUiServices::GetSingleton()->MessageBoxStatus(res, "Adding sub-element to the property failed.");
 }
 
-void ezQtNodeScene::OnMenuAction()
-{
-  const ezRTTI* pRtti = static_cast<const ezRTTI*>(sender()->property("type").value<void*>());
-
-  CreateNode(pRtti);
-}
-
 void ezQtNodeScene::OnMenuItemTriggered(const QString& sName, const QVariant& variant)
 {
   const ezRTTI* pRtti = static_cast<const ezRTTI*>(variant.value<void*>());
 
-  CreateNode(pRtti);
+  CreateNodeObject(pRtti);
+}
+
+void ezQtNodeScene::OnSelectionChanged()
+{
+  ezCommandHistory* pHistory = m_pManager->GetDocument()->GetCommandHistory();
+  if (pHistory->IsInUndoRedo() || pHistory->IsInTransaction())
+    return;
+
+  m_Selection.Clear();
+  auto items = selectedItems();
+  for (QGraphicsItem* pItem : items)
+  {
+    if (pItem->type() == ezQtNodeScene::Node)
+    {
+      ezQtNode* pNode = static_cast<ezQtNode*>(pItem);
+      m_Selection.PushBack(pNode->GetObject());
+    }
+    else if (pItem->type() == ezQtNodeScene::Connection)
+    {
+      ezQtConnection* pConnection = static_cast<ezQtConnection*>(pItem);
+      m_Selection.PushBack(pConnection->GetObject());
+    }
+  }
+
+  m_bIgnoreSelectionChange = true;
+  m_pManager->GetDocument()->GetSelectionManager()->SetSelection(m_Selection);
+  m_bIgnoreSelectionChange = false;
 }

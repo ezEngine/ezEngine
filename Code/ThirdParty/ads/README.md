@@ -1,10 +1,14 @@
-# Advanced Docking System for Qt
+![ukraine](doc/ukraine.jpg)
+
+![logo](doc/ads_logo.svg)
+
+------------------
 
 [![Build status](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/workflows/linux-builds/badge.svg)](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/actions?query=workflow%3Alinux-builds)
 [![Build status](https://ci.appveyor.com/api/projects/status/qcfb3cy932jw9mpy/branch/master?svg=true)](https://ci.appveyor.com/project/githubuser0xFFFF/qt-advanced-docking-system/branch/master)
 [![License: LGPL v2.1](https://img.shields.io/badge/License-LGPL%20v2.1-blue.svg)](gnu-lgpl-v2.1.md)
 
-[What's new](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/releases/latest) •
+[What's new](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/releases/latest)
 [Documentation](doc/user-guide.md)
 
 Qt Advanced Docking System lets you create customizable layouts using a full
@@ -15,13 +19,20 @@ integrated development environments (IDEs) such as Visual Studio.
 
 ## New and Noteworthy
 
-The [release 3.7](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/releases/tag/3.7.0)
+The [release 3.8](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/releases/latest)
+adds the following features:
+
+- option to close tabs with the middle mouse button
+- `DeleteContentOnClose` flag for dynamic deletion and creation of dock widget
+  content
+
+The [release 3.7](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/releases/tag/3.7.2)
 adds the following features:
 
 - support for **Qt6.**
 - support for [empty dock area](doc/user-guide.md#empty-dock-area)
 
-The [release 3.6](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/releases/tag/3.6.0)
+The [release 3.6](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/releases/tag/3.6.3)
 adds some nice new features:
 
 - support for [central widget](doc/user-guide.md#central-widget) concept
@@ -77,10 +88,15 @@ know it from Visual Studio.
 - [Showcase](#showcase)
   - [Qt Creator IDE](#qt-creator-ide)
   - [Qt Design Studio](#qt-design-studio)
-  - [QmixElements](#qmixelements)
+  - [CETONI Elements](#cetoni-elements)
   - [ezEditor](#ezeditor)
   - [D-Tect X](#d-tect-x)
   - [HiveWE](#hivewe)
+  - [Ramses Composer](#ramses-composer)
+  - [Plot Juggler](#plot-juggler)
+  - [Notepad Next](#notepad-next)
+  - [MetGem](#metgem)
+  - [PRE Workbench](#pre-workbench)
 
 ### Docking everywhere - no central widget
 
@@ -219,7 +235,13 @@ Screenshot Ubuntu:
 
 ## Build
 
-Open the `ads.pro` with QtCreator and start the build, that's it.
+The Linux build requires private header files. Make sure that they are installed:
+
+```bash
+sudo apt install qtbase5-private-dev
+```
+
+Open the `ads.pro` file with QtCreator and start the build, that's it.
 You can run the demo project and test it yourself.
 
 ## Getting started / Example
@@ -266,8 +288,9 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    // Create the dock manager. Because the parent parameter is a QMainWindow
-    // the dock manager registers itself as the central widget.
+    // Create the dock manager after the ui is setup. Because the
+    // parent parameter is a QMainWindow the dock manager registers
+    // itself as the central widget as such the ui must be set up first.
     m_DockManager = new ads::CDockManager(this);
 
     // Create example content label - this can be any application specific
@@ -354,15 +377,14 @@ Taken from the [Qt Blog](https://www.qt.io/blog/qt-design-studio-1.5-beta-releas
 
 > The most obvious change in [Qt Design Studio 1.5](https://www.qt.io/blog/qt-design-studio-1.5-beta-released) is the integration of dock widgets using the Qt Advanced Docking System. This allows the user to fully customize the workspace and also to undock any view into its own top level window. This especially improves the usability when using multiple screens.
 
-![Qt Design Studio](doc/showcase_qt_design_studio.png)
+[![Qt Design Studio](doc/showcase_qt_design_studio_video.png)](https://youtu.be/za9KBWcFXEw?t=84)
 
-### [QmixElements](https://www.cetoni.com/products/qmixelements/)
+### [CETONI Elements](https://www.cetoni.com/products/qmixelements/)
 
-The QmixElements software from [CETONI](https://www.cetoni.com) is a comprehensive, 
-plugin-based and modular laboratory automation software for controlling CETONI devices using a joint graphical user interface. The software features a powerful script system to automate processes. This [blog post](https://www.cetoni.com/blog/qmixelements-advanced-docking-system/) gives a nice overview about the use of the Qt
-Advanced Docking System in the QmixElements sofware.
+The CETONI Elements software from [CETONI](https://www.cetoni.com) is a comprehensive,
+plugin-based and modular laboratory automation software for controlling CETONI devices using a joint graphical user interface. The software features a powerful script system to automate processes. The software uses the advanced docking system to give the user the freedom to arrange all the views and windows that are provided by the various plugins.
 
-![QmixElements](doc/showcase_qmix_elements.png)
+![CETONI_Elements](doc/showcase_qmix_elements.png)
 
 ### [ezEditor](https://github.com/ezEngine/ezEngine)
 
@@ -391,3 +413,68 @@ of the open editor windows.
 [learn more...](https://github.com/stijnherfst/HiveWE)
 
 ![HiveWE](doc/showcase_hivewe.png)
+
+### [Ramses Composer](https://github.com/GENIVI/ramses-composer)
+
+Ramses Composer is the authoring tool for the open source [RAMSES](https://github.com/GENIVI/ramses)
+rendering ecosystem.
+
+Ramses is a low-level rendering engine which is optimized for embedded hardware
+mobile devices, automotive ECUs, IoT electronics. Ramses was initially developed
+at the BMW Group and open-sourced in 2018 as part of a collaboration initiative
+with the Genivi Alliance. It is an important part of the BMW infotainment cluster
+and digital portfolio.
+
+[learn more...](https://github.com/GENIVI/ramses-composer)
+
+![RamsesComposer](doc/showcase_ramses_composer.png)
+
+### [Plot Juggler](https://github.com/facontidavide/PlotJuggler)
+
+PlotJuggler is a fast, powerful and intuitive tool to visualize time series.
+It makes it easy to visualize data but also to analyze it. You can manipulate
+your time series using a simple and extendable Transform Editor. Some of the
+highlights are:
+
+- Simple Drag & Drop user interface.
+- Load data from file.
+- Connect to live streaming of data.
+- Save the visualization layout and configurations to re-use them later.
+- Fast OpenGL visualization.
+- Can handle thousands of timeseries and millions of data points.
+- Transform your data using a simple editor: derivative, moving average, integral, etc…
+- PlotJuggler can be easily extended using plugins.
+
+[read more...](https://github.com/facontidavide/PlotJuggler)
+
+[![Plot Juggler](doc/showcase_plot_juggler.png)](https://vimeo.com/480588113#t=46s)
+
+### [Notepad Next](https://github.com/dail8859/NotepadNext)
+
+Notepad Next is a cross-platform reimplementation of Notepad++ that uses the 
+Advanced Docking System to arrange the open source files on the screen.
+
+[read more...](https://github.com/dail8859/NotepadNext)
+
+![NotepadNext](doc/showcase_notepad_next.png)
+
+### [MetGem](https://metgem.github.io/)
+
+MetGem is an open-source software for tandem mass-spectrometry data visualization.
+It's key features are standalone molecular networking and t-SNE based projections.
+MetGem uses the Qt-Advanced-Docking-System to manage docks and to create independent
+molecular network views.
+
+[read more...](https://metgem.github.io/)
+
+![MetGem](doc/showcase_metgem.png)
+
+### [PRE Workbench](https://luelista.github.io/pre_workbench/)
+
+Protocol Reverse Engineering Workbench is a software to support researchers in reverse engineering protocols and documenting the results. It supports various sources to import protocol traffic from, helps the discovery process by displaying different views and heuristic-based highlighting on data, and aids in documenting and sharing findings.
+
+PRE Workbench is a Python software and uses the ADS PyQt integration.
+
+[read more...](https://luelista.github.io/pre_workbench/)
+
+[![PRE Workbench](doc/showcase_pre_workbench.png)](https://youtu.be/U3op5UreV1Q)

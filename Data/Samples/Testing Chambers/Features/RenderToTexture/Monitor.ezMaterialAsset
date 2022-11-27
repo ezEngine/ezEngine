@@ -15,7 +15,7 @@ o
 			s{":app/VisualShader/Textures.ddl"}
 		}
 		Uuid %DocumentID{u4{17382043958124326024,5158265456709497371}}
-		u4 %Hash{18387457339221739624}
+		u4 %Hash{15299842678867071104}
 		VarArray %MetaInfo{}
 		VarArray %Outputs
 		{
@@ -57,7 +57,6 @@ o
 		Vec3 %Emissive{f{0,0,0}}
 		f %MaskThreshold{0x0000803E}
 		f %Metallic{0}
-		VarArray %Node::Connections{}
 		Vec2 %Node::Pos{f{0xCB502F44,0x44816F42}}
 		f %Occlusion{0x0000803F}
 		f %Opacity{0x0000803F}
@@ -88,12 +87,21 @@ o
 	u3 %v{1}
 	p
 	{
-		VarArray %Node::Connections
-		{
-			Uuid{u4{7229912270965503993,16777938252038602169}}
-		}
 		Vec2 %Node::Pos{f{0xF08D2E43,0x10726B42}}
 		s %Texture{"{ 2fe9db45-6e52-4e17-8e27-5744f9e8ada6 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{10179568817016797108,5593901873668725583}}
+	s %t{"DocumentNodeManager_DefaultConnection"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Connection::Source{u4{6459206307361955508,5325624753748905821}}
+		s %Connection::SourcePin{"RGBA"}
+		Uuid %Connection::Target{u4{1472925947280966046,4689080094941531782}}
+		s %Connection::TargetPin{"BaseColor"}
 	}
 }
 o
@@ -109,19 +117,8 @@ o
 			Uuid{u4{12825864250698177724,4718996857234948425}}
 			Uuid{u4{1472925947280966046,4689080094941531782}}
 			Uuid{u4{6459206307361955508,5325624753748905821}}
+			Uuid{u4{10179568817016797108,5593901873668725583}}
 		}
-	}
-}
-o
-{
-	Uuid %id{u4{7229912270965503993,16777938252038602169}}
-	s %t{"DocumentNodeManagerConnectionInternal"}
-	u3 %v{1}
-	p
-	{
-		s %SourcePin{"RGBA"}
-		Uuid %Target{u4{1472925947280966046,4689080094941531782}}
-		s %TargetPin{"BaseColor"}
 	}
 }
 }
@@ -416,7 +413,7 @@ o
 	u3 %v{1}
 	p
 	{
-		s %Filter{";Texture 2D;Render Target;"}
+		s %Filter{";CompatibleAsset_Texture_2D;"}
 	}
 }
 o
@@ -703,6 +700,24 @@ o
 }
 o
 {
+	Uuid %id{u4{1988646526571382668,10729334715299371304}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"DocumentNodeManager_DefaultConnection"}
+		u3 %TypeSize{8}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{15388913065968328453,11188089115316402371}}
 	s %t{"ezReflectedPropertyDescriptor"}
 	u3 %v{2}
@@ -725,7 +740,7 @@ o
 	u3 %v{1}
 	p
 	{
-		s %Filter{";Texture 2D;Render Target;HTML Texture;"}
+		s %Filter{";CompatibleAsset_Texture_2D;"}
 	}
 }
 o
@@ -1013,7 +1028,7 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezMaterialAssetProperties"}
-		u3 %TypeSize{328}
+		u3 %TypeSize{320}
 		u3 %TypeVersion{4}
 	}
 }

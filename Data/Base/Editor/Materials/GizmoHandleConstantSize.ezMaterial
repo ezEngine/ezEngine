@@ -1,0 +1,13 @@
+string %Shader { "Shaders/Editor/GizmoHandle.ezShader" }
+
+Permutation
+{
+  string %Variable { "GIZMO_CONSTANT_SIZE" }
+  string %Value { "TRUE" }
+}
+
+Permutation
+{
+  string %Variable { "GIZMO_FACE_CAMERA" }
+  string %Value { "FALSE" }
+}

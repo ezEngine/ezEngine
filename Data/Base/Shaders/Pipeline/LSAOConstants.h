@@ -29,6 +29,7 @@ CONSTANT_BUFFER(ezLSAOConstants, 3)
   DirectionInfo Directions[NUM_SWEEP_DIRECTIONS_PER_FRAME];
   UINT1(LineToLinePixelOffset);
   UINT1(TotalLineNumber);
+  UINT1(TotalNumberOfSamples);
 
   // Distance difference from which on samples are ignored.
   FLOAT1(DepthCutoffDistance);

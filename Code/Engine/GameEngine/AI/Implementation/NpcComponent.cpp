@@ -11,7 +11,8 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezNpcComponent, 1)
 {
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("AI"),
+    new ezCategoryAttribute("AI/Experimental"),
+    new ezInDevelopmentAttribute(ezInDevelopmentAttribute::Phase::Alpha),
   }
   EZ_END_ATTRIBUTES;
 }

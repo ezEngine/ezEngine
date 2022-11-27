@@ -1,7 +1,18 @@
 #include <RendererCore/RendererCorePCH.h>
 
+#include <Core/ResourceManager/ResourceManager.h>
 #include <Core/World/World.h>
+#include <Foundation/Application/Application.h>
+#include <Foundation/Configuration/CVar.h>
+#include <Foundation/Containers/DynamicArray.h>
+#include <Foundation/Math/Color8UNorm.h>
+#include <Foundation/Math/ColorScheme.h>
+#include <Foundation/Math/Frustum.h>
+#include <Foundation/Reflection/ReflectionUtils.h>
+#include <Foundation/SimdMath/SimdBBox.h>
 #include <Foundation/Time/Clock.h>
+#include <Foundation/Utilities/DGMLWriter.h>
+#include <RendererCore/Components/AlwaysVisibleComponent.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/GPUResourcePool/GPUResourcePool.h>
 #include <RendererCore/Pipeline/Extractor.h>
@@ -9,15 +20,21 @@
 #include <RendererCore/Pipeline/Passes/TargetPass.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/View.h>
+#include <RendererCore/Rasterizer/RasterizerView.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererFoundation/Profiling/Profiling.h>
+#include <RendererFoundation/Resources/Texture.h>
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
 ezCVarBool ezRenderPipeline::cvar_SpatialCullingVis("Spatial.Culling.Vis", false, ezCVarFlags::Default, "Enables debug visualization of visibility culling");
-
 ezCVarBool cvar_SpatialCullingShowStats("Spatial.Culling.ShowStats", false, ezCVarFlags::Default, "Display some stats of the visibility culling");
 #endif
+
+ezCVarBool cvar_SpatialCullingOcclusionEnable("Spatial.Occlusion.Enable", true, ezCVarFlags::Default, "Use software rasterization for occlusion culling.");
+ezCVarBool cvar_SpatialCullingOcclusionVisView("Spatial.Occlusion.VisView", false, ezCVarFlags::Default, "Render the occlusion framebuffer as an overlay.");
+ezCVarFloat cvar_SpatialCullingOcclusionBoundsInlation("Spatial.Occlusion.BoundsInflation", 0.5f, ezCVarFlags::Default, "How much to inflate bounds during occlusion check.");
+ezCVarFloat cvar_SpatialCullingOcclusionFarPlane("Spatial.Occlusion.FarPlane", 50.0f, ezCVarFlags::Default, "Far plane distance for finding occluders.");
 
 ezRenderPipeline::ezRenderPipeline()
   : m_PipelineState(PipelineState::Uninitialized)
@@ -34,6 +51,15 @@ ezRenderPipeline::ezRenderPipeline()
 
 ezRenderPipeline::~ezRenderPipeline()
 {
+  if (!m_hOcclusionDebugViewTexture.IsInvalidated())
+  {
+    ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+    const ezGALTexture* pTexture = pDevice->GetTexture(m_hOcclusionDebugViewTexture);
+
+    pDevice->DestroyTexture(m_hOcclusionDebugViewTexture);
+    m_hOcclusionDebugViewTexture.Invalidate();
+  }
+
   m_Data[0].Clear();
   m_Data[1].Clear();
 
@@ -105,6 +131,10 @@ ezRenderPipelinePass* ezRenderPipeline::GetPassByName(const ezStringView& sPassN
   return nullptr;
 }
 
+ezHashedString ezRenderPipeline::GetViewName() const
+{
+  return m_sName;
+}
 
 bool ezRenderPipeline::Connect(ezRenderPipelinePass* pOutputNode, const char* szOutputPinName, ezRenderPipelinePass* pInputNode, const char* szInputPinName)
 {
@@ -473,7 +503,7 @@ bool ezRenderPipeline::CreateRenderTargetUsage(const ezView& view)
   m_ConnectionToTextureIndex.Clear();
 
   // Gather all connections that share the same path-through texture and their first and last usage pass index.
-  for (ezUInt32 i = 0; i < m_Passes.GetCount(); i++)
+  for (ezUInt16 i = 0; i < static_cast<ezUInt16>(m_Passes.GetCount()); i++)
   {
     const auto& pPass = m_Passes[i].Borrow();
     ConnectionData& data = m_Connections[pPass];
@@ -506,7 +536,7 @@ bool ezRenderPipeline::CreateRenderTargetUsage(const ezView& view)
           m_ConnectionToTextureIndex[pConn] = m_TextureUsage.GetCount();
           TextureUsageData& texData = m_TextureUsage.ExpandAndGetRef();
 
-          texData.m_bTargetTexture = false;
+          texData.m_iTargetTextureIndex = -1;
           texData.m_uiFirstUsageIdx = i;
           texData.m_uiLastUsageIdx = i;
           texData.m_UsedBy.PushBack(pConn);
@@ -522,6 +552,8 @@ bool ezRenderPipeline::CreateRenderTargetUsage(const ezView& view)
     const auto& pPass = m_Passes[i].Borrow();
     if (pPass->IsInstanceOf<ezTargetPass>())
     {
+      const ezGALRenderTargets& renderTargets = view.GetActiveRenderTargets();
+
       ezTargetPass* pTargetPass = static_cast<ezTargetPass*>(pPass);
       ConnectionData& data = m_Connections[pPass];
       for (ezUInt32 j = 0; j < data.m_Inputs.GetCount(); j++)
@@ -529,17 +561,18 @@ bool ezRenderPipeline::CreateRenderTargetUsage(const ezView& view)
         ezRenderPipelinePassConnection* pConn = data.m_Inputs[j];
         if (pConn != nullptr)
         {
-          ezGALTextureHandle hTexture = pTargetPass->GetTextureHandle(view, pPass->GetInputPins()[j]);
+          const ezGALTextureHandle* hTexture = pTargetPass->GetTextureHandle(renderTargets, pPass->GetInputPins()[j]);
           EZ_ASSERT_DEV(m_ConnectionToTextureIndex.Contains(pConn), "");
 
-          if (!hTexture.IsInvalidated() || pConn->m_Desc.CalculateHash() == defaultTextureDescHash)
+          if (!hTexture || !hTexture->IsInvalidated() || pConn->m_Desc.CalculateHash() == defaultTextureDescHash)
           {
             ezUInt32 uiDataIdx = m_ConnectionToTextureIndex[pConn];
-            m_TextureUsage[uiDataIdx].m_bTargetTexture = true;
+            m_TextureUsage[uiDataIdx].m_iTargetTextureIndex = static_cast<ezInt32>(hTexture - reinterpret_cast<const ezGALTextureHandle*>(&renderTargets));
+            EZ_ASSERT_DEV(reinterpret_cast<const ezGALTextureHandle*>(&renderTargets)[m_TextureUsage[uiDataIdx].m_iTargetTextureIndex] == *hTexture, "Offset computation broken.");
 
             for (auto pUsedByConn : m_TextureUsage[uiDataIdx].m_UsedBy)
             {
-              pUsedByConn->m_TextureHandle = hTexture;
+              pUsedByConn->m_TextureHandle = *hTexture;
             }
           }
           else
@@ -555,7 +588,7 @@ bool ezRenderPipeline::CreateRenderTargetUsage(const ezView& view)
   for (ezUInt32 i = 0; i < m_TextureUsage.GetCount(); i++)
   {
     TextureUsageData& data = m_TextureUsage[i];
-    if (data.m_bTargetTexture)
+    if (data.m_iTargetTextureIndex != -1)
       continue;
 
     m_TextureUsageIdxSortedByFirstUsage.PushBack((ezUInt16)i);
@@ -888,7 +921,7 @@ void ezRenderPipeline::ExtractData(const ezView& view)
     {
       EZ_PROFILE_SCOPE(pExtractor->m_sName.GetData());
 
-      pExtractor->Extract(view, m_visibleObjects, data);
+      pExtractor->Extract(view, m_VisibleObjects, data);
     }
   }
 
@@ -900,18 +933,38 @@ void ezRenderPipeline::ExtractData(const ezView& view)
     {
       EZ_PROFILE_SCOPE(pExtractor->m_sName.GetData());
 
-      pExtractor->PostSortAndBatch(view, m_visibleObjects, data);
+      pExtractor->PostSortAndBatch(view, m_VisibleObjects, data);
     }
   }
 
   m_CurrentExtractThread = (ezThreadID)0;
 }
 
+ezUniquePtr<ezRasterizerViewPool> g_pRasterizerViewPool;
+
+// clang-format off
+EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, SwRasterizer)
+
+  BEGIN_SUBSYSTEM_DEPENDENCIES
+    "Core"
+  END_SUBSYSTEM_DEPENDENCIES
+
+  ON_CORESYSTEMS_STARTUP
+  {
+    g_pRasterizerViewPool = EZ_DEFAULT_NEW(ezRasterizerViewPool);
+  }
+
+  ON_CORESYSTEMS_SHUTDOWN
+  {
+    g_pRasterizerViewPool.Clear();
+  }
+
+EZ_END_SUBSYSTEM_DECLARATION;
+// clang-format on
+
 void ezRenderPipeline::FindVisibleObjects(const ezView& view)
 {
   EZ_PROFILE_SCOPE("Visibility Culling");
-
-  m_visibleObjects.Clear();
 
   ezFrustum frustum;
   view.ComputeCullingFrustum(frustum);
@@ -932,7 +985,46 @@ void ezRenderPipeline::FindVisibleObjects(const ezView& view)
   queryParams.m_pStats = bRecordStats ? &stats : nullptr;
 #endif
 
-  view.GetWorld()->GetSpatialSystem()->FindVisibleObjects(frustum, queryParams, m_visibleObjects);
+  ezFrustum limitedFrustum = frustum;
+  const ezPlane farPlane = limitedFrustum.GetPlane(ezFrustum::PlaneType::FarPlane);
+  limitedFrustum.AccessPlane(ezFrustum::PlaneType::FarPlane).SetFromNormalAndPoint(farPlane.m_vNormal, view.GetCullingCamera()->GetCenterPosition() + farPlane.m_vNormal * cvar_SpatialCullingOcclusionFarPlane.GetValue()); // only use occluders closer than this
+
+  ezRasterizerView* pRasterizer = PrepareOcclusionCulling(limitedFrustum, view);
+  EZ_SCOPE_EXIT(g_pRasterizerViewPool->ReturnRasterizerView(pRasterizer));
+
+  if (pRasterizer != nullptr && pRasterizer->HasRasterizedAnyOccluders())
+  {
+    EZ_PROFILE_SCOPE("Occlusion::FindVisibleObjects");
+
+    auto IsOccluded = [=](const ezSimdBBox& aabb) {
+      // grow the bbox by some percent to counter the lower precision of the occlusion buffer
+
+      ezSimdBBox aabb2;
+      const ezSimdVec4f c = aabb.GetCenter();
+      const ezSimdVec4f e = aabb.GetHalfExtents();
+      aabb2.SetCenterAndHalfExtents(c, e.CompMul(ezSimdVec4f(1.0f + cvar_SpatialCullingOcclusionBoundsInlation)));
+
+      return !pRasterizer->IsVisible(aabb2);
+    };
+
+    m_VisibleObjects.Clear();
+    view.GetWorld()->GetSpatialSystem()->FindVisibleObjects(frustum, queryParams, m_VisibleObjects, IsOccluded);
+  }
+  else
+  {
+    m_VisibleObjects.Clear();
+    view.GetWorld()->GetSpatialSystem()->FindVisibleObjects(frustum, queryParams, m_VisibleObjects, {});
+  }
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  if (pRasterizer)
+  {
+    if (view.GetCameraUsageHint() == ezCameraUsageHint::EditorView || view.GetCameraUsageHint() == ezCameraUsageHint::MainView)
+    {
+      PreviewOcclusionBuffer(*pRasterizer, view);
+    }
+  }
+#endif
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   ezViewHandle hView = view.GetHandle();
@@ -971,7 +1063,7 @@ void ezRenderPipeline::FindVisibleObjects(const ezView& view)
 
 void ezRenderPipeline::Render(ezRenderContext* pRenderContext)
 {
-  //EZ_PROFILE_AND_MARKER(pRenderContext->GetGALContext(), m_sName.GetData());
+  // EZ_PROFILE_AND_MARKER(pRenderContext->GetGALContext(), m_sName.GetData());
   EZ_PROFILE_SCOPE(m_sName.GetData());
 
   EZ_ASSERT_DEV(m_PipelineState != PipelineState::Uninitialized, "Pipeline must be rebuild before rendering.");
@@ -1035,12 +1127,24 @@ void ezRenderPipeline::Render(ezRenderContext* pRenderContext)
   static ezHashedString sPerspective = ezMakeHashedString("CAMERA_MODE_PERSPECTIVE");
   static ezHashedString sStereo = ezMakeHashedString("CAMERA_MODE_STEREO");
 
+  static ezHashedString sVSRTAI = ezMakeHashedString("VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX");
+  static ezHashedString sClipSpaceFlipped = ezMakeHashedString("CLIP_SPACE_FLIPPED");
+  static ezHashedString sTrue = ezMakeHashedString("TRUE");
+  static ezHashedString sFalse = ezMakeHashedString("FALSE");
+
   if (pCamera->IsOrthographic())
     pRenderContext->SetShaderPermutationVariable(sCameraMode, sOrtho);
   else if (pCamera->IsStereoscopic())
     pRenderContext->SetShaderPermutationVariable(sCameraMode, sStereo);
   else
     pRenderContext->SetShaderPermutationVariable(sCameraMode, sPerspective);
+
+  if (ezGALDevice::GetDefaultDevice()->GetCapabilities().m_bVertexShaderRenderTargetArrayIndex)
+    pRenderContext->SetShaderPermutationVariable(sVSRTAI, sTrue);
+  else
+    pRenderContext->SetShaderPermutationVariable(sVSRTAI, sFalse);
+
+  pRenderContext->SetShaderPermutationVariable(sClipSpaceFlipped, ezClipSpaceYMode::RenderToTextureDefault == ezClipSpaceYMode::Flipped ? sTrue : sFalse);
 
   // Also set pipeline specific permutation vars
   for (auto& var : m_PermutationVars)
@@ -1053,16 +1157,39 @@ void ezRenderPipeline::Render(ezRenderContext* pRenderContext)
   renderEvent.m_pPipeline = this;
   renderEvent.m_pRenderViewContext = &renderViewContext;
   renderEvent.m_uiFrameCounter = ezRenderWorld::GetFrameCounter();
-  ezRenderWorld::s_RenderEvent.Broadcast(renderEvent);
+  {
+    EZ_PROFILE_SCOPE("BeforePipelineExecution");
+    ezRenderWorld::s_RenderEvent.Broadcast(renderEvent);
+  }
 
-  ezGALDevice::GetDefaultDevice()->BeginPipeline(m_sName);
+  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+
+  pDevice->BeginPipeline(m_sName, renderViewContext.m_pViewData->m_hSwapChain);
+
+  if (const ezGALSwapChain* pSwapChain = pDevice->GetSwapChain(renderViewContext.m_pViewData->m_hSwapChain))
+  {
+    const ezGALRenderTargets& renderTargets = pSwapChain->GetRenderTargets();
+    // Update target textures after the swap chain acquired new textures.
+    for (ezUInt32 i = 0; i < m_TextureUsage.GetCount(); i++)
+    {
+      TextureUsageData& textureUsageData = m_TextureUsage[i];
+      if (textureUsageData.m_iTargetTextureIndex != -1)
+      {
+        ezGALTextureHandle hTexture = reinterpret_cast<const ezGALTextureHandle*>(&renderTargets)[textureUsageData.m_iTargetTextureIndex];
+        for (auto pUsedByConn : textureUsageData.m_UsedBy)
+        {
+          pUsedByConn->m_TextureHandle = hTexture;
+        }
+      }
+    }
+  }
 
   ezUInt32 uiCurrentFirstUsageIdx = 0;
   ezUInt32 uiCurrentLastUsageIdx = 0;
   for (ezUInt32 i = 0; i < m_Passes.GetCount(); ++i)
   {
     auto& pPass = m_Passes[i];
-
+    EZ_PROFILE_SCOPE(pPass->GetName());
     ezLogBlock passBlock("Render Pass", pPass->GetName());
 
     // Create pool textures
@@ -1124,10 +1251,13 @@ void ezRenderPipeline::Render(ezRenderContext* pRenderContext)
   EZ_ASSERT_DEV(uiCurrentFirstUsageIdx == m_TextureUsageIdxSortedByFirstUsage.GetCount(), "Rendering all passes should have moved us through all texture usage blocks!");
   EZ_ASSERT_DEV(uiCurrentLastUsageIdx == m_TextureUsageIdxSortedByLastUsage.GetCount(), "Rendering all passes should have moved us through all texture usage blocks!");
 
-  ezGALDevice::GetDefaultDevice()->EndPipeline();
+  pDevice->EndPipeline(renderViewContext.m_pViewData->m_hSwapChain);
 
   renderEvent.m_Type = ezRenderWorldRenderEvent::Type::AfterPipelineExecution;
-  ezRenderWorld::s_RenderEvent.Broadcast(renderEvent);
+  {
+    EZ_PROFILE_SCOPE("AfterPipelineExecution");
+    ezRenderWorld::s_RenderEvent.Broadcast(renderEvent);
+  }
 
   pRenderContext->ResetContextState();
 
@@ -1145,6 +1275,198 @@ ezRenderDataBatchList ezRenderPipeline::GetRenderDataBatchesWithCategory(ezRende
 {
   auto& data = m_Data[ezRenderWorld::GetDataIndexForRendering()];
   return data.GetRenderDataBatchesWithCategory(category, filter);
+}
+
+void ezRenderPipeline::CreateDgmlGraph(ezDGMLGraph& graph)
+{
+  ezStringBuilder sTmp;
+  ezHashTable<const ezRenderPipelineNode*, ezUInt32> nodeMap;
+  nodeMap.Reserve(m_Passes.GetCount() + m_TextureUsage.GetCount() * 3);
+  for (ezUInt32 p = 0; p < m_Passes.GetCount(); ++p)
+  {
+    const auto& pPass = m_Passes[p];
+    sTmp.Format("#{}: {}", p, ezStringUtils::IsNullOrEmpty(pPass->GetName()) ? pPass->GetDynamicRTTI()->GetTypeName() : pPass->GetName());
+
+    ezDGMLGraph::NodeDesc nd;
+    nd.m_Color = ezColor::Gray;
+    nd.m_Shape = ezDGMLGraph::NodeShape::Rectangle;
+    ezUInt32 uiGraphNode = graph.AddNode(sTmp, &nd);
+    nodeMap.Insert(pPass.Borrow(), uiGraphNode);
+  }
+
+  for (ezUInt32 i = 0; i < m_TextureUsage.GetCount(); ++i)
+  {
+    const TextureUsageData& data = m_TextureUsage[i];
+
+    for (const ezRenderPipelinePassConnection* pCon : data.m_UsedBy)
+    {
+      ezDGMLGraph::NodeDesc nd;
+      nd.m_Color = data.m_iTargetTextureIndex != -1 ? ezColor::Black : ezColorScheme::GetColor(static_cast<ezColorScheme::Enum>(i % ezColorScheme::Count), 4);
+      nd.m_Shape = ezDGMLGraph::NodeShape::RoundedRectangle;
+
+      ezStringBuilder sFormat;
+      if (!ezReflectionUtils::EnumerationToString(ezGetStaticRTTI<ezGALResourceFormat>(), pCon->m_Desc.m_Format, sFormat, ezReflectionUtils::EnumConversionMode::ValueNameOnly))
+      {
+        sFormat.Format("Unknown Format {}", (int)pCon->m_Desc.m_Format);
+      }
+      sTmp.Format("{} #{}: {}x{}:{}, MSAA:{}, {}Format: {}", data.m_iTargetTextureIndex != -1 ? "RenderTarget" : "PoolTexture", i, pCon->m_Desc.m_uiWidth, pCon->m_Desc.m_uiHeight, pCon->m_Desc.m_uiArraySize, (int)pCon->m_Desc.m_SampleCount, ezGALResourceFormat::IsDepthFormat(pCon->m_Desc.m_Format) ? "Depth" : "Color", sFormat);
+      ezUInt32 uiTextureNode = graph.AddNode(sTmp, &nd);
+
+      ezUInt32 uiOutputNode = *nodeMap.GetValue(pCon->m_pOutput->m_pParent);
+      graph.AddConnection(uiOutputNode, uiTextureNode, pCon->m_pOutput->m_pParent->GetPinName(pCon->m_pOutput));
+      for (const ezRenderPipelineNodePin* pInput : pCon->m_Inputs)
+      {
+        ezUInt32 uiInputNode = *nodeMap.GetValue(pInput->m_pParent);
+        graph.AddConnection(uiTextureNode, uiInputNode, pInput->m_pParent->GetPinName(pInput));
+      }
+    }
+  }
+}
+
+ezRasterizerView* ezRenderPipeline::PrepareOcclusionCulling(const ezFrustum& frustum, const ezView& view)
+{
+  if (!cvar_SpatialCullingOcclusionEnable)
+    return nullptr;
+
+  if (!ezSystemInformation::Get().GetCpuFeatures().IsAvx1Available())
+    return nullptr;
+
+  ezRasterizerView* pRasterizer = nullptr;
+
+  // extract all occlusion geometry from the scene
+  EZ_PROFILE_SCOPE("Occlusion::RasterizeView");
+
+  pRasterizer = g_pRasterizerViewPool->GetRasterizerView(static_cast<ezUInt32>(view.GetViewport().width / 2), static_cast<ezUInt32>(view.GetViewport().height / 2), (float)view.GetViewport().width / (float)view.GetViewport().height);
+  pRasterizer->SetCamera(view.GetCullingCamera());
+
+  {
+    EZ_PROFILE_SCOPE("Occlusion::FindOccluders");
+
+    ezSpatialSystem::QueryParams queryParams;
+    queryParams.m_uiCategoryBitmask = ezDefaultSpatialDataCategories::OcclusionStatic.GetBitmask() | ezDefaultSpatialDataCategories::OcclusionDynamic.GetBitmask();
+    queryParams.m_IncludeTags = view.m_IncludeTags;
+    queryParams.m_ExcludeTags = view.m_ExcludeTags;
+
+    m_VisibleObjects.Clear();
+    view.GetWorld()->GetSpatialSystem()->FindVisibleObjects(frustum, queryParams, m_VisibleObjects, {});
+  }
+
+  pRasterizer->BeginScene();
+
+  for (const ezGameObject* pObj : m_VisibleObjects)
+  {
+    ezMsgExtractOccluderData msg;
+    pObj->SendMessage(msg);
+
+    for (const auto& ed : msg.m_ExtractedOccluderData)
+    {
+      pRasterizer->AddObject(ed.m_pObject, ed.m_Transform);
+    }
+  }
+
+  pRasterizer->EndScene();
+
+  return pRasterizer;
+}
+
+void ezRenderPipeline::PreviewOcclusionBuffer(const ezRasterizerView& rasterizer, const ezView& view)
+{
+  if (!cvar_SpatialCullingOcclusionVisView || !rasterizer.HasRasterizedAnyOccluders())
+    return;
+
+  EZ_PROFILE_SCOPE("Occlusion::DebugPreview");
+
+  const ezUInt32 uiImgWidth = rasterizer.GetResolutionX();
+  const ezUInt32 uiImgHeight = rasterizer.GetResolutionY();
+
+  // get the debug image from the rasterizer
+  ezDynamicArray<ezColorLinearUB> fb;
+  fb.SetCountUninitialized(uiImgWidth * uiImgHeight);
+  rasterizer.ReadBackFrame(fb);
+
+  const float w = (float)uiImgWidth;
+  const float h = (float)uiImgHeight;
+  ezRectFloat rectInPixel1 = ezRectFloat(5.0f, 5.0f, w + 10, h + 10);
+  ezRectFloat rectInPixel2 = ezRectFloat(10.0f, 10.0f, w, h);
+
+  ezDebugRenderer::Draw2DRectangle(view.GetHandle(), rectInPixel1, 0.0f, ezColor::MediumPurple);
+
+  // TODO: it would be better to update a single texture every frame, however since this is a render pass,
+  // we currently can't create nested passes
+  // so either this has to be done elsewhere, or nested passes have to be allowed
+  if (false)
+  {
+    ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+
+    // check whether we need to re-create the texture
+    if (!m_hOcclusionDebugViewTexture.IsInvalidated())
+    {
+      const ezGALTexture* pTexture = pDevice->GetTexture(m_hOcclusionDebugViewTexture);
+
+      if (pTexture->GetDescription().m_uiWidth != uiImgWidth ||
+          pTexture->GetDescription().m_uiHeight != uiImgHeight)
+      {
+        pDevice->DestroyTexture(m_hOcclusionDebugViewTexture);
+        m_hOcclusionDebugViewTexture.Invalidate();
+      }
+    }
+
+    // create the texture
+    if (m_hOcclusionDebugViewTexture.IsInvalidated())
+    {
+      ezGALTextureCreationDescription desc;
+      desc.m_uiWidth = uiImgWidth;
+      desc.m_uiHeight = uiImgHeight;
+      desc.m_Format = ezGALResourceFormat::RGBAUByteNormalized;
+      desc.m_ResourceAccess.m_bImmutable = false;
+
+      m_hOcclusionDebugViewTexture = pDevice->CreateTexture(desc);
+    }
+
+    // upload the image to the texture
+    {
+      ezGALPass* pGALPass = pDevice->BeginPass("RasterizerDebugViewUpdate");
+      auto pCommandEncoder = pGALPass->BeginCompute();
+
+      ezBoundingBoxu32 destBox;
+      destBox.m_vMin.SetZero();
+      destBox.m_vMax = ezVec3U32(uiImgWidth, uiImgHeight, 1);
+
+      ezGALSystemMemoryDescription sourceData;
+      sourceData.m_pData = fb.GetData();
+      sourceData.m_uiRowPitch = uiImgWidth * sizeof(ezColorLinearUB);
+
+      pCommandEncoder->UpdateTexture(m_hOcclusionDebugViewTexture, ezGALTextureSubresource(), destBox, sourceData);
+
+      pGALPass->EndCompute(pCommandEncoder);
+      pDevice->EndPass(pGALPass);
+    }
+
+    ezDebugRenderer::Draw2DRectangle(view.GetHandle(), rectInPixel2, 0.0f, ezColor::White, pDevice->GetDefaultResourceView(m_hOcclusionDebugViewTexture), ezVec2(1, -1));
+  }
+  else
+  {
+    ezTexture2DResourceDescriptor d;
+    d.m_DescGAL.m_uiWidth = rasterizer.GetResolutionX();
+    d.m_DescGAL.m_uiHeight = rasterizer.GetResolutionY();
+    d.m_DescGAL.m_Format = ezGALResourceFormat::RGBAByteNormalized;
+
+    ezGALSystemMemoryDescription content[1];
+    content[0].m_pData = fb.GetData();
+    content[0].m_uiRowPitch = sizeof(ezColorLinearUB) * d.m_DescGAL.m_uiWidth;
+    content[0].m_uiSlicePitch = content[0].m_uiRowPitch * d.m_DescGAL.m_uiHeight;
+    d.m_InitialContent = content;
+
+    static ezAtomicInteger32 name = 0;
+    name.Increment();
+
+    ezStringBuilder sName;
+    sName.Format("RasterizerPreview-{}", name);
+
+    ezTexture2DResourceHandle hDebug = ezResourceManager::CreateResource<ezTexture2DResource>(sName, std::move(d));
+
+    ezDebugRenderer::Draw2DRectangle(view.GetHandle(), rectInPixel2, 0.0f, ezColor::White, hDebug, ezVec2(1, -1));
+  }
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_RenderPipeline);

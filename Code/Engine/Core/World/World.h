@@ -32,7 +32,7 @@ public:
   const char* GetName() const;
 
   /// \brief Returns the index of this world.
-  ezUInt8 GetIndex() const;
+  ezUInt32 GetIndex() const;
 
   /// \name Object Functions
   ///@{
@@ -236,7 +236,10 @@ public:
   /// If any such parent object exists, the search is stopped there, even if that component does not handle messages of the given type.
   /// If no such parent object exists, it searches for all ezEventMessageHandlerComponent instances that are set to 'handle global events'
   /// that handle messages of the given type.
-  void FindEventMsgHandlers(ezEventMessage& msg, const ezGameObject* pSearchObject, ezDynamicArray<const ezComponent*>& out_components) const;
+  void FindEventMsgHandlers(const ezEventMessage& msg, ezGameObject* pSearchObject, ezDynamicArray<ezComponent*>& out_components);
+
+  /// \copydoc ezWorld::FindEventMsgHandlers()
+  void FindEventMsgHandlers(const ezEventMessage& msg, const ezGameObject* pSearchObject, ezDynamicArray<const ezComponent*>& out_components) const;
 
   ///@}
 
@@ -303,6 +306,8 @@ public:
   /// \brief Mark the world for writing by using EZ_LOCK(world.GetWriteMarker()). Only one thread can write at a time.
   ezInternal::WorldData::WriteMarker& GetWriteMarker();
 
+  /// \brief Allows re-setting the maximum time that is spent on component initialization per frame, which is first configured on construction.
+  void SetMaxInitializationTimePerFrame(ezTime maxInitTime);
 
   /// \brief Associates the given user data with the world. The user is responsible for the life time of user data.
   void SetUserData(void* pUserData);
@@ -366,6 +371,9 @@ private:
   void ProcessQueuedMessage(const ezInternal::WorldData::MessageQueue::Entry& entry);
   void ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType);
 
+  template <typename World, typename GameObject, typename Component>
+  static void FindEventMsgHandlers(World& world, const ezEventMessage& msg, GameObject pSearchObject, ezDynamicArray<Component>& out_components);
+
   void RegisterUpdateFunction(const ezWorldModule::UpdateFunctionDesc& desc);
   void DeregisterUpdateFunction(const ezWorldModule::UpdateFunctionDesc& desc);
   void DeregisterUpdateFunctions(ezWorldModule* pModule);
@@ -398,7 +406,7 @@ private:
   typedef ezInternal::WorldData::QueuedMsgMetaData QueuedMsgMetaData;
 
   ezUInt32 m_uiIndex;
-  static ezStaticArray<ezWorld*, 256> s_Worlds;
+  static ezStaticArray<ezWorld*, EZ_MAX_WORLDS> s_Worlds;
 };
 
 #include <Core/World/Implementation/World_inl.h>

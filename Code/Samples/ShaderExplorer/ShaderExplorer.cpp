@@ -16,7 +16,6 @@
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/ShaderCompiler/ShaderManager.h>
 #include <RendererCore/Textures/Texture2DResource.h>
-#include <RendererDX11/Device/DeviceDX11.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Device/DeviceFactory.h>
@@ -25,6 +24,7 @@
 
 static ezUInt32 g_uiWindowWidth = 640;
 static ezUInt32 g_uiWindowHeight = 480;
+static bool g_bWindowResized = false;
 
 class ezShaderExplorerWindow : public ezWindow
 {
@@ -36,6 +36,16 @@ public:
   }
 
   virtual void OnClickClose() override { m_bCloseRequested = true; }
+  virtual ezSizeU32 GetClientAreaSize() const override { return ezSizeU32(g_uiWindowWidth, g_uiWindowHeight); }
+  virtual void OnResize(const ezSizeU32& newWindowSize) override
+  {
+    if (g_uiWindowWidth != newWindowSize.width || g_uiWindowHeight != newWindowSize.height)
+    {
+      g_uiWindowWidth = newWindowSize.width;
+      g_uiWindowHeight = newWindowSize.height;
+      g_bWindowResized = true;
+    }
+  }
 
   bool m_bCloseRequested;
 };
@@ -48,6 +58,12 @@ ezShaderExplorerApp::ezShaderExplorerApp()
 ezApplication::Execution ezShaderExplorerApp::Run()
 {
   m_pWindow->ProcessWindowMessages();
+
+  if (g_bWindowResized)
+  {
+    g_bWindowResized = false;
+    UpdateSwapChain();
+  }
 
   if (m_pWindow->m_bCloseRequested || ezInputManager::GetInputActionState("Main", "CloseApp") == ezKeyState::Pressed)
     return Execution::Quit;
@@ -78,8 +94,8 @@ ezApplication::Execution ezShaderExplorerApp::Run()
     if (ezInputManager::GetInputActionState("Main", "LookNegY", &fInputValue) != ezKeyState::Up)
       mouseMotion.y += fInputValue * fMouseSpeed;
 
-    m_camera->RotateLocally(ezAngle::Radian(0.0), ezAngle::Radian(mouseMotion.y), ezAngle::Radian(0.0));
-    m_camera->RotateGlobally(ezAngle::Radian(0.0), ezAngle::Radian(mouseMotion.x), ezAngle::Radian(0.0));
+    m_pCamera->RotateLocally(ezAngle::Radian(0.0), ezAngle::Radian(mouseMotion.y), ezAngle::Radian(0.0));
+    m_pCamera->RotateGlobally(ezAngle::Radian(0.0), ezAngle::Radian(mouseMotion.x), ezAngle::Radian(0.0));
   }
   else
   {
@@ -103,8 +119,8 @@ ezApplication::Execution ezShaderExplorerApp::Run()
     if (ezInputManager::GetInputActionState("Main", "TurnNegY", &fInputValue) != ezKeyState::Up)
       mouseMotion.y -= fInputValue * fTurnSpeed;
 
-    m_camera->RotateLocally(ezAngle::Radian(0.0), ezAngle::Radian(mouseMotion.y), ezAngle::Radian(0.0));
-    m_camera->RotateGlobally(ezAngle::Radian(0.0), ezAngle::Radian(mouseMotion.x), ezAngle::Radian(0.0));
+    m_pCamera->RotateLocally(ezAngle::Radian(0.0), ezAngle::Radian(mouseMotion.y), ezAngle::Radian(0.0));
+    m_pCamera->RotateGlobally(ezAngle::Radian(0.0), ezAngle::Radian(mouseMotion.x), ezAngle::Radian(0.0));
   }
 
   // movement
@@ -121,13 +137,13 @@ ezApplication::Execution ezShaderExplorerApp::Run()
     if (ezInputManager::GetInputActionState("Main", "MoveNegY", &fInputValue) != ezKeyState::Up)
       cameraMotion.y -= fInputValue;
 
-    m_camera->MoveLocally(cameraMotion.y, cameraMotion.x, 0.0f);
+    m_pCamera->MoveLocally(cameraMotion.y, cameraMotion.x, 0.0f);
   }
 
 
-  m_stuffChanged = false;
-  m_directoryWatcher->EnumerateChanges(ezMakeDelegate(&ezShaderExplorerApp::OnFileChanged, this));
-  if (m_stuffChanged)
+  m_bStuffChanged = false;
+  m_pDirectoryWatcher->EnumerateChanges(ezMakeDelegate(&ezShaderExplorerApp::OnFileChanged, this));
+  if (m_bStuffChanged)
   {
     ezResourceManager::ReloadAllResources(false);
   }
@@ -137,10 +153,15 @@ ezApplication::Execution ezShaderExplorerApp::Run()
     // Before starting to render in a frame call this function
     m_pDevice->BeginFrame();
 
+    m_pDevice->BeginPipeline("ShaderExplorer", m_hSwapChain);
+
     ezGALPass* pGALPass = m_pDevice->BeginPass("ezShaderExplorerMainPass");
+    const ezGALSwapChain* pPrimarySwapChain = m_pDevice->GetSwapChain(m_hSwapChain);
+    ezGALRenderTargetViewHandle hBBRTV = m_pDevice->GetDefaultRenderTargetView(pPrimarySwapChain->GetRenderTargets().m_hRTs[0]);
+    ezGALRenderTargetViewHandle hBBDSV = m_pDevice->GetDefaultRenderTargetView(m_hDepthStencilTexture);
 
     ezGALRenderingSetup renderingSetup;
-    renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, m_hBBRTV).SetDepthStencilTarget(m_hBBDSV);
+    renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, hBBRTV).SetDepthStencilTarget(hBBDSV);
     renderingSetup.m_uiRenderTargetClearMask = 0xFFFFFFFF;
     renderingSetup.m_bClearDepth = true;
     renderingSetup.m_bClearStencil = true;
@@ -150,8 +171,8 @@ ezApplication::Execution ezShaderExplorerApp::Run()
     auto& gc = ezRenderContext::GetDefaultInstance()->WriteGlobalConstants();
     ezMemoryUtils::ZeroFill(&gc, 1);
 
-    gc.WorldToCameraMatrix[0] = m_camera->GetViewMatrix(ezCameraEye::Left);
-    gc.WorldToCameraMatrix[1] = m_camera->GetViewMatrix(ezCameraEye::Right);
+    gc.WorldToCameraMatrix[0] = m_pCamera->GetViewMatrix(ezCameraEye::Left);
+    gc.WorldToCameraMatrix[1] = m_pCamera->GetViewMatrix(ezCameraEye::Right);
     gc.CameraToWorldMatrix[0] = gc.WorldToCameraMatrix[0].GetInverse();
     gc.CameraToWorldMatrix[1] = gc.WorldToCameraMatrix[1].GetInverse();
     gc.ViewportSize = ezVec4((float)g_uiWindowWidth, (float)g_uiWindowHeight, 1.0f / (float)g_uiWindowWidth, 1.0f / (float)g_uiWindowHeight);
@@ -166,7 +187,7 @@ ezApplication::Execution ezShaderExplorerApp::Run()
     ezRenderContext::GetDefaultInstance()->EndRendering();
     m_pDevice->EndPass(pGALPass);
 
-    m_pDevice->Present(m_pDevice->GetPrimarySwapChain(), true);
+    m_pDevice->EndPipeline(m_hSwapChain);
 
     m_pDevice->EndFrame();
     ezRenderContext::GetDefaultInstance()->ResetContextState();
@@ -185,9 +206,9 @@ ezApplication::Execution ezShaderExplorerApp::Run()
 
 void ezShaderExplorerApp::AfterCoreSystemsStartup()
 {
-  m_camera = EZ_DEFAULT_NEW(ezCamera);
-  m_camera->LookAt(ezVec3(3, 3, 1.5), ezVec3(0, 0, 0), ezVec3(0, 1, 0));
-  m_directoryWatcher = EZ_DEFAULT_NEW(ezDirectoryWatcher);
+  m_pCamera = EZ_DEFAULT_NEW(ezCamera);
+  m_pCamera->LookAt(ezVec3(3, 3, 1.5), ezVec3(0, 0, 0), ezVec3(0, 1, 0));
+  m_pDirectoryWatcher = EZ_DEFAULT_NEW(ezDirectoryWatcher);
 
   ezStringBuilder sProjectDir = ">sdk/Data/Samples/ShaderExplorer";
   ezStringBuilder sProjectDirResolved;
@@ -195,7 +216,7 @@ void ezShaderExplorerApp::AfterCoreSystemsStartup()
 
   ezFileSystem::SetSpecialDirectory("project", sProjectDirResolved);
 
-  EZ_VERIFY(m_directoryWatcher->OpenDirectory(sProjectDirResolved, ezDirectoryWatcher::Watch::Writes | ezDirectoryWatcher::Watch::Subdirectories).Succeeded(), "Failed to watch project directory");
+  EZ_VERIFY(m_pDirectoryWatcher->OpenDirectory(sProjectDirResolved, ezDirectoryWatcher::Watch::Writes | ezDirectoryWatcher::Watch::Subdirectories).Succeeded(), "Failed to watch project directory");
 
   ezFileSystem::AddDataDirectory("", "", ":", ezFileSystem::AllowWrites).IgnoreResult();
   ezFileSystem::AddDataDirectory(">appdir/", "AppBin", "bin", ezFileSystem::AllowWrites).IgnoreResult();                                   // writing to the binary directory
@@ -314,11 +335,7 @@ void ezShaderExplorerApp::AfterCoreSystemsStartup()
   // Create a device
   {
     ezGALDeviceCreationDescription DeviceInit;
-    DeviceInit.m_bCreatePrimarySwapChain = true;
     DeviceInit.m_bDebugDevice = true;
-    DeviceInit.m_PrimarySwapChainDescription.m_pWindow = m_pWindow;
-    DeviceInit.m_PrimarySwapChainDescription.m_SampleCount = ezGALMSAASampleCount::None;
-    DeviceInit.m_PrimarySwapChainDescription.m_bAllowScreenshots = true;
 
     m_pDevice = ezGALDeviceFactory::CreateDevice(szRendererName, ezFoundation::GetDefaultAllocator(), DeviceInit);
     EZ_ASSERT_DEV(m_pDevice != nullptr, "Device implemention for '{}' not found", szRendererName);
@@ -330,23 +347,7 @@ void ezShaderExplorerApp::AfterCoreSystemsStartup()
   // now that we have a window and device, tell the engine to initialize the rendering infrastructure
   ezStartup::StartupHighLevelSystems();
 
-  // Get the primary swapchain (this one will always be created by device init except if the user instructs no swap chain creation
-  // explicitly)
-  {
-    ezGALSwapChainHandle hPrimarySwapChain = m_pDevice->GetPrimarySwapChain();
-    const ezGALSwapChain* pPrimarySwapChain = m_pDevice->GetSwapChain(hPrimarySwapChain);
-
-    ezGALTextureCreationDescription texDesc;
-    texDesc.m_uiWidth = g_uiWindowWidth;
-    texDesc.m_uiHeight = g_uiWindowHeight;
-    texDesc.m_Format = ezGALResourceFormat::D24S8;
-    texDesc.m_bCreateRenderTarget = true;
-
-    m_hDepthStencilTexture = m_pDevice->CreateTexture(texDesc);
-
-    m_hBBRTV = m_pDevice->GetDefaultRenderTargetView(pPrimarySwapChain->GetBackBufferTexture());
-    m_hBBDSV = m_pDevice->GetDefaultRenderTargetView(m_hDepthStencilTexture);
-  }
+  UpdateSwapChain();
 
   // Setup Shaders and Materials
   {
@@ -359,13 +360,14 @@ void ezShaderExplorerApp::AfterCoreSystemsStartup()
 
 void ezShaderExplorerApp::BeforeHighLevelSystemsShutdown()
 {
-  m_directoryWatcher->CloseDirectory();
+  m_pDirectoryWatcher->CloseDirectory();
 
   m_pDevice->DestroyTexture(m_hDepthStencilTexture);
   m_hDepthStencilTexture.Invalidate();
 
   m_hMaterial.Invalidate();
   m_hQuadMeshBuffer.Invalidate();
+  m_pDevice->DestroySwapChain(m_hSwapChain);
 
   // tell the engine that we are about to destroy window and graphics device,
   // and that it therefore needs to cleanup anything that depends on that
@@ -380,14 +382,50 @@ void ezShaderExplorerApp::BeforeHighLevelSystemsShutdown()
   m_pWindow->Destroy().IgnoreResult();
   EZ_DEFAULT_DELETE(m_pWindow);
 
-  m_camera.Clear();
-  m_directoryWatcher.Clear();
+  m_pCamera.Clear();
+  m_pDirectoryWatcher.Clear();
+}
+
+void ezShaderExplorerApp::UpdateSwapChain()
+{
+  // Create a Swapchain
+  if (m_hSwapChain.IsInvalidated())
+  {
+    ezGALWindowSwapChainCreationDescription swapChainDesc;
+    swapChainDesc.m_pWindow = m_pWindow;
+    swapChainDesc.m_SampleCount = ezGALMSAASampleCount::None;
+    swapChainDesc.m_bAllowScreenshots = true;
+    swapChainDesc.m_InitialPresentMode = ezGALPresentMode::VSync;
+    m_hSwapChain = ezGALWindowSwapChain::Create(swapChainDesc);
+  }
+  else
+  {
+    m_pDevice->UpdateSwapChain(m_hSwapChain, ezGALPresentMode::VSync).IgnoreResult();
+  }
+
+  if (!m_hSwapChain.IsInvalidated())
+  {
+    m_pDevice->DestroyTexture(m_hDepthStencilTexture);
+    m_hDepthStencilTexture.Invalidate();
+  }
+  // Create depth texture
+  {
+    ezGALTextureCreationDescription texDesc;
+    texDesc.m_uiWidth = g_uiWindowWidth;
+    texDesc.m_uiHeight = g_uiWindowHeight;
+    texDesc.m_Format = ezGALResourceFormat::D24S8;
+    texDesc.m_bCreateRenderTarget = true;
+
+    m_hDepthStencilTexture = m_pDevice->CreateTexture(texDesc);
+  }
 }
 
 void ezShaderExplorerApp::CreateScreenQuad()
 {
   ezGeometry geom;
-  geom.AddRectXY(ezVec2(2, 2), ezColor::Black);
+  ezGeometry::GeoOptions opt;
+  opt.m_Color = ezColor::Black;
+  geom.AddRectXY(ezVec2(2, 2), 1, 1, opt);
 
   ezMeshBufferResourceDescriptor desc;
   desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
@@ -413,15 +451,15 @@ void ezShaderExplorerApp::CreateScreenQuad()
   m_hQuadMeshBuffer = ezResourceManager::GetExistingResource<ezMeshBufferResource>("{E692442B-9E15-46C5-8A00-1B07C02BF8F7}");
 
   if (!m_hQuadMeshBuffer.IsValid())
-    m_hQuadMeshBuffer = ezResourceManager::CreateResource<ezMeshBufferResource>("{E692442B-9E15-46C5-8A00-1B07C02BF8F7}", std::move(desc));
+    m_hQuadMeshBuffer = ezResourceManager::GetOrCreateResource<ezMeshBufferResource>("{E692442B-9E15-46C5-8A00-1B07C02BF8F7}", std::move(desc));
 }
 
-void ezShaderExplorerApp::OnFileChanged(const char* filename, ezDirectoryWatcherAction action)
+void ezShaderExplorerApp::OnFileChanged(const char* filename, ezDirectoryWatcherAction action, ezDirectoryWatcherType type)
 {
-  if (action == ezDirectoryWatcherAction::Modified)
+  if (action == ezDirectoryWatcherAction::Modified && type == ezDirectoryWatcherType::File)
   {
     ezLog::Info("The file {0} was modified", filename);
-    m_stuffChanged = true;
+    m_bStuffChanged = true;
   }
 }
 

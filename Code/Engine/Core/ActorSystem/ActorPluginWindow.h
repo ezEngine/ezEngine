@@ -26,6 +26,7 @@ class EZ_CORE_DLL ezActorPluginWindowOwner : public ezActorPluginWindow
   EZ_ADD_DYNAMIC_REFLECTION(ezActorPluginWindowOwner, ezActorPluginWindow);
 
 public:
+  virtual ~ezActorPluginWindowOwner();
   virtual ezWindowBase* GetWindow() const override;
   virtual ezWindowOutputTargetBase* GetOutputTarget() const override;
 

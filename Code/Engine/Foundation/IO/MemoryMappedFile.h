@@ -62,5 +62,5 @@ public:
   void* GetWritePointer(ezUInt64 uiOffset = 0, OffsetBase base = OffsetBase::Start);
 
 private:
-  ezUniquePtr<ezMemoryMappedFileImpl> m_Impl;
+  ezUniquePtr<ezMemoryMappedFileImpl> m_pImpl;
 };

@@ -26,34 +26,6 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ///////////////////////////////////// ezEditorEngineMsg /////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcessAssetMsg, 1, ezRTTIDefaultAllocator<ezProcessAssetMsg>)
-{
-  EZ_BEGIN_PROPERTIES
-  {
-    EZ_MEMBER_PROPERTY("AssetGuid", m_AssetGuid),
-    EZ_MEMBER_PROPERTY("AssetHash", m_AssetHash),
-    EZ_MEMBER_PROPERTY("ThumbHash", m_ThumbHash),
-    EZ_MEMBER_PROPERTY("AssetPath", m_sAssetPath),
-    EZ_MEMBER_PROPERTY("Platform", m_sPlatform),
-  }
-  EZ_END_PROPERTIES;
-}
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcessAssetResponseMsg, 1, ezRTTIDefaultAllocator<ezProcessAssetResponseMsg>)
-{
-  EZ_BEGIN_PROPERTIES
-  {
-    EZ_MEMBER_PROPERTY("Success", m_bSuccess),
-    EZ_ARRAY_MEMBER_PROPERTY("LogEntries", m_LogEntries),
-  }
-  EZ_END_PROPERTIES;
-}
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-
-
-///////////////////////////////////// ezEditorEngineMsg /////////////////////////////////////
-
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorEngineMsg, 1, ezRTTINoAllocator )
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
@@ -94,6 +66,16 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSimpleConfigMsgToEngine, 1, ezRTTIDefaultAlloc
     EZ_MEMBER_PROPERTY("WhatToDo", m_sWhatToDo),
     EZ_MEMBER_PROPERTY("Payload", m_sPayload),
     EZ_MEMBER_PROPERTY("PayloadValue", m_fPayload),
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSaveProfilingResponseToEditor, 1, ezRTTIDefaultAllocator<ezSaveProfilingResponseToEditor>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("ProfilingFile", m_sProfilingFile),
   }
   EZ_END_PROPERTIES;
 }
@@ -244,6 +226,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDocumentOpenResponseMsgToEditor, 1, ezRTTIDefa
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewDestroyedMsgToEngine, 1, ezRTTIDefaultAllocator<ezViewDestroyedMsgToEngine>)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewDestroyedResponseMsgToEditor, 1, ezRTTIDefaultAllocator<ezViewDestroyedResponseMsgToEditor>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewRedrawMsgToEngine, 1, ezRTTIDefaultAllocator<ezViewRedrawMsgToEngine>)

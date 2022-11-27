@@ -171,11 +171,7 @@ public:
     // Create a device
     {
       ezGALDeviceCreationDescription DeviceInit;
-      DeviceInit.m_bCreatePrimarySwapChain = true;
       DeviceInit.m_bDebugDevice = true;
-      DeviceInit.m_PrimarySwapChainDescription.m_pWindow = m_pWindow;
-      DeviceInit.m_PrimarySwapChainDescription.m_SampleCount = ezGALMSAASampleCount::None;
-      DeviceInit.m_PrimarySwapChainDescription.m_bAllowScreenshots = true;
 
       m_pDevice = ezGALDeviceFactory::CreateDevice(szRendererName, ezFoundation::GetDefaultAllocator(), DeviceInit);
       EZ_ASSERT_DEV(m_pDevice != nullptr, "Device implemention for '{}' not found", szRendererName);
@@ -187,12 +183,15 @@ public:
     // now that we have a window and device, tell the engine to initialize the rendering infrastructure
     ezStartup::StartupHighLevelSystems();
 
-
-    // Get the primary swapchain (this one will always be created by device init except if the user instructs no swap chain creation
-    // explicitly)
+    // Create a Swapchain
     {
-      ezGALSwapChainHandle hPrimarySwapChain = m_pDevice->GetPrimarySwapChain();
-      const ezGALSwapChain* pPrimarySwapChain = m_pDevice->GetSwapChain(hPrimarySwapChain);
+      ezGALWindowSwapChainCreationDescription swapChainDesc;
+      swapChainDesc.m_pWindow = m_pWindow;
+      swapChainDesc.m_SampleCount = ezGALMSAASampleCount::None;
+      swapChainDesc.m_bAllowScreenshots = true;
+      m_hSwapChain = ezGALWindowSwapChain::Create(swapChainDesc);
+
+      const ezGALSwapChain* pPrimarySwapChain = m_pDevice->GetSwapChain(m_hSwapChain);
 
       ezGALTextureCreationDescription texDesc;
       texDesc.m_uiWidth = g_uiWindowWidth;
@@ -206,26 +205,10 @@ public:
       m_hBBDSV = m_pDevice->GetDefaultRenderTargetView(m_hDepthStencilTexture);
     }
 
-    // Create Rasterizer State
-    {
-      ezGALRasterizerStateCreationDescription RasterStateDesc;
-      RasterStateDesc.m_CullMode = ezGALCullMode::Back;
-      RasterStateDesc.m_bFrontCounterClockwise = true;
-      m_hRasterizerState = m_pDevice->CreateRasterizerState(RasterStateDesc);
-      EZ_ASSERT_DEV(!m_hRasterizerState.IsInvalidated(), "Couldn't create rasterizer state!");
-    }
-
-    // Create Depth Stencil state
-    {
-      ezGALDepthStencilStateCreationDescription DepthStencilStateDesc;
-      DepthStencilStateDesc.m_bDepthTest = false;
-      DepthStencilStateDesc.m_bDepthWrite = true;
-      m_hDepthStencilState = m_pDevice->CreateDepthStencilState(DepthStencilStateDesc);
-      EZ_ASSERT_DEV(!m_hDepthStencilState.IsInvalidated(), "Couldn't create depth-stencil state!");
-    }
-
     // Setup Shaders and Materials
     {
+      // the shader (referenced by the material) also defines the render pipeline state, such as backface-culling and depth-testing
+
       m_hMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Materials/Texture.ezMaterial");
 
       // Create the mesh that we use for rendering
@@ -308,24 +291,22 @@ public:
       // Before starting to render in a frame call this function
       m_pDevice->BeginFrame();
 
+      m_pDevice->BeginPipeline("TextureSample", m_hSwapChain);
       ezGALPass* pGALPass = m_pDevice->BeginPass("ezTextureSampleMainPass");
 
       ezGALRenderingSetup renderingSetup;
       renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, m_hBBRTV).SetDepthStencilTarget(m_hBBDSV);
       renderingSetup.m_uiRenderTargetClearMask = 0xFFFFFFFF;
+      renderingSetup.m_bClearDepth = true;
 
       ezGALRenderCommandEncoder* pCommandEncoder = ezRenderContext::GetDefaultInstance()->BeginRendering(pGALPass, renderingSetup, ezRectFloat(0.0f, 0.0f, (float)g_uiWindowWidth, (float)g_uiWindowHeight));
-
-      pCommandEncoder->SetRasterizerState(m_hRasterizerState);
-      pCommandEncoder->SetDepthStencilState(m_hDepthStencilState);
 
       ezMat4 Proj = ezGraphicsUtils::CreateOrthographicProjectionMatrix(m_vCameraPosition.x + -(float)g_uiWindowWidth * 0.5f, m_vCameraPosition.x + (float)g_uiWindowWidth * 0.5f, m_vCameraPosition.y + -(float)g_uiWindowHeight * 0.5f, m_vCameraPosition.y + (float)g_uiWindowHeight * 0.5f, -1.0f, 1.0f);
 
       ezRenderContext::GetDefaultInstance()->BindConstantBuffer("ezTextureSampleConstants", m_hSampleConstants);
       ezRenderContext::GetDefaultInstance()->BindMaterial(m_hMaterial);
 
-      ezMat4 mTransform;
-      mTransform.SetIdentity();
+      ezMat4 mTransform = ezMat4::IdentityMatrix();
 
       ezInt32 iLeftBound = (ezInt32)ezMath::Floor((m_vCameraPosition.x - g_uiWindowWidth * 0.5f) / 100.0f);
       ezInt32 iLowerBound = (ezInt32)ezMath::Floor((m_vCameraPosition.y - g_uiWindowHeight * 0.5f) / 100.0f);
@@ -369,9 +350,10 @@ public:
       ezRenderContext::GetDefaultInstance()->EndRendering();
       m_pDevice->EndPass(pGALPass);
 
-      m_pDevice->Present(m_pDevice->GetPrimarySwapChain(), true);
+      m_pDevice->EndPipeline(m_hSwapChain);
 
       m_pDevice->EndFrame();
+      ezRenderContext::GetDefaultInstance()->ResetContextState();
     }
 
     // needs to be called once per frame
@@ -405,8 +387,7 @@ public:
 
     ezResourceManager::FreeAllUnusedResources();
 
-    m_pDevice->DestroyRasterizerState(m_hRasterizerState);
-    m_pDevice->DestroyDepthStencilState(m_hDepthStencilState);
+    m_pDevice->DestroySwapChain(m_hSwapChain);
 
     // now we can destroy the graphics device
     m_pDevice->Shutdown().IgnoreResult();
@@ -427,7 +408,9 @@ public:
     };
 
     ezGeometry geom;
-    geom.AddRectXY(ezVec2(100, 100), ezColor::Black);
+    ezGeometry::GeoOptions opt;
+    opt.m_Color = ezColor::Black;
+    geom.AddRectXY(ezVec2(100, 100), 1, 1, opt);
 
     ezDynamicArray<Vertex> Vertices;
     ezDynamicArray<ezUInt16> Indices;
@@ -464,19 +447,17 @@ public:
     m_hQuadMeshBuffer = ezResourceManager::GetExistingResource<ezMeshBufferResource>("{E692442B-9E15-46C5-8A00-1B07C02BF8F7}");
 
     if (!m_hQuadMeshBuffer.IsValid())
-      m_hQuadMeshBuffer = ezResourceManager::CreateResource<ezMeshBufferResource>("{E692442B-9E15-46C5-8A00-1B07C02BF8F7}", std::move(desc));
+      m_hQuadMeshBuffer = ezResourceManager::GetOrCreateResource<ezMeshBufferResource>("{E692442B-9E15-46C5-8A00-1B07C02BF8F7}", std::move(desc));
   }
 
 private:
   TextureSampleWindow* m_pWindow;
   ezGALDevice* m_pDevice;
 
+  ezGALSwapChainHandle m_hSwapChain;
   ezGALRenderTargetViewHandle m_hBBRTV;
   ezGALRenderTargetViewHandle m_hBBDSV;
   ezGALTextureHandle m_hDepthStencilTexture;
-
-  ezGALRasterizerStateHandle m_hRasterizerState;
-  ezGALDepthStencilStateHandle m_hDepthStencilState;
 
   ezMaterialResourceHandle m_hMaterial;
   ezMeshBufferResourceHandle m_hQuadMeshBuffer;

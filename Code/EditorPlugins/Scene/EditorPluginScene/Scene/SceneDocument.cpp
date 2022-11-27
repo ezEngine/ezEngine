@@ -20,7 +20,7 @@
 #include <ToolsFoundation/Object/ObjectDirectAccessor.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneDocument, 6, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneDocument, 7, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezSceneDocument::ezSceneDocument(const char* szDocumentPath, DocumentType DocumentType)
@@ -169,7 +169,7 @@ void ezSceneDocument::DuplicateSpecial()
   }
 
   // Serialize to string
-  ezMemoryStreamStorage streamStorage;
+  ezContiguousMemoryStreamStorage streamStorage;
   ezMemoryStreamWriter memoryWriter(&streamStorage);
 
   ezAbstractGraphDdlSerializer::Write(memoryWriter, &graph);
@@ -439,7 +439,7 @@ void ezSceneDocument::DuplicateSelection()
   }
 
   // Serialize to string
-  ezMemoryStreamStorage streamStorage;
+  ezContiguousMemoryStreamStorage streamStorage;
   ezMemoryStreamWriter memoryWriter(&streamStorage);
 
   ezAbstractGraphDdlSerializer::Write(memoryWriter, &graph);
@@ -481,8 +481,7 @@ void ezSceneDocument::ShowOrHideSelectedObjects(ShowOrHide action)
         m_DocumentObjectMetaData->EndModifyMetaData(ezDocumentObjectMetaData::HiddenFlag);
       }
       else
-        m_DocumentObjectMetaData->EndModifyMetaData(0);
-    });
+        m_DocumentObjectMetaData->EndModifyMetaData(0); });
   }
 }
 
@@ -533,8 +532,7 @@ void ezSceneDocument::SetGameMode(GameMode::Enum mode)
   ScheduleSendObjectSelection();
 }
 
-ezStatus ezSceneDocument::CreatePrefabDocumentFromSelection(
-  const char* szFile, const ezRTTI* pRootType, ezDelegate<void(ezAbstractObjectNode*)> AdjustGraphNodeCB /* = ezDelegate<void(ezAbstractObjectNode * )>() */, ezDelegate<void(ezDocumentObject*)> AdjustNewNodesCB /*= ezDelegate<void(ezDocumentObject*)>()*/)
+ezStatus ezSceneDocument::CreatePrefabDocumentFromSelection(const char* szFile, const ezRTTI* pRootType, ezDelegate<void(ezAbstractObjectNode*)> AdjustGraphNodeCB /* = ezDelegate<void(ezAbstractObjectNode * )>() */, ezDelegate<void(ezDocumentObject*)> AdjustNewNodesCB /*= ezDelegate<void(ezDocumentObject*)>()*/)
 {
   EZ_ASSERT_DEV(!AdjustGraphNodeCB.IsValid(), "Not allowed");
   EZ_ASSERT_DEV(!AdjustNewNodesCB.IsValid(), "Not allowed");
@@ -554,6 +552,14 @@ ezStatus ezSceneDocument::CreatePrefabDocumentFromSelection(
 
       pGraphNode->ChangeProperty("LocalPosition", pos);
     }
+
+    if (auto pRotation = pGraphNode->FindProperty("LocalRotation"))
+    {
+      ezQuat rot = pRotation->m_Value.ConvertTo<ezQuat>();
+      rot = -tReference.m_qRotation * rot;
+
+      pGraphNode->ChangeProperty("LocalRotation", rot);
+    }
   };
 
   auto adjustResult = [tReference, this](ezDocumentObject* pObject) {
@@ -561,9 +567,13 @@ ezStatus ezSceneDocument::CreatePrefabDocumentFromSelection(
 
     ezSetObjectPropertyCommand cmd;
     cmd.m_Object = pObject->GetGuid();
+
     cmd.m_sProperty = "LocalPosition";
     cmd.m_NewValue = tOld.m_vPosition + tReference.m_vPosition;
+    GetCommandHistory()->AddCommand(cmd);
 
+    cmd.m_sProperty = "LocalRotation";
+    cmd.m_NewValue = tReference.m_qRotation * tOld.m_qRotation;
     GetCommandHistory()->AddCommand(cmd);
   };
 
@@ -690,8 +700,7 @@ void ezSceneDocument::ShowOrHideAllObjects(ShowOrHide action)
       uiFlags = ezDocumentObjectMetaData::HiddenFlag;
     }
 
-    m_DocumentObjectMetaData->EndModifyMetaData(uiFlags);
-  });
+    m_DocumentObjectMetaData->EndModifyMetaData(uiFlags); });
 }
 void ezSceneDocument::GetSupportedMimeTypesForPasting(ezHybridArray<ezString, 4>& out_MimeTypes) const
 {
@@ -1329,7 +1338,7 @@ void ezSceneDocument::GatherObjectsOfType(ezDocumentObject* pRoot, ezGatherObjec
 
 void ezSceneDocument::OnInterDocumentMessage(ezReflectedClass* pMessage, ezDocument* pSender)
 {
-  //#TODO needs to be overwritten by Scene2
+  // #TODO needs to be overwritten by Scene2
   if (pMessage->GetDynamicRTTI()->IsDerivedFrom<ezGatherObjectsOfTypeMsgInterDoc>())
   {
     GatherObjectsOfType(GetObjectManager()->GetRootObject(), static_cast<ezGatherObjectsOfTypeMsgInterDoc*>(pMessage));
@@ -1425,15 +1434,15 @@ void ezSceneDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
   pInfo->m_MetaInfo.PushBack(pExposedParams);
 }
 
-ezStatus ezSceneDocument::ExportScene(bool bCreateThumbnail)
+ezTransformStatus ezSceneDocument::ExportScene(bool bCreateThumbnail)
 {
-  //#TODO export layers
+  // #TODO export layers
   auto saveres = SaveDocument();
 
   if (saveres.m_Result.Failed())
     return saveres;
 
-  ezStatus res;
+  ezTransformStatus res;
 
   if (bCreateThumbnail)
   {
@@ -1443,7 +1452,7 @@ ezStatus ezSceneDocument::ExportScene(bool bCreateThumbnail)
   else
     res = TransformAsset(ezTransformFlags::ForceTransform | ezTransformFlags::TriggeredManually);
 
-  if (res.m_Result.Failed())
+  if (res.Failed())
     ezLog::Error(res.m_sMessage);
   else
     ezLog::Success(res.m_sMessage);
@@ -1493,7 +1502,7 @@ void ezSceneDocument::HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg)
   }
 }
 
-ezStatus ezSceneDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezTransformStatus ezSceneDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   if (m_DocumentType == DocumentType::Prefab)
   {
@@ -1511,7 +1520,7 @@ ezStatus ezSceneDocument::InternalTransformAsset(const char* szTargetFile, const
 }
 
 
-ezStatus ezSceneDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezTransformStatus ezSceneDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   EZ_ASSERT_NOT_IMPLEMENTED;
 
@@ -1520,7 +1529,7 @@ ezStatus ezSceneDocument::InternalTransformAsset(ezStreamWriter& stream, const c
 }
 
 
-ezStatus ezSceneDocument::InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo)
+ezTransformStatus ezSceneDocument::InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo)
 {
   ezStatus status = ezAssetDocument::RemoteCreateThumbnail(ThumbnailInfo, {});
 
@@ -1536,7 +1545,7 @@ ezStatus ezSceneDocument::InternalCreateThumbnail(const ThumbnailInfo& Thumbnail
 
 void ezSceneDocument::SyncObjectHiddenState()
 {
-  //#TODO Scene2 handling
+  // #TODO Scene2 handling
   for (auto pChild : GetObjectManager()->GetRootObject()->GetChildren())
   {
     SyncObjectHiddenState(pChild);

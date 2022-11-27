@@ -29,7 +29,7 @@ void ezLUTAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaStateEven
 
 ezString ezLUTAssetProperties::GetAbsoluteInputFilePath() const
 {
-  ezStringBuilder sPath = m_Input;
+  ezStringBuilder sPath = m_sInput;
   sPath.MakeCleanPath();
 
   if (!sPath.IsAbsolutePath())

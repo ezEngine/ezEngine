@@ -12,7 +12,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezAnimClip2D, ezNoBase, 1, ezRTTIDefaultAllocator
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Clip", GetAnimationFile, SetAnimationFile)->AddAttributes(new ezAssetBrowserAttribute("Animation Clip")),
+    EZ_ACCESSOR_PROPERTY("Clip", GetAnimationFile, SetAnimationFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Keyframe_Animation")),
     EZ_MEMBER_PROPERTY("Position", m_vPosition),
   }
   EZ_END_PROPERTIES;
@@ -26,7 +26,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMixClips2DAnimNode, 1, ezRTTIDefaultAllocator<
     EZ_MEMBER_PROPERTY("Common", m_State),
 
     EZ_MEMBER_PROPERTY("InputResponse", m_InputResponse),
-    EZ_ACCESSOR_PROPERTY("CenterClip", GetCenterClipFile, SetCenterClipFile)->AddAttributes(new ezAssetBrowserAttribute("Animation Clip")),
+    EZ_ACCESSOR_PROPERTY("CenterClip", GetCenterClipFile, SetCenterClipFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Keyframe_Animation")),
     EZ_ARRAY_MEMBER_PROPERTY("Clips", m_Clips),
 
     EZ_MEMBER_PROPERTY("Active", m_ActivePin)->AddAttributes(new ezHiddenAttribute()),
@@ -42,7 +42,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMixClips2DAnimNode, 1, ezRTTIDefaultAllocator<
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Animation Sampling"),
-    new ezColorAttribute(ezColor::SteelBlue),
+    new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Blue)),
     new ezTitleAttribute("Mix2D '{CenterClip}'"),
   }
   EZ_END_ATTRIBUTES;

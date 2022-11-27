@@ -83,6 +83,9 @@ private:
   void FlushQueuedChanges();
   void UpdatePropertyMetaState();
 
+protected:
+  virtual void showEvent(QShowEvent* event) override;
+
 private:
   bool m_bUndead = false;
   ezQtPropertyGridWidget* m_pGrid = nullptr;
@@ -100,5 +103,5 @@ private:
   QGridLayout* m_pLayout;
   ezMap<ezString, PropertyWidgetData> m_PropertyWidgets;
   ezHybridArray<ezString, 1> m_QueuedChanges;
+  QPalette m_Pal;
 };
-

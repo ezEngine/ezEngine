@@ -86,7 +86,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, ArrayPtr)
     EZ_TEST_BOOL(ap.GetCount() == 0);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator== / operator!=")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator== / operator!= / operator<")
   {
     ezInt32 pIntData[] = {1, 2, 3, 4, 5};
 
@@ -98,6 +98,11 @@ EZ_CREATE_SIMPLE_TEST(Basics, ArrayPtr)
     EZ_TEST_BOOL(ap1 == ap2);
     EZ_TEST_BOOL(ap1 != ap3);
     EZ_TEST_BOOL(ap1 != ap4);
+
+    EZ_TEST_BOOL(ap1 < ap3);
+    ezInt32 pIntData2[] = {1, 2, 4};
+    ezArrayPtr<ezInt32> ap5(pIntData2, 3);
+    EZ_TEST_BOOL(ap1 < ap5);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator[]")
@@ -332,6 +337,31 @@ EZ_CREATE_SIMPLE_TEST(Basics, ArrayPtr)
     // STL lower bound
     auto lb = std::lower_bound(rbegin(ptr2), rend(ptr2), 400);
     EZ_TEST_BOOL(*lb == ptr2[1000 - 400 - 1]);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Contains / IndexOf / LastIndexOf")
+  {
+    ezDynamicArray<ezInt32> a0;
+    ezArrayPtr<ezInt32> a1 = a0;
+
+    for (ezInt32 i = -100; i < 100; ++i)
+      EZ_TEST_BOOL(!a1.Contains(i));
+
+    for (ezInt32 i = 0; i < 100; ++i)
+      a0.PushBack(i);
+    for (ezInt32 i = 0; i < 100; ++i)
+      a0.PushBack(i);
+
+    a1 = a0;
+
+    for (ezInt32 i = 0; i < 100; ++i)
+    {
+      EZ_TEST_BOOL(a1.Contains(i));
+      EZ_TEST_INT(a1.IndexOf(i), i);
+      EZ_TEST_INT(a1.IndexOf(i, 100), i + 100);
+      EZ_TEST_INT(a1.LastIndexOf(i), i + 100);
+      EZ_TEST_INT(a1.LastIndexOf(i, 100), i);
+    }
   }
 
   // "Implicit Conversions"

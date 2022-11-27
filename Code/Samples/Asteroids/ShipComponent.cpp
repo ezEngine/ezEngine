@@ -1,11 +1,14 @@
 #include "ShipComponent.h"
+
 #include "CollidableComponent.h"
 #include "Level.h"
 #include "ProjectileComponent.h"
+
+#include <Core/Input/DeviceTypes/Controller.h>
+#include <Core/System/ControllerInput.h>
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/Utilities/Stats.h>
 #include <RendererCore/Meshes/MeshComponent.h>
-#include <XBoxControllerPlugin/InputDeviceXBox.h>
 
 // clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ShipComponent, 1, ezComponentMode::Dynamic);
@@ -16,7 +19,7 @@ ezCVarFloat CVar_MaxAmmo("g_MaxAmmo", 20.0f, ezCVarFlags::Default, "How much amm
 ezCVarFloat CVar_MaxHealth("g_MaxHealth", 30.0f, ezCVarFlags::Default, "How much health a ship can have");
 ezCVarFloat CVar_ProjectileSpeed("g_ProjectileSpeed", 100.0f, ezCVarFlags::Default, "Projectile fly speed");
 ezCVarFloat CVar_ProjectileAmmoPerShot("g_AmmoPerShot", 0.2f, ezCVarFlags::Default, "Ammo used up per shot");
-ezCVarFloat CVar_ShotDelay("g_ShotDelay", 1.0 / 20.0, ezCVarFlags::Default, "Delay between each shot");
+ezCVarFloat CVar_ShotDelay("g_ShotDelay", 1.0f / 20.0f, ezCVarFlags::Default, "Delay between each shot");
 
 ShipComponent::ShipComponent()
 {
@@ -135,7 +138,10 @@ void ShipComponent::Update()
 
     float ShootTrack[20] = {1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
 
-    ezInputDeviceXBox360::GetDevice()->AddVibrationTrack(m_iPlayerIndex, ezInputDeviceController::Motor::RightMotor, ShootTrack, 20);
+    if (ezControllerInput::HasDevice())
+    {
+      ezControllerInput::GetDevice()->AddVibrationTrack(static_cast<ezUInt8>(m_iPlayerIndex), ezInputDeviceController::Motor::RightMotor, ShootTrack, 20);
+    }
   }
 
   m_fAmmunition = ezMath::Clamp<float>(m_fAmmunition + (float)tDiff.GetSeconds(), 0.0f, CVar_MaxAmmo);

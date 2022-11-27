@@ -130,10 +130,11 @@ TextureImport.Diffuse;Diffuse Texture
 TextureImport.Normal;Normal Map
 TextureImport.HDR;HDR Texture
 TextureImport.Linear;Linear Texture
-TextureImport.AO;Ambient Occlusion Texture
+TextureImport.Occlusion;Occlusion Texture
 TextureImport.Height;Height Map Texture
 TextureImport.Metalness;Metalness Texture
 TextureImport.Roughness;Roughness Texture
+TextureImport.ORM;Occlusion / Roughness / Metalness
 ezDecalMode::BaseColor;Base Color
 ezDecalMode::BaseColorNormal;Base Color, Normal
 ezDecalMode::BaseColorORM;Base Color, ORM
@@ -204,6 +205,7 @@ Common.Pause;Pause
 Common.Restart;Restart
 Common.Loop;Loop
 Common.Grid;Grid
+Common.Visualizers;Visualizers
 Common.Speed.01;10%
 Common.Speed.025;25%
 Common.Speed.05;50%
@@ -214,7 +216,6 @@ Common.Speed.3;300%
 Common.Speed.4;400%
 Common.Speed.5;500%
 Common.Speed.10;1000%
-Common.Grid;Grid
 ezComparisonOperator::Equal;=
 ezComparisonOperator::NotEqual;<>
 ezComparisonOperator::Less;<
@@ -249,3 +250,55 @@ ezPlaySequenceAnimNode;Play Clip Sequence
 Common;Common
 MiddleClips;Middle Clips
 ezLogAnimNode;Log
+CustomAction_CreateShaderFromTemplate;Create Shader From Template...
+MaterialAsset.Model;Preview Model
+ezMaterialAssetPreview::Ball;Ball
+ezMaterialAssetPreview::Sphere;Sphere
+ezMaterialAssetPreview::Box;Box
+ezMaterialAssetPreview::Plane;Plane
+Skeleton.RenderBones;Render Bones
+Skeleton.RenderColliders;Render Colliders
+Skeleton.RenderJoints;Render Joints
+Skeleton.RenderSwingLimits;Render Swing Limits
+Skeleton.RenderTwistLimits;Render Twist Limits
+BoneShapes;Shapes
+ezEditableSkeletonBoneShape;Shape
+Radius;Radius
+Animated Mesh;Animated Mesh
+Animation Clip;Animation Clip
+Animation Controller;Animation Controller
+Collection;Collection
+ColorGradient;Color Gradient
+Curve1D;Curve 1D
+Decal;Decal
+Image Data;Image Data
+LUT;Lookup Table
+Layer;Scene Layer
+Material;Material
+Mesh;Mesh
+Prefab;Prefab
+PropertyAnim;Property Animation
+Render Target;Render Target
+RenderPipeline;Render Pipeline
+Scene;Scene
+Skeleton;Skeleton
+Surface;Surface
+Texture 2D;Texture 2D
+Texture Cube;Texture Cube
+Visual Script;Visual Script
+StateMachine;State Machine
+ezStateMachineNode;New State
+ezStateMachineNodeAny;New Any State
+ezStateMachineState_SendMsg;Send Message State
+ezStateMachineState_NestedStateMachine;Nested State Machine
+ezStateMachineState_Compound;Compound State
+ezStateMachineTransition_BlackboardConditions;Blackboard Conditions
+ezStateMachineTransition_Timeout;Timeout Transition
+ezStateMachineTransition_Compound;Compound Transition
+ezStateMachineLogicOperator::And;AND
+ezStateMachineLogicOperator::Or;OR
+Type;Type
+Conditions;Conditions
+ezBlackboardCondition;Blackboard Condition
+SubStates;Sub States
+SubTransitions;Sub Transitions

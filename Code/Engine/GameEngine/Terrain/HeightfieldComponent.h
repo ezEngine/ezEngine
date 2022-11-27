@@ -57,7 +57,7 @@ class EZ_GAMEENGINE_DLL ezHeightfieldComponent : public ezRenderComponent
   //////////////////////////////////////////////////////////////////////////
   // ezRenderComponent
 protected:
-  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible) override;
+  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg) override;
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
 
   //////////////////////////////////////////////////////////////////////////

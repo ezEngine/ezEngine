@@ -1,13 +1,31 @@
-#include <RendererVulkanPCH.h>
+#include <RendererVulkan/RendererVulkanPCH.h>
 
-#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#  include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#endif
+
+#include <Core/System/Window.h>
 #include <Foundation/Configuration/Startup.h>
+#include <Foundation/Profiling/Profiling.h>
+#include <Foundation/System/PlatformFeatures.h>
+#include <RendererFoundation/CommandEncoder/RenderCommandEncoder.h>
 #include <RendererFoundation/Device/DeviceFactory.h>
+#include <RendererFoundation/Device/SwapChain.h>
+#include <RendererFoundation/Profiling/Profiling.h>
+#include <RendererVulkan/Cache/ResourceCacheVulkan.h>
+#include <RendererVulkan/CommandEncoder/CommandEncoderImplVulkan.h>
 #include <RendererVulkan/Device/DeviceVulkan.h>
+#include <RendererVulkan/Device/InitContext.h>
 #include <RendererVulkan/Device/PassVulkan.h>
 #include <RendererVulkan/Device/SwapChainVulkan.h>
+#include <RendererVulkan/Pools/CommandBufferPoolVulkan.h>
+#include <RendererVulkan/Pools/DescriptorSetPoolVulkan.h>
+#include <RendererVulkan/Pools/FencePoolVulkan.h>
+#include <RendererVulkan/Pools/QueryPoolVulkan.h>
+#include <RendererVulkan/Pools/SemaphorePoolVulkan.h>
+#include <RendererVulkan/Pools/StagingBufferPoolVulkan.h>
 #include <RendererVulkan/Resources/BufferVulkan.h>
-#include <RendererVulkan/Resources/FenceVulkan.h>
+#include <RendererVulkan/Resources/FallbackResourcesVulkan.h>
 #include <RendererVulkan/Resources/QueryVulkan.h>
 #include <RendererVulkan/Resources/RenderTargetViewVulkan.h>
 #include <RendererVulkan/Resources/ResourceViewVulkan.h>
@@ -16,49 +34,105 @@
 #include <RendererVulkan/Shader/ShaderVulkan.h>
 #include <RendererVulkan/Shader/VertexDeclarationVulkan.h>
 #include <RendererVulkan/State/StateVulkan.h>
+#include <RendererVulkan/Utils/ImageCopyVulkan.h>
+#include <RendererVulkan/Utils/PipelineBarrierVulkan.h>
 
-ezInt32 getGraphicsAndComputeQueue(ezArrayPtr<vk::QueueFamilyProperties> queueFamilyProperties)
+#if EZ_ENABLED(EZ_SUPPORTS_GLFW)
+#  include <GLFW/glfw3.h>
+#endif
+
+EZ_DEFINE_AS_POD_TYPE(VkLayerProperties);
+
+namespace
 {
-  for (ezUInt32 i = 0; i < queueFamilyProperties.GetCount(); ++i)
+  VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData)
   {
-    const vk::QueueFamilyProperties& queueFamilyProperty = queueFamilyProperties[i];
-    if (queueFamilyProperty.queueCount > 0 &&
-        (queueFamilyProperty.queueFlags & vk::QueueFlagBits::eGraphics) &&
-        (queueFamilyProperty.queueFlags & vk::QueueFlagBits::eCompute))
+    switch (messageSeverity)
     {
-      return i;
+      case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
+        ezLog::Debug("VK: {}", pCallbackData->pMessage);
+        break;
+      case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:
+        ezLog::Info("VK: {}", pCallbackData->pMessage);
+        break;
+      case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT:
+        ezLog::Warning("VK: {}", pCallbackData->pMessage);
+        break;
+      case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
+        ezLog::Error("VK: {}", pCallbackData->pMessage);
+        break;
+      default:
+        break;
     }
+    // Only layers are allowed to return true here.
+    return VK_FALSE;
   }
-  return -1;
+
+  bool isInstanceLayerPresent(const char* layerName)
+  {
+    uint32_t layerCount = 0;
+    vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
+
+    ezDynamicArray<VkLayerProperties> availableLayers;
+    availableLayers.SetCountUninitialized(layerCount);
+    vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.GetData());
+
+    for (const auto& layerProperties : availableLayers)
+    {
+      if (strcmp(layerName, layerProperties.layerName) == 0)
+      {
+        return true;
+      }
+    }
+
+    return false;
+  }
+} // namespace
+
+// Need to implement these extension functions so vulkan hpp can call them.
+// They're basically just adapters calling the function pointer retrieved previously.
+
+PFN_vkSetDebugUtilsObjectNameEXT vkSetDebugUtilsObjectNameEXTFunc;
+PFN_vkQueueBeginDebugUtilsLabelEXT vkQueueBeginDebugUtilsLabelEXTFunc;
+PFN_vkQueueEndDebugUtilsLabelEXT vkQueueEndDebugUtilsLabelEXTFunc;
+PFN_vkCmdBeginDebugUtilsLabelEXT vkCmdBeginDebugUtilsLabelEXTFunc;
+PFN_vkCmdEndDebugUtilsLabelEXT vkCmdEndDebugUtilsLabelEXTFunc;
+PFN_vkCmdInsertDebugUtilsLabelEXT vkCmdInsertDebugUtilsLabelEXTFunc;
+
+
+VkResult vkSetDebugUtilsObjectNameEXT(VkDevice device, const VkDebugUtilsObjectNameInfoEXT* pObjectName)
+{
+  return vkSetDebugUtilsObjectNameEXTFunc(device, pObjectName);
 }
 
-// Need to implement these extension functions so vulkan hpp can call them
-// They're basically just adapters calling the function pointer retreived previously
-// TODO the pointers will probably differ for different devices so how could we go about that?
-
-PFN_vkCmdDebugMarkerBeginEXT vkCmdDebugMarkerBeginEXTFunc;
-PFN_vkCmdDebugMarkerEndEXT vkCmdDebugMarkerEndEXTFunc;
-PFN_vkCmdDebugMarkerInsertEXT vkCmdDebugMarkerInsertEXTFunc;
-PFN_vkDebugMarkerSetObjectNameEXT vkDebugMarkerSetObjectNameEXTFunc;
-
-void vkCmdDebugMarkerBeginEXT(VkCommandBuffer commandBuffer, const VkDebugMarkerMarkerInfoEXT* pMarkerInfo)
+void vkQueueBeginDebugUtilsLabelEXT(VkQueue queue, const VkDebugUtilsLabelEXT* pLabelInfo)
 {
-  vkCmdDebugMarkerBeginEXTFunc(commandBuffer, pMarkerInfo);
+  return vkQueueBeginDebugUtilsLabelEXTFunc(queue, pLabelInfo);
 }
 
-void vkCmdDebugMarkerEndEXT(VkCommandBuffer commandBuffer)
+void vkQueueEndDebugUtilsLabelEXT(VkQueue queue)
 {
-  vkCmdDebugMarkerEndEXTFunc(commandBuffer);
+  return vkQueueEndDebugUtilsLabelEXTFunc(queue);
+}
+//
+// void vkQueueInsertDebugUtilsLabelEXT(VkQueue queue, const VkDebugUtilsLabelEXT* pLabelInfo)
+//{
+//  return vkQueueInsertDebugUtilsLabelEXTFunc(queue, pLabelInfo);
+//}
+
+void vkCmdBeginDebugUtilsLabelEXT(VkCommandBuffer commandBuffer, const VkDebugUtilsLabelEXT* pLabelInfo)
+{
+  return vkCmdBeginDebugUtilsLabelEXTFunc(commandBuffer, pLabelInfo);
 }
 
-void vkCmdDebugMarkerInsertEXT(VkCommandBuffer commandBuffer, const VkDebugMarkerMarkerInfoEXT* pMarkerInfo)
+void vkCmdEndDebugUtilsLabelEXT(VkCommandBuffer commandBuffer)
 {
-  vkCmdDebugMarkerInsertEXTFunc(commandBuffer, pMarkerInfo);
+  return vkCmdEndDebugUtilsLabelEXTFunc(commandBuffer);
 }
 
-VkResult vkDebugMarkerSetObjectNameEXT(VkDevice device, const VkDebugMarkerObjectNameInfoEXT* pNameInfo)
+void vkCmdInsertDebugUtilsLabelEXT(VkCommandBuffer commandBuffer, const VkDebugUtilsLabelEXT* pLabelInfo)
 {
-  return vkDebugMarkerSetObjectNameEXTFunc(device, pNameInfo);
+  return vkCmdInsertDebugUtilsLabelEXTFunc(commandBuffer, pLabelInfo);
 }
 
 ezInternal::NewInstance<ezGALDevice> CreateVulkanDevice(ezAllocatorBase* pAllocator, const ezGALDeviceCreationDescription& Description)
@@ -84,9 +158,6 @@ EZ_END_SUBSYSTEM_DECLARATION;
 
 ezGALDeviceVulkan::ezGALDeviceVulkan(const ezGALDeviceCreationDescription& Description)
   : ezGALDevice(Description)
-  , m_device(nullptr)
-  //, m_pDebug(nullptr)
-  , m_uiFrameCounter(0)
 {
 }
 
@@ -94,92 +165,323 @@ ezGALDeviceVulkan::~ezGALDeviceVulkan() = default;
 
 // Init & shutdown functions
 
+
+vk::Result ezGALDeviceVulkan::SelectInstanceExtensions(ezHybridArray<const char*, 6>& extensions)
+{
+  // Fetch the list of extensions supported by the runtime.
+  ezUInt32 extensionCount;
+  VK_SUCCEED_OR_RETURN_LOG(vk::enumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr));
+  ezDynamicArray<vk::ExtensionProperties> extensionProperties;
+  extensionProperties.SetCount(extensionCount);
+  VK_SUCCEED_OR_RETURN_LOG(vk::enumerateInstanceExtensionProperties(nullptr, &extensionCount, extensionProperties.GetData()));
+
+  EZ_LOG_BLOCK("InstanceExtensions");
+  for (auto& ext : extensionProperties)
+  {
+    ezLog::Info("{}", ext.extensionName.data());
+  }
+
+  // Add a specific extension to the list of extensions to be enabled, if it is supported.
+  auto AddExtIfSupported = [&](const char* extensionName, bool& enableFlag) -> vk::Result {
+    auto it = std::find_if(begin(extensionProperties), end(extensionProperties), [&](const vk::ExtensionProperties& prop) { return ezStringUtils::IsEqual(prop.extensionName.data(), extensionName); });
+    if (it != end(extensionProperties))
+    {
+      extensions.PushBack(extensionName);
+      enableFlag = true;
+      return vk::Result::eSuccess;
+    }
+    enableFlag = false;
+    return vk::Result::eErrorExtensionNotPresent;
+  };
+
+  VK_SUCCEED_OR_RETURN_LOG(AddExtIfSupported(VK_KHR_SURFACE_EXTENSION_NAME, m_extensions.m_bSurface));
+#if EZ_ENABLED(EZ_SUPPORTS_GLFW)
+  uint32_t iNumGlfwExtensions = 0;
+  const char** glfwExtensions = glfwGetRequiredInstanceExtensions(&iNumGlfwExtensions);
+  bool dummy = false;
+  for (uint32_t i = 0; i < iNumGlfwExtensions; ++i)
+  {
+    VK_SUCCEED_OR_RETURN_LOG(AddExtIfSupported(glfwExtensions[i], dummy));
+  }
+#elif defined(VK_USE_PLATFORM_WIN32_KHR)
+  VK_SUCCEED_OR_RETURN_LOG(AddExtIfSupported(VK_KHR_WIN32_SURFACE_EXTENSION_NAME, m_extensions.m_bWin32Surface));
+#else
+#  error "Vulkan platform not supported"
+#endif
+  VK_SUCCEED_OR_RETURN_LOG(AddExtIfSupported(VK_EXT_DEBUG_UTILS_EXTENSION_NAME, m_extensions.m_bDebugUtils));
+
+  return vk::Result::eSuccess;
+}
+
+
+vk::Result ezGALDeviceVulkan::SelectDeviceExtensions(vk::DeviceCreateInfo& deviceCreateInfo, ezHybridArray<const char*, 6>& extensions)
+{
+  // Fetch the list of extensions supported by the runtime.
+  ezUInt32 extensionCount;
+  VK_SUCCEED_OR_RETURN_LOG(m_physicalDevice.enumerateDeviceExtensionProperties(nullptr, &extensionCount, nullptr));
+  ezDynamicArray<vk::ExtensionProperties> extensionProperties;
+  extensionProperties.SetCount(extensionCount);
+  VK_SUCCEED_OR_RETURN_LOG(m_physicalDevice.enumerateDeviceExtensionProperties(nullptr, &extensionCount, extensionProperties.GetData()));
+
+  EZ_LOG_BLOCK("DeviceExtensions");
+  for (auto& ext : extensionProperties)
+  {
+    ezLog::Info("{}", ext.extensionName.data());
+  }
+
+  // Add a specific extension to the list of extensions to be enabled, if it is supported.
+  auto AddExtIfSupported = [&](const char* extensionName, bool& enableFlag) -> vk::Result {
+    auto it = std::find_if(begin(extensionProperties), end(extensionProperties), [&](const vk::ExtensionProperties& prop) { return ezStringUtils::IsEqual(prop.extensionName.data(), extensionName); });
+    if (it != end(extensionProperties))
+    {
+      extensions.PushBack(extensionName);
+      enableFlag = true;
+      return vk::Result::eSuccess;
+    }
+    enableFlag = false;
+    ezLog::Warning("Extension '{}' not supported", extensionName);
+    return vk::Result::eErrorExtensionNotPresent;
+  };
+
+  VK_SUCCEED_OR_RETURN_LOG(AddExtIfSupported(VK_KHR_SWAPCHAIN_EXTENSION_NAME, m_extensions.m_bDeviceSwapChain));
+  AddExtIfSupported(VK_EXT_SHADER_VIEWPORT_INDEX_LAYER_EXTENSION_NAME, m_extensions.m_bShaderViewportIndexLayer);
+
+  vk::PhysicalDeviceFeatures2 features;
+  features.pNext = &m_extensions.m_borderColorEXT;
+  m_physicalDevice.getFeatures2(&features);
+
+  m_supportedStages = vk::PipelineStageFlagBits::eVertexShader | vk::PipelineStageFlagBits::eFragmentShader | vk::PipelineStageFlagBits::eComputeShader;
+  if (features.features.geometryShader)
+  {
+    m_supportedStages |= vk::PipelineStageFlagBits::eGeometryShader;
+  }
+  else
+  {
+    ezLog::Warning("Geometry shaders are not supported.");
+  }
+
+  if (features.features.tessellationShader)
+  {
+    m_supportedStages |= vk::PipelineStageFlagBits::eTessellationControlShader | vk::PipelineStageFlagBits::eTessellationEvaluationShader;
+  }
+  else
+  {
+    ezLog::Warning("Tessellation shaders are not supported.");
+  }
+
+  // Only use the extension if it allows us to not specify a format or we would need to create different samplers for every texture.
+  if (m_extensions.m_borderColorEXT.customBorderColors && m_extensions.m_borderColorEXT.customBorderColorWithoutFormat)
+  {
+    AddExtIfSupported(VK_EXT_CUSTOM_BORDER_COLOR_EXTENSION_NAME, m_extensions.m_bBorderColorFloat);
+    if (m_extensions.m_bBorderColorFloat)
+    {
+      deviceCreateInfo.pNext = &m_extensions.m_borderColorEXT;
+    }
+  }
+  return vk::Result::eSuccess;
+}
+
+#define EZ_GET_INSTANCE_PROC_ADDR(name) m_extensions.pfn_##name = reinterpret_cast<PFN_##name>(vkGetInstanceProcAddr(m_instance, #name));
+
 ezResult ezGALDeviceVulkan::InitPlatform()
 {
   EZ_LOG_BLOCK("ezGALDeviceVulkan::InitPlatform");
 
-  constexpr const char* win32SurfaceExtensions = VK_KHR_WIN32_SURFACE_EXTENSION_NAME;
-
-  vk::ApplicationInfo applicationInfo = {};
-  applicationInfo.apiVersion = VK_API_VERSION_1_0;
-  applicationInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0); // TODO put ezEngine version here
-  applicationInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);      // TODO put ezEngine version here
-  applicationInfo.pApplicationName = "ezEngine";
-  applicationInfo.pEngineName = "ezEngine";
-  vk::InstanceCreateInfo instanceCreateInfo;
-
-  // enabling support for win32 surfaces
-  instanceCreateInfo.pApplicationInfo = &applicationInfo;
-
-  instanceCreateInfo.enabledExtensionCount = 1;
-  instanceCreateInfo.ppEnabledExtensionNames = &win32SurfaceExtensions;
-
-  instanceCreateInfo.enabledLayerCount = 0; // TODO debug;
-  m_instance = vk::createInstance(instanceCreateInfo);
-
-  if (!m_instance)
+  const char* layers[] = {"VK_LAYER_KHRONOS_validation"};
   {
-    ezLog::Error("Failed to create Vulkan instance!");
-    return EZ_FAILURE;
+    // Create instance
+    // We use Vulkan 1.1 because of two features:
+    // 1. Descriptor set pools return vk::Result::eErrorOutOfPoolMemory if exhaused. Removing the requirement to count usage yourself.
+    // 2. Viewport height can be negative which performs y-inversion of the clip-space to framebuffer-space transform.
+    vk::ApplicationInfo applicationInfo = {};
+    applicationInfo.apiVersion = VK_API_VERSION_1_1;
+    applicationInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0); // TODO put ezEngine version here
+    applicationInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);      // TODO put ezEngine version here
+    applicationInfo.pApplicationName = "ezEngine";
+    applicationInfo.pEngineName = "ezEngine";
+
+    ezHybridArray<const char*, 6> instanceExtensions;
+    VK_SUCCEED_OR_RETURN_EZ_FAILURE(SelectInstanceExtensions(instanceExtensions));
+
+    vk::InstanceCreateInfo instanceCreateInfo;
+    // enabling support for win32 surfaces
+    instanceCreateInfo.pApplicationInfo = &applicationInfo;
+
+    instanceCreateInfo.enabledExtensionCount = instanceExtensions.GetCount();
+    instanceCreateInfo.ppEnabledExtensionNames = instanceExtensions.GetData();
+
+    instanceCreateInfo.enabledLayerCount = 0;
+
+    VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
+    if (m_Description.m_bDebugDevice)
+    {
+      debugCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+      debugCreateInfo.messageSeverity = /*VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |*/ VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+      debugCreateInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+      debugCreateInfo.pfnUserCallback = debugCallback;
+      debugCreateInfo.pUserData = nullptr;
+
+      if (isInstanceLayerPresent(layers[0]))
+      {
+        instanceCreateInfo.enabledLayerCount = EZ_ARRAY_SIZE(layers);
+        instanceCreateInfo.ppEnabledLayerNames = layers;
+      }
+      else
+      {
+        ezLog::Warning("The khronos validation layer is not supported on this device. Will run without validation layer.");
+      }
+      instanceCreateInfo.pNext = &debugCreateInfo;
+    }
+
+    m_instance = vk::createInstance(instanceCreateInfo);
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+    if (m_Description.m_bDebugDevice)
+    {
+      EZ_GET_INSTANCE_PROC_ADDR(vkCreateDebugUtilsMessengerEXT);
+      EZ_GET_INSTANCE_PROC_ADDR(vkDestroyDebugUtilsMessengerEXT);
+      EZ_GET_INSTANCE_PROC_ADDR(vkSetDebugUtilsObjectNameEXT);
+      VK_SUCCEED_OR_RETURN_EZ_FAILURE(m_extensions.pfn_vkCreateDebugUtilsMessengerEXT(m_instance, &debugCreateInfo, nullptr, &m_debugMessenger));
+    }
+#endif
+
+    if (!m_instance)
+    {
+      ezLog::Error("Failed to create Vulkan instance!");
+      return EZ_FAILURE;
+    }
   }
 
-  ezUInt32 physicalDeviceCount = 0;
-  ezHybridArray<vk::PhysicalDevice, 2> physicalDevices;
-  m_instance.enumeratePhysicalDevices(&physicalDeviceCount, nullptr);
-  if (physicalDeviceCount == 0)
   {
-    ezLog::Error("No available physical device to create a Vulkan device on!");
-    return EZ_FAILURE;
+    // physical device
+    ezUInt32 physicalDeviceCount = 0;
+    ezHybridArray<vk::PhysicalDevice, 2> physicalDevices;
+    VK_SUCCEED_OR_RETURN_EZ_FAILURE(m_instance.enumeratePhysicalDevices(&physicalDeviceCount, nullptr));
+    if (physicalDeviceCount == 0)
+    {
+      ezLog::Error("No available physical device to create a Vulkan device on!");
+      return EZ_FAILURE;
+    }
+
+    physicalDevices.SetCount(physicalDeviceCount);
+    VK_SUCCEED_OR_RETURN_EZ_FAILURE(m_instance.enumeratePhysicalDevices(&physicalDeviceCount, physicalDevices.GetData()));
+
+    // TODO choosable physical device?
+    // TODO making sure we have a hardware device?
+    m_physicalDevice = physicalDevices[0];
+    m_properties = m_physicalDevice.getProperties();
+    ezLog::Info("Selected physical device \"{}\" for device creation.", m_properties.deviceName);
   }
 
-  physicalDevices.SetCount(physicalDeviceCount);
-  m_instance.enumeratePhysicalDevices(&physicalDeviceCount, physicalDevices.GetData());
-
-  // TODO choosable physical device?
-  // TODO making sure we have a hardware device?
-  m_physicalDevice = physicalDevices[0];
-  vk::PhysicalDeviceFeatures physicalDeviceFeatures = m_physicalDevice.getFeatures();
-  ezLog::Info("Selected physical device \"{}\" for device creation.", m_physicalDevice.getProperties().deviceName);
-
-  ezUInt32 queueFamilyPropertyCount = 0;
-  ezHybridArray<vk::QueueFamilyProperties, 2> queueFamilyPoperties;
-  m_physicalDevice.getQueueFamilyProperties(&queueFamilyPropertyCount, nullptr);
-  if (queueFamilyPropertyCount == 0)
+  ezHybridArray<vk::QueueFamilyProperties, 4> queueFamilyProperties;
   {
-    ezLog::Error("No available device queues on physical device!");
-    return EZ_FAILURE;
+    // Device
+    ezUInt32 queueFamilyPropertyCount = 0;
+    m_physicalDevice.getQueueFamilyProperties(&queueFamilyPropertyCount, nullptr);
+    if (queueFamilyPropertyCount == 0)
+    {
+      ezLog::Error("No available device queues on physical device!");
+      return EZ_FAILURE;
+    }
+    queueFamilyProperties.SetCount(queueFamilyPropertyCount);
+    m_physicalDevice.getQueueFamilyProperties(&queueFamilyPropertyCount, queueFamilyProperties.GetData());
+
+    {
+      EZ_LOG_BLOCK("Queue Families");
+      for (ezUInt32 i = 0; i < queueFamilyProperties.GetCount(); ++i)
+      {
+        const vk::QueueFamilyProperties& queueFamilyProperty = queueFamilyProperties[i];
+        ezLog::Info("Queue count: {}, flags: {}", queueFamilyProperty.queueCount, vk::to_string(queueFamilyProperty.queueFlags).data());
+      }
+    }
+
+    // Select best queue family for graphics and transfers.
+    for (ezUInt32 i = 0; i < queueFamilyProperties.GetCount(); ++i)
+    {
+      const vk::QueueFamilyProperties& queueFamilyProperty = queueFamilyProperties[i];
+      if (queueFamilyProperty.queueCount == 0)
+        continue;
+      constexpr auto graphicsFlags = vk::QueueFlagBits::eGraphics | vk::QueueFlagBits::eCompute;
+      if ((queueFamilyProperty.queueFlags & graphicsFlags) == graphicsFlags)
+      {
+        m_graphicsQueue.m_uiQueueFamily = i;
+      }
+      if (queueFamilyProperty.queueFlags & vk::QueueFlagBits::eTransfer)
+      {
+        if (m_transferQueue.m_uiQueueFamily == -1)
+        {
+          m_transferQueue.m_uiQueueFamily = i;
+        }
+        else if ((queueFamilyProperty.queueFlags & graphicsFlags) == vk::QueueFlagBits())
+        {
+          // Prefer a queue that can't be used for graphics.
+          m_transferQueue.m_uiQueueFamily = i;
+        }
+      }
+    }
+    if (m_graphicsQueue.m_uiQueueFamily == -1)
+    {
+      ezLog::Error("No graphics queue found.");
+      return EZ_FAILURE;
+    }
+    if (m_transferQueue.m_uiQueueFamily == -1)
+    {
+      ezLog::Error("No transfer queue found.");
+      return EZ_FAILURE;
+    }
+
+    constexpr float queuePriority = 0.f;
+
+    ezHybridArray<vk::DeviceQueueCreateInfo, 2> queues;
+
+    vk::DeviceQueueCreateInfo& graphicsQueueCreateInfo = queues.ExpandAndGetRef();
+    graphicsQueueCreateInfo.pQueuePriorities = &queuePriority;
+    graphicsQueueCreateInfo.queueCount = 1;
+    graphicsQueueCreateInfo.queueFamilyIndex = m_graphicsQueue.m_uiQueueFamily;
+    if (m_graphicsQueue.m_uiQueueFamily != m_transferQueue.m_uiQueueFamily)
+    {
+      vk::DeviceQueueCreateInfo& transferQueueCreateInfo = queues.ExpandAndGetRef();
+      transferQueueCreateInfo.pQueuePriorities = &queuePriority;
+      transferQueueCreateInfo.queueCount = 1;
+      transferQueueCreateInfo.queueFamilyIndex = m_transferQueue.m_uiQueueFamily;
+    }
+
+    //#TODO_VULKAN test that this returns the same as 'layers' passed into the instance.
+    ezUInt32 uiLayers;
+    VK_SUCCEED_OR_RETURN_EZ_FAILURE(m_physicalDevice.enumerateDeviceLayerProperties(&uiLayers, nullptr));
+    ezDynamicArray<vk::LayerProperties> deviceLayers;
+    deviceLayers.SetCount(uiLayers);
+    VK_SUCCEED_OR_RETURN_EZ_FAILURE(m_physicalDevice.enumerateDeviceLayerProperties(&uiLayers, deviceLayers.GetData()));
+
+    vk::DeviceCreateInfo deviceCreateInfo = {};
+    ezHybridArray<const char*, 6> deviceExtensions;
+    VK_SUCCEED_OR_RETURN_EZ_FAILURE(SelectDeviceExtensions(deviceCreateInfo, deviceExtensions));
+
+    deviceCreateInfo.enabledExtensionCount = deviceExtensions.GetCount();
+    deviceCreateInfo.ppEnabledExtensionNames = deviceExtensions.GetData();
+    // Device layers are deprecated but provided (same as in instance) for backwards compatibility.
+    deviceCreateInfo.enabledLayerCount = EZ_ARRAY_SIZE(layers);
+    deviceCreateInfo.ppEnabledLayerNames = layers;
+
+    vk::PhysicalDeviceFeatures physicalDeviceFeatures = m_physicalDevice.getFeatures();
+    deviceCreateInfo.pEnabledFeatures = &physicalDeviceFeatures; // Enabling all available features for now
+    deviceCreateInfo.queueCreateInfoCount = queues.GetCount();
+    deviceCreateInfo.pQueueCreateInfos = queues.GetData();
+
+    VK_SUCCEED_OR_RETURN_EZ_FAILURE(m_physicalDevice.createDevice(&deviceCreateInfo, nullptr, &m_device));
+    m_device.getQueue(m_graphicsQueue.m_uiQueueFamily, m_graphicsQueue.m_uiQueueIndex, &m_graphicsQueue.m_queue);
+    m_device.getQueue(m_transferQueue.m_uiQueueFamily, m_transferQueue.m_uiQueueIndex, &m_transferQueue.m_queue);
   }
-  queueFamilyPoperties.SetCount(queueFamilyPropertyCount);
-  m_physicalDevice.getQueueFamilyProperties(&queueFamilyPropertyCount, queueFamilyPoperties.GetData());
 
-  m_queueFamilyIndices.Clear();
-  ezInt32 graphicsQueueIndex = getGraphicsAndComputeQueue(queueFamilyPoperties);
-  m_queueFamilyIndices.PushBack(graphicsQueueIndex);
+  VK_SUCCEED_OR_RETURN_EZ_FAILURE(ezMemoryAllocatorVulkan::Initialize(m_physicalDevice, m_device, m_instance));
 
-  constexpr float queuePriority = 0.f;
-  vk::DeviceQueueCreateInfo deviceQueueCreateInfo = {};
-  deviceQueueCreateInfo.pQueuePriorities = &queuePriority;
-  deviceQueueCreateInfo.queueCount = 1;
-  deviceQueueCreateInfo.queueFamilyIndex = graphicsQueueIndex;
+  vkSetDebugUtilsObjectNameEXTFunc = (PFN_vkSetDebugUtilsObjectNameEXT)m_device.getProcAddr("vkSetDebugUtilsObjectNameEXT");
+  vkQueueBeginDebugUtilsLabelEXTFunc = (PFN_vkQueueBeginDebugUtilsLabelEXT)m_device.getProcAddr("vkQueueBeginDebugUtilsLabelEXT");
+  vkQueueEndDebugUtilsLabelEXTFunc = (PFN_vkQueueEndDebugUtilsLabelEXT)m_device.getProcAddr("vkQueueEndDebugUtilsLabelEXT");
+  vkCmdBeginDebugUtilsLabelEXTFunc = (PFN_vkCmdBeginDebugUtilsLabelEXT)m_device.getProcAddr("vkCmdBeginDebugUtilsLabelEXT");
+  vkCmdEndDebugUtilsLabelEXTFunc = (PFN_vkCmdEndDebugUtilsLabelEXT)m_device.getProcAddr("vkCmdEndDebugUtilsLabelEXT");
+  vkCmdInsertDebugUtilsLabelEXTFunc = (PFN_vkCmdInsertDebugUtilsLabelEXT)m_device.getProcAddr("vkCmdInsertDebugUtilsLabelEXT");
 
-  const char* deviceExtensions[] = {VK_EXT_DEBUG_MARKER_EXTENSION_NAME}; // TODO need to check for availability
-
-  vk::DeviceCreateInfo deviceCreateInfo = {};
-  deviceCreateInfo.enabledExtensionCount = EZ_ARRAY_SIZE(deviceExtensions);
-  deviceCreateInfo.enabledLayerCount;
-  deviceCreateInfo.pEnabledFeatures = &physicalDeviceFeatures; // Enabling all available features for now
-  deviceCreateInfo.ppEnabledExtensionNames = deviceExtensions;
-  deviceCreateInfo.ppEnabledLayerNames;
-  deviceCreateInfo.pQueueCreateInfos = &deviceQueueCreateInfo;
-  deviceCreateInfo.queueCreateInfoCount = 1;
-  m_device = m_physicalDevice.createDevice(deviceCreateInfo);
-
-  m_queue = m_device.getQueue(m_queueFamilyIndices[0], 0);
-
-  vkCmdDebugMarkerBeginEXTFunc = (PFN_vkCmdDebugMarkerBeginEXT)m_device.getProcAddr("vkCmdDebugMarkerBeginEXT");
-  vkCmdDebugMarkerEndEXTFunc = (PFN_vkCmdDebugMarkerEndEXT)m_device.getProcAddr("vkCmdDebugMarkerEndEXT");
-  vkCmdDebugMarkerInsertEXTFunc = (PFN_vkCmdDebugMarkerInsertEXT)m_device.getProcAddr("vkCmdDebugMarkerInsertEXT");
-  vkDebugMarkerSetObjectNameEXTFunc = (PFN_vkDebugMarkerSetObjectNameEXT)m_device.getProcAddr("vkDebugMarkerSetObjectNameEXT");
 
   m_memoryProperties = m_physicalDevice.getMemoryProperties();
 
@@ -187,128 +489,179 @@ ezResult ezGALDeviceVulkan::InitPlatform()
   FillFormatLookupTable();
 
   ezClipSpaceDepthRange::Default = ezClipSpaceDepthRange::ZeroToOne;
+  // We use ezClipSpaceYMode::Regular and rely in the Vulkan 1.1 feature that a negative height performs y-inversion of the clip-space to framebuffer-space transform.
+  // https://www.khronos.org/registry/vulkan/specs/1.3-extensions/man/html/VK_KHR_maintenance1.html
+  ezClipSpaceYMode::RenderToTextureDefault = ezClipSpaceYMode::Regular;
 
-  // Command buffer
-  vk::CommandPoolCreateInfo commandPoolCreateInfo = {};
-  commandPoolCreateInfo.flags = vk::CommandPoolCreateFlagBits::eResetCommandBuffer;
-  commandPoolCreateInfo.queueFamilyIndex = graphicsQueueIndex;
+  m_pPipelineBarrier = EZ_NEW(&m_Allocator, ezPipelineBarrierVulkan);
+  m_pCommandBufferPool = EZ_NEW(&m_Allocator, ezCommandBufferPoolVulkan);
+  m_pCommandBufferPool->Initialize(m_device, m_graphicsQueue.m_uiQueueFamily);
+  m_pStagingBufferPool = EZ_NEW(&m_Allocator, ezStagingBufferPoolVulkan);
+  m_pStagingBufferPool->Initialize(this);
+  m_pQueryPool = EZ_NEW(&m_Allocator, ezQueryPoolVulkan);
+  m_pQueryPool->Initialize(this, queueFamilyProperties[m_graphicsQueue.m_uiQueueFamily].timestampValidBits);
+  m_pInitContext = EZ_NEW(&m_Allocator, ezInitContextVulkan, this);
 
-  m_commandPool = m_device.createCommandPool(commandPoolCreateInfo);
-
-  vk::CommandBufferAllocateInfo commandBufferAllocateInfo = {};
-  commandBufferAllocateInfo.commandBufferCount = NUM_CMD_BUFFERS;
-  commandBufferAllocateInfo.commandPool = m_commandPool;
-  commandBufferAllocateInfo.level = vk::CommandBufferLevel::ePrimary;
-
-  m_device.allocateCommandBuffers(&commandBufferAllocateInfo, m_commandBuffers);
-
-  vk::FenceCreateInfo fenceCreateInfo = {};
-  fenceCreateInfo.flags = vk::FenceCreateFlagBits::eSignaled;
-  for (ezUInt32 i = 0; i < NUM_CMD_BUFFERS; ++i)
-  {
-    m_commandBufferFences[i] = m_device.createFence(fenceCreateInfo);
-  }
-
-  // Per frame data & timer data
-  for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_PerFrameData); ++i)
-  {
-    auto& perFrameData = m_PerFrameData[i];
-    perFrameData.m_pFence = CreateFencePlatform();
-
-    //if (FAILED(m_pDevice->CreateQuery(&disjointQueryDesc, &perFrameData.m_pDisjointTimerQuery)))
-    //{
-    //  ezLog::Error("Creation of native DirectX query for disjoint query has failed!");
-    //  return EZ_FAILURE;
-    //}
-  }
-
-  m_Timestamps.SetCountUninitialized(1024);
-  for (ezUInt32 i = 0; i < m_Timestamps.GetCount(); ++i)
-  {
-    //if (FAILED(m_pDevice->CreateQuery(&timerQueryDesc, &m_Timestamps[i])))
-    //{
-    //  ezLog::Error("Creation of native DirectX query for timestamp has failed!");
-    //  return EZ_FAILURE;
-    //}
-  }
-
-  m_SyncTimeDiff.SetZero();
+  ezSemaphorePoolVulkan::Initialize(m_device);
+  ezFencePoolVulkan::Initialize(m_device);
+  ezResourceCacheVulkan::Initialize(this, m_device);
+  ezDescriptorSetPoolVulkan::Initialize(m_device);
+  ezFallbackResourcesVulkan::Initialize(this);
+  ezImageCopyVulkan::Initialize(*this);
 
   m_pDefaultPass = EZ_NEW(&m_Allocator, ezGALPassVulkan, *this);
+
+  ezGALWindowSwapChain::SetFactoryMethod([this](const ezGALWindowSwapChainCreationDescription& desc) -> ezGALSwapChainHandle { return CreateSwapChain([this, &desc](ezAllocatorBase* pAllocator) -> ezGALSwapChain* { return EZ_NEW(pAllocator, ezGALSwapChainVulkan, desc); }); });
 
   return EZ_SUCCESS;
 }
 
+void ezGALDeviceVulkan::SetDebugName(const vk::DebugUtilsObjectNameInfoEXT& info, ezVulkanAllocation allocation)
+{
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  m_device.setDebugUtilsObjectNameEXT(info);
+  if (allocation)
+    ezMemoryAllocatorVulkan::SetAllocationUserData(allocation, info.pObjectName);
+#endif
+}
+
 void ezGALDeviceVulkan::ReportLiveGpuObjects()
 {
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-  // not implemented
-  return;
+  // This is automatically done in the validation layer and can't be easily done manually.
+}
 
-#else
+void ezGALDeviceVulkan::UploadBufferStaging(ezStagingBufferPoolVulkan* pStagingBufferPool, ezPipelineBarrierVulkan* pPipelineBarrier, vk::CommandBuffer commandBuffer, const ezGALBufferVulkan* pBuffer, ezArrayPtr<const ezUInt8> pInitialData, vk::DeviceSize dstOffset)
+{
+  void* pData = nullptr;
 
-  // TODO how to do this under vulkan?
+  //#TODO_VULKAN Use transfer queue
+  ezStagingBufferVulkan stagingBuffer = pStagingBufferPool->AllocateBuffer(0, pInitialData.GetCount());
+  // ezMemoryUtils::Copy(reinterpret_cast<ezUInt8*>(stagingBuffer.m_allocInfo.m_pMappedData), pInitialData.GetPtr(), pInitialData.GetCount());
+  ezMemoryAllocatorVulkan::MapMemory(stagingBuffer.m_alloc, &pData);
+  ezMemoryUtils::Copy(reinterpret_cast<ezUInt8*>(pData), pInitialData.GetPtr(), pInitialData.GetCount());
+  ezMemoryAllocatorVulkan::UnmapMemory(stagingBuffer.m_alloc);
 
-  OutputDebugStringW(L" +++++ Live Vulkan Objects: +++++\n");
+  vk::BufferCopy region;
+  region.srcOffset = 0;
+  region.dstOffset = dstOffset;
+  region.size = pInitialData.GetCount();
 
+  //#TODO_VULKAN atomic min size violation?
+  commandBuffer.copyBuffer(stagingBuffer.m_buffer, pBuffer->GetVkBuffer(), 1, &region);
 
+  pPipelineBarrier->AccessBuffer(pBuffer, region.dstOffset, region.size, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferWrite, pBuffer->GetUsedByPipelineStage(), pBuffer->GetAccessMask());
 
-  OutputDebugStringW(L" ----- Live Vulkan Objects: -----\n");
+  //#TODO_VULKAN Custom delete later / return to ezStagingBufferPoolVulkan once this is on the transfer queue and runs async to graphics queue.
+  pStagingBufferPool->ReclaimBuffer(stagingBuffer);
+}
 
-#endif
+void ezGALDeviceVulkan::UploadTextureStaging(ezStagingBufferPoolVulkan* pStagingBufferPool, ezPipelineBarrierVulkan* pPipelineBarrier, vk::CommandBuffer commandBuffer, const ezGALTextureVulkan* pTexture, const vk::ImageSubresourceLayers& subResource, const ezGALSystemMemoryDescription& data)
+{
+  const vk::Offset3D imageOffset = {0, 0, 0};
+  const vk::Extent3D imageExtent = pTexture->GetMipLevelSize(subResource.mipLevel);
+
+  auto getRange = [](const vk::ImageSubresourceLayers& layers) -> vk::ImageSubresourceRange {
+    vk::ImageSubresourceRange range;
+    range.aspectMask = layers.aspectMask;
+    range.baseMipLevel = layers.mipLevel;
+    range.levelCount = 1;
+    range.baseArrayLayer = layers.baseArrayLayer;
+    range.layerCount = layers.layerCount;
+    return range;
+  };
+
+  pPipelineBarrier->EnsureImageLayout(pTexture, getRange(subResource), vk::ImageLayout::eTransferDstOptimal, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferWrite);
+  pPipelineBarrier->Flush();
+
+  for (ezUInt32 i = 0; i < subResource.layerCount; i++)
+  {
+    auto pLayerData = reinterpret_cast<const ezUInt8*>(data.m_pData) + i * data.m_uiSlicePitch;
+    const vk::Format format = pTexture->GetImageFormat();
+    const ezUInt8 uiBlockSize = vk::blockSize(format);
+    const auto blockExtent = vk::blockExtent(format);
+    const VkExtent3D blockCount = {
+      (imageExtent.width + blockExtent[0] - 1) / blockExtent[0],
+      (imageExtent.height + blockExtent[1] - 1) / blockExtent[1],
+      (imageExtent.depth + blockExtent[2] - 1) / blockExtent[2]};
+
+    const vk::DeviceSize uiTotalSize = uiBlockSize * blockCount.width * blockCount.height * blockCount.depth;
+    ezStagingBufferVulkan stagingBuffer = pStagingBufferPool->AllocateBuffer(0, uiTotalSize);
+
+    const ezUInt32 uiBufferRowPitch = uiBlockSize * blockCount.width;
+    const ezUInt32 uiBufferSlicePitch = uiBufferRowPitch * blockCount.height;
+    EZ_ASSERT_DEV(uiBufferRowPitch == data.m_uiRowPitch, "Row pitch with padding is not implemented yet.");
+    EZ_ASSERT_DEV(uiBufferSlicePitch == data.m_uiSlicePitch, "Row pitch with padding is not implemented yet.");
+
+    void* pData = nullptr;
+    ezMemoryAllocatorVulkan::MapMemory(stagingBuffer.m_alloc, &pData);
+    ezMemoryUtils::Copy(reinterpret_cast<ezUInt8*>(pData), pLayerData, uiTotalSize);
+    ezMemoryAllocatorVulkan::UnmapMemory(stagingBuffer.m_alloc);
+
+    vk::BufferImageCopy region = {};
+    region.imageSubresource = subResource;
+    region.imageOffset = imageOffset;
+    region.imageExtent = imageExtent;
+
+    region.bufferOffset = 0;
+    region.bufferRowLength = blockExtent[0] * uiBufferRowPitch / uiBlockSize;
+    region.bufferImageHeight = blockExtent[1] * uiBufferSlicePitch / uiBufferRowPitch;
+
+    //#TODO_VULKAN atomic min size violation?
+    commandBuffer.copyBufferToImage(stagingBuffer.m_buffer, pTexture->GetImage(), pTexture->GetPreferredLayout(vk::ImageLayout::eTransferDstOptimal), 1, &region);
+    pStagingBufferPool->ReclaimBuffer(stagingBuffer);
+  }
+
+  pPipelineBarrier->EnsureImageLayout(pTexture, getRange(subResource), pTexture->GetPreferredLayout(), pTexture->GetUsedByPipelineStage(), pTexture->GetAccessMask());
 }
 
 ezResult ezGALDeviceVulkan::ShutdownPlatform()
 {
-  m_device.waitForFences(vk::ArrayProxy<const vk::Fence>(NUM_CMD_BUFFERS, m_commandBufferFences), VK_TRUE, 1000000000ui64);
+  ezImageCopyVulkan::DeInitialize(*this);
+  DestroyDeadObjects(); // ezImageCopyVulkan might add dead objects, so make sure the list is cleared again
 
-  for (ezUInt32 i = 0; i < NUM_CMD_BUFFERS; ++i)
+  ezFallbackResourcesVulkan::DeInitialize();
+
+  ezGALWindowSwapChain::SetFactoryMethod({});
+  if (m_lastCommandBufferFinished)
+    ReclaimLater(m_lastCommandBufferFinished, m_pCommandBufferPool.Borrow());
+  auto& pCommandEncoder = m_pDefaultPass->m_pCommandEncoderImpl;
+
+  // We couldn't create a device in the first place, so early out of shutdown
+  if (!m_device)
   {
-    m_device.destroyFence(m_commandBufferFences[i]);
-    m_commandBufferFences[i] = nullptr;
+    return EZ_SUCCESS;
   }
 
-  m_device.freeCommandBuffers(m_commandPool, NUM_CMD_BUFFERS, m_commandBuffers);
-  m_device.destroyCommandPool(m_commandPool);
-
-  for (ezUInt32 type = 0; type < TempResourceType::ENUM_COUNT; ++type)
-  {
-    for (auto it = m_FreeTempResources[type].GetIterator(); it.IsValid(); ++it)
-    {
-      ezDynamicArray<VkResource*>& resources = it.Value();
-      for (auto pResource : resources)
-      {
-        EZ_GAL_VULKAN_RELEASE(pResource);
-      }
-    }
-    m_FreeTempResources[type].Clear();
-
-    for (auto& tempResource : m_UsedTempResources[type])
-    {
-      EZ_GAL_VULKAN_RELEASE(tempResource.m_pResource);
-    }
-    m_UsedTempResources[type].Clear();
-  }
-
-  for (auto& timestamp : m_Timestamps)
-  {
-    EZ_GAL_VULKAN_RELEASE(timestamp);
-  }
-  m_Timestamps.Clear();
-
-  for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_PerFrameData); ++i)
-  {
-    auto& perFrameData = m_PerFrameData[i];
-
-    DestroyFencePlatform(perFrameData.m_pFence);
-    perFrameData.m_pFence = nullptr;
-
-    //EZ_GAL_VULKAN_RELEASE(perFrameData.m_pDisjointTimerQuery);
-  }
+  WaitIdlePlatform();
 
   m_pDefaultPass = nullptr;
+  m_pPipelineBarrier = nullptr;
+  m_pCommandBufferPool->DeInitialize();
+  m_pCommandBufferPool = nullptr;
+  m_pStagingBufferPool->DeInitialize();
+  m_pStagingBufferPool = nullptr;
+  m_pQueryPool->DeInitialize();
+  m_pQueryPool = nullptr;
+  m_pInitContext = nullptr;
+
+  ezSemaphorePoolVulkan::DeInitialize();
+  ezFencePoolVulkan::DeInitialize();
+  ezResourceCacheVulkan::DeInitialize();
+  ezDescriptorSetPoolVulkan::DeInitialize();
+
+  ezMemoryAllocatorVulkan::DeInitialize();
+
+  m_device.waitIdle();
   m_device.destroy();
 
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  if (m_extensions.pfn_vkDestroyDebugUtilsMessengerEXT != nullptr)
+  {
+    m_extensions.pfn_vkDestroyDebugUtilsMessengerEXT(m_instance, m_debugMessenger, nullptr);
+  }
+#endif
+
+  m_instance.destroy();
   ReportLiveGpuObjects();
 
   return EZ_SUCCESS;
@@ -316,21 +669,198 @@ ezResult ezGALDeviceVulkan::ShutdownPlatform()
 
 // Pipeline & Pass functions
 
-void ezGALDeviceVulkan::BeginPipelinePlatform(const char* szName)
+vk::CommandBuffer& ezGALDeviceVulkan::GetCurrentCommandBuffer()
 {
+  vk::CommandBuffer& commandBuffer = m_PerFrameData[m_uiCurrentPerFrameData].m_currentCommandBuffer;
+  if (!commandBuffer)
+  {
+    // Restart new command buffer if none is active already.
+    commandBuffer = m_pCommandBufferPool->RequestCommandBuffer();
+    vk::CommandBufferBeginInfo beginInfo;
+    VK_ASSERT_DEBUG(commandBuffer.begin(&beginInfo));
+    GetCurrentPipelineBarrier().SetCommandBuffer(&commandBuffer);
+
+    m_pDefaultPass->SetCurrentCommandBuffer(&commandBuffer, m_pPipelineBarrier.Borrow());
+    // We can't carry state across individual command buffers.
+    m_pDefaultPass->MarkDirty();
+  }
+  return commandBuffer;
 }
 
-void ezGALDeviceVulkan::EndPipelinePlatform()
+ezPipelineBarrierVulkan& ezGALDeviceVulkan::GetCurrentPipelineBarrier()
 {
+  vk::CommandBuffer& commandBuffer = m_PerFrameData[m_uiCurrentPerFrameData].m_currentCommandBuffer;
+  if (!commandBuffer)
+  {
+    GetCurrentCommandBuffer();
+  }
+  return *m_pPipelineBarrier.Borrow();
+}
+
+ezQueryPoolVulkan& ezGALDeviceVulkan::GetQueryPool() const
+{
+  return *m_pQueryPool.Borrow();
+}
+
+ezStagingBufferPoolVulkan& ezGALDeviceVulkan::GetStagingBufferPool() const
+{
+  return *m_pStagingBufferPool.Borrow();
+}
+
+ezInitContextVulkan& ezGALDeviceVulkan::GetInitContext() const
+{
+  return *m_pInitContext.Borrow();
+}
+
+ezProxyAllocator& ezGALDeviceVulkan::GetAllocator()
+{
+  return m_Allocator;
+}
+
+ezGALTextureHandle ezGALDeviceVulkan::CreateTextureInternal(const ezGALTextureCreationDescription& Description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData, vk::Format OverrideFormat, bool bStaging)
+{
+  ezGALTextureVulkan* pTexture = EZ_NEW(&m_Allocator, ezGALTextureVulkan, Description, OverrideFormat, bStaging);
+
+  if (!pTexture->InitPlatform(this, pInitialData).Succeeded())
+  {
+    EZ_DELETE(&m_Allocator, pTexture);
+    return ezGALTextureHandle();
+  }
+
+  return FinalizeTextureInternal(Description, pTexture);
+}
+
+ezGALBufferHandle ezGALDeviceVulkan::CreateBufferInternal(const ezGALBufferCreationDescription& Description, ezArrayPtr<const ezUInt8> pInitialData, bool bCPU)
+{
+  ezGALBufferVulkan* pBuffer = EZ_NEW(&m_Allocator, ezGALBufferVulkan, Description, bCPU);
+
+  if (!pBuffer->InitPlatform(this, pInitialData).Succeeded())
+  {
+    EZ_DELETE(&m_Allocator, pBuffer);
+    return ezGALBufferHandle();
+  }
+
+  return FinalizeBufferInternal(Description, pBuffer);
+}
+
+void ezGALDeviceVulkan::BeginPipelinePlatform(const char* szName, ezGALSwapChain* pSwapChain)
+{
+  EZ_PROFILE_SCOPE("BeginPipelinePlatform");
+
+  GetCurrentCommandBuffer();
+#if EZ_ENABLED(EZ_USE_PROFILING)
+  m_pPipelineTimingScope = ezProfilingScopeAndMarker::Start(m_pDefaultPass->m_pRenderCommandEncoder.Borrow(), szName);
+#endif
+
+  if (pSwapChain)
+  {
+    pSwapChain->AcquireNextRenderTarget(this);
+  }
+}
+
+void ezGALDeviceVulkan::EndPipelinePlatform(ezGALSwapChain* pSwapChain)
+{
+  EZ_PROFILE_SCOPE("EndPipelinePlatform");
+
+#if EZ_ENABLED(EZ_USE_PROFILING)
+  ezProfilingScopeAndMarker::Stop(m_pDefaultPass->m_pRenderCommandEncoder.Borrow(), m_pPipelineTimingScope);
+#endif
+  if (pSwapChain)
+  {
+    pSwapChain->PresentRenderTarget(this);
+  }
+
+  // Render context is reset on every end pipeline so it will re-submit all state change for the next render pass. Thus it is safe at this point to do a full reset.
+  // Technically don't have to reset here, MarkDirty would also be fine but we do need to do a Reset at the end of the frame as pointers held by the ezGALCommandEncoderImplVulkan may not be valid in the next frame.
+  m_pDefaultPass->Reset();
+}
+
+vk::Fence ezGALDeviceVulkan::Submit(vk::Semaphore waitSemaphore, vk::PipelineStageFlags waitStage, vk::Semaphore signalSemaphore)
+{
+  m_pDefaultPass->SetCurrentCommandBuffer(nullptr, nullptr);
+
+  vk::CommandBuffer initCommandBuffer = m_pInitContext->GetFinishedCommandBuffer();
+  bool bHasCmdBuffer = initCommandBuffer || m_PerFrameData[m_uiCurrentPerFrameData].m_currentCommandBuffer;
+
+  ezHybridArray<vk::CommandBuffer, 2> buffers;
+  vk::SubmitInfo submitInfo = {};
+  if (bHasCmdBuffer)
+  {
+    vk::CommandBuffer mainCommandBuffer = m_PerFrameData[m_uiCurrentPerFrameData].m_currentCommandBuffer;
+    if (initCommandBuffer)
+    {
+      // Any background loading that happened up to this point needs to be submitted first.
+      // The main render command buffer assumes that all new resources are in their default state which is made sure by subitting this command buffer.
+      buffers.PushBack(initCommandBuffer);
+    }
+    if (mainCommandBuffer)
+    {
+      GetCurrentPipelineBarrier().Submit();
+      mainCommandBuffer.end();
+      buffers.PushBack(mainCommandBuffer);
+    }
+    submitInfo.commandBufferCount = buffers.GetCount();
+    submitInfo.pCommandBuffers = buffers.GetData();
+  }
+
+  vk::Fence renderFence = ezFencePoolVulkan::RequestFence();
+
+  ezHybridArray<vk::Semaphore, 2> waitSemaphores;
+  ezHybridArray<vk::PipelineStageFlags, 2> waitStages;
+  ezHybridArray<vk::Semaphore, 2> signalSemaphores;
+
+  if (m_lastCommandBufferFinished)
+  {
+    waitSemaphores.PushBack(m_lastCommandBufferFinished);
+    waitStages.PushBack(vk::PipelineStageFlagBits::eAllCommands);
+    ReclaimLater(m_lastCommandBufferFinished);
+  }
+
+  if (waitSemaphore)
+  {
+    waitSemaphores.PushBack(waitSemaphore);
+    waitStages.PushBack(waitStage);
+  }
+
+  if (signalSemaphore)
+  {
+    signalSemaphores.PushBack(signalSemaphore);
+  }
+  m_lastCommandBufferFinished = ezSemaphorePoolVulkan::RequestSemaphore();
+  signalSemaphores.PushBack(m_lastCommandBufferFinished);
+
+  submitInfo.waitSemaphoreCount = waitSemaphores.GetCount();
+  submitInfo.pWaitSemaphores = waitSemaphores.GetData();
+  submitInfo.pWaitDstStageMask = waitStages.GetData();
+  submitInfo.signalSemaphoreCount = signalSemaphores.GetCount();
+  submitInfo.pSignalSemaphores = signalSemaphores.GetData();
+
+  {
+    m_PerFrameData[m_uiCurrentPerFrameData].m_CommandBufferFences.PushBack(renderFence);
+    m_graphicsQueue.m_queue.submit(1, &submitInfo, renderFence);
+  }
+
+  auto res = renderFence;
+  ReclaimLater(renderFence);
+  ReclaimLater(m_PerFrameData[m_uiCurrentPerFrameData].m_currentCommandBuffer, m_pCommandBufferPool.Borrow());
+
+  return res;
 }
 
 ezGALPass* ezGALDeviceVulkan::BeginPassPlatform(const char* szName)
 {
+  GetCurrentCommandBuffer();
+#if EZ_ENABLED(EZ_USE_PROFILING)
+  m_pPassTimingScope = ezProfilingScopeAndMarker::Start(m_pDefaultPass->m_pRenderCommandEncoder.Borrow(), szName);
+#endif
   return m_pDefaultPass.Borrow();
 }
 
 void ezGALDeviceVulkan::EndPassPlatform(ezGALPass* pPass)
 {
+#if EZ_ENABLED(EZ_USE_PROFILING)
+  ezProfilingScopeAndMarker::Stop(m_pDefaultPass->m_pRenderCommandEncoder.Borrow(), m_pPassTimingScope);
+#endif
 }
 
 // State creation functions
@@ -353,6 +883,7 @@ ezGALBlendState* ezGALDeviceVulkan::CreateBlendStatePlatform(const ezGALBlendSta
 void ezGALDeviceVulkan::DestroyBlendStatePlatform(ezGALBlendState* pBlendState)
 {
   ezGALBlendStateVulkan* pState = static_cast<ezGALBlendStateVulkan*>(pBlendState);
+  ezResourceCacheVulkan::ResourceDeleted(pState);
   pState->DeInitPlatform(this).IgnoreResult();
   EZ_DELETE(&m_Allocator, pState);
 }
@@ -375,6 +906,7 @@ ezGALDepthStencilState* ezGALDeviceVulkan::CreateDepthStencilStatePlatform(const
 void ezGALDeviceVulkan::DestroyDepthStencilStatePlatform(ezGALDepthStencilState* pDepthStencilState)
 {
   ezGALDepthStencilStateVulkan* pVulkanDepthStencilState = static_cast<ezGALDepthStencilStateVulkan*>(pDepthStencilState);
+  ezResourceCacheVulkan::ResourceDeleted(pVulkanDepthStencilState);
   pVulkanDepthStencilState->DeInitPlatform(this).IgnoreResult();
   EZ_DELETE(&m_Allocator, pVulkanDepthStencilState);
 }
@@ -397,6 +929,7 @@ ezGALRasterizerState* ezGALDeviceVulkan::CreateRasterizerStatePlatform(const ezG
 void ezGALDeviceVulkan::DestroyRasterizerStatePlatform(ezGALRasterizerState* pRasterizerState)
 {
   ezGALRasterizerStateVulkan* pVulkanRasterizerState = static_cast<ezGALRasterizerStateVulkan*>(pRasterizerState);
+  ezResourceCacheVulkan::ResourceDeleted(pVulkanRasterizerState);
   pVulkanRasterizerState->DeInitPlatform(this).IgnoreResult();
   EZ_DELETE(&m_Allocator, pVulkanRasterizerState);
 }
@@ -442,6 +975,7 @@ ezGALShader* ezGALDeviceVulkan::CreateShaderPlatform(const ezGALShaderCreationDe
 void ezGALDeviceVulkan::DestroyShaderPlatform(ezGALShader* pShader)
 {
   ezGALShaderVulkan* pVulkanShader = static_cast<ezGALShaderVulkan*>(pShader);
+  ezResourceCacheVulkan::ShaderDeleted(pVulkanShader);
   pVulkanShader->DeInitPlatform(this).IgnoreResult();
   EZ_DELETE(&m_Allocator, pVulkanShader);
 }
@@ -463,6 +997,7 @@ ezGALBuffer* ezGALDeviceVulkan::CreateBufferPlatform(
 void ezGALDeviceVulkan::DestroyBufferPlatform(ezGALBuffer* pBuffer)
 {
   ezGALBufferVulkan* pVulkanBuffer = static_cast<ezGALBufferVulkan*>(pBuffer);
+  GetCurrentPipelineBarrier().BufferDestroyed(pVulkanBuffer);
   pVulkanBuffer->DeInitPlatform(this).IgnoreResult();
   EZ_DELETE(&m_Allocator, pVulkanBuffer);
 }
@@ -481,9 +1016,13 @@ ezGALTexture* ezGALDeviceVulkan::CreateTexturePlatform(
   return pTexture;
 }
 
+
 void ezGALDeviceVulkan::DestroyTexturePlatform(ezGALTexture* pTexture)
 {
   ezGALTextureVulkan* pVulkanTexture = static_cast<ezGALTextureVulkan*>(pTexture);
+  GetCurrentPipelineBarrier().TextureDestroyed(pVulkanTexture);
+  m_pInitContext->TextureDestroyed(pVulkanTexture);
+
   pVulkanTexture->DeInitPlatform(this).IgnoreResult();
   EZ_DELETE(&m_Allocator, pVulkanTexture);
 }
@@ -554,46 +1093,6 @@ void ezGALDeviceVulkan::DestroyUnorderedAccessViewPlatform(ezGALUnorderedAccessV
 
 
 // Other rendering creation functions
-ezGALSwapChain* ezGALDeviceVulkan::CreateSwapChainPlatform(const ezGALSwapChainCreationDescription& Description)
-{
-  ezGALSwapChainVulkan* pSwapChain = EZ_NEW(&m_Allocator, ezGALSwapChainVulkan, Description);
-
-  if (!pSwapChain->InitPlatform(this).Succeeded())
-  {
-    EZ_DELETE(&m_Allocator, pSwapChain);
-    return nullptr;
-  }
-
-  return pSwapChain;
-}
-
-void ezGALDeviceVulkan::DestroySwapChainPlatform(ezGALSwapChain* pSwapChain)
-{
-  ezGALSwapChainVulkan* pSwapChainVulkan = static_cast<ezGALSwapChainVulkan*>(pSwapChain);
-  pSwapChainVulkan->DeInitPlatform(this).IgnoreResult();
-  EZ_DELETE(&m_Allocator, pSwapChainVulkan);
-}
-
-ezGALFence* ezGALDeviceVulkan::CreateFencePlatform()
-{
-  ezGALFenceVulkan* pFence = EZ_NEW(&m_Allocator, ezGALFenceVulkan);
-
-  if (!pFence->InitPlatform(this).Succeeded())
-  {
-    EZ_DELETE(&m_Allocator, pFence);
-    return nullptr;
-  }
-
-  return pFence;
-}
-
-void ezGALDeviceVulkan::DestroyFencePlatform(ezGALFence* pFence)
-{
-  ezGALFenceVulkan* pFenceVulkan = static_cast<ezGALFenceVulkan*>(pFence);
-  pFenceVulkan->DeInitPlatform(this).IgnoreResult();
-  EZ_DELETE(&m_Allocator, pFenceVulkan);
-}
-
 ezGALQuery* ezGALDeviceVulkan::CreateQueryPlatform(const ezGALQueryCreationDescription& Description)
 {
   ezGALQueryVulkan* pQuery = EZ_NEW(&m_Allocator, ezGALQueryVulkan, Description);
@@ -632,180 +1131,102 @@ ezGALVertexDeclaration* ezGALDeviceVulkan::CreateVertexDeclarationPlatform(const
 void ezGALDeviceVulkan::DestroyVertexDeclarationPlatform(ezGALVertexDeclaration* pVertexDeclaration)
 {
   ezGALVertexDeclarationVulkan* pVertexDeclarationVulkan = static_cast<ezGALVertexDeclarationVulkan*>(pVertexDeclaration);
+  ezResourceCacheVulkan::ResourceDeleted(pVertexDeclarationVulkan);
   pVertexDeclarationVulkan->DeInitPlatform(this).IgnoreResult();
   EZ_DELETE(&m_Allocator, pVertexDeclarationVulkan);
 }
 
 ezGALTimestampHandle ezGALDeviceVulkan::GetTimestampPlatform()
 {
-  ezUInt32 uiIndex = m_uiNextTimestamp;
-  m_uiNextTimestamp = (m_uiNextTimestamp + 1) % m_Timestamps.GetCount();
-  return {uiIndex, m_uiFrameCounter};
+  return m_pQueryPool->GetTimestamp();
 }
 
 ezResult ezGALDeviceVulkan::GetTimestampResultPlatform(ezGALTimestampHandle hTimestamp, ezTime& result)
 {
-  // Check whether frequency and sync timer are already available for the frame of the timestamp
-  ezUInt64 uiFrameCounter = hTimestamp.m_uiFrameCounter;
-
-  PerFrameData* pPerFrameData = nullptr;
-  for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_PerFrameData); ++i)
-  {
-    if (m_PerFrameData[i].m_uiFrame == uiFrameCounter && m_PerFrameData[i].m_fInvTicksPerSecond >= 0.0)
-    {
-      pPerFrameData = &m_PerFrameData[i];
-      break;
-    }
-  }
-
-  if (pPerFrameData == nullptr)
-  {
-    return EZ_FAILURE;
-  }
-
-#if 0 // TODO port
-  ID3D11Query* pQuery = GetTimestamp(hTimestamp);
-
-  ezUInt64 uiTimestamp;
-  if (FAILED(pContext->GetDXContext()->GetData(pQuery, &uiTimestamp, sizeof(uiTimestamp), D3D11_ASYNC_GETDATA_DONOTFLUSH)))
-  {
-    return EZ_FAILURE;
-  }
-
-  if (pPerFrameData->m_fInvTicksPerSecond == 0.0)
-  {
-    result.SetZero();
-  }
-  else
-  {
-    result = ezTime::Seconds(double(uiTimestamp) * pPerFrameData->m_fInvTicksPerSecond) + m_SyncTimeDiff;
-  }
-#endif
-  return EZ_SUCCESS;
-}
-
-// Swap chain functions
-
-void ezGALDeviceVulkan::PresentPlatform(ezGALSwapChain* pSwapChain, bool bVSync)
-{
-  auto pVulkanSwapChain = static_cast<ezGALSwapChainVulkan*>(pSwapChain);
-
-  ezResult result = pVulkanSwapChain->Present(bVSync ? 1 : 0, 0);
-  if (result.Failed())
-  {
-    ezLog::Error("Swap chain Present failed with {0}", result);
-    return;
-  }
+  return m_pQueryPool->GetTimestampResult(hTimestamp, result);
 }
 
 // Misc functions
 
-void ezGALDeviceVulkan::BeginFramePlatform()
+void ezGALDeviceVulkan::BeginFramePlatform(const ezUInt64 uiRenderFrame)
 {
+  auto& pCommandEncoder = m_pDefaultPass->m_pCommandEncoderImpl;
 
-  // check if fence is reached and wait if the disjoint timer is about to be re-used
-  /*{
+  // check if fence is reached
+  if (m_PerFrameData[m_uiCurrentPerFrameData].m_uiFrame != ((ezUInt64)-1))
+  {
     auto& perFrameData = m_PerFrameData[m_uiCurrentPerFrameData];
-    if (perFrameData.m_uiFrame != ((ezUInt64)-1))
+    for (vk::Fence fence : perFrameData.m_CommandBufferFences)
     {
-      bool bFenceReached = pContext->IsFenceReachedPlatform(perFrameData.m_pFence);
-      if (!bFenceReached && m_uiNextPerFrameData == m_uiCurrentPerFrameData)
+      vk::Result fenceStatus = m_device.getFenceStatus(fence);
+      if (fenceStatus == vk::Result::eNotReady)
       {
-        pContext->WaitForFencePlatform(perFrameData.m_pFence);
+        m_device.waitForFences(1, &fence, true, 1000000000);
       }
     }
-  }*/
+    perFrameData.m_CommandBufferFences.Clear();
 
+    {
+      EZ_LOCK(m_PerFrameData[m_uiCurrentPerFrameData].m_pendingDeletionsMutex);
+      DeletePendingResources(m_PerFrameData[m_uiCurrentPerFrameData].m_pendingDeletionsPrevious);
+    }
+    {
+      EZ_LOCK(m_PerFrameData[m_uiCurrentPerFrameData].m_reclaimResourcesMutex);
+      ReclaimResources(m_PerFrameData[m_uiCurrentPerFrameData].m_reclaimResourcesPrevious);
+    }
+    m_uiSafeFrame = m_PerFrameData[m_uiCurrentPerFrameData].m_uiFrame;
+  }
   {
     auto& perFrameData = m_PerFrameData[m_uiNextPerFrameData];
-    // TODO
-    // pContext->GetDXContext()->Begin(perFrameData.m_pDisjointTimerQuery);
-
     perFrameData.m_fInvTicksPerSecond = -1.0f;
   }
+
+  m_PerFrameData[m_uiCurrentPerFrameData].m_uiFrame = m_uiFrameCounter;
+
+  m_pQueryPool->BeginFrame(GetCurrentCommandBuffer());
+  GetCurrentCommandBuffer();
+
+#if EZ_ENABLED(EZ_USE_PROFILING)
+  ezStringBuilder sb;
+  sb.Format("Frame {}", uiRenderFrame);
+  m_pFrameTimingScope = ezProfilingScopeAndMarker::Start(m_pDefaultPass->m_pRenderCommandEncoder.Borrow(), sb);
+#endif
 }
 
 void ezGALDeviceVulkan::EndFramePlatform()
 {
-  /*
-  // end disjoint query
+#if EZ_ENABLED(EZ_USE_PROFILING)
   {
-    auto& perFrameData = m_PerFrameData[m_uiNextPerFrameData];
-    pContext->GetDXContext()->End(perFrameData.m_pDisjointTimerQuery);
+    //#TODO_VULKAN This is very wasteful, in normal cases the last endPipeline will have submitted the command buffer via the swapchain. Thus, we start and submit a command buffer here with only the timestamp in it.
+    GetCurrentCommandBuffer();
+    ezProfilingScopeAndMarker::Stop(m_pDefaultPass->m_pRenderCommandEncoder.Borrow(), m_pFrameTimingScope);
+  }
+#endif
+
+  if (m_PerFrameData[m_uiCurrentPerFrameData].m_currentCommandBuffer)
+  {
+    Submit({}, {}, {});
   }
 
-  // check if fence is reached and update per frame data
   {
-    auto& perFrameData = m_PerFrameData[m_uiCurrentPerFrameData];
-    if (perFrameData.m_uiFrame != ((ezUInt64)-1))
+    // Resources can be added to deletion / reclaim outside of the render frame. These will not be covered by the fences. To handle this, we swap the resources arrays so for any newly added resources we know they are not part of the batch that is deleted / reclaimed with the frame.
+    auto& currentFrameData = m_PerFrameData[m_uiCurrentPerFrameData];
     {
-      if (pContext->IsFenceReachedPlatform(perFrameData.m_pFence))
-      {
-        FreeTempResources(perFrameData.m_uiFrame);
-
-        D3D11_QUERY_DATA_TIMESTAMP_DISJOINT data;
-        if (FAILED(
-              pContext->GetDXContext()->GetData(perFrameData.m_pDisjointTimerQuery, &data, sizeof(data), D3D11_ASYNC_GETDATA_DONOTFLUSH)) ||
-            data.Disjoint)
-        {
-          perFrameData.m_fInvTicksPerSecond = 0.0f;
-        }
-        else
-        {
-          perFrameData.m_fInvTicksPerSecond = 1.0 / (double)data.Frequency;
-
-          if (m_bSyncTimeNeeded)
-          {
-            ezGALTimestampHandle hTimestamp = pContext->InsertTimestamp();
-            ID3D11Query* pQuery = GetTimestamp(hTimestamp);
-
-            ezUInt64 uiTimestamp;
-            while (pContext->GetDXContext()->GetData(pQuery, &uiTimestamp, sizeof(uiTimestamp), 0) != S_OK)
-            {
-              ezThreadUtils::YieldTimeSlice();
-            }
-
-            m_SyncTimeDiff = ezTime::Now() - ezTime::Seconds(double(uiTimestamp) * perFrameData.m_fInvTicksPerSecond);
-            m_bSyncTimeNeeded = false;
-          }
-        }
-
-        m_uiCurrentPerFrameData = (m_uiCurrentPerFrameData + 1) % EZ_ARRAY_SIZE(m_PerFrameData);
-      }
+      EZ_LOCK(currentFrameData.m_pendingDeletionsMutex);
+      currentFrameData.m_pendingDeletionsPrevious.Swap(currentFrameData.m_pendingDeletions);
+    }
+    {
+      EZ_LOCK(currentFrameData.m_reclaimResourcesMutex);
+      currentFrameData.m_reclaimResourcesPrevious.Swap(currentFrameData.m_reclaimResources);
     }
   }
-
-  {
-    auto& perFrameData = m_PerFrameData[m_uiNextPerFrameData];
-    perFrameData.m_uiFrame = m_uiFrameCounter;
-
-    // insert fence
-    pContext->InsertFencePlatform(perFrameData.m_pFence);
-
-    m_uiNextPerFrameData = (m_uiNextPerFrameData + 1) % EZ_ARRAY_SIZE(m_PerFrameData);
-  }
-  */
-
-  vk::SubmitInfo submitInfo = {};
-  submitInfo.commandBufferCount = 1;
-  submitInfo.pCommandBuffers = &m_commandBuffers[m_uiCurrentCmdBufferIndex];
-
-  m_queue.submit(1, &submitInfo, vk::Fence());
-
-  m_uiCurrentCmdBufferIndex = (m_uiCurrentCmdBufferIndex + 1) % NUM_CMD_BUFFERS;
-
+  m_uiCurrentPerFrameData = (m_uiCurrentPerFrameData + 1) % EZ_ARRAY_SIZE(m_PerFrameData);
+  m_uiNextPerFrameData = (m_uiCurrentPerFrameData + 1) % EZ_ARRAY_SIZE(m_PerFrameData);
   ++m_uiFrameCounter;
 }
 
-void ezGALDeviceVulkan::SetPrimarySwapChainPlatform(ezGALSwapChain* pSwapChain)
-{
-  EZ_ASSERT_NOT_IMPLEMENTED;
-}
-
-
 void ezGALDeviceVulkan::FillCapabilitiesPlatform()
 {
-  vk::PhysicalDeviceProperties properties = m_physicalDevice.getProperties();
   vk::PhysicalDeviceMemoryProperties memProperties = m_physicalDevice.getMemoryProperties();
   vk::PhysicalDeviceFeatures features = m_physicalDevice.getFeatures();
 
@@ -824,11 +1245,11 @@ void ezGALDeviceVulkan::FillCapabilitiesPlatform()
   }
 
   {
-    m_Capabilities.m_sAdapterName = ezStringUtf8(properties.deviceName).GetData();
+    m_Capabilities.m_sAdapterName = ezStringUtf8(m_properties.deviceName).GetData();
     m_Capabilities.m_uiDedicatedVRAM = static_cast<ezUInt64>(dedicatedMemory);
     m_Capabilities.m_uiDedicatedSystemRAM = static_cast<ezUInt64>(systemMemory);
     m_Capabilities.m_uiSharedSystemRAM = static_cast<ezUInt64>(0); // TODO
-    m_Capabilities.m_bHardwareAccelerated = properties.deviceType == vk::PhysicalDeviceType::eDiscreteGpu;
+    m_Capabilities.m_bHardwareAccelerated = m_properties.deviceType == vk::PhysicalDeviceType::eDiscreteGpu;
   }
 
   m_Capabilities.m_bMultithreadedResourceCreation = true;
@@ -846,133 +1267,59 @@ void ezGALDeviceVulkan::FillCapabilitiesPlatform()
   m_Capabilities.m_b32BitIndices = true;
   m_Capabilities.m_bIndirectDraw = true;
   m_Capabilities.m_bStreamOut = true;
-  m_Capabilities.m_uiMaxConstantBuffers = properties.limits.maxDescriptorSetUniformBuffers;
+  m_Capabilities.m_uiMaxConstantBuffers = m_properties.limits.maxDescriptorSetUniformBuffers;
   m_Capabilities.m_bTextureArrays = true;
   m_Capabilities.m_bCubemapArrays = true;
-  m_Capabilities.m_uiMaxTextureDimension = properties.limits.maxImageDimension1D;
-  m_Capabilities.m_uiMaxCubemapDimension = properties.limits.maxImageDimensionCube;
-  m_Capabilities.m_uiMax3DTextureDimension = properties.limits.maxImageDimension3D;
-  m_Capabilities.m_uiMaxAnisotropy = static_cast<ezUInt16>(properties.limits.maxSamplerAnisotropy);
-  m_Capabilities.m_uiMaxRendertargets = properties.limits.maxColorAttachments;
-  m_Capabilities.m_uiUAVCount = ezMath::Min(properties.limits.maxDescriptorSetStorageBuffers, properties.limits.maxDescriptorSetStorageImages);
+  m_Capabilities.m_uiMaxTextureDimension = m_properties.limits.maxImageDimension1D;
+  m_Capabilities.m_uiMaxCubemapDimension = m_properties.limits.maxImageDimensionCube;
+  m_Capabilities.m_uiMax3DTextureDimension = m_properties.limits.maxImageDimension3D;
+  m_Capabilities.m_uiMaxAnisotropy = static_cast<ezUInt16>(m_properties.limits.maxSamplerAnisotropy);
+  m_Capabilities.m_uiMaxRendertargets = m_properties.limits.maxColorAttachments;
+  m_Capabilities.m_uiUAVCount = ezMath::Min(m_properties.limits.maxDescriptorSetStorageBuffers, m_properties.limits.maxDescriptorSetStorageImages);
   m_Capabilities.m_bAlphaToCoverage = true;
+  m_Capabilities.m_bVertexShaderRenderTargetArrayIndex = m_extensions.m_bShaderViewportIndexLayer;
 
   m_Capabilities.m_bConservativeRasterization = false; // need to query for VK_EXT_CONSERVATIVE_RASTERIZATION
 }
 
-#if 0
-
-vk::Buffer ezGALDeviceVulkan::FindTempBuffer(ezUInt32 uiSize)
+void ezGALDeviceVulkan::WaitIdlePlatform()
 {
-  const ezUInt32 uiExpGrowthLimit = 16 * 1024 * 1024;
-
-  uiSize = ezMath::Max(uiSize, 256U);
-  if (uiSize < uiExpGrowthLimit)
+  m_device.waitIdle();
+  DestroyDeadObjects();
+  for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_PerFrameData); ++i)
   {
-    uiSize = ezMath::PowerOfTwo_Ceil(uiSize);
-  }
-  else
-  {
-    uiSize = ezMemoryUtils::AlignSize(uiSize, uiExpGrowthLimit);
-  }
-
-  ID3D11Resource* pResource = nullptr;
-  auto it = m_FreeTempResources[TempResourceType::Buffer].Find(uiSize);
-  if (it.IsValid())
-  {
-    ezDynamicArray<ID3D11Resource*>& resources = it.Value();
-    if (!resources.IsEmpty())
+    // First, we wait for all fences for all submit calls. This is necessary to make sure no resources of the frame are still in use by the GPU.
+    auto& perFrameData = m_PerFrameData[i];
+    for (vk::Fence fence : perFrameData.m_CommandBufferFences)
     {
-      pResource = resources[0];
-      resources.RemoveAtAndSwap(0);
-    }
-  }
-
-  if (pResource == nullptr)
-  {
-    D3D11_BUFFER_DESC desc;
-    desc.ByteWidth = uiSize;
-    desc.Usage = D3D11_USAGE_STAGING;
-    desc.BindFlags = 0;
-    desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-    desc.MiscFlags = 0;
-    desc.StructureByteStride = 0;
-
-    ID3D11Buffer* pBuffer = nullptr;
-    if (!SUCCEEDED(m_pDevice->CreateBuffer(&desc, nullptr, &pBuffer)))
-    {
-      return nullptr;
-    }
-
-    pResource = pBuffer;
-  }
-
-  auto& tempResource = m_UsedTempResources[TempResourceType::Buffer].ExpandAndGetRef();
-  tempResource.m_pResource = pResource;
-  tempResource.m_uiFrame = m_uiFrameCounter;
-  tempResource.m_uiHash = uiSize;
-
-  return pResource;
-}
-
-ID3D11Resource* ezGALDeviceVulkan::FindTempTexture(ezUInt32 uiWidth, ezUInt32 uiHeight, ezUInt32 uiDepth, ezGALResourceFormat::Enum format)
-{
-  ezUInt32 data[] = {uiWidth, uiHeight, uiDepth, (ezUInt32)format};
-  ezUInt32 uiHash = ezHashingUtils::xxHash32(data, sizeof(data));
-
-  ID3D11Resource* pResource = nullptr;
-  auto it = m_FreeTempResources[TempResourceType::Texture].Find(uiHash);
-  if (it.IsValid())
-  {
-    ezDynamicArray<ID3D11Resource*>& resources = it.Value();
-    if (!resources.IsEmpty())
-    {
-      pResource = resources[0];
-      resources.RemoveAtAndSwap(0);
-    }
-  }
-
-  if (pResource == nullptr)
-  {
-    if (uiDepth == 1)
-    {
-      D3D11_TEXTURE2D_DESC desc;
-      desc.Width = uiWidth;
-      desc.Height = uiHeight;
-      desc.MipLevels = 1;
-      desc.ArraySize = 1;
-      desc.Format = GetFormatLookupTable().GetFormatInfo(format).m_eStorage;
-      desc.SampleDesc.Count = 1;
-      desc.SampleDesc.Quality = 0;
-      desc.Usage = D3D11_USAGE_STAGING;
-      desc.BindFlags = 0;
-      desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-      desc.MiscFlags = 0;
-
-      ID3D11Texture2D* pTexture = nullptr;
-      if (!SUCCEEDED(m_pDevice->CreateTexture2D(&desc, nullptr, &pTexture)))
+      vk::Result fenceStatus = m_device.getFenceStatus(fence);
+      if (fenceStatus == vk::Result::eNotReady)
       {
-        return nullptr;
+        m_device.waitForFences(1, &fence, true, 1000000000);
       }
-
-      pResource = pTexture;
     }
-    else
-    {
-      EZ_ASSERT_NOT_IMPLEMENTED;
-      return nullptr;
-    }
+    perFrameData.m_CommandBufferFences.Clear();
   }
 
-  auto& tempResource = m_UsedTempResources[TempResourceType::Texture].ExpandAndGetRef();
-  tempResource.m_pResource = pResource;
-  tempResource.m_uiFrame = m_uiFrameCounter;
-  tempResource.m_uiHash = uiHash;
-
-  return pResource;
+  for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_PerFrameData); ++i)
+  {
+    {
+      EZ_LOCK(m_PerFrameData[i].m_pendingDeletionsMutex);
+      DeletePendingResources(m_PerFrameData[i].m_pendingDeletionsPrevious);
+      DeletePendingResources(m_PerFrameData[i].m_pendingDeletions);
+    }
+    {
+      EZ_LOCK(m_PerFrameData[i].m_reclaimResourcesMutex);
+      ReclaimResources(m_PerFrameData[i].m_reclaimResourcesPrevious);
+      ReclaimResources(m_PerFrameData[i].m_reclaimResources);
+    }
+  }
 }
 
-#endif
+vk::PipelineStageFlags ezGALDeviceVulkan::GetSupportedStages() const
+{
+  return m_supportedStages;
+}
 
 ezInt32 ezGALDeviceVulkan::GetMemoryIndex(vk::MemoryPropertyFlags properties, const vk::MemoryRequirements& requirements) const
 {
@@ -989,30 +1336,97 @@ ezInt32 ezGALDeviceVulkan::GetMemoryIndex(vk::MemoryPropertyFlags properties, co
   return -1;
 }
 
-void ezGALDeviceVulkan::FreeTempResources(ezUInt64 uiFrame)
+void ezGALDeviceVulkan::DeleteLater(const PendingDeletion& deletion)
 {
-  for (ezUInt32 type = 0; type < TempResourceType::ENUM_COUNT; ++type)
-  {
-    while (!m_UsedTempResources[type].IsEmpty())
-    {
-      auto& usedTempResource = m_UsedTempResources[type].PeekFront();
-      if (usedTempResource.m_uiFrame == uiFrame)
-      {
-        auto it = m_FreeTempResources[type].Find(usedTempResource.m_uiHash);
-        if (!it.IsValid())
-        {
-          it = m_FreeTempResources[type].Insert(usedTempResource.m_uiHash, ezDynamicArray<VkResource*>(&m_Allocator));
-        }
+  EZ_LOCK(m_PerFrameData[m_uiCurrentPerFrameData].m_pendingDeletionsMutex);
+  m_PerFrameData[m_uiCurrentPerFrameData].m_pendingDeletions.PushBack(deletion);
+}
 
-        it.Value().PushBack(usedTempResource.m_pResource);
-        m_UsedTempResources[type].PopFront();
-      }
-      else
-      {
+void ezGALDeviceVulkan::ReclaimLater(const ReclaimResource& reclaim)
+{
+  EZ_LOCK(m_PerFrameData[m_uiCurrentPerFrameData].m_reclaimResourcesMutex);
+  m_PerFrameData[m_uiCurrentPerFrameData].m_reclaimResources.PushBack(reclaim);
+}
+
+void ezGALDeviceVulkan::DeletePendingResources(ezDeque<PendingDeletion>& pendingDeletions)
+{
+  for (PendingDeletion& deletion : pendingDeletions)
+  {
+    switch (deletion.m_type)
+    {
+      case vk::ObjectType::eImageView:
+        m_device.destroyImageView(reinterpret_cast<vk::ImageView&>(deletion.m_pObject));
         break;
+      case vk::ObjectType::eImage:
+      {
+        auto& image = reinterpret_cast<vk::Image&>(deletion.m_pObject);
+        OnBeforeImageDestroyed.Broadcast(OnBeforeImageDestroyedData{image, *this});
+        ezMemoryAllocatorVulkan::DestroyImage(image, deletion.m_allocation);
       }
+      break;
+      case vk::ObjectType::eBuffer:
+        ezMemoryAllocatorVulkan::DestroyBuffer(reinterpret_cast<vk::Buffer&>(deletion.m_pObject), deletion.m_allocation);
+        break;
+      case vk::ObjectType::eBufferView:
+        m_device.destroyBufferView(reinterpret_cast<vk::BufferView&>(deletion.m_pObject));
+        break;
+      case vk::ObjectType::eFramebuffer:
+        m_device.destroyFramebuffer(reinterpret_cast<vk::Framebuffer&>(deletion.m_pObject));
+        break;
+      case vk::ObjectType::eRenderPass:
+        m_device.destroyRenderPass(reinterpret_cast<vk::RenderPass&>(deletion.m_pObject));
+        break;
+      case vk::ObjectType::eSampler:
+        m_device.destroySampler(reinterpret_cast<vk::Sampler&>(deletion.m_pObject));
+        break;
+      case vk::ObjectType::eSwapchainKHR:
+        m_device.destroySwapchainKHR(reinterpret_cast<vk::SwapchainKHR&>(deletion.m_pObject));
+        break;
+      case vk::ObjectType::eSurfaceKHR:
+        m_instance.destroySurfaceKHR(reinterpret_cast<vk::SurfaceKHR&>(deletion.m_pObject));
+        if (ezWindowBase* pWindow = reinterpret_cast<ezWindowBase*>(deletion.m_pContext))
+        {
+          pWindow->RemoveReference();
+        }
+        break;
+      case vk::ObjectType::eShaderModule:
+        m_device.destroyShaderModule(reinterpret_cast<vk::ShaderModule&>(deletion.m_pObject));
+        break;
+      case vk::ObjectType::ePipeline:
+        m_device.destroyPipeline(reinterpret_cast<vk::Pipeline&>(deletion.m_pObject));
+        break;
+      default:
+        EZ_REPORT_FAILURE("This object type is not implemented");
+        break;
     }
   }
+  pendingDeletions.Clear();
+}
+
+void ezGALDeviceVulkan::ReclaimResources(ezDeque<ReclaimResource>& resources)
+{
+  for (ReclaimResource& resource : resources)
+  {
+    switch (resource.m_type)
+    {
+      case vk::ObjectType::eSemaphore:
+        ezSemaphorePoolVulkan::ReclaimSemaphore(reinterpret_cast<vk::Semaphore&>(resource.m_pObject));
+        break;
+      case vk::ObjectType::eFence:
+        ezFencePoolVulkan::ReclaimFence(reinterpret_cast<vk::Fence&>(resource.m_pObject));
+        break;
+      case vk::ObjectType::eCommandBuffer:
+        static_cast<ezCommandBufferPoolVulkan*>(resource.m_pContext)->ReclaimCommandBuffer(reinterpret_cast<vk::CommandBuffer&>(resource.m_pObject));
+        break;
+      case vk::ObjectType::eDescriptorPool:
+        ezDescriptorSetPoolVulkan::ReclaimPool(reinterpret_cast<vk::DescriptorPool&>(resource.m_pObject));
+        break;
+      default:
+        EZ_REPORT_FAILURE("This object type is not implemented");
+        break;
+    }
+  }
+  resources.Clear();
 }
 
 void ezGALDeviceVulkan::FillFormatLookupTable()
@@ -1052,10 +1466,10 @@ void ezGALDeviceVulkan::FillFormatLookupTable()
                                                                    .RV(vk::Format::eR32G32B32Sint));
 
   // TODO dunno if these are actually supported for the respective Vulkan device
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::B5G6R5UNormalized, ezGALFormatLookupEntryVulkan(vk::Format::eB5G6R5UnormPack16)
-                                                                              .RT(vk::Format::eB5G6R5UnormPack16)
-                                                                              .VA(vk::Format::eB5G6R5UnormPack16)
-                                                                              .RV(vk::Format::eB5G6R5UnormPack16));
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::B5G6R5UNormalized, ezGALFormatLookupEntryVulkan(vk::Format::eR5G6B5UnormPack16)
+                                                                              .RT(vk::Format::eR5G6B5UnormPack16)
+                                                                              .VA(vk::Format::eR5G6B5UnormPack16)
+                                                                              .RV(vk::Format::eR5G6B5UnormPack16));
 
   m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::BGRAUByteNormalized, ezGALFormatLookupEntryVulkan(vk::Format::eB8G8R8A8Unorm)
                                                                                 .RT(vk::Format::eB8G8R8A8Unorm)
@@ -1180,9 +1594,6 @@ void ezGALDeviceVulkan::FillFormatLookupTable()
   m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGByteNormalized,
     ezGALFormatLookupEntryVulkan(vk::Format::eR8G8Snorm).RT(vk::Format::eR8G8Snorm).VA(vk::Format::eR8G8Snorm).RV(vk::Format::eR8G8Snorm));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::DFloat,
-    ezGALFormatLookupEntryVulkan(vk::Format::eD32Sfloat).RV(vk::Format::eD32Sfloat).D(vk::Format::eD32Sfloat).DS(vk::Format::eD32Sfloat));
-
   m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RFloat,
     ezGALFormatLookupEntryVulkan(vk::Format::eR32Sfloat).RT(vk::Format::eR32Sfloat).VA(vk::Format::eR32Sfloat).RV(vk::Format::eR32Sfloat));
 
@@ -1222,14 +1633,53 @@ void ezGALDeviceVulkan::FillFormatLookupTable()
   m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::AUByteNormalized,
     ezGALFormatLookupEntryVulkan(vk::Format::eR8Unorm).RT(vk::Format::eR8Unorm).VA(vk::Format::eR8Unorm).RV(vk::Format::eR8Unorm));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::D16,
-    ezGALFormatLookupEntryVulkan(vk::Format::eD16Unorm).RV(vk::Format::eD16Unorm).DS(vk::Format::eD16Unorm).D(vk::Format::eD16Unorm));
+  auto SelectDepthFormat = [&](const std::vector<vk::Format>& list) -> vk::Format {
+    for (auto& format : list)
+    {
+      vk::FormatProperties formatProperties;
+      m_physicalDevice.getFormatProperties(format, &formatProperties);
+      if (formatProperties.optimalTilingFeatures & vk::FormatFeatureFlagBits::eDepthStencilAttachment)
+        return format;
+    }
+    return vk::Format::eUndefined;
+  };
 
-  // TODO what should the depth and stencil binding formats be in Vulkan?
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::D24S8, ezGALFormatLookupEntryVulkan(vk::Format::eD24UnormS8Uint)
-                                                                  .DS(vk::Format::eD24UnormS8Uint)
-                                                                  .D(vk::Format::eD24UnormS8Uint)
-                                                                  .S(vk::Format::eD24UnormS8Uint));
+  auto SelectStorageFormat = [](vk::Format depthFormat) -> vk::Format {
+    switch (depthFormat)
+    {
+      case vk::Format::eD16Unorm:
+        return vk::Format::eR16Unorm;
+      case vk::Format::eD16UnormS8Uint:
+        return vk::Format::eUndefined;
+      case vk::Format::eD24UnormS8Uint:
+        return vk::Format::eUndefined;
+      case vk::Format::eD32Sfloat:
+        return vk::Format::eR32Sfloat;
+      case vk::Format::eD32SfloatS8Uint:
+        return vk::Format::eR32Sfloat;
+      default:
+        return vk::Format::eUndefined;
+    }
+  };
+
+  // Select smallest available depth format.  #TODO_VULKAN support packed eX8D24UnormPack32?
+  vk::Format depthFormat = SelectDepthFormat({vk::Format::eD16Unorm, vk::Format::eD24UnormS8Uint, vk::Format::eD32Sfloat, vk::Format::eD32SfloatS8Uint});
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::D16,
+    ezGALFormatLookupEntryVulkan(SelectStorageFormat(depthFormat)).RT(depthFormat).RV(depthFormat).DS(depthFormat).D(depthFormat));
+
+  // Select closest depth stencil format.
+  depthFormat = SelectDepthFormat({vk::Format::eD24UnormS8Uint, vk::Format::eD32SfloatS8Uint, vk::Format::eD16UnormS8Uint});
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::D24S8, ezGALFormatLookupEntryVulkan(SelectStorageFormat(depthFormat))
+                                                                  .RT(depthFormat)
+                                                                  .RV(depthFormat)
+                                                                  .DS(depthFormat)
+                                                                  .D(depthFormat)
+                                                                  .S(depthFormat));
+
+  // Select biggest depth format.
+  depthFormat = SelectDepthFormat({vk::Format::eD32Sfloat, vk::Format::eD32SfloatS8Uint, vk::Format::eD24UnormS8Uint, vk::Format::eD16Unorm});
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::DFloat,
+    ezGALFormatLookupEntryVulkan(SelectStorageFormat(depthFormat)).RT(depthFormat).RV(depthFormat).D(depthFormat).DS(depthFormat));
 
   // TODO is BC1 the rgba or the rgb format?
   m_FormatLookupTable.SetFormatInfo(

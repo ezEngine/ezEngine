@@ -15,7 +15,7 @@ ezMaterialViewContext::~ezMaterialViewContext() {}
 void ezMaterialViewContext::PositionThumbnailCamera()
 {
   m_Camera.SetCameraMode(ezCameraMode::PerspectiveFixedFovX, 45.0f, 0.1f, 1000.0f);
-  m_Camera.LookAt(ezVec3(+0.18f, -0.18f, 0.1f), ezVec3::ZeroVector(), ezVec3(0.0f, 0.0f, 1.0f));
+  m_Camera.LookAt(ezVec3(+0.23f, -0.23f, 0.1f), ezVec3::ZeroVector(), ezVec3(0.0f, 0.0f, 1.0f));
 }
 
 ezViewHandle ezMaterialViewContext::CreateView()

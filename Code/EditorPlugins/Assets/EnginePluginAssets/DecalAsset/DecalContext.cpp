@@ -37,19 +37,20 @@ void ezDecalContext::OnInitialize()
     {
       // Build geometry
       ezGeometry geom;
+      ezGeometry::GeoOptions opt;
+
+      geom.AddBox(ezVec3(0.5f, 1.0f, 1.0f), true);
 
       ezMat4 t, r;
-      t.SetIdentity();
-
-      geom.AddTexturedBox(ezVec3(0.5f, 1.0f, 1.0f), ezColor::White, t);
-
       t.SetTranslationMatrix(ezVec3(0, 1.5f, 0));
       r.SetRotationMatrixZ(ezAngle::Degree(90));
-      geom.AddSphere(0.5f, 64, 64, ezColor::White, t * r);
+      opt.m_Transform = t * r;
+      geom.AddSphere(0.5f, 64, 64, opt);
 
       t.SetTranslationVector(ezVec3(0, -1.5f, 0));
       r.SetRotationMatrixY(ezAngle::Degree(90));
-      geom.AddTorus(0.1f, 0.5f, 32, 64, ezColor::White, t * r);
+      opt.m_Transform = t * r;
+      geom.AddTorus(0.1f, 0.5f, 32, 64, true, opt);
 
       geom.ComputeTangents();
 
@@ -57,7 +58,7 @@ void ezDecalContext::OnInitialize()
       desc.AddCommonStreams();
       desc.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
 
-      hMeshBuffer = ezResourceManager::CreateResource<ezMeshBufferResource>(szMeshBufferName, std::move(desc), szMeshBufferName);
+      hMeshBuffer = ezResourceManager::GetOrCreateResource<ezMeshBufferResource>(szMeshBufferName, std::move(desc), szMeshBufferName);
     }
     {
       ezResourceLock<ezMeshBufferResource> pMeshBuffer(hMeshBuffer, ezResourceAcquireMode::AllowLoadingFallback);
@@ -65,10 +66,10 @@ void ezDecalContext::OnInitialize()
       ezMeshResourceDescriptor md;
       md.UseExistingMeshBuffer(hMeshBuffer);
       md.AddSubMesh(pMeshBuffer->GetPrimitiveCount(), 0, 0);
-      md.SetMaterial(0, "Materials/BaseMaterials/TestBricks.ezMaterial");
+      md.SetMaterial(0, "Materials/Common/TestBricks.ezMaterial");
       md.ComputeBounds();
 
-      m_hPreviewMeshResource = ezResourceManager::CreateResource<ezMeshResource>(szMeshName, std::move(md), pMeshBuffer->GetResourceDescription());
+      m_hPreviewMeshResource = ezResourceManager::GetOrCreateResource<ezMeshResource>(szMeshName, std::move(md), pMeshBuffer->GetResourceDescription());
     }
   }
 

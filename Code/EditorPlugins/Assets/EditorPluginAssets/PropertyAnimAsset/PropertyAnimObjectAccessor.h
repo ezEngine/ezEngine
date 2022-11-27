@@ -49,7 +49,7 @@ private:
 
   void SeparateColor(const ezColor& color, ezColorGammaUB& gamma, ezUInt8& alpha, float& intensity);
 
-  ezUniquePtr<ezObjectAccessorBase> m_ObjAccessor;
+  ezUniquePtr<ezObjectAccessorBase> m_pObjAccessor;
   ezPropertyAnimAssetDocument* m_pDocument = nullptr;
   ezPropertyAnimObjectManager* m_pObjectManager = nullptr;
 };

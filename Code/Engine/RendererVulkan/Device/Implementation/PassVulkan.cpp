@@ -1,9 +1,11 @@
-#include <RendererVulkanPCH.h>
+#include <RendererVulkan/RendererVulkanPCH.h>
 
 #include <RendererFoundation/CommandEncoder/CommandEncoderState.h>
 #include <RendererFoundation/CommandEncoder/ComputeCommandEncoder.h>
 #include <RendererFoundation/CommandEncoder/RenderCommandEncoder.h>
+#include <RendererFoundation/Device/Device.h>
 #include <RendererVulkan/CommandEncoder/CommandEncoderImplVulkan.h>
+#include <RendererVulkan/Device/DeviceVulkan.h>
 #include <RendererVulkan/Device/PassVulkan.h>
 
 ezGALPassVulkan::ezGALPassVulkan(ezGALDevice& device)
@@ -18,11 +20,29 @@ ezGALPassVulkan::ezGALPassVulkan(ezGALDevice& device)
 
 ezGALPassVulkan::~ezGALPassVulkan() = default;
 
+void ezGALPassVulkan::Reset()
+{
+  m_pCommandEncoderImpl->Reset();
+  m_pRenderCommandEncoder->InvalidateState();
+  m_pComputeCommandEncoder->InvalidateState();
+}
+
+void ezGALPassVulkan::MarkDirty()
+{
+  m_pCommandEncoderImpl->MarkDirty();
+}
+
+void ezGALPassVulkan::SetCurrentCommandBuffer(vk::CommandBuffer* commandBuffer, ezPipelineBarrierVulkan* pipelineBarrier)
+{
+  m_pCommandEncoderImpl->SetCurrentCommandBuffer(commandBuffer, pipelineBarrier);
+}
+
 ezGALRenderCommandEncoder* ezGALPassVulkan::BeginRenderingPlatform(const ezGALRenderingSetup& renderingSetup, const char* szName)
 {
-  vk::CommandBuffer& commandBuffer = static_cast<ezGALDeviceVulkan&>(m_Device).GetPrimaryCommandBuffer();
+  auto& deviceVulkan = static_cast<ezGALDeviceVulkan&>(m_Device);
+  deviceVulkan.GetCurrentCommandBuffer();
 
-  m_pCommandEncoderImpl->BeginRendering(commandBuffer, renderingSetup);
+  m_pCommandEncoderImpl->BeginRendering(renderingSetup);
 
   return m_pRenderCommandEncoder.Borrow();
 }
@@ -36,9 +56,10 @@ void ezGALPassVulkan::EndRenderingPlatform(ezGALRenderCommandEncoder* pCommandEn
 
 ezGALComputeCommandEncoder* ezGALPassVulkan::BeginComputePlatform(const char* szName)
 {
-  vk::CommandBuffer& commandBuffer = static_cast<ezGALDeviceVulkan&>(m_Device).GetPrimaryCommandBuffer();
+  auto& deviceVulkan = static_cast<ezGALDeviceVulkan&>(m_Device);
+  deviceVulkan.GetCurrentCommandBuffer();
 
-  m_pCommandEncoderImpl->BeginCompute(commandBuffer);
+  m_pCommandEncoderImpl->BeginCompute();
 
   return m_pComputeCommandEncoder.Borrow();
 }

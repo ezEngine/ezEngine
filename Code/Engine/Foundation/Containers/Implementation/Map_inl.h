@@ -628,7 +628,8 @@ EZ_ALWAYS_INLINE typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBa
 }
 
 template <typename KeyType, typename ValueType, typename Comparer>
-typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, ValueType, Comparer>::Remove(Node* root, const KeyType& key, bool& bRemoved)
+template <typename CompatibleKeyType>
+typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, ValueType, Comparer>::Remove(Node* root, const CompatibleKeyType& key, bool& bRemoved)
 {
   bRemoved = false;
 

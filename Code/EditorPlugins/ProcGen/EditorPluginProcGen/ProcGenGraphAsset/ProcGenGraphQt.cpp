@@ -11,24 +11,21 @@ namespace
 {
   static ezColorGammaUB CategoryColor(const char* szCategory)
   {
+    ezColorScheme::Enum color = ezColorScheme::Green;
     if (ezStringUtils::IsEqual(szCategory, "Input"))
-      return ezColorGammaUB(38, 105, 0);
+      color = ezColorScheme::Lime;
     else if (ezStringUtils::IsEqual(szCategory, "Output"))
-      return ezColorGammaUB(0, 101, 105);
+      color = ezColorScheme::Cyan;
     else if (ezStringUtils::IsEqual(szCategory, "Math"))
-      return ezColorGammaUB(0, 53, 91);
+      color = ezColorScheme::Blue;
 
-    return ezColor::DarkOliveGreen;
+    return ezColorScheme::DarkUI(color);
   }
 } // namespace
 
 //////////////////////////////////////////////////////////////////////////
 
-ezQtProcGenNode::ezQtProcGenNode()
-{
-  // this costs too much performance :-(
-  EnableDropShadow(false);
-}
+ezQtProcGenNode::ezQtProcGenNode() = default;
 
 void ezQtProcGenNode::InitNode(const ezDocumentNodeManager* pManager, const ezDocumentObject* pObject)
 {
@@ -38,8 +35,7 @@ void ezQtProcGenNode::InitNode(const ezDocumentNodeManager* pManager, const ezDo
 
   if (const ezCategoryAttribute* pAttr = pRtti->GetAttributeByType<ezCategoryAttribute>())
   {
-    ezColorGammaUB color = CategoryColor(pAttr->GetCategory());
-    m_HeaderColor = qRgb(color.r, color.g, color.b);
+    m_HeaderColor = ezToQtColor(CategoryColor(pAttr->GetCategory()));
   }
 }
 

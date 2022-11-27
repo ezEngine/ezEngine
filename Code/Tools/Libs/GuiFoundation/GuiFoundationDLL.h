@@ -1,16 +1,18 @@
 #pragma once
 
 #include <Foundation/Basics.h>
+#include <Foundation/Math/Color8UNorm.h>
 #include <Foundation/Types/Uuid.h>
+#include <QColor>
 #include <QMetaType>
 #include <ToolsFoundation/ToolsFoundationDLL.h>
 
 // Configure the DLL Import/Export Define
 #if EZ_ENABLED(EZ_COMPILE_ENGINE_AS_DLL)
 #  ifdef BUILDSYSTEM_BUILDING_GUIFOUNDATION_LIB
-#    define EZ_GUIFOUNDATION_DLL __declspec(dllexport)
+#    define EZ_GUIFOUNDATION_DLL EZ_DECL_EXPORT
 #  else
-#    define EZ_GUIFOUNDATION_DLL __declspec(dllimport)
+#    define EZ_GUIFOUNDATION_DLL EZ_DECL_IMPORT
 #  endif
 #else
 #  define EZ_GUIFOUNDATION_DLL
@@ -46,3 +48,13 @@ public:
 private:
   QObject* m_pObjects[6];
 };
+
+EZ_ALWAYS_INLINE QColor ezToQtColor(const ezColorGammaUB& c)
+{
+  return QColor(c.r, c.g, c.b, c.a);
+}
+
+EZ_ALWAYS_INLINE ezColorGammaUB qtToEzColor(const QColor& c)
+{
+  return ezColorGammaUB(c.red(), c.green(), c.blue(), c.alpha());
+}

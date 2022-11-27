@@ -45,17 +45,17 @@ void ezTokenizer::NextChar()
     m_uiCurColumn = 0;
   }
 
-  if (!m_Iterator.IsValid())
+  if (!m_sIterator.IsValid())
   {
-    m_szNextCharStart = m_Iterator.GetEndPointer();
+    m_szNextCharStart = m_sIterator.GetEndPointer();
     m_uiNextChar = '\0';
     return;
   }
 
-  m_uiNextChar = m_Iterator.GetCharacter();
-  m_szNextCharStart = m_Iterator.GetStartPointer();
+  m_uiNextChar = m_sIterator.GetCharacter();
+  m_szNextCharStart = m_sIterator.GetStartPointer();
 
-  ++m_Iterator;
+  ++m_sIterator;
 }
 
 void ezTokenizer::AddToken()
@@ -118,9 +118,9 @@ void ezTokenizer::Tokenize(ezArrayPtr<const ezUInt8> Data, ezLogInterface* pLog)
     m_szTokenStart = nullptr;
   }
 
-  m_Iterator = ezStringView((const char*)&m_Data[0], (const char*)&m_Data[0] + m_Data.GetCount() - 1);
+  m_sIterator = ezStringView((const char*)&m_Data[0], (const char*)&m_Data[0] + m_Data.GetCount() - 1);
 
-  if (!m_Iterator.IsValid())
+  if (!m_sIterator.IsValid())
   {
     ezToken t;
     t.m_uiLine = 1;

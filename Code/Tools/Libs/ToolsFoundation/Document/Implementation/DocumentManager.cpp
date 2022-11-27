@@ -39,6 +39,7 @@ ezHybridArray<ezDocumentManager*, 16> ezDocumentManager::s_AllDocumentManagers;
 ezMap<ezString, const ezDocumentTypeDescriptor*> ezDocumentManager::s_AllDocumentDescriptors; // maps from "sDocumentTypeName" to descriptor
 ezCopyOnBroadcastEvent<const ezDocumentManager::Event&> ezDocumentManager::s_Events;
 ezEvent<ezDocumentManager::Request&> ezDocumentManager::s_Requests;
+ezMap<ezString, ezDocumentManager::CustomAction> ezDocumentManager::s_CustomActions;
 
 void ezDocumentManager::OnPluginEvent(const ezPluginEvent& e)
 {
@@ -223,35 +224,21 @@ ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, const char* szDoc
       // it and use that as the new document instead of creating one from scratch.
       if (bCreate)
       {
-        ezString ProjectDirectory = ezToolsProject::GetSingleton()->GetProjectDirectory();
-        ezStringBuilder TemplateDocumentPath = ProjectDirectory;
-        ezStringBuilder DocumentFileName;
-        TemplateDocumentPath.AppendPath("DocumentTemplates", "Default");
-        ezStringBuilder Temp;
-        TemplateDocumentPath.ChangeFileExtension(sPath.GetFileExtension().GetData(Temp));
+        ezStringBuilder sTemplateDoc = "Editor/DocumentTemplates/Default";
+        sTemplateDoc.ChangeFileExtension(sPath.GetFileExtension());
 
-        if (ezOSFile::ExistsFile(TemplateDocumentPath))
+        if (ezFileSystem::ExistsFile(sTemplateDoc))
         {
-          EZ_PROFILE_SCOPE(szDocumentTypeName);
-
           ezUuid CloneUuid;
-          if (CloneDocument(TemplateDocumentPath, sPath, CloneUuid).Succeeded())
+          if (CloneDocument(sTemplateDoc, sPath, CloneUuid).Succeeded())
           {
-            status = OpenDocument(szDocumentTypeName, sPath, out_pDocument, flags, pOpenContext);
+            if (OpenDocument(szDocumentTypeName, sPath, out_pDocument, flags, pOpenContext).Succeeded())
+            {
+              return ezStatus(EZ_SUCCESS);
+            }
+          }
 
-            if (status.Failed())
-            {
-              ezLog::SeriousWarning("Couldn't open cloned template document, proceeding with normal creation behavior.");
-            }
-            else
-            {
-              return status;
-            }
-          }
-          else
-          {
-            ezLog::SeriousWarning("Couldn't clone template document, proceeding with normal creation behavior.");
-          }
+          ezLog::Warning("Failed to create document from template '{}'", sTemplateDoc);
         }
       }
 
@@ -349,8 +336,6 @@ ezStatus ezDocumentManager::CloneDocument(const char* szPath, const char* szClon
   ezUuid documentId;
   ezAbstractObjectNode::Property* documentIdProp = nullptr;
   {
-    ezRttiConverterContext context;
-    ezRttiConverterReader rttiConverter(header.Borrow(), &context);
     auto* pHeaderNode = header->GetNodeByName("Header");
     EZ_ASSERT_DEV(pHeaderNode, "No header found, document '{0}' is corrupted.", szPath);
     documentIdProp = pHeaderNode->FindProperty("DocumentID");
@@ -375,27 +360,7 @@ ezStatus ezDocumentManager::CloneDocument(const char* szPath, const char* szClon
     inout_cloneGuid.CombineWithSeed(seedGuid);
   }
 
-  {
-    // Remap
-    header->ReMapNodeGuids(seedGuid);
-    objects->ReMapNodeGuids(seedGuid);
-    documentIdProp->m_Value = inout_cloneGuid;
-
-    // Fix cloning of docs containing prefabs.
-    // TODO: generalize this for other doc features?
-    auto& AllNodes = objects->GetAllNodes();
-    for (auto it = AllNodes.GetIterator(); it.IsValid(); ++it)
-    {
-      auto* pNode = it.Value();
-      ezAbstractObjectNode::Property* pProp = pNode->FindProperty("MetaPrefabSeed");
-      if (pProp && pProp->m_Value.IsA<ezUuid>())
-      {
-        ezUuid prefabSeed = pProp->m_Value.Get<ezUuid>();
-        prefabSeed.CombineWithSeed(seedGuid);
-        pProp->m_Value = prefabSeed;
-      }
-    }
-  }
+  InternalCloneDocument(szPath, szClonePath, documentId, seedGuid, inout_cloneGuid, header.Borrow(), objects.Borrow(), types.Borrow());
 
   {
     ezDeferredFileWriter file;
@@ -407,6 +372,32 @@ ezStatus ezDocumentManager::CloneDocument(const char* szPath, const char* szClon
     }
   }
   return ezStatus(EZ_SUCCESS);
+}
+
+void ezDocumentManager::InternalCloneDocument(const char* szPath, const char* szClonePath, const ezUuid& documentId, const ezUuid& seedGuid, const ezUuid& cloneGuid, ezAbstractObjectGraph* header, ezAbstractObjectGraph* objects, ezAbstractObjectGraph* types)
+{
+  // Remap
+  header->ReMapNodeGuids(seedGuid);
+  objects->ReMapNodeGuids(seedGuid);
+
+  auto* pHeaderNode = header->GetNodeByName("Header");
+  auto* documentIdProp = pHeaderNode->FindProperty("DocumentID");
+  documentIdProp->m_Value = cloneGuid;
+
+  // Fix cloning of docs containing prefabs.
+  // TODO: generalize this for other doc features?
+  auto& AllNodes = objects->GetAllNodes();
+  for (auto it = AllNodes.GetIterator(); it.IsValid(); ++it)
+  {
+    auto* pNode = it.Value();
+    ezAbstractObjectNode::Property* pProp = pNode->FindProperty("MetaPrefabSeed");
+    if (pProp && pProp->m_Value.IsA<ezUuid>())
+    {
+      ezUuid prefabSeed = pProp->m_Value.Get<ezUuid>();
+      prefabSeed.CombineWithSeed(seedGuid);
+      pProp->m_Value = prefabSeed;
+    }
+  }
 }
 
 void ezDocumentManager::CloseDocument(ezDocument* pDocument)
@@ -425,6 +416,7 @@ void ezDocumentManager::CloseDocument(ezDocument* pDocument)
   e.m_Type = Event::Type::DocumentClosing2;
   s_Events.Broadcast(e);
 
+  pDocument->BeforeClosing();
   delete pDocument;
 
   e.m_pDocument = pDocument;

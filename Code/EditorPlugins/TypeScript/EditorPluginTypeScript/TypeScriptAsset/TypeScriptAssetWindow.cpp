@@ -38,7 +38,7 @@ ezQtTypeScriptAssetDocumentWindow::ezQtTypeScriptAssetDocumentWindow(ezAssetDocu
 
   // Property Grid
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this);
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
     pPropertyPanel->setObjectName("TypeScriptAssetDockWidget");
     pPropertyPanel->setWindowTitle("TypeScript Properties");
     pPropertyPanel->show();
@@ -127,243 +127,243 @@ JSHighlighter::JSHighlighter(QTextDocument* parent)
   : QSyntaxHighlighter(parent)
 {
   // default color scheme
-  m_colors[JSEdit::Comment] = QColor("#6A8A35");
-  m_colors[JSEdit::Number] = QColor("#B5CEA8");
-  m_colors[JSEdit::String] = QColor("#CE916A");
-  m_colors[JSEdit::Operator] = QColor("#808000");
-  m_colors[JSEdit::KeywordBlue] = QColor("#569CCA");
-  m_colors[JSEdit::KeywordPink] = QColor("#C586C0");
-  m_colors[JSEdit::KeywordGreen] = QColor("#4EC9B0");
-  m_colors[JSEdit::BuiltIn] = QColor("#DCDCAA");
+  m_Colors[JSEdit::Comment] = QColor("#6A8A35");
+  m_Colors[JSEdit::Number] = QColor("#B5CEA8");
+  m_Colors[JSEdit::String] = QColor("#CE916A");
+  m_Colors[JSEdit::Operator] = QColor("#808000");
+  m_Colors[JSEdit::KeywordBlue] = QColor("#569CCA");
+  m_Colors[JSEdit::KeywordPink] = QColor("#C586C0");
+  m_Colors[JSEdit::KeywordGreen] = QColor("#4EC9B0");
+  m_Colors[JSEdit::BuiltIn] = QColor("#DCDCAA");
 
-  m_keywordsPink << "break";
-  m_keywordsPink << "case";
-  m_keywordsPink << "catch";
-  m_keywordsPink << "continue";
-  m_keywordsPink << "default";
-  m_keywordsBlue << "delete";
-  m_keywordsPink << "do";
-  m_keywordsPink << "finally";
-  m_keywordsPink << "for";
-  m_keywordsBlue << "function";
-  m_keywordsBlue << "in";
-  m_keywordsBlue << "instanceof";
-  m_keywordsBlue << "new";
-  m_keywordsPink << "return";
-  m_keywordsPink << "switch";
-  m_keywordsBlue << "this";
-  m_keywordsPink << "throw";
-  m_keywordsPink << "try";
-  m_keywordsBlue << "typeof";
-  m_keywordsBlue << "var";
-  m_keywordsBlue << "void";
-  m_keywordsPink << "while";
-  m_keywordsPink << "with";
-  m_keywordsBlue << "true";
-  m_keywordsBlue << "false";
-  m_keywordsBlue << "null";
-  m_keywordsBlue << "static";
-  m_keywordsBlue << "let";
-  m_keywordsBlue << "class";
-  m_keywordsBlue << "extends";
-  m_keywordsBlue << "implements";
-  m_keywordsBlue << "const";
-  m_keywordsBlue << "enum";
-  m_keywordsBlue << "super";
-  m_keywordsPink << "as";
-  m_keywordsBlue << "private";
-  m_keywordsBlue << "protected";
-  m_keywordsBlue << "public";
-  m_keywordsPink << "yield";
-  m_keywordsBlue << "symbol";
-  m_keywordsBlue << "type";
-  m_keywordsBlue << "from";
-  m_keywordsBlue << "of";
-  m_keywordsGreen << "boolean";
-  m_keywordsGreen << "string";
-  m_keywordsGreen << "number";
-  m_keywordsGreen << "any";
-  m_keywordsBlue << "declare";
-  m_keywordsBlue << "get";
-  m_keywordsBlue << "set";
-  m_keywordsGreen << "module";
-  m_keywordsBlue << "namespace";
-  m_keywordsPink << "async";
-  m_keywordsPink << "await";
-  m_keywordsPink << "export";
-  m_keywordsPink << "import";
-  m_keywordsPink << "interface";
-  m_keywordsPink << "require";
-  m_keywordsPink << "package";
-  m_keywordsPink << "if";
-  m_keywordsPink << "else";
+  m_KeywordsPink << "break";
+  m_KeywordsPink << "case";
+  m_KeywordsPink << "catch";
+  m_KeywordsPink << "continue";
+  m_KeywordsPink << "default";
+  m_KeywordsBlue << "delete";
+  m_KeywordsPink << "do";
+  m_KeywordsPink << "finally";
+  m_KeywordsPink << "for";
+  m_KeywordsBlue << "function";
+  m_KeywordsBlue << "in";
+  m_KeywordsBlue << "instanceof";
+  m_KeywordsBlue << "new";
+  m_KeywordsPink << "return";
+  m_KeywordsPink << "switch";
+  m_KeywordsBlue << "this";
+  m_KeywordsPink << "throw";
+  m_KeywordsPink << "try";
+  m_KeywordsBlue << "typeof";
+  m_KeywordsBlue << "var";
+  m_KeywordsBlue << "void";
+  m_KeywordsPink << "while";
+  m_KeywordsPink << "with";
+  m_KeywordsBlue << "true";
+  m_KeywordsBlue << "false";
+  m_KeywordsBlue << "null";
+  m_KeywordsBlue << "static";
+  m_KeywordsBlue << "let";
+  m_KeywordsBlue << "class";
+  m_KeywordsBlue << "extends";
+  m_KeywordsBlue << "implements";
+  m_KeywordsBlue << "const";
+  m_KeywordsBlue << "enum";
+  m_KeywordsBlue << "super";
+  m_KeywordsPink << "as";
+  m_KeywordsBlue << "private";
+  m_KeywordsBlue << "protected";
+  m_KeywordsBlue << "public";
+  m_KeywordsPink << "yield";
+  m_KeywordsBlue << "symbol";
+  m_KeywordsBlue << "type";
+  m_KeywordsBlue << "from";
+  m_KeywordsBlue << "of";
+  m_KeywordsGreen << "boolean";
+  m_KeywordsGreen << "string";
+  m_KeywordsGreen << "number";
+  m_KeywordsGreen << "any";
+  m_KeywordsBlue << "declare";
+  m_KeywordsBlue << "get";
+  m_KeywordsBlue << "set";
+  m_KeywordsGreen << "module";
+  m_KeywordsBlue << "namespace";
+  m_KeywordsPink << "async";
+  m_KeywordsPink << "await";
+  m_KeywordsPink << "export";
+  m_KeywordsPink << "import";
+  m_KeywordsPink << "interface";
+  m_KeywordsPink << "require";
+  m_KeywordsPink << "package";
+  m_KeywordsPink << "if";
+  m_KeywordsPink << "else";
 
 
   // built-in and other popular objects + properties
-  m_builtIn << "Object";
-  m_builtIn << "prototype";
-  m_builtIn << "create";
-  m_builtIn << "defineProperty";
-  m_builtIn << "defineProperties";
-  m_builtIn << "getOwnPropertyDescriptor";
-  m_builtIn << "keys";
-  m_builtIn << "getOwnPropertyNames";
-  m_builtIn << "constructor";
-  m_builtIn << "__parent__";
-  m_builtIn << "__proto__";
-  m_builtIn << "__defineGetter__";
-  m_builtIn << "__defineSetter__";
-  m_builtIn << "eval";
-  m_builtIn << "hasOwnProperty";
-  m_builtIn << "isPrototypeOf";
-  m_builtIn << "__lookupGetter__";
-  m_builtIn << "__lookupSetter__";
-  m_builtIn << "__noSuchMethod__";
-  m_builtIn << "propertyIsEnumerable";
-  m_builtIn << "toSource";
-  m_builtIn << "toLocaleString";
-  m_builtIn << "toString";
-  m_builtIn << "unwatch";
-  m_builtIn << "valueOf";
-  m_builtIn << "watch";
+  m_BuiltIn << "Object";
+  m_BuiltIn << "prototype";
+  m_BuiltIn << "create";
+  m_BuiltIn << "defineProperty";
+  m_BuiltIn << "defineProperties";
+  m_BuiltIn << "getOwnPropertyDescriptor";
+  m_BuiltIn << "keys";
+  m_BuiltIn << "getOwnPropertyNames";
+  m_BuiltIn << "constructor";
+  m_BuiltIn << "__parent__";
+  m_BuiltIn << "__proto__";
+  m_BuiltIn << "__defineGetter__";
+  m_BuiltIn << "__defineSetter__";
+  m_BuiltIn << "eval";
+  m_BuiltIn << "hasOwnProperty";
+  m_BuiltIn << "isPrototypeOf";
+  m_BuiltIn << "__lookupGetter__";
+  m_BuiltIn << "__lookupSetter__";
+  m_BuiltIn << "__noSuchMethod__";
+  m_BuiltIn << "propertyIsEnumerable";
+  m_BuiltIn << "toSource";
+  m_BuiltIn << "toLocaleString";
+  m_BuiltIn << "toString";
+  m_BuiltIn << "unwatch";
+  m_BuiltIn << "valueOf";
+  m_BuiltIn << "watch";
 
-  m_builtIn << "Function";
-  m_builtIn << "arguments";
-  m_builtIn << "arity";
-  m_builtIn << "caller";
-  m_builtIn << "constructor";
-  m_builtIn << "length";
-  m_builtIn << "name";
-  m_builtIn << "apply";
-  m_builtIn << "bind";
-  m_builtIn << "call";
+  m_BuiltIn << "Function";
+  m_BuiltIn << "arguments";
+  m_BuiltIn << "arity";
+  m_BuiltIn << "caller";
+  m_BuiltIn << "constructor";
+  m_BuiltIn << "length";
+  m_BuiltIn << "name";
+  m_BuiltIn << "apply";
+  m_BuiltIn << "bind";
+  m_BuiltIn << "call";
 
-  m_builtIn << "String";
-  m_builtIn << "fromCharCode";
-  m_builtIn << "length";
-  m_builtIn << "charAt";
-  m_builtIn << "charCodeAt";
-  m_builtIn << "concat";
-  m_builtIn << "indexOf";
-  m_builtIn << "lastIndexOf";
-  m_builtIn << "localCompare";
-  m_builtIn << "match";
-  m_builtIn << "quote";
-  m_builtIn << "replace";
-  m_builtIn << "search";
-  m_builtIn << "slice";
-  m_builtIn << "split";
-  m_builtIn << "substr";
-  m_builtIn << "substring";
-  m_builtIn << "toLocaleLowerCase";
-  m_builtIn << "toLocaleUpperCase";
-  m_builtIn << "toLowerCase";
-  m_builtIn << "toUpperCase";
-  m_builtIn << "trim";
-  m_builtIn << "trimLeft";
-  m_builtIn << "trimRight";
+  m_BuiltIn << "String";
+  m_BuiltIn << "fromCharCode";
+  m_BuiltIn << "length";
+  m_BuiltIn << "charAt";
+  m_BuiltIn << "charCodeAt";
+  m_BuiltIn << "concat";
+  m_BuiltIn << "indexOf";
+  m_BuiltIn << "lastIndexOf";
+  m_BuiltIn << "localCompare";
+  m_BuiltIn << "match";
+  m_BuiltIn << "quote";
+  m_BuiltIn << "replace";
+  m_BuiltIn << "search";
+  m_BuiltIn << "slice";
+  m_BuiltIn << "split";
+  m_BuiltIn << "substr";
+  m_BuiltIn << "substring";
+  m_BuiltIn << "toLocaleLowerCase";
+  m_BuiltIn << "toLocaleUpperCase";
+  m_BuiltIn << "toLowerCase";
+  m_BuiltIn << "toUpperCase";
+  m_BuiltIn << "trim";
+  m_BuiltIn << "trimLeft";
+  m_BuiltIn << "trimRight";
 
-  m_builtIn << "Array";
-  m_builtIn << "isArray";
-  m_builtIn << "index";
-  m_builtIn << "input";
-  m_builtIn << "pop";
-  m_builtIn << "push";
-  m_builtIn << "reverse";
-  m_builtIn << "shift";
-  m_builtIn << "sort";
-  m_builtIn << "splice";
-  m_builtIn << "unshift";
-  m_builtIn << "concat";
-  m_builtIn << "join";
-  m_builtIn << "filter";
-  m_builtIn << "forEach";
-  m_builtIn << "every";
-  m_builtIn << "map";
-  m_builtIn << "some";
-  m_builtIn << "reduce";
-  m_builtIn << "reduceRight";
+  m_BuiltIn << "Array";
+  m_BuiltIn << "isArray";
+  m_BuiltIn << "index";
+  m_BuiltIn << "input";
+  m_BuiltIn << "pop";
+  m_BuiltIn << "push";
+  m_BuiltIn << "reverse";
+  m_BuiltIn << "shift";
+  m_BuiltIn << "sort";
+  m_BuiltIn << "splice";
+  m_BuiltIn << "unshift";
+  m_BuiltIn << "concat";
+  m_BuiltIn << "join";
+  m_BuiltIn << "filter";
+  m_BuiltIn << "forEach";
+  m_BuiltIn << "every";
+  m_BuiltIn << "map";
+  m_BuiltIn << "some";
+  m_BuiltIn << "reduce";
+  m_BuiltIn << "reduceRight";
 
-  m_builtIn << "RegExp";
-  m_builtIn << "global";
-  m_builtIn << "ignoreCase";
-  m_builtIn << "lastIndex";
-  m_builtIn << "multiline";
-  m_builtIn << "source";
-  m_builtIn << "exec";
-  m_builtIn << "test";
+  m_BuiltIn << "RegExp";
+  m_BuiltIn << "global";
+  m_BuiltIn << "ignoreCase";
+  m_BuiltIn << "lastIndex";
+  m_BuiltIn << "multiline";
+  m_BuiltIn << "source";
+  m_BuiltIn << "exec";
+  m_BuiltIn << "test";
 
-  m_builtIn << "JSON";
-  m_builtIn << "parse";
-  m_builtIn << "stringify";
+  m_BuiltIn << "JSON";
+  m_BuiltIn << "parse";
+  m_BuiltIn << "stringify";
 
-  m_builtIn << "decodeURI";
-  m_builtIn << "decodeURIComponent";
-  m_builtIn << "encodeURI";
-  m_builtIn << "encodeURIComponent";
-  m_builtIn << "eval";
-  m_builtIn << "isFinite";
-  m_builtIn << "isNaN";
-  m_builtIn << "parseFloat";
-  m_builtIn << "parseInt";
-  m_builtIn << "Infinity";
-  m_builtIn << "NaN";
-  m_builtIn << "undefined";
+  m_BuiltIn << "decodeURI";
+  m_BuiltIn << "decodeURIComponent";
+  m_BuiltIn << "encodeURI";
+  m_BuiltIn << "encodeURIComponent";
+  m_BuiltIn << "eval";
+  m_BuiltIn << "isFinite";
+  m_BuiltIn << "isNaN";
+  m_BuiltIn << "parseFloat";
+  m_BuiltIn << "parseInt";
+  m_BuiltIn << "Infinity";
+  m_BuiltIn << "NaN";
+  m_BuiltIn << "undefined";
 
-  m_keywordsGreen << "Math";
-  m_keywordsGreen << "E";
-  m_builtIn << "LN2";
-  m_builtIn << "LN10";
-  m_builtIn << "LOG2E";
-  m_builtIn << "LOG10E";
-  m_keywordsGreen << "PI";
-  m_builtIn << "SQRT1_2";
-  m_builtIn << "SQRT2";
-  m_builtIn << "abs";
-  m_builtIn << "acos";
-  m_builtIn << "asin";
-  m_builtIn << "atan";
-  m_builtIn << "atan2";
-  m_builtIn << "ceil";
-  m_builtIn << "cos";
-  m_builtIn << "exp";
-  m_builtIn << "floor";
-  m_builtIn << "log";
-  m_builtIn << "max";
-  m_builtIn << "min";
-  m_builtIn << "pow";
-  m_builtIn << "random";
-  m_builtIn << "round";
-  m_builtIn << "sin";
-  m_builtIn << "sqrt";
-  m_builtIn << "tan";
+  m_KeywordsGreen << "Math";
+  m_KeywordsGreen << "E";
+  m_BuiltIn << "LN2";
+  m_BuiltIn << "LN10";
+  m_BuiltIn << "LOG2E";
+  m_BuiltIn << "LOG10E";
+  m_KeywordsGreen << "PI";
+  m_BuiltIn << "SQRT1_2";
+  m_BuiltIn << "SQRT2";
+  m_BuiltIn << "abs";
+  m_BuiltIn << "acos";
+  m_BuiltIn << "asin";
+  m_BuiltIn << "atan";
+  m_BuiltIn << "atan2";
+  m_BuiltIn << "ceil";
+  m_BuiltIn << "cos";
+  m_BuiltIn << "exp";
+  m_BuiltIn << "floor";
+  m_BuiltIn << "log";
+  m_BuiltIn << "max";
+  m_BuiltIn << "min";
+  m_BuiltIn << "pow";
+  m_BuiltIn << "random";
+  m_BuiltIn << "round";
+  m_BuiltIn << "sin";
+  m_BuiltIn << "sqrt";
+  m_BuiltIn << "tan";
 
-  m_builtIn << "document";
-  m_builtIn << "window";
-  m_builtIn << "navigator";
-  m_builtIn << "userAgent";
+  m_BuiltIn << "document";
+  m_BuiltIn << "window";
+  m_BuiltIn << "navigator";
+  m_BuiltIn << "userAgent";
 
-  m_keywordsGreen << "ez";
-  m_keywordsGreen << "Vec3";
-  m_keywordsGreen << "Quat";
-  m_keywordsGreen << "Color";
-  m_keywordsGreen << "Log";
-  m_keywordsGreen << "ezMath";
-  m_keywordsGreen << "Angle";
-  m_keywordsGreen << "Time";
-  m_keywordsGreen << "World";
-  m_keywordsGreen << "GameObject";
-  m_keywordsGreen << "Component";
-  m_keywordsGreen << "Message";
-  m_keywordsGreen << "TypescriptComponent";
-  m_keywordsGreen << "TickedTypescriptComponent";
-  m_keywordsGreen << "Tick";
-  m_keywordsGreen << "Initialize";
-  m_keywordsGreen << "Deinitialize";
-  m_keywordsGreen << "OnActivated";
-  m_keywordsGreen << "OnActivated";
-  m_keywordsGreen << "OnSimulationStarted";
-  m_keywordsGreen << "RegisterMessageHandlers";
+  m_KeywordsGreen << "ez";
+  m_KeywordsGreen << "Vec3";
+  m_KeywordsGreen << "Quat";
+  m_KeywordsGreen << "Color";
+  m_KeywordsGreen << "Log";
+  m_KeywordsGreen << "ezMath";
+  m_KeywordsGreen << "Angle";
+  m_KeywordsGreen << "Time";
+  m_KeywordsGreen << "World";
+  m_KeywordsGreen << "GameObject";
+  m_KeywordsGreen << "Component";
+  m_KeywordsGreen << "Message";
+  m_KeywordsGreen << "TypescriptComponent";
+  m_KeywordsGreen << "TickedTypescriptComponent";
+  m_KeywordsGreen << "Tick";
+  m_KeywordsGreen << "Initialize";
+  m_KeywordsGreen << "Deinitialize";
+  m_KeywordsGreen << "OnActivated";
+  m_KeywordsGreen << "OnActivated";
+  m_KeywordsGreen << "OnSimulationStarted";
+  m_KeywordsGreen << "RegisterMessageHandlers";
 }
 
 void JSHighlighter::highlightBlock(const QString& text)
@@ -430,7 +430,7 @@ void JSHighlighter::highlightBlock(const QString& text)
         else if (ch == '/' && next == '/')
         {
           i = text.length();
-          setFormat(start, text.length(), m_colors[JSEdit::Comment]);
+          setFormat(start, text.length(), m_Colors[JSEdit::Comment]);
         }
         else if (ch == '/' && next != '*')
         {
@@ -440,7 +440,7 @@ void JSHighlighter::highlightBlock(const QString& text)
         else
         {
           if (!QString("(){}[]").contains(ch))
-            setFormat(start, 1, m_colors[JSEdit::Operator]);
+            setFormat(start, 1, m_Colors[JSEdit::Operator]);
           if (ch == '{' || ch == '}')
           {
             bracketPositions += i;
@@ -457,7 +457,7 @@ void JSHighlighter::highlightBlock(const QString& text)
       case Number:
         if (ch.isSpace() || !ch.isDigit())
         {
-          setFormat(start, i - start, m_colors[JSEdit::Number]);
+          setFormat(start, i - start, m_Colors[JSEdit::Number]);
           state = Start;
         }
         else
@@ -470,14 +470,14 @@ void JSHighlighter::highlightBlock(const QString& text)
         if (ch.isSpace() || !(ch.isDigit() || ch.isLetter() || ch == '_'))
         {
           QString token = text.mid(start, i - start).trimmed();
-          if (m_keywordsBlue.contains(token))
-            setFormat(start, i - start, m_colors[JSEdit::KeywordBlue]);
-          if (m_keywordsPink.contains(token))
-            setFormat(start, i - start, m_colors[JSEdit::KeywordPink]);
-          if (m_keywordsGreen.contains(token))
-            setFormat(start, i - start, m_colors[JSEdit::KeywordGreen]);
-          else if (m_builtIn.contains(token))
-            setFormat(start, i - start, m_colors[JSEdit::BuiltIn]);
+          if (m_KeywordsBlue.contains(token))
+            setFormat(start, i - start, m_Colors[JSEdit::KeywordBlue]);
+          if (m_KeywordsPink.contains(token))
+            setFormat(start, i - start, m_Colors[JSEdit::KeywordPink]);
+          if (m_KeywordsGreen.contains(token))
+            setFormat(start, i - start, m_Colors[JSEdit::KeywordGreen]);
+          else if (m_BuiltIn.contains(token))
+            setFormat(start, i - start, m_Colors[JSEdit::BuiltIn]);
           state = Start;
         }
         else
@@ -493,7 +493,7 @@ void JSHighlighter::highlightBlock(const QString& text)
           if (prev != '\\')
           {
             ++i;
-            setFormat(start, i - start, m_colors[JSEdit::String]);
+            setFormat(start, i - start, m_Colors[JSEdit::String]);
             state = Start;
           }
           else
@@ -512,7 +512,7 @@ void JSHighlighter::highlightBlock(const QString& text)
         {
           ++i;
           ++i;
-          setFormat(start, i - start, m_colors[JSEdit::Comment]);
+          setFormat(start, i - start, m_Colors[JSEdit::Comment]);
           state = Start;
         }
         else
@@ -528,7 +528,7 @@ void JSHighlighter::highlightBlock(const QString& text)
           if (prev != '\\')
           {
             ++i;
-            setFormat(start, i - start, m_colors[JSEdit::String]);
+            setFormat(start, i - start, m_Colors[JSEdit::String]);
             state = Start;
           }
           else
@@ -549,7 +549,7 @@ void JSHighlighter::highlightBlock(const QString& text)
   }
 
   if (state == Comment)
-    setFormat(start, text.length(), m_colors[JSEdit::Comment]);
+    setFormat(start, text.length(), m_Colors[JSEdit::Comment]);
   else
     state = Start;
 

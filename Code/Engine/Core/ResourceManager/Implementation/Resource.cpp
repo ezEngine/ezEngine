@@ -112,7 +112,7 @@ void ezResource::SetResourceDescription(const char* szDescription)
 
 void ezResource::SetUniqueID(const char* szUniqueID, bool bIsReloadable)
 {
-  m_UniqueID = szUniqueID;
+  m_sUniqueID = szUniqueID;
   m_uiUniqueIDHash = ezHashingUtils::StringHash(szUniqueID);
   SetIsReloadable(bIsReloadable);
 

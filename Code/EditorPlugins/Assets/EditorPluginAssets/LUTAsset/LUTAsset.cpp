@@ -23,7 +23,7 @@ ezLUTAssetDocument::ezLUTAssetDocument(const char* szDocumentPath)
 {
 }
 
-ezStatus ezLUTAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezTransformStatus ezLUTAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   const auto props = GetProperties();
 
@@ -93,7 +93,7 @@ ezStatus ezLUTAssetDocument::InternalTransformAsset(const char* szTargetFile, co
   texFormat.WriteTextureHeader(file);
 
   ezDdsFileFormat fmt;
-  if (fmt.WriteImage(file, img, ezLog::GetThreadLocalLogSystem(), "dds").Failed())
+  if (fmt.WriteImage(file, img, "dds").Failed())
     return ezStatus(ezFmt("Writing image to target file failed: '{0}'", szTargetFile));
 
   if (file.Close().Failed())

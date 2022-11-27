@@ -16,15 +16,17 @@
 #include <Foundation/Types/UniquePtr.h>
 #include <GuiFoundation/ContainerWindow/ContainerWindow.moc.h>
 #include <QApplication>
-#include <ToolsFoundation/Basics/RecentFilesList.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
+#include <ToolsFoundation/Utilities/RecentFilesList.h>
 
 class QMainWindow;
 class QWidget;
 class ezProgress;
 class ezQtProgressbar;
 class ezQtEditorApp;
-class QStringList;
+template <typename T>
+class QList;
+using QStringList = QList<QString>;
 class ezTranslatorFromFiles;
 class ezDynamicStringEnum;
 class QSplashScreen;
@@ -36,6 +38,7 @@ struct EZ_EDITORFRAMEWORK_DLL ezEditorAppEvent
     BeforeApplyDataDirectories, ///< Sent after data directory config was loaded, but before it is applied. Allows to add custom
                                 ///< dependencies at the right moment.
     ReloadResources,            ///< Sent when 'ReloadResources' has been triggered (and a message was sent to the engine)
+    EditorStarted,              ///< Editor has finished all initialization code and will now load the recent project.
   };
 
   Type m_Type;
@@ -74,7 +77,7 @@ public:
   ezQtEditorApp();
   ~ezQtEditorApp();
 
-  ezEvent<const ezEditorAppEvent&> m_Events;
+  static ezEvent<const ezEditorAppEvent&> m_Events;
 
   //
   // External Tools
@@ -111,23 +114,20 @@ public:
   /// \brief Can be set via the command line option '-safe'. In this mode the editor will not automatically load recent documents
   bool IsInSafeMode() const { return m_StartupFlags.IsSet(StartupFlags::SafeMode); }
 
-  /// \brief Returns true if StartupEditor was called with true. This is the case in an EditorProcessor.
+  /// \brief Returns true if the the app shouldn't display anything. This is the case in an EditorProcessor.
   bool IsInHeadlessMode() const { return m_StartupFlags.IsSet(StartupFlags::Headless); }
 
-  const ezPluginSet& GetEditorPlugins() const { return s_EditorPlugins; }
-  const ezPluginSet& GetEnginePlugins() const { return s_EnginePlugins; }
+  /// \brief Returns true if the editor is started is run in test mode.
+  bool IsInUnitTestMode() const { return m_StartupFlags.IsSet(StartupFlags::UnitTest); }
 
-  ezPluginSet& GetEditorPlugins() { return s_EditorPlugins; }
-  ezPluginSet& GetEnginePlugins() { return s_EnginePlugins; }
-
-  void StoreEditorPluginsToBeLoaded();
-  void StoreEnginePluginsToBeLoaded();
+  const ezPluginBundleSet& GetPluginBundles() const { return m_PluginBundles; }
+  ezPluginBundleSet& GetPluginBundles() { return m_PluginBundles; }
 
   void AddRestartRequiredReason(const char* szReason);
-  const ezSet<ezString>& GetRestartRequiredReasons() { return s_RestartRequiredReasons; }
+  const ezSet<ezString>& GetRestartRequiredReasons() { return m_RestartRequiredReasons; }
 
   void AddReloadProjectRequiredReason(const char* szReason);
-  const ezSet<ezString>& GetReloadProjectRequiredReason() { return s_ReloadProjectRequiredReasons; }
+  const ezSet<ezString>& GetReloadProjectRequiredReason() { return m_ReloadProjectRequiredReasons; }
 
   void SaveSettings();
 
@@ -146,10 +146,10 @@ public:
 
   void LoadEditorPlugins();
 
-  ezRecentFilesList& GetRecentProjectsList() { return s_RecentProjects; }
-  ezRecentFilesList& GetRecentDocumentsList() { return s_RecentDocuments; }
+  ezRecentFilesList& GetRecentProjectsList() { return m_RecentProjects; }
+  ezRecentFilesList& GetRecentDocumentsList() { return m_RecentDocuments; }
 
-  ezEditorEngineProcessConnection* GetEngineViewProcess() { return s_pEngineViewProcess; }
+  ezEditorEngineProcessConnection* GetEngineViewProcess() { return m_pEngineViewProcess; }
 
   void ShowSettingsDocument();
   void CloseSettingsDocument();
@@ -161,6 +161,7 @@ public:
   void GuiOpenDocument();
 
   void GuiOpenDashboard();
+  void GuiOpenDocsAndCommunity();
   bool GuiCreateProject(bool bImmediate = false);
   bool GuiOpenProject(bool bImmediate = false);
 
@@ -170,12 +171,21 @@ public:
 
   ezResult CreateOrOpenProject(bool bCreate, const char* szFile);
 
+  bool ExistsPluginSelectionStateDDL(const char* szProjectDir = ":project");
+  void WritePluginSelectionStateDDL(const char* szProjectDir = ":project");
+  void CreatePluginSelectionDDL(const char* szProjectFile, const char* szTemplate);
+  void LoadPluginBundleDlls(const char* szProjectFile);
+  void DetectAvailablePluginBundles();
+
+  /// \brief Launches a new instance of the editor to open the given project.
+  void LaunchEditor(const char* szProject, bool bCreate);
+
   /// \brief Adds a data directory as a hard dependency to the project. Should be used by plugins to ensure their required data is
   /// available. The path must be relative to the SdkRoot folder.
   void AddPluginDataDirDependency(const char* szSdkRootRelativePath, const char* szRootName = nullptr, bool bWriteable = false);
 
   const ezApplicationFileSystemConfig& GetFileSystemConfig() const { return m_FileSystemConfig; }
-  const ezApplicationPluginConfig& GetEnginePluginConfig() const { return m_EnginePluginConfig; }
+  const ezApplicationPluginConfig GetRuntimePluginConfig(bool bIncludeEditorPlugins) const;
 
   void SetFileSystemConfig(const ezApplicationFileSystemConfig& cfg);
 
@@ -186,8 +196,6 @@ public:
 
   bool MakePathDataDirectoryParentRelative(ezStringBuilder& sPath) const;
   bool MakeParentDataDirectoryRelativePathAbsolute(ezStringBuilder& sPath, bool bCheckExists) const;
-
-  void AddRuntimePluginDependency(const char* szEditorPluginName, const char* szRuntimeDependency);
 
   ezStatus SaveTagRegistry();
 
@@ -206,7 +214,6 @@ Q_SIGNALS:
 private:
   ezString BuildDocumentTypeFileFilter(bool bForCreation);
 
-  void InternalGuiOpenDashboard();
   void GuiCreateOrOpenDocument(bool bCreate);
   bool GuiCreateOrOpenProject(bool bCreate);
 
@@ -216,6 +223,7 @@ private Q_SLOTS:
   void SlotQueuedOpenProject(QString sProject);
   void SlotQueuedOpenDocument(QString sProject, void* pOpenContext);
   void SlotQueuedGuiOpenDashboard();
+  void SlotQueuedGuiOpenDocsAndCommunity();
   void SlotQueuedGuiCreateOrOpenProject(bool bCreate);
   void SlotSaveSettings();
   void SlotVersionCheckCompleted(bool bNewVersionReleased, bool bForced);
@@ -232,18 +240,13 @@ private:
   void EngineProcessMsgHandler(const ezEditorEngineProcessConnection::Event& e);
   void UiServicesEvents(const ezQtUiServices::Event& e);
 
+  void SetupNewProject();
   void LoadEditorPreferences();
   void LoadProjectPreferences();
-  void DetectAvailableEditorPlugins();
-  void DetectAvailableEnginePlugins();
   void StoreEnginePluginModificationTimes();
   bool CheckForEnginePluginModifications();
   void RestartEngineProcessIfPluginsChanged();
-  void ReadEditorPluginsToBeLoaded();
-  void ReadEnginePluginConfig();
   void SaveAllOpenDocuments();
-
-  void ValidateEnginePluginConfig();
 
   void ReadTagRegistry();
 
@@ -254,27 +257,30 @@ private:
   void SetupAndShowSplashScreen();
   void CloseSplashScreen();
 
+  ezResult AddBundlesInOrder(ezDynamicArray<ezApplicationPluginConfig::PluginConfig>& order, const ezPluginBundleSet& bundles, const ezString& start, bool bEditor, bool bEditorEngine, bool bRuntime) const;
+
   bool m_bSavePreferencesAfterOpenProject;
   bool m_bLoadingProjectInProgress = false;
+  bool m_bAnyProjectOpened = false;
 
   ezBitflags<StartupFlags> m_StartupFlags;
   ezDynamicArray<ezString> m_DocumentsToOpen;
 
-  ezSet<ezString> s_RestartRequiredReasons;
-  ezSet<ezString> s_ReloadProjectRequiredReasons;
+  ezSet<ezString> m_RestartRequiredReasons;
+  ezSet<ezString> m_ReloadProjectRequiredReasons;
 
-  ezPluginSet s_EditorPlugins;
-  ezPluginSet s_EnginePlugins;
+  ezPluginBundleSet m_PluginBundles;
 
   void SaveRecentFiles();
   void LoadRecentFiles();
 
-  ezRecentFilesList s_RecentProjects;
-  ezRecentFilesList s_RecentDocuments;
+  ezRecentFilesList m_RecentProjects;
+  ezRecentFilesList m_RecentDocuments;
 
-  QApplication* s_pQtApplication = nullptr;
+  int m_iArgc = 0;
+  QApplication* m_pQtApplication = nullptr;
   ezLongOpControllerManager m_LongOpControllerManager;
-  ezEditorEngineProcessConnection* s_pEngineViewProcess;
+  ezEditorEngineProcessConnection* m_pEngineViewProcess;
   QTimer* m_pTimer = nullptr;
 
   QSplashScreen* m_pSplashScreen = nullptr;
@@ -283,9 +289,6 @@ private:
 
   ezTime m_LastPluginModificationCheck;
   ezApplicationFileSystemConfig m_FileSystemConfig;
-  ezApplicationPluginConfig m_EnginePluginConfig;
-
-  ezMap<ezString, ezSet<ezString>> m_AdditionalRuntimePluginDependencies;
 
   // *** Recent Paths ***
   ezString m_sLastDocumentFolder;

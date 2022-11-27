@@ -38,7 +38,7 @@ namespace ezRmlUiInternal
   private:
     struct OpenFile
     {
-      ezMemoryStreamStorage m_Storage;
+      ezDefaultMemoryStreamStorage m_Storage;
       ezMemoryStreamReader m_Reader;
     };
 

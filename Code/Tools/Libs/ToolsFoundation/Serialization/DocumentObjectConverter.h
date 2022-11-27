@@ -12,7 +12,7 @@ class ezObjectAccessorBase;
 class EZ_TOOLSFOUNDATION_DLL ezDocumentObjectConverterWriter
 {
 public:
-  using FilterFunction = ezDelegate<bool(const ezAbstractProperty*)>;
+  using FilterFunction = ezDelegate<bool(const ezDocumentObject*, const ezAbstractProperty*)>;
   ezDocumentObjectConverterWriter(ezAbstractObjectGraph* pGraph, const ezDocumentObjectManager* pManager, FilterFunction filter = FilterFunction())
   {
     m_pGraph = pGraph;

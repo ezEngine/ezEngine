@@ -9,7 +9,7 @@ struct ezDummyPointType
   ezUInt32 value;
 };
 
-static void CompileDummy()
+void CompileDummy()
 {
   ezPointOfInterestGraph<ezDummyPointType> graph;
   graph.Initialize(ezVec3::ZeroVector(), ezVec3::ZeroVector());
@@ -18,7 +18,6 @@ static void CompileDummy()
   ezDynamicArray<ezUInt32> points;
   graph.FindPointsOfInterest(ezVec3::ZeroVector(), 0, points);
 }
-
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_AI_Implementation_PointOfInterestGraph);

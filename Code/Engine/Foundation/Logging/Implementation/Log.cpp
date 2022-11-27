@@ -15,6 +15,7 @@
 #endif
 
 ezLogMsgType::Enum ezLog::s_DefaultLogLevel = ezLogMsgType::All;
+ezLog::PrintFunction ezLog::s_CustomPrintFunction = nullptr;
 ezAtomicInteger32 ezGlobalLog::s_uiMessageCount[ezLogMsgType::ENUM_COUNT];
 ezLoggingEvent ezGlobalLog::s_LoggingEvent;
 ezLogInterface* ezGlobalLog::s_pOverrideLog = nullptr;
@@ -27,15 +28,21 @@ static thread_local ezLogInterface* s_DefaultLogSystem = nullptr;
 
 ezEventSubscriptionID ezGlobalLog::AddLogWriter(ezLoggingEvent::Handler handler)
 {
+  if (s_LoggingEvent.HasEventHandler(handler))
+    return 0;
+
   return s_LoggingEvent.AddEventHandler(handler);
 }
 
 void ezGlobalLog::RemoveLogWriter(ezLoggingEvent::Handler handler)
 {
+  if (!s_LoggingEvent.HasEventHandler(handler))
+    return;
+
   s_LoggingEvent.RemoveEventHandler(handler);
 }
 
-void ezGlobalLog::RemoveLogWriter(ezEventSubscriptionID subscriptionID)
+void ezGlobalLog::RemoveLogWriter(ezEventSubscriptionID& subscriptionID)
 {
   s_LoggingEvent.RemoveEventHandler(subscriptionID);
 }
@@ -190,21 +197,29 @@ void ezLog::BroadcastLoggingEvent(ezLogInterface* pInterface, ezLogMsgType::Enum
 
   if (ezStringUtils::StartsWith(szString, "["))
   {
-    ++szString;
+    const char* szAfterTag = szString;
+
+    ++szAfterTag;
 
     ezInt32 iPos = 0;
 
-    while ((*szString != '\0') && (*szString != '[') && (*szString != ']') && (iPos < 31))
+    // only treat it as a tag, if it is properly enclosed in square brackets and doesn't contain spaces
+    while ((*szAfterTag != '\0') && (*szAfterTag != '[') && (*szAfterTag != ']') && (*szAfterTag != ' ') && (iPos < 31))
     {
-      szTag[iPos] = *szString;
-      ++szString;
+      szTag[iPos] = *szAfterTag;
+      ++szAfterTag;
       ++iPos;
     }
 
-    szTag[iPos] = '\0';
-
-    if (*szString == ']')
-      ++szString;
+    if (*szAfterTag == ']')
+    {
+      szTag[iPos] = '\0';
+      szString = szAfterTag + 1;
+    }
+    else
+    {
+      szTag[0] = '\0';
+    }
   }
 
   ezLoggingEventData le;
@@ -231,6 +246,11 @@ void ezLog::Print(const char* szText)
   __android_log_print(ANDROID_LOG_ERROR, "ezEngine", "%s", szText);
 #endif
 
+  if (s_CustomPrintFunction)
+  {
+    s_CustomPrintFunction(szText);
+  }
+
   fflush(stdout);
   fflush(stderr);
 }
@@ -246,6 +266,11 @@ void ezLog::Printf(const char* szFormat, ...)
   Print(buffer);
 
   va_end(args);
+}
+
+void ezLog::SetCustomPrintFunction(PrintFunction func)
+{
+  s_CustomPrintFunction = func;
 }
 
 void ezLog::OsMessageBox(const ezFormatString& text)

@@ -19,8 +19,8 @@ protected:
   ezTransform m_LocalTransformFrustum;
   ezTransform m_LocalTransformNearPlane;
   ezTransform m_LocalTransformFarPlane;
-  ezEngineGizmoHandle m_BoxGizmo;
-  ezEngineGizmoHandle m_FrustumGizmo;
-  ezEngineGizmoHandle m_NearPlaneGizmo;
-  ezEngineGizmoHandle m_FarPlaneGizmo;
+  ezEngineGizmoHandle m_hBoxGizmo;
+  ezEngineGizmoHandle m_hFrustumGizmo;
+  ezEngineGizmoHandle m_hNearPlaneGizmo;
+  ezEngineGizmoHandle m_hFarPlaneGizmo;
 };

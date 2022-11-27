@@ -27,13 +27,6 @@ ezGameObjectDocument* ezQtGameObjectDocumentWindow::GetGameObjectDocument() cons
   return static_cast<ezGameObjectDocument*>(GetDocument());
 }
 
-ezGlobalSettingsMsgToEngine ezQtGameObjectDocumentWindow::GetGlobalSettings() const
-{
-  ezGlobalSettingsMsgToEngine msg;
-  msg.m_fGizmoScale = ezPreferences::QueryPreferences<ezEditorPreferencesUser>()->m_fGizmoScale;
-  return msg;
-}
-
 ezWorldSettingsMsgToEngine ezQtGameObjectDocumentWindow::GetWorldSettings() const
 {
   ezWorldSettingsMsgToEngine msg;

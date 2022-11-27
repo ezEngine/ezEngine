@@ -1,0 +1,19 @@
+[EXCLUDE]
+
+*.exe
+*.loaded
+*.pdb
+*/iconengines/*
+*/imageformats/*
+*/platforms/*
+*/ezEditorPlugin*
+*/ezEnginePlugin*
+*/ezSharedPlugin*
+*/Qt5
+*/Qt6
+
+[INCLUDE]
+
+#if PLATFORM_PROFILE_PC
+/Player.exe
+#endif

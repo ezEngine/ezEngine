@@ -70,7 +70,7 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
 
   // Property Grid
   {
-    ezQtDocumentPanel* pPanel = new ezQtDocumentPanel(this);
+    ezQtDocumentPanel* pPanel = new ezQtDocumentPanel(this, pDocument);
     pPanel->setObjectName("PropertyAnimAssetDockWidget");
     pPanel->setWindowTitle("Object Properties");
     pPanel->show();
@@ -83,7 +83,7 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
 
   // Property Tree View
   {
-    ezQtDocumentPanel* pPanel = new ezQtDocumentPanel(this);
+    ezQtDocumentPanel* pPanel = new ezQtDocumentPanel(this, pDocument);
     pPanel->setObjectName("PropertyAnimPropertiesDockWidget");
     pPanel->setWindowTitle("Animated Properties");
     pPanel->show();
@@ -128,7 +128,7 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
 
   // Float Curve Panel
   {
-    m_pCurvePanel = new ezQtDocumentPanel(this);
+    m_pCurvePanel = new ezQtDocumentPanel(this, pDocument);
     m_pCurvePanel->setObjectName("PropertyAnimFloatCurveDockWidget");
     m_pCurvePanel->setWindowTitle("Curves");
     m_pCurvePanel->show();
@@ -141,7 +141,7 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
 
   // Color Gradient Panel
   {
-    m_pColorGradientPanel = new ezQtDocumentPanel(this);
+    m_pColorGradientPanel = new ezQtDocumentPanel(this, pDocument);
     m_pColorGradientPanel->setObjectName("PropertyAnimColorGradientDockWidget");
     m_pColorGradientPanel->setWindowTitle("Color Gradient");
     m_pColorGradientPanel->show();
@@ -154,7 +154,7 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
 
   // Event Track Panel
   {
-    m_pEventTrackPanel = new ezQtDocumentPanel(this);
+    m_pEventTrackPanel = new ezQtDocumentPanel(this, pDocument);
     m_pEventTrackPanel->setObjectName("PropertyAnimEventTrackDockWidget");
     m_pEventTrackPanel->setWindowTitle("Event Track");
     m_pEventTrackPanel->show();
@@ -309,10 +309,6 @@ void ezQtPropertyAnimAssetDocumentWindow::InternalRedraw()
     }
     {
       ezGridSettingsMsgToEngine msg = GetGridSettings();
-      GetEditorEngineConnection()->SendMessage(&msg);
-    }
-    {
-      ezGlobalSettingsMsgToEngine msg = GetGlobalSettings();
       GetEditorEngineConnection()->SendMessage(&msg);
     }
     {
@@ -695,7 +691,8 @@ void ezQtPropertyAnimAssetDocumentWindow::CommandHistoryEventHandler(const ezCom
 void ezQtPropertyAnimAssetDocumentWindow::UpdateCurveEditor()
 {
   ezPropertyAnimAssetDocument* pDoc = GetPropertyAnimDocument();
-  m_pCurveEditor->SetCurves(m_CurvesToDisplay, pDoc->GetAnimationDurationTime().GetSeconds(), true);
+  m_pCurveEditor->SetCurveExtents(0, pDoc->GetAnimationDurationTime().GetSeconds(), true, true);
+  m_pCurveEditor->SetCurves(m_CurvesToDisplay);
 }
 
 
@@ -1242,7 +1239,7 @@ void ezQtPropertyAnimAssetTreeView::storeExpandState(const QModelIndex& parent)
     QString path = pModel->data(idx, ezQtPropertyAnimModel::UserRoles::Path).toString();
 
     if (!expanded)
-      m_notExpandedState.insert(path);
+      m_NotExpandedState.insert(path);
 
     storeExpandState(idx);
   }
@@ -1259,12 +1256,12 @@ void ezQtPropertyAnimAssetTreeView::restoreExpandState(const QModelIndex& parent
 
     QString path = pModel->data(idx, ezQtPropertyAnimModel::UserRoles::Path).toString();
 
-    const bool notExpanded = m_notExpandedState.contains(path);
+    const bool notExpanded = m_NotExpandedState.contains(path);
 
     if (!notExpanded)
       setExpanded(idx, true);
 
-    if (m_selectedItems.contains(path))
+    if (m_SelectedItems.contains(path))
       newSelection.append(idx);
 
     restoreExpandState(idx, newSelection);
@@ -1273,8 +1270,8 @@ void ezQtPropertyAnimAssetTreeView::restoreExpandState(const QModelIndex& parent
 
 void ezQtPropertyAnimAssetTreeView::onBeforeModelReset()
 {
-  m_notExpandedState.clear();
-  m_selectedItems.clear();
+  m_NotExpandedState.clear();
+  m_SelectedItems.clear();
 
   storeExpandState(QModelIndex());
 
@@ -1283,7 +1280,7 @@ void ezQtPropertyAnimAssetTreeView::onBeforeModelReset()
   for (QModelIndex idx : selectionModel()->selectedRows())
   {
     QString path = pModel->data(idx, ezQtPropertyAnimModel::UserRoles::Path).toString();
-    m_selectedItems.insert(path);
+    m_SelectedItems.insert(path);
   }
 }
 
@@ -1318,6 +1315,7 @@ void ezQtPropertyAnimAssetTreeView::keyPressEvent(QKeyEvent* e)
 void ezQtPropertyAnimAssetTreeView::contextMenuEvent(QContextMenuEvent* event)
 {
   QMenu m;
+  m.setToolTipsVisible(true);
   QAction* pFrameAction = m.addAction("Frame Curve");
   QAction* pRemoveAction = m.addAction("Remove Track");
   QAction* pBindingAction = m.addAction("Change Binding...");

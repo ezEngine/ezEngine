@@ -29,7 +29,6 @@ namespace
       RenderTargetView,
       UnorderedAccessView,
       SwapChain,
-      Fence,
       Query,
       VertexDeclaration
     };
@@ -46,7 +45,6 @@ namespace
   EZ_CHECK_AT_COMPILETIME(sizeof(ezGALRenderTargetViewHandle) == sizeof(ezUInt32));
   EZ_CHECK_AT_COMPILETIME(sizeof(ezGALUnorderedAccessViewHandle) == sizeof(ezUInt32));
   EZ_CHECK_AT_COMPILETIME(sizeof(ezGALSwapChainHandle) == sizeof(ezUInt32));
-  EZ_CHECK_AT_COMPILETIME(sizeof(ezGALFenceHandle) == sizeof(ezUInt32));
   EZ_CHECK_AT_COMPILETIME(sizeof(ezGALQueryHandle) == sizeof(ezUInt32));
   EZ_CHECK_AT_COMPILETIME(sizeof(ezGALVertexDeclarationHandle) == sizeof(ezUInt32));
 } // namespace
@@ -97,9 +95,6 @@ ezGALDevice::~ezGALDevice()
     if (!m_SwapChains.IsEmpty())
       ezLog::Warning("{0} swap chains have not been cleaned up", m_SwapChains.GetCount());
 
-    if (!m_Fences.IsEmpty())
-      ezLog::Warning("{0} fences have not been cleaned up", m_Fences.GetCount());
-
     if (!m_Queries.IsEmpty())
       ezLog::Warning("{0} queries have not been cleaned up", m_Queries.GetCount());
 
@@ -132,21 +127,6 @@ ezResult ezGALDevice::Init()
 
   EZ_GALDEVICE_LOCK_AND_CHECK();
 
-  // Create primary swapchain if requested
-  if (m_Description.m_bCreatePrimarySwapChain)
-  {
-    ezGALSwapChainHandle hSwapChain = CreateSwapChain(m_Description.m_PrimarySwapChainDescription);
-
-    if (hSwapChain.IsInvalidated())
-    {
-      ezLog::Error("Primary swap chain couldn't be created!");
-      return EZ_FAILURE;
-    }
-
-    // And make it the primary swap chain
-    SetPrimarySwapChain(hSwapChain);
-  }
-
   ezProfilingSystem::InitializeGPUData();
 
   {
@@ -172,15 +152,6 @@ ezResult ezGALDevice::Shutdown()
     m_Events.Broadcast(e);
   }
 
-  // If we created a primary swap chain, release it
-  if (!m_hPrimarySwapChain.IsInvalidated())
-  {
-    // DestroySwapChain usually warns for destroying the primary swap chain.
-    auto handle = m_hPrimarySwapChain;
-    m_hPrimarySwapChain.Invalidate();
-    DestroySwapChain(handle);
-  }
-
   DestroyDeadObjects();
 
   // make sure we are not listed as the default device anymore
@@ -192,24 +163,28 @@ ezResult ezGALDevice::Shutdown()
   return ShutdownPlatform();
 }
 
-void ezGALDevice::BeginPipeline(const char* szName)
+void ezGALDevice::BeginPipeline(const char* szName, ezGALSwapChainHandle hSwapChain)
 {
   EZ_GALDEVICE_LOCK_AND_CHECK();
 
   EZ_ASSERT_DEV(!m_bBeginPipelineCalled, "Nested Pipelines are not allowed: You must call ezGALDevice::EndPipeline before you can call ezGALDevice::BeginPipeline again");
   m_bBeginPipelineCalled = true;
 
-  BeginPipelinePlatform(szName);
+  ezGALSwapChain* pSwapChain = nullptr;
+  m_SwapChains.TryGetValue(hSwapChain, pSwapChain);
+  BeginPipelinePlatform(szName, pSwapChain);
 }
 
-void ezGALDevice::EndPipeline()
+void ezGALDevice::EndPipeline(ezGALSwapChainHandle hSwapChain)
 {
   EZ_GALDEVICE_LOCK_AND_CHECK();
 
   EZ_ASSERT_DEV(m_bBeginPipelineCalled, "You must have called ezGALDevice::BeginPipeline before you can call ezGALDevice::EndPipeline");
   m_bBeginPipelineCalled = false;
 
-  EndPipelinePlatform();
+  ezGALSwapChain* pSwapChain = nullptr;
+  m_SwapChains.TryGetValue(hSwapChain, pSwapChain);
+  EndPipelinePlatform(pSwapChain);
 }
 
 ezGALPass* ezGALDevice::BeginPass(const char* szName)
@@ -556,6 +531,11 @@ ezGALBufferHandle ezGALDevice::CreateBuffer(const ezGALBufferCreationDescription
 
   ezGALBuffer* pBuffer = CreateBufferPlatform(desc, pInitialData);
 
+  return FinalizeBufferInternal(desc, pBuffer);
+}
+
+ezGALBufferHandle ezGALDevice::FinalizeBufferInternal(const ezGALBufferCreationDescription& desc, ezGALBuffer* pBuffer)
+{
   if (pBuffer != nullptr)
   {
     ezGALBufferHandle hBuffer(m_Buffers.Insert(pBuffer));
@@ -592,7 +572,6 @@ void ezGALDevice::DestroyBuffer(ezGALBufferHandle hBuffer)
     ezLog::Warning("DestroyBuffer called on invalid handle (double free?)");
   }
 }
-
 
 // Helper functions for buffers (for common, simple use cases)
 ezGALBufferHandle ezGALDevice::CreateVertexBuffer(ezUInt32 uiVertexSize, ezUInt32 uiVertexCount, ezArrayPtr<const ezUInt8> pInitialData, bool bDataIsMutable /*= false */)
@@ -650,6 +629,11 @@ ezGALTextureHandle ezGALDevice::CreateTexture(const ezGALTextureCreationDescript
 
   ezGALTexture* pTexture = CreateTexturePlatform(desc, pInitialData);
 
+  return FinalizeTextureInternal(desc, pTexture);
+}
+
+ezGALTextureHandle ezGALDevice::FinalizeTextureInternal(const ezGALTextureCreationDescription& desc, ezGALTexture* pTexture)
+{
   if (pTexture != nullptr)
   {
     ezGALTextureHandle hTexture(m_Textures.Insert(pTexture));
@@ -678,84 +662,6 @@ ezGALTextureHandle ezGALDevice::CreateTexture(const ezGALTextureCreationDescript
   }
 
   return ezGALTextureHandle();
-}
-
-ezResult ezGALDevice::ReplaceExisitingNativeObject(ezGALTextureHandle hTexture, void* pExisitingNativeObject)
-{
-  ezGALTexture* pTexture = nullptr;
-  if (m_Textures.TryGetValue(hTexture, pTexture))
-  {
-    for (auto it = pTexture->m_ResourceViews.GetIterator(); it.IsValid(); ++it)
-    {
-      ezGALResourceView* pResourceView = nullptr;
-
-      if (m_ResourceViews.TryGetValue(it.Value(), pResourceView))
-      {
-        EZ_VERIFY(pResourceView->DeInitPlatform(this).Succeeded(), "DeInitPlatform should never fail.");
-      }
-    }
-    for (auto it = pTexture->m_RenderTargetViews.GetIterator(); it.IsValid(); ++it)
-    {
-      ezGALRenderTargetView* pRenderTargetView = nullptr;
-
-      if (m_RenderTargetViews.TryGetValue(it.Value(), pRenderTargetView))
-      {
-        EZ_VERIFY(pRenderTargetView->DeInitPlatform(this).Succeeded(), "DeInitPlatform should never fail.");
-      }
-    }
-    for (auto it = pTexture->m_UnorderedAccessViews.GetIterator(); it.IsValid(); ++it)
-    {
-      ezGALUnorderedAccessView* pUnorderedAccessView = nullptr;
-
-      if (m_UnorderedAccessViews.TryGetValue(it.Value(), pUnorderedAccessView))
-      {
-        EZ_VERIFY(pUnorderedAccessView->DeInitPlatform(this).Succeeded(), "DeInitPlatform should never fail.");
-      }
-    }
-
-    EZ_VERIFY(pTexture->DeInitPlatform(this).Succeeded(), "DeInitPlatform should never fail.");
-    EZ_VERIFY(
-      pTexture->ReplaceExisitingNativeObject(pExisitingNativeObject).Succeeded(), "Failed to replace native texture, make sure the input is valid.");
-    EZ_VERIFY(pTexture->InitPlatform(this, {}).Succeeded(),
-      "InitPlatform failed on a texture the previously succeded in the same call, is the new native object valid?");
-
-    for (auto it = pTexture->m_ResourceViews.GetIterator(); it.IsValid(); ++it)
-    {
-      ezGALResourceView* pResourceView = nullptr;
-
-      if (m_ResourceViews.TryGetValue(it.Value(), pResourceView))
-      {
-        EZ_VERIFY(pResourceView->InitPlatform(this).Succeeded(),
-          "InitPlatform failed on a resource view that previously succeded in the same call, is the new native object valid?");
-      }
-    }
-    for (auto it = pTexture->m_RenderTargetViews.GetIterator(); it.IsValid(); ++it)
-    {
-      ezGALRenderTargetView* pRenderTargetView = nullptr;
-
-      if (m_RenderTargetViews.TryGetValue(it.Value(), pRenderTargetView))
-      {
-        EZ_VERIFY(pRenderTargetView->InitPlatform(this).Succeeded(),
-          "InitPlatform failed on a render target view that previously succeded in the same call, is the new native object valid?");
-      }
-    }
-    for (auto it = pTexture->m_UnorderedAccessViews.GetIterator(); it.IsValid(); ++it)
-    {
-      ezGALUnorderedAccessView* pUnorderedAccessView = nullptr;
-
-      if (m_UnorderedAccessViews.TryGetValue(it.Value(), pUnorderedAccessView))
-      {
-        EZ_VERIFY(pUnorderedAccessView->InitPlatform(this).Succeeded(),
-          "InitPlatform failed on a unordered access view that previously succeded in the same call, is the new native object valid?");
-      }
-    }
-    return EZ_SUCCESS;
-  }
-  else
-  {
-    ezLog::Warning("ReplaceExisitingNativeObject called on invalid handle");
-    return EZ_FAILURE;
-  }
 }
 
 void ezGALDevice::DestroyTexture(ezGALTextureHandle hTexture)
@@ -1021,13 +927,6 @@ ezGALUnorderedAccessViewHandle ezGALDevice::CreateUnorderedAccessView(const ezGA
     if (pTexture)
     {
       // Is this really platform independent?
-      if (pTexture->GetDescription().m_Type == ezGALTextureType::TextureCube)
-      {
-        ezLog::Error("Can't create unordered access view from cube textures.");
-        return ezGALUnorderedAccessViewHandle();
-      }
-
-      // Is this really platform independent?
       if (pTexture->GetDescription().m_SampleCount != ezGALMSAASampleCount::None)
       {
         ezLog::Error("Can't create unordered access view on textures with multisampling.");
@@ -1090,27 +989,43 @@ void ezGALDevice::DestroyUnorderedAccessView(ezGALUnorderedAccessViewHandle hUno
   }
 }
 
-ezGALSwapChainHandle ezGALDevice::CreateSwapChain(const ezGALSwapChainCreationDescription& desc)
+ezGALSwapChainHandle ezGALDevice::CreateSwapChain(const SwapChainFactoryFunction& func)
 {
   EZ_GALDEVICE_LOCK_AND_CHECK();
 
-  /// \todo Platform independent validation
-  if (desc.m_pWindow == nullptr)
+  ///// \todo Platform independent validation
+  //if (desc.m_pWindow == nullptr)
+  //{
+  //  ezLog::Error("The desc for the swap chain creation contained an invalid (nullptr) window handle!");
+  //  return ezGALSwapChainHandle();
+  //}
+
+  ezGALSwapChain* pSwapChain = func(&m_Allocator);
+  //ezGALSwapChainDX11* pSwapChain = EZ_NEW(&m_Allocator, ezGALSwapChainDX11, Description);
+
+  if (!pSwapChain->InitPlatform(this).Succeeded())
   {
-    ezLog::Error("The desc for the swap chain creation contained an invalid (nullptr) window handle!");
+    EZ_DELETE(&m_Allocator, pSwapChain);
     return ezGALSwapChainHandle();
   }
 
+  return ezGALSwapChainHandle(m_SwapChains.Insert(pSwapChain));
+}
 
-  ezGALSwapChain* pSwapChain = CreateSwapChainPlatform(desc);
+ezResult ezGALDevice::UpdateSwapChain(ezGALSwapChainHandle hSwapChain, ezEnum<ezGALPresentMode> newPresentMode)
+{
+  EZ_GALDEVICE_LOCK_AND_CHECK();
 
-  if (pSwapChain == nullptr)
+  ezGALSwapChain* pSwapChain = nullptr;
+
+  if (m_SwapChains.TryGetValue(hSwapChain, pSwapChain))
   {
-    return ezGALSwapChainHandle();
+    return pSwapChain->UpdateSwapChain(this, newPresentMode);
   }
   else
   {
-    return ezGALSwapChainHandle(m_SwapChains.Insert(pSwapChain));
+    ezLog::Warning("UpdateSwapChain called on invalid handle.");
+    return EZ_FAILURE;
   }
 }
 
@@ -1120,12 +1035,6 @@ void ezGALDevice::DestroySwapChain(ezGALSwapChainHandle hSwapChain)
 
   ezGALSwapChain* pSwapChain = nullptr;
 
-  if (hSwapChain == m_hPrimarySwapChain)
-  {
-    ezLog::Warning("DestroySwapChain called on primary swap chain!");
-    m_hPrimarySwapChain.Invalidate();
-  }
-
   if (m_SwapChains.TryGetValue(hSwapChain, pSwapChain))
   {
     AddDeadObject(GALObjectType::SwapChain, hSwapChain);
@@ -1133,38 +1042,6 @@ void ezGALDevice::DestroySwapChain(ezGALSwapChainHandle hSwapChain)
   else
   {
     ezLog::Warning("DestroySwapChain called on invalid handle (double free?)");
-  }
-}
-
-ezGALFenceHandle ezGALDevice::CreateFence()
-{
-  EZ_GALDEVICE_LOCK_AND_CHECK();
-
-  ezGALFence* pFence = CreateFencePlatform();
-
-  if (pFence == nullptr)
-  {
-    return ezGALFenceHandle();
-  }
-  else
-  {
-    return ezGALFenceHandle(m_Fences.Insert(pFence));
-  }
-}
-
-void ezGALDevice::DestroyFence(ezGALFenceHandle& hFence)
-{
-  EZ_GALDEVICE_LOCK_AND_CHECK();
-
-  ezGALFence* pFence = nullptr;
-
-  if (m_Fences.TryGetValue(hFence, pFence))
-  {
-    AddDeadObject(GALObjectType::Fence, hFence);
-  }
-  else
-  {
-    ezLog::Warning("DestroyFence called on invalid handle (double free?)");
   }
 }
 
@@ -1260,24 +1137,6 @@ void ezGALDevice::DestroyVertexDeclaration(ezGALVertexDeclarationHandle hVertexD
   }
 }
 
-// Swap chain functions
-
-void ezGALDevice::Present(ezGALSwapChainHandle hSwapChain, bool bVSync)
-{
-  EZ_ASSERT_DEV(m_bBeginFrameCalled, "You must have called ezGALDevice::Begin before you can call this function");
-
-  ezGALSwapChain* pSwapChain = nullptr;
-
-  if (m_SwapChains.TryGetValue(hSwapChain, pSwapChain))
-  {
-    PresentPlatform(pSwapChain, bVSync);
-  }
-  else
-  {
-    EZ_REPORT_FAILURE("Swap chain handle invalid");
-  }
-}
-
 ezGALTextureHandle ezGALDevice::GetBackBufferTextureFromSwapChain(ezGALSwapChainHandle hSwapChain)
 {
   ezGALSwapChain* pSwapChain = nullptr;
@@ -1297,9 +1156,10 @@ ezGALTextureHandle ezGALDevice::GetBackBufferTextureFromSwapChain(ezGALSwapChain
 
 // Misc functions
 
-void ezGALDevice::BeginFrame()
+void ezGALDevice::BeginFrame(const ezUInt64 uiRenderFrame)
 {
   {
+    EZ_PROFILE_SCOPE("BeforeBeginFrame");
     ezGALDeviceEvent e;
     e.m_pDevice = this;
     e.m_Type = ezGALDeviceEvent::BeforeBeginFrame;
@@ -1311,7 +1171,7 @@ void ezGALDevice::BeginFrame()
     EZ_ASSERT_DEV(!m_bBeginFrameCalled, "You must call ezGALDevice::EndFrame before you can call ezGALDevice::BeginFrame again");
     m_bBeginFrameCalled = true;
 
-    BeginFramePlatform();
+    BeginFramePlatform(uiRenderFrame);
   }
 
   // TODO: move to beginrendering/compute calls
@@ -1353,23 +1213,6 @@ void ezGALDevice::EndFrame()
   }
 }
 
-void ezGALDevice::SetPrimarySwapChain(ezGALSwapChainHandle hSwapChain)
-{
-  EZ_GALDEVICE_LOCK_AND_CHECK();
-
-  ezGALSwapChain* pSwapChain = nullptr;
-
-  if (m_SwapChains.TryGetValue(hSwapChain, pSwapChain))
-  {
-    SetPrimarySwapChainPlatform(pSwapChain); // Needs a return value?
-    m_hPrimarySwapChain = hSwapChain;
-  }
-  else
-  {
-    ezLog::Error("Invalid swap chain handle given to SetPrimarySwapChain!");
-  }
-}
-
 const ezGALDeviceCapabilities& ezGALDevice::GetCapabilities() const
 {
   return m_Capabilities;
@@ -1400,6 +1243,11 @@ ezUInt64 ezGALDevice::GetMemoryConsumptionForBuffer(const ezGALBufferCreationDes
   return desc.m_uiTotalSize;
 }
 
+
+void ezGALDevice::WaitIdle()
+{
+  WaitIdlePlatform();
+}
 
 void ezGALDevice::DestroyViews(ezGALResourceBase* pResource)
 {
@@ -1594,19 +1442,9 @@ void ezGALDevice::DestroyDeadObjects()
 
         if (pSwapChain != nullptr)
         {
-          DestroySwapChainPlatform(pSwapChain);
+          pSwapChain->DeInitPlatform(this).IgnoreResult();
+          EZ_DELETE(&m_Allocator, pSwapChain);
         }
-
-        break;
-      }
-      case GALObjectType::Fence:
-      {
-        ezGALFenceHandle hFence(ezGAL::ez20_12Id(deadObject.m_uiHandle));
-        ezGALFence* pFence = nullptr;
-
-        m_Fences.Remove(hFence, &pFence);
-
-        DestroyFencePlatform(pFence);
 
         break;
       }
@@ -1639,6 +1477,17 @@ void ezGALDevice::DestroyDeadObjects()
   }
 
   m_DeadObjects.Clear();
+}
+
+const ezGALSwapChain* ezGALDevice::GetSwapChainInternal(ezGALSwapChainHandle hSwapChain, const ezRTTI* pRequestedType) const
+{
+  const ezGALSwapChain* pSwapChain = GetSwapChain(hSwapChain);
+  if (pSwapChain)
+  {
+    if (!pSwapChain->GetDescription().m_pSwapChainType->IsDerivedFrom(pRequestedType))
+      return nullptr;
+  }
+  return pSwapChain;
 }
 
 EZ_STATICLINK_FILE(RendererFoundation, RendererFoundation_Device_Implementation_Device);

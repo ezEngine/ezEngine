@@ -50,7 +50,7 @@ void ezWorldRttiConverterContext::DeleteExistingObjects()
   // m_OtherPickingMap.Clear(); // do not clear this
 }
 
-void* ezWorldRttiConverterContext::CreateObject(const ezUuid& guid, const ezRTTI* pRtti)
+ezInternal::NewInstance<void> ezWorldRttiConverterContext::CreateObject(const ezUuid& guid, const ezRTTI* pRtti)
 {
   EZ_ASSERT_DEBUG(pRtti != nullptr, "Object type is unknown");
 
@@ -73,7 +73,7 @@ void* ezWorldRttiConverterContext::CreateObject(const ezUuid& guid, const ezRTTI
       e.m_ObjectGuid = guid;
       m_Events.Broadcast(e);
 
-      return pObject;
+      return {pObject, nullptr};
     }
     else
     {
@@ -96,7 +96,7 @@ void* ezWorldRttiConverterContext::CreateObject(const ezUuid& guid, const ezRTTI
     if (pMan->TryGetComponent(hComponent, pComponent))
     {
       RegisterObject(guid, pRtti, pComponent);
-      return pComponent;
+      return {pComponent, nullptr};
     }
     else
     {
@@ -200,6 +200,9 @@ void ezWorldRttiConverterContext::UnregisterObject(const ezUuid& guid)
 ezRttiConverterObject ezWorldRttiConverterContext::GetObjectByGUID(const ezUuid& guid) const
 {
   ezRttiConverterObject object = ezRttiConverterContext::GetObjectByGUID(guid);
+
+  if (!guid.IsValid() || object.m_pType == nullptr)
+    return object;
 
   // We can't look up the ptr via the base class map as it keeps changing, we we need to use the handle.
   if (object.m_pType == ezGetStaticRTTI<ezGameObject>())

@@ -1533,53 +1533,137 @@ ezVariant ezReflectionUtils::GetDefaultVariantFromType(ezVariant::Type::Enum typ
   return ezVariant();
 }
 
-ezVariant ezReflectionUtils::GetDefaultValue(const ezAbstractProperty* pProperty)
+ezVariant ezReflectionUtils::GetDefaultValue(const ezAbstractProperty* pProperty, ezVariant index)
 {
-  if (pProperty->GetFlags().IsSet(ezPropertyFlags::Pointer))
-    return ezUuid();
-
+  const bool isValueType = ezReflectionUtils::IsValueType(pProperty);
+  const ezVariantType::Enum type = pProperty->GetFlags().IsSet(ezPropertyFlags::Pointer) || (pProperty->GetFlags().IsSet(ezPropertyFlags::Class) && !isValueType) ? ezVariantType::Uuid : pProperty->GetSpecificType()->GetVariantType();
   const ezDefaultValueAttribute* pAttrib = pProperty->GetAttributeByType<ezDefaultValueAttribute>();
 
-  auto type = pProperty->GetFlags().IsSet(ezPropertyFlags::StandardType) ? pProperty->GetSpecificType()->GetVariantType() : ezVariantType::Uuid;
-  if (pProperty->GetSpecificType()->GetTypeFlags().IsSet(ezTypeFlags::StandardType))
+  switch (pProperty->GetCategory())
   {
-    if (pAttrib)
+    case ezPropertyCategory::Member:
     {
-      if (pProperty->GetSpecificType() == ezGetStaticRTTI<ezVariant>())
-        return pAttrib->GetValue();
-
-      if (pAttrib->GetValue().CanConvertTo(type))
+      if (isValueType)
       {
-        return pAttrib->GetValue().ConvertTo(type);
+        if (pAttrib)
+        {
+          if (pProperty->GetSpecificType() == ezGetStaticRTTI<ezVariant>())
+            return pAttrib->GetValue();
+          if (pAttrib->GetValue().CanConvertTo(type))
+            return pAttrib->GetValue().ConvertTo(type);
+        }
+        return GetDefaultVariantFromType(pProperty->GetSpecificType());
+      }
+      else if (pProperty->GetSpecificType()->GetTypeFlags().IsAnySet(ezTypeFlags::IsEnum | ezTypeFlags::Bitflags))
+      {
+        ezInt64 iValue = ezReflectionUtils::DefaultEnumerationValue(pProperty->GetSpecificType());
+        if (pAttrib)
+        {
+          if (pAttrib->GetValue().CanConvertTo(ezVariantType::Int64))
+            iValue = pAttrib->GetValue().ConvertTo<ezInt64>();
+        }
+        return ezReflectionUtils::MakeEnumerationValid(pProperty->GetSpecificType(), iValue);
+      }
+      else // Class
+      {
+        return ezUuid();
       }
     }
-    return GetDefaultVariantFromType(type);
-  }
-  else if (pProperty->GetSpecificType()->GetTypeFlags().IsAnySet(ezTypeFlags::IsEnum | ezTypeFlags::Bitflags))
-  {
-    ezInt64 iValue = ezReflectionUtils::DefaultEnumerationValue(pProperty->GetSpecificType());
-    if (pAttrib)
-    {
-      if (pAttrib->GetValue().CanConvertTo(ezVariantType::Int64))
-        iValue = pAttrib->GetValue().ConvertTo<ezInt64>();
-    }
+    break;
+    case ezPropertyCategory::Array:
+    case ezPropertyCategory::Set:
+      if (isValueType)
+      {
+        if (pAttrib)
+        {
+          if (pAttrib->GetValue().IsA<ezVariantArray>())
+          {
+            if (!index.IsValid())
+              return pAttrib->GetValue();
 
-    return ezReflectionUtils::MakeEnumerationValid(pProperty->GetSpecificType(), iValue);
-  }
-  else if (pProperty->GetFlags().IsAnySet(ezPropertyFlags::Class))
-  {
-    if (const ezVariantTypeInfo* pInfo = ezVariantTypeRegistry::GetSingleton()->FindVariantTypeInfo(pProperty->GetSpecificType()))
-    {
-      if (pAttrib && pAttrib->GetValue().GetReflectedType() == pProperty->GetSpecificType())
-        return pAttrib->GetValue();
+            ezUInt32 iIndex = index.ConvertTo<ezUInt32>();
+            const auto& defaultArray = pAttrib->GetValue().Get<ezVariantArray>();
+            if (iIndex < defaultArray.GetCount())
+            {
+              return defaultArray[iIndex];
+            }
+            return GetDefaultVariantFromType(pProperty->GetSpecificType());
+          }
+          if (index.IsValid() && pAttrib->GetValue().CanConvertTo(type))
+            return pAttrib->GetValue().ConvertTo(type);
+        }
 
+        if (!index.IsValid())
+          return ezVariantArray();
+
+        return GetDefaultVariantFromType(pProperty->GetSpecificType());
+      }
+      else
+      {
+        if (!index.IsValid())
+          return ezVariantArray();
+
+        return ezUuid();
+      }
+      break;
+    case ezPropertyCategory::Map:
+      if (isValueType)
+      {
+        if (pAttrib)
+        {
+          if (pAttrib->GetValue().IsA<ezVariantDictionary>())
+          {
+            if (!index.IsValid())
+            {
+              return pAttrib->GetValue();
+            }
+            ezString sKey = index.ConvertTo<ezString>();
+            const auto& defaultDict = pAttrib->GetValue().Get<ezVariantDictionary>();
+            if (auto it = defaultDict.Find(sKey); it.IsValid())
+              return it.Value();
+
+            return GetDefaultVariantFromType(pProperty->GetSpecificType());
+          }
+          if (index.IsValid() && pAttrib->GetValue().CanConvertTo(type))
+            return pAttrib->GetValue().ConvertTo(type);
+        }
+
+        if (!index.IsValid())
+          return ezVariantDictionary();
+        return GetDefaultVariantFromType(pProperty->GetSpecificType());
+      }
+      else
+      {
+        if (!index.IsValid())
+          return ezVariantDictionary();
+
+        return ezUuid();
+      }
+      break;
+    default:
+      break;
+  }
+
+  EZ_REPORT_FAILURE("Don't reach here");
+  return ezVariant();
+}
+
+ezVariant ezReflectionUtils::GetDefaultVariantFromType(const ezRTTI* pRtti)
+{
+  ezVariantType::Enum type = pRtti->GetVariantType();
+  switch (type)
+  {
+    case ezVariant::Type::TypedObject:
+    {
       ezVariant val;
-      val.MoveTypedObject(pProperty->GetSpecificType()->GetAllocator()->Allocate<void>(), pProperty->GetSpecificType());
+      val.MoveTypedObject(pRtti->GetAllocator()->Allocate<void>(), pRtti);
       return val;
     }
-    return ezUuid();
+    break;
+
+    default:
+      return GetDefaultVariantFromType(type);
   }
-  EZ_REPORT_FAILURE("Not reachable.");
   return ezVariant();
 }
 
@@ -1597,6 +1681,80 @@ void ezReflectionUtils::SetAllMemberPropertiesToDefault(const ezRTTI* pRtti, voi
       ezReflectionUtils::SetMemberPropertyValue(static_cast<ezAbstractMemberProperty*>(pProp), pObject, defValue);
     }
   }
+}
+
+namespace
+{
+  template <class C>
+  struct ezClampCategoryType
+  {
+    enum
+    {
+      value = (((ezVariant::TypeDeduction<C>::value >= ezVariantType::Int8 && ezVariant::TypeDeduction<C>::value <= ezVariantType::Double) || (ezVariant::TypeDeduction<C>::value == ezVariantType::Time) || (ezVariant::TypeDeduction<C>::value == ezVariantType::Angle))) + ((ezVariant::TypeDeduction<C>::value >= ezVariantType::Vector2 && ezVariant::TypeDeduction<C>::value <= ezVariantType::Vector4U) * 2)
+    };
+  };
+
+  template <typename T, int V = ezClampCategoryType<T>::value>
+  struct ClampVariantFuncImpl
+  {
+    static EZ_ALWAYS_INLINE ezResult Func(ezVariant& value, const ezClampValueAttribute* pAttrib)
+    {
+      return EZ_FAILURE;
+    }
+  };
+
+  template <typename T>
+  struct ClampVariantFuncImpl<T, 1> // scalar types
+  {
+    static EZ_ALWAYS_INLINE ezResult Func(ezVariant& value, const ezClampValueAttribute* pAttrib)
+    {
+      if (pAttrib->GetMinValue().CanConvertTo<T>())
+      {
+        value = ezMath::Max(value.ConvertTo<T>(), pAttrib->GetMinValue().ConvertTo<T>());
+      }
+      if (pAttrib->GetMaxValue().CanConvertTo<T>())
+      {
+        value = ezMath::Min(value.ConvertTo<T>(), pAttrib->GetMaxValue().ConvertTo<T>());
+      }
+      return EZ_SUCCESS;
+    }
+  };
+
+  template <typename T>
+  struct ClampVariantFuncImpl<T, 2> // vector types
+  {
+    static EZ_ALWAYS_INLINE ezResult Func(ezVariant& value, const ezClampValueAttribute* pAttrib)
+    {
+      if (pAttrib->GetMinValue().CanConvertTo<T>())
+      {
+        value = value.ConvertTo<T>().CompMax(pAttrib->GetMinValue().ConvertTo<T>());
+      }
+      if (pAttrib->GetMaxValue().CanConvertTo<T>())
+      {
+        value = value.ConvertTo<T>().CompMin(pAttrib->GetMaxValue().ConvertTo<T>());
+      }
+      return EZ_SUCCESS;
+    }
+  };
+
+  struct ClampVariantFunc
+  {
+    template <typename T>
+    EZ_ALWAYS_INLINE ezResult operator()(ezVariant& value, const ezClampValueAttribute* pAttrib)
+    {
+      return ClampVariantFuncImpl<T>::Func(value, pAttrib);
+    }
+  };
+} // namespace
+
+ezResult ezReflectionUtils::ClampValue(ezVariant& value, const ezClampValueAttribute* pAttrib)
+{
+  ezVariantType::Enum type = value.GetType();
+  if (type == ezVariantType::Invalid || pAttrib == nullptr)
+    return EZ_SUCCESS; // If there is nothing to clamp or no clamp attribute we call it a success.
+
+  ClampVariantFunc func;
+  return ezVariant::DispatchTo(func, type, value, pAttrib);
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Reflection_Implementation_ReflectionUtils);

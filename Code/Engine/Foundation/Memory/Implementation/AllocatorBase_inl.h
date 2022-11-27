@@ -32,6 +32,8 @@ namespace ezInternal
       other.m_pAllocator = nullptr;
     }
 
+    EZ_ALWAYS_INLINE NewInstance(std::nullptr_t) {}
+
     template <typename U>
     EZ_ALWAYS_INLINE NewInstance<U> Cast()
     {
@@ -42,10 +44,21 @@ namespace ezInternal
 
     EZ_ALWAYS_INLINE T* operator->() { return m_pInstance; }
 
-    T* m_pInstance;
-    ezAllocatorBase* m_pAllocator;
+    T* m_pInstance = nullptr;
+    ezAllocatorBase* m_pAllocator = nullptr;
   };
 
+  template <typename T>
+  EZ_ALWAYS_INLINE bool operator<(const NewInstance<T>& lhs, T* rhs)
+  {
+    return lhs.m_pInstance < rhs;
+  }
+
+  template <typename T>
+  EZ_ALWAYS_INLINE bool operator<(T* lhs, const NewInstance<T>& rhs)
+  {
+    return lhs < rhs.m_pInstance;
+  }
 
   template <typename T>
   EZ_FORCE_INLINE void Delete(ezAllocatorBase* pAllocator, T* ptr)
@@ -61,7 +74,7 @@ namespace ezInternal
   EZ_FORCE_INLINE T* CreateRawBuffer(ezAllocatorBase* pAllocator, size_t uiCount)
   {
     ezUInt64 safeAllocationSize = ezMath::SafeMultiply64(uiCount, sizeof(T));
-    return static_cast<T*>(pAllocator->Allocate(safeAllocationSize, EZ_ALIGNMENT_OF(T)));
+    return static_cast<T*>(pAllocator->Allocate(static_cast<size_t>(safeAllocationSize), EZ_ALIGNMENT_OF(T))); // Down-cast to size_t for 32-bit
   }
 
   EZ_FORCE_INLINE void DeleteRawBuffer(ezAllocatorBase* pAllocator, void* ptr)

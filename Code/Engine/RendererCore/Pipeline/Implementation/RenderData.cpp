@@ -38,6 +38,10 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgExtractRenderData);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgExtractRenderData, 1, ezRTTIDefaultAllocator<ezMsgExtractRenderData>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgExtractOccluderData);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgExtractOccluderData, 1, ezRTTIDefaultAllocator<ezMsgExtractOccluderData>)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezHybridArray<ezRenderData::CategoryData, 32> ezRenderData::s_CategoryData;
@@ -53,7 +57,7 @@ ezRenderData::Category ezRenderData::RegisterCategory(const char* szCategoryName
   if (oldCategory != ezInvalidRenderDataCategory)
     return oldCategory;
 
-  Category newCategory = Category(s_CategoryData.GetCount());
+  Category newCategory = Category(static_cast<ezUInt16>(s_CategoryData.GetCount()));
 
   auto& data = s_CategoryData.ExpandAndGetRef();
   data.m_sName.Assign(szCategoryName);
@@ -70,7 +74,7 @@ ezRenderData::Category ezRenderData::FindCategory(const char* szCategoryName)
   for (ezUInt32 uiCategoryIndex = 0; uiCategoryIndex < s_CategoryData.GetCount(); ++uiCategoryIndex)
   {
     if (s_CategoryData[uiCategoryIndex].m_sName == categoryName)
-      return Category(uiCategoryIndex);
+      return Category(static_cast<ezUInt16>(uiCategoryIndex));
   }
 
   return ezInvalidRenderDataCategory;
@@ -156,6 +160,7 @@ void ezRenderData::ClearRendererInstances()
 
 ezRenderData::Category ezDefaultRenderDataCategories::Light = ezRenderData::RegisterCategory("Light", &ezRenderSortingFunctions::ByRenderDataThenFrontToBack);
 ezRenderData::Category ezDefaultRenderDataCategories::Decal = ezRenderData::RegisterCategory("Decal", &ezRenderSortingFunctions::ByRenderDataThenFrontToBack);
+ezRenderData::Category ezDefaultRenderDataCategories::ReflectionProbe = ezRenderData::RegisterCategory("ReflectionProbe", &ezRenderSortingFunctions::ByRenderDataThenFrontToBack);
 ezRenderData::Category ezDefaultRenderDataCategories::Sky = ezRenderData::RegisterCategory("Sky", &ezRenderSortingFunctions::ByRenderDataThenFrontToBack);
 ezRenderData::Category ezDefaultRenderDataCategories::LitOpaque = ezRenderData::RegisterCategory("LitOpaque", &ezRenderSortingFunctions::ByRenderDataThenFrontToBack);
 ezRenderData::Category ezDefaultRenderDataCategories::LitMasked = ezRenderData::RegisterCategory("LitMasked", &ezRenderSortingFunctions::ByRenderDataThenFrontToBack);

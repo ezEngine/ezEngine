@@ -1,25 +1,6 @@
-# Find EditorProcessor.exe
+. "$PSScriptRoot\common-functions.ps1"
 
-$appPath = ""
-
-$fileToCheck = "$PSScriptRoot\..\..\Output\Bin\WinVs2019Debug64\EditorProcessor.exe"
-if (Test-Path $fileToCheck -PathType leaf)
-{
-    $appPath = $fileToCheck
-}
-
-$fileToCheck = "$PSScriptRoot\..\..\Output\Bin\WinVs2019Dev64\EditorProcessor.exe"
-if (Test-Path $fileToCheck -PathType leaf)
-{
-    $appPath = $fileToCheck
-}    
-
-$fileToCheck = "$PSScriptRoot\..\..\Output\Bin\WinVs2019Shipping64\EditorProcessor.exe"
-if (Test-Path $fileToCheck -PathType leaf)
-{
-    $appPath = $fileToCheck
-}    
-
+$appPath = Find-EditorProcessor
 "Using $appPath"
 
 # Transform all assets

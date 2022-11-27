@@ -21,6 +21,9 @@ public:
   static ezGALTextureHandle GetShadowAtlasTexture();
   static ezGALBufferHandle GetShadowDataBuffer();
 
+  /// \brief All exclude tags on this white list are copied from the reference views to the shadow views.
+  static void AddExcludeTagToWhiteList(const ezTag& tag);
+
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(RendererCore, ShadowPool);
 

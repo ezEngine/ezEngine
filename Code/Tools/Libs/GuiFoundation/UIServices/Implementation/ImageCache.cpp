@@ -1,22 +1,38 @@
 #include <GuiFoundation/GuiFoundationPCH.h>
 
+#include <Foundation/Configuration/Startup.h>
 #include <Foundation/Math/Math.h>
 #include <Foundation/Threading/ThreadUtils.h>
 
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
 #include <QtConcurrent/qtconcurrentrun.h>
 
-static ezQtImageCache g_ImageCacheSingleton;
+static ezQtImageCache* g_pImageCacheSingleton = nullptr;
 
 EZ_IMPLEMENT_SINGLETON(ezQtImageCache);
 
+// clang-format off
+EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, QtImageCache)
+
+ON_CORESYSTEMS_STARTUP
+{
+  g_pImageCacheSingleton = EZ_DEFAULT_NEW(ezQtImageCache);
+}
+
+ON_CORESYSTEMS_SHUTDOWN
+{
+  EZ_DEFAULT_DELETE(g_pImageCacheSingleton);
+}
+
+EZ_END_SUBSYSTEM_DECLARATION;
+// clang-format on
 
 ezQtImageCache::ezQtImageCache()
   : m_SingletonRegistrar(this)
 {
   m_bCacheEnabled = true;
   m_bTaskRunning = false;
-  m_iMemoryUsageThreshold = 30 * 1024 * 1024; // 30 MB
+  m_iMemoryUsageThreshold = 128 * 1024 * 1024;
   m_iCurrentMemoryUsage = 0;
   m_pImageLoading = nullptr;
   m_pImageUnavailable = nullptr;
@@ -26,10 +42,24 @@ ezQtImageCache::ezQtImageCache()
 void ezQtImageCache::SetFallbackImages(const char* szLoading, const char* szUnavailable)
 {
   delete m_pImageLoading;
-  m_pImageLoading = new QPixmap(szLoading);
+  if (ezStringUtils::EndsWith(szLoading, ".svg"))
+  {
+    m_pImageLoading = new QPixmap(ezSvgThumbnailToPixmap(szLoading));
+  }
+  else
+  {
+    m_pImageLoading = new QPixmap(szLoading);
+  }
 
   delete m_pImageUnavailable;
-  m_pImageUnavailable = new QPixmap(szUnavailable);
+  if (ezStringUtils::EndsWith(szUnavailable, ".svg"))
+  {
+    m_pImageUnavailable = new QPixmap(ezSvgThumbnailToPixmap(szUnavailable));
+  }
+  else
+  {
+    m_pImageUnavailable = new QPixmap(szUnavailable);
+  }
 }
 
 void ezQtImageCache::InvalidateCache(const char* szAbsolutePath)
@@ -49,7 +79,7 @@ void ezQtImageCache::InvalidateCache(const char* szAbsolutePath)
   ezUInt32 id = e.Value().m_uiImageID;
   m_ImageCache.Remove(e);
 
-  Q_EMIT g_ImageCacheSingleton.ImageInvalidated(sPath, id);
+  Q_EMIT g_pImageCacheSingleton->ImageInvalidated(sPath, id);
 }
 
 const QPixmap* ezQtImageCache::QueryPixmap(
@@ -59,7 +89,7 @@ const QPixmap* ezQtImageCache::QueryPixmap(
     *out_pImageID = 0;
 
   if (m_pImageLoading == nullptr)
-    SetFallbackImages(":/GuiFoundation/ThumbnailLoading.png", ":/GuiFoundation/ThumbnailUnavailable.png");
+    SetFallbackImages(":/GuiFoundation/ThumbnailLoading.svg", ":/GuiFoundation/ThumbnailUnavailable.svg");
 
   ezStringBuilder sCleanPath = szAbsolutePath;
   sCleanPath.MakeCleanPath();
@@ -138,7 +168,7 @@ void ezQtImageCache::RunLoadingTask()
     if (!m_ImageCache.Find(sQtPath).IsValid())
     {
       m_bTaskRunning = true;
-      QtConcurrent::run(LoadingTask, sQtPath, req.m_Index, req.m_UserData1, req.m_UserData2);
+      (void)QtConcurrent::run(LoadingTask, sQtPath, req.m_Index, req.m_UserData1, req.m_UserData2);
       return;
     }
     else
@@ -146,7 +176,7 @@ void ezQtImageCache::RunLoadingTask()
       m_Requests.Remove(it);
 
       // inform the requester that his request has been fulfilled
-      g_ImageCacheSingleton.EmitLoadedSignal(sQtPath, req.m_Index, req.m_UserData1, req.m_UserData2);
+      g_pImageCacheSingleton->EmitLoadedSignal(sQtPath, req.m_Index, req.m_UserData1, req.m_UserData2);
     }
   }
 
@@ -192,12 +222,15 @@ void ezQtImageCache::EnableRequestProcessing()
 
 void ezQtImageCache::RegisterTypeImage(const char* szType, QPixmap pixmap)
 {
-  m_TypeIamges[QString::fromUtf8(szType)] = pixmap;
+  int width = pixmap.width();
+  int height = pixmap.height();
+
+  m_TypeImages[QString::fromUtf8(szType)] = pixmap;
 }
 
 const QPixmap* ezQtImageCache::QueryTypeImage(const char* szType) const
 {
-  auto it = m_TypeIamges.Find(QString::fromUtf8(szType));
+  auto it = m_TypeImages.Find(QString::fromUtf8(szType));
 
   if (it.IsValid())
     return &it.Value();
@@ -250,7 +283,7 @@ void ezQtImageCache::LoadingTask(QString sPath, QModelIndex index, QVariant User
   pCache->m_iCurrentMemoryUsage += ezMath::SafeMultiply64(entry.m_Pixmap.width(), entry.m_Pixmap.height(), 4);
 
   // send event that something has been loaded
-  g_ImageCacheSingleton.EmitLoadedSignal(sPath, index, UserData1, UserData2);
+  g_pImageCacheSingleton->EmitLoadedSignal(sPath, index, UserData1, UserData2);
 
   // start the next task
   pCache->RunLoadingTask();
@@ -272,11 +305,11 @@ void ezQtImageCache::CleanupCache()
   m_LastCleanupTime = tNow;
 
   // purge everything older than 5 minutes, then 4 minutes, ...
-  for (ezInt32 i = 5; i > 0; --i)
+  for (ezInt32 i = 5; i > 2; --i)
   {
     const ezTime tPurgeThreshold = ezTime::Seconds(60) * i;
 
-    // purge ALL images that have not been accessed in a longer time
+    // purge images that have not been accessed in a longer time
     for (auto it = m_ImageCache.GetIterator(); it.IsValid();)
     {
       if (tNow - it.Value().m_LastAccess > tPurgeThreshold)
@@ -286,13 +319,13 @@ void ezQtImageCache::CleanupCache()
         m_iCurrentMemoryUsage -= ezMath::SafeMultiply64(it.Value().m_Pixmap.width(), it.Value().m_Pixmap.height(), 4);
 
         it = m_ImageCache.Remove(it);
+
+        // if we have reached the threshold, stop further purging
+        if (m_iCurrentMemoryUsage < m_iMemoryUsageThreshold)
+          return;
       }
       else
         ++it;
     }
-
-    // if we have reached the threshold, stop further purging
-    if (m_iCurrentMemoryUsage < m_iMemoryUsageThreshold)
-      return;
   }
 }

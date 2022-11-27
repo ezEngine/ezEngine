@@ -1,0 +1,33 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+CAMERA_MODE = CAMERA_MODE_PERSPECTIVE
+
+[RENDERSTATE]
+
+DepthTest = false
+DepthWrite = false
+CullMode = CullMode_None
+
+[VERTEXSHADER]
+
+#include <Shaders/Pipeline/FullscreenTriangleVertexShader.h>
+
+[PIXELSHADER]
+
+struct PS_IN
+{
+  float4 Position : SV_Position;
+  float2 TexCoord0 : TEXCOORD0;
+};
+
+Texture2DArray DiffuseTexture;
+SamplerState PointClampSampler;
+
+float4 main(PS_IN Input) : SV_Target
+{
+  float2 pos = Input.Position.xy / float2(160, 240);
+  return DiffuseTexture.Sample(PointClampSampler, float3(frac(pos), pos.x > 1));
+}

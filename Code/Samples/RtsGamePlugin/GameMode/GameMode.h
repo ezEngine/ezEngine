@@ -57,7 +57,7 @@ protected:
   //////////////////////////////////////////////////////////////////////////
   // User Interface
 public:
-  static ezColor GetTeamColor(ezInt32 iTeam);
+  static ezColor GetTeamColor(ezUInt16 iTeam);
 
 
 protected:

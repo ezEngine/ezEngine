@@ -79,7 +79,7 @@ void RtsEditLevelMode::SetupEditUI()
     if (!pEditUIObject->TryGetComponentOfBaseType(pUiComponent))
       return;
 
-    pUiComponent->AddBlackboardBinding(*m_pBlackboard);
+    pUiComponent->AddBlackboardBinding(m_pBlackboard);
 
     m_hEditUIComponent = pUiComponent->GetHandle();
   }
@@ -151,12 +151,12 @@ void RtsEditLevelMode::OnProcessInput(const RtsMouseInputState& MouseInput)
   {
     ezGameObject* pSpawned = nullptr;
 
-    int iTeam = m_pBlackboard->GetEntryValue(s_sTeam).Get<int>();
+    ezUInt16 uiTeam = static_cast<ezUInt16>(m_pBlackboard->GetEntryValue(s_sTeam).Get<int>());
     int iShipType = m_pBlackboard->GetEntryValue(s_sShipType).Get<int>();
-    pSpawned = m_pGameState->SpawnNamedObjectAt(ezTransform(vPickedGroundPlanePos, ezQuat::IdentityQuaternion()), g_BuildItemTypes[iShipType], iTeam);
+    pSpawned = m_pGameState->SpawnNamedObjectAt(ezTransform(vPickedGroundPlanePos, ezQuat::IdentityQuaternion()), g_BuildItemTypes[iShipType], uiTeam);
 
     ezMsgSetColor msg;
-    msg.m_Color = RtsGameMode::GetTeamColor(iTeam);
+    msg.m_Color = RtsGameMode::GetTeamColor(uiTeam);
 
     pSpawned->PostMessageRecursive(msg, ezTime::Zero(), ezObjectMsgQueueType::AfterInitialized);
 

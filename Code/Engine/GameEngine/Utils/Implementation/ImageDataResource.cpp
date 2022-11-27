@@ -23,7 +23,7 @@ ezImageDataResource::~ezImageDataResource() = default;
 
 ezResourceLoadDesc ezImageDataResource::UnloadData(Unload WhatToUnload)
 {
-  m_Descriptor.Clear();
+  m_pDescriptor.Clear();
 
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
@@ -77,7 +77,7 @@ ezResourceLoadDesc ezImageDataResource::UpdateContent(ezStreamReader* Stream)
     }
 
     ezStbImageFileFormats fmt;
-    if (fmt.ReadImage(*Stream, desc.m_Image, ezLog::GetThreadLocalLogSystem(), "png").Failed())
+    if (fmt.ReadImage(*Stream, desc.m_Image, "png").Failed())
     {
       res.m_State = ezResourceState::LoadedResourceMissing;
       return res;
@@ -88,7 +88,7 @@ ezResourceLoadDesc ezImageDataResource::UpdateContent(ezStreamReader* Stream)
     ezStringBuilder ext;
     ext = sAbsFilePath.GetFileExtension();
 
-    if (ezImageFileFormat::GetReaderFormat(ext)->ReadImage(*Stream, desc.m_Image, ezLog::GetThreadLocalLogSystem(), ext).Failed())
+    if (ezImageFileFormat::GetReaderFormat(ext)->ReadImage(*Stream, desc.m_Image, ext).Failed())
     {
       res.m_State = ezResourceState::LoadedResourceMissing;
       return res;
@@ -107,24 +107,24 @@ void ezImageDataResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
   out_NewMemoryUsage.m_uiMemoryCPU = sizeof(ezImageDataResource);
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 
-  if (m_Descriptor)
+  if (m_pDescriptor)
   {
-    out_NewMemoryUsage.m_uiMemoryCPU += m_Descriptor->m_Image.GetByteBlobPtr().GetCount();
+    out_NewMemoryUsage.m_uiMemoryCPU += m_pDescriptor->m_Image.GetByteBlobPtr().GetCount();
   }
 }
 
 EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezImageDataResource, ezImageDataResourceDescriptor)
 {
-  m_Descriptor = EZ_DEFAULT_NEW(ezImageDataResourceDescriptor);
+  m_pDescriptor = EZ_DEFAULT_NEW(ezImageDataResourceDescriptor);
 
-  *m_Descriptor = std::move(descriptor);
+  *m_pDescriptor = std::move(descriptor);
 
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
   res.m_State = ezResourceState::Loaded;
 
-  if (m_Descriptor->m_Image.Convert(ezImageFormat::R32G32B32A32_FLOAT).Failed())
+  if (m_pDescriptor->m_Image.Convert(ezImageFormat::R32G32B32A32_FLOAT).Failed())
   {
     res.m_State = ezResourceState::LoadedResourceMissing;
   }
@@ -134,14 +134,14 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezImageDataResource, ezImageDataResourceDescrip
 
 // ezResult ezImageDataResourceDescriptor::Serialize(ezStreamWriter& stream) const
 //{
-//  EZ_SUCCEED_OR_RETURN(ezImageFileFormat::GetWriterFormat("png")->WriteImage(stream, m_Image, ezLog::GetThreadLocalLogSystem(), "png"));
+//  EZ_SUCCEED_OR_RETURN(ezImageFileFormat::GetWriterFormat("png")->WriteImage(stream, m_Image, "png"));
 //
 //  return EZ_SUCCESS;
 //}
 //
 // ezResult ezImageDataResourceDescriptor::Deserialize(ezStreamReader& stream)
 //{
-//  EZ_SUCCEED_OR_RETURN(ezImageFileFormat::GetReaderFormat("png")->ReadImage(stream, m_Image, ezLog::GetThreadLocalLogSystem(), "png"));
+//  EZ_SUCCEED_OR_RETURN(ezImageFileFormat::GetReaderFormat("png")->ReadImage(stream, m_Image, "png"));
 //
 //  return EZ_SUCCESS;
 //}

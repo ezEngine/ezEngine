@@ -93,6 +93,13 @@ public:
     return EnumerationToString(ezGetStaticRTTI<T>(), value.GetValue(), out_sOutput, conversionMode);
   }
 
+  /// \brief Helper template to shorten the call for ezBitflags
+  template <typename T>
+  static bool BitflagsToString(ezBitflags<T> value, ezStringBuilder& out_sOutput, ezEnum<EnumConversionMode> conversionMode = EnumConversionMode::Default)
+  {
+    return EnumerationToString(ezGetStaticRTTI<T>(), value.GetValue(), out_sOutput, conversionMode);
+  }
+
   struct EnumKeyValuePair
   {
     ezString m_sKey;
@@ -149,9 +156,17 @@ public:
   /// \brief Returns a global default initialization value for the given variant type.
   static ezVariant GetDefaultVariantFromType(ezVariant::Type::Enum type); // [tested]
 
+  /// \brief Returns the default value for the specific type
+  static ezVariant GetDefaultVariantFromType(const ezRTTI* pRtti);
+
   /// \brief Returns the default value for the specific type of the given property.
-  static ezVariant GetDefaultValue(const ezAbstractProperty* pProperty);
+  static ezVariant GetDefaultValue(const ezAbstractProperty* pProperty, ezVariant index = ezVariant());
+
 
   /// \brief Sets all member properties in \a pObject of type \a pRtti to the value returned by ezToolsReflectionUtils::GetDefaultValue()
   static void SetAllMemberPropertiesToDefault(const ezRTTI* pRtti, void* pObject);
+
+  /// \brief If pAttrib is valid and its min/max values are compatible, value will be clamped to them.
+  /// Returns false if a clamp attribute exists but no clamp code was executed.
+  static ezResult ClampValue(ezVariant& value, const ezClampValueAttribute* pAttrib);
 };

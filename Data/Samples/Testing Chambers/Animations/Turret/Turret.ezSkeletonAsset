@@ -2,6 +2,60 @@ HeaderV2
 {
 o
 {
+	Uuid %id{u4{10562996751653777210,423160607111720072}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"SocketMesh"}
+			s %Parent{"Armature"}
+			Transform %Transform{f{0,0,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		}
+		s %Name{"SocketMesh"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{5190871716152112654,521261947377757810}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"<root-transform>"}
+			s %Parent{""}
+			Transform %Transform{f{0,0,0,0,0xF304353F,0xF304353F,0,0x000080BF,0x0000803F,0x0000803F}}
+		}
+		s %Name{"<root-transform>"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{15303378303263442149,3963137434886210096}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"BarrelRecoilBone"}
+			s %Parent{"BarrelBone"}
+			Transform %Transform{f{0xA0A2B82F,0xFAC2893F,0x1191E733,0x404D913A,0xEC4C913A,0xC69EA1B5,0xEBFF7F3F,0x0000803F,0x0000803F,0x0000803F}}
+		}
+		s %Name{"BarrelRecoilBone"}
+		s %Type{""}
+	}
+}
+o
+{
 	Uuid %id{u4{15670882188369860531,5160132352143365795}}
 	s %t{"ezAssetDocumentInfo"}
 	u3 %v{2}
@@ -14,10 +68,104 @@ o
 			s{"Animations/Turret/Turret.glb"}
 		}
 		Uuid %DocumentID{u4{15670882188369860531,5160132352143365795}}
-		u4 %Hash{16470260171733828658}
-		VarArray %MetaInfo{}
+		u4 %Hash{5848841858734359319}
+		VarArray %MetaInfo
+		{
+			Uuid{u4{2250784937224855489,8131906298234352154}}
+		}
 		VarArray %Outputs{}
 		VarArray %References{}
+	}
+}
+o
+{
+	Uuid %id{u4{1305762706206703750,6170661493763751140}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"BarrelMesh"}
+			s %Parent{"Armature"}
+			Transform %Transform{f{0,0,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		}
+		s %Name{"BarrelMesh"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{2250784937224855489,8131906298234352154}}
+	s %t{"ezExposedParameters"}
+	u3 %v{3}
+	p
+	{
+		VarArray %Parameters
+		{
+			Uuid{u4{5190871716152112654,521261947377757810}}
+			Uuid{u4{12000036003393347990,17606771942748304705}}
+			Uuid{u4{1305762706206703750,6170661493763751140}}
+			Uuid{u4{10562996751653777210,423160607111720072}}
+			Uuid{u4{3287948431384305784,14865854565518303011}}
+			Uuid{u4{16657971123379262335,11064305118567624139}}
+			Uuid{u4{15303378303263442149,3963137434886210096}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{16657971123379262335,11064305118567624139}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"BarrelBone"}
+			s %Parent{"SocketBone"}
+			Transform %Transform{f{0x85FF7FAF,0xCDCC8C3F,0xD7FF7F2F,0xA748003F,0xD6FFFF3E,0xD8FFFF3E,0xB36EFFBE,0x0000803F,0x0000803F,0x0000803F}}
+		}
+		s %Name{"BarrelBone"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{3287948431384305784,14865854565518303011}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"SocketBone"}
+			s %Parent{"Armature"}
+			Transform %Transform{f{0,0,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		}
+		s %Name{"SocketBone"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{12000036003393347990,17606771942748304705}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"Armature"}
+			s %Parent{""}
+			Transform %Transform{f{0,0,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		}
+		s %Name{"Armature"}
+		s %Type{""}
 	}
 }
 }
@@ -27,39 +175,69 @@ o
 {
 	Uuid %id{u4{10544932915657330354,4652513731524458081}}
 	s %t{"ezEditableSkeletonJoint"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
+		VarArray %BoneShapes{}
 		VarArray %Children{}
+		Quat %GizmoOffsetRotationRO{f{0xF304353F,0xD704353F,0xF97E5AB3,0x0B7FCDBA}}
+		Vec3 %GizmoOffsetTranslationRO{f{0xE4C2893F,0,0x9C7E8C3F}}
+		b %LimitSwing{0}
+		b %LimitTwist{0}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		s %Name{"BarrelRecoilBone"}
+		Angle %SwingLimitY{f{0x920A063F}}
+		Angle %SwingLimitZ{f{0x920A063F}}
 		Transform %Transform{f{0xA0A2B82F,0xFAC2893F,0x1191E733,0x404D913A,0xEC4C913A,0xC69EA1B5,0xEBFF7F3F,0x0000803F,0x0000803F,0x0000803F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0x930A063F}}
 	}
 }
 o
 {
 	Uuid %id{u4{17647195495414389915,4721293689371298683}}
 	s %t{"ezEditableSkeletonJoint"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
+		VarArray %BoneShapes{}
 		VarArray %Children{}
+		Quat %GizmoOffsetRotationRO{f{0xF204353F,0,0,0xF404353F}}
+		Vec3 %GizmoOffsetTranslationRO{f{0,0,0}}
+		b %LimitSwing{0}
+		b %LimitTwist{0}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		s %Name{"SocketMesh"}
+		Angle %SwingLimitY{f{0x920A063F}}
+		Angle %SwingLimitZ{f{0x920A063F}}
 		Transform %Transform{f{0,0,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0x930A063F}}
 	}
 }
 o
 {
 	Uuid %id{u4{16587509676623798703,4840547266392564697}}
 	s %t{"ezEditableSkeletonJoint"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
+		VarArray %BoneShapes{}
 		VarArray %Children
 		{
 			Uuid{u4{10286145735859231655,5322923474099417519}}
 		}
+		Quat %GizmoOffsetRotationRO{f{0xF204353F,0,0,0xF404353F}}
+		Vec3 %GizmoOffsetTranslationRO{f{0,0,0}}
+		b %LimitSwing{0}
+		b %LimitTwist{0}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		s %Name{"SocketBone"}
+		Angle %SwingLimitY{f{0x920A063F}}
+		Angle %SwingLimitZ{f{0x920A063F}}
 		Transform %Transform{f{0,0,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0x930A063F}}
 	}
 }
 o
@@ -74,9 +252,11 @@ o
 		{
 			Uuid{u4{14931631101554825868,5256831084272279943}}
 		}
+		u1 %CollisionLayer{0}
 		s %File{"Animations/Turret/Turret.glb"}
 		b %FlipForwardDir{0}
 		s %RightDir{"ezBasisAxis::PositiveZ"}
+		s %Surface{""}
 		f %UniformScaling{0x0000803F}
 		s %UpDir{"ezBasisAxis::PositiveY"}
 	}
@@ -85,44 +265,74 @@ o
 {
 	Uuid %id{u4{14931631101554825868,5256831084272279943}}
 	s %t{"ezEditableSkeletonJoint"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
+		VarArray %BoneShapes{}
 		VarArray %Children
 		{
 			Uuid{u4{6652694039962206098,5349244781853233828}}
 			Uuid{u4{17647195495414389915,4721293689371298683}}
 			Uuid{u4{16587509676623798703,4840547266392564697}}
 		}
+		Quat %GizmoOffsetRotationRO{f{0xF204353F,0,0,0xF404353F}}
+		Vec3 %GizmoOffsetTranslationRO{f{0,0,0}}
+		b %LimitSwing{0}
+		b %LimitTwist{0}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		s %Name{"Armature"}
+		Angle %SwingLimitY{f{0x920A063F}}
+		Angle %SwingLimitZ{f{0x920A063F}}
 		Transform %Transform{f{0,0,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0x930A063F}}
 	}
 }
 o
 {
 	Uuid %id{u4{10286145735859231655,5322923474099417519}}
 	s %t{"ezEditableSkeletonJoint"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
+		VarArray %BoneShapes{}
 		VarArray %Children
 		{
 			Uuid{u4{10544932915657330354,4652513731524458081}}
 		}
+		Quat %GizmoOffsetRotationRO{f{0xF204353F,0,0,0xF404353F}}
+		Vec3 %GizmoOffsetTranslationRO{f{0x83FF7FAF,0,0xCDCC8C3F}}
+		b %LimitSwing{0}
+		b %LimitTwist{0}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		s %Name{"BarrelBone"}
+		Angle %SwingLimitY{f{0x920A063F}}
+		Angle %SwingLimitZ{f{0x920A063F}}
 		Transform %Transform{f{0x85FF7FAF,0xCDCC8C3F,0xD7FF7F2F,0xA748003F,0xD6FFFF3E,0xD8FFFF3E,0xB36EFFBE,0x0000803F,0x0000803F,0x0000803F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0x930A063F}}
 	}
 }
 o
 {
 	Uuid %id{u4{6652694039962206098,5349244781853233828}}
 	s %t{"ezEditableSkeletonJoint"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
+		VarArray %BoneShapes{}
 		VarArray %Children{}
+		Quat %GizmoOffsetRotationRO{f{0xF204353F,0,0,0xF404353F}}
+		Vec3 %GizmoOffsetTranslationRO{f{0,0,0}}
+		b %LimitSwing{0}
+		b %LimitTwist{0}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		s %Name{"BarrelMesh"}
+		Angle %SwingLimitY{f{0x920A063F}}
+		Angle %SwingLimitZ{f{0x920A063F}}
 		Transform %Transform{f{0,0,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0x930A063F}}
 	}
 }
 o
@@ -144,6 +354,42 @@ Types
 {
 o
 {
+	Uuid %id{u4{1546572509689650450,163761612659977183}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezSkeletonJointGeometryType"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{7487808954123518552,1038212999886154059}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezEditableSkeletonBoneShape"}
+		u3 %TypeSize{192}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{17859901446394967209,7194868322181501778}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -156,8 +402,8 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezEditableSkeletonJoint"}
-		u3 %TypeSize{112}
-		u3 %TypeVersion{1}
+		u3 %TypeSize{392}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -192,7 +438,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezEditableSkeleton"}
-		u3 %TypeSize{136}
+		u3 %TypeSize{208}
 		u3 %TypeVersion{1}
 	}
 }

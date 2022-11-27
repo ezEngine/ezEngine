@@ -3,6 +3,7 @@
 #include <Texture/Image/Formats/TgaFileFormat.h>
 
 #include <Foundation/IO/Stream.h>
+#include <Foundation/Profiling/Profiling.h>
 #include <Texture/Image/ImageConversion.h>
 
 
@@ -65,7 +66,7 @@ static inline ezColorLinearUB GetPixelColor(const ezImageView& image, ezUInt32 x
 }
 
 
-ezResult ezTgaFileFormat::WriteImage(ezStreamWriter& stream, const ezImageView& image, ezLogInterface* pLog, const char* szFileExtension) const
+ezResult ezTgaFileFormat::WriteImage(ezStreamWriter& stream, const ezImageView& image, const char* szFileExtension) const
 {
   // Technically almost arbitrary formats are supported, but we only use the common ones.
   ezImageFormat::Enum compatibleFormats[] = {
@@ -80,7 +81,7 @@ ezResult ezTgaFileFormat::WriteImage(ezStreamWriter& stream, const ezImageView& 
 
   if (format == ezImageFormat::UNKNOWN)
   {
-    ezLog::Error(pLog, "No conversion from format '{0}' to a format suitable for TGA files known.", ezImageFormat::GetName(image.GetImageFormat()));
+    ezLog::Error("No conversion from format '{0}' to a format suitable for TGA files known.", ezImageFormat::GetName(image.GetImageFormat()));
     return EZ_FAILURE;
   }
 
@@ -95,7 +96,7 @@ ezResult ezTgaFileFormat::WriteImage(ezStreamWriter& stream, const ezImageView& 
       return EZ_FAILURE;
     }
 
-    return WriteImage(stream, convertedImage, pLog, szFileExtension);
+    return WriteImage(stream, convertedImage, szFileExtension);
   }
 
   const bool bCompress = true;
@@ -283,64 +284,82 @@ ezResult ezTgaFileFormat::WriteImage(ezStreamWriter& stream, const ezImageView& 
   return EZ_SUCCESS;
 }
 
-
-ezResult ezTgaFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLogInterface* pLog, const char* szFileExtension) const
+static ezResult ReadImageHeaderImpl(ezStreamReader& stream, ezImageHeader& header, const char* szFileExtension, TgaHeader& tgaHeader)
 {
-  TgaHeader Header;
-  stream >> Header.m_iImageIDLength;
-  stream >> Header.m_Ignored1;
-  stream >> Header.m_ImageType;
-  stream.ReadBytes(&Header.m_Ignored2, 9);
-  stream >> Header.m_iImageWidth;
-  stream >> Header.m_iImageHeight;
-  stream >> Header.m_iBitsPerPixel;
-  stream >> reinterpret_cast<ezUInt8&>(Header.m_ImageDescriptor);
+  stream >> tgaHeader.m_iImageIDLength;
+  stream >> tgaHeader.m_Ignored1;
+  stream >> tgaHeader.m_ImageType;
+  stream.ReadBytes(&tgaHeader.m_Ignored2, 9);
+  stream >> tgaHeader.m_iImageWidth;
+  stream >> tgaHeader.m_iImageHeight;
+  stream >> tgaHeader.m_iBitsPerPixel;
+  stream >> reinterpret_cast<ezUInt8&>(tgaHeader.m_ImageDescriptor);
 
   // ignore optional data
-  stream.SkipBytes(Header.m_iImageIDLength);
+  stream.SkipBytes(tgaHeader.m_iImageIDLength);
 
-  const ezUInt32 uiBytesPerPixel = Header.m_iBitsPerPixel / 8;
+  const ezUInt32 uiBytesPerPixel = tgaHeader.m_iBitsPerPixel / 8;
 
   // check whether width, height an BitsPerPixel are valid
-  if ((Header.m_iImageWidth <= 0) || (Header.m_iImageHeight <= 0) || ((uiBytesPerPixel != 1) && (uiBytesPerPixel != 3) && (uiBytesPerPixel != 4)) || (Header.m_ImageType != 2 && Header.m_ImageType != 3 && Header.m_ImageType != 10 && Header.m_ImageType != 11))
+  if ((tgaHeader.m_iImageWidth <= 0) || (tgaHeader.m_iImageHeight <= 0) || ((uiBytesPerPixel != 1) && (uiBytesPerPixel != 3) && (uiBytesPerPixel != 4)) || (tgaHeader.m_ImageType != 2 && tgaHeader.m_ImageType != 3 && tgaHeader.m_ImageType != 10 && tgaHeader.m_ImageType != 11))
   {
-    ezLog::Error(pLog, "TGA has an invalid header: Width = {0}, Height = {1}, BPP = {2}, ImageType = {3}", Header.m_iImageWidth, Header.m_iImageHeight, Header.m_iBitsPerPixel, Header.m_ImageType);
+    ezLog::Error("TGA has an invalid header: Width = {0}, Height = {1}, BPP = {2}, ImageType = {3}", tgaHeader.m_iImageWidth, tgaHeader.m_iImageHeight, tgaHeader.m_iBitsPerPixel, tgaHeader.m_ImageType);
     return EZ_FAILURE;
   }
 
   // Set image data
-  ezImageHeader imageHeader;
 
   if (uiBytesPerPixel == 1)
-    imageHeader.SetImageFormat(ezImageFormat::R8_UNORM);
+    header.SetImageFormat(ezImageFormat::R8_UNORM);
   else if (uiBytesPerPixel == 3)
-    imageHeader.SetImageFormat(ezImageFormat::B8G8R8_UNORM);
+    header.SetImageFormat(ezImageFormat::B8G8R8_UNORM);
   else
-    imageHeader.SetImageFormat(ezImageFormat::B8G8R8A8_UNORM);
+    header.SetImageFormat(ezImageFormat::B8G8R8A8_UNORM);
 
-  imageHeader.SetNumMipLevels(1);
-  imageHeader.SetNumArrayIndices(1);
-  imageHeader.SetNumFaces(1);
+  header.SetNumMipLevels(1);
+  header.SetNumArrayIndices(1);
+  header.SetNumFaces(1);
 
-  imageHeader.SetWidth(Header.m_iImageWidth);
-  imageHeader.SetHeight(Header.m_iImageHeight);
-  imageHeader.SetDepth(1);
+  header.SetWidth(tgaHeader.m_iImageWidth);
+  header.SetHeight(tgaHeader.m_iImageHeight);
+  header.SetDepth(1);
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezTgaFileFormat::ReadImageHeader(ezStreamReader& stream, ezImageHeader& header, const char* szFileExtension) const
+{
+  EZ_PROFILE_SCOPE("ezTgaFileFormat::ReadImageHeader");
+
+  TgaHeader tgaHeader;
+  return ReadImageHeaderImpl(stream, header, szFileExtension, tgaHeader);
+}
+
+ezResult ezTgaFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, const char* szFileExtension) const
+{
+  EZ_PROFILE_SCOPE("ezTgaFileFormat::ReadImage");
+
+  ezImageHeader imageHeader;
+  TgaHeader tgaHeader;
+  EZ_SUCCEED_OR_RETURN(ReadImageHeaderImpl(stream, imageHeader, szFileExtension, tgaHeader));
+
+  const ezUInt32 uiBytesPerPixel = tgaHeader.m_iBitsPerPixel / 8;
 
   image.ResetAndAlloc(imageHeader);
 
-  if (Header.m_ImageType == 3)
+  if (tgaHeader.m_ImageType == 3)
   {
-    // uncompressed grayscale
+    // uncompressed greyscale
 
-    const ezUInt32 uiBytesPerRow = uiBytesPerPixel * Header.m_iImageWidth;
+    const ezUInt32 uiBytesPerRow = uiBytesPerPixel * tgaHeader.m_iImageWidth;
 
-    if (Header.m_ImageDescriptor.m_bFlipH)
+    if (tgaHeader.m_ImageDescriptor.m_bFlipH)
     {
       // read each row (gets rid of the row pitch
-      for (ezInt32 y = 0; y < Header.m_iImageHeight; ++y)
+      for (ezInt32 y = 0; y < tgaHeader.m_iImageHeight; ++y)
       {
-        const auto row = Header.m_ImageDescriptor.m_bFlipV ? y : Header.m_iImageHeight - y - 1;
-        for (ezInt32 x = Header.m_iImageWidth - 1; x >= 0; --x)
+        const auto row = tgaHeader.m_ImageDescriptor.m_bFlipV ? y : tgaHeader.m_iImageHeight - y - 1;
+        for (ezInt32 x = tgaHeader.m_iImageWidth - 1; x >= 0; --x)
         {
           stream.ReadBytes(image.GetPixelPointer<void>(0, 0, 0, x, row, 0), uiBytesPerPixel);
         }
@@ -349,26 +368,26 @@ ezResult ezTgaFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
     else
     {
       // read each row (gets rid of the row pitch
-      for (ezInt32 y = 0; y < Header.m_iImageHeight; ++y)
+      for (ezInt32 y = 0; y < tgaHeader.m_iImageHeight; ++y)
       {
-        const auto row = Header.m_ImageDescriptor.m_bFlipV ? y : Header.m_iImageHeight - y - 1;
+        const auto row = tgaHeader.m_ImageDescriptor.m_bFlipV ? y : tgaHeader.m_iImageHeight - y - 1;
         stream.ReadBytes(image.GetPixelPointer<void>(0, 0, 0, 0, row, 0), uiBytesPerRow);
       }
     }
   }
-  else if (Header.m_ImageType == 2)
+  else if (tgaHeader.m_ImageType == 2)
   {
     // uncompressed
 
-    const ezUInt32 uiBytesPerRow = uiBytesPerPixel * Header.m_iImageWidth;
+    const ezUInt32 uiBytesPerRow = uiBytesPerPixel * tgaHeader.m_iImageWidth;
 
-    if (Header.m_ImageDescriptor.m_bFlipH)
+    if (tgaHeader.m_ImageDescriptor.m_bFlipH)
     {
       // read each row (gets rid of the row pitch
-      for (ezInt32 y = 0; y < Header.m_iImageHeight; ++y)
+      for (ezInt32 y = 0; y < tgaHeader.m_iImageHeight; ++y)
       {
-        const auto row = Header.m_ImageDescriptor.m_bFlipV ? y : Header.m_iImageHeight - y - 1;
-        for (ezInt32 x = Header.m_iImageWidth - 1; x >= 0; --x)
+        const auto row = tgaHeader.m_ImageDescriptor.m_bFlipV ? y : tgaHeader.m_iImageHeight - y - 1;
+        for (ezInt32 x = tgaHeader.m_iImageWidth - 1; x >= 0; --x)
         {
           stream.ReadBytes(image.GetPixelPointer<void>(0, 0, 0, x, row, 0), uiBytesPerPixel);
         }
@@ -377,9 +396,9 @@ ezResult ezTgaFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
     else
     {
       // read each row (gets rid of the row pitch
-      for (ezInt32 y = 0; y < Header.m_iImageHeight; ++y)
+      for (ezInt32 y = 0; y < tgaHeader.m_iImageHeight; ++y)
       {
-        const auto row = Header.m_ImageDescriptor.m_bFlipV ? y : Header.m_iImageHeight - y - 1;
+        const auto row = tgaHeader.m_ImageDescriptor.m_bFlipV ? y : tgaHeader.m_iImageHeight - y - 1;
         stream.ReadBytes(image.GetPixelPointer<void>(0, 0, 0, 0, row, 0), uiBytesPerRow);
       }
     }
@@ -389,7 +408,7 @@ ezResult ezTgaFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
     // compressed
 
     ezInt32 iCurrentPixel = 0;
-    const int iPixelCount = Header.m_iImageWidth * Header.m_iImageHeight;
+    const int iPixelCount = tgaHeader.m_iImageWidth * tgaHeader.m_iImageHeight;
 
     do
     {
@@ -401,7 +420,7 @@ ezResult ezTgaFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
 
       if (iCurrentPixel + numToRead > iPixelCount)
       {
-        ezLog::Error(pLog, "TGA contents are invalid");
+        ezLog::Error("TGA contents are invalid");
         return EZ_FAILURE;
       }
 
@@ -414,11 +433,11 @@ ezResult ezTgaFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
         // Read RAW color values
         for (ezInt32 i = 0; i < numToRead; ++i)
         {
-          const ezInt32 x = iCurrentPixel % Header.m_iImageWidth;
-          const ezInt32 y = iCurrentPixel / Header.m_iImageWidth;
+          const ezInt32 x = iCurrentPixel % tgaHeader.m_iImageWidth;
+          const ezInt32 y = iCurrentPixel / tgaHeader.m_iImageWidth;
 
-          const auto row = Header.m_ImageDescriptor.m_bFlipV ? y : Header.m_iImageHeight - y - 1;
-          const auto col = Header.m_ImageDescriptor.m_bFlipH ? Header.m_iImageWidth - x - 1 : x;
+          const auto row = tgaHeader.m_ImageDescriptor.m_bFlipV ? y : tgaHeader.m_iImageHeight - y - 1;
+          const auto col = tgaHeader.m_ImageDescriptor.m_bFlipH ? tgaHeader.m_iImageWidth - x - 1 : x;
           stream.ReadBytes(image.GetPixelPointer<void>(0, 0, 0, col, row, 0), uiBytesPerPixel);
 
           ++iCurrentPixel;
@@ -436,11 +455,11 @@ ezResult ezTgaFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
         // copy the color into the image data as many times as dictated
         for (ezInt32 i = 0; i < numToRead; ++i)
         {
-          const ezInt32 x = iCurrentPixel % Header.m_iImageWidth;
-          const ezInt32 y = iCurrentPixel / Header.m_iImageWidth;
+          const ezInt32 x = iCurrentPixel % tgaHeader.m_iImageWidth;
+          const ezInt32 y = iCurrentPixel / tgaHeader.m_iImageWidth;
 
-          const auto row = Header.m_ImageDescriptor.m_bFlipV ? y : Header.m_iImageHeight - y - 1;
-          const auto col = Header.m_ImageDescriptor.m_bFlipH ? Header.m_iImageWidth - x - 1 : x;
+          const auto row = tgaHeader.m_ImageDescriptor.m_bFlipV ? y : tgaHeader.m_iImageHeight - y - 1;
+          const auto col = tgaHeader.m_ImageDescriptor.m_bFlipH ? tgaHeader.m_iImageWidth - x - 1 : x;
           ezUInt8* pPixel = image.GetPixelPointer<ezUInt8>(0, 0, 0, col, row, 0);
 
           // BGR

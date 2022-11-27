@@ -1,6 +1,6 @@
 #include <Texture/TexturePCH.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS) || EZ_ENABLED(EZ_PLATFORM_LINUX)
 
 //-------------------------------------------------------------------------------------
 // BC6HBC7.cpp
@@ -13,7 +13,11 @@
 // http://go.microsoft.com/fwlink/?LinkId=248926
 //-------------------------------------------------------------------------------------
 
+#if EZ_ENABLED(EZ_PLATFORM_LINUX)
+#include "EZCompat.h"
+#else
 #include "DirectXTexP.h"
+#endif
 
 #include "BC.h"
 
@@ -1192,13 +1196,13 @@ namespace
         size_t cPixels,
         _In_reads_(cPixels) const size_t* pIndex) noexcept
     {
-        float fError = FLT_MAX;
+        constexpr float fError = FLT_MAX;
         const float *pC = (3 == cSteps) ? pC3 : pC4;
         const float *pD = (3 == cSteps) ? pD3 : pD4;
 
         // Find Min and Max points, as starting point
-        HDRColorA X(1.0f, 1.0f, 1.0f, 0.0f);
-        HDRColorA Y(0.0f, 0.0f, 0.0f, 0.0f);
+        HDRColorA X(FLT_MAX, FLT_MAX, FLT_MAX, 0.0f);
+        HDRColorA Y(-FLT_MAX, -FLT_MAX, -FLT_MAX, 0.0f);
 
         for (size_t iPoint = 0; iPoint < cPixels; iPoint++)
         {
@@ -1388,7 +1392,7 @@ namespace
         size_t cPixels,
         _In_reads_(cPixels) const size_t* pIndex) noexcept
     {
-        float fError = FLT_MAX;
+        constexpr float fError = FLT_MAX;
         const float *pC = (3 == cSteps) ? pC3 : pC4;
         const float *pD = (3 == cSteps) ? pD3 : pD4;
 
@@ -2919,7 +2923,7 @@ void D3DX_BC7::Exhaustive(const EncodeParams* pEP, const LDRColorA aColors[], si
     if (fOrgErr == 0)
         return;
 
-    int delta = 5;
+    constexpr int delta = 5;
 
     // ok figure out the range of A and B
     tmpEndPt = optEndPt;
@@ -3205,7 +3209,7 @@ void D3DX_BC7::EmitBlock(const EncodeParams* pEP, size_t uShape, size_t uRotatio
 
         for (i = 0; i < uPBits; i++)
         {
-            SetBits(uStartBit, 1, aPVote[i] > (aCount[i] >> 1) ? 1u : 0u);
+            SetBits(uStartBit, 1, (aPVote[i] >(aCount[i] >> 1)) ? 1u : 0u);
         }
     }
     else

@@ -2,6 +2,7 @@
 
 #include <Texture/Image/ImageUtils.h>
 
+#include <Foundation/Profiling/Profiling.h>
 #include <Foundation/SimdMath/SimdVec4f.h>
 #include <Texture/Image/ImageConversion.h>
 #include <Texture/Image/ImageEnums.h>
@@ -44,6 +45,8 @@ static ezUInt32 GetError(const ezImageView& Difference, ezUInt32 w, ezUInt32 h, 
 
 void ezImageUtils::ComputeImageDifferenceABS(const ezImageView& ImageA, const ezImageView& ImageB, ezImage& out_Difference)
 {
+  EZ_PROFILE_SCOPE("ezImageUtils::ComputeImageDifferenceABS");
+
   EZ_ASSERT_DEV(ImageA.GetWidth() == ImageB.GetWidth(), "Dimensions do not match");
   EZ_ASSERT_DEV(ImageA.GetHeight() == ImageB.GetHeight(), "Dimensions do not match");
   EZ_ASSERT_DEV(ImageA.GetDepth() == ImageB.GetDepth(), "Dimensions do not match");
@@ -98,6 +101,8 @@ void ezImageUtils::ComputeImageDifferenceABS(const ezImageView& ImageA, const ez
 
 ezUInt32 ezImageUtils::ComputeMeanSquareError(const ezImageView& DifferenceImage, ezUInt8 uiBlockSize, ezUInt32 offsetx, ezUInt32 offsety)
 {
+  EZ_PROFILE_SCOPE("ezImageUtils::ComputeMeanSquareError(detail)");
+
   EZ_ASSERT_DEV(uiBlockSize > 1, "Blocksize must be at least 2");
 
   ezUInt32 uiWidth = ezMath::Min(DifferenceImage.GetWidth(), offsetx + uiBlockSize) - offsetx;
@@ -164,6 +169,8 @@ ezUInt32 ezImageUtils::ComputeMeanSquareError(const ezImageView& DifferenceImage
 
 ezUInt32 ezImageUtils::ComputeMeanSquareError(const ezImageView& DifferenceImage, ezUInt8 uiBlockSize)
 {
+  EZ_PROFILE_SCOPE("ezImageUtils::ComputeMeanSquareError");
+
   EZ_ASSERT_DEV(uiBlockSize > 1, "Blocksize must be at least 2");
 
   const ezUInt32 uiHalfBlockSize = uiBlockSize / 2;
@@ -233,7 +240,8 @@ static void FindMinMax(const ezImageView& image, ezUInt8& uiMinRgb, ezUInt8& uiM
   uiMaxRgb = 0u;
   uiMaxAlpha = 0u;
 
-  auto minMax = [&](const ezUInt8* pixel, ezUInt32 /*x*/, ezUInt32 /*y*/, ezUInt32 /*z*/, ezUInt32 c) {
+  auto minMax = [&](const ezUInt8* pixel, ezUInt32 /*x*/, ezUInt32 /*y*/, ezUInt32 /*z*/, ezUInt32 c)
+  {
     ezUInt8 val = *pixel;
 
     if (c < 3)
@@ -258,6 +266,8 @@ void ezImageUtils::Normalize(ezImage& image)
 
 void ezImageUtils::Normalize(ezImage& image, ezUInt8& uiMinRgb, ezUInt8& uiMaxRgb, ezUInt8& uiMinAlpha, ezUInt8& uiMaxAlpha)
 {
+  EZ_PROFILE_SCOPE("ezImageUtils::Normalize");
+
   ezImageFormat::Enum imageFormat = image.GetImageFormat();
 
   EZ_ASSERT_DEV(ezImageFormat::GetBitsPerChannel(imageFormat, ezImageFormatChannel::R) == 8 && ezImageFormat::GetDataType(imageFormat) == ezImageFormatDataType::UNORM, "Only 8bpp unorm formats are supported in NormalizeImage");
@@ -272,7 +282,8 @@ void ezImageUtils::Normalize(ezImage& image, ezUInt8& uiMinRgb, ezUInt8& uiMaxRg
   ezUInt8 uiRangeRgb = uiMaxRgb - uiMinRgb;
   ezUInt8 uiRangeAlpha = uiMaxAlpha - uiMinAlpha;
 
-  auto normalize = [&](ezUInt8* pixel, ezUInt32 /*x*/, ezUInt32 /*y*/, ezUInt32 /*z*/, ezUInt32 c) {
+  auto normalize = [&](ezUInt8* pixel, ezUInt32 /*x*/, ezUInt32 /*y*/, ezUInt32 /*z*/, ezUInt32 c)
+  {
     ezUInt8 val = *pixel;
     if (c < 3)
     {
@@ -296,6 +307,8 @@ void ezImageUtils::Normalize(ezImage& image, ezUInt8& uiMinRgb, ezUInt8& uiMaxRg
 
 void ezImageUtils::ExtractAlphaChannel(const ezImageView& inputImage, ezImage& outputImage)
 {
+  EZ_PROFILE_SCOPE("ezImageUtils::ExtractAlphaChannel");
+
   switch (ezImageFormat::Enum imageFormat = inputImage.GetImageFormat())
   {
     case ezImageFormat::R8G8B8A8_UNORM:
@@ -352,6 +365,8 @@ void ezImageUtils::ExtractAlphaChannel(const ezImageView& inputImage, ezImage& o
 
 void ezImageUtils::CropImage(const ezImageView& input, const ezVec2I32& offset, const ezSizeU32& newsize, ezImage& output)
 {
+  EZ_PROFILE_SCOPE("ezImageUtils::CropImage");
+
   EZ_ASSERT_DEV(offset.x >= 0, "Offset is invalid");
   EZ_ASSERT_DEV(offset.y >= 0, "Offset is invalid");
   EZ_ASSERT_DEV(offset.x < (ezInt32)input.GetWidth(), "Offset is invalid");
@@ -415,6 +430,8 @@ namespace
 
 void ezImageUtils::RotateSubImage180(ezImage& image, ezUInt32 uiMipLevel /*= 0*/, ezUInt32 uiFace /*= 0*/, ezUInt32 uiArrayIndex /*= 0*/)
 {
+  EZ_PROFILE_SCOPE("ezImageUtils::RotateSubImage180");
+
   ezUInt8* start = image.GetPixelPointer<ezUInt8>(uiMipLevel, uiFace, uiArrayIndex);
   ezUInt8* end = start + image.GetDepthPitch(uiMipLevel);
 
@@ -456,6 +473,8 @@ ezResult ezImageUtils::Copy(const ezImageView& srcImg, const ezRectU32& srcRect,
   if (ezImageFormat::IsCompressed(dstImg.GetImageFormat())) // Compressed formats are not supported
     return EZ_FAILURE;
 
+  EZ_PROFILE_SCOPE("ezImageUtils::Copy");
+
   const ezUInt64 uiDstRowPitch = dstImg.GetRowPitch(uiDstMipLevel);
   const ezUInt64 uiSrcRowPitch = srcImg.GetRowPitch(uiDstMipLevel);
   const ezUInt32 uiCopyBytesPerRow = ezImageFormat::GetBitsPerPixel(srcImg.GetImageFormat()) * srcRect.width / 8;
@@ -483,6 +502,8 @@ ezResult ezImageUtils::ExtractLowerMipChain(const ezImageView& srcImg, ezImage& 
     // Lower mips aren't stored contiguously for array/cube textures and would require copying. This isn't implemented yet.
     return EZ_FAILURE;
   }
+
+  EZ_PROFILE_SCOPE("ezImageUtils::ExtractLowerMipChain");
 
   uiNumMips = ezMath::Min(uiNumMips, srcImgHeader.GetNumMipLevels());
 
@@ -722,6 +743,8 @@ static void DownScaleFast(const ezImageView& image, ezImage& out_Result, ezUInt3
 
 static float EvaluateAverageCoverage(ezBlobPtr<const ezColor> colors, float alphaThreshold)
 {
+  EZ_PROFILE_SCOPE("EvaluateAverageCoverage");
+
   ezUInt64 totalPixels = colors.GetCount();
   ezUInt64 count = 0;
   for (ezUInt32 idx = 0; idx < totalPixels; ++idx)
@@ -734,6 +757,8 @@ static float EvaluateAverageCoverage(ezBlobPtr<const ezColor> colors, float alph
 
 static void NormalizeCoverage(ezBlobPtr<ezColor> colors, float alphaThreshold, float targetCoverage)
 {
+  EZ_PROFILE_SCOPE("NormalizeCoverage");
+
   // Based on the idea in http://the-witness.net/news/2010/09/computing-alpha-mipmaps/. Note we're using a histogram
   // to find the new alpha threshold here rather than bisecting.
 
@@ -807,6 +832,8 @@ ezResult ezImageUtils::Scale(const ezImageView& source, ezImage& target, ezUInt3
 ezResult ezImageUtils::Scale3D(const ezImageView& source, ezImage& target, ezUInt32 width, ezUInt32 height, ezUInt32 depth, const ezImageFilter* filter /*= ez_NULL*/, ezImageAddressMode::Enum addressModeU /*= ezImageAddressMode::Clamp*/,
   ezImageAddressMode::Enum addressModeV /*= ezImageAddressMode::Clamp*/, ezImageAddressMode::Enum addressModeW /*= ezImageAddressMode::Clamp*/, const ezColor& borderColor /*= ezColors::Black*/)
 {
+  EZ_PROFILE_SCOPE("ezImageUtils::Scale3D");
+
   if (width == 0 || height == 0 || depth == 0)
   {
     ezImageHeader header;
@@ -853,7 +880,8 @@ ezResult ezImageUtils::Scale3D(const ezImageView& source, ezImage& target, ezUIn
   const ezUInt32 maxNumScratchImages = 2;
   ezImage scratch[maxNumScratchImages];
   bool scratchUsed[maxNumScratchImages] = {};
-  auto allocateScratch = [&]() -> ezImage& {
+  auto allocateScratch = [&]() -> ezImage&
+  {
     for (ezUInt32 i = 0;; ++i)
     {
       EZ_ASSERT_DEV(i < maxNumScratchImages, "Failed to allocate scratch image");
@@ -864,7 +892,8 @@ ezResult ezImageUtils::Scale3D(const ezImageView& source, ezImage& target, ezUIn
       }
     }
   };
-  auto releaseScratch = [&](const ezImageView& image) {
+  auto releaseScratch = [&](const ezImageView& image)
+  {
     for (ezUInt32 i = 0; i < maxNumScratchImages; ++i)
     {
       if (&scratch[i] == &image)
@@ -1028,6 +1057,8 @@ ezResult ezImageUtils::Scale3D(const ezImageView& source, ezImage& target, ezUIn
 
 void ezImageUtils::GenerateMipMaps(const ezImageView& source, ezImage& target, const MipMapOptions& options)
 {
+  EZ_PROFILE_SCOPE("ezImageUtils::GenerateMipMaps");
+
   ezImageHeader header = source.GetHeader();
   EZ_ASSERT_DEV(header.GetImageFormat() == ezImageFormat::R32G32B32A32_FLOAT, "The source image must be a RGBA 32-bit float format.");
   EZ_ASSERT_DEV(&source != &target, "Source and target must not be the same image.");
@@ -1110,6 +1141,8 @@ void ezImageUtils::GenerateMipMaps(const ezImageView& source, ezImage& target, c
 
 void ezImageUtils::ReconstructNormalZ(ezImage& image)
 {
+  EZ_PROFILE_SCOPE("ezImageUtils::ReconstructNormalZ");
+
   EZ_ASSERT_DEV(image.GetImageFormat() == ezImageFormat::R32G32B32A32_FLOAT, "This algorithm currently expects a RGBA 32 Float as input");
 
   ezSimdVec4f* cur = image.GetBlobPtr<ezSimdVec4f>().GetPtr();
@@ -1139,6 +1172,8 @@ void ezImageUtils::ReconstructNormalZ(ezImage& image)
 
 void ezImageUtils::RenormalizeNormalMap(ezImage& image)
 {
+  EZ_PROFILE_SCOPE("ezImageUtils::RenormalizeNormalMap");
+
   EZ_ASSERT_DEV(image.GetImageFormat() == ezImageFormat::R32G32B32A32_FLOAT, "This algorithm currently expects a RGBA 32 Float as input");
 
   ezSimdVec4f* start = image.GetBlobPtr<ezSimdVec4f>().GetPtr();
@@ -1161,6 +1196,8 @@ void ezImageUtils::RenormalizeNormalMap(ezImage& image)
 
 void ezImageUtils::AdjustRoughness(ezImage& roughnessMap, const ezImageView& normalMap)
 {
+  EZ_PROFILE_SCOPE("ezImageUtils::AdjustRoughness");
+
   EZ_ASSERT_DEV(roughnessMap.GetImageFormat() == ezImageFormat::R32G32B32A32_FLOAT, "This algorithm currently expects a RGBA 32 Float as input");
   EZ_ASSERT_DEV(normalMap.GetImageFormat() == ezImageFormat::R32G32B32A32_FLOAT, "This algorithm currently expects a RGBA 32 Float as input");
 
@@ -1220,6 +1257,8 @@ void ezImageUtils::ChangeExposure(ezImage& image, float bias)
   if (bias == 0.0f)
     return;
 
+  EZ_PROFILE_SCOPE("ezImageUtils::ChangeExposure");
+
   const float multiplier = ezMath::Pow2(bias);
 
   for (ezColor& col : image.GetBlobPtr<ezColor>())
@@ -1241,6 +1280,8 @@ static ezResult CopyImageRectToFace(ezImage& dstImg, const ezImageView& srcImg, 
 
 ezResult ezImageUtils::CreateCubemapFromSingleFile(ezImage& dstImg, const ezImageView& srcImg)
 {
+  EZ_PROFILE_SCOPE("ezImageUtils::CreateCubemapFromSingleFile");
+
   if (srcImg.GetNumFaces() == 6)
   {
     dstImg.ResetAndCopy(srcImg);
@@ -1455,6 +1496,8 @@ ezResult ezImageUtils::CreateCubemapFromSingleFile(ezImage& dstImg, const ezImag
 
 ezResult ezImageUtils::CreateCubemapFrom6Files(ezImage& dstImg, const ezImageView* pSourceImages)
 {
+  EZ_PROFILE_SCOPE("ezImageUtils::CreateCubemapFrom6Files");
+
   ezImageHeader header = pSourceImages[0].GetHeader();
   header.SetNumFaces(6);
 
@@ -1485,6 +1528,8 @@ ezResult ezImageUtils::CreateCubemapFrom6Files(ezImage& dstImg, const ezImageVie
 
 ezResult ezImageUtils::CreateVolumeTextureFromSingleFile(ezImage& dstImg, const ezImageView& srcImg)
 {
+  EZ_PROFILE_SCOPE("ezImageUtils::CreateVolumeTextureFromSingleFile");
+
   const ezUInt32 uiWidthHeight = srcImg.GetHeight();
   const ezUInt32 uiDepth = srcImg.GetWidth() / uiWidthHeight;
 
@@ -1547,7 +1592,7 @@ ezColor ezImageUtils::NearestSample(const ezColor* pPixelPointer, ezUInt32 uiWid
     x = x % w;
     x = x < 0 ? x + w : x;
     y = y % h;
-    y = y < 0 ? y + w : y;
+    y = y < 0 ? y + h : y;
   }
   else
   {
@@ -1594,7 +1639,7 @@ ezColor ezImageUtils::BilinearSample(const ezColor* pData, ezUInt32 uiWidth, ezU
       x = x % w;
       x = x < 0 ? x + w : x;
       y = y % h;
-      y = y < 0 ? y + w : y;
+      y = y < 0 ? y + h : y;
     }
     else
     {
@@ -1612,6 +1657,8 @@ ezColor ezImageUtils::BilinearSample(const ezColor* pData, ezUInt32 uiWidth, ezU
 
 ezResult ezImageUtils::CopyChannel(ezImage& dstImg, ezUInt8 uiDstChannelIdx, const ezImage& srcImg, ezUInt8 uiSrcChannelIdx)
 {
+  EZ_PROFILE_SCOPE("ezImageUtils::CopyChannel");
+
   if (uiSrcChannelIdx >= 4 || uiDstChannelIdx >= 4)
     return EZ_FAILURE;
 

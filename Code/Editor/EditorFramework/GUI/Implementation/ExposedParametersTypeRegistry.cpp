@@ -45,7 +45,6 @@ ezExposedParametersTypeRegistry::ezExposedParametersTypeRegistry()
   desc.m_sPluginName = "ExposedParametersTypes";
   desc.m_sParentTypeName = ezGetStaticRTTI<ezReflectedClass>()->GetTypeName();
   desc.m_Flags = ezTypeFlags::Phantom | ezTypeFlags::Abstract | ezTypeFlags::Class;
-  desc.m_uiTypeSize = 0;
   desc.m_uiTypeVersion = 0;
 
   m_pBaseType = ezPhantomRttiManager::RegisterType(desc);
@@ -102,7 +101,6 @@ void ezExposedParametersTypeRegistry::UpdateExposedParametersType(ParamData& dat
   desc.m_sPluginName = "ExposedParametersTypes";
   desc.m_sParentTypeName = m_pBaseType->GetTypeName();
   desc.m_Flags = ezTypeFlags::Phantom | ezTypeFlags::Class;
-  desc.m_uiTypeSize = 0;
   desc.m_uiTypeVersion = 2;
 
   for (const auto* parameter : params.m_Parameters)
@@ -123,6 +121,8 @@ void ezExposedParametersTypeRegistry::UpdateExposedParametersType(ParamData& dat
       flags |= ezPropertyFlags::Bitflags;
     if (ezReflectionUtils::IsBasicType(pType))
       flags |= ezPropertyFlags::StandardType;
+    else
+      flags |= ezPropertyFlags::Class;
 
     ezReflectedPropertyDescriptor propDesc(ezPropertyCategory::Member, parameter->m_sName, pType->GetTypeName(), flags);
     for (auto attrib : parameter->m_Attributes)

@@ -28,21 +28,21 @@ public:
   virtual void BeforeHighLevelSystemsShutdown() override;
 
 private:
+  void UpdateSwapChain();
   void CreateScreenQuad();
-  void OnFileChanged(const char* filename, ezDirectoryWatcherAction action);
+  void OnFileChanged(const char* filename, ezDirectoryWatcherAction action, ezDirectoryWatcherType type);
 
   ezShaderExplorerWindow* m_pWindow = nullptr;
   ezGALDevice* m_pDevice = nullptr;
 
-  ezGALRenderTargetViewHandle m_hBBRTV;
-  ezGALRenderTargetViewHandle m_hBBDSV;
+  ezGALSwapChainHandle m_hSwapChain;
   ezGALTextureHandle m_hDepthStencilTexture;
 
   ezMaterialResourceHandle m_hMaterial;
   ezMeshBufferResourceHandle m_hQuadMeshBuffer;
 
-  ezUniquePtr<ezCamera> m_camera;
-  ezUniquePtr<ezDirectoryWatcher> m_directoryWatcher;
+  ezUniquePtr<ezCamera> m_pCamera;
+  ezUniquePtr<ezDirectoryWatcher> m_pDirectoryWatcher;
 
-  bool m_stuffChanged;
+  bool m_bStuffChanged;
 };

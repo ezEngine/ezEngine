@@ -67,7 +67,7 @@ ezRTTI::ezRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSiz
   m_uiMsgIdOffset = 0;
   m_MessageSenders = messageSenders;
 
-  m_fnVerifyParent = fnVerifyParent;
+  m_VerifyParent = fnVerifyParent;
 
   // This part is not guaranteed to always work here!
   // pParentType is (apparently) always the correct pointer to the base class BUT it is not guaranteed to have been constructed at this
@@ -143,13 +143,23 @@ void ezRTTI::GatherDynamicMessageHandlers()
   }
 }
 
+void ezRTTI::SetupParentHierarchy()
+{
+  m_ParentHierarchy.Clear();
+
+  for (const ezRTTI* rtti = this; rtti != nullptr; rtti = rtti->m_pParentType)
+  {
+    m_ParentHierarchy.PushBack(rtti);
+  }
+}
+
 void ezRTTI::VerifyCorrectness() const
 {
-  if (m_fnVerifyParent != nullptr)
+  if (m_VerifyParent != nullptr)
   {
-    EZ_ASSERT_DEV(m_fnVerifyParent() == m_pParentType, "Type '{0}': The given parent type '{1}' does not match the actual parent type '{2}'",
+    EZ_ASSERT_DEV(m_VerifyParent() == m_pParentType, "Type '{0}': The given parent type '{1}' does not match the actual parent type '{2}'",
       m_szTypeName, (m_pParentType != nullptr) ? m_pParentType->GetTypeName() : "null",
-      (m_fnVerifyParent() != nullptr) ? m_fnVerifyParent()->GetTypeName() : "null");
+      (m_VerifyParent() != nullptr) ? m_VerifyParent()->GetTypeName() : "null");
   }
 
   {
@@ -199,6 +209,7 @@ void ezRTTI::UpdateType(const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32
   m_uiTypeSize = uiTypeSize;
   m_uiTypeVersion = uiTypeVersion;
   m_TypeFlags = flags;
+  m_ParentHierarchy.Clear();
 }
 
 void ezRTTI::RegisterType()
@@ -215,21 +226,6 @@ void ezRTTI::UnregisterType()
   auto pTable = GetTypeHashTable();
   EZ_LOCK(pTable->m_Mutex);
   pTable->m_Table.Remove(m_szTypeName);
-}
-
-bool ezRTTI::IsDerivedFrom(const ezRTTI* pBaseType) const
-{
-  const ezRTTI* pThis = this;
-
-  while (pThis != nullptr)
-  {
-    if (pThis == pBaseType)
-      return true;
-
-    pThis = pThis->m_pParentType;
-  }
-
-  return false;
 }
 
 void ezRTTI::GetAllProperties(ezHybridArray<ezAbstractProperty*, 32>& out_Properties) const
@@ -404,6 +400,7 @@ void ezRTTI::AssignPlugin(const char* szPluginName)
       pInstance->m_szPluginName = szPluginName;
       SanityCheckType(pInstance);
 
+      pInstance->SetupParentHierarchy();
       pInstance->GatherDynamicMessageHandlers();
     }
     pInstance = pInstance->GetNextInstance();
@@ -411,7 +408,7 @@ void ezRTTI::AssignPlugin(const char* szPluginName)
 }
 
 #define EZ_MSVC_WARNING_NUMBER 4505
-#include <Foundation/Basics/Compiler/DisableWarning.h>
+#include <Foundation/Basics/Compiler/MSVC/DisableWarning_MSVC.h>
 
 static bool IsValidIdentifierName(const char* szIdentifier)
 {

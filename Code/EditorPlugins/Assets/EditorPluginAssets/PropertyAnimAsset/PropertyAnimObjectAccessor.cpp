@@ -9,7 +9,7 @@ ezPropertyAnimObjectAccessor::ezPropertyAnimObjectAccessor(ezPropertyAnimAssetDo
   , m_pDocument(pDoc)
   , m_pObjectManager(static_cast<ezPropertyAnimObjectManager*>(pDoc->GetObjectManager()))
 {
-  m_ObjAccessor = EZ_DEFAULT_NEW(ezObjectCommandAccessor, pHistory);
+  m_pObjAccessor = EZ_DEFAULT_NEW(ezObjectCommandAccessor, pHistory);
 }
 
 ezStatus ezPropertyAnimObjectAccessor::GetValue(
@@ -24,7 +24,7 @@ ezStatus ezPropertyAnimObjectAccessor::SetValue(
   if (IsTemporary(pObject))
   {
     ezVariant oldValue;
-    EZ_VERIFY(m_ObjAccessor->GetValue(pObject, pProp, oldValue, index).Succeeded(), "Property does not exist, can't animate");
+    EZ_VERIFY(m_pObjAccessor->GetValue(pObject, pProp, oldValue, index).Succeeded(), "Property does not exist, can't animate");
 
     ezVariantType::Enum type = pProp->GetSpecificType()->GetVariantType();
     if (type >= ezVariantType::Bool && type <= ezVariantType::Double)
@@ -129,7 +129,7 @@ ezStatus ezPropertyAnimObjectAccessor::SetValue(
         float iRounds = ezMath::RoundToMultiple(fDiff, 360.0f);
         fDiff -= iRounds;
         newEuler[c] = oldEuler[c] + ezAngle::Degree(fDiff);
-        if (oldEuler[c].IsEqualSimple(newEuler[c], ezAngle::Degree(0.01)))
+        if (oldEuler[c].IsEqualSimple(newEuler[c], ezAngle::Degree(0.01f)))
           continue;
 
         EZ_SUCCEED_OR_RETURN(SetCurveCp(pObject, pProp, index, static_cast<ezPropertyAnimTarget::Enum>((int)ezPropertyAnimTarget::RotationX + c),
@@ -277,7 +277,7 @@ ezStatus ezPropertyAnimObjectAccessor::SetOrInsertCurveCp(const ezUuid& track, d
   if (cpGuid.IsValid())
   {
     auto pCP = GetObject(cpGuid);
-    EZ_VERIFY(m_ObjAccessor->SetValue(pCP, "Value", fValue).Succeeded(), "");
+    EZ_VERIFY(m_pObjAccessor->SetValue(pCP, "Value", fValue).Succeeded(), "");
   }
   else
   {
@@ -315,9 +315,9 @@ ezStatus ezPropertyAnimObjectAccessor::SetOrInsertColorCurveCp(const ezUuid& tra
   if (cpGuid.IsValid())
   {
     auto pCP = GetObject(cpGuid);
-    EZ_VERIFY(m_ObjAccessor->SetValue(pCP, "Red", value.r).Succeeded(), "");
-    EZ_VERIFY(m_ObjAccessor->SetValue(pCP, "Green", value.g).Succeeded(), "");
-    EZ_VERIFY(m_ObjAccessor->SetValue(pCP, "Blue", value.b).Succeeded(), "");
+    EZ_VERIFY(m_pObjAccessor->SetValue(pCP, "Red", value.r).Succeeded(), "");
+    EZ_VERIFY(m_pObjAccessor->SetValue(pCP, "Green", value.g).Succeeded(), "");
+    EZ_VERIFY(m_pObjAccessor->SetValue(pCP, "Blue", value.b).Succeeded(), "");
   }
   else
   {
@@ -355,7 +355,7 @@ ezStatus ezPropertyAnimObjectAccessor::SetOrInsertAlphaCurveCp(const ezUuid& tra
   if (cpGuid.IsValid())
   {
     auto pCP = GetObject(cpGuid);
-    EZ_VERIFY(m_ObjAccessor->SetValue(pCP, "Alpha", value).Succeeded(), "");
+    EZ_VERIFY(m_pObjAccessor->SetValue(pCP, "Alpha", value).Succeeded(), "");
   }
   else
   {
@@ -392,7 +392,7 @@ ezStatus ezPropertyAnimObjectAccessor::SetOrInsertIntensityCurveCp(const ezUuid&
   if (cpGuid.IsValid())
   {
     auto pCP = GetObject(cpGuid);
-    EZ_VERIFY(m_ObjAccessor->SetValue(pCP, "Intensity", value).Succeeded(), "");
+    EZ_VERIFY(m_pObjAccessor->SetValue(pCP, "Intensity", value).Succeeded(), "");
   }
   else
   {

@@ -84,7 +84,7 @@ ezResult TranformProject(const char* szProjectPath, ezUInt32 uiCleanVersion)
   {
     ezStringView sProjectPath = ezPathUtils::GetFileDirectory(szProjectPath);
     sProjectPath.Trim("\\/");
-    ezStringView sProjectName = ezPathUtils::GetFileName(sProjectPath.GetStartPointer(), sProjectPath.GetEndPointer());
+    ezStringView sProjectName = ezPathUtils::GetFileName(sProjectPath);
     sOutputPath.AppendPath("Transform");
     sOutputPath.Append(sProjectName);
     if (ezOSFile::CreateDirectoryStructure(sOutputPath).Failed())
@@ -102,6 +102,10 @@ ezResult TranformProject(const char* szProjectPath, ezUInt32 uiCleanVersion)
   opt.m_Arguments.PushBack("-debug");
   opt.m_Arguments.PushBack("-AssetThumbnails");
   opt.m_Arguments.PushBack("never");
+  opt.m_Arguments.PushBack("-renderer");
+  opt.m_Arguments.PushBack(ezGameApplication::GetActiveRenderer());
+
+
 
   ezProcess proc;
   ezLog::Info("Launching: '{0}'", sBinPath);
@@ -141,37 +145,47 @@ EZ_CREATE_SIMPLE_TEST_GROUP(00_Init);
 
 EZ_CREATE_SIMPLE_TEST(00_Init, TransformBase)
 {
-  EZ_TEST_BOOL(TranformProject("Data/Base/ezProject", 1).Succeeded());
+  EZ_TEST_BOOL(TranformProject("Data/Base/ezProject", 2).Succeeded());
 }
 
 EZ_CREATE_SIMPLE_TEST(00_Init, TransformBasics)
 {
-  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/Basics/ezProject", 1).Succeeded());
+  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/Basics/ezProject", 2).Succeeded());
 }
 
 EZ_CREATE_SIMPLE_TEST(00_Init, TransformParticles)
 {
-  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/Particles/ezProject", 2).Succeeded());
+  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/Particles/ezProject", 3).Succeeded());
 }
 
 EZ_CREATE_SIMPLE_TEST(00_Init, TransformTypeScript)
 {
-  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/TypeScript/ezProject", 2).Succeeded());
+  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/TypeScript/ezProject", 3).Succeeded());
 }
 
 EZ_CREATE_SIMPLE_TEST(00_Init, TransformEffects)
 {
-  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/Effects/ezProject", 3).Succeeded());
+  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/Effects/ezProject", 4).Succeeded());
 }
 
 EZ_CREATE_SIMPLE_TEST(00_Init, TransformAnimations)
 {
-  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/Animations/ezProject", 3).Succeeded());
+  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/Animations/ezProject", 6).Succeeded());
+}
+
+EZ_CREATE_SIMPLE_TEST(00_Init, TransformStateMachine)
+{
+  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/StateMachine/ezProject", 6).Succeeded());
 }
 
 EZ_CREATE_SIMPLE_TEST(00_Init, TransformPlatformWin)
 {
-  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/PlatformWin/ezProject", 4).Succeeded());
+  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/PlatformWin/ezProject", 5).Succeeded());
+}
+
+EZ_CREATE_SIMPLE_TEST(00_Init, TransformXR)
+{
+  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/XR/ezProject", 5).Succeeded());
 }
 
 #endif

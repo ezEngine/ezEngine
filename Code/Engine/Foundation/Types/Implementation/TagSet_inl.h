@@ -12,7 +12,7 @@ struct ezContainerSubTypeResolver<ezTagSetTemplate<T>>
   typedef const char* Type;
 };
 
-
+// Template specialization to be able to use ezTagSet properties as EZ_SET_MEMBER_PROPERTY.
 template <typename Class>
 class ezMemberSetProperty<Class, ezTagSet, const char*> : public ezTypedSetProperty<typename ezTypeTraits<const char*>::NonConstReferenceType>
 {
@@ -60,18 +60,98 @@ public:
     return m_ConstGetter(static_cast<const Class*>(pInstance)).IsSetByName(*static_cast<const RealType*>(pObject));
   }
 
-  virtual void GetValues(const void* pInstance, ezHybridArray<ezVariant, 16>& out_keys) const override
+  virtual void GetValues(const void* pInstance, ezDynamicArray<ezVariant>& out_keys) const override
   {
     out_keys.Clear();
     for (const auto& value : m_ConstGetter(static_cast<const Class*>(pInstance)))
     {
-      out_keys.PushBack(ezVariant(value->GetTagString()));
+      out_keys.PushBack(ezVariant(value.GetTagString()));
     }
   }
 
 private:
   GetConstContainerFunc m_ConstGetter;
   GetContainerFunc m_Getter;
+};
+
+// Template specialization to be able to use ezTagSet properties as EZ_SET_ACCESSOR_PROPERTY.
+template <typename Class>
+class ezAccessorSetProperty<Class, const char*, const ezTagSet&> : public ezTypedSetProperty<const char*>
+{
+public:
+  typedef const ezTagSet& Container;
+  typedef ezConstCharPtr Type;
+
+  using ContainerType = typename ezTypeTraits<Container>::NonConstReferenceType;
+  using RealType = typename ezTypeTraits<Type>::NonConstReferenceType;
+
+  using InsertFunc = void (Class::*)(Type value);
+  using RemoveFunc = void (Class::*)(Type value);
+  using GetValuesFunc = Container (Class::*)() const;
+
+  ezAccessorSetProperty(const char* szPropertyName, GetValuesFunc getValues, InsertFunc insert, RemoveFunc remove)
+    : ezTypedSetProperty<Type>(szPropertyName)
+  {
+    EZ_ASSERT_DEBUG(getValues != nullptr, "The get values function of an set property cannot be nullptr.");
+
+    m_GetValues = getValues;
+    m_Insert = insert;
+    m_Remove = remove;
+
+    if (m_Insert == nullptr || m_Remove == nullptr)
+      ezAbstractSetProperty::m_Flags.Add(ezPropertyFlags::ReadOnly);
+  }
+
+
+  virtual bool IsEmpty(const void* pInstance) const override { return (static_cast<const Class*>(pInstance)->*m_GetValues)().IsEmpty(); }
+
+  virtual void Clear(void* pInstance) override
+  {
+    EZ_ASSERT_DEBUG(m_Insert != nullptr && m_Remove != nullptr, "The property '{0}' has no remove and insert function, thus it is read-only",
+      ezAbstractProperty::GetPropertyName());
+
+    // We must not cache the container c here as the Remove can make it invalid
+    // e.g. ezArrayPtr by value.
+    while (!IsEmpty(pInstance))
+    {
+      // this should be decltype(auto) c = ...; but MSVC 16 is too dumb for that (MSVC 15 works fine)
+      decltype((static_cast<const Class*>(pInstance)->*m_GetValues)()) c = (static_cast<const Class*>(pInstance)->*m_GetValues)();
+      auto it = cbegin(c);
+      const ezTag& value = *it;
+      Remove(pInstance, value.GetTagString());
+    }
+  }
+
+  virtual void Insert(void* pInstance, const void* pObject) override
+  {
+    EZ_ASSERT_DEBUG(m_Insert != nullptr, "The property '{0}' has no insert function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
+    (static_cast<Class*>(pInstance)->*m_Insert)(*static_cast<const RealType*>(pObject));
+  }
+
+  virtual void Remove(void* pInstance, const void* pObject) override
+  {
+    EZ_ASSERT_DEBUG(m_Remove != nullptr, "The property '{0}' has no setter function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
+    (static_cast<Class*>(pInstance)->*m_Remove)(*static_cast<const RealType*>(pObject));
+  }
+
+  virtual bool Contains(const void* pInstance, const void* pObject) const override
+  {
+    return (static_cast<const Class*>(pInstance)->*m_GetValues)().IsSetByName(*static_cast<const RealType*>(pObject));
+  }
+
+  virtual void GetValues(const void* pInstance, ezDynamicArray<ezVariant>& out_keys) const override
+  {
+    out_keys.Clear();
+    for (const auto& value : (static_cast<const Class*>(pInstance)->*m_GetValues)())
+    {
+      out_keys.PushBack(ezVariant(value.GetTagString()));
+    }
+  }
+
+private:
+  GetValuesFunc m_GetValues;
+  InsertFunc m_Insert;
+  RemoveFunc m_Remove;
 };
 
 
@@ -121,9 +201,9 @@ void ezTagSetTemplate<BlockStorageAllocator>::Iterator::operator++()
 }
 
 template <typename BlockStorageAllocator>
-const ezTag* ezTagSetTemplate<BlockStorageAllocator>::Iterator::operator*() const
+const ezTag& ezTagSetTemplate<BlockStorageAllocator>::Iterator::operator*() const
 {
-  return ezTagRegistry::GetGlobalRegistry().GetTagByIndex(m_uiIndex);
+  return *ezTagRegistry::GetGlobalRegistry().GetTagByIndex(m_uiIndex);
 }
 
 template <typename BlockStorageAllocator>
@@ -156,13 +236,16 @@ void ezTagSetTemplate<BlockStorageAllocator>::Set(const ezTag& Tag)
 {
   EZ_ASSERT_DEV(Tag.IsValid(), "Only valid tags can be set in a tag set!");
 
-  if (!IsTagInAllocatedRange(Tag))
+  if (m_TagBlocks.IsEmpty())
   {
-    const ezUInt32 uiTagBlockStart = GetTagBlockStart();
-    const ezUInt32 uiNewBlockStart = (uiTagBlockStart != ezSmallInvalidIndex) ? ezMath::Min(Tag.m_uiBlockIndex, uiTagBlockStart) : Tag.m_uiBlockIndex;
-    const ezUInt32 uiNewBlockIndex = (uiTagBlockStart != ezSmallInvalidIndex) ? ezMath::Max(Tag.m_uiBlockIndex, uiTagBlockStart) : Tag.m_uiBlockIndex;
+    Reallocate(Tag.m_uiBlockIndex, Tag.m_uiBlockIndex);
+  }
+  else if (IsTagInAllocatedRange(Tag) == false)
+  {
+    const ezUInt32 uiNewBlockStart = ezMath::Min<ezUInt32>(Tag.m_uiBlockIndex, GetTagBlockStart());
+    const ezUInt32 uiNewBlockEnd = ezMath::Max<ezUInt32>(Tag.m_uiBlockIndex, GetTagBlockEnd());
 
-    Reallocate(uiNewBlockStart, uiNewBlockIndex);
+    Reallocate(uiNewBlockStart, uiNewBlockEnd);
   }
 
   ezUInt64& tagBlock = m_TagBlocks[Tag.m_uiBlockIndex - GetTagBlockStart()];
@@ -302,7 +385,7 @@ void ezTagSetTemplate<BlockStorageAllocator>::Reallocate(ezUInt32 uiNewTagBlockS
   const ezUInt16 uiNewBlockArraySize = static_cast<ezUInt16>((uiNewMaxBlockIndex - uiNewTagBlockStart) + 1);
 
   // Early out for non-filled tag sets
-  if (IsEmpty())
+  if (m_TagBlocks.IsEmpty())
   {
     m_TagBlocks.SetCount(uiNewBlockArraySize);
     SetTagBlockStart(static_cast<ezUInt16>(uiNewTagBlockStart));
@@ -379,9 +462,9 @@ void ezTagSetTemplate<BlockStorageAllocator>::Save(ezStreamWriter& stream) const
 
   for (Iterator it = GetIterator(); it.IsValid(); ++it)
   {
-    const ezTag* pTag = *it;
+    const ezTag& tag = *it;
 
-    stream << pTag->m_TagString;
+    stream << tag.m_sTagString;
   }
 }
 

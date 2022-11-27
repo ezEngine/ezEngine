@@ -14,7 +14,7 @@ EZ_BEGIN_COMPONENT_TYPE(RtsUnitComponent, 2, ezComponentMode::Dynamic)
   {
     EZ_MEMBER_PROPERTY("MaxHealth", m_uiMaxHealth)->AddAttributes(new ezDefaultValueAttribute(100)),
     EZ_MEMBER_PROPERTY("CurHealth", m_uiCurHealth),
-    EZ_ACCESSOR_PROPERTY("OnDestroyedPrefab", GetOnDestroyedPrefab, SetOnDestroyedPrefab)->AddAttributes(new ezAssetBrowserAttribute("Prefab")),
+    EZ_ACCESSOR_PROPERTY("OnDestroyedPrefab", GetOnDestroyedPrefab, SetOnDestroyedPrefab)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Prefab")),
   }
   EZ_END_PROPERTIES;
 
@@ -98,7 +98,7 @@ void RtsUnitComponent::OnMsgApplyDamage(RtsMsgApplyDamage& msg)
   RtsMsgUnitHealthStatus msg2;
   msg2.m_uiCurHealth = m_uiCurHealth;
   msg2.m_uiMaxHealth = m_uiMaxHealth;
-  msg2.m_iDifference = (m_uiCurHealth - lastHealth);
+  msg2.m_iDifference = static_cast<ezInt16>(m_uiCurHealth - lastHealth);
 
   // theoretically the sub-systems could give us a health boost (or additional damage) here
   GetOwner()->SendMessageRecursive(msg2);

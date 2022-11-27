@@ -45,13 +45,13 @@ public:
 
   /// \brief Adds a stream with the given name to the stream group. Adding a stream two times with the same name will return nullptr for the second
   /// attempt to signal an error.
-  ezProcessingStream* AddStream(const char* szName, ezProcessingStream::DataType Type);
+  ezProcessingStream* AddStream(ezStringView sName, ezProcessingStream::DataType Type);
 
   /// \brief Removes the stream with the given name, if it exists.
-  void RemoveStreamByName(const char* szName);
+  void RemoveStreamByName(ezStringView sName);
 
   /// \brief Returns the stream by it's name, returns nullptr if not existent. More efficient since direct use of ezHashedString.
-  ezProcessingStream* GetStreamByName(const char* szName) const;
+  ezProcessingStream* GetStreamByName(ezStringView sName) const;
 
   /// \brief Resizes all streams to contain storage for uiNumElements. Any pending remove and spawn operations will be reset!
   void SetSize(ezUInt64 uiNumElements);

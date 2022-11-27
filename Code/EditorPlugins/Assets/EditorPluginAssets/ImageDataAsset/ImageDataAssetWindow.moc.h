@@ -1,10 +1,14 @@
 #pragma once
 
+#include <EditorPluginAssets/EditorPluginAssetsDLL.h>
+
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <Foundation/Communication/Event.h>
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 #include <GuiFoundation/Widgets/ImageWidget.moc.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
+
+#include <QPointer>
 
 class ezImageDataAssetDocument;
 struct ezImageDataAssetEvent;
@@ -20,7 +24,7 @@ public:
 
 private:
   void ImageDataAssetEventHandler(const ezImageDataAssetEvent& e);
-  ezEvent<const ezImageDataAssetEvent&>::Unsubscriber m_eventUnsubscriper;
+  ezEvent<const ezImageDataAssetEvent&>::Unsubscriber m_EventUnsubscriper;
 
   void UpdatePreview();
 

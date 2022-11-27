@@ -30,6 +30,7 @@ ezDecalAssetDocumentManager::ezDecalAssetDocumentManager()
   m_DocTypeDesc.m_sIcon = ":/AssetIcons/Decal.png";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezDecalAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
+  m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Decal");
 
   m_DocTypeDesc.m_sResourceFileExtension = "ezDecalStub";
   m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::SupportsThumbnail;
@@ -137,7 +138,7 @@ ezStatus ezDecalAssetDocumentManager::GenerateDecalTexture(const ezPlatformProfi
       if (asset.m_pAssetInfo->GetManager() != this)
         continue;
 
-      EZ_LOG_BLOCK("Decal", asset.m_pAssetInfo->m_sDataDirRelativePath.GetData());
+      EZ_LOG_BLOCK("Decal", asset.m_pAssetInfo->m_sDataDirParentRelativePath);
 
       // does the document already exist and is it open ?
       bool bWasOpen = false;
@@ -148,7 +149,7 @@ ezStatus ezDecalAssetDocumentManager::GenerateDecalTexture(const ezPlatformProfi
         pDoc = pEditorApp->OpenDocument(asset.m_pAssetInfo->m_sAbsolutePath, ezDocumentFlags::None);
 
       if (pDoc == nullptr)
-        return ezStatus(ezFmt("Could not open asset document '{0}'", asset.m_pAssetInfo->m_sDataDirRelativePath));
+        return ezStatus(ezFmt("Could not open asset document '{0}'", asset.m_pAssetInfo->m_sDataDirParentRelativePath));
 
       ezDecalAssetDocument* pDecalAsset = static_cast<ezDecalAssetDocument*>(pDoc);
 
@@ -329,7 +330,7 @@ ezStatus ezDecalAssetDocumentManager::RunTexConv(const char* szTargetFile, const
   arguments << "-atlasDesc";
   arguments << QString(szInputFile);
 
-  EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("TexConv.exe", arguments, 180, ezLog::GetThreadLocalLogSystem()));
+  EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("TexConv", arguments, 180, ezLog::GetThreadLocalLogSystem()));
 
   return ezStatus(EZ_SUCCESS);
 }

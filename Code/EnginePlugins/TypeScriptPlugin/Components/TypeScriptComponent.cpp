@@ -20,7 +20,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezTypeScriptComponent, 4, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Script", GetTypeScriptComponentFile, SetTypeScriptComponentFile)->AddAttributes(new ezAssetBrowserAttribute("TypeScript")),
+    EZ_ACCESSOR_PROPERTY("Script", GetTypeScriptComponentFile, SetTypeScriptComponentFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Code_TypeScript")),
     EZ_MAP_ACCESSOR_PROPERTY("Parameters", GetParameters, GetParameter, SetParameter, RemoveParameter)->AddAttributes(new ezExposedParametersAttribute("Script")),
   }
   EZ_END_PROPERTIES;
@@ -50,7 +50,7 @@ void ezTypeScriptComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_TypeScriptComponentGuid;
 
   // version 3
-  ezUInt16 uiNumParams = m_Parameters.GetCount();
+  ezUInt16 uiNumParams = static_cast<ezUInt16>(m_Parameters.GetCount());
   s << uiNumParams;
 
   for (ezUInt32 p = 0; p < uiNumParams; ++p)
@@ -89,6 +89,12 @@ void ezTypeScriptComponent::DeserializeComponent(ezWorldReader& stream)
 
       m_Parameters.Insert(key, value);
     }
+  }
+
+  // reset all user flags
+  for (ezUInt32 i = 0; i < 8; ++i)
+  {
+    SetUserFlag(i, false);
   }
 }
 
@@ -357,7 +363,13 @@ void ezTypeScriptComponent::OnMsgTypeScriptMsgProxy(ezMsgTypeScriptMsgProxy& msg
 
 const ezRangeView<const char*, ezUInt32> ezTypeScriptComponent::GetParameters() const
 {
-  return ezRangeView<const char*, ezUInt32>([]() -> ezUInt32 { return 0; }, [this]() -> ezUInt32 { return m_Parameters.GetCount(); }, [](ezUInt32& it) { ++it; }, [this](const ezUInt32& it) -> const char* { return m_Parameters.GetKey(it).GetString().GetData(); });
+  return ezRangeView<const char*, ezUInt32>([]() -> ezUInt32
+    { return 0; },
+    [this]() -> ezUInt32
+    { return m_Parameters.GetCount(); },
+    [](ezUInt32& it)
+    { ++it; },
+    [this](const ezUInt32& it) -> const char* { return m_Parameters.GetKey(it).GetString().GetData(); });
 }
 
 void ezTypeScriptComponent::SetParameter(const char* szKey, const ezVariant& value)

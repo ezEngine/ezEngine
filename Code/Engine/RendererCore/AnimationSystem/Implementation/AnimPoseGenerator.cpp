@@ -265,7 +265,7 @@ void ezAnimPoseGenerator::ExecuteCmd(ezAnimPoseGeneratorCommandSampleTrack& cmd,
 
   if (pSampler == nullptr)
   {
-    pSampler = EZ_DEFAULT_NEW(ozz::animation::SamplingCache);
+    pSampler = EZ_DEFAULT_NEW(ozz::animation::SamplingJob::Context);
   }
 
   if (pSampler->max_tracks() != ozzAnim.num_tracks())
@@ -275,7 +275,7 @@ void ezAnimPoseGenerator::ExecuteCmd(ezAnimPoseGeneratorCommandSampleTrack& cmd,
 
   ozz::animation::SamplingJob job;
   job.animation = &ozzAnim;
-  job.cache = pSampler;
+  job.context = pSampler;
   job.ratio = cmd.m_fNormalizedSamplePos;
   job.output = ozz::span<ozz::math::SoaTransform>(transforms.GetPtr(), transforms.GetCount());
 
@@ -346,7 +346,7 @@ void ezAnimPoseGenerator::ExecuteCmd(ezAnimPoseGeneratorCommandCombinePoses& cmd
   job.threshold = 1.0f;
   job.layers = ozz::span<const ozz::animation::BlendingJob::Layer>(begin(bl), end(bl));
   job.additive_layers = ozz::span<const ozz::animation::BlendingJob::Layer>(begin(blAdd), end(blAdd));
-  job.bind_pose = m_pSkeleton->GetDescriptor().m_Skeleton.GetOzzSkeleton().joint_bind_poses();
+  job.rest_pose = m_pSkeleton->GetDescriptor().m_Skeleton.GetOzzSkeleton().joint_rest_poses();
   job.output = ozz::span<ozz::math::SoaTransform>(transforms.GetPtr(), transforms.GetCount());
   EZ_ASSERT_DEBUG(job.Validate(), "");
   job.Run();

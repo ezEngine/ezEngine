@@ -62,7 +62,7 @@ private:
   ezAllocatorId m_Id;
   ezBitflags<ezMemoryTrackingFlags> m_TrackingFlags;
 
-  ezMutex m_mutex;
+  ezMutex m_Mutex;
   ezThreadID m_ThreadID;
 
   struct SuperBlock
@@ -80,8 +80,8 @@ private:
     ezUInt32 m_uiUsedBlocks;
   };
 
-  ezDynamicArray<SuperBlock> m_superBlocks;
-  ezDynamicArray<ezUInt32> m_freeBlocks;
+  ezDynamicArray<SuperBlock> m_SuperBlocks;
+  ezDynamicArray<ezUInt32> m_FreeBlocks;
 };
 
 #include <Foundation/Memory/Implementation/LargeBlockAllocator_inl.h>

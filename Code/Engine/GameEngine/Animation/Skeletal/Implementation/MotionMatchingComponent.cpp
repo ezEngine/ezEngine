@@ -14,7 +14,7 @@
 //{
 //  EZ_BEGIN_PROPERTIES
 //  {
-//    EZ_ARRAY_ACCESSOR_PROPERTY("Animations", Animations_GetCount, Animations_GetValue, Animations_SetValue, Animations_Insert, Animations_Remove)->AddAttributes(new ezAssetBrowserAttribute("Animation Clip")),
+//    EZ_ARRAY_ACCESSOR_PROPERTY("Animations", Animations_GetCount, Animations_GetValue, Animations_SetValue, Animations_Insert, Animations_Remove)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Keyframe_Animation")),
 //  }
 //  EZ_END_PROPERTIES;
 //

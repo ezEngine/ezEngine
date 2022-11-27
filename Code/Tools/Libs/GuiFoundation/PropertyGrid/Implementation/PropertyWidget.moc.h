@@ -1,12 +1,14 @@
 #pragma once
 
+#include <GuiFoundation/GuiFoundationDLL.h>
+
 #include <Foundation/Communication/Event.h>
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Types/Variant.h>
-#include <GuiFoundation/GuiFoundationDLL.h>
 #include <GuiFoundation/PropertyGrid/PropertyBaseWidget.moc.h>
 
 #include <QFrame>
+#include <QLabel>
 
 class QCheckBox;
 class QDoubleSpinBox;
@@ -22,6 +24,7 @@ class QToolButton;
 class QMenu;
 class ezDocumentObject;
 class ezQtDoubleSpinBox;
+class QSlider;
 
 /// *** CHECKBOX ***
 
@@ -122,9 +125,11 @@ class EZ_GUIFOUNDATION_DLL ezQtPropertyEditorIntSpinboxWidget : public ezQtStand
 
 public:
   ezQtPropertyEditorIntSpinboxWidget(ezInt8 iNumComponents, ezInt32 iMinValue, ezInt32 iMaxValue);
+  ~ezQtPropertyEditorIntSpinboxWidget();
 
 private Q_SLOTS:
   void SlotValueChanged();
+  void SlotSliderValueChanged(int value);
   void on_EditingFinished_triggered();
 
 protected:
@@ -135,6 +140,7 @@ protected:
   ezInt8 m_iNumComponents;
   QHBoxLayout* m_pLayout;
   ezQtDoubleSpinBox* m_pWidget[4];
+  QSlider* m_pSlider = nullptr;
 };
 
 /// *** QUATERNION ***
@@ -202,7 +208,7 @@ protected:
   virtual void mouseReleaseEvent(QMouseEvent* event) override;
 
 private:
-  QPalette m_pal;
+  QPalette m_Pal;
 };
 
 class EZ_GUIFOUNDATION_DLL ezQtPropertyEditorColorWidget : public ezQtStandardPropertyWidget
@@ -279,3 +285,42 @@ protected:
   ezInt64 m_iCurrentBitflags;
 };
 
+
+/// *** CURVE1D ***
+
+class EZ_GUIFOUNDATION_DLL ezQtCurve1DButtonWidget : public QLabel
+{
+  Q_OBJECT
+
+public:
+  explicit ezQtCurve1DButtonWidget(QWidget* parent);
+
+  void UpdatePreview(ezObjectAccessorBase* pObjectAccessor, const ezDocumentObject* pCurveObject, QColor color, double fLowerExtents, bool bLowerFixed, double fUpperExtents, bool bUpperFixed, double fDefaultValue, double fLowerRange, double fUpperRange);
+
+Q_SIGNALS:
+  void clicked();
+
+protected:
+  virtual void mouseReleaseEvent(QMouseEvent* event) override;
+};
+
+class EZ_GUIFOUNDATION_DLL ezQtPropertyEditorCurve1DWidget : public ezQtPropertyWidget
+{
+  Q_OBJECT
+
+public:
+  ezQtPropertyEditorCurve1DWidget();
+
+private Q_SLOTS:
+  void on_Button_triggered();
+
+protected:
+  virtual void SetSelection(const ezHybridArray<ezPropertySelection, 8>& items) override;
+  virtual void OnInit() override;
+  virtual void DoPrepareToDie() override;
+  void UpdatePreview();
+
+protected:
+  QHBoxLayout* m_pLayout = nullptr;
+  ezQtCurve1DButtonWidget* m_pButton = nullptr;
+};

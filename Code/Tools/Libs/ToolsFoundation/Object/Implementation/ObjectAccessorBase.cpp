@@ -95,7 +95,7 @@ ezStatus ezObjectAccessorBase::MoveObject(
 }
 
 
-ezStatus ezObjectAccessorBase::GetKeys(const ezDocumentObject* pObject, const char* szProp, ezHybridArray<ezVariant, 16>& out_keys)
+ezStatus ezObjectAccessorBase::GetKeys(const ezDocumentObject* pObject, const char* szProp, ezDynamicArray<ezVariant>& out_keys)
 {
   const ezAbstractProperty* pProp = pObject->GetType()->FindPropertyByName(szProp);
   if (!pProp)
@@ -104,12 +104,42 @@ ezStatus ezObjectAccessorBase::GetKeys(const ezDocumentObject* pObject, const ch
 }
 
 
-ezStatus ezObjectAccessorBase::GetValues(const ezDocumentObject* pObject, const char* szProp, ezHybridArray<ezVariant, 16>& out_values)
+ezStatus ezObjectAccessorBase::GetValues(const ezDocumentObject* pObject, const char* szProp, ezDynamicArray<ezVariant>& out_values)
 {
   const ezAbstractProperty* pProp = pObject->GetType()->FindPropertyByName(szProp);
   if (!pProp)
     return ezStatus(ezFmt("The property '{0}' does not exist in type '{1}'.", szProp, pObject->GetType()->GetTypeName()));
   return GetValues(pObject, pProp, out_values);
+}
+
+const ezDocumentObject* ezObjectAccessorBase::GetChildObject(const ezDocumentObject* pObject, const char* szProp, ezVariant index)
+{
+  ezVariant value;
+  if (GetValue(pObject, szProp, value, index).Succeeded() && value.IsA<ezUuid>())
+  {
+    return GetObject(value.Get<ezUuid>());
+  }
+  return nullptr;
+}
+
+ezStatus ezObjectAccessorBase::Clear(const ezDocumentObject* pObject, const char* szProp)
+{
+  const ezAbstractProperty* pProp = pObject->GetType()->FindPropertyByName(szProp);
+  if (!pProp)
+    return ezStatus(ezFmt("The property '{0}' does not exist in type '{1}'.", szProp, pObject->GetType()->GetTypeName()));
+
+  ezHybridArray<ezVariant, 8> keys;
+  ezStatus res = GetKeys(pObject, pProp, keys);
+  if (res.Failed())
+    return res;
+
+  for (ezInt32 i = keys.GetCount() - 1; i >= 0; --i)
+  {
+    res = RemoveValue(pObject, pProp, keys[i]);
+    if (res.Failed())
+      return res;
+  }
+  return ezStatus(EZ_SUCCESS);
 }
 
 ezObjectAccessorBase::ezObjectAccessorBase(const ezDocumentObjectManager* pManager)

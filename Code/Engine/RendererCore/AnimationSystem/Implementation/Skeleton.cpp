@@ -70,11 +70,11 @@ void ezSkeleton::Save(ezStreamWriter& stream) const
     stream << m_Joints[i].m_uiParentIndex;
     stream << m_Joints[i].m_BindPoseLocal;
 
-    stream << m_Joints[i].m_LimitRotation;
-    stream << m_Joints[i].m_HalfSwingLimitX;
+    stream << m_Joints[i].m_qLocalJointOrientation;
+    stream << m_Joints[i].m_HalfSwingLimitZ;
     stream << m_Joints[i].m_HalfSwingLimitY;
-    stream << m_Joints[i].m_TwistLimitLow;
-    stream << m_Joints[i].m_TwistLimitHigh;
+    stream << m_Joints[i].m_TwistLimitHalfAngle;
+    stream << m_Joints[i].m_TwistLimitCenterAngle;
   }
 
   stream << m_BoneDirection;
@@ -103,11 +103,11 @@ void ezSkeleton::Load(ezStreamReader& stream)
 
     if (version >= 5)
     {
-      stream >> m_Joints[i].m_LimitRotation;
-      stream >> m_Joints[i].m_HalfSwingLimitX;
+      stream >> m_Joints[i].m_qLocalJointOrientation;
+      stream >> m_Joints[i].m_HalfSwingLimitZ;
       stream >> m_Joints[i].m_HalfSwingLimitY;
-      stream >> m_Joints[i].m_TwistLimitLow;
-      stream >> m_Joints[i].m_TwistLimitHigh;
+      stream >> m_Joints[i].m_TwistLimitHalfAngle;
+      stream >> m_Joints[i].m_TwistLimitCenterAngle;
     }
   }
 
@@ -137,7 +137,7 @@ static void BuildRawOzzSkeleton(const ezSkeleton& skeleton, ezUInt16 uiExpectedP
 {
   ezHybridArray<ezUInt16, 6> children;
 
-  for (ezUInt32 i = 0; i < skeleton.GetJointCount(); ++i)
+  for (ezUInt16 i = 0; i < skeleton.GetJointCount(); ++i)
   {
     if (skeleton.GetJointByIndex(i).GetParentIndex() == uiExpectedParent)
     {
@@ -147,7 +147,7 @@ static void BuildRawOzzSkeleton(const ezSkeleton& skeleton, ezUInt16 uiExpectedP
 
   dstBones.resize((size_t)children.GetCount());
 
-  for (ezUInt32 i = 0; i < children.GetCount(); ++i)
+  for (ezUInt16 i = 0; i < children.GetCount(); ++i)
   {
     const auto& srcJoint = skeleton.GetJointByIndex(children[i]);
     const auto& srcTransform = srcJoint.GetBindPoseLocalTransform();
@@ -175,15 +175,26 @@ const ozz::animation::Skeleton& ezSkeleton::GetOzzSkeleton() const
   if (m_pOzzSkeleton)
     return *m_pOzzSkeleton.Borrow();
 
-  ozz::animation::offline::RawSkeleton rawSkeleton;
-  BuildRawOzzSkeleton(*this, ezInvalidJointIndex, rawSkeleton.roots);
+  // caching the skeleton isn't thread-safe
+  static ezMutex cacheSkeletonMutex;
+  EZ_LOCK(cacheSkeletonMutex);
 
-  ozz::animation::offline::SkeletonBuilder skeletonBuilder;
-  const auto pOzzSkeleton = skeletonBuilder(rawSkeleton);
+  // skip this, if the skeleton has been created in the mean-time
+  if (m_pOzzSkeleton == nullptr)
+  {
+    ozz::animation::offline::RawSkeleton rawSkeleton;
+    BuildRawOzzSkeleton(*this, ezInvalidJointIndex, rawSkeleton.roots);
 
-  m_pOzzSkeleton = EZ_DEFAULT_NEW(ozz::animation::Skeleton);
+    ozz::animation::offline::SkeletonBuilder skeletonBuilder;
+    const auto pOzzSkeleton = skeletonBuilder(rawSkeleton);
 
-  ezOzzUtils::CopySkeleton(m_pOzzSkeleton.Borrow(), pOzzSkeleton.get());
+    auto ozzSkeleton = EZ_DEFAULT_NEW(ozz::animation::Skeleton);
+
+    ezOzzUtils::CopySkeleton(ozzSkeleton, pOzzSkeleton.get());
+
+    // since the pointer is read outside the mutex, only assign it, once it is fully ready for use
+    m_pOzzSkeleton = ozzSkeleton;
+  }
 
   return *m_pOzzSkeleton.Borrow();
 }
@@ -193,5 +204,14 @@ ezUInt64 ezSkeleton::GetHeapMemoryUsage() const
   return m_Joints.GetHeapMemoryUsage(); // TODO: + ozz skeleton
 }
 
+ezAngle ezSkeletonJoint::GetTwistLimitLow() const
+{
+  return ezMath::Max(ezAngle::Degree(-179), m_TwistLimitCenterAngle - m_TwistLimitHalfAngle);
+}
+
+ezAngle ezSkeletonJoint::GetTwistLimitHigh() const
+{
+  return ezMath::Min(ezAngle::Degree(179), m_TwistLimitCenterAngle + m_TwistLimitHalfAngle);
+}
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_Implementation_Skeleton);

@@ -16,6 +16,7 @@ ezColorGradientAssetDocumentManager::ezColorGradientAssetDocumentManager()
   m_DocTypeDesc.m_sIcon = ":/AssetIcons/ColorGradient.png";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezColorGradientAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
+  m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Data_Gradient");
 
   m_DocTypeDesc.m_sResourceFileExtension = "ezColorGradient";
   m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoTransformOnSave | ezAssetDocumentFlags::SupportsThumbnail;

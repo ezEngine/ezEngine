@@ -13,13 +13,14 @@ ezTextureCubeAssetDocumentManager::ezTextureCubeAssetDocumentManager()
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezTextureCubeAssetDocumentManager::OnDocumentManagerEvent, this));
 
   // additional whitelist for non-asset files where an asset may be selected
-  ezAssetFileExtensionWhitelist::AddAssetFileExtension("Texture Cube", "dds");
+  ezAssetFileExtensionWhitelist::AddAssetFileExtension("CompatibleAsset_Texture_Cube", "dds");
 
   m_DocTypeDesc.m_sDocumentTypeName = "Texture Cube";
   m_DocTypeDesc.m_sFileExtension = "ezTextureCubeAsset";
   m_DocTypeDesc.m_sIcon = ":/AssetIcons/Texture_Cube.png";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezTextureCubeAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
+  m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Texture_Cube");
 
   m_DocTypeDesc.m_sResourceFileExtension = "ezTextureCube";
   m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoThumbnailOnTransform;

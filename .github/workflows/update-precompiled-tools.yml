@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       push-to-dev:
-        description: 'Push to repo'
+        description: 'Submit to Submodule'
         required: true
         default: 'true'
       full-binaries-artifact:
@@ -13,10 +13,6 @@ on:
         default: 'false'
       new-binaries-artifact:
         description: 'Create new binaries artifact'
-        required: true
-        default: 'false'
-      test-build:
-        description: 'Minimal build for testing'
         required: true
         default: 'false'
 
@@ -36,36 +32,13 @@ jobs:
 
       - name: Run CMake
         run: |
-          cmake.exe -S repo -B build -G "Visual Studio 16 2019" -A x64 -DCMAKE_SYSTEM_VERSION:STRING="10.0.18362.0" -DEZ_ENABLE_QT_SUPPORT:BOOL=ON -DEZ_BUILD_PHYSX:BOOL=OFF -DEZ_BUILD_SAMPLES:BOOL=OFF -DEZ_BUILD_UNITTESTS:BOOL=OFF -DEZ_BUILD_KRAUT:BOOL=OFF -DEZ_BUILD_RMLUI:BOOL=OFF -DEZ_BUILD_FMOD:BOOL=OFF -DEZ_BUILD_EMBREE:BOOL=OFF -DEZ_BUILD_OPENXR:BOOL=OFF -DEZ_SOLUTION_NAME:string="solution"
+          cmake.exe -S repo -B build -G "Visual Studio 16 2019" -A x64 -DCMAKE_SYSTEM_VERSION:STRING="10.0.18362.0" -DEZ_ENABLE_QT_SUPPORT:BOOL=ON -DEZ_BUILD_FILTER:STRING="PrecompiledTools" -DEZ_3RDPARTY_LUA_SUPPORT:BOOL=OFF -DEZ_3RDPARTY_DUKTAPE_SUPPORT:BOOL=OFF -DEZ_3RDPARTY_IMGUI_SUPPORT:BOOL=OFF -DEZ_SOLUTION_NAME:string="solution"
 
       # These commands should NOT use 'rebuild', as that wastes a lot of time
       # But MSVC on GitHub is currently broken and doesn't build without it at all
 
-      - name: Build Way Too Much
-        if: github.event.inputs.test-build == 'false'
+      - name: Build Projects
         run:  msbuild build/solution.sln /p:Configuration=Shipping
-
-      #- name: Build ShaderCompiler
-      #  run:  msbuild build/solution.sln /p:Configuration=Shipping /target:Tools\ShaderCompiler:rebuild
-#
-      - name: Build ArchiveTool
-        if: github.event.inputs.test-build == 'true'
-        run:  msbuild build/solution.sln /p:Configuration=Shipping /target:Tools\ArchiveTool:rebuild
-
-      #- name: Build Fileserve
-      #  run:  msbuild build/solution.sln /p:Configuration=Shipping /target:Tools\Fileserve:rebuild
-
-      #- name: Build GdbProxy
-      #  run:  msbuild build/solution.sln /p:Configuration=Shipping /target:Tools\GdbProxy:rebuild
-#
-      #- name: Build Inspector
-      #  run:  msbuild build/solution.sln /p:Configuration=Shipping /target:Tools\Inspector:rebuild
-#
-      #- name: Build MiniDumpTool
-      #  run:  msbuild build/solution.sln /p:Configuration=Shipping /target:Tools\MiniDumpTool:rebuild
-#
-      #- name: Build TexConv
-      #  run:  msbuild build/solution.sln /p:Configuration=Shipping /target:Tools\TexConv:rebuild
 
       - name: Artifact - Full Binaries
         if: github.event.inputs.full-binaries-artifact == 'true'
@@ -96,7 +69,7 @@ jobs:
           path: _tools
           retention-days: 3
 
-      - name: Commit
+      - name: Commit to Submodule
         run: |
           cd _tools
           git config --global user.email "ezEngineProject@gmail.com"
@@ -104,7 +77,7 @@ jobs:
           git add .
           git commit -m "Updated Precompiled Tools"
 
-      - name: Push changes
+      - name: Push to Submodule
         if: github.event.inputs.push-to-dev == 'true'
         uses: ad-m/github-push-action@master
         with:

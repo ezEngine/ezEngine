@@ -81,7 +81,12 @@ EZ_ALWAYS_INLINE void ezSimdVec4f::Load<2>(const float* pFloat)
 template <>
 EZ_ALWAYS_INLINE void ezSimdVec4f::Load<3>(const float* pFloat)
 {
+// There is a compiler bug in GCC where GCC will incorrectly optimize the alternative faster implementation.
+#if EZ_ENABLED(EZ_COMPILER_GCC)
+  m_v = _mm_set_ps(0.0f, pFloat[2], pFloat[1], pFloat[0]);
+#else
   m_v = _mm_movelh_ps(_mm_castpd_ps(_mm_load_sd(reinterpret_cast<const double*>(pFloat))), _mm_load_ss(pFloat + 2));
+#endif
 }
 
 template <>
@@ -211,8 +216,8 @@ inline bool ezSimdVec4f::IsNaN() const
 {
   // NAN -> (exponent = all 1, mantissa = non-zero)
 
-  const ezUInt32 EZ_ALIGN_16(s_exponentMask[4]) = {0x7f800000, 0x7f800000, 0x7f800000, 0x7f800000};
-  const ezUInt32 EZ_ALIGN_16(s_mantissaMask[4]) = {0x7FFFFF, 0x7FFFFF, 0x7FFFFF, 0x7FFFFF};
+  alignas(16) const ezUInt32 s_exponentMask[4] = {0x7f800000, 0x7f800000, 0x7f800000, 0x7f800000};
+  alignas(16) const ezUInt32 s_mantissaMask[4] = {0x7FFFFF, 0x7FFFFF, 0x7FFFFF, 0x7FFFFF};
 
   __m128 exponentMask = _mm_load_ps(reinterpret_cast<const float*>(s_exponentMask));
   __m128 mantissaMask = _mm_load_ps(reinterpret_cast<const float*>(s_mantissaMask));
@@ -231,7 +236,7 @@ EZ_ALWAYS_INLINE bool ezSimdVec4f::IsValid() const
   // NAN -> (exponent = all 1, mantissa = non-zero)
   // INF -> (exponent = all 1, mantissa = zero)
 
-  const ezUInt32 EZ_ALIGN_16(s_exponentMask[4]) = {0x7f800000, 0x7f800000, 0x7f800000, 0x7f800000};
+  alignas(16) const ezUInt32 s_exponentMask[4] = {0x7f800000, 0x7f800000, 0x7f800000, 0x7f800000};
 
   __m128 exponentMask = _mm_load_ps(reinterpret_cast<const float*>(s_exponentMask));
 

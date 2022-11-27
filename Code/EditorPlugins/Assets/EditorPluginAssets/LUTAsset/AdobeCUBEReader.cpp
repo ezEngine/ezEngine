@@ -94,7 +94,7 @@ ezStatus ezAdobeCUBEReader::ParseFile(ezStreamReader& Stream, ezLogInterface* pL
     }
     else if (line[0]->m_DataView == "DOMAIN_MIN")
     {
-      if (!::GetVec3FromLine(line, 2, m_DomainMin))
+      if (!::GetVec3FromLine(line, 2, m_vDomainMin))
       {
         return ezStatus(ezFmt("LUT file has invalid DOMAIN_MIN line."));
       }
@@ -103,7 +103,7 @@ ezStatus ezAdobeCUBEReader::ParseFile(ezStreamReader& Stream, ezLogInterface* pL
     }
     else if (line[0]->m_DataView == "DOMAIN_MAX")
     {
-      if (!::GetVec3FromLine(line, 2, m_DomainMax))
+      if (!::GetVec3FromLine(line, 2, m_vDomainMax))
       {
         return ezStatus(ezFmt("LUT file has invalid DOMAIN_MAX line."));
       }
@@ -164,7 +164,7 @@ ezStatus ezAdobeCUBEReader::ParseFile(ezStreamReader& Stream, ezLogInterface* pL
     }
   }
 
-  if (m_DomainMin.x > m_DomainMax.x || m_DomainMin.y > m_DomainMax.y || m_DomainMin.z > m_DomainMax.z)
+  if (m_vDomainMin.x > m_vDomainMax.x || m_vDomainMin.y > m_vDomainMax.y || m_vDomainMin.z > m_vDomainMax.z)
   {
     return ezStatus("LUT file has invalid domain min/max values.");
   }
@@ -180,12 +180,12 @@ ezStatus ezAdobeCUBEReader::ParseFile(ezStreamReader& Stream, ezLogInterface* pL
 
 ezVec3 ezAdobeCUBEReader::GetDomainMin() const
 {
-  return m_DomainMin;
+  return m_vDomainMin;
 }
 
 ezVec3 ezAdobeCUBEReader::GetDomainMax() const
 {
-  return m_DomainMax;
+  return m_vDomainMax;
 }
 
 ezUInt32 ezAdobeCUBEReader::GetLUTSize() const

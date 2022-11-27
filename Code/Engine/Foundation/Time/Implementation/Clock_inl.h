@@ -56,7 +56,7 @@ inline ezTime ezClock::GetTimeDiff() const
 
 inline double ezClock::GetSpeed() const
 {
-  return m_Speed;
+  return m_fSpeed;
 }
 
 inline void ezClock::SetMinimumTimeStep(ezTime tMin)
@@ -94,5 +94,5 @@ inline void ezClock::SetSpeed(double fFactor)
 {
   EZ_ASSERT_DEV(fFactor >= 0.0, "Time cannot run backwards.");
 
-  m_Speed = fFactor;
+  m_fSpeed = fFactor;
 }

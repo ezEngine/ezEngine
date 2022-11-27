@@ -30,11 +30,11 @@ ezPipeChannel_win::ezPipeChannel_win(const char* szAddress, Mode::Enum mode)
 
 ezPipeChannel_win::~ezPipeChannel_win()
 {
-  if (m_PipeHandle != INVALID_HANDLE_VALUE)
+  if (m_hPipeHandle != INVALID_HANDLE_VALUE)
   {
     Disconnect();
   }
-  while (m_Connected)
+  while (m_bConnected)
   {
     ezThreadUtils::Sleep(ezTime::Milliseconds(10));
   }
@@ -53,16 +53,16 @@ bool ezPipeChannel_win::CreatePipe(const char* szAddress)
     attributes.lpSecurityDescriptor = NULL;
     attributes.bInheritHandle = FALSE;
 
-    m_PipeHandle = CreateNamedPipeW(ezStringWChar(sPipename).GetData(), PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED | FILE_FLAG_FIRST_PIPE_INSTANCE,
+    m_hPipeHandle = CreateNamedPipeW(ezStringWChar(sPipename).GetData(), PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED | FILE_FLAG_FIRST_PIPE_INSTANCE,
       PIPE_TYPE_BYTE | PIPE_READMODE_BYTE, 1, BUFFER_SIZE, BUFFER_SIZE, 5000, &attributes);
   }
   else
   {
-    m_PipeHandle = CreateFileW(ezStringWChar(sPipename).GetData(), GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING,
+    m_hPipeHandle = CreateFileW(ezStringWChar(sPipename).GetData(), GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING,
       SECURITY_SQOS_PRESENT | SECURITY_IDENTIFICATION | FILE_FLAG_OVERLAPPED, NULL);
   }
 
-  if (m_PipeHandle == INVALID_HANDLE_VALUE)
+  if (m_hPipeHandle == INVALID_HANDLE_VALUE)
   {
     ezLog::Error("Could not create named pipe: {0}", ezArgErrorCode(GetLastError()));
     return false;
@@ -73,21 +73,21 @@ bool ezPipeChannel_win::CreatePipe(const char* szAddress)
 
 void ezPipeChannel_win::AddToMessageLoop(ezMessageLoop* pMsgLoop)
 {
-  if (m_PipeHandle != INVALID_HANDLE_VALUE)
+  if (m_hPipeHandle != INVALID_HANDLE_VALUE)
   {
     ezMessageLoop_win* pMsgLoopWin = static_cast<ezMessageLoop_win*>(pMsgLoop);
 
     ULONG_PTR key = reinterpret_cast<ULONG_PTR>(this);
-    HANDLE port = CreateIoCompletionPort(m_PipeHandle, pMsgLoopWin->GetPort(), key, 1);
+    HANDLE port = CreateIoCompletionPort(m_hPipeHandle, pMsgLoopWin->GetPort(), key, 1);
     EZ_ASSERT_DEBUG(pMsgLoopWin->GetPort() == port, "Failed to CreateIoCompletionPort: {0}", ezArgErrorCode(GetLastError()));
   }
 }
 
 void ezPipeChannel_win::InternalConnect()
 {
-  if (m_PipeHandle == INVALID_HANDLE_VALUE)
+  if (m_hPipeHandle == INVALID_HANDLE_VALUE)
     return;
-  if (m_Connected)
+  if (m_bConnected)
     return;
 #  if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   if (m_ThreadId == 0)
@@ -100,7 +100,7 @@ void ezPipeChannel_win::InternalConnect()
   }
   else
   {
-    m_Connected = true;
+    m_bConnected = true;
   }
 
   if (!m_InputState.IsPending)
@@ -108,12 +108,12 @@ void ezPipeChannel_win::InternalConnect()
     OnIOCompleted(&m_InputState.Context, 0, 0);
   }
 
-  if (m_Connected)
+  if (m_bConnected)
   {
     ProcessOutgoingMessages(0);
+    m_Events.Broadcast(ezIpcChannelEvent(m_Mode == Mode::Client ? ezIpcChannelEvent::ConnectedToServer : ezIpcChannelEvent::ConnectedToClient, this));
   }
 
-  m_Events.Broadcast(ezIpcChannelEvent(m_Mode == Mode::Client ? ezIpcChannelEvent::ConnectedToServer : ezIpcChannelEvent::ConnectedToClient, this));
   return;
 }
 
@@ -125,13 +125,13 @@ void ezPipeChannel_win::InternalDisconnect()
 #  endif
   if (m_InputState.IsPending || m_OutputState.IsPending)
   {
-    CancelIo(m_PipeHandle);
+    CancelIo(m_hPipeHandle);
   }
 
-  if (m_PipeHandle != INVALID_HANDLE_VALUE)
+  if (m_hPipeHandle != INVALID_HANDLE_VALUE)
   {
-    CloseHandle(m_PipeHandle);
-    m_PipeHandle = INVALID_HANDLE_VALUE;
+    CloseHandle(m_hPipeHandle);
+    m_hPipeHandle = INVALID_HANDLE_VALUE;
   }
 
   while (m_InputState.IsPending || m_OutputState.IsPending)
@@ -142,7 +142,7 @@ void ezPipeChannel_win::InternalDisconnect()
   {
     EZ_LOCK(m_OutputQueueMutex);
     m_OutputQueue.Clear();
-    m_Connected = false;
+    m_bConnected = false;
   }
 
   m_Events.Broadcast(
@@ -153,7 +153,7 @@ void ezPipeChannel_win::InternalDisconnect()
 
 void ezPipeChannel_win::InternalSend()
 {
-  if (!m_OutputState.IsPending && m_Connected)
+  if (!m_OutputState.IsPending && m_bConnected)
   {
     ProcessOutgoingMessages(0);
   }
@@ -171,7 +171,7 @@ bool ezPipeChannel_win::ProcessConnection()
   if (m_InputState.IsPending)
     m_InputState.IsPending = false;
 
-  BOOL res = ConnectNamedPipe(m_PipeHandle, &m_InputState.Context.Overlapped);
+  BOOL res = ConnectNamedPipe(m_hPipeHandle, &m_InputState.Context.Overlapped);
   if (res)
   {
     // EZ_REPORT_FAILURE
@@ -185,7 +185,8 @@ bool ezPipeChannel_win::ProcessConnection()
       m_InputState.IsPending = true;
       break;
     case ERROR_PIPE_CONNECTED:
-      m_Connected = true;
+      m_bConnected = true;
+      m_Events.Broadcast(ezIpcChannelEvent(m_Mode == Mode::Client ? ezIpcChannelEvent::ConnectedToServer : ezIpcChannelEvent::ConnectedToClient, this));
       break;
     case ERROR_NO_DATA:
       return false;
@@ -211,10 +212,10 @@ bool ezPipeChannel_win::ProcessIncomingMessages(DWORD uiBytesRead)
   {
     if (uiBytesRead == 0)
     {
-      if (m_PipeHandle == INVALID_HANDLE_VALUE)
+      if (m_hPipeHandle == INVALID_HANDLE_VALUE)
         return false;
 
-      BOOL res = ReadFile(m_PipeHandle, m_InputBuffer, BUFFER_SIZE, &uiBytesRead, &m_InputState.Context.Overlapped);
+      BOOL res = ReadFile(m_hPipeHandle, m_InputBuffer, BUFFER_SIZE, &uiBytesRead, &m_InputState.Context.Overlapped);
 
       if (!res)
       {
@@ -244,7 +245,7 @@ bool ezPipeChannel_win::ProcessIncomingMessages(DWORD uiBytesRead)
 
 bool ezPipeChannel_win::ProcessOutgoingMessages(DWORD uiBytesWritten)
 {
-  EZ_ASSERT_DEBUG(m_Connected, "Must be connected to process outgoing messages.");
+  EZ_ASSERT_DEBUG(m_bConnected, "Must be connected to process outgoing messages.");
   EZ_ASSERT_DEBUG(m_ThreadId == ezThreadUtils::GetCurrentThreadID(), "Function must be called from worker thread!");
 
   if (m_OutputState.IsPending)
@@ -263,12 +264,12 @@ bool ezPipeChannel_win::ProcessOutgoingMessages(DWORD uiBytesWritten)
     m_OutputQueue.PopFront();
   }
 
-  if (m_PipeHandle == INVALID_HANDLE_VALUE)
+  if (m_hPipeHandle == INVALID_HANDLE_VALUE)
   {
     m_OutputState.IsPending = false;
     return false;
   }
-  const ezMemoryStreamStorage* storage = nullptr;
+  const ezMemoryStreamStorageInterface* storage = nullptr;
   {
     EZ_LOCK(m_OutputQueueMutex);
     if (m_OutputQueue.IsEmpty())
@@ -279,19 +280,30 @@ bool ezPipeChannel_win::ProcessOutgoingMessages(DWORD uiBytesWritten)
     storage = &m_OutputQueue.PeekFront();
   }
 
-  BOOL res = WriteFile(m_PipeHandle, storage->GetData(), storage->GetStorageSize(), &uiBytesWritten, &m_OutputState.Context.Overlapped);
-
-  if (!res)
+  ezUInt64 uiToWrite = storage->GetStorageSize64();
+  ezUInt64 uiNextOffset = 0;
+  while (uiToWrite > 0)
   {
-    ezUInt32 error = GetLastError();
-    if (error == ERROR_IO_PENDING)
+    const ezArrayPtr<const ezUInt8> range = storage->GetContiguousMemoryRange(uiNextOffset);
+    uiToWrite -= range.GetCount();
+
+    BOOL res = WriteFile(m_hPipeHandle, range.GetPtr(), range.GetCount(), &uiBytesWritten, &m_OutputState.Context.Overlapped);
+
+    if (!res)
     {
-      m_OutputState.IsPending = true;
-      return true;
+      ezUInt32 error = GetLastError();
+      if (error == ERROR_IO_PENDING)
+      {
+        m_OutputState.IsPending = true;
+        return true;
+      }
+      ezLog::Error("Write to pipe failed: {0}", ezArgErrorCode(error));
+      return false;
     }
-    ezLog::Error("Write to pipe failed: {0}", ezArgErrorCode(error));
-    return false;
+
+    uiNextOffset += range.GetCount();
   }
+
 
   m_OutputState.IsPending = true;
   return true;
@@ -303,7 +315,7 @@ void ezPipeChannel_win::OnIOCompleted(IOContext* pContext, DWORD uiBytesTransfer
   bool bRes = true;
   if (pContext == &m_InputState.Context)
   {
-    if (!m_Connected)
+    if (!m_bConnected)
     {
       if (!ProcessConnection())
         return;
@@ -326,7 +338,7 @@ void ezPipeChannel_win::OnIOCompleted(IOContext* pContext, DWORD uiBytesTransfer
     EZ_ASSERT_DEBUG(pContext == &m_OutputState.Context, "");
     bRes = ProcessOutgoingMessages(uiBytesTransfered);
   }
-  if (!bRes && m_PipeHandle != INVALID_HANDLE_VALUE)
+  if (!bRes && m_hPipeHandle != INVALID_HANDLE_VALUE)
   {
     InternalDisconnect();
   }

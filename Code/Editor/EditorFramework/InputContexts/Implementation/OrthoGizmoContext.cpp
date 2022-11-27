@@ -85,7 +85,7 @@ ezEditorInput ezOrthoGizmoContext::DoMouseMoveEvent(QMouseEvent* e)
 
     const ezVec3 vLastTranslationResult = m_vTranslationResult;
 
-    const ezVec2I32 diff = ezVec2I32(e->globalX(), e->globalY()) - m_LastMousePos;
+    const ezVec2I32 diff = ezVec2I32(e->globalX(), e->globalY()) - m_vLastMousePos;
 
     m_vUnsnappedTranslationResult += m_pCamera->GetDirRight() * (float)diff.x * fDistPerPixel;
     m_vUnsnappedTranslationResult -= m_pCamera->GetDirUp() * (float)diff.y * fDistPerPixel;
@@ -126,7 +126,7 @@ ezEditorInput ezOrthoGizmoContext::DoMouseMoveEvent(QMouseEvent* e)
         ezSnapProvider::SnapScale(m_fScalingResult);
     }
 
-    m_LastMousePos = UpdateMouseMode(e);
+    m_vLastMousePos = UpdateMouseMode(e);
 
     ezGizmoEvent ev;
     ev.m_pGizmo = this;
@@ -139,7 +139,7 @@ ezEditorInput ezOrthoGizmoContext::DoMouseMoveEvent(QMouseEvent* e)
 
   if (m_bCanInteract)
   {
-    m_LastMousePos = SetMouseMode(ezEditorInputContext::MouseMode::WrapAtScreenBorders);
+    m_vLastMousePos = SetMouseMode(ezEditorInputContext::MouseMode::WrapAtScreenBorders);
     m_vTranslationResult.SetZero();
     m_vUnsnappedTranslationResult.SetZero();
     m_qRotationResult.SetIdentity();

@@ -28,7 +28,9 @@ EZ_STATICLINK_LIBRARY(Texture)
   EZ_STATICLINK_REFERENCE(Texture_DirectXTex_DirectXTexWIC);
   EZ_STATICLINK_REFERENCE(Texture_Image_Conversions_DXTConversions);
   EZ_STATICLINK_REFERENCE(Texture_Image_Conversions_DXTexConversions);
+  EZ_STATICLINK_REFERENCE(Texture_Image_Conversions_DXTexCpuConversions);
   EZ_STATICLINK_REFERENCE(Texture_Image_Conversions_PixelConversions);
+  EZ_STATICLINK_REFERENCE(Texture_Image_Conversions_PlanarConversions);
   EZ_STATICLINK_REFERENCE(Texture_Image_Conversions_SwizzleConversions);
   EZ_STATICLINK_REFERENCE(Texture_Image_Formats_BmpFileFormat);
   EZ_STATICLINK_REFERENCE(Texture_Image_Formats_DdsFileFormat);

@@ -3,7 +3,8 @@ ALL
 
 [PERMUTATIONS]
 
-CAMERA_MODE = CAMERA_MODE_PERSPECTIVE
+CAMERA_MODE
+VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX
 LUT_MODE
 
 [RENDERSTATE]
@@ -16,17 +17,16 @@ CullMode = CullMode_None
 
 #include <Shaders/Pipeline/FullscreenTriangleVertexShader.h>
 
+[GEOMETRYSHADER]
+
+#include <Shaders/Pipeline/FullscreenTriangleStereoGeometryShader.h>
+
 [PIXELSHADER]
 
+#include <Shaders/Pipeline/FullscreenTriangleInterpolator.h>
 #include <Shaders/Common/Common.h>
 #include <Shaders/Common/GlobalConstants.h>
 #include "TonemapConstants.h"
-
-struct PS_IN
-{
-  float4 Position : SV_Position;
-  float2 TexCoord0 : TEXCOORD0;
-};
 
 // From http://filmicgames.com/archives/75
 float3 FilmicTonemap(float3 x)
@@ -56,8 +56,8 @@ float3 AdjustContrast(float3 x)
 Texture2D VignettingTexture;
 Texture2D NoiseTexture;
 
-Texture2D SceneColorTexture;
-Texture2D BloomTexture;
+Texture2DArray SceneColorTexture;
+Texture2DArray BloomTexture;
 
 #if LUT_MODE == LUT_MODE_ONE
 Texture3D Lut1Texture;
@@ -77,10 +77,14 @@ float3 ScreenSpaceDither( float2 texCoords )
 
 float4 main(PS_IN Input) : SV_Target
 {
-  float4 sceneColor = SceneColorTexture.Load(int3(Input.Position.xy, 0));
+#if CAMERA_MODE == CAMERA_MODE_STEREO
+  s_ActiveCameraEyeIndex = Input.RenderTargetArrayIndex;
+#endif
+
+  float4 sceneColor = SceneColorTexture.Load(int4(Input.Position.xy, s_ActiveCameraEyeIndex, 0));
   sceneColor.rgb *= Exposure;
 
-  float3 bloom = BloomTexture.SampleLevel(LinearClampSampler, Input.TexCoord0.xy, 0.0).rgb;
+  float3 bloom = BloomTexture.SampleLevel(LinearClampSampler, float3(Input.TexCoord0.xy, s_ActiveCameraEyeIndex), 0.0).rgb;
   sceneColor.rgb += bloom;
 
   // Vignetting

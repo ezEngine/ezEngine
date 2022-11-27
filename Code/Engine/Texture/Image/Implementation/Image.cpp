@@ -2,6 +2,7 @@
 
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
+#include <Foundation/Profiling/Profiling.h>
 #include <Texture/Image/Formats/ImageFileFormat.h>
 #include <Texture/Image/Image.h>
 #include <Texture/Image/ImageConversion.h>
@@ -19,13 +20,13 @@ ezImageView::ezImageView(const ezImageHeader& header, ezConstByteBlobPtr imageDa
 void ezImageView::Clear()
 {
   ezImageHeader::Clear();
-  m_subImageOffsets.Clear();
-  m_dataPtr.Clear();
+  m_SubImageOffsets.Clear();
+  m_DataPtr.Clear();
 }
 
 bool ezImageView::IsValid() const
 {
-  return !m_dataPtr.IsEmpty();
+  return !m_DataPtr.IsEmpty();
 }
 
 void ezImageView::ResetAndViewExternalStorage(const ezImageHeader& header, ezConstByteBlobPtr imageData)
@@ -38,23 +39,23 @@ void ezImageView::ResetAndViewExternalStorage(const ezImageHeader& header, ezCon
     imageData.GetCount(), dataSize);
 
   // Const cast is safe here as we will only perform non-const access if this is an ezImage which owns mutable access to the storage
-  m_dataPtr = ezBlobPtr<ezUInt8>(const_cast<ezUInt8*>(static_cast<const ezUInt8*>(imageData.GetPtr())), imageData.GetCount());
+  m_DataPtr = ezBlobPtr<ezUInt8>(const_cast<ezUInt8*>(static_cast<const ezUInt8*>(imageData.GetPtr())), imageData.GetCount());
 }
 
-ezResult ezImageView::SaveTo(const char* szFileName, ezLogInterface* pLog) const
+ezResult ezImageView::SaveTo(const char* szFileName) const
 {
-  EZ_LOG_BLOCK(pLog, "Writing Image", szFileName);
+  EZ_LOG_BLOCK("Writing Image", szFileName);
 
-  if (m_format == ezImageFormat::UNKNOWN)
+  if (m_Format == ezImageFormat::UNKNOWN)
   {
-    ezLog::Error(pLog, "Cannot write image '{0}' - image data is invalid or empty", szFileName);
+    ezLog::Error("Cannot write image '{0}' - image data is invalid or empty", szFileName);
     return EZ_FAILURE;
   }
 
   ezFileWriter writer;
   if (writer.Open(szFileName) == EZ_FAILURE)
   {
-    ezLog::Error(pLog, "Failed to open image file '{0}'", szFileName);
+    ezLog::Error("Failed to open image file '{0}'", szFileName);
     return EZ_FAILURE;
   }
 
@@ -62,16 +63,16 @@ ezResult ezImageView::SaveTo(const char* szFileName, ezLogInterface* pLog) const
 
   if (ezImageFileFormat* pFormat = ezImageFileFormat::GetWriterFormat(it.GetStartPointer()))
   {
-    if (pFormat->WriteImage(writer, *this, pLog, it.GetStartPointer()) != EZ_SUCCESS)
+    if (pFormat->WriteImage(writer, *this, it.GetStartPointer()) != EZ_SUCCESS)
     {
-      ezLog::Error(pLog, "Failed to write image file '{0}'", szFileName);
+      ezLog::Error("Failed to write image file '{0}'", szFileName);
       return EZ_FAILURE;
     }
 
     return EZ_SUCCESS;
   }
 
-  ezLog::Error(pLog, "No known image file format for extension '{0}'", it);
+  ezLog::Error("No known image file format for extension '{0}'", it);
   return EZ_FAILURE;
 }
 
@@ -81,24 +82,27 @@ const ezImageHeader& ezImageView::GetHeader() const
 }
 
 ezImageView ezImageView::GetRowView(
-  ezUInt32 uiMipLevel /*= 0*/, ezUInt32 uiFace /*= 0*/, ezUInt32 uiArrayIndex /*= 0*/, ezUInt32 y /*= 0*/, ezUInt32 z /*= 0*/) const
+  ezUInt32 uiMipLevel /*= 0*/, ezUInt32 uiFace /*= 0*/, ezUInt32 uiArrayIndex /*= 0*/, ezUInt32 y /*= 0*/, ezUInt32 z /*= 0*/, ezUInt32 uiPlaneIndex /*= 0*/) const
 {
   ezImageHeader header;
   header.SetNumMipLevels(1);
   header.SetNumFaces(1);
   header.SetNumArrayIndices(1);
-  header.SetWidth(GetWidth(uiMipLevel));
-  header.SetHeight(ezImageFormat::GetBlockHeight(m_format));
-  header.SetDepth(1);
-  header.SetImageFormat(m_format);
+
+  // Scale dimensions relative to the block size of the subformat
+  ezImageFormat::Enum subFormat = ezImageFormat::GetPlaneSubFormat(m_Format, uiPlaneIndex);
+  header.SetWidth(GetWidth(uiMipLevel) * ezImageFormat::GetBlockWidth(subFormat) / ezImageFormat::GetBlockWidth(m_Format, uiPlaneIndex));
+  header.SetHeight(ezImageFormat::GetBlockHeight(m_Format, 0) * ezImageFormat::GetBlockHeight(subFormat) / ezImageFormat::GetBlockHeight(m_Format, uiPlaneIndex));
+  header.SetDepth(ezImageFormat::GetBlockDepth(subFormat) / ezImageFormat::GetBlockDepth(m_Format, uiPlaneIndex));
+  header.SetImageFormat(ezImageFormat::GetPlaneSubFormat(m_Format, uiPlaneIndex));
 
   ezUInt64 offset = 0;
 
-  offset += GetSubImageOffset(uiMipLevel, uiFace, uiArrayIndex);
-  offset += z * GetDepthPitch(uiMipLevel);
-  offset += y * GetRowPitch(uiMipLevel);
+  offset += GetSubImageOffset(uiMipLevel, uiFace, uiArrayIndex, uiPlaneIndex);
+  offset += z * GetDepthPitch(uiMipLevel, uiPlaneIndex);
+  offset += y * GetRowPitch(uiMipLevel, uiPlaneIndex);
 
-  ezBlobPtr<const ezUInt8> dataSlice = m_dataPtr.GetSubArray(offset, GetRowPitch(uiMipLevel));
+  ezBlobPtr<const ezUInt8> dataSlice = m_DataPtr.GetSubArray(offset, GetRowPitch(uiMipLevel, uiPlaneIndex));
   return ezImageView(header, ezConstByteBlobPtr(dataSlice.GetPtr(), dataSlice.GetCount()));
 }
 
@@ -115,8 +119,8 @@ void ezImageView::ReinterpretAs(ezImageFormat::Enum format)
 
 ezUInt64 ezImageView::ComputeLayout()
 {
-  m_subImageOffsets.Clear();
-  m_subImageOffsets.Reserve(m_uiNumMipLevels * m_uiNumFaces * m_uiNumArrayIndices);
+  m_SubImageOffsets.Clear();
+  m_SubImageOffsets.Reserve(m_uiNumMipLevels * m_uiNumFaces * m_uiNumArrayIndices * GetPlaneCount());
 
   ezUInt64 uiDataSize = 0;
 
@@ -126,30 +130,34 @@ ezUInt64 ezImageView::ComputeLayout()
     {
       for (ezUInt32 uiMipLevel = 0; uiMipLevel < m_uiNumMipLevels; uiMipLevel++)
       {
-        m_subImageOffsets.PushBack(uiDataSize);
+        for (ezUInt32 uiPlaneIndex = 0; uiPlaneIndex < GetPlaneCount(); uiPlaneIndex++)
+        {
+          m_SubImageOffsets.PushBack(uiDataSize);
 
-        uiDataSize += GetDepthPitch(uiMipLevel) * GetDepth(uiMipLevel);
+          uiDataSize += GetDepthPitch(uiMipLevel, uiPlaneIndex) * GetDepth(uiMipLevel);
+        }
       }
     }
   }
 
   // Push back total size as a marker
-  m_subImageOffsets.PushBack(uiDataSize);
+  m_SubImageOffsets.PushBack(uiDataSize);
 
   return uiDataSize;
 }
 
-void ezImageView::ValidateSubImageIndices(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32 uiArrayIndex) const
+void ezImageView::ValidateSubImageIndices(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32 uiArrayIndex, ezUInt32 uiPlaneIndex) const
 {
   EZ_ASSERT_DEV(uiMipLevel < m_uiNumMipLevels, "Invalid mip level");
   EZ_ASSERT_DEV(uiFace < m_uiNumFaces, "Invalid uiFace");
   EZ_ASSERT_DEV(uiArrayIndex < m_uiNumArrayIndices, "Invalid array slice");
+  EZ_ASSERT_DEV(uiPlaneIndex < GetPlaneCount(), "Invalid plane index");
 }
 
-const ezUInt64& ezImageView::GetSubImageOffset(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32 uiArrayIndex) const
+const ezUInt64& ezImageView::GetSubImageOffset(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32 uiArrayIndex, ezUInt32 uiPlaneIndex) const
 {
-  ValidateSubImageIndices(uiMipLevel, uiFace, uiArrayIndex);
-  return m_subImageOffsets[uiMipLevel + m_uiNumMipLevels * (uiFace + m_uiNumFaces * uiArrayIndex)];
+  ValidateSubImageIndices(uiMipLevel, uiFace, uiArrayIndex, uiPlaneIndex);
+  return m_SubImageOffsets[uiPlaneIndex + GetPlaneCount() * (uiMipLevel + m_uiNumMipLevels * (uiFace + m_uiNumFaces * uiArrayIndex))];
 }
 
 ezImage::ezImage()
@@ -184,7 +192,7 @@ void ezImage::operator=(ezImage&& rhs)
 
 void ezImage::Clear()
 {
-  m_internalStorage.Clear();
+  m_InternalStorage.Clear();
 
   ezImageView::Clear();
 }
@@ -200,18 +208,18 @@ void ezImage::ResetAndAlloc(const ezImageHeader& header)
 
   // therefore, if external storage is insufficient, fall back to internal storage
 
-  if (!UsesExternalStorage() || m_dataPtr.GetCount() < requiredSize)
+  if (!UsesExternalStorage() || m_DataPtr.GetCount() < requiredSize)
   {
-    m_internalStorage.SetCountUninitialized(requiredSize);
-    m_dataPtr = m_internalStorage.GetBlobPtr<ezUInt8>();
+    m_InternalStorage.SetCountUninitialized(requiredSize);
+    m_DataPtr = m_InternalStorage.GetBlobPtr<ezUInt8>();
   }
 
-  ezImageView::ResetAndViewExternalStorage(header, ezConstByteBlobPtr(m_dataPtr.GetPtr(), m_dataPtr.GetCount()));
+  ezImageView::ResetAndViewExternalStorage(header, ezConstByteBlobPtr(m_DataPtr.GetPtr(), m_DataPtr.GetCount()));
 }
 
 void ezImage::ResetAndUseExternalStorage(const ezImageHeader& header, ezByteBlobPtr externalData)
 {
-  m_internalStorage.Clear();
+  m_InternalStorage.Clear();
 
   ezImageView::ResetAndViewExternalStorage(header, externalData);
 }
@@ -222,16 +230,16 @@ void ezImage::ResetAndMove(ezImage&& other)
 
   if (other.UsesExternalStorage())
   {
-    m_internalStorage.Clear();
-    m_subImageOffsets = std::move(other.m_subImageOffsets);
-    m_dataPtr = other.m_dataPtr;
+    m_InternalStorage.Clear();
+    m_SubImageOffsets = std::move(other.m_SubImageOffsets);
+    m_DataPtr = other.m_DataPtr;
     other.Clear();
   }
   else
   {
-    m_internalStorage = std::move(other.m_internalStorage);
-    m_subImageOffsets = std::move(other.m_subImageOffsets);
-    m_dataPtr = m_internalStorage.GetBlobPtr<ezUInt8>();
+    m_InternalStorage = std::move(other.m_InternalStorage);
+    m_SubImageOffsets = std::move(other.m_SubImageOffsets);
+    m_DataPtr = m_InternalStorage.GetBlobPtr<ezUInt8>();
     other.Clear();
   }
 }
@@ -243,14 +251,16 @@ void ezImage::ResetAndCopy(const ezImageView& other)
   memcpy(GetBlobPtr<ezUInt8>().GetPtr(), other.GetBlobPtr<ezUInt8>().GetPtr(), static_cast<size_t>(other.GetBlobPtr<ezUInt8>().GetCount()));
 }
 
-ezResult ezImage::LoadFrom(const char* szFileName, ezLogInterface* pLog)
+ezResult ezImage::LoadFrom(const char* szFileName)
 {
-  EZ_LOG_BLOCK(pLog, "Loading Image", szFileName);
+  EZ_LOG_BLOCK("Loading Image", szFileName);
+
+  EZ_PROFILE_SCOPE(ezPathUtils::GetFileNameAndExtension(szFileName).GetStartPointer());
 
   ezFileReader reader;
   if (reader.Open(szFileName) == EZ_FAILURE)
   {
-    ezLog::Warning(pLog, "Failed to open image file '{0}'", ezArgSensitive(szFileName, "File"));
+    ezLog::Warning("Failed to open image file '{0}'", ezArgSensitive(szFileName, "File"));
     return EZ_FAILURE;
   }
 
@@ -258,16 +268,16 @@ ezResult ezImage::LoadFrom(const char* szFileName, ezLogInterface* pLog)
 
   if (ezImageFileFormat* pFormat = ezImageFileFormat::GetReaderFormat(it.GetStartPointer()))
   {
-    if (pFormat->ReadImage(reader, *this, pLog, it.GetStartPointer()) != EZ_SUCCESS)
+    if (pFormat->ReadImage(reader, *this, it.GetStartPointer()) != EZ_SUCCESS)
     {
-      ezLog::Warning(pLog, "Failed to read image file '{0}'", ezArgSensitive(szFileName, "File"));
+      ezLog::Warning("Failed to read image file '{0}'", ezArgSensitive(szFileName, "File"));
       return EZ_FAILURE;
     }
 
     return EZ_SUCCESS;
   }
 
-  ezLog::Warning(pLog, "No known image file format for extension '{0}'", it);
+  ezLog::Warning("No known image file format for extension '{0}'", it);
 
   return EZ_FAILURE;
 }
@@ -286,12 +296,12 @@ ezImageView ezImageView::GetSubImageView(ezUInt32 uiMipLevel /*= 0*/, ezUInt32 u
   header.SetWidth(GetWidth(uiMipLevel));
   header.SetHeight(GetHeight(uiMipLevel));
   header.SetDepth(GetDepth(uiMipLevel));
-  header.SetImageFormat(m_format);
+  header.SetImageFormat(m_Format);
 
-  const ezUInt64& offset = GetSubImageOffset(uiMipLevel, uiFace, uiArrayIndex);
-  ezUInt64 size = *(&offset + 1) - offset;
+  const ezUInt64& offset = GetSubImageOffset(uiMipLevel, uiFace, uiArrayIndex, 0);
+  ezUInt64 size = *(&offset + GetPlaneCount()) - offset;
 
-  ezBlobPtr<const ezUInt8> subView = m_dataPtr.GetSubArray(offset, size);
+  ezBlobPtr<const ezUInt8> subView = m_DataPtr.GetSubArray(offset, size);
 
   return ezImageView(header, ezConstByteBlobPtr(subView.GetPtr(), subView.GetCount()));
 }
@@ -305,37 +315,71 @@ ezImage ezImage::GetSubImageView(ezUInt32 uiMipLevel /*= 0*/, ezUInt32 uiFace /*
     constView.GetHeader(), ezByteBlobPtr(const_cast<ezUInt8*>(constView.GetBlobPtr<ezUInt8>().GetPtr()), constView.GetBlobPtr<ezUInt8>().GetCount()));
 }
 
-ezImage ezImage::GetSliceView(ezUInt32 uiMipLevel /*= 0*/, ezUInt32 uiFace /*= 0*/, ezUInt32 uiArrayIndex /*= 0*/, ezUInt32 z /*= 0*/)
+ezImageView ezImageView::GetPlaneView(ezUInt32 uiMipLevel /*= 0*/, ezUInt32 uiFace /*= 0*/, ezUInt32 uiArrayIndex /*= 0*/, ezUInt32 uiPlaneIndex /*= 0*/) const
 {
-  ezImageView constView = ezImageView::GetSliceView(uiMipLevel, uiFace, uiArrayIndex, z);
+  ezImageHeader header;
+  header.SetNumMipLevels(1);
+  header.SetNumFaces(1);
+  header.SetNumArrayIndices(1);
+
+  // Scale dimensions relative to the block size of the first plane which determines the "nominal" width, height and depth
+  ezImageFormat::Enum subFormat = ezImageFormat::GetPlaneSubFormat(m_Format, uiPlaneIndex);
+  header.SetWidth(GetWidth(uiMipLevel) * ezImageFormat::GetBlockWidth(subFormat) / ezImageFormat::GetBlockWidth(m_Format, uiPlaneIndex));
+  header.SetHeight(GetHeight(uiMipLevel) * ezImageFormat::GetBlockHeight(subFormat) / ezImageFormat::GetBlockHeight(m_Format, uiPlaneIndex));
+  header.SetDepth(GetDepth(uiMipLevel) * ezImageFormat::GetBlockDepth(subFormat) / ezImageFormat::GetBlockDepth(m_Format, uiPlaneIndex));
+  header.SetImageFormat(subFormat);
+
+  const ezUInt64& offset = GetSubImageOffset(uiMipLevel, uiFace, uiArrayIndex, uiPlaneIndex);
+  ezUInt64 size = *(&offset + 1) - offset;
+
+  ezBlobPtr<const ezUInt8> subView = m_DataPtr.GetSubArray(offset, size);
+
+  return ezImageView(header, ezConstByteBlobPtr(subView.GetPtr(), subView.GetCount()));
+}
+
+ezImage ezImage::GetPlaneView(ezUInt32 uiMipLevel /* = 0 */, ezUInt32 uiFace /* = 0 */, ezUInt32 uiArrayIndex /* = 0 */, ezUInt32 uiPlaneIndex /* = 0 */)
+{
+  ezImageView constView = ezImageView::GetPlaneView(uiMipLevel, uiFace, uiArrayIndex, uiPlaneIndex);
 
   // Create an ezImage attached to the view. Const cast is safe here since we own the storage.
   return ezImage(
     constView.GetHeader(), ezByteBlobPtr(const_cast<ezUInt8*>(constView.GetBlobPtr<ezUInt8>().GetPtr()), constView.GetBlobPtr<ezUInt8>().GetCount()));
 }
 
-ezImageView ezImageView::GetSliceView(ezUInt32 uiMipLevel /*= 0*/, ezUInt32 uiFace /*= 0*/, ezUInt32 uiArrayIndex /*= 0*/, ezUInt32 z /*= 0*/) const
+ezImage ezImage::GetSliceView(ezUInt32 uiMipLevel /*= 0*/, ezUInt32 uiFace /*= 0*/, ezUInt32 uiArrayIndex /*= 0*/, ezUInt32 z /*= 0*/, ezUInt32 uiPlaneIndex /*= 0*/)
+{
+  ezImageView constView = ezImageView::GetSliceView(uiMipLevel, uiFace, uiArrayIndex, z, uiPlaneIndex);
+
+  // Create an ezImage attached to the view. Const cast is safe here since we own the storage.
+  return ezImage(
+    constView.GetHeader(), ezByteBlobPtr(const_cast<ezUInt8*>(constView.GetBlobPtr<ezUInt8>().GetPtr()), constView.GetBlobPtr<ezUInt8>().GetCount()));
+}
+
+ezImageView ezImageView::GetSliceView(ezUInt32 uiMipLevel /*= 0*/, ezUInt32 uiFace /*= 0*/, ezUInt32 uiArrayIndex /*= 0*/, ezUInt32 z /*= 0*/, ezUInt32 uiPlaneIndex /*= 0*/) const
 {
   ezImageHeader header;
   header.SetNumMipLevels(1);
   header.SetNumFaces(1);
   header.SetNumArrayIndices(1);
-  header.SetWidth(GetWidth(uiMipLevel));
-  header.SetHeight(GetHeight(uiMipLevel));
-  header.SetDepth(1);
-  header.SetImageFormat(m_format);
 
-  ezUInt64 offset = GetSubImageOffset(uiMipLevel, uiFace, uiArrayIndex) + z * GetDepthPitch(uiMipLevel);
-  ezUInt64 size = GetDepthPitch(uiMipLevel);
+  // Scale dimensions relative to the block size of the first plane which determines the "nominal" width, height and depth
+  ezImageFormat::Enum subFormat = ezImageFormat::GetPlaneSubFormat(m_Format, uiPlaneIndex);
+  header.SetWidth(GetWidth(uiMipLevel) * ezImageFormat::GetBlockWidth(subFormat) / ezImageFormat::GetBlockWidth(m_Format, uiPlaneIndex));
+  header.SetHeight(GetHeight(uiMipLevel) * ezImageFormat::GetBlockHeight(subFormat) / ezImageFormat::GetBlockHeight(m_Format, uiPlaneIndex));
+  header.SetDepth(ezImageFormat::GetBlockDepth(subFormat) / ezImageFormat::GetBlockDepth(m_Format, uiPlaneIndex));
+  header.SetImageFormat(subFormat);
 
-  ezBlobPtr<const ezUInt8> subView = m_dataPtr.GetSubArray(offset, size);
+  ezUInt64 offset = GetSubImageOffset(uiMipLevel, uiFace, uiArrayIndex, uiPlaneIndex) + z * GetDepthPitch(uiMipLevel, uiPlaneIndex);
+  ezUInt64 size = GetDepthPitch(uiMipLevel, uiPlaneIndex);
+
+  ezBlobPtr<const ezUInt8> subView = m_DataPtr.GetSubArray(offset, size);
 
   return ezImageView(header, ezConstByteBlobPtr(subView.GetPtr(), subView.GetCount()));
 }
 
 bool ezImage::UsesExternalStorage() const
 {
-  return m_internalStorage.GetBlobPtr<ezUInt8>() != m_dataPtr;
+  return m_InternalStorage.GetBlobPtr<ezUInt8>() != m_DataPtr;
 }
 
 EZ_STATICLINK_FILE(Texture, Texture_Image_Implementation_Image);

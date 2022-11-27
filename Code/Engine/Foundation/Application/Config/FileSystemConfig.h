@@ -7,7 +7,7 @@
 class EZ_FOUNDATION_DLL ezApplicationFileSystemConfig
 {
 public:
-  ezResult Save();
+  ezResult Save(const char* szPath = ":project/DataDirectories.ddl");
   void Load(const char* szPath = ":project/DataDirectories.ddl");
 
   /// \brief Sets up the data directories that were configured or loaded into this object

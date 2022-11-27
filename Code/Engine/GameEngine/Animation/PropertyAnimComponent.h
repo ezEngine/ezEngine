@@ -115,5 +115,5 @@ protected:
   // when the animation resource is reloaded
   // instead we go with one animation state until this component is reset entirely
   // that means you need to restart a level to see the updated animation
-  ezSharedPtr<ezPropertyAnimResourceDescriptor> m_AnimDesc;
+  ezSharedPtr<ezPropertyAnimResourceDescriptor> m_pAnimDesc;
 };

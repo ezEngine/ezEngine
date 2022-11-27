@@ -33,11 +33,11 @@ protected:
 private:
   ezTime m_LastInteraction;
 
-  ezVec2I32 m_LastMousePos;
+  ezVec2I32 m_vLastMousePos;
 
-  ezEngineGizmoHandle m_LengthTop;
-  ezEngineGizmoHandle m_LengthBottom;
-  ezEngineGizmoHandle m_Radius;
+  ezEngineGizmoHandle m_hLengthTop;
+  ezEngineGizmoHandle m_hLengthBottom;
+  ezEngineGizmoHandle m_hRadius;
 
   enum class ManipulateMode
   {

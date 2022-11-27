@@ -103,7 +103,7 @@ void ezVisualScriptInstance::Configure(const ezVisualScriptResourceHandle& hScri
     {
       CreateFunctionCallNode(n, resource);
     }
-    else if (node.m_pType->IsDerivedFrom<ezMessage>())
+    else if (node.m_pType && node.m_pType->IsDerivedFrom<ezMessage>())
     {
       if (node.m_isMsgSender)
       {
@@ -114,7 +114,7 @@ void ezVisualScriptInstance::Configure(const ezVisualScriptResourceHandle& hScri
         CreateMessageHandlerNode(n, resource);
       }
     }
-    else if (node.m_pType->IsDerivedFrom<ezVisualScriptNode>())
+    else if (node.m_pType && node.m_pType->IsDerivedFrom<ezVisualScriptNode>())
     {
       CreateVisualScriptNode(n, resource);
     }
@@ -281,8 +281,16 @@ void ezVisualScriptInstance::CreateFunctionCallNode(ezUInt32 uiNodeIdx, const ez
 
         if (prop.m_iMappingIndex >= 0 || prop.m_iMappingIndex < (ezInt32)pNode->m_Arguments.GetCount())
         {
-          ezResult couldConvert = EZ_FAILURE;
-          tmpVal = prop.m_Value.ConvertTo(pNode->m_Arguments[prop.m_iMappingIndex].GetType(), &couldConvert);
+          ezResult couldConvert = EZ_SUCCESS;
+          const ezRTTI* pTargetType = pNode->m_pFunctionToCall->GetArgumentType(prop.m_iMappingIndex);
+          if (pTargetType == ezGetStaticRTTI<ezVariant>())
+          {
+            tmpVal = prop.m_Value;
+          }
+          else
+          {
+            tmpVal = prop.m_Value.ConvertTo(pNode->m_Arguments[prop.m_iMappingIndex].GetType(), &couldConvert);
+          }
 
           if (couldConvert.Succeeded())
           {

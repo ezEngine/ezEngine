@@ -3,24 +3,52 @@
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Device/SwapChain.h>
 
-ezGALSwapChain::ezGALSwapChain(const ezGALSwapChainCreationDescription& Description)
-  : ezGALObject(Description)
+// clang-format off
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGALSwapChain, ezNoBase, 1, ezRTTINoAllocator)
+{
+}
+EZ_END_STATIC_REFLECTED_TYPE;
+
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGALWindowSwapChain, ezGALSwapChain, 1, ezRTTINoAllocator)
+{
+}
+EZ_END_STATIC_REFLECTED_TYPE;
+// clang-format on
+
+ezGALSwapChainCreationDescription CreateSwapChainCreationDescription(const ezRTTI* pType)
+{
+  ezGALSwapChainCreationDescription desc;
+  desc.m_pSwapChainType = pType;
+  return desc;
+}
+
+ezGALSwapChain::ezGALSwapChain(const ezRTTI* pSwapChainType)
+  : ezGALObject(CreateSwapChainCreationDescription(pSwapChainType))
 {
 }
 
 ezGALSwapChain::~ezGALSwapChain() {}
 
+//////////////////////////////////////////////////////////////////////////
 
-ezResult ezGALSwapChain::DeInitPlatform(ezGALDevice* pDevice)
+ezGALWindowSwapChain::Functor ezGALWindowSwapChain::s_Factory;
+
+
+ezGALWindowSwapChain::ezGALWindowSwapChain(const ezGALWindowSwapChainCreationDescription& Description)
+  : ezGALSwapChain(ezGetStaticRTTI<ezGALWindowSwapChain>())
+  , m_WindowDesc(Description)
 {
-  if (!m_hBackBufferTexture.IsInvalidated())
-  {
-    pDevice->DestroyTexture(m_hBackBufferTexture);
-    m_hBackBufferTexture.Invalidate();
-  }
-
-  return EZ_SUCCESS;
 }
 
+void ezGALWindowSwapChain::SetFactoryMethod(Functor factory)
+{
+  s_Factory = factory;
+}
+
+ezGALSwapChainHandle ezGALWindowSwapChain::Create(const ezGALWindowSwapChainCreationDescription& desc)
+{
+  EZ_ASSERT_DEV(s_Factory.IsValid(), "No factory method assigned for ezGALWindowSwapChain.");
+  return s_Factory(desc);
+}
 
 EZ_STATICLINK_FILE(RendererFoundation, RendererFoundation_Device_Implementation_SwapChain);

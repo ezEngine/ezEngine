@@ -11,7 +11,7 @@ ezQtVisualScriptAssetScene::ezQtVisualScriptAssetScene(QObject* parent)
 {
 }
 
-ezQtVisualScriptAssetScene::~ezQtVisualScriptAssetScene() {}
+ezQtVisualScriptAssetScene::~ezQtVisualScriptAssetScene() = default;
 
 void ezQtVisualScriptAssetScene::GetAllVsNodes(ezDynamicArray<const ezDocumentObject*>& allNodes) const
 {
@@ -64,13 +64,13 @@ void ezQtVisualScriptAssetScene::VisualScriptActivityEventHandler(const ezVisual
 
     const ezPin* pFoundPin = nullptr;
     {
-      const ezArrayPtr<ezPin* const> outputPins = pNodeManager->GetOutputPins(pSrcObject);
+      auto outputPins = pNodeManager->GetOutputPins(pSrcObject);
 
-      for (auto pSearchPin : outputPins)
+      for (auto& pSearchPin : outputPins)
       {
-        if (static_cast<ezVisualScriptPin*>(pSearchPin)->GetDescriptor()->m_uiPinIndex == uiPin)
+        if (static_cast<const ezVisualScriptPin&>(*pSearchPin).GetDescriptor()->m_uiPinIndex == uiPin)
         {
-          pFoundPin = pSearchPin;
+          pFoundPin = pSearchPin.Borrow();
           break;
         }
       }
@@ -79,7 +79,7 @@ void ezQtVisualScriptAssetScene::VisualScriptActivityEventHandler(const ezVisual
         continue;
     }
 
-    ezQtPin* pQtPin = pQtNode->GetOutputPin(pFoundPin);
+    ezQtPin* pQtPin = pQtNode->GetOutputPin(*pFoundPin);
 
     const ezArrayPtr<ezQtConnection*> connectionsOut = pQtPin->GetConnections();
 
@@ -92,8 +92,6 @@ void ezQtVisualScriptAssetScene::VisualScriptActivityEventHandler(const ezVisual
       if (!pVsCon->m_bExecutionHighlight)
       {
         pVsCon->m_bExecutionHighlight = true;
-
-        pVsCon->UpdateConnection();
         pVsCon->update();
       }
     }
@@ -136,11 +134,11 @@ void ezQtVisualScriptAssetScene::ResetActiveConnections(ezDynamicArray<const ezD
     if (pQtNode == nullptr)
       continue;
 
-    const ezArrayPtr<ezPin* const> outputPins = pNodeManager->GetOutputPins(pSrcObject);
+    auto outputPins = pNodeManager->GetOutputPins(pSrcObject);
 
-    for (auto pPin : outputPins)
+    for (auto& pPin : outputPins)
     {
-      ezQtPin* pQtPin = pQtNode->GetOutputPin(pPin);
+      ezQtPin* pQtPin = pQtNode->GetOutputPin(*pPin);
 
       const ezArrayPtr<ezQtConnection*> connectionsOut = pQtPin->GetConnections();
 
@@ -153,8 +151,6 @@ void ezQtVisualScriptAssetScene::ResetActiveConnections(ezDynamicArray<const ezD
           if (pVsCon->m_HighlightUntil <= tNow)
           {
             pVsCon->m_bExecutionHighlight = false;
-
-            pVsCon->UpdateConnection();
           }
 
           bUpdateAgain = true;
@@ -182,48 +178,34 @@ void ezQtVisualScriptAssetScene::OnUpdateDisplay()
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-ezQtVisualScriptPin::ezQtVisualScriptPin() {}
+ezQtVisualScriptPin::ezQtVisualScriptPin() = default;
 
-void ezQtVisualScriptPin::SetPin(const ezPin* pPin)
+void ezQtVisualScriptPin::SetPin(const ezPin& pin)
 {
-  ezQtPin::SetPin(pPin);
+  ezQtPin::SetPin(pin);
 
-  const ezVisualScriptPin* pShaderPin = ezDynamicCast<const ezVisualScriptPin*>(pPin);
-  EZ_ASSERT_DEV(pShaderPin != nullptr, "Invalid pin type");
+  const ezVisualScriptPin& vsPin = ezStaticCast<const ezVisualScriptPin&>(pin);
 
   ezStringBuilder sTooltip;
-
-  if (!pShaderPin->GetTooltip().IsEmpty())
+  if (!vsPin.GetTooltip().IsEmpty())
   {
-    sTooltip = pShaderPin->GetTooltip();
+    sTooltip = vsPin.GetTooltip();
   }
   else
   {
-    sTooltip = pShaderPin->GetName();
+    sTooltip = vsPin.GetName();
+
+    if (vsPin.GetDescriptor()->m_PinType == ezVisualScriptPinDescriptor::PinType::Data)
+    {
+      ezStringBuilder sDataType;
+      if (ezReflectionUtils::EnumerationToString(ezGetStaticRTTI<ezVisualScriptDataPinType>(), vsPin.GetDescriptor()->m_DataType, sDataType, ezReflectionUtils::EnumConversionMode::ValueNameOnly))
+      {
+        sTooltip.Append(": ", sDataType);
+      }
+    }
   }
 
   setToolTip(sTooltip.GetData());
-}
-
-void ezQtVisualScriptPin::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget)
-{
-  const ezVisualScriptPin* pVsPin = static_cast<const ezVisualScriptPin*>(GetPin());
-
-  painter->save();
-  painter->setBrush(brush());
-  painter->setPen(pen());
-
-  if (pVsPin->GetDescriptor()->m_PinType == ezVisualScriptPinDescriptor::PinType::Data)
-  {
-    painter->drawRect(this->path().boundingRect());
-  }
-  else
-  {
-    QPainterPath p = path();
-    painter->drawPath(p);
-  }
-
-  painter->restore();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -248,12 +230,7 @@ QPen ezQtVisualScriptConnection::DeterminePen() const
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-
-ezQtVisualScriptNode::ezQtVisualScriptNode()
-{
-  // this costs too much performance :-(
-  EnableDropShadow(false);
-}
+ezQtVisualScriptNode::ezQtVisualScriptNode() = default;
 
 void ezQtVisualScriptNode::InitNode(const ezDocumentNodeManager* pManager, const ezDocumentObject* pObject)
 {

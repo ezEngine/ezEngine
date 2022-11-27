@@ -55,19 +55,19 @@ ezResult ezPreprocessor::Expand(const TokenStream& Tokens, TokenStream& Output)
 
 ezResult ezPreprocessor::ExpandOnce(const TokenStream& Tokens, TokenStream& Output)
 {
-  const bool bIsOutermost = m_sCurrentFileStack.PeekBack().m_iExpandDepth == 0;
+  const bool bIsOutermost = m_CurrentFileStack.PeekBack().m_iExpandDepth == 0;
 
-  ++m_sCurrentFileStack.PeekBack().m_iExpandDepth;
+  ++m_CurrentFileStack.PeekBack().m_iExpandDepth;
 
   for (ezUInt32 uiCurToken = 0; uiCurToken < Tokens.GetCount();)
   {
-    EZ_ASSERT_DEV(Tokens[uiCurToken]->m_iType < s_MacroParameter0, "Implementation error");
+    EZ_ASSERT_DEV(Tokens[uiCurToken]->m_iType < s_iMacroParameter0, "Implementation error");
 
     // if we are not inside some macro expansion, but on the top level, adjust the line counter
     if (bIsOutermost)
     {
-      m_sCurrentFileStack.PeekBack().m_sVirtualFileName = Tokens[uiCurToken]->m_File;
-      m_sCurrentFileStack.PeekBack().m_iCurrentLine = (ezInt32)Tokens[uiCurToken]->m_uiLine;
+      m_CurrentFileStack.PeekBack().m_sVirtualFileName = Tokens[uiCurToken]->m_File;
+      m_CurrentFileStack.PeekBack().m_iCurrentLine = (ezInt32)Tokens[uiCurToken]->m_uiLine;
     }
 
     // if it is no identifier, it cannot be a macro -> just pass it through
@@ -133,7 +133,7 @@ ezResult ezPreprocessor::ExpandOnce(const TokenStream& Tokens, TokenStream& Outp
     }
   }
 
-  --m_sCurrentFileStack.PeekBack().m_iExpandDepth;
+  --m_CurrentFileStack.PeekBack().m_iExpandDepth;
   return EZ_SUCCESS;
 }
 
@@ -167,10 +167,10 @@ ezResult ezPreprocessor::ExpandObjectMacro(MacroDefinition& Macro, TokenStream& 
 
   if (pMacroToken->m_DataView.IsEqual("__FILE__"))
   {
-    EZ_ASSERT_DEV(!m_sCurrentFileStack.IsEmpty(), "Implementation error");
+    EZ_ASSERT_DEV(!m_CurrentFileStack.IsEmpty(), "Implementation error");
 
     ezStringBuilder sName = "\"";
-    sName.Append(m_sCurrentFileStack.PeekBack().m_sVirtualFileName.GetView());
+    sName.Append(m_CurrentFileStack.PeekBack().m_sVirtualFileName.GetView());
     sName.Append("\"");
 
     ezToken* pNewToken = AddCustomToken(pMacroToken, sName);
@@ -185,7 +185,7 @@ ezResult ezPreprocessor::ExpandObjectMacro(MacroDefinition& Macro, TokenStream& 
   if (pMacroToken->m_DataView.IsEqual("__LINE__"))
   {
     ezStringBuilder sLine;
-    sLine.Format("{0}", m_sCurrentFileStack.PeekBack().m_iCurrentLine);
+    sLine.Format("{0}", m_CurrentFileStack.PeekBack().m_iCurrentLine);
 
     ezToken* pNewToken = AddCustomToken(pMacroToken, sLine);
     pNewToken->m_iType = ezTokenType::Integer;
@@ -211,7 +211,7 @@ void ezPreprocessor::PassThroughFunctionMacro(MacroDefinition& Macro, const Macr
 {
   OutputNotExpandableMacro(Macro, Output);
 
-  Output.PushBack(m_TokenOpenParenthesis);
+  Output.PushBack(m_pTokenOpenParenthesis);
 
   for (ezUInt32 p = 0; p < Parameters.GetCount(); ++p)
   {
@@ -220,10 +220,10 @@ void ezPreprocessor::PassThroughFunctionMacro(MacroDefinition& Macro, const Macr
     Output.PushBackRange(Parameters[p]);
 
     if (p + 1 < Parameters.GetCount())
-      Output.PushBack(m_TokenComma);
+      Output.PushBack(m_pTokenComma);
   }
 
-  Output.PushBack(m_TokenClosedParenthesis);
+  Output.PushBack(m_pTokenClosedParenthesis);
 }
 
 ezToken* ezPreprocessor::CreateStringifiedParameter(ezUInt32 uiParam, const ezToken* pParamToken, const MacroDefinition& Macro)
@@ -295,15 +295,15 @@ ezResult ezPreprocessor::InsertStringifiedParameters(const TokenStream& Tokens, 
       bStringifyParameter = ezMath::IsOdd(iConsecutiveHashes);
     }
 
-    if (bStringifyParameter && Tokens[i]->m_iType < s_MacroParameter0 && Tokens[i]->m_iType != ezTokenType::Whitespace)
+    if (bStringifyParameter && Tokens[i]->m_iType < s_iMacroParameter0 && Tokens[i]->m_iType != ezTokenType::Whitespace)
     {
       PP_LOG0(Error, "Expected a macro parameter name", Tokens[i]);
       return EZ_FAILURE;
     }
 
-    if (Tokens[i]->m_iType >= s_MacroParameter0 && bStringifyParameter)
+    if (Tokens[i]->m_iType >= s_iMacroParameter0 && bStringifyParameter)
     {
-      const ezUInt32 uiParam = Tokens[i]->m_iType - s_MacroParameter0;
+      const ezUInt32 uiParam = Tokens[i]->m_iType - s_iMacroParameter0;
 
       bStringifyParameter = false;
 
@@ -341,9 +341,9 @@ ezResult ezPreprocessor::InsertStringifiedParameters(const TokenStream& Tokens, 
 
 void ezPreprocessor::MergeTokens(const ezToken* pFirst, const ezToken* pSecond, TokenStream& Output, const MacroDefinition& Macro)
 {
-  if (pFirst != nullptr && pFirst->m_iType >= s_MacroParameter0)
+  if (pFirst != nullptr && pFirst->m_iType >= s_iMacroParameter0)
   {
-    ezUInt32 uiParam = pFirst->m_iType - s_MacroParameter0;
+    ezUInt32 uiParam = pFirst->m_iType - s_iMacroParameter0;
 
     if (uiParam < m_MacroParamStack.PeekBack()->GetCount())
     {
@@ -353,7 +353,7 @@ void ezPreprocessor::MergeTokens(const ezToken* pFirst, const ezToken* pSecond, 
         for (ezUInt32 i = uiParam; i < m_MacroParamStack.PeekBack()->GetCount() - 1; ++i)
         {
           Output.PushBackRange((*m_MacroParamStack.PeekBack())[i]);
-          Output.PushBack(m_TokenComma);
+          Output.PushBack(m_pTokenComma);
         }
 
         uiParam = m_MacroParamStack.PeekBack()->GetCount() - 1;
@@ -371,9 +371,9 @@ void ezPreprocessor::MergeTokens(const ezToken* pFirst, const ezToken* pSecond, 
       pFirst = nullptr;
   }
 
-  if (pSecond != nullptr && pSecond->m_iType >= s_MacroParameter0)
+  if (pSecond != nullptr && pSecond->m_iType >= s_iMacroParameter0)
   {
-    const ezUInt32 uiParam = pSecond->m_iType - s_MacroParameter0;
+    const ezUInt32 uiParam = pSecond->m_iType - s_iMacroParameter0;
 
     if (uiParam < m_MacroParamStack.PeekBack()->GetCount() && !(*m_MacroParamStack.PeekBack())[uiParam].IsEmpty())
     {
@@ -387,7 +387,7 @@ void ezPreprocessor::MergeTokens(const ezToken* pFirst, const ezToken* pSecond, 
       {
         for (ezUInt32 i = uiParam + 1; i < m_MacroParamStack.PeekBack()->GetCount(); ++i)
         {
-          Output.PushBack(m_TokenComma);
+          Output.PushBack(m_pTokenComma);
           Output.PushBackRange((*m_MacroParamStack.PeekBack())[i]);
         }
       }
@@ -487,9 +487,9 @@ ezResult ezPreprocessor::InsertParameters(const TokenStream& Tokens, TokenStream
 
   for (ezUInt32 i = 0; i < Concatenated.GetCount(); ++i)
   {
-    if (Concatenated[i]->m_iType >= s_MacroParameter0)
+    if (Concatenated[i]->m_iType >= s_iMacroParameter0)
     {
-      const ezUInt32 uiParam = Concatenated[i]->m_iType - s_MacroParameter0;
+      const ezUInt32 uiParam = Concatenated[i]->m_iType - s_iMacroParameter0;
 
       if (ExpandMacroParam(*Concatenated[i], uiParam, Output, Macro).Failed())
         return EZ_FAILURE;
@@ -576,7 +576,7 @@ ezResult ezPreprocessor::ExpandMacroParam(const ezToken& MacroToken, ezUInt32 ui
       Output.PushBackRange(ParamsExpanded[i]);
 
       if (i + 1 < ParamsExpanded.GetCount())
-        Output.PushBack(m_TokenComma);
+        Output.PushBack(m_pTokenComma);
     }
 
     return EZ_SUCCESS;

@@ -39,7 +39,7 @@ void ezClock::Reset(bool bEverything)
   }
 
   m_AccumulatedTime = ezTime::Seconds(0.0);
-  m_Speed = 1.0;
+  m_fSpeed = 1.0;
   m_bPaused = false;
 
   // this is to prevent having a time difference of zero (which might not work with some code)
@@ -65,7 +65,7 @@ void ezClock::Update()
   else if (m_FixedTimeStep > ezTime::Seconds(0.0))
   {
     // scale the time step by the speed factor
-    m_LastTimeDiff = m_FixedTimeStep * m_Speed;
+    m_LastTimeDiff = m_FixedTimeStep * m_fSpeed;
   }
   else
   {
@@ -76,7 +76,7 @@ void ezClock::Update()
     {
       // scale the time step by the speed factor
       // and make sure the time step does not leave the predetermined bounds
-      m_LastTimeDiff = ezMath::Clamp(tDiff * m_Speed, m_MinTimeStep, m_MaxTimeStep);
+      m_LastTimeDiff = ezMath::Clamp(tDiff * m_fSpeed, m_MinTimeStep, m_MaxTimeStep);
     }
   }
 
@@ -110,7 +110,7 @@ void ezClock::Save(ezStreamWriter& Stream) const
   Stream << m_FixedTimeStep;
   Stream << m_MinTimeStep;
   Stream << m_MaxTimeStep;
-  Stream << m_Speed;
+  Stream << m_fSpeed;
   Stream << m_bPaused;
 }
 
@@ -126,7 +126,7 @@ void ezClock::Load(ezStreamReader& Stream)
   Stream >> m_FixedTimeStep;
   Stream >> m_MinTimeStep;
   Stream >> m_MaxTimeStep;
-  Stream >> m_Speed;
+  Stream >> m_fSpeed;
   Stream >> m_bPaused;
 
   // make sure we continue properly

@@ -34,19 +34,19 @@ void ezTranslator::ReloadAllTranslators()
 
 //////////////////////////////////////////////////////////////////////////
 
-ezHybridArray<ezUniquePtr<ezTranslator>, 16> ezTranslationLookup::s_pTranslators;
+ezHybridArray<ezUniquePtr<ezTranslator>, 16> ezTranslationLookup::s_Translators;
 
 void ezTranslationLookup::AddTranslator(ezUniquePtr<ezTranslator> pTranslator)
 {
-  s_pTranslators.PushBack(std::move(pTranslator));
+  s_Translators.PushBack(std::move(pTranslator));
 }
 
 
 const char* ezTranslationLookup::Translate(const char* szString, ezUInt64 uiStringHash, ezTranslationUsage usage)
 {
-  for (ezUInt32 i = s_pTranslators.GetCount(); i > 0; --i)
+  for (ezUInt32 i = s_Translators.GetCount(); i > 0; --i)
   {
-    const char* szResult = s_pTranslators[i - 1]->Translate(szString, uiStringHash, usage);
+    const char* szResult = s_Translators[i - 1]->Translate(szString, uiStringHash, usage);
 
     if (szResult != nullptr)
       return szResult;
@@ -58,7 +58,7 @@ const char* ezTranslationLookup::Translate(const char* szString, ezUInt64 uiStri
 
 void ezTranslationLookup::Clear()
 {
-  s_pTranslators.Clear();
+  s_Translators.Clear();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -161,9 +161,9 @@ void ezTranslatorFromFiles::LoadTranslationFile(const char* szFullPath)
     sTooltip.Trim(" \t\r\n");
     sHelpUrl.Trim(" \t\r\n");
 
-    StoreTranslation(sValue, ezHashingUtils::StringHash(sKey.GetData()), ezTranslationUsage::Default);
-    StoreTranslation(sTooltip, ezHashingUtils::StringHash(sKey.GetData()), ezTranslationUsage::Tooltip);
-    StoreTranslation(sHelpUrl, ezHashingUtils::StringHash(sKey.GetData()), ezTranslationUsage::HelpURL);
+    StoreTranslation(sValue, ezHashingUtils::StringHash(sKey), ezTranslationUsage::Default);
+    StoreTranslation(sTooltip, ezHashingUtils::StringHash(sKey), ezTranslationUsage::Tooltip);
+    StoreTranslation(sHelpUrl, ezHashingUtils::StringHash(sKey), ezTranslationUsage::HelpURL);
   }
 }
 

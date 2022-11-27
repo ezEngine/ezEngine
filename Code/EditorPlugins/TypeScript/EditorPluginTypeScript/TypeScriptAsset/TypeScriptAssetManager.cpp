@@ -34,6 +34,7 @@ ezTypeScriptAssetDocumentManager::ezTypeScriptAssetDocumentManager()
   m_DocTypeDesc.m_sIcon = ":/AssetIcons/TypeScript.png";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezTypeScriptAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
+  m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Code_TypeScript");
 
   m_DocTypeDesc.m_sResourceFileExtension = "ezTypeScriptRes";
   m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::None;
@@ -193,7 +194,7 @@ void ezTypeScriptAssetDocumentManager::InitializeTranspiler()
 
   if (ezFileSystem::FindDataDirectoryWithRoot("TypeScript") == nullptr)
   {
-    ezFileSystem::AddDataDirectory(">sdk/Data/Tools/ezEditor/TypeScript", "TypeScript", "TypeScript").IgnoreResult();
+    ezFileSystem::AddDataDirectory(">sdk/Data/Tools/ezEditor/Typescript", "TypeScript", "TypeScript").IgnoreResult();
   }
 
   m_Transpiler.SetOutputFolder(":project/AssetCache/Temp");
@@ -367,7 +368,7 @@ ezResult ezTypeScriptAssetDocumentManager::GenerateScriptCompendium(ezBitflags<e
   {
     for (auto pAssetInfo : allTsAssets)
     {
-      const ezString& docPath = pAssetInfo->m_sDataDirRelativePath;
+      const ezString& docPath = pAssetInfo->m_sDataDirParentRelativePath;
       const ezUuid& docGuid = pAssetInfo->m_Info->m_DocumentID;
 
       sFilename = ezPathUtils::GetFileName(docPath);
@@ -405,6 +406,16 @@ ezResult ezTypeScriptAssetDocumentManager::GenerateScriptCompendium(ezBitflags<e
   }
 
   return EZ_SUCCESS;
+}
+
+ezStatus ezTypeScriptAssetDocumentManager::GetAdditionalOutputs(ezDynamicArray<ezString>& files)
+{
+  if (GenerateScriptCompendium(ezTransformFlags::Default).Failed())
+    return ezStatus("Failed to build TypeScript compendium.");
+
+  files.PushBack("AssetCache/Common/Scripts.ezScriptCompendium");
+
+  return ezStatus(EZ_SUCCESS);
 }
 
 //////////////////////////////////////////////////////////////////////////

@@ -160,7 +160,7 @@ void ezCommandInterpreterLua::Interpret(ezCommandInterpreterState& inout_State)
   }
 
   sTemp = "> ";
-  sTemp.Append(sRealCommand.GetData());
+  sTemp.Append(sRealCommand);
   inout_State.AddOutputLine(sTemp, ezConsoleString::Type::Executed);
 
   ezCVar* pCVAR = ezCVar::FindCVarByName(sRealVarName.GetData());

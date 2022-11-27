@@ -32,7 +32,7 @@ ezQtSurfaceAssetDocumentWindow::ezQtSurfaceAssetDocumentWindow(ezDocument* pDocu
   }
 
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this);
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
     pPropertyPanel->setObjectName("SurfaceAssetDockWidget");
     pPropertyPanel->setWindowTitle("Surface Properties");
     pPropertyPanel->show();

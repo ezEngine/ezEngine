@@ -26,13 +26,13 @@ public:
   const ezTransform& GetTransformation() const { return m_Transformation; }
 
 protected:
-  bool m_bVisible;
+  bool m_bVisible = false;
   ezTransform m_Transformation;
 
   void SetParentGizmo(ezGizmo* pParentGizmo) { m_pParentGizmo = pParentGizmo; }
 
 private:
-  ezGizmo* m_pParentGizmo;
+  ezGizmo* m_pParentGizmo = nullptr;
 };
 
 
@@ -54,7 +54,37 @@ enum ezEngineGizmoHandleType
   LineBox,
   Cone,
   Frustum,
+  FromFile,
 };
+
+struct ezGizmoFlags
+{
+  using StorageType = ezUInt8;
+
+  enum Enum
+  {
+    Default = 0,
+
+    ConstantSize = EZ_BIT(0),
+    OnTop = EZ_BIT(1),
+    Visualizer = EZ_BIT(2),
+    ShowInOrtho = EZ_BIT(3),
+    Pickable = EZ_BIT(4),
+    FaceCamera = EZ_BIT(5),
+  };
+
+  struct Bits
+  {
+    StorageType ConstantSize : 1;
+    StorageType OnTop : 1;
+    StorageType Visualizer : 1;
+    StorageType ShowInOrtho : 1;
+    StorageType Pickable : 1;
+    StorageType FaceCamera : 1;
+  };
+};
+
+EZ_DECLARE_FLAGS_OPERATORS(ezGizmoFlags);
 
 class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezEngineGizmoHandle : public ezGizmoHandle
 {
@@ -64,8 +94,7 @@ public:
   ezEngineGizmoHandle();
   ~ezEngineGizmoHandle();
 
-  void Configure(ezGizmo* pParentGizmo, ezEngineGizmoHandleType type, const ezColor& col, bool bConstantSize = true, bool bAlwaysOnTop = false,
-    bool bVisualizer = false, bool bShowInOrtho = false, bool bIsPickable = true);
+  void ConfigureHandle(ezGizmo* pParentGizmo, ezEngineGizmoHandleType type, const ezColor& col, ezBitflags<ezGizmoFlags> flags, const char* szCustomMesh = nullptr);
 
   virtual bool SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextComponentPickingID) override;
   virtual void UpdateForEngine(ezWorld* pWorld) override;
@@ -73,14 +102,16 @@ public:
   void SetColor(const ezColor& col);
 
 protected:
-  bool m_bConstantSize;
-  bool m_bAlwaysOnTop;
-  bool m_bVisualizer;
-  bool m_bShowInOrtho;
+  bool m_bConstantSize = true;
+  bool m_bAlwaysOnTop = false;
+  bool m_bVisualizer = false;
+  bool m_bShowInOrtho = false;
   bool m_bIsPickable = true;
-  ezInt32 m_iHandleType;
+  bool m_bFaceCamera = false;
+  ezInt32 m_iHandleType = -1;
+  ezString m_sGizmoHandleMesh;
   ezGameObjectHandle m_hGameObject;
-  ezGizmoComponent* m_pGizmoComponent;
-  ezColor m_Color;
-  ezWorld* m_pWorld;
+  ezGizmoComponent* m_pGizmoComponent = nullptr;
+  ezColor m_Color = ezColor::CornflowerBlue; /* The Original! */
+  ezWorld* m_pWorld = nullptr;
 };

@@ -15,7 +15,7 @@ class ezResourceManagerState;
 class EZ_CORE_DLL ezResourceManager
 {
   friend class ezResourceManagerState;
-  static ezUniquePtr<ezResourceManagerState> s_State;
+  static ezUniquePtr<ezResourceManagerState> s_pState;
 
   /// \name Events
   ///@{
@@ -79,6 +79,15 @@ public:
   /// here, to make it easier to identify this resource.
   template <typename ResourceType, typename DescriptorType>
   static ezTypedResourceHandle<ResourceType> CreateResource(
+    const char* szResourceID, DescriptorType&& descriptor, const char* szResourceDescription = nullptr);
+
+  /// \brief Returns a handle to the resource with the given ID if it exists or creates it from a descriptor.
+  ///
+  /// \param szResourceID The unique ID by which the resource is identified. E.g. in GetExistingResource()
+  /// \param descriptor A type specific descriptor that holds all the information to create the resource.
+  /// \param szResourceDescription An optional description that might help during debugging. Often a human readable name or path is stored here, to make it easier to identify this resource.
+  template <typename ResourceType, typename DescriptorType>
+  static ezTypedResourceHandle<ResourceType> GetOrCreateResource(
     const char* szResourceID, DescriptorType&& descriptor, const char* szResourceDescription = nullptr);
 
   /// \brief Returns a handle to the resource with the given ID. If the resource does not exist, the handle is invalid.

@@ -22,7 +22,7 @@ public:
 
   virtual void Clear() override;
 
-  virtual void* CreateObject(const ezUuid& guid, const ezRTTI* pRtti) override;
+  virtual ezInternal::NewInstance<void> CreateObject(const ezUuid& guid, const ezRTTI* pRtti) override;
   virtual void DeleteObject(const ezUuid& guid) override;
 
   ezRenderPipeline* m_pRenderPipeline;

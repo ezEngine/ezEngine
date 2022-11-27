@@ -17,7 +17,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezRmlUiCanvas2DComponent, 2, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("RmlFile", GetRmlFile, SetRmlFile)->AddAttributes(new ezAssetBrowserAttribute("RmlUi")),
+    EZ_ACCESSOR_PROPERTY("RmlFile", GetRmlFile, SetRmlFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Rml_UI")),
     EZ_ACCESSOR_PROPERTY("AnchorPoint", GetAnchorPoint, SetAnchorPoint)->AddAttributes(new ezClampValueAttribute(ezVec2(0), ezVec2(1))),
     EZ_ACCESSOR_PROPERTY("Size", GetSize, SetSize)->AddAttributes(new ezSuffixAttribute("px"), new ezMinValueTextAttribute("Auto")),
     EZ_ACCESSOR_PROPERTY("Offset", GetOffset, SetOffset)->AddAttributes(new ezDefaultValueAttribute(ezVec2::ZeroVector()), new ezSuffixAttribute("px")),    
@@ -33,7 +33,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezRmlUiCanvas2DComponent, 2, ezComponentMode::Static)
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("RmlUi"),
+    new ezCategoryAttribute("Gui/RmlUi"),
   }
   EZ_END_ATTRIBUTES;
 }
@@ -91,12 +91,12 @@ void ezRmlUiCanvas2DComponent::Update()
   }
 
   float fScale = 1.0f;
-  if (m_ReferenceResolution.x > 0 && m_ReferenceResolution.y > 0)
+  if (m_vReferenceResolution.x > 0 && m_vReferenceResolution.y > 0)
   {
-    fScale = viewSize.y / m_ReferenceResolution.y;
+    fScale = viewSize.y / m_vReferenceResolution.y;
   }
 
-  ezVec2 size = ezVec2(static_cast<float>(m_Size.x), static_cast<float>(m_Size.y)) * fScale;
+  ezVec2 size = ezVec2(static_cast<float>(m_vSize.x), static_cast<float>(m_vSize.y)) * fScale;
   if (size.x <= 0.0f)
   {
     size.x = viewSize.x;
@@ -107,13 +107,13 @@ void ezRmlUiCanvas2DComponent::Update()
   }
   m_pContext->SetSize(ezVec2U32(static_cast<ezUInt32>(size.x), static_cast<ezUInt32>(size.y)));
 
-  ezVec2 offset = ezVec2(static_cast<float>(m_Offset.x), static_cast<float>(m_Offset.y)) * fScale;
-  offset = (viewSize - size).CompMul(m_AnchorPoint) - offset.CompMul(m_AnchorPoint * 2.0f - ezVec2(1.0f));
+  ezVec2 offset = ezVec2(static_cast<float>(m_vOffset.x), static_cast<float>(m_vOffset.y)) * fScale;
+  offset = (viewSize - size).CompMul(m_vAnchorPoint) - offset.CompMul(m_vAnchorPoint * 2.0f - ezVec2(1.0f));
   m_pContext->SetOffset(ezVec2I32(static_cast<int>(offset.x), static_cast<int>(offset.y)));
 
   m_pContext->SetDpiScale(fScale);
 
-  if (m_bPassInput)
+  if (m_bPassInput && GetWorld()->GetWorldSimulationEnabled())
   {
     ezVec2 mousePos;
     ezInputManager::GetInputSlotState(ezInputSlot_MousePositionX, &mousePos.x);
@@ -175,25 +175,25 @@ void ezRmlUiCanvas2DComponent::SetRmlResource(const ezRmlUiResourceHandle& hReso
 
 void ezRmlUiCanvas2DComponent::SetOffset(const ezVec2I32& offset)
 {
-  m_Offset = offset;
+  m_vOffset = offset;
 }
 
 void ezRmlUiCanvas2DComponent::SetSize(const ezVec2U32& size)
 {
-  if (m_Size != size)
+  if (m_vSize != size)
   {
-    m_Size = size;
+    m_vSize = size;
 
     if (m_pContext != nullptr)
     {
-      m_pContext->SetSize(m_Size);
+      m_pContext->SetSize(m_vSize);
     }
   }
 }
 
 void ezRmlUiCanvas2DComponent::SetAnchorPoint(const ezVec2& anchorPoint)
 {
-  m_AnchorPoint = anchorPoint;
+  m_vAnchorPoint = anchorPoint;
 }
 
 void ezRmlUiCanvas2DComponent::SetPassInput(bool bPassInput)
@@ -251,9 +251,9 @@ void ezRmlUiCanvas2DComponent::RemoveDataBinding(ezUInt32 uiDataBindingIndex)
   m_DataBindings[uiDataBindingIndex] = nullptr;
 }
 
-ezUInt32 ezRmlUiCanvas2DComponent::AddBlackboardBinding(ezBlackboard& blackboard)
+ezUInt32 ezRmlUiCanvas2DComponent::AddBlackboardBinding(const ezSharedPtr<ezBlackboard>& pBlackboard)
 {
-  auto pDataBinding = EZ_DEFAULT_NEW(ezRmlUiInternal::BlackboardDataBinding, blackboard);
+  auto pDataBinding = EZ_DEFAULT_NEW(ezRmlUiInternal::BlackboardDataBinding, pBlackboard);
   return AddDataBinding(pDataBinding);
 }
 
@@ -276,7 +276,7 @@ ezRmlUiContext* ezRmlUiCanvas2DComponent::GetOrCreateRmlContext()
   }
   sName.AppendFormat("_{}", ezArgP(this));
 
-  m_pContext = ezRmlUi::GetSingleton()->CreateContext(sName, m_Size);
+  m_pContext = ezRmlUi::GetSingleton()->CreateContext(sName, m_vSize);
 
   for (auto& pDataBinding : m_DataBindings)
   {
@@ -297,9 +297,9 @@ void ezRmlUiCanvas2DComponent::SerializeComponent(ezWorldWriter& stream) const
   ezStreamWriter& s = stream.GetStream();
 
   s << m_hResource;
-  s << m_Offset;
-  s << m_Size;
-  s << m_AnchorPoint;
+  s << m_vOffset;
+  s << m_vSize;
+  s << m_vAnchorPoint;
   s << m_bPassInput;
   s << m_bAutobindBlackboards;
 }
@@ -311,9 +311,9 @@ void ezRmlUiCanvas2DComponent::DeserializeComponent(ezWorldReader& stream)
   ezStreamReader& s = stream.GetStream();
 
   s >> m_hResource;
-  s >> m_Offset;
-  s >> m_Size;
-  s >> m_AnchorPoint;
+  s >> m_vOffset;
+  s >> m_vSize;
+  s >> m_vAnchorPoint;
   s >> m_bPassInput;
 
   if (uiVersion >= 2)
@@ -322,7 +322,7 @@ void ezRmlUiCanvas2DComponent::DeserializeComponent(ezWorldReader& stream)
   }
 }
 
-ezResult ezRmlUiCanvas2DComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
+ezResult ezRmlUiCanvas2DComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg)
 {
   bAlwaysVisible = true;
   return EZ_SUCCESS;
@@ -357,7 +357,7 @@ void ezRmlUiCanvas2DComponent::OnMsgReload(ezMsgRmlUiReload& msg)
 void ezRmlUiCanvas2DComponent::UpdateCachedValues()
 {
   m_ResourceEventUnsubscriber.Unsubscribe();
-  m_ReferenceResolution.SetZero();
+  m_vReferenceResolution.SetZero();
 
   if (m_hResource.IsValid())
   {
@@ -366,7 +366,7 @@ void ezRmlUiCanvas2DComponent::UpdateCachedValues()
 
       if (pResource->GetScaleMode() == ezRmlUiScaleMode::WithScreenSize)
       {
-        m_ReferenceResolution = pResource->GetReferenceResolution();
+        m_vReferenceResolution = pResource->GetReferenceResolution();
       }
     }
 

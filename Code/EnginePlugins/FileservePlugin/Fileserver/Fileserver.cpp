@@ -16,20 +16,20 @@ ezFileserver::ezFileserver()
   ezFileserveClient::DisabledFileserveClient();
 
   // check whether the fileserve port was reconfigured through the command line
-  m_uiPort = ezCommandLineUtils::GetGlobalInstance()->GetIntOption("-fs_port", m_uiPort);
+  m_uiPort = static_cast<ezUInt16>(ezCommandLineUtils::GetGlobalInstance()->GetIntOption("-fs_port", m_uiPort));
 }
 
 void ezFileserver::StartServer()
 {
-  if (m_Network)
+  if (m_pNetwork)
     return;
 
   ezStringBuilder tmp;
 
-  m_Network = ezRemoteInterfaceEnet::Make();
-  m_Network->StartServer('EZFS', ezConversionUtils::ToString(m_uiPort, tmp), false).IgnoreResult();
-  m_Network->SetMessageHandler('FSRV', ezMakeDelegate(&ezFileserver::NetworkMsgHandler, this));
-  m_Network->m_RemoteEvents.AddEventHandler(ezMakeDelegate(&ezFileserver::NetworkEventHandler, this));
+  m_pNetwork = ezRemoteInterfaceEnet::Make();
+  m_pNetwork->StartServer('EZFS', ezConversionUtils::ToString(m_uiPort, tmp), false).IgnoreResult();
+  m_pNetwork->SetMessageHandler('FSRV', ezMakeDelegate(&ezFileserver::NetworkMsgHandler, this));
+  m_pNetwork->m_RemoteEvents.AddEventHandler(ezMakeDelegate(&ezFileserver::NetworkEventHandler, this));
 
   ezFileserverEvent e;
   e.m_Type = ezFileserverEvent::Type::ServerStarted;
@@ -38,11 +38,11 @@ void ezFileserver::StartServer()
 
 void ezFileserver::StopServer()
 {
-  if (!m_Network)
+  if (!m_pNetwork)
     return;
 
-  m_Network->ShutdownConnection();
-  m_Network.Clear();
+  m_pNetwork->ShutdownConnection();
+  m_pNetwork.Clear();
 
   ezFileserverEvent e;
   e.m_Type = ezFileserverEvent::Type::ServerStopped;
@@ -51,21 +51,21 @@ void ezFileserver::StopServer()
 
 bool ezFileserver::UpdateServer()
 {
-  if (!m_Network)
+  if (!m_pNetwork)
     return false;
 
-  m_Network->UpdateRemoteInterface();
-  return m_Network->ExecuteAllMessageHandlers() > 0;
+  m_pNetwork->UpdateRemoteInterface();
+  return m_pNetwork->ExecuteAllMessageHandlers() > 0;
 }
 
 bool ezFileserver::IsServerRunning() const
 {
-  return m_Network != nullptr;
+  return m_pNetwork != nullptr;
 }
 
 void ezFileserver::SetPort(ezUInt16 uiPort)
 {
-  EZ_ASSERT_DEV(m_Network == nullptr, "The port cannot be changed after the server was started");
+  EZ_ASSERT_DEV(m_pNetwork == nullptr, "The port cannot be changed after the server was started");
   m_uiPort = uiPort;
 }
 
@@ -75,7 +75,7 @@ void ezFileserver::BroadcastReloadResourcesCommand()
   if (!IsServerRunning())
     return;
 
-  m_Network->Send('FSRV', 'RLDR');
+  m_pNetwork->Send('FSRV', 'RLDR');
 }
 
 void ezFileserver::NetworkMsgHandler(ezRemoteMessage& msg)
@@ -88,7 +88,7 @@ void ezFileserver::NetworkMsgHandler(ezRemoteMessage& msg)
   if (msg.GetMessageID() == 'RUTR')
   {
     // 'are you there' is used to check whether a certain address is a proper Fileserver
-    m_Network->Send('FSRV', ' YES');
+    m_pNetwork->Send('FSRV', ' YES');
 
     ezFileserverEvent e;
     e.m_Type = ezFileserverEvent::Type::AreYouThereRequest;
@@ -138,7 +138,7 @@ void ezFileserver::NetworkMsgHandler(ezRemoteMessage& msg)
     return;
   }
 
-  ezLog::Error("Unknown FSRV message: '{0}' - {1} bytes", msg.GetMessageID(), msg.GetMessageSize());
+  ezLog::Error("Unknown FSRV message: '{0}' - {1} bytes", msg.GetMessageID(), msg.GetMessageData().GetCount());
 }
 
 
@@ -302,7 +302,7 @@ void ezFileserver::HandleFileRequest(ezFileserveClientContext& client, ezRemoteM
         ret.GetWriter().WriteBytes(&m_SendToClient[uiNextByte], uiChunkSize).IgnoreResult();
 
       ret.SetMessageID('FSRV', 'DWNL');
-      m_Network->Send(ezRemoteTransmitMode::Reliable, ret);
+      m_pNetwork->Send(ezRemoteTransmitMode::Reliable, ret);
 
       uiNextByte += uiChunkSize;
 
@@ -324,7 +324,7 @@ void ezFileserver::HandleFileRequest(ezFileserveClientContext& client, ezRemoteM
     ret.GetWriter() << status.m_uiHash;
     ret.GetWriter() << uiDataDirID;
 
-    m_Network->Send(ezRemoteTransmitMode::Reliable, ret);
+    m_pNetwork->Send(ezRemoteTransmitMode::Reliable, ret);
   }
 
   // reuse previous values
@@ -449,7 +449,7 @@ void ezFileserver::HandleUploadFileFinished(ezFileserveClientContext& client, ez
 
   // send a response when all data has been transmitted
   // this ensures the client side updates the network until all data has been fully transmitted
-  m_Network->Send('FSRV', 'UACK');
+  m_pNetwork->Send('FSRV', 'UACK');
 }
 
 
@@ -467,7 +467,7 @@ ezResult ezFileserver::SendConnectionInfo(const char* szClientAddress, ezUInt16 
     return EZ_FAILURE;
   }
 
-  const ezUInt8 uiCount = MyIPs.GetCount();
+  const ezUInt8 uiCount = static_cast<ezUInt8>(MyIPs.GetCount());
 
   ezRemoteMessage msg('FSRV', 'MYIP');
   msg.GetWriter() << uiMyPort;

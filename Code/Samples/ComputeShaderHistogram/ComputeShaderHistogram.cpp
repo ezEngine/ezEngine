@@ -32,9 +32,9 @@ ezApplication::Execution ezComputeShaderHistogramApp::Run()
   ezClock::GetGlobalClock()->Update();
   Run_InputUpdate();
 
-  m_stuffChanged = false;
-  m_directoryWatcher->EnumerateChanges(ezMakeDelegate(&ezComputeShaderHistogramApp::OnFileChanged, this));
-  if (m_stuffChanged)
+  m_bStuffChanged = false;
+  m_pDirectoryWatcher->EnumerateChanges(ezMakeDelegate(&ezComputeShaderHistogramApp::OnFileChanged, this));
+  if (m_bStuffChanged)
   {
     ezResourceManager::ReloadAllResources(false);
   }
@@ -45,6 +45,8 @@ ezApplication::Execution ezComputeShaderHistogramApp::Run()
 
     // Before starting to render in a frame call this function
     device->BeginFrame();
+
+    device->BeginPipeline("ComputeShaderHistogramSample", m_hSwapChain);
 
     ezGALPass* pGALPass = device->BeginPass("ezComputeShaderHistogram");
 
@@ -76,7 +78,7 @@ ezApplication::Execution ezComputeShaderHistogramApp::Run()
 
       // Copy screentexture contents to backbuffer.
       // (Is drawing better? Don't care, this is a one liner and needs no shader!)
-      renderContext.GetCommandEncoder()->CopyTexture(device->GetBackBufferTextureFromSwapChain(device->GetPrimarySwapChain()), m_hScreenTexture);
+      renderContext.GetCommandEncoder()->CopyTexture(device->GetBackBufferTextureFromSwapChain(m_hSwapChain), m_hScreenTexture);
 
       renderContext.EndRendering();
     }
@@ -120,7 +122,7 @@ ezApplication::Execution ezComputeShaderHistogramApp::Run()
 
     device->EndPass(pGALPass);
 
-    device->Present(device->GetPrimarySwapChain(), true);
+    device->EndPipeline(m_hSwapChain);
 
     device->EndFrame();
     ezRenderContext::GetDefaultInstance()->ResetContextState();
@@ -141,16 +143,8 @@ void ezComputeShaderHistogramApp::AfterCoreSystemsStartup()
 {
   SUPER::AfterCoreSystemsStartup();
 
-  m_directoryWatcher = EZ_DEFAULT_NEW(ezDirectoryWatcher);
-  EZ_VERIFY(m_directoryWatcher->OpenDirectory(FindProjectDirectory(), ezDirectoryWatcher::Watch::Writes | ezDirectoryWatcher::Watch::Subdirectories).Succeeded(), "Failed to watch project directory");
-
-#ifdef BUILDSYSTEM_ENABLE_VULKAN_SUPPORT
-  ezShaderManager::Configure("VULKAN", true);
-  EZ_VERIFY(ezPlugin::LoadPlugin("ezShaderCompilerDXC").Succeeded(), "DXC compiler plugin not found");
-#else
-  ezShaderManager::Configure("DX11_SM50", true);
-  EZ_VERIFY(ezPlugin::LoadPlugin("ezShaderCompilerHLSL").Succeeded(), "HLSL compiler plugin not found");
-#endif
+  m_pDirectoryWatcher = EZ_DEFAULT_NEW(ezDirectoryWatcher);
+  EZ_VERIFY(m_pDirectoryWatcher->OpenDirectory(FindProjectDirectory(), ezDirectoryWatcher::Watch::Writes | ezDirectoryWatcher::Watch::Subdirectories).Succeeded(), "Failed to watch project directory");
 
   auto device = ezGALDevice::GetDefaultDevice();
 
@@ -180,12 +174,12 @@ void ezComputeShaderHistogramApp::AfterCoreSystemsStartup()
     {
       ezUniquePtr<ezWindowOutputTargetGAL> pOutput = EZ_DEFAULT_NEW(ezWindowOutputTargetGAL);
 
-      ezGALSwapChainCreationDescription swd;
+      ezGALWindowSwapChainCreationDescription swd;
       swd.m_pWindow = pWindowPlugin->m_pWindow.Borrow();
       swd.m_bAllowScreenshots = true;
       pOutput->CreateSwapchain(swd);
 
-      device->SetPrimarySwapChain(pOutput->m_hSwapChain);
+      m_hSwapChain = pOutput->m_hSwapChain;
       // Get back-buffer render target view.
       const ezGALSwapChain* pPrimarySwapChain = device->GetSwapChain(pOutput->m_hSwapChain);
       m_hBackbufferRTV = device->GetDefaultRenderTargetView(pPrimarySwapChain->GetBackBufferTexture());
@@ -255,6 +249,7 @@ void ezComputeShaderHistogramApp::BeforeHighLevelSystemsShutdown()
   m_hScreenSRV.Invalidate();
   device->DestroyTexture(m_hScreenTexture);
   m_hScreenTexture.Invalidate();
+  device->DestroySwapChain(m_hSwapChain);
 
   device->DestroyUnorderedAccessView(m_hHistogramUAV);
   m_hHistogramUAV.Invalidate();
@@ -276,23 +271,15 @@ void ezComputeShaderHistogramApp::CreateHistogramQuad()
     const float sizeScreen = 0.8f;
 
     ezGeometry geom;
-    ezMat4 transform(ezMat3::IdentityMatrix(), ezVec3(1.0f - pixToScreen.x * borderOffsetPix - sizeScreen / 2, -1.0f + pixToScreen.y * borderOffsetPix + sizeScreen / 2, 0.0f));
-    geom.AddRectXY(ezVec2(sizeScreen, sizeScreen), ezColor::Black, transform);
+    ezGeometry::GeoOptions opt;
+    opt.m_Color = ezColor::Black;
+    opt.m_Transform = ezMat4(ezMat3::IdentityMatrix(), ezVec3(1.0f - pixToScreen.x * borderOffsetPix - sizeScreen / 2, -1.0f + pixToScreen.y * borderOffsetPix + sizeScreen / 2, 0.0f));
+    geom.AddRectXY(ezVec2(sizeScreen, sizeScreen), 1, 1, opt);
 
     ezMeshBufferResourceDescriptor desc;
     desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
     desc.AddStream(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::XYFloat);
-    desc.AllocateStreams(geom.GetVertices().GetCount(), ezGALPrimitiveTopology::Triangles, geom.GetPolygons().GetCount() * 2);
-
-    for (ezUInt32 v = 0; v < geom.GetVertices().GetCount(); ++v)
-    {
-      desc.SetVertexData<ezVec3>(0, v, geom.GetVertices()[v].m_vPosition);
-    }
-    // (Making use of knowledge of vertex order)
-    desc.SetVertexData<ezVec2>(1, 0, ezVec2(0.0f, 0.0f));
-    desc.SetVertexData<ezVec2>(1, 1, ezVec2(1.0f, 0.0f));
-    desc.SetVertexData<ezVec2>(1, 2, ezVec2(1.0f, 1.0f));
-    desc.SetVertexData<ezVec2>(1, 3, ezVec2(0.0f, 1.0f));
+    desc.AllocateStreamsFromGeometry(geom);
 
     ezUInt32 t = 0;
     for (ezUInt32 p = 0; p < geom.GetPolygons().GetCount(); ++p)
@@ -305,16 +292,16 @@ void ezComputeShaderHistogramApp::CreateHistogramQuad()
       }
     }
 
-    m_hHistogramQuadMeshBuffer = ezResourceManager::CreateResource<ezMeshBufferResource>("{4BEFA142-FEDB-42D0-84DC-58223ADD8C62}", std::move(desc));
+    m_hHistogramQuadMeshBuffer = ezResourceManager::GetOrCreateResource<ezMeshBufferResource>("{4BEFA142-FEDB-42D0-84DC-58223ADD8C62}", std::move(desc));
   }
 }
 
-void ezComputeShaderHistogramApp::OnFileChanged(const char* filename, ezDirectoryWatcherAction action)
+void ezComputeShaderHistogramApp::OnFileChanged(const char* filename, ezDirectoryWatcherAction action, ezDirectoryWatcherType type)
 {
-  if (action == ezDirectoryWatcherAction::Modified)
+  if (action == ezDirectoryWatcherAction::Modified && type == ezDirectoryWatcherType::File)
   {
     ezLog::Info("The file {0} was modified", filename);
-    m_stuffChanged = true;
+    m_bStuffChanged = true;
   }
 }
 

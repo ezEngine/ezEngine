@@ -104,13 +104,13 @@ ezStatus ezObjectDirectAccessor::MoveObject(
   return ezStatus(EZ_SUCCESS);
 }
 
-ezStatus ezObjectDirectAccessor::GetKeys(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezHybridArray<ezVariant, 16>& out_keys)
+ezStatus ezObjectDirectAccessor::GetKeys(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezDynamicArray<ezVariant>& out_keys)
 {
   bool bRes = pObject->GetTypeAccessor().GetKeys(pProp->GetPropertyName(), out_keys);
   return ezStatus(bRes ? EZ_SUCCESS : EZ_FAILURE);
 }
 
-ezStatus ezObjectDirectAccessor::GetValues(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezHybridArray<ezVariant, 16>& out_values)
+ezStatus ezObjectDirectAccessor::GetValues(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezDynamicArray<ezVariant>& out_values)
 {
   bool bRes = pObject->GetTypeAccessor().GetValues(pProp->GetPropertyName(), out_values);
   return ezStatus(bRes ? EZ_SUCCESS : EZ_FAILURE);

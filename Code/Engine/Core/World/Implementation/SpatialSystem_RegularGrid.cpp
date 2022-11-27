@@ -16,7 +16,10 @@ namespace
     CELL_INDEX_MASK = (1 << 21) - 1
   };
 
-  EZ_ALWAYS_INLINE ezSimdVec4f ToVec3(const ezSimdVec4i& v) { return v.ToFloat(); }
+  EZ_ALWAYS_INLINE ezSimdVec4f ToVec3(const ezSimdVec4i& v)
+  {
+    return v.ToFloat();
+  }
 
   EZ_ALWAYS_INLINE ezSimdVec4i ToVec3I32(const ezSimdVec4f& v)
   {
@@ -178,6 +181,7 @@ struct ezSpatialSystem_RegularGrid::Cell
 {
   Cell(ezAllocatorBase* pAlignedAlloctor, ezAllocatorBase* pAllocator)
     : m_BoundingSpheres(pAlignedAlloctor)
+    , m_BoundingBoxHalfExtents(pAlignedAlloctor)
     , m_TagSets(pAllocator)
     , m_ObjectPointers(pAllocator)
     , m_DataIndices(pAllocator)
@@ -187,6 +191,7 @@ struct ezSpatialSystem_RegularGrid::Cell
   EZ_FORCE_INLINE ezUInt32 AddData(const ezSimdBBoxSphere& bounds, const ezTagSet& tags, ezGameObject* pObject, ezUInt64 uiLastVisibleFrame, ezUInt32 uiDataIndex)
   {
     m_BoundingSpheres.PushBack(bounds.GetSphere());
+    m_BoundingBoxHalfExtents.PushBack(bounds.m_BoxHalfExtents);
     m_TagSets.PushBack(tags);
     m_ObjectPointers.PushBack(pObject);
     m_LastVisibleFrames.PushBack(uiLastVisibleFrame);
@@ -201,6 +206,7 @@ struct ezSpatialSystem_RegularGrid::Cell
     ezUInt32 uiMovedDataIndex = m_DataIndices.PeekBack();
 
     m_BoundingSpheres.RemoveAtAndSwap(uiCellDataIndex);
+    m_BoundingBoxHalfExtents.RemoveAtAndSwap(uiCellDataIndex);
     m_TagSets.RemoveAtAndSwap(uiCellDataIndex);
     m_ObjectPointers.RemoveAtAndSwap(uiCellDataIndex);
     m_LastVisibleFrames.RemoveAtAndSwap(uiCellDataIndex);
@@ -215,6 +221,7 @@ struct ezSpatialSystem_RegularGrid::Cell
   ezSimdBBoxSphere m_Bounds;
 
   ezDynamicArray<ezSimdBSphere> m_BoundingSpheres;
+  ezDynamicArray<ezSimdVec4f> m_BoundingBoxHalfExtents;
   ezDynamicArray<ezTagSet> m_TagSets;
   ezDynamicArray<ezGameObject*> m_ObjectPointers;
   mutable ezDynamicArray<ezUInt64> m_LastVisibleFrames; // multi-threaded access is ok, since all threads will set the same value
@@ -246,7 +253,7 @@ struct ezSpatialSystem_RegularGrid::Grid
     , m_bCanBeCached(CanBeCached(category))
   {
     ezSimdBBox overflowBox;
-    overflowBox.SetCenterAndHalfExtents(ezSimdVec4f::ZeroVector(), ezSimdVec4f((float)(system.m_iCellSize.x() * MAX_CELL_INDEX)));
+    overflowBox.SetCenterAndHalfExtents(ezSimdVec4f::ZeroVector(), ezSimdVec4f((float)(system.m_vCellSize.x() * MAX_CELL_INDEX)));
 
     auto pOverflowCell = EZ_NEW(&m_System.m_AlignedAllocator, Cell, &m_System.m_AlignedAllocator, &m_System.m_Allocator);
     pOverflowCell->m_Bounds = overflowBox;
@@ -257,7 +264,7 @@ struct ezSpatialSystem_RegularGrid::Grid
   ezUInt32 GetOrCreateCell(const ezSimdBBoxSphere& bounds)
   {
     ezSimdVec4i cellIndex = ToVec3I32(bounds.m_CenterAndRadius * m_System.m_fInvCellSize);
-    ezSimdBBox cellBox = ComputeCellBoundingBox(cellIndex, m_System.m_iCellSize);
+    ezSimdBBox cellBox = ComputeCellBoundingBox(cellIndex, m_System.m_vCellSize);
 
     if (cellBox.Contains(bounds.GetBox()))
     {
@@ -327,7 +334,9 @@ struct ezSpatialSystem_RegularGrid::Grid
     if (FilterByTags(tags, m_IncludeTags, m_ExcludeTags))
       return false;
 
-    const ezSimdBSphere& bounds = pOtherCell->m_BoundingSpheres[mapping.m_uiCellDataIndex];
+    ezSimdBBoxSphere bounds;
+    bounds.m_CenterAndRadius = pOtherCell->m_BoundingSpheres[mapping.m_uiCellDataIndex].m_CenterAndRadius;
+    bounds.m_BoxHalfExtents = pOtherCell->m_BoundingBoxHalfExtents[mapping.m_uiCellDataIndex];
     ezGameObject* objectPointer = pOtherCell->m_ObjectPointers[mapping.m_uiCellDataIndex];
     ezUInt64 uiLastVisibleFrame = pOtherCell->m_LastVisibleFrames[mapping.m_uiCellDataIndex];
 
@@ -343,8 +352,8 @@ struct ezSpatialSystem_RegularGrid::Grid
   template <typename Functor>
   EZ_FORCE_INLINE void ForEachCellInBox(const ezSimdBBox& box, Functor func) const
   {
-    ezSimdVec4i minIndex = ToVec3I32((box.m_Min - m_System.m_fOverlapSize) * m_System.m_fInvCellSize);
-    ezSimdVec4i maxIndex = ToVec3I32((box.m_Max + m_System.m_fOverlapSize) * m_System.m_fInvCellSize);
+    ezSimdVec4i minIndex = ToVec3I32((box.m_Min - m_System.m_vOverlapSize) * m_System.m_fInvCellSize);
+    ezSimdVec4i maxIndex = ToVec3I32((box.m_Max + m_System.m_vOverlapSize) * m_System.m_fInvCellSize);
 
     EZ_ASSERT_DEBUG((minIndex.Abs() < ezSimdVec4i(MAX_CELL_INDEX)).AllSet<3>(), "Position is too big");
     EZ_ASSERT_DEBUG((maxIndex.Abs() < ezSimdVec4i(MAX_CELL_INDEX)).AllSet<3>(), "Position is too big");
@@ -446,7 +455,7 @@ namespace ezInternal
         if (!shape.Overlaps(boundingSpheres[i]))
           continue;
 
-        if (UseTagsFilter)
+        if constexpr (UseTagsFilter)
         {
           if (FilterByTags(tagSets[i], queryParams.m_IncludeTags, queryParams.m_ExcludeTags))
           {
@@ -469,12 +478,10 @@ namespace ezInternal
       PlaneData m_PlaneData;
       ezDynamicArray<const ezGameObject*>* m_pOutObjects;
       ezUInt64 m_uiFrameCounter;
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-
-#endif
+      ezSpatialSystem::IsOccludedFunc m_IsOccludedCB;
     };
 
-    template <bool UseTagsFilter>
+    template <bool UseTagsFilter, bool UseOcclusionCallback>
     static ezVisitorExecution::Enum FrustumQueryCallback(const ezSpatialSystem_RegularGrid::Cell& cell, const ezSpatialSystem::QueryParams& queryParams, ezSpatialSystem_RegularGrid::Stats& stats, void* pUserData)
     {
       auto pQueryData = static_cast<FrustumQueryData*>(pUserData);
@@ -484,7 +491,17 @@ namespace ezInternal
       if (!SphereFrustumIntersect(cellSphere, planeData))
         return ezVisitorExecution::Continue;
 
+      if constexpr (UseOcclusionCallback)
+      {
+        if (pQueryData->m_IsOccludedCB(cell.m_Bounds.GetBox()))
+        {
+          return ezVisitorExecution::Continue;
+        }
+      }
+
+      ezSimdBBox bbox;
       auto boundingSpheres = cell.m_BoundingSpheres.GetData();
+      auto boundingBoxHalfExtents = cell.m_BoundingBoxHalfExtents.GetData();
       auto tagSets = cell.m_TagSets.GetData();
       auto objectPointers = cell.m_ObjectPointers.GetData();
       auto lastVisibleFrames = cell.m_LastVisibleFrames.GetData();
@@ -513,11 +530,20 @@ namespace ezInternal
             ezUInt32 i = ezMath::FirstBitLow(mask) + currentIndex;
             mask &= mask - 1;
 
-            if (UseTagsFilter)
+            if constexpr (UseTagsFilter)
             {
               if (FilterByTags(tagSets[i], queryParams.m_IncludeTags, queryParams.m_ExcludeTags))
               {
                 stats.m_uiNumObjectsFiltered++;
+                continue;
+              }
+            }
+
+            if constexpr (UseOcclusionCallback)
+            {
+              bbox.SetCenterAndHalfExtents(boundingSpheres[i].GetCenter(), boundingBoxHalfExtents[i]);
+              if (pQueryData->m_IsOccludedCB(bbox))
+              {
                 continue;
               }
             }
@@ -538,11 +564,21 @@ namespace ezInternal
           if (!SphereFrustumIntersect(boundingSpheres[i], planeData))
             continue;
 
-          if (UseTagsFilter)
+          if constexpr (UseTagsFilter)
           {
             if (FilterByTags(tagSets[i], queryParams.m_IncludeTags, queryParams.m_ExcludeTags))
             {
               stats.m_uiNumObjectsFiltered++;
+              continue;
+            }
+          }
+
+          if constexpr (UseOcclusionCallback)
+          {
+            bbox.SetCenterAndHalfExtents(boundingSpheres[i].GetCenter(), boundingBoxHalfExtents[i]);
+
+            if (pQueryData->m_IsOccludedCB(bbox))
+            {
               continue;
             }
           }
@@ -568,8 +604,8 @@ ezSpatialSystem_RegularGrid::ezSpatialSystem_RegularGrid(ezUInt32 uiCellSize /*=
   : m_AlignedAllocator("Spatial System Aligned", ezFoundation::GetAlignedAllocator())
   , m_Grids(&m_Allocator)
   , m_DataTable(&m_Allocator)
-  , m_iCellSize(uiCellSize)
-  , m_fOverlapSize(uiCellSize / 4.0f)
+  , m_vCellSize(uiCellSize)
+  , m_vOverlapSize(uiCellSize / 4.0f)
   , m_fInvCellSize(1.0f / uiCellSize)
 {
   EZ_CHECK_AT_COMPILETIME(sizeof(Data) == 8);
@@ -580,8 +616,7 @@ ezSpatialSystem_RegularGrid::ezSpatialSystem_RegularGrid(ezUInt32 uiCellSize /*=
     if (e.m_EventType == ezCVarEvent::ValueChanged)
     {
       RemoveAllCachedGrids();
-    }
-  });
+    } });
 }
 
 ezSpatialSystem_RegularGrid::~ezSpatialSystem_RegularGrid() = default;
@@ -700,7 +735,7 @@ ezSpatialDataHandle ezSpatialSystem_RegularGrid::CreateSpatialDataAlwaysVisible(
     return ezSpatialDataHandle();
 
   ezSimdBBox hugeBox;
-  hugeBox.SetCenterAndHalfExtents(ezSimdVec4f::ZeroVector(), ezSimdVec4f((float)(m_iCellSize.x() * MAX_CELL_INDEX)));
+  hugeBox.SetCenterAndHalfExtents(ezSimdVec4f::ZeroVector(), ezSimdVec4f((float)(m_vCellSize.x() * MAX_CELL_INDEX)));
 
   return AddSpatialDataToGrids(hugeBox, pObject, uiCategoryBitmask, tags, true);
 }
@@ -733,6 +768,7 @@ void ezSpatialSystem_RegularGrid::UpdateSpatialDataBounds(const ezSpatialDataHan
       if (pOldCell->m_Bounds.GetBox().Contains(bounds.GetBox()))
       {
         pOldCell->m_BoundingSpheres[mapping.m_uiCellDataIndex] = bounds.GetSphere();
+        pOldCell->m_BoundingBoxHalfExtents[mapping.m_uiCellDataIndex] = bounds.m_BoxHalfExtents;
       }
       else
       {
@@ -792,7 +828,7 @@ void ezSpatialSystem_RegularGrid::FindObjectsInBox(const ezBoundingBox& box, con
     &queryData);
 }
 
-void ezSpatialSystem_RegularGrid::FindVisibleObjects(const ezFrustum& frustum, const QueryParams& queryParams, ezDynamicArray<const ezGameObject*>& out_Objects) const
+void ezSpatialSystem_RegularGrid::FindVisibleObjects(const ezFrustum& frustum, const QueryParams& queryParams, ezDynamicArray<const ezGameObject*>& out_Objects, ezSpatialSystem::IsOccludedFunc IsOccluded) const
 {
   EZ_PROFILE_SCOPE("FindVisibleObjects");
 
@@ -839,12 +875,24 @@ void ezSpatialSystem_RegularGrid::FindVisibleObjects(const ezFrustum& frustum, c
 
     queryData.m_pOutObjects = &out_Objects;
     queryData.m_uiFrameCounter = m_uiFrameCounter;
+
+    queryData.m_IsOccludedCB = IsOccluded;
   }
 
-  ForEachCellInBoxInMatchingGrids(simdBox, queryParams,
-    &ezInternal::QueryHelper::FrustumQueryCallback<false>,
-    &ezInternal::QueryHelper::FrustumQueryCallback<true>,
-    &queryData);
+  if (IsOccluded.IsValid())
+  {
+    ForEachCellInBoxInMatchingGrids(simdBox, queryParams,
+      &ezInternal::QueryHelper::FrustumQueryCallback<false, true>,
+      &ezInternal::QueryHelper::FrustumQueryCallback<true, true>,
+      &queryData);
+  }
+  else
+  {
+    ForEachCellInBoxInMatchingGrids(simdBox, queryParams,
+      &ezInternal::QueryHelper::FrustumQueryCallback<false, false>,
+      &ezInternal::QueryHelper::FrustumQueryCallback<true, false>,
+      &queryData);
+  }
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   if (queryParams.m_pStats != nullptr)

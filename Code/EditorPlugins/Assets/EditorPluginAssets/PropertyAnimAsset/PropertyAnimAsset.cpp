@@ -166,7 +166,7 @@ bool ezPropertyAnimAssetDocument::SetScrubberPosition(ezUInt64 uiTick)
   return true;
 }
 
-ezStatus ezPropertyAnimAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
+ezTransformStatus ezPropertyAnimAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
   const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   const ezPropertyAnimationTrackGroup* pProp = GetProperties();
@@ -422,8 +422,8 @@ void ezPropertyAnimAssetDocument::ApplyAnimation(const ezPropertyReference& key,
       {
         if (pPropRtti->GetVariantType() >= ezVariantType::Bool && pPropRtti->GetVariantType() <= ezVariantType::Double)
         {
-          ezVariant value = pTrack->m_FloatCurve.Evaluate(m_uiScrubberTickPos);
-          animValue = value.ConvertTo(animValue.GetType());
+          ezVariant value2 = pTrack->m_FloatCurve.Evaluate(m_uiScrubberTickPos);
+          animValue = value2.ConvertTo(animValue.GetType());
         }
       }
       break;
@@ -460,8 +460,8 @@ void ezPropertyAnimAssetDocument::ApplyAnimation(const ezPropertyReference& key,
       {
         if (pPropRtti->GetVariantType() == ezVariantType::Color || pPropRtti->GetVariantType() == ezVariantType::ColorGamma)
         {
-          ezVariant value = pTrack->m_ColorGradient.Evaluate(m_uiScrubberTickPos);
-          animValue = value.ConvertTo(animValue.GetType());
+          ezVariant value2 = pTrack->m_ColorGradient.Evaluate(m_uiScrubberTickPos);
+          animValue = value2.ConvertTo(animValue.GetType());
         }
       }
       break;

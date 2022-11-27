@@ -42,7 +42,7 @@ ezArrayPtr<ezPerInstanceData> ezInstanceData::GetInstanceData(ezUInt32 uiCount, 
   }
 
   out_uiOffset = m_uiBufferOffset;
-  return m_perInstanceData.GetArrayPtr().GetSubArray(m_uiBufferOffset, uiCount);
+  return m_PerInstanceData.GetArrayPtr().GetSubArray(m_uiBufferOffset, uiCount);
 }
 
 void ezInstanceData::UpdateInstanceData(ezRenderContext* pRenderContext, ezUInt32 uiCount)
@@ -52,7 +52,7 @@ void ezInstanceData::UpdateInstanceData(ezRenderContext* pRenderContext, ezUInt3
   ezGALCommandEncoder* pGALCommandEncoder = pRenderContext->GetCommandEncoder();
 
   ezUInt32 uiDestOffset = m_uiBufferOffset * sizeof(ezPerInstanceData);
-  auto pSourceData = m_perInstanceData.GetArrayPtr().GetSubArray(m_uiBufferOffset, uiCount);
+  auto pSourceData = m_PerInstanceData.GetArrayPtr().GetSubArray(m_uiBufferOffset, uiCount);
   ezGALUpdateMode::Enum updateMode = (m_uiBufferOffset == 0) ? ezGALUpdateMode::Discard : ezGALUpdateMode::NoOverwrite;
 
   pGALCommandEncoder->UpdateBuffer(m_hInstanceDataBuffer, uiDestOffset, pSourceData.ToByteArray(), updateMode);
@@ -67,7 +67,7 @@ void ezInstanceData::UpdateInstanceData(ezRenderContext* pRenderContext, ezUInt3
 void ezInstanceData::CreateBuffer(ezUInt32 uiSize)
 {
   m_uiBufferSize = uiSize;
-  m_perInstanceData.SetCountUninitialized(m_uiBufferSize);
+  m_PerInstanceData.SetCountUninitialized(m_uiBufferSize);
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 

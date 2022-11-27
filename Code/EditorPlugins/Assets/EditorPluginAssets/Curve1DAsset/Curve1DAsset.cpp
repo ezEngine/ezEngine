@@ -41,17 +41,17 @@ void ezCurve1DAssetDocument::WriteResource(ezStreamWriter& stream) const
   desc.Save(stream);
 }
 
-ezStatus ezCurve1DAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezTransformStatus ezCurve1DAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   WriteResource(stream);
   return ezStatus(EZ_SUCCESS);
 }
 
-ezStatus ezCurve1DAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo)
+ezTransformStatus ezCurve1DAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo)
 {
   const ezCurveGroupData* pProp = GetProperties();
 
-  QImage qimg(256, 256, QImage::Format_RGBA8888);
+  QImage qimg(ezThumbnailSize, ezThumbnailSize, QImage::Format_RGBA8888);
   qimg.fill(QColor(50, 50, 50));
 
   QPainter p(&qimg);
@@ -104,14 +104,6 @@ ezStatus ezCurve1DAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& Th
 
     const float range2 = highValue - lowValue;
 
-
-    QColor curveColor[] = {
-      QColor(255, 100, 100),
-      QColor(100, 255, 100),
-      QColor(100, 100, 255),
-      QColor(200, 200, 200),
-    };
-
     for (ezUInt32 curveIdx = 0; curveIdx < pProp->m_Curves.GetCount(); ++curveIdx)
     {
       QPainterPath path;
@@ -121,7 +113,7 @@ ezStatus ezCurve1DAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& Th
       curve.SortControlPoints();
       curve.CreateLinearApproximation();
 
-      const QColor curColor = curveColor[curveIdx % EZ_ARRAY_SIZE(curveColor)];
+      const QColor curColor = ezToQtColor(pProp->m_Curves[curveIdx]->m_CurveColor);
       QPen pen(curColor, 8.0f);
       painter->setPen(pen);
 

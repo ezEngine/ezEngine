@@ -21,7 +21,7 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{12505025032690961323,4848046932649690841}}
-		u4 %Hash{6856782962143045857}
+		u4 %Hash{3159067047198705209}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{13704728632456783376,3042459055830733395}}
@@ -60,7 +60,7 @@ o
 {
 	Uuid %id{u4{9253170034820553605,4811457972164639236}}
 	s %t{"ezParticleSystemDescriptor"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		VarArray %Behaviors
@@ -77,7 +77,11 @@ o
 			Uuid{u4{14864998255044325007,5477898973478362690}}
 		}
 		s %LifeScaleParam{""}
-		Uuid %LifeTime{u4{2173147322395239947,8260626438303253851}}
+		ezVarianceTypeTime %LifeTime
+		{
+			f %Variance{0}
+			Time %Value{d{0x0000000000002440}}
+		}
 		s %Name{"Flies"}
 		s %OnDeathEvent{""}
 		VarArray %Types
@@ -152,10 +156,14 @@ o
 {
 	Uuid %id{u4{14864998255044325007,5477898973478362690}}
 	s %t{"ezParticleInitializerFactory_RandomSize"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
-		Uuid %Size{u4{12541454874917553510,7935552140528520690}}
+		ezVarianceTypeFloat %Size
+		{
+			f %Variance{0x295C0F3E}
+			f %Value{0xCDCCCC3D}
+		}
 		s %SizeCurve{""}
 	}
 }
@@ -171,28 +179,6 @@ o
 		{
 			Uuid{u4{15128327459473517455,5392060250979730290}}
 		}
-	}
-}
-o
-{
-	Uuid %id{u4{12541454874917553510,7935552140528520690}}
-	s %t{"ezVarianceTypeFloat"}
-	u3 %v{1}
-	p
-	{
-		f %Value{0xCDCCCC3D}
-		f %Variance{0x295C0F3E}
-	}
-}
-o
-{
-	Uuid %id{u4{2173147322395239947,8260626438303253851}}
-	s %t{"ezVarianceTypeTime"}
-	u3 %v{1}
-	p
-	{
-		Time %Value{d{0x0000000000002440}}
-		f %Variance{0}
 	}
 }
 }
@@ -393,7 +379,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezParticleSystemDescriptor"}
 		u3 %TypeSize{448}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -411,7 +397,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezParticleInitializerFactory_RandomSize"}
 		u3 %TypeSize{24}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -500,7 +486,7 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleEffectDescriptor"}
-		u3 %TypeSize{360}
+		u3 %TypeSize{344}
 		u3 %TypeVersion{2}
 	}
 }

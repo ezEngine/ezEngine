@@ -1,9 +1,12 @@
 #include <EditorPluginScene/EditorPluginScenePCH.h>
 
+#include <EditorFramework/Assets/AssetCurator.h>
+#include <EditorFramework/Assets/SimpleAssetDocument.h>
 #include <EditorPluginScene/Scene/LayerDocument.h>
 #include <EditorPluginScene/Scene/Scene2Document.h>
 #include <EditorPluginScene/Scene/SceneDocument.h>
 #include <EditorPluginScene/Scene/SceneDocumentManager.h>
+#include <Foundation/Strings/PathUtils.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneDocumentManager, 1, ezRTTIDefaultAllocator<ezSceneDocumentManager>)
@@ -20,6 +23,7 @@ ezSceneDocumentManager::ezSceneDocumentManager()
     docTypeDesc.m_sIcon = ":/AssetIcons/Scene.png";
     docTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezScene2Document>();
     docTypeDesc.m_pManager = this;
+    docTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Scene");
 
     docTypeDesc.m_sResourceFileExtension = "ezObjectGraph";
     docTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::OnlyTransformManually | ezAssetDocumentFlags::SupportsThumbnail;
@@ -34,6 +38,7 @@ ezSceneDocumentManager::ezSceneDocumentManager()
     docTypeDesc.m_sIcon = ":/AssetIcons/Prefab.png";
     docTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezSceneDocument>();
     docTypeDesc.m_pManager = this;
+    docTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Prefab");
 
     docTypeDesc.m_sResourceFileExtension = "ezObjectGraph";
     docTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoTransformOnSave | ezAssetDocumentFlags::SupportsThumbnail;
@@ -47,6 +52,7 @@ ezSceneDocumentManager::ezSceneDocumentManager()
     docTypeDesc.m_sIcon = ":/AssetIcons/Layer.png";
     docTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezLayerDocument>();
     docTypeDesc.m_pManager = this;
+    docTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Scene_Layer");
 
     docTypeDesc.m_sResourceFileExtension = "";
     // A layer can not be transformed individually (at least at the moment)
@@ -93,6 +99,66 @@ void ezSceneDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<co
   {
     inout_DocumentTypes.PushBack(&docTypeDesc);
   }
+}
+
+void ezSceneDocumentManager::InternalCloneDocument(const char* szPath, const char* szClonePath, const ezUuid& documentId, const ezUuid& seedGuid, const ezUuid& cloneGuid, ezAbstractObjectGraph* pHeader, ezAbstractObjectGraph* pObjects, ezAbstractObjectGraph* pTypes)
+{
+  ezAssetDocumentManager::InternalCloneDocument(szPath, szClonePath, documentId, seedGuid, cloneGuid, pHeader, pObjects, pTypes);
+
+
+  auto pRoot = pObjects->GetNodeByName("ObjectTree");
+  ezUuid settingsGuid = pRoot->FindProperty("Settings")->m_Value.Get<ezUuid>();
+  auto pSettings = pObjects->GetNode(settingsGuid);
+  if (ezRTTI::FindTypeByName(pSettings->GetType()) != ezGetStaticRTTI<ezSceneDocumentSettings>())
+    return;
+
+  // Fix up scene layers during cloning
+  pObjects->ModifyNodeViaNativeCounterpart(pSettings, [&](void* pNativeObject, const ezRTTI* pType) {
+    ezSceneDocumentSettings* pObject = static_cast<ezSceneDocumentSettings*>(pNativeObject);
+
+    for (ezSceneLayerBase* pLayerBase : pObject->m_Layers)
+    {
+      if (auto pLayer = ezDynamicCast<ezSceneLayer*>(pLayerBase))
+      {
+        if (pLayer->m_Layer == documentId)
+        {
+          // Fix up main layer reference in layer list
+          pLayer->m_Layer = cloneGuid;
+        }
+        else
+        {
+          // Clone layer.
+          ezStringBuilder sLayerPath;
+          {
+            auto assetInfo = ezAssetCurator::GetSingleton()->GetSubAsset(pLayer->m_Layer);
+            if (assetInfo.isValid())
+            {
+              sLayerPath = assetInfo->m_pAssetInfo->m_sAbsolutePath;
+            }
+            else
+            {
+              ezLog::Error("Failed to resolve layer: {}. Cloned Layer will be invalid.");
+              pLayer->m_Layer.SetInvalid();
+            }
+          }
+          if (!sLayerPath.IsEmpty())
+          {
+            ezUuid newLayerGuid = pLayer->m_Layer;
+            newLayerGuid.CombineWithSeed(seedGuid);
+
+            ezStringBuilder sLayerClonePath = szClonePath;
+            sLayerClonePath.RemoveFileExtension();
+            sLayerClonePath.Append("_data");
+            ezStringBuilder sCloneFleName = ezPathUtils::GetFileNameAndExtension(sLayerPath.GetData());
+            sLayerClonePath.AppendPath(sCloneFleName);
+            // We assume that all layers are handled by the same document manager, i.e. this.
+            CloneDocument(sLayerPath, sLayerClonePath, newLayerGuid).LogFailure();
+            pLayer->m_Layer = newLayerGuid;
+          }
+        }
+      }
+    }
+  });
 }
 
 void ezSceneDocumentManager::SetupDefaultScene(ezDocument* pDocument)
@@ -198,6 +264,23 @@ void ezSceneDocumentManager::SetupDefaultScene(ezDocument* pDocument)
       propCmd.m_NewValue = ezVec3(0, 0, 1);
       EZ_VERIFY(history->AddCommand(propCmd).m_Result.Succeeded(), "AddCommand failed");
     }
+
+    {
+      ezRemoveObjectPropertyCommand propCmd;
+      propCmd.m_Object = cmd.m_NewObjectGuid;
+      propCmd.m_sProperty = "Tags";
+      propCmd.m_Index = 0; // There is only one value in the set, CastShadow.
+      EZ_VERIFY(history->AddCommand(propCmd).m_Result.Succeeded(), "AddCommand failed");
+    }
+
+    {
+      ezInsertObjectPropertyCommand propCmd;
+      propCmd.m_Object = cmd.m_NewObjectGuid;
+      propCmd.m_sProperty = "Tags";
+      propCmd.m_Index = 0;
+      propCmd.m_NewValue = "SkyLight";
+      EZ_VERIFY(history->AddCommand(propCmd).m_Result.Succeeded(), "AddCommand failed");
+    }
   }
 
   {
@@ -256,7 +339,7 @@ void ezSceneDocumentManager::SetupDefaultScene(ezDocument* pDocument)
   {
     ezAddObjectCommand cmd;
     cmd.m_Index = -1;
-    cmd.SetType("ezAmbientLightComponent");
+    cmd.SetType("ezSkyLightComponent");
     cmd.m_Parent = lightObjectGuid;
     cmd.m_sParentProperty = "Components";
     EZ_VERIFY(history->AddCommand(cmd).m_Result.Succeeded(), "AddCommand failed");

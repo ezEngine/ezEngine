@@ -154,13 +154,13 @@ public:
 private:
   void BuildFullCommandLineString(const ezProcessOptions& opt, const char* szProcess, ezStringBuilder& cmd) const;
 
-  ezUniquePtr<struct ezProcessImpl> m_impl;
+  ezUniquePtr<struct ezProcessImpl> m_pImpl;
 
   // the default value is used by GetExitCode() to determine whether it has to be reevaluated
   mutable ezInt32 m_iExitCode = -0xFFFF;
 
   ezString m_sProcess;
-  ezDelegate<void(ezStringView)> m_onStdOut;
-  ezDelegate<void(ezStringView)> m_onStdError;
+  ezDelegate<void(ezStringView)> m_OnStdOut;
+  ezDelegate<void(ezStringView)> m_OnStdError;
 };
 #endif

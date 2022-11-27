@@ -26,7 +26,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxRevoluteJointComponent, 5, ezComponentMode::Static)
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 0.2, ezColor::SlateGray)
+    new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 0.2f, ezColor::SlateGray)
   }
   EZ_END_ATTRIBUTES;
 }
@@ -156,8 +156,7 @@ void ezPxRevoluteJointComponent::SetDriveTorque(float f)
   QueueApplySettings();
 }
 
-void ezPxRevoluteJointComponent::CreateJointType(
-  PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1, const PxTransform& localFrame1)
+void ezPxRevoluteJointComponent::CreateJointType(PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1, const PxTransform& localFrame1)
 {
   m_pJoint = PxRevoluteJointCreate(*(ezPhysX::GetSingleton()->GetPhysXAPI()), actor0, localFrame0, actor1, localFrame1);
 }

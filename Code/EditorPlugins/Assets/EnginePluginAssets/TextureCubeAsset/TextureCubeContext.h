@@ -37,5 +37,5 @@ private:
   ezMaterialResourceHandle m_hMaterial;
   ezTextureCubeResourceHandle m_hTexture;
 
-  ezEvent<const ezResourceEvent&, ezMutex>::Unsubscriber m_textureResourceEventSubscriber;
+  ezEvent<const ezResourceEvent&, ezMutex>::Unsubscriber m_TextureResourceEventSubscriber;
 };

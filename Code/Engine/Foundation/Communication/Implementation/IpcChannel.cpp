@@ -2,11 +2,16 @@
 
 #include <Foundation/Communication/Implementation/IpcChannelEnet.h>
 #include <Foundation/Communication/Implementation/MessageLoop.h>
-#include <Foundation/Communication/Implementation/Win/PipeChannel_win.h>
 #include <Foundation/Communication/IpcChannel.h>
 #include <Foundation/Communication/RemoteMessage.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Serialization/ReflectionSerializer.h>
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#  include <Foundation/Communication/Implementation/Win/PipeChannel_win.h>
+#elif EZ_ENABLED(EZ_PLATFORM_LINUX)
+#  include <Foundation/Communication/Implementation/Linux/PipeChannel_linux.h>
+#endif
 
 ezIpcChannel::ezIpcChannel(const char* szAddress, Mode::Enum mode)
   : m_Mode(mode)
@@ -33,6 +38,8 @@ ezIpcChannel* ezIpcChannel::CreatePipeChannel(const char* szAddress, Mode::Enum 
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
   return EZ_DEFAULT_NEW(ezPipeChannel_win, szAddress, mode);
+#elif EZ_ENABLED(EZ_PLATFORM_LINUX)
+  return EZ_DEFAULT_NEW(ezPipeChannel_linux, szAddress, mode);
 #else
   EZ_ASSERT_NOT_IMPLEMENTED;
   return nullptr;
@@ -69,17 +76,20 @@ bool ezIpcChannel::Send(ezProcessMessage* pMsg)
 {
   {
     EZ_LOCK(m_OutputQueueMutex);
-    ezMemoryStreamStorage& storage = m_OutputQueue.ExpandAndGetRef();
+    ezMemoryStreamStorageInterface& storage = m_OutputQueue.ExpandAndGetRef();
     ezMemoryStreamWriter writer(&storage);
-    ezUInt32 iSize = 0;
-    ezUInt32 iMagic = MAGIC_VALUE;
-    writer << iMagic;
-    writer << iSize;
-    EZ_ASSERT_DEBUG(storage.GetStorageSize() == HEADER_SIZE, "Magic value and size should have written HEADER_SIZE bytes.");
+    ezUInt32 uiSize = 0;
+    ezUInt32 uiMagic = MAGIC_VALUE;
+    writer << uiMagic;
+    writer << uiSize;
+    EZ_ASSERT_DEBUG(storage.GetStorageSize32() == HEADER_SIZE, "Magic value and size should have written HEADER_SIZE bytes.");
     ezReflectionSerializer::WriteObjectToBinary(writer, pMsg->GetDynamicRTTI(), pMsg);
-    *reinterpret_cast<ezUInt32*>((ezUInt8*)storage.GetData() + 4) = storage.GetStorageSize();
+
+    // reset to the beginning and write the stored size again
+    writer.SetWritePosition(4);
+    writer << storage.GetStorageSize32();
   }
-  if (m_Connected)
+  if (m_bConnected)
   {
     if (NeedWakeup())
     {
@@ -114,11 +124,25 @@ bool ezIpcChannel::ProcessMessages()
 
 void ezIpcChannel::WaitForMessages()
 {
-  if (m_Connected)
+  if (m_bConnected)
   {
     m_IncomingMessages.WaitForSignal();
     ProcessMessages();
   }
+}
+
+ezResult ezIpcChannel::WaitForMessages(ezTime timeout)
+{
+  if (m_bConnected)
+  {
+    if (m_IncomingMessages.WaitForSignal(timeout) == ezThreadSignal::WaitResult::Timeout)
+    {
+      return EZ_FAILURE;
+    }
+    ProcessMessages();
+  }
+
+  return EZ_SUCCESS;
 }
 
 void ezIpcChannel::ReceiveMessageData(ezArrayPtr<const ezUInt8> data)

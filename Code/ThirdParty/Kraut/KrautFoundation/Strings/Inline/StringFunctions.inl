@@ -1,8 +1,8 @@
 #ifndef AE_FOUNDATION_STRINGS_STRINGFUNCTIONS_INL
 #define AE_FOUNDATION_STRINGS_STRINGFUNCTIONS_INL
 
-#include "../Defines.h"
-#include "../Math/Math.h"
+#include "../../Defines.h"
+#include "../../Math/Math.h"
 #include <string.h>
 #include <stdio.h>
 #include <ctype.h>
@@ -13,16 +13,18 @@ namespace AE_NS_FOUNDATION
   #define AE_STRINGCOMPARE_HANDLE_NULL_PTRS(szString1, szString2, ret_true, ret_false)\
     if (szString1 == szString2)/* Handles the case that both are nullptr and that both are actually the same string */ \
       return (ret_true);\
-    if (szString1 == nullptr)\
+    if (szString1 == nullptr) {\
       if (szString2[0] == '\0') /* if String1 is nullptr, String2 is never nullptr, otherwise the previous IF would have returned already */ \
         return (ret_true);\
       else\
         return (ret_false);\
-    if (szString2 == nullptr) \
+    }\
+    if (szString2 == nullptr) {\
       if (szString1[0] == '\0') /* if String2 is nullptr, String1 is never nullptr, otherwise the previous IF would have returned already */ \
         return (ret_true);\
       else\
-        return (ret_false);
+        return (ret_false);\
+    }
 
   inline bool aeStringFunctions::IsNullOrEmpty (const char* szString)
   {
@@ -52,21 +54,6 @@ namespace AE_NS_FOUNDATION
     return (strncmp (szString1, szString2, uiCharsToCompare) == 0);
   }
 
-  inline bool aeStringFunctions::CompareEqual_NoCase (const char* szString1, const char* szString2)
-  {
-    AE_STRINGCOMPARE_HANDLE_NULL_PTRS (szString1, szString2, true, false);
-
-    return (_stricmp (szString1, szString2) == 0);
-  }
-
-  inline bool aeStringFunctions::CompareEqual_NoCase (const char* szString1, const char* szString2, aeUInt32 uiCharsToCompare)
-  {
-    AE_STRINGCOMPARE_HANDLE_NULL_PTRS (szString1, szString2, true, false);
-
-    return (_strnicmp (szString1, szString2, uiCharsToCompare) == 0);
-  }
-
-
   inline aeInt32 aeStringFunctions::CompareAlphabetically (const char* szString1, const char* szString2)
   {
     AE_STRINGCOMPARE_HANDLE_NULL_PTRS (szString1, szString2, 0, 1);
@@ -79,54 +66,6 @@ namespace AE_NS_FOUNDATION
     AE_STRINGCOMPARE_HANDLE_NULL_PTRS (szString1, szString2, 0, 1);
 
     return (strncmp (szString1, szString2, uiCharsToCompare));
-  }
-
-  inline aeInt32 aeStringFunctions::CompareAlphabetically_NoCase (const char* szString1, const char* szString2)
-  {
-    AE_STRINGCOMPARE_HANDLE_NULL_PTRS (szString1, szString2, 0, 1);
-
-    return (_stricmp (szString1, szString2));
-  }
-
-  inline aeInt32 aeStringFunctions::CompareAlphabetically_NoCase (const char* szString1, const char* szString2, aeUInt32 uiCharsToCompare)
-  {
-    AE_STRINGCOMPARE_HANDLE_NULL_PTRS (szString1, szString2, 0, 1);
-
-    return (_strnicmp (szString1, szString2, uiCharsToCompare));
-  }
-
-
-  inline void aeStringFunctions::Copy (char* szDest, aeUInt32 uiDstSize, const char* szSource)
-  {
-    // Handle nullptr-pointer strings
-    if (IsNullOrEmpty (szSource))
-    {
-      szDest[0] = '\0';
-      return;
-    }
-
-    AE_CHECK_DEV (uiDstSize > 0, "aeStringFunctions::Copy: Cannot copy into a Zero-Length-String.");
-    AE_CHECK_DEV (szDest != nullptr, "aeStringFunctions::Copy: Cannot copy into a nullptr-String.");
-
-    strncpy (szDest, szSource, uiDstSize - 1);
-    szDest[uiDstSize - 1] = '\0';
-  }
-
-  inline void aeStringFunctions::Copy (char* szDest, aeUInt32 uiDstSize, const char* szSource, aeUInt32 uiCharsToCopy)
-  {
-    // Handle nullptr-pointer strings
-    if (IsNullOrEmpty (szSource))
-    {
-      szDest[0] = '\0';
-      return;
-    }
-
-    AE_CHECK_DEV (uiDstSize > 0, "aeStringFunctions::Copy: Cannot copy into a Zero-Length-String.");
-    AE_CHECK_DEV (szDest != nullptr, "aeStringFunctions::Copy: Cannot copy into a nullptr-String.");
-
-    const aeUInt32 uiSize = aeMath::Min (uiCharsToCopy, uiDstSize - 1);
-    strncpy (szDest, szSource, uiSize);
-    szDest[uiSize] = '\0';
   }
 
   inline aeUInt32 aeStringFunctions::Concatenate (char* szDest, aeUInt32 uiDstSize, aeUInt32 uiDstStrLen, const char* szSource)
@@ -189,16 +128,6 @@ namespace AE_NS_FOUNDATION
       return (GetLength (szDest));
 
     return (Concatenate (szDest, uiDstSize, GetLength (szDest), szSource, uiCharsToCopy));
-  }
-
-  inline char aeStringFunctions::ToUpperCase (char cChar)
-  {
-    return (toupper (cChar));
-  }
-
-  inline char aeStringFunctions::ToLowerCase (char cChar)
-  {
-    return (tolower (cChar));
   }
 }
 

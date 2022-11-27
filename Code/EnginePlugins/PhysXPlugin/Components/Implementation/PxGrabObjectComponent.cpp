@@ -37,7 +37,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxGrabObjectComponent, 1, ezComponentMode::Static)
   EZ_END_FUNCTIONS;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Physics/Special"),
+    new ezCategoryAttribute("Physics/PhysX/Misc"),
   }
   EZ_END_ATTRIBUTES;
 }
@@ -294,10 +294,10 @@ ezResult ezPxGrabObjectComponent::DetermineGrabPoint(const ezComponent* pActorCo
       grabPoints[2].m_qLocalRotation.SetShortestRotation(ezVec3::UnitXAxis(), ezVec3::UnitYAxis());
       grabPoints[3].m_vLocalPosition.Set(0, +halfExt.y, 0);
       grabPoints[3].m_qLocalRotation.SetShortestRotation(ezVec3::UnitXAxis(), -ezVec3::UnitYAxis());
-      //grabPoints[4].m_vLocalPosition.Set(0, 0, -halfExt.z);
-      //grabPoints[4].m_qLocalRotation.SetShortestRotation(ezVec3::UnitXAxis(), ezVec3::UnitZAxis());
-      //grabPoints[5].m_vLocalPosition.Set(0, 0, +halfExt.z);
-      //grabPoints[5].m_qLocalRotation.SetShortestRotation(ezVec3::UnitXAxis(), -ezVec3::UnitZAxis());
+      // grabPoints[4].m_vLocalPosition.Set(0, 0, -halfExt.z);
+      // grabPoints[4].m_qLocalRotation.SetShortestRotation(ezVec3::UnitXAxis(), ezVec3::UnitZAxis());
+      // grabPoints[5].m_vLocalPosition.Set(0, 0, +halfExt.z);
+      // grabPoints[5].m_qLocalRotation.SetShortestRotation(ezVec3::UnitXAxis(), -ezVec3::UnitZAxis());
 
       for (ezUInt32 i = 0; i < grabPoints.GetCount(); ++i)
       {

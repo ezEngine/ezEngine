@@ -68,14 +68,14 @@ namespace
 
     if (s_pTrackerDataAllocator == nullptr)
     {
-      EZ_ALIGN_VARIABLE(static ezUInt8 TrackerDataAllocatorBuffer[sizeof(TrackerDataAllocator)], EZ_ALIGNMENT_OF(TrackerDataAllocator));
+      alignas(EZ_ALIGNMENT_OF(TrackerDataAllocator)) static ezUInt8 TrackerDataAllocatorBuffer[sizeof(TrackerDataAllocator)];
       s_pTrackerDataAllocator = new (TrackerDataAllocatorBuffer) TrackerDataAllocator("MemoryTracker");
       EZ_ASSERT_DEV(s_pTrackerDataAllocator != nullptr, "MemoryTracker initialization failed");
     }
 
     if (s_pTrackerData == nullptr)
     {
-      EZ_ALIGN_VARIABLE(static ezUInt8 TrackerDataBuffer[sizeof(TrackerData)], EZ_ALIGNMENT_OF(TrackerData));
+      alignas(EZ_ALIGNMENT_OF(TrackerData)) static ezUInt8 TrackerDataBuffer[sizeof(TrackerData)];
       s_pTrackerData = new (TrackerDataBuffer) TrackerData();
       EZ_ASSERT_DEV(s_pTrackerData != nullptr, "MemoryTracker initialization failed");
     }
@@ -186,9 +186,10 @@ void ezMemoryTracker::DeregisterAllocator(ezAllocatorId allocatorId)
 }
 
 // static
-void ezMemoryTracker::AddAllocation(
-  ezAllocatorId allocatorId, ezBitflags<ezMemoryTrackingFlags> flags, const void* ptr, size_t uiSize, size_t uiAlign, ezTime allocationTime)
+void ezMemoryTracker::AddAllocation(ezAllocatorId allocatorId, ezBitflags<ezMemoryTrackingFlags> flags, const void* ptr, size_t uiSize, size_t uiAlign, ezTime allocationTime)
 {
+  EZ_ASSERT_DEV((flags & ezMemoryTrackingFlags::EnableAllocationTracking) != 0, "Allocation tracking is turned off, but ezMemoryTracker::AddAllocation() is called anyway.");
+
   EZ_ASSERT_DEV(uiAlign < 0xFFFF, "Alignment too big");
 
   ezArrayPtr<void*> stackTrace;

@@ -51,6 +51,11 @@ void ezEditorEngineProcessConnection::SendDocumentOpenMessage(const ezAssetDocum
 
 void ezEditorEngineProcessConnection::HandleIPCEvent(const ezProcessCommunicationChannel::Event& e)
 {
+  if (e.m_pMessage->GetDynamicRTTI()->IsDerivedFrom<ezSyncWithProcessMsgToEditor>())
+  {
+    const ezSyncWithProcessMsgToEditor* msg = static_cast<const ezSyncWithProcessMsgToEditor*>(e.m_pMessage);
+    m_uiRedrawCountReceived = msg->m_uiRedrawCount;
+  }
   if (e.m_pMessage->GetDynamicRTTI()->IsDerivedFrom<ezEditorEngineDocumentMsg>())
   {
     const ezEditorEngineDocumentMsg* pMsg = static_cast<const ezEditorEngineDocumentMsg*>(e.m_pMessage);
@@ -69,6 +74,26 @@ void ezEditorEngineProcessConnection::HandleIPCEvent(const ezProcessCommunicatio
     ee.m_Type = Event::Type::ProcessMessage;
 
     s_Events.Broadcast(ee);
+  }
+}
+
+void ezEditorEngineProcessConnection::UIServicesTickEventHandler(const ezQtUiServices::TickEvent& e)
+{
+  if (e.m_Type == ezQtUiServices::TickEvent::Type::EndFrame)
+  {
+    if (!IsProcessCrashed())
+    {
+      ezSyncWithProcessMsgToEngine sm;
+      sm.m_uiRedrawCount = m_uiRedrawCountSent + 1;
+      SendMessage(&sm);
+
+      if (m_uiRedrawCountSent > m_uiRedrawCountReceived)
+      {
+        WaitForMessage(ezGetStaticRTTI<ezSyncWithProcessMsgToEditor>(), ezTime::Seconds(2.0)).IgnoreResult();
+      }
+
+      ++m_uiRedrawCountSent;
+    }
   }
 }
 
@@ -100,6 +125,9 @@ void ezEditorEngineProcessConnection::Initialize(const ezRTTI* pFirstAllowedMess
 
   ezLog::Dev("Starting Client Engine Process");
 
+  EZ_ASSERT_DEBUG(m_TickEventSubscriptionID == 0, "A previous subscription is still in place. ShutdownProcess not called?");
+  m_TickEventSubscriptionID = ezQtUiServices::s_TickEvent.AddEventHandler(ezMakeDelegate(&ezEditorEngineProcessConnection::UIServicesTickEventHandler, this));
+
   m_bProcessShouldBeRunning = true;
   m_bProcessCrashed = false;
   m_bClientIsConfigured = false;
@@ -130,7 +158,16 @@ void ezEditorEngineProcessConnection::Initialize(const ezRTTI* pFirstAllowedMess
     args << ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-TelemetryPort", 0, "1050");
   }
 
-  if (m_IPC.StartClientProcess("EditorEngineProcess.exe", args, false, pFirstAllowedMessageType).Failed())
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  const char* EditorEngineProcessExecutableName = "EditorEngineProcess.exe";
+#elif EZ_ENABLED(EZ_PLATFORM_LINUX)
+  const char* EditorEngineProcessExecutableName = "EditorEngineProcess";
+#else
+#  error Platform not supported
+#endif
+
+
+  if (m_IPC.StartClientProcess(EditorEngineProcessExecutableName, args, false, pFirstAllowedMessageType).Failed())
   {
     m_bProcessCrashed = true;
   }
@@ -196,8 +233,7 @@ bool ezEditorEngineProcessConnection::ConnectToRemoteProcess()
   m_pRemoteProcess->ConnectToServer(dlg.GetResultingAddress().toUtf8().data()).IgnoreResult();
 
   ezQtWaitForOperationDlg waitDialog(QApplication::activeWindow());
-  waitDialog.m_OnIdle = [this]() -> bool
-  {
+  waitDialog.m_OnIdle = [this]() -> bool {
     if (m_pRemoteProcess->IsConnected())
       return false;
 
@@ -244,6 +280,9 @@ void ezEditorEngineProcessConnection::ShutdownProcess()
 
   ezLog::Info("Shutting down Engine Process");
 
+  if (m_TickEventSubscriptionID != 0)
+    ezQtUiServices::s_TickEvent.RemoveEventHandler(m_TickEventSubscriptionID);
+
   m_bClientIsConfigured = false;
   m_bProcessShouldBeRunning = false;
   m_IPC.CloseConnection();
@@ -286,8 +325,7 @@ ezResult ezEditorEngineProcessConnection::WaitForDocumentMessage(const ezUuid& a
   data.m_AssetGuid = assetGuid;
   data.m_pCallback = pCallback;
 
-  ezProcessCommunicationChannel::WaitForMessageCallback callback = [&data](ezProcessMessage* pMsg) -> bool
-  {
+  ezProcessCommunicationChannel::WaitForMessageCallback callback = [&data](ezProcessMessage* pMsg) -> bool {
     ezEditorEngineDocumentMsg* pMsg2 = ezDynamicCast<ezEditorEngineDocumentMsg*>(pMsg);
     if (pMsg2 && data.m_AssetGuid == pMsg2->m_DocumentGuid)
     {
@@ -321,6 +359,15 @@ ezResult ezEditorEngineProcessConnection::RestartProcess()
     return EZ_FAILURE;
   }
 
+  ezLog::Dev("Waiting for IPC connection");
+
+  if (m_IPC.WaitForConnection(ezTime()).Failed())
+  {
+    ezLog::Error("Engine process did not connect. Engine process output:\n{}", m_IPC.GetStdoutContents());
+    ShutdownProcess();
+    return EZ_FAILURE;
+  }
+
   {
     // Send project setup.
     ezSetupProjectMsgToEngine msg;
@@ -329,24 +376,37 @@ ezResult ezEditorEngineProcessConnection::RestartProcess()
     msg.m_PluginConfig = m_PluginConfig;
     msg.m_sAssetProfile = ezAssetCurator::GetSingleton()->GetActiveAssetProfile()->GetConfigName();
 
-    ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
+    SendMessage(&msg);
   }
 
   ezLog::Dev("Waiting for Engine Process response");
 
-  if (ezEditorEngineProcessConnection::GetSingleton()->WaitForMessage(ezGetStaticRTTI<ezProjectReadyMsgToEditor>(), ezTime()).Failed())
+  if (WaitForMessage(ezGetStaticRTTI<ezProjectReadyMsgToEditor>(), ezTime()).Failed())
   {
-    ezLog::Error("Failed to restart the engine process");
+    ezLog::Error("Failed to restart the engine process. Engine Process Output:\n", m_IPC.GetStdoutContents());
     ShutdownProcess();
     return EZ_FAILURE;
   }
 
   ezLog::Dev("Transmitting open documents to Engine Process");
 
-  // resend all open documents
+  ezHybridArray<ezAssetDocument*, 6> docs;
+  docs.Reserve(m_DocumentByGuid.GetCount());
+
+  // Resend all open documents. Make sure to send main documents before child documents.
   for (auto it = m_DocumentByGuid.GetIterator(); it.IsValid(); ++it)
   {
-    SendDocumentOpenMessage(it.Value(), true);
+    docs.PushBack(it.Value());
+  }
+  docs.Sort([](const ezAssetDocument* a, const ezAssetDocument* b) {
+    if (a->IsMainDocument() != b->IsMainDocument())
+      return a->IsMainDocument();
+    return a < b;
+  });
+
+  for (ezAssetDocument* pDoc : docs)
+  {
+    SendDocumentOpenMessage(pDoc, true);
   }
 
   ezLog::Success("Engine Process is running");

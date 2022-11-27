@@ -126,7 +126,7 @@ public:
   // const ezString& GetServerInfoName() const { return m_ServerInfoName; }
 
   /// \brief For the client to display the IP of the server
-  const ezString& GetServerInfoIP() const { return m_ServerInfoIP; }
+  const ezString& GetServerInfoIP() const { return m_sServerInfoIP; }
 
   /// \brief Some random identifier, that allows to determine after a reconnect, whether the connected instance is still the same server
   ezUInt32 GetServerID() const { return m_uiConnectedToServerWithID; }
@@ -159,6 +159,8 @@ public:
   /// If it is a server, the message is broadcast to all clients.
   /// If it is a client, the message is only sent to the server.
   void Send(ezRemoteTransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, const ezArrayPtr<const ezUInt8>& data);
+
+  void Send(ezRemoteTransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, const ezContiguousMemoryStreamStorage& data);
 
   /// \brief Sends a message, appends the given array of data
   /// If it is a server, the message is broadcast to all clients.
@@ -219,7 +221,7 @@ protected:
   /// Derived classes should update this when the information is available
   // ezString m_ServerInfoName;
   /// Derived classes should update this when the information is available
-  ezString m_ServerInfoIP;
+  ezString m_sServerInfoIP;
 
   /// \brief Should be called by the implementation, when a server connection has been established
   void ReportConnectionToServer(ezUInt32 uiServerID);

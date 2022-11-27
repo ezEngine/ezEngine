@@ -4,10 +4,13 @@
 #include <EditorEngineProcessFramework/IPC/SyncObject.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Assets/AssetDocument.h>
+#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Serialization/ReflectionSerializer.h>
+#include <GuiFoundation/PropertyGrid/PrefabDefaultStateProvider.h>
+#include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
 #include <Texture/Image/ImageConversion.h>
 
@@ -115,12 +118,12 @@ void ezAssetDocument::InternalAfterSaveDocument()
   {
     // If we request an engine connection but the mirror is not set up yet we are still
     // creating the document and TransformAsset will most likely fail.
-    if (m_EngineConnectionType == ezAssetDocEngineConnection::None || m_Mirror.GetIPC())
+    if (m_EngineConnectionType == ezAssetDocEngineConnection::None || m_pEngineConnection)
     {
       /// \todo Should only be done for platform agnostic assets
-      auto ret = ezAssetCurator::GetSingleton()->TransformAsset(GetGuid(), ezTransformFlags::TriggeredManually);
+      ezTransformStatus ret = ezAssetCurator::GetSingleton()->TransformAsset(GetGuid(), ezTransformFlags::TriggeredManually);
 
-      if (ret.m_Result.Failed())
+      if (ret.Failed())
       {
         ezLog::Error("Transform failed: '{0}' ({1})", ret.m_sMessage, GetDocumentPath());
       }
@@ -207,9 +210,13 @@ void ezAssetDocument::AddReferences(const ezDocumentObject* pObject, ezAssetDocu
         {
           if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) && pProp->GetSpecificType()->GetVariantType() == ezVariantType::String)
           {
-            if (bInsidePrefab && IsDefaultValue(pObject, pProp->GetPropertyName(), false))
+            if (bInsidePrefab)
             {
-              continue;
+              ezHybridArray<ezPropertySelection, 1> selection;
+              selection.PushBack({pObject, ezVariant()});
+              ezDefaultObjectState defaultState(GetObjectAccessor(), selection.GetArrayPtr());
+              if (defaultState.GetStateProviderName() == "Prefab" && defaultState.IsDefaultValue(pProp))
+                continue;
             }
 
             const ezVariant& var = pObject->GetTypeAccessor().GetValue(pProp->GetPropertyName());
@@ -231,21 +238,73 @@ void ezAssetDocument::AddReferences(const ezDocumentObject* pObject, ezAssetDocu
           {
             const ezInt32 iCount = pObject->GetTypeAccessor().GetCount(pProp->GetPropertyName());
 
-            for (ezInt32 i = 0; i < iCount; ++i)
+            if (bInsidePrefab)
             {
-              ezVariant value = pObject->GetTypeAccessor().GetValue(pProp->GetPropertyName(), i);
-              if (bInsidePrefab && IsDefaultValue(pObject, pProp->GetPropertyName(), false, i))
+              ezHybridArray<ezPropertySelection, 1> selection;
+              selection.PushBack({pObject, ezVariant()});
+              ezDefaultContainerState defaultState(GetObjectAccessor(), selection.GetArrayPtr(), pProp->GetPropertyName());
+              for (ezInt32 i = 0; i < iCount; ++i)
               {
-                continue;
+                ezVariant value = pObject->GetTypeAccessor().GetValue(pProp->GetPropertyName(), i);
+                if (defaultState.GetStateProviderName() == "Prefab" && defaultState.IsDefaultElement(i))
+                {
+                  continue;
+                }
+                if (bIsDependency)
+                  pInfo->m_AssetTransformDependencies.Insert(value.Get<ezString>());
+                else
+                  pInfo->m_RuntimeDependencies.Insert(value.Get<ezString>());
               }
-              if (bIsDependency)
-                pInfo->m_AssetTransformDependencies.Insert(value.Get<ezString>());
-              else
-                pInfo->m_RuntimeDependencies.Insert(value.Get<ezString>());
+            }
+            else
+            {
+              for (ezInt32 i = 0; i < iCount; ++i)
+              {
+                ezVariant value = pObject->GetTypeAccessor().GetValue(pProp->GetPropertyName(), i);
+                if (bIsDependency)
+                  pInfo->m_AssetTransformDependencies.Insert(value.Get<ezString>());
+                else
+                  pInfo->m_RuntimeDependencies.Insert(value.Get<ezString>());
+              }
             }
           }
         }
         break;
+        case ezPropertyCategory::Map:
+          //#TODO Search for exposed params that reference assets.
+          if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) && pProp->GetSpecificType()->GetVariantType() == ezVariantType::String)
+          {
+            ezVariant value = pObject->GetTypeAccessor().GetValue(pProp->GetPropertyName());
+            const ezVariantDictionary& varDict = value.Get<ezVariantDictionary>();
+            if (bInsidePrefab)
+            {
+              ezHybridArray<ezPropertySelection, 1> selection;
+              selection.PushBack({pObject, ezVariant()});
+              ezDefaultContainerState defaultState(GetObjectAccessor(), selection.GetArrayPtr(), pProp->GetPropertyName());
+              for (auto it : varDict)
+              {
+                if (defaultState.GetStateProviderName() == "Prefab" && defaultState.IsDefaultElement(it.Key()))
+                {
+                  continue;
+                }
+                if (bIsDependency)
+                  pInfo->m_AssetTransformDependencies.Insert(it.Value().Get<ezString>());
+                else
+                  pInfo->m_RuntimeDependencies.Insert(it.Value().Get<ezString>());
+              }
+            }
+            else
+            {
+              for (auto it : varDict)
+              {
+                if (bIsDependency)
+                  pInfo->m_AssetTransformDependencies.Insert(it.Value().Get<ezString>());
+                else
+                  pInfo->m_RuntimeDependencies.Insert(it.Value().Get<ezString>());
+              }
+            }
+          }
+          break;
         default:
           break;
       }
@@ -323,7 +382,7 @@ void ezAssetDocument::GetChildHash(const ezDocumentObject* pObject, ezUInt64& ui
   }
 }
 
-ezStatus ezAssetDocument::DoTransformAsset(const ezPlatformProfile* pAssetProfile0 /*= nullptr*/, ezBitflags<ezTransformFlags> transformFlags)
+ezTransformStatus ezAssetDocument::DoTransformAsset(const ezPlatformProfile* pAssetProfile0 /*= nullptr*/, ezBitflags<ezTransformFlags> transformFlags)
 {
   const auto flags = GetAssetFlags();
 
@@ -347,12 +406,12 @@ ezStatus ezAssetDocument::DoTransformAsset(const ezPlatformProfile* pAssetProfil
     AssetHeader.SetFileHashAndVersion(uiHash, GetAssetTypeVersion());
     const auto& outputs = GetAssetDocumentInfo()->m_Outputs;
 
-    auto GenerateOutput = [this, pAssetProfile, &AssetHeader, transformFlags](const char* szOutputTag) -> ezStatus {
+    auto GenerateOutput = [this, pAssetProfile, &AssetHeader, transformFlags](const char* szOutputTag) -> ezTransformStatus {
       const ezString sTargetFile = GetAssetDocumentManager()->GetAbsoluteOutputFileName(GetAssetDocumentTypeDescriptor(), GetDocumentPath(), szOutputTag, pAssetProfile);
-      auto ret = InternalTransformAsset(sTargetFile, szOutputTag, pAssetProfile, AssetHeader, transformFlags);
+      ezTransformStatus ret = InternalTransformAsset(sTargetFile, szOutputTag, pAssetProfile, AssetHeader, transformFlags);
 
       // if writing failed, make sure the output file does not exist
-      if (ret.m_Result.Failed())
+      if (ret.Failed())
       {
         ezFileSystem::DeleteFile(sTargetFile);
       }
@@ -360,7 +419,7 @@ ezStatus ezAssetDocument::DoTransformAsset(const ezPlatformProfile* pAssetProfil
       return ret;
     };
 
-    ezStatus res(EZ_SUCCESS);
+    ezTransformStatus res;
     for (auto it = outputs.GetIterator(); it.IsValid(); ++it)
     {
       res = GenerateOutput(it.Key());
@@ -377,57 +436,78 @@ ezStatus ezAssetDocument::DoTransformAsset(const ezPlatformProfile* pAssetProfil
   }
 }
 
-ezStatus ezAssetDocument::TransformAsset(ezBitflags<ezTransformFlags> transformFlags, const ezPlatformProfile* pAssetProfile)
+ezTransformStatus ezAssetDocument::TransformAsset(ezBitflags<ezTransformFlags> transformFlags, const ezPlatformProfile* pAssetProfile)
 {
   EZ_PROFILE_SCOPE("TransformAsset");
+
   if (!transformFlags.IsSet(ezTransformFlags::ForceTransform))
   {
-    if (IsModified())
-    {
-      auto res = SaveDocument().m_Result;
-      if (res.Failed())
-        return ezStatus(res);
-    }
+    EZ_SUCCEED_OR_RETURN(SaveDocument().m_Result);
 
-    const auto flags = GetAssetFlags();
+    const auto assetFlags = GetAssetFlags();
+
+    if (assetFlags.IsSet(ezAssetDocumentFlags::DisableTransform) || (assetFlags.IsSet(ezAssetDocumentFlags::OnlyTransformManually) && !transformFlags.IsSet(ezTransformFlags::TriggeredManually)))
     {
-      if (flags.IsSet(ezAssetDocumentFlags::DisableTransform) || (flags.IsSet(ezAssetDocumentFlags::OnlyTransformManually) && !transformFlags.IsSet(ezTransformFlags::TriggeredManually)))
-        return ezStatus(EZ_SUCCESS, "Transform is disabled for this asset");
+      return ezStatus(EZ_SUCCESS, "Transform is disabled for this asset");
     }
   }
 
-  return DoTransformAsset(pAssetProfile, transformFlags);
+  const ezTransformStatus res = DoTransformAsset(pAssetProfile, transformFlags);
+
+  if (transformFlags.IsSet(ezTransformFlags::TriggeredManually))
+  {
+    SaveDocument();
+    ezAssetCurator::GetSingleton()->NotifyOfAssetChange(GetGuid());
+  }
+
+  return res;
 }
 
-ezStatus ezAssetDocument::CreateThumbnail()
+ezTransformStatus ezAssetDocument::CreateThumbnail()
 {
   ezUInt64 uiHash = 0;
   ezUInt64 uiThumbHash = 0;
-  if (ezAssetCurator::GetSingleton()->IsAssetUpToDate(GetGuid(), ezAssetCurator::GetSingleton()->GetActiveAssetProfile(), GetAssetDocumentTypeDescriptor(), uiHash, uiThumbHash) == ezAssetInfo::TransformState::UpToDate)
+
+  ezAssetInfo::TransformState state = ezAssetCurator::GetSingleton()->IsAssetUpToDate(GetGuid(), ezAssetCurator::GetSingleton()->GetActiveAssetProfile(), GetAssetDocumentTypeDescriptor(), uiHash, uiThumbHash);
+
+  if (state == ezAssetInfo::TransformState::UpToDate)
     return ezStatus(EZ_SUCCESS, "Transformed asset is already up to date");
 
   if (uiHash == 0)
     return ezStatus("Computing the hash for this asset or any dependency failed");
 
+  if (state == ezAssetInfo::NeedsThumbnail)
   {
     ThumbnailInfo ThumbnailInfo;
     ThumbnailInfo.SetFileHashAndVersion(uiThumbHash, GetAssetTypeVersion());
-    ezStatus res = InternalCreateThumbnail(ThumbnailInfo);
+    ezTransformStatus res = InternalCreateThumbnail(ThumbnailInfo);
 
     InvalidateAssetThumbnail();
     ezAssetCurator::GetSingleton()->NotifyOfAssetChange(GetGuid());
     return res;
   }
+  return ezTransformStatus(ezFmt("Asset state is {}", state));
 }
 
-ezStatus ezAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezTransformStatus ezAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   ezDeferredFileWriter file;
   file.SetOutput(szTargetFile);
 
-  EZ_SUCCEED_OR_RETURN(AssetHeader.Write(file));
+  if (AssetHeader.Write(file) == EZ_FAILURE)
+  {
+    file.Discard();
+    return ezTransformStatus("Failed to write asset header");
+  }
 
-  EZ_SUCCEED_OR_RETURN(InternalTransformAsset(file, szOutputTag, pAssetProfile, AssetHeader, transformFlags));
+  ezTransformStatus res = InternalTransformAsset(file, szOutputTag, pAssetProfile, AssetHeader, transformFlags);
+  if (res.m_Result != ezTransformResult::Success)
+  {
+    // We do not want to overwrite the old output file if we failed to transform the asset.
+    file.Discard();
+    return res;
+  }
+
 
   if (file.Close().Failed())
   {
@@ -481,24 +561,24 @@ ezStatus ezAssetDocument::SaveThumbnail(const QImage& qimg0, const ThumbnailInfo
   if (qimg.width() == qimg.height())
   {
     // if necessary scale the image to the proper size
-    if (qimg.width() != 256)
-      qimg = qimg.scaled(256, 256, Qt::AspectRatioMode::IgnoreAspectRatio, Qt::TransformationMode::SmoothTransformation);
+    if (qimg.width() != ezThumbnailSize)
+      qimg = qimg.scaled(ezThumbnailSize, ezThumbnailSize, Qt::AspectRatioMode::IgnoreAspectRatio, Qt::TransformationMode::SmoothTransformation);
   }
   else
   {
     // center the image in a square canvas
 
-    // scale the longer edge to 256
+    // scale the longer edge to ezThumbnailSize
     if (qimg.width() > qimg.height())
-      qimg = qimg.scaledToWidth(256, Qt::TransformationMode::SmoothTransformation);
+      qimg = qimg.scaledToWidth(ezThumbnailSize, Qt::TransformationMode::SmoothTransformation);
     else
-      qimg = qimg.scaledToHeight(256, Qt::TransformationMode::SmoothTransformation);
+      qimg = qimg.scaledToHeight(ezThumbnailSize, Qt::TransformationMode::SmoothTransformation);
 
     // create a black canvas
-    QImage img2(256, 256, QImage::Format_RGBA8888);
+    QImage img2(ezThumbnailSize, ezThumbnailSize, QImage::Format_RGBA8888);
     img2.fill(Qt::GlobalColor::black);
 
-    QPoint destPos = QPoint((256 - qimg.width()) / 2, (256 - qimg.height()) / 2);
+    QPoint destPos = QPoint((ezThumbnailSize - qimg.width()) / 2, (ezThumbnailSize - qimg.height()) / 2);
 
     // paint the smaller image such that it ends up centered
     QPainter painter(&img2);
@@ -527,7 +607,7 @@ ezStatus ezAssetDocument::SaveThumbnail(const QImage& qimg0, const ThumbnailInfo
 
 void ezAssetDocument::AppendThumbnailInfo(const char* szThumbnailFile, const ThumbnailInfo& thumbnailInfo) const
 {
-  ezMemoryStreamStorage storage;
+  ezContiguousMemoryStreamStorage storage;
   {
     ezFileReader reader;
     if (reader.Open(szThumbnailFile).Failed())
@@ -539,7 +619,7 @@ void ezAssetDocument::AppendThumbnailInfo(const char* szThumbnailFile, const Thu
 
   ezDeferredFileWriter writer;
   writer.SetOutput(szThumbnailFile);
-  writer.WriteBytes(storage.GetData(), storage.GetStorageSize()).IgnoreResult();
+  writer.WriteBytes(storage.GetData(), storage.GetStorageSize64()).IgnoreResult();
 
   thumbnailInfo.Serialize(writer).IgnoreResult();
 
@@ -603,7 +683,7 @@ ezStatus ezAssetDocument::RemoteExport(const ezAssetFileHeader& header, const ch
   }
 }
 
-ezStatus ezAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& thumbnailInfo)
+ezTransformStatus ezAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& thumbnailInfo)
 {
   EZ_ASSERT_NOT_IMPLEMENTED;
   return ezStatus("Not implemented");
@@ -630,6 +710,8 @@ ezStatus ezAssetDocument::RemoteCreateThumbnail(const ThumbnailInfo& thumbnailIn
 
   SyncObjectsToEngine();
   ezCreateThumbnailMsgToEngine msg;
+  msg.m_uiWidth = ezThumbnailSize;
+  msg.m_uiHeight = ezThumbnailSize;
   for (const ezStringView& tag : viewExclusionTags)
   {
     msg.m_ViewExcludeTags.PushBack(tag);
@@ -764,12 +846,12 @@ void ezAssetDocument::SyncObjectsToEngine() const
     msg.m_ObjectGuid = pObject->m_SyncObjectGuid;
     msg.m_sObjectType = pObject->GetDynamicRTTI()->GetTypeName();
 
-    ezMemoryStreamStorage storage;
+    ezContiguousMemoryStreamStorage storage;
     ezMemoryStreamWriter writer(&storage);
     ezMemoryStreamReader reader(&storage);
 
     ezReflectionSerializer::WriteObjectToBinary(writer, pObject->GetDynamicRTTI(), pObject);
-    msg.m_ObjectData = ezArrayPtr<const ezUInt8>(storage.GetData(), storage.GetStorageSize());
+    msg.m_ObjectData = ezArrayPtr<const ezUInt8>(storage.GetData(), storage.GetStorageSize32());
 
     SendMessageToEngine(&msg);
 

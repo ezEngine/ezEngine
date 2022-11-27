@@ -2,6 +2,7 @@
 
 #include <RendererCore/Decals/DecalComponent.h>
 #include <RendererCore/Lights/DirectionalLightComponent.h>
+#include <RendererCore/Lights/Implementation/ReflectionProbeData.h>
 #include <RendererCore/Lights/PointLightComponent.h>
 #include <RendererCore/Lights/SpotLightComponent.h>
 #include <RendererFoundation/Shader/ShaderUtils.h>
@@ -9,6 +10,7 @@
 #include <RendererCore/../../../Data/Base/Shaders/Common/LightData.h>
 EZ_DEFINE_AS_POD_TYPE(ezPerLightData);
 EZ_DEFINE_AS_POD_TYPE(ezPerDecalData);
+EZ_DEFINE_AS_POD_TYPE(ezPerReflectionProbeData);
 EZ_DEFINE_AS_POD_TYPE(ezPerClusterData);
 
 #include <Core/Graphics/Camera.h>
@@ -40,28 +42,38 @@ namespace
 
   // in order: tlf, trf, blf, brf, tln, trn, bln, brn
   EZ_FORCE_INLINE void GetClusterCornerPoints(
-    const ezCamera& camera, float fZf, float fZn, float fTanFovX, float fTanFovY, ezInt32 x, ezInt32 y, ezInt32 z, ezVec3* out_pCorners)
+    const ezCamera& camera, float fZf, float fZn, float fTanLeft, float fTanRight, float fTanBottom, float fTanTop, ezInt32 x, ezInt32 y, ezInt32 z, ezVec3* out_pCorners)
   {
     const ezVec3& pos = camera.GetPosition();
     const ezVec3& dirForward = camera.GetDirForwards();
     const ezVec3& dirRight = camera.GetDirRight();
     const ezVec3& dirUp = camera.GetDirUp();
 
-    float fStepXf = (fZf * fTanFovX) / NUM_CLUSTERS_X;
-    float fStepYf = (fZf * fTanFovY) / NUM_CLUSTERS_Y;
+    const float fStartXf = fZf * fTanLeft;
+    const float fStartYf = fZf * fTanBottom;
+    const float fEndXf = fZf * fTanRight;
+    const float fEndYf = fZf * fTanTop;
 
-    float fXf = (x - (NUM_CLUSTERS_X / 2)) * fStepXf;
-    float fYf = (y - (NUM_CLUSTERS_Y / 2)) * fStepYf;
+    float fStepXf = (fEndXf - fStartXf) / NUM_CLUSTERS_X;
+    float fStepYf = (fEndYf - fStartYf) / NUM_CLUSTERS_Y;
+
+    float fXf = fStartXf + x * fStepXf;
+    float fYf = fStartYf + y * fStepYf;
 
     out_pCorners[0] = pos + dirForward * fZf + dirRight * fXf - dirUp * fYf;
     out_pCorners[1] = out_pCorners[0] + dirRight * fStepXf;
     out_pCorners[2] = out_pCorners[0] - dirUp * fStepYf;
     out_pCorners[3] = out_pCorners[2] + dirRight * fStepXf;
 
-    float fStepXn = (fZn * fTanFovX) / NUM_CLUSTERS_X;
-    float fStepYn = (fZn * fTanFovY) / NUM_CLUSTERS_Y;
-    float fXn = (x - (NUM_CLUSTERS_X / 2)) * fStepXn;
-    float fYn = (y - (NUM_CLUSTERS_Y / 2)) * fStepYn;
+    const float fStartXn = fZn * fTanLeft;
+    const float fStartYn = fZn * fTanBottom;
+    const float fEndXn = fZn * fTanRight;
+    const float fEndYn = fZn * fTanTop;
+
+    float fStepXn = (fEndXn - fStartXn) / NUM_CLUSTERS_X;
+    float fStepYn = (fEndYn - fStartYn) / NUM_CLUSTERS_Y;
+    float fXn = fStartXn + x * fStepXn;
+    float fYn = fStartYn + y * fStepYn;
 
     out_pCorners[4] = pos + dirForward * fZn + dirRight * fXn - dirUp * fYn;
     out_pCorners[5] = out_pCorners[4] + dirRight * fStepXn;
@@ -71,22 +83,41 @@ namespace
 
   void FillClusterBoundingSpheres(const ezCamera& camera, float fAspectRatio, ezArrayPtr<ezSimdBSphere> clusterBoundingSpheres)
   {
+    EZ_PROFILE_SCOPE("FillClusterBoundingSpheres");
+
     ///\todo proper implementation for orthographic views
     if (camera.IsOrthographic())
       return;
 
-    float fTanFovX = ezMath::Tan(camera.GetFovX(fAspectRatio) * 0.5f);
-    float fTanFovY = ezMath::Tan(camera.GetFovY(fAspectRatio) * 0.5f);
-    ezSimdVec4f fov = ezSimdVec4f(fTanFovX, fTanFovY, fTanFovX, fTanFovY);
+    ezMat4 mProj;
+    camera.GetProjectionMatrix(fAspectRatio, mProj);
+
+    ezSimdVec4f stepScale;
+    ezSimdVec4f tanLBLB;
+    {
+      ezAngle fFovLeft;
+      ezAngle fFovRight;
+      ezAngle fFovBottom;
+      ezAngle fFovTop;
+      ezGraphicsUtils::ExtractPerspectiveMatrixFieldOfView(mProj, fFovLeft, fFovRight, fFovBottom, fFovTop);
+
+      const float fTanLeft = ezMath::Tan(fFovLeft);
+      const float fTanRight = ezMath::Tan(fFovRight);
+      const float fTanBottom = ezMath::Tan(fFovBottom);
+      const float fTanTop = ezMath::Tan(fFovTop);
+
+      float fStepXf = (fTanRight - fTanLeft) / NUM_CLUSTERS_X;
+      float fStepYf = (fTanTop - fTanBottom) / NUM_CLUSTERS_Y;
+
+      stepScale = ezSimdVec4f(fStepXf, fStepYf, fStepXf, fStepYf);
+      tanLBLB = ezSimdVec4f(fTanLeft, fTanBottom, fTanLeft, fTanBottom);
+    }
 
     ezSimdVec4f pos = ezSimdConversion::ToVec3(camera.GetPosition());
     ezSimdVec4f dirForward = ezSimdConversion::ToVec3(camera.GetDirForwards());
     ezSimdVec4f dirRight = ezSimdConversion::ToVec3(camera.GetDirRight());
     ezSimdVec4f dirUp = ezSimdConversion::ToVec3(camera.GetDirUp());
 
-    ezSimdVec4f numClusters = ezSimdVec4f(NUM_CLUSTERS_X, NUM_CLUSTERS_Y, NUM_CLUSTERS_X, NUM_CLUSTERS_Y);
-    ezSimdVec4f halfNumClusters = numClusters * 0.5f;
-    ezSimdVec4f stepScale = fov.CompDiv(halfNumClusters);
 
     ezSimdVec4f fZn = ezSimdVec4f::ZeroVector();
     ezSimdVec4f cc[8];
@@ -100,12 +131,14 @@ namespace
       ezSimdVec4f depthF = pos + dirForward * fZf.x();
       ezSimdVec4f depthN = pos + dirForward * fZn.x();
 
+      ezSimdVec4f startLBLB = zff_znn.CompMul(tanLBLB);
+
       for (ezInt32 y = 0; y < NUM_CLUSTERS_Y; y++)
       {
         for (ezInt32 x = 0; x < NUM_CLUSTERS_X; x++)
         {
           ezSimdVec4f xyxy = ezSimdVec4i(x, y, x, y).ToFloat();
-          ezSimdVec4f xfyf = (xyxy - halfNumClusters).CompMul(steps);
+          ezSimdVec4f xfyf = startLBLB + (xyxy).CompMul(steps);
 
           cc[0] = depthF + dirRight * xfyf.x() - dirUp * xfyf.y();
           cc[1] = cc[0] + dirRight * steps.x();
@@ -200,6 +233,32 @@ namespace
     perDecalData.ormAtlasOffset = pDecalRenderData->m_uiORMAtlasOffset;
   }
 
+  void FillReflectionProbeData(ezPerReflectionProbeData& perReflectionProbeData, const ezReflectionProbeRenderData* pReflectionProbeRenderData)
+  {
+    ezVec3 position = pReflectionProbeRenderData->m_GlobalTransform.m_vPosition;
+    ezVec3 scale = pReflectionProbeRenderData->m_GlobalTransform.m_vScale.CompMul(pReflectionProbeRenderData->m_vHalfExtents);
+
+    // We store scale separately so we easily transform into probe projection space (with scale), influence space (scale + offset) and cube map space (no scale).
+    auto trans = pReflectionProbeRenderData->m_GlobalTransform;
+    trans.m_vScale = ezVec3(1.0f, 1.0f, 1.0f);
+    auto inverse = trans.GetAsMat4().GetInverse();
+
+    // the CompMax prevents division by zero (thus inf, thus NaN later, then crash)
+    // if negative scaling should be allowed, this would need to be changed
+    scale = ezVec3(1.0f).CompDiv(scale.CompMax(ezVec3(0.00001f)));
+    perReflectionProbeData.WorldToProbeProjectionMatrix = inverse;
+
+    perReflectionProbeData.ProbePosition = pReflectionProbeRenderData->m_vProbePosition.GetAsVec4(1.0f); // W isn't used.
+    perReflectionProbeData.Scale = scale.GetAsVec4(0.0f);                                                // W isn't used.
+
+    perReflectionProbeData.InfluenceScale = pReflectionProbeRenderData->m_vInfluenceScale.GetAsVec4(0.0f);
+    perReflectionProbeData.InfluenceShift = pReflectionProbeRenderData->m_vInfluenceShift.CompMul(ezVec3(1.0f) - pReflectionProbeRenderData->m_vInfluenceScale).GetAsVec4(0.0f);
+
+    perReflectionProbeData.PositiveFalloff = pReflectionProbeRenderData->m_vPositiveFalloff.GetAsVec4(0.0f);
+    perReflectionProbeData.NegativeFalloff = pReflectionProbeRenderData->m_vNegativeFalloff.GetAsVec4(0.0f);
+    perReflectionProbeData.Index = pReflectionProbeRenderData->m_uiIndex;
+  }
+
 
   EZ_FORCE_INLINE ezSimdBBox GetScreenSpaceBounds(const ezSimdBSphere& sphere, const ezSimdMat4f& viewMatrix, const ezSimdMat4f& projectionMatrix)
   {
@@ -283,7 +342,7 @@ namespace
   }
 
   template <typename Cluster>
-  void RasterizePointLight(const ezSimdBSphere& pointLightSphere, ezUInt32 uiLightIndex, const ezSimdMat4f& viewMatrix,
+  void RasterizeSphere(const ezSimdBSphere& pointLightSphere, ezUInt32 uiLightIndex, const ezSimdMat4f& viewMatrix,
     const ezSimdMat4f& projectionMatrix, Cluster* clusters, ezSimdBSphere* clusterBoundingSpheres)
   {
     ezSimdBBox screenSpaceBounds = GetScreenSpaceBounds(pointLightSphere, viewMatrix, projectionMatrix);
@@ -363,10 +422,10 @@ namespace
   }
 
   template <typename Cluster>
-  void RasterizeDecal(const ezDecalRenderData* pDecalRenderData, ezUInt32 uiDecalIndex, const ezSimdMat4f& viewProjectionMatrix, Cluster* clusters,
+  void RasterizeBox(const ezTransform& transform, ezUInt32 uiDecalIndex, const ezSimdMat4f& viewProjectionMatrix, Cluster* clusters,
     ezSimdBSphere* clusterBoundingSpheres)
   {
-    ezSimdMat4f decalToWorld = ezSimdConversion::ToTransform(pDecalRenderData->m_GlobalTransform).GetAsMat4();
+    ezSimdMat4f decalToWorld = ezSimdConversion::ToTransform(transform).GetAsMat4();
     ezSimdMat4f worldToDecal = decalToWorld.GetInverse();
 
     ezVec3 corners[8];

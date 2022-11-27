@@ -15,6 +15,7 @@ ezCollisionMeshAssetDocumentManager::ezCollisionMeshAssetDocumentManager()
   m_DocTypeDesc.m_sIcon = ":/AssetIcons/Collision_Mesh.png";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezCollisionMeshAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
+  m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_PhysX_Colmesh_Triangle");
 
   m_DocTypeDesc.m_sResourceFileExtension = "ezPhysXMesh";
   m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::SupportsThumbnail;
@@ -24,6 +25,8 @@ ezCollisionMeshAssetDocumentManager::ezCollisionMeshAssetDocumentManager()
   m_DocTypeDesc2.m_sIcon = ":/AssetIcons/Collision_Mesh_Convex.png";
   m_DocTypeDesc2.m_pDocumentType = ezGetStaticRTTI<ezCollisionMeshAssetDocument>();
   m_DocTypeDesc2.m_pManager = this;
+  m_DocTypeDesc2.m_CompatibleTypes.PushBack("CompatibleAsset_PhysX_Colmesh_Triangle"); // convex meshes can also be used as triangle meshes (concave)
+  m_DocTypeDesc2.m_CompatibleTypes.PushBack("CompatibleAsset_PhysX_Colmesh_Convex");
 
   m_DocTypeDesc2.m_sResourceFileExtension = "ezPhysXMesh";
   m_DocTypeDesc2.m_AssetDocumentFlags = ezAssetDocumentFlags::SupportsThumbnail;
@@ -46,6 +49,8 @@ void ezCollisionMeshAssetDocumentManager::OnDocumentManagerEvent(const ezDocumen
       }
     }
     break;
+    default:
+      break;
   }
 }
 

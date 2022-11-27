@@ -63,6 +63,21 @@ namespace ezGraphicsUtils
   /// \note If an orthographic projection matrix is passed in, the returned angle values will be zero.
   EZ_FOUNDATION_DLL void ExtractPerspectiveMatrixFieldOfView(const ezMat4& ProjectionMatrix, ezAngle& out_fFovX, ezAngle& out_fFovY); // [tested]
 
+  /// \brief Extracts the field of view angles from a perspective matrix.
+  /// \param ProjectionMatrix Perspective projection matrix to be decomposed.
+  /// \param out_fFovLeft Left angle of the frustum. Negative in symmetric projection.
+  /// \param out_fFovRight Right angle of the frustum.
+  /// \param out_fFovBottom Bottom angle of the frustum. Negative in symmetric projection.
+  /// \param out_fFovTop Top angle of the frustum.
+  /// \param yRange The Y range used to construct the perspective matrix.
+  EZ_FOUNDATION_DLL void ExtractPerspectiveMatrixFieldOfView(const ezMat4& ProjectionMatrix, ezAngle& out_fFovLeft, ezAngle& out_fFovRight, ezAngle& out_fFovBottom, ezAngle& out_fFovTop, ezClipSpaceYMode::Enum yRange = ezClipSpaceYMode::Regular); // [tested]
+
+  /// \brief Extracts the field of view distances on the near plane from a perspective matrix.
+  ///
+  /// Convenience function that also extracts near / far values and returns the distances on the near plane to be the inverse of ezGraphicsUtils::CreatePerspectiveProjectionMatrix.
+  /// \sa ezGraphicsUtils::CreatePerspectiveProjectionMatrix
+  EZ_FOUNDATION_DLL ezResult ExtractPerspectiveMatrixFieldOfView(const ezMat4& ProjectionMatrix, float& out_fLeft, float& out_fRight, float& out_fBottom, float& out_fTop, ezClipSpaceDepthRange::Enum DepthRange = ezClipSpaceDepthRange::Default, ezClipSpaceYMode::Enum yRange = ezClipSpaceYMode::Regular); // [tested]
+
   /// \brief Computes the distances of the near and far clip planes from the given perspective projection matrix.
   ///
   /// Returns EZ_FAILURE when one of the values could not be computed, because it would result in a "division by zero".

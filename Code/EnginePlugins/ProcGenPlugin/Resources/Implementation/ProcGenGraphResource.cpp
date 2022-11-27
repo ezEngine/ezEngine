@@ -2,13 +2,13 @@
 
 #include <Core/Assets/AssetFileHeader.h>
 #include <Core/Curves/ColorGradientResource.h>
+#include <Core/Physics/SurfaceResource.h>
 #include <Core/Prefabs/PrefabResource.h>
+#include <Foundation/CodeUtils/Expression/ExpressionByteCode.h>
 #include <Foundation/IO/ChunkStream.h>
 #include <Foundation/IO/StringDeduplicationContext.h>
-#include <GameEngine/Physics/SurfaceResource.h>
 #include <ProcGenPlugin/Resources/ProcGenGraphResource.h>
 #include <ProcGenPlugin/Resources/ProcGenGraphSharedData.h>
-#include <ProcGenPlugin/VM/ExpressionByteCode.h>
 
 namespace ezProcGenInternal
 {
@@ -29,7 +29,7 @@ ezProcGenGraphResource::ezProcGenGraphResource()
 {
 }
 
-ezProcGenGraphResource::~ezProcGenGraphResource() {}
+ezProcGenGraphResource::~ezProcGenGraphResource() = default;
 
 const ezDynamicArray<ezSharedPtr<const PlacementOutput>>& ezProcGenGraphResource::GetPlacementOutputs() const
 {

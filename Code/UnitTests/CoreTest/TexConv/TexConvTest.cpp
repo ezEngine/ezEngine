@@ -8,7 +8,7 @@
 #include <Foundation/System/ProcessGroup.h>
 #include <Texture/Image/Image.h>
 
-#if EZ_ENABLED(EZ_SUPPORTS_PROCESSES) && EZ_ENABLED(EZ_PLATFORM_WINDOWS) && defined(BUILDSYSTEM_TEXCONV_PRESENT)
+#if EZ_ENABLED(EZ_SUPPORTS_PROCESSES) && (EZ_ENABLED(EZ_PLATFORM_WINDOWS) || EZ_ENABLED(EZ_PLATFORM_LINUX)) && defined(BUILDSYSTEM_TEXCONV_PRESENT)
 
 class ezTexConvTest : public ezTestBaseClass
 {
@@ -17,7 +17,7 @@ public:
 
   virtual ezResult GetImage(ezImage& img) override
   {
-    img.ResetAndMove(std::move(m_State->m_image));
+    img.ResetAndMove(std::move(m_pState->m_image));
     return EZ_SUCCESS;
   }
 
@@ -39,7 +39,7 @@ private:
   {
     ezStartup::StartupCoreSystems();
 
-    m_State = EZ_DEFAULT_NEW(State);
+    m_pState = EZ_DEFAULT_NEW(State);
 
     const ezStringBuilder sReadDir(">sdk/", ezTestFramework::GetInstance()->GetRelTestDataPath());
 
@@ -55,7 +55,7 @@ private:
 
   virtual ezResult DeInitializeTest() override
   {
-    m_State.Clear();
+    m_pState.Clear();
 
     ezFileSystem::RemoveDataDirectoryGroup("TexConvTest");
     ezFileSystem::RemoveDataDirectoryGroup("TexConvDataDir");
@@ -67,11 +67,16 @@ private:
 
   void RunTexConv(ezProcessOptions& options, const char* szOutName)
   {
+#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+    const char* szTexConvExecutableName = "TexConv.exe";
+#  else
+    const char* szTexConvExecutableName = "TexConv";
+#  endif
     ezStringBuilder sTexConvExe = ezOSFile::GetApplicationDirectory();
-    sTexConvExe.AppendPath("TexConv.exe");
+    sTexConvExe.AppendPath(szTexConvExecutableName);
     sTexConvExe.MakeCleanPath();
 
-    if (!EZ_TEST_BOOL_MSG(ezOSFile::ExistsFile(sTexConvExe), "TexConv.exe does not exist"))
+    if (!EZ_TEST_BOOL_MSG(ezOSFile::ExistsFile(sTexConvExe), "%s does not exist", szTexConvExecutableName))
       return;
 
     options.m_sProcess = sTexConvExe;
@@ -82,15 +87,15 @@ private:
     options.AddArgument("-out");
     options.AddArgument(sOut);
 
-    if (!EZ_TEST_BOOL(m_State->m_TexConvGroup.Launch(options).Succeeded()))
+    if (!EZ_TEST_BOOL(m_pState->m_TexConvGroup.Launch(options).Succeeded()))
       return;
 
-    if (!EZ_TEST_BOOL_MSG(m_State->m_TexConvGroup.WaitToFinish(ezTime::Minutes(1.0)).Succeeded(), "TexConv did not finish in time."))
+    if (!EZ_TEST_BOOL_MSG(m_pState->m_TexConvGroup.WaitToFinish(ezTime::Minutes(1.0)).Succeeded(), "TexConv did not finish in time."))
       return;
 
-    EZ_TEST_INT_MSG(m_State->m_TexConvGroup.GetProcesses().PeekBack().GetExitCode(), 0, "TexConv failed to process the image");
+    EZ_TEST_INT_MSG(m_pState->m_TexConvGroup.GetProcesses().PeekBack().GetExitCode(), 0, "TexConv failed to process the image");
 
-    m_State->m_image.LoadFrom(sOut).IgnoreResult();
+    m_pState->m_image.LoadFrom(sOut).IgnoreResult();
   }
 
   struct State
@@ -99,7 +104,7 @@ private:
     ezImage m_image;
   };
 
-  ezUniquePtr<State> m_State;
+  ezUniquePtr<State> m_pState;
 };
 
 void ezTexConvTest::SetupSubTests()

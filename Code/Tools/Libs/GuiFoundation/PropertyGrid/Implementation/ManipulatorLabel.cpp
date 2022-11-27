@@ -66,8 +66,8 @@ void ezQtManipulatorLabel::SetIsDefault(bool bIsDefault)
   if (m_bIsDefault != bIsDefault)
   {
     m_bIsDefault = bIsDefault;
-    m_font.setBold(!m_bIsDefault);
-    setFont(m_font);
+    m_Font.setBold(!m_bIsDefault);
+    setFont(m_Font);
   }
 }
 
@@ -80,7 +80,7 @@ void ezQtManipulatorLabel::contextMenuEvent(QContextMenuEvent* ev)
 void ezQtManipulatorLabel::showEvent(QShowEvent* event)
 {
   // Use of style sheets (ADS) breaks previously set font.
-  setFont(m_font);
+  setFont(m_Font);
   QLabel::showEvent(event);
 }
 
@@ -100,12 +100,16 @@ void ezQtManipulatorLabel::mousePressEvent(QMouseEvent* ev)
     ezManipulatorManager::GetSingleton()->SetActiveManipulator(pDoc, m_pManipulator, *m_pItems);
 }
 
+#if QT_VERSION > QT_VERSION_CHECK(6, 0, 0)
+void ezQtManipulatorLabel::enterEvent(QEnterEvent* ev)
+#else
 void ezQtManipulatorLabel::enterEvent(QEvent* ev)
+#endif
 {
   if (m_pManipulator)
   {
-    m_font.setUnderline(true);
-    setFont(m_font);
+    m_Font.setUnderline(true);
+    setFont(m_Font);
   }
 
   QLabel::enterEvent(ev);
@@ -115,8 +119,8 @@ void ezQtManipulatorLabel::leaveEvent(QEvent* ev)
 {
   if (m_pManipulator)
   {
-    m_font.setUnderline(false);
-    setFont(m_font);
+    m_Font.setUnderline(false);
+    setFont(m_Font);
   }
 
   QLabel::leaveEvent(ev);

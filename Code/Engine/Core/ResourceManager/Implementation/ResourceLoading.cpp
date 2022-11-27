@@ -13,7 +13,7 @@ ezTypelessResourceHandle ezResourceManager::LoadResourceByType(const ezRTTI* pRe
 
 void ezResourceManager::InternalPreloadResource(ezResource* pResource, bool bHighestPriority)
 {
-  if (s_State->s_bShutdown)
+  if (s_pState->m_bShutdown)
     return;
 
   EZ_PROFILE_SCOPE("InternalPreloadResource");
@@ -29,7 +29,7 @@ void ezResourceManager::InternalPreloadResource(ezResource* pResource, bool bHig
     return;
   }
 
-  EZ_ASSERT_DEV(!s_State->s_bExportMode, "Resources should not be loaded in export mode");
+  EZ_ASSERT_DEV(!s_pState->m_bExportMode, "Resources should not be loaded in export mode");
 
   // if we are already loading this resource, early out
   if (IsQueuedForLoading(pResource))
@@ -53,7 +53,7 @@ void ezResourceManager::InternalPreloadResource(ezResource* pResource, bool bHig
 
     if (bHighestPriority && ezTaskSystem::GetCurrentThreadWorkerType() == ezWorkerThreadType::FileAccess)
     {
-      ezResourceManager::s_State->s_bAllowLaunchDataLoadTask = true;
+      ezResourceManager::s_pState->m_bAllowLaunchDataLoadTask = true;
     }
 
     RunWorkerTask(pResource);
@@ -62,9 +62,9 @@ void ezResourceManager::InternalPreloadResource(ezResource* pResource, bool bHig
 
 void ezResourceManager::SetupWorkerTasks()
 {
-  if (!s_State->m_bTaskNamesInitialized)
+  if (!s_pState->m_bTaskNamesInitialized)
   {
-    s_State->m_bTaskNamesInitialized = true;
+    s_pState->m_bTaskNamesInitialized = true;
     ezStringBuilder s;
 
     {
@@ -73,7 +73,7 @@ void ezResourceManager::SetupWorkerTasks()
       for (ezUInt32 i = 0; i < InitialDataLoadTasks; ++i)
       {
         s.Format("Resource Data Loader {0}", i);
-        auto& data = s_State->s_WorkerTasksDataLoad.ExpandAndGetRef();
+        auto& data = s_pState->m_WorkerTasksDataLoad.ExpandAndGetRef();
         data.m_pTask = EZ_DEFAULT_NEW(ezResourceManagerWorkerDataLoad);
         data.m_pTask->ConfigureTask(s, ezTaskNesting::Maybe);
       }
@@ -85,7 +85,7 @@ void ezResourceManager::SetupWorkerTasks()
       for (ezUInt32 i = 0; i < InitialUpdateContentTasks; ++i)
       {
         s.Format("Resource Content Updater {0}", i);
-        auto& data = s_State->s_WorkerTasksUpdateContent.ExpandAndGetRef();
+        auto& data = s_pState->m_WorkerTasksUpdateContent.ExpandAndGetRef();
         data.m_pTask = EZ_DEFAULT_NEW(ezResourceManagerWorkerUpdateContent);
         data.m_pTask->ConfigureTask(s, ezTaskNesting::Maybe);
       }
@@ -95,23 +95,23 @@ void ezResourceManager::SetupWorkerTasks()
 
 void ezResourceManager::RunWorkerTask(ezResource* pResource)
 {
-  if (s_State->s_bShutdown)
+  if (s_pState->m_bShutdown)
     return;
 
   EZ_ASSERT_DEV(s_ResourceMutex.IsLocked(), "");
 
   SetupWorkerTasks();
 
-  if (s_State->s_bAllowLaunchDataLoadTask && !s_State->s_LoadingQueue.IsEmpty())
+  if (s_pState->m_bAllowLaunchDataLoadTask && !s_pState->m_LoadingQueue.IsEmpty())
   {
-    s_State->s_bAllowLaunchDataLoadTask = false;
+    s_pState->m_bAllowLaunchDataLoadTask = false;
 
-    for (ezUInt32 i = 0; i < s_State->s_WorkerTasksDataLoad.GetCount(); ++i)
+    for (ezUInt32 i = 0; i < s_pState->m_WorkerTasksDataLoad.GetCount(); ++i)
     {
-      if (s_State->s_WorkerTasksDataLoad[i].m_pTask->IsTaskFinished())
+      if (s_pState->m_WorkerTasksDataLoad[i].m_pTask->IsTaskFinished())
       {
-        s_State->s_WorkerTasksDataLoad[i].m_GroupId =
-          ezTaskSystem::StartSingleTask(s_State->s_WorkerTasksDataLoad[i].m_pTask, ezTaskPriority::FileAccess);
+        s_pState->m_WorkerTasksDataLoad[i].m_GroupId =
+          ezTaskSystem::StartSingleTask(s_pState->m_WorkerTasksDataLoad[i].m_pTask, ezTaskPriority::FileAccess);
         return;
       }
     }
@@ -119,8 +119,8 @@ void ezResourceManager::RunWorkerTask(ezResource* pResource)
     // could not find any unused task -> need to create a new one
     {
       ezStringBuilder s;
-      s.Format("Resource Data Loader {0}", s_State->s_WorkerTasksDataLoad.GetCount());
-      auto& data = s_State->s_WorkerTasksDataLoad.ExpandAndGetRef();
+      s.Format("Resource Data Loader {0}", s_pState->m_WorkerTasksDataLoad.GetCount());
+      auto& data = s_pState->m_WorkerTasksDataLoad.ExpandAndGetRef();
       data.m_pTask = EZ_DEFAULT_NEW(ezResourceManagerWorkerDataLoad);
       data.m_pTask->ConfigureTask(s, ezTaskNesting::Maybe);
       data.m_GroupId = ezTaskSystem::StartSingleTask(data.m_pTask, ezTaskPriority::FileAccess);
@@ -153,22 +153,22 @@ void ezResourceManager::ReverseBubbleSortStep(ezDeque<LoadingInfo>& data)
 
 void ezResourceManager::UpdateLoadingDeadlines()
 {
-  if (s_State->s_LoadingQueue.IsEmpty())
+  if (s_pState->m_LoadingQueue.IsEmpty())
     return;
 
   EZ_ASSERT_DEBUG(s_ResourceMutex.IsLocked(), "Calling code must acquire s_ResourceMutex");
 
   EZ_PROFILE_SCOPE("UpdateLoadingDeadlines");
 
-  const ezUInt32 uiCount = s_State->s_LoadingQueue.GetCount();
-  s_State->s_uiLastResourcePriorityUpdateIdx = ezMath::Min(s_State->s_uiLastResourcePriorityUpdateIdx, uiCount);
+  const ezUInt32 uiCount = s_pState->m_LoadingQueue.GetCount();
+  s_pState->m_uiLastResourcePriorityUpdateIdx = ezMath::Min(s_pState->m_uiLastResourcePriorityUpdateIdx, uiCount);
 
-  ezUInt32 uiUpdateCount = ezMath::Min(50u, uiCount - s_State->s_uiLastResourcePriorityUpdateIdx);
+  ezUInt32 uiUpdateCount = ezMath::Min(50u, uiCount - s_pState->m_uiLastResourcePriorityUpdateIdx);
 
   if (uiUpdateCount == 0)
   {
-    s_State->s_uiLastResourcePriorityUpdateIdx = 0;
-    uiUpdateCount = ezMath::Min(50u, uiCount - s_State->s_uiLastResourcePriorityUpdateIdx);
+    s_pState->m_uiLastResourcePriorityUpdateIdx = 0;
+    uiUpdateCount = ezMath::Min(50u, uiCount - s_pState->m_uiLastResourcePriorityUpdateIdx);
   }
 
   if (uiUpdateCount > 0)
@@ -180,15 +180,15 @@ void ezResourceManager::UpdateLoadingDeadlines()
 
       for (ezUInt32 i = 0; i < uiUpdateCount; ++i)
       {
-        auto& element = s_State->s_LoadingQueue[s_State->s_uiLastResourcePriorityUpdateIdx];
+        auto& element = s_pState->m_LoadingQueue[s_pState->m_uiLastResourcePriorityUpdateIdx];
         element.m_fPriority = element.m_pResource->GetLoadingPriority(tNow);
-        ++s_State->s_uiLastResourcePriorityUpdateIdx;
+        ++s_pState->m_uiLastResourcePriorityUpdateIdx;
       }
     }
 
     {
       EZ_PROFILE_SCOPE("SortLoadingDeadlines");
-      ReverseBubbleSortStep(s_State->s_LoadingQueue);
+      ReverseBubbleSortStep(s_pState->m_LoadingQueue);
     }
   }
 }
@@ -224,7 +224,7 @@ ezResult ezResourceManager::RemoveFromLoadingQueue(ezResource* pResource)
   LoadingInfo li;
   li.m_pResource = pResource;
 
-  if (s_State->s_LoadingQueue.RemoveAndSwap(li))
+  if (s_pState->m_LoadingQueue.RemoveAndSwap(li))
   {
     pResource->m_Flags.Remove(ezResourceFlags::IsQueuedForLoading);
     return EZ_SUCCESS;
@@ -247,12 +247,12 @@ void ezResourceManager::AddToLoadingQueue(ezResource* pResource, bool bHighestPr
   {
     pResource->SetPriority(ezResourcePriority::Critical);
     li.m_fPriority = 0.0f;
-    s_State->s_LoadingQueue.PushFront(li);
+    s_pState->m_LoadingQueue.PushFront(li);
   }
   else
   {
-    li.m_fPriority = pResource->GetLoadingPriority(s_State->s_LastFrameUpdate);
-    s_State->s_LoadingQueue.PushBack(li);
+    li.m_fPriority = pResource->GetLoadingPriority(s_pState->m_LastFrameUpdate);
+    s_pState->m_LoadingQueue.PushBack(li);
   }
 }
 
@@ -288,7 +288,7 @@ bool ezResourceManager::ReloadResource(ezResource* pResource, bool bForce)
     LoadingInfo li;
     li.m_pResource = pResource;
 
-    if (s_State->s_LoadingQueue.IndexOf(li) == ezInvalidIndex)
+    if (s_pState->m_LoadingQueue.IndexOf(li) == ezInvalidIndex)
     {
       // the resource is marked as 'loading' but it is not in the queue anymore
       // that means some task is already working on loading it
@@ -328,12 +328,12 @@ bool ezResourceManager::ReloadResource(ezResource* pResource, bool bForce)
   }
   else
   {
-    s_State->s_ResourcesToUnloadOnMainThread.Insert(ezTempHashedString(pResource->GetResourceID().GetData()), pResource->GetDynamicRTTI());
+    s_pState->m_ResourcesToUnloadOnMainThread.Insert(ezTempHashedString(pResource->GetResourceID().GetData()), pResource->GetDynamicRTTI());
   }
 
   if (bAllowPreloading)
   {
-    const ezTime tNow = s_State->s_LastFrameUpdate;
+    const ezTime tNow = s_pState->m_LastFrameUpdate;
 
     // resources that have been in use recently will be put into the preload queue immediately
     // everything else will be loaded on demand
@@ -353,7 +353,7 @@ ezUInt32 ezResourceManager::ReloadResourcesOfType(const ezRTTI* pType, bool bFor
 
   ezUInt32 count = 0;
 
-  LoadedResources& lr = s_State->s_LoadedResources[pType];
+  LoadedResources& lr = s_pState->m_LoadedResources[pType];
 
   for (auto it = lr.m_Resources.GetIterator(); it.IsValid(); ++it)
   {
@@ -371,7 +371,7 @@ ezUInt32 ezResourceManager::ReloadAllResources(bool bForce)
 
   ezUInt32 count = 0;
 
-  for (auto itType = s_State->s_LoadedResources.GetIterator(); itType.IsValid(); ++itType)
+  for (auto itType = s_pState->m_LoadedResources.GetIterator(); itType.IsValid(); ++itType)
   {
     for (auto it = itType.Value().m_Resources.GetIterator(); it.IsValid(); ++it)
     {
@@ -385,7 +385,7 @@ ezUInt32 ezResourceManager::ReloadAllResources(bool bForce)
     ezResourceManagerEvent e;
     e.m_Type = ezResourceManagerEvent::Type::ReloadAllResources;
 
-    s_State->s_ManagerEvents.Broadcast(e);
+    s_pState->m_ManagerEvents.Broadcast(e);
   }
 
   return count;
@@ -396,7 +396,7 @@ void ezResourceManager::UpdateResourceWithCustomLoader(const ezTypelessResourceH
   EZ_LOCK(s_ResourceMutex);
 
   hResource.m_pResource->m_Flags.Add(ezResourceFlags::HasCustomDataLoader);
-  s_State->s_CustomLoaders[hResource.m_pResource] = std::move(loader);
+  s_pState->m_CustomLoaders[hResource.m_pResource] = std::move(loader);
   // if there was already a custom loader set, but it got no action yet, it is deleted here and replaced with the newer loader
 
   ReloadResource(hResource.m_pResource, true);
@@ -415,15 +415,15 @@ void ezResourceManager::EnsureResourceLoadingState(ezResource* pResourceToLoad, 
     {
       EZ_LOCK(s_ResourceMutex);
 
-      for (ezUInt32 i = 0; i < s_State->s_WorkerTasksUpdateContent.GetCount(); ++i)
+      for (ezUInt32 i = 0; i < s_pState->m_WorkerTasksUpdateContent.GetCount(); ++i)
       {
-        const ezResource* pQueuedResource = s_State->s_WorkerTasksUpdateContent[i].m_pTask->m_pResourceToLoad;
+        const ezResource* pQueuedResource = s_pState->m_WorkerTasksUpdateContent[i].m_pTask->m_pResourceToLoad;
 
-        if (pQueuedResource != nullptr && pQueuedResource != pResourceToLoad && !s_State->s_WorkerTasksUpdateContent[i].m_pTask->IsTaskFinished())
+        if (pQueuedResource != nullptr && pQueuedResource != pResourceToLoad && !s_pState->m_WorkerTasksUpdateContent[i].m_pTask->IsTaskFinished())
         {
           if (!IsResourceTypeAcquireDuringUpdateContentAllowed(pQueuedResource->GetDynamicRTTI(), pOwnRtti))
           {
-            tgid = s_State->s_WorkerTasksUpdateContent[i].m_GroupId;
+            tgid = s_pState->m_WorkerTasksUpdateContent[i].m_GroupId;
             break;
           }
         }

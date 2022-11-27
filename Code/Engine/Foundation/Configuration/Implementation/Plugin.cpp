@@ -7,8 +7,10 @@
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 #  include <Foundation/Configuration/Implementation/Win/Plugin_Win.h>
-#elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX) || EZ_ENABLED(EZ_PLATFORM_ANDROID)
+#elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX)
 #  include <Foundation/Configuration/Implementation/Posix/Plugin_Posix.h>
+#elif EZ_ENABLED(EZ_PLATFORM_ANDROID)
+#  include <Foundation/Configuration/Implementation/Android/Plugin_Android.h>
 #else
 #  error "Plugins not implemented on this Platform."
 #endif
@@ -24,6 +26,7 @@ struct ModuleData
   ezHybridArray<ezPluginInitCallback, 2> m_OnLoadCB;
   ezHybridArray<ezPluginInitCallback, 2> m_OnUnloadCB;
   ezHybridArray<ezString, 2> m_sPluginDependencies;
+  ezBitflags<ezPluginLoadFlags> m_LoadFlags;
 
   void Initialize();
   void Uninitialize();
@@ -59,6 +62,7 @@ void ezPlugin::GetAllPluginInfos(ezDynamicArray<PluginInfo>& infos)
     auto& pi = infos.ExpandAndGetRef();
     pi.m_sName = mod.Key();
     pi.m_sDependencies = mod.Value().m_sPluginDependencies;
+    pi.m_LoadFlags = mod.Value().m_LoadFlags;
   }
 }
 
@@ -223,6 +227,7 @@ success:
 
   auto& thisMod = g_LoadedModules[szPluginFile];
   thisMod.m_uiFileNumber = uiFileNumber;
+  thisMod.m_LoadFlags = flags;
 
   ezPlugin::BeginPluginChanges();
   EZ_SCOPE_EXIT(ezPlugin::EndPluginChanges());
@@ -311,6 +316,11 @@ ezResult ezPlugin::LoadPlugin(const char* szPluginFile, ezBitflags<ezPluginLoadF
   if (res.Succeeded())
   {
     s_PluginLoadOrder.PushBack(szPluginFile);
+  }
+  else
+  {
+    // If we failed to load the plugin, it shouldn't be in the loaded modules list
+    g_LoadedModules.Remove(szPluginFile);
   }
 
   return res;

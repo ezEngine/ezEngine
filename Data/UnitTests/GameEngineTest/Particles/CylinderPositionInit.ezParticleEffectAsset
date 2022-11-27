@@ -11,7 +11,7 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{8039367201664816052,4948728097403116774}}
-		u4 %Hash{17084923959378981312}
+		u4 %Hash{16729822057543237301}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{17490555078048832028,14942492985838378214}}
@@ -39,20 +39,9 @@ Objects
 {
 o
 {
-	Uuid %id{u4{3229271749979382266,1857721355794626419}}
-	s %t{"ezVarianceTypeFloat"}
-	u3 %v{1}
-	p
-	{
-		f %Value{0}
-		f %Variance{0}
-	}
-}
-o
-{
 	Uuid %id{u4{16716283010135482077,4745584229815391411}}
 	s %t{"ezParticleSystemDescriptor"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		VarArray %Behaviors{}
@@ -67,7 +56,11 @@ o
 			Uuid{u4{14988279388761746569,5526992935597521577}}
 		}
 		s %LifeScaleParam{""}
-		Uuid %LifeTime{u4{14549917429278680222,15997213889726667306}}
+		ezVarianceTypeTime %LifeTime
+		{
+			f %Variance{0}
+			Time %Value{d{0x0000000000001440}}
+		}
 		s %Name{"BoxPos"}
 		s %OnDeathEvent{""}
 		VarArray %Types
@@ -122,10 +115,14 @@ o
 {
 	Uuid %id{u4{13448376677732907468,5066060130023065416}}
 	s %t{"ezParticleInitializerFactory_RandomSize"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
-		Uuid %Size{u4{11481329229112899074,14363586555836885066}}
+		ezVarianceTypeFloat %Size
+		{
+			f %Variance{0}
+			f %Value{0xCDCC4C3D}
+		}
 		s %SizeCurve{""}
 	}
 }
@@ -159,7 +156,7 @@ o
 {
 	Uuid %id{u4{14988279388761746569,5526992935597521577}}
 	s %t{"ezParticleInitializerFactory_CylinderPosition"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		f %Height{0x0000803F}
@@ -169,7 +166,11 @@ o
 		s %ScaleHeightParam{""}
 		s %ScaleRadiusParam{""}
 		b %SetVelocity{0}
-		Uuid %Speed{u4{3229271749979382266,1857721355794626419}}
+		ezVarianceTypeFloat %Speed
+		{
+			f %Variance{0}
+			f %Value{0}
+		}
 	}
 }
 o
@@ -184,28 +185,6 @@ o
 		{
 			Uuid{u4{2990738185930355165,5031340752250201068}}
 		}
-	}
-}
-o
-{
-	Uuid %id{u4{11481329229112899074,14363586555836885066}}
-	s %t{"ezVarianceTypeFloat"}
-	u3 %v{1}
-	p
-	{
-		f %Value{0xCDCC4C3D}
-		f %Variance{0}
-	}
-}
-o
-{
-	Uuid %id{u4{14549917429278680222,15997213889726667306}}
-	s %t{"ezVarianceTypeTime"}
-	u3 %v{1}
-	p
-	{
-		Time %Value{d{0x0000000000001440}}
-		f %Variance{0}
 	}
 }
 }
@@ -352,7 +331,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezParticleInitializerFactory_CylinderPosition"}
 		u3 %TypeSize{168}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -388,7 +367,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezParticleSystemDescriptor"}
 		u3 %TypeSize{448}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -406,7 +385,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezParticleInitializerFactory_RandomSize"}
 		u3 %TypeSize{24}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -495,7 +474,7 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleEffectDescriptor"}
-		u3 %TypeSize{360}
+		u3 %TypeSize{344}
 		u3 %TypeVersion{2}
 	}
 }

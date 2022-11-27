@@ -1,12 +1,15 @@
 #include <EditorFramework/EditorFrameworkPCH.h>
 
+#include "EditorFramework/Panels/LogPanel/LogPanel.moc.h"
 #include <Core/World/GameObject.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Document/GameObjectDocument.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
 #include <EditorFramework/EditTools/EditTool.h>
 #include <EditorFramework/Gizmos/SnapProvider.h>
+#include <EditorFramework/Panels/LogPanel/LogPanel.moc.h>
 #include <EditorFramework/Preferences/EditorPreferences.h>
+#include <GuiFoundation/Models/LogModel.moc.h>
 #include <GuiFoundation/PropertyGrid/ManipulatorManager.h>
 #include <GuiFoundation/PropertyGrid/VisualizerManager.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
@@ -56,6 +59,8 @@ void ezGameObjectDocument::SubscribeGameObjectEventHandlers()
   m_ObjectPropertyEventHandlerID = GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezGameObjectDocument::ObjectPropertyEventHandler, this));
   m_ObjectStructureEventHandlerID = GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezGameObjectDocument::ObjectStructureEventHandler, this));
   m_ObjectEventHandlerID = GetObjectManager()->m_ObjectEvents.AddEventHandler(ezMakeDelegate(&ezGameObjectDocument::ObjectEventHandler, this));
+
+  s_GameObjectDocumentEvents.AddEventHandler(ezMakeDelegate(&ezGameObjectDocument::GameObjectDocumentEventHandler, this));
 }
 
 void ezGameObjectDocument::UnsubscribeGameObjectEventHandlers()
@@ -64,6 +69,31 @@ void ezGameObjectDocument::UnsubscribeGameObjectEventHandlers()
   GetObjectManager()->m_PropertyEvents.RemoveEventHandler(m_ObjectPropertyEventHandlerID);
   GetObjectManager()->m_StructureEvents.RemoveEventHandler(m_ObjectStructureEventHandlerID);
   GetObjectManager()->m_ObjectEvents.RemoveEventHandler(m_ObjectEventHandlerID);
+
+  s_GameObjectDocumentEvents.RemoveEventHandler(ezMakeDelegate(&ezGameObjectDocument::GameObjectDocumentEventHandler, this));
+}
+
+void ezGameObjectDocument::GameObjectDocumentEventHandler(const ezGameObjectDocumentEvent& e)
+{
+  switch (e.m_Type)
+  {
+    // case ezGameObjectDocumentEvent::Type::GameMode_StartingExternal: // the external player doesn't log to the editor panel, so don't need to clear that
+    case ezGameObjectDocumentEvent::Type::GameMode_StartingPlay:
+    case ezGameObjectDocumentEvent::Type::GameMode_StartingSimulate:
+    {
+      auto pEditorPrefsUser = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
+      if (pEditorPrefsUser && pEditorPrefsUser->m_bClearEditorLogsOnPlay)
+      {
+        // on play, the engine log has a lot of activity, so makes sense to clear that first
+        ezQtLogPanel::GetSingleton()->EngineLog->GetLog()->Clear();
+        // but I think we usually want to keep the editor log around
+        //ezQtLogPanel::GetSingleton()->EditorLog->GetLog()->Clear();
+      }
+    }
+    break;
+    default:
+      break;
+  }
 }
 
 ezEditorInputContext* ezGameObjectDocument::GetEditorInputContextOverride()
@@ -85,6 +115,9 @@ bool ezGameObjectDocument::IsActiveEditTool(const ezRTTI* pEditToolType) const
 {
   if (m_pActiveEditTool == nullptr)
     return pEditToolType == nullptr;
+
+  if (pEditToolType == nullptr)
+    return false;
 
   return m_pActiveEditTool->IsInstanceOf(pEditToolType);
 }
@@ -203,8 +236,7 @@ void ezGameObjectDocument::SetGizmoMoveParentOnly(bool bMoveParent)
   ShowDocumentStatus(ezFmt("Move Parent Only: {}", m_bGizmoMoveParentOnly ? "ON" : "OFF"));
 }
 
-void ezGameObjectDocument::DetermineNodeName(
-  const ezDocumentObject* pObject, const ezUuid& prefabGuid, ezStringBuilder& out_Result, QIcon* out_pIcon /*= nullptr*/) const
+void ezGameObjectDocument::DetermineNodeName(const ezDocumentObject* pObject, const ezUuid& prefabGuid, ezStringBuilder& out_Result, QIcon* out_pIcon /*= nullptr*/) const
 {
   // tries to find a good name for a node by looking at the attached components and their properties
 
@@ -216,7 +248,7 @@ void ezGameObjectDocument::DetermineNodeName(
 
     if (pInfo)
     {
-      ezStringBuilder sPath = pInfo->m_pAssetInfo->m_sDataDirRelativePath;
+      ezStringBuilder sPath = pInfo->m_pAssetInfo->m_sDataDirParentRelativePath;
       sPath = sPath.GetFileName();
 
       out_Result.Set("Prefab: ", sPath);
@@ -253,6 +285,11 @@ void ezGameObjectDocument::DetermineNodeName(
         out_Result.Shrink(0, 9);
       if (out_Result.StartsWith("ez"))
         out_Result.Shrink(2, 0);
+
+      if (auto pInDev = pChild->GetTypeAccessor().GetType()->GetAttributeByType<ezInDevelopmentAttribute>())
+      {
+        out_Result.AppendFormat(" [ {} ]", pInDev->GetString());
+      }
     }
 
     if (prefabGuid.IsValid())
@@ -278,7 +315,7 @@ void ezGameObjectDocument::DetermineNodeName(
           auto pAsset = ezAssetCurator::GetSingleton()->GetSubAsset(AssetGuid);
 
           if (pAsset)
-            sValue = pAsset->m_pAssetInfo->m_sDataDirRelativePath;
+            sValue = pAsset->m_pAssetInfo->m_sDataDirParentRelativePath;
           else
             sValue = "<unknown>";
         }
@@ -411,9 +448,6 @@ void ezGameObjectDocument::SetGlobalTransform(const ezDocumentObject* pObject, c
     fUniformScale = vLocalScale.x;
     vLocalScale.Set(1.0f);
   }
-
-  ezSetObjectPropertyCommand cmd;
-  cmd.m_Object = pObject->GetGuid();
 
   // unfortunately when we are dragging an object the 'temporary' transaction is undone every time before the new commands are sent
   // that means the values that we read here, are always the original values before the object was modified at all
@@ -721,13 +755,13 @@ ezStatus ezGameObjectDocument::CreateGameObjectHere()
 
   // Add a dummy shape icon component, which enables picking
   {
-    ezAddObjectCommand cmdAdd;
-    cmdAdd.m_pType = ezRTTI::FindTypeByName("ezShapeIconComponent");
-    cmdAdd.m_sParentProperty = "Components";
-    cmdAdd.m_Index = -1;
-    cmdAdd.m_Parent = NewNode;
+    ezAddObjectCommand cmdAdd2;
+    cmdAdd2.m_pType = ezRTTI::FindTypeByName("ezShapeIconComponent");
+    cmdAdd2.m_sParentProperty = "Components";
+    cmdAdd2.m_Index = -1;
+    cmdAdd2.m_Parent = NewNode;
 
-    auto res = history->AddCommand(cmdAdd);
+    auto result = history->AddCommand(cmdAdd2);
   }
 
   history->FinishTransaction();
@@ -783,7 +817,7 @@ void ezGameObjectDocument::SetRenderVisualizers(bool b)
 
   m_CurrentMode.m_bRenderVisualizers = b;
 
-  ezVisualizerManager::GetSingleton()->SetVisualizersActive(this, m_CurrentMode.m_bRenderVisualizers);
+  ezVisualizerManager::GetSingleton()->SetVisualizersActive(GetActiveSubDocument(), m_CurrentMode.m_bRenderVisualizers);
 
   ezGameObjectEvent e;
   e.m_Type = ezGameObjectEvent::Type::RenderVisualizersChanged;

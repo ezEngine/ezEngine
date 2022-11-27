@@ -11,17 +11,13 @@
 
 void OnLoadPlugin()
 {
-  ezQtEditorApp::GetSingleton()->AddRuntimePluginDependency("EditorPluginRmlUi", "ezRmlUiPlugin");
-  ezQtEditorApp::GetSingleton()->AddRuntimePluginDependency("EditorPluginRmlUi", "ezEnginePluginRmlUi");
-
-
   // RmlUi
   {
     // Menu Bar
     {
       ezActionMapManager::RegisterActionMap("RmlUiAssetMenuBar").IgnoreResult();
-      ezProjectActions::MapActions("RmlUiAssetMenuBar");
       ezStandardMenus::MapActions("RmlUiAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+      ezProjectActions::MapActions("RmlUiAssetMenuBar");
       ezDocumentActions::MapActions("RmlUiAssetMenuBar", "Menu.File", false);
       ezCommandHistoryActions::MapActions("RmlUiAssetMenuBar", "Menu.Edit");
     }
@@ -37,8 +33,6 @@ void OnLoadPlugin()
 }
 
 void OnUnloadPlugin() {}
-
-EZ_PLUGIN_DEPENDENCY(ezEditorPluginScene);
 
 EZ_PLUGIN_ON_LOADED()
 {

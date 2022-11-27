@@ -134,7 +134,7 @@ public:
 
 private:
   static void InitHashedString();
-  static HashedType AddHashedString(ezStringView szString, ezUInt64 uiHash);
+  static HashedType AddHashedString(ezStringView sString, ezUInt64 uiHash);
 
   HashedType m_Data;
 };

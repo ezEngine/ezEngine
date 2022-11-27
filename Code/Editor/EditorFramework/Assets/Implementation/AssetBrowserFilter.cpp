@@ -64,7 +64,7 @@ void ezQtAssetBrowserFilter::SetTextFilter(const char* szText)
   // Clear uses search cache
   m_bUsesSearchActive = false;
   m_bTransitive = false;
-  m_uses.Clear();
+  m_Uses.Clear();
 
   const char* szRefGuid = ezStringUtils::FindSubString_NoCase(szText, "ref:");
   const char* szRefAllGuid = ezStringUtils::FindSubString_NoCase(szText, "ref-all:");
@@ -77,7 +77,7 @@ void ezQtAssetBrowserFilter::SetTextFilter(const char* szText)
       m_bUsesSearchActive = true;
       m_bTransitive = bTransitive;
       ezUuid guid = ezConversionUtils::ConvertStringToUuid(szGuid);
-      ezAssetCurator::GetSingleton()->FindAllUses(guid, m_uses, m_bTransitive);
+      ezAssetCurator::GetSingleton()->FindAllUses(guid, m_Uses, m_bTransitive);
     }
   }
 
@@ -115,21 +115,21 @@ bool ezQtAssetBrowserFilter::IsAssetFiltered(const ezSubAsset* pInfo) const
   if (!m_sPathFilter.IsEmpty())
   {
     // if the string is not found in the path, ignore this asset
-    if (!pInfo->m_pAssetInfo->m_sDataDirRelativePath.StartsWith_NoCase(m_sPathFilter))
+    if (!pInfo->m_pAssetInfo->m_sDataDirParentRelativePath.StartsWith_NoCase(m_sPathFilter))
       return true;
 
     if (!m_bShowItemsInSubFolders)
     {
       // do we find another path separator after the prefix path?
       // if so, there is a sub-folder, and thus we ignore it
-      if (ezStringUtils::FindSubString(pInfo->m_pAssetInfo->m_sDataDirRelativePath.GetData() + m_sPathFilter.GetElementCount() + 1, "/") != nullptr)
+      if (ezStringUtils::FindSubString(pInfo->m_pAssetInfo->m_sDataDirParentRelativePath + m_sPathFilter.GetElementCount() + 1, "/") != nullptr)
         return true;
     }
   }
 
   if (!m_bShowItemsInHiddenFolders)
   {
-    if (ezStringUtils::FindSubString_NoCase(pInfo->m_pAssetInfo->m_sDataDirRelativePath.GetData() + m_sPathFilter.GetElementCount() + 1, "_data/") !=
+    if (ezStringUtils::FindSubString_NoCase(pInfo->m_pAssetInfo->m_sDataDirParentRelativePath + m_sPathFilter.GetElementCount() + 1, "_data/") !=
         nullptr)
       return true;
   }
@@ -138,7 +138,7 @@ bool ezQtAssetBrowserFilter::IsAssetFiltered(const ezSubAsset* pInfo) const
   {
     if (m_bUsesSearchActive)
     {
-      if (!m_uses.Contains(pInfo->m_Data.m_Guid))
+      if (!m_Uses.Contains(pInfo->m_Data.m_Guid))
         return true;
     }
     else

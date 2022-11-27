@@ -61,6 +61,11 @@ public:
 
   ezUInt64 GetRandomSeed() const { return m_uiRandomSeed; }
 
+  void UpdateWindSamples();
+
+  /// \brief Returns the number of currently active particles across all systems.
+  ezUInt64 GetNumActiveParticles() const;
+
   /// @name Transform Related
   /// @{
 public:
@@ -80,6 +85,20 @@ public:
   /// \brief For the renderer to know whether the instance transform has to be applied to each particle position.
   bool NeedsToApplyTransform() const { return m_bSimulateInLocalSpace || m_bIsSharedEffect; }
 
+  /// \brief Adds a location where the wind system should be sampled.
+  ///
+  /// Particle behaviors can't sample the wind system directly, because they are updated in parallel and this can
+  /// cause crashes. Therefore the desired sample locations have to be cached.
+  /// In the next frame, the result can be retrieved via GetWindSampleResult() with the returned index.
+  ///
+  /// Only a very limited amount of locations can be sampled (4) across all behaviors.
+  ezInt32 AddWindSampleLocation(const ezVec3& pos);
+
+  /// \brief Returns the wind result sampled at the previously specified location (see AddWindSampleLocation()).
+  ///
+  /// Returns a zero vector, if no wind value is available (invalid index).
+  ezVec3 GetWindSampleResult(ezInt32 idx) const;
+
 private:
   void PassTransformToSystems();
 
@@ -88,6 +107,9 @@ private:
 
   ezVec3 m_vVelocity;
   ezVec3 m_vVelocityForNextFrame;
+
+  ezStaticArray<ezVec3, 4> m_vSampleWindLocations[2];
+  ezStaticArray<ezVec3, 4> m_vSampleWindResults[2];
 
   /// @}
   /// @name Updates

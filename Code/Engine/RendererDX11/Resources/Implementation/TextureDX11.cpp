@@ -47,12 +47,12 @@ ezResult ezGALTextureDX11::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGALSy
       Tex2DDesc.ArraySize = (m_Description.m_Type == ezGALTextureType::Texture2D ? m_Description.m_uiArraySize : (m_Description.m_uiArraySize * 6));
       Tex2DDesc.BindFlags = 0;
 
-      if (m_Description.m_bAllowShaderResourceView)
+      if (m_Description.m_bAllowShaderResourceView || m_Description.m_bAllowDynamicMipGeneration)
         Tex2DDesc.BindFlags |= D3D11_BIND_SHADER_RESOURCE;
       if (m_Description.m_bAllowUAV)
         Tex2DDesc.BindFlags |= D3D11_BIND_UNORDERED_ACCESS;
 
-      if (m_Description.m_bCreateRenderTarget)
+      if (m_Description.m_bCreateRenderTarget || m_Description.m_bAllowDynamicMipGeneration)
         Tex2DDesc.BindFlags |= ezGALResourceFormat::IsDepthFormat(m_Description.m_Format) ? D3D11_BIND_DEPTH_STENCIL : D3D11_BIND_RENDER_TARGET;
 
       Tex2DDesc.CPUAccessFlags = 0; // We always use staging textures to update the data
@@ -87,7 +87,7 @@ ezResult ezGALTextureDX11::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGALSy
       ezHybridArray<D3D11_SUBRESOURCE_DATA, 16> InitialData;
       if (!pInitialData.IsEmpty())
       {
-        const ezUInt32 uiInitialDataCount = (m_Description.m_uiMipLevelCount * (m_Description.m_Type == ezGALTextureType::Texture2D ? 1 : 6));
+        ezUInt32 uiInitialDataCount = (m_Description.m_uiMipLevelCount * Tex2DDesc.ArraySize);
         EZ_ASSERT_DEV(pInitialData.GetCount() == uiInitialDataCount, "The array of initial data values is not equal to the amount of mip levels!");
 
         InitialData.SetCountUninitialized(uiInitialDataCount);
@@ -199,16 +199,6 @@ ezResult ezGALTextureDX11::DeInitPlatform(ezGALDevice* pDevice)
 {
   EZ_GAL_DX11_RELEASE(m_pDXTexture);
   EZ_GAL_DX11_RELEASE(m_pDXStagingTexture);
-  return EZ_SUCCESS;
-}
-
-ezResult ezGALTextureDX11::ReplaceExisitingNativeObject(void* pExisitingNativeObject)
-{
-  EZ_ASSERT_DEV(
-    m_pExisitingNativeObject != nullptr, "Only textures created with an existing native object are allowed to call ReplaceExisitingNativeObject.");
-  EZ_ASSERT_DEV(pExisitingNativeObject != nullptr, "New existing native object must exist.");
-
-  m_pExisitingNativeObject = pExisitingNativeObject;
   return EZ_SUCCESS;
 }
 

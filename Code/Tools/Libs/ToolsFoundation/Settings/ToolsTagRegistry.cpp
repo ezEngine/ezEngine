@@ -24,15 +24,15 @@ struct TagComparer
 // ezToolsTagRegistry public functions
 ////////////////////////////////////////////////////////////////////////
 
-ezMap<ezString, ezToolsTag> ezToolsTagRegistry::m_NameToTags;
+ezMap<ezString, ezToolsTag> ezToolsTagRegistry::s_NameToTags;
 
 void ezToolsTagRegistry::Clear()
 {
-  for (auto it = m_NameToTags.GetIterator(); it.IsValid();)
+  for (auto it = s_NameToTags.GetIterator(); it.IsValid();)
   {
     if (!it.Value().m_bBuiltInTag)
     {
-      it = m_NameToTags.Remove(it);
+      it = s_NameToTags.Remove(it);
     }
     else
     {
@@ -48,7 +48,7 @@ void ezToolsTagRegistry::WriteToDDL(ezStreamWriter& stream)
   writer.SetCompactMode(false);
   writer.SetPrimitiveTypeStringMode(ezOpenDdlWriter::TypeStringMode::ShortenedUnsignedInt);
 
-  for (auto it = m_NameToTags.GetIterator(); it.IsValid(); ++it)
+  for (auto it = s_NameToTags.GetIterator(); it.IsValid(); ++it)
   {
     writer.BeginObject("Tag");
 
@@ -109,7 +109,7 @@ bool ezToolsTagRegistry::AddTag(const ezToolsTag& tag)
   if (tag.m_sName.IsEmpty())
     return false;
 
-  auto it = m_NameToTags.Find(tag.m_sName);
+  auto it = s_NameToTags.Find(tag.m_sName);
   if (it.IsValid())
   {
     if (tag.m_bBuiltInTag)
@@ -122,17 +122,17 @@ bool ezToolsTagRegistry::AddTag(const ezToolsTag& tag)
   }
   else
   {
-    m_NameToTags[tag.m_sName] = tag;
+    s_NameToTags[tag.m_sName] = tag;
     return true;
   }
 }
 
 bool ezToolsTagRegistry::RemoveTag(const char* szName)
 {
-  auto it = m_NameToTags.Find(szName);
+  auto it = s_NameToTags.Find(szName);
   if (it.IsValid())
   {
-    m_NameToTags.Remove(it);
+    s_NameToTags.Remove(it);
     return true;
   }
   else
@@ -144,7 +144,7 @@ bool ezToolsTagRegistry::RemoveTag(const char* szName)
 void ezToolsTagRegistry::GetAllTags(ezHybridArray<const ezToolsTag*, 16>& out_tags)
 {
   out_tags.Clear();
-  for (auto it = m_NameToTags.GetIterator(); it.IsValid(); ++it)
+  for (auto it = s_NameToTags.GetIterator(); it.IsValid(); ++it)
   {
     out_tags.PushBack(&it.Value());
   }
@@ -155,7 +155,7 @@ void ezToolsTagRegistry::GetAllTags(ezHybridArray<const ezToolsTag*, 16>& out_ta
 void ezToolsTagRegistry::GetTagsByCategory(const ezArrayPtr<ezStringView>& categories, ezHybridArray<const ezToolsTag*, 16>& out_tags)
 {
   out_tags.Clear();
-  for (auto it = m_NameToTags.GetIterator(); it.IsValid(); ++it)
+  for (auto it = s_NameToTags.GetIterator(); it.IsValid(); ++it)
   {
     if (std::any_of(cbegin(categories), cend(categories), [&it](const ezStringView& cat) { return it.Value().m_sCategory == cat; }))
     {

@@ -17,20 +17,20 @@ void ezCameraVisualizerAdapter::Finalize()
 
   const ezCameraVisualizerAttribute* pAttr = static_cast<const ezCameraVisualizerAttribute*>(m_pVisualizerAttr);
 
-  m_BoxGizmo.Configure(nullptr, ezEngineGizmoHandleType::LineBox, ezColor::DodgerBlue, false, false, true);
-  m_FrustumGizmo.Configure(nullptr, ezEngineGizmoHandleType::Frustum, ezColor::DodgerBlue, false, false, true);
-  m_NearPlaneGizmo.Configure(nullptr, ezEngineGizmoHandleType::LineRect, ezColor::LightBlue, false, false, true);
-  m_FarPlaneGizmo.Configure(nullptr, ezEngineGizmoHandleType::LineRect, ezColor::PaleVioletRed, false, false, true);
+  m_hBoxGizmo.ConfigureHandle(nullptr, ezEngineGizmoHandleType::LineBox, ezColor::DodgerBlue, ezGizmoFlags::Visualizer | ezGizmoFlags::ShowInOrtho);
+  m_hFrustumGizmo.ConfigureHandle(nullptr, ezEngineGizmoHandleType::Frustum, ezColor::DodgerBlue, ezGizmoFlags::Visualizer | ezGizmoFlags::ShowInOrtho);
+  m_hNearPlaneGizmo.ConfigureHandle(nullptr, ezEngineGizmoHandleType::LineRect, ezColor::LightBlue, ezGizmoFlags::Visualizer | ezGizmoFlags::ShowInOrtho);
+  m_hFarPlaneGizmo.ConfigureHandle(nullptr, ezEngineGizmoHandleType::LineRect, ezColor::PaleVioletRed, ezGizmoFlags::Visualizer | ezGizmoFlags::ShowInOrtho);
 
-  pAssetDocument->AddSyncObject(&m_BoxGizmo);
-  pAssetDocument->AddSyncObject(&m_FrustumGizmo);
-  pAssetDocument->AddSyncObject(&m_NearPlaneGizmo);
-  pAssetDocument->AddSyncObject(&m_FarPlaneGizmo);
+  pAssetDocument->AddSyncObject(&m_hBoxGizmo);
+  pAssetDocument->AddSyncObject(&m_hFrustumGizmo);
+  pAssetDocument->AddSyncObject(&m_hNearPlaneGizmo);
+  pAssetDocument->AddSyncObject(&m_hFarPlaneGizmo);
 
-  m_BoxGizmo.SetVisible(m_bVisualizerIsVisible);
-  m_FrustumGizmo.SetVisible(m_bVisualizerIsVisible);
-  m_NearPlaneGizmo.SetVisible(m_bVisualizerIsVisible);
-  m_FarPlaneGizmo.SetVisible(m_bVisualizerIsVisible);
+  m_hBoxGizmo.SetVisible(m_bVisualizerIsVisible);
+  m_hFrustumGizmo.SetVisible(m_bVisualizerIsVisible);
+  m_hNearPlaneGizmo.SetVisible(m_bVisualizerIsVisible);
+  m_hFarPlaneGizmo.SetVisible(m_bVisualizerIsVisible);
 }
 
 void ezCameraVisualizerAdapter::Update()
@@ -91,10 +91,10 @@ void ezCameraVisualizerAdapter::Update()
       m_LocalTransformFrustum.m_vPosition.Set(fNearPlane + fRange * 0.5f, 0, 0);
     }
 
-    m_BoxGizmo.SetVisible(m_bVisualizerIsVisible);
-    m_FrustumGizmo.SetVisible(false);
-    m_NearPlaneGizmo.SetVisible(false);
-    m_FarPlaneGizmo.SetVisible(false);
+    m_hBoxGizmo.SetVisible(m_bVisualizerIsVisible);
+    m_hFrustumGizmo.SetVisible(false);
+    m_hNearPlaneGizmo.SetVisible(false);
+    m_hFarPlaneGizmo.SetVisible(false);
 
     m_LocalTransformNearPlane.SetIdentity();
     m_LocalTransformFarPlane.SetIdentity();
@@ -119,7 +119,7 @@ void ezCameraVisualizerAdapter::Update()
       ;
 
       // indicate whether the shown far plane is the actual distance, or just the maximum visualization distance
-      m_FarPlaneGizmo.SetColor(fFarPlane > 9.0f ? ezColor::DodgerBlue : ezColor::PaleVioletRed);
+      m_hFarPlaneGizmo.SetColor(fFarPlane > 9.0f ? ezColor::DodgerBlue : ezColor::PaleVioletRed);
 
       m_LocalTransformFrustum.m_qRotation.SetIdentity();
       m_LocalTransformFrustum.m_vScale.Set(fFrustumScale, fAngleScale * fFrustumScale, fAngleScale * fFrustumScale);
@@ -134,18 +134,18 @@ void ezCameraVisualizerAdapter::Update()
       m_LocalTransformFarPlane.m_vPosition.Set(fFarPlaneScale, 0, 0);
     }
 
-    m_BoxGizmo.SetVisible(false);
-    m_FrustumGizmo.SetVisible(m_bVisualizerIsVisible);
-    m_NearPlaneGizmo.SetVisible(m_bVisualizerIsVisible);
-    m_FarPlaneGizmo.SetVisible(m_bVisualizerIsVisible);
+    m_hBoxGizmo.SetVisible(false);
+    m_hFrustumGizmo.SetVisible(m_bVisualizerIsVisible);
+    m_hNearPlaneGizmo.SetVisible(m_bVisualizerIsVisible);
+    m_hFarPlaneGizmo.SetVisible(m_bVisualizerIsVisible);
   }
 }
 
 void ezCameraVisualizerAdapter::UpdateGizmoTransform()
 {
   ezTransform t = GetObjectTransform();
-  m_BoxGizmo.SetTransformation(t * m_LocalTransformFrustum);
-  m_FrustumGizmo.SetTransformation(t * m_LocalTransformFrustum);
-  m_NearPlaneGizmo.SetTransformation(t * m_LocalTransformNearPlane);
-  m_FarPlaneGizmo.SetTransformation(t * m_LocalTransformFarPlane);
+  m_hBoxGizmo.SetTransformation(t * m_LocalTransformFrustum);
+  m_hFrustumGizmo.SetTransformation(t * m_LocalTransformFrustum);
+  m_hNearPlaneGizmo.SetTransformation(t * m_LocalTransformNearPlane);
+  m_hFarPlaneGizmo.SetTransformation(t * m_LocalTransformFarPlane);
 }

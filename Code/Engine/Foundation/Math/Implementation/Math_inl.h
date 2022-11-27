@@ -84,9 +84,26 @@ namespace ezMath
   {
     EZ_ASSERT_DEBUG(value != 0, "FirstBitLow is undefined for 0");
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if __castxml__
+    return 0;
+#elif EZ_ENABLED(EZ_PLATFORM_WINDOWS)
     unsigned long uiIndex = 0;
+#if EZ_ENABLED(EZ_PLATFORM_64BIT)
+
     _BitScanForward64(&uiIndex, value);
+#else
+    uint32_t lower = static_cast<uint32_t>(value);
+    unsigned char returnCode = _BitScanForward(&uiIndex, lower);
+    if (returnCode == 0)
+    {
+      uint32_t upper = static_cast<uint32_t>(value >> 32);
+      returnCode = _BitScanForward(&uiIndex, upper);
+      if (returnCode > 0) // Only can happen in Release build when EZ_ASSERT_DEBUG(value != 0) would fail.
+      {
+        uiIndex += 32; // Add length of lower to index.
+      }
+    }
+#endif
     return uiIndex;
 #elif EZ_ENABLED(EZ_COMPILER_GCC) || EZ_ENABLED(EZ_COMPILER_CLANG)
     return __builtin_ctzll(value);
@@ -116,9 +133,25 @@ namespace ezMath
   {
     EZ_ASSERT_DEBUG(value != 0, "FirstBitHigh is undefined for 0");
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if __castxml__
+    return 0;
+#elif EZ_ENABLED(EZ_PLATFORM_WINDOWS)
     unsigned long uiIndex = 0;
+#if EZ_ENABLED(EZ_PLATFORM_64BIT)
     _BitScanReverse64(&uiIndex, value);
+#else
+    uint32_t upper = static_cast<uint32_t>(value >> 32);
+    unsigned char returnCode = _BitScanReverse(&uiIndex, upper);
+    if (returnCode == 0)
+    {
+      uint32_t lower = static_cast<uint32_t>(value);
+      returnCode = _BitScanReverse(&uiIndex, lower);
+    }
+    else
+    {
+      uiIndex += 32; // Add length of upper to index.
+    }
+#endif
     return uiIndex;
 #elif EZ_ENABLED(EZ_COMPILER_GCC) || EZ_ENABLED(EZ_COMPILER_CLANG)
     return 63 - __builtin_clzll(value);

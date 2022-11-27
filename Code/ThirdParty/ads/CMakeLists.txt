@@ -1,8 +1,5 @@
 ez_cmake_init()
 
-ez_build_filter_runtime()
-ez_requires_windows()
-
 ez_requires(EZ_3RDPARTY_ADS_SUPPORT)
 
 ez_requires_qt()
@@ -40,3 +37,12 @@ set (MOC_FILES
   ${CMAKE_CURRENT_SOURCE_DIR}/FloatingDragPreview.h
   )
 ez_qt_wrap_target_moc_files(${PROJECT_NAME} "${MOC_FILES}")
+
+if(EZ_CMAKE_COMPILER_MSVC)
+  target_compile_options(${PROJECT_NAME} PRIVATE /wd4458 /wd4996 /wd4456 /wd4702)
+endif()
+
+if(EZ_CMAKE_PLATFORM_LINUX)
+  target_link_libraries(${PROJECT_NAME} PRIVATE xcb Qt6::GuiPrivate)
+  target_compile_definitions(${PROJECT_NAME} PUBLIC Q_OS_LINUX)
+endif()

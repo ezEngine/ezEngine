@@ -16,6 +16,7 @@ ezCollectionAssetDocumentManager::ezCollectionAssetDocumentManager()
   m_DocTypeDesc.m_sIcon = ":/AssetIcons/Collection.png";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezCollectionAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
+  m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_AssetCollection");
 
   m_DocTypeDesc.m_sResourceFileExtension = "ezCollection";
   m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoTransformOnSave;

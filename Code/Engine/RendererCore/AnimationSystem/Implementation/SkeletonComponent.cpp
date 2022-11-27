@@ -5,21 +5,24 @@
 #include <RendererCore/AnimationSystem/AnimationPose.h>
 #include <RendererCore/AnimationSystem/SkeletonComponent.h>
 #include <RendererCore/Debug/DebugRenderer.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
 #include <ozz/animation/runtime/local_to_model_job.h>
 #include <ozz/animation/runtime/skeleton_utils.h>
 #include <ozz/base/containers/vector.h>
 #include <ozz/base/maths/simd_math.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezSkeletonComponent, 4, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezSkeletonComponent, 5, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Skeleton", GetSkeletonFile, SetSkeletonFile)->AddAttributes(new ezAssetBrowserAttribute("Skeleton")),
-    EZ_MEMBER_PROPERTY("VisualizeSkeleton", m_bVisualizeSkeleton)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_ACCESSOR_PROPERTY("BonesToHighlight", GetBonesToHighlight, SetBonesToHighlight),
+    EZ_ACCESSOR_PROPERTY("Skeleton", GetSkeletonFile, SetSkeletonFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Mesh_Skeleton")),
+    EZ_MEMBER_PROPERTY("VisualizeSkeleton", m_bVisualizeBones)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_MEMBER_PROPERTY("VisualizeColliders", m_bVisualizeColliders),
     EZ_MEMBER_PROPERTY("VisualizeJoints", m_bVisualizeJoints),
+    EZ_MEMBER_PROPERTY("VisualizeSwingLimits", m_bVisualizeSwingLimits),
+    EZ_MEMBER_PROPERTY("VisualizeTwistLimits", m_bVisualizeTwistLimits),
+    EZ_ACCESSOR_PROPERTY("BonesToHighlight", GetBonesToHighlight, SetBonesToHighlight),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
@@ -40,40 +43,67 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezSkeletonComponent::ezSkeletonComponent() = default;
 ezSkeletonComponent::~ezSkeletonComponent() = default;
 
-ezResult ezSkeletonComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
+ezResult ezSkeletonComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg)
 {
-  bounds = m_LocalBounds;
-  return EZ_SUCCESS;
+  if (m_MaxBounds.IsValid())
+  {
+    ezBoundingBox bbox = m_MaxBounds;
+    bounds = bbox;
+    bounds.Transform(m_RootTransform.GetAsMat4());
+    return EZ_SUCCESS;
+  }
+
+  return EZ_FAILURE;
 }
 
 void ezSkeletonComponent::Update()
 {
-  if (m_bVisualizeSkeleton || m_bVisualizeColliders || m_bVisualizeJoints)
+  if (m_hSkeleton.IsValid() && (m_bVisualizeBones || m_bVisualizeColliders || m_bVisualizeJoints || m_bVisualizeSwingLimits || m_bVisualizeTwistLimits))
   {
-    if (m_hSkeleton.IsValid())
+    ezResourceLock<ezSkeletonResource> pSkeleton(m_hSkeleton, ezResourceAcquireMode::AllowLoadingFallback_NeverFail);
+
+    if (pSkeleton.GetAcquireResult() != ezResourceAcquireResult::Final)
+      return;
+
+    if (m_uiSkeletonChangeCounter != pSkeleton->GetCurrentResourceChangeCounter())
     {
-      ezResourceLock<ezSkeletonResource> pSkeleton(m_hSkeleton, ezResourceAcquireMode::PointerOnly);
-      if (m_uiSkeletonChangeCounter != pSkeleton->GetCurrentResourceChangeCounter())
-      {
-        UpdateSkeletonVis();
-      }
+      VisualizeSkeletonDefaultState();
     }
+
+    const ezQuat qBoneDir = ezBasisAxis::GetBasisRotation_PosX(pSkeleton->GetDescriptor().m_Skeleton.m_BoneDirection);
+    const ezVec3 vBoneDir = qBoneDir * ezVec3(1, 0, 0);
+    const ezVec3 vBoneTangent = qBoneDir * ezVec3(0, 1, 0);
 
     ezDebugRenderer::DrawLines(GetWorld(), m_LinesSkeleton, ezColor::White, GetOwner()->GetGlobalTransform());
 
-    for (const auto& shape : m_SpheresSkeleton)
+    for (const auto& shape : m_SpheresShapes)
     {
-      ezDebugRenderer::DrawLineSphere(GetWorld(), shape.m_Shape, ezColor::Yellow, GetOwner()->GetGlobalTransform() * shape.m_Transform);
+      ezDebugRenderer::DrawLineSphere(GetWorld(), shape.m_Shape, shape.m_Color, GetOwner()->GetGlobalTransform() * shape.m_Transform);
     }
 
-    for (const auto& shape : m_BoxesSkeleton)
+    for (const auto& shape : m_BoxShapes)
     {
-      ezDebugRenderer::DrawLineBox(GetWorld(), shape.m_Shape, ezColor::Yellow, GetOwner()->GetGlobalTransform() * shape.m_Transform);
+      ezDebugRenderer::DrawLineBox(GetWorld(), shape.m_Shape, shape.m_Color, GetOwner()->GetGlobalTransform() * shape.m_Transform);
     }
 
-    for (const auto& shape : m_CapsulesSkeleton)
+    for (const auto& shape : m_CapsuleShapes)
     {
-      ezDebugRenderer::DrawLineCapsuleZ(GetWorld(), shape.m_fLength, shape.m_fRadius, ezColor::Yellow, GetOwner()->GetGlobalTransform() * shape.m_Transform);
+      ezDebugRenderer::DrawLineCapsuleZ(GetWorld(), shape.m_fLength, shape.m_fRadius, shape.m_Color, GetOwner()->GetGlobalTransform() * shape.m_Transform);
+    }
+
+    for (const auto& shape : m_AngleShapes)
+    {
+      ezDebugRenderer::DrawAngle(GetWorld(), shape.m_StartAngle, shape.m_EndAngle, ezColor::ZeroColor(), shape.m_Color, GetOwner()->GetGlobalTransform() * shape.m_Transform, vBoneTangent, vBoneDir);
+    }
+
+    for (const auto& shape : m_ConeLimitShapes)
+    {
+      ezDebugRenderer::DrawLimitCone(GetWorld(), shape.m_Angle1, shape.m_Angle2, ezColor::ZeroColor(), shape.m_Color, GetOwner()->GetGlobalTransform() * shape.m_Transform);
+    }
+
+    for (const auto& shape : m_CylinderShapes)
+    {
+      ezDebugRenderer::DrawCylinder(GetWorld(), shape.m_fRadius1, shape.m_fRadius2, shape.m_fLength, shape.m_Color, ezColor::ZeroColor(), GetOwner()->GetGlobalTransform() * shape.m_Transform, false, false);
     }
   }
 }
@@ -85,10 +115,12 @@ void ezSkeletonComponent::SerializeComponent(ezWorldWriter& stream) const
   auto& s = stream.GetStream();
 
   s << m_hSkeleton;
-  s << m_bVisualizeSkeleton;
+  s << m_bVisualizeBones;
   s << m_sBonesToHighlight;
   s << m_bVisualizeColliders;
   s << m_bVisualizeJoints;
+  s << m_bVisualizeSwingLimits;
+  s << m_bVisualizeTwistLimits;
 }
 
 void ezSkeletonComponent::DeserializeComponent(ezWorldReader& stream)
@@ -96,32 +128,26 @@ void ezSkeletonComponent::DeserializeComponent(ezWorldReader& stream)
   SUPER::DeserializeComponent(stream);
   const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
 
+  if (uiVersion <= 4)
+    return;
+
   auto& s = stream.GetStream();
 
   s >> m_hSkeleton;
-  s >> m_bVisualizeSkeleton;
-
-  if (uiVersion >= 2)
-  {
-    s >> m_sBonesToHighlight;
-  }
-
-  if (uiVersion >= 3)
-  {
-    s >> m_bVisualizeColliders;
-  }
-
-  if (uiVersion >= 4)
-  {
-    s >> m_bVisualizeJoints;
-  }
+  s >> m_bVisualizeBones;
+  s >> m_sBonesToHighlight;
+  s >> m_bVisualizeColliders;
+  s >> m_bVisualizeJoints;
+  s >> m_bVisualizeSwingLimits;
+  s >> m_bVisualizeTwistLimits;
 }
 
 void ezSkeletonComponent::OnActivated()
 {
   SUPER::OnActivated();
 
-  UpdateSkeletonVis();
+  m_MaxBounds.SetInvalid();
+  VisualizeSkeletonDefaultState();
 }
 
 void ezSkeletonComponent::SetSkeletonFile(const char* szFile)
@@ -151,7 +177,8 @@ void ezSkeletonComponent::SetSkeleton(const ezSkeletonResourceHandle& hResource)
   {
     m_hSkeleton = hResource;
 
-    UpdateSkeletonVis();
+    m_MaxBounds.SetInvalid();
+    VisualizeSkeletonDefaultState();
   }
 }
 
@@ -163,7 +190,7 @@ void ezSkeletonComponent::SetBonesToHighlight(const char* szFilter)
 
     m_uiSkeletonChangeCounter = 0xFFFFFFFF;
 
-    UpdateSkeletonVis();
+    VisualizeSkeletonDefaultState();
   }
 }
 
@@ -175,282 +202,433 @@ const char* ezSkeletonComponent::GetBonesToHighlight() const
 void ezSkeletonComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& msg)
 {
   m_LinesSkeleton.Clear();
-  m_SpheresSkeleton.Clear();
-  m_BoxesSkeleton.Clear();
-  m_CapsulesSkeleton.Clear();
+  m_SpheresShapes.Clear();
+  m_BoxShapes.Clear();
+  m_CapsuleShapes.Clear();
+  m_AngleShapes.Clear();
+  m_ConeLimitShapes.Clear();
+  m_CylinderShapes.Clear();
 
-  ezBoundingSphere bsphere;
-  bsphere.SetInvalid();
-  bsphere.m_fRadius = 0.0f;
+  m_RootTransform = *msg.m_pRootTransform;
 
-  if (m_bVisualizeSkeleton && msg.m_pSkeleton)
+  BuildSkeletonVisualization(msg);
+  BuildColliderVisualization(msg);
+  BuildJointVisualization(msg);
+
+  ezBoundingBox poseBounds;
+  poseBounds.SetInvalid();
+
+  for (const auto& bone : msg.m_ModelTransforms)
   {
-    ezStringBuilder tmp;
-
-    struct Bone
-    {
-      ezVec3 pos = ezVec3::ZeroVector();
-      ezVec3 dir = ezVec3::ZeroVector();
-      float distToParent = 0.0f;
-      float minDistToChild = 10.0f;
-      bool highlight = false;
-    };
-
-    ezHybridArray<Bone, 128> bones;
-
-    bones.SetCount(msg.m_pSkeleton->GetJointCount());
-    m_LinesSkeleton.Reserve(m_LinesSkeleton.GetCount() + msg.m_pSkeleton->GetJointCount());
-
-    const ezVec3 vBoneDir = ezBasisAxis::GetBasisVector(msg.m_pSkeleton->m_BoneDirection);
-
-    auto renderBone = [&](int currentBone, int parentBone) {
-      if (parentBone == ozz::animation::Skeleton::kNoParent)
-        return;
-
-      const ezVec3 v0 = *msg.m_pRootTransform * msg.m_ModelTransforms[parentBone].GetTranslationVector();
-      const ezVec3 v1 = *msg.m_pRootTransform * msg.m_ModelTransforms[currentBone].GetTranslationVector();
-
-      ezVec3 dirToBone = (v1 - v0);
-
-      bsphere.ExpandToInclude(v0);
-
-      auto& bone = bones[currentBone];
-      bone.pos = v1;
-      bone.distToParent = dirToBone.GetLength();
-      bone.dir = *msg.m_pRootTransform * msg.m_ModelTransforms[currentBone].TransformDirection(vBoneDir);
-      bone.dir.NormalizeIfNotZero(ezVec3::ZeroVector()).IgnoreResult();
-
-      auto& pb = bones[parentBone];
-
-      if (!pb.dir.IsZero() && dirToBone.NormalizeIfNotZero(ezVec3::ZeroVector()).Succeeded())
-      {
-        if (pb.dir.GetAngleBetween(dirToBone) < ezAngle::Degree(45))
-        {
-          ezPlane plane;
-          plane.SetFromNormalAndPoint(pb.dir, pb.pos);
-          pb.minDistToChild = ezMath::Min(pb.minDistToChild, plane.GetDistanceTo(v1));
-        }
-      }
-    };
-
-    ozz::animation::IterateJointsDF(msg.m_pSkeleton->GetOzzSkeleton(), renderBone);
-
-    if (m_sBonesToHighlight == "*")
-    {
-      for (ezUInt32 b = 0; b < bones.GetCount(); ++b)
-      {
-        bones[b].highlight = true;
-      }
-    }
-    else if (!m_sBonesToHighlight.IsEmpty())
-    {
-      const ezStringBuilder mask(";", m_sBonesToHighlight, ";");
-
-      for (ezUInt32 b = 0; b < bones.GetCount(); ++b)
-      {
-        const ezString currentName = msg.m_pSkeleton->GetJointByIndex(b).GetName().GetString();
-
-        tmp.Set(";", currentName, ";");
-
-        if (mask.FindSubString(tmp))
-        {
-          bones[b].highlight = true;
-        }
-      }
-    }
-
-    for (ezUInt32 b = 0; b < bones.GetCount(); ++b)
-    {
-      const auto& bone = bones[b];
-
-      if (!bone.highlight)
-      {
-        float len = 0.3f;
-
-        if (bone.minDistToChild < 10.0f)
-        {
-          len = bone.minDistToChild;
-        }
-        else if (bone.distToParent > 0)
-        {
-          len = ezMath::Max(bone.distToParent * 0.5f, 0.1f);
-        }
-        else
-        {
-          len = 0.1f;
-        }
-
-        ezVec3 v0 = bone.pos;
-        ezVec3 v1 = bone.pos + bone.dir * len;
-
-        m_LinesSkeleton.PushBack(ezDebugRenderer::Line(v0, v1));
-        m_LinesSkeleton.PeekBack().m_startColor = ezColor::DarkCyan;
-        m_LinesSkeleton.PeekBack().m_endColor = ezColor::DarkCyan;
-      }
-    }
-
-    for (ezUInt32 b = 0; b < bones.GetCount(); ++b)
-    {
-      const auto& bone = bones[b];
-
-      if (bone.highlight && !bone.dir.IsZero(0.0001f))
-      {
-        float len = 0.3f;
-
-        if (bone.minDistToChild < 10.0f)
-        {
-          len = bone.minDistToChild;
-        }
-        else if (bone.distToParent > 0)
-        {
-          len = ezMath::Max(bone.distToParent * 0.5f, 0.1f);
-        }
-        else
-        {
-          len = 0.1f;
-        }
-
-        ezVec3 v0 = bone.pos;
-        ezVec3 v1 = bone.pos + bone.dir * len;
-
-        const ezVec3 vO1 = bone.dir.GetOrthogonalVector().GetNormalized();
-        const ezVec3 vO2 = bone.dir.CrossRH(vO1).GetNormalized();
-
-        ezVec3 s[4];
-        s[0] = v0 + vO1 * len * 0.1f + bone.dir * len * 0.1f;
-        s[1] = v0 + vO2 * len * 0.1f + bone.dir * len * 0.1f;
-        s[2] = v0 - vO1 * len * 0.1f + bone.dir * len * 0.1f;
-        s[3] = v0 - vO2 * len * 0.1f + bone.dir * len * 0.1f;
-
-        m_LinesSkeleton.PushBack(ezDebugRenderer::Line(v0, v1));
-        m_LinesSkeleton.PeekBack().m_startColor = ezColor::DarkCyan;
-        m_LinesSkeleton.PeekBack().m_endColor = ezColor::DarkCyan;
-
-        for (ezUInt32 si = 0; si < 4; ++si)
-        {
-          m_LinesSkeleton.PushBack(ezDebugRenderer::Line(v0, s[si]));
-          m_LinesSkeleton.PeekBack().m_startColor = ezColor::Chartreuse;
-          m_LinesSkeleton.PeekBack().m_endColor = ezColor::Chartreuse;
-
-          m_LinesSkeleton.PushBack(ezDebugRenderer::Line(s[si], v1));
-          m_LinesSkeleton.PeekBack().m_startColor = ezColor::Chartreuse;
-          m_LinesSkeleton.PeekBack().m_endColor = ezColor::Chartreuse;
-        }
-      }
-    }
+    poseBounds.ExpandToInclude(bone.GetTranslationVector());
   }
 
-  if (m_bVisualizeColliders && m_hSkeleton.IsValid())
+  if (poseBounds.IsValid() && (!m_MaxBounds.IsValid() || !m_MaxBounds.Contains(poseBounds)))
   {
-    ezResourceLock<ezSkeletonResource> pSkeleton(m_hSkeleton, ezResourceAcquireMode::BlockTillLoaded);
-
-    for (const auto& geo : pSkeleton->GetDescriptor().m_Geometry)
-    {
-      if (geo.m_Type == ezSkeletonJointGeometryType::None)
-        continue;
-
-      ezMat4 boneTrans;
-      ezQuat boneRot;
-      msg.ComputeFullBoneTransform(geo.m_uiAttachedToJoint, boneTrans, boneRot);
-
-      ezTransform st;
-      st.SetIdentity();
-      st.m_vPosition = boneTrans.TransformPosition(geo.m_Transform.m_qRotation * geo.m_Transform.m_vPosition);
-      st.m_qRotation = boneRot * geo.m_Transform.m_qRotation;
-
-      if (geo.m_Type == ezSkeletonJointGeometryType::Sphere)
-      {
-        auto& shape = m_SpheresSkeleton.ExpandAndGetRef();
-        shape.m_Transform = st;
-        shape.m_Shape.SetElements(ezVec3::ZeroVector(), geo.m_Transform.m_vScale.z);
-      }
-
-      if (geo.m_Type == ezSkeletonJointGeometryType::Box)
-      {
-        auto& shape = m_BoxesSkeleton.ExpandAndGetRef();
-
-        ezVec3 ext;
-        ext.x = geo.m_Transform.m_vScale.y * 0.5f;
-        ext.y = geo.m_Transform.m_vScale.x * 0.5f;
-        ext.z = geo.m_Transform.m_vScale.z * 0.5f;
-
-        st.m_vPosition = boneTrans.TransformPosition(geo.m_Transform.m_qRotation * (geo.m_Transform.m_vPosition + ezVec3(0, geo.m_Transform.m_vScale.x * 0.5f, 0)));
-
-        shape.m_Transform = st;
-        shape.m_Shape.SetCenterAndHalfExtents(ezVec3::ZeroVector(), ext);
-      }
-
-      if (geo.m_Type == ezSkeletonJointGeometryType::Capsule)
-      {
-        ezQuat qRot;
-        qRot.SetFromAxisAndAngle(ezVec3(1, 0, 0), ezAngle::Degree(90));
-
-        st.m_vPosition = boneTrans.TransformPosition(geo.m_Transform.m_qRotation * (geo.m_Transform.m_vPosition + ezVec3(0, geo.m_Transform.m_vScale.x * 0.5f, 0)));
-
-        auto& shape = m_CapsulesSkeleton.ExpandAndGetRef();
-        shape.m_Transform = st;
-        shape.m_Transform.m_qRotation = shape.m_Transform.m_qRotation * qRot;
-        shape.m_fLength = geo.m_Transform.m_vScale.x;
-        shape.m_fRadius = geo.m_Transform.m_vScale.z;
-      }
-
-      bsphere.ExpandToInclude(st.m_vPosition);
-    }
+    m_MaxBounds.ExpandToInclude(poseBounds);
+    TriggerLocalBoundsUpdate();
   }
-
-  if (m_bVisualizeJoints && m_hSkeleton.IsValid())
+  else if (((ezRenderWorld::GetFrameCounter() + GetUniqueIdForRendering()) & (EZ_BIT(10) - 1)) == 0) // reset the bbox every once in a while
   {
-    ezResourceLock<ezSkeletonResource> pSkeleton(m_hSkeleton, ezResourceAcquireMode::BlockTillLoaded);
-    const auto& skel = pSkeleton->GetDescriptor().m_Skeleton;
-
-    for (ezUInt16 uiJointIdx = 0; uiJointIdx < skel.GetJointCount(); ++uiJointIdx)
-    {
-      const auto& thisJoint = skel.GetJointByIndex(uiJointIdx);
-      const ezUInt16 uiParentIdx = thisJoint.GetParentIndex();
-
-      if (uiParentIdx == ezInvalidJointIndex)
-        continue;
-
-      ezMat4 parentTrans;
-      ezQuat parentRot;
-      msg.ComputeFullBoneTransform(uiParentIdx, parentTrans, parentRot);
-
-      ezMat4 thisTrans;
-      msg.ComputeFullBoneTransform(uiJointIdx, thisTrans);
-
-      ezQuat qLimitRot = parentRot * thisJoint.GetLimitRotation();
-
-      auto& line = m_LinesSkeleton.ExpandAndGetRef();
-      line.m_start = thisTrans.GetTranslationVector();
-      line.m_startColor = ezColor::OrangeRed;
-      line.m_endColor = ezColor::Orange;
-
-      //line.m_end = line.m_start + pSkeleton->GetDescriptor().m_RootTransform.TransformDirection(qLimitRot * ezVec3(0.2, 0, 0));
-      line.m_end = line.m_start + qLimitRot * ezVec3(0.2, 0, 0);
-    }
-  }
-
-  // if the existing bounds are big enough, don't update them
-  if (!m_LocalBounds.IsValid() || !m_LocalBounds.GetSphere().Contains(bsphere))
-  {
-    m_LocalBounds.SetInvalid();
-    m_LocalBounds.ExpandToInclude(bsphere);
-
+    m_MaxBounds = poseBounds;
     TriggerLocalBoundsUpdate();
   }
 }
 
-void ezSkeletonComponent::UpdateSkeletonVis()
+void ezSkeletonComponent::BuildSkeletonVisualization(ezMsgAnimationPoseUpdated& msg)
+{
+  if (!m_bVisualizeBones || !msg.m_pSkeleton)
+    return;
+
+  ezStringBuilder tmp;
+
+  struct Bone
+  {
+    ezVec3 pos = ezVec3::ZeroVector();
+    ezVec3 dir = ezVec3::ZeroVector();
+    float distToParent = 0.0f;
+    float minDistToChild = 10.0f;
+    bool highlight = false;
+  };
+
+  ezHybridArray<Bone, 128> bones;
+
+  bones.SetCount(msg.m_pSkeleton->GetJointCount());
+  m_LinesSkeleton.Reserve(m_LinesSkeleton.GetCount() + msg.m_pSkeleton->GetJointCount());
+
+  const ezVec3 vBoneDir = ezBasisAxis::GetBasisVector(msg.m_pSkeleton->m_BoneDirection);
+
+  auto renderBone = [&](int currentBone, int parentBone)
+  {
+    if (parentBone == ozz::animation::Skeleton::kNoParent)
+      return;
+
+    const ezVec3 v0 = *msg.m_pRootTransform * msg.m_ModelTransforms[parentBone].GetTranslationVector();
+    const ezVec3 v1 = *msg.m_pRootTransform * msg.m_ModelTransforms[currentBone].GetTranslationVector();
+
+    ezVec3 dirToBone = (v1 - v0);
+
+    auto& bone = bones[currentBone];
+    bone.pos = v1;
+    bone.distToParent = dirToBone.GetLength();
+    bone.dir = *msg.m_pRootTransform * msg.m_ModelTransforms[currentBone].TransformDirection(vBoneDir);
+    bone.dir.NormalizeIfNotZero(ezVec3::ZeroVector()).IgnoreResult();
+
+    auto& pb = bones[parentBone];
+
+    if (!pb.dir.IsZero() && dirToBone.NormalizeIfNotZero(ezVec3::ZeroVector()).Succeeded())
+    {
+      if (pb.dir.GetAngleBetween(dirToBone) < ezAngle::Degree(45))
+      {
+        ezPlane plane;
+        plane.SetFromNormalAndPoint(pb.dir, pb.pos);
+        pb.minDistToChild = ezMath::Min(pb.minDistToChild, plane.GetDistanceTo(v1));
+      }
+    }
+  };
+
+  ozz::animation::IterateJointsDF(msg.m_pSkeleton->GetOzzSkeleton(), renderBone);
+
+  if (m_sBonesToHighlight == "*")
+  {
+    for (ezUInt32 b = 0; b < bones.GetCount(); ++b)
+    {
+      bones[b].highlight = true;
+    }
+  }
+  else if (!m_sBonesToHighlight.IsEmpty())
+  {
+    const ezStringBuilder mask(";", m_sBonesToHighlight, ";");
+
+    for (ezUInt16 b = 0; b < static_cast<ezUInt16>(bones.GetCount()); ++b)
+    {
+      const ezString currentName = msg.m_pSkeleton->GetJointByIndex(b).GetName().GetString();
+
+      tmp.Set(";", currentName, ";");
+
+      if (mask.FindSubString(tmp))
+      {
+        bones[b].highlight = true;
+      }
+    }
+  }
+
+  for (ezUInt32 b = 0; b < bones.GetCount(); ++b)
+  {
+    const auto& bone = bones[b];
+
+    if (!bone.highlight)
+    {
+      float len = 0.3f;
+
+      if (bone.minDistToChild < 10.0f)
+      {
+        len = bone.minDistToChild;
+      }
+      else if (bone.distToParent > 0)
+      {
+        len = ezMath::Max(bone.distToParent * 0.5f, 0.1f);
+      }
+      else
+      {
+        len = 0.1f;
+      }
+
+      ezVec3 v0 = bone.pos;
+      ezVec3 v1 = bone.pos + bone.dir * len;
+
+      m_LinesSkeleton.PushBack(ezDebugRenderer::Line(v0, v1));
+      m_LinesSkeleton.PeekBack().m_startColor = ezColor::DarkCyan;
+      m_LinesSkeleton.PeekBack().m_endColor = ezColor::DarkCyan;
+    }
+  }
+
+  for (ezUInt32 b = 0; b < bones.GetCount(); ++b)
+  {
+    const auto& bone = bones[b];
+
+    if (bone.highlight && !bone.dir.IsZero(0.0001f))
+    {
+      float len = 0.3f;
+
+      if (bone.minDistToChild < 10.0f)
+      {
+        len = bone.minDistToChild;
+      }
+      else if (bone.distToParent > 0)
+      {
+        len = ezMath::Max(bone.distToParent * 0.5f, 0.1f);
+      }
+      else
+      {
+        len = 0.1f;
+      }
+
+      ezVec3 v0 = bone.pos;
+      ezVec3 v1 = bone.pos + bone.dir * len;
+
+      const ezVec3 vO1 = bone.dir.GetOrthogonalVector().GetNormalized();
+      const ezVec3 vO2 = bone.dir.CrossRH(vO1).GetNormalized();
+
+      ezVec3 s[4];
+      s[0] = v0 + vO1 * len * 0.1f + bone.dir * len * 0.1f;
+      s[1] = v0 + vO2 * len * 0.1f + bone.dir * len * 0.1f;
+      s[2] = v0 - vO1 * len * 0.1f + bone.dir * len * 0.1f;
+      s[3] = v0 - vO2 * len * 0.1f + bone.dir * len * 0.1f;
+
+      m_LinesSkeleton.PushBack(ezDebugRenderer::Line(v0, v1));
+      m_LinesSkeleton.PeekBack().m_startColor = ezColor::DarkCyan;
+      m_LinesSkeleton.PeekBack().m_endColor = ezColor::DarkCyan;
+
+      for (ezUInt32 si = 0; si < 4; ++si)
+      {
+        m_LinesSkeleton.PushBack(ezDebugRenderer::Line(v0, s[si]));
+        m_LinesSkeleton.PeekBack().m_startColor = ezColor::Chartreuse;
+        m_LinesSkeleton.PeekBack().m_endColor = ezColor::Chartreuse;
+
+        m_LinesSkeleton.PushBack(ezDebugRenderer::Line(s[si], v1));
+        m_LinesSkeleton.PeekBack().m_startColor = ezColor::Chartreuse;
+        m_LinesSkeleton.PeekBack().m_endColor = ezColor::Chartreuse;
+      }
+    }
+  }
+}
+
+void ezSkeletonComponent::BuildColliderVisualization(ezMsgAnimationPoseUpdated& msg)
+{
+  if (!m_bVisualizeColliders || !msg.m_pSkeleton || !m_hSkeleton.IsValid())
+    return;
+
+  ezResourceLock<ezSkeletonResource> pSkeleton(m_hSkeleton, ezResourceAcquireMode::BlockTillLoaded);
+
+  const auto srcBoneDir = pSkeleton->GetDescriptor().m_Skeleton.m_BoneDirection;
+  const ezQuat qBoneDirAdjustment = ezBasisAxis::GetBasisRotation(ezBasisAxis::PositiveX, srcBoneDir);
+
+  ezStringBuilder bonesToHighlight(";", m_sBonesToHighlight, ";");
+  ezStringBuilder boneName;
+  if (m_sBonesToHighlight == "*")
+    bonesToHighlight.Clear();
+
+  ezQuat qRotZtoX; // the capsule should extend along X, but the debug renderer draws them along Z
+  qRotZtoX.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(-90));
+
+  for (const auto& geo : pSkeleton->GetDescriptor().m_Geometry)
+  {
+    if (geo.m_Type == ezSkeletonJointGeometryType::None)
+      continue;
+
+    ezMat4 boneTrans;
+    ezQuat boneRot;
+    msg.ComputeFullBoneTransform(geo.m_uiAttachedToJoint, boneTrans, boneRot);
+
+    boneName.Set(";", msg.m_pSkeleton->GetJointByIndex(geo.m_uiAttachedToJoint).GetName().GetString(), ";");
+    const bool bHighlight = bonesToHighlight.IsEmpty() || bonesToHighlight.FindLastSubString(boneName) != nullptr;
+    const ezColor hlS = ezMath::Lerp(ezColor::DimGrey, ezColor::Yellow, bHighlight ? 1.0f : 0.2f);
+
+    const ezQuat qFinalBoneRot = boneRot * qBoneDirAdjustment;
+
+    ezTransform st;
+    st.SetIdentity();
+    st.m_vPosition = boneTrans.GetTranslationVector() + qFinalBoneRot * geo.m_Transform.m_vPosition;
+    st.m_qRotation = qFinalBoneRot * geo.m_Transform.m_qRotation;
+
+    if (geo.m_Type == ezSkeletonJointGeometryType::Sphere)
+    {
+      auto& shape = m_SpheresShapes.ExpandAndGetRef();
+      shape.m_Transform = st;
+      shape.m_Shape.SetElements(ezVec3::ZeroVector(), geo.m_Transform.m_vScale.z);
+      shape.m_Color = hlS;
+    }
+
+    if (geo.m_Type == ezSkeletonJointGeometryType::Box)
+    {
+      auto& shape = m_BoxShapes.ExpandAndGetRef();
+
+      ezVec3 ext;
+      ext.x = geo.m_Transform.m_vScale.x * 0.5f;
+      ext.y = geo.m_Transform.m_vScale.y * 0.5f;
+      ext.z = geo.m_Transform.m_vScale.z * 0.5f;
+
+      // TODO: if offset desired
+      st.m_vPosition += qFinalBoneRot * ezVec3(geo.m_Transform.m_vScale.x * 0.5f, 0, 0);
+
+      shape.m_Transform = st;
+      shape.m_Shape.SetCenterAndHalfExtents(ezVec3::ZeroVector(), ext);
+      shape.m_Color = hlS;
+    }
+
+    if (geo.m_Type == ezSkeletonJointGeometryType::Capsule)
+    {
+      st.m_qRotation = st.m_qRotation * qRotZtoX;
+
+      // TODO: if offset desired
+      st.m_vPosition += qFinalBoneRot * ezVec3(geo.m_Transform.m_vScale.x * 0.5f, 0, 0);
+
+      auto& shape = m_CapsuleShapes.ExpandAndGetRef();
+      shape.m_Transform = st;
+      shape.m_fLength = geo.m_Transform.m_vScale.x;
+      shape.m_fRadius = geo.m_Transform.m_vScale.z;
+      shape.m_Color = hlS;
+    }
+  }
+}
+
+void ezSkeletonComponent::BuildJointVisualization(ezMsgAnimationPoseUpdated& msg)
+{
+  if (!m_hSkeleton.IsValid() || (!m_bVisualizeJoints && !m_bVisualizeSwingLimits && !m_bVisualizeTwistLimits))
+    return;
+
+  ezResourceLock<ezSkeletonResource> pSkeleton(m_hSkeleton, ezResourceAcquireMode::BlockTillLoaded);
+  const auto& skel = pSkeleton->GetDescriptor().m_Skeleton;
+
+  ezStringBuilder bonesToHighlight(";", m_sBonesToHighlight, ";");
+  ezStringBuilder boneName;
+  if (m_sBonesToHighlight == "*")
+    bonesToHighlight.Clear();
+
+  const ezQuat qBoneDir = ezBasisAxis::GetBasisRotation_PosX(pSkeleton->GetDescriptor().m_Skeleton.m_BoneDirection);
+  const ezQuat qBoneDirT = ezBasisAxis::GetBasisRotation(ezBasisAxis::PositiveY, pSkeleton->GetDescriptor().m_Skeleton.m_BoneDirection);
+  const ezQuat qBoneDirBT = ezBasisAxis::GetBasisRotation(ezBasisAxis::PositiveZ, pSkeleton->GetDescriptor().m_Skeleton.m_BoneDirection);
+  const ezQuat qBoneDirT2 = ezBasisAxis::GetBasisRotation(ezBasisAxis::NegativeY, pSkeleton->GetDescriptor().m_Skeleton.m_BoneDirection);
+
+  for (ezUInt16 uiJointIdx = 0; uiJointIdx < skel.GetJointCount(); ++uiJointIdx)
+  {
+    const auto& thisJoint = skel.GetJointByIndex(uiJointIdx);
+    const ezUInt16 uiParentIdx = thisJoint.GetParentIndex();
+
+    if (thisJoint.IsRootJoint())
+      continue;
+
+    boneName.Set(";", thisJoint.GetName().GetString(), ";");
+
+    const bool bHighlight = bonesToHighlight.IsEmpty() || bonesToHighlight.FindSubString(boneName) != nullptr;
+
+    ezMat4 parentTrans;
+    ezQuat parentRot; // contains root transform
+    msg.ComputeFullBoneTransform(uiParentIdx, parentTrans, parentRot);
+
+    ezMat4 thisTrans; // contains root transform
+    ezQuat thisRot;   // contains root transform
+    msg.ComputeFullBoneTransform(uiJointIdx, thisTrans, thisRot);
+
+    const ezVec3 vJointPos = thisTrans.GetTranslationVector();
+    const ezQuat qLimitRot = parentRot * thisJoint.GetLocalOrientation();
+
+    // main directions
+    if (m_bVisualizeJoints)
+    {
+      const ezColor hlM = ezMath::Lerp(ezColor::OrangeRed, ezColor::DimGrey, bHighlight ? 0 : 0.8f);
+      const ezColor hlT = ezMath::Lerp(ezColor::LawnGreen, ezColor::DimGrey, bHighlight ? 0 : 0.8f);
+      const ezColor hlBT = ezMath::Lerp(ezColor::BlueViolet, ezColor::DimGrey, bHighlight ? 0 : 0.8f);
+
+      {
+        auto& cyl = m_CylinderShapes.ExpandAndGetRef();
+        cyl.m_Color = hlM;
+        cyl.m_fLength = 0.07f;
+        cyl.m_fRadius1 = 0.002f;
+        cyl.m_fRadius2 = 0.0f;
+        cyl.m_Transform.m_vPosition = vJointPos;
+        cyl.m_Transform.m_qRotation = thisRot * qBoneDir;
+        cyl.m_Transform.m_vScale.Set(1);
+      }
+
+      {
+        auto& cyl = m_CylinderShapes.ExpandAndGetRef();
+        cyl.m_Color = hlT;
+        cyl.m_fLength = 0.07f;
+        cyl.m_fRadius1 = 0.002f;
+        cyl.m_fRadius2 = 0.0f;
+        cyl.m_Transform.m_vPosition = vJointPos;
+        cyl.m_Transform.m_qRotation = thisRot * qBoneDirT;
+        cyl.m_Transform.m_vScale.Set(1);
+      }
+
+      {
+        auto& cyl = m_CylinderShapes.ExpandAndGetRef();
+        cyl.m_Color = hlBT;
+        cyl.m_fLength = 0.07f;
+        cyl.m_fRadius1 = 0.002f;
+        cyl.m_fRadius2 = 0.0f;
+        cyl.m_Transform.m_vPosition = vJointPos;
+        cyl.m_Transform.m_qRotation = thisRot * qBoneDirBT;
+        cyl.m_Transform.m_vScale.Set(1);
+      }
+    }
+
+    // swing limit
+    if (m_bVisualizeSwingLimits && (thisJoint.GetHalfSwingLimitY() > ezAngle() || thisJoint.GetHalfSwingLimitZ() > ezAngle()))
+    {
+      auto& shape = m_ConeLimitShapes.ExpandAndGetRef();
+      shape.m_Angle1 = thisJoint.GetHalfSwingLimitY();
+      shape.m_Angle2 = thisJoint.GetHalfSwingLimitZ();
+      shape.m_Color = ezMath::Lerp(ezColor::DimGrey, ezColor::DeepPink, bHighlight ? 1.0f : 0.2f);
+      shape.m_Transform.m_vScale.Set(0.05f);
+      shape.m_Transform.m_vPosition = vJointPos;
+      shape.m_Transform.m_qRotation = qLimitRot * qBoneDir;
+
+      const ezColor hlM = ezMath::Lerp(ezColor::OrangeRed, ezColor::DimGrey, bHighlight ? 0 : 0.8f);
+
+      {
+        auto& cyl = m_CylinderShapes.ExpandAndGetRef();
+        cyl.m_Color = hlM;
+        cyl.m_fLength = 0.07f;
+        cyl.m_fRadius1 = 0.002f;
+        cyl.m_fRadius2 = 0.0f;
+        cyl.m_Transform.m_vPosition = vJointPos;
+        cyl.m_Transform.m_qRotation = thisRot * qBoneDir;
+        cyl.m_Transform.m_vScale.Set(1);
+      }
+    }
+
+    // twist limit
+    if (m_bVisualizeTwistLimits && thisJoint.GetTwistLimitHalfAngle() > ezAngle::Degree(0))
+    {
+      auto& shape = m_AngleShapes.ExpandAndGetRef();
+      shape.m_StartAngle = thisJoint.GetTwistLimitLow();
+      shape.m_EndAngle = thisJoint.GetTwistLimitHigh();
+      shape.m_Color = ezMath::Lerp(ezColor::DimGrey, ezColor::LightPink, bHighlight ? 0.8f : 0.2f);
+      shape.m_Transform.m_vScale.Set(0.04f);
+      shape.m_Transform.m_vPosition = vJointPos;
+      shape.m_Transform.m_qRotation = qLimitRot;
+
+      const ezColor hlT = ezMath::Lerp(ezColor::DimGrey, ezColor::LightPink, bHighlight ? 1.0f : 0.4f);
+
+      {
+        auto& cyl = m_CylinderShapes.ExpandAndGetRef();
+        cyl.m_Color = hlT;
+        cyl.m_fLength = 0.07f;
+        cyl.m_fRadius1 = 0.002f;
+        cyl.m_fRadius2 = 0.0f;
+        cyl.m_Transform.m_vPosition = vJointPos;
+        cyl.m_Transform.m_qRotation = thisRot * qBoneDirT2;
+        cyl.m_Transform.m_vScale.Set(1);
+
+        ezVec3 vDir = cyl.m_Transform.m_qRotation * ezVec3(1, 0, 0);
+        vDir.Normalize();
+
+        ezVec3 vDirRef = shape.m_Transform.m_qRotation * qBoneDir * ezVec3(0, 1, 0);
+        vDirRef.Normalize();
+
+        const ezVec3 vRotDir = shape.m_Transform.m_qRotation * qBoneDir * ezVec3(1, 0, 0);
+        ezQuat qRotRef;
+        qRotRef.SetFromAxisAndAngle(vRotDir, thisJoint.GetTwistLimitCenterAngle());
+        vDirRef = qRotRef * vDirRef;
+
+        // if the current twist is outside the twist limit range, highlight the bone
+        if (vDir.GetAngleBetween(vDirRef) > thisJoint.GetTwistLimitHalfAngle())
+        {
+          cyl.m_Color = ezColor::Orange;
+        }
+      }
+    }
+  }
+}
+
+void ezSkeletonComponent::VisualizeSkeletonDefaultState()
 {
   if (!IsActiveAndInitialized())
     return;
 
-  m_LinesSkeleton.Clear();
-  m_SpheresSkeleton.Clear();
-  m_BoxesSkeleton.Clear();
-  m_CapsulesSkeleton.Clear();
-
-  m_LocalBounds.SetInvalid();
   m_uiSkeletonChangeCounter = 0;
 
   if (m_hSkeleton.IsValid())
@@ -467,7 +645,7 @@ void ezSkeletonComponent::UpdateSkeletonVis()
 
         {
           ozz::animation::LocalToModelJob job;
-          job.input = pSkeleton->GetDescriptor().m_Skeleton.GetOzzSkeleton().joint_bind_poses();
+          job.input = pSkeleton->GetDescriptor().m_Skeleton.GetOzzSkeleton().joint_rest_poses();
           job.output = make_span(modelTransforms);
           job.skeleton = &pSkeleton->GetDescriptor().m_Skeleton.GetOzzSkeleton();
           job.Run();
@@ -484,6 +662,16 @@ void ezSkeletonComponent::UpdateSkeletonVis()
   }
 
   TriggerLocalBoundsUpdate();
+}
+
+ezDebugRenderer::Line& ezSkeletonComponent::AddLine(const ezVec3& vStart, const ezVec3& vEnd, const ezColor& color)
+{
+  auto& line = m_LinesSkeleton.ExpandAndGetRef();
+  line.m_start = vStart;
+  line.m_end = vEnd;
+  line.m_startColor = color;
+  line.m_endColor = color;
+  return line;
 }
 
 void ezSkeletonComponent::OnQueryAnimationSkeleton(ezMsgQueryAnimationSkeleton& msg)

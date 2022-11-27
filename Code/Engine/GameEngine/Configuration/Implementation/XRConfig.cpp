@@ -10,7 +10,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezXRConfig, 2, ezRTTIDefaultAllocator<ezXRConfig
   {
     EZ_MEMBER_PROPERTY("EnableXR", m_bEnableXR),
     // HololensRenderPipeline.ezRenderPipelineAsset
-    EZ_MEMBER_PROPERTY("XRRenderPipeline", m_sXRRenderPipeline)->AddAttributes(new ezAssetBrowserAttribute("RenderPipeline"), new ezDefaultValueAttribute(ezStringView("{ 2fe25ded-776c-7f9e-354f-e4c52a33d125 }"))),
+    EZ_MEMBER_PROPERTY("XRRenderPipeline", m_sXRRenderPipeline)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_RenderPipeline"), new ezDefaultValueAttribute(ezStringView("{ 2fe25ded-776c-7f9e-354f-e4c52a33d125 }"))),
   }
   EZ_END_PROPERTIES;
 }

@@ -1,16 +1,34 @@
-#include <RendererVulkanPCH.h>
+#include <RendererVulkan/RendererVulkanPCH.h>
 
+#include <Foundation/Algorithm/HashStream.h>
 #include <RendererVulkan/Device/DeviceVulkan.h>
 #include <RendererVulkan/Shader/ShaderVulkan.h>
+#include <RendererVulkan/Utils/ConversionUtilsVulkan.h>
+#include <ShaderCompilerDXC/SpirvMetaData.h>
+
+EZ_CHECK_AT_COMPILETIME(ezVulkanDescriptorSetLayoutBinding::ConstantBuffer == ezGALShaderVulkan::BindingMapping::ConstantBuffer);
+EZ_CHECK_AT_COMPILETIME(ezVulkanDescriptorSetLayoutBinding::ResourceView == ezGALShaderVulkan::BindingMapping::ResourceView);
+EZ_CHECK_AT_COMPILETIME(ezVulkanDescriptorSetLayoutBinding::UAV == ezGALShaderVulkan::BindingMapping::UAV);
+EZ_CHECK_AT_COMPILETIME(ezVulkanDescriptorSetLayoutBinding::Sampler == ezGALShaderVulkan::BindingMapping::Sampler);
+
+void ezGALShaderVulkan::DescriptorSetLayoutDesc::ComputeHash()
+{
+  ezHashStreamWriter32 writer;
+  const ezUInt32 uiSize = m_bindings.GetCount();
+  for (ezUInt32 i = 0; i < uiSize; i++)
+  {
+    const auto& binding = m_bindings[i];
+    writer << binding.binding;
+    writer << ezConversionUtilsVulkan::GetUnderlyingValue(binding.descriptorType);
+    writer << binding.descriptorCount;
+    writer << ezConversionUtilsVulkan::GetUnderlyingFlagsValue(binding.stageFlags);
+    writer << binding.pImmutableSamplers;
+  }
+  m_uiHash = writer.GetHashValue();
+}
 
 ezGALShaderVulkan::ezGALShaderVulkan(const ezGALShaderCreationDescription& Description)
   : ezGALShader(Description)
-  , m_pVertexShader(nullptr)
-  , m_pHullShader(nullptr)
-  , m_pDomainShader(nullptr)
-  , m_pGeometryShader(nullptr)
-  , m_pPixelShader(nullptr)
-  , m_pComputeShader(nullptr)
 {
 }
 
@@ -18,131 +36,197 @@ ezGALShaderVulkan::~ezGALShaderVulkan() {}
 
 void ezGALShaderVulkan::SetDebugName(const char* szName) const
 {
-  ezUInt32 uiLength = ezStringUtils::GetStringElementCount(szName);
-
-  // TODO
-#if 0
-  if (m_pVertexShader != nullptr)
+  ezGALDeviceVulkan* pVulkanDevice = static_cast<ezGALDeviceVulkan*>(ezGALDevice::GetDefaultDevice());
+  for (ezUInt32 i = 0; i < ezGALShaderStage::ENUM_COUNT; i++)
   {
-    m_pVertexShader->SetPrivateData(WKPDID_D3DDebugObjectName, uiLength, szName);
+    pVulkanDevice->SetDebugName(szName, m_Shaders[i]);
   }
-
-  if (m_pHullShader != nullptr)
-  {
-    m_pHullShader->SetPrivateData(WKPDID_D3DDebugObjectName, uiLength, szName);
-  }
-
-  if (m_pDomainShader != nullptr)
-  {
-    m_pDomainShader->SetPrivateData(WKPDID_D3DDebugObjectName, uiLength, szName);
-  }
-
-  if (m_pGeometryShader != nullptr)
-  {
-    m_pGeometryShader->SetPrivateData(WKPDID_D3DDebugObjectName, uiLength, szName);
-  }
-
-  if (m_pPixelShader != nullptr)
-  {
-    m_pPixelShader->SetPrivateData(WKPDID_D3DDebugObjectName, uiLength, szName);
-  }
-
-  if (m_pComputeShader != nullptr)
-  {
-    m_pComputeShader->SetPrivateData(WKPDID_D3DDebugObjectName, uiLength, szName);
-  }
-#endif
 }
 
 ezResult ezGALShaderVulkan::InitPlatform(ezGALDevice* pDevice)
 {
-  ezGALDeviceVulkan* pDXDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
+  ezGALDeviceVulkan* pVulkanDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
 
-  // TODO
-#if 0
-  ID3D11Device* pD3D11Device = pDXDevice->GetDXDevice();
+  // Extract meta data and shader code.
+  ezArrayPtr<const ezUInt8> shaderCode[ezGALShaderStage::ENUM_COUNT];
+  ezDynamicArray<ezVulkanDescriptorSetLayout> sets[ezGALShaderStage::ENUM_COUNT];
+  ezHybridArray<ezVulkanVertexInputAttribute, 8> vertexInputAttributes;
 
-  if (m_Description.HasByteCodeForStage(ezGALShaderStage::VertexShader))
+  for (ezUInt32 i = 0; i < ezGALShaderStage::ENUM_COUNT; i++)
   {
-    if (FAILED(pD3D11Device->CreateVertexShader(m_Description.m_ByteCodes[ezGALShaderStage::VertexShader]->GetByteCode(),
-                                                m_Description.m_ByteCodes[ezGALShaderStage::VertexShader]->GetSize(), nullptr,
-                                                &m_pVertexShader)))
+    if (m_Description.HasByteCodeForStage((ezGALShaderStage::Enum)i))
     {
-      ezLog::Error("Couldn't create native vertex shader from bytecode!");
-      return EZ_FAILURE;
+      ezArrayPtr<const ezUInt8> metaData(reinterpret_cast<const ezUInt8*>(m_Description.m_ByteCodes[i]->GetByteCode()), m_Description.m_ByteCodes[i]->GetSize());
+      // Only the vertex shader stores vertexInputAttributes, so passing in the array into other shaders is just a no op.
+      ezSpirvMetaData::Read(metaData, shaderCode[i], sets[i], vertexInputAttributes);
     }
   }
 
-  if (m_Description.HasByteCodeForStage(ezGALShaderStage::HullShader))
+  // For now the meta data and what the shader exposes is the exact same data but this might change so different types are used.
+  for (ezVulkanVertexInputAttribute& via : vertexInputAttributes)
   {
-    if (FAILED(pD3D11Device->CreateHullShader(m_Description.m_ByteCodes[ezGALShaderStage::VertexShader]->GetByteCode(),
-                                              m_Description.m_ByteCodes[ezGALShaderStage::HullShader]->GetSize(), nullptr, &m_pHullShader)))
+    m_VertexInputAttributes.PushBack({via.m_eSemantic, via.m_uiLocation, via.m_eFormat});
+  }
+
+  // Compute remapping.
+  // Each shader stage is compiled individually and has its own binding indices.
+  // In Vulkan we need to map all stages into one descriptor layout which requires us to remap some shader stages so no binding index conflicts appear.
+  struct ShaderRemapping
+  {
+    const ezVulkanDescriptorSetLayoutBinding* pBinding = 0;
+    ezUInt16 m_uiTarget = 0; ///< The new binding target that pBinding needs to be remapped to.
+  };
+  struct LayoutBinding
+  {
+    const ezVulkanDescriptorSetLayoutBinding* m_binding = nullptr; ///< The first binding under which this resource was encountered.
+    vk::ShaderStageFlags m_stages = {};                            ///< Bitflags of all stages that share this binding. Matching is done by name.
+  };
+  ezHybridArray<ShaderRemapping, 6> remappings[ezGALShaderStage::ENUM_COUNT]; ///< Remappings for each shader stage.
+  ezHybridArray<LayoutBinding, 6> sourceBindings;                             ///< Bindings across all stages. Can have gaps. Array index is the binding index.
+  ezMap<ezStringView, ezUInt32> bindingMap;                                   ///< Maps binding name to index in sourceBindings.
+
+  for (ezUInt32 i = 0; i < ezGALShaderStage::ENUM_COUNT; i++)
+  {
+    const vk::ShaderStageFlags vulkanStage = ezConversionUtilsVulkan::GetShaderStage((ezGALShaderStage::Enum)i);
+    if (m_Description.HasByteCodeForStage((ezGALShaderStage::Enum)i))
     {
-      ezLog::Error("Couldn't create native hull shader from bytecode!");
-      return EZ_FAILURE;
+      EZ_ASSERT_DEV(sets[i].GetCount() <= 1, "Only a single descriptor set is currently supported.");
+
+      for (ezUInt32 j = 0; j < sets[i].GetCount(); j++)
+      {
+        const ezVulkanDescriptorSetLayout& set = sets[i][j];
+        EZ_ASSERT_DEV(set.m_uiSet == 0, "Only a single descriptor set is currently supported.");
+        for (ezUInt32 k = 0; k < set.bindings.GetCount(); k++)
+        {
+          const ezVulkanDescriptorSetLayoutBinding& binding = set.bindings[k];
+          // Does a binding already exist for the resource with the same name?
+          if (ezUInt32* pBindingIdx = bindingMap.GetValue(binding.m_sName))
+          {
+            LayoutBinding& layoutBinding = sourceBindings[*pBindingIdx];
+            layoutBinding.m_stages |= vulkanStage;
+            const ezVulkanDescriptorSetLayoutBinding* pCurrentBinding = layoutBinding.m_binding;
+            EZ_ASSERT_DEBUG(pCurrentBinding->m_Type == binding.m_Type, "The descriptor {} was found with different resource type {} and {}", binding.m_sName, pCurrentBinding->m_Type, binding.m_Type);
+            EZ_ASSERT_DEBUG(pCurrentBinding->m_uiDescriptorType == binding.m_uiDescriptorType, "The descriptor {} was found with different type {} and {}", binding.m_sName, pCurrentBinding->m_uiDescriptorType, binding.m_uiDescriptorType);
+            EZ_ASSERT_DEBUG(pCurrentBinding->m_uiDescriptorCount == binding.m_uiDescriptorCount, "The descriptor {} was found with different count {} and {}", binding.m_sName, pCurrentBinding->m_uiDescriptorCount, binding.m_uiDescriptorCount);
+            // The binding index differs from the one already in the set, remapping is necessary.
+            if (binding.m_uiBinding != *pBindingIdx)
+            {
+              remappings[i].PushBack({&binding, pCurrentBinding->m_uiBinding});
+            }
+          }
+          else
+          {
+            ezUInt8 uiTargetBinding = binding.m_uiBinding;
+            // Doesn't exist yet, find a good place for it.
+            if (binding.m_uiBinding >= sourceBindings.GetCount())
+              sourceBindings.SetCount(binding.m_uiBinding + 1);
+
+            // If the original binding index doesn't exist yet, use it (No remapping necessary).
+            if (sourceBindings[binding.m_uiBinding].m_binding == nullptr)
+            {
+              sourceBindings[binding.m_uiBinding] = {&binding, vulkanStage};
+              bindingMap[binding.m_sName] = uiTargetBinding;
+            }
+            else
+            {
+              // Binding index already in use, remapping necessary.
+              uiTargetBinding = (ezUInt8)sourceBindings.GetCount();
+              sourceBindings.PushBack({&binding, vulkanStage});
+              bindingMap[binding.m_sName] = uiTargetBinding;
+              remappings[i].PushBack({&binding, uiTargetBinding});
+            }
+
+            // The shader reflection used by the high level renderer is per stage and assumes it can map resources to stages.
+            // We build this remapping table to map our descriptor binding to the original per-stage resource binding model.
+            BindingMapping& bindingMapping = m_BindingMapping.ExpandAndGetRef();
+            bindingMapping.m_descriptorType = (vk::DescriptorType)binding.m_uiDescriptorType;
+            bindingMapping.m_ezType = binding.m_ezType;
+            bindingMapping.m_type = (BindingMapping::Type)binding.m_Type;
+            bindingMapping.m_stage = (ezGALShaderStage::Enum)i;
+            bindingMapping.m_uiSource = binding.m_uiVirtualBinding;
+            bindingMapping.m_uiTarget = uiTargetBinding;
+            bindingMapping.m_sName = binding.m_sName;
+          }
+        }
+      }
+    }
+  }
+  m_BindingMapping.Sort([](const BindingMapping& lhs, const BindingMapping& rhs) { return lhs.m_uiTarget < rhs.m_uiTarget; });
+  for (ezUInt32 i = 0; i < m_BindingMapping.GetCount(); i++)
+  {
+    m_BindingMapping[i].m_targetStages = ezConversionUtilsVulkan::GetPipelineStage(sourceBindings[m_BindingMapping[i].m_uiTarget].m_stages);
+  }
+
+  // Build Vulkan descriptor set layout
+  for (ezUInt32 i = 0; i < sourceBindings.GetCount(); i++)
+  {
+    const LayoutBinding& sourceBinding = sourceBindings[i];
+    if (sourceBinding.m_binding != nullptr)
+    {
+      vk::DescriptorSetLayoutBinding& binding = m_descriptorSetLayoutDesc.m_bindings.ExpandAndGetRef();
+      binding.binding = i;
+      binding.descriptorType = (vk::DescriptorType)sourceBinding.m_binding->m_uiDescriptorType;
+      binding.descriptorCount = sourceBinding.m_binding->m_uiDescriptorCount;
+      binding.stageFlags = sourceBinding.m_stages;
+    }
+  }
+  m_descriptorSetLayoutDesc.m_bindings.Sort([](const vk::DescriptorSetLayoutBinding& lhs, const vk::DescriptorSetLayoutBinding& rhs) { return lhs.binding < rhs.binding; });
+  m_descriptorSetLayoutDesc.ComputeHash();
+
+  // Remap and build shaders
+  ezUInt32 uiMaxShaderSize = 0;
+  for (ezUInt32 i = 0; i < ezGALShaderStage::ENUM_COUNT; i++)
+  {
+    if (!remappings[i].IsEmpty())
+    {
+      uiMaxShaderSize = ezMath::Max(uiMaxShaderSize, shaderCode[i].GetCount());
     }
   }
 
-  if (m_Description.HasByteCodeForStage(ezGALShaderStage::DomainShader))
+  vk::ShaderModuleCreateInfo createInfo;
+  ezDynamicArray<ezUInt8> tempBuffer;
+  tempBuffer.Reserve(uiMaxShaderSize);
+  for (ezUInt32 i = 0; i < ezGALShaderStage::ENUM_COUNT; i++)
   {
-    if (FAILED(pD3D11Device->CreateDomainShader(m_Description.m_ByteCodes[ezGALShaderStage::DomainShader]->GetByteCode(),
-                                                m_Description.m_ByteCodes[ezGALShaderStage::DomainShader]->GetSize(), nullptr,
-                                                &m_pDomainShader)))
+    if (m_Description.HasByteCodeForStage((ezGALShaderStage::Enum)i))
     {
-      ezLog::Error("Couldn't create native domain shader from bytecode!");
-      return EZ_FAILURE;
+      if (remappings[i].IsEmpty())
+      {
+        createInfo.codeSize = shaderCode[i].GetCount();
+        EZ_ASSERT_DEV(createInfo.codeSize % 4 == 0, "Spirv shader code should be a multiple of 4.");
+        createInfo.pCode = reinterpret_cast<const ezUInt32*>(shaderCode[i].GetPtr());
+        VK_SUCCEED_OR_RETURN_EZ_FAILURE(pVulkanDevice->GetVulkanDevice().createShaderModule(&createInfo, nullptr, &m_Shaders[i]));
+      }
+      else
+      {
+        tempBuffer = shaderCode[i];
+        ezUInt32* pData = reinterpret_cast<ezUInt32*>(tempBuffer.GetData());
+        for (const auto& remap : remappings[i])
+        {
+          EZ_ASSERT_DEBUG(pData[remap.pBinding->m_uiWordOffset] == remap.pBinding->m_uiBinding, "Spirv descriptor word offset does not point to descriptor index.");
+          pData[remap.pBinding->m_uiWordOffset] = remap.m_uiTarget;
+        }
+        createInfo.codeSize = tempBuffer.GetCount();
+        EZ_ASSERT_DEV(createInfo.codeSize % 4 == 0, "Spirv shader code should be a multiple of 4.");
+        createInfo.pCode = pData;
+        VK_SUCCEED_OR_RETURN_EZ_FAILURE(pVulkanDevice->GetVulkanDevice().createShaderModule(&createInfo, nullptr, &m_Shaders[i]));
+      }
     }
   }
-
-  if (m_Description.HasByteCodeForStage(ezGALShaderStage::GeometryShader))
-  {
-    if (FAILED(pD3D11Device->CreateGeometryShader(m_Description.m_ByteCodes[ezGALShaderStage::GeometryShader]->GetByteCode(),
-                                                  m_Description.m_ByteCodes[ezGALShaderStage::GeometryShader]->GetSize(), nullptr,
-                                                  &m_pGeometryShader)))
-    {
-      ezLog::Error("Couldn't create native geometry shader from bytecode!");
-      return EZ_FAILURE;
-    }
-  }
-
-  if (m_Description.HasByteCodeForStage(ezGALShaderStage::PixelShader))
-  {
-    if (FAILED(pD3D11Device->CreatePixelShader(m_Description.m_ByteCodes[ezGALShaderStage::PixelShader]->GetByteCode(),
-                                               m_Description.m_ByteCodes[ezGALShaderStage::PixelShader]->GetSize(), nullptr,
-                                               &m_pPixelShader)))
-    {
-      ezLog::Error("Couldn't create native pixel shader from bytecode!");
-      return EZ_FAILURE;
-    }
-  }
-
-  if (m_Description.HasByteCodeForStage(ezGALShaderStage::ComputeShader))
-  {
-    if (FAILED(pD3D11Device->CreateComputeShader(m_Description.m_ByteCodes[ezGALShaderStage::ComputeShader]->GetByteCode(),
-                                                 m_Description.m_ByteCodes[ezGALShaderStage::ComputeShader]->GetSize(), nullptr,
-                                                 &m_pComputeShader)))
-    {
-      ezLog::Error("Couldn't create native compute shader from bytecode!");
-      return EZ_FAILURE;
-    }
-  }
-#endif
 
   return EZ_SUCCESS;
 }
 
 ezResult ezGALShaderVulkan::DeInitPlatform(ezGALDevice* pDevice)
 {
-  // TODO
-#if 0
-  EZ_GAL_Vulkan_RELEASE(m_pVertexShader);
-  EZ_GAL_Vulkan_RELEASE(m_pHullShader);
-  EZ_GAL_Vulkan_RELEASE(m_pDomainShader);
-  EZ_GAL_Vulkan_RELEASE(m_pGeometryShader);
-  EZ_GAL_Vulkan_RELEASE(m_pPixelShader);
-  EZ_GAL_Vulkan_RELEASE(m_pComputeShader);
-#endif
+  m_descriptorSetLayoutDesc = {};
+  m_BindingMapping.Clear();
 
+  ezGALDeviceVulkan* pVulkanDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
+  for (ezUInt32 i = 0; i < ezGALShaderStage::ENUM_COUNT; i++)
+  {
+    pVulkanDevice->DeleteLater(m_Shaders[i]);
+  }
   return EZ_SUCCESS;
 }
 

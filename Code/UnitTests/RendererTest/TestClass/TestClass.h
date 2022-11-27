@@ -9,6 +9,8 @@
 #include <RendererFoundation/Device/Device.h>
 #include <TestFramework/Framework/TestBaseClass.h>
 
+#undef CreateWindow
+
 class ezImage;
 
 struct ObjectCB
@@ -36,9 +38,13 @@ protected:
   ezSizeU32 GetResolution() const;
 
 protected:
-  ezResult SetupRenderer(ezUInt32 uiResolutionX = 960, ezUInt32 uiResolutionY = 540);
+  ezResult SetupRenderer();
+  ezResult CreateWindow(ezUInt32 uiResolutionX = 960, ezUInt32 uiResolutionY = 540);
+
   void ShutdownRenderer();
+  void DestroyWindow();
   void ClearScreen(const ezColor& color = ezColor::Black);
+  void SetClipSpace();
 
   void BeginFrame();
   void EndFrame();
@@ -52,6 +58,7 @@ protected:
 
   ezWindow* m_pWindow = nullptr;
   ezGALDevice* m_pDevice = nullptr;
+  ezGALSwapChainHandle m_hSwapChain;
   ezGALPass* m_pPass = nullptr;
 
   ezConstantBufferStorageHandle m_hObjectTransformCB;

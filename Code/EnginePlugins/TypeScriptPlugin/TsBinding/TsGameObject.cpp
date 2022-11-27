@@ -662,9 +662,7 @@ static int __CPP_GameObject_SendEventMessage(duk_context* pDuk)
   {
     ezUniquePtr<ezMessage> pMsg = pBinding->MessageFromParameter(pDuk, 1, ezTime::Zero());
 
-    ezEventMessage* pEventMsg = ezStaticCast<ezEventMessage*>(pMsg.Borrow());
-
-    pGameObject->SendEventMessage(*pEventMsg, pSender);
+    pGameObject->SendEventMessage(ezStaticCast<ezEventMessage&>(*pMsg), pSender);
 
     if (duk.GetBoolValue(4)) // expect the message to have result values
     {
@@ -678,9 +676,7 @@ static int __CPP_GameObject_SendEventMessage(duk_context* pDuk)
 
     ezUniquePtr<ezMessage> pMsg = pBinding->MessageFromParameter(pDuk, 1, delay);
 
-    ezEventMessage* pEventMsg = ezStaticCast<ezEventMessage*>(pMsg.Borrow());
-
-    pGameObject->PostEventMessage(*pEventMsg, pSender, delay);
+    pGameObject->PostEventMessage(ezStaticCast<ezEventMessage&>(*pMsg), pSender, delay);
   }
 
   return duk.ReturnVoid();
@@ -733,7 +729,7 @@ static int __CPP_GameObject_SetTeamID(duk_context* pDuk)
 
   ezGameObject* pGameObject = ezTypeScriptBinding::ExpectGameObject(duk, 0 /*this*/);
 
-  pGameObject->SetTeamID(duk.GetUIntValue(1));
+  pGameObject->SetTeamID(static_cast<ezUInt16>(duk.GetUIntValue(1)));
 
   return duk.ReturnVoid();
 }

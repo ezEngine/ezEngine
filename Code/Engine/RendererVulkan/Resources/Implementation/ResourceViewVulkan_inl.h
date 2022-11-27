@@ -1,10 +1,15 @@
-
-const vk::DescriptorSetLayoutBinding& ezGALResourceViewVulkan::GetResourceBinding() const
+EZ_ALWAYS_INLINE const vk::DescriptorImageInfo& ezGALResourceViewVulkan::GetImageInfo(bool bIsArray) const
 {
-  return m_resourceBinding;
+  EZ_ASSERT_DEBUG((bIsArray ? m_resourceImageInfoArray : m_resourceImageInfo).imageView, "View does not support bIsArray: {}", bIsArray);
+  return bIsArray ? m_resourceImageInfoArray : m_resourceImageInfo;
 }
 
-const vk::WriteDescriptorSet& ezGALResourceViewVulkan::GetResourceBindingData() const
+EZ_ALWAYS_INLINE vk::ImageSubresourceRange ezGALResourceViewVulkan::GetRange() const
 {
-  return m_resourceBindingData;
+  return m_range;
+}
+
+EZ_ALWAYS_INLINE const vk::BufferView& ezGALResourceViewVulkan::GetBufferView() const
+{
+  return m_bufferView;
 }

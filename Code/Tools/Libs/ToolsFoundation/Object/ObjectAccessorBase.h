@@ -42,8 +42,8 @@ public:
   virtual ezStatus MoveObject(
     const ezDocumentObject* pObject, const ezDocumentObject* pNewParent, const ezAbstractProperty* pParentProp, const ezVariant& index) = 0;
 
-  virtual ezStatus GetKeys(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezHybridArray<ezVariant, 16>& out_keys) = 0;
-  virtual ezStatus GetValues(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezHybridArray<ezVariant, 16>& out_values) = 0;
+  virtual ezStatus GetKeys(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezDynamicArray<ezVariant>& out_keys) = 0;
+  virtual ezStatus GetValues(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezDynamicArray<ezVariant>& out_values) = 0;
 
   ///@}
   /// \name Object Access Convenience Functions
@@ -60,8 +60,11 @@ public:
     const ezDocumentObject* pParent, const char* szParentProp, const ezVariant& index, const ezRTTI* pType, ezUuid& inout_objectGuid);
   ezStatus MoveObject(const ezDocumentObject* pObject, const ezDocumentObject* pNewParent, const char* szParentProp, const ezVariant& index);
 
-  ezStatus GetKeys(const ezDocumentObject* pObject, const char* szProp, ezHybridArray<ezVariant, 16>& out_keys);
-  ezStatus GetValues(const ezDocumentObject* pObject, const char* szProp, ezHybridArray<ezVariant, 16>& out_values);
+  ezStatus GetKeys(const ezDocumentObject* pObject, const char* szProp, ezDynamicArray<ezVariant>& out_keys);
+  ezStatus GetValues(const ezDocumentObject* pObject, const char* szProp, ezDynamicArray<ezVariant>& out_values);
+  const ezDocumentObject* GetChildObject(const ezDocumentObject* pObject, const char* szProp, ezVariant index);
+
+  ezStatus Clear(const ezDocumentObject* pObject, const char* szProp);
 
   template <typename T>
   T Get(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index = ezVariant());

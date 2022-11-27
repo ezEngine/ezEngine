@@ -63,7 +63,7 @@ void operator>>(ezStreamReader& Stream, ezHashedString& Value)
 {
   ezStringBuilder sTemp;
   Stream >> sTemp;
-  Value.Assign(sTemp.GetData());
+  Value.Assign(sTemp);
 }
 
 // ezTempHashedString

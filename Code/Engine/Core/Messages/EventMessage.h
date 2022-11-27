@@ -1,7 +1,6 @@
 #pragma once
 
-#include <Core/World/EventMessageHandlerComponent.h>
-#include <Core/World/GameObject.h>
+#include <Core/World/World.h>
 #include <Foundation/Communication/Message.h>
 
 /// \brief Base class for all messages that are sent as 'events'
@@ -31,7 +30,7 @@ template <typename EventMessageType>
 class ezEventMessageSender : public ezMessageSenderBase<EventMessageType>
 {
 public:
-  EZ_ALWAYS_INLINE void SendEventMessage(EventMessageType& msg, ezComponent* pSenderComponent, const ezGameObject* pSearchObject)
+  EZ_ALWAYS_INLINE void SendEventMessage(EventMessageType& msg, ezComponent* pSenderComponent, ezGameObject* pSearchObject)
   {
     UpdateMessageAndCachedReceivers(msg, pSenderComponent, pSearchObject);
 
@@ -45,10 +44,18 @@ public:
     ezInternal::EventMessageSenderHelper::SendEventMessage(pSenderComponent, m_CachedReceivers, msg);
   }
 
-  EZ_ALWAYS_INLINE void PostEventMessage(const EventMessageType& msg, const ezComponent* pSenderComponent, const ezGameObject* pSearchObject,
+  EZ_ALWAYS_INLINE void PostEventMessage(EventMessageType& msg, ezComponent* pSenderComponent, ezGameObject* pSearchObject,
+    ezTime delay, ezObjectMsgQueueType::Enum queueType)
+  {
+    UpdateMessageAndCachedReceivers(msg, pSenderComponent, pSearchObject);
+
+    ezInternal::EventMessageSenderHelper::PostEventMessage(pSenderComponent, m_CachedReceivers, msg, delay, queueType);
+  }
+
+  EZ_ALWAYS_INLINE void PostEventMessage(EventMessageType& msg, const ezComponent* pSenderComponent, const ezGameObject* pSearchObject,
     ezTime delay, ezObjectMsgQueueType::Enum queueType) const
   {
-    UpdateMessageAndCachedReceivers(const_cast<EventMessageType&>(msg), pSenderComponent, pSearchObject);
+    UpdateMessageAndCachedReceivers(msg, pSenderComponent, pSearchObject);
 
     ezInternal::EventMessageSenderHelper::PostEventMessage(pSenderComponent, m_CachedReceivers, msg, delay, queueType);
   }
@@ -60,6 +67,25 @@ public:
   }
 
 private:
+  void UpdateMessageAndCachedReceivers(ezEventMessage& msg, ezComponent* pSenderComponent, ezGameObject* pSearchObject)
+  {
+    msg.m_hSenderObject = pSenderComponent->GetOwner() != nullptr ? pSenderComponent->GetOwner()->GetHandle() : ezGameObjectHandle();
+    msg.m_hSenderComponent = pSenderComponent->GetHandle();
+
+    if (m_CachedReceivers.GetUserData<ezUInt32>() == 0)
+    {
+      ezHybridArray<ezComponent*, 4> eventMsgHandlers;
+      pSenderComponent->GetWorld()->FindEventMsgHandlers(msg, pSearchObject, eventMsgHandlers);
+
+      for (auto pEventMsgHandler : eventMsgHandlers)
+      {
+        m_CachedReceivers.PushBack(pEventMsgHandler->GetHandle());
+      }
+
+      m_CachedReceivers.GetUserData<ezUInt32>() = 1;
+    }
+  }
+
   void UpdateMessageAndCachedReceivers(ezEventMessage& msg, const ezComponent* pSenderComponent, const ezGameObject* pSearchObject) const
   {
     msg.m_hSenderObject = pSenderComponent->GetOwner() != nullptr ? pSenderComponent->GetOwner()->GetHandle() : ezGameObjectHandle();

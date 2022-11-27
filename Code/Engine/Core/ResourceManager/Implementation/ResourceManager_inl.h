@@ -84,6 +84,20 @@ ezTypedResourceHandle<ResourceType> ezResourceManager::CreateResource(
   return hResource;
 }
 
+template <typename ResourceType, typename DescriptorType>
+ezTypedResourceHandle<ResourceType>
+ezResourceManager::GetOrCreateResource(const char* szResourceID, DescriptorType&& descriptor, const char* szResourceDescription)
+{
+  EZ_LOCK(s_ResourceMutex);
+  ezTypedResourceHandle<ResourceType> hResource = GetExistingResource<ResourceType>(szResourceID);
+  if (!hResource.IsValid())
+  {
+    hResource = CreateResource<ResourceType, DescriptorType>(szResourceID, std::move(descriptor), szResourceDescription);
+  }
+
+  return hResource;
+}
+
 template <typename ResourceType>
 ResourceType* ezResourceManager::BeginAcquireResource(const ezTypedResourceHandle<ResourceType>& hResource, ezResourceAcquireMode mode,
   const ezTypedResourceHandle<ResourceType>& hFallbackResource, ezResourceAcquireResult* out_AcquireResult /*= nullptr*/)
@@ -95,18 +109,18 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezTypedResourceHandl
   if (pCurrentlyUpdatingContent != nullptr)
   {
     EZ_LOCK(s_ResourceMutex);
-    EZ_ASSERT_DEV(IsResourceTypeAcquireDuringUpdateContentAllowed(pCurrentlyUpdatingContent->GetDynamicRTTI(), ezGetStaticRTTI<ResourceType>()),
-      "Trying to acquire a resource of type '{0}' during '{1}::UpdateContent()'. This is has to be enabled by calling "
+    EZ_ASSERT_DEV(mode == ezResourceAcquireMode::PointerOnly || IsResourceTypeAcquireDuringUpdateContentAllowed(pCurrentlyUpdatingContent->GetDynamicRTTI(), ezGetStaticRTTI<ResourceType>()),
+      "Trying to acquire a resource of type '{0}' during '{1}::UpdateContent()'. This has to be enabled by calling "
       "ezResourceManager::AllowResourceTypeAcquireDuringUpdateContent<{1}, {0}>(); at engine startup, for example in "
       "ezGameApplication::Init_SetupDefaultResources().",
       ezGetStaticRTTI<ResourceType>()->GetTypeName(), pCurrentlyUpdatingContent->GetDynamicRTTI()->GetTypeName());
   }
 #endif
 
-  ResourceType* pResource = (ResourceType*)hResource.m_Typeless.m_pResource;
+  ResourceType* pResource = (ResourceType*)hResource.m_hTypeless.m_pResource;
 
   // EZ_ASSERT_DEV(pResource->m_iLockCount < 20, "You probably forgot somewhere to call 'EndAcquireResource' in sync with 'BeginAcquireResource'.");
-  EZ_ASSERT_DEBUG(pResource->GetDynamicRTTI()->IsDerivedFrom<ResourceType>(),
+  EZ_ASSERT_DEBUG(pResource->GetDynamicRTTI()->template IsDerivedFrom<ResourceType>(),
     "The requested resource does not have the same type ('{0}') as the resource handle ('{1}').", pResource->GetDynamicRTTI()->GetTypeName(),
     ezGetStaticRTTI<ResourceType>()->GetTypeName());
 
@@ -120,7 +134,7 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezTypedResourceHandl
     if (out_AcquireResult)
       *out_AcquireResult = ezResourceAcquireResult::Final;
 
-    //pResource->m_iLockCount.Increment();
+    // pResource->m_iLockCount.Increment();
     return pResource;
   }
 
@@ -196,15 +210,15 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezTypedResourceHandl
   if (out_AcquireResult)
     *out_AcquireResult = ezResourceAcquireResult::Final;
 
-  //pResource->m_iLockCount.Increment();
+  // pResource->m_iLockCount.Increment();
   return pResource;
 }
 
 template <typename ResourceType>
 void ezResourceManager::EndAcquireResource(ResourceType* pResource)
 {
-  //EZ_ASSERT_DEV(pResource->m_iLockCount > 0, "The resource lock counter is incorrect: {0}", (ezInt32)pResource->m_iLockCount);
-  //pResource->m_iLockCount.Decrement();
+  // EZ_ASSERT_DEV(pResource->m_iLockCount > 0, "The resource lock counter is incorrect: {0}", (ezInt32)pResource->m_iLockCount);
+  // pResource->m_iLockCount.Decrement();
 }
 
 template <typename ResourceType>

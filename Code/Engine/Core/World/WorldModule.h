@@ -22,7 +22,7 @@ public:
   const ezWorld* GetWorld() const;
 
   /// \brief Same as GetWorld()->GetIndex(). Needed to break circular include dependencies.
-  ezUInt8 GetWorldIndex() const;
+  ezUInt32 GetWorldIndex() const;
 
 protected:
   friend class ezWorld;
@@ -57,7 +57,7 @@ protected:
       };
     };
 
-    UpdateFunctionDesc(const UpdateFunction& function, const char* szFunctionName)
+    UpdateFunctionDesc(const UpdateFunction& function, ezStringView szFunctionName)
     {
       m_Function = function;
       m_sFunctionName.Assign(szFunctionName);
@@ -144,6 +144,7 @@ private:
   static void PluginEventHandler(const ezPluginEvent& EventData);
   void FillBaseTypeIds();
   void ClearUnloadedTypeToIDs();
+  void AdjustBaseTypeId(const ezRTTI* pParentRtti, const ezRTTI* pRtti, ezUInt16 uiParentTypeId);
 
   ezHashTable<const ezRTTI*, ezWorldModuleTypeId> m_TypeToId;
 
@@ -161,16 +162,16 @@ private:
 };
 
 /// \brief Add this macro to the declaration of your module type.
-#define EZ_DECLARE_WORLD_MODULE()                                          \
-public:                                                                    \
-  static EZ_ALWAYS_INLINE ezWorldModuleTypeId TypeId() { return TYPE_ID; } \
-                                                                           \
-private:                                                                   \
-  static ezWorldModuleTypeId TYPE_ID;
+#define EZ_DECLARE_WORLD_MODULE()                                           \
+public:                                                                     \
+  static EZ_ALWAYS_INLINE ezWorldModuleTypeId TypeId() { return s_TypeId; } \
+                                                                            \
+private:                                                                    \
+  static ezWorldModuleTypeId s_TypeId;
 
 /// \brief Implements the given module type. Add this macro to a cpp outside of the type declaration.
 #define EZ_IMPLEMENT_WORLD_MODULE(moduleType) \
-  ezWorldModuleTypeId moduleType::TYPE_ID = ezWorldModuleFactory::GetInstance()->RegisterWorldModule<moduleType, moduleType>();
+  ezWorldModuleTypeId moduleType::s_TypeId = ezWorldModuleFactory::GetInstance()->RegisterWorldModule<moduleType, moduleType>();
 
 /// \brief Helper macro to create an update function description with proper name
 #define EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(func, instance) ezWorldModule::UpdateFunctionDesc(ezWorldModule::UpdateFunction(&func, instance), #func)

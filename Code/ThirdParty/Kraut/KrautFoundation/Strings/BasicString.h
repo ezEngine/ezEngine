@@ -1,7 +1,7 @@
 #ifndef AE_FOUNDATION_STRINGS_BASICSTRING_H
 #define AE_FOUNDATION_STRINGS_BASICSTRING_H
 
-#include "../Strings/StringFunctions.h"
+#include "StringFunctions.h"
 #include "Declarations.h"
 
 namespace AE_NS_FOUNDATION
@@ -31,43 +31,19 @@ namespace AE_NS_FOUNDATION
     bool CompareEqual(const char* szString2) const;
     //! Returns true if the first n characters of this string and the given string are identical.
     bool CompareEqual(const char* szString2, aeUInt32 uiCharsToCompare) const;
-    //! Returns true if this string and the given string are completely identical, except for lower/upper case.
-    bool CompareEqual_NoCase(const char* szString2) const;
-    //! Returns true if the first n characters of this string and the given string are identical, except for lower/upper case.
-    bool CompareEqual_NoCase(const char* szString2, aeUInt32 uiCharsToCompare) const;
 
     //! Returns zero if this string and the given string are equal, a negative value if this string is lexicographically "smaller", otherwise a positive value.
     aeInt32 CompareAlphabetically(const char* szString2) const;
     //! Returns zero if the first n characters of this string and the given string are equal, a negative value if this string is lexicographically "smaller", otherwise a positive value.
     aeInt32 CompareAlphabetically(const char* szString2, aeUInt32 uiCharsToCompare) const;
-    //! Returns zero if this string and the given string are equal, a negative value if this string is lexicographically "smaller", otherwise a positive value. Ignores case.
-    aeInt32 CompareAlphabetically_NoCase(const char* szString2) const;
-    //! Returns zero if the first n characters of this string and the given string are equal, a negative value if this string is lexicographically "smaller", otherwise a positive value. Ignores case.
-    aeInt32 CompareAlphabetically_NoCase(const char* szString2, aeUInt32 uiCharsToCompare) const;
 
     //! Returns the first position after uiStartPos where szStringToFind is found. -1 if nothing is found.
     aeInt32 FindFirstStringPos(const char* szStringToFind, aeUInt32 uiStartPos = 0) const;
-    //! Searches for the first occurance of szStringToFind. Returns the index or -1 if nothing is found. Ignores case.
-    aeInt32 FindFirstStringPos_NoCase(const char* szStringToFind, aeUInt32 uiStartPos = 0) const;
-    //! Returns the last position before uiStartPos where szStringToFind is found. -1 if nothing is found.
-    aeInt32 FindLastStringPos(const char* szStringToFind, aeUInt32 uiStartPos = 0x0FFFFFFF) const;
-    //! Searches for the last occurance of szStringToFind. Returns the index or -1 if nothing is found. Ignores case.
-    aeInt32 FindLastStringPos_NoCase(const char* szStringToFind, aeUInt32 uiStartPos = 0x0FFFFFFF) const;
 
     //! Returns true if this string starts with the string given in szStartsWith.
     bool StartsWith(const char* szStartsWith) const;
-    //! Returns true if this string starts with the string given in szStartsWith. Ignores case.
-    bool StartsWith_NoCase(const char* szStartsWith) const;
     //! Returns true if this string ends with the string given in szEndsWith.
     bool EndsWith(const char* szEndsWith) const;
-    //! Returns true if this string ends with the string given in szEndsWith. Ignores case.
-    bool EndsWith_NoCase(const char* szEndsWith) const;
-
-    //! Searches this string after position uiStartPos for the word szSearchFor. If IsDelimiterCB returns true for both characters in front and back of the word, the position is returned. Otherwise -1.
-    aeInt32 FindWholeWord(const char* szSearchFor, aeStringFunctions::AE_IS_WORD_DELIMITER IsDelimiterCB, aeUInt32 uiStartPos = 0) const;
-    //! Searches this string after position uiStartPos for the word szSearchFor. If IsDelimiterCB returns true for both characters in front and back of the word, the position is returned. Otherwise -1. Ignores case.
-    aeInt32 FindWholeWord_NoCase(const char* szSearchFor, aeStringFunctions::AE_IS_WORD_DELIMITER IsDelimiterCB, aeUInt32 uiStartPos = 0) const;
-
 
   protected:
     //! Non-instantiable from outside.

@@ -1,8 +1,21 @@
-#include "..\DeviceVulkan.h"
-
 EZ_ALWAYS_INLINE vk::Device ezGALDeviceVulkan::GetVulkanDevice() const
 {
   return m_device;
+}
+
+EZ_ALWAYS_INLINE const ezGALDeviceVulkan::Queue& ezGALDeviceVulkan::GetGraphicsQueue() const
+{
+  return m_graphicsQueue;
+}
+
+EZ_ALWAYS_INLINE const ezGALDeviceVulkan::Queue& ezGALDeviceVulkan::GetTransferQueue() const
+{
+  return m_transferQueue;
+}
+
+EZ_ALWAYS_INLINE vk::PhysicalDevice ezGALDeviceVulkan::GetVulkanPhysicalDevice() const
+{
+  return m_physicalDevice;
 }
 
 EZ_ALWAYS_INLINE vk::Instance ezGALDeviceVulkan::GetVulkanInstance() const
@@ -10,20 +23,6 @@ EZ_ALWAYS_INLINE vk::Instance ezGALDeviceVulkan::GetVulkanInstance() const
   return m_instance;
 }
 
-EZ_ALWAYS_INLINE vk::CommandBuffer& ezGALDeviceVulkan::GetPrimaryCommandBuffer()
-{
-  return m_commandBuffers[m_uiCurrentCmdBufferIndex];
-}
-
-EZ_ALWAYS_INLINE ezArrayPtr<const ezUInt32> ezGALDeviceVulkan::GetQueueFamilyIndices() const
-{
-  return m_queueFamilyIndices.GetArrayPtr();
-}
-
-inline vk::Queue ezGALDeviceVulkan::GetQueue()
-{
-  return m_queue;
-}
 
 EZ_ALWAYS_INLINE const ezGALFormatLookupTableVulkan& ezGALDeviceVulkan::GetFormatLookupTable() const
 {

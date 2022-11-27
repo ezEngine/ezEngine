@@ -34,6 +34,13 @@ public:
   /// The volume is in the local space of the effect.
   void GetBoundingVolume(ezBoundingBoxSphere& volume) const;
 
+  void UpdateWindSamples();
+
+  /// \brief Ensures that the effect is considered to be 'visible', which affects the update rate.
+  void ForceVisible();
+
+  ezUInt64 GetNumActiveParticles() const;
+
   /// \name Effect Parameters
   ///@{
 public:

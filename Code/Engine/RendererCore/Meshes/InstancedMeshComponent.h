@@ -92,7 +92,7 @@ protected:
   // ezRenderComponent
 
 public:
-  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible) override;
+  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg) override;
 
   //////////////////////////////////////////////////////////////////////////
   // ezMeshComponentBase
@@ -123,7 +123,7 @@ protected:
   ezArrayPtr<ezPerInstanceData> GetInstanceData() const;
 
   // Unpacked, reflected instance data for editing and ease of access
-  ezDynamicArray<ezMeshInstanceData> m_rawInstancedData;
+  ezDynamicArray<ezMeshInstanceData> m_RawInstancedData;
 
   ezInstanceData* m_pExplicitInstanceData = nullptr;
 

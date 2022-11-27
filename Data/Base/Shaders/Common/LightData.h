@@ -1,5 +1,7 @@
 #pragma once
 
+// clang-format off
+
 #if SHADING_QUALITY != SHADING_QUALITY_NORMAL
 #error "Functions in LightData.h are only for NORMAL shading quality. Todo: Split up file"
 #endif
@@ -11,7 +13,7 @@
 #define LIGHT_TYPE_SPOT 1
 #define LIGHT_TYPE_DIR 2
 
-struct EZ_ALIGN_16(ezPerLightData)
+struct EZ_SHADER_STRUCT ezPerLightData
 {
   UINT1(colorAndType);
   FLOAT1(intensity);
@@ -34,19 +36,19 @@ struct EZ_ALIGN_16(ezPerLightData)
   EZ_CHECK_AT_COMPILETIME(sizeof(ezPerLightData) == 48);
 #endif
 
-struct EZ_ALIGN_16(ezPointShadowData)
+struct EZ_SHADER_STRUCT ezPointShadowData
 {
   FLOAT4(shadowParams); // x = slope bias, y = constant bias, z = penumbra size in texel, w = fadeout
   MAT4(worldToLightMatrix)[6];
 };
 
-struct EZ_ALIGN_16(ezSpotShadowData)
+struct EZ_SHADER_STRUCT ezSpotShadowData
 {
   FLOAT4(shadowParams); // x = slope bias, y = constant bias, z = penumbra size in texel, w = fadeout
   MAT4(worldToLightMatrix);
 };
 
-struct EZ_ALIGN_16(ezDirShadowData)
+struct EZ_SHADER_STRUCT ezDirShadowData
 {
   FLOAT4(shadowParams); // x = slope bias, y = constant bias, z = penumbra size in texel, w = num cascades
   MAT4(worldToLightMatrix);
@@ -76,7 +78,7 @@ struct EZ_ALIGN_16(ezDirShadowData)
 #define DECAL_WRAP_AROUND (1 << 8)
 #define DECAL_MAP_NORMAL_TO_GEOMETRY (1 << 9)
 
-struct EZ_ALIGN_16(ezPerDecalData)
+struct EZ_SHADER_STRUCT ezPerDecalData
 {
   TRANSFORM(worldToDecalMatrix);
 
@@ -104,24 +106,50 @@ struct EZ_ALIGN_16(ezPerDecalData)
   EZ_CHECK_AT_COMPILETIME(sizeof(ezPerDecalData) == 96);
 #endif
 
-CONSTANT_BUFFER(ezClusteredDataConstants, 3)
-{
-  FLOAT1(DepthSliceScale);
-  FLOAT1(DepthSliceBias);
-  FLOAT2(InvTileSize);
+#define REFLECTION_PROBE_IS_SPHERE (1 << 31)
+#define REFLECTION_PROBE_IS_PROJECTED (1 << 30)
+#define REFLECTION_PROBE_INDEX_BITMASK 0x3FFFFFFF
+#define GET_REFLECTION_PROBE_INDEX(index) (index & REFLECTION_PROBE_INDEX_BITMASK)
 
-  UINT1(NumLights);
-  UINT1(NumDecals);
-  UINT1(Padding);
-  
-  UINT1(SkyIrradianceIndex);  
+  struct EZ_SHADER_STRUCT ezPerReflectionProbeData
+  {
+    TRANSFORM(WorldToProbeProjectionMatrix);
+    FLOAT4(Scale);
+    FLOAT4(ProbePosition);
+    FLOAT4(PositiveFalloff);
+    FLOAT4(NegativeFalloff);
+    FLOAT4(InfluenceScale);
+    FLOAT4(InfluenceShift);
+    UINT1(Index);
+    UINT1(Padding1);
+    UINT1(Padding2);
+    UINT1(Padding3);
+  };
 
-  FLOAT1(FogHeight);
-  FLOAT1(FogHeightFalloff);
-  FLOAT1(FogDensityAtCameraPos);
-  FLOAT1(FogDensity);
-  COLOR4F(FogColor);
-  FLOAT1(FogInvSkyDistance);
+#if EZ_ENABLED(PLATFORM_SHADER)
+  StructuredBuffer<ezPerReflectionProbeData> perPerReflectionProbeDataBuffer;
+#else // C++
+  EZ_CHECK_AT_COMPILETIME(sizeof(ezPerReflectionProbeData) == 160);
+#endif
+
+  CONSTANT_BUFFER(ezClusteredDataConstants, 3)
+  {
+    FLOAT1(DepthSliceScale);
+    FLOAT1(DepthSliceBias);
+    FLOAT2(InvTileSize);
+
+    UINT1(NumLights);
+    UINT1(NumDecals);
+    UINT1(Padding);
+
+    UINT1(SkyIrradianceIndex);
+
+    FLOAT1(FogHeight);
+    FLOAT1(FogHeightFalloff);
+    FLOAT1(FogDensityAtCameraPos);
+    FLOAT1(FogDensity);
+    COLOR4F(FogColor);
+    FLOAT1(FogInvSkyDistance);
 };
 
 #define NUM_CLUSTERS_X 16
@@ -133,9 +161,12 @@ CONSTANT_BUFFER(ezClusteredDataConstants, 3)
 #define LIGHT_BITMASK 0x3FF
 #define DECAL_SHIFT 10
 #define DECAL_BITMASK 0x3FF
+#define PROBE_SHIFT 20
+#define PROBE_BITMASK 0x3FF
 
 #define GET_LIGHT_INDEX(index) (index & LIGHT_BITMASK)
 #define GET_DECAL_INDEX(index) ((index >> DECAL_SHIFT) & DECAL_BITMASK)
+#define GET_PROBE_INDEX(index) ((index >> PROBE_SHIFT) & PROBE_BITMASK)
 
 struct ezPerClusterData
 {
@@ -147,3 +178,5 @@ struct ezPerClusterData
   StructuredBuffer<ezPerClusterData> perClusterDataBuffer;
   StructuredBuffer<uint> clusterItemBuffer;
 #endif
+
+  // clang-format on

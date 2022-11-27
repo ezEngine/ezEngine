@@ -1,15 +1,13 @@
-#include <RendererVulkanPCH.h>
+#include <RendererVulkan/RendererVulkanPCH.h>
 
+#include <Foundation/Memory/MemoryUtils.h>
 #include <RendererVulkan/Device/DeviceVulkan.h>
 #include <RendererVulkan/RendererVulkanDLL.h>
 #include <RendererVulkan/Resources/BufferVulkan.h>
 
-#include <d3d11.h>
-
-ezGALBufferVulkan::ezGALBufferVulkan(const ezGALBufferCreationDescription& Description)
+ezGALBufferVulkan::ezGALBufferVulkan(const ezGALBufferCreationDescription& Description, bool bCPU)
   : ezGALBuffer(Description)
-  , m_buffer(nullptr)
-  , m_indexType(vk::IndexType::eUint16)
+  , m_bCPU(bCPU)
 {
 }
 
@@ -17,26 +15,33 @@ ezGALBufferVulkan::~ezGALBufferVulkan() {}
 
 ezResult ezGALBufferVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const ezUInt8> pInitialData)
 {
-  ezGALDeviceVulkan* pVulkanDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
+  m_pDeviceVulkan = static_cast<ezGALDeviceVulkan*>(pDevice);
+  m_device = m_pDeviceVulkan->GetVulkanDevice();
 
-  vk::BufferCreateInfo bufferCreateInfo = {};
+  m_stages = vk::PipelineStageFlagBits::eTransfer;
 
   switch (m_Description.m_BufferType)
   {
     case ezGALBufferType::ConstantBuffer:
-      bufferCreateInfo.usage = vk::BufferUsageFlagBits::eUniformBuffer;
+      m_usage = vk::BufferUsageFlagBits::eUniformBuffer;
+      m_stages |= m_pDeviceVulkan->GetSupportedStages();
+      m_access |= vk::AccessFlagBits::eUniformRead;
       break;
     case ezGALBufferType::IndexBuffer:
-      bufferCreateInfo.usage = vk::BufferUsageFlagBits::eIndexBuffer;
-
+      m_usage = vk::BufferUsageFlagBits::eIndexBuffer;
+      m_stages |= vk::PipelineStageFlagBits::eVertexInput;
+      m_access |= vk::AccessFlagBits::eIndexRead;
       m_indexType = m_Description.m_uiStructSize == 2 ? vk::IndexType::eUint16 : vk::IndexType::eUint32;
 
       break;
     case ezGALBufferType::VertexBuffer:
-      bufferCreateInfo.usage = vk::BufferUsageFlagBits::eVertexBuffer;
+      m_usage = vk::BufferUsageFlagBits::eVertexBuffer;
+      m_stages |= vk::PipelineStageFlagBits::eVertexInput;
+      m_access |= vk::AccessFlagBits::eVertexAttributeRead;
       break;
     case ezGALBufferType::Generic:
-      //bufferCreateInfo.usage = 0; // TODO Is this correct for Vulkan?
+      m_usage = m_Description.m_bUseAsStructuredBuffer ? vk::BufferUsageFlagBits::eStorageBuffer : vk::BufferUsageFlagBits::eUniformTexelBuffer;
+      m_stages |= m_pDeviceVulkan->GetSupportedStages();
       break;
     default:
       ezLog::Error("Unknown buffer type supplied to CreateBuffer()!");
@@ -44,138 +49,170 @@ ezResult ezGALBufferVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const 
   }
 
   if (m_Description.m_bAllowShaderResourceView)
-    bufferCreateInfo.usage |= vk::BufferUsageFlagBits::eStorageBuffer;
+  {
+    m_stages |= m_pDeviceVulkan->GetSupportedStages();
+    m_access |= vk::AccessFlagBits::eShaderRead;
+  }
 
   if (m_Description.m_bAllowUAV)
-    bufferCreateInfo.usage |= vk::BufferUsageFlagBits::eStorageBuffer;
+  {
+    m_stages |= m_pDeviceVulkan->GetSupportedStages();
+    m_access |= vk::AccessFlagBits::eShaderRead | vk::AccessFlagBits::eShaderWrite;
+  }
 
   if (m_Description.m_bStreamOutputTarget)
-    bufferCreateInfo.usage |= vk::BufferUsageFlagBits::eStorageBuffer; // TODO is this correct for vulkan?
-
-  bufferCreateInfo.usage |= vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eTransferDst; // TODO optimize this
-
-  bufferCreateInfo.pQueueFamilyIndices = pVulkanDevice->GetQueueFamilyIndices().GetPtr();
-  bufferCreateInfo.queueFamilyIndexCount = pVulkanDevice->GetQueueFamilyIndices().GetCount();
-  bufferCreateInfo.sharingMode = vk::SharingMode::eExclusive;
-  bufferCreateInfo.size = m_Description.m_uiTotalSize;
-  //BufferDesc.CPUAccessFlags = 0;
-  //BufferDesc.MiscFlags = 0;
+  {
+    m_usage |= vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransformFeedbackBufferEXT;
+    //#TODO_VULKAN will need to create a counter buffer.
+    m_stages |= vk::PipelineStageFlagBits::eTransformFeedbackEXT;
+    m_access |= vk::AccessFlagBits::eTransformFeedbackWriteEXT;
+  }
 
   if (m_Description.m_bUseForIndirectArguments)
   {
-    // TODO Vulkan?
+    m_usage |= vk::BufferUsageFlagBits::eIndirectBuffer;
+    m_stages |= vk::PipelineStageFlagBits::eDrawIndirect;
+    m_access |= vk::AccessFlagBits::eIndirectCommandRead;
   }
+
+  if (m_Description.m_ResourceAccess.m_bReadBack)
+  {
+    m_usage |= vk::BufferUsageFlagBits::eTransferSrc;
+    m_access |= vk::AccessFlagBits::eTransferRead;
+  }
+
+  m_usage |= vk::BufferUsageFlagBits::eTransferDst;
+  m_access |= vk::AccessFlagBits::eTransferWrite;
+
+  EZ_ASSERT_DEBUG(pInitialData.GetCount() <= m_Description.m_uiTotalSize, "Initial data is bigger than target buffer.");
+  vk::DeviceSize alignment = GetAlignment(m_pDeviceVulkan, m_usage);
+  m_size = ezMemoryUtils::AlignSize((vk::DeviceSize)m_Description.m_uiTotalSize, alignment);
 
   if (m_Description.m_bAllowRawViews)
   {
     // TODO Vulkan?
   }
 
-  if (m_Description.m_bUseAsStructuredBuffer)
+  CreateBuffer();
+
+  m_resourceBufferInfo.offset = 0;
+  m_resourceBufferInfo.range = m_size;
+
+  if (!pInitialData.IsEmpty())
   {
-    // TODO Vulkan?
+    void* pData = nullptr;
+    VK_ASSERT_DEV(ezMemoryAllocatorVulkan::MapMemory(m_currentBuffer.m_alloc, &pData));
+    EZ_ASSERT_DEV(pData, "Implementation error");
+    ezMemoryUtils::Copy((ezUInt8*)pData, pInitialData.GetPtr(), pInitialData.GetCount());
+    ezMemoryAllocatorVulkan::UnmapMemory(m_currentBuffer.m_alloc);
   }
-
-  //BufferDesc.StructureByteStride = m_Description.m_uiStructSize;
-
-  m_buffer = pVulkanDevice->GetVulkanDevice().createBuffer(bufferCreateInfo);
-
-  if (!m_buffer)
-  {
-    return EZ_FAILURE;
-  }
-
-  vk::MemoryPropertyFlags bufferMemoryProperties = {};
-
-  if (m_Description.m_BufferType == ezGALBufferType::ConstantBuffer)
-  {
-    bufferMemoryProperties |= vk::MemoryPropertyFlagBits::eDeviceLocal;
-
-    // TODO do we need to use this for vulkan?
-    // If constant buffer: Patch size to be aligned to 64 bytes for easier usability
-    // BufferDesc.ByteWidth = ezMemoryUtils::AlignSize(BufferDesc.ByteWidth, 64u);
-  }
-  else
-  {
-    // TODO is this flag relevant to Vulkan?
-    /*if (m_Description.m_ResourceAccess.IsImmutable())
-    {
-      // TODO vulkan
-      //BufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
-    }
-    else*/
-    {
-      // for performance reasons we'll require shader accessed buffers to reside in device
-      // memory.
-      if (m_Description.m_bAllowUAV ||
-          m_Description.m_bAllowShaderResourceView ||
-          m_Description.m_bStreamOutputTarget ||
-          m_Description.m_ResourceAccess.m_bReadBack)
-      {
-        bufferMemoryProperties |= vk::MemoryPropertyFlagBits::eDeviceLocal;
-      }
-      else
-      {
-        bufferMemoryProperties |= vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent;
-      }
-    }
-  }
-
-  vk::MemoryRequirements bufferMemoryRequirements = pVulkanDevice->GetVulkanDevice().getBufferMemoryRequirements(m_buffer);
-
-  vk::MemoryAllocateInfo memoryAllocateInfo = {};
-  memoryAllocateInfo.allocationSize = bufferMemoryRequirements.size;
-  memoryAllocateInfo.memoryTypeIndex = pVulkanDevice->GetMemoryIndex(bufferMemoryProperties, bufferMemoryRequirements);
-
-  m_memory = pVulkanDevice->GetVulkanDevice().allocateMemory(memoryAllocateInfo);
-  m_memoryOffset = 0; // TODO suballocations
-
-  if (!m_memory)
-  {
-    pVulkanDevice->GetVulkanDevice().destroyBuffer(m_buffer);
-    m_buffer = nullptr;
-
-    return EZ_FAILURE;
-  }
-
-  pVulkanDevice->GetVulkanDevice().bindBufferMemory(m_buffer, m_memory, m_memoryOffset);
-  m_device = pVulkanDevice->GetVulkanDevice(); // TODO remove this
-
-  // TODO initial data upload
   return EZ_SUCCESS;
 }
 
 ezResult ezGALBufferVulkan::DeInitPlatform(ezGALDevice* pDevice)
 {
-  if (m_buffer)
+  if (m_currentBuffer.m_buffer)
   {
-    ezGALDeviceVulkan* pVulkanDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
-
-    pVulkanDevice->GetVulkanDevice().destroyBuffer(m_buffer);
-    pVulkanDevice->GetVulkanDevice().freeMemory(m_memory);
-
-    m_buffer = nullptr;
-    m_memory = nullptr;
-    m_memoryOffset = 0;
+    m_pDeviceVulkan->DeleteLater(m_currentBuffer.m_buffer, m_currentBuffer.m_alloc);
+    m_allocInfo = {};
   }
+  for (auto& bufferVulkan : m_usedBuffers)
+  {
+    m_pDeviceVulkan->DeleteLater(bufferVulkan.m_buffer, bufferVulkan.m_alloc);
+  }
+  m_usedBuffers.Clear();
+  m_resourceBufferInfo = vk::DescriptorBufferInfo();
 
+  m_stages = {};
+  m_access = {};
+  m_indexType = vk::IndexType::eUint16;
+  m_usage = {};
+  m_size = 0;
+
+  m_pDeviceVulkan = nullptr;
+  m_device = nullptr;
 
   return EZ_SUCCESS;
 }
 
+void ezGALBufferVulkan::DiscardBuffer() const
+{
+  m_usedBuffers.PushBack(m_currentBuffer);
+  m_currentBuffer = {};
+
+  ezUInt64 uiSafeFrame = m_pDeviceVulkan->GetSafeFrame();
+  if (m_usedBuffers.PeekFront().m_currentFrame <= uiSafeFrame)
+  {
+    m_currentBuffer = m_usedBuffers.PeekFront();
+    m_usedBuffers.PopFront();
+    m_allocInfo = ezMemoryAllocatorVulkan::GetAllocationInfo(m_currentBuffer.m_alloc);
+  }
+  else
+  {
+    CreateBuffer();
+    SetDebugNamePlatform(m_sDebugName);
+  }
+}
+
+const vk::DescriptorBufferInfo& ezGALBufferVulkan::GetBufferInfo() const
+{
+  m_currentBuffer.m_currentFrame = m_pDeviceVulkan->GetCurrentFrame();
+  // Vulkan buffers get constantly swapped out for new ones so the vk::Buffer pointer is not persistent.
+  // We need to acquire the latest one on every request for rendering.
+  m_resourceBufferInfo.buffer = m_currentBuffer.m_buffer;
+  return m_resourceBufferInfo;
+}
+
+void ezGALBufferVulkan::CreateBuffer() const
+{
+  vk::BufferCreateInfo bufferCreateInfo;
+  bufferCreateInfo.usage = m_usage;
+  bufferCreateInfo.pQueueFamilyIndices = nullptr;
+  bufferCreateInfo.queueFamilyIndexCount = 0;
+  bufferCreateInfo.sharingMode = vk::SharingMode::eExclusive;
+  bufferCreateInfo.size = m_size;
+
+  ezVulkanAllocationCreateInfo allocCreateInfo;
+  allocCreateInfo.m_usage = ezVulkanMemoryUsage::Auto;
+  if (m_bCPU)
+  {
+    allocCreateInfo.m_flags = ezVulkanAllocationCreateFlags::HostAccessRandom;
+  }
+  else
+  {
+    allocCreateInfo.m_flags = ezVulkanAllocationCreateFlags::HostAccessSequentialWrite;
+  }
+  VK_ASSERT_DEV(ezMemoryAllocatorVulkan::CreateBuffer(bufferCreateInfo, allocCreateInfo, m_currentBuffer.m_buffer, m_currentBuffer.m_alloc, &m_allocInfo));
+}
+
 void ezGALBufferVulkan::SetDebugNamePlatform(const char* szName) const
 {
-  ezUInt32 uiLength = ezStringUtils::GetStringElementCount(szName);
+  m_sDebugName = szName;
+  m_pDeviceVulkan->SetDebugName(szName, m_currentBuffer.m_buffer, m_currentBuffer.m_alloc);
+}
 
-  if (m_buffer)
-  {
-    vk::DebugMarkerObjectNameInfoEXT nameInfo = {};
-    nameInfo.object = (uint64_t)(VkBuffer)m_buffer;
-    nameInfo.objectType = vk::DebugReportObjectTypeEXT::eBuffer;
-    nameInfo.pObjectName = szName;
+vk::DeviceSize ezGALBufferVulkan::GetAlignment(const ezGALDeviceVulkan* pDevice, vk::BufferUsageFlags usage)
+{
+  const vk::PhysicalDeviceProperties& properties = pDevice->GetPhysicalDeviceProperties();
 
-    m_device.debugMarkerSetObjectNameEXT(nameInfo);
-  }
+  vk::DeviceSize alignment = ezMath::Max<vk::DeviceSize>(4, properties.limits.nonCoherentAtomSize);
+
+  if (usage & vk::BufferUsageFlagBits::eUniformBuffer)
+    alignment = ezMath::Max(alignment, properties.limits.minUniformBufferOffsetAlignment);
+
+  if (usage & vk::BufferUsageFlagBits::eStorageBuffer)
+    alignment = ezMath::Max(alignment, properties.limits.minStorageBufferOffsetAlignment);
+
+  if (usage & (vk::BufferUsageFlagBits::eUniformTexelBuffer | vk::BufferUsageFlagBits::eStorageTexelBuffer))
+    alignment = ezMath::Max(alignment, properties.limits.minTexelBufferOffsetAlignment);
+
+  if (usage & (vk::BufferUsageFlagBits::eIndexBuffer | vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eIndirectBuffer))
+    alignment = ezMath::Max(alignment, VkDeviceSize(16));
+
+  if (usage & (vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eTransferDst))
+    alignment = ezMath::Max(alignment, properties.limits.optimalBufferCopyOffsetAlignment);
+
+  return alignment;
 }
 
 EZ_STATICLINK_FILE(RendererVulkan, RendererVulkan_Resources_Implementation_BufferVulkan);

@@ -20,7 +20,7 @@ public:
   ezString128 GetFilePathAbsolute() const
   {
     ezStringBuilder sAbs = m_pDataDirReader->GetDataDirectory()->GetRedirectedDataDirectoryPath();
-    sAbs.AppendPath(m_pDataDirReader->GetFilePath().GetData());
+    sAbs.AppendPath(m_pDataDirReader->GetFilePath().GetView());
     return sAbs;
   }
 
@@ -62,7 +62,7 @@ public:
   ezString128 GetFilePathAbsolute() const
   {
     ezStringBuilder sAbs = m_pDataDirWriter->GetDataDirectory()->GetRedirectedDataDirectoryPath();
-    sAbs.AppendPath(m_pDataDirWriter->GetFilePath().GetData());
+    sAbs.AppendPath(m_pDataDirWriter->GetFilePath().GetView());
     return sAbs;
   }
 

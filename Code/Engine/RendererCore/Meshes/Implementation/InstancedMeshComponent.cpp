@@ -179,9 +179,9 @@ EZ_BEGIN_COMPONENT_TYPE(ezInstancedMeshComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Mesh", GetMeshFile, SetMeshFile)->AddAttributes(new ezAssetBrowserAttribute("Mesh")),
+    EZ_ACCESSOR_PROPERTY("Mesh", GetMeshFile, SetMeshFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Mesh_Static")),
     EZ_ACCESSOR_PROPERTY("MainColor", GetColor, SetColor)->AddAttributes(new ezExposeColorAlphaAttribute()),
-    EZ_ARRAY_ACCESSOR_PROPERTY("Materials", Materials_GetCount, Materials_GetValue, Materials_SetValue, Materials_Insert, Materials_Remove)->AddAttributes(new ezAssetBrowserAttribute("Material")),
+    EZ_ARRAY_ACCESSOR_PROPERTY("Materials", Materials_GetCount, Materials_GetValue, Materials_SetValue, Materials_Insert, Materials_Remove)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Material")),
 
     EZ_ARRAY_ACCESSOR_PROPERTY("InstanceData", Instances_GetCount, Instances_GetValue, Instances_SetValue, Instances_Insert, Instances_Remove),
   }
@@ -203,14 +203,14 @@ void ezInstancedMeshComponent::SerializeComponent(ezWorldWriter& stream) const
 {
   SUPER::SerializeComponent(stream);
 
-  stream.GetStream().WriteArray(m_rawInstancedData).IgnoreResult();
+  stream.GetStream().WriteArray(m_RawInstancedData).IgnoreResult();
 }
 
 void ezInstancedMeshComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
 
-  stream.GetStream().ReadArray(m_rawInstancedData).IgnoreResult();
+  stream.GetStream().ReadArray(m_RawInstancedData).IgnoreResult();
 }
 
 void ezInstancedMeshComponent::OnActivated()
@@ -231,7 +231,7 @@ void ezInstancedMeshComponent::OnDeactivated()
 
 void ezInstancedMeshComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& msg) {}
 
-ezResult ezInstancedMeshComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
+ezResult ezInstancedMeshComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg)
 {
   ezBoundingBoxSphere singleBounds;
   if (m_hMesh.IsValid())
@@ -239,7 +239,7 @@ ezResult ezInstancedMeshComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, b
     ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::AllowLoadingFallback);
     singleBounds = pMesh->GetBounds();
 
-    for (const auto& instance : m_rawInstancedData)
+    for (const auto& instance : m_RawInstancedData)
     {
       auto instanceBounds = singleBounds;
       instanceBounds.Transform(instance.m_transform.GetAsMat4());
@@ -270,7 +270,7 @@ ezMeshRenderData* ezInstancedMeshComponent::CreateRenderData() const
   if (m_pExplicitInstanceData)
   {
     pRenderData->m_pExplicitInstanceData = m_pExplicitInstanceData;
-    pRenderData->m_uiExplicitInstanceCount = m_rawInstancedData.GetCount();
+    pRenderData->m_uiExplicitInstanceCount = m_RawInstancedData.GetCount();
   }
 
   return pRenderData;
@@ -278,41 +278,41 @@ ezMeshRenderData* ezInstancedMeshComponent::CreateRenderData() const
 
 ezUInt32 ezInstancedMeshComponent::Instances_GetCount() const
 {
-  return m_rawInstancedData.GetCount();
+  return m_RawInstancedData.GetCount();
 }
 
 ezMeshInstanceData ezInstancedMeshComponent::Instances_GetValue(ezUInt32 uiIndex) const
 {
-  return m_rawInstancedData[uiIndex];
+  return m_RawInstancedData[uiIndex];
 }
 
 void ezInstancedMeshComponent::Instances_SetValue(ezUInt32 uiIndex, ezMeshInstanceData value)
 {
-  m_rawInstancedData[uiIndex] = value;
+  m_RawInstancedData[uiIndex] = value;
 
   TriggerLocalBoundsUpdate();
 }
 
 void ezInstancedMeshComponent::Instances_Insert(ezUInt32 uiIndex, ezMeshInstanceData value)
 {
-  m_rawInstancedData.Insert(value, uiIndex);
+  m_RawInstancedData.Insert(value, uiIndex);
 
   TriggerLocalBoundsUpdate();
 }
 
 void ezInstancedMeshComponent::Instances_Remove(ezUInt32 uiIndex)
 {
-  m_rawInstancedData.RemoveAtAndCopy(uiIndex);
+  m_RawInstancedData.RemoveAtAndCopy(uiIndex);
 
   TriggerLocalBoundsUpdate();
 }
 
 ezArrayPtr<ezPerInstanceData> ezInstancedMeshComponent::GetInstanceData() const
 {
-  if (!m_pExplicitInstanceData || m_rawInstancedData.IsEmpty())
+  if (!m_pExplicitInstanceData || m_RawInstancedData.IsEmpty())
     return ezArrayPtr<ezPerInstanceData>();
 
-  auto instanceData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezPerInstanceData, m_rawInstancedData.GetCount());
+  auto instanceData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezPerInstanceData, m_RawInstancedData.GetCount());
 
   const ezTransform ownerTransform = GetOwner()->GetGlobalTransform();
 
@@ -324,14 +324,14 @@ ezArrayPtr<ezPerInstanceData> ezInstancedMeshComponent::GetInstanceData() const
     fBoundingSphereRadius = pMesh->GetBounds().GetSphere().m_fRadius;
   }
 
-  for (ezUInt32 i = 0; i < m_rawInstancedData.GetCount(); ++i)
+  for (ezUInt32 i = 0; i < m_RawInstancedData.GetCount(); ++i)
   {
-    const ezTransform globalTransform = ownerTransform * m_rawInstancedData[i].m_transform;
+    const ezTransform globalTransform = ownerTransform * m_RawInstancedData[i].m_transform;
     const ezMat4 objectToWorld = globalTransform.GetAsMat4();
 
     instanceData[i].ObjectToWorld = objectToWorld;
 
-    if (m_rawInstancedData[i].m_transform.ContainsUniformScale())
+    if (m_RawInstancedData[i].m_transform.ContainsUniformScale())
     {
       instanceData[i].ObjectToWorldNormal = objectToWorld;
     }
@@ -348,9 +348,9 @@ ezArrayPtr<ezPerInstanceData> ezInstancedMeshComponent::GetInstanceData() const
     }
 
     instanceData[i].GameObjectID = GetUniqueIdForRendering();
-    instanceData[i].BoundingSphereRadius = fBoundingSphereRadius * m_rawInstancedData[i].m_transform.GetMaxScale();
+    instanceData[i].BoundingSphereRadius = fBoundingSphereRadius * m_RawInstancedData[i].m_transform.GetMaxScale();
 
-    instanceData[i].Color = m_Color * m_rawInstancedData[i].m_color;
+    instanceData[i].Color = m_Color * m_RawInstancedData[i].m_color;
   }
 
   return instanceData;

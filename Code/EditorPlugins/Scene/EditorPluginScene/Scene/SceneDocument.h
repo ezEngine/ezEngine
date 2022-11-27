@@ -1,5 +1,7 @@
 #pragma once
 
+#include <EditorPluginScene/EditorPluginSceneDLL.h>
+
 #include <EditorFramework/Document/GameObjectDocument.h>
 
 class ezExposedSceneProperty;
@@ -120,7 +122,7 @@ public:
   /// Stops the world simulation, if it is running. Returns true, when the simulation needed to be stopped.
   bool StopGameMode();
 
-  ezStatus ExportScene(bool bCreateThumbnail);
+  ezTransformStatus ExportScene(bool bCreateThumbnail);
   void ExportSceneGeometry(
     const char* szFile, bool bOnlySelection, int iExtractionMode /* ezWorldGeoExtractionUtil::ExtractionMode */, const ezMat3& mTransform);
 
@@ -202,11 +204,11 @@ protected:
 
   ezStatus RequestExportScene(const char* szTargetFile, const ezAssetFileHeader& header);
 
-  virtual ezStatus InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
+  virtual ezTransformStatus InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
     const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
-  virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
+  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
     const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
-  ezStatus InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo) override;
+  ezTransformStatus InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo) override;
 
   void SyncObjectHiddenState();
   void SyncObjectHiddenState(ezDocumentObject* pObject);

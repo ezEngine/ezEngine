@@ -1,6 +1,7 @@
 #include <RendererFoundation/RendererFoundationPCH.h>
 
 #include <Foundation/Configuration/Startup.h>
+#include <Foundation/Logging/Log.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <RendererFoundation/CommandEncoder/CommandEncoder.h>
 #include <RendererFoundation/Device/Device.h>
@@ -25,9 +26,9 @@ public:
     if (e.m_Type != ezGALDeviceEvent::AfterEndFrame)
       return;
 
-    while (!m_TimingScopes.IsEmpty())
+    while (!s_TimingScopes.IsEmpty())
     {
-      auto& timingScope = m_TimingScopes.PeekFront();
+      auto& timingScope = s_TimingScopes.PeekFront();
 
       ezTime endTime;
       if (e.m_pDevice->GetTimestampResult(timingScope.m_EndTimestamp, endTime).Succeeded())
@@ -38,10 +39,18 @@ public:
 
         if (!beginTime.IsZero() && !endTime.IsZero())
         {
+#  if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+          static bool warnOnRingBufferOverun = true;
+          if (warnOnRingBufferOverun && endTime < beginTime)
+          {
+            warnOnRingBufferOverun = false;
+            ezLog::Error("Profiling end is before start, the DX11 timestamp ring buffer was probably overrun.");
+          }
+#  endif
           ezProfilingSystem::AddGPUScope(timingScope.m_szName, beginTime, endTime);
         }
 
-        m_TimingScopes.PopFront();
+        s_TimingScopes.PopFront();
       }
       else
       {
@@ -51,14 +60,18 @@ public:
     }
   }
 
-  static GPUTimingScope& AllocateScope() { return m_TimingScopes.ExpandAndGetRef(); }
+  static GPUTimingScope& AllocateScope() { return s_TimingScopes.ExpandAndGetRef(); }
 
 private:
   static void OnEngineStartup() { ezGALDevice::GetDefaultDevice()->m_Events.AddEventHandler(&GPUProfilingSystem::ProcessTimestamps); }
 
-  static void OnEngineShutdown() { ezGALDevice::GetDefaultDevice()->m_Events.RemoveEventHandler(&GPUProfilingSystem::ProcessTimestamps); }
+  static void OnEngineShutdown()
+  {
+    s_TimingScopes.Clear();
+    ezGALDevice::GetDefaultDevice()->m_Events.RemoveEventHandler(&GPUProfilingSystem::ProcessTimestamps);
+  }
 
-  static ezDeque<GPUTimingScope, ezStaticAllocatorWrapper> m_TimingScopes;
+  static ezDeque<GPUTimingScope, ezStaticAllocatorWrapper> s_TimingScopes;
 
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(RendererFoundation, GPUProfilingSystem);
 };
@@ -84,27 +97,38 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererFoundation, GPUProfilingSystem)
 EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
-ezDeque<GPUTimingScope, ezStaticAllocatorWrapper> GPUProfilingSystem::m_TimingScopes;
+ezDeque<GPUTimingScope, ezStaticAllocatorWrapper> GPUProfilingSystem::s_TimingScopes;
 
 //////////////////////////////////////////////////////////////////////////
 
-ezProfilingScopeAndMarker::ezProfilingScopeAndMarker(ezGALCommandEncoder* pCommandEncoder, const char* szName)
-  : ezProfilingScope(szName, nullptr)
-  , m_pCommandEncoder(pCommandEncoder)
+GPUTimingScope* ezProfilingScopeAndMarker::Start(ezGALCommandEncoder* pCommandEncoder, const char* szName)
 {
-  pCommandEncoder->PushMarker(m_szName);
+  pCommandEncoder->PushMarker(szName);
 
   auto& timingScope = GPUProfilingSystem::AllocateScope();
   timingScope.m_BeginTimestamp = pCommandEncoder->InsertTimestamp();
-  ezStringUtils::Copy(timingScope.m_szName, EZ_ARRAY_SIZE(timingScope.m_szName), m_szName);
+  ezStringUtils::Copy(timingScope.m_szName, EZ_ARRAY_SIZE(timingScope.m_szName), szName);
 
-  m_pTimingScope = &timingScope;
+  return &timingScope;
+}
+
+void ezProfilingScopeAndMarker::Stop(ezGALCommandEncoder* pCommandEncoder, GPUTimingScope*& pTimingScope)
+{
+  pCommandEncoder->PopMarker();
+  pTimingScope->m_EndTimestamp = pCommandEncoder->InsertTimestamp();
+  pTimingScope = nullptr;
+}
+
+ezProfilingScopeAndMarker::ezProfilingScopeAndMarker(ezGALCommandEncoder* pCommandEncoder, const char* szName)
+  : ezProfilingScope(szName, nullptr, ezTime::Zero())
+  , m_pCommandEncoder(pCommandEncoder)
+{
+  m_pTimingScope = Start(pCommandEncoder, szName);
 }
 
 ezProfilingScopeAndMarker::~ezProfilingScopeAndMarker()
 {
-  m_pCommandEncoder->PopMarker();
-  m_pTimingScope->m_EndTimestamp = m_pCommandEncoder->InsertTimestamp();
+  Stop(m_pCommandEncoder, m_pTimingScope);
 }
 
 #endif

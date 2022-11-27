@@ -200,7 +200,7 @@ protected:
 
   union
   {
-    struct : ezAligned<EZ_ALIGNMENT_OF(T)>
+    struct alignas(EZ_ALIGNMENT_OF(T))
     {
       ezUInt8 m_StaticData[Size * sizeof(T)];
     };

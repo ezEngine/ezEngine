@@ -127,9 +127,9 @@ bool RtsMouseInputState::HasMouseMoved(ezVec2U32 start, ezVec2U32 now)
   return (v1 - v2).GetLength() > 3.0f;
 }
 
-ezColor RtsGameMode::GetTeamColor(ezInt32 iTeam)
+ezColor RtsGameMode::GetTeamColor(ezUInt16 uiTeam)
 {
-  switch (iTeam)
+  switch (uiTeam)
   {
     case 0:
       return ezColorGammaUB(255, 0, 0);

@@ -43,6 +43,8 @@ void ezSystemInformation::Initialize()
   if (s_SystemInformation.m_bIsInitialized)
     return;
 
+  s_SystemInformation.m_CpuFeatures.Detect();
+
   // Get system information via various APIs
   s_SystemInformation.m_uiCPUCoreCount = sysconf(_SC_NPROCESSORS_ONLN);
 
@@ -62,9 +64,9 @@ void ezSystemInformation::Initialize()
 
   // Not correct for 32 bit process on 64 bit system
 #if EZ_ENABLED(EZ_PLATFORM_64BIT)
-  s_SystemInformation.m_b64BitOS = true;
+  s_SystemInformation.m_bB64BitOS = true;
 #else
-  s_SystemInformation.m_b64BitOS = false;
+  s_SystemInformation.m_bB64BitOS = false;
 #  error "32 Bit builds are not supported on OSX"
 #endif
 

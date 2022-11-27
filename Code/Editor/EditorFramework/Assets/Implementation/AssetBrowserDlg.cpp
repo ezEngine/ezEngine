@@ -2,29 +2,52 @@
 
 #include <EditorFramework/Assets/AssetBrowserDlg.moc.h>
 #include <EditorFramework/Assets/AssetBrowserFilter.moc.h>
+#include <EditorFramework/Assets/AssetDocumentManager.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 
 
 bool ezQtAssetBrowserDlg::s_bShowItemsInSubFolder = true;
 bool ezQtAssetBrowserDlg::s_bShowItemsInHiddenFolder = false;
 bool ezQtAssetBrowserDlg::s_bSortByRecentUse = true;
-ezMap<ezString, ezString> ezQtAssetBrowserDlg::s_sTextFilter;
-ezMap<ezString, ezString> ezQtAssetBrowserDlg::s_sPathFilter;
-ezMap<ezString, ezString> ezQtAssetBrowserDlg::s_sTypeFilter;
+ezMap<ezString, ezString> ezQtAssetBrowserDlg::s_TextFilter;
+ezMap<ezString, ezString> ezQtAssetBrowserDlg::s_PathFilter;
+ezMap<ezString, ezString> ezQtAssetBrowserDlg::s_TypeFilter;
 
 ezQtAssetBrowserDlg::ezQtAssetBrowserDlg(QWidget* parent, const ezUuid& preselectedAsset, const char* szVisibleFilters)
   : QDialog(parent)
 {
   setupUi(this);
 
-  m_sVisibleFilters = szVisibleFilters;
+  ButtonFileDialog->setVisible(false); // not working correctly anymore
+
+  {
+    ezStringBuilder temp = szVisibleFilters;
+    ezHybridArray<ezStringView, 4> compTypes;
+    temp.Split(false, compTypes, ";");
+    ezStringBuilder allFiltered = szVisibleFilters;
+
+    for (const auto& descIt : ezAssetDocumentManager::GetAllDocumentDescriptors())
+    {
+      const ezDocumentTypeDescriptor* pType = descIt.Value();
+      for (ezStringView ct : compTypes)
+      {
+        if (pType->m_CompatibleTypes.Contains(ct))
+        {
+          allFiltered.Append(";", pType->m_sDocumentTypeName, ";");
+        }
+      }
+    }
+
+    m_sVisibleFilters = allFiltered;
+  }
+
   ButtonSelect->setEnabled(false);
 
   AssetBrowserWidget->SetSelectedAsset(preselectedAsset);
 
-  if (!ezStringUtils::IsEqual(szVisibleFilters, ";;")) // that's an empty filter list
+  if (!ezStringUtils::IsEqual(m_sVisibleFilters, ";;")) // that's an empty filter list
   {
-    AssetBrowserWidget->ShowOnlyTheseTypeFilters(szVisibleFilters);
+    AssetBrowserWidget->ShowOnlyTheseTypeFilters(m_sVisibleFilters);
   }
 
   QSettings Settings;
@@ -42,14 +65,14 @@ ezQtAssetBrowserDlg::ezQtAssetBrowserDlg(QWidget* parent, const ezUuid& preselec
   AssetBrowserWidget->GetAssetBrowserFilter()->SetShowItemsInSubFolders(s_bShowItemsInSubFolder);
   AssetBrowserWidget->GetAssetBrowserFilter()->SetShowItemsInHiddenFolders(s_bShowItemsInHiddenFolder);
 
-  if (!s_sTextFilter[m_sVisibleFilters].IsEmpty())
-    AssetBrowserWidget->GetAssetBrowserFilter()->SetTextFilter(s_sTextFilter[m_sVisibleFilters]);
+  if (!s_TextFilter[m_sVisibleFilters].IsEmpty())
+    AssetBrowserWidget->GetAssetBrowserFilter()->SetTextFilter(s_TextFilter[m_sVisibleFilters]);
 
-  if (!s_sPathFilter[m_sVisibleFilters].IsEmpty())
-    AssetBrowserWidget->GetAssetBrowserFilter()->SetPathFilter(s_sPathFilter[m_sVisibleFilters]);
+  if (!s_PathFilter[m_sVisibleFilters].IsEmpty())
+    AssetBrowserWidget->GetAssetBrowserFilter()->SetPathFilter(s_PathFilter[m_sVisibleFilters]);
 
-  if (!s_sTypeFilter[m_sVisibleFilters].IsEmpty())
-    AssetBrowserWidget->GetAssetBrowserFilter()->SetTypeFilter(s_sTypeFilter[m_sVisibleFilters]);
+  if (!s_TypeFilter[m_sVisibleFilters].IsEmpty())
+    AssetBrowserWidget->GetAssetBrowserFilter()->SetTypeFilter(s_TypeFilter[m_sVisibleFilters]);
 
   AssetBrowserWidget->SearchWidget->setFocus();
 }
@@ -59,9 +82,9 @@ ezQtAssetBrowserDlg::~ezQtAssetBrowserDlg()
   s_bShowItemsInSubFolder = AssetBrowserWidget->GetAssetBrowserFilter()->GetShowItemsInSubFolders();
   s_bShowItemsInHiddenFolder = AssetBrowserWidget->GetAssetBrowserFilter()->GetShowItemsInHiddenFolders();
   s_bSortByRecentUse = AssetBrowserWidget->GetAssetBrowserFilter()->GetSortByRecentUse();
-  s_sTextFilter[m_sVisibleFilters] = AssetBrowserWidget->GetAssetBrowserFilter()->GetTextFilter();
-  s_sPathFilter[m_sVisibleFilters] = AssetBrowserWidget->GetAssetBrowserFilter()->GetPathFilter();
-  s_sTypeFilter[m_sVisibleFilters] = AssetBrowserWidget->GetAssetBrowserFilter()->GetTypeFilter();
+  s_TextFilter[m_sVisibleFilters] = AssetBrowserWidget->GetAssetBrowserFilter()->GetTextFilter();
+  s_PathFilter[m_sVisibleFilters] = AssetBrowserWidget->GetAssetBrowserFilter()->GetPathFilter();
+  s_TypeFilter[m_sVisibleFilters] = AssetBrowserWidget->GetAssetBrowserFilter()->GetTypeFilter();
 
   QSettings Settings;
   Settings.beginGroup(QLatin1String("AssetBrowserDlg"));

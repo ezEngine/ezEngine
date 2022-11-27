@@ -3,9 +3,11 @@
 #include <Core/World/SettingsComponent.h>
 #include <Core/World/SettingsComponentManager.h>
 #include <RendererCore/Lights/Implementation/ReflectionProbeData.h>
+#include <RendererCore/Textures/TextureCubeResource.h>
 
 struct ezMsgUpdateLocalBounds;
 struct ezMsgExtractRenderData;
+struct ezMsgTransformChanged;
 
 typedef ezSettingsComponentManager<class ezSkyLightComponent> ezSkyLightComponentManager;
 
@@ -32,23 +34,51 @@ public:
   ezSkyLightComponent();
   ~ezSkyLightComponent();
 
+  void SetReflectionProbeMode(ezEnum<ezReflectionProbeMode> mode); // [ property ]
+  ezEnum<ezReflectionProbeMode> GetReflectionProbeMode() const;    // [ property ]
+
   void SetIntensity(float fIntensity); // [ property ]
   float GetIntensity() const;          // [ property ]
 
   void SetSaturation(float fSaturation); // [ property ]
   float GetSaturation() const;           // [ property ]
 
-  void SetReflectionProbeMode(ezEnum<ezReflectionProbeMode> mode); // [ property ]
-  ezEnum<ezReflectionProbeMode> GetReflectionProbeMode() const;    // [ property ]
+  const ezTagSet& GetIncludeTags() const;   // [ property ]
+  void InsertIncludeTag(const char* szTag); // [ property ]
+  void RemoveIncludeTag(const char* szTag); // [ property ]
+
+  const ezTagSet& GetExcludeTags() const;   // [ property ]
+  void InsertExcludeTag(const char* szTag); // [ property ]
+  void RemoveExcludeTag(const char* szTag); // [ property ]
+
+  void SetShowDebugInfo(bool bShowDebugInfo); // [ property ]
+  bool GetShowDebugInfo() const;              // [ property ]
+
+  void SetShowMipMaps(bool bShowMipMaps); // [ property ]
+  bool GetShowMipMaps() const;            // [ property ]
 
   void SetCubeMapFile(const char* szFile); // [ property ]
   const char* GetCubeMapFile() const;      // [ property ]
+  ezTextureCubeResourceHandle GetCubeMap() const
+  {
+    return m_hCubeMap;
+  }
+
+  float GetNearPlane() const { return m_Desc.m_fNearPlane; } // [ property ]
+  void SetNearPlane(float fNearPlane);                       // [ property ]
+
+  float GetFarPlane() const { return m_Desc.m_fFarPlane; } // [ property ]
+  void SetFarPlane(float fFarPlane);                       // [ property ]
 
 protected:
   void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg);
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
+  void OnTransformChanged(ezMsgTransformChanged& msg);
 
-  ezReflectionProbeData m_ReflectionProbeData;
-  // Tracks if any changes where made to the settings. Reset ezReflectionPool::ExtractReflectionProbe once a filter pass is done.
+  ezReflectionProbeDesc m_Desc;
+  ezTextureCubeResourceHandle m_hCubeMap;
+
+  ezReflectionProbeId m_Id;
+
   mutable bool m_bStatesDirty = true;
 };

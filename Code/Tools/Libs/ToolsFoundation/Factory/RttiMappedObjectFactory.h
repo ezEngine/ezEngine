@@ -19,8 +19,8 @@ public:
 
   typedef Object* (*CreateObjectFunc)(const ezRTTI* pType);
 
-  ezResult RegisterCreator(const ezRTTI* pType, CreateObjectFunc creator);
-  ezResult UnregisterCreator(const ezRTTI* pType);
+  void RegisterCreator(const ezRTTI* pType, CreateObjectFunc creator);
+  void UnregisterCreator(const ezRTTI* pType);
   Object* CreateObject(const ezRTTI* pType);
 
   struct Event

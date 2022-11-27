@@ -3,6 +3,7 @@
 #include <EditorEngineProcessFramework/EngineProcess/ViewRenderSettings.h>
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <Foundation/Basics.h>
+#include <GuiFoundation/Action/BaseActions.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 
 class ezMaterialAssetDocument;
@@ -12,6 +13,7 @@ class ezQtNodeView;
 struct ezSelectionManagerEvent;
 class ezDirectoryWatcher;
 enum class ezDirectoryWatcherAction;
+enum class ezDirectoryWatcherType;
 class ezQtDocumentPanel;
 class QTextEdit;
 struct ezMaterialVisualShaderEvent;
@@ -43,7 +45,7 @@ private:
   void SendRedrawMsg();
   void RestoreResource();
   void UpdateNodeEditorVisibility();
-  void OnVseConfigChanged(const char* filename, ezDirectoryWatcherAction action);
+  void OnVseConfigChanged(const char* filename, ezDirectoryWatcherAction action, ezDirectoryWatcherType type);
   void VisualShaderEventHandler(const ezMaterialVisualShaderEvent& e);
   void SetupDirectoryWatcher(bool needIt);
 
@@ -60,3 +62,23 @@ private:
   static ezDirectoryWatcher* s_pNodeConfigWatcher;
 };
 
+class ezMaterialModelAction : public ezEnumerationMenuAction
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezMaterialModelAction, ezEnumerationMenuAction);
+
+public:
+  ezMaterialModelAction(const ezActionContext& context, const char* szName, const char* szIconPath);
+  virtual ezInt64 GetValue() const override;
+  virtual void Execute(const ezVariant& value) override;
+};
+
+class ezMaterialAssetActions
+{
+public:
+  static void RegisterActions();
+  static void UnregisterActions();
+
+  static void MapActions(const char* szMapping, const char* szPath);
+
+  static ezActionDescriptorHandle s_hMaterialModelAction;
+};

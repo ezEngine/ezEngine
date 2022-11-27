@@ -3,7 +3,6 @@
 #include <RendererDX11/CommandEncoder/CommandEncoderImplDX11.h>
 #include <RendererDX11/Device/DeviceDX11.h>
 #include <RendererDX11/Resources/BufferDX11.h>
-#include <RendererDX11/Resources/FenceDX11.h>
 #include <RendererDX11/Resources/QueryDX11.h>
 #include <RendererDX11/Resources/RenderTargetViewDX11.h>
 #include <RendererDX11/Resources/ResourceViewDX11.h>
@@ -121,41 +120,13 @@ void ezGALCommandEncoderImplDX11::SetResourceViewPlatform(ezGALShaderStage::Enum
 
 void ezGALCommandEncoderImplDX11::SetUnorderedAccessViewPlatform(ezUInt32 uiSlot, const ezGALUnorderedAccessView* pUnorderedAccessView)
 {
-  m_pBoundUnoderedAccessViews.EnsureCount(uiSlot + 1);
-  m_pBoundUnoderedAccessViews[uiSlot] =
+  m_BoundUnoderedAccessViews.EnsureCount(uiSlot + 1);
+  m_BoundUnoderedAccessViews[uiSlot] =
     pUnorderedAccessView != nullptr ? static_cast<const ezGALUnorderedAccessViewDX11*>(pUnorderedAccessView)->GetDXResourceView() : nullptr;
-  m_pBoundUnoderedAccessViewsRange.SetToIncludeValue(uiSlot);
+  m_BoundUnoderedAccessViewsRange.SetToIncludeValue(uiSlot);
 }
 
-// Fence & Query functions
-
-void ezGALCommandEncoderImplDX11::InsertFencePlatform(const ezGALFence* pFence)
-{
-  m_pDXContext->End(static_cast<const ezGALFenceDX11*>(pFence)->GetDXFence());
-}
-
-bool ezGALCommandEncoderImplDX11::IsFenceReachedPlatform(const ezGALFence* pFence)
-{
-  BOOL data = FALSE;
-  if (m_pDXContext->GetData(static_cast<const ezGALFenceDX11*>(pFence)->GetDXFence(), &data, sizeof(data), 0) == S_OK)
-  {
-    EZ_ASSERT_DEV(data == TRUE, "Implementation error");
-    return true;
-  }
-
-  return false;
-}
-
-void ezGALCommandEncoderImplDX11::WaitForFencePlatform(const ezGALFence* pFence)
-{
-  BOOL data = FALSE;
-  while (m_pDXContext->GetData(static_cast<const ezGALFenceDX11*>(pFence)->GetDXFence(), &data, sizeof(data), 0) != S_OK)
-  {
-    ezThreadUtils::YieldTimeSlice();
-  }
-
-  EZ_ASSERT_DEV(data == TRUE, "Implementation error");
-}
+// Query functions
 
 void ezGALCommandEncoderImplDX11::BeginQueryPlatform(const ezGALQuery* pQuery)
 {
@@ -495,27 +466,22 @@ void ezGALCommandEncoderImplDX11::BeginRendering(const ezGALRenderingSetup& rend
     const ezGALRenderTargetView* pRenderTargetViews[EZ_GAL_MAX_RENDERTARGET_COUNT] = {nullptr};
     const ezGALRenderTargetView* pDepthStencilView = nullptr;
 
-    ezUInt32 uiRenderTargetCount = 0;
+    const ezUInt32 uiRenderTargetCount = m_RenderTargetSetup.GetRenderTargetCount();
 
     bool bFlushNeeded = false;
 
-    if (m_RenderTargetSetup.HasRenderTargets())
+    for (ezUInt8 uiIndex = 0; uiIndex < uiRenderTargetCount; ++uiIndex)
     {
-      for (ezUInt8 uiIndex = 0; uiIndex <= m_RenderTargetSetup.GetMaxRenderTargetIndex(); ++uiIndex)
+      const ezGALRenderTargetView* pRenderTargetView = m_GALDeviceDX11.GetRenderTargetView(m_RenderTargetSetup.GetRenderTarget(uiIndex));
+      if (pRenderTargetView != nullptr)
       {
-        const ezGALRenderTargetView* pRenderTargetView = m_GALDeviceDX11.GetRenderTargetView(m_RenderTargetSetup.GetRenderTarget(uiIndex));
-        if (pRenderTargetView != nullptr)
-        {
-          const ezGALResourceBase* pTexture = pRenderTargetView->GetTexture()->GetParentResource();
+        const ezGALResourceBase* pTexture = pRenderTargetView->GetTexture()->GetParentResource();
 
-          bFlushNeeded |= m_pOwner->UnsetResourceViews(pTexture);
-          bFlushNeeded |= m_pOwner->UnsetUnorderedAccessViews(pTexture);
-        }
-
-        pRenderTargetViews[uiIndex] = pRenderTargetView;
+        bFlushNeeded |= m_pOwner->UnsetResourceViews(pTexture);
+        bFlushNeeded |= m_pOwner->UnsetUnorderedAccessViews(pTexture);
       }
 
-      uiRenderTargetCount = m_RenderTargetSetup.GetMaxRenderTargetIndex() + 1;
+      pRenderTargetViews[uiIndex] = pRenderTargetView;
     }
 
     pDepthStencilView = m_GALDeviceDX11.GetRenderTargetView(m_RenderTargetSetup.GetDepthStencilTarget());
@@ -567,6 +533,14 @@ void ezGALCommandEncoderImplDX11::BeginRendering(const ezGALRenderingSetup& rend
   }
 
   ClearPlatform(renderingSetup.m_ClearColor, renderingSetup.m_uiRenderTargetClearMask, renderingSetup.m_bClearDepth, renderingSetup.m_bClearStencil, renderingSetup.m_fDepthClear, renderingSetup.m_uiStencilClear);
+}
+
+void ezGALCommandEncoderImplDX11::BeginCompute()
+{
+  // We need to unbind all render targets as otherwise using them in a compute shader as input will fail:
+  // DEVICE_CSSETSHADERRESOURCES_HAZARD: Resource being set to CS shader resource slot 0 is still bound on output!
+  m_RenderTargetSetup = ezGALRenderTargetSetup();
+  m_pDXContext->OMSetRenderTargets(0, nullptr, nullptr);
 }
 
 // Draw functions
@@ -896,13 +870,13 @@ void ezGALCommandEncoderImplDX11::FlushDeferredStateChanges()
   }
 
   // Do UAV bindings before SRV since UAV are outputs which need to be unbound before they are potentially rebound as SRV again.
-  if (m_pBoundUnoderedAccessViewsRange.IsValid())
+  if (m_BoundUnoderedAccessViewsRange.IsValid())
   {
-    const ezUInt32 uiStartSlot = m_pBoundUnoderedAccessViewsRange.m_uiMin;
-    const ezUInt32 uiNumSlots = m_pBoundUnoderedAccessViewsRange.GetCount();
-    m_pDXContext->CSSetUnorderedAccessViews(uiStartSlot, uiNumSlots, m_pBoundUnoderedAccessViews.GetData() + uiStartSlot, nullptr); // Todo: Count reset.
+    const ezUInt32 uiStartSlot = m_BoundUnoderedAccessViewsRange.m_uiMin;
+    const ezUInt32 uiNumSlots = m_BoundUnoderedAccessViewsRange.GetCount();
+    m_pDXContext->CSSetUnorderedAccessViews(uiStartSlot, uiNumSlots, m_BoundUnoderedAccessViews.GetData() + uiStartSlot, nullptr); // Todo: Count reset.
 
-    m_pBoundUnoderedAccessViewsRange.Reset();
+    m_BoundUnoderedAccessViewsRange.Reset();
   }
 
   for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)

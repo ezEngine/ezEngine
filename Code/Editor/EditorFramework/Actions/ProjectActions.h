@@ -27,18 +27,20 @@ public:
   static ezActionDescriptorHandle s_hRecentProjects;
   static ezActionDescriptorHandle s_hCloseProject;
 
+  static ezActionDescriptorHandle s_hDocsAndCommunity;
+
   static ezActionDescriptorHandle s_hSettingsCategory;
   static ezActionDescriptorHandle s_hEditorSettingsMenu;
   static ezActionDescriptorHandle s_hProjectSettingsMenu;
   static ezActionDescriptorHandle s_hShortcutEditor;
-  static ezActionDescriptorHandle s_hEditorPlugins;
-  static ezActionDescriptorHandle s_hEnginePlugins;
   static ezActionDescriptorHandle s_hDataDirectories;
   static ezActionDescriptorHandle s_hWindowConfig;
   static ezActionDescriptorHandle s_hInputConfig;
   static ezActionDescriptorHandle s_hPreferencesDlg;
   static ezActionDescriptorHandle s_hTagsDlg;
   static ezActionDescriptorHandle s_hAssetProfiles;
+  static ezActionDescriptorHandle s_hExportProject;
+  static ezActionDescriptorHandle s_hPluginSelection;
 
   static ezActionDescriptorHandle s_hToolsMenu;
   static ezActionDescriptorHandle s_hToolsCategory;
@@ -49,6 +51,8 @@ public:
   static ezActionDescriptorHandle s_hSaveProfiling;
   static ezActionDescriptorHandle s_hOpenVsCode;
   static ezActionDescriptorHandle s_hImportAsset;
+
+  static ezActionDescriptorHandle s_hSetupCppProject;
 };
 
 ///
@@ -100,15 +104,17 @@ public:
     SaveProfiling,
     OpenVsCode,
     Shortcuts,
-    EditorPlugins,
     DataDirectories,
     WindowConfig,
     InputConfig,
     PreferencesDialog,
     TagsDialog,
-    EnginePlugins,
     ImportAsset,
     AssetProfiles,
+    SetupCppProject,
+    ShowDocsAndCommunity,
+    ExportProject,
+    PluginSelection,
   };
 
   ezProjectAction(const ezActionContext& context, const char* szName, ButtonType button);

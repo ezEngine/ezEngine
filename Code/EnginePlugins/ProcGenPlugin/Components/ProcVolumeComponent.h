@@ -127,8 +127,8 @@ public:
   const char* GetImageFile() const;      // [ property ]
 
   void SetImage(const ezImageDataResourceHandle& hResource);
-  ezImageDataResourceHandle GetImage() const { return m_Image; }
+  ezImageDataResourceHandle GetImage() const { return m_hImage; }
 
 protected:
-  ezImageDataResourceHandle m_Image;
+  ezImageDataResourceHandle m_hImage;
 };

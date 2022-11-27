@@ -54,7 +54,10 @@ void ezAreaDamageComponent::ApplyAreaDamage()
 
   const ezVec3 vOwnPosition = GetOwner()->GetGlobalPosition();
 
-  pPhysicsInterface->QueryShapesInSphere(g_OverlapResults, m_fRadius, vOwnPosition, ezPhysicsQueryParameters(m_uiCollisionLayer));
+  ezPhysicsQueryParameters query(m_uiCollisionLayer);
+  query.m_ShapeTypes.Remove(ezPhysicsShapeType::Static | ezPhysicsShapeType::Trigger);
+
+  pPhysicsInterface->QueryShapesInSphere(g_OverlapResults, m_fRadius, vOwnPosition, query);
 
   const float fInvRadius = 1.0f / m_fRadius;
 
@@ -72,10 +75,12 @@ void ezAreaDamageComponent::ApplyAreaDamage()
 
         if (fDistance >= 0.01f)
         {
+          // if the direction is valid (non-zero), just normalize it
           vDirToTarget /= fDistance;
         }
         else
         {
+          // otherwise, if we are so close, that the distance is zero, pick a random direction away from it
           vDirToTarget.CreateRandomDirection(GetWorld()->GetRandomNumberGenerator());
         }
 
@@ -88,7 +93,7 @@ void ezAreaDamageComponent::ApplyAreaDamage()
           ezMsgPhysicsAddImpulse msg;
           msg.m_vGlobalPosition = vTargetPos;
           msg.m_vImpulse = vDirToTarget * m_fImpulse * fScale;
-          msg.m_uiShapeId = hit.m_uiShapeId;
+          msg.m_uiObjectFilterID = hit.m_uiObjectFilterID;
 
           pObject->SendMessage(msg);
         }
@@ -98,11 +103,17 @@ void ezAreaDamageComponent::ApplyAreaDamage()
         {
           ezMsgDamage msg;
           msg.m_fDamage = static_cast<double>(m_fDamage) * static_cast<double>(fScale);
+          msg.m_vImpactDirection = vDirToTarget;
+          msg.m_vGlobalPosition = vOwnPosition + vDistToTarget * 0.9f; // rough guess for a position where to apply the damage
 
           ezGameObject* pShape = nullptr;
           if (GetWorld()->TryGetObject(hit.m_hShapeObject, pShape))
           {
             msg.m_sHitObjectName = pShape->GetName();
+          }
+          else
+          {
+            msg.m_sHitObjectName = pObject->GetName();
           }
 
           // delay the damage a little bit for nicer chain reactions

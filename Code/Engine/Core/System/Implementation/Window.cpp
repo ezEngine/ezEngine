@@ -8,9 +8,9 @@
 #include <Foundation/IO/OpenDdlWriter.h>
 #include <Foundation/System/Screen.h>
 
-#if EZ_ENABLED(EZ_SUPPORTS_SFML)
-#  include <Core/System/Implementation/SFML/InputDevice_SFML.inl>
-#  include <Core/System/Implementation/SFML/Window_SFML.inl>
+#if EZ_ENABLED(EZ_SUPPORTS_GLFW)
+#  include <Core/System/Implementation/glfw/InputDevice_glfw.inl>
+#  include <Core/System/Implementation/glfw/Window_glfw.inl>
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 #  include <Core/System/Implementation/Win/InputDevice_win32.inl>
 #  include <Core/System/Implementation/Win/Window_win32.inl>
@@ -212,6 +212,7 @@ ezWindow::~ezWindow()
   {
     Destroy().IgnoreResult();
   }
+  EZ_ASSERT_DEV(m_iReferenceCount == 0, "The window is still being referenced, probably by a swapchain. Make sure to destroy all swapchains and call ezGALDevice::WaitIdle before destroying a window.");
 }
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)

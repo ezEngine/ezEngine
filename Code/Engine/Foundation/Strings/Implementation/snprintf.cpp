@@ -155,6 +155,11 @@ static sprintfLength::Enum ReadLength(const char* szFormat, unsigned int& uiRead
 
   switch (cNext)
   {
+    case 'z':
+      res = sizeof(size_t) == 8 ? sprintfLength::LongInt : sprintfLength::Default;
+      cNext = szFormat[++uiReadPos];
+      break;
+
     case 'h':
       res = sprintfLength::ShortInt;
       cNext = szFormat[++uiReadPos];

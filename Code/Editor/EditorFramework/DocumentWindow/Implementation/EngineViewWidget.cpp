@@ -69,9 +69,25 @@ ezQtEngineViewWidget::~ezQtEngineViewWidget()
 {
   ezEditorEngineProcessConnection::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtEngineViewWidget::EngineViewProcessEventHandler, this));
 
-  ezViewDestroyedMsgToEngine msg;
-  msg.m_uiViewID = GetViewID();
-  m_pDocumentWindow->GetDocument()->SendMessageToEngine(&msg);
+  {
+    // Ensure the engine process swap chain is destroyed before the window.
+    ezViewDestroyedMsgToEngine msg;
+    msg.m_uiViewID = GetViewID();
+    m_pDocumentWindow->GetDocument()->SendMessageToEngine(&msg);
+
+    // Wait for engine process response
+    auto callback = [&](ezProcessMessage* pMsg) -> bool {
+      auto pResponse = static_cast<ezViewDestroyedResponseMsgToEditor*>(pMsg);
+      return pResponse->m_DocumentGuid == m_pDocumentWindow->GetDocument()->GetGuid() && pResponse->m_uiViewID == msg.m_uiViewID;
+    };
+    ezProcessCommunicationChannel::WaitForMessageCallback cb = callback;
+
+    if (ezEditorEngineProcessConnection::GetSingleton()->WaitForMessage(ezGetStaticRTTI<ezViewDestroyedResponseMsgToEditor>(), ezTime::Seconds(5), &cb).Failed())
+    {
+      ezLog::Error("Timeout while waiting for engine process to destroy view.");
+    }
+  }
+
   m_pDocumentWindow->RemoveViewWidget(this);
 }
 
@@ -623,6 +639,9 @@ void ezQtEngineViewWidget::EngineViewProcessEventHandler(const ezEditorEnginePro
     case ezEditorEngineProcessConnection::Event::Type::Invalid:
       EZ_ASSERT_DEV(false, "Invalid message should never happen");
       break;
+
+    case ezEditorEngineProcessConnection::Event::Type::ProcessRestarted:
+      break;
   }
 }
 
@@ -633,7 +652,7 @@ void ezQtEngineViewWidget::ShowRestartButton(bool bShow)
   if (m_pRestartButtonLayout == nullptr && bShow == true)
   {
     m_pRestartButtonLayout = new QHBoxLayout(this);
-    m_pRestartButtonLayout->setMargin(0);
+    m_pRestartButtonLayout->setContentsMargins(0, 0, 0, 0);
 
     setLayout(m_pRestartButtonLayout);
 
@@ -677,7 +696,7 @@ ezQtViewWidgetContainer::ezQtViewWidgetContainer(QWidget* pParent, ezQtEngineVie
   setAutoFillBackground(true);
 
   m_pLayout = new QVBoxLayout(this);
-  m_pLayout->setMargin(1);
+  m_pLayout->setContentsMargins(0, 0, 0, 0);
   m_pLayout->setSpacing(0);
   setLayout(m_pLayout);
 

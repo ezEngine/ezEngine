@@ -85,7 +85,7 @@ void ezCrashHandler_WriteMiniDump::HandleCrash(void* pOsSpecificData)
 #if EZ_ENABLED(EZ_SUPPORTS_CRASH_DUMPS)
     if (ezMiniDumpUtils::LaunchMiniDumpTool(m_sDumpFilePath).Failed())
     {
-      ezLog::Error("Could not launch MiniDumpTool, trying to write crash-dump from crashed process directly.");
+      ezLog::Print("Could not launch MiniDumpTool, trying to write crash-dump from crashed process directly.\n");
 
       crashDumpWritten = WriteOwnProcessMiniDump(pOsSpecificData);
     }
@@ -99,14 +99,14 @@ void ezCrashHandler_WriteMiniDump::HandleCrash(void* pOsSpecificData)
   }
   else
   {
-    ezLog::Warning("ezCrashHandler_WriteMiniDump: No dump-file location specified.");
+    ezLog::Print("ezCrashHandler_WriteMiniDump: No dump-file location specified.\n");
   }
 
   PrintStackTrace(pOsSpecificData);
 
   if (crashDumpWritten)
   {
-    ezLog::Error("Application crashed. Crash-dump written to '{}'.", m_sDumpFilePath);
+    ezLog::Printf("Application crashed. Crash-dump written to '%s'\n.", m_sDumpFilePath.GetData());
   }
 }
 

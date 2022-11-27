@@ -17,7 +17,7 @@ struct ezMemoryMappedFileImpl
 
 ezMemoryMappedFile::ezMemoryMappedFile()
 {
-  m_Impl = EZ_DEFAULT_NEW(ezMemoryMappedFileImpl);
+  m_pImpl = EZ_DEFAULT_NEW(ezMemoryMappedFileImpl);
 }
 
 ezMemoryMappedFile::~ezMemoryMappedFile()
@@ -27,27 +27,27 @@ ezMemoryMappedFile::~ezMemoryMappedFile()
 
 void ezMemoryMappedFile::Close()
 {
-  m_Impl = EZ_DEFAULT_NEW(ezMemoryMappedFileImpl);
+  m_pImpl = EZ_DEFAULT_NEW(ezMemoryMappedFileImpl);
 }
 
 ezMemoryMappedFile::Mode ezMemoryMappedFile::GetMode() const
 {
-  return m_Impl->m_Mode;
+  return m_pImpl->m_Mode;
 }
 
 const void* ezMemoryMappedFile::GetReadPointer(ezUInt64 uiOffset /*= 0*/, OffsetBase base /*= OffsetBase::Start*/) const
 {
-  EZ_ASSERT_DEBUG(m_Impl->m_Mode >= Mode::ReadOnly, "File must be opened with read access before accessing it for reading.");
-  return m_Impl->m_pMappedFilePtr;
+  EZ_ASSERT_DEBUG(m_pImpl->m_Mode >= Mode::ReadOnly, "File must be opened with read access before accessing it for reading.");
+  return m_pImpl->m_pMappedFilePtr;
 }
 
 void* ezMemoryMappedFile::GetWritePointer(ezUInt64 uiOffset /*= 0*/, OffsetBase base /*= OffsetBase::Start*/)
 {
-  EZ_ASSERT_DEBUG(m_Impl->m_Mode >= Mode::ReadWrite, "File must be opened with read/write access before accessing it for writing.");
-  return m_Impl->m_pMappedFilePtr;
+  EZ_ASSERT_DEBUG(m_pImpl->m_Mode >= Mode::ReadWrite, "File must be opened with read/write access before accessing it for writing.");
+  return m_pImpl->m_pMappedFilePtr;
 }
 
 ezUInt64 ezMemoryMappedFile::GetFileSize() const
 {
-  return m_Impl->m_uiFileSize;
+  return m_pImpl->m_uiFileSize;
 }

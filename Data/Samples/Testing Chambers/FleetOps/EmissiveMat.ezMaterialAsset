@@ -18,7 +18,7 @@ o
 			s{":app/VisualShader/Textures.ddl"}
 		}
 		Uuid %DocumentID{u4{15903596662049351313,5036358118506951106}}
-		u4 %Hash{3254109762824256517}
+		u4 %Hash{11787461623938669796}
 		VarArray %MetaInfo{}
 		VarArray %Outputs
 		{
@@ -36,6 +36,19 @@ Objects
 {
 o
 {
+	Uuid %id{u4{12199243198356374171,4630613233343641867}}
+	s %t{"DocumentNodeManager_DefaultConnection"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Connection::Source{u4{11341009774568751241,5236193468033571852}}
+		s %Connection::SourcePin{"Color"}
+		Uuid %Connection::Target{u4{7718749488105140870,5536860878043080398}}
+		s %Connection::TargetPin{"b"}
+	}
+}
+o
+{
 	Uuid %id{u4{1706951328674939787,4639124623849881781}}
 	s %t{"ShaderNode::MaterialOutput"}
 	u3 %v{1}
@@ -46,7 +59,6 @@ o
 		Vec3 %Emissive{f{0,0,0}}
 		f %MaskThreshold{0}
 		f %Metallic{0}
-		VarArray %Node::Connections{}
 		Vec2 %Node::Pos{f{0x4AA96644,0x95529242}}
 		f %Occlusion{0x0000803F}
 		f %Opacity{0x0000803F}
@@ -63,13 +75,35 @@ o
 	u3 %v{1}
 	p
 	{
-		VarArray %Node::Connections
-		{
-			Uuid{u4{4621767142623945123,5648856785741510955}}
-		}
 		Vec2 %Node::Pos{f{0xECD50C43,0xB2956343}}
 		f %a{0x0000803F}
 		f %b{0x0000C842}
+	}
+}
+o
+{
+	Uuid %id{u4{9846150894914736062,4685867805007439955}}
+	s %t{"DocumentNodeManager_DefaultConnection"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Connection::Source{u4{4849186462065243068,4657367323628553286}}
+		s %Connection::SourcePin{"result"}
+		Uuid %Connection::Target{u4{14527972703481548174,4854793530528460914}}
+		s %Connection::TargetPin{"b"}
+	}
+}
+o
+{
+	Uuid %id{u4{17448402740949127556,4811764447697407139}}
+	s %t{"DocumentNodeManager_DefaultConnection"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Connection::Source{u4{15615102834771454125,4928674388096828298}}
+		s %Connection::SourcePin{"Value"}
+		Uuid %Connection::Target{u4{4849186462065243068,4657367323628553286}}
+		s %Connection::TargetPin{"b"}
 	}
 }
 o
@@ -79,10 +113,6 @@ o
 	u3 %v{1}
 	p
 	{
-		VarArray %Node::Connections
-		{
-			Uuid{u4{8543877488325215620,14907302241143551820}}
-		}
 		Vec2 %Node::Pos{f{0xD3EFC743,0x2DEF4F43}}
 		f %a{0x0000803F}
 		f %b{0x0000803F}
@@ -96,12 +126,34 @@ o
 	p
 	{
 		f %Default{0x0000C842}
-		VarArray %Node::Connections
-		{
-			Uuid{u4{14713574262087237956,12437427312570701526}}
-		}
 		Vec2 %Node::Pos{f{0x409497C2,0x632A9243}}
 		s %ParamName{"EmissiveMultiplier"}
+	}
+}
+o
+{
+	Uuid %id{u4{597614916731729583,4976157472020162431}}
+	s %t{"DocumentNodeManager_DefaultConnection"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Connection::Source{u4{18023850011500613810,5115673630816233686}}
+		s %Connection::SourcePin{"Normal"}
+		Uuid %Connection::Target{u4{1706951328674939787,4639124623849881781}}
+		s %Connection::TargetPin{"Normal"}
+	}
+}
+o
+{
+	Uuid %id{u4{11774941404318382752,5079346055786106592}}
+	s %t{"DocumentNodeManager_DefaultConnection"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Connection::Source{u4{7718749488105140870,5536860878043080398}}
+		s %Connection::SourcePin{"result"}
+		Uuid %Connection::Target{u4{1706951328674939787,4639124623849881781}}
+		s %Connection::TargetPin{"BaseColor"}
 	}
 }
 o
@@ -112,10 +164,6 @@ o
 	p
 	{
 		s %Name{"NormalTexture"}
-		VarArray %Node::Connections
-		{
-			Uuid{u4{17436442999209593634,14267827503017821187}}
-		}
 		Vec2 %Node::Pos{f{0xBD280544,0x1678DD42}}
 		s %Texture{""}
 	}
@@ -127,11 +175,6 @@ o
 	u3 %v{1}
 	p
 	{
-		VarArray %Node::Connections
-		{
-			Uuid{u4{13457631019404919852,8677627788689998313}}
-			Uuid{u4{13190383498449873539,14868678697096349761}}
-		}
 		Vec2 %Node::Pos{f{0x5351E8C2,0x0F3605C3}}
 		s %Texture{""}
 	}
@@ -159,11 +202,33 @@ o
 	u3 %v{1}
 	p
 	{
-		VarArray %Node::Connections
-		{
-			Uuid{u4{9025827153296289056,13226448189294005741}}
-		}
 		Vec2 %Node::Pos{f{0x75ED5B42,0x921DA642}}
+	}
+}
+o
+{
+	Uuid %id{u4{13679857906512527494,5292678687684622430}}
+	s %t{"DocumentNodeManager_DefaultConnection"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Connection::Source{u4{7718749488105140870,5536860878043080398}}
+		s %Connection::SourcePin{"result"}
+		Uuid %Connection::Target{u4{14527972703481548174,4854793530528460914}}
+		s %Connection::TargetPin{"a"}
+	}
+}
+o
+{
+	Uuid %id{u4{13970196001844591495,5366062992962177864}}
+	s %t{"DocumentNodeManager_DefaultConnection"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Connection::Source{u4{6994017771018926487,5136276941167441630}}
+		s %Connection::SourcePin{"RGBA"}
+		Uuid %Connection::Target{u4{7718749488105140870,5536860878043080398}}
+		s %Connection::TargetPin{"a"}
 	}
 }
 o
@@ -173,11 +238,6 @@ o
 	u3 %v{1}
 	p
 	{
-		VarArray %Node::Connections
-		{
-			Uuid{u4{13095783436914304055,15838254224446796153}}
-			Uuid{u4{16050512794762190800,6396831345760543178}}
-		}
 		Vec2 %Node::Pos{f{0x54646743,0xE032ACBF}}
 		f %a{0x0000803F}
 		f %b{0x0000803F}
@@ -199,26 +259,28 @@ o
 }
 o
 {
-	Uuid %id{u4{4621767142623945123,5648856785741510955}}
-	s %t{"DocumentNodeManagerConnectionInternal"}
+	Uuid %id{u4{10030466635175057828,5572681718533365557}}
+	s %t{"DocumentNodeManager_DefaultConnection"}
 	u3 %v{1}
 	p
 	{
-		s %SourcePin{"result"}
-		Uuid %Target{u4{14527972703481548174,4854793530528460914}}
-		s %TargetPin{"b"}
+		Uuid %Connection::Source{u4{14527972703481548174,4854793530528460914}}
+		s %Connection::SourcePin{"result"}
+		Uuid %Connection::Target{u4{1706951328674939787,4639124623849881781}}
+		s %Connection::TargetPin{"Emissive"}
 	}
 }
 o
 {
-	Uuid %id{u4{16050512794762190800,6396831345760543178}}
-	s %t{"DocumentNodeManagerConnectionInternal"}
+	Uuid %id{u4{6399739939060644777,5572775994636794320}}
+	s %t{"DocumentNodeManager_DefaultConnection"}
 	u3 %v{1}
 	p
 	{
-		s %SourcePin{"result"}
-		Uuid %Target{u4{14527972703481548174,4854793530528460914}}
-		s %TargetPin{"a"}
+		Uuid %Connection::Source{u4{6994017771018926487,5136276941167441630}}
+		s %Connection::SourcePin{"Alpha"}
+		Uuid %Connection::Target{u4{4849186462065243068,4657367323628553286}}
+		s %Connection::TargetPin{"a"}
 	}
 }
 o
@@ -240,91 +302,16 @@ o
 			Uuid{u4{15615102834771454125,4928674388096828298}}
 			Uuid{u4{11341009774568751241,5236193468033571852}}
 			Uuid{u4{7718749488105140870,5536860878043080398}}
+			Uuid{u4{9846150894914736062,4685867805007439955}}
+			Uuid{u4{10030466635175057828,5572681718533365557}}
+			Uuid{u4{17448402740949127556,4811764447697407139}}
+			Uuid{u4{597614916731729583,4976157472020162431}}
+			Uuid{u4{13970196001844591495,5366062992962177864}}
+			Uuid{u4{6399739939060644777,5572775994636794320}}
+			Uuid{u4{12199243198356374171,4630613233343641867}}
+			Uuid{u4{11774941404318382752,5079346055786106592}}
+			Uuid{u4{13679857906512527494,5292678687684622430}}
 		}
-	}
-}
-o
-{
-	Uuid %id{u4{13457631019404919852,8677627788689998313}}
-	s %t{"DocumentNodeManagerConnectionInternal"}
-	u3 %v{1}
-	p
-	{
-		s %SourcePin{"RGBA"}
-		Uuid %Target{u4{7718749488105140870,5536860878043080398}}
-		s %TargetPin{"a"}
-	}
-}
-o
-{
-	Uuid %id{u4{14713574262087237956,12437427312570701526}}
-	s %t{"DocumentNodeManagerConnectionInternal"}
-	u3 %v{1}
-	p
-	{
-		s %SourcePin{"Value"}
-		Uuid %Target{u4{4849186462065243068,4657367323628553286}}
-		s %TargetPin{"b"}
-	}
-}
-o
-{
-	Uuid %id{u4{9025827153296289056,13226448189294005741}}
-	s %t{"DocumentNodeManagerConnectionInternal"}
-	u3 %v{1}
-	p
-	{
-		s %SourcePin{"Color"}
-		Uuid %Target{u4{7718749488105140870,5536860878043080398}}
-		s %TargetPin{"b"}
-	}
-}
-o
-{
-	Uuid %id{u4{17436442999209593634,14267827503017821187}}
-	s %t{"DocumentNodeManagerConnectionInternal"}
-	u3 %v{1}
-	p
-	{
-		s %SourcePin{"Normal"}
-		Uuid %Target{u4{1706951328674939787,4639124623849881781}}
-		s %TargetPin{"Normal"}
-	}
-}
-o
-{
-	Uuid %id{u4{13190383498449873539,14868678697096349761}}
-	s %t{"DocumentNodeManagerConnectionInternal"}
-	u3 %v{1}
-	p
-	{
-		s %SourcePin{"Alpha"}
-		Uuid %Target{u4{4849186462065243068,4657367323628553286}}
-		s %TargetPin{"a"}
-	}
-}
-o
-{
-	Uuid %id{u4{8543877488325215620,14907302241143551820}}
-	s %t{"DocumentNodeManagerConnectionInternal"}
-	u3 %v{1}
-	p
-	{
-		s %SourcePin{"result"}
-		Uuid %Target{u4{1706951328674939787,4639124623849881781}}
-		s %TargetPin{"Emissive"}
-	}
-}
-o
-{
-	Uuid %id{u4{13095783436914304055,15838254224446796153}}
-	s %t{"DocumentNodeManagerConnectionInternal"}
-	u3 %v{1}
-	p
-	{
-		s %SourcePin{"result"}
-		Uuid %Target{u4{1706951328674939787,4639124623849881781}}
-		s %TargetPin{"BaseColor"}
 	}
 }
 }
@@ -337,7 +324,7 @@ o
 	u3 %v{1}
 	p
 	{
-		s %Filter{";Texture 2D;Render Target;HTML Texture;"}
+		s %Filter{";CompatibleAsset_Texture_2D;"}
 	}
 }
 o
@@ -481,7 +468,7 @@ o
 	u3 %v{1}
 	p
 	{
-		s %Filter{";Texture 2D;Render Target;"}
+		s %Filter{";CompatibleAsset_Texture_2D;"}
 	}
 }
 o
@@ -742,7 +729,7 @@ o
 	u3 %v{1}
 	p
 	{
-		s %Filter{";Texture 2D;Render Target;"}
+		s %Filter{";CompatibleAsset_Texture_2D;"}
 	}
 }
 o
@@ -1002,7 +989,7 @@ o
 	u3 %v{1}
 	p
 	{
-		s %Filter{";Texture 2D;Render Target;HTML Texture;"}
+		s %Filter{";CompatibleAsset_Texture_2D;"}
 	}
 }
 o
@@ -1084,6 +1071,24 @@ o
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
 		s %Name{"MaskThreshold"}
 		s %Type{"float"}
+	}
+}
+o
+{
+	Uuid %id{u4{1988646526571382668,10729334715299371304}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"DocumentNodeManager_DefaultConnection"}
+		u3 %TypeSize{8}
+		u3 %TypeVersion{1}
 	}
 }
 o
@@ -1562,7 +1567,7 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezMaterialAssetProperties"}
-		u3 %TypeSize{328}
+		u3 %TypeSize{320}
 		u3 %TypeVersion{4}
 	}
 }

@@ -18,9 +18,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezBloomPass, 1, ezRTTIDefaultAllocator<ezBloomPa
     EZ_MEMBER_PROPERTY("Radius", m_fRadius)->AddAttributes(new ezDefaultValueAttribute(0.2f), new ezClampValueAttribute(0.01f, 1.0f)),
     EZ_MEMBER_PROPERTY("Threshold", m_fThreshold)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
     EZ_MEMBER_PROPERTY("Intensity", m_fIntensity)->AddAttributes(new ezDefaultValueAttribute(0.3f)),
-    EZ_MEMBER_PROPERTY("InnerTintColor", m_innerTintColor),
-    EZ_MEMBER_PROPERTY("MidTintColor", m_midTintColor),
-    EZ_MEMBER_PROPERTY("OuterTintColor", m_outerTintColor),
+    EZ_MEMBER_PROPERTY("InnerTintColor", m_InnerTintColor),
+    EZ_MEMBER_PROPERTY("MidTintColor", m_MidTintColor),
+    EZ_MEMBER_PROPERTY("OuterTintColor", m_OuterTintColor),
   }
   EZ_END_PROPERTIES;
 }
@@ -28,13 +28,13 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezBloomPass::ezBloomPass()
-  : ezRenderPipelinePass("BloomPass")
+  : ezRenderPipelinePass("BloomPass", true)
   , m_fRadius(0.2f)
   , m_fThreshold(1.0f)
   , m_fIntensity(0.3f)
-  , m_innerTintColor(ezColor::White)
-  , m_midTintColor(ezColor::White)
-  , m_outerTintColor(ezColor::White)
+  , m_InnerTintColor(ezColor::White)
+  , m_MidTintColor(ezColor::White)
+  , m_OuterTintColor(ezColor::White)
 {
   {
     // Load shader.
@@ -131,6 +131,7 @@ void ezBloomPass::Execute(const ezRenderViewContext& renderViewContext, const ez
 
   renderViewContext.m_pRenderContext->BindConstantBuffer("ezBloomConstants", m_hConstantBuffer);
   renderViewContext.m_pRenderContext->BindShader(m_hShader);
+
   renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
 
   // Downscale passes
@@ -159,9 +160,9 @@ void ezBloomPass::Execute(const ezRenderViewContext& renderViewContext, const ez
 
       ezGALRenderingSetup renderingSetup;
       renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(hOutput));
-      renderViewContext.m_pRenderContext->BeginRendering(pGALPass, renderingSetup, ezRectFloat(targetSize.x, targetSize.y));
+      renderViewContext.m_pRenderContext->BeginRendering(pGALPass, renderingSetup, ezRectFloat(targetSize.x, targetSize.y), "Downscale", renderViewContext.m_pCamera->IsStereoscopic());
 
-      ezColor tintColor = (i == uiNumBlurPasses - 1) ? ezColor(m_outerTintColor) : ezColor::White;
+      ezColor tintColor = (i == uiNumBlurPasses - 1) ? ezColor(m_OuterTintColor) : ezColor::White;
       UpdateConstantBuffer(ezVec2(1.0f).CompDiv(targetSize), tintColor);
 
       renderViewContext.m_pRenderContext->BindTexture2D("ColorTexture", pDevice->GetDefaultResourceView(hInput));
@@ -207,17 +208,17 @@ void ezBloomPass::Execute(const ezRenderViewContext& renderViewContext, const ez
 
       ezGALRenderingSetup renderingSetup;
       renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(hOutput));
-      renderViewContext.m_pRenderContext->BeginRendering(pGALPass, renderingSetup, ezRectFloat(targetSize.x, targetSize.y));
+      renderViewContext.m_pRenderContext->BeginRendering(pGALPass, renderingSetup, ezRectFloat(targetSize.x, targetSize.y), "Upscale", renderViewContext.m_pCamera->IsStereoscopic());
 
       ezColor tintColor;
       float fPass = (float)i;
       if (fPass < fMidPass)
       {
-        tintColor = ezMath::Lerp<ezColor>(m_innerTintColor, m_midTintColor, fPass / fMidPass);
+        tintColor = ezMath::Lerp<ezColor>(m_InnerTintColor, m_MidTintColor, fPass / fMidPass);
       }
       else
       {
-        tintColor = ezMath::Lerp<ezColor>(m_midTintColor, m_outerTintColor, (fPass - fMidPass) / fMidPass);
+        tintColor = ezMath::Lerp<ezColor>(m_MidTintColor, m_OuterTintColor, (fPass - fMidPass) / fMidPass);
       }
 
       UpdateConstantBuffer(ezVec2(fBlurRadius).CompDiv(targetSize), tintColor);

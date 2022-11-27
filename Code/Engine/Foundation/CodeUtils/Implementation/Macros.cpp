@@ -37,7 +37,7 @@ void ezPreprocessor::CopyTokensReplaceParams(const TokenStream& Source, ezUInt32
           {
             // create a custom token for the parameter, for better error messages
             ezToken* pParamToken = AddCustomToken(Source[i], parameters[p]);
-            pParamToken->m_iType = s_MacroParameter0 + p;
+            pParamToken->m_iType = s_iMacroParameter0 + p;
 
             Destination.PushBack(pParamToken);
             goto tokenfound;

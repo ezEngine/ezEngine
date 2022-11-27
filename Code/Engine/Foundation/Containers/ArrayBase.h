@@ -9,7 +9,7 @@
 #  define ezInvalidIndex 0xFFFFFFFF
 #endif
 
-/// \brief Base class for all array containers. Implements all the basic functionality that only require a pointer and the element count.
+/// \brief Base class for all array containers. Implements all the basic functionality that only requires a pointer and the element count.
 template <typename T, typename Derived>
 class ezArrayBase
 {
@@ -35,6 +35,9 @@ public:
   /// \brief Compares this array to another contiguous array type.
   bool operator!=(const ezArrayPtr<const T>& rhs) const; // [tested]
 
+  /// \brief Compares this array to another contiguous array type.
+  bool operator<(const ezArrayPtr<const T>& rhs) const; // [tested]
+
   /// \brief Returns the element at the given index. Does bounds checks in debug builds.
   const T& operator[](ezUInt32 uiIndex) const; // [tested]
 
@@ -48,7 +51,7 @@ public:
   void SetCount(ezUInt32 uiCount, const T& FillValue); // [tested]
 
   /// \brief Resizes the array to have exactly uiCount elements. Extra elements might be uninitialized.
-  template <typename = void>                    // Template is used to only conditionally compile this function in when it is actually used.
+  template <typename = void> // Template is used to only conditionally compile this function in when it is actually used.
   void SetCountUninitialized(ezUInt32 uiCount); // [tested]
 
   /// \brief Ensures the container has at least \a uiCount elements. Ie. calls SetCount() if the container has fewer elements, does nothing
@@ -73,6 +76,9 @@ public:
   /// \brief Inserts value at index by shifting all following elements.
   void Insert(T&& value, ezUInt32 uiIndex); // [tested]
 
+  /// \brief Inserts all elements in the range starting at the given index, shifting the elements after the index.
+  void InsertRange(const ezArrayPtr<const T>& range, ezUInt32 uiIndex); // [tested]
+
   /// \brief Removes the first occurrence of value and fills the gap by shifting all following elements
   bool RemoveAndCopy(const T& value); // [tested]
 
@@ -93,6 +99,9 @@ public:
 
   /// \brief Grows the array by one element and returns a reference to the newly created element.
   T& ExpandAndGetRef(); // [tested]
+
+  /// \brief Expands the array by N new items and returns a pointer to the first new one.
+  T* ExpandBy(ezUInt32 numNewItems);
 
   /// \brief Pushes value at the end of the array.
   void PushBack(const T& value); // [tested]
@@ -146,9 +155,9 @@ public:
   /// \brief Returns the reserved number of elements that the array can hold without reallocating.
   ezUInt32 GetCapacity() const { return m_uiCapacity; }
 
-  using const_iterator = const T*;
+  using const_iterator = const T *;
   using const_reverse_iterator = const_reverse_pointer_iterator<T>;
-  using iterator = T*;
+  using iterator = T *;
   using reverse_iterator = reverse_pointer_iterator<T>;
 
 protected:
@@ -235,6 +244,5 @@ typename ezArrayBase<T, Derived>::const_reverse_iterator crend(const ezArrayBase
 {
   return typename ezArrayBase<T, Derived>::const_reverse_iterator(container.GetData() - 1);
 }
-
 
 #include <Foundation/Containers/Implementation/ArrayBase_inl.h>

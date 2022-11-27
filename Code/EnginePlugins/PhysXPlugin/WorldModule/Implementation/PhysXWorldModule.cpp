@@ -4,6 +4,7 @@
 #include <Core/Messages/TriggerMessage.h>
 #include <Core/Prefabs/PrefabResource.h>
 #include <Core/World/World.h>
+#include <Foundation/Configuration/CVar.h>
 #include <Foundation/Memory/FrameAllocator.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <PhysXPlugin/Components/PxDynamicActorComponent.h>
@@ -21,6 +22,7 @@
 #include <RendererCore/AnimationSystem/AnimationPose.h>
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
 #include <RendererCore/Components/CameraComponent.h>
+#include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <pvd/PxPvdSceneClient.h>
@@ -30,6 +32,10 @@ EZ_IMPLEMENT_WORLD_MODULE(ezPhysXWorldModule);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPhysXWorldModule, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 // clang-format on
+
+ezCVarBool cvar_PhysicsSimulationPause("Physics.Simulation.Pause", false, ezCVarFlags::None, "Pauses the physics simulation.");
+ezCVarBool cvar_PhysicsDebugDrawEnable("Physics.DebugDraw.Enable", false, ezCVarFlags::None, "Enables physics debug visualizations.");
+ezCVarFloat cvar_PhysicsDebugDrawSize("Physics.DebugDraw.Size", 0.2f, ezCVarFlags::Save, "Adjusts the size of physics debug visualizations (normals).");
 
 namespace
 {
@@ -70,7 +76,8 @@ namespace
         }
       }
 
-      pTask->ConfigureTask(task.getName(), ezTaskNesting::Never, [this](const ezSharedPtr<ezTask>& pTask) { FinishTask(pTask); });
+      pTask->ConfigureTask(task.getName(), ezTaskNesting::Never, [this](const ezSharedPtr<ezTask>& pTask)
+        { FinishTask(pTask); });
       static_cast<ezPxTask*>(pTask.Borrow())->m_pTask = &task;
       ezTaskSystem::StartSingleTask(pTask, ezTaskPriority::EarlyThisFrame);
     }
@@ -109,7 +116,7 @@ namespace
     // the only way to prevent this, seems to be to disable ALL self-collision, unfortunately this also disables collisions with all other
     // articulations
     // TODO: this needs to be revisited with later PhysX versions
-    //if (PxGetFilterObjectType(attributes0) == PxFilterObjectType::eARTICULATION && PxGetFilterObjectType(attributes1) == PxFilterObjectType::eARTICULATION)
+    // if (PxGetFilterObjectType(attributes0) == PxFilterObjectType::eARTICULATION && PxGetFilterObjectType(attributes1) == PxFilterObjectType::eARTICULATION)
     //{
     //  return PxFilterFlag::eSUPPRESS;
     //}
@@ -201,7 +208,7 @@ namespace
     if (ezComponent* pShapeComponent = ezPxUserData::GetComponent(pHitShape->userData))
     {
       out_Result.m_hShapeObject = pShapeComponent->GetOwner()->GetHandle();
-      out_Result.m_uiShapeId = pHitShape->getQueryFilterData().word2;
+      out_Result.m_uiObjectFilterID = pHitShape->getQueryFilterData().word2;
     }
 
     if (ezComponent* pActorComponent = ezPxUserData::GetComponent(pHitShape->getActor()->userData))
@@ -275,9 +282,9 @@ void ezPhysXWorldModule::Initialize()
     physx::PxPvdSceneClient* pvdClient = m_pPxScene->getScenePvdClient();
     if (pvdClient)
     {
-      //pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONSTRAINTS, true);
-      //pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONTACTS, true);
-      //pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
+      // pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONSTRAINTS, true);
+      // pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONTACTS, true);
+      // pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
     }
 #endif
   }
@@ -404,7 +411,7 @@ bool ezPhysXWorldModule::Raycast(ezPhysicsCastResult& out_Result, const ezVec3& 
     return false;
 
   PxQueryFilterData filterData;
-  filterData.data = ezPhysX::CreateFilterData(params.m_uiCollisionLayer, params.m_uiIgnoreShapeId);
+  filterData.data = ezPhysX::CreateFilterData(params.m_uiCollisionLayer, params.m_uiIgnoreObjectFilterID);
   filterData.flags = PxQueryFlag::ePREFILTER;
 
   if (params.m_bIgnoreInitialOverlap)
@@ -430,7 +437,7 @@ bool ezPhysXWorldModule::Raycast(ezPhysicsCastResult& out_Result, const ezVec3& 
 
   ezPxRaycastCallback closestHit;
   ezPxQueryFilter queryFilter;
-  queryFilter.m_bIncludeQueryShapes = params.m_bIncludeQueryShapes;
+  queryFilter.m_bIncludeQueryShapes = params.m_ShapeTypes.IsSet(ezPhysicsShapeType::Query);
 
   EZ_PX_READ_LOCK(*m_pPxScene);
 
@@ -450,7 +457,7 @@ bool ezPhysXWorldModule::RaycastAll(ezPhysicsCastResultArray& out_Results, const
     return false;
 
   PxQueryFilterData filterData;
-  filterData.data = ezPhysX::CreateFilterData(params.m_uiCollisionLayer, params.m_uiIgnoreShapeId);
+  filterData.data = ezPhysX::CreateFilterData(params.m_uiCollisionLayer, params.m_uiIgnoreObjectFilterID);
 
   // PxQueryFlag::eNO_BLOCK : All hits are reported as touching. Overrides eBLOCK returned from user filters with eTOUCH.
   filterData.flags = PxQueryFlag::ePREFILTER | PxQueryFlag::eNO_BLOCK;
@@ -469,7 +476,7 @@ bool ezPhysXWorldModule::RaycastAll(ezPhysicsCastResultArray& out_Results, const
   PxRaycastBuffer allHits(raycastHits.GetPtr(), raycastHits.GetCount());
 
   ezPxQueryFilter queryFilter;
-  queryFilter.m_bIncludeQueryShapes = params.m_bIncludeQueryShapes;
+  queryFilter.m_bIncludeQueryShapes = params.m_ShapeTypes.IsSet(ezPhysicsShapeType::Query);
 
   EZ_PX_READ_LOCK(*m_pPxScene);
 
@@ -526,7 +533,7 @@ bool ezPhysXWorldModule::SweepTestCapsule(ezPhysicsCastResult& out_Result, float
 bool ezPhysXWorldModule::SweepTest(ezPhysicsCastResult& out_Result, const physx::PxGeometry& geometry, const physx::PxTransform& transform, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection) const
 {
   PxQueryFilterData filterData;
-  filterData.data = ezPhysX::CreateFilterData(params.m_uiCollisionLayer, params.m_uiIgnoreShapeId);
+  filterData.data = ezPhysX::CreateFilterData(params.m_uiCollisionLayer, params.m_uiIgnoreObjectFilterID);
 
   filterData.flags = PxQueryFlag::ePREFILTER;
 
@@ -547,7 +554,7 @@ bool ezPhysXWorldModule::SweepTest(ezPhysicsCastResult& out_Result, const physx:
 
   ezPxSweepCallback closestHit;
   ezPxQueryFilter queryFilter;
-  queryFilter.m_bIncludeQueryShapes = params.m_bIncludeQueryShapes;
+  queryFilter.m_bIncludeQueryShapes = params.m_ShapeTypes.IsSet(ezPhysicsShapeType::Query);
 
   EZ_PX_READ_LOCK(*m_pPxScene);
 
@@ -591,7 +598,7 @@ bool ezPhysXWorldModule::OverlapTestCapsule(float fCapsuleRadius, float fCapsule
 bool ezPhysXWorldModule::OverlapTest(const physx::PxGeometry& geometry, const physx::PxTransform& transform, const ezPhysicsQueryParameters& params) const
 {
   PxQueryFilterData filterData;
-  filterData.data = ezPhysX::CreateFilterData(params.m_uiCollisionLayer, params.m_uiIgnoreShapeId);
+  filterData.data = ezPhysX::CreateFilterData(params.m_uiCollisionLayer, params.m_uiIgnoreObjectFilterID);
 
   filterData.flags = PxQueryFlag::ePREFILTER | PxQueryFlag::eANY_HIT;
 
@@ -607,7 +614,7 @@ bool ezPhysXWorldModule::OverlapTest(const physx::PxGeometry& geometry, const ph
 
   ezPxOverlapCallback closestHit;
   ezPxQueryFilter queryFilter;
-  queryFilter.m_bIncludeQueryShapes = params.m_bIncludeQueryShapes;
+  queryFilter.m_bIncludeQueryShapes = params.m_ShapeTypes.IsSet(ezPhysicsShapeType::Query);
 
   EZ_PX_READ_LOCK(*m_pPxScene);
 
@@ -621,7 +628,7 @@ void ezPhysXWorldModule::QueryShapesInSphere(ezPhysicsOverlapResultArray& out_Re
   out_Results.m_Results.Clear();
 
   PxQueryFilterData filterData;
-  filterData.data = ezPhysX::CreateFilterData(params.m_uiCollisionLayer, params.m_uiIgnoreShapeId);
+  filterData.data = ezPhysX::CreateFilterData(params.m_uiCollisionLayer, params.m_uiIgnoreObjectFilterID);
 
   // PxQueryFlag::eNO_BLOCK : All hits are reported as touching. Overrides eBLOCK returned from user filters with eTOUCH.
   filterData.flags = PxQueryFlag::ePREFILTER | PxQueryFlag::eNO_BLOCK;
@@ -637,7 +644,7 @@ void ezPhysXWorldModule::QueryShapesInSphere(ezPhysicsOverlapResultArray& out_Re
   }
 
   ezPxQueryFilter queryFilter;
-  queryFilter.m_bIncludeQueryShapes = params.m_bIncludeQueryShapes;
+  queryFilter.m_bIncludeQueryShapes = params.m_ShapeTypes.IsSet(ezPhysicsShapeType::Query);
 
   PxSphereGeometry sphere;
   sphere.radius = fSphereRadius;
@@ -661,7 +668,7 @@ void ezPhysXWorldModule::QueryShapesInSphere(ezPhysicsOverlapResultArray& out_Re
     if (ezComponent* pShapeComponent = ezPxUserData::GetComponent(overlapHit.shape->userData))
     {
       overlapResult.m_hShapeObject = pShapeComponent->GetOwner()->GetHandle();
-      overlapResult.m_uiShapeId = overlapHit.shape->getQueryFilterData().word2;
+      overlapResult.m_uiObjectFilterID = overlapHit.shape->getQueryFilterData().word2;
     }
 
     if (ezComponent* pActorComponent = ezPxUserData::GetComponent(overlapHit.actor->userData))
@@ -670,7 +677,6 @@ void ezPhysXWorldModule::QueryShapesInSphere(ezPhysicsOverlapResultArray& out_Re
     }
   }
 }
-
 
 void ezPhysXWorldModule::AddStaticCollisionBox(ezGameObject* pObject, ezVec3 boxSize)
 {
@@ -690,6 +696,9 @@ void ezPhysXWorldModule::FreeUserDataAfterSimulationStep()
 
 void ezPhysXWorldModule::StartSimulation(const ezWorldModule::UpdateContext& context)
 {
+  if (cvar_PhysicsSimulationPause)
+    return;
+
   ezPxDynamicActorComponentManager* pDynamicActorManager = GetWorld()->GetComponentManager<ezPxDynamicActorComponentManager>();
   ezPxTriggerComponentManager* pTriggerManager = GetWorld()->GetComponentManager<ezPxTriggerComponentManager>();
   ezPxQueryShapeActorComponentManager* pQueryShapesManager = GetWorld()->GetComponentManager<ezPxQueryShapeActorComponentManager>();
@@ -739,6 +748,11 @@ void ezPhysXWorldModule::StartSimulation(const ezWorldModule::UpdateContext& con
   m_SimulateTaskGroupId = ezTaskSystem::StartSingleTask(m_pSimulateTask, ezTaskPriority::EarlyThisFrame);
 }
 
+ezColorGammaUB FromARGB(ezUInt32 col)
+{
+  return ezColorGammaUB(static_cast<ezUInt8>((col & 0x00FF0000) >> 16), static_cast<ezUInt8>((col & 0x0000FF00) >> 8), static_cast<ezUInt8>((col & 0x000000FF)));
+}
+
 void ezPhysXWorldModule::FetchResults(const ezWorldModule::UpdateContext& context)
 {
   EZ_PROFILE_SCOPE("FetchResults");
@@ -767,6 +781,38 @@ void ezPhysXWorldModule::FetchResults(const ezWorldModule::UpdateContext& contex
     if (numActiveActors > 0)
     {
       pDynamicActorManager->UpdateDynamicActors(ezMakeArrayPtr(pActiveActors, numActiveActors));
+    }
+  }
+
+  // debug draw
+  {
+    EZ_PX_WRITE_LOCK(*m_pPxScene);
+    m_pPxScene->setVisualizationParameter(PxVisualizationParameter::eSCALE, cvar_PhysicsDebugDrawEnable ? cvar_PhysicsDebugDrawSize : 0.0f);
+
+    if (cvar_PhysicsDebugDrawEnable)
+    {
+      // m_pPxScene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_SHAPES, 1);
+      // m_pPxScene->setVisualizationParameter(PxVisualizationParameter::eCONTACT_POINT, 1);
+      // m_pPxScene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_DYNAMIC, 1);
+      m_pPxScene->setVisualizationParameter(PxVisualizationParameter::eJOINT_LIMITS, 1);
+      // m_pPxScene->setVisualizationParameter(PxVisualizationParameter::eJOINT_LOCAL_FRAMES, 1);
+      // m_pPxScene->setVisualizationParameter(PxVisualizationParameter::eBODY_AXES, 1);
+
+      ezHybridArray<ezDebugRenderer::Line, 64> lines;
+
+      const PxRenderBuffer& rb = m_pPxScene->getRenderBuffer();
+      for (PxU32 i = 0; i < rb.getNbLines(); i++)
+      {
+        const PxDebugLine& line = rb.getLines()[i];
+
+        auto& l = lines.ExpandAndGetRef();
+        l.m_start = ezPxConversionUtils::ToVec3(line.pos0);
+        l.m_end = ezPxConversionUtils::ToVec3(line.pos1);
+        l.m_startColor = FromARGB(line.color0);
+        l.m_endColor = FromARGB(line.color1);
+      }
+
+      ezDebugRenderer::DrawLines(GetWorld(), lines, ezColor::White);
     }
   }
 
@@ -892,7 +938,8 @@ void ezPhysXWorldModule::SimulateStep(ezTime deltaTime)
     EZ_PROFILE_SCOPE("FetchResult");
 
     // Help executing tasks while we wait for the simulation to finish
-    ezTaskSystem::WaitForCondition([&] { return m_pPxScene->checkResults(false); });
+    ezTaskSystem::WaitForCondition([&]
+      { return m_pPxScene->checkResults(false); });
 
     EZ_PX_WRITE_LOCK(*m_pPxScene);
 

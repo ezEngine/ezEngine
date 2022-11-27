@@ -101,6 +101,7 @@ EZ_FORCE_INLINE void ezBoundingBoxTemplate<Type>::ExpandToInclude(const ezVec3Te
 template <typename Type>
 EZ_FORCE_INLINE void ezBoundingBoxTemplate<Type>::ExpandToInclude(const ezBoundingBoxTemplate<Type>& rhs)
 {
+  EZ_ASSERT_DEBUG(rhs.IsValid(), "rhs must be a valid AABB.");
   ExpandToInclude(rhs.m_vMin);
   ExpandToInclude(rhs.m_vMax);
 }

@@ -16,7 +16,7 @@ o
 			s{":app/VisualShader/Textures.ddl"}
 		}
 		Uuid %DocumentID{u4{6606229393384050111,5379541501939741659}}
-		u4 %Hash{9290903261601440478}
+		u4 %Hash{409938178597762011}
 		VarArray %MetaInfo{}
 		VarArray %Outputs
 		{
@@ -33,6 +33,32 @@ Objects
 {
 o
 {
+	Uuid %id{u4{4251610282235839397,4624329416487482138}}
+	s %t{"DocumentNodeManager_DefaultConnection"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Connection::Source{u4{2043642505903450039,5579376851466362405}}
+		s %Connection::SourcePin{"Color"}
+		Uuid %Connection::Target{u4{10856328133719190201,4982308007282672334}}
+		s %Connection::TargetPin{"BaseColor"}
+	}
+}
+o
+{
+	Uuid %id{u4{6607125190097502360,4759917341724016221}}
+	s %t{"DocumentNodeManager_DefaultConnection"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Connection::Source{u4{8726482742835312608,5458857014249024239}}
+		s %Connection::SourcePin{"Normal"}
+		Uuid %Connection::Target{u4{10856328133719190201,4982308007282672334}}
+		s %Connection::TargetPin{"Normal"}
+	}
+}
+o
+{
 	Uuid %id{u4{10856328133719190201,4982308007282672334}}
 	s %t{"ShaderNode::MaterialOutput"}
 	u3 %v{1}
@@ -43,7 +69,6 @@ o
 		Vec3 %Emissive{f{0,0,0}}
 		f %MaskThreshold{0}
 		f %Metallic{0}
-		VarArray %Node::Connections{}
 		Vec2 %Node::Pos{f{0x4AA96644,0x174E9042}}
 		f %Occlusion{0x0000803F}
 		f %Opacity{0x0000803F}
@@ -55,14 +80,15 @@ o
 }
 o
 {
-	Uuid %id{u4{16022574163100033457,5294328694667094755}}
-	s %t{"DocumentNodeManagerConnectionInternal"}
+	Uuid %id{u4{7488025893861073845,5155509911171024303}}
+	s %t{"DocumentNodeManager_DefaultConnection"}
 	u3 %v{1}
 	p
 	{
-		s %SourcePin{"Color"}
-		Uuid %Target{u4{10856328133719190201,4982308007282672334}}
-		s %TargetPin{"Emissive"}
+		Uuid %Connection::Source{u4{2043642505903450039,5579376851466362405}}
+		s %Connection::SourcePin{"Color"}
+		Uuid %Connection::Target{u4{10856328133719190201,4982308007282672334}}
+		s %Connection::TargetPin{"Emissive"}
 	}
 }
 o
@@ -73,10 +99,6 @@ o
 	p
 	{
 		s %Name{"NormalTexture"}
-		VarArray %Node::Connections
-		{
-			Uuid{u4{15325108621188027952,9882272678014743600}}
-		}
 		Vec2 %Node::Pos{f{0x3B8FEC43,0x2754CD42}}
 		s %Texture{""}
 	}
@@ -102,11 +124,6 @@ o
 	u3 %v{1}
 	p
 	{
-		VarArray %Node::Connections
-		{
-			Uuid{u4{8710347430923893658,10296975047607620666}}
-			Uuid{u4{16022574163100033457,5294328694667094755}}
-		}
 		Vec2 %Node::Pos{f{0xE4ED2343,0xB989FFC1}}
 	}
 }
@@ -138,31 +155,10 @@ o
 			Uuid{u4{10856328133719190201,4982308007282672334}}
 			Uuid{u4{8726482742835312608,5458857014249024239}}
 			Uuid{u4{2043642505903450039,5579376851466362405}}
+			Uuid{u4{6607125190097502360,4759917341724016221}}
+			Uuid{u4{4251610282235839397,4624329416487482138}}
+			Uuid{u4{7488025893861073845,5155509911171024303}}
 		}
-	}
-}
-o
-{
-	Uuid %id{u4{15325108621188027952,9882272678014743600}}
-	s %t{"DocumentNodeManagerConnectionInternal"}
-	u3 %v{1}
-	p
-	{
-		s %SourcePin{"Normal"}
-		Uuid %Target{u4{10856328133719190201,4982308007282672334}}
-		s %TargetPin{"Normal"}
-	}
-}
-o
-{
-	Uuid %id{u4{8710347430923893658,10296975047607620666}}
-	s %t{"DocumentNodeManagerConnectionInternal"}
-	u3 %v{1}
-	p
-	{
-		s %SourcePin{"Color"}
-		Uuid %Target{u4{10856328133719190201,4982308007282672334}}
-		s %TargetPin{"BaseColor"}
 	}
 }
 }
@@ -206,7 +202,7 @@ o
 	u3 %v{1}
 	p
 	{
-		s %Filter{";Texture 2D;Render Target;HTML Texture;"}
+		s %Filter{";CompatibleAsset_Texture_2D;"}
 	}
 }
 o
@@ -302,7 +298,7 @@ o
 	u3 %v{1}
 	p
 	{
-		s %Filter{";Texture 2D;Render Target;"}
+		s %Filter{";CompatibleAsset_Texture_2D;"}
 	}
 }
 o
@@ -769,6 +765,24 @@ o
 }
 o
 {
+	Uuid %id{u4{1988646526571382668,10729334715299371304}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"DocumentNodeManager_DefaultConnection"}
+		u3 %TypeSize{8}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{17523931883222954915,11019633592439028378}}
 	s %t{"ezDefaultValueAttribute"}
 	u3 %v{1}
@@ -1100,7 +1114,7 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezMaterialAssetProperties"}
-		u3 %TypeSize{328}
+		u3 %TypeSize{320}
 		u3 %TypeVersion{4}
 	}
 }

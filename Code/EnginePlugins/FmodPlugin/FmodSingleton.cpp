@@ -23,7 +23,7 @@ ezFmod::ezFmod()
   : m_SingletonRegistrar(this)
 {
   m_bInitialized = false;
-  m_ListenerPosition.SetZero();
+  m_vListenerPosition.SetZero();
 
   m_pStudioSystem = nullptr;
   m_pLowLevelSystem = nullptr;
@@ -179,7 +179,7 @@ ezUInt8 ezFmod::GetNumListeners()
 {
   int i = 0;
   m_pStudioSystem->getNumListeners(&i);
-  return i;
+  return static_cast<ezUInt8>(i);
 }
 
 void ezFmod::LoadConfiguration(const char* szFile)
@@ -323,7 +323,7 @@ void ezFmod::SetListener(ezInt32 iIndex, const ezVec3& vPosition, const ezVec3& 
 
   if (iIndex == 0)
   {
-    m_ListenerPosition = vPosition;
+    m_vListenerPosition = vPosition;
   }
 
   FMOD_3D_ATTRIBUTES attr;

@@ -64,7 +64,7 @@ protected:
   // ezRenderComponent
 
 protected:
-  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible) override;
+  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg) override;
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
 
 
@@ -142,7 +142,7 @@ protected:
   bool m_bMapNormalToGeometry = false;
   ezUInt8 m_uiRandomDecalIdx = 0xFF;
   ezEnum<ezBasisAxis> m_ProjectionAxis;
-  ezHybridArray<ezDecalResourceHandle, 1> m_hDecals;
+  ezHybridArray<ezDecalResourceHandle, 1> m_Decals;
 
   ezGameObjectHandle m_hApplyOnlyToObject;
   ezUInt32 m_uiApplyOnlyToId = 0;

@@ -77,7 +77,7 @@ void ezBlurPass::Execute(const ezRenderViewContext& renderViewContext, const ezA
     renderingSetup.m_ClearColor = ezColor(1.0f, 0.0f, 0.0f);
 
     // Bind render target and viewport
-    auto pCommandEncoder = ezRenderContext::BeginPassAndRenderingScope(renderViewContext, renderingSetup, GetName());
+    auto pCommandEncoder = ezRenderContext::BeginPassAndRenderingScope(renderViewContext, renderingSetup, GetName(), renderViewContext.m_pCamera->IsStereoscopic());
 
     // Setup input view and sampler
     ezGALResourceViewCreationDescription rvcd;

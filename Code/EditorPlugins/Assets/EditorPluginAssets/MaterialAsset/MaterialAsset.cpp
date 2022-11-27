@@ -5,6 +5,7 @@
 #include <EditorPluginAssets/MaterialAsset/ShaderTypeRegistry.h>
 #include <EditorPluginAssets/VisualShader/VsCodeGenerator.h>
 #include <GuiFoundation/NodeEditor/NodeScene.moc.h>
+#include <GuiFoundation/PropertyGrid/DefaultState.h>
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 #include <RendererCore/Material/MaterialResource.h>
 #include <ToolsFoundation/Document/PrefabCache.h>
@@ -13,6 +14,15 @@
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
 #  include <Foundation/IO/CompressedStreamZstd.h>
 #endif
+
+// clang-format off
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezMaterialAssetPreview, 1)
+  EZ_ENUM_CONSTANT(ezMaterialAssetPreview::Ball),
+  EZ_ENUM_CONSTANT(ezMaterialAssetPreview::Sphere),
+  EZ_ENUM_CONSTANT(ezMaterialAssetPreview::Box),
+  EZ_ENUM_CONSTANT(ezMaterialAssetPreview::Plane),
+EZ_END_STATIC_REFLECTED_ENUM;
+// clang-format on
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezMaterialShaderMode, 1)
@@ -24,9 +34,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialAssetProperties, 4, ezRTTIDefaultAlloc
   EZ_BEGIN_PROPERTIES
   {
     EZ_ENUM_ACCESSOR_PROPERTY("ShaderMode", ezMaterialShaderMode, GetShaderMode, SetShaderMode),
-    EZ_ACCESSOR_PROPERTY("BaseMaterial", GetBaseMaterial, SetBaseMaterial)->AddAttributes(new ezAssetBrowserAttribute("Material")),
-    EZ_ACCESSOR_PROPERTY("Surface", GetSurface, SetSurface)->AddAttributes(new ezAssetBrowserAttribute("Surface")),
-    EZ_ACCESSOR_PROPERTY("Shader", GetShader, SetShader)->AddAttributes(new ezFileBrowserAttribute("Select Shader", "*.ezShader")),
+    EZ_ACCESSOR_PROPERTY("BaseMaterial", GetBaseMaterial, SetBaseMaterial)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Material")),
+    EZ_ACCESSOR_PROPERTY("Surface", GetSurface, SetSurface)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface")),
+    EZ_ACCESSOR_PROPERTY("Shader", GetShader, SetShader)->AddAttributes(new ezFileBrowserAttribute("Select Shader", "*.ezShader", "CustomAction_CreateShaderFromTemplate")),
     // This property holds the phantom shader properties type so it is only used in the object graph but not actually in the instance of this object.
     EZ_ACCESSOR_PROPERTY("ShaderProperties", GetShaderProperties, SetShaderProperties)->AddFlags(ezPropertyFlags::PointerOwner)->AddAttributes(new ezContainerAttribute(false, false, false)),
   }
@@ -34,7 +44,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialAssetProperties, 4, ezRTTIDefaultAlloc
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialAssetDocument, 5, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialAssetDocument, 6, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
@@ -615,7 +625,7 @@ public:
   }
 };
 
-ezStatus ezMaterialAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezTransformStatus ezMaterialAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   if (ezStringUtils::IsEqual(szOutputTag, ezMaterialAssetDocumentManager::s_szShaderOutputTag))
   {
@@ -671,7 +681,7 @@ ezStatus ezMaterialAssetDocument::InternalTransformAsset(const char* szTargetFil
 
           ezVisualShaderErrorLog log;
 
-          ret = ezQtEditorApp::GetSingleton()->ExecuteTool("ShaderCompiler.exe", arguments, 60, &log);
+          ret = ezQtEditorApp::GetSingleton()->ExecuteTool("ShaderCompiler", arguments, 60, &log);
           if (ret.Failed())
           {
             e.m_Type = ezMaterialVisualShaderEvent::TransformFailed;
@@ -706,14 +716,14 @@ ezStatus ezMaterialAssetDocument::InternalTransformAsset(const char* szTargetFil
   }
 }
 
-ezStatus ezMaterialAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezTransformStatus ezMaterialAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   EZ_ASSERT_DEV(ezStringUtils::IsNullOrEmpty(szOutputTag), "Additional output '{0}' not implemented!", szOutputTag);
 
   return WriteMaterialAsset(stream, pAssetProfile, true);
 }
 
-ezStatus ezMaterialAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo)
+ezTransformStatus ezMaterialAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo)
 {
   return ezAssetDocument::RemoteCreateThumbnail(ThumbnailInfo);
 }
@@ -721,23 +731,7 @@ ezStatus ezMaterialAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& T
 void ezMaterialAssetDocument::InternalGetMetaDataHash(const ezDocumentObject* pObject, ezUInt64& inout_uiHash) const
 {
   const ezDocumentNodeManager* pManager = static_cast<const ezDocumentNodeManager*>(GetObjectManager());
-  if (pManager->IsNode(pObject))
-  {
-    auto outputs = pManager->GetOutputPins(pObject);
-    for (const ezPin* pPinSource : outputs)
-    {
-      auto inputs = pPinSource->GetConnections();
-      for (const ezConnection* pConnection : inputs)
-      {
-        const ezPin* pPinTarget = pConnection->GetTargetPin();
-
-        inout_uiHash = ezHashingUtils::xxHash64(&pPinSource->GetParent()->GetGuid(), sizeof(ezUuid), inout_uiHash);
-        inout_uiHash = ezHashingUtils::xxHash64(&pPinTarget->GetParent()->GetGuid(), sizeof(ezUuid), inout_uiHash);
-        inout_uiHash = ezHashingUtils::xxHash64(pPinSource->GetName(), ezStringUtils::GetStringElementCount(pPinSource->GetName()), inout_uiHash);
-        inout_uiHash = ezHashingUtils::xxHash64(pPinTarget->GetName(), ezStringUtils::GetStringElementCount(pPinTarget->GetName()), inout_uiHash);
-      }
-    }
-  }
+  pManager->GetMetaDataHash(pObject, inout_uiHash);
 }
 
 void ezMaterialAssetDocument::AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph) const
@@ -833,9 +827,13 @@ ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& stream0, co
       ezHybridArray<ezAbstractProperty*, 32> properties;
       pType->GetAllProperties(properties);
 
+      ezHybridArray<ezPropertySelection, 1> selection;
+      selection.PushBack({pObject, ezVariant()});
+      ezDefaultObjectState defaultState(GetObjectAccessor(), selection.GetArrayPtr());
+
       for (auto* pProp : properties)
       {
-        if (hasBaseMaterial && IsDefaultValue(pObject, pProp->GetPropertyName(), false))
+        if (hasBaseMaterial && defaultState.IsDefaultValue(pProp))
           continue;
 
         const ezCategoryAttribute* pCategory = pProp->GetAttributeByType<ezCategoryAttribute>();
@@ -1096,18 +1094,18 @@ static void MarkReachableNodes(ezMap<const ezDocumentObject*, bool>& AllNodes, c
   auto allInputs = pNodeManager->GetInputPins(pRoot);
 
   // we start at the final output, so use the inputs on a node and then walk backwards
-  for (ezPin* pTargetPin : allInputs)
+  for (auto& pTargetPin : allInputs)
   {
-    const ezArrayPtr<const ezConnection* const> connections = pTargetPin->GetConnections();
+    auto connections = pNodeManager->GetConnections(*pTargetPin);
 
     // all incoming connections at the input pin, there should only be one though
     for (const ezConnection* const pConnection : connections)
     {
       // output pin on other node connecting to this node
-      const ezPin* pSourcePin = pConnection->GetSourcePin();
+      const ezPin& sourcePin = pConnection->GetSourcePin();
 
       // recurse from here
-      MarkReachableNodes(AllNodes, pSourcePin->GetParent(), pNodeManager);
+      MarkReachableNodes(AllNodes, sourcePin.GetParent(), pNodeManager);
     }
   }
 }
@@ -1216,80 +1214,14 @@ bool ezMaterialAssetDocument::CopySelectedObjects(ezAbstractObjectGraph& out_obj
 {
   out_MimeType = "application/ezEditor.NodeGraph";
 
-  const auto& selection = GetSelectionManager()->GetSelection();
-
-  if (selection.IsEmpty())
-    return false;
-
   const ezDocumentNodeManager* pManager = static_cast<const ezDocumentNodeManager*>(GetObjectManager());
-
-  ezDocumentObjectConverterWriter writer(&out_objectGraph, pManager);
-
-  for (const ezDocumentObject* pNode : selection)
-  {
-    // objects are required to be named root but this is not enforced or obvious by the interface.
-    writer.AddObjectToGraph(pNode, "root");
-  }
-
-  pManager->AttachMetaDataBeforeSaving(out_objectGraph);
-
-  return true;
+  return pManager->CopySelectedObjects(out_objectGraph);
 }
 
 bool ezMaterialAssetDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, const char* szMimeType)
 {
-  bool bAddedAll = true;
-
-  ezDeque<const ezDocumentObject*> AddedNodes;
-
-  for (const PasteInfo& pi : info)
-  {
-    // only add nodes that are allowed to be added
-    if (GetObjectManager()->CanAdd(pi.m_pObject->GetTypeAccessor().GetType(), nullptr, "Children", pi.m_Index).m_Result.Succeeded())
-    {
-      AddedNodes.PushBack(pi.m_pObject);
-      GetObjectManager()->AddObject(pi.m_pObject, nullptr, "Children", pi.m_Index);
-    }
-    else
-    {
-      bAddedAll = false;
-    }
-  }
-
-  m_DocumentObjectMetaData->RestoreMetaDataFromAbstractGraph(objectGraph);
-
-  RestoreMetaDataAfterLoading(objectGraph, true);
-
-  if (!AddedNodes.IsEmpty() && bAllowPickedPosition)
-  {
-    ezDocumentNodeManager* pManager = static_cast<ezDocumentNodeManager*>(GetObjectManager());
-
-    ezVec2 vAvgPos(0);
-    for (const ezDocumentObject* pNode : AddedNodes)
-    {
-      vAvgPos += pManager->GetNodePos(pNode);
-    }
-
-    vAvgPos /= AddedNodes.GetCount();
-
-    const ezVec2 vMoveNode = -vAvgPos + ezQtNodeScene::GetLastMouseInteractionPos();
-
-    for (const ezDocumentObject* pNode : AddedNodes)
-    {
-      ezMoveNodeCommand move;
-      move.m_Object = pNode->GetGuid();
-      move.m_NewPos = pManager->GetNodePos(pNode) + vMoveNode;
-      GetCommandHistory()->AddCommand(move);
-    }
-
-    if (!bAddedAll)
-    {
-      ezLog::Info("[EditorStatus]Not all nodes were allowed to be added to the document");
-    }
-  }
-
-  GetSelectionManager()->SetSelection(AddedNodes);
-  return true;
+  ezDocumentNodeManager* pManager = static_cast<ezDocumentNodeManager*>(GetObjectManager());
+  return pManager->PasteObjects(info, objectGraph, ezQtNodeScene::GetLastMouseInteractionPos(), bAllowPickedPosition);
 }
 
 //////////////////////////////////////////////////////////////////////////

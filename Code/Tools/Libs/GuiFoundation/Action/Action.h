@@ -116,7 +116,7 @@ public:
 
   void TriggerUpdate();
   const ezActionContext& GetContext() const { return m_Context; }
-  ezActionDescriptorHandle GetDescriptorHandle() { return m_DescriptorHandle; }
+  ezActionDescriptorHandle GetDescriptorHandle() { return m_hDescriptorHandle; }
 
 public:
   ezEvent<ezAction*> m_StatusUpdateEvent; ///< Fire when the state of the action changes (enabled, value etc...)
@@ -126,5 +126,5 @@ protected:
 
 private:
   friend struct ezActionDescriptor;
-  ezActionDescriptorHandle m_DescriptorHandle;
+  ezActionDescriptorHandle m_hDescriptorHandle;
 };

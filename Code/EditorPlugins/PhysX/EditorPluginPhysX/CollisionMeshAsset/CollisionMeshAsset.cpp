@@ -53,7 +53,7 @@ void ezCollisionMeshAssetDocument::InitializeAfterLoading(bool bFirstTimeCreatio
 //////////////////////////////////////////////////////////////////////////
 
 
-ezStatus ezCollisionMeshAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezTransformStatus ezCollisionMeshAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   ezProgressRange range("Transforming Asset", 2, false);
 
@@ -89,15 +89,15 @@ ezStatus ezCollisionMeshAssetDocument::InternalTransformAsset(ezStreamWriter& st
     {
       const ezMat3 mTransformation = CalculateTransformationMatrix(pProp);
 
-      // TODO verify
       xMesh.m_bFlipNormals = ezGraphicsUtils::IsTriangleFlipRequired(mTransformation);
 
       ezGeometry geom;
-      const ezMat4 mTrans(mTransformation, ezVec3::ZeroVector());
+      ezGeometry::GeoOptions opt;
+      opt.m_Transform = ezMat4(mTransformation, ezVec3::ZeroVector());
 
       if (pProp->m_ConvexMeshType == ezConvexCollisionMeshType::Cylinder)
       {
-        geom.AddCylinderOnePiece(pProp->m_fRadius, pProp->m_fRadius2, pProp->m_fHeight * 0.5f, pProp->m_fHeight * 0.5f, ezMath::Clamp<ezUInt16>(pProp->m_uiDetail, 3, 32), ezColor::White, mTrans);
+        geom.AddCylinderOnePiece(pProp->m_fRadius, pProp->m_fRadius2, pProp->m_fHeight * 0.5f, pProp->m_fHeight * 0.5f, ezMath::Clamp<ezUInt16>(pProp->m_uiDetail, 3, 32), opt);
       }
 
       EZ_SUCCEED_OR_RETURN(CreateMeshFromGeom(geom, xMesh));
@@ -300,7 +300,7 @@ ezStatus ezCollisionMeshAssetDocument::WriteToStream(ezChunkStreamWriter& stream
   return ezPhysXCooking::WriteResourceToStream(stream, mesh, surfaces, meshType, pProp->m_uiMaxConvexPieces);
 }
 
-ezStatus ezCollisionMeshAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo)
+ezTransformStatus ezCollisionMeshAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo)
 {
   ezStatus status = ezAssetDocument::RemoteCreateThumbnail(ThumbnailInfo);
   return status;
@@ -341,7 +341,7 @@ void ezCollisionMeshAssetDocumentGenerator::GetImportModes(const char* szParentD
   {
     ezAssetDocumentGenerator::Info& info = out_Modes.ExpandAndGetRef();
     info.m_Priority = ezAssetDocGeneratorPriority::DefaultPriority;
-    info.m_sName = "CollisionMeshImport.TriangleMesh";
+    info.m_sName = "Collision Mesh";
     info.m_sOutputFileParentRelative = baseOutputFile;
     info.m_sIcon = ":/AssetIcons/Collision_Mesh.png";
   }
@@ -389,7 +389,7 @@ void ezConvexCollisionMeshAssetDocumentGenerator::GetImportModes(const char* szP
   {
     ezAssetDocumentGenerator::Info& info = out_Modes.ExpandAndGetRef();
     info.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
-    info.m_sName = "CollisionMeshImport.ConvexMesh";
+    info.m_sName = "Collision Mesh (Convex)";
     info.m_sOutputFileParentRelative = baseOutputFile;
     info.m_sIcon = ":/AssetIcons/Collision_Mesh_Convex.png";
   }

@@ -26,7 +26,7 @@ public:
   static ezTagRegistry& GetGlobalRegistry();
 
   /// \brief Ensures the tag with the given name exists and returns a pointer to it.
-  const ezTag& RegisterTag(const char* szTagString); // [tested]
+  const ezTag& RegisterTag(ezStringView szTagString); // [tested]
 
   /// \brief Ensures the tag with the given name exists and returns a pointer to it.
   const ezTag& RegisterTag(const ezHashedString& TagString); // [tested]

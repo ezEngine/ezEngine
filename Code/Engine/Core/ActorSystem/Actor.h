@@ -40,6 +40,12 @@ public:
   /// \brief Fills the list with all plugins that have been added to the actor.
   void GetAllPlugins(ezHybridArray<ezActorPlugin*, 8>& out_AllPlugins);
 
+  /// \brief Checks whether the actor is queued for destruction at the end of the frame
+  bool IsActorQueuedForDestruction() const
+  {
+    return m_State == State::QueuedForDestruction;
+  }
+
 protected:
   void UpdateAllPlugins();
 

@@ -83,6 +83,9 @@ public:
   /// The long description is allowed to contain newlines (\n) and the output will be formatted accordingly.
   virtual void GetLongDesc(ezStringBuilder& out) const = 0;
 
+  /// \brief Returns a string indicating the exact implementation type.
+  virtual const char* GetType() = 0;
+
 protected:
   const char* m_szSortingGroup = nullptr;
 };
@@ -109,8 +112,11 @@ public:
 
   virtual void GetLongDesc(ezStringBuilder& out) const override; // [tested]
 
+  /// \brief Returns "Doc"
+  virtual const char* GetType() override { return "Doc"; }
+
   /// \brief Checks whether any of the option variants is set on the command line, and returns which one. For example '-h' or '-help'.
-  bool IsOptionSpecified(ezStringBuilder* out_which, const ezCommandLineUtils* pUtils = ezCommandLineUtils::GetGlobalInstance()) const; // [tested]
+  bool IsOptionSpecified(ezStringBuilder* out_which = nullptr, const ezCommandLineUtils* pUtils = ezCommandLineUtils::GetGlobalInstance()) const; // [tested]
 
 protected:
   bool ShouldLog(LogMode mode, bool bWasSpecified) const;
@@ -138,10 +144,16 @@ public:
   bool GetOptionValue(LogMode logMode, const ezCommandLineUtils* pUtils = ezCommandLineUtils::GetGlobalInstance()) const; // [tested]
 
   /// \brief Modifies the default value
-  void SetDefault(bool value)
+  void SetDefaultValue(bool value)
   {
     m_bDefaultValue = value;
   }
+
+  /// \brief Returns the default value.
+  bool GetDefaultValue() const { return m_bDefaultValue; }
+
+  /// \brief Returns "Bool"
+  virtual const char* GetType() override { return "Bool"; }
 
 protected:
   bool m_bDefaultValue = false;
@@ -168,10 +180,22 @@ public:
   int GetOptionValue(LogMode logMode, const ezCommandLineUtils* pUtils = ezCommandLineUtils::GetGlobalInstance()) const; // [tested]
 
   /// \brief Modifies the default value
-  void SetDefault(ezInt32 value)
+  void SetDefaultValue(ezInt32 value)
   {
     m_iDefaultValue = value;
   }
+
+  /// \brief Returns "Int"
+  virtual const char* GetType() override { return "Int"; }
+
+  /// \brief Returns the minimum value.
+  ezInt32 GetMinValue() const { return m_iMinValue; }
+
+  /// \brief Returns the maximum value.
+  ezInt32 GetMaxValue() const { return m_iMaxValue; }
+
+  /// \brief Returns the default value.
+  ezInt32 GetDefaultValue() const { return m_iDefaultValue; }
 
 protected:
   ezInt32 m_iDefaultValue = 0;
@@ -200,10 +224,22 @@ public:
   float GetOptionValue(LogMode logMode, const ezCommandLineUtils* pUtils = ezCommandLineUtils::GetGlobalInstance()) const; // [tested]
 
   /// \brief Modifies the default value
-  void SetDefault(float value)
+  void SetDefaultValue(float value)
   {
     m_fDefaultValue = value;
   }
+
+  /// \brief Returns "Float"
+  virtual const char* GetType() override { return "Float"; }
+
+  /// \brief Returns the minimum value.
+  float GetMinValue() const { return m_fMinValue; }
+
+  /// \brief Returns the maximum value.
+  float GetMaxValue() const { return m_fMaxValue; }
+
+  /// \brief Returns the default value.
+  float GetDefaultValue() const { return m_fDefaultValue; }
 
 protected:
   float m_fDefaultValue = 0;
@@ -225,10 +261,16 @@ public:
   const char* GetOptionValue(LogMode logMode, const ezCommandLineUtils* pUtils = ezCommandLineUtils::GetGlobalInstance()) const; // [tested]
 
   /// \brief Modifies the default value
-  void SetDefault(const char* value)
+  void SetDefaultValue(const char* value)
   {
     m_szDefaultValue = value;
   }
+
+  /// \brief Returns the default value.
+  const char* GetDefaultValue() const { return m_szDefaultValue; }
+
+  /// \brief Returns "String"
+  virtual const char* GetType() override { return "String"; }
 
 protected:
   const char* m_szDefaultValue = "";
@@ -248,10 +290,16 @@ public:
   ezString GetOptionValue(LogMode logMode, const ezCommandLineUtils* pUtils = ezCommandLineUtils::GetGlobalInstance()) const; // [tested]
 
   /// \brief Modifies the default value
-  void SetDefault(const char* value)
+  void SetDefaultValue(const char* value)
   {
     m_szDefaultValue = value;
   }
+
+  /// \brief Returns the default value.
+  const char* GetDefaultValue() const { return m_szDefaultValue; }
+
+  /// \brief Returns "Path"
+  virtual const char* GetType() override { return "Path"; }
 
 protected:
   const char* m_szDefaultValue = "";
@@ -292,10 +340,16 @@ public:
   void GetEnumKeysAndValues(ezDynamicArray<EnumKeyValue>& out_KeysAndValues) const;
 
   /// \brief Modifies the default value
-  void SetDefault(ezInt32 value)
+  void SetDefaultValue(ezInt32 value)
   {
     m_iDefaultValue = value;
   }
+
+  /// \brief Returns the default value.
+  ezInt32 GetDefaultValue() const { return m_iDefaultValue; }
+
+  /// \brief Returns "Enum"
+  virtual const char* GetType() override { return "Enum"; }
 
 protected:
   ezInt32 m_iDefaultValue = 0;

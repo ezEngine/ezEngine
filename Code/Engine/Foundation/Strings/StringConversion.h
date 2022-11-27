@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Foundation/Containers/HybridArray.h>
+#include <Foundation/Strings/StringView.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
 // Include our windows.h header first to get rid of defines.
@@ -19,22 +20,22 @@ class EZ_FOUNDATION_DLL ezStringWChar
 {
 public:
   ezStringWChar(ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator());
-  ezStringWChar(const char* szUtf8, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator());
   ezStringWChar(const ezUInt16* szUtf16, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator());
   ezStringWChar(const ezUInt32* szUtf32, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator());
   ezStringWChar(const wchar_t* szUtf32, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator());
+  ezStringWChar(ezStringView sUtf8, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator());
 
-  void operator=(const char* szUtf8);
   void operator=(const ezUInt16* szUtf16);
   void operator=(const ezUInt32* szUtf32);
   void operator=(const wchar_t* szUtf32);
+  void operator=(ezStringView sUtf8);
 
-  operator const wchar_t*() const { return &m_Data[0]; }
-  const wchar_t* GetData() const { return &m_Data[0]; }
-  ezUInt32 GetElementCount() const { return m_Data.GetCount() - 1; /* exclude the '\0' terminator */ }
+  EZ_ALWAYS_INLINE operator const wchar_t*() const { return &m_Data[0]; }
+  EZ_ALWAYS_INLINE const wchar_t* GetData() const { return &m_Data[0]; }
+  EZ_ALWAYS_INLINE ezUInt32 GetElementCount() const { return m_Data.GetCount() - 1; /* exclude the '\0' terminator */ }
 
 private:
-  static const ezUInt32 BufferSize = 1024;
+  static constexpr ezUInt32 BufferSize = 1024;
   ezHybridArray<wchar_t, BufferSize> m_Data;
 };
 
@@ -66,12 +67,29 @@ public:
   void operator=(const HSTRING& hstring);
 #endif
 
-  operator const char *() const { return &m_Data[0]; }
-  const char* GetData() const { return &m_Data[0]; }
-  ezUInt32 GetElementCount() const { return m_Data.GetCount() - 1; /* exclude the '\0' terminator */ }
+  EZ_ALWAYS_INLINE operator const char*() const
+  {
+    return &m_Data[0];
+  }
+  EZ_ALWAYS_INLINE const char* GetData() const
+  {
+    return &m_Data[0];
+  }
+  EZ_ALWAYS_INLINE ezUInt32 GetElementCount() const
+  {
+    return m_Data.GetCount() - 1; /* exclude the '\0' terminator */
+  }
+  EZ_ALWAYS_INLINE operator ezStringView() const
+  {
+    return GetView();
+  }
+  EZ_ALWAYS_INLINE ezStringView GetView() const
+  {
+    return ezStringView(&m_Data[0], GetElementCount());
+  }
 
 private:
-  static const ezUInt32 BufferSize = 1024;
+  static constexpr ezUInt32 BufferSize = 1024;
   ezHybridArray<char, BufferSize> m_Data;
 };
 
@@ -96,11 +114,11 @@ public:
   void operator=(const ezUInt32* szUtf32);
   void operator=(const wchar_t* szUtf32);
 
-  const ezUInt16* GetData() const { return &m_Data[0]; }
-  ezUInt32 GetElementCount() const { return m_Data.GetCount() - 1; /* exclude the '\0' terminator */ }
+  EZ_ALWAYS_INLINE const ezUInt16* GetData() const { return &m_Data[0]; }
+  EZ_ALWAYS_INLINE ezUInt32 GetElementCount() const { return m_Data.GetCount() - 1; /* exclude the '\0' terminator */ }
 
 private:
-  static const ezUInt32 BufferSize = 1024;
+  static constexpr ezUInt32 BufferSize = 1024;
   ezHybridArray<ezUInt16, BufferSize> m_Data;
 };
 
@@ -123,11 +141,11 @@ public:
   void operator=(const ezUInt32* szUtf32);
   void operator=(const wchar_t* szWChar);
 
-  const ezUInt32* GetData() const { return &m_Data[0]; }
-  ezUInt32 GetElementCount() const { return m_Data.GetCount() - 1; /* exclude the '\0' terminator */ }
+  EZ_ALWAYS_INLINE const ezUInt32* GetData() const { return &m_Data[0]; }
+  EZ_ALWAYS_INLINE ezUInt32 GetElementCount() const { return m_Data.GetCount() - 1; /* exclude the '\0' terminator */ }
 
 private:
-  static const ezUInt32 BufferSize = 1024;
+  static constexpr ezUInt32 BufferSize = 1024;
   ezHybridArray<ezUInt32, BufferSize> m_Data;
 };
 
@@ -154,7 +172,7 @@ public:
 
   /// \brief Unfortunately you cannot assign HStrings, so you cannot copy the result to another HString, you have to use this result
   /// directly
-  const Microsoft::WRL::Wrappers::HString& GetData() const { return m_Data; }
+  EZ_ALWAYS_INLINE const Microsoft::WRL::Wrappers::HString& GetData() const { return m_Data; }
 
 private:
   Microsoft::WRL::Wrappers::HString m_Data;

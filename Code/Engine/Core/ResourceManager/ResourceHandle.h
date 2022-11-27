@@ -131,25 +131,25 @@ public:
 
   /// \brief Increases the refcount of the given resource.
   explicit ezTypedResourceHandle(ResourceType* pResource)
-    : m_Typeless(pResource)
+    : m_hTypeless(pResource)
   {
   }
 
   /// \brief Increases the refcount of the given resource.
   ezTypedResourceHandle(const ezTypedResourceHandle<ResourceType>& rhs)
-    : m_Typeless(rhs.m_Typeless)
+    : m_hTypeless(rhs.m_hTypeless)
   {
   }
 
   /// \brief Move constructor, no refcount change is necessary.
   ezTypedResourceHandle(ezTypedResourceHandle<ResourceType>&& rhs)
-    : m_Typeless(std::move(rhs.m_Typeless))
+    : m_hTypeless(std::move(rhs.m_hTypeless))
   {
   }
 
   template <typename BaseOrDerivedType>
   ezTypedResourceHandle(const ezTypedResourceHandle<BaseOrDerivedType>& rhs)
-    : m_Typeless(rhs.m_Typeless)
+    : m_hTypeless(rhs.m_hTypeless)
   {
     static_assert(std::is_base_of<ResourceType, BaseOrDerivedType>::value || std::is_base_of<BaseOrDerivedType, ResourceType>::value, "Only related types can be assigned to handles of this type");
 
@@ -164,49 +164,49 @@ public:
   }
 
   /// \brief Releases the current reference and increases the refcount of the given resource.
-  void operator=(const ezTypedResourceHandle<ResourceType>& rhs) { m_Typeless = rhs.m_Typeless; }
+  void operator=(const ezTypedResourceHandle<ResourceType>& rhs) { m_hTypeless = rhs.m_hTypeless; }
 
   /// \brief Move operator, no refcount change is necessary.
-  void operator=(ezTypedResourceHandle<ResourceType>&& rhs) { m_Typeless = std::move(rhs.m_Typeless); }
+  void operator=(ezTypedResourceHandle<ResourceType>&& rhs) { m_hTypeless = std::move(rhs.m_hTypeless); }
 
   /// \brief Checks whether the two handles point to the same resource.
-  EZ_ALWAYS_INLINE bool operator==(const ezTypedResourceHandle<ResourceType>& rhs) const { return m_Typeless == rhs.m_Typeless; }
+  EZ_ALWAYS_INLINE bool operator==(const ezTypedResourceHandle<ResourceType>& rhs) const { return m_hTypeless == rhs.m_hTypeless; }
 
   /// \brief Checks whether the two handles point to the same resource.
-  EZ_ALWAYS_INLINE bool operator!=(const ezTypedResourceHandle<ResourceType>& rhs) const { return m_Typeless != rhs.m_Typeless; }
+  EZ_ALWAYS_INLINE bool operator!=(const ezTypedResourceHandle<ResourceType>& rhs) const { return m_hTypeless != rhs.m_hTypeless; }
 
   /// \brief For storing handles as keys in maps
-  EZ_ALWAYS_INLINE bool operator<(const ezTypedResourceHandle<ResourceType>& rhs) const { return m_Typeless < rhs.m_Typeless; }
+  EZ_ALWAYS_INLINE bool operator<(const ezTypedResourceHandle<ResourceType>& rhs) const { return m_hTypeless < rhs.m_hTypeless; }
 
   /// \brief Checks whether the handle points to the given resource.
-  EZ_ALWAYS_INLINE bool operator==(const ezResource* rhs) const { return m_Typeless == rhs; }
+  EZ_ALWAYS_INLINE bool operator==(const ezResource* rhs) const { return m_hTypeless == rhs; }
 
   /// \brief Checks whether the handle points to the given resource.
-  EZ_ALWAYS_INLINE bool operator!=(const ezResource* rhs) const { return m_Typeless != rhs; }
+  EZ_ALWAYS_INLINE bool operator!=(const ezResource* rhs) const { return m_hTypeless != rhs; }
 
 
   /// \brief Returns the corresponding typeless resource handle.
-  EZ_ALWAYS_INLINE operator const ezTypelessResourceHandle() const { return m_Typeless; }
+  EZ_ALWAYS_INLINE operator const ezTypelessResourceHandle() const { return m_hTypeless; }
 
   /// \brief Returns the corresponding typeless resource handle.
-  EZ_ALWAYS_INLINE operator ezTypelessResourceHandle() { return m_Typeless; }
+  EZ_ALWAYS_INLINE operator ezTypelessResourceHandle() { return m_hTypeless; }
 
   /// \brief Returns whether the handle stores a valid pointer to a resource.
-  EZ_ALWAYS_INLINE bool IsValid() const { return m_Typeless.IsValid(); }
+  EZ_ALWAYS_INLINE bool IsValid() const { return m_hTypeless.IsValid(); }
 
   /// \brief Returns whether the handle stores a valid pointer to a resource.
-  EZ_ALWAYS_INLINE explicit operator bool() const { return m_Typeless.IsValid(); }
+  EZ_ALWAYS_INLINE explicit operator bool() const { return m_hTypeless.IsValid(); }
 
   /// \brief Clears any reference to a resource and reduces its refcount.
-  EZ_ALWAYS_INLINE void Invalidate() { m_Typeless.Invalidate(); }
+  EZ_ALWAYS_INLINE void Invalidate() { m_hTypeless.Invalidate(); }
 
   /// \brief Returns the Resource ID hash of the exact resource that this handle points to, without acquiring the resource.
   /// The handle must be valid.
-  EZ_ALWAYS_INLINE ezUInt64 GetResourceIDHash() const { return m_Typeless.GetResourceIDHash(); }
+  EZ_ALWAYS_INLINE ezUInt64 GetResourceIDHash() const { return m_hTypeless.GetResourceIDHash(); }
 
   /// \brief Returns the Resource ID of the exact resource that this handle points to, without acquiring the resource.
   /// The handle must be valid.
-  EZ_ALWAYS_INLINE const ezString& GetResourceID() const { return m_Typeless.GetResourceID(); }
+  EZ_ALWAYS_INLINE const ezString& GetResourceID() const { return m_hTypeless.GetResourceID(); }
 
 private:
   template <typename T>
@@ -218,7 +218,7 @@ private:
   friend class ezResourceHandleReadContext;
   friend class ezResourceHandleStreamOperations;
 
-  ezTypelessResourceHandle m_Typeless;
+  ezTypelessResourceHandle m_hTypeless;
 };
 
 template <typename T>
@@ -238,13 +238,13 @@ public:
   template <typename ResourceType>
   static void WriteHandle(ezStreamWriter& Stream, const ezTypedResourceHandle<ResourceType>& hResource)
   {
-    WriteHandle(Stream, hResource.m_Typeless.m_pResource);
+    WriteHandle(Stream, hResource.m_hTypeless.m_pResource);
   }
 
   template <typename ResourceType>
   static void ReadHandle(ezStreamReader& Stream, ezTypedResourceHandle<ResourceType>& ResourceHandle)
   {
-    ReadHandle(Stream, ResourceHandle.m_Typeless);
+    ReadHandle(Stream, ResourceHandle.m_hTypeless);
   }
 
 private:

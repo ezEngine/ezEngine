@@ -82,7 +82,7 @@ private:
 
 public:
   EZ_ALWAYS_INLINE ezDelegate()
-    : m_pDispatchFunction(nullptr)
+    : m_DispatchFunction(nullptr)
   {
   }
 
@@ -96,8 +96,8 @@ public:
   {
     CopyMemberFunctionToInplaceStorage(method);
 
-    m_pInstance.m_Ptr = pInstance;
-    m_pDispatchFunction = &DispatchToMethod<Method, Class>;
+    m_Instance.m_Ptr = pInstance;
+    m_DispatchFunction = &DispatchToMethod<Method, Class>;
   }
 
   /// \brief Constructs the delegate from a member function type and takes the (const) class instance on which to call the function later.
@@ -106,8 +106,8 @@ public:
   {
     CopyMemberFunctionToInplaceStorage(method);
 
-    m_pInstance.m_ConstPtr = pInstance;
-    m_pDispatchFunction = &DispatchToConstMethod<Method, Class>;
+    m_Instance.m_ConstPtr = pInstance;
+    m_DispatchFunction = &DispatchToConstMethod<Method, Class>;
   }
 
   /// \brief Constructs the delegate from a regular C function type.
@@ -125,28 +125,38 @@ public:
     using signature = R(Args...);
     if constexpr (functionSize <= DataSize && std::is_assignable<signature*&, Function>::value)
     {
-      CopyFunctionToInplaceStorage(function);
+      // Lambdas with no capture have a size of 1.
+      // Lambdas with no capture actually have no data. Do not copy the 1 uninitialized byte.
+      // Propper function pointers have a size of > 4 or 8 (depending on pointer size)
+      if constexpr (functionSize > 1)
+      {
+        CopyFunctionToInplaceStorage(function);
+      }
+      else
+      {
+        memset(m_Data, 0, DataSize);
+      }
 
-      m_pInstance.m_ConstPtr = nullptr;
-      m_pDispatchFunction = &DispatchToFunction<Function>;
+      m_Instance.m_ConstPtr = nullptr;
+      m_DispatchFunction = &DispatchToFunction<Function>;
     }
     else
     {
       constexpr size_t storageSize = sizeof(ezLambdaDelegateStorage<Function>);
       if constexpr (storageSize <= DataSize)
       {
-        m_pInstance.m_ConstPtr = InplaceLambda();
+        m_Instance.m_ConstPtr = InplaceLambda();
         new (m_Data) ezLambdaDelegateStorage<Function>(std::move(function));
         memset(m_Data + storageSize, 0, DataSize - storageSize);
-        m_pDispatchFunction = &DispatchToInplaceLambda<Function>;
+        m_DispatchFunction = &DispatchToInplaceLambda<Function>;
       }
       else
       {
-        m_pInstance.m_ConstPtr = HeapLambda();
+        m_Instance.m_ConstPtr = HeapLambda();
         m_pLambdaStorage = EZ_NEW(pAllocator, ezLambdaDelegateStorage<Function>, std::move(function));
         m_pAllocator = pAllocator;
         memset(m_Data + 2 * sizeof(void*), 0, DataSize - 2 * sizeof(void*));
-        m_pDispatchFunction = &DispatchToHeapLambda<Function>;
+        m_DispatchFunction = &DispatchToHeapLambda<Function>;
       }
     }
   }
@@ -173,16 +183,16 @@ public:
       memcpy(m_Data, other.m_Data, DataSize);
     }
 
-    m_pInstance = other.m_pInstance;
-    m_pDispatchFunction = other.m_pDispatchFunction;
+    m_Instance = other.m_Instance;
+    m_DispatchFunction = other.m_DispatchFunction;
   }
 
   /// \brief Moves the data from another delegate.
   EZ_FORCE_INLINE void operator=(SelfType&& other)
   {
     Invalidate();
-    m_pInstance = other.m_pInstance;
-    m_pDispatchFunction = other.m_pDispatchFunction;
+    m_Instance = other.m_Instance;
+    m_DispatchFunction = other.m_DispatchFunction;
 
     if (other.IsInplaceLambda())
     {
@@ -194,8 +204,8 @@ public:
       memcpy(m_Data, other.m_Data, DataSize);
     }
 
-    other.m_pInstance.m_Ptr = nullptr;
-    other.m_pDispatchFunction = nullptr;
+    other.m_Instance.m_Ptr = nullptr;
+    other.m_DispatchFunction = nullptr;
     memset(other.m_Data, 0, DataSize);
   }
 
@@ -205,8 +215,8 @@ public:
   /// \brief Function call operator. This will call the function that is bound to the delegate, or assert if nothing was bound.
   EZ_FORCE_INLINE R operator()(Args... params) const
   {
-    EZ_ASSERT_DEBUG(m_pDispatchFunction != nullptr, "Delegate is not bound.");
-    return (*m_pDispatchFunction)(*this, params...);
+    EZ_ASSERT_DEBUG(m_DispatchFunction != nullptr, "Delegate is not bound.");
+    return (*m_DispatchFunction)(*this, params...);
   }
 
   /// \brief This function only exists to make code compile, but it will assert when used. Use IsEqualIfNotHeapAllocated() instead.
@@ -222,17 +232,17 @@ public:
   /// assert that it is used correctly. It is best to not use this function at all.
   EZ_ALWAYS_INLINE bool IsEqualIfComparable(const SelfType& other) const
   {
-    return m_pInstance.m_Ptr == other.m_pInstance.m_Ptr && m_pDispatchFunction == other.m_pDispatchFunction &&
+    return m_Instance.m_Ptr == other.m_Instance.m_Ptr && m_DispatchFunction == other.m_DispatchFunction &&
            memcmp(m_Data, other.m_Data, DataSize) == 0;
   }
 
   /// \brief Returns true when the delegate is bound to a valid non-nullptr function.
-  EZ_ALWAYS_INLINE bool IsValid() const { return m_pDispatchFunction != nullptr; }
+  EZ_ALWAYS_INLINE bool IsValid() const { return m_DispatchFunction != nullptr; }
 
   /// \brief Resets a delegate to an invalid state.
   EZ_FORCE_INLINE void Invalidate()
   {
-    m_pDispatchFunction = nullptr;
+    m_DispatchFunction = nullptr;
     if (IsHeapLambda())
     {
       EZ_DELETE(m_pAllocator, m_pLambdaStorage);
@@ -243,15 +253,15 @@ public:
       pLambdaStorage->~ezLambdaDelegateStorageBase();
     }
 
-    m_pInstance.m_Ptr = nullptr;
+    m_Instance.m_Ptr = nullptr;
     memset(m_Data, 0, DataSize);
   }
 
   /// \brief Returns the class instance that is used to call a member function pointer on.
-  EZ_ALWAYS_INLINE void* GetClassInstance() const { return IsComparable() ? m_pInstance.m_Ptr : nullptr; }
+  EZ_ALWAYS_INLINE void* GetClassInstance() const { return IsComparable() ? m_Instance.m_Ptr : nullptr; }
 
   /// \brief Returns whether the delegate is comparable with other delegates of the same type. This is not the case for i.e. lambdas with captures.
-  EZ_ALWAYS_INLINE bool IsComparable() const { return m_pInstance.m_ConstPtr < InplaceLambda(); } // [tested]
+  EZ_ALWAYS_INLINE bool IsComparable() const { return m_Instance.m_ConstPtr < InplaceLambda(); } // [tested]
 
 private:
   template <typename Function>
@@ -281,23 +291,23 @@ private:
 #endif
   }
 
-  EZ_ALWAYS_INLINE bool IsInplaceLambda() const { return m_pInstance.m_ConstPtr == InplaceLambda(); }
-  EZ_ALWAYS_INLINE bool IsHeapLambda() const { return m_pInstance.m_ConstPtr == HeapLambda(); }
+  EZ_ALWAYS_INLINE bool IsInplaceLambda() const { return m_Instance.m_ConstPtr == InplaceLambda(); }
+  EZ_ALWAYS_INLINE bool IsHeapLambda() const { return m_Instance.m_ConstPtr == HeapLambda(); }
 
   template <typename Method, typename Class>
   static EZ_FORCE_INLINE R DispatchToMethod(const SelfType& self, Args... params)
   {
-    EZ_ASSERT_DEBUG(self.m_pInstance.m_Ptr != nullptr, "Instance must not be null.");
+    EZ_ASSERT_DEBUG(self.m_Instance.m_Ptr != nullptr, "Instance must not be null.");
     Method method = *reinterpret_cast<Method*>(&self.m_Data);
-    return (static_cast<Class*>(self.m_pInstance.m_Ptr)->*method)(params...);
+    return (static_cast<Class*>(self.m_Instance.m_Ptr)->*method)(params...);
   }
 
   template <typename Method, typename Class>
   static EZ_FORCE_INLINE R DispatchToConstMethod(const SelfType& self, Args... params)
   {
-    EZ_ASSERT_DEBUG(self.m_pInstance.m_ConstPtr != nullptr, "Instance must not be null.");
+    EZ_ASSERT_DEBUG(self.m_Instance.m_ConstPtr != nullptr, "Instance must not be null.");
     Method method = *reinterpret_cast<Method*>(&self.m_Data);
-    return (static_cast<const Class*>(self.m_pInstance.m_ConstPtr)->*method)(params...);
+    return (static_cast<const Class*>(self.m_Instance.m_ConstPtr)->*method)(params...);
   }
 
   template <typename Function>
@@ -319,7 +329,7 @@ private:
   }
 
   using DispatchFunction = R (*)(const SelfType&, Args...);
-  DispatchFunction m_pDispatchFunction;
+  DispatchFunction m_DispatchFunction;
 
   union
   {

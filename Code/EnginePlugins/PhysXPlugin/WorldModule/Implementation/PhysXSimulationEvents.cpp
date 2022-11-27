@@ -1,22 +1,22 @@
 #include <PhysXPlugin/PhysXPluginPCH.h>
 
 #include <Core/Messages/CollisionMessage.h>
+#include <Core/Physics/SurfaceResource.h>
 #include <Core/Prefabs/PrefabResource.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Foundation/Configuration/CVar.h>
-#include <GameEngine/Physics/SurfaceResource.h>
 #include <PhysXPlugin/Components/PxTriggerComponent.h>
 #include <PhysXPlugin/Utilities/PxConversionUtils.h>
 #include <PhysXPlugin/WorldModule/Implementation/PhysXSimulationEvents.h>
 #include <PhysXPlugin/WorldModule/PhysXWorldModule.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 
-ezCVarInt cvar_PhysicsReactionsMaxImpacts("Physics.Reactions.MaxImpacts", 4, ezCVarFlags::Default, "Maximum number of impact reactions to spawn per frame.");
-ezCVarInt cvar_PhysicsReactionsMaxSlidesOrRolls("Physics.Reactions.MaxSlidesOrRolls", 4, ezCVarFlags::Default, "Maximum number of active slide or roll reactions.");
-ezCVarBool cvar_PhysicsReactionsVisImpacts("Physics.Reactions.VisImpacts", false, ezCVarFlags::Default, "Visualize where impact reactions are spawned.");
-ezCVarBool cvar_PhysicsReactionsVisDiscardedImpacts("Physics.Reactions.VisDiscardedImpacts", false, ezCVarFlags::Default, "Visualize where impact reactions were NOT spawned.");
-ezCVarBool cvar_PhysicsReactionsVisSlides("Physics.Reactions.VisSlides", false, ezCVarFlags::Default, "Visualize active slide reactions.");
-ezCVarBool cvar_PhysicsReactionsVisRolls("Physics.Reactions.VisRolls", false, ezCVarFlags::Default, "Visualize active roll reactions.");
+ezCVarInt cvar_PhysicsReactionsMaxImpacts("PhysX.Reactions.MaxImpacts", 4, ezCVarFlags::Default, "Maximum number of impact reactions to spawn per frame.");
+ezCVarInt cvar_PhysicsReactionsMaxSlidesOrRolls("PhysX.Reactions.MaxSlidesOrRolls", 4, ezCVarFlags::Default, "Maximum number of active slide or roll reactions.");
+ezCVarBool cvar_PhysicsReactionsVisImpacts("PhysX.Reactions.VisImpacts", false, ezCVarFlags::Default, "Visualize where impact reactions are spawned.");
+ezCVarBool cvar_PhysicsReactionsVisDiscardedImpacts("PhysX.Reactions.VisDiscardedImpacts", false, ezCVarFlags::Default, "Visualize where impact reactions were NOT spawned.");
+ezCVarBool cvar_PhysicsReactionsVisSlides("PhysX.Reactions.VisSlides", false, ezCVarFlags::Default, "Visualize active slide reactions.");
+ezCVarBool cvar_PhysicsReactionsVisRolls("PhysX.Reactions.VisRolls", false, ezCVarFlags::Default, "Visualize active roll reactions.");
 
 void ezPxSimulationEventCallback::onConstraintBreak(PxConstraintInfo* constraints, PxU32 count)
 {

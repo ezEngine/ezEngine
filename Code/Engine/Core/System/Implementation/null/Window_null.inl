@@ -12,6 +12,12 @@ ezResult ezWindow::Destroy()
   return EZ_FAILURE;
 }
 
+ezResult ezWindow::Resize(const ezSizeU32& newWindowSize)
+{
+  EZ_ASSERT_NOT_IMPLEMENTED;
+  return EZ_FAILURE;
+}
+
 void ezWindow::ProcessWindowMessages()
 {
   EZ_ASSERT_NOT_IMPLEMENTED;
@@ -20,4 +26,9 @@ void ezWindow::ProcessWindowMessages()
 void ezWindow::OnResize(const ezSizeU32& newWindowSize)
 {
   EZ_ASSERT_NOT_IMPLEMENTED;
+}
+
+ezWindowHandle ezWindow::GetNativeWindowHandle() const
+{
+  return m_hWindowHandle;
 }

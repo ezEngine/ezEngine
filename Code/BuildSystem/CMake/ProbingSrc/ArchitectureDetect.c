@@ -13,6 +13,8 @@
 		#pragma message("ARCH:'arm64'")
 	#elif defined(__arm__)
 		#pragma message("ARCH:'arm32'")
+	#elif defined(__EMSCRIPTEN__)
+		#pragma message("ARCH:'emscripten'")
 	#else
 		#error unhandled clang/gcc architecture
 	#endif

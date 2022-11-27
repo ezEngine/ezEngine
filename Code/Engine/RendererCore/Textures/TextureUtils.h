@@ -8,6 +8,9 @@
 struct EZ_RENDERERCORE_DLL ezTextureUtils
 {
   static ezGALResourceFormat::Enum ImageFormatToGalFormat(ezImageFormat::Enum format, bool bSRGB);
+  static ezImageFormat::Enum GalFormatToImageFormat(ezGALResourceFormat::Enum format, bool bRemoveSRGB);
+  static ezImageFormat::Enum GalFormatToImageFormat(ezGALResourceFormat::Enum format);
+
 
   static void ConfigureSampler(ezTextureFilterSetting::Enum filter, ezGALSamplerStateCreationDescription& out_Sampler);
 

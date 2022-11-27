@@ -7,8 +7,8 @@
 #include <Foundation/Threading/TaskSystem.h>
 
 ezMutex ezTaskSystem::s_TaskSystemMutex;
-ezUniquePtr<ezTaskSystemState> ezTaskSystem::s_State;
-ezUniquePtr<ezTaskSystemThreadState> ezTaskSystem::s_ThreadState;
+ezUniquePtr<ezTaskSystemState> ezTaskSystem::s_pState;
+ezUniquePtr<ezTaskSystemThreadState> ezTaskSystem::s_pThreadState;
 
 // clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, TaskSystem)
@@ -33,8 +33,8 @@ EZ_END_SUBSYSTEM_DECLARATION;
 
 void ezTaskSystem::Startup()
 {
-  s_ThreadState = EZ_DEFAULT_NEW(ezTaskSystemThreadState);
-  s_State = EZ_DEFAULT_NEW(ezTaskSystemState);
+  s_pThreadState = EZ_DEFAULT_NEW(ezTaskSystemThreadState);
+  s_pState = EZ_DEFAULT_NEW(ezTaskSystemState);
 
   tl_TaskWorkerInfo.m_WorkerType = ezWorkerThreadType::MainThread;
   tl_TaskWorkerInfo.m_iWorkerIndex = 0;
@@ -47,13 +47,13 @@ void ezTaskSystem::Shutdown()
 {
   StopWorkerThreads();
 
-  s_State.Clear();
-  s_ThreadState.Clear();
+  s_pState.Clear();
+  s_pThreadState.Clear();
 }
 
 void ezTaskSystem::SetTargetFrameTime(ezTime targetFrameTime)
 {
-  s_State->m_TargetFrameTime = targetFrameTime;
+  s_pState->m_TargetFrameTime = targetFrameTime;
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Threading_Implementation_TaskSystem);

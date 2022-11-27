@@ -49,9 +49,9 @@ public:
   virtual void Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) override;
   virtual void ExecuteInactive(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) override;
 
-  ezUInt32 GetLineToLinePixelOffset() const { return m_uiLineToLinePixelOffset; }
+  ezUInt32 GetLineToLinePixelOffset() const { return m_iLineToLinePixelOffset; }
   void SetLineToLinePixelOffset(ezUInt32 uiPixelOffset);
-  ezUInt32 GetLineSamplePixelOffset() const { return m_uiLineSamplePixelOffsetFactor; }
+  ezUInt32 GetLineSamplePixelOffset() const { return m_iLineSamplePixelOffsetFactor; }
   void SetLineSamplePixelOffset(ezUInt32 uiPixelOffset);
 
   // Factor used for depth cutoffs (determines when a depth difference is too large to be considered)
@@ -66,10 +66,10 @@ public:
 protected:
   /// Destroys all GPU data that might have been created in in SetupLineSweepData
   void DestroyLineSweepData();
-  void SetupLineSweepData(const ezVec2I32& imageResolution);
+  void SetupLineSweepData(const ezVec3I32& imageResolution);
 
 
-  void AddLinesForDirection(const ezVec2I32& imageResolution, const ezVec2I32& sampleDir, ezUInt32 lineIndex, ezDynamicArray<LineInstruction>& outinLineInstructions, ezUInt32& outinTotalNumberOfSamples);
+  void AddLinesForDirection(const ezVec3I32& imageResolution, const ezVec2I32& sampleDir, ezUInt32 lineIndex, ezDynamicArray<LineInstruction>& outinLineInstructions, ezUInt32& outinTotalNumberOfSamples);
 
   ezRenderPipelineNodeInputPin m_PinDepthInput;
   ezRenderPipelineNodeOutputPin m_PinOutput;
@@ -88,10 +88,10 @@ protected:
   ezGALResourceViewHandle m_hLineSweepInfoSRV;
 
   /// Total number of lines to be traced.
-  ezUInt32 m_numSweepLines;
+  ezUInt32 m_uiNumSweepLines;
 
-  ezInt32 m_uiLineToLinePixelOffset;
-  ezInt32 m_uiLineSamplePixelOffsetFactor;
+  ezInt32 m_iLineToLinePixelOffset;
+  ezInt32 m_iLineSamplePixelOffsetFactor;
   ezEnum<ezLSAODepthCompareFunction> m_DepthCompareFunction;
   bool m_bDistributedGathering;
 

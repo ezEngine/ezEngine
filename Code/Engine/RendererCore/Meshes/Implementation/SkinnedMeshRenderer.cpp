@@ -9,6 +9,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSkinnedMeshRenderer, 1, ezRTTIDefaultAllocator
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
+ezUInt32 ezSkinnedMeshRenderer::s_uiSkinningBufferUpdates = 0;
+
 ezSkinnedMeshRenderer::ezSkinnedMeshRenderer() = default;
 ezSkinnedMeshRenderer::~ezSkinnedMeshRenderer() = default;
 
@@ -34,9 +36,14 @@ void ezSkinnedMeshRenderer::SetAdditionalData(const ezRenderViewContext& renderV
   {
     pContext->SetShaderPermutationVariable("VERTEX_SKINNING", "TRUE");
 
-    if (!pSkinnedRenderData->m_pNewSkinningTransformData.IsEmpty())
+    if (pSkinnedRenderData->m_bTransformsUpdated != nullptr && *pSkinnedRenderData->m_bTransformsUpdated == false)
     {
+      // if this is the first renderer that is supposed to actually render the skinned mesh, upload the skinning matrices
+      *pSkinnedRenderData->m_bTransformsUpdated = true;
       pContext->GetCommandEncoder()->UpdateBuffer(pSkinnedRenderData->m_hSkinningTransforms, 0, pSkinnedRenderData->m_pNewSkinningTransformData);
+
+      // TODO: could expose this somewhere (ezStats?)
+      s_uiSkinningBufferUpdates++;
     }
 
     pContext->BindBuffer("skinningTransforms", pDevice->GetDefaultResourceView(pSkinnedRenderData->m_hSkinningTransforms));

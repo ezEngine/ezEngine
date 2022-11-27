@@ -149,6 +149,7 @@ void ezGraphicsUtils::ConvertProjectionMatrixDepthRange(ezMat4& inout_Matrix, ez
 
 void ezGraphicsUtils::ExtractPerspectiveMatrixFieldOfView(const ezMat4& ProjectionMatrix, ezAngle& out_fFovX, ezAngle& out_fFovY)
 {
+
   const ezVec3 row0 = ProjectionMatrix.GetRow(0).GetAsVec3();
   const ezVec3 row1 = ProjectionMatrix.GetRow(1).GetAsVec3();
   const ezVec3 row3 = ProjectionMatrix.GetRow(3).GetAsVec3();
@@ -160,6 +161,46 @@ void ezGraphicsUtils::ExtractPerspectiveMatrixFieldOfView(const ezMat4& Projecti
 
   out_fFovX = ezAngle::Radian(ezMath::Pi<float>()) - ezMath::ACos(leftPlane.Dot(rightPlane));
   out_fFovY = ezAngle::Radian(ezMath::Pi<float>()) - ezMath::ACos(topPlane.Dot(bottomPlane));
+}
+
+void ezGraphicsUtils::ExtractPerspectiveMatrixFieldOfView(const ezMat4& ProjectionMatrix, ezAngle& out_fFovLeft, ezAngle& out_fFovRight, ezAngle& out_fFovBottom, ezAngle& out_fFovTop, ezClipSpaceYMode::Enum yRange)
+{
+  const ezVec3 row0 = ProjectionMatrix.GetRow(0).GetAsVec3();
+  const ezVec3 row1 = ProjectionMatrix.GetRow(1).GetAsVec3();
+  const ezVec3 row3 = ProjectionMatrix.GetRow(3).GetAsVec3();
+
+  const ezVec3 leftPlane = (row3 + row0).GetNormalized();
+  const ezVec3 rightPlane = (row3 - row0).GetNormalized();
+  const ezVec3 bottomPlane = (row3 + row1).GetNormalized();
+  const ezVec3 topPlane = (row3 - row1).GetNormalized();
+
+  out_fFovLeft = -ezMath::ACos(leftPlane.Dot(ezVec3(1.0f, 0, 0)));
+  out_fFovRight = ezAngle::Radian(ezMath::Pi<float>()) - ezMath::ACos(rightPlane.Dot(ezVec3(1.0f, 0, 0)));
+  out_fFovBottom = -ezMath::ACos(bottomPlane.Dot(ezVec3(0, 1.0f, 0)));
+  out_fFovTop = ezAngle::Radian(ezMath::Pi<float>()) - ezMath::ACos(topPlane.Dot(ezVec3(0, 1.0f, 0)));
+
+  if (yRange == ezClipSpaceYMode::Flipped)
+    ezMath::Swap(out_fFovBottom, out_fFovTop);
+}
+
+ezResult ezGraphicsUtils::ExtractPerspectiveMatrixFieldOfView(const ezMat4& ProjectionMatrix, float& out_fLeft, float& out_fRight, float& out_fBottom, float& out_fTop, ezClipSpaceDepthRange::Enum DepthRange, ezClipSpaceYMode::Enum yRange)
+{
+  float fNear, fFar;
+  EZ_SUCCEED_OR_RETURN(ExtractNearAndFarClipPlaneDistances(fNear, fFar, ProjectionMatrix, DepthRange));
+  // Compensate for inverse-Z.
+  const float fMinDepth = ezMath::Min(fNear, fFar);
+
+  ezAngle fFovLeft;
+  ezAngle fFovRight;
+  ezAngle fFovBottom;
+  ezAngle fFovTop;
+  ExtractPerspectiveMatrixFieldOfView(ProjectionMatrix, fFovLeft, fFovRight, fFovBottom, fFovTop, yRange);
+
+  out_fLeft = ezMath::Tan(fFovLeft) * fMinDepth;
+  out_fRight = ezMath::Tan(fFovRight) * fMinDepth;
+  out_fBottom = ezMath::Tan(fFovBottom) * fMinDepth;
+  out_fTop = ezMath::Tan(fFovTop) * fMinDepth;
+  return EZ_SUCCESS;
 }
 
 ezResult ezGraphicsUtils::ExtractNearAndFarClipPlaneDistances(float& out_fNear, float& out_fFar, const ezMat4& ProjectionMatrix, ezClipSpaceDepthRange::Enum DepthRange)
@@ -179,13 +220,25 @@ ezResult ezGraphicsUtils::ExtractNearAndFarClipPlaneDistances(float& out_fNear, 
   const float nearLength = nearPlane.GetAsVec3().GetLength();
   const float farLength = farPlane.GetAsVec3().GetLength();
 
-  if (nearLength < ezMath::SmallEpsilon<float>() || farLength < ezMath::SmallEpsilon<float>())
+  const float nearW = ezMath::Abs(nearPlane.w);
+  const float farW = ezMath::Abs(farPlane.w);
+
+  if ((nearLength < ezMath::SmallEpsilon<float>() && farLength < ezMath::SmallEpsilon<float>()) ||
+      nearW < ezMath::SmallEpsilon<float>() || farW < ezMath::SmallEpsilon<float>())
   {
     return EZ_FAILURE;
   }
 
-  out_fNear = ezMath::Abs(nearPlane.w / nearLength);
-  out_fFar = farPlane.w / farLength;
+  const float fNear = nearW / nearLength;
+  const float fFar = farW / farLength;
+
+  if (ezMath::IsEqual(fNear, fFar, ezMath::SmallEpsilon<float>()))
+  {
+    return EZ_FAILURE;
+  }
+
+  out_fNear = fNear;
+  out_fFar = fFar;
 
   return EZ_SUCCESS;
 }
@@ -264,6 +317,8 @@ ezMat4 ezGraphicsUtils::CreateOrthographicProjectionMatrix(float fViewWidth, flo
 
 ezMat4 ezGraphicsUtils::CreateOrthographicProjectionMatrix(float fLeft, float fRight, float fBottom, float fTop, float fNearZ, float fFarZ, ezClipSpaceDepthRange::Enum DepthRange, ezClipSpaceYMode::Enum yRange, ezHandedness::Enum handedness)
 {
+  EZ_ASSERT_DEBUG(ezMath::IsFinite(fNearZ) && ezMath::IsFinite(fFarZ), "Infinite plane values are not supported for orthographic projections!");
+
   ezMat4 res;
   res.SetIdentity();
 
@@ -309,6 +364,8 @@ ezMat4 ezGraphicsUtils::CreateOrthographicProjectionMatrix(float fLeft, float fR
 
 ezMat4 ezGraphicsUtils::CreatePerspectiveProjectionMatrix(float fLeft, float fRight, float fBottom, float fTop, float fNearZ, float fFarZ, ezClipSpaceDepthRange::Enum DepthRange, ezClipSpaceYMode::Enum yRange, ezHandedness::Enum handedness)
 {
+  EZ_ASSERT_DEBUG(ezMath::IsFinite(fNearZ) || ezMath::IsFinite(fFarZ), "fNearZ and fFarZ cannot both be infinite at the same time!");
+
   ezMat4 res;
   res.SetZero();
 
@@ -324,7 +381,6 @@ ezMat4 ezGraphicsUtils::CreatePerspectiveProjectionMatrix(float fLeft, float fRi
   // in the final matrix.
   const float fMinPlane = ezMath::Min(fNearZ, fFarZ);
   const float fTwoNearZ = fMinPlane + fMinPlane;
-  const float fOneDivNearMinusFar = 1.0f / (fNearZ - fFarZ);
   const float fOneDivRightMinusLeft = 1.0f / (fRight - fLeft);
   const float fOneDivTopMinusBottom = 1.0f / (fTop - fBottom);
 
@@ -336,18 +392,60 @@ ezMat4 ezGraphicsUtils::CreatePerspectiveProjectionMatrix(float fLeft, float fRi
   res.Element(2, 1) = (fTop + fBottom) * fOneDivTopMinusBottom;
   res.Element(2, 3) = -1.0f;
 
+  // If either fNearZ or fFarZ is infinite, one can derive the resulting z-transformation by using limit math
+  // and letting the respective variable approach infinity in the original expressions for P(2, 2) and P(3, 2).
+  // The result is that a couple of terms from the original fraction get reduced to 0 by being divided by infinity,
+  // which fortunately yields 1) finite and 2) much simpler expressions for P(2, 2) and P(3, 2).
   if (DepthRange == ezClipSpaceDepthRange::MinusOneToOne)
   {
     // The OpenGL Way: http://wiki.delphigl.com/index.php/glFrustum
-    res.Element(2, 2) = (fFarZ + fNearZ) * fOneDivNearMinusFar;
-    res.Element(3, 2) = 2 * fFarZ * fNearZ * fOneDivNearMinusFar;
+    // Algebraically reordering the z-row fractions from the above source in a way so infinite fNearZ or fFarZ will zero out
+    // instead of producing NaNs due to inf/inf divisions will yield these generalized formulas which could be used instead
+    // of the branching below. Insert infinity for either fNearZ or fFarZ to see that these will yield exactly these simplifications:
+    //res.Element(2, 2) = 1.f / (fNearZ / fFarZ - 1.f) + 1.f / (1.f - fFarZ / fNearZ);
+    //res.Element(3, 2) = 2.f / (1.f / fFarZ - 1.f / fNearZ);
+    if (!ezMath::IsFinite(fNearZ))
+    {
+      res.Element(2, 2) = 1.f;
+      res.Element(3, 2) = 2.f * fFarZ;
+    }
+    else if (!ezMath::IsFinite(fFarZ))
+    {
+      res.Element(2, 2) = -1.f;
+      res.Element(3, 2) = -2.f * fNearZ;
+    }
+    else
+    {
+      const float fOneDivNearMinusFar = 1.0f / (fNearZ - fFarZ);
+      res.Element(2, 2) = (fFarZ + fNearZ) * fOneDivNearMinusFar;
+      res.Element(3, 2) = 2 * fFarZ * fNearZ * fOneDivNearMinusFar;
+    }
   }
   else
   {
     // The Left-Handed Direct3D Way: https://docs.microsoft.com/windows/win32/direct3d9/d3dxmatrixperspectiveoffcenterlh
     // The Right-Handed Direct3D Way: https://docs.microsoft.com/windows/win32/direct3d9/d3dxmatrixperspectiveoffcenterrh
-    res.Element(2, 2) = fFarZ * fOneDivNearMinusFar;
-    res.Element(3, 2) = fFarZ * fNearZ * fOneDivNearMinusFar;
+    // Algebraically reordering the z-row fractions from the above source in a way so infinite fNearZ or fFarZ will zero out
+    // instead of producing NaNs due to inf/inf divisions will yield these generalized formulas which could be used instead
+    // of the branching below. Insert infinity for either fNearZ or fFarZ to see that these will yield exactly these simplifications:
+    //res.Element(2, 2) = 1.f / (fNearZ / fFarZ - 1.f);
+    //res.Element(3, 2) = 1.f / (1.f / fFarZ - 1.f / fNearZ);
+    if (!ezMath::IsFinite(fNearZ))
+    {
+      res.Element(2, 2) = 0.f;
+      res.Element(3, 2) = fFarZ;
+    }
+    else if (!ezMath::IsFinite(fFarZ))
+    {
+      res.Element(2, 2) = -1.f;
+      res.Element(3, 2) = -fNearZ;
+    }
+    else
+    {
+      const float fOneDivNearMinusFar = 1.0f / (fNearZ - fFarZ);
+      res.Element(2, 2) = fFarZ * fOneDivNearMinusFar;
+      res.Element(3, 2) = fFarZ * fNearZ * fOneDivNearMinusFar;
+    }
   }
 
   if (handedness == ezHandedness::LeftHanded)

@@ -15,19 +15,19 @@ void ezSphereVisualizerAdapter::Finalize()
 
   const ezSphereVisualizerAttribute* pAttr = static_cast<const ezSphereVisualizerAttribute*>(m_pVisualizerAttr);
 
-  m_Gizmo.Configure(nullptr, ezEngineGizmoHandleType::Sphere, pAttr->m_Color, false, false, true);
+  m_hGizmo.ConfigureHandle(nullptr, ezEngineGizmoHandleType::Sphere, pAttr->m_Color, ezGizmoFlags::ShowInOrtho | ezGizmoFlags::Visualizer);
 
-  pAssetDocument->AddSyncObject(&m_Gizmo);
-  m_Gizmo.SetVisible(m_bVisualizerIsVisible);
+  pAssetDocument->AddSyncObject(&m_hGizmo);
+  m_hGizmo.SetVisible(m_bVisualizerIsVisible);
 }
 
 void ezSphereVisualizerAdapter::Update()
 {
-  m_Gizmo.SetVisible(m_bVisualizerIsVisible);
+  m_hGizmo.SetVisible(m_bVisualizerIsVisible);
   ezObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
   const ezSphereVisualizerAttribute* pAttr = static_cast<const ezSphereVisualizerAttribute*>(m_pVisualizerAttr);
 
-  m_Scale = 1.0f;
+  m_fScale = 1.0f;
 
   if (!pAttr->GetRadiusProperty().IsEmpty())
   {
@@ -35,7 +35,7 @@ void ezSphereVisualizerAdapter::Update()
     pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetRadiusProperty()), value);
 
     EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<float>(), "Invalid property bound to ezSphereVisualizerAttribute 'radius'");
-    m_Scale = value.ConvertTo<float>();
+    m_fScale = value.ConvertTo<float>();
   }
 
   if (!pAttr->GetColorProperty().IsEmpty())
@@ -44,7 +44,7 @@ void ezSphereVisualizerAdapter::Update()
     pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetColorProperty()), value);
 
     EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<ezColor>(), "Invalid property bound to ezSphereVisualizerAttribute 'color'");
-    m_Gizmo.SetColor(value.ConvertTo<ezColor>() * pAttr->m_Color);
+    m_hGizmo.SetColor(value.ConvertTo<ezColor>() * pAttr->m_Color);
   }
 
   m_vPositionOffset = pAttr->m_vOffsetOrScale;
@@ -69,7 +69,7 @@ void ezSphereVisualizerAdapter::UpdateGizmoTransform()
 {
   ezTransform t;
   t.m_qRotation.SetIdentity();
-  t.m_vScale.Set(m_Scale);
+  t.m_vScale.Set(m_fScale);
   t.m_vPosition = m_vPositionOffset;
 
   ezVec3 vOffset = ezVec3::ZeroVector();
@@ -89,5 +89,5 @@ void ezSphereVisualizerAdapter::UpdateGizmoTransform()
 
   t.m_vPosition += vOffset;
 
-  m_Gizmo.SetTransformation(GetObjectTransform() * t);
+  m_hGizmo.SetTransformation(GetObjectTransform() * t);
 }

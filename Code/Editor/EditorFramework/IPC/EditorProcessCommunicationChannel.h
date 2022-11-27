@@ -3,7 +3,10 @@
 #include <EditorEngineProcessFramework/IPC/ProcessCommunicationChannel.h>
 #include <EditorFramework/EditorFrameworkDLL.h>
 
-class QStringList;
+template <typename T>
+class QList;
+class QString;
+using QStringList = QList<QString>;
 class QProcess;
 
 class EZ_EDITORFRAMEWORK_DLL ezEditorProcessCommunicationChannel : public ezProcessCommunicationChannel
@@ -15,6 +18,8 @@ public:
   bool IsClientAlive() const;
 
   void CloseConnection();
+
+  ezString GetStdoutContents();
 
 private:
   QProcess* m_pClientProcess = nullptr;

@@ -1,0 +1,48 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+[RENDERSTATE]
+
+DepthTest = false
+CullMode = CullMode_None
+
+[VERTEXSHADER]
+
+#include "TestInstancing.h"
+
+struct VS_IN
+{
+  float3 Position : POSITION;
+};
+
+struct VS_OUT
+{
+  float4 Position : SV_Position;
+  float4 Color : COLOR0;
+};
+
+VS_OUT main(VS_IN Input, uint InstanceID : SV_InstanceID)
+{
+  ezTestShaderData instanceData = instancingData[InstanceID];
+  float4x4 transformMatrix = TransformToMatrix(instanceData.InstanceTransform);
+  VS_OUT RetVal;
+  RetVal.Position = mul(transformMatrix, float4(Input.Position, 1.0f));
+  RetVal.Color = instanceData.InstanceColor;
+  return RetVal;
+}
+
+[PIXELSHADER]
+
+struct VS_OUT
+{
+  float4 Position : SV_Position;
+  float4 Color : COLOR0;
+};
+
+float4 main(VS_OUT a) : SV_Target
+{
+  return a.Color;
+}
+

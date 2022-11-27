@@ -41,7 +41,7 @@ private:
   void FindObjectsInSphere(const ezBoundingSphere& sphere, const QueryParams& queryParams, QueryCallback callback) const override;
   void FindObjectsInBox(const ezBoundingBox& box, const QueryParams& queryParams, QueryCallback callback) const override;
 
-  void FindVisibleObjects(const ezFrustum& frustum, const QueryParams& queryParams, ezDynamicArray<const ezGameObject*>& out_Objects) const override;
+  void FindVisibleObjects(const ezFrustum& frustum, const QueryParams& queryParams, ezDynamicArray<const ezGameObject*>& out_Objects, ezSpatialSystem::IsOccludedFunc IsOccluded) const override;
 
   ezUInt64 GetNumFramesSinceVisible(const ezSpatialDataHandle& hData) const override;
 
@@ -51,8 +51,8 @@ private:
 
   ezProxyAllocator m_AlignedAllocator;
 
-  ezSimdVec4i m_iCellSize;
-  ezSimdVec4f m_fOverlapSize;
+  ezSimdVec4i m_vCellSize;
+  ezSimdVec4f m_vOverlapSize;
   ezSimdFloat m_fInvCellSize;
 
   enum

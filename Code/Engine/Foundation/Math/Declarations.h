@@ -131,7 +131,7 @@ using ezVec2I32 = ezVec2Template<ezInt32>;
 using ezVec2U32 = ezVec2Template<ezUInt32>;
 
 template <typename Type>
-struct ezVec3Template;
+class ezVec3Template;
 
 using ezVec3 = ezVec3Template<float>;
 using ezVec3d = ezVec3Template<double>;
@@ -245,4 +245,24 @@ struct EZ_FOUNDATION_DLL ezBasisAxis
   ///
   /// If axis1 and axis2 are not orthogonal to each other, the value of axis1 is returned as the result.
   static ezBasisAxis::Enum GetOrthogonalAxis(ezBasisAxis::Enum axis1, ezBasisAxis::Enum axis2, bool flip);
+};
+
+/// \brief An enum that represents the operator of a comparison
+struct EZ_FOUNDATION_DLL ezComparisonOperator
+{
+  using StorageType = ezUInt8;
+
+  enum Enum
+  {
+    Equal,
+    NotEqual,
+    Less,
+    LessEqual,
+    Greater,
+    GreaterEqual,
+
+    Default = Equal
+  };
+
+  static bool Compare(ezComparisonOperator::Enum cmp, double f1, double f2);
 };

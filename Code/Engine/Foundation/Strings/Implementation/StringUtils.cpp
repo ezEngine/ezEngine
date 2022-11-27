@@ -237,26 +237,26 @@ ezUInt32 ezStringUtils::ToLowerString(char* pString, const char* pStringEnd)
 }
 
 // Macro to Handle nullptr-pointer strings
-#define EZ_STRINGCOMPARE_HANDLE_NULL_PTRS(szString1, szString2, ret_equal, ret_str2_larger, ret_str1_larger, szString1End, szString2End)             \
-  if (szString1 == szString2) /* Handles the case that both are nullptr and that both are actually the same string */                                \
-  {                                                                                                                                                  \
-    if ((szString1 == nullptr) || (szString1End == szString2End)) /* if both are nullptr, ignore the end pointer, otherwise the strings              \
-                                                                     are equal, if both end pointers are also the same */                            \
-      return (ret_equal);                                                                                                                            \
-  }                                                                                                                                                  \
-  if (szString1 == nullptr)                                                                                                                          \
-  {                                                                                                                                                  \
-    if (szString2[0] == '\0') /* if String1 is nullptr, String2 is never nullptr, otherwise the previous IF would have returned already */           \
-      return (ret_equal);                                                                                                                            \
-    else                                                                                                                                             \
-      return (ret_str2_larger);                                                                                                                      \
-  }                                                                                                                                                  \
-  if (szString2 == nullptr)                                                                                                                          \
-  {                                                                                                                                                  \
-    if (szString1[0] == '\0') /* if String2 is nullptr, String1 is never nullptr, otherwise the previous IF would have returned already */           \
-      return (ret_equal);                                                                                                                            \
-    else                                                                                                                                             \
-      return (ret_str1_larger);                                                                                                                      \
+#define EZ_STRINGCOMPARE_HANDLE_NULL_PTRS(szString1, szString2, ret_equal, ret_str2_larger, ret_str1_larger, szString1End, szString2End)   \
+  if (szString1 == szString2) /* Handles the case that both are nullptr and that both are actually the same string */                      \
+  {                                                                                                                                        \
+    if ((szString1 == nullptr) || (szString1End == szString2End)) /* if both are nullptr, ignore the end pointer, otherwise the strings    \
+                                                                     are equal, if both end pointers are also the same */                  \
+      return (ret_equal);                                                                                                                  \
+  }                                                                                                                                        \
+  if (szString1 == nullptr)                                                                                                                \
+  {                                                                                                                                        \
+    if (szString2[0] == '\0') /* if String1 is nullptr, String2 is never nullptr, otherwise the previous IF would have returned already */ \
+      return (ret_equal);                                                                                                                  \
+    else                                                                                                                                   \
+      return (ret_str2_larger);                                                                                                            \
+  }                                                                                                                                        \
+  if (szString2 == nullptr)                                                                                                                \
+  {                                                                                                                                        \
+    if (szString1[0] == '\0') /* if String2 is nullptr, String1 is never nullptr, otherwise the previous IF would have returned already */ \
+      return (ret_equal);                                                                                                                  \
+    else                                                                                                                                   \
+      return (ret_str1_larger);                                                                                                            \
   }
 
 #define ToSignedInt(c) ((ezInt32)((unsigned char)c))
@@ -526,7 +526,7 @@ bool ezStringUtils::StartsWith(const char* szString, const char* szStartsWith, c
   }
 
   // if both are equally long, this comparison will return true
-  return (*szStartsWith == '\0');
+  return (*szStartsWith == '\0' || szStartsWith == szStartsWithEnd);
 }
 
 bool ezStringUtils::StartsWith_NoCase(const char* szString, const char* szStartsWith, const char* pStringEnd, const char* szStartsWithEnd)
@@ -545,12 +545,12 @@ bool ezStringUtils::StartsWith_NoCase(const char* szString, const char* szStarts
     if (ezStringUtils::CompareChars_NoCase(szStartsWith, szString) != 0)
       return false;
 
-    ezUnicodeUtils::MoveToNextUtf8(szString);
-    ezUnicodeUtils::MoveToNextUtf8(szStartsWith);
+    ezUnicodeUtils::MoveToNextUtf8(szString, pStringEnd);
+    ezUnicodeUtils::MoveToNextUtf8(szStartsWith, szStartsWithEnd);
   }
 
   // if both are equally long, this comparison will return true
-  return (*szStartsWith == '\0');
+  return (*szStartsWith == '\0' || szStartsWith == szStartsWithEnd);
 }
 
 bool ezStringUtils::EndsWith(const char* szString, const char* szEndsWith, const char* pStringEnd, const char* szEndsWithEnd)
@@ -602,7 +602,26 @@ bool ezStringUtils::EndsWith_NoCase(const char* szString, const char* szEndsWith
   return (pCur2 <= szEndsWith);
 }
 
-const char* ezStringUtils::FindSubString(const char* szSource, const char* szStringToFind, const char* pSourceEnd)
+const char* ezStringUtils::FindSubString(const char* szSource, const char* szStringToFind, const char* pSourceEnd, const char* szStringToFindEnd)
+{
+  // Handle nullptr-pointer strings
+  if ((IsNullOrEmpty(szSource)) || (IsNullOrEmpty(szStringToFind)))
+    return nullptr;
+
+  const char* pCurPos = &szSource[0];
+
+  while ((pCurPos < pSourceEnd) && (*pCurPos != '\0'))
+  {
+    if (ezStringUtils::StartsWith(pCurPos, szStringToFind, pSourceEnd, szStringToFindEnd))
+      return pCurPos;
+
+    ezUnicodeUtils::MoveToNextUtf8(pCurPos, pSourceEnd);
+  }
+
+  return nullptr;
+}
+
+const char* ezStringUtils::FindSubString_NoCase(const char* szSource, const char* szStringToFind, const char* pSourceEnd, const char* szStringToFindEnd)
 {
   // Handle nullptr-pointer strings
   if ((IsNullOrEmpty(szSource)) || (IsNullOrEmpty(szStringToFind)))
@@ -612,36 +631,17 @@ const char* ezStringUtils::FindSubString(const char* szSource, const char* szStr
 
   while ((*pCurPos != '\0') && (pCurPos < pSourceEnd))
   {
-    if (ezStringUtils::StartsWith(pCurPos, szStringToFind, pSourceEnd))
+    if (ezStringUtils::StartsWith_NoCase(pCurPos, szStringToFind, pSourceEnd, szStringToFindEnd))
       return pCurPos;
 
-    ezUnicodeUtils::MoveToNextUtf8(pCurPos);
-  }
-
-  return nullptr;
-}
-
-const char* ezStringUtils::FindSubString_NoCase(const char* szSource, const char* szStringToFind, const char* pSourceEnd)
-{
-  // Handle nullptr-pointer strings
-  if ((IsNullOrEmpty(szSource)) || (IsNullOrEmpty(szStringToFind)))
-    return nullptr;
-
-  const char* pCurPos = &szSource[0];
-
-  while ((*pCurPos != '\0') && (pCurPos < pSourceEnd))
-  {
-    if (ezStringUtils::StartsWith_NoCase(pCurPos, szStringToFind, pSourceEnd))
-      return pCurPos;
-
-    ezUnicodeUtils::MoveToNextUtf8(pCurPos);
+    ezUnicodeUtils::MoveToNextUtf8(pCurPos, pSourceEnd);
   }
 
   return nullptr;
 }
 
 
-const char* ezStringUtils::FindLastSubString(const char* szSource, const char* szStringToFind, const char* szStartSearchAt, const char* pSourceEnd)
+const char* ezStringUtils::FindLastSubString(const char* szSource, const char* szStringToFind, const char* szStartSearchAt, const char* pSourceEnd, const char* szStringToFindEnd)
 {
   // Handle nullptr-pointer strings
   if ((IsNullOrEmpty(szSource)) || (IsNullOrEmpty(szStringToFind)))
@@ -656,15 +656,14 @@ const char* ezStringUtils::FindLastSubString(const char* szSource, const char* s
   {
     ezUnicodeUtils::MoveToPriorUtf8(szStartSearchAt);
 
-    if (ezStringUtils::StartsWith(szStartSearchAt, szStringToFind, pSourceEnd))
+    if (ezStringUtils::StartsWith(szStartSearchAt, szStringToFind, pSourceEnd, szStringToFindEnd))
       return szStartSearchAt;
   }
 
   return nullptr;
 }
 
-const char* ezStringUtils::FindLastSubString_NoCase(
-  const char* szSource, const char* szStringToFind, const char* szStartSearchAt, const char* pSourceEnd)
+const char* ezStringUtils::FindLastSubString_NoCase(const char* szSource, const char* szStringToFind, const char* szStartSearchAt, const char* pSourceEnd, const char* szStringToFindEnd)
 {
   // Handle nullptr-pointer strings
   if ((IsNullOrEmpty(szSource)) || (IsNullOrEmpty(szStringToFind)))
@@ -677,7 +676,7 @@ const char* ezStringUtils::FindLastSubString_NoCase(
   {
     ezUnicodeUtils::MoveToPriorUtf8(szStartSearchAt);
 
-    if (ezStringUtils::StartsWith_NoCase(szStartSearchAt, szStringToFind, pSourceEnd))
+    if (ezStringUtils::StartsWith_NoCase(szStartSearchAt, szStringToFind, pSourceEnd, szStringToFindEnd))
       return szStartSearchAt;
   }
 
@@ -702,14 +701,14 @@ const char* ezStringUtils::FindWholeWord(const char* szString, const char* szSea
     {
       if (((szString == pCurPos) || // the start of the string is always a word delimiter
             (IsDelimiterCB(
-              ezUnicodeUtils::ConvertUtf8ToUtf32(pPrevPos) /* front */))) && // make sure the character before this substring is a word delimiter
-          ((pCurPos + uiSearchedWordLength >= pStringEnd) ||                 // the end of the string is also always a delimiter
+              ezUnicodeUtils::ConvertUtf8ToUtf32(pPrevPos) /* front */))) &&                                 // make sure the character before this substring is a word delimiter
+          ((pCurPos + uiSearchedWordLength >= pStringEnd) ||                                                 // the end of the string is also always a delimiter
             (IsDelimiterCB(ezUnicodeUtils::ConvertUtf8ToUtf32(pCurPos + uiSearchedWordLength) /* back */)))) // and the character after it, as well
         return pCurPos;
     }
 
     pPrevPos = pCurPos;
-    ezUnicodeUtils::MoveToNextUtf8(pCurPos);
+    ezUnicodeUtils::MoveToNextUtf8(pCurPos, pStringEnd);
   }
 
   return nullptr;
@@ -733,13 +732,13 @@ const char* ezStringUtils::FindWholeWord_NoCase(
     {
       if (((szString == pCurPos) || // the start of the string is always a word delimiter
             (IsDelimiterCB(
-              ezUnicodeUtils::ConvertUtf8ToUtf32(pPrevPos) /* front */))) && // make sure the character before this substring is a word delimiter
+              ezUnicodeUtils::ConvertUtf8ToUtf32(pPrevPos) /* front */))) &&                              // make sure the character before this substring is a word delimiter
           (IsDelimiterCB(ezUnicodeUtils::ConvertUtf8ToUtf32(pCurPos + uiSearchedWordLength) /* back */))) // and the character after it, as well
         return pCurPos;
     }
 
     pPrevPos = pCurPos;
-    ezUnicodeUtils::MoveToNextUtf8(pCurPos);
+    ezUnicodeUtils::MoveToNextUtf8(pCurPos, pStringEnd);
   }
 
   return nullptr;

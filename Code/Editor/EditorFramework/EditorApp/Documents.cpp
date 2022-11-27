@@ -79,23 +79,26 @@ ezDocument* ezQtEditorApp::CreateDocument(const char* szDocument, ezBitflags<ezD
     flags.Remove(ezDocumentFlags::RequestWindow);
 
   const ezDocumentTypeDescriptor* pTypeDesc = nullptr;
-  ezStatus res = ezDocumentUtils::IsValidSaveLocationForDocument(szDocument, &pTypeDesc);
-  if (res.Failed())
-  {
-    ezStringBuilder s;
-    s.Format("Failed to create document: \n'{0}'", szDocument);
-    ezQtUiServices::MessageBoxStatus(res, s);
-    return nullptr;
-  }
 
-  ezDocument* pDocument = nullptr;
   {
-    ezStatus res = pTypeDesc->m_pManager->CreateDocument(pTypeDesc->m_sDocumentTypeName, szDocument, pDocument, flags, pOpenContext);
-    if (res.m_Result.Failed())
+    ezStatus res = ezDocumentUtils::IsValidSaveLocationForDocument(szDocument, &pTypeDesc);
+    if (res.Failed())
     {
       ezStringBuilder s;
       s.Format("Failed to create document: \n'{0}'", szDocument);
       ezQtUiServices::MessageBoxStatus(res, s);
+      return nullptr;
+    }
+  }
+
+  ezDocument* pDocument = nullptr;
+  {
+    ezStatus result = pTypeDesc->m_pManager->CreateDocument(pTypeDesc->m_sDocumentTypeName, szDocument, pDocument, flags, pOpenContext);
+    if (result.m_Result.Failed())
+    {
+      ezStringBuilder s;
+      s.Format("Failed to create document: \n'{0}'", szDocument);
+      ezQtUiServices::MessageBoxStatus(result, s);
       return nullptr;
     }
 
@@ -142,7 +145,7 @@ void ezQtEditorApp::DocumentManagerEventHandler(const ezDocumentManager::Event& 
       if (r.m_pDocument->GetAddToRecentFilesList())
       {
         ezQtDocumentWindow* pWindow = ezQtDocumentWindow::FindWindowByDocument(r.m_pDocument);
-        s_RecentDocuments.Insert(r.m_pDocument->GetDocumentPath(), 0);
+        m_RecentDocuments.Insert(r.m_pDocument->GetDocumentPath(), 0);
         if (!m_bLoadingProjectInProgress)
         {
           SaveOpenDocumentsList();
@@ -164,7 +167,7 @@ void ezQtEditorApp::DocumentManagerEventHandler(const ezDocumentManager::Event& 
       {
         // again, insert it into the recent documents list, such that the LAST CLOSED document is the LAST USED
         ezQtDocumentWindow* pWindow = ezQtDocumentWindow::FindWindowByDocument(r.m_pDocument);
-        s_RecentDocuments.Insert(r.m_pDocument->GetDocumentPath(), 0);
+        m_RecentDocuments.Insert(r.m_pDocument->GetDocumentPath(), 0);
       }
     }
     break;

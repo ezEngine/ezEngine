@@ -1,8 +1,8 @@
 #pragma once
 
+#include <Core/Physics/SurfaceResourceDescriptor.h>
 #include <Foundation/Types/RangeView.h>
 #include <Foundation/Types/SharedPtr.h>
-#include <GameEngine/Physics/SurfaceResourceDescriptor.h>
 #include <ParticlePlugin/Events/ParticleEventReaction.h>
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleEventReactionFactory_Effect final : public ezParticleEventReactionFactory
@@ -30,7 +30,7 @@ public:
   bool GetParameter(const char* szKey, ezVariant& out_value) const;
 
 private:
-  ezSharedPtr<ezParticleEffectParameters> m_Parameters;
+  ezSharedPtr<ezParticleEffectParameters> m_pParameters;
 };
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleEventReaction_Effect final : public ezParticleEventReaction

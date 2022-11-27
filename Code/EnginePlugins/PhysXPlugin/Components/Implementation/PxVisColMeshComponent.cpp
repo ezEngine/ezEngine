@@ -12,7 +12,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxVisColMeshComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("CollisionMesh", GetMeshFile, SetMeshFile)->AddAttributes(new ezAssetBrowserAttribute("Collision Mesh;Collision Mesh (Convex)")),
+    EZ_ACCESSOR_PROPERTY("CollisionMesh", GetMeshFile, SetMeshFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_PhysX_Colmesh_Triangle;CompatibleAsset_PhysX_Colmesh_Convex")),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
@@ -22,7 +22,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxVisColMeshComponent, 1, ezComponentMode::Static)
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Physics/Shapes"),
+    new ezCategoryAttribute("Physics/PhysX/Misc"),
   }
   EZ_END_ATTRIBUTES;
 }
@@ -54,7 +54,7 @@ void ezPxVisColMeshComponent::DeserializeComponent(ezWorldReader& stream)
   GetWorld()->GetOrCreateComponentManager<ezPxVisColMeshComponentManager>()->EnqueueUpdate(GetHandle());
 }
 
-ezResult ezPxVisColMeshComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
+ezResult ezPxVisColMeshComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg)
 {
   // have to assume this isn't thread safe
   // CreateCollisionRenderMesh();
@@ -120,7 +120,7 @@ void ezPxVisColMeshComponent::CreateCollisionRenderMesh()
     return;
 
   ezStringBuilder sColMeshName = pMesh->GetResourceID();
-  sColMeshName.AppendFormat("_{0}_VisColMesh",
+  sColMeshName.AppendFormat("_{0}_PhysXVisColMesh",
     pMesh->GetCurrentResourceChangeCounter()); // the change counter allows to react to resource updates
 
   m_hMesh = ezResourceManager::GetExistingResource<ezMeshResource>(sColMeshName);
@@ -239,7 +239,7 @@ void ezPxVisColMeshComponent::CreateCollisionRenderMesh()
 
   md.SetMaterial(0, "Materials/Common/ColMesh.ezMaterial");
 
-  m_hMesh = ezResourceManager::CreateResource<ezMeshResource>(sColMeshName, std::move(md), "Collision Mesh Visualization");
+  m_hMesh = ezResourceManager::GetOrCreateResource<ezMeshResource>(sColMeshName, std::move(md), "Collision Mesh Visualization");
 
   TriggerLocalBoundsUpdate();
 }

@@ -62,7 +62,7 @@ struct EZ_EDITORFRAMEWORK_DLL ezAssetInfo
   {
     Unknown = 0,
     UpToDate,
-    Updating,
+    NeedsImport,
     NeedsTransform,
     NeedsThumbnail,
     TransformError,
@@ -70,6 +70,7 @@ struct EZ_EDITORFRAMEWORK_DLL ezAssetInfo
     MissingReference,
     COUNT,
   };
+
   ezUInt8 m_LastStateUpdate = 0; ///< Changes every time m_TransformState is modified. Used to detect stale computations done outside the lock.
   ezAssetExistanceState::Enum m_ExistanceState = ezAssetExistanceState::FileAdded;
   TransformState m_TransformState = TransformState::Unknown;
@@ -80,7 +81,8 @@ struct EZ_EDITORFRAMEWORK_DLL ezAssetInfo
 
   const ezAssetDocumentTypeDescriptor* m_pDocumentTypeDescriptor = nullptr;
   ezString m_sAbsolutePath;
-  ezString m_sDataDirRelativePath;
+  ezString m_sDataDirParentRelativePath;
+  ezStringView m_sDataDirRelativePath;
 
   ezUniquePtr<ezAssetDocumentInfo> m_Info;
 
@@ -209,6 +211,8 @@ public:
   /// \brief Saves the current asset configurations. Returns failure if the output file could not be written to.
   ezResult SaveAssetProfiles();
 
+  void SaveRuntimeProfiles();
+
 private:
   void ClearAssetProfiles();
   void SetupDefaultAssetProfiles();
@@ -222,11 +226,14 @@ private:
   ///@{
 
 public:
+  ezDateTime GetLastFullTransformDate() const;
+  void StoreFullTransformDate();
+
   /// \brief Transforms all assets and writes the lookup tables. If the given platform is empty, the active platform is used.
   ezStatus TransformAllAssets(ezBitflags<ezTransformFlags> transformFlags, const ezPlatformProfile* pAssetProfile = nullptr);
   void ResaveAllAssets();
-  ezStatus TransformAsset(const ezUuid& assetGuid, ezBitflags<ezTransformFlags> transformFlags, const ezPlatformProfile* pAssetProfile = nullptr);
-  ezStatus CreateThumbnail(const ezUuid& assetGuid);
+  ezTransformStatus TransformAsset(const ezUuid& assetGuid, ezBitflags<ezTransformFlags> transformFlags, const ezPlatformProfile* pAssetProfile = nullptr);
+  ezTransformStatus CreateThumbnail(const ezUuid& assetGuid);
 
   /// \brief Writes the asset lookup table for the given platform, or the currently active platform if nullptr is passed.
   ezResult WriteAssetTables(const ezPlatformProfile* pAssetProfile = nullptr);
@@ -256,6 +263,8 @@ public:
 
   /// \brief Computes the combined hash for the asset and its references. Returns 0 if anything went wrong.
   ezUInt64 GetAssetReferenceHash(ezUuid assetGuid);
+
+  void GenerateTransitiveHull(const ezStringView assetOrPath, ezSet<ezString>* pDependencies, ezSet<ezString>* pReferences);
 
   ezAssetInfo::TransformState IsAssetUpToDate(const ezUuid& assetGuid, const ezPlatformProfile* pAssetProfile, const ezAssetDocumentTypeDescriptor* pTypeDescriptor, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash, bool bForce = false);
   /// \brief Returns the number of assets in the system and how many are in what transform state
@@ -311,7 +320,7 @@ private:
   /// \name Processing
   ///@{
 
-  ezStatus ProcessAsset(ezAssetInfo* pAssetInfo, const ezPlatformProfile* pAssetProfile, ezBitflags<ezTransformFlags> transformFlags);
+  ezTransformStatus ProcessAsset(ezAssetInfo* pAssetInfo, const ezPlatformProfile* pAssetProfile, ezBitflags<ezTransformFlags> transformFlags);
   ezStatus ResaveAsset(ezAssetInfo* pAssetInfo);
   /// \brief Returns the asset info for the asset with the given GUID or nullptr if no such asset exists.
   ezAssetInfo* GetAssetInfo(const ezUuid& assetGuid);
@@ -389,7 +398,7 @@ private:
   friend class ezDirectoryUpdateTask;
 
   mutable ezCuratorMutex m_CuratorMutex; // Global lock
-  ezTaskGroupID m_initializeCuratorTaskID;
+  ezTaskGroupID m_InitializeCuratorTaskID;
   bool m_bNeedToReloadResources = false;
   ezTime m_NextReloadResources;
   ezUInt32 m_uiActiveAssetProfile = 0;
@@ -420,7 +429,7 @@ private:
   // Immutable data after StartInitialize
   ezApplicationFileSystemConfig m_FileSystemConfig;
   ezSet<ezString> m_ValidAssetExtensions;
-  ezUniquePtr<ezAssetWatcher> m_Watcher;
+  ezUniquePtr<ezAssetWatcher> m_pWatcher;
 
   // Update task
   bool m_bRunUpdateTask = false;

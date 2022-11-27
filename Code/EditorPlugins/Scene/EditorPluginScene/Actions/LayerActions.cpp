@@ -145,6 +145,8 @@ void ezLayerAction::ToggleLayerLoaded(ezScene2Document* pSceneDocument, ezUuid l
           return;
         case QMessageBox::Default:
           break;
+        default:
+          break;
       }
     }
   }

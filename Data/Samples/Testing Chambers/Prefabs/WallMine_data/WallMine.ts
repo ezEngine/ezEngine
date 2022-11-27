@@ -22,12 +22,12 @@ export class WallMine extends ez.TickedTypescriptComponent {
         let dir = owner.GetGlobalDirForwards();
 
         let shapeId = -1;
-        let staticactor = owner.TryGetComponentOfBaseType(ez.PxShapeSphereComponent);
+        let staticactor = owner.TryGetComponentOfBaseType(ez.JoltStaticActorComponent);
         if (staticactor != null) {
-            shapeId = staticactor.GetShapeId();
+            shapeId = staticactor.GetObjectFilterID();
         }
 
-        let res = ez.Physics.Raycast(pos, dir, 10, 0, ez.Physics.ShapeType.Static | ez.Physics.ShapeType.Dynamic, shapeId);
+        let res = ez.Physics.Raycast(pos, dir, 10, 0, ez.Physics.ShapeType.Static | ez.Physics.ShapeType.AllInteractive , shapeId);
 
         if (res == null) {
             return;
@@ -61,7 +61,7 @@ export class WallMine extends ez.TickedTypescriptComponent {
             let spawnExpl = exp.TryGetComponentOfBaseType(ez.SpawnComponent);
 
             if (spawnExpl != null) {
-                spawnExpl.TriggerManualSpawn();
+                spawnExpl.TriggerManualSpawn(true, ez.Vec3.ZeroVector());
             }
         }
 

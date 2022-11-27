@@ -35,6 +35,7 @@ struct ezPluginLoadFlags
   {
     LoadCopy = EZ_BIT(0),         ///< Don't load a DLL directly, but create a copy of the file and load that instead. This allows to continue working on (and compiling) the DLL in parallel.
     PluginIsOptional = EZ_BIT(1), ///< When an optional plugin can't be loaded (missing file usually), no error is logged. LoadPlugin() will still return EZ_FAILURE though.
+    CustomDependency = EZ_BIT(2), ///< The plugin is an injected dependency (usually for the editor), and thus might get treated differently (this is just a tag)
 
     Default = 0,
   };
@@ -117,6 +118,7 @@ public:
   {
     ezString m_sName;
     ezHybridArray<ezString, 2> m_sDependencies;
+    ezBitflags<ezPluginLoadFlags> m_LoadFlags;
   };
 
   /// \brief Returns information about all currently loaded plugins.

@@ -169,7 +169,7 @@ private:
   };
 
 private:
-  ezTestConfiguration m_config;
+  ezTestConfiguration m_Config;
   std::deque<ezTestResult> m_Tests;
   std::deque<ezTestErrorMessage> m_Errors;
   std::deque<ezTestOutputMessage> m_TestOutput;

@@ -336,7 +336,7 @@ private:
 
   ezScriptStates m_States;
 
-  static const ezInt32 s_ParamOffset = 1; // should be one, to start counting at 0, instead of 1
+  static const ezInt32 s_iParamOffset = 1; // should be one, to start counting at 0, instead of 1
 };
 
 #  include <Core/Scripting/LuaWrapper/LuaWrapper.inl>

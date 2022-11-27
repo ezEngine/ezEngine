@@ -29,5 +29,5 @@ protected:
   virtual void FillSpriteData(const ezRenderDataBatch& batch, ezUInt32 uiStartIndex, ezUInt32 uiCount) const;
 
   ezShaderResourceHandle m_hShader;
-  mutable ezDynamicArray<SpriteData, ezAlignedAllocatorWrapper> m_spriteData;
+  mutable ezDynamicArray<SpriteData, ezAlignedAllocatorWrapper> m_SpriteData;
 };

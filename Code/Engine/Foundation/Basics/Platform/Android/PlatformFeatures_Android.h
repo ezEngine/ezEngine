@@ -8,6 +8,10 @@
 #undef EZ_SUPPORTS_FILE_ITERATORS
 #define EZ_SUPPORTS_FILE_ITERATORS EZ_OFF
 
+/// Directory watcher is not supported
+#undef EZ_SUPPORTS_DIRECTORY_WATCHER
+#define EZ_SUPPORTS_DIRECTORY_WATCHER EZ_OFF
+
 /// Getting the stats of a file (modification times etc.) is supported.
 #undef EZ_SUPPORTS_FILE_STATS
 #define EZ_SUPPORTS_FILE_STATS EZ_ON
@@ -43,7 +47,7 @@
 
 /// Whether starting other processes is supported.
 #undef EZ_SUPPORTS_PROCESSES
-#define EZ_SUPPORTS_PROCESSES EZ_OFF
+#define EZ_SUPPORTS_PROCESSES EZ_ON
 
 // SIMD support
 #undef EZ_SIMD_IMPLEMENTATION

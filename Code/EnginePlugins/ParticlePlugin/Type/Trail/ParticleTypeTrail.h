@@ -55,7 +55,7 @@ public:
   /// \todo This is a hacky guess, one would actually need to inspect the trail positions
   virtual float GetMaxParticleRadius(float fParticleSize) const override { return fParticleSize + m_uiMaxPoints * 0.05f; }
 
-  static ezUInt32 ComputeTrailPointBucketSize(ezUInt32 uiMaxTrailPoints);
+  static ezUInt16 ComputeTrailPointBucketSize(ezUInt16 uiMaxTrailPoints);
 
 protected:
   friend class ezParticleTypeTrailFactory;

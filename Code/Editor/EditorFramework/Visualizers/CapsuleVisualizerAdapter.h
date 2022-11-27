@@ -22,7 +22,7 @@ protected:
   float m_fHeight = 0.0f;
   ezBitflags<ezVisualizerAnchor> m_Anchor;
 
-  ezEngineGizmoHandle m_SphereTop;
-  ezEngineGizmoHandle m_SphereBottom;
-  ezEngineGizmoHandle m_Cylinder;
+  ezEngineGizmoHandle m_hSphereTop;
+  ezEngineGizmoHandle m_hSphereBottom;
+  ezEngineGizmoHandle m_hCylinder;
 };

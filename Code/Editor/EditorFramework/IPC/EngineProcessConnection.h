@@ -7,6 +7,7 @@
 #include <Foundation/Communication/Event.h>
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/Types/UniquePtr.h>
+#include <GuiFoundation/UIServices/UIServices.moc.h>
 
 class ezEditorEngineConnection;
 class ezDocument;
@@ -96,6 +97,7 @@ public:
 private:
   void Initialize(const ezRTTI* pFirstAllowedMessageType);
   void HandleIPCEvent(const ezProcessCommunicationChannel::Event& e);
+  void UIServicesTickEventHandler(const ezQtUiServices::TickEvent& e);
   bool ConnectToRemoteProcess();
   void ShutdownRemoteProcess();
 
@@ -103,6 +105,10 @@ private:
   bool m_bProcessShouldBeRunning;
   bool m_bProcessCrashed;
   bool m_bClientIsConfigured;
+  ezEventSubscriptionID m_TickEventSubscriptionID = 0;
+  ezUInt32 m_uiRedrawCountSent = 0;
+  ezUInt32 m_uiRedrawCountReceived = 0;
+
   ezString m_sRenderer;
   ezEditorProcessCommunicationChannel m_IPC;
   ezUniquePtr<ezEditorProcessRemoteCommunicationChannel> m_pRemoteProcess;

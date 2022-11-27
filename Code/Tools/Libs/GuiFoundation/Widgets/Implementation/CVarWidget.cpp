@@ -44,9 +44,13 @@ ezQtCVarWidget::~ezQtCVarWidget() {}
 
 void ezQtCVarWidget::Clear()
 {
+  QPointer<QWidget> pFocusWidget = QApplication::focusWidget();
   clearFocus();
   m_pItemModel->BeginResetModel();
   m_pItemModel->EndResetModel();
+
+  if (pFocusWidget)
+    pFocusWidget->setFocus();
 }
 
 void ezQtCVarWidget::RebuildCVarUI(const ezMap<ezString, ezCVarWidgetData>& cvars)
@@ -122,15 +126,14 @@ void ezQtCVarWidget::SearchTextChanged(const QString& text)
   m_pFilterModel->setFilterRole(Qt::UserRole);
   m_pFilterModel->setFilterCaseSensitivity(Qt::CaseSensitivity::CaseInsensitive);
 
-  QRegExp e;
+  QRegularExpression e;
 
   QString st = "(?=.*" + text + ".*)";
   st.replace(" ", ".*)(?=.*");
 
   e.setPattern(st);
-  e.setCaseSensitivity(Qt::CaseSensitivity::CaseInsensitive);
-  e.setPatternSyntax(QRegExp::RegExp);
-  m_pFilterModel->setFilterRegExp(e);
+  e.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
+  m_pFilterModel->setFilterRegularExpression(e);
   CVarsView->expandAll();
 }
 
@@ -377,11 +380,27 @@ QModelIndex ezQtCVarModel::parent(const QModelIndex& index) const
 
   ezQtCVarModel::Entry* p = e->m_pParentEntry;
 
-  for (ezUInt32 row = 0; row < p->m_ChildEntries.GetCount(); ++row)
+  // find the parent entry's row index
+  if (p->m_pParentEntry == nullptr)
   {
-    if (p->m_ChildEntries[row] == e)
+    // if the parent has no parent itself, it is a root entry and we need to search that array
+    for (ezUInt32 row = 0; row < m_RootEntries.GetCount(); ++row)
     {
-      return createIndex(row, index.column(), p);
+      if (m_RootEntries[row] == p)
+      {
+        return createIndex(row, index.column(), p);
+      }
+    }
+  }
+  else
+  {
+    // if the parent has a parent itself, search that array for the row index
+    for (ezUInt32 row = 0; row < p->m_pParentEntry->m_ChildEntries.GetCount(); ++row)
+    {
+      if (p->m_pParentEntry->m_ChildEntries[row] == e)
+      {
+        return createIndex(row, index.column(), p);
+      }
     }
   }
 

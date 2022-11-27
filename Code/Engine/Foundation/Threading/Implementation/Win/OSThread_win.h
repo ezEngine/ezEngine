@@ -2,6 +2,7 @@
 EZ_FOUNDATION_INTERNAL_HEADER
 
 #include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#include <Foundation/Strings/StringConversion.h>
 
 ezAtomicInteger32 ezOSThread::s_iThreadCount;
 
@@ -24,14 +25,56 @@ typedef struct tagTHREADNAME_INFO
 #pragma pack(pop)
 
 #define EZ_MSVC_WARNING_NUMBER 6312
-#include <Foundation/Basics/Compiler/DisableWarning.h>
+#include <Foundation/Basics/Compiler/MSVC/DisableWarning_MSVC.h>
 
-void SetThreadName(DWORD dwThreadID, LPCSTR szThreadName)
+#if EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
+
+// See https://docs.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-setthreaddescription
+// this is the new way to set thread names which are also stored with crash dumps and work in more tools (like Pix etc.)
+// however it needs to be loaded dynamically from the kernel DLL.
+typedef HRESULT(WINAPI* pfnSetThreadDescription)(HANDLE, PCWSTR);
+
+
+// According to the docs the thread description function lives in kernel32.dll,
+// however on StackOverflow you can find that it seems to be in KernelBase.dll
+// (https://stackoverflow.com/questions/62243162/how-to-access-setthreaddescription-in-windows-2016-server-version-1607)
+// Thus we try to load it from both places just in case things change
+pfnSetThreadDescription GetSetThreadDescriptionProcAddr()
+{
+  pfnSetThreadDescription retVal = nullptr;
+
+  {
+    HMODULE kernel32 = GetModuleHandleA("Kernel32.dll");
+    if (kernel32 != nullptr)
+    {
+      retVal = reinterpret_cast<pfnSetThreadDescription>(GetProcAddress(kernel32, "SetThreadDescription"));
+    }
+
+    if (retVal != nullptr)
+    {
+      return retVal;
+    }
+  }
+
+  {
+    HMODULE kernelBase = GetModuleHandleA("KernelBase.dll");
+    if (kernelBase != nullptr)
+    {
+      retVal = reinterpret_cast<pfnSetThreadDescription>(GetProcAddress(kernelBase, "SetThreadDescription"));
+    }
+  }
+
+  return retVal;
+}
+
+#endif
+
+void SetThreadNameViaException(HANDLE hThread, LPCSTR szThreadName)
 {
   THREADNAME_INFO info;
   info.dwType = 0x1000;
   info.szName = szThreadName;
-  info.dwThreadID = dwThreadID;
+  info.dwThreadID = GetThreadId(hThread);
   info.dwFlags = 0;
 
   __try
@@ -44,7 +87,26 @@ void SetThreadName(DWORD dwThreadID, LPCSTR szThreadName)
   }
 }
 
-#include <Foundation/Basics/Compiler/RestoreWarning.h>
+void SetThreadName(HANDLE hThread, LPCSTR szThreadName)
+{
+#if EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
+  static pfnSetThreadDescription s_pSetThreadDescriptionFnPtr = GetSetThreadDescriptionProcAddr();
+
+  if (s_pSetThreadDescriptionFnPtr)
+  {
+    ezStringWChar threadName(szThreadName);
+    s_pSetThreadDescriptionFnPtr(hThread, threadName.GetData());
+  }
+  else
+  {
+    SetThreadNameViaException(hThread, szThreadName);
+  }
+#else
+  SetThreadNameViaException(hThread, szThreadName);
+#endif
+}
+
+#include <Foundation/Basics/Compiler/MSVC/RestoreWarning_MSVC.h>
 
 /// \endcond
 
@@ -58,11 +120,11 @@ ezOSThread::ezOSThread(
 
   EZ_ASSERT_ALWAYS(pThreadEntryPoint != nullptr, "Thread entry point is invalid.");
 
-  m_Handle = CreateThread(nullptr, uiStackSize, pThreadEntryPoint, pUserData, CREATE_SUSPENDED, nullptr);
-  EZ_ASSERT_RELEASE(m_Handle != INVALID_HANDLE_VALUE, "Thread creation failed!");
-  EZ_ASSERT_RELEASE(m_Handle != nullptr, "Thread creation failed!"); // makes the static code analysis happy
+  m_hHandle = CreateThread(nullptr, uiStackSize, pThreadEntryPoint, pUserData, CREATE_SUSPENDED, nullptr);
+  EZ_ASSERT_RELEASE(m_hHandle != INVALID_HANDLE_VALUE, "Thread creation failed!");
+  EZ_ASSERT_RELEASE(m_hHandle != nullptr, "Thread creation failed!"); // makes the static code analysis happy
 
-  m_ThreadID = GetThreadId(m_Handle);
+  m_ThreadID = GetThreadId(m_hHandle);
 
   m_EntryPoint = pThreadEntryPoint;
   m_pUserData = pUserData;
@@ -72,13 +134,13 @@ ezOSThread::ezOSThread(
   // If a name is given, assign it here
   if (szName != nullptr)
   {
-    SetThreadName(GetThreadId(m_Handle), szName);
+    SetThreadName(m_hHandle, szName);
   }
 }
 
 ezOSThread::~ezOSThread()
 {
-  CloseHandle(m_Handle);
+  CloseHandle(m_hHandle);
 
   s_iThreadCount.Decrement();
 }
@@ -86,11 +148,11 @@ ezOSThread::~ezOSThread()
 /// Attempts to acquire an exclusive lock for this mutex object
 void ezOSThread::Start()
 {
-  ResumeThread(m_Handle);
+  ResumeThread(m_hHandle);
 }
 
 /// Releases a lock that has been previously acquired
 void ezOSThread::Join()
 {
-  WaitForSingleObject(m_Handle, INFINITE);
+  WaitForSingleObject(m_hHandle, INFINITE);
 }

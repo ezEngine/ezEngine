@@ -21,7 +21,7 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{10913146725797871537,4984829541064040623}}
-		u4 %Hash{17796594844225510691}
+		u4 %Hash{1472656058072954908}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{6555254248068605592,2314091861206218715}}
@@ -66,7 +66,7 @@ o
 {
 	Uuid %id{u4{6478106683490753665,5228225214921561859}}
 	s %t{"ezParticleSystemDescriptor"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		VarArray %Behaviors
@@ -82,7 +82,11 @@ o
 			Uuid{u4{17289365025824728506,4708173789516871261}}
 		}
 		s %LifeScaleParam{""}
-		Uuid %LifeTime{u4{2442184526531613189,16099535589390200660}}
+		ezVarianceTypeTime %LifeTime
+		{
+			f %Variance{0}
+			Time %Value{d{0x000000000000F03F}}
+		}
 		s %Name{"RandomColor"}
 		s %OnDeathEvent{""}
 		VarArray %Types
@@ -160,17 +164,6 @@ o
 		{
 			Uuid{u4{2325590158031458963,5709439343675820191}}
 		}
-	}
-}
-o
-{
-	Uuid %id{u4{2442184526531613189,16099535589390200660}}
-	s %t{"ezVarianceTypeTime"}
-	u3 %v{1}
-	p
-	{
-		Time %Value{d{0x000000000000F03F}}
-		f %Variance{0}
 	}
 }
 }
@@ -353,7 +346,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezParticleSystemDescriptor"}
 		u3 %TypeSize{448}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -460,7 +453,7 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleEffectDescriptor"}
-		u3 %TypeSize{360}
+		u3 %TypeSize{344}
 		u3 %TypeVersion{2}
 	}
 }

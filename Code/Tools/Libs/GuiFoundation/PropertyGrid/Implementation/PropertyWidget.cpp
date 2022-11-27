@@ -1,14 +1,18 @@
 #include <GuiFoundation/GuiFoundationPCH.h>
 
 #include <Foundation/Strings/TranslationLookup.h>
+#include <GuiFoundation/Dialogs/CurveEditDlg.moc.h>
 #include <GuiFoundation/PropertyGrid/Implementation/PropertyWidget.moc.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
+#include <GuiFoundation/Widgets/CurveEditData.h>
 #include <GuiFoundation/Widgets/DoubleSpinBox.moc.h>
 #include <QComboBox>
 #include <QLineEdit>
 #include <QMenu>
 #include <QPushButton>
 #include <QWidgetAction>
+#include <ToolsFoundation/Document/Document.h>
+#include <ToolsFoundation/Object/ObjectAccessorBase.h>
 #include <qcheckbox.h>
 #include <qlayout.h>
 
@@ -19,7 +23,7 @@ ezQtPropertyEditorCheckboxWidget::ezQtPropertyEditorCheckboxWidget()
   : ezQtStandardPropertyWidget()
 {
   m_pLayout = new QHBoxLayout(this);
-  m_pLayout->setMargin(0);
+  m_pLayout->setContentsMargins(0, 0, 0, 0);
   setLayout(m_pLayout);
 
   m_pWidget = new QCheckBox(this);
@@ -82,7 +86,7 @@ ezQtPropertyEditorDoubleSpinboxWidget::ezQtPropertyEditorDoubleSpinboxWidget(ezI
   m_pWidget[3] = nullptr;
 
   m_pLayout = new QHBoxLayout(this);
-  m_pLayout->setMargin(0);
+  m_pLayout->setContentsMargins(0, 0, 0, 0);
   setLayout(m_pLayout);
 
   QSizePolicy policy = sizePolicy();
@@ -353,7 +357,7 @@ ezQtPropertyEditorTimeWidget::ezQtPropertyEditorTimeWidget()
   m_pWidget = nullptr;
 
   m_pLayout = new QHBoxLayout(this);
-  m_pLayout->setMargin(0);
+  m_pLayout->setContentsMargins(0, 0, 0, 0);
   setLayout(m_pLayout);
 
   QSizePolicy policy = sizePolicy();
@@ -429,7 +433,7 @@ ezQtPropertyEditorAngleWidget::ezQtPropertyEditorAngleWidget()
   m_pWidget = nullptr;
 
   m_pLayout = new QHBoxLayout(this);
-  m_pLayout->setMargin(0);
+  m_pLayout->setContentsMargins(0, 0, 0, 0);
   setLayout(m_pLayout);
 
   QSizePolicy policy = sizePolicy();
@@ -441,6 +445,7 @@ ezQtPropertyEditorAngleWidget::ezQtPropertyEditorAngleWidget()
     m_pWidget->setMaximum(ezMath::Infinity<double>());
     m_pWidget->setSingleStep(0.1f);
     m_pWidget->setAccelerated(true);
+    m_pWidget->setDecimals(1);
 
     policy.setHorizontalStretch(2);
     m_pWidget->setSizePolicy(policy);
@@ -521,10 +526,11 @@ ezQtPropertyEditorIntSpinboxWidget::ezQtPropertyEditorIntSpinboxWidget(ezInt8 iN
   m_pWidget[3] = nullptr;
 
   m_pLayout = new QHBoxLayout(this);
-  m_pLayout->setMargin(0);
+  m_pLayout->setContentsMargins(0, 0, 0, 0);
   setLayout(m_pLayout);
 
   QSizePolicy policy = sizePolicy();
+  policy.setHorizontalStretch(2);
 
   for (ezInt32 c = 0; c < m_iNumComponents; ++c)
   {
@@ -534,7 +540,6 @@ ezQtPropertyEditorIntSpinboxWidget::ezQtPropertyEditorIntSpinboxWidget(ezInt8 iN
     m_pWidget[c]->setSingleStep(1);
     m_pWidget[c]->setAccelerated(true);
 
-    policy.setHorizontalStretch(2);
     m_pWidget[c]->setSizePolicy(policy);
 
     m_pLayout->addWidget(m_pWidget[c]);
@@ -544,6 +549,9 @@ ezQtPropertyEditorIntSpinboxWidget::ezQtPropertyEditorIntSpinboxWidget(ezInt8 iN
   }
 }
 
+
+ezQtPropertyEditorIntSpinboxWidget::~ezQtPropertyEditorIntSpinboxWidget() = default;
+
 void ezQtPropertyEditorIntSpinboxWidget::OnInit()
 {
   if (const ezClampValueAttribute* pClamp = m_pProp->GetAttributeByType<ezClampValueAttribute>())
@@ -552,9 +560,29 @@ void ezQtPropertyEditorIntSpinboxWidget::OnInit()
     {
       case 1:
       {
+        const ezInt32 iMinValue = pClamp->GetMinValue().ConvertTo<ezInt32>();
+        const ezInt32 iMaxValue = pClamp->GetMaxValue().ConvertTo<ezInt32>();
+
         ezQtScopedBlockSignals bs(m_pWidget[0]);
         m_pWidget[0]->setMinimum(pClamp->GetMinValue());
         m_pWidget[0]->setMaximum(pClamp->GetMaxValue());
+
+        if (pClamp->GetMinValue().IsValid() && pClamp->GetMaxValue().IsValid() && (iMaxValue - iMinValue) < 256)
+        {
+          ezQtScopedBlockSignals bs2(m_pSlider);
+
+          // we have to create the slider here, because in the constructor we don't know the real
+          // min and max values from the ezClampValueAttribute (only the rough type ranges)
+          m_pSlider = new QSlider(this);
+          m_pSlider->setOrientation(Qt::Orientation::Horizontal);
+          m_pSlider->setMinimum(iMinValue);
+          m_pSlider->setMaximum(iMaxValue);
+
+          m_pLayout->insertWidget(0, m_pSlider, 5); // make it take up most of the space
+          connect(m_pSlider, SIGNAL(valueChanged(int)), this, SLOT(SlotSliderValueChanged(int)));
+          connect(m_pSlider, SIGNAL(sliderReleased()), this, SLOT(on_EditingFinished_triggered()));
+        }
+
         break;
       }
       case 2:
@@ -626,11 +654,16 @@ void ezQtPropertyEditorIntSpinboxWidget::OnInit()
     {
       case 1:
       {
-        ezQtScopedBlockSignals bs(m_pWidget[0]);
+        ezQtScopedBlockSignals bs(m_pWidget[0], m_pSlider);
 
         if (pDefault->GetValue().CanConvertTo<ezInt32>())
         {
           m_pWidget[0]->setDefaultValue(pDefault->GetValue().ConvertTo<ezInt32>());
+
+          if (m_pSlider)
+          {
+            m_pSlider->setValue(pDefault->GetValue().ConvertTo<ezInt32>());
+          }
         }
         break;
       }
@@ -692,12 +725,18 @@ void ezQtPropertyEditorIntSpinboxWidget::OnInit()
 
 void ezQtPropertyEditorIntSpinboxWidget::InternalSetValue(const ezVariant& value)
 {
-  ezQtScopedBlockSignals bs(m_pWidget[0], m_pWidget[1], m_pWidget[2], m_pWidget[3]);
+  ezQtScopedBlockSignals bs(m_pWidget[0], m_pWidget[1], m_pWidget[2], m_pWidget[3], m_pSlider);
 
   switch (m_iNumComponents)
   {
     case 1:
       m_pWidget[0]->setValue(value.ConvertTo<ezInt32>());
+
+      if (m_pSlider)
+      {
+        m_pSlider->setValue(value.ConvertTo<ezInt32>());
+      }
+
       break;
     case 2:
       m_pWidget[0]->setValue(value.ConvertTo<ezVec2I32>().x);
@@ -728,6 +767,13 @@ void ezQtPropertyEditorIntSpinboxWidget::SlotValueChanged()
   {
     case 1:
       BroadcastValueChanged((ezInt32)m_pWidget[0]->value());
+
+      if (m_pSlider)
+      {
+        ezQtScopedBlockSignals b0(m_pSlider);
+        m_pSlider->setValue((ezInt32)m_pWidget[0]->value());
+      }
+
       break;
     case 2:
       BroadcastValueChanged(ezVec2I32(m_pWidget[0]->value(), m_pWidget[1]->value()));
@@ -739,6 +785,21 @@ void ezQtPropertyEditorIntSpinboxWidget::SlotValueChanged()
       BroadcastValueChanged(ezVec4I32(m_pWidget[0]->value(), m_pWidget[1]->value(), m_pWidget[2]->value(), m_pWidget[3]->value()));
       break;
   }
+}
+
+void ezQtPropertyEditorIntSpinboxWidget::SlotSliderValueChanged(int value)
+{
+  if (!m_bTemporaryCommand)
+    Broadcast(ezPropertyEvent::Type::BeginTemporary);
+
+  m_bTemporaryCommand = true;
+
+  {
+    ezQtScopedBlockSignals b0(m_pWidget[0]);
+    m_pWidget[0]->setValue(value);
+  }
+
+  BroadcastValueChanged((ezInt32)m_pSlider->value());
 }
 
 void ezQtPropertyEditorIntSpinboxWidget::on_EditingFinished_triggered()
@@ -762,7 +823,7 @@ ezQtPropertyEditorQuaternionWidget::ezQtPropertyEditorQuaternionWidget()
   m_pWidget[2] = nullptr;
 
   m_pLayout = new QHBoxLayout(this);
-  m_pLayout->setMargin(0);
+  m_pLayout->setContentsMargins(0, 0, 0, 0);
   setLayout(m_pLayout);
 
   QSizePolicy policy = sizePolicy();
@@ -843,7 +904,7 @@ ezQtPropertyEditorLineEditWidget::ezQtPropertyEditorLineEditWidget()
   : ezQtStandardPropertyWidget()
 {
   m_pLayout = new QHBoxLayout(this);
-  m_pLayout->setMargin(0);
+  m_pLayout->setContentsMargins(0, 0, 0, 0);
   setLayout(m_pLayout);
 
   m_pWidget = new QLineEdit(this);
@@ -903,6 +964,7 @@ ezQtColorButtonWidget::ezQtColorButtonWidget(QWidget* parent)
   : QFrame(parent)
 {
   setAutoFillBackground(true);
+  setCursor(Qt::PointingHandCursor);
 }
 
 void ezQtColorButtonWidget::SetColor(const ezVariant& color)
@@ -917,19 +979,19 @@ void ezQtColorButtonWidget::SetColor(const ezVariant& color)
     QColor qol;
     qol.setRgb(col.r, col.g, col.b, col.a);
 
-    m_pal.setBrush(QPalette::Window, QBrush(qol, Qt::SolidPattern));
-    setPalette(m_pal);
+    m_Pal.setBrush(QPalette::Window, QBrush(qol, Qt::SolidPattern));
+    setPalette(m_Pal);
   }
   else
   {
-    setPalette(m_pal);
+    setPalette(m_Pal);
   }
 }
 
 void ezQtColorButtonWidget::showEvent(QShowEvent* event)
 {
   // Use of style sheets (ADS) breaks previously set palette.
-  setPalette(m_pal);
+  setPalette(m_Pal);
   QFrame::showEvent(event);
 }
 
@@ -944,7 +1006,7 @@ ezQtPropertyEditorColorWidget::ezQtPropertyEditorColorWidget()
   m_bExposeAlpha = false;
 
   m_pLayout = new QHBoxLayout(this);
-  m_pLayout->setMargin(0);
+  m_pLayout->setContentsMargins(0, 0, 0, 0);
   setLayout(m_pLayout);
 
   m_pWidget = new ezQtColorButtonWidget(this);
@@ -1024,7 +1086,7 @@ ezQtPropertyEditorEnumWidget::ezQtPropertyEditorEnumWidget()
 {
 
   m_pLayout = new QHBoxLayout(this);
-  m_pLayout->setMargin(0);
+  m_pLayout->setContentsMargins(0, 0, 0, 0);
   setLayout(m_pLayout);
 
   m_pWidget = new QComboBox(this);
@@ -1086,7 +1148,7 @@ ezQtPropertyEditorBitflagsWidget::ezQtPropertyEditorBitflagsWidget()
   : ezQtStandardPropertyWidget()
 {
   m_pLayout = new QHBoxLayout(this);
-  m_pLayout->setMargin(0);
+  m_pLayout->setContentsMargins(0, 0, 0, 0);
   setLayout(m_pLayout);
 
   m_pWidget = new QPushButton(this);
@@ -1188,4 +1250,216 @@ void ezQtPropertyEditorBitflagsWidget::on_Menu_aboutToHide()
     m_iCurrentBitflags = iValue;
     BroadcastValueChanged(m_iCurrentBitflags);
   }
+}
+
+
+/// *** CURVE1D ***
+
+ezQtCurve1DButtonWidget::ezQtCurve1DButtonWidget(QWidget* parent)
+  : QLabel(parent)
+{
+  setAutoFillBackground(true);
+  setCursor(Qt::PointingHandCursor);
+  setScaledContents(true);
+}
+
+void ezQtCurve1DButtonWidget::UpdatePreview(ezObjectAccessorBase* pObjectAccessor, const ezDocumentObject* pCurveObject, QColor color, double fLowerExtents, bool bLowerFixed, double fUpperExtents, bool bUpperFixed, double fDefaultValue, double fLowerRange, double fUpperRange)
+{
+  ezInt32 iNumPoints = 0;
+  pObjectAccessor->GetCount(pCurveObject, "ControlPoints", iNumPoints);
+
+  ezVariant v;
+  ezHybridArray<ezVec2d, 32> points;
+  points.Reserve(iNumPoints);
+
+  double minX = fLowerExtents * 4800.0;
+  double maxX = fUpperExtents * 4800.0;
+
+  double minY = fLowerRange;
+  double maxY = fUpperRange;
+
+  for (ezInt32 i = 0; i < iNumPoints; ++i)
+  {
+    const ezDocumentObject* pPoint = pObjectAccessor->GetChildObject(pCurveObject, "ControlPoints", i);
+
+    ezVec2d p;
+
+    pObjectAccessor->GetValue(pPoint, "Tick", v);
+    p.x = v.ConvertTo<double>();
+
+    pObjectAccessor->GetValue(pPoint, "Value", v);
+    p.y = v.ConvertTo<double>();
+
+    points.PushBack(p);
+
+    if (!bLowerFixed)
+      minX = ezMath::Min(minX, p.x);
+
+    if (!bUpperFixed)
+      maxX = ezMath::Max(maxX, p.x);
+
+    minY = ezMath::Min(minY, p.y);
+    maxY = ezMath::Max(maxY, p.y);
+  }
+
+  const double pW = ezMath::Max(10, size().width());
+  const double pH = ezMath::Clamp(size().height(), 5, 24);
+
+  QPixmap pixmap((int)pW, (int)pH);
+  pixmap.fill(palette().base().color());
+
+  QPainter pt(&pixmap);
+  pt.setPen(color);
+  pt.setRenderHint(QPainter::RenderHint::Antialiasing);
+
+  if (!points.IsEmpty())
+  {
+    points.Sort([](const ezVec2d& lhs, const ezVec2d& rhs) -> bool { return lhs.x < rhs.x; });
+
+    const double normX = 1.0 / (maxX - minX);
+    const double normY = 1.0 / (maxY - minY);
+
+    QPainterPath path;
+
+    {
+      double startX = ezMath::Min(minX, points[0].x);
+      double startY = points[0].y;
+
+      startX = (startX - minX) * normX;
+      startY = 1.0 - ((startY - minY) * normY);
+
+      path.moveTo((int)(startX * pW), (int)(startY * pH));
+    }
+
+    for (ezUInt32 i = 0; i < points.GetCount(); ++i)
+    {
+      auto pt0 = points[i];
+      pt0.x = (pt0.x - minX) * normX;
+      pt0.y = 1.0 - ((pt0.y - minY) * normY);
+
+      path.lineTo((int)(pt0.x * pW), (int)(pt0.y * pH));
+    }
+
+    {
+      double endX = ezMath::Max(maxX, points.PeekBack().x);
+      double endY = points.PeekBack().y;
+
+      endX = (endX - minX) * normX;
+      endY = 1.0 - ((endY - minY) * normY);
+
+      path.lineTo((int)(endX * pW), (int)(endY * pH));
+    }
+
+    pt.drawPath(path);
+  }
+  else
+  {
+    const double normY = 1.0 / (maxY - minY);
+    double valY = 1.0 - ((fDefaultValue - minY) * normY);
+
+    pt.drawLine(0, (int)(valY * pH), (int)pW, (int)(valY * pH));
+  }
+
+  setPixmap(pixmap);
+}
+
+void ezQtCurve1DButtonWidget::mouseReleaseEvent(QMouseEvent* event)
+{
+  Q_EMIT clicked();
+}
+
+ezQtPropertyEditorCurve1DWidget::ezQtPropertyEditorCurve1DWidget()
+  : ezQtPropertyWidget()
+{
+  m_pLayout = new QHBoxLayout(this);
+  m_pLayout->setContentsMargins(0, 0, 0, 0);
+  setLayout(m_pLayout);
+
+  m_pButton = new ezQtCurve1DButtonWidget(this);
+  m_pButton->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
+
+  m_pLayout->addWidget(m_pButton);
+
+  EZ_VERIFY(connect(m_pButton, SIGNAL(clicked()), this, SLOT(on_Button_triggered())) != nullptr, "signal/slot connection failed");
+}
+
+void ezQtPropertyEditorCurve1DWidget::SetSelection(const ezHybridArray<ezPropertySelection, 8>& items)
+{
+  ezQtPropertyWidget::SetSelection(items);
+
+  UpdatePreview();
+}
+
+void ezQtPropertyEditorCurve1DWidget::OnInit() {}
+void ezQtPropertyEditorCurve1DWidget::DoPrepareToDie() {}
+
+void ezQtPropertyEditorCurve1DWidget::UpdatePreview()
+{
+  if (m_Items.IsEmpty())
+    return;
+
+  const ezDocumentObject* pParent = m_Items[0].m_pObject;
+  const ezDocumentObject* pCurve = m_pObjectAccessor->GetChildObject(pParent, m_pProp->GetPropertyName(), {});
+  const ezColorAttribute* pColorAttr = m_pProp->GetAttributeByType<ezColorAttribute>();
+  const ezCurveExtentsAttribute* pExtentsAttr = m_pProp->GetAttributeByType<ezCurveExtentsAttribute>();
+  const ezDefaultValueAttribute* pDefAttr = m_pProp->GetAttributeByType<ezDefaultValueAttribute>();
+  const ezClampValueAttribute* pClampAttr = m_pProp->GetAttributeByType<ezClampValueAttribute>();
+
+  const bool bLowerFixed = pExtentsAttr ? pExtentsAttr->m_bLowerExtentFixed : false;
+  const bool bUpperFixed = pExtentsAttr ? pExtentsAttr->m_bUpperExtentFixed : false;
+  const double fLowerExt = pExtentsAttr ? pExtentsAttr->m_fLowerExtent : 0.0;
+  const double fUpperExt = pExtentsAttr ? pExtentsAttr->m_fUpperExtent : 1.0;
+  const ezColorGammaUB color = pColorAttr ? pColorAttr->GetColor() : ezColor::GreenYellow;
+  const double fLowerRange = (pClampAttr && pClampAttr->GetMinValue().IsNumber()) ? pClampAttr->GetMinValue().ConvertTo<double>() : 0.0;
+  const double fUpperRange = (pClampAttr && pClampAttr->GetMaxValue().IsNumber()) ? pClampAttr->GetMaxValue().ConvertTo<double>() : 1.0;
+  const double fDefVal = (pDefAttr && pDefAttr->GetValue().IsNumber()) ? pDefAttr->GetValue().ConvertTo<double>() : 0.0;
+
+  m_pButton->UpdatePreview(m_pObjectAccessor, pCurve, QColor(color.r, color.g, color.b), fLowerExt, bLowerFixed, fUpperExt, bUpperFixed, fDefVal, fLowerRange, fUpperRange);
+}
+
+void ezQtPropertyEditorCurve1DWidget::on_Button_triggered()
+{
+  const ezDocumentObject* pParent = m_Items[0].m_pObject;
+  const ezDocumentObject* pCurve = m_pObjectAccessor->GetChildObject(pParent, m_pProp->GetPropertyName(), {});
+  const ezColorAttribute* pColorAttr = m_pProp->GetAttributeByType<ezColorAttribute>();
+  const ezCurveExtentsAttribute* pExtentsAttr = m_pProp->GetAttributeByType<ezCurveExtentsAttribute>();
+  const ezClampValueAttribute* pClampAttr = m_pProp->GetAttributeByType<ezClampValueAttribute>();
+
+  // TODO: would like to have one transaction open to finish/cancel at the end
+  // but also be able to undo individual steps while editing
+  //m_pObjectAccessor->GetObjectManager()->GetDocument()->GetCommandHistory()->StartTransaction("Edit Curve");
+
+  ezQtCurveEditDlg* pDlg = new ezQtCurveEditDlg(m_pObjectAccessor, pCurve, this);
+  pDlg->restoreGeometry(ezQtCurveEditDlg::GetLastDialogGeometry());
+
+  if (pColorAttr)
+  {
+    pDlg->SetCurveColor(pColorAttr->GetColor());
+  }
+
+  if (pExtentsAttr)
+  {
+    pDlg->SetCurveExtents(pExtentsAttr->m_fLowerExtent, pExtentsAttr->m_bLowerExtentFixed, pExtentsAttr->m_fUpperExtent, pExtentsAttr->m_bUpperExtentFixed);
+  }
+
+  if (pClampAttr)
+  {
+    const double fLower = pClampAttr->GetMinValue().IsNumber() ? pClampAttr->GetMinValue().ConvertTo<double>() : -ezMath::HighValue<double>();
+    const double fUpper = pClampAttr->GetMaxValue().IsNumber() ? pClampAttr->GetMaxValue().ConvertTo<double>() : ezMath::HighValue<double>();
+
+    pDlg->SetCurveRanges(fLower, fUpper);
+  }
+
+  if (pDlg->exec() == QDialog::Accepted)
+  {
+    //m_pObjectAccessor->GetObjectManager()->GetDocument()->GetCommandHistory()->FinishTransaction();
+
+    UpdatePreview();
+  }
+  else
+  {
+    //m_pObjectAccessor->GetObjectManager()->GetDocument()->GetCommandHistory()->CancelTransaction();
+  }
+
+  delete pDlg;
 }

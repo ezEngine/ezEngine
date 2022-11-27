@@ -13,9 +13,11 @@ public:
   ~ezClusteredDataGPU();
 
   ezUInt32 m_uiSkyIrradianceIndex = 0;
+  ezEnum<ezCameraUsageHint> m_cameraUsageHint = ezCameraUsageHint::Default;
 
   ezGALBufferHandle m_hLightDataBuffer;
   ezGALBufferHandle m_hDecalDataBuffer;
+  ezGALBufferHandle m_hReflectionProbeDataBuffer;
   ezGALBufferHandle m_hClusterDataBuffer;
   ezGALBufferHandle m_hClusterItemBuffer;
 

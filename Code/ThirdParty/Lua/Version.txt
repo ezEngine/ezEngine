@@ -1,2 +1,0 @@
-Current Lua Version: 5.3.5
-2018-06-26

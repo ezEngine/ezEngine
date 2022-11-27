@@ -35,7 +35,11 @@ private:
   QPointF m_ViewPos;
   QPointF m_ViewScale;
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+  QPointF m_StartDragView;
+#else
   QPoint m_vStartDragView;
-  QPointF m_vStartDragScene;
-};
+#endif
 
+  QPointF m_StartDragScene;
+};

@@ -20,7 +20,7 @@ namespace ezApplicationDetails
 #if EZ_ENABLED(EZ_COMPILER_MSVC)             // Internal compiler error in MSVC. Can not align buffer otherwise the compiler will crash.
     static char appBuffer[sizeof(AppClass)]; // Not on the stack to cope with smaller stacks.
 #else
-    EZ_ALIGN_VARIABLE(static char appBuffer[sizeof(AppClass)], EZ_ALIGNMENT_OF(AppClass)); // Not on the stack to cope with smaller stacks.
+    alignas(EZ_ALIGNMENT_OF(AppClass)) static char appBuffer[sizeof(AppClass)]; // Not on the stack to cope with smaller stacks.
 #endif
 
     // This mutex will prevent the console shutdown handler to return
@@ -70,7 +70,7 @@ namespace ezApplicationDetails
 #if EZ_ENABLED(EZ_COMPILER_MSVC)             // Internal compiler error in MSVC. Can not align buffer otherwise the compiler will crash.
     static char appBuffer[sizeof(AppClass)]; // Not on the stack to cope with smaller stacks.
 #else
-    EZ_ALIGN_VARIABLE(static char appBuffer[sizeof(AppClass)], EZ_ALIGNMENT_OF(AppClass)); // Not on the stack to cope with smaller stacks.
+    alignas(EZ_ALIGNMENT_OF(AppClass)) static char appBuffer[sizeof(AppClass)]; // Not on the stack to cope with smaller stacks.
 #endif
 
     AppClass* pApp = new (appBuffer) AppClass(std::forward<Args>(arguments)...);
@@ -96,12 +96,14 @@ namespace ezApplicationDetails
 } // namespace ezApplicationDetails
 
 /// \brief Same as EZ_APPLICATION_ENTRY_POINT but should be used for applications that shall always show a console window.
-#define EZ_CONSOLEAPP_ENTRY_POINT(AppClass, ...)                                \
-  /* Enables that on machines with multiple GPUs the NVIDIA GPU is preferred */ \
-  extern "C"                                                                    \
-  {                                                                             \
-    _declspec(dllexport) ezMinWindows::DWORD NvOptimusEnablement = 0x00000001;  \
-  }                                                                             \
+#define EZ_CONSOLEAPP_ENTRY_POINT(AppClass, ...)                                                \
+  /* Enables that on machines with multiple GPUs the NVIDIA / AMD GPU is preferred */           \
+  extern "C"                                                                                    \
+  {                                                                                             \
+    _declspec(dllexport) ezMinWindows::DWORD NvOptimusEnablement = 0x00000001;                  \
+    _declspec(dllexport) ezMinWindows::DWORD AmdPowerXpressRequestHighPerformance = 0x00000001; \
+  }                                                                                             \
+  EZ_APPLICATION_ENTRY_POINT_CODE_INJECTION                                     \
   int main(int argc, const char** argv) { return ezApplicationDetails::ConsoleEntry<AppClass>(argc, argv, __VA_ARGS__); }
 
 // If windows.h is already included use the native types, otherwise use types from ezMinWindows
@@ -126,11 +128,13 @@ namespace ezApplicationDetails
 /// Just use the macro in a cpp file of your application and supply your app class (must be derived from ezApplication).
 /// The additional (optional) parameters are passed to the constructor of your app class.
 #define EZ_APPLICATION_ENTRY_POINT(AppClass, ...)                                                                          \
-  /* Enables that on machines with multiple GPUs the NVIDIA GPU is preferred */                                            \
+  /* Enables that on machines with multiple GPUs the NVIDIA / AMD GPU is preferred */                                      \
   extern "C"                                                                                                               \
   {                                                                                                                        \
     _declspec(dllexport) ezMinWindows::DWORD NvOptimusEnablement = 0x00000001;                                             \
+    _declspec(dllexport) ezMinWindows::DWORD AmdPowerXpressRequestHighPerformance = 0x00000001;                            \
   }                                                                                                                        \
+  EZ_APPLICATION_ENTRY_POINT_CODE_INJECTION                                                                                \
   int EZ_WINDOWS_CALLBACK WinMain(_In_ EZ_CONCAT(_EZ_, EZ_CONCAT(APPLICATION_ENTRY_POINT_HINSTANCE, _WINDOWS_)) hInstance, \
     _In_opt_ EZ_CONCAT(_EZ_, EZ_CONCAT(APPLICATION_ENTRY_POINT_HINSTANCE, _WINDOWS_)) hPrevInstance,                       \
     _In_ EZ_CONCAT(_EZ_, EZ_CONCAT(APPLICATION_ENTRY_POINT_LPSTR, _WINDOWS_)) lpCmdLine, _In_ int nCmdShow)                \

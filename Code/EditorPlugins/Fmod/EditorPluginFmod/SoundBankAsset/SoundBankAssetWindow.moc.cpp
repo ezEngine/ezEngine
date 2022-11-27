@@ -33,7 +33,7 @@ ezSoundBankAssetDocumentWindow::ezSoundBankAssetDocumentWindow(ezDocument* pDocu
   }
 
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this);
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
     pPropertyPanel->setObjectName("SoundBankAssetDockWidget");
     pPropertyPanel->setWindowTitle("Sound Bank Properties");
     pPropertyPanel->show();

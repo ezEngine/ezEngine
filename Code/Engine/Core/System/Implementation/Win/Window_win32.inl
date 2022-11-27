@@ -70,7 +70,7 @@ ezResult ezWindow::Initialize()
   windowClass.cbSize = sizeof(WNDCLASSEXW);
   windowClass.style = CS_HREDRAW | CS_VREDRAW;
   windowClass.hInstance = GetModuleHandleW(nullptr);
-  windowClass.hIcon = LoadIcon(nullptr, IDI_APPLICATION); /// \todo Expose icon functionality somehow
+  windowClass.hIcon = LoadIcon(GetModuleHandleW(nullptr), MAKEINTRESOURCE(101)); /// \todo Expose icon functionality somehow (101 == IDI_ICON1, see resource.h)
   windowClass.hCursor = LoadCursor(nullptr, IDC_ARROW);
   windowClass.hbrBackground = static_cast<HBRUSH>(GetStockObject(BLACK_BRUSH));
   windowClass.lpszClassName = L"ezWin32Window";
@@ -169,15 +169,15 @@ ezResult ezWindow::Initialize()
   // create window
   ezStringWChar sTitelWChar(m_CreationDescription.m_Title.GetData());
   const wchar_t* sTitelWCharRaw = sTitelWChar.GetData();
-  m_WindowHandle = ezMinWindows::FromNative(CreateWindowExW(dwExStyle, windowClass.lpszClassName, sTitelWCharRaw, dwWindowStyle, m_CreationDescription.m_Position.x, m_CreationDescription.m_Position.y, iWidth, iHeight, nullptr, nullptr, windowClass.hInstance, nullptr));
+  m_hWindowHandle = ezMinWindows::FromNative(CreateWindowExW(dwExStyle, windowClass.lpszClassName, sTitelWCharRaw, dwWindowStyle, m_CreationDescription.m_Position.x, m_CreationDescription.m_Position.y, iWidth, iHeight, nullptr, nullptr, windowClass.hInstance, nullptr));
 
-  if (m_WindowHandle == INVALID_HANDLE_VALUE)
+  if (m_hWindowHandle == INVALID_HANDLE_VALUE)
   {
     ezLog::Error("Failed to create window.");
     return EZ_FAILURE;
   }
 
-  auto windowHandle = ezMinWindows::ToNative(m_WindowHandle);
+  auto windowHandle = ezMinWindows::ToNative(m_hWindowHandle);
 
   // safe window pointer for lookup in ezWindowsMessageFuncTrampoline
   SetWindowLongPtrW(windowHandle, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
@@ -234,16 +234,19 @@ ezResult ezWindow::Destroy()
     ChangeDisplaySettingsW(nullptr, 0);
 
   HWND hWindow = ezMinWindows::ToNative(GetNativeWindowHandle());
+  // the following line of code is a work around, because 'LONG_PTR pNull = reinterpret_cast<LONG_PTR>(nullptr)' crashes the VS 2010 32 Bit
+  // compiler :-(
+  LONG_PTR pNull = 0;
+  // Set the window ptr to null before calling DestroyWindow as it might trigger callbacks and we are potentially already in the destructor, making any virtual function call unsafe.
+  SetWindowLongPtrW(hWindow, GWLP_USERDATA, pNull);
+
   if (!DestroyWindow(hWindow))
   {
     ezLog::SeriousWarning("DestroyWindow failed.");
     Res = EZ_FAILURE;
   }
 
-  // the following line of code is a work around, because 'LONG_PTR pNull = reinterpret_cast<LONG_PTR>(nullptr)' crashes the VS 2010 32 Bit
-  // compiler :-(
-  LONG_PTR pNull = 0;
-  SetWindowLongPtrW(hWindow, GWLP_USERDATA, pNull);
+
 
   // actually nobody cares about this, all Window Classes are cleared when the application closes
   // in the mean time, having multiple windows will just result in errors when one is closed,
@@ -255,7 +258,7 @@ ezResult ezWindow::Destroy()
   //}
 
   m_bInitialized = false;
-  m_WindowHandle = INVALID_WINDOW_HANDLE_VALUE;
+  m_hWindowHandle = INVALID_WINDOW_HANDLE_VALUE;
 
   if (Res == EZ_SUCCESS)
     ezLog::Success("Window destroyed.");
@@ -263,6 +266,13 @@ ezResult ezWindow::Destroy()
     ezLog::SeriousWarning("There were problems to destroy the window properly.");
 
   return Res;
+}
+
+ezResult ezWindow::Resize(const ezSizeU32& newWindowSize)
+{
+  auto windowHandle = ezMinWindows::ToNative(m_hWindowHandle);
+  BOOL res = ::SetWindowPos(windowHandle, HWND_NOTOPMOST, 0, 0, newWindowSize.width, newWindowSize.height, SWP_NOSENDCHANGING | SWP_NOOWNERZORDER | SWP_NOMOVE | SWP_NOZORDER);
+  return res == TRUE ? EZ_SUCCESS : EZ_FAILURE;
 }
 
 void ezWindow::ProcessWindowMessages()
@@ -287,4 +297,9 @@ void ezWindow::ProcessWindowMessages()
 void ezWindow::OnResize(const ezSizeU32& newWindowSize)
 {
   ezLog::Info("Window resized to ({0}, {1})", newWindowSize.width, newWindowSize.height);
+}
+
+ezWindowHandle ezWindow::GetNativeWindowHandle() const
+{
+  return m_hWindowHandle;
 }

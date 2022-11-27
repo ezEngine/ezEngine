@@ -5,7 +5,7 @@
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 
-ezRmlUiViewContext::ezRmlUiViewContext(ezRmlUiContext* pRmlUiContext)
+ezRmlUiViewContext::ezRmlUiViewContext(ezRmlUiDocumentContext* pRmlUiContext)
   : ezEngineProcessViewContext(pRmlUiContext)
 {
   m_pRmlUiContext = pRmlUiContext;

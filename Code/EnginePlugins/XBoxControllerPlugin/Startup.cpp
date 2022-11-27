@@ -1,3 +1,4 @@
+#include <Core/System/ControllerInput.h>
 #include <Foundation/Configuration/Startup.h>
 #include <XBoxControllerPlugin/InputDeviceXBox.h>
 
@@ -36,11 +37,19 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(InputDevices, InputDeviceXBox360)
 
   ON_HIGHLEVELSYSTEMS_STARTUP
   {
-    ezInputDeviceXBox360::GetDevice();
+    ezInputDeviceXBox360* pDevice = ezInputDeviceXBox360::GetDevice();
+    if(ezControllerInput::GetDevice() == nullptr)
+    {
+      ezControllerInput::SetDevice(pDevice);
+    }
   }
  
   ON_HIGHLEVELSYSTEMS_SHUTDOWN
   {
+    if(ezControllerInput::GetDevice() == g_InputDeviceXBox360)
+    {
+      ezControllerInput::SetDevice(nullptr);
+    }
     ezInputDeviceXBox360::DestroyAllDevices();
   }
  

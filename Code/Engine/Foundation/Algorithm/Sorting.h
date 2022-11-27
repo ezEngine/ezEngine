@@ -64,7 +64,7 @@ private:
   static void QuickSort(ezArrayPtr<T>& arrayPtr, ezUInt32 uiStartIndex, ezUInt32 uiEndIndex, const Comparer& comparer);
 
   template <typename T, typename Comparer>
-  static ezUInt32 Partition(ezArrayPtr<T>& arrayPtr, ezUInt32 uiLeft, ezUInt32 uiRight, const Comparer& comparer);
+  static ezUInt32 Partition(T* ptr, ezUInt32 uiLeft, ezUInt32 uiRight, const Comparer& comparer);
 
 
   template <typename Container, typename Comparer>

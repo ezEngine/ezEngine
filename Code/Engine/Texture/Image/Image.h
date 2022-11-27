@@ -5,6 +5,7 @@
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Logging/Log.h>
 
+#include <Texture/Image/Formats/ImageFileFormat.h>
 #include <Texture/Image/ImageHeader.h>
 
 /// \brief A class referencing image data and holding metadata about the image.
@@ -27,7 +28,7 @@ public:
   void ResetAndViewExternalStorage(const ezImageHeader& header, ezConstByteBlobPtr imageData);
 
   /// \brief Convenience function to save the image to the given file.
-  ezResult SaveTo(const char* szFileName, ezLogInterface* pLog = ezLog::GetThreadLocalLogSystem()) const;
+  ezResult SaveTo(const char* szFileName) const;
 
   /// \brief Returns the header this image was constructed from.
   const ezImageHeader& GetHeader() const;
@@ -41,16 +42,19 @@ public:
   /// \brief Returns a view to the given sub-image.
   ezImageView GetSubImageView(ezUInt32 uiMipLevel = 0, ezUInt32 uiFace = 0, ezUInt32 uiArrayIndex = 0) const;
 
+  /// \brief Returns a view to a sub-plane.
+  ezImageView GetPlaneView(ezUInt32 uiMipLevel = 0, ezUInt32 uiFace = 0, ezUInt32 uiArrayIndex = 0, ezUInt32 uiPlaneIndex = 0) const;
+
   /// \brief Returns a view to z slice of the image.
-  ezImageView GetSliceView(ezUInt32 uiMipLevel = 0, ezUInt32 uiFace = 0, ezUInt32 uiArrayIndex = 0, ezUInt32 z = 0) const;
+  ezImageView GetSliceView(ezUInt32 uiMipLevel = 0, ezUInt32 uiFace = 0, ezUInt32 uiArrayIndex = 0, ezUInt32 z = 0, ezUInt32 uiPlaneIndex = 0) const;
 
   /// \brief Returns a view to a row of pixels resp. blocks.
-  ezImageView GetRowView(ezUInt32 uiMipLevel = 0, ezUInt32 uiFace = 0, ezUInt32 uiArrayIndex = 0, ezUInt32 y = 0, ezUInt32 z = 0) const;
+  ezImageView GetRowView(ezUInt32 uiMipLevel = 0, ezUInt32 uiFace = 0, ezUInt32 uiArrayIndex = 0, ezUInt32 y = 0, ezUInt32 z = 0, ezUInt32 uiPlaneIndex = 0) const;
 
   /// \brief Returns a pointer to a given pixel or block contained in a sub-image.
   template <typename T>
   const T* GetPixelPointer(
-    ezUInt32 uiMipLevel = 0, ezUInt32 uiFace = 0, ezUInt32 uiArrayIndex = 0, ezUInt32 x = 0, ezUInt32 y = 0, ezUInt32 z = 0) const;
+    ezUInt32 uiMipLevel = 0, ezUInt32 uiFace = 0, ezUInt32 uiArrayIndex = 0, ezUInt32 x = 0, ezUInt32 y = 0, ezUInt32 z = 0, ezUInt32 uiPlaneIndex = 0) const;
 
   /// \brief Reinterprets the image with a given format; the format must have the same size in bits per pixel as the current one.
   void ReinterpretAs(ezImageFormat::Enum format);
@@ -63,6 +67,7 @@ public:
   using ezImageHeader::GetNumArrayIndices;
   using ezImageHeader::GetNumFaces;
   using ezImageHeader::GetNumMipLevels;
+  using ezImageHeader::GetPlaneCount;
 
   using ezImageHeader::GetImageFormat;
 
@@ -76,14 +81,14 @@ public:
 protected:
   ezUInt64 ComputeLayout();
 
-  void ValidateSubImageIndices(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32 uiArrayIndex) const;
+  void ValidateSubImageIndices(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32 uiArrayIndex, ezUInt32 uiPlaneIndex) const;
   template <typename T>
-  void ValidateDataTypeAccessor() const;
+  void ValidateDataTypeAccessor(ezUInt32 uiPlaneIndex) const;
 
-  const ezUInt64& GetSubImageOffset(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32 uiArrayIndex) const;
+  const ezUInt64& GetSubImageOffset(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32 uiArrayIndex, ezUInt32 uiPlaneIndex) const;
 
-  ezHybridArray<ezUInt64, 16> m_subImageOffsets;
-  ezBlobPtr<ezUInt8> m_dataPtr;
+  ezHybridArray<ezUInt64, 16> m_SubImageOffsets;
+  ezBlobPtr<ezUInt8> m_DataPtr;
 };
 
 /// \brief A class containing image data and associated meta data.
@@ -148,7 +153,7 @@ public:
   void ResetAndCopy(const ezImageView& other);
 
   /// \brief Convenience function to load the image from the given file.
-  ezResult LoadFrom(const char* szFileName, ezLogInterface* pLog = ezLog::GetThreadLocalLogSystem());
+  ezResult LoadFrom(const char* szFileName);
 
   /// \brief Convenience function to convert the image to the given format.
   ezResult Convert(ezImageFormat::Enum targetFormat);
@@ -167,26 +172,31 @@ public:
 
   using ezImageView::GetSubImageView;
 
+  /// \brief Returns a view to a sub-plane.
+  ezImage GetPlaneView(ezUInt32 uiMipLevel = 0, ezUInt32 uiFace = 0, ezUInt32 uiArrayIndex = 0, ezUInt32 uiPlaneIndex = 0);
+
+  using ezImageView::GetPlaneView;
+
   /// \brief Returns a view to z slice of the image.
-  ezImage GetSliceView(ezUInt32 uiMipLevel = 0, ezUInt32 uiFace = 0, ezUInt32 uiArrayIndex = 0, ezUInt32 z = 0);
+  ezImage GetSliceView(ezUInt32 uiMipLevel = 0, ezUInt32 uiFace = 0, ezUInt32 uiArrayIndex = 0, ezUInt32 z = 0, ezUInt32 uiPlaneIndex = 0);
 
   using ezImageView::GetSliceView;
 
   /// \brief Returns a view to a row of pixels resp. blocks.
-  ezImage GetRowView(ezUInt32 uiMipLevel = 0, ezUInt32 uiFace = 0, ezUInt32 uiArrayIndex = 0, ezUInt32 y = 0, ezUInt32 z = 0);
+  ezImage GetRowView(ezUInt32 uiMipLevel = 0, ezUInt32 uiFace = 0, ezUInt32 uiArrayIndex = 0, ezUInt32 y = 0, ezUInt32 z = 0, ezUInt32 uiPlaneIndex = 0);
 
   using ezImageView::GetRowView;
 
   /// \brief Returns a pointer to a given pixel or block contained in a sub-image.
   template <typename T>
-  T* GetPixelPointer(ezUInt32 uiMipLevel = 0, ezUInt32 uiFace = 0, ezUInt32 uiArrayIndex = 0, ezUInt32 x = 0, ezUInt32 y = 0, ezUInt32 z = 0);
+  T* GetPixelPointer(ezUInt32 uiMipLevel = 0, ezUInt32 uiFace = 0, ezUInt32 uiArrayIndex = 0, ezUInt32 x = 0, ezUInt32 y = 0, ezUInt32 z = 0, ezUInt32 uiPlaneIndex = 0);
 
   using ezImageView::GetPixelPointer;
 
 private:
   bool UsesExternalStorage() const;
 
-  ezBlob m_internalStorage;
+  ezBlob m_InternalStorage;
 };
 
 #include <Texture/Image/Implementation/Image_inl.h>

@@ -179,5 +179,54 @@ ezResult ezBlackboard::Deserialize(ezStreamReader& stream)
   return EZ_SUCCESS;
 }
 
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezBlackboardCondition, ezNoBase, 1, ezRTTIDefaultAllocator<ezBlackboardCondition>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_ACCESSOR_PROPERTY("EntryName", GetEntryName, SetEntryName),
+    EZ_ENUM_MEMBER_PROPERTY("Operator", ezComparisonOperator, m_Operator),
+    EZ_MEMBER_PROPERTY("ComparisonValue", m_fComparisonValue),
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_STATIC_REFLECTED_TYPE;
+// clang-format on
+
+bool ezBlackboardCondition::IsConditionMet(const ezBlackboard& blackboard) const
+{
+  auto pEntry = blackboard.GetEntry(m_sEntryName);
+  if (pEntry != nullptr && pEntry->m_Value.IsNumber())
+  {
+    double fEntryValue = pEntry->m_Value.ConvertTo<double>();
+    return ezComparisonOperator::Compare(m_Operator, fEntryValue, m_fComparisonValue);
+  }
+
+  return false;
+}
+
+constexpr ezTypeVersion s_BlackboardConditionVersion = 1;
+
+ezResult ezBlackboardCondition::Serialize(ezStreamWriter& stream) const
+{
+  stream.WriteVersion(s_BlackboardConditionVersion);
+
+  stream << m_sEntryName;
+  stream << m_Operator;
+  stream << m_fComparisonValue;
+  return EZ_SUCCESS;
+}
+
+ezResult ezBlackboardCondition::Deserialize(ezStreamReader& stream)
+{
+  const ezTypeVersion uiVersion = stream.ReadVersion(s_BlackboardConditionVersion);
+
+  stream >> m_sEntryName;
+  stream >> m_Operator;
+  stream >> m_fComparisonValue;
+  return EZ_SUCCESS;
+}
 
 EZ_STATICLINK_FILE(Core, Core_Utils_Implementation_Blackboard);

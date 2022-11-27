@@ -1,0 +1,33 @@
+<RCC>
+  <qresource prefix="AssetIcons">
+    <file>Jolt_Collision_Mesh.png</file>
+    <file>Jolt_Collision_Mesh_Convex.png</file>
+  </qresource>
+  <qresource prefix="TypeIcons">
+    <file>ezJoltShapeCapsuleComponent.png</file>
+    <file>ezJoltShapeBoxComponent.png</file>
+    <file>ezJoltShapeSphereComponent.png</file>
+    <file>ezJoltStaticActorComponent.png</file>
+    <file>ezJoltDynamicActorComponent.png</file>
+    <file>ezJoltDistanceConstraintComponent.png</file>
+    <file>ezJoltFixedConstraintComponent.png</file>
+    <file>ezJoltCenterOfMassComponent.png</file>
+    <file>ezJoltShapeConvexHullComponent.png</file>
+    <file>ezJoltCharacterControllerComponent.png</file>
+    <file>ezJoltSettingsComponent.png</file>
+    <file>ezJoltTriggerComponent.png</file>
+	<file>ezJoltVisColMeshComponent.png</file>
+	<file>ezJolt6DOFConstraintComponent.png</file>
+	<file>ezJoltHingeConstraintComponent.png</file>
+	<file>ezJoltPointConstraintComponent.png</file>
+	<file>ezJoltDefaultCharacterComponent.png</file>
+	<file>ezJoltSliderConstraintComponent.png</file>
+	<file>ezJoltBoneColliderComponent.png</file>
+	<file>ezJoltRopeComponent.png</file>
+	<file>ezJoltShapeCylinderComponent.png</file>
+	<file>ezJoltRagdollComponent.png</file>
+	<file>ezJoltSwingTwistConstraintComponent.png</file>
+	<file>ezJoltConeConstraintComponent.png</file>
+  </qresource>  
+</RCC>
+

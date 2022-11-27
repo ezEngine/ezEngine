@@ -25,7 +25,7 @@ EZ_CREATE_SIMPLE_TEST_GROUP(Configuration);
 static ezInt32 iChangedValue = 0;
 static ezInt32 iChangedRestart = 0;
 
-#if EZ_ENABLED(EZ_SUPPORTS_DYNAMIC_PLUGINS)
+#if EZ_ENABLED(EZ_SUPPORTS_DYNAMIC_PLUGINS) && EZ_ENABLED(EZ_COMPILE_ENGINE_AS_DLL)
 
 static void ChangedCVar(const ezCVarEvent& e)
 {
@@ -97,7 +97,7 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
     EZ_TEST_BOOL(ezCVar::FindCVarByName("test2_String") == nullptr);
   }
 
-#if EZ_ENABLED(EZ_SUPPORTS_DYNAMIC_PLUGINS)
+#if EZ_ENABLED(EZ_SUPPORTS_DYNAMIC_PLUGINS) && EZ_ENABLED(EZ_COMPILE_ENGINE_AS_DLL)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Plugin1 Loaded")
   {
@@ -136,7 +136,7 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
     EZ_TEST_BOOL(ezCVar::FindCVarByName("test2_String") == nullptr);
   }
 
-#if EZ_ENABLED(EZ_SUPPORTS_DYNAMIC_PLUGINS)
+#if EZ_ENABLED(EZ_SUPPORTS_DYNAMIC_PLUGINS) && EZ_ENABLED(EZ_COMPILE_ENGINE_AS_DLL)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Plugin2 Loaded")
   {
@@ -172,7 +172,7 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
     EZ_TEST_BOOL(ezCVar::FindCVarByName("test2_String") == nullptr);
   }
 
-#if EZ_ENABLED(EZ_SUPPORTS_DYNAMIC_PLUGINS)
+#if EZ_ENABLED(EZ_SUPPORTS_DYNAMIC_PLUGINS) && EZ_ENABLED(EZ_COMPILE_ENGINE_AS_DLL)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Default Value Test")
   {

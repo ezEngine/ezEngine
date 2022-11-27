@@ -74,7 +74,7 @@ public:
 #endif
 
 protected:
-  EZ_ALWAYS_INLINE static ezMessageId GetNextMsgId() { return s_uiNextMsgId++; }
+  EZ_ALWAYS_INLINE static ezMessageId GetNextMsgId() { return s_NextMsgId++; }
 
   ezMessageId m_Id;
 
@@ -85,7 +85,7 @@ protected:
   ezUInt16 m_uiSize;
 #endif
 
-  static ezMessageId s_uiNextMsgId;
+  static ezMessageId s_NextMsgId;
 
 
   //////////////////////////////////////////////////////////////////////////

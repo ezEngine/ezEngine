@@ -28,9 +28,10 @@ private:
   void SendRedrawMsg();
   void QueryObjectBBox(ezInt32 iPurpose);
   void SelectionEventHandler(const ezSelectionManagerEvent& e);
+  void SkeletonAssetEventHandler(const ezSkeletonAssetEvent& e);
 
   void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
-  void StructureEventHandler(const ezDocumentObjectStructureEvent& e);
+  void CommandEventHandler(const ezCommandHistoryEvent&);
 
   void SendLiveResourcePreview();
   void RestoreResource();

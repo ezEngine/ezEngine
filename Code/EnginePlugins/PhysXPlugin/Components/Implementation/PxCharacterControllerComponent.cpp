@@ -2,11 +2,11 @@
 
 #include <Core/Messages/CollisionMessage.h>
 #include <Core/Messages/TriggerMessage.h>
+#include <Core/Physics/SurfaceResource.h>
 #include <Core/ResourceManager/Implementation/Declarations.h>
 #include <Core/ResourceManager/Implementation/ResourceLock.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
-#include <GameEngine/Physics/SurfaceResource.h>
 #include <PhysXPlugin/Components/PxCharacterControllerComponent.h>
 #include <PhysXPlugin/Components/PxCharacterShapeComponent.h>
 #include <PhysXPlugin/Components/PxDynamicActorComponent.h>
@@ -62,7 +62,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxCharacterControllerComponent, 6, ezComponentMode::Dy
     EZ_ACCESSOR_PROPERTY("WalkSurfaceInteraction", GetWalkSurfaceInteraction, SetWalkSurfaceInteraction)->AddAttributes(new ezDynamicStringEnumAttribute("SurfaceInteractionTypeEnum"), new ezDefaultValueAttribute(ezStringView("Footstep"))),
     EZ_MEMBER_PROPERTY("WalkInteractionDistance", m_fWalkInteractionDistance)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
     EZ_MEMBER_PROPERTY("RunInteractionDistance", m_fRunInteractionDistance)->AddAttributes(new ezDefaultValueAttribute(3.0f)),
-    EZ_ACCESSOR_PROPERTY("FallbackWalkSurface", GetFallbackWalkSurfaceFile, SetFallbackWalkSurfaceFile)->AddAttributes(new ezAssetBrowserAttribute("Surface")),
+    EZ_ACCESSOR_PROPERTY("FallbackWalkSurface", GetFallbackWalkSurfaceFile, SetFallbackWalkSurfaceFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface")),
     EZ_ACCESSOR_PROPERTY("HeadObject", DummyGetter, SetHeadObjectReference)->AddAttributes(new ezGameObjectReferenceAttribute()),
   }
   EZ_END_PROPERTIES;
@@ -74,7 +74,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxCharacterControllerComponent, 6, ezComponentMode::Dy
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Physics/Special"),
+    new ezCategoryAttribute("Physics/PhysX/Character"),
   }
   EZ_END_ATTRIBUTES;
 }
@@ -192,8 +192,8 @@ void ezPxCharacterControllerComponent::Update()
   const bool isOnGround = collisionFlags.IsSet(ezPxCharacterShapeCollisionFlags::Below);
   const bool touchesCeiling = collisionFlags.IsSet(ezPxCharacterShapeCollisionFlags::Above);
   const bool canJump = isOnGround && !touchesCeiling;
-  const bool wantsJump = (m_InputStateBits & InputStateBits::Jump) != 0;
-  m_bWantsCrouch = (m_InputStateBits & InputStateBits::Crouch) != 0;
+  const bool wantsJump = (m_uiInputStateBits & InputStateBits::Jump) != 0;
+  m_bWantsCrouch = (m_uiInputStateBits & InputStateBits::Crouch) != 0;
 
   m_bIsTouchingGround = isOnGround;
 
@@ -220,7 +220,7 @@ void ezPxCharacterControllerComponent::Update()
 
   if (isOnGround)
   {
-    fIntendedSpeed = (m_InputStateBits & InputStateBits::Run) ? m_fRunSpeed : m_fWalkSpeed;
+    fIntendedSpeed = (m_uiInputStateBits & InputStateBits::Run) ? m_fRunSpeed : m_fWalkSpeed;
 
     if (m_bWantsCrouch)
       fIntendedSpeed = m_fCrouchSpeed;
@@ -306,7 +306,7 @@ void ezPxCharacterControllerComponent::Update()
 
         if (hSurface.IsValid())
         {
-          const bool bRun = (m_InputStateBits & InputStateBits::Run) != 0;
+          const bool bRun = (m_uiInputStateBits & InputStateBits::Run) != 0;
           if (!bRun && m_fAccumulatedWalkDistance >= m_fWalkInteractionDistance || bRun && m_fAccumulatedWalkDistance >= m_fRunInteractionDistance)
           {
             m_fAccumulatedWalkDistance = 0.0f;
@@ -389,7 +389,7 @@ void ezPxCharacterControllerComponent::Update()
   // reset all, expect new input
   m_vRelativeMoveDirection.SetZero();
   m_vAbsoluteRootMotion.SetZero();
-  m_InputStateBits = 0;
+  m_uiInputStateBits = 0;
 
   ezGameObject* pHeadObject;
   if (!m_hHeadObject.IsInvalidated() && GetWorld()->TryGetObject(m_hHeadObject, pHeadObject))
@@ -409,7 +409,7 @@ void ezPxCharacterControllerComponent::OnSimulationStarted()
 {
   m_vRelativeMoveDirection.SetZero();
   m_vAbsoluteRootMotion.SetZero();
-  m_InputStateBits = 0;
+  m_uiInputStateBits = 0;
   m_fVelocityUp = 0.0f;
   m_vVelocityLateral.SetZero();
 
@@ -472,17 +472,17 @@ void ezPxCharacterControllerComponent::MoveCharacter(ezMsgMoveCharacterControlle
 
   if (msg.m_bRun)
   {
-    m_InputStateBits |= InputStateBits::Run;
+    m_uiInputStateBits |= InputStateBits::Run;
   }
 
   if (msg.m_bJump)
   {
-    m_InputStateBits |= InputStateBits::Jump;
+    m_uiInputStateBits |= InputStateBits::Jump;
   }
 
   if (msg.m_bCrouch)
   {
-    m_InputStateBits |= InputStateBits::Crouch;
+    m_uiInputStateBits |= InputStateBits::Crouch;
   }
 }
 

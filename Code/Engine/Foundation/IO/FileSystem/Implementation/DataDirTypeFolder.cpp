@@ -27,7 +27,7 @@ namespace ezDataDirectory
   ezResult FolderReader::InternalOpen(ezFileShareMode::Enum FileShareMode)
   {
     ezStringBuilder sPath = ((ezDataDirectory::FolderType*)GetDataDirectory())->GetRedirectedDataDirectoryPath();
-    sPath.AppendPath(GetFilePath().GetData());
+    sPath.AppendPath(GetFilePath());
 
     return m_File.Open(sPath.GetData(), ezFileOpenMode::Read, FileShareMode);
   }
@@ -41,7 +41,7 @@ namespace ezDataDirectory
   ezResult FolderWriter::InternalOpen(ezFileShareMode::Enum FileShareMode)
   {
     ezStringBuilder sPath = ((ezDataDirectory::FolderType*)GetDataDirectory())->GetRedirectedDataDirectoryPath();
-    sPath.AppendPath(GetFilePath().GetData());
+    sPath.AppendPath(GetFilePath());
 
     return m_File.Open(sPath.GetData(), ezFileOpenMode::Write, FileShareMode);
   }

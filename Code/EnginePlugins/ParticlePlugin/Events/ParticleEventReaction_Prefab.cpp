@@ -1,8 +1,8 @@
 #include <ParticlePlugin/ParticlePluginPCH.h>
 
+#include <Core/Physics/SurfaceResourceDescriptor.h>
 #include <Core/Prefabs/PrefabResource.h>
 #include <Core/World/World.h>
-#include <GameEngine/Physics/SurfaceResourceDescriptor.h>
 #include <ParticlePlugin/Components/ParticleComponent.h>
 #include <ParticlePlugin/Events/ParticleEvent.h>
 #include <ParticlePlugin/Events/ParticleEventReaction_Prefab.h>
@@ -12,9 +12,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEventReactionFactory_Prefab, 1, ezRTTI
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Prefab", m_sPrefab)->AddAttributes(new ezAssetBrowserAttribute("Prefab")),
+    EZ_MEMBER_PROPERTY("Prefab", m_sPrefab)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Prefab")),
     EZ_ENUM_MEMBER_PROPERTY("Alignment", ezSurfaceInteractionAlignment, m_Alignment),
-    //EZ_MAP_ACCESSOR_PROPERTY("Parameters", GetParameters, GetParameter, SetParameter, RemoveParameter)->AddAttributes(new ezExposedParametersAttribute("Prefab"), new ezExposeColorAlphaAttribute),
+    //EZ_MAP_ACCESSOR_PROPERTY("Parameters", GetParameters, GetParameter, SetParameter, RemoveParameter)->AddAttributes(new ezExposedParametersAttribute("CompatibleAsset_Prefab"), new ezExposeColorAlphaAttribute),
   }
   EZ_END_PROPERTIES;
 }

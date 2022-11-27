@@ -16,6 +16,7 @@
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/GameApplication/WindowOutputTarget.h>
 #include <GameEngine/Gameplay/PlayerStartPointComponent.h>
+#include <GameEngine/XR/DummyXR.h>
 #include <GameEngine/XR/XRInterface.h>
 #include <GameEngine/XR/XRRemotingInterface.h>
 #include <RendererCore/Pipeline/RenderPipelineResource.h>
@@ -65,6 +66,8 @@ void ezGameState::OnDeactivation()
         ezLog::Error("Failed to deinitialize ezXRRemotingInterface, make sure all actors are destroyed and ezXRInterface deinitialized.");
       }
     }
+
+    m_pDummyXR = nullptr;
   }
 
   ezRenderWorld::DeleteView(m_hMainView);
@@ -89,8 +92,10 @@ ezUniquePtr<ezActor> ezGameState::CreateXRActor()
   ezXRInterface* pXRInterface = ezSingletonRegistry::GetSingletonInstance<ezXRInterface>();
   if (!pXRInterface)
   {
-    ezLog::Error("No ezXRInterface interface found. Please load a XR plugin to enable XR.");
-    return nullptr;
+    ezLog::Warning("No ezXRInterface interface found. Please load a XR plugin to enable XR. Loading dummyXR interface.");
+    m_pDummyXR = EZ_DEFAULT_NEW(ezDummyXR);
+    pXRInterface = ezSingletonRegistry::GetSingletonInstance<ezXRInterface>();
+    EZ_ASSERT_DEV(pXRInterface, "Creating dummyXR did not register the ezXRInterface.");
   }
 
   ezXRRemotingInterface* pXRRemotingInterface = ezSingletonRegistry::GetSingletonInstance<ezXRRemotingInterface>();
@@ -121,7 +126,7 @@ ezUniquePtr<ezActor> ezGameState::CreateXRActor()
   m_bXREnabled = true;
 
   ezUniquePtr<ezWindow> pMainWindow;
-  ezUniquePtr<ezWindowOutputTargetBase> pOutput;
+  ezUniquePtr<ezWindowOutputTargetGAL> pOutput;
 
   if (pXRInterface->SupportsCompanionView())
   {
@@ -130,12 +135,14 @@ ezUniquePtr<ezActor> ezGameState::CreateXRActor()
     EZ_ASSERT_DEV(pMainWindow != nullptr, "To change the main window creation behavior, override ezGameState::CreateActors().");
     pOutput = CreateMainOutputTarget(pMainWindow.Borrow());
     ConfigureMainWindowInputDevices(pMainWindow.Borrow());
-    SetupMainView(pOutput.Borrow(), pMainWindow->GetClientAreaSize());
+    CreateMainView();
+    SetupMainView(pOutput->m_hSwapChain, pMainWindow->GetClientAreaSize());
   }
   else
   {
     // XR Window (no companion window)
-    SetupMainView(nullptr, {});
+    CreateMainView();
+    SetupMainView({}, {});
   }
 
   if (m_bXRRemotingEnabled)
@@ -164,9 +171,10 @@ void ezGameState::CreateActors()
 
   ezUniquePtr<ezWindow> pMainWindow = CreateMainWindow();
   EZ_ASSERT_DEV(pMainWindow != nullptr, "To change the main window creation behavior, override ezGameState::CreateActors().");
-  ezUniquePtr<ezWindowOutputTargetBase> pOutput = CreateMainOutputTarget(pMainWindow.Borrow());
+  ezUniquePtr<ezWindowOutputTargetGAL> pOutput = CreateMainOutputTarget(pMainWindow.Borrow());
   ConfigureMainWindowInputDevices(pMainWindow.Borrow());
-  SetupMainView(pOutput.Borrow(), pMainWindow->GetClientAreaSize());
+  CreateMainView();
+  SetupMainView(pOutput->m_hSwapChain, pMainWindow->GetClientAreaSize());
 
   {
     // Default flat window
@@ -183,43 +191,45 @@ void ezGameState::ConfigureMainWindowInputDevices(ezWindow* pWindow) {}
 
 void ezGameState::ConfigureInputActions() {}
 
-void ezGameState::SetupMainView(ezWindowOutputTargetBase* pOutputTarget, ezSizeU32 viewportSize)
+void ezGameState::SetupMainView(ezGALSwapChainHandle hSwapChain, ezSizeU32 viewportSize)
 {
+  ezView* pView = nullptr;
+  if (!ezRenderWorld::TryGetView(m_hMainView, pView))
+  {
+    ezLog::Error("Main view is invalid, SetupMainView canceled.");
+    return;
+  }
   if (m_bXREnabled)
   {
     const ezXRConfig* pConfig = ezGameApplicationBase::GetGameApplicationBaseInstance()->GetPlatformProfile().GetTypeConfig<ezXRConfig>();
     ezXRInterface* pXRInterface = ezSingletonRegistry::GetSingletonInstance<ezXRInterface>();
 
     auto renderPipeline = ezResourceManager::LoadResource<ezRenderPipelineResource>(pConfig->m_sXRRenderPipeline);
-    CreateMainView(renderPipeline);
+    pView->SetRenderPipelineResource(renderPipeline);
     // Render target setup is done by ezXRInterface::CreateActor
   }
   else
   {
-    const auto* pConfig = ezGameApplicationBase::GetGameApplicationBaseInstance()->GetPlatformProfile().GetTypeConfig<ezRenderPipelineProfileConfig>();
-    auto renderPipeline = ezResourceManager::LoadResource<ezRenderPipelineResource>(pConfig->m_sMainRenderPipeline);
-    ezView* pView = CreateMainView(renderPipeline);
-
     // Render target setup
     {
-      ezWindowOutputTargetGAL* pOutputGAL = static_cast<ezWindowOutputTargetGAL*>(pOutputTarget);
-      const ezGALSwapChain* pSwapChain = ezGALDevice::GetDefaultDevice()->GetSwapChain(pOutputGAL->m_hSwapChain);
-      ezGALRenderTargetViewHandle hBackBuffer = ezGALDevice::GetDefaultDevice()->GetDefaultRenderTargetView(pSwapChain->GetBackBufferTexture());
-      ezGALRenderTargetSetup renderTargetSetup;
-      renderTargetSetup.SetRenderTarget(0, hBackBuffer);
-      pView->SetRenderTargetSetup(renderTargetSetup);
+      const auto* pConfig = ezGameApplicationBase::GetGameApplicationBaseInstance()->GetPlatformProfile().GetTypeConfig<ezRenderPipelineProfileConfig>();
+      auto renderPipeline = ezResourceManager::LoadResource<ezRenderPipelineResource>(pConfig->m_sMainRenderPipeline);
+      pView->SetRenderPipelineResource(renderPipeline);
+      pView->SetSwapChain(hSwapChain);
       pView->SetViewport(ezRectFloat(0.0f, 0.0f, (float)viewportSize.width, (float)viewportSize.height));
+      pView->ForceUpdate();
     }
   }
 }
 
-ezView* ezGameState::CreateMainView(ezTypedResourceHandle<ezRenderPipelineResource> hRenderPipeline)
+ezView* ezGameState::CreateMainView()
 {
+  EZ_ASSERT_DEV(m_hMainView.IsInvalidated(), "CreateMainView was already called.");
+
   EZ_LOG_BLOCK("CreateMainView");
   ezView* pView = nullptr;
   m_hMainView = ezRenderWorld::CreateView("MainView", pView);
   pView->SetCameraUsageHint(ezCameraUsageHint::MainView);
-  pView->SetRenderPipelineResource(hRenderPipeline);
   pView->SetWorld(m_pMainWorld);
   pView->SetCamera(&m_MainCamera);
   ezRenderWorld::AddMainView(m_hMainView);
@@ -338,13 +348,6 @@ ezUniquePtr<ezWindow> ezGameState::CreateMainWindow()
   ezWindowCreationDesc wndDesc;
   wndDesc.LoadFromDDL(sWndCfg).IgnoreResult();
 
-  if (m_bXREnabled)
-  {
-    wndDesc.m_bClipMouseCursor = false;
-    wndDesc.m_bShowMouseCursor = true;
-    wndDesc.m_WindowMode = ezWindowMode::WindowResizable;
-  }
-
   ezUniquePtr<ezGameStateWindow> pWindow = EZ_DEFAULT_NEW(ezGameStateWindow, wndDesc, [] {});
   pWindow->ResetOnClickClose([this]() { this->RequestQuit(); });
   if (pWindow->GetInputDevice())
@@ -353,11 +356,13 @@ ezUniquePtr<ezWindow> ezGameState::CreateMainWindow()
   return pWindow;
 }
 
-ezUniquePtr<ezWindowOutputTargetBase> ezGameState::CreateMainOutputTarget(ezWindow* pMainWindow)
+ezUniquePtr<ezWindowOutputTargetGAL> ezGameState::CreateMainOutputTarget(ezWindow* pMainWindow)
 {
-  ezUniquePtr<ezWindowOutputTargetGAL> pOutput = EZ_DEFAULT_NEW(ezWindowOutputTargetGAL);
+  ezUniquePtr<ezWindowOutputTargetGAL> pOutput = EZ_DEFAULT_NEW(ezWindowOutputTargetGAL, [this](ezGALSwapChainHandle hSwapChain, ezSizeU32 size) {
+    SetupMainView(hSwapChain, size);
+  });
 
-  ezGALSwapChainCreationDescription desc;
+  ezGALWindowSwapChainCreationDescription desc;
   desc.m_pWindow = pMainWindow;
   desc.m_BackBufferFormat = ezGALResourceFormat::RGBAUByteNormalizedsRGB;
   desc.m_bAllowScreenshots = true;

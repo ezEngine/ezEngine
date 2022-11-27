@@ -4,6 +4,7 @@
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/IO/FileSystem/Implementation/DataDirType.h>
+#include <Foundation/IO/OSFile.h>
 #include <Foundation/Threading/Mutex.h>
 
 /// \brief The ezFileSystem provides high-level functionality to manage files in a virtual file system.
@@ -83,7 +84,7 @@ public:
   static void RegisterDataDirectoryFactory(ezDataDirFactory Factory, float fPriority = 0); // [tested]
 
   /// \brief Will remove all known data directory factories.
-  static void ClearAllDataDirectoryFactories() { s_Data->m_DataDirFactories.Clear(); } // [tested]
+  static void ClearAllDataDirectoryFactories() { s_pData->m_DataDirFactories.Clear(); } // [tested]
 
   /// \brief Adds a data directory. It will try all the registered factories to find a data directory type that can handle the given path.
   ///
@@ -190,6 +191,11 @@ public:
   /// \brief Returns the (recursive) mutex that is used internally by the file system which can be used to guard bundled operations on the file
   /// system.
   static ezMutex& GetMutex();
+
+#if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS)
+  /// \brief Starts a multi-folder search for \a szSearchTerm on all current data directories.
+  static void StartSearch(ezFileSystemIterator& iterator, const char* szSearchTerm, ezBitflags<ezFileSystemIteratorFlags> flags = ezFileSystemIteratorFlags::Default);
+#endif
 
   ///@}
 
@@ -316,7 +322,7 @@ private:
 
   static ezString s_sSdkRootDir;
   static ezMap<ezString, ezString> s_SpecialDirectories;
-  static FileSystemData* s_Data;
+  static FileSystemData* s_pData;
 };
 
 /// \brief Describes the type of events that are broadcast by the ezFileSystem.

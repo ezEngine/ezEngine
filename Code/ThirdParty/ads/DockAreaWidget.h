@@ -77,6 +77,17 @@ private Q_SLOTS:
 	void reorderDockWidget(int fromIndex, int toIndex);
 
 protected:
+
+#ifdef Q_OS_WIN
+	/**
+	 * Reimplements QWidget::event to handle QEvent::PlatformSurface
+	 * This is here to fix issue #294 Tab refresh problem with a QGLWidget
+	 * that exists since Qt version 5.12.7. So this function is here to
+	 * work around a Qt issue.
+	 */
+	virtual bool event(QEvent *event) override;
+#endif
+
 	/**
 	 * Inserts a dock widget into dock area.
 	 * All dockwidgets in the dock area tabified in a stacked layout with tabs.
@@ -356,7 +367,8 @@ Q_SIGNALS:
 	 */
 	void viewToggled(bool Open);
 }; // class DockAreaWidget
-}
- // namespace ads
+} // namespace ads
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(ads::CDockAreaWidget::DockAreaFlags)
 //-----------------------------------------------------------------------------
 #endif // DockAreaWidgetH

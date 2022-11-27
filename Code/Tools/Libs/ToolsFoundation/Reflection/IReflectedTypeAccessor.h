@@ -31,7 +31,7 @@ public:
   virtual bool SetValue(const char* szProperty, const ezVariant& value, ezVariant index = ezVariant()) = 0;
 
   virtual ezInt32 GetCount(const char* szProperty) const = 0;
-  virtual bool GetKeys(const char* szProperty, ezHybridArray<ezVariant, 16>& out_keys) const = 0;
+  virtual bool GetKeys(const char* szProperty, ezDynamicArray<ezVariant>& out_keys) const = 0;
 
   virtual bool InsertValue(const char* szProperty, ezVariant index, const ezVariant& value) = 0;
   virtual bool RemoveValue(const char* szProperty, ezVariant index) = 0;
@@ -41,7 +41,7 @@ public:
 
   const ezDocumentObject* GetOwner() const { return m_pOwner; }
 
-  bool GetValues(const char* szProperty, ezHybridArray<ezVariant, 16>& out_values) const;
+  bool GetValues(const char* szProperty, ezDynamicArray<ezVariant>& out_values) const;
 
 
 private:

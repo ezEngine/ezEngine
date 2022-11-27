@@ -1,0 +1,46 @@
+name: ezEngine_ClangTidyVerification_$(Date:yyyyMMdd)$(Rev:.r)
+
+trigger: none
+
+jobs:
+- job: ClangTidyVerification
+  pool:
+    vmImage: 'windows-2022'
+  steps:
+  - checkout: self
+    submodules: recursive
+    lfs: true
+  - pwsh: |
+      git fetch --no-recurse-submodules --depth=100 origin $(system.pullRequest.targetBranch)
+      git fetch --no-recurse-submodules --depth=100 origin $(system.pullRequest.sourceBranch)
+      git checkout "origin/$(system.pullRequest.sourceBranch)"
+      Invoke-WebRequest https://github.com/llvm/llvm-project/releases/download/llvmorg-15.0.3/LLVM-15.0.3-win64.exe -OutFile "LLVM-15.0.3-win64.exe"
+      ./Data/Tools/Precompiled/7z x -ollvm LLVM-15.0.3-win64.exe
+      $WindowsSdkVersion = ((Get-ChildItem -Directory "C:\Program Files (x86)\Windows Kits\10\bin").Name | ? { $_ -match "^10\.0\." } | sort -Descending)[0]
+      Write-Host "Windows SDK Found" $WindowsSdkVersion
+      $rcExe = "C:\Program Files (x86)\Windows Kits\10\bin\$WindowsSdkVersion\x64\rc.exe" -replace "\\","/"
+      $clangCppExe = "$pwd\llvm\bin\clang++.exe" -replace "\\","/"
+      $clangExe = "$pwd\llvm\bin\clang.exe" -replace "\\","/"
+      .\Data\Tools\Precompiled\cmake\bin\cmake.exe -G Ninja -B workspace-clang -S . "-DCMAKE_CXX_COMPILER=$clangCppExe" "-DCMAKE_C_COMPILER=$clangExe" "-DCMAKE_RC_COMPILER=$rcExe" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DEZ_USE_PCH=OFF -DEZ_ENABLE_FOLDER_UNITY_FILES=OFF
+    displayName: 'Download LLVM & CMake'
+  - task: PowerShell@2
+    displayName: 'Run clang-tidy'
+    inputs:
+      pwsh: true
+      targetType: filePath
+      filePath: './Utilities/RunClangTidy.ps1'
+      arguments: '-DiffTo "origin/$(system.pullRequest.targetBranch)" -LlvmInstallDir "$pwd\llvm" -Workspace "workspace-clang"'
+  - pwsh: |
+      # Changes done by clang tidy on MemberProperty.h are always incorrect
+      git checkout "Code/Engine/Foundation/Reflection/Implementation/MemberProperty.h"
+      if(@(git status -s --untracked-files=no).Length -gt 0)
+      {
+        Write-Host "##vso[task.logissue type=error]clang-tidy suggested changes. Clang tidy check failed! See artifact 'clang-tidy.patch' for suggested changes. Apply patch with: git apply clang-tidy.patch" -foreground red
+        git diff | Out-File -Encoding utf8NoBOM -FilePath "$(Build.ArtifactStagingDirectory)\clang-tidy.patch"
+      }
+    displayName: 'Fetch suggested changes' 
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Artifact: Suggested Changes'
+    inputs:
+      ArtifactName: 'Suggested Changes'
+    condition: failed()

@@ -3,6 +3,7 @@
 #include <Foundation/Reflection/Implementation/PropertyAttributes.h>
 #include <Foundation/Strings/TranslationLookup.h>
 #include <Foundation/Types/Variant.h>
+#include <GuiFoundation/PropertyGrid/DefaultState.h>
 #include <GuiFoundation/PropertyGrid/Implementation/ManipulatorLabel.moc.h>
 #include <GuiFoundation/PropertyGrid/Implementation/PropertyWidget.moc.h>
 #include <GuiFoundation/PropertyGrid/Implementation/TypeWidget.moc.h>
@@ -29,12 +30,15 @@ ezQtTypeWidget::ezQtTypeWidget(QWidget* pParent, ezQtPropertyGridWidget* pGrid, 
   , m_pType(pType)
 {
   EZ_ASSERT_DEBUG(m_pGrid && m_pObjectAccessor && m_pType, "");
+  m_Pal = palette();
+  setAutoFillBackground(true);
+
   m_pLayout = new QGridLayout(this);
   m_pLayout->setColumnStretch(0, 1);
   m_pLayout->setColumnStretch(1, 0);
   m_pLayout->setColumnMinimumWidth(1, 5);
   m_pLayout->setColumnStretch(2, 2);
-  m_pLayout->setMargin(0);
+  m_pLayout->setContentsMargins(0, 0, 0, 0);
   m_pLayout->setSpacing(0);
   setLayout(m_pLayout);
 
@@ -58,6 +62,8 @@ void ezQtTypeWidget::SetSelection(const ezHybridArray<ezPropertySelection, 8>& i
 
   m_Items = items;
 
+  UpdatePropertyMetaState();
+
   for (auto it = m_PropertyWidgets.GetIterator(); it.IsValid(); ++it)
   {
     it.Value().m_pWidget->SetSelection(m_Items);
@@ -67,8 +73,6 @@ void ezQtTypeWidget::SetSelection(const ezHybridArray<ezPropertySelection, 8>& i
       it.Value().m_pLabel->SetSelection(m_Items);
     }
   }
-
-  UpdatePropertyMetaState();
 
   for (auto it = m_PropertyWidgets.GetIterator(); it.IsValid(); ++it)
   {
@@ -131,7 +135,7 @@ void ezQtTypeWidget::BuildUI(const ezRTTI* pType, const ezMap<ezString, const ez
     pLayout->setColumnStretch(1, 0);
     pLayout->setColumnMinimumWidth(1, 5);
     pLayout->setColumnStretch(2, 2);
-    pLayout->setMargin(0);
+    pLayout->setContentsMargins(0, 0, 0, 0);
     pLayout->setSpacing(0);
     pGroupBox->GetContent()->setLayout(pLayout);
 
@@ -397,22 +401,26 @@ void ezQtTypeWidget::FlushQueuedChanges()
 void ezQtTypeWidget::UpdatePropertyMetaState()
 {
   ezPropertyMetaState* pMeta = ezPropertyMetaState::GetSingleton();
-
   ezMap<ezString, ezPropertyUiState> PropertyStates;
-  pMeta->GetPropertyState(m_Items, PropertyStates);
+  pMeta->GetTypePropertiesState(m_Items, PropertyStates);
+
+  ezDefaultObjectState defaultState(m_pObjectAccessor, m_Items);
+
+  ezQtPropertyWidget::SetPaletteBackgroundColor(defaultState.GetBackgroundColor(), m_Pal);
+  setPalette(m_Pal);
 
   for (auto it = m_PropertyWidgets.GetIterator(); it.IsValid(); ++it)
   {
+    it.Value().m_pWidget->GetProperty();
     auto itData = PropertyStates.Find(it.Key());
 
     const bool bReadOnly = (it.Value().m_pWidget->GetProperty()->GetFlags().IsSet(ezPropertyFlags::ReadOnly)) ||
                            (it.Value().m_pWidget->GetProperty()->GetAttributeByType<ezReadOnlyAttribute>() != nullptr);
+    const bool bIsDefaultValue = defaultState.IsDefaultValue(it.Key());
     ezPropertyUiState::Visibility state = ezPropertyUiState::Default;
-    bool bIsDefaultValue = true;
     if (itData.IsValid())
     {
       state = itData.Value().m_Visibility;
-      bIsDefaultValue = itData.Value().m_bIsDefaultValue;
     }
 
     if (it.Value().m_pLabel)
@@ -448,4 +456,11 @@ void ezQtTypeWidget::UpdatePropertyMetaState()
     it.Value().m_pWidget->setEnabled(!bReadOnly && state != ezPropertyUiState::Disabled);
     it.Value().m_pWidget->SetIsDefault(bIsDefaultValue);
   }
+}
+
+void ezQtTypeWidget::showEvent(QShowEvent* event)
+{
+  // Use of style sheets (ADS) breaks previously set palette.
+  setPalette(m_Pal);
+  QWidget::showEvent(event);
 }

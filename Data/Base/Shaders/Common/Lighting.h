@@ -9,7 +9,7 @@
 #include <Shaders/Common/AmbientCubeBasis.h>
 #include <Shaders/Common/BRDF.h>
 
-Texture2D SSAOTexture;
+Texture2DArray SSAOTexture;
 
 Texture2D ShadowAtlasTexture;
 SamplerComparisonState ShadowSampler;
@@ -23,8 +23,8 @@ TextureCubeArray ReflectionSpecularTexture;
 Texture2D SkyIrradianceTexture;
 #define NUM_REFLECTION_MIPS 6
 
-Texture2D SceneDepth;
-Texture2D SceneColor;
+Texture2DArray SceneDepth;
+Texture2DArray SceneColor;
 SamplerState SceneColorSampler;
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -68,20 +68,20 @@ float MicroShadow(float occlusion, float3 normal, float3 lightDir)
 
 float3 SampleSceneColor(float2 screenPosition)
 {
-  float3 sceneColor = SceneColor.SampleLevel(SceneColorSampler, screenPosition.xy * ViewportSize.zw, 0.0f).rgb;
+  float3 sceneColor = SceneColor.SampleLevel(SceneColorSampler, float3(screenPosition.xy * ViewportSize.zw, s_ActiveCameraEyeIndex), 0.0f).rgb;
   return sceneColor;
 }
 
 float SampleSceneDepth(float2 screenPosition)
 {
-  float depthFromZBuffer = SceneDepth.SampleLevel(PointClampSampler, screenPosition.xy * ViewportSize.zw, 0.0f).r;
+  float depthFromZBuffer = SceneDepth.SampleLevel(PointClampSampler, float3(screenPosition.xy * ViewportSize.zw, s_ActiveCameraEyeIndex), 0.0f).r;
   return LinearizeZBufferDepth(depthFromZBuffer);
 }
 
 float3 SampleScenePosition(float2 screenPosition)
 {
   float2 normalizedScreenPosition = screenPosition.xy * ViewportSize.zw;
-  float depthFromZBuffer = SceneDepth.SampleLevel(PointClampSampler, normalizedScreenPosition, 0.0f).r;
+  float depthFromZBuffer = SceneDepth.SampleLevel(PointClampSampler, float3(normalizedScreenPosition, s_ActiveCameraEyeIndex), 0.0f).r;
   float4 fullScreenPosition = float4(normalizedScreenPosition * float2(2.0f, -2.0f) + float2(-1.0f, 1.0f), depthFromZBuffer, 1.0f);
   float4 scenePosition = mul(GetScreenToWorldMatrix(), fullScreenPosition);
   return scenePosition.xyz / scenePosition.w;
@@ -107,7 +107,7 @@ float SampleSSAO(float3 screenPosition)
   };
 
 #if 0
-  return SSAOTexture.SampleLevel(PointClampSampler, screenPosition.xy * ViewportSize.zw, 0.0f).r;
+  return SSAOTexture.SampleLevel(PointClampSampler, float3(screenPosition.xy * ViewportSize.zw, s_ActiveCameraEyeIndex), 0.0f).r;
 #else
   float totalSSAO = 0.0f;
   float totalWeight = 0.0f;
@@ -116,7 +116,7 @@ float SampleSSAO(float3 screenPosition)
   for (int i = 0; i < 5; ++i)
   {
     float2 samplePos = (screenPosition.xy + offsets[i]) * ViewportSize.zw;
-    float2 ssaoAndDepth = SSAOTexture.SampleLevel(PointClampSampler, samplePos, 0.0f).rg;
+    float2 ssaoAndDepth = SSAOTexture.SampleLevel(PointClampSampler, float3(samplePos, s_ActiveCameraEyeIndex), 0.0f).rg;
     float weight = saturate(1 - abs(screenPosition.z - ssaoAndDepth.y) * 2.0f);
 
     totalSSAO += ssaoAndDepth.x * weight;
@@ -292,6 +292,167 @@ float CalculateShadowTerm(ezMaterialData matData, float3 lightVector, float dist
   return 1.0f;
 }
 
+// Frostbite course notes
+float computeDistanceBaseRoughness(float distIntersectionToShadedPoint, float distIntersectionToProbeCenter, float linearRoughness)
+{
+  // To avoid artifacts we clamp to the original linearRoughness
+  // which introduces an acceptable bias and allows conservation
+  // of mirror reflection behavior for a smooth surface.
+  float newLinearRoughness = clamp(distIntersectionToShadedPoint / distIntersectionToProbeCenter * linearRoughness,
+    0, linearRoughness);
+  return lerp(newLinearRoughness, linearRoughness, linearRoughness);
+}
+
+float3 ComputeReflection(inout ezMaterialData matData, float3 viewVector, ezPerClusterData clusterData)
+{
+  uint firstItemIndex = clusterData.offset;
+  uint lastItemIndex = firstItemIndex + GET_PROBE_INDEX(clusterData.counts);
+
+  const float3 positionWS = matData.worldPosition;
+  const float3 reflDirectionWS = reflect(-viewVector, matData.worldNormal);
+
+  float4 ref = float4(0, 0, 0, 0);
+
+  [loop] for (uint i = firstItemIndex; i < lastItemIndex; ++i)
+  {
+    const uint itemIndex = clusterItemBuffer[i];
+    const uint probeIndex = GET_PROBE_INDEX(itemIndex);
+
+    const ezPerReflectionProbeData probeData = perPerReflectionProbeDataBuffer[probeIndex];
+    const uint index = GET_REFLECTION_PROBE_INDEX(probeData.Index);
+    const bool bIsSphere = (probeData.Index & REFLECTION_PROBE_IS_SPHERE) > 0;
+    const bool bIsProjected = (probeData.Index & REFLECTION_PROBE_IS_PROJECTED) > 0;
+
+    // There are three spaces here:
+    // CubeMap space: The space in which we can sample the cube map. This space is unscaled compared to world space. We are just rotating and moving to the location the cube map was captured.
+    // Projection space: A [-1, 1] cube in all directions that encompases the projected space that the cube map is projected to in case of box projections.
+    // Influence space: A [-1, 1] cube in all directions that encompases the influence space in which this cube map is sampled. This space is the projection space scaled down and shifted.
+    const float4x4 worldToProbeProjectionMatrix = float4x4(
+      probeData.WorldToProbeProjectionMatrix.r0 * probeData.Scale.x,
+      probeData.WorldToProbeProjectionMatrix.r1 * probeData.Scale.y,
+      probeData.WorldToProbeProjectionMatrix.r2 * probeData.Scale.z, float4(0, 0, 0, 1));
+    const float3x3 worldToProbeNormalMatrix = float3x3(
+      float3(worldToProbeProjectionMatrix._m00, worldToProbeProjectionMatrix._m01, worldToProbeProjectionMatrix._m02),
+      float3(worldToProbeProjectionMatrix._m10, worldToProbeProjectionMatrix._m11, worldToProbeProjectionMatrix._m12),
+      float3(worldToProbeProjectionMatrix._m20, worldToProbeProjectionMatrix._m21, worldToProbeProjectionMatrix._m22));
+    const float3x3 worldToProbeCubeMapNormalMatrix = TransformToRotation(probeData.WorldToProbeProjectionMatrix);
+    const float3 probeProjectionPosition = mul(worldToProbeProjectionMatrix, float4(matData.worldPosition, 1.0f)).xyz;
+
+    float alpha;
+    float3 intersectPositionWS;
+    if (bIsSphere)
+    {
+      float3 probeInfluencePosition = probeProjectionPosition;
+      probeInfluencePosition -= probeData.InfluenceShift.xyz;
+      probeInfluencePosition /= probeData.InfluenceScale.xyz;
+      //return probeInfluencePosition;
+      // Boundary clamp. For spheres projection and influence space are identical.
+      float dist = length(probeInfluencePosition);
+      if (dist > 1.0f)
+        continue;
+
+      // Compute falloff alpha
+      alpha = saturate((1.0f - dist) / probeData.PositiveFalloff.x);
+
+      {
+        // Intersection with sphere, convert to unit sphere space
+        // Transform in local unit parallax sphere (scaled and rotated)
+        float3 probeProjectionReflDirection = mul(worldToProbeNormalMatrix, reflDirectionWS);
+        float reflDirectionLength = length(probeProjectionReflDirection);
+        probeProjectionReflDirection /= reflDirectionLength;
+
+        // https://en.wikipedia.org/wiki/Line%E2%80%93sphere_intersection
+        // As the ray dir is normalized and the sphere is radius 1 and at pos 0,0,0 - we can optimize the quadratic equation ad^2 + bd + c = 0.
+        const float b = dot(probeProjectionReflDirection, probeProjectionPosition);
+        const float c = dot(probeProjectionPosition, probeProjectionPosition) - 1;
+        // We ignore the determinant sign check (determinant >= 0 for hits) as we know that we are always within the sphere and thus always hit.
+        const float determinant = b * b - c;
+
+        // The optimized ray-sphere intersection above only works with the normalized probeProjectionReflDirection.
+        // Thus, we need to adjust the length when applying in world space.
+        const float distance = (sqrt(determinant) - b) / reflDirectionLength;
+        intersectPositionWS = matData.worldPosition + distance * reflDirectionWS;
+      }
+    }
+    else
+    {
+      float3 probeInfluencePosition = probeProjectionPosition;
+      probeInfluencePosition -= probeData.InfluenceShift.xyz;
+      probeInfluencePosition /= probeData.InfluenceScale.xyz;
+
+      // Boundary clamp. Check whether the pixel position in probe influence space is inside the [-1, 1] cube.
+      {
+        float3 dist = abs(probeInfluencePosition);
+        float maxDist = max(dist.x, max(dist.y, dist.z));
+        if (maxDist > 1.0f)
+          continue;
+      }
+      const float3 unitary = float3(1.0f, 1.0f, 1.0f);
+
+      // Compute falloff alpha
+      {
+        // Compute min distance from all planes.
+        float3 firstPlaneDist = (unitary - probeInfluencePosition);
+        float3 secondPlaneDist = (unitary + probeInfluencePosition);
+
+        float3 positiveFalloff = firstPlaneDist / probeData.PositiveFalloff.xyz;
+        float3 negativeFalloff = secondPlaneDist / probeData.NegativeFalloff.xyz;
+        alpha = saturate(min(
+          min(negativeFalloff.x, min(negativeFalloff.y, negativeFalloff.z)),
+          min(positiveFalloff.x, min(positiveFalloff.y, positiveFalloff.z))));
+      }
+
+      // Box projection taken from: https://seblagarde.wordpress.com/2012/09/29/image-based-lighting-approaches-and-parallax-corrected-cubemap/
+      {
+        // Intersection with OBB convert to unit box space
+        // Transform in local unit parallax cube space (scaled and rotated)
+        float3 probeProjectionReflDirection = mul(worldToProbeNormalMatrix, reflDirectionWS);
+
+        float3 firstPlaneDist = (unitary - probeProjectionPosition);
+        float3 secondPlaneDist = (unitary + probeProjectionPosition);
+
+        float3 firstPlaneIntersect = firstPlaneDist / probeProjectionReflDirection;
+        float3 secondPlaneIntersect = -secondPlaneDist / probeProjectionReflDirection;
+        float3 furthestPlane = max(firstPlaneIntersect, secondPlaneIntersect);
+        float distance = min(furthestPlane.x, min(furthestPlane.y, furthestPlane.z));
+
+        // Use Distance in WS directly to recover intersection.
+        intersectPositionWS = positionWS + reflDirectionWS * distance;
+      }
+    }
+
+    // The blob post above assumes that the cube maps are always rendered from world space without any rotation
+    // in the rendering of the cube map itself. However, we do rotate the rendering of the cube maps so we can
+    // correctly clamp the far plane for each side of the cube. Thus, we can't take the world space dir and use
+    // it as a reflection lookup. We need to transform it into the cube map space. However, the image in the cube
+    // map is not squished according to the AABB so we ONLY need to apply the rotational part of the transform,
+    // ignoring scale.
+    const float3 cubemapPositionWS = probeData.ProbePosition.xyz;
+    const float3 reflectionDir = bIsProjected ? CubeMapDirection(mul(worldToProbeCubeMapNormalMatrix, intersectPositionWS - cubemapPositionWS).xyz) : CubeMapDirection(reflDirectionWS);
+    const float roughness = computeDistanceBaseRoughness(length(intersectPositionWS - matData.worldPosition), length(intersectPositionWS - cubemapPositionWS), matData.roughness);
+    // Sample the cube map
+    const float4 coord = float4(reflectionDir, index);
+    const float mipLevel = MipLevelFromRoughness(roughness, NUM_REFLECTION_MIPS);
+    float4 indirectLight = ReflectionSpecularTexture.SampleLevel(LinearSampler, coord, mipLevel) * alpha;
+
+    // Accumulate contribution.
+    const float remainingWeight = 1.0f - ref.w;
+    ref += indirectLight * remainingWeight;
+
+    if (ref.a >= 1.0f)
+      return ref.rgb;
+  }
+
+  // Sample global fallback probe.
+  float3 reflectionDir = CubeMapDirection(reflDirectionWS);
+  float4 coord = float4(reflectionDir, 0);
+  float mipLevel = MipLevelFromRoughness(matData.roughness, NUM_REFLECTION_MIPS);
+  float4 indirectLight = ReflectionSpecularTexture.SampleLevel(LinearSampler, coord, mipLevel);
+  ref += indirectLight * (1.0f - ref.w);
+
+  return ref.rgb;
+}
+
 AccumulatedLight CalculateLighting(ezMaterialData matData, ezPerClusterData clusterData, float3 screenPosition, bool applySSAO)
 {
   float3 viewVector = normalize(GetCameraPosition() - matData.worldPosition);
@@ -393,11 +554,8 @@ AccumulatedLight CalculateLighting(ezMaterialData matData, ezPerClusterData clus
   totalLight.diffuseLight += matData.diffuseColor * skyLight * occlusion;
   
   // indirect specular
-  float3 reflectionDir = CubeMapDirection(reflect(-viewVector, matData.worldNormal));
-  float4 coord = float4(reflectionDir, 0);
-  float mipLevel = MipLevelFromRoughness(matData.roughness, NUM_REFLECTION_MIPS);
-  float3 indirectLight = ReflectionSpecularTexture.SampleLevel(LinearSampler, coord, mipLevel).rgb;
-  totalLight.specularLight += matData.specularColor * indirectLight * occlusion;
+  totalLight.specularLight += matData.specularColor * ComputeReflection(matData, viewVector, clusterData) * occlusion;
+  //totalLight.specularLight += ComputeReflection(matData, viewVector, clusterData);
 
   // enable once we have proper sky visibility
   /*#if defined(USE_MATERIAL_SUBSURFACE_COLOR)
@@ -561,7 +719,7 @@ float4 CalculateRefraction(float3 worldPosition, float3 worldNormal, float IoR, 
   projectedRefractVector.xy /= projectedRefractVector.w;
 
   float2 refractCoords = projectedRefractVector.xy * float2(0.5f, -0.5f) + 0.5f;
-  float3 refractionColor = SceneColor.SampleLevel(SceneColorSampler, refractCoords, 0.0f).rgb;
+  float3 refractionColor = SceneColor.SampleLevel(SceneColorSampler, float3(refractCoords, s_ActiveCameraEyeIndex), 0.0f).rgb;
 
   float fresnel = pow(1.0f - NdotV, 5.0f);
   refractionColor *= tintColor * (1.0f - fresnel);

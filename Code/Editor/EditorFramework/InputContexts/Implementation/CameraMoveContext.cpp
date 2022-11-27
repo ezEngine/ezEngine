@@ -221,10 +221,10 @@ ezEditorInput ezCameraMoveContext::DoKeyReleaseEvent(QKeyEvent* e)
       m_bMoveRight = false;
       return ezEditorInput::WasExclusivelyHandled;
     case Qt::Key_Q:
-      m_bMoveUp = false;
+      m_bMoveDown = false;
       return ezEditorInput::WasExclusivelyHandled;
     case Qt::Key_E:
-      m_bMoveDown = false;
+      m_bMoveUp = false;
       return ezEditorInput::WasExclusivelyHandled;
     case Qt::Key_Left:
       m_bMoveLeft = false;
@@ -311,10 +311,10 @@ ezEditorInput ezCameraMoveContext::DoKeyPressEvent(QKeyEvent* e)
       m_bMoveRight = true;
       return ezEditorInput::WasExclusivelyHandled;
     case Qt::Key_Q:
-      m_bMoveUp = true;
+      m_bMoveDown = true;
       return ezEditorInput::WasExclusivelyHandled;
     case Qt::Key_E:
-      m_bMoveDown = true;
+      m_bMoveUp = true;
       return ezEditorInput::WasExclusivelyHandled;
   }
 
@@ -332,7 +332,7 @@ ezEditorInput ezCameraMoveContext::DoMousePressEvent(QMouseEvent* e)
     {
       m_bOpenMenuOnMouseUp = (e->buttons() == Qt::MouseButton::RightButton);
       m_bMoveCamera = true;
-      m_LastMousePos = SetMouseMode(ezEditorInputContext::MouseMode::HideAndWrapAtScreenBorders);
+      m_vLastMousePos = SetMouseMode(ezEditorInputContext::MouseMode::HideAndWrapAtScreenBorders);
       m_bDidMoveMouse[1] = false;
       MakeActiveInputContext();
       return ezEditorInput::WasExclusivelyHandled;
@@ -357,7 +357,7 @@ ezEditorInput ezCameraMoveContext::DoMousePressEvent(QMouseEvent* e)
       else
         m_bRotateCamera = true;
 
-      m_LastMousePos = SetMouseMode(ezEditorInputContext::MouseMode::HideAndWrapAtScreenBorders);
+      m_vLastMousePos = SetMouseMode(ezEditorInputContext::MouseMode::HideAndWrapAtScreenBorders);
       m_bDidMoveMouse[1] = false;
       MakeActiveInputContext();
       return ezEditorInput::WasExclusivelyHandled;
@@ -377,7 +377,7 @@ ezEditorInput ezCameraMoveContext::DoMousePressEvent(QMouseEvent* e)
       else
         m_bMoveCamera = true;
 
-      m_LastMousePos = SetMouseMode(ezEditorInputContext::MouseMode::HideAndWrapAtScreenBorders);
+      m_vLastMousePos = SetMouseMode(ezEditorInputContext::MouseMode::HideAndWrapAtScreenBorders);
       m_bDidMoveMouse[0] = false;
       MakeActiveInputContext();
       return ezEditorInput::WasExclusivelyHandled;
@@ -397,7 +397,7 @@ ezEditorInput ezCameraMoveContext::DoMousePressEvent(QMouseEvent* e)
       else
         m_bMoveCameraInPlane = true;
 
-      m_LastMousePos = SetMouseMode(ezEditorInputContext::MouseMode::HideAndWrapAtScreenBorders);
+      m_vLastMousePos = SetMouseMode(ezEditorInputContext::MouseMode::HideAndWrapAtScreenBorders);
       m_bDidMoveMouse[2] = false;
       MakeActiveInputContext();
       return ezEditorInput::WasExclusivelyHandled;
@@ -560,7 +560,7 @@ ezEditorInput ezCameraMoveContext::DoMouseMoveEvent(QMouseEvent* e)
   }
 
   const ezVec2I32 CurMousePos(QCursor::pos().x(), QCursor::pos().y());
-  const ezVec2I32 diff = CurMousePos - m_LastMousePos;
+  const ezVec2I32 diff = CurMousePos - m_vLastMousePos;
 
   if (m_pCamera->IsOrthographic())
   {
@@ -574,7 +574,7 @@ ezEditorInput ezCameraMoveContext::DoMouseMoveEvent(QMouseEvent* e)
 
     if (m_bMoveCamera)
     {
-      m_LastMousePos = UpdateMouseMode(e);
+      m_vLastMousePos = UpdateMouseMode(e);
 
       float fMoveUp = diff.y * fDistPerPixel;
       float fMoveRight = -diff.x * fDistPerPixel;
@@ -608,7 +608,7 @@ ezEditorInput ezCameraMoveContext::DoMouseMoveEvent(QMouseEvent* e)
 
       m_pCamera->MoveLocally(0, fMoveRight, fMoveUp);
 
-      m_LastMousePos = UpdateMouseMode(e);
+      m_vLastMousePos = UpdateMouseMode(e);
       return ezEditorInput::WasExclusivelyHandled;
     }
 
@@ -635,7 +635,7 @@ ezEditorInput ezCameraMoveContext::DoMouseMoveEvent(QMouseEvent* e)
         m_pCamera->LookAt(vNewCamPos, m_vOrbitPoint, m_pCamera->GetDirUp());
       }
 
-      m_LastMousePos = UpdateMouseMode(e);
+      m_vLastMousePos = UpdateMouseMode(e);
       return ezEditorInput::WasExclusivelyHandled;
     }
 
@@ -646,7 +646,7 @@ ezEditorInput ezCameraMoveContext::DoMouseMoveEvent(QMouseEvent* e)
 
       m_pCamera->MoveLocally(fMoveForward, fMoveRight, 0);
 
-      m_LastMousePos = UpdateMouseMode(e);
+      m_vLastMousePos = UpdateMouseMode(e);
 
       return ezEditorInput::WasExclusivelyHandled;
     }
@@ -665,7 +665,7 @@ ezEditorInput ezCameraMoveContext::DoMouseMoveEvent(QMouseEvent* e)
       m_vOrbitPoint += vDir * fMoveForward;
       m_pCamera->MoveGlobally(vDir.x * fMoveForward, vDir.y * fMoveForward, vDir.z * fMoveForward);
 
-      m_LastMousePos = UpdateMouseMode(e);
+      m_vLastMousePos = UpdateMouseMode(e);
 
       return ezEditorInput::WasExclusivelyHandled;
     }
@@ -676,7 +676,7 @@ ezEditorInput ezCameraMoveContext::DoMouseMoveEvent(QMouseEvent* e)
 
       m_pCamera->MoveLocally(fMove, 0, 0);
 
-      m_LastMousePos = UpdateMouseMode(e);
+      m_vLastMousePos = UpdateMouseMode(e);
 
       return ezEditorInput::WasExclusivelyHandled;
     }
@@ -706,7 +706,7 @@ ezEditorInput ezCameraMoveContext::DoMouseMoveEvent(QMouseEvent* e)
         }
       }
 
-      m_LastMousePos = UpdateMouseMode(e);
+      m_vLastMousePos = UpdateMouseMode(e);
       return ezEditorInput::WasExclusivelyHandled;
     }
   }
@@ -737,7 +737,11 @@ ezEditorInput ezCameraMoveContext::DoWheelEvent(QWheelEvent* e)
 
     float fNewDim = 20.0f;
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+    if (e->angleDelta().y() > 0)
+#else
     if (e->delta() > 0)
+#endif
       fNewDim = m_pCamera->GetFovOrDim() * ezMath::Pow(1.0f / fTick, fBoost);
     else
       fNewDim = m_pCamera->GetFovOrDim() * ezMath::Pow(fTick, fBoost);
@@ -753,7 +757,11 @@ ezEditorInput ezCameraMoveContext::DoWheelEvent(QWheelEvent* e)
   {
     if (e->modifiers() == Qt::KeyboardModifier::ControlModifier)
     {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+      if (e->angleDelta().y() > 0)
+#else
       if (e->delta() > 0)
+#endif
       {
         SetMoveSpeed(pPreferences->GetCameraSpeed() + 1);
       }
@@ -772,7 +780,11 @@ ezEditorInput ezCameraMoveContext::DoWheelEvent(QWheelEvent* e)
       if (e->modifiers() == Qt::KeyboardModifier::ShiftModifier)
         fBoost *= 5.0f;
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+      if (e->angleDelta().y() > 0)
+#else
       if (e->delta() > 0)
+#endif
       {
         m_pCamera->MoveLocally(ConvertCameraSpeed(pPreferences->GetCameraSpeed()) * fBoost, 0, 0);
       }

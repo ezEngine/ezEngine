@@ -22,7 +22,6 @@ protected:
 
   virtual ezResult InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData) override;
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
-  virtual ezResult ReplaceExisitingNativeObject(void* pExisitingNativeObject) override;
 
   virtual void SetDebugNamePlatform(const char* szName) const override;
 

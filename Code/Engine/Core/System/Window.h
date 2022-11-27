@@ -13,8 +13,8 @@ class ezOpenDdlReader;
 class ezOpenDdlReaderElement;
 
 // Include the proper Input implementation to use
-#if EZ_ENABLED(EZ_SUPPORTS_SFML)
-#  include <Core/System/Implementation/SFML/InputDevice_SFML.h>
+#if EZ_ENABLED(EZ_SUPPORTS_GLFW)
+#  include <Core/System/Implementation/glfw/InputDevice_glfw.h>
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 #  include <Core/System/Implementation/Win/InputDevice_win32.h>
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
@@ -23,27 +23,102 @@ class ezOpenDdlReaderElement;
 #  include <Core/System/Implementation/null/InputDevice_null.h>
 #endif
 
-#if EZ_ENABLED(EZ_SUPPORTS_SFML)
+// Currently the following scenarios are possible
+// - Windows native implementation, using HWND
+// - GLFW on windows, using GLFWWindow* internally and HWND to pass windows around
+// - GLFW / XCB on linux. Runtime uses GLFWWindow*. Editor uses xcb-window. Tagged union is passed around as window handle.
 
-using ezWindowHandle = sf::Window*;
-#  define INVALID_WINDOW_HANDLE_VALUE (sf::Window*)(0)
+#if EZ_ENABLED(EZ_SUPPORTS_GLFW)
+
+extern "C"
+{
+  typedef struct GLFWwindow GLFWwindow;
+}
+
+#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#    include <Foundation/Basics/Platform/Win/MinWindows.h>
+using ezWindowHandle = ezMinWindows::HWND;
+using ezWindowInternalHandle = GLFWwindow*;
+#    define INVALID_WINDOW_HANDLE_VALUE (ezWindowHandle)(0)
+#    define INVALID_INTERNAL_WINDOW_HANDLE_VALUE nullptr
+#  elif EZ_ENABLED(EZ_PLATFORM_LINUX)
+
+extern "C"
+{
+  typedef struct xcb_connection_t xcb_connection_t;
+}
+
+struct ezXcbWindowHandle
+{
+  xcb_connection_t* m_pConnection;
+  ezUInt32 m_Window;
+};
+
+struct ezWindowHandle
+{
+  enum class Type
+  {
+    Invalid = 0,
+    GLFW = 1, // Used by the runtime
+    XCB = 2   // Used by the editor
+  };
+
+  Type type;
+  union
+  {
+    GLFWwindow* glfwWindow;
+    ezXcbWindowHandle xcbWindow;
+  };
+
+  bool operator==(ezWindowHandle& rhs)
+  {
+    if (type != rhs.type)
+      return false;
+
+    if (type == Type::GLFW)
+    {
+      return glfwWindow == rhs.glfwWindow;
+    }
+    else
+    {
+      // We don't compare the connection because we only want to know if we reference the same window.
+      return xcbWindow.m_Window == rhs.xcbWindow.m_Window;
+    }
+  }
+};
+
+using ezWindowInternalHandle = ezWindowHandle;
+#    define INVALID_WINDOW_HANDLE_VALUE \
+      ezWindowHandle {}
+#  else
+using ezWindowHandle = GLFWwindow*;
+using ezWindowInternalHandle = GLFWwindow*;
+#    define INVALID_WINDOW_HANDLE_VALUE (GLFWwindow*)(0)
+#  endif
 
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 
 #  include <Foundation/Basics/Platform/Win/MinWindows.h>
 using ezWindowHandle = ezMinWindows::HWND;
+using ezWindowInternalHandle = ezWindowHandle;
 #  define INVALID_WINDOW_HANDLE_VALUE (ezWindowHandle)(0)
 
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
 
 using ezWindowHandle = IUnknown*;
+using ezWindowInternalHandle = ezWindowHandle;
 #  define INVALID_WINDOW_HANDLE_VALUE nullptr
 
 #else
 
 using ezWindowHandle = void*;
+using ezWindowInternalHandle = ezWindowHandle;
 #  define INVALID_WINDOW_HANDLE_VALUE nullptr
 
+#endif
+
+#ifndef INVALID_INTERNAL_WINDOW_HANDLE_VALUE
+#  define INVALID_INTERNAL_WINDOW_HANDLE_VALUE INVALID_WINDOW_HANDLE_VALUE
 #endif
 
 /// \brief Base class of all window classes that have a client area and a native window handle.
@@ -62,6 +137,9 @@ public:
   virtual bool IsFullscreenWindow(bool bOnlyProperFullscreenMode = false) const = 0;
 
   virtual void ProcessWindowMessages() = 0;
+
+  virtual void AddReference() = 0;
+  virtual void RemoveReference() = 0;
 };
 
 /// \brief Determines how the position and resolution for a window are picked
@@ -166,7 +244,7 @@ public:
   virtual ezSizeU32 GetClientAreaSize() const override { return m_CreationDescription.m_Resolution; }
 
   /// \brief Returns the platform specific window handle.
-  virtual ezWindowHandle GetNativeWindowHandle() const override { return m_WindowHandle; }
+  virtual ezWindowHandle GetNativeWindowHandle() const override;
 
   /// \brief Returns whether the window covers an entire monitor.
   ///
@@ -178,6 +256,9 @@ public:
 
     return ezWindowMode::IsFullscreen(m_CreationDescription.m_WindowMode);
   }
+
+  virtual void AddReference() override { m_iReferenceCount.Increment(); }
+  virtual void RemoveReference() override { m_iReferenceCount.Decrement(); }
 
 
   /// \brief Runs the platform specific message pump.
@@ -211,6 +292,10 @@ public:
 
   /// \brief Destroys the window.
   ezResult Destroy();
+
+  /// \brief Tries to resize the window.
+  /// Override OnResize to get the actual new window size.
+  ezResult Resize(const ezSizeU32& newWindowSize);
 
   /// \brief Called on window resize messages.
   ///
@@ -268,8 +353,21 @@ private:
 
   ezUniquePtr<ezStandardInputDevice> m_pInputDevice;
 
-  mutable ezWindowHandle m_WindowHandle = ezWindowHandle();
+  mutable ezWindowInternalHandle m_hWindowHandle = ezWindowInternalHandle();
+
+#if EZ_ENABLED(EZ_SUPPORTS_GLFW)
+  static void SizeCallback(GLFWwindow* window, int width, int height);
+  static void PositionCallback(GLFWwindow* window, int xpos, int ypos);
+  static void CloseCallback(GLFWwindow* window);
+  static void FocusCallback(GLFWwindow* window, int focused);
+  static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
+  static void CharacterCallback(GLFWwindow* window, unsigned int codepoint);
+  static void CursorPositionCallback(GLFWwindow* window, double xpos, double ypos);
+  static void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
+  static void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
+#endif
 
   /// increased every time an ezWindow is created, to be able to get a free window index easily
   static ezUInt8 s_uiNextUnusedWindowNumber;
+  ezAtomicInteger32 m_iReferenceCount = 0;
 };

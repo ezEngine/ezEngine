@@ -2,7 +2,6 @@
 
 #include <Core/Messages/EventMessage.h>
 #include <Core/Utils/Blackboard.h>
-#include <Core/World/World.h>
 #include <GameEngine/GameEngineDLL.h>
 
 struct ezBlackboardEntry
@@ -69,11 +68,11 @@ public:
   ezBlackboardComponent& operator=(ezBlackboardComponent&& other);
 
   /// \brief Try to find a ezBlackboardComponent on pSearchObject or its parents and returns its blackboard
-  static ezBlackboard* FindBlackboard(ezGameObject* pSearchObject);
+  static ezSharedPtr<ezBlackboard> FindBlackboard(ezGameObject* pSearchObject);
 
   /// \brief Returns the blackboard owned by this component
-  ezBlackboard& GetBoard();
-  const ezBlackboard& GetBoard() const;
+  const ezSharedPtr<ezBlackboard>& GetBoard();
+  ezSharedPtr<const ezBlackboard> GetBoard() const;
 
   void SetShowDebugInfo(bool bShow); // [ property ]
   bool GetShowDebugInfo() const;     // [ property ]
@@ -98,7 +97,7 @@ private:
   void OnExtractRenderData(ezMsgExtractRenderData& msg) const;
   void OnEntryChanged(const ezBlackboard::EntryEvent& e);
 
-  ezUniquePtr<ezBlackboard> m_pBoard;
+  ezSharedPtr<ezBlackboard> m_pBoard;
 
   // this array is not held during runtime, it is only needed during editor time until the component is serialized out
   ezDynamicArray<ezBlackboardEntry> m_InitialEntries;

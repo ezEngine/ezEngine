@@ -2,8 +2,13 @@
 
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessCommunicationChannel.h>
-#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 #include <Foundation/Communication/IpcChannel.h>
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#  include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#elif EZ_ENABLED(EZ_PLATFORM_LINUX)
+#  include <signal.h>
+#endif
 
 bool ezEngineProcessCommunicationChannel::IsHostAlive() const
 {
@@ -25,6 +30,14 @@ bool ezEngineProcessCommunicationChannel::IsHostAlive() const
     bValid = false;
 
   CloseHandle(hProcess);
+#elif EZ_ENABLED(EZ_PLATFORM_LINUX)
+  // We send the signal 0 to the given PID (signal 0 is a no-op)
+  // If this succeeds, the process with the given PID exists
+  // if it fails, the process does not / no longer exist.
+  if (kill(m_iHostPID, 0) < 0)
+    bValid = false;
+#else
+#  error Not implemented
 #endif
 
   return bValid;

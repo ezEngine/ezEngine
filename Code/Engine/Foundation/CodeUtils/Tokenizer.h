@@ -131,7 +131,7 @@ private:
 
   ezLogInterface* m_pLog = nullptr;
   ezTokenType::Enum m_CurMode = ezTokenType::Unknown;
-  ezStringView m_Iterator;
+  ezStringView m_sIterator;
   ezUInt32 m_uiCurLine = 1;
   ezUInt32 m_uiCurColumn = -1;
   ezUInt32 m_uiCurChar = '\0';

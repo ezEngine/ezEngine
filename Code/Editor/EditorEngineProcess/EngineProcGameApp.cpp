@@ -1,13 +1,16 @@
 #include <EditorEngineProcess/EditorEngineProcessPCH.h>
 
 #include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#include <Foundation/System/SystemInformation.h>
 
 #include <Core/Console/QuakeConsole.h>
 #include <EditorEngineProcess/EngineProcGameApp.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
+#include <EditorEngineProcessFramework/Gizmos/GizmoRenderer.h>
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
+#include <Foundation/IO/FileSystem/FileWriter.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 
@@ -24,7 +27,7 @@ ezResult ezEngineProcessGameApplication::BeforeCoreSystemsStartup()
   m_pApp = CreateEngineProcessApp();
   ezStartup::AddApplicationTag("editorengineprocess");
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP) || EZ_ENABLED(EZ_PLATFORM_LINUX)
   // Make sure to disable the fileserve plugin
   ezCommandLineUtils::GetGlobalInstance()->InjectCustomArgument("-fs_off");
 #endif
@@ -37,7 +40,7 @@ void ezEngineProcessGameApplication::AfterCoreSystemsStartup()
   // skip project creation at this point
   // SUPER::AfterCoreSystemsStartup();
 
-#if EZ_DISABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#if EZ_DISABLED(EZ_PLATFORM_WINDOWS_DESKTOP) && EZ_DISABLED(EZ_PLATFORM_LINUX)
   {
     // on all 'mobile' platforms, we assume we are in remote mode
     ezEditorEngineProcessApp::GetSingleton()->SetRemoteMode();
@@ -83,7 +86,7 @@ void ezEngineProcessGameApplication::WaitForDebugger()
 {
   if (ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-debug"))
   {
-    while (!IsDebuggerPresent())
+    while (!ezSystemInformation::IsDebuggerAttached())
     {
       ezThreadUtils::Sleep(ezTime::Milliseconds(10));
     }
@@ -104,13 +107,17 @@ void ezEngineProcessGameApplication::BeforeCoreSystemsShutdown()
 ezApplication::Execution ezEngineProcessGameApplication::Run()
 {
   ezRenderWorld::ClearMainViews();
-
-  bool bPendingOpInProgress = ezEngineProcessDocumentContext::PendingOperationsInProgress();
-  if (ProcessIPCMessages(bPendingOpInProgress))
+  bool bPendingOpInProgress = false;
+  do
   {
-    ezEngineProcessDocumentContext::UpdateDocumentContexts();
-  }
+    bPendingOpInProgress = ezEngineProcessDocumentContext::PendingOperationsInProgress();
+    if (ProcessIPCMessages(bPendingOpInProgress))
+    {
+      ezEngineProcessDocumentContext::UpdateDocumentContexts();
+    }
+  } while (!bPendingOpInProgress && m_uiRedrawCountExecuted == m_uiRedrawCountReceived);
 
+  m_uiRedrawCountExecuted = m_uiRedrawCountReceived;
   return SUPER::Run();
 }
 
@@ -123,6 +130,12 @@ void ezEngineProcessGameApplication::LogWriter(const ezLoggingEventData& e)
   if (msg.m_Entry.m_Type == ezLogMsgType::Flush)
     return;
 
+  if (msg.m_Entry.m_sTag == "IPC")
+    return;
+
+  // Prevent infinite recursion by disabeling logging until we are done sending the message
+  EZ_LOG_BLOCK_MUTE();
+
   m_IPC.SendMessage(&msg);
 }
 
@@ -133,6 +146,8 @@ static bool EmptyAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const 
 
 bool ezEngineProcessGameApplication::ProcessIPCMessages(bool bPendingOpInProgress)
 {
+  EZ_PROFILE_SCOPE("ProcessIPCMessages");
+
   if (!m_IPC.IsHostAlive()) // check whether the host crashed
   {
     // The problem here is, that the editor process crashed (or was terminated through Visual Studio),
@@ -143,15 +158,13 @@ bool ezEngineProcessGameApplication::ProcessIPCMessages(bool bPendingOpInProgres
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
     // Make sure that Windows doesn't show a default message box when we call abort
     _set_abort_behavior(0, _WRITE_ABORT_MSG);
+    TerminateProcess(GetCurrentProcess(), 0);
 #endif
 
     // The OS will still call destructors for our objects (even though we called abort ... what a pointless design).
     // Our code might assert on destruction, so make sure our assert handler doesn't show anything.
     ezSetAssertHandler(EmptyAssertHandler);
     std::abort();
-
-    RequestQuit();
-    return false;
   }
   else
   {
@@ -163,6 +176,7 @@ bool ezEngineProcessGameApplication::ProcessIPCMessages(bool bPendingOpInProgres
     }
     else
     {
+      EZ_PROFILE_SCOPE("WaitForMessages");
       // Only suspend and wait if no more pending ops need to be done.
       m_IPC.WaitForMessages();
     }
@@ -201,8 +215,8 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
   if (const auto* pMsg = ezDynamicCast<const ezSyncWithProcessMsgToEngine*>(e.m_pMessage))
   {
     ezSyncWithProcessMsgToEditor msg;
-    msg.m_DocumentGuid = pMsg->m_DocumentGuid;
     msg.m_uiRedrawCount = pMsg->m_uiRedrawCount;
+    m_uiRedrawCountReceived = msg.m_uiRedrawCount;
     m_IPC.SendMessage(&msg);
     return;
   }
@@ -265,80 +279,107 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
     SendProjectReadyMessage();
     return;
   }
-  else if (const auto* pMsg = ezDynamicCast<const ezSimpleConfigMsgToEngine*>(e.m_pMessage))
+  else if (const auto* pMsg1 = ezDynamicCast<const ezSimpleConfigMsgToEngine*>(e.m_pMessage))
   {
-    if (pMsg->m_sWhatToDo == "ChangeActivePlatform")
+    if (pMsg1->m_sWhatToDo == "ChangeActivePlatform")
     {
-      ezStringBuilder sRedirFile("AssetCache/", pMsg->m_sPayload, ".ezAidlt");
+      ezStringBuilder sRedirFile("AssetCache/", pMsg1->m_sPayload, ".ezAidlt");
 
       ezDataDirectory::FolderType::s_sRedirectionFile = sRedirFile;
 
       ezFileSystem::ReloadAllExternalDataDirectoryConfigs();
 
-      m_PlatformProfile.m_sName = pMsg->m_sPayload;
+      m_PlatformProfile.m_sName = pMsg1->m_sPayload;
       Init_PlatformProfile_LoadForRuntime();
 
       ezResourceManager::ReloadAllResources(false);
       ezRenderWorld::DeleteAllCachedRenderData();
     }
-    else if (pMsg->m_sWhatToDo == "ReloadAssetLUT")
+    else if (pMsg1->m_sWhatToDo == "ReloadAssetLUT")
     {
       ezFileSystem::ReloadAllExternalDataDirectoryConfigs();
     }
-    else if (pMsg->m_sWhatToDo == "ReloadResources")
+    else if (pMsg1->m_sWhatToDo == "ReloadResources")
     {
       ezResourceManager::ReloadAllResources(false);
       ezRenderWorld::DeleteAllCachedRenderData();
     }
-    else
-      ezLog::Warning("Unknown ezSimpleConfigMsgToEngine '{0}'", pMsg->m_sWhatToDo);
-  }
-  else if (const auto* pMsg = ezDynamicCast<const ezResourceUpdateMsgToEngine*>(e.m_pMessage))
-  {
-    HandleResourceUpdateMsg(*pMsg);
-  }
-  else if (const auto* pMsg = ezDynamicCast<const ezRestoreResourceMsgToEngine*>(e.m_pMessage))
-  {
-    HandleResourceRestoreMsg(*pMsg);
-  }
-  else if (const auto* pMsg = ezDynamicCast<const ezChangeCVarMsgToEngine*>(e.m_pMessage))
-  {
-    if (ezCVar* pCVar = ezCVar::FindCVarByName(pMsg->m_sCVarName))
+    else if (pMsg1->m_sWhatToDo == "SaveProfiling")
     {
-      if (pCVar->GetType() == ezCVarType::Int && pMsg->m_NewValue.CanConvertTo<ezInt32>())
+      ezProfilingSystem::ProfilingData profilingData;
+      ezProfilingSystem::Capture(profilingData);
+      ezFileWriter fileWriter;
+      if (fileWriter.Open(pMsg1->m_sPayload) == EZ_SUCCESS)
       {
-        *static_cast<ezCVarInt*>(pCVar) = pMsg->m_NewValue.ConvertTo<ezInt32>();
-      }
-      else if (pCVar->GetType() == ezCVarType::Float && pMsg->m_NewValue.CanConvertTo<float>())
-      {
-        *static_cast<ezCVarFloat*>(pCVar) = pMsg->m_NewValue.ConvertTo<float>();
-      }
-      else if (pCVar->GetType() == ezCVarType::Bool && pMsg->m_NewValue.CanConvertTo<bool>())
-      {
-        *static_cast<ezCVarBool*>(pCVar) = pMsg->m_NewValue.ConvertTo<bool>();
-      }
-      else if (pCVar->GetType() == ezCVarType::String && pMsg->m_NewValue.CanConvertTo<ezString>())
-      {
-        *static_cast<ezCVarString*>(pCVar) = pMsg->m_NewValue.ConvertTo<ezString>();
+        profilingData.Write(fileWriter).IgnoreResult();
+        ezLog::Info("Engine profiling capture saved to '{0}'.", fileWriter.GetFilePathAbsolute().GetData());
       }
       else
       {
-        ezLog::Warning("ezChangeCVarMsgToEngine: New value for CVar '{0}' is incompatible with CVar type", pMsg->m_sCVarName);
+        ezLog::Error("Could not write profiling capture to '{0}'.", pMsg1->m_sPayload);
+      }
+
+      ezSaveProfilingResponseToEditor response;
+      ezStringBuilder sAbsPath;
+      if (ezFileSystem::ResolvePath(pMsg1->m_sPayload, &sAbsPath, nullptr).Succeeded())
+      {
+        response.m_sProfilingFile = sAbsPath;
+      }
+      m_IPC.SendMessage(&response);
+    }
+    else
+      ezLog::Warning("Unknown ezSimpleConfigMsgToEngine '{0}'", pMsg1->m_sWhatToDo);
+  }
+  else if (const auto* pMsg2 = ezDynamicCast<const ezResourceUpdateMsgToEngine*>(e.m_pMessage))
+  {
+    HandleResourceUpdateMsg(*pMsg2);
+  }
+  else if (const auto* pMsg2a = ezDynamicCast<const ezRestoreResourceMsgToEngine*>(e.m_pMessage))
+  {
+    HandleResourceRestoreMsg(*pMsg2a);
+  }
+  else if (const auto* pMsg2b = ezDynamicCast<const ezGlobalSettingsMsgToEngine*>(e.m_pMessage))
+  {
+    ezGizmoRenderer::s_fGizmoScale = pMsg2b->m_fGizmoScale;
+  }
+  else if (const auto* pMsg3 = ezDynamicCast<const ezChangeCVarMsgToEngine*>(e.m_pMessage))
+  {
+    if (ezCVar* pCVar = ezCVar::FindCVarByName(pMsg3->m_sCVarName))
+    {
+      if (pCVar->GetType() == ezCVarType::Int && pMsg3->m_NewValue.CanConvertTo<ezInt32>())
+      {
+        *static_cast<ezCVarInt*>(pCVar) = pMsg3->m_NewValue.ConvertTo<ezInt32>();
+      }
+      else if (pCVar->GetType() == ezCVarType::Float && pMsg3->m_NewValue.CanConvertTo<float>())
+      {
+        *static_cast<ezCVarFloat*>(pCVar) = pMsg3->m_NewValue.ConvertTo<float>();
+      }
+      else if (pCVar->GetType() == ezCVarType::Bool && pMsg3->m_NewValue.CanConvertTo<bool>())
+      {
+        *static_cast<ezCVarBool*>(pCVar) = pMsg3->m_NewValue.ConvertTo<bool>();
+      }
+      else if (pCVar->GetType() == ezCVarType::String && pMsg3->m_NewValue.CanConvertTo<ezString>())
+      {
+        *static_cast<ezCVarString*>(pCVar) = pMsg3->m_NewValue.ConvertTo<ezString>();
+      }
+      else
+      {
+        ezLog::Warning("ezChangeCVarMsgToEngine: New value for CVar '{0}' is incompatible with CVar type", pMsg3->m_sCVarName);
       }
     }
     else
-      ezLog::Warning("ezChangeCVarMsgToEngine: Unknown CVar '{0}'", pMsg->m_sCVarName);
+      ezLog::Warning("ezChangeCVarMsgToEngine: Unknown CVar '{0}'", pMsg3->m_sCVarName);
   }
-  else if (const auto* pMsg = ezDynamicCast<const ezConsoleCmdMsgToEngine*>(e.m_pMessage))
+  else if (const auto* pMsg4 = ezDynamicCast<const ezConsoleCmdMsgToEngine*>(e.m_pMessage))
   {
     if (m_pConsole->GetCommandInterpreter())
     {
       ezCommandInterpreterState s;
-      s.m_sInput = pMsg->m_sCommand;
+      s.m_sInput = pMsg4->m_sCommand;
 
       ezStringBuilder tmp;
 
-      if (pMsg->m_iType == 1)
+      if (pMsg4->m_iType == 1)
       {
         m_pConsole->GetCommandInterpreter()->AutoComplete(s);
         tmp.AppendFormat(";;00||<{}", s.m_sInput);
@@ -366,12 +407,12 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
 
   ezEngineProcessDocumentContext* pDocumentContext = ezEngineProcessDocumentContext::GetDocumentContext(pDocMsg->m_DocumentGuid);
 
-  if (const auto* pMsg = ezDynamicCast<const ezDocumentOpenMsgToEngine*>(e.m_pMessage)) // Document was opened or closed
+  if (const auto* pMsg5 = ezDynamicCast<const ezDocumentOpenMsgToEngine*>(e.m_pMessage)) // Document was opened or closed
   {
-    if (pMsg->m_bDocumentOpen)
+    if (pMsg5->m_bDocumentOpen)
     {
-      pDocumentContext = CreateDocumentContext(pMsg);
-      EZ_ASSERT_DEV(pDocumentContext != nullptr, "Could not create a document context for document type '{0}'", pMsg->m_sDocumentType);
+      pDocumentContext = CreateDocumentContext(pMsg5);
+      EZ_ASSERT_DEV(pDocumentContext != nullptr, "Could not create a document context for document type '{0}'", pMsg5->m_sDocumentType);
     }
     else
     {
@@ -381,9 +422,10 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
     return;
   }
 
-  if (const auto* pMsg = ezDynamicCast<const ezDocumentClearMsgToEngine*>(e.m_pMessage))
+  if (const auto* pMsg6 = ezDynamicCast<const ezDocumentClearMsgToEngine*>(e.m_pMessage))
   {
-    ezEngineProcessDocumentContext* pDocumentContext = ezEngineProcessDocumentContext::GetDocumentContext(pMsg->m_DocumentGuid);
+    pDocumentContext = ezEngineProcessDocumentContext::GetDocumentContext(pMsg6->m_DocumentGuid);
+
     if (pDocumentContext)
     {
       pDocumentContext->ClearExistingObjects();
@@ -462,7 +504,21 @@ ezEngineProcessDocumentContext* ezEngineProcessGameApplication::CreateDocumentCo
 
 void ezEngineProcessGameApplication::Init_LoadProjectPlugins()
 {
-  m_CustomPluginConfig.SetOnlyLoadManualPlugins(false); // we also want to load editor plugin dependencies
+  m_CustomPluginConfig.m_Plugins.Sort([](const ezApplicationPluginConfig::PluginConfig& lhs, const ezApplicationPluginConfig::PluginConfig& rhs) -> bool {
+    const bool isEnginePluginLhs = lhs.m_sAppDirRelativePath.FindSubString_NoCase("EnginePlugin") != nullptr;
+    const bool isEnginePluginRhs = rhs.m_sAppDirRelativePath.FindSubString_NoCase("EnginePlugin") != nullptr;
+
+    if (isEnginePluginLhs != isEnginePluginRhs)
+    {
+      // make sure the "engine plugins" end up at the back of the list
+      // the reason for this is, that the engine plugins often have a link dependency on runtime plugins and pull their reflection data in right away
+      // but then the ezPlugin system doesn't know that certain reflected types actually come from some runtime plugin
+      // by loading the editor engine plugins last, this solves that problem
+      return isEnginePluginRhs;
+    }
+
+    return lhs.m_sAppDirRelativePath.Compare_NoCase(rhs.m_sAppDirRelativePath) < 0; });
+
   m_CustomPluginConfig.Apply();
 }
 

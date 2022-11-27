@@ -1,7 +1,7 @@
 #ifndef AE_FOUNDATION_MATH_PLANE_H
 #define AE_FOUNDATION_MATH_PLANE_H
 
-#include "../Math/Vec3.h"
+#include "Vec3.h"
 
 namespace AE_NS_FOUNDATION
 {
@@ -22,17 +22,8 @@ namespace AE_NS_FOUNDATION
   // *** Data ***
   public:
 
-    union
-    {
-      float m_fComponents[4];
-
-      struct
-      {
-        aeVec3 m_vNormal;
-        float m_fDistance;
-      };
-    };
-
+    aeVec3 m_vNormal;
+    float m_fDistance;
 
   // *** Constructors ***
   public:

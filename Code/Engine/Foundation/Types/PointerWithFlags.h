@@ -19,7 +19,7 @@ private:
     PtrMask = ~FlagsMask,
   };
 
-  void* m_ptr = nullptr;
+  void* m_pPtr = nullptr;
 
 public:
   /// \brief Initializes the pointer and flags with zero
@@ -32,7 +32,7 @@ public:
   void SetPtrAndFlags(PtrType* ptr, uint8_t flags)
   {
     const std::uintptr_t isrc = *reinterpret_cast<std::uintptr_t*>(&ptr);
-    std::uintptr_t& iptr = *reinterpret_cast<std::uintptr_t*>(&m_ptr);
+    std::uintptr_t& iptr = *reinterpret_cast<std::uintptr_t*>(&m_pPtr);
 
     iptr = (isrc & PtrMask) | (flags & FlagsMask);
   }
@@ -40,14 +40,14 @@ public:
   /// \brief Returns the masked off pointer value
   const PtrType* GetPtr() const
   {
-    const std::uintptr_t& iptr = *reinterpret_cast<const std::uintptr_t*>(&m_ptr);
+    const std::uintptr_t& iptr = *reinterpret_cast<const std::uintptr_t*>(&m_pPtr);
     return reinterpret_cast<const PtrType*>(iptr & PtrMask); // mask off lower N bits
   }
 
   /// \brief Returns the masked off pointer value
   PtrType* GetPtr()
   {
-    std::uintptr_t& iptr = *reinterpret_cast<std::uintptr_t*>(&m_ptr);
+    std::uintptr_t& iptr = *reinterpret_cast<std::uintptr_t*>(&m_pPtr);
     return reinterpret_cast<PtrType*>(iptr & PtrMask); // mask off lower N bits
   }
 
@@ -58,14 +58,14 @@ public:
     EZ_ASSERT_DEBUG(
       (isrc & FlagsMask) == 0, "The given pointer does not have an {} byte alignment and thus cannot be stored lossless.", 1u << NumFlagBits);
 
-    std::uintptr_t& iptr = *reinterpret_cast<std::uintptr_t*>(&m_ptr);
+    std::uintptr_t& iptr = *reinterpret_cast<std::uintptr_t*>(&m_pPtr);
 
     iptr = (isrc & PtrMask) | (iptr & FlagsMask);
   }
   /// \brief Returns the flags value only
   uint8_t GetFlags() const
   {
-    const std::uintptr_t& iptr = *reinterpret_cast<const std::uintptr_t*>(&m_ptr);
+    const std::uintptr_t& iptr = *reinterpret_cast<const std::uintptr_t*>(&m_pPtr);
     return static_cast<uint8_t>(iptr & FlagsMask);
   }
 
@@ -74,7 +74,7 @@ public:
   {
     EZ_ASSERT_DEBUG(flags <= FlagsMask, "The flag value {} requires more than {} bits", flags, NumFlagBits);
 
-    std::uintptr_t& iptr = *reinterpret_cast<std::uintptr_t*>(&m_ptr);
+    std::uintptr_t& iptr = *reinterpret_cast<std::uintptr_t*>(&m_pPtr);
 
     iptr = (iptr & PtrMask) | (flags & FlagsMask);
   }

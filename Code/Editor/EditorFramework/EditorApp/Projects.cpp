@@ -1,9 +1,14 @@
 #include <EditorFramework/EditorFrameworkPCH.h>
 
+#include <Core/System/Window.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Assets/AssetProcessor.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Preferences/EditorPreferences.h>
+#include <Foundation/IO/FileSystem/DeferredFileWriter.h>
+#include <Foundation/Time/Timestamp.h>
+#include <Foundation/Utilities/CommandLineUtils.h>
+#include <GameEngine/Configuration/InputConfig.h>
 #include <GuiFoundation/Dialogs/ModifiedDocumentsDlg.moc.h>
 #include <GuiFoundation/UIServices/DynamicStringEnum.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
@@ -44,22 +49,40 @@ void ezQtEditorApp::SlotQueuedOpenProject(QString sProject)
   CreateOrOpenProject(false, sProject.toUtf8().data()).IgnoreResult();
 }
 
-
 ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, const char* szFile)
 {
+  // check that we don't attempt to open a project from a different repository, due to code changes this often doesn't work too well
+  if (!IsInHeadlessMode())
+  {
+    ezStringBuilder sdkDir;
+    if (ezFileSystem::FindFolderWithSubPath(sdkDir, szFile, "Data/Base", "ezSdkRoot.txt").Succeeded())
+    {
+      sdkDir.MakeCleanPath();
+      if (sdkDir != ezFileSystem::GetSdkRootDirectory())
+      {
+        if (ezQtUiServices::MessageBoxQuestion(ezFmt("You are attempting to open a project that's located in a different SDK directory.\n\nSDK location: '{}'\nProject path: '{}'\n\nThis may make problems.\n\nContinue anyway?", ezFileSystem::GetSdkRootDirectory(), szFile), QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::No) != QMessageBox::StandardButton::Yes)
+        {
+          return EZ_FAILURE;
+        }
+      }
+    }
+  }
+
   EZ_PROFILE_SCOPE("CreateOrOpenProject");
   m_bLoadingProjectInProgress = true;
   EZ_SCOPE_EXIT(m_bLoadingProjectInProgress = false;);
 
-  ezStringBuilder sFile = szFile;
-  sFile.MakeCleanPath();
+  CloseSplashScreen();
 
-  if (bCreate == false && !sFile.EndsWith_NoCase("/ezProject"))
+  ezStringBuilder sProjectFile = szFile;
+  sProjectFile.MakeCleanPath();
+
+  if (bCreate == false && !sProjectFile.EndsWith_NoCase("/ezProject"))
   {
-    sFile.AppendPath("ezProject");
+    sProjectFile.AppendPath("ezProject");
   }
 
-  if (ezToolsProject::IsProjectOpen() && ezToolsProject::GetSingleton()->GetProjectFile() == sFile)
+  if (ezToolsProject::IsProjectOpen() && ezToolsProject::GetSingleton()->GetProjectFile() == sProjectFile)
   {
     ezQtUiServices::MessageBoxInformation("The selected project is already open");
     return EZ_FAILURE;
@@ -68,20 +91,65 @@ ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, const char* szFile)
   if (!ezToolsProject::CanCloseProject())
     return EZ_FAILURE;
 
+  ezToolsProject::CloseProject();
+
+  // create default plugin selection
+  if (!ExistsPluginSelectionStateDDL(sProjectFile))
+    CreatePluginSelectionDDL(sProjectFile, "General3D");
+
   ezStatus res;
   if (bCreate)
-    res = ezToolsProject::CreateProject(sFile);
+  {
+    if (m_bAnyProjectOpened)
+    {
+      // if we opened any project before, spawn a new editor instance and open the project there
+      // this way, a different set of editor plugins can be loaded
+      LaunchEditor(sProjectFile, true);
+
+      QApplication::closeAllWindows();
+      return EZ_SUCCESS;
+    }
+    else
+    {
+      // once we start loading any plugins, we can't reuse the same instance again for another project
+      m_bAnyProjectOpened = true;
+
+      LoadPluginBundleDlls(sProjectFile);
+
+      res = ezToolsProject::CreateProject(sProjectFile);
+    }
+  }
   else
-    res = ezToolsProject::OpenProject(sFile);
+  {
+    if (m_bAnyProjectOpened)
+    {
+      // if we opened any project before, spawn a new editor instance and open the project there
+      // this way, a different set of editor plugins can be loaded
+      LaunchEditor(sProjectFile, false);
+
+      QApplication::closeAllWindows();
+      return EZ_SUCCESS;
+    }
+    else
+    {
+      // once we start loading any plugins, we can't reuse the same instance again for another project
+      m_bAnyProjectOpened = true;
+
+      LoadPluginBundleDlls(sProjectFile);
+
+      res = ezToolsProject::OpenProject(sProjectFile);
+    }
+  }
 
   if (res.m_Result.Failed())
   {
     ezStringBuilder s;
-    s.Format("Failed to open project:\n'{0}'", sFile);
+    s.Format("Failed to open project:\n'{0}'", sProjectFile);
 
     ezQtUiServices::MessageBoxStatus(res, s);
     return EZ_FAILURE;
   }
+
 
   if (m_StartupFlags.AreNoneSet(StartupFlags::SafeMode | StartupFlags::Headless))
   {
@@ -136,6 +204,7 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProjectEvent& r)
   switch (r.m_Type)
   {
     case ezToolsProjectEvent::Type::ProjectCreated:
+      SetupNewProject();
       m_bSavePreferencesAfterOpenProject = true;
       break;
 
@@ -145,7 +214,6 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProjectEvent& r)
       ezDynamicStringEnum::s_RequestUnknownCallback = ezMakeDelegate(&ezQtEditorApp::OnDemandDynamicStringEnumLoad, this);
       LoadProjectPreferences();
       SetupDataDirectories();
-      ReadEnginePluginConfig();
       ReadTagRegistry();
       UpdateInputDynamicEnumValues();
 
@@ -157,7 +225,7 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProjectEvent& r)
 
       // tell the engine process which file system and plugin configuration to use
       ezEditorEngineProcessConnection::GetSingleton()->SetFileSystemConfig(m_FileSystemConfig);
-      ezEditorEngineProcessConnection::GetSingleton()->SetPluginConfig(m_EnginePluginConfig);
+      ezEditorEngineProcessConnection::GetSingleton()->SetPluginConfig(GetRuntimePluginConfig(true));
 
       ezAssetCurator::GetSingleton()->StartInitialize(m_FileSystemConfig);
       if (ezEditorEngineProcessConnection::GetSingleton()->RestartProcess().Failed())
@@ -170,14 +238,9 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProjectEvent& r)
       m_sLastDocumentFolder = ezToolsProject::GetSingleton()->GetProjectFile();
       m_sLastProjectFolder = ezToolsProject::GetSingleton()->GetProjectFile();
 
-      s_RecentProjects.Insert(ezToolsProject::GetSingleton()->GetProjectFile(), 0);
+      m_RecentProjects.Insert(ezToolsProject::GetSingleton()->GetProjectFile(), 0);
 
       ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
-
-      if (m_StartupFlags.AreNoneSet(ezQtEditorApp::StartupFlags::Headless | ezQtEditorApp::StartupFlags::SafeMode | ezQtEditorApp::StartupFlags::UnitTest) && pPreferences->m_bBackgroundAssetProcessing)
-      {
-        QTimer::singleShot(1000, this, [this]() { ezAssetProcessor::GetSingleton()->RestartProcessTask(); });
-      }
 
       // Make sure preferences are saved, this is important when the project was just created.
       if (m_bSavePreferencesAfterOpenProject)
@@ -185,17 +248,51 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProjectEvent& r)
         m_bSavePreferencesAfterOpenProject = false;
         SaveSettings();
       }
+      else
+      {
+        // Save recent project list on project open in case of crashes or stopping the debugger.
+        SaveRecentFiles();
+      }
+
+      if (m_StartupFlags.AreNoneSet(ezQtEditorApp::StartupFlags::Headless | ezQtEditorApp::StartupFlags::SafeMode | ezQtEditorApp::StartupFlags::UnitTest))
+      {
+        ezTimestamp lastTransform = ezAssetCurator::GetSingleton()->GetLastFullTransformDate().GetTimestamp();
+
+        if (pPreferences->m_bBackgroundAssetProcessing)
+        {
+          QTimer::singleShot(1000, this, [this]() { ezAssetProcessor::GetSingleton()->StartProcessTask(); });
+        }
+        else if (!lastTransform.IsValid() || (ezTimestamp::CurrentTimestamp() - lastTransform).GetHours() > 5 * 24)
+        {
+          const auto clicked = ezQtUiServices::MessageBoxQuestion("<html>Apply asset transformation now?<br><br>\
+Explanation: For assets to work properly, they must be <a href='https://ezengine.net/pages/docs/assets/assets-overview.html#asset-transform'>transformed</a>. Otherwise they don't function as they should or don't even show up.<br>You can manually run the asset transform from the <a href='https://ezengine.net/pages/docs/assets/asset-browser.html#transform-assets'>asset browser</a> at any time.</html>",
+            QMessageBox::StandardButton::Apply | QMessageBox::StandardButton::Ignore, QMessageBox::StandardButton::Apply);
+
+          if (clicked == QMessageBox::StandardButton::Ignore)
+          {
+            ezAssetCurator::GetSingleton()->StoreFullTransformDate();
+            break;
+          }
+
+          // check whether the project needs to be transformed
+          QTimer::singleShot(1000, this, [this]() { ezAssetCurator::GetSingleton()->TransformAllAssets(ezTransformFlags::Default); });
+        }
+      }
+
+      break;
+    }
+
+    case ezToolsProjectEvent::Type::ProjectSaveState:
+    {
+      m_RecentProjects.Insert(ezToolsProject::GetSingleton()->GetProjectFile(), 0);
+      SaveSettings();
       break;
     }
 
     case ezToolsProjectEvent::Type::ProjectClosing:
     {
-      s_RecentProjects.Insert(ezToolsProject::GetSingleton()->GetProjectFile(), 0);
-      SaveSettings();
-
       ezShutdownProcessMsgToEngine msg;
       ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
-
       break;
     }
 
@@ -209,7 +306,7 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProjectEvent& r)
       ezApplicationFileSystemConfig::Clear();
       ezFileSystem::SetSpecialDirectory("project", nullptr); // removes this directory
 
-      s_ReloadProjectRequiredReasons.Clear();
+      m_ReloadProjectRequiredReasons.Clear();
       UpdateGlobalStatusBarMessage();
 
       ezPreferences::ClearProjectPreferences();
@@ -228,7 +325,7 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProjectEvent& r)
 
     case ezToolsProjectEvent::Type::SaveAll:
     {
-      SaveSettings();
+      ezToolsProject::SaveProjectState();
       SaveAllOpenDocuments();
       break;
     }
@@ -301,5 +398,45 @@ void ezQtEditorApp::ProjectRequestHandler(ezToolsProjectRequest& r)
       }
     }
     break;
+  }
+}
+
+void ezQtEditorApp::SetupNewProject()
+{
+  ezToolsProject::GetSingleton()->CreateSubFolder("Editor");
+  ezToolsProject::GetSingleton()->CreateSubFolder("RuntimeConfigs");
+  ezToolsProject::GetSingleton()->CreateSubFolder("Scenes");
+  ezToolsProject::GetSingleton()->CreateSubFolder("Prefabs");
+
+  // write the default window config
+  {
+    ezStringBuilder sPath = ezToolsProject::GetSingleton()->GetProjectDirectory();
+    sPath.AppendPath("Window.ddl");
+
+    ezWindowCreationDesc desc;
+    desc.m_Title = ezToolsProject::GetSingleton()->GetProjectName(false);
+    desc.SaveToDDL(sPath).IgnoreResult();
+  }
+
+  // write a stub input mapping
+  {
+    ezStringBuilder sPath = ezToolsProject::GetSingleton()->GetProjectDirectory();
+    sPath.AppendPath("InputConfig.ddl");
+
+    ezDeferredFileWriter file;
+    file.SetOutput(sPath);
+
+    ezHybridArray<ezGameAppInputConfig, 4> actions;
+    ezGameAppInputConfig& a = actions.ExpandAndGetRef();
+    a.m_sInputSet = "Default";
+    a.m_sInputAction = "Interact";
+    a.m_bApplyTimeScaling = false;
+    a.m_sInputSlotTrigger[0] = ezInputSlot_KeySpace;
+    a.m_sInputSlotTrigger[1] = ezInputSlot_MouseButton0;
+    a.m_sInputSlotTrigger[2] = ezInputSlot_Controller0_ButtonA;
+
+    ezGameAppInputConfig::WriteToDDL(file, actions);
+
+    file.Close().IgnoreResult();
   }
 }

@@ -12,10 +12,10 @@ public:
     const void* m_ConstPtr;
   };
 
-  EZ_ALWAYS_INLINE ezDelegateBase() { m_pInstance.m_Ptr = nullptr; }
+  EZ_ALWAYS_INLINE ezDelegateBase() { m_Instance.m_Ptr = nullptr; }
 
 protected:
-  InstancePtr m_pInstance;
+  InstancePtr m_Instance;
 };
 
 /// \brief A generic delegate class which supports static functions and member functions.

@@ -32,7 +32,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, DecalAtlasResource)
   ON_CORESYSTEMS_SHUTDOWN
   {
     ezResourceManager::SetResourceTypeLoadingFallback<ezDecalAtlasResource>(ezDecalAtlasResourceHandle());
-  ezResourceManager::SetResourceTypeMissingFallback<ezDecalAtlasResource>(ezDecalAtlasResourceHandle());
+    ezResourceManager::SetResourceTypeMissingFallback<ezDecalAtlasResource>(ezDecalAtlasResourceHandle());
   }
 
   ON_HIGHLEVELSYSTEMS_STARTUP
@@ -60,8 +60,8 @@ ezUInt32 ezDecalAtlasResource::s_uiDecalAtlasResources = 0;
 
 ezDecalAtlasResource::ezDecalAtlasResource()
   : ezResource(DoUpdate::OnAnyThread, 1)
-  , m_BaseColorSize(ezVec2U32::ZeroVector())
-  , m_NormalSize(ezVec2U32::ZeroVector())
+  , m_vBaseColorSize(ezVec2U32::ZeroVector())
+  , m_vNormalSize(ezVec2U32::ZeroVector())
 {
 }
 
@@ -119,19 +119,19 @@ ezResourceLoadDesc ezDecalAtlasResource::UpdateContent(ezStreamReader* Stream)
     ezDdsFileFormat dds;
     ezImage baseColor, normal, orm;
 
-    if (dds.ReadImage(*Stream, baseColor, ezLog::GetThreadLocalLogSystem(), "dds").Failed())
+    if (dds.ReadImage(*Stream, baseColor, "dds").Failed())
     {
       ezLog::Error("Failed to load baseColor image for decal atlas");
       return res;
     }
 
-    if (dds.ReadImage(*Stream, normal, ezLog::GetThreadLocalLogSystem(), "dds").Failed())
+    if (dds.ReadImage(*Stream, normal, "dds").Failed())
     {
       ezLog::Error("Failed to load normal image for decal atlas");
       return res;
     }
 
-    if (dds.ReadImage(*Stream, orm, ezLog::GetThreadLocalLogSystem(), "dds").Failed())
+    if (dds.ReadImage(*Stream, orm, "dds").Failed())
     {
       ezLog::Error("Failed to load normal image for decal atlas");
       return res;
@@ -141,9 +141,9 @@ ezResourceLoadDesc ezDecalAtlasResource::UpdateContent(ezStreamReader* Stream)
     CreateLayerTexture(normal, false, m_hNormal);
     CreateLayerTexture(orm, false, m_hORM);
 
-    m_BaseColorSize = ezVec2U32(baseColor.GetWidth(), baseColor.GetHeight());
-    m_NormalSize = ezVec2U32(normal.GetWidth(), normal.GetHeight());
-    m_ORMSize = ezVec2U32(orm.GetWidth(), orm.GetHeight());
+    m_vBaseColorSize = ezVec2U32(baseColor.GetWidth(), baseColor.GetHeight());
+    m_vNormalSize = ezVec2U32(normal.GetWidth(), normal.GetHeight());
+    m_vORMSize = ezVec2U32(orm.GetWidth(), orm.GetHeight());
   }
 
   ReadDecalInfo(Stream);

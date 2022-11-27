@@ -14,8 +14,10 @@
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/VisualScript/VisualScriptComponent.h>
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
+#include <RendererCore/AnimationSystem/Declarations.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Lights/DirectionalLightComponent.h>
+#include <RendererCore/Lights/Implementation/ShadowPool.h>
 #include <RendererCore/Utils/WorldGeoExtractionUtil.h>
 
 // clang-format off
@@ -64,7 +66,7 @@ void ezSceneContext::DrawSelectionBounds(const ezViewHandle& hView)
 
     if (bounds.IsValid())
     {
-      ezDebugRenderer::DrawLineBoxCorners(hView, bounds.GetBox(), 0.25f, ezColor::Yellow);
+      ezDebugRenderer::DrawLineBoxCorners(hView, bounds.GetBox(), 0.25f, ezColorScheme::LightUI(ezColorScheme::Yellow));
     }
   }
 }
@@ -150,12 +152,6 @@ void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
   if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezGridSettingsMsgToEngine>())
   {
     HandleGridSettingsMsg(static_cast<const ezGridSettingsMsgToEngine*>(pMsg));
-    return;
-  }
-
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezGlobalSettingsMsgToEngine>())
-  {
-    HandleGlobalSettingsMsg(static_cast<const ezGlobalSettingsMsgToEngine*>(pMsg));
     return;
   }
 
@@ -382,11 +378,6 @@ void ezSceneContext::HandleGridSettingsMsg(const ezGridSettingsMsgToEngine* pMsg
   }
 }
 
-void ezSceneContext::HandleGlobalSettingsMsg(const ezGlobalSettingsMsgToEngine* pMsg)
-{
-  ezGizmoRenderer::s_fGizmoScale = pMsg->m_fGizmoScale;
-}
-
 void ezSceneContext::HandleSimulationSettingsMsg(const ezSimulationSettingsMsgToEngine* pMsg)
 {
   const bool bSimulate = pMsg->m_bSimulateWorld;
@@ -566,6 +557,8 @@ void ezSceneContext::OnInitialize()
   m_Contexts.PushBack(&m_Context);
 
   m_LayerTag = ezTagRegistry::GetGlobalRegistry().RegisterTag("Layer_Scene");
+
+  ezShadowPool::AddExcludeTagToWhiteList(m_LayerTag);
 }
 
 void ezSceneContext::OnDeinitialize()
@@ -806,6 +799,15 @@ void ezSceneContext::InsertSelectedChildren(const ezGameObject* pObject)
 
 bool ezSceneContext::ExportDocument(const ezExportDocumentMsgToEngine* pMsg)
 {
+  // make sure the world has been updated at least once, otherwise components aren't initialized
+  // and messages for geometry extraction won't be delivered
+  // this is necessary for the scene export modifiers to work
+  {
+    EZ_LOCK(m_pWorld->GetWriteMarker());
+    m_pWorld->SetWorldSimulationEnabled(false);
+    m_pWorld->Update();
+  }
+
   //#TODO layers
   ezSceneExportModifier::ApplyAllModifiers(*m_pWorld, GetDocumentGuid());
 
@@ -1207,6 +1209,11 @@ void ezSceneContext::HandlePullObjectStateMsg(const ezPullObjectStateMsgToEngine
       state.m_bAdjustFromPrefabRootChild = bAdjust;
       state.m_vPosition = pObject->GetGlobalPosition();
       state.m_qRotation = pObject->GetGlobalRotation();
+
+      ezMsgRetrieveBoneState msg;
+      pObject->SendMessage(msg);
+
+      state.m_BoneTransforms = msg.m_BoneTransforms;
     }
   }
 

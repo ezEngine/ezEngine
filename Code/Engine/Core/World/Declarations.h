@@ -8,6 +8,12 @@
 
 #include <Core/CoreDLL.h>
 
+#ifndef EZ_WORLD_INDEX_BITS
+#define EZ_WORLD_INDEX_BITS 8
+#endif
+
+#define EZ_MAX_WORLDS (1 << EZ_WORLD_INDEX_BITS)
+
 class ezWorld;
 class ezSpatialSystem;
 class ezCoordinateSystemProvider;
@@ -39,6 +45,8 @@ struct ezGameObjectId
 
   EZ_DECLARE_ID_TYPE(ezGameObjectId, 32, 8);
 
+  static_assert(EZ_WORLD_INDEX_BITS > 0 && EZ_WORLD_INDEX_BITS <= 24);
+
   EZ_FORCE_INLINE ezGameObjectId(StorageType instanceIndex, ezUInt8 generation, ezUInt8 worldIndex = 0)
   {
     m_Data = 0;
@@ -52,10 +60,9 @@ struct ezGameObjectId
     StorageType m_Data;
     struct
     {
-      ezUInt32 m_InstanceIndex;
-      ezUInt8 m_Generation;
-      ezUInt8 m_WorldIndex;
-      ezUInt16 m_Padding;
+      StorageType m_InstanceIndex : 32;
+      StorageType m_Generation : 8;
+      StorageType m_WorldIndex : EZ_WORLD_INDEX_BITS;
     };
   };
 };
@@ -82,12 +89,23 @@ struct ezHashHelper<ezGameObjectHandle>
   EZ_ALWAYS_INLINE static bool Equal(ezGameObjectHandle a, ezGameObjectHandle b) { return a == b; }
 };
 
+/// \brief Currently not implemented as it is not needed for game object handles.
+EZ_CORE_DLL void operator<<(ezStreamWriter& Stream, const ezGameObjectHandle& Value);
+EZ_CORE_DLL void operator>>(ezStreamReader& Stream, ezGameObjectHandle& Value);
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezGameObjectHandle);
+EZ_DECLARE_CUSTOM_VARIANT_TYPE(ezGameObjectHandle);
+#define EZ_COMPONENT_TYPE_INDEX_BITS (24 - EZ_WORLD_INDEX_BITS)
+#define EZ_MAX_COMPONENT_TYPES (1 << EZ_COMPONENT_TYPE_INDEX_BITS)
+
 /// \brief Internal component id used by ezComponentHandle.
 struct ezComponentId
 {
   typedef ezUInt64 StorageType;
 
   EZ_DECLARE_ID_TYPE(ezComponentId, 32, 8);
+
+  static_assert(EZ_COMPONENT_TYPE_INDEX_BITS > 0 && EZ_COMPONENT_TYPE_INDEX_BITS <= 16);
 
   EZ_ALWAYS_INLINE ezComponentId(StorageType instanceIndex, ezUInt8 generation, ezUInt16 typeId = 0, ezUInt8 worldIndex = 0)
   {
@@ -103,10 +121,10 @@ struct ezComponentId
     StorageType m_Data;
     struct
     {
-      ezUInt32 m_InstanceIndex;
-      ezUInt8 m_Generation;
-      ezUInt8 m_WorldIndex;
-      ezUInt16 m_TypeId;
+      StorageType m_InstanceIndex : 32;
+      StorageType m_Generation : 8;
+      StorageType m_WorldIndex : EZ_WORLD_INDEX_BITS;
+      StorageType m_TypeId : EZ_COMPONENT_TYPE_INDEX_BITS;
     };
   };
 };
@@ -138,6 +156,13 @@ struct ezHashHelper<ezComponentHandle>
 
   EZ_ALWAYS_INLINE static bool Equal(ezComponentHandle a, ezComponentHandle b) { return a == b; }
 };
+
+/// \brief Currently not implemented as it is not needed for component handles.
+EZ_CORE_DLL void operator<<(ezStreamWriter& Stream, const ezComponentHandle& Value);
+EZ_CORE_DLL void operator>>(ezStreamReader& Stream, ezComponentHandle& Value);
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezComponentHandle);
+EZ_DECLARE_CUSTOM_VARIANT_TYPE(ezComponentHandle);
 
 /// \brief Internal flags of game objects or components.
 struct ezObjectFlags
@@ -176,29 +201,29 @@ struct ezObjectFlags
 
   struct Bits
   {
-    StorageType Dynamic : 1;
-    StorageType ForceDynamic : 1;
-    StorageType ActiveFlag : 1;
-    StorageType ActiveState : 1;
-    StorageType Initialized : 1;
-    StorageType Initializing : 1;
-    StorageType SimulationStarted : 1;
-    StorageType SimulationStarting : 1;
-    StorageType UnhandledMessageHandler : 1;
+    StorageType Dynamic : 1;                             //< 0
+    StorageType ForceDynamic : 1;                        //< 1
+    StorageType ActiveFlag : 1;                          //< 2
+    StorageType ActiveState : 1;                         //< 3
+    StorageType Initialized : 1;                         //< 4
+    StorageType Initializing : 1;                        //< 5
+    StorageType SimulationStarted : 1;                   //< 6
+    StorageType SimulationStarting : 1;                  //< 7
+    StorageType UnhandledMessageHandler : 1;             //< 8
+    StorageType ChildChangesNotifications : 1;           //< 9
+    StorageType ComponentChangesNotifications : 1;       //< 10
+    StorageType StaticTransformChangesNotifications : 1; //< 11
 
-    StorageType ChildChangesNotifications : 1;
-    StorageType ComponentChangesNotifications : 1;
+    StorageType Padding : 12; // 12 - 23
 
-    StorageType Padding : 13;
-
-    StorageType UserFlag0 : 1;
-    StorageType UserFlag1 : 1;
-    StorageType UserFlag2 : 1;
-    StorageType UserFlag3 : 1;
-    StorageType UserFlag4 : 1;
-    StorageType UserFlag5 : 1;
-    StorageType UserFlag6 : 1;
-    StorageType UserFlag7 : 1;
+    StorageType UserFlag0 : 1; //< 24
+    StorageType UserFlag1 : 1; //< 25
+    StorageType UserFlag2 : 1; //< 26
+    StorageType UserFlag3 : 1; //< 27
+    StorageType UserFlag4 : 1; //< 28
+    StorageType UserFlag5 : 1; //< 29
+    StorageType UserFlag6 : 1; //< 30
+    StorageType UserFlag7 : 1; //< 31
   };
 };
 
@@ -250,9 +275,9 @@ struct ezObjectMsgQueueType
 /// \brief Certain components may delete themselves or their owner when they are finished with their main purpose
 struct EZ_CORE_DLL ezOnComponentFinishedAction
 {
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
 
-  enum Enum
+  enum Enum : StorageType
   {
     None,
     DeleteComponent,
@@ -321,7 +346,9 @@ class ezSpatialDataHandle
   EZ_DECLARE_HANDLE_TYPE(ezSpatialDataHandle, ezSpatialDataId);
 };
 
+#define EZ_MAX_WORLD_MODULE_TYPES EZ_MAX_COMPONENT_TYPES
 typedef ezUInt16 ezWorldModuleTypeId;
+static_assert(ezMath::MaxValue<ezWorldModuleTypeId>() >= EZ_MAX_WORLD_MODULE_TYPES - 1);
 
 typedef ezGenericId<24, 8> ezComponentInitBatchId;
 class ezComponentInitBatchHandle

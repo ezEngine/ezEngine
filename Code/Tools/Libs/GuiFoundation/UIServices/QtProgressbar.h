@@ -11,13 +11,6 @@ class QWinTaskbarButton;
 class ezProgress;
 struct ezProgressEvent;
 
-#undef EZ_USE_WIN_EXTRAS
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#  define EZ_USE_WIN_EXTRAS EZ_ON
-#else
-#  define EZ_USE_WIN_EXTRAS EZ_OFF
-#endif
-
 /// \brief A Qt implementation to display the state of an ezProgress instance.
 ///
 /// Create a single instance of this at application startup and link it to an ezProgress instance.
@@ -43,10 +36,5 @@ private:
   ezProgress* m_pProgress = nullptr;
   ezInt32 m_iNestedProcessEvents = 0;
 
-#if EZ_ENABLED(EZ_USE_WIN_EXTRAS)
-  QWinTaskbarButton* m_pWinTaskBarButton = nullptr;
-  QWinTaskbarProgress* m_pWinTaskBarProgress = nullptr;
-  QMetaObject::Connection m_OnButtonDestroyed;
-  QMetaObject::Connection m_OnProgressDestroyed;
-#endif
+  QMetaObject::Connection m_OnDialogDestroyed;
 };

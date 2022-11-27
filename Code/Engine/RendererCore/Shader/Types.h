@@ -100,10 +100,10 @@ public:
 
   EZ_ALWAYS_INLINE ezShaderBool() {}
 
-  EZ_ALWAYS_INLINE ezShaderBool(bool b) { m_Data = b ? 0xFFFFFFFF : 0; }
+  EZ_ALWAYS_INLINE ezShaderBool(bool b) { m_uiData = b ? 0xFFFFFFFF : 0; }
 
-  EZ_ALWAYS_INLINE void operator=(bool b) { m_Data = b ? 0xFFFFFFFF : 0; }
+  EZ_ALWAYS_INLINE void operator=(bool b) { m_uiData = b ? 0xFFFFFFFF : 0; }
 
 private:
-  ezUInt32 m_Data;
+  ezUInt32 m_uiData;
 };

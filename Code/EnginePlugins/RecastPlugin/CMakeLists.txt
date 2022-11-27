@@ -1,6 +1,6 @@
 ez_cmake_init()
 
-ez_build_filter_renderer()
+
 ez_requires(EZ_3RDPARTY_RECAST_SUPPORT)
 
 # Get the name of this folder as the project name

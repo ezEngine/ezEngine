@@ -5,10 +5,10 @@
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/Time/Clock.h>
 
+#include <Core/Input/DeviceTypes/Controller.h>
+#include <Core/System/ControllerInput.h>
 #include <Core/System/Window.h>
 #include <GameEngine/GameApplication/GameApplication.h>
-
-#include <XBoxControllerPlugin/InputDeviceXBox.h>
 
 EZ_APPLICATION_ENTRY_POINT(ezGameApplication, "Asteroids", "Data/Samples/Asteroids");
 
@@ -69,10 +69,13 @@ void AsteroidGameState::BeforeWorldUpdate()
 
 void AsteroidGameState::ConfigureInputActions()
 {
-  ezInputDeviceXBox360::GetDevice()->EnableVibration(0, true);
-  ezInputDeviceXBox360::GetDevice()->EnableVibration(1, true);
-  ezInputDeviceXBox360::GetDevice()->EnableVibration(2, true);
-  ezInputDeviceXBox360::GetDevice()->EnableVibration(3, true);
+  if (ezControllerInput::HasDevice())
+  {
+    ezControllerInput::GetDevice()->EnableVibration(0, true);
+    ezControllerInput::GetDevice()->EnableVibration(1, true);
+    ezControllerInput::GetDevice()->EnableVibration(2, true);
+    ezControllerInput::GetDevice()->EnableVibration(3, true);
+  }
 
   RegisterInputAction("Main", "ResetLevel", ezInputSlot_KeyReturn);
 

@@ -7,8 +7,6 @@
 
 EZ_CREATE_SIMPLE_TEST(System, ProcessGroup)
 {
-#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-
   // we can launch FoundationTest with the -cmd parameter to execute a couple of useful things to test launching process
   const ezStringBuilder pathToSelf = ezCommandLineUtils::GetGlobalInstance()->GetParameter(0);
 
@@ -66,9 +64,5 @@ EZ_CREATE_SIMPLE_TEST(System, ProcessGroup)
 
     EZ_TEST_BOOL(tDiff < ezTime::Seconds(10));
   }
-
-#  else
-  ezLog::Warning("ezProcess functions are not implemented on this platform.");
-#  endif
 }
 #endif

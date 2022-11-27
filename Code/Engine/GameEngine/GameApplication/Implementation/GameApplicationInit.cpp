@@ -3,17 +3,18 @@
 #include <Core/Collection/CollectionResource.h>
 #include <Core/Curves/ColorGradientResource.h>
 #include <Core/Curves/Curve1DResource.h>
+#include <Core/Physics/SurfaceResource.h>
 #include <Core/Prefabs/PrefabResource.h>
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
 #include <Foundation/Utilities/CommandLineOptions.h>
 #include <GameEngine/Animation/PropertyAnimResource.h>
 #include <GameEngine/GameApplication/GameApplication.h>
-#include <GameEngine/Physics/SurfaceResource.h>
 #include <GameEngine/Utils/ImageDataResource.h>
 #include <GameEngine/VisualScript/VisualScriptResource.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraphResource.h>
 #include <RendererCore/AnimationSystem/AnimationClipResource.h>
 #include <RendererCore/Decals/DecalAtlasResource.h>
+#include <RendererCore/Decals/DecalResource.h>
 #include <RendererCore/GPUResourcePool/GPUResourcePool.h>
 #include <RendererCore/Material/MaterialResource.h>
 #include <RendererCore/Meshes/MeshResource.h>
@@ -21,6 +22,7 @@
 #include <RendererCore/Shader/ShaderPermutationResource.h>
 #include <RendererCore/ShaderCompiler/ShaderManager.h>
 #include <RendererCore/Textures/Texture2DResource.h>
+#include <RendererCore/Textures/Texture3DResource.h>
 #include <RendererCore/Textures/TextureCubeResource.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Device/DeviceFactory.h>
@@ -46,6 +48,7 @@ void ezGameApplication::Init_ConfigureAssetManagement()
   ezResourceManager::RegisterResourceForAssetType("Collection", ezGetStaticRTTI<ezCollectionResource>());
   ezResourceManager::RegisterResourceForAssetType("Material", ezGetStaticRTTI<ezMaterialResource>());
   ezResourceManager::RegisterResourceForAssetType("Mesh", ezGetStaticRTTI<ezMeshResource>());
+  ezResourceManager::RegisterResourceForAssetType("Animated Mesh", ezGetStaticRTTI<ezMeshResource>());
   ezResourceManager::RegisterResourceForAssetType("Prefab", ezGetStaticRTTI<ezPrefabResource>());
   ezResourceManager::RegisterResourceForAssetType("RenderPipeline", ezGetStaticRTTI<ezRenderPipelineResource>());
   ezResourceManager::RegisterResourceForAssetType("Surface", ezGetStaticRTTI<ezSurfaceResource>());
@@ -58,8 +61,10 @@ void ezGameApplication::Init_ConfigureAssetManagement()
   ezResourceManager::RegisterResourceForAssetType("Animation Clip", ezGetStaticRTTI<ezAnimationClipResource>());
   ezResourceManager::RegisterResourceForAssetType("Animation Controller", ezGetStaticRTTI<ezAnimGraphResource>());
   ezResourceManager::RegisterResourceForAssetType("Image Data", ezGetStaticRTTI<ezImageDataResource>());
-  ezResourceManager::RegisterResourceForAssetType("Property Anim", ezGetStaticRTTI<ezPropertyAnimResource>());
+  ezResourceManager::RegisterResourceForAssetType("PropertyAnim", ezGetStaticRTTI<ezPropertyAnimResource>());
   ezResourceManager::RegisterResourceForAssetType("Visual Script", ezGetStaticRTTI<ezVisualScriptResource>());
+  ezResourceManager::RegisterResourceForAssetType("Decal", ezGetStaticRTTI<ezDecalResource>());
+  ezResourceManager::RegisterResourceForAssetType("LUT", ezGetStaticRTTI<ezTexture3DResource>());
 }
 
 void ezGameApplication::Init_SetupDefaultResources()
@@ -121,8 +126,8 @@ void ezGameApplication::Init_SetupDefaultResources()
   {
     ezResourceManager::AllowResourceTypeAcquireDuringUpdateContent<ezMaterialResource, ezMaterialResource>();
 
-    ezMaterialResourceHandle hMissingMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Materials/BaseMaterials/MissingMaterial.ezMaterial");
-    ezMaterialResourceHandle hFallbackMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Materials/BaseMaterials/LoadingMaterial.ezMaterial");
+    ezMaterialResourceHandle hMissingMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Materials/Common/MissingMaterial.ezMaterial");
+    ezMaterialResourceHandle hFallbackMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Materials/Common/LoadingMaterial.ezMaterial");
 
     ezResourceManager::SetResourceTypeLoadingFallback<ezMaterialResource>(hFallbackMaterial);
     ezResourceManager::SetResourceTypeMissingFallback<ezMaterialResource>(hMissingMaterial);
@@ -222,20 +227,23 @@ void ezGameApplication::Init_SetupDefaultResources()
   }
 }
 
-ezString GetRendererNameFromCommandLine()
+const char* GetRendererNameFromCommandLine()
 {
   return opt_Renderer.GetOptionValue(ezCommandLineOption::LogMode::FirstTimeIfSpecified);
 }
 
+const char* ezGameApplication::GetActiveRenderer()
+{
+  return GetRendererNameFromCommandLine();
+}
+
 void ezGameApplication::Init_SetupGraphicsDevice()
 {
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   ezGALDeviceCreationDescription DeviceInit;
-  DeviceInit.m_bCreatePrimarySwapChain = false;
 
-#  if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   DeviceInit.m_bDebugDevice = true;
-#  endif
+#endif
 
   {
     ezGALDevice* pDevice = nullptr;
@@ -258,8 +266,6 @@ void ezGameApplication::Init_SetupGraphicsDevice()
   // Create GPU resource pool
   ezGPUResourcePool* pResourcePool = EZ_DEFAULT_NEW(ezGPUResourcePool);
   ezGPUResourcePool::SetDefaultInstance(pResourcePool);
-
-#endif
 }
 
 void ezGameApplication::Init_LoadRequiredPlugins()
@@ -275,11 +281,6 @@ void ezGameApplication::Init_LoadRequiredPlugins()
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   ezPlugin::LoadPlugin("ezInspectorPlugin").IgnoreResult();
 
-
-#  ifdef BUILDSYSTEM_ENABLE_RENDERDOC_SUPPORT
-  ezPlugin::LoadPlugin("ezRenderDocPlugin").IgnoreResult();
-#  endif
-
   // on sandboxed platforms, we can only load data through fileserve, so enforce use of this plugin
 #  if EZ_DISABLED(EZ_SUPPORTS_UNRESTRICTED_FILE_ACCESS)
   ezPlugin::LoadPlugin("ezFileservePlugin").IgnoreResult(); // don't care if it fails to load
@@ -292,7 +293,6 @@ void ezGameApplication::Init_LoadRequiredPlugins()
 
 void ezGameApplication::Deinit_ShutdownGraphicsDevice()
 {
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   if (!ezGALDevice::HasDefaultDevice())
     return;
 
@@ -305,7 +305,6 @@ void ezGameApplication::Deinit_ShutdownGraphicsDevice()
   pDevice->Shutdown().IgnoreResult();
   EZ_DEFAULT_DELETE(pDevice);
   ezGALDevice::SetDefaultDevice(nullptr);
-#endif
 }
 
 

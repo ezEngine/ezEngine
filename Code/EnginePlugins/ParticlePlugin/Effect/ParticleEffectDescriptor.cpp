@@ -100,7 +100,7 @@ void ezParticleEffectDescriptor::Save(ezStreamWriter& stream) const
 
   // Version 6
   {
-    ezUInt8 paramCol = m_ColorParameters.GetCount();
+    ezUInt8 paramCol = static_cast<ezUInt8>(m_ColorParameters.GetCount());
     stream << paramCol;
     for (auto it = m_ColorParameters.GetIterator(); it.IsValid(); ++it)
     {
@@ -108,7 +108,7 @@ void ezParticleEffectDescriptor::Save(ezStreamWriter& stream) const
       stream << it.Value();
     }
 
-    ezUInt8 paramFloat = m_FloatParameters.GetCount();
+    ezUInt8 paramFloat = static_cast<ezUInt8>(m_FloatParameters.GetCount());
     stream << paramFloat;
     for (auto it = m_FloatParameters.GetIterator(); it.IsValid(); ++it)
     {

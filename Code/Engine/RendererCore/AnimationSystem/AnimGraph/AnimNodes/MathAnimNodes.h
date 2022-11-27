@@ -34,5 +34,5 @@ private:
   ezAnimGraphNumberInputPin m_ValueDPin;  // [ property ]
   ezAnimGraphNumberOutputPin m_ResultPin; // [ property ]
 
-  ezMathExpression m_Expression;
+  ezMathExpression m_mExpression;
 };

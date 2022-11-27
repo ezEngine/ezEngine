@@ -1,6 +1,8 @@
 #pragma once
 
 #include <RendererCore/Meshes/MeshComponentBase.h>
+#include <RendererCore/Shader/Types.h>
+#include <memory>
 
 class ezShaderTransform;
 
@@ -10,45 +12,27 @@ class EZ_RENDERERCORE_DLL ezSkinnedMeshRenderData : public ezMeshRenderData
 
 public:
   virtual void FillBatchIdAndSortingKey() override;
-
   ezGALBufferHandle m_hSkinningTransforms;
   ezArrayPtr<const ezUInt8> m_pNewSkinningTransformData;
+  std::shared_ptr<bool> m_bTransformsUpdated;
 };
 
-//////////////////////////////////////////////////////////////////////////
-
-class EZ_RENDERERCORE_DLL ezSkinnedMeshComponent : public ezMeshComponentBase
+struct EZ_RENDERERCORE_DLL ezSkinningState
 {
-  EZ_DECLARE_ABSTRACT_COMPONENT_TYPE(ezSkinnedMeshComponent, ezMeshComponentBase);
+  ezSkinningState();
+  ~ezSkinningState();
 
-  //////////////////////////////////////////////////////////////////////////
-  // ezComponent
+  void Clear();
 
-public:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  /// \brief Holds the current CPU-side copy of the skinning matrices. Modify these and call TransformsChanged() to send them to the GPU.
+  ezDynamicArray<ezShaderTransform, ezAlignedAllocatorWrapper> m_Transforms;
 
-protected:
-  virtual void OnDeactivated() override;
+  /// \brief Call this, after modifying m_Transforms, to make the renderer apply the update.
+  void TransformsChanged();
 
-  //////////////////////////////////////////////////////////////////////////
-  // ezMeshComponentBase
-
-protected:
-  virtual ezMeshRenderData* CreateRenderData() const override;
-
-
-  //////////////////////////////////////////////////////////////////////////
-  // ezSkinnedMeshComponent
-
-public:
-  ezSkinnedMeshComponent();
-  ~ezSkinnedMeshComponent();
-
-protected:
-  void UpdateSkinningTransformBuffer(ezArrayPtr<const ezShaderTransform> skinningTransforms);
+  void FillSkinnedMeshRenderData(ezSkinnedMeshRenderData& renderData) const;
 
 private:
-  ezGALBufferHandle m_hSkinningTransformsBuffer;
-  ezArrayPtr<const ezShaderTransform> m_SkinningTransforms;
+  ezGALBufferHandle m_hGpuBuffer;
+  std::shared_ptr<bool> m_bTransformsUpdated[2];
 };

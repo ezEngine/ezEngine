@@ -15,9 +15,9 @@
 class ezOpenXRInputDevice;
 class ezOpenXRSpatialAnchors;
 class ezOpenXRHandTracking;
+class ezWindowOutputTargetXR;
 struct ezGameApplicationExecutionEvent;
 
-EZ_DEFINE_AS_POD_TYPE(XrSwapchainImageD3D11KHR);
 EZ_DEFINE_AS_POD_TYPE(XrViewConfigurationView);
 EZ_DEFINE_AS_POD_TYPE(XrEnvironmentBlendMode);
 
@@ -29,6 +29,12 @@ public:
   ezOpenXR();
   ~ezOpenXR();
 
+  XrInstance GetInstance() const { return m_instance; }
+  uint64_t GetSystemId() const { return m_systemId; }
+  XrSession GetSession() const { return m_session; }
+  XrViewConfigurationType GetViewType() const { return m_primaryViewConfigurationType; }
+  bool GetDepthComposition() const;
+
   virtual bool IsHmdPresent() const override;
 
   virtual ezResult Initialize() override;
@@ -38,29 +44,20 @@ public:
   virtual const ezHMDInfo& GetHmdInfo() const override;
   virtual ezXRInputDevice& GetXRInput() const override;
 
-  virtual ezGALTextureHandle Present() override;
+  virtual ezGALTextureHandle GetCurrentTexture() override;
+
+  void DelayPresent();
+  void Present();
+  void EndFrame();
+
   virtual ezUniquePtr<ezActor> CreateActor(ezView* pView, ezGALMSAASampleCount::Enum msaaCount = ezGALMSAASampleCount::None,
-    ezUniquePtr<ezWindowBase> companionWindow = nullptr, ezUniquePtr<ezWindowOutputTargetBase> companionWindowOutput = nullptr) override;
+    ezUniquePtr<ezWindowBase> companionWindow = nullptr, ezUniquePtr<ezWindowOutputTargetGAL> companionWindowOutput = nullptr) override;
   virtual void OnActorDestroyed() override;
   virtual bool SupportsCompanionView() override;
 
   XrSpace GetBaseSpace() const;
 
 private:
-  struct Swapchain
-  {
-    XrSwapchain handle = 0;
-    int64_t format = 0;
-    ezUInt32 imageCount = 0;
-    XrSwapchainImageBaseHeader* images = nullptr;
-    uint32_t imageIndex = 0;
-  };
-  enum class SwapchainType
-  {
-    Color,
-    Depth,
-  };
-
   XrResult SelectExtensions(ezHybridArray<const char*, 6>& extensions);
   XrResult InitSystem();
   void DeinitSystem();
@@ -68,10 +65,7 @@ private:
   void DeinitSession();
   XrResult InitGraphicsPlugin();
   void DeinitGraphicsPlugin();
-  XrResult SelectSwapchainFormat(int64_t& colorFormat, int64_t& depthFormat);
-  XrResult CreateSwapchainImages(Swapchain& swapchain, SwapchainType type);
-  XrResult InitSwapChain(ezGALMSAASampleCount::Enum msaaCount);
-  void DeinitSwapChain();
+
 
   void GameApplicationEventHandler(const ezGameApplicationExecutionEvent& e);
   void GALDeviceEventHandler(const ezGALDeviceEvent& e);
@@ -79,11 +73,12 @@ private:
   void BeforeUpdatePlugins();
   void UpdatePoses();
   void UpdateCamera();
-  void BeforeBeginFrame();
+  void BeginFrame();
 
   void SetStageSpace(ezXRStageSpace::Enum space);
   void SetHMDCamera(ezCamera* pCamera);
 
+public:
   static XrPosef ConvertTransform(const ezTransform& tr);
   static XrQuaternionf ConvertOrientation(const ezQuat& q);
   static XrVector3f ConvertPosition(const ezVec3& pos);
@@ -97,6 +92,7 @@ private:
   friend class ezOpenXRSpatialAnchors;
   friend class ezOpenXRHandTracking;
   friend class ezOpenXRRemoting;
+  friend class ezGALOpenXRSwapChain;
 
   struct Extensions
   {
@@ -157,13 +153,8 @@ private:
   XrGraphicsBindingD3D11KHR m_xrGraphicsBindingD3D11{XR_TYPE_GRAPHICS_BINDING_D3D11_KHR};
   XrFormFactor m_formFactor{XR_FORM_FACTOR_HEAD_MOUNTED_DISPLAY};
   XrViewConfigurationType m_primaryViewConfigurationType{XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO};
-  ezHybridArray<XrSwapchainImageD3D11KHR, 3> m_colorSwapChainImagesD3D11;
-  ezHybridArray<XrSwapchainImageD3D11KHR, 3> m_depthSwapChainImagesD3D11;
 
-  // Swapchain
-  XrViewConfigurationView m_primaryConfigView;
-  Swapchain m_colorSwapchain;
-  Swapchain m_depthSwapchain;
+  ezGALSwapChainHandle m_hSwapChain;
 
   // Views
   XrView m_views[2];
@@ -194,7 +185,7 @@ private:
   ezEnum<ezXRStageSpace> m_StageSpace;
   ezUInt32 m_uiSettingsModificationCounter = 0;
   ezViewHandle m_hView;
-  ezGALRenderTargetSetup m_RenderTargetSetup;
-  ezGALTextureHandle m_hColorRT;
-  ezGALTextureHandle m_hDepthRT;
+
+  ezWindowOutputTargetXR* m_pCompanion = nullptr;
+  bool m_bPresentDelayed = false;
 };

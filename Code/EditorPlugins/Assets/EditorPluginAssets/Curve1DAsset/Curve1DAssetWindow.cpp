@@ -60,7 +60,7 @@ ezQtCurve1DAssetDocumentWindow::ezQtCurve1DAssetDocumentWindow(ezDocument* pDocu
 
   if (false)
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this);
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
     pPropertyPanel->setObjectName("Curve1DAssetDockWidget");
     pPropertyPanel->setWindowTitle("Curve1D Properties");
     pPropertyPanel->show();
@@ -121,7 +121,6 @@ void ezQtCurve1DAssetDocumentWindow::onInsertCpAt(ezUInt32 uiCurveIdx, ezInt64 t
   ezCurve1DAssetDocument* pDoc = static_cast<ezCurve1DAssetDocument*>(GetDocument());
 
   ezCommandHistory* history = pDoc->GetCommandHistory();
-  history->StartTransaction("Insert Control Point");
 
   if (pDoc->GetPropertyObject()->GetTypeAccessor().GetCount("Curves") == 0)
   {
@@ -166,8 +165,6 @@ void ezQtCurve1DAssetDocumentWindow::onInsertCpAt(ezUInt32 uiCurveIdx, ezInt64 t
   cmdSet.m_sProperty = "RightTangent";
   cmdSet.m_NewValue = ezVec2(+0.1f, 0.0f);
   history->AddCommand(cmdSet);
-
-  history->FinishTransaction();
 }
 
 void ezQtCurve1DAssetDocumentWindow::onCurveCpMoved(ezUInt32 curveIdx, ezUInt32 cpIdx, ezInt64 iTickX, double newPosY)
@@ -307,7 +304,8 @@ void ezQtCurve1DAssetDocumentWindow::UpdatePreview()
 {
   ezCurve1DAssetDocument* pDoc = static_cast<ezCurve1DAssetDocument*>(GetDocument());
 
-  m_pCurveEditor->SetCurves(*pDoc->GetProperties(), 0.1f, false);
+  m_pCurveEditor->SetCurveExtents(0, 0.1f, true, false);
+  m_pCurveEditor->SetCurves(*pDoc->GetProperties());
 
   SendLiveResourcePreview();
 }
@@ -333,7 +331,7 @@ void ezQtCurve1DAssetDocumentWindow::SendLiveResourcePreview()
   ezStringBuilder tmp;
   msg.m_sResourceID = ezConversionUtils::ToString(GetDocument()->GetGuid(), tmp);
 
-  ezMemoryStreamStorage streamStorage;
+  ezContiguousMemoryStreamStorage streamStorage;
   ezMemoryStreamWriter memoryWriter(&streamStorage);
 
   ezCurve1DAssetDocument* pDoc = ezDynamicCast<ezCurve1DAssetDocument*>(GetDocument());
@@ -351,7 +349,7 @@ void ezQtCurve1DAssetDocumentWindow::SendLiveResourcePreview()
 
   // Write Asset Data
   pDoc->WriteResource(memoryWriter);
-  msg.m_Data = ezArrayPtr<const ezUInt8>(streamStorage.GetData(), streamStorage.GetStorageSize());
+  msg.m_Data = ezArrayPtr<const ezUInt8>(streamStorage.GetData(), streamStorage.GetStorageSize32());
 
   ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
 }

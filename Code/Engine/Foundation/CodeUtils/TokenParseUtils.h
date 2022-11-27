@@ -5,7 +5,7 @@
 
 namespace ezTokenParseUtils
 {
-  typedef ezHybridArray<const ezToken*, 32> TokenStream;
+  using TokenStream = ezHybridArray<const ezToken*, 32>;
 
   EZ_FOUNDATION_DLL void SkipWhitespace(const TokenStream& Tokens, ezUInt32& uiCurToken);
   EZ_FOUNDATION_DLL void SkipWhitespaceAndNewline(const TokenStream& Tokens, ezUInt32& uiCurToken);

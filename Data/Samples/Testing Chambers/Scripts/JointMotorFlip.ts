@@ -27,11 +27,11 @@ export class JointMotorFlip extends ez.TypescriptComponent {
 
     OnMsgComponentInternalTrigger(msg: ez.MsgComponentInternalTrigger): void {
 
-        let joint = this.GetOwner().TryGetComponentOfBaseType(ez.PxRevoluteJointComponent);
+        let joint = this.GetOwner().TryGetComponentOfBaseType(ez.JoltHingeConstraintComponent);
 
         if (joint != null) {
 
-            joint.DriveVelocity = -joint.DriveVelocity;
+            joint.DriveTargetValue = -joint.DriveTargetValue;
         }
 
         this.PostMessage(msg, this.Seconds);

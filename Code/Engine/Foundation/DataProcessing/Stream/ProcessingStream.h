@@ -7,12 +7,9 @@
 class EZ_FOUNDATION_DLL ezProcessingStream
 {
 public:
-  /// \brief Destructor.
-  ~ezProcessingStream();
-
   /// \brief The data types which can be stored in the stream.
   /// When adding new data types the GetDataTypeSize() of ezProcessingStream needs to be updated.
-  enum class DataType
+  enum class DataType : ezUInt8
   {
     Half,  // ezFloat16
     Half2, // 2x ezFloat16
@@ -24,23 +21,29 @@ public:
     Float3, // 3x float, e.g. ezVec3
     Float4, // 4x float, e.g. ezVec4
 
-    Matrix4x4,
+    Byte,
+    Byte2,
+    Byte3,
+    Byte4,
 
-    // Byte, -> memory corruptions?
-    // Byte2,
-    /*Byte3 - bad alignment*/
-    // Byte4,
-
-    // Short,
+    Short,
     Short2,
-    // Short3,
+    Short3,
     Short4,
 
     Int,
     Int2,
     Int3,
-    Int4
+    Int4,
+
+    Count
   };
+
+  ezProcessingStream();
+  ezProcessingStream(const ezHashedString& sName, DataType Type, ezUInt16 uiStride, ezUInt16 uiAlignment);
+  ezProcessingStream(const ezHashedString& sName, ezArrayPtr<ezUInt8> data, DataType Type, ezUInt16 uiStride);
+  ezProcessingStream(const ezHashedString& sName, ezArrayPtr<ezUInt8> data, DataType Type);
+  ~ezProcessingStream();
 
   /// \brief Returns a const pointer to the data casted to the type T, note that no type check is done!
   template <typename T>
@@ -62,45 +65,40 @@ public:
   /// \brief Returns a non-const pointer to the start of the data block.
   void* GetWritableData() const { return m_pData; }
 
+  ezUInt64 GetDataSize() const { return m_uiDataSize; }
+
   /// \brief Returns the name of the stream
-  const ezHashedString& GetName() const { return m_Name; }
+  const ezHashedString& GetName() const { return m_sName; }
 
   /// \brief Returns the alignment which was used to allocate the stream.
-  ezUInt64 GetAlignment() const { return m_uiAlignment; }
+  ezUInt16 GetAlignment() const { return m_uiAlignment; }
 
   /// \brief Returns the data type of the stream.
   DataType GetDataType() const { return m_Type; }
 
-  /// \brief Returns the size of one stream element.
-  ezUInt64 GetElementSize() const { return m_uiTypeSize; }
+  /// \brief Returns the size of one stream element in bytes.
+  ezUInt16 GetElementSize() const { return m_uiTypeSize; }
 
-  /// \brief Returns the stride between two elements of the stream.
-  ezUInt64 GetElementStride() const
-  {
-    // For now this is the type size, but this method will help with introduction of interleaved streams etc.
-    return m_uiTypeSize;
-  }
+  /// \brief Returns the stride between two elements of the stream in bytes.
+  ezUInt16 GetElementStride() const { return m_uiStride; }
 
-  static size_t GetDataTypeSize(DataType Type);
+  static ezUInt16 GetDataTypeSize(DataType Type);
+  static ezStringView GetDataTypeName(DataType Type);
 
 protected:
   friend class ezProcessingStreamGroup;
 
-  ezProcessingStream(const char* szName, DataType Type, ezUInt64 uiAlignment = 64);
-
   void SetSize(ezUInt64 uiNumElements);
-
   void FreeData();
 
-  void* m_pData;
+  void* m_pData = nullptr;
+  ezUInt64 m_uiDataSize = 0; // in bytes
 
-  ezUInt64 m_uiAlignment;
-
-  ezUInt64 m_uiNumElements;
-
-  ezUInt64 m_uiTypeSize;
-
+  ezUInt16 m_uiAlignment = 0;
+  ezUInt16 m_uiTypeSize = 0;
+  ezUInt16 m_uiStride = 0;
   DataType m_Type;
+  bool m_bExternalMemory = false;
 
-  ezHashedString m_Name;
+  ezHashedString m_sName;
 };

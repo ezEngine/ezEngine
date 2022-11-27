@@ -1,7 +1,0 @@
-string %Shader { "Shaders/Editor/GizmoHandle.ezShader" }
-
-Permutation
-{
-  string %Variable { "GIZMO_CONSTANT_SIZE" }
-  string %Value { "FALSE" }
-}

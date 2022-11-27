@@ -11,7 +11,7 @@ o
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{5963804767315103672,5433555503478725399}}
-		u4 %Hash{6241995962988601337}
+		u4 %Hash{3239165117611803519}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References{}
@@ -20,18 +20,6 @@ o
 }
 Objects
 {
-o
-{
-	Uuid %id{u4{5045765162770969081,1338079421344034364}}
-	s %t{"DocumentNodeManagerConnectionInternal"}
-	u3 %v{1}
-	p
-	{
-		s %SourcePin{"AvgLuminance"}
-		Uuid %Target{u4{15271478301052053888,5056921536712069061}}
-		s %TargetPin{"Color1"}
-	}
-}
 o
 {
 	Uuid %id{u4{11281321821419367342,3985204654413113789}}
@@ -48,6 +36,32 @@ o
 }
 o
 {
+	Uuid %id{u4{644435269119950011,4689646747377648928}}
+	s %t{"DocumentNodeManager_DefaultConnection"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Connection::Source{u4{4121618234579671715,5033433658973113555}}
+		s %Connection::SourcePin{"FilteredSpecular"}
+		Uuid %Connection::Target{u4{15271478301052053888,5056921536712069061}}
+		s %Connection::TargetPin{"Color0"}
+	}
+}
+o
+{
+	Uuid %id{u4{17164636511711599802,4877187546486140270}}
+	s %t{"DocumentNodeManager_DefaultConnection"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Connection::Source{u4{4121618234579671715,5033433658973113555}}
+		s %Connection::SourcePin{"IrradianceData"}
+		Uuid %Connection::Target{u4{15271478301052053888,5056921536712069061}}
+		s %Connection::TargetPin{"Color2"}
+	}
+}
+o
+{
 	Uuid %id{u4{4121618234579671715,5033433658973113555}}
 	s %t{"ezReflectionFilterPass"}
 	u3 %v{1}
@@ -61,12 +75,6 @@ o
 		Uuid %IrradianceData{u4{3796248088956775667,8325318231547522961}}
 		u3 %IrradianceOutputIndex{0}
 		s %Name{""}
-		VarArray %Node::Connections
-		{
-			Uuid{u4{9127909194464248045,11210723068219855153}}
-			Uuid{u4{5045765162770969081,1338079421344034364}}
-			Uuid{u4{12748989557167519964,15040883955414241070}}
-		}
 		Vec2 %Node::Pos{f{0xC1A2F843,0x1B90A143}}
 		f %Saturation{0x0000803F}
 		u3 %SpecularOutputIndex{0}
@@ -90,8 +98,20 @@ o
 		Uuid %Color7{u4{120345010372302782,14904842470169854986}}
 		Uuid %DepthStencil{u4{14455014302106423940,18224443472601444815}}
 		s %Name{""}
-		VarArray %Node::Connections{}
 		Vec2 %Node::Pos{f{0x10205144,0xCE91A243}}
+	}
+}
+o
+{
+	Uuid %id{u4{3174646992828454035,5607735692444891926}}
+	s %t{"DocumentNodeManager_DefaultConnection"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Connection::Source{u4{4121618234579671715,5033433658973113555}}
+		s %Connection::SourcePin{"AvgLuminance"}
+		Uuid %Connection::Target{u4{15271478301052053888,5056921536712069061}}
+		s %Connection::TargetPin{"Color1"}
 	}
 }
 o
@@ -113,6 +133,9 @@ o
 		{
 			Uuid{u4{15271478301052053888,5056921536712069061}}
 			Uuid{u4{4121618234579671715,5033433658973113555}}
+			Uuid{u4{644435269119950011,4689646747377648928}}
+			Uuid{u4{3174646992828454035,5607735692444891926}}
+			Uuid{u4{17164636511711599802,4877187546486140270}}
 		}
 	}
 }
@@ -153,18 +176,6 @@ o
 }
 o
 {
-	Uuid %id{u4{9127909194464248045,11210723068219855153}}
-	s %t{"DocumentNodeManagerConnectionInternal"}
-	u3 %v{1}
-	p
-	{
-		s %SourcePin{"FilteredSpecular"}
-		Uuid %Target{u4{15271478301052053888,5056921536712069061}}
-		s %TargetPin{"Color0"}
-	}
-}
-o
-{
 	Uuid %id{u4{14302187211121575540,11720120274908737651}}
 	s %t{"ezRenderPipelineNodeOutputPin"}
 	u3 %v{1}
@@ -176,18 +187,6 @@ o
 	s %t{"ezRenderPipelineNodeInputPin"}
 	u3 %v{1}
 	p{}
-}
-o
-{
-	Uuid %id{u4{12748989557167519964,15040883955414241070}}
-	s %t{"DocumentNodeManagerConnectionInternal"}
-	u3 %v{1}
-	p
-	{
-		s %SourcePin{"IrradianceData"}
-		Uuid %Target{u4{15271478301052053888,5056921536712069061}}
-		s %TargetPin{"Color2"}
-	}
 }
 o
 {
@@ -239,6 +238,24 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
 		u3 %TypeSize{72}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{1988646526571382668,10729334715299371304}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"DocumentNodeManager_DefaultConnection"}
+		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
 	}
 }

@@ -4,6 +4,7 @@
 
 #include <Core/Console/ConsoleFunction.h>
 #include <Core/GameApplication/GameApplicationBase.h>
+#include <Foundation/Configuration/CVar.h>
 #include <Foundation/Threading/DelegateTask.h>
 #include <Foundation/Types/UniquePtr.h>
 
@@ -34,6 +35,10 @@ class ezQuakeConsole;
 class EZ_GAMEENGINE_DLL ezGameApplication : public ezGameApplicationBase
 {
 public:
+  static ezCVarBool cvar_AppVSync;
+  static ezCVarBool cvar_AppShowFPS;
+
+public:
   typedef ezGameApplicationBase SUPER;
 
   /// szProjectPath may be nullptr, if FindProjectDirectory() is overridden.
@@ -42,6 +47,9 @@ public:
 
   /// \brief Returns the ezGameApplication singleton
   static ezGameApplication* GetGameApplicationInstance() { return s_pGameApplicationInstance; }
+
+  /// \brief Returns the active renderer of the current app. Either the default or overridden via -render command line flag.
+  static const char* GetActiveRenderer();
 
   /// \brief When the graphics device is created, by default the game application will pick a platform specific implementation. This
   /// function allows to override that by setting a custom function that creates a graphics device.

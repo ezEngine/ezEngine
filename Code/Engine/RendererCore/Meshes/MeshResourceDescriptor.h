@@ -50,6 +50,9 @@ public:
 
   ezArrayPtr<const SubMesh> GetSubMeshes() const;
 
+  /// \brief Merges all submeshes into just one.
+  void CollapseSubMeshes();
+
   void ComputeBounds();
   const ezBoundingBoxSphere& GetBounds() const;
   void SetBounds(const ezBoundingBoxSphere& bounds) { m_Bounds = bounds; }
@@ -65,6 +68,7 @@ public:
 
   ezSkeletonResourceHandle m_hDefaultSkeleton;
   ezHashTable<ezHashedString, BoneData> m_Bones;
+  float m_fMaxBoneVertexOffset = 0.0f; // the maximum distance between any vertex and its influencing bones, can be used for adjusting the bounding box of a pose
 
 private:
   ezHybridArray<Material, 8> m_Materials;

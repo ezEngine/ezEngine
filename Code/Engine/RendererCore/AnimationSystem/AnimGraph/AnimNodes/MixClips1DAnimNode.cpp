@@ -10,7 +10,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezAnimClip1D, ezNoBase, 1, ezRTTIDefaultAllocator
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Clip", GetAnimationFile, SetAnimationFile)->AddAttributes(new ezAssetBrowserAttribute("Animation Clip")),
+    EZ_ACCESSOR_PROPERTY("Clip", GetAnimationFile, SetAnimationFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Keyframe_Animation")),
     EZ_MEMBER_PROPERTY("Position", m_fPosition),
   }
   EZ_END_PROPERTIES;
@@ -37,7 +37,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMixClips1DAnimNode, 1, ezRTTIDefaultAllocator<
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Animation Sampling"),
-    new ezColorAttribute(ezColor::SteelBlue),
+    new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Blue)),
     new ezTitleAttribute("Mix1D: '{AnimationClip0}' '{AnimationClip1}' '{AnimationClip2}' '{AnimationClip3}'"),
   }
   EZ_END_ATTRIBUTES;

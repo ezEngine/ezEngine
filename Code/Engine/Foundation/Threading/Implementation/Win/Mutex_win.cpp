@@ -24,12 +24,12 @@ ezMutex::ezMutex()
   (void)check1;
   SameAlignment<alignof(ezMutexHandle), alignof(CRITICAL_SECTION)> check2;
   (void)check2;
-  InitializeCriticalSection((CRITICAL_SECTION*)&m_Handle);
+  InitializeCriticalSection((CRITICAL_SECTION*)&m_hHandle);
 }
 
 ezMutex::~ezMutex()
 {
-  DeleteCriticalSection((CRITICAL_SECTION*)&m_Handle);
+  DeleteCriticalSection((CRITICAL_SECTION*)&m_hHandle);
 }
 #endif
 

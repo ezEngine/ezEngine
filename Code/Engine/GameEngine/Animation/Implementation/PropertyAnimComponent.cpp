@@ -14,7 +14,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPropertyAnimComponent, 3, ezComponentMode::Dynamic)
   {
     EZ_BEGIN_PROPERTIES
     {
-      EZ_ACCESSOR_PROPERTY("Animation", GetPropertyAnimFile, SetPropertyAnimFile)->AddAttributes(new ezAssetBrowserAttribute("PropertyAnim")),
+      EZ_ACCESSOR_PROPERTY("Animation", GetPropertyAnimFile, SetPropertyAnimFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Property_Animation")),
       EZ_MEMBER_PROPERTY("Playing", m_bPlaying)->AddAttributes(new ezDefaultValueAttribute(true)),
       EZ_ENUM_MEMBER_PROPERTY("Mode", ezPropertyAnimMode, m_AnimationMode),
       EZ_MEMBER_PROPERTY("RandomOffset", m_RandomOffset)->AddAttributes(new ezClampValueAttribute(ezTime::Seconds(0), ezVariant())),
@@ -139,7 +139,7 @@ void ezPropertyAnimComponent::CreatePropertyBindings()
   m_ComponentFloatBindings.Clear();
   m_GoFloatBindings.Clear();
 
-  m_AnimDesc = nullptr;
+  m_pAnimDesc = nullptr;
 
   if (!m_hPropertyAnim.IsValid())
     return;
@@ -149,9 +149,9 @@ void ezPropertyAnimComponent::CreatePropertyBindings()
   if (!pAnimation || pAnimation.GetAcquireResult() == ezResourceAcquireResult::MissingFallback)
     return;
 
-  m_AnimDesc = pAnimation->GetDescriptor();
+  m_pAnimDesc = pAnimation->GetDescriptor();
 
-  for (const ezFloatPropertyAnimEntry& anim : m_AnimDesc->m_FloatAnimations)
+  for (const ezFloatPropertyAnimEntry& anim : m_pAnimDesc->m_FloatAnimations)
   {
     ezHybridArray<ezGameObject*, 8> targets;
     GetOwner()->SearchForChildrenByNameSequence(anim.m_sObjectSearchSequence, anim.m_pComponentRtti, targets);
@@ -174,7 +174,7 @@ void ezPropertyAnimComponent::CreatePropertyBindings()
     }
   }
 
-  for (const ezColorPropertyAnimEntry& anim : m_AnimDesc->m_ColorAnimations)
+  for (const ezColorPropertyAnimEntry& anim : m_pAnimDesc->m_ColorAnimations)
   {
     ezHybridArray<ezGameObject*, 8> targets;
     GetOwner()->SearchForChildrenByNameSequence(anim.m_sObjectSearchSequence, anim.m_pComponentRtti, targets);
@@ -365,7 +365,7 @@ void ezPropertyAnimComponent::CreateColorPropertyBinding(const ezColorPropertyAn
 
 void ezPropertyAnimComponent::ApplyAnimations(const ezTime& tDiff)
 {
-  if (m_fSpeed == 0.0f || m_AnimDesc == nullptr)
+  if (m_fSpeed == 0.0f || m_pAnimDesc == nullptr)
     return;
 
   const ezTime fLookupPos = ComputeAnimationLookup(tDiff);
@@ -443,8 +443,8 @@ void ezPropertyAnimComponent::ApplyAnimations(const ezTime& tDiff)
 
 ezTime ezPropertyAnimComponent::ComputeAnimationLookup(ezTime tDiff)
 {
-  m_AnimationRangeLow = ezMath::Clamp(m_AnimationRangeLow, ezTime::Zero(), m_AnimDesc->m_AnimationDuration);
-  m_AnimationRangeHigh = ezMath::Clamp(m_AnimationRangeHigh, m_AnimationRangeLow, m_AnimDesc->m_AnimationDuration);
+  m_AnimationRangeLow = ezMath::Clamp(m_AnimationRangeLow, ezTime::Zero(), m_pAnimDesc->m_AnimationDuration);
+  m_AnimationRangeHigh = ezMath::Clamp(m_AnimationRangeHigh, m_AnimationRangeLow, m_pAnimDesc->m_AnimationDuration);
 
   const ezTime duration = m_AnimationRangeHigh - m_AnimationRangeLow;
 
@@ -551,7 +551,7 @@ ezTime ezPropertyAnimComponent::ComputeAnimationLookup(ezTime tDiff)
 
 void ezPropertyAnimComponent::EvaluateEventTrack(ezTime startTime, ezTime endTime)
 {
-  const ezEventTrack& et = m_AnimDesc->m_EventTrack;
+  const ezEventTrack& et = m_pAnimDesc->m_EventTrack;
 
   if (et.IsEmpty())
     return;
@@ -576,11 +576,11 @@ void ezPropertyAnimComponent::OnSimulationStarted()
 
 void ezPropertyAnimComponent::StartPlayback()
 {
-  if (m_AnimDesc == nullptr)
+  if (m_pAnimDesc == nullptr)
     return;
 
-  m_AnimationRangeLow = ezMath::Clamp(m_AnimationRangeLow, ezTime::Zero(), m_AnimDesc->m_AnimationDuration);
-  m_AnimationRangeHigh = ezMath::Clamp(m_AnimationRangeHigh, m_AnimationRangeLow, m_AnimDesc->m_AnimationDuration);
+  m_AnimationRangeLow = ezMath::Clamp(m_AnimationRangeLow, ezTime::Zero(), m_pAnimDesc->m_AnimationDuration);
+  m_AnimationRangeHigh = ezMath::Clamp(m_AnimationRangeHigh, m_AnimationRangeLow, m_pAnimDesc->m_AnimationDuration);
 
   // when starting with a negative speed, start at the end of the animation and play backwards
   // important for play-once mode
@@ -593,7 +593,7 @@ void ezPropertyAnimComponent::StartPlayback()
     m_AnimationTime = m_AnimationRangeLow;
   }
 
-  if (!m_RandomOffset.IsZero() && m_AnimDesc->m_AnimationDuration.IsPositive())
+  if (!m_RandomOffset.IsZero() && m_pAnimDesc->m_AnimationDuration.IsPositive())
   {
     // should the random offset also be scaled by the speed factor? I guess not
     m_AnimationTime += ezMath::Abs(m_fSpeed) * ezTime::Seconds(GetWorld()->GetRandomNumberGenerator().DoubleInRange(0.0, m_RandomOffset.GetSeconds()));
@@ -791,7 +791,7 @@ void ezPropertyAnimComponent::Update()
   if (m_bPlaying == false || !m_hPropertyAnim.IsValid())
     return;
 
-  if (m_AnimDesc == nullptr)
+  if (m_pAnimDesc == nullptr)
   {
     CreatePropertyBindings();
   }

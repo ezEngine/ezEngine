@@ -60,21 +60,22 @@ ezSoundBankAssetDocumentManager::ezSoundBankAssetDocumentManager()
   m_DocTypeDesc.m_sIcon = ":/AssetIcons/Sound_Bank.png";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezSoundBankAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
+  m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Fmod_Bank");
 
   m_DocTypeDesc.m_sResourceFileExtension = "ezFmodSoundBank";
   m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::None;
 
   ezQtImageCache::GetSingleton()->RegisterTypeImage("Sound Bank", QPixmap(":/AssetIcons/Sound_Bank.png"));
 
-  m_Fmod = EZ_DEFAULT_NEW(ezSimpleFmod);
+  m_pFmod = EZ_DEFAULT_NEW(ezSimpleFmod);
 }
 
 ezSoundBankAssetDocumentManager::~ezSoundBankAssetDocumentManager()
 {
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezSoundBankAssetDocumentManager::OnDocumentManagerEvent, this));
 
-  m_Fmod->Shutdown();
-  m_Fmod.Clear();
+  m_pFmod->Shutdown();
+  m_pFmod.Clear();
 }
 
 void ezSoundBankAssetDocumentManager::FillOutSubAssetList(const ezAssetDocumentInfo& assetInfo, ezHybridArray<ezSubAssetData, 4>& out_SubAssets) const
@@ -82,7 +83,7 @@ void ezSoundBankAssetDocumentManager::FillOutSubAssetList(const ezAssetDocumentI
   ezHashedString sAssetsDocumentTypeName;
   sAssetsDocumentTypeName.Assign("Sound Event");
 
-  auto* pSystem = m_Fmod->GetSystem();
+  auto* pSystem = m_pFmod->GetSystem();
 
   ezHybridArray<FMOD::Studio::Bank*, 16> loadedBanks;
 
@@ -241,6 +242,8 @@ void ezSoundBankAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMan
       }
     }
     break;
+    default:
+      break;
   }
 }
 

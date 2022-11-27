@@ -2,6 +2,7 @@
 
 #include <EnginePluginScene/SceneContext/LayerContext.h>
 #include <EnginePluginScene/SceneContext/SceneContext.h>
+#include <RendererCore/Lights/Implementation/ShadowPool.h>
 
 
 // clang-format off
@@ -83,6 +84,8 @@ void ezLayerContext::OnInitialize()
   ezStringBuilder sVisibilityTag;
   sVisibilityTag.Format("Layer_{}", uiLayerID);
   m_LayerTag = ezTagRegistry::GetGlobalRegistry().RegisterTag(sVisibilityTag);
+
+  ezShadowPool::AddExcludeTagToWhiteList(m_LayerTag);
 }
 
 void ezLayerContext::OnDeinitialize()
@@ -101,18 +104,18 @@ void ezLayerContext::OnDeinitialize()
 
 ezEngineProcessViewContext* ezLayerContext::CreateViewContext()
 {
-  EZ_ASSERT_NOT_IMPLEMENTED("Layers should not create views.");
+  EZ_REPORT_FAILURE("Layers should not create views.");
   return nullptr;
 }
 
 void ezLayerContext::DestroyViewContext(ezEngineProcessViewContext* pContext)
 {
-  EZ_ASSERT_NOT_IMPLEMENTED("Layers should not create views.");
+  EZ_REPORT_FAILURE("Layers should not create views.");
 }
 
 bool ezLayerContext::ExportDocument(const ezExportDocumentMsgToEngine* pMsg)
 {
-  EZ_ASSERT_NOT_IMPLEMENTED("Layers do not support export yet. THe layer content is baked into the main scene instead.");
+  EZ_REPORT_FAILURE("Layers do not support export yet. THe layer content is baked into the main scene instead.");
   return false;
 }
 

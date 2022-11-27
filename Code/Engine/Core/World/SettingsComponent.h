@@ -33,5 +33,5 @@ public:
   void ResetModified(ezUInt32 uiBits = 0xFFFFFFFF) { m_uiSettingsModified &= ~uiBits; }
 
 private:
-  ezUInt32 m_uiSettingsModified;
+  ezUInt32 m_uiSettingsModified = 0xFFFFFFFF;
 };

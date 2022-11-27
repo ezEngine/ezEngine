@@ -18,9 +18,6 @@ struct ezEventMessage;
 #  undef SendMessage
 #endif
 
-/// \brief Build switch to disable velocity on game objects if it is not needed
-#define EZ_GAMEOBJECT_VELOCITY EZ_ON
-
 /// \brief This class represents an object inside the world.
 ///
 /// Game objects only consists of hierarchical data like transformation and a list of components.
@@ -516,7 +513,7 @@ private:
 
   void SendNotificationMessage(ezMessage& msg);
 
-  struct EZ_CORE_DLL EZ_ALIGN_16(TransformationData)
+  struct EZ_CORE_DLL alignas(16) TransformationData
   {
     EZ_DECLARE_POD_TYPE();
 
@@ -585,13 +582,13 @@ private:
 
   ezBitflags<ezObjectFlags> m_Flags;
 
-  ezUInt32 m_ParentIndex = 0;
-  ezUInt32 m_FirstChildIndex = 0;
-  ezUInt32 m_LastChildIndex = 0;
+  ezUInt32 m_uiParentIndex = 0;
+  ezUInt32 m_uiFirstChildIndex = 0;
+  ezUInt32 m_uiLastChildIndex = 0;
 
-  ezUInt32 m_NextSiblingIndex = 0;
-  ezUInt32 m_PrevSiblingIndex = 0;
-  ezUInt32 m_ChildCount = 0;
+  ezUInt32 m_uiNextSiblingIndex = 0;
+  ezUInt32 m_uiPrevSiblingIndex = 0;
+  ezUInt32 m_uiChildCount = 0;
 
   ezUInt16 m_uiHierarchyLevel = 0;
 

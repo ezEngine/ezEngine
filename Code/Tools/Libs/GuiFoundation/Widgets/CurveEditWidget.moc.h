@@ -20,13 +20,24 @@ class EZ_GUIFOUNDATION_DLL ezQtCurveEditWidget : public QWidget
 public:
   ezQtCurveEditWidget(QWidget* parent);
 
-  void SetCurves(ezCurveGroupData* pCurveEditData, double fMinCurveLength, bool bCurveLengthIsFixed);
+  double m_fLowerRange = -ezMath::HighValue<double>();
+  double m_fUpperRange = ezMath::HighValue<double>();
+  double m_fLowerExtent = 0.0;
+  double m_fUpperExtent = 1.0;
+  bool m_bLowerExtentFixed = false;
+  bool m_bUpperExtentFixed = false;
+
+  void SetCurves(ezCurveGroupData* pCurveEditData);
   void SetGridBarWidget(ezQGridBarWidget* pGridBar) { m_pGridBar = pGridBar; }
 
   void SetScrubberPosition(double fPosition);
-  double GetMaxCurveExtent() const { return m_fMaxCurveExtent; }
+
+  double GetMinCurveExtent() const { return m_fMinExtentValue; }
+  double GetMaxCurveExtent() const { return m_fMaxExtentValue; }
 
   void FrameCurve();
+  void FrameSelection();
+  void Frame(double offsetX, double offsetY, double width, double height);
 
   QPoint MapFromScene(const QPointF& pos) const;
   QPoint MapFromScene(const ezVec2d& pos) const { return MapFromScene(QPointF(pos.x, pos.y)); }
@@ -34,6 +45,7 @@ public:
   ezVec2 MapDirFromScene(const ezVec2& pos) const;
 
   void ClearSelection();
+  void SelectAll();
   const ezDynamicArray<ezSelectedCurveCP>& GetSelection() const { return m_SelectedCPs; }
   bool IsSelected(const ezSelectedCurveCP& cp) const;
   void SetSelection(const ezSelectedCurveCP& cp);
@@ -104,11 +116,14 @@ private:
   void PaintScrubber(QPainter& p) const;
   void RenderVerticalGrid(QPainter* painter, const QRectF& viewportSceneRect, double fRoughGridDensity);
   void RenderSideLinesAndText(QPainter* painter, const QRectF& viewportSceneRect);
+  void RenderValueRanges(QPainter* painter);
   QRectF ComputeViewportSceneRect() const;
   bool PickCpAt(const QPoint& pos, float fMaxPixelDistance, ezSelectedCurveCP& out_Result) const;
   ClickTarget DetectClickTarget(const QPoint& pos);
   void ExecMultiSelection(ezDynamicArray<ezSelectedCurveCP>& out_Selection);
-  bool CombineSelection(ezDynamicArray<ezSelectedCurveCP>& inout_Selection, const ezDynamicArray<ezSelectedCurveCP>& change, bool add);
+  bool CombineSelectionAdd(ezDynamicArray<ezSelectedCurveCP>& inout_Selection, const ezDynamicArray<ezSelectedCurveCP>& change);
+  bool CombineSelectionRemove(ezDynamicArray<ezSelectedCurveCP>& inout_Selection, const ezDynamicArray<ezSelectedCurveCP>& change);
+  bool CombineSelectionToggle(ezDynamicArray<ezSelectedCurveCP>& inout_Selection, const ezDynamicArray<ezSelectedCurveCP>& change);
   void ComputeSelectionRect();
   SelectArea WhereIsPoint(QPoint pos) const;
   ezInt32 PickCurveAt(QPoint pos) const;
@@ -123,8 +138,10 @@ private:
   ezHybridArray<ezCurve1D, 4> m_Curves;
   ezHybridArray<ezCurve1D, 4> m_CurvesSorted;
   ezHybridArray<ezVec2d, 4> m_CurveExtents;
-  double m_fMaxCurveExtent;
+  double m_fMinExtentValue;
+  double m_fMaxExtentValue;
   double m_fMinValue, m_fMaxValue;
+
 
   QPointF m_SceneTranslation;
   QPointF m_SceneToPixelScale;
@@ -142,15 +159,14 @@ private:
   bool m_bBegunChanges = false;
   bool m_bFrameBeforePaint = true;
 
-  QPoint m_multiSelectionStart;
-  QRect m_multiSelectRect;
-  QRectF m_selectionBRect;
-  QPointF m_scaleReferencePoint;
-  QPointF m_scaleStartPoint;
-  QPointF m_totalPointDrag;
+  QPoint m_MultiSelectionStart;
+  QRect m_MultiSelectRect;
+  QRectF m_SelectionBRect;
+  QPointF m_ScaleReferencePoint;
+  QPointF m_ScaleStartPoint;
+  QPointF m_TotalPointDrag;
   QRubberBand* m_pRubberband = nullptr;
 
   bool m_bShowScrubber = false;
   double m_fScrubberPosition = 0;
 };
-

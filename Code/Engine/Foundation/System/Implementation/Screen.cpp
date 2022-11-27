@@ -1,8 +1,11 @@
 #include <Foundation/FoundationPCH.h>
 
+#include <Foundation/System/PlatformFeatures.h>
 #include <Foundation/System/Screen.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#if EZ_ENABLED(EZ_SUPPORTS_GLFW)
+#  include <Foundation/System/Implementation/glfw/Screen_glfw.inl>
+#elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 #  include <Foundation/System/Implementation/Win/Screen_win32.inl>
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
 #  include <Foundation/System/Implementation/uwp/Screen_uwp.inl>

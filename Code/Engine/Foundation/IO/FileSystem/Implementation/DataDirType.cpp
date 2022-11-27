@@ -33,7 +33,7 @@ void ezDataDirectoryReaderWriterBase::Close()
   fe.m_EventType = ezFileSystem::FileEventType::CloseFile;
   fe.m_szFileOrDirectory = GetFilePath().GetData();
   fe.m_pDataDir = m_pDataDirectory;
-  ezFileSystem::s_Data->m_Event.Broadcast(fe);
+  ezFileSystem::s_pData->m_Event.Broadcast(fe);
 
   m_pDataDirectory->OnReaderWriterClose(this);
 }

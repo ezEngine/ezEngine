@@ -54,7 +54,7 @@ private:
 
 
   /// we need this matrix to compute the world space position of picked pixels
-  ezMat4 m_PickingInverseViewProjectionMatrix;
+  ezMat4 m_mPickingInverseViewProjectionMatrix;
 
   /// stores the 2D depth buffer image (32 Bit depth precision), to compute pixel positions from
   ezDynamicArray<float> m_PickingResultsDepth;

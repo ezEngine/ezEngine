@@ -21,7 +21,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezMsaaResolvePass::ezMsaaResolvePass()
-  : ezRenderPipelinePass("MsaaResolvePass")
+  : ezRenderPipelinePass("MsaaResolvePass", true)
   , m_bIsDepth(false)
   , m_MsaaSampleCount(ezGALMSAASampleCount::None)
 {
@@ -82,7 +82,7 @@ void ezMsaaResolvePass::Execute(const ezRenderViewContext& renderViewContext, co
     renderingSetup.m_RenderTargetSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(pOutput->m_TextureHandle));
 
     // Bind render target and viewport
-    auto pCommandEncoder = ezRenderContext::BeginPassAndRenderingScope(renderViewContext, std::move(renderingSetup), GetName());
+    auto pCommandEncoder = ezRenderContext::BeginPassAndRenderingScope(renderViewContext, std::move(renderingSetup), GetName(), renderViewContext.m_pCamera->IsStereoscopic());
 
     auto& globals = renderViewContext.m_pRenderContext->WriteGlobalConstants();
     globals.NumMsaaSamples = m_MsaaSampleCount;
@@ -95,13 +95,19 @@ void ezMsaaResolvePass::Execute(const ezRenderViewContext& renderViewContext, co
   }
   else
   {
-    auto pCommandEncoder = ezRenderContext::BeginPassAndRenderingScope(renderViewContext, ezGALRenderingSetup(), GetName());
+    auto pCommandEncoder = ezRenderContext::BeginPassAndRenderingScope(renderViewContext, ezGALRenderingSetup(), GetName(), renderViewContext.m_pCamera->IsStereoscopic());
 
     ezGALTextureSubresource subresource;
     subresource.m_uiMipLevel = 0;
     subresource.m_uiArraySlice = 0;
 
     pCommandEncoder->ResolveTexture(pOutput->m_TextureHandle, subresource, pInput->m_TextureHandle, subresource);
+
+    if (renderViewContext.m_pCamera->IsStereoscopic())
+    {
+      subresource.m_uiArraySlice = 1;
+      pCommandEncoder->ResolveTexture(pOutput->m_TextureHandle, subresource, pInput->m_TextureHandle, subresource);
+    }
   }
 }
 

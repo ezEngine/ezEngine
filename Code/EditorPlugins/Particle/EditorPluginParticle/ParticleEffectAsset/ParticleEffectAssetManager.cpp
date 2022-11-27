@@ -15,6 +15,7 @@ ezParticleEffectAssetDocumentManager::ezParticleEffectAssetDocumentManager()
   m_DocTypeDesc.m_sIcon = ":/AssetIcons/Particle_Effect.png";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezParticleEffectAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
+  m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Particle_Effect");
 
   m_DocTypeDesc.m_sResourceFileExtension = "ezParticleEffect";
   m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoTransformOnSave | ezAssetDocumentFlags::SupportsThumbnail;

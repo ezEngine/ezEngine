@@ -28,6 +28,8 @@
 #ifndef OZZ_OZZ_ANIMATION_OFFLINE_TOOLS_IMPORT2OZZ_H_
 #define OZZ_OZZ_ANIMATION_OFFLINE_TOOLS_IMPORT2OZZ_H_
 
+#include "ozz/animation/offline/tools/export.h"
+
 #include "ozz/base/containers/string.h"
 #include "ozz/base/containers/vector.h"
 
@@ -74,6 +76,7 @@ class OZZ_ANIMTOOLS_DLL OzzImporter {
     bool camera : 1;    // Uses camera nodes as skeleton joints.
     bool geometry : 1;  // Uses geometry nodes as skeleton joints.
     bool light : 1;     // Uses light nodes as skeleton joints.
+    bool null : 1;     // Uses null nodes as skeleton joints.
     bool any : 1;  // Uses any node type as skeleton joints, including those
                    // listed above and any other.
   };

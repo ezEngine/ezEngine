@@ -60,19 +60,19 @@ protected:
   ezResult GetPointOnPlane(ezInt32 iScreenPosX, ezInt32 iScreenPosY, ezVec3& out_Result) const;
 
 private:
-  ezVec2I32 m_LastMousePos;
-  ezVec2 m_TotalMouseDiff;
+  ezVec2I32 m_vLastMousePos;
+  ezVec2 m_vTotalMouseDiff;
 
   ezVec3 m_vLastMoveDiff;
 
   MovementMode m_MovementMode;
-  ezEngineGizmoHandle m_AxisX;
-  ezEngineGizmoHandle m_AxisY;
-  ezEngineGizmoHandle m_AxisZ;
+  ezEngineGizmoHandle m_hAxisX;
+  ezEngineGizmoHandle m_hAxisY;
+  ezEngineGizmoHandle m_hAxisZ;
 
-  ezEngineGizmoHandle m_PlaneXY;
-  ezEngineGizmoHandle m_PlaneXZ;
-  ezEngineGizmoHandle m_PlaneYZ;
+  ezEngineGizmoHandle m_hPlaneXY;
+  ezEngineGizmoHandle m_hPlaneXZ;
+  ezEngineGizmoHandle m_hPlaneYZ;
 
   TranslateMode m_Mode;
   PlaneInteraction m_LastPlaneInteraction;
@@ -84,5 +84,7 @@ private:
   ezVec3 m_vMoveAxis;
   ezVec3 m_vPlaneAxis[2];
   ezVec3 m_vStartPosition;
-  ezMat4 m_InvViewProj;
+  ezMat4 m_mInvViewProj;
+
+  bool m_bUseExperimentalGizmo = false;
 };

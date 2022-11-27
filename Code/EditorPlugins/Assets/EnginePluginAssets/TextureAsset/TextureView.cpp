@@ -50,11 +50,7 @@ void ezTextureViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
     const ezUInt32 viewHeight = pMsg->m_uiWindowHeight;
 
     ezStringBuilder sText;
-    if (ezReflectionUtils::EnumerationToString(ezGetStaticRTTI<ezGALResourceFormat>(), format, sText))
-    {
-      sText.Shrink(21, 0);
-    }
-    else
+    if (!ezReflectionUtils::EnumerationToString(ezGetStaticRTTI<ezGALResourceFormat>(), format, sText, ezReflectionUtils::EnumConversionMode::ValueNameOnly))
     {
       sText = "Unknown format";
     }

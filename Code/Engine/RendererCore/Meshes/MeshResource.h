@@ -29,6 +29,7 @@ public:
   // TODO: clean up
   ezSkeletonResourceHandle m_hDefaultSkeleton;
   ezHashTable<ezHashedString, ezMeshResourceDescriptor::BoneData> m_Bones;
+  float m_fMaxBoneVertexOffset = 0.0f; // the maximum distance between any vertex and its influencing bones, can be used for adjusting the bounding box of a pose
 
 private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
@@ -41,7 +42,7 @@ private:
 
   ezBoundingBoxSphere m_Bounds;
 
-  static ezUInt32 s_MeshBufferNameSuffix;
+  static ezUInt32 s_uiMeshBufferNameSuffix;
 };
 
 using ezMeshResourceHandle = ezTypedResourceHandle<class ezMeshResource>;

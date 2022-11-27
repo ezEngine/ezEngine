@@ -30,8 +30,7 @@ void ezGizmoRenderer::GetSupportedRenderDataCategories(ezHybridArray<ezRenderDat
   categories.PushBack(ezDefaultRenderDataCategories::SimpleForeground);
 }
 
-void ezGizmoRenderer::RenderBatch(
-  const ezRenderViewContext& renderViewContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const
+void ezGizmoRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const
 {
   bool bOnlyPickable = false;
 
@@ -86,6 +85,8 @@ void ezGizmoRenderer::RenderBatch(
 
     ezGizmoConstants& cb = pGizmoConstantBuffer->GetDataForWriting();
     cb.ObjectToWorldMatrix = pRenderData->m_GlobalTransform.GetAsMat4();
+    cb.WorldToObjectMatrix = cb.ObjectToWorldMatrix;
+    cb.WorldToObjectMatrix.Invert(0.001f).IgnoreResult(); // this can fail, if scale is 0 (which happens), doesn't matter in those cases
     cb.GizmoColor = pRenderData->m_GizmoColor;
     cb.GizmoScale = fGizmoScale;
     cb.GameObjectID = pRenderData->m_uiUniqueID;

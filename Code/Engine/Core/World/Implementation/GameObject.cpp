@@ -223,7 +223,7 @@ void ezGameObject::UpdateGlobalTransformAndBoundsRecursive()
 
 void ezGameObject::ConstChildIterator::Next()
 {
-  m_pObject = m_pWorld->GetObjectUnchecked(m_pObject->m_NextSiblingIndex);
+  m_pObject = m_pWorld->GetObjectUnchecked(m_pObject->m_uiNextSiblingIndex);
 }
 
 ezGameObject::~ezGameObject()
@@ -241,13 +241,13 @@ void ezGameObject::operator=(const ezGameObject& other)
   m_Flags = other.m_Flags;
   m_sName = other.m_sName;
 
-  m_ParentIndex = other.m_ParentIndex;
-  m_FirstChildIndex = other.m_FirstChildIndex;
-  m_LastChildIndex = other.m_LastChildIndex;
+  m_uiParentIndex = other.m_uiParentIndex;
+  m_uiFirstChildIndex = other.m_uiFirstChildIndex;
+  m_uiLastChildIndex = other.m_uiLastChildIndex;
 
-  m_NextSiblingIndex = other.m_NextSiblingIndex;
-  m_PrevSiblingIndex = other.m_PrevSiblingIndex;
-  m_ChildCount = other.m_ChildCount;
+  m_uiNextSiblingIndex = other.m_uiNextSiblingIndex;
+  m_uiPrevSiblingIndex = other.m_uiPrevSiblingIndex;
+  m_uiChildCount = other.m_uiChildCount;
 
   m_uiTeamID = other.m_uiTeamID;
 
@@ -347,12 +347,12 @@ void ezGameObject::SetParent(const ezGameObjectHandle& parent, ezGameObject::Tra
 
 ezGameObject* ezGameObject::GetParent()
 {
-  return GetWorld()->GetObjectUnchecked(m_ParentIndex);
+  return GetWorld()->GetObjectUnchecked(m_uiParentIndex);
 }
 
 const ezGameObject* ezGameObject::GetParent() const
 {
-  return GetWorld()->GetObjectUnchecked(m_ParentIndex);
+  return GetWorld()->GetObjectUnchecked(m_uiParentIndex);
 }
 
 void ezGameObject::AddChild(const ezGameObjectHandle& child, ezGameObject::TransformPreservation preserve)
@@ -383,13 +383,13 @@ void ezGameObject::DetachChild(const ezGameObjectHandle& child, ezGameObject::Tr
 ezGameObject::ChildIterator ezGameObject::GetChildren()
 {
   ezWorld* pWorld = GetWorld();
-  return ChildIterator(pWorld->GetObjectUnchecked(m_FirstChildIndex), pWorld);
+  return ChildIterator(pWorld->GetObjectUnchecked(m_uiFirstChildIndex), pWorld);
 }
 
 ezGameObject::ConstChildIterator ezGameObject::GetChildren() const
 {
   const ezWorld* pWorld = GetWorld();
-  return ConstChildIterator(pWorld->GetObjectUnchecked(m_FirstChildIndex), pWorld);
+  return ConstChildIterator(pWorld->GetObjectUnchecked(m_uiFirstChildIndex), pWorld);
 }
 
 ezGameObject* ezGameObject::FindChildByName(const ezTempHashedString& name, bool bRecursive /*= true*/)
@@ -897,7 +897,7 @@ void ezGameObject::PostMessageRecursive(const ezMessage& msg, ezTime delay, ezOb
 
 void ezGameObject::SendEventMessage(ezEventMessage& msg, const ezComponent* pSenderComponent)
 {
-  ezHybridArray<const ezComponent*, 4> eventMsgHandlers;
+  ezHybridArray<ezComponent*, 4> eventMsgHandlers;
   GetWorld()->FindEventMsgHandlers(msg, this, eventMsgHandlers);
 
   if (eventMsgHandlers.IsEmpty() == false && pSenderComponent != nullptr)
@@ -908,7 +908,7 @@ void ezGameObject::SendEventMessage(ezEventMessage& msg, const ezComponent* pSen
 
   for (auto pEventMsgHandler : eventMsgHandlers)
   {
-    const_cast<ezComponent*>(pEventMsgHandler)->SendMessage(msg);
+    pEventMsgHandler->SendMessage(msg);
   }
 }
 

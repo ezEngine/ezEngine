@@ -26,11 +26,16 @@ ezTaskGroupID ezTaskSystem::StartSingleTask(
   return Group;
 }
 
-void ezTaskSystem::TaskHasFinished(const ezSharedPtr<ezTask>& pTask, ezTaskGroup* pGroup)
+void ezTaskSystem::TaskHasFinished(ezSharedPtr<ezTask>&& pTask, ezTaskGroup* pGroup)
 {
+  // call task finished callback and deallocate the task (if last reference)
   if (pTask && pTask->m_OnTaskFinished.IsValid() && pTask->m_iRemainingRuns == 0)
   {
     pTask->m_OnTaskFinished(pTask);
+
+    // make sure to clear the task sharedptr BEFORE we mark the task (group) as finished,
+    // so that if this is the last reference, the task gets deallocated first
+    pTask.Clear();
   }
 
   if (pGroup->m_iNumRemainingTasks.Decrement() == 0)
@@ -91,13 +96,13 @@ ezTaskSystem::TaskData ezTaskSystem::GetNextTask(ezTaskPriority::Enum FirstPrior
   // go through all the task lists that this thread is willing to work on
   for (ezUInt32 prio = FirstPriority; prio <= (ezUInt32)LastPriority; ++prio)
   {
-    for (auto it = s_State->m_Tasks[prio].GetIterator(); it.IsValid(); ++it)
+    for (auto it = s_pState->m_Tasks[prio].GetIterator(); it.IsValid(); ++it)
     {
       if (!bOnlyTasksThatNeverWait || (it->m_pTask->m_NestingMode == ezTaskNesting::Never) || it->m_pBelongsToGroup == WaitingForGroup.m_pTaskGroup)
       {
         TaskData td = *it;
 
-        s_State->m_Tasks[prio].Remove(it);
+        s_pState->m_Tasks[prio].Remove(it);
         return td;
       }
     }
@@ -134,7 +139,7 @@ bool ezTaskSystem::ExecuteTask(ezTaskPriority::Enum FirstPriority, ezTaskPriorit
   tl_TaskWorkerInfo.m_szTaskName = nullptr;
 
   // notify the group, that a task is finished, which might trigger other tasks to be executed
-  TaskHasFinished(td.m_pTask, td.m_pBelongsToGroup);
+  TaskHasFinished(std::move(td.m_pTask), td.m_pBelongsToGroup);
 
   return true;
 }
@@ -170,19 +175,19 @@ ezResult ezTaskSystem::CancelTask(const ezSharedPtr<ezTask>& pTask, ezOnTaskRunn
     {
       for (ezUInt32 i = 0; i < ezTaskPriority::ENUM_COUNT; ++i)
       {
-        auto it = s_State->m_Tasks[i].GetIterator();
+        auto it = s_pState->m_Tasks[i].GetIterator();
 
         while (it.IsValid())
         {
           if (it->m_pTask == pTask)
           {
-            s_State->m_Tasks[i].Remove(it);
+            s_pState->m_Tasks[i].Remove(it);
 
             // we set the task to finished, even though it was not executed
             pTask->m_iRemainingRuns = 0;
 
             // tell the system that one task of that group is 'finished', to ensure its dependencies will get scheduled
-            TaskHasFinished(it->m_pTask, it->m_pBelongsToGroup);
+            TaskHasFinished(std::move(it->m_pTask), it->m_pBelongsToGroup);
             return EZ_SUCCESS;
           }
 
@@ -197,7 +202,8 @@ ezResult ezTaskSystem::CancelTask(const ezSharedPtr<ezTask>& pTask, ezOnTaskRunn
 
   if (OnTaskRunning == ezOnTaskRunning::WaitTillFinished)
   {
-    WaitForCondition([pTask]() { return pTask->IsTaskFinished(); });
+    WaitForCondition([pTask]()
+      { return pTask->IsTaskFinished(); });
   }
 
   return EZ_FAILURE;
@@ -222,51 +228,51 @@ void ezTaskSystem::ReprioritizeFrameTasks()
   // In this case we move them into the highest-priority 'this frame' queue, to ensure they will be executed asap
   for (ezUInt32 i = (ezUInt32)ezTaskPriority::ThisFrame; i <= (ezUInt32)ezTaskPriority::LateThisFrame; ++i)
   {
-    auto it = s_State->m_Tasks[i].GetIterator();
+    auto it = s_pState->m_Tasks[i].GetIterator();
 
     // move all 'this frame' tasks into the 'early this frame' queue
     while (it.IsValid())
     {
-      s_State->m_Tasks[ezTaskPriority::EarlyThisFrame].PushBack(*it);
+      s_pState->m_Tasks[ezTaskPriority::EarlyThisFrame].PushBack(*it);
 
       ++it;
     }
 
     // remove the tasks from their current queue
-    s_State->m_Tasks[i].Clear();
+    s_pState->m_Tasks[i].Clear();
   }
 
   for (ezUInt32 i = (ezUInt32)ezTaskPriority::EarlyNextFrame; i <= (ezUInt32)ezTaskPriority::LateNextFrame; ++i)
   {
-    auto it = s_State->m_Tasks[i].GetIterator();
+    auto it = s_pState->m_Tasks[i].GetIterator();
 
     // move all 'next frame' tasks into the 'this frame' queues
     while (it.IsValid())
     {
-      s_State->m_Tasks[i - 3].PushBack(*it);
+      s_pState->m_Tasks[i - 3].PushBack(*it);
 
       ++it;
     }
 
     // remove the tasks from their current queue
-    s_State->m_Tasks[i].Clear();
+    s_pState->m_Tasks[i].Clear();
   }
 
   for (ezUInt32 i = (ezUInt32)ezTaskPriority::In2Frames; i <= (ezUInt32)ezTaskPriority::In9Frames; ++i)
   {
-    auto it = s_State->m_Tasks[i].GetIterator();
+    auto it = s_pState->m_Tasks[i].GetIterator();
 
     // move all 'in N frames' tasks into the 'in N-1 frames' queues
     // moves 'In2Frames' into 'LateNextFrame'
     while (it.IsValid())
     {
-      s_State->m_Tasks[i - 1].PushBack(*it);
+      s_pState->m_Tasks[i - 1].PushBack(*it);
 
       ++it;
     }
 
     // remove the tasks from their current queue
-    s_State->m_Tasks[i].Clear();
+    s_pState->m_Tasks[i].Clear();
   }
 }
 
@@ -295,9 +301,9 @@ void ezTaskSystem::ExecuteSomeFrameTasks(ezTime smoothFrameTime)
   while (CurTime - LastTime < smoothFrameTime)
   {
     if (!ExecuteTask(ezTaskPriority::SomeFrameMainThread, ezTaskPriority::SomeFrameMainThread, false, ezTaskGroupID(), nullptr))
-  {
+    {
       // nothing left to do, reset the threshold
-    s_FrameTimeThreshold = smoothFrameTime;
+      s_FrameTimeThreshold = smoothFrameTime;
       return;
     }
 
@@ -308,7 +314,7 @@ void ezTaskSystem::ExecuteSomeFrameTasks(ezTime smoothFrameTime)
 
   {
     EZ_LOCK(s_TaskSystemMutex);
-    uiNumTasksTodo = s_State->m_Tasks[ezTaskPriority::SomeFrameMainThread].GetCount();
+    uiNumTasksTodo = s_pState->m_Tasks[ezTaskPriority::SomeFrameMainThread].GetCount();
   }
 
   if (uiNumTasksTodo == 0)
@@ -378,7 +384,7 @@ void ezTaskSystem::FinishFrameTasks()
     ReprioritizeFrameTasks();
   }
 
-  ExecuteSomeFrameTasks(s_State->m_TargetFrameTime);
+  ExecuteSomeFrameTasks(s_pState->m_TargetFrameTime);
 
   // Update the thread utilization
   {
@@ -393,11 +399,11 @@ void ezTaskSystem::FinishFrameTasks()
 
       for (ezUInt32 type = 0; type < ezWorkerThreadType::ENUM_COUNT; ++type)
       {
-        const ezUInt32 uiNumWorkers = s_ThreadState->m_iAllocatedWorkers[type];
+        const ezUInt32 uiNumWorkers = s_pThreadState->m_iAllocatedWorkers[type];
 
         for (ezUInt32 t = 0; t < uiNumWorkers; ++t)
         {
-          s_ThreadState->m_Workers[type][t]->UpdateThreadUtilization(tDiff);
+          s_pThreadState->m_Workers[type][t]->UpdateThreadUtilization(tDiff);
         }
       }
     }

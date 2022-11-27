@@ -24,14 +24,14 @@ public:
   ezImageDataResource();
   ~ezImageDataResource();
 
-  const ezImageDataResourceDescriptor& GetDescriptor() const { return *m_Descriptor; }
+  const ezImageDataResourceDescriptor& GetDescriptor() const { return *m_pDescriptor; }
 
 private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
   virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
 
-  ezUniquePtr<ezImageDataResourceDescriptor> m_Descriptor;
+  ezUniquePtr<ezImageDataResourceDescriptor> m_pDescriptor;
 };
 
 using ezImageDataResourceHandle = ezTypedResourceHandle<ezImageDataResource>;

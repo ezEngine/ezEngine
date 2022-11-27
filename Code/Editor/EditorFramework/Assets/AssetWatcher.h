@@ -31,6 +31,7 @@ private:
   {
     ezString sFile;
     ezDirectoryWatcherAction action;
+    ezDirectoryWatcherType type;
   };
 
   static constexpr ezUInt32 s_FrameDelay = 5;
@@ -50,6 +51,7 @@ private:
   ezHybridArray<ezDirectoryWatcher*, 6> m_Watchers;
   ezSharedPtr<ezTask> m_pWatcherTask;
   ezTaskGroupID m_WatcherGroup;
+  ezAtomicBool m_bShutdown = false;
 
   ezHybridArray<ezTaskGroupID, 4> m_DirectoryUpdates;
   ezHybridArray<PendingUpdate, 4> m_UpdateFile;

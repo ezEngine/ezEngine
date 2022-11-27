@@ -24,7 +24,10 @@ ezWindowXR::ezWindowXR(ezXRInterface* pVrInterface, ezUniquePtr<ezWindowBase> pC
 {
 }
 
-ezWindowXR::~ezWindowXR() {}
+ezWindowXR::~ezWindowXR()
+{
+  EZ_ASSERT_DEV(m_iReferenceCount == 0, "The window is still being referenced, probably by a swapchain. Make sure to destroy all swapchains and call ezGALDevice::WaitIdle before destroying a window.");
+}
 
 ezSizeU32 ezWindowXR::GetClientAreaSize() const
 {
@@ -60,7 +63,7 @@ const ezWindowBase* ezWindowXR::GetCompanionWindow() const
 
 //////////////////////////////////////////////////////////////////////////
 
-ezWindowOutputTargetXR::ezWindowOutputTargetXR(ezXRInterface* pXrInterface, ezUniquePtr<ezWindowOutputTargetBase> pCompanionWindowOutputTarget)
+ezWindowOutputTargetXR::ezWindowOutputTargetXR(ezXRInterface* pXrInterface, ezUniquePtr<ezWindowOutputTargetGAL> pCompanionWindowOutputTarget)
   : m_pXrInterface(pXrInterface)
   , m_pCompanionWindowOutputTarget(std::move(pCompanionWindowOutputTarget))
 {
@@ -70,11 +73,6 @@ ezWindowOutputTargetXR::ezWindowOutputTargetXR(ezXRInterface* pXrInterface, ezUn
     m_hCompanionShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Pipeline/VRCompanionView.ezShader");
     EZ_ASSERT_DEV(m_hCompanionShader.IsValid(), "Could not load VR companion view shader!");
     m_hCompanionConstantBuffer = ezRenderContext::CreateConstantBufferStorage<ezVRCompanionViewConstants>();
-
-    // Companion window output is assumed to be ezWindowOutputTargetGAL
-    ezWindowOutputTargetGAL* pOutputGAL = static_cast<ezWindowOutputTargetGAL*>(m_pCompanionWindowOutputTarget.Borrow());
-    const ezGALSwapChain* pSwapChain = ezGALDevice::GetDefaultDevice()->GetSwapChain(pOutputGAL->m_hSwapChain);
-    m_hCompanionRenderTarget = pSwapChain->GetBackBufferTexture();
   }
 }
 
@@ -87,18 +85,34 @@ ezWindowOutputTargetXR::~ezWindowOutputTargetXR()
 
 void ezWindowOutputTargetXR::Present(bool bEnableVSync)
 {
-  ezGALTextureHandle m_hColorRT = m_pXrInterface->Present();
-  if (m_hColorRT.IsInvalidated())
+  // Swapchain present is handled by the rendering of the view automatically and RenderCompanionView is called by the ezXRInterface now.
+}
+
+void ezWindowOutputTargetXR::RenderCompanionView(bool bThrottleCompanionView)
+{
+  ezTime currentTime = ezTime::Now();
+  if (bThrottleCompanionView && currentTime < (m_LastPresent + ezTime::Milliseconds(16)))
+    return;
+
+  m_LastPresent = currentTime;
+
+  EZ_PROFILE_SCOPE("RenderCompanionView");
+  ezGALTextureHandle m_hColorRT = m_pXrInterface->GetCurrentTexture();
+  if (m_hColorRT.IsInvalidated() || !m_pCompanionWindowOutputTarget)
     return;
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   ezRenderContext* m_pRenderContext = ezRenderContext::GetDefaultInstance();
 
-  if (const ezGALTexture* tex = pDevice->GetTexture(m_hCompanionRenderTarget))
   {
-    auto pPass = pDevice->BeginPass("VR CompanionView");
+    pDevice->BeginPipeline("VR CompanionView", m_pCompanionWindowOutputTarget->m_hSwapChain);
 
-    auto hRenderTargetView = ezGALDevice::GetDefaultDevice()->GetDefaultRenderTargetView(m_hCompanionRenderTarget);
+    auto pPass = pDevice->BeginPass("Blit CompanionView");
+
+    const ezGALSwapChain* pSwapChain = ezGALDevice::GetDefaultDevice()->GetSwapChain(m_pCompanionWindowOutputTarget->m_hSwapChain);
+    ezGALTextureHandle hCompanionRenderTarget = pSwapChain->GetBackBufferTexture();
+    const ezGALTexture* tex = pDevice->GetTexture(hCompanionRenderTarget);
+    auto hRenderTargetView = ezGALDevice::GetDefaultDevice()->GetDefaultRenderTargetView(hCompanionRenderTarget);
     ezVec2 targetSize = ezVec2((float)tex->GetDescription().m_uiWidth, (float)tex->GetDescription().m_uiHeight);
 
     ezGALRenderingSetup renderingSetup;
@@ -120,10 +134,9 @@ void ezWindowOutputTargetXR::Present(bool bEnableVSync)
     m_pRenderContext->EndRendering();
 
     pDevice->EndPass(pPass);
-  }
-  if (m_pCompanionWindowOutputTarget)
-  {
-    m_pCompanionWindowOutputTarget->Present(false);
+
+    pDevice->EndPipeline(m_pCompanionWindowOutputTarget->m_hSwapChain);
+    m_pRenderContext->ResetContextState();
   }
 }
 
@@ -143,7 +156,7 @@ const ezWindowOutputTargetBase* ezWindowOutputTargetXR::GetCompanionWindowOutput
 
 //////////////////////////////////////////////////////////////////////////
 
-ezActorPluginWindowXR::ezActorPluginWindowXR(ezXRInterface* pVrInterface, ezUniquePtr<ezWindowBase> companionWindow, ezUniquePtr<ezWindowOutputTargetBase> companionWindowOutput)
+ezActorPluginWindowXR::ezActorPluginWindowXR(ezXRInterface* pVrInterface, ezUniquePtr<ezWindowBase> companionWindow, ezUniquePtr<ezWindowOutputTargetGAL> companionWindowOutput)
   : m_pVrInterface(pVrInterface)
 {
   m_pWindow = EZ_DEFAULT_NEW(ezWindowXR, pVrInterface, std::move(companionWindow));

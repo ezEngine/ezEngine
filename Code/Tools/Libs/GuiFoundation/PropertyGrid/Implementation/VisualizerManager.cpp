@@ -22,6 +22,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, VisualizerManager)
     }
   }
 
+
 EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
@@ -44,6 +45,11 @@ void ezVisualizerManager::SetVisualizersActive(const ezDocument* pDoc, bool bAct
   m_DocsSubscribed[pDoc].m_bActivated = bActive;
 
   SendEventToRecreateVisualizers(pDoc);
+}
+
+bool ezVisualizerManager::GetVisualizersActive(const ezDocument* pDoc)
+{
+  return m_DocsSubscribed[pDoc].m_bActivated;
 }
 
 void ezVisualizerManager::SelectionEventHandler(const ezSelectionManagerEvent& event)

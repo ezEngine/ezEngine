@@ -16,292 +16,428 @@
 // ezVec2Template
 
 template <typename Type>
-inline ezStreamWriter& operator<<(ezStreamWriter& Stream, const ezVec2Template<Type>& Value)
+inline ezStreamWriter& operator<<(ezStreamWriter& stream, const ezVec2Template<Type>& Value)
 {
-  Stream << Value.x;
-  Stream << Value.y;
-  return Stream;
+  stream.WriteBytes(&Value, sizeof(ezVec2Template<Type>)).AssertSuccess();
+  return stream;
 }
 
 template <typename Type>
-inline ezStreamReader& operator>>(ezStreamReader& Stream, ezVec2Template<Type>& Value)
+inline ezStreamReader& operator>>(ezStreamReader& stream, ezVec2Template<Type>& Value)
 {
-  Stream >> Value.x;
-  Stream >> Value.y;
-  return Stream;
+  stream.ReadBytes(&Value, sizeof(ezVec2Template<Type>));
+  return stream;
 }
+
+template <typename Type>
+ezResult SerializeArray(ezStreamWriter& stream, const ezVec2Template<Type>* pArray, ezUInt64 uiCount)
+{
+  return stream.WriteBytes(pArray, sizeof(ezVec2Template<Type>) * uiCount);
+}
+
+template <typename Type>
+ezResult DeserializeArray(ezStreamReader& stream, ezVec2Template<Type>* pArray, ezUInt64 uiCount)
+{
+  const ezUInt64 uiNumBytes = sizeof(ezVec2Template<Type>) * uiCount;
+  if (stream.ReadBytes(pArray, uiNumBytes) == uiNumBytes)
+    return EZ_SUCCESS;
+
+  return EZ_FAILURE;
+}
+
 
 // ezVec3Template
 
 template <typename Type>
-inline ezStreamWriter& operator<<(ezStreamWriter& Stream, const ezVec3Template<Type>& Value)
+inline ezStreamWriter& operator<<(ezStreamWriter& stream, const ezVec3Template<Type>& Value)
 {
-  Stream << Value.x;
-  Stream << Value.y;
-  Stream << Value.z;
-  return Stream;
+  stream.WriteBytes(&Value, sizeof(ezVec3Template<Type>)).AssertSuccess();
+  return stream;
 }
 
 template <typename Type>
-inline ezStreamReader& operator>>(ezStreamReader& Stream, ezVec3Template<Type>& Value)
+inline ezStreamReader& operator>>(ezStreamReader& stream, ezVec3Template<Type>& Value)
 {
-  Stream >> Value.x;
-  Stream >> Value.y;
-  Stream >> Value.z;
-  return Stream;
+  stream.ReadBytes(&Value, sizeof(ezVec3Template<Type>));
+  return stream;
 }
+
+template <typename Type>
+ezResult SerializeArray(ezStreamWriter& stream, const ezVec3Template<Type>* pArray, ezUInt64 uiCount)
+{
+  return stream.WriteBytes(pArray, sizeof(ezVec3Template<Type>) * uiCount);
+}
+
+template <typename Type>
+ezResult DeserializeArray(ezStreamReader& stream, ezVec3Template<Type>* pArray, ezUInt64 uiCount)
+{
+  const ezUInt64 uiNumBytes = sizeof(ezVec3Template<Type>) * uiCount;
+  if (stream.ReadBytes(pArray, uiNumBytes) == uiNumBytes)
+    return EZ_SUCCESS;
+
+  return EZ_FAILURE;
+}
+
 
 // ezVec4Template
 
 template <typename Type>
-inline ezStreamWriter& operator<<(ezStreamWriter& Stream, const ezVec4Template<Type>& Value)
+inline ezStreamWriter& operator<<(ezStreamWriter& stream, const ezVec4Template<Type>& Value)
 {
-  Stream << Value.x;
-  Stream << Value.y;
-  Stream << Value.z;
-  Stream << Value.w;
-  return Stream;
+  stream.WriteBytes(&Value, sizeof(ezVec4Template<Type>)).AssertSuccess();
+  return stream;
 }
 
 template <typename Type>
-inline ezStreamReader& operator>>(ezStreamReader& Stream, ezVec4Template<Type>& Value)
+inline ezStreamReader& operator>>(ezStreamReader& stream, ezVec4Template<Type>& Value)
 {
-  Stream >> Value.x;
-  Stream >> Value.y;
-  Stream >> Value.z;
-  Stream >> Value.w;
-  return Stream;
+  stream.ReadBytes(&Value, sizeof(ezVec4Template<Type>));
+  return stream;
 }
+
+template <typename Type>
+ezResult SerializeArray(ezStreamWriter& stream, const ezVec4Template<Type>* pArray, ezUInt64 uiCount)
+{
+  return stream.WriteBytes(pArray, sizeof(ezVec4Template<Type>) * uiCount);
+}
+
+template <typename Type>
+ezResult DeserializeArray(ezStreamReader& stream, ezVec4Template<Type>* pArray, ezUInt64 uiCount)
+{
+  const ezUInt64 uiNumBytes = sizeof(ezVec4Template<Type>) * uiCount;
+  if (stream.ReadBytes(pArray, uiNumBytes) == uiNumBytes)
+    return EZ_SUCCESS;
+
+  return EZ_FAILURE;
+}
+
 
 // ezMat3Template
 
 template <typename Type>
-inline ezStreamWriter& operator<<(ezStreamWriter& Stream, const ezMat3Template<Type>& Value)
+inline ezStreamWriter& operator<<(ezStreamWriter& stream, const ezMat3Template<Type>& Value)
 {
-  for (ezUInt32 i = 0; i < 9; ++i)
-    Stream << Value.m_fElementsCM[i];
-
-  return Stream;
+  stream.WriteBytes(Value.m_fElementsCM, sizeof(Type) * 9).AssertSuccess();
+  return stream;
 }
 
 template <typename Type>
-inline ezStreamReader& operator>>(ezStreamReader& Stream, ezMat3Template<Type>& Value)
+inline ezStreamReader& operator>>(ezStreamReader& stream, ezMat3Template<Type>& Value)
 {
-  for (ezUInt32 i = 0; i < 9; ++i)
-    Stream >> Value.m_fElementsCM[i];
-
-  return Stream;
+  stream.ReadBytes(Value.m_fElementsCM, sizeof(Type) * 9);
+  return stream;
 }
+
+template <typename Type>
+ezResult SerializeArray(ezStreamWriter& stream, const ezMat3Template<Type>* pArray, ezUInt64 uiCount)
+{
+  return stream.WriteBytes(pArray, sizeof(ezMat3Template<Type>) * uiCount);
+}
+
+template <typename Type>
+ezResult DeserializeArray(ezStreamReader& stream, ezMat3Template<Type>* pArray, ezUInt64 uiCount)
+{
+  const ezUInt64 uiNumBytes = sizeof(ezMat3Template<Type>) * uiCount;
+  if (stream.ReadBytes(pArray, uiNumBytes) == uiNumBytes)
+    return EZ_SUCCESS;
+
+  return EZ_FAILURE;
+}
+
 
 // ezMat4Template
 
 template <typename Type>
-inline ezStreamWriter& operator<<(ezStreamWriter& Stream, const ezMat4Template<Type>& Value)
+inline ezStreamWriter& operator<<(ezStreamWriter& stream, const ezMat4Template<Type>& Value)
 {
-  for (ezUInt32 i = 0; i < 16; ++i)
-    Stream << Value.m_fElementsCM[i];
-
-  return Stream;
+  stream.WriteBytes(Value.m_fElementsCM, sizeof(Type) * 16).AssertSuccess();
+  return stream;
 }
 
 template <typename Type>
-inline ezStreamReader& operator>>(ezStreamReader& Stream, ezMat4Template<Type>& Value)
+inline ezStreamReader& operator>>(ezStreamReader& stream, ezMat4Template<Type>& Value)
 {
-  for (ezUInt32 i = 0; i < 16; ++i)
-    Stream >> Value.m_fElementsCM[i];
-
-  return Stream;
+  stream.ReadBytes(Value.m_fElementsCM, sizeof(Type) * 16);
+  return stream;
 }
+
+template <typename Type>
+ezResult SerializeArray(ezStreamWriter& stream, const ezMat4Template<Type>* pArray, ezUInt64 uiCount)
+{
+  return stream.WriteBytes(pArray, sizeof(ezMat4Template<Type>) * uiCount);
+}
+
+template <typename Type>
+ezResult DeserializeArray(ezStreamReader& stream, ezMat4Template<Type>* pArray, ezUInt64 uiCount)
+{
+  const ezUInt64 uiNumBytes = sizeof(ezMat4Template<Type>) * uiCount;
+  if (stream.ReadBytes(pArray, uiNumBytes) == uiNumBytes)
+    return EZ_SUCCESS;
+
+  return EZ_FAILURE;
+}
+
 
 // ezTransformTemplate
 
 template <typename Type>
-inline ezStreamWriter& operator<<(ezStreamWriter& Stream, const ezTransformTemplate<Type>& Value)
+inline ezStreamWriter& operator<<(ezStreamWriter& stream, const ezTransformTemplate<Type>& Value)
 {
-  Stream << Value.m_qRotation;
-  Stream << Value.m_vPosition;
-  Stream << Value.m_vScale;
+  stream << Value.m_qRotation;
+  stream << Value.m_vPosition;
+  stream << Value.m_vScale;
 
-  return Stream;
+  return stream;
 }
 
 template <typename Type>
-inline ezStreamReader& operator>>(ezStreamReader& Stream, ezTransformTemplate<Type>& Value)
+inline ezStreamReader& operator>>(ezStreamReader& stream, ezTransformTemplate<Type>& Value)
 {
-  Stream >> Value.m_qRotation;
-  Stream >> Value.m_vPosition;
-  Stream >> Value.m_vScale;
+  stream >> Value.m_qRotation;
+  stream >> Value.m_vPosition;
+  stream >> Value.m_vScale;
 
-  return Stream;
+  return stream;
 }
 
 // ezPlaneTemplate
 
 template <typename Type>
-inline ezStreamWriter& operator<<(ezStreamWriter& Stream, const ezPlaneTemplate<Type>& Value)
+inline ezStreamWriter& operator<<(ezStreamWriter& stream, const ezPlaneTemplate<Type>& Value)
 {
-  Stream << Value.m_vNormal.x;
-  Stream << Value.m_vNormal.y;
-  Stream << Value.m_vNormal.z;
-  Stream << Value.m_fNegDistance;
-  return Stream;
+  stream.WriteBytes(&Value, sizeof(ezPlaneTemplate<Type>)).AssertSuccess();
+  return stream;
 }
 
 template <typename Type>
-inline ezStreamReader& operator>>(ezStreamReader& Stream, ezPlaneTemplate<Type>& Value)
+inline ezStreamReader& operator>>(ezStreamReader& stream, ezPlaneTemplate<Type>& Value)
 {
-  Stream >> Value.m_vNormal.x;
-  Stream >> Value.m_vNormal.y;
-  Stream >> Value.m_vNormal.z;
-  Stream >> Value.m_fNegDistance;
-  return Stream;
+  stream.ReadBytes(&Value, sizeof(ezPlaneTemplate<Type>));
+  return stream;
 }
+
+template <typename Type>
+ezResult SerializeArray(ezStreamWriter& stream, const ezPlaneTemplate<Type>* pArray, ezUInt64 uiCount)
+{
+  return stream.WriteBytes(pArray, sizeof(ezPlaneTemplate<Type>) * uiCount);
+}
+
+template <typename Type>
+ezResult DeserializeArray(ezStreamReader& stream, ezPlaneTemplate<Type>* pArray, ezUInt64 uiCount)
+{
+  const ezUInt64 uiNumBytes = sizeof(ezPlaneTemplate<Type>) * uiCount;
+  if (stream.ReadBytes(pArray, uiNumBytes) == uiNumBytes)
+    return EZ_SUCCESS;
+
+  return EZ_FAILURE;
+}
+
 
 // ezQuatTemplate
 
 template <typename Type>
-inline ezStreamWriter& operator<<(ezStreamWriter& Stream, const ezQuatTemplate<Type>& Value)
+inline ezStreamWriter& operator<<(ezStreamWriter& stream, const ezQuatTemplate<Type>& Value)
 {
-  Stream << Value.v.x;
-  Stream << Value.v.y;
-  Stream << Value.v.z;
-  Stream << Value.w;
-  return Stream;
+  stream.WriteBytes(&Value, sizeof(ezQuatTemplate<Type>)).AssertSuccess();
+  return stream;
 }
 
 template <typename Type>
-inline ezStreamReader& operator>>(ezStreamReader& Stream, ezQuatTemplate<Type>& Value)
+inline ezStreamReader& operator>>(ezStreamReader& stream, ezQuatTemplate<Type>& Value)
 {
-  Stream >> Value.v.x;
-  Stream >> Value.v.y;
-  Stream >> Value.v.z;
-  Stream >> Value.w;
-  return Stream;
+  stream.ReadBytes(&Value, sizeof(ezQuatTemplate<Type>));
+  return stream;
 }
+
+template <typename Type>
+ezResult SerializeArray(ezStreamWriter& stream, const ezQuatTemplate<Type>* pArray, ezUInt64 uiCount)
+{
+  return stream.WriteBytes(pArray, sizeof(ezQuatTemplate<Type>) * uiCount);
+}
+
+template <typename Type>
+ezResult DeserializeArray(ezStreamReader& stream, ezQuatTemplate<Type>* pArray, ezUInt64 uiCount)
+{
+  const ezUInt64 uiNumBytes = sizeof(ezQuatTemplate<Type>) * uiCount;
+  if (stream.ReadBytes(pArray, uiNumBytes) == uiNumBytes)
+    return EZ_SUCCESS;
+
+  return EZ_FAILURE;
+}
+
 
 // ezBoundingBoxTemplate
 
 template <typename Type>
-inline ezStreamWriter& operator<<(ezStreamWriter& Stream, const ezBoundingBoxTemplate<Type>& Value)
+inline ezStreamWriter& operator<<(ezStreamWriter& stream, const ezBoundingBoxTemplate<Type>& Value)
 {
-  Stream << Value.m_vMax;
-  Stream << Value.m_vMin;
-  return Stream;
+  stream << Value.m_vMax;
+  stream << Value.m_vMin;
+  return stream;
 }
 
 template <typename Type>
-inline ezStreamReader& operator>>(ezStreamReader& Stream, ezBoundingBoxTemplate<Type>& Value)
+inline ezStreamReader& operator>>(ezStreamReader& stream, ezBoundingBoxTemplate<Type>& Value)
 {
-  Stream >> Value.m_vMax;
-  Stream >> Value.m_vMin;
-  return Stream;
+  stream >> Value.m_vMax;
+  stream >> Value.m_vMin;
+  return stream;
 }
 
 // ezBoundingSphereTemplate
 
 template <typename Type>
-inline ezStreamWriter& operator<<(ezStreamWriter& Stream, const ezBoundingSphereTemplate<Type>& Value)
+inline ezStreamWriter& operator<<(ezStreamWriter& stream, const ezBoundingSphereTemplate<Type>& Value)
 {
-  Stream << Value.m_vCenter;
-  Stream << Value.m_fRadius;
-  return Stream;
+  stream << Value.m_vCenter;
+  stream << Value.m_fRadius;
+  return stream;
 }
 
 template <typename Type>
-inline ezStreamReader& operator>>(ezStreamReader& Stream, ezBoundingSphereTemplate<Type>& Value)
+inline ezStreamReader& operator>>(ezStreamReader& stream, ezBoundingSphereTemplate<Type>& Value)
 {
-  Stream >> Value.m_vCenter;
-  Stream >> Value.m_fRadius;
-  return Stream;
+  stream >> Value.m_vCenter;
+  stream >> Value.m_fRadius;
+  return stream;
 }
 
 // ezBoundingBoxSphereTemplate
 
 template <typename Type>
-inline ezStreamWriter& operator<<(ezStreamWriter& Stream, const ezBoundingBoxSphereTemplate<Type>& Value)
+inline ezStreamWriter& operator<<(ezStreamWriter& stream, const ezBoundingBoxSphereTemplate<Type>& Value)
 {
-  Stream << Value.m_vCenter;
-  Stream << Value.m_fSphereRadius;
-  Stream << Value.m_vBoxHalfExtends;
-  return Stream;
+  stream << Value.m_vCenter;
+  stream << Value.m_fSphereRadius;
+  stream << Value.m_vBoxHalfExtends;
+  return stream;
 }
 
 template <typename Type>
-inline ezStreamReader& operator>>(ezStreamReader& Stream, ezBoundingBoxSphereTemplate<Type>& Value)
+inline ezStreamReader& operator>>(ezStreamReader& stream, ezBoundingBoxSphereTemplate<Type>& Value)
 {
-  Stream >> Value.m_vCenter;
-  Stream >> Value.m_fSphereRadius;
-  Stream >> Value.m_vBoxHalfExtends;
-  return Stream;
+  stream >> Value.m_vCenter;
+  stream >> Value.m_fSphereRadius;
+  stream >> Value.m_vBoxHalfExtends;
+  return stream;
 }
 
 // ezColor
-inline ezStreamWriter& operator<<(ezStreamWriter& Stream, const ezColor& Value)
+inline ezStreamWriter& operator<<(ezStreamWriter& stream, const ezColor& Value)
 {
-  Stream << Value.r;
-  Stream << Value.g;
-  Stream << Value.b;
-  Stream << Value.a;
-  return Stream;
+  stream.WriteBytes(&Value, sizeof(ezColor)).AssertSuccess();
+  return stream;
 }
 
-inline ezStreamReader& operator>>(ezStreamReader& Stream, ezColor& Value)
+inline ezStreamReader& operator>>(ezStreamReader& stream, ezColor& Value)
 {
-  Stream >> Value.r;
-  Stream >> Value.g;
-  Stream >> Value.b;
-  Stream >> Value.a;
-  return Stream;
+  stream.ReadBytes(&Value, sizeof(ezColor));
+  return stream;
 }
+
+inline ezResult SerializeArray(ezStreamWriter& stream, const ezColor* pArray, ezUInt64 uiCount)
+{
+  return stream.WriteBytes(pArray, sizeof(ezColor) * uiCount);
+}
+
+template <typename Type>
+ezResult DeserializeArray(ezStreamReader& stream, ezColor* pArray, ezUInt64 uiCount)
+{
+  const ezUInt64 uiNumBytes = sizeof(ezColor) * uiCount;
+  if (stream.ReadBytes(pArray, uiNumBytes) == uiNumBytes)
+    return EZ_SUCCESS;
+
+  return EZ_FAILURE;
+}
+
 
 // ezColorGammaUB
-inline ezStreamWriter& operator<<(ezStreamWriter& Stream, const ezColorGammaUB& Value)
+inline ezStreamWriter& operator<<(ezStreamWriter& stream, const ezColorGammaUB& Value)
 {
-  Stream << Value.r;
-  Stream << Value.g;
-  Stream << Value.b;
-  Stream << Value.a;
-  return Stream;
+  stream.WriteBytes(&Value, sizeof(ezColorGammaUB)).AssertSuccess();
+  return stream;
 }
 
-inline ezStreamReader& operator>>(ezStreamReader& Stream, ezColorGammaUB& Value)
+inline ezStreamReader& operator>>(ezStreamReader& stream, ezColorGammaUB& Value)
 {
-  Stream >> Value.r;
-  Stream >> Value.g;
-  Stream >> Value.b;
-  Stream >> Value.a;
-  return Stream;
+  stream.ReadBytes(&Value, sizeof(ezColorGammaUB));
+  return stream;
 }
+
+template <typename Type>
+ezResult SerializeArray(ezStreamWriter& stream, const ezColorGammaUB* pArray, ezUInt64 uiCount)
+{
+  return stream.WriteBytes(pArray, sizeof(ezColorGammaUB) * uiCount);
+}
+
+template <typename Type>
+ezResult DeserializeArray(ezStreamReader& stream, ezColorGammaUB* pArray, ezUInt64 uiCount)
+{
+  const ezUInt64 uiNumBytes = sizeof(ezColorGammaUB) * uiCount;
+  if (stream.ReadBytes(pArray, uiNumBytes) == uiNumBytes)
+    return EZ_SUCCESS;
+
+  return EZ_FAILURE;
+}
+
 
 // ezAngle
-inline ezStreamWriter& operator<<(ezStreamWriter& Stream, const ezAngle& Value)
+inline ezStreamWriter& operator<<(ezStreamWriter& stream, const ezAngle& Value)
 {
-  Stream << Value.GetRadian();
-  return Stream;
+  stream << Value.GetRadian();
+  return stream;
 }
 
-inline ezStreamReader& operator>>(ezStreamReader& Stream, ezAngle& Value)
+inline ezStreamReader& operator>>(ezStreamReader& stream, ezAngle& Value)
 {
   float fRadian;
-  Stream >> fRadian;
+  stream >> fRadian;
   Value.SetRadian(fRadian);
-  return Stream;
-}
-// ezColor8Unorm
-inline ezStreamWriter& operator<<(ezStreamWriter& Stream, const ezColorLinearUB& Value)
-{
-  Stream << Value.r;
-  Stream << Value.g;
-  Stream << Value.b;
-  Stream << Value.a;
-  return Stream;
+  return stream;
 }
 
-inline ezStreamReader& operator>>(ezStreamReader& Stream, ezColorLinearUB& Value)
+template <typename Type>
+ezResult SerializeArray(ezStreamWriter& stream, const ezAngle* pArray, ezUInt64 uiCount)
 {
-  Stream >> Value.r;
-  Stream >> Value.g;
-  Stream >> Value.b;
-  Stream >> Value.a;
-  return Stream;
+  return stream.WriteBytes(pArray, sizeof(ezAngle) * uiCount);
+}
+
+template <typename Type>
+ezResult DeserializeArray(ezStreamReader& stream, ezAngle* pArray, ezUInt64 uiCount)
+{
+  const ezUInt64 uiNumBytes = sizeof(ezAngle) * uiCount;
+  if (stream.ReadBytes(pArray, uiNumBytes) == uiNumBytes)
+    return EZ_SUCCESS;
+
+  return EZ_FAILURE;
+}
+
+
+// ezColor8Unorm
+inline ezStreamWriter& operator<<(ezStreamWriter& stream, const ezColorLinearUB& Value)
+{
+  stream.WriteBytes(&Value, sizeof(ezColorLinearUB)).AssertSuccess();
+  return stream;
+}
+
+inline ezStreamReader& operator>>(ezStreamReader& stream, ezColorLinearUB& Value)
+{
+  stream.ReadBytes(&Value, sizeof(ezColorLinearUB));
+  return stream;
+}
+
+template <typename Type>
+ezResult SerializeArray(ezStreamWriter& stream, const ezColorLinearUB* pArray, ezUInt64 uiCount)
+{
+  return stream.WriteBytes(pArray, sizeof(ezColorLinearUB) * uiCount);
+}
+
+template <typename Type>
+ezResult DeserializeArray(ezStreamReader& stream, ezColorLinearUB* pArray, ezUInt64 uiCount)
+{
+  const ezUInt64 uiNumBytes = sizeof(ezColorLinearUB) * uiCount;
+  if (stream.ReadBytes(pArray, uiNumBytes) == uiNumBytes)
+    return EZ_SUCCESS;
+
+  return EZ_FAILURE;
 }

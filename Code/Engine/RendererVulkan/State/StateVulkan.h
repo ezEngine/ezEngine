@@ -8,7 +8,7 @@
 class EZ_RENDERERVULKAN_DLL ezGALBlendStateVulkan : public ezGALBlendState
 {
 public:
-  EZ_ALWAYS_INLINE vk::PipelineColorBlendStateCreateInfo* GetDXBlendState() const;
+  EZ_ALWAYS_INLINE const vk::PipelineColorBlendStateCreateInfo* GetBlendState() const;
 
 protected:
   friend class ezGALDeviceVulkan;
@@ -29,7 +29,7 @@ protected:
 class EZ_RENDERERVULKAN_DLL ezGALDepthStencilStateVulkan : public ezGALDepthStencilState
 {
 public:
-  EZ_ALWAYS_INLINE vk::PipelineDepthStencilStateCreateInfo* GetDepthStencilState() const;
+  EZ_ALWAYS_INLINE const vk::PipelineDepthStencilStateCreateInfo* GetDepthStencilState() const;
 
 protected:
   friend class ezGALDeviceVulkan;
@@ -49,7 +49,7 @@ protected:
 class EZ_RENDERERVULKAN_DLL ezGALRasterizerStateVulkan : public ezGALRasterizerState
 {
 public:
-  EZ_ALWAYS_INLINE vk::PipelineRasterizationStateCreateInfo* GetRasterizerState() const;
+  EZ_ALWAYS_INLINE const vk::PipelineRasterizationStateCreateInfo* GetRasterizerState() const;
 
 protected:
   friend class ezGALDeviceVulkan;
@@ -69,22 +69,19 @@ protected:
 class EZ_RENDERERVULKAN_DLL ezGALSamplerStateVulkan : public ezGALSamplerState
 {
 public:
-  EZ_ALWAYS_INLINE vk::DescriptorSetLayoutBinding* GetSamplerState() const;
+  EZ_ALWAYS_INLINE const vk::DescriptorImageInfo& GetImageInfo() const;
 
 protected:
   friend class ezGALDeviceVulkan;
   friend class ezMemoryUtils;
 
   ezGALSamplerStateVulkan(const ezGALSamplerStateCreationDescription& Description);
-
   ~ezGALSamplerStateVulkan();
 
   virtual ezResult InitPlatform(ezGALDevice* pDevice) override;
-
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
 
-  vk::Sampler m_sampler = {};
-  vk::DescriptorSetLayoutBinding m_samplerState = {};
+  vk::DescriptorImageInfo m_resourceImageInfo;
 };
 
 

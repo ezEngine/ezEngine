@@ -16,26 +16,26 @@ void ezCapsuleVisualizerAdapter::Finalize()
 
   const ezCapsuleVisualizerAttribute* pAttr = static_cast<const ezCapsuleVisualizerAttribute*>(m_pVisualizerAttr);
 
-  m_Cylinder.Configure(nullptr, ezEngineGizmoHandleType::CylinderZ, pAttr->m_Color, false, false, true);
-  m_SphereTop.Configure(nullptr, ezEngineGizmoHandleType::HalfSphereZ, pAttr->m_Color, false, false, true);
-  m_SphereBottom.Configure(nullptr, ezEngineGizmoHandleType::HalfSphereZ, pAttr->m_Color, false, false, true);
+  m_hCylinder.ConfigureHandle(nullptr, ezEngineGizmoHandleType::CylinderZ, pAttr->m_Color, ezGizmoFlags::Visualizer | ezGizmoFlags::ShowInOrtho);
+  m_hSphereTop.ConfigureHandle(nullptr, ezEngineGizmoHandleType::HalfSphereZ, pAttr->m_Color, ezGizmoFlags::Visualizer | ezGizmoFlags::ShowInOrtho);
+  m_hSphereBottom.ConfigureHandle(nullptr, ezEngineGizmoHandleType::HalfSphereZ, pAttr->m_Color, ezGizmoFlags::Visualizer | ezGizmoFlags::ShowInOrtho);
 
-  pAssetDocument->AddSyncObject(&m_Cylinder);
-  pAssetDocument->AddSyncObject(&m_SphereTop);
-  pAssetDocument->AddSyncObject(&m_SphereBottom);
+  pAssetDocument->AddSyncObject(&m_hCylinder);
+  pAssetDocument->AddSyncObject(&m_hSphereTop);
+  pAssetDocument->AddSyncObject(&m_hSphereBottom);
 
-  m_Cylinder.SetVisible(m_bVisualizerIsVisible);
-  m_SphereTop.SetVisible(m_bVisualizerIsVisible);
-  m_SphereBottom.SetVisible(m_bVisualizerIsVisible);
+  m_hCylinder.SetVisible(m_bVisualizerIsVisible);
+  m_hSphereTop.SetVisible(m_bVisualizerIsVisible);
+  m_hSphereBottom.SetVisible(m_bVisualizerIsVisible);
 }
 
 void ezCapsuleVisualizerAdapter::Update()
 {
   const ezCapsuleVisualizerAttribute* pAttr = static_cast<const ezCapsuleVisualizerAttribute*>(m_pVisualizerAttr);
   ezObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
-  m_Cylinder.SetVisible(m_bVisualizerIsVisible);
-  m_SphereTop.SetVisible(m_bVisualizerIsVisible);
-  m_SphereBottom.SetVisible(m_bVisualizerIsVisible);
+  m_hCylinder.SetVisible(m_bVisualizerIsVisible);
+  m_hSphereTop.SetVisible(m_bVisualizerIsVisible);
+  m_hSphereBottom.SetVisible(m_bVisualizerIsVisible);
 
   m_fRadius = 1.0f;
   m_fHeight = 0.0f;
@@ -71,9 +71,9 @@ void ezCapsuleVisualizerAdapter::Update()
     pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetColorProperty()), value);
 
     EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<ezColor>(), "Invalid property bound to ezCapsuleVisualizerAttribute 'color'");
-    m_SphereTop.SetColor(value.ConvertTo<ezColor>() * pAttr->m_Color);
-    m_SphereBottom.SetColor(value.ConvertTo<ezColor>() * pAttr->m_Color);
-    m_Cylinder.SetColor(value.ConvertTo<ezColor>() * pAttr->m_Color);
+    m_hSphereTop.SetColor(value.ConvertTo<ezColor>() * pAttr->m_Color);
+    m_hSphereBottom.SetColor(value.ConvertTo<ezColor>() * pAttr->m_Color);
+    m_hCylinder.SetColor(value.ConvertTo<ezColor>() * pAttr->m_Color);
   }
 }
 
@@ -82,11 +82,11 @@ void ezCapsuleVisualizerAdapter::UpdateGizmoTransform()
   ezVec3 vOffset = ezVec3::ZeroVector();
 
   if (m_Anchor.IsSet(ezVisualizerAnchor::PosX))
-      vOffset.x -= m_fRadius;
+    vOffset.x -= m_fRadius;
   if (m_Anchor.IsSet(ezVisualizerAnchor::NegX))
     vOffset.x += m_fRadius;
   if (m_Anchor.IsSet(ezVisualizerAnchor::PosY))
-      vOffset.y -= m_fRadius;
+    vOffset.y -= m_fRadius;
   if (m_Anchor.IsSet(ezVisualizerAnchor::NegY))
     vOffset.y += m_fRadius;
   if (m_Anchor.IsSet(ezVisualizerAnchor::PosZ))
@@ -111,7 +111,7 @@ void ezCapsuleVisualizerAdapter::UpdateGizmoTransform()
   tCylinder.m_vScale = ezVec3(m_fRadius, m_fRadius, m_fHeight);
   tCylinder.m_vPosition += vOffset;
 
-  m_SphereTop.SetTransformation(GetObjectTransform() * tSphereTop);
-  m_SphereBottom.SetTransformation(GetObjectTransform() * tSphereBottom);
-  m_Cylinder.SetTransformation(GetObjectTransform() * tCylinder);
+  m_hSphereTop.SetTransformation(GetObjectTransform() * tSphereTop);
+  m_hSphereBottom.SetTransformation(GetObjectTransform() * tSphereBottom);
+  m_hCylinder.SetTransformation(GetObjectTransform() * tCylinder);
 }

@@ -95,7 +95,7 @@ public:
   bool TestAndSet(bool expected, bool newValue);
 
 private:
-  ezAtomicInteger<ezInt32> m_AtomicInt;
+  ezAtomicInteger<ezInt32> m_iAtomicInt;
 };
 
 // Include inline file

@@ -12,7 +12,7 @@ class EZ_FOUNDATION_DLL ezStringUtils
 public:
   /// \brief Returns true, if the given string is a nullptr pointer or a string that immediately terminates with a '\0' character.
   template <typename T>
-  static bool IsNullOrEmpty(const T* pString); // [tested]
+  static constexpr bool IsNullOrEmpty(const T* pString); // [tested]
 
   /// \brief Returns true, if the given string is a nullptr pointer, is equal to its end or a string that immediately terminates with a '\0'
   /// character.
@@ -30,7 +30,17 @@ public:
   /// Equal to the amount of bytes in a string, if used on non-ASCII (i.e. UTF-8) strings.
   /// Equal to the number of characters in a string, if used with UTF-32 strings.
   template <typename T>
-  static ezUInt32 GetStringElementCount(const T* pString, const T* pStringEnd = (const T*)-1); // [tested]
+  static constexpr ezUInt32 GetStringElementCount(const T* pString); // [tested]
+
+  /// \brief Returns the number of elements of type T that the string contains, until it hits an element that is zero OR until it hits the
+  /// end pointer.
+  ///
+  /// Equal to the string length, if used with pure ASCII strings.
+  /// Equal to the amount of bytes in a string, if used on non-ASCII (i.e. UTF-8) strings.
+  /// Equal to the number of characters in a string, if used with UTF-32 strings.
+  template <typename T>
+  static ezUInt32 GetStringElementCount(const T* pString, const T* pStringEnd); // [tested]
+
 
   /// \brief Returns the number of characters (not Bytes!) in a Utf8 string (excluding the zero terminator), until it hits zero or the end
   /// pointer.
@@ -46,8 +56,7 @@ public:
   /// Multi-byte UTF-8 characters will only be copied, if they can fit completely into szDest.
   /// I.e. they will be truncated at a character boundary.
   /// Returns the number of bytes that were copied into szDest, excluding the terminating \0
-  static ezUInt32 Copy(
-    char* szDest, ezUInt32 uiDstSize, const char* szSource, const char* pSourceEnd = ezUnicodeUtils::GetMaxStringEnd<char>()); // [tested]
+  static ezUInt32 Copy(char* szDest, ezUInt32 uiDstSize, const char* szSource, const char* pSourceEnd = ezUnicodeUtils::GetMaxStringEnd<char>()); // [tested]
 
   /// \brief Copies up to uiCharsToCopy characters into the given buffer, which can hold at least uiDstSize bytes.
   ///
@@ -201,20 +210,19 @@ public:
 
 
   /// \brief Searches for the first occurrence of szStringToFind in szSource.
-  static const char* FindSubString(
-    const char* szSource, const char* szStringToFind, const char* pSourceEnd = ezUnicodeUtils::GetMaxStringEnd<char>()); // [tested]
+  static const char* FindSubString(const char* szSource, const char* szStringToFind, const char* pSourceEnd = ezUnicodeUtils::GetMaxStringEnd<char>(), const char* szStringToFindEnd = ezUnicodeUtils::GetMaxStringEnd<char>()); // [tested]
 
   /// \brief Searches for the first occurrence of szStringToFind in szSource. Ignores case.
   static const char* FindSubString_NoCase(const char* szSource, const char* szStringToFind,
-    const char* pSourceEnd = ezUnicodeUtils::GetMaxStringEnd<char>()); // [tested]
+    const char* pSourceEnd = ezUnicodeUtils::GetMaxStringEnd<char>(), const char* szStringToFindEnd = ezUnicodeUtils::GetMaxStringEnd<char>()); // [tested]
 
   /// \brief Searches for the last occurrence of szStringToFind in szSource before szStartSearchAt.
   static const char* FindLastSubString(const char* szSource, const char* szStringToFind, const char* szStartSearchAt = nullptr,
-    const char* pSourceEnd = ezUnicodeUtils::GetMaxStringEnd<char>()); // [tested]
+    const char* pSourceEnd = ezUnicodeUtils::GetMaxStringEnd<char>(), const char* szStringToFindEnd = ezUnicodeUtils::GetMaxStringEnd<char>()); // [tested]
 
   /// \brief Searches for the last occurrence of szStringToFind in szSource before szStartSearchAt. Ignores case.
   static const char* FindLastSubString_NoCase(const char* szSource, const char* szStringToFind, const char* szStartSearchAt = nullptr,
-    const char* pSourceEnd = ezUnicodeUtils::GetMaxStringEnd<char>()); // [tested]
+    const char* pSourceEnd = ezUnicodeUtils::GetMaxStringEnd<char>(), const char* szStringToFindEnd = ezUnicodeUtils::GetMaxStringEnd<char>()); // [tested]
 
   /// \brief Function Definition for a function that determines whether a (Utf32) character belongs to a certain category of characters.
   using EZ_CHARACTER_FILTER = bool (*)(ezUInt32 uiChar);
@@ -278,8 +286,7 @@ public:
   static ezResult FindUIntAtTheEnd(const char* szString, ezUInt32& out_uiValue, ezUInt32* pStringLengthBeforeUInt = nullptr); // [tested]
 
   /// \brief [internal] Prefer to use snprintf.
-  static void OutputFormattedInt(
-    char* szOutputBuffer, ezUInt32 uiBufferSize, ezUInt32& uiWritePos, ezInt64 value, ezUInt8 uiWidth, bool bPadZeros, ezUInt8 uiBase);
+  static void OutputFormattedInt(char* szOutputBuffer, ezUInt32 uiBufferSize, ezUInt32& uiWritePos, ezInt64 value, ezUInt8 uiWidth, bool bPadZeros, ezUInt8 uiBase);
   /// \brief [internal] Prefer to use snprintf.
   static void OutputFormattedUInt(char* szOutputBuffer, ezUInt32 uiBufferSize, ezUInt32& uiWritePos, ezUInt64 value, ezUInt8 uiWidth, bool bPadZeros,
     ezUInt8 uiBase, bool bUpperCase);
@@ -293,7 +300,9 @@ public:
   static ezAtomicInteger32 g_MaxUsedStringLength;
   static ezAtomicInteger32 g_UsedStringLengths[256];
 #else
-  EZ_ALWAYS_INLINE static void AddUsedStringLength(ezUInt32) {}
+  EZ_ALWAYS_INLINE static void AddUsedStringLength(ezUInt32)
+  {
+  }
   EZ_ALWAYS_INLINE static void PrintStringLengthStatistics() {}
 #endif
 };

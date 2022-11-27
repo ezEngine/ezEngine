@@ -61,6 +61,8 @@ namespace ezMemoryPolicies
       {
         while (uiSize > m_uiNextBucketSize)
         {
+          EZ_ASSERT_DEBUG(m_uiNextBucketSize > 0, "");
+
           m_uiNextBucketSize *= 2;
         }
 

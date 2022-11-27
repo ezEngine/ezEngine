@@ -9,7 +9,7 @@
 #include <QVBoxLayout>
 
 ezQtLayerPanel::ezQtLayerPanel(QWidget* pParent, ezScene2Document* pDocument)
-  : ezQtDocumentPanel(pParent)
+  : ezQtDocumentPanel(pParent, pDocument)
 {
   setObjectName("LayerPanel");
   setWindowTitle("Layers");

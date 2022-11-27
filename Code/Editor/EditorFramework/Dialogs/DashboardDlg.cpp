@@ -50,13 +50,13 @@ ezQtDashboardDlg::ezQtDashboardDlg(QWidget* parent, DashboardTab activeTab)
   SetActiveTab(activeTab);
 }
 
-void ezQtDashboardDlg::SetActiveTab(DashboardTab tab)
+void ezQtDashboardDlg::SetActiveTab(DashboardTab activeTab)
 {
-  TabArea->setCurrentIndex((int)tab);
+  TabArea->setCurrentIndex((int)activeTab);
 
-  ProjectsTab->setChecked(tab == DashboardTab::Projects);
-  SamplesTab->setChecked(tab == DashboardTab::Samples);
-  DocumentationTab->setChecked(tab == DashboardTab::Documentation);
+  ProjectsTab->setChecked(activeTab == DashboardTab::Projects);
+  SamplesTab->setChecked(activeTab == DashboardTab::Samples);
+  DocumentationTab->setChecked(activeTab == DashboardTab::Documentation);
 }
 
 void ezQtDashboardDlg::FillRecentProjectsList()
@@ -258,9 +258,9 @@ void ezQtDashboardDlg::on_OpenApiDocs_clicked()
   QDesktopServices::openUrl(QUrl("https://ezengine.github.io/api-docs/"));
 }
 
-void ezQtDashboardDlg::on_OpenReleaseNotes_clicked()
+void ezQtDashboardDlg::on_GitHubDiscussions_clicked()
 {
-  QDesktopServices::openUrl(QUrl("https://github.com/ezEngine/ezEngine/releases"));
+  QDesktopServices::openUrl(QUrl("https://github.com/ezEngine/ezEngine/discussions"));
 }
 
 void ezQtDashboardDlg::on_ReportProblem_clicked()
@@ -292,5 +292,4 @@ bool ezQtDashboardDlg::eventFilter(QObject* obj, QEvent* e)
   }
 
   return QObject::eventFilter(obj, e);
-  return false;
 }

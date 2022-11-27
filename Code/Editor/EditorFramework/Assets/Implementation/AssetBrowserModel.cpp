@@ -138,7 +138,7 @@ void ezQtAssetBrowserModel::HandleAsset(const ezSubAsset* pInfo, AssetOp op)
   {
     // TODO: Due to file system watcher weirdness the m_sDataDirRelativePath can be empty at this point when renaming files
     // really rare haven't reproed it yet but that case crashes when getting the name so early out that.
-    if (!m_DisplayedEntries.Contains(pInfo->m_Data.m_Guid) || pInfo->m_pAssetInfo->m_sDataDirRelativePath.IsEmpty())
+    if (!m_DisplayedEntries.Contains(pInfo->m_Data.m_Guid) || pInfo->m_pAssetInfo->m_sDataDirParentRelativePath.IsEmpty())
     {
       return;
     }
@@ -273,14 +273,14 @@ QVariant ezQtAssetBrowserModel::data(const QModelIndex& index, int role) const
     case Qt::DisplayRole:
     {
       ezStringBuilder sFilename = pSubAsset->GetName();
-      return QString::fromUtf8(sFilename);
+      return QString::fromUtf8(sFilename, sFilename.GetElementCount());
     }
     break;
 
     case Qt::ToolTipRole:
     {
       ezStringBuilder sToolTip = pSubAsset->GetName();
-      sToolTip.Append("\n", pSubAsset->m_pAssetInfo->m_sDataDirRelativePath);
+      sToolTip.Append("\n", pSubAsset->m_pAssetInfo->m_sDataDirParentRelativePath);
       sToolTip.Append("\nTransform State: ");
       switch (pSubAsset->m_pAssetInfo->m_TransformState)
       {
@@ -289,9 +289,6 @@ QVariant ezQtAssetBrowserModel::data(const QModelIndex& index, int role) const
           break;
         case ezAssetInfo::UpToDate:
           sToolTip.Append("Up To Date");
-          break;
-        case ezAssetInfo::Updating:
-          sToolTip.Append("Updating");
           break;
         case ezAssetInfo::NeedsTransform:
           sToolTip.Append("Needs Transform");
@@ -312,7 +309,7 @@ QVariant ezQtAssetBrowserModel::data(const QModelIndex& index, int role) const
           break;
       }
 
-      return QString::fromUtf8(sToolTip);
+      return QString::fromUtf8(sToolTip, sToolTip.GetElementCount());
     }
     case Qt::DecorationRole:
     {
@@ -344,13 +341,13 @@ QVariant ezQtAssetBrowserModel::data(const QModelIndex& index, int role) const
       return QVariant::fromValue(pSubAsset->m_pAssetInfo->m_Info->m_DocumentID);
     }
     case UserRoles::AbsolutePath:
-      return QString::fromUtf8(pSubAsset->m_pAssetInfo->m_sAbsolutePath);
+      return QString::fromUtf8(pSubAsset->m_pAssetInfo->m_sAbsolutePath, pSubAsset->m_pAssetInfo->m_sAbsolutePath.GetElementCount());
 
     case UserRoles::RelativePath:
-      return QString::fromUtf8(pSubAsset->m_pAssetInfo->m_sDataDirRelativePath);
+      return QString::fromUtf8(pSubAsset->m_pAssetInfo->m_sDataDirParentRelativePath, pSubAsset->m_pAssetInfo->m_sDataDirParentRelativePath.GetElementCount());
 
     case UserRoles::AssetIconPath:
-      return ezQtUiServices::GetCachedPixmapResource(pSubAsset->m_pAssetInfo->m_pDocumentTypeDescriptor->m_sIcon);
+      return ezQtUiServices::GetCachedIconResource(pSubAsset->m_pAssetInfo->m_pDocumentTypeDescriptor->m_sIcon);
 
     case UserRoles::TransformState:
       return (int)pSubAsset->m_pAssetInfo->m_TransformState;
@@ -362,7 +359,7 @@ QVariant ezQtAssetBrowserModel::data(const QModelIndex& index, int role) const
 Qt::ItemFlags ezQtAssetBrowserModel::flags(const QModelIndex& index) const
 {
   if (!index.isValid())
-    return 0;
+    return Qt::ItemFlags();
 
   return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled;
 }
@@ -424,7 +421,7 @@ QMimeData* ezQtAssetBrowserModel::mimeData(const QModelIndexList& indexes) const
 
   ezStringBuilder tmp;
 
-  stream << indexes.size();
+  stream << (int)indexes.size();
   for (int i = 0; i < indexes.size(); ++i)
   {
     QString sGuid(ezConversionUtils::ToString(data(indexes[i], UserRoles::SubAssetGuid).value<ezUuid>(), tmp).GetData());

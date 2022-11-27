@@ -1,18 +1,46 @@
 #include <Foundation/FoundationInternal.h>
 EZ_FOUNDATION_INTERNAL_HEADER
 
+#include <Foundation/IO/OSFile.h>
 #include <unistd.h>
 
 bool ezSystemInformation::IsDebuggerAttached()
 {
-  // TODO: No simple way to test without massive overhead.
-  return false;
+  ezOSFile status;
+  if (status.Open("/proc/self/status", ezFileOpenMode::Read).Failed())
+  {
+    return false;
+  }
+
+
+  char buffer[2048];
+  ezUInt64 numBytesRead = status.Read(buffer, EZ_ARRAY_SIZE(buffer));
+  status.Close();
+
+
+  ezStringView contents(buffer, numBytesRead);
+  const char* tracerPid = contents.FindSubString("TracerPid:");
+  if (tracerPid == nullptr)
+  {
+    return false;
+  }
+
+  tracerPid += 10; // Skip TracerPid:
+
+  while (*tracerPid == ' ' || *tracerPid == '\t')
+  {
+    tracerPid++;
+  }
+
+  return *tracerPid == '0' ? false : true;
 }
 
 void ezSystemInformation::Initialize()
 {
   if (s_SystemInformation.m_bIsInitialized)
     return;
+
+  s_SystemInformation.m_CpuFeatures.Detect();
 
   // Get system information via various APIs
   s_SystemInformation.m_uiCPUCoreCount = sysconf(_SC_NPROCESSORS_ONLN);
@@ -25,9 +53,9 @@ void ezSystemInformation::Initialize()
 
   // Not correct for 32 bit process on 64 bit system
 #if EZ_ENABLED(EZ_PLATFORM_64BIT)
-  s_SystemInformation.m_b64BitOS = true;
+  s_SystemInformation.m_bB64BitOS = true;
 #else
-  s_SystemInformation.m_b64BitOS = false;
+  s_SystemInformation.m_bB64BitOS = false;
 #  if EZ_ENABLED(EZ_PLATFORM_OSX)
 #    error "32 Bit builds are not supported on OSX"
 #  endif

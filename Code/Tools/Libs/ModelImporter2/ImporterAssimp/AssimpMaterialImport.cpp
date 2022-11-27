@@ -12,7 +12,7 @@ namespace ezModelImporter2
   static const void MakeValidMaterialName(ezString& target, const char* source, ezUInt32 matIdx, ezSet<ezString>& knownMaterialNames)
   {
     ezStringBuilder tmp;
-    ezPathUtils::MakeValidFilename(source, '_', tmp).IgnoreResult();
+    ezPathUtils::MakeValidFilename(source, '_', tmp);
 
     if (knownMaterialNames.Contains(tmp))
     {
@@ -48,15 +48,15 @@ namespace ezModelImporter2
 
   ezResult ImporterAssimp::ImportMaterials()
   {
-    if (!m_aiScene->HasMaterials())
+    if (!m_pScene->HasMaterials())
       return EZ_SUCCESS;
 
     ezSet<ezString> knownMaterialNames;
     knownMaterialNames.Insert("");
 
-    for (ezUInt32 matIdx = 0; matIdx < m_aiScene->mNumMaterials; ++matIdx)
+    for (ezUInt32 matIdx = 0; matIdx < m_pScene->mNumMaterials; ++matIdx)
     {
-      aiMaterial* pMat = m_aiScene->mMaterials[matIdx];
+      aiMaterial* pMat = m_pScene->mMaterials[matIdx];
 
       auto& outMaterial = m_OutputMaterials.ExpandAndGetRef();
       MakeValidMaterialName(outMaterial.m_sName, pMat->GetName().C_Str(), matIdx, knownMaterialNames);
@@ -75,13 +75,18 @@ namespace ezModelImporter2
       // TryReadAssimpProperty<float>(mp, PropertySemantic::OpacityValue, *pMat, AI_MATKEY_OPACITY);
 
       TryReadAssimpTextures(tr, aiTextureType_DIFFUSE, TextureSemantic::DiffuseMap, *pMat);
+      TryReadAssimpTextures(tr, aiTextureType_BASE_COLOR, TextureSemantic::DiffuseMap, *pMat); // override aiTextureType_DIFFUSE
       TryReadAssimpTextures(tr, aiTextureType_SHININESS, TextureSemantic::RoughnessMap, *pMat);
+      TryReadAssimpTextures(tr, aiTextureType_DIFFUSE_ROUGHNESS, TextureSemantic::RoughnessMap, *pMat); // override aiTextureType_SHININESS
       TryReadAssimpTextures(tr, aiTextureType_SPECULAR, TextureSemantic::MetallicMap, *pMat);
-      TryReadAssimpTextures(tr, aiTextureType_AMBIENT, TextureSemantic::AmbientMap, *pMat);
+      TryReadAssimpTextures(tr, aiTextureType_METALNESS, TextureSemantic::MetallicMap, *pMat); // override aiTextureType_SPECULAR
+      TryReadAssimpTextures(tr, aiTextureType_AMBIENT, TextureSemantic::OcclusionMap, *pMat);
+      TryReadAssimpTextures(tr, aiTextureType_AMBIENT_OCCLUSION, TextureSemantic::OcclusionMap, *pMat); // override aiTextureType_AMBIENT
       TryReadAssimpTextures(tr, aiTextureType_DISPLACEMENT, TextureSemantic::DisplacementMap, *pMat);
       TryReadAssimpTextures(tr, aiTextureType_NORMALS, TextureSemantic::NormalMap, *pMat);
       TryReadAssimpTextures(tr, aiTextureType_EMISSIVE, TextureSemantic::EmissiveMap, *pMat);
-      // TryReadAssimpTextures(tr, aiTextureType_OPACITY, TextureSemantic::OpacityMap, *pMat);
+      TryReadAssimpTextures(tr, aiTextureType_EMISSION_COLOR, TextureSemantic::EmissiveMap, *pMat); // override aiTextureType_EMISSIVE
+      TryReadAssimpTextures(tr, aiTextureType_OPACITY, TextureSemantic::DiffuseAlphaMap, *pMat);
       // TryReadAssimpTextures(tr, aiTextureType_REFLECTION, TextureSemantic::ReflectionMap, *pMat); // From Assimp documentation "Contains the color of a perfect mirror reflection."
     }
 

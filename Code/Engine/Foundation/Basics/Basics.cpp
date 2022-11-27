@@ -18,10 +18,10 @@ enum
   ALIGNED_ALLOCATOR_BUFFER_SIZE = sizeof(DefaultAlignedHeapType)
 };
 
-EZ_ALIGN_VARIABLE(static ezUInt8 s_DefaultAllocatorBuffer[HEAP_ALLOCATOR_BUFFER_SIZE], EZ_ALIGNMENT_MINIMUM);
-EZ_ALIGN_VARIABLE(static ezUInt8 s_StaticAllocatorBuffer[HEAP_ALLOCATOR_BUFFER_SIZE], EZ_ALIGNMENT_MINIMUM);
+alignas(EZ_ALIGNMENT_MINIMUM) static ezUInt8 s_DefaultAllocatorBuffer[HEAP_ALLOCATOR_BUFFER_SIZE];
+alignas(EZ_ALIGNMENT_MINIMUM) static ezUInt8 s_StaticAllocatorBuffer[HEAP_ALLOCATOR_BUFFER_SIZE];
 
-EZ_ALIGN_VARIABLE(static ezUInt8 s_AlignedAllocatorBuffer[ALIGNED_ALLOCATOR_BUFFER_SIZE], EZ_ALIGNMENT_MINIMUM);
+alignas(EZ_ALIGNMENT_MINIMUM) static ezUInt8 s_AlignedAllocatorBuffer[ALIGNED_ALLOCATOR_BUFFER_SIZE];
 
 bool ezFoundation::s_bIsInitialized = false;
 ezAllocatorBase* ezFoundation::s_pDefaultAllocator = nullptr;

@@ -2,7 +2,6 @@
 
 #include <Foundation/Threading/TaskSystem.h>
 #include <ProcGenPlugin/Declarations.h>
-#include <ProcGenPlugin/VM/ExpressionVM.h>
 
 namespace ezProcGenInternal
 {

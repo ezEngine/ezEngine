@@ -1,16 +1,16 @@
-﻿
 
-EZ_ALWAYS_INLINE ID3D11RenderTargetView* ezGALRenderTargetViewVulkan::GetRenderTargetView() const
+
+EZ_ALWAYS_INLINE vk::ImageView ezGALRenderTargetViewVulkan::GetImageView() const
 {
-  return m_pRenderTargetView;
+  return m_imageView;
 }
 
-EZ_ALWAYS_INLINE ID3D11DepthStencilView* ezGALRenderTargetViewVulkan::GetDepthStencilView() const
+EZ_ALWAYS_INLINE bool ezGALRenderTargetViewVulkan::IsFullRange() const
 {
-  return m_pDepthStencilView;
+  return m_bfullRange;
 }
 
-EZ_ALWAYS_INLINE ID3D11UnorderedAccessView* ezGALRenderTargetViewVulkan::GetUnorderedAccessView() const
+EZ_ALWAYS_INLINE vk::ImageSubresourceRange ezGALRenderTargetViewVulkan::GetRange() const
 {
-  return m_pUnorderedAccessView;
+  return m_range;
 }

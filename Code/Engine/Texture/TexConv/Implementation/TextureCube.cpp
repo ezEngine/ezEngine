@@ -1,10 +1,13 @@
 #include <Texture/TexturePCH.h>
 
+#include <Foundation/Profiling/Profiling.h>
 #include <Texture/Image/ImageUtils.h>
 #include <Texture/TexConv/TexConvProcessor.h>
 
 ezResult ezTexConvProcessor::AssembleCubemap(ezImage& dst) const
 {
+  EZ_PROFILE_SCOPE("AssembleCubemap");
+
   const auto& cm = m_Descriptor.m_ChannelMappings;
   const auto& images = m_Descriptor.m_InputImages;
 

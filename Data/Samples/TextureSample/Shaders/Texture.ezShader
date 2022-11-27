@@ -1,6 +1,11 @@
 [PLATFORMS]
 ALL
 
+[RENDERSTATE]
+
+CullMode = CullMode_None
+DepthTest = false
+
 [VERTEXSHADER]
 
 #include "Common.h"

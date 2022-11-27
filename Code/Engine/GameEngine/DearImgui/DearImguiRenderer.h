@@ -14,7 +14,7 @@
 class ezRenderDataBatch;
 using ezShaderResourceHandle = ezTypedResourceHandle<class ezShaderResource>;
 
-struct EZ_ALIGN_16(ezImguiVertex)
+struct alignas(16) ezImguiVertex
 {
   EZ_DECLARE_POD_TYPE();
 
@@ -70,8 +70,8 @@ public:
 protected:
   void SetupRenderer();
 
-  static const ezUInt32 VertexBufferSize = 10000;
-  static const ezUInt32 IndexBufferSize = VertexBufferSize * 2;
+  static const ezUInt32 s_uiVertexBufferSize = 10000;
+  static const ezUInt32 s_uiIndexBufferSize = s_uiVertexBufferSize * 2;
 
   ezShaderResourceHandle m_hShader;
   ezGALBufferHandle m_hVertexBuffer;

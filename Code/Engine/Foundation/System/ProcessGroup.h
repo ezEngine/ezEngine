@@ -6,8 +6,8 @@
 /// \brief Process groups are used to tie multiple processes together and ensure they get terminated either on demand or when the
 /// application crashes
 ///
-/// When an ezProcessGroup instance is destroyed (either normally or due to a crash), all processes that have
-/// been added to the group will be terminated by the OS.
+/// On Windows when an ezProcessGroup instance is destroyed (either normally or due to a crash), all processes that have
+/// been added to the group will be terminated by the OS. Other operating systems do not provide the terminate on crash guarantee.
 ///
 /// Only processes that were launched asynchronously and in a suspended state can be added to process groups.
 /// They will be resumed by the group.
@@ -17,7 +17,7 @@ class EZ_FOUNDATION_DLL ezProcessGroup
 
 public:
   /// \brief Creates a process group. The name is only used for debugging purposes.
-  ezProcessGroup(const char* szGroupName = nullptr);
+  ezProcessGroup(ezStringView sGroupName = {});
   ~ezProcessGroup();
 
   /// \brief Launches a new process in the group.
@@ -33,6 +33,7 @@ public:
   /// \brief Tries to kill all processes associated with this group.
   ///
   /// Sends a kill command to all processes and then waits indefinitely for them to terminate.
+  /// Note: iForcedExitCode is only supported on Windows.
   ezResult TerminateAll(ezInt32 iForcedExitCode = -2);
 
   /// \brief Returns the container holding all processes of this group.
@@ -41,7 +42,7 @@ public:
   const ezHybridArray<ezProcess, 8>& GetProcesses() const;
 
 private:
-  ezUniquePtr<struct ezProcessGroupImpl> m_impl;
+  ezUniquePtr<struct ezProcessGroupImpl> m_pImpl;
 
   ezHybridArray<ezProcess, 8> m_Processes;
 };

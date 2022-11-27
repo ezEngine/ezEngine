@@ -59,8 +59,14 @@ public:
   /// \brief Returns the corresponding variant type for this type or Invalid if there is none.
   EZ_ALWAYS_INLINE ezVariantType::Enum GetVariantType() const { return static_cast<ezVariantType::Enum>(m_uiVariantType); }
 
-  /// \brief Returns true if this type is derived from the given type.
-  bool IsDerivedFrom(const ezRTTI* pBaseType) const; // [tested]
+  /// \brief Returns true if this type is derived from the given type (or of the same type).
+  EZ_ALWAYS_INLINE bool IsDerivedFrom(const ezRTTI* pBaseType) const // [tested]
+  {
+    const ezUInt32 thisGeneration = m_ParentHierarchy.GetCount();
+    const ezUInt32 baseGeneration = pBaseType->m_ParentHierarchy.GetCount();
+    EZ_ASSERT_DEBUG(thisGeneration > 0 && baseGeneration > 0, "SetupParentHierarchy() has not been called");
+    return thisGeneration >= baseGeneration && m_ParentHierarchy.GetData()[thisGeneration - baseGeneration] == pBaseType;
+  }
 
   /// \brief Returns true if this type is derived from or identical to the given type.
   template <typename BASE>
@@ -156,6 +162,7 @@ protected:
   void UnregisterType();
 
   void GatherDynamicMessageHandlers();
+  void SetupParentHierarchy();
 
   const ezRTTI* m_pParentType;
   ezRTTIAllocator* m_pAllocator;
@@ -168,13 +175,14 @@ protected:
   ezUInt32 m_uiMsgIdOffset;
 
   bool m_bGatheredDynamicMessageHandlers;
-  const ezRTTI* (*m_fnVerifyParent)();
+  const ezRTTI* (*m_VerifyParent)();
 
   ezArrayPtr<ezAbstractMessageHandler*> m_MessageHandlers;
   ezDynamicArray<ezAbstractMessageHandler*, ezStaticAllocatorWrapper>
     m_DynamicMessageHandlers; // do not track this data, it won't be deallocated before shutdown
 
   ezArrayPtr<ezMessageSenderInfo> m_MessageSenders;
+  ezHybridArray<const ezRTTI*, 8> m_ParentHierarchy;
 
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Foundation, Reflection);

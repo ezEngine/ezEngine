@@ -91,14 +91,14 @@ void ezParticleContext::OnInitialize()
       // Build geometry
       ezGeometry geom;
 
-      geom.AddTexturedBox(ezVec3(4, 4, 4), ezColor::White, ezMat4::IdentityMatrix());
+      geom.AddBox(ezVec3(4, 4, 4), true);
       geom.ComputeTangents();
 
       ezMeshBufferResourceDescriptor desc;
       desc.AddCommonStreams();
       desc.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
 
-      hMeshBuffer = ezResourceManager::CreateResource<ezMeshBufferResource>(szMeshBufferName, std::move(desc), szMeshBufferName);
+      hMeshBuffer = ezResourceManager::GetOrCreateResource<ezMeshBufferResource>(szMeshBufferName, std::move(desc), szMeshBufferName);
     }
     {
       ezResourceLock<ezMeshBufferResource> pMeshBuffer(hMeshBuffer, ezResourceAcquireMode::AllowLoadingFallback);
@@ -109,7 +109,7 @@ void ezParticleContext::OnInitialize()
       md.SetMaterial(0, "{ 1c47ee4c-0379-4280-85f5-b8cda61941d2 }"); // Pattern.ezMaterialAsset
       md.ComputeBounds();
 
-      m_hPreviewMeshResource = ezResourceManager::CreateResource<ezMeshResource>(szMeshName, std::move(md), pMeshBuffer->GetResourceDescription());
+      m_hPreviewMeshResource = ezResourceManager::GetOrCreateResource<ezMeshResource>(szMeshName, std::move(md), pMeshBuffer->GetResourceDescription());
     }
   }
 
@@ -119,6 +119,8 @@ void ezParticleContext::OnInitialize()
   {
     ezGameObjectDesc obj;
     obj.m_sName.Assign("ParticleBackground");
+
+    const ezColor bgColor(0.3f, 0.3f, 0.3f);
 
     for (int y = -1; y <= 5; ++y)
     {
@@ -131,6 +133,7 @@ void ezParticleContext::OnInitialize()
         ezMeshComponent* pMesh;
         ezMeshComponent::CreateComponent(pObj, pMesh);
         pMesh->SetMesh(m_hPreviewMeshResource);
+        pMesh->SetColor(bgColor);
 
         if (pPhysicsInterface)
           pPhysicsInterface->AddStaticCollisionBox(pObj, ezVec3(4, 4, 4));
@@ -148,6 +151,7 @@ void ezParticleContext::OnInitialize()
         ezMeshComponent* pMesh;
         ezMeshComponent::CreateComponent(pObj, pMesh);
         pMesh->SetMesh(m_hPreviewMeshResource);
+        pMesh->SetColor(bgColor);
 
         if (pPhysicsInterface)
           pPhysicsInterface->AddStaticCollisionBox(pObj, ezVec3(4, 4, 4));
@@ -164,6 +168,7 @@ void ezParticleContext::OnInitialize()
       ezMeshComponent* pMesh;
       ezMeshComponent::CreateComponent(pObj, pMesh);
       pMesh->SetMesh(m_hPreviewMeshResource);
+      pMesh->SetColor(bgColor);
 
       if (pPhysicsInterface)
         pPhysicsInterface->AddStaticCollisionBox(pObj, ezVec3(4, 4, 4));
@@ -193,82 +198,120 @@ bool ezParticleContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* p
   if (!m_ThumbnailBoundingVolume.IsValid())
   {
     EZ_LOCK(m_pWorld->GetWriteMarker());
-    m_pWorld->SetWorldSimulationEnabled(true);
-    m_pWorld->Update();
-    m_pWorld->SetWorldSimulationEnabled(false);
+
+    const bool bWorldPaused = m_pWorld->GetClock().GetPaused();
+
+    // make sure the component restarts as soon as possible
+    {
+      const ezTime restartDelay = m_pComponent->m_MinRestartDelay;
+      const auto onFinished = m_pComponent->m_OnFinishedAction;
+      const double fClockSpeed = m_pWorld->GetClock().GetSpeed();
+
+      m_pComponent->m_MinRestartDelay.SetZero();
+      m_pComponent->m_OnFinishedAction = ezOnComponentFinishedAction2::Restart;
+
+      m_pWorld->SetWorldSimulationEnabled(true);
+      m_pWorld->GetClock().SetPaused(false);
+      m_pWorld->GetClock().SetSpeed(10);
+      m_pWorld->Update();
+      m_pWorld->GetClock().SetPaused(bWorldPaused);
+      m_pWorld->GetClock().SetSpeed(fClockSpeed);
+      m_pWorld->SetWorldSimulationEnabled(false);
+
+      m_pComponent->m_MinRestartDelay = restartDelay;
+      m_pComponent->m_OnFinishedAction = onFinished;
+    }
+
+    if (m_pComponent && !m_pComponent->m_EffectController.IsAlive())
+    {
+      // if this happens, the effect has finished and we need to wait for it to restart, so that it can be reconfigured for the screenshot
+      // not very clean solution
+
+      pParticleViewContext->PositionThumbnailCamera(m_ThumbnailBoundingVolume);
+      return false;
+    }
 
     if (m_pComponent && m_pComponent->m_EffectController.IsAlive())
     {
-      m_pComponent->InterruptEffect();
-      m_pComponent->StartEffect();
-
       // set a fixed random seed
       m_pComponent->m_uiRandomSeed = 11;
 
-      float fLastVolume = 0;
+      const ezUInt32 uiMinSimSteps = 3;
+      ezUInt32 uiSimStepsNeeded = uiMinSimSteps;
 
-      ezUInt32 uiSimStepsNeeded = 3;
-      ezInt32 iBVolState = 0;
-
-      for (ezUInt32 step = 0; step < 30; ++step)
+      if (m_pComponent->m_EffectController.IsContinuousEffect())
       {
-        m_pComponent->m_EffectController.Tick(ezTime::Seconds(0.05));
-
-        if (!m_pComponent->m_EffectController.IsAlive())
-        {
-          break;
-        }
-
-        ezBoundingBoxSphere bvol;
-        m_pComponent->m_EffectController.GetBoundingVolume(bvol);
-        const ezVec3 ext = bvol.GetBox().GetExtents();
-        const float volume = ext.x * ext.y * ext.z;
-
-        if (iBVolState == 0) // initialize
-        {
-          fLastVolume = volume;
-          iBVolState = 1;
-        }
-        else if (iBVolState == 1) // wait for grow
-        {
-          if (volume > fLastVolume)
-          {
-            fLastVolume = volume;
-            uiSimStepsNeeded = step;
-            iBVolState = 2;
-          }
-        }
-        else if (iBVolState == 2) // wait for shrink
-        {
-          if (volume < fLastVolume)
-          {
-            break;
-          }
-
-          uiSimStepsNeeded = step;
-          fLastVolume = volume;
-        }
+        uiSimStepsNeeded = 30;
       }
-
-      if (uiSimStepsNeeded > 3)
+      else
       {
-        uiSimStepsNeeded -= 2;
+        m_pComponent->InterruptEffect();
+        m_pComponent->StartEffect();
+
+        ezUInt64 uiMostParticles = 0;
+        ezUInt64 uiMostParticlesStep = 0;
+
+        for (ezUInt32 step = 0; step < 30; ++step)
+        {
+          // step once, to get the initial bbox out of the way
+          m_pComponent->m_EffectController.ForceVisible();
+          m_pComponent->m_EffectController.Tick(ezTime::Seconds(0.05));
+
+          if (!m_pComponent->m_EffectController.IsAlive())
+            break;
+
+          const ezUInt64 numParticles = m_pComponent->m_EffectController.GetNumActiveParticles();
+
+          if (step == uiMinSimSteps && numParticles > 0)
+          {
+            uiMostParticles = 0;
+          }
+
+          if (numParticles > uiMostParticles)
+          {
+            // this is the step with the largest number of particles
+            // but usually a few steps later is the best step to capture
+
+            uiMostParticles = numParticles;
+            uiMostParticlesStep = step;
+            uiSimStepsNeeded = step;
+          }
+          else if ((numParticles > uiMostParticles * 0.8f) && (step < uiMostParticlesStep + 5))
+          {
+            // if a few steps later we still have a decent amount of particles (so it didn't drop significantly),
+            // prefer to use that step
+            uiSimStepsNeeded = step;
+          }
+        }
       }
 
       m_pComponent->InterruptEffect();
       m_pComponent->StartEffect();
 
-      for (ezUInt32 step = 0; step <= uiSimStepsNeeded; ++step)
+      for (ezUInt32 step = 0; step < uiSimStepsNeeded; ++step)
       {
+        m_pComponent->m_EffectController.ForceVisible();
         m_pComponent->m_EffectController.Tick(ezTime::Seconds(0.05));
 
         if (m_pComponent->m_EffectController.IsAlive())
         {
           m_pComponent->m_EffectController.GetBoundingVolume(m_ThumbnailBoundingVolume);
+
+          // shrink the bbox to zoom in
+          m_ThumbnailBoundingVolume.m_fSphereRadius *= 0.7f;
+          m_ThumbnailBoundingVolume.m_vBoxHalfExtends *= 0.7f;
         }
       }
 
       m_pComponent->m_uiRandomSeed = 0;
+
+      // tick the world once more, so that the effect passes on its bounding box to the culling system
+      // otherwise the effect is not rendered, when only the thumbnail is updated, but the document is not open
+      m_pWorld->SetWorldSimulationEnabled(true);
+      m_pWorld->GetClock().SetPaused(true);
+      m_pWorld->Update();
+      m_pWorld->GetClock().SetPaused(bWorldPaused);
+      m_pWorld->SetWorldSimulationEnabled(false);
     }
   }
 

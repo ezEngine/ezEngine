@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2021, Facebook, Inc.
+ * Copyright (c) Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under both the BSD-style license (found in the
@@ -17,10 +17,19 @@ extern "C" {
 
 #include <stddef.h>
 
-/* weak symbol support */
-#if !defined(ZSTD_HAVE_WEAK_SYMBOLS) && defined(__GNUC__) && \
+/* weak symbol support
+ * For now, enable conservatively:
+ * - Only GNUC
+ * - Only ELF
+ * - Only x86-64 and i386
+ * Also, explicitly disable on platforms known not to work so they aren't
+ * forgotten in the future.
+ */
+#if !defined(ZSTD_HAVE_WEAK_SYMBOLS) && \
+    defined(__GNUC__) && defined(__ELF__) && \
+    (defined(__x86_64__) || defined(_M_X64) || defined(__i386__) || defined(_M_IX86)) && \
     !defined(__APPLE__) && !defined(_WIN32) && !defined(__MINGW32__) && \
-    !defined(__CYGWIN__)
+    !defined(__CYGWIN__) && !defined(_AIX)
 #  define ZSTD_HAVE_WEAK_SYMBOLS 1
 #else
 #  define ZSTD_HAVE_WEAK_SYMBOLS 0
@@ -114,14 +123,15 @@ typedef unsigned long long ZSTD_TraceCtx;
  * @returns Non-zero if tracing is enabled. The return value is
  *          passed to ZSTD_trace_compress_end().
  */
-ZSTD_TraceCtx ZSTD_trace_compress_begin(struct ZSTD_CCtx_s const* cctx);
+ZSTD_WEAK_ATTR ZSTD_TraceCtx ZSTD_trace_compress_begin(
+    struct ZSTD_CCtx_s const* cctx);
 
 /**
  * Trace the end of a compression call.
  * @param ctx The return value of ZSTD_trace_compress_begin().
  * @param trace The zstd tracing info.
  */
-void ZSTD_trace_compress_end(
+ZSTD_WEAK_ATTR void ZSTD_trace_compress_end(
     ZSTD_TraceCtx ctx,
     ZSTD_Trace const* trace);
 
@@ -132,14 +142,15 @@ void ZSTD_trace_compress_end(
  * @returns Non-zero if tracing is enabled. The return value is
  *          passed to ZSTD_trace_compress_end().
  */
-ZSTD_TraceCtx ZSTD_trace_decompress_begin(struct ZSTD_DCtx_s const* dctx);
+ZSTD_WEAK_ATTR ZSTD_TraceCtx ZSTD_trace_decompress_begin(
+    struct ZSTD_DCtx_s const* dctx);
 
 /**
  * Trace the end of a decompression call.
  * @param ctx The return value of ZSTD_trace_decompress_begin().
  * @param trace The zstd tracing info.
  */
-void ZSTD_trace_decompress_end(
+ZSTD_WEAK_ATTR void ZSTD_trace_decompress_end(
     ZSTD_TraceCtx ctx,
     ZSTD_Trace const* trace);
 

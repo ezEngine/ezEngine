@@ -4,6 +4,7 @@
 #include <EditorFramework/DocumentWindow/OrbitCamViewWidget.moc.h>
 #include <EditorFramework/InputContexts/OrbitCameraContext.h>
 #include <EditorFramework/InputContexts/SelectionContext.h>
+#include <EditorPluginAssets/SkeletonAsset/SkeletonAsset.h>
 #include <EditorPluginAssets/SkeletonAsset/SkeletonAssetWindow.moc.h>
 #include <EditorPluginAssets/SkeletonAsset/SkeletonPanel.moc.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
@@ -40,7 +41,7 @@ ezQtSkeletonAssetDocumentWindow::ezQtSkeletonAssetDocumentWindow(ezSkeletonAsset
   {
     SetTargetFramerate(25);
 
-    m_ViewConfig.m_Camera.LookAt(ezVec3(-1.6, 0, 0), ezVec3(0, 0, 0), ezVec3(0, 0, 1));
+    m_ViewConfig.m_Camera.LookAt(ezVec3(-1.6f, 0, 0), ezVec3(0, 0, 0), ezVec3(0, 0, 1));
     m_ViewConfig.ApplyPerspectiveSetting(90);
 
     m_pViewWidget = new ezQtOrbitCamViewWidget(this, &m_ViewConfig, true);
@@ -52,7 +53,7 @@ ezQtSkeletonAssetDocumentWindow::ezQtSkeletonAssetDocumentWindow(ezSkeletonAsset
 
   // Property Grid
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this);
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
     pPropertyPanel->setObjectName("SkeletonAssetDockWidget");
     pPropertyPanel->setWindowTitle("Skeleton Properties");
     pPropertyPanel->show();
@@ -73,9 +74,11 @@ ezQtSkeletonAssetDocumentWindow::ezQtSkeletonAssetDocumentWindow(ezSkeletonAsset
     addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, pPanelTree);
   }
 
+  pDocument->Events().AddEventHandler(ezMakeDelegate(&ezQtSkeletonAssetDocumentWindow::SkeletonAssetEventHandler, this));
+
   GetDocument()->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtSkeletonAssetDocumentWindow::SelectionEventHandler, this));
   GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtSkeletonAssetDocumentWindow::PropertyEventHandler, this));
-  GetDocument()->GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezQtSkeletonAssetDocumentWindow::StructureEventHandler, this));
+  GetDocument()->GetCommandHistory()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtSkeletonAssetDocumentWindow::CommandEventHandler, this));
 
   FinishWindowCreation();
 
@@ -84,9 +87,11 @@ ezQtSkeletonAssetDocumentWindow::ezQtSkeletonAssetDocumentWindow(ezSkeletonAsset
 
 ezQtSkeletonAssetDocumentWindow::~ezQtSkeletonAssetDocumentWindow()
 {
+  static_cast<ezSkeletonAssetDocument*>(GetDocument())->Events().RemoveEventHandler(ezMakeDelegate(&ezQtSkeletonAssetDocumentWindow::SkeletonAssetEventHandler, this));
+
+  GetDocument()->GetCommandHistory()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtSkeletonAssetDocumentWindow::CommandEventHandler, this));
   GetDocument()->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtSkeletonAssetDocumentWindow::SelectionEventHandler, this));
   GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezQtSkeletonAssetDocumentWindow::PropertyEventHandler, this));
-  GetDocument()->GetObjectManager()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezQtSkeletonAssetDocumentWindow::StructureEventHandler, this));
 
   RestoreResource();
 }
@@ -101,6 +106,43 @@ void ezQtSkeletonAssetDocumentWindow::SendRedrawMsg()
   // do not try to redraw while the process is crashed, it is obviously futile
   if (ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
     return;
+
+  auto* pDoc = GetSkeletonDocument();
+
+  {
+    ezSimpleDocumentConfigMsgToEngine msg;
+    msg.m_sWhatToDo = "RenderBones";
+    msg.m_fPayload = pDoc->GetRenderBones() ? 1.0f : 0.0f;
+    pDoc->SendMessageToEngine(&msg);
+  }
+
+  {
+    ezSimpleDocumentConfigMsgToEngine msg;
+    msg.m_sWhatToDo = "RenderColliders";
+    msg.m_fPayload = pDoc->GetRenderColliders() ? 1.0f : 0.0f;
+    pDoc->SendMessageToEngine(&msg);
+  }
+
+  {
+    ezSimpleDocumentConfigMsgToEngine msg;
+    msg.m_sWhatToDo = "RenderJoints";
+    msg.m_fPayload = pDoc->GetRenderJoints() ? 1.0f : 0.0f;
+    pDoc->SendMessageToEngine(&msg);
+  }
+
+  {
+    ezSimpleDocumentConfigMsgToEngine msg;
+    msg.m_sWhatToDo = "RenderSwingLimits";
+    msg.m_fPayload = pDoc->GetRenderSwingLimits() ? 1.0f : 0.0f;
+    pDoc->SendMessageToEngine(&msg);
+  }
+
+  {
+    ezSimpleDocumentConfigMsgToEngine msg;
+    msg.m_sWhatToDo = "RenderTwistLimits";
+    msg.m_fPayload = pDoc->GetRenderTwistLimits() ? 1.0f : 0.0f;
+    pDoc->SendMessageToEngine(&msg);
+  }
 
   for (auto pView : m_ViewWidgets)
   {
@@ -153,20 +195,31 @@ void ezQtSkeletonAssetDocumentWindow::SelectionEventHandler(const ezSelectionMan
   }
 }
 
-void ezQtSkeletonAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
+void ezQtSkeletonAssetDocumentWindow::SkeletonAssetEventHandler(const ezSkeletonAssetEvent& e)
 {
-  // it looks like it's not necessary to for specific properties
-  //if (e.m_sProperty == "Thickness" || e.m_sProperty == "Radius" || e.m_sProperty == "Length" || e.m_sProperty == "Width" || e.m_sProperty == "Height" || e.m_sProperty == "Offset" || e.m_sProperty == "Rotation" || e.m_sProperty == "Geometry")
+  if (e.m_Type == ezSkeletonAssetEvent::Transformed)
   {
     SendLiveResourcePreview();
   }
 }
 
-void ezQtSkeletonAssetDocumentWindow::StructureEventHandler(const ezDocumentObjectStructureEvent& e)
+void ezQtSkeletonAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
 {
-  if (e.m_EventType == ezDocumentObjectStructureEvent::Type::AfterObjectAdded ||
-      e.m_EventType == ezDocumentObjectStructureEvent::Type::AfterObjectRemoved ||
-      e.m_EventType == ezDocumentObjectStructureEvent::Type::AfterObjectMoved2)
+  // additionally do live updates for these specific properties
+  if (e.m_sProperty == "LocalRotation" ||                                                 // joint offset rotation
+      e.m_sProperty == "Offset" || e.m_sProperty == "Rotation" ||                         // all shapes
+      e.m_sProperty == "Radius" || e.m_sProperty == "Length" ||                           // sphere and capsule
+      e.m_sProperty == "Width" || e.m_sProperty == "Thickness" ||                         // box
+      e.m_sProperty == "SwingLimitY" || e.m_sProperty == "SwingLimitZ" ||                 // joint swing limit
+      e.m_sProperty == "TwistLimitHalfAngle" || e.m_sProperty == "TwistLimitCenterAngle") // joint twist limit
+  {
+    SendLiveResourcePreview();
+  }
+}
+
+void ezQtSkeletonAssetDocumentWindow::CommandEventHandler(const ezCommandHistoryEvent& e)
+{
+  if (e.m_Type == ezCommandHistoryEvent::Type::TransactionEnded || e.m_Type == ezCommandHistoryEvent::Type::UndoEnded || e.m_Type == ezCommandHistoryEvent::Type::RedoEnded)
   {
     SendLiveResourcePreview();
   }
@@ -188,7 +241,7 @@ void ezQtSkeletonAssetDocumentWindow::SendLiveResourcePreview()
   ezStringBuilder tmp;
   msg.m_sResourceID = ezConversionUtils::ToString(GetDocument()->GetGuid(), tmp);
 
-  ezMemoryStreamStorage streamStorage;
+  ezContiguousMemoryStreamStorage streamStorage;
   ezMemoryStreamWriter memoryWriter(&streamStorage);
 
 
@@ -205,7 +258,7 @@ void ezQtSkeletonAssetDocumentWindow::SendLiveResourcePreview()
 
   // Write Asset Data
   pDoc->WriteResource(memoryWriter);
-  msg.m_Data = ezArrayPtr<const ezUInt8>(streamStorage.GetData(), streamStorage.GetStorageSize());
+  msg.m_Data = ezArrayPtr<const ezUInt8>(streamStorage.GetData(), streamStorage.GetStorageSize32());
 
   ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
 }

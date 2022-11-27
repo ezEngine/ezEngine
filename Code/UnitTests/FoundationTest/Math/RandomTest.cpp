@@ -262,7 +262,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Random)
     for (int i = 0; i < 1000; ++i)
       r.UInt();
 
-    ezMemoryStreamStorage storage;
+    ezDefaultMemoryStreamStorage storage;
     ezMemoryStreamWriter writer(&storage);
     ezMemoryStreamReader reader(&storage);
 
@@ -388,7 +388,7 @@ EZ_CREATE_SIMPLE_TEST(Math, RandomGauss)
     for (int i = 0; i < 1000; ++i)
       r.UnsignedValue();
 
-    ezMemoryStreamStorage storage;
+    ezDefaultMemoryStreamStorage storage;
     ezMemoryStreamWriter writer(&storage);
     ezMemoryStreamReader reader(&storage);
 

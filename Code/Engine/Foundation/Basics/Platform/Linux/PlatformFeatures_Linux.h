@@ -6,11 +6,15 @@
 
 /// Iterating through the file system is not supported
 #undef EZ_SUPPORTS_FILE_ITERATORS
-#define EZ_SUPPORTS_FILE_ITERATORS EZ_OFF
+#define EZ_SUPPORTS_FILE_ITERATORS EZ_ON
 
 /// Getting the stats of a file (modification times etc.) is supported.
 #undef EZ_SUPPORTS_FILE_STATS
 #define EZ_SUPPORTS_FILE_STATS EZ_ON
+
+/// Directory watcher is supported
+#undef EZ_SUPPORTS_DIRECTORY_WATCHER
+#define EZ_SUPPORTS_DIRECTORY_WATCHER EZ_ON
 
 /// Memory mapping a file is supported.
 #undef EZ_SUPPORTS_MEMORY_MAPPED_FILE
@@ -22,7 +26,7 @@
 
 /// Whether dynamic plugins (through DLLs loaded/unloaded at runtime) are supported
 #undef EZ_SUPPORTS_DYNAMIC_PLUGINS
-#define EZ_SUPPORTS_DYNAMIC_PLUGINS EZ_OFF
+#define EZ_SUPPORTS_DYNAMIC_PLUGINS EZ_ON
 
 /// Whether applications can access any file (not sandboxed)
 #undef EZ_SUPPORTS_UNRESTRICTED_FILE_ACCESS
@@ -42,4 +46,11 @@
 
 // SIMD support
 #undef EZ_SIMD_IMPLEMENTATION
-#define EZ_SIMD_IMPLEMENTATION EZ_SIMD_IMPLEMENTATION_FPU
+
+#if EZ_ENABLED(EZ_PLATFORM_ARCH_X86)
+#  define EZ_SIMD_IMPLEMENTATION EZ_SIMD_IMPLEMENTATION_SSE
+#elif EZ_ENABLED(EZ_PLATFORM_ARCH_ARM)
+#  define EZ_SIMD_IMPLEMENTATION EZ_SIMD_IMPLEMENTATION_FPU
+#else
+#  error "Unknown architecture."
+#endif

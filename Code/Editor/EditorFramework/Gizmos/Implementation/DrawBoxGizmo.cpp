@@ -15,7 +15,7 @@ ezDrawBoxGizmo::ezDrawBoxGizmo()
   m_ManipulateMode = ManipulateMode::None;
 
   m_vLastStartPoint.SetZero();
-  m_Box.Configure(this, ezEngineGizmoHandleType::LineBox, ezColorLinearUB(255, 100, 0), false, false, false, true, false);
+  m_hBox.ConfigureHandle(this, ezEngineGizmoHandleType::LineBox, ezColorLinearUB(255, 100, 0), ezGizmoFlags::ShowInOrtho);
 
   SetVisible(false);
   SetTransformation(ezTransform::IdentityTransform());
@@ -25,7 +25,7 @@ ezDrawBoxGizmo::~ezDrawBoxGizmo() {}
 
 void ezDrawBoxGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
 {
-  pOwnerWindow->GetDocument()->AddSyncObject(&m_Box);
+  pOwnerWindow->GetDocument()->AddSyncObject(&m_hBox);
 }
 
 void ezDrawBoxGizmo::OnVisibleChanged(bool bVisible) {}
@@ -117,10 +117,10 @@ ezEditorInput ezDrawBoxGizmo::DoMouseMoveEvent(QMouseEvent* e)
 
   if (m_ManipulateMode == ManipulateMode::DrawHeight)
   {
-    const ezVec2I32 vMouseMove = ezVec2I32(e->globalPos().x(), e->globalPos().y()) - m_LastMousePos;
+    const ezVec2I32 vMouseMove = ezVec2I32(e->globalPos().x(), e->globalPos().y()) - m_vLastMousePos;
     m_iHeightChange -= vMouseMove.y;
 
-    m_LastMousePos = UpdateMouseMode(e);
+    m_vLastMousePos = UpdateMouseMode(e);
   }
   else
   {
@@ -197,7 +197,7 @@ void ezDrawBoxGizmo::SwitchMode(bool bCancel)
     m_ManipulateMode = ManipulateMode::DrawHeight;
     m_iHeightChange = 0;
     m_fOriginalBoxHeight = m_fBoxHeight;
-    m_LastMousePos = SetMouseMode(ezEditorInputContext::MouseMode::HideAndWrapAtScreenBorders);
+    m_vLastMousePos = SetMouseMode(ezEditorInputContext::MouseMode::HideAndWrapAtScreenBorders);
     UpdateBox();
     return;
   }
@@ -227,8 +227,8 @@ void ezDrawBoxGizmo::UpdateBox()
 
   if (m_ManipulateMode == ManipulateMode::None || m_vFirstCorner == m_vSecondCorner)
   {
-    m_Box.SetTransformation(ezTransform(ezVec3(0), ezQuat::IdentityQuaternion(), ezVec3(0)));
-    m_Box.SetVisible(false);
+    m_hBox.SetTransformation(ezTransform(ezVec3(0), ezQuat::IdentityQuaternion(), ezVec3(0)));
+    m_hBox.SetVisible(false);
     return;
   }
 
@@ -266,8 +266,8 @@ void ezDrawBoxGizmo::UpdateBox()
     vSize.y = m_fBoxHeight;
   }
 
-  m_Box.SetTransformation(ezTransform(vCenter, ezQuat::IdentityQuaternion(), vSize));
-  m_Box.SetVisible(true);
+  m_hBox.SetTransformation(ezTransform(vCenter, ezQuat::IdentityQuaternion(), vSize));
+  m_hBox.SetVisible(true);
 }
 
 void ezDrawBoxGizmo::DisableGrid(bool bControlPressed)

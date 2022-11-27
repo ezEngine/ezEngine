@@ -1,9 +1,9 @@
 #pragma once
 
+#include <Core/Physics/SurfaceResource.h>
 #include <Core/World/Component.h>
 #include <Core/World/World.h>
 #include <GameEngine/GameEngineDLL.h>
-#include <GameEngine/Physics/SurfaceResource.h>
 
 struct ezMsgComponentInternalTrigger;
 
@@ -12,9 +12,9 @@ typedef ezComponentManagerSimple<class ezProjectileComponent, ezComponentUpdateT
 /// \brief Defines what a projectile will do when it hits a surface
 struct EZ_GAMEENGINE_DLL ezProjectileReaction
 {
-  typedef ezInt8 StorageType;
+  using StorageType = ezInt8;
 
-  enum Enum
+  enum Enum : StorageType
   {
     Absorb,      ///< The projectile simply stops and is deleted
     Reflect,     ///< Bounces away along the reflected direction

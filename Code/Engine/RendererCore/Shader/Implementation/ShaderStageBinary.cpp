@@ -106,7 +106,7 @@ ezResult ezShaderConstantBufferLayout::Write(ezStreamWriter& stream) const
 {
   stream << m_uiTotalSize;
 
-  ezUInt16 uiConstants = m_Constants.GetCount();
+  ezUInt16 uiConstants = static_cast<ezUInt16>(m_Constants.GetCount());
   stream << uiConstants;
 
   for (auto& constant : m_Constants)
@@ -144,7 +144,7 @@ ezResult ezShaderConstantBufferLayout::Read(ezStreamReader& stream)
 
 ezShaderResourceBinding::ezShaderResourceBinding()
 {
-  m_Type = Unknown;
+  m_Type = ezShaderResourceType::Unknown;
   m_iSlot = -1;
   m_pLayout = nullptr;
 }
@@ -159,10 +159,10 @@ ezShaderStageBinary::ezShaderStageBinary() = default;
 
 ezShaderStageBinary::~ezShaderStageBinary()
 {
-  if (m_pGALByteCode)
+  if (m_GALByteCode)
   {
-    ezGALShaderByteCode* pByteCode = m_pGALByteCode;
-    m_pGALByteCode = nullptr;
+    ezGALShaderByteCode* pByteCode = m_GALByteCode;
+    m_GALByteCode = nullptr;
 
     if (pByteCode->GetRefCount() == 0)
       EZ_DEFAULT_DELETE(pByteCode);
@@ -204,7 +204,7 @@ ezResult ezShaderStageBinary::Write(ezStreamWriter& stream) const
   if (!m_ByteCode.IsEmpty() && stream.WriteBytes(&m_ByteCode[0], uiByteCodeSize).Failed())
     return EZ_FAILURE;
 
-  ezUInt16 uiResources = m_ShaderResourceBindings.GetCount();
+  ezUInt16 uiResources = static_cast<ezUInt16>(m_ShaderResourceBindings.GetCount());
   stream << uiResources;
 
   for (const auto& r : m_ShaderResourceBindings)
@@ -213,7 +213,7 @@ ezResult ezShaderStageBinary::Write(ezStreamWriter& stream) const
     stream << r.m_iSlot;
     stream << (ezUInt8)r.m_Type;
 
-    if (r.m_Type == ezShaderResourceBinding::ConstantBuffer)
+    if (r.m_Type == ezShaderResourceType::ConstantBuffer)
     {
       EZ_SUCCEED_OR_RETURN(r.m_pLayout->Write(stream));
     }
@@ -270,9 +270,9 @@ ezResult ezShaderStageBinary::Read(ezStreamReader& stream)
 
       ezUInt8 uiType = 0;
       stream >> uiType;
-      r.m_Type = (ezShaderResourceBinding::ResourceType)uiType;
+      r.m_Type = (ezShaderResourceType::Enum)uiType;
 
-      if (r.m_Type == ezShaderResourceBinding::ConstantBuffer && uiVersion >= ezShaderStageBinary::Version4)
+      if (r.m_Type == ezShaderResourceType::ConstantBuffer && uiVersion >= ezShaderStageBinary::Version4)
       {
         auto pLayout = EZ_DEFAULT_NEW(ezShaderConstantBufferLayout);
         EZ_SUCCEED_OR_RETURN(pLayout->Read(stream));
@@ -384,9 +384,9 @@ ezShaderStageBinary* ezShaderStageBinary::LoadStageBinary(ezGALShaderStage::Enum
 
   ezShaderStageBinary* pShaderStageBinary = &itStage.Value();
 
-  if (pShaderStageBinary->m_pGALByteCode == nullptr && !pShaderStageBinary->m_ByteCode.IsEmpty())
+  if (pShaderStageBinary->m_GALByteCode == nullptr && !pShaderStageBinary->m_ByteCode.IsEmpty())
   {
-    pShaderStageBinary->m_pGALByteCode = EZ_DEFAULT_NEW(ezGALShaderByteCode, pShaderStageBinary->m_ByteCode);
+    pShaderStageBinary->m_GALByteCode = EZ_DEFAULT_NEW(ezGALShaderByteCode, pShaderStageBinary->m_ByteCode);
   }
 
   return pShaderStageBinary;

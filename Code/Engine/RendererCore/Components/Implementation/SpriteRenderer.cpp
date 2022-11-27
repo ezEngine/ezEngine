@@ -10,7 +10,7 @@
 #include <RendererCore/Shader/ShaderResource.h>
 #include <RendererFoundation/Shader/ShaderUtils.h>
 
-struct EZ_ALIGN_16(SpriteData)
+struct alignas(16) SpriteData
 {
   ezVec3 m_worldSpacePosition;
   float m_size;
@@ -80,9 +80,9 @@ void ezSpriteRenderer::RenderBatch(const ezRenderViewContext& renderViewContext,
     const ezUInt32 uiCount = ezMath::Min(batch.GetCount() - uiStartIndex, (ezUInt32)MAX_SPRITE_DATA_PER_BATCH);
 
     FillSpriteData(batch, uiStartIndex, uiCount);
-    if (m_spriteData.GetCount() > 0) // Instance data might be empty if all render data was filtered.
+    if (m_SpriteData.GetCount() > 0) // Instance data might be empty if all render data was filtered.
     {
-      pContext->GetCommandEncoder()->UpdateBuffer(hSpriteData, 0, m_spriteData.GetByteArrayPtr());
+      pContext->GetCommandEncoder()->UpdateBuffer(hSpriteData, 0, m_SpriteData.GetByteArrayPtr());
 
       pContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, uiCount * 2);
       pContext->DrawMeshBuffer().IgnoreResult();
@@ -112,14 +112,14 @@ void ezSpriteRenderer::DeleteSpriteDataBuffer(ezGALBufferHandle hBuffer) const
 
 void ezSpriteRenderer::FillSpriteData(const ezRenderDataBatch& batch, ezUInt32 uiStartIndex, ezUInt32 uiCount) const
 {
-  m_spriteData.Clear();
-  m_spriteData.Reserve(uiCount);
+  m_SpriteData.Clear();
+  m_SpriteData.Reserve(uiCount);
 
   for (auto it = batch.GetIterator<ezSpriteRenderData>(uiStartIndex, uiCount); it.IsValid(); ++it)
   {
     const ezSpriteRenderData* pRenderData = it;
 
-    auto& spriteData = m_spriteData.ExpandAndGetRef();
+    auto& spriteData = m_SpriteData.ExpandAndGetRef();
 
     spriteData.m_worldSpacePosition = pRenderData->m_GlobalTransform.m_vPosition;
     spriteData.m_size = pRenderData->m_fSize;

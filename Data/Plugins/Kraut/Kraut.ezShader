@@ -13,6 +13,7 @@ CAMERA_MODE
 SHADING_QUALITY
 FORWARD_PASS_WRITE_DEPTH
 MATERIAL_PREVIEW
+VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX
 
 [MATERIALPARAMETER]
 
@@ -25,8 +26,10 @@ Texture2D BaseTexture;
 Color VariationColor @Default(Color(0.0, 0.0, 0.0, 0.0)); // actually variation color
 Color SubsurfaceColor @Default(Color(0.0, 0.0, 0.0));
 
-bool UseNormalAndRoughnessTexture;
+bool UseNormalTexture;
 Texture2D NormalTexture;
+
+bool UseRoughnessTexture;
 Texture2D RoughnessTexture @Default("White.color");
 float RoughnessValue @Default(1.0) @Clamp(0.0, 2.0);
 
@@ -39,7 +42,7 @@ int KrautTreeMode; // 0 == regular mesh, 1 == frond, 2 == leaf, 3 == static impo
 
 #include <Shaders/Materials/MaterialState.h>
 
-[VERTEXSHADER]
+[SHADER]
 
 #define USE_COLOR0
 #define USE_COLOR1
@@ -54,20 +57,23 @@ int KrautTreeMode; // 0 == regular mesh, 1 == frond, 2 == leaf, 3 == static impo
   #define USE_DEBUG_INTERPOLATOR
 #endif
 
+[VERTEXSHADER]
+
 #include <Shaders/Common/GlobalConstants.h>
 
 CONSTANT_BUFFER(ezMaterialConstants, 1)
 {
   COLOR4F(VariationColor);
+  COLOR4F(EmissiveColor);
   FLOAT1(MetallicValue);
   FLOAT1(ReflectanceValue);
   FLOAT1(RoughnessValue);
   FLOAT1(MaskThreshold);
   BOOL1(UseBaseTexture);
   BOOL1(UseMetallicTexture);
-  BOOL1(UseNormalAndRoughnessTexture);
+  BOOL1(UseNormalTexture);
+  BOOL1(UseRoughnessTexture);
   BOOL1(UseEmissiveTexture);
-  COLOR4F(EmissiveColor);
   BOOL1(UseOcclusionTexture);
   
   INT1(KrautTreeMode);
@@ -246,50 +252,35 @@ VS_OUT main(VS_IN Input)
 
 [GEOMETRYSHADER]
 
-#define USE_COLOR0
-#define USE_COLOR1
-#define USE_NORMAL
-#define USE_TANGENT
-#define USE_TEXCOORD0
-#define USE_TEXCOORD1
-#define CUSTOM_INTERPOLATOR float3 LeafNormal : TEXCOORD2;
-#define USE_MATERIAL_SUBSURFACE_COLOR
+void CopyCustomInterpolators(GS_OUT output, VS_OUT input)
+{
+  output.LeafNormal = input.LeafNormal;
+}
 
 #include <Shaders/Materials/MaterialStereoGeometryShader.h>
 
 [PIXELSHADER]
 
-#define USE_COLOR0
-#define USE_COLOR1
-#define USE_NORMAL
-#define USE_TANGENT
-#define USE_TEXCOORD0
-#define USE_TEXCOORD1
 #define USE_SIMPLE_MATERIAL_MODEL
 #define USE_MATERIAL_OCCLUSION
 #define USE_TWO_SIDED_LIGHTING
 #define USE_FOG
-#define CUSTOM_INTERPOLATOR float3 LeafNormal : TEXCOORD2;
-#define USE_MATERIAL_SUBSURFACE_COLOR
-
-#if RENDER_PASS == RENDER_PASS_EDITOR
-  #define USE_DEBUG_INTERPOLATOR
-#endif
 
 #include <Shaders/Common/GlobalConstants.h>
 
 CONSTANT_BUFFER(ezMaterialConstants, 1)
 {
   COLOR4F(VariationColor);
+  COLOR4F(EmissiveColor);
   FLOAT1(MetallicValue);
   FLOAT1(ReflectanceValue);
   FLOAT1(RoughnessValue);
   FLOAT1(MaskThreshold);
   BOOL1(UseBaseTexture);
   BOOL1(UseMetallicTexture);
-  BOOL1(UseNormalAndRoughnessTexture);
+  BOOL1(UseNormalTexture);
+  BOOL1(UseRoughnessTexture);
   BOOL1(UseEmissiveTexture);
-  COLOR4F(EmissiveColor);
   BOOL1(UseOcclusionTexture);
   
   INT1(KrautTreeMode);
@@ -354,7 +345,7 @@ float3 GetNormal()
   float3 wsNormal;
 
   [branch]
-  if (UseNormalAndRoughnessTexture)
+  if (UseNormalTexture)
   {
     float3 normalTS = DecodeNormalTexture(NormalTexture.Sample(NormalTexture_AutoSampler, GetTexCoord()));
 
@@ -394,7 +385,7 @@ float GetReflectance()
 float GetRoughness()
 {
   [branch]
-  if (UseNormalAndRoughnessTexture)
+  if (UseRoughnessTexture)
   {
     return RoughnessValue * RoughnessTexture.Sample(RoughnessTexture_AutoSampler, GetTexCoord()).r;
   }

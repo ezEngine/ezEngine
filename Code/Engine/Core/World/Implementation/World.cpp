@@ -1,8 +1,8 @@
 #include <Core/CorePCH.h>
 
 #include <Core/Messages/DeleteObjectMessage.h>
-#include <Core/Messages/EventMessage.h>
 #include <Core/Messages/HierarchyChangedMessages.h>
+#include <Core/World/EventMessageHandlerComponent.h>
 #include <Core/World/World.h>
 #include <Core/World/WorldModule.h>
 #include <Foundation/Memory/FrameAllocator.h>
@@ -62,7 +62,7 @@ ezWorld::ezWorld(ezWorldDesc& desc)
   {
     m_uiIndex = s_Worlds.GetCount();
     EZ_ASSERT_DEV(m_uiIndex < GetMaxNumWorlds(), "Max world index reached: {}", GetMaxNumWorlds());
-    static_assert((GetMaxNumWorlds() - 1) <= ezMath::MaxValue<ezUInt8>()); // World index is stored in ezUInt8 in game objects
+    static_assert(GetMaxNumWorlds() == EZ_MAX_WORLDS);
 
     s_Worlds.PushBack(this);
   }
@@ -72,6 +72,7 @@ ezWorld::ezWorld(ezWorldDesc& desc)
 
 ezWorld::~ezWorld()
 {
+  EZ_LOCK(GetWriteMarker());
   m_Data.Clear();
 
   s_Worlds[m_uiIndex] = nullptr;
@@ -163,7 +164,7 @@ ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObj
 
   // insert the new object into the id mapping table
   ezGameObjectId newId = m_Data.m_Objects.Insert(pNewObject);
-  newId.m_WorldIndex = static_cast<ezUInt8>(m_uiIndex);
+  newId.m_WorldIndex = ezGameObjectId::StorageType(m_uiIndex & (EZ_MAX_WORLDS - 1));
 
   // fill out some data
   pNewObject->m_InternalId = newId;
@@ -171,7 +172,7 @@ ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObj
   pNewObject->m_Flags.AddOrRemove(ezObjectFlags::Dynamic, bDynamic);
   pNewObject->m_Flags.AddOrRemove(ezObjectFlags::ActiveFlag, desc.m_bActiveFlag);
   pNewObject->m_sName = desc.m_sName;
-  pNewObject->m_ParentIndex = uiParentIndex;
+  pNewObject->m_uiParentIndex = uiParentIndex;
   pNewObject->m_Tags = desc.m_Tags;
   pNewObject->m_uiTeamID = desc.m_uiTeamID;
 
@@ -286,7 +287,7 @@ void ezWorld::DeleteObjectNow(const ezGameObjectHandle& hObject0, bool bAlsoDele
 
   // invalidate (but preserve world index) and remove from id table
   pObject->m_InternalId.Invalidate();
-  pObject->m_InternalId.m_WorldIndex = static_cast<ezUInt8>(m_uiIndex);
+  pObject->m_InternalId.m_WorldIndex = m_uiIndex;
 
   m_Data.m_DeadObjects.Insert(pObject);
   EZ_VERIFY(m_Data.m_Objects.Remove(hObject), "Implementation error.");
@@ -410,63 +411,14 @@ void ezWorld::PostMessage(const ezComponentHandle& receiverComponent, const ezMe
   }
 }
 
-void ezWorld::FindEventMsgHandlers(ezEventMessage& msg, const ezGameObject* pSearchObject, ezDynamicArray<const ezComponent*>& out_components) const
+void ezWorld::FindEventMsgHandlers(const ezEventMessage& msg, ezGameObject* pSearchObject, ezDynamicArray<ezComponent*>& out_components)
 {
-  out_components.Clear();
+  FindEventMsgHandlers(*this, msg, pSearchObject, out_components);
+}
 
-  // walk the graph upwards until an object is found with an ezEventMessageHandlerComponent that handles this type of message
-  {
-    const ezGameObject* pCurrentObject = pSearchObject;
-
-    while (pCurrentObject != nullptr)
-    {
-      ezHybridArray<const ezEventMessageHandlerComponent*, 4> eventMessageHandlerComponents;
-      pCurrentObject->TryGetComponentsOfBaseType(eventMessageHandlerComponents);
-
-      if (eventMessageHandlerComponents.IsEmpty() == false)
-      {
-        bool bContinueSearch = true;
-
-        for (auto pEventMessageHandlerComponent : eventMessageHandlerComponents)
-        {
-          if (pEventMessageHandlerComponent->HandlesEventMessage(msg))
-          {
-            out_components.PushBack(pEventMessageHandlerComponent);
-            bContinueSearch = false;
-          }
-          else
-          {
-            // only continue to search on parent objects if all event handlers on the current object have the "pass through unhandled events" flag set.
-            bContinueSearch &= pEventMessageHandlerComponent->GetPassThroughUnhandledEvents();
-          }
-        }
-
-        if (!bContinueSearch)
-        {
-          // stop searching as we found at least one ezEventMessageHandlerComponent or one doesn't have the "pass through" flag set.
-          return;
-        }
-      }
-
-      pCurrentObject = pCurrentObject->GetParent();
-    }
-  }
-
-  // if no such object is found, check all objects that are registered as 'global event handlers'
-  {
-    auto globalEventMessageHandler = ezEventMessageHandlerComponent::GetAllGlobalEventHandler(this);
-    for (auto hEventMessageHandlerComponent : globalEventMessageHandler)
-    {
-      const ezEventMessageHandlerComponent* pEventMessageHandlerComponent = nullptr;
-      if (TryGetComponent(hEventMessageHandlerComponent, pEventMessageHandlerComponent))
-      {
-        if (pEventMessageHandlerComponent->HandlesEventMessage(msg))
-        {
-          out_components.PushBack(pEventMessageHandlerComponent);
-        }
-      }
-    }
-  }
+void ezWorld::FindEventMsgHandlers(const ezEventMessage& msg, const ezGameObject* pSearchObject, ezDynamicArray<const ezComponent*>& out_components) const
+{
+  FindEventMsgHandlers(*this, msg, pSearchObject, out_components);
 }
 
 void ezWorld::Update()
@@ -483,8 +435,20 @@ void ezWorld::Update()
     ezStats::SetStat(sStatName, GetObjectCount());
   }
 
-  m_Data.m_Clock.SetPaused(!m_Data.m_bSimulateWorld);
-  m_Data.m_Clock.Update();
+  if (!m_Data.m_bSimulateWorld)
+  {
+    // only change the pause mode temporarily
+    // so that user choices don't get overridden
+
+    const bool bClockPaused = m_Data.m_Clock.GetPaused();
+    m_Data.m_Clock.SetPaused(true);
+    m_Data.m_Clock.Update();
+    m_Data.m_Clock.SetPaused(bClockPaused);
+  }
+  else
+  {
+    m_Data.m_Clock.Update();
+  }
 
   if (m_Data.m_pSpatialSystem != nullptr)
   {
@@ -644,19 +608,19 @@ void ezWorld::SetParent(ezGameObject* pObject, ezGameObject* pNewParent, ezGameO
   EZ_ASSERT_DEV(pNewParent == nullptr || pObject->IsDynamic() || pNewParent->IsStatic(), "Can't attach a static object to a dynamic parent!");
   CheckForWriteAccess();
 
-  if (GetObjectUnchecked(pObject->m_ParentIndex) == pNewParent)
+  if (GetObjectUnchecked(pObject->m_uiParentIndex) == pNewParent)
     return;
 
   UnlinkFromParent(pObject);
   // UnlinkFromParent does not clear these as they are still needed in DeleteObjectNow to allow deletes while iterating.
-  pObject->m_NextSiblingIndex = 0;
-  pObject->m_PrevSiblingIndex = 0;
+  pObject->m_uiNextSiblingIndex = 0;
+  pObject->m_uiPrevSiblingIndex = 0;
   if (pNewParent != nullptr)
   {
     // Ensure that the parent's global transform is up-to-date otherwise the object's local transform will be wrong afterwards.
     pNewParent->UpdateGlobalTransform();
 
-    pObject->m_ParentIndex = pNewParent->m_InternalId.m_InstanceIndex;
+    pObject->m_uiParentIndex = pNewParent->m_InternalId.m_InstanceIndex;
     LinkToParent(pObject);
   }
 
@@ -671,23 +635,23 @@ void ezWorld::SetParent(ezGameObject* pObject, ezGameObject* pNewParent, ezGameO
 
 void ezWorld::LinkToParent(ezGameObject* pObject)
 {
-  EZ_ASSERT_DEBUG(pObject->m_NextSiblingIndex == 0 && pObject->m_PrevSiblingIndex == 0, "Object is either still linked to another parent or data was not cleared.");
+  EZ_ASSERT_DEBUG(pObject->m_uiNextSiblingIndex == 0 && pObject->m_uiPrevSiblingIndex == 0, "Object is either still linked to another parent or data was not cleared.");
   if (ezGameObject* pParentObject = pObject->GetParent())
   {
     const ezUInt32 uiIndex = pObject->m_InternalId.m_InstanceIndex;
 
-    if (pParentObject->m_FirstChildIndex != 0)
+    if (pParentObject->m_uiFirstChildIndex != 0)
     {
-      pObject->m_PrevSiblingIndex = pParentObject->m_LastChildIndex;
-      GetObjectUnchecked(pParentObject->m_LastChildIndex)->m_NextSiblingIndex = uiIndex;
+      pObject->m_uiPrevSiblingIndex = pParentObject->m_uiLastChildIndex;
+      GetObjectUnchecked(pParentObject->m_uiLastChildIndex)->m_uiNextSiblingIndex = uiIndex;
     }
     else
     {
-      pParentObject->m_FirstChildIndex = uiIndex;
+      pParentObject->m_uiFirstChildIndex = uiIndex;
     }
 
-    pParentObject->m_LastChildIndex = uiIndex;
-    pParentObject->m_ChildCount++;
+    pParentObject->m_uiLastChildIndex = uiIndex;
+    pParentObject->m_uiChildCount++;
 
     pObject->m_pTransformationData->m_pParentData = pParentObject->m_pTransformationData;
 
@@ -709,20 +673,20 @@ void ezWorld::UnlinkFromParent(ezGameObject* pObject)
   {
     const ezUInt32 uiIndex = pObject->m_InternalId.m_InstanceIndex;
 
-    if (uiIndex == pParentObject->m_FirstChildIndex)
-      pParentObject->m_FirstChildIndex = pObject->m_NextSiblingIndex;
+    if (uiIndex == pParentObject->m_uiFirstChildIndex)
+      pParentObject->m_uiFirstChildIndex = pObject->m_uiNextSiblingIndex;
 
-    if (uiIndex == pParentObject->m_LastChildIndex)
-      pParentObject->m_LastChildIndex = pObject->m_PrevSiblingIndex;
+    if (uiIndex == pParentObject->m_uiLastChildIndex)
+      pParentObject->m_uiLastChildIndex = pObject->m_uiPrevSiblingIndex;
 
-    if (ezGameObject* pNextObject = GetObjectUnchecked(pObject->m_NextSiblingIndex))
-      pNextObject->m_PrevSiblingIndex = pObject->m_PrevSiblingIndex;
+    if (ezGameObject* pNextObject = GetObjectUnchecked(pObject->m_uiNextSiblingIndex))
+      pNextObject->m_uiPrevSiblingIndex = pObject->m_uiPrevSiblingIndex;
 
-    if (ezGameObject* pPrevObject = GetObjectUnchecked(pObject->m_PrevSiblingIndex))
-      pPrevObject->m_NextSiblingIndex = pObject->m_NextSiblingIndex;
+    if (ezGameObject* pPrevObject = GetObjectUnchecked(pObject->m_uiPrevSiblingIndex))
+      pPrevObject->m_uiNextSiblingIndex = pObject->m_uiNextSiblingIndex;
 
-    pParentObject->m_ChildCount--;
-    pObject->m_ParentIndex = 0;
+    pParentObject->m_uiChildCount--;
+    pObject->m_uiParentIndex = 0;
     pObject->m_pTransformationData->m_pParentData = nullptr;
 
     // Note that the sibling indices must not be set to 0 here.
@@ -906,6 +870,85 @@ void ezWorld::ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType)
   }
 }
 
+// static
+template <typename World, typename GameObject, typename Component>
+void ezWorld::FindEventMsgHandlers(World& world, const ezEventMessage& msg, GameObject pSearchObject, ezDynamicArray<Component>& out_components)
+{
+  using EventMessageHandlerComponentType = typename std::conditional<std::is_const<World>::value, const ezEventMessageHandlerComponent*, ezEventMessageHandlerComponent*>::type;
+
+  out_components.Clear();
+
+  // walk the graph upwards until an object is found with an ezEventMessageHandlerComponent that handles this type of message
+  {
+    auto pCurrentObject = pSearchObject;
+
+    while (pCurrentObject != nullptr)
+    {
+      ezHybridArray<EventMessageHandlerComponentType, 4> eventMessageHandlerComponents;
+      pCurrentObject->TryGetComponentsOfBaseType(eventMessageHandlerComponents);
+
+      if (eventMessageHandlerComponents.IsEmpty() == false)
+      {
+        bool bContinueSearch = true;
+
+        for (auto pEventMessageHandlerComponent : eventMessageHandlerComponents)
+        {
+          if constexpr (std::is_const<World>::value == false)
+          {
+            pEventMessageHandlerComponent->EnsureInitialized();
+          }
+
+          if (pEventMessageHandlerComponent->HandlesEventMessage(msg))
+          {
+            out_components.PushBack(pEventMessageHandlerComponent);
+            bContinueSearch = false;
+          }
+          else
+          {
+            if constexpr (std::is_const<World>::value)
+            {
+              if (pEventMessageHandlerComponent->IsInitialized() == false)
+              {
+                ezLog::Warning("Potential event message handler component of type '{}' was not initialized (yet) and thus might have reported "
+                               "an incorrect result in HandlesEventMessage(). "
+                               "To allow this component to be automatically initialized at this point in time call the non-const variant of SendEventMessage.",
+                  pEventMessageHandlerComponent->GetDynamicRTTI()->GetTypeName());
+              }
+            }
+
+            // only continue to search on parent objects if all event handlers on the current object have the "pass through unhandled events" flag set.
+            bContinueSearch &= pEventMessageHandlerComponent->GetPassThroughUnhandledEvents();
+          }
+        }
+
+        if (!bContinueSearch)
+        {
+          // stop searching as we found at least one ezEventMessageHandlerComponent or one doesn't have the "pass through" flag set.
+          return;
+        }
+      }
+
+      pCurrentObject = pCurrentObject->GetParent();
+    }
+  }
+
+  // if no such object is found, check all objects that are registered as 'global event handlers'
+  {
+    auto globalEventMessageHandler = ezEventMessageHandlerComponent::GetAllGlobalEventHandler(&world);
+    for (auto hEventMessageHandlerComponent : globalEventMessageHandler)
+    {
+      EventMessageHandlerComponentType pEventMessageHandlerComponent = nullptr;
+      if (world.TryGetComponent(hEventMessageHandlerComponent, pEventMessageHandlerComponent))
+      {
+        if (pEventMessageHandlerComponent->HandlesEventMessage(msg))
+        {
+          out_components.PushBack(pEventMessageHandlerComponent);
+        }
+      }
+    }
+  }
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void ezWorld::RegisterUpdateFunction(const ezComponentManagerBase::UpdateFunctionDesc& desc)
@@ -995,12 +1038,14 @@ void ezWorld::UpdateAsynchronous()
     if (updateFunction.m_bOnlyUpdateWhenSimulating && !m_Data.m_bSimulateWorld)
       continue;
 
-    ezComponentManagerBase* pManager = static_cast<ezComponentManagerBase*>(updateFunction.m_Function.GetClassInstance());
+    ezWorldModule* pModule = static_cast<ezWorldModule*>(updateFunction.m_Function.GetClassInstance());
+    ezComponentManagerBase* pManager = ezDynamicCast<ezComponentManagerBase*>(pModule);
 
-    const ezUInt32 uiTotalCount = pManager->GetComponentCount();
+    // a world module can also register functions in the async phase so we want at least one task
+    const ezUInt32 uiTotalCount = pManager != nullptr ? pManager->GetComponentCount() : 1;
+    const ezUInt32 uiGranularity = (updateFunction.m_uiGranularity != 0) ? updateFunction.m_uiGranularity : uiTotalCount;
+
     ezUInt32 uiStartIndex = 0;
-    ezUInt32 uiGranularity = (updateFunction.m_uiGranularity != 0) ? updateFunction.m_uiGranularity : uiTotalCount;
-
     while (uiStartIndex < uiTotalCount)
     {
       ezSharedPtr<ezInternal::WorldData::UpdateTask> pTask;
@@ -1355,6 +1400,13 @@ void ezWorld::RecreateHierarchyData(ezGameObject* pObject, bool bWasDynamic)
 
     m_Data.DeleteTransformationData(bWasDynamic, uiOldHierarchyLevel, pOldTransformationData);
   }
+}
+
+void ezWorld::SetMaxInitializationTimePerFrame(ezTime maxInitTime)
+{
+  CheckForWriteAccess();
+
+  m_Data.m_MaxInitializationTimePerFrame = maxInitTime;
 }
 
 EZ_STATICLINK_FILE(Core, Core_World_Implementation_World);

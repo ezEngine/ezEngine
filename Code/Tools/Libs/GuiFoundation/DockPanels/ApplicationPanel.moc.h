@@ -24,6 +24,7 @@ public:
 
 protected:
   virtual void ToolsProjectEventHandler(const ezToolsProjectEvent& e);
+  virtual bool event(QEvent* event) override;
 
 private:
   friend class ezQtContainerWindow;

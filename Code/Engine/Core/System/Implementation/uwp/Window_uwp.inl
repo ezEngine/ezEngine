@@ -63,7 +63,7 @@ ezResult ezWindow::Initialize()
   EZ_HRESULT_TO_FAILURE(application->get_MainView(&mainView));
 
   EZ_HRESULT_TO_FAILURE(mainView->get_CoreWindow(&s_uwpWindowData->m_coreWindow));
-  m_WindowHandle = s_uwpWindowData->m_coreWindow.Get();
+  m_hWindowHandle = s_uwpWindowData->m_coreWindow.Get();
 
   // Activation of main window already done in Uwp application implementation.
   //  EZ_HRESULT_TO_FAILURE(s_uwpWindowData->m_coreWindow->Activate());
@@ -156,6 +156,12 @@ ezResult ezWindow::Destroy()
   return EZ_SUCCESS;
 }
 
+ezResult ezWindow::Resize(const ezSizeU32& newWindowSize)
+{
+  //#TODO Resizing fails on UWP already via the init code.
+  return EZ_FAILURE;
+}
+
 void ezWindow::ProcessWindowMessages()
 {
   EZ_ASSERT_RELEASE(s_uwpWindowData != nullptr, "No uwp window data available.");
@@ -177,4 +183,9 @@ void ezWindow::ProcessWindowMessages()
 void ezWindow::OnResize(const ezSizeU32& newWindowSize)
 {
   ezLog::Info("Window resized to ({0}, {1})", newWindowSize.width, newWindowSize.height);
+}
+
+ezWindowHandle ezWindow::GetNativeWindowHandle() const
+{
+  return m_hWindowHandle;
 }

@@ -155,7 +155,11 @@ void ezFmodEventComponentManager::ShootOcclusionRays(OcclusionState& state, ezVe
     ezVec3 dir = targetPos - listenerPos;
     float fDistance = dir.GetLengthAndNormalize();
 
-    bool bHit = pPhysicsWorldModule->Raycast(hitResult, listenerPos, dir, fDistance, ezPhysicsQueryParameters(uiCollisionLayer));
+    ezPhysicsQueryParameters query(uiCollisionLayer);
+    query.m_bIgnoreInitialOverlap = true;
+    query.m_ShapeTypes = ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic;
+
+    bool bHit = pPhysicsWorldModule->Raycast(hitResult, listenerPos, dir, fDistance, query);
     if (bHit)
     {
       state.m_uiRaycastHits |= (1 << uiRayIndex);
@@ -166,7 +170,7 @@ void ezFmodEventComponentManager::ShootOcclusionRays(OcclusionState& state, ezVe
     }
 
     state.m_uiNextRayIndex = (state.m_uiNextRayIndex + 1) % 32;
-    state.m_uiNumUsedRays = ezMath::Min(state.m_uiNumUsedRays + 1, 32);
+    state.m_uiNumUsedRays = ezMath::Min<ezUInt8>(state.m_uiNumUsedRays + 1, 32);
   }
 
   float fNewOcclusionValue = (float)ezMath::CountBits(state.m_uiRaycastHits) / state.m_uiNumUsedRays;
@@ -229,7 +233,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezFmodEventComponent, 4, ezComponentMode::Static)
     EZ_ACCESSOR_PROPERTY("Paused", GetPaused, SetPaused),
     EZ_ACCESSOR_PROPERTY("Volume", GetVolume, SetVolume)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 1.0f)),
     EZ_ACCESSOR_PROPERTY("Pitch", GetPitch, SetPitch)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.01f, 100.0f)),
-    EZ_ACCESSOR_PROPERTY("SoundEvent", GetSoundEventFile, SetSoundEventFile)->AddAttributes(new ezAssetBrowserAttribute("Sound Event")),
+    EZ_ACCESSOR_PROPERTY("SoundEvent", GetSoundEventFile, SetSoundEventFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Fmod_Event")),
     EZ_ACCESSOR_PROPERTY("UseOcclusion", GetUseOcclusion, SetUseOcclusion),
     EZ_ACCESSOR_PROPERTY("OcclusionThreshold", GetOcclusionThreshold, SetOcclusionThreshold)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, 1.0f)),
     EZ_ACCESSOR_PROPERTY("OcclusionCollisionLayer", GetOcclusionCollisionLayer, SetOcclusionCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
@@ -587,7 +591,11 @@ void ezFmodEventComponent::SoundCue()
 {
   if (m_pEventInstance != nullptr && m_pEventInstance->isValid())
   {
+#if ((FMOD_VERSION & 0x0000FF00) >> 8 >= 2)
+    EZ_FMOD_ASSERT(m_pEventInstance->keyOff());
+#else
     EZ_FMOD_ASSERT(m_pEventInstance->triggerCue());
+#endif
   }
 }
 
@@ -707,8 +715,12 @@ void ezFmodEventComponent::Update()
       {
         float minDistance = 0.0f;
         float maxDistance = 0.0f;
+#  if ((FMOD_VERSION & 0x0000FF00) >> 8 >= 2)
+        pDesc->getMinMaxDistance(&minDistance, &maxDistance);
+#  else
         pDesc->getMinimumDistance(&minDistance);
         pDesc->getMaximumDistance(&maxDistance);
+#  endif
 
         ezDebugRenderer::DrawLineSphere(GetWorld(), ezBoundingSphere(GetOwner()->GetGlobalPosition(), minDistance), ezColor::Blue);
         ezDebugRenderer::DrawLineSphere(GetWorld(), ezBoundingSphere(GetOwner()->GetGlobalPosition(), maxDistance), ezColor::Cyan);
@@ -788,6 +800,7 @@ void ezFmodEventComponent::UpdateOcclusion()
     }
 
     float fRadius = 1.0f;
+    float fMaxDist = 0;
     {
       FMOD::Studio::EventDescription* pDesc = nullptr;
       m_pEventInstance->getDescription(&pDesc);
@@ -796,7 +809,12 @@ void ezFmodEventComponent::UpdateOcclusion()
       pDesc->is3D(&is3D);
       if (is3D)
       {
+#if ((FMOD_VERSION & 0x0000FF00) >> 8 >= 2)
+        pDesc->getMinMaxDistance(&fRadius, &fMaxDist);
+#else
         pDesc->getMinimumDistance(&fRadius);
+        pDesc->getMaximumDistance(&fMaxDist);
+#endif
       }
     }
 

@@ -21,7 +21,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSimpleAnimationComponent, 1, ezComponentMode::Static);
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("AnimationClip", GetAnimationClipFile, SetAnimationClipFile)->AddAttributes(new ezAssetBrowserAttribute("Animation Clip")),
+    EZ_ACCESSOR_PROPERTY("AnimationClip", GetAnimationClipFile, SetAnimationClipFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Keyframe_Animation")),
     EZ_ENUM_MEMBER_PROPERTY("AnimationMode", ezPropertyAnimMode, m_AnimationMode),
     EZ_MEMBER_PROPERTY("Speed", m_fSpeed)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
     EZ_ENUM_MEMBER_PROPERTY("RootMotionMode", ezRootMotionMode, m_RootMotionMode),
@@ -189,16 +189,26 @@ void ezSimpleAnimationComponent::Update()
 
   // inform child nodes/components that a new pose is available
   {
-    ezMsgAnimationPoseUpdated msg;
-    msg.m_pRootTransform = &pSkeleton->GetDescriptor().m_RootTransform;
-    msg.m_pSkeleton = &pSkeleton->GetDescriptor().m_Skeleton;
-    msg.m_ModelTransforms = pose;
+    ezMsgAnimationPoseProposal msg1;
+    msg1.m_pRootTransform = &pSkeleton->GetDescriptor().m_RootTransform;
+    msg1.m_pSkeleton = &pSkeleton->GetDescriptor().m_Skeleton;
+    msg1.m_ModelTransforms = pose;
 
-    GetOwner()->SendMessageRecursive(msg);
+    GetOwner()->SendMessageRecursive(msg1);
 
-    if (msg.m_bContinueAnimating == false)
+    if (msg1.m_bContinueAnimating)
     {
-      SetActiveFlag(false);
+      ezMsgAnimationPoseUpdated msg2;
+      msg2.m_pRootTransform = &pSkeleton->GetDescriptor().m_RootTransform;
+      msg2.m_pSkeleton = &pSkeleton->GetDescriptor().m_Skeleton;
+      msg2.m_ModelTransforms = pose;
+
+      GetOwner()->SendMessageRecursive(msg2);
+
+      if (msg2.m_bContinueAnimating == false)
+      {
+        SetActiveFlag(false);
+      }
     }
   }
 }

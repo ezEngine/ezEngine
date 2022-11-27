@@ -71,8 +71,8 @@ public:
 
   ezInt64 m_iTick; // 4800 ticks per second
   double m_fValue;
-  ezVec2 m_LeftTangent;
-  ezVec2 m_RightTangent;
+  ezVec2 m_LeftTangent = ezVec2(-0.1f, 0.0f);
+  ezVec2 m_RightTangent = ezVec2(+0.1f, 0.0f);
   bool m_bTangentsLinked = true;
   ezEnum<ezCurveTangentMode> m_LeftTangentMode;
   ezEnum<ezCurveTangentMode> m_RightTangentMode;
@@ -89,6 +89,21 @@ public:
   void ConvertToRuntimeData(ezCurve1D& out_Result) const;
   double Evaluate(ezInt64 uiTick) const;
 };
+
+class EZ_GUIFOUNDATION_DLL ezCurveExtentsAttribute : public ezPropertyAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezCurveExtentsAttribute, ezPropertyAttribute);
+
+public:
+  ezCurveExtentsAttribute() = default;
+  ezCurveExtentsAttribute(double fLowerExtent, bool bLowerExtentFixed, double fUpperExtent, bool bUpperExtentFixed);
+
+  double m_fLowerExtent = 0.0;
+  double m_fUpperExtent = 1.0;
+  bool m_bLowerExtentFixed = false;
+  bool m_bUpperExtentFixed = false;
+};
+
 
 class EZ_GUIFOUNDATION_DLL ezCurveGroupData : public ezReflectedClass
 {

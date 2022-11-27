@@ -54,6 +54,25 @@ ezArrayPtr<const ezMeshResourceDescriptor::SubMesh> ezMeshResourceDescriptor::Ge
   return m_SubMeshes;
 }
 
+void ezMeshResourceDescriptor::CollapseSubMeshes()
+{
+  for (ezUInt32 idx = 1; idx < m_SubMeshes.GetCount(); ++idx)
+  {
+    m_SubMeshes[0].m_uiFirstPrimitive = ezMath::Min(m_SubMeshes[0].m_uiFirstPrimitive, m_SubMeshes[idx].m_uiFirstPrimitive);
+    m_SubMeshes[0].m_uiPrimitiveCount += m_SubMeshes[idx].m_uiPrimitiveCount;
+
+    if (m_SubMeshes[0].m_Bounds.IsValid() && m_SubMeshes[idx].m_Bounds.IsValid())
+    {
+      m_SubMeshes[0].m_Bounds.ExpandToInclude(m_SubMeshes[idx].m_Bounds);
+    }
+  }
+
+  m_SubMeshes.SetCount(1);
+  m_SubMeshes[0].m_uiMaterialIndex = 0;
+
+  m_Materials.SetCount(1);
+}
+
 const ezBoundingBoxSphere& ezMeshResourceDescriptor::GetBounds() const
 {
   return m_Bounds;
@@ -146,7 +165,7 @@ void ezMeshResourceDescriptor::Save(ezStreamWriter& stream)
   }
 
   {
-    chunk.BeginChunk("MeshInfo", 3);
+    chunk.BeginChunk("MeshInfo", 4);
 
     // Number of vertices
     chunk << m_MeshBufferDescriptor.GetVertexCount();
@@ -178,10 +197,16 @@ void ezMeshResourceDescriptor::Save(ezStreamWriter& stream)
     }
 
     // Version 2
-    ComputeBounds();
+    if (!m_Bounds.IsValid())
+    {
+      ComputeBounds();
+    }
+
     chunk << m_Bounds.m_vCenter;
     chunk << m_Bounds.m_vBoxHalfExtends;
     chunk << m_Bounds.m_fSphereRadius;
+    // Version 4
+    chunk << m_fMaxBoneVertexOffset;
 
     chunk.EndChunk();
   }
@@ -362,7 +387,7 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReader& stream)
 
     if (ci.m_sChunkName == "MeshInfo")
     {
-      if (ci.m_uiChunkVersion > 3)
+      if (ci.m_uiChunkVersion > 4)
       {
         ezLog::Error("Version of chunk '{0}' is invalid ({1})", ci.m_sChunkName, ci.m_uiChunkVersion);
         return EZ_FAILURE;
@@ -429,6 +454,10 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReader& stream)
         chunk >> m_Bounds.m_vCenter;
         chunk >> m_Bounds.m_vBoxHalfExtends;
         chunk >> m_Bounds.m_fSphereRadius;
+      }
+      if (ci.m_uiChunkVersion >= 4)
+      {
+        chunk >> m_fMaxBoneVertexOffset;
       }
     }
 

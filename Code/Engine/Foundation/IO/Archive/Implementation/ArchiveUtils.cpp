@@ -2,7 +2,7 @@
 
 #include <Foundation/IO/Archive/ArchiveUtils.h>
 
-#include <Foundation/IO/CompressedStreamZlib.h>
+#include <Foundation/Algorithm/HashStream.h>
 #include <Foundation/IO/CompressedStreamZstd.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/MemoryMappedFile.h>
@@ -173,7 +173,7 @@ ezResult ezArchiveUtils::WriteEntryOptimal(ezStreamWriter& stream, const char* s
   }
   else
   {
-    ezMemoryStreamStorage storage;
+    ezDefaultMemoryStreamStorage storage;
     ezMemoryStreamWriter writer(&storage);
 
     ezUInt64 streamPos = inout_uiCurrentStreamPosition;
@@ -186,7 +186,7 @@ ezResult ezArchiveUtils::WriteEntryOptimal(ezStreamWriter& stream, const char* s
     }
     else
     {
-      auto res = stream.WriteBytes(storage.GetData(), storage.GetStorageSize());
+      auto res = storage.CopyToStream(stream);
       inout_uiCurrentStreamPosition = streamPos;
 
       return res;
@@ -204,15 +204,6 @@ public:
 
 #endif
 
-#ifdef BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
-
-class ezCompressedStreamReaderZipWithSource : public ezCompressedStreamReaderZip
-{
-public:
-  ezRawMemoryStreamReader m_Source;
-};
-
-#endif
 
 ezUniquePtr<ezStreamReader> ezArchiveUtils::CreateEntryReader(const ezArchiveEntry& entry, const void* pStartOfArchiveData)
 {
@@ -235,16 +226,6 @@ ezUniquePtr<ezStreamReader> ezArchiveUtils::CreateEntryReader(const ezArchiveEnt
       ezCompressedStreamReaderZstdWithSource* pRawReader = static_cast<ezCompressedStreamReaderZstdWithSource*>(reader.Borrow());
       ConfigureRawMemoryStreamReader(entry, pStartOfArchiveData, pRawReader->m_Source);
       pRawReader->SetInputStream(&pRawReader->m_Source);
-      break;
-    }
-#endif
-#ifdef BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
-    case ezArchiveCompressionMode::Compressed_zip:
-    {
-      reader = EZ_DEFAULT_NEW(ezCompressedStreamReaderZipWithSource);
-      ezCompressedStreamReaderZipWithSource* pRawReader = static_cast<ezCompressedStreamReaderZipWithSource*>(reader.Borrow());
-      ConfigureRawMemoryStreamReader(entry, pStartOfArchiveData, pRawReader->m_Source);
-      pRawReader->SetInputStream(&pRawReader->m_Source, entry.m_uiStoredDataSize);
       break;
     }
 #endif
@@ -288,18 +269,21 @@ struct TocMetaData
 
 ezResult ezArchiveUtils::AppendTOC(ezStreamWriter& stream, const ezArchiveTOC& toc)
 {
-  ezMemoryStreamStorage storage;
+  ezDefaultMemoryStreamStorage storage;
   ezMemoryStreamWriter writer(&storage);
 
   EZ_SUCCEED_OR_RETURN(toc.Serialize(writer));
 
-  EZ_SUCCEED_OR_RETURN(stream.WriteBytes(storage.GetData(), storage.GetStorageSize()));
+  EZ_SUCCEED_OR_RETURN(storage.CopyToStream(stream));
 
   TocMetaData tocMeta;
 
+  ezHashStreamWriter64 hashStream(tocMeta.m_uiSize);
+  EZ_SUCCEED_OR_RETURN(storage.CopyToStream(hashStream));
+
   // Added in file version 2: hash of the TOC
-  tocMeta.m_uiSize = storage.GetStorageSize();
-  tocMeta.m_uiHash = ezHashingUtils::xxHash64(storage.GetData(), tocMeta.m_uiSize);
+  tocMeta.m_uiSize = storage.GetStorageSize32();
+  tocMeta.m_uiHash = hashStream.GetHashValue();
 
   // append the TOC meta data
   stream << tocMeta.m_uiSize;
@@ -551,7 +535,7 @@ ezResult ezArchiveUtils::ExtractZipTOC(ezMemoryMappedFile& memFile, ezArchiveTOC
       const char* szName = reinterpret_cast<const char*>(toc.m_AllPathStrings.GetData() + entry.m_uiPathStringOffset);
       sLowerCaseHash = szName;
       sLowerCaseHash.ToLower();
-      toc.m_PathToEntryIndex.Insert(ezArchiveStoredString(ezHashingUtils::StringHash(sLowerCaseHash.GetData()), entry.m_uiPathStringOffset), toc.m_Entries.GetCount() - 1);
+      toc.m_PathToEntryIndex.Insert(ezArchiveStoredString(ezHashingUtils::StringHash(sLowerCaseHash), entry.m_uiPathStringOffset), toc.m_Entries.GetCount() - 1);
 
       // Compute data stream start location. We need to skip past the local (and redundant) file header to find it.
       const void* pLfStart = memFile.GetReadPointer(cdfHeader.offsetLocalHeader, ezMemoryMappedFile::OffsetBase::Start);

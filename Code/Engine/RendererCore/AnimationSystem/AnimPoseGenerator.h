@@ -206,5 +206,5 @@ private:
   ezHybridArray<ezAnimPoseGeneratorCommandModelPoseToOutput, 1> m_CommandsModelPoseToOutput;
   ezHybridArray<ezAnimPoseGeneratorCommandSampleEventTrack, 2> m_CommandsSampleEventTrack;
 
-  ezArrayMap<ezUInt32, ozz::animation::SamplingCache*> m_SamplingCaches;
+  ezArrayMap<ezUInt32, ozz::animation::SamplingJob::Context*> m_SamplingCaches;
 };

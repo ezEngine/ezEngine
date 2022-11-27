@@ -58,12 +58,12 @@ ezFileserveClient::~ezFileserveClient()
 
 void ezFileserveClient::ShutdownConnection()
 {
-  if (m_Network)
+  if (m_pNetwork)
   {
     ezLog::Dev("Shutting down fileserve client");
 
-    m_Network->ShutdownConnection();
-    m_Network = nullptr;
+    m_pNetwork->ShutdownConnection();
+    m_pNetwork = nullptr;
   }
 }
 
@@ -82,9 +82,9 @@ ezResult ezFileserveClient::EnsureConnected(ezTime timeout)
   if (!s_bEnableFileserve || m_bFailedToConnect)
     return EZ_FAILURE;
 
-  if (m_Network == nullptr)
+  if (m_pNetwork == nullptr)
   {
-    m_Network = ezRemoteInterfaceEnet::Make(); /// \todo Somehow abstract this away ?
+    m_pNetwork = ezRemoteInterfaceEnet::Make(); /// \todo Somehow abstract this away ?
 
     m_sFileserveCacheFolder = ezOSFile::GetUserDataFolder("ezFileserve/Cache");
     m_sFileserveCacheMetaFolder = ezOSFile::GetUserDataFolder("ezFileserve/Meta");
@@ -102,12 +102,12 @@ ezResult ezFileserveClient::EnsureConnected(ezTime timeout)
     }
   }
 
-  if (!m_Network->IsConnectedToServer())
+  if (!m_pNetwork->IsConnectedToServer())
   {
     ClearState();
     m_bFailedToConnect = true;
 
-    if (m_Network->ConnectToServer('EZFS', m_sServerConnectionAddress).Failed())
+    if (m_pNetwork->ConnectToServer('EZFS', m_sServerConnectionAddress).Failed())
       return EZ_FAILURE;
 
     if (timeout.GetSeconds() < 0)
@@ -115,18 +115,18 @@ ezResult ezFileserveClient::EnsureConnected(ezTime timeout)
       timeout = ezTime::Seconds(ezCommandLineUtils::GetGlobalInstance()->GetFloatOption("-fs_timeout", -timeout.GetSeconds()));
     }
 
-    if (m_Network->WaitForConnectionToServer(timeout).Failed())
+    if (m_pNetwork->WaitForConnectionToServer(timeout).Failed())
     {
-      m_Network->ShutdownConnection();
+      m_pNetwork->ShutdownConnection();
       ezLog::Error("Connection to ezFileserver timed out");
       return EZ_FAILURE;
     }
     else
     {
       ezLog::Success("Connected to ezFileserver '{0}", m_sServerConnectionAddress);
-      m_Network->SetMessageHandler('FSRV', ezMakeDelegate(&ezFileserveClient::NetworkMsgHandler, this));
+      m_pNetwork->SetMessageHandler('FSRV', ezMakeDelegate(&ezFileserveClient::NetworkMsgHandler, this));
 
-      m_Network->Send('FSRV', 'HELO'); // be friendly
+      m_pNetwork->Send('FSRV', 'HELO'); // be friendly
     }
 
     m_bFailedToConnect = false;
@@ -138,10 +138,10 @@ ezResult ezFileserveClient::EnsureConnected(ezTime timeout)
 void ezFileserveClient::UpdateClient()
 {
   EZ_LOCK(m_Mutex);
-  if (m_Network == nullptr || m_bFailedToConnect || !s_bEnableFileserve)
+  if (m_pNetwork == nullptr || m_bFailedToConnect || !s_bEnableFileserve)
     return;
 
-  if (!m_Network->IsConnectedToServer())
+  if (!m_pNetwork->IsConnectedToServer())
   {
     if (EnsureConnected().Failed())
     {
@@ -153,7 +153,7 @@ void ezFileserveClient::UpdateClient()
 
   m_CurrentTime = ezTime::Now();
 
-  m_Network->ExecuteAllMessageHandlers();
+  m_pNetwork->ExecuteAllMessageHandlers();
 }
 
 void ezFileserveClient::AddServerAddressToTry(const char* szAddress)
@@ -175,7 +175,7 @@ void ezFileserveClient::UploadFile(ezUInt16 uiDataDirID, const char* szFile, con
 {
   EZ_LOCK(m_Mutex);
 
-  if (m_Network == nullptr)
+  if (m_pNetwork == nullptr)
     return;
 
   // update meta state and cache
@@ -208,7 +208,7 @@ void ezFileserveClient::UploadFile(ezUInt16 uiDataDirID, const char* szFile, con
     msg.GetWriter() << uiFileSize;
     msg.GetWriter() << uiDataDirID;
     msg.GetWriter() << szFile;
-    m_Network->Send(ezRemoteTransmitMode::Reliable, msg);
+    m_pNetwork->Send(ezRemoteTransmitMode::Reliable, msg);
   }
 
   ezUInt32 uiNextByte = 0;
@@ -226,7 +226,7 @@ void ezFileserveClient::UploadFile(ezUInt16 uiDataDirID, const char* szFile, con
     msg.GetWriter().WriteBytes(&fileContent[uiNextByte], uiChunkSize).IgnoreResult();
 
     msg.SetMessageID('FSRV', 'UPLD');
-    m_Network->Send(ezRemoteTransmitMode::Reliable, msg);
+    m_pNetwork->Send(ezRemoteTransmitMode::Reliable, msg);
 
     uiNextByte += uiChunkSize;
   }
@@ -241,7 +241,7 @@ void ezFileserveClient::UploadFile(ezUInt16 uiDataDirID, const char* szFile, con
     msg.GetWriter() << uiDataDirID;
     msg.GetWriter() << szFile;
 
-    m_Network->Send(ezRemoteTransmitMode::Reliable, msg);
+    m_pNetwork->Send(ezRemoteTransmitMode::Reliable, msg);
   }
 
   while (m_bWaitingForUploadFinished)
@@ -270,7 +270,7 @@ void ezFileserveClient::FillFileStatusCache(const char* szFile)
   auto it = m_FileDataDir.FindOrAdd(szFile);
   it.Value() = 0xffff; // does not exist
 
-  for (ezUInt32 i = m_MountedDataDirs.GetCount(); i > 0; --i)
+  for (ezUInt16 i = static_cast<ezUInt16>(m_MountedDataDirs.GetCount()); i > 0; --i)
   {
     const ezUInt16 dd = i - 1;
 
@@ -371,13 +371,13 @@ void ezFileserveClient::NetworkMsgHandler(ezRemoteMessage& msg)
     return;
   }
 
-  ezLog::Error("Unknown FSRV message: '{0}' - {1} bytes", msg.GetMessageID(), msg.GetMessageSize());
+  ezLog::Error("Unknown FSRV message: '{0}' - {1} bytes", msg.GetMessageID(), msg.GetMessageData().GetCount());
 }
 
 ezUInt16 ezFileserveClient::MountDataDirectory(const char* szDataDirectory, const char* szRootName)
 {
   EZ_LOCK(m_Mutex);
-  if (!m_Network->IsConnectedToServer())
+  if (!m_pNetwork->IsConnectedToServer())
     return 0xffff;
 
   ezStringBuilder sRoot = szRootName;
@@ -386,7 +386,7 @@ ezUInt16 ezFileserveClient::MountDataDirectory(const char* szDataDirectory, cons
   ezStringBuilder sMountPoint;
   ComputeDataDirMountPoint(szDataDirectory, sMountPoint);
 
-  const ezUInt16 uiDataDirID = m_MountedDataDirs.GetCount();
+  const ezUInt16 uiDataDirID = static_cast<ezUInt16>(m_MountedDataDirs.GetCount());
 
   ezRemoteMessage msg('FSRV', ' MNT');
   msg.GetWriter() << szDataDirectory;
@@ -394,7 +394,7 @@ ezUInt16 ezFileserveClient::MountDataDirectory(const char* szDataDirectory, cons
   msg.GetWriter() << sMountPoint;
   msg.GetWriter() << uiDataDirID;
 
-  m_Network->Send(ezRemoteTransmitMode::Reliable, msg);
+  m_pNetwork->Send(ezRemoteTransmitMode::Reliable, msg);
 
   auto& dd = m_MountedDataDirs.ExpandAndGetRef();
   // dd.m_sPathOnClient = szDataDirectory;
@@ -409,13 +409,13 @@ ezUInt16 ezFileserveClient::MountDataDirectory(const char* szDataDirectory, cons
 void ezFileserveClient::UnmountDataDirectory(ezUInt16 uiDataDir)
 {
   EZ_LOCK(m_Mutex);
-  if (!m_Network->IsConnectedToServer())
+  if (!m_pNetwork->IsConnectedToServer())
     return;
 
   ezRemoteMessage msg('FSRV', 'UMNT');
   msg.GetWriter() << uiDataDir;
 
-  m_Network->Send(ezRemoteTransmitMode::Reliable, msg);
+  m_pNetwork->Send(ezRemoteTransmitMode::Reliable, msg);
 
   auto& dd = m_MountedDataDirs[uiDataDir];
   dd.m_bMounted = false;
@@ -424,7 +424,7 @@ void ezFileserveClient::UnmountDataDirectory(ezUInt16 uiDataDir)
 void ezFileserveClient::DeleteFile(ezUInt16 uiDataDir, const char* szFile)
 {
   EZ_LOCK(m_Mutex);
-  if (!m_Network->IsConnectedToServer())
+  if (!m_pNetwork->IsConnectedToServer())
     return;
 
   InvalidateFileCache(uiDataDir, szFile, 0);
@@ -433,7 +433,7 @@ void ezFileserveClient::DeleteFile(ezUInt16 uiDataDir, const char* szFile)
   msg.GetWriter() << uiDataDir;
   msg.GetWriter() << szFile;
 
-  m_Network->Send(ezRemoteTransmitMode::Reliable, msg);
+  m_pNetwork->Send(ezRemoteTransmitMode::Reliable, msg);
 }
 
 void ezFileserveClient::HandleFileTransferMsg(ezRemoteMessage& msg)
@@ -601,7 +601,7 @@ ezResult ezFileserveClient::DownloadFile(ezUInt16 uiDataDirID, const char* szFil
   EZ_ASSERT_DEV(m_MountedDataDirs[uiDataDirID].m_bMounted, "Data directory {0} is not mounted", uiDataDirID);
   EZ_ASSERT_DEV(!m_bDownloading, "Cannot start a download, while one is still running");
 
-  if (!m_Network->IsConnectedToServer())
+  if (!m_pNetwork->IsConnectedToServer())
     return EZ_FAILURE;
 
   bool bCachedYet = false;
@@ -638,12 +638,12 @@ ezResult ezFileserveClient::DownloadFile(ezUInt16 uiDataDirID, const char* szFil
   msg.GetWriter() << CacheStatus.m_TimeStamp;
   msg.GetWriter() << CacheStatus.m_FileHash;
 
-  m_Network->Send(ezRemoteTransmitMode::Reliable, msg);
+  m_pNetwork->Send(ezRemoteTransmitMode::Reliable, msg);
 
   while (m_bDownloading)
   {
-    m_Network->UpdateRemoteInterface();
-    m_Network->ExecuteAllMessageHandlers();
+    m_pNetwork->UpdateRemoteInterface();
+    m_pNetwork->ExecuteAllMessageHandlers();
   }
 
   if (bForceThisDataDir)

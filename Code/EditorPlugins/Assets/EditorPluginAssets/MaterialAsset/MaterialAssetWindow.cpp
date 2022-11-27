@@ -7,12 +7,65 @@
 #include <EditorPluginAssets/MaterialAsset/MaterialAssetManager.h>
 #include <EditorPluginAssets/MaterialAsset/MaterialAssetWindow.moc.h>
 #include <EditorPluginAssets/VisualShader/VisualShaderScene.moc.h>
+#include <GuiFoundation/Action/ActionMapManager.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <GuiFoundation/DockPanels/DocumentPanel.moc.h>
 #include <GuiFoundation/NodeEditor/NodeView.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
+
+////////////////////////////////////////////////////////////////////////
+// ezMaterialModelAction
+////////////////////////////////////////////////////////////////////////
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialModelAction, 1, ezRTTINoAllocator)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+ezMaterialModelAction::ezMaterialModelAction(const ezActionContext& context, const char* szName, const char* szIconPath)
+  : ezEnumerationMenuAction(context, szName, szIconPath)
+{
+  InitEnumerationType(ezGetStaticRTTI<ezMaterialAssetPreview>());
+}
+
+ezInt64 ezMaterialModelAction::GetValue() const
+{
+  return static_cast<const ezMaterialAssetDocument*>(m_Context.m_pDocument)->m_PreviewModel.GetValue();
+}
+
+void ezMaterialModelAction::Execute(const ezVariant& value)
+{
+  ((ezMaterialAssetDocument*)m_Context.m_pDocument)->m_PreviewModel.SetValue(value.ConvertTo<ezInt32>());
+}
+
+//////////////////////////////////////////////////////////////////////////
+// ezMaterialAssetActions
+//////////////////////////////////////////////////////////////////////////
+
+ezActionDescriptorHandle ezMaterialAssetActions::s_hMaterialModelAction;
+
+void ezMaterialAssetActions::RegisterActions()
+{
+  s_hMaterialModelAction = EZ_REGISTER_DYNAMIC_MENU("MaterialAsset.Model", ezMaterialModelAction, ":/EditorFramework/Icons/Perspective.png");
+}
+
+void ezMaterialAssetActions::UnregisterActions()
+{
+  ezActionManager::UnregisterAction(s_hMaterialModelAction);
+}
+
+void ezMaterialAssetActions::MapActions(const char* szMapping, const char* szPath)
+{
+  ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
+  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", szMapping);
+
+  pMap->MapAction(s_hMaterialModelAction, szPath, 45.0f);
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+// ezQtMaterialAssetDocumentWindow
+//////////////////////////////////////////////////////////////////////////
 
 
 ezInt32 ezQtMaterialAssetDocumentWindow::s_iNodeConfigWatchers = 0;
@@ -54,11 +107,11 @@ ezQtMaterialAssetDocumentWindow::ezQtMaterialAssetDocumentWindow(ezMaterialAsset
   {
     SetTargetFramerate(25);
 
-    m_ViewConfig.m_Camera.LookAt(ezVec3(+1.6, 0, 0), ezVec3(0, 0, 0), ezVec3(0, 0, 1));
+    m_ViewConfig.m_Camera.LookAt(ezVec3(+1.6f, 0.5f, 0.3f), ezVec3(0, 0, 0), ezVec3(0, 0, 1));
     m_ViewConfig.ApplyPerspectiveSetting(90, 0.01f, 100.0f);
 
     m_pViewWidget = new ezQtOrbitCamViewWidget(this, &m_ViewConfig);
-    m_pViewWidget->ConfigureOrbitCameraVolume(ezVec3(0), ezVec3(0.0f), ezVec3(+0.2, 0, 0));
+    m_pViewWidget->ConfigureOrbitCameraVolume(ezVec3(0), ezVec3(0.0f), ezVec3(+0.23f, -0.04f, 0.02f));
     AddViewWidget(m_pViewWidget);
     ezQtViewWidgetContainer* pContainer = new ezQtViewWidgetContainer(nullptr, m_pViewWidget, "MaterialAssetViewToolBar");
 
@@ -67,7 +120,7 @@ ezQtMaterialAssetDocumentWindow::ezQtMaterialAssetDocumentWindow(ezMaterialAsset
 
   // Property Grid
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this);
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
     pPropertyPanel->setObjectName("MaterialAssetDockWidget");
     pPropertyPanel->setWindowTitle("Material Properties");
     pPropertyPanel->show();
@@ -80,7 +133,7 @@ ezQtMaterialAssetDocumentWindow::ezQtMaterialAssetDocumentWindow(ezMaterialAsset
 
   // Visual Shader Editor
   {
-    m_pVsePanel = new ezQtDocumentPanel(this);
+    m_pVsePanel = new ezQtDocumentPanel(this, pDocument);
     m_pVsePanel->setObjectName("VisualShaderDockWidget");
     m_pVsePanel->setWindowTitle("Visual Shader Editor");
 
@@ -236,7 +289,7 @@ void ezQtMaterialAssetDocumentWindow::UpdatePreview()
   ezStringBuilder tmp;
   msg.m_sResourceID = ezConversionUtils::ToString(GetDocument()->GetGuid(), tmp);
 
-  ezMemoryStreamStorage streamStorage;
+  ezContiguousMemoryStreamStorage streamStorage;
   ezMemoryStreamWriter memoryWriter(&streamStorage);
 
   // Write Path
@@ -250,7 +303,7 @@ void ezQtMaterialAssetDocumentWindow::UpdatePreview()
   AssetHeader.Write(memoryWriter).IgnoreResult();
   // Write Asset Data
   GetMaterialDocument()->WriteMaterialAsset(memoryWriter, ezAssetCurator::GetSingleton()->GetActiveAssetProfile(), false);
-  msg.m_Data = ezArrayPtr<const ezUInt8>(streamStorage.GetData(), streamStorage.GetStorageSize());
+  msg.m_Data = ezArrayPtr<const ezUInt8>(streamStorage.GetData(), streamStorage.GetStorageSize32());
 
   ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
 }
@@ -263,6 +316,16 @@ void ezQtMaterialAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjec
   }
 
   UpdatePreview();
+
+  if (e.m_sProperty == "ShaderMode" ||
+      e.m_sProperty == "BLEND_MODE" ||
+      e.m_sProperty == "BaseMaterial")
+  {
+    ezDocumentConfigMsgToEngine msg;
+    msg.m_sWhatToDo = "InvalidateCache";
+
+    GetEditorEngineConnection()->SendMessage(&msg);
+  }
 }
 
 
@@ -280,6 +343,16 @@ void ezQtMaterialAssetDocumentWindow::SendRedrawMsg()
   // do not try to redraw while the process is crashed, it is obviously futile
   if (ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
     return;
+
+  {
+    const ezMaterialAssetDocument* pDoc = static_cast<const ezMaterialAssetDocument*>(GetDocument());
+
+    ezDocumentConfigMsgToEngine msg;
+    msg.m_sWhatToDo = "PreviewModel";
+    msg.m_iValue = pDoc->m_PreviewModel.GetValue();
+
+    GetEditorEngineConnection()->SendMessage(&msg);
+  }
 
   for (auto pView : m_ViewWidgets)
   {
@@ -318,9 +391,9 @@ void ezQtMaterialAssetDocumentWindow::UpdateNodeEditorVisibility()
   }
 }
 
-void ezQtMaterialAssetDocumentWindow::OnVseConfigChanged(const char* filename, ezDirectoryWatcherAction action)
+void ezQtMaterialAssetDocumentWindow::OnVseConfigChanged(const char* filename, ezDirectoryWatcherAction action, ezDirectoryWatcherType type)
 {
-  if (!ezPathUtils::HasExtension(filename, "DDL"))
+  if (type != ezDirectoryWatcherType::File || !ezPathUtils::HasExtension(filename, "DDL"))
     return;
 
   // lalala ... this is to allow writes to the file to 'hopefully' finish before we try to read it

@@ -1,5 +1,6 @@
 #include <EditorPluginAssets/EditorPluginAssetsPCH.h>
 
+#include <EditorFramework/GUI/ExposedParameters.h>
 #include <EditorPluginAssets/SkeletonAsset/SkeletonAsset.h>
 #include <Foundation/Utilities/Progress.h>
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
@@ -9,7 +10,7 @@
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSkeletonAssetDocument, 5, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSkeletonAssetDocument, 9, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
@@ -145,54 +146,178 @@ ezStatus ezSkeletonAssetDocument::WriteResource(ezStreamWriter& stream) const
   return ezStatus(EZ_SUCCESS);
 }
 
-ezStatus ezSkeletonAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+void ezSkeletonAssetDocument::SetRenderBones(bool enable)
 {
-  m_bIsTransforming = true;
-  EZ_SCOPE_EXIT(m_bIsTransforming = false);
+  if (m_bRenderBones == enable)
+    return;
 
-  ezProgressRange range("Transforming Asset", 3, false);
+  m_bRenderBones = enable;
 
-  ezEditableSkeleton* pProp = GetProperties();
+  ezSkeletonAssetEvent e;
+  e.m_pDocument = this;
+  e.m_Type = ezSkeletonAssetEvent::RenderStateChanged;
+  m_Events.Broadcast(e);
+}
+
+void ezSkeletonAssetDocument::SetRenderColliders(bool enable)
+{
+  if (m_bRenderColliders == enable)
+    return;
+
+  m_bRenderColliders = enable;
+
+  ezSkeletonAssetEvent e;
+  e.m_pDocument = this;
+  e.m_Type = ezSkeletonAssetEvent::RenderStateChanged;
+  m_Events.Broadcast(e);
+}
+
+void ezSkeletonAssetDocument::SetRenderJoints(bool enable)
+{
+  if (m_bRenderJoints == enable)
+    return;
+
+  m_bRenderJoints = enable;
+
+  ezSkeletonAssetEvent e;
+  e.m_pDocument = this;
+  e.m_Type = ezSkeletonAssetEvent::RenderStateChanged;
+  m_Events.Broadcast(e);
+}
+
+void ezSkeletonAssetDocument::SetRenderSwingLimits(bool enable)
+{
+  if (m_bRenderSwingLimits == enable)
+    return;
+
+  m_bRenderSwingLimits = enable;
+
+  ezSkeletonAssetEvent e;
+  e.m_pDocument = this;
+  e.m_Type = ezSkeletonAssetEvent::RenderStateChanged;
+  m_Events.Broadcast(e);
+}
+
+void ezSkeletonAssetDocument::SetRenderTwistLimits(bool enable)
+{
+  if (m_bRenderTwistLimits == enable)
+    return;
+
+  m_bRenderTwistLimits = enable;
+
+  ezSkeletonAssetEvent e;
+  e.m_pDocument = this;
+  e.m_Type = ezSkeletonAssetEvent::RenderStateChanged;
+  m_Events.Broadcast(e);
+}
+
+void ezSkeletonAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
+{
+  SUPER::UpdateAssetDocumentInfo(pInfo);
+
+  // expose all the bones as parameters
+  // such that we can create components that modify these bones
+
+  auto* desc = GetProperties();
+  ezExposedParameters* pExposedParams = EZ_DEFAULT_NEW(ezExposedParameters);
+
 
   {
-    ezStringBuilder sAbsFilename = pProp->m_sAnimationFile;
-    if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sAbsFilename))
-    {
-      return ezStatus(ezFmt("Couldn't make path absolute: '{0};", sAbsFilename));
-    }
+    ezExposedBone bone;
+    bone.m_sName = "<root-transform>";
+    bone.m_Transform = CalculateTransformationMatrix(desc);
 
-    ezUniquePtr<ezModelImporter2::Importer> pImporter = ezModelImporter2::RequestImporterForFileType(sAbsFilename);
-    if (pImporter == nullptr)
-      return ezStatus("No known importer for this file type.");
+    ezExposedParameter* param = EZ_DEFAULT_NEW(ezExposedParameter);
+    param->m_sName = "<root-transform>";
+    param->m_DefaultValue.CopyTypedObject(&bone, ezGetStaticRTTI<ezExposedBone>());
 
-    range.BeginNextStep("Importing Source File");
-
-    ezEditableSkeleton newSkeleton;
-
-    ezModelImporter2::ImportOptions opt;
-    opt.m_sSourceFile = sAbsFilename;
-    opt.m_pSkeletonOutput = &newSkeleton;
-
-    if (pImporter->Import(opt).Failed())
-      return ezStatus("Model importer was unable to read this asset.");
-
-    range.BeginNextStep("Importing Skeleton Data");
-
-    // synchronize the old data (collision geometry etc.) with the new hierarchy
-    MergeWithNewSkeleton(newSkeleton);
+    pExposedParams->m_Parameters.PushBack(param);
   }
 
-  // merge the new data with the actual asset document
-  ApplyNativePropertyChangesToObjectManager(true);
+  auto Traverse = [&](ezEditableSkeletonJoint* pJoint, const char* szParent, auto Recurse) -> void {
+    ezExposedBone bone;
+    bone.m_sName = pJoint->GetName();
+    bone.m_sParent = szParent;
+    bone.m_Transform = pJoint->m_LocalTransform;
 
-  range.BeginNextStep("Writing Result");
+    ezExposedParameter* param = EZ_DEFAULT_NEW(ezExposedParameter);
+    param->m_sName = pJoint->GetName();
+    param->m_DefaultValue.CopyTypedObject(&bone, ezGetStaticRTTI<ezExposedBone>());
 
-  EZ_SUCCEED_OR_RETURN(WriteResource(stream));
+    pExposedParams->m_Parameters.PushBack(param);
+
+    for (auto pChild : pJoint->m_Children)
+    {
+      Recurse(pChild, pJoint->GetName(), Recurse);
+    }
+  };
+
+  for (auto ptr : desc->m_Children)
+  {
+    Traverse(ptr, "", Traverse);
+  }
+
+  // Info takes ownership of meta data.
+  pInfo->m_MetaInfo.PushBack(pExposedParams);
+}
+
+ezTransformStatus ezSkeletonAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+{
+  {
+    m_bIsTransforming = true;
+    EZ_SCOPE_EXIT(m_bIsTransforming = false);
+
+    ezProgressRange range("Transforming Asset", 3, false);
+
+    ezEditableSkeleton* pProp = GetProperties();
+
+    ezStringBuilder sAbsFilename = pProp->m_sSourceFile;
+
+    if (!sAbsFilename.IsEmpty())
+    {
+      if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sAbsFilename))
+      {
+        return ezStatus(ezFmt("Couldn't make path absolute: '{0};", sAbsFilename));
+      }
+
+      ezUniquePtr<ezModelImporter2::Importer> pImporter = ezModelImporter2::RequestImporterForFileType(sAbsFilename);
+      if (pImporter == nullptr)
+        return ezStatus("No known importer for this file type.");
+
+      range.BeginNextStep("Importing Source File");
+
+      ezEditableSkeleton newSkeleton;
+
+      ezModelImporter2::ImportOptions opt;
+      opt.m_sSourceFile = sAbsFilename;
+      opt.m_pSkeletonOutput = &newSkeleton;
+
+      if (pImporter->Import(opt).Failed())
+        return ezStatus("Model importer was unable to read this asset.");
+
+      range.BeginNextStep("Importing Skeleton Data");
+
+      // synchronize the old data (collision geometry etc.) with the new hierarchy
+      MergeWithNewSkeleton(newSkeleton);
+
+      // merge the new data with the actual asset document
+      ApplyNativePropertyChangesToObjectManager(true);
+    }
+
+    range.BeginNextStep("Writing Result");
+
+    EZ_SUCCEED_OR_RETURN(WriteResource(stream));
+  }
+
+  ezSkeletonAssetEvent e;
+  e.m_pDocument = this;
+  e.m_Type = ezSkeletonAssetEvent::Transformed;
+  m_Events.Broadcast(e);
 
   return ezStatus(EZ_SUCCESS);
 }
 
-ezStatus ezSkeletonAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo)
+ezTransformStatus ezSkeletonAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo)
 {
   ezStatus status = ezAssetDocument::RemoteCreateThumbnail(ThumbnailInfo);
   return status;
@@ -229,8 +354,13 @@ void ezSkeletonAssetDocument::MergeWithNewSkeleton(ezEditableSkeleton& newSkelet
         pJoint->CopyPropertiesFrom(it.Value());
       }
 
-      origin.SetGlobalTransform(origin, pJoint->m_Transform);
-      pJoint->m_vJointPosGlobal = tRoot.TransformPosition(origin.m_vPosition);
+      // use the parent rotation as the gizmo base rotation
+      ezMat4 modelTransform, fullTransform;
+      modelTransform = origin.GetAsMat4();
+      ezMsgAnimationPoseUpdated::ComputeFullBoneTransform(tRoot.GetAsMat4(), modelTransform, fullTransform, pJoint->m_qGizmoOffsetRotationRO);
+
+      origin.SetGlobalTransform(origin, pJoint->m_LocalTransform);
+      pJoint->m_vGizmoOffsetPositionRO = tRoot.TransformPosition(origin.m_vPosition);
 
       for (ezEditableSkeletonJoint* pChild : pJoint->m_Children)
       {

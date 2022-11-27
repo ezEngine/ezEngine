@@ -38,13 +38,13 @@ public:
   const ezRmlUiResourceHandle& GetRmlResource() const { return m_hResource; }
 
   void SetOffset(const ezVec2I32& offset);                // [ property ]
-  const ezVec2I32& GetOffset() const { return m_Offset; } // [ property ]
+  const ezVec2I32& GetOffset() const { return m_vOffset; } // [ property ]
 
   void SetSize(const ezVec2U32& size);                // [ property ]
-  const ezVec2U32& GetSize() const { return m_Size; } // [ property ]
+  const ezVec2U32& GetSize() const { return m_vSize; } // [ property ]
 
   void SetAnchorPoint(const ezVec2& anchorPoint);                // [ property ]
-  const ezVec2& GetAnchorPoint() const { return m_AnchorPoint; } // [ property ]
+  const ezVec2& GetAnchorPoint() const { return m_vAnchorPoint; } // [ property ]
 
   void SetPassInput(bool bPassInput);                // [ property ]
   bool GetPassInput() const { return m_bPassInput; } // [ property ]
@@ -57,7 +57,7 @@ public:
   void RemoveDataBinding(ezUInt32 uiDataBindingIndex);
 
   /// \brief Adds the given blackboard as data binding. The name of the board is used as model name for the binding.
-  ezUInt32 AddBlackboardBinding(ezBlackboard& blackboard);
+  ezUInt32 AddBlackboardBinding(const ezSharedPtr<ezBlackboard>& pBlackboard);
   void RemoveBlackboardBinding(ezUInt32 uiDataBindingIndex);
 
   ezRmlUiContext* GetOrCreateRmlContext();
@@ -66,7 +66,7 @@ public:
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
-  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible) override;
+  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg) override;
 
 protected:
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
@@ -77,10 +77,10 @@ protected:
   ezRmlUiResourceHandle m_hResource;
   ezEvent<const ezResourceEvent&, ezMutex>::Unsubscriber m_ResourceEventUnsubscriber;
 
-  ezVec2I32 m_Offset = ezVec2I32::ZeroVector();
-  ezVec2U32 m_Size = ezVec2U32::ZeroVector();
-  ezVec2 m_AnchorPoint = ezVec2::ZeroVector();
-  ezVec2U32 m_ReferenceResolution = ezVec2U32::ZeroVector();
+  ezVec2I32 m_vOffset = ezVec2I32::ZeroVector();
+  ezVec2U32 m_vSize = ezVec2U32::ZeroVector();
+  ezVec2 m_vAnchorPoint = ezVec2::ZeroVector();
+  ezVec2U32 m_vReferenceResolution = ezVec2U32::ZeroVector();
   bool m_bPassInput = true;
   bool m_bAutobindBlackboards = true;
 

@@ -22,7 +22,7 @@ ezUInt32 ezArchiveTOC::FindEntry(const char* szFile) const
 
   ezUInt32 uiIndex;
 
-  ezArchiveLookupString lookup(ezHashingUtils::StringHash(sLowerCasePath.GetData()), sLowerCasePath, m_AllPathStrings);
+  ezArchiveLookupString lookup(ezHashingUtils::StringHash(sLowerCasePath.GetView()), sLowerCasePath, m_AllPathStrings);
 
   if (!m_PathToEntryIndex.TryGetValue(lookup, uiIndex))
     return ezInvalidIndex;
@@ -53,6 +53,33 @@ ezResult ezArchiveTOC::Serialize(ezStreamWriter& stream) const
   return EZ_SUCCESS;
 }
 
+struct ezOldTempHashedString
+{
+  ezUInt32 m_uiHash = 0;
+
+  ezResult Deserialize(ezStreamReader& r)
+  {
+    r >> m_uiHash;
+    return EZ_SUCCESS;
+  }
+
+  bool operator==(const ezOldTempHashedString& rhs) const
+  {
+    return m_uiHash == rhs.m_uiHash;
+  }
+};
+
+template <>
+struct ezHashHelper<ezOldTempHashedString>
+{
+  static ezUInt32 Hash(const ezOldTempHashedString& value)
+  {
+    return value.m_uiHash;
+  }
+
+  static bool Equal(const ezOldTempHashedString& a, const ezOldTempHashedString& b) { return a == b; }
+};
+
 ezResult ezArchiveTOC::Deserialize(ezStreamReader& stream, ezUInt8 uiArchiveVersion)
 {
   EZ_ASSERT_ALWAYS(uiArchiveVersion <= 4, "Unsupported archive version {}", uiArchiveVersion);
@@ -67,7 +94,7 @@ ezResult ezArchiveTOC::Deserialize(ezStreamReader& stream, ezUInt8 uiArchiveVers
   if (version == 1)
   {
     // read and discard the data, it is regenerated below
-    ezHashTable<ezTempHashedString, ezUInt32> m_PathToIndex;
+    ezHashTable<ezOldTempHashedString, ezUInt32> m_PathToIndex;
     EZ_SUCCEED_OR_RETURN(stream.ReadHashTable(m_PathToIndex));
   }
   else
@@ -116,7 +143,7 @@ ezResult ezArchiveTOC::Deserialize(ezStreamReader& stream, ezUInt8 uiArchiveVers
       sLowerCasePath.ToLower();
 
       // cut off the upper 32 bit, we don't need them here
-      const ezUInt32 uiLowerCaseHash = ezHashingUtils::StringHashTo32(ezHashingUtils::StringHash(sLowerCasePath.GetData()) & 0xFFFFFFFFllu);
+      const ezUInt32 uiLowerCaseHash = ezHashingUtils::StringHashTo32(ezHashingUtils::StringHash(sLowerCasePath.GetView()) & 0xFFFFFFFFllu);
 
       m_PathToEntryIndex.Insert(ezArchiveStoredString(uiLowerCaseHash, uiSrcStringOffset), i);
 

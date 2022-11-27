@@ -85,17 +85,23 @@ namespace
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezExtractor, 1, ezRTTINoAllocator)
   {
     EZ_BEGIN_PROPERTIES
     {
       EZ_MEMBER_PROPERTY("Active", m_bActive)->AddAttributes(new ezDefaultValueAttribute(true)),
       EZ_ACCESSOR_PROPERTY("Name", GetName, SetName),
-    } EZ_END_PROPERTIES;
+    }
+    EZ_END_PROPERTIES;
     EZ_BEGIN_ATTRIBUTES
-    {new ezColorAttribute(ezColorGammaUB(128, 0, 0))} EZ_END_ATTRIBUTES;
+    {
+      new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Red)),
+    }
+    EZ_END_ATTRIBUTES;
   }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format om
 
 ezExtractor::ezExtractor(const char* szName)
 {

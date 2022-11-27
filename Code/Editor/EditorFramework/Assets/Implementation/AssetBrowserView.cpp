@@ -76,7 +76,11 @@ void ezQtAssetBrowserView::wheelEvent(QWheelEvent* pEvent)
 {
   if (pEvent->modifiers() == Qt::CTRL)
   {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+    ezInt32 iDelta = pEvent->angleDelta().y() > 0 ? 5 : -5;
+#else
     ezInt32 iDelta = pEvent->delta() > 0 ? 5 : -5;
+#endif
     SetIconScale(m_iIconSizePercentage + iDelta);
     Q_EMIT ViewZoomed(m_iIconSizePercentage);
     return;
@@ -120,9 +124,9 @@ bool ezQtIconViewDelegate::mouseReleaseEvent(QMouseEvent* event, const QStyleOpt
   {
     ezUuid guid = index.data(ezQtAssetBrowserModel::UserRoles::AssetGuid).value<ezUuid>();
 
-    auto ret = ezAssetCurator::GetSingleton()->TransformAsset(guid, ezTransformFlags::TriggeredManually);
+    ezTransformStatus ret = ezAssetCurator::GetSingleton()->TransformAsset(guid, ezTransformFlags::TriggeredManually);
 
-    if (ret.m_Result.Failed())
+    if (ret.Failed())
     {
       QString path = index.data(ezQtAssetBrowserModel::UserRoles::RelativePath).toString();
       ezLog::Error("Transform failed: '{0}' ({1})", ret.m_sMessage, path.toUtf8().data());
@@ -196,8 +200,8 @@ void ezQtIconViewDelegate::paint(QPainter* painter, const QStyleOptionViewItem& 
   {
     QRect thumbnailRect = opt.rect.adjusted(ItemSideMargin - 2, ItemSideMargin + uiThumbnailSize - 16 + 2, 0, 0);
     thumbnailRect.setSize(QSize(16, 16));
-    QPixmap pixmap = qvariant_cast<QPixmap>(index.data(ezQtAssetBrowserModel::UserRoles::AssetIconPath));
-    painter->drawPixmap(thumbnailRect, pixmap);
+    QIcon icon = qvariant_cast<QIcon>(index.data(ezQtAssetBrowserModel::UserRoles::AssetIconPath));
+    icon.paint(painter, thumbnailRect);
   }
 
   // Draw Transform State Icon
@@ -211,7 +215,6 @@ void ezQtIconViewDelegate::paint(QPainter* painter, const QStyleOptionViewItem& 
     switch (state)
     {
       case ezAssetInfo::TransformState::Unknown:
-      case ezAssetInfo::TransformState::Updating:
         ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetUnknown16.png").paint(painter, thumbnailRect);
         break;
       case ezAssetInfo::TransformState::NeedsThumbnail:
@@ -231,6 +234,9 @@ void ezQtIconViewDelegate::paint(QPainter* painter, const QStyleOptionViewItem& 
         break;
       case ezAssetInfo::TransformState::TransformError:
         ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetFailedTransform16.png").paint(painter, thumbnailRect);
+        break;
+      case ezAssetInfo::TransformState::NeedsImport:
+        ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetNeedsImport16.png").paint(painter, thumbnailRect);
         break;
       case ezAssetInfo::TransformState::COUNT:
         break;

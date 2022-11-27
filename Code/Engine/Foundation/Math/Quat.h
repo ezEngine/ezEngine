@@ -66,6 +66,19 @@ public:
   /// \brief Creates a quaternion from the given matrix.
   void SetFromMat3(const ezMat3Template<Type>& m); // [tested]
 
+  /// \brief Reconstructs a rotation quaternion from a matrix that may contain scaling and mirroring.
+  ///
+  /// In skeletal animation it is possible that matrices with mirroring are used, that need to be converted to a
+  /// proper quaternion, even though a rotation with mirroring can't be represented by a quaternion.
+  /// This function reconstructs a valid quaternion from such matrices. Obviously the mirroring information gets lost,
+  /// but it is typically not needed any further anway.
+  void ReconstructFromMat3(const ezMat3Template<Type>& m);
+
+  /// \brief Reconstructs a rotation quaternion from a matrix that may contain scaling and mirroring.
+  ///
+  /// \sa ReconstructFromMat3()
+  void ReconstructFromMat4(const ezMat4Template<Type>& m);
+
   /// \brief Sets this quaternion to be the spherical linear interpolation of the other two.
   void SetSlerp(const ezQuatTemplate& qFrom, const ezQuatTemplate& qTo, Type t); // [tested]
 
@@ -75,7 +88,7 @@ public:
   void Normalize(); // [tested]
 
   /// \brief Returns the rotation-axis and angle, that this quaternion rotates around.
-  ezResult GetRotationAxisAndAngle(ezVec3Template<Type>& vAxis, ezAngle& angle, float fEpsilon = ezMath::DefaultEpsilon<Type>()) const; // [tested]
+  ezResult GetRotationAxisAndAngle(ezVec3Template<Type>& vAxis, ezAngle& angle, Type fEpsilon = ezMath::DefaultEpsilon<Type>()) const; // [tested]
 
   /// \brief Returns the Quaternion as a matrix.
   const ezMat3Template<Type> GetAsMat3() const; // [tested]
@@ -94,7 +107,7 @@ public:
   /// Currently it fails when one of the given quaternions is identity (so no rotation, at all), as it tries to
   /// compare rotation axis' and angles, which is undefined for the identity quaternion (also there are infinite
   /// representations for 'identity', so it's difficult to check for it).
-  bool IsEqualRotation(const ezQuatTemplate& qOther, float fEpsilon) const; // [tested]
+  bool IsEqualRotation(const ezQuatTemplate& qOther, Type fEpsilon) const; // [tested]
 
   // *** Operators ***
 public:

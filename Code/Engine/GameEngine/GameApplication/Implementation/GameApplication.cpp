@@ -31,8 +31,8 @@
 ezGameApplication* ezGameApplication::s_pGameApplicationInstance = nullptr;
 ezDelegate<ezGALDevice*(const ezGALDeviceCreationDescription&)> ezGameApplication::s_DefaultDeviceCreator;
 
-ezCVarBool cvar_AppVSync("App.VSync", false, ezCVarFlags::Save, "Enables V-Sync");
-ezCVarBool cvar_AppShowFPS("App.ShowFPS", false, ezCVarFlags::Save, "Show frames per second counter");
+ezCVarBool ezGameApplication::cvar_AppVSync("App.VSync", false, ezCVarFlags::Save, "Enables V-Sync");
+ezCVarBool ezGameApplication::cvar_AppShowFPS("App.ShowFPS", false, ezCVarFlags::Save, "Show frames per second counter");
 
 ezGameApplication::ezGameApplication(const char* szAppName, const char* szProjectPath /*= nullptr*/)
   : ezGameApplicationBase(szAppName)
@@ -66,9 +66,7 @@ void ezGameApplication::ReinitializeInputConfig()
 
 ezString ezGameApplication::FindProjectDirectory() const
 {
-  EZ_ASSERT_RELEASE(!m_sAppProjectPath.IsEmpty(), "Either the project must have a built in project directory passed to the "
-                                                  "ezGameApplication constructor, or m_sAppProjectPath must be set manually before doing "
-                                                  "project setup, or ezGameApplication::FindProjectDirectory() must be overridden.");
+  EZ_ASSERT_RELEASE(!m_sAppProjectPath.IsEmpty(), "Either the project must have a built-in project directory passed to the ezGameApplication constructor, or m_sAppProjectPath must be set manually before doing project setup, or ezGameApplication::FindProjectDirectory() must be overridden.");
 
   if (ezPathUtils::IsAbsolutePath(m_sAppProjectPath))
     return m_sAppProjectPath;
@@ -100,6 +98,14 @@ bool ezGameApplication::IsGameUpdateEnabled() const
 
 void ezGameApplication::Run_WorldUpdateAndRender()
 {
+  EZ_PROFILE_SCOPE("Run_WorldUpdateAndRender");
+  // If multi-threaded rendering is disabled, the same content is updated/extracted and rendered in the same frame.
+  // As ezRenderWorld::BeginFrame applies the render pipeline properties that were set during the update phase, it needs to be done after update/extraction but before rendering.
+  if (!ezRenderWorld::GetUseMultithreadedRendering())
+  {
+    UpdateWorldsAndExtractViews();
+  }
+
   ezRenderWorld::BeginFrame();
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
@@ -107,16 +113,13 @@ void ezGameApplication::Run_WorldUpdateAndRender()
   // On most platforms it doesn't matter that much how early this happens.
   // But on HoloLens this executes something that needs to be done at the right time,
   // for the reprojection to work properly.
-  pDevice->BeginFrame();
+  const ezUInt64 uiRenderFrame = ezRenderWorld::GetUseMultithreadedRendering() ? ezRenderWorld::GetFrameCounter() - 1 : ezRenderWorld::GetFrameCounter();
+  pDevice->BeginFrame(uiRenderFrame);
 
   ezTaskGroupID updateTaskID;
   if (ezRenderWorld::GetUseMultithreadedRendering())
   {
     updateTaskID = ezTaskSystem::StartSingleTask(m_pUpdateTask, ezTaskPriority::EarlyThisFrame);
-  }
-  else
-  {
-    UpdateWorldsAndExtractViews();
   }
 
   RenderFps();
@@ -138,6 +141,8 @@ void ezGameApplication::Run_Present()
 
   for (ezActor* pActor : allActors)
   {
+    EZ_PROFILE_SCOPE(pActor->GetName());
+
     ezActorPluginWindow* pWindowPlugin = pActor->GetPlugin<ezActorPluginWindow>();
 
     if (pWindowPlugin == nullptr)
@@ -160,6 +165,7 @@ void ezGameApplication::Run_Present()
         ExecuteFrameCapture(pWindowPlugin->GetWindow()->GetNativeWindowHandle(), ctxt);
       }
 
+      EZ_PROFILE_SCOPE("Present");
       pOutput->Present(cvar_AppVSync);
     }
   }
@@ -230,6 +236,7 @@ void ezGameApplication::UpdateWorldsAndExtractViews()
 
 void ezGameApplication::RenderFps()
 {
+  EZ_PROFILE_SCOPE("RenderFps");
   // Do not use ezClock for this, it smooths and clamps the timestep
 
   static ezTime tAccumTime;
@@ -260,6 +267,8 @@ void ezGameApplication::RenderFps()
 
 void ezGameApplication::RenderConsole()
 {
+  EZ_PROFILE_SCOPE("RenderConsole");
+
   if (!m_bShowConsole || !m_pConsole)
     return;
 

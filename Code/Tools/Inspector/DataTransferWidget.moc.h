@@ -35,7 +35,7 @@ private:
   {
     ezString m_sMimeType;
     ezString m_sExtension;
-    ezMemoryStreamStorage m_Storage;
+    ezContiguousMemoryStreamStorage m_Storage;
     ezString m_sFileName;
   };
 

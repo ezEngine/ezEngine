@@ -18,6 +18,8 @@ protected:
     Decals,
     Heightfield,
     WindClothRopes,
+    Reflections,
+    StressTest
   };
 
   virtual void SetupSubTests() override;
@@ -27,6 +29,19 @@ protected:
   ezInt32 m_iFrame = 0;
   ezGameEngineTestApplication* m_pOwnApplication = nullptr;
 
-  ezUInt32 m_iImgCompIdx = 0;
-  ezHybridArray<ezUInt32, 8> m_ImgCompFrames;
+  ezUInt32 m_uiImgCompIdx = 0;
+
+  struct ImgCompare
+  {
+    ImgCompare(ezUInt32 uiFrame, ezUInt32 uiThreshold = 450)
+    {
+      m_uiFrame = uiFrame;
+      m_uiThreshold = uiThreshold;
+    }
+
+    ezUInt32 m_uiFrame;
+    ezUInt32 m_uiThreshold = 450;
+  };
+
+  ezHybridArray<ImgCompare, 8> m_ImgCompFrames;
 };

@@ -46,18 +46,6 @@ template <ezUInt16 Size>
 ezHybridStringBase<Size>::~ezHybridStringBase() = default;
 
 template <ezUInt16 Size>
-ezHybridStringBase<Size>::operator ezStringView() const
-{
-  return ezStringView(GetData(), GetData() + m_Data.GetCount() - 1);
-}
-
-template <ezUInt16 Size>
-ezStringView ezHybridStringBase<Size>::GetView() const
-{
-  return ezStringView(GetData(), GetData() + m_Data.GetCount() - 1);
-}
-
-template <ezUInt16 Size>
 void ezHybridStringBase<Size>::Clear()
 {
   m_Data.SetCountUninitialized(1);

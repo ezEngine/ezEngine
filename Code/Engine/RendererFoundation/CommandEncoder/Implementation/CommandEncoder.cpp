@@ -183,27 +183,6 @@ bool ezGALCommandEncoder::UnsetUnorderedAccessViews(const ezGALResourceBase* pRe
   return bResult;
 }
 
-void ezGALCommandEncoder::InsertFence(ezGALFenceHandle hFence)
-{
-  AssertRenderingThread();
-
-  m_CommonImpl.InsertFencePlatform(m_Device.GetFence(hFence));
-}
-
-bool ezGALCommandEncoder::IsFenceReached(ezGALFenceHandle hFence)
-{
-  AssertRenderingThread();
-
-  return m_CommonImpl.IsFenceReachedPlatform(m_Device.GetFence(hFence));
-}
-
-void ezGALCommandEncoder::WaitForFence(ezGALFenceHandle hFence)
-{
-  AssertRenderingThread();
-
-  m_CommonImpl.WaitForFencePlatform(m_Device.GetFence(hFence));
-}
-
 void ezGALCommandEncoder::BeginQuery(ezGALQueryHandle hQuery)
 {
   AssertRenderingThread();
@@ -328,7 +307,7 @@ void ezGALCommandEncoder::UpdateBuffer(
       updateMode = ezGALUpdateMode::CopyToTempStorage;
     }
 
-    EZ_ASSERT_DEV(pDest->GetSize() >= (uiDestOffset + pSourceData.GetCount()), "Buffer is too small (or offset too big)");
+    EZ_ASSERT_DEV(pDest->GetSize() >= (uiDestOffset + pSourceData.GetCount()), "Buffer {} is too small (or offset {} too big) for {} bytes", pDest->GetSize(), uiDestOffset, pSourceData.GetCount());
     m_CommonImpl.UpdateBufferPlatform(pDest, uiDestOffset, pSourceData, updateMode);
   }
   else

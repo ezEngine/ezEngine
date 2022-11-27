@@ -1,11 +1,15 @@
 #pragma once
 
-#define USE_TEXCOORD0
-#define USE_COLOR0
-
 #include <Shaders/Materials/MaterialInterpolator.h>
 #include <Shaders/Particles/ParticleSystemConstants.h>
-#include <Shaders/Common/Lighting.h>
+
+#if SHADING_QUALITY == SHADING_QUALITY_NORMAL
+#  include <Shaders/Common/Lighting.h>
+#elif SHADING_QUALITY == SHADING_QUALITY_SIMPLIFIED
+#  include <Shaders/Common/LightingSimplified.h>
+#else
+#  error "Unknown shading quality configuration."
+#endif
 
 float CalcCloseToGeometryFadeOut(float4 position)
 {

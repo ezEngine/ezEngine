@@ -8,13 +8,11 @@
 #include <Foundation/IO/OSFile.h>
 #include <GuiFoundation/Action/ActionManager.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
+#include <QProcess>
 #include <SharedPluginScene/Common/Messages.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 
-#include <QProcess>
-
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneAction, 1, ezRTTINoAllocator)
-  ;
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezActionDescriptorHandle ezSceneActions::s_hSceneCategory;
@@ -181,7 +179,7 @@ void ezSceneActions::MapMenuActions(const char* szMapping)
     const char* szUtilsSubPath = "Menu.Scene/Scene.Utils.Menu";
 
     pMap->MapAction(s_hSceneUtilsMenu, "Menu.Scene", 2.0f);
-    //pMap->MapAction(s_hCreateThumbnail, szUtilsSubPath, 0.0f); // now available through the export scene dialog
+    // pMap->MapAction(s_hCreateThumbnail, szUtilsSubPath, 0.0f); // now available through the export scene dialog
     pMap->MapAction(s_hKeepSimulationChanges, szUtilsSubPath, 1.0f);
     pMap->MapAction(s_hUtilExportSceneToOBJ, szUtilsSubPath, 2.0f);
 
@@ -369,7 +367,7 @@ void ezSceneAction::Execute(const ezVariant& value)
 
       if (dlg.m_bRunAfterExport)
       {
-        LaunchPlayer();
+        LaunchPlayer(dlg.m_sApplication);
       }
 
       return;
@@ -505,28 +503,36 @@ void ezSceneAction::Execute(const ezVariant& value)
   }
 }
 
-void ezSceneAction::LaunchPlayer()
+void ezSceneAction::LaunchPlayer(const char* szPlayerApp)
 {
   ezStringBuilder sCmd;
   QStringList arguments = GetPlayerCommandLine(sCmd);
 
-  ezLog::Info("Running: Player.exe {}", sCmd);
-  m_pSceneDocument->ShowDocumentStatus(ezFmt("Running: Player.exe {}", sCmd));
+  ezLog::Info("Running: {} {}", szPlayerApp, sCmd);
+  m_pSceneDocument->ShowDocumentStatus(ezFmt("Running: {} {}", szPlayerApp, sCmd));
 
   QProcess proc;
-  proc.startDetached(QString::fromUtf8("Player.exe"), arguments);
+  proc.startDetached(QString::fromUtf8(szPlayerApp), arguments);
 }
 
 QStringList ezSceneAction::GetPlayerCommandLine(ezStringBuilder& out_SingleLine) const
 {
   QStringList arguments;
-  arguments << "-scene";
+  arguments << "-project";
+  arguments << ezToolsProject::GetSingleton()->GetProjectDirectory().GetData();
 
-  const ezStringBuilder sPath = m_pSceneDocument->GetAssetDocumentManager()->GetAbsoluteOutputFileName(
-    m_pSceneDocument->GetAssetDocumentTypeDescriptor(), m_pSceneDocument->GetDocumentPath(), "");
+  {
+    arguments << "-scene";
 
-  const char* szPath = sPath.GetData();
-  arguments << QString::fromUtf8(szPath);
+    ezStringBuilder sAssetDataDir = ezAssetCurator::GetSingleton()->FindDataDirectoryForAsset(m_pSceneDocument->GetDocumentPath());
+
+    ezStringBuilder sRelativePath = m_pSceneDocument->GetAssetDocumentManager()->GetAbsoluteOutputFileName(m_pSceneDocument->GetAssetDocumentTypeDescriptor(), m_pSceneDocument->GetDocumentPath(), "");
+
+    sRelativePath.MakeRelativeTo(sAssetDataDir).AssertSuccess();
+    sRelativePath.MakeCleanPath();
+
+    arguments << sRelativePath.GetData();
+  }
 
   ezStringBuilder sWndCfgPath = ezApplicationServices::GetSingleton()->GetProjectPreferencesFolder();
   sWndCfgPath.AppendPath("Window.ddl");
@@ -534,7 +540,7 @@ QStringList ezSceneAction::GetPlayerCommandLine(ezStringBuilder& out_SingleLine)
   if (ezOSFile::ExistsFile(sWndCfgPath))
   {
     arguments << "-wnd";
-    arguments << QString::fromUtf8(sWndCfgPath);
+    arguments << QString::fromUtf8(sWndCfgPath, sWndCfgPath.GetElementCount());
   }
 
   arguments << "-profile";

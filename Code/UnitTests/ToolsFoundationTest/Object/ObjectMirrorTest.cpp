@@ -177,16 +177,16 @@ void RecursiveModifyProperty(const ezDocumentObject* pObject, const ezAbstractPr
   }
   else if (pProp->GetCategory() == ezPropertyCategory::Array || pProp->GetCategory() == ezPropertyCategory::Set)
   {
-    ezInt32 iCurrentCount = pObjectAccessor->GetCount(pObject, pProp);
     if (pProp->GetFlags().IsAnySet(ezPropertyFlags::StandardType | ezPropertyFlags::Pointer) &&
         !pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
     {
+      ezInt32 iCurrentCount = pObjectAccessor->GetCount(pObject, pProp);
       for (ezInt32 i = iCurrentCount - 1; i >= 0; --i)
       {
         pObjectAccessor->RemoveValue(pObject, pProp, i);
       }
 
-      ezVariant value1 = ezReflectionUtils::GetDefaultValue(pProp);
+      ezVariant value1 = ezReflectionUtils::GetDefaultValue(pProp, 0);
       ezVariant value2 = GetVariantFromType(pProp->GetSpecificType()->GetVariantType());
       EZ_TEST_BOOL(pObjectAccessor->InsertValue(pObject, pProp, value1, 0).m_Result.Succeeded());
       EZ_TEST_BOOL(pObjectAccessor->InsertValue(pObject, pProp, value2, 1).m_Result.Succeeded());
@@ -211,10 +211,10 @@ void RecursiveModifyProperty(const ezDocumentObject* pObject, const ezAbstractPr
   }
   else if (pProp->GetCategory() == ezPropertyCategory::Map)
   {
-    ezInt32 iCurrentCount = pObjectAccessor->GetCount(pObject, pProp);
     if (pProp->GetFlags().IsAnySet(ezPropertyFlags::StandardType | ezPropertyFlags::Pointer) &&
         !pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
     {
+      ezInt32 iCurrentCount = pObjectAccessor->GetCount(pObject, pProp);
       ezHybridArray<ezVariant, 16> keys;
       pObjectAccessor->GetKeys(pObject, pProp, keys);
       for (const ezVariant& key : keys)
@@ -222,7 +222,7 @@ void RecursiveModifyProperty(const ezDocumentObject* pObject, const ezAbstractPr
         pObjectAccessor->RemoveValue(pObject, pProp, key);
       }
 
-      ezVariant value1 = ezReflectionUtils::GetDefaultValue(pProp);
+      ezVariant value1 = ezReflectionUtils::GetDefaultValue(pProp, "Dummy");
       ezVariant value2 = GetVariantFromType(pProp->GetSpecificType()->GetVariantType());
       EZ_TEST_BOOL(pObjectAccessor->InsertValue(pObject, pProp, value1, "value1").m_Result.Succeeded());
       EZ_TEST_BOOL(pObjectAccessor->InsertValue(pObject, pProp, value2, "value2").m_Result.Succeeded());

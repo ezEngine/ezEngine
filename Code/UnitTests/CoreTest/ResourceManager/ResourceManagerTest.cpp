@@ -45,14 +45,14 @@ namespace
 
       if (GetResourceID().StartsWith("NonBlockingLevel1-"))
       {
-        m_Nested = ezResourceManager::LoadResource<TestResource>("Level0-0");
+        m_hNested = ezResourceManager::LoadResource<TestResource>("Level0-0");
       }
 
       if (GetResourceID().StartsWith("BlockingLevel1-"))
       {
-        m_Nested = ezResourceManager::LoadResource<TestResource>("Level0-0");
+        m_hNested = ezResourceManager::LoadResource<TestResource>("Level0-0");
 
-        ezResourceLock<TestResource> pTestResource(m_Nested, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
+        ezResourceLock<TestResource> pTestResource(m_hNested, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
 
         EZ_ASSERT_ALWAYS(pTestResource.GetAcquireResult() == ezResourceAcquireResult::Final, "");
       }
@@ -77,7 +77,7 @@ namespace
     void Test() { EZ_TEST_BOOL(!m_Data.IsEmpty()); }
 
   private:
-    TestResourceHandle m_Nested;
+    TestResourceHandle m_hNested;
     ezDynamicArray<ezUInt32> m_Data;
   };
 
@@ -86,7 +86,7 @@ namespace
   public:
     struct LoadedData
     {
-      ezMemoryStreamStorage m_StreamData;
+      ezDefaultMemoryStreamStorage m_StreamData;
       ezMemoryStreamReader m_Reader;
     };
 

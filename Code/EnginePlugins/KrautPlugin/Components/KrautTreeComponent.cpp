@@ -22,7 +22,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezKrautTreeComponent, 3, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("KrautTree", GetKrautFile, SetKrautFile)->AddAttributes(new ezAssetBrowserAttribute("Kraut Tree")),
+    EZ_ACCESSOR_PROPERTY("KrautTree", GetKrautFile, SetKrautFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Kraut_Tree")),
     EZ_ACCESSOR_PROPERTY("VariationIndex", GetVariationIndex, SetVariationIndex)->AddAttributes(new ezDefaultValueAttribute(0xFFFF)),
   }
   EZ_END_PROPERTIES;
@@ -84,7 +84,7 @@ void ezKrautTreeComponent::DeserializeComponent(ezWorldReader& stream)
   GetWorld()->GetOrCreateComponentManager<ezKrautTreeComponentManager>()->EnqueueUpdate(GetHandle());
 }
 
-ezResult ezKrautTreeComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
+ezResult ezKrautTreeComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg)
 {
   if (m_hKrautTree.IsValid())
   {
@@ -204,8 +204,8 @@ void ezKrautTreeComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) c
 
   ezResourceLock<ezKrautTreeResource> pTree(m_hKrautTree, ezResourceAcquireMode::AllowLoadingFallback);
 
-  //if (pTree.GetAcquireResult() != ezResourceAcquireResult::Final)
-  //  return;
+  // if (pTree.GetAcquireResult() != ezResourceAcquireResult::Final)
+  //   return;
 
   ComputeWind();
 
@@ -263,7 +263,7 @@ void ezKrautTreeComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) c
         pRenderData->m_GlobalTransform = tOwner;
         pRenderData->m_GlobalBounds = bounds;
         pRenderData->m_hMesh = lodData.m_hMesh;
-        pRenderData->m_uiSubMeshIndex = subMeshIdx;
+        pRenderData->m_uiSubMeshIndex = static_cast<ezUInt8>(subMeshIdx);
         pRenderData->m_uiUniqueID = GetUniqueIdForRendering(uiMaterialIndex);
         pRenderData->m_bCastShadows = (lodData.m_LodType == ezKrautLodType::Mesh);
 
@@ -319,7 +319,7 @@ ezResult ezKrautTreeComponent::CreateGeometry(ezGeometry& geo, ezWorldGeoExtract
     // TODO: instead of triangle geometry it would maybe be better to use actual physics capsules
 
     // due to 'transform' this will already include the tree scale
-    geo.AddCylinderOnePiece(details.m_fStaticColliderRadius, details.m_fStaticColliderRadius, fTreeHeight, 0.0f, 8, ezColor::White);
+    geo.AddCylinderOnePiece(details.m_fStaticColliderRadius, details.m_fStaticColliderRadius, fTreeHeight, 0.0f, 8);
 
     geo.TriangulatePolygons();
   }
@@ -347,7 +347,7 @@ void ezKrautTreeComponent::EnsureTreeIsGenerated()
   {
     if (m_uiVariationIndex == 0xFFFF)
     {
-      hNewTree = pResource->GenerateTreeWithGoodSeed(GetOwner()->GetStableRandomSeed());
+      hNewTree = pResource->GenerateTreeWithGoodSeed(GetOwner()->GetStableRandomSeed() & 0xFFFF);
     }
     else
     {
@@ -472,7 +472,7 @@ void ezKrautTreeComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const
 
     desc.ComputeBounds();
 
-    hMesh = ezResourceManager::CreateResource<ezCpuMeshResource>(sResourceName, std::move(desc), sResourceName);
+    hMesh = ezResourceManager::GetOrCreateResource<ezCpuMeshResource>(sResourceName, std::move(desc), sResourceName);
   }
 
   msg.AddMeshObject(GetOwner()->GetGlobalTransform(), hMesh);
@@ -497,7 +497,7 @@ void ezKrautTreeComponent::OnBuildStaticMesh(ezMsgBuildStaticMesh& msg) const
 
     if (!details.m_sSurfaceResource.IsEmpty())
     {
-      subMesh.m_uiSurfaceIndex = desc.m_Surfaces.GetCount();
+      subMesh.m_uiSurfaceIndex = static_cast<ezUInt16>(desc.m_Surfaces.GetCount());
       desc.m_Surfaces.PushBack(details.m_sSurfaceResource);
     }
   }

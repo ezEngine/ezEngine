@@ -6,9 +6,9 @@
 
 struct EZ_RENDERERFOUNDATION_DLL ezGALResourceFormat
 {
-  typedef ezUInt32 StorageType;
+  using StorageType = ezUInt8;
 
-  enum Enum
+  enum Enum : ezUInt8
   {
     Invalid = 0,
 
@@ -116,6 +116,7 @@ struct EZ_RENDERERFOUNDATION_DLL ezGALResourceFormat
 
   /// \brief Returns whether the given resource format is a depth format
   static bool IsDepthFormat(ezGALResourceFormat::Enum format);
+  static bool IsStencilFormat(ezGALResourceFormat::Enum format);
 
   static bool IsSrgb(ezGALResourceFormat::Enum format);
 

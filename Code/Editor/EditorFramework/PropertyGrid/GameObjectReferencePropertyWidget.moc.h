@@ -1,11 +1,13 @@
 #pragma once
 
 #include <EditorFramework/EditorFrameworkDLL.h>
+
 #include <GuiFoundation/PropertyGrid/Implementation/PropertyWidget.moc.h>
 #include <QLineEdit>
 #include <QModelIndex>
 
 class ezSelectionContext;
+struct ezSelectionManagerEvent;
 
 class EZ_EDITORFRAMEWORK_DLL ezQtGameObjectReferencePropertyWidget : public ezQtStandardPropertyWidget
 {
@@ -35,7 +37,7 @@ protected:
   virtual void showEvent(QShowEvent* event) override;
 
 protected:
-  QPalette m_pal;
+  QPalette m_Pal;
   QHBoxLayout* m_pLayout = nullptr;
   QLabel* m_pWidget = nullptr;
   QString m_sInternalValue;

@@ -33,22 +33,11 @@ class EZ_FOUNDATION_DLL ezSubSystem : public ezEnumerable<ezSubSystem>
 public:
   ezSubSystem()
   {
-    m_szPluginName = nullptr;
-
     for (ezInt32 i = 0; i < ezStartupStage::ENUM_COUNT; ++i)
       m_bStartupDone[i] = false;
   }
 
-  virtual ~ezSubSystem()
-  {
-    for (ezInt32 i = ezStartupStage::CoreSystems; i < ezStartupStage::ENUM_COUNT; ++i)
-    {
-      // Can't call GetSubSystemName and GetGroupName, because they are pure virtual and the destructor is called
-      // after the derived destructor has already run, thus those virtual functions are potentially not available anymore.
-      // This actually gives a linker error already.
-      EZ_ASSERT_DEV(!m_bStartupDone[i], "This SubSystem is not entirely shut down. Phase {0} is still active.", i);
-    }
-  }
+  virtual ~ezSubSystem() = default;
 
   /// \brief Returns the name of the subsystem. Must be overridden.
   virtual const char* GetSubSystemName() const = 0;
@@ -86,7 +75,7 @@ private:
   virtual void OnHighLevelSystemsShutdown() {}
 
   /// Set by ezStartup to store to which plugin this subsystem belongs.
-  const char* m_szPluginName;
+  const char* m_szPluginName = nullptr;
 
   /// Stores which startup phase has been done already.
   bool m_bStartupDone[ezStartupStage::ENUM_COUNT];

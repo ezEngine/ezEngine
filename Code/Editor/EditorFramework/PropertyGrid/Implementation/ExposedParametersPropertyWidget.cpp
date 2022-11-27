@@ -22,7 +22,24 @@ ezStatus ezExposedParameterCommandAccessor::GetValue(
     pProp = m_pParameterProp;
 
   ezStatus res = ezObjectProxyAccessor::GetValue(pObject, pProp, out_value, index);
-  if (res.Failed() && m_pParameterProp == pProp && index.IsA<ezString>())
+  if (res.Succeeded() && !index.IsValid() && m_pParameterProp == pProp)
+  {
+    ezVariantDictionary defaultDict;
+    if (const ezExposedParameters* pParams = GetExposedParams(pObject))
+    {
+      for (ezExposedParameter* pParam : pParams->m_Parameters)
+      {
+        defaultDict.Insert(pParam->m_sName, pParam->m_DefaultValue);
+      }
+    }
+    const ezVariantDictionary& overwrittenDict = out_value.Get<ezVariantDictionary>();
+    for (auto it : overwrittenDict)
+    {
+      defaultDict[it.Key()] = it.Value();
+    }
+    out_value = defaultDict;
+  }
+  else if (res.Failed() && m_pParameterProp == pProp && index.IsA<ezString>())
   {
     // If the actual GetValue fails but the key is an exposed param, return its default value instead.
     if (const ezExposedParameter* pParam = GetExposedParam(pObject, index.Get<ezString>()))
@@ -78,7 +95,7 @@ ezStatus ezExposedParameterCommandAccessor::GetCount(const ezDocumentObject* pOb
 }
 
 ezStatus ezExposedParameterCommandAccessor::GetKeys(
-  const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezHybridArray<ezVariant, 16>& out_keys)
+  const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezDynamicArray<ezVariant>& out_keys)
 {
   if (m_pParameterProp == pProp)
   {
@@ -105,7 +122,7 @@ ezStatus ezExposedParameterCommandAccessor::GetKeys(
 }
 
 ezStatus ezExposedParameterCommandAccessor::GetValues(
-  const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezHybridArray<ezVariant, 16>& out_values)
+  const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezDynamicArray<ezVariant>& out_values)
 {
   if (m_pParameterProp == pProp)
   {
@@ -270,8 +287,8 @@ void ezQtExposedParametersPropertyWidget::OnInit()
   EZ_ASSERT_DEV(
     pParameterSourceProp, "The exposed parameter source '{0}' does not exist on type '{1}'", m_sExposedParamProperty, m_pType->GetTypeName());
   m_pSourceObjectAccessor = m_pObjectAccessor;
-  m_Proxy = EZ_DEFAULT_NEW(ezExposedParameterCommandAccessor, m_pSourceObjectAccessor, m_pProp, pParameterSourceProp);
-  m_pObjectAccessor = m_Proxy.Borrow();
+  m_pProxy = EZ_DEFAULT_NEW(ezExposedParameterCommandAccessor, m_pSourceObjectAccessor, m_pProp, pParameterSourceProp);
+  m_pObjectAccessor = m_pProxy.Borrow();
 
   ezQtPropertyStandardTypeContainerWidget::OnInit();
 
@@ -311,23 +328,33 @@ ezQtPropertyWidget* ezQtExposedParametersPropertyWidget::CreateWidget(ezUInt32 i
 void ezQtExposedParametersPropertyWidget::UpdateElement(ezUInt32 index)
 {
   ezQtPropertyStandardTypeContainerWidget::UpdateElement(index);
-  Element& elem = m_Elements[index];
-  const auto& selection = elem.m_pWidget->GetSelection();
-  bool isDefault = true;
-  for (const auto& item : selection)
+}
+
+void ezQtExposedParametersPropertyWidget::UpdatePropertyMetaState()
+{
+  ezQtPropertyStandardTypeContainerWidget::UpdatePropertyMetaState();
+  return;
+
+  for (ezUInt32 i = 0; i < m_Elements.GetCount(); i++)
   {
-    ezVariant value;
-    ezStatus res = m_pSourceObjectAccessor->GetValue(item.m_pObject, m_pProp, value, item.m_Index);
-    if (res.Succeeded())
+    Element& elem = m_Elements[i];
+    const auto& selection = elem.m_pWidget->GetSelection();
+    bool isDefault = true;
+    for (const auto& item : selection)
     {
-      // In case we successfully read the value from the source accessor (not the proxy that pretends all exposed params exist)
-      // we now the value is overwritten as in the default case the map index would not exist.
-      isDefault = false;
-      break;
+      ezVariant value;
+      ezStatus res = m_pSourceObjectAccessor->GetValue(item.m_pObject, m_pProp, value, item.m_Index);
+      if (res.Succeeded())
+      {
+        // In case we successfully read the value from the source accessor (not the proxy that pretends all exposed params exist)
+        // we now the value is overwritten as in the default case the map index would not exist.
+        isDefault = false;
+        break;
+      }
     }
+    elem.m_pWidget->SetIsDefault(isDefault);
+    elem.m_pSubGroup->SetBoldTitle(!isDefault);
   }
-  elem.m_pWidget->SetIsDefault(isDefault);
-  elem.m_pSubGroup->SetBoldTitle(!isDefault);
 }
 
 void ezQtExposedParametersPropertyWidget::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
@@ -394,7 +421,7 @@ bool ezQtExposedParametersPropertyWidget::RemoveUnusedKeys(bool bTestOnly)
     m_pSourceObjectAccessor->StartTransaction("Remove unused keys");
   for (const auto& item : m_Items)
   {
-    if (const ezExposedParameters* pParams = m_Proxy->GetExposedParams(item.m_pObject))
+    if (const ezExposedParameters* pParams = m_pProxy->GetExposedParams(item.m_pObject))
     {
       ezHybridArray<ezVariant, 16> keys;
       EZ_VERIFY(m_pSourceObjectAccessor->GetKeys(item.m_pObject, m_pProp, keys).Succeeded(), "");
@@ -427,7 +454,7 @@ bool ezQtExposedParametersPropertyWidget::FixKeyTypes(bool bTestOnly)
     m_pSourceObjectAccessor->StartTransaction("Remove unused keys");
   for (const auto& item : m_Items)
   {
-    if (const ezExposedParameters* pParams = m_Proxy->GetExposedParams(item.m_pObject))
+    if (const ezExposedParameters* pParams = m_pProxy->GetExposedParams(item.m_pObject))
     {
       ezHybridArray<ezVariant, 16> keys;
       EZ_VERIFY(m_pSourceObjectAccessor->GetKeys(item.m_pObject, m_pProp, keys).Succeeded(), "");
@@ -436,20 +463,21 @@ bool ezQtExposedParametersPropertyWidget::FixKeyTypes(bool bTestOnly)
         if (const auto* pParam = pParams->Find(key.Get<ezString>()))
         {
           ezVariant value;
-          const ezVariantType::Enum type = pParam->m_DefaultValue.GetType();
+          const ezRTTI* pType = pParam->m_DefaultValue.GetReflectedType();
           EZ_VERIFY(m_pSourceObjectAccessor->GetValue(item.m_pObject, m_pProp, value, key).Succeeded(), "");
-          if (value.GetType() != type)
+          if (value.GetReflectedType() != pType)
           {
             if (!bTestOnly)
             {
               bStuffDone = true;
+              ezVariantType::Enum type = pParam->m_DefaultValue.GetType();
               if (value.CanConvertTo(type))
               {
                 m_pObjectAccessor->SetValue(item.m_pObject, m_pProp, value.ConvertTo(type), key).LogFailure();
               }
               else
               {
-                m_pObjectAccessor->SetValue(item.m_pObject, m_pProp, ezReflectionUtils::GetDefaultVariantFromType(type), key).LogFailure();
+                m_pObjectAccessor->SetValue(item.m_pObject, m_pProp, pParam->m_DefaultValue, key).LogFailure();
               }
             }
             else

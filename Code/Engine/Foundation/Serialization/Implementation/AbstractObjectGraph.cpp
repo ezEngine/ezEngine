@@ -2,6 +2,7 @@
 
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
+#include <Foundation/Serialization/ApplyNativePropertyChangesContext.h>
 #include <Foundation/Serialization/RttiConverter.h>
 
 // clang-format off
@@ -45,13 +46,47 @@ void ezAbstractObjectGraph::Clear()
 }
 
 
-void ezAbstractObjectGraph::Clone(ezAbstractObjectGraph& cloneTarget) const
+ezAbstractObjectNode* ezAbstractObjectGraph::Clone(ezAbstractObjectGraph& cloneTarget, const ezAbstractObjectNode* pRootNode, FilterFunction filter) const
 {
   cloneTarget.Clear();
 
-  for (auto it = m_Nodes.GetIterator(); it.IsValid(); ++it)
+  if (pRootNode == nullptr)
   {
-    cloneTarget.CopyNodeIntoGraph(it.Value());
+    for (auto it = m_Nodes.GetIterator(); it.IsValid(); ++it)
+    {
+      if (filter.IsValid())
+      {
+        cloneTarget.CopyNodeIntoGraph(it.Value(), filter);
+      }
+      else
+      {
+        cloneTarget.CopyNodeIntoGraph(it.Value());
+      }
+    }
+    return nullptr;
+  }
+  else
+  {
+    EZ_ASSERT_DEV(pRootNode->GetOwner() == this, "The given root node must be part of this document");
+    ezSet<ezUuid> reachableNodes;
+    FindTransitiveHull(pRootNode->GetGuid(), reachableNodes);
+
+    for (const ezUuid& guid : reachableNodes)
+    {
+      if (auto* pNode = GetNode(guid))
+      {
+        if (filter.IsValid())
+        {
+          cloneTarget.CopyNodeIntoGraph(pNode, filter);
+        }
+        else
+        {
+          cloneTarget.CopyNodeIntoGraph(pNode);
+        }
+      }
+    }
+
+    return cloneTarget.GetNode(pRootNode->GetGuid());
   }
 }
 
@@ -157,6 +192,11 @@ void ezAbstractObjectNode::RenameProperty(const char* szOldName, const char* szN
       return;
     }
   }
+}
+
+void ezAbstractObjectNode::ClearProperties()
+{
+  m_Properties.Clear();
 }
 
 ezResult ezAbstractObjectNode::InlineProperty(const char* szName)
@@ -413,9 +453,9 @@ void ezAbstractObjectGraph::ReMapNodeGuidsToMatchGraphRecursive(ezHashTable<ezUu
 }
 
 
-void ezAbstractObjectGraph::PruneGraph(const ezUuid& rootGuid)
+void ezAbstractObjectGraph::FindTransitiveHull(const ezUuid& rootGuid, ezSet<ezUuid>& reachableNodes) const
 {
-  ezSet<ezUuid> reachableNodes;
+  reachableNodes.Clear();
   ezSet<ezUuid> inProgress;
   inProgress.Insert(rootGuid);
 
@@ -425,7 +465,7 @@ void ezAbstractObjectGraph::PruneGraph(const ezUuid& rootGuid)
     auto it = m_Nodes.Find(current);
     if (it.IsValid())
     {
-      ezAbstractObjectNode* pNode = it.Value();
+      const ezAbstractObjectNode* pNode = it.Value();
       for (auto& prop : pNode->m_Properties)
       {
         if (prop.m_Value.IsA<ezUuid>())
@@ -452,12 +492,33 @@ void ezAbstractObjectGraph::PruneGraph(const ezUuid& rootGuid)
             }
           }
         }
+        else if (prop.m_Value.IsA<ezVariantDictionary>())
+        {
+          const ezVariantDictionary& values = prop.m_Value.Get<ezVariantDictionary>();
+          for (auto& subValue : values)
+          {
+            if (subValue.Value().IsA<ezUuid>())
+            {
+              const ezUuid& guid = subValue.Value().Get<ezUuid>();
+              if (!reachableNodes.Contains(guid))
+              {
+                inProgress.Insert(guid);
+              }
+            }
+          }
+        }
       }
     }
     // Even if 'current' is not in the graph add it anyway to early out if it is found again.
     reachableNodes.Insert(current);
     inProgress.Remove(current);
   }
+}
+
+void ezAbstractObjectGraph::PruneGraph(const ezUuid& rootGuid)
+{
+  ezSet<ezUuid> reachableNodes;
+  FindTransitiveHull(rootGuid, reachableNodes);
 
   // Determine nodes to be removed by subtracting valid ones from all nodes.
   ezSet<ezUuid> removeSet;
@@ -474,15 +535,80 @@ void ezAbstractObjectGraph::PruneGraph(const ezUuid& rootGuid)
   }
 }
 
+void ezAbstractObjectGraph::ModifyNodeViaNativeCounterpart(ezAbstractObjectNode* pRootNode, ezDelegate<void(void*, const ezRTTI*)> callback)
+{
+  EZ_ASSERT_DEV(pRootNode->GetOwner() == this, "Node must be from this graph.");
+
+  // Clone sub graph
+  ezAbstractObjectGraph origGraph;
+  ezAbstractObjectNode* pOrigRootNode = nullptr;
+  {
+    pOrigRootNode = Clone(origGraph, pRootNode);
+  }
+
+  // Create native object
+  ezRttiConverterContext context;
+  ezRttiConverterReader convRead(&origGraph, &context);
+  void* pNativeRoot = convRead.CreateObjectFromNode(pOrigRootNode);
+  const ezRTTI* pType = ezRTTI::FindTypeByName(pOrigRootNode->GetType());
+  EZ_SCOPE_EXIT(pType->GetAllocator()->Deallocate(pNativeRoot););
+
+  // Make changes to native object
+  if (callback.IsValid())
+  {
+    callback(pNativeRoot, pType);
+  }
+
+  // Create native object graph
+  ezAbstractObjectGraph graph;
+  ezAbstractObjectNode* pRootNode2 = nullptr;
+  {
+    // The ezApplyNativePropertyChangesContext takes care of generating guids for native pointers that match those
+    // of the object manager.
+    ezApplyNativePropertyChangesContext nativeChangesContext(context, origGraph);
+    ezRttiConverterWriter rttiConverter(&graph, &nativeChangesContext, true, true);
+    nativeChangesContext.RegisterObject(pOrigRootNode->GetGuid(), pType, pNativeRoot);
+    pRootNode2 = rttiConverter.AddObjectToGraph(pType, pNativeRoot, "Object");
+  }
+
+  // Create diff from native to cloned sub-graph and then apply the diff to the original graph.
+  ezDeque<ezAbstractGraphDiffOperation> diffResult;
+  graph.CreateDiffWithBaseGraph(origGraph, diffResult);
+
+  ApplyDiff(diffResult);
+}
+
 ezAbstractObjectNode* ezAbstractObjectGraph::CopyNodeIntoGraph(const ezAbstractObjectNode* pNode)
 {
   auto pNewNode = AddNode(pNode->GetGuid(), pNode->GetType(), pNode->GetTypeVersion(), pNode->GetNodeName());
 
   for (const auto& props : pNode->GetProperties())
     pNewNode->AddProperty(props.m_szPropertyName, props.m_Value);
+
   return pNewNode;
 }
 
+ezAbstractObjectNode* ezAbstractObjectGraph::CopyNodeIntoGraph(const ezAbstractObjectNode* pNode, FilterFunction& filter)
+{
+  auto pNewNode = AddNode(pNode->GetGuid(), pNode->GetType(), pNode->GetTypeVersion(), pNode->GetNodeName());
+
+  if (filter.IsValid())
+  {
+    for (const auto& props : pNode->GetProperties())
+    {
+      if (!filter(pNode, &props))
+        continue;
+      pNewNode->AddProperty(props.m_szPropertyName, props.m_Value);
+    }
+  }
+  else
+  {
+    for (const auto& props : pNode->GetProperties())
+      pNewNode->AddProperty(props.m_szPropertyName, props.m_Value);
+  }
+
+  return pNewNode;
+}
 
 void ezAbstractObjectGraph::CreateDiffWithBaseGraph(const ezAbstractObjectGraph& base, ezDeque<ezAbstractGraphDiffOperation>& out_DiffResult) const
 {

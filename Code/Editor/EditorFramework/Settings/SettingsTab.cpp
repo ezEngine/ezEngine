@@ -107,7 +107,7 @@ void ezQtSettingsTab::ToolsProjectEventHandler(const ezToolsProjectEvent& e)
 
     if (ezToolsProject::GetSingleton()->IsProjectOpen())
     {
-      txt.ReplaceAll("None", ezToolsProject::GetSingleton()->GetProjectName());
+      txt.ReplaceAll("None", ezToolsProject::GetSingleton()->GetProjectName(false));
       OpenScene->setVisible(true);
     }
     else

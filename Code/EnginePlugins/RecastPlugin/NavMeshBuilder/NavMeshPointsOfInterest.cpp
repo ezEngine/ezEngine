@@ -102,7 +102,7 @@ void ezNavMeshPointOfInterestGraph::ExtractInterestPointsFromMesh(const rcPolyMe
   for (ezInt32 i = 0; i < mesh.nverts; ++i)
   {
     interestPoints[i].m_bUsed = false;
-    interestPoints[i].m_vVertexPos = GetNavMeshVertex(&mesh, i, vMeshOrigin, fCellSize, fCellHeight);
+    interestPoints[i].m_vVertexPos = GetNavMeshVertex(&mesh, static_cast<ezUInt16>(i), vMeshOrigin, fCellSize, fCellHeight);
   }
 
   ezStaticArray<ezVec3, 16> polyVertices;

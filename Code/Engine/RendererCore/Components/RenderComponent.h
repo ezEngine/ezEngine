@@ -28,7 +28,7 @@ public:
   /// \brief Called by ezRenderComponent::OnUpdateLocalBounds().
   /// If EZ_SUCCESS is returned, \a bounds and \a bAlwaysVisible will be integrated into the ezMsgUpdateLocalBounds result,
   /// otherwise the out values are simply ignored.
-  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible) = 0;
+  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg) = 0;
 
   void TriggerLocalBoundsUpdate();
 

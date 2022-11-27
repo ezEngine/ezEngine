@@ -8,11 +8,11 @@
 EZ_FOUNDATION_INTERNAL_HEADER
 
 #define EZ_MSVC_WARNING_NUMBER 4091
-#include <Foundation/Basics/Compiler/DisableWarning.h>
+#include <Foundation/Basics/Compiler/MSVC/DisableWarning_MSVC.h>
 
 #include <DbgHelp.h>
 
-#include <Foundation/Basics/Compiler/RestoreWarning.h>
+#include <Foundation/Basics/Compiler/MSVC/RestoreWarning_MSVC.h>
 
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Logging/Log.h>
@@ -99,7 +99,7 @@ namespace
   {
     if (s_pImplementation == nullptr)
     {
-      EZ_ALIGN_VARIABLE(static ezUInt8 ImplementationBuffer[sizeof(StackTracerImplementation)], EZ_ALIGNMENT_OF(StackTracerImplementation));
+      alignas(EZ_ALIGNMENT_OF(StackTracerImplementation)) static ezUInt8 ImplementationBuffer[sizeof(StackTracerImplementation)];
       s_pImplementation = new (ImplementationBuffer) StackTracerImplementation();
       EZ_ASSERT_DEV(s_pImplementation != nullptr, "StackTracer initialization failed");
     }

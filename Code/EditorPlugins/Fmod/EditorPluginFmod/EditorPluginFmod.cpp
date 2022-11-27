@@ -13,16 +13,14 @@ static void ToolsProjectEventHandler(const ezToolsProjectEvent& e);
 
 void OnLoadPlugin()
 {
-  ezQtEditorApp::GetSingleton()->AddRuntimePluginDependency("EditorPluginFmod", "ezFmodPlugin");
-
   ezToolsProject::GetSingleton()->s_Events.AddEventHandler(ToolsProjectEventHandler);
 
   // Mesh
   {
     // Menu Bar
     ezActionMapManager::RegisterActionMap("SoundBankAssetMenuBar").IgnoreResult();
-    ezProjectActions::MapActions("SoundBankAssetMenuBar");
     ezStandardMenus::MapActions("SoundBankAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+    ezProjectActions::MapActions("SoundBankAssetMenuBar");
     ezDocumentActions::MapActions("SoundBankAssetMenuBar", "Menu.File", false);
     ezCommandHistoryActions::MapActions("SoundBankAssetMenuBar", "Menu.Edit");
 
@@ -62,8 +60,6 @@ static void ToolsProjectEventHandler(const ezToolsProjectEvent& e)
     pPreferences->SyncCVars();
   }
 }
-
-EZ_PLUGIN_DEPENDENCY(ezEditorPluginScene);
 
 EZ_PLUGIN_ON_LOADED()
 {

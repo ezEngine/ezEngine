@@ -22,7 +22,7 @@ public:
 
   virtual ezResult GetImage(ezImage& img) override
   {
-    img.ResetAndMove(std::move(m_image));
+    img.ResetAndMove(std::move(m_Image));
     return EZ_SUCCESS;
   }
 
@@ -90,9 +90,9 @@ private:
     // Test LDR: Load, encode to target format, then do image comparison (which internally decodes to BGR8_UNORM again).
     // This visualizes quantization for low bit formats, block compression artifacts, or whether formats have fewer than 3 channels.
     {
-      EZ_TEST_BOOL(m_image.LoadFrom("ImageConversions/reference.png").Succeeded());
+      EZ_TEST_BOOL(m_Image.LoadFrom("ImageConversions/reference.png").Succeeded());
 
-      EZ_TEST_BOOL(m_image.Convert(format).Succeeded());
+      EZ_TEST_BOOL(m_Image.Convert(format).Succeeded());
 
       EZ_TEST_IMAGE(iIdentifier * 2, ezImageFormat::IsCompressed(format) ? 10 : 0);
     }
@@ -106,19 +106,19 @@ private:
     {
       const float range = 8;
 
-      EZ_TEST_BOOL(m_image.LoadFrom("ImageConversions/reference.png").Succeeded());
+      EZ_TEST_BOOL(m_Image.LoadFrom("ImageConversions/reference.png").Succeeded());
 
-      EZ_TEST_BOOL(m_image.Convert(ezImageFormat::R32G32B32A32_FLOAT).Succeeded());
+      EZ_TEST_BOOL(m_Image.Convert(ezImageFormat::R32G32B32A32_FLOAT).Succeeded());
 
       float posInf = +ezMath::Infinity<float>();
       float negInf = -ezMath::Infinity<float>();
       float NaN = ezMath::NaN<float>();
 
-      for (ezUInt32 y = 0; y < m_image.GetHeight(); ++y)
+      for (ezUInt32 y = 0; y < m_Image.GetHeight(); ++y)
       {
-        ezColor* pPixelPointer = m_image.GetPixelPointer<ezColor>(0, 0, 0, 0, y);
+        ezColor* pPixelPointer = m_Image.GetPixelPointer<ezColor>(0, 0, 0, 0, y);
 
-        for (ezUInt32 x = 0; x < m_image.GetWidth(); ++x)
+        for (ezUInt32 x = 0; x < m_Image.GetWidth(); ++x)
         {
           // Fill with Inf or Nan resp. scale the image into positive and negative HDR range
           if (x < 30 && y < 10)
@@ -135,7 +135,7 @@ private:
           }
           else
           {
-            float scale = (x / float(m_image.GetWidth()) - 0.5f) * 2.0f * range;
+            float scale = (x / float(m_Image.GetWidth()) - 0.5f) * 2.0f * range;
 
             if (ezMath::Abs(scale) > 0.5)
             {
@@ -147,15 +147,15 @@ private:
         }
       }
 
-      EZ_TEST_BOOL(m_image.Convert(format).Succeeded());
+      EZ_TEST_BOOL(m_Image.Convert(format).Succeeded());
 
-      EZ_TEST_BOOL(m_image.Convert(ezImageFormat::R32G32B32A32_FLOAT).Succeeded());
+      EZ_TEST_BOOL(m_Image.Convert(ezImageFormat::R32G32B32A32_FLOAT).Succeeded());
 
-      for (ezUInt32 y = 0; y < m_image.GetHeight(); ++y)
+      for (ezUInt32 y = 0; y < m_Image.GetHeight(); ++y)
       {
-        ezColor* pPixelPointer = m_image.GetPixelPointer<ezColor>(0, 0, 0, 0, y);
+        ezColor* pPixelPointer = m_Image.GetPixelPointer<ezColor>(0, 0, 0, 0, y);
 
-        for (ezUInt32 x = 0; x < m_image.GetWidth(); ++x)
+        for (ezUInt32 x = 0; x < m_Image.GetWidth(); ++x)
         {
           // Scale the image back into LDR range if possible
           if (x < 30 && y < 10)
@@ -173,7 +173,7 @@ private:
           }
           else
           {
-            float scale = (x / float(m_image.GetWidth()) - 0.5f) * 2.0f * range;
+            float scale = (x / float(m_Image.GetWidth()) - 0.5f) * 2.0f * range;
             if (ezMath::Abs(scale) > 0.5)
             {
               *pPixelPointer /= scale;
@@ -203,6 +203,11 @@ private:
 
     ezFileSystem::AddDataDirectory(">eztest/", "ImageComparisonDataDir", "imgout", ezFileSystem::AllowWrites).IgnoreResult();
 
+#if EZ_ENABLED(EZ_PLATFORM_LINUX)
+    // On linux we use CPU based BC6 and BC7 compression, which sometimes gives slightly different results from the GPU compression on Windows.
+    ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_Linux");
+#endif
+
     return EZ_SUCCESS;
   }
 
@@ -221,7 +226,7 @@ private:
 
   virtual ezResult DeInitializeSubTest(ezInt32 iIdentifier) override { return EZ_SUCCESS; }
 
-  ezImage m_image;
+  ezImage m_Image;
 };
 
 static ezImageConversionTest s_ImageConversionTest;

@@ -102,7 +102,7 @@ public:
 
   virtual void Execute(const ezVariant& value) override;
 
-  void LaunchPlayer();
+  void LaunchPlayer(const char* szPlayerApp);
   QStringList GetPlayerCommandLine(ezStringBuilder& out_SingleLine) const;
 
 private:

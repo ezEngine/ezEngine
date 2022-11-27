@@ -15,7 +15,7 @@ ezQtCollisionMeshAssetDocumentWindow::ezQtCollisionMeshAssetDocumentWindow(ezAss
   {
     ezQtMenuBarActionMapView* pMenuBar = static_cast<ezQtMenuBarActionMapView*>(menuBar());
     ezActionContext context;
-    context.m_sMapping = "CollisionMeshAssetMenuBar";
+    context.m_sMapping = "PxCollisionMeshAssetMenuBar";
     context.m_pDocument = pDocument;
     context.m_pWindow = this;
     pMenuBar->SetActionContext(context);
@@ -25,11 +25,11 @@ ezQtCollisionMeshAssetDocumentWindow::ezQtCollisionMeshAssetDocumentWindow(ezAss
   {
     ezQtToolBarActionMapView* pToolBar = new ezQtToolBarActionMapView("Toolbar", this);
     ezActionContext context;
-    context.m_sMapping = "CollisionMeshAssetToolBar";
+    context.m_sMapping = "PxCollisionMeshAssetToolBar";
     context.m_pDocument = pDocument;
     context.m_pWindow = this;
     pToolBar->SetActionContext(context);
-    pToolBar->setObjectName("CollisionMeshAssetWindowToolBar");
+    pToolBar->setObjectName("PxCollisionMeshAssetWindowToolBar");
     addToolBar(pToolBar);
   }
 
@@ -38,7 +38,7 @@ ezQtCollisionMeshAssetDocumentWindow::ezQtCollisionMeshAssetDocumentWindow(ezAss
   {
     SetTargetFramerate(25);
 
-    m_ViewConfig.m_Camera.LookAt(ezVec3(-1.6, 0, 0), ezVec3(0, 0, 0), ezVec3(0, 0, 1));
+    m_ViewConfig.m_Camera.LookAt(ezVec3(-1.6f, 0, 0), ezVec3(0, 0, 0), ezVec3(0, 0, 1));
     m_ViewConfig.ApplyPerspectiveSetting(90);
 
     m_pViewWidget = new ezQtOrbitCamViewWidget(this, &m_ViewConfig);
@@ -50,8 +50,8 @@ ezQtCollisionMeshAssetDocumentWindow::ezQtCollisionMeshAssetDocumentWindow(ezAss
 
   // Property Grid
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this);
-    pPropertyPanel->setObjectName("CollisionMeshAssetDockWidget");
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
+    pPropertyPanel->setObjectName("PxCollisionMeshAssetDockWidget");
     pPropertyPanel->setWindowTitle("Collision Mesh Properties");
     pPropertyPanel->show();
 

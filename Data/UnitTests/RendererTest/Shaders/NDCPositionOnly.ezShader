@@ -1,0 +1,43 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+[RENDERSTATE]
+
+DepthTest = false
+CullMode = CullMode_None
+
+[VERTEXSHADER]
+
+struct VS_IN
+{
+  float3 Position : POSITION;
+};
+
+struct VS_OUT
+{
+  float4 Position : SV_Position;
+};
+
+VS_OUT main(VS_IN Input)
+{
+
+  VS_OUT RetVal;
+  RetVal.Position = float4(Input.Position, 1.0f);
+
+  return RetVal;
+}
+
+[PIXELSHADER]
+
+struct VS_OUT
+{
+  float4 Position : SV_Position;
+};
+
+float4 main(VS_OUT a) : SV_Target
+{
+  return float4(1.0, 0.0, 0.0, 1.0);
+}
+

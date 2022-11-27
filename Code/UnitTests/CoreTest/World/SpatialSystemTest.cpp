@@ -67,13 +67,14 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
   EZ_LOCK(world.GetWriteMarker());
 
   auto& rng = world.GetRandomNumberGenerator();
-  double range = 10000.0;
 
   ezDynamicArray<ezGameObject*> objects;
   objects.Reserve(1000);
 
   for (ezUInt32 i = 0; i < 1000; ++i)
   {
+    constexpr const double range = 10000.0;
+
     float x = (float)rng.DoubleMinMax(-range, range);
     float y = (float)rng.DoubleMinMax(-range, range);
     float z = (float)rng.DoubleMinMax(-range, range);
@@ -119,19 +120,20 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
       ezBoundingSphere objSphere = it->GetGlobalBounds().GetSphere();
       if (testSphere.Overlaps(objSphere))
       {
-        EZ_TEST_BOOL(it->IsDynamic() || uniqueObjects.Contains(it));
+        EZ_TEST_BOOL(it->IsDynamic() || uniqueObjects.Contains((ezGameObject*)it));
       }
     }
 
     objectsInSphere.Clear();
     uniqueObjects.Clear();
 
-    world.GetSpatialSystem()->FindObjectsInSphere(testSphere, queryParams, [&](ezGameObject* pObject) {
-      objectsInSphere.PushBack(pObject);
-      EZ_TEST_BOOL(!uniqueObjects.Insert(pObject));
+    world.GetSpatialSystem()->FindObjectsInSphere(testSphere, queryParams, [&](ezGameObject* pObject)
+      {
+        objectsInSphere.PushBack(pObject);
+        EZ_TEST_BOOL(!uniqueObjects.Insert(pObject));
 
-      return ezVisitorExecution::Continue;
-    });
+        return ezVisitorExecution::Continue;
+      });
 
     for (auto pObject : objectsInSphere)
     {
@@ -147,7 +149,7 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
       ezBoundingSphere objSphere = it->GetGlobalBounds().GetSphere();
       if (testSphere.Overlaps(objSphere))
       {
-        EZ_TEST_BOOL(it->IsDynamic() || uniqueObjects.Contains(it));
+        EZ_TEST_BOOL(it->IsDynamic() || uniqueObjects.Contains((ezGameObject*)it));
       }
     }
   }
@@ -176,19 +178,20 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
       ezBoundingBox objBox = it->GetGlobalBounds().GetBox();
       if (testBox.Overlaps(objBox))
       {
-        EZ_TEST_BOOL(it->IsDynamic() || uniqueObjects.Contains(it));
+        EZ_TEST_BOOL(it->IsDynamic() || uniqueObjects.Contains((ezGameObject*)it));
       }
     }
 
     objectsInBox.Clear();
     uniqueObjects.Clear();
 
-    world.GetSpatialSystem()->FindObjectsInBox(testBox, queryParams, [&](ezGameObject* pObject) {
-      objectsInBox.PushBack(pObject);
-      EZ_TEST_BOOL(!uniqueObjects.Insert(pObject));
+    world.GetSpatialSystem()->FindObjectsInBox(testBox, queryParams, [&](ezGameObject* pObject)
+      {
+        objectsInBox.PushBack(pObject);
+        EZ_TEST_BOOL(!uniqueObjects.Insert(pObject));
 
-      return ezVisitorExecution::Continue;
-    });
+        return ezVisitorExecution::Continue;
+      });
 
     for (auto pObject : objectsInBox)
     {
@@ -204,7 +207,7 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
       ezBoundingBox objBox = it->GetGlobalBounds().GetBox();
       if (testBox.Overlaps(objBox))
       {
-        EZ_TEST_BOOL(it->IsDynamic() || uniqueObjects.Contains(it));
+        EZ_TEST_BOOL(it->IsDynamic() || uniqueObjects.Contains((ezGameObject*)it));
       }
     }
   }
@@ -229,7 +232,7 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
 
     ezDynamicArray<const ezGameObject*> visibleObjects;
     ezHashSet<const ezGameObject*> uniqueObjects;
-    world.GetSpatialSystem()->FindVisibleObjects(testFrustum, queryParams, visibleObjects);
+    world.GetSpatialSystem()->FindVisibleObjects(testFrustum, queryParams, visibleObjects, {});
 
     EZ_TEST_BOOL(!visibleObjects.IsEmpty());
 
@@ -253,10 +256,10 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
     }
 
     // Move some objects
-    const double range = 500.0f;
-
     for (auto it = world.GetObjects(); it.IsValid(); ++it)
     {
+      constexpr const double range = 500.0f;
+
       if (it->IsDynamic())
       {
         ezVec3 pos = it->GetLocalPosition();

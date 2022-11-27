@@ -14,7 +14,7 @@ ezWorldModule::ezWorldModule(ezWorld* pWorld)
 
 ezWorldModule::~ezWorldModule() {}
 
-ezUInt8 ezWorldModule::GetWorldIndex() const
+ezUInt32 ezWorldModule::GetWorldIndex() const
 {
   return GetWorld()->GetIndex();
 }
@@ -70,6 +70,7 @@ EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
 static ezWorldModuleTypeId s_uiNextTypeId = 0;
+static ezDynamicArray<ezWorldModuleTypeId> s_freeTypeIds;
 static constexpr ezWorldModuleTypeId s_InvalidWorldModuleTypeId = ezWorldModuleTypeId(-1);
 
 ezWorldModuleFactory::ezWorldModuleFactory() = default;
@@ -138,7 +139,18 @@ ezWorldModuleTypeId ezWorldModuleFactory::RegisterWorldModule(const ezRTTI* pRtt
     return uiTypeId;
   }
 
+  if (s_freeTypeIds.IsEmpty())
+  {
+    EZ_ASSERT_DEV(s_uiNextTypeId < EZ_MAX_WORLD_MODULE_TYPES - 1, "World module id overflow!");
+
   uiTypeId = s_uiNextTypeId++;
+  }
+  else
+  {
+    uiTypeId = s_freeTypeIds.PeekBack();
+    s_freeTypeIds.PopBack();
+  }
+
   m_TypeToId.Insert(pRtti, uiTypeId);
 
   m_CreatorFuncs.EnsureCount(uiTypeId + 1);
@@ -174,6 +186,45 @@ namespace
     ezWorldModuleTypeId m_uiTypeId;
   };
 } // namespace
+
+void ezWorldModuleFactory::AdjustBaseTypeId(const ezRTTI* pParentRtti, const ezRTTI* pRtti, ezUInt16 uiParentTypeId)
+{
+  ezDynamicArray<ezPlugin::PluginInfo> infos;
+  ezPlugin::GetAllPluginInfos(infos);
+
+  auto HasManualDependency = [&](const char* szPluginName) -> bool {
+    for (const auto& p : infos)
+    {
+      if (p.m_sName == szPluginName)
+      {
+        return !p.m_LoadFlags.IsSet(ezPluginLoadFlags::CustomDependency);
+      }
+    }
+
+    return false;
+  };
+
+  const char* szPlugin1 = m_CreatorFuncs[uiParentTypeId].m_pRtti->GetPluginName();
+  const char* szPlugin2 = pRtti->GetPluginName();
+
+  const bool bPrio1 = HasManualDependency(szPlugin1);
+  const bool bPrio2 = HasManualDependency(szPlugin2);
+
+  if (bPrio1 && !bPrio2)
+  {
+    // keep the previous one
+    return;
+  }
+
+  if (!bPrio1 && bPrio2)
+  {
+    // take the new one
+    m_TypeToId[pParentRtti] = m_TypeToId[pRtti];
+    return;
+  }
+
+  ezLog::Error("Interface '{}' is already implemented by '{}'. Specify which implementation should be used via RegisterInterfaceImplementation() or WorldModules.ddl config file.", pParentRtti->GetTypeName(), m_CreatorFuncs[uiParentTypeId].m_pRtti->GetTypeName());
+}
 
 void ezWorldModuleFactory::FillBaseTypeIds()
 {
@@ -225,9 +276,7 @@ void ezWorldModuleFactory::FillBaseTypeIds()
       {
         if (*pParentTypeId != uiTypeId)
         {
-          ezLog::Error("Interface '{}' is already implemented by '{}'. Specify which implementation should be used via "
-                       "RegisterInterfaceImplementation() or WorldModules.dll config file.",
-            pParentRtti->GetTypeName(), m_CreatorFuncs[*pParentTypeId].m_pRtti->GetTypeName());
+          AdjustBaseTypeId(pParentRtti, pRtti, *pParentTypeId);
         }
       }
       else
@@ -290,6 +339,12 @@ void ezWorldModuleFactory::ClearUnloadedTypeToIDs()
     {
       ++it;
     }
+  }
+
+  // Finally, adding all invalid typeIds to the free list for reusing later
+  for (ezWorldModuleTypeId removedId : mappedIdsToRemove)
+  {
+    s_freeTypeIds.PushBack(removedId);
   }
 }
 

@@ -12,7 +12,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPlayClipAnimNode, 1, ezRTTIDefaultAllocator<ez
     EZ_BEGIN_PROPERTIES
     {
       EZ_MEMBER_PROPERTY("Common", m_State),
-      EZ_ARRAY_ACCESSOR_PROPERTY("Clips", Clips_GetCount, Clips_GetValue, Clips_SetValue, Clips_Insert, Clips_Remove)->AddAttributes(new ezAssetBrowserAttribute("Animation Clip")),
+      EZ_ARRAY_ACCESSOR_PROPERTY("Clips", Clips_GetCount, Clips_GetValue, Clips_SetValue, Clips_Insert, Clips_Remove)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Keyframe_Animation")),
 
       EZ_MEMBER_PROPERTY("Active", m_ActivePin)->AddAttributes(new ezHiddenAttribute()),
       EZ_MEMBER_PROPERTY("Weights", m_WeightsPin)->AddAttributes(new ezHiddenAttribute()),
@@ -26,7 +26,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPlayClipAnimNode, 1, ezRTTIDefaultAllocator<ez
     EZ_BEGIN_ATTRIBUTES
     {
       new ezCategoryAttribute("Animation Sampling"),
-      new ezColorAttribute(ezColor::SteelBlue),
+      new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Blue)),
       new ezTitleAttribute("Play: '{Clips[0]}' '{Clips[1]}' '{Clips[2]}'"),
     }
     EZ_END_ATTRIBUTES;
@@ -94,7 +94,7 @@ void ezPlayClipAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeleton
 
   if (uiNextClip >= m_Clips.GetCount())
   {
-    uiNextClip = pTarget->GetWorld()->GetRandomNumberGenerator().UIntInRange(m_Clips.GetCount());
+    uiNextClip = static_cast<ezUInt8>(pTarget->GetWorld()->GetRandomNumberGenerator().UIntInRange(m_Clips.GetCount()));
   }
 
   if (m_uiNextClipToPlay != uiNextClip)
@@ -121,7 +121,7 @@ void ezPlayClipAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeleton
 
   m_State.m_bTriggerActive = m_ActivePin.IsTriggered(graph);
   m_State.m_Duration = pAnimClip->GetDescriptor().GetDuration();
-  m_State.m_DurationOfQueued = m_NextClipDuration;
+  m_State.m_DurationOfQueued = m_State.m_bLoop ? m_NextClipDuration : ezTime::Zero();
   m_State.m_fPlaybackSpeedFactor = static_cast<float>(m_SpeedPin.GetNumber(graph, 1.0));
 
   m_State.UpdateState(tDiff);

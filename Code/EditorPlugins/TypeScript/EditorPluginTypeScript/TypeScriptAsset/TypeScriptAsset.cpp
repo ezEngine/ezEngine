@@ -52,7 +52,7 @@ void ezTypeScriptAssetDocument::EditScript()
       ezStringBuilder path;
       ezFileSystem::ResolveSpecialDirectory(dd.m_sDataDirSpecialPath, path).IgnoreResult();
 
-      args.append(QString::fromUtf8(path));
+      args.append(QString::fromUtf8(path, path.GetElementCount()));
     }
 
     args.append(sTsFileAbsPath.GetData());
@@ -234,7 +234,7 @@ void ezTypeScriptAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pIn
   pInfo->m_MetaInfo.PushBack(pExposedParams);
 }
 
-ezStatus ezTypeScriptAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezTransformStatus ezTypeScriptAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   EZ_SUCCEED_OR_RETURN(ValidateScriptCode());
   EZ_SUCCEED_OR_RETURN(AutoGenerateVariablesCode());
@@ -249,7 +249,7 @@ ezStatus ezTypeScriptAssetDocument::InternalTransformAsset(ezStreamWriter& strea
   ezTypeScriptAssetDocumentManager* pAssMan = static_cast<ezTypeScriptAssetDocumentManager*>(GetAssetDocumentManager());
   EZ_SUCCEED_OR_RETURN(pAssMan->GenerateScriptCompendium(transformFlags));
 
-  return ezStatus(EZ_SUCCESS);
+  return ezTransformStatus();
 }
 
 ezStatus ezTypeScriptAssetDocument::ValidateScriptCode()

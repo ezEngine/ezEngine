@@ -15,7 +15,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSimpleRenderPass, 1, ezRTTIDefaultAllocator<ez
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Color", m_PinColor),
-    EZ_MEMBER_PROPERTY("DepthStencil", m_PinDepthStencil)->AddAttributes(new ezColorAttribute(ezColor::LightCoral)),
+    EZ_MEMBER_PROPERTY("DepthStencil", m_PinDepthStencil),
     EZ_MEMBER_PROPERTY("Message", m_sMessage),
   }
   EZ_END_PROPERTIES;
@@ -34,7 +34,7 @@ bool ezSimpleRenderPass::GetRenderTargetDescriptions(
   const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-  const ezGALRenderTargetSetup& setup = view.GetRenderTargetSetup();
+  const ezGALRenderTargets& renderTargets = view.GetActiveRenderTargets();
 
   // Color
   if (inputs[m_PinColor.m_uiInputIndex])
@@ -44,20 +44,15 @@ bool ezSimpleRenderPass::GetRenderTargetDescriptions(
   else
   {
     // If no input is available, we use the render target setup instead.
-    const ezGALRenderTargetView* pTarget = pDevice->GetRenderTargetView(setup.GetRenderTarget(0));
-    if (pTarget)
+    const ezGALTexture* pTexture = pDevice->GetTexture(renderTargets.m_hRTs[0]);
+    if (pTexture)
     {
-      const ezGALRenderTargetViewCreationDescription& desc = pTarget->GetDescription();
-      const ezGALTexture* pTexture = pDevice->GetTexture(desc.m_hTexture);
-      if (pTexture)
-      {
-        outputs[m_PinColor.m_uiOutputIndex] = pTexture->GetDescription();
-        outputs[m_PinColor.m_uiOutputIndex].m_bCreateRenderTarget = true;
-        outputs[m_PinColor.m_uiOutputIndex].m_bAllowShaderResourceView = true;
-        outputs[m_PinColor.m_uiOutputIndex].m_ResourceAccess.m_bReadBack = false;
-        outputs[m_PinColor.m_uiOutputIndex].m_ResourceAccess.m_bImmutable = true;
-        outputs[m_PinColor.m_uiOutputIndex].m_pExisitingNativeObject = nullptr;
-      }
+      outputs[m_PinColor.m_uiOutputIndex] = pTexture->GetDescription();
+      outputs[m_PinColor.m_uiOutputIndex].m_bCreateRenderTarget = true;
+      outputs[m_PinColor.m_uiOutputIndex].m_bAllowShaderResourceView = true;
+      outputs[m_PinColor.m_uiOutputIndex].m_ResourceAccess.m_bReadBack = false;
+      outputs[m_PinColor.m_uiOutputIndex].m_ResourceAccess.m_bImmutable = true;
+      outputs[m_PinColor.m_uiOutputIndex].m_pExisitingNativeObject = nullptr;
     }
   }
 
@@ -69,15 +64,10 @@ bool ezSimpleRenderPass::GetRenderTargetDescriptions(
   else
   {
     // If no input is available, we use the render target setup instead.
-    const ezGALRenderTargetView* pTarget = pDevice->GetRenderTargetView(setup.GetDepthStencilTarget());
-    if (pTarget)
+    const ezGALTexture* pTexture = pDevice->GetTexture(renderTargets.m_hDSTarget);
+    if (pTexture)
     {
-      const ezGALRenderTargetViewCreationDescription& desc = pTarget->GetDescription();
-      const ezGALTexture* pTexture = pDevice->GetTexture(desc.m_hTexture);
-      if (pTexture)
-      {
-        outputs[m_PinDepthStencil.m_uiOutputIndex] = pTexture->GetDescription();
-      }
+      outputs[m_PinDepthStencil.m_uiOutputIndex] = pTexture->GetDescription();
     }
   }
 
@@ -101,7 +91,7 @@ void ezSimpleRenderPass::Execute(const ezRenderViewContext& renderViewContext, c
     renderingSetup.m_RenderTargetSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(inputs[m_PinDepthStencil.m_uiInputIndex]->m_TextureHandle));
   }
 
-  auto pCommandEncoder = ezRenderContext::BeginPassAndRenderingScope(renderViewContext, std::move(renderingSetup), GetName());
+  auto pCommandEncoder = ezRenderContext::BeginPassAndRenderingScope(renderViewContext, std::move(renderingSetup), GetName(), renderViewContext.m_pCamera->IsStereoscopic());
 
   // Setup Permutation Vars
   ezTempHashedString sRenderPass("RENDER_PASS_FORWARD");

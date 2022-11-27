@@ -5,6 +5,7 @@
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <EditorFramework/Gizmos/SnapProvider.h>
 #include <EditorFramework/Gizmos/TranslateGizmo.h>
+#include <EditorFramework/Preferences/EditorPreferences.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTranslateGizmo, 1, ezRTTINoAllocator)
@@ -15,13 +16,33 @@ ezTranslateGizmo::ezTranslateGizmo()
   m_vStartPosition.SetZero();
   m_fCameraSpeed = 0.2f;
 
-  m_AxisX.Configure(this, ezEngineGizmoHandleType::Arrow, ezColorLinearUB(128, 0, 0));
-  m_AxisY.Configure(this, ezEngineGizmoHandleType::Arrow, ezColorLinearUB(0, 128, 0));
-  m_AxisZ.Configure(this, ezEngineGizmoHandleType::Arrow, ezColorLinearUB(0, 0, 128));
+  ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
+  m_bUseExperimentalGizmo = !pPreferences->m_bOldGizmos;
 
-  m_PlaneXY.Configure(this, ezEngineGizmoHandleType::Rect, ezColorLinearUB(128, 128, 255));
-  m_PlaneXZ.Configure(this, ezEngineGizmoHandleType::Rect, ezColorLinearUB(128, 255, 128));
-  m_PlaneYZ.Configure(this, ezEngineGizmoHandleType::Rect, ezColorLinearUB(255, 128, 128));
+  if (m_bUseExperimentalGizmo)
+  {
+    const ezColor colr = ezColorScheme::LightUI(ezColorScheme::Red);
+    const ezColor colg = ezColorScheme::LightUI(ezColorScheme::Green);
+    const ezColor colb = ezColorScheme::LightUI(ezColorScheme::Blue);
+
+    m_hAxisX.ConfigureHandle(this, ezEngineGizmoHandleType::FromFile, colr, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable, "Editor/Meshes/TranslateArrowX.obj");
+    m_hAxisY.ConfigureHandle(this, ezEngineGizmoHandleType::FromFile, colg, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable, "Editor/Meshes/TranslateArrowY.obj");
+    m_hAxisZ.ConfigureHandle(this, ezEngineGizmoHandleType::FromFile, colb, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable, "Editor/Meshes/TranslateArrowZ.obj");
+
+    m_hPlaneYZ.ConfigureHandle(this, ezEngineGizmoHandleType::FromFile, colr, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable | ezGizmoFlags::FaceCamera, "Editor/Meshes/TranslatePlaneX.obj");
+    m_hPlaneXZ.ConfigureHandle(this, ezEngineGizmoHandleType::FromFile, colg, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable | ezGizmoFlags::FaceCamera, "Editor/Meshes/TranslatePlaneY.obj");
+    m_hPlaneXY.ConfigureHandle(this, ezEngineGizmoHandleType::FromFile, colb, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable | ezGizmoFlags::FaceCamera, "Editor/Meshes/TranslatePlaneZ.obj");
+  }
+  else
+  {
+    m_hAxisX.ConfigureHandle(this, ezEngineGizmoHandleType::Arrow, ezColorLinearUB(128, 0, 0), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
+    m_hAxisY.ConfigureHandle(this, ezEngineGizmoHandleType::Arrow, ezColorLinearUB(0, 128, 0), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
+    m_hAxisZ.ConfigureHandle(this, ezEngineGizmoHandleType::Arrow, ezColorLinearUB(0, 0, 128), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
+
+    m_hPlaneXY.ConfigureHandle(this, ezEngineGizmoHandleType::Rect, ezColorLinearUB(128, 128, 255), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
+    m_hPlaneXZ.ConfigureHandle(this, ezEngineGizmoHandleType::Rect, ezColorLinearUB(128, 255, 128), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
+    m_hPlaneYZ.ConfigureHandle(this, ezEngineGizmoHandleType::Rect, ezColorLinearUB(255, 128, 128), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
+  }
 
   SetVisible(false);
   SetTransformation(ezTransform::IdentityTransform());
@@ -33,48 +54,60 @@ ezTranslateGizmo::ezTranslateGizmo()
 
 void ezTranslateGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
 {
-  pOwnerWindow->GetDocument()->AddSyncObject(&m_AxisX);
-  pOwnerWindow->GetDocument()->AddSyncObject(&m_AxisY);
-  pOwnerWindow->GetDocument()->AddSyncObject(&m_AxisZ);
+  pOwnerWindow->GetDocument()->AddSyncObject(&m_hAxisX);
+  pOwnerWindow->GetDocument()->AddSyncObject(&m_hAxisY);
+  pOwnerWindow->GetDocument()->AddSyncObject(&m_hAxisZ);
 
-  pOwnerWindow->GetDocument()->AddSyncObject(&m_PlaneXY);
-  pOwnerWindow->GetDocument()->AddSyncObject(&m_PlaneXZ);
-  pOwnerWindow->GetDocument()->AddSyncObject(&m_PlaneYZ);
+  pOwnerWindow->GetDocument()->AddSyncObject(&m_hPlaneXY);
+  pOwnerWindow->GetDocument()->AddSyncObject(&m_hPlaneXZ);
+  pOwnerWindow->GetDocument()->AddSyncObject(&m_hPlaneYZ);
 }
 
 void ezTranslateGizmo::OnVisibleChanged(bool bVisible)
 {
-  m_AxisX.SetVisible(bVisible);
-  m_AxisY.SetVisible(bVisible);
-  m_AxisZ.SetVisible(bVisible);
+  m_hAxisX.SetVisible(bVisible);
+  m_hAxisY.SetVisible(bVisible);
+  m_hAxisZ.SetVisible(bVisible);
 
-  m_PlaneXY.SetVisible(bVisible);
-  m_PlaneXZ.SetVisible(bVisible);
-  m_PlaneYZ.SetVisible(bVisible);
+  m_hPlaneXY.SetVisible(bVisible);
+  m_hPlaneXZ.SetVisible(bVisible);
+  m_hPlaneYZ.SetVisible(bVisible);
 }
 
 void ezTranslateGizmo::OnTransformationChanged(const ezTransform& transform)
 {
-  ezTransform m;
-  m.SetIdentity();
+  if (m_bUseExperimentalGizmo)
+  {
+    m_hAxisX.SetTransformation(transform);
+    m_hAxisY.SetTransformation(transform);
+    m_hAxisZ.SetTransformation(transform);
+    m_hPlaneXY.SetTransformation(transform);
+    m_hPlaneYZ.SetTransformation(transform);
+    m_hPlaneXZ.SetTransformation(transform);
+  }
+  else
+  {
+    ezTransform m;
+    m.SetIdentity();
 
-  m.m_vScale.Set(2.0f);
-  m_AxisX.SetTransformation(transform * m);
+    m.m_vScale.Set(2.0f);
+    m_hAxisX.SetTransformation(transform * m);
 
-  m.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(90));
-  m_AxisY.SetTransformation(transform * m);
+    m.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(90));
+    m_hAxisY.SetTransformation(transform * m);
 
-  m.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(-90));
-  m_AxisZ.SetTransformation(transform * m);
+    m.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(-90));
+    m_hAxisZ.SetTransformation(transform * m);
 
-  m.SetIdentity();
-  m_PlaneXY.SetTransformation(transform * m);
+    m.SetIdentity();
+    m_hPlaneXY.SetTransformation(transform * m);
 
-  m.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(90));
-  m_PlaneYZ.SetTransformation(transform * m);
+    m.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(90));
+    m_hPlaneYZ.SetTransformation(transform * m);
 
-  m.m_qRotation.SetFromAxisAndAngle(ezVec3(1, 0, 0), ezAngle::Degree(90));
-  m_PlaneXZ.SetTransformation(transform * m);
+    m.m_qRotation.SetFromAxisAndAngle(ezVec3(1, 0, 0), ezAngle::Degree(90));
+    m_hPlaneXZ.SetTransformation(transform * m);
+  }
 
   if (!IsActiveInputContext())
   {
@@ -93,20 +126,20 @@ void ezTranslateGizmo::DoFocusLost(bool bCancel)
   ezViewHighlightMsgToEngine msg;
   GetOwnerWindow()->GetEditorEngineConnection()->SendHighlightObjectMessage(&msg);
 
-  m_AxisX.SetVisible(true);
-  m_AxisY.SetVisible(true);
-  m_AxisZ.SetVisible(true);
+  m_hAxisX.SetVisible(true);
+  m_hAxisY.SetVisible(true);
+  m_hAxisZ.SetVisible(true);
 
-  m_PlaneXY.SetVisible(true);
-  m_PlaneXZ.SetVisible(true);
-  m_PlaneYZ.SetVisible(true);
+  m_hPlaneXY.SetVisible(true);
+  m_hPlaneXZ.SetVisible(true);
+  m_hPlaneYZ.SetVisible(true);
 
   m_Mode = TranslateMode::None;
   m_MovementMode = MovementMode::ScreenProjection;
   m_vLastMoveDiff.SetZero();
 
   m_vStartPosition = GetTransformation().m_vPosition;
-  m_TotalMouseDiff.SetZero();
+  m_vTotalMouseDiff.SetZero();
 
   GetOwnerWindow()->SetPermanentStatusBarMsg("");
 }
@@ -121,42 +154,44 @@ ezEditorInput ezTranslateGizmo::DoMousePressEvent(QMouseEvent* e)
 
   m_vLastMoveDiff.SetZero();
 
-  if (m_pInteractionGizmoHandle == &m_AxisX)
+  const ezQuat gizmoRot = GetTransformation().m_qRotation;
+
+  if (m_pInteractionGizmoHandle == &m_hAxisX)
   {
-    m_vMoveAxis = m_AxisX.GetTransformation().m_qRotation * ezVec3(1, 0, 0);
+    m_vMoveAxis = gizmoRot * ezVec3(1, 0, 0);
     m_Mode = TranslateMode::Axis;
   }
-  else if (m_pInteractionGizmoHandle == &m_AxisY)
+  else if (m_pInteractionGizmoHandle == &m_hAxisY)
   {
-    m_vMoveAxis = m_AxisY.GetTransformation().m_qRotation * ezVec3(1, 0, 0);
+    m_vMoveAxis = gizmoRot * ezVec3(0, 1, 0);
     m_Mode = TranslateMode::Axis;
   }
-  else if (m_pInteractionGizmoHandle == &m_AxisZ)
+  else if (m_pInteractionGizmoHandle == &m_hAxisZ)
   {
-    m_vMoveAxis = m_AxisZ.GetTransformation().m_qRotation * ezVec3(1, 0, 0);
+    m_vMoveAxis = gizmoRot * ezVec3(0, 0, 1);
     m_Mode = TranslateMode::Axis;
   }
-  else if (m_pInteractionGizmoHandle == &m_PlaneXY)
+  else if (m_pInteractionGizmoHandle == &m_hPlaneXY)
   {
-    m_vMoveAxis = m_PlaneXY.GetTransformation().m_qRotation * ezVec3(0, 0, 1);
-    m_vPlaneAxis[0] = m_PlaneXY.GetTransformation().m_qRotation * ezVec3(1, 0, 0);
-    m_vPlaneAxis[1] = m_PlaneXY.GetTransformation().m_qRotation * ezVec3(0, 1, 0);
+    m_vMoveAxis = gizmoRot * ezVec3(0, 0, 1);
+    m_vPlaneAxis[0] = gizmoRot * ezVec3(1, 0, 0);
+    m_vPlaneAxis[1] = gizmoRot * ezVec3(0, 1, 0);
     m_Mode = TranslateMode::Plane;
     m_LastPlaneInteraction = PlaneInteraction::PlaneZ;
   }
-  else if (m_pInteractionGizmoHandle == &m_PlaneXZ)
+  else if (m_pInteractionGizmoHandle == &m_hPlaneXZ)
   {
-    m_vMoveAxis = m_PlaneXZ.GetTransformation().m_qRotation * ezVec3(0, 0, 1);
-    m_vPlaneAxis[0] = m_PlaneXZ.GetTransformation().m_qRotation * ezVec3(1, 0, 0);
-    m_vPlaneAxis[1] = m_PlaneXZ.GetTransformation().m_qRotation * ezVec3(0, 1, 0);
+    m_vMoveAxis = gizmoRot * ezVec3(0, 1, 0);
+    m_vPlaneAxis[0] = gizmoRot * ezVec3(1, 0, 0);
+    m_vPlaneAxis[1] = gizmoRot * ezVec3(0, 0, 1);
     m_Mode = TranslateMode::Plane;
     m_LastPlaneInteraction = PlaneInteraction::PlaneY;
   }
-  else if (m_pInteractionGizmoHandle == &m_PlaneYZ)
+  else if (m_pInteractionGizmoHandle == &m_hPlaneYZ)
   {
-    m_vMoveAxis = m_PlaneYZ.GetTransformation().m_qRotation * ezVec3(0, 0, 1);
-    m_vPlaneAxis[0] = m_PlaneYZ.GetTransformation().m_qRotation * ezVec3(1, 0, 0);
-    m_vPlaneAxis[1] = m_PlaneYZ.GetTransformation().m_qRotation * ezVec3(0, 1, 0);
+    m_vMoveAxis = gizmoRot * ezVec3(1, 0, 0);
+    m_vPlaneAxis[0] = gizmoRot * ezVec3(0, 1, 0);
+    m_vPlaneAxis[1] = gizmoRot * ezVec3(0, 0, 1);
     m_Mode = TranslateMode::Plane;
     m_LastPlaneInteraction = PlaneInteraction::PlaneX;
   }
@@ -168,27 +203,27 @@ ezEditorInput ezTranslateGizmo::DoMousePressEvent(QMouseEvent* e)
   GetOwnerWindow()->GetEditorEngineConnection()->SendHighlightObjectMessage(&msg);
 
   m_vStartPosition = GetTransformation().m_vPosition;
-  m_TotalMouseDiff.SetZero();
+  m_vTotalMouseDiff.SetZero();
 
   ezMat4 mView = m_pCamera->GetViewMatrix();
   ezMat4 mProj;
-  m_pCamera->GetProjectionMatrix((float)m_Viewport.x / (float)m_Viewport.y, mProj);
+  m_pCamera->GetProjectionMatrix((float)m_vViewport.x / (float)m_vViewport.y, mProj);
   ezMat4 mViewProj = mProj * mView;
-  m_InvViewProj = mViewProj.GetInverse();
+  m_mInvViewProj = mViewProj.GetInverse();
 
 
   m_LastInteraction = ezTime::Now();
 
-  m_LastMousePos = SetMouseMode(ezEditorInputContext::MouseMode::WrapAtScreenBorders);
+  m_vLastMousePos = SetMouseMode(ezEditorInputContext::MouseMode::WrapAtScreenBorders);
   SetActiveInputContext(this);
 
   if (m_Mode == TranslateMode::Axis)
   {
-    GetPointOnAxis(e->pos().x(), m_Viewport.y - e->pos().y(), m_vInteractionPivot).IgnoreResult();
+    GetPointOnAxis(e->pos().x(), m_vViewport.y - e->pos().y(), m_vInteractionPivot).IgnoreResult();
   }
   else if (m_Mode == TranslateMode::Plane)
   {
-    GetPointOnPlane(e->pos().x(), m_Viewport.y - e->pos().y(), m_vInteractionPivot).IgnoreResult();
+    GetPointOnPlane(e->pos().x(), m_vViewport.y - e->pos().y(), m_vInteractionPivot).IgnoreResult();
   }
 
   m_fStartScale = (m_vInteractionPivot - m_pCamera->GetPosition()).GetLength() * 0.125;
@@ -220,7 +255,7 @@ ezResult ezTranslateGizmo::GetPointOnPlane(ezInt32 iScreenPosX, ezInt32 iScreenP
   out_Result = m_vStartPosition;
 
   ezVec3 vPos, vRayDir;
-  if (ezGraphicsUtils::ConvertScreenPosToWorldPos(m_InvViewProj, 0, 0, m_Viewport.x, m_Viewport.y, ezVec3(iScreenPosX, iScreenPosY, 0), vPos, &vRayDir).Failed())
+  if (ezGraphicsUtils::ConvertScreenPosToWorldPos(m_mInvViewProj, 0, 0, m_vViewport.x, m_vViewport.y, ezVec3(iScreenPosX, iScreenPosY, 0), vPos, &vRayDir).Failed())
     return EZ_FAILURE;
 
   ezPlane Plane;
@@ -239,7 +274,7 @@ ezResult ezTranslateGizmo::GetPointOnAxis(ezInt32 iScreenPosX, ezInt32 iScreenPo
   out_Result = m_vStartPosition;
 
   ezVec3 vPos, vRayDir;
-  if (ezGraphicsUtils::ConvertScreenPosToWorldPos(m_InvViewProj, 0, 0, m_Viewport.x, m_Viewport.y, ezVec3(iScreenPosX, iScreenPosY, 0), vPos, &vRayDir).Failed())
+  if (ezGraphicsUtils::ConvertScreenPosToWorldPos(m_mInvViewProj, 0, 0, m_vViewport.x, m_vViewport.y, ezVec3(iScreenPosX, iScreenPosY, 0), vPos, &vRayDir).Failed())
     return EZ_FAILURE;
 
   const ezVec3 vPlaneTangent = m_vMoveAxis.CrossRH(m_pCamera->GetDirForwards()).GetNormalized();
@@ -282,17 +317,17 @@ ezEditorInput ezTranslateGizmo::DoMouseMoveEvent(QMouseEvent* e)
 
     if (m_Mode == TranslateMode::Axis)
     {
-      if (GetPointOnAxis(e->pos().x(), m_Viewport.y - e->pos().y(), vCurrentInteractionPoint).Failed())
+      if (GetPointOnAxis(e->pos().x(), m_vViewport.y - e->pos().y(), vCurrentInteractionPoint).Failed())
       {
-        m_LastMousePos = UpdateMouseMode(e);
+        m_vLastMousePos = UpdateMouseMode(e);
         return ezEditorInput::WasExclusivelyHandled;
       }
     }
     else if (m_Mode == TranslateMode::Plane)
     {
-      if (GetPointOnPlane(e->pos().x(), m_Viewport.y - e->pos().y(), vCurrentInteractionPoint).Failed())
+      if (GetPointOnPlane(e->pos().x(), m_vViewport.y - e->pos().y(), vCurrentInteractionPoint).Failed())
       {
-        m_LastMousePos = UpdateMouseMode(e);
+        m_vLastMousePos = UpdateMouseMode(e);
         return ezEditorInput::WasExclusivelyHandled;
       }
     }
@@ -309,8 +344,8 @@ ezEditorInput ezTranslateGizmo::DoMouseMoveEvent(QMouseEvent* e)
   {
     const float fSpeed = m_fCameraSpeed * 0.01f;
 
-    m_TotalMouseDiff += ezVec2((float)(CurMousePos.x - m_LastMousePos.x), (float)(CurMousePos.y - m_LastMousePos.y));
-    const ezVec3 vMouseDir = m_pCamera->GetDirRight() * m_TotalMouseDiff.x + -m_pCamera->GetDirUp() * m_TotalMouseDiff.y;
+    m_vTotalMouseDiff += ezVec2((float)(CurMousePos.x - m_vLastMousePos.x), (float)(CurMousePos.y - m_vLastMousePos.y));
+    const ezVec3 vMouseDir = m_pCamera->GetDirRight() * m_vTotalMouseDiff.x + -m_pCamera->GetDirUp() * m_vTotalMouseDiff.y;
 
     if (m_Mode == TranslateMode::Axis)
     {
@@ -322,7 +357,7 @@ ezEditorInput ezTranslateGizmo::DoMouseMoveEvent(QMouseEvent* e)
     }
   }
 
-  m_LastMousePos = UpdateMouseMode(e);
+  m_vLastMousePos = UpdateMouseMode(e);
 
   // disable snapping when ALT is pressed
   if (!e->modifiers().testFlag(Qt::AltModifier))
@@ -364,11 +399,11 @@ void ezTranslateGizmo::SetMovementMode(MovementMode mode)
 
   if (m_MovementMode == MovementMode::MouseDiff)
   {
-    m_LastMousePos = SetMouseMode(ezEditorInputContext::MouseMode::HideAndWrapAtScreenBorders);
+    m_vLastMousePos = SetMouseMode(ezEditorInputContext::MouseMode::HideAndWrapAtScreenBorders);
   }
   else
   {
-    m_LastMousePos = SetMouseMode(ezEditorInputContext::MouseMode::WrapAtScreenBorders);
+    m_vLastMousePos = SetMouseMode(ezEditorInputContext::MouseMode::WrapAtScreenBorders);
   }
 }
 

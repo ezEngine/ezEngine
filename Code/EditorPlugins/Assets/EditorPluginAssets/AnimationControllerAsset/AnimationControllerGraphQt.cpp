@@ -3,22 +3,7 @@
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorPluginAssets/AnimationControllerAsset/AnimationControllerGraphQt.h>
 
-ezQtAnimationControllerNode::ezQtAnimationControllerNode()
-{
-  // this costs too much performance :-(
-  EnableDropShadow(false);
-}
-
-void ezQtAnimationControllerNode::InitNode(const ezDocumentNodeManager* pManager, const ezDocumentObject* pObject)
-{
-  ezQtNode::InitNode(pManager, pObject);
-
-  if (const ezColorAttribute* pAttr = pObject->GetType()->GetAttributeByType<ezColorAttribute>())
-  {
-    ezColorGammaUB c = pAttr->GetColor();
-    m_HeaderColor = qRgb(c.r, c.g, c.b);
-  }
-}
+ezQtAnimationControllerNode::ezQtAnimationControllerNode() = default;
 
 void ezQtAnimationControllerNode::UpdateState()
 {

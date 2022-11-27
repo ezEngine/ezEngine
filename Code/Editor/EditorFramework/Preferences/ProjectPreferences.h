@@ -11,5 +11,9 @@ class EZ_EDITORFRAMEWORK_DLL ezProjectPreferencesUser : public ezPreferences
 public:
   ezProjectPreferencesUser();
 
-  ezString m_sRenderPipelines;
+  // which apps to launch as external 'Players' (other than ezPlayer.exe)
+  ezDynamicArray<ezString> m_PlayerApps;
+
+  // the directory where the project should be exported to
+  ezString m_sExportFolder;
 };

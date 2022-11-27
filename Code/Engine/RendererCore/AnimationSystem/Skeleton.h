@@ -32,12 +32,14 @@ public:
   bool IsRootJoint() const { return m_uiParentIndex == ezInvalidJointIndex; }
   const ezHashedString& GetName() const { return m_sName; }
 
-  ezAngle GetHalfSwingLimitX() const { return m_HalfSwingLimitX; }
   ezAngle GetHalfSwingLimitY() const { return m_HalfSwingLimitY; }
-  ezAngle GetTwistLimitLow() const { return m_TwistLimitLow; }
-  ezAngle GetTwistLimitHigh() const { return m_TwistLimitHigh; }
+  ezAngle GetHalfSwingLimitZ() const { return m_HalfSwingLimitZ; }
+  ezAngle GetTwistLimitHalfAngle() const { return m_TwistLimitHalfAngle; }
+  ezAngle GetTwistLimitCenterAngle() const { return m_TwistLimitCenterAngle; }
+  ezAngle GetTwistLimitLow() const;
+  ezAngle GetTwistLimitHigh() const;
 
-  ezQuat GetLimitRotation() const { return m_LimitRotation; }
+  ezQuat GetLocalOrientation() const { return m_qLocalJointOrientation; }
 
 protected:
   friend ezSkeleton;
@@ -47,11 +49,11 @@ protected:
   ezUInt16 m_uiParentIndex = ezInvalidJointIndex;
   ezHashedString m_sName;
 
-  ezQuat m_LimitRotation = ezQuat::IdentityQuaternion();
-  ezAngle m_HalfSwingLimitX;
+  ezQuat m_qLocalJointOrientation = ezQuat::IdentityQuaternion();
   ezAngle m_HalfSwingLimitY;
-  ezAngle m_TwistLimitLow;
-  ezAngle m_TwistLimitHigh;
+  ezAngle m_HalfSwingLimitZ;
+  ezAngle m_TwistLimitHalfAngle;
+  ezAngle m_TwistLimitCenterAngle;
 };
 
 /// \brief The skeleton class encapsulates the information about the joint structure for a model.
@@ -67,7 +69,7 @@ public:
   void operator=(ezSkeleton&& rhs);
 
   /// \brief Returns the number of joints in the skeleton.
-  ezUInt16 GetJointCount() const { return m_Joints.GetCount(); }
+  ezUInt16 GetJointCount() const { return static_cast<ezUInt16>(m_Joints.GetCount()); }
 
   /// \brief Returns the nth joint.
   const ezSkeletonJoint& GetJointByIndex(ezUInt16 uiIndex) const { return m_Joints[uiIndex]; }
@@ -76,7 +78,7 @@ public:
   ezUInt16 FindJointByName(const ezTempHashedString& sName) const;
 
   /// \brief Checks if two skeletons are compatible (same joint count and hierarchy)
-  //bool IsCompatibleWith(const ezSkeleton& other) const;
+  // bool IsCompatibleWith(const ezSkeleton& other) const;
 
   /// \brief Saves the skeleton in a given stream.
   void Save(ezStreamWriter& stream) const;

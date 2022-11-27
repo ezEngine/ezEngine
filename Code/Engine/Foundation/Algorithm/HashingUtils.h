@@ -69,12 +69,15 @@ public:
 
 /// \brief Helper struct to calculate the Hash of different types.
 ///
-/// This struct can be used to provide a custom hash function for ezHashTable. The default implementation uses the murmur hash function.
+/// This struct can be used to provide a custom hash function for ezHashTable. The default implementation uses the xxHash function.
 template <typename T>
 struct ezHashHelper
 {
-  static ezUInt32 Hash(const T& value);
-  static bool Equal(const T& a, const T& b);
+  template <typename U>
+  static ezUInt32 Hash(const U& value);
+
+  template <typename U>
+  static bool Equal(const T& a, const U& b);
 };
 
 #include <Foundation/Algorithm/Implementation/HashingMurmur_inl.h>

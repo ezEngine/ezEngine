@@ -55,7 +55,7 @@ void ezTextureCubeContext::OnInitialize()
     ezResourceLock<ezTextureCubeResource> pTexture(m_hTexture, ezResourceAcquireMode::PointerOnly);
 
     textureFormat = pTexture->GetFormat();
-    pTexture->m_ResourceEvents.AddEventHandler(ezMakeDelegate(&ezTextureCubeContext::OnResourceEvent, this), m_textureResourceEventSubscriber);
+    pTexture->m_ResourceEvents.AddEventHandler(ezMakeDelegate(&ezTextureCubeContext::OnResourceEvent, this), m_TextureResourceEventSubscriber);
   }
 
   // Preview Mesh
@@ -69,14 +69,14 @@ void ezTextureCubeContext::OnInitialize()
     {
       // Build geometry
       ezGeometry geom;
-      geom.AddSphere(0.5f, 64, 64, ezColor::White);
+      geom.AddSphere(0.5f, 64, 64);
       geom.ComputeTangents();
 
       ezMeshBufferResourceDescriptor desc;
       desc.AddCommonStreams();
       desc.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
 
-      hMeshBuffer = ezResourceManager::CreateResource<ezMeshBufferResource>(szMeshBufferName, std::move(desc), szMeshBufferName);
+      hMeshBuffer = ezResourceManager::GetOrCreateResource<ezMeshBufferResource>(szMeshBufferName, std::move(desc), szMeshBufferName);
     }
     {
       ezResourceLock<ezMeshBufferResource> pMeshBuffer(hMeshBuffer, ezResourceAcquireMode::AllowLoadingFallback);
@@ -87,7 +87,7 @@ void ezTextureCubeContext::OnInitialize()
       md.SetMaterial(0, "");
       md.ComputeBounds();
 
-      m_hPreviewMeshResource = ezResourceManager::CreateResource<ezMeshResource>(szMeshName, std::move(md), pMeshBuffer->GetResourceDescription());
+      m_hPreviewMeshResource = ezResourceManager::GetOrCreateResource<ezMeshResource>(szMeshName, std::move(md), pMeshBuffer->GetResourceDescription());
     }
   }
 
@@ -95,7 +95,7 @@ void ezTextureCubeContext::OnInitialize()
   if (!m_hMaterial.IsValid())
   {
     ezMaterialResourceDescriptor md;
-    md.m_hBaseMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Materials/Editor/TextureCubePreview.ezMaterial");
+    md.m_hBaseMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Editor/Materials/TextureCubePreview.ezMaterial");
 
     auto& tb = md.m_TextureCubeBindings.ExpandAndGetRef();
     tb.m_Name.Assign("BaseTexture");
@@ -105,7 +105,7 @@ void ezTextureCubeContext::OnInitialize()
     param.m_Name.Assign("IsLinear");
     param.m_Value = textureFormat != ezGALResourceFormat::Invalid ? !ezGALResourceFormat::IsSrgb(textureFormat) : false;
 
-    m_hMaterial = ezResourceManager::CreateResource<ezMaterialResource>(sMaterialResource, std::move(md));
+    m_hMaterial = ezResourceManager::GetOrCreateResource<ezMaterialResource>(sMaterialResource, std::move(md));
   }
 
   // Preview Object

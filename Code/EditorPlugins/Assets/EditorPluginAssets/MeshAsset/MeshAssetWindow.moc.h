@@ -1,10 +1,13 @@
 #pragma once
 
+#include <EditorPluginAssets/EditorPluginAssetsDLL.h>
+
 #include <EditorEngineProcessFramework/EngineProcess/ViewRenderSettings.h>
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <EditorPluginAssets/MeshAsset/MeshAsset.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 
+#include <QPointer>
 #include <QTimer>
 
 class ezQtOrbitCamViewWidget;
@@ -36,6 +39,6 @@ private:
   ezEngineViewConfig m_ViewConfig;
   ezQtOrbitCamViewWidget* m_pViewWidget;
   ezUInt32 m_uiHighlightSlots = 0;
-  QPointer<QTimer> m_HighlightTimer;
+  QPointer<QTimer> m_pHighlightTimer;
 };
 

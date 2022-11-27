@@ -16,10 +16,10 @@ ezCollectionResource::ezCollectionResource()
 
 void ezCollectionResource::PreloadResources()
 {
-  EZ_LOCK(m_preloadMutex);
+  EZ_LOCK(m_PreloadMutex);
   EZ_PROFILE_SCOPE("Inject Resources to Preload");
 
-  if (!m_hPreloadedResources.IsEmpty())
+  if (!m_PreloadedResources.IsEmpty())
   {
     // PreloadResources has already been called so there is no need
     // to redo the work. Clearing the array would in fact potentially
@@ -28,7 +28,7 @@ void ezCollectionResource::PreloadResources()
     return;
   }
 
-  m_hPreloadedResources.Reserve(m_Collection.m_Resources.GetCount());
+  m_PreloadedResources.Reserve(m_Collection.m_Resources.GetCount());
 
   for (const auto& e : m_Collection.m_Resources)
   {
@@ -52,7 +52,7 @@ void ezCollectionResource::PreloadResources()
       ezLog::Error("Asset '{}' had an empty asset type name. Cannot pre-load it.", ezArgSensitive(e.m_sResourceID, "ResourceID"));
     }
 
-    m_hPreloadedResources.PushBack(hTypeless);
+    m_PreloadedResources.PushBack(hTypeless);
 
     if (hTypeless.IsValid())
     {
@@ -63,16 +63,16 @@ void ezCollectionResource::PreloadResources()
 
 bool ezCollectionResource::IsLoadingFinished(float* out_progress) const
 {
-  EZ_LOCK(m_preloadMutex);
+  EZ_LOCK(m_PreloadMutex);
 
-  EZ_ASSERT_DEBUG(m_hPreloadedResources.GetCount() == m_Collection.m_Resources.GetCount(), "Collection size mismatch. PreloadResources not called?");
+  EZ_ASSERT_DEBUG(m_PreloadedResources.GetCount() == m_Collection.m_Resources.GetCount(), "Collection size mismatch. PreloadResources not called?");
 
   ezUInt64 loadedWeight = 0;
   ezUInt64 totalWeight = 0;
 
-  for (ezUInt32 i = 0; i < m_hPreloadedResources.GetCount(); i++)
+  for (ezUInt32 i = 0; i < m_PreloadedResources.GetCount(); i++)
   {
-    const ezTypelessResourceHandle& hResource = m_hPreloadedResources[i];
+    const ezTypelessResourceHandle& hResource = m_PreloadedResources[i];
     if (!hResource.IsValid())
       continue;
 
@@ -138,12 +138,15 @@ ezResourceLoadDesc ezCollectionResource::UnloadData(Unload WhatToUnload)
 
   {
     UnregisterNames();
-
-    EZ_LOCK(m_preloadMutex);
-    m_hPreloadedResources.Clear();
+    // This lock unnecessary as this function is only called when the reference count is 0, i.e. if we deallocate this.
+    // It is intentionally removed as it caused this lock and the resource manager lock to be locked in reverse order.
+    // To prevent potential deadlocks and be able to sanity check our locking the entire codebase should never lock any
+    // locks in reverse order, even if this lock is probably fine it prevents us from reasoning over the entire system.
+    //EZ_LOCK(m_preloadMutex);
+    m_PreloadedResources.Clear();
     m_Collection.m_Resources.Clear();
 
-    m_hPreloadedResources.Compact();
+    m_PreloadedResources.Compact();
     m_Collection.m_Resources.Compact();
   }
 
@@ -182,9 +185,9 @@ ezResourceLoadDesc ezCollectionResource::UpdateContent(ezStreamReader* Stream)
 
 void ezCollectionResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
-  EZ_LOCK(m_preloadMutex);
+  EZ_LOCK(m_PreloadMutex);
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
-  out_NewMemoryUsage.m_uiMemoryCPU = static_cast<ezUInt32>(m_hPreloadedResources.GetHeapMemoryUsage() + m_Collection.m_Resources.GetHeapMemoryUsage());
+  out_NewMemoryUsage.m_uiMemoryCPU = static_cast<ezUInt32>(m_PreloadedResources.GetHeapMemoryUsage() + m_Collection.m_Resources.GetHeapMemoryUsage());
 }
 
 

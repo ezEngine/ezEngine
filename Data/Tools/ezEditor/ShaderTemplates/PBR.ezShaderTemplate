@@ -1,0 +1,407 @@
+[TEMPLATE_VARS]
+
+enum TEMPLATE_BLEND_MODE { TEMPLATE_BLEND_MODE_OPAQUE, TEMPLATE_BLEND_MODE_SELECTABLE };
+enum TEMPLATE_TWO_SIDED { TEMPLATE_TWO_SIDED_OFF, TEMPLATE_TWO_SIDED_ON, TEMPLATE_TWO_SIDED_SELECTABLE };
+enum TEMPLATE_VERTEX_COLORS { TEMPLATE_VERTEX_COLORS_NONE, TEMPLATE_VERTEX_COLORS_0, TEMPLATE_VERTEX_COLORS_0_AND_1, TEMPLATE_VERTEX_COLORS_PROCEDURAL };
+
+[PLATFORMS]
+// This section lists the platforms on which this shader is supported.
+ALL
+
+[PERMUTATIONS]
+// This section defines which permutation variables are available in this shader.
+// See http://ezengine.net/pages/docs/graphics/shaders/shader-permutation-variables.html
+
+%if TEMPLATE_BLEND_MODE == TEMPLATE_BLEND_MODE_OPAQUE
+// BLEND_MODE is hard-coded to opaque
+BLEND_MODE = BLEND_MODE_OPAQUE
+%elif TEMPLATE_BLEND_MODE == TEMPLATE_BLEND_MODE_SELECTABLE
+// The user can select the BLEND_MODE in the UI
+// this requires a MATERIALPARAMETER entry below
+BLEND_MODE
+%endif
+
+// PBR materials always use lighting
+SHADING_MODE = SHADING_MODE_LIT
+
+%if TEMPLATE_TWO_SIDED == TEMPLATE_TWO_SIDED_OFF
+// triangles are only visible from the front
+TWO_SIDED = FALSE
+%elif TEMPLATE_TWO_SIDED == TEMPLATE_TWO_SIDED_ON
+// triangles are visible both from the front and back
+TWO_SIDED = TRUE
+%else
+// the user can select whether triangles are also visible from the back
+// this requires a MATERIALPARAMETER entry below
+TWO_SIDED
+%endif
+
+// SYSTEM permutations:
+// all of these are automatically set by the engine 
+FLIP_WINDING
+RENDER_PASS
+FORWARD_PASS_WRITE_DEPTH
+MSAA
+CAMERA_MODE
+SHADING_QUALITY
+VERTEX_SKINNING
+// SYSTEM permutations
+
+[MATERIALPARAMETER]
+// This section determines which options are shown in the material UI.
+// Permutation options let the user choose the value of a permutation variable.
+// bool / float / int / Color options let the user set a fixed value for a CONSTANT_BUFFER variable.
+// Texture2D options let the user choose a texture for that slot.
+
+%if TEMPLATE_BLEND_MODE == TEMPLATE_BLEND_MODE_SELECTABLE
+// exposes the BLEND_MODE option in the material UI
+Permutation BLEND_MODE;
+// MaskThreshold is needed for alpha-tested blend modes
+float MaskThreshold @Default(0.25);
+%endif
+
+%if TEMPLATE_TWO_SIDED == TEMPLATE_TWO_SIDED_SELECTABLE
+// exposes the TWO_SIDED option in the material UI
+Permutation TWO_SIDED;
+%endif
+
+bool UseBaseTexture;
+Texture2D BaseTexture;
+Color BaseColor @Default(Color(1.0, 1.0, 1.0));
+
+bool UseNormalTexture;
+Texture2D NormalTexture;
+
+bool UseRoughnessTexture;
+Texture2D RoughnessTexture;
+float RoughnessValue @Default(0.7) @Clamp(0.0, 1.0);
+
+bool UseMetallicTexture;
+Texture2D MetallicTexture;
+float MetallicValue @Default(0.0) @Clamp(0.0, 1.0);
+
+bool UseEmissiveTexture;
+Texture2D EmissiveTexture;
+Color EmissiveColor @Default(Color(0.0, 0.0, 0.0));
+
+bool UseOcclusionTexture;
+Texture2D OcclusionTexture;
+
+bool UseOrmTexture;
+Texture2D OrmTexture;
+
+[RENDERSTATE]
+// This section defines the render pipeline state with which to execute this shader.
+// See http://ezengine.net/pages/docs/graphics/shaders/shader-render-state.html
+
+#include <Shaders/Materials/MaterialState.h>
+
+[SHADER]
+// The code in the SHADER section is prepended to every other shader stage,
+// e.g. VERTEXSHADER, GEOMETRYSHADER and PIXELSHADER all share this.
+// Most code is provided through the #included files.
+// The #defines configure that code and thus always must come before those #includes.
+
+#define USE_NORMAL
+#define USE_TANGENT
+#define USE_TEXCOORD0
+
+#if VERTEX_SKINNING
+  #define USE_SKINNING
+#endif
+
+// This enables special editor render modes:
+// http://ezengine.net/pages/docs/editor/editor-views.html#render-modes
+#if RENDER_PASS == RENDER_PASS_EDITOR
+  #define USE_DEBUG_INTERPOLATOR
+#endif
+
+%if TEMPLATE_VERTEX_COLORS == TEMPLATE_VERTEX_COLORS_0
+// This shader EXPECTS that the input meshes provide a vertex color stream.
+// If it is applied to a mesh that doesn't have that, the mesh won't render and you should see a wireframe box instead.
+// It is up to you to decide what to do with the vertex colors.
+#define USE_COLOR0
+%elif TEMPLATE_VERTEX_COLORS == TEMPLATE_VERTEX_COLORS_0_AND_1
+// This shader EXPECTS that the input meshes provides TWO vertex color streams.
+// If it is applied to a mesh that doesn't have that, the mesh won't render and you should see a wireframe box instead.
+// It is up to you to decide what to do with the vertex colors.
+#define USE_COLOR0
+#define USE_COLOR1
+%elif TEMPLATE_VERTEX_COLORS == TEMPLATE_VERTEX_COLORS_PROCEDURAL
+// This shader uses procedural generated vertex colors.
+// It is up to you to decide what to do with the vertex colors.
+#define CUSTOM_INTERPOLATOR float4 ProcColor : PROC_COLOR;
+%endif
+
+#include <Shaders/Common/GlobalConstants.h>
+
+// The values of the variables in the MATERIALPARAMETER section are written to this constant buffer.
+// The constant buffer is available to all shader stages and these variables
+// can be read anywhere like global variables.
+CONSTANT_BUFFER(ezMaterialConstants, 1)
+{
+  COLOR4F(BaseColor);
+  COLOR4F(EmissiveColor);
+  FLOAT1(MetallicValue);
+  FLOAT1(ReflectanceValue);
+  FLOAT1(RoughnessValue);
+%if TEMPLATE_BLEND_MODE == TEMPLATE_BLEND_MODE_SELECTABLE
+  FLOAT1(MaskThreshold);
+%endif
+  BOOL1(UseBaseTexture);
+  BOOL1(UseMetallicTexture);
+  BOOL1(UseNormalTexture);
+  BOOL1(UseRoughnessTexture);
+  BOOL1(UseEmissiveTexture);
+  BOOL1(UseOcclusionTexture);
+};
+
+[VERTEXSHADER]
+// This section contains the vertex shader code.
+// Note that code from the [SHADER] section is prepended, as well.
+
+#include <Shaders/Materials/MaterialVertexShader.h>
+
+VS_OUT main(VS_IN Input)
+{
+  // You could insert custom vertex animation code here.
+  // Search for USE_OBJECT_POSITION_OFFSET and USE_WORLD_POSITION_OFFSET to inject custom offsets,
+  // or manipulate the Input or Output structures directly.
+  VS_OUT Output = FillVertexData(Input);
+  
+%if TEMPLATE_VERTEX_COLORS == TEMPLATE_VERTEX_COLORS_PROCEDURAL
+  // Fetch the procedural vertex colors from the per instance vertex color buffer
+  float4 instanceVertexColor0 = RGBA8ToFloat4(GetInstanceVertexColors(0));  
+  Output.ProcColor = instanceVertexColor0;
+%endif
+
+  return Output;
+}
+
+
+[GEOMETRYSHADER]
+// This section contains the geometry shader code.
+// Note that code from the [SHADER] section is prepended, as well.
+
+#include <Shaders/Materials/MaterialStereoGeometryShader.h>
+
+
+[PIXELSHADER]
+// This section contains the pixel shader code.
+// Note that code from the [SHADER] section is prepended, as well.
+
+#define USE_SIMPLE_MATERIAL_MODEL
+#define USE_MATERIAL_EMISSIVE     // remove if you don't need emissive
+#define USE_MATERIAL_OCCLUSION    // remove if you don't need occlusion
+#define USE_TWO_SIDED_LIGHTING    // only used if TWO_SIDED == TRUE
+#define USE_DECALS                // whether decals should be applied to this material
+#define USE_FOG                   // whether fog should be applied to this material 
+
+#include <Shaders/Materials/MaterialPixelShader.h>
+
+// if you remove any of these, make sure to also remove them from the MATERIALPARAMETER section and CONSTANT_BUFFER
+Texture2D BaseTexture;
+SamplerState BaseTexture_AutoSampler;
+
+Texture2D NormalTexture;
+SamplerState NormalTexture_AutoSampler;
+
+Texture2D MetallicTexture;
+SamplerState MetallicTexture_AutoSampler;
+
+Texture2D RoughnessTexture;
+SamplerState RoughnessTexture_AutoSampler;
+
+Texture2D EmissiveTexture;
+SamplerState EmissiveTexture_AutoSampler;
+
+Texture2D OcclusionTexture;
+SamplerState OcclusionTexture_AutoSampler;
+
+Texture2D OrmTexture;
+SamplerState OrmTexture_AutoSampler;
+
+////////////////////////////////////////////////////////
+// For custom shader effects, the code below is usually the part that you edit the most.
+// These functions are automatically called by the core PBR shader implementation.
+// Here you can customize how all the input values are computed.
+// For example you can add texture scrolling, combine multiple textures or go fully procedural.
+// Since this is a PBR template, all these values are then used for realistic lighting.
+//
+// To see the result, just save the file and press F4 in the editor or player app,
+// the shader will then be reloaded. If there are any errors, they are displayed in the log.
+//
+// See this file for global inputs available to you (such as the game time):
+//    Data\Base\Shaders\Common\GlobalConstants.h
+//
+// See this file for camera values:
+//    Data\Base\Shaders\Common\CameraConstantsAccess.h
+//
+// See this file for per-object values:
+//    Data\Base\Shaders\Common\ObjectConstants.h
+//    Use GetInstanceData() to access the data.
+//
+// See this file for common utility functions:
+//    Data\Base\Shaders\Common\Common.h
+////////////////////////////////////////////////////////
+
+// returns the normal at the pixel in world-space
+float3 GetNormal()
+{
+  [branch]
+  if (UseNormalTexture)
+  {
+    // per-pixel normal read from the provided texture
+    float3 normalTS = DecodeNormalTexture(NormalTexture.Sample(NormalTexture_AutoSampler, G.Input.TexCoord0.xy));
+    return TangentToWorldSpace(normalTS);
+  }
+  else
+  {
+    // interpolated vertex normals
+    return G.Input.Normal;
+  }
+}
+
+// returns the albedo color at this pixel
+float3 GetBaseColor()
+{
+  // BaseColor comes from the material itself
+  // GetInstanceData() comes from the specific mesh instance
+  float3 baseColor = BaseColor.rgb * GetInstanceData().Color.rgb;
+
+%if TEMPLATE_VERTEX_COLORS == TEMPLATE_VERTEX_COLORS_0
+  // a vertex color stream is available (and required)
+  // of course the color can be used for many different purposes, this is just an example
+  baseColor *= G.Input.Color0.rgb;
+%elif TEMPLATE_VERTEX_COLORS == TEMPLATE_VERTEX_COLORS_0_AND_1
+  // two vertex color streams are available (and required)
+  // of course the colors can be used for many different purposes, this is just an example
+  baseColor *= G.Input.Color0.rgb * G.Input.Color1.rgb;
+%elif TEMPLATE_VERTEX_COLORS == TEMPLATE_VERTEX_COLORS_PROCEDURAL
+  // procedural vertex colors are available
+  // of course the color can be used for many different purposes, this is just an example
+  baseColor *= G.Input.ProcColor.rgb;
+%endif
+
+  [branch]
+  if (UseBaseTexture)
+  {
+    baseColor *= BaseTexture.Sample(BaseTexture_AutoSampler, G.Input.TexCoord0.xy).rgb;
+  }
+
+  // Example: rim lighting
+  // G.Input.Normal is the normal of the pixel in world-space
+  // GetCameraDirForwards() is the camera direction in world-space
+  float rimLight = 1.0 - dot(G.Input.Normal, -GetCameraDirForwards());
+  rimLight = pow(rimLight, 4);
+
+  // WorldTime allows us to change the effect over time
+  rimLight *= sin(WorldTime) + 1;
+
+  // we could also add material input variables for the rim light color, strenght and pulse speed
+  baseColor.rgb += float3(rimLight, rimLight, rimLight);
+
+  return baseColor;
+}
+
+// return the metallic value of this pixel
+// typically just 1 for metals and 0 for everything else
+// values in between are used to interpolate between metals and non-metals, but are physically implausible
+float GetMetallic()
+{
+  [branch]
+  if (UseOrmTexture)
+  {
+    return OrmTexture.Sample(OrmTexture_AutoSampler, G.Input.TexCoord0.xy).b;
+  }
+  else if (UseMetallicTexture)
+  {
+    return MetallicTexture.Sample(MetallicTexture_AutoSampler, G.Input.TexCoord0.xy).r;
+  }
+  else
+  {
+    return MetallicValue;
+  }
+}
+
+// how reflective this surface is
+float GetReflectance()
+{
+  return 0.5f;
+}
+
+// how rough the surface is at this pixel
+// smooth surfaces lead to sharper reflections, rougher surfaces are more diffuse
+float GetRoughness()
+{
+  [branch]
+  if (UseOrmTexture)
+  {
+    return RoughnessValue * OrmTexture.Sample(OrmTexture_AutoSampler, G.Input.TexCoord0.xy).g;
+  }
+  else if (UseRoughnessTexture)
+  {
+    return RoughnessValue * RoughnessTexture.Sample(RoughnessTexture_AutoSampler, G.Input.TexCoord0.xy).r;
+  }
+  else
+  {
+    return RoughnessValue;
+  }
+}
+
+// how opaque this pixel is, lower values make it more transparent
+// only has an effect when BLEND_MODE is not set to OPAQUE
+// if alpha clipping (masked mode) is used, values below 0 make the pixel fully see through
+float GetOpacity()
+{
+  float opacity = BaseColor.a * GetInstanceData().Color.a;
+
+  [branch]
+  if (UseBaseTexture)
+  {
+    opacity *= BaseTexture.Sample(BaseTexture_AutoSampler, G.Input.TexCoord0.xy).a;
+  }
+
+%if TEMPLATE_BLEND_MODE == TEMPLATE_BLEND_MODE_SELECTABLE
+  #if BLEND_MODE == BLEND_MODE_MASKED
+    return opacity - MaskThreshold;
+  #else
+    return opacity;
+  #endif
+%else
+  return opacity;
+%endif
+}
+
+// returns the emissive color at this pixel, typically black
+float3 GetEmissiveColor()
+{
+  [branch]
+  if (UseEmissiveTexture)
+  {
+    return EmissiveTexture.Sample(EmissiveTexture_AutoSampler, G.Input.TexCoord0.xy).rgb * EmissiveColor.rgb;
+  }
+  else
+  {
+    return EmissiveColor.rgb;
+  }
+}
+
+// returns how much this pixel gets darked due to internal occlusion
+// 0 for full darkening, 1 for none
+float GetOcclusion()
+{
+  [branch]
+  if (UseOrmTexture)
+  {
+    return OrmTexture.Sample(OrmTexture_AutoSampler, G.Input.TexCoord0.xy).r;
+  }
+  else if (UseOcclusionTexture)
+  {
+    return OcclusionTexture.Sample(OcclusionTexture_AutoSampler, G.Input.TexCoord0.xy).r;
+  }
+  else
+  {
+    return 1.0f;
+  }
+}

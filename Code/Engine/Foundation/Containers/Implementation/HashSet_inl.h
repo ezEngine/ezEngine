@@ -8,19 +8,19 @@
 
 template <typename K, typename H>
 ezHashSetBase<K, H>::ConstIterator::ConstIterator(const ezHashSetBase<K, H>& hashSet)
-  : m_hashSet(&hashSet)
+  : m_pHashSet(&hashSet)
 {
 }
 
 template <typename K, typename H>
 void ezHashSetBase<K, H>::ConstIterator::SetToBegin()
 {
-  if (m_hashSet->IsEmpty())
+  if (m_pHashSet->IsEmpty())
   {
-    m_uiCurrentIndex = m_hashSet->m_uiCapacity;
+    m_uiCurrentIndex = m_pHashSet->m_uiCapacity;
     return;
   }
-  while (!m_hashSet->IsValidEntry(m_uiCurrentIndex))
+  while (!m_pHashSet->IsValidEntry(m_uiCurrentIndex))
   {
     ++m_uiCurrentIndex;
   }
@@ -29,20 +29,20 @@ void ezHashSetBase<K, H>::ConstIterator::SetToBegin()
 template <typename K, typename H>
 inline void ezHashSetBase<K, H>::ConstIterator::SetToEnd()
 {
-  m_uiCurrentCount = m_hashSet->m_uiCount;
-  m_uiCurrentIndex = m_hashSet->m_uiCapacity;
+  m_uiCurrentCount = m_pHashSet->m_uiCount;
+  m_uiCurrentIndex = m_pHashSet->m_uiCapacity;
 }
 
 template <typename K, typename H>
 EZ_ALWAYS_INLINE bool ezHashSetBase<K, H>::ConstIterator::IsValid() const
 {
-  return m_uiCurrentCount < m_hashSet->m_uiCount;
+  return m_uiCurrentCount < m_pHashSet->m_uiCount;
 }
 
 template <typename K, typename H>
 EZ_ALWAYS_INLINE bool ezHashSetBase<K, H>::ConstIterator::operator==(const typename ezHashSetBase<K, H>::ConstIterator& rhs) const
 {
-  return m_uiCurrentIndex == rhs.m_uiCurrentIndex && m_hashSet->m_pEntries == rhs.m_hashSet->m_pEntries;
+  return m_uiCurrentIndex == rhs.m_uiCurrentIndex && m_pHashSet->m_pEntries == rhs.m_pHashSet->m_pEntries;
 }
 
 template <typename K, typename H>
@@ -54,23 +54,23 @@ EZ_ALWAYS_INLINE bool ezHashSetBase<K, H>::ConstIterator::operator!=(const typen
 template <typename K, typename H>
 EZ_FORCE_INLINE const K& ezHashSetBase<K, H>::ConstIterator::Key() const
 {
-  return m_hashSet->m_pEntries[m_uiCurrentIndex];
+  return m_pHashSet->m_pEntries[m_uiCurrentIndex];
 }
 
 template <typename K, typename H>
 void ezHashSetBase<K, H>::ConstIterator::Next()
 {
   ++m_uiCurrentCount;
-  if (m_uiCurrentCount == m_hashSet->m_uiCount)
+  if (m_uiCurrentCount == m_pHashSet->m_uiCount)
   {
-    m_uiCurrentIndex = m_hashSet->m_uiCapacity;
+    m_uiCurrentIndex = m_pHashSet->m_uiCapacity;
     return;
   }
 
   do
   {
     ++m_uiCurrentIndex;
-  } while (!m_hashSet->IsValidEntry(m_uiCurrentIndex));
+  } while (!m_pHashSet->IsValidEntry(m_uiCurrentIndex));
 }
 
 template <typename K, typename H>
@@ -279,7 +279,7 @@ bool ezHashSetBase<K, H>::Insert(CompatibleKeyType&& key)
 {
   Reserve(m_uiCount + 1);
 
-  ezUInt32 uiIndex = H::Hash(key) % m_uiCapacity;
+  ezUInt32 uiIndex = H::Hash(key) & (m_uiCapacity - 1);
   ezUInt32 uiDeletedIndex = ezInvalidIndex;
 
   ezUInt32 uiCounter = 0;
@@ -314,7 +314,8 @@ bool ezHashSetBase<K, H>::Insert(CompatibleKeyType&& key)
 }
 
 template <typename K, typename H>
-bool ezHashSetBase<K, H>::Remove(const K& key)
+template <typename CompatibleKeyType>
+bool ezHashSetBase<K, H>::Remove(const CompatibleKeyType& key)
 {
   ezUInt32 uiIndex = FindEntry(key);
   if (uiIndex != ezInvalidIndex)
@@ -374,7 +375,8 @@ void ezHashSetBase<K, H>::RemoveInternal(ezUInt32 uiIndex)
 }
 
 template <typename K, typename H>
-EZ_FORCE_INLINE bool ezHashSetBase<K, H>::Contains(const K& key) const
+template <typename CompatibleKeyType>
+EZ_FORCE_INLINE bool ezHashSetBase<K, H>::Contains(const CompatibleKeyType& key) const
 {
   return FindEntry(key) != ezInvalidIndex;
 }
@@ -454,6 +456,7 @@ ezUInt64 ezHashSetBase<K, H>::GetHeapMemoryUsage() const
 template <typename K, typename H>
 void ezHashSetBase<K, H>::SetCapacity(ezUInt32 uiCapacity)
 {
+  EZ_ASSERT_DEV(ezMath::IsPowerOf2(uiCapacity), "uiCapacity must be a power of two to avoid modulo during lookup.");
   const ezUInt32 uiOldCapacity = m_uiCapacity;
   m_uiCapacity = uiCapacity;
 
@@ -480,17 +483,19 @@ void ezHashSetBase<K, H>::SetCapacity(ezUInt32 uiCapacity)
 }
 
 template <typename K, typename H>
-EZ_FORCE_INLINE ezUInt32 ezHashSetBase<K, H>::FindEntry(const K& key) const
+template <typename CompatibleKeyType>
+EZ_FORCE_INLINE ezUInt32 ezHashSetBase<K, H>::FindEntry(const CompatibleKeyType& key) const
 {
   return FindEntry(H::Hash(key), key);
 }
 
 template <typename K, typename H>
-inline ezUInt32 ezHashSetBase<K, H>::FindEntry(ezUInt32 uiHash, const K& key) const
+template <typename CompatibleKeyType>
+inline ezUInt32 ezHashSetBase<K, H>::FindEntry(ezUInt32 uiHash, const CompatibleKeyType& key) const
 {
   if (m_uiCapacity > 0)
   {
-    ezUInt32 uiIndex = uiHash % m_uiCapacity;
+    ezUInt32 uiIndex = uiHash & (m_uiCapacity - 1);
     ezUInt32 uiCounter = 0;
     while (!IsFreeEntry(uiIndex) && uiCounter < m_uiCapacity)
     {

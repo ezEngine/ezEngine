@@ -11,7 +11,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezMeshResource);
 // clang-format on
 
-ezUInt32 ezMeshResource::s_MeshBufferNameSuffix = 0;
+ezUInt32 ezMeshResource::s_uiMeshBufferNameSuffix = 0;
 
 ezMeshResource::ezMeshResource()
   : ezResource(DoUpdate::OnAnyThread, 1)
@@ -91,13 +91,14 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezMeshResource, ezMeshResourceDescriptor)
 
   m_hDefaultSkeleton = descriptor.m_hDefaultSkeleton;
   m_Bones = descriptor.m_Bones;
+  m_fMaxBoneVertexOffset = descriptor.m_fMaxBoneVertexOffset;
 
   // otherwise create a new mesh buffer from the descriptor
   if (!m_hMeshBuffer.IsValid())
   {
-    s_MeshBufferNameSuffix++;
+    s_uiMeshBufferNameSuffix++;
     ezStringBuilder sMbName;
-    sMbName.Format("{0}  [MeshBuffer {1}]", GetResourceID(), ezArgU(s_MeshBufferNameSuffix, 4, true, 16, true));
+    sMbName.Format("{0}  [MeshBuffer {1}]", GetResourceID(), ezArgU(s_uiMeshBufferNameSuffix, 4, true, 16, true));
 
     // note: this gets move'd, might be invalid afterwards
     ezMeshBufferResourceDescriptor& mb = descriptor.MeshBufferDesc();

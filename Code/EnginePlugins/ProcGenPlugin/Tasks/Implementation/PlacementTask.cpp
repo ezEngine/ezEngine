@@ -2,10 +2,10 @@
 
 #include <Core/Curves/ColorGradientResource.h>
 #include <Core/Interfaces/PhysicsWorldModule.h>
+#include <Core/Physics/SurfaceResource.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/SimdMath/SimdConversion.h>
 #include <Foundation/SimdMath/SimdRandom.h>
-#include <GameEngine/Physics/SurfaceResource.h>
 #include <ProcGenPlugin/Tasks/PlacementData.h>
 #include <ProcGenPlugin/Tasks/PlacementTask.h>
 #include <ProcGenPlugin/Tasks/Utils.h>
@@ -126,7 +126,7 @@ void PlacementTask::FindPlacementPoints()
       placementPoint.m_vNormal = hitResult.m_vNormal;
       placementPoint.m_uiColorIndex = 0;
       placementPoint.m_uiObjectIndex = 0;
-      placementPoint.m_uiPointIndex = i;
+      placementPoint.m_uiPointIndex = static_cast<ezUInt16>(i);
     }
   }
 }
@@ -143,15 +143,15 @@ void PlacementTask::ExecuteVM()
     ezUInt32 uiNumInstances = m_InputPoints.GetCount();
     m_TempData.SetCountUninitialized(uiNumInstances * 5);
 
-    ezHybridArray<ezExpression::Stream, 8> inputs;
+    ezHybridArray<ezProcessingStream, 8> inputs;
     {
-      inputs.PushBack(ezExpression::MakeStream(m_InputPoints.GetArrayPtr(), offsetof(PlacementPoint, m_vPosition.x), ExpressionInputs::s_sPositionX));
-      inputs.PushBack(ezExpression::MakeStream(m_InputPoints.GetArrayPtr(), offsetof(PlacementPoint, m_vPosition.y), ExpressionInputs::s_sPositionY));
-      inputs.PushBack(ezExpression::MakeStream(m_InputPoints.GetArrayPtr(), offsetof(PlacementPoint, m_vPosition.z), ExpressionInputs::s_sPositionZ));
+      inputs.PushBack(MakeInputStream(ExpressionInputs::s_sPositionX, offsetof(PlacementPoint, m_vPosition.x)));
+      inputs.PushBack(MakeInputStream(ExpressionInputs::s_sPositionY, offsetof(PlacementPoint, m_vPosition.y)));
+      inputs.PushBack(MakeInputStream(ExpressionInputs::s_sPositionZ, offsetof(PlacementPoint, m_vPosition.z)));
 
-      inputs.PushBack(ezExpression::MakeStream(m_InputPoints.GetArrayPtr(), offsetof(PlacementPoint, m_vNormal.x), ExpressionInputs::s_sNormalX));
-      inputs.PushBack(ezExpression::MakeStream(m_InputPoints.GetArrayPtr(), offsetof(PlacementPoint, m_vNormal.y), ExpressionInputs::s_sNormalY));
-      inputs.PushBack(ezExpression::MakeStream(m_InputPoints.GetArrayPtr(), offsetof(PlacementPoint, m_vNormal.z), ExpressionInputs::s_sNormalZ));
+      inputs.PushBack(MakeInputStream(ExpressionInputs::s_sNormalX, offsetof(PlacementPoint, m_vNormal.x)));
+      inputs.PushBack(MakeInputStream(ExpressionInputs::s_sNormalY, offsetof(PlacementPoint, m_vNormal.y)));
+      inputs.PushBack(MakeInputStream(ExpressionInputs::s_sNormalZ, offsetof(PlacementPoint, m_vNormal.z)));
 
       // Point index
       ezArrayPtr<float> pointIndex = m_TempData.GetArrayPtr().GetSubArray(0, uiNumInstances);
@@ -159,7 +159,7 @@ void PlacementTask::ExecuteVM()
       {
         pointIndex[i] = m_InputPoints[i].m_uiPointIndex;
       }
-      inputs.PushBack(ezExpression::MakeStream(pointIndex, 0, ExpressionInputs::s_sPointIndex));
+      inputs.PushBack(ezProcessingStream(ExpressionInputs::s_sPointIndex, pointIndex.ToByteArray(), ezProcessingStream::DataType::Float));
     }
 
     ezArrayPtr<float> density = m_TempData.GetArrayPtr().GetSubArray(uiNumInstances * 1, uiNumInstances);
@@ -167,12 +167,12 @@ void PlacementTask::ExecuteVM()
     ezArrayPtr<float> colorIndex = m_TempData.GetArrayPtr().GetSubArray(uiNumInstances * 3, uiNumInstances);
     ezArrayPtr<float> objectIndex = m_TempData.GetArrayPtr().GetSubArray(uiNumInstances * 4, uiNumInstances);
 
-    ezHybridArray<ezExpression::Stream, 8> outputs;
+    ezHybridArray<ezProcessingStream, 8> outputs;
     {
-      outputs.PushBack(ezExpression::MakeStream(density, 0, ExpressionOutputs::s_sDensity));
-      outputs.PushBack(ezExpression::MakeStream(scale, 0, ExpressionOutputs::s_sScale));
-      outputs.PushBack(ezExpression::MakeStream(colorIndex, 0, ExpressionOutputs::s_sColorIndex));
-      outputs.PushBack(ezExpression::MakeStream(objectIndex, 0, ExpressionOutputs::s_sObjectIndex));
+      outputs.PushBack(ezProcessingStream(ExpressionOutputs::s_sDensity, density.ToByteArray(), ezProcessingStream::DataType::Float));
+      outputs.PushBack(ezProcessingStream(ExpressionOutputs::s_sScale, scale.ToByteArray(), ezProcessingStream::DataType::Float));
+      outputs.PushBack(ezProcessingStream(ExpressionOutputs::s_sColorIndex, colorIndex.ToByteArray(), ezProcessingStream::DataType::Float));
+      outputs.PushBack(ezProcessingStream(ExpressionOutputs::s_sObjectIndex, objectIndex.ToByteArray(), ezProcessingStream::DataType::Float));
     }
 
     // Execute expression bytecode

@@ -19,8 +19,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezHeightfieldComponent, 2, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("HeightfieldImage", GetHeightfieldFile, SetHeightfieldFile)->AddAttributes(new ezAssetBrowserAttribute("Image Data")),
-    EZ_ACCESSOR_PROPERTY("Material", GetMaterialFile, SetMaterialFile)->AddAttributes(new ezAssetBrowserAttribute("Material")),
+    EZ_ACCESSOR_PROPERTY("HeightfieldImage", GetHeightfieldFile, SetHeightfieldFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Data_2D")),
+    EZ_ACCESSOR_PROPERTY("Material", GetMaterialFile, SetMaterialFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Material")),
     EZ_ACCESSOR_PROPERTY("HalfExtents", GetHalfExtents, SetHalfExtents)->AddAttributes(new ezDefaultValueAttribute(ezVec2(50))),
     EZ_ACCESSOR_PROPERTY("Height", GetHeight, SetHeight)->AddAttributes(new ezDefaultValueAttribute(50)),
     EZ_ACCESSOR_PROPERTY("Tesselation", GetTesselation, SetTesselation)->AddAttributes(new ezDefaultValueAttribute(ezVec2U32(128))),
@@ -120,7 +120,7 @@ void ezHeightfieldComponent::OnActivated()
   SUPER::OnActivated();
 }
 
-ezResult ezHeightfieldComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
+ezResult ezHeightfieldComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg)
 {
   if (m_hMesh.IsValid())
   {
@@ -283,13 +283,13 @@ void ezHeightfieldComponent::OnBuildStaticMesh(ezMsgBuildStaticMesh& msg) const
   auto& subMesh = pDesc->m_SubMeshes.ExpandAndGetRef();
   subMesh.m_uiFirstTriangle = pDesc->m_Triangles.GetCount();
 
-  const ezTransform t = GetOwner()->GetGlobalTransform();
+  const ezTransform trans = GetOwner()->GetGlobalTransform();
 
   const ezUInt32 uiTriOffset = pDesc->m_Vertices.GetCount();
 
   for (const auto& verts : geom.GetVertices())
   {
-    pDesc->m_Vertices.PushBack(t * verts.m_vPosition);
+    pDesc->m_Vertices.PushBack(trans * verts.m_vPosition);
   }
 
   for (const auto& polys : geom.GetPolygons())
@@ -329,7 +329,7 @@ void ezHeightfieldComponent::OnBuildStaticMesh(ezMsgBuildStaticMesh& msg) const
           pDesc->m_Surfaces.PushBack(surface);
         }
 
-        subMesh.m_uiSurfaceIndex = idx;
+        subMesh.m_uiSurfaceIndex = static_cast<ezUInt16>(idx);
       }
     }
   }
@@ -456,7 +456,7 @@ ezResult ezHeightfieldComponent::BuildMeshDescriptor(ezMeshResourceDescriptor& d
 
     const ezVec3 vSize(m_vHalfExtents.x * 2, m_vHalfExtents.y * 2, m_fHeight);
     const ezVec2 vToNDC = ezVec2(1.0f / (uiNumVerticesX - 1), 1.0f / (uiNumVerticesY - 1));
-    const ezVec3 vPosOffset(-m_vHalfExtents.x, -m_vHalfExtents.y, 0);
+    const ezVec3 vPosOffset(-m_vHalfExtents.x, -m_vHalfExtents.y, -m_fHeight);
 
     const auto texCoordFormat = ezMeshTexCoordPrecision::ToResourceFormat(ezMeshTexCoordPrecision::Default);
     const auto normalFormat = ezMeshNormalPrecision::ToResourceFormatNormal(ezMeshNormalPrecision::Default);
@@ -488,10 +488,10 @@ ezResult ezHeightfieldComponent::BuildMeshDescriptor(ezMeshResourceDescriptor& d
 
         const size_t uiByteOffset = (size_t)uiVertexIdx * (size_t)uiVertexDataSize;
 
-        const float fHeightScale = 1.0f - ezImageUtils::BilinearSample(pImgData, imgWidth, imgHeight, ezImageAddressMode::Clamp, heightTC).r;
+        const float fHeightScale = ezImageUtils::BilinearSample(pImgData, imgWidth, imgHeight, ezImageAddressMode::Clamp, heightTC).r;
 
         // complicated but faster
-        *reinterpret_cast<ezVec3*>(positionData.GetPtr() + uiByteOffset) = vPosOffset + ezVec3(ndc.x, ndc.y, -fHeightScale).CompMul(vSize);
+        *reinterpret_cast<ezVec3*>(positionData.GetPtr() + uiByteOffset) = vPosOffset + ezVec3(ndc.x, ndc.y, fHeightScale).CompMul(vSize);
         ezMeshBufferUtils::EncodeTexCoord(tc, ezByteArrayPtr(texcoordData.GetPtr() + uiByteOffset, 32), texCoordFormat).IgnoreResult();
 
         // easier to understand, but slower

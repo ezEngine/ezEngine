@@ -36,7 +36,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxBoneColliderComponent, 1, ezComponentMode::Dynamic)
   EZ_END_FUNCTIONS;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Physics/Animation"),
+    new ezCategoryAttribute("Physics/PhysX/Animation"),
   }
   EZ_END_ATTRIBUTES;
 }
@@ -99,7 +99,7 @@ void ezPxBoneColliderComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated
 
     ezTransform pose;
     pose.SetIdentity();
-    pose.m_vPosition = boneTrans.TransformPosition(shape.m_vOffsetPos);
+    pose.m_vPosition = boneTrans.GetTranslationVector() + boneRot * shape.m_vOffsetPos;
     pose.m_qRotation = boneRot * shape.m_qOffsetRot;
 
     ezGameObject* pGO = nullptr;
@@ -137,8 +137,13 @@ void ezPxBoneColliderComponent::CreatePhysicsShapes(const ezSkeletonResourceHand
   ezPhysXWorldModule* pModule = GetWorld()->GetOrCreateModule<ezPhysXWorldModule>();
   m_uiShapeID = pModule->CreateShapeId();
 
-  ezQuat qRotCapsule;
-  qRotCapsule.SetFromAxisAndAngle(ezVec3(1, 0, 0), ezAngle::Degree(90));
+  const auto srcBoneDir = pSkeleton->GetDescriptor().m_Skeleton.m_BoneDirection;
+  const ezQuat qBoneDirAdjustment = ezBasisAxis::GetBasisRotation(ezBasisAxis::PositiveX, srcBoneDir);
+
+  const ezQuat qFinalBoneRot = /*boneRot **/ qBoneDirAdjustment;
+
+  ezQuat qRotZtoX; // the capsule should extend along X, but the capsule shape goes along Z
+  qRotZtoX.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(-90));
 
   for (ezUInt32 idx = 0; idx < desc.m_Geometry.GetCount(); ++idx)
   {
@@ -174,8 +179,9 @@ void ezPxBoneColliderComponent::CreatePhysicsShapes(const ezSkeletonResourceHand
     }
 
     shape.m_uiAttachedToBone = geo.m_uiAttachedToJoint;
-    shape.m_vOffsetPos = geo.m_Transform.m_qRotation * geo.m_Transform.m_vPosition;
-    shape.m_qOffsetRot = geo.m_Transform.m_qRotation;
+    shape.m_vOffsetPos = /*boneTrans.GetTranslationVector() +*/ qFinalBoneRot * geo.m_Transform.m_vPosition;
+    shape.m_qOffsetRot = qFinalBoneRot * geo.m_Transform.m_qRotation;
+
 
     ezPxShapeComponent* pShape = nullptr;
 
@@ -189,11 +195,12 @@ void ezPxBoneColliderComponent::CreatePhysicsShapes(const ezSkeletonResourceHand
     else if (geo.m_Type == ezSkeletonJointGeometryType::Box)
     {
       ezVec3 ext;
-      ext.x = geo.m_Transform.m_vScale.y;
-      ext.y = geo.m_Transform.m_vScale.x;
+      ext.x = geo.m_Transform.m_vScale.x;
+      ext.y = geo.m_Transform.m_vScale.y;
       ext.z = geo.m_Transform.m_vScale.z;
 
-      shape.m_vOffsetPos += geo.m_Transform.m_qRotation * ezVec3(0, geo.m_Transform.m_vScale.x * 0.5f, 0);
+      // TODO: if offset desired
+      shape.m_vOffsetPos += qFinalBoneRot * ezVec3(geo.m_Transform.m_vScale.x * 0.5f, 0, 0);
 
       ezPxShapeBoxComponent* pShapeComp = nullptr;
       ezPxShapeBoxComponent::CreateComponent(pGO, pShapeComp);
@@ -202,8 +209,10 @@ void ezPxBoneColliderComponent::CreatePhysicsShapes(const ezSkeletonResourceHand
     }
     else if (geo.m_Type == ezSkeletonJointGeometryType::Capsule)
     {
-      shape.m_vOffsetPos += geo.m_Transform.m_qRotation * ezVec3(0, geo.m_Transform.m_vScale.x * 0.5f, 0);
-      shape.m_qOffsetRot = shape.m_qOffsetRot * qRotCapsule;
+      shape.m_qOffsetRot = shape.m_qOffsetRot * qRotZtoX;
+
+      // TODO: if offset desired
+      shape.m_vOffsetPos += qFinalBoneRot * ezVec3(geo.m_Transform.m_vScale.x * 0.5f, 0, 0);
 
       ezPxShapeCapsuleComponent* pShapeComp = nullptr;
       ezPxShapeCapsuleComponent::CreateComponent(pGO, pShapeComp);
@@ -218,7 +227,7 @@ void ezPxBoneColliderComponent::CreatePhysicsShapes(const ezSkeletonResourceHand
 
     pShape->SetInitialShapeId(m_uiShapeID);
     pShape->m_uiCollisionLayer = geo.m_uiCollisionLayer;
-    pShape->SetSurfaceFile(geo.m_sSurface);
+    pShape->m_hSurface = geo.m_hSurface;
   }
 }
 

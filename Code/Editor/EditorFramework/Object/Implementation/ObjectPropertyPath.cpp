@@ -88,9 +88,9 @@ ezStatus ezObjectPropertyPath::CreatePropertyPath(
 
   while (pObject != context.m_pContextObject)
   {
-    ezStatus res = PrependProperty(pObject->GetParent(), pObject->GetParentPropertyType(), pObject->GetPropertyIndex(), out_sPropertyPath);
-    if (res.Failed())
-      return res;
+    ezStatus result = PrependProperty(pObject->GetParent(), pObject->GetParentPropertyType(), pObject->GetPropertyIndex(), out_sPropertyPath);
+    if (result.Failed())
+      return result;
 
     pObject = pObject->GetParent();
   }
@@ -268,7 +268,10 @@ ezStatus ezObjectPropertyPath::PrependProperty(
     {
       if (!out_sPropertyPath.IsEmpty())
         out_sPropertyPath.Prepend("/");
-      out_sPropertyPath.PrependFormat("{0}[{1}]", pProperty->GetPropertyName(), index);
+      if (index.IsValid())
+        out_sPropertyPath.PrependFormat("{0}[{1}]", pProperty->GetPropertyName(), index);
+      else
+        out_sPropertyPath.PrependFormat("{0}", pProperty->GetPropertyName());
       return ezStatus(EZ_SUCCESS);
     }
     default:

@@ -16,4 +16,9 @@ target_link_libraries(${PROJECT_NAME}
   PUBLIC
   ToolsFoundation
   GameEngine
+  Utilities
 )
+
+if(EZ_3RDPARTY_GLFW_SUPPORT AND EZ_CMAKE_PLATFORM_LINUX)
+  target_link_libraries(${PROJECT_NAME} PRIVATE xcb)
+endif()

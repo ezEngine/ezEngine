@@ -37,12 +37,13 @@ void ezDGMLGraph::AddNodeToGroup(NodeId node, NodeId group)
   m_Nodes[node].m_ParentGroup = group;
 }
 
-ezDGMLGraph::ConnectionId ezDGMLGraph::AddConnection(ezDGMLGraph::NodeId Source, ezDGMLGraph::NodeId Target)
+ezDGMLGraph::ConnectionId ezDGMLGraph::AddConnection(ezDGMLGraph::NodeId Source, ezDGMLGraph::NodeId Target, const char* szLabel)
 {
   ezDGMLGraph::Connection& Connection = m_Connections.ExpandAndGetRef();
 
   Connection.m_Source = Source;
   Connection.m_Target = Target;
+  Connection.m_sLabel = szLabel;
 
   return m_Connections.GetCount() - 1;
 }
@@ -212,7 +213,7 @@ ezResult ezDGMLGraphWriter::WriteGraphToString(ezStringBuilder& StringBuilder, c
     {
       for (ezUInt32 i = 0; i < Graph.m_Connections.GetCount(); ++i)
       {
-        StringBuilder.AppendFormat("\t\t<Link Source=\"N_{0}\" Target=\"N_{1}\" />\n", Graph.m_Connections[i].m_Source, Graph.m_Connections[i].m_Target);
+        StringBuilder.AppendFormat("\t\t<Link Source=\"N_{0}\" Target=\"N_{1}\" Label=\"{2}\" />\n", Graph.m_Connections[i].m_Source, Graph.m_Connections[i].m_Target, Graph.m_Connections[i].m_sLabel);
       }
 
       for (ezUInt32 i = 0; i < Graph.m_Nodes.GetCount(); ++i)

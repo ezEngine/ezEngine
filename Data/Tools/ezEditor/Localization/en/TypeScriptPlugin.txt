@@ -7,3 +7,4 @@ ezTypeScriptParameterNumber;Number
 ezTypeScriptParameterString;String
 ezTypeScriptParameterVec3;Vec3
 ezTypeScriptComponent;TypeScript Component;;https://ezengine.net/pages/docs/custom-code/typescript/ts-component.html
+TypeScript;TypeScript

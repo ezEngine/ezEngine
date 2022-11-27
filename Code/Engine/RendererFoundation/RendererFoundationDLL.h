@@ -8,9 +8,9 @@
 // Configure the DLL Import/Export Define
 #if EZ_ENABLED(EZ_COMPILE_ENGINE_AS_DLL)
 #  ifdef BUILDSYSTEM_BUILDING_RENDERERFOUNDATION_LIB
-#    define EZ_RENDERERFOUNDATION_DLL __declspec(dllexport)
+#    define EZ_RENDERERFOUNDATION_DLL EZ_DECL_EXPORT
 #  else
-#    define EZ_RENDERERFOUNDATION_DLL __declspec(dllimport)
+#    define EZ_RENDERERFOUNDATION_DLL EZ_DECL_IMPORT
 #  endif
 #else
 #  define EZ_RENDERERFOUNDATION_DLL
@@ -26,6 +26,7 @@
 
 struct ezGALDeviceCreationDescription;
 struct ezGALSwapChainCreationDescription;
+struct ezGALWindowSwapChainCreationDescription;
 struct ezGALShaderCreationDescription;
 struct ezGALTextureCreationDescription;
 struct ezGALBufferCreationDescription;
@@ -49,7 +50,6 @@ class ezGALBlendState;
 class ezGALRasterizerState;
 class ezGALRenderTargetSetup;
 class ezGALVertexDeclaration;
-class ezGALFence;
 class ezGALQuery;
 class ezGALSamplerState;
 class ezGALResourceView;
@@ -64,14 +64,15 @@ class ezGALComputeCommandEncoder;
 // Basic enums
 struct ezGALPrimitiveTopology
 {
+  typedef ezUInt8 StorageType;
   enum Enum
   {
     // keep this order, it is used to allocate the desired number of indices in ezMeshBufferResourceDescriptor::AllocateStreams
     Points,    // 1 index per primitive
     Lines,     // 2 indices per primitive
     Triangles, // 3 indices per primitive
-
-    ENUM_COUNT
+    ENUM_COUNT,
+    Default = Triangles
   };
 
   static ezUInt32 VerticesPerPrimitive(ezGALPrimitiveTopology::Enum e) { return (ezUInt32)e + 1; }
@@ -81,24 +82,25 @@ struct EZ_RENDERERFOUNDATION_DLL ezGALIndexType
 {
   enum Enum
   {
-    UShort,
-    UInt,
+    None,   // indices are not used, vertices are just used in order to form primitives
+    UShort, // 16 bit indices are used to select which vertices shall form a primitive, thus meshes can only use up to 65535 vertices
+    UInt,   // 32 bit indices are used to select which vertices shall form a primitive
 
     ENUM_COUNT
   };
 
 
   /// \brief The size in bytes of a single element of the given index format.
-  static ezUInt8 GetSize(ezGALIndexType::Enum format) { return Size[format]; }
+  static ezUInt8 GetSize(ezGALIndexType::Enum format) { return s_Size[format]; }
 
 private:
-  static const ezUInt8 Size[ezGALIndexType::ENUM_COUNT];
+  static const ezUInt8 s_Size[ezGALIndexType::ENUM_COUNT];
 };
 
 
 struct EZ_RENDERERFOUNDATION_DLL ezGALShaderStage
 {
-  enum Enum
+  enum Enum : ezUInt8
   {
     VertexShader,
     HullShader,
@@ -391,13 +393,6 @@ class ezGALSamplerStateHandle
 class ezGALVertexDeclarationHandle
 {
   EZ_DECLARE_HANDLE_TYPE(ezGALVertexDeclarationHandle, ezGAL::ez18_14Id);
-
-  friend class ezGALDevice;
-};
-
-class ezGALFenceHandle
-{
-  EZ_DECLARE_HANDLE_TYPE(ezGALFenceHandle, ezGAL::ez20_12Id);
 
   friend class ezGALDevice;
 };

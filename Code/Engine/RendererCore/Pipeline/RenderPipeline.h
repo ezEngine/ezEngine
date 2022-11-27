@@ -12,6 +12,9 @@ class ezView;
 class ezRenderPipelinePass;
 class ezFrameDataProviderBase;
 struct ezPermutationVar;
+class ezDGMLGraph;
+class ezFrustum;
+class ezRasterizerView;
 
 class EZ_RENDERERCORE_DLL ezRenderPipeline : public ezRefCounted
 {
@@ -31,6 +34,7 @@ public:
   void GetPasses(ezHybridArray<const ezRenderPipelinePass*, 16>& passes) const;
   void GetPasses(ezHybridArray<ezRenderPipelinePass*, 16>& passes);
   ezRenderPipelinePass* GetPassByName(const ezStringView& sPassName);
+  ezHashedString GetViewName() const;
 
   bool Connect(ezRenderPipelinePass* pOutputNode, const char* szOutputPinName, ezRenderPipelinePass* pInputNode, const char* szInputPinName);
   bool Connect(ezRenderPipelinePass* pOutputNode, ezHashedString sOutputPinName, ezRenderPipelinePass* pInputNode, ezHashedString sInputPinName);
@@ -54,6 +58,9 @@ public:
   const ezExtractedRenderData& GetRenderData() const;
   ezRenderDataBatchList GetRenderDataBatchesWithCategory(
     ezRenderData::Category category, ezRenderDataBatch::Filter filter = ezRenderDataBatch::Filter()) const;
+
+  /// \brief Creates a DGML graph of all passes and textures. Can be used to verify that no accidental temp textures are created due to poorly constructed pipelines or errors in code.
+  void CreateDgmlGraph(ezDGMLGraph& graph);
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   static ezCVarBool cvar_SpatialCullingVis;
@@ -87,6 +94,9 @@ private:
 
   void Render(ezRenderContext* pRenderer);
 
+  ezRasterizerView* PrepareOcclusionCulling(const ezFrustum& frustum, const ezView& view);
+  void PreviewOcclusionBuffer(const ezRasterizerView& rasterizer, const ezView& view);
+
 private: // Member data
   // Thread data
   ezThreadID m_CurrentExtractThread;
@@ -94,7 +104,7 @@ private: // Member data
 
   // Pipeline render data
   ezExtractedRenderData m_Data[2];
-  ezDynamicArray<const ezGameObject*> m_visibleObjects;
+  ezDynamicArray<const ezGameObject*> m_VisibleObjects;
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   ezTime m_AverageCullingTime;
@@ -122,7 +132,7 @@ private: // Member data
     ezHybridArray<ezRenderPipelinePassConnection*, 4> m_UsedBy;
     ezUInt16 m_uiFirstUsageIdx;
     ezUInt16 m_uiLastUsageIdx;
-    bool m_bTargetTexture;
+    ezInt32 m_iTargetTextureIndex = -1;
   };
   ezDynamicArray<TextureUsageData> m_TextureUsage;
   ezDynamicArray<ezUInt16> m_TextureUsageIdxSortedByFirstUsage; ///< Indices map into m_TextureUsage
@@ -139,4 +149,7 @@ private: // Member data
   mutable ezHashTable<const ezRTTI*, ezUInt32> m_TypeToDataProviderIndex;
 
   ezDynamicArray<ezPermutationVar> m_PermutationVars;
+
+  // Occlusion Culling
+  ezGALTextureHandle m_hOcclusionDebugViewTexture;
 };

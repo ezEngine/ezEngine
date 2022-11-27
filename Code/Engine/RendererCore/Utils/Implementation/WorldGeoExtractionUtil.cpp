@@ -108,26 +108,37 @@ void ezWorldGeoExtractionUtil::WriteWorldGeometryToOBJ(const char* szFile, const
 
     // collect all indices
     bool flip = ezGraphicsUtils::IsTriangleFlipRequired(finalTransform.GetRotationalPart());
-    if (meshBufferDesc.Uses32BitIndices())
-    {
-      const ezUInt32* pTypedIndices = reinterpret_cast<const ezUInt32*>(meshBufferDesc.GetIndexBufferData().GetPtr());
 
-      for (ezUInt32 p = 0; p < meshBufferDesc.GetPrimitiveCount(); ++p)
+    if (meshBufferDesc.HasIndexBuffer())
+    {
+      if (meshBufferDesc.Uses32BitIndices())
       {
-        indices.PushBack(pTypedIndices[p * 3 + (flip ? 2 : 0)] + uiVertexOffset);
-        indices.PushBack(pTypedIndices[p * 3 + 1] + uiVertexOffset);
-        indices.PushBack(pTypedIndices[p * 3 + (flip ? 0 : 2)] + uiVertexOffset);
+        const ezUInt32* pTypedIndices = reinterpret_cast<const ezUInt32*>(meshBufferDesc.GetIndexBufferData().GetPtr());
+
+        for (ezUInt32 p = 0; p < meshBufferDesc.GetPrimitiveCount(); ++p)
+        {
+          indices.PushBack(pTypedIndices[p * 3 + (flip ? 2 : 0)] + uiVertexOffset);
+          indices.PushBack(pTypedIndices[p * 3 + 1] + uiVertexOffset);
+          indices.PushBack(pTypedIndices[p * 3 + (flip ? 0 : 2)] + uiVertexOffset);
+        }
+      }
+      else
+      {
+        const ezUInt16* pTypedIndices = reinterpret_cast<const ezUInt16*>(meshBufferDesc.GetIndexBufferData().GetPtr());
+
+        for (ezUInt32 p = 0; p < meshBufferDesc.GetPrimitiveCount(); ++p)
+        {
+          indices.PushBack(pTypedIndices[p * 3 + (flip ? 2 : 0)] + uiVertexOffset);
+          indices.PushBack(pTypedIndices[p * 3 + 1] + uiVertexOffset);
+          indices.PushBack(pTypedIndices[p * 3 + (flip ? 0 : 2)] + uiVertexOffset);
+        }
       }
     }
     else
     {
-      const ezUInt16* pTypedIndices = reinterpret_cast<const ezUInt16*>(meshBufferDesc.GetIndexBufferData().GetPtr());
-
-      for (ezUInt32 p = 0; p < meshBufferDesc.GetPrimitiveCount(); ++p)
+      for (ezUInt32 v = 0; v < meshBufferDesc.GetVertexCount(); ++v)
       {
-        indices.PushBack(pTypedIndices[p * 3 + (flip ? 2 : 0)] + uiVertexOffset);
-        indices.PushBack(pTypedIndices[p * 3 + 1] + uiVertexOffset);
-        indices.PushBack(pTypedIndices[p * 3 + (flip ? 0 : 2)] + uiVertexOffset);
+        indices.PushBack(uiVertexOffset + v);
       }
     }
 
@@ -161,7 +172,7 @@ void ezMsgExtractGeometry::AddBox(const ezTransform& transform, ezVec3 vExtents)
   if (hBoxMesh.IsValid() == false)
   {
     ezGeometry geom;
-    geom.AddBox(ezVec3(1), ezColor::White);
+    geom.AddBox(ezVec3(1), false);
     geom.TriangulatePolygons();
     geom.ComputeTangents();
 
@@ -175,7 +186,7 @@ void ezMsgExtractGeometry::AddBox(const ezTransform& transform, ezVec3 vExtents)
 
     desc.ComputeBounds();
 
-    hBoxMesh = ezResourceManager::CreateResource<ezCpuMeshResource>(szResourceName, std::move(desc), szResourceName);
+    hBoxMesh = ezResourceManager::GetOrCreateResource<ezCpuMeshResource>(szResourceName, std::move(desc), szResourceName);
   }
 
   auto& meshObject = m_pMeshObjects->ExpandAndGetRef();

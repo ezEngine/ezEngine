@@ -21,7 +21,7 @@ inline ezInt32 ezStringUtils::CompareChars_NoCase(const char* szUtf8Char1, const
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE bool ezStringUtils::IsNullOrEmpty(const T* pString)
+EZ_ALWAYS_INLINE constexpr bool ezStringUtils::IsNullOrEmpty(const T* pString)
 {
   return (pString == nullptr) || (pString[0] == '\0');
 }
@@ -41,6 +41,21 @@ EZ_ALWAYS_INLINE void ezStringUtils::UpdateStringEnd(const T* szStringStart, con
   szStringEnd = szStringStart + GetStringElementCount(szStringStart, ezUnicodeUtils::GetMaxStringEnd<T>());
 }
 
+template <typename T>
+constexpr ezUInt32 ezStringUtils::GetStringElementCount(const T* pString)
+{
+  if (IsNullOrEmpty(pString))
+    return 0;
+
+  ezUInt32 uiCount = 0;
+  while ((*pString != '\0'))
+  {
+    ++pString;
+    ++uiCount;
+  }
+
+  return uiCount;
+}
 
 template <typename T>
 ezUInt32 ezStringUtils::GetStringElementCount(const T* pString, const T* pStringEnd)

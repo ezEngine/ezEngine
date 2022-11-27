@@ -35,7 +35,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxRopeComponent, 2, ezComponentMode::Dynamic)
       EZ_MEMBER_PROPERTY("MaxBend", m_MaxBend)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(30)), new ezClampValueAttribute(ezAngle::Degree(5), ezAngle::Degree(90))),
       EZ_MEMBER_PROPERTY("MaxTwist", m_MaxTwist)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(15)), new ezClampValueAttribute(ezAngle::Degree(0.01f), ezAngle::Degree(90))),
       EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
-      EZ_ACCESSOR_PROPERTY("Surface", GetSurfaceFile, SetSurfaceFile)->AddAttributes(new ezAssetBrowserAttribute("Surface")),
+      EZ_ACCESSOR_PROPERTY("Surface", GetSurfaceFile, SetSurfaceFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface")),
       EZ_ACCESSOR_PROPERTY("DisableGravity", GetDisableGravity, SetDisableGravity),
       //EZ_MEMBER_PROPERTY("SelfCollision", m_bSelfCollision), // works, but not exposed for now
     }
@@ -48,7 +48,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxRopeComponent, 2, ezComponentMode::Dynamic)
     EZ_END_MESSAGEHANDLERS;
     EZ_BEGIN_ATTRIBUTES
     {
-      new ezCategoryAttribute("Effects"),
+      new ezCategoryAttribute("Physics/PhysX/Animation"),
     }
     EZ_END_ATTRIBUTES;
   }
@@ -169,9 +169,9 @@ PxMaterial* ezPxRopeComponent::GetPxMaterial()
   {
     ezResourceLock<ezSurfaceResource> pSurface(m_hSurface, ezResourceAcquireMode::BlockTillLoaded);
 
-    if (pSurface->m_pPhysicsMaterial != nullptr)
+    if (pSurface->m_pPhysicsMaterialPhysX != nullptr)
     {
-      return static_cast<PxMaterial*>(pSurface->m_pPhysicsMaterial);
+      return static_cast<PxMaterial*>(pSurface->m_pPhysicsMaterialPhysX);
     }
   }
 
@@ -207,8 +207,8 @@ void ezPxRopeComponent::CreateRope()
   m_pArticulation->userData = pUserData;
   m_pArticulation->setSleepThreshold(0.02f);
 
-  //m_pArticulation->setSolverIterationCounts(16, 4);
-  //m_pArticulation->setMaxProjectionIterations(8);
+  // m_pArticulation->setSolverIterationCounts(16, 4);
+  // m_pArticulation->setMaxProjectionIterations(8);
 
   m_ArticulationLinks.SetCountUninitialized(pieces.GetCount());
 
@@ -531,11 +531,11 @@ void ezPxRopeComponent::Update()
     }
   }
 
-  //if (m_fWindInfluence > 0.0f)
+  // if (m_fWindInfluence > 0.0f)
   //{
-  //  if (const ezWindWorldModuleInterface* pWind = GetWorld()->GetModuleReadOnly<ezWindWorldModuleInterface>())
-  //  {
-  //    ezVec3 ropeDir = m_RopeSim.m_Nodes.PeekBack().m_vPosition - m_RopeSim.m_Nodes[0].m_vPosition;
+  //   if (const ezWindWorldModuleInterface* pWind = GetWorld()->GetModuleReadOnly<ezWindWorldModuleInterface>())
+  //   {
+  //     ezVec3 ropeDir = m_RopeSim.m_Nodes.PeekBack().m_vPosition - m_RopeSim.m_Nodes[0].m_vPosition;
 
   //    const ezVec3 vWind = pWind->GetWindAt(m_RopeSim.m_Nodes.PeekBack().m_vPosition) * m_fWindInfluence;
 

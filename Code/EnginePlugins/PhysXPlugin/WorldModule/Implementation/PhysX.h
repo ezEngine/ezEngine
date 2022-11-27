@@ -1,11 +1,11 @@
 #pragma once
 
 #include <Core/Interfaces/PhysicsWorldModule.h>
+#include <Core/Physics/SurfaceResource.h>
 #include <Foundation/Configuration/Plugin.h>
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/Memory/CommonAllocators.h>
 #include <GameEngine/Physics/CollisionFilter.h>
-#include <GameEngine/Physics/SurfaceResource.h>
 #include <PhysXPlugin/PhysXInterface.h>
 
 #include <PxPhysicsAPI.h>
@@ -78,7 +78,7 @@ public:
   static PxFilterData CreateFilterData(ezUInt32 uiCollisionLayer, ezUInt32 uiShapeId = ezInvalidIndex, ezBitflags<ezOnPhysXContact> flags = ezOnPhysXContact::None);
 
 private:
-  void SurfaceResourceEventHandler(const ezSurfaceResource::Event& e);
+  void SurfaceResourceEventHandler(const ezSurfaceResourceEvent& e);
 
   bool m_bInitialized;
   PxFoundation* m_pFoundation;
@@ -86,6 +86,6 @@ private:
   ezPxAllocatorCallback* m_pAllocatorCallback;
   PxPhysics* m_pPhysX;
   PxMaterial* m_pDefaultMaterial;
-  PxPvd* m_PvdConnection;
+  PxPvd* m_pPvdConnection;
   ezCollisionFilterConfig m_CollisionFilterConfig;
 };

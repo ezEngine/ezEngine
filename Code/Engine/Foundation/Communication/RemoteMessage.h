@@ -40,8 +40,10 @@ public:
   EZ_ALWAYS_INLINE ezUInt32 GetApplicationID() const { return m_uiApplicationID; }
   EZ_ALWAYS_INLINE ezUInt32 GetSystemID() const { return m_uiSystemID; }
   EZ_ALWAYS_INLINE ezUInt32 GetMessageID() const { return m_uiMsgID; }
-  EZ_ALWAYS_INLINE ezUInt32 GetMessageSize() const { return m_Storage.GetStorageSize(); }
-  EZ_ALWAYS_INLINE const ezUInt8* GetMessageData() const { return m_Storage.GetData(); }
+  EZ_ALWAYS_INLINE ezArrayPtr<const ezUInt8> GetMessageData() const
+  {
+    return {m_Storage.GetData(), m_Storage.GetStorageSize32()};
+  }
 
   ///@}
 
@@ -52,7 +54,7 @@ private:
   ezUInt32 m_uiSystemID = 0;
   ezUInt32 m_uiMsgID = 0;
 
-  ezMemoryStreamStorage m_Storage;
+  ezContiguousMemoryStreamStorage m_Storage;
   ezMemoryStreamReader m_Reader;
   ezMemoryStreamWriter m_Writer;
 };

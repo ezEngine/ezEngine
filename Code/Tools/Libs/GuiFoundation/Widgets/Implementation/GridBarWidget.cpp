@@ -12,7 +12,7 @@
 ezQGridBarWidget::ezQGridBarWidget(QWidget* parent)
   : QWidget(parent)
 {
-  m_viewportSceneRect.setRect(0, 1, 1, 1);
+  m_ViewportSceneRect.setRect(0, 1, 1, 1);
   m_fFineGridStops = 10;
   m_fTextGridStops = 100;
 }
@@ -20,12 +20,12 @@ ezQGridBarWidget::ezQGridBarWidget(QWidget* parent)
 void ezQGridBarWidget::SetConfig(
   const QRectF& viewportSceneRect, double fTextGridStops, double fFineGridStops, ezDelegate<QPointF(const QPointF&)> mapFromSceneFunc)
 {
-  MapFromSceneFunc = mapFromSceneFunc;
+  m_MapFromSceneFunc = mapFromSceneFunc;
 
   bool bUpdate = false;
-  if (m_viewportSceneRect != viewportSceneRect)
+  if (m_ViewportSceneRect != viewportSceneRect)
   {
-    m_viewportSceneRect = viewportSceneRect;
+    m_ViewportSceneRect = viewportSceneRect;
     bUpdate = true;
   }
 
@@ -49,7 +49,7 @@ void ezQGridBarWidget::SetConfig(
 
 void ezQGridBarWidget::paintEvent(QPaintEvent* e)
 {
-  if (!MapFromSceneFunc.IsValid())
+  if (!m_MapFromSceneFunc.IsValid())
   {
     QWidget::paintEvent(e);
     return;
@@ -69,7 +69,7 @@ void ezQGridBarWidget::paintEvent(QPaintEvent* e)
   // render fine grid stop lines
   {
     double fSceneMinX, fSceneMaxX;
-    ezWidgetUtils::ComputeGridExtentsX(m_viewportSceneRect, m_fFineGridStops, fSceneMinX, fSceneMaxX);
+    ezWidgetUtils::ComputeGridExtentsX(m_ViewportSceneRect, m_fFineGridStops, fSceneMinX, fSceneMaxX);
     fSceneMinX = ezMath::Max(fSceneMinX, 0.0);
 
     painter->setPen(palette().buttonText().color());
@@ -79,7 +79,7 @@ void ezQGridBarWidget::paintEvent(QPaintEvent* e)
     // some overcompensation for the case that the GraphicsView displays a scrollbar at the side
     for (double x = fSceneMinX; x <= fSceneMaxX + m_fTextGridStops; x += m_fFineGridStops)
     {
-      const QPointF pos = MapFromSceneFunc(QPointF(x, 0));
+      const QPointF pos = m_MapFromSceneFunc(QPointF(x, 0));
 
       QLine& l = lines.ExpandAndGetRef();
       l.setLine(pos.x(), areaRect.bottom() - 3, pos.x(), areaRect.bottom());
@@ -91,7 +91,7 @@ void ezQGridBarWidget::paintEvent(QPaintEvent* e)
   // Grid Stop Value Text
   {
     double fSceneMinX, fSceneMaxX;
-    ezWidgetUtils::ComputeGridExtentsX(m_viewportSceneRect, m_fTextGridStops, fSceneMinX, fSceneMaxX);
+    ezWidgetUtils::ComputeGridExtentsX(m_ViewportSceneRect, m_fTextGridStops, fSceneMinX, fSceneMaxX);
     fSceneMinX = ezMath::Max(fSceneMinX, 0.0);
 
     QTextOption textOpt(Qt::AlignCenter);
@@ -103,7 +103,7 @@ void ezQGridBarWidget::paintEvent(QPaintEvent* e)
 
     for (double x = fSceneMinX; x <= fSceneMaxX; x += m_fTextGridStops)
     {
-      const QPointF pos = MapFromSceneFunc(QPointF(x, 0));
+      const QPointF pos = m_MapFromSceneFunc(QPointF(x, 0));
 
       textRect.setRect(pos.x() - 50, areaRect.top(), 99, areaRect.height());
       tmp.Format("{0}", ezArgF(x));

@@ -25,15 +25,13 @@ struct ezNodeFlags
   enum Enum
   {
     None = 0,
-    SelectionChanged = EZ_BIT(0),
-    Moved = EZ_BIT(1),
-    UpdateTitle = EZ_BIT(2),
+    Moved = EZ_BIT(0),
+    UpdateTitle = EZ_BIT(1),
     Default = None
   };
 
   struct Bits
   {
-    StorageType SelectionChanged : 1;
     StorageType Moved : 1;
     StorageType UpdateTitle : 1;
   };
@@ -49,12 +47,12 @@ public:
   const ezDocumentObject* GetObject() const { return m_pObject; }
   virtual void InitNode(const ezDocumentNodeManager* pManager, const ezDocumentObject* pObject);
 
-  void UpdateGeometry();
+  virtual void UpdateGeometry();
 
   void CreatePins();
 
-  ezQtPin* GetInputPin(const ezPin* pPin);
-  ezQtPin* GetOutputPin(const ezPin* pPin);
+  ezQtPin* GetInputPin(const ezPin& pin);
+  ezQtPin* GetOutputPin(const ezPin& pin);
 
   ezBitflags<ezNodeFlags> GetFlags() const;
   void ResetFlags();
@@ -62,29 +60,29 @@ public:
   void EnableDropShadow(bool enable);
   virtual void UpdateState();
 
-  const ezDocumentNodeManager* GetNodeManager() const { return m_pManager; }
   const ezHybridArray<ezQtPin*, 6>& GetInputPins() const { return m_Inputs; }
   const ezHybridArray<ezQtPin*, 6>& GetOutputPins() const { return m_Outputs; }
 
   void SetActive(bool active);
+
+  virtual void ExtendContextMenu(QMenu& menu) {}
 
 protected:
   virtual void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override;
   virtual QVariant itemChange(GraphicsItemChange change, const QVariant& value) override;
 
   QColor m_HeaderColor;
-  QGraphicsTextItem* m_pLabel;
+  QRectF m_HeaderRect;
+  QGraphicsTextItem* m_pLabel = nullptr;
 
 private:
-  const ezDocumentNodeManager* m_pManager;
-  const ezDocumentObject* m_pObject;
+  const ezDocumentNodeManager* m_pManager = nullptr;
+  const ezDocumentObject* m_pObject = nullptr;
   ezBitflags<ezNodeFlags> m_DirtyFlags;
 
   bool m_bIsActive = true;
 
-  // Header
-  QRectF m_HeaderRect;
-  QGraphicsDropShadowEffect* m_pShadow;
+  QGraphicsDropShadowEffect* m_pShadow = nullptr;
 
   // Pins
   ezHybridArray<ezQtPin*, 6> m_Inputs;

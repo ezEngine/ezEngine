@@ -32,7 +32,7 @@ public:
 /// Sample setup:
 ///   m_uiCollisionLayerEndPoint = Default
 ///   m_uiCollisionLayerTrigger = Player
-///   m_sTrggerMessage = "APlayerEnteredTheBeam"
+///   m_sTriggerMessage = "APlayerEnteredTheBeam"
 ///
 /// This will lead to trigger messages being sent when a physics actor on the 'Player' layer comes between
 /// the original hit on the default layer and the ray cast origin.
@@ -68,12 +68,13 @@ public:
 
   void SetRaycastEndObject(const char* szReference); // [ property ]
 
-  ezGameObjectHandle m_hRaycastEndObject;     // [ property ]
-  float m_fMaxDistance = 100.0f;              // [ property ]
-  bool m_bForceTargetParentless = false;      // [ property ]
-  bool m_bDisableTargetObjectOnNoHit = false; // [ property ]
-  ezUInt8 m_uiCollisionLayerEndPoint = 0;     // [ property ]
-  ezUInt8 m_uiCollisionLayerTrigger = 0;      // [ property ]
+  ezGameObjectHandle m_hRaycastEndObject;           // [ property ]
+  float m_fMaxDistance = 100.0f;                    // [ property ]
+  bool m_bForceTargetParentless = false;            // [ property ]
+  bool m_bDisableTargetObjectOnNoHit = false;       // [ property ]
+  ezUInt8 m_uiCollisionLayerEndPoint = 0;           // [ property ]
+  ezUInt8 m_uiCollisionLayerTrigger = 0;            // [ property ]
+  ezBitflags<ezPhysicsShapeType> m_ShapeTypesToHit; // [ property ]
 
 private:
   void Update();

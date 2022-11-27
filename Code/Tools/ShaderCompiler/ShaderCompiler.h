@@ -19,7 +19,6 @@ private:
 
   virtual ezResult BeforeCoreSystemsStartup() override;
   virtual void AfterCoreSystemsStartup() override;
-  virtual void Init_LoadRequiredPlugins() override;
   virtual void Init_LoadProjectPlugins() override {}
   virtual void Init_SetupDefaultResources() override {}
   virtual void Init_ConfigureInput() override {}

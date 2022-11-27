@@ -35,11 +35,7 @@ public:
   virtual void SetResourceViewPlatform(ezGALShaderStage::Enum Stage, ezUInt32 uiSlot, const ezGALResourceView* pResourceView) override;
   virtual void SetUnorderedAccessViewPlatform(ezUInt32 uiSlot, const ezGALUnorderedAccessView* pUnorderedAccessView) override;
 
-  // Fence & Query functions
-
-  virtual void InsertFencePlatform(const ezGALFence* pFence) override;
-  virtual bool IsFenceReachedPlatform(const ezGALFence* pFence) override;
-  virtual void WaitForFencePlatform(const ezGALFence* pFence) override;
+  // Query functions
 
   virtual void BeginQueryPlatform(const ezGALQuery* pQuery) override;
   virtual void EndQueryPlatform(const ezGALQuery* pQuery) override;
@@ -87,6 +83,7 @@ public:
 
   // ezGALCommandEncoderRenderPlatformInterface
   void BeginRendering(const ezGALRenderingSetup& renderingSetup);
+  void BeginCompute();
 
   // Draw functions
 
@@ -144,8 +141,8 @@ private:
   ezHybridArray<ID3D11ShaderResourceView*, 16> m_pBoundShaderResourceViews[ezGALShaderStage::ENUM_COUNT] = {};
   ezGAL::ModifiedRange m_BoundShaderResourceViewsRange[ezGALShaderStage::ENUM_COUNT];
 
-  ezHybridArray<ID3D11UnorderedAccessView*, 16> m_pBoundUnoderedAccessViews;
-  ezGAL::ModifiedRange m_pBoundUnoderedAccessViewsRange;
+  ezHybridArray<ID3D11UnorderedAccessView*, 16> m_BoundUnoderedAccessViews;
+  ezGAL::ModifiedRange m_BoundUnoderedAccessViewsRange;
 
   ID3D11SamplerState* m_pBoundSamplerStates[ezGALShaderStage::ENUM_COUNT][EZ_GAL_MAX_SAMPLER_COUNT] = {};
   ezGAL::ModifiedRange m_BoundSamplerStatesRange[ezGALShaderStage::ENUM_COUNT];

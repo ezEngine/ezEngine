@@ -49,7 +49,7 @@ namespace Kraut
 
     const aeVec3 ComputeAverageInfluence(const aeVec3& vPosition, aeUInt32 uiBranchType) const;
 
-    Kraut::BranchStats CreateBranchDesc(const Kraut::SpawnNodeDesc& spawnDesc, Kraut::BranchRandomData& rd, float fMaxAbsRotationalDeviation = 180.0f);
+    Kraut::BranchStats CreateBranchDesc(const Kraut::SpawnNodeDesc& spawnDesc, const Kraut::BranchRandomData& rd, float fMaxAbsRotationalDeviation = 180.0f);
 
     aeVec3 ComputeLeafUpDirection(const Kraut::BranchStructure& branchStructure, const Kraut::SpawnNodeDesc& spawnDesc, const aeVec3& vGrowDirection);
 

@@ -11,10 +11,9 @@ namespace ezInternal
   template <typename T>
   struct HashHelperImpl<T, true>
   {
-    template <class Derived>
-    EZ_ALWAYS_INLINE static ezUInt32 Hash(const ezStringBase<Derived>& string)
+    EZ_ALWAYS_INLINE static ezUInt32 Hash(ezStringView string)
     {
-      return ezHashingUtils::StringHashTo32(ezHashingUtils::xxHash64((void*)string.InternalGetData(), string.InternalGetElementCount()));
+      return ezHashingUtils::StringHashTo32(ezHashingUtils::StringHash(string));
     }
   };
 
@@ -27,13 +26,15 @@ namespace ezInternal
 } // namespace ezInternal
 
 template <typename T>
-EZ_ALWAYS_INLINE ezUInt32 ezHashHelper<T>::Hash(const T& value)
+template <typename U>
+EZ_ALWAYS_INLINE ezUInt32 ezHashHelper<T>::Hash(const U& value)
 {
   return ezInternal::HashHelperImpl<T, EZ_IS_DERIVED_FROM_STATIC(ezThisIsAString, T)>::Hash(value);
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE bool ezHashHelper<T>::Equal(const T& a, const T& b)
+template <typename U>
+EZ_ALWAYS_INLINE bool ezHashHelper<T>::Equal(const T& a, const U& b)
 {
   return a == b;
 }
@@ -106,7 +107,10 @@ struct ezHashHelper<T*>
 #endif
   }
 
-  EZ_ALWAYS_INLINE static bool Equal(T* a, T* b) { return a == b; }
+  EZ_ALWAYS_INLINE static bool Equal(T* a, T* b)
+  {
+    return a == b;
+  }
 };
 
 template <size_t N>

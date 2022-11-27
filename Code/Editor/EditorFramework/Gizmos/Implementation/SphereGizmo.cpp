@@ -16,9 +16,8 @@ ezSphereGizmo::ezSphereGizmo()
 
   m_ManipulateMode = ManipulateMode::None;
 
-  m_InnerSphere.Configure(this, ezEngineGizmoHandleType::Sphere, ezColorLinearUB(200, 200, 0, 128), false,
-    true); // this gizmo should be rendered very last so it is always on top
-  m_OuterSphere.Configure(this, ezEngineGizmoHandleType::Sphere, ezColorLinearUB(200, 200, 200, 128), false);
+  m_hInnerSphere.ConfigureHandle(this, ezEngineGizmoHandleType::Sphere, ezColorLinearUB(200, 200, 0, 128), ezGizmoFlags::OnTop | ezGizmoFlags::Pickable); // this gizmo should be rendered very last so it is always on top
+  m_hOuterSphere.ConfigureHandle(this, ezEngineGizmoHandleType::Sphere, ezColorLinearUB(200, 200, 200, 128), ezGizmoFlags::Pickable);
 
   SetVisible(false);
   SetTransformation(ezTransform::IdentityTransform());
@@ -26,14 +25,14 @@ ezSphereGizmo::ezSphereGizmo()
 
 void ezSphereGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
 {
-  pOwnerWindow->GetDocument()->AddSyncObject(&m_InnerSphere);
-  pOwnerWindow->GetDocument()->AddSyncObject(&m_OuterSphere);
+  pOwnerWindow->GetDocument()->AddSyncObject(&m_hInnerSphere);
+  pOwnerWindow->GetDocument()->AddSyncObject(&m_hOuterSphere);
 }
 
 void ezSphereGizmo::OnVisibleChanged(bool bVisible)
 {
-  m_InnerSphere.SetVisible(bVisible && m_bInnerEnabled);
-  m_OuterSphere.SetVisible(bVisible);
+  m_hInnerSphere.SetVisible(bVisible && m_bInnerEnabled);
+  m_hOuterSphere.SetVisible(bVisible);
 }
 
 void ezSphereGizmo::OnTransformationChanged(const ezTransform& transform)
@@ -44,8 +43,8 @@ void ezSphereGizmo::OnTransformationChanged(const ezTransform& transform)
   mScaleInner.m_vScale = ezVec3(m_fRadiusInner);
   mScaleOuter.m_vScale = ezVec3(m_fRadiusOuter);
 
-  m_InnerSphere.SetTransformation(transform * mScaleInner);
-  m_OuterSphere.SetTransformation(transform * mScaleOuter);
+  m_hInnerSphere.SetTransformation(transform * mScaleInner);
+  m_hOuterSphere.SetTransformation(transform * mScaleOuter);
 }
 
 void ezSphereGizmo::DoFocusLost(bool bCancel)
@@ -58,8 +57,8 @@ void ezSphereGizmo::DoFocusLost(bool bCancel)
   ezViewHighlightMsgToEngine msg;
   GetOwnerWindow()->GetEditorEngineConnection()->SendHighlightObjectMessage(&msg);
 
-  m_InnerSphere.SetVisible(m_bInnerEnabled);
-  m_OuterSphere.SetVisible(true);
+  m_hInnerSphere.SetVisible(m_bInnerEnabled);
+  m_hOuterSphere.SetVisible(true);
 
   m_ManipulateMode = ManipulateMode::None;
 }
@@ -74,11 +73,11 @@ ezEditorInput ezSphereGizmo::DoMousePressEvent(QMouseEvent* e)
   if (e->modifiers() != 0)
     return ezEditorInput::MayBeHandledByOthers;
 
-  if (m_pInteractionGizmoHandle == &m_InnerSphere)
+  if (m_pInteractionGizmoHandle == &m_hInnerSphere)
   {
     m_ManipulateMode = ManipulateMode::InnerSphere;
   }
-  else if (m_pInteractionGizmoHandle == &m_OuterSphere)
+  else if (m_pInteractionGizmoHandle == &m_hOuterSphere)
   {
     m_ManipulateMode = ManipulateMode::OuterSphere;
   }
@@ -96,7 +95,7 @@ ezEditorInput ezSphereGizmo::DoMousePressEvent(QMouseEvent* e)
 
   m_LastInteraction = ezTime::Now();
 
-  m_LastMousePos = SetMouseMode(ezEditorInputContext::MouseMode::HideAndWrapAtScreenBorders);
+  m_vLastMousePos = SetMouseMode(ezEditorInputContext::MouseMode::HideAndWrapAtScreenBorders);
 
   SetActiveInputContext(this);
 
@@ -135,9 +134,9 @@ ezEditorInput ezSphereGizmo::DoMouseMoveEvent(QMouseEvent* e)
   m_LastInteraction = tNow;
 
   const ezVec2I32 vNewMousePos = ezVec2I32(e->globalPos().x(), e->globalPos().y());
-  const ezVec2I32 vDiff = vNewMousePos - m_LastMousePos;
+  const ezVec2I32 vDiff = vNewMousePos - m_vLastMousePos;
 
-  m_LastMousePos = UpdateMouseMode(e);
+  m_vLastMousePos = UpdateMouseMode(e);
 
   const float fSpeed = 0.02f;
 

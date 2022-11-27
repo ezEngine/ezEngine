@@ -12,6 +12,10 @@
 #undef EZ_SUPPORTS_FILE_STATS
 #define EZ_SUPPORTS_FILE_STATS EZ_ON
 
+/// Directory watcher is not supported
+#undef EZ_SUPPORTS_DIRECTORY_WATCHER
+#define EZ_SUPPORTS_DIRECTORY_WATCHER EZ_OFF
+
 /// Memory mapping a file is supported.
 #undef EZ_SUPPORTS_MEMORY_MAPPED_FILE
 #define EZ_SUPPORTS_MEMORY_MAPPED_FILE EZ_ON

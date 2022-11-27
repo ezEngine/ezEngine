@@ -17,20 +17,20 @@ private:
   /// \name Events
   ///@{
 
-  ezEvent<const ezResourceEvent&, ezMutex> s_ResourceEvents;
-  ezEvent<const ezResourceManagerEvent&, ezMutex> s_ManagerEvents;
+  ezEvent<const ezResourceEvent&, ezMutex> m_ResourceEvents;
+  ezEvent<const ezResourceManagerEvent&, ezMutex> m_ManagerEvents;
 
   ///@}
   /// \name Resource Fallbacks
   ///@{
 
-  ezDynamicArray<ezResourceManager::ResourceCleanupCB> s_ResourceCleanupCallbacks;
+  ezDynamicArray<ezResourceManager::ResourceCleanupCB> m_ResourceCleanupCallbacks;
 
   ///@}
   /// \name Resource Priorities
   ///@{
 
-  ezMap<const ezRTTI*, ezResourcePriority> s_ResourceTypePriorities;
+  ezMap<const ezRTTI*, ezResourcePriority> m_ResourceTypePriorities;
 
   ///@}
 
@@ -47,55 +47,55 @@ private:
   };
 
   bool m_bTaskNamesInitialized = false;
-  bool s_bBroadcastExistsEvent = false;
-  ezUInt32 s_uiForceNoFallbackAcquisition = 0;
+  bool m_bBroadcastExistsEvent = false;
+  ezUInt32 m_uiForceNoFallbackAcquisition = 0;
 
   // resources in this queue are waiting for a task to load them
-  ezDeque<ezResourceManager::LoadingInfo> s_LoadingQueue;
+  ezDeque<ezResourceManager::LoadingInfo> m_LoadingQueue;
 
-  ezHashTable<const ezRTTI*, ezResourceManager::LoadedResources> s_LoadedResources;
+  ezHashTable<const ezRTTI*, ezResourceManager::LoadedResources> m_LoadedResources;
 
-  bool s_bAllowLaunchDataLoadTask = true;
-  bool s_bShutdown = false;
+  bool m_bAllowLaunchDataLoadTask = true;
+  bool m_bShutdown = false;
 
-  ezHybridArray<TaskDataUpdateContent, 24> s_WorkerTasksUpdateContent;
-  ezHybridArray<TaskDataDataLoad, 8> s_WorkerTasksDataLoad;
+  ezHybridArray<TaskDataUpdateContent, 24> m_WorkerTasksUpdateContent;
+  ezHybridArray<TaskDataDataLoad, 8> m_WorkerTasksDataLoad;
 
-  ezTime s_LastFrameUpdate;
-  ezUInt32 s_uiLastResourcePriorityUpdateIdx = 0;
+  ezTime m_LastFrameUpdate;
+  ezUInt32 m_uiLastResourcePriorityUpdateIdx = 0;
 
-  ezDynamicArray<ezResource*> s_LoadedResourceOfTypeTempContainer;
-  ezHashTable<ezTempHashedString, const ezRTTI*> s_ResourcesToUnloadOnMainThread;
+  ezDynamicArray<ezResource*> m_LoadedResourceOfTypeTempContainer;
+  ezHashTable<ezTempHashedString, const ezRTTI*> m_ResourcesToUnloadOnMainThread;
 
-  const ezRTTI* s_pFreeUnusedLastType = nullptr;
-  ezTempHashedString s_FreeUnusedLastResourceID;
+  const ezRTTI* m_pFreeUnusedLastType = nullptr;
+  ezTempHashedString m_sFreeUnusedLastResourceID;
 
   // Type Loaders
 
-  ezMap<const ezRTTI*, ezResourceTypeLoader*> s_ResourceTypeLoader;
-  ezResourceLoaderFromFile s_FileResourceLoader;
-  ezResourceTypeLoader* s_pDefaultResourceLoader = &s_FileResourceLoader;
-  ezMap<ezResource*, ezUniquePtr<ezResourceTypeLoader>> s_CustomLoaders;
+  ezMap<const ezRTTI*, ezResourceTypeLoader*> m_ResourceTypeLoader;
+  ezResourceLoaderFromFile m_FileResourceLoader;
+  ezResourceTypeLoader* m_pDefaultResourceLoader = &m_FileResourceLoader;
+  ezMap<ezResource*, ezUniquePtr<ezResourceTypeLoader>> m_CustomLoaders;
 
 
   // Override / derived resources
 
-  ezMap<const ezRTTI*, ezHybridArray<ezResourceManager::DerivedTypeInfo, 4>> s_DerivedTypeInfos;
+  ezMap<const ezRTTI*, ezHybridArray<ezResourceManager::DerivedTypeInfo, 4>> m_DerivedTypeInfos;
 
 
   // Named resources
 
-  ezHashTable<ezTempHashedString, ezHashedString> s_NamedResources;
+  ezHashTable<ezTempHashedString, ezHashedString> m_NamedResources;
 
   // Asset system interaction
 
-  ezMap<ezString, const ezRTTI*> s_AssetToResourceType;
+  ezMap<ezString, const ezRTTI*> m_AssetToResourceType;
 
 
   // Export mode
 
-  bool s_bExportMode = false;
-  ezUInt32 s_uiNextResourceID = 0;
+  bool m_bExportMode = false;
+  ezUInt32 m_uiNextResourceID = 0;
 
   // Resource Unloading
   ezTime m_AutoFreeUnusedTimeout = ezTime::Zero();

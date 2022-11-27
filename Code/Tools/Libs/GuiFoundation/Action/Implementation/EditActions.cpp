@@ -155,7 +155,7 @@ void ezEditAction::Execute(const ezVariant& value)
         break;
 
       // Serialize to string
-      ezMemoryStreamStorage streamStorage;
+      ezContiguousMemoryStreamStorage streamStorage;
       ezMemoryStreamWriter memoryWriter(&streamStorage);
       ezAbstractGraphDdlSerializer::Write(memoryWriter, &graph, nullptr, false);
       memoryWriter.WriteBytes("\0", 1).IgnoreResult(); // null terminate
@@ -163,7 +163,7 @@ void ezEditAction::Execute(const ezVariant& value)
       // Write to clipboard
       QClipboard* clipboard = QApplication::clipboard();
       QMimeData* mimeData = new QMimeData();
-      QByteArray encodedData((const char*)streamStorage.GetData(), streamStorage.GetStorageSize());
+      QByteArray encodedData((const char*)streamStorage.GetData(), streamStorage.GetStorageSize32());
 
       mimeData->setData(sMimeType.GetData(), encodedData);
       mimeData->setText(QString::fromUtf8((const char*)streamStorage.GetData()));

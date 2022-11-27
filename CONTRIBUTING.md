@@ -1,3 +1,3 @@
-Contributions are welcome. Please see our documentation for details:
+### Contributions are welcome. Please see our documentation for details:
 
-https://ezengine.github.io/docs/contribute/how-to-contribute.html
+>https://ezengine.net/pages/getting-started/how-to-contribute.html

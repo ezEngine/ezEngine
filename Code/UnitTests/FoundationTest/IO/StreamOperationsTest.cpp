@@ -8,6 +8,7 @@
 
 #include <Foundation/IO/StringDeduplicationContext.h>
 #include <Foundation/Strings/String.h>
+#include <Foundation/Time/Stopwatch.h>
 
 namespace
 {
@@ -41,7 +42,7 @@ EZ_CREATE_SIMPLE_TEST(IO, StreamOperation)
 {
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Binary Stream Basic Operations (built-in types)")
   {
-    ezMemoryStreamStorage StreamStorage(4096);
+    ezDefaultMemoryStreamStorage StreamStorage(4096);
 
     // Create writer
     ezMemoryStreamWriter StreamWriter(&StreamStorage);
@@ -147,7 +148,7 @@ EZ_CREATE_SIMPLE_TEST(IO, StreamOperation)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Binary Stream Arrays of Structs")
   {
-    ezMemoryStreamStorage StreamStorage(4096);
+    ezDefaultMemoryStreamStorage StreamStorage(4096);
 
     // Create writer
     ezMemoryStreamWriter StreamWriter(&StreamStorage);
@@ -184,7 +185,7 @@ EZ_CREATE_SIMPLE_TEST(IO, StreamOperation)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezSet Stream Operators")
   {
-    ezMemoryStreamStorage StreamStorage(4096);
+    ezDefaultMemoryStreamStorage StreamStorage(4096);
 
     // Create writer
     ezMemoryStreamWriter StreamWriter(&StreamStorage);
@@ -213,7 +214,7 @@ EZ_CREATE_SIMPLE_TEST(IO, StreamOperation)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezMap Stream Operators")
   {
-    ezMemoryStreamStorage StreamStorage(4096);
+    ezDefaultMemoryStreamStorage StreamStorage(4096);
 
     // Create writer
     ezMemoryStreamWriter StreamWriter(&StreamStorage);
@@ -246,7 +247,7 @@ EZ_CREATE_SIMPLE_TEST(IO, StreamOperation)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezHashTable Stream Operators")
   {
-    ezMemoryStreamStorage StreamStorage(4096);
+    ezDefaultMemoryStreamStorage StreamStorage(4096);
 
     // Create writer
     ezMemoryStreamWriter StreamWriter(&StreamStorage);
@@ -279,8 +280,8 @@ EZ_CREATE_SIMPLE_TEST(IO, StreamOperation)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "String Deduplication")
   {
-    ezMemoryStreamStorage StreamStorageNonDeduplicated(4096);
-    ezMemoryStreamStorage StreamStorageDeduplicated(4096);
+    ezDefaultMemoryStreamStorage StreamStorageNonDeduplicated(4096);
+    ezDefaultMemoryStreamStorage StreamStorageDeduplicated(4096);
 
     ezHybridString<4> str1 = "Hello World";
     ezDynamicString str2 = "Hello World 2";
@@ -317,7 +318,7 @@ EZ_CREATE_SIMPLE_TEST(IO, StreamOperation)
       EZ_TEST_INT(StringDeduplicationContext.GetUniqueStringCount(), 3);
     }
 
-    EZ_TEST_BOOL(StreamStorageDeduplicated.GetStorageSize() < StreamStorageNonDeduplicated.GetStorageSize());
+    EZ_TEST_BOOL(StreamStorageDeduplicated.GetStorageSize64() < StreamStorageNonDeduplicated.GetStorageSize64());
 
     // Read the deduplicated strings back
     {
@@ -338,6 +339,96 @@ EZ_CREATE_SIMPLE_TEST(IO, StreamOperation)
       EZ_TEST_STRING(szRead0, szRead2);
       EZ_TEST_STRING(szRead0, szRead4);
       EZ_TEST_STRING(szRead1, szRead5);
+    }
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Array Serialization Performance (bytes)")
+  {
+    constexpr ezUInt32 uiCount = 1024 * 1024 * 10;
+
+    ezContiguousMemoryStreamStorage storage(uiCount + 16);
+
+    ezMemoryStreamWriter writer(&storage);
+    ezMemoryStreamReader reader(&storage);
+
+    ezDynamicArray<ezUInt8> DynamicArray;
+    DynamicArray.SetCountUninitialized(uiCount);
+
+    for (ezUInt32 i = 0; i < uiCount; ++i)
+    {
+      DynamicArray[i] = i & 0xFF;
+    }
+
+    {
+      ezStopwatch sw;
+
+      writer.WriteArray(DynamicArray).AssertSuccess();
+
+      ezTime t = sw.GetRunningTotal();
+      ezStringBuilder s;
+      s.Format("Write {} byte array: {}", ezArgFileSize(uiCount), t);
+      ezTestFramework::Output(ezTestOutput::Details, s);
+    }
+
+    {
+      ezStopwatch sw;
+
+      reader.ReadArray(DynamicArray).IgnoreResult();
+
+      ezTime t = sw.GetRunningTotal();
+      ezStringBuilder s;
+      s.Format("Read {} byte array: {}", ezArgFileSize(uiCount), t);
+      ezTestFramework::Output(ezTestOutput::Details, s);
+    }
+
+    for (ezUInt32 i = 0; i < uiCount; ++i)
+    {
+      EZ_TEST_INT(DynamicArray[i], i & 0xFF);
+    }
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Array Serialization Performance (ezVec3)")
+  {
+    constexpr ezUInt32 uiCount = 1024 * 1024 * 10;
+
+    ezContiguousMemoryStreamStorage storage(uiCount * sizeof(ezVec3) + 16);
+
+    ezMemoryStreamWriter writer(&storage);
+    ezMemoryStreamReader reader(&storage);
+
+    ezDynamicArray<ezVec3> DynamicArray;
+    DynamicArray.SetCountUninitialized(uiCount);
+
+    for (ezUInt32 i = 0; i < uiCount; ++i)
+    {
+      DynamicArray[i].Set(i, i + 1, i + 2);
+    }
+
+    {
+      ezStopwatch sw;
+
+      writer.WriteArray(DynamicArray).AssertSuccess();
+
+      ezTime t = sw.GetRunningTotal();
+      ezStringBuilder s;
+      s.Format("Write {} vec3 array: {}", ezArgFileSize(uiCount * sizeof(ezVec3)), t);
+      ezTestFramework::Output(ezTestOutput::Details, s);
+    }
+
+    {
+      ezStopwatch sw;
+
+      reader.ReadArray(DynamicArray).AssertSuccess();
+
+      ezTime t = sw.GetRunningTotal();
+      ezStringBuilder s;
+      s.Format("Read {} vec3 array: {}", ezArgFileSize(uiCount * sizeof(ezVec3)), t);
+      ezTestFramework::Output(ezTestOutput::Details, s);
+    }
+
+    for (ezUInt32 i = 0; i < uiCount; ++i)
+    {
+      EZ_TEST_VEC3(DynamicArray[i], ezVec3(i, i + 1, i + 2), 0.01f);
     }
   }
 }

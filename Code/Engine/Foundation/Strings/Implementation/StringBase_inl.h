@@ -28,55 +28,53 @@ EZ_ALWAYS_INLINE bool ezStringBase<Derived>::IsEmpty() const
 }
 
 template <typename Derived>
-bool ezStringBase<Derived>::StartsWith(const char* szStartsWith) const
+bool ezStringBase<Derived>::StartsWith(ezStringView sStartsWith) const
 {
-  return ezStringUtils::StartsWith(InternalGetData(), szStartsWith, InternalGetDataEnd());
+  return ezStringUtils::StartsWith(InternalGetData(), sStartsWith.GetStartPointer(), InternalGetDataEnd(), sStartsWith.GetEndPointer());
 }
 
 template <typename Derived>
-bool ezStringBase<Derived>::StartsWith_NoCase(const char* szStartsWith) const
+bool ezStringBase<Derived>::StartsWith_NoCase(ezStringView sStartsWith) const
 {
-  return ezStringUtils::StartsWith_NoCase(InternalGetData(), szStartsWith, InternalGetDataEnd());
+  return ezStringUtils::StartsWith_NoCase(InternalGetData(), sStartsWith.GetStartPointer(), InternalGetDataEnd(), sStartsWith.GetEndPointer());
 }
 
 template <typename Derived>
-bool ezStringBase<Derived>::EndsWith(const char* szEndsWith) const
+bool ezStringBase<Derived>::EndsWith(ezStringView sEndsWith) const
 {
-  return ezStringUtils::EndsWith(InternalGetData(), szEndsWith, InternalGetDataEnd());
+  return ezStringUtils::EndsWith(InternalGetData(), sEndsWith.GetStartPointer(), InternalGetDataEnd(), sEndsWith.GetEndPointer());
 }
 
 template <typename Derived>
-bool ezStringBase<Derived>::EndsWith_NoCase(const char* szEndsWith) const
+bool ezStringBase<Derived>::EndsWith_NoCase(ezStringView sEndsWith) const
 {
-  return ezStringUtils::EndsWith_NoCase(InternalGetData(), szEndsWith, InternalGetDataEnd());
+  return ezStringUtils::EndsWith_NoCase(InternalGetData(), sEndsWith.GetStartPointer(), InternalGetDataEnd(), sEndsWith.GetEndPointer());
 }
 
 template <typename Derived>
-const char* ezStringBase<Derived>::FindSubString(const char* szStringToFind, const char* szStartSearchAt /* = nullptr */) const
-{
-  if (szStartSearchAt == nullptr)
-    szStartSearchAt = InternalGetData();
-
-  EZ_ASSERT_DEV((szStartSearchAt >= InternalGetData()) && (szStartSearchAt <= InternalGetDataEnd()),
-    "The given pointer to start searching at is not inside this strings valid range.");
-
-  return ezStringUtils::FindSubString(szStartSearchAt, szStringToFind, InternalGetDataEnd());
-}
-
-template <typename Derived>
-const char* ezStringBase<Derived>::FindSubString_NoCase(const char* szStringToFind, const char* szStartSearchAt /* = nullptr */) const
+const char* ezStringBase<Derived>::FindSubString(ezStringView sStringToFind, const char* szStartSearchAt /* = nullptr */) const
 {
   if (szStartSearchAt == nullptr)
     szStartSearchAt = InternalGetData();
 
-  EZ_ASSERT_DEV((szStartSearchAt >= InternalGetData()) && (szStartSearchAt <= InternalGetDataEnd()),
-    "The given pointer to start searching at is not inside this strings valid range.");
+  EZ_ASSERT_DEV((szStartSearchAt >= InternalGetData()) && (szStartSearchAt <= InternalGetDataEnd()), "The given pointer to start searching at is not inside this strings valid range.");
 
-  return ezStringUtils::FindSubString_NoCase(szStartSearchAt, szStringToFind, InternalGetDataEnd());
+  return ezStringUtils::FindSubString(szStartSearchAt, sStringToFind.GetStartPointer(), InternalGetDataEnd(), sStringToFind.GetEndPointer());
 }
 
 template <typename Derived>
-inline const char* ezStringBase<Derived>::FindLastSubString(const char* szStringToFind, const char* szStartSearchAt /* = nullptr */) const
+const char* ezStringBase<Derived>::FindSubString_NoCase(ezStringView sStringToFind, const char* szStartSearchAt /* = nullptr */) const
+{
+  if (szStartSearchAt == nullptr)
+    szStartSearchAt = InternalGetData();
+
+  EZ_ASSERT_DEV((szStartSearchAt >= InternalGetData()) && (szStartSearchAt <= InternalGetDataEnd()), "The given pointer to start searching at is not inside this strings valid range.");
+
+  return ezStringUtils::FindSubString_NoCase(szStartSearchAt, sStringToFind.GetStartPointer(), InternalGetDataEnd(), sStringToFind.GetEndPointer());
+}
+
+template <typename Derived>
+inline const char* ezStringBase<Derived>::FindLastSubString(ezStringView sStringToFind, const char* szStartSearchAt /* = nullptr */) const
 {
   if (szStartSearchAt == nullptr)
     szStartSearchAt = InternalGetDataEnd();
@@ -84,11 +82,11 @@ inline const char* ezStringBase<Derived>::FindLastSubString(const char* szString
   EZ_ASSERT_DEV((szStartSearchAt >= InternalGetData()) && (szStartSearchAt <= InternalGetDataEnd()),
     "The given pointer to start searching at is not inside this strings valid range.");
 
-  return ezStringUtils::FindLastSubString(InternalGetData(), szStringToFind, szStartSearchAt, InternalGetDataEnd());
+  return ezStringUtils::FindLastSubString(InternalGetData(), sStringToFind.GetStartPointer(), szStartSearchAt, InternalGetDataEnd(), sStringToFind.GetEndPointer());
 }
 
 template <typename Derived>
-inline const char* ezStringBase<Derived>::FindLastSubString_NoCase(const char* szStringToFind, const char* szStartSearchAt /* = nullptr */) const
+inline const char* ezStringBase<Derived>::FindLastSubString_NoCase(ezStringView sStringToFind, const char* szStartSearchAt /* = nullptr */) const
 {
   if (szStartSearchAt == nullptr)
     szStartSearchAt = InternalGetDataEnd();
@@ -96,88 +94,84 @@ inline const char* ezStringBase<Derived>::FindLastSubString_NoCase(const char* s
   EZ_ASSERT_DEV((szStartSearchAt >= InternalGetData()) && (szStartSearchAt <= InternalGetDataEnd()),
     "The given pointer to start searching at is not inside this strings valid range.");
 
-  return ezStringUtils::FindLastSubString_NoCase(InternalGetData(), szStringToFind, szStartSearchAt, InternalGetDataEnd());
+  return ezStringUtils::FindLastSubString_NoCase(InternalGetData(), sStringToFind.GetStartPointer(), szStartSearchAt, InternalGetDataEnd(), sStringToFind.GetEndPointer());
 }
 
 template <typename Derived>
-inline const char* ezStringBase<Derived>::FindWholeWord(
-  const char* szSearchFor, ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB, const char* szStartSearchAt /* = nullptr */) const
+inline const char* ezStringBase<Derived>::FindWholeWord(const char* szSearchFor, ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB, const char* szStartSearchAt /* = nullptr */) const
 {
   if (szStartSearchAt == nullptr)
     szStartSearchAt = InternalGetData();
 
-  EZ_ASSERT_DEV((szStartSearchAt >= InternalGetData()) && (szStartSearchAt <= InternalGetDataEnd()),
-    "The given pointer to start searching at is not inside this strings valid range.");
+  EZ_ASSERT_DEV((szStartSearchAt >= InternalGetData()) && (szStartSearchAt <= InternalGetDataEnd()), "The given pointer to start searching at is not inside this strings valid range.");
 
   return ezStringUtils::FindWholeWord(szStartSearchAt, szSearchFor, IsDelimiterCB, InternalGetDataEnd());
 }
 
 template <typename Derived>
-inline const char* ezStringBase<Derived>::FindWholeWord_NoCase(
-  const char* szSearchFor, ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB, const char* szStartSearchAt /* = nullptr */) const
+inline const char* ezStringBase<Derived>::FindWholeWord_NoCase(const char* szSearchFor, ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB, const char* szStartSearchAt /* = nullptr */) const
 {
   if (szStartSearchAt == nullptr)
     szStartSearchAt = InternalGetData();
 
-  EZ_ASSERT_DEV((szStartSearchAt >= InternalGetData()) && (szStartSearchAt <= InternalGetDataEnd()),
-    "The given pointer to start searching at is not inside this strings valid range.");
+  EZ_ASSERT_DEV((szStartSearchAt >= InternalGetData()) && (szStartSearchAt <= InternalGetDataEnd()), "The given pointer to start searching at is not inside this strings valid range.");
 
   return ezStringUtils::FindWholeWord_NoCase(szStartSearchAt, szSearchFor, IsDelimiterCB, InternalGetDataEnd());
 }
 
 template <typename Derived>
-ezInt32 ezStringBase<Derived>::Compare(const char* pString2) const
+ezInt32 ezStringBase<Derived>::Compare(ezStringView sOther) const
 {
-  return ezStringUtils::Compare(InternalGetData(), pString2, InternalGetDataEnd());
+  return ezStringUtils::Compare(InternalGetData(), sOther.GetStartPointer(), InternalGetDataEnd(), sOther.GetEndPointer());
 }
 
 template <typename Derived>
-ezInt32 ezStringBase<Derived>::CompareN(const char* pString2, ezUInt32 uiCharsToCompare) const
+ezInt32 ezStringBase<Derived>::CompareN(ezStringView sOther, ezUInt32 uiCharsToCompare) const
 {
-  return ezStringUtils::CompareN(InternalGetData(), pString2, uiCharsToCompare, InternalGetDataEnd());
+  return ezStringUtils::CompareN(InternalGetData(), sOther.GetStartPointer(), uiCharsToCompare, InternalGetDataEnd(), sOther.GetEndPointer());
 }
 
 template <typename Derived>
-ezInt32 ezStringBase<Derived>::Compare_NoCase(const char* pString2) const
+ezInt32 ezStringBase<Derived>::Compare_NoCase(ezStringView sOther) const
 {
-  return ezStringUtils::Compare_NoCase(InternalGetData(), pString2, InternalGetDataEnd());
+  return ezStringUtils::Compare_NoCase(InternalGetData(), sOther.GetStartPointer(), InternalGetDataEnd(), sOther.GetEndPointer());
 }
 
 template <typename Derived>
-ezInt32 ezStringBase<Derived>::CompareN_NoCase(const char* pString2, ezUInt32 uiCharsToCompare) const
+ezInt32 ezStringBase<Derived>::CompareN_NoCase(ezStringView sOther, ezUInt32 uiCharsToCompare) const
 {
-  return ezStringUtils::CompareN_NoCase(InternalGetData(), pString2, uiCharsToCompare, InternalGetDataEnd());
+  return ezStringUtils::CompareN_NoCase(InternalGetData(), sOther.GetStartPointer(), uiCharsToCompare, InternalGetDataEnd(), sOther.GetEndPointer());
 }
 
 template <typename Derived>
-bool ezStringBase<Derived>::IsEqual(const char* pString2) const
+bool ezStringBase<Derived>::IsEqual(ezStringView sOther) const
 {
-  return ezStringUtils::IsEqual(InternalGetData(), pString2, InternalGetDataEnd());
+  return ezStringUtils::IsEqual(InternalGetData(), sOther.GetStartPointer(), InternalGetDataEnd(), sOther.GetEndPointer());
 }
 
 template <typename Derived>
-bool ezStringBase<Derived>::IsEqualN(const char* pString2, ezUInt32 uiCharsToCompare) const
+bool ezStringBase<Derived>::IsEqualN(ezStringView sOther, ezUInt32 uiCharsToCompare) const
 {
-  return ezStringUtils::IsEqualN(InternalGetData(), pString2, uiCharsToCompare, InternalGetDataEnd());
+  return ezStringUtils::IsEqualN(InternalGetData(), sOther.GetStartPointer(), uiCharsToCompare, InternalGetDataEnd(), sOther.GetEndPointer());
 }
 
 template <typename Derived>
-bool ezStringBase<Derived>::IsEqual_NoCase(const char* pString2) const
+bool ezStringBase<Derived>::IsEqual_NoCase(ezStringView sOther) const
 {
-  return ezStringUtils::IsEqual_NoCase(InternalGetData(), pString2, InternalGetDataEnd());
+  return ezStringUtils::IsEqual_NoCase(InternalGetData(), sOther.GetStartPointer(), InternalGetDataEnd(), sOther.GetEndPointer());
 }
 
 template <typename Derived>
-bool ezStringBase<Derived>::IsEqualN_NoCase(const char* pString2, ezUInt32 uiCharsToCompare) const
+bool ezStringBase<Derived>::IsEqualN_NoCase(ezStringView sOther, ezUInt32 uiCharsToCompare) const
 {
-  return ezStringUtils::IsEqualN_NoCase(InternalGetData(), pString2, uiCharsToCompare, InternalGetDataEnd());
+  return ezStringUtils::IsEqualN_NoCase(InternalGetData(), sOther.GetStartPointer(), uiCharsToCompare, InternalGetDataEnd(), sOther.GetEndPointer());
 }
 
 template <typename Derived>
 const char* ezStringBase<Derived>::ComputeCharacterPosition(ezUInt32 uiCharacterIndex) const
 {
   const char* pos = InternalGetData();
-  ezUnicodeUtils::MoveToNextUtf8(pos, uiCharacterIndex);
+  ezUnicodeUtils::MoveToNextUtf8(pos, InternalGetDataEnd(), uiCharacterIndex);
   return pos;
 }
 
@@ -196,7 +190,7 @@ typename ezStringBase<Derived>::reverse_iterator ezStringBase<Derived>::GetItera
 template <typename DerivedLhs, typename DerivedRhs>
 EZ_ALWAYS_INLINE bool operator==(const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs) // [tested]
 {
-  return ezStringUtils::IsEqual(lhs.InternalGetData(), rhs.InternalGetData(), lhs.InternalGetDataEnd(), rhs.InternalGetDataEnd());
+  return lhs.IsEqual(rhs.GetView());
 }
 
 template <typename DerivedRhs>
@@ -214,7 +208,7 @@ EZ_ALWAYS_INLINE bool operator==(const ezStringBase<DerivedLhs>& lhs, const char
 template <typename DerivedLhs, typename DerivedRhs>
 EZ_ALWAYS_INLINE bool operator!=(const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs) // [tested]
 {
-  return !ezStringUtils::IsEqual(lhs.InternalGetData(), rhs.InternalGetData(), lhs.InternalGetDataEnd(), rhs.InternalGetDataEnd());
+  return !lhs.IsEqual(rhs);
 }
 
 template <typename DerivedRhs>
@@ -232,7 +226,7 @@ EZ_ALWAYS_INLINE bool operator!=(const ezStringBase<DerivedLhs>& lhs, const char
 template <typename DerivedLhs, typename DerivedRhs>
 EZ_ALWAYS_INLINE bool operator<(const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs) // [tested]
 {
-  return ezStringUtils::Compare(lhs.InternalGetData(), rhs.InternalGetData(), lhs.InternalGetDataEnd(), rhs.InternalGetDataEnd()) < 0;
+  return lhs.Compare(rhs) < 0;
 }
 
 template <typename DerivedRhs>
@@ -250,7 +244,7 @@ EZ_ALWAYS_INLINE bool operator<(const ezStringBase<DerivedLhs>& lhs, const char*
 template <typename DerivedLhs, typename DerivedRhs>
 EZ_ALWAYS_INLINE bool operator>(const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs) // [tested]
 {
-  return ezStringUtils::Compare(lhs.InternalGetData(), rhs.InternalGetData(), lhs.InternalGetDataEnd(), rhs.InternalGetDataEnd()) > 0;
+  return lhs.Compare(rhs) > 0;
 }
 
 template <typename DerivedRhs>
@@ -299,4 +293,83 @@ template <typename DerivedLhs>
 EZ_ALWAYS_INLINE bool operator>=(const ezStringBase<DerivedLhs>& lhs, const char* rhs) // [tested]
 {
   return lhs.Compare(rhs) >= 0;
+}
+
+template <typename DerivedLhs>
+EZ_ALWAYS_INLINE ezStringBase<DerivedLhs>::operator ezStringView() const
+{
+  return ezStringView(InternalGetData(), InternalGetElementCount());
+}
+
+template <typename Derived>
+EZ_ALWAYS_INLINE ezStringView ezStringBase<Derived>::GetView() const
+{
+  return ezStringView(InternalGetData(), InternalGetElementCount());
+}
+
+template <typename Derived>
+template <typename Container>
+void ezStringBase<Derived>::Split(bool bReturnEmptyStrings, Container& Output, const char* szSeparator1, const char* szSeparator2 /*= nullptr*/, const char* szSeparator3 /*= nullptr*/, const char* szSeparator4 /*= nullptr*/, const char* szSeparator5 /*= nullptr*/, const char* szSeparator6 /*= nullptr*/) const
+{
+  GetView().Split(bReturnEmptyStrings, Output, szSeparator1, szSeparator2, szSeparator3, szSeparator4, szSeparator5, szSeparator6);
+}
+
+template <typename Derived>
+ezStringView ezStringBase<Derived>::GetRootedPathRootName() const
+{
+  return GetView().GetRootedPathRootName();
+}
+
+template <typename Derived>
+bool ezStringBase<Derived>::IsRootedPath() const
+{
+  return GetView().IsRootedPath();
+}
+
+template <typename Derived>
+bool ezStringBase<Derived>::IsRelativePath() const
+{
+  return GetView().IsRelativePath();
+}
+
+template <typename Derived>
+bool ezStringBase<Derived>::IsAbsolutePath() const
+{
+  return GetView().IsAbsolutePath();
+}
+
+template <typename Derived>
+ezStringView ezStringBase<Derived>::GetFileDirectory() const
+{
+  return GetView().GetFileDirectory();
+}
+
+template <typename Derived>
+ezStringView ezStringBase<Derived>::GetFileNameAndExtension() const
+{
+  return GetView().GetFileNameAndExtension();
+}
+
+template <typename Derived>
+ezStringView ezStringBase<Derived>::GetFileName() const
+{
+  return GetView().GetFileName();
+}
+
+template <typename Derived>
+ezStringView ezStringBase<Derived>::GetFileExtension() const
+{
+  return GetView().GetFileExtension();
+}
+
+template <typename Derived>
+bool ezStringBase<Derived>::HasExtension(ezStringView sExtension) const
+{
+  return GetView().HasExtension(sExtension);
+}
+
+template <typename Derived>
+bool ezStringBase<Derived>::HasAnyExtension() const
+{
+  return GetView().HasAnyExtension();
 }

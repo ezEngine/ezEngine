@@ -11,12 +11,6 @@
 #  include <TestFramework/Framework/Qt/qtTestGUI.h>
 #  include <TestFramework/Framework/Qt/qtTestModel.h>
 
-#  if EZ_ENABLED(EZ_USE_WIN_EXTRAS)
-#    include <Foundation/Basics/Platform/Win/IncludeWindows.h>
-#    include <QtWinExtras/QWinTaskbarButton>
-#    include <QtWinExtras/QWinTaskbarProgress>
-#  endif
-
 ////////////////////////////////////////////////////////////////////////
 // ezQtTestGUI public functions
 ////////////////////////////////////////////////////////////////////////
@@ -104,22 +98,6 @@ ezQtTestGUI::ezQtTestGUI(ezQtTestFramework& testFramework)
 
 ezQtTestGUI::~ezQtTestGUI()
 {
-#  if EZ_ENABLED(EZ_USE_WIN_EXTRAS)
-  if (m_pWinTaskBarProgress)
-  {
-    QObject::disconnect(m_OnProgressDestroyed);
-    m_pWinTaskBarProgress->hide();
-    m_pWinTaskBarProgress = nullptr;
-  }
-
-  if (m_pWinTaskBarButton)
-  {
-    QObject::disconnect(m_OnButtonDestroyed);
-    delete m_pWinTaskBarButton;
-    m_pWinTaskBarButton = nullptr;
-  }
-#  endif
-
   testTreeView->setModel(nullptr);
   testTreeView->setItemDelegate(nullptr);
   delete m_pModel;
@@ -285,13 +263,6 @@ void ezQtTestGUI::on_actionRunTests_triggered()
       QMessageBox::information(this, "Tests Aborted", "The tests were aborted by the user.", QMessageBox::Ok, QMessageBox::Ok);
 
     m_bAbort = false;
-
-#  if EZ_ENABLED(EZ_USE_WIN_EXTRAS)
-    if (m_pWinTaskBarProgress)
-    {
-      m_pWinTaskBarProgress->pause();
-    }
-#  endif
   }
   else
   {
@@ -301,13 +272,6 @@ void ezQtTestGUI::on_actionRunTests_triggered()
 
       if (m_pTestFramework->GetSettings().m_bShowMessageBox)
         QMessageBox::critical(this, "Tests Failed", "Some tests have failed.", QMessageBox::Ok, QMessageBox::Ok);
-
-#  if EZ_ENABLED(EZ_USE_WIN_EXTRAS)
-      if (m_pWinTaskBarProgress)
-      {
-        m_pWinTaskBarProgress->stop();
-      }
-#  endif
     }
     else
     {
@@ -318,13 +282,6 @@ void ezQtTestGUI::on_actionRunTests_triggered()
 
       if (m_pTestFramework->GetSettings().m_bCloseOnSuccess)
         QTimer::singleShot(100, this, SLOT(on_actionQuit_triggered()));
-
-#  if EZ_ENABLED(EZ_USE_WIN_EXTRAS)
-      if (m_pWinTaskBarProgress)
-      {
-        m_pWinTaskBarProgress->reset();
-      }
-#  endif
     }
   }
 }
@@ -456,39 +413,6 @@ void ezQtTestGUI::onTestFrameworkTestResultReceived(qint32 iTestIndex, qint32 iS
   m_pStatusText->setText(sStatusText);
   m_pMessageLogDock->currentTestResultChanged(&m_pTestFramework->GetTestResult().GetTestResultData(iTestIndex, iSubTestIndex));
 
-#  if EZ_ENABLED(EZ_USE_WIN_EXTRAS)
-  if (m_pWinTaskBarButton == nullptr)
-  {
-    auto ClearPointers = [this]() {
-      m_pWinTaskBarButton = nullptr;
-      m_pWinTaskBarProgress = nullptr;
-    };
-    m_pWinTaskBarButton = new QWinTaskbarButton(QApplication::activeWindow());
-    m_pWinTaskBarButton->setWindow(QApplication::topLevelWindows()[0]);
-    m_OnButtonDestroyed = QObject::connect(m_pWinTaskBarButton, &QObject::destroyed, ClearPointers);
-
-    m_pWinTaskBarProgress = m_pWinTaskBarButton->progress();
-    m_OnProgressDestroyed = QObject::connect(m_pWinTaskBarProgress, &QObject::destroyed, ClearPointers);
-    m_pWinTaskBarProgress->setMinimum(0);
-    m_pWinTaskBarProgress->setMaximum(1000);
-    m_pWinTaskBarProgress->setValue(0);
-    m_pWinTaskBarProgress->reset();
-    m_pWinTaskBarProgress->show();
-    m_pWinTaskBarProgress->setVisible(true);
-  }
-
-  if (m_pWinTaskBarProgress)
-  {
-    if (uiErrors == 0)
-      m_pWinTaskBarProgress->resume();
-    else
-      m_pWinTaskBarProgress->stop();
-
-    const ezUInt32 uiProMille = static_cast<ezUInt32>(fProgress * 10.0f);
-    m_pWinTaskBarProgress->setValue(uiProMille);
-  }
-#  endif
-
   QApplication::processEvents();
 }
 
@@ -531,7 +455,13 @@ void OpenInExplorer(const char* szPath)
 
   args << QDir::toNativeSeparators(szPath);
 
+#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
   QProcess::startDetached("explorer", args);
+#  elif EZ_ENABLED(EZ_PLATFORM_LINUX)
+  QProcess::startDetached("xdg-open", args);
+#  else
+  EZ_ASSERT_NOT_IMPLEMENTED
+#  endif
 }
 
 void ezQtTestGUI::on_actionOpenTestDataFolder_triggered()

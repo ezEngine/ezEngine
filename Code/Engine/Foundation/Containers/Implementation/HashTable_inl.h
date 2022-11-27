@@ -8,19 +8,19 @@
 
 template <typename K, typename V, typename H>
 ezHashTableBase<K, V, H>::ConstIterator::ConstIterator(const ezHashTableBase<K, V, H>& hashTable)
-  : m_hashTable(&hashTable)
+  : m_pHashTable(&hashTable)
 {
 }
 
 template <typename K, typename V, typename H>
 void ezHashTableBase<K, V, H>::ConstIterator::SetToBegin()
 {
-  if (m_hashTable->IsEmpty())
+  if (m_pHashTable->IsEmpty())
   {
-    m_uiCurrentIndex = m_hashTable->m_uiCapacity;
+    m_uiCurrentIndex = m_pHashTable->m_uiCapacity;
     return;
   }
-  while (!m_hashTable->IsValidEntry(m_uiCurrentIndex))
+  while (!m_pHashTable->IsValidEntry(m_uiCurrentIndex))
   {
     ++m_uiCurrentIndex;
   }
@@ -29,21 +29,21 @@ void ezHashTableBase<K, V, H>::ConstIterator::SetToBegin()
 template <typename K, typename V, typename H>
 inline void ezHashTableBase<K, V, H>::ConstIterator::SetToEnd()
 {
-  m_uiCurrentCount = m_hashTable->m_uiCount;
-  m_uiCurrentIndex = m_hashTable->m_uiCapacity;
+  m_uiCurrentCount = m_pHashTable->m_uiCount;
+  m_uiCurrentIndex = m_pHashTable->m_uiCapacity;
 }
 
 
 template <typename K, typename V, typename H>
 EZ_FORCE_INLINE bool ezHashTableBase<K, V, H>::ConstIterator::IsValid() const
 {
-  return m_uiCurrentCount < m_hashTable->m_uiCount;
+  return m_uiCurrentCount < m_pHashTable->m_uiCount;
 }
 
 template <typename K, typename V, typename H>
 EZ_FORCE_INLINE bool ezHashTableBase<K, V, H>::ConstIterator::operator==(const typename ezHashTableBase<K, V, H>::ConstIterator& rhs) const
 {
-  return m_uiCurrentIndex == rhs.m_uiCurrentIndex && m_hashTable->m_pEntries == rhs.m_hashTable->m_pEntries;
+  return m_uiCurrentIndex == rhs.m_uiCurrentIndex && m_pHashTable->m_pEntries == rhs.m_pHashTable->m_pEntries;
 }
 
 template <typename K, typename V, typename H>
@@ -55,20 +55,20 @@ EZ_ALWAYS_INLINE bool ezHashTableBase<K, V, H>::ConstIterator::operator!=(const 
 template <typename K, typename V, typename H>
 EZ_ALWAYS_INLINE const K& ezHashTableBase<K, V, H>::ConstIterator::Key() const
 {
-  return m_hashTable->m_pEntries[m_uiCurrentIndex].key;
+  return m_pHashTable->m_pEntries[m_uiCurrentIndex].key;
 }
 
 template <typename K, typename V, typename H>
 EZ_ALWAYS_INLINE const V& ezHashTableBase<K, V, H>::ConstIterator::Value() const
 {
-  return m_hashTable->m_pEntries[m_uiCurrentIndex].value;
+  return m_pHashTable->m_pEntries[m_uiCurrentIndex].value;
 }
 
 template <typename K, typename V, typename H>
 void ezHashTableBase<K, V, H>::ConstIterator::Next()
 {
   // if we already iterated over the amount of valid elements that the hash-table stores, early out
-  if (m_uiCurrentCount >= m_hashTable->m_uiCount)
+  if (m_uiCurrentCount >= m_pHashTable->m_uiCount)
     return;
 
   // increase the counter of how many elements we have seen
@@ -77,9 +77,9 @@ void ezHashTableBase<K, V, H>::ConstIterator::Next()
   ++m_uiCurrentIndex;
 
   // check that we don't leave the valid range of element indices
-  while (m_uiCurrentIndex < m_hashTable->m_uiCapacity)
+  while (m_uiCurrentIndex < m_pHashTable->m_uiCapacity)
   {
-    if (m_hashTable->IsValidEntry(m_uiCurrentIndex))
+    if (m_pHashTable->IsValidEntry(m_uiCurrentIndex))
       return;
 
     ++m_uiCurrentIndex;
@@ -87,7 +87,7 @@ void ezHashTableBase<K, V, H>::ConstIterator::Next()
 
   // if we fell through this loop, we reached the end of all elements in the container
   // set the m_uiCurrentCount to maximum, to enable early-out in the future and to make 'IsValid' return 'false'
-  m_uiCurrentCount = m_hashTable->m_uiCount;
+  m_uiCurrentCount = m_pHashTable->m_uiCount;
 }
 
 template <typename K, typename V, typename H>
@@ -107,7 +107,7 @@ ezHashTableBase<K, V, H>::Iterator::Iterator(const ezHashTableBase<K, V, H>& has
 
 template <typename K, typename V, typename H>
 ezHashTableBase<K, V, H>::Iterator::Iterator(const typename ezHashTableBase<K, V, H>::Iterator& rhs)
-  : ConstIterator(*rhs.m_hashTable)
+  : ConstIterator(*rhs.m_pHashTable)
 {
   this->m_uiCurrentIndex = rhs.m_uiCurrentIndex;
   this->m_uiCurrentCount = rhs.m_uiCurrentCount;
@@ -116,7 +116,7 @@ ezHashTableBase<K, V, H>::Iterator::Iterator(const typename ezHashTableBase<K, V
 template <typename K, typename V, typename H>
 EZ_ALWAYS_INLINE void ezHashTableBase<K, V, H>::Iterator::operator=(const Iterator& rhs) // [tested]
 {
-  this->m_hashTable = rhs.m_hashTable;
+  this->m_pHashTable = rhs.m_pHashTable;
   this->m_uiCurrentIndex = rhs.m_uiCurrentIndex;
   this->m_uiCurrentCount = rhs.m_uiCurrentCount;
 }
@@ -124,7 +124,7 @@ EZ_ALWAYS_INLINE void ezHashTableBase<K, V, H>::Iterator::operator=(const Iterat
 template <typename K, typename V, typename H>
 EZ_FORCE_INLINE V& ezHashTableBase<K, V, H>::Iterator::Value()
 {
-  return this->m_hashTable->m_pEntries[this->m_uiCurrentIndex].value;
+  return this->m_pHashTable->m_pEntries[this->m_uiCurrentIndex].value;
 }
 
 
@@ -391,6 +391,7 @@ bool ezHashTableBase<K, V, H>::Remove(const CompatibleKeyType& key, V* out_oldVa
 template <typename K, typename V, typename H>
 typename ezHashTableBase<K, V, H>::Iterator ezHashTableBase<K, V, H>::Remove(const typename ezHashTableBase<K, V, H>::Iterator& pos)
 {
+  EZ_ASSERT_DEBUG(pos.m_pHashTable == this, "Iterator from wrong hashtable");
   Iterator it = pos;
   ezUInt32 uiIndex = pos.m_uiCurrentIndex;
   ++it;

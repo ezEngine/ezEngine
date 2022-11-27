@@ -31,7 +31,7 @@
 class EZ_UTILITIES_DLL ezDynamicQuadtree
 {
   /// \brief The amount that cells overlap (this is a loose octree). Typically set to 10%.
-  static const float s_LooseOctreeFactor;
+  static const float s_fLooseOctreeFactor;
 
 public:
   ezDynamicQuadtree();

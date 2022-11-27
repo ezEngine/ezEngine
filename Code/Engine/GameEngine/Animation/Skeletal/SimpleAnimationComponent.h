@@ -63,5 +63,5 @@ protected:
   ezAnimationClipResourceHandle m_hAnimationClip;
   ezSkeletonResourceHandle m_hSkeleton;
 
-  ozz::vector<ozz::math::SoaTransform> m_ozzLocalTransforms; // TODO: could be frame allocated
+  ozz::vector<ozz::math::SoaTransform> m_OzzLocalTransforms; // TODO: could be frame allocated
 };

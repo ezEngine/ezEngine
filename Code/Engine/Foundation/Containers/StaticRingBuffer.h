@@ -72,7 +72,7 @@ private:
   T* GetStaticArray();
 
   /// \brief The fixed size array.
-  struct : ezAligned<EZ_ALIGNMENT_OF(T)>
+  struct alignas(EZ_ALIGNMENT_OF(T))
   {
     ezUInt8 m_Data[Capacity * sizeof(T)];
   };

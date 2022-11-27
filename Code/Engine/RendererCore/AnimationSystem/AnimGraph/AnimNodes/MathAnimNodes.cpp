@@ -19,7 +19,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMathExpressionAnimNode, 1, ezRTTIDefaultAlloca
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Math"),
-    new ezColorAttribute(ezColor::DarkOliveGreen),
+    new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Lime)),
     new ezTitleAttribute("= {Expression}"),
   }
   EZ_END_ATTRIBUTES;
@@ -32,12 +32,12 @@ ezMathExpressionAnimNode::~ezMathExpressionAnimNode() = default;
 
 void ezMathExpressionAnimNode::SetExpression(const char* sz)
 {
-  m_Expression.Reset(sz);
+  m_mExpression.Reset(sz);
 }
 
 const char* ezMathExpressionAnimNode::GetExpression() const
 {
-  return m_Expression.GetExpressionString();
+  return m_mExpression.GetExpressionString();
 }
 
 ezResult ezMathExpressionAnimNode::SerializeNode(ezStreamWriter& stream) const
@@ -46,7 +46,7 @@ ezResult ezMathExpressionAnimNode::SerializeNode(ezStreamWriter& stream) const
 
   EZ_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
 
-  stream << m_Expression.GetExpressionString();
+  stream << m_mExpression.GetExpressionString();
   EZ_SUCCEED_OR_RETURN(m_ValueAPin.Serialize(stream));
   EZ_SUCCEED_OR_RETURN(m_ValueBPin.Serialize(stream));
   EZ_SUCCEED_OR_RETURN(m_ValueCPin.Serialize(stream));
@@ -64,7 +64,7 @@ ezResult ezMathExpressionAnimNode::DeserializeNode(ezStreamReader& stream)
 
   ezStringBuilder tmp;
   stream >> tmp;
-  m_Expression.Reset(tmp);
+  m_mExpression.Reset(tmp);
   EZ_SUCCEED_OR_RETURN(m_ValueAPin.Deserialize(stream));
   EZ_SUCCEED_OR_RETURN(m_ValueBPin.Deserialize(stream));
   EZ_SUCCEED_OR_RETURN(m_ValueCPin.Deserialize(stream));
@@ -76,37 +76,33 @@ ezResult ezMathExpressionAnimNode::DeserializeNode(ezStreamReader& stream)
 
 void ezMathExpressionAnimNode::Initialize(ezAnimGraph& graph, const ezSkeletonResource* pSkeleton)
 {
-  if (!m_Expression.IsValid() && m_ResultPin.IsConnected())
+  if (!m_mExpression.IsValid() && m_ResultPin.IsConnected())
   {
-    ezLog::Error("Math expression '{}' is invalid.", m_Expression.GetExpressionString());
+    ezLog::Error("Math expression '{}' is invalid.", m_mExpression.GetExpressionString());
   }
 }
 
+static ezHashedString s_sA = ezMakeHashedString("a");
+static ezHashedString s_sB = ezMakeHashedString("b");
+static ezHashedString s_sC = ezMakeHashedString("c");
+static ezHashedString s_sD = ezMakeHashedString("d");
+
 void ezMathExpressionAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget)
 {
-  if (!m_Expression.IsValid())
+  if (!m_mExpression.IsValid())
   {
     m_ResultPin.SetNumber(graph, 0);
     return;
   }
 
-  const double a = m_ValueAPin.GetNumber(graph);
-  const double b = m_ValueBPin.GetNumber(graph);
-  const double c = m_ValueCPin.GetNumber(graph);
-  const double d = m_ValueDPin.GetNumber(graph);
+  ezMathExpression::Input inputs[] =
+    {
+      {s_sA, static_cast<float>(m_ValueAPin.GetNumber(graph))},
+      {s_sB, static_cast<float>(m_ValueBPin.GetNumber(graph))},
+      {s_sC, static_cast<float>(m_ValueCPin.GetNumber(graph))},
+      {s_sD, static_cast<float>(m_ValueDPin.GetNumber(graph))},
+    };
 
-  double result = m_Expression.Evaluate([=](const ezStringView& name) -> double {
-    if (name == "a")
-      return a;
-    if (name == "b")
-      return b;
-    if (name == "c")
-      return c;
-    if (name == "d")
-      return d;
-
-    return 0;
-  });
-
+  float result = m_mExpression.Evaluate(inputs);
   m_ResultPin.SetNumber(graph, result);
 }

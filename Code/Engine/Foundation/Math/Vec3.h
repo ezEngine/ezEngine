@@ -5,7 +5,7 @@
 
 /// \brief A 3-component vector class.
 template <typename Type>
-struct ezVec3Template
+class ezVec3Template
 {
 public:
   // Means that vectors can be copied using memcpy instead of copy construction.
@@ -30,15 +30,15 @@ public:
   // no copy-constructor and operator= since the default-generated ones will be faster
 
   /// \brief Returns a vector with all components set to zero.
-  static const ezVec3Template<Type> ZeroVector() { return ezVec3Template(0); } // [tested]
+  static ezVec3Template<Type> ZeroVector() { return ezVec3Template(0); } // [tested]
   /// \brief Returns a vector with all components set to one.
-  static const ezVec3Template<Type> OneVector() { return ezVec3Template(1); }
+  static ezVec3Template<Type> OneVector() { return ezVec3Template(1); }
 
   /// \brief Returns a vector initialized to the x unit vector (1, 0, 0).
   static const ezVec3Template<Type> UnitXAxis() { return ezVec3Template(1, 0, 0); }
   /// \brief Returns a vector initialized to the y unit vector (0, 1, 0).
   static const ezVec3Template<Type> UnitYAxis() { return ezVec3Template(0, 1, 0); }
-  /// \brief Returns a vector initialized to the z unit vector (1, 0, 0).
+  /// \brief Returns a vector initialized to the z unit vector (0, 0, 1).
   static const ezVec3Template<Type> UnitZAxis() { return ezVec3Template(0, 0, 1); }
 
 #if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
@@ -226,7 +226,7 @@ public:
   /// \brief Creates a random vector around the given normal with a maximum deviation.
   /// \note If you are going to do this many times with the same axis, rather than calling this function, instead manually
   /// do what this function does (see inline code) and only compute the quaternion once.
-  static ezVec3Template<Type> CreateRandomDeviation(ezRandom& rng, const ezAngle& maxDeviation, const ezVec3& vNormal); // [tested]
+  static ezVec3Template<Type> CreateRandomDeviation(ezRandom& rng, const ezAngle& maxDeviation, const ezVec3Template<Type>& vNormal); // [tested]
 };
 
 // *** Operators ***

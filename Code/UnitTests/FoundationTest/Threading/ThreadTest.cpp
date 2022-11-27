@@ -60,18 +60,14 @@ EZ_CREATE_SIMPLE_TEST(Threading, Thread)
     TestThread3* pTestThread32 = nullptr;
 
     /// the try-catch is necessary to quiet the static code analysis
-#if EZ_ENABLED(EZ_TESTFRAMEWORK_SUPPORT_EXCEPTIONS)
     try
-#endif
     {
       pTestThread31 = new TestThread3;
       pTestThread32 = new TestThread3;
     }
-#if EZ_ENABLED(EZ_TESTFRAMEWORK_SUPPORT_EXCEPTIONS)
     catch (...)
     {
     }
-#endif
 
     EZ_TEST_BOOL(pTestThread31 != nullptr);
     EZ_TEST_BOOL(pTestThread32 != nullptr);

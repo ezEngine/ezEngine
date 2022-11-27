@@ -64,9 +64,9 @@ ezDocument::ezDocument(const char* szPath, ezDocumentObjectManager* pDocumentObj
   m_sDocumentPath = szPath;
   m_pObjectManager = ezUniquePtr<ezDocumentObjectManager>(pDocumentObjectManagerImpl, ezFoundation::GetDefaultAllocator());
   m_pObjectManager->SetDocument(this);
-  m_CommandHistory = EZ_DEFAULT_NEW(ezCommandHistory, this);
-  m_SelectionManager = EZ_DEFAULT_NEW(ezSelectionManager, m_pObjectManager.Borrow());
-  m_ObjectAccessor = EZ_DEFAULT_NEW(ezObjectCommandAccessor, m_CommandHistory.Borrow());
+  m_pCommandHistory = EZ_DEFAULT_NEW(ezCommandHistory, this);
+  m_pSelectionManager = EZ_DEFAULT_NEW(ezSelectionManager, m_pObjectManager.Borrow());
+  m_pObjectAccessor = EZ_DEFAULT_NEW(ezObjectCommandAccessor, m_pCommandHistory.Borrow());
 
   m_bWindowRequested = false;
   m_bModified = true;
@@ -81,16 +81,12 @@ ezDocument::ezDocument(const char* szPath, ezDocumentObjectManager* pDocumentObj
 
 ezDocument::~ezDocument()
 {
-  if (m_activeSaveTask.IsValid())
-  {
-    ezTaskSystem::WaitForGroup(m_activeSaveTask);
-  }
-  m_SelectionManager = nullptr;
+  m_pSelectionManager = nullptr;
 
   m_pObjectManager->DestroyAllObjects();
 
-  m_CommandHistory->ClearRedoHistory();
-  m_CommandHistory->ClearUndoHistory();
+  m_pCommandHistory->ClearRedoHistory();
+  m_pCommandHistory->ClearUndoHistory();
 
   EZ_DEFAULT_DELETE(m_pDocumentInfo);
 }
@@ -141,13 +137,15 @@ ezStatus ezDocument::SaveDocument(bool bForce)
   // In the unlikely event that we manage to edit a doc and call save again while
   // an async save is already in progress we block on the first save to ensure
   // the correct chronological state on disk after both save ops are done.
-  if (m_activeSaveTask.IsValid())
+  if (m_ActiveSaveTask.IsValid())
   {
-    ezTaskSystem::WaitForGroup(m_activeSaveTask);
+    ezTaskSystem::WaitForGroup(m_ActiveSaveTask);
+    m_ActiveSaveTask.Invalidate();
   }
   ezStatus result;
-  m_activeSaveTask = InternalSaveDocument([&result](ezDocument* doc, ezStatus res) { result = res; });
-  ezTaskSystem::WaitForGroup(m_activeSaveTask);
+  m_ActiveSaveTask = InternalSaveDocument([&result](ezDocument* doc, ezStatus res) { result = res; });
+  ezTaskSystem::WaitForGroup(m_ActiveSaveTask);
+  m_ActiveSaveTask.Invalidate();
   return result;
 }
 
@@ -157,8 +155,8 @@ ezTaskGroupID ezDocument::SaveDocumentAsync(AfterSaveCallback callback, bool bFo
   if (!IsModified() && !bForce)
     return ezTaskGroupID();
 
-  m_activeSaveTask = InternalSaveDocument(callback);
-  return m_activeSaveTask;
+  m_ActiveSaveTask = InternalSaveDocument(callback);
+  return m_ActiveSaveTask;
 }
 
 void ezDocument::EnsureVisible()
@@ -176,6 +174,7 @@ ezTaskGroupID ezDocument::InternalSaveDocument(AfterSaveCallback callback)
   EZ_PROFILE_SCOPE("InternalSaveDocument");
   ezTaskGroupID saveID = ezTaskSystem::CreateTaskGroup(ezTaskPriority::LongRunningHighPriority);
   auto saveTask = EZ_DEFAULT_NEW(ezSaveDocumentTask);
+
   {
     saveTask->m_document = this;
     saveTask->file.SetOutput(m_sDocumentPath);
@@ -189,7 +188,8 @@ ezTaskGroupID ezDocument::InternalSaveDocument(AfterSaveCallback callback)
     }
     {
       // Do not serialize any temporary properties into the document.
-      auto filter = [](const ezAbstractProperty* pProp) -> bool {
+      auto filter = [](const ezDocumentObject*, const ezAbstractProperty* pProp) -> bool
+      {
         if (pProp->GetAttributeByType<ezTemporaryAttribute>() != nullptr)
           return false;
         return true;
@@ -214,9 +214,9 @@ ezTaskGroupID ezDocument::InternalSaveDocument(AfterSaveCallback callback)
     ezTaskSystem::AddTaskToGroup(afterSaveID, afterSaveTask);
   }
   ezTaskSystem::AddTaskGroupDependency(afterSaveID, saveID);
-  if (!ezTaskSystem::IsTaskGroupFinished(m_activeSaveTask))
+  if (!ezTaskSystem::IsTaskGroupFinished(m_ActiveSaveTask))
   {
-    ezTaskSystem::AddTaskGroupDependency(saveID, m_activeSaveTask);
+    ezTaskSystem::AddTaskGroupDependency(saveID, m_ActiveSaveTask);
   }
 
   ezTaskSystem::StartTaskGroup(saveID);
@@ -227,7 +227,7 @@ ezTaskGroupID ezDocument::InternalSaveDocument(AfterSaveCallback callback)
 ezStatus ezDocument::ReadDocument(const char* sDocumentPath, ezUniquePtr<ezAbstractObjectGraph>& header, ezUniquePtr<ezAbstractObjectGraph>& objects,
   ezUniquePtr<ezAbstractObjectGraph>& types)
 {
-  ezMemoryStreamStorage storage;
+  ezDefaultMemoryStreamStorage storage;
   ezMemoryStreamReader memreader(&storage);
 
   {
@@ -272,7 +272,7 @@ ezStatus ezDocument::ReadAndRegisterTypes(const ezAbstractObjectGraph& types)
   {
     if (it.Value()->GetType() == sDescTypeName)
     {
-      ezReflectedTypeDescriptor* pDesc = static_cast<ezReflectedTypeDescriptor*>(rttiConverter.CreateObjectFromNode(it.Value()));
+      ezReflectedTypeDescriptor* pDesc = rttiConverter.CreateObjectFromNode(it.Value()).Cast<ezReflectedTypeDescriptor>();
       if (pDesc->m_Flags.IsSet(ezTypeFlags::Minimal))
       {
         ezGetStaticRTTI<ezReflectedTypeDescriptor>()->GetAllocator()->Deallocate(pDesc);
@@ -352,6 +352,16 @@ void ezDocument::RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph,
   m_DocumentObjectMetaData->RestoreMetaDataFromAbstractGraph(graph);
 }
 
+void ezDocument::BeforeClosing()
+{
+  // This can't be done in the dtor as the task uses virtual functions on this object.
+  if (m_ActiveSaveTask.IsValid())
+  {
+    ezTaskSystem::WaitForGroup(m_ActiveSaveTask);
+    m_ActiveSaveTask.Invalidate();
+  }
+}
+
 void ezDocument::SetUnknownObjectTypes(const ezSet<ezString>& Types, ezUInt32 uiInstances)
 {
   m_UnknownObjectTypes = Types;
@@ -375,7 +385,7 @@ void ezDocument::BroadcastInterDocumentMessage(ezReflectedClass* pMessage, ezDoc
 
 void ezDocument::DeleteSelectedObjects() const
 {
-  auto objects = GetSelectionManager()->GetSelection();
+  auto objects = GetSelectionManager()->GetTopLevelSelection();
 
   // make sure the whole selection is cleared, otherwise each delete command would reduce the selection one by one
   GetSelectionManager()->Clear();
@@ -420,54 +430,5 @@ ezResult ezDocument::ComputeObjectTransformation(const ezDocumentObject* pObject
 
 ezObjectAccessorBase* ezDocument::GetObjectAccessor() const
 {
-  return m_ObjectAccessor.Borrow();
-}
-
-ezVariant ezDocument::GetDefaultValue(const ezDocumentObject* pObject, const char* szProperty, ezVariant index) const
-{
-  ezUuid rootObjectGuid = ezPrefabUtils::GetPrefabRoot(pObject, *m_DocumentObjectMetaData);
-
-  const ezAbstractProperty* pProp = pObject->GetTypeAccessor().GetType()->FindPropertyByName(szProperty);
-  if (pProp && rootObjectGuid.IsValid())
-  {
-    auto pMeta = m_DocumentObjectMetaData->BeginReadMetaData(rootObjectGuid);
-    const ezAbstractObjectGraph* pGraph = ezPrefabCache::GetSingleton()->GetCachedPrefabGraph(pMeta->m_CreateFromPrefab);
-    ezUuid objectPrefabGuid = pObject->GetGuid();
-    objectPrefabGuid.RevertCombinationWithSeed(pMeta->m_PrefabSeedGuid);
-    m_DocumentObjectMetaData->EndReadMetaData();
-
-    if (pGraph)
-    {
-      ezVariant defaultValue = ezPrefabUtils::GetDefaultValue(*pGraph, objectPrefabGuid, szProperty, index);
-      if (pProp->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags) && defaultValue.IsA<ezString>())
-      {
-        ezInt64 iValue = 0;
-        if (ezReflectionUtils::StringToEnumeration(pProp->GetSpecificType(), defaultValue.Get<ezString>(), iValue))
-        {
-          defaultValue = iValue;
-        }
-        else
-        {
-          defaultValue = ezVariant();
-        }
-      }
-      if (defaultValue.IsValid())
-      {
-        return defaultValue;
-      }
-    }
-  }
-
-  ezVariant defaultValue = ezReflectionUtils::GetDefaultValue(pProp);
-  return defaultValue;
-}
-
-bool ezDocument::IsDefaultValue(const ezDocumentObject* pObject, const char* szProperty, bool bReturnOnInvalid, ezVariant index) const
-{
-  const ezVariant def = GetDefaultValue(pObject, szProperty, index);
-
-  if (!def.IsValid())
-    return bReturnOnInvalid;
-
-  return pObject->GetTypeAccessor().GetValue(szProperty, index) == def;
+  return m_pObjectAccessor.Borrow();
 }

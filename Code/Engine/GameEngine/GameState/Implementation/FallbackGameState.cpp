@@ -80,8 +80,8 @@ void ezFallbackGameState::ConfigureInputActions()
     RegisterInputAction("Game", "MoveBackwards", ezInputSlot_KeyS);
     RegisterInputAction("Game", "MoveLeft", ezInputSlot_KeyA);
     RegisterInputAction("Game", "MoveRight", ezInputSlot_KeyD);
-    RegisterInputAction("Game", "MoveUp", ezInputSlot_KeyQ);
-    RegisterInputAction("Game", "MoveDown", ezInputSlot_KeyE);
+    RegisterInputAction("Game", "MoveUp", ezInputSlot_KeyE);
+    RegisterInputAction("Game", "MoveDown", ezInputSlot_KeyQ);
     RegisterInputAction("Game", "Run", ezInputSlot_KeyLeftShift);
 
     RegisterInputAction("Game", "TurnLeft", ezInputSlot_MouseMoveNegX, ezInputSlot_KeyLeft);

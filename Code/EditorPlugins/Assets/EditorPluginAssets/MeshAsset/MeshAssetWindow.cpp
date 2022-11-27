@@ -41,7 +41,7 @@ ezQtMeshAssetDocumentWindow::ezQtMeshAssetDocumentWindow(ezMeshAssetDocument* pD
   {
     SetTargetFramerate(25);
 
-    m_ViewConfig.m_Camera.LookAt(ezVec3(-1.6, 0, 0), ezVec3(0, 0, 0), ezVec3(0, 0, 1));
+    m_ViewConfig.m_Camera.LookAt(ezVec3(-1.6f, 0, 0), ezVec3(0, 0, 0), ezVec3(0, 0, 1));
     m_ViewConfig.ApplyPerspectiveSetting(90);
 
     m_pViewWidget = new ezQtOrbitCamViewWidget(this, &m_ViewConfig);
@@ -53,7 +53,7 @@ ezQtMeshAssetDocumentWindow::ezQtMeshAssetDocumentWindow(ezMeshAssetDocument* pD
 
   // Property Grid
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this);
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
     pPropertyPanel->setObjectName("MeshAssetDockWidget");
     pPropertyPanel->setWindowTitle("Mesh Properties");
     pPropertyPanel->show();
@@ -72,15 +72,15 @@ ezQtMeshAssetDocumentWindow::ezQtMeshAssetDocumentWindow(ezMeshAssetDocument* pD
 
   UpdatePreview();
 
-  m_HighlightTimer = new QTimer();
-  connect(m_HighlightTimer, &QTimer::timeout, this, &ezQtMeshAssetDocumentWindow::HighlightTimer);
-  m_HighlightTimer->setInterval(500);
-  m_HighlightTimer->start();
+  m_pHighlightTimer = new QTimer();
+  connect(m_pHighlightTimer, &QTimer::timeout, this, &ezQtMeshAssetDocumentWindow::HighlightTimer);
+  m_pHighlightTimer->setInterval(500);
+  m_pHighlightTimer->start();
 }
 
 ezQtMeshAssetDocumentWindow::~ezQtMeshAssetDocumentWindow()
 {
-  m_HighlightTimer->stop();
+  m_pHighlightTimer->stop();
 
   GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezQtMeshAssetDocumentWindow::PropertyEventHandler, this));
 }
@@ -147,7 +147,7 @@ bool ezQtMeshAssetDocumentWindow::UpdatePreview()
       if (uiSlot == m_uiHighlightSlots)
       {
         bHighlighted = true;
-        msg.m_Materials[i] = "Materials/Editor/HighlightMesh.ezMaterial";
+        msg.m_Materials[i] = "Editor/Materials/HighlightMesh.ezMaterial";
       }
 
       ++uiSlot;

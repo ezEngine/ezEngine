@@ -42,6 +42,8 @@ void ezSystemInformation::Initialize()
   if (s_SystemInformation.m_bIsInitialized)
     return;
 
+  s_SystemInformation.m_CpuFeatures.Detect();
+
   s_SystemInformation.m_sHostName[0] = '\0';
 
   // Get system information via various APIs
@@ -58,7 +60,7 @@ void ezSystemInformation::Initialize()
   GlobalMemoryStatusEx(&memStatus);
 
   s_SystemInformation.m_uiInstalledMainMemory = memStatus.ullTotalPhys;
-  s_SystemInformation.m_b64BitOS = Is64BitWindows();
+  s_SystemInformation.m_bB64BitOS = Is64BitWindows();
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
   s_SystemInformation.m_szPlatformName = "Windows - UWP";
 #else
@@ -99,8 +101,7 @@ void ezSystemInformation::Initialize()
           return false;
         }
 
-        return true;
-      });
+        return true; });
     }
   }
 

@@ -58,7 +58,7 @@ public:
   /// \brief Disconnect async. On completion, m_Events will be broadcasted.
   void Disconnect();
   /// \brief Returns whether we have a connection.
-  bool IsConnected() const { return m_Connected >= 1; }
+  bool IsConnected() const { return m_bConnected; }
 
   /// \brief Sends a message. pMsg can be destroyed after the call.
   bool Send(ezProcessMessage* pMsg);
@@ -67,6 +67,8 @@ public:
   bool ProcessMessages();
   /// \brief Block and wait for new messages and call ProcessMessages.
   void WaitForMessages();
+  /// \brief Block and wait for new messages and call ProcessMessages.
+  ezResult WaitForMessages(ezTime timeout);
 
   ezEvent<const ezIpcChannelEvent&> m_Events;      ///< Will be sent from any thread.
   ezEvent<const ezProcessMessage*> m_MessageEvent; ///< Will be sent from thread calling ProcessMessages or WaitForMessages.
@@ -110,7 +112,7 @@ protected:
 
   friend class ezMessageLoop;
   ezThreadID m_ThreadId = 0;
-  ezAtomicInteger32 m_Connected = false;
+  ezAtomicBool m_bConnected = false;
 
   // Setup in ctor
   const Mode::Enum m_Mode;
@@ -118,7 +120,7 @@ protected:
 
   // Mutex locked
   ezMutex m_OutputQueueMutex;
-  ezDeque<ezMemoryStreamStorage> m_OutputQueue;
+  ezDeque<ezContiguousMemoryStreamStorage> m_OutputQueue;
 
   // Only accessed from worker thread
   ezDynamicArray<ezUInt8> m_MessageAccumulator; ///< Message is assembled in here

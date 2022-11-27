@@ -41,7 +41,7 @@ private:
   ezSceneContext* m_pSceneContext;
 };
 
-struct EZ_ALIGN_16(GridVertex)
+struct alignas(16) GridVertex
 {
   ezVec3 m_position;
   ezColorLinearUB m_color;
@@ -63,8 +63,8 @@ public:
 protected:
   void CreateVertexBuffer();
 
-  static const ezUInt32 BufferSize = 1024 * 8;
-  static const ezUInt32 LineVerticesPerBatch = BufferSize / sizeof(GridVertex);
+  static const ezUInt32 s_uiBufferSize = 1024 * 8;
+  static const ezUInt32 s_uiLineVerticesPerBatch = s_uiBufferSize / sizeof(GridVertex);
 
   ezShaderResourceHandle m_hShader;
   ezGALBufferHandle m_hVertexBuffer;

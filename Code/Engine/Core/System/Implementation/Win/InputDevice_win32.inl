@@ -21,6 +21,8 @@ ezStandardInputDevice::ezStandardInputDevice(ezUInt32 uiWindowNumber)
     EZ_ASSERT_RELEASE(!s_bMainWindowUsed, "You cannot have two devices of Type ezStandardInputDevice with the window number zero.");
     ezStandardInputDevice::s_bMainWindowUsed = true;
   }
+
+  m_DoubleClickTime = ezTime::Milliseconds(GetDoubleClickTime());
 }
 
 ezStandardInputDevice::~ezStandardInputDevice()
@@ -269,6 +271,42 @@ void ezStandardInputDevice::ResetInputSlotValues()
   m_InputSlotValues[ezInputSlot_MouseDblClick2] = 0;
 }
 
+void ezStandardInputDevice::UpdateInputSlotValues()
+{
+  const char* slotDown[5] = {ezInputSlot_MouseButton0, ezInputSlot_MouseButton1, ezInputSlot_MouseButton2, ezInputSlot_MouseButton3, ezInputSlot_MouseButton4};
+
+  // don't read uninitialized values
+  if (!m_InputSlotValues.Contains(slotDown[4]))
+  {
+    for (int i = 0; i < 5; ++i)
+    {
+      m_InputSlotValues[slotDown[i]] = 0;
+    }
+  }
+
+  for (int i = 0; i < 5; ++i)
+  {
+    if (m_InputSlotValues[slotDown[i]] > 0)
+    {
+      if (m_uiMouseButtonReceivedUp[i] > 0)
+      {
+        --m_uiMouseButtonReceivedUp[i];
+        m_InputSlotValues[slotDown[i]] = 0;
+      }
+    }
+    else
+    {
+      if (m_uiMouseButtonReceivedDown[i] > 0)
+      {
+        --m_uiMouseButtonReceivedDown[i];
+        m_InputSlotValues[slotDown[i]] = 1.0f;
+      }
+    }
+  }
+
+  SUPER::UpdateInputSlotValues();
+}
+
 void ezStandardInputDevice::ApplyClipRect(ezMouseCursorClipMode::Enum mode, ezMinWindows::HWND hWnd)
 {
   if (!m_bApplyClipRect)
@@ -371,7 +409,7 @@ void ezStandardInputDevice::WindowMessage(
       const float fPosX = (float)((short)LOWORD(lParam));
       const float fPosY = (float)((short)HIWORD(lParam));
 
-      m_iMouseIsOverWindowNumber = m_uiWindowNumber;
+      s_iMouseIsOverWindowNumber = m_uiWindowNumber;
       m_InputSlotValues[ezInputSlot_MousePositionX] = (fPosX / uiResX);
       m_InputSlotValues[ezInputSlot_MousePositionY] = (fPosY / uiResY);
 
@@ -392,46 +430,42 @@ void ezStandardInputDevice::WindowMessage(
 
     case WM_KILLFOCUS:
     {
-      m_bApplyClipRect = true;
-      ApplyClipRect(ezMouseCursorClipMode::NoClip, hWnd);
-
-      auto it = m_InputSlotValues.GetIterator();
-
-      while (it.IsValid())
-      {
-        it.Value() = 0.0f;
-        it.Next();
-      }
-
+      OnFocusLost(hWnd);
       return;
     }
 
     case WM_CHAR:
-      m_LastCharacter = (wchar_t)wParam;
+      m_uiLastCharacter = (wchar_t)wParam;
       return;
-    case WM_LBUTTONDBLCLK:
-      m_InputSlotValues[ezInputSlot_MouseDblClick0] = 1.0f;
-      return;
-    case WM_RBUTTONDBLCLK:
-      m_InputSlotValues[ezInputSlot_MouseDblClick1] = 1.0f;
-      return;
-    case WM_MBUTTONDBLCLK:
-      m_InputSlotValues[ezInputSlot_MouseDblClick2] = 1.0f;
-      return;
+
+      // these messages would only arrive, if the window had the flag CS_DBLCLKS
+      // see https://docs.microsoft.com/windows/win32/inputdev/wm-lbuttondblclk
+      // this would add lag and hide single clicks when the user double clicks
+      // therefore it is not used
+      //case WM_LBUTTONDBLCLK:
+      //  m_InputSlotValues[ezInputSlot_MouseDblClick0] = 1.0f;
+      //  return;
+      //case WM_RBUTTONDBLCLK:
+      //  m_InputSlotValues[ezInputSlot_MouseDblClick1] = 1.0f;
+      //  return;
+      //case WM_MBUTTONDBLCLK:
+      //  m_InputSlotValues[ezInputSlot_MouseDblClick2] = 1.0f;
+      //  return;
 
 #if EZ_ENABLED(EZ_MOUSEBUTTON_COMPATIBILTY_MODE)
 
     case WM_LBUTTONDOWN:
-      m_InputSlotValues[ezInputSlot_MouseButton0] = 1.0f;
+      m_uiMouseButtonReceivedDown[0]++;
 
       if (s_iMouseCaptureCount == 0)
         SetCapture(ezMinWindows::ToNative(hWnd));
       ++s_iMouseCaptureCount;
 
+
       return;
 
     case WM_LBUTTONUP:
-      m_InputSlotValues[ezInputSlot_MouseButton0] = 0.0f;
+      m_uiMouseButtonReceivedUp[0]++;
       ApplyClipRect(m_ClipCursorMode, hWnd);
 
       --s_iMouseCaptureCount;
@@ -441,7 +475,7 @@ void ezStandardInputDevice::WindowMessage(
       return;
 
     case WM_RBUTTONDOWN:
-      m_InputSlotValues[ezInputSlot_MouseButton1] = 1.0f;
+      m_uiMouseButtonReceivedDown[1]++;
 
       if (s_iMouseCaptureCount == 0)
         SetCapture(ezMinWindows::ToNative(hWnd));
@@ -450,17 +484,18 @@ void ezStandardInputDevice::WindowMessage(
       return;
 
     case WM_RBUTTONUP:
-      m_InputSlotValues[ezInputSlot_MouseButton1] = 0.0f;
+      m_uiMouseButtonReceivedUp[1]++;
       ApplyClipRect(m_ClipCursorMode, hWnd);
 
       --s_iMouseCaptureCount;
       if (s_iMouseCaptureCount <= 0)
         ReleaseCapture();
 
+
       return;
 
     case WM_MBUTTONDOWN:
-      m_InputSlotValues[ezInputSlot_MouseButton2] = 1.0f;
+      m_uiMouseButtonReceivedDown[2]++;
 
       if (s_iMouseCaptureCount == 0)
         SetCapture(ezMinWindows::ToNative(hWnd));
@@ -468,7 +503,7 @@ void ezStandardInputDevice::WindowMessage(
       return;
 
     case WM_MBUTTONUP:
-      m_InputSlotValues[ezInputSlot_MouseButton2] = 0.0f;
+      m_uiMouseButtonReceivedUp[2]++;
 
       --s_iMouseCaptureCount;
       if (s_iMouseCaptureCount <= 0)
@@ -478,9 +513,9 @@ void ezStandardInputDevice::WindowMessage(
 
     case WM_XBUTTONDOWN:
       if (GET_XBUTTON_WPARAM(wParam) == XBUTTON1)
-        m_InputSlotValues[ezInputSlot_MouseButton3] = 1.0f;
+        m_uiMouseButtonReceivedDown[3]++;
       if (GET_XBUTTON_WPARAM(wParam) == XBUTTON2)
-        m_InputSlotValues[ezInputSlot_MouseButton4] = 1.0f;
+        m_uiMouseButtonReceivedDown[4]++;
 
       if (s_iMouseCaptureCount == 0)
         SetCapture(ezMinWindows::ToNative(hWnd));
@@ -490,9 +525,9 @@ void ezStandardInputDevice::WindowMessage(
 
     case WM_XBUTTONUP:
       if (GET_XBUTTON_WPARAM(wParam) == XBUTTON1)
-        m_InputSlotValues[ezInputSlot_MouseButton3] = 0.0f;
+        m_uiMouseButtonReceivedUp[3]++;
       if (GET_XBUTTON_WPARAM(wParam) == XBUTTON2)
-        m_InputSlotValues[ezInputSlot_MouseButton4] = 0.0f;
+        m_uiMouseButtonReceivedUp[4]++;
 
       --s_iMouseCaptureCount;
       if (s_iMouseCaptureCount <= 0)
@@ -847,4 +882,31 @@ void ezStandardInputDevice::SetShowMouseCursor(bool bShow)
 bool ezStandardInputDevice::GetShowMouseCursor() const
 {
   return m_bShowCursor;
+}
+
+void ezStandardInputDevice::OnFocusLost(ezMinWindows::HWND hWnd)
+{
+  m_bApplyClipRect = true;
+  ApplyClipRect(ezMouseCursorClipMode::NoClip, hWnd);
+
+  auto it = m_InputSlotValues.GetIterator();
+
+  while (it.IsValid())
+  {
+    it.Value() = 0.0f;
+    it.Next();
+  }
+
+
+  const char* slotDown[5] = {ezInputSlot_MouseButton0, ezInputSlot_MouseButton1, ezInputSlot_MouseButton2, ezInputSlot_MouseButton3, ezInputSlot_MouseButton4};
+
+  static_assert(EZ_ARRAY_SIZE(m_uiMouseButtonReceivedDown) == EZ_ARRAY_SIZE(slotDown));
+
+  for (int i = 0; i < EZ_ARRAY_SIZE(m_uiMouseButtonReceivedDown); ++i)
+  {
+    m_uiMouseButtonReceivedDown[i] = 0;
+    m_uiMouseButtonReceivedUp[i] = 0;
+
+    m_InputSlotValues[slotDown[i]] = 0;
+  }
 }

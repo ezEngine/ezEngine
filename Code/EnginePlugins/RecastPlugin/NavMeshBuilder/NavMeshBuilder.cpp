@@ -141,6 +141,7 @@ void ezRecastNavMeshBuilder::GenerateTriangleMeshFromDescription(const ezWorldGe
   m_TriangleAreaIDs.Clear();
   m_Vertices.Clear();
 
+
   ezUInt32 uiVertexOffset = 0;
   for (const ezWorldGeoExtractionUtil::MeshObject& object : objects)
   {
@@ -152,6 +153,9 @@ void ezRecastNavMeshBuilder::GenerateTriangleMeshFromDescription(const ezWorldGe
 
     const auto& meshBufferDesc = pCpuMesh->GetDescriptor().MeshBufferDesc();
 
+    m_Triangles.Reserve(m_Triangles.GetCount() + meshBufferDesc.GetPrimitiveCount());
+    m_Vertices.Reserve(m_Vertices.GetCount() + meshBufferDesc.GetVertexCount());
+
     const ezVec3* pPositions = nullptr;
     ezUInt32 uiElementStride = 0;
     if (ezMeshBufferUtils::GetPositionStream(meshBufferDesc, pPositions, uiElementStride).Failed())
@@ -159,15 +163,20 @@ void ezRecastNavMeshBuilder::GenerateTriangleMeshFromDescription(const ezWorldGe
       continue;
     }
 
-    ezMat4 transform = object.m_GlobalTransform.GetAsMat4();
+    // convert from ez convention (Z up) to recast convention (Y up)
+    ezMat3 m;
+    m.SetRow(0, ezVec3( 1, 0, 0));
+    m.SetRow(1, ezVec3( 0, 0, 1));
+    m.SetRow(2, ezVec3( 0, 1, 0));
+
+    ezMat4 transform = ezMat4::IdentityMatrix();
+    transform.SetRotationalPart(m);
+    transform = transform * object.m_GlobalTransform.GetAsMat4();
 
     // collect all vertices
     for (ezUInt32 i = 0; i < meshBufferDesc.GetVertexCount(); ++i)
     {
       ezVec3 pos = transform.TransformPosition(*pPositions);
-
-      // convert from ez convention (Z up) to recast convention (Y up)
-      ezMath::Swap(pos.y, pos.z);
 
       m_Vertices.PushBack(pos);
 
@@ -176,29 +185,47 @@ void ezRecastNavMeshBuilder::GenerateTriangleMeshFromDescription(const ezWorldGe
 
     // collect all indices
     bool flip = ezGraphicsUtils::IsTriangleFlipRequired(transform.GetRotationalPart());
-    if (meshBufferDesc.Uses32BitIndices())
-    {
-      const ezUInt32* pTypedIndices = reinterpret_cast<const ezUInt32*>(meshBufferDesc.GetIndexBufferData().GetPtr());
 
-      for (ezUInt32 p = 0; p < meshBufferDesc.GetPrimitiveCount(); ++p)
+    if (meshBufferDesc.HasIndexBuffer())
+    {
+      if (meshBufferDesc.Uses32BitIndices())
       {
-        auto& triangle = m_Triangles.ExpandAndGetRef();
-        triangle.m_VertexIdx[0] = pTypedIndices[p * 3 + (flip ? 2 : 0)] + uiVertexOffset;
-        triangle.m_VertexIdx[1] = pTypedIndices[p * 3 + 1] + uiVertexOffset;
-        triangle.m_VertexIdx[2] = pTypedIndices[p * 3 + (flip ? 0 : 2)] + uiVertexOffset;
+        const ezUInt32* pTypedIndices = reinterpret_cast<const ezUInt32*>(meshBufferDesc.GetIndexBufferData().GetPtr());
+
+        for (ezUInt32 p = 0; p < meshBufferDesc.GetPrimitiveCount(); ++p)
+        {
+          auto& triangle = m_Triangles.ExpandAndGetRef();
+          triangle.m_VertexIdx[0] = pTypedIndices[p * 3 + (flip ? 2 : 0)] + uiVertexOffset;
+          triangle.m_VertexIdx[1] = pTypedIndices[p * 3 + 1] + uiVertexOffset;
+          triangle.m_VertexIdx[2] = pTypedIndices[p * 3 + (flip ? 0 : 2)] + uiVertexOffset;
+        }
+      }
+      else
+      {
+        const ezUInt16* pTypedIndices = reinterpret_cast<const ezUInt16*>(meshBufferDesc.GetIndexBufferData().GetPtr());
+
+        for (ezUInt32 p = 0; p < meshBufferDesc.GetPrimitiveCount(); ++p)
+        {
+          auto& triangle = m_Triangles.ExpandAndGetRef();
+          triangle.m_VertexIdx[0] = pTypedIndices[p * 3 + (flip ? 2 : 0)] + uiVertexOffset;
+          triangle.m_VertexIdx[1] = pTypedIndices[p * 3 + 1] + uiVertexOffset;
+          triangle.m_VertexIdx[2] = pTypedIndices[p * 3 + (flip ? 0 : 2)] + uiVertexOffset;
+        }
       }
     }
     else
     {
-      const ezUInt16* pTypedIndices = reinterpret_cast<const ezUInt16*>(meshBufferDesc.GetIndexBufferData().GetPtr());
+      ezUInt32 uiVertexIdx = uiVertexOffset;
 
-      for (ezUInt32 p = 0; p < meshBufferDesc.GetPrimitiveCount(); ++p)
-      {
-        auto& triangle = m_Triangles.ExpandAndGetRef();
-        triangle.m_VertexIdx[0] = pTypedIndices[p * 3 + (flip ? 2 : 0)] + uiVertexOffset;
-        triangle.m_VertexIdx[1] = pTypedIndices[p * 3 + 1] + uiVertexOffset;
-        triangle.m_VertexIdx[2] = pTypedIndices[p * 3 + (flip ? 0 : 2)] + uiVertexOffset;
-      }
+        for (ezUInt32 p = 0; p < meshBufferDesc.GetPrimitiveCount(); ++p)
+        {
+          auto& triangle = m_Triangles.ExpandAndGetRef();
+          triangle.m_VertexIdx[0] = uiVertexIdx + 0;
+          triangle.m_VertexIdx[1] = uiVertexIdx + (flip ? 2 : 1);
+          triangle.m_VertexIdx[2] = uiVertexIdx + (flip ? 1 : 2);
+
+          uiVertexIdx += 3;
+        }
     }
 
     uiVertexOffset += meshBufferDesc.GetVertexCount();
@@ -236,11 +263,11 @@ void ezRecastNavMeshBuilder::FillOutConfig(rcConfig& cfg, const ezRecastConfig& 
   cfg.walkableRadius = (int)ceilf(config.m_fAgentRadius / cfg.cs);
   cfg.maxEdgeLen = (int)(config.m_fMaxEdgeLength / cfg.cs);
   cfg.maxSimplificationError = config.m_fMaxSimplificationError;
-  cfg.minRegionArea = (int)ezMath::Square(config.m_fMinRegionSize / cfg.cs);
-  cfg.mergeRegionArea = (int)ezMath::Square(config.m_fRegionMergeSize / cfg.cs);
+  cfg.minRegionArea = (int)ezMath::Square(config.m_fMinRegionSize);
+  cfg.mergeRegionArea = (int)ezMath::Square(config.m_fRegionMergeSize);
   cfg.maxVertsPerPoly = 6;
   cfg.detailSampleDist = config.m_fDetailMeshSampleDistanceFactor < 0.9f ? 0 : cfg.cs * config.m_fDetailMeshSampleDistanceFactor;
-  cfg.detailSampleMaxError = cfg.ch * config.m_fDetailMeshSampleDistanceFactor;
+  cfg.detailSampleMaxError = cfg.ch * config.m_fDetailMeshSampleErrorFactor;
 
   rcCalcGridSize(cfg.bmin, cfg.bmax, cfg.cs, &cfg.width, &cfg.height);
 }

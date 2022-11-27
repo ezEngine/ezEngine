@@ -102,8 +102,7 @@ ezInt32 ezCurve1D::FindApproxControlPoint(double x) const
 
 double ezCurve1D::Evaluate(double x) const
 {
-  EZ_ASSERT_DEBUG(!m_LinearApproximation.IsEmpty(), "Cannot evaluate curve without precomputing curve approximation data first. Call "
-                                                    "CreateLinearApproximation() on curve before calling Evaluate().");
+  EZ_ASSERT_DEBUG(!m_LinearApproximation.IsEmpty(), "Cannot evaluate curve without precomputing curve approximation data first. Call CreateLinearApproximation() on curve before calling Evaluate().");
 
   if (m_LinearApproximation.GetCount() >= 2)
   {
@@ -252,6 +251,8 @@ void ezCurve1D::CreateLinearApproximation(double fMaxError /*= 0.01f*/, ezUInt8 
 
   for (ezUInt32 i = 1; i < m_ControlPoints.GetCount(); ++i)
   {
+    EZ_ASSERT_DEBUG(m_ControlPoints[i - 1].m_Position.x <= m_ControlPoints[i].m_Position.x, "Curve control points are not sorted. Call SortControlPoints() before CreateLinearApproximation().");
+
     double fMinY, fMaxY;
     ApproximateMinMaxValues(m_ControlPoints[i - 1], m_ControlPoints[i], fMinY, fMaxY);
 
@@ -418,6 +419,9 @@ void ezCurve1D::ApplyTangentModes()
   for (ezUInt32 i = 1; i < m_ControlPoints.GetCount() - 1; ++i)
   {
     const auto& cp = m_ControlPoints[i];
+
+    EZ_ASSERT_DEBUG(cp.m_Position.x >= m_ControlPoints[i - 1].m_Position.x, "Curve control points are not sorted. Call SortControlPoints() before CreateLinearApproximation().");
+    EZ_ASSERT_DEBUG(m_ControlPoints[i + 1].m_Position.x >= cp.m_Position.x, "Curve control points are not sorted. Call SortControlPoints() before CreateLinearApproximation().");
 
     if (cp.m_TangentModeLeft == ezCurveTangentMode::FixedLength)
       MakeFixedLengthTangentLeft(i);

@@ -4,7 +4,7 @@
 #include <Foundation/Memory/LargeBlockAllocator.h>
 #include <Foundation/Memory/StackAllocator.h>
 
-struct EZ_ALIGN(NonAlignedVector, EZ_ALIGNMENT_MINIMUM)
+struct alignas(EZ_ALIGNMENT_MINIMUM) NonAlignedVector
 {
   EZ_DECLARE_POD_TYPE();
 
@@ -20,7 +20,7 @@ struct EZ_ALIGN(NonAlignedVector, EZ_ALIGNMENT_MINIMUM)
   float z;
 };
 
-struct EZ_ALIGN_16(AlignedVector)
+struct alignas(16) AlignedVector
 {
   EZ_DECLARE_POD_TYPE();
 
@@ -44,7 +44,7 @@ void TestAlignmentHelper(size_t uiExpectedAlignment)
   EZ_TEST_BOOL(pAllocator != nullptr);
 
   size_t uiAlignment = EZ_ALIGNMENT_OF(T);
-  EZ_TEST_BOOL(uiAlignment == uiExpectedAlignment);
+  EZ_TEST_INT(uiAlignment, uiExpectedAlignment);
 
   T testOnStack = T();
   EZ_TEST_BOOL(ezMemoryUtils::IsAligned(&testOnStack, uiExpectedAlignment));
@@ -53,26 +53,31 @@ void TestAlignmentHelper(size_t uiExpectedAlignment)
   ezArrayPtr<T> TestArray = EZ_NEW_ARRAY(pAllocator, T, 32);
 
   // default constructor should be called even if we declare as a pod type
-  EZ_TEST_BOOL(TestArray[0].x == 5.0f);
-  EZ_TEST_BOOL(TestArray[0].y == 6.0f);
-  EZ_TEST_BOOL(TestArray[0].z == 8.0f);
+  EZ_TEST_FLOAT(TestArray[0].x, 5.0f, 0.0f);
+  EZ_TEST_FLOAT(TestArray[0].y, 6.0f, 0.0f);
+  EZ_TEST_FLOAT(TestArray[0].z, 8.0f, 0.0f);
 
   EZ_TEST_BOOL(ezMemoryUtils::IsAligned(pTestBuffer, uiExpectedAlignment));
   EZ_TEST_BOOL(ezMemoryUtils::IsAligned(TestArray.GetPtr(), uiExpectedAlignment));
 
   size_t uiExpectedSize = sizeof(T) * 32;
-  EZ_TEST_BOOL(pAllocator->AllocatedSize(pTestBuffer) == uiExpectedSize);
+
+#if EZ_ENABLED(EZ_USE_ALLOCATION_TRACKING)
+  EZ_TEST_INT(pAllocator->AllocatedSize(pTestBuffer), uiExpectedSize);
 
   ezAllocatorBase::Stats stats = pAllocator->GetStats();
-  EZ_TEST_BOOL(stats.m_uiAllocationSize == uiExpectedSize * 2);
-  EZ_TEST_BOOL(stats.m_uiNumAllocations - stats.m_uiNumDeallocations == 2);
+  EZ_TEST_INT(stats.m_uiAllocationSize, uiExpectedSize * 2);
+  EZ_TEST_INT(stats.m_uiNumAllocations - stats.m_uiNumDeallocations, 2);
+#endif
 
   EZ_DELETE_ARRAY(pAllocator, TestArray);
   EZ_DELETE_RAW_BUFFER(pAllocator, pTestBuffer);
 
+#if EZ_ENABLED(EZ_USE_ALLOCATION_TRACKING)
   stats = pAllocator->GetStats();
-  EZ_TEST_BOOL(stats.m_uiAllocationSize == 0);
-  EZ_TEST_BOOL(stats.m_uiNumAllocations - stats.m_uiNumDeallocations == 0);
+  EZ_TEST_INT(stats.m_uiAllocationSize, 0);
+  EZ_TEST_INT(stats.m_uiNumAllocations - stats.m_uiNumDeallocations, 0);
+#endif
 }
 
 EZ_CREATE_SIMPLE_TEST_GROUP(Memory);
@@ -93,7 +98,7 @@ EZ_CREATE_SIMPLE_TEST(Memory, Allocator)
     };
     const ezUInt32 uiPageSize = ezSystemInformation::Get().GetMemoryPageSize();
 
-    ezLargeBlockAllocator<BLOCK_SIZE_IN_BYTES> allocator("Test", ezFoundation::GetDefaultAllocator());
+    ezLargeBlockAllocator<BLOCK_SIZE_IN_BYTES> allocator("Test", ezFoundation::GetDefaultAllocator(), ezMemoryTrackingFlags::EnableAllocationTracking);
 
     ezDynamicArray<ezDataBlock<int, BLOCK_SIZE_IN_BYTES>> blocks;
     blocks.Reserve(1000);

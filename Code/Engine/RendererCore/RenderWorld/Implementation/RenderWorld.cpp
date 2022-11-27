@@ -1,9 +1,12 @@
 #include <RendererCore/RendererCorePCH.h>
 
+#include <Core/Console/ConsoleFunction.h>
 #include <Core/World/World.h>
+#include <Foundation/Application/Application.h>
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Memory/CommonAllocators.h>
+#include <Foundation/Utilities/DGMLWriter.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
@@ -64,6 +67,9 @@ namespace
   {
     MaxNumNewCacheEntries = 32
   };
+
+  static bool s_bWriteRenderPipelineDgml = false;
+  static ezConsoleFunction<void()> s_ConFunc_WriteRenderPipelineDgml("WriteRenderPipelineDgml", "()", []() { s_bWriteRenderPipelineDgml = true; });
 } // namespace
 
 namespace ezInternal
@@ -523,17 +529,15 @@ void ezRenderWorld::ExtractMainViews()
 
 void ezRenderWorld::Render(ezRenderContext* pRenderContext)
 {
-  ezUInt64 uiRenderFrame = GetUseMultithreadedRendering() ? s_uiFrameCounter - 1 : s_uiFrameCounter;
-
-  // TODO:
-  //ezStringBuilder sb;
-  //sb.Format("FRAME {}", uiRenderFrame);
-  //EZ_PROFILE_AND_MARKER(ezGALDevice::GetDefaultDevice()->GetPrimaryContext(), sb.GetData());
+  EZ_PROFILE_SCOPE("ezRenderWorld::Render");
 
   ezRenderWorldRenderEvent renderEvent;
   renderEvent.m_Type = ezRenderWorldRenderEvent::Type::BeginRender;
   renderEvent.m_uiFrameCounter = s_uiFrameCounter;
-  s_RenderEvent.Broadcast(renderEvent);
+  {
+    EZ_PROFILE_SCOPE("BeginRender");
+    s_RenderEvent.Broadcast(renderEvent);
+  }
 
   if (!cvar_RenderingMultithreading)
   {
@@ -542,10 +546,29 @@ void ezRenderWorld::Render(ezRenderContext* pRenderContext)
 
   auto& filteredRenderPipelines = s_FilteredRenderPipelines[GetDataIndexForRendering()];
 
+  if (s_bWriteRenderPipelineDgml)
+  {
+    // Executed via WriteRenderPipelineDgml console command.
+    s_bWriteRenderPipelineDgml = false;
+    const ezDateTime dt = ezTimestamp::CurrentTimestamp();
+    for (ezUInt32 i = 0; i < filteredRenderPipelines.GetCount(); ++i)
+    {
+      auto& pRenderPipeline = filteredRenderPipelines[i];
+      ezStringBuilder sPath(":appdata/Profiling/", ezApplication::GetApplicationInstance()->GetApplicationName());
+      sPath.AppendFormat("_{0}-{1}-{2}_{3}-{4}-{5}_Pipeline{}_{}.dgml", dt.GetYear(), ezArgU(dt.GetMonth(), 2, true), ezArgU(dt.GetDay(), 2, true), ezArgU(dt.GetHour(), 2, true), ezArgU(dt.GetMinute(), 2, true), ezArgU(dt.GetSecond(), 2, true), i, pRenderPipeline->GetViewName().GetData());
+
+      ezDGMLGraph graph(ezDGMLGraph::Direction::TopToBottom);
+      pRenderPipeline->CreateDgmlGraph(graph);
+      if (ezDGMLGraphWriter::WriteGraphToFile(sPath, graph).Failed())
+      {
+        ezLog::Error("Failed to write render pipeline dgml: {}", sPath);
+      }
+    }
+  }
+
   for (auto& pRenderPipeline : filteredRenderPipelines)
   {
-    // If we are the only one holding a reference to the pipeline skip rendering. The pipeline is not needed anymore and will be deleted
-    // soon.
+    // If we are the only one holding a reference to the pipeline skip rendering. The pipeline is not needed anymore and will be deleted soon.
     if (pRenderPipeline->GetRefCount() > 1)
     {
       pRenderPipeline->Render(pRenderContext);
@@ -556,6 +579,7 @@ void ezRenderWorld::Render(ezRenderContext* pRenderContext)
   filteredRenderPipelines.Clear();
 
   renderEvent.m_Type = ezRenderWorldRenderEvent::Type::EndRender;
+  EZ_PROFILE_SCOPE("EndRender");
   s_RenderEvent.Broadcast(renderEvent);
 }
 
@@ -737,6 +761,8 @@ void ezRenderWorld::AddRenderPipelineToRebuild(ezRenderPipeline* pRenderPipeline
 // static
 void ezRenderWorld::RebuildPipelines()
 {
+  EZ_PROFILE_SCOPE("RebuildPipelines");
+
   for (auto& pipelineToRebuild : s_PipelinesToRebuild)
   {
     ezView* pView = nullptr;

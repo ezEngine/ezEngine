@@ -6,19 +6,19 @@ class ezLock
 {
 public:
   EZ_ALWAYS_INLINE explicit ezLock(T& lock)
-    : m_lock(lock)
+    : m_Lock(lock)
   {
-    m_lock.Lock();
+    m_Lock.Lock();
   }
 
-  EZ_ALWAYS_INLINE ~ezLock() { m_lock.Unlock(); }
+  EZ_ALWAYS_INLINE ~ezLock() { m_Lock.Unlock(); }
 
 private:
   ezLock();
   ezLock(const ezLock<T>& rhs);
   void operator=(const ezLock<T>& rhs);
 
-  T& m_lock;
+  T& m_Lock;
 };
 
 /// \brief Shortcut for ezLock<Type> l(lock)

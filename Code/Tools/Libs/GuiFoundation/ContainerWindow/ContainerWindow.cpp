@@ -1,5 +1,6 @@
 #include <GuiFoundation/GuiFoundationPCH.h>
 
+#include <Foundation/Application/Application.h>
 #include <Foundation/Types/ScopeExit.h>
 #include <GuiFoundation/ContainerWindow/ContainerWindow.moc.h>
 #include <GuiFoundation/DockPanels/ApplicationPanel.moc.h>
@@ -68,12 +69,19 @@ ezQtContainerWindow::ezQtContainerWindow()
 
   UpdateWindowTitle();
 
-  m_DockManager = new ads::CDockManager(this);
-  m_DockManager->setConfigFlags(
-    static_cast<ads::CDockManager::ConfigFlags>(ads::CDockManager::DockAreaHasCloseButton | ads::CDockManager::DockAreaCloseButtonClosesTab |
-                                                ads::CDockManager::OpaqueSplitterResize | ads::CDockManager::AllTabsHaveCloseButton));
+  m_pDockManager = new ads::CDockManager(this);
+  m_pDockManager->setConfigFlags(
+    static_cast<ads::CDockManager::ConfigFlags>(
+      ads::CDockManager::DockAreaHasCloseButton |
+      ads::CDockManager::DockAreaCloseButtonClosesTab |
+      ads::CDockManager::OpaqueSplitterResize |
+      ads::CDockManager::AlwaysShowTabs |
+      ads::CDockManager::MiddleMouseButtonClosesTab |
+      ads::CDockManager::DockAreaHasTabsMenuButton |
+      ads::CDockManager::FloatingContainerHasWidgetIcon |
+      ads::CDockManager::AllTabsHaveCloseButton));
 
-  connect(m_DockManager, &ads::CDockManager::floatingWidgetCreated, this, &ezQtContainerWindow::SlotFloatingWidgetOpened);
+  connect(m_pDockManager, &ads::CDockManager::floatingWidgetCreated, this, &ezQtContainerWindow::SlotFloatingWidgetOpened);
 }
 
 ezQtContainerWindow::~ezQtContainerWindow()
@@ -83,14 +91,6 @@ ezQtContainerWindow::~ezQtContainerWindow()
   ezQtDocumentWindow::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtContainerWindow::DocumentWindowEventHandler, this));
   ezToolsProject::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtContainerWindow::ProjectEventHandler, this));
   ezQtUiServices::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtContainerWindow::UIServicesEventHandler, this));
-
-  // The dock manager does not take ownership of dock widgets.
-  auto dockWidgets = m_DockManager->dockWidgetsMap();
-  for (auto it = dockWidgets.begin(); it != dockWidgets.end(); ++it)
-  {
-    m_DockManager->removeDockWidget(it.value());
-    delete it.value();
-  }
 }
 
 void ezQtContainerWindow::UpdateWindowTitle()
@@ -99,11 +99,11 @@ void ezQtContainerWindow::UpdateWindowTitle()
 
   if (ezToolsProject::IsProjectOpen())
   {
-    sTitle = ezToolsProject::GetSingleton()->GetProjectName();
+    sTitle = ezToolsProject::GetSingleton()->GetProjectName(false);
     sTitle.Append(" - ");
   }
 
-  sTitle.Append(ezApplicationServices::GetSingleton()->GetApplicationName());
+  sTitle.Append(ezApplication::GetApplicationInstance()->GetApplicationName().GetView());
 
   setWindowTitle(QString::fromUtf8(sTitle.GetData()));
 }
@@ -138,17 +138,28 @@ void ezQtContainerWindow::closeEvent(QCloseEvent* e)
     return;
   }
 
+  ezToolsProject::SaveProjectState();
+
   // do not close the documents in the main container window here,
   // as that would remove them from the recently-open documents list and not restore them when opening the editor again
   ezDynamicArray<ezQtDocumentWindow*> windows = m_DocumentWindows;
   for (ezQtDocumentWindow* pWindow : windows)
   {
     pWindow->DisableWindowLayoutSaving();
+    pWindow->ShutdownDocumentWindow();
   }
+
+  // We need to destroy the dock manager here, doing it in the constructor leads to an access violation.
+  m_pDockManager->deleteLater();
+  m_pDockManager = nullptr;
+  QMainWindow::closeEvent(e);
 }
 
 void ezQtContainerWindow::SaveWindowLayout()
 {
+  if (!m_pDockManager)
+    return;
+
   ezStringBuilder sFile;
   GetApplicationLayoutPath(sFile, true);
 
@@ -160,7 +171,7 @@ void ezQtContainerWindow::SaveWindowLayout()
   QSettings Settings(ezToolsProject::IsProjectOpen() ? sProjectFile.GetData() : sFile.GetData(), QSettings::IniFormat);
   Settings.beginGroup(QString::fromUtf8("ContainerWnd_ezEditor"));
   {
-    Settings.setValue("DockManagerState", m_DockManager->saveState(1));
+    Settings.setValue("DockManagerState", m_pDockManager->saveState(1));
     Settings.setValue("WindowGeometry", saveGeometry());
     Settings.setValue("WindowState", saveState());
   }
@@ -208,7 +219,7 @@ void ezQtContainerWindow::RestoreWindowLayout()
       auto dockState = Settings.value("DockManagerState");
       if (dockState.isValid() && dockState.type() == QVariant::ByteArray)
       {
-        m_DockManager->restoreState(dockState.toByteArray(), 1);
+        m_pDockManager->restoreState(dockState.toByteArray(), 1);
         // As document windows can't be in a closed state (as pressing x destroys them),
         // we need to fix any document window that was accidentally saved in its closed state.
         for (ads::CDockWidget* dock : m_DocumentDocks)
@@ -293,7 +304,7 @@ void ezQtContainerWindow::RemoveDocumentWindow(ezQtDocumentWindow* pDocWindow)
 
   iCurIdx = pDockArea->currentIndex();
 
-  m_DockManager->removeDockWidget(dock);
+  m_pDockManager->removeDockWidget(dock);
 
   m_DocumentWindows.RemoveAtAndSwap(uiListIndex);
   m_DocumentDocks.RemoveAtAndSwap(uiListIndex);
@@ -325,7 +336,7 @@ void ezQtContainerWindow::RemoveApplicationPanel(ezQtApplicationPanel* pPanel)
   if (uiListIndex == ezInvalidIndex)
     return;
 
-  m_DockManager->removeDockWidget(pPanel);
+  m_pDockManager->removeDockWidget(pPanel);
   m_ApplicationPanels.RemoveAtAndSwap(uiListIndex);
 
   pPanel->m_pContainerWindow = nullptr;
@@ -347,7 +358,10 @@ void ezQtContainerWindow::AddDocumentWindow(ezQtDocumentWindow* pDocWindow)
   // therefore, we do some stuff in ezQtContainerWindow::UpdateWindowDecoration() instead
 
   m_DocumentWindows.PushBack(pDocWindow);
-  ads::CDockWidget* dock = new ads::CDockWidget(QString::fromUtf8(pDocWindow->GetDisplayNameShort()));
+  ezString displayName = pDocWindow->GetDisplayNameShort();
+  ads::CDockWidget* dock = new ads::CDockWidget(QString::fromUtf8(displayName.GetData(), displayName.GetElementCount()));
+  dock->installEventFilter(pDocWindow);
+
   dock->setObjectName(pDocWindow->GetUniqueName());
   EZ_ASSERT_DEV(!dock->objectName().isEmpty(), "Dock name must not be empty.");
   EZ_ASSERT_DEV(!m_DockNames.contains(dock->objectName()), "Dock name must be unique.");
@@ -357,11 +371,11 @@ void ezQtContainerWindow::AddDocumentWindow(ezQtDocumentWindow* pDocWindow)
   if (!m_DocumentDocks.IsEmpty())
   {
     ads::CDockAreaWidget* dockArea = m_DocumentDocks.PeekBack()->dockAreaWidget();
-    m_DockManager->addDockWidgetTabToArea(dock, dockArea);
+    m_pDockManager->addDockWidgetTabToArea(dock, dockArea);
   }
   else
   {
-    m_DockManager->addDockWidgetTab(ads::LeftDockWidgetArea, dock);
+    m_pDockManager->addDockWidgetTab(ads::LeftDockWidgetArea, dock);
   }
   m_DocumentDocks.PushBack(dock);
   connect(dock, &ads::CDockWidget::closed, this, &ezQtContainerWindow::SlotDocumentTabCloseRequested);
@@ -389,7 +403,7 @@ void ezQtContainerWindow::AddApplicationPanel(ezQtApplicationPanel* pPanel)
 
   m_ApplicationPanels.PushBack(pPanel);
   pPanel->m_pContainerWindow = this;
-  m_DockManager->addDockWidgetTab(ads::RightDockWidgetArea, pPanel);
+  m_pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pPanel);
 }
 
 ezResult ezQtContainerWindow::EnsureVisible(ezQtDocumentWindow* pDocWindow)
@@ -478,6 +492,8 @@ bool ezQtContainerWindow::eventFilter(QObject* obj, QEvent* e)
       {
         pWindow->CloseDocumentWindow();
       }
+      // This is necessary to clean up some 'delete later' Qt objects before the document is closed as they need to remove their references to the doc.
+      qApp->processEvents();
     }
   }
   return false;
@@ -494,8 +510,7 @@ void ezQtContainerWindow::SlotDocumentTabCloseRequested()
   if (!pDocWindow->CanCloseWindow())
   {
     // TODO: There is no CloseRequested event so we just reopen on a timer.
-    QTimer::singleShot(1, [dock]()
-      { dock->toggleView(); });
+    QTimer::singleShot(1, [dock]() { dock->toggleView(); });
     return;
   }
   pDocWindow->CloseDocumentWindow();

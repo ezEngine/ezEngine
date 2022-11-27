@@ -150,7 +150,7 @@ ezStatus ezTextureCubeAssetDocument::RunTexConv(const char* szTargetFile, const 
     arguments << QString(pProp->GetAbsoluteInputFilePath(i).GetData());
   }
 
-  EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("TexConv.exe", arguments, 180, ezLog::GetThreadLocalLogSystem()));
+  EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("TexConv", arguments, 180, ezLog::GetThreadLocalLogSystem()));
 
   if (bUpdateThumbnail)
   {
@@ -193,12 +193,12 @@ void ezTextureCubeAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pI
   }
 }
 
-ezStatus ezTextureCubeAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezTransformStatus ezTextureCubeAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   // EZ_ASSERT_DEV(ezStringUtils::IsEqual(szPlatform, "PC"), "Platform '{0}' is not supported", szPlatform);
   const bool bUpdateThumbnail = pAssetProfile == ezAssetCurator::GetSingleton()->GetDevelopmentAssetProfile();
 
-  ezStatus result = RunTexConv(szTargetFile, AssetHeader, bUpdateThumbnail);
+  ezTransformStatus result = RunTexConv(szTargetFile, AssetHeader, bUpdateThumbnail);
 
   ezFileStats stat;
   if (ezOSFile::GetFileStats(szTargetFile, stat).Succeeded() && stat.m_uiFileSize == 0)
@@ -206,7 +206,8 @@ ezStatus ezTextureCubeAssetDocument::InternalTransformAsset(const char* szTarget
     // if the file was touched, but nothing written to it, delete the file
     // might happen if TexConv crashed or had an error
     ezOSFile::DeleteFile(szTargetFile).IgnoreResult();
-    result.m_Result = EZ_FAILURE;
+    if (result.Succeeded())
+      result = ezTransformStatus("TexConv did not write an output file");
   }
 
   return result;

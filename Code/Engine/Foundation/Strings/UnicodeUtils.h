@@ -3,15 +3,22 @@
 #include <Foundation/Basics.h>
 #include <Foundation/ThirdParty/utf8/utf8.h>
 
+
+
 /// \brief Helper functions to work with Unicode.
 class EZ_FOUNDATION_DLL ezUnicodeUtils
 {
 public:
+  /// \brief [internal] Returns the max string end pointer for the given type
+  template <typename T>
+  static constexpr T* GetMaxStringEnd();
+
+public:
   /// \brief Byte Order Mark for Little Endian Utf16 strings.
-  static const ezUInt16 Utf16BomLE = 0xfffe;
+  static constexpr ezUInt16 Utf16BomLE = 0xfffe;
 
   /// \brief Byte Order Mark for Big Endian Utf16 strings.
-  static const ezUInt16 Utf16BomBE = 0xfeff;
+  static constexpr ezUInt16 Utf16BomBE = 0xfeff;
 
   /// \brief Returns whether a character is a pure ASCII character (only the first 7 Bits are used)
   static bool IsASCII(ezUInt32 uiChar); // [tested]
@@ -36,6 +43,12 @@ public:
   /// The string may point to an invalid position (in between a character sequence).
   /// It may not point to a zero terminator already.
   static void MoveToNextUtf8(const char*& szUtf8, ezUInt32 uiNumCharacters = 1); // [tested]
+
+  /// \brief Moves the given string pointer ahead to the next Utf8 character sequence.
+  ///
+  /// The string may point to an invalid position (in between a character sequence).
+  /// It may not point to a zero terminator already.
+  static void MoveToNextUtf8(const char*& szUtf8, const char* szUtf8End, ezUInt32 uiNumCharacters = 1); // [tested]
 
   /// \brief Moves the given string pointer backwards to the previous Utf8 character sequence.
   ///
@@ -105,10 +118,6 @@ public:
 
     Container* m_pContainer;
   };
-
-  /// \brief [internal] Returns the max string end pointer for the given type
-  template <typename T>
-  static constexpr T* GetMaxStringEnd();
 };
 
 

@@ -38,5 +38,5 @@ protected:
   void Update();
 
   ezVec3 m_vRotationAxis = ezVec3(0, 0, 1);
-  ezQuat m_LastRotation = ezQuat::IdentityQuaternion();
+  ezQuat m_qLastRotation = ezQuat::IdentityQuaternion();
 };

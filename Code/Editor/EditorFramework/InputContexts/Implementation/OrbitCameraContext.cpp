@@ -33,6 +33,9 @@ ezCamera* ezOrbitCameraContext::GetCamera() const
 
 void ezOrbitCameraContext::SetOrbitVolume(const ezVec3& vCenterPos, const ezVec3& vHalfBoxSize, const ezVec3& vDefaultCameraPosition, bool bSetCamLookat)
 {
+  if (!vDefaultCameraPosition.IsValid())
+    return;
+
   if (!m_Volume.GetCenter().IsEqual(vCenterPos, 0.01f) || !m_Volume.GetHalfExtents().IsEqual(vHalfBoxSize, 0.01f))
   {
     bSetCamLookat = true;
@@ -104,7 +107,7 @@ ezEditorInput ezOrbitCameraContext::DoMousePressEvent(QMouseEvent* e)
 
 activate:
 {
-  m_LastMousePos = SetMouseMode(ezEditorInputContext::MouseMode::HideAndWrapAtScreenBorders);
+  m_vLastMousePos = SetMouseMode(ezEditorInputContext::MouseMode::HideAndWrapAtScreenBorders);
   MakeActiveInputContext();
   return ezEditorInput::WasExclusivelyHandled;
 }
@@ -175,8 +178,8 @@ ezEditorInput ezOrbitCameraContext::DoMouseMoveEvent(QMouseEvent* e)
     return ezEditorInput::MayBeHandledByOthers;
 
   const ezVec2I32 CurMousePos(e->globalX(), e->globalY());
-  const ezVec2I32 diff = CurMousePos - m_LastMousePos;
-  m_LastMousePos = UpdateMouseMode(e);
+  const ezVec2I32 diff = CurMousePos - m_vLastMousePos;
+  m_vLastMousePos = UpdateMouseMode(e);
 
   SetCurrentMouseMode();
 
@@ -260,10 +263,14 @@ ezEditorInput ezOrbitCameraContext::DoWheelEvent(QWheelEvent* e)
   if (!m_pCamera->IsPerspective())
     return ezEditorInput::MayBeHandledByOthers;
 
-  const float fScale = e->modifiers().testFlag(Qt::KeyboardModifier::ShiftModifier)  ? 1.4f : 1.1f;
+  const float fScale = e->modifiers().testFlag(Qt::KeyboardModifier::ShiftModifier) ? 1.4f : 1.1f;
 
   float fDistance = (m_vOrbitPoint - m_pCamera->GetCenterPosition()).GetLength();
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+  if (e->angleDelta().y() > 0)
+#else
   if (e->delta() > 0)
+#endif
   {
     fDistance /= fScale;
   }

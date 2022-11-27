@@ -24,22 +24,27 @@ public:
 
   virtual void ProcessWindowMessages() override;
 
+  virtual void AddReference() override { m_iReferenceCount.Increment(); }
+  virtual void RemoveReference() override { m_iReferenceCount.Decrement(); }
+
   /// \brief Returns the companion window if present.
   const ezWindowBase* GetCompanionWindow() const;
 
 private:
   ezXRInterface* m_pVrInterface = nullptr;
   ezUniquePtr<ezWindowBase> m_pCompanionWindow;
+  ezAtomicInteger32 m_iReferenceCount = 0;
 };
 
 /// \brief XR Window output target base implementation. Optionally wraps a companion window output target.
 class EZ_GAMEENGINE_DLL ezWindowOutputTargetXR : public ezWindowOutputTargetBase
 {
 public:
-  ezWindowOutputTargetXR(ezXRInterface* pVrInterface, ezUniquePtr<ezWindowOutputTargetBase> pCompanionWindowOutputTarget);
+  ezWindowOutputTargetXR(ezXRInterface* pVrInterface, ezUniquePtr<ezWindowOutputTargetGAL> pCompanionWindowOutputTarget);
   ~ezWindowOutputTargetXR();
 
   virtual void Present(bool bEnableVSync) override;
+  void RenderCompanionView(bool bThrottleCompanionView = true);
   virtual ezResult CaptureImage(ezImage& out_Image) override;
 
   /// \brief Returns the companion window output target if present.
@@ -47,8 +52,8 @@ public:
 
 private:
   ezXRInterface* m_pXrInterface = nullptr;
-  ezUniquePtr<ezWindowOutputTargetBase> m_pCompanionWindowOutputTarget;
-  ezGALTextureHandle m_hCompanionRenderTarget;
+  ezTime m_LastPresent;
+  ezUniquePtr<ezWindowOutputTargetGAL> m_pCompanionWindowOutputTarget;
   ezConstantBufferStorageHandle m_hCompanionConstantBuffer;
   ezShaderResourceHandle m_hCompanionShader;
 };
@@ -59,7 +64,7 @@ class EZ_GAMEENGINE_DLL ezActorPluginWindowXR : public ezActorPluginWindow
   EZ_ADD_DYNAMIC_REFLECTION(ezActorPluginWindowXR, ezActorPluginWindow);
 
 public:
-  ezActorPluginWindowXR(ezXRInterface* pVrInterface, ezUniquePtr<ezWindowBase> companionWindow, ezUniquePtr<ezWindowOutputTargetBase> companionWindowOutput);
+  ezActorPluginWindowXR(ezXRInterface* pVrInterface, ezUniquePtr<ezWindowBase> companionWindow, ezUniquePtr<ezWindowOutputTargetGAL> companionWindowOutput);
   ~ezActorPluginWindowXR();
   void Initialize();
 

@@ -46,11 +46,6 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, MathExpression)
       EZ_TEST_DOUBLE(expr.Evaluate(), 2.0, 0.0);
     }
     {
-      ezMathExpression expr("abs -1");
-      EZ_TEST_BOOL(expr.IsValid());
-      EZ_TEST_DOUBLE(expr.Evaluate(), 1.0, 0.0);
-    }
-    {
       ezMathExpression expr("abs(-3)");
       EZ_TEST_BOOL(expr.IsValid());
       EZ_TEST_DOUBLE(expr.Evaluate(), 3.0, 0.0);
@@ -61,9 +56,29 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, MathExpression)
       EZ_TEST_DOUBLE(expr.Evaluate(), 2.0, 0.0);
     }
     {
-      ezMathExpression expr("13 % 6");
+      ezMathExpression expr("saturate(4)");
       EZ_TEST_BOOL(expr.IsValid());
       EZ_TEST_DOUBLE(expr.Evaluate(), 1.0, 0.0);
+    }
+    {
+      ezMathExpression expr("min(3, 4)");
+      EZ_TEST_BOOL(expr.IsValid());
+      EZ_TEST_DOUBLE(expr.Evaluate(), 3.0, 0.0);
+    }
+    {
+      ezMathExpression expr("max(3, 4)");
+      EZ_TEST_BOOL(expr.IsValid());
+      EZ_TEST_DOUBLE(expr.Evaluate(), 4.0, 0.0);
+    }
+    {
+      ezMathExpression expr("clamp(2, 3, 4)");
+      EZ_TEST_BOOL(expr.IsValid());
+      EZ_TEST_DOUBLE(expr.Evaluate(), 3.0, 0.0);
+    }
+    {
+      ezMathExpression expr("clamp(5, 3, 4)");
+      EZ_TEST_BOOL(expr.IsValid());
+      EZ_TEST_DOUBLE(expr.Evaluate(), 4.0, 0.0);
     }
   }
 
@@ -83,11 +98,6 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, MathExpression)
       ezMathExpression expr("1 - 2 / 4");
       EZ_TEST_BOOL(expr.IsValid());
       EZ_TEST_DOUBLE(expr.Evaluate(), 0.5, 0.0);
-    }
-    {
-      ezMathExpression expr("abs -4 + 2");
-      EZ_TEST_BOOL(expr.IsValid());
-      EZ_TEST_DOUBLE(expr.Evaluate(), 6.0, 0.0);
     }
     {
       ezMathExpression expr("abs (-4 + 2)");
@@ -115,36 +125,25 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, MathExpression)
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Variable Resolve")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Variables")
   {
+    ezHybridArray<ezMathExpression::Input, 4> inputs;
+    inputs.SetCount(4);
+
     {
       ezMathExpression expr("_var1 + v2Ar");
       EZ_TEST_BOOL(expr.IsValid());
 
-      double result = expr.Evaluate([](const ezStringView& str) {
-        if (str == "_var1")
-          return 1.0;
-        else if (str == "v2Ar")
-          return 2.0;
-        else
-        {
-          EZ_TEST_FAILURE("Test failed", "Unexpected variable name: {0}", str);
-          return 0.0;
-        }
-      });
+      inputs[0] = {ezMakeHashedString("_var1"), 1.0};
+      inputs[1] = {ezMakeHashedString("v2Ar"), 2.0};
+
+      double result = expr.Evaluate(inputs);
       EZ_TEST_DOUBLE(result, 3.0, 0.0);
 
-      result = expr.Evaluate([](const ezStringView& str) {
-        if (str == "_var1")
-          return 2.0;
-        else if (str == "v2Ar")
-          return 0.5;
-        else
-        {
-          EZ_TEST_FAILURE("Test failed", "Unexpected variable name: {0}", str);
-          return 0.0;
-        }
-      });
+      inputs[0].m_fValue = 2.0;
+      inputs[1].m_fValue = 0.5;
+
+      result = expr.Evaluate(inputs);
       EZ_TEST_DOUBLE(result, 2.5, 0.0);
     }
 
@@ -152,21 +151,13 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, MathExpression)
     {
       ezMathExpression expr("  a +  b /c*d");
       EZ_TEST_BOOL(expr.IsValid());
-      double result = expr.Evaluate([](const ezStringView& str) {
-        if (str == "a")
-          return 1.0;
-        else if (str == "b")
-          return 4.0;
-        else if (str == "c")
-          return 2.0;
-        else if (str == "d")
-          return 3.0;
-        else
-        {
-          EZ_TEST_FAILURE("Test failed", "Unexpected variable name: {0}", str);
-          return 0.0;
-        }
-      });
+
+      inputs[0] = {ezMakeHashedString("a"), 1.0};
+      inputs[1] = {ezMakeHashedString("b"), 4.0};
+      inputs[2] = {ezMakeHashedString("c"), 2.0};
+      inputs[3] = {ezMakeHashedString("d"), 3.0};
+
+      double result = expr.Evaluate(inputs);
       EZ_TEST_DOUBLE(result, 7.0, 0.0);
     }
   }
@@ -191,6 +182,10 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, MathExpression)
     }
     {
       ezMathExpression expr("_va£r + asdf");
+      EZ_TEST_BOOL(!expr.IsValid());
+    }
+    {
+      ezMathExpression expr("sqrt(2, 4)");
       EZ_TEST_BOOL(!expr.IsValid());
     }
   }

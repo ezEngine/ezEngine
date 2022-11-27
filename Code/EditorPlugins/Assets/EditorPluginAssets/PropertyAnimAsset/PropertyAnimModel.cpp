@@ -54,7 +54,7 @@ QVariant ezQtPropertyAnimModel::data(const QModelIndex& index, int role) const
 Qt::ItemFlags ezQtPropertyAnimModel::flags(const QModelIndex& index) const
 {
   if (!index.isValid())
-    return 0;
+    return Qt::ItemFlags();
 
   return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 }

@@ -2,7 +2,8 @@
 
 #include <RendererFoundation/RendererFoundationDLL.h>
 
-const ezUInt8 ezGALIndexType::Size[ezGALIndexType::ENUM_COUNT] = {
+const ezUInt8 ezGALIndexType::s_Size[ezGALIndexType::ENUM_COUNT] = {
+  0,               // None
   sizeof(ezInt16), // UShort
   sizeof(ezInt32)  // UInt
 };

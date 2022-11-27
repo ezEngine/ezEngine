@@ -27,7 +27,7 @@ jobs:
 - job: Job_1
   displayName: MacOS-x64
   pool:
-    name: Hosted macOS
+    vmImage: 'macOS-latest'
   steps:
   - checkout: self
     submodules: true
@@ -61,20 +61,18 @@ jobs:
     inputs:
       targetType: inline
       filePath: brew install Caskroom/cask/xquartz
-      script: >-
+      script: |
+        # Brew update takes very long. Only enable if below steps start failing.
         brew update
-
-        brew pull https://github.com/Homebrew/homebrew-core/pull/49913
-
+        brew list --versions qt@6
+        brew install qt@6
+        brew info qt@6
         brew install Caskroom/cask/xquartz
-
-        brew install qt5
-
-        brew install sfml
+        brew info Caskroom/cask/xquartz
   - task: CMake@1
     displayName: CMake
     inputs:
-      cmakeArgs: -DCMAKE_PREFIX_PATH=/usr/local/Cellar/qt@5/5.15.2/;/usr/local/Cellar/sfml/2.5.1/ -DEZ_ENABLE_QT_SUPPORT=1 -DCMAKE_BUILD_TYPE=Dev -DEZ_ENABLE_FOLDER_UNITY_FILES=$(unityfiles) -G "Xcode" ../
+      cmakeArgs: -DCMAKE_PREFIX_PATH=/usr/local/opt/qt@6/ -DEZ_ENABLE_QT_SUPPORT=1 -DCMAKE_BUILD_TYPE=Dev -DEZ_ENABLE_FOLDER_UNITY_FILES=$(unityfiles) -G "Xcode" ../
   - task: Xcode@5
     displayName: Xcode build
     inputs:
@@ -120,8 +118,6 @@ jobs:
       targetType: inline
       script: >
         find ./Output/Bin/ -type f
-
-        find /usr/local/Cellar/sfml/2.5.1 -type f
   - task: CopyFiles@2
     displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
     condition: succeededOrFailed()

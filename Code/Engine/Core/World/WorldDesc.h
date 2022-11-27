@@ -14,7 +14,7 @@ struct ezWorldDesc
 {
   EZ_DECLARE_POD_TYPE();
 
-  ezWorldDesc(const char* szWorldName) { m_sName.Assign(szWorldName); }
+  ezWorldDesc(ezStringView szWorldName) { m_sName.Assign(szWorldName); }
 
   ezHashedString m_sName;
   ezUInt64 m_uiRandomNumberGeneratorSeed = 0;

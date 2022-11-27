@@ -10,27 +10,32 @@
 EZ_IMPLEMENT_SINGLETON(ezVisualShaderTypeRegistry);
 
 // clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, VisualShader)
+EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorPluginAssets, VisualShader)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
-  "PluginAssets", "ReflectedTypeManager"
+    "ReflectedTypeManager"
   END_SUBSYSTEM_DEPENDENCIES
 
   ON_CORESYSTEMS_STARTUP
   {
-  EZ_DEFAULT_NEW(ezVisualShaderTypeRegistry);
+    EZ_DEFAULT_NEW(ezVisualShaderTypeRegistry);
 
-  ezVisualShaderTypeRegistry::GetSingleton()->LoadNodeData();
-  const ezRTTI* pBaseType = ezVisualShaderTypeRegistry::GetSingleton()->GetNodeBaseType();
+    ezVisualShaderTypeRegistry::GetSingleton()->LoadNodeData();
+    const ezRTTI* pBaseType = ezVisualShaderTypeRegistry::GetSingleton()->GetNodeBaseType();
 
-  ezQtNodeScene::GetPinFactory().RegisterCreator(ezGetStaticRTTI<ezVisualShaderPin>(), [](const ezRTTI* pRtti)->ezQtPin* { return new ezQtVisualShaderPin(); }).IgnoreResult();
-  ezQtNodeScene::GetNodeFactory().RegisterCreator(pBaseType, [](const ezRTTI* pRtti)->ezQtNode* { return new ezQtVisualShaderNode(); }).IgnoreResult();
+    ezQtNodeScene::GetPinFactory().RegisterCreator(ezGetStaticRTTI<ezVisualShaderPin>(), [](const ezRTTI* pRtti)->ezQtPin* { return new ezQtVisualShaderPin(); });
+    ezQtNodeScene::GetNodeFactory().RegisterCreator(pBaseType, [](const ezRTTI* pRtti)->ezQtNode* { return new ezQtVisualShaderNode(); });
   }
 
   ON_CORESYSTEMS_SHUTDOWN
   {
-  ezVisualShaderTypeRegistry* pDummy = ezVisualShaderTypeRegistry::GetSingleton();
-  EZ_DEFAULT_DELETE(pDummy);
+    const ezRTTI* pBaseType = ezVisualShaderTypeRegistry::GetSingleton()->GetNodeBaseType();
+
+    ezQtNodeScene::GetPinFactory().UnregisterCreator(ezGetStaticRTTI<ezVisualShaderPin>());
+    ezQtNodeScene::GetNodeFactory().UnregisterCreator(pBaseType);
+
+    ezVisualShaderTypeRegistry* pDummy = ezVisualShaderTypeRegistry::GetSingleton();
+    EZ_DEFAULT_DELETE(pDummy);
   }
 
   ON_HIGHLEVELSYSTEMS_STARTUP
@@ -43,6 +48,49 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, VisualShader)
 
 EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
+
+namespace
+{
+  static const char* s_szColorNames[] = {
+    "Red",
+    "Pink",
+    "Grape",
+    "Violet",
+    "Indigo",
+    "Blue",
+    "Cyan",
+    "Teal",
+    "Green",
+    "Lime",
+    "Yellow",
+    "Orange",
+    "Gray",
+  };
+  static_assert(EZ_ARRAY_SIZE(s_szColorNames) == ezColorScheme::Count);
+
+  static void GetColorFromDdl(const ezOpenDdlReaderElement* pElement, ezColorGammaUB& out_Color)
+  {
+    if (pElement->GetPrimitivesType() == ezOpenDdlPrimitiveType::String)
+    {
+      ezColorScheme::Enum color = ezColorScheme::Gray;
+      const ezStringView* pValue = pElement->GetPrimitivesString();
+      for (ezUInt32 i = 0; i < ezColorScheme::Count; ++i)
+      {
+        if (pValue->IsEqual_NoCase(s_szColorNames[i]))
+        {
+          color = static_cast<ezColorScheme::Enum>(i);
+          break;
+        }
+      }
+
+      out_Color = ezColorScheme::DarkUI(color);
+    }
+    else
+    {
+      ezOpenDdlUtils::ConvertToColorGamma(pElement, out_Color).IgnoreResult();
+    }
+  }
+} // namespace
 
 ezVisualShaderTypeRegistry::ezVisualShaderTypeRegistry()
   : m_SingletonRegistrar(this)
@@ -92,7 +140,6 @@ void ezVisualShaderTypeRegistry::LoadNodeData()
     desc.m_sPluginName = "VisualShaderTypes";
     desc.m_sParentTypeName = ezGetStaticRTTI<ezReflectedClass>()->GetTypeName();
     desc.m_Flags = ezTypeFlags::Phantom | ezTypeFlags::Abstract | ezTypeFlags::Class;
-    desc.m_uiTypeSize = 0;
     desc.m_uiTypeVersion = 1;
 
     m_pBaseType = ezPhantomRttiManager::RegisterType(desc);
@@ -105,7 +152,6 @@ void ezVisualShaderTypeRegistry::LoadNodeData()
     desc.m_sPluginName = "VisualShaderTypes";
     desc.m_sParentTypeName = ezGetStaticRTTI<ezReflectedClass>()->GetTypeName();
     desc.m_Flags = ezTypeFlags::Phantom | ezTypeFlags::Class;
-    desc.m_uiTypeSize = 0;
     desc.m_uiTypeVersion = 1;
 
     m_pSamplerPinType = ezPhantomRttiManager::RegisterType(desc);
@@ -124,7 +170,6 @@ const ezRTTI* ezVisualShaderTypeRegistry::GenerateTypeFromDesc(const ezVisualSha
   desc.m_sPluginName = "VisualShaderTypes";
   desc.m_sParentTypeName = m_pBaseType->GetTypeName();
   desc.m_Flags = ezTypeFlags::Phantom | ezTypeFlags::Class;
-  desc.m_uiTypeSize = 0;
   desc.m_uiTypeVersion = 1;
   desc.m_Properties = nd.m_Properties;
 
@@ -307,7 +352,7 @@ void ezVisualShaderTypeRegistry::ExtractNodePins(const ezOpenDdlReaderElement* p
       // this is optional
       if (auto pColor = pElement->FindChild("Color"))
       {
-        ezOpenDdlUtils::ConvertToColorGamma(pColor, pin.m_Color).IgnoreResult();
+        GetColorFromDdl(pColor, pin.m_Color);
       }
 
       // this is optional
@@ -439,7 +484,7 @@ void ezVisualShaderTypeRegistry::ExtractNodeProperties(const ezOpenDdlReaderElem
 
           // apparently the attributes are deallocated using the type allocator, so we must allocate them here through RTTI as well
           ezAssetBrowserAttribute* pAttr = ezAssetBrowserAttribute::GetStaticRTTI()->GetAllocator()->Allocate<ezAssetBrowserAttribute>();
-          pAttr->SetTypeFilter("Texture 2D;Render Target");
+          pAttr->SetTypeFilter("CompatibleAsset_Texture_2D");
           prop.m_Attributes.PushBack(pAttr);
         }
         else
@@ -479,7 +524,7 @@ void ezVisualShaderTypeRegistry::ExtractNodeConfig(const ezOpenDdlReaderElement*
   {
     if (ezStringUtils::IsEqual(pElement->GetName(), "Color"))
     {
-      ezOpenDdlUtils::ConvertToColorGamma(pElement, nd.m_Color).IgnoreResult();
+      GetColorFromDdl(pElement, nd.m_Color);
     }
     else if (pElement->HasPrimitives(ezOpenDdlPrimitiveType::String))
     {

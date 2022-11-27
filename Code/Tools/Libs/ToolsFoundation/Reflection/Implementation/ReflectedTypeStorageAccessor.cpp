@@ -1,6 +1,7 @@
 #include <ToolsFoundation/ToolsFoundationPCH.h>
 
 #include <Foundation/Types/Status.h>
+#include <Foundation/Types/VariantTypeRegistry.h>
 #include <ToolsFoundation/Reflection/ReflectedTypeStorageAccessor.h>
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
 
@@ -58,6 +59,11 @@ const ezVariant ezReflectedTypeStorageAccessor::GetValue(const char* szProperty,
       case ezPropertyCategory::Array:
       case ezPropertyCategory::Set:
       {
+        if (!index.IsValid())
+        {
+          return m_Data[storageInfo->m_uiIndex];
+        }
+
         const ezVariantArray& values = m_Data[storageInfo->m_uiIndex].Get<ezVariantArray>();
         if (index.CanConvertTo<ezUInt32>())
         {
@@ -73,6 +79,11 @@ const ezVariant ezReflectedTypeStorageAccessor::GetValue(const char* szProperty,
       break;
       case ezPropertyCategory::Map:
       {
+        if (!index.IsValid())
+        {
+          return m_Data[storageInfo->m_uiIndex];
+        }
+
         const ezVariantDictionary& values = m_Data[storageInfo->m_uiIndex].Get<ezVariantDictionary>();
         if (index.IsA<ezString>())
         {
@@ -108,6 +119,9 @@ bool ezReflectedTypeStorageAccessor::SetValue(const char* szProperty, const ezVa
       // Typed objects must match exactly.
       return false;
     }
+
+    const bool isValueType = ezReflectionUtils::IsValueType(pProp);
+    const ezVariantType::Enum SpecVarType = pProp->GetFlags().IsSet(ezPropertyFlags::Pointer) || (pProp->GetFlags().IsSet(ezPropertyFlags::Class) && !isValueType) ? ezVariantType::Uuid : pProp->GetSpecificType()->GetVariantType();
 
     switch (pProp->GetCategory())
     {
@@ -152,8 +166,6 @@ bool ezReflectedTypeStorageAccessor::SetValue(const char* szProperty, const ezVa
             }
             else
             {
-              const auto SpecVarType =
-                pProp->GetFlags().IsAnySet(ezPropertyFlags::Class | ezPropertyFlags::Pointer) ? ezVariantType::Uuid : pProp->GetSpecificType()->GetVariantType();
               if (pProp->GetSpecificType() == ezGetStaticRTTI<ezVariant>())
               {
                 m_Data[storageInfo->m_uiIndex] = value;
@@ -187,8 +199,6 @@ bool ezReflectedTypeStorageAccessor::SetValue(const char* szProperty, const ezVa
           }
           else
           {
-            const auto SpecVarType =
-              pProp->GetFlags().IsAnySet(ezPropertyFlags::Class | ezPropertyFlags::Pointer) ? ezVariantType::Uuid : pProp->GetSpecificType()->GetVariantType();
             if (value.CanConvertTo(SpecVarType))
             {
               // We are lenient here regarding the type, as we may have stored values in the undo-redo stack
@@ -240,7 +250,7 @@ ezInt32 ezReflectedTypeStorageAccessor::GetCount(const char* szProperty) const
   return -1;
 }
 
-bool ezReflectedTypeStorageAccessor::GetKeys(const char* szProperty, ezHybridArray<ezVariant, 16>& out_keys) const
+bool ezReflectedTypeStorageAccessor::GetKeys(const char* szProperty, ezDynamicArray<ezVariant>& out_keys) const
 {
   out_keys.Clear();
 
@@ -304,6 +314,9 @@ bool ezReflectedTypeStorageAccessor::InsertValue(const char* szProperty, ezVaria
       return false;
     }
 
+    const bool isValueType = ezReflectionUtils::IsValueType(pProp);
+    const ezVariantType::Enum SpecVarType = pProp->GetFlags().IsSet(ezPropertyFlags::Pointer) || (pProp->GetFlags().IsSet(ezPropertyFlags::Class) && !isValueType) ? ezVariantType::Uuid : pProp->GetSpecificType()->GetVariantType();
+
     switch (pProp->GetCategory())
     {
       case ezPropertyCategory::Array:
@@ -316,8 +329,6 @@ bool ezReflectedTypeStorageAccessor::InsertValue(const char* szProperty, ezVaria
           if (uiIndex <= values.GetCount())
           {
             ezVariantArray changedValues = values;
-            const auto SpecVarType =
-              pProp->GetFlags().IsAnySet(ezPropertyFlags::Class | ezPropertyFlags::Pointer) ? ezVariantType::Uuid : pProp->GetSpecificType()->GetVariantType();
             if (pProp->GetSpecificType() == ezGetStaticRTTI<ezVariant>())
             {
               changedValues.Insert(value, uiIndex);
@@ -343,8 +354,6 @@ bool ezReflectedTypeStorageAccessor::InsertValue(const char* szProperty, ezVaria
         {
           const ezString& sIndex = index.Get<ezString>();
           ezVariantDictionary changedValues = values;
-          const auto SpecVarType =
-            pProp->GetFlags().IsAnySet(ezPropertyFlags::Class | ezPropertyFlags::Pointer) ? ezVariantType::Uuid : pProp->GetSpecificType()->GetVariantType();
           if (pProp->GetSpecificType() == ezGetStaticRTTI<ezVariant>())
           {
             changedValues.Insert(sIndex, value);
@@ -491,13 +500,14 @@ ezVariant ezReflectedTypeStorageAccessor::GetPropertyChildIndex(const char* szPr
     if (pProp == nullptr)
       return ezVariant();
 
+    const bool isValueType = ezReflectionUtils::IsValueType(pProp);
+    const ezVariantType::Enum SpecVarType = pProp->GetFlags().IsSet(ezPropertyFlags::Pointer) || (pProp->GetFlags().IsSet(ezPropertyFlags::Class) && !isValueType) ? ezVariantType::Uuid : pProp->GetSpecificType()->GetVariantType();
+
     switch (pProp->GetCategory())
     {
       case ezPropertyCategory::Array:
       case ezPropertyCategory::Set:
       {
-        const auto SpecVarType =
-          pProp->GetFlags().IsAnySet(ezPropertyFlags::Class | ezPropertyFlags::Pointer) ? ezVariantType::Uuid : pProp->GetSpecificType()->GetVariantType();
         if (value.CanConvertTo(SpecVarType))
         {
           const ezVariantArray& values = m_Data[storageInfo->m_uiIndex].Get<ezVariantArray>();
@@ -511,8 +521,6 @@ ezVariant ezReflectedTypeStorageAccessor::GetPropertyChildIndex(const char* szPr
       break;
       case ezPropertyCategory::Map:
       {
-        const auto SpecVarType =
-          pProp->GetFlags().IsAnySet(ezPropertyFlags::Class | ezPropertyFlags::Pointer) ? ezVariantType::Uuid : pProp->GetSpecificType()->GetVariantType();
         if (value.CanConvertTo(SpecVarType))
         {
           const ezVariantDictionary& values = m_Data[storageInfo->m_uiIndex].Get<ezVariantDictionary>();

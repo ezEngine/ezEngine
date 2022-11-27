@@ -4,10 +4,13 @@
       "component": {
         "type": "git",
         "git": {
+          "Version": "1.5.2",
           "repositoryUrl": "https://github.com/facebook/zstd",
-          "commitHash": "e4558ffd1dc49399faf4ee5d85abed4386b4dcf5"
+          "commitHash": "e47e674cd09583ff0503f0f6defd6d23d8b718d3"
         }
       }
     }
-  ]
+  ],
+  "version": 1,
+  "$schema": "https://json.schemastore.org/component-detection-manifest.json"
 }

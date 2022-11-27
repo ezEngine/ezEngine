@@ -4,6 +4,7 @@
 
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Strings/HashedString.h>
+#include <Foundation/Types/VariantTypeRegistry.h>
 #include <RendererCore/AnimationSystem/Declarations.h>
 
 class ezSkeletonBuilder;
@@ -61,19 +62,20 @@ public:
   void CopyPropertiesFrom(const ezEditableSkeletonJoint* pJoint);
 
   ezHashedString m_sName;
-  ezTransform m_Transform = ezTransform::IdentityTransform();
+  ezTransform m_LocalTransform = ezTransform::IdentityTransform();
 
-  ezVec3 GetJointPosGlobal() const;
-  ezQuat GetJointLimitOrientation() const;
-  void SetJointLimitOrientation(ezQuat val);
+  bool m_bLimitTwist = false;
+  bool m_bLimitSwing = false;
 
-  ezAngle m_TwistLimitLow;
-  ezAngle m_TwistLimitHigh;
-  ezAngle m_SwingLimitX;
+  ezAngle m_TwistLimitHalfAngle;
+  ezAngle m_TwistLimitCenterAngle;
   ezAngle m_SwingLimitY;
+  ezAngle m_SwingLimitZ;
 
-  ezQuat m_qJointLimitOrientation = ezQuat::IdentityQuaternion();
-  ezVec3 m_vJointPosGlobal = ezVec3::ZeroVector();
+  ezVec3 m_vGizmoOffsetPositionRO = ezVec3::ZeroVector();
+  ezQuat m_qGizmoOffsetRotationRO = ezQuat::IdentityQuaternion();
+
+  ezQuat m_qLocalJointRotation = ezQuat::IdentityQuaternion();
 
   ezHybridArray<ezEditableSkeletonJoint*, 4> m_Children;
   ezHybridArray<ezEditableSkeletonBoneShape, 1> m_BoneShapes;
@@ -91,9 +93,9 @@ public:
   void FillResourceDescriptor(ezSkeletonResourceDescriptor& desc) const;
   void GenerateRawOzzSkeleton(ozz::animation::offline::RawSkeleton& out_Skeleton) const;
   void GenerateOzzSkeleton(ozz::animation::Skeleton& out_Skeleton) const;
-  void AddChildJoints(ezSkeletonBuilder& sb, ezSkeletonResourceDescriptor& desc, const ezEditableSkeletonJoint* pParentJoint, const ezEditableSkeletonJoint* pJoint, ezUInt32 uiJointIdx, const ezQuat& parentRot) const;
+  void CreateJointsRecursive(ezSkeletonBuilder& sb, ezSkeletonResourceDescriptor& desc, const ezEditableSkeletonJoint* pParentJoint, const ezEditableSkeletonJoint* pThisJoint, ezUInt16 uiThisJointIdx, const ezQuat& qParentAccuRot, const ezMat4& rootTransform) const;
 
-  ezString m_sAnimationFile;
+  ezString m_sSourceFile;
   ezString m_sSurfaceFile;
   ezUInt8 m_uiCollisionLayer = 0;
 
@@ -106,3 +108,30 @@ public:
 
   ezHybridArray<ezEditableSkeletonJoint*, 4> m_Children;
 };
+
+struct EZ_RENDERERCORE_DLL ezExposedBone
+{
+  ezString m_sName;
+  ezString m_sParent;
+  ezTransform m_Transform;
+  // when adding new values, the hash function below has to be adjusted
+};
+
+EZ_DECLARE_CUSTOM_VARIANT_TYPE(ezExposedBone);
+
+EZ_RENDERERCORE_DLL void operator<<(ezStreamWriter& stream, const ezExposedBone& bone);
+EZ_RENDERERCORE_DLL void operator>>(ezStreamReader& stream, ezExposedBone& bone);
+EZ_RENDERERCORE_DLL bool operator==(const ezExposedBone& lhs, const ezExposedBone& rhs);
+
+template <>
+struct ezHashHelper<ezExposedBone>
+{
+  EZ_ALWAYS_INLINE static ezUInt32 Hash(const ezExposedBone& value)
+  {
+    return ezHashingUtils::xxHash32String(value.m_sName) + ezHashingUtils::xxHash32String(value.m_sParent) + ezHashingUtils::xxHash32(&value, sizeof(ezTransform));
+  }
+
+  EZ_ALWAYS_INLINE static bool Equal(const ezExposedBone& a, const ezExposedBone& b) { return a == b; }
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezExposedBone);

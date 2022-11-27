@@ -21,6 +21,12 @@ public:
   /// \brief Const iterator.
   struct ConstIterator
   {
+    typedef std::forward_iterator_tag iterator_category;
+    using value_type = ConstIterator;
+    using difference_type = ptrdiff_t;
+    using pointer = ConstIterator*;
+    using reference = ConstIterator&;
+
     EZ_DECLARE_POD_TYPE();
 
     /// \brief Checks whether this iterator points to a valid element.
@@ -54,7 +60,7 @@ public:
     void SetToBegin();
     void SetToEnd();
 
-    const ezHashTableBase<KeyType, ValueType, Hasher>* m_hashTable = nullptr;
+    const ezHashTableBase<KeyType, ValueType, Hasher>* m_pHashTable = nullptr;
     ezUInt32 m_uiCurrentIndex = 0; // current element index that this iterator points to.
     ezUInt32 m_uiCurrentCount = 0; // current number of valid elements that this iterator has found so far.
   };
@@ -233,6 +239,7 @@ private:
   void SetCapacity(ezUInt32 uiCapacity);
 
   void RemoveInternal(ezUInt32 uiIndex);
+
   template <typename CompatibleKeyType>
   ezUInt32 FindEntry(const CompatibleKeyType& key) const;
 

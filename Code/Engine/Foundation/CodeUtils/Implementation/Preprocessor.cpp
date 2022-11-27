@@ -8,7 +8,7 @@ using namespace ezTokenParseUtils;
 
 ezPreprocessor::ezPreprocessor()
   : m_ClassAllocator("ezPreprocessor", ezFoundation::GetDefaultAllocator())
-  , m_sCurrentFileStack(&m_ClassAllocator)
+  , m_CurrentFileStack(&m_ClassAllocator)
   , m_CustomDefines(&m_ClassAllocator)
   , m_IfdefActiveStack(&m_ClassAllocator)
   , m_Macros(ezCompareHelper<ezString256>(), &m_ClassAllocator)
@@ -31,16 +31,16 @@ ezPreprocessor::ezPreprocessor()
     s.Format("__Param{0}__", i);
     s_ParamNames[i] = s;
 
-    m_ParameterTokens[i].m_iType = s_MacroParameter0 + i;
+    m_ParameterTokens[i].m_iType = s_iMacroParameter0 + i;
     m_ParameterTokens[i].m_DataView = s_ParamNames[i].GetView();
   }
 
   ezToken dummy;
   dummy.m_iType = ezTokenType::NonIdentifier;
 
-  m_TokenOpenParenthesis = AddCustomToken(&dummy, "(");
-  m_TokenClosedParenthesis = AddCustomToken(&dummy, ")");
-  m_TokenComma = AddCustomToken(&dummy, ",");
+  m_pTokenOpenParenthesis = AddCustomToken(&dummy, "(");
+  m_pTokenClosedParenthesis = AddCustomToken(&dummy, ")");
+  m_pTokenComma = AddCustomToken(&dummy, ",");
 }
 
 void ezPreprocessor::SetCustomFileCache(ezTokenizedFileCache* pFileCache)
@@ -73,7 +73,7 @@ ezResult ezPreprocessor::ProcessFile(const char* szFile, TokenStream& TokenOutpu
   fd.m_sFileName.Assign(szFile);
   fd.m_sVirtualFileName = fd.m_sFileName;
 
-  m_sCurrentFileStack.PushBack(fd);
+  m_CurrentFileStack.PushBack(fd);
 
   ezUInt32 uiNextToken = 0;
   TokenStream TokensLine(&m_ClassAllocator);
@@ -119,7 +119,7 @@ ezResult ezPreprocessor::ProcessFile(const char* szFile, TokenStream& TokenOutpu
     TokensCode.Clear();
   }
 
-  m_sCurrentFileStack.PopBack();
+  m_CurrentFileStack.PopBack();
 
   return EZ_SUCCESS;
 }
@@ -179,9 +179,9 @@ ezResult ezPreprocessor::Process(const char* szMainFile, TokenStream& TokenOutpu
     return EZ_FAILURE;
   }
 
-  if (!m_sCurrentFileStack.IsEmpty())
+  if (!m_CurrentFileStack.IsEmpty())
   {
-    ezLog::Error(m_pLog, "Internal error, file stack is not empty after processing. {0} elements, top stack item: '{1}'", m_sCurrentFileStack.GetCount(), m_sCurrentFileStack.PeekBack().m_sFileName);
+    ezLog::Error(m_pLog, "Internal error, file stack is not empty after processing. {0} elements, top stack item: '{1}'", m_CurrentFileStack.GetCount(), m_CurrentFileStack.PeekBack().m_sFileName);
     return EZ_FAILURE;
   }
 
@@ -225,7 +225,7 @@ ezResult ezPreprocessor::ProcessCmd(const TokenStream& Tokens, TokenStream& Toke
     if (Accept(Tokens, uiTempPos, "pragma") && Accept(Tokens, uiTempPos, "once"))
     {
       uiCurToken = uiTempPos;
-      m_PragmaOnce.Insert(m_sCurrentFileStack.PeekBack().m_sFileName);
+      m_PragmaOnce.Insert(m_CurrentFileStack.PeekBack().m_sFileName);
 
       // rather pointless to pass this through, as the output ends up as one big file
       // if (m_bPassThroughPragma)
@@ -341,7 +341,7 @@ ezResult ezPreprocessor::HandleLine(const TokenStream& Tokens, ezUInt32 uiCurTok
   {
     // ezStringBuilder sFileName = Tokens[uiFileNameToken]->m_DataView;
     // sFileName.Shrink(1, 1); // remove surrounding "
-    // m_sCurrentFileStack.PeekBack().m_sVirtualFileName = sFileName;
+    // m_CurrentFileStack.PeekBack().m_sVirtualFileName = sFileName;
   }
   else
   {

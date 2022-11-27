@@ -29,14 +29,19 @@ protected:
 
 private:
   virtual void mousePressEvent(QMouseEvent* ev) override;
+
+#if QT_VERSION > QT_VERSION_CHECK(6, 0, 0)
+  virtual void enterEvent(QEnterEvent* ev) override;
+#else
   virtual void enterEvent(QEvent* ev) override;
+#endif
+
   virtual void leaveEvent(QEvent* ev) override;
 
 private:
   const ezHybridArray<ezPropertySelection, 8>* m_pItems;
   const ezManipulatorAttribute* m_pManipulator;
-  QFont m_font;
+  QFont m_Font;
   bool m_bActive;
   bool m_bIsDefault;
 };
-

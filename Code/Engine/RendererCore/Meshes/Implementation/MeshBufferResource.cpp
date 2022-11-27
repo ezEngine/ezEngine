@@ -69,7 +69,7 @@ ezUInt32 ezMeshBufferResourceDescriptor::AddStream(ezGALVertexAttributeSemantic:
   si.m_Semantic = Semantic;
   si.m_Format = Format;
   si.m_uiOffset = 0;
-  si.m_uiElementSize = ezGALResourceFormat::GetBitsPerElement(Format) / 8;
+  si.m_uiElementSize = static_cast<ezUInt16>(ezGALResourceFormat::GetBitsPerElement(Format) / 8);
   m_uiVertexSize += si.m_uiElementSize;
 
   EZ_ASSERT_DEV(si.m_uiElementSize > 0, "Invalid Element Size. Format not supported?");
@@ -335,7 +335,7 @@ void ezMeshBufferResourceDescriptor::SetPointIndices(ezUInt32 uiPoint, ezUInt32 
   else
   {
     ezUInt16* pIndices = reinterpret_cast<ezUInt16*>(&m_IndexBufferData[uiPoint * sizeof(ezUInt16) * 1]);
-    pIndices[0] = uiVertex0;
+    pIndices[0] = static_cast<ezUInt16>(uiVertex0);
   }
 }
 
@@ -352,8 +352,8 @@ void ezMeshBufferResourceDescriptor::SetLineIndices(ezUInt32 uiLine, ezUInt32 ui
   else
   {
     ezUInt16* pIndices = reinterpret_cast<ezUInt16*>(&m_IndexBufferData[uiLine * sizeof(ezUInt16) * 2]);
-    pIndices[0] = uiVertex0;
-    pIndices[1] = uiVertex1;
+    pIndices[0] = static_cast<ezUInt16>(uiVertex0);
+    pIndices[1] = static_cast<ezUInt16>(uiVertex1);
   }
 }
 
@@ -371,9 +371,9 @@ void ezMeshBufferResourceDescriptor::SetTriangleIndices(ezUInt32 uiTriangle, ezU
   else
   {
     ezUInt16* pIndices = reinterpret_cast<ezUInt16*>(&m_IndexBufferData[uiTriangle * sizeof(ezUInt16) * 3]);
-    pIndices[0] = uiVertex0;
-    pIndices[1] = uiVertex1;
-    pIndices[2] = uiVertex2;
+    pIndices[0] = static_cast<ezUInt16>(uiVertex0);
+    pIndices[1] = static_cast<ezUInt16>(uiVertex1);
+    pIndices[2] = static_cast<ezUInt16>(uiVertex2);
   }
 }
 
@@ -427,7 +427,7 @@ ezResult ezMeshBufferResourceDescriptor::RecomputeNormals()
   const ezUInt32 uiVertexSize = m_uiVertexSize;
   const ezUInt8* pPositions = nullptr;
   ezUInt8* pNormals = nullptr;
-  ezGALResourceFormat::Enum normalsFormat;
+  ezGALResourceFormat::Enum normalsFormat = ezGALResourceFormat::XYZFloat;
 
   for (ezUInt32 i = 0; i < m_VertexDeclaration.m_VertexStreams.GetCount(); ++i)
   {
@@ -476,9 +476,13 @@ ezResult ezMeshBufferResourceDescriptor::RecomputeNormals()
     const ezVec3 d02 = p2 - p0;
 
     const ezVec3 triNormal = d01.CrossRH(d02);
-    newNormals[v0] += triNormal;
-    newNormals[v1] += triNormal;
-    newNormals[v2] += triNormal;
+
+    if (triNormal.IsValid())
+    {
+      newNormals[v0] += triNormal;
+      newNormals[v1] += triNormal;
+      newNormals[v2] += triNormal;
+    }
   }
 
   for (ezUInt32 i = 0; i < newNormals.GetCount(); ++i)
@@ -577,10 +581,16 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezMeshBufferResource, ezMeshBufferResourceDescr
 
     sName.Format("{0} Index Buffer", GetResourceDescription());
     pDevice->GetBuffer(m_hIndexBuffer)->SetDebugName(sName);
+
+    // we only know the memory usage here, so we write it back to the internal variable directly and then read it in UpdateMemoryUsage() again
+    ModifyMemoryUsage().m_uiMemoryGPU = descriptor.GetVertexBufferData().GetCount() + descriptor.GetIndexBufferData().GetCount();
+  }
+  else
+  {
+    // we only know the memory usage here, so we write it back to the internal variable directly and then read it in UpdateMemoryUsage() again
+    ModifyMemoryUsage().m_uiMemoryGPU = descriptor.GetVertexBufferData().GetCount();
   }
 
-  // we only know the memory usage here, so we write it back to the internal variable directly and then read it in UpdateMemoryUsage() again
-  ModifyMemoryUsage().m_uiMemoryGPU = descriptor.GetVertexBufferData().GetCount() + descriptor.GetIndexBufferData().GetCount();
 
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;

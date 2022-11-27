@@ -43,7 +43,7 @@ struct ezMaterialResourceDescriptor
   EZ_FORCE_INLINE bool operator!=(const ezMaterialResourceDescriptor& other) const { return !(*this == other); }
 
   ezMaterialResourceHandle m_hBaseMaterial;
-  // ezSurfaceResource is not linked into this project
+  // ezSurfaceResource is not linked into this project (not true anymore -> could be changed)
   // this is not used for game purposes but rather for automatic collision mesh generation, so we only store the asset ID here
   ezHashedString m_sSurface;
   ezShaderResourceHandle m_hShader;
@@ -104,8 +104,8 @@ private:
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
 
 private:
-  ezMaterialResourceDescriptor m_OriginalDesc; // stores the state at loading, such that SetParameter etc. calls can be reset later
-  ezMaterialResourceDescriptor m_Desc;
+  ezMaterialResourceDescriptor m_mOriginalDesc; // stores the state at loading, such that SetParameter etc. calls can be reset later
+  ezMaterialResourceDescriptor m_mDesc;
 
   friend class ezRenderContext;
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(RendererCore, MaterialResource);

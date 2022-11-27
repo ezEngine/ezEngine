@@ -42,7 +42,7 @@ public:
 protected:
   ezStreamWriter& m_OriginalStream;
 
-  ezMemoryStreamStorage m_TempStreamStorage;
+  ezDefaultMemoryStreamStorage m_TempStreamStorage;
   ezMemoryStreamWriter m_TempStreamWriter;
 
   ezMap<ezHybridString<64>, ezUInt32> m_DeduplicatedStrings;

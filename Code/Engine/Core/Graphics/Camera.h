@@ -29,7 +29,7 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezCameraMode);
 /// \brief Determines left or right eye of a stereo camera.
 ///
 /// As a general rule, this parameter does not matter for mono-scopic cameras and will always return the same value.
-enum class EZ_CORE_DLL ezCameraEye
+enum class ezCameraEye
 {
   Left,
   Right,
@@ -229,7 +229,7 @@ private:
   ezUInt32 m_uiSettingsModificationCounter = 0;
   ezUInt32 m_uiOrientationModificationCounter = 0;
 
-  ezSharedPtr<ezCoordinateSystemProvider> m_CoordinateSystem;
+  ezSharedPtr<ezCoordinateSystemProvider> m_pCoordinateSystem;
 
   ezVec3 MapExternalToInternal(const ezVec3& v) const;
   ezVec3 MapInternalToExternal(const ezVec3& v) const;

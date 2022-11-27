@@ -1,5 +1,6 @@
 #include <ToolsFoundation/ToolsFoundationPCH.h>
 
+#include <Foundation/Application/Application.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/IO/OSFile.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
@@ -15,21 +16,10 @@ ezApplicationServices::ezApplicationServices()
 {
 }
 
-void ezApplicationServices::SetApplicationName(const char* szName)
-{
-  m_sApplicationName = szName;
-}
-
-const char* ezApplicationServices::GetApplicationName() const
-{
-  return m_sApplicationName;
-}
-
-
 ezString ezApplicationServices::GetApplicationUserDataFolder() const
 {
   ezStringBuilder path = ezOSFile::GetUserDataFolder();
-  path.AppendPath("ezEngine Project", m_sApplicationName);
+  path.AppendPath("ezEngine Project", ezApplication::GetApplicationInstance()->GetApplicationName());
   path.MakeCleanPath();
 
   return path;
@@ -37,7 +27,7 @@ ezString ezApplicationServices::GetApplicationUserDataFolder() const
 
 ezString ezApplicationServices::GetApplicationDataFolder() const
 {
-  ezStringBuilder sAppDir(">sdk/Data/Tools/", m_sApplicationName);
+  ezStringBuilder sAppDir(">sdk/Data/Tools/", ezApplication::GetApplicationInstance()->GetApplicationName());
 
   ezStringBuilder result;
   ezFileSystem::ResolveSpecialDirectory(sAppDir, result).IgnoreResult();

@@ -1,4 +1,4 @@
-#include <RendererVulkanPCH.h>
+#include <RendererVulkan/RendererVulkanPCH.h>
 
 EZ_STATICLINK_LIBRARY(RendererVulkan)
 {

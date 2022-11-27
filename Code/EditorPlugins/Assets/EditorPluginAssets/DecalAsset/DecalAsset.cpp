@@ -75,12 +75,12 @@ ezDecalAssetDocument::ezDecalAssetDocument(const char* szDocumentPath)
 {
 }
 
-ezStatus ezDecalAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezTransformStatus ezDecalAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   return static_cast<ezDecalAssetDocumentManager*>(GetAssetDocumentManager())->GenerateDecalTexture(pAssetProfile);
 }
 
-ezStatus ezDecalAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& Unused)
+ezTransformStatus ezDecalAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& Unused)
 {
   const ezDecalAssetProperties* pProp = GetProperties();
 
@@ -120,14 +120,14 @@ ezStatus ezDecalAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& Unus
 
     if (!pProp->m_sAlphaMask.IsEmpty())
     {
-      ezStringBuilder sAbsPath = pProp->m_sAlphaMask;
-      if (!pEditorApp->MakeDataDirectoryRelativePathAbsolute(sAbsPath))
+      ezStringBuilder sAbsPath2 = pProp->m_sAlphaMask;
+      if (!pEditorApp->MakeDataDirectoryRelativePathAbsolute(sAbsPath2))
       {
-        return ezStatus(ezFmt("Failed to make path absolute: '{}'", sAbsPath));
+        return ezStatus(ezFmt("Failed to make path absolute: '{}'", sAbsPath2));
       }
 
       arguments << "-in1";
-      arguments << QString(sAbsPath.GetData());
+      arguments << QString(sAbsPath2.GetData());
 
       arguments << "-rgb";
       arguments << "in0.rgb";
@@ -142,7 +142,7 @@ ezStatus ezDecalAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& Unus
     }
   }
 
-  EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("TexConv.exe", arguments, 180, ezLog::GetThreadLocalLogSystem()));
+  EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("TexConv", arguments, 180, ezLog::GetThreadLocalLogSystem()));
 
   {
     ezUInt64 uiThumbnailHash = ezAssetCurator::GetSingleton()->GetAssetReferenceHash(GetGuid());

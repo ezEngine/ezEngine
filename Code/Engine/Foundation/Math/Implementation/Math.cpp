@@ -4,16 +4,11 @@
 #include <Foundation/Math/Math.h>
 #include <Foundation/Math/Quat.h>
 #include <Foundation/Math/Vec3.h>
+#include <Foundation/Reflection/Reflection.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-// Default on Windows is D3D convention
+// Default are D3D convention before a renderer is initialized.
 ezClipSpaceDepthRange::Enum ezClipSpaceDepthRange::Default = ezClipSpaceDepthRange::ZeroToOne;
 ezClipSpaceYMode::Enum ezClipSpaceYMode::RenderToTextureDefault = ezClipSpaceYMode::Regular;
-#else
-// Default everywhere else is OpenGL convention
-ezClipSpaceDepthRange::Enum ezClipSpaceDepthRange::Default = ezClipSpaceDepthRange::MinusOneToOne;
-ezClipSpaceYMode::Enum ezClipSpaceYMode::RenderToTextureDefault = ezClipSpaceYMode::Flipped;
-#endif
 
 ezHandedness::Enum ezHandedness::Default = ezHandedness::LeftHanded;
 
@@ -386,6 +381,40 @@ ezBasisAxis::Enum ezBasisAxis::GetOrthogonalAxis(Enum axis1, Enum axis2, bool fl
     return ezBasisAxis::NegativeZ;
 
   return axis1;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezComparisonOperator, 1)
+  EZ_ENUM_CONSTANTS(ezComparisonOperator::Equal, ezComparisonOperator::NotEqual)
+  EZ_ENUM_CONSTANTS(ezComparisonOperator::Less, ezComparisonOperator::LessEqual)
+  EZ_ENUM_CONSTANTS(ezComparisonOperator::Greater, ezComparisonOperator::GreaterEqual)
+EZ_END_STATIC_REFLECTED_ENUM;
+// clang-format on
+
+// static
+bool ezComparisonOperator::Compare(ezComparisonOperator::Enum cmp, double f1, double f2)
+{
+  switch (cmp)
+  {
+    case ezComparisonOperator::Equal:
+      return f1 == f2;
+    case ezComparisonOperator::NotEqual:
+      return f1 != f2;
+    case ezComparisonOperator::Less:
+      return f1 < f2;
+    case ezComparisonOperator::LessEqual:
+      return f1 <= f2;
+    case ezComparisonOperator::Greater:
+      return f1 > f2;
+    case ezComparisonOperator::GreaterEqual:
+      return f1 >= f2;
+
+      EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
+  }
+
+  return false;
 }
 
 

@@ -13,12 +13,12 @@ ezBoxGizmo::ezBoxGizmo()
 
   m_ManipulateMode = ManipulateMode::None;
 
-  m_Corners.Configure(this, ezEngineGizmoHandleType::BoxCorners, ezColorLinearUB(200, 200, 200, 128), false);
+  m_hCorners.ConfigureHandle(this, ezEngineGizmoHandleType::BoxCorners, ezColorLinearUB(200, 200, 200, 128), ezGizmoFlags::Pickable);
 
   for (int i = 0; i < 3; ++i)
   {
-    m_Edges[i].Configure(this, ezEngineGizmoHandleType::BoxEdges, ezColorLinearUB(200, 200, 200, 128), false);
-    m_Faces[i].Configure(this, ezEngineGizmoHandleType::BoxFaces, ezColorLinearUB(200, 200, 200, 128), false);
+    m_Edges[i].ConfigureHandle(this, ezEngineGizmoHandleType::BoxEdges, ezColorLinearUB(200, 200, 200, 128), ezGizmoFlags::Pickable);
+    m_Faces[i].ConfigureHandle(this, ezEngineGizmoHandleType::BoxFaces, ezColorLinearUB(200, 200, 200, 128), ezGizmoFlags::Pickable);
   }
 
   SetVisible(false);
@@ -27,7 +27,7 @@ ezBoxGizmo::ezBoxGizmo()
 
 void ezBoxGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
 {
-  pOwnerWindow->GetDocument()->AddSyncObject(&m_Corners);
+  pOwnerWindow->GetDocument()->AddSyncObject(&m_hCorners);
 
   for (int i = 0; i < 3; ++i)
   {
@@ -38,7 +38,7 @@ void ezBoxGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineVi
 
 void ezBoxGizmo::OnVisibleChanged(bool bVisible)
 {
-  m_Corners.SetVisible(bVisible);
+  m_hCorners.SetVisible(bVisible);
 
   for (int i = 0; i < 3; ++i)
   {
@@ -53,7 +53,7 @@ void ezBoxGizmo::OnTransformationChanged(const ezTransform& transform)
   scale.SetScalingMatrix(m_vSize);
   scale = transform.GetAsMat4() * scale;
 
-  m_Corners.SetTransformation(scale);
+  m_hCorners.SetTransformation(scale);
 
   rot.SetRotationMatrixX(ezAngle::Degree(90));
   m_Edges[0].SetTransformation(scale * rot);
@@ -97,7 +97,7 @@ ezEditorInput ezBoxGizmo::DoMousePressEvent(QMouseEvent* e)
   if (e->modifiers() != 0)
     return ezEditorInput::MayBeHandledByOthers;
 
-  if (m_pInteractionGizmoHandle == &m_Corners)
+  if (m_pInteractionGizmoHandle == &m_hCorners)
   {
     m_ManipulateMode = ManipulateMode::Uniform;
   }
@@ -134,7 +134,7 @@ ezEditorInput ezBoxGizmo::DoMousePressEvent(QMouseEvent* e)
 
   m_LastInteraction = ezTime::Now();
 
-  m_LastMousePos = SetMouseMode(ezEditorInputContext::MouseMode::HideAndWrapAtScreenBorders);
+  m_vLastMousePos = SetMouseMode(ezEditorInputContext::MouseMode::HideAndWrapAtScreenBorders);
 
   SetActiveInputContext(this);
 
@@ -173,9 +173,9 @@ ezEditorInput ezBoxGizmo::DoMouseMoveEvent(QMouseEvent* e)
   m_LastInteraction = tNow;
 
   const ezVec2I32 vNewMousePos = ezVec2I32(e->globalPos().x(), e->globalPos().y());
-  const ezVec2I32 vDiff = vNewMousePos - m_LastMousePos;
+  const ezVec2I32 vDiff = vNewMousePos - m_vLastMousePos;
 
-  m_LastMousePos = UpdateMouseMode(e);
+  m_vLastMousePos = UpdateMouseMode(e);
 
   const float fSpeed = 0.02f;
   float fChange = 0.0f;

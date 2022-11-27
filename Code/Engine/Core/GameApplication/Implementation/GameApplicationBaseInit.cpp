@@ -58,6 +58,9 @@ void ezGameApplicationBase::Init_PlatformProfile_SetPreferred()
 void ezGameApplicationBase::BaseInit_ConfigureLogging()
 {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  ezGlobalLog::RemoveLogWriter(m_LogToConsoleID);
+  ezGlobalLog::RemoveLogWriter(m_LogToVsID);
+
   if (!opt_DisableConsoleOutput.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified))
   {
     m_LogToConsoleID = ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
@@ -168,7 +171,6 @@ void ezGameApplicationBase::Init_LoadProjectPlugins()
 {
   ezApplicationPluginConfig appPluginConfig;
   appPluginConfig.Load();
-  appPluginConfig.SetOnlyLoadManualPlugins(true);
   appPluginConfig.Apply();
 }
 
@@ -246,8 +248,11 @@ void ezGameApplicationBase::Deinit_UnloadPlugins()
 
 void ezGameApplicationBase::Deinit_ShutdownLogging()
 {
+#if EZ_DISABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  // during development, keep these loggers active
   ezGlobalLog::RemoveLogWriter(m_LogToConsoleID);
   ezGlobalLog::RemoveLogWriter(m_LogToVsID);
+#endif
 }
 
 

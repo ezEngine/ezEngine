@@ -52,6 +52,16 @@ EZ_ALWAYS_INLINE Type ezVec2Template<Type>::GetLength() const
 }
 
 template <typename Type>
+ezResult ezVec2Template<Type>::SetLength(Type fNewLength, Type fEpsilon /* = ezMath::DefaultEpsilon<Type>() */)
+{
+  if (NormalizeIfNotZero(ezVec2Template<Type>::ZeroVector(), fEpsilon) == EZ_FAILURE)
+    return EZ_FAILURE;
+
+  *this *= fNewLength;
+  return EZ_SUCCESS;
+}
+
+template <typename Type>
 EZ_ALWAYS_INLINE Type ezVec2Template<Type>::GetLengthSquared() const
 {
   return (x * x + y * y);
@@ -230,7 +240,7 @@ inline ezAngle ezVec2Template<Type>::GetAngleBetween(const ezVec2Template<Type>&
   EZ_ASSERT_DEBUG(this->IsNormalized(), "This vector must be normalized.");
   EZ_ASSERT_DEBUG(rhs.IsNormalized(), "The other vector must be normalized.");
 
-  return ezMath::ACos(ezMath::Clamp<Type>(this->Dot(rhs), (Type)-1, (Type)1));
+  return ezMath::ACos(static_cast<float>(ezMath::Clamp<Type>(this->Dot(rhs), (Type)-1, (Type)1)));
 }
 
 template <typename Type>

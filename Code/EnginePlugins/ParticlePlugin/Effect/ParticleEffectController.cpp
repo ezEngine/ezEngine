@@ -123,6 +123,32 @@ void ezParticleEffectController::GetBoundingVolume(ezBoundingBoxSphere& volume) 
   }
 }
 
+void ezParticleEffectController::UpdateWindSamples()
+{
+  if (ezParticleEffectInstance* pEffect = GetInstance())
+  {
+    pEffect->UpdateWindSamples();
+  }
+}
+
+void ezParticleEffectController::ForceVisible()
+{
+  if (ezParticleEffectInstance* pEffect = GetInstance())
+  {
+    pEffect->SetIsVisible();
+  }
+}
+
+ezUInt64 ezParticleEffectController::GetNumActiveParticles() const
+{
+  if (ezParticleEffectInstance* pEffect = GetInstance())
+  {
+    return pEffect->GetNumActiveParticles();
+  }
+
+  return 0;
+}
+
 void ezParticleEffectController::SetParameter(const ezTempHashedString& name, float value)
 {
   ezParticleEffectInstance* pEffect = GetInstance();

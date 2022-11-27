@@ -45,16 +45,16 @@ private:
   bool m_bHadErrors;
   bool m_bHadSeriousWarnings;
   bool m_bHadWarnings;
-  ezUniquePtr<ezStackAllocator<ezMemoryTrackingFlags::None>> m_stackAllocator;
-  ezDynamicArray<ezString> m_includeDirectories;
+  ezUniquePtr<ezStackAllocator<ezMemoryTrackingFlags::None>> m_pStackAllocator;
+  ezDynamicArray<ezString> m_IncludeDirectories;
 
   struct IgnoreInfo
   {
     ezHashSet<ezString> m_byName;
   };
 
-  IgnoreInfo m_ignoreTarget;
-  IgnoreInfo m_ignoreSource;
+  IgnoreInfo m_IgnoreTarget;
+  IgnoreInfo m_IgnoreSource;
 
 public:
   typedef ezApplication SUPER;
@@ -138,7 +138,7 @@ public:
     {
       if (it.Key() == includeTarget || it.Key() == includeSource)
       {
-        IgnoreInfo& info = (it.Key() == includeTarget) ? m_ignoreTarget : m_ignoreSource;
+        IgnoreInfo& info = (it.Key() == includeTarget) ? m_IgnoreTarget : m_IgnoreSource;
         auto inner = it.Value().Get<ezVariantDictionary>();
         for (auto it2 = inner.GetIterator(); it2.IsValid(); it2.Next())
         {
@@ -172,7 +172,7 @@ public:
     ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
     ezGlobalLog::AddLogWriter(LogInspector);
 
-    m_stackAllocator = EZ_DEFAULT_NEW(ezStackAllocator<ezMemoryTrackingFlags::None>, "Temp Allocator", ezFoundation::GetAlignedAllocator());
+    m_pStackAllocator = EZ_DEFAULT_NEW(ezStackAllocator<ezMemoryTrackingFlags::None>, "Temp Allocator", ezFoundation::GetAlignedAllocator());
 
     if (GetArgumentCount() < 2)
       ezLog::Error("This tool requires at leas one command-line argument: An absolute path to the top-level folder of a library.");
@@ -206,7 +206,7 @@ public:
         }
         argi++;
         includeDir.MakeCleanPath();
-        m_includeDirectories.PushBack(includeDir);
+        m_IncludeDirectories.PushBack(includeDir);
       }
       else if (arg == shortIgnoreFile || arg == longIgnoreFile)
       {
@@ -273,7 +273,7 @@ public:
     else
       SetReturnCode(0);
 
-    m_stackAllocator = nullptr;
+    m_pStackAllocator = nullptr;
 
     ezGlobalLog::RemoveLogWriter(LogInspector);
     ezGlobalLog::RemoveLogWriter(ezLogWriter::Console::LogMessageHandler);
@@ -349,7 +349,7 @@ public:
 
           EZ_LOG_BLOCK("Header", &currentFile.GetData()[uiSearchDirLength]);
           CheckHeaderFile(currentFile);
-          m_stackAllocator->Reset();
+          m_pStackAllocator->Reset();
         }
       }
     }
@@ -359,11 +359,11 @@ public:
 
   void CheckInclude(const ezStringBuilder& currentFile, const ezStringBuilder& includePath, ezUInt32 line)
   {
-    ezStringBuilder absIncludePath(m_stackAllocator.Borrow());
+    ezStringBuilder absIncludePath(m_pStackAllocator.Borrow());
     bool includeOutside = true;
     if (includePath.IsAbsolutePath())
     {
-      for (auto& includeDir : m_includeDirectories)
+      for (auto& includeDir : m_IncludeDirectories)
       {
         if (includePath.StartsWith(includeDir))
         {
@@ -381,7 +381,7 @@ public:
       }
       else
       {
-        for (auto& includeDir : m_includeDirectories)
+        for (auto& includeDir : m_IncludeDirectories)
         {
           absIncludePath = includeDir;
           absIncludePath.AppendPath(includePath);
@@ -401,7 +401,7 @@ public:
       ezStringBuilder currentFileLower = currentFile.GetFileNameAndExtension();
       currentFileLower.ToLower();
 
-      bool ignore = m_ignoreTarget.m_byName.Contains(includeFileLower) || m_ignoreSource.m_byName.Contains(currentFileLower);
+      bool ignore = m_IgnoreTarget.m_byName.Contains(includeFileLower) || m_IgnoreSource.m_byName.Contains(currentFileLower);
 
       if (!ignore)
       {
@@ -415,16 +415,16 @@ public:
 
   void CheckHeaderFile(const ezStringBuilder& currentFile)
   {
-    ezStringBuilder fileContents(m_stackAllocator.Borrow());
+    ezStringBuilder fileContents(m_pStackAllocator.Borrow());
     ReadEntireFile(currentFile.GetData(), fileContents).IgnoreResult();
 
     auto fileDir = currentFile.GetFileDirectory();
 
-    ezStringBuilder internalMacroToken(m_stackAllocator.Borrow());
+    ezStringBuilder internalMacroToken(m_pStackAllocator.Borrow());
     internalMacroToken.Append("EZ_", m_sProjectName, "_INTERNAL_HEADER");
     auto internalMacroTokenView = internalMacroToken.GetView();
 
-    ezTokenizer tokenizer(m_stackAllocator.Borrow());
+    ezTokenizer tokenizer(m_pStackAllocator.Borrow());
     auto dataView = fileContents.GetView();
     tokenizer.Tokenize(ezArrayPtr<const ezUInt8>(reinterpret_cast<const ezUInt8*>(dataView.GetStartPointer()), dataView.GetElementCount()), ezLog::GetThreadLocalLogSystem());
 
@@ -461,8 +461,8 @@ public:
           if (curToken.m_iType == ezTokenType::String1)
           {
             // #include "bla"
-            ezStringBuilder absIncludePath(m_stackAllocator.Borrow());
-            ezStringBuilder relativePath(m_stackAllocator.Borrow());
+            ezStringBuilder absIncludePath(m_pStackAllocator.Borrow());
+            ezStringBuilder relativePath(m_pStackAllocator.Borrow());
             relativePath = curToken.m_DataView;
             relativePath.Trim("\"");
             relativePath.MakeCleanPath();
@@ -506,7 +506,7 @@ public:
             }
             else if (!isInternalHeader)
             {
-              ezStringBuilder includePath(m_stackAllocator.Borrow());
+              ezStringBuilder includePath(m_pStackAllocator.Borrow());
               includePath = ezStringView(startToken.m_DataView.GetEndPointer(), curToken.m_DataView.GetStartPointer());
               includePath.MakeCleanPath();
               CheckInclude(currentFile, includePath, startToken.m_uiLine);

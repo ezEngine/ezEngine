@@ -45,7 +45,7 @@ inline ezStringBuilder::ezStringBuilder(const wchar_t* szWChar, ezAllocatorBase*
   *this = szWChar;
 }
 
-inline ezStringBuilder::ezStringBuilder(const ezStringView& rhs, ezAllocatorBase* pAllocator)
+inline ezStringBuilder::ezStringBuilder(ezStringView rhs, ezAllocatorBase* pAllocator)
   : m_Data(pAllocator)
 {
   m_uiCharacterCount = 0;
@@ -91,17 +91,6 @@ EZ_ALWAYS_INLINE ezUInt32 ezStringBuilder::GetElementCount() const
 EZ_ALWAYS_INLINE ezUInt32 ezStringBuilder::GetCharacterCount() const
 {
   return m_uiCharacterCount;
-}
-
-EZ_ALWAYS_INLINE ezStringBuilder::operator ezStringView() const
-{
-  return ezStringView(GetData(), GetData() + GetElementCount());
-}
-
-
-EZ_ALWAYS_INLINE ezStringView ezStringBuilder::GetView() const
-{
-  return ezStringView(GetData(), GetData() + GetElementCount());
 }
 
 EZ_FORCE_INLINE void ezStringBuilder::Clear()
@@ -150,7 +139,7 @@ inline void ezStringBuilder::Append(
   ezStringUtf8 s5(pData5, m_Data.GetAllocator());
   ezStringUtf8 s6(pData6, m_Data.GetAllocator());
 
-  Append(s1.GetData(), s2.GetData(), s3.GetData(), s4.GetData(), s5.GetData(), s6.GetData());
+  Append(s1.GetView(), s2.GetView(), s3.GetView(), s4.GetView(), s5.GetView(), s6.GetView());
 }
 
 inline void ezStringBuilder::Prepend(
@@ -165,7 +154,7 @@ inline void ezStringBuilder::Prepend(
   ezStringUtf8 s5(pData5, m_Data.GetAllocator());
   ezStringUtf8 s6(pData6, m_Data.GetAllocator());
 
-  Prepend(s1.GetData(), s2.GetData(), s3.GetData(), s4.GetData(), s5.GetData(), s6.GetData());
+  Prepend(s1.GetView(), s2.GetView(), s3.GetView(), s4.GetView(), s5.GetView(), s6.GetView());
 }
 
 EZ_ALWAYS_INLINE const char* ezStringBuilder::GetData() const
@@ -227,7 +216,7 @@ EZ_ALWAYS_INLINE void ezStringBuilder::Reserve(ezUInt32 uiNumElements)
   m_Data.Reserve(uiNumElements);
 }
 
-EZ_ALWAYS_INLINE void ezStringBuilder::Insert(const char* szInsertAtPos, const ezStringView& szTextToInsert)
+EZ_ALWAYS_INLINE void ezStringBuilder::Insert(const char* szInsertAtPos, ezStringView szTextToInsert)
 {
   ReplaceSubString(szInsertAtPos, szInsertAtPos, szTextToInsert);
 }
@@ -235,110 +224,6 @@ EZ_ALWAYS_INLINE void ezStringBuilder::Insert(const char* szInsertAtPos, const e
 EZ_ALWAYS_INLINE void ezStringBuilder::Remove(const char* szRemoveFromPos, const char* szRemoveToPos)
 {
   ReplaceSubString(szRemoveFromPos, szRemoveToPos, ezStringView());
-}
-
-template <typename Container>
-void ezStringBuilder::Split(bool bReturnEmptyStrings, Container& Output, const char* szSeparator1, const char* szSeparator2, const char* szSeparator3,
-  const char* szSeparator4, const char* szSeparator5, const char* szSeparator6) const
-{
-  Output.Clear();
-
-  if (IsEmpty())
-    return;
-
-  const ezUInt32 uiParams = 6;
-
-  const char* Seps[uiParams] = {szSeparator1, szSeparator2, szSeparator3, szSeparator4, szSeparator5, szSeparator6};
-
-  ezUInt32 SepLen[uiParams];
-
-  for (ezInt32 i = 0; i < uiParams; ++i)
-    SepLen[i] = ezStringUtils::GetStringElementCount(Seps[i]);
-
-  const char* szReadPos = GetData();
-
-  while (true)
-  {
-    const char* szFoundPos = ezUnicodeUtils::GetMaxStringEnd<char>();
-    ezInt32 iFoundSeparator = 0;
-
-    for (ezInt32 i = 0; i < uiParams; ++i)
-    {
-      const char* szFound = ezStringUtils::FindSubString(szReadPos, Seps[i]);
-
-      if ((szFound != nullptr) && (szFound < szFoundPos))
-      {
-        szFoundPos = szFound;
-        iFoundSeparator = i;
-      }
-    }
-
-    // nothing found
-    if (szFoundPos == ezUnicodeUtils::GetMaxStringEnd<char>())
-    {
-      const ezUInt32 uiLen = ezStringUtils::GetStringElementCount(szReadPos);
-
-      if (bReturnEmptyStrings || (uiLen > 0))
-        Output.PushBack(ezStringView(szReadPos, szReadPos + uiLen));
-
-      return;
-    }
-
-    if (bReturnEmptyStrings || (szFoundPos > szReadPos))
-      Output.PushBack(ezStringView(szReadPos, szFoundPos));
-
-    szReadPos = szFoundPos + SepLen[iFoundSeparator];
-  }
-}
-
-EZ_FORCE_INLINE bool ezStringBuilder::HasAnyExtension() const
-{
-  return ezPathUtils::HasAnyExtension(GetData(), GetData() + GetElementCount());
-}
-
-EZ_FORCE_INLINE bool ezStringBuilder::HasExtension(const char* szExtension) const
-{
-  return ezPathUtils::HasExtension(GetData(), szExtension, GetData() + GetElementCount());
-}
-
-EZ_FORCE_INLINE ezStringView ezStringBuilder::GetFileExtension() const
-{
-  return ezPathUtils::GetFileExtension(GetData(), GetData() + GetElementCount());
-}
-
-EZ_FORCE_INLINE ezStringView ezStringBuilder::GetFileName() const
-{
-  return ezPathUtils::GetFileName(GetData(), GetData() + GetElementCount());
-}
-
-EZ_FORCE_INLINE ezStringView ezStringBuilder::GetFileNameAndExtension() const
-{
-  return ezPathUtils::GetFileNameAndExtension(GetData(), GetData() + GetElementCount());
-}
-
-EZ_FORCE_INLINE ezStringView ezStringBuilder::GetFileDirectory() const
-{
-  return ezPathUtils::GetFileDirectory(GetData(), GetData() + GetElementCount());
-}
-
-EZ_FORCE_INLINE bool ezStringBuilder::IsAbsolutePath() const
-{
-  return ezPathUtils::IsAbsolutePath(GetData());
-}
-
-EZ_FORCE_INLINE bool ezStringBuilder::IsRelativePath() const
-{
-  return ezPathUtils::IsRelativePath(GetData());
-}
-
-EZ_FORCE_INLINE bool ezStringBuilder::IsRootedPath() const
-{
-  return ezPathUtils::IsRootedPath(GetData());
-}
-
-EZ_FORCE_INLINE ezStringView ezStringBuilder::GetRootedPathRootName() const
-{
-  return ezPathUtils::GetRootedPathRootName(GetData());
 }
 
 #include <Foundation/Strings/Implementation/AllStrings_inl.h>

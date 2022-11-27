@@ -32,11 +32,11 @@ private:
   ezResult GetPointOnAxis(ezInt32 iScreenPosX, ezInt32 iScreenPosY, ezVec3& out_Result) const;
 
   ezTime m_LastInteraction;
-  ezMat4 m_InvViewProj;
+  ezMat4 m_mInvViewProj;
 
-  ezVec2I32 m_LastMousePos;
+  ezVec2I32 m_vLastMousePos;
 
-  ezEngineGizmoHandle m_Outline;
+  ezEngineGizmoHandle m_hOutline;
   ezEngineGizmoHandle m_Nobs[6];
   ezVec3 m_vMainAxis[6];
 

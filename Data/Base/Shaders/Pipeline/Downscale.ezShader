@@ -1,0 +1,46 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX
+CAMERA_MODE = CAMERA_MODE_STEREO
+
+[RENDERSTATE]
+
+DepthTest = false
+DepthTestFunc = CompareFunc_Less
+DepthWrite = false
+CullMode = CullMode_None
+
+[VERTEXSHADER]
+
+#include <Shaders/Pipeline/FullscreenTriangleVertexShader.h>
+
+[GEOMETRYSHADER]
+
+#include <Shaders/Pipeline/FullscreenTriangleStereoGeometryShader.h>
+
+[PIXELSHADER]
+
+#include <Shaders/Pipeline/FullscreenTriangleInterpolator.h>
+
+#include "CopyConstants.h"
+
+Texture2DArray Input;
+
+float4 main(PS_IN input) : SV_Target
+{
+#if CAMERA_MODE == CAMERA_MODE_STEREO
+  int ArrayIndex = input.RenderTargetArrayIndex;
+#else
+  int ArrayIndex = 0;
+#endif
+  int mipLevel = 0;
+  float4 res = 0.25f * Input.Load(int4((int)input.Position.x * 2, (int)input.Position.y * 2, ArrayIndex, mipLevel));
+  res += 0.25f * Input.Load(int4((int)input.Position.x * 2 + 1, (int)input.Position.y * 2, ArrayIndex, mipLevel));
+  res += 0.25f * Input.Load(int4((int)input.Position.x * 2, (int)input.Position.y * 2 + 1, ArrayIndex, mipLevel));
+  res += 0.25f * Input.Load(int4((int)input.Position.x * 2 + 1, (int)input.Position.y * 2 + 1, ArrayIndex, mipLevel));
+
+  return res;
+}

@@ -24,6 +24,14 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezActorPluginWindowOwner, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
+ezActorPluginWindowOwner::~ezActorPluginWindowOwner()
+{
+  // The window output target has a dependency to the window, e.g. the swapchain renders to it.
+  // Explicitly destroy it first to ensure correct destruction order.
+  m_pWindowOutputTarget.Clear();
+  m_pWindow.Clear();
+}
+
 ezWindowBase* ezActorPluginWindowOwner::GetWindow() const
 {
   return m_pWindow.Borrow();

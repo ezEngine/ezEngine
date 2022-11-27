@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include <Foundation/Basics.h>
@@ -15,37 +14,54 @@ class ezMemoryStreamWriter;
 //////////////////////////////////////////////////////////////////////////
 
 /// \brief Instances of this class act as storage for memory streams
-class EZ_FOUNDATION_DLL ezMemoryStreamStorageInterface : public ezRefCounted
+class EZ_FOUNDATION_DLL ezMemoryStreamStorageInterface
 {
 public:
   ezMemoryStreamStorageInterface();
   virtual ~ezMemoryStreamStorageInterface();
 
-  /// \brief Returns the number of bytes that is currently stored.
-  virtual ezUInt32 GetStorageSize() const = 0;
+  /// \brief Returns the number of bytes that are currently stored. Asserts that the stored amount is less than 4GB.
+  ezUInt32 GetStorageSize32() const
+  {
+    EZ_ASSERT_ALWAYS(GetStorageSize64() <= ezMath::MaxValue<ezUInt32>(), "The memory stream storage object has grown beyond 4GB. The code using it has to be adapted to support this.");
+    return (ezUInt32)GetStorageSize64();
+  }
+
+  /// \brief Returns the number of bytes that are currently stored.
+  virtual ezUInt64 GetStorageSize64() const = 0; // [tested]
 
   /// \brief Clears the entire storage. All readers and writers must be reset to start from the beginning again.
   virtual void Clear() = 0;
 
-  /// \brief Calls Compact() on the internal array.
+  /// \brief Deallocates any allocated memory that's not needed to hold the currently stored data.
   virtual void Compact() = 0;
 
   /// \brief Returns the amount of bytes that are currently allocated on the heap.
   virtual ezUInt64 GetHeapMemoryUsage() const = 0;
 
-  /// \brief Returns a pointer to the internal data.
-  virtual const ezUInt8* GetData() const = 0;
-
   /// \brief Copies all data from the given stream into the storage.
-  void ReadAll(ezStreamReader& Stream, ezUInt64 uiMaxBytes = 0xFFFFFFFFFFFFFFFFllu);
+  void ReadAll(ezStreamReader& Stream, ezUInt64 uiMaxBytes = ezMath::MaxValue<ezUInt64>());
 
   /// \brief Reserves N bytes of storage.
   virtual void Reserve(ezUInt64 uiBytes) = 0;
 
+  /// \brief Writes the entire content of the storage to the provided stream.
+  virtual ezResult CopyToStream(ezStreamWriter& stream) const = 0;
+
+  /// \brief Returns a read-only ezArrayPtr that represents a contiguous area in memory which starts at the given first byte.
+  ///
+  /// This piece of memory can be read/copied/modified in one operation (memcpy etc).
+  /// The next byte after this slice may be located somewhere entirely different in memory.
+  /// Call GetContiguousMemoryRange() again with the next byte after this range, to get access to the next memory area.
+  ///
+  /// Chunks may differ in size.
+  virtual ezArrayPtr<const ezUInt8> GetContiguousMemoryRange(ezUInt64 uiStartByte) const = 0;
+
+  /// Non-const overload of GetContiguousMemoryRange().
+  virtual ezArrayPtr<ezUInt8> GetContiguousMemoryRange(ezUInt64 uiStartByte) = 0;
+
 private:
-  virtual const ezUInt8* GetInternalData() const = 0;
-  virtual ezUInt8* GetInternalData() = 0;
-  virtual void SetInternalSize(ezUInt32 uiSize) = 0;
+  virtual void SetInternalSize(ezUInt64 uiSize) = 0;
 
   friend class ezMemoryStreamReader;
   friend class ezMemoryStreamWriter;
@@ -56,41 +72,61 @@ private:
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-/// \brief Templated implementation of ezMemoryStreamStorageInterface that adapts all standard ez containers to the interface.
+/// \brief Templated implementation of ezMemoryStreamStorageInterface that adapts most standard ez containers to the interface.
 ///
-/// Note that ezMemoryStreamReader and ezMemoryStreamWriter assume contiguous storage, so using an ezDeque for storage will not work.
+/// Note that ezMemoryStreamContainerStorage assumes contiguous storage, so using an ezDeque for storage will not work.
 template <typename CONTAINER>
 class ezMemoryStreamContainerStorage : public ezMemoryStreamStorageInterface
 {
 public:
-  /// \brief Creates the storage object for a memory stream. Use \a uiInitialCapacity to reserve a some memory up front, to reduce
-  /// reallocations.
+  /// \brief Creates the storage object for a memory stream. Use \a uiInitialCapacity to reserve some memory up front.
   ezMemoryStreamContainerStorage(ezUInt32 uiInitialCapacity = 0, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator())
     : m_Storage(pAllocator)
   {
     m_Storage.Reserve(uiInitialCapacity);
   }
 
-  virtual ezUInt32 GetStorageSize() const override { return m_Storage.GetCount(); }
+  virtual ezUInt64 GetStorageSize64() const override { return m_Storage.GetCount(); }
   virtual void Clear() override { m_Storage.Clear(); }
   virtual void Compact() override { m_Storage.Compact(); }
   virtual ezUInt64 GetHeapMemoryUsage() const override { return m_Storage.GetHeapMemoryUsage(); }
-  virtual const ezUInt8* GetData() const override
-  {
-    if (m_Storage.IsEmpty())
-      return nullptr;
-    return &m_Storage[0];
-  }
+
   virtual void Reserve(ezUInt64 uiBytes) override
   {
     EZ_ASSERT_DEV(uiBytes <= ezMath::MaxValue<ezUInt32>(), "ezMemoryStreamContainerStorage only supports 32 bit addressable sizes.");
     m_Storage.Reserve(static_cast<ezUInt32>(uiBytes));
   }
 
+  virtual ezResult CopyToStream(ezStreamWriter& stream) const override
+  {
+    return stream.WriteBytes(m_Storage.GetData(), m_Storage.GetCount());
+  }
+
+  virtual ezArrayPtr<const ezUInt8> GetContiguousMemoryRange(ezUInt64 uiStartByte) const override
+  {
+    if (uiStartByte >= m_Storage.GetCount())
+      return {};
+
+    return ezArrayPtr<const ezUInt8>(m_Storage.GetData() + uiStartByte, m_Storage.GetCount() - static_cast<ezUInt32>(uiStartByte));
+  }
+
+  virtual ezArrayPtr<ezUInt8> GetContiguousMemoryRange(ezUInt64 uiStartByte) override
+  {
+    if (uiStartByte >= m_Storage.GetCount())
+      return {};
+
+    return ezArrayPtr<ezUInt8>(m_Storage.GetData() + uiStartByte, m_Storage.GetCount() - static_cast<ezUInt32>(uiStartByte));
+  }
+
+  /// \brief The data is guaranteed to be contiguous.
+  const ezUInt8* GetData() const { return &m_Storage[0]; }
+
 private:
-  virtual const ezUInt8* GetInternalData() const override { return &m_Storage[0]; }
-  virtual ezUInt8* GetInternalData() override { return &m_Storage[0]; }
-  virtual void SetInternalSize(ezUInt32 uiSize) override { m_Storage.SetCountUninitialized(uiSize); }
+  virtual void SetInternalSize(ezUInt64 uiSize) override
+  {
+    EZ_ASSERT_DEV(uiSize <= ezMath::MaxValue<ezUInt32>(), "Storage that large is not supported.");
+    m_Storage.SetCountUninitialized(static_cast<ezUInt32>(uiSize));
+  }
 
   CONTAINER m_Storage;
 };
@@ -101,17 +137,61 @@ private:
 //////////////////////////////////////////////////////////////////////////
 
 
-/// ezMemoryStreamStorage holds internally an ezHybridArray<ezUInt8, 256>, to prevent allocations when only small temporary memory streams
+/// ezContiguousMemoryStreamStorage holds internally an ezHybridArray<ezUInt8, 256>, to prevent allocations when only small temporary memory streams
 /// are needed. That means it will have a memory overhead of that size.
-class EZ_FOUNDATION_DLL ezMemoryStreamStorage : public ezMemoryStreamContainerStorage<ezHybridArray<ezUInt8, 256>>
+/// Also it reallocates memory on demand, and the data is guaranteed to be contiguous. This may be desirable,
+/// but can have a high performance overhead when data grows very large.
+class EZ_FOUNDATION_DLL ezContiguousMemoryStreamStorage : public ezMemoryStreamContainerStorage<ezHybridArray<ezUInt8, 256>>
 {
 public:
-  ezMemoryStreamStorage(ezUInt32 uiInitialCapacity = 0, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator())
+  ezContiguousMemoryStreamStorage(ezUInt32 uiInitialCapacity = 0, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator())
     : ezMemoryStreamContainerStorage<ezHybridArray<ezUInt8, 256>>(uiInitialCapacity, pAllocator)
   {
   }
 };
 
+/// \brief The default implementation for memory stream storage.
+///
+/// This implementation of ezMemoryStreamStorageInterface handles use cases both from very small to extremely large storage needs.
+/// It starts out with some inplace memory that can accommodate small amounts of data.
+/// To grow, additional chunks of data are allocated. No memory ever needs to be copied to grow the container.
+/// However, that also means that the memory isn't stored in one contiguous array, therefore data has to be accessed piece-wise
+/// through GetContiguousMemoryRange().
+class EZ_FOUNDATION_DLL ezDefaultMemoryStreamStorage : public ezMemoryStreamStorageInterface
+{
+public:
+  ezDefaultMemoryStreamStorage(ezUInt32 uiInitialCapacity = 0, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator());
+  ~ezDefaultMemoryStreamStorage();
+
+  virtual void Reserve(ezUInt64 bytes) override; // [tested]
+
+  virtual ezUInt64 GetStorageSize64() const override; // [tested]
+  virtual void Clear() override;
+  virtual void Compact() override;
+  virtual ezUInt64 GetHeapMemoryUsage() const override;
+  virtual ezResult CopyToStream(ezStreamWriter& stream) const override;
+  virtual ezArrayPtr<const ezUInt8> GetContiguousMemoryRange(ezUInt64 uiStartByte) const override; // [tested]
+  virtual ezArrayPtr<ezUInt8> GetContiguousMemoryRange(ezUInt64 uiStartByte) override;             // [tested]
+
+private:
+  virtual void SetInternalSize(ezUInt64 uiSize) override;
+
+  void AddChunk(ezUInt32 uiMinimumSize);
+
+  struct Chunk
+  {
+    ezUInt64 m_uiStartOffset = 0;
+    ezArrayPtr<ezUInt8> m_Bytes;
+  };
+
+  ezHybridArray<Chunk, 16> m_Chunks;
+
+  ezUInt64 m_uiCapacity = 0;
+  ezUInt64 m_uiInternalSize = 0;
+  ezUInt8 m_InplaceMemory[512]; // used for the very first bytes, might cover small memory streams without an allocation
+  mutable ezUInt32 m_uiLastChunkAccessed = 0;
+  mutable ezUInt64 m_uiLastByteAccessed = 0;
+};
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
@@ -124,26 +204,44 @@ class ezMemoryStreamContainerWrapperStorage : public ezMemoryStreamStorageInterf
 public:
   ezMemoryStreamContainerWrapperStorage(CONTAINER* pContainer) { m_pStorage = pContainer; }
 
-  virtual ezUInt32 GetStorageSize() const override { return m_pStorage->GetCount(); }
+  virtual ezUInt64 GetStorageSize64() const override { return m_pStorage->GetCount(); }
   virtual void Clear() override { m_pStorage->Clear(); }
   virtual void Compact() override { m_pStorage->Compact(); }
   virtual ezUInt64 GetHeapMemoryUsage() const override { return m_pStorage->GetHeapMemoryUsage(); }
-  virtual const ezUInt8* GetData() const override
-  {
-    if (m_pStorage->IsEmpty())
-      return nullptr;
-    return &(*m_pStorage)[0];
-  }
+
   virtual void Reserve(ezUInt64 uiBytes) override
   {
-    EZ_ASSERT_DEV(uiBytes < ezMath::MaxValue<ezUInt32>(), "Container can currently only hold 32 bit addressable bytes.");
+    EZ_ASSERT_DEV(uiBytes <= ezMath::MaxValue<ezUInt32>(), "ezMemoryStreamContainerWrapperStorage only supports 32 bit addressable sizes.");
     m_pStorage->Reserve(static_cast<ezUInt32>(uiBytes));
   }
 
+  virtual ezResult CopyToStream(ezStreamWriter& stream) const override
+  {
+    return stream.WriteBytes(m_pStorage->GetData(), m_pStorage->GetCount());
+  }
+
+  virtual ezArrayPtr<const ezUInt8> GetContiguousMemoryRange(ezUInt64 uiStartByte) const override
+  {
+    if (uiStartByte >= m_pStorage->GetCount())
+      return {};
+
+    return ezArrayPtr<const ezUInt8>(m_pStorage->GetData() + uiStartByte, m_pStorage->GetCount() - static_cast<ezUInt32>(uiStartByte));
+  }
+
+  virtual ezArrayPtr<ezUInt8> GetContiguousMemoryRange(ezUInt64 uiStartByte) override
+  {
+    if (uiStartByte >= m_pStorage->GetCount())
+      return {};
+
+    return ezArrayPtr<ezUInt8>(m_pStorage->GetData() + uiStartByte, m_pStorage->GetCount() - static_cast<ezUInt32>(uiStartByte));
+  }
+
 private:
-  virtual const ezUInt8* GetInternalData() const override { return &(*m_pStorage)[0]; }
-  virtual ezUInt8* GetInternalData() override { return &(*m_pStorage)[0]; }
-  virtual void SetInternalSize(ezUInt32 uiSize) override { m_pStorage->SetCountUninitialized(uiSize); }
+  virtual void SetInternalSize(ezUInt64 uiSize) override
+  {
+    EZ_ASSERT_DEV(uiSize <= ezMath::MaxValue<ezUInt32>(), "ezMemoryStreamContainerWrapperStorage only supports up to 4GB sizes.");
+    m_pStorage->SetCountUninitialized(static_cast<ezUInt32>(uiSize));
+  }
 
   CONTAINER* m_pStorage;
 };
@@ -183,23 +281,24 @@ public:
   virtual ezUInt64 SkipBytes(ezUInt64 uiBytesToSkip) override; // [tested]
 
   /// \brief Sets the read position to be used
-  void SetReadPosition(ezUInt32 uiReadPosition); // [tested]
+  void SetReadPosition(ezUInt64 uiReadPosition); // [tested]
 
   /// \brief Returns the current read position
-  ezUInt32 GetReadPosition() const { return m_uiReadPosition; }
+  ezUInt64 GetReadPosition() const { return m_uiReadPosition; }
 
   /// \brief Returns the total available bytes in the memory stream
-  ezUInt32 GetByteCount() const; // [tested]
+  ezUInt32 GetByteCount32() const; // [tested]
+  ezUInt64 GetByteCount64() const; // [tested]
 
   /// \brief Allows to set a string as the source of information in the memory stream for debug purposes.
   void SetDebugSourceInformation(const char* szDebugSourceInformation);
 
 private:
-  ezScopedRefPointer<const ezMemoryStreamStorageInterface> m_pStreamStorage;
+  const ezMemoryStreamStorageInterface* m_pStreamStorage = nullptr;
 
-  ezString m_DebugSourceInformation;
+  ezString m_sDebugSourceInformation;
 
-  ezUInt32 m_uiReadPosition;
+  ezUInt64 m_uiReadPosition = 0;
 };
 
 
@@ -225,7 +324,7 @@ public:
     m_pStreamStorage = pStreamStorage;
     m_uiWritePosition = 0;
     if (m_pStreamStorage)
-      m_uiWritePosition = m_pStreamStorage->GetStorageSize();
+      m_uiWritePosition = m_pStreamStorage->GetStorageSize64();
   }
 
   /// \brief Copies uiBytesToWrite from pWriteBuffer into the memory stream.
@@ -234,18 +333,19 @@ public:
   virtual ezResult WriteBytes(const void* pWriteBuffer, ezUInt64 uiBytesToWrite) override; // [tested]
 
   /// \brief Sets the write position to be used
-  void SetWritePosition(ezUInt32 uiReadPosition); // [tested]
+  void SetWritePosition(ezUInt64 uiWritePosition); // [tested]
 
   /// \brief Returns the current write position
-  ezUInt32 GetWritePosition() const { return m_uiWritePosition; }
+  ezUInt64 GetWritePosition() const { return m_uiWritePosition; }
 
   /// \brief Returns the total stored bytes in the memory stream
-  ezUInt32 GetByteCount() const; // [tested]
+  ezUInt32 GetByteCount32() const; // [tested]
+  ezUInt64 GetByteCount64() const; // [tested]
 
 private:
-  ezScopedRefPointer<ezMemoryStreamStorageInterface> m_pStreamStorage;
+  ezMemoryStreamStorageInterface* m_pStreamStorage = nullptr;
 
-  ezUInt32 m_uiWritePosition;
+  ezUInt64 m_uiWritePosition = 0;
 };
 
 
@@ -306,7 +406,7 @@ private:
   ezUInt64 m_uiChunkSize = 0;
   ezUInt64 m_uiReadPosition = 0;
 
-  ezString m_DebugSourceInformation;
+  ezString m_sDebugSourceInformation;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -361,5 +461,5 @@ private:
   ezUInt64 m_uiChunkSize = 0;
   ezUInt64 m_uiWritePosition = 0;
 
-  ezString m_DebugSourceInformation;
+  ezString m_sDebugSourceInformation;
 };

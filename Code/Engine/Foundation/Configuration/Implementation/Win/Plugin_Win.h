@@ -14,12 +14,24 @@ typedef HMODULE ezPluginModule;
 
 void ezPlugin::GetPluginPaths(const char* szPluginName, ezStringBuilder& sOriginalFile, ezStringBuilder& sCopiedFile, ezUInt8 uiFileCopyNumber)
 {
+  auto sPluginName = ezStringView(szPluginName);
+
   sOriginalFile = ezOSFile::GetApplicationDirectory();
-  sOriginalFile.AppendPath(szPluginName);
+  sOriginalFile.AppendPath(sPluginName);
   sOriginalFile.Append(".dll");
 
   sCopiedFile = ezOSFile::GetApplicationDirectory();
-  sCopiedFile.AppendPath(szPluginName);
+  sCopiedFile.AppendPath(sPluginName);
+
+  if (!ezOSFile::ExistsFile(sOriginalFile))
+  {
+    sOriginalFile = ezOSFile::GetCurrentWorkingDirectory();
+    sOriginalFile.AppendPath(sPluginName);
+    sOriginalFile.Append(".dll");
+
+    sCopiedFile = ezOSFile::GetCurrentWorkingDirectory();
+    sCopiedFile.AppendPath(sPluginName);
+  }
 
   if (uiFileCopyNumber > 0)
     sCopiedFile.AppendFormat("{0}", uiFileCopyNumber);

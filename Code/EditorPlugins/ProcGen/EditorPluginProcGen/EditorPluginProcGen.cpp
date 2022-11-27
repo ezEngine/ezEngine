@@ -12,18 +12,15 @@ static void ToolsProjectEventHandler(const ezToolsProjectEvent& e);
 
 void OnLoadPlugin()
 {
-  ezQtEditorApp::GetSingleton()->AddRuntimePluginDependency("EditorPluginProcGen", "ezProcGenPlugin");
-  // ezQtEditorApp::GetSingleton()->AddRuntimePluginDependency("EditorPluginProcGen", "ezEnginePluginProcGen");
-
-  // ezToolsProject::GetSingleton()->s_Events.AddEventHandler(ToolsProjectEventHandler);
-
   // Asset
-  {// Menu Bar
-    {const char* szMenuBar = "ProcGenAssetMenuBar";
+  {
+    // Menu Bar
+    {
+      const char* szMenuBar = "ProcGenAssetMenuBar";
 
   ezActionMapManager::RegisterActionMap(szMenuBar).IgnoreResult();
-  ezProjectActions::MapActions(szMenuBar);
   ezStandardMenus::MapActions(szMenuBar, ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+  ezProjectActions::MapActions(szMenuBar);
   ezDocumentActions::MapActions(szMenuBar, "Menu.File", false);
   ezCommandHistoryActions::MapActions(szMenuBar, "Menu.Edit");
 
@@ -57,19 +54,7 @@ void OnLoadPlugin()
 void OnUnloadPlugin()
 {
   ezProcGenActions::UnregisterActions();
-  // ezToolsProject::GetSingleton()->s_Events.RemoveEventHandler(ToolsProjectEventHandler);
 }
-
-/*static void ToolsProjectEventHandler(const ezToolsProjectEvent& e)
-{
-  if (e.m_Type == ezToolsProjectEvent::Type::ProjectOpened)
-  {
-    ezFmodProjectPreferences* pPreferences = ezPreferences::QueryPreferences<ezFmodProjectPreferences>();
-    pPreferences->SyncCVars();
-  }
-}*/
-
-EZ_PLUGIN_DEPENDENCY(ezEditorPluginScene);
 
 EZ_PLUGIN_ON_LOADED()
 {

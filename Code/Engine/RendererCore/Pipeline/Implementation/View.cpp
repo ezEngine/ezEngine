@@ -7,6 +7,7 @@
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
+#include <RendererFoundation/Device/Device.h>
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezCameraUsageHint, 1)
@@ -59,17 +60,41 @@ void ezView::SetWorld(ezWorld* pWorld)
   }
 }
 
-void ezView::SetRenderTargetSetup(ezGALRenderTargetSetup& renderTargetSetup)
+void ezView::SetSwapChain(ezGALSwapChainHandle hSwapChain)
 {
-  if (m_RenderTargetSetup != renderTargetSetup)
+  if (m_Data.m_hSwapChain != hSwapChain)
   {
-    m_RenderTargetSetup = renderTargetSetup;
-
+    // Swap chain and render target setup are mutually exclusive.
+    m_Data.m_hSwapChain = hSwapChain;
+    m_Data.m_renderTargets = ezGALRenderTargets();
     if (m_pRenderPipeline)
     {
       ezRenderWorld::AddRenderPipelineToRebuild(m_pRenderPipeline, GetHandle());
     }
   }
+}
+
+void ezView::SetRenderTargets(const ezGALRenderTargets& renderTargets)
+{
+  if (m_Data.m_renderTargets != renderTargets)
+  {
+    // Swap chain and render target setup are mutually exclusive.
+    m_Data.m_hSwapChain = ezGALSwapChainHandle();
+    m_Data.m_renderTargets = renderTargets;
+    if (m_pRenderPipeline)
+    {
+      ezRenderWorld::AddRenderPipelineToRebuild(m_pRenderPipeline, GetHandle());
+    }
+  }
+}
+
+const ezGALRenderTargets& ezView::GetActiveRenderTargets() const
+{
+  if (const ezGALSwapChain* pSwapChain = ezGALDevice::GetDefaultDevice()->GetSwapChain(m_Data.m_hSwapChain))
+  {
+    return pSwapChain->GetRenderTargets();
+  }
+  return m_Data.m_renderTargets;
 }
 
 void ezView::SetRenderPipelineResource(ezRenderPipelineResourceHandle hPipeline)
@@ -110,6 +135,14 @@ void ezView::SetViewport(const ezRectFloat& viewport)
   UpdateViewData(ezRenderWorld::GetDataIndexForExtraction());
 }
 
+void ezView::ForceUpdate()
+{
+  if (m_pRenderPipeline)
+  {
+    ezRenderWorld::AddRenderPipelineToRebuild(m_pRenderPipeline, GetHandle());
+  }
+}
+
 void ezView::ExtractData()
 {
   EZ_ASSERT_DEV(IsValid(), "Cannot extract data from an invalid view");
@@ -119,6 +152,7 @@ void ezView::ExtractData()
   extractionEvent.m_pView = this;
   extractionEvent.m_uiFrameCounter = ezRenderWorld::GetFrameCounter();
   ezRenderWorld::s_ExtractionEvent.Broadcast(extractionEvent);
+
 
   m_pRenderPipeline->m_sName = m_sName;
   m_pRenderPipeline->ExtractData(*this);

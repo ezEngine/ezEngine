@@ -2,6 +2,7 @@
 
 #include <Foundation/Strings/TranslationLookup.h>
 #include <Foundation/Types/VariantTypeRegistry.h>
+#include <GuiFoundation/PropertyGrid/DefaultState.h>
 #include <GuiFoundation/PropertyGrid/Implementation/AddSubElementButton.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
@@ -13,6 +14,7 @@
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
 ezString ezQtAddSubElementButton::s_sLastMenuSearch;
+bool ezQtAddSubElementButton::s_bShowInDevelopmentFeatures = false;
 
 ezQtAddSubElementButton::ezQtAddSubElementButton()
   : ezQtPropertyWidget()
@@ -20,7 +22,7 @@ ezQtAddSubElementButton::ezQtAddSubElementButton()
   // Reset base class size policy as we are put in a layout that would cause us to vanish instead.
   setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
   m_pLayout = new QHBoxLayout(this);
-  m_pLayout->setMargin(0);
+  m_pLayout->setContentsMargins(0, 0, 0, 0);
   setLayout(m_pLayout);
 
   m_pButton = new QPushButton(this);
@@ -173,6 +175,16 @@ void ezQtAddSubElementButton::onMenuAboutToShow()
         it = m_SupportedTypes.Remove(it);
         continue;
       }
+
+      if (!s_bShowInDevelopmentFeatures)
+      {
+        if (auto pInDev = it.Key()->GetAttributeByType<ezInDevelopmentAttribute>())
+        {
+          it = m_SupportedTypes.Remove(it);
+          continue;
+        }
+      }
+
       if (m_pConstraint)
       {
         const ezAbstractProperty* pConstraintProp = it.Key()->FindPropertyByName(m_pConstraint->GetConstantName());
@@ -233,6 +245,7 @@ void ezQtAddSubElementButton::onMenuAboutToShow()
 
       // Determine current menu
       const ezCategoryAttribute* pCatA = pRtti->GetAttributeByType<ezCategoryAttribute>();
+      const ezInDevelopmentAttribute* pInDev = pRtti->GetAttributeByType<ezInDevelopmentAttribute>();
 
       if (m_pSearchableMenu != nullptr)
       {
@@ -240,14 +253,26 @@ void ezQtAddSubElementButton::onMenuAboutToShow()
         fullName = pCatA ? pCatA->GetCategory() : "";
         fullName.AppendPath(ezTranslate(pRtti->GetTypeName()));
 
+        if (pInDev)
+        {
+          fullName.AppendFormat(" [ {} ]", pInDev->GetString());
+        }
+
         m_pSearchableMenu->AddItem(fullName, QVariant::fromValue((void*)pRtti), actionIcon);
       }
       else
       {
         QMenu* pCat = CreateCategoryMenu(pCatA ? pCatA->GetCategory() : nullptr, existingMenus);
 
+        ezStringBuilder fullName = ezTranslate(pRtti->GetTypeName());
+
+        if (pInDev)
+        {
+          fullName.AppendFormat(" [ {} ]", pInDev->GetString());
+        }
+
         // Add type action to current menu
-        QAction* pAction = new QAction(QString::fromUtf8(ezTranslate(pRtti->GetTypeName())), m_pMenu);
+        QAction* pAction = new QAction(fullName.GetData(), m_pMenu);
         pAction->setProperty("type", QVariant::fromValue((void*)pRtti));
         EZ_VERIFY(connect(pAction, SIGNAL(triggered()), this, SLOT(OnMenuAction())) != nullptr, "connection failed");
 
@@ -263,8 +288,7 @@ void ezQtAddSubElementButton::onMenuAboutToShow()
         const ezRTTI* pRtti = static_cast<const ezRTTI*>(variant.value<void*>());
 
         OnAction(pRtti);
-        m_pMenu->close();
-      });
+        m_pMenu->close(); });
 
       connect(m_pSearchableMenu, &ezQtSearchableMenu::SearchTextChanged, m_pMenu,
         [this](const QString& text) { s_sLastMenuSearch = text.toUtf8().data(); });
@@ -404,7 +428,7 @@ void ezQtAddSubElementButton::OnAction(const ezRTTI* pRtti)
   {
     for (auto& item : m_Items)
     {
-      res = m_pObjectAccessor->InsertValue(item.m_pObject, m_pProp, ezReflectionUtils::GetDefaultValue(GetProperty()), index);
+      res = m_pObjectAccessor->InsertValue(item.m_pObject, m_pProp, ezReflectionUtils::GetDefaultValue(GetProperty(), index), index);
       if (res.m_Result.Failed())
         break;
     }
@@ -417,6 +441,11 @@ void ezQtAddSubElementButton::OnAction(const ezRTTI* pRtti)
       res = m_pObjectAccessor->AddObject(item.m_pObject, m_pProp, index, pRtti, guid);
       if (res.m_Result.Failed())
         break;
+
+      ezHybridArray<ezPropertySelection, 1> selection;
+      selection.PushBack({m_pObjectAccessor->GetObject(guid), ezVariant()});
+      ezDefaultObjectState defaultState(m_pObjectAccessor, selection);
+      defaultState.RevertObject();
     }
   }
 

@@ -14,11 +14,16 @@ public:
 
   void RegisterObject(ezUuid guid, HandleType handle)
   {
+    auto it = m_GuidToHandle.Find(guid);
+    if (it.IsValid())
+    {
+      // During undo/redo we may register the same object again. In that case, just use the new version.
+      UnregisterObject(guid);
+    }
     m_GuidToHandle[guid] = handle;
     m_HandleToGuid[handle] = guid;
 
-    // apparently this happens during undo/redo (same guid, new handle on undo)
-    // EZ_ASSERT_DEV(m_GuidToHandle.GetCount() == m_HandleToGuid.GetCount(), "1:1 relationship is broken. Check operator< for handle type.");
+    EZ_ASSERT_DEV(m_GuidToHandle.GetCount() == m_HandleToGuid.GetCount(), "1:1 relationship is broken. Check operator< for handle type.");
   }
 
   void UnregisterObject(ezUuid guid)
@@ -27,8 +32,7 @@ public:
     m_GuidToHandle.Remove(guid);
     m_HandleToGuid.Remove(handle);
 
-    // apparently this happens during undo/redo (same guid, new handle on undo)
-    // EZ_ASSERT_DEV(m_GuidToHandle.GetCount() == m_HandleToGuid.GetCount(), "1:1 relationship is broken. Check operator< for handle type.");
+    EZ_ASSERT_DEV(m_GuidToHandle.GetCount() == m_HandleToGuid.GetCount(), "1:1 relationship is broken. Check operator< for handle type.");
   }
 
   void UnregisterObject(HandleType handle)
@@ -37,8 +41,7 @@ public:
     m_GuidToHandle.Remove(guid);
     m_HandleToGuid.Remove(handle);
 
-    // apparently this happens during undo/redo (same guid, new handle on undo)
-    // EZ_ASSERT_DEV(m_GuidToHandle.GetCount() == m_HandleToGuid.GetCount(), "1:1 relationship is broken. Check operator< for handle type.");
+    EZ_ASSERT_DEV(m_GuidToHandle.GetCount() == m_HandleToGuid.GetCount(), "1:1 relationship is broken. Check operator< for handle type.");
   }
 
   HandleType GetHandle(ezUuid guid) const

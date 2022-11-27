@@ -32,9 +32,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Uuid)
     Uuid.CreateNewUuid();
     EZ_TEST_BOOL(Uuid.IsValid());
 
-
-    ezMemoryStreamStorage StreamStorage;
-
+    ezDefaultMemoryStreamStorage StreamStorage;
 
     // Create reader
     ezMemoryStreamReader StreamReader(&StreamStorage);

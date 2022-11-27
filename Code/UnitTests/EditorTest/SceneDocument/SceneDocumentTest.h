@@ -16,6 +16,7 @@ private:
   {
     ST_LayerOperations,
     ST_PrefabOperations,
+    ST_ComponentOperations,
   };
 
   virtual void SetupSubTests() override;
@@ -27,10 +28,13 @@ private:
   void CloseSimpleScene();
   void LayerOperations();
   void PrefabOperations();
+  void ComponentOperations();
+
+  static void CheckHierarchy(ezObjectAccessorBase* pAccessor, const ezDocumentObject* pRoot, ezDelegate<void(const ezDocumentObject* pChild)> functor);
 
 private:
   ezScene2Document* m_pDoc = nullptr;
   ezLayerDocument* m_pLayer = nullptr;
-  ezUuid m_sceneGuid;
-  ezUuid m_layerGuid;
+  ezUuid m_SceneGuid;
+  ezUuid m_LayerGuid;
 };

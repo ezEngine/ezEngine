@@ -153,7 +153,7 @@ ezResult ezTexConv::WriteTexFile(ezStreamWriter& stream, const ezImage& image)
   texFormat.WriteTextureHeader(stream);
 
   ezDdsFileFormat ddsWriter;
-  if (ddsWriter.WriteImage(stream, image, ezLog::GetThreadLocalLogSystem(), "dds").Failed())
+  if (ddsWriter.WriteImage(stream, image, "dds").Failed())
   {
     ezLog::Error("Failed to write DDS image chunk to ezTex file.");
     return EZ_FAILURE;
@@ -185,7 +185,7 @@ ezResult ezTexConv::WriteOutputFile(const char* szFile, const ezImage& image)
     file << uiFormat;
 
     ezStbImageFileFormats pngWriter;
-    if (pngWriter.WriteImage(file, image, ezLog::GetThreadLocalLogSystem(), "png").Failed())
+    if (pngWriter.WriteImage(file, image, "png").Failed())
     {
       ezLog::Error("Failed to write data as PNG to ezImageData file.");
       return EZ_FAILURE;
@@ -228,7 +228,7 @@ ezApplication::Execution ezTexConv::Run()
 
     header.Write(file).IgnoreResult();
 
-    file.WriteBytes(m_Processor.m_TextureAtlas.GetData(), m_Processor.m_TextureAtlas.GetStorageSize()).IgnoreResult();
+    m_Processor.m_TextureAtlas.CopyToStream(file).IgnoreResult();
 
     if (file.Close().Succeeded())
     {

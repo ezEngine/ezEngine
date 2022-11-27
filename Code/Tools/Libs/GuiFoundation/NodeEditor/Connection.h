@@ -13,23 +13,31 @@ public:
   ~ezQtConnection();
   virtual int type() const override { return ezQtNodeScene::Connection; }
 
+  const ezDocumentObject* GetObject() const { return m_pObject; }
+  const ezConnection* GetConnection() const { return m_pConnection; }
+  void InitConnection(const ezDocumentObject* pObject, const ezConnection* pConnection);
+
   void SetPosIn(const QPointF& point);
   void SetPosOut(const QPointF& point);
   void SetDirIn(const QPointF& dir);
   void SetDirOut(const QPointF& dir);
 
-  void SetConnection(const ezConnection* pConnection) { m_pConnection = pConnection; }
-  const ezConnection* GetConnection() const { return m_pConnection; }
-
-  virtual void UpdateConnection();
+  virtual void UpdateGeometry();
   virtual QPen DeterminePen() const;
 
+  const QPointF& GetInPos() const { return m_InPoint; }
   const QPointF& GetOutPos() const { return m_OutPoint; }
 
   bool m_bAdjacentNodeSelected = false;
 
+  virtual void ExtendContextMenu(QMenu& menu) {}
+
 protected:
-  const ezConnection* m_pConnection;
+  virtual void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override;
+
+  const ezDocumentObject* m_pObject = nullptr;
+  const ezConnection* m_pConnection = nullptr;
+
   QPointF m_InPoint;
   QPointF m_OutPoint;
   QPointF m_InDir;

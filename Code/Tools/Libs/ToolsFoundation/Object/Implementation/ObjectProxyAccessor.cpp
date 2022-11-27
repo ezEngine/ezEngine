@@ -96,12 +96,12 @@ ezStatus ezObjectProxyAccessor::MoveObject(
   return m_pSource->MoveObject(pObject, pNewParent, pParentProp, index);
 }
 
-ezStatus ezObjectProxyAccessor::GetKeys(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezHybridArray<ezVariant, 16>& out_keys)
+ezStatus ezObjectProxyAccessor::GetKeys(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezDynamicArray<ezVariant>& out_keys)
 {
   return m_pSource->GetKeys(pObject, pProp, out_keys);
 }
 
-ezStatus ezObjectProxyAccessor::GetValues(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezHybridArray<ezVariant, 16>& out_values)
+ezStatus ezObjectProxyAccessor::GetValues(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezDynamicArray<ezVariant>& out_values)
 {
   return m_pSource->GetValues(pObject, pProp, out_values);
 }

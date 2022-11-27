@@ -70,12 +70,9 @@ public:
 
   const ezDocumentObjectManager* GetObjectManager() const { return m_pObjectManager.Borrow(); }
   ezDocumentObjectManager* GetObjectManager() { return m_pObjectManager.Borrow(); }
-  ezSelectionManager* GetSelectionManager() const { return m_SelectionManager.Borrow(); }
-  ezCommandHistory* GetCommandHistory() const { return m_CommandHistory.Borrow(); }
+  ezSelectionManager* GetSelectionManager() const { return m_pSelectionManager.Borrow(); }
+  ezCommandHistory* GetCommandHistory() const { return m_pCommandHistory.Borrow(); }
   virtual ezObjectAccessorBase* GetObjectAccessor() const;
-
-  virtual ezVariant GetDefaultValue(const ezDocumentObject* pObject, const char* szProperty, ezVariant index = ezVariant()) const;
-  virtual bool IsDefaultValue(const ezDocumentObject* pObject, const char* szProperty, bool bReturnOnInvalid, ezVariant index = ezVariant()) const;
 
   ///@}
   /// \name Main / Sub-Document Functions
@@ -227,7 +224,7 @@ public:
     ezDelegate<void(ezAbstractObjectNode*)> AdjustGraphNodeCB = ezDelegate<void(ezAbstractObjectNode*)>(),
     ezDelegate<void(ezDocumentObject*)> AdjustNewNodesCB = ezDelegate<void(ezDocumentObject*)>());
   virtual ezStatus CreatePrefabDocument(const char* szFile, ezArrayPtr<const ezDocumentObject*> rootObjects, const ezUuid& invPrefabSeed,
-    ezUuid& out_NewDocumentGuid, ezDelegate<void(ezAbstractObjectNode*)> AdjustGraphNodeCB = ezDelegate<void(ezAbstractObjectNode*)>());
+    ezUuid& out_NewDocumentGuid, ezDelegate<void(ezAbstractObjectNode*)> AdjustGraphNodeCB = {}, bool bKeepOpen = false);
   // Returns new guid of replaced object.
   virtual ezUuid ReplaceByPrefab(
     const ezDocumentObject* pRootObject, const char* szPrefabFile, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed, bool bEnginePrefab);
@@ -260,6 +257,8 @@ protected:
   virtual void InitializeAfterLoading(bool bFirstTimeCreation) {}
   virtual void InitializeAfterLoadingAndSaving() {}
 
+  virtual void BeforeClosing();
+
   void SetUnknownObjectTypes(const ezSet<ezString>& Types, ezUInt32 uiInstances);
 
   /// \name Prefab Functions
@@ -271,9 +270,9 @@ protected:
   ///@}
 
   ezUniquePtr<ezDocumentObjectManager> m_pObjectManager;
-  mutable ezUniquePtr<ezCommandHistory> m_CommandHistory;
-  mutable ezUniquePtr<ezSelectionManager> m_SelectionManager;
-  mutable ezUniquePtr<ezObjectCommandAccessor> m_ObjectAccessor; ///< Default object accessor used by every doc.
+  mutable ezUniquePtr<ezCommandHistory> m_pCommandHistory;
+  mutable ezUniquePtr<ezSelectionManager> m_pSelectionManager;
+  mutable ezUniquePtr<ezObjectCommandAccessor> m_pObjectAccessor; ///< Default object accessor used by every doc.
 
   ezDocumentInfo* m_pDocumentInfo = nullptr;
   const ezDocumentTypeDescriptor* m_pTypeDescriptor = nullptr;
@@ -297,6 +296,6 @@ private:
   ezSet<ezString> m_UnknownObjectTypes;
   ezUInt32 m_uiUnknownObjectTypeInstances;
 
-  ezTaskGroupID m_activeSaveTask;
-  ezStatus m_lastSaveResult;
+  ezTaskGroupID m_ActiveSaveTask;
+  ezStatus m_LastSaveResult;
 };

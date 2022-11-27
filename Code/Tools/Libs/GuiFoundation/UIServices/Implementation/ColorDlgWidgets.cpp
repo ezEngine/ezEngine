@@ -246,8 +246,7 @@ void ezQtColorCompareWidget::paintEvent(QPaintEvent*)
     inLDR.ScaleRGB(1.0f / fMultiplier);
   }
 
-  ezColorGammaUB inGamma = inLDR;
-  QColor qInCol = qRgb(inGamma.r, inGamma.g, inGamma.b);
+  QColor qInCol = ezToQtColor(inLDR);
 
   ezColor newLDR = m_NewColor;
   fMultiplier = m_NewColor.ComputeHdrMultiplier();
@@ -257,8 +256,7 @@ void ezQtColorCompareWidget::paintEvent(QPaintEvent*)
     newLDR.ScaleRGB(1.0f / fMultiplier);
   }
 
-  ezColorGammaUB newGamma = newLDR;
-  QColor qNewCol = qRgb(newGamma.r, newGamma.g, newGamma.b);
+  QColor qNewCol = ezToQtColor(newLDR);
 
   p.fillRect(areaTop, qInCol);
   p.fillRect(areaBot, qNewCol);

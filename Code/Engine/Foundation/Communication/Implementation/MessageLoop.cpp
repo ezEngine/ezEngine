@@ -9,6 +9,8 @@ EZ_IMPLEMENT_SINGLETON(ezMessageLoop);
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 #  include <Foundation/Communication/Implementation/Win/MessageLoop_win.h>
+#elif EZ_ENABLED(EZ_PLATFORM_LINUX)
+#  include <Foundation/Communication/Implementation/Linux/MessageLoop_linux.h>
 #else
 #  include <Foundation/Communication/Implementation/Mobile/MessageLoop_mobile.h>
 #endif
@@ -25,6 +27,8 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, MessageLoop)
   {
     #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
       EZ_DEFAULT_NEW(ezMessageLoop_win);
+    #elif EZ_ENABLED(EZ_PLATFORM_LINUX)
+      EZ_DEFAULT_NEW(ezMessageLoop_linux);
     #else
       EZ_DEFAULT_NEW(ezMessageLoop_mobile);
     #endif
@@ -86,7 +90,7 @@ void ezMessageLoop::StopUpdateThread()
 void ezMessageLoop::RunLoop()
 {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-  m_threadId = ezThreadUtils::GetCurrentThreadID();
+  m_ThreadId = ezThreadUtils::GetCurrentThreadID();
 #endif
 
   while (true)
@@ -124,28 +128,31 @@ void ezMessageLoop::RunLoop()
 
 bool ezMessageLoop::ProcessTasks()
 {
-  EZ_LOCK(m_TasksMutex);
+  {
+    EZ_LOCK(m_TasksMutex);
+    // Swap out the queues under the lock so we can process them without holding the lock
+    m_ConnectQueueTask.Swap(m_ConnectQueue);
+    m_SendQueueTask.Swap(m_SendQueue);
+    m_DisconnectQueueTask.Swap(m_DisconnectQueue);
+  }
 
-  // allow to re-queue a connect internally, for this to work, the connect queue musn't be cleared at the end of this
-  ezDynamicArray<ezIpcChannel*> conQueue = m_ConnectQueue;
-  m_ConnectQueue.Clear();
-
-  for (ezIpcChannel* pChannel : conQueue)
+  for (ezIpcChannel* pChannel : m_ConnectQueueTask)
   {
     pChannel->InternalConnect();
   }
-  for (ezIpcChannel* pChannel : m_SendQueue)
+  for (ezIpcChannel* pChannel : m_SendQueueTask)
   {
     pChannel->InternalSend();
   }
-  for (ezIpcChannel* pChannel : m_DisconnectQueue)
+  for (ezIpcChannel* pChannel : m_DisconnectQueueTask)
   {
     pChannel->InternalDisconnect();
   }
 
-  bool bDidWork = !conQueue.IsEmpty() || !m_SendQueue.IsEmpty() || !m_DisconnectQueue.IsEmpty();
-  m_SendQueue.Clear();
-  m_DisconnectQueue.Clear();
+  bool bDidWork = !m_ConnectQueueTask.IsEmpty() || !m_SendQueueTask.IsEmpty() || !m_DisconnectQueueTask.IsEmpty();
+  m_ConnectQueueTask.Clear();
+  m_SendQueueTask.Clear();
+  m_DisconnectQueueTask.Clear();
   return bDidWork;
 }
 
