@@ -251,7 +251,7 @@ void ezGameApplicationBase::DeactivateGameState()
   m_pGameState = nullptr;
 }
 
-ezGameStateBase* ezGameApplicationBase::GetActiveGameStateLinkedToWorld(ezWorld* pWorld) const
+ezGameStateBase* ezGameApplicationBase::GetActiveGameStateLinkedToWorld(const ezWorld* pWorld) const
 {
   if (m_pWorldLinkedWithGameState == pWorld)
     return m_pGameState.Borrow();
