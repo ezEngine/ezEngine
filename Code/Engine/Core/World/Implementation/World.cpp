@@ -108,6 +108,8 @@ void ezWorld::Clear()
   // make sure all dead objects and components are cleared right now
   DeleteDeadObjects();
   DeleteDeadComponents();
+
+  ezEventMessageHandlerComponent::ClearGlobalEventHandlersForWorld(this);
 }
 
 void ezWorld::SetCoordinateSystemProvider(const ezSharedPtr<ezCoordinateSystemProvider>& pProvider)

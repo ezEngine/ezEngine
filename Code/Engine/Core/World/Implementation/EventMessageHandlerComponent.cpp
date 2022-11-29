@@ -146,5 +146,14 @@ ezArrayPtr<ezComponentHandle> ezEventMessageHandlerComponent::GetAllGlobalEventH
 }
 
 
+void ezEventMessageHandlerComponent::ClearGlobalEventHandlersForWorld(const ezWorld* pWorld)
+{
+  ezUInt32 uiWorldIndex = pWorld->GetIndex();
+
+  if (uiWorldIndex < s_GlobalEventHandlerPerWorld.GetCount())
+  {
+    s_GlobalEventHandlerPerWorld[uiWorldIndex]->Clear();
+  }
+}
 
 EZ_STATICLINK_FILE(Core, Core_World_Implementation_EventMessageHandlerComponent);

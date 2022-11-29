@@ -10,6 +10,7 @@
 #include <JoltPlugin/Utilities/JoltUserData.h>
 
 class ezJoltCharacterControllerComponent;
+class ezJoltContactListener;
 
 namespace JPH
 {
@@ -81,6 +82,11 @@ public:
   JPH::TempAllocator* GetTempAllocator() const { return m_pTempAllocator.get(); }
 
   void ActivateCharacterController(ezJoltCharacterControllerComponent* pCharacter, bool bActivate);
+
+  ezJoltContactListener* GetContactListener()
+  {
+    return reinterpret_cast<ezJoltContactListener*>(m_pContactListener);
+  }
 
 private:
   bool SweepTest(ezPhysicsCastResult& out_Result, const JPH::Shape& shape, const JPH::Mat44& transform, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection) const;

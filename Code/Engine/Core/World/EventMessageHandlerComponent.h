@@ -57,6 +57,8 @@ public:
   /// \brief Returns all global event handler for the given world.
   static ezArrayPtr<ezComponentHandle> GetAllGlobalEventHandler(const ezWorld* pWorld);
 
+  static void ClearGlobalEventHandlersForWorld(const ezWorld* pWorld);
+
 private:
   bool m_bDebugOutput = false;
   bool m_bIsGlobalEventHandler = false;
