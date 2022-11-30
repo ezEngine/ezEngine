@@ -5,6 +5,7 @@
 #include <Foundation/Profiling/Profiling.h>
 #include <JoltPlugin/Actors/JoltTriggerComponent.h>
 #include <JoltPlugin/Shapes/JoltShapeComponent.h>
+#include <JoltPlugin/System/JoltContacts.h>
 #include <JoltPlugin/System/JoltWorldModule.h>
 #include <JoltPlugin/Utilities/JoltConversionUtils.h>
 
@@ -118,6 +119,11 @@ void ezJoltTriggerComponent::OnSimulationStarted()
 
 void ezJoltTriggerComponent::OnDeactivated()
 {
+  ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
+
+  ezJoltContactListener* pContactListener = pModule->GetContactListener();
+  pContactListener->RemoveTrigger(this);
+
   if (GetOwner()->IsDynamic())
   {
     ezJoltTriggerComponentManager* pManager = static_cast<ezJoltTriggerComponentManager*>(GetOwningManager());

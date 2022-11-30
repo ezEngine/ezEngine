@@ -17,6 +17,23 @@ ezCVarBool cvar_PhysicsReactionsVisDiscardedImpacts("Jolt.Reactions.VisDiscarded
 ezCVarBool cvar_PhysicsReactionsVisSlides("Jolt.Reactions.VisSlides", false, ezCVarFlags::Default, "Visualize active slide reactions.");
 ezCVarBool cvar_PhysicsReactionsVisRolls("Jolt.Reactions.VisRolls", false, ezCVarFlags::Default, "Visualize active roll reactions.");
 
+void ezJoltContactListener::RemoveTrigger(const ezJoltTriggerComponent* pTrigger)
+{
+  EZ_LOCK(m_TriggerMutex);
+
+  for (auto it = m_Trigs.GetIterator(); it.IsValid();)
+  {
+    if (it.Value().m_pTrigger == pTrigger)
+    {
+      it = m_Trigs.Remove(it);
+    }
+    else
+    {
+      ++it;
+    }
+  }
+}
+
 void ezJoltContactListener::OnContactAdded(const JPH::Body& inBody0, const JPH::Body& inBody1, const JPH::ContactManifold& inManifold, JPH::ContactSettings& ioSettings)
 {
   const ezUInt64 uiBody0id = inBody0.GetID().GetIndexAndSequenceNumber();
