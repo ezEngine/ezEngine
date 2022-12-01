@@ -6,11 +6,13 @@
 
 android_app* ezAndroidUtils::s_app;
 JavaVM* ezAndroidUtils::s_vm;
+jobject ezAndroidUtils::s_na;
 
 void ezAndroidUtils::SetAndroidApp(android_app* app)
 {
   s_app = app;
   SetAndroidJavaVM(s_app->activity->vm);
+  SetAndroidNativeActivity(s_app->activity->clazz);
 }
 
 android_app* ezAndroidUtils::GetAndroidApp()
@@ -26,6 +28,16 @@ void ezAndroidUtils::SetAndroidJavaVM(JavaVM* vm)
 JavaVM* ezAndroidUtils::GetAndroidJavaVM()
 {
   return s_vm;
+}
+
+void ezAndroidUtils::SetAndroidNativeActivity(jobject nativeActivity)
+{
+  s_na = nativeActivity;
+}
+
+jobject ezAndroidUtils::GetAndroidNativeActivity()
+{
+  return s_na;
 }
 
 #endif
