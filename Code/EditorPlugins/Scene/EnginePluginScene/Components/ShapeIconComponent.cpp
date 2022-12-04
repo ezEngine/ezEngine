@@ -7,7 +7,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezShapeIconComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezHiddenAttribute() // don't show in UI
+    new ezCategoryAttribute("Editing Utilities"),
   }
   EZ_END_ATTRIBUTES;
 }
