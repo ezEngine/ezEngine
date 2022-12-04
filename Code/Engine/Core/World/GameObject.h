@@ -392,18 +392,18 @@ public:
   /// \brief Queues the message for the given phase. The message is processed after the given delay in the corresponding phase.
   void PostMessageRecursive(const ezMessage& msg, ezTime delay, ezObjectMsgQueueType::Enum queueType = ezObjectMsgQueueType::NextFrame) const;
 
-  /// \brief Delivers an ezEventMessage to the closest (parent) object containing an ezEventMessageHandlerComponent.
+  /// \brief Delivers an ezEventMessage to the closest (parent) object containing an ezEventMessageHandlerBaseComponent.
   ///
   /// Regular SendMessage() and PostMessage() send a message directly to the target object (and all attached components).
   /// SendMessageRecursive() and PostMessageRecursive() send a message 'down' the graph to the target object and all children.
   ///
   /// In contrast, SendEventMessage() / PostEventMessage() bubble the message 'up' the graph.
-  /// They do so by inspecting the chain of parent objects for the existence of an ezEventMessageHandlerComponent
+  /// They do so by inspecting the chain of parent objects for the existence of an ezEventMessageHandlerBaseComponent
   /// (typically a script component). If such a component is found, the message is delivered to it directly, and no other component.
   /// If it is found, but does not handle this type of message, the message is discarded and NOT tried to be delivered
   /// to anyone else.
   ///
-  /// If no such component is found in all parent objects, the message is delivered to one ezEventMessageHandlerComponent
+  /// If no such component is found in all parent objects, the message is delivered to one ezEventMessageHandlerBaseComponent
   /// instances that is set to 'handle global events' (typically used for level-logic scripts), no matter where in the graph it resides.
   /// If multiple global event handler component exist that handle the same message type, the result is non-deterministic.
   ///

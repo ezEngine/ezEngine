@@ -876,11 +876,11 @@ void ezWorld::ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType)
 template <typename World, typename GameObject, typename Component>
 void ezWorld::FindEventMsgHandlers(World& world, const ezEventMessage& msg, GameObject pSearchObject, ezDynamicArray<Component>& out_components)
 {
-  using EventMessageHandlerComponentType = typename std::conditional<std::is_const<World>::value, const ezEventMessageHandlerComponent*, ezEventMessageHandlerComponent*>::type;
+  using EventMessageHandlerComponentType = typename std::conditional<std::is_const<World>::value, const ezEventMessageHandlerBaseComponent*, ezEventMessageHandlerBaseComponent*>::type;
 
   out_components.Clear();
 
-  // walk the graph upwards until an object is found with an ezEventMessageHandlerComponent that handles this type of message
+  // walk the graph upwards until an object is found with an ezEventMessageHandlerBaseComponent that handles this type of message
   {
     auto pCurrentObject = pSearchObject;
 
@@ -925,7 +925,7 @@ void ezWorld::FindEventMsgHandlers(World& world, const ezEventMessage& msg, Game
 
         if (!bContinueSearch)
         {
-          // stop searching as we found at least one ezEventMessageHandlerComponent or one doesn't have the "pass through" flag set.
+          // stop searching as we found at least one ezEventMessageHandlerBaseComponent or one doesn't have the "pass through" flag set.
           return;
         }
       }

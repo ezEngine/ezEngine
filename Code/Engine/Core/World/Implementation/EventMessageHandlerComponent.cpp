@@ -38,7 +38,44 @@ namespace
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezEventMessageHandlerComponent, 3)
+EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezEventMessageHandlerBaseComponent, 1)
+EZ_END_ABSTRACT_COMPONENT_TYPE;
+// clang-format on
+
+ezEventMessageHandlerBaseComponent::ezEventMessageHandlerBaseComponent() = default;
+ezEventMessageHandlerBaseComponent::~ezEventMessageHandlerBaseComponent() = default;
+
+void ezEventMessageHandlerBaseComponent::SerializeComponent(ezWorldWriter& stream) const
+{
+  SUPER::SerializeComponent(stream);
+  auto& s = stream.GetStream();
+
+  s << m_bPassThroughUnhandledEvents;
+}
+
+void ezEventMessageHandlerBaseComponent::DeserializeComponent(ezWorldReader& stream)
+{
+  SUPER::DeserializeComponent(stream);
+  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  auto& s = stream.GetStream();
+
+  s >> m_bPassThroughUnhandledEvents;
+}
+
+void ezEventMessageHandlerBaseComponent::SetPassThroughUnhandledEvents(bool bPassThrough)
+{
+  m_bPassThroughUnhandledEvents = bPassThrough;
+}
+
+bool ezEventMessageHandlerBaseComponent::HandlesEventMessage(const ezEventMessage& msg) const
+{
+  return m_pMessageDispatchType->CanHandleMessage(msg.GetId());
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezEventMessageHandlerComponent, 4)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -58,30 +95,42 @@ void ezEventMessageHandlerComponent::SerializeComponent(ezWorldWriter& stream) c
   SUPER::SerializeComponent(stream);
   auto& s = stream.GetStream();
 
-  // version 2
   s << m_bIsGlobalEventHandler;
-
-  // version 3
-  s << m_bPassThroughUnhandledEvents;
 }
 
 void ezEventMessageHandlerComponent::DeserializeComponent(ezWorldReader& stream)
 {
-  SUPER::DeserializeComponent(stream);
   const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  auto& s = stream.GetStream();
 
-  if (uiVersion >= 2)
+  if (uiVersion <= 3)
   {
+    SUPER::SUPER::DeserializeComponent(stream);
+    auto& s = stream.GetStream();
+
+    if (uiVersion >= 2)
+    {
+      bool bGlobalEH;
+      s >> bGlobalEH;
+
+      SetGlobalEventHandlerMode(bGlobalEH);
+    }
+
+    if (uiVersion >= 3)
+    {
+      bool bPassThroughUnhandledEvents;
+      s >> bPassThroughUnhandledEvents;
+      SetPassThroughUnhandledEvents(bPassThroughUnhandledEvents);
+    }
+  }
+  else
+  {
+    SUPER::DeserializeComponent(stream);
+    auto& s = stream.GetStream();
+
     bool bGlobalEH;
     s >> bGlobalEH;
 
     SetGlobalEventHandlerMode(bGlobalEH);
-  }
-
-  if (uiVersion >= 3)
-  {
-    s >> m_bPassThroughUnhandledEvents;
   }
 }
 
@@ -117,16 +166,6 @@ void ezEventMessageHandlerComponent::SetGlobalEventHandlerMode(bool enable)
   {
     DeregisterGlobalEventHandler(this);
   }
-}
-
-void ezEventMessageHandlerComponent::SetPassThroughUnhandledEvents(bool bPassThrough)
-{
-  m_bPassThroughUnhandledEvents = bPassThrough;
-}
-
-bool ezEventMessageHandlerComponent::HandlesEventMessage(const ezEventMessage& msg) const
-{
-  return m_pMessageDispatchType->CanHandleMessage(msg.GetId());
 }
 
 // static

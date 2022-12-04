@@ -3,6 +3,7 @@
 #include <Core/World/Implementation/WorldData.h>
 
 struct ezEventMessage;
+class ezEventMessageHandlerBaseComponent;
 class ezEventMessageHandlerComponent;
 
 /// \brief A world encapsulates a scene graph of game objects and various component managers and their components.
@@ -230,11 +231,11 @@ public:
   void PostMessage(const ezComponentHandle& receiverComponent, const ezMessage& msg, ezTime delay,
     ezObjectMsgQueueType::Enum queueType = ezObjectMsgQueueType::NextFrame) const;
 
-  /// \brief Finds the closest (parent) object, starting at pSearchObject, which has an ezEventMessageHandlerComponent and returns all
-  /// ezEventMessageHandlerComponents owned by that object and that handle messages of the given type.
+  /// \brief Finds the closest (parent) object, starting at pSearchObject, which has an ezEventMessageHandlerBaseComponent and returns all
+  /// ezEventMessageHandlerBaseComponents owned by that object and that handle messages of the given type.
   ///
   /// If any such parent object exists, the search is stopped there, even if that component does not handle messages of the given type.
-  /// If no such parent object exists, it searches for all ezEventMessageHandlerComponent instances that are set to 'handle global events'
+  /// If no such parent object exists, it searches for all ezEventMessageHandlerBaseComponent instances that are set to 'handle global events'
   /// that handle messages of the given type.
   void FindEventMsgHandlers(const ezEventMessage& msg, ezGameObject* pSearchObject, ezDynamicArray<ezComponent*>& out_components);
 
