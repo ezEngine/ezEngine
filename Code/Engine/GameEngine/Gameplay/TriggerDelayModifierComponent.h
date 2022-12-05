@@ -45,8 +45,10 @@ protected:
   void OnMsgTriggerTriggered(ezMsgTriggerTriggered& msg) const;
   void OnMsgComponentInternalTrigger(ezMsgComponentInternalTrigger& msg);
 
-  mutable ezAtomicInteger32 m_iElementsInside = 0;
   mutable ezAtomicBool m_bIsActivated = false;
+  mutable ezAtomicInteger32 m_iElementsInside = 0;
+  mutable ezAtomicInteger32 m_iValidActivationToken = 0;
+  mutable ezAtomicInteger32 m_iValidDeactivationToken = 0;
 
   ezTime m_ActivationDelay;
   ezTime m_DeactivationDelay;
