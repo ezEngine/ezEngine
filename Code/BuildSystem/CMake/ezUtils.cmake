@@ -154,6 +154,9 @@ endfunction()
 # ## ez_write_configuration_txt()
 # #####################################
 function(ez_write_configuration_txt)
+	if(EZ_NO_TXT_FILES)
+		return()
+	endif()
 	# Clear Targets.txt and Tests.txt
 	file(WRITE ${CMAKE_BINARY_DIR}/Targets.txt "")
 	file(WRITE ${CMAKE_BINARY_DIR}/Tests.txt "")
