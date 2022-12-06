@@ -30,10 +30,7 @@ public:
   //////////////////////////////////////////////////////////////////////////
   // Initialization & Setup
 public:
-  virtual
-
-    ezGameStatePriority
-    DeterminePriority(ezWorld* pWorld) const override;
+  virtual ezGameStatePriority DeterminePriority(ezWorld* pWorld) const override;
 
 private:
   virtual void OnActivation(ezWorld* pWorld, const ezTransform* pStartPosition) override;

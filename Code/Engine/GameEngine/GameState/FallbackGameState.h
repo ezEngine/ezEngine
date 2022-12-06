@@ -1,9 +1,13 @@
 #pragma once
 
 #include <Core/Graphics/Camera.h>
+#include <Foundation/Types/UniquePtr.h>
 #include <GameEngine/GameState/GameState.h>
+#include <GameEngine/Utils/SceneLoadUtil.h>
 
 class ezCameraComponent;
+
+using ezCollectionResourceHandle = ezTypedResourceHandle<class ezCollectionResource>;
 
 /// \brief ezFallbackGameState is an ezGameState that can handle existing worlds when no other game state is available.
 ///
@@ -20,11 +24,31 @@ class EZ_GAMEENGINE_DLL ezFallbackGameState : public ezGameState
 public:
   ezFallbackGameState();
 
+  /// \brief If disabled, pressing the Windows key won't show an onscreen menu to switch to a different scene.
+  void EnableSceneSelectionMenu(bool bEnable);
+
   virtual void ProcessInput() override;
   virtual void AfterWorldUpdate() override;
 
-  /// \brief Returns Priority::None if pWorld == nullptr, Priority::Fallback otherwise.
+  /// \brief Returns ezGameStatePriority::Fallback.
   virtual ezGameStatePriority DeterminePriority(ezWorld* pWorld) const override;
+
+  virtual void OnActivation(ezWorld* pWorld, const ezTransform* pStartPosition) override;
+  virtual void OnDeactivation() override;
+
+  /// \brief Returns the path to the scene file to load at startup. By default this is taken from the command line '-scene' option.
+  virtual ezString GetStartupSceneFile();
+
+  /// \brief Creates a new world that's used as a temporary loading screen while waiting for loading of another world to finish.
+  ///
+  /// Usually this world would be set up in code and would be very quick to create. By default an entirely empty world is created.
+  virtual void SwitchToLoadingScreen();
+
+  ezResult StartSceneLoading(ezStringView sSceneFile, ezStringView sPreloadCollection);
+  void CancelSceneLoading();
+
+  bool IsLoadingScene() const;
+  void SwitchToLoadedScene();
 
 protected:
   virtual void ConfigureInputActions() override;
@@ -33,4 +57,32 @@ protected:
   virtual const ezCameraComponent* FindActiveCameraComponent();
 
   ezInt32 m_iActiveCameraComponentIndex;
+
+  ezUniquePtr<ezWorld> m_pActiveWorld;
+
+  ezUniquePtr<ezSceneLoadUtility> m_pSceneToLoad;
+
+  //////////////////////////////////////////////////////////////////////////
+
+  enum class State
+  {
+    Ok,
+    NoProject,
+    BadProject,
+    NoScene,
+    BadScene,
+  };
+
+  State m_State = State::Ok;
+  bool m_bShowMenu = false;
+  bool m_bEnableSceneSelectionMenu = true;
+
+  void FindAvailableScenes();
+  bool DisplayMenu();
+
+  bool m_bCheckedForScenes = false;
+  ezDynamicArray<ezString> m_AvailableScenes;
+  ezUInt32 m_uiSelectedScene = 0;
+  ezString m_sTitleOfLoadingScene;
+  ezString m_sTitleOfActiveScene;
 };

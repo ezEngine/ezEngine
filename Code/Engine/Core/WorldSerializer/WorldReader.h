@@ -45,7 +45,7 @@ class EZ_CORE_DLL ezWorldReader
 public:
   /// \brief A context object is returned from InstantiateWorld or InstantiatePrefab if a maxStepTime greater than zero is specified.
   ///
-  /// Call the Step function periodically until it returns true to complete the instantiation.
+  /// Call the Step() function periodically to complete the instantiation.
   /// Each step will try to spend not more than the given maxStepTime.
   /// E.g. this is useful if the instantiation cost of large prefabs needs to be distributed over multiple frames.
   class InstantiationContextBase
@@ -53,9 +53,9 @@ public:
   public:
     enum class StepResult
     {
-      Continue,
-      ContinueNextFrame,
-      Finished,
+      Continue,          ///< The available time slice is used up. Call Step() again to continue the process.
+      ContinueNextFrame, ///< The process has reached a point where you need to call ezWorld::Update(). Otherwise no further progress can be made.
+      Finished,          ///< The instantiation is finished and you can delete the context. Don't call 'Step()' on it again.
     };
 
     virtual ~InstantiationContextBase() {}
