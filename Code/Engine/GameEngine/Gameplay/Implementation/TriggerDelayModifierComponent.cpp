@@ -61,11 +61,11 @@ void ezTriggerDelayModifierComponent::DeserializeComponent(ezWorldReader& stream
   s >> m_DeactivationDelay;
 }
 
-void ezTriggerDelayModifierComponent::OnMsgTriggerTriggered(ezMsgTriggerTriggered& msg) const
+void ezTriggerDelayModifierComponent::OnMsgTriggerTriggered(ezMsgTriggerTriggered& msg)
 {
   if (msg.m_TriggerState == ezTriggerState::Activated)
   {
-    if (m_iElementsInside.PostIncrement() == 0) // was 0 before the increment
+    if (m_iElementsInside++ == 0) // was 0 before the increment
     {
       // the first object entered the trigger
 
@@ -73,7 +73,7 @@ void ezTriggerDelayModifierComponent::OnMsgTriggerTriggered(ezMsgTriggerTriggere
       {
         // the trigger is not active yet -> send an activation message with a new activation token
 
-        m_iValidActivationToken.Increment();
+        ++m_iValidActivationToken;
 
         // store the original trigger message for later
         m_sMessage = msg.m_sMessage;
@@ -88,7 +88,7 @@ void ezTriggerDelayModifierComponent::OnMsgTriggerTriggered(ezMsgTriggerTriggere
       {
         // the trigger is already active -> there are pending deactivations (otherwise we wouldn't have had an element count of zero)
         // -> invalidate those pending deactivations
-        m_iValidDeactivationToken.Increment();
+        ++m_iValidDeactivationToken;
 
         // no need to send an activation message
       }
@@ -99,7 +99,7 @@ void ezTriggerDelayModifierComponent::OnMsgTriggerTriggered(ezMsgTriggerTriggere
 
   if (msg.m_TriggerState == ezTriggerState::Deactivated)
   {
-    if (m_iElementsInside.Decrement() == 0) // 0 after the decrement
+    if (--m_iElementsInside == 0) // 0 after the decrement
     {
       // the last object left the trigger
 
@@ -107,7 +107,7 @@ void ezTriggerDelayModifierComponent::OnMsgTriggerTriggered(ezMsgTriggerTriggere
       {
         // if the trigger is active, we need to send a deactivation message and we give it a new token
 
-        m_iValidDeactivationToken.Increment();
+        ++m_iValidDeactivationToken;
 
         // store the original trigger message for later
         m_sMessage = msg.m_sMessage;
@@ -121,7 +121,7 @@ void ezTriggerDelayModifierComponent::OnMsgTriggerTriggered(ezMsgTriggerTriggere
       else
       {
         // when we are already inactive, all that's needed is to invalidate any pending activations
-        m_iValidActivationToken.Increment();
+        ++m_iValidActivationToken;
       }
     }
 
@@ -133,8 +133,10 @@ void ezTriggerDelayModifierComponent::OnMsgComponentInternalTrigger(ezMsgCompone
 {
   if (msg.m_sMessage.GetString() == "Activate")
   {
-    if (msg.m_iPayload == m_iValidActivationToken && !m_bIsActivated.Set(true))
+    if (msg.m_iPayload == m_iValidActivationToken && !m_bIsActivated)
     {
+      m_bIsActivated = true;
+
       ezMsgTriggerTriggered newMsg;
       newMsg.m_sMessage = m_sMessage;
       newMsg.m_TriggerState = ezTriggerState::Activated;
@@ -144,8 +146,10 @@ void ezTriggerDelayModifierComponent::OnMsgComponentInternalTrigger(ezMsgCompone
   }
   else if (msg.m_sMessage.GetString() == "Deactivate")
   {
-    if (msg.m_iPayload == m_iValidDeactivationToken && m_bIsActivated.Set(false))
+    if (msg.m_iPayload == m_iValidDeactivationToken && m_bIsActivated)
     {
+      m_bIsActivated = false;
+
       ezMsgTriggerTriggered newMsg;
       newMsg.m_sMessage = m_sMessage;
       newMsg.m_TriggerState = ezTriggerState::Deactivated;

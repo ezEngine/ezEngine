@@ -42,17 +42,17 @@ public:
 protected:
   virtual void Initialize() override;
 
-  void OnMsgTriggerTriggered(ezMsgTriggerTriggered& msg) const;
+  void OnMsgTriggerTriggered(ezMsgTriggerTriggered& msg);
   void OnMsgComponentInternalTrigger(ezMsgComponentInternalTrigger& msg);
 
-  mutable ezAtomicBool m_bIsActivated = false;
-  mutable ezAtomicInteger32 m_iElementsInside = 0;
-  mutable ezAtomicInteger32 m_iValidActivationToken = 0;
-  mutable ezAtomicInteger32 m_iValidDeactivationToken = 0;
+  bool m_bIsActivated = false;
+  ezInt32 m_iElementsInside = 0;
+  ezInt32 m_iValidActivationToken = 0;
+  ezInt32 m_iValidDeactivationToken = 0;
 
   ezTime m_ActivationDelay;
   ezTime m_DeactivationDelay;
-  mutable ezHashedString m_sMessage;
+  ezHashedString m_sMessage;
 
   ezEventMessageSender<ezMsgTriggerTriggered> m_TriggerEventSender; // [ event ]
 };
