@@ -150,7 +150,7 @@ public:
   ///
   /// This is mostly for editor use cases, where some documents want to handle the game state, but only
   /// it it was set up for a particular document.
-  ezGameStateBase* GetActiveGameStateLinkedToWorld(ezWorld* pWorld) const;
+  ezGameStateBase* GetActiveGameStateLinkedToWorld(const ezWorld* pWorld) const;
 
 protected:
   /// \brief Creates a game state for the application to use.
