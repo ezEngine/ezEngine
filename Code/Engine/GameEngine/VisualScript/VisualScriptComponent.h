@@ -55,7 +55,7 @@ protected:
   // ezEventMessageHandlerComponent
 
 protected:
-  virtual bool HandlesEventMessage(const ezEventMessage& msg) const override;
+  virtual bool HandlesMessage(const ezMessage& msg) const override;
 
   //////////////////////////////////////////////////////////////////////////
   // ezVisualScriptComponent

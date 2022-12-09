@@ -10,16 +10,24 @@ struct EZ_CORE_DLL ezEventMessage : public ezMessage
 
   ezGameObjectHandle m_hSenderObject;
   ezComponentHandle m_hSenderComponent;
+
+  EZ_ALWAYS_INLINE void FillFromSenderComponent(const ezComponent* pSenderComponent)
+  {
+    if (pSenderComponent != nullptr)
+    {
+      m_hSenderComponent = pSenderComponent->GetHandle();
+      m_hSenderObject = pSenderComponent->GetOwner()->GetHandle();
+    }
+  }
 };
 
 namespace ezInternal
 {
   struct EZ_CORE_DLL EventMessageSenderHelper
   {
-    static void SendEventMessage(ezComponent* pSenderComponent, ezArrayPtr<ezComponentHandle> receivers, ezEventMessage& msg);
-    static void SendEventMessage(const ezComponent* pSenderComponent, ezArrayPtr<ezComponentHandle> receivers, ezEventMessage& msg);
-    static void PostEventMessage(const ezComponent* pSenderComponent, ezArrayPtr<ezComponentHandle> receivers, const ezEventMessage& msg, ezTime delay,
-      ezObjectMsgQueueType::Enum queueType = ezObjectMsgQueueType::NextFrame);
+    static void SendEventMessage(ezMessage& msg, ezComponent* pSenderComponent, ezGameObject* pSearchObject, ezSmallArray<ezComponentHandle, 1>& inout_CachedReceivers);
+    static void SendEventMessage(ezMessage& msg, const ezComponent* pSenderComponent, const ezGameObject* pSearchObject, ezSmallArray<ezComponentHandle, 1>& inout_CachedReceivers);
+    static void PostEventMessage(const ezMessage& msg, const ezComponent* pSenderComponent, const ezGameObject* pSearchObject, ezSmallArray<ezComponentHandle, 1>& inout_CachedReceivers, ezTime delay, ezObjectMsgQueueType::Enum queueType);
   };
 } // namespace ezInternal
 
@@ -32,32 +40,40 @@ class ezEventMessageSender : public ezMessageSenderBase<EventMessageType>
 public:
   EZ_ALWAYS_INLINE void SendEventMessage(EventMessageType& msg, ezComponent* pSenderComponent, ezGameObject* pSearchObject)
   {
-    UpdateMessageAndCachedReceivers(msg, pSenderComponent, pSearchObject);
-
-    ezInternal::EventMessageSenderHelper::SendEventMessage(pSenderComponent, m_CachedReceivers, msg);
+    if constexpr (EZ_IS_DERIVED_FROM_STATIC(ezEventMessage, EventMessageType))
+    {
+      msg.FillFromSenderComponent(pSenderComponent);
+    }
+    ezInternal::EventMessageSenderHelper::SendEventMessage(msg, pSenderComponent, pSearchObject, m_CachedReceivers);
   }
 
   EZ_ALWAYS_INLINE void SendEventMessage(EventMessageType& msg, const ezComponent* pSenderComponent, const ezGameObject* pSearchObject) const
   {
-    UpdateMessageAndCachedReceivers(msg, pSenderComponent, pSearchObject);
-
-    ezInternal::EventMessageSenderHelper::SendEventMessage(pSenderComponent, m_CachedReceivers, msg);
+    if constexpr (EZ_IS_DERIVED_FROM_STATIC(ezEventMessage, EventMessageType))
+    {
+      msg.FillFromSenderComponent(pSenderComponent);
+    }
+    ezInternal::EventMessageSenderHelper::SendEventMessage(msg, pSenderComponent, pSearchObject, m_CachedReceivers);
   }
 
   EZ_ALWAYS_INLINE void PostEventMessage(EventMessageType& msg, ezComponent* pSenderComponent, ezGameObject* pSearchObject,
-    ezTime delay, ezObjectMsgQueueType::Enum queueType)
+    ezTime delay, ezObjectMsgQueueType::Enum queueType = ezObjectMsgQueueType::NextFrame)
   {
-    UpdateMessageAndCachedReceivers(msg, pSenderComponent, pSearchObject);
-
-    ezInternal::EventMessageSenderHelper::PostEventMessage(pSenderComponent, m_CachedReceivers, msg, delay, queueType);
+    if constexpr (EZ_IS_DERIVED_FROM_STATIC(ezEventMessage, EventMessageType))
+    {
+      msg.FillFromSenderComponent(pSenderComponent);
+    }
+    ezInternal::EventMessageSenderHelper::PostEventMessage(msg, pSenderComponent, pSearchObject, m_CachedReceivers, delay, queueType);
   }
 
   EZ_ALWAYS_INLINE void PostEventMessage(EventMessageType& msg, const ezComponent* pSenderComponent, const ezGameObject* pSearchObject,
-    ezTime delay, ezObjectMsgQueueType::Enum queueType) const
+    ezTime delay, ezObjectMsgQueueType::Enum queueType = ezObjectMsgQueueType::NextFrame) const
   {
-    UpdateMessageAndCachedReceivers(msg, pSenderComponent, pSearchObject);
-
-    ezInternal::EventMessageSenderHelper::PostEventMessage(pSenderComponent, m_CachedReceivers, msg, delay, queueType);
+    if constexpr (EZ_IS_DERIVED_FROM_STATIC(ezEventMessage, EventMessageType))
+    {
+      msg.FillFromSenderComponent(pSenderComponent);
+    }
+    ezInternal::EventMessageSenderHelper::PostEventMessage(msg, pSenderComponent, pSearchObject, m_CachedReceivers, delay, queueType);
   }
 
   EZ_ALWAYS_INLINE void Invalidate()
@@ -67,43 +83,5 @@ public:
   }
 
 private:
-  void UpdateMessageAndCachedReceivers(ezEventMessage& msg, ezComponent* pSenderComponent, ezGameObject* pSearchObject)
-  {
-    msg.m_hSenderObject = pSenderComponent->GetOwner() != nullptr ? pSenderComponent->GetOwner()->GetHandle() : ezGameObjectHandle();
-    msg.m_hSenderComponent = pSenderComponent->GetHandle();
-
-    if (m_CachedReceivers.GetUserData<ezUInt32>() == 0)
-    {
-      ezHybridArray<ezComponent*, 4> eventMsgHandlers;
-      pSenderComponent->GetWorld()->FindEventMsgHandlers(msg, pSearchObject, eventMsgHandlers);
-
-      for (auto pEventMsgHandler : eventMsgHandlers)
-      {
-        m_CachedReceivers.PushBack(pEventMsgHandler->GetHandle());
-      }
-
-      m_CachedReceivers.GetUserData<ezUInt32>() = 1;
-    }
-  }
-
-  void UpdateMessageAndCachedReceivers(ezEventMessage& msg, const ezComponent* pSenderComponent, const ezGameObject* pSearchObject) const
-  {
-    msg.m_hSenderObject = pSenderComponent->GetOwner() != nullptr ? pSenderComponent->GetOwner()->GetHandle() : ezGameObjectHandle();
-    msg.m_hSenderComponent = pSenderComponent->GetHandle();
-
-    if (m_CachedReceivers.GetUserData<ezUInt32>() == 0)
-    {
-      ezHybridArray<const ezComponent*, 4> eventMsgHandlers;
-      pSenderComponent->GetWorld()->FindEventMsgHandlers(msg, pSearchObject, eventMsgHandlers);
-
-      for (auto pEventMsgHandler : eventMsgHandlers)
-      {
-        m_CachedReceivers.PushBack(pEventMsgHandler->GetHandle());
-      }
-
-      m_CachedReceivers.GetUserData<ezUInt32>() = 1;
-    }
-  }
-
   mutable ezSmallArray<ezComponentHandle, 1> m_CachedReceivers;
 };

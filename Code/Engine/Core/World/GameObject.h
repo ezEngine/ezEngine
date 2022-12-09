@@ -11,8 +11,6 @@
 #include <Core/World/ComponentManager.h>
 #include <Core/World/GameObjectDesc.h>
 
-struct ezEventMessage;
-
 // Avoid conflicts with windows.h
 #ifdef SendMessage
 #  undef SendMessage
@@ -415,16 +413,16 @@ public:
   ///        A projectile component sending a 'take damage event' to the hit object, would pass through itself (the projectile)
   ///        such that the handling code can detect which object was responsible for the damage (and using the ezGameObject's team-ID,
   ///        it can detect which player fired the projectile).
-  void SendEventMessage(ezEventMessage& msg, const ezComponent* senderComponent);
+  void SendEventMessage(ezMessage& msg, const ezComponent* senderComponent);
 
   /// \copydoc ezGameObject::SendEventMessage()
-  void SendEventMessage(ezEventMessage& msg, const ezComponent* senderComponent) const;
+  void SendEventMessage(ezMessage& msg, const ezComponent* senderComponent) const;
 
   /// \copydoc ezGameObject::SendEventMessage()
   ///
   /// \param queueType In which update phase to deliver the message.
   /// \param delay An optional delay before delivering the message.
-  void PostEventMessage(ezEventMessage& msg, const ezComponent* pSenderComponent, ezTime delay, ezObjectMsgQueueType::Enum queueType = ezObjectMsgQueueType::NextFrame) const;
+  void PostEventMessage(ezMessage& msg, const ezComponent* pSenderComponent, ezTime delay, ezObjectMsgQueueType::Enum queueType = ezObjectMsgQueueType::NextFrame) const;
 
 
   /// \brief Returns the tag set associated with this object.

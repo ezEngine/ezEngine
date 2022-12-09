@@ -29,6 +29,8 @@ struct EZ_CORE_DLL ezMsgComponentInternalTrigger : public ezMessage
   /// Identifies what the message should trigger.
   ezHashedString m_sMessage;
 
+  ezInt32 m_iPayload = 0;
+
 private:
   const char* GetMessage() const { return m_sMessage; }
   void SetMessage(const char* szMessage) { m_sMessage.Assign(szMessage); }

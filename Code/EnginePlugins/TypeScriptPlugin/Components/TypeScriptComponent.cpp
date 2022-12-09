@@ -98,6 +98,13 @@ void ezTypeScriptComponent::DeserializeComponent(ezWorldReader& stream)
   }
 }
 
+bool ezTypeScriptComponent::HandlesMessage(const ezMessage& msg) const
+{
+  ezTypeScriptBinding& binding = static_cast<const ezTypeScriptComponentManager*>(GetOwningManager())->GetTsBinding();
+
+  return binding.HasMessageHandler(m_ComponentTypeInfo, msg.GetDynamicRTTI());
+}
+
 bool ezTypeScriptComponent::OnUnhandledMessage(ezMessage& msg, bool bWasPostedMsg)
 {
   return HandleUnhandledMessage(msg, bWasPostedMsg);
@@ -116,13 +123,6 @@ bool ezTypeScriptComponent::HandleUnhandledMessage(ezMessage& msg, bool bWasPost
   ezTypeScriptBinding& binding = static_cast<ezTypeScriptComponentManager*>(GetOwningManager())->GetTsBinding();
 
   return binding.DeliverMessage(m_ComponentTypeInfo, this, msg, bWasPostedMsg == false);
-}
-
-bool ezTypeScriptComponent::HandlesEventMessage(const ezEventMessage& msg) const
-{
-  ezTypeScriptBinding& binding = static_cast<const ezTypeScriptComponentManager*>(GetOwningManager())->GetTsBinding();
-
-  return binding.HasMessageHandler(m_ComponentTypeInfo, msg.GetDynamicRTTI());
 }
 
 void ezTypeScriptComponent::BroadcastEventMsg(ezEventMessage& msg)

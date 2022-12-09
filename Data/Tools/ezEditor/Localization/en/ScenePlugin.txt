@@ -434,3 +434,5 @@ ezPhysicsShapeType::Rope;Rope
 ezStateMachineComponent;State Machine;;https://ezengine.net/pages/docs/ai/state-machine-component.html
 ezOccluderComponent;Occluder Component;;https://ezengine.net/pages/docs/graphics/occluder-component.html
 ezForwardEventsToGameStateComponent;Forward Events To GameState
+ezCommentComponent;Comment
+ezTriggerDelayModifierComponent;Trigger Delay Modifier

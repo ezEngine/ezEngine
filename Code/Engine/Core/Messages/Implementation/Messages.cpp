@@ -32,7 +32,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgComponentInternalTrigger, 1, ezRTTIDefaultA
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Message", GetMessage, SetMessage)
+    EZ_ACCESSOR_PROPERTY("Message", GetMessage, SetMessage),
+    EZ_MEMBER_PROPERTY("Payload", m_iPayload),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES

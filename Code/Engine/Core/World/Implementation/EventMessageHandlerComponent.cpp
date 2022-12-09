@@ -124,11 +124,6 @@ void ezEventMessageHandlerComponent::SetPassThroughUnhandledEvents(bool bPassThr
   m_bPassThroughUnhandledEvents = bPassThrough;
 }
 
-bool ezEventMessageHandlerComponent::HandlesEventMessage(const ezEventMessage& msg) const
-{
-  return m_pMessageDispatchType->CanHandleMessage(msg.GetId());
-}
-
 // static
 ezArrayPtr<ezComponentHandle> ezEventMessageHandlerComponent::GetAllGlobalEventHandler(const ezWorld* pWorld)
 {

@@ -120,6 +120,9 @@ public:
   /// \brief Queues the message for the given phase. The message is processed after the given delay in the corresponding phase.
   void PostMessage(const ezMessage& msg, ezTime delay = ezTime::Zero(), ezObjectMsgQueueType::Enum queueType = ezObjectMsgQueueType::NextFrame) const;
 
+  /// \brief Returns whether the given Message is handled by this component.
+  virtual bool HandlesMessage(const ezMessage& msg) const;
+
   /// Be careful to check which flags may already be in use by base classes.
   void SetUserFlag(ezUInt8 flagIndex, bool set);
 

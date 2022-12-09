@@ -895,16 +895,31 @@ void ezGameObject::PostMessageRecursive(const ezMessage& msg, ezTime delay, ezOb
   GetWorld()->PostMessageRecursive(GetHandle(), msg, delay, queueType);
 }
 
-void ezGameObject::SendEventMessage(ezEventMessage& msg, const ezComponent* pSenderComponent)
+void ezGameObject::SendEventMessage(ezMessage& msg, const ezComponent* pSenderComponent)
 {
+  if (auto pEventMsg = ezDynamicCast<ezEventMessage*>(&msg))
+  {
+    pEventMsg->FillFromSenderComponent(pSenderComponent);
+  }
+
   ezHybridArray<ezComponent*, 4> eventMsgHandlers;
   GetWorld()->FindEventMsgHandlers(msg, this, eventMsgHandlers);
 
-  if (eventMsgHandlers.IsEmpty() == false && pSenderComponent != nullptr)
+  for (auto pEventMsgHandler : eventMsgHandlers)
   {
-    msg.m_hSenderComponent = pSenderComponent->GetHandle();
-    msg.m_hSenderObject = pSenderComponent->GetOwner()->GetHandle();
+    pEventMsgHandler->SendMessage(msg);
   }
+}
+
+void ezGameObject::SendEventMessage(ezMessage& msg, const ezComponent* pSenderComponent) const
+{
+  if (auto pEventMsg = ezDynamicCast<ezEventMessage*>(&msg))
+  {
+    pEventMsg->FillFromSenderComponent(pSenderComponent);
+  }
+
+  ezHybridArray<const ezComponent*, 4> eventMsgHandlers;
+  GetWorld()->FindEventMsgHandlers(msg, this, eventMsgHandlers);
 
   for (auto pEventMsgHandler : eventMsgHandlers)
   {
@@ -912,33 +927,15 @@ void ezGameObject::SendEventMessage(ezEventMessage& msg, const ezComponent* pSen
   }
 }
 
-void ezGameObject::SendEventMessage(ezEventMessage& msg, const ezComponent* pSenderComponent) const
+void ezGameObject::PostEventMessage(ezMessage& msg, const ezComponent* pSenderComponent, ezTime delay, ezObjectMsgQueueType::Enum queueType) const
 {
+  if (auto pEventMsg = ezDynamicCast<ezEventMessage*>(&msg))
+  {
+    pEventMsg->FillFromSenderComponent(pSenderComponent);
+  }
+
   ezHybridArray<const ezComponent*, 4> eventMsgHandlers;
   GetWorld()->FindEventMsgHandlers(msg, this, eventMsgHandlers);
-
-  if (eventMsgHandlers.IsEmpty() == false && pSenderComponent != nullptr)
-  {
-    msg.m_hSenderComponent = pSenderComponent->GetHandle();
-    msg.m_hSenderObject = pSenderComponent->GetOwner()->GetHandle();
-  }
-
-  for (auto pEventMsgHandler : eventMsgHandlers)
-  {
-    pEventMsgHandler->SendMessage(msg);
-  }
-}
-
-void ezGameObject::PostEventMessage(ezEventMessage& msg, const ezComponent* pSenderComponent, ezTime delay, ezObjectMsgQueueType::Enum queueType) const
-{
-  ezHybridArray<const ezComponent*, 4> eventMsgHandlers;
-  GetWorld()->FindEventMsgHandlers(msg, this, eventMsgHandlers);
-
-  if (eventMsgHandlers.IsEmpty() == false && pSenderComponent != nullptr)
-  {
-    msg.m_hSenderComponent = pSenderComponent->GetHandle();
-    msg.m_hSenderObject = pSenderComponent->GetOwner()->GetHandle();
-  }
 
   for (auto pEventMsgHandler : eventMsgHandlers)
   {

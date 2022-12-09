@@ -17,7 +17,7 @@ EZ_END_COMPONENT_TYPE
 ezForwardEventsToGameStateComponent::ezForwardEventsToGameStateComponent() = default;
 ezForwardEventsToGameStateComponent::~ezForwardEventsToGameStateComponent() = default;
 
-bool ezForwardEventsToGameStateComponent::HandlesEventMessage(const ezEventMessage& msg) const
+bool ezForwardEventsToGameStateComponent::HandlesMessage(const ezMessage& msg) const
 {
   // check whether there is any active game state
   // if so, test whether it would handle this type of message
