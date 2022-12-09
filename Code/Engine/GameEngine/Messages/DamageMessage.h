@@ -1,8 +1,6 @@
 #pragma once
 
 #include <Core/Messages/EventMessage.h>
-#include <Foundation/Communication/Message.h>
-#include <GameEngine/GameEngineDLL.h>
 #include <GameEngine/VisualScript/VisualScriptNode.h>
 
 struct EZ_GAMEENGINE_DLL ezMsgDamage : public ezEventMessage

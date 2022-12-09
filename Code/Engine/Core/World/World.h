@@ -3,7 +3,6 @@
 #include <Core/World/Implementation/WorldData.h>
 
 struct ezEventMessage;
-class ezEventMessageHandlerBaseComponent;
 class ezEventMessageHandlerComponent;
 
 /// \brief A world encapsulates a scene graph of game objects and various component managers and their components.
@@ -231,16 +230,15 @@ public:
   void PostMessage(const ezComponentHandle& receiverComponent, const ezMessage& msg, ezTime delay,
     ezObjectMsgQueueType::Enum queueType = ezObjectMsgQueueType::NextFrame) const;
 
-  /// \brief Finds the closest (parent) object, starting at pSearchObject, which has an ezEventMessageHandlerBaseComponent and returns all
-  /// ezEventMessageHandlerBaseComponents owned by that object and that handle messages of the given type.
+  /// \brief Finds the closest (parent) object, starting at pSearchObject, which has an ezComponent that handles the given message and returns all
+  /// matching components owned by that object. If a ezEventMessageHandlerComponent is found the search is stopped even if it doesn't handle the given message.
   ///
-  /// If any such parent object exists, the search is stopped there, even if that component does not handle messages of the given type.
-  /// If no such parent object exists, it searches for all ezEventMessageHandlerBaseComponent instances that are set to 'handle global events'
+  /// If no such parent object exists, it searches for all ezEventMessageHandlerComponent instances that are set to 'handle global events'
   /// that handle messages of the given type.
-  void FindEventMsgHandlers(const ezEventMessage& msg, ezGameObject* pSearchObject, ezDynamicArray<ezComponent*>& out_components);
+  void FindEventMsgHandlers(const ezMessage& msg, ezGameObject* pSearchObject, ezDynamicArray<ezComponent*>& out_components);
 
   /// \copydoc ezWorld::FindEventMsgHandlers()
-  void FindEventMsgHandlers(const ezEventMessage& msg, const ezGameObject* pSearchObject, ezDynamicArray<const ezComponent*>& out_components) const;
+  void FindEventMsgHandlers(const ezMessage& msg, const ezGameObject* pSearchObject, ezDynamicArray<const ezComponent*>& out_components) const;
 
   ///@}
 
@@ -373,7 +371,7 @@ private:
   void ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType);
 
   template <typename World, typename GameObject, typename Component>
-  static void FindEventMsgHandlers(World& world, const ezEventMessage& msg, GameObject pSearchObject, ezDynamicArray<Component>& out_components);
+  static void FindEventMsgHandlers(World& world, const ezMessage& msg, GameObject pSearchObject, ezDynamicArray<Component>& out_components);
 
   void RegisterUpdateFunction(const ezWorldModule::UpdateFunctionDesc& desc);
   void DeregisterUpdateFunction(const ezWorldModule::UpdateFunctionDesc& desc);

@@ -413,12 +413,12 @@ void ezWorld::PostMessage(const ezComponentHandle& receiverComponent, const ezMe
   }
 }
 
-void ezWorld::FindEventMsgHandlers(const ezEventMessage& msg, ezGameObject* pSearchObject, ezDynamicArray<ezComponent*>& out_components)
+void ezWorld::FindEventMsgHandlers(const ezMessage& msg, ezGameObject* pSearchObject, ezDynamicArray<ezComponent*>& out_components)
 {
   FindEventMsgHandlers(*this, msg, pSearchObject, out_components);
 }
 
-void ezWorld::FindEventMsgHandlers(const ezEventMessage& msg, const ezGameObject* pSearchObject, ezDynamicArray<const ezComponent*>& out_components) const
+void ezWorld::FindEventMsgHandlers(const ezMessage& msg, const ezGameObject* pSearchObject, ezDynamicArray<const ezComponent*>& out_components) const
 {
   FindEventMsgHandlers(*this, msg, pSearchObject, out_components);
 }
@@ -874,67 +874,63 @@ void ezWorld::ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType)
 
 // static
 template <typename World, typename GameObject, typename Component>
-void ezWorld::FindEventMsgHandlers(World& world, const ezEventMessage& msg, GameObject pSearchObject, ezDynamicArray<Component>& out_components)
+void ezWorld::FindEventMsgHandlers(World& world, const ezMessage& msg, GameObject pSearchObject, ezDynamicArray<Component>& out_components)
 {
-  using EventMessageHandlerComponentType = typename std::conditional<std::is_const<World>::value, const ezEventMessageHandlerBaseComponent*, ezEventMessageHandlerBaseComponent*>::type;
+  using EventMessageHandlerComponentType = typename std::conditional<std::is_const<World>::value, const ezEventMessageHandlerComponent*, ezEventMessageHandlerComponent*>::type;
 
   out_components.Clear();
 
-  // walk the graph upwards until an object is found with an ezEventMessageHandlerBaseComponent that handles this type of message
+  // walk the graph upwards until an object is found with at least one ezComponent that handles this type of message
   {
     auto pCurrentObject = pSearchObject;
 
     while (pCurrentObject != nullptr)
     {
-      ezHybridArray<EventMessageHandlerComponentType, 4> eventMessageHandlerComponents;
-      pCurrentObject->TryGetComponentsOfBaseType(eventMessageHandlerComponents);
-
-      if (eventMessageHandlerComponents.IsEmpty() == false)
+      bool bContinueSearch = true;
+      for (auto pComponent : pCurrentObject->GetComponents())
       {
-        bool bContinueSearch = true;
-
-        for (auto pEventMessageHandlerComponent : eventMessageHandlerComponents)
+        if constexpr (std::is_const<World>::value == false)
         {
-          if constexpr (std::is_const<World>::value == false)
-          {
-            pEventMessageHandlerComponent->EnsureInitialized();
-          }
+          pComponent->EnsureInitialized();
+        }
 
-          if (pEventMessageHandlerComponent->HandlesEventMessage(msg))
+        if (pComponent->HandlesMessage(msg))
+        {
+          out_components.PushBack(pComponent);
+          bContinueSearch = false;
+        }
+        else
+        {
+          if constexpr (std::is_const<World>::value)
           {
-            out_components.PushBack(pEventMessageHandlerComponent);
-            bContinueSearch = false;
-          }
-          else
-          {
-            if constexpr (std::is_const<World>::value)
+            if (pComponent->IsInitialized() == false)
             {
-              if (pEventMessageHandlerComponent->IsInitialized() == false)
-              {
-                ezLog::Warning("Potential event message handler component of type '{}' was not initialized (yet) and thus might have reported "
-                               "an incorrect result in HandlesEventMessage(). "
-                               "To allow this component to be automatically initialized at this point in time call the non-const variant of SendEventMessage.",
-                  pEventMessageHandlerComponent->GetDynamicRTTI()->GetTypeName());
-              }
+              ezLog::Warning("Component of type '{}' was not initialized (yet) and thus might have reported an incorrect result in HandlesMessage(). "
+                             "To allow this component to be automatically initialized at this point in time call the non-const variant of SendEventMessage.",
+                pComponent->GetDynamicRTTI()->GetTypeName());
             }
+          }
 
-            // only continue to search on parent objects if all event handlers on the current object have the "pass through unhandled events" flag set.
+          // only continue to search on parent objects if all event handlers on the current object have the "pass through unhandled events" flag set.
+          if (auto pEventMessageHandlerComponent = ezDynamicCast<EventMessageHandlerComponentType>(pComponent))
+          {
             bContinueSearch &= pEventMessageHandlerComponent->GetPassThroughUnhandledEvents();
           }
         }
+      }
 
-        if (!bContinueSearch)
-        {
-          // stop searching as we found at least one ezEventMessageHandlerBaseComponent or one doesn't have the "pass through" flag set.
-          return;
-        }
+      if (!bContinueSearch)
+      {
+        // stop searching as we found at least one ezEventMessageHandlerComponent or one doesn't have the "pass through" flag set.
+        return;
       }
 
       pCurrentObject = pCurrentObject->GetParent();
     }
   }
 
-  // if no such object is found, check all objects that are registered as 'global event handlers'
+  // if no components have been found, check all event handler components that are registered as 'global event handlers'
+  if (out_components.IsEmpty())
   {
     auto globalEventMessageHandler = ezEventMessageHandlerComponent::GetAllGlobalEventHandler(&world);
     for (auto hEventMessageHandlerComponent : globalEventMessageHandler)
@@ -942,7 +938,7 @@ void ezWorld::FindEventMsgHandlers(World& world, const ezEventMessage& msg, Game
       EventMessageHandlerComponentType pEventMessageHandlerComponent = nullptr;
       if (world.TryGetComponent(hEventMessageHandlerComponent, pEventMessageHandlerComponent))
       {
-        if (pEventMessageHandlerComponent->HandlesEventMessage(msg))
+        if (pEventMessageHandlerComponent->HandlesMessage(msg))
         {
           out_components.PushBack(pEventMessageHandlerComponent);
         }

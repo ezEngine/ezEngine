@@ -38,8 +38,6 @@ ezTriggerDelayModifierComponent::~ezTriggerDelayModifierComponent() = default;
 void ezTriggerDelayModifierComponent::Initialize()
 {
   SUPER::Initialize();
-
-  SetPassThroughUnhandledEvents(true);
 }
 
 void ezTriggerDelayModifierComponent::SerializeComponent(ezWorldWriter& stream) const
@@ -82,7 +80,7 @@ void ezTriggerDelayModifierComponent::OnMsgTriggerTriggered(ezMsgTriggerTriggere
         intMsg.m_sMessage.Assign("Activate");
         intMsg.m_iPayload = m_iValidActivationToken;
 
-        GetOwner()->GetWorld()->PostMessage(GetHandle(), intMsg, m_ActivationDelay, ezObjectMsgQueueType::PostTransform);
+        PostMessage(intMsg, m_ActivationDelay, ezObjectMsgQueueType::PostTransform);
       }
       else
       {
@@ -116,7 +114,7 @@ void ezTriggerDelayModifierComponent::OnMsgTriggerTriggered(ezMsgTriggerTriggere
         intMsg.m_sMessage.Assign("Deactivate");
         intMsg.m_iPayload = m_iValidDeactivationToken;
 
-        GetOwner()->GetWorld()->PostMessage(GetHandle(), intMsg, m_DeactivationDelay, ezObjectMsgQueueType::PostTransform);
+        PostMessage(intMsg, m_DeactivationDelay, ezObjectMsgQueueType::PostTransform);
       }
       else
       {
@@ -131,7 +129,7 @@ void ezTriggerDelayModifierComponent::OnMsgTriggerTriggered(ezMsgTriggerTriggere
 
 void ezTriggerDelayModifierComponent::OnMsgComponentInternalTrigger(ezMsgComponentInternalTrigger& msg)
 {
-  if (msg.m_sMessage.GetString() == "Activate")
+  if (msg.m_sMessage == ezTempHashedString("Activate"))
   {
     if (msg.m_iPayload == m_iValidActivationToken && !m_bIsActivated)
     {
@@ -144,7 +142,7 @@ void ezTriggerDelayModifierComponent::OnMsgComponentInternalTrigger(ezMsgCompone
       m_TriggerEventSender.PostEventMessage(newMsg, this, GetOwner()->GetParent(), ezTime::Zero(), ezObjectMsgQueueType::PostTransform);
     }
   }
-  else if (msg.m_sMessage.GetString() == "Deactivate")
+  else if (msg.m_sMessage == ezTempHashedString("Deactivate"))
   {
     if (msg.m_iPayload == m_iValidDeactivationToken && m_bIsActivated)
     {

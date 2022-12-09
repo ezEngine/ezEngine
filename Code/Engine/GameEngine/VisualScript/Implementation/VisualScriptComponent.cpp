@@ -212,11 +212,11 @@ void ezVisualScriptComponent::SetScript(const ezVisualScriptResourceHandle& hRes
   }
 }
 
-bool ezVisualScriptComponent::HandlesEventMessage(const ezEventMessage& msg) const
+bool ezVisualScriptComponent::HandlesMessage(const ezMessage& msg) const
 {
   if (m_pScriptInstance)
   {
-    return m_pScriptInstance->HandlesEventMessage(msg);
+    return m_pScriptInstance->HandlesMessage(msg);
   }
 
   return false;

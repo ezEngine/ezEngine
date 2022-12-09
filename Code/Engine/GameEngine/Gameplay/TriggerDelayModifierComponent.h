@@ -1,9 +1,6 @@
 #pragma once
 
-#include <Core/World/Component.h>
-#include <Core/World/ComponentManager.h>
 #include <Core/World/EventMessageHandlerComponent.h>
-#include <Core/World/World.h>
 #include <GameEngine/GameEngineDLL.h>
 
 struct ezMsgTriggerTriggered;
@@ -21,9 +18,9 @@ using ezTriggerDelayModifierComponentManager = ezComponentManager<class ezTrigge
 /// inside it for the full duration of the delay. Which exact object may change, but once the trigger contains no object, the timer is reset.
 ///
 /// The sent ezMsgTriggerTriggered does not contain a reference to the 'triggering' object, since there may be multiple and they may change randomly.
-class EZ_GAMEENGINE_DLL ezTriggerDelayModifierComponent : public ezEventMessageHandlerBaseComponent
+class EZ_GAMEENGINE_DLL ezTriggerDelayModifierComponent : public ezComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezTriggerDelayModifierComponent, ezEventMessageHandlerBaseComponent, ezTriggerDelayModifierComponentManager);
+  EZ_DECLARE_COMPONENT_TYPE(ezTriggerDelayModifierComponent, ezComponent, ezTriggerDelayModifierComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
   // ezComponent

@@ -457,7 +457,7 @@ Override ezVisualScriptNode::IsManuallyStepped() for type '{}' if necessary.",
   }
 }
 
-bool ezVisualScriptInstance::HandlesEventMessage(const ezEventMessage& msg) const
+bool ezVisualScriptInstance::HandlesMessage(const ezMessage& msg) const
 {
   if (m_pMessageHandlers == nullptr)
     return false;

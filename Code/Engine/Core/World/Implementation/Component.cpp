@@ -171,6 +171,11 @@ void ezComponent::PostMessage(const ezMessage& msg, ezTime delay, ezObjectMsgQue
   GetWorld()->PostMessage(GetHandle(), msg, delay, queueType);
 }
 
+bool ezComponent::HandlesMessage(const ezMessage& msg) const
+{
+  return m_pMessageDispatchType->CanHandleMessage(msg.GetId());
+}
+
 void ezComponent::Initialize() {}
 
 void ezComponent::Deinitialize()
