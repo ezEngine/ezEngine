@@ -37,7 +37,7 @@ namespace ezInternal
   {
     ezWorld* pWorld = pSenderComponent->GetWorld();
     UpdateCachedReceivers(msg, *pWorld, pSearchObject, inout_CachedReceivers);
-    
+
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
     bool bHandlerFound = false;
 #endif
@@ -97,7 +97,7 @@ namespace ezInternal
     UpdateCachedReceivers(msg, *pWorld, pSearchObject, inout_CachedReceivers);
 
     if (!inout_CachedReceivers.IsEmpty())
-    {      
+    {
       for (auto hReceiver : inout_CachedReceivers)
       {
         pWorld->PostMessage(hReceiver, msg, delay, queueType);

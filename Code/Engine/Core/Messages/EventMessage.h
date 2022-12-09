@@ -17,7 +17,7 @@ struct EZ_CORE_DLL ezEventMessage : public ezMessage
     {
       m_hSenderComponent = pSenderComponent->GetHandle();
       m_hSenderObject = pSenderComponent->GetOwner()->GetHandle();
-    }      
+    }
   }
 };
 
