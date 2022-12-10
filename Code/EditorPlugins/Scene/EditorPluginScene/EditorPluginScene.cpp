@@ -96,6 +96,7 @@ void OnLoadPlugin()
 
   // Add built in tags
   {
+    ezToolsTagRegistry::AddTag(ezToolsTag("Default", "Exclude From Export", true));
     ezToolsTagRegistry::AddTag(ezToolsTag("Default", "CastShadow", true));
     ezToolsTagRegistry::AddTag(ezToolsTag("Default", "SkyLight", true));
   }
@@ -158,9 +159,12 @@ void OnLoadPlugin()
   ezQuadViewActions::MapActions("EditorPluginScene_ViewToolBar", "");
 
   // Visualizers
-  ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezPointLightVisualizerAttribute>(), [](const ezRTTI* pRtti) -> ezVisualizerAdapter* { return EZ_DEFAULT_NEW(ezPointLightVisualizerAdapter); });
-  ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezSpotLightVisualizerAttribute>(), [](const ezRTTI* pRtti) -> ezVisualizerAdapter* { return EZ_DEFAULT_NEW(ezSpotLightVisualizerAdapter); });
-  ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezBoxReflectionProbeVisualizerAttribute>(), [](const ezRTTI* pRtti) -> ezVisualizerAdapter* { return EZ_DEFAULT_NEW(ezBoxReflectionProbeVisualizerAdapter); });
+  ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezPointLightVisualizerAttribute>(), [](const ezRTTI* pRtti) -> ezVisualizerAdapter*
+    { return EZ_DEFAULT_NEW(ezPointLightVisualizerAdapter); });
+  ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezSpotLightVisualizerAttribute>(), [](const ezRTTI* pRtti) -> ezVisualizerAdapter*
+    { return EZ_DEFAULT_NEW(ezSpotLightVisualizerAdapter); });
+  ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezBoxReflectionProbeVisualizerAttribute>(), [](const ezRTTI* pRtti) -> ezVisualizerAdapter*
+    { return EZ_DEFAULT_NEW(ezBoxReflectionProbeVisualizerAdapter); });
 
   // SceneGraph Context Menu
   ezActionMapManager::RegisterActionMap("EditorPluginScene_ScenegraphContextMenu").IgnoreResult();
@@ -232,6 +236,6 @@ void ezSkyLightComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent&
   auto& props = *e.m_pPropertyStates;
 
   props["CubeMap"].m_Visibility = bIsStatic ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
-  //props["RenderTargetOffset"].m_Visibility = isRenderTarget ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
-  //props["RenderTargetSize"].m_Visibility = isRenderTarget ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+  // props["RenderTargetOffset"].m_Visibility = isRenderTarget ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+  // props["RenderTargetSize"].m_Visibility = isRenderTarget ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
 }

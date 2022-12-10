@@ -808,7 +808,7 @@ bool ezSceneContext::ExportDocument(const ezExportDocumentMsgToEngine* pMsg)
     m_pWorld->Update();
   }
 
-  //#TODO layers
+  // #TODO layers
   ezSceneExportModifier::ApplyAllModifiers(*m_pWorld, GetDocumentGuid());
 
   ezDeferredFileWriter file;
@@ -827,12 +827,13 @@ bool ezSceneContext::ExportDocument(const ezExportDocumentMsgToEngine* pMsg)
     }
 
     const ezTag& tagEditor = ezTagRegistry::GetGlobalRegistry().RegisterTag("Editor");
-
+    const ezTag& tagNoExport = ezTagRegistry::GetGlobalRegistry().RegisterTag("Exclude From Export");
     const ezTag& tagEditorPrefabInstance = ezTagRegistry::GetGlobalRegistry().RegisterTag("EditorPrefabInstance");
 
     ezTagSet tags;
     tags.Set(tagEditor);
     tags.Set(tagEditorPrefabInstance);
+    tags.Set(tagNoExport);
 
     ezWorldWriter ww;
     ww.WriteWorld(file, *m_pWorld, &tags);
@@ -918,7 +919,8 @@ void ezSceneContext::ExportExposedParameters(const ezWorldWriter& ww, ezDeferred
     paramdesc.m_sProperty.Assign(esp.m_sPropertyPath.GetData());
   }
 
-  exposedParams.Sort([](const ezExposedPrefabParameterDesc& lhs, const ezExposedPrefabParameterDesc& rhs) -> bool { return lhs.m_sExposeName.GetHash() < rhs.m_sExposeName.GetHash(); });
+  exposedParams.Sort([](const ezExposedPrefabParameterDesc& lhs, const ezExposedPrefabParameterDesc& rhs) -> bool
+    { return lhs.m_sExposeName.GetHash() < rhs.m_sExposeName.GetHash(); });
 
   file << exposedParams.GetCount();
 
