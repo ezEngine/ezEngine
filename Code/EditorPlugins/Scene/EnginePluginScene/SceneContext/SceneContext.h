@@ -120,7 +120,8 @@ private:
   ezDeque<ezGameObjectHandle> m_Selection;
   ezDeque<ezGameObjectHandle> m_SelectionWithChildren;
   ezSet<ezGameObjectHandle> m_SelectionWithChildrenSet;
-  ezGameObjectHandle m_hAmbientLight[3];
+  ezGameObjectHandle m_hSkyLight;
+  ezGameObjectHandle m_hDirectionalLight;
   ezDynamicArray<ezExposedSceneProperty> m_ExposedSceneProperties;
 
   ezPushObjectStateMsgToEditor m_PushObjectStateMsg;
