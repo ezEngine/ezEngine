@@ -9,10 +9,30 @@ resources:
     type: git
     ref: dev
 jobs:
+- job: StartVM
+  displayName: StartVM
+  pool:
+    vmImage: 'windows-2019'
+  steps:
+  - checkout: none
+  - task: AzureKeyVault@1
+    displayName: 'Azure Key Vault: ezKeys'
+    inputs:
+      ConnectedServiceName: a416236e-0672-4024-bca3-853beb235e5e
+      KeyVaultName: ezKeys
+      SecretsFilter: AzureFunctionKey
+  - task: PowerShell@2
+    displayName: StartVM
+    continueOnError: true
+    inputs:
+      targetType: inline
+      script: Invoke-RestMethod -Uri "https://ezengineci.azurewebsites.net/api/StartVM?code=$(AzureFunctionKey)&vmname=Ubuntu-22.04"
 - job: Job_1
   displayName: Linux-x64
   pool:
-    vmImage: 'ubuntu-22.04'
+    name: Default
+    demands:
+    - Agent.OS -equals Linux
   steps:
   - checkout: self
     submodules: true
@@ -22,9 +42,10 @@ jobs:
     inputs:
       targetType: inline
       script: |
-        sudo add-apt-repository ppa:kisak/kisak-mesa -y 
         sudo apt-get update
-        sudo apt-get install -y cmake uuid-dev gcc-12 g++-12 libx11-dev build-essential qt6-base-dev libqt6svg6-dev qt6-base-private-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev xvfb lightdm mesa-vulkan-drivers vulkan-tools libtinfo5 libgl1-mesa-dev
+        sudo apt-get install -y cmake uuid-dev gcc-12 g++-12 libx11-dev build-essential qt6-base-dev libqt6svg6-dev qt6-base-private-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev xvfb lightdm libtinfo5 vulkan-tools
+        # sudo add-apt-repository ppa:kisak/kisak-mesa -y 
+        # sudo apt-get install -y mesa-vulkan-drivers libgl1-mesa-dev
   - task: Bash@3
     displayName: Info
     inputs:
@@ -60,7 +81,9 @@ jobs:
     condition: eq(variables['task.MSBuild.status'], 'success')
     inputs:
       targetType: inline
-      script: | 
+      script: |
+        killall Xvfb
+        sleep 1
         export DISPLAY=:1
         Xvfb :1 -screen 0 1024x768x16 &
         sleep 1
@@ -80,7 +103,7 @@ jobs:
       targetType: inline
       script: |
         export DISPLAY=:1
-        export VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/lvp_icd.x86_64.json
+        export VK_ICD_FILENAMES=/usr/local/share/vulkan/icd.d/lvp_icd.x86_64.json
         vulkaninfo --summary
         ./Output/Bin/LinuxMakeGccDev64/RendererTest -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)/RendererTest
   - task: PublishBuildArtifacts@1

@@ -14,27 +14,26 @@ jobs:
   pool:
     vmImage: 'windows-2019'
   steps:
-  - checkout: self
-    submodules: true
-    lfs: true
-    clean: false
+  - checkout: none
   - task: AzureKeyVault@1
     displayName: 'Azure Key Vault: ezKeys'
     inputs:
       ConnectedServiceName: a416236e-0672-4024-bca3-853beb235e5e
       KeyVaultName: ezKeys
-      SecretsFilter: AzureFunctionCode
+      SecretsFilter: AzureFunctionKey
   - task: PowerShell@2
     displayName: StartVM
     continueOnError: true
     inputs:
       targetType: inline
-      script: Invoke-RestMethod -Uri "https://ezengineci.azurewebsites.net/api/StartWindowsVM?code=$(AzureFunctionCode)&vmname=Windows10-1809"
+      script: Invoke-RestMethod -Uri "https://ezengineci.azurewebsites.net/api/StartVM?code=$(AzureFunctionKey)&vmname=Windows10-1809"
 - job: Job_1
   displayName: Windows-x64
   timeoutInMinutes: 180
   pool:
     name: Default
+    demands:
+    - Agent.OS -equals Windows_NT
   steps:
   - checkout: self
     submodules: true
