@@ -29,7 +29,7 @@ EZ_END_SUBSYSTEM_DECLARATION;
 // static
 ezHashTable<ezHashedString, ezSharedPtr<ezBlackboard>> ezBlackboard::s_GlobalBlackboards;
 
-// static 
+// static
 ezSharedPtr<ezBlackboard> ezBlackboard::Create(ezAllocatorBase* pAllocator /*= ezFoundation::GetDefaultAllocator()*/)
 {
   return EZ_NEW(pAllocator, ezBlackboard);
