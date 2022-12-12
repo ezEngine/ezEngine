@@ -106,7 +106,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 // clang-format on
 
 ezBlackboardComponent::ezBlackboardComponent()
-  : m_pBoard(EZ_DEFAULT_NEW(ezBlackboard))
+  : m_pBoard(ezBlackboard::Create())
 {
 }
 
@@ -115,17 +115,27 @@ ezBlackboardComponent::~ezBlackboardComponent() = default;
 ezBlackboardComponent& ezBlackboardComponent::operator=(ezBlackboardComponent&& other) = default;
 
 // static
-ezSharedPtr<ezBlackboard> ezBlackboardComponent::FindBlackboard(ezGameObject* pObject)
+ezSharedPtr<ezBlackboard> ezBlackboardComponent::FindBlackboard(ezGameObject* pObject, ezStringView sBlackboardName /*= ezStringView()*/)
 {
+  ezTempHashedString sBlackboardNameHashed(sBlackboardName);
+
   ezBlackboardComponent* pBlackboardComponent = nullptr;
-  while (pObject != nullptr && !pObject->TryGetComponentOfBaseType(pBlackboardComponent))
+  while (pObject != nullptr)
   {
+    if (pObject->TryGetComponentOfBaseType(pBlackboardComponent))
+    {
+      if (sBlackboardName.IsEmpty() || pBlackboardComponent->GetBoard()->GetNameHashed() == sBlackboardNameHashed)
+      {
+        return pBlackboardComponent->GetBoard();
+      }
+    }
+
     pObject = pObject->GetParent();
   }
 
-  if (pBlackboardComponent != nullptr)
+  if (sBlackboardName.IsEmpty() == false)
   {
-    return pBlackboardComponent->GetBoard();
+    return ezBlackboard::FindGlobal(sBlackboardNameHashed);
   }
 
   return nullptr;
