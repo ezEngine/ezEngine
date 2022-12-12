@@ -192,6 +192,8 @@ void ezSceneLoadUtility::TickSceneLoading()
       m_pInstantiationContext = nullptr;
       m_LoadingState = LoadingState::FinishedSuccessfully;
     }
+
+    m_fLoadingProgress = fCollectionPreloadPiece + m_InstantiationProgress.GetCompletion() * (1.0f - fCollectionPreloadPiece);
   }
   else
   {

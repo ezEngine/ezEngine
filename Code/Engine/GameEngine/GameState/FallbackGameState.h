@@ -42,15 +42,17 @@ public:
   /// \brief Creates a new world that's used as a temporary loading screen while waiting for loading of another world to finish.
   ///
   /// Usually this world would be set up in code and would be very quick to create. By default an entirely empty world is created.
-  virtual void SwitchToLoadingScreen();
+  void SwitchToLoadingScreen();
 
   ezResult StartSceneLoading(ezStringView sSceneFile, ezStringView sPreloadCollection);
   void CancelSceneLoading();
 
   bool IsLoadingScene() const;
+  bool IsInLoadingScreen() const;
   void SwitchToLoadedScene();
 
 protected:
+  virtual ezUniquePtr<ezWorld> CreateLoadingScreenWorld();
   virtual void ConfigureInputActions() override;
   virtual ezResult SpawnPlayer(const ezTransform* pStartPosition) override;
 
@@ -76,6 +78,7 @@ protected:
   State m_State = State::Ok;
   bool m_bShowMenu = false;
   bool m_bEnableSceneSelectionMenu = true;
+  bool m_bIsInLoadingScreen = false;
 
   void FindAvailableScenes();
   bool DisplayMenu();
@@ -86,3 +89,4 @@ protected:
   ezString m_sTitleOfLoadingScene;
   ezString m_sTitleOfActiveScene;
 };
+

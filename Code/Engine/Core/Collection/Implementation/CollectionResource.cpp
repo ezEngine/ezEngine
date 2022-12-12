@@ -42,8 +42,8 @@ void ezCollectionResource::PreloadResources()
       }
       else
       {
-        ezLog::Error("There was no valid RTTI available for assets with type name '{}'. Could not pre-load resource '{}'. Did you forget to register "
-                     "the resource type with the ezResourceManager?",
+        ezLog::Warning("There was no valid RTTI available for assets with type name '{}'. Could not pre-load resource '{}'. Did you forget to register "
+                       "the resource type with the ezResourceManager?",
           e.m_sAssetTypeName, ezArgSensitive(e.m_sResourceID, "ResourceID"));
       }
     }
@@ -142,7 +142,7 @@ ezResourceLoadDesc ezCollectionResource::UnloadData(Unload WhatToUnload)
     // It is intentionally removed as it caused this lock and the resource manager lock to be locked in reverse order.
     // To prevent potential deadlocks and be able to sanity check our locking the entire codebase should never lock any
     // locks in reverse order, even if this lock is probably fine it prevents us from reasoning over the entire system.
-    //EZ_LOCK(m_preloadMutex);
+    // EZ_LOCK(m_preloadMutex);
     m_PreloadedResources.Clear();
     m_Collection.m_Resources.Clear();
 

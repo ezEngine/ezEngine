@@ -85,16 +85,27 @@ ezString ezFallbackGameState::GetStartupSceneFile()
 void ezFallbackGameState::SwitchToLoadingScreen()
 {
   m_sTitleOfActiveScene = "Loading Screen";
+  m_bIsInLoadingScreen = true;
 
-  ezWorldDesc desc("LoadingScreen");
-  ezUniquePtr<ezWorld> pLoadingScreen = EZ_DEFAULT_NEW(ezWorld, desc);
-
-  m_pActiveWorld = std::move(pLoadingScreen);
+  m_pActiveWorld = std::move(CreateLoadingScreenWorld());
   ChangeMainWorld(m_pActiveWorld.Borrow());
+}
+
+ezUniquePtr<ezWorld> ezFallbackGameState::CreateLoadingScreenWorld()
+{
+  ezWorldDesc desc("LoadingScreen");
+
+  return EZ_DEFAULT_NEW(ezWorld, desc);
 }
 
 ezResult ezFallbackGameState::StartSceneLoading(ezStringView sSceneFile, ezStringView sPreloadCollection)
 {
+  if (m_pSceneToLoad != nullptr && m_sTitleOfLoadingScene == sSceneFile)
+  {
+    // already being loaded
+    return EZ_SUCCESS;
+  }
+
   m_sTitleOfLoadingScene = sSceneFile;
 
   m_pSceneToLoad = EZ_DEFAULT_NEW(ezSceneLoadUtility);
@@ -112,6 +123,7 @@ ezResult ezFallbackGameState::StartSceneLoading(ezStringView sSceneFile, ezStrin
 
 void ezFallbackGameState::CancelSceneLoading()
 {
+  m_sTitleOfLoadingScene.Clear();
   m_pSceneToLoad.Clear();
 }
 
@@ -132,6 +144,8 @@ void ezFallbackGameState::SwitchToLoadedScene()
   SpawnPlayer(nullptr).IgnoreResult();
 
   CancelSceneLoading();
+
+  m_bIsInLoadingScreen = false;
 }
 
 ezResult ezFallbackGameState::SpawnPlayer(const ezTransform* pStartPosition)
@@ -520,5 +534,9 @@ bool ezFallbackGameState::DisplayMenu()
   return false;
 }
 
+bool ezFallbackGameState::IsInLoadingScreen() const
+{
+  return m_bIsInLoadingScreen;
+}
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_GameState_Implementation_FallbackGameState);
