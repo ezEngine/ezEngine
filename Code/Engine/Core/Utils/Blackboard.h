@@ -3,8 +3,8 @@
 #include <Core/CoreDLL.h>
 #include <Foundation/Communication/Event.h>
 #include <Foundation/Strings/HashedString.h>
-#include <Foundation/Types/RefCounted.h>
 #include <Foundation/Types/Variant.h>
+#include <Foundation/Types/SharedPtr.h>
 
 class ezStreamReader;
 class ezStreamWriter;
@@ -64,12 +64,21 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezBlackboardEntryFlags);
 /// and then NPCs might use that information to make decisions.
 class EZ_CORE_DLL ezBlackboard : public ezRefCounted
 {
-public:
+private:
   ezBlackboard();
+
+public:
+  /// \brief Factory method to create a new blackboard.
+  ///
+  /// Since blackboards use shared ownership we need to make sure that blackboards are created in ezCore.dll.
+  /// Some compilers (MSVC) create local v-tables which can become stale if a blackboard was registered as global but the dll
+  /// which created the blackboard is already unloaded.
+  static ezSharedPtr<ezBlackboard> Create(ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator());
   ~ezBlackboard();
 
   void SetName(const char* szName);
   const char* GetName() const { return m_sName; }
+  const ezHashedString& GetNameHashed() const { return m_sName; }
 
   struct Entry
   {
@@ -144,12 +153,26 @@ public:
   /// If deserialized entries overlap with existing ones, the deserialized entries will overwrite the existing ones (both values and flags).
   ezResult Deserialize(ezStreamReader& stream);
 
+  /// \brief Registers the given blackboard as global so it can be accessed from everywhere.
+  ///
+  /// Global blackboards are typically used to hold data that needs to be available across worlds like e.g. global game state, player progression etc.
+  static void RegisterAsGlobal(const ezSharedPtr<ezBlackboard>& pBlackboard);
+
+  /// \brief Unregisters the given blackboard from being global.
+  static void UnregisterAsGlobal(const ezSharedPtr<ezBlackboard>& pBlackboard);
+
+  /// \brief Finds a global blackboard with the given name.
+  static ezSharedPtr<ezBlackboard> FindGlobal(const ezTempHashedString& sBlackboardName);
+
 private:
   ezHashedString m_sName;
   ezEvent<EntryEvent> m_EntryEvents;
   ezUInt32 m_uiBlackboardChangeCounter = 0;
   ezUInt32 m_uiBlackboardEntryChangeCounter = 0;
   ezHashTable<ezHashedString, Entry> m_Entries;
+
+  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Core, Blackboard);
+  static ezHashTable<ezHashedString, ezSharedPtr<ezBlackboard>> s_GlobalBlackboards;
 };
 
 //////////////////////////////////////////////////////////////////////////
