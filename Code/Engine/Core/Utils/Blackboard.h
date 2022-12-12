@@ -172,6 +172,7 @@ private:
   ezHashTable<ezHashedString, Entry> m_Entries;
 
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Core, Blackboard);
+  static ezMutex s_GlobalBlackboardsMutex;
   static ezHashTable<ezHashedString, ezSharedPtr<ezBlackboard>> s_GlobalBlackboards;
 };
 

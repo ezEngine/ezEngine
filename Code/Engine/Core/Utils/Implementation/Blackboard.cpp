@@ -27,6 +27,7 @@ EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
 // static
+ezMutex ezBlackboard::s_GlobalBlackboardsMutex;
 ezHashTable<ezHashedString, ezSharedPtr<ezBlackboard>> ezBlackboard::s_GlobalBlackboards;
 
 // static 
@@ -40,7 +41,17 @@ ezBlackboard::~ezBlackboard() = default;
 
 void ezBlackboard::SetName(const char* szName)
 {
+  EZ_LOCK(s_GlobalBlackboardsMutex);
+
+  ezSharedPtr<ezBlackboard> pThisAsShared;
+  s_GlobalBlackboards.Remove(m_sName, &pThisAsShared);
+
   m_sName.Assign(szName);
+
+  if (pThisAsShared)
+  {
+    s_GlobalBlackboards.Insert(m_sName, pThisAsShared);
+  }
 }
 
 void ezBlackboard::RegisterEntry(const ezHashedString& name, const ezVariant& initialValue, ezBitflags<ezBlackboardEntryFlags> flags /*= ezBlackboardEntryFlags::None*/)
@@ -203,6 +214,7 @@ ezResult ezBlackboard::Deserialize(ezStreamReader& stream)
 // static
 void ezBlackboard::RegisterAsGlobal(const ezSharedPtr<ezBlackboard>& pBlackboard)
 {
+  EZ_LOCK(s_GlobalBlackboardsMutex);
   if (s_GlobalBlackboards.Contains(pBlackboard->m_sName))
   {
     ezLog::Error("Can't register blackboard named '{0}' as global blackboard because another global blackboard with this name already exists. Global blackboards need to have unique names.", pBlackboard->m_sName);
@@ -215,12 +227,15 @@ void ezBlackboard::RegisterAsGlobal(const ezSharedPtr<ezBlackboard>& pBlackboard
 // static
 void ezBlackboard::UnregisterAsGlobal(const ezSharedPtr<ezBlackboard>& pBlackboard)
 {
+  EZ_LOCK(s_GlobalBlackboardsMutex);
   s_GlobalBlackboards.Remove(pBlackboard->m_sName);
 }
 
 // static
 ezSharedPtr<ezBlackboard> ezBlackboard::FindGlobal(const ezTempHashedString& sBlackboardName)
 {
+  EZ_LOCK(s_GlobalBlackboardsMutex);
+
   ezSharedPtr<ezBlackboard> pBlackboard;
   s_GlobalBlackboards.TryGetValue(sBlackboardName, pBlackboard);
   return pBlackboard;
