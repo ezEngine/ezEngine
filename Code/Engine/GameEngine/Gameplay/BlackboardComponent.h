@@ -71,7 +71,7 @@ public:
   ///
   /// The blackboard name is only checked if the given name is not empty. If no matching blackboard component is found,
   /// the function will try to find a global blackboard with the given name.
-  /// 
+  ///
   /// \sa ezBlackboard::FindGlobal()
   static ezSharedPtr<ezBlackboard> FindBlackboard(ezGameObject* pSearchObject, ezStringView sBlackboardName = ezStringView());
 

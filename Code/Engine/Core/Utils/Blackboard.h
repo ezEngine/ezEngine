@@ -3,8 +3,8 @@
 #include <Core/CoreDLL.h>
 #include <Foundation/Communication/Event.h>
 #include <Foundation/Strings/HashedString.h>
-#include <Foundation/Types/Variant.h>
 #include <Foundation/Types/SharedPtr.h>
+#include <Foundation/Types/Variant.h>
 
 class ezStreamReader;
 class ezStreamWriter;
