@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Messages/EventMessage.h>
 #include <Core/Utils/IntervalScheduler.h>
 #include <Core/World/World.h>
 #include <GameEngine/GameEngineDLL.h>

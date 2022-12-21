@@ -856,6 +856,9 @@ void ezSceneContext::ExportExposedParameters(const ezWorldWriter& ww, ezDeferred
 
     ezRttiConverterObject obj = m_Context.GetObjectByGUID(esp.m_Object);
 
+    if (obj.m_pType == nullptr)
+      continue;
+
     if (obj.m_pType->IsDerivedFrom<ezGameObject>())
     {
       pTargetObject = reinterpret_cast<ezGameObject*>(obj.m_pObject);

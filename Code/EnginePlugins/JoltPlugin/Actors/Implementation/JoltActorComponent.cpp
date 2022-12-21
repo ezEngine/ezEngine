@@ -154,7 +154,7 @@ ezResult ezJoltActorComponent::CreateShape(JPH::BodyCreationSettings* pSettings,
         pShape = pScaledShape;
       }
 
-      opt.AddShape(ezJoltConversionUtils::ToVec3(shape.m_Transform.m_vPosition), ezJoltConversionUtils::ToQuat(shape.m_Transform.m_qRotation), pShape);
+      opt.AddShape(ezJoltConversionUtils::ToVec3(shape.m_Transform.m_vPosition), ezJoltConversionUtils::ToQuat(shape.m_Transform.m_qRotation).Normalized(), pShape);
     }
 
     auto res = opt.Create();

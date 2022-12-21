@@ -51,6 +51,9 @@ public:
   bool IsInLoadingScreen() const;
   void SwitchToLoadedScene();
 
+  ezStringView GetActiveSceneName() const { return m_sTitleOfActiveScene; }
+  ezStringView GetLoadingSceneName() const { return m_sTitleOfLoadingScene; }
+
 protected:
   virtual ezUniquePtr<ezWorld> CreateLoadingScreenWorld();
   virtual void ConfigureInputActions() override;
