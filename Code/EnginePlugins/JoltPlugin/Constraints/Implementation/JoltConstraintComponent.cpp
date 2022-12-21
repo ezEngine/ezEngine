@@ -302,6 +302,18 @@ ezResult ezJoltConstraintComponent::FindParentBody(ezUInt32& out_uiJoltBodyID)
       }
       return EZ_SUCCESS;
     }
+    else
+    {
+      if (GetUserFlag(0) == true)
+      {
+        ezTransform globalFrame = m_LocalFrameA;
+
+        // m_localFrameA is already valid
+        // assume it was in global space and move it into local space of the found parent
+        m_LocalFrameA.SetLocalTransform(pRbComp->GetOwner()->GetGlobalTransform(), globalFrame);
+        m_LocalFrameA.m_vPosition = m_LocalFrameA.m_vPosition.CompMul(pObject->GetGlobalScaling());
+      }
+    }
   }
 
   pRbComp->EnsureSimulationStarted();
