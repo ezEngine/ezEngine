@@ -121,6 +121,11 @@ double ezQtDoubleSpinBox::valueFromText(const QString& text) const
 
   QString sFixedText = text;
 
+  if (sFixedText.isEmpty())
+  {
+    sFixedText = "0";
+  }
+
   if (!m_sSuffix.isEmpty() && sFixedText.endsWith(m_sSuffix))
   {
     sFixedText.chop(m_sSuffix.length());

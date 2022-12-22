@@ -1,11 +1,29 @@
 #pragma once
 
+#include <Foundation/Communication/Message.h>
 #include <JoltPlugin/Actors/JoltDynamicActorComponent.h>
 
 namespace JPH
 {
   class SixDOFConstraint;
 }
+
+/// \brief Sent by components such as ezJoltGrabObjectComponent to indicate that the object has been grabbed or released.
+class EZ_JOLTPLUGIN_DLL ezMsgObjectGrabbed : public ezMessage
+{
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgObjectGrabbed, ezMessage);
+
+  ezGameObjectHandle m_hGrabbedBy;
+  bool m_bGotGrabbed = true;
+};
+
+/// \brief Send this to components such as ezJoltGrabObjectComponent to demand that m_hGrabbedObjectToRelease should no longer be grabbed.
+class EZ_JOLTPLUGIN_DLL ezMsgReleaseObjectGrab : public ezMessage
+{
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgReleaseObjectGrab, ezMessage);
+
+  ezGameObjectHandle m_hGrabbedObjectToRelease;
+};
 
 using ezJoltGrabObjectComponentManager = ezComponentManagerSimple<class ezJoltGrabObjectComponent, ezComponentUpdateType::WhenSimulating, ezBlockStorageType::Compact>;
 
@@ -97,6 +115,8 @@ protected:
   void CreateJoint(ezJoltDynamicActorComponent* pParent, ezJoltDynamicActorComponent* pChild);
   void DetectDistanceViolation(ezJoltDynamicActorComponent* pGrabbedActor);
   bool IsCharacterStandingOnObject(ezGameObjectHandle hActorToGrab) const;
+
+  void OnMsgReleaseObjectGrab(ezMsgReleaseObjectGrab& msg); // [ message handler ]
 
   ezComponentHandle m_hGrabbedActor;
   float m_fGrabbedActorGravity = 1.0f;

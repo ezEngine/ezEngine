@@ -289,7 +289,8 @@ Visual Script;Visual Script
 StateMachine;State Machine
 ezStateMachineNode;New State
 ezStateMachineNodeAny;New Any State
-ezStateMachineState_SendMsg;Send Message State
+ezStateMachineState_SendMsg;Send Message
+ezStateMachineState_SwitchObject;Switch Object
 ezStateMachineState_NestedStateMachine;Nested State Machine
 ezStateMachineState_Compound;Compound State
 ezStateMachineTransition_BlackboardConditions;Blackboard Conditions

@@ -119,6 +119,70 @@ ezResult ezStateMachineState_SendMsg::Deserialize(ezStreamReader& stream)
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStateMachineState_SwitchObject, 1, ezRTTIDefaultAllocator<ezStateMachineState_SwitchObject>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("PathToGroup", m_sGroupPath),
+    EZ_MEMBER_PROPERTY("ObjectToEnable", m_sObjectToEnable),
+    EZ_MEMBER_PROPERTY("DeactivateOthers", m_bDeactivateOthers)->AddAttributes(new ezDefaultValueAttribute(true)),
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+ezStateMachineState_SwitchObject::ezStateMachineState_SwitchObject(ezStringView sName)
+  : ezStateMachineState(sName)
+{
+}
+
+ezStateMachineState_SwitchObject::~ezStateMachineState_SwitchObject() = default;
+
+void ezStateMachineState_SwitchObject::OnEnter(ezStateMachineInstance& instance, void* pInstanceData, const ezStateMachineState* pFromState) const
+{
+  if (auto pOwner = ezDynamicCast<ezStateMachineComponent*>(&instance.GetOwner()))
+  {
+    if (ezGameObject* pOwnerGO = pOwner->GetOwner()->FindChildByPath(m_sGroupPath))
+    {
+      for (auto it = pOwnerGO->GetChildren(); it.IsValid(); ++it)
+      {
+        if (it->GetName() == m_sObjectToEnable)
+        {
+          it->SetActiveFlag(true);
+        }
+        else if (m_bDeactivateOthers)
+        {
+          it->SetActiveFlag(false);
+        }
+      }
+    }
+  }
+}
+
+ezResult ezStateMachineState_SwitchObject::Serialize(ezStreamWriter& stream) const
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Serialize(stream));
+
+  stream << m_sGroupPath;
+  stream << m_sObjectToEnable;
+  stream << m_bDeactivateOthers;
+  return EZ_SUCCESS;
+}
+
+ezResult ezStateMachineState_SwitchObject::Deserialize(ezStreamReader& stream)
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(stream));
+
+  stream >> m_sGroupPath;
+  stream >> m_sObjectToEnable;
+  stream >> m_bDeactivateOthers;
+  return EZ_SUCCESS;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
 ezStateMachineComponentManager::ezStateMachineComponentManager(ezWorld* pWorld)
   : ezComponentManager<ComponentType, ezBlockStorageType::Compact>(pWorld)
 {
@@ -185,12 +249,13 @@ void ezStateMachineComponentManager::ResourceEventHandler(const ezResourceEvent&
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezStateMachineComponent, 1, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezStateMachineComponent, 2, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("Resource", GetResourceFile, SetResourceFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_StateMachine")),
     EZ_ACCESSOR_PROPERTY("InitialState", GetInitialState, SetInitialState),
+    EZ_ACCESSOR_PROPERTY("BlackboardName", GetBlackboardName, SetBlackboardName),
   }
   EZ_END_PROPERTIES;
 
@@ -229,6 +294,7 @@ void ezStateMachineComponent::SerializeComponent(ezWorldWriter& stream) const
 
   s << m_hResource;
   s << m_sInitialState;
+  s << m_sBlackboardName;
 }
 
 void ezStateMachineComponent::DeserializeComponent(ezWorldReader& stream)
@@ -239,6 +305,11 @@ void ezStateMachineComponent::DeserializeComponent(ezWorldReader& stream)
 
   s >> m_hResource;
   s >> m_sInitialState;
+
+  if (uiVersion >= 2)
+  {
+    s >> m_sBlackboardName;
+  }
 }
 
 void ezStateMachineComponent::OnActivated()
@@ -305,6 +376,22 @@ void ezStateMachineComponent::SetInitialState(const char* szName)
   }
 }
 
+void ezStateMachineComponent::SetBlackboardName(const char* szName)
+{
+  ezHashedString sBlackboardName;
+  sBlackboardName.Assign(szName);
+
+  if (m_sBlackboardName == sBlackboardName)
+    return;
+
+  m_sBlackboardName = sBlackboardName;
+
+  if (IsActiveAndInitialized())
+  {
+    InstantiateStateMachine();
+  }
+}
+
 bool ezStateMachineComponent::SetState(ezStringView sName)
 {
   if (m_pStateMachineInstance != nullptr)
@@ -317,6 +404,7 @@ bool ezStateMachineComponent::SetState(ezStringView sName)
 
   return false;
 }
+
 
 void ezStateMachineComponent::SendStateChangedMsg(ezMsgStateMachineStateChanged& msg, ezTime delay)
 {
@@ -345,7 +433,7 @@ void ezStateMachineComponent::InstantiateStateMachine()
   }
 
   m_pStateMachineInstance = pStateMachineResource->CreateInstance(*this);
-  m_pStateMachineInstance->SetBlackboard(ezBlackboardComponent::FindBlackboard(GetOwner()));
+  m_pStateMachineInstance->SetBlackboard(ezBlackboardComponent::FindBlackboard(GetOwner(), m_sBlackboardName.GetView()));
   m_pStateMachineInstance->SetStateOrFallback(m_sInitialState).IgnoreResult();
 }
 
