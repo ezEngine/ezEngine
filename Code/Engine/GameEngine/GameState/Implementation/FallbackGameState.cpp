@@ -26,6 +26,16 @@ void ezFallbackGameState::EnableSceneSelectionMenu(bool bEnable)
   m_bEnableSceneSelectionMenu = bEnable;
 }
 
+void ezFallbackGameState::EnableFreeCameras(bool bEnable)
+{
+  m_bEnableFreeCameras = bEnable;
+}
+
+void ezFallbackGameState::EnableAutoSwitchToLoadedScene(bool bEnable)
+{
+  m_bAutoSwitchToLoadedScene = bEnable;
+}
+
 ezGameStatePriority ezFallbackGameState::DeterminePriority(ezWorld* pWorld) const
 {
   return ezGameStatePriority::Fallback;
@@ -194,33 +204,21 @@ void ezFallbackGameState::ConfigureInputActions()
 {
   g_AllInput.Clear();
 
-  // if ( !ezFileSystem::ExistsFile( ":project/InputConfig.ddl" ) )
-  {
-    RegisterInputAction("Game", "MoveForwards", ezInputSlot_KeyW);
-    RegisterInputAction("Game", "MoveBackwards", ezInputSlot_KeyS);
-    RegisterInputAction("Game", "MoveLeft", ezInputSlot_KeyA);
-    RegisterInputAction("Game", "MoveRight", ezInputSlot_KeyD);
-    RegisterInputAction("Game", "MoveUp", ezInputSlot_KeyE);
-    RegisterInputAction("Game", "MoveDown", ezInputSlot_KeyQ);
-    RegisterInputAction("Game", "Run", ezInputSlot_KeyLeftShift);
+  RegisterInputAction("Game", "MoveForwards", ezInputSlot_KeyW);
+  RegisterInputAction("Game", "MoveBackwards", ezInputSlot_KeyS);
+  RegisterInputAction("Game", "MoveLeft", ezInputSlot_KeyA);
+  RegisterInputAction("Game", "MoveRight", ezInputSlot_KeyD);
+  RegisterInputAction("Game", "MoveUp", ezInputSlot_KeyE);
+  RegisterInputAction("Game", "MoveDown", ezInputSlot_KeyQ);
+  RegisterInputAction("Game", "Run", ezInputSlot_KeyLeftShift);
 
-    RegisterInputAction("Game", "TurnLeft", ezInputSlot_MouseMoveNegX, ezInputSlot_KeyLeft);
-    RegisterInputAction("Game", "TurnRight", ezInputSlot_MouseMovePosX, ezInputSlot_KeyRight);
-    RegisterInputAction("Game", "TurnUp", ezInputSlot_MouseMoveNegY, ezInputSlot_KeyUp);
-    RegisterInputAction("Game", "TurnDown", ezInputSlot_MouseMovePosY, ezInputSlot_KeyDown);
+  RegisterInputAction("Game", "TurnLeft", ezInputSlot_MouseMoveNegX, ezInputSlot_KeyLeft);
+  RegisterInputAction("Game", "TurnRight", ezInputSlot_MouseMovePosX, ezInputSlot_KeyRight);
+  RegisterInputAction("Game", "TurnUp", ezInputSlot_MouseMoveNegY, ezInputSlot_KeyUp);
+  RegisterInputAction("Game", "TurnDown", ezInputSlot_MouseMovePosY, ezInputSlot_KeyDown);
 
-    RegisterInputAction("Game", "NextCamera", ezInputSlot_KeyPageDown);
-    RegisterInputAction("Game", "PrevCamera", ezInputSlot_KeyPageUp);
-
-    // if ( !g_AllInput.IsEmpty() )
-    //{
-    //	ezFileWriter file;
-    //	if ( file.Open( ":project/InputConfig.ddl" ).Succeeded() )
-    //	{
-    //		ezGameAppInputConfig::WriteToDDL( file, g_AllInput );
-    //	}
-    //}
-  }
+  RegisterInputAction("Game", "NextCamera", ezInputSlot_KeyPageDown);
+  RegisterInputAction("Game", "PrevCamera", ezInputSlot_KeyPageUp);
 }
 
 const ezCameraComponent* ezFallbackGameState::FindActiveCameraComponent()
@@ -302,7 +300,10 @@ void ezFallbackGameState::ProcessInput()
     switch (m_pSceneToLoad->GetLoadingState())
     {
       case ezSceneLoadUtility::LoadingState::FinishedSuccessfully:
-        SwitchToLoadedScene();
+        if (m_bAutoSwitchToLoadedScene)
+        {
+          SwitchToLoadedScene();
+        }
         break;
 
       case ezSceneLoadUtility::LoadingState::Failed:
@@ -333,48 +334,51 @@ void ezFallbackGameState::ProcessInput()
     }
   }
 
-  EZ_LOCK(m_pMainWorld->GetReadMarker());
-
-  if (ezInputManager::GetInputActionState("Game", "NextCamera") == ezKeyState::Pressed)
-    ++m_iActiveCameraComponentIndex;
-  if (ezInputManager::GetInputActionState("Game", "PrevCamera") == ezKeyState::Pressed)
-    --m_iActiveCameraComponentIndex;
-
-  const ezCameraComponent* pCamComp = FindActiveCameraComponent();
-  if (pCamComp)
+  if (m_bEnableFreeCameras)
   {
-    return;
+    EZ_LOCK(m_pMainWorld->GetReadMarker());
+
+    if (ezInputManager::GetInputActionState("Game", "NextCamera") == ezKeyState::Pressed)
+      ++m_iActiveCameraComponentIndex;
+    if (ezInputManager::GetInputActionState("Game", "PrevCamera") == ezKeyState::Pressed)
+      --m_iActiveCameraComponentIndex;
+
+    const ezCameraComponent* pCamComp = FindActiveCameraComponent();
+    if (pCamComp)
+    {
+      return;
+    }
+
+    float fRotateSpeed = 180.0f;
+    float fMoveSpeed = 10.0f;
+    float fInput = 0.0f;
+
+    if (ezInputManager::GetInputActionState("Game", "Run", &fInput) != ezKeyState::Up)
+      fMoveSpeed *= 10.0f;
+
+    if (ezInputManager::GetInputActionState("Game", "MoveForwards", &fInput) != ezKeyState::Up)
+      m_MainCamera.MoveLocally(fInput * fMoveSpeed, 0, 0);
+    if (ezInputManager::GetInputActionState("Game", "MoveBackwards", &fInput) != ezKeyState::Up)
+      m_MainCamera.MoveLocally(-fInput * fMoveSpeed, 0, 0);
+    if (ezInputManager::GetInputActionState("Game", "MoveLeft", &fInput) != ezKeyState::Up)
+      m_MainCamera.MoveLocally(0, -fInput * fMoveSpeed, 0);
+    if (ezInputManager::GetInputActionState("Game", "MoveRight", &fInput) != ezKeyState::Up)
+      m_MainCamera.MoveLocally(0, fInput * fMoveSpeed, 0);
+
+    if (ezInputManager::GetInputActionState("Game", "MoveUp", &fInput) != ezKeyState::Up)
+      m_MainCamera.MoveGlobally(0, 0, fInput * fMoveSpeed);
+    if (ezInputManager::GetInputActionState("Game", "MoveDown", &fInput) != ezKeyState::Up)
+      m_MainCamera.MoveGlobally(0, 0, -fInput * fMoveSpeed);
+
+    if (ezInputManager::GetInputActionState("Game", "TurnLeft", &fInput) != ezKeyState::Up)
+      m_MainCamera.RotateGlobally(ezAngle(), ezAngle(), ezAngle::Degree(-fRotateSpeed * fInput));
+    if (ezInputManager::GetInputActionState("Game", "TurnRight", &fInput) != ezKeyState::Up)
+      m_MainCamera.RotateGlobally(ezAngle(), ezAngle(), ezAngle::Degree(fRotateSpeed * fInput));
+    if (ezInputManager::GetInputActionState("Game", "TurnUp", &fInput) != ezKeyState::Up)
+      m_MainCamera.RotateLocally(ezAngle(), ezAngle::Degree(fRotateSpeed * fInput), ezAngle());
+    if (ezInputManager::GetInputActionState("Game", "TurnDown", &fInput) != ezKeyState::Up)
+      m_MainCamera.RotateLocally(ezAngle(), ezAngle::Degree(-fRotateSpeed * fInput), ezAngle());
   }
-
-  float fRotateSpeed = 180.0f;
-  float fMoveSpeed = 10.0f;
-  float fInput = 0.0f;
-
-  if (ezInputManager::GetInputActionState("Game", "Run", &fInput) != ezKeyState::Up)
-    fMoveSpeed *= 10.0f;
-
-  if (ezInputManager::GetInputActionState("Game", "MoveForwards", &fInput) != ezKeyState::Up)
-    m_MainCamera.MoveLocally(fInput * fMoveSpeed, 0, 0);
-  if (ezInputManager::GetInputActionState("Game", "MoveBackwards", &fInput) != ezKeyState::Up)
-    m_MainCamera.MoveLocally(-fInput * fMoveSpeed, 0, 0);
-  if (ezInputManager::GetInputActionState("Game", "MoveLeft", &fInput) != ezKeyState::Up)
-    m_MainCamera.MoveLocally(0, -fInput * fMoveSpeed, 0);
-  if (ezInputManager::GetInputActionState("Game", "MoveRight", &fInput) != ezKeyState::Up)
-    m_MainCamera.MoveLocally(0, fInput * fMoveSpeed, 0);
-
-  if (ezInputManager::GetInputActionState("Game", "MoveUp", &fInput) != ezKeyState::Up)
-    m_MainCamera.MoveGlobally(0, 0, fInput * fMoveSpeed);
-  if (ezInputManager::GetInputActionState("Game", "MoveDown", &fInput) != ezKeyState::Up)
-    m_MainCamera.MoveGlobally(0, 0, -fInput * fMoveSpeed);
-
-  if (ezInputManager::GetInputActionState("Game", "TurnLeft", &fInput) != ezKeyState::Up)
-    m_MainCamera.RotateGlobally(ezAngle(), ezAngle(), ezAngle::Degree(-fRotateSpeed * fInput));
-  if (ezInputManager::GetInputActionState("Game", "TurnRight", &fInput) != ezKeyState::Up)
-    m_MainCamera.RotateGlobally(ezAngle(), ezAngle(), ezAngle::Degree(fRotateSpeed * fInput));
-  if (ezInputManager::GetInputActionState("Game", "TurnUp", &fInput) != ezKeyState::Up)
-    m_MainCamera.RotateLocally(ezAngle(), ezAngle::Degree(fRotateSpeed * fInput), ezAngle());
-  if (ezInputManager::GetInputActionState("Game", "TurnDown", &fInput) != ezKeyState::Up)
-    m_MainCamera.RotateLocally(ezAngle(), ezAngle::Degree(-fRotateSpeed * fInput), ezAngle());
 }
 
 void ezFallbackGameState::AfterWorldUpdate()
