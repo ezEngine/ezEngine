@@ -68,14 +68,35 @@ private:
   ezBlackboard();
 
 public:
+  ~ezBlackboard();
+
   /// \brief Factory method to create a new blackboard.
   ///
   /// Since blackboards use shared ownership we need to make sure that blackboards are created in ezCore.dll.
-  /// Some compilers (MSVC) create local v-tables which can become stale if a blackboard was registered as global but the dll
+  /// Some compilers (MSVC) create local v-tables which can become stale if a blackboard was registered as global but the DLL
   /// which created the blackboard is already unloaded.
+  ///
+  /// See https://groups.google.com/g/microsoft.public.vc.language/c/atSh_2VSc2w/m/EgJ3r_7OzVUJ?pli=1
   static ezSharedPtr<ezBlackboard> Create(ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator());
-  ~ezBlackboard();
 
+  /// \brief Factory method to get access to a globally registered blackboard.
+  ///
+  /// If a blackboard with that name was already created globally before, its reference is returned.
+  /// Otherwise it will be created and permanently registered under that name.
+  /// Global blackboards cannot be removed. Although you can change their name via "SetName()",
+  /// the name under which they are registered globally will not change.
+  ///
+  /// If at some point you want to "remove" a global blackboard, instead call UnregisterAllEntries() to
+  /// clear all its values.
+  static ezSharedPtr<ezBlackboard> GetOrCreateGlobal(const ezHashedString& sBlackboardName, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator());
+
+  /// \brief Finds a global blackboard with the given name.
+  static ezSharedPtr<ezBlackboard> FindGlobal(const ezTempHashedString& sBlackboardName);
+
+  /// \brief Changes the name of the blackboard.
+  ///
+  /// \note For global blackboards this has no effect under which name they are found. A global blackboard continues to
+  /// be found by the name under which it was originally registered.
   void SetName(const char* szName);
   const char* GetName() const { return m_sName; }
   const ezHashedString& GetNameHashed() const { return m_sName; }
@@ -152,17 +173,6 @@ public:
   /// If the blackboard already contains entries, the deserialized data is ADDED to the blackboard.
   /// If deserialized entries overlap with existing ones, the deserialized entries will overwrite the existing ones (both values and flags).
   ezResult Deserialize(ezStreamReader& stream);
-
-  /// \brief Registers the given blackboard as global so it can be accessed from everywhere.
-  ///
-  /// Global blackboards are typically used to hold data that needs to be available across worlds like e.g. global game state, player progression etc.
-  static void RegisterAsGlobal(const ezSharedPtr<ezBlackboard>& pBlackboard);
-
-  /// \brief Unregisters the given blackboard from being global.
-  static void UnregisterAsGlobal(const ezSharedPtr<ezBlackboard>& pBlackboard);
-
-  /// \brief Finds a global blackboard with the given name.
-  static ezSharedPtr<ezBlackboard> FindGlobal(const ezTempHashedString& sBlackboardName);
 
 private:
   ezHashedString m_sName;

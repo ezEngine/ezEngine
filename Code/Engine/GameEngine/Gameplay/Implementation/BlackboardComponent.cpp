@@ -135,7 +135,9 @@ ezSharedPtr<ezBlackboard> ezBlackboardComponent::FindBlackboard(ezGameObject* pO
 
   if (sBlackboardName.IsEmpty() == false)
   {
-    return ezBlackboard::FindGlobal(sBlackboardNameHashed);
+    ezHashedString sHashedBlackboardName;
+    sHashedBlackboardName.Assign(sBlackboardName);
+    return ezBlackboard::GetOrCreateGlobal(sHashedBlackboardName);
   }
 
   return nullptr;
