@@ -71,13 +71,16 @@ public:
   ~ezBlackboard();
 
   /// \brief Factory method to create a new blackboard.
-  /// \brief Factory method to get access to a globally registered blackboard.
   ///
   /// Since blackboards use shared ownership we need to make sure that blackboards are created in ezCore.dll.
-  /// Some compilers (MSVC) create local v-tables which can become stale if a blackboard was registered as global but the dll
+  /// Some compilers (MSVC) create local v-tables which can become stale if a blackboard was registered as global but the DLL
   /// which created the blackboard is already unloaded.
+  ///
+  /// See https://groups.google.com/g/microsoft.public.vc.language/c/atSh_2VSc2w/m/EgJ3r_7OzVUJ?pli=1
   static ezSharedPtr<ezBlackboard> Create(ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator());
 
+  /// \brief Factory method to get access to a globally registered blackboard.
+  ///
   /// If a blackboard with that name was already created globally before, its reference is returned.
   /// Otherwise it will be created and permanently registered under that name.
   /// Global blackboards cannot be removed. Although you can change their name via "SetName()",
