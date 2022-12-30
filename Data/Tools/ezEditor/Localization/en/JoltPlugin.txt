@@ -56,3 +56,4 @@ ezJoltCharacterDebugFlags::VisFootCheck;Visualize Foot Check
 ezJoltCharacterControllerComponent;Character Controller (Jolt);;https://ezengine.net/pages/docs/physics/jolt/special/jolt-character-controller.html
 ezJoltDefaultCharacterComponent;Default Character Controller (Jolt);;https://ezengine.net/pages/docs/physics/jolt/special/jolt-character-controller.html
 ezJoltGrabObjectComponent;Grab Object (Jolt);;https://ezengine.net/pages/docs/physics/jolt/special/jolt-grab-object-component.html
+ezJoltCollisionMeshAssetProperties::Surfaces;Surfaces

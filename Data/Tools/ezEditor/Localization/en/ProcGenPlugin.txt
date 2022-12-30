@@ -1,6 +1,5 @@
 ProcGen.DumpAST;Dump AST
 ProcGen.DumpDisassembly;Dump Disassembly
-Objects;Objects
 ProcGen;Procedural Generation
 ezProcPlacementComponent;Procedural Placement;;http://ezengine.net/pages/docs/terrain/procedural/procgen-placement-component.html
 ezProcGenBoxExtents;Box Extents
@@ -50,3 +49,4 @@ MeshVertexColor;Mesh Vertex Color
 ApplyVolumes;Apply Volumes
 Operator;Operator
 ProcGen Graph;ProcGen Graph
+ezProcGen_PlacementOutput::Objects;Objects

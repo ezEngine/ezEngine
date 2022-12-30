@@ -67,8 +67,8 @@ protected:
   ezMap<ezUInt64, ezString> m_Translations[(int)ezTranslationUsage::ENUM_COUNT];
 };
 
-/// \brief Outputs a 'Missing Translation' warning the first time a string translation is requested. Otherwise returns the input string as
-/// the translation.
+/// \brief Outputs a 'Missing Translation' warning the first time a string translation is requested.
+/// Otherwise always returns nullptr, allowing the next translator to take over.
 class EZ_FOUNDATION_DLL ezTranslatorLogMissing : public ezTranslatorStorage
 {
 public:
@@ -78,8 +78,7 @@ public:
   virtual const char* Translate(const char* szString, ezUInt64 uiStringHash, ezTranslationUsage usage) override;
 };
 
-/// \brief Loads translations from files. Each translator can have different search paths, but the files to be loaded are the same for all
-/// of them
+/// \brief Loads translations from files. Each translator can have different search paths, but the files to be loaded are the same for all of them.
 class EZ_FOUNDATION_DLL ezTranslatorFromFiles : public ezTranslatorStorage
 {
 public:
@@ -96,6 +95,13 @@ private:
   void LoadTranslationFile(const char* szFullPath);
 
   ezHybridArray<ezString, 4> m_Folders;
+};
+
+/// \brief Returns the same string that is passed into it, but strips off class names and separates the text at CamelCase boundaries.
+class EZ_FOUNDATION_DLL ezTranslatorMakeMoreReadable : public ezTranslatorStorage
+{
+public:
+  virtual const char* Translate(const char* szString, ezUInt64 uiStringHash, ezTranslationUsage usage) override;
 };
 
 /// \brief Handles looking up translations for strings.

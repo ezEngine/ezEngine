@@ -1,3 +1,5 @@
 ezKrautTreeComponent;Kraut Tree;;https://ezengine.net/pages/docs/terrain/kraut-overview.html
 ezKrautAssetMaterial;Material
 Kraut Tree;Kraut Tree
+ezKrautTreeAssetProperties::Materials;Materials
+ezKrautTreeAssetProperties::GoodRandomSeeds;GoodRandomSeeds

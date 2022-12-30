@@ -1,7 +1,5 @@
 ezMaterialResourceSlot;Material Slot
 ezSurfaceResourceSlot;Surface Slot
-Cap;Cap;Whether to put a cap polygon at the end
-Cap 2;Cap Bottom;Whether to put a cap polygon at the other end
 Prim.Sphere.Detail1;Sphere Segments;Number of segments in the sphere
 Prim.Sphere.Detail2;Sphere Stacks;Number of stacks in the sphere
 Prim.Torus.Detail1;Segments;Number of segments in the sphere
@@ -123,8 +121,6 @@ ezMeshTexCoordPrecision::_32Bit;32 Bit
 VisScript.PickDebugTarget;Pick Debug Target...
 ezMaterialAnimComponent;Material Animation
 ezCollectionAssetEntry;Collection Asset Entry
-Entries;Entries
-ControlPoints;Control Points
 TextureCubeAsset.LodSlider;Level of Detail
 TextureImport.Diffuse;Diffuse Texture
 TextureImport.Normal;Normal Map
@@ -172,15 +168,10 @@ ezTexConvCompressionMode::High;Strong Compression
 ezTexConvMipmapMode::None;No Mipmaps
 ezTexConvMipmapMode::Linear;Generate: Linear
 ezTexConvMipmapMode::Kaiser;Generate: Kaiser
-MipmapMode;Mipmaps
-CompressionMode;Compression
-TextureFilter;Filtering
-AddressModeU;Address Mode U
-AddressModeV;Address Mode V
-AddressModeW;Address Mode W
-ChannelMapping;Channel Mapping
-FlipHorizontal;Flip Horizontal
-PremultipliedAlpha;Premultiply Alpha
+ezTextureAssetProperties::MipmapMode;Mipmaps
+ezTextureAssetProperties::CompressionMode;Compression
+ezTextureAssetProperties::TextureFilter;Filtering
+ezTextureAssetProperties::PremultipliedAlpha;Premultiply Alpha
 ezImageAddressMode::Repeat;Repeat
 ezImageAddressMode::Clamp;Clamp
 ezImageAddressMode::ClampBorder;Clamp to Black
@@ -196,11 +187,6 @@ ezColorAnimationComponent;Color Animation;;https://ezengine.net/pages/docs/anima
 ezJointAttachmentComponent;Joint Attachment;;https://ezengine.net/pages/docs/animation/skeletal-animation/joint-attachment-component.html
 AnimatedMeshImport.NoMaterials;Animated Mesh only
 AnimatedMeshImport.WithMaterials;Animated Mesh and Materials
-Length;Length
-Thickness;Thickness
-Width;Width
-Input1;Input1
-AvailableClips;Available Clips
 Common.Pause;Pause
 Common.Restart;Restart
 Common.Loop;Loop
@@ -222,8 +208,6 @@ ezComparisonOperator::Less;<
 ezComparisonOperator::LessEqual;<=
 ezComparisonOperator::Greater;>
 ezComparisonOperator::GreaterEqual;>=
-AnimRamp;Animation Fade
-RootBones;Root Bones
 ezCombinePosesAnimNode;Combine Poses
 ezSetBlackboardValueAnimNode;Blackboard: Set Value
 ezCheckBlackboardValueAnimNode;Blackboard: Check Value
@@ -244,7 +228,6 @@ ezCompareNumberAnimNode;Compare Value
 ezMathExpressionAnimNode;Math Expression
 ezMixClips1DAnimNode;Mix Clips 1D
 ezMixClips2DAnimNode;Mix Clips 2D
-Clips;Clips
 ezAnimClip2D;Clip
 ezPlaySequenceAnimNode;Play Clip Sequence
 Common;Common
@@ -303,3 +286,22 @@ Conditions;Conditions
 ezBlackboardCondition;Blackboard Condition
 SubStates;Sub States
 SubTransitions;Sub Transitions
+ezAnimatedMeshAssetProperties::Materials;Materials
+ezAnimationClipAssetProperties::AvailableClips;Available Clips
+ezCollectionAssetData::Entries;Entries
+ezLUTAssetProperties::CUBEfile;CUBE File
+ezMeshAssetProperties::Materials;Materials
+ezParticleEffectDescriptor::FloatParameters;Float Parameters
+ezParticleEffectDescriptor::ColorParameters;Color Parameters
+ezParticleEffectDescriptor::EventReactions;Event Reactions
+ezParticleSystemDescriptor::Emitters;Emitters
+ezParticleSystemDescriptor::Initializers;Initializers
+ezParticleSystemDescriptor::Behaviors;Behaviors
+ezParticleSystemDescriptor::Types;Types
+ezForwardRenderShadingQuality::Normal;Normal
+ezForwardRenderShadingQuality::Simplified;Simplified
+ezEditableSkeletonJoint::BoneShapes;Bone Shapes
+ezSurfaceResourceDescriptor::Interactions;Interactions
+ezVisualScriptAssetProperties::BoolParameters;Bool Parameters
+ezVisualScriptAssetProperties::NumberParameters;Number Parameters
+ezVisualScriptAssetProperties::StringParameters;String Parameters

@@ -202,23 +202,60 @@ bool ezTranslatorLogMissing::s_bActive = true;
 
 const char* ezTranslatorLogMissing::Translate(const char* szString, ezUInt64 uiStringHash, ezTranslationUsage usage)
 {
+  if (!ezTranslatorLogMissing::s_bActive)
+    return nullptr;
+
+  if (usage != ezTranslationUsage::Default)
+    return nullptr;
+
+  const char* szResult = ezTranslatorStorage::Translate(szString, uiStringHash, usage);
+
+  {
+    ezLog::Warning("Missing translation for '{0}'", szString);
+
+    StoreTranslation(szString, uiStringHash, usage);
+  }
+
+  return nullptr;
+}
+
+const char* ezTranslatorMakeMoreReadable::Translate(const char* szString, ezUInt64 uiStringHash, ezTranslationUsage usage)
+{
   const char* szResult = ezTranslatorStorage::Translate(szString, uiStringHash, usage);
 
   if (szResult != nullptr)
     return szResult;
 
-  if (usage != ezTranslationUsage::Default)
-    return "";
+  ezStringBuilder result;
+  ezStringBuilder tmp = szString;
 
-  if (ezTranslatorLogMissing::s_bActive)
+  auto IsUpper = [](ezUInt32 c)
+  { return c == ezStringUtils::ToUpperChar(c); };
+
+  bool bWasUpper = true;
+
+  for (auto it = tmp.GetIteratorFront(); it.IsValid(); ++it)
   {
-    ezLog::Warning("Missing Translation for '{0}'", szString);
+    if (it.GetCharacter() == ':')
+    {
+      result.Clear();
+      continue;
+    }
+
+    if (bWasUpper != IsUpper(it.GetCharacter()))
+    {
+      if (bWasUpper == false)
+        result.Append(" ");
+
+      bWasUpper = !bWasUpper;
+    }
+
+    result.Append(it.GetCharacter());
   }
 
-  StoreTranslation(szString, uiStringHash, usage);
-  return szString;
+  StoreTranslation(result, uiStringHash, usage);
+
+  return ezTranslatorStorage::Translate(szString, uiStringHash, usage);
 }
-
-
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Strings_Implementation_TranslationLookup);
