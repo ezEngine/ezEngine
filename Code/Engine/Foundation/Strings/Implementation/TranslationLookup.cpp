@@ -229,8 +229,7 @@ const char* ezTranslatorMakeMoreReadable::Translate(const char* szString, ezUInt
   ezStringBuilder result;
   ezStringBuilder tmp = szString;
 
-  auto IsUpper = [](ezUInt32 c)
-  { return c == ezStringUtils::ToUpperChar(c); };
+  auto IsUpper = [](ezUInt32 c) { return c == ezStringUtils::ToUpperChar(c); };
 
   bool bWasUpper = true;
 
