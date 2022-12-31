@@ -35,7 +35,12 @@ public:
   /// \brief Will call Reload() on all currently active translators
   static void ReloadAllTranslators();
 
+  static void HighlightUntranslated(bool bHighlight);
+
+  static bool GetHighlightUntranslated() { return s_bHighlightUntranslated; }
+
 private:
+  static bool s_bHighlightUntranslated;
   static ezHybridArray<ezTranslator*, 4> s_AllTranslators;
 };
 
@@ -89,6 +94,8 @@ public:
   /// This function depends on ezFileSystemIterator to be available.
   void AddTranslationFilesFromFolder(const char* szFolder);
 
+  virtual const char* Translate(const char* szString, ezUInt64 uiStringHash, ezTranslationUsage usage) override;
+
   virtual void Reload() override;
 
 private:
@@ -121,9 +128,6 @@ public:
   static void Clear();
 
 private:
-  static void ReloadTranslations();
-  static void LoadTranslationFile(const char* szFileName);
-
   static ezHybridArray<ezUniquePtr<ezTranslator>, 16> s_Translators;
 };
 

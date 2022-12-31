@@ -6,6 +6,7 @@
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Strings/TranslationLookup.h>
 
+bool ezTranslator::s_bHighlightUntranslated = false;
 ezHybridArray<ezTranslator*, 4> ezTranslator::s_AllTranslators;
 
 ezTranslator::ezTranslator()
@@ -30,6 +31,16 @@ void ezTranslator::ReloadAllTranslators()
   {
     pTranslator->Reload();
   }
+}
+
+void ezTranslator::HighlightUntranslated(bool bHighlight)
+{
+  if (s_bHighlightUntranslated == bHighlight)
+    return;
+
+  s_bHighlightUntranslated = bHighlight;
+
+  ReloadAllTranslators();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -96,6 +107,20 @@ void ezTranslatorFromFiles::AddTranslationFilesFromFolder(const char* szFolder)
 #endif
 }
 
+const char* ezTranslatorFromFiles::Translate(const char* szString, ezUInt64 uiStringHash, ezTranslationUsage usage)
+{
+  if (GetHighlightUntranslated())
+  {
+    const char* szTranslation = ezTranslatorStorage::Translate(szString, uiStringHash, usage);
+    if (szTranslation != nullptr)
+      return szTranslation;
+
+    return nullptr;
+  }
+
+  return ezTranslatorStorage::Translate(szString, uiStringHash, usage);
+}
+
 void ezTranslatorFromFiles::Reload()
 {
   ezTranslatorStorage::Reload();
@@ -133,7 +158,7 @@ void ezTranslatorFromFiles::LoadTranslationFile(const char* szFullPath)
     sLine = line;
     sLine.Trim(" \t\r\n");
 
-    if (sLine.IsEmpty())
+    if (sLine.IsEmpty() || sLine.StartsWith("#"))
       continue;
 
     entries.Clear();
@@ -160,6 +185,11 @@ void ezTranslatorFromFiles::LoadTranslationFile(const char* szFullPath)
     sValue.Trim(" \t\r\n");
     sTooltip.Trim(" \t\r\n");
     sHelpUrl.Trim(" \t\r\n");
+
+    if (GetHighlightUntranslated())
+    {
+      sValue.Set("# ", sKey);
+    }
 
     StoreTranslation(sValue, ezHashingUtils::StringHash(sKey), ezTranslationUsage::Default);
     StoreTranslation(sTooltip, ezHashingUtils::StringHash(sKey), ezTranslationUsage::Tooltip);
@@ -202,7 +232,7 @@ bool ezTranslatorLogMissing::s_bActive = true;
 
 const char* ezTranslatorLogMissing::Translate(const char* szString, ezUInt64 uiStringHash, ezTranslationUsage usage)
 {
-  if (!ezTranslatorLogMissing::s_bActive)
+  if (!ezTranslatorLogMissing::s_bActive && !GetHighlightUntranslated())
     return nullptr;
 
   if (usage != ezTranslationUsage::Default)
@@ -211,7 +241,7 @@ const char* ezTranslatorLogMissing::Translate(const char* szString, ezUInt64 uiS
   const char* szResult = ezTranslatorStorage::Translate(szString, uiStringHash, usage);
 
   {
-    ezLog::Warning("Missing translation for '{0}'", szString);
+    ezLog::Warning("Missing translation: {0};{0}", szString);
 
     StoreTranslation(szString, uiStringHash, usage);
   }
@@ -226,10 +256,12 @@ const char* ezTranslatorMakeMoreReadable::Translate(const char* szString, ezUInt
   if (szResult != nullptr)
     return szResult;
 
+
   ezStringBuilder result;
   ezStringBuilder tmp = szString;
 
-  auto IsUpper = [](ezUInt32 c) { return c == ezStringUtils::ToUpperChar(c); };
+  auto IsUpper = [](ezUInt32 c)
+  { return c == ezStringUtils::ToUpperChar(c); };
 
   bool bWasUpper = true;
 
@@ -250,6 +282,11 @@ const char* ezTranslatorMakeMoreReadable::Translate(const char* szString, ezUInt
     }
 
     result.Append(it.GetCharacter());
+  }
+
+  if (GetHighlightUntranslated())
+  {
+    result.Set("!!! ", szString);
   }
 
   StoreTranslation(result, uiStringHash, usage);
