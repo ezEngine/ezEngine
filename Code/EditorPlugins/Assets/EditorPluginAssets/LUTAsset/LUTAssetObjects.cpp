@@ -23,7 +23,7 @@ void ezLUTAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaStateEven
     const bool isRenderTarget = e.m_pObject->GetTypeAccessor().GetValue("IsRenderTarget").ConvertTo<bool>();
 
     props["Input"].m_Visibility = ezPropertyUiState::Default;
-    props["Input"].m_sNewLabelText = "CUBE file";
+    props["Input"].m_sNewLabelText = "ezLUTAssetProperties::CUBEfile";
   }
 }
 

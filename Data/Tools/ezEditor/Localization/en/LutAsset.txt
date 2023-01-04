@@ -1,0 +1,7 @@
+# Asset Types
+
+LUT;Lookup Table
+
+# Properties
+
+ezLUTAssetProperties::CUBEfile;CUBE File

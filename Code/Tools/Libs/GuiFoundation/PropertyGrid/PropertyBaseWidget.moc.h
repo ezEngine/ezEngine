@@ -45,7 +45,7 @@ public:
   virtual bool HasLabel() const { return true; }
 
   /// \brief The return value is used to display a label, if HasLabel() returns true.
-  virtual const char* GetLabel() const { return m_pProp->GetPropertyName(); }
+  virtual const char* GetLabel(ezStringBuilder& tmp) const;
 
   virtual void ExtendContextMenu(QMenu& menu);
 

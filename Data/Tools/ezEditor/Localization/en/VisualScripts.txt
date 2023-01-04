@@ -1,0 +1,17 @@
+# Asset Types
+
+Visual Script;Visual Script
+
+# Component Types
+
+ezVisualScriptComponent;Visual Script;;https://ezengine.net/pages/docs/custom-code/visual-script/visual-script-overview.html
+
+# UI
+
+VisScript.PickDebugTarget;Pick Debug Target...
+
+# Properties
+
+ezVisualScriptParameterNumber;Number Variable
+ezVisualScriptParameterBool;Bool Variable
+ezVisualScriptParameterString;String Variable

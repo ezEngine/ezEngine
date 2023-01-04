@@ -1,0 +1,14 @@
+# Asset Types
+
+Animation Clip;Animation Clip
+
+# Component Types
+
+# UI
+
+AnimationClipImport;Animation Clip
+
+# Properties
+
+ezRootMotionSource::None;No Root Motion
+ezRootMotionSource::Constant;Constant Motion

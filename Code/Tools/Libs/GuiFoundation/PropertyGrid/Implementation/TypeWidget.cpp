@@ -154,8 +154,9 @@ void ezQtTypeWidget::BuildUI(const ezRTTI* pType, const ezMap<ezString, const ez
 
       if (pNewWidget->HasLabel())
       {
+        ezStringBuilder tmp;
         ezQtManipulatorLabel* pLabel = new ezQtManipulatorLabel(this);
-        pLabel->setText(QString::fromUtf8(pNewWidget->GetLabel()));
+        pLabel->setText(QString::fromUtf8(pNewWidget->GetLabel(tmp)));
         pLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
         pLabel->setContentsMargins(0, 0, 0, 0); // 18 is a hacked value to align label with group boxes.
         pLabel->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
@@ -172,7 +173,7 @@ void ezQtTypeWidget::BuildUI(const ezRTTI* pType, const ezMap<ezString, const ez
         }
 
         ref.m_pLabel = pLabel;
-        ref.m_sOriginalLabelText = pNewWidget->GetLabel();
+        ref.m_sOriginalLabelText = pNewWidget->GetLabel(tmp);
       }
       else
       {
@@ -442,11 +443,11 @@ void ezQtTypeWidget::UpdatePropertyMetaState()
 
         // unless there is a specific override, we want to show the exact property name
         // also we don't want to force people to add translations for each and every property name
-        it.Value().m_pLabel->setText(QString::fromUtf8(ezTranslate(it.Value().m_sOriginalLabelText.GetData())));
+        it.Value().m_pLabel->setText(QString::fromUtf8(ezTranslate(it.Value().m_sOriginalLabelText)));
 
         // though do try to get a tooltip for the property
         // this will not log an error message, if the string is not translated
-        it.Value().m_pLabel->setToolTip(QString::fromUtf8(ezTranslateTooltip(it.Value().m_sOriginalLabelText.GetData())));
+        it.Value().m_pLabel->setToolTip(QString::fromUtf8(ezTranslateTooltip(it.Value().m_sOriginalLabelText)));
 
         ezTranslatorLogMissing::s_bActive = temp;
       }

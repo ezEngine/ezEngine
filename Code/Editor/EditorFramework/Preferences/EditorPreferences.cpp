@@ -27,6 +27,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorPreferencesUser, 1, ezRTTIDefaultAllocat
     EZ_MEMBER_PROPERTY("ExpandSceneTreeOnSelection", m_bExpandSceneTreeOnSelection)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_MEMBER_PROPERTY("AssetFilterCombobox", m_bAssetFilterCombobox)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_MEMBER_PROPERTY("ClearEditorLogsOnPlay", m_bClearEditorLogsOnPlay)->AddAttributes(new ezDefaultValueAttribute(true)),
+    EZ_ACCESSOR_PROPERTY("HighlightUntranslatedUI", GetHighlightUntranslatedUI, SetHighlightUntranslatedUI),
 
     // START GROUP Engine View Light Settings
     EZ_MEMBER_PROPERTY("SkyBox", m_bSkyBox)->AddAttributes(new ezDefaultValueAttribute(true), new ezGroupAttribute("Engine View Light Settings")),
@@ -83,6 +84,13 @@ void ezEditorPreferencesUser::SetShowInDevelopmentFeatures(bool b)
   m_bShowInDevelopmentFeatures = b;
 
   ezQtAddSubElementButton::s_bShowInDevelopmentFeatures = b;
+}
+
+void ezEditorPreferencesUser::SetHighlightUntranslatedUI(bool b)
+{
+  m_bHighlightUntranslatedUI = b;
+
+  ezTranslator::HighlightUntranslated(m_bHighlightUntranslatedUI);
 }
 
 void ezEditorPreferencesUser::SetGizmoSize(float f)

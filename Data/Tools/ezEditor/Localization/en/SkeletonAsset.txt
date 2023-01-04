@@ -1,0 +1,20 @@
+# Asset Types
+
+Skeleton;Skeleton
+
+# Component Types
+
+ezSkeletonComponent;Skeleton;;https://ezengine.net/pages/docs/animation/skeletal-animation/skeleton-component.html
+
+# UI
+
+SkeletonImport;Animation Skeleton
+
+Skeleton.RenderBones;Render Bones
+Skeleton.RenderColliders;Render Colliders
+Skeleton.RenderJoints;Render Joints
+Skeleton.RenderSwingLimits;Render Swing Limits
+Skeleton.RenderTwistLimits;Render Twist Limits
+
+# Properties
+

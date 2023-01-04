@@ -72,6 +72,12 @@ void ezQtPropertyWidget::SetSelection(const ezHybridArray<ezPropertySelection, 8
   m_Items = items;
 }
 
+const char* ezQtPropertyWidget::GetLabel(ezStringBuilder& tmp) const
+{
+  tmp.Set(m_pType->GetTypeName(), "::", m_pProp->GetPropertyName());
+  return tmp;
+}
+
 void ezQtPropertyWidget::ExtendContextMenu(QMenu& m)
 {
   m.setToolTipsVisible(true);
@@ -1392,7 +1398,9 @@ void ezQtPropertyContainerWidget::Clear()
 
 void ezQtPropertyContainerWidget::OnInit()
 {
-  m_pGroup->SetTitle(ezTranslate(m_pProp->GetPropertyName()));
+  ezStringBuilder fullname(m_pType->GetTypeName(), "::", m_pProp->GetPropertyName());
+
+  m_pGroup->SetTitle(ezTranslate(fullname));
 
   const ezContainerAttribute* pArrayAttr = m_pProp->GetAttributeByType<ezContainerAttribute>();
   if (!pArrayAttr || pArrayAttr->CanAdd())

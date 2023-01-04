@@ -6,6 +6,7 @@
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Strings/TranslationLookup.h>
 
+bool ezTranslator::s_bHighlightUntranslated = false;
 ezHybridArray<ezTranslator*, 4> ezTranslator::s_AllTranslators;
 
 ezTranslator::ezTranslator()
@@ -30,6 +31,16 @@ void ezTranslator::ReloadAllTranslators()
   {
     pTranslator->Reload();
   }
+}
+
+void ezTranslator::HighlightUntranslated(bool bHighlight)
+{
+  if (s_bHighlightUntranslated == bHighlight)
+    return;
+
+  s_bHighlightUntranslated = bHighlight;
+
+  ReloadAllTranslators();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -96,6 +107,11 @@ void ezTranslatorFromFiles::AddTranslationFilesFromFolder(const char* szFolder)
 #endif
 }
 
+const char* ezTranslatorFromFiles::Translate(const char* szString, ezUInt64 uiStringHash, ezTranslationUsage usage)
+{
+  return ezTranslatorStorage::Translate(szString, uiStringHash, usage);
+}
+
 void ezTranslatorFromFiles::Reload()
 {
   ezTranslatorStorage::Reload();
@@ -133,7 +149,7 @@ void ezTranslatorFromFiles::LoadTranslationFile(const char* szFullPath)
     sLine = line;
     sLine.Trim(" \t\r\n");
 
-    if (sLine.IsEmpty())
+    if (sLine.IsEmpty() || sLine.StartsWith("#"))
       continue;
 
     entries.Clear();
@@ -160,6 +176,12 @@ void ezTranslatorFromFiles::LoadTranslationFile(const char* szFullPath)
     sValue.Trim(" \t\r\n");
     sTooltip.Trim(" \t\r\n");
     sHelpUrl.Trim(" \t\r\n");
+
+    if (GetHighlightUntranslated())
+    {
+      sValue.Prepend("# ");
+      sValue.Append(" (@", sKey, ")");
+    }
 
     StoreTranslation(sValue, ezHashingUtils::StringHash(sKey), ezTranslationUsage::Default);
     StoreTranslation(sTooltip, ezHashingUtils::StringHash(sKey), ezTranslationUsage::Tooltip);
@@ -202,23 +224,105 @@ bool ezTranslatorLogMissing::s_bActive = true;
 
 const char* ezTranslatorLogMissing::Translate(const char* szString, ezUInt64 uiStringHash, ezTranslationUsage usage)
 {
+  if (!ezTranslatorLogMissing::s_bActive && !GetHighlightUntranslated())
+    return nullptr;
+
+  if (usage != ezTranslationUsage::Default)
+    return nullptr;
+
+  const char* szResult = ezTranslatorStorage::Translate(szString, uiStringHash, usage);
+
+  if (szResult == nullptr)
+  {
+    ezLog::Warning("Missing translation: {0};", szString);
+
+    StoreTranslation(szString, uiStringHash, usage);
+  }
+
+  return nullptr;
+}
+
+const char* ezTranslatorMakeMoreReadable::Translate(const char* szString, ezUInt64 uiStringHash, ezTranslationUsage usage)
+{
   const char* szResult = ezTranslatorStorage::Translate(szString, uiStringHash, usage);
 
   if (szResult != nullptr)
     return szResult;
 
-  if (usage != ezTranslationUsage::Default)
-    return "";
 
-  if (ezTranslatorLogMissing::s_bActive)
+  ezStringBuilder result;
+  ezStringBuilder tmp = szString;
+  tmp.Trim(" _-");
+  tmp.TrimWordStart("ez");
+  tmp.TrimWordEnd("Component");
+
+  auto IsUpper = [](ezUInt32 c) { return c == ezStringUtils::ToUpperChar(c); };
+  auto IsNumber = [](ezUInt32 c) { return c >= '0' && c <= '9'; };
+
+  ezUInt32 uiPrev = ' ';
+  ezUInt32 uiCur = ' ';
+  ezUInt32 uiNext = ' ';
+
+  bool bContinue = true;
+
+  for (auto it = tmp.GetIteratorFront(); bContinue; ++it)
   {
-    ezLog::Warning("Missing Translation for '{0}'", szString);
+    uiPrev = uiCur;
+    uiCur = uiNext;
+
+    if (it.IsValid())
+    {
+      uiNext = it.GetCharacter();
+    }
+    else
+    {
+      uiNext = ' ';
+      bContinue = false;
+    }
+
+    if (uiCur == '_')
+      uiCur = ' ';
+
+    if (uiCur == ':')
+    {
+      result.Clear();
+      continue;
+    }
+
+    if (!IsNumber(uiPrev) && IsNumber(uiCur))
+    {
+      result.Append(" ");
+      result.Append(uiCur);
+      continue;
+    }
+
+    if (IsUpper(uiPrev) && IsUpper(uiCur) && !IsUpper(uiNext))
+    {
+      result.Append(" ");
+      result.Append(uiCur);
+      continue;
+    }
+
+    if (!IsUpper(uiCur) && IsUpper(uiNext))
+    {
+      result.Append(uiCur);
+      result.Append(" ");
+      continue;
+    }
+
+    result.Append(uiCur);
   }
 
-  StoreTranslation(szString, uiStringHash, usage);
-  return szString;
+  result.Trim(" ");
+
+  if (GetHighlightUntranslated())
+  {
+    result.Append(" (@", szString, ")");
+  }
+
+  StoreTranslation(result, uiStringHash, usage);
+
+  return ezTranslatorStorage::Translate(szString, uiStringHash, usage);
 }
-
-
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Strings_Implementation_TranslationLookup);
