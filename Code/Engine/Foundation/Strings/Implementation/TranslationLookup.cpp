@@ -256,10 +256,8 @@ const char* ezTranslatorMakeMoreReadable::Translate(const char* szString, ezUInt
   tmp.TrimWordStart("ez");
   tmp.TrimWordEnd("Component");
 
-  auto IsUpper = [](ezUInt32 c)
-  { return c == ezStringUtils::ToUpperChar(c); };
-  auto IsNumber = [](ezUInt32 c)
-  { return c >= '0' && c <= '9'; };
+  auto IsUpper = [](ezUInt32 c) { return c == ezStringUtils::ToUpperChar(c); };
+  auto IsNumber = [](ezUInt32 c) { return c >= '0' && c <= '9'; };
 
   ezUInt32 uiPrev = ' ';
   ezUInt32 uiCur = ' ';
