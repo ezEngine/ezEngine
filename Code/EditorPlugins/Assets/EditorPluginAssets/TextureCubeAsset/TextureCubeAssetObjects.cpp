@@ -61,21 +61,21 @@ void ezTextureCubeAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaS
 
     if (mapping == ezTextureCubeChannelMappingEnum::RGB1TO6 || mapping == ezTextureCubeChannelMappingEnum::RGBA1TO6)
     {
-      props["Input1"].m_sNewLabelText = "Right (+X)";
-      props["Input2"].m_sNewLabelText = "Left (-X)";
-      props["Input3"].m_sNewLabelText = "Top (+Y)";
-      props["Input4"].m_sNewLabelText = "Bottom (-Y)";
-      props["Input5"].m_sNewLabelText = "Front (+Z)";
-      props["Input6"].m_sNewLabelText = "Back (-Z)";
+      props["Input1"].m_sNewLabelText = "TextureAsset::CM_Right";
+      props["Input2"].m_sNewLabelText = "TextureAsset::CM_Left";
+      props["Input3"].m_sNewLabelText = "TextureAsset::CM_Top";
+      props["Input4"].m_sNewLabelText = "TextureAsset::CM_Bottom";
+      props["Input5"].m_sNewLabelText = "TextureAsset::CM_Front";
+      props["Input6"].m_sNewLabelText = "TextureAsset::CM_Back";
     }
     else
     {
-      props["Input1"].m_sNewLabelText = "Input 1";
-      props["Input2"].m_sNewLabelText = "Input 2";
-      props["Input3"].m_sNewLabelText = "Input 3";
-      props["Input4"].m_sNewLabelText = "Input 4";
-      props["Input5"].m_sNewLabelText = "Input 5";
-      props["Input6"].m_sNewLabelText = "Input 6";
+      props["Input1"].m_sNewLabelText = "TextureAsset::Input1";
+      props["Input2"].m_sNewLabelText = "TextureAsset::Input2";
+      props["Input3"].m_sNewLabelText = "TextureAsset::Input3";
+      props["Input4"].m_sNewLabelText = "TextureAsset::Input4";
+      props["Input5"].m_sNewLabelText = "TextureAsset::Input5";
+      props["Input6"].m_sNewLabelText = "TextureAsset::Input6";
     }
 
     switch (mapping)

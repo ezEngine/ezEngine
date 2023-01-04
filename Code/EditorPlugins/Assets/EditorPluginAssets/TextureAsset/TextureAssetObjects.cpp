@@ -122,10 +122,10 @@ void ezTextureAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaState
       props["Input4"].m_Visibility = ezPropertyUiState::Invisible;
 
       {
-        props["Input1"].m_sNewLabelText = "Input 1";
-        props["Input2"].m_sNewLabelText = "Input 2";
-        props["Input3"].m_sNewLabelText = "Input 3";
-        props["Input4"].m_sNewLabelText = "Input 4";
+        props["Input1"].m_sNewLabelText = "TextureAsset::Input1";
+        props["Input2"].m_sNewLabelText = "TextureAsset::Input2";
+        props["Input3"].m_sNewLabelText = "TextureAsset::Input3";
+        props["Input4"].m_sNewLabelText = "TextureAsset::Input4";
       }
 
       switch (mapping)

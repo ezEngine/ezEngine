@@ -1,0 +1,5 @@
+# Asset Types
+
+Image Data;Image Data
+
+# Properties

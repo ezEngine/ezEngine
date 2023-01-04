@@ -1,3 +1,13 @@
+# Asset Types
+
+Particle Effect;Particle Effect
+
+# Component Types
+
+ezParticleComponent;Particle;;https://ezengine.net/pages/docs/effects/particle-effects/particle-effect-component.html
+
+# UI
+
 PFX.Restart;Restart
 PFX.AutoRestart;Loop
 PFX.Pause;Pause
@@ -13,72 +23,44 @@ PFX.Speed.4;400%
 PFX.Speed.5;500%
 PFX.Speed.10;1000%
 PFX.Render.Visualizers;Render Visualizers
-Particle Systems;Particle Systems
-ezParticleSystemDescriptor;Particle System
-Emitters;Emitters
-Initializers;Initializers
-Behaviors;Behaviors
-ParticleSystems;Particle Systems
-ezParticleTypeTrailFactory;Trail
+
+# Enums
+
+ezParticleTypeRenderMode::BlendedForeground;Blended (Foreground)
+ezParticleTypeRenderMode::BlendedBackground;Blended (Background)
+
+ezEffectInvisibleUpdateRate::Max20fps;Max 20 FPS
+ezEffectInvisibleUpdateRate::Max10fps;Max 10 FPS
+ezEffectInvisibleUpdateRate::Max5fps;Max 5 FPS
+
+ezParticleTextureAtlasType::RandomYAnimatedX;Random Row, Animated Column
+
 ezParticleBehaviorFactory_ColorGradient;Color Gradient
 ezParticleBehaviorFactory_Velocity;Velocity
 ezParticleBehaviorFactory_Gravity;Gravity
 ezParticleBehaviorFactory_Raycast;Raycast
 ezParticleBehaviorFactory_FadeOut;Fade Out
+ezParticleBehaviorFactory_PullAlong;Pull Along
+ezParticleBehaviorFactory_SizeCurve;Size Curve
+ezParticleBehaviorFactory_Flies;Flies
+ezParticleBehaviorFactory_Bounds;Bounds
+
 ezParticleEmitterFactory_Continuous;Continuous
 ezParticleEmitterFactory_OnEvent;On Event
 ezParticleEmitterFactory_Burst;Burst
 ezParticleEmitterFactory_Distance;Distance
-ezParticleTypeMeshFactory;Mesh
-ezParticleInitializerFactory_VelocityCone;Velocity Cone
-ezParticleComponent;Particle;;https://ezengine.net/pages/docs/effects/particle-effects/particle-effect-component.html
+
 ezParticleInitializerFactory_BoxPosition;Box Position
 ezParticleInitializerFactory_CylinderPosition;Cylinder Position
 ezParticleInitializerFactory_RandomColor;Random Color
 ezParticleInitializerFactory_RandomSize;Random Size
 ezParticleInitializerFactory_RandomRotationSpeed;Rotation Speed
 ezParticleInitializerFactory_SpherePosition;Sphere Position
-ezParticleBehaviorFactory_PullAlong;Pull Along
-ezParticleBehaviorFactory_SizeCurve;Size Curve
-ezParticleTypeQuadFactory;Quad
-ezParticleTypeLightFactory;Light
-ezParticleTypeEffectFactory;Effect
-ezParticleTypePointFactory;Point
-Types;Renderers
-ezParticleRaycastHitReaction::Bounce;Bounce
-ezParticleRaycastHitReaction::Die;Die
-ezParticleRaycastHitReaction::Stop;Stop
-ezParticleTypeRenderMode::Additive;Additive
-ezParticleTypeRenderMode::Blended;Blended
-ezParticleTypeRenderMode::BlendedForeground;Blended (Foreground)
-ezParticleTypeRenderMode::BlendedBackground;Blended (Background)
-ezParticleTypeRenderMode::Opaque;Opaque
-ezParticleTypeRenderMode::Distortion;Distortion
-ezParticleTypeRenderMode::BlendAdd;Blend Add
-ezEffectInvisibleUpdateRate::FullUpdate;Full Update
-ezEffectInvisibleUpdateRate::Max20fps;Max 20 FPS
-ezEffectInvisibleUpdateRate::Max10fps;Max 10 FPS
-ezEffectInvisibleUpdateRate::Max5fps;Max 5 FPS
-ezEffectInvisibleUpdateRate::Pause;Pause
-ezEffectInvisibleUpdateRate::Discard;Discard
-ezParticleTextureAtlasType::None;None
-ezParticleTextureAtlasType::RandomVariations;Random Variations
-ezParticleTextureAtlasType::FlipbookAnimation;Flipbook Animation
-ezParticleTextureAtlasType::RandomYAnimatedX;Random Row, Animated Column
-TextureAtlas;Texture Atlas
-ezParticleColorGradientMode::Age;Age
-ezParticleColorGradientMode::Speed;Speed
-ColorGradientMode;Color From
-GradientMaxSpeed;Max Speed
-EventReactions;Event Reactions
+ezParticleInitializerFactory_VelocityCone;Velocity Cone
+
 ezParticleEventReactionFactory_Effect;Effect Reaction
 ezParticleEventReactionFactory_Prefab;Prefab Reaction
-ezParticleBehaviorFactory_Flies;Flies
-LifeTime;Life
-Orientation;Orientation
-Texture;Texture
-RenderMode;Render Mode
-ezQuadParticleOrientation::Billboard;Billboard
+
 ezQuadParticleOrientation::Rotating_OrthoEmitterDir;Rotating: Ortho Emitter Dir
 ezQuadParticleOrientation::Rotating_EmitterDir;Rotating: Emitter Dir
 ezQuadParticleOrientation::Fixed_EmitterDir;Fixed: Emitter Dir
@@ -86,7 +68,17 @@ ezQuadParticleOrientation::Fixed_RandomDir;Fixed: Random Dir
 ezQuadParticleOrientation::Fixed_WorldUp;Fixed: World Up
 ezQuadParticleOrientation::FixedAxis_EmitterDir;Axis: Emitter Dir
 ezQuadParticleOrientation::FixedAxis_ParticleDir;Axis: Particle Dir
-ezParticleBehaviorFactory_Bounds;Bounds
-ezParticleOutOfBoundsMode::Teleport;Teleport
-ezParticleOutOfBoundsMode::Die;Die
-Particle Effect;Particle Effect
+
+ezParticleTypeTrailFactory;Trail
+ezParticleTypeMeshFactory;Mesh
+ezParticleTypeQuadFactory;Quad
+ezParticleTypeLightFactory;Light
+ezParticleTypeEffectFactory;Effect
+ezParticleTypePointFactory;Point
+
+# Properties
+
+ezParticleEffectDescriptor::PreSimulateDuration;Pre-Simulate Duration
+ezParticleEffectDescriptor::SimulateInLocalSpace;Simulate In Local-Space
+
+ezParticleBehaviorFactory_Bounds::OutOfBoundsMode;Out-Of-Bounds Mode

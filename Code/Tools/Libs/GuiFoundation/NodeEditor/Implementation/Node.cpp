@@ -1,5 +1,6 @@
 #include <GuiFoundation/GuiFoundationPCH.h>
 
+#include "Foundation/Strings/TranslationLookup.h"
 #include <GuiFoundation/NodeEditor/Node.h>
 #include <GuiFoundation/NodeEditor/Pin.h>
 #include <QApplication>
@@ -149,7 +150,7 @@ void ezQtNode::UpdateState()
   }
   else
   {
-    m_pLabel->setPlainText(typeAccessor.GetType()->GetTypeName());
+    m_pLabel->setPlainText(ezTranslate(typeAccessor.GetType()->GetTypeName()));
   }
 }
 

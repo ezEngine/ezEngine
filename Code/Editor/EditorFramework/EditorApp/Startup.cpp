@@ -288,7 +288,7 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
   // pTranslatorDe->LoadTranslationFilesFromFolder(":app/Localization/de");
 
   ezTranslationLookup::AddTranslator(EZ_DEFAULT_NEW(ezTranslatorMakeMoreReadable));
-  ezTranslationLookup::AddTranslator(EZ_DEFAULT_NEW(ezTranslatorLogMissing));
+  //ezTranslationLookup::AddTranslator(EZ_DEFAULT_NEW(ezTranslatorLogMissing));
   ezTranslationLookup::AddTranslator(std::move(pTranslatorEn));
   // ezTranslationLookup::AddTranslator(std::move(pTranslatorDe));
 

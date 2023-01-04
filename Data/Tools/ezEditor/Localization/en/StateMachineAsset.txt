@@ -1,0 +1,38 @@
+# Asset Types
+
+StateMachine;State Machine
+
+# Component Types
+
+ezStateMachineComponent;State Machine;;https://ezengine.net/pages/docs/ai/state-machine-component.html
+
+# Properties
+
+ezComparisonOperator::Equal;==
+ezComparisonOperator::NotEqual;<>
+ezComparisonOperator::Less;<
+ezComparisonOperator::LessEqual;<=
+ezComparisonOperator::Greater;>
+ezComparisonOperator::GreaterEqual;>=
+
+ezStateMachineLogicOperator::And;AND
+ezStateMachineLogicOperator::Or;OR
+
+ezStateMachineNodeAny;New Any State
+
+ezStateMachineTransition_Timeout;Timeout Transition
+
+ezStateMachineTransition_Compound;Compound Transition
+
+
+ezStateMachineNode;New State
+
+ezStateMachineTransition_BlackboardConditions;Blackboard Conditions
+
+ezStateMachineState_NestedStateMachine;Nested State Machine
+
+ezStateMachineState_Compound;Compound State
+
+ezStateMachineState_SendMsg;Send Message
+
+ezStateMachineState_SwitchObject;Switch Object

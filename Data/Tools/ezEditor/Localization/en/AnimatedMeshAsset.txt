@@ -1,0 +1,14 @@
+# Asset Types
+
+Animated Mesh;Animated Mesh
+
+# Component Types
+
+ezAnimatedMeshComponent;Animated Mesh;;https://ezengine.net/pages/docs/animation/skeletal-animation/animated-mesh-component.html
+
+# UI
+
+AnimatedMeshImport.NoMaterials;Animated Mesh only
+AnimatedMeshImport.WithMaterials;Animated Mesh and Materials
+
+# Properties

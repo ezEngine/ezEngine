@@ -1,0 +1,24 @@
+# Asset Types
+
+Decal;Decal
+
+# Component Types
+
+ezDecalComponent;Decal;;https://ezengine.net/pages/docs/effects/decals.html
+
+# UI
+
+DecalImport.All;Decal
+
+# Properties
+
+ezDecalMode::BaseColor;Base Color
+ezDecalMode::BaseColorNormal;Base Color, Normal
+ezDecalMode::BaseColorORM;Base Color, ORM
+ezDecalMode::BaseColorNormalORM;Base Color, Normal, ORM
+ezDecalMode::BaseColorEmissive;BaseColor, Emissive
+
+ezDecalAssetProperties::BaseColor;Base Color Texture
+ezDecalAssetProperties::Emissive;Emissive Texture
+ezDecalAssetProperties::Normal;Normal Map
+ezDecalAssetProperties::ORM;ORM Texture

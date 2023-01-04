@@ -1,5 +1,15 @@
-ezKrautTreeComponent;Kraut Tree;;https://ezengine.net/pages/docs/terrain/kraut-overview.html
-ezKrautAssetMaterial;Material
+# Asset Types
+
 Kraut Tree;Kraut Tree
-ezKrautTreeAssetProperties::Materials;Materials
-ezKrautTreeAssetProperties::GoodRandomSeeds;GoodRandomSeeds
+
+# Component Types
+
+ezKrautTreeComponent;Kraut Tree;;https://ezengine.net/pages/docs/terrain/kraut-overview.html
+
+# Enums
+
+ezKrautAssetMaterial;Material
+
+# Properties
+
+ezKrautTreeAssetProperties::LodDistanceScale;LOD Distance Scale

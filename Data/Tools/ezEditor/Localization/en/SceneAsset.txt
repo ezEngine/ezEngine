@@ -1,0 +1,189 @@
+# Asset Types
+
+Layer;Scene Layer
+Prefab;Prefab
+Scene;Scene
+
+# Component Types
+
+ezAlwaysVisibleComponent;Always Visible;;https://ezengine.net/pages/docs/graphics/always-visible-component.html
+ezAmbientLightComponent;Ambient Light;;https://ezengine.net/pages/docs/graphics/lighting/ambient-light-component.html
+ezAreaDamageComponent;Area Damage;;https://ezengine.net/pages/docs/gameplay/area-damage-component.html
+ezBeamComponent;Beam;;https://ezengine.net/pages/docs/effects/beam-component.html
+ezBlackboardComponent;Blackboard;;https://ezengine.net/pages/docs/Miscellaneous/blackboard-component.html
+ezBoxReflectionProbeComponent;Box Reflection Probe;;https://ezengine.net/pages/docs/graphics/lighting/reflection-probe-components.html
+ezCameraComponent;Camera;;https://ezengine.net/pages/docs/graphics/camera-component.html
+ezClothSheetComponent;Cloth Sheet;;http://ezengine.net/pages/docs/effects/cloth-sheet-component.html
+ezColorAnimationComponent;Color Animation;;https://ezengine.net/pages/docs/animation/property-animation/color-animation-component.html
+ezCommentComponent;Comment
+ezDebugTextComponent;Debug Text;;https://ezengine.net/pages/docs/debugging/components/debug-text-component.html
+ezDirectionalLightComponent;Directional Light;;https://ezengine.net/pages/docs/graphics/lighting/directional-light-component.html
+ezFakeRopeComponent;Fake Rope Simulation;;https://ezengine.net/pages/docs/effects/fake-rope-component.html
+ezFogComponent;Fog;;https://ezengine.net/pages/docs/effects/fog.html
+ezForwardEventsToGameStateComponent;Forward Events To GameState
+ezGrabbableItemComponent;Grabbable Item;;https://ezengine.net/pages/docs/gameplay/grabbable-item-component.html
+ezGreyBoxComponent;Grey Boxing;;https://ezengine.net/pages/docs/scenes/greyboxing.html
+ezHeadBoneComponent;Head Bone;;https://ezengine.net/pages/docs/gameplay/headbone-component.html
+ezHeightfieldComponent;Heightfield;;https://ezengine.net/pages/docs/terrain/heightfield-component.html
+ezInputComponent;Input;;https://ezengine.net/pages/docs/input/input-component.html
+ezInstancedMeshComponent;Instanced Mesh;;https://ezengine.net/pages/docs/graphics/meshes/instanced-mesh-component.html
+ezJointAttachmentComponent;Joint Attachment;;https://ezengine.net/pages/docs/animation/skeletal-animation/joint-attachment-component.html
+ezJointOverrideComponent;Joint Override;;https://ezengine.net/pages/docs/animation/skeletal-animation/joint-override-component.html
+ezLineToComponent;Draw Line To Object;;https://ezengine.net/pages/docs/debugging/components/draw-line-component.html
+ezMarkerComponent;Marker;;https://ezengine.net/pages/docs/gameplay/marker-component.html
+ezMeshComponent;Mesh;;https://ezengine.net/pages/docs/graphics/meshes/mesh-component.html
+ezMoveToComponent;Move To;;https://ezengine.net/pages/docs/animation/property-animation/move-to-component.html
+ezOccluderComponent;Occluder Component;;https://ezengine.net/pages/docs/graphics/occluder-component.html
+ezPlayerStartPointComponent;Player Start Point;;https://ezengine.net/pages/docs/gameplay/player-start-point.html
+ezPointLightComponent;Point Light;;https://ezengine.net/pages/docs/graphics/lighting/point-light-component.html
+ezPrefabReferenceComponent;Prefab Reference;;https://ezengine.net/pages/docs/prefabs/prefabs-overview.html
+ezProjectileComponent;Projectile;;https://ezengine.net/pages/docs/gameplay/projectile-component.html
+ezPropertyAnimComponent;Property Animation;;https://ezengine.net/pages/docs/animation/property-animation/property-animation-component.html
+ezRaycastComponent;Raycast Placement;;https://ezengine.net/pages/docs/gameplay/raycast-placement-component.html
+ezRenderTargetActivatorComponent;Render Target Activator;;https://ezengine.net/pages/docs/graphics/render-to-texture/render-target-activator-component.html
+ezRopeRenderComponent;Rope Renderer;;https://ezengine.net/pages/docs/effects/rope-render-component.html
+ezRotorComponent;Rotor;;https://ezengine.net/pages/docs/animation/property-animation/rotor-component.html
+ezSensorConeComponent;Cone Sensor;;https://ezengine.net/pages/docs/ai/sensor-components.html
+ezSensorCylinderComponent;Cylinder Sensor;;https://ezengine.net/pages/docs/ai/sensor-components.html
+ezSensorSphereComponent;Sphere Sensor;;https://ezengine.net/pages/docs/ai/sensor-components.html
+ezSimpleAnimationComponent;Simple Animation;;https://ezengine.net/pages/docs/animation/skeletal-animation/simple-animation-component.html
+ezSimpleWindComponent;Simple Wind;;https://ezengine.net/pages/docs/effects/simple-wind-component.html
+ezSkeletonPoseComponent;Skeleton Pose;;https://ezengine.net/pages/docs/animation/skeletal-animation/skeleton-pose-component.html
+ezSkyBoxComponent;Sky Box;;https://ezengine.net/pages/docs/effects/sky.html
+ezSkyLightComponent;Sky Light;;https://ezengine.net/pages/docs/graphics/lighting/sky-light-component.html
+ezSliderComponent;Slider;;https://ezengine.net/pages/docs/animation/property-animation/slider-component.html
+ezSpawnComponent;Spawn;;https://ezengine.net/pages/docs/gameplay/spawn-component.html
+ezSphereReflectionProbeComponent;Sphere Reflection Probe;;https://ezengine.net/pages/docs/graphics/lighting/reflection-probe-components.html
+ezSpotLightComponent;Spot Light;;https://ezengine.net/pages/docs/graphics/lighting/spot-light-component.html
+ezSpriteComponent;Sprite;;https://ezengine.net/pages/docs/graphics/sprite-component.html
+ezTimedDeathComponent;Timed Death;;https://ezengine.net/pages/docs/gameplay/timed-death-component.html
+ezTriggerDelayModifierComponent;Trigger Delay Modifier
+ezWindVolumeConeComponent;Cone Wind Volume;;https://ezengine.net/pages/docs/effects/wind-volume-components.html
+ezWindVolumeCylinderComponent;Cylinder Wind Volume;;https://ezengine.net/pages/docs/effects/wind-volume-components.html
+ezWindVolumeSphereComponent;Sphere Wind Volume;;https://ezengine.net/pages/docs/effects/wind-volume-components.html
+
+# Properties
+
+EditorShortcut;Editor Shortcut;Press ALT+Number to jump to this camera.
+Scene.CreateThumbnail;Create Scene Thumbnail
+Scene.GameMode.PlayFromHere;Play From Here
+Scene.GameObject.CreateEmptyHere;Create Empty Object Here
+Scene.Camera.Create.0;Create Level Camera 0;Creates a camera node at the current editor camera position and configures its shortcut
+Scene.Camera.Create.1;Create Level Camera 1;Creates a camera node at the current editor camera position and configures its shortcut
+Scene.Camera.Create.2;Create Level Camera 2;Creates a camera node at the current editor camera position and configures its shortcut
+Scene.Camera.Create.3;Create Level Camera 3;Creates a camera node at the current editor camera position and configures its shortcut
+Scene.Camera.Create.4;Create Level Camera 4;Creates a camera node at the current editor camera position and configures its shortcut
+Scene.Camera.Create.5;Create Level Camera 5;Creates a camera node at the current editor camera position and configures its shortcut
+Scene.Camera.Create.6;Create Level Camera 6;Creates a camera node at the current editor camera position and configures its shortcut
+Scene.Camera.Create.7;Create Level Camera 7;Creates a camera node at the current editor camera position and configures its shortcut
+Scene.Camera.Create.8;Create Level Camera 8;Creates a camera node at the current editor camera position and configures its shortcut
+Scene.Camera.Create.9;Create Level Camera 9;Creates a camera node at the current editor camera position and configures its shortcut
+Scene.Camera.JumpTo.0;Jump to Level Camera 0;Moves the editor camera to a camera position that is stored in the level file
+Scene.Camera.JumpTo.1;Jump to Level Camera 1;Moves the editor camera to a camera position that is stored in the level file
+Scene.Camera.JumpTo.2;Jump to Level Camera 2;Moves the editor camera to a camera position that is stored in the level file
+Scene.Camera.JumpTo.3;Jump to Level Camera 3;Moves the editor camera to a camera position that is stored in the level file
+Scene.Camera.JumpTo.4;Jump to Level Camera 4;Moves the editor camera to a camera position that is stored in the level file
+Scene.Camera.JumpTo.5;Jump to Level Camera 5;Moves the editor camera to a camera position that is stored in the level file
+Scene.Camera.JumpTo.6;Jump to Level Camera 6;Moves the editor camera to a camera position that is stored in the level file
+Scene.Camera.JumpTo.7;Jump to Level Camera 7;Moves the editor camera to a camera position that is stored in the level file
+Scene.Camera.JumpTo.8;Jump to Level Camera 8;Moves the editor camera to a camera position that is stored in the level file
+Scene.Camera.JumpTo.9;Jump to Level Camera 9;Moves the editor camera to a camera position that is stored in the level file
+Scene.Camera.MoveCameraHere;Move Camera Here;Moves the camera close to the point that the mouse points at.
+Scene.Camera.Restore.0;Go to Favorite Position 0;Moves the editor camera to a previously saved favorite position
+Scene.Camera.Restore.1;Go to Favorite Position 1;Moves the editor camera to a previously saved favorite position
+Scene.Camera.Restore.2;Go to Favorite Position 2;Moves the editor camera to a previously saved favorite position
+Scene.Camera.Restore.3;Go to Favorite Position 3;Moves the editor camera to a previously saved favorite position
+Scene.Camera.Restore.4;Go to Favorite Position 4;Moves the editor camera to a previously saved favorite position
+Scene.Camera.Restore.5;Go to Favorite Position 5;Moves the editor camera to a previously saved favorite position
+Scene.Camera.Restore.6;Go to Favorite Position 6;Moves the editor camera to a previously saved favorite position
+Scene.Camera.Restore.7;Go to Favorite Position 7;Moves the editor camera to a previously saved favorite position
+Scene.Camera.Restore.8;Go to Favorite Position 8;Moves the editor camera to a previously saved favorite position
+Scene.Camera.Restore.9;Go to Favorite Position 9;Moves the editor camera to a previously saved favorite position
+Scene.Camera.SnapCameraToObject;Align Camera with Object;Moves the camera to be at the exact location of the selected object.
+Scene.Camera.SnapObjectToCamera;Align Object with Camera;Moves the object to be at the current location of the camera.
+Scene.Camera.Speed;Camera Speed;Camera Speed: CTRL+Mousewheel to change
+Scene.Camera.Store.0;Save Favorite Position 0;Saves the current position as a favorite user position
+Scene.Camera.Store.1;Save Favorite Position 1;Saves the current position as a favorite user position
+Scene.Camera.Store.2;Save Favorite Position 2;Saves the current position as a favorite user position
+Scene.Camera.Store.3;Save Favorite Position 3;Saves the current position as a favorite user position
+Scene.Camera.Store.4;Save Favorite Position 4;Saves the current position as a favorite user position
+Scene.Camera.Store.5;Save Favorite Position 5;Saves the current position as a favorite user position
+Scene.Camera.Store.6;Save Favorite Position 6;Saves the current position as a favorite user position
+Scene.Camera.Store.7;Save Favorite Position 7;Saves the current position as a favorite user position
+Scene.Camera.Store.8;Save Favorite Position 8;Saves the current position as a favorite user position
+Scene.Camera.Store.9;Save Favorite Position 9;Saves the current position as a favorite user position
+Scene.ExportAndRun;Export and Run...
+Scene.ExportSceneToOBJ;Export Scene Geometry to OBJ...
+Scene.FavoriteCams.Menu;Favorite Cameras
+Scene.GameMode.Play;Play the Game
+Scene.GameMode.Simulate;Simulate World
+Scene.GameMode.Stop;Reset World
+Scene.KeepSimulationChanges;Keep Simulation Changes;Only possible during simulation. Synchronizes the position of selected objects back to the editor.
+Scene.Render.AddAmbient;Add Ambient Light
+Scene.Render.Grid;Show Grid
+Scene.Render.SelectionOverlay;Visualize Selection
+Scene.Render.ShapeIcons;Render Shape Icons
+Scene.Render.Visualizers;Render Visualizers
+Scene.Simulation.Speed.01;10%
+Scene.Simulation.Speed.025;25%
+Scene.Simulation.Speed.05;50%
+Scene.Simulation.Speed.1;100%
+Scene.Simulation.Speed.10;1000%
+Scene.Simulation.Speed.15;150%
+Scene.Simulation.Speed.2;200%
+Scene.Simulation.Speed.3;300%
+Scene.Simulation.Speed.4;400%
+Scene.Simulation.Speed.5;500%
+Scene.Simulation.Speed.Menu;Simulation Speed
+Scene.Utils.Menu;Utilities
+Scene.View.Span;Spawn View
+Scene.View.Toggle;Toggle Views
+Scene.Render.PickTransparent;Select Transparent
+
+Layer.CreateLayer;Create Layer...
+Layer.DeleteLayer;Delete Layer
+Layer.SaveLayer;Save Layer
+Layer.SaveActiveLayer;Save Active Layer
+Layer.LayerLoaded;Layer Loaded
+Layer.LayerVisible;Layer Visible
+
+ezLogicOperator::Equal;=
+ezLogicOperator::Unequal;<>
+ezLogicOperator::Less;<
+ezLogicOperator::LessEqual;<=
+ezLogicOperator::Greater;>
+ezLogicOperator::GreaterEqual;>=
+
+ezExposedSceneProperty;Exposed Property
+
+ezCameraMode::PerspectiveFixedFovX;Perspective Fixed X
+ezCameraMode::PerspectiveFixedFovY;Perspective Fixed Y
+ezCameraMode::OrthoFixedWidth;Ortho Fixed Width
+ezCameraMode::OrthoFixedHeight;Ortho Fixed Height
+
+ezCameraUsageHint::RenderTarget;Render to Texture
+
+ezInputMessageGranularity::PressOnly;Only Key Pressed
+ezInputMessageGranularity::PressAndRelease;Key Pressed and Released
+ezInputMessageGranularity::PressReleaseAndDown;Key Pressed, Released and Down
+ezInputMessageGranularity::PressReleaseDownAndUp;All, even Key Up
+
+ezClothSheetFlags::FixedCornerTopLeft;Corner: Top Left
+ezClothSheetFlags::FixedCornerTopRight;Corner: Top Right
+ezClothSheetFlags::FixedCornerBottomRight;Corner: Bottom Right
+ezClothSheetFlags::FixedCornerBottomLeft;Corner: Bottom Left
+ezClothSheetFlags::FixedEdgeTop;Edge: Top
+ezClothSheetFlags::FixedEdgeRight;Edge: Right
+ezClothSheetFlags::FixedEdgeBottom;Edge: Bottom
+ezClothSheetFlags::FixedEdgeLeft;Edge: Left
+ezClothSheetFlags::FixedEdgeLeft;Edge: Left
+
+ezUpdateRate::EveryFrame;Every Frame
+ezUpdateRate::Max30fps;Max 30 FPS
+ezUpdateRate::Max20fps;Max 20 FPS
+ezUpdateRate::Max10fps;Max 10 FPS
+ezUpdateRate::Max5fps;Max 5 FPS
+ezUpdateRate::Max2fps;Max 2 FPS
+ezUpdateRate::Max1fps;Max 1 FPS
+
+ezRootMotionMode::SendMoveCharacterMsg;Send MoveCharacterMsg

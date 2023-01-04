@@ -109,15 +109,6 @@ void ezTranslatorFromFiles::AddTranslationFilesFromFolder(const char* szFolder)
 
 const char* ezTranslatorFromFiles::Translate(const char* szString, ezUInt64 uiStringHash, ezTranslationUsage usage)
 {
-  if (GetHighlightUntranslated())
-  {
-    const char* szTranslation = ezTranslatorStorage::Translate(szString, uiStringHash, usage);
-    if (szTranslation != nullptr)
-      return szTranslation;
-
-    return nullptr;
-  }
-
   return ezTranslatorStorage::Translate(szString, uiStringHash, usage);
 }
 
@@ -188,7 +179,8 @@ void ezTranslatorFromFiles::LoadTranslationFile(const char* szFullPath)
 
     if (GetHighlightUntranslated())
     {
-      sValue.Set("# ", sKey);
+      sValue.Prepend("# ");
+      sValue.Append(" (@", sKey, ")");
     }
 
     StoreTranslation(sValue, ezHashingUtils::StringHash(sKey), ezTranslationUsage::Default);
@@ -240,8 +232,9 @@ const char* ezTranslatorLogMissing::Translate(const char* szString, ezUInt64 uiS
 
   const char* szResult = ezTranslatorStorage::Translate(szString, uiStringHash, usage);
 
+  if (szResult == nullptr)
   {
-    ezLog::Warning("Missing translation: {0};{0}", szString);
+    ezLog::Warning("Missing translation: {0};", szString);
 
     StoreTranslation(szString, uiStringHash, usage);
   }
@@ -259,34 +252,74 @@ const char* ezTranslatorMakeMoreReadable::Translate(const char* szString, ezUInt
 
   ezStringBuilder result;
   ezStringBuilder tmp = szString;
+  tmp.Trim(" _-");
+  tmp.TrimWordStart("ez");
+  tmp.TrimWordEnd("Component");
 
   auto IsUpper = [](ezUInt32 c)
   { return c == ezStringUtils::ToUpperChar(c); };
+  auto IsNumber = [](ezUInt32 c)
+  { return c >= '0' && c <= '9'; };
 
-  bool bWasUpper = true;
+  ezUInt32 uiPrev = ' ';
+  ezUInt32 uiCur = ' ';
+  ezUInt32 uiNext = ' ';
 
-  for (auto it = tmp.GetIteratorFront(); it.IsValid(); ++it)
+  bool bContinue = true;
+
+  for (auto it = tmp.GetIteratorFront(); bContinue; ++it)
   {
-    if (it.GetCharacter() == ':')
+    uiPrev = uiCur;
+    uiCur = uiNext;
+
+    if (it.IsValid())
+    {
+      uiNext = it.GetCharacter();
+    }
+    else
+    {
+      uiNext = ' ';
+      bContinue = false;
+    }
+
+    if (uiCur == '_')
+      uiCur = ' ';
+
+    if (uiCur == ':')
     {
       result.Clear();
       continue;
     }
 
-    if (bWasUpper != IsUpper(it.GetCharacter()))
+    if (!IsNumber(uiPrev) && IsNumber(uiCur))
     {
-      if (bWasUpper == false)
-        result.Append(" ");
-
-      bWasUpper = !bWasUpper;
+      result.Append(" ");
+      result.Append(uiCur);
+      continue;
     }
 
-    result.Append(it.GetCharacter());
+    if (IsUpper(uiPrev) && IsUpper(uiCur) && !IsUpper(uiNext))
+    {
+      result.Append(" ");
+      result.Append(uiCur);
+      continue;
+    }
+
+    if (!IsUpper(uiCur) && IsUpper(uiNext))
+    {
+      result.Append(uiCur);
+      result.Append(" ");
+      continue;
+    }
+
+    result.Append(uiCur);
   }
+
+  result.Trim(" ");
 
   if (GetHighlightUntranslated())
   {
-    result.Set("!!! ", szString);
+    result.Append(" (@", szString, ")");
   }
 
   StoreTranslation(result, uiStringHash, usage);

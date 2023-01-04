@@ -1,0 +1,14 @@
+# Asset Types
+
+Surface;Surface
+
+# Component Types
+
+# Properties
+
+ezSurfaceResourceSlot;Surface Slot
+
+ezSurfaceInteraction;Surface Interaction
+
+ezSurfaceInteractionAlignment::IncidentDirection;Incoming Direction
+ezSurfaceInteractionAlignment::ReverseIncidentDirection;Reverse Incoming Direction
