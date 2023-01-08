@@ -31,7 +31,7 @@ struct ezAssetTable
   void Update(const ezSubAsset& subAsset, ezStringBuilder& sTemp);
 };
 
-/// \brief 
+/// \brief Keeps track of all asset tables and their state as well as reloading modified resources.
 class EZ_EDITORFRAMEWORK_DLL ezAssetTableWriter
 {
 public:
@@ -45,7 +45,7 @@ public:
   /// The requests are batched and sent out via MainThreadTick.
   void NeedsReloadResource(const ezUuid& assetGuid);
 
-  /// \brief
+  /// \brief Writes the asset table for each data dir for the given asset profile.
   ezResult WriteAssetTables(const ezPlatformProfile* pAssetProfile, bool bForce);
 
 private:

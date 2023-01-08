@@ -53,8 +53,7 @@ ezResult ezAssetTable::WriteAssetTable()
   ezDeferredFileWriter file;
   file.SetOutput(m_sTargetFile);
 
-  auto Write = [](ezMap<ezString, ezString>::ConstIterator it, ezDeferredFileWriter& file)
-  {
+  auto Write = [](ezMap<ezString, ezString>::ConstIterator it, ezDeferredFileWriter& file) {
     const ezString& guid = it.Key();
     const ezString& path = it.Value();
 
@@ -136,7 +135,7 @@ void ezAssetTableWriter::MainThreadTick()
 {
   // We must flush any pending table changes before triggering resource reloads.
   // If no resource reload is scheduled, we can just wait for the timer to run out to flush the changes.
-  // 
+  //
   if (m_bTablesDirty && (ezTime::Now() > m_NextTableFlush || m_bNeedToReloadResources))
   {
     m_bTablesDirty = false;
@@ -186,7 +185,7 @@ void ezAssetTableWriter::NeedsReloadResource(const ezUuid& assetGuid)
     ezStringBuilder sGuid;
     ezConversionUtils::ToString(assetGuid, sGuid);
     const ezUInt32 uiDataDirIndex = FindDataDir(*asset);
-    m_ReloadResources.PushBack({ uiDataDirIndex, sGuid, sDocType});
+    m_ReloadResources.PushBack({uiDataDirIndex, sGuid, sDocType});
   }
 }
 
