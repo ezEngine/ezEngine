@@ -366,6 +366,8 @@ ezUInt32 ezResourceManager::ReloadResourcesOfType(const ezRTTI* pType, bool bFor
 
 ezUInt32 ezResourceManager::ReloadAllResources(bool bForce)
 {
+  EZ_PROFILE_SCOPE("ReloadAllResources");
+
   EZ_LOCK(s_ResourceMutex);
   EZ_LOG_BLOCK("ezResourceManager::ReloadAllResources");
 

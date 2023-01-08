@@ -476,7 +476,7 @@ bool ezProcessTask::FinishExecute()
   if (m_Status.Succeeded())
   {
     ezAssetCurator::GetSingleton()->NotifyOfAssetChange(m_AssetGuid);
-    ezAssetCurator::GetSingleton()->NeedsReloadResources();
+    ezAssetCurator::GetSingleton()->NeedsReloadResources(m_AssetGuid);
   }
   else
   {

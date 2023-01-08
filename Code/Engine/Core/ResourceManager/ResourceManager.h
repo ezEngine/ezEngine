@@ -149,6 +149,10 @@ public:
   template <typename ResourceType>
   static bool ReloadResource(const ezTypedResourceHandle<ResourceType>& hResource, bool bForce);
 
+  /// \brief Reloads only the one specific resource. If bForce is true, it is updated, even if there is no indication that it has changed.
+  static bool ReloadResource(const ezRTTI* pType, const ezTypelessResourceHandle& hResource, bool bForce);
+
+
   /// \brief Calls ReloadResource() on the given resource, but makes sure that the reload happens with the given custom loader.
   ///
   /// Use this e.g. with a ezResourceLoaderFromMemory to replace an existing resource with new data that was created on-the-fly.
@@ -181,10 +185,16 @@ public:
     const ezTypedResourceHandle<ResourceType>& hLoadingFallback = ezTypedResourceHandle<ResourceType>(),
     ezResourceAcquireResult* out_AcquireResult = nullptr);
 
+  /// \brief Same as BeginAcquireResource but only for the base resource pointer.
+  static ezResource* BeginAcquireResourcePointer(const ezRTTI* pType, const ezTypelessResourceHandle& hResource);
+
   /// \brief Needs to be called in concert with BeginAcquireResource() after accessing a resource has been finished. Prefer to use
   /// ezResourceLock instead.
   template <typename ResourceType>
   static void EndAcquireResource(ResourceType* pResource);
+
+  /// \brief Same as EndAcquireResource but without the template parameter. See also BeginAcquireResourcePointer.
+  static void EndAcquireResourcePointer(ezResource* pResource);
 
   /// \brief Forces the resource manager to treat ezResourceAcquireMode::AllowLoadingFallback as ezResourceAcquireMode::BlockTillLoaded on
   /// BeginAcquireResource.

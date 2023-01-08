@@ -278,6 +278,8 @@ void ezRenderWorld::CacheRenderData(const ezView& view, const ezGameObjectHandle
 
 void ezRenderWorld::DeleteAllCachedRenderData()
 {
+  EZ_PROFILE_SCOPE("DeleteAllCachedRenderData");
+
   EZ_ASSERT_DEV(!s_bInExtract, "Cannot delete cached render data during extraction");
 
   {

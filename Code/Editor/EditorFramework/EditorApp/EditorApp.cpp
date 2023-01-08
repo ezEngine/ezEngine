@@ -423,5 +423,6 @@ void ezQtEditorApp::ReloadEngineResources()
 {
   ezSimpleConfigMsgToEngine msg;
   msg.m_sWhatToDo = "ReloadResources";
+  msg.m_sPayload = "ReloadAllResources";
   ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
 }

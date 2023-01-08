@@ -98,6 +98,20 @@ ezResourceManager::GetOrCreateResource(const char* szResourceID, DescriptorType&
   return hResource;
 }
 
+EZ_FORCE_INLINE ezResource* ezResourceManager::BeginAcquireResourcePointer(const ezRTTI* pType, const ezTypelessResourceHandle& hResource)
+{
+  EZ_ASSERT_DEV(hResource.IsValid(), "Cannot acquire a resource through an invalid handle!");
+
+  ezResource* pResource = (ezResource*)hResource.m_pResource;
+
+  EZ_ASSERT_DEBUG(pResource->GetDynamicRTTI()->IsDerivedFrom(pType),
+    "The requested resource does not have the same type ('{0}') as the resource handle ('{1}').", pResource->GetDynamicRTTI()->GetTypeName(),
+    pType->GetTypeName());
+
+  // pResource->m_iLockCount.Increment();
+  return pResource;
+}
+
 template <typename ResourceType>
 ResourceType* ezResourceManager::BeginAcquireResource(const ezTypedResourceHandle<ResourceType>& hResource, ezResourceAcquireMode mode,
   const ezTypedResourceHandle<ResourceType>& hFallbackResource, ezResourceAcquireResult* out_AcquireResult /*= nullptr*/)
@@ -221,6 +235,12 @@ void ezResourceManager::EndAcquireResource(ResourceType* pResource)
   // pResource->m_iLockCount.Decrement();
 }
 
+EZ_FORCE_INLINE void ezResourceManager::EndAcquireResourcePointer(ezResource* pResource)
+{
+  // EZ_ASSERT_DEV(pResource->m_iLockCount > 0, "The resource lock counter is incorrect: {0}", (ezInt32)pResource->m_iLockCount);
+  // pResource->m_iLockCount.Decrement();
+}
+
 template <typename ResourceType>
 ezLockedObject<ezMutex, ezDynamicArray<ezResource*>> ezResourceManager::GetAllResourcesOfType()
 {
@@ -265,6 +285,17 @@ bool ezResourceManager::ReloadResource(const ezTypedResourceHandle<ResourceType>
   bool res = ReloadResource(pResource, bForce);
 
   EndAcquireResource(pResource);
+
+  return res;
+}
+
+EZ_FORCE_INLINE bool ezResourceManager::ReloadResource(const ezRTTI* pType, const ezTypelessResourceHandle& hResource, bool bForce)
+{
+  ezResource* pResource = BeginAcquireResourcePointer(pType, hResource);
+
+  bool res = ReloadResource(pResource, bForce);
+
+  EndAcquireResourcePointer(pResource);
 
   return res;
 }
