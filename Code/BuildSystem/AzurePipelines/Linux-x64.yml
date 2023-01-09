@@ -17,6 +17,20 @@ jobs:
   - checkout: self
     submodules: true
     lfs: true
+  - task: PowerShell@2
+    displayName: Check force clean
+    inputs:
+      targetType: inline
+      script: |
+        $pathA = Join-Path $(System.DefaultWorkingDirectory) "gitClean.txt"
+        $pathB = Join-Path $(System.DefaultWorkingDirectory) "gitCleanCopy.txt"
+        $clean = -not (Test-Path $pathB) -or (compare-object (get-content $pathA) (get-content $pathB))
+        if ($clean)
+        {
+            Write-Host "Cleaning repo!"
+            git clean -dfx
+            Copy-Item -Path $pathA -Destination $pathB
+        }
   - task: Bash@3
     displayName: Apt-Get
     inputs:
