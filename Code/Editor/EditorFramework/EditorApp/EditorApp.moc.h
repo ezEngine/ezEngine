@@ -120,10 +120,10 @@ public:
   /// \brief Returns true if the the app shouldn't display anything. This is the case in an EditorProcessor.
   bool IsInHeadlessMode() const { return m_StartupFlags.IsSet(StartupFlags::Headless); }
 
-  /// \brief Returns true if the editor is started is run in test mode.
+  /// \brief Returns true if the editor is started in run in test mode.
   bool IsInUnitTestMode() const { return m_StartupFlags.IsSet(StartupFlags::UnitTest); }
 
-  /// \brief Returns true if the editor is started is run in background mode.
+  /// \brief Returns true if the editor is started in run in background mode.
   bool IsBackgroundMode() const { return m_StartupFlags.IsSet(StartupFlags::Background); }
 
   const ezPluginBundleSet& GetPluginBundles() const { return m_PluginBundles; }
