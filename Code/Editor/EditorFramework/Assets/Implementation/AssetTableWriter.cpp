@@ -2,6 +2,7 @@
 
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
 #include <EditorFramework/Assets/AssetTableWriter.h>
+#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/IPC/EngineProcessConnection.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
@@ -30,7 +31,6 @@ ezResult ezAssetTable::WriteAssetTable()
   if (m_bReset)
   {
     m_GuidToPath.Clear();
-    ezStringBuilder sTemp2;
     ezAssetCurator::ezLockedSubAssetTable allSubAssetsLocked = ezAssetCurator::GetSingleton()->GetKnownSubAssets();
 
     for (auto it = allSubAssetsLocked->GetIterator(); it.IsValid(); ++it)
@@ -41,7 +41,7 @@ ezResult ezAssetTable::WriteAssetTable()
       if (!sTemp.IsPathBelowFolder(m_sDataDir))
         continue;
 
-      Update(it.Value(), sTemp2);
+      Update(it.Value());
     }
     m_bReset = false;
   }
@@ -83,15 +83,17 @@ ezResult ezAssetTable::WriteAssetTable()
   return EZ_SUCCESS;
 }
 
-void ezAssetTable::Remove(const ezSubAsset& subAsset, ezStringBuilder& sTemp)
+void ezAssetTable::Remove(const ezSubAsset& subAsset)
 {
+  ezStringBuilder sTemp;
   ezConversionUtils::ToString(subAsset.m_Data.m_Guid, sTemp);
   m_GuidToPath.Remove(sTemp);
   m_bDirty = true;
 }
 
-void ezAssetTable::Update(const ezSubAsset& subAsset, ezStringBuilder& sTemp)
+void ezAssetTable::Update(const ezSubAsset& subAsset)
 {
+  ezStringBuilder sTemp;
   ezAssetDocumentManager* pManager = subAsset.m_pAssetInfo->GetManager();
   ezString sEntry = pManager->GetAssetTableEntry(&subAsset, m_sDataDir, m_pProfile);
 
@@ -240,7 +242,6 @@ void ezAssetTableWriter::AssetCuratorEvents(const ezAssetCuratorEvent& e)
   EZ_LOCK(m_AssetTableMutex);
 
   const ezPlatformProfile* pProfile = ezAssetCurator::GetSingleton()->GetActiveAssetProfile();
-  ezStringBuilder sTemp;
   switch (e.m_Type)
   {
     //#TODO Are asset table entries static or do they change with the asset?
@@ -253,7 +254,7 @@ void ezAssetTableWriter::AssetCuratorEvents(const ezAssetCuratorEvent& e)
       ezUInt32 uiDataDirIndex = FindDataDir(*e.m_pInfo);
       if (ezAssetTable* pTable = GetAssetTable(uiDataDirIndex, pProfile))
       {
-        pTable->Update(*e.m_pInfo, sTemp);
+        pTable->Update(*e.m_pInfo);
         m_bTablesDirty = true;
       }
     }
@@ -263,7 +264,7 @@ void ezAssetTableWriter::AssetCuratorEvents(const ezAssetCuratorEvent& e)
       ezUInt32 uiDataDirIndex = FindDataDir(*e.m_pInfo);
       if (ezAssetTable* pTable = GetAssetTable(uiDataDirIndex, pProfile))
       {
-        pTable->Remove(*e.m_pInfo, sTemp);
+        pTable->Remove(*e.m_pInfo);
         m_bTablesDirty = true;
       }
     }

@@ -72,10 +72,10 @@ ezAssetProcessor::ezAssetProcessor()
 
 ezAssetProcessor::~ezAssetProcessor()
 {
-  if (m_Thread)
+  if (m_pThread)
   {
-    m_Thread->Join();
-    m_Thread.Clear();
+    m_pThread->Join();
+    m_pThread.Clear();
   }
   EZ_ASSERT_DEV(m_ProcessTaskState == ProcessTaskState::Stopped, "Call StopProcessTask first before destroying the ezAssetProcessor.");
 }
@@ -89,10 +89,10 @@ void ezAssetProcessor::StartProcessTask()
   }
 
   // Join old thread.
-  if (m_Thread)
+  if (m_pThread)
   {
-    m_Thread->Join();
-    m_Thread.Clear();
+    m_pThread->Join();
+    m_pThread.Clear();
   }
 
   m_ProcessTaskState = ProcessTaskState::Running;
@@ -106,8 +106,8 @@ void ezAssetProcessor::StartProcessTask()
     m_ProcessTasks[idx].m_uiProcessorID = idx;
   }
 
-  m_Thread = EZ_DEFAULT_NEW(ezProcessThread);
-  m_Thread->Start();
+  m_pThread = EZ_DEFAULT_NEW(ezProcessThread);
+  m_pThread->Start();
 
   {
     ezAssetProcessorEvent e;
@@ -144,9 +144,9 @@ void ezAssetProcessor::StopProcessTask(bool bForce)
 
   if (bForce)
   {
-    m_bForceStop = true;
-    m_Thread->Join();
-    m_Thread.Clear();
+    m_ForceStop = true;
+    m_pThread->Join();
+    m_pThread.Clear();
     EZ_ASSERT_DEV(m_ProcessTaskState == ProcessTaskState::Stopped, "Process task shoul have set the state to stopped.");
   }
 }
@@ -187,7 +187,7 @@ void ezAssetProcessor::Run()
     {
       if (m_ProcessRunning[i])
       {
-        if (m_bForceStop)
+        if (m_ForceStop)
           m_ProcessTasks[i].ShutdownProcess();
 
         m_ProcessRunning[i] = !m_ProcessTasks[i].FinishExecute();
@@ -205,7 +205,7 @@ void ezAssetProcessor::Run()
   m_ProcessRunning.Clear();
   m_ProcessTasks.Clear();
   m_ProcessTaskState = ProcessTaskState::Stopped;
-  m_bForceStop = false;
+  m_ForceStop = false;
   {
     ezAssetProcessorEvent e;
     e.m_Type = ezAssetProcessorEvent::Type::ProcessTaskStateChanged;

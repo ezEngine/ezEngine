@@ -254,12 +254,12 @@ public:
   /// \brief Same as GetAssteInfo, but wraps the return value into a ezLockedSubAsset struct
   const ezLockedSubAsset GetSubAsset(const ezUuid& assetGuid) const;
 
-  typedef ezLockedObject<ezMutex, const ezHashTable<ezUuid, ezSubAsset>> ezLockedSubAssetTable;
+  using ezLockedSubAssetTable = ezLockedObject<ezMutex, const ezHashTable<ezUuid, ezSubAsset>>;
 
   /// \brief Returns the table of all known assets in a locked structure
   const ezLockedSubAssetTable GetKnownSubAssets() const;
 
-  typedef ezLockedObject<ezMutex, const ezHashTable<ezUuid, ezAssetInfo*>> ezLockedAssetTable;
+  using ezLockedAssetTable = ezLockedObject<ezMutex, const ezHashTable<ezUuid, ezAssetInfo*>>;
 
   /// \brief Returns the table of all known assets in a locked structure
   const ezLockedAssetTable GetKnownAssets() const;

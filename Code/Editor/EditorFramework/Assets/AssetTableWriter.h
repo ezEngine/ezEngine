@@ -21,14 +21,14 @@ struct ezAssetTable
 {
   ezString m_sDataDir;
   ezString m_sTargetFile;
-  const ezPlatformProfile* m_pProfile;
+  const ezPlatformProfile* m_pProfile = nullptr;
   bool m_bDirty = true;
   bool m_bReset = true;
   ezMap<ezString, ezString> m_GuidToPath;
 
   ezResult WriteAssetTable();
-  void Remove(const ezSubAsset& subAsset, ezStringBuilder& sTemp);
-  void Update(const ezSubAsset& subAsset, ezStringBuilder& sTemp);
+  void Remove(const ezSubAsset& subAsset);
+  void Update(const ezSubAsset& subAsset);
 };
 
 /// \brief Keeps track of all asset tables and their state as well as reloading modified resources.
