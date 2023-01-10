@@ -35,5 +35,6 @@ protected:
   float m_fLastStrength = 0.0f;
   ezTime m_ReferenceTime;
   ezAngle m_Rotation;
-  ezQuat m_qTargetRotation = ezQuat::IdentityQuaternion();
+  ezQuat m_qPrevTarget = ezQuat::IdentityQuaternion();
+  ezQuat m_qNextTarget = ezQuat::IdentityQuaternion();
 };

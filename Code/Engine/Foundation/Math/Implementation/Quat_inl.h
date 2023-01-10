@@ -329,12 +329,12 @@ void ezQuatTemplate<Type>::SetShortestRotation(const ezVec3Template<Type>& vDirF
   const Type fDot = v0.Dot(v1);
 
   // if both vectors are identical -> no rotation needed
-  if (ezMath::IsEqual(fDot, (Type)1, (Type)0.000001))
+  if (ezMath::IsEqual(fDot, (Type)1, (Type)0.0000001))
   {
     SetIdentity();
     return;
   }
-  else if (ezMath::IsEqual(fDot, (Type)-1, (Type)0.000001)) // if both vectors are opposing
+  else if (ezMath::IsEqual(fDot, (Type)-1, (Type)0.0000001)) // if both vectors are opposing
   {
     // find an axis, that is not identical and not opposing, ezVec3Template::Cross-product to find perpendicular vector, rotate around that
     if (ezMath::Abs(v0.Dot(ezVec3Template<Type>(1, 0, 0))) < (Type)0.8)

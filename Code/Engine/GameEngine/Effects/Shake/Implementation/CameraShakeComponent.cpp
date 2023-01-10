@@ -34,7 +34,7 @@ void ezCameraShakeComponent::Update()
 
   if (ezTime::Now() >= m_ReferenceTime + tDuration)
   {
-    GetOwner()->SetLocalRotation(m_qTargetRotation);
+    GetOwner()->SetLocalRotation(m_qNextTarget);
     GenerateKeyframe();
   }
   else
@@ -42,7 +42,7 @@ void ezCameraShakeComponent::Update()
     const float fLerp = (ezTime::Now() - m_ReferenceTime).AsFloatInSeconds() / tDuration.AsFloatInSeconds();
 
     ezQuat q;
-    q.SetSlerp(ezQuat::IdentityQuaternion(), m_qTargetRotation, fLerp);
+    q.SetSlerp(m_qPrevTarget, m_qNextTarget, fLerp);
 
     GetOwner()->SetLocalRotation(q);
   }
@@ -50,39 +50,37 @@ void ezCameraShakeComponent::Update()
 
 void ezCameraShakeComponent::GenerateKeyframe()
 {
+  m_qPrevTarget = m_qNextTarget;
+
   m_ReferenceTime = ezTime::Now();
 
   ezWorld* pWorld = GetWorld();
 
   // fade out shaking over a second, if the vibration stopped
-  m_fLastStrength = ezMath::Max(0.0f, m_fLastStrength - pWorld->GetClock().GetTimeDiff().AsFloatInSeconds());
+  m_fLastStrength -= pWorld->GetClock().GetTimeDiff().AsFloatInSeconds();
 
-  const float fShake = ezMath::Clamp(GetStrengthAtPosition(), 0.0f, pWorld->GetRandomNumberGenerator().FloatVariance(0.9f, 0.1f));
+  const float fShake = ezMath::Clamp(GetStrengthAtPosition(), 0.0f, 1.0f);
 
   m_fLastStrength = ezMath::Max(m_fLastStrength, fShake);
 
   ezAngle deviation;
   deviation = ezMath::Lerp(m_MinShake, m_MaxShake, m_fLastStrength);
 
-
   if (deviation > ezAngle())
   {
     m_Rotation += ezAngle::Radian(pWorld->GetRandomNumberGenerator().DoubleMinMax(ezAngle::Degree(120).GetRadian(), ezAngle::Degree(240).GetRadian()));
     m_Rotation.NormalizeRange();
 
-    ezQuat qDev;
-    qDev.SetFromAxisAndAngle(ezVec3::UnitZAxis(), deviation);
-
     ezQuat qRot;
     qRot.SetFromAxisAndAngle(ezVec3::UnitXAxis(), m_Rotation);
 
+    const ezVec3 tiltAxis = qRot * ezVec3::UnitZAxis();
 
-    ezVec3 vDir = qRot * (qDev * ezVec3::UnitXAxis());
-    m_qTargetRotation.SetShortestRotation(ezVec3::UnitXAxis(), vDir);
+    m_qNextTarget.SetFromAxisAndAngle(tiltAxis, deviation);
   }
   else
   {
-    m_qTargetRotation.SetIdentity();
+    m_qNextTarget.SetIdentity();
   }
 }
 
