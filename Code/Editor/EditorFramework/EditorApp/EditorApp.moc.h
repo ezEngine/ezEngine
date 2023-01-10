@@ -56,11 +56,12 @@ public:
     typedef ezUInt8 StorageType;
     enum Enum
     {
-      Headless = EZ_BIT(0), ///< The app does not do any rendering.
-      SafeMode = EZ_BIT(1), ///< '-safe' : Prevent automatic loading of projects, scenes, etc. to minimize risk of crashing.
-      NoRecent = EZ_BIT(2), ///< '-norecent' : Do not modify recent file lists. Used for modes such as tests, where the user does not do any interactions.
-      Debug = EZ_BIT(3),    ///< '-debug' : Tell the engine process to wait for a debugger to attach.
-      UnitTest = EZ_BIT(4), ///< Specified when the process is running as a unit test
+      Headless = EZ_BIT(0),   ///< The app does not do any rendering.
+      SafeMode = EZ_BIT(1),   ///< '-safe' : Prevent automatic loading of projects, scenes, etc. to minimize risk of crashing.
+      NoRecent = EZ_BIT(2),   ///< '-norecent' : Do not modify recent file lists. Used for modes such as tests, where the user does not do any interactions.
+      Debug = EZ_BIT(3),      ///< '-debug' : Tell the engine process to wait for a debugger to attach.
+      UnitTest = EZ_BIT(4),   ///< Specified when the process is running as a unit test
+      Background = EZ_BIT(5), ///< This process is an editor processor background process handling IPC tasks of the editor parent process.
       Default = 0,
     };
 
@@ -70,6 +71,8 @@ public:
       StorageType SafeMode : 1;
       StorageType NoRecent : 1;
       StorageType Debug : 1;
+      StorageType UnitTest : 1;
+      StorageType Background : 1;
     };
   };
 
@@ -117,8 +120,11 @@ public:
   /// \brief Returns true if the the app shouldn't display anything. This is the case in an EditorProcessor.
   bool IsInHeadlessMode() const { return m_StartupFlags.IsSet(StartupFlags::Headless); }
 
-  /// \brief Returns true if the editor is started is run in test mode.
+  /// \brief Returns true if the editor is started in run in test mode.
   bool IsInUnitTestMode() const { return m_StartupFlags.IsSet(StartupFlags::UnitTest); }
+
+  /// \brief Returns true if the editor is started in run in background mode.
+  bool IsBackgroundMode() const { return m_StartupFlags.IsSet(StartupFlags::Background); }
 
   const ezPluginBundleSet& GetPluginBundles() const { return m_PluginBundles; }
   ezPluginBundleSet& GetPluginBundles() { return m_PluginBundles; }

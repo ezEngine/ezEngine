@@ -29,6 +29,7 @@ class ezProcessTask;
 struct ezFileStats;
 class ezAssetProcessorLog;
 class ezAssetWatcher;
+class ezAssetTableWriter;
 
 #if 0 // Define to enable extensive curator profile scopes
 #  define CURATOR_PROFILE(szName) EZ_PROFILE_SCOPE(szName)
@@ -236,7 +237,7 @@ public:
   ezTransformStatus CreateThumbnail(const ezUuid& assetGuid);
 
   /// \brief Writes the asset lookup table for the given platform, or the currently active platform if nullptr is passed.
-  ezResult WriteAssetTables(const ezPlatformProfile* pAssetProfile = nullptr);
+  ezResult WriteAssetTables(const ezPlatformProfile* pAssetProfile = nullptr, bool bForce = false);
 
   ///@}
   /// \name Asset Access
@@ -253,10 +254,15 @@ public:
   /// \brief Same as GetAssteInfo, but wraps the return value into a ezLockedSubAsset struct
   const ezLockedSubAsset GetSubAsset(const ezUuid& assetGuid) const;
 
-  typedef ezLockedObject<ezMutex, const ezHashTable<ezUuid, ezSubAsset>> ezLockedSubAssetTable;
+  using ezLockedSubAssetTable = ezLockedObject<ezMutex, const ezHashTable<ezUuid, ezSubAsset>>;
 
   /// \brief Returns the table of all known assets in a locked structure
   const ezLockedSubAssetTable GetKnownSubAssets() const;
+
+  using ezLockedAssetTable = ezLockedObject<ezMutex, const ezHashTable<ezUuid, ezAssetInfo*>>;
+
+  /// \brief Returns the table of all known assets in a locked structure
+  const ezLockedAssetTable GetKnownAssets() const;
 
   /// \brief Computes the combined hash for the asset and its dependencies. Returns 0 if anything went wrong.
   ezUInt64 GetAssetDependencyHash(ezUuid assetGuid);
@@ -308,7 +314,7 @@ public:
   /// \brief Checks file system for any changes. Call in case the file system watcher does not pick up certain changes.
   void CheckFileSystem();
 
-  void NeedsReloadResources();
+  void NeedsReloadResources(const ezUuid& assetGuid);
 
   ///@}
 
@@ -335,8 +341,6 @@ private:
   void HandleSingleFile(const ezString& sAbsolutePath);
   /// \brief Handles adding and updating files. FileStat must be valid.
   void HandleSingleFile(const ezString& sAbsolutePath, const ezFileStats& FileStat);
-  /// \brief Writes the asset lookup table for the given platform, or the currently active platform if nullptr is passed.
-  ezResult WriteAssetTable(const char* szDataDirectory, const ezPlatformProfile* pAssetProfile = nullptr);
   /// \brief Some assets are vital for the engine to run. Each data directory can contain a [DataDirName].ezCollectionAsset
   ///   that has all its references transformed before any other documents are loaded.
   void ProcessAllCoreAssets();
@@ -399,8 +403,7 @@ private:
 
   mutable ezCuratorMutex m_CuratorMutex; // Global lock
   ezTaskGroupID m_InitializeCuratorTaskID;
-  bool m_bNeedToReloadResources = false;
-  ezTime m_NextReloadResources;
+
   ezUInt32 m_uiActiveAssetProfile = 0;
 
   // Actual data stored in the curator
@@ -430,6 +433,7 @@ private:
   ezApplicationFileSystemConfig m_FileSystemConfig;
   ezSet<ezString> m_ValidAssetExtensions;
   ezUniquePtr<ezAssetWatcher> m_pWatcher;
+  ezUniquePtr<ezAssetTableWriter> m_pAssetTableWriter;
 
   // Update task
   bool m_bRunUpdateTask = false;

@@ -301,11 +301,22 @@ void ezGameObjectDocument::DetermineNodeName(const ezDocumentObject* pObject, co
     {
       // search for string properties that also have an asset browser property -> they reference an asset, so this is most likely the most
       // relevant property
-      if (pProperty->GetCategory() == ezPropertyCategory::Member &&
-          (pProperty->GetSpecificType() == ezGetStaticRTTI<const char*>() || pProperty->GetSpecificType() == ezGetStaticRTTI<ezString>()) &&
-          pProperty->GetAttributeByType<ezAssetBrowserAttribute>() != nullptr)
+      if (
+        (pProperty->GetSpecificType() == ezGetStaticRTTI<const char*>() || pProperty->GetSpecificType() == ezGetStaticRTTI<ezString>()) && pProperty->GetAttributeByType<ezAssetBrowserAttribute>() != nullptr)
       {
-        ezStringBuilder sValue = pChild->GetTypeAccessor().GetValue(pProperty->GetPropertyName()).ConvertTo<ezString>();
+        ezStringBuilder sValue;
+        if (pProperty->GetCategory() == ezPropertyCategory::Member)
+        {
+          sValue = pChild->GetTypeAccessor().GetValue(pProperty->GetPropertyName()).ConvertTo<ezString>();
+        }
+        else if (pProperty->GetCategory() == ezPropertyCategory::Array)
+        {
+          const ezInt32 iCount = pChild->GetTypeAccessor().GetCount(pProperty->GetPropertyName());
+          if (iCount > 0)
+          {
+            sValue = pChild->GetTypeAccessor().GetValue(pProperty->GetPropertyName(), 0).ConvertTo<ezString>();
+          }
+        }
 
         // if the property is a full asset guid reference, convert it to a file name
         if (ezConversionUtils::IsStringUuid(sValue))

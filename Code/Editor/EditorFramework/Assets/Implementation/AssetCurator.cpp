@@ -3,6 +3,7 @@
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Assets/AssetDocument.h>
 #include <EditorFramework/Assets/AssetProcessor.h>
+#include <EditorFramework/Assets/AssetTableWriter.h>
 #include <EditorFramework/Assets/AssetWatcher.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/Configuration/SubSystem.h>
@@ -77,7 +78,8 @@ inline ezStreamReader& operator>>(ezStreamReader& Stream, ezFileStatus& uiValue)
 
 void ezAssetInfo::Update(ezUniquePtr<ezAssetInfo>& rhs)
 {
-  m_ExistanceState = rhs->m_ExistanceState;
+  // Don't update the existance state, it is handled via ezAssetCurator::SetAssetExistanceState
+  //m_ExistanceState = rhs->m_ExistanceState;
   m_TransformState = rhs->m_TransformState;
   m_pDocumentTypeDescriptor = rhs->m_pDocumentTypeDescriptor;
   m_sAbsolutePath = std::move(rhs->m_sAbsolutePath);
@@ -148,6 +150,7 @@ void ezAssetCurator::StartInitialize(const ezApplicationFileSystemConfig& cfg)
   m_FileSystemConfig = cfg;
 
   m_pWatcher = EZ_DEFAULT_NEW(ezAssetWatcher, m_FileSystemConfig);
+  m_pAssetTableWriter = EZ_DEFAULT_NEW(ezAssetTableWriter, m_FileSystemConfig);
 
   ezSharedPtr<ezDelegateTask<void>> pInitTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "AssetCuratorUpdateCache", [this]() {
     EZ_LOCK(m_CuratorMutex);
@@ -210,6 +213,7 @@ void ezAssetCurator::Deinitialize()
   ShutdownUpdateTask();
   ezAssetProcessor::GetSingleton()->StopProcessTask(true);
   m_pWatcher = nullptr;
+  m_pAssetTableWriter = nullptr;
 
   SaveCaches();
 
@@ -319,15 +323,8 @@ void ezAssetCurator::MainThreadTick(bool bTopLevel)
     UpdateAssetTransformState(assetToImport, ezAssetInfo::TransformState::Unknown);
   }
 
-  // TODO: Probably needs to be done in headless as well to make proper thumbnails
-  if (!ezQtEditorApp::GetSingleton()->IsInHeadlessMode())
-  {
-    if (bTopLevel && m_bNeedToReloadResources && ezTime::Now() > m_NextReloadResources)
-    {
-      m_bNeedToReloadResources = false;
-      WriteAssetTables().IgnoreResult();
-    }
-  }
+  if (bTopLevel && m_pAssetTableWriter)
+    m_pAssetTableWriter->MainThreadTick();
 
   bReentry = false;
 }
@@ -532,38 +529,17 @@ ezTransformStatus ezAssetCurator::CreateThumbnail(const ezUuid& assetGuid)
   return ProcessAsset(pInfo, nullptr, ezTransformFlags::None);
 }
 
-ezResult ezAssetCurator::WriteAssetTables(const ezPlatformProfile* pAssetProfile /* = nullptr*/)
+ezResult ezAssetCurator::WriteAssetTables(const ezPlatformProfile* pAssetProfile, bool bForce)
 {
   CURATOR_PROFILE("WriteAssetTables");
   EZ_LOG_BLOCK("ezAssetCurator::WriteAssetTables");
 
-  // TODO: figure out a way to early out this function, if nothing can have changed
-
-  ezResult res = EZ_SUCCESS;
-
-  ezStringBuilder sd;
-
-  for (const auto& dd : m_FileSystemConfig.m_DataDirs)
+  if (pAssetProfile == nullptr)
   {
-    EZ_SUCCEED_OR_RETURN(ezFileSystem::ResolveSpecialDirectory(dd.m_sDataDirSpecialPath, sd));
-    sd.Append("/");
-
-    if (WriteAssetTable(sd, pAssetProfile).Failed())
-      res = EZ_FAILURE;
+    pAssetProfile = GetActiveAssetProfile();
   }
 
-  if (pAssetProfile == nullptr || pAssetProfile == GetActiveAssetProfile())
-  {
-    ezSimpleConfigMsgToEngine msg;
-    msg.m_sWhatToDo = "ReloadAssetLUT";
-    msg.m_sPayload = GetActiveAssetProfile()->GetConfigName();
-    ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
-
-    msg.m_sWhatToDo = "ReloadResources";
-    ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
-  }
-
-  return res;
+  return m_pAssetTableWriter->WriteAssetTables(pAssetProfile, bForce);
 }
 
 
@@ -754,6 +730,11 @@ const ezAssetCurator::ezLockedSubAsset ezAssetCurator::GetSubAsset(const ezUuid&
 const ezAssetCurator::ezLockedSubAssetTable ezAssetCurator::GetKnownSubAssets() const
 {
   return ezLockedSubAssetTable(m_CuratorMutex, &m_KnownSubAssets);
+}
+
+const ezAssetCurator::ezLockedAssetTable ezAssetCurator::GetKnownAssets() const
+{
+  return ezLockedAssetTable(m_CuratorMutex, &m_KnownAssets);
 }
 
 ezUInt64 ezAssetCurator::GetAssetDependencyHash(ezUuid assetGuid)
@@ -1179,13 +1160,12 @@ void ezAssetCurator::CheckFileSystem()
   ezLog::Debug("Asset Curator Refresh Time: {0} ms", ezArgF(sw.GetRunningTotal().GetMilliseconds(), 3));
 }
 
-void ezAssetCurator::NeedsReloadResources()
+void ezAssetCurator::NeedsReloadResources(const ezUuid& assetGuid)
 {
-  if (m_bNeedToReloadResources)
-    return;
-
-  m_bNeedToReloadResources = true;
-  m_NextReloadResources = ezTime::Now() + ezTime::Seconds(1.5);
+  if (m_pAssetTableWriter)
+  {
+    m_pAssetTableWriter->NeedsReloadResource(assetGuid);
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -1296,6 +1276,10 @@ ezTransformStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const ez
   if (state == ezAssetInfo::TransformState::NeedsTransform || (state == ezAssetInfo::TransformState::NeedsThumbnail && assetFlags.IsSet(ezAssetDocumentFlags::AutoThumbnailOnTransform)) || (transformFlags.IsSet(ezTransformFlags::TriggeredManually) && state == ezAssetInfo::TransformState::NeedsImport))
   {
     ret = pAsset->TransformAsset(transformFlags, pAssetProfile);
+    if (ret.Succeeded())
+    {
+      m_pAssetTableWriter->NeedsReloadResource(pAsset->GetGuid());
+    }
   }
 
   if (state == ezAssetInfo::TransformState::MissingReference)
@@ -1518,94 +1502,6 @@ void ezAssetCurator::HandleSingleFile(const ezString& sAbsolutePath, const ezFil
 
   // This will update the timestamp for assets.
   EnsureAssetInfoUpdated(sAbsolutePath).IgnoreResult();
-}
-
-ezResult ezAssetCurator::WriteAssetTable(const char* szDataDirectory, const ezPlatformProfile* pAssetProfile0 /*= nullptr*/)
-{
-  const ezPlatformProfile* pAssetProfile = pAssetProfile0;
-
-  if (pAssetProfile == nullptr)
-  {
-    pAssetProfile = GetActiveAssetProfile();
-  }
-
-  ezStringBuilder sDataDir = szDataDirectory;
-  sDataDir.MakeCleanPath();
-
-  ezStringBuilder sFinalPath(sDataDir, "/AssetCache/", pAssetProfile->GetConfigName(), ".ezAidlt");
-  sFinalPath.MakeCleanPath();
-
-  ezStringBuilder sTemp, sTemp2;
-  ezString sResourcePath;
-
-  ezMap<ezString, ezString> GuidToPath;
-
-  {
-    for (auto& man : ezAssetDocumentManager::GetAllDocumentManagers())
-    {
-      if (!man->GetDynamicRTTI()->IsDerivedFrom<ezAssetDocumentManager>())
-        continue;
-
-      ezAssetDocumentManager* pManager = static_cast<ezAssetDocumentManager*>(man);
-
-      // allow to add fully custom entries
-      pManager->AddEntriesToAssetTable(sDataDir, pAssetProfile, GuidToPath);
-    }
-  }
-
-  // TODO: Iterate over m_KnownSubAssets instead
-  for (auto it = m_KnownAssets.GetIterator(); it.IsValid(); ++it)
-  {
-    sTemp = it.Value()->m_sAbsolutePath;
-
-    // ignore all assets that are not located in this data directory
-    if (!sTemp.IsPathBelowFolder(sDataDir))
-      continue;
-
-    ezAssetDocumentManager* pManager = it.Value()->GetManager();
-
-    auto WriteEntry = [this, &sDataDir, &pAssetProfile, &GuidToPath, pManager, &sTemp, &sTemp2](const ezUuid& guid) {
-      ezSubAsset* pSub = GetSubAssetInternal(guid);
-      ezString sEntry = pManager->GetAssetTableEntry(pSub, sDataDir, pAssetProfile);
-
-      // it is valid to write no asset table entry, if no redirection is required
-      // this is used by decal assets for instance
-      if (!sEntry.IsEmpty())
-      {
-        ezConversionUtils::ToString(guid, sTemp2);
-
-        GuidToPath[sTemp2] = sEntry;
-      }
-    };
-
-    WriteEntry(it.Key());
-    for (const ezUuid& subGuid : it.Value()->m_SubAssets)
-    {
-      WriteEntry(subGuid);
-    }
-  }
-
-  ezDeferredFileWriter file;
-  file.SetOutput(sFinalPath);
-
-  for (auto it = GuidToPath.GetIterator(); it.IsValid(); ++it)
-  {
-    const ezString& guid = it.Key();
-    const ezString& path = it.Value();
-
-    file.WriteBytes(guid.GetData(), guid.GetElementCount()).IgnoreResult();
-    file.WriteBytes(";", 1).IgnoreResult();
-    file.WriteBytes(path.GetData(), path.GetElementCount()).IgnoreResult();
-    file.WriteBytes("\n", 1).IgnoreResult();
-  }
-
-  if (file.Close().Failed())
-  {
-    ezLog::Error("Failed to open asset lookup table file ('{0}')", sFinalPath);
-    return EZ_FAILURE;
-  }
-
-  return EZ_SUCCESS;
 }
 
 void ezAssetCurator::ProcessAllCoreAssets()

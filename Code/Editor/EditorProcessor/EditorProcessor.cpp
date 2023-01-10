@@ -150,30 +150,33 @@ public:
     DWORD dwMode = SetErrorMode(SEM_NOGPFAULTERRORBOX);
     SetErrorMode(dwMode | SEM_NOGPFAULTERRORBOX);
 #endif
+    const ezString sTransformProfile = opt_Transform.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified);
+    const bool bResave = opt_Resave.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified);
+    const bool bBackgroundMode = sTransformProfile.IsEmpty() && !bResave;
     const ezString sOutputDir = opt_OutputDir.GetOptionValue(ezCommandLineOption::LogMode::Always);
-    ezQtEditorApp::GetSingleton()->StartupEditor(ezQtEditorApp::StartupFlags::Headless, sOutputDir);
+    const ezBitflags<ezQtEditorApp::StartupFlags> startupFlags = bBackgroundMode ? ezQtEditorApp::StartupFlags::Headless | ezQtEditorApp::StartupFlags::Background : ezQtEditorApp::StartupFlags::Headless;
+    ezQtEditorApp::GetSingleton()->StartupEditor(startupFlags, sOutputDir);
     ezQtUiServices::SetHeadless(true);
 
     const ezStringBuilder sProject = opt_Project.GetOptionValue(ezCommandLineOption::LogMode::Always);
 
-    if (!ezStringUtils::IsNullOrEmpty(opt_Transform.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified)))
+    if (!sTransformProfile.IsEmpty())
     {
       ezQtEditorApp::GetSingleton()->OpenProject(sProject).IgnoreResult();
 
       bool bTransform = true;
 
-      ezQtEditorApp::GetSingleton()->connect(ezQtEditorApp::GetSingleton(), &ezQtEditorApp::IdleEvent, ezQtEditorApp::GetSingleton(), [this, &bTransform]() {
+      ezQtEditorApp::GetSingleton()->connect(ezQtEditorApp::GetSingleton(), &ezQtEditorApp::IdleEvent, ezQtEditorApp::GetSingleton(), [this, &bTransform, &sTransformProfile]() {
         if (!bTransform)
           return;
 
         bTransform = false;
 
-        const char* szPlatform = opt_Transform.GetOptionValue(ezCommandLineOption::LogMode::Never);
-        const ezUInt32 uiPlatform = ezAssetCurator::GetSingleton()->FindAssetProfileByName(szPlatform);
+        const ezUInt32 uiPlatform = ezAssetCurator::GetSingleton()->FindAssetProfileByName(sTransformProfile);
 
         if (uiPlatform == ezInvalidIndex)
         {
-          ezLog::Error("Asset platform config '{0}' is unknown", szPlatform);
+          ezLog::Error("Asset platform config '{0}' is unknown", sTransformProfile);
         }
         else
         {

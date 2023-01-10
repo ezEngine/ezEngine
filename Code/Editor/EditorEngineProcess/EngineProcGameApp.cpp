@@ -279,6 +279,16 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
     SendProjectReadyMessage();
     return;
   }
+  else if (const auto* pMsg1 = ezDynamicCast<const ezReloadResourceMsgToEngine*>(e.m_pMessage))
+  {
+    EZ_PROFILE_SCOPE("ReloadResource");
+
+    const ezRTTI* pType = ezResourceManager::FindResourceForAssetType(pMsg1->m_sResourceType);
+    if (auto hResource = ezResourceManager::GetExistingResourceByType(pType, pMsg1->m_sResourceID); hResource.IsValid())
+    {
+      ezResourceManager::ReloadResource(pType, hResource, false);
+    }
+  }
   else if (const auto* pMsg1 = ezDynamicCast<const ezSimpleConfigMsgToEngine*>(e.m_pMessage))
   {
     if (pMsg1->m_sWhatToDo == "ChangeActivePlatform")
@@ -301,7 +311,10 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
     }
     else if (pMsg1->m_sWhatToDo == "ReloadResources")
     {
-      ezResourceManager::ReloadAllResources(false);
+      if (pMsg1->m_sPayload == "ReloadAllResources")
+      {
+        ezResourceManager::ReloadAllResources(false);
+      }
       ezRenderWorld::DeleteAllCachedRenderData();
     }
     else if (pMsg1->m_sWhatToDo == "SaveProfiling")

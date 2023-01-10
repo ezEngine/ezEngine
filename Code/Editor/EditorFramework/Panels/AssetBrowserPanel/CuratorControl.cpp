@@ -171,6 +171,7 @@ void ezQtCuratorControl::AssetCuratorEvents(const ezAssetCuratorEvent& e)
       break;
   }
 }
+
 void ezQtCuratorControl::AssetProcessorEvents(const ezAssetProcessorEvent& e)
 {
   switch (e.m_Type)
