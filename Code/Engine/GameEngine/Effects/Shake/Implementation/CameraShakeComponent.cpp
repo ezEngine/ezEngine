@@ -32,14 +32,16 @@ void ezCameraShakeComponent::Update()
 {
   const ezTime tDuration = ezTime::Seconds(1.0 / 30.0); // 30 Hz vibration seems to work well
 
-  if (ezTime::Now() >= m_ReferenceTime + tDuration)
+  const ezTime tNow = ezTime::Now();
+
+  if (tNow >= m_ReferenceTime + tDuration)
   {
     GetOwner()->SetLocalRotation(m_qNextTarget);
     GenerateKeyframe();
   }
   else
   {
-    const float fLerp = (ezTime::Now() - m_ReferenceTime).AsFloatInSeconds() / tDuration.AsFloatInSeconds();
+    const float fLerp = ezMath::Clamp((tNow - m_ReferenceTime).AsFloatInSeconds() / tDuration.AsFloatInSeconds(), 0.0f, 1.0f);
 
     ezQuat q;
     q.SetSlerp(m_qPrevTarget, m_qNextTarget, fLerp);
