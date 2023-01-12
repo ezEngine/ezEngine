@@ -17,7 +17,11 @@ public:
 	{
 	public:
 							Mapping() = default;
-							Mapping(int inJointIdx1, int inJointIdx2, Mat44Arg inJoint1To2) : mJointIdx1(inJointIdx1), mJointIdx2(inJointIdx2), mJoint1To2(inJoint1To2), mJoint2To1(inJoint1To2.Inversed()) { }
+							Mapping(int inJointIdx1, int inJointIdx2, Mat44Arg inJoint1To2) : mJointIdx1(inJointIdx1), mJointIdx2(inJointIdx2), mJoint1To2(inJoint1To2), mJoint2To1(inJoint1To2.Inversed())
+		{
+			// Ensure bottom right element is 1 (numerical imprecision in the inverse can make this not so)
+			mJoint2To1(3, 3) = 1.0f;
+		}
 
 		int					mJointIdx1;																	///< Index of joint from skeleton 1
 		int					mJointIdx2;																	///< Corresponding index of joint from skeleton 2
@@ -51,8 +55,8 @@ public:
 	class Locked
 	{
 	public:
-		int					mJointIdx;																	///< Joint index of joint with locked translation
-		int					mParentJointIdx;															///< Parent joint index of joint with locked translation
+		int					mJointIdx;																	///< Joint index of joint with locked translation (in skeleton 2)
+		int					mParentJointIdx;															///< Parent joint index of joint with locked translation (in skeleton 2)
 		Vec3				mTranslation;																///< Translation of neutral pose
 	};
 
@@ -105,6 +109,12 @@ public:
 	/// @param inPose2ModelSpace Model space pose on skeleton 2
 	/// @param outPose1ModelSpace When the function returns this will contain the model space pose for skeleton 1
 	void					MapReverse(const Mat44 *inPose2ModelSpace, Mat44 *outPose1ModelSpace) const;
+
+	/// Search through the directly mapped joints (mMappings) and find inJoint1Idx, returns the corresponding Joint2Idx or -1 if not found.
+	int						GetMappedJointIdx(int inJoint1Idx) const;
+
+	/// Search through the locked translations (mLockedTranslations) and find if joint inJoint2Idx is locked.
+	bool					IsJointTranslationLocked(int inJoint2Idx) const;
 
 	using MappingVector = Array<Mapping>;
 	using ChainVector = Array<Chain>;
