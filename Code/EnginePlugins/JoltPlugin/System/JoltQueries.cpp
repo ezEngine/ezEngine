@@ -63,7 +63,7 @@ bool ezJoltWorldModule::Raycast(ezPhysicsCastResult& out_Result, const ezVec3& v
 
   const JPH::NarrowPhaseQuery& query = m_pSystem->GetNarrowPhaseQuery();
 
-  JPH::RayCast ray;
+  JPH::RRayCast ray;
   ray.mOrigin = ezJoltConversionUtils::ToVec3(vStart);
   ray.mDirection = ezJoltConversionUtils::ToVec3(vDir * fDistance);
 
@@ -119,7 +119,7 @@ bool ezJoltWorldModule::RaycastAll(ezPhysicsCastResultArray& out_Results, const 
 
   const JPH::NarrowPhaseQuery& query = m_pSystem->GetNarrowPhaseQuery();
 
-  JPH::RayCast ray;
+  JPH::RRayCast ray;
   ray.mOrigin = ezJoltConversionUtils::ToVec3(vStart);
   ray.mDirection = ezJoltConversionUtils::ToVec3(vDir * fDistance);
 
@@ -223,12 +223,12 @@ bool ezJoltWorldModule::SweepTest(ezPhysicsCastResult& out_Result, const JPH::Sh
   ezJoltBodyFilter bodyFilter(params.m_uiIgnoreObjectFilterID);
   ezJoltObjectLayerFilter objectFilter(params.m_uiCollisionLayer);
 
-  JPH::ShapeCast cast(&shape, JPH::Vec3(1, 1, 1), transform, ezJoltConversionUtils::ToVec3(vDir * fDistance));
+  JPH::RShapeCast cast(&shape, JPH::Vec3(1, 1, 1), transform, ezJoltConversionUtils::ToVec3(vDir * fDistance));
 
   ezJoltShapeCastCollector collector;
   collector.m_bAnyHit = collection == ezPhysicsHitCollection::Any;
 
-  query.CastShape(cast, {}, collector, broadphaseFilter, objectFilter, bodyFilter);
+  query.CastShape(cast, {}, JPH::RVec3::sZero(), collector, broadphaseFilter, objectFilter, bodyFilter);
 
   if (!collector.m_bFoundAny)
     return false;
@@ -309,7 +309,7 @@ bool ezJoltWorldModule::OverlapTest(const JPH::Shape& shape, const JPH::Mat44& t
   ezJoltObjectLayerFilter objectFilter(params.m_uiCollisionLayer);
 
   ezJoltShapeCollectorAny collector;
-  query.CollideShape(&shape, JPH::Vec3(1, 1, 1), transform, {}, collector, broadphaseFilter, objectFilter, bodyFilter);
+  query.CollideShape(&shape, JPH::Vec3(1, 1, 1), transform, {}, JPH::RVec3::sZero(), collector, broadphaseFilter, objectFilter, bodyFilter);
 
   return collector.m_bFoundAny;
 }
@@ -329,7 +329,7 @@ void ezJoltWorldModule::QueryShapesInSphere(ezPhysicsOverlapResultArray& out_Res
   ezJoltBodyFilter bodyFilter(params.m_uiIgnoreObjectFilterID);
 
   ezJoltShapeCollectorAll collector;
-  query.CollideShape(&shape, JPH::Vec3(1, 1, 1), JPH::Mat44::sTranslation(ezJoltConversionUtils::ToVec3(vPosition)), {}, collector, broadphaseFilter, objectFilter, bodyFilter);
+  query.CollideShape(&shape, JPH::RVec3(1, 1, 1), JPH::Mat44::sTranslation(ezJoltConversionUtils::ToVec3(vPosition)), {}, JPH::RVec3::sZero(), collector, broadphaseFilter, objectFilter, bodyFilter);
 
   out_Results.m_Results.SetCount(collector.m_Results.GetCount());
 

@@ -125,6 +125,8 @@ private:
   std::unique_ptr<JPH::TempAllocator> m_pTempAllocator;
 
   ezJoltObjectToBroadphaseLayer m_ObjectToBroadphase;
+  ezJoltObjectVsBroadPhaseLayerFilter m_ObjectVsBroadphaseFilter;
+  ezJoltObjectLayerPairFilter m_ObjectLayerPairFilter;
 
   void* m_pContactListener = nullptr;
   void* m_pActivationListener = nullptr;
