@@ -14,7 +14,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 void ezSkinnedMeshRenderData::FillBatchIdAndSortingKey()
 {
-  FillBatchIdAndSortingKeyInternal(m_uiUniqueID);
+  FillBatchIdAndSortingKeyInternal(m_hSkinningTransforms.GetInternalID().m_Data);
 }
 
 ezSkinningState::ezSkinningState() = default;

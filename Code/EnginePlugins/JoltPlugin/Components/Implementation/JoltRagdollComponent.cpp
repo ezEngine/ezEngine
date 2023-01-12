@@ -745,7 +745,7 @@ void ezJoltRagdollComponent::CreateLimbBody(const LimbConfig& parentLimb, LimbCo
   JPH::RagdollSettings::Part* pLink = reinterpret_cast<JPH::RagdollSettings::Part*>(thisLimb.m_pBodyDesc);
 
   pLink->mPosition = ezJoltConversionUtils::ToVec3(thisLimb.m_GlobalTransform.m_vPosition);
-  pLink->mRotation = ezJoltConversionUtils::ToQuat(thisLimb.m_GlobalTransform.m_qRotation);
+  pLink->mRotation = ezJoltConversionUtils::ToQuat(thisLimb.m_GlobalTransform.m_qRotation).Normalized();
   pLink->mMotionQuality = JPH::EMotionQuality::LinearCast;
   pLink->mGravityFactor = m_fGravityFactor;
   pLink->mUserData = reinterpret_cast<ezUInt64>(m_pJoltUserData);

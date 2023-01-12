@@ -125,23 +125,22 @@ bool ezJoltGrabObjectComponent::FindNearbyObject(ezGameObject*& out_pObject, ezT
   if (!pPhysicsModule->Raycast(hit, pOwner->GetGlobalPosition(), pOwner->GetGlobalDirForwards().GetNormalized(), m_fMaxGrabPointDistance * 5.0f, queryParam))
     return false;
 
+  if (hit.m_fDistance > m_fMaxGrabPointDistance)
+    return false;
+
   const ezGameObject* pActorObj = nullptr;
   if (!GetWorld()->TryGetObject(hit.m_hActorObject, pActorObj))
     return false;
 
   const ezJoltDynamicActorComponent* pActorComp = nullptr;
-  if (pActorObj->TryGetComponentOfBaseType(pActorComp) && !pActorComp->GetKinematic())
-  {
-    if (DetermineGrabPoint(pActorComp, out_LocalGrabPoint).Failed())
-      return false;
-  }
-  else
-  {
-    if (hit.m_fDistance > m_fMaxGrabPointDistance)
-      return false;
+  if (!pActorObj->TryGetComponentOfBaseType(pActorComp))
+    return false;
 
-    out_LocalGrabPoint = ezTransform::IdentityTransform();
-  }
+  if (pActorComp->GetKinematic())
+    return false;
+
+  if (DetermineGrabPoint(pActorComp, out_LocalGrabPoint).Failed())
+    return false;
 
   out_pObject = const_cast<ezGameObject*>(pActorObj);
   return true;

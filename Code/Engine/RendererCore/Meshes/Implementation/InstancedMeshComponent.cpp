@@ -92,7 +92,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 void ezInstancedMeshRenderData::FillBatchIdAndSortingKey()
 {
-  FillBatchIdAndSortingKeyInternal(m_uiUniqueID);
+  FillBatchIdAndSortingKeyInternal(m_pExplicitInstanceData->m_hInstanceDataBuffer.GetInternalID().m_Data);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
