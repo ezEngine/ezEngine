@@ -8,19 +8,6 @@ namespace ezJoltCollisionFiltering
 {
   ezCollisionFilterConfig s_CollisionFilterConfig;
 
-  bool BroadphaseFilter(JPH::ObjectLayer inLayer1, JPH::BroadPhaseLayer inLayer2)
-  {
-    const ezUInt32 uiMask1 = EZ_BIT(inLayer1 >> 8);
-    const ezUInt32 uiMask2 = GetBroadphaseCollisionMask(static_cast<ezJoltBroadphaseLayer>((ezUInt8)inLayer2));
-
-    return (uiMask1 & uiMask2) != 0;
-  }
-
-  bool ObjectLayerFilter(JPH::ObjectLayer inObject1, JPH::ObjectLayer inObject2)
-  {
-    return s_CollisionFilterConfig.IsCollisionEnabled(static_cast<ezUInt32>(inObject1) & 0xFF, static_cast<ezUInt32>(inObject2) & 0xFF);
-  };
-
   JPH::ObjectLayer ConstructObjectLayer(ezUInt8 uiCollisionGroup, ezJoltBroadphaseLayer broadphase)
   {
     return static_cast<JPH::ObjectLayer>(static_cast<ezUInt16>(broadphase) << 8 | static_cast<ezUInt16>(uiCollisionGroup));
@@ -140,4 +127,17 @@ static_assert(ezPhysicsShapeType::Count == ezJoltBroadphaseLayer::ENUM_COUNT);
 bool ezJoltObjectLayerFilter::ShouldCollide(JPH::ObjectLayer inLayer) const
 {
   return ezJoltCollisionFiltering::s_CollisionFilterConfig.IsCollisionEnabled(m_uiCollisionLayer, static_cast<ezUInt32>(inLayer) & 0xFF);
+}
+
+bool ezJoltObjectVsBroadPhaseLayerFilter::ShouldCollide(JPH::ObjectLayer inLayer1, JPH::BroadPhaseLayer inLayer2) const
+{
+  const ezUInt32 uiMask1 = EZ_BIT(inLayer1 >> 8);
+  const ezUInt32 uiMask2 = ezJoltCollisionFiltering::GetBroadphaseCollisionMask(static_cast<ezJoltBroadphaseLayer>((ezUInt8)inLayer2));
+
+  return (uiMask1 & uiMask2) != 0;
+}
+
+bool ezJoltObjectLayerPairFilter::ShouldCollide(JPH::ObjectLayer inObject1, JPH::ObjectLayer inObject2) const
+{
+  return ezJoltCollisionFiltering::s_CollisionFilterConfig.IsCollisionEnabled(static_cast<ezUInt32>(inObject1) & 0xFF, static_cast<ezUInt32>(inObject2) & 0xFF);
 }

@@ -38,10 +38,6 @@ namespace ezJoltCollisionFiltering
   /// \brief Returns the (hard-coded) collision mask that determines which other broad-phases to collide with.
   EZ_JOLTPLUGIN_DLL ezUInt32 GetBroadphaseCollisionMask(ezJoltBroadphaseLayer broadphase);
 
-  EZ_JOLTPLUGIN_DLL bool ObjectLayerFilter(JPH::ObjectLayer inObject1, JPH::ObjectLayer inObject2);
-
-  EZ_JOLTPLUGIN_DLL bool BroadphaseFilter(JPH::ObjectLayer inLayer1, JPH::BroadPhaseLayer inLayer2);
-
 }; // namespace ezJoltCollisionFiltering
 
 
@@ -84,6 +80,22 @@ public:
   }
 
   virtual bool ShouldCollide(JPH::ObjectLayer inLayer) const override;
+};
+
+class ezJoltObjectVsBroadPhaseLayerFilter final : public JPH::ObjectVsBroadPhaseLayerFilter
+{
+public:
+  ezJoltObjectVsBroadPhaseLayerFilter() = default;
+
+  virtual bool ShouldCollide(JPH::ObjectLayer inLayer1, JPH::BroadPhaseLayer inLayer2) const override;
+};
+
+class ezJoltObjectLayerPairFilter final : public JPH::ObjectLayerPairFilter
+{
+public:
+  ezJoltObjectLayerPairFilter() = default;
+
+  virtual bool ShouldCollide(JPH::ObjectLayer inLayer1, JPH::ObjectLayer inLayer2) const override;
 };
 
 class ezJoltBodyFilter final : public JPH::BodyFilter

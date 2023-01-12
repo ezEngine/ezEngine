@@ -61,9 +61,19 @@ JPH::Vec3 ezJoltCustomShapeInfo::GetSurfaceNormal(const SubShapeID& inSubShapeID
   return mInnerShape->GetSurfaceNormal(inSubShapeID, inLocalSurfacePosition);
 }
 
-void ezJoltCustomShapeInfo::GetSubmergedVolume(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const Plane& inSurface, float& outTotalVolume, float& outSubmergedVolume, Vec3& outCenterOfBuoyancy) const
+void ezJoltCustomShapeInfo::GetSubmergedVolume(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const Plane& inSurface, float& outTotalVolume, float& outSubmergedVolume, Vec3& outCenterOfBuoyancy
+#ifdef JPH_DEBUG_RENDERER // Not using JPH_IF_DEBUG_RENDERER for Doxygen
+  ,
+  JPH::RVec3Arg inBaseOffset
+#endif
+) const
 {
-  mInnerShape->GetSubmergedVolume(inCenterOfMassTransform, inScale, inSurface, outTotalVolume, outSubmergedVolume, outCenterOfBuoyancy);
+  mInnerShape->GetSubmergedVolume(inCenterOfMassTransform, inScale, inSurface, outTotalVolume, outSubmergedVolume, outCenterOfBuoyancy
+#ifdef JPH_DEBUG_RENDERER // Not using JPH_IF_DEBUG_RENDERER for Doxygen
+    ,
+    inBaseOffset
+#endif
+  );
 }
 
 void ezJoltCustomShapeInfo::Draw(DebugRenderer* inRenderer, Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, ColorArg inColor, bool inUseMaterialColors, bool inDrawWireframe) const
@@ -104,7 +114,8 @@ float ezJoltCustomShapeInfo::GetVolume() const
 void ezJoltCustomShapeInfo::sRegister()
 {
   ShapeFunctions& f = ShapeFunctions::sGet(EShapeSubType::User1);
-  f.mConstruct = []() -> Shape* { return new ezJoltCustomShapeInfo; };
+  f.mConstruct = []() -> Shape*
+  { return new ezJoltCustomShapeInfo; };
   f.mColor = Color::sCyan;
 
   for (EShapeSubType s : sAllSubShapeTypes)

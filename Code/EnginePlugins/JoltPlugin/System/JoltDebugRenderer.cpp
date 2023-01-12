@@ -27,7 +27,7 @@ ezJoltDebugRenderer::ezJoltDebugRenderer()
   Initialize();
 }
 
-void ezJoltDebugRenderer::DrawLine(const JPH::Float3& inFrom, const JPH::Float3& inTo, JPH::ColorArg inColor)
+void ezJoltDebugRenderer::DrawLine(JPH::RVec3Arg inFrom, JPH::RVec3Arg inTo, JPH::ColorArg inColor)
 {
   auto& l = m_Lines.ExpandAndGetRef();
   l.m_start = ezJoltConversionUtils::ToVec3(inFrom);

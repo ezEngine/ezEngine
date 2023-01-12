@@ -158,7 +158,7 @@ ezResult ezJoltCharacterControllerComponent::TryChangeShape(JPH::Shape* pNewShap
 
   ezJoltWorldModule* pModule = GetWorld()->GetModule<ezJoltWorldModule>();
 
-  if (m_pCharacter->SetShape(pNewShape, 0.01f, broadphaseFilter, objectFilter, m_BodyFilter, *pModule->GetTempAllocator()))
+  if (m_pCharacter->SetShape(pNewShape, 0.01f, broadphaseFilter, objectFilter, m_BodyFilter, {}, *pModule->GetTempAllocator()))
   {
     RemovePresenceBody();
     CreatePresenceBody();
@@ -181,10 +181,10 @@ void ezJoltCharacterControllerComponent::RawMoveWithVelocity(const ezVec3& vVelo
   // Settings for our update function
   JPH::CharacterVirtual::ExtendedUpdateSettings updateSettings;
   updateSettings.mStickToFloorStepDown = JPH::Vec3(0, 0, -fMaxStepDown);
-  updateSettings.mWalkStairsStepUp = fMaxStairStepUp > 0? JPH::Vec3(0, 0, fMaxStairStepUp) : JPH::Vec3::sZero();
+  updateSettings.mWalkStairsStepUp = fMaxStairStepUp > 0 ? JPH::Vec3(0, 0, fMaxStairStepUp) : JPH::Vec3::sZero();
 
   // Update the character position
-  m_pCharacter->ExtendedUpdate(GetUpdateTimeDelta(), ezJoltConversionUtils::ToVec3(pModule->GetCharacterGravity()), updateSettings, broadphaseFilter, objectFilter, m_BodyFilter, *pModule->GetTempAllocator());
+  m_pCharacter->ExtendedUpdate(GetUpdateTimeDelta(), ezJoltConversionUtils::ToVec3(pModule->GetCharacterGravity()), updateSettings, broadphaseFilter, objectFilter, m_BodyFilter, {}, *pModule->GetTempAllocator());
 
   GetOwner()->SetGlobalPosition(ezJoltConversionUtils::ToSimdVec3(m_pCharacter->GetPosition()));
 }
@@ -281,21 +281,20 @@ void ezJoltCharacterControllerComponent::TeleportToPosition(const ezVec3& vGloba
 
   ezJoltWorldModule* pModule = GetWorld()->GetModule<ezJoltWorldModule>();
 
-  m_pCharacter->RefreshContacts(broadphaseFilter, objectFilter, m_BodyFilter, *pModule->GetTempAllocator());
+  m_pCharacter->RefreshContacts(broadphaseFilter, objectFilter, m_BodyFilter, {}, *pModule->GetTempAllocator());
 }
 
 bool ezJoltCharacterControllerComponent::StickToGround(float fMaxDist)
 {
-  if (m_pCharacter->GetGroundState() != JPH::CharacterBase::EGroundState::InAir 
-    || m_pCharacter->GetGroundState() != JPH::CharacterBase::EGroundState::NotSupported) 
+  if (m_pCharacter->GetGroundState() != JPH::CharacterBase::EGroundState::InAir || m_pCharacter->GetGroundState() != JPH::CharacterBase::EGroundState::NotSupported)
     return false;
-  
+
   ezJoltBroadPhaseLayerFilter broadphaseFilter(ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic);
   ezJoltObjectLayerFilter objectFilter(m_uiCollisionLayer);
 
   ezJoltWorldModule* pModule = GetWorld()->GetModule<ezJoltWorldModule>();
 
-  return m_pCharacter->StickToFloor(JPH::Vec3(0, 0, -fMaxDist), broadphaseFilter, objectFilter, m_BodyFilter, *pModule->GetTempAllocator());
+  return m_pCharacter->StickToFloor(JPH::Vec3(0, 0, -fMaxDist), broadphaseFilter, objectFilter, m_BodyFilter, {}, *pModule->GetTempAllocator());
 }
 
 void ezJoltCharacterControllerComponent::CollectCastContacts(ezDynamicArray<ContactPoint>& out_Contacts, const JPH::Shape* pShape, const ezVec3& vQueryPosition, const ezQuat& qQueryRotation, const ezVec3& vSweepDir) const
@@ -334,10 +333,10 @@ void ezJoltCharacterControllerComponent::CollectCastContacts(ezDynamicArray<Cont
 
   const JPH::Mat44 trans = JPH::Mat44::sRotationTranslation(ezJoltConversionUtils::ToQuat(qQueryRotation), ezJoltConversionUtils::ToVec3(vQueryPosition));
 
-  JPH::ShapeCast castOpt(pShape, JPH::Vec3::sReplicate(1.0f), trans, ezJoltConversionUtils::ToVec3(vSweepDir));
+  JPH::RShapeCast castOpt(pShape, JPH::Vec3::sReplicate(1.0f), trans, ezJoltConversionUtils::ToVec3(vSweepDir));
 
   JPH::ShapeCastSettings settings;
-  pJoltSystem->GetNarrowPhaseQuery().CastShape(castOpt, settings, collector, broadphaseFilter, objectFilter, m_BodyFilter);
+  pJoltSystem->GetNarrowPhaseQuery().CastShape(castOpt, settings, JPH::RVec3::sZero(), collector, broadphaseFilter, objectFilter, m_BodyFilter);
 }
 
 void ezJoltCharacterControllerComponent::CollectContacts(ezDynamicArray<ContactPoint>& out_Contacts, const JPH::Shape* pShape, const ezVec3& vQueryPosition, const ezQuat& qQueryRotation, float fCollisionTolerance) const
@@ -379,7 +378,7 @@ void ezJoltCharacterControllerComponent::CollectContacts(ezDynamicArray<ContactP
   settings.mCollisionTolerance = fCollisionTolerance;
   settings.mBackFaceMode = JPH::EBackFaceMode::CollideWithBackFaces;
 
-  pJoltSystem->GetNarrowPhaseQuery().CollideShape(pShape, JPH::Vec3::sReplicate(1.0f), trans, settings, collector, broadphaseFilter, objectFilter, m_BodyFilter);
+  pJoltSystem->GetNarrowPhaseQuery().CollideShape(pShape, JPH::Vec3::sReplicate(1.0f), trans, settings, JPH::RVec3::sZero(), collector, broadphaseFilter, objectFilter, m_BodyFilter);
 }
 
 ezVec3 ezJoltCharacterControllerComponent::GetContactVelocityAndPushAway(const ContactPoint& contact, float fPushForce)
