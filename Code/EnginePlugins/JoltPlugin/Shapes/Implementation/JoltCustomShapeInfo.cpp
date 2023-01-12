@@ -114,8 +114,7 @@ float ezJoltCustomShapeInfo::GetVolume() const
 void ezJoltCustomShapeInfo::sRegister()
 {
   ShapeFunctions& f = ShapeFunctions::sGet(EShapeSubType::User1);
-  f.mConstruct = []() -> Shape*
-  { return new ezJoltCustomShapeInfo; };
+  f.mConstruct = []() -> Shape* { return new ezJoltCustomShapeInfo; };
   f.mColor = Color::sCyan;
 
   for (EShapeSubType s : sAllSubShapeTypes)
