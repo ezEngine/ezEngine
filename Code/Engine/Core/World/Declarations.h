@@ -9,7 +9,7 @@
 #include <Core/CoreDLL.h>
 
 #ifndef EZ_WORLD_INDEX_BITS
-#define EZ_WORLD_INDEX_BITS 8
+#  define EZ_WORLD_INDEX_BITS 8
 #endif
 
 #define EZ_MAX_WORLDS (1 << EZ_WORLD_INDEX_BITS)
@@ -186,6 +186,7 @@ struct ezObjectFlags
     ChildChangesNotifications = EZ_BIT(9),            ///< The object should send a notification message when children are added or removed.
     ComponentChangesNotifications = EZ_BIT(10),       ///< The object should send a notification message when components are added or removed.
     StaticTransformChangesNotifications = EZ_BIT(11), ///< The object should send a notification message if it is static and its transform changes.
+    ParentChangesNotifications = EZ_BIT(12),          ///< The object should send a notification message when the parent is changes.
 
     UserFlag0 = EZ_BIT(24),
     UserFlag1 = EZ_BIT(25),
@@ -213,8 +214,9 @@ struct ezObjectFlags
     StorageType ChildChangesNotifications : 1;           //< 9
     StorageType ComponentChangesNotifications : 1;       //< 10
     StorageType StaticTransformChangesNotifications : 1; //< 11
+    StorageType ParentChangesNotifications : 1;          //< 12
 
-    StorageType Padding : 12; // 12 - 23
+    StorageType Padding : 11; // 13 - 23
 
     StorageType UserFlag0 : 1; //< 24
     StorageType UserFlag1 : 1; //< 25

@@ -16,4 +16,6 @@ public:
   static void ApplyAllModifiers(ezWorld& world, const ezUuid& documentGuid);
 
   virtual void ModifyWorld(ezWorld& world, const ezUuid& documentGuid) = 0;
+
+  static void CleanUpWorld(ezWorld& world);
 };

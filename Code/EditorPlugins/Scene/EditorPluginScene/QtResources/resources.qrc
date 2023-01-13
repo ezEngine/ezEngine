@@ -87,6 +87,7 @@
     <file>ezForwardEventsToGameStateComponent.png</file>
 	<file>ezCommentComponent.png</file>
 	<file>ezCameraShakeVolumeSphereComponent.png</file>
+	<file>ezPathNodeComponent.png</file>
   </qresource>
   <qresource prefix="GroupIcons">
     <file>Size.png</file>

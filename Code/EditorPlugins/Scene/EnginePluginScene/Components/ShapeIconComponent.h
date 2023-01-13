@@ -30,3 +30,13 @@ class EZ_ENGINEPLUGINSCENE_DLL ezSceneExportModifier_RemoveShapeIconComponents :
 public:
   virtual void ModifyWorld(ezWorld& world, const ezUuid& documentGuid) override;
 };
+
+//////////////////////////////////////////////////////////////////////////
+
+class EZ_ENGINEPLUGINSCENE_DLL ezSceneExportModifier_RemovePathNodeComponents : public ezSceneExportModifier
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezSceneExportModifier_RemovePathNodeComponents, ezSceneExportModifier);
+
+public:
+  virtual void ModifyWorld(ezWorld& world, const ezUuid& documentGuid) override;
+};

@@ -819,6 +819,10 @@ ezGameObjectHandle ezEngineProcessDocumentContext::ResolveStringToGameObjectHand
     EZ_ASSERT_DEV(ezStringUtils::IsNullOrEmpty(szTargetGuid), "Expected GUID references");
   }
 
+  if (ezStringUtils::IsNullOrEmpty(szComponentProperty))
+  {
+    return m_Context.m_GameObjectMap.GetHandle(newTargetGuid);
+  }
 
   // overview for the steps below:
   //

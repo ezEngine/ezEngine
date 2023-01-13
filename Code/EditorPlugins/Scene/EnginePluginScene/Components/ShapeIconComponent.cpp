@@ -1,6 +1,7 @@
 #include <EnginePluginScene/EnginePluginScenePCH.h>
 
 #include <EnginePluginScene/Components/ShapeIconComponent.h>
+#include <RendererCore/Components/PathComponent.h>
 
 // clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezShapeIconComponent, 1, ezComponentMode::Static)
@@ -29,6 +30,35 @@ void ezSceneExportModifier_RemoveShapeIconComponents::ModifyWorld(ezWorld& world
   EZ_LOCK(world.GetWriteMarker());
 
   if (ezShapeIconComponentManager* pSiMan = world.GetComponentManager<ezShapeIconComponentManager>())
+  {
+    for (auto it = pSiMan->GetComponents(); it.IsValid(); it.Next())
+    {
+      pSiMan->DeleteComponent(it->GetHandle());
+    }
+  }
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneExportModifier_RemovePathNodeComponents, 1, ezRTTIDefaultAllocator<ezSceneExportModifier_RemovePathNodeComponents>)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+void ezSceneExportModifier_RemovePathNodeComponents::ModifyWorld(ezWorld& world, const ezUuid& documentGuid)
+{
+  EZ_LOCK(world.GetWriteMarker());
+
+  if (ezPathComponentManager* pSiMan = world.GetComponentManager<ezPathComponentManager>())
+  {
+    for (auto it = pSiMan->GetComponents(); it.IsValid(); it.Next())
+    {
+      it->UpdatePath();
+    }
+  }
+
+  if (ezPathNodeComponentManager* pSiMan = world.GetComponentManager<ezPathNodeComponentManager>())
   {
     for (auto it = pSiMan->GetComponents(); it.IsValid(); it.Next())
     {

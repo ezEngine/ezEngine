@@ -47,4 +47,45 @@ void ezSceneExportModifier::ApplyAllModifiers(ezWorld& world, const ezUuid& docu
   }
 
   DestroyModifiers(modifiers);
+
+  CleanUpWorld(world);
+}
+
+void VisitObject(ezWorld& world, ezGameObject* pObject)
+{
+  for (auto it = pObject->GetChildren(); it.IsValid(); it.Next())
+  {
+    VisitObject(world, it);
+  }
+
+  if (pObject->GetChildCount() > 0)
+    return;
+
+  if (!pObject->GetComponents().IsEmpty())
+    return;
+
+  if (!ezStringUtils::IsNullOrEmpty(pObject->GetName()))
+    return;
+
+  if (!ezStringUtils::IsNullOrEmpty(pObject->GetGlobalKey()))
+    return;
+
+  world.DeleteObjectDelayed(pObject->GetHandle(), false);
+}
+
+void ezSceneExportModifier::CleanUpWorld(ezWorld& world)
+{
+  EZ_LOCK(world.GetWriteMarker());
+
+  for (auto it = world.GetObjects(); it.IsValid(); it.Next())
+  {
+    // only visit objects without parents, those are the root objects
+    if (it->GetParent() != nullptr)
+      continue;
+
+    VisitObject(world, it);
+  }
+
+  world.SetWorldSimulationEnabled(false);
+  world.Update();
 }
