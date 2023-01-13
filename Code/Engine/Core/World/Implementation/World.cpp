@@ -657,6 +657,15 @@ void ezWorld::LinkToParent(ezGameObject* pObject)
 
     pObject->m_pTransformationData->m_pParentData = pParentObject->m_pTransformationData;
 
+    if (pObject->m_Flags.IsSet(ezObjectFlags::ParentChangesNotifications))
+    {
+      ezMsgParentChanged msg;
+      msg.m_Type = ezMsgParentChanged::Type::ParentLinked;
+      msg.m_hParent = pParentObject->GetHandle();
+
+      pObject->SendMessage(msg);
+    }
+
     if (pParentObject->m_Flags.IsSet(ezObjectFlags::ChildChangesNotifications))
     {
       ezMsgChildrenChanged msg;
@@ -673,6 +682,15 @@ void ezWorld::UnlinkFromParent(ezGameObject* pObject)
 {
   if (ezGameObject* pParentObject = pObject->GetParent())
   {
+    if (pObject->m_Flags.IsSet(ezObjectFlags::ParentChangesNotifications))
+    {
+      ezMsgParentChanged msg;
+      msg.m_Type = ezMsgParentChanged::Type::ParentUnlinked;
+      msg.m_hParent = pParentObject->GetHandle();
+
+      pObject->SendMessage(msg);
+    }
+
     const ezUInt32 uiIndex = pObject->m_InternalId.m_InstanceIndex;
 
     if (uiIndex == pParentObject->m_uiFirstChildIndex)

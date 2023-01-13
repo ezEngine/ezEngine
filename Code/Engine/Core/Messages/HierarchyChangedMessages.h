@@ -3,6 +3,20 @@
 #include <Core/World/Declarations.h>
 #include <Foundation/Communication/Message.h>
 
+struct EZ_CORE_DLL ezMsgParentChanged : public ezMessage
+{
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgParentChanged, ezMessage);
+
+  enum class Type
+  {
+    ParentLinked,
+    ParentUnlinked,
+  };
+
+  Type m_Type;
+  ezGameObjectHandle m_hParent; // previous or new parent, depending on m_Type
+};
+
 struct EZ_CORE_DLL ezMsgChildrenChanged : public ezMessage
 {
   EZ_DECLARE_MESSAGE_TYPE(ezMsgChildrenChanged, ezMessage);

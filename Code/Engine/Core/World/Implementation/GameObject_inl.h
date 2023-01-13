@@ -123,6 +123,16 @@ EZ_ALWAYS_INLINE void ezGameObject::DisableChildChangesNotifications()
   m_Flags.Remove(ezObjectFlags::ChildChangesNotifications);
 }
 
+EZ_ALWAYS_INLINE void ezGameObject::EnableParentChangesNotifications()
+{
+  m_Flags.Add(ezObjectFlags::ParentChangesNotifications);
+}
+
+EZ_ALWAYS_INLINE void ezGameObject::DisableParentChangesNotifications()
+{
+  m_Flags.Remove(ezObjectFlags::ParentChangesNotifications);
+}
+
 EZ_ALWAYS_INLINE void ezGameObject::AddChildren(const ezArrayPtr<const ezGameObjectHandle>& children, ezGameObject::TransformPreservation preserve)
 {
   for (ezUInt32 i = 0; i < children.GetCount(); ++i)

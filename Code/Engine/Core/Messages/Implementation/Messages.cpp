@@ -71,6 +71,12 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 //////////////////////////////////////////////////////////////////////////
 
+EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgParentChanged);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgParentChanged, 1, ezRTTIDefaultAllocator<ezMsgParentChanged>)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+//////////////////////////////////////////////////////////////////////////
+
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgChildrenChanged);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgChildrenChanged, 1, ezRTTIDefaultAllocator<ezMsgChildrenChanged>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
