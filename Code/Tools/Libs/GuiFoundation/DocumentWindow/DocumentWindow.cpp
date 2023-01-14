@@ -103,6 +103,8 @@ void ezQtDocumentWindow::SetVisibleInContainer(bool bVisible)
   {
     // if the window is now visible, immediately do a redraw and trigger the timers
     SlotRedraw();
+    // Make sure the window gains focus as well when it becomes visible so that shortcuts will immediately work.
+    setFocus();
   }
 }
 
