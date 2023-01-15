@@ -101,6 +101,7 @@ export class MsgComponentInternalTrigger extends Message
   public static GetTypeNameHash(): number { return 2150357888; }
   constructor() { super(); this.TypeNameHash = 2150357888; }
   Message: string;
+  Payload: number = 0;
 }
 
 export class MsgComponentsChanged extends Message
@@ -129,6 +130,12 @@ export class MsgExtractGeometry extends Message
 {
   public static GetTypeNameHash(): number { return 2851303219; }
   constructor() { super(); this.TypeNameHash = 2851303219; }
+}
+
+export class MsgExtractOccluderData extends Message
+{
+  public static GetTypeNameHash(): number { return 3924382644; }
+  constructor() { super(); this.TypeNameHash = 3924382644; }
 }
 
 export class MsgExtractRenderData extends Message
