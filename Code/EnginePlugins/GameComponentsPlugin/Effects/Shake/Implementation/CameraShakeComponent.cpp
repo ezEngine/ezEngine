@@ -70,7 +70,7 @@ void ezCameraShakeComponent::GenerateKeyframe()
 
   if (deviation > ezAngle())
   {
-    m_Rotation += ezAngle::Radian(pWorld->GetRandomNumberGenerator().DoubleMinMax(ezAngle::Degree(120).GetRadian(), ezAngle::Degree(240).GetRadian()));
+    m_Rotation += ezAngle::Radian(pWorld->GetRandomNumberGenerator().FloatMinMax(ezAngle::Degree(120).GetRadian(), ezAngle::Degree(240).GetRadian()));
     m_Rotation.NormalizeRange();
 
     ezQuat qRot;
