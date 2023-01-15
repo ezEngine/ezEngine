@@ -2,7 +2,7 @@
  * Default style sheet on Windows Platforms with focus highlighting flag enabled
  */
 ads--CDockContainerWidget {
-	background: palette(dark);
+	background: palette(window);
 }
 ads--CDockContainerWidget > QSplitter{
         padding: 1 0 1 0;
@@ -10,7 +10,7 @@ ads--CDockContainerWidget > QSplitter{
 
 ads--CDockAreaWidget {
 	background: palette(window);
-	border: 1px solid white;
+	border: 1px solid black;
 }
 
 ads--CDockWidgetTab {
@@ -19,7 +19,6 @@ ads--CDockWidgetTab {
 	border-style: solid;
 	border-width: 0 1px 0 0;
 	padding: 0 0px;
-	qproperty-iconSize: 16px 16px;/* this is optional in case you would like to change icon size*/
 }
 
 ads--CDockWidgetTab[activeTab="true"] {
@@ -29,7 +28,7 @@ ads--CDockWidgetTab[activeTab="true"] {
 }
 
 ads--CDockWidgetTab QLabel {
-	color: palette(dark);
+	color: palette(foreground);
 }
 
 ads--CDockWidgetTab[activeTab="true"] QLabel {
@@ -37,8 +36,8 @@ ads--CDockWidgetTab[activeTab="true"] QLabel {
 }
 
 ads--CDockWidget {
-	background: palette(light);
-	border-color: palette(light);
+	background: palette(dark);
+	border-color: palette(dark);
 	border-style: solid;
 	border-width: 1px 0 0 0;
 }
@@ -67,12 +66,12 @@ QScrollArea#dockWidgetScrollArea {
 }
 
 #tabCloseButton:hover {
-	/*border: 1px solid rgba(0, 0, 0, 32);*/
-	background: rgba(0, 0, 0, 24);
+	border: 1px solid rgba(0, 0, 0, 32);
+	background: rgba(0, 0, 0, 16);
 }
 
 #tabCloseButton:pressed {
-	background: rgba(0, 0, 0, 48);
+	background: rgba(0, 0, 0, 32);
 }
 
 #dockAreaCloseButton {
@@ -88,7 +87,7 @@ QScrollArea#dockWidgetScrollArea {
 }
 
 ads--CDockSplitter::handle {
-	background-color: palette(dark);
+	background-color: palette(window);
 	/* uncomment the following line if you would like to change the size of
        the splitter handles */
 	/* height: 1px; */
@@ -113,7 +112,7 @@ ads--CDockWidgetTab[focused="true"]>#tabCloseButton:pressed {
 }
 
 ads--CDockWidgetTab[focused="true"] QLabel {
-	color: palette(light);
+	color: palette(dark);
 }
 
 ads--CDockAreaTitleBar {
