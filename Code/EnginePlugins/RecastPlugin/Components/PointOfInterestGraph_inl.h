@@ -34,8 +34,7 @@ void ezPointOfInterestGraph<POINTTYPE>::FindPointsOfInterest(const ezVec3& posit
   Data data;
   data.m_pResults = &out_Points;
 
-  auto cb = [](void* pPassThrough, ezDynamicTreeObjectConst Object) -> bool
-  {
+  auto cb = [](void* pPassThrough, ezDynamicTreeObjectConst Object) -> bool {
     auto pData = static_cast<Data*>(pPassThrough);
 
     const ezUInt32 id = (ezUInt32)Object.Value().m_iObjectInstance;
