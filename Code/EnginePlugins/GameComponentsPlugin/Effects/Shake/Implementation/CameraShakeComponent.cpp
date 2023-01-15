@@ -1,0 +1,138 @@
+#include <GameComponentsPlugin/GameComponentsPCH.h>
+
+#include <Core/WorldSerializer/WorldReader.h>
+#include <Core/WorldSerializer/WorldWriter.h>
+#include <GameComponentsPlugin/Effects/Shake/CameraShakeComponent.h>
+#include <GameComponentsPlugin/Effects/Shake/CameraShakeVolumeComponent.h>
+
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_COMPONENT_TYPE(ezCameraShakeComponent, 1, ezComponentMode::Dynamic)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("MinShake", m_MinShake),
+    EZ_MEMBER_PROPERTY("MaxShake", m_MaxShake)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(5))),
+  }
+  EZ_END_PROPERTIES;
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("Effects/CameraShake"),
+  }
+  EZ_END_ATTRIBUTES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+ezCameraShakeComponent::ezCameraShakeComponent() = default;
+ezCameraShakeComponent::~ezCameraShakeComponent() = default;
+
+void ezCameraShakeComponent::Update()
+{
+  const ezTime tDuration = ezTime::Seconds(1.0 / 30.0); // 30 Hz vibration seems to work well
+
+  const ezTime tNow = ezTime::Now();
+
+  if (tNow >= m_ReferenceTime + tDuration)
+  {
+    GetOwner()->SetLocalRotation(m_qNextTarget);
+    GenerateKeyframe();
+  }
+  else
+  {
+    const float fLerp = ezMath::Clamp((tNow - m_ReferenceTime).AsFloatInSeconds() / tDuration.AsFloatInSeconds(), 0.0f, 1.0f);
+
+    ezQuat q;
+    q.SetSlerp(m_qPrevTarget, m_qNextTarget, fLerp);
+
+    GetOwner()->SetLocalRotation(q);
+  }
+}
+
+void ezCameraShakeComponent::GenerateKeyframe()
+{
+  m_qPrevTarget = m_qNextTarget;
+
+  m_ReferenceTime = ezTime::Now();
+
+  ezWorld* pWorld = GetWorld();
+
+  // fade out shaking over a second, if the vibration stopped
+  m_fLastStrength -= pWorld->GetClock().GetTimeDiff().AsFloatInSeconds();
+
+  const float fShake = ezMath::Clamp(GetStrengthAtPosition(), 0.0f, 1.0f);
+
+  m_fLastStrength = ezMath::Max(m_fLastStrength, fShake);
+
+  ezAngle deviation;
+  deviation = ezMath::Lerp(m_MinShake, m_MaxShake, m_fLastStrength);
+
+  if (deviation > ezAngle())
+  {
+    m_Rotation += ezAngle::Radian(pWorld->GetRandomNumberGenerator().DoubleMinMax(ezAngle::Degree(120).GetRadian(), ezAngle::Degree(240).GetRadian()));
+    m_Rotation.NormalizeRange();
+
+    ezQuat qRot;
+    qRot.SetFromAxisAndAngle(ezVec3::UnitXAxis(), m_Rotation);
+
+    const ezVec3 tiltAxis = qRot * ezVec3::UnitZAxis();
+
+    m_qNextTarget.SetFromAxisAndAngle(tiltAxis, deviation);
+  }
+  else
+  {
+    m_qNextTarget.SetIdentity();
+  }
+}
+
+float ezCameraShakeComponent::GetStrengthAtPosition() const
+{
+  float force = 0;
+
+  if (auto pSpatial = GetWorld()->GetSpatialSystem())
+  {
+    const ezVec3 vPosition = GetOwner()->GetGlobalPosition();
+
+    ezHybridArray<ezGameObject*, 16> volumes;
+
+    ezSpatialSystem::QueryParams queryParams;
+    queryParams.m_uiCategoryBitmask = ezCameraShakeVolumeComponent::SpatialDataCategory.GetBitmask();
+
+    pSpatial->FindObjectsInSphere(ezBoundingSphere(vPosition, 0.5f), queryParams, volumes);
+
+    const ezSimdVec4f pos = ezSimdConversion::ToVec3(vPosition);
+
+    for (ezGameObject* pObj : volumes)
+    {
+      ezCameraShakeVolumeComponent* pVol;
+      if (pObj->TryGetComponentOfBaseType(pVol))
+      {
+        force = ezMath::Max(force, pVol->ComputeForceAtGlobalPosition(pos));
+      }
+    }
+  }
+
+  return force;
+}
+
+void ezCameraShakeComponent::SerializeComponent(ezWorldWriter& stream) const
+{
+  SUPER::SerializeComponent(stream);
+
+  auto& s = stream.GetStream();
+
+  s << m_MinShake;
+  s << m_MaxShake;
+}
+
+void ezCameraShakeComponent::DeserializeComponent(ezWorldReader& stream)
+{
+  SUPER::DeserializeComponent(stream);
+  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+
+  auto& s = stream.GetStream();
+
+  s >> m_MinShake;
+  s >> m_MaxShake;
+}

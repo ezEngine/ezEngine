@@ -2,9 +2,9 @@
 
 #include <Core/World/Component.h>
 #include <Core/World/World.h>
-#include <GameEngine/AI/AgentSteeringComponent.h>
 #include <Recast/DetourNavMeshQuery.h>
 #include <Recast/DetourPathCorridor.h>
+#include <RecastPlugin/Components/AgentSteeringComponent.h>
 #include <RecastPlugin/Components/RecastNavMeshComponent.h>
 #include <RecastPlugin/NavMeshBuilder/NavMeshBuilder.h>
 #include <RecastPlugin/RecastPluginDLL.h>
