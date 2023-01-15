@@ -5,6 +5,11 @@ Plugin
 }
 Plugin
 {
+	string %Path{"ezGameComponentsPlugin"}
+	bool %LoadCopy{false}
+}
+Plugin
+{
 	string %Path{"ezJoltPlugin"}
 	bool %LoadCopy{false}
 }
