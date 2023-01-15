@@ -135,8 +135,7 @@ void ezPathComponent::UpdatePath()
 
   ezMap<ezGameObjectHandle, Targets> connections;
 
-  auto HookUp = [&](ezGameObjectHandle src, ezGameObjectHandle dst)
-  {
+  auto HookUp = [&](ezGameObjectHandle src, ezGameObjectHandle dst) {
     auto& data = connections[src];
 
     if (data.m_hT1 == dst || data.m_hT2 == dst)
