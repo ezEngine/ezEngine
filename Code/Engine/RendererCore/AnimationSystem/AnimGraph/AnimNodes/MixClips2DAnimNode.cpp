@@ -437,4 +437,3 @@ void ezMixClips2DAnimNode::PlayClips(ezAnimGraph& graph, ezTime tDiff, ezArrayPt
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_AnimNodes_MixClips2DAnimNode);
-

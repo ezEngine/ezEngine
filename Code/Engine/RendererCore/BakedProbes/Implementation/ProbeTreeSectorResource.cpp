@@ -133,4 +133,3 @@ ezResourceLoadDesc ezProbeTreeSectorResource::CreateResource(ezProbeTreeSectorRe
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_BakedProbes_Implementation_ProbeTreeSectorResource);
-

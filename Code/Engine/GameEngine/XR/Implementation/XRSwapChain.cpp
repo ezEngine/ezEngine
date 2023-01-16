@@ -36,4 +36,3 @@ ezGALSwapChainHandle ezGALXRSwapChain::Create(ezXRInterface* pXrInterface)
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_XR_Implementation_XRSwapChain);
-

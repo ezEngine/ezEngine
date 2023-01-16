@@ -136,4 +136,3 @@ void ezBakedProbesWorldModule::SetProbeTreeResourcePrefix(const ezHashedString& 
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_BakedProbes_Implementation_BakedProbesWorldModule);
-

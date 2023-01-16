@@ -481,4 +481,3 @@ ezResult ezExpressionCompiler::TransformASTPostOrder(ezExpressionAST& ast, Trans
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_CodeUtils_Expression_Implementation_ExpressionCompiler);
-

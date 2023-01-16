@@ -41,4 +41,3 @@ ezResult ezBakingSettings::Deserialize(ezStreamReader& stream)
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_BakedProbes_Implementation_BakingInterface);
-

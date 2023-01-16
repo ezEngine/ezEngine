@@ -229,4 +229,3 @@ void ezAnimGraphModelPoseOutputPin::SetPose(ezAnimGraph& graph, ezAnimGraphPinDa
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_Implementation_AnimGraphPins);
-

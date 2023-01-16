@@ -433,4 +433,3 @@ ezUInt32 ezStateMachineInstance::FindNewStateToTransitionTo()
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_StateMachine_Implementation_StateMachine);
-

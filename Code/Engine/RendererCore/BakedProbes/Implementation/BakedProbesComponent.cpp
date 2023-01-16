@@ -472,4 +472,3 @@ void ezBakedProbesComponent::OnObjectCreated(const ezAbstractObjectNode& node)
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_BakedProbes_Implementation_BakedProbesComponent);
-

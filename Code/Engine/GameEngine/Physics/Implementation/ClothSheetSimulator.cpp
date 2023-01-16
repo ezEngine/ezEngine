@@ -149,4 +149,3 @@ bool ezClothSimulator::HasEquilibrium(ezSimdFloat fAllowedMovement) const
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Physics_Implementation_ClothSheetSimulator);
-

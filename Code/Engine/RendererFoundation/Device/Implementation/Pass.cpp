@@ -73,4 +73,3 @@ ezGALPass::~ezGALPass() = default;
 
 
 EZ_STATICLINK_FILE(RendererFoundation, RendererFoundation_Device_Implementation_Pass);
-

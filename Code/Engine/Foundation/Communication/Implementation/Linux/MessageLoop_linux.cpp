@@ -169,4 +169,3 @@ void ezMessageLoop_linux::WakeUp()
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Communication_Implementation_Linux_MessageLoop_linux);
-

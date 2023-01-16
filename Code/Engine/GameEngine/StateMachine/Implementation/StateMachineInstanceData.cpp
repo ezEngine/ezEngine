@@ -78,4 +78,3 @@ namespace ezStateMachineInternal
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_StateMachine_Implementation_StateMachineInstanceData);
-

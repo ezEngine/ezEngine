@@ -386,4 +386,3 @@ void ezCustomMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewCont
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Meshes_Implementation_CustomMeshComponent);
-

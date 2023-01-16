@@ -179,4 +179,3 @@ void ezRopeSimulator::UpdateNodePositions(const ezSimdFloat tDiffSqr)
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Physics_Implementation_RopeSimulator);
-

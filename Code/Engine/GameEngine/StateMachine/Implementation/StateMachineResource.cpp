@@ -83,4 +83,3 @@ void ezStateMachineResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_StateMachine_Implementation_StateMachineResource);
-

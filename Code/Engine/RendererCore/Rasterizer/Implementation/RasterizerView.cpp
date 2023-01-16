@@ -225,4 +225,3 @@ void ezRasterizerViewPool::ReturnRasterizerView(ezRasterizerView* pView)
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Rasterizer_Implementation_RasterizerView);
-

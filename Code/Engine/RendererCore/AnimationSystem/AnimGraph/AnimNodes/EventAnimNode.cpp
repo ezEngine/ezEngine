@@ -68,4 +68,3 @@ void ezEventAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeletonRes
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_AnimNodes_EventAnimNode);
-

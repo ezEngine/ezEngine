@@ -10,4 +10,3 @@ bool ezReflectedClass::IsInstanceOf(const ezRTTI* pType) const
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Reflection_Implementation_DynamicRTTI);
-

@@ -194,4 +194,3 @@ ezIntervalSchedulerBase::DataMap::Iterator ezIntervalSchedulerBase::InsertData(D
 
 
 EZ_STATICLINK_FILE(Core, Core_Utils_Implementation_IntervalScheduler);
-

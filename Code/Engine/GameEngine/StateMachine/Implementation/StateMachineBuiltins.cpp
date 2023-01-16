@@ -446,4 +446,3 @@ bool ezStateMachineTransition_Compound::GetInstanceDataDesc(ezStateMachineInstan
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_StateMachine_Implementation_StateMachineBuiltins);
-

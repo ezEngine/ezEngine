@@ -19,4 +19,3 @@ void ezStreamUtils::ReadAllAndAppend(ezStreamReader& stream, ezDynamicArray<ezUI
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_StreamUtils);
-

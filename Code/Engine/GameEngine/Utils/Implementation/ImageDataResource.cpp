@@ -148,4 +148,3 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezImageDataResource, ezImageDataResourceDescrip
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Utils_Implementation_ImageDataResource);
-

@@ -284,4 +284,3 @@ void ezMixClips1DAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkelet
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_AnimNodes_MixClips1DAnimNode);
-

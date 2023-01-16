@@ -330,4 +330,3 @@ ezResult ezAnimState::Deserialize(ezStreamReader& stream)
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_Implementation_AnimGraphNode);
-

@@ -106,4 +106,3 @@ ezUInt32 ezTypeVersionReadContext::GetTypeVersion(const ezRTTI* pRtti) const
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_TypeVersionContext);
-

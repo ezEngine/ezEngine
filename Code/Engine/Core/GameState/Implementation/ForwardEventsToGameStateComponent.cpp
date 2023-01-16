@@ -60,4 +60,3 @@ void ezForwardEventsToGameStateComponent::Initialize()
 
 
 EZ_STATICLINK_FILE(Core, Core_GameState_Implementation_ForwardEventsToGameStateComponent);
-

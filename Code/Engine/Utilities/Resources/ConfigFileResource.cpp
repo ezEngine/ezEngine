@@ -369,4 +369,3 @@ bool ezConfigFileResourceLoader::IsResourceOutdated(const ezResource* pResource)
 
 
 EZ_STATICLINK_FILE(Utilities, Utilities_Resources_ConfigFileResource);
-

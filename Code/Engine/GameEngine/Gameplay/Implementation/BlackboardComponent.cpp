@@ -356,4 +356,3 @@ void ezBlackboardComponent::OnEntryChanged(const ezBlackboard::EntryEvent& e)
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Gameplay_Implementation_BlackboardComponent);
-

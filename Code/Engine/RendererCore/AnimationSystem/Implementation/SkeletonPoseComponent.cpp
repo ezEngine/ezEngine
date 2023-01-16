@@ -381,4 +381,3 @@ void ezSkeletonPoseComponentManager::Initialize()
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_Implementation_SkeletonPoseComponent);
-

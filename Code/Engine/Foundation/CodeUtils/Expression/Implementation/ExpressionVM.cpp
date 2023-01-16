@@ -462,4 +462,3 @@ void ezExpressionVM::ValidateDataSize(const ezProcessingStream& stream, ezUInt32
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_CodeUtils_Expression_Implementation_ExpressionVM);
-

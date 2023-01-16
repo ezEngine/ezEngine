@@ -90,4 +90,3 @@ void ezModelPoseOutputAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezS
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_AnimNodes_ModelPoseOutputAnimNode);
-

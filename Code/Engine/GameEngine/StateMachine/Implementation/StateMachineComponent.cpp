@@ -447,4 +447,3 @@ void ezStateMachineComponent::Update()
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_StateMachine_Implementation_StateMachineComponent);
-
