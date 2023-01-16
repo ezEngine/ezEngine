@@ -843,14 +843,14 @@ bool ezGameObject::SendMessageRecursiveInternal(ezMessage& msg, bool bWasPostedM
   }
 
   // should only be evaluated at the top function call
-  //#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+  // #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   //  if (!bSentToAny && msg.GetDebugMessageRouting())
   //  {
   //    ezLog::Warning("ezGameObject::SendMessageRecursive: None of the target object's components had a handler for messages of type {0}.",
   //    msg.GetId());
   //  }
-  //#endif
-  //#
+  // #endif
+  // #
   return bSentToAny;
 }
 
@@ -874,14 +874,14 @@ bool ezGameObject::SendMessageRecursiveInternal(ezMessage& msg, bool bWasPostedM
   }
 
   // should only be evaluated at the top function call
-  //#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+  // #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   //  if (!bSentToAny && msg.GetDebugMessageRouting())
   //  {
   //    ezLog::Warning("ezGameObject::SendMessageRecursive(const): None of the target object's components had a handler for messages of type
   //    {0}.", msg.GetId());
   //  }
-  //#endif
-  //#
+  // #endif
+  // #
   return bSentToAny;
 }
 
@@ -904,6 +904,16 @@ void ezGameObject::SendEventMessage(ezMessage& msg, const ezComponent* pSenderCo
 
   ezHybridArray<ezComponent*, 4> eventMsgHandlers;
   GetWorld()->FindEventMsgHandlers(msg, this, eventMsgHandlers);
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+  if (msg.GetDebugMessageRouting())
+  {
+    if (eventMsgHandlers.IsEmpty())
+    {
+      ezLog::Warning("ezGameObject::SendEventMessage: None of the target object's components had a handler for messages of type {0}.", msg.GetId());
+    }
+  }
+#endif
 
   for (auto pEventMsgHandler : eventMsgHandlers)
   {

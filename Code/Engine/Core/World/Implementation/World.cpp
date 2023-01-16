@@ -657,6 +657,15 @@ void ezWorld::LinkToParent(ezGameObject* pObject)
 
     pObject->m_pTransformationData->m_pParentData = pParentObject->m_pTransformationData;
 
+    if (pObject->m_Flags.IsSet(ezObjectFlags::ParentChangesNotifications))
+    {
+      ezMsgParentChanged msg;
+      msg.m_Type = ezMsgParentChanged::Type::ParentLinked;
+      msg.m_hParent = pParentObject->GetHandle();
+
+      pObject->SendMessage(msg);
+    }
+
     if (pParentObject->m_Flags.IsSet(ezObjectFlags::ChildChangesNotifications))
     {
       ezMsgChildrenChanged msg;
@@ -690,6 +699,15 @@ void ezWorld::UnlinkFromParent(ezGameObject* pObject)
     pParentObject->m_uiChildCount--;
     pObject->m_uiParentIndex = 0;
     pObject->m_pTransformationData->m_pParentData = nullptr;
+
+    if (pObject->m_Flags.IsSet(ezObjectFlags::ParentChangesNotifications))
+    {
+      ezMsgParentChanged msg;
+      msg.m_Type = ezMsgParentChanged::Type::ParentUnlinked;
+      msg.m_hParent = pParentObject->GetHandle();
+
+      pObject->SendMessage(msg);
+    }
 
     // Note that the sibling indices must not be set to 0 here.
     // They are still needed if we currently iterate over child objects.
