@@ -460,3 +460,7 @@ void ezReflectionProbeUpdater::AddViewToRender(const ProbeUpdateInfo::Step& step
     ezRenderWorld::AddViewToRender(pReflectionView->m_hView);
   }
 }
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Lights_Implementation_ReflectionProbeUpdater);
+

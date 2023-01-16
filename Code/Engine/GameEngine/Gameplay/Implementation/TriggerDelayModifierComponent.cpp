@@ -156,3 +156,7 @@ void ezTriggerDelayModifierComponent::OnMsgComponentInternalTrigger(ezMsgCompone
     }
   }
 }
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_Gameplay_Implementation_TriggerDelayModifierComponent);
+

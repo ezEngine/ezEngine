@@ -123,4 +123,3 @@ void ezLineToComponentManager::Update(const ezWorldModule::UpdateContext& contex
   }
 }
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_Debugging_Implementation_LineToComponent);

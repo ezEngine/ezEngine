@@ -191,3 +191,7 @@ ezIntervalSchedulerBase::DataMap::Iterator ezIntervalSchedulerBase::InsertData(D
 
   return m_Data.Insert(data.m_DueTime, data);
 }
+
+
+EZ_STATICLINK_FILE(Core, Core_Utils_Implementation_IntervalScheduler);
+

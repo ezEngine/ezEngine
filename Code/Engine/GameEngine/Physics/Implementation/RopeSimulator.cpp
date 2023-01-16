@@ -176,3 +176,7 @@ void ezRopeSimulator::UpdateNodePositions(const ezSimdFloat tDiffSqr)
     m_Nodes.PeekBack().m_vPreviousPosition = m_Nodes.PeekBack().m_vPosition;
   }
 }
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_Physics_Implementation_RopeSimulator);
+

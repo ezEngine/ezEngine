@@ -383,3 +383,7 @@ void ezCustomMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewCont
     renderViewContext.m_pRenderContext->DrawMeshBuffer(pRenderData->m_uiNumPrimitives, pRenderData->m_uiFirstPrimitive).IgnoreResult();
   }
 }
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Meshes_Implementation_CustomMeshComponent);
+

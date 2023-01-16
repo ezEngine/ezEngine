@@ -281,3 +281,7 @@ ezResult ezExpressionByteCode::Load(ezStreamReader& stream)
 
   return EZ_SUCCESS;
 }
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_CodeUtils_Expression_Implementation_ExpressionByteCode);
+

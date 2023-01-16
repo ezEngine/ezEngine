@@ -70,3 +70,7 @@ void ezDefaultExpressionFunctions::PerlinNoise(ezExpression::Inputs inputs, ezEx
     ++pOutput;
   }
 }
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_CodeUtils_Expression_Implementation_ExpressionFunctions);
+

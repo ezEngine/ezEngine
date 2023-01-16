@@ -69,3 +69,7 @@ void ezLogAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeletonResou
 
   ezLog::Dev(m_sText, m_Input0.IsTriggered(graph), m_Input1.IsTriggered(graph), m_Input2.GetNumber(graph), m_Input3.GetNumber(graph));
 }
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_AnimNodes_DebugAnimNodes);
+

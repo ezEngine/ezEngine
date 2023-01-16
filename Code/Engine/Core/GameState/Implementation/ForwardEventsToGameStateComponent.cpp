@@ -57,3 +57,7 @@ void ezForwardEventsToGameStateComponent::Initialize()
 
   EnableUnhandledMessageHandler(true);
 }
+
+
+EZ_STATICLINK_FILE(Core, Core_GameState_Implementation_ForwardEventsToGameStateComponent);
+

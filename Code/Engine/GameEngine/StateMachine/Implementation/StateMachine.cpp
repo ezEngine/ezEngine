@@ -430,3 +430,7 @@ ezUInt32 ezStateMachineInstance::FindNewStateToTransitionTo()
 
   return ezInvalidIndex;
 }
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_StateMachine_Implementation_StateMachine);
+

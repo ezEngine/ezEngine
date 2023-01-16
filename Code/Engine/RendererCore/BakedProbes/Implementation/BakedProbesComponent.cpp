@@ -469,3 +469,7 @@ void ezBakedProbesComponent::OnObjectCreated(const ezAbstractObjectNode& node)
 
   m_sProbeTreeResourcePrefix.Assign(sPrefix);
 }
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_BakedProbes_Implementation_BakedProbesComponent);
+

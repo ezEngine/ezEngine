@@ -190,3 +190,7 @@ void Occluder::bake(const __m128* vertices, ezUInt32 numVertices, __m128 refMin,
 }
 
 #endif
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Rasterizer_Thirdparty_Occluder);
+

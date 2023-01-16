@@ -223,3 +223,7 @@ void ezPlayClipAnimNode::Clips_Remove(ezUInt32 uiIndex)
 {
   m_Clips.RemoveAtAndCopy(uiIndex);
 }
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_AnimNodes_PlayClipAnimNode);
+

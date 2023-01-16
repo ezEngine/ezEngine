@@ -130,3 +130,7 @@ ezResourceLoadDesc ezProbeTreeSectorResource::CreateResource(ezProbeTreeSectorRe
 
   return res;
 }
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_BakedProbes_Implementation_ProbeTreeSectorResource);
+

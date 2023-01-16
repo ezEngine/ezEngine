@@ -434,3 +434,7 @@ void ezMixClips2DAnimNode::PlayClips(ezAnimGraph& graph, ezTime tDiff, ezArrayPt
 
   m_LocalPosePin.SetPose(graph, pOutputTransform);
 }
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_AnimNodes_MixClips2DAnimNode);
+

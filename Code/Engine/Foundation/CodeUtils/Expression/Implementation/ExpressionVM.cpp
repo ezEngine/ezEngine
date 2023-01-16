@@ -459,3 +459,7 @@ void ezExpressionVM::ValidateDataSize(const ezProcessingStream& stream, ezUInt32
 
   EZ_ASSERT_DEV(stream.GetDataSize() >= uiExpectedSize, "{0} data size must be {1} bytes or more. Only {2} bytes given", szDataName, uiExpectedSize, stream.GetDataSize());
 }
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_CodeUtils_Expression_Implementation_ExpressionVM);
+

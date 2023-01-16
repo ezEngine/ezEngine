@@ -302,3 +302,7 @@ void ezGetBlackboardNumberAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const
 
   m_NumberPin.SetNumber(graph, fValue);
 }
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_AnimNodes_BlackboardAnimNodes);
+

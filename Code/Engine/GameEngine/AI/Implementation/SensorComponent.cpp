@@ -679,3 +679,7 @@ void ezSensorWorldModule::DebugDrawSensors(const ezWorldModule::UpdateContext& c
     ezDebugRenderer::DrawLines(pWorld, lines, ezColor::White);
   }
 }
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_AI_Implementation_SensorComponent);
+

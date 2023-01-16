@@ -195,4 +195,4 @@ void ezMsgExtractGeometry::AddBox(const ezTransform& transform, ezVec3 vExtents)
   meshObject.m_hMeshResource = hBoxMesh;
 }
 
-EZ_STATICLINK_FILE(Core, Core_Utils_Implementation_WorldGeoExtractionUtil);
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Utils_Implementation_WorldGeoExtractionUtil);

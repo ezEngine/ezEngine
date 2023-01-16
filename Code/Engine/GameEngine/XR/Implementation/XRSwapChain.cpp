@@ -33,3 +33,7 @@ ezGALSwapChainHandle ezGALXRSwapChain::Create(ezXRInterface* pXrInterface)
   EZ_ASSERT_DEV(s_Factory.IsValid(), "No factory method assigned for ezGALXRSwapChain.");
   return s_Factory(pXrInterface);
 }
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_XR_Implementation_XRSwapChain);
+

@@ -492,3 +492,7 @@ ezArrayPtr<ezMat4> ezAnimPoseGenerator::AcquireModelPoseTransforms(ezAnimPoseGen
 
   return m_UsedModelTransforms[id];
 }
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_Implementation_AnimPoseGenerator);
+

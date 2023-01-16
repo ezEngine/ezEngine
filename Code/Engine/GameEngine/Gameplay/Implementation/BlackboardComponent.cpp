@@ -353,3 +353,7 @@ void ezBlackboardComponent::OnEntryChanged(const ezBlackboard::EntryEvent& e)
 
   m_EntryChangedSender.SendEventMessage(msg, this, GetOwner());
 }
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_Gameplay_Implementation_BlackboardComponent);
+

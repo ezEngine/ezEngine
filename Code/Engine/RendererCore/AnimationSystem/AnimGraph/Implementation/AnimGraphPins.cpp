@@ -226,3 +226,7 @@ void ezAnimGraphModelPoseOutputPin::SetPose(ezAnimGraph& graph, ezAnimGraphPinDa
     graph.m_ModelPoseInputPinStates[idx] = pPose->m_uiOwnIndex;
   }
 }
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_Implementation_AnimGraphPins);
+

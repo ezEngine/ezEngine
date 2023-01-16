@@ -75,3 +75,7 @@ void ezLocalToModelPoseAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ez
 
   m_ModelPosePin.SetPose(graph, pModelTransform);
 }
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_AnimNodes_LocalToModelPoseAnimNode);
+

@@ -9,3 +9,7 @@
 #else
 #  error "Semaphore is not implemented on current platform"
 #endif
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Threading_Implementation_Semaphore);
+

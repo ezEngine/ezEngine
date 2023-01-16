@@ -45,3 +45,7 @@ void ezBakingUtils::DecompressSkyVisibility(ezCompressedSkyVisibility compressed
     uiOffset += s_BitsPerDir[i];
   }
 }
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_BakedProbes_Implementation_BakingUtils);
+

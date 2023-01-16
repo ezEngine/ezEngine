@@ -380,3 +380,7 @@ void ezPlaySequenceAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkel
     m_LocalPosePin.SetPose(graph, pLocalTransforms);
   }
 }
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_AnimNodes_PlaySequenceAnimNode);
+

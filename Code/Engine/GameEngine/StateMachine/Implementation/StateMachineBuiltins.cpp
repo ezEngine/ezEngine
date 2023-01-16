@@ -443,3 +443,7 @@ bool ezStateMachineTransition_Compound::GetInstanceDataDesc(ezStateMachineInstan
 {
   return m_Compound.GetInstanceDataDesc(m_SubTransitions.GetArrayPtr(), out_desc);
 }
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_StateMachine_Implementation_StateMachineBuiltins);
+

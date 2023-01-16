@@ -73,3 +73,7 @@ void ezAnimGraphResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
   out_NewMemoryUsage.m_uiMemoryCPU = m_Storage.GetHeapMemoryUsage();
 }
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_Implementation_AnimGraphResource);
+

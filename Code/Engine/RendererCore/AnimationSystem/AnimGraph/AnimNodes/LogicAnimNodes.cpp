@@ -255,3 +255,7 @@ void ezCompareNumberAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSke
     m_ActivePin.SetTriggered(graph, false);
   }
 }
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_AnimNodes_LogicAnimNodes);
+
