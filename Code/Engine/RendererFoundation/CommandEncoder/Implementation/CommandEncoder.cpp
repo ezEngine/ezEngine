@@ -486,3 +486,6 @@ void ezGALCommandEncoder::InvalidateState()
 {
   m_State.InvalidateState();
 }
+
+
+EZ_STATICLINK_FILE(RendererFoundation, RendererFoundation_CommandEncoder_Implementation_CommandEncoder);

@@ -179,3 +179,6 @@ void ezBoneWeightsAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkele
     m_InverseWeightsPin.SetWeights(graph, pPinData);
   }
 }
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_AnimNodes_BoneWeightsAnimNode);

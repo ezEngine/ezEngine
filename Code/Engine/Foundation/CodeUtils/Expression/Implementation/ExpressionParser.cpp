@@ -444,3 +444,6 @@ ezResult ezExpressionParser::CheckOutputs()
 
   return EZ_SUCCESS;
 }
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_CodeUtils_Expression_Implementation_ExpressionParser);

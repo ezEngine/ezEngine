@@ -3,8 +3,8 @@
 #include <Core/Interfaces/PhysicsWorldModule.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
-#include <GameEngine/AI/AgentSteeringComponent.h>
 #include <Recast/DetourCrowd.h>
+#include <RecastPlugin/Components/AgentSteeringComponent.h>
 #include <RecastPlugin/Components/SoldierComponent.h>
 #include <RecastPlugin/WorldModule/RecastWorldModule.h>
 #include <RendererCore/Debug/DebugRenderer.h>

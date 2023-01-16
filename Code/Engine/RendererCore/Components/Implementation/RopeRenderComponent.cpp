@@ -484,3 +484,6 @@ void ezRopeRenderComponent::UpdateSkinningTransformBuffer(ezArrayPtr<const ezTra
 
   m_SkinningState.TransformsChanged();
 }
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Components_Implementation_RopeRenderComponent);

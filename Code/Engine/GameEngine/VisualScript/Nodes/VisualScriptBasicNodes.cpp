@@ -678,3 +678,6 @@ ezResult ezVisualScriptNode_FunctionCall::ConvertArgumentToRequiredType(ezVarian
 }
 
 //////////////////////////////////////////////////////////////////////////
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_VisualScript_Nodes_VisualScriptBasicNodes);

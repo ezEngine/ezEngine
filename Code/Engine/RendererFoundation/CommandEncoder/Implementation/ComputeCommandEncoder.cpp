@@ -47,3 +47,6 @@ void ezGALComputeCommandEncoder::ClearStatisticsCounters()
 
   m_uiDispatchCalls = 0;
 }
+
+
+EZ_STATICLINK_FILE(RendererFoundation, RendererFoundation_CommandEncoder_Implementation_ComputeCommandEncoder);

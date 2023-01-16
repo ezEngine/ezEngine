@@ -223,3 +223,6 @@ void ezDynamicMeshBufferResource::UpdateGpuBuffer(ezGALCommandEncoder* pGALComma
     }
   }
 }
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Meshes_Implementation_DynamicMeshBufferResource);

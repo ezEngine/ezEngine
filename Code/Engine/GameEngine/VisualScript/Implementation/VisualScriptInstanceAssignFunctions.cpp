@@ -184,3 +184,6 @@ ezVisualScriptDataPinAssignFunc ezVisualScriptInstance::FindDataPinAssignFunctio
 
   return s_DataPinAssignFunctions.GetValueOrDefault(key, nullptr);
 }
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_VisualScript_Implementation_VisualScriptInstanceAssignFunctions);

@@ -449,8 +449,8 @@ o
 		{
 			Uuid{u4{6160166430518278536,5716314543666145735}}
 		}
-		Quat %GizmoOffsetRotationRO{f{0,0,0,0x0000803F}}
-		Vec3 %GizmoOffsetTranslationRO{f{0,0,0}}
+		Quat %GizmoOffsetRotationRO{f{0x94D9FABE,0x7956F53E,0xDADB05BF,0xA2C3013F}}
+		Vec3 %GizmoOffsetTranslationRO{f{0x70CD0C3D,0xD8A2C9BD,0x41BA083F}}
 		b %LimitSwing{0}
 		b %LimitTwist{0}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
@@ -474,8 +474,8 @@ o
 		{
 			Uuid{u4{6739574581322008195,5678154759966800030}}
 		}
-		Quat %GizmoOffsetRotationRO{f{0,0,0,0x0000803F}}
-		Vec3 %GizmoOffsetTranslationRO{f{0,0,0}}
+		Quat %GizmoOffsetRotationRO{f{0x014E59BE,0x9524443F,0xC40D19BF,0x44B6D13D}}
+		Vec3 %GizmoOffsetTranslationRO{f{0x08F87BBD,0xC026853E,0x047CA13F}}
 		b %LimitSwing{0}
 		b %LimitTwist{0}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
@@ -499,8 +499,8 @@ o
 		{
 			Uuid{u4{13918261112334074036,5049762795557410436}}
 		}
-		Quat %GizmoOffsetRotationRO{f{0,0,0,0x0000803F}}
-		Vec3 %GizmoOffsetTranslationRO{f{0,0,0}}
+		Quat %GizmoOffsetRotationRO{f{0x5E2744BF,0xC650593E,0xF7A8D1BD,0x3E0A193F}}
+		Vec3 %GizmoOffsetTranslationRO{f{0xB0167CBD,0x802C85BE,0xEB7BA13F}}
 		b %LimitSwing{0}
 		b %LimitTwist{0}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
@@ -524,8 +524,8 @@ o
 		{
 			Uuid{u4{12928175699884812457,4755751082427561920}}
 		}
-		Quat %GizmoOffsetRotationRO{f{0,0,0,0x0000803F}}
-		Vec3 %GizmoOffsetTranslationRO{f{0,0,0}}
+		Quat %GizmoOffsetRotationRO{f{0x010000BF,0x0000003F,0x0000003F,0x000000BF}}
+		Vec3 %GizmoOffsetTranslationRO{f{0x00D38C3B,0,0x3605D53F}}
 		b %LimitSwing{0}
 		b %LimitTwist{0}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
@@ -546,7 +546,7 @@ o
 	{
 		VarArray %BoneShapes{}
 		VarArray %Children{}
-		Quat %GizmoOffsetRotationRO{f{0,0,0,0x0000803F}}
+		Quat %GizmoOffsetRotationRO{f{0x0000003F,0x000000BF,0x000000BF,0x0000003F}}
 		Vec3 %GizmoOffsetTranslationRO{f{0,0,0}}
 		b %LimitSwing{0}
 		b %LimitTwist{0}
@@ -568,8 +568,8 @@ o
 	{
 		VarArray %BoneShapes{}
 		VarArray %Children{}
-		Quat %GizmoOffsetRotationRO{f{0,0,0,0x0000803F}}
-		Vec3 %GizmoOffsetTranslationRO{f{0,0,0}}
+		Quat %GizmoOffsetRotationRO{f{0xB64C05BF,0xB74C053F,0x49F1F43E,0x45F1F4BE}}
+		Vec3 %GizmoOffsetTranslationRO{f{0x0059CABB,0,0xD8D2E43F}}
 		b %LimitSwing{0}
 		b %LimitTwist{0}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
@@ -593,8 +593,8 @@ o
 		{
 			Uuid{u4{9163310030352102831,4645013987073091442}}
 		}
-		Quat %GizmoOffsetRotationRO{f{0,0,0,0x0000803F}}
-		Vec3 %GizmoOffsetTranslationRO{f{0,0,0}}
+		Quat %GizmoOffsetRotationRO{f{0x010000BF,0x0000003F,0x0000003F,0x000000BF}}
+		Vec3 %GizmoOffsetTranslationRO{f{0x00CFFC3B,0x501A46BE,0x516DCB3F}}
 		b %LimitSwing{0}
 		b %LimitTwist{0}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
@@ -639,8 +639,8 @@ o
 		{
 			Uuid{u4{7043732622093320082,4642730931599854547}}
 		}
-		Quat %GizmoOffsetRotationRO{f{0,0,0,0x0000803F}}
-		Vec3 %GizmoOffsetTranslationRO{f{0,0,0}}
+		Quat %GizmoOffsetRotationRO{f{0x010000BF,0x0000003F,0x0000003F,0x000000BF}}
+		Vec3 %GizmoOffsetTranslationRO{f{0x80CFFC3B,0x501A463E,0x526DCB3F}}
 		b %LimitSwing{0}
 		b %LimitTwist{0}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
@@ -661,8 +661,8 @@ o
 	{
 		VarArray %BoneShapes{}
 		VarArray %Children{}
-		Quat %GizmoOffsetRotationRO{f{0,0,0,0x0000803F}}
-		Vec3 %GizmoOffsetTranslationRO{f{0,0,0}}
+		Quat %GizmoOffsetRotationRO{f{0x3E0B083F,0x963406BF,0x24F7EC3E,0xA6C6F4BE}}
+		Vec3 %GizmoOffsetTranslationRO{f{0xDEFE9CBC,0xCC1CD03D,0x08C88F3D}}
 		b %LimitSwing{0}
 		b %LimitTwist{0}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
@@ -683,8 +683,8 @@ o
 	{
 		VarArray %BoneShapes{}
 		VarArray %Children{}
-		Quat %GizmoOffsetRotationRO{f{0,0,0,0x0000803F}}
-		Vec3 %GizmoOffsetTranslationRO{f{0,0,0}}
+		Quat %GizmoOffsetRotationRO{f{0xD2FF1FBF,0x34F34D3D,0xE8758DBE,0x0F763A3F}}
+		Vec3 %GizmoOffsetTranslationRO{f{0xB06A383D,0x481D75BE,0x149A773F}}
 		b %LimitSwing{0}
 		b %LimitTwist{0}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
@@ -708,8 +708,8 @@ o
 		{
 			Uuid{u4{6534210512022683061,4627838184400111531}}
 		}
-		Quat %GizmoOffsetRotationRO{f{0,0,0,0x0000803F}}
-		Vec3 %GizmoOffsetTranslationRO{f{0,0,0}}
+		Quat %GizmoOffsetRotationRO{f{0x010000BF,0x0000003F,0x0000003F,0x000000BF}}
+		Vec3 %GizmoOffsetTranslationRO{f{0x00449F3B,0xD8C7AEBD,0xEB9C823F}}
 		b %LimitSwing{0}
 		b %LimitTwist{0}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
@@ -733,8 +733,8 @@ o
 		{
 			Uuid{u4{2505669154838901386,5304464778939329370}}
 		}
-		Quat %GizmoOffsetRotationRO{f{0,0,0,0x0000803F}}
-		Vec3 %GizmoOffsetTranslationRO{f{0,0,0}}
+		Quat %GizmoOffsetRotationRO{f{0x010000BF,0x0000003F,0x0000003F,0x000000BF}}
+		Vec3 %GizmoOffsetTranslationRO{f{0x00449F3B,0xE0C7AE3D,0xEB9C823F}}
 		b %LimitSwing{0}
 		b %LimitTwist{0}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
@@ -758,8 +758,8 @@ o
 		{
 			Uuid{u4{5494407782745777826,4915432213329304254}}
 		}
-		Quat %GizmoOffsetRotationRO{f{0,0,0,0x0000803F}}
-		Vec3 %GizmoOffsetTranslationRO{f{0,0,0}}
+		Quat %GizmoOffsetRotationRO{f{0x7356F5BE,0x8CD9FA3E,0xA6C301BF,0xDEDB053F}}
+		Vec3 %GizmoOffsetTranslationRO{f{0xECCD0C3D,0xC8A2C93D,0x3DBA083F}}
 		b %LimitSwing{0}
 		b %LimitTwist{0}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
@@ -785,8 +785,8 @@ o
 			Uuid{u4{5920870848975713456,4890734804838402716}}
 			Uuid{u4{8233354491543790254,4756200217223737397}}
 		}
-		Quat %GizmoOffsetRotationRO{f{0,0,0,0x0000803F}}
-		Vec3 %GizmoOffsetTranslationRO{f{0,0,0}}
+		Quat %GizmoOffsetRotationRO{f{0x010000BF,0x0000003F,0x0000003F,0x000000BF}}
+		Vec3 %GizmoOffsetTranslationRO{f{0x00D38C3B,0x00000034,0x8F53B43F}}
 		b %LimitSwing{0}
 		b %LimitTwist{0}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
@@ -810,7 +810,7 @@ o
 		{
 			Uuid{u4{7484756606415689105,5680045026938899088}}
 		}
-		Quat %GizmoOffsetRotationRO{f{0,0,0,0x0000803F}}
+		Quat %GizmoOffsetRotationRO{f{0x0000003F,0x000000BF,0x000000BF,0x0000003F}}
 		Vec3 %GizmoOffsetTranslationRO{f{0,0,0}}
 		b %LimitSwing{0}
 		b %LimitTwist{0}
@@ -836,7 +836,7 @@ o
 			Uuid{u4{17436503955016547005,4748758961918368516}}
 			Uuid{u4{1374200627707597246,5608203403082720432}}
 		}
-		Quat %GizmoOffsetRotationRO{f{0,0,0,0x0000803F}}
+		Quat %GizmoOffsetRotationRO{f{0x0000003F,0x000000BF,0x000000BF,0x0000003F}}
 		Vec3 %GizmoOffsetTranslationRO{f{0,0,0}}
 		b %LimitSwing{0}
 		b %LimitTwist{0}
@@ -861,8 +861,8 @@ o
 		{
 			Uuid{u4{17255395219642682009,5491226659398511748}}
 		}
-		Quat %GizmoOffsetRotationRO{f{0,0,0,0x0000803F}}
-		Vec3 %GizmoOffsetTranslationRO{f{0,0,0}}
+		Quat %GizmoOffsetRotationRO{f{0x010000BF,0x0000003F,0x0000003F,0x000000BF}}
+		Vec3 %GizmoOffsetTranslationRO{f{0x00D38C3B,0x00000034,0x72B19C3F}}
 		b %LimitSwing{0}
 		b %LimitTwist{0}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
@@ -883,8 +883,8 @@ o
 	{
 		VarArray %BoneShapes{}
 		VarArray %Children{}
-		Quat %GizmoOffsetRotationRO{f{0,0,0,0x0000803F}}
-		Vec3 %GizmoOffsetTranslationRO{f{0,0,0}}
+		Quat %GizmoOffsetRotationRO{f{0x5C1F4E3D,0x560120BF,0xE4743A3F,0x3D748DBE}}
+		Vec3 %GizmoOffsetTranslationRO{f{0x046B383D,0x6C15753E,0x189A773F}}
 		b %LimitSwing{0}
 		b %LimitTwist{0}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
@@ -910,8 +910,8 @@ o
 			Uuid{u4{626300937597060028,5122876349813404309}}
 			Uuid{u4{13888258348541423499,5647836912200250743}}
 		}
-		Quat %GizmoOffsetRotationRO{f{0,0,0,0x0000803F}}
-		Vec3 %GizmoOffsetTranslationRO{f{0,0,0}}
+		Quat %GizmoOffsetRotationRO{f{0xFEFFFFBE,0x0100003F,0x0100003F,0xFEFFFFBE}}
+		Vec3 %GizmoOffsetTranslationRO{f{0x00D38C3B,0,0xBE708C3F}}
 		b %LimitSwing{0}
 		b %LimitTwist{0}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
@@ -932,8 +932,8 @@ o
 	{
 		VarArray %BoneShapes{}
 		VarArray %Children{}
-		Quat %GizmoOffsetRotationRO{f{0,0,0,0x0000803F}}
-		Vec3 %GizmoOffsetTranslationRO{f{0,0,0}}
+		Quat %GizmoOffsetRotationRO{f{0x9B3406BF,0x410B083F,0x9DC6F4BE,0x1BF7EC3E}}
+		Vec3 %GizmoOffsetTranslationRO{f{0xC0009DBC,0xD81CD0BD,0x4CC88F3D}}
 		b %LimitSwing{0}
 		b %LimitTwist{0}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
@@ -976,7 +976,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSkeletonJointGeometryType"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -994,7 +993,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezEditableSkeletonBoneShape"}
-		u3 %TypeSize{192}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1012,7 +1010,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezEditableSkeletonJoint"}
-		u3 %TypeSize{392}
 		u3 %TypeVersion{2}
 	}
 }
@@ -1030,7 +1027,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1048,7 +1044,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezEditableSkeleton"}
-		u3 %TypeSize{208}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1066,7 +1061,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezEnumBase"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1084,7 +1078,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezBasisAxis"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1102,7 +1095,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezReflectedClass"}
-		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
 	}
 }

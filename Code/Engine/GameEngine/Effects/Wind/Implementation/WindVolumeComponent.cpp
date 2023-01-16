@@ -422,3 +422,6 @@ void ezWindVolumeConeComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
 
   msg.AddBounds(ezBoundingBox(c0, c1), ezWindVolumeComponent::SpatialDataCategory);
 }
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_Effects_Wind_Implementation_WindVolumeComponent);

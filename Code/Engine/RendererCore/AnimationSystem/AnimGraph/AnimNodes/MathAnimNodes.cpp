@@ -106,3 +106,6 @@ void ezMathExpressionAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSk
   float result = m_mExpression.Evaluate(inputs);
   m_ResultPin.SetNumber(graph, result);
 }
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_AnimNodes_MathAnimNodes);

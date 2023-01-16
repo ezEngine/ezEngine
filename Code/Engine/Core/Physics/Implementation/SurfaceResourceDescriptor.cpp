@@ -290,3 +290,6 @@ public:
 };
 
 ezSurfaceResourceDescriptorPatch_1_2 g_ezSurfaceResourceDescriptorPatch_1_2;
+
+
+EZ_STATICLINK_FILE(Core, Core_Physics_Implementation_SurfaceResourceDescriptor);

@@ -102,3 +102,6 @@ void ezOccluderComponent::OnDeactivated()
 {
   m_pOccluderObject.Clear();
 }
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Components_Implementation_OccluderComponent);

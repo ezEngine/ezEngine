@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Foundation/Time/Time.h>
-#include <GameEngine/AI/PointOfInterestGraph.h>
+#include <RecastPlugin/Components/PointOfInterestGraph.h>
 #include <RecastPlugin/RecastPluginDLL.h>
 
 struct rcPolyMesh;

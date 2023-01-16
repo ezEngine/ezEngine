@@ -366,3 +366,6 @@ bool ezConfigFileResourceLoader::IsResourceOutdated(const ezResource* pResource)
 {
   return static_cast<const ezConfigFileResource*>(pResource)->m_RequiredFiles.HasAnyFileChanged();
 }
+
+
+EZ_STATICLINK_FILE(Utilities, Utilities_Resources_ConfigFileResource);

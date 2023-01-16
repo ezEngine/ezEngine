@@ -77,3 +77,6 @@ ezUuid ezApplyNativePropertyChangesContext::GenerateObjectGuid(const ezUuid& par
   guid.CreateNewUuid();
   return guid;
 }
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Serialization_Implementation_ApplyNativePropertyChangesContext);

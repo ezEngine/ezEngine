@@ -78,3 +78,6 @@ void ezBakedProbesVolumeComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& m
 {
   msg.AddBounds(ezBoundingBox(-m_vExtents * 0.5f, m_vExtents * 0.5f), ezInvalidSpatialDataCategory);
 }
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_BakedProbes_Implementation_BakedProbesVolumeComponent);

@@ -200,3 +200,6 @@ void ezSceneLoadUtility::TickSceneLoading()
     EZ_REPORT_FAILURE("Invalid code path.");
   }
 }
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_Utils_Implementation_SceneLoadUtil);

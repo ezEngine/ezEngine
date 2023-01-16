@@ -16,3 +16,6 @@ void ezStreamUtils::ReadAllAndAppend(ezStreamReader& stream, ezDynamicArray<ezUI
     destination.PushBackRange(ezArrayPtr<ezUInt8>(temp, uiRead));
   }
 }
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_StreamUtils);

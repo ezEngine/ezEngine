@@ -136,3 +136,6 @@ void ezJointOverrideComponent::OnAnimationPosePreparing(ezMsgAnimationPosePrepar
     msg.m_LocalTransforms[soaIdx].scale = val;
   }
 }
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_Animation_Skeletal_Implementation_JointOverrideComponent);

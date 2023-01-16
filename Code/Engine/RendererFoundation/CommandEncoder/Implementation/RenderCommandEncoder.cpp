@@ -308,3 +308,6 @@ void ezGALRenderCommandEncoder::ClearStatisticsCounters()
 
   m_uiDrawCalls = 0;
 }
+
+
+EZ_STATICLINK_FILE(RendererFoundation, RendererFoundation_CommandEncoder_Implementation_RenderCommandEncoder);

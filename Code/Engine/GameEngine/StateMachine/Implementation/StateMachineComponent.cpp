@@ -444,3 +444,6 @@ void ezStateMachineComponent::Update()
     m_pStateMachineInstance->Update(GetWorld()->GetClock().GetTimeDiff());
   }
 }
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_StateMachine_Implementation_StateMachineComponent);

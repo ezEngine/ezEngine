@@ -145,3 +145,6 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezImageDataResource, ezImageDataResourceDescrip
 //
 //  return EZ_SUCCESS;
 //}
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_Utils_Implementation_ImageDataResource);

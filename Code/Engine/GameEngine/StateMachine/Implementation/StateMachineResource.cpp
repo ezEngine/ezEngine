@@ -80,3 +80,6 @@ void ezStateMachineResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
   out_NewMemoryUsage.m_uiMemoryCPU = 0;
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 }
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_StateMachine_Implementation_StateMachineResource);

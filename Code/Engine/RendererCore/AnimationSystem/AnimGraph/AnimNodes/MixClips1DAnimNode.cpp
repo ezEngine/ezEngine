@@ -281,3 +281,6 @@ void ezMixClips1DAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkelet
     m_LocalPosePin.SetPose(graph, pOutputTransform);
   }
 }
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_AnimNodes_MixClips1DAnimNode);
