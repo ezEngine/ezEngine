@@ -13,6 +13,8 @@ namespace
     ezUInt32 m_uiNumSimd4Instances = 0;
     ezArrayPtr<const ezProcessingStream*> m_Inputs;
     ezArrayPtr<ezProcessingStream*> m_Outputs;
+    ezArrayPtr<const ezExpressionFunction*> m_Functions;
+    const ezExpression::GlobalData* m_pGlobalData = nullptr;
   };
 
   using ByteCodeType = ezExpressionByteCode::StorageType;
@@ -195,7 +197,7 @@ namespace
   DEFINE_TERNARY_OP(SelI, r->i = ezSimdVec4i::Select(a->b, b->i, c->i));
   DEFINE_TERNARY_OP(SelB, r->b = ezSimdVec4b::Select(a->b, b->b, c->b));
 
-  void MovX_R_4(const ByteCodeType*& pByteCode, ExecutionContext& context)
+  void VM_MovX_R_4(const ByteCodeType*& pByteCode, ExecutionContext& context)
   {
     DEFINE_TARGET_REGISTER();
     DEFINE_OP_REGISTER(a);
@@ -207,7 +209,7 @@ namespace
     }
   }
 
-  void MovX_C_4(const ByteCodeType*& pByteCode, ExecutionContext& context)
+  void VM_MovX_C_4(const ByteCodeType*& pByteCode, ExecutionContext& context)
   {
     DEFINE_TARGET_REGISTER();
     DEFINE_CONSTANT(a);
@@ -320,7 +322,7 @@ namespace
     }
   }
 
-  void LoadF_4(const ByteCodeType*& pByteCode, ExecutionContext& context)
+  void VM_LoadF_4(const ByteCodeType*& pByteCode, ExecutionContext& context)
   {
     const ezUInt32 uiNumRemainderInstances = context.m_uiNumInstances & 0x3;
 
@@ -342,7 +344,7 @@ namespace
     }
   }
 
-  void LoadI_4(const ByteCodeType*& pByteCode, ExecutionContext& context)
+  void VM_LoadI_4(const ByteCodeType*& pByteCode, ExecutionContext& context)
   {
     const ezUInt32 uiNumRemainderInstances = context.m_uiNumInstances & 0x3;
 
@@ -368,16 +370,17 @@ namespace
     }
   }
 
-  void StoreF_4(const ByteCodeType*& pByteCode, ExecutionContext& context)
+  void VM_StoreF_4(const ByteCodeType*& pByteCode, ExecutionContext& context)
   {
     const ezUInt32 uiNumRemainderInstances = context.m_uiNumInstances & 0x3;
 
+    ezUInt32 uiOutputIndex = ezExpressionByteCode::GetRegisterIndex(pByteCode);
+    auto& output = *context.m_Outputs[uiOutputIndex];
+
+    // actually not target register but operand register in the is case, but we need something to loop over so we use the target register macro here.
     DEFINE_TARGET_REGISTER();
     if (uiNumRemainderInstances > 0)
       --re;
-
-    ezUInt32 uiOutputIndex = ezExpressionByteCode::GetRegisterIndex(pByteCode);
-    auto& output = *context.m_Outputs[uiOutputIndex];
 
     if (output.GetDataType() == ezProcessingStream::DataType::Float)
     {
@@ -390,7 +393,7 @@ namespace
     }
   }
 
-  void StoreI_4(const ByteCodeType*& pByteCode, ExecutionContext& context)
+  void VM_StoreI_4(const ByteCodeType*& pByteCode, ExecutionContext& context)
   {
     const ezUInt32 uiNumRemainderInstances = context.m_uiNumInstances & 0x3;
 
@@ -415,6 +418,27 @@ namespace
       EZ_ASSERT_DEBUG(output.GetDataType() == ezProcessingStream::DataType::Byte, "Unsupported input type '{}' for StoreI instruction", ezProcessingStream::GetDataTypeName(output.GetDataType()));
       StoreOutput<ezSimdVec4i, int, ezInt8>(reinterpret_cast<ezSimdVec4i*>(r), reinterpret_cast<ezSimdVec4i*>(re), output, uiNumRemainderInstances);
     }
+  }
+
+  void VM_Call(const ByteCodeType*& pByteCode, ExecutionContext& context)
+  {
+    ezUInt32 uiFunctionIndex = ezExpressionByteCode::GetRegisterIndex(pByteCode);
+    auto& function = *context.m_Functions[uiFunctionIndex];
+
+    DEFINE_TARGET_REGISTER();
+    ezUInt32 uiNumArgs = ezExpressionByteCode::GetFunctionArgCount(pByteCode);
+
+    ezHybridArray<ezArrayPtr<const ezExpression::Register>, 32> inputs;
+    inputs.Reserve(uiNumArgs);
+    for (ezUInt32 uiArgIndex = 0; uiArgIndex < uiNumArgs; ++uiArgIndex)
+    {
+      DEFINE_OP_REGISTER(x);
+      inputs.PushBack(ezMakeArrayPtr(x, context.m_uiNumSimd4Instances));
+    }
+
+    ezExpression::Output output = ezMakeArrayPtr(r, context.m_uiNumSimd4Instances);
+
+    function.m_Func(inputs, output, *context.m_pGlobalData);
   }
 
   static constexpr OpFunc s_Simd4Funcs[] = {
@@ -562,40 +586,19 @@ namespace
     nullptr, // LastTernary,
     nullptr, // FirstSpecial,
 
-    &MovX_R_4, // MovX_R,
-    &MovX_C_4, // MovX_C,
-    &LoadF_4,  // LoadF,
-    &LoadI_4,  // LoadI,
-    &StoreF_4, // StoreF,
-    &StoreI_4, // StoreI,
+    &VM_MovX_R_4, // MovX_R,
+    &VM_MovX_C_4, // MovX_C,
+    &VM_LoadF_4,  // LoadF,
+    &VM_LoadI_4,  // LoadI,
+    &VM_StoreF_4, // StoreF,
+    &VM_StoreI_4, // StoreI,
 
-    nullptr, // Call,
+    &VM_Call, // Call,
 
     nullptr, // LastSpecial,
   };
 
   static_assert(EZ_ARRAY_SIZE(s_Simd4Funcs) == ezExpressionByteCode::OpCode::Count);
-
-#if 0
-  void VMCall(const ByteCodeType*& pByteCode, ezSimdVec4f* pRegisters, ezUInt32 uiNumRegisters,
-    const ezExpression::GlobalData& globalData, ezExpressionFunction& func)
-  {
-    ezSimdVec4f* r = pRegisters + ezExpressionByteCode::GetRegisterIndex(pByteCode, uiNumRegisters);
-    ezUInt32 uiNumArgs = ezExpressionByteCode::GetFunctionArgCount(pByteCode);
-
-    ezHybridArray<ezArrayPtr<const ezSimdVec4f>, 32> inputs;
-    inputs.Reserve(uiNumArgs);
-    for (ezUInt32 uiArgIndex = 0; uiArgIndex < uiNumArgs; ++uiArgIndex)
-    {
-      ezSimdVec4f* x = pRegisters + ezExpressionByteCode::GetRegisterIndex(pByteCode, uiNumRegisters);
-      inputs.PushBack(ezMakeArrayPtr(x, uiNumRegisters));
-    }
-
-    ezExpression::Output output = ezMakeArrayPtr(r, uiNumRegisters);
-
-    func(inputs, output, globalData);
-  }
-#endif
 
 } // namespace
 
@@ -606,3 +609,5 @@ namespace
 #undef DEFINE_UNARY_OP
 #undef BINARY_OP_INNER_LOOP
 #undef DEFINE_BINARY_OP
+#undef TERNARY_OP_INNER_LOOP
+#undef DEFINE_TERNARY_OP

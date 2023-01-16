@@ -230,7 +230,7 @@ void ezExpressionByteCode::Disassemble(ezStringBuilder& out_sDisassembly) const
   {
     out_sDisassembly.AppendFormat("//  {}: {} {}(", i, ezExpression::RegisterType::GetName(m_Functions[i].m_OutputType), m_Functions[i].m_sName);
     const ezUInt32 uiNumArguments = m_Functions[i].m_InputTypes.GetCount();
-    for (ezUInt32 j = 0; j < uiNumArguments; ++i)
+    for (ezUInt32 j = 0; j < uiNumArguments; ++j)
     {
       out_sDisassembly.Append(ezExpression::RegisterType::GetName(m_Functions[i].m_InputTypes[j]));
       if (j < uiNumArguments - 1)

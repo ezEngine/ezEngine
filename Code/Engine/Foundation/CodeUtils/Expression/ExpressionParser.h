@@ -10,6 +10,7 @@ public:
   ~ezExpressionParser();
 
   void RegisterFunction(const ezExpression::FunctionDesc& funcDesc);
+  void UnregisterFunction(const ezExpression::FunctionDesc& funcDesc);
 
   struct Options
   {
@@ -59,7 +60,7 @@ private:
 
   ezHashTable<ezHashedString, ezExpressionAST::Node*> m_KnownVariables;
   ezHashTable<ezHashedString, ezEnum<ezExpressionAST::NodeType>> m_BuiltinFunctions;
-  ezHashTable<ezHashedString, ezExpression::FunctionDesc> m_FunctionDescs;
+  ezHashTable<ezHashedString, ezHybridArray<ezExpression::FunctionDesc, 1>> m_FunctionDescs;
 };
 
 #include <Foundation/CodeUtils/Expression/Implementation/ExpressionParser_inl.h>

@@ -574,9 +574,39 @@ void ezExpressionAST::ResolveOverloads(Node* pNode)
     return;
   }
 
+  auto CalculateMatchDistance = [](ezArrayPtr<Node*> children, ezArrayPtr<const ezEnum<ezExpression::RegisterType>> expectedTypes, ezUInt32 uiNumRequiredArgs)
+  {
+    if (children.GetCount() < uiNumRequiredArgs)
+    {
+      return ezInvalidIndex;
+    }
+
+    ezUInt32 uiMatchDistance = 0;
+    for (ezUInt32 i = 0; i < ezMath::Min(children.GetCount(), expectedTypes.GetCount()); ++i)
+    {
+      auto& pChildNode = children[i];
+      if (pChildNode == nullptr || pChildNode->m_ReturnType == DataType::Unknown)
+      {
+        // Can't resolve yet
+        return ezInvalidIndex;
+      }
+
+      auto childType = DataType::GetRegisterType(pChildNode->m_ReturnType);
+      int iDistance = expectedTypes[i] - childType;
+      if (iDistance < 0)
+      {
+        // Penalty to prevent 'narrowing' conversions
+        iDistance *= -ezExpression::RegisterType::Count;
+      }
+      uiMatchDistance += iDistance;
+    }
+    return uiMatchDistance;
+  };
+
   if (NodeType::IsUnary(nodeType) || NodeType::IsBinary(nodeType) || NodeType::IsTernary(nodeType))
   {
     auto children = GetChildren(pNode);
+    ezSmallArray < ezEnum<ezExpression::RegisterType>, 4> expectedTypes;
     ezUInt32 uiBestMatchDistance = ezInvalidIndex;
 
     for (ezUInt32 uiSigIndex = 0; uiSigIndex < EZ_ARRAY_SIZE(Overloads::m_Signatures); ++uiSigIndex)
@@ -585,27 +615,13 @@ void ezExpressionAST::ResolveOverloads(Node* pNode)
       if (uiSignature == 0)
         break;
 
-      ezUInt32 uiMatchDistance = 0;
-      for (ezUInt32 i = 0; i < children.GetCount(); ++i)
+      expectedTypes.Clear();
+      for (ezUInt32 i = 0; i< children.GetCount(); ++i)
       {
-        auto& pChildNode = children[i];
-        if (pChildNode == nullptr || pChildNode->m_ReturnType == DataType::Unknown)
-        {
-          // Can't resolve yet
-          return;
-        }
-
-        auto childType = DataType::GetRegisterType(pChildNode->m_ReturnType);
-        auto expectedType = GetArgumentTypeFromSignature(uiSignature, i);
-        int iDistance = expectedType - childType;
-        if (iDistance < 0)
-        {
-          // Penalty to prevent 'narrowing' conversions
-          iDistance *= -ezExpression::RegisterType::Count;
-        }
-        uiMatchDistance += iDistance;
+        expectedTypes.PushBack(GetArgumentTypeFromSignature(uiSignature, i));
       }
 
+      ezUInt32 uiMatchDistance = CalculateMatchDistance(children, expectedTypes, expectedTypes.GetCount());
       if (uiMatchDistance < uiBestMatchDistance)
       {
         pNode->m_ReturnType = DataType::FromRegisterType(GetReturnTypeFromSignature(uiSignature));
@@ -616,7 +632,32 @@ void ezExpressionAST::ResolveOverloads(Node* pNode)
   }
   else if (NodeType::IsFunctionCall(nodeType))
   {
-    EZ_ASSERT_NOT_IMPLEMENTED;
+    auto pFunctionCall = static_cast<FunctionCall*>(pNode);
+    ezUInt32 uiBestMatchDistance = ezInvalidIndex;
+
+    for (ezUInt32 uiOverloadIndex = 0; uiOverloadIndex < pFunctionCall->m_Descs.GetCount(); ++uiOverloadIndex)
+    {
+      auto pFuncDesc = pFunctionCall->m_Descs[uiOverloadIndex];
+
+      ezUInt32 uiMatchDistance = CalculateMatchDistance(pFunctionCall->m_Arguments, pFuncDesc->m_InputTypes, pFuncDesc->m_uiNumRequiredInputs);
+      if (uiMatchDistance < uiBestMatchDistance)
+      {
+        pNode->m_ReturnType = DataType::FromRegisterType(pFuncDesc->m_OutputType);
+        pNode->m_uiOverloadIndex = static_cast<ezUInt8>(uiOverloadIndex);
+        uiBestMatchDistance = uiMatchDistance;
+      }
+    }
+
+    if (pNode->m_ReturnType != DataType::Unknown)
+    {
+      auto pFuncDesc = pFunctionCall->m_Descs[pNode->m_uiOverloadIndex];
+
+      // Trim arguments array to number of inputs
+      if (pFunctionCall->m_Arguments.GetCount() > pFuncDesc->m_InputTypes.GetCount())
+      {
+        pFunctionCall->m_Arguments.SetCount(static_cast<ezUInt16>(pFuncDesc->m_InputTypes.GetCount()));
+      }
+    }
   }
 }
 
@@ -720,8 +761,16 @@ void ezExpressionAST::PrintGraph(ezDGMLGraph& graph) const
         }
         else if (NodeType::IsFunctionCall(nodeType))
         {
-          auto pDesc = static_cast<const FunctionCall*>(currentNodeInfo.m_pNode)->m_Descs[currentNodeInfo.m_pNode->m_uiOverloadIndex];
-          sTmp.Append(": ", pDesc->m_sName);
+          auto pFunctionCall = static_cast<const FunctionCall*>(currentNodeInfo.m_pNode);
+          if (pFunctionCall->m_uiOverloadIndex != 0xFF)
+          {
+            auto pDesc = pFunctionCall->m_Descs[currentNodeInfo.m_pNode->m_uiOverloadIndex];
+            sTmp.Append(": ", pDesc->GetMangledName());
+          }
+          else
+          {
+            sTmp.Append(": ", pFunctionCall->m_Descs[0]->m_sName);
+          }
           color = ezColorScheme::LightUI(ezColorScheme::Yellow);
         }
 

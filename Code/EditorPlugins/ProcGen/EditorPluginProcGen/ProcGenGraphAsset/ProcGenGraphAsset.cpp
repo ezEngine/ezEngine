@@ -82,7 +82,7 @@ struct ezProcGenGraphAssetDocument::GenerateContext
 
 ////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGenGraphAssetDocument, 5, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGenGraphAssetDocument, 6, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezProcGenGraphAssetDocument::ezProcGenGraphAssetDocument(const char* szDocumentPath)
@@ -446,13 +446,24 @@ void ezProcGenGraphAssetDocument::DumpSelectedOutput(bool bAst, bool bDisassembl
     DumpAST(ast, sAssetName, sOutputName);
   }
 
-  if (bDisassembly)
+  ezExpressionByteCode byteCode;
+  ezExpressionCompiler compiler;
+  if (compiler.Compile(ast, byteCode).Failed())
   {
-    ezExpressionByteCode byteCode;
+    ezLog::Error("Compiling expression failed");
+    return;
+  }
 
-    ezExpressionCompiler compiler;
-    if (compiler.Compile(ast, byteCode).Succeeded())
-    {
+  if (bAst)
+  {
+    ezStringBuilder sOutputName2 = sOutputName;
+    sOutputName2.Append("_Opt");
+
+    DumpAST(ast, sAssetName, sOutputName2);
+  }
+
+  if (bDisassembly)
+  {    
       ezStringBuilder sDisassembly;
       byteCode.Disassemble(sDisassembly);
 
@@ -470,11 +481,6 @@ void ezProcGenGraphAssetDocument::DumpSelectedOutput(bool bAst, bool bDisassembl
       {
         ezLog::Error("Failed to dump Disassembly to: {0}", sFileName);
       }
-    }
-    else
-    {
-      ezLog::Error("Compiling expression failed");
-    }
   }
 }
 

@@ -9,13 +9,23 @@ using namespace ezExpression;
 namespace
 {
   static const char* s_szRegisterTypeNames[] = {
-    "Float",
-    "Int",
-    "Bool",
     "Unknown",
+    "Bool",
+    "Int",
+    "Float",
   };
 
   static_assert(EZ_ARRAY_SIZE(s_szRegisterTypeNames) == RegisterType::Count);
+
+  static const char* s_szRegisterTypeNamesShort[] = {
+    "U",
+    "B",
+    "I",
+    "F",
+  };
+
+  static_assert(EZ_ARRAY_SIZE(s_szRegisterTypeNamesShort) == RegisterType::Count);
+
   static_assert(RegisterType::Count <= EZ_BIT(RegisterType::MaxNumBits));
 } // namespace
 
@@ -81,6 +91,21 @@ ezResult FunctionDesc::Deserialize(ezStreamReader& stream)
   stream >> m_OutputType;
 
   return EZ_SUCCESS;
+}
+
+ezHashedString FunctionDesc::GetMangledName() const
+{
+  ezStringBuilder sMangledName = m_sName.GetView();
+  sMangledName.Append("_");
+
+  for (auto inputType : m_InputTypes)
+  {
+    sMangledName.Append(s_szRegisterTypeNamesShort[inputType]);
+  }
+
+  ezHashedString sResult;
+  sResult.Assign(sMangledName);
+  return sResult;
 }
 
 //////////////////////////////////////////////////////////////////////////

@@ -14,10 +14,25 @@ ezExpressionVM::~ezExpressionVM() = default;
 
 void ezExpressionVM::RegisterFunction(const ezExpressionFunction& func)
 {
+  EZ_ASSERT_DEV(func.m_Desc.m_uiNumRequiredInputs <= func.m_Desc.m_InputTypes.GetCount(), "Not enough input types defined. {} inputs are required but only {} types given.", func.m_Desc.m_uiNumRequiredInputs, func.m_Desc.m_InputTypes.GetCount());
+
   ezUInt32 uiFunctionIndex = m_Functions.GetCount();
-  m_FunctionNamesToIndex.Insert(func.m_Desc.m_sName, uiFunctionIndex);
+  m_FunctionNamesToIndex.Insert(func.m_Desc.GetMangledName(), uiFunctionIndex);
 
   m_Functions.PushBack(func);
+}
+
+void ezExpressionVM::UnregisterFunction(const ezExpressionFunction& func)
+{
+  ezUInt32 uiFunctionIndex = 0;
+  if (m_FunctionNamesToIndex.Remove(func.m_Desc.GetMangledName(), &uiFunctionIndex))
+  {
+    m_Functions.RemoveAtAndSwap(uiFunctionIndex);
+    if (uiFunctionIndex != m_Functions.GetCount())
+    {
+      m_FunctionNamesToIndex[m_Functions[uiFunctionIndex].m_Desc.GetMangledName()] = uiFunctionIndex;
+    }
+  }
 }
 
 ezResult ezExpressionVM::Execute(const ezExpressionByteCode& byteCode, ezArrayPtr<const ezProcessingStream> inputs,
@@ -42,6 +57,8 @@ ezResult ezExpressionVM::Execute(const ezExpressionByteCode& byteCode, ezArrayPt
   context.m_uiNumSimd4Instances = (uiNumInstances + 3) / 4;
   context.m_Inputs = m_MappedInputs;
   context.m_Outputs = m_MappedOutputs;
+  context.m_Functions = m_MappedFunctions;
+  context.m_pGlobalData = &globalData;
 
   while (pByteCode < pByteCodeEnd)
   {

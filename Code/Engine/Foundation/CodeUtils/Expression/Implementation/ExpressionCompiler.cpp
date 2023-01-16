@@ -445,13 +445,16 @@ ezResult ezExpressionCompiler::GenerateByteCode(const ezExpressionAST& ast, ezEx
     {
       auto pFunctionCall = static_cast<const ezExpressionAST::FunctionCall*>(pCurrentNode);
       auto pDesc = pFunctionCall->m_Descs[pCurrentNode->m_uiOverloadIndex];
+      ezHashedString sMangledName = pDesc->GetMangledName();
+
       ezUInt32 uiFunctionIndex = 0;
-      if (!m_FunctionToIndex.TryGetValue(pDesc->m_sName, uiFunctionIndex))
+      if (!m_FunctionToIndex.TryGetValue(sMangledName, uiFunctionIndex))
       {
         uiFunctionIndex = out_byteCode.m_Functions.GetCount();
-        m_FunctionToIndex.Insert(pDesc->m_sName, uiFunctionIndex);
+        m_FunctionToIndex.Insert(sMangledName, uiFunctionIndex);
 
         out_byteCode.m_Functions.PushBack(*pDesc);
+        out_byteCode.m_Functions.PeekBack().m_sName = sMangledName;
       }
 
       byteCode.PushBack(opCode);

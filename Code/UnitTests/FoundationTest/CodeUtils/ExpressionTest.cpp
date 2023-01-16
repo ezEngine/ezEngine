@@ -330,6 +330,70 @@ namespace
     }
   }
 
+  static const ezEnum<ezExpression::RegisterType> s_TestFunc1InputTypes[] = {ezExpression::RegisterType::Float, ezExpression::RegisterType::Int};
+  static const ezEnum<ezExpression::RegisterType> s_TestFunc2InputTypes[] = {ezExpression::RegisterType::Float, ezExpression::RegisterType::Float, ezExpression::RegisterType::Int};
+
+  static void TestFunc1(ezExpression::Inputs inputs, ezExpression::Output output, const ezExpression::GlobalData& globalData)
+  {
+    const ezExpression::Register* pX = inputs[0].GetPtr();
+    const ezExpression::Register* pY = inputs[1].GetPtr();
+    const ezExpression::Register* pXEnd = inputs[0].GetEndPtr();
+    ezExpression::Register* pOutput = output.GetPtr();
+
+    while (pX < pXEnd)
+    {
+      pOutput->f = pX->f.CompMul(pY->i.ToFloat());
+
+      ++pX;
+      ++pY;
+      ++pOutput;
+    }
+  }
+
+  static void TestFunc2(ezExpression::Inputs inputs, ezExpression::Output output, const ezExpression::GlobalData& globalData)
+  {
+    const ezExpression::Register* pX = inputs[0].GetPtr();
+    const ezExpression::Register* pY = inputs[1].GetPtr();
+    const ezExpression::Register* pXEnd = inputs[0].GetEndPtr();
+    ezExpression::Register* pOutput = output.GetPtr();
+
+    if (inputs.GetCount() >= 3)
+    {
+      const ezExpression::Register* pZ = inputs[2].GetPtr();
+
+      while (pX < pXEnd)
+      {
+        pOutput->f = pX->f.CompMul(pY->f) * 2.0f + pZ->i.ToFloat();
+
+        ++pX;
+        ++pY;
+        ++pZ;
+        ++pOutput;
+      }
+    }
+    else
+    {
+      while (pX < pXEnd)
+      {
+        pOutput->f = pX->f.CompMul(pY->f) * 2.0f;
+
+        ++pX;
+        ++pY;
+        ++pOutput;
+      }
+    }
+  }
+
+  ezExpressionFunction s_TestFunc1 = {
+    {ezMakeHashedString("TestFunc"), ezMakeArrayPtr(s_TestFunc1InputTypes), 2, ezExpression::RegisterType::Float},
+    &TestFunc1,
+  };
+
+  ezExpressionFunction s_TestFunc2 = {
+    {ezMakeHashedString("TestFunc"), ezMakeArrayPtr(s_TestFunc2InputTypes), 3, ezExpression::RegisterType::Float},
+    &TestFunc2,
+  };
+
 } // namespace
 
 EZ_CREATE_SIMPLE_TEST(CodeUtils, Expression)
@@ -832,6 +896,57 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Expression)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Function overloads")
   {
+    s_pParser->RegisterFunction(s_TestFunc1.m_Desc);
+    s_pParser->RegisterFunction(s_TestFunc2.m_Desc);
+
+    s_pVM->RegisterFunction(s_TestFunc1);
+    s_pVM->RegisterFunction(s_TestFunc2);
+
+    {
+      // take TestFunc1 overload for all ints
+      ezStringView testCode = "output = TestFunc(1, 2, 3)";
+      ezExpressionByteCode testByteCode;
+      Compile<int>(testCode, testByteCode);
+      EZ_TEST_INT(Execute<int>(testByteCode), 2);
+    }
+
+    {
+      // take TestFunc1 overload for float, int
+      ezStringView testCode = "output = TestFunc(1.0, 2, 3)";
+      ezExpressionByteCode testByteCode;
+      Compile<int>(testCode, testByteCode);
+      EZ_TEST_INT(Execute<int>(testByteCode), 2);
+    }
+
+    {
+      // take TestFunc2 overload for int, float
+      ezStringView testCode = "output = TestFunc(1, 2.0, 3)";
+      ezExpressionByteCode testByteCode;
+      Compile<int>(testCode, testByteCode);
+      EZ_TEST_INT(Execute<int>(testByteCode), 7);
+    }
+
+    {
+      // take TestFunc2 overload for all float
+      ezStringView testCode = "output = TestFunc(1.0, 2.0, 3)";
+      ezExpressionByteCode testByteCode;
+      Compile<int>(testCode, testByteCode);
+      EZ_TEST_INT(Execute<int>(testByteCode), 7);
+    }
+
+    {
+      // take TestFunc1 overload when only two params are given
+      ezStringView testCode = "output = TestFunc(1.0, 2.0)";
+      ezExpressionByteCode testByteCode;
+      Compile<int>(testCode, testByteCode);
+      EZ_TEST_INT(Execute<int>(testByteCode), 2);
+    }
+
+    s_pParser->UnregisterFunction(s_TestFunc1.m_Desc);
+    s_pParser->UnregisterFunction(s_TestFunc2.m_Desc);
+
+    s_pVM->UnregisterFunction(s_TestFunc1);
+    s_pVM->UnregisterFunction(s_TestFunc2);
   }
 
 #if 0

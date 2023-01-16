@@ -70,7 +70,21 @@ ezExpressionParser::~ezExpressionParser() = default;
 
 void ezExpressionParser::RegisterFunction(const ezExpression::FunctionDesc& funcDesc)
 {
-  m_FunctionDescs.Insert(funcDesc.m_sName, funcDesc);
+  EZ_ASSERT_DEV(funcDesc.m_uiNumRequiredInputs <= funcDesc.m_InputTypes.GetCount(), "Not enough input types defined. {} inputs are required but only {} types given.", funcDesc.m_uiNumRequiredInputs, funcDesc.m_InputTypes.GetCount());
+
+  auto& functionDescs = m_FunctionDescs[funcDesc.m_sName];
+  if (functionDescs.Contains(funcDesc) == false)
+  {
+    functionDescs.PushBack(funcDesc);
+  }
+}
+
+void ezExpressionParser::UnregisterFunction(const ezExpression::FunctionDesc& funcDesc)
+{
+  if (auto pFunctionDescs = m_FunctionDescs.GetValue(funcDesc.m_sName))
+  {
+    pFunctionDescs->RemoveAndCopy(funcDesc);
+  }
 }
 
 ezResult ezExpressionParser::Parse(ezStringView code, ezArrayPtr<ezExpression::StreamDesc> inputs, ezArrayPtr<ezExpression::StreamDesc> outputs, const Options& options, ezExpressionAST& out_ast)
@@ -547,13 +561,22 @@ ezExpressionAST::Node* ezExpressionParser::ParseFunctionCall(ezStringView sFunct
   }
 
   // external function
-  const ezExpression::FunctionDesc* pFunctionDesc = nullptr;
-  if (m_FunctionDescs.TryGetValue(sHashedFuncName, pFunctionDesc))
+  const ezHybridArray<ezExpression::FunctionDesc, 1>* pFunctionDescs = nullptr;
+  if (m_FunctionDescs.TryGetValue(sHashedFuncName, pFunctionDescs))
   {
-    if (CheckArgumentCount(pFunctionDesc->m_InputTypes.GetCount()).Failed())
-      return nullptr;
+    ezUInt32 uiMinArgumentCount = ezInvalidIndex;
+    for (auto& funcDesc : *pFunctionDescs)
+    {
+      uiMinArgumentCount = ezMath::Min<ezUInt32>(uiMinArgumentCount, funcDesc.m_uiNumRequiredInputs);
+    }
 
-    auto pFunctionCall = m_pAST->CreateFunctionCall(*pFunctionDesc);
+    if (arguments.GetCount() < uiMinArgumentCount)
+    {
+      ReportError(pFunctionToken, ezFmt("Invalid argument count for '{}'. Expected at least {} but got {}", sFunctionName, uiMinArgumentCount, arguments.GetCount()));
+      return nullptr;
+    }
+
+    auto pFunctionCall = m_pAST->CreateFunctionCall(*pFunctionDescs);
     pFunctionCall->m_Arguments = std::move(arguments);
     return pFunctionCall;
   }

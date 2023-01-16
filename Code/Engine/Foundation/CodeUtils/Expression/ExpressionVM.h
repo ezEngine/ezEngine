@@ -9,6 +9,7 @@ public:
   ~ezExpressionVM();
 
   void RegisterFunction(const ezExpressionFunction& func);
+  void UnregisterFunction(const ezExpressionFunction& func);
 
   ezResult Execute(const ezExpressionByteCode& byteCode, ezArrayPtr<const ezProcessingStream> inputs, ezArrayPtr<ezProcessingStream> outputs, ezUInt32 uiNumInstances, const ezExpression::GlobalData& globalData = ezExpression::GlobalData());
 
@@ -23,7 +24,7 @@ private:
 
   ezDynamicArray<const ezProcessingStream*> m_MappedInputs;
   ezDynamicArray<ezProcessingStream*> m_MappedOutputs;
-  ezDynamicArray<ezExpressionFunction*> m_MappedFunctions;
+  ezDynamicArray<const ezExpressionFunction*> m_MappedFunctions;
 
   ezDynamicArray<ezExpressionFunction> m_Functions;
   ezHashTable<ezHashedString, ezUInt32> m_FunctionNamesToIndex;  

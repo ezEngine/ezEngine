@@ -47,7 +47,7 @@ ezExpressionAST::Node* ezExpressionAST::TypeDeductionAndConversion(Node* pNode)
   {
     ResolveOverloads(pNode);
 
-    if (returnType == DataType::Unknown)
+    if (pNode->m_ReturnType == DataType::Unknown)
     {
       ezLog::Error("No matching overload found for '{}'", NodeType::GetName(nodeType));
       return nullptr;

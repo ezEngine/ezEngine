@@ -86,6 +86,8 @@ namespace ezExpression
 
     ezResult Serialize(ezStreamWriter& stream) const;
     ezResult Deserialize(ezStreamReader& stream);
+
+    ezHashedString GetMangledName() const;
   };
 
   using Function = void (*)(ezExpression::Inputs, ezExpression::Output, const ezExpression::GlobalData&);
