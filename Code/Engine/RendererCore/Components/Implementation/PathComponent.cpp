@@ -5,6 +5,7 @@
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <RendererCore/Components/PathComponent.h>
+#include <RendererCore/Debug/DebugRenderer.h>
 
 // clang-format off
 EZ_IMPLEMENT_MESSAGE_TYPE(ezEventMsgPathChanged);
