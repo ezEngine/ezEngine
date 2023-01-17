@@ -186,8 +186,8 @@ void PlacementTask::ExecuteVM()
     for (ezUInt32 i = 0; i < uiNumInstances; ++i)
     {
       auto& inputPoint = m_InputPoints[i];
-      ezUInt32 uiPointIndex = inputPoint.m_uiPointIndex;
-      float fThreshold = pPattern->m_Points[uiPointIndex].m_fThreshold;
+      const ezUInt32 uiPointIndex = inputPoint.m_uiPointIndex;
+      const float fThreshold = pPattern->m_Points[uiPointIndex].m_fThreshold;
 
       if (density[i] >= fThreshold)
       {

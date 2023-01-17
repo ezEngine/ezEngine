@@ -275,8 +275,6 @@ ezExpressionAST::Node* ezExpressionAST::ReplaceUnsupportedInstructions(Node* pNo
   return pNode;
 }
 
-//////////////////////////////////////////////////////////////////////////
-
 ezExpressionAST::Node* ezExpressionAST::FoldConstants(Node* pNode)
 {
   NodeType::Enum nodeType = pNode->m_Type;
@@ -704,6 +702,24 @@ ezExpressionAST::Node* ezExpressionAST::FoldConstants(Node* pNode)
     EZ_ASSERT_NOT_IMPLEMENTED;
     return pNode;
   }
+
+  return pNode;
+}
+
+ezExpressionAST::Node* ezExpressionAST::CommonSubexpressionElimination(Node* pNode)
+{
+  UpdateHash(pNode);
+
+  auto& nodesForHash = m_NodeDeduplicationTable[pNode->m_uiHash];
+  for (auto pExistingNode : nodesForHash)
+  {
+    if (IsEqual(pNode, pExistingNode))
+    {
+      return pExistingNode;
+    }
+  }
+
+  nodesForHash.PushBack(pNode);
 
   return pNode;
 }

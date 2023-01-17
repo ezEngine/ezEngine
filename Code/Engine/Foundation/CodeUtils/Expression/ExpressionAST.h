@@ -98,6 +98,8 @@ public:
     static bool IsFunctionCall(Enum nodeType);
     static bool IsConstructorCall(Enum nodeType);
 
+    static bool IsCommutative(Enum nodeType);
+
     static const char* GetName(Enum nodeType);
   };
 
@@ -224,7 +226,10 @@ public:
   static ezArrayPtr<const Node*> GetChildren(const Node* pNode);
 
   static void ResolveOverloads(Node* pNode);
-  static DataType::Enum GetExpectedChildDataType(Node* pNode, ezUInt32 uiChildIndex);
+  static DataType::Enum GetExpectedChildDataType(const Node* pNode, ezUInt32 uiChildIndex);
+
+  static void UpdateHash(Node* pNode);
+  static bool IsEqual(const Node* pNodeA, const Node* pNodeB);
 
   void PrintGraph(ezDGMLGraph& graph) const;
 
@@ -234,10 +239,13 @@ public:
   Node* TypeDeductionAndConversion(Node* pNode);
   Node* ReplaceUnsupportedInstructions(Node* pNode);
   Node* FoldConstants(Node* pNode);
+  Node* CommonSubexpressionElimination(Node* pNode);
   Node* Validate(Node* pNode);
 
 private:
   ezStackAllocator<> m_Allocator;
 
   ezSet<ezExpression::FunctionDesc> m_FunctionDescs;
+
+  ezHashTable<ezUInt32, ezSmallArray<Node*, 1>> m_NodeDeduplicationTable;
 };

@@ -949,6 +949,21 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Expression)
     s_pVM->UnregisterFunction(s_TestFunc2);
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Common subexpression elimination")
+  {
+    ezStringView testCode = "var x1 = a * max(b, c)\n"
+                            "var x2 = max(c, b) * a\n"
+                            "var y1 = a * pow(2, 3)\n"
+                            "var y2 = 8 * a\n"
+                            "output = x1 + x2 + y1 + y2";
+    
+      ezStringView referenceCode = "var x = a * max(b, c); var y = a * 8; output = x + x + y + y";
+
+      ezExpressionByteCode testByteCode;
+      EZ_TEST_BOOL(CompareCode<int>(testCode, referenceCode, testByteCode, true));
+      EZ_TEST_INT(Execute(testByteCode, 2, 4, 8), 64);
+  }
+
 #if 0
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Scalarization")
   {

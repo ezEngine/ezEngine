@@ -52,6 +52,16 @@ bool ezExpressionAST::NodeType::IsConstructorCall(Enum nodeType)
   return nodeType == ConstructorCall;
 }
 
+// static
+bool ezExpressionAST::NodeType::IsCommutative(Enum nodeType)
+{
+  return nodeType == Add || nodeType == Multiply ||
+         nodeType == Min || nodeType == Max ||
+         nodeType == BitwiseAnd || nodeType == BitwiseXor || nodeType == BitwiseOr ||
+         nodeType == Equal || nodeType == NotEqual ||
+         nodeType == LogicalAnd || nodeType == LogicalOr;
+}
+
 namespace
 {
   static const char* s_szNodeTypeNames[] = {
@@ -558,6 +568,7 @@ ezArrayPtr<const ezExpressionAST::Node*> ezExpressionAST::GetChildren(const Node
   return ezArrayPtr<const Node*>();
 }
 
+// static
 void ezExpressionAST::ResolveOverloads(Node* pNode)
 {
   if (pNode->m_uiOverloadIndex != 0xFF)
@@ -661,7 +672,8 @@ void ezExpressionAST::ResolveOverloads(Node* pNode)
   }
 }
 
-ezExpressionAST::DataType::Enum ezExpressionAST::GetExpectedChildDataType(Node* pNode, ezUInt32 uiChildIndex)
+// static
+ezExpressionAST::DataType::Enum ezExpressionAST::GetExpectedChildDataType(const Node* pNode, ezUInt32 uiChildIndex)
 {
   const NodeType::Enum nodeType = pNode->m_Type;
   const DataType::Enum returnType = pNode->m_ReturnType;
@@ -698,6 +710,167 @@ ezExpressionAST::DataType::Enum ezExpressionAST::GetExpectedChildDataType(Node* 
 
   EZ_ASSERT_NOT_IMPLEMENTED;
   return DataType::Unknown;
+}
+
+// static
+void ezExpressionAST::UpdateHash(Node* pNode)
+{
+  ezHybridArray<ezUInt32, 16> valuesToHash;
+
+  const ezUInt32* pBaseValues = reinterpret_cast<const ezUInt32*>(pNode);
+  valuesToHash.PushBack(pBaseValues[0]);
+  valuesToHash.PushBack(pBaseValues[1]);
+
+  NodeType::Enum nodeType = pNode->m_Type;
+  if (NodeType::IsUnary(nodeType))
+  {
+    auto pUnary = static_cast<const UnaryOperator*>(pNode);
+    valuesToHash.PushBack(pUnary->m_pOperand->m_uiHash);
+  }
+  else if (NodeType::IsBinary(nodeType))
+  {
+    auto pBinary = static_cast<const BinaryOperator*>(pNode);
+    ezUInt32 uiHashLeft = pBinary->m_pLeftOperand->m_uiHash;
+    ezUInt32 uiHashRight = pBinary->m_pRightOperand->m_uiHash;
+
+    // Sort by hash value for commutative operations so operand order doesn't matter
+    if (NodeType::IsCommutative(nodeType) && uiHashLeft > uiHashRight)
+    {
+      ezMath::Swap(uiHashLeft, uiHashRight);
+    }
+
+    valuesToHash.PushBack(uiHashLeft);
+    valuesToHash.PushBack(uiHashRight);
+  }
+  else if (NodeType::IsTernary(nodeType))
+  {
+    auto pTernary = static_cast<const TernaryOperator*>(pNode);
+    valuesToHash.PushBack(pTernary->m_pFirstOperand->m_uiHash);
+    valuesToHash.PushBack(pTernary->m_pSecondOperand->m_uiHash);
+    valuesToHash.PushBack(pTernary->m_pThirdOperand->m_uiHash);
+  }
+  else if (NodeType::IsConstant(nodeType))
+  {
+    auto pConstant = static_cast<const Constant*>(pNode);
+    const ezUInt64 uiValueHash = pConstant->m_Value.ComputeHash();
+    valuesToHash.PushBack(static_cast<ezUInt32>(uiValueHash));
+    valuesToHash.PushBack(static_cast<ezUInt32>(uiValueHash >> 32u));
+  }
+  else if (NodeType::IsInput(nodeType))
+  {
+    auto pInput = static_cast<const Input*>(pNode);
+    const ezUInt64 uiNameHash = pInput->m_Desc.m_sName.GetHash();
+    valuesToHash.PushBack(static_cast<ezUInt32>(uiNameHash));
+    valuesToHash.PushBack(static_cast<ezUInt32>(uiNameHash >> 32u));
+  }
+  else if (NodeType::IsOutput(nodeType))
+  {
+    auto pOutput = static_cast<const Output*>(pNode);
+    const ezUInt64 uiNameHash = pOutput->m_Desc.m_sName.GetHash();
+    valuesToHash.PushBack(static_cast<ezUInt32>(uiNameHash));
+    valuesToHash.PushBack(static_cast<ezUInt32>(uiNameHash >> 32u));
+    valuesToHash.PushBack(pOutput->m_pExpression->m_uiHash);
+  }
+  else if (NodeType::IsFunctionCall(nodeType))
+  {
+    auto pFunctionCall = static_cast<const FunctionCall*>(pNode);
+    const ezUInt64 uiNameHash = pFunctionCall->m_Descs[0]->m_sName.GetHash();
+    valuesToHash.PushBack(static_cast<ezUInt32>(uiNameHash));
+    valuesToHash.PushBack(static_cast<ezUInt32>(uiNameHash >> 32u));
+
+    for (auto pArg : pFunctionCall->m_Arguments)
+    {
+      valuesToHash.PushBack(pArg->m_uiHash);
+    }
+  }
+  else
+  {
+    EZ_ASSERT_NOT_IMPLEMENTED;
+  }
+
+  pNode->m_uiHash = ezHashingUtils::xxHash32(valuesToHash.GetData(), valuesToHash.GetCount() * sizeof(ezUInt32));
+}
+
+// static
+bool ezExpressionAST::IsEqual(const Node* pNodeA, const Node* pNodeB)
+{
+  const ezUInt32 uiBaseValuesA = *reinterpret_cast<const ezUInt32*>(pNodeA);
+  const ezUInt32 uiBaseValuesB = *reinterpret_cast<const ezUInt32*>(pNodeB);
+  if (uiBaseValuesA != uiBaseValuesB)
+  {
+    return false;
+  }
+
+  NodeType::Enum nodeType = pNodeA->m_Type;
+  if (NodeType::IsUnary(nodeType))
+  {
+    auto pUnaryA = static_cast<const UnaryOperator*>(pNodeA);
+    auto pUnaryB = static_cast<const UnaryOperator*>(pNodeB);
+
+    return pUnaryA->m_pOperand == pUnaryB->m_pOperand;
+  }
+  else if (NodeType::IsBinary(nodeType))
+  {
+    auto pBinaryA = static_cast<const BinaryOperator*>(pNodeA);
+    auto pBinaryB = static_cast<const BinaryOperator*>(pNodeB);
+
+    auto pLeftA = pBinaryA->m_pLeftOperand;
+    auto pLeftB = pBinaryB->m_pLeftOperand;
+    auto pRightA = pBinaryA->m_pRightOperand;
+    auto pRightB = pBinaryB->m_pRightOperand;
+
+    if (NodeType::IsCommutative(nodeType))
+    {
+      if (pLeftA > pRightA)
+        ezMath::Swap(pLeftA, pRightA);
+
+      if (pLeftB > pRightB)
+        ezMath::Swap(pLeftB, pRightB);
+    }
+
+    return pLeftA == pLeftB && pRightA == pRightB;
+  }
+  else if (NodeType::IsTernary(nodeType))
+  {
+    auto pTernaryA = static_cast<const TernaryOperator*>(pNodeA);
+    auto pTernaryB = static_cast<const TernaryOperator*>(pNodeB);
+
+    return pTernaryA->m_pFirstOperand == pTernaryB->m_pFirstOperand &&
+           pTernaryA->m_pSecondOperand == pTernaryB->m_pSecondOperand &&
+           pTernaryA->m_pThirdOperand == pTernaryB->m_pThirdOperand;
+  }
+  else if (NodeType::IsConstant(nodeType))
+  {
+    auto pConstantA = static_cast<const Constant*>(pNodeA);
+    auto pConstantB = static_cast<const Constant*>(pNodeB);
+
+    return pConstantA->m_Value == pConstantB->m_Value;
+  }
+  else if (NodeType::IsInput(nodeType))
+  {
+    auto pInputA = static_cast<const Input*>(pNodeA);
+    auto pInputB = static_cast<const Input*>(pNodeB);
+
+    return pInputA->m_Desc == pInputB->m_Desc;
+  }
+  else if (NodeType::IsOutput(nodeType))
+  {
+    auto pOutputA = static_cast<const Output*>(pNodeA);
+    auto pOutputB = static_cast<const Output*>(pNodeB);
+
+    return pOutputA->m_Desc == pOutputB->m_Desc && pOutputA->m_pExpression == pOutputB->m_pExpression;
+  }
+  else if (NodeType::IsFunctionCall(nodeType))
+  {
+    auto pFunctionCallA = static_cast<const FunctionCall*>(pNodeA);
+    auto pFunctionCallB = static_cast<const FunctionCall*>(pNodeB);
+
+    return pFunctionCallA->m_Descs[pFunctionCallA->m_uiOverloadIndex] == pFunctionCallB->m_Descs[pFunctionCallB->m_uiOverloadIndex] &&
+           pFunctionCallA->m_Arguments == pFunctionCallB->m_Arguments;
+  }
+
+  EZ_ASSERT_NOT_IMPLEMENTED;
+  return false;
 }
 
 namespace
