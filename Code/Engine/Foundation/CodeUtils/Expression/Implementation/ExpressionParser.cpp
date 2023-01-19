@@ -38,12 +38,12 @@ namespace
     {"&&"_ezsv, ezExpressionAST::NodeType::LogicalAnd, 14},
     {"||"_ezsv, ezExpressionAST::NodeType::LogicalOr, 15},
     {"<<"_ezsv, ezExpressionAST::NodeType::BitshiftLeft, 7},
-    {">>"_ezsv, ezExpressionAST::NodeType::BitshiftRight, 7},    
+    {">>"_ezsv, ezExpressionAST::NodeType::BitshiftRight, 7},
     {"=="_ezsv, ezExpressionAST::NodeType::Equal, 10},
     {"!="_ezsv, ezExpressionAST::NodeType::NotEqual, 10},
     {"<="_ezsv, ezExpressionAST::NodeType::LessEqual, 9},
     {">="_ezsv, ezExpressionAST::NodeType::GreaterEqual, 9},
-    {"<"_ezsv, ezExpressionAST::NodeType::Less, 9},    
+    {"<"_ezsv, ezExpressionAST::NodeType::Less, 9},
     {">"_ezsv, ezExpressionAST::NodeType::Greater, 9},
     {"&"_ezsv, ezExpressionAST::NodeType::BitwiseAnd, 11},
     {"^"_ezsv, ezExpressionAST::NodeType::BitwiseXor, 12},
@@ -294,6 +294,19 @@ ezResult ezExpressionParser::ParseAssignment()
     return EZ_FAILURE;
   }
 
+  ezStringView sPartialAssignmentMask;
+  if (Accept(m_TokenStream, m_uiCurrentToken, "."))
+  {
+    const ezToken* pSwizzleToken = nullptr;
+    if (Expect(ezTokenType::Identifier, &pSwizzleToken).Failed())
+    {
+      ReportError(m_TokenStream[m_uiCurrentToken], "Invalid partial assignment");
+      return EZ_FAILURE;
+    }
+
+    sPartialAssignmentMask = pSwizzleToken->m_DataView;
+  }
+
   SkipWhitespace(m_TokenStream, m_uiCurrentToken);
 
   ezExpressionAST::NodeType::Enum assignOperator = ezExpressionAST::NodeType::Invalid;
@@ -319,7 +332,19 @@ ezResult ezExpressionParser::ParseAssignment()
 
   if (assignOperator != ezExpressionAST::NodeType::Invalid)
   {
-    pExpression = m_pAST->CreateBinaryOperator(assignOperator, pVarNode, pExpression);
+    pExpression = m_pAST->CreateBinaryOperator(assignOperator, Unpack(pVarNode), pExpression);
+  }
+
+  if (sPartialAssignmentMask.IsEmpty() == false)
+  {
+    auto pConstructor = m_pAST->CreateConstructorCall(Unpack(pVarNode, false), pExpression, sPartialAssignmentMask);
+    if (pConstructor == nullptr)
+    {
+      ReportError(pIdentifierToken, ezFmt("Invalid partial assignment .{} = {}", sPartialAssignmentMask, ezExpressionAST::DataType::GetName(pExpression->m_ReturnType)));
+      return EZ_FAILURE;
+    }
+
+    pExpression = pConstructor;
   }
 
   if (ezExpressionAST::NodeType::IsInput(pVarNode->m_Type))
@@ -348,9 +373,11 @@ ezExpressionAST::Node* ezExpressionParser::ParseFactor()
     auto pIdentifierToken = m_TokenStream[uiIdentifierToken];
     const ezStringView sIdentifier = pIdentifierToken->m_DataView;
 
+    ezExpressionAST::Node* pNode = nullptr;
+
     if (Accept(m_TokenStream, m_uiCurrentToken, "("))
     {
-      return ParseFunctionCall(sIdentifier);
+      return ParseSwizzle(ParseFunctionCall(sIdentifier));
     }
     else if (sIdentifier == "true")
     {
@@ -371,7 +398,7 @@ ezExpressionAST::Node* ezExpressionParser::ParseFactor()
       {
         ReportError(pIdentifierToken, ezFmt("Undeclared identifier '{}'", sIdentifier));
       }
-      return pVariable;
+      return ParseSwizzle(Unpack(pVariable));
     }
   }
 
@@ -410,7 +437,7 @@ ezExpressionAST::Node* ezExpressionParser::ParseFactor()
     if (Expect(")").Failed())
       return nullptr;
 
-    return pExpression;
+    return ParseSwizzle(pExpression);
   }
 
   return nullptr;
@@ -502,9 +529,10 @@ ezExpressionAST::Node* ezExpressionParser::ParseFunctionCall(ezStringView sFunct
     {
       arguments.PushBack(ParseExpression());
     } while (Accept(m_TokenStream, m_uiCurrentToken, ","));
+
+    if (Expect(")").Failed())
+      return nullptr;
   }
-  if (Expect(")").Failed())
-    return nullptr;
 
   auto CheckArgumentCount = [&](ezUInt32 uiExpectedArgumentCount) -> ezResult
   {
@@ -523,12 +551,13 @@ ezExpressionAST::Node* ezExpressionParser::ParseFunctionCall(ezStringView sFunct
   if (m_KnownTypes.TryGetValue(sHashedFuncName, dataType))
   {
     ezUInt32 uiElementCount = ezExpressionAST::DataType::GetElementCount(dataType);
-    if (arguments.GetCount() != 1 && CheckArgumentCount(uiElementCount).Failed())
+    if (arguments.GetCount() > uiElementCount)
+    {
+      ReportError(pFunctionToken, ezFmt("Invalid argument count for '{}'. Expected 0 - {} but got {}", sFunctionName, uiElementCount, arguments.GetCount()));
       return nullptr;
+    }
 
-    auto pConstructorCall = m_pAST->CreateConstructorCall(dataType);
-    pConstructorCall->m_Arguments = std::move(arguments);
-    return pConstructorCall;
+    return m_pAST->CreateConstructorCall(dataType, arguments);
   }
 
   ezEnum<ezExpressionAST::NodeType> builtinType;
@@ -576,13 +605,29 @@ ezExpressionAST::Node* ezExpressionParser::ParseFunctionCall(ezStringView sFunct
       return nullptr;
     }
 
-    auto pFunctionCall = m_pAST->CreateFunctionCall(*pFunctionDescs);
-    pFunctionCall->m_Arguments = std::move(arguments);
-    return pFunctionCall;
+    return m_pAST->CreateFunctionCall(*pFunctionDescs, arguments);
   }
 
   ReportError(pFunctionToken, ezFmt("Undeclared function '{}'", sFunctionName));
   return nullptr;
+}
+
+ezExpressionAST::Node* ezExpressionParser::ParseSwizzle(ezExpressionAST::Node* pExpression)
+{
+  if (Accept(m_TokenStream, m_uiCurrentToken, "."))
+  {
+    const ezToken* pSwizzleToken = nullptr;
+    if (Expect(ezTokenType::Identifier, &pSwizzleToken).Failed())
+      return nullptr;
+
+    pExpression = m_pAST->CreateSwizzle(pSwizzleToken->m_DataView, pExpression);
+    if (pExpression == nullptr)
+    {
+      ReportError(pSwizzleToken, ezFmt("Invalid swizzle '{}'", pSwizzleToken->m_DataView));
+    }
+  }
+
+  return pExpression;
 }
 
 // Does NOT advance the current token beyond the operator!
@@ -641,9 +686,37 @@ ezExpressionAST::Node* ezExpressionParser::GetVariable(ezStringView sVarName)
 
 ezExpressionAST::Node* ezExpressionParser::EnsureExpectedType(ezExpressionAST::Node* pNode, ezExpressionAST::DataType::Enum expectedType)
 {
-  if (expectedType != ezExpressionAST::DataType::Unknown && pNode->m_ReturnType != expectedType)
+  if (expectedType != ezExpressionAST::DataType::Unknown)
   {
-    return m_pAST->CreateUnaryOperator(ezExpressionAST::NodeType::TypeConversion, pNode, expectedType);
+    const auto nodeRegisterType = ezExpressionAST::DataType::GetRegisterType(pNode->m_ReturnType);
+    const auto expectedRegisterType = ezExpressionAST::DataType::GetRegisterType(expectedType);
+    if (nodeRegisterType != expectedRegisterType)
+    {
+      pNode = m_pAST->CreateUnaryOperator(ezExpressionAST::NodeType::TypeConversion, pNode, expectedType);
+    }
+
+    const ezUInt32 nodeElementCount = ezExpressionAST::DataType::GetElementCount(pNode->m_ReturnType);
+    const ezUInt32 expectedElementCount = ezExpressionAST::DataType::GetElementCount(expectedType);
+    if (nodeElementCount < expectedElementCount)
+    {
+      pNode = m_pAST->CreateConstructorCall(expectedType, ezMakeArrayPtr(&pNode, 1));
+    }
+  }
+
+  return pNode;
+}
+
+ezExpressionAST::Node* ezExpressionParser::Unpack(ezExpressionAST::Node* pNode, bool bUnassignedError /*= true*/)
+{
+  if (ezExpressionAST::NodeType::IsOutput(pNode->m_Type))
+  {
+    auto pOutput = static_cast<ezExpressionAST::Output*>(pNode);
+    if (pOutput->m_pExpression == nullptr && bUnassignedError)
+    {
+      ReportError(m_TokenStream[m_uiCurrentToken], ezFmt("Output '{}' has not been assigned yet", pOutput->m_Desc.m_sName));      
+    }
+
+    return pOutput->m_pExpression;
   }
 
   return pNode;

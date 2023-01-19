@@ -37,6 +37,19 @@ namespace
     {OperandChainIndices{0, 0}, {1, 0}, {2, 2}, {3, 3}, {4, 2}}, // 15
     {OperandChainIndices{0, 0}, {1, 1}, {2, 2}, {3, 3}},         // 16
   };
+
+  static ezExpression::StreamDesc CreateScalarizedStreamDesc(const ezExpression::StreamDesc& desc, ezEnum<ezExpressionAST::VectorComponent> component)
+  {
+    ezStringBuilder sNewName = desc.m_sName.GetView();
+    sNewName.Append(".", ezExpressionAST::VectorComponent::GetName(component));
+
+    ezExpression::StreamDesc newDesc;
+    newDesc.m_sName.Assign(sNewName);
+    newDesc.m_DataType = static_cast<ezProcessingStream::DataType>((ezUInt32)desc.m_DataType & ~3u);
+
+    return newDesc;
+  }
+
 } // namespace
 
 ezExpressionAST::Node* ezExpressionAST::TypeDeductionAndConversion(Node* pNode)
@@ -45,13 +58,8 @@ ezExpressionAST::Node* ezExpressionAST::TypeDeductionAndConversion(Node* pNode)
   DataType::Enum returnType = pNode->m_ReturnType;
   if (returnType == DataType::Unknown)
   {
-    ResolveOverloads(pNode);
-
-    if (pNode->m_ReturnType == DataType::Unknown)
-    {
-      ezLog::Error("No matching overload found for '{}'", NodeType::GetName(nodeType));
-      return nullptr;
-    }
+    ezLog::Error("No matching overload found for '{}'", NodeType::GetName(nodeType));
+    return nullptr;
   }
 
   auto children = GetChildren(pNode);
@@ -67,7 +75,116 @@ ezExpressionAST::Node* ezExpressionAST::TypeDeductionAndConversion(Node* pNode)
 
     if (expectedChildDataType != DataType::Unknown && pChildNode->m_ReturnType != expectedChildDataType)
     {
-      pChildNode = CreateUnaryOperator(NodeType::TypeConversion, pChildNode, expectedChildDataType);
+      const auto childRegisterType = DataType::GetRegisterType(pChildNode->m_ReturnType);
+      const auto expectedRegisterType = DataType::GetRegisterType(expectedChildDataType);
+      if (childRegisterType != expectedRegisterType)
+      {
+        pChildNode = CreateUnaryOperator(NodeType::TypeConversion, pChildNode, DataType::FromRegisterType(expectedRegisterType));
+      }
+
+      const ezUInt32 childElementCount = DataType::GetElementCount(pChildNode->m_ReturnType);
+      const ezUInt32 expectedElementCount = DataType::GetElementCount(expectedChildDataType);
+      if (childElementCount == 1 && expectedElementCount > 1)
+      {
+        pChildNode = CreateConstructorCall(expectedChildDataType, ezMakeArrayPtr(&pChildNode, 1));
+      }
+      else if (childElementCount < expectedElementCount)
+      {
+        ezLog::Error("Cannot implicitly convert '{}' to '{}'", DataType::GetName(pChildNode->m_ReturnType), DataType::GetName(expectedChildDataType));
+        return nullptr;
+      }
+    }
+  }
+
+  return pNode;
+}
+
+ezExpressionAST::Node* ezExpressionAST::ReplaceVectorInstructions(Node* pNode)
+{
+  NodeType::Enum nodeType = pNode->m_Type;
+  DataType::Enum returnType = pNode->m_ReturnType;  
+
+  return pNode;
+}
+
+ezExpressionAST::Node* ezExpressionAST::ScalarizeVectorInstructions(Node* pNode)
+{
+  NodeType::Enum nodeType = pNode->m_Type;
+  if (nodeType == NodeType::Swizzle)
+  {
+    auto pSwizzleNode = static_cast<Swizzle*>(pNode);
+    if (pSwizzleNode->m_NumComponents == 1)
+    {
+      ezEnum<VectorComponent> component = pSwizzleNode->m_Components[0];
+      Node* pChildNode = pSwizzleNode->m_pExpression;
+      NodeType::Enum childNodeType = pChildNode->m_Type;
+
+      if (NodeType::IsConstant(childNodeType))
+      {
+        auto pConstantNode = static_cast<const Constant*>(pChildNode);
+        EZ_ASSERT_NOT_IMPLEMENTED;
+        return pNode;
+      }
+      else if (NodeType::IsSwizzle(childNodeType))
+      {
+        auto pChildSwizzleNode = static_cast<Swizzle*>(pChildNode);
+        if (static_cast<ezUInt32>(component) >= pChildSwizzleNode->m_NumComponents)
+        {
+          ezLog::Error("Invalid Swizzle");
+          return nullptr;
+        }
+        return ScalarizeVectorInstructions(CreateSwizzle(ezMakeArrayPtr(&pChildSwizzleNode->m_Components[component], 1), pChildSwizzleNode->m_pExpression));
+      }
+      else if (NodeType::IsInput(childNodeType))
+      {
+        auto pInput = static_cast<const Input*>(pChildNode);
+        const ezUInt32 uiNumInputElements = DataType::GetElementCount(pInput->m_ReturnType);
+        if (static_cast<ezUInt32>(component) >= uiNumInputElements)
+        {
+          ezLog::Error("Invalid subscript .{} for input '{}' of type '{}'", VectorComponent::GetName(component), pInput->m_Desc.m_sName, DataType::GetName(pInput->m_ReturnType));
+          return nullptr;
+        }
+        return CreateInput(CreateScalarizedStreamDesc(pInput->m_Desc, component));
+      }
+      else if (NodeType::IsConstructorCall(childNodeType))
+      {
+        auto pConstructorCall = static_cast<const ConstructorCall*>(pChildNode);
+        auto pArg = pConstructorCall->m_Arguments[component];
+        return ScalarizeVectorInstructions(pArg);
+      }
+
+      auto swizzle = ezMakeArrayPtr(&component, 1);
+      auto innerChildren = GetChildren(pChildNode);
+      ezSmallArray<Node*, 8> newSwizzleNodes;
+      for (auto pInnerChildNode : innerChildren)
+      {
+        newSwizzleNodes.PushBack(CreateSwizzle(swizzle, pInnerChildNode));
+      }
+
+      if (NodeType::IsUnary(childNodeType))
+      {
+        return CreateUnaryOperator(childNodeType, newSwizzleNodes[0], newSwizzleNodes[0]->m_ReturnType);
+      }
+      else if (NodeType::IsBinary(childNodeType))
+      {
+        return CreateBinaryOperator(childNodeType, newSwizzleNodes[0], newSwizzleNodes[1]);
+      }
+      else if (NodeType::IsTernary(childNodeType))
+      {
+        return CreateTernaryOperator(childNodeType, newSwizzleNodes[0], newSwizzleNodes[1], newSwizzleNodes[2]);
+      }
+      else if (NodeType::IsFunctionCall(childNodeType))
+      {
+        auto pFunctionCall = static_cast<const FunctionCall*>(pChildNode);
+        return CreateFunctionCall(*pFunctionCall->m_Descs[pFunctionCall->m_uiOverloadIndex], std::move(newSwizzleNodes));
+      }
+
+      EZ_ASSERT_NOT_IMPLEMENTED;
+    }
+    else
+    {
+      ezLog::Error("Failed to scalarize AST");
+      return nullptr;
     }
   }
 
@@ -784,5 +901,28 @@ ezExpressionAST::Node* ezExpressionAST::Validate(Node* pNode)
   return pNode;
 }
 
+ezResult ezExpressionAST::ScalarizeOutputs()
+{
+  for (ezUInt32 uiOutputIndex = 0; uiOutputIndex < m_OutputNodes.GetCount(); ++uiOutputIndex)
+  {
+    const auto pOutput = m_OutputNodes[uiOutputIndex];
+    if (pOutput == nullptr || pOutput->m_pExpression == nullptr)
+      return EZ_FAILURE;
 
-EZ_STATICLINK_FILE(Foundation, Foundation_CodeUtils_Expression_Implementation_ExpressionASTTransforms);
+    const ezUInt32 uiNumElements = DataType::GetElementCount(pOutput->m_ReturnType);
+    if (uiNumElements > 1)
+    {
+      m_OutputNodes.RemoveAtAndCopy(uiOutputIndex);
+
+      for (ezUInt32 i = 0; i < uiNumElements; ++i)
+      {
+        ezEnum<VectorComponent> component = static_cast<VectorComponent::Enum>(i);
+        auto pSwizzle = CreateSwizzle(ezMakeArrayPtr(&component, 1), pOutput->m_pExpression);
+        auto pNewOutput = CreateOutput(CreateScalarizedStreamDesc(pOutput->m_Desc, component), pSwizzle);
+        m_OutputNodes.Insert(pNewOutput, uiOutputIndex + i);
+      }
+    }
+  }
+
+  return EZ_SUCCESS;
+}

@@ -29,6 +29,12 @@ bool ezExpressionAST::NodeType::IsConstant(Enum nodeType)
 }
 
 // static
+bool ezExpressionAST::NodeType::IsSwizzle(Enum nodeType)
+{
+  return nodeType == Swizzle;
+}
+
+// static
 bool ezExpressionAST::NodeType::IsInput(Enum nodeType)
 {
   return nodeType == Input;
@@ -130,6 +136,7 @@ namespace
     "",
 
     "Constant",
+    "Swizzle",
     "Input",
     "Output",
 
@@ -208,7 +215,7 @@ namespace
     {SIG2(Float, Float, Float), SIG2(Int, Int, Int)},                         // Subtract,
     {SIG2(Float, Float, Float), SIG2(Int, Int, Int)},                         // Multiply,
     {SIG2(Float, Float, Float), SIG2(Int, Int, Int)},                         // Divide,
-    {SIG2(Float, Float, Float), SIG2(Int, Int, Int)},                          // Modulo,
+    {SIG2(Float, Float, Float), SIG2(Int, Int, Int)},                         // Modulo,
     {SIG2(Float, Float, Float)},                                              // Log,
     {SIG2(Float, Float, Float), SIG2(Int, Int, Int)},                         // Pow,
     {SIG2(Float, Float, Float), SIG2(Int, Int, Int)},                         // Min,
@@ -236,6 +243,7 @@ namespace
     {},                                                                                         // LastTernary,
 
     {}, // Constant,
+    {}, // Swizzle,
     {}, // Input,
     {}, // Output,
 
@@ -366,13 +374,61 @@ const char* ezExpressionAST::DataType::GetName(Enum dataType)
 
 //////////////////////////////////////////////////////////////////////////
 
+namespace
+{
+  static const char* s_szVectorComponentNames[] = {
+    "x",
+    "y",
+    "z",
+    "w",
+  };
+
+  static const char* s_szVectorComponentAltNames[] = {
+    "r",
+    "g",
+    "b",
+    "a",
+  };
+
+  static_assert(EZ_ARRAY_SIZE(s_szVectorComponentNames) == ezExpressionAST::VectorComponent::Count);
+  static_assert(EZ_ARRAY_SIZE(s_szVectorComponentAltNames) == ezExpressionAST::VectorComponent::Count);
+} // namespace
+
+// static
+const char* ezExpressionAST::VectorComponent::GetName(Enum vectorComponent)
+{
+  EZ_ASSERT_DEBUG(vectorComponent >= 0 && vectorComponent < EZ_ARRAY_SIZE(s_szVectorComponentNames), "Out of bounds access");
+  return s_szVectorComponentNames[vectorComponent];
+}
+
+ezExpressionAST::VectorComponent::Enum ezExpressionAST::VectorComponent::FromChar(ezUInt32 uiChar)
+{
+  for (ezUInt32 i = 0; i < Count; ++i)
+  {
+    if (uiChar == s_szVectorComponentNames[i][0] || uiChar == s_szVectorComponentAltNames[i][0])
+    {
+      return static_cast<Enum>(i);
+    }
+  }
+
+  return Count;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
 ezExpressionAST::ezExpressionAST()
   : m_Allocator("Expression AST", ezFoundation::GetAlignedAllocator())
 {
   static_assert(sizeof(Node) == 8);
   static_assert(sizeof(UnaryOperator) == 16);
   static_assert(sizeof(BinaryOperator) == 24);
+  static_assert(sizeof(TernaryOperator) == 32);
+  static_assert(sizeof(Constant) == 32);
+  static_assert(sizeof(Swizzle) == 24);
+  static_assert(sizeof(Input) == 24);
+  static_assert(sizeof(Output) == 32);
   static_assert(sizeof(FunctionCall) == 96);
+  static_assert(sizeof(ConstructorCall) == 48);
 }
 
 ezExpressionAST::~ezExpressionAST() = default;
@@ -437,6 +493,43 @@ ezExpressionAST::Constant* ezExpressionAST::CreateConstant(const ezVariant& valu
   return pConstant;
 }
 
+ezExpressionAST::Swizzle* ezExpressionAST::CreateSwizzle(ezStringView sSwizzle, Node* pExpression)
+{
+  ezEnum<VectorComponent> components[4];
+  ezUInt32 numComponents = 0;
+
+  for (auto it : sSwizzle)
+  {
+    if (numComponents == EZ_ARRAY_SIZE(components))
+      return nullptr;
+
+    ezEnum<VectorComponent> component = VectorComponent::FromChar(it);
+    if (component == VectorComponent::Count)
+      return nullptr;
+
+    components[numComponents] = component;
+    ++numComponents;
+  }
+
+  return CreateSwizzle(ezMakeArrayPtr(components, numComponents), pExpression);
+}
+
+ezExpressionAST::Swizzle* ezExpressionAST::CreateSwizzle(ezArrayPtr<ezEnum<VectorComponent>> swizzle, Node* pExpression)
+{
+  EZ_ASSERT_DEV(swizzle.GetCount() >= 1 && swizzle.GetCount() <= 4, "Invalid number of vector components for swizzle.");
+  EZ_ASSERT_DEV(pExpression->m_ReturnType != DataType::Unknown, "Expression return type must be known.");
+
+  auto pSwizzle = EZ_NEW(&m_Allocator, Swizzle);
+  pSwizzle->m_Type = NodeType::Swizzle;
+  pSwizzle->m_ReturnType = DataType::FromRegisterType(DataType::GetRegisterType(pExpression->m_ReturnType), swizzle.GetCount());
+
+  ezMemoryUtils::Copy(pSwizzle->m_Components, swizzle.GetPtr(), swizzle.GetCount());
+  pSwizzle->m_NumComponents = swizzle.GetCount();
+  pSwizzle->m_pExpression = pExpression;
+
+  return pSwizzle;
+}
+
 ezExpressionAST::Input* ezExpressionAST::CreateInput(const ezExpression::StreamDesc& desc)
 {
   auto pInput = EZ_NEW(&m_Allocator, Input);
@@ -458,12 +551,12 @@ ezExpressionAST::Output* ezExpressionAST::CreateOutput(const ezExpression::Strea
   return pOutput;
 }
 
-ezExpressionAST::FunctionCall* ezExpressionAST::CreateFunctionCall(const ezExpression::FunctionDesc& desc)
+ezExpressionAST::FunctionCall* ezExpressionAST::CreateFunctionCall(const ezExpression::FunctionDesc& desc, ezArrayPtr<Node*> arguments)
 {
-  return CreateFunctionCall(ezMakeArrayPtr(&desc, 1));
+  return CreateFunctionCall(ezMakeArrayPtr(&desc, 1), arguments);
 }
 
-ezExpressionAST::FunctionCall* ezExpressionAST::CreateFunctionCall(ezArrayPtr<const ezExpression::FunctionDesc> descs)
+ezExpressionAST::FunctionCall* ezExpressionAST::CreateFunctionCall(ezArrayPtr<const ezExpression::FunctionDesc> descs, ezArrayPtr<Node*> arguments)
 {
   auto pFunctionCall = EZ_NEW(&m_Allocator, FunctionCall);
   pFunctionCall->m_Type = NodeType::FunctionCall;
@@ -476,18 +569,110 @@ ezExpressionAST::FunctionCall* ezExpressionAST::CreateFunctionCall(ezArrayPtr<co
     pFunctionCall->m_Descs.PushBack(&it.Key());
   }
 
+  pFunctionCall->m_Arguments = arguments;
+
+  ResolveOverloads(pFunctionCall);
+
   return pFunctionCall;
 }
 
-ezExpressionAST::ConstructorCall* ezExpressionAST::CreateConstructorCall(DataType::Enum dataType)
+ezExpressionAST::ConstructorCall* ezExpressionAST::CreateConstructorCall(DataType::Enum dataType, ezArrayPtr<Node*> arguments)
 {
   EZ_ASSERT_DEV(dataType >= DataType::Bool, "Invalid data type for constructor");
 
   auto pConstructorCall = EZ_NEW(&m_Allocator, ConstructorCall);
   pConstructorCall->m_Type = NodeType::ConstructorCall;
   pConstructorCall->m_ReturnType = dataType;
+  pConstructorCall->m_Arguments = arguments;
+
+  ResolveOverloads(pConstructorCall);
 
   return pConstructorCall;
+}
+
+ezExpressionAST::ConstructorCall* ezExpressionAST::CreateConstructorCall(Node* pOldValue, Node* pNewValue, ezStringView sPartialAssignmentMask)
+{
+  ezExpression::RegisterType::Enum registerType = ezExpression::RegisterType::Unknown;
+  ezSmallArray<Node*, 4> arguments;
+
+  if (pOldValue != nullptr)
+  {
+    registerType = DataType::GetRegisterType(pOldValue->m_ReturnType);
+
+    if (NodeType::IsConstructorCall(pOldValue->m_Type))
+    {
+      auto pConstructorCall = static_cast<ConstructorCall*>(pOldValue);
+      arguments = pConstructorCall->m_Arguments;
+    }
+    else
+    {
+      const ezUInt32 uiNumElements = DataType::GetElementCount(pOldValue->m_ReturnType);
+      if (uiNumElements == 1)
+      {
+        arguments.PushBack(pOldValue);
+      }
+      else
+      {
+        for (ezUInt32 i = 0; i < uiNumElements; ++i)
+        {
+          ezEnum<VectorComponent> component = static_cast<VectorComponent::Enum>(i);
+          auto pSwizzle = CreateSwizzle(ezMakeArrayPtr(&component, 1), pOldValue);
+          arguments.PushBack(pSwizzle);
+        }
+      }
+    }
+  }
+
+  const ezUInt32 uiNewValueElementCount = DataType::GetElementCount(pNewValue->m_ReturnType);
+  ezUInt32 uiNewValueElementIndex = 0;
+  for (auto it : sPartialAssignmentMask)
+  {
+    auto component = ezExpressionAST::VectorComponent::FromChar(it);
+    if (component == ezExpressionAST::VectorComponent::Count)
+    {
+      return nullptr;
+    }
+
+    Node* pNewValueElement = nullptr;
+    if (uiNewValueElementCount == 1)
+    {
+      pNewValueElement = pNewValue;
+    }
+    else
+    {
+      if (uiNewValueElementIndex >= uiNewValueElementCount)
+      {
+        return nullptr;
+      }
+
+      ezEnum<VectorComponent> newComponent = static_cast<VectorComponent::Enum>(uiNewValueElementIndex);
+      pNewValueElement = CreateSwizzle(ezMakeArrayPtr(&newComponent, 1), pNewValue);
+      ++uiNewValueElementIndex;
+    }
+
+    ezUInt32 componentIndex = component;
+    if (componentIndex >= arguments.GetCount())
+    {
+      while (componentIndex > arguments.GetCount())
+      {
+        arguments.PushBack(CreateConstant(0));
+      }
+
+      arguments.PushBack(pNewValueElement);
+    }
+    else
+    {
+      arguments[componentIndex] = pNewValueElement;
+    }
+
+    if (pOldValue == nullptr)
+    {
+      registerType = ezMath::Max(registerType, DataType::GetRegisterType(pNewValueElement->m_ReturnType));
+    }
+  }
+
+  ezEnum<DataType> newType = DataType::FromRegisterType(registerType, arguments.GetCount());
+  return CreateConstructorCall(newType, arguments);
 }
 
 // static
@@ -508,6 +693,11 @@ ezArrayPtr<ezExpressionAST::Node*> ezExpressionAST::GetChildren(Node* pNode)
   {
     auto& pChildren = static_cast<TernaryOperator*>(pNode)->m_pFirstOperand;
     return ezMakeArrayPtr(&pChildren, 3);
+  }
+  else if (NodeType::IsSwizzle(nodeType))
+  {
+    auto& pChild = static_cast<Swizzle*>(pNode)->m_pExpression;
+    return ezMakeArrayPtr(&pChild, 1);
   }
   else if (NodeType::IsOutput(nodeType))
   {
@@ -548,6 +738,11 @@ ezArrayPtr<const ezExpressionAST::Node*> ezExpressionAST::GetChildren(const Node
     auto& pChildren = static_cast<const TernaryOperator*>(pNode)->m_pFirstOperand;
     return ezMakeArrayPtr((const Node**)&pChildren, 3);
   }
+  else if (NodeType::IsSwizzle(nodeType))
+  {
+    auto& pChild = static_cast<const Swizzle*>(pNode)->m_pExpression;
+    return ezMakeArrayPtr((const Node**)&pChild, 1);
+  }
   else if (NodeType::IsOutput(nodeType))
   {
     auto& pChild = static_cast<const Output*>(pNode)->m_pExpression;
@@ -568,7 +763,113 @@ ezArrayPtr<const ezExpressionAST::Node*> ezExpressionAST::GetChildren(const Node
   return ezArrayPtr<const Node*>();
 }
 
-// static
+namespace
+{
+  struct NodeInfo
+  {
+    EZ_DECLARE_POD_TYPE();
+
+    const ezExpressionAST::Node* m_pNode;
+    ezUInt32 m_uiParentGraphNode;
+  };
+} // namespace
+
+void ezExpressionAST::PrintGraph(ezDGMLGraph& graph) const
+{
+  ezHybridArray<NodeInfo, 64> nodeStack;
+
+  ezStringBuilder sTmp;
+  for (auto pOutputNode : m_OutputNodes)
+  {
+    if (pOutputNode == nullptr)
+      continue;
+
+    sTmp = NodeType::GetName(pOutputNode->m_Type);
+    sTmp.Append("(", DataType::GetName(pOutputNode->m_ReturnType), ")");
+    sTmp.Append(": ", pOutputNode->m_Desc.m_sName);
+
+    ezDGMLGraph::NodeDesc nd;
+    nd.m_Color = ezColorScheme::LightUI(ezColorScheme::Blue);
+    ezUInt32 uiGraphNode = graph.AddNode(sTmp, &nd);
+
+    nodeStack.PushBack({pOutputNode->m_pExpression, uiGraphNode});
+  }
+
+  ezHashTable<const Node*, ezUInt32> nodeCache;
+
+  while (!nodeStack.IsEmpty())
+  {
+    NodeInfo currentNodeInfo = nodeStack.PeekBack();
+    nodeStack.PopBack();
+
+    ezUInt32 uiGraphNode = 0;
+    if (currentNodeInfo.m_pNode != nullptr)
+    {
+      if (!nodeCache.TryGetValue(currentNodeInfo.m_pNode, uiGraphNode))
+      {
+        NodeType::Enum nodeType = currentNodeInfo.m_pNode->m_Type;
+        sTmp = NodeType::GetName(nodeType);
+        sTmp.Append("(", DataType::GetName(currentNodeInfo.m_pNode->m_ReturnType), ")");
+        ezColor color = ezColor::White;
+
+        if (NodeType::IsConstant(nodeType))
+        {
+          sTmp.AppendFormat(": {0}", static_cast<const Constant*>(currentNodeInfo.m_pNode)->m_Value.ConvertTo<ezString>());
+        }
+        else if (NodeType::IsSwizzle(nodeType))
+        {
+          auto pSwizzleNode = static_cast<const Swizzle*>(currentNodeInfo.m_pNode);
+          sTmp.Append(": ");
+          for (ezUInt32 i = 0; i < pSwizzleNode->m_NumComponents; ++i)
+          {
+            sTmp.Append(VectorComponent::GetName(pSwizzleNode->m_Components[i]));
+          }
+        }
+        else if (NodeType::IsInput(nodeType))
+        {
+          auto pInputNode = static_cast<const Input*>(currentNodeInfo.m_pNode);
+          sTmp.Append(": ", pInputNode->m_Desc.m_sName);
+          color = ezColorScheme::LightUI(ezColorScheme::Green);
+        }
+        else if (NodeType::IsFunctionCall(nodeType))
+        {
+          auto pFunctionCall = static_cast<const FunctionCall*>(currentNodeInfo.m_pNode);
+          if (pFunctionCall->m_uiOverloadIndex != 0xFF)
+          {
+            auto pDesc = pFunctionCall->m_Descs[currentNodeInfo.m_pNode->m_uiOverloadIndex];
+            sTmp.Append(": ", pDesc->GetMangledName());
+          }
+          else
+          {
+            sTmp.Append(": ", pFunctionCall->m_Descs[0]->m_sName);
+          }
+          color = ezColorScheme::LightUI(ezColorScheme::Yellow);
+        }
+
+        ezDGMLGraph::NodeDesc nd;
+        nd.m_Color = color;
+        uiGraphNode = graph.AddNode(sTmp, &nd);
+        nodeCache.Insert(currentNodeInfo.m_pNode, uiGraphNode);
+
+        // push children
+        auto children = GetChildren(currentNodeInfo.m_pNode);
+        for (auto pChild : children)
+        {
+          nodeStack.PushBack({pChild, uiGraphNode});
+        }
+      }
+    }
+    else
+    {
+      ezDGMLGraph::NodeDesc nd;
+      nd.m_Color = ezColor::OrangeRed;
+      uiGraphNode = graph.AddNode("Invalid", &nd);
+    }
+
+    graph.AddConnection(uiGraphNode, currentNodeInfo.m_uiParentGraphNode);
+  }
+}
+
 void ezExpressionAST::ResolveOverloads(Node* pNode)
 {
   if (pNode->m_uiOverloadIndex != 0xFF)
@@ -585,7 +886,7 @@ void ezExpressionAST::ResolveOverloads(Node* pNode)
     return;
   }
 
-  auto CalculateMatchDistance = [](ezArrayPtr<Node*> children, ezArrayPtr<const ezEnum<ezExpression::RegisterType>> expectedTypes, ezUInt32 uiNumRequiredArgs)
+  auto CalculateMatchDistance = [](ezArrayPtr<Node*> children, ezArrayPtr<const ezEnum<ezExpression::RegisterType>> expectedTypes, ezUInt32 uiNumRequiredArgs, ezUInt32& uiMaxNumElements)
   {
     if (children.GetCount() < uiNumRequiredArgs)
     {
@@ -593,14 +894,11 @@ void ezExpressionAST::ResolveOverloads(Node* pNode)
     }
 
     ezUInt32 uiMatchDistance = 0;
+    uiMaxNumElements = 0;
     for (ezUInt32 i = 0; i < ezMath::Min(children.GetCount(), expectedTypes.GetCount()); ++i)
     {
       auto& pChildNode = children[i];
-      if (pChildNode == nullptr || pChildNode->m_ReturnType == DataType::Unknown)
-      {
-        // Can't resolve yet
-        return ezInvalidIndex;
-      }
+      EZ_ASSERT_DEV(pChildNode != nullptr && pChildNode->m_ReturnType != DataType::Unknown, "Invalid child node");
 
       auto childType = DataType::GetRegisterType(pChildNode->m_ReturnType);
       int iDistance = expectedTypes[i] - childType;
@@ -610,6 +908,7 @@ void ezExpressionAST::ResolveOverloads(Node* pNode)
         iDistance *= -ezExpression::RegisterType::Count;
       }
       uiMatchDistance += iDistance;
+      uiMaxNumElements = ezMath::Max(uiMaxNumElements, DataType::GetElementCount(pChildNode->m_ReturnType));
     }
     return uiMatchDistance;
   };
@@ -617,7 +916,7 @@ void ezExpressionAST::ResolveOverloads(Node* pNode)
   if (NodeType::IsUnary(nodeType) || NodeType::IsBinary(nodeType) || NodeType::IsTernary(nodeType))
   {
     auto children = GetChildren(pNode);
-    ezSmallArray < ezEnum<ezExpression::RegisterType>, 4> expectedTypes;
+    ezSmallArray<ezEnum<ezExpression::RegisterType>, 4> expectedTypes;
     ezUInt32 uiBestMatchDistance = ezInvalidIndex;
 
     for (ezUInt32 uiSigIndex = 0; uiSigIndex < EZ_ARRAY_SIZE(Overloads::m_Signatures); ++uiSigIndex)
@@ -627,15 +926,16 @@ void ezExpressionAST::ResolveOverloads(Node* pNode)
         break;
 
       expectedTypes.Clear();
-      for (ezUInt32 i = 0; i< children.GetCount(); ++i)
+      for (ezUInt32 i = 0; i < children.GetCount(); ++i)
       {
         expectedTypes.PushBack(GetArgumentTypeFromSignature(uiSignature, i));
       }
 
-      ezUInt32 uiMatchDistance = CalculateMatchDistance(children, expectedTypes, expectedTypes.GetCount());
+      ezUInt32 uiMaxNumElements = 0;
+      ezUInt32 uiMatchDistance = CalculateMatchDistance(children, expectedTypes, expectedTypes.GetCount(), uiMaxNumElements);
       if (uiMatchDistance < uiBestMatchDistance)
       {
-        pNode->m_ReturnType = DataType::FromRegisterType(GetReturnTypeFromSignature(uiSignature));
+        pNode->m_ReturnType = DataType::FromRegisterType(GetReturnTypeFromSignature(uiSignature), uiMaxNumElements);
         pNode->m_uiOverloadIndex = static_cast<ezUInt8>(uiSigIndex);
         uiBestMatchDistance = uiMatchDistance;
       }
@@ -650,10 +950,11 @@ void ezExpressionAST::ResolveOverloads(Node* pNode)
     {
       auto pFuncDesc = pFunctionCall->m_Descs[uiOverloadIndex];
 
-      ezUInt32 uiMatchDistance = CalculateMatchDistance(pFunctionCall->m_Arguments, pFuncDesc->m_InputTypes, pFuncDesc->m_uiNumRequiredInputs);
+      ezUInt32 uiMaxNumElements = 0;
+      ezUInt32 uiMatchDistance = CalculateMatchDistance(pFunctionCall->m_Arguments, pFuncDesc->m_InputTypes, pFuncDesc->m_uiNumRequiredInputs, uiMaxNumElements);
       if (uiMatchDistance < uiBestMatchDistance)
       {
-        pNode->m_ReturnType = DataType::FromRegisterType(pFuncDesc->m_OutputType);
+        pNode->m_ReturnType = DataType::FromRegisterType(pFuncDesc->m_OutputType, uiMaxNumElements);
         pNode->m_uiOverloadIndex = static_cast<ezUInt8>(uiOverloadIndex);
         uiBestMatchDistance = uiMatchDistance;
       }
@@ -670,6 +971,66 @@ void ezExpressionAST::ResolveOverloads(Node* pNode)
       }
     }
   }
+  else if (NodeType::IsConstructorCall(nodeType))
+  {
+    auto pConstructorCall = static_cast<ConstructorCall*>(pNode);
+    auto& args = pConstructorCall->m_Arguments;
+    const ezUInt32 uiElementCount = ezExpressionAST::DataType::GetElementCount(pNode->m_ReturnType);
+
+    if (uiElementCount > 1 && args.GetCount() == 1 && ezExpressionAST::DataType::GetElementCount(args[0]->m_ReturnType) == 1)
+    {
+      for (ezUInt32 i = 0; i < uiElementCount - 1; ++i)
+      {
+        pConstructorCall->m_Arguments.PushBack(args[0]);
+      }
+
+      return;
+    }
+
+    ezSmallArray<Node*, 4> newArguments;
+    Node* pZero = nullptr;
+
+    ezUInt32 uiArgumentIndex = 0;
+    ezUInt32 uiArgumentElementIndex = 0;
+
+    for (ezUInt32 i = 0; i < uiElementCount; ++i)
+    {
+      if (uiArgumentIndex < args.GetCount())
+      {
+        auto pArg = args[uiArgumentIndex];
+        EZ_ASSERT_DEV(pArg != nullptr && pArg->m_ReturnType != DataType::Unknown, "Invalid argument node");
+
+        const ezUInt32 uiArgElementCount = ezExpressionAST::DataType::GetElementCount(pArg->m_ReturnType);
+        if (uiArgElementCount == 1)
+        {
+          newArguments.PushBack(pArg);
+        }
+        else if (uiArgumentElementIndex < uiArgElementCount)
+        {
+          ezEnum<VectorComponent> component = static_cast<VectorComponent::Enum>(uiArgumentElementIndex);
+          newArguments.PushBack(CreateSwizzle(ezMakeArrayPtr(&component, 1), pArg));
+        }
+
+        ++uiArgumentElementIndex;
+        if (uiArgumentElementIndex >= uiArgElementCount)
+        {
+          ++uiArgumentIndex;
+          uiArgumentElementIndex = 0;
+        }
+      }
+      else
+      {
+        if (pZero == nullptr)
+        {
+          pZero = CreateConstant(0);
+        }
+        newArguments.PushBack(pZero);
+      }
+    }
+
+    EZ_ASSERT_DEBUG(newArguments.GetCount() == uiElementCount, "Not enough arguments");
+    pConstructorCall->m_Arguments = newArguments;
+  }
 }
 
 // static
@@ -680,7 +1041,7 @@ ezExpressionAST::DataType::Enum ezExpressionAST::GetExpectedChildDataType(const 
   const ezUInt32 uiOverloadIndex = pNode->m_uiOverloadIndex;
   EZ_ASSERT_DEV(returnType != DataType::Unknown, "Return type must not be unknown");
 
-  if (nodeType == NodeType::TypeConversion)
+  if (nodeType == NodeType::TypeConversion || NodeType::IsSwizzle(nodeType))
   {
     return DataType::Unknown;
   }
@@ -688,7 +1049,7 @@ ezExpressionAST::DataType::Enum ezExpressionAST::GetExpectedChildDataType(const 
   {
     EZ_ASSERT_DEV(uiOverloadIndex != 0xFF, "Unresolved overload");
     ezUInt16 uiSignature = s_NodeTypeOverloads[nodeType].m_Signatures[uiOverloadIndex];
-    return DataType::FromRegisterType(GetArgumentTypeFromSignature(uiSignature, uiChildIndex));
+    return DataType::FromRegisterType(GetArgumentTypeFromSignature(uiSignature, uiChildIndex), DataType::GetElementCount(returnType));
   }
   else if (NodeType::IsOutput(nodeType))
   {
@@ -699,7 +1060,7 @@ ezExpressionAST::DataType::Enum ezExpressionAST::GetExpectedChildDataType(const 
     EZ_ASSERT_DEV(uiOverloadIndex != 0xFF, "Unresolved overload");
 
     auto pDesc = static_cast<const FunctionCall*>(pNode)->m_Descs[uiOverloadIndex];
-    return DataType::FromRegisterType(pDesc->m_InputTypes[uiChildIndex]);
+    return DataType::FromRegisterType(pDesc->m_InputTypes[uiChildIndex], DataType::GetElementCount(returnType));
   }
   else if (NodeType::IsConstructorCall(nodeType))
   {
@@ -872,104 +1233,3 @@ bool ezExpressionAST::IsEqual(const Node* pNodeA, const Node* pNodeB)
   EZ_ASSERT_NOT_IMPLEMENTED;
   return false;
 }
-
-namespace
-{
-  struct NodeInfo
-  {
-    EZ_DECLARE_POD_TYPE();
-
-    const ezExpressionAST::Node* m_pNode;
-    ezUInt32 m_uiParentGraphNode;
-  };
-} // namespace
-
-void ezExpressionAST::PrintGraph(ezDGMLGraph& graph) const
-{
-  ezHybridArray<NodeInfo, 64> nodeStack;
-
-  ezStringBuilder sTmp;
-  for (auto pOutputNode : m_OutputNodes)
-  {
-    if (pOutputNode == nullptr)
-      continue;
-
-    sTmp = NodeType::GetName(pOutputNode->m_Type);
-    sTmp.Append("(", DataType::GetName(pOutputNode->m_ReturnType), ")");
-    sTmp.Append(": ", pOutputNode->m_Desc.m_sName);
-
-    ezDGMLGraph::NodeDesc nd;
-    nd.m_Color = ezColorScheme::LightUI(ezColorScheme::Blue);
-    ezUInt32 uiGraphNode = graph.AddNode(sTmp, &nd);
-
-    nodeStack.PushBack({pOutputNode->m_pExpression, uiGraphNode});
-  }
-
-  ezHashTable<const Node*, ezUInt32> nodeCache;
-
-  while (!nodeStack.IsEmpty())
-  {
-    NodeInfo currentNodeInfo = nodeStack.PeekBack();
-    nodeStack.PopBack();
-
-    ezUInt32 uiGraphNode = 0;
-    if (currentNodeInfo.m_pNode != nullptr)
-    {
-      if (!nodeCache.TryGetValue(currentNodeInfo.m_pNode, uiGraphNode))
-      {
-        NodeType::Enum nodeType = currentNodeInfo.m_pNode->m_Type;
-        sTmp = NodeType::GetName(nodeType);
-        sTmp.Append("(", DataType::GetName(currentNodeInfo.m_pNode->m_ReturnType), ")");
-        ezColor color = ezColor::White;
-
-        if (NodeType::IsConstant(nodeType))
-        {
-          sTmp.AppendFormat(": {0}", static_cast<const Constant*>(currentNodeInfo.m_pNode)->m_Value.ConvertTo<ezString>());
-        }
-        else if (NodeType::IsInput(nodeType))
-        {
-          auto pInputNode = static_cast<const Input*>(currentNodeInfo.m_pNode);
-          sTmp.Append(": ", pInputNode->m_Desc.m_sName);
-          color = ezColorScheme::LightUI(ezColorScheme::Green);
-        }
-        else if (NodeType::IsFunctionCall(nodeType))
-        {
-          auto pFunctionCall = static_cast<const FunctionCall*>(currentNodeInfo.m_pNode);
-          if (pFunctionCall->m_uiOverloadIndex != 0xFF)
-          {
-            auto pDesc = pFunctionCall->m_Descs[currentNodeInfo.m_pNode->m_uiOverloadIndex];
-            sTmp.Append(": ", pDesc->GetMangledName());
-          }
-          else
-          {
-            sTmp.Append(": ", pFunctionCall->m_Descs[0]->m_sName);
-          }
-          color = ezColorScheme::LightUI(ezColorScheme::Yellow);
-        }
-
-        ezDGMLGraph::NodeDesc nd;
-        nd.m_Color = color;
-        uiGraphNode = graph.AddNode(sTmp, &nd);
-        nodeCache.Insert(currentNodeInfo.m_pNode, uiGraphNode);
-
-        // push children
-        auto children = GetChildren(currentNodeInfo.m_pNode);
-        for (auto pChild : children)
-        {
-          nodeStack.PushBack({pChild, uiGraphNode});
-        }
-      }
-    }
-    else
-    {
-      ezDGMLGraph::NodeDesc nd;
-      nd.m_Color = ezColor::OrangeRed;
-      uiGraphNode = graph.AddNode("Invalid", &nd);
-    }
-
-    graph.AddConnection(uiGraphNode, currentNodeInfo.m_uiParentGraphNode);
-  }
-}
-
-
-EZ_STATICLINK_FILE(Foundation, Foundation_CodeUtils_Expression_Implementation_ExpressionAST);

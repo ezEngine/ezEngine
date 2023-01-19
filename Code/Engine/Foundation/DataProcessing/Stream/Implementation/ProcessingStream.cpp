@@ -3,6 +3,13 @@
 #include <Foundation/Basics.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStream.h>
 
+// Ensure that we can retrieve the base data type with this simple bit operation
+static_assert(((int)ezProcessingStream::DataType::Half3 & ~3) == (int)ezProcessingStream::DataType::Half);
+static_assert(((int)ezProcessingStream::DataType::Float4 & ~3) == (int)ezProcessingStream::DataType::Float);
+static_assert(((int)ezProcessingStream::DataType::Byte2 & ~3) == (int)ezProcessingStream::DataType::Byte);
+static_assert(((int)ezProcessingStream::DataType::Short3 & ~3) == (int)ezProcessingStream::DataType::Short);
+static_assert(((int)ezProcessingStream::DataType::Int4 & ~3) == (int)ezProcessingStream::DataType::Int);
+
 #if EZ_ENABLED(EZ_PLATFORM_64BIT)
 static_assert(sizeof(ezProcessingStream) == 32);
 #endif

@@ -80,6 +80,7 @@ public:
       LastTernary,
 
       Constant,
+      Swizzle,
       Input,
       Output,
 
@@ -93,6 +94,7 @@ public:
     static bool IsBinary(Enum nodeType);
     static bool IsTernary(Enum nodeType);
     static bool IsConstant(Enum nodeType);
+    static bool IsSwizzle(Enum nodeType);
     static bool IsInput(Enum nodeType);
     static bool IsOutput(Enum nodeType);
     static bool IsFunctionCall(Enum nodeType);
@@ -153,12 +155,38 @@ public:
     static const char* GetName(Enum dataType);
   };
 
+  struct VectorComponent
+  {
+    using StorageType = ezUInt8;
+
+    enum Enum
+    {
+      X,
+      Y,
+      Z,
+      W,
+
+      R = X,
+      G = Y,
+      B = Z,
+      A = W,
+
+      Count,
+
+      Default = X
+    };
+
+    static const char* GetName(Enum vectorComponent);
+
+    static Enum FromChar(ezUInt32 uiChar);
+  };
+
   struct Node
   {
     ezEnum<NodeType> m_Type;
     ezEnum<DataType> m_ReturnType;
     ezUInt8 m_uiOverloadIndex = 0xFF;
-    ezUInt8 m_uiNumElements = 0;
+    ezUInt8 m_uiPadding = 0;
 
     ezUInt32 m_uiHash = 0;
   };
@@ -184,6 +212,13 @@ public:
   struct Constant : public Node
   {
     ezVariant m_Value;
+  };
+
+  struct Swizzle : public Node
+  {
+    ezEnum<VectorComponent> m_Components[4];
+    ezUInt32 m_NumComponents = 0;
+    Node* m_pExpression = nullptr;
   };
 
   struct Input : public Node
@@ -216,20 +251,17 @@ public:
   BinaryOperator* CreateBinaryOperator(NodeType::Enum type, Node* pLeftOperand, Node* pRightOperand);
   TernaryOperator* CreateTernaryOperator(NodeType::Enum type, Node* pFirstOperand, Node* pSecondOperand, Node* pThirdOperand);
   Constant* CreateConstant(const ezVariant& value, DataType::Enum dataType = DataType::Float);
+  Swizzle* CreateSwizzle(ezStringView sSwizzle, Node* pExpression);
+  Swizzle* CreateSwizzle(ezArrayPtr<ezEnum<VectorComponent>> swizzle, Node* pExpression);
   Input* CreateInput(const ezExpression::StreamDesc& desc);
   Output* CreateOutput(const ezExpression::StreamDesc& desc, Node* pExpression);
-  FunctionCall* CreateFunctionCall(const ezExpression::FunctionDesc& desc);
-  FunctionCall* CreateFunctionCall(ezArrayPtr<const ezExpression::FunctionDesc> descs);
-  ConstructorCall* CreateConstructorCall(DataType::Enum dataType);
+  FunctionCall* CreateFunctionCall(const ezExpression::FunctionDesc& desc, ezArrayPtr<Node*> arguments);
+  FunctionCall* CreateFunctionCall(ezArrayPtr<const ezExpression::FunctionDesc> descs, ezArrayPtr<Node*> arguments);
+  ConstructorCall* CreateConstructorCall(DataType::Enum dataType, ezArrayPtr<Node*> arguments);
+  ConstructorCall* CreateConstructorCall(Node* pOldValue, Node* pNewValue, ezStringView sPartialAssignmentMask);
 
   static ezArrayPtr<Node*> GetChildren(Node* pNode);
   static ezArrayPtr<const Node*> GetChildren(const Node* pNode);
-
-  static void ResolveOverloads(Node* pNode);
-  static DataType::Enum GetExpectedChildDataType(const Node* pNode, ezUInt32 uiChildIndex);
-
-  static void UpdateHash(Node* pNode);
-  static bool IsEqual(const Node* pNodeA, const Node* pNodeB);
 
   void PrintGraph(ezDGMLGraph& graph) const;
 
@@ -237,12 +269,23 @@ public:
 
   // Transforms
   Node* TypeDeductionAndConversion(Node* pNode);
+  Node* ReplaceVectorInstructions(Node* pNode);
+  Node* ScalarizeVectorInstructions(Node* pNode);
   Node* ReplaceUnsupportedInstructions(Node* pNode);
   Node* FoldConstants(Node* pNode);
   Node* CommonSubexpressionElimination(Node* pNode);
   Node* Validate(Node* pNode);
 
+  ezResult ScalarizeOutputs();
+
 private:
+  void ResolveOverloads(Node* pNode);
+
+  static DataType::Enum GetExpectedChildDataType(const Node* pNode, ezUInt32 uiChildIndex);
+
+  static void UpdateHash(Node* pNode);
+  static bool IsEqual(const Node* pNodeA, const Node* pNodeB);
+
   ezStackAllocator<> m_Allocator;
 
   ezSet<ezExpression::FunctionDesc> m_FunctionDescs;

@@ -24,8 +24,8 @@ private:
   using TransformFunc = ezDelegate<ezExpressionAST::Node*(ezExpressionAST::Node*)>;
   ezResult TransformASTPreOrder(ezExpressionAST& ast, TransformFunc func);
   ezResult TransformASTPostOrder(ezExpressionAST& ast, TransformFunc func);
-  ezResult TransformNode(ezExpressionAST::Node*& pNode, TransformFunc func);
-  ezResult TransformOutputNode(ezExpressionAST::Output*& pOutputNode, TransformFunc func);
+  ezResult TransformNode(ezExpressionAST::Node*& pNode, TransformFunc& func);
+  ezResult TransformOutputNode(ezExpressionAST::Output*& pOutputNode, TransformFunc& func);
 
   ezHybridArray<ezExpressionAST::Node*, 64> m_NodeStack;
   ezHybridArray<ezExpressionAST::Node*, 64> m_NodeInstructions;

@@ -38,8 +38,11 @@ void ezExpressionVM::UnregisterFunction(const ezExpressionFunction& func)
 ezResult ezExpressionVM::Execute(const ezExpressionByteCode& byteCode, ezArrayPtr<const ezProcessingStream> inputs,
   ezArrayPtr<ezProcessingStream> outputs, ezUInt32 uiNumInstances, const ezExpression::GlobalData& globalData)
 {
-  EZ_SUCCEED_OR_RETURN(MapStreams(byteCode.GetInputs(), inputs, "Input", uiNumInstances, m_MappedInputs));
-  EZ_SUCCEED_OR_RETURN(MapStreams(byteCode.GetOutputs(), outputs, "Output", uiNumInstances, m_MappedOutputs));
+  EZ_SUCCEED_OR_RETURN(ScalarizeStreams(inputs, m_ScalarizedInputs));
+  EZ_SUCCEED_OR_RETURN(ScalarizeStreams(outputs, m_ScalarizedOutputs));
+
+  EZ_SUCCEED_OR_RETURN(MapStreams(byteCode.GetInputs(), m_ScalarizedInputs, "Input", uiNumInstances, m_MappedInputs));
+  EZ_SUCCEED_OR_RETURN(MapStreams(byteCode.GetOutputs(), m_ScalarizedOutputs, "Output", uiNumInstances, m_MappedOutputs));
   EZ_SUCCEED_OR_RETURN(MapFunctions(byteCode.GetFunctions(), globalData));
 
   // const ezUInt32 uiNumSimd16Instances = uiNumInstances / 16;
@@ -86,8 +89,40 @@ void ezExpressionVM::RegisterDefaultFunctions()
   RegisterFunction(ezDefaultExpressionFunctions::s_PerlinNoiseFunc);
 }
 
-template <typename StreamType>
-ezResult ezExpressionVM::MapStreams(ezArrayPtr<const ezExpression::StreamDesc> streamDescs, ezArrayPtr<StreamType> streams, const char* szStreamType, ezUInt32 uiNumInstances, ezDynamicArray<StreamType*>& out_MappedStreams)
+ezResult ezExpressionVM::ScalarizeStreams(ezArrayPtr<const ezProcessingStream> streams, ezDynamicArray<ezProcessingStream>& out_ScalarizedStreams)
+{
+  out_ScalarizedStreams.Clear();
+
+  for (auto& stream : streams)
+  {
+    const ezUInt32 uiNumElements = ezExpressionAST::DataType::GetElementCount(ezExpressionAST::DataType::FromStreamType(stream.GetDataType()));
+    if (uiNumElements == 1)
+    {
+      out_ScalarizedStreams.PushBack(stream);
+    }
+    else
+    {
+      ezStringBuilder sNewName;
+      ezHashedString sNewNameHashed;
+      auto data = ezMakeArrayPtr((ezUInt8*)(stream.GetData()), static_cast<ezUInt32>(stream.GetDataSize()));
+      auto elementDataType = static_cast<ezProcessingStream::DataType>((ezUInt32)stream.GetDataType() & ~3u);
+
+      for (ezUInt32 i = 0; i < uiNumElements; ++i)
+      {
+        sNewName.Set(stream.GetName(), ".", ezExpressionAST::VectorComponent::GetName(static_cast<ezExpressionAST::VectorComponent::Enum>(i)));
+        sNewNameHashed.Assign(sNewName);
+
+        auto newData = data.GetSubArray(i * ezProcessingStream::GetDataTypeSize(elementDataType));
+
+        out_ScalarizedStreams.PushBack(ezProcessingStream(sNewNameHashed, newData, elementDataType, stream.GetElementStride()));
+      }
+    }
+  }
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezExpressionVM::MapStreams(ezArrayPtr<const ezExpression::StreamDesc> streamDescs, ezArrayPtr<ezProcessingStream> streams, const char* szStreamType, ezUInt32 uiNumInstances, ezDynamicArray<ezProcessingStream*>& out_MappedStreams)
 {
   out_MappedStreams.Clear();
   out_MappedStreams.Reserve(streamDescs.GetCount());
@@ -102,12 +137,9 @@ ezResult ezExpressionVM::MapStreams(ezArrayPtr<const ezExpression::StreamDesc> s
       if (stream.GetName() == streamDesc.m_sName)
       {
         // verify stream data type
-        auto expectedDataType = ezExpressionAST::DataType::FromStreamType(streamDesc.m_DataType);
-        auto actualDataType = ezExpressionAST::DataType::FromStreamType(stream.GetDataType());
-
-        if (actualDataType != expectedDataType)
+        if (stream.GetDataType() != streamDesc.m_DataType)
         {
-          ezLog::Error("{} stream '{}' expects data of type '{}' or a compatible type. Given type '{}' is not compatible.", szStreamType, streamDesc.m_sName, ezExpressionAST::DataType::GetName(expectedDataType), ezProcessingStream::GetDataTypeName(stream.GetDataType()));
+          ezLog::Error("{} stream '{}' expects data of type '{}' or a compatible type. Given type '{}' is not compatible.", szStreamType, streamDesc.m_sName, ezProcessingStream::GetDataTypeName(streamDesc.m_DataType), ezProcessingStream::GetDataTypeName(stream.GetDataType()));
           return EZ_FAILURE;
         }
 
@@ -174,6 +206,3 @@ ezResult ezExpressionVM::MapFunctions(ezArrayPtr<const ezExpression::FunctionDes
 
   return EZ_SUCCESS;
 }
-
-
-EZ_STATICLINK_FILE(Foundation, Foundation_CodeUtils_Expression_Implementation_ExpressionVM);

@@ -88,30 +88,42 @@ namespace
   struct StreamDataTypeDeduction<ezFloat16>
   {
     static constexpr ezProcessingStream::DataType Type = ezProcessingStream::DataType::Half;
+    static ezFloat16 Default() { return ezMath::MinValue<float>(); }
   };
 
   template <>
   struct StreamDataTypeDeduction<float>
   {
     static constexpr ezProcessingStream::DataType Type = ezProcessingStream::DataType::Float;
+    static float Default() { return ezMath::MinValue<float>(); }
   };
 
   template <>
   struct StreamDataTypeDeduction<ezInt8>
   {
     static constexpr ezProcessingStream::DataType Type = ezProcessingStream::DataType::Byte;
+    static ezInt8 Default() { return ezMath::MinValue<ezInt8>(); }
   };
 
   template <>
   struct StreamDataTypeDeduction<ezInt16>
   {
     static constexpr ezProcessingStream::DataType Type = ezProcessingStream::DataType::Short;
+    static ezInt16 Default() { return ezMath::MinValue<ezInt16>(); }
   };
 
   template <>
   struct StreamDataTypeDeduction<int>
   {
     static constexpr ezProcessingStream::DataType Type = ezProcessingStream::DataType::Int;
+    static int Default() { return ezMath::MinValue<int>(); }
+  };
+
+  template <>
+  struct StreamDataTypeDeduction<ezVec3>
+  {
+    static constexpr ezProcessingStream::DataType Type = ezProcessingStream::DataType::Float3;
+    static ezVec3 Default() { return ezVec3(ezMath::MinValue<float>()); }
   };
 
   template <typename T>
@@ -148,7 +160,7 @@ namespace
   }
 
   template <typename T>
-  T Execute(const ezExpressionByteCode& byteCode, T a = 0, T b = 0, T c = 0, T d = 0)
+  T Execute(const ezExpressionByteCode& byteCode, T a = T(0), T b = T(0), T c = T(0), T d = T(0))
   {
     ezProcessingStream inputs[] = {
       ezProcessingStream(s_sA, ezMakeArrayPtr(&a, 1).ToByteArray(), StreamDataTypeDeduction<T>::Type),
@@ -157,7 +169,7 @@ namespace
       ezProcessingStream(s_sD, ezMakeArrayPtr(&d, 1).ToByteArray(), StreamDataTypeDeduction<T>::Type),
     };
 
-    T output = ezMath::MinValue<T>();
+    T output = StreamDataTypeDeduction<T>::Default();
     ezProcessingStream outputs[] = {
       ezProcessingStream(s_sOutput, ezMakeArrayPtr(&output, 1).ToByteArray(), StreamDataTypeDeduction<T>::Type),
     };
@@ -779,6 +791,19 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Expression)
     EZ_TEST_FLOAT(Execute(testByteCode, 2.0f, 3.0f), 10.0f, ezMath::DefaultEpsilon<float>());
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Assignment")
+  {
+    {
+      ezStringView testCode = "output = 40; output += 2";
+      ezStringView referenceCode = "output = 42";
+
+      ezExpressionByteCode testByteCode;
+      EZ_TEST_BOOL(CompareCode<float>(testCode, referenceCode, testByteCode));
+
+      EZ_TEST_FLOAT(Execute<float>(testByteCode), 42.0f, ezMath::DefaultEpsilon<float>());
+    }
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Integer arithmetic")
   {
     ezExpressionByteCode testByteCode;
@@ -956,31 +981,94 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Expression)
                             "var y1 = a * pow(2, 3)\n"
                             "var y2 = 8 * a\n"
                             "output = x1 + x2 + y1 + y2";
-    
-      ezStringView referenceCode = "var x = a * max(b, c); var y = a * 8; output = x + x + y + y";
 
-      ezExpressionByteCode testByteCode;
-      EZ_TEST_BOOL(CompareCode<int>(testCode, referenceCode, testByteCode, true));
-      EZ_TEST_INT(Execute(testByteCode, 2, 4, 8), 64);
+    ezStringView referenceCode = "var x = a * max(b, c); var y = a * 8; output = x + x + y + y";
+
+    ezExpressionByteCode testByteCode;
+    EZ_TEST_BOOL(CompareCode<int>(testCode, referenceCode, testByteCode));
+    EZ_TEST_INT(Execute(testByteCode, 2, 4, 8), 64);
   }
 
-#if 0
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Scalarization")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Vector constructors")
+  {
+    {
+      ezStringView testCode = "var x = vec3(1, 2, 3)\n"
+                              "var y = vec4(x, 4)\n"
+                              "vec3 z = vec2(1, 2)\n"
+                              "var w = vec4()\n"
+                              "output = vec4(x) + y + vec4(z) + w";
+
+      ezExpressionByteCode testByteCode;
+      Compile<ezVec3>(testCode, testByteCode);
+      EZ_TEST_BOOL(Execute<ezVec3>(testByteCode).IsEqual(ezVec3(3, 6, 6), ezMath::DefaultEpsilon<float>()));
+    }
+
+    {
+      ezStringView testCode = "var x = vec4(a.xy, (vec2(6, 8) - vec2(3, 4)).xy)\n"
+                              "var y = vec4(1, vec2(2, 3), 4)\n"
+                              "var z = vec4(1, vec3(2, 3, 4))\n"
+                              "var w = vec4(1, 2, a.zw)\n"
+                              "var one = vec4(1)\n"
+                              "output = vec4(x) + y + vec4(z) + w + one";
+
+      ezExpressionByteCode testByteCode;
+      Compile<ezVec3>(testCode, testByteCode);
+      EZ_TEST_BOOL(Execute(testByteCode, ezVec3(1, 2, 3)).IsEqual(ezVec3(5, 9, 13), ezMath::DefaultEpsilon<float>()));
+    }
+
+    {
+      ezStringView testCode = "var x = vec4(1, 2, 3, 4)\n"
+                              "var y = x.z\n"
+                              "x.yz = 7\n"
+                              "x.xz = vec2(2, 7)\n"
+                              "output = x * y";
+
+      ezExpressionByteCode testByteCode;
+      Compile<ezVec3>(testCode, testByteCode);
+      EZ_TEST_BOOL(Execute<ezVec3>(testByteCode).IsEqual(ezVec3(6, 21, 21), ezMath::DefaultEpsilon<float>()));
+    }
+
+    {
+      ezStringView testCode = "var x = 1\n"
+                              "x.z = 7.5\n"
+                              "output = x";
+
+      ezExpressionByteCode testByteCode;
+      Compile<ezVec3>(testCode, testByteCode);
+      EZ_TEST_BOOL(Execute<ezVec3>(testByteCode).IsEqual(ezVec3(1, 0, 7), ezMath::DefaultEpsilon<float>()));
+    }
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Vector instructions")
   {
     // The VM does only support scalar data types.
     // This test checks whether the compiler transforms everything correctly to scalar operation.
 
-    ezExpressionByteCode referenceByteCode;
-    {
-      ezStringView code = "output = a * vec3(1, 2, 3) + b";
-      Compile<ezVec3>(code, referenceByteCode);
-    }
+    ezStringView testCode = "output = a * vec3(1, 2, 3) + sqrt(b)";
+
+    ezStringView referenceCode = "output.x = a.x + sqrt(b.x)\n"
+                                 "output.y = a.y * 2 + sqrt(b.y)\n"
+                                 "output.z = a.z * 3 + sqrt(b.z)";
 
     ezExpressionByteCode testByteCode;
-
-    ezStringView code = "output = a * vec3(1, 2, 3) + b";
-    Compile<ezVec3>(code, testByteCode);
-    EZ_TEST_BOOL(CompareByteCode(testByteCode, referenceByteCode));
+    EZ_TEST_BOOL(CompareCode<ezVec3>(testCode, referenceCode, testByteCode));
+    EZ_TEST_BOOL(Execute(testByteCode, ezVec3(1, 3, 5), ezVec3(4, 9, 16)).IsEqual(ezVec3(3, 9, 19), ezMath::DefaultEpsilon<float>()));
   }
-#endif
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Vector swizzle")
+  {
+    ezStringView testCode = "var n = vec4(1, 2, 3, 4)\n"
+                            "var m = vec4(5, 6, 7, 8)\n"
+                            "var p = n.xxyy + m.zzww * m.abgr + n.w\n"
+                            "output = p";
+
+    // vec3(1, 1, 2) + vec3(7, 7, 8) * vec3(8, 7, 6) + 4
+    // output.x = 1 + 7 * 8 + 4 = 61
+    // output.y = 1 + 7 * 7 + 4 = 54
+    // output.z = 2 + 8 * 6 + 4 = 54
+
+    ezExpressionByteCode testByteCode;
+    Compile<ezVec3>(testCode, testByteCode, "swizzle");
+    EZ_TEST_BOOL(Execute<ezVec3>(testByteCode).IsEqual(ezVec3(61, 54, 54), ezMath::DefaultEpsilon<float>()));
+  }
 }

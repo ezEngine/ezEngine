@@ -163,7 +163,11 @@ ezResult ezExpressionCompiler::Compile(ezExpressionAST& ast, ezExpressionByteCod
 
 ezResult ezExpressionCompiler::TransformAndOptimizeAST(ezExpressionAST& ast)
 {
-  EZ_SUCCEED_OR_RETURN(TransformASTPostOrder(ast, ezMakeDelegate(&ezExpressionAST::TypeDeductionAndConversion, &ast)));
+  EZ_SUCCEED_OR_RETURN(ast.ScalarizeOutputs());
+
+  EZ_SUCCEED_OR_RETURN(TransformASTPostOrder(ast, ezMakeDelegate(&ezExpressionAST::TypeDeductionAndConversion, &ast)));  
+  EZ_SUCCEED_OR_RETURN(TransformASTPreOrder(ast, ezMakeDelegate(&ezExpressionAST::ReplaceVectorInstructions, &ast)));
+  EZ_SUCCEED_OR_RETURN(TransformASTPreOrder(ast, ezMakeDelegate(&ezExpressionAST::ScalarizeVectorInstructions, &ast)));
   EZ_SUCCEED_OR_RETURN(TransformASTPostOrder(ast, ezMakeDelegate(&ezExpressionAST::FoldConstants, &ast)));
   EZ_SUCCEED_OR_RETURN(TransformASTPreOrder(ast, ezMakeDelegate(&ezExpressionAST::ReplaceUnsupportedInstructions, &ast)));
   EZ_SUCCEED_OR_RETURN(TransformASTPostOrder(ast, ezMakeDelegate(&ezExpressionAST::FoldConstants, &ast)));
@@ -183,7 +187,7 @@ ezResult ezExpressionCompiler::BuildNodeInstructions(const ezExpressionAST& ast)
   for (ezExpressionAST::Node* pOutputNode : ast.m_OutputNodes)
   {
     if (pOutputNode == nullptr)
-      continue;
+      return EZ_FAILURE;
 
     EZ_ASSERT_DEV(nodeStackTemp.IsEmpty(), "Implementation error");
 
@@ -513,7 +517,7 @@ ezResult ezExpressionCompiler::TransformASTPreOrder(ezExpressionAST& ast, Transf
   for (ezExpressionAST::Output*& pOutputNode : ast.m_OutputNodes)
   {
     if (pOutputNode == nullptr)
-      continue;
+      return EZ_FAILURE;
 
     EZ_SUCCEED_OR_RETURN(TransformOutputNode(pOutputNode, func));
 
@@ -546,7 +550,7 @@ ezResult ezExpressionCompiler::TransformASTPostOrder(ezExpressionAST& ast, Trans
   for (ezExpressionAST::Node* pOutputNode : ast.m_OutputNodes)
   {
     if (pOutputNode == nullptr)
-      continue;
+      return EZ_FAILURE;
 
     nodeStackTemp.PushBack(pOutputNode);
 
@@ -590,7 +594,7 @@ ezResult ezExpressionCompiler::TransformASTPostOrder(ezExpressionAST& ast, Trans
   return EZ_SUCCESS;
 }
 
-ezResult ezExpressionCompiler::TransformNode(ezExpressionAST::Node*& pNode, TransformFunc func)
+ezResult ezExpressionCompiler::TransformNode(ezExpressionAST::Node*& pNode, TransformFunc& func)
 {
   if (pNode == nullptr)
     return EZ_SUCCESS;
@@ -612,7 +616,7 @@ ezResult ezExpressionCompiler::TransformNode(ezExpressionAST::Node*& pNode, Tran
   return EZ_SUCCESS;
 }
 
-ezResult ezExpressionCompiler::TransformOutputNode(ezExpressionAST::Output*& pOutputNode, TransformFunc func)
+ezResult ezExpressionCompiler::TransformOutputNode(ezExpressionAST::Output*& pOutputNode, TransformFunc& func)
 {
   if (pOutputNode == nullptr)
     return EZ_SUCCESS;
@@ -633,6 +637,3 @@ ezResult ezExpressionCompiler::TransformOutputNode(ezExpressionAST::Output*& pOu
 
   return EZ_SUCCESS;
 }
-
-
-EZ_STATICLINK_FILE(Foundation, Foundation_CodeUtils_Expression_Implementation_ExpressionCompiler);

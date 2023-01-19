@@ -35,17 +35,19 @@ private:
   ezExpressionAST::Node* ParseExpression(int iPrecedence = s_iLowestPrecedence);
   ezExpressionAST::Node* ParseUnaryExpression();
   ezExpressionAST::Node* ParseFunctionCall(ezStringView sFunctionName);
+  ezExpressionAST::Node* ParseSwizzle(ezExpressionAST::Node* pExpression);
 
   bool AcceptStatementTerminator();
   bool AcceptOperator(ezStringView sName);
   bool AcceptBinaryOperator(ezExpressionAST::NodeType::Enum& out_binaryOp, int& out_iOperatorPrecedence, ezUInt32& out_uiOperatorLength);
   ezExpressionAST::Node* GetVariable(ezStringView sVarName);
   ezExpressionAST::Node* EnsureExpectedType(ezExpressionAST::Node* pNode, ezExpressionAST::DataType::Enum expectedType);
+  ezExpressionAST::Node* Unpack(ezExpressionAST::Node* pNode, bool bUnassignedError = true);
 
   ezResult Expect(const char* szToken, const ezToken** pExpectedToken = nullptr);
   ezResult Expect(ezTokenType::Enum Type, const ezToken** pExpectedToken = nullptr);
 
-  void ReportError(const ezToken* pToken, const ezFormatString& message);
+  void ReportError(const ezToken* pToken, const ezFormatString& message); 
 
   /// \brief Checks whether all outputs have been written
   ezResult CheckOutputs();

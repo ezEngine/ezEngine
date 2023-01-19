@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Foundation/CodeUtils/Expression/ExpressionByteCode.h>
+#include <Foundation/Types/UniquePtr.h>
 
 class EZ_FOUNDATION_DLL ezExpressionVM
 {
@@ -16,16 +17,19 @@ public:
 private:
   void RegisterDefaultFunctions();
 
-  template <typename StreamType>
-  ezResult MapStreams(ezArrayPtr<const ezExpression::StreamDesc> streamDescs, ezArrayPtr<StreamType> streams, const char* szStreamType, ezUInt32 uiNumInstances, ezDynamicArray<StreamType*>& out_MappedStreams);
+  ezResult ScalarizeStreams(ezArrayPtr<const ezProcessingStream> streams, ezDynamicArray<ezProcessingStream>& out_ScalarizedStreams);
+  ezResult MapStreams(ezArrayPtr<const ezExpression::StreamDesc> streamDescs, ezArrayPtr<ezProcessingStream> streams, const char* szStreamType, ezUInt32 uiNumInstances, ezDynamicArray<ezProcessingStream*>& out_MappedStreams);
   ezResult MapFunctions(ezArrayPtr<const ezExpression::FunctionDesc> functionDescs, const ezExpression::GlobalData& globalData);
 
   ezDynamicArray<ezExpression::Register, ezAlignedAllocatorWrapper> m_Registers;
 
-  ezDynamicArray<const ezProcessingStream*> m_MappedInputs;
+  ezDynamicArray<ezProcessingStream> m_ScalarizedInputs;
+  ezDynamicArray<ezProcessingStream> m_ScalarizedOutputs;
+
+  ezDynamicArray<ezProcessingStream*> m_MappedInputs;
   ezDynamicArray<ezProcessingStream*> m_MappedOutputs;
   ezDynamicArray<const ezExpressionFunction*> m_MappedFunctions;
 
   ezDynamicArray<ezExpressionFunction> m_Functions;
-  ezHashTable<ezHashedString, ezUInt32> m_FunctionNamesToIndex;  
+  ezHashTable<ezHashedString, ezUInt32> m_FunctionNamesToIndex;
 };
