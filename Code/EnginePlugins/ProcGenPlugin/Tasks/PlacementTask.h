@@ -26,16 +26,21 @@ namespace ezProcGenInternal
     void FindPlacementPoints();
     void ExecuteVM();
 
-    ezProcessingStream MakeInputStream(const ezHashedString& sName, ezUInt32 uiOffset)
+    ezProcessingStream MakeInputStream(const ezHashedString& sName, ezUInt32 uiOffset, ezProcessingStream::DataType dataType = ezProcessingStream::DataType::Float)
     {
-      return ezProcessingStream(sName, m_InputPoints.GetByteArrayPtr().GetSubArray(uiOffset), ezProcessingStream::DataType::Float, sizeof(PlacementPoint));
+      return ezProcessingStream(sName, m_InputPoints.GetByteArrayPtr().GetSubArray(uiOffset), dataType, sizeof(PlacementPoint));
+    }
+
+    ezProcessingStream MakeOutputStream(const ezHashedString& sName, ezUInt32 uiOffset, ezProcessingStream::DataType dataType = ezProcessingStream::DataType::Float)
+    {
+      return ezProcessingStream(sName, m_InputPoints.GetByteArrayPtr().GetSubArray(uiOffset), dataType, sizeof(PlacementPoint));
     }
 
     PlacementData* m_pData = nullptr;
 
     ezDynamicArray<PlacementPoint, ezAlignedAllocatorWrapper> m_InputPoints;
     ezDynamicArray<PlacementTransform, ezAlignedAllocatorWrapper> m_OutputTransforms;
-    ezDynamicArray<float> m_TempData;
+    ezDynamicArray<float> m_Density;
     ezDynamicArray<ezUInt32> m_ValidPoints;
 
     ezExpressionVM m_VM;

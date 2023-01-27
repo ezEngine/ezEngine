@@ -1068,7 +1068,7 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Expression)
     // output.z = 2 + 8 * 6 + 4 = 54
 
     ezExpressionByteCode testByteCode;
-    Compile<ezVec3>(testCode, testByteCode, "swizzle");
+    Compile<ezVec3>(testCode, testByteCode);
     EZ_TEST_BOOL(Execute<ezVec3>(testByteCode).IsEqual(ezVec3(61, 54, 54), ezMath::DefaultEpsilon<float>()));
   }
 }

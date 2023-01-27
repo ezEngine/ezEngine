@@ -19,7 +19,7 @@ namespace ezProcGenInternal
     const ezWorld* m_pWorld = nullptr;
 
     ezSharedPtr<const PlacementOutput> m_pOutput;
-    ezInt32 m_iTileSeed = 0;
+    ezUInt32 m_uiTileSeed = 0;
     ezBoundingBox m_TileBoundingBox;
 
     ezDynamicArray<ezSimdMat4f, ezAlignedAllocatorWrapper> m_GlobalToLocalBoxTransforms;

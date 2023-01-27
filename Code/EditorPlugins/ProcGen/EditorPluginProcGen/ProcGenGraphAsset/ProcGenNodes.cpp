@@ -28,16 +28,18 @@ namespace
     return ezExpressionAST::NodeType::Invalid;
   }
 
-  ezExpressionAST::Node* CreateRandom(float fSeed, ezExpressionAST& out_Ast)
+  ezExpressionAST::Node* CreateRandom(ezUInt32 uiSeed, ezExpressionAST& out_Ast, const ezProcGenNodeBase::GraphContext& context)
   {
-    auto pPointIndex = out_Ast.CreateInput({ezProcGenInternal::ExpressionInputs::s_sPointIndex, ezProcessingStream::DataType::Float});
-    auto pSeedConstant = out_Ast.CreateConstant(fSeed);
+    EZ_ASSERT_DEV(context.m_OutputType != ezProcGenNodeBase::GraphContext::Unknown, "Unkown output type");
 
-    auto pFunctionCall = out_Ast.CreateFunctionCall(ezDefaultExpressionFunctions::s_RandomFunc.m_Desc);
-    pFunctionCall->m_Arguments.PushBack(pPointIndex);
-    pFunctionCall->m_Arguments.PushBack(pSeedConstant);
+    auto pointIndexDataType = context.m_OutputType == ezProcGenNodeBase::GraphContext::Placement ? ezProcessingStream::DataType::Short : ezProcessingStream::DataType::Int;
+    ezExpressionAST::Node* pPointIndex = out_Ast.CreateInput({ezProcGenInternal::ExpressionInputs::s_sPointIndex, pointIndexDataType});
 
-    return pFunctionCall;
+    ezExpressionAST::Node* pSeed = out_Ast.CreateFunctionCall(ezProcGenExpressionFunctions::s_GetInstanceSeedFunc.m_Desc, ezArrayPtr<ezExpressionAST::Node*>());
+    pSeed = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Add, pSeed, out_Ast.CreateConstant(uiSeed, ezExpressionAST::DataType::Int));
+
+    ezExpressionAST::Node* arguments[] = {pPointIndex, pSeed};
+    return out_Ast.CreateFunctionCall(ezDefaultExpressionFunctions::s_RandomFunc.m_Desc, arguments);
   }
 
   ezExpressionAST::Node* CreateRemapFrom01(ezExpressionAST::Node* pInput, float fMin, float fMax, ezExpressionAST& out_Ast)
@@ -166,7 +168,7 @@ ezExpressionAST::Node* ezProcGen_PlacementOutput::GenerateExpressionASTNode(ezTe
       pDensity = out_Ast.CreateConstant(1.0f);
     }
 
-    out_Ast.m_OutputNodes.PushBack(out_Ast.CreateOutput({ezProcGenInternal::ExpressionOutputs::s_sDensity, ezProcessingStream::DataType::Float}, pDensity));
+    out_Ast.m_OutputNodes.PushBack(out_Ast.CreateOutput({ezProcGenInternal::ExpressionOutputs::s_sOutDensity, ezProcessingStream::DataType::Float}, pDensity));
   }
 
   // scale
@@ -174,10 +176,10 @@ ezExpressionAST::Node* ezProcGen_PlacementOutput::GenerateExpressionASTNode(ezTe
     auto pScale = inputs[1];
     if (pScale == nullptr)
     {
-      pScale = CreateRandom(11.0f, out_Ast);
+      pScale = CreateRandom(11.0f, out_Ast, context);
     }
 
-    out_Ast.m_OutputNodes.PushBack(out_Ast.CreateOutput({ezProcGenInternal::ExpressionOutputs::s_sScale, ezProcessingStream::DataType::Float}, pScale));
+    out_Ast.m_OutputNodes.PushBack(out_Ast.CreateOutput({ezProcGenInternal::ExpressionOutputs::s_sOutScale, ezProcessingStream::DataType::Float}, pScale));
   }
 
   // color index
@@ -185,10 +187,14 @@ ezExpressionAST::Node* ezProcGen_PlacementOutput::GenerateExpressionASTNode(ezTe
     auto pColorIndex = inputs[2];
     if (pColorIndex == nullptr)
     {
-      pColorIndex = CreateRandom(13.0f, out_Ast);
+      pColorIndex = CreateRandom(13.0f, out_Ast, context);
     }
 
-    out_Ast.m_OutputNodes.PushBack(out_Ast.CreateOutput({ezProcGenInternal::ExpressionOutputs::s_sColorIndex, ezProcessingStream::DataType::Float}, pColorIndex));
+    pColorIndex = out_Ast.CreateUnaryOperator(ezExpressionAST::NodeType::Saturate, pColorIndex);
+    pColorIndex = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Multiply, pColorIndex, out_Ast.CreateConstant(255.0f));
+    pColorIndex = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Add, pColorIndex, out_Ast.CreateConstant(0.5f));
+
+    out_Ast.m_OutputNodes.PushBack(out_Ast.CreateOutput({ezProcGenInternal::ExpressionOutputs::s_sOutColorIndex, ezProcessingStream::DataType::Byte}, pColorIndex));
   }
 
   // object index
@@ -196,10 +202,14 @@ ezExpressionAST::Node* ezProcGen_PlacementOutput::GenerateExpressionASTNode(ezTe
     auto pObjectIndex = inputs[3];
     if (pObjectIndex == nullptr)
     {
-      pObjectIndex = CreateRandom(17.0f, out_Ast);
+      pObjectIndex = CreateRandom(17.0f, out_Ast, context);
     }
 
-    out_Ast.m_OutputNodes.PushBack(out_Ast.CreateOutput({ezProcGenInternal::ExpressionOutputs::s_sObjectIndex, ezProcessingStream::DataType::Float}, pObjectIndex));
+    pObjectIndex = out_Ast.CreateUnaryOperator(ezExpressionAST::NodeType::Saturate, pObjectIndex);
+    pObjectIndex = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Multiply, pObjectIndex, out_Ast.CreateConstant(m_ObjectsToPlace.GetCount() - 1));
+    pObjectIndex = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Add, pObjectIndex, out_Ast.CreateConstant(0.5f));
+
+    out_Ast.m_OutputNodes.PushBack(out_Ast.CreateOutput({ezProcGenInternal::ExpressionOutputs::s_sOutObjectIndex, ezProcessingStream::DataType::Byte}, pObjectIndex));
   }
 
   return nullptr;
@@ -266,7 +276,12 @@ ezExpressionAST::Node* ezProcGen_VertexColorOutput::GenerateExpressionASTNode(ez
 
   out_Ast.m_OutputNodes.Clear();
 
-  ezHashedString sOutputNames[4] = {ezProcGenInternal::ExpressionOutputs::s_sR, ezProcGenInternal::ExpressionOutputs::s_sG, ezProcGenInternal::ExpressionOutputs::s_sB, ezProcGenInternal::ExpressionOutputs::s_sA};
+  ezHashedString sOutputNames[4] = {
+    ezProcGenInternal::ExpressionOutputs::s_sOutColorR,
+    ezProcGenInternal::ExpressionOutputs::s_sOutColorG,
+    ezProcGenInternal::ExpressionOutputs::s_sOutColorB,
+    ezProcGenInternal::ExpressionOutputs::s_sOutColorA,
+  };
 
   for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(sOutputNames); ++i)
   {
@@ -322,7 +337,7 @@ ezExpressionAST::Node* ezProcGen_Random::GenerateExpressionASTNode(ezTempHashedS
 
   float fSeed = m_iSeed < 0 ? m_uiAutoSeed : m_iSeed;
 
-  auto pRandom = CreateRandom(fSeed, out_Ast);
+  auto pRandom = CreateRandom(fSeed, out_Ast, context);
   return CreateRemapFrom01(pRandom, m_fOutputMin, m_fOutputMax, out_Ast);
 }
 
@@ -361,25 +376,19 @@ ezExpressionAST::Node* ezProcGen_PerlinNoise::GenerateExpressionASTNode(ezTempHa
 {
   EZ_ASSERT_DEBUG(sOutputName == "Value", "Implementation error");
 
-  ezExpressionAST::Node* pPosX = out_Ast.CreateInput({ezProcGenInternal::ExpressionInputs::s_sPositionX, ezProcessingStream::DataType::Float});
-  ezExpressionAST::Node* pPosY = out_Ast.CreateInput({ezProcGenInternal::ExpressionInputs::s_sPositionY, ezProcessingStream::DataType::Float});
-  ezExpressionAST::Node* pPosZ = out_Ast.CreateInput({ezProcGenInternal::ExpressionInputs::s_sPositionZ, ezProcessingStream::DataType::Float});
+  ezExpressionAST::Node* pPos = out_Ast.CreateInput({ezProcGenInternal::ExpressionInputs::s_sPosition, ezProcessingStream::DataType::Float3});
+  pPos = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Divide, pPos, out_Ast.CreateConstant(m_Scale, ezExpressionAST::DataType::Float3));
+  pPos = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Add, pPos, out_Ast.CreateConstant(m_Offset, ezExpressionAST::DataType::Float3));
 
-  pPosX = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Divide, pPosX, out_Ast.CreateConstant(m_Scale.x));
-  pPosY = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Divide, pPosY, out_Ast.CreateConstant(m_Scale.y));
-  pPosZ = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Divide, pPosZ, out_Ast.CreateConstant(m_Scale.z));
-
-  pPosX = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Add, pPosX, out_Ast.CreateConstant(m_Offset.x));
-  pPosY = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Add, pPosY, out_Ast.CreateConstant(m_Offset.y));
-  pPosZ = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Add, pPosZ, out_Ast.CreateConstant(m_Offset.z));
+  auto pPosX = out_Ast.CreateSwizzle(ezExpressionAST::VectorComponent::X, pPos);
+  auto pPosY = out_Ast.CreateSwizzle(ezExpressionAST::VectorComponent::Y, pPos);
+  auto pPosZ = out_Ast.CreateSwizzle(ezExpressionAST::VectorComponent::Z, pPos);
 
   auto pNumOctaves = out_Ast.CreateConstant(m_uiNumOctaves, ezExpressionAST::DataType::Int);
 
-  auto pNoiseFunc = out_Ast.CreateFunctionCall(ezDefaultExpressionFunctions::s_PerlinNoiseFunc.m_Desc);
-  pNoiseFunc->m_Arguments.PushBack(pPosX);
-  pNoiseFunc->m_Arguments.PushBack(pPosY);
-  pNoiseFunc->m_Arguments.PushBack(pPosZ);
-  pNoiseFunc->m_Arguments.PushBack(pNumOctaves);
+  ezExpressionAST::Node* arguments[] = {pPosX, pPosY, pPosZ, pNumOctaves};
+
+  auto pNoiseFunc = out_Ast.CreateFunctionCall(ezDefaultExpressionFunctions::s_PerlinNoiseFunc.m_Desc, arguments);
 
   return CreateRemapFrom01(pNoiseFunc, m_fOutputMin, m_fOutputMax, out_Ast);
 }
@@ -590,9 +599,9 @@ ezExpressionAST::Node* ezProcGen_ApplyVolumes::GenerateExpressionASTNode(ezTempH
     context.m_VolumeTagSetIndices.PushBack(tagSetIndex);
   }
 
-  ezExpressionAST::Node* pPosX = out_Ast.CreateInput({ezProcGenInternal::ExpressionInputs::s_sPositionX, ezProcessingStream::DataType::Float});
-  ezExpressionAST::Node* pPosY = out_Ast.CreateInput({ezProcGenInternal::ExpressionInputs::s_sPositionY, ezProcessingStream::DataType::Float});
-  ezExpressionAST::Node* pPosZ = out_Ast.CreateInput({ezProcGenInternal::ExpressionInputs::s_sPositionZ, ezProcessingStream::DataType::Float});
+  auto pPosX = out_Ast.CreateInput({ezProcGenInternal::ExpressionInputs::s_sPositionX, ezProcessingStream::DataType::Float});
+  auto pPosY = out_Ast.CreateInput({ezProcGenInternal::ExpressionInputs::s_sPositionY, ezProcessingStream::DataType::Float});
+  auto pPosZ = out_Ast.CreateInput({ezProcGenInternal::ExpressionInputs::s_sPositionZ, ezProcessingStream::DataType::Float});
 
   auto pInput = inputs[0];
   if (pInput == nullptr)
@@ -600,19 +609,20 @@ ezExpressionAST::Node* ezProcGen_ApplyVolumes::GenerateExpressionASTNode(ezTempH
     pInput = out_Ast.CreateConstant(m_fInputValue);
   }
 
-  auto pFunctionCall = out_Ast.CreateFunctionCall(ezProcGenExpressionFunctions::s_ApplyVolumesFunc.m_Desc);
-  pFunctionCall->m_Arguments.PushBack(pPosX);
-  pFunctionCall->m_Arguments.PushBack(pPosY);
-  pFunctionCall->m_Arguments.PushBack(pPosZ);
-  pFunctionCall->m_Arguments.PushBack(pInput);
-  pFunctionCall->m_Arguments.PushBack(out_Ast.CreateConstant(tagSetIndex, ezExpressionAST::DataType::Int));
-  pFunctionCall->m_Arguments.PushBack(out_Ast.CreateConstant(m_ImageVolumeMode.GetValue(), ezExpressionAST::DataType::Int));
-  pFunctionCall->m_Arguments.PushBack(out_Ast.CreateConstant(ezMath::ColorByteToFloat(m_RefColor.r)));
-  pFunctionCall->m_Arguments.PushBack(out_Ast.CreateConstant(ezMath::ColorByteToFloat(m_RefColor.g)));
-  pFunctionCall->m_Arguments.PushBack(out_Ast.CreateConstant(ezMath::ColorByteToFloat(m_RefColor.b)));
-  pFunctionCall->m_Arguments.PushBack(out_Ast.CreateConstant(ezMath::ColorByteToFloat(m_RefColor.a)));
+  ezExpressionAST::Node* arguments[] = {
+    pPosX,
+    pPosY,
+    pPosZ,
+    pInput,
+    out_Ast.CreateConstant(tagSetIndex, ezExpressionAST::DataType::Int),
+    out_Ast.CreateConstant(m_ImageVolumeMode.GetValue(), ezExpressionAST::DataType::Int),
+    out_Ast.CreateConstant(ezMath::ColorByteToFloat(m_RefColor.r)),
+    out_Ast.CreateConstant(ezMath::ColorByteToFloat(m_RefColor.g)),
+    out_Ast.CreateConstant(ezMath::ColorByteToFloat(m_RefColor.b)),
+    out_Ast.CreateConstant(ezMath::ColorByteToFloat(m_RefColor.a)),
+  };
 
-  return pFunctionCall;
+  return out_Ast.CreateFunctionCall(ezProcGenExpressionFunctions::s_ApplyVolumesFunc.m_Desc, arguments);
 }
 
 //////////////////////////////////////////////////////////////////////////

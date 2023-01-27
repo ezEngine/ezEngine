@@ -38,7 +38,7 @@ namespace
     const ezExpression::Register* pPosX = inputs[0].GetPtr();
     const ezExpression::Register* pPosY = inputs[1].GetPtr();
     const ezExpression::Register* pPosZ = inputs[2].GetPtr();
-    const ezExpression::Register* pPosXEnd = pPosX + inputs[0].GetCount();
+    const ezExpression::Register* pPosXEnd = inputs[0].GetEndPtr();
 
     const ezExpression::Register* pInitialValues = inputs[3].GetPtr();
 
@@ -91,12 +91,55 @@ namespace
 
     return EZ_FAILURE;
   }
+
+  //////////////////////////////////////////////////////////////////////////
+
+  static ezHashedString s_sInstanceSeed = ezMakeHashedString("InstanceSeed");
+
+  static const ezEnum<ezExpression::RegisterType> s_GetInstanceSeedTypes = {};
+
+  static void GetInstanceSeed(ezExpression::Inputs inputs, ezExpression::Output output, const ezExpression::GlobalData& globalData)
+  {
+    int instanceSeed = globalData.GetValue(s_sInstanceSeed)->Get<int>();
+
+    ezExpression::Register* pOutput = output.GetPtr();
+    ezExpression::Register* pOutputEnd = output.GetEndPtr();
+
+    while (pOutput < pOutputEnd)
+    {
+      pOutput->i.Set(instanceSeed);
+
+      ++pOutput;
+    }
+  }
+
+  static ezResult GetInstanceSeedValidate(const ezExpression::GlobalData& globalData)
+  {
+    if (!globalData.IsEmpty())
+    {
+      if (const ezVariant* pValue = globalData.GetValue(s_sInstanceSeed))
+      {
+        if (pValue->GetType() == ezVariantType::Int32)
+        {
+          return EZ_SUCCESS;
+        }
+      }
+    }
+
+    return EZ_FAILURE;
+  }
 } // namespace
 
 ezExpressionFunction ezProcGenExpressionFunctions::s_ApplyVolumesFunc = {
   {ezMakeHashedString("ApplyVolumes"), ezMakeArrayPtr(s_ApplyVolumesTypes), 5, ezExpression::RegisterType::Float},
   &ApplyVolumes,
   &ApplyVolumesValidate,
+};
+
+ezExpressionFunction ezProcGenExpressionFunctions::s_GetInstanceSeedFunc = {
+  {ezMakeHashedString("GetInstanceSeed"), ezMakeArrayPtr(&s_GetInstanceSeedTypes, 0), 0, ezExpression::RegisterType::Int},
+  &GetInstanceSeed,
+  &GetInstanceSeedValidate,
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -131,4 +174,9 @@ void ezProcGenInternal::ExtractVolumeCollections(const ezWorld& world, const ezB
   }
 
   globalData.Insert(s_sVolumes, volumes);
+}
+
+void ezProcGenInternal::SetInstanceSeed(ezUInt32 uiSeed, ezExpression::GlobalData& globalData)
+{
+  globalData.Insert(s_sInstanceSeed, (int)uiSeed);
 }

@@ -12,8 +12,16 @@ class ezProcGenNodeBase : public ezReflectedClass
 public:
   struct GraphContext
   {
+    enum OutputType
+    {
+      Unknown,
+      Placement,
+      Color,
+    };
+
     ezProcGenInternal::GraphSharedData m_SharedData;
     ezHybridArray<ezUInt8, 4> m_VolumeTagSetIndices;
+    OutputType m_OutputType = OutputType::Unknown;
   };
 
   virtual ezExpressionAST::Node* GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast, GraphContext& context) = 0;

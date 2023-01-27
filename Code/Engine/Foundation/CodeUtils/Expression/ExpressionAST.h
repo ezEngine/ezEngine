@@ -252,6 +252,7 @@ public:
   TernaryOperator* CreateTernaryOperator(NodeType::Enum type, Node* pFirstOperand, Node* pSecondOperand, Node* pThirdOperand);
   Constant* CreateConstant(const ezVariant& value, DataType::Enum dataType = DataType::Float);
   Swizzle* CreateSwizzle(ezStringView sSwizzle, Node* pExpression);
+  Swizzle* CreateSwizzle(ezEnum<VectorComponent> component, Node* pExpression);
   Swizzle* CreateSwizzle(ezArrayPtr<ezEnum<VectorComponent>> swizzle, Node* pExpression);
   Input* CreateInput(const ezExpression::StreamDesc& desc);
   Output* CreateOutput(const ezExpression::StreamDesc& desc, Node* pExpression);

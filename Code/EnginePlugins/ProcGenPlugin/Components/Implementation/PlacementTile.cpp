@@ -94,10 +94,18 @@ ezColor PlacementTile::GetDebugColor() const
 
 void PlacementTile::PreparePlacementData(const ezWorld* pWorld, const ezPhysicsWorldModuleInterface* pPhysicsModule, PlacementData& placementData)
 {
+  const ezUInt64 uiOutputNameHash = m_pOutput->m_sName.GetHash();
+  ezUInt32 hashData[] = {
+    static_cast<ezUInt32>(m_Desc.m_iPosX),
+    static_cast<ezUInt32>(m_Desc.m_iPosY),
+    static_cast<ezUInt32>(uiOutputNameHash),
+    static_cast<ezUInt32>(uiOutputNameHash >> 32),
+  };
+
   placementData.m_pPhysicsModule = pPhysicsModule;
   placementData.m_pWorld = pWorld;
   placementData.m_pOutput = m_pOutput;
-  placementData.m_iTileSeed = (m_Desc.m_iPosX << 11) ^ (m_Desc.m_iPosY * 17);
+  placementData.m_uiTileSeed = ezHashingUtils::xxHash32(hashData, sizeof(hashData));
   placementData.m_TileBoundingBox = GetBoundingBox();
   placementData.m_GlobalToLocalBoxTransforms = m_Desc.m_GlobalToLocalBoxTransforms;
 
@@ -136,13 +144,13 @@ ezUInt32 PlacementTile::PlaceObjects(ezWorld& world, ezArrayPtr<const PlacementT
     pPrefab->InstantiatePrefab(world, transform, options);
 
     // only send the color message, if we actually have a custom color
-    if (objectTransform.m_uiSetColor != 0)
+    if (objectTransform.m_bHasValidColor)
     {
       for (auto pRootObject : rootObjects)
       {
         // Set the color
         ezMsgSetColor msg;
-        msg.m_Color = objectTransform.m_ObjectColor;
+        msg.m_Color = objectTransform.m_ObjectColor.ToLinearFloat();
         pRootObject->PostMessageRecursive(msg, ezTime::Zero(), ezObjectMsgQueueType::AfterInitialized);
       }
     }

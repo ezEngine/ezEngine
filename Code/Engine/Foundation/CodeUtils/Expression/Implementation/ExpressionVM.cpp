@@ -45,8 +45,6 @@ ezResult ezExpressionVM::Execute(const ezExpressionByteCode& byteCode, ezArrayPt
   EZ_SUCCEED_OR_RETURN(MapStreams(byteCode.GetOutputs(), m_ScalarizedOutputs, "Output", uiNumInstances, m_MappedOutputs));
   EZ_SUCCEED_OR_RETURN(MapFunctions(byteCode.GetFunctions(), globalData));
 
-  // const ezUInt32 uiNumSimd16Instances = uiNumInstances / 16;
-
   const ezUInt32 uiTotalNumRegisters = byteCode.GetNumTempRegisters() * ((uiNumInstances + 3) / 4);
   m_Registers.SetCountUninitialized(uiTotalNumRegisters);
 

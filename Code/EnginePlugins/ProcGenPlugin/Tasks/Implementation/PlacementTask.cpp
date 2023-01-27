@@ -13,7 +13,7 @@
 using namespace ezProcGenInternal;
 
 EZ_CHECK_AT_COMPILETIME(sizeof(PlacementPoint) == 32);
-// EZ_CHECK_AT_COMPILETIME(sizeof(PlacementTransform) == 64); // TODO: Fails on Linux and Mac
+EZ_CHECK_AT_COMPILETIME(sizeof(PlacementTransform) == 64);
 
 PlacementTask::PlacementTask(PlacementData* pData, const char* szName)
   : m_pData(pData)
@@ -21,6 +21,7 @@ PlacementTask::PlacementTask(PlacementData* pData, const char* szName)
   ConfigureTask(szName, ezTaskNesting::Maybe);
 
   m_VM.RegisterFunction(ezProcGenExpressionFunctions::s_ApplyVolumesFunc);
+  m_VM.RegisterFunction(ezProcGenExpressionFunctions::s_GetInstanceSeedFunc);
 }
 
 PlacementTask::~PlacementTask() = default;
@@ -29,7 +30,7 @@ void PlacementTask::Clear()
 {
   m_InputPoints.Clear();
   m_OutputTransforms.Clear();
-  m_TempData.Clear();
+  m_Density.Clear();
   m_ValidPoints.Clear();
 }
 
@@ -49,7 +50,7 @@ void PlacementTask::FindPlacementPoints()
 
   auto pOutput = m_pData->m_pOutput;
 
-  ezSimdVec4u seed = ezSimdVec4u(m_pData->m_iTileSeed) + ezSimdVec4u(0, 3, 7, 11);
+  ezSimdVec4u seed = ezSimdVec4u(m_pData->m_uiTileSeed) + ezSimdVec4u(0, 3, 7, 11);
 
   float fZRange = m_pData->m_TileBoundingBox.GetExtents().z;
   ezSimdFloat fZStart = m_pData->m_TileBoundingBox.m_vMax.z;
@@ -140,7 +141,7 @@ void PlacementTask::ExecuteVM()
     EZ_PROFILE_SCOPE("ExecuteVM");
 
     ezUInt32 uiNumInstances = m_InputPoints.GetCount();
-    m_TempData.SetCountUninitialized(uiNumInstances * 5);
+    m_Density.SetCountUninitialized(uiNumInstances);
 
     ezHybridArray<ezProcessingStream, 8> inputs;
     {
@@ -152,26 +153,15 @@ void PlacementTask::ExecuteVM()
       inputs.PushBack(MakeInputStream(ExpressionInputs::s_sNormalY, offsetof(PlacementPoint, m_vNormal.y)));
       inputs.PushBack(MakeInputStream(ExpressionInputs::s_sNormalZ, offsetof(PlacementPoint, m_vNormal.z)));
 
-      // Point index
-      ezArrayPtr<float> pointIndex = m_TempData.GetArrayPtr().GetSubArray(0, uiNumInstances);
-      for (ezUInt32 i = 0; i < uiNumInstances; ++i)
-      {
-        pointIndex[i] = m_InputPoints[i].m_uiPointIndex;
-      }
-      inputs.PushBack(ezProcessingStream(ExpressionInputs::s_sPointIndex, pointIndex.ToByteArray(), ezProcessingStream::DataType::Float));
+      inputs.PushBack(MakeInputStream(ExpressionInputs::s_sPointIndex, offsetof(PlacementPoint, m_uiPointIndex), ezProcessingStream::DataType::Short));
     }
-
-    ezArrayPtr<float> density = m_TempData.GetArrayPtr().GetSubArray(uiNumInstances * 1, uiNumInstances);
-    ezArrayPtr<float> scale = m_TempData.GetArrayPtr().GetSubArray(uiNumInstances * 2, uiNumInstances);
-    ezArrayPtr<float> colorIndex = m_TempData.GetArrayPtr().GetSubArray(uiNumInstances * 3, uiNumInstances);
-    ezArrayPtr<float> objectIndex = m_TempData.GetArrayPtr().GetSubArray(uiNumInstances * 4, uiNumInstances);
 
     ezHybridArray<ezProcessingStream, 8> outputs;
     {
-      outputs.PushBack(ezProcessingStream(ExpressionOutputs::s_sDensity, density.ToByteArray(), ezProcessingStream::DataType::Float));
-      outputs.PushBack(ezProcessingStream(ExpressionOutputs::s_sScale, scale.ToByteArray(), ezProcessingStream::DataType::Float));
-      outputs.PushBack(ezProcessingStream(ExpressionOutputs::s_sColorIndex, colorIndex.ToByteArray(), ezProcessingStream::DataType::Float));
-      outputs.PushBack(ezProcessingStream(ExpressionOutputs::s_sObjectIndex, objectIndex.ToByteArray(), ezProcessingStream::DataType::Float));
+      outputs.PushBack(ezProcessingStream(ExpressionOutputs::s_sOutDensity, m_Density.GetByteArrayPtr(), ezProcessingStream::DataType::Float));
+      outputs.PushBack(MakeOutputStream(ExpressionOutputs::s_sOutScale, offsetof(PlacementPoint, m_fScale)));
+      outputs.PushBack(MakeOutputStream(ExpressionOutputs::s_sOutColorIndex, offsetof(PlacementPoint, m_uiColorIndex), ezProcessingStream::DataType::Byte));
+      outputs.PushBack(MakeOutputStream(ExpressionOutputs::s_sOutObjectIndex, offsetof(PlacementPoint, m_uiObjectIndex), ezProcessingStream::DataType::Byte));
     }
 
     // Execute expression bytecode
@@ -189,12 +179,8 @@ void PlacementTask::ExecuteVM()
       const ezUInt32 uiPointIndex = inputPoint.m_uiPointIndex;
       const float fThreshold = pPattern->m_Points[uiPointIndex].m_fThreshold;
 
-      if (density[i] >= fThreshold)
+      if (m_Density[i] >= fThreshold)
       {
-        inputPoint.m_fScale = scale[i];
-        inputPoint.m_uiColorIndex = static_cast<ezUInt8>(ezMath::Clamp(colorIndex[i] * 256.0f, 0.0f, 255.0f));
-        inputPoint.m_uiObjectIndex = static_cast<ezUInt8>(ezMath::Clamp(objectIndex[i] * fObjectCount, 0.0f, fObjectCount - 1.0f));
-
         m_ValidPoints.PushBack(i);
       }
     }
@@ -209,7 +195,7 @@ void PlacementTask::ExecuteVM()
 
   m_OutputTransforms.SetCountUninitialized(m_ValidPoints.GetCount());
 
-  ezSimdVec4u seed = ezSimdVec4u(m_pData->m_iTileSeed) + ezSimdVec4u(0, 3, 7, 11);
+  ezSimdVec4u seed = ezSimdVec4u(m_pData->m_uiTileSeed) + ezSimdVec4u(13, 17, 31, 79);
 
   float fMinAngle = 0.0f;
   float fMaxAngle = ezMath::Pi<float>() * 2.0f;
@@ -238,8 +224,6 @@ void PlacementTask::ExecuteVM()
 
     ezSimdVec4f random = ezSimdRandom::FloatMinMax(ezSimdVec4i(placementPoint.m_uiPointIndex), vMinValue, vMaxValue, seed);
 
-    placementTransform.m_Transform.SetIdentity();
-
     ezSimdVec4f offset = ezSimdVec4f::ZeroVector();
     offset.SetZ(random.y());
     placementTransform.m_Transform.m_Position = ezSimdConversion::ToVec3(placementPoint.m_vPosition) + offset;
@@ -257,12 +241,17 @@ void PlacementTask::ExecuteVM()
 
     ezSimdVec4f scale = ezSimdVec4f(ezMath::Clamp(placementPoint.m_fScale, 0.0f, 1.0f));
     placementTransform.m_Transform.m_Scale = ezSimdVec4f::Lerp(vMinScale, vMaxScale, scale);
-    placementTransform.m_uiSetColor = 0;
 
-    ezColor objectColor = ezColor::ZeroColor();
+    placementTransform.m_ObjectColor = ezColor::ZeroColor();
+    placementTransform.m_uiPointIndex = placementPoint.m_uiPointIndex;
+    placementTransform.m_uiObjectIndex = placementPoint.m_uiObjectIndex;
+    placementTransform.m_bHasValidColor = false;
+
     if (pColorGradient != nullptr)
     {
       float colorIndex = ezMath::ColorByteToFloat(placementPoint.m_uiColorIndex);
+
+      ezColor objectColor;
       ezUInt8 alpha;
       float intensity = 1.0f;
       pColorGradient->EvaluateColor(colorIndex, objectColor);
@@ -272,11 +261,11 @@ void PlacementTask::ExecuteVM()
       objectColor.g *= intensity;
       objectColor.b *= intensity;
       objectColor.a = alpha;
-      placementTransform.m_uiSetColor = 1;
+
+      placementTransform.m_ObjectColor = objectColor;
+      placementTransform.m_bHasValidColor = true;
     }
 
-    placementTransform.m_ObjectColor = objectColor;
-    placementTransform.m_uiObjectIndex = placementPoint.m_uiObjectIndex;
-    placementTransform.m_uiPointIndex = placementPoint.m_uiPointIndex;
+
   }
 }

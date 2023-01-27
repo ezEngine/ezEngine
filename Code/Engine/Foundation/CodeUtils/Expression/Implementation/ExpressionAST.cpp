@@ -514,6 +514,11 @@ ezExpressionAST::Swizzle* ezExpressionAST::CreateSwizzle(ezStringView sSwizzle, 
   return CreateSwizzle(ezMakeArrayPtr(components, numComponents), pExpression);
 }
 
+ezExpressionAST::Swizzle* ezExpressionAST::CreateSwizzle(ezEnum<VectorComponent> component, Node* pExpression)
+{
+  return CreateSwizzle(ezMakeArrayPtr(&component, 1), pExpression);
+}
+
 ezExpressionAST::Swizzle* ezExpressionAST::CreateSwizzle(ezArrayPtr<ezEnum<VectorComponent>> swizzle, Node* pExpression)
 {
   EZ_ASSERT_DEV(swizzle.GetCount() >= 1 && swizzle.GetCount() <= 4, "Invalid number of vector components for swizzle.");
@@ -615,8 +620,7 @@ ezExpressionAST::ConstructorCall* ezExpressionAST::CreateConstructorCall(Node* p
       {
         for (ezUInt32 i = 0; i < uiNumElements; ++i)
         {
-          ezEnum<VectorComponent> component = static_cast<VectorComponent::Enum>(i);
-          auto pSwizzle = CreateSwizzle(ezMakeArrayPtr(&component, 1), pOldValue);
+          auto pSwizzle = CreateSwizzle(static_cast<VectorComponent::Enum>(i), pOldValue);
           arguments.PushBack(pSwizzle);
         }
       }
@@ -645,8 +649,7 @@ ezExpressionAST::ConstructorCall* ezExpressionAST::CreateConstructorCall(Node* p
         return nullptr;
       }
 
-      ezEnum<VectorComponent> newComponent = static_cast<VectorComponent::Enum>(uiNewValueElementIndex);
-      pNewValueElement = CreateSwizzle(ezMakeArrayPtr(&newComponent, 1), pNewValue);
+      pNewValueElement = CreateSwizzle(static_cast<VectorComponent::Enum>(uiNewValueElementIndex), pNewValue);
       ++uiNewValueElementIndex;
     }
 
@@ -894,7 +897,7 @@ void ezExpressionAST::ResolveOverloads(Node* pNode)
     }
 
     ezUInt32 uiMatchDistance = 0;
-    uiMaxNumElements = 0;
+    uiMaxNumElements = 1;
     for (ezUInt32 i = 0; i < ezMath::Min(children.GetCount(), expectedTypes.GetCount()); ++i)
     {
       auto& pChildNode = children[i];
@@ -931,7 +934,7 @@ void ezExpressionAST::ResolveOverloads(Node* pNode)
         expectedTypes.PushBack(GetArgumentTypeFromSignature(uiSignature, i));
       }
 
-      ezUInt32 uiMaxNumElements = 0;
+      ezUInt32 uiMaxNumElements = 1;
       ezUInt32 uiMatchDistance = CalculateMatchDistance(children, expectedTypes, expectedTypes.GetCount(), uiMaxNumElements);
       if (uiMatchDistance < uiBestMatchDistance)
       {
@@ -950,7 +953,7 @@ void ezExpressionAST::ResolveOverloads(Node* pNode)
     {
       auto pFuncDesc = pFunctionCall->m_Descs[uiOverloadIndex];
 
-      ezUInt32 uiMaxNumElements = 0;
+      ezUInt32 uiMaxNumElements = 1;
       ezUInt32 uiMatchDistance = CalculateMatchDistance(pFunctionCall->m_Arguments, pFuncDesc->m_InputTypes, pFuncDesc->m_uiNumRequiredInputs, uiMaxNumElements);
       if (uiMatchDistance < uiBestMatchDistance)
       {
@@ -1007,8 +1010,7 @@ void ezExpressionAST::ResolveOverloads(Node* pNode)
         }
         else if (uiArgumentElementIndex < uiArgElementCount)
         {
-          ezEnum<VectorComponent> component = static_cast<VectorComponent::Enum>(uiArgumentElementIndex);
-          newArguments.PushBack(CreateSwizzle(ezMakeArrayPtr(&component, 1), pArg));
+          newArguments.PushBack(CreateSwizzle(static_cast<VectorComponent::Enum>(uiArgumentElementIndex), pArg));
         }
 
         ++uiArgumentElementIndex;

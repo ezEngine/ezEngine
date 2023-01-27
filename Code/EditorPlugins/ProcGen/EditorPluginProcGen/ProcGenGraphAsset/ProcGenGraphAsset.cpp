@@ -126,6 +126,20 @@ ezStatus ezProcGenGraphAssetDocument::WriteAsset(ezStreamWriter& stream, const e
   auto WriteByteCode = [&](const ezDocumentObject* pOutputNode) {
     context.m_GraphContext.m_VolumeTagSetIndices.Clear();
 
+    if (pOutputNode->GetType()->IsDerivedFrom<ezProcGen_PlacementOutput>())
+    {
+      context.m_GraphContext.m_OutputType = ezProcGenNodeBase::GraphContext::Placement;
+    }
+    else if (pOutputNode->GetType()->IsDerivedFrom<ezProcGen_VertexColorOutput>())
+    {
+      context.m_GraphContext.m_OutputType = ezProcGenNodeBase::GraphContext::Color;
+    }
+    else
+    {
+      EZ_ASSERT_NOT_IMPLEMENTED;
+      return ezStatus("Unknown output type");
+    }
+
     ezExpressionAST ast;
     GenerateExpressionAST(pOutputNode, "", context, ast);
     context.m_DocObjAndOutputToASTNodeTable.Clear();
@@ -174,6 +188,7 @@ ezStatus ezProcGenGraphAssetDocument::WriteAsset(ezStreamWriter& stream, const e
       chunk << uiNumNodes;
 
       context.m_GraphContext.m_VolumeTagSetIndices.Clear();
+      context.m_GraphContext.m_OutputType = ezProcGenNodeBase::GraphContext::Placement;
 
       ezExpressionAST ast;
       GenerateDebugExpressionAST(context, ast);
@@ -421,7 +436,7 @@ void ezProcGenGraphAssetDocument::DumpSelectedOutput(bool bAst, bool bDisassembl
   if (!selection.IsEmpty())
   {
     pSelectedNode = selection[0];
-    if (!pSelectedNode->GetType()->IsDerivedFrom(ezGetStaticRTTI<ezProcGenOutput>()))
+    if (!pSelectedNode->GetType()->IsDerivedFrom<ezProcGenOutput>())
     {
       pSelectedNode = nullptr;
     }
@@ -434,6 +449,20 @@ void ezProcGenGraphAssetDocument::DumpSelectedOutput(bool bAst, bool bDisassembl
   }
 
   GenerateContext context(GetObjectManager());
+  if (pSelectedNode->GetType()->IsDerivedFrom<ezProcGen_PlacementOutput>())
+  {
+    context.m_GraphContext.m_OutputType = ezProcGenNodeBase::GraphContext::Placement;
+  }
+  else if (pSelectedNode->GetType()->IsDerivedFrom<ezProcGen_VertexColorOutput>())
+  {
+    context.m_GraphContext.m_OutputType = ezProcGenNodeBase::GraphContext::Color;
+  }
+  else
+  {
+    EZ_ASSERT_NOT_IMPLEMENTED;
+    return;
+  }
+
   ezExpressionAST ast;
   GenerateExpressionAST(pSelectedNode, "", context, ast);
 
