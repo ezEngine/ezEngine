@@ -28,3 +28,12 @@ inline ezInt32 ezObjectAccessorBase::GetCount(const ezDocumentObject* pObject, c
     ezLog::Error("GetCount failed: {0}", res.m_sMessage);
   return iCount;
 }
+
+inline ezInt32 ezObjectAccessorBase::GetCount(const ezDocumentObject* pObject, const char* szProp)
+{
+  ezInt32 iCount = 0;
+  ezStatus res = GetCount(pObject, szProp, iCount);
+  if (res.m_Result.Failed())
+    ezLog::Error("GetCount failed: {0}", res.m_sMessage);
+  return iCount;
+}

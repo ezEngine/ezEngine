@@ -273,12 +273,12 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectedType)
     }
     {
       ezDocumentObject* pObject = manager.CreateObject(pRttiPOD);
-      EZ_TEST_INT(AccessorPropertiesTest(pObject->GetTypeAccessor()), 17);
+      EZ_TEST_INT(AccessorPropertiesTest(pObject->GetTypeAccessor()), 18);
       manager.DestroyObject(pObject);
     }
     {
       ezDocumentObject* pObject = manager.CreateObject(pRttiMath);
-      EZ_TEST_INT(AccessorPropertiesTest(pObject->GetTypeAccessor()), 26);
+      EZ_TEST_INT(AccessorPropertiesTest(pObject->GetTypeAccessor()), 27);
       manager.DestroyObject(pObject);
     }
     {
