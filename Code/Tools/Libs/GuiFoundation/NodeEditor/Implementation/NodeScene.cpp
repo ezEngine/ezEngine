@@ -881,7 +881,10 @@ void ezQtNodeScene::OnSelectionChanged()
     }
   }
 
-  m_bIgnoreSelectionChange = true;
-  m_pManager->GetDocument()->GetSelectionManager()->SetSelection(m_Selection);
-  m_bIgnoreSelectionChange = false;
+  if (!m_bIgnoreSelectionChange)
+  {
+    m_bIgnoreSelectionChange = true;
+    m_pManager->GetDocument()->GetSelectionManager()->SetSelection(m_Selection);
+    m_bIgnoreSelectionChange = false;
+  }
 }
