@@ -1,8 +1,8 @@
 #pragma once
 
+#include <Foundation/Math/Color8UNorm.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Types/VarianceTypes.h>
-#include <Foundation/Math/Color8UNorm.h>
 
 struct ezIntegerStruct
 {

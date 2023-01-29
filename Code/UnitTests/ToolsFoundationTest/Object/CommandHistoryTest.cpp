@@ -245,7 +245,7 @@ EZ_CREATE_SIMPLE_TEST(DocumentObject, CommandHistory)
     };
 
     {
-      ezVariant expectedValues[3] = { 0, 1, 2 };
+      ezVariant expectedValues[3] = {0, 1, 2};
       // Move first element before or after itself (no-op)
       TestMoveValue(pObjectTest, "StandardTypeArray", 0, 0, ezArrayPtr<ezVariant>(expectedValues));
       TestMoveValue(pObjectTest, "StandardTypeArray", 0, 1, ezArrayPtr<ezVariant>(expectedValues));
@@ -255,27 +255,27 @@ EZ_CREATE_SIMPLE_TEST(DocumentObject, CommandHistory)
     }
     {
       // Move first element to the end.
-      ezVariant expectedValues[3] = { 1, 2, 0 };
+      ezVariant expectedValues[3] = {1, 2, 0};
       TestMoveValue(pObjectTest, "StandardTypeArray", 0, 3, ezArrayPtr<ezVariant>(expectedValues));
     }
     {
       // Move last element to the front.
-      ezVariant expectedValues[3] = { 0, 1, 2 };
+      ezVariant expectedValues[3] = {0, 1, 2};
       TestMoveValue(pObjectTest, "StandardTypeArray", 2, 0, ezArrayPtr<ezVariant>(expectedValues));
     }
     {
       // Move first element to the middle
-      ezVariant expectedValues[3] = { 1, 0, 2 };
+      ezVariant expectedValues[3] = {1, 0, 2};
       TestMoveValue(pObjectTest, "StandardTypeArray", 0, 2, ezArrayPtr<ezVariant>(expectedValues));
     }
     {
       // Move last element to the middle
-      ezVariant expectedValues[3] = { 1, 2, 0 };
+      ezVariant expectedValues[3] = {1, 2, 0};
       TestMoveValue(pObjectTest, "StandardTypeArray", 2, 1, ezArrayPtr<ezVariant>(expectedValues));
     }
 
     {
-      ezVariant expectedValues[3] = { "A", "B", "C" };
+      ezVariant expectedValues[3] = {"A", "B", "C"};
       // Move first element before or after itself (no-op)
       TestMoveValue(pObjectTest, "StandardTypeSet", 0, 0, ezArrayPtr<ezVariant>(expectedValues));
       TestMoveValue(pObjectTest, "StandardTypeSet", 0, 1, ezArrayPtr<ezVariant>(expectedValues));
@@ -285,22 +285,22 @@ EZ_CREATE_SIMPLE_TEST(DocumentObject, CommandHistory)
     }
     {
       // Move first element to the end.
-      ezVariant expectedValues[3] = { "B", "C", "A" };
+      ezVariant expectedValues[3] = {"B", "C", "A"};
       TestMoveValue(pObjectTest, "StandardTypeSet", 0, 3, ezArrayPtr<ezVariant>(expectedValues));
     }
     {
       // Move last element to the front.
-      ezVariant expectedValues[3] = { "A", "B", "C" };
+      ezVariant expectedValues[3] = {"A", "B", "C"};
       TestMoveValue(pObjectTest, "StandardTypeSet", 2, 0, ezArrayPtr<ezVariant>(expectedValues));
     }
     {
       // Move first element to the middle
-      ezVariant expectedValues[3] = { "B", "A", "C" };
+      ezVariant expectedValues[3] = {"B", "A", "C"};
       TestMoveValue(pObjectTest, "StandardTypeSet", 0, 2, ezArrayPtr<ezVariant>(expectedValues));
     }
     {
       // Move last element to the middle
-      ezVariant expectedValues[3] = { "B", "C", "A" };
+      ezVariant expectedValues[3] = {"B", "C", "A"};
       TestMoveValue(pObjectTest, "StandardTypeSet", 2, 1, ezArrayPtr<ezVariant>(expectedValues));
     }
   }
@@ -394,11 +394,11 @@ EZ_CREATE_SIMPLE_TEST(DocumentObject, CommandHistory)
 
     // StandardTypeArray
     {
-      ezVariant expectedValues[2] = { 2, 0 };
+      ezVariant expectedValues[2] = {2, 0};
       TestRemoveValue(pObjectTest, "StandardTypeArray", 0, ezArrayPtr<ezVariant>(expectedValues));
     }
     {
-      ezVariant expectedValues[1] = { 2 };
+      ezVariant expectedValues[1] = {2};
       TestRemoveValue(pObjectTest, "StandardTypeArray", 1, ezArrayPtr<ezVariant>(expectedValues));
     }
     {
@@ -406,11 +406,11 @@ EZ_CREATE_SIMPLE_TEST(DocumentObject, CommandHistory)
     }
     // StandardTypeSet
     {
-      ezVariant expectedValues[2] = { "B", "C" };
+      ezVariant expectedValues[2] = {"B", "C"};
       TestRemoveValue(pObjectTest, "StandardTypeSet", 2, ezArrayPtr<ezVariant>(expectedValues));
     }
     {
-      ezVariant expectedValues[1] = { "C" };
+      ezVariant expectedValues[1] = {"C"};
       TestRemoveValue(pObjectTest, "StandardTypeSet", 0, ezArrayPtr<ezVariant>(expectedValues));
     }
     {
@@ -418,11 +418,11 @@ EZ_CREATE_SIMPLE_TEST(DocumentObject, CommandHistory)
     }
     // StandardTypeMap
     {
-      ezVariant expectedValues[2] = { 1, 2 };
+      ezVariant expectedValues[2] = {1, 2};
       TestRemoveValue(pObjectTest, "StandardTypeMap", "A", ezArrayPtr<ezVariant>(expectedValues));
     }
     {
-      ezVariant expectedValues[1] = { 1 };
+      ezVariant expectedValues[1] = {1};
       TestRemoveValue(pObjectTest, "StandardTypeMap", "C", ezArrayPtr<ezVariant>(expectedValues));
     }
     {
@@ -605,7 +605,6 @@ EZ_CREATE_SIMPLE_TEST(DocumentObject, CommandHistory)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "RemoveObject")
   {
     auto TestRemoveObject = [&](const ezDocumentObject* pObject, ezArrayPtr<ezUuid> expectedOutcome) {
-
       auto pParent = pObject->GetParent();
       ezString sProperty = pObject->GetParentProperty();
 
