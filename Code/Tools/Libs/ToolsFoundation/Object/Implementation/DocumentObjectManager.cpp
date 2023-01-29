@@ -165,7 +165,7 @@ ezStatus ezDocumentObjectManager::SetValue(ezDocumentObject* pObject, const char
 
   if (!accessor.SetValue(szProperty, newValue, index))
   {
-    return ezStatus(ezFmt("Set Property: The property '{0}' does not exist", szProperty));
+    return ezStatus(ezFmt("Set Property: The property '{0}' does not exist or value type does not match", szProperty));
   }
 
   ezDocumentObjectPropertyEvent e;

@@ -2,6 +2,7 @@
 
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Types/VarianceTypes.h>
+#include <Foundation/Math/Color8UNorm.h>
 
 struct ezIntegerStruct
 {
@@ -79,6 +80,7 @@ public:
   {
     m_bBool = true;
     m_Color = ezColor(1.0f, 0.0f, 0.0f, 0.0f);
+    m_Color2 = ezColorGammaUB(255, 10, 1);
     m_sString = "Test";
     m_Buffer.PushBack(0xFF);
     m_Buffer.PushBack(0x0);
@@ -105,6 +107,7 @@ public:
 private:
   bool m_bBool;
   ezColor m_Color;
+  ezColorGammaUB m_Color2;
   ezString m_sString;
   ezDataBuffer m_Buffer;
   ezVarianceTypeAngle m_VarianceAngle;

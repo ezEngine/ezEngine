@@ -968,5 +968,5 @@ ezStatus ezMoveObjectPropertyCommand::UndoInternal(bool bFireEvents)
     }
   }
 
-  return GetDocument()->GetObjectManager()->MoveValue(m_pObject, m_sProperty, FinalOldPosition, FinalNewPosition);
+  return GetDocument()->GetObjectManager()->MoveValue(m_pObject, m_sProperty, FinalNewPosition, FinalOldPosition);
 }
