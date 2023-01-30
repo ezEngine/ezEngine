@@ -46,7 +46,10 @@ void ezWorldRttiConverterContext::DeleteExistingObjects()
   m_ComponentPickingMap.Clear();
   // Need to do this to make sure all deleted objects are actually deleted as singleton components are
   // still considered alive until Update actually deletes them.
+  const bool bSim = m_pWorld->GetWorldSimulationEnabled();
+  m_pWorld->SetWorldSimulationEnabled(false);
   m_pWorld->Update();
+  m_pWorld->SetWorldSimulationEnabled(bSim);
   // m_OtherPickingMap.Clear(); // do not clear this
 }
 
