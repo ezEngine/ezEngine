@@ -10,7 +10,7 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneExportModifier_StaticMeshConversion, 1, ezRTTIDefaultAllocator<ezSceneExportModifier_StaticMeshConversion>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-void ezSceneExportModifier_StaticMeshConversion::ModifyWorld(ezWorld& world, const ezUuid& documentGuid)
+void ezSceneExportModifier_StaticMeshConversion::ModifyWorld(ezWorld& world, const ezUuid& documentGuid, bool bForExport)
 {
   EZ_LOCK(world.GetWriteMarker());
 

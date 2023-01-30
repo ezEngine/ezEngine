@@ -24,7 +24,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneExportModifier_RemoveShapeIconComponents,
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezSceneExportModifier_RemoveShapeIconComponents::ModifyWorld(ezWorld& world, const ezUuid& documentGuid)
+void ezSceneExportModifier_RemoveShapeIconComponents::ModifyWorld(ezWorld& world, const ezUuid& documentGuid, bool bForExport)
 {
   EZ_LOCK(world.GetWriteMarker());
 
