@@ -8,5 +8,5 @@ class EZ_ENGINEPLUGINPHYSX_DLL ezSceneExportModifier_StaticMeshConversion : publ
   EZ_ADD_DYNAMIC_REFLECTION(ezSceneExportModifier_StaticMeshConversion, ezSceneExportModifier);
 
 public:
-  virtual void ModifyWorld(ezWorld& world, const ezUuid& documentGuid) override;
+  virtual void ModifyWorld(ezWorld& world, const ezUuid& documentGuid, bool bForExport) override;
 };

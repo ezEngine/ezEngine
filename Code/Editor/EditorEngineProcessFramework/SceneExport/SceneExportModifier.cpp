@@ -36,15 +36,58 @@ void ezSceneExportModifier::DestroyModifiers(ezHybridArray<ezSceneExportModifier
   modifiers.Clear();
 }
 
-void ezSceneExportModifier::ApplyAllModifiers(ezWorld& world, const ezUuid& documentGuid)
+void ezSceneExportModifier::ApplyAllModifiers(ezWorld& world, const ezUuid& documentGuid, bool bForExport)
 {
   ezHybridArray<ezSceneExportModifier*, 8> modifiers;
   CreateModifiers(modifiers);
 
   for (auto pMod : modifiers)
   {
-    pMod->ModifyWorld(world, documentGuid);
+    pMod->ModifyWorld(world, documentGuid, bForExport);
   }
 
   DestroyModifiers(modifiers);
+
+  CleanUpWorld(world);
+}
+
+void VisitObject(ezWorld& world, ezGameObject* pObject)
+{
+  for (auto it = pObject->GetChildren(); it.IsValid(); it.Next())
+  {
+    VisitObject(world, it);
+  }
+
+  if (pObject->GetChildCount() > 0)
+    return;
+
+  if (!pObject->GetComponents().IsEmpty())
+    return;
+
+  if (!ezStringUtils::IsNullOrEmpty(pObject->GetName()))
+    return;
+
+  if (!ezStringUtils::IsNullOrEmpty(pObject->GetGlobalKey()))
+    return;
+
+  world.DeleteObjectDelayed(pObject->GetHandle(), false);
+}
+
+void ezSceneExportModifier::CleanUpWorld(ezWorld& world)
+{
+  EZ_LOCK(world.GetWriteMarker());
+
+  for (auto it = world.GetObjects(); it.IsValid(); it.Next())
+  {
+    // only visit objects without parents, those are the root objects
+    if (it->GetParent() != nullptr)
+      continue;
+
+    VisitObject(world, it);
+  }
+
+  const bool bSim = world.GetWorldSimulationEnabled();
+  world.SetWorldSimulationEnabled(false);
+  world.Update();
+  world.SetWorldSimulationEnabled(bSim);
 }
