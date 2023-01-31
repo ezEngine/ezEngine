@@ -442,6 +442,7 @@ ezExpressionAST::ezExpressionAST()
   : m_Allocator("Expression AST", ezFoundation::GetAlignedAllocator())
 {
   static_assert(sizeof(Node) == 8);
+#if EZ_ENABLED(EZ_PLATFORM_64BIT)
   static_assert(sizeof(UnaryOperator) == 16);
   static_assert(sizeof(BinaryOperator) == 24);
   static_assert(sizeof(TernaryOperator) == 32);
@@ -451,6 +452,7 @@ ezExpressionAST::ezExpressionAST()
   static_assert(sizeof(Output) == 32);
   static_assert(sizeof(FunctionCall) == 96);
   static_assert(sizeof(ConstructorCall) == 48);
+#endif
 }
 
 ezExpressionAST::~ezExpressionAST() = default;
