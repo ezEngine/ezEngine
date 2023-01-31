@@ -82,9 +82,8 @@ EZ_ALWAYS_INLINE void ezSimdVec4i::Store<2>(ezInt32* pInts) const
 template <>
 EZ_ALWAYS_INLINE void ezSimdVec4i::Store<3>(ezInt32* pInts) const
 {
-  pInts[0] = m_v.m128i_i32[0];
-  pInts[1] = m_v.m128i_i32[1];
-  pInts[2] = m_v.m128i_i32[2];
+  _mm_storeu_si64(pInts, m_v);
+  _mm_storeu_si32(pInts + 2, _mm_castps_si128(_mm_movehl_ps(_mm_castsi128_ps(m_v), _mm_castsi128_ps(m_v))));
 }
 
 template <>
