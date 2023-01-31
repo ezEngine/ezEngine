@@ -71,23 +71,23 @@ namespace
     "EqF_RR",
     "EqI_RR",
     "EqB_RR",
-    
+
     "NEqF_RR",
     "NEqI_RR",
     "NEqB_RR",
-    
+
     "LtF_RR",
     "LtI_RR",
-    
+
     "LEqF_RR",
     "LEqI_RR",
-    
+
     "GtF_RR",
     "GtI_RR",
-    
+
     "GEqF_RR",
     "GEqI_RR",
-    
+
     "AndB_RR",
     "OrB_RR",
 
@@ -121,23 +121,23 @@ namespace
     "EqF_RC",
     "EqI_RC",
     "EqB_RC",
-    
+
     "NEqF_RC",
     "NEqI_RC",
     "NEqB_RC",
-    
+
     "LtF_RC",
     "LtI_RC",
-    
+
     "LEqF_RC",
     "LEqI_RC",
-    
+
     "GtF_RC",
     "GtI_RC",
-    
+
     "GEqF_RC",
     "GEqI_RC",
-    
+
     "AndB_RC",
     "OrB_RC",
 
@@ -244,8 +244,7 @@ void ezExpressionByteCode::Disassemble(ezStringBuilder& out_sDisassembly) const
   out_sDisassembly.AppendFormat("\n// Temp Registers: {}\n", m_uiNumTempRegisters);
   out_sDisassembly.AppendFormat("// Instructions: {}\n\n", m_uiNumInstructions);
 
-  auto AppendConstant = [](ezUInt32 x, ezStringBuilder& out_String)
-  {
+  auto AppendConstant = [](ezUInt32 x, ezStringBuilder& out_String) {
     out_String.AppendFormat("0x{}({})", ezArgU(x, 8, true, 16), ezArgF(*reinterpret_cast<float*>(&x), 6));
   };
 

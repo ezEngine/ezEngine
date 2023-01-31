@@ -265,7 +265,5 @@ void PlacementTask::ExecuteVM()
       placementTransform.m_ObjectColor = objectColor;
       placementTransform.m_bHasValidColor = true;
     }
-
-
   }
 }

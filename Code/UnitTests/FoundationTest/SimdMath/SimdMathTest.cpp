@@ -21,7 +21,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdMath)
       const float r = ezMath::Exp(v);
       EZ_TEST_BOOL(ezSimdMath::Exp(ezSimdVec4f(v)).IsEqual(ezSimdVec4f(r), 0.000001f).AllSet());
     }
-  }  
+  }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Ln")
   {

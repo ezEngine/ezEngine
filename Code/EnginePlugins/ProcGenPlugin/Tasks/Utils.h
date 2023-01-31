@@ -15,4 +15,4 @@ namespace ezProcGenInternal
   void ExtractVolumeCollections(const ezWorld& world, const ezBoundingBox& box, const Output& output, ezDeque<ezVolumeCollection>& volumeCollections, ezExpression::GlobalData& globalData);
 
   void SetInstanceSeed(ezUInt32 uiSeed, ezExpression::GlobalData& globalData);
-}
+} // namespace ezProcGenInternal

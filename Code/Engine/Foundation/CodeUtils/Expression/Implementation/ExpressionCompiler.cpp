@@ -315,8 +315,7 @@ ezResult ezExpressionCompiler::AssignRegisters()
   // https://www2.seas.gwu.edu/~hchoi/teaching/cs160d/linearscan.pdf
 
   // Sort register lifetime by start index
-  m_LiveIntervals.Sort([](const LiveInterval& a, const LiveInterval& b)
-    { return a.m_uiStart < b.m_uiStart; });
+  m_LiveIntervals.Sort([](const LiveInterval& a, const LiveInterval& b) { return a.m_uiStart < b.m_uiStart; });
 
   // Assign registers
   ezHybridArray<LiveInterval, 64> activeIntervals;

@@ -47,7 +47,7 @@ private:
   ezResult Expect(const char* szToken, const ezToken** pExpectedToken = nullptr);
   ezResult Expect(ezTokenType::Enum Type, const ezToken** pExpectedToken = nullptr);
 
-  void ReportError(const ezToken* pToken, const ezFormatString& message); 
+  void ReportError(const ezToken* pToken, const ezFormatString& message);
 
   /// \brief Checks whether all outputs have been written
   ezResult CheckOutputs();

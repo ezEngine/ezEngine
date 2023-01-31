@@ -195,8 +195,7 @@ namespace
   template <typename R, typename T, ezUInt32 flags>
   void TestBinaryInstruction(ezStringView op, T a, T b, R expectedResult, bool dumpASTs = false)
   {
-    auto TestRes = [](R res, R expectedRes)
-    {
+    auto TestRes = [](R res, R expectedRes) {
       if constexpr (std::is_same<R, float>::value)
       {
         EZ_TEST_FLOAT(res, expectedRes, ezMath::DefaultEpsilon<float>());

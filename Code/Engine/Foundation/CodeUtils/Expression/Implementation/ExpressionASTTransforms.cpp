@@ -75,7 +75,7 @@ ezExpressionAST::Node* ezExpressionAST::TypeDeductionAndConversion(Node* pNode)
     if (expectedChildDataType != DataType::Unknown && pChildNode->m_ReturnType != expectedChildDataType)
     {
       const auto childRegisterType = DataType::GetRegisterType(pChildNode->m_ReturnType);
-      const ezUInt32 childElementCount = DataType::GetElementCount(pChildNode->m_ReturnType); 
+      const ezUInt32 childElementCount = DataType::GetElementCount(pChildNode->m_ReturnType);
       const auto expectedRegisterType = DataType::GetRegisterType(expectedChildDataType);
       const ezUInt32 expectedElementCount = DataType::GetElementCount(expectedChildDataType);
 
@@ -83,7 +83,7 @@ ezExpressionAST::Node* ezExpressionAST::TypeDeductionAndConversion(Node* pNode)
       {
         pChildNode = CreateUnaryOperator(NodeType::TypeConversion, pChildNode, DataType::FromRegisterType(expectedRegisterType, childElementCount));
       }
-           
+
       if (childElementCount == 1 && expectedElementCount > 1)
       {
         pChildNode = CreateConstructorCall(expectedChildDataType, ezMakeArrayPtr(&pChildNode, 1));

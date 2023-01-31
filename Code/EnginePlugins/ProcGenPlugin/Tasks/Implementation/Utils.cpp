@@ -51,7 +51,7 @@ namespace
       const float refColR = inputs[6].GetPtr()->f.x();
       const float refColG = inputs[7].GetPtr()->f.x();
       const float refColB = inputs[8].GetPtr()->f.x();
-      const float refColA = inputs[9].GetPtr()->f.x();      
+      const float refColA = inputs[9].GetPtr()->f.x();
       refColor = ezColor(refColR, refColG, refColB, refColA);
     }
 

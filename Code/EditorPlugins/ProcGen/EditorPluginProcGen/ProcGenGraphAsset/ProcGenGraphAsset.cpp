@@ -492,24 +492,24 @@ void ezProcGenGraphAssetDocument::DumpSelectedOutput(bool bAst, bool bDisassembl
   }
 
   if (bDisassembly)
-  {    
-      ezStringBuilder sDisassembly;
-      byteCode.Disassemble(sDisassembly);
+  {
+    ezStringBuilder sDisassembly;
+    byteCode.Disassemble(sDisassembly);
 
-      ezStringBuilder sFileName;
-      sFileName.Format(":appdata/{0}_{1}_ByteCode.txt", sAssetName, sOutputName);
+    ezStringBuilder sFileName;
+    sFileName.Format(":appdata/{0}_{1}_ByteCode.txt", sAssetName, sOutputName);
 
-      ezFileWriter fileWriter;
-      if (fileWriter.Open(sFileName).Succeeded())
-      {
-        fileWriter.WriteBytes(sDisassembly.GetData(), sDisassembly.GetElementCount()).IgnoreResult();
+    ezFileWriter fileWriter;
+    if (fileWriter.Open(sFileName).Succeeded())
+    {
+      fileWriter.WriteBytes(sDisassembly.GetData(), sDisassembly.GetElementCount()).IgnoreResult();
 
-        ezLog::Info("Disassembly was dumped to: {0}", sFileName);
-      }
-      else
-      {
-        ezLog::Error("Failed to dump Disassembly to: {0}", sFileName);
-      }
+      ezLog::Info("Disassembly was dumped to: {0}", sFileName);
+    }
+    else
+    {
+      ezLog::Error("Failed to dump Disassembly to: {0}", sFileName);
+    }
   }
 }
 

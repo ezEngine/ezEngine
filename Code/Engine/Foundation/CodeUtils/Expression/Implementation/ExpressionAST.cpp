@@ -912,8 +912,7 @@ void ezExpressionAST::ResolveOverloads(Node* pNode)
     return;
   }
 
-  auto CalculateMatchDistance = [](ezArrayPtr<Node*> children, ezArrayPtr<const ezEnum<ezExpression::RegisterType>> expectedTypes, ezUInt32 uiNumRequiredArgs, ezUInt32& uiMaxNumElements)
-  {
+  auto CalculateMatchDistance = [](ezArrayPtr<Node*> children, ezArrayPtr<const ezEnum<ezExpression::RegisterType>> expectedTypes, ezUInt32 uiNumRequiredArgs, ezUInt32& uiMaxNumElements) {
     if (children.GetCount() < uiNumRequiredArgs)
     {
       return ezInvalidIndex;

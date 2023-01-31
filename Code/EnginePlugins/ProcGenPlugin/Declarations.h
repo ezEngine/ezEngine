@@ -2,11 +2,11 @@
 
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <Core/World/Declarations.h>
+#include <Foundation/Math/Color16f.h>
 #include <Foundation/SimdMath/SimdTransform.h>
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Types/SharedPtr.h>
 #include <ProcGenPlugin/ProcGenPluginDLL.h>
-#include <Foundation/Math/Color16f.h>
 
 class ezExpressionByteCode;
 using ezColorGradientResourceHandle = ezTypedResourceHandle<class ezColorGradientResource>;
@@ -252,7 +252,7 @@ namespace ezProcGenInternal
     ezSimdTransform m_Transform;
     ezColorLinear16f m_ObjectColor;
     ezUInt16 m_uiPointIndex;
-    ezUInt8 m_uiObjectIndex;    
+    ezUInt8 m_uiObjectIndex;
     bool m_bHasValidColor;
     ezUInt32 m_uiPadding;
   };

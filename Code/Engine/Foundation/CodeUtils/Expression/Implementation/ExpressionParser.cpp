@@ -541,8 +541,7 @@ ezExpressionAST::Node* ezExpressionParser::ParseFunctionCall(ezStringView sFunct
       return nullptr;
   }
 
-  auto CheckArgumentCount = [&](ezUInt32 uiExpectedArgumentCount) -> ezResult
-  {
+  auto CheckArgumentCount = [&](ezUInt32 uiExpectedArgumentCount) -> ezResult {
     if (arguments.GetCount() != uiExpectedArgumentCount)
     {
       ReportError(pFunctionToken, ezFmt("Invalid argument count for '{}'. Expected {} but got {}", sFunctionName, uiExpectedArgumentCount, arguments.GetCount()));
