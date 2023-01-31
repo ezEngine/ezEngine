@@ -214,7 +214,7 @@ EZ_FORCE_INLINE ezSimdVec4i ezSimdVec4i::operator<<(const ezSimdVec4i& v) const
   int b[4];
   Store<4>(a);
   v.Store<4>(b);
-  
+
   for (ezUInt32 i = 0; i < 4; ++i)
   {
     a[i] = a[i] << b[i];
