@@ -238,7 +238,7 @@ namespace
     {
       while (r != re)
       {
-        r->Load<4>(reinterpret_cast<const ValueType*>(pInputData));
+        r->template Load<4>(reinterpret_cast<const ValueType*>(pInputData));
 
         ++r;
         pInputData += sizeof(ValueType) * 4;
@@ -254,7 +254,7 @@ namespace
         x[2] = ReadInputData<ValueType, StreamType>(pInputData, uiByteStride);
         x[3] = ReadInputData<ValueType, StreamType>(pInputData, uiByteStride);
 
-        r->Load<4>(x);
+        r->template Load<4>(x);
 
         ++r;
       }
@@ -288,7 +288,7 @@ namespace
     {
       while (r != re)
       {
-        r->Store<4>(reinterpret_cast<ValueType*>(pOutputData));
+        r->template Store<4>(reinterpret_cast<ValueType*>(pOutputData));
 
         ++r;
         pOutputData += sizeof(ValueType) * 4;
@@ -299,7 +299,7 @@ namespace
       ValueType x[4] = {};
       while (r != re)
       {
-        r->Store<4>(x);
+        r->template Store<4>(x);
 
         StoreOutputData<ValueType, StreamType>(pOutputData, uiByteStride, x[0]);
         StoreOutputData<ValueType, StreamType>(pOutputData, uiByteStride, x[1]);
@@ -313,7 +313,7 @@ namespace
     if (uiNumRemainderInstances > 0)
     {
       ValueType x[4];
-      r->Store<4>(x);
+      r->template Store<4>(x);
 
       for (ezUInt32 i = 0; i < uiNumRemainderInstances; ++i)
       {

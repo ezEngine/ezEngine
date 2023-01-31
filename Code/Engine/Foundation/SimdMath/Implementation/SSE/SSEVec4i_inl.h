@@ -169,7 +169,12 @@ EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::CompMul(const ezSimdVec4i& v) const
 
 EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::CompDiv(const ezSimdVec4i& v) const
 {
+#if EZ_ENABLED(EZ_COMPILER_MSVC)
   return _mm_div_epi32(m_v, v.m_v);
+#else
+  EZ_ASSERT_NOT_IMPLEMENTED;
+  return ezSimdVec4i::ZeroVector();
+#endif
 }
 
 EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::operator|(const ezSimdVec4i& v) const
@@ -205,21 +210,35 @@ EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::operator>>(ezUInt32 uiShift) const
 
 EZ_FORCE_INLINE ezSimdVec4i ezSimdVec4i::operator<<(const ezSimdVec4i& v) const
 {
-  ezSimdVec4i r;
+  int a[4];
+  int b[4];
+  Store<4>(a);
+  v.Store<4>(b);
+  
   for (ezUInt32 i = 0; i < 4; ++i)
   {
-    r.m_v.m128i_i32[i] = m_v.m128i_i32[i] << v.m_v.m128i_i32[i];
+    a[i] = a[i] << b[i];
   }
+
+  ezSimdVec4i r;
+  r.Load<4>(a);
   return r;
 }
 
 EZ_FORCE_INLINE ezSimdVec4i ezSimdVec4i::operator>>(const ezSimdVec4i& v) const
 {
-  ezSimdVec4i r;
+  int a[4];
+  int b[4];
+  Store<4>(a);
+  v.Store<4>(b);
+
   for (ezUInt32 i = 0; i < 4; ++i)
   {
-    r.m_v.m128i_i32[i] = m_v.m128i_i32[i] >> v.m_v.m128i_i32[i];
+    a[i] = a[i] >> b[i];
   }
+
+  ezSimdVec4i r;
+  r.Load<4>(a);
   return r;
 }
 
