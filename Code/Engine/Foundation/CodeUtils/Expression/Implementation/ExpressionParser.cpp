@@ -174,6 +174,10 @@ void ezExpressionParser::RegisterBuiltinFunctions()
   m_BuiltinFunctions.Insert(ezMakeHashedString("ceil"), ezExpressionAST::NodeType::Ceil);
   m_BuiltinFunctions.Insert(ezMakeHashedString("trunc"), ezExpressionAST::NodeType::Trunc);
   m_BuiltinFunctions.Insert(ezMakeHashedString("frac"), ezExpressionAST::NodeType::Frac);
+  m_BuiltinFunctions.Insert(ezMakeHashedString("length"), ezExpressionAST::NodeType::Length);
+  m_BuiltinFunctions.Insert(ezMakeHashedString("normalize"), ezExpressionAST::NodeType::Normalize);
+  m_BuiltinFunctions.Insert(ezMakeHashedString("all"), ezExpressionAST::NodeType::All);
+  m_BuiltinFunctions.Insert(ezMakeHashedString("any"), ezExpressionAST::NodeType::Any);
 
   // Binary
   m_BuiltinFunctions.Insert(ezMakeHashedString("mod"), ezExpressionAST::NodeType::Modulo);
@@ -181,6 +185,9 @@ void ezExpressionParser::RegisterBuiltinFunctions()
   m_BuiltinFunctions.Insert(ezMakeHashedString("pow"), ezExpressionAST::NodeType::Pow);
   m_BuiltinFunctions.Insert(ezMakeHashedString("min"), ezExpressionAST::NodeType::Min);
   m_BuiltinFunctions.Insert(ezMakeHashedString("max"), ezExpressionAST::NodeType::Max);
+  m_BuiltinFunctions.Insert(ezMakeHashedString("dot"), ezExpressionAST::NodeType::Dot);
+  m_BuiltinFunctions.Insert(ezMakeHashedString("cross"), ezExpressionAST::NodeType::Cross);
+  m_BuiltinFunctions.Insert(ezMakeHashedString("reflect"), ezExpressionAST::NodeType::Reflect);
 
   // Ternary
   m_BuiltinFunctions.Insert(ezMakeHashedString("clamp"), ezExpressionAST::NodeType::Clamp);
@@ -713,7 +720,7 @@ ezExpressionAST::Node* ezExpressionParser::Unpack(ezExpressionAST::Node* pNode, 
     auto pOutput = static_cast<ezExpressionAST::Output*>(pNode);
     if (pOutput->m_pExpression == nullptr && bUnassignedError)
     {
-      ReportError(m_TokenStream[m_uiCurrentToken], ezFmt("Output '{}' has not been assigned yet", pOutput->m_Desc.m_sName));      
+      ReportError(m_TokenStream[m_uiCurrentToken], ezFmt("Output '{}' has not been assigned yet", pOutput->m_Desc.m_sName));
     }
 
     return pOutput->m_pExpression;

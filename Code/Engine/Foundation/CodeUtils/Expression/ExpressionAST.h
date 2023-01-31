@@ -41,8 +41,12 @@ public:
       Ceil,
       Trunc,
       Frac,
+      Length,
+      Normalize,
       BitwiseNot,
       LogicalNot,
+      All,
+      Any,
       TypeConversion,
       LastUnary,
 
@@ -57,6 +61,9 @@ public:
       Pow,
       Min,
       Max,
+      Dot,
+      Cross,
+      Reflect,
       BitshiftLeft,
       BitshiftRight,
       BitwiseAnd,
@@ -101,6 +108,7 @@ public:
     static bool IsConstructorCall(Enum nodeType);
 
     static bool IsCommutative(Enum nodeType);
+    static bool AlwaysReturnsSingleElement(Enum nodeType);
 
     static const char* GetName(Enum nodeType);
   };
@@ -186,7 +194,7 @@ public:
     ezEnum<NodeType> m_Type;
     ezEnum<DataType> m_ReturnType;
     ezUInt8 m_uiOverloadIndex = 0xFF;
-    ezUInt8 m_uiPadding = 0;
+    ezUInt8 m_uiNumInputElements = 0;
 
     ezUInt32 m_uiHash = 0;
   };

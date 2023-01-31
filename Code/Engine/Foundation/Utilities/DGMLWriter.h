@@ -117,7 +117,7 @@ class EZ_FOUNDATION_DLL ezDGMLGraphWriter
 {
 public:
   /// \brief Helper method to write the graph to a file.
-  static ezResult WriteGraphToFile(const char* szFileName, const ezDGMLGraph& Graph);
+  static ezResult WriteGraphToFile(ezStringView sFileName, const ezDGMLGraph& Graph);
 
   /// \brief Writes the graph as a DGML formatted document to the given string builder.
   static ezResult WriteGraphToString(ezStringBuilder& StringBuilder, const ezDGMLGraph& Graph);

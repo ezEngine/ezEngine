@@ -52,8 +52,9 @@ namespace
 
 ezExpressionAST::Node* ezExpressionAST::TypeDeductionAndConversion(Node* pNode)
 {
-  NodeType::Enum nodeType = pNode->m_Type;
-  DataType::Enum returnType = pNode->m_ReturnType;
+  const NodeType::Enum nodeType = pNode->m_Type;
+  const DataType::Enum returnType = pNode->m_ReturnType;
+
   if (returnType == DataType::Unknown)
   {
     ezLog::Error("No matching overload found for '{}'", NodeType::GetName(nodeType));
@@ -74,14 +75,15 @@ ezExpressionAST::Node* ezExpressionAST::TypeDeductionAndConversion(Node* pNode)
     if (expectedChildDataType != DataType::Unknown && pChildNode->m_ReturnType != expectedChildDataType)
     {
       const auto childRegisterType = DataType::GetRegisterType(pChildNode->m_ReturnType);
+      const ezUInt32 childElementCount = DataType::GetElementCount(pChildNode->m_ReturnType); 
       const auto expectedRegisterType = DataType::GetRegisterType(expectedChildDataType);
+      const ezUInt32 expectedElementCount = DataType::GetElementCount(expectedChildDataType);
+
       if (childRegisterType != expectedRegisterType)
       {
-        pChildNode = CreateUnaryOperator(NodeType::TypeConversion, pChildNode, DataType::FromRegisterType(expectedRegisterType));
+        pChildNode = CreateUnaryOperator(NodeType::TypeConversion, pChildNode, DataType::FromRegisterType(expectedRegisterType, childElementCount));
       }
-
-      const ezUInt32 childElementCount = DataType::GetElementCount(pChildNode->m_ReturnType);
-      const ezUInt32 expectedElementCount = DataType::GetElementCount(expectedChildDataType);
+           
       if (childElementCount == 1 && expectedElementCount > 1)
       {
         pChildNode = CreateConstructorCall(expectedChildDataType, ezMakeArrayPtr(&pChildNode, 1));
@@ -99,15 +101,95 @@ ezExpressionAST::Node* ezExpressionAST::TypeDeductionAndConversion(Node* pNode)
 
 ezExpressionAST::Node* ezExpressionAST::ReplaceVectorInstructions(Node* pNode)
 {
-  NodeType::Enum nodeType = pNode->m_Type;
-  DataType::Enum returnType = pNode->m_ReturnType;
+  const NodeType::Enum nodeType = pNode->m_Type;
+  const DataType::Enum returnType = pNode->m_ReturnType;
+  const ezUInt32 uiNumInputElements = pNode->m_uiNumInputElements;
+
+  if (nodeType == NodeType::Length)
+  {
+    auto pUnaryNode = static_cast<const UnaryOperator*>(pNode);
+    auto pDot = ReplaceVectorInstructions(CreateBinaryOperator(NodeType::Dot, pUnaryNode->m_pOperand, pUnaryNode->m_pOperand));
+    return CreateUnaryOperator(NodeType::Sqrt, pDot);
+  }
+  else if (nodeType == NodeType::Normalize)
+  {
+    auto pUnaryNode = static_cast<const UnaryOperator*>(pNode);
+    auto pLength = ReplaceVectorInstructions(CreateUnaryOperator(NodeType::Length, pUnaryNode->m_pOperand));
+    return CreateBinaryOperator(NodeType::Divide, pUnaryNode->m_pOperand, CreateConstructorCall(returnType, ezMakeArrayPtr(&pLength, 1)));
+  }
+  else if (nodeType == NodeType::All || nodeType == NodeType::Any)
+  {
+    if (uiNumInputElements == 1)
+      return pNode;
+
+    auto pUnaryNode = static_cast<const UnaryOperator*>(pNode);
+    auto pX = CreateSwizzle(VectorComponent::X, pUnaryNode->m_pOperand);
+    Node* pResult = pX;
+
+    for (ezUInt32 i = 1; i < uiNumInputElements; ++i)
+    {
+      auto pI = CreateSwizzle(static_cast<VectorComponent::Enum>(i), pUnaryNode->m_pOperand);
+      pResult = CreateBinaryOperator(nodeType == NodeType::All ? NodeType::LogicalAnd : NodeType::LogicalOr, pResult, pI);
+    }
+
+    return pResult;
+  }
+  else if (nodeType == NodeType::Dot)
+  {
+    auto pBinaryNode = static_cast<const BinaryOperator*>(pNode);
+    auto pAx = CreateSwizzle(VectorComponent::X, pBinaryNode->m_pLeftOperand);
+    auto pBx = CreateSwizzle(VectorComponent::X, pBinaryNode->m_pRightOperand);
+    auto pResult = CreateBinaryOperator(NodeType::Multiply, pAx, pBx);
+
+    for (ezUInt32 i = 1; i < uiNumInputElements; ++i)
+    {
+      auto pAi = CreateSwizzle(static_cast<VectorComponent::Enum>(i), pBinaryNode->m_pLeftOperand);
+      auto pBi = CreateSwizzle(static_cast<VectorComponent::Enum>(i), pBinaryNode->m_pRightOperand);
+      pResult = CreateBinaryOperator(NodeType::Add, pResult, CreateBinaryOperator(NodeType::Multiply, pAi, pBi));
+    }
+
+    return pResult;
+  }
+  else if (nodeType == NodeType::Cross)
+  {
+    if (uiNumInputElements != 3)
+    {
+      ezLog::Error("Cross product is only defined for vec3");
+      return nullptr;
+    }
+
+    auto pBinaryNode = static_cast<const BinaryOperator*>(pNode);
+    auto pA = pBinaryNode->m_pLeftOperand;
+    auto pB = pBinaryNode->m_pRightOperand;
+
+    // a.yzx * b.zxy - a.zxy * b.yzx
+    ezEnum<VectorComponent> yzx[] = {VectorComponent::Y, VectorComponent::Z, VectorComponent::X};
+    ezEnum<VectorComponent> zxy[] = {VectorComponent::Z, VectorComponent::X, VectorComponent::Y};
+    auto pMul0 = CreateBinaryOperator(NodeType::Multiply, CreateSwizzle(ezMakeArrayPtr(yzx), pA), CreateSwizzle(ezMakeArrayPtr(zxy), pB));
+    auto pMul1 = CreateBinaryOperator(NodeType::Multiply, CreateSwizzle(ezMakeArrayPtr(zxy), pA), CreateSwizzle(ezMakeArrayPtr(yzx), pB));
+    return CreateBinaryOperator(NodeType::Subtract, pMul0, pMul1);
+  }
+  else if (nodeType == NodeType::Reflect)
+  {
+    auto pBinaryNode = static_cast<const BinaryOperator*>(pNode);
+    auto pA = pBinaryNode->m_pLeftOperand;
+    auto pN = pBinaryNode->m_pRightOperand;
+
+    // a - n * 2 * dot(a, n)
+    auto pDot = ReplaceVectorInstructions(CreateBinaryOperator(NodeType::Dot, pA, pN));
+    auto pTwo = CreateConstant(2, DataType::FromRegisterType(DataType::GetRegisterType(returnType)));
+    Node* pMul = CreateBinaryOperator(NodeType::Multiply, pDot, pTwo);
+    pMul = CreateBinaryOperator(NodeType::Multiply, pN, CreateConstructorCall(returnType, ezMakeArrayPtr(&pMul, 1)));
+    return CreateBinaryOperator(NodeType::Subtract, pA, pMul);
+  }
 
   return pNode;
 }
 
 ezExpressionAST::Node* ezExpressionAST::ScalarizeVectorInstructions(Node* pNode)
 {
-  NodeType::Enum nodeType = pNode->m_Type;
+  const NodeType::Enum nodeType = pNode->m_Type;
+
   if (nodeType == NodeType::Swizzle)
   {
     auto pSwizzleNode = static_cast<Swizzle*>(pNode);
@@ -116,19 +198,20 @@ ezExpressionAST::Node* ezExpressionAST::ScalarizeVectorInstructions(Node* pNode)
       ezEnum<VectorComponent> component = pSwizzleNode->m_Components[0];
       Node* pChildNode = pSwizzleNode->m_pExpression;
       NodeType::Enum childNodeType = pChildNode->m_Type;
+      DataType::Enum childReturnTypeSingleElement = DataType::FromRegisterType(DataType::GetRegisterType(pChildNode->m_ReturnType));
 
       if (NodeType::IsConstant(childNodeType))
       {
         auto pConstantNode = static_cast<const Constant*>(pChildNode);
-        const ezUInt32 uiNumInputElements = DataType::GetElementCount(pConstantNode->m_ReturnType);
-        if (static_cast<ezUInt32>(component) >= uiNumInputElements)
+        const ezUInt32 uiNumConstantElements = DataType::GetElementCount(pConstantNode->m_ReturnType);
+        if (static_cast<ezUInt32>(component) >= uiNumConstantElements)
         {
           ezLog::Error("Invalid subscript .{} for constant of type '{}'", VectorComponent::GetName(component), DataType::GetName(pConstantNode->m_ReturnType));
           return nullptr;
         }
 
         ezVariant newValue = pConstantNode->m_Value[component];
-        return CreateConstant(newValue, DataType::FromRegisterType(DataType::GetRegisterType(pConstantNode->m_ReturnType)));
+        return CreateConstant(newValue, childReturnTypeSingleElement);
       }
       else if (NodeType::IsSwizzle(childNodeType))
       {
@@ -167,7 +250,7 @@ ezExpressionAST::Node* ezExpressionAST::ScalarizeVectorInstructions(Node* pNode)
 
       if (NodeType::IsUnary(childNodeType))
       {
-        return CreateUnaryOperator(childNodeType, newSwizzleNodes[0], newSwizzleNodes[0]->m_ReturnType);
+        return CreateUnaryOperator(childNodeType, newSwizzleNodes[0], childReturnTypeSingleElement);
       }
       else if (NodeType::IsBinary(childNodeType))
       {
@@ -197,8 +280,9 @@ ezExpressionAST::Node* ezExpressionAST::ScalarizeVectorInstructions(Node* pNode)
 
 ezExpressionAST::Node* ezExpressionAST::ReplaceUnsupportedInstructions(Node* pNode)
 {
-  NodeType::Enum nodeType = pNode->m_Type;
-  DataType::Enum returnType = pNode->m_ReturnType;
+  const NodeType::Enum nodeType = pNode->m_Type;
+  const DataType::Enum returnType = pNode->m_ReturnType;
+
   if (nodeType == NodeType::Negate)
   {
     auto pUnaryNode = static_cast<const UnaryOperator*>(pNode);
@@ -398,8 +482,9 @@ ezExpressionAST::Node* ezExpressionAST::ReplaceUnsupportedInstructions(Node* pNo
 
 ezExpressionAST::Node* ezExpressionAST::FoldConstants(Node* pNode)
 {
-  NodeType::Enum nodeType = pNode->m_Type;
-  DataType::Enum returnType = pNode->m_ReturnType;
+  const NodeType::Enum nodeType = pNode->m_Type;
+  const DataType::Enum returnType = pNode->m_ReturnType;
+
   if (NodeType::IsUnary(nodeType))
   {
     auto pUnaryNode = static_cast<const UnaryOperator*>(pNode);
@@ -847,7 +932,7 @@ ezExpressionAST::Node* ezExpressionAST::CommonSubexpressionElimination(Node* pNo
 
 ezExpressionAST::Node* ezExpressionAST::Validate(Node* pNode)
 {
-  NodeType::Enum nodeType = pNode->m_Type;
+  const NodeType::Enum nodeType = pNode->m_Type;
 
   if (pNode->m_ReturnType == DataType::Unknown)
   {
@@ -913,7 +998,7 @@ ezResult ezExpressionAST::ScalarizeOutputs()
     if (pOutput == nullptr || pOutput->m_pExpression == nullptr)
       return EZ_FAILURE;
 
-    const ezUInt32 uiNumElements = DataType::GetElementCount(pOutput->m_ReturnType);
+    const ezUInt32 uiNumElements = pOutput->m_uiNumInputElements;
     if (uiNumElements > 1)
     {
       m_OutputNodes.RemoveAtAndCopy(uiOutputIndex);

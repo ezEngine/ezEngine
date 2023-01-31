@@ -68,6 +68,14 @@ bool ezExpressionAST::NodeType::IsCommutative(Enum nodeType)
          nodeType == LogicalAnd || nodeType == LogicalOr;
 }
 
+// static
+bool ezExpressionAST::NodeType::AlwaysReturnsSingleElement(Enum nodeType)
+{
+  return nodeType == Length ||
+         nodeType == All || nodeType == Any ||
+         nodeType == Dot;
+}
+
 namespace
 {
   static const char* s_szNodeTypeNames[] = {
@@ -97,8 +105,12 @@ namespace
     "Ceil",
     "Trunc",
     "Frac",
+    "Length",
+    "Normalize",
     "BitwiseNot",
     "LogicalNot",
+    "All",
+    "Any",
     "TypeConversion",
     "",
 
@@ -113,6 +125,9 @@ namespace
     "Pow",
     "Min",
     "Max",
+    "Dot",
+    "Cross",
+    "Reflect",
     "BitshiftLeft",
     "BitshiftRight",
     "BitwiseAnd",
@@ -204,8 +219,12 @@ namespace
     {SIG1(Float, Float)},                 // Ceil,
     {SIG1(Float, Float)},                 // Trunc,
     {SIG1(Float, Float)},                 // Frac,
+    {SIG1(Float, Float)},                 // Length,
+    {SIG1(Float, Float)},                 // Normalize,
     {SIG1(Int, Int)},                     // BitwiseNot,
     {SIG1(Bool, Bool)},                   // LogicalNot,
+    {SIG1(Bool, Bool)},                   // All,
+    {SIG1(Bool, Bool)},                   // Any,
     {},                                   // TypeConversion,
     {},                                   // LastUnary,
 
@@ -220,6 +239,9 @@ namespace
     {SIG2(Float, Float, Float), SIG2(Int, Int, Int)},                         // Pow,
     {SIG2(Float, Float, Float), SIG2(Int, Int, Int)},                         // Min,
     {SIG2(Float, Float, Float), SIG2(Int, Int, Int)},                         // Max,
+    {SIG2(Float, Float, Float), SIG2(Int, Int, Int)},                         // Dot,
+    {SIG2(Float, Float, Float), SIG2(Int, Int, Int)},                         // Cross,
+    {SIG2(Float, Float, Float), SIG2(Int, Int, Int)},                         // Reflect,
     {SIG2(Int, Int, Int)},                                                    // BitshiftLeft,
     {SIG2(Int, Int, Int)},                                                    // BitshiftRight,
     {SIG2(Int, Int, Int)},                                                    // BitwiseAnd,
@@ -550,6 +572,7 @@ ezExpressionAST::Output* ezExpressionAST::CreateOutput(const ezExpression::Strea
   auto pOutput = EZ_NEW(&m_Allocator, Output);
   pOutput->m_Type = NodeType::Output;
   pOutput->m_ReturnType = DataType::FromStreamType(desc.m_DataType);
+  pOutput->m_uiNumInputElements = static_cast<ezUInt8>(DataType::GetElementCount(pOutput->m_ReturnType));
   pOutput->m_Desc = desc;
   pOutput->m_pExpression = pExpression;
 
@@ -938,7 +961,9 @@ void ezExpressionAST::ResolveOverloads(Node* pNode)
       ezUInt32 uiMatchDistance = CalculateMatchDistance(children, expectedTypes, expectedTypes.GetCount(), uiMaxNumElements);
       if (uiMatchDistance < uiBestMatchDistance)
       {
-        pNode->m_ReturnType = DataType::FromRegisterType(GetReturnTypeFromSignature(uiSignature), uiMaxNumElements);
+        const ezUInt32 uiReturnTypeElements = NodeType::AlwaysReturnsSingleElement(nodeType) ? 1 : uiMaxNumElements;
+        pNode->m_ReturnType = DataType::FromRegisterType(GetReturnTypeFromSignature(uiSignature), uiReturnTypeElements);
+        pNode->m_uiNumInputElements = static_cast<ezUInt8>(uiMaxNumElements);
         pNode->m_uiOverloadIndex = static_cast<ezUInt8>(uiSigIndex);
         uiBestMatchDistance = uiMatchDistance;
       }
@@ -958,6 +983,7 @@ void ezExpressionAST::ResolveOverloads(Node* pNode)
       if (uiMatchDistance < uiBestMatchDistance)
       {
         pNode->m_ReturnType = DataType::FromRegisterType(pFuncDesc->m_OutputType, uiMaxNumElements);
+        pNode->m_uiNumInputElements = static_cast<ezUInt8>(uiMaxNumElements);
         pNode->m_uiOverloadIndex = static_cast<ezUInt8>(uiOverloadIndex);
         uiBestMatchDistance = uiMatchDistance;
       }
@@ -1051,7 +1077,7 @@ ezExpressionAST::DataType::Enum ezExpressionAST::GetExpectedChildDataType(const 
   {
     EZ_ASSERT_DEV(uiOverloadIndex != 0xFF, "Unresolved overload");
     ezUInt16 uiSignature = s_NodeTypeOverloads[nodeType].m_Signatures[uiOverloadIndex];
-    return DataType::FromRegisterType(GetArgumentTypeFromSignature(uiSignature, uiChildIndex), DataType::GetElementCount(returnType));
+    return DataType::FromRegisterType(GetArgumentTypeFromSignature(uiSignature, uiChildIndex), pNode->m_uiNumInputElements);
   }
   else if (NodeType::IsOutput(nodeType))
   {
@@ -1062,12 +1088,10 @@ ezExpressionAST::DataType::Enum ezExpressionAST::GetExpectedChildDataType(const 
     EZ_ASSERT_DEV(uiOverloadIndex != 0xFF, "Unresolved overload");
 
     auto pDesc = static_cast<const FunctionCall*>(pNode)->m_Descs[uiOverloadIndex];
-    return DataType::FromRegisterType(pDesc->m_InputTypes[uiChildIndex], DataType::GetElementCount(returnType));
+    return DataType::FromRegisterType(pDesc->m_InputTypes[uiChildIndex], pNode->m_uiNumInputElements);
   }
   else if (NodeType::IsConstructorCall(nodeType))
   {
-    // EZ_ASSERT_DEV(uiOverloadIndex != 0xFF, "Unresolved overload");
-
     return DataType::FromRegisterType(DataType::GetRegisterType(returnType));
   }
 

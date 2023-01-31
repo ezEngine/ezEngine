@@ -8,27 +8,17 @@
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/Math/Float16.h>
 #include <Foundation/Types/UniquePtr.h>
-#include <Foundation/Utilities/DGMLWriter.h>
 
 namespace
 {
-  void DumpAST(const ezExpressionAST& ast, ezStringView sOutputName, ezUInt32 uiCounter)
+  static ezUInt32 s_uiNumASTDumps = 0;
+
+  void MakeASTOutputPath(ezStringView sOutputName, ezStringBuilder& out_sOutputPath)
   {
-    ezDGMLGraph dgmlGraph;
-    ast.PrintGraph(dgmlGraph);
+    ezUInt32 uiCounter = s_uiNumASTDumps;
+    ++s_uiNumASTDumps;
 
-    ezStringBuilder sFileName;
-    sFileName.Format(":output/Expression/{}_{}_AST.dgml", ezArgU(uiCounter, 2, true), sOutputName);
-
-    ezDGMLGraphWriter dgmlGraphWriter;
-    if (dgmlGraphWriter.WriteGraphToFile(sFileName, dgmlGraph).Succeeded())
-    {
-      ezLog::Info("AST was dumped to: {}", sFileName);
-    }
-    else
-    {
-      ezLog::Error("Failed to dump AST to: {}", sFileName);
-    }
+    out_sOutputPath.Format(":output/Expression/{}_{}_AST.dgml", ezArgU(uiCounter, 2, true), sOutputName);
   }
 
   void DumpDisassembly(const ezExpressionByteCode& byteCode, ezStringView sOutputName, ezUInt32 uiCounter)
@@ -126,6 +116,13 @@ namespace
     static ezVec3 Default() { return ezVec3(ezMath::MinValue<float>()); }
   };
 
+  template <>
+  struct StreamDataTypeDeduction<ezVec3I32>
+  {
+    static constexpr ezProcessingStream::DataType Type = ezProcessingStream::DataType::Int3;
+    static ezVec3I32 Default() { return ezVec3I32(ezMath::MinValue<int>()); }
+  };
+
   template <typename T>
   void Compile(ezStringView code, ezExpressionByteCode& out_ByteCode, ezStringView sDumpAstOutputName = ezStringView())
   {
@@ -143,20 +140,12 @@ namespace
     ezExpressionAST ast;
     EZ_TEST_BOOL(s_pParser->Parse(code, inputs, outputs, {}, ast).Succeeded());
 
+    ezStringBuilder sOutputPath;
     if (sDumpAstOutputName.IsEmpty() == false)
     {
-      DumpAST(ast, sDumpAstOutputName, s_uiNumByteCodeComparisons);
+      MakeASTOutputPath(sDumpAstOutputName, sOutputPath);
     }
-
-    EZ_TEST_BOOL(s_pCompiler->Compile(ast, out_ByteCode).Succeeded());
-
-    if (sDumpAstOutputName.IsEmpty() == false)
-    {
-      ezStringBuilder sOutputName = sDumpAstOutputName;
-      sOutputName.Append("_Opt");
-
-      DumpAST(ast, sOutputName, s_uiNumByteCodeComparisons);
-    }
+    EZ_TEST_BOOL(s_pCompiler->Compile(ast, out_ByteCode, sOutputPath).Succeeded());
   }
 
   template <typename T>
@@ -180,7 +169,7 @@ namespace
   };
 
   template <typename T>
-  T TestInstruction(ezStringView code, T a = 0, T b = 0, T c = 0, T d = 0, bool dumpASTs = false)
+  T TestInstruction(ezStringView code, T a = T(0), T b = T(0), T c = T(0), T d = T(0), bool dumpASTs = false)
   {
     ezExpressionByteCode byteCode;
     Compile<T>(code, byteCode, dumpASTs ? "TestInstruction" : "");
@@ -216,9 +205,23 @@ namespace
       {
         EZ_TEST_INT(res, expectedRes);
       }
-      else
+      else if constexpr (std::is_same<R, bool>::value)
       {
         EZ_TEST_BOOL(res == expectedRes);
+      }
+      else if constexpr (std::is_same<R, ezVec3>::value)
+      {
+        EZ_TEST_VEC3(res, expectedRes, ezMath::DefaultEpsilon<float>());
+      }
+      else if constexpr (std::is_same<R, ezVec3I32>::value)
+      {
+        EZ_TEST_INT(res.x, expectedRes.x);
+        EZ_TEST_INT(res.y, expectedRes.y);
+        EZ_TEST_INT(res.z, expectedRes.z);
+      }
+      else
+      {
+        EZ_ASSERT_NOT_IMPLEMENTED;
       }
     };
 
@@ -229,6 +232,19 @@ namespace
     const char* formatString = functionStyleSyntax ? "output = {0}{1}, {2})" : "output = {1} {0} {2}";
     const char* aInput = boolInputs ? "(a != 0)" : "a";
     const char* bInput = boolInputs ? "(b != 0)" : "b";
+
+    ezStringBuilder aValue;
+    ezStringBuilder bValue;
+    if constexpr (std::is_same<T, ezVec3>::value || std::is_same<T, ezVec3I32>::value)
+    {
+      aValue.Format("vec3({}, {}, {})", a.x, a.y, a.z);
+      bValue.Format("vec3({}, {}, {})", b.x, b.y, b.z);
+    }
+    else
+    {
+      aValue.Format("{}", a);
+      bValue.Format("{}", b);
+    }
 
     int oneConstantInstructions = 3; // LoadX, OpX_RC, StoreX
     int oneConstantRegisters = 1;
@@ -242,6 +258,22 @@ namespace
       oneConstantInstructions += 1; // + NotEqI_RC
     }
 
+    int numOutputElements = 1;
+    bool hasDifferentOutputElements = false;
+    if constexpr (std::is_same<R, ezVec3>::value || std::is_same<T, ezVec3I32>::value)
+    {
+      numOutputElements = 3;
+
+      for (int i = 1; i < 3; ++i)
+      {
+        if (expectedResult.GetData()[i] != expectedResult.GetData()[i - 1])
+        {
+          hasDifferentOutputElements = true;
+          break;
+        }
+      }
+    }
+
     ezStringBuilder code;
     ezExpressionByteCode byteCode;
 
@@ -249,7 +281,7 @@ namespace
     Compile<U>(code, byteCode, dumpASTs ? "BinaryNoConstants" : "");
     TestRes(Execute<U>(byteCode, a, b), expectedResult);
 
-    code.Format(formatString, op, a, bInput);
+    code.Format(formatString, op, aValue, bInput);
     Compile<U>(code, byteCode, dumpASTs ? "BinaryLeftConstant" : "");
     if constexpr ((flags & NoInstructionsCountCheck) == 0)
     {
@@ -270,7 +302,7 @@ namespace
     }
     TestRes(Execute<U>(byteCode, a, b), expectedResult);
 
-    code.Format(formatString, op, aInput, b);
+    code.Format(formatString, op, aInput, bValue);
     Compile<U>(code, byteCode, dumpASTs ? "BinaryRightConstant" : "");
     if constexpr ((flags & NoInstructionsCountCheck) == 0)
     {
@@ -283,10 +315,19 @@ namespace
     }
     TestRes(Execute<U>(byteCode, a, b), expectedResult);
 
-    code.Format(formatString, op, a, b);
+    code.Format(formatString, op, aValue, bValue);
     Compile<U>(code, byteCode, dumpASTs ? "BinaryConstant" : "");
-    EZ_TEST_INT(byteCode.GetNumInstructions(), 2); // MovX_C, StoreX
-    EZ_TEST_INT(byteCode.GetNumTempRegisters(), 1);
+    if (hasDifferentOutputElements == false)
+    {
+      int bothConstantsInstructions = 1 + numOutputElements; // MovX_C + StoreX * numOutputElements
+      int bothConstantsRegisters = 1;
+      if (byteCode.GetNumInstructions() != bothConstantsInstructions || byteCode.GetNumTempRegisters() != bothConstantsRegisters)
+      {
+        DumpDisassembly(byteCode, "BinaryConstant", 0);
+        EZ_TEST_INT(byteCode.GetNumInstructions(), bothConstantsInstructions);
+        EZ_TEST_INT(byteCode.GetNumTempRegisters(), bothConstantsRegisters);
+      }
+    }
     TestRes(Execute<U>(byteCode), expectedResult);
   }
 
@@ -579,6 +620,28 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Expression)
     EZ_TEST_FLOAT(TestConstant<float>("output = frac(4.3)"), 0.3f, ezMath::DefaultEpsilon<float>());
     EZ_TEST_FLOAT(TestConstant<float>("output = frac(4.51)"), 0.51f, ezMath::DefaultEpsilon<float>());
 
+    // Length
+    EZ_TEST_VEC3(TestInstruction<ezVec3>("output = length(a)", ezVec3(0, 4, 3)), ezVec3(5), ezMath::DefaultEpsilon<float>());
+    EZ_TEST_VEC3(TestInstruction<ezVec3>("output = length(a)", ezVec3(-3, 4, 0)), ezVec3(5), ezMath::DefaultEpsilon<float>());
+
+    // Normalize
+    EZ_TEST_VEC3(TestInstruction<ezVec3>("output = normalize(a)", ezVec3(1, 4, 3)), ezVec3(1, 4, 3).GetNormalized(), ezMath::DefaultEpsilon<float>());
+    EZ_TEST_VEC3(TestInstruction<ezVec3>("output = normalize(a)", ezVec3(-3, 7, 22)), ezVec3(-3, 7, 22).GetNormalized(), ezMath::DefaultEpsilon<float>());
+
+    // Length and normalize optimization
+    {
+      ezStringView testCode = "var x = length(a); var na = normalize(a); output = b * x + na";
+      ezStringView referenceCode = "var x = length(a); var na = a / x; output = b * x + na";
+
+      ezExpressionByteCode testByteCode;
+      EZ_TEST_BOOL(CompareCode<ezVec3>(testCode, referenceCode, testByteCode));
+
+      ezVec3 a = ezVec3(0, 4, 3);
+      ezVec3 b = ezVec3(1, 0, 0);
+      ezVec3 res = b * a.GetLength() + a.GetNormalized();
+      EZ_TEST_VEC3(Execute(testByteCode, a, b), res, ezMath::DefaultEpsilon<float>());
+    }
+
     // BitwiseNot
     EZ_TEST_INT(TestInstruction("output = ~a", 1), ~1);
     EZ_TEST_INT(TestInstruction("output = ~a", 8), ~8);
@@ -590,6 +653,14 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Expression)
     EZ_TEST_INT(TestInstruction("output = !(a == 1)", 8), 1);
     EZ_TEST_INT(TestConstant<int>("output = !(1 == 1)"), 0);
     EZ_TEST_INT(TestConstant<int>("output = !(8 == 1)"), 1);
+
+    // All
+    EZ_TEST_VEC3(TestInstruction("var t = (a == b); output = all(t)", ezVec3(1, 2, 3), ezVec3(1, 2, 3)), ezVec3(1), ezMath::DefaultEpsilon<float>());
+    EZ_TEST_VEC3(TestInstruction("var t = (a == b); output = all(t)", ezVec3(1, 2, 3), ezVec3(1, 2, 4)), ezVec3(0), ezMath::DefaultEpsilon<float>());
+
+    // Any
+    EZ_TEST_VEC3(TestInstruction("var t = (a == b); output = any(t)", ezVec3(1, 2, 3), ezVec3(4, 5, 3)), ezVec3(1), ezMath::DefaultEpsilon<float>());
+    EZ_TEST_VEC3(TestInstruction("var t = (a == b); output = any(t)", ezVec3(1, 2, 3), ezVec3(4, 5, 6)), ezVec3(0), ezMath::DefaultEpsilon<float>());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Binary instructions")
@@ -668,6 +739,18 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Expression)
     // Max
     TestBinaryInstruction<int, int, LeftConstantOptimization>("max(", 11, 5, 11);
     TestBinaryInstruction<float, float, LeftConstantOptimization>("max(", 12.6f, 3.0f, 12.6f);
+
+    // Dot
+    TestBinaryInstruction<ezVec3, ezVec3, NoInstructionsCountCheck>("dot(", ezVec3(1, -2, 3), ezVec3(-5, -6, 7), ezVec3(28));
+    TestBinaryInstruction<ezVec3I32, ezVec3I32, NoInstructionsCountCheck>("dot(", ezVec3I32(1, -2, 3), ezVec3I32(-5, -6, 7), ezVec3I32(28));
+
+    // Cross
+    TestBinaryInstruction<ezVec3, ezVec3, NoInstructionsCountCheck>("cross(", ezVec3(1, 0, 0), ezVec3(0, 1, 0), ezVec3(0, 0, 1));
+    TestBinaryInstruction<ezVec3, ezVec3, NoInstructionsCountCheck>("cross(", ezVec3(0, 1, 0), ezVec3(0, 0, 1), ezVec3(1, 0, 0));
+    TestBinaryInstruction<ezVec3, ezVec3, NoInstructionsCountCheck>("cross(", ezVec3(0, 0, 1), ezVec3(1, 0, 0), ezVec3(0, 1, 0));
+
+    // Reflect
+    TestBinaryInstruction<ezVec3, ezVec3, NoInstructionsCountCheck>("reflect(", ezVec3(1, 2, -1), ezVec3(0, 0, 1), ezVec3(1, 2, 1));
 
     // BitshiftLeft
     TestBinaryInstruction<int, int, 0>("<<", 11, 5, 11 << 5);
@@ -1000,7 +1083,7 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Expression)
 
       ezExpressionByteCode testByteCode;
       Compile<ezVec3>(testCode, testByteCode);
-      EZ_TEST_BOOL(Execute<ezVec3>(testByteCode).IsEqual(ezVec3(3, 6, 6), ezMath::DefaultEpsilon<float>()));
+      EZ_TEST_VEC3(Execute<ezVec3>(testByteCode), ezVec3(3, 6, 6), ezMath::DefaultEpsilon<float>());
     }
 
     {
@@ -1013,7 +1096,7 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Expression)
 
       ezExpressionByteCode testByteCode;
       Compile<ezVec3>(testCode, testByteCode);
-      EZ_TEST_BOOL(Execute(testByteCode, ezVec3(1, 2, 3)).IsEqual(ezVec3(5, 9, 13), ezMath::DefaultEpsilon<float>()));
+      EZ_TEST_VEC3(Execute(testByteCode, ezVec3(1, 2, 3)), ezVec3(5, 9, 13), ezMath::DefaultEpsilon<float>());
     }
 
     {
@@ -1025,7 +1108,7 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Expression)
 
       ezExpressionByteCode testByteCode;
       Compile<ezVec3>(testCode, testByteCode);
-      EZ_TEST_BOOL(Execute<ezVec3>(testByteCode).IsEqual(ezVec3(6, 21, 21), ezMath::DefaultEpsilon<float>()));
+      EZ_TEST_VEC3(Execute<ezVec3>(testByteCode), ezVec3(6, 21, 21), ezMath::DefaultEpsilon<float>());
     }
 
     {
@@ -1035,7 +1118,7 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Expression)
 
       ezExpressionByteCode testByteCode;
       Compile<ezVec3>(testCode, testByteCode);
-      EZ_TEST_BOOL(Execute<ezVec3>(testByteCode).IsEqual(ezVec3(1, 0, 7), ezMath::DefaultEpsilon<float>()));
+      EZ_TEST_VEC3(Execute<ezVec3>(testByteCode), ezVec3(1, 0, 7), ezMath::DefaultEpsilon<float>());
     }
   }
 
@@ -1052,7 +1135,7 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Expression)
 
     ezExpressionByteCode testByteCode;
     EZ_TEST_BOOL(CompareCode<ezVec3>(testCode, referenceCode, testByteCode));
-    EZ_TEST_BOOL(Execute(testByteCode, ezVec3(1, 3, 5), ezVec3(4, 9, 16)).IsEqual(ezVec3(3, 9, 19), ezMath::DefaultEpsilon<float>()));
+    EZ_TEST_VEC3(Execute(testByteCode, ezVec3(1, 3, 5), ezVec3(4, 9, 16)), ezVec3(3, 9, 19), ezMath::DefaultEpsilon<float>());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Vector swizzle")
@@ -1069,6 +1152,6 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Expression)
 
     ezExpressionByteCode testByteCode;
     Compile<ezVec3>(testCode, testByteCode);
-    EZ_TEST_BOOL(Execute<ezVec3>(testByteCode).IsEqual(ezVec3(61, 54, 54), ezMath::DefaultEpsilon<float>()));
+    EZ_TEST_VEC3(Execute<ezVec3>(testByteCode), ezVec3(61, 54, 54), ezMath::DefaultEpsilon<float>());
   }
 }

@@ -3,6 +3,7 @@
 #include <Foundation/CodeUtils/Expression/ExpressionByteCode.h>
 #include <Foundation/CodeUtils/Expression/ExpressionCompiler.h>
 #include <Foundation/Logging/Log.h>
+#include <Foundation/Utilities/DGMLWriter.h>
 
 namespace
 {
@@ -148,11 +149,11 @@ namespace
 ezExpressionCompiler::ezExpressionCompiler() = default;
 ezExpressionCompiler::~ezExpressionCompiler() = default;
 
-ezResult ezExpressionCompiler::Compile(ezExpressionAST& ast, ezExpressionByteCode& out_byteCode)
+ezResult ezExpressionCompiler::Compile(ezExpressionAST& ast, ezExpressionByteCode& out_byteCode, ezStringView sDebugAstOutputPath /*= ezStringView()*/)
 {
   out_byteCode.Clear();
 
-  EZ_SUCCEED_OR_RETURN(TransformAndOptimizeAST(ast));
+  EZ_SUCCEED_OR_RETURN(TransformAndOptimizeAST(ast, sDebugAstOutputPath));
   EZ_SUCCEED_OR_RETURN(BuildNodeInstructions(ast));
   EZ_SUCCEED_OR_RETURN(UpdateRegisterLifetime(ast));
   EZ_SUCCEED_OR_RETURN(AssignRegisters());
@@ -161,18 +162,32 @@ ezResult ezExpressionCompiler::Compile(ezExpressionAST& ast, ezExpressionByteCod
   return EZ_SUCCESS;
 }
 
-ezResult ezExpressionCompiler::TransformAndOptimizeAST(ezExpressionAST& ast)
+ezResult ezExpressionCompiler::TransformAndOptimizeAST(ezExpressionAST& ast, ezStringView sDebugAstOutputPath)
 {
-  EZ_SUCCEED_OR_RETURN(ast.ScalarizeOutputs());
+  DumpAST(ast, sDebugAstOutputPath, "_00");
 
-  EZ_SUCCEED_OR_RETURN(TransformASTPostOrder(ast, ezMakeDelegate(&ezExpressionAST::TypeDeductionAndConversion, &ast)));  
+  EZ_SUCCEED_OR_RETURN(TransformASTPostOrder(ast, ezMakeDelegate(&ezExpressionAST::TypeDeductionAndConversion, &ast)));
+  DumpAST(ast, sDebugAstOutputPath, "_01_TypeConv");
+
   EZ_SUCCEED_OR_RETURN(TransformASTPreOrder(ast, ezMakeDelegate(&ezExpressionAST::ReplaceVectorInstructions, &ast)));
+  DumpAST(ast, sDebugAstOutputPath, "_02_ReplacedVectorInst");
+
+  EZ_SUCCEED_OR_RETURN(ast.ScalarizeOutputs());
   EZ_SUCCEED_OR_RETURN(TransformASTPreOrder(ast, ezMakeDelegate(&ezExpressionAST::ScalarizeVectorInstructions, &ast)));
+  DumpAST(ast, sDebugAstOutputPath, "_03_Scalarized");
+
   EZ_SUCCEED_OR_RETURN(TransformASTPostOrder(ast, ezMakeDelegate(&ezExpressionAST::FoldConstants, &ast)));
+  DumpAST(ast, sDebugAstOutputPath, "_04_ConstantFolded1");
+
   EZ_SUCCEED_OR_RETURN(TransformASTPreOrder(ast, ezMakeDelegate(&ezExpressionAST::ReplaceUnsupportedInstructions, &ast)));
+  DumpAST(ast, sDebugAstOutputPath, "_05_ReplacedUnsupportedInst");
+
   EZ_SUCCEED_OR_RETURN(TransformASTPostOrder(ast, ezMakeDelegate(&ezExpressionAST::FoldConstants, &ast)));
+  DumpAST(ast, sDebugAstOutputPath, "_06_ConstantFolded2");
+
   EZ_SUCCEED_OR_RETURN(TransformASTPostOrder(ast, ezMakeDelegate(&ezExpressionAST::CommonSubexpressionElimination, &ast)));
   EZ_SUCCEED_OR_RETURN(TransformASTPreOrder(ast, ezMakeDelegate(&ezExpressionAST::Validate, &ast)));
+  DumpAST(ast, sDebugAstOutputPath, "_07_Optimized");
 
   return EZ_SUCCESS;
 }
@@ -250,6 +265,9 @@ ezResult ezExpressionCompiler::BuildNodeInstructions(const ezExpressionAST& ast)
     if (!m_NodeToRegisterIndex.Contains(pCurrentNode))
     {
       m_NodeInstructions.PushBack(pCurrentNode);
+
+      if (ezExpressionAST::NodeType::IsOutput(pCurrentNode->m_Type))
+        continue;
 
       m_NodeToRegisterIndex.Insert(pCurrentNode, uiNextRegisterIndex);
       ++uiNextRegisterIndex;
@@ -350,9 +368,6 @@ ezResult ezExpressionCompiler::GenerateByteCode(const ezExpressionAST& ast, ezEx
 
   for (auto pCurrentNode : m_NodeInstructions)
   {
-    ezUInt32 uiTargetRegister = m_NodeToRegisterIndex[pCurrentNode];
-    uiMaxRegisterIndex = ezMath::Max(uiMaxRegisterIndex, uiTargetRegister);
-
     const ezExpressionAST::NodeType::Enum nodeType = pCurrentNode->m_Type;
     ezExpressionAST::DataType::Enum dataType = pCurrentNode->m_ReturnType;
     if (dataType == ezExpressionAST::DataType::Unknown)
@@ -371,6 +386,12 @@ ezResult ezExpressionCompiler::GenerateByteCode(const ezExpressionAST& ast, ezEx
     const auto opCode = NodeTypeToOpCode(nodeType, dataType, bRightIsConstant);
     if (opCode == ezExpressionByteCode::OpCode::Nop)
       return EZ_FAILURE;
+
+    ezUInt32 uiTargetRegister = m_NodeToRegisterIndex[pCurrentNode];
+    if (ezExpressionAST::NodeType::IsOutput(nodeType) == false)
+    {
+      uiMaxRegisterIndex = ezMath::Max(uiMaxRegisterIndex, uiTargetRegister);
+    }
 
     if (ezExpressionAST::NodeType::IsUnary(nodeType))
     {
@@ -636,4 +657,27 @@ ezResult ezExpressionCompiler::TransformOutputNode(ezExpressionAST::Output*& pOu
   }
 
   return EZ_SUCCESS;
+}
+
+void ezExpressionCompiler::DumpAST(const ezExpressionAST& ast, ezStringView sOutputPath, ezStringView sSuffix)
+{
+  if (sOutputPath.IsEmpty())
+    return;
+
+  ezDGMLGraph dgmlGraph;
+  ast.PrintGraph(dgmlGraph);
+
+  ezStringView sExt = sOutputPath.GetFileExtension();
+  ezStringBuilder sFullPath;
+  sFullPath.Append(sOutputPath.GetFileDirectory(), sOutputPath.GetFileName(), sSuffix, ".", sExt);
+
+  ezDGMLGraphWriter dgmlGraphWriter;
+  if (dgmlGraphWriter.WriteGraphToFile(sFullPath, dgmlGraph).Succeeded())
+  {
+    ezLog::Info("AST was dumped to: {}", sFullPath);
+  }
+  else
+  {
+    ezLog::Error("Failed to dump AST to: {}", sFullPath);
+  }
 }
