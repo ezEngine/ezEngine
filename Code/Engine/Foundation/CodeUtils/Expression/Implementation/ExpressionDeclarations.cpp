@@ -185,3 +185,7 @@ ezExpressionFunction ezDefaultExpressionFunctions::s_PerlinNoiseFunc = {
   {ezMakeHashedString("PerlinNoise"), ezMakeArrayPtr(s_PerlinNoiseInputTypes), 3, RegisterType::Float},
   &PerlinNoise,
 };
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_CodeUtils_Expression_Implementation_ExpressionDeclarations);
+

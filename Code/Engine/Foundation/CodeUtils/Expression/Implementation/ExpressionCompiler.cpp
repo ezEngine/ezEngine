@@ -680,3 +680,7 @@ void ezExpressionCompiler::DumpAST(const ezExpressionAST& ast, ezStringView sOut
     ezLog::Error("Failed to dump AST to: {}", sFullPath);
   }
 }
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_CodeUtils_Expression_Implementation_ExpressionCompiler);
+
