@@ -357,13 +357,13 @@ EZ_ALWAYS_INLINE ezSimdVec4f& ezSimdVec4f::operator/=(const ezSimdFloat& f)
 
 EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4f::operator==(const ezSimdVec4f& v) const
 {
-  ezSimdVec4b result;
-  result.m_v.x = m_v.x == v.m_v.x;
-  result.m_v.y = m_v.y == v.m_v.y;
-  result.m_v.z = m_v.z == v.m_v.z;
-  result.m_v.w = m_v.w == v.m_v.w;
+  bool result[4];
+  result[0] = m_v.x == v.m_v.x;
+  result[1] = m_v.y == v.m_v.y;
+  result[2] = m_v.z == v.m_v.z;
+  result[3] = m_v.w == v.m_v.w;
 
-  return result;
+  return ezSimdVec4b(result[0], result[1], result[2], result[3]);
 }
 
 EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4f::operator!=(const ezSimdVec4f& v) const
@@ -378,13 +378,13 @@ EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4f::operator<=(const ezSimdVec4f& v) const
 
 EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4f::operator<(const ezSimdVec4f& v) const
 {
-  ezSimdVec4b result;
-  result.m_v.x = m_v.x < v.m_v.x;
-  result.m_v.y = m_v.y < v.m_v.y;
-  result.m_v.z = m_v.z < v.m_v.z;
-  result.m_v.w = m_v.w < v.m_v.w;
+  bool result[4];
+  result[0] = m_v.x < v.m_v.x;
+  result[1] = m_v.y < v.m_v.y;
+  result[2] = m_v.z < v.m_v.z;
+  result[3] = m_v.w < v.m_v.w;
 
-  return result;
+  return ezSimdVec4b(result[0], result[1], result[2], result[3]);
 }
 
 EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4f::operator>=(const ezSimdVec4f& v) const
@@ -394,13 +394,13 @@ EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4f::operator>=(const ezSimdVec4f& v) const
 
 EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4f::operator>(const ezSimdVec4f& v) const
 {
-  ezSimdVec4b result;
-  result.m_v.x = m_v.x > v.m_v.x;
-  result.m_v.y = m_v.y > v.m_v.y;
-  result.m_v.z = m_v.z > v.m_v.z;
-  result.m_v.w = m_v.w > v.m_v.w;
+  bool result[4];
+  result[0] = m_v.x > v.m_v.x;
+  result[1] = m_v.y > v.m_v.y;
+  result[2] = m_v.z > v.m_v.z;
+  result[3] = m_v.w > v.m_v.w;
 
-  return result;
+  return ezSimdVec4b(result[0], result[1], result[2], result[3]);
 }
 
 template <>
