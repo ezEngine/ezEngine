@@ -195,30 +195,30 @@ namespace
   template <typename R, typename T, ezUInt32 flags>
   void TestBinaryInstruction(ezStringView op, T a, T b, R expectedResult, bool dumpASTs = false)
   {
-    auto TestRes = [](R res, R expectedRes, ezStringView code) {
+    auto TestRes = [](R res, R expectedRes, const char* szCode, const char* szAValue, const char* szBValue) {
       if constexpr (std::is_same<R, float>::value)
       {
-        EZ_TEST_FLOAT_MSG(res, expectedRes, ezMath::DefaultEpsilon<float>(), "{}", code);
+        EZ_TEST_FLOAT_MSG(res, expectedRes, ezMath::DefaultEpsilon<float>(), "%s (a=%s, b=%s)", szCode, szAValue, szBValue);
       }
       else if constexpr (std::is_same<R, int>::value)
       {
-        EZ_TEST_INT_MSG(res, expectedRes, "{}", code);
+        EZ_TEST_INT_MSG(res, expectedRes, "%s (a=%s, b=%s)", szCode, szAValue, szBValue);
       }
       else if constexpr (std::is_same<R, bool>::value)
       {
         const char* szRes = res ? "true" : "false";
         const char* szExpectedRes = expectedRes ? "true" : "false";
-        EZ_TEST_STRING_MSG(szRes, szExpectedRes, "{}", code);
+        EZ_TEST_STRING_MSG(szRes, szExpectedRes, "%s (a=%s, b=%s)", szCode, szAValue, szBValue);
       }
       else if constexpr (std::is_same<R, ezVec3>::value)
       {
-        EZ_TEST_VEC3_MSG(res, expectedRes, ezMath::DefaultEpsilon<float>(), "{}", code);
+        EZ_TEST_VEC3_MSG(res, expectedRes, ezMath::DefaultEpsilon<float>(), "%s (a=%s, b=%s)", szCode, szAValue, szBValue);
       }
       else if constexpr (std::is_same<R, ezVec3I32>::value)
       {
-        EZ_TEST_INT_MSG(res.x, expectedRes.x, "{}", code);
-        EZ_TEST_INT_MSG(res.y, expectedRes.y, "{}", code);
-        EZ_TEST_INT_MSG(res.z, expectedRes.z, "{}", code);
+        EZ_TEST_INT_MSG(res.x, expectedRes.x, "%s (a=%s, b=%s)", szCode, szAValue, szBValue);
+        EZ_TEST_INT_MSG(res.y, expectedRes.y, "%s (a=%s, b=%s)", szCode, szAValue, szBValue);
+        EZ_TEST_INT_MSG(res.z, expectedRes.z, "%s (a=%s, b=%s)", szCode, szAValue, szBValue);
       }
       else
       {
@@ -280,7 +280,7 @@ namespace
 
     code.Format(formatString, op, aInput, bInput);
     Compile<U>(code, byteCode, dumpASTs ? "BinaryNoConstants" : "");
-    TestRes(Execute<U>(byteCode, a, b), expectedResult, code);
+    TestRes(Execute<U>(byteCode, a, b), expectedResult, code, aValue, bValue);
 
     code.Format(formatString, op, aValue, bInput);
     Compile<U>(code, byteCode, dumpASTs ? "BinaryLeftConstant" : "");
@@ -301,7 +301,7 @@ namespace
         EZ_TEST_INT(byteCode.GetNumTempRegisters(), leftConstantRegisters);
       }
     }
-    TestRes(Execute<U>(byteCode, a, b), expectedResult, code);
+    TestRes(Execute<U>(byteCode, a, b), expectedResult, code, aValue, bValue);
 
     code.Format(formatString, op, aInput, bValue);
     Compile<U>(code, byteCode, dumpASTs ? "BinaryRightConstant" : "");
@@ -314,7 +314,7 @@ namespace
         EZ_TEST_INT(byteCode.GetNumTempRegisters(), oneConstantRegisters);
       }
     }
-    TestRes(Execute<U>(byteCode, a, b), expectedResult, code);
+    TestRes(Execute<U>(byteCode, a, b), expectedResult, code, aValue, bValue);
 
     code.Format(formatString, op, aValue, bValue);
     Compile<U>(code, byteCode, dumpASTs ? "BinaryConstant" : "");
@@ -329,7 +329,7 @@ namespace
         EZ_TEST_INT(byteCode.GetNumTempRegisters(), bothConstantsRegisters);
       }
     }
-    TestRes(Execute<U>(byteCode), expectedResult, code);
+    TestRes(Execute<U>(byteCode), expectedResult, code, aValue, bValue);
   }
 
   template <typename T>
