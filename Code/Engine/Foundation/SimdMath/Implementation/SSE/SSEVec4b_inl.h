@@ -75,14 +75,14 @@ EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4b::operator!() const
   return _mm_xor_ps(m_v, allTrue);
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4b::operator==(const ezSimdVec4b& v) const
+EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4b::operator==(const ezSimdVec4b& rhs) const
 {
-  return !(*this != v);
+  return !(*this != rhs);
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4b::operator!=(const ezSimdVec4b& v) const
+EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4b::operator!=(const ezSimdVec4b& rhs) const
 {
-  return _mm_xor_ps(m_v, v.m_v);
+  return _mm_xor_ps(m_v, rhs.m_v);
 }
 
 template <int N>

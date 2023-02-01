@@ -264,6 +264,17 @@ EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::Abs() const
   return m_v.Abs();
 }
 
+EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::Round() const
+{
+  ezSimdVec4f result;
+  result.m_v.x = ezMath::Round(m_v.x);
+  result.m_v.y = ezMath::Round(m_v.y);
+  result.m_v.z = ezMath::Round(m_v.z);
+  result.m_v.w = ezMath::Round(m_v.w);
+
+  return result;
+}
+
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::Floor() const
 {
   ezSimdVec4f result;
@@ -282,6 +293,17 @@ EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::Ceil() const
   result.m_v.y = ezMath::Ceil(m_v.y);
   result.m_v.z = ezMath::Ceil(m_v.z);
   result.m_v.w = ezMath::Ceil(m_v.w);
+
+  return result;
+}
+
+EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::Trunc() const
+{
+  ezSimdVec4f result;
+  result.m_v.x = ezMath::Trunc(m_v.x);
+  result.m_v.y = ezMath::Trunc(m_v.y);
+  result.m_v.z = ezMath::Trunc(m_v.z);
+  result.m_v.w = ezMath::Trunc(m_v.w);
 
   return result;
 }
