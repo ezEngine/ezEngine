@@ -77,12 +77,13 @@ namespace
     DEFINE_TARGET_REGISTER();                                                                                       \
     DEFINE_OP_REGISTER(a);                                                                                          \
     ezUInt32 bRaw;                                                                                                  \
+    ezExpression::Register bConstant;                                                                               \
     const ezExpression::Register* b;                                                                                \
     if constexpr (RightIsConstant)                                                                                  \
     {                                                                                                               \
       bRaw = *pByteCode;                                                                                            \
-      auto tmp = ezExpressionByteCode::GetConstant(pByteCode);                                                      \
-      b = &tmp;                                                                                                     \
+      bConstant = ezExpressionByteCode::GetConstant(pByteCode);                                                     \
+      b = &bConstant;                                                                                               \
     }                                                                                                               \
     else                                                                                                            \
     {                                                                                                               \
