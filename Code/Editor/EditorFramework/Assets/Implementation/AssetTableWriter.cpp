@@ -14,7 +14,6 @@ ezResult ezAssetTable::WriteAssetTable()
   ezStringBuilder sTemp;
   ezString sResourcePath;
 
-  ezMap<ezString, ezString> ManagerGuidToPath;
   {
     for (auto& man : ezAssetDocumentManager::GetAllDocumentManagers())
     {
@@ -24,7 +23,7 @@ ezResult ezAssetTable::WriteAssetTable()
       ezAssetDocumentManager* pManager = static_cast<ezAssetDocumentManager*>(man);
 
       // allow to add fully custom entries
-      pManager->AddEntriesToAssetTable(m_sDataDir, m_pProfile, ManagerGuidToPath);
+      pManager->AddEntriesToAssetTable(m_sDataDir, m_pProfile, ezMakeDelegate(&ezAssetTable::AddManagerResource, this));
     }
   }
 
@@ -53,24 +52,21 @@ ezResult ezAssetTable::WriteAssetTable()
   ezDeferredFileWriter file;
   file.SetOutput(m_sTargetFile);
 
-  auto Write = [](ezMap<ezString, ezString>::ConstIterator it, ezDeferredFileWriter& file) {
-    const ezString& guid = it.Key();
-    const ezString& path = it.Value();
-
-    file.WriteBytes(guid.GetData(), guid.GetElementCount()).IgnoreResult();
+  auto Write = [](const ezString& sGuid, const ezString& sPath, ezDeferredFileWriter& file) {
+    file.WriteBytes(sGuid.GetData(), sGuid.GetElementCount()).IgnoreResult();
     file.WriteBytes(";", 1).IgnoreResult();
-    file.WriteBytes(path.GetData(), path.GetElementCount()).IgnoreResult();
+    file.WriteBytes(sPath.GetData(), sPath.GetElementCount()).IgnoreResult();
     file.WriteBytes("\n", 1).IgnoreResult();
   };
 
-  for (auto it = ManagerGuidToPath.GetIterator(); it.IsValid(); ++it)
+  for (auto it = m_GuidToManagerResource.GetIterator(); it.IsValid(); ++it)
   {
-    Write(it, file);
+    Write(it.Key(), it.Value().m_sPath, file);
   }
 
   for (auto it = m_GuidToPath.GetIterator(); it.IsValid(); ++it)
   {
-    Write(it, file);
+    Write(it.Key(), it.Value(), file);
   }
 
   if (file.Close().Failed())
@@ -105,6 +101,11 @@ void ezAssetTable::Update(const ezSubAsset& subAsset)
     m_GuidToPath[sTemp] = sEntry;
   }
   m_bDirty = true;
+}
+
+void ezAssetTable::AddManagerResource(ezStringView sGuid, ezStringView sPath, ezStringView sType)
+{
+  m_GuidToManagerResource[sGuid] = ManagerResource{ sPath , sType };
 }
 
 ezAssetTableWriter::ezAssetTableWriter(const ezApplicationFileSystemConfig& fileSystemConfig)
@@ -153,9 +154,11 @@ void ezAssetTableWriter::MainThreadTick()
     auto lock = ezAssetCurator::GetSingleton()->GetKnownSubAssets();
     EZ_LOCK(m_AssetTableMutex);
 
+    bool bReloadManagerResources = false;
+    const ezPlatformProfile* pCurrentProfile = ezAssetCurator::GetSingleton()->GetActiveAssetProfile();
     for (const ReloadResource& reload : m_ReloadResources)
     {
-      if (ezAssetTable* pTable = GetAssetTable(reload.m_uiDataDirIndex, ezAssetCurator::GetSingleton()->GetActiveAssetProfile()))
+      if (ezAssetTable* pTable = GetAssetTable(reload.m_uiDataDirIndex, pCurrentProfile))
       {
         if (pTable->m_GuidToPath.Contains(reload.m_sResource))
         {
@@ -164,9 +167,30 @@ void ezAssetTableWriter::MainThreadTick()
           msg2.m_sResourceType = reload.m_sType;
           ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg2);
         }
+        else
+        {
+          // If an asset is not represented by a resource in the table we assume it is represented by a manager resource.
+          // Currently we don't know how these relate, e.g. we don't know all "Decal" assets are represented by the "{ ProjectDecalAtlas }" resource. Therefore, we just reload all manager resources.
+          bReloadManagerResources = true;
+        }
       }
     }
     m_ReloadResources.Clear();
+
+    if (bReloadManagerResources)
+    {
+      for (ezUInt32 i = 0; i < m_FileSystemConfig.m_DataDirs.GetCount(); ++i)
+      {
+        ezAssetTable* pTable = GetAssetTable(i, pCurrentProfile);
+        for (auto it : pTable->m_GuidToManagerResource)
+        {
+          ezReloadResourceMsgToEngine msg2;
+          msg2.m_sResourceID = it.Key();
+          msg2.m_sResourceType = it.Value().m_sType;
+          ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg2);
+        }
+      }
+    }
 
     ezSimpleConfigMsgToEngine msg;
     msg.m_sWhatToDo = "ReloadResources";
