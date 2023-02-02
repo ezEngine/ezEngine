@@ -105,7 +105,7 @@ void ezAssetTable::Update(const ezSubAsset& subAsset)
 
 void ezAssetTable::AddManagerResource(ezStringView sGuid, ezStringView sPath, ezStringView sType)
 {
-  m_GuidToManagerResource[sGuid] = ManagerResource{ sPath , sType };
+  m_GuidToManagerResource[sGuid] = ManagerResource{sPath, sType};
 }
 
 ezAssetTableWriter::ezAssetTableWriter(const ezApplicationFileSystemConfig& fileSystemConfig)
