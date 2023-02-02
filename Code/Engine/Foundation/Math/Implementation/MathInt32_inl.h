@@ -38,16 +38,9 @@ namespace ezMath
     return ((i & 1) == 0);
   }
 
-  inline ezUInt32 Log2i(ezUInt32 val)
+  EZ_ALWAYS_INLINE ezUInt32 Log2i(ezUInt32 val)
   {
-    ezInt32 ret = -1;
-    while (val != 0)
-    {
-      val >>= 1;
-      ret++;
-    }
-
-    return (ezUInt32)ret;
+    return (val != 0) ? FirstBitHigh(val) : -1;
   }
 
   constexpr EZ_ALWAYS_INLINE int Pow2(int i)

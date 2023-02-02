@@ -37,6 +37,25 @@ EZ_ALWAYS_INLINE void ezSimdVec4i::SetZero()
   m_v.SetZero();
 }
 
+template <int N>
+EZ_ALWAYS_INLINE void ezSimdVec4i::Load(const ezInt32* pInts)
+{
+  m_v.SetZero();
+  for (int i = 0; i < N; ++i)
+  {
+    (&m_v.x)[i] = pInts[i];
+  }
+}
+
+template <int N>
+EZ_ALWAYS_INLINE void ezSimdVec4i::Store(ezInt32* pInts) const
+{
+  for (int i = 0; i < N; ++i)
+  {
+    pInts[i] = (&m_v.x)[i];
+  }
+}
+
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4i::ToFloat() const
 {
   ezSimdVec4f result;
@@ -120,6 +139,11 @@ EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::CompMul(const ezSimdVec4i& v) const
   return m_v.CompMul(v.m_v);
 }
 
+EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::CompDiv(const ezSimdVec4i& v) const
+{
+  return m_v.CompDiv(v.m_v);
+}
+
 EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::operator|(const ezSimdVec4i& v) const
 {
   ezSimdVec4i result;
@@ -182,6 +206,28 @@ EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::operator>>(ezUInt32 uiShift) const
   result.m_v.y = m_v.y >> uiShift;
   result.m_v.z = m_v.z >> uiShift;
   result.m_v.w = m_v.w >> uiShift;
+
+  return result;
+}
+
+EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::operator<<(const ezSimdVec4i& v) const
+{
+  ezSimdVec4i result;
+  result.m_v.x = m_v.x << v.m_v.x;
+  result.m_v.y = m_v.y << v.m_v.y;
+  result.m_v.z = m_v.z << v.m_v.z;
+  result.m_v.w = m_v.w << v.m_v.w;
+
+  return result;
+}
+
+EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::operator>>(const ezSimdVec4i& v) const
+{
+  ezSimdVec4i result;
+  result.m_v.x = m_v.x >> v.m_v.x;
+  result.m_v.y = m_v.y >> v.m_v.y;
+  result.m_v.z = m_v.z >> v.m_v.z;
+  result.m_v.w = m_v.w >> v.m_v.w;
 
   return result;
 }
@@ -266,13 +312,13 @@ EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::Abs() const
 
 EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4i::operator==(const ezSimdVec4i& v) const
 {
-  ezSimdVec4b result;
-  result.m_v.x = m_v.x == v.m_v.x;
-  result.m_v.y = m_v.y == v.m_v.y;
-  result.m_v.z = m_v.z == v.m_v.z;
-  result.m_v.w = m_v.w == v.m_v.w;
+  bool result[4];
+  result[0] = m_v.x == v.m_v.x;
+  result[1] = m_v.y == v.m_v.y;
+  result[2] = m_v.z == v.m_v.z;
+  result[3] = m_v.w == v.m_v.w;
 
-  return result;
+  return ezSimdVec4b(result[0], result[1], result[2], result[3]);
 }
 
 EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4i::operator!=(const ezSimdVec4i& v) const
@@ -287,13 +333,13 @@ EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4i::operator<=(const ezSimdVec4i& v) const
 
 EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4i::operator<(const ezSimdVec4i& v) const
 {
-  ezSimdVec4b result;
-  result.m_v.x = m_v.x < v.m_v.x;
-  result.m_v.y = m_v.y < v.m_v.y;
-  result.m_v.z = m_v.z < v.m_v.z;
-  result.m_v.w = m_v.w < v.m_v.w;
+  bool result[4];
+  result[0] = m_v.x < v.m_v.x;
+  result[1] = m_v.y < v.m_v.y;
+  result[2] = m_v.z < v.m_v.z;
+  result[3] = m_v.w < v.m_v.w;
 
-  return result;
+  return ezSimdVec4b(result[0], result[1], result[2], result[3]);
 }
 
 EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4i::operator>=(const ezSimdVec4i& v) const
@@ -303,17 +349,29 @@ EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4i::operator>=(const ezSimdVec4i& v) const
 
 EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4i::operator>(const ezSimdVec4i& v) const
 {
-  ezSimdVec4b result;
-  result.m_v.x = m_v.x > v.m_v.x;
-  result.m_v.y = m_v.y > v.m_v.y;
-  result.m_v.z = m_v.z > v.m_v.z;
-  result.m_v.w = m_v.w > v.m_v.w;
+  bool result[4];
+  result[0] = m_v.x > v.m_v.x;
+  result[1] = m_v.y > v.m_v.y;
+  result[2] = m_v.z > v.m_v.z;
+  result[3] = m_v.w > v.m_v.w;
 
-  return result;
+  return ezSimdVec4b(result[0], result[1], result[2], result[3]);
 }
 
 // static
 EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::ZeroVector()
 {
   return ezVec4I32::ZeroVector();
+}
+
+// static
+EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::Select(const ezSimdVec4b& cmp, const ezSimdVec4i& ifTrue, const ezSimdVec4i& ifFalse)
+{
+  ezSimdVec4i result;
+  result.m_v.x = cmp.m_v.x ? ifTrue.m_v.x : ifFalse.m_v.x;
+  result.m_v.y = cmp.m_v.y ? ifTrue.m_v.y : ifFalse.m_v.y;
+  result.m_v.z = cmp.m_v.z ? ifTrue.m_v.z : ifFalse.m_v.z;
+  result.m_v.w = cmp.m_v.w ? ifTrue.m_v.w : ifFalse.m_v.w;
+
+  return result;
 }

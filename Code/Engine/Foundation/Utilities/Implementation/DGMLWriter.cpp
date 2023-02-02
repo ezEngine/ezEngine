@@ -39,11 +39,11 @@ void ezDGMLGraph::AddNodeToGroup(NodeId node, NodeId group)
 
 ezDGMLGraph::ConnectionId ezDGMLGraph::AddConnection(ezDGMLGraph::NodeId Source, ezDGMLGraph::NodeId Target, const char* szLabel)
 {
-  ezDGMLGraph::Connection& Connection = m_Connections.ExpandAndGetRef();
+  ezDGMLGraph::Connection& connection = m_Connections.ExpandAndGetRef();
 
-  Connection.m_Source = Source;
-  Connection.m_Target = Target;
-  Connection.m_sLabel = szLabel;
+  connection.m_Source = Source;
+  connection.m_Target = Target;
+  connection.m_sLabel = szLabel;
 
   return m_Connections.GetCount() - 1;
 }
@@ -64,20 +64,22 @@ void ezDGMLGraph::AddNodeProperty(NodeId node, PropertyId property, const ezForm
   prop.m_sValue = fmt.GetText(tmp);
 }
 
-ezResult ezDGMLGraphWriter::WriteGraphToFile(const char* szFileName, const ezDGMLGraph& Graph)
+ezResult ezDGMLGraphWriter::WriteGraphToFile(ezStringView sFileName, const ezDGMLGraph& Graph)
 {
-  ezStringBuilder StringBuilder;
+  ezStringBuilder sGraph;
 
   // Write to memory object and then to file
-  if (WriteGraphToString(StringBuilder, Graph).Succeeded())
+  if (WriteGraphToString(sGraph, Graph).Succeeded())
   {
-    ezFileWriter FileWriter;
-    if (!FileWriter.Open(szFileName).Succeeded())
+    ezStringBuilder sTemp;
+
+    ezFileWriter fileWriter;
+    if (!fileWriter.Open(sFileName.GetData(sTemp)).Succeeded())
       return EZ_FAILURE;
 
-    FileWriter.WriteBytes(StringBuilder.GetData(), StringBuilder.GetElementCount()).IgnoreResult();
+    fileWriter.WriteBytes(sGraph.GetData(), sGraph.GetElementCount()).IgnoreResult();
 
-    FileWriter.Close();
+    fileWriter.Close();
 
     return EZ_SUCCESS;
   }

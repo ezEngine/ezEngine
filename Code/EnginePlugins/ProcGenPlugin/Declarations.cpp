@@ -70,25 +70,29 @@ namespace ezProcGenInternal
   GraphSharedDataBase::~GraphSharedDataBase() = default;
   Output::~Output() = default;
 
-  ezHashedString ExpressionInputs::s_sPositionX = ezMakeHashedString("PositionX");
-  ezHashedString ExpressionInputs::s_sPositionY = ezMakeHashedString("PositionY");
-  ezHashedString ExpressionInputs::s_sPositionZ = ezMakeHashedString("PositionZ");
-  ezHashedString ExpressionInputs::s_sNormalX = ezMakeHashedString("NormalX");
-  ezHashedString ExpressionInputs::s_sNormalY = ezMakeHashedString("NormalY");
-  ezHashedString ExpressionInputs::s_sNormalZ = ezMakeHashedString("NormalZ");
-  ezHashedString ExpressionInputs::s_sColorR = ezMakeHashedString("ColorR");
-  ezHashedString ExpressionInputs::s_sColorG = ezMakeHashedString("ColorG");
-  ezHashedString ExpressionInputs::s_sColorB = ezMakeHashedString("ColorB");
-  ezHashedString ExpressionInputs::s_sColorA = ezMakeHashedString("ColorA");
-  ezHashedString ExpressionInputs::s_sPointIndex = ezMakeHashedString("PointIndex");
+  ezHashedString ExpressionInputs::s_sPosition = ezMakeHashedString("position");
+  ezHashedString ExpressionInputs::s_sPositionX = ezMakeHashedString("position.x");
+  ezHashedString ExpressionInputs::s_sPositionY = ezMakeHashedString("position.y");
+  ezHashedString ExpressionInputs::s_sPositionZ = ezMakeHashedString("position.z");
+  ezHashedString ExpressionInputs::s_sNormal = ezMakeHashedString("normal");
+  ezHashedString ExpressionInputs::s_sNormalX = ezMakeHashedString("normal.x");
+  ezHashedString ExpressionInputs::s_sNormalY = ezMakeHashedString("normal.y");
+  ezHashedString ExpressionInputs::s_sNormalZ = ezMakeHashedString("normal.z");
+  ezHashedString ExpressionInputs::s_sColor = ezMakeHashedString("color");
+  ezHashedString ExpressionInputs::s_sColorR = ezMakeHashedString("color.x");
+  ezHashedString ExpressionInputs::s_sColorG = ezMakeHashedString("color.y");
+  ezHashedString ExpressionInputs::s_sColorB = ezMakeHashedString("color.z");
+  ezHashedString ExpressionInputs::s_sColorA = ezMakeHashedString("color.w");
+  ezHashedString ExpressionInputs::s_sPointIndex = ezMakeHashedString("pointIndex");
 
-  ezHashedString ExpressionOutputs::s_sDensity = ezMakeHashedString("Density");
-  ezHashedString ExpressionOutputs::s_sScale = ezMakeHashedString("Scale");
-  ezHashedString ExpressionOutputs::s_sColorIndex = ezMakeHashedString("ColorIndex");
-  ezHashedString ExpressionOutputs::s_sObjectIndex = ezMakeHashedString("ObjectIndex");
+  ezHashedString ExpressionOutputs::s_sOutDensity = ezMakeHashedString("outDensity");
+  ezHashedString ExpressionOutputs::s_sOutScale = ezMakeHashedString("outScale");
+  ezHashedString ExpressionOutputs::s_sOutColorIndex = ezMakeHashedString("outColorIndex");
+  ezHashedString ExpressionOutputs::s_sOutObjectIndex = ezMakeHashedString("outObjectIndex");
 
-  ezHashedString ExpressionOutputs::s_sR = ezMakeHashedString("R");
-  ezHashedString ExpressionOutputs::s_sG = ezMakeHashedString("G");
-  ezHashedString ExpressionOutputs::s_sB = ezMakeHashedString("B");
-  ezHashedString ExpressionOutputs::s_sA = ezMakeHashedString("A");
+  ezHashedString ExpressionOutputs::s_sOutColor = ezMakeHashedString("outColor");
+  ezHashedString ExpressionOutputs::s_sOutColorR = ezMakeHashedString("outColor.x");
+  ezHashedString ExpressionOutputs::s_sOutColorG = ezMakeHashedString("outColor.y");
+  ezHashedString ExpressionOutputs::s_sOutColorB = ezMakeHashedString("outColor.z");
+  ezHashedString ExpressionOutputs::s_sOutColorA = ezMakeHashedString("outColor.w");
 } // namespace ezProcGenInternal

@@ -187,6 +187,7 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Log2i")
   {
+    EZ_TEST_BOOL(ezMath::Log2i(0) == ezUInt32(-1));
     EZ_TEST_BOOL(ezMath::Log2i(1) == 0);
     EZ_TEST_BOOL(ezMath::Log2i(2) == 1);
     EZ_TEST_BOOL(ezMath::Log2i(3) == 1);

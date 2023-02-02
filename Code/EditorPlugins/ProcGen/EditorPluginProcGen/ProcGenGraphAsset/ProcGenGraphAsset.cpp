@@ -82,7 +82,7 @@ struct ezProcGenGraphAssetDocument::GenerateContext
 
 ////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGenGraphAssetDocument, 5, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGenGraphAssetDocument, 6, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezProcGenGraphAssetDocument::ezProcGenGraphAssetDocument(const char* szDocumentPath)
@@ -125,6 +125,20 @@ ezStatus ezProcGenGraphAssetDocument::WriteAsset(ezStreamWriter& stream, const e
 
   auto WriteByteCode = [&](const ezDocumentObject* pOutputNode) {
     context.m_GraphContext.m_VolumeTagSetIndices.Clear();
+
+    if (pOutputNode->GetType()->IsDerivedFrom<ezProcGen_PlacementOutput>())
+    {
+      context.m_GraphContext.m_OutputType = ezProcGenNodeBase::GraphContext::Placement;
+    }
+    else if (pOutputNode->GetType()->IsDerivedFrom<ezProcGen_VertexColorOutput>())
+    {
+      context.m_GraphContext.m_OutputType = ezProcGenNodeBase::GraphContext::Color;
+    }
+    else
+    {
+      EZ_ASSERT_NOT_IMPLEMENTED;
+      return ezStatus("Unknown output type");
+    }
 
     ezExpressionAST ast;
     GenerateExpressionAST(pOutputNode, "", context, ast);
@@ -174,6 +188,7 @@ ezStatus ezProcGenGraphAssetDocument::WriteAsset(ezStreamWriter& stream, const e
       chunk << uiNumNodes;
 
       context.m_GraphContext.m_VolumeTagSetIndices.Clear();
+      context.m_GraphContext.m_OutputType = ezProcGenNodeBase::GraphContext::Placement;
 
       ezExpressionAST ast;
       GenerateDebugExpressionAST(context, ast);
@@ -421,7 +436,7 @@ void ezProcGenGraphAssetDocument::DumpSelectedOutput(bool bAst, bool bDisassembl
   if (!selection.IsEmpty())
   {
     pSelectedNode = selection[0];
-    if (!pSelectedNode->GetType()->IsDerivedFrom(ezGetStaticRTTI<ezProcGenOutput>()))
+    if (!pSelectedNode->GetType()->IsDerivedFrom<ezProcGenOutput>())
     {
       pSelectedNode = nullptr;
     }
@@ -434,6 +449,20 @@ void ezProcGenGraphAssetDocument::DumpSelectedOutput(bool bAst, bool bDisassembl
   }
 
   GenerateContext context(GetObjectManager());
+  if (pSelectedNode->GetType()->IsDerivedFrom<ezProcGen_PlacementOutput>())
+  {
+    context.m_GraphContext.m_OutputType = ezProcGenNodeBase::GraphContext::Placement;
+  }
+  else if (pSelectedNode->GetType()->IsDerivedFrom<ezProcGen_VertexColorOutput>())
+  {
+    context.m_GraphContext.m_OutputType = ezProcGenNodeBase::GraphContext::Color;
+  }
+  else
+  {
+    EZ_ASSERT_NOT_IMPLEMENTED;
+    return;
+  }
+
   ezExpressionAST ast;
   GenerateExpressionAST(pSelectedNode, "", context, ast);
 
@@ -446,34 +475,40 @@ void ezProcGenGraphAssetDocument::DumpSelectedOutput(bool bAst, bool bDisassembl
     DumpAST(ast, sAssetName, sOutputName);
   }
 
+  ezExpressionByteCode byteCode;
+  ezExpressionCompiler compiler;
+  if (compiler.Compile(ast, byteCode).Failed())
+  {
+    ezLog::Error("Compiling expression failed");
+    return;
+  }
+
+  if (bAst)
+  {
+    ezStringBuilder sOutputName2 = sOutputName;
+    sOutputName2.Append("_Opt");
+
+    DumpAST(ast, sAssetName, sOutputName2);
+  }
+
   if (bDisassembly)
   {
-    ezExpressionByteCode byteCode;
+    ezStringBuilder sDisassembly;
+    byteCode.Disassemble(sDisassembly);
 
-    ezExpressionCompiler compiler;
-    if (compiler.Compile(ast, byteCode).Succeeded())
+    ezStringBuilder sFileName;
+    sFileName.Format(":appdata/{0}_{1}_ByteCode.txt", sAssetName, sOutputName);
+
+    ezFileWriter fileWriter;
+    if (fileWriter.Open(sFileName).Succeeded())
     {
-      ezStringBuilder sDisassembly;
-      byteCode.Disassemble(sDisassembly);
+      fileWriter.WriteBytes(sDisassembly.GetData(), sDisassembly.GetElementCount()).IgnoreResult();
 
-      ezStringBuilder sFileName;
-      sFileName.Format(":appdata/{0}_{1}_ByteCode.txt", sAssetName, sOutputName);
-
-      ezFileWriter fileWriter;
-      if (fileWriter.Open(sFileName).Succeeded())
-      {
-        fileWriter.WriteBytes(sDisassembly.GetData(), sDisassembly.GetElementCount()).IgnoreResult();
-
-        ezLog::Info("Disassembly was dumped to: {0}", sFileName);
-      }
-      else
-      {
-        ezLog::Error("Failed to dump Disassembly to: {0}", sFileName);
-      }
+      ezLog::Info("Disassembly was dumped to: {0}", sFileName);
     }
     else
     {
-      ezLog::Error("Compiling expression failed");
+      ezLog::Error("Failed to dump Disassembly to: {0}", sFileName);
     }
   }
 }

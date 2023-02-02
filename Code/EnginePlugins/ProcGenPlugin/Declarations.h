@@ -2,6 +2,7 @@
 
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <Core/World/Declarations.h>
+#include <Foundation/Math/Color16f.h>
 #include <Foundation/SimdMath/SimdTransform.h>
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Types/SharedPtr.h>
@@ -202,12 +203,15 @@ namespace ezProcGenInternal
 
   struct EZ_PROCGENPLUGIN_DLL ExpressionInputs
   {
+    static ezHashedString s_sPosition;
     static ezHashedString s_sPositionX;
     static ezHashedString s_sPositionY;
     static ezHashedString s_sPositionZ;
+    static ezHashedString s_sNormal;
     static ezHashedString s_sNormalX;
     static ezHashedString s_sNormalY;
     static ezHashedString s_sNormalZ;
+    static ezHashedString s_sColor;
     static ezHashedString s_sColorR;
     static ezHashedString s_sColorG;
     static ezHashedString s_sColorB;
@@ -217,15 +221,16 @@ namespace ezProcGenInternal
 
   struct EZ_PROCGENPLUGIN_DLL ExpressionOutputs
   {
-    static ezHashedString s_sDensity;
-    static ezHashedString s_sScale;
-    static ezHashedString s_sColorIndex;
-    static ezHashedString s_sObjectIndex;
+    static ezHashedString s_sOutDensity;
+    static ezHashedString s_sOutScale;
+    static ezHashedString s_sOutColorIndex;
+    static ezHashedString s_sOutObjectIndex;
 
-    static ezHashedString s_sR;
-    static ezHashedString s_sG;
-    static ezHashedString s_sB;
-    static ezHashedString s_sA;
+    static ezHashedString s_sOutColor;
+    static ezHashedString s_sOutColorR;
+    static ezHashedString s_sOutColorG;
+    static ezHashedString s_sOutColorB;
+    static ezHashedString s_sOutColorA;
   };
 
   struct PlacementPoint
@@ -245,10 +250,11 @@ namespace ezProcGenInternal
     EZ_DECLARE_POD_TYPE();
 
     ezSimdTransform m_Transform;
-    ezColor m_ObjectColor;
-    ezUInt8 m_uiObjectIndex;
+    ezColorLinear16f m_ObjectColor;
     ezUInt16 m_uiPointIndex;
-    ezUInt8 m_uiSetColor : 1;
+    ezUInt8 m_uiObjectIndex;
+    bool m_bHasValidColor;
+    ezUInt32 m_uiPadding;
   };
 
   struct PlacementTileDesc

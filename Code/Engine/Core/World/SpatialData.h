@@ -40,7 +40,7 @@ struct ezSpatialData
 
     ezUInt32 m_uiValue;
 
-    EZ_ALWAYS_INLINE ezUInt32 GetBitmask() const { return m_uiValue != ezInvalidIndex ? EZ_BIT(m_uiValue) : 0; }
+    EZ_ALWAYS_INLINE ezUInt32 GetBitmask() const { return m_uiValue != ezInvalidIndex ? static_cast<ezUInt32>(EZ_BIT(m_uiValue)) : 0; }
   };
 
   /// \brief Registers a spatial data category under the given name.

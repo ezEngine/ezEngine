@@ -32,7 +32,7 @@ namespace ezProcGenInternal
       ezVec3 m_vPosition;
       ezVec3 m_vNormal;
       ezColor m_Color;
-      float m_fIndex;
+      ezUInt32 m_uiIndex;
     };
 
     ezDynamicArray<InputVertex> m_InputVertices;

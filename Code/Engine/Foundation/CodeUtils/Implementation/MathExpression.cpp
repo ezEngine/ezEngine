@@ -25,8 +25,8 @@ void ezMathExpression::Reset(ezStringView sExpressionString)
   ezStringBuilder tmp = s_sOutput.GetView();
   tmp.Append(" = ", sExpressionString);
 
-  ezExpressionParser::Stream outputs[] = {
-    ezExpressionParser::Stream(s_sOutput, ezProcessingStream::DataType::Float),
+  ezExpression::StreamDesc outputs[] = {
+    {s_sOutput, ezProcessingStream::DataType::Float},
   };
 
   ezExpressionParser parser;
@@ -34,7 +34,7 @@ void ezMathExpression::Reset(ezStringView sExpressionString)
   parserOptions.m_bTreatUnknownVariablesAsInputs = true;
 
   ezExpressionAST ast;
-  if (parser.Parse(tmp, ezArrayPtr<ezExpressionParser::Stream>(), outputs, parserOptions, ast).Failed())
+  if (parser.Parse(tmp, ezArrayPtr<ezExpression::StreamDesc>(), outputs, parserOptions, ast).Failed())
     return;
 
   ezExpressionCompiler compiler;

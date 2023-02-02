@@ -19,17 +19,17 @@ EZ_ALWAYS_INLINE ezUInt32 ezExpressionByteCode::GetNumTempRegisters() const
   return m_uiNumTempRegisters;
 }
 
-EZ_ALWAYS_INLINE ezArrayPtr<const ezHashedString> ezExpressionByteCode::GetInputs() const
+EZ_ALWAYS_INLINE ezArrayPtr<const ezExpression::StreamDesc> ezExpressionByteCode::GetInputs() const
 {
   return m_Inputs;
 }
 
-EZ_ALWAYS_INLINE ezArrayPtr<const ezHashedString> ezExpressionByteCode::GetOutputs() const
+EZ_ALWAYS_INLINE ezArrayPtr<const ezExpression::StreamDesc> ezExpressionByteCode::GetOutputs() const
 {
   return m_Outputs;
 }
 
-EZ_ALWAYS_INLINE ezArrayPtr<const ezHashedString> ezExpressionByteCode::GetFunctions() const
+EZ_ALWAYS_INLINE ezArrayPtr<const ezExpression::FunctionDesc> ezExpressionByteCode::GetFunctions() const
 {
   return m_Functions;
 }
@@ -39,23 +39,24 @@ EZ_ALWAYS_INLINE ezExpressionByteCode::OpCode::Enum ezExpressionByteCode::GetOpC
 {
   ezUInt32 uiOpCode = *pByteCode;
   ++pByteCode;
-  return static_cast<OpCode::Enum>(uiOpCode);
+  return static_cast<OpCode::Enum>((uiOpCode >= 0 && uiOpCode < OpCode::Count) ? uiOpCode : 0);
 }
 
 // static
-EZ_ALWAYS_INLINE ezUInt32 ezExpressionByteCode::GetRegisterIndex(const StorageType*& pByteCode, ezUInt32 uiNumRegisters)
+EZ_ALWAYS_INLINE ezUInt32 ezExpressionByteCode::GetRegisterIndex(const StorageType*& pByteCode)
 {
-  ezUInt32 uiIndex = *pByteCode * uiNumRegisters;
+  ezUInt32 uiIndex = *pByteCode;
   ++pByteCode;
   return uiIndex;
 }
 
 // static
-EZ_ALWAYS_INLINE ezSimdVec4f ezExpressionByteCode::GetConstant(const StorageType*& pByteCode)
+EZ_ALWAYS_INLINE ezExpression::Register ezExpressionByteCode::GetConstant(const StorageType*& pByteCode)
 {
-  float c = *reinterpret_cast<const float*>(pByteCode);
+  ezExpression::Register r;
+  r.i = ezSimdVec4i(*pByteCode);
   ++pByteCode;
-  return ezSimdVec4f(c);
+  return r;
 }
 
 // static

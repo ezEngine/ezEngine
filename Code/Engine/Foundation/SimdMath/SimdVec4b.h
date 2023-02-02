@@ -30,6 +30,9 @@ public:
   ezSimdVec4b operator||(const ezSimdVec4b& rhs) const; // [tested]
   ezSimdVec4b operator!() const;                        // [tested]
 
+  ezSimdVec4b operator==(const ezSimdVec4b& rhs) const; // [tested]
+  ezSimdVec4b operator!=(const ezSimdVec4b& rhs) const; // [tested]
+
   template <int N = 4>
   bool AllSet() const; // [tested]
 
@@ -38,6 +41,8 @@ public:
 
   template <int N = 4>
   bool NoneSet() const; // [tested]
+
+  static ezSimdVec4b Select(const ezSimdVec4b& cmp, const ezSimdVec4b& ifTrue, const ezSimdVec4b& ifFalse); // [tested]
 
 public:
   ezInternal::QuadBool m_v;

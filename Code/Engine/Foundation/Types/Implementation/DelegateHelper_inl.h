@@ -286,7 +286,8 @@ private:
     // MSVC builds a member function pointer on the stack writing only 12 bytes and then copies it
     // to the final location by copying 16 bytes. Thus the 4 byte padding get a random value (whatever is on the stack at that time).
     // To make the delegate comparable by memcmp we zero out those 4 byte padding.
-#if EZ_ENABLED(EZ_COMPILER_MSVC)
+    // Apparently clang does the same on windows but not on linux etc.
+#if EZ_ENABLED(EZ_COMPILER_MSVC) || (EZ_ENABLED(EZ_PLATFORM_WINDOWS) && EZ_ENABLED(EZ_COMPILER_CLANG))
     *reinterpret_cast<ezUInt32*>(m_Data + 12) = 0;
 #endif
   }

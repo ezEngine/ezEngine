@@ -352,6 +352,15 @@ EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::Abs() const
   return _mm_andnot_ps(_mm_set1_ps(-0.0f), m_v);
 }
 
+EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::Round() const
+{
+#if EZ_SSE_LEVEL >= EZ_SSE_41
+  return _mm_round_ps(m_v, _MM_FROUND_NINT);
+#else
+  EZ_ASSERT_NOT_IMPLEMENTED;
+#endif
+}
+
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::Floor() const
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_41
@@ -365,6 +374,15 @@ EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::Ceil() const
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_41
   return _mm_round_ps(m_v, _MM_FROUND_CEIL);
+#else
+  EZ_ASSERT_NOT_IMPLEMENTED;
+#endif
+}
+
+EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::Trunc() const
+{
+#if EZ_SSE_LEVEL >= EZ_SSE_41
+  return _mm_round_ps(m_v, _MM_FROUND_TRUNC);
 #else
   EZ_ASSERT_NOT_IMPLEMENTED;
 #endif

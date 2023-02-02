@@ -4,11 +4,80 @@
 
 namespace
 {
-  ezSimdVec4f SimdDegree(float degree) { return ezSimdVec4f(ezAngle::Degree(degree)); }
+  ezSimdVec4f SimdDegree(float degree)
+  {
+    return ezSimdVec4f(ezAngle::Degree(degree));
+  }
 } // namespace
 
 EZ_CREATE_SIMPLE_TEST(SimdMath, SimdMath)
 {
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Exp")
+  {
+    float testVals[] = {0.0f, 1.0f, 2.0f};
+    for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(testVals); ++i)
+    {
+      const float v = testVals[i];
+      const float r = ezMath::Exp(v);
+      EZ_TEST_BOOL(ezSimdMath::Exp(ezSimdVec4f(v)).IsEqual(ezSimdVec4f(r), 0.000001f).AllSet());
+    }
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Ln")
+  {
+    float testVals[] = {1.0f, 2.7182818284f, 7.3890560989f};
+    for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(testVals); ++i)
+    {
+      const float v = testVals[i];
+      const float r = ezMath::Ln(v);
+      EZ_TEST_BOOL(ezSimdMath::Ln(ezSimdVec4f(v)).IsEqual(ezSimdVec4f(r), 0.000001f).AllSet());
+    }
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Log2")
+  {
+    float testVals[] = {1.0f, 2.0f, 4.0f};
+    for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(testVals); ++i)
+    {
+      const float v = testVals[i];
+      const float r = ezMath::Log2(v);
+      EZ_TEST_BOOL(ezSimdMath::Log2(ezSimdVec4f(v)).IsEqual(ezSimdVec4f(r), 0.000001f).AllSet());
+    }
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Log2i")
+  {
+    int testVals[] = {0, 1, 2, 3, 4, 6, 7, 8};
+    for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(testVals); ++i)
+    {
+      const int v = testVals[i];
+      const int r = ezMath::Log2i(v);
+      EZ_TEST_BOOL((ezSimdMath::Log2i(ezSimdVec4i(v)) == ezSimdVec4i(r)).AllSet());
+    }
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Log10")
+  {
+    float testVals[] = {1.0f, 10.0f, 100.0f};
+    for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(testVals); ++i)
+    {
+      const float v = testVals[i];
+      const float r = ezMath::Log10(v);
+      EZ_TEST_BOOL(ezSimdMath::Log10(ezSimdVec4f(v)).IsEqual(ezSimdVec4f(r), 0.000001f).AllSet());
+    }
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Pow2")
+  {
+    float testVals[] = {0.0f, 1.0f, 2.0f};
+    for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(testVals); ++i)
+    {
+      const float v = testVals[i];
+      const float r = ezMath::Pow2(v);
+      EZ_TEST_BOOL(ezSimdMath::Pow2(ezSimdVec4f(v)).IsEqual(ezSimdVec4f(r), 0.000001f).AllSet());
+    }
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Sin")
   {
     EZ_TEST_BOOL(ezSimdMath::Sin(SimdDegree(0.0f)).IsEqual(ezSimdVec4f(0.0f), 0.000001f).AllSet());
