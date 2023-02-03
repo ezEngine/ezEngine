@@ -553,6 +553,8 @@ void ezDecalComponent::OnSimulationStarted()
     m_vExtents *= scale;
 
     TriggerLocalBoundsUpdate();
+
+    InvalidateCachedRenderData();
   }
 }
 
