@@ -19,16 +19,24 @@ struct ezAssetInfo;
 /// 2. ezAssetDocumentManager::GetAssetTableEntry never changes over the lifetime of an asset.
 struct ezAssetTable
 {
+  struct ManagerResource
+  {
+    ezString m_sPath;
+    ezString m_sType;
+  };
+
   ezString m_sDataDir;
   ezString m_sTargetFile;
   const ezPlatformProfile* m_pProfile = nullptr;
   bool m_bDirty = true;
   bool m_bReset = true;
+  ezMap<ezString, ManagerResource> m_GuidToManagerResource;
   ezMap<ezString, ezString> m_GuidToPath;
 
   ezResult WriteAssetTable();
   void Remove(const ezSubAsset& subAsset);
   void Update(const ezSubAsset& subAsset);
+  void AddManagerResource(ezStringView sGuid, ezStringView sPath, ezStringView sType);
 };
 
 /// \brief Keeps track of all asset tables and their state as well as reloading modified resources.

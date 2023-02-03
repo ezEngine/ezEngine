@@ -64,6 +64,7 @@ void ezGameApplication::Init_ConfigureAssetManagement()
   ezResourceManager::RegisterResourceForAssetType("PropertyAnim", ezGetStaticRTTI<ezPropertyAnimResource>());
   ezResourceManager::RegisterResourceForAssetType("Visual Script", ezGetStaticRTTI<ezVisualScriptResource>());
   ezResourceManager::RegisterResourceForAssetType("Decal", ezGetStaticRTTI<ezDecalResource>());
+  ezResourceManager::RegisterResourceForAssetType("Decal Atlas", ezGetStaticRTTI<ezDecalAtlasResource>());
   ezResourceManager::RegisterResourceForAssetType("LUT", ezGetStaticRTTI<ezTexture3DResource>());
 }
 

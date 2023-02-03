@@ -64,7 +64,7 @@ public:
   ///@{
 
   virtual void AddEntriesToAssetTable(
-    const char* szDataDirectory, const ezPlatformProfile* pAssetProfile, ezMap<ezString, ezString>& inout_GuidToPath) const;
+    const char* szDataDirectory, const ezPlatformProfile* pAssetProfile, ezDelegate<void(ezStringView sGuid, ezStringView sPath, ezStringView sType)> addEntry) const;
   virtual ezString GetAssetTableEntry(const ezSubAsset* pSubAsset, const char* szDataDirectory, const ezPlatformProfile* pAssetProfile) const;
 
   /// \brief Calls GetRelativeOutputFileName and prepends [DataDir]/AssetCache/ .

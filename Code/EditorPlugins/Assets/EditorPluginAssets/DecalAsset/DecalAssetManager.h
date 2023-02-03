@@ -12,7 +12,7 @@ public:
   ~ezDecalAssetDocumentManager();
 
   virtual void AddEntriesToAssetTable(
-    const char* szDataDirectory, const ezPlatformProfile* pAssetProfile, ezMap<ezString, ezString>& inout_GuidToPath) const override;
+    const char* szDataDirectory, const ezPlatformProfile* pAssetProfile, ezDelegate<void(ezStringView sGuid, ezStringView sPath, ezStringView sType)> addEntry) const override;
   virtual ezString GetAssetTableEntry(
     const ezSubAsset* pSubAsset, const char* szDataDirectory, const ezPlatformProfile* pAssetProfile) const override;
 
