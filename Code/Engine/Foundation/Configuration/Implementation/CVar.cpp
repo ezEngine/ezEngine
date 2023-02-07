@@ -138,6 +138,18 @@ void ezCVar::SetStorageFolder(ezStringView sFolder)
 
 ezCommandLineOptionBool opt_NoFileCVars("cvar", "-no-file-cvars", "Disables loading CVar values from the user-specific, persisted configuration file.", false);
 
+void ezCVar::SaveCVarsToFile(ezStringView path)
+{
+  ezHybridArray<ezCVar*, 128> allCVars;
+
+  for (ezCVar* pCVar = ezCVar::GetFirstInstance(); pCVar != nullptr; pCVar = pCVar->GetNextInstance())
+  {
+    allCVars.PushBack(pCVar);
+  }
+
+  SaveCVarsToFileInternal(path, allCVars);
+}
+
 void ezCVar::SaveCVars()
 {
   if (s_sStorageFolder.IsEmpty())
@@ -177,52 +189,58 @@ void ezCVar::SaveCVars()
     // create the plugin specific file
     sTemp.Format("{0}/CVars_{1}.cfg", s_sStorageFolder, it.Key());
 
-    ezFileWriter File;
-    if (File.Open(sTemp.GetData()) == EZ_SUCCESS)
-    {
-      // write one line for each cvar, to save its current value
-      for (ezUInt32 var = 0; var < it.Value().GetCount(); ++var)
-      {
-        ezCVar* pCVar = it.Value()[var];
-
-        switch (pCVar->GetType())
-        {
-          case ezCVarType::Int:
-          {
-            ezCVarInt* pInt = (ezCVarInt*)pCVar;
-            sTemp.Format("{0} = {1}\n", pCVar->GetName(), pInt->GetValue(ezCVarValue::Restart));
-          }
-          break;
-          case ezCVarType::Bool:
-          {
-            ezCVarBool* pBool = (ezCVarBool*)pCVar;
-            sTemp.Format("{0} = {1}\n", pCVar->GetName(), pBool->GetValue(ezCVarValue::Restart) ? "true" : "false");
-          }
-          break;
-          case ezCVarType::Float:
-          {
-            ezCVarFloat* pFloat = (ezCVarFloat*)pCVar;
-            sTemp.Format("{0} = {1}\n", pCVar->GetName(), pFloat->GetValue(ezCVarValue::Restart));
-          }
-          break;
-          case ezCVarType::String:
-          {
-            ezCVarString* pString = (ezCVarString*)pCVar;
-            sTemp.Format("{0} = \"{1}\"\n", pCVar->GetName(), pString->GetValue(ezCVarValue::Restart));
-          }
-          break;
-          default:
-            EZ_REPORT_FAILURE("Unknown CVar Type: {0}", pCVar->GetType());
-            break;
-        }
-
-        // add the one line for that cvar to the config file
-        File.WriteBytes(sTemp.GetData(), sTemp.GetElementCount()).IgnoreResult();
-      }
-    }
+    SaveCVarsToFileInternal(sTemp, it.Value());
 
     // continue with the next plugin
     ++it;
+  }
+}
+
+void ezCVar::SaveCVarsToFileInternal(ezStringView path, const ezDynamicArray<ezCVar *>& vars)
+{
+  ezStringBuilder sTemp;
+  ezFileWriter File;
+  if (File.Open(path.GetData(sTemp)) == EZ_SUCCESS)
+  {
+    // write one line for each cvar, to save its current value
+    for (ezUInt32 var = 0; var < vars.GetCount(); ++var)
+    {
+      ezCVar* pCVar = vars[var];
+
+      switch (pCVar->GetType())
+      {
+        case ezCVarType::Int:
+        {
+          ezCVarInt* pInt = (ezCVarInt*)pCVar;
+          sTemp.Format("{0} = {1}\n", pCVar->GetName(), pInt->GetValue(ezCVarValue::Restart));
+        }
+        break;
+        case ezCVarType::Bool:
+        {
+          ezCVarBool* pBool = (ezCVarBool*)pCVar;
+          sTemp.Format("{0} = {1}\n", pCVar->GetName(), pBool->GetValue(ezCVarValue::Restart) ? "true" : "false");
+        }
+        break;
+        case ezCVarType::Float:
+        {
+          ezCVarFloat* pFloat = (ezCVarFloat*)pCVar;
+          sTemp.Format("{0} = {1}\n", pCVar->GetName(), pFloat->GetValue(ezCVarValue::Restart));
+        }
+        break;
+        case ezCVarType::String:
+        {
+          ezCVarString* pString = (ezCVarString*)pCVar;
+          sTemp.Format("{0} = \"{1}\"\n", pCVar->GetName(), pString->GetValue(ezCVarValue::Restart));
+        }
+        break;
+        default:
+          EZ_REPORT_FAILURE("Unknown CVar Type: {0}", pCVar->GetType());
+          break;
+      }
+
+      // add the one line for that cvar to the config file
+      File.WriteBytes(sTemp.GetData(), sTemp.GetElementCount()).IgnoreResult();
+    }
   }
 }
 

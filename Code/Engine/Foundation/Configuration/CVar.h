@@ -120,6 +120,13 @@ public:
   /// So it might not be necessary to call this function manually at shutdown.
   static void SaveCVars(); // [tested]
 
+  /// \brief Stores all CVar values into the given file.
+  ///
+  /// This function works without setting a storage folder.
+  ///
+  /// \sa LoadCVarsFromFile()
+  static void SaveCVarsToFile(ezStringView path);
+
   /// \brief Calls LoadCVarsFromCommandLine() and then LoadCVarsFromFile()
   static void LoadCVars(bool bOnlyNewOnes = true, bool bSetAsCurrentValue = true); // [tested]
 
@@ -215,6 +222,9 @@ private:
 
   /// \brief Loads CVar values for the given vars from the given config file path. Returns the ezCVars which have actually been loaded.
   static void LoadCVarsFromFileInternal(ezStringView path, const ezDynamicArray<ezCVar*>& vars, bool bOnlyNewOnes, bool bSetAsCurrentValue, ezDynamicArray<ezCVar*>* pOutCVars);
+
+  /// \brief Stores the values of the given vars to the given config file path.
+  static void SaveCVarsToFileInternal(ezStringView path, const ezDynamicArray<ezCVar*>& vars);
 
   bool m_bHasNeverBeenLoaded = true; // next time 'LoadCVars' is called, its state will be changed
   ezStringView m_sName;
