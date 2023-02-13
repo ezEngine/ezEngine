@@ -2,6 +2,9 @@
 #include <GameComponentsPlugin/GameComponentsDLL.h>
 #include <GameEngine/AI/SensorComponent.h>
 
+struct ezMsgObjectGrabbed;
+struct ezMsgSensorDetectedObjectsChanged;
+
 /// \brief This event is posted by ezPowerConnectorComponent whenever the power input on a connector changes.
 ///
 /// When a connector gets input through it's connection to another connector, this message is sent.

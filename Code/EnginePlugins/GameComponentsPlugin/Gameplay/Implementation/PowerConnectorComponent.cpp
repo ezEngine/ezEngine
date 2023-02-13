@@ -1,5 +1,6 @@
 #include <GameComponentsPlugin/GameComponentsPCH.h>
 
+#include <Core/Interfaces/PhysicsWorldModule.h>
 #include <Core/Messages/SetColorMessage.h>
 #include <GameComponentsPlugin/Gameplay/PowerConnectorComponent.h>
 

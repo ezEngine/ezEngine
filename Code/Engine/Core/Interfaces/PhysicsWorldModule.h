@@ -186,7 +186,7 @@ struct EZ_CORE_DLL ezMsgPhysicsJointBroke : public ezEventMessage
 };
 
 /// \brief Sent by components such as ezJoltGrabObjectComponent to indicate that the object has been grabbed or released.
-class EZ_CORE_DLL ezMsgObjectGrabbed : public ezMessage
+struct EZ_CORE_DLL ezMsgObjectGrabbed : public ezMessage
 {
   EZ_DECLARE_MESSAGE_TYPE(ezMsgObjectGrabbed, ezMessage);
 
@@ -195,7 +195,7 @@ class EZ_CORE_DLL ezMsgObjectGrabbed : public ezMessage
 };
 
 /// \brief Send this to components such as ezJoltGrabObjectComponent to demand that m_hGrabbedObjectToRelease should no longer be grabbed.
-class EZ_CORE_DLL ezMsgReleaseObjectGrab : public ezMessage
+struct EZ_CORE_DLL ezMsgReleaseObjectGrab : public ezMessage
 {
   EZ_DECLARE_MESSAGE_TYPE(ezMsgReleaseObjectGrab, ezMessage);
 
