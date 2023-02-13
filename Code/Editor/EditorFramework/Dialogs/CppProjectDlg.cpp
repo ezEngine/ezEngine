@@ -7,10 +7,6 @@
 #include <Foundation/IO/OSFile.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 
-// TODO: make this work with binary release versions
-// TODO: pass in output bin/lib dir
-// TODO: allow relocating Output dir (?)
-
 ezQtCppProjectDlg::ezQtCppProjectDlg(QWidget* parent)
   : QDialog(parent)
 {
@@ -175,6 +171,9 @@ ezResult ezQtCppProjectDlg::GenerateSolution()
     tmp.Format("-DEZ_SDK_DIR:PATH={}", sSdkDir);
     args << tmp.GetData();
 
+    tmp.Format("-DEZ_BUILDTYPE_ONLY:STRING={}", BUILDSYSTEM_BUILDTYPE);
+    args << tmp.GetData();
+
     args << "-G";
     args << GetGeneratorCMake().GetData();
 
@@ -246,7 +245,7 @@ void ezQtCppProjectDlg::on_GenerateSolution_clicked()
   else
   {
     ezStringBuilder txt;
-    txt.Format("The solution was generated successfully.\n\nMake sure to compile it with the same build type with which you use the editor.\nYou are currently running a '{}' build.\n\nDo you want to open the solution now?", BUILDSYSTEM_BUILDTYPE);
+    txt.Format("The solution was generated successfully.\n\nDo you want to open the solution now?");
 
     if (ezQtUiServices::GetSingleton()->MessageBoxQuestion(txt, QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes) == QMessageBox::Yes)
     {
