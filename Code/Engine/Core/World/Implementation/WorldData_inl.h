@@ -35,9 +35,9 @@ namespace ezInternal
     Hierarchy::DataBlockArray& blocks, void* pUserData /* = nullptr*/)
   {
     ezParallelForParams parallelForParams;
-    parallelForParams.uiBinSize = 100;
-    parallelForParams.uiMaxTasksPerThread = 2;
-    parallelForParams.pTaskAllocator = m_StackAllocator.GetCurrentAllocator();
+    parallelForParams.m_uiBinSize = 100;
+    parallelForParams.m_uiMaxTasksPerThread = 2;
+    parallelForParams.m_pTaskAllocator = m_StackAllocator.GetCurrentAllocator();
 
     ezTaskSystem::ParallelFor(
       blocks.GetArrayPtr(),

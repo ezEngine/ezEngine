@@ -611,12 +611,12 @@ public:
     {
       case ezLogMsgType::ErrorMsg:
         m_Status = EZ_FAILURE;
-        m_sResult.Append("Error: ", le.m_szText, "\n");
+        m_sResult.Append("Error: ", le.m_sText, "\n");
         break;
 
       case ezLogMsgType::SeriousWarningMsg:
       case ezLogMsgType::WarningMsg:
-        m_sResult.Append("Warning: ", le.m_szText, "\n");
+        m_sResult.Append("Warning: ", le.m_sText, "\n");
         break;
 
       default:

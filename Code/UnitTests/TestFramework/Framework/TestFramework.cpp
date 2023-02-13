@@ -511,12 +511,14 @@ void ezTestFramework::TimeoutThread()
     if (m_uiTimeoutMS == 0)
     {
       // If no timeout is set, we simply put the thread to sleep.
-      m_TimeoutCV.wait(lock, [this] { return !m_bUseTimeout; });
+      m_TimeoutCV.wait(lock, [this]
+        { return !m_bUseTimeout; });
     }
     // We want to be notified when we reach the timeout and not when we are spuriously woken up.
     // Thus we continue waiting via the predicate if we are still using a timeout until we are either
     // woken up via the CV or reach the timeout.
-    else if (!m_TimeoutCV.wait_for(lock, std::chrono::milliseconds(m_uiTimeoutMS), [this] { return !m_bUseTimeout || m_bArm; }))
+    else if (!m_TimeoutCV.wait_for(lock, std::chrono::milliseconds(m_uiTimeoutMS), [this]
+               { return !m_bUseTimeout || m_bArm; }))
     {
       if (ezSystemInformation::IsDebuggerAttached())
       {
@@ -645,23 +647,25 @@ void ezTestFramework::StartTests()
 // Redirects engine warnings / errors to test-framework output
 static void LogWriter(const ezLoggingEventData& e)
 {
+  const ezStringBuilder sText = e.m_sText;
+
   switch (e.m_EventType)
   {
     case ezLogMsgType::ErrorMsg:
-      ezTestFramework::Output(ezTestOutput::Error, "ezLog Error: %s", e.m_szText);
+      ezTestFramework::Output(ezTestOutput::Error, "ezLog Error: %s", sText.GetData());
       break;
     case ezLogMsgType::SeriousWarningMsg:
-      ezTestFramework::Output(ezTestOutput::Error, "ezLog Serious Warning: %s", e.m_szText);
+      ezTestFramework::Output(ezTestOutput::Error, "ezLog Serious Warning: %s", sText.GetData());
       break;
     case ezLogMsgType::WarningMsg:
-      ezTestFramework::Output(ezTestOutput::Warning, "ezLog Warning: %s", e.m_szText);
+      ezTestFramework::Output(ezTestOutput::Warning, "ezLog Warning: %s", sText.GetData());
       break;
     case ezLogMsgType::InfoMsg:
     case ezLogMsgType::DevMsg:
     case ezLogMsgType::DebugMsg:
     {
-      if (ezStringUtils::IsEqual_NoCase(e.m_szTag, "test"))
-        ezTestFramework::Output(ezTestOutput::Details, e.m_szText);
+      if (e.m_sTag.IsEqual_NoCase("test"))
+        ezTestFramework::Output(ezTestOutput::Details, sText.GetData());
     }
     break;
 
@@ -783,7 +787,7 @@ void ezTestFramework::ExecuteNextTest()
           m_bImageComparisonScheduled = false;
         }
 
-        
+
         if (m_bDepthImageComparisonScheduled)
         {
           EZ_TEST_DEPTH_IMAGE(m_uiComparisonDepthImageNumber, m_uiMaxDepthImageComparisonError);
@@ -1653,21 +1657,21 @@ void ezTestFramework::OutputArgs(ezTestOutput::Enum Type, const char* szMsg, va_
   GetInstance()->OutputImpl(Type, szBuffer);
 }
 
-void ezTestFramework::Error(const char* szError, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...)
+void ezTestFramework::Error(const char* szError, const char* szFile, ezInt32 iLine, const char* szFunction, ezStringView sMsg, ...)
 {
   va_list args;
-  va_start(args, szMsg);
+  va_start(args, sMsg);
 
-  Error(szError, szFile, iLine, szFunction, szMsg, args);
+  Error(szError, szFile, iLine, szFunction, sMsg, args);
 
   va_end(args);
 }
 
-void ezTestFramework::Error(const char* szError, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, va_list args)
+void ezTestFramework::Error(const char* szError, const char* szFile, ezInt32 iLine, const char* szFunction, ezStringView sMsg, va_list args)
 {
   // format the output text
   char szBuffer[1024 * 10];
-  ezStringUtils::vsnprintf(szBuffer, EZ_ARRAY_SIZE(szBuffer), szMsg, args);
+  ezStringUtils::vsnprintf(szBuffer, EZ_ARRAY_SIZE(szBuffer), ezString(sMsg).GetData(), args);
 
   GetInstance()->ErrorImpl(szError, szFile, iLine, szFunction, szBuffer);
 }

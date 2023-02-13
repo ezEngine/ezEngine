@@ -184,3 +184,4 @@ private:
   QPersistentModelIndex m_Hovered;
   QPersistentModelIndex m_Focused;
 };
+

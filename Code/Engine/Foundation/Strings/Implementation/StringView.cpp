@@ -137,6 +137,24 @@ ezStringView ezStringView::GetShrunk(ezUInt32 uiShrinkCharsFront, ezUInt32 uiShr
   return tmp;
 }
 
+void ezStringView::ChopAwayFirstCharacterUtf8()
+{
+  if (IsValid())
+  {
+    ezUnicodeUtils::MoveToNextUtf8(m_pStart, m_pEnd, 1);
+  }
+}
+
+void ezStringView::ChopAwayFirstCharacterAscii()
+{
+  if (IsValid())
+  {
+    EZ_ASSERT_DEBUG(ezUnicodeUtils::IsASCII(*m_pStart), "ChopAwayFirstCharacterAscii() was called on a non-ASCII character.");
+
+    m_pStart += 1;
+  }
+}
+
 bool ezStringView::TrimWordStart(ezStringView sWord1, ezStringView sWord2, ezStringView sWord3, ezStringView sWord4, ezStringView sWord5)
 {
   /// \test TrimWordStart

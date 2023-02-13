@@ -102,10 +102,10 @@ private:
     ezMap<ezString, FileCacheStatus> m_CacheStatus;
   };
 
-  void DeleteFile(ezUInt16 uiDataDir, const char* szFile);
-  ezUInt16 MountDataDirectory(const char* szDataDir, const char* szRootName);
+  void DeleteFile(ezUInt16 uiDataDir, ezStringView sFile);
+  ezUInt16 MountDataDirectory(ezStringView sDataDir, ezStringView sRootName);
   void UnmountDataDirectory(ezUInt16 uiDataDir);
-  static void ComputeDataDirMountPoint(const char* szDataDir, ezStringBuilder& out_sMountPoint);
+  static void ComputeDataDirMountPoint(ezStringView sDataDir, ezStringBuilder& out_sMountPoint);
   void BuildPathInCache(const char* szFile, const char* szMountPoint, ezStringBuilder* out_pAbsPath, ezStringBuilder* out_pFullPathMeta) const;
   void GetFullDataDirCachePath(const char* szDataDir, ezStringBuilder& out_sFullPath, ezStringBuilder& out_sFullPathMeta) const;
   void NetworkMsgHandler(ezRemoteMessage& msg);
@@ -116,7 +116,7 @@ private:
   ezResult DownloadFile(ezUInt16 uiDataDirID, const char* szFile, bool bForceThisDataDir, ezStringBuilder* out_pFullPath);
   void DetermineCacheStatus(ezUInt16 uiDataDirID, const char* szFile, FileCacheStatus& out_Status) const;
   void UploadFile(ezUInt16 uiDataDirID, const char* szFile, const ezDynamicArray<ezUInt8>& fileContent);
-  void InvalidateFileCache(ezUInt16 uiDataDirID, const char* szFile, ezUInt64 uiHash);
+  void InvalidateFileCache(ezUInt16 uiDataDirID, ezStringView sFile, ezUInt64 uiHash);
   static ezResult TryReadFileserveConfig(const char* szFile, ezStringBuilder& out_Result);
   ezResult TryConnectWithFileserver(const char* szAddress, ezTime timeout) const;
   void FillFileStatusCache(const char* szFile);

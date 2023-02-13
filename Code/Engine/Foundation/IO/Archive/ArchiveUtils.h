@@ -41,14 +41,14 @@ namespace ezArchiveUtils
   ///
   /// Appends information to the TOC for finding the data in the stream. Reads and updates inout_uiCurrentStreamPosition with the data byte
   /// offset. The progress callback is executed for every couple of KB of data that were written.
-  EZ_FOUNDATION_DLL ezResult WriteEntry(ezStreamWriter& stream, const char* szAbsSourcePath, ezUInt32 uiPathStringOffset,
-    ezArchiveCompressionMode compression, ezArchiveEntry& tocEntry, ezUInt64& inout_uiCurrentStreamPosition,
+  EZ_FOUNDATION_DLL ezResult WriteEntry(ezStreamWriter& stream, ezStringView sAbsSourcePath, ezUInt32 uiPathStringOffset,
+    ezArchiveCompressionMode compression, ezInt32 iCompressionLevel, ezArchiveEntry& tocEntry, ezUInt64& inout_uiCurrentStreamPosition,
     FileWriteProgressCallback progress = FileWriteProgressCallback());
 
   /// \brief Similar to WriteEntry, but if compression is enabled, checks that compression makes enough of a difference.
   /// If compression does not reduce file size enough, the file is stored uncompressed instead.
-  EZ_FOUNDATION_DLL ezResult WriteEntryOptimal(ezStreamWriter& stream, const char* szAbsSourcePath, ezUInt32 uiPathStringOffset,
-    ezArchiveCompressionMode compression, ezArchiveEntry& tocEntry, ezUInt64& inout_uiCurrentStreamPosition,
+  EZ_FOUNDATION_DLL ezResult WriteEntryOptimal(ezStreamWriter& stream, ezStringView sAbsSourcePath, ezUInt32 uiPathStringOffset,
+    ezArchiveCompressionMode compression, ezInt32 iCompressionLevel, ezArchiveEntry& tocEntry, ezUInt64& inout_uiCurrentStreamPosition,
     FileWriteProgressCallback progress = FileWriteProgressCallback());
 
   /// \brief Configures \a memReader as a view into the data stored for \a entry in the archive file.

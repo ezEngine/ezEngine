@@ -44,12 +44,12 @@ ezMemoryMappedFile::~ezMemoryMappedFile()
   Close();
 }
 
-ezResult ezMemoryMappedFile::Open(const char* szAbsolutePath, Mode mode)
+ezResult ezMemoryMappedFile::Open(ezStringView sAbsolutePath, Mode mode)
 {
   EZ_ASSERT_DEV(mode != Mode::None, "Invalid mode to open the memory mapped file");
-  EZ_ASSERT_DEV(ezPathUtils::IsAbsolutePath(szAbsolutePath), "ezMemoryMappedFile::Open() can only be used with absolute file paths");
+  EZ_ASSERT_DEV(ezPathUtils::IsAbsolutePath(sAbsolutePath), "ezMemoryMappedFile::Open() can only be used with absolute file paths");
 
-  EZ_LOG_BLOCK("MemoryMapFile", szAbsolutePath);
+  EZ_LOG_BLOCK("MemoryMapFile", sAbsolutePath);
 
 
   Close();
@@ -63,7 +63,7 @@ ezResult ezMemoryMappedFile::Open(const char* szAbsolutePath, Mode mode)
     access |= GENERIC_WRITE;
   }
 
-  m_pImpl->m_hFile = CreateFileW(ezDosDevicePath(szAbsolutePath), access, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+  m_pImpl->m_hFile = CreateFileW(ezDosDevicePath(sAbsolutePath), access, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
 
   DWORD errorCode = GetLastError();
 
@@ -106,12 +106,12 @@ ezResult ezMemoryMappedFile::Open(const char* szAbsolutePath, Mode mode)
   return EZ_SUCCESS;
 }
 
-ezResult ezMemoryMappedFile::OpenShared(const char* szSharedName, ezUInt64 uiSize, Mode mode)
+ezResult ezMemoryMappedFile::OpenShared(ezStringView sSharedName, ezUInt64 uiSize, Mode mode)
 {
   EZ_ASSERT_DEV(mode != Mode::None, "Invalid mode to open the memory mapped file");
   EZ_ASSERT_DEV(uiSize > 0, "ezMemoryMappedFile::OpenShared() needs a valid file size to map");
 
-  EZ_LOG_BLOCK("MemoryMapFile", szSharedName);
+  EZ_LOG_BLOCK("MemoryMapFile", sSharedName);
 
   Close();
 
@@ -122,7 +122,7 @@ ezResult ezMemoryMappedFile::OpenShared(const char* szSharedName, ezUInt64 uiSiz
   DWORD sizeLow = static_cast<DWORD>(uiSize & 0xFFFFFFFFu);
 
   m_pImpl->m_hMapping = CreateFileMappingW(INVALID_HANDLE_VALUE, nullptr, m_pImpl->m_Mode == Mode::ReadOnly ? PAGE_READONLY : PAGE_READWRITE, sizeHigh,
-    sizeLow, ezStringWChar(szSharedName).GetData());
+    sizeLow, ezStringWChar(sSharedName).GetData());
 
   if (m_pImpl->m_hMapping == nullptr || m_pImpl->m_hMapping == INVALID_HANDLE_VALUE)
   {

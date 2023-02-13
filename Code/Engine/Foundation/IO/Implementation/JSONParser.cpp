@@ -608,7 +608,10 @@ void ezJSONParser::ReadString()
         case 'u':
         {
           ezUInt16 cpt[2];
-          auto ReadUtf16CodePoint = [&](ezUInt16& uiCodePoint) -> bool {
+          auto ReadUtf16CodePoint = [&](ezUInt16& uiCodePoint) -> bool
+          {
+            uiCodePoint = 0;
+
             // Unicode literal are utf16 in the format \uFFFF. The hex number FFFF can be upper or lower case but must be 4 characters long.
             ezUInt8 unicodeLiteral[5] = {0, 0, 0, 0, 0};
             ezUInt32 i = 0;
@@ -616,7 +619,7 @@ void ezJSONParser::ReadString()
             {
               if (m_uiNextByte == '\0' || m_uiNextByte == '\"')
               {
-                ParsingError("Unicode literal is too short, must be 4 hex characters.", false);
+                ParsingError("Unicode literal is too short, must be 4 HEX characters.", false);
                 return false;
               }
               if ((m_uiNextByte < '0' || m_uiNextByte > '9') && (m_uiNextByte < 'A' || m_uiNextByte > 'F') && (m_uiNextByte < 'a' || m_uiNextByte > 'f'))
@@ -628,7 +631,17 @@ void ezJSONParser::ReadString()
 
               unicodeLiteral[i] = m_uiCurByte;
             }
-            uiCodePoint = static_cast<ezUInt16>(ezConversionUtils::ConvertHexStringToUInt32((const char*)&unicodeLiteral[0]));
+
+            ezUInt32 uiHexValue = 0;
+            if (ezConversionUtils::ConvertHexStringToUInt32((const char*)&unicodeLiteral[0], uiHexValue).Succeeded())
+            {
+              uiCodePoint = static_cast<ezUInt16>(uiHexValue);
+            }
+            else
+            {
+              ParsingError("Unicode HEX literal is malformed.", false);
+            }
+
             return true;
           };
           if (ReadUtf16CodePoint(cpt[0]))

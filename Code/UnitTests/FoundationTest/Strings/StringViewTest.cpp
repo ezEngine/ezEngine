@@ -290,6 +290,48 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringView)
     EZ_TEST_BOOL(!it.IsValid());
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ChopAwayFirstCharacterUtf8")
+  {
+    ezStringUtf8 utf8(L"О, Господи!");
+    ezStringView s(utf8.GetData());
+
+    const char* szOrgStart = s.GetStartPointer();
+    const char* szOrgEnd = s.GetEndPointer();
+
+    while (!s.IsEmpty())
+    {
+      const ezUInt32 uiNumCharsBefore = ezStringUtils::GetCharacterCount(s.GetStartPointer(), s.GetEndPointer());
+      s.ChopAwayFirstCharacterUtf8();
+      const ezUInt32 uiNumCharsAfter = ezStringUtils::GetCharacterCount(s.GetStartPointer(), s.GetEndPointer());
+
+      EZ_TEST_INT(uiNumCharsBefore, uiNumCharsAfter + 1);
+    }
+
+    // this needs to be true, some code relies on the fact that the start pointer always moves forwards
+    EZ_TEST_BOOL(s.GetStartPointer() == szOrgEnd);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ChopAwayFirstCharacterAscii")
+  {
+    ezStringUtf8 utf8(L"Wosn Schmarrn");
+    ezStringView s("");
+
+    const char* szOrgStart = s.GetStartPointer();
+    const char* szOrgEnd = s.GetEndPointer();
+
+    while (!s.IsEmpty())
+    {
+      const ezUInt32 uiNumCharsBefore = s.GetElementCount();
+      s.ChopAwayFirstCharacterAscii();
+      const ezUInt32 uiNumCharsAfter = s.GetElementCount();
+
+      EZ_TEST_INT(uiNumCharsBefore, uiNumCharsAfter + 1);
+    }
+
+    // this needs to be true, some code relies on the fact that the start pointer always moves forwards
+    EZ_TEST_BOOL(s.GetStartPointer() == szOrgEnd);
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Trim")
   {
     // Empty input

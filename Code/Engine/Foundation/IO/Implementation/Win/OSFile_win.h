@@ -23,7 +23,7 @@ static ezUInt64 HighLowToUInt64(ezUInt32 uiHigh32, ezUInt32 uiLow32)
 
 #  include <Shlobj.h>
 
-ezResult ezOSFile::InternalOpen(const char* szFile, ezFileOpenMode::Enum OpenMode, ezFileShareMode::Enum FileShareMode)
+ezResult ezOSFile::InternalOpen(ezStringView sFile, ezFileOpenMode::Enum OpenMode, ezFileShareMode::Enum FileShareMode)
 {
   const ezTime sleepTime = ezTime::Milliseconds(20);
   ezInt32 iRetries = 20;
@@ -57,15 +57,15 @@ ezResult ezOSFile::InternalOpen(const char* szFile, ezFileOpenMode::Enum OpenMod
     switch (OpenMode)
     {
       case ezFileOpenMode::Read:
-        m_FileData.m_pFileHandle = CreateFileW(ezDosDevicePath(szFile), GENERIC_READ, dwSharedMode, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+        m_FileData.m_pFileHandle = CreateFileW(ezDosDevicePath(sFile), GENERIC_READ, dwSharedMode, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
         break;
 
       case ezFileOpenMode::Write:
-        m_FileData.m_pFileHandle = CreateFileW(ezDosDevicePath(szFile), GENERIC_WRITE, dwSharedMode, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
+        m_FileData.m_pFileHandle = CreateFileW(ezDosDevicePath(sFile), GENERIC_WRITE, dwSharedMode, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
         break;
 
       case ezFileOpenMode::Append:
-        m_FileData.m_pFileHandle = CreateFileW(ezDosDevicePath(szFile), FILE_APPEND_DATA, dwSharedMode, nullptr, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
+        m_FileData.m_pFileHandle = CreateFileW(ezDosDevicePath(sFile), FILE_APPEND_DATA, dwSharedMode, nullptr, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
 
         // in append mode we need to set the file pointer to the end explicitly, otherwise GetFilePosition might return 0 the first time
         if ((m_FileData.m_pFileHandle != nullptr) && (m_FileData.m_pFileHandle != INVALID_HANDLE_VALUE))
@@ -80,7 +80,7 @@ ezResult ezOSFile::InternalOpen(const char* szFile, ezFileOpenMode::Enum OpenMod
 
     if (res.Failed())
     {
-      if (ezOSFile::ExistsDirectory(szFile))
+      if (ezOSFile::ExistsDirectory(sFile))
       {
         // trying to 'open' a directory fails with little useful error codes such as 'access denied'
         return EZ_FAILURE;
@@ -220,23 +220,23 @@ void ezOSFile::InternalSetFilePosition(ezInt64 iDistance, ezFileSeekMode::Enum P
   }
 }
 
-bool ezOSFile::InternalExistsFile(const char* szFile)
+bool ezOSFile::InternalExistsFile(ezStringView sFile)
 {
-  const DWORD dwAttrib = GetFileAttributesW(ezDosDevicePath(szFile).GetData());
+  const DWORD dwAttrib = GetFileAttributesW(ezDosDevicePath(sFile).GetData());
 
   return ((dwAttrib != INVALID_FILE_ATTRIBUTES) && ((dwAttrib & FILE_ATTRIBUTE_DIRECTORY) == 0));
 }
 
-bool ezOSFile::InternalExistsDirectory(const char* szDirectory)
+bool ezOSFile::InternalExistsDirectory(ezStringView sDirectory)
 {
-  const DWORD dwAttrib = GetFileAttributesW(ezDosDevicePath(szDirectory));
+  const DWORD dwAttrib = GetFileAttributesW(ezDosDevicePath(sDirectory));
 
   return ((dwAttrib != INVALID_FILE_ATTRIBUTES) && ((dwAttrib & FILE_ATTRIBUTE_DIRECTORY) != 0));
 }
 
-ezResult ezOSFile::InternalDeleteFile(const char* szFile)
+ezResult ezOSFile::InternalDeleteFile(ezStringView sFile)
 {
-  if (DeleteFileW(ezDosDevicePath(szFile)) == FALSE)
+  if (DeleteFileW(ezDosDevicePath(sFile)) == FALSE)
   {
     if (GetLastError() == ERROR_FILE_NOT_FOUND)
       return EZ_SUCCESS;
@@ -247,9 +247,9 @@ ezResult ezOSFile::InternalDeleteFile(const char* szFile)
   return EZ_SUCCESS;
 }
 
-ezResult ezOSFile::InternalDeleteDirectory(const char* szDirectory)
+ezResult ezOSFile::InternalDeleteDirectory(ezStringView sDirectory)
 {
-  if (RemoveDirectoryW(ezDosDevicePath(szDirectory)) == FALSE)
+  if (RemoveDirectoryW(ezDosDevicePath(sDirectory)) == FALSE)
   {
     if (GetLastError() == ERROR_FILE_NOT_FOUND)
       return EZ_SUCCESS;
@@ -260,13 +260,13 @@ ezResult ezOSFile::InternalDeleteDirectory(const char* szDirectory)
   return EZ_SUCCESS;
 }
 
-ezResult ezOSFile::InternalCreateDirectory(const char* szDirectory)
+ezResult ezOSFile::InternalCreateDirectory(ezStringView sDirectory)
 {
   // handle drive letters as always successful
-  if (ezStringUtils::GetCharacterCount(szDirectory) <= 3) // 'C:\'
+  if (ezStringUtils::GetCharacterCount(sDirectory.GetStartPointer(), sDirectory.GetEndPointer()) <= 3) // 'C:\'
     return EZ_SUCCESS;
 
-  if (CreateDirectoryW(ezDosDevicePath(szDirectory), nullptr) == FALSE)
+  if (CreateDirectoryW(ezDosDevicePath(sDirectory), nullptr) == FALSE)
   {
     const DWORD uiError = GetLastError();
     if (uiError == ERROR_ALREADY_EXISTS)
@@ -278,9 +278,9 @@ ezResult ezOSFile::InternalCreateDirectory(const char* szDirectory)
   return EZ_SUCCESS;
 }
 
-ezResult ezOSFile::InternalMoveFileOrDirectory(const char* szDirectoryFrom, const char* szDirectoryTo)
+ezResult ezOSFile::InternalMoveFileOrDirectory(ezStringView sDirectoryFrom, ezStringView sDirectoryTo)
 {
-  if (MoveFileW(ezDosDevicePath(szDirectoryFrom), ezDosDevicePath(szDirectoryTo)) == 0)
+  if (MoveFileW(ezDosDevicePath(sDirectoryFrom), ezDosDevicePath(sDirectoryTo)) == 0)
   {
     return EZ_FAILURE;
   }
@@ -289,9 +289,9 @@ ezResult ezOSFile::InternalMoveFileOrDirectory(const char* szDirectoryFrom, cons
 
 #endif // not EZ_USE_POSIX_FILE_API
 
-ezResult ezOSFile::InternalGetFileStats(const char* szFileOrFolder, ezFileStats& out_Stats)
+ezResult ezOSFile::InternalGetFileStats(ezStringView sFileOrFolder, ezFileStats& out_Stats)
 {
-  ezStringBuilder s = szFileOrFolder;
+  ezStringBuilder s = sFileOrFolder;
 
   // FindFirstFile does not like paths that end with a separator, so remove them all
   s.Trim(nullptr, "/\\");
@@ -317,7 +317,7 @@ ezResult ezOSFile::InternalGetFileStats(const char* szFileOrFolder, ezFileStats&
 
   out_Stats.m_uiFileSize = HighLowToUInt64(data.nFileSizeHigh, data.nFileSizeLow);
   out_Stats.m_bIsDirectory = (data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
-  out_Stats.m_sParentPath = szFileOrFolder;
+  out_Stats.m_sParentPath = sFileOrFolder;
   out_Stats.m_sParentPath.PathParentDirectory();
   out_Stats.m_sName = data.cFileName;
   out_Stats.m_LastModificationTime.SetInt64(FileTimeToEpoch(data.ftLastWriteTime), ezSIUnitOfTime::Microsecond);
@@ -344,13 +344,13 @@ bool ezFileSystemIterator::IsValid() const
   return !m_Data.m_Handles.IsEmpty();
 }
 
-void ezFileSystemIterator::StartSearch(const char* szSearchStart, ezBitflags<ezFileSystemIteratorFlags> flags /*= ezFileSystemIteratorFlags::All*/)
+void ezFileSystemIterator::StartSearch(ezStringView sSearchStart, ezBitflags<ezFileSystemIteratorFlags> flags /*= ezFileSystemIteratorFlags::All*/)
 {
   EZ_ASSERT_DEV(m_Data.m_Handles.IsEmpty(), "Cannot start another search.");
 
-  m_sSearchTerm = szSearchStart;
+  m_sSearchTerm = sSearchStart;
 
-  ezStringBuilder sSearch = szSearchStart;
+  ezStringBuilder sSearch = sSearchStart;
   sSearch.MakeCleanPath();
 
   // same as just passing in the folder path, so remove this
@@ -562,7 +562,7 @@ const char* ezOSFile::GetApplicationDirectory()
 #  include <windows.storage.h>
 #endif
 
-ezString ezOSFile::GetUserDataFolder(const char* szSubFolder)
+ezString ezOSFile::GetUserDataFolder(ezStringView sSubFolder)
 {
   if (s_sUserDataPath.IsEmpty())
   {
@@ -601,12 +601,12 @@ ezString ezOSFile::GetUserDataFolder(const char* szSubFolder)
   }
 
   ezStringBuilder s = s_sUserDataPath;
-  s.AppendPath(szSubFolder);
+  s.AppendPath(sSubFolder);
   s.MakeCleanPath();
   return s;
 }
 
-ezString ezOSFile::GetTempDataFolder(const char* szSubFolder /*= nullptr*/)
+ezString ezOSFile::GetTempDataFolder(ezStringView sSubFolder /*= nullptr*/)
 {
   ezStringBuilder s;
 
@@ -649,7 +649,7 @@ ezString ezOSFile::GetTempDataFolder(const char* szSubFolder /*= nullptr*/)
   }
 
   s = s_sTempDataPath;
-  s.AppendPath(szSubFolder);
+  s.AppendPath(sSubFolder);
   s.MakeCleanPath();
   return s;
 }

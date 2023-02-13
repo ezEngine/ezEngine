@@ -772,7 +772,7 @@ void ezStringBuilder::AppendPath(ezStringView sPath1, ezStringView sPath2, ezStr
       {
         // prevent creating multiple path separators through concatenation
         while (ezPathUtils::IsPathSeparator(*sThisPath.GetStartPointer()))
-          sThisPath.Shrink(1, 0);
+          sThisPath.ChopAwayFirstCharacterAscii();
       }
 
       if (IsEmpty() || ezPathUtils::IsPathSeparator(GetIteratorBack().GetCharacter()))
@@ -853,7 +853,7 @@ void ezStringBuilder::ChangeFileExtension(ezStringView sNewExtension)
 {
   while (sNewExtension.StartsWith("."))
   {
-    sNewExtension.Shrink(1, 0);
+    sNewExtension.ChopAwayFirstCharacterAscii();
   }
 
   const ezStringView it = ezPathUtils::GetFileExtension(GetView());

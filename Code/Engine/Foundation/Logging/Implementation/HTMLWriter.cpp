@@ -75,9 +75,9 @@ void ezLogWriter::HTML::LogMessageHandler(const ezLoggingEventData& eventData)
   if (!m_File.IsOpen())
     return;
 
-  ezStringBuilder sOriginalText = eventData.m_szText;
+  ezStringBuilder sOriginalText = eventData.m_sText;
 
-  ezStringBuilder sTag = eventData.m_szTag;
+  ezStringBuilder sTag = eventData.m_sTag;
 
   // Cannot write <, > or & to HTML, must be escaped
   sOriginalText.ReplaceAll("&", "&amp;");
@@ -164,10 +164,10 @@ void ezLogWriter::HTML::LogMessageHandler(const ezLoggingEventData& eventData)
   }
 }
 
-void ezLogWriter::HTML::WriteString(const char* szString, ezUInt32 uiColor)
+void ezLogWriter::HTML::WriteString(ezStringView sText, ezUInt32 uiColor)
 {
   ezStringBuilder sTemp;
-  sTemp.Format("<font color=\"#{0}\">{1}</font>", ezArgU(uiColor, 1, false, 16, true), szString);
+  sTemp.Format("<font color=\"#{0}\">{1}</font>", ezArgU(uiColor, 1, false, 16, true), sText);
 
   m_File.WriteBytes(sTemp.GetData(), sizeof(char) * sTemp.GetElementCount()).IgnoreResult();
 }

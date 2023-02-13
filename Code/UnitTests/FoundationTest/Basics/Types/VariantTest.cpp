@@ -263,21 +263,45 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(b.IsFloatingPoint() == false);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezInt8") { TestIntegerVariant<ezInt8>(ezVariant::Type::Int8); }
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezInt8")
+  {
+    TestIntegerVariant<ezInt8>(ezVariant::Type::Int8);
+  }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezUInt8") { TestIntegerVariant<ezUInt8>(ezVariant::Type::UInt8); }
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezUInt8")
+  {
+    TestIntegerVariant<ezUInt8>(ezVariant::Type::UInt8);
+  }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezInt16") { TestIntegerVariant<ezInt16>(ezVariant::Type::Int16); }
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezInt16")
+  {
+    TestIntegerVariant<ezInt16>(ezVariant::Type::Int16);
+  }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezUInt16") { TestIntegerVariant<ezUInt16>(ezVariant::Type::UInt16); }
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezUInt16")
+  {
+    TestIntegerVariant<ezUInt16>(ezVariant::Type::UInt16);
+  }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezInt32") { TestIntegerVariant<ezInt32>(ezVariant::Type::Int32); }
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezInt32")
+  {
+    TestIntegerVariant<ezInt32>(ezVariant::Type::Int32);
+  }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezUInt32") { TestIntegerVariant<ezUInt32>(ezVariant::Type::UInt32); }
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezUInt32")
+  {
+    TestIntegerVariant<ezUInt32>(ezVariant::Type::UInt32);
+  }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezInt64") { TestIntegerVariant<ezInt64>(ezVariant::Type::Int64); }
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezInt64")
+  {
+    TestIntegerVariant<ezInt64>(ezVariant::Type::Int64);
+  }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezUInt64") { TestIntegerVariant<ezUInt64>(ezVariant::Type::UInt64); }
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezUInt64")
+  {
+    TestIntegerVariant<ezUInt64>(ezVariant::Type::UInt64);
+  }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "float")
   {
@@ -1693,3 +1717,5 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::VariantDictionary).Get<ezVariantDictionary>() == va);
   }
 }
+
+#pragma optimize("", on)

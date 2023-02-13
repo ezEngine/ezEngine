@@ -59,10 +59,10 @@ ezDirectoryWatcher::ezDirectoryWatcher()
   m_pImpl->m_buffer.SetCountUninitialized(1024 * 1024);
 }
 
-ezResult ezDirectoryWatcher::OpenDirectory(const ezString& absolutePath, ezBitflags<Watch> whatToWatch)
+ezResult ezDirectoryWatcher::OpenDirectory(ezStringView sAbsolutePath, ezBitflags<Watch> whatToWatch)
 {
   EZ_ASSERT_DEV(m_sDirectoryPath.IsEmpty(), "Directory already open, call CloseDirectory first!");
-  ezStringBuilder sPath(absolutePath);
+  ezStringBuilder sPath(sAbsolutePath);
   sPath.MakeCleanPath();
   sPath.Trim("/");
 

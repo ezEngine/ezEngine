@@ -34,7 +34,7 @@ ezResult FileLocator(const char* szCurAbsoluteFile, const char* szIncludeFile, e
 class Logger : public ezLogInterface
 {
 public:
-  virtual void HandleLogMessage(const ezLoggingEventData& le) override { m_sOutput.AppendFormat("Log: '{0}'\r\n", le.m_szText); }
+  virtual void HandleLogMessage(const ezLoggingEventData& le) override { m_sOutput.AppendFormat("Log: '{0}'\r\n", le.m_sText); }
 
   void EventHandler(const ezPreprocessor::ProcessingEvent& ed)
   {

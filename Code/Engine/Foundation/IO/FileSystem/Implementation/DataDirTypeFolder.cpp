@@ -32,11 +32,20 @@ namespace ezDataDirectory
     return m_File.Open(sPath.GetData(), ezFileOpenMode::Read, FileShareMode);
   }
 
-  void FolderReader::InternalClose() { m_File.Close(); }
+  void FolderReader::InternalClose()
+  {
+    m_File.Close();
+  }
 
-  ezUInt64 FolderReader::Read(void* pBuffer, ezUInt64 uiBytes) { return m_File.Read(pBuffer, uiBytes); }
+  ezUInt64 FolderReader::Read(void* pBuffer, ezUInt64 uiBytes)
+  {
+    return m_File.Read(pBuffer, uiBytes);
+  }
 
-  ezUInt64 FolderReader::GetFileSize() const { return m_File.GetFileSize(); }
+  ezUInt64 FolderReader::GetFileSize() const
+  {
+    return m_File.GetFileSize();
+  }
 
   ezResult FolderWriter::InternalOpen(ezFileShareMode::Enum FileShareMode)
   {
@@ -46,17 +55,26 @@ namespace ezDataDirectory
     return m_File.Open(sPath.GetData(), ezFileOpenMode::Write, FileShareMode);
   }
 
-  void FolderWriter::InternalClose() { m_File.Close(); }
+  void FolderWriter::InternalClose()
+  {
+    m_File.Close();
+  }
 
-  ezResult FolderWriter::Write(const void* pBuffer, ezUInt64 uiBytes) { return m_File.Write(pBuffer, uiBytes); }
+  ezResult FolderWriter::Write(const void* pBuffer, ezUInt64 uiBytes)
+  {
+    return m_File.Write(pBuffer, uiBytes);
+  }
 
-  ezUInt64 FolderWriter::GetFileSize() const { return m_File.GetFileSize(); }
+  ezUInt64 FolderWriter::GetFileSize() const
+  {
+    return m_File.GetFileSize();
+  }
 
-  ezDataDirectoryType* FolderType::Factory(const char* szDataDirectory, const char* szGroup, const char* szRootName, ezFileSystem::DataDirUsage Usage)
+  ezDataDirectoryType* FolderType::Factory(ezStringView sDataDirectory, ezStringView sGroup, ezStringView sRootName, ezFileSystem::DataDirUsage Usage)
   {
     FolderType* pDataDir = EZ_DEFAULT_NEW(FolderType);
 
-    if (pDataDir->InitializeDataDirectory(szDataDirectory) == EZ_SUCCESS)
+    if (pDataDir->InitializeDataDirectory(sDataDirectory) == EZ_SUCCESS)
       return pDataDir;
 
     EZ_DEFAULT_DELETE(pDataDir);
@@ -81,10 +99,10 @@ namespace ezDataDirectory
     EZ_DEFAULT_DELETE(pThis);
   }
 
-  void FolderType::DeleteFile(const char* szFile)
+  void FolderType::DeleteFile(ezStringView sFile)
   {
     ezStringBuilder sPath = GetRedirectedDataDirectoryPath();
-    sPath.AppendPath(szFile);
+    sPath.AppendPath(sFile);
 
     ezOSFile::DeleteFile(sPath.GetData()).IgnoreResult();
   }
@@ -99,7 +117,10 @@ namespace ezDataDirectory
       EZ_DEFAULT_DELETE(m_Writers[i]);
   }
 
-  void FolderType::ReloadExternalConfigs() { LoadRedirectionFile(); }
+  void FolderType::ReloadExternalConfigs()
+  {
+    LoadRedirectionFile();
+  }
 
   void FolderType::LoadRedirectionFile()
   {
@@ -159,26 +180,26 @@ namespace ezDataDirectory
   }
 
 
-  bool FolderType::ExistsFile(const char* szFile, bool bOneSpecificDataDir)
+  bool FolderType::ExistsFile(ezStringView sFile, bool bOneSpecificDataDir)
   {
     ezStringBuilder sRedirectedAsset;
-    ResolveAssetRedirection(szFile, sRedirectedAsset);
+    ResolveAssetRedirection(sFile, sRedirectedAsset);
 
     ezStringBuilder sPath = GetRedirectedDataDirectoryPath();
     sPath.AppendPath(sRedirectedAsset);
     return ezOSFile::ExistsFile(sPath);
   }
 
-  ezResult FolderType::GetFileStats(const char* szFileOrFolder, bool bOneSpecificDataDir, ezFileStats& out_Stats)
+  ezResult FolderType::GetFileStats(ezStringView sFileOrFolder, bool bOneSpecificDataDir, ezFileStats& out_Stats)
   {
     ezStringBuilder sRedirectedAsset;
-    ResolveAssetRedirection(szFileOrFolder, sRedirectedAsset);
+    ResolveAssetRedirection(sFileOrFolder, sRedirectedAsset);
 
     ezStringBuilder sPath = GetRedirectedDataDirectoryPath();
 
     if (ezPathUtils::IsAbsolutePath(sRedirectedAsset))
     {
-      if (!ezStringUtils::StartsWith_NoCase(sRedirectedAsset, sPath))
+      if (!sRedirectedAsset.StartsWith_NoCase(sPath))
         return EZ_FAILURE;
 
       sPath.Clear();
@@ -192,20 +213,20 @@ namespace ezDataDirectory
     return ezOSFile::GetFileStats(sPath, out_Stats);
   }
 
-  ezResult FolderType::InternalInitializeDataDirectory(const char* szDirectory)
+  ezResult FolderType::InternalInitializeDataDirectory(ezStringView sDirectory)
   {
     // allow to set the 'empty' directory to handle all absolute paths
-    if (ezStringUtils::IsNullOrEmpty(szDirectory))
+    if (sDirectory.IsEmpty())
       return EZ_SUCCESS;
 
     ezStringBuilder sRedirected;
-    if (ezFileSystem::ResolveSpecialDirectory(szDirectory, sRedirected).Succeeded())
+    if (ezFileSystem::ResolveSpecialDirectory(sDirectory, sRedirected).Succeeded())
     {
       m_sRedirectedDataDirPath = sRedirected;
     }
     else
     {
-      m_sRedirectedDataDirPath = szDirectory;
+      m_sRedirectedDataDirPath = sDirectory;
     }
 
     if (!ezOSFile::ExistsDirectory(m_sRedirectedDataDirPath))
@@ -231,14 +252,20 @@ namespace ezDataDirectory
     }
   }
 
-  ezDataDirectory::FolderReader* FolderType::CreateFolderReader() const { return EZ_DEFAULT_NEW(FolderReader, 0); }
+  ezDataDirectory::FolderReader* FolderType::CreateFolderReader() const
+  {
+    return EZ_DEFAULT_NEW(FolderReader, 0);
+  }
 
-  ezDataDirectory::FolderWriter* FolderType::CreateFolderWriter() const { return EZ_DEFAULT_NEW(FolderWriter, 0); }
+  ezDataDirectory::FolderWriter* FolderType::CreateFolderWriter() const
+  {
+    return EZ_DEFAULT_NEW(FolderWriter, 0);
+  }
 
-  ezDataDirectoryReader* FolderType::OpenFileToRead(const char* szFile, ezFileShareMode::Enum FileShareMode, bool bSpecificallyThisDataDir)
+  ezDataDirectoryReader* FolderType::OpenFileToRead(ezStringView sFile, ezFileShareMode::Enum FileShareMode, bool bSpecificallyThisDataDir)
   {
     ezStringBuilder sFileToOpen;
-    ResolveAssetRedirection(szFile, sFileToOpen);
+    ResolveAssetRedirection(sFile, sFileToOpen);
 
     // we know that these files cannot be opened, so don't even try
     if (ezConversionUtils::IsStringUuid(sFileToOpen))
@@ -274,11 +301,11 @@ namespace ezDataDirectory
   }
 
 
-  bool FolderType::ResolveAssetRedirection(const char* szFile, ezStringBuilder& out_sRedirection)
+  bool FolderType::ResolveAssetRedirection(ezStringView sFile, ezStringBuilder& out_sRedirection)
   {
     EZ_LOCK(m_RedirectionMutex);
     // Check if we know about a file redirection for this
-    auto it = m_FileRedirection.Find(szFile);
+    auto it = m_FileRedirection.Find(sFile);
 
     // if available, open the file that is mentioned in the redirection file instead
     if (it.IsValid())
@@ -297,12 +324,12 @@ namespace ezDataDirectory
     }
     else
     {
-      out_sRedirection = szFile;
+      out_sRedirection = sFile;
       return false;
     }
   }
 
-  ezDataDirectoryWriter* FolderType::OpenFileToWrite(const char* szFile, ezFileShareMode::Enum FileShareMode)
+  ezDataDirectoryWriter* FolderType::OpenFileToWrite(ezStringView sFile, ezFileShareMode::Enum FileShareMode)
   {
     FolderWriter* pWriter = nullptr;
 
@@ -322,7 +349,7 @@ namespace ezDataDirectory
       pWriter->m_bIsInUse = true;
     }
     // if opening the file fails, the writer's m_bIsInUse needs to be reset.
-    if (pWriter->Open(szFile, this, FileShareMode) == EZ_FAILURE)
+    if (pWriter->Open(sFile, this, FileShareMode) == EZ_FAILURE)
     {
       EZ_LOCK(m_ReaderWriterMutex);
       pWriter->m_bIsInUse = false;

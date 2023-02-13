@@ -20,7 +20,7 @@ public:
   void Clear();
 
   /// \brief Adds one file as a dependency to the list
-  void AddFileDependency(const char* szFile);
+  void AddFileDependency(ezStringView sFile);
 
   /// \brief Allows read access to all currently stored file dependencies
   const ezHybridArray<ezString, 16>& GetFileDependencies() const { return m_AssetTransformDependencies; }
@@ -35,11 +35,11 @@ public:
 
   /// \brief Writes the current state to a file. Note that you probably should call StoreCurrentTimeStamp() before this, to serialize the latest file
   /// stamp
-  ezResult WriteDependencyFile(const char* szFile) const;
+  ezResult WriteDependencyFile(ezStringView sFile) const;
 
   /// \brief Reads the state from a file. Call HasAnyFileChanged() afterwards to determine whether anything has changed since when the data was
   /// serialized.
-  ezResult ReadDependencyFile(const char* szFile);
+  ezResult ReadDependencyFile(ezStringView sFile);
 
   /// \brief Retrieves the current file time stamps from the filesystem and determines whether any file has changed since the last call to
   /// StoreCurrentTimeStamp() (or ReadDependencyFile())
@@ -50,7 +50,7 @@ public:
   void StoreCurrentTimeStamp();
 
 private:
-  static ezResult RetrieveFileTimeStamp(const char* szFile, ezTimestamp& out_Result);
+  static ezResult RetrieveFileTimeStamp(ezStringView sFile, ezTimestamp& out_Result);
 
   ezHybridArray<ezString, 16> m_AssetTransformDependencies;
   ezInt64 m_iMaxTimeStampStored = 0;

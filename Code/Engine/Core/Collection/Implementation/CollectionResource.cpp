@@ -14,24 +14,27 @@ ezCollectionResource::ezCollectionResource()
 {
 }
 
-void ezCollectionResource::PreloadResources()
+bool ezCollectionResource::PreloadResources(ezUInt32 numResourcesToPreload)
 {
   EZ_LOCK(m_PreloadMutex);
   EZ_PROFILE_SCOPE("Inject Resources to Preload");
 
-  if (!m_PreloadedResources.IsEmpty())
+  if (m_PreloadedResources.GetCount() == m_Collection.m_Resources.GetCount())
   {
-    // PreloadResources has already been called so there is no need
+    // All resources have already been queued so there is no need
     // to redo the work. Clearing the array would in fact potentially
     // trigger one of the resources to be unloaded, undoing the work
     // that was already done to preload the collection.
-    return;
+    return false;
   }
 
   m_PreloadedResources.Reserve(m_Collection.m_Resources.GetCount());
 
-  for (const auto& e : m_Collection.m_Resources)
+  const ezUInt32 remainingResources = m_Collection.m_Resources.GetCount() - m_PreloadedResources.GetCount();
+  const ezUInt32 end = ezMath::Min(remainingResources, numResourcesToPreload) + m_PreloadedResources.GetCount();
+  for (ezUInt32 i = m_PreloadedResources.GetCount(); i < end; ++i)
   {
+    const ezCollectionEntry& e = m_Collection.m_Resources[i];
     ezTypelessResourceHandle hTypeless;
 
     if (!e.m_sAssetTypeName.IsEmpty())
@@ -42,8 +45,8 @@ void ezCollectionResource::PreloadResources()
       }
       else
       {
-        ezLog::Warning("There was no valid RTTI available for assets with type name '{}'. Could not pre-load resource '{}'. Did you forget to register "
-                       "the resource type with the ezResourceManager?",
+        ezLog::Error("There was no valid RTTI available for assets with type name '{}'. Could not pre-load resource '{}'. Did you forget to register "
+                     "the resource type with the ezResourceManager?",
           e.m_sAssetTypeName, ezArgSensitive(e.m_sResourceID, "ResourceID"));
       }
     }
@@ -59,13 +62,13 @@ void ezCollectionResource::PreloadResources()
       ezResourceManager::PreloadResource(hTypeless);
     }
   }
+
+  return m_PreloadedResources.GetCount() < m_Collection.m_Resources.GetCount();
 }
 
 bool ezCollectionResource::IsLoadingFinished(float* out_progress) const
 {
   EZ_LOCK(m_PreloadMutex);
-
-  EZ_ASSERT_DEBUG(m_PreloadedResources.GetCount() == m_Collection.m_Resources.GetCount(), "Collection size mismatch. PreloadResources not called?");
 
   ezUInt64 loadedWeight = 0;
   ezUInt64 totalWeight = 0;
@@ -93,13 +96,14 @@ bool ezCollectionResource::IsLoadingFinished(float* out_progress) const
 
   if (out_progress != nullptr)
   {
+    const float maxLoadedFraction = m_Collection.m_Resources.GetCount() == 0 ? 1.f : (float)m_PreloadedResources.GetCount() / m_Collection.m_Resources.GetCount();
     if (totalWeight != 0 && totalWeight != loadedWeight)
     {
-      *out_progress = static_cast<float>(static_cast<double>(loadedWeight) / totalWeight);
+      *out_progress = static_cast<float>(static_cast<double>(loadedWeight) / totalWeight) * maxLoadedFraction;
     }
     else
     {
-      *out_progress = 1.f;
+      *out_progress = maxLoadedFraction;
     }
   }
 
@@ -142,7 +146,7 @@ ezResourceLoadDesc ezCollectionResource::UnloadData(Unload WhatToUnload)
     // It is intentionally removed as it caused this lock and the resource manager lock to be locked in reverse order.
     // To prevent potential deadlocks and be able to sanity check our locking the entire codebase should never lock any
     // locks in reverse order, even if this lock is probably fine it prevents us from reasoning over the entire system.
-    // EZ_LOCK(m_preloadMutex);
+    //EZ_LOCK(m_preloadMutex);
     m_PreloadedResources.Clear();
     m_Collection.m_Resources.Clear();
 

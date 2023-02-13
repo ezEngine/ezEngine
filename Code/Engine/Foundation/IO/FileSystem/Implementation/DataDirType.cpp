@@ -3,9 +3,9 @@
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/IO/OSFile.h>
 
-ezResult ezDataDirectoryType::InitializeDataDirectory(const char* szDataDirPath)
+ezResult ezDataDirectoryType::InitializeDataDirectory(ezStringView sDataDirPath)
 {
-  ezStringBuilder sPath = szDataDirPath;
+  ezStringBuilder sPath = sDataDirPath;
   sPath.MakeCleanPath();
 
   EZ_ASSERT_DEV(sPath.IsEmpty() || sPath.EndsWith("/"), "Data directory path must end with a slash.");
@@ -15,10 +15,10 @@ ezResult ezDataDirectoryType::InitializeDataDirectory(const char* szDataDirPath)
   return InternalInitializeDataDirectory(m_sDataDirectoryPath.GetData());
 }
 
-bool ezDataDirectoryType::ExistsFile(const char* szFile, bool bOneSpecificDataDir)
+bool ezDataDirectoryType::ExistsFile(ezStringView sFile, bool bOneSpecificDataDir)
 {
   ezStringBuilder sRedirectedAsset;
-  ResolveAssetRedirection(szFile, sRedirectedAsset);
+  ResolveAssetRedirection(sFile, sRedirectedAsset);
 
   ezStringBuilder sPath = GetRedirectedDataDirectoryPath();
   sPath.AppendPath(sRedirectedAsset);
@@ -31,7 +31,7 @@ void ezDataDirectoryReaderWriterBase::Close()
 
   ezFileSystem::FileEvent fe;
   fe.m_EventType = ezFileSystem::FileEventType::CloseFile;
-  fe.m_szFileOrDirectory = GetFilePath().GetData();
+  fe.m_sFileOrDirectory = GetFilePath();
   fe.m_pDataDir = m_pDataDirectory;
   ezFileSystem::s_pData->m_Event.Broadcast(fe);
 

@@ -305,6 +305,7 @@ inline ezResult DeserializeArray(ezStreamReader& stream, double* pArray, ezUInt6
 // No read equivalent for C-style strings (but can be read as ezString & ezStringBuilder instances)
 
 EZ_FOUNDATION_DLL ezStreamWriter& operator<<(ezStreamWriter& stream, const char* szValue);
+EZ_FOUNDATION_DLL ezStreamWriter& operator<<(ezStreamWriter& stream, ezStringView sValue);
 
 // ezHybridString
 
