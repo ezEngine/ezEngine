@@ -527,7 +527,7 @@ void ezFileSystemIterator::StartSearch(ezStringView sSearchTerm, ezBitflags<ezFi
 
   m_sSearchTerm = sSearchTerm;
 
-  ezStringBuilder sSearch = ezStringView sSearchTerm;
+  ezStringBuilder sSearch = sSearchTerm;
   sSearch.MakeCleanPath();
 
   // same as just passing in the folder path, so remove this
