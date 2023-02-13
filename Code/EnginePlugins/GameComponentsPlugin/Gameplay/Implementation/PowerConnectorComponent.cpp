@@ -2,6 +2,8 @@
 
 #include <Core/Interfaces/PhysicsWorldModule.h>
 #include <Core/Messages/SetColorMessage.h>
+#include <Core/WorldSerializer/WorldReader.h>
+#include <Core/WorldSerializer/WorldWriter.h>
 #include <GameComponentsPlugin/Gameplay/PowerConnectorComponent.h>
 
 // clang-format off
