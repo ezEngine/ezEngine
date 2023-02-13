@@ -41,7 +41,7 @@ protected:
 
   /// \brief Tries to setup the data directory. Can fail, if the type is incorrect (e.g. a ZIP file data directory type cannot handle a
   /// simple folder and vice versa)
-  ezResult InitializeDataDirectory(const char* szDataDirPath);
+  ezResult InitializeDataDirectory(ezStringView sDataDirPath);
 
   /// \brief Must be implemented to create a ezDataDirectoryReader for accessing the given file. Returns nullptr if the file could not be
   /// opened.
@@ -53,13 +53,13 @@ protected:
   /// by using a rooted path.
   /// If an absolute path is used, which incidentally matches the prefix of this data directory, bSpecificallyThisDataDir is NOT set to
   /// true, as there might be other data directories that also match.
-  virtual ezDataDirectoryReader* OpenFileToRead(const char* szFile, ezFileShareMode::Enum FileShareMode, bool bSpecificallyThisDataDir) = 0;
+  virtual ezDataDirectoryReader* OpenFileToRead(ezStringView sFile, ezFileShareMode::Enum FileShareMode, bool bSpecificallyThisDataDir) = 0;
 
   /// \brief Must be implemented to create a ezDataDirectoryWriter for accessing the given file. Returns nullptr if the file could not be
   /// opened.
   ///
   /// If it always returns nullptr (default) the data directory is read-only (at least through this type).
-  virtual ezDataDirectoryWriter* OpenFileToWrite(const char* szFile, ezFileShareMode::Enum FileShareMode) { return nullptr; }
+  virtual ezDataDirectoryWriter* OpenFileToWrite(ezStringView sFile, ezFileShareMode::Enum FileShareMode) { return nullptr; }
 
   /// \brief This function is called by the filesystem when a data directory is removed.
   ///
@@ -67,20 +67,20 @@ protected:
   virtual void RemoveDataDirectory() = 0;
 
   /// \brief If a Data Directory Type supports it, this function will remove the given file from it.
-  virtual void DeleteFile(const char* szFile) {}
+  virtual void DeleteFile(ezStringView sFile) {}
 
   /// \brief This function checks whether the given file exists in this data directory.
   ///
   /// The default implementation simply calls ezOSFile::ExistsFile
   /// An optimized implementation might look this information up in some hash-map.
-  virtual bool ExistsFile(const char* szFile, bool bOneSpecificDataDir);
+  virtual bool ExistsFile(ezStringView sFile, bool bOneSpecificDataDir);
 
   /// \brief Upon success returns the ezFileStats for a file in this data directory.
-  virtual ezResult GetFileStats(const char* szFileOrFolder, bool bOneSpecificDataDir, ezFileStats& out_Stats) = 0;
+  virtual ezResult GetFileStats(ezStringView sFileOrFolder, bool bOneSpecificDataDir, ezFileStats& out_Stats) = 0;
 
   /// \brief If this data directory knows how to redirect the given path, it should do so and return true.
   /// Called by ezFileSystem::ResolveAssetRedirection
-  virtual bool ResolveAssetRedirection(const char* szPathOrAssetGuid, ezStringBuilder& out_sRedirection) { return false; }
+  virtual bool ResolveAssetRedirection(ezStringView sPathOrAssetGuid, ezStringBuilder& out_sRedirection) { return false; }
 
 protected:
   friend class ezDataDirectoryReaderWriterBase;
@@ -95,7 +95,7 @@ protected:
   ///
   /// It is used to initialize the data directory. If this ezDataDirectoryType cannot handle the given type,
   /// it must return EZ_FAILURE and the Factory needs to clean it up properly.
-  virtual ezResult InternalInitializeDataDirectory(const char* szDirectory) = 0;
+  virtual ezResult InternalInitializeDataDirectory(ezStringView sDirectory) = 0;
 
   /// \brief Derived classes can use 'GetDataDirectoryPath' to access this data.
   ezString128 m_sDataDirectoryPath;
@@ -117,7 +117,7 @@ public:
   virtual ~ezDataDirectoryReaderWriterBase() = default;
 
   /// \brief Used by ezDataDirectoryType's to try to open the given file. They need to pass along their own pointer.
-  ezResult Open(const char* szFilePath, ezDataDirectoryType* pOwnerDataDirectory, ezFileShareMode::Enum FileShareMode);
+  ezResult Open(ezStringView sFile, ezDataDirectoryType* pOwnerDataDirectory, ezFileShareMode::Enum FileShareMode);
 
   /// \brief Closes this data stream.
   void Close();

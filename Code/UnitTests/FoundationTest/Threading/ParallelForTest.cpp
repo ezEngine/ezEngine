@@ -25,8 +25,8 @@ EZ_CREATE_SIMPLE_TEST(Threading, ParallelFor)
   ezStaticArray<ezUInt32, ::s_uiTotalNumberOfTaskItems> numbers;
 
   ezParallelForParams parallelForParams;
-  parallelForParams.uiBinSize = ::s_uiTaskItemSliceSize;
-  parallelForParams.uiMaxTasksPerThread = 1;
+  parallelForParams.m_uiBinSize = ::s_uiTaskItemSliceSize;
+  parallelForParams.m_uiMaxTasksPerThread = 1;
 
   auto ResetSharedVariables = [&uiRangesEncounteredCheck, &uiNumbersSum, &uiNumbersCheckSum, &numbers]() {
     uiRangesEncounteredCheck = 0;

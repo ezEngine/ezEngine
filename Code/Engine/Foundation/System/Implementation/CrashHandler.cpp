@@ -37,21 +37,21 @@ ezCrashHandler_WriteMiniDump ezCrashHandler_WriteMiniDump::g_Instance;
 
 ezCrashHandler_WriteMiniDump::ezCrashHandler_WriteMiniDump() = default;
 
-void ezCrashHandler_WriteMiniDump::SetFullDumpFilePath(const char* szFullAbsDumpFilePath)
+void ezCrashHandler_WriteMiniDump::SetFullDumpFilePath(ezStringView sFullAbsDumpFilePath)
 {
-  m_sDumpFilePath = szFullAbsDumpFilePath;
+  m_sDumpFilePath = sFullAbsDumpFilePath;
 }
 
-void ezCrashHandler_WriteMiniDump::SetDumpFilePath(const char* szAbsDirectoryPath, const char* szAppName, ezBitflags<PathFlags> flags)
+void ezCrashHandler_WriteMiniDump::SetDumpFilePath(ezStringView sAbsDirectoryPath, ezStringView sAppName, ezBitflags<PathFlags> flags)
 {
-  ezStringBuilder sOutputPath = szAbsDirectoryPath;
+  ezStringBuilder sOutputPath = sAbsDirectoryPath;
 
   if (flags.IsSet(PathFlags::AppendSubFolder))
   {
     sOutputPath.AppendPath("CrashDumps");
   }
 
-  sOutputPath.AppendPath(szAppName);
+  sOutputPath.AppendPath(sAppName);
 
   if (flags.IsSet(PathFlags::AppendDate))
   {
@@ -72,9 +72,9 @@ void ezCrashHandler_WriteMiniDump::SetDumpFilePath(const char* szAbsDirectoryPat
   SetFullDumpFilePath(sOutputPath);
 }
 
-void ezCrashHandler_WriteMiniDump::SetDumpFilePath(const char* szAppName, ezBitflags<PathFlags> flags)
+void ezCrashHandler_WriteMiniDump::SetDumpFilePath(ezStringView sAppName, ezBitflags<PathFlags> flags)
 {
-  SetDumpFilePath(ezOSFile::GetApplicationDirectory(), szAppName, flags);
+  SetDumpFilePath(ezOSFile::GetApplicationDirectory(), sAppName, flags);
 }
 
 void ezCrashHandler_WriteMiniDump::HandleCrash(void* pOsSpecificData)

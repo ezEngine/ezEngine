@@ -16,6 +16,13 @@ ezStreamWriter& operator<<(ezStreamWriter& Stream, const char* szValue)
   return Stream;
 }
 
+ezStreamWriter& operator<<(ezStreamWriter& Stream, ezStringView sValue)
+{
+  Stream.WriteString(sValue).AssertSuccess();
+
+  return Stream;
+}
+
 // ezStringBuilder
 
 ezStreamWriter& operator<<(ezStreamWriter& Stream, const ezStringBuilder& sValue)

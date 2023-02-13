@@ -67,7 +67,10 @@ namespace
       ezInt64 iValue = 0;
       if (sValue.StartsWith_NoCase("0x"))
       {
-        iValue = ezConversionUtils::ConvertHexStringToUInt32(sValue);
+        ezUInt32 uiValue32 = 0;
+        ezConversionUtils::ConvertHexStringToUInt32(sValue, uiValue32).IgnoreResult();
+
+        iValue = uiValue32;
       }
       else
       {

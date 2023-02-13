@@ -25,7 +25,7 @@ public:
   virtual void EndStream(); // [tested]
 
   /// \brief Opens the next chunk for writing. Chunks cannot be nested (except by using multiple chunk format writers).
-  virtual void BeginChunk(const char* szName, ezUInt32 uiVersion); // [tested]
+  virtual void BeginChunk(ezStringView sName, ezUInt32 uiVersion); // [tested]
 
   /// \brief Closes the current chunk.
   virtual void EndChunk(); // [tested]

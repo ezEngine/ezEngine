@@ -8,10 +8,10 @@ ezDeferredFileWriter::ezDeferredFileWriter()
 {
 }
 
-void ezDeferredFileWriter::SetOutput(const char* szFileToWriteTo, bool bOnlyWriteIfDifferent)
+void ezDeferredFileWriter::SetOutput(ezStringView sFileToWriteTo, bool bOnlyWriteIfDifferent)
 {
   m_bOnlyWriteIfDifferent = bOnlyWriteIfDifferent;
-  m_sOutputFile = szFileToWriteTo;
+  m_sOutputFile = sFileToWriteTo;
 }
 
 ezResult ezDeferredFileWriter::WriteBytes(const void* pWriteBuffer, ezUInt64 uiBytesToWrite)

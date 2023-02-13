@@ -407,6 +407,8 @@ void ezRTTI::AssignPlugin(const char* szPluginName)
   }
 }
 
+// warning C4505: 'IsValidIdentifierName': unreferenced function with internal linkage has been removed
+// happens in Release builds, because the function is only used in a debug assert
 #define EZ_MSVC_WARNING_NUMBER 4505
 #include <Foundation/Basics/Compiler/MSVC/DisableWarning_MSVC.h>
 
@@ -441,6 +443,8 @@ static bool IsValidIdentifierName(const char* szIdentifier)
   return true;
 }
 
+#include <Foundation/Basics/Compiler/MSVC/RestoreWarning_MSVC.h>
+
 void ezRTTI::SanityCheckType(ezRTTI* pType)
 {
   EZ_ASSERT_DEV(pType->GetTypeFlags().IsSet(ezTypeFlags::StandardType) + pType->GetTypeFlags().IsSet(ezTypeFlags::IsEnum) +
@@ -453,14 +457,6 @@ void ezRTTI::SanityCheckType(ezRTTI* pType)
     const ezRTTI* pSpecificType = pProp->GetSpecificType();
 
     EZ_ASSERT_DEBUG(IsValidIdentifierName(pProp->GetPropertyName()), "Property name is invalid: '{0}'", pProp->GetPropertyName());
-
-    // if (!IsValidIdentifierName(pProp->GetPropertyName()))
-    //{
-    //  ezStringBuilder s;
-    //  s.Format("RTTI: {0}\n", pProp->GetPropertyName());
-
-    //  ezLog::Print(s.GetData());
-    //}
 
     if (pProp->GetCategory() != ezPropertyCategory::Function)
     {

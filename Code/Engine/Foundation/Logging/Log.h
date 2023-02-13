@@ -55,11 +55,11 @@ struct EZ_FOUNDATION_DLL ezLoggingEventData
   ezUInt8 m_uiIndentation = 0;
 
   /// \brief The information text.
-  const char* m_szText = "";
+  ezStringView m_sText;
 
   /// \brief An optional tag extracted from the log-string (if it started with "[SomeTag]Logging String.") Can be used by log-writers for
   /// additional configuration, or simply be ignored.
-  const char* m_szTag = "";
+  ezStringView m_sTag;
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   /// \brief Used by log-blocks for profiling the duration of the block
@@ -395,12 +395,12 @@ public:
   /// header will not be printed, to prevent spamming the log.
   ///
   /// This constructor will output the log block data to the ezGlobalLog.
-  ezLogBlock(const char* szName, const char* szContextInfo = "");
+  ezLogBlock(ezStringView sName, ezStringView sContextInfo = {});
 
   /// \brief Creates a named grouping block for log messages.
   ///
   /// This variant of the constructor takes an explicit ezLogInterface to write the log messages to.
-  ezLogBlock(ezLogInterface* pInterface, const char* szName, const char* szContextInfo = "");
+  ezLogBlock(ezLogInterface* pInterface, ezStringView sName, ezStringView sContextInfo = {});
 
   ~ezLogBlock();
 
@@ -409,8 +409,8 @@ private:
 
   ezLogInterface* m_pLogInterface;
   ezLogBlock* m_pParentBlock;
-  const char* m_szName;
-  const char* m_szContextInfo;
+  ezStringView m_sName;
+  ezStringView m_sContextInfo;
   ezUInt8 m_uiBlockDepth;
   bool m_bWritten;
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
@@ -450,17 +450,17 @@ public:
     switch (le.m_EventType)
     {
       case ezLogMsgType::ErrorMsg:
-        m_sBuffer.Append("Error: ", le.m_szText, "\n");
+        m_sBuffer.Append("Error: ", le.m_sText, "\n");
         break;
       case ezLogMsgType::SeriousWarningMsg:
       case ezLogMsgType::WarningMsg:
-        m_sBuffer.Append("Warning: ", le.m_szText, "\n");
+        m_sBuffer.Append("Warning: ", le.m_sText, "\n");
         break;
       case ezLogMsgType::SuccessMsg:
       case ezLogMsgType::InfoMsg:
       case ezLogMsgType::DevMsg:
       case ezLogMsgType::DebugMsg:
-        m_sBuffer.Append(le.m_szText, "\n");
+        m_sBuffer.Append(le.m_sText, "\n");
         break;
       default:
         break;

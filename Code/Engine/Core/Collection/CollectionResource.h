@@ -65,16 +65,20 @@ public:
   /// Calling this twice has no effect.
   void UnregisterNames();
 
-  /// \brief Puts every resource for which a resource type could be found into the preload queue of the ezResourceManager
+  /// \brief Puts up to the given number of resources for which a resource type could be found into the preload queue of the ezResourceManager.
   ///
-  /// This has to be called manually (or triggered by an ezCollectionComponent).
-  void PreloadResources();
+  /// This has to be called manually. It will return false if no more resources can be queued for preloading. This can be used
+  /// as a workflow where PreloadResources and IsLoadingFinished are called repeadedly in tandem, so only a smaller fraction
+  /// of resources gets queued and waited for, to allow simple resource load-balancing.
+  bool PreloadResources(ezUInt32 numResourcesToPreload = ezMath::MaxValue<ezUInt32>());
 
-  /// \brief Returns true if loading is finished and
+  /// \brief Returns true if all resources added for preloading via PreloadResources have finished loading.
   /// if `out_progress` is defined:
-  ///     * Assigns a value between 0.0 and 1.0 representing how many of the preloaded resources are in a loaded state at the moment.
-  ///     * Always assigns 1.0 if loading is finished.
+  ///     * Assigns a value between 0.0 and 1.0 representing how many of the collection's resources are in a loaded state at the moment.
+  ///     * Always assigns 1.0 if all resources are in a loaded state.
   ///     * Always assigns 1.0 if the collection contains no resources, or PreloadResources() was not triggered previously.
+  /// Note: the progress can reach at maximum the fraction of resources that have been queued for preloading via PreloadResources.
+  /// The progress will only reach 1.0 if all resources of this collection have been queued via PreloadResources and finished loading.
   bool IsLoadingFinished(float* out_progress = nullptr) const;
 
   /// \brief Returns the resource descriptor for this resource.

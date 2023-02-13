@@ -201,7 +201,7 @@ ezDirectoryWatcher::~ezDirectoryWatcher()
   EZ_DEFAULT_DELETE(m_pImpl);
 }
 
-ezResult ezDirectoryWatcher::OpenDirectory(const ezString& path, ezBitflags<Watch> whatToWatch)
+ezResult ezDirectoryWatcher::OpenDirectory(ezStringView sAbsolutePath, ezBitflags<Watch> whatToWatch)
 {
   if (m_pImpl->m_inotifyFd >= 0)
   {
@@ -222,7 +222,7 @@ ezResult ezDirectoryWatcher::OpenDirectory(const ezString& path, ezBitflags<Watc
     m_pImpl->m_inotifyFd = -1;
   }
 
-  ezStringBuilder folder = path;
+  ezStringBuilder folder = sAbsolutePath;
   folder.MakeCleanPath();
   EnsureTrailingSlash(folder);
 

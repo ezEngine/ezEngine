@@ -178,6 +178,14 @@ public:
   /// \brief Returns a sub-string that is shrunk at the start and front by the given amount of characters (not bytes!).
   ezStringView GetShrunk(ezUInt32 uiShrinkCharsFront, ezUInt32 uiShrinkCharsBack = 0) const;
 
+  /// \brief Identical to 'Shrink(1, 0)' in functionality, but slightly more efficient.
+  void ChopAwayFirstCharacterUtf8(); // [tested]
+
+  /// \brief Similar to ChopAwayFirstCharacterUtf8(), but assumes that the first character is ASCII and thus exactly one byte in length.
+  /// Asserts that this is the case.
+  /// More efficient than ChopAwayFirstCharacterUtf8(), if it is known that the first character is ASCII.
+  void ChopAwayFirstCharacterAscii(); // [tested]
+
   /// \brief Removes all characters from the start and end that appear in the given strings by adjusting the begin and end of the view.
   void Trim(const char* szTrimChars); // [tested]
 

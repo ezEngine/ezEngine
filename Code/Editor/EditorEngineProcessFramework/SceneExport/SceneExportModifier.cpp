@@ -77,14 +77,17 @@ void ezSceneExportModifier::CleanUpWorld(ezWorld& world)
 {
   EZ_LOCK(world.GetWriteMarker());
 
-  for (auto it = world.GetObjects(); it.IsValid(); it.Next())
-  {
-    // only visit objects without parents, those are the root objects
-    if (it->GetParent() != nullptr)
-      continue;
+  // Don't do this (for now), as we would also delete objects that are referenced by other components,
+  // and currently we can't know which ones are important to keep.
 
-    VisitObject(world, it);
-  }
+  //for (auto it = world.GetObjects(); it.IsValid(); it.Next())
+  //{
+  //  // only visit objects without parents, those are the root objects
+  //  if (it->GetParent() != nullptr)
+  //    continue;
+
+  //  VisitObject(world, it);
+  //}
 
   const bool bSim = world.GetWorldSimulationEnabled();
   world.SetWorldSimulationEnabled(false);

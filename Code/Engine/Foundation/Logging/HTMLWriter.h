@@ -32,7 +32,7 @@ namespace ezLogWriter
     void SetTimestampMode(ezLog::TimestampMode mode);
 
   private:
-    void WriteString(const char* szString, ezUInt32 uiColor);
+    void WriteString(ezStringView sText, ezUInt32 uiColor);
 
     ezFileWriter m_File;
 

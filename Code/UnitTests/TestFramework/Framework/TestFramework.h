@@ -152,8 +152,8 @@ public:
 
   static void Output(ezTestOutput::Enum Type, const char* szMsg, ...);
   static void OutputArgs(ezTestOutput::Enum Type, const char* szMsg, va_list args);
-  static void Error(const char* szError, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...);
-  static void Error(const char* szError, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, va_list args);
+  static void Error(const char* szError, const char* szFile, ezInt32 iLine, const char* szFunction, ezStringView sMsg, ...);
+  static void Error(const char* szError, const char* szFile, ezInt32 iLine, const char* szFunction, ezStringView sMsg, va_list args);
   static void TestResult(ezInt32 iSubTestIndex, bool bSuccess, double fDuration);
 
   // static members

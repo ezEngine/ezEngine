@@ -26,7 +26,7 @@ void ezTestLogInterface::HandleLogMessage(const ezLoggingEventData& le)
       if (msg.m_Type != ezLogMsgType::All && le.m_EventType != msg.m_Type)
         continue;
 
-      if (ezStringUtils::FindSubString(le.m_szText, msg.m_sMsgSubString))
+      if (le.m_sText.FindSubString(msg.m_sMsgSubString))
       {
         --msg.m_iCount;
 

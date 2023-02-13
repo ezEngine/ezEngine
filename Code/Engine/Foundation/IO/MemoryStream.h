@@ -291,7 +291,7 @@ public:
   ezUInt64 GetByteCount64() const; // [tested]
 
   /// \brief Allows to set a string as the source of information in the memory stream for debug purposes.
-  void SetDebugSourceInformation(const char* szDebugSourceInformation);
+  void SetDebugSourceInformation(ezStringView sDebugSourceInformation);
 
 private:
   const ezMemoryStreamStorageInterface* m_pStreamStorage = nullptr;
@@ -398,7 +398,7 @@ public:
   ezUInt64 GetByteCount() const; // [tested]
 
   /// \brief Allows to set a string as the source of information in the memory stream for debug purposes.
-  void SetDebugSourceInformation(const char* szDebugSourceInformation);
+  void SetDebugSourceInformation(ezStringView sDebugSourceInformation);
 
 private:
   const ezUInt8* m_pRawMemory = nullptr;
@@ -448,7 +448,7 @@ public:
   ezUInt64 GetNumWrittenBytes() const; // [tested]
 
   /// \brief Allows to set a string as the source of information in the memory stream for debug purposes.
-  void SetDebugSourceInformation(const char* szDebugSourceInformation);
+  void SetDebugSourceInformation(ezStringView sDebugSourceInformation);
 
   /// \brief Copies uiBytesToWrite from pWriteBuffer into the memory stream.
   ///

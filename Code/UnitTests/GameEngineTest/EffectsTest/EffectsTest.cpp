@@ -39,7 +39,7 @@ ezResult ezGameEngineTestEffects::InitializeSubTest(ezInt32 iIdentifier)
 
   if (iIdentifier == SubTests::Decals)
   {
-    m_ImgCompFrames.PushBack({1});
+    m_ImgCompFrames.PushBack({5});
     m_ImgCompFrames.PushBack({30});
     m_ImgCompFrames.PushBack({60});
 

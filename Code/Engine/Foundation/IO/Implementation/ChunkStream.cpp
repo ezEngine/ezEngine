@@ -32,12 +32,12 @@ void ezChunkStreamWriter::EndStream()
   m_Stream.WriteBytes(szTag, 8).IgnoreResult();
 }
 
-void ezChunkStreamWriter::BeginChunk(const char* szName, ezUInt32 uiVersion)
+void ezChunkStreamWriter::BeginChunk(ezStringView sName, ezUInt32 uiVersion)
 {
   EZ_ASSERT_DEV(m_bWritingFile, "Not writing to the file.");
   EZ_ASSERT_DEV(!m_bWritingChunk, "A chunk is already open for writing: '{0}'", m_sChunkName);
 
-  m_sChunkName = szName;
+  m_sChunkName = sName;
 
   const char* szTag = "NXT CHNK";
   m_Stream.WriteBytes(szTag, 8).IgnoreResult();

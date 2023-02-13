@@ -260,9 +260,9 @@ ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezTime& arg)
     tRem -= iMin * 60;
     iMin *= ezMath::Sign(static_cast<ezInt32>(arg.GetSeconds()));
 
-    const double fSec = tRem;
+    const ezInt32 iSec = static_cast<ezInt32>(ezMath::Trunc(tRem));
 
-    writepos = ezStringUtils::snprintf(tmp, uiLength, "%imin %fsec", iMin, fSec);
+    writepos = ezStringUtils::snprintf(tmp, uiLength, "%imin %isec", iMin, iSec);
   }
   else
   {
@@ -275,9 +275,9 @@ ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezTime& arg)
     const ezInt32 iMin = static_cast<ezInt32>(ezMath::Trunc(tRem / 60.0));
     tRem -= iMin * 60;
 
-    const double fSec = tRem;
+    const ezInt32 iSec = static_cast<ezInt32>(ezMath::Trunc(tRem));
 
-    writepos = ezStringUtils::snprintf(tmp, uiLength, "%ih %imin %fsec", iHrs, iMin, fSec);
+    writepos = ezStringUtils::snprintf(tmp, uiLength, "%ih %imin %isec", iHrs, iMin, iSec);
   }
 
   tmp[writepos] = '\0';

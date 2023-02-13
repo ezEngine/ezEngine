@@ -79,9 +79,9 @@ ezUInt64 ezMemoryStreamReader::GetByteCount64() const
   return m_pStreamStorage->GetStorageSize64();
 }
 
-void ezMemoryStreamReader::SetDebugSourceInformation(const char* szDebugSourceInformation)
+void ezMemoryStreamReader::SetDebugSourceInformation(ezStringView sDebugSourceInformation)
 {
-  m_sDebugSourceInformation = szDebugSourceInformation;
+  m_sDebugSourceInformation = sDebugSourceInformation;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -231,9 +231,9 @@ ezUInt64 ezRawMemoryStreamReader::GetByteCount() const
   return m_uiChunkSize;
 }
 
-void ezRawMemoryStreamReader::SetDebugSourceInformation(const char* szDebugSourceInformation)
+void ezRawMemoryStreamReader::SetDebugSourceInformation(ezStringView sDebugSourceInformation)
 {
-  m_sDebugSourceInformation = szDebugSourceInformation;
+  m_sDebugSourceInformation = sDebugSourceInformation;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -281,9 +281,9 @@ ezUInt64 ezRawMemoryStreamWriter::GetNumWrittenBytes() const
   return m_uiWritePosition;
 }
 
-void ezRawMemoryStreamWriter::SetDebugSourceInformation(const char* szDebugSourceInformation)
+void ezRawMemoryStreamWriter::SetDebugSourceInformation(ezStringView sDebugSourceInformation)
 {
-  m_sDebugSourceInformation = szDebugSourceInformation;
+  m_sDebugSourceInformation = sDebugSourceInformation;
 }
 
 //////////////////////////////////////////////////////////////////////////

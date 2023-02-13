@@ -654,6 +654,17 @@ export class PointLightComponent extends LightComponent
   set Range(value: number) { __CPP_ComponentProperty_set(this, 2070313016, value); }
 }
 
+export class PowerConnectorComponent extends Component
+{
+  public static GetTypeNameHash(): number { return 3608170608; }
+  get Output(): number { return __CPP_ComponentProperty_get(this, 332165697); }
+  set Output(value: number) { __CPP_ComponentProperty_set(this, 332165697, value); }
+  get Buddy(): string { return __CPP_ComponentProperty_get(this, 2676937451); }
+  set Buddy(value: string) { __CPP_ComponentProperty_set(this, 2676937451, value); }
+  get ConnectedTo(): string { return __CPP_ComponentProperty_get(this, 3467549960); }
+  set ConnectedTo(value: string) { __CPP_ComponentProperty_set(this, 3467549960, value); }
+}
+
 export class PrefabReferenceComponent extends Component
 {
   public static GetTypeNameHash(): number { return 2790782988; }

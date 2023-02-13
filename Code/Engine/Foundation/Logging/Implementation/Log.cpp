@@ -88,15 +88,15 @@ void ezGlobalLog::HandleLogMessage(const ezLoggingEventData& le)
   }
 }
 
-ezLogBlock::ezLogBlock(const char* szName, const char* szContextInfo)
+ezLogBlock::ezLogBlock(ezStringView sName, ezStringView sContextInfo)
 {
   m_pLogInterface = ezLog::GetThreadLocalLogSystem();
 
   if (!m_pLogInterface)
     return;
 
-  m_szName = szName;
-  m_szContextInfo = szContextInfo;
+  m_sName = sName;
+  m_sContextInfo = sContextInfo;
   m_bWritten = false;
 
   m_pParentBlock = m_pLogInterface->m_pCurrentBlock;
@@ -110,15 +110,15 @@ ezLogBlock::ezLogBlock(const char* szName, const char* szContextInfo)
 }
 
 
-ezLogBlock::ezLogBlock(ezLogInterface* pInterface, const char* szName, const char* szContextInfo)
+ezLogBlock::ezLogBlock(ezLogInterface* pInterface, ezStringView sName, ezStringView sContextInfo)
 {
   m_pLogInterface = pInterface;
 
   if (!m_pLogInterface)
     return;
 
-  m_szName = szName;
-  m_szContextInfo = szContextInfo;
+  m_sName = sName;
+  m_sContextInfo = sContextInfo;
   m_bWritten = false;
 
   m_pParentBlock = m_pLogInterface->m_pCurrentBlock;
@@ -152,9 +152,9 @@ void ezLog::EndLogBlock(ezLogInterface* pInterface, ezLogBlock* pBlock)
   {
     ezLoggingEventData le;
     le.m_EventType = ezLogMsgType::EndGroup;
-    le.m_szText = pBlock->m_szName;
+    le.m_sText = pBlock->m_sName;
     le.m_uiIndentation = pBlock->m_uiBlockDepth;
-    le.m_szTag = pBlock->m_szContextInfo;
+    le.m_sTag = pBlock->m_sContextInfo;
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
     le.m_fSeconds = pBlock->m_fSeconds;
 #endif
@@ -174,9 +174,9 @@ void ezLog::WriteBlockHeader(ezLogInterface* pInterface, ezLogBlock* pBlock)
 
   ezLoggingEventData le;
   le.m_EventType = ezLogMsgType::BeginGroup;
-  le.m_szText = pBlock->m_szName;
+  le.m_sText = pBlock->m_sName;
   le.m_uiIndentation = pBlock->m_uiBlockDepth;
-  le.m_szTag = pBlock->m_szContextInfo;
+  le.m_sTag = pBlock->m_sContextInfo;
 
   pInterface->HandleLogMessage(le);
 }
@@ -224,9 +224,9 @@ void ezLog::BroadcastLoggingEvent(ezLogInterface* pInterface, ezLogMsgType::Enum
 
   ezLoggingEventData le;
   le.m_EventType = type;
-  le.m_szText = szString;
+  le.m_sText = szString;
   le.m_uiIndentation = uiIndentation;
-  le.m_szTag = szTag;
+  le.m_sTag = szTag;
 
   pInterface->HandleLogMessage(le);
   pInterface->m_uiLoggedMsgsSinceFlush++;

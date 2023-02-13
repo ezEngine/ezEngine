@@ -66,13 +66,13 @@ public:
   ezCrashHandler_WriteMiniDump();
 
   /// \brief Sets the raw path for the dump-file to write
-  void SetFullDumpFilePath(const char* szFullAbsDumpFilePath);
+  void SetFullDumpFilePath(ezStringView sFullAbsDumpFilePath);
 
   /// \brief Sets the dump-file path to "{szAbsDirectoryPath}/{szAppName}_{cur-date}.tmp"
-  void SetDumpFilePath(const char* szAbsDirectoryPath, const char* szAppName, ezBitflags<PathFlags> flags = PathFlags::Default);
+  void SetDumpFilePath(ezStringView sAbsDirectoryPath, ezStringView sAppName, ezBitflags<PathFlags> flags = PathFlags::Default);
 
   /// \brief Sets the dump-file path to "{ezOSFile::GetApplicationDirectory()}/{szAppName}_{cur-date}.tmp"
-  void SetDumpFilePath(const char* szAppName, ezBitflags<PathFlags> flags = PathFlags::Default);
+  void SetDumpFilePath(ezStringView sAppName, ezBitflags<PathFlags> flags = PathFlags::Default);
 
   virtual void HandleCrash(void* pOsSpecificData) override;
 
