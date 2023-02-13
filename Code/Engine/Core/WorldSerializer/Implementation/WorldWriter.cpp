@@ -213,7 +213,7 @@ void ezWorldWriter::WriteGameObjectHandle(const ezGameObjectHandle& hObject)
 
   ezUInt32 uiIndex = 0;
 
-  EZ_ASSERT_DEBUG(it.IsValid(), "Handle should always be in the written map at this point");
+  EZ_ASSERT_DEV(it.IsValid(), "Referenced object does not exist in the scene. This can happen, if it was optimized away, because it had no name, no children and no essential components.");
 
   if (it.IsValid())
     uiIndex = it.Value();

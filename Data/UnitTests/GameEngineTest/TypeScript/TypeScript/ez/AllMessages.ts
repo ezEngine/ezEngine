@@ -35,6 +35,14 @@ import Enum = require("./AllEnums")
 import Flags = require("./AllFlags")
 
 
+export class EventMsgSetPowerInput extends EventMessage
+{
+  public static GetTypeNameHash(): number { return 2697475808; }
+  constructor() { super(); this.TypeNameHash = 2697475808; }
+  PrevValue: number = 0;
+  NewValue: number = 0;
+}
+
 export class MsgAnimationPosePreparing extends Message
 {
   public static GetTypeNameHash(): number { return 2419062254; }
@@ -176,10 +184,23 @@ export class MsgMoveCharacterController extends Message
   Crouch: boolean = false;
 }
 
+export class MsgObjectGrabbed extends Message
+{
+  public static GetTypeNameHash(): number { return 1848455959; }
+  constructor() { super(); this.TypeNameHash = 1848455959; }
+  GotGrabbed: boolean = false;
+}
+
 export class MsgOnlyApplyToObject extends Message
 {
   public static GetTypeNameHash(): number { return 2494349142; }
   constructor() { super(); this.TypeNameHash = 2494349142; }
+}
+
+export class MsgParentChanged extends Message
+{
+  public static GetTypeNameHash(): number { return 2163082146; }
+  constructor() { super(); this.TypeNameHash = 2163082146; }
 }
 
 export class MsgPhysicsAddForce extends Message
@@ -209,6 +230,12 @@ export class MsgQueryAnimationSkeleton extends Message
 {
   public static GetTypeNameHash(): number { return 4103519367; }
   constructor() { super(); this.TypeNameHash = 4103519367; }
+}
+
+export class MsgReleaseObjectGrab extends Message
+{
+  public static GetTypeNameHash(): number { return 1937223203; }
+  constructor() { super(); this.TypeNameHash = 1937223203; }
 }
 
 export class MsgRetrieveBoneState extends Message
