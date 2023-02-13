@@ -287,7 +287,7 @@ ezResult ezOSFile::InternalDeleteFile(ezStringView sFile)
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   int iRes = _unlink(ezString(sFile));
 #else
-  int iRes = unlink(szFile);
+  int iRes = unlink(ezString(sFile));
 #endif
 
   if (iRes == 0 || (iRes == -1 && errno == ENOENT))
@@ -301,7 +301,7 @@ ezResult ezOSFile::InternalDeleteDirectory(ezStringView sDirectory)
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   int iRes = _rmdir(ezString(sDirectory));
 #else
-  int iRes = rmdir(szDirectory);
+  int iRes = rmdir(ezString(sDirectory));
 #endif
 
   if (iRes == 0 || (iRes == -1 && errno == ENOENT))
@@ -319,7 +319,7 @@ ezResult ezOSFile::InternalCreateDirectory(ezStringView sDirectory)
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   int iRes = _mkdir(ezString(sDirectory));
 #else
-  int iRes = mkdir(szDirectory, 0777);
+  int iRes = mkdir(ezString(sDirectory), 0777);
 #endif
 
   if (iRes == 0 || (iRes == -1 && errno == EEXIST))
@@ -525,7 +525,7 @@ void ezFileSystemIterator::StartSearch(ezStringView sSearchTerm, ezBitflags<ezFi
 {
   EZ_ASSERT_DEV(m_Data.m_Handles.IsEmpty(), "Cannot start another search.");
 
-  m_sSearchTerm = ezStringView sSearchTerm;
+  m_sSearchTerm = sSearchTerm;
 
   ezStringBuilder sSearch = ezStringView sSearchTerm;
   sSearch.MakeCleanPath();
