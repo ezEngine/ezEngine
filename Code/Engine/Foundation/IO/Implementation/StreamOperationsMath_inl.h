@@ -25,7 +25,7 @@ inline ezStreamWriter& operator<<(ezStreamWriter& stream, const ezVec2Template<T
 template <typename Type>
 inline ezStreamReader& operator>>(ezStreamReader& stream, ezVec2Template<Type>& Value)
 {
-  stream.ReadBytes(&Value, sizeof(ezVec2Template<Type>));
+  EZ_VERIFY(stream.ReadBytes(&Value, sizeof(ezVec2Template<Type>)) == sizeof(ezVec2Template<Type>), "End of stream reached.");
   return stream;
 }
 
@@ -58,7 +58,7 @@ inline ezStreamWriter& operator<<(ezStreamWriter& stream, const ezVec3Template<T
 template <typename Type>
 inline ezStreamReader& operator>>(ezStreamReader& stream, ezVec3Template<Type>& Value)
 {
-  stream.ReadBytes(&Value, sizeof(ezVec3Template<Type>));
+  EZ_VERIFY(stream.ReadBytes(&Value, sizeof(ezVec3Template<Type>)) == sizeof(ezVec3Template<Type>), "End of stream reached.");
   return stream;
 }
 
@@ -91,7 +91,7 @@ inline ezStreamWriter& operator<<(ezStreamWriter& stream, const ezVec4Template<T
 template <typename Type>
 inline ezStreamReader& operator>>(ezStreamReader& stream, ezVec4Template<Type>& Value)
 {
-  stream.ReadBytes(&Value, sizeof(ezVec4Template<Type>));
+  EZ_VERIFY(stream.ReadBytes(&Value, sizeof(ezVec4Template<Type>)) == sizeof(ezVec4Template<Type>), "End of stream reached.");
   return stream;
 }
 
@@ -124,7 +124,7 @@ inline ezStreamWriter& operator<<(ezStreamWriter& stream, const ezMat3Template<T
 template <typename Type>
 inline ezStreamReader& operator>>(ezStreamReader& stream, ezMat3Template<Type>& Value)
 {
-  stream.ReadBytes(Value.m_fElementsCM, sizeof(Type) * 9);
+  EZ_VERIFY(stream.ReadBytes(Value.m_fElementsCM, sizeof(Type) * 9) == sizeof(Type) * 9, "End of stream reached.");
   return stream;
 }
 
@@ -157,7 +157,7 @@ inline ezStreamWriter& operator<<(ezStreamWriter& stream, const ezMat4Template<T
 template <typename Type>
 inline ezStreamReader& operator>>(ezStreamReader& stream, ezMat4Template<Type>& Value)
 {
-  stream.ReadBytes(Value.m_fElementsCM, sizeof(Type) * 16);
+  EZ_VERIFY(stream.ReadBytes(Value.m_fElementsCM, sizeof(Type) * 16) == sizeof(Type) * 16, "End of stream reached.");
   return stream;
 }
 
@@ -212,7 +212,7 @@ inline ezStreamWriter& operator<<(ezStreamWriter& stream, const ezPlaneTemplate<
 template <typename Type>
 inline ezStreamReader& operator>>(ezStreamReader& stream, ezPlaneTemplate<Type>& Value)
 {
-  stream.ReadBytes(&Value, sizeof(ezPlaneTemplate<Type>));
+  EZ_VERIFY(stream.ReadBytes(&Value, sizeof(ezPlaneTemplate<Type>)) == sizeof(ezPlaneTemplate<Type>), "End of stream reached.");
   return stream;
 }
 
@@ -245,7 +245,7 @@ inline ezStreamWriter& operator<<(ezStreamWriter& stream, const ezQuatTemplate<T
 template <typename Type>
 inline ezStreamReader& operator>>(ezStreamReader& stream, ezQuatTemplate<Type>& Value)
 {
-  stream.ReadBytes(&Value, sizeof(ezQuatTemplate<Type>));
+  EZ_VERIFY(stream.ReadBytes(&Value, sizeof(ezQuatTemplate<Type>)) == sizeof(ezQuatTemplate<Type>), "End of stream reached.");
   return stream;
 }
 
@@ -331,7 +331,7 @@ inline ezStreamWriter& operator<<(ezStreamWriter& stream, const ezColor& Value)
 
 inline ezStreamReader& operator>>(ezStreamReader& stream, ezColor& Value)
 {
-  stream.ReadBytes(&Value, sizeof(ezColor));
+  EZ_VERIFY(stream.ReadBytes(&Value, sizeof(ezColor)) == sizeof(ezColor), "End of stream reached.");
   return stream;
 }
 
@@ -360,7 +360,7 @@ inline ezStreamWriter& operator<<(ezStreamWriter& stream, const ezColorGammaUB& 
 
 inline ezStreamReader& operator>>(ezStreamReader& stream, ezColorGammaUB& Value)
 {
-  stream.ReadBytes(&Value, sizeof(ezColorGammaUB));
+  EZ_VERIFY(stream.ReadBytes(&Value, sizeof(ezColorGammaUB)) == sizeof(ezColorGammaUB), "End of stream reached.");
   return stream;
 }
 
@@ -422,7 +422,7 @@ inline ezStreamWriter& operator<<(ezStreamWriter& stream, const ezColorLinearUB&
 
 inline ezStreamReader& operator>>(ezStreamReader& stream, ezColorLinearUB& Value)
 {
-  stream.ReadBytes(&Value, sizeof(ezColorLinearUB));
+  EZ_VERIFY(stream.ReadBytes(&Value, sizeof(ezColorLinearUB)) == sizeof(ezColorLinearUB), "End of stream reached.");
   return stream;
 }
 

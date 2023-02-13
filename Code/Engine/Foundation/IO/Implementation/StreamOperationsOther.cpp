@@ -56,7 +56,7 @@ void operator>>(ezStreamReader& Stream, ezUuid& Value)
 
 void operator<<(ezStreamWriter& Stream, const ezHashedString& Value)
 {
-  Stream.WriteString(Value.GetView()).IgnoreResult();
+  Stream.WriteString(Value.GetView()).AssertSuccess();
 }
 
 void operator>>(ezStreamReader& Stream, ezHashedString& Value)
@@ -153,7 +153,7 @@ EZ_FORCE_INLINE void WriteValueFunc::operator()<ezDataBuffer>()
   const ezDataBuffer& data = m_pValue->Get<ezDataBuffer>();
   const ezUInt32 iCount = data.GetCount();
   (*m_pStream) << iCount;
-  m_pStream->WriteBytes(data.GetData(), data.GetCount()).IgnoreResult();
+  m_pStream->WriteBytes(data.GetData(), data.GetCount()).AssertSuccess();
 }
 
 struct ReadValueFunc

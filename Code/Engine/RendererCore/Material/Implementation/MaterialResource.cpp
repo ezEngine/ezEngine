@@ -465,7 +465,7 @@ ezResourceLoadDesc ezMaterialResource::UnloadData(Unload WhatToUnload)
   return res;
 }
 
-ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
+ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* pOuterStream)
 {
   m_mDesc.Clear();
   m_mOriginalDesc.Clear();
@@ -475,33 +475,33 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
   res.m_uiQualityLevelsLoadable = 0;
   res.m_State = ezResourceState::Loaded;
 
-  if (Stream == nullptr)
+  if (pOuterStream == nullptr)
   {
     res.m_State = ezResourceState::LoadedResourceMissing;
     return res;
   }
 
   ezStringBuilder sAbsFilePath;
-  (*Stream) >> sAbsFilePath;
+  (*pOuterStream) >> sAbsFilePath;
 
   if (sAbsFilePath.HasExtension("ezMaterialBin"))
   {
     ezStringBuilder sTemp, sTemp2;
 
     ezAssetFileHeader AssetHash;
-    AssetHash.Read(*Stream).IgnoreResult();
+    AssetHash.Read(*pOuterStream).IgnoreResult();
 
     ezUInt8 uiVersion = 0;
-    (*Stream) >> uiVersion;
+    (*pOuterStream) >> uiVersion;
     EZ_ASSERT_DEV(uiVersion <= 6, "Unknown ezMaterialBin version {0}", uiVersion);
 
     ezUInt8 uiCompressionMode = 0;
     if (uiVersion >= 6)
     {
-      *Stream >> uiCompressionMode;
+      *pOuterStream >> uiCompressionMode;
     }
 
-    ezStreamReader* pCompressor = Stream;
+    ezStreamReader* pInnerStream = pOuterStream;
 
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
     ezCompressedStreamReaderZstd decompressorZstd;
@@ -514,8 +514,8 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
 
       case 1:
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
-        decompressorZstd.SetInputStream(Stream);
-        pCompressor = &decompressorZstd;
+        decompressorZstd.SetInputStream(pOuterStream);
+        pInnerStream = &decompressorZstd;
         break;
 #else
         ezLog::Error("Material resource is compressed with zstandard, but support for this compressor is not compiled in.");
@@ -529,11 +529,11 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
         return res;
     }
 
-    ezStreamReader& stream = *pCompressor;
+    ezStreamReader& s = *pInnerStream;
 
     // Base material
     {
-      stream >> sTemp;
+      s >> sTemp;
 
       if (!sTemp.IsEmpty())
         m_mDesc.m_hBaseMaterial = ezResourceManager::LoadResource<ezMaterialResource>(sTemp);
@@ -541,7 +541,7 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
 
     if (uiVersion >= 4)
     {
-      stream >> sTemp;
+      s >> sTemp;
 
       if (!sTemp.IsEmpty())
       {
@@ -551,7 +551,7 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
 
     // Shader
     {
-      stream >> sTemp;
+      s >> sTemp;
 
       if (!sTemp.IsEmpty())
         m_mDesc.m_hShader = ezResourceManager::LoadResource<ezShaderResource>(sTemp);
@@ -560,14 +560,14 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
     // Permutation Variables
     {
       ezUInt16 uiPermVars;
-      stream >> uiPermVars;
+      s >> uiPermVars;
 
       m_mDesc.m_PermutationVars.Reserve(uiPermVars);
 
       for (ezUInt16 i = 0; i < uiPermVars; ++i)
       {
-        stream >> sTemp;
-        stream >> sTemp2;
+        s >> sTemp;
+        s >> sTemp2;
 
         if (!sTemp.IsEmpty() && !sTemp2.IsEmpty())
         {
@@ -579,21 +579,21 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
     // 2D Textures
     {
       ezUInt16 uiTextures = 0;
-      stream >> uiTextures;
+      s >> uiTextures;
 
       m_mDesc.m_Texture2DBindings.Reserve(uiTextures);
 
       for (ezUInt16 i = 0; i < uiTextures; ++i)
       {
-        stream >> sTemp;
-        stream >> sTemp2;
+        s >> sTemp;
+        s >> sTemp2;
 
-        if (sTemp.IsEmpty() || sTemp2.IsEmpty())
-          continue;
-
-        ezMaterialResourceDescriptor::Texture2DBinding& tc = m_mDesc.m_Texture2DBindings.ExpandAndGetRef();
-        tc.m_Name.Assign(sTemp.GetData());
-        tc.m_Value = ezResourceManager::LoadResource<ezTexture2DResource>(sTemp2);
+        if (!sTemp.IsEmpty() && !sTemp2.IsEmpty())
+        {
+          ezMaterialResourceDescriptor::Texture2DBinding& tc = m_mDesc.m_Texture2DBindings.ExpandAndGetRef();
+          tc.m_Name.Assign(sTemp.GetData());
+          tc.m_Value = ezResourceManager::LoadResource<ezTexture2DResource>(sTemp2);
+        }
       }
     }
 
@@ -601,21 +601,21 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
     if (uiVersion >= 3)
     {
       ezUInt16 uiTextures = 0;
-      stream >> uiTextures;
+      s >> uiTextures;
 
       m_mDesc.m_TextureCubeBindings.Reserve(uiTextures);
 
       for (ezUInt16 i = 0; i < uiTextures; ++i)
       {
-        stream >> sTemp;
-        stream >> sTemp2;
+        s >> sTemp;
+        s >> sTemp2;
 
-        if (sTemp.IsEmpty() || sTemp2.IsEmpty())
-          continue;
-
-        ezMaterialResourceDescriptor::TextureCubeBinding& tc = m_mDesc.m_TextureCubeBindings.ExpandAndGetRef();
-        tc.m_Name.Assign(sTemp.GetData());
-        tc.m_Value = ezResourceManager::LoadResource<ezTextureCubeResource>(sTemp2);
+        if (!sTemp.IsEmpty() && !sTemp2.IsEmpty())
+        {
+          ezMaterialResourceDescriptor::TextureCubeBinding& tc = m_mDesc.m_TextureCubeBindings.ExpandAndGetRef();
+          tc.m_Name.Assign(sTemp.GetData());
+          tc.m_Value = ezResourceManager::LoadResource<ezTextureCubeResource>(sTemp2);
+        }
       }
     }
 
@@ -626,7 +626,7 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
 
       ezUInt16 uiConstants = 0;
 
-      stream >> uiConstants;
+      s >> uiConstants;
 
       m_mDesc.m_Parameters.Reserve(uiConstants);
 
@@ -634,21 +634,21 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
 
       for (ezUInt16 i = 0; i < uiConstants; ++i)
       {
-        stream >> sTemp;
-        stream >> vTemp;
+        s >> sTemp;
+        s >> vTemp;
 
-        if (sTemp.IsEmpty() || !vTemp.IsValid())
-          continue;
-
-        ezMaterialResourceDescriptor::Parameter& tc = m_mDesc.m_Parameters.ExpandAndGetRef();
-        tc.m_Name.Assign(sTemp.GetData());
-        tc.m_Value = vTemp;
+        if (!sTemp.IsEmpty() && vTemp.IsValid())
+        {
+          ezMaterialResourceDescriptor::Parameter& tc = m_mDesc.m_Parameters.ExpandAndGetRef();
+          tc.m_Name.Assign(sTemp.GetData());
+          tc.m_Value = vTemp;
+        }
       }
     }
 
     if (uiVersion >= 5)
     {
-      auto& s = *Stream;
+      ezStreamReader& s = *pInnerStream;
 
       ezStringBuilder sResourceName;
 
@@ -683,7 +683,7 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
     ezStringBuilder tmp, tmp2;
     ezOpenDdlReader reader;
 
-    if (reader.ParseDocument(*Stream, 0, ezLog::GetThreadLocalLogSystem()).Failed())
+    if (reader.ParseDocument(*pOuterStream, 0, ezLog::GetThreadLocalLogSystem()).Failed())
     {
       res.m_State = ezResourceState::LoadedResourceMissing;
       return res;
