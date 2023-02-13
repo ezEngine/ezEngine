@@ -8,23 +8,6 @@ namespace JPH
   class SixDOFConstraint;
 }
 
-/// \brief Sent by components such as ezJoltGrabObjectComponent to indicate that the object has been grabbed or released.
-class EZ_JOLTPLUGIN_DLL ezMsgObjectGrabbed : public ezMessage
-{
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgObjectGrabbed, ezMessage);
-
-  ezGameObjectHandle m_hGrabbedBy;
-  bool m_bGotGrabbed = true;
-};
-
-/// \brief Send this to components such as ezJoltGrabObjectComponent to demand that m_hGrabbedObjectToRelease should no longer be grabbed.
-class EZ_JOLTPLUGIN_DLL ezMsgReleaseObjectGrab : public ezMessage
-{
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgReleaseObjectGrab, ezMessage);
-
-  ezGameObjectHandle m_hGrabbedObjectToRelease;
-};
-
 using ezJoltGrabObjectComponentManager = ezComponentManagerSimple<class ezJoltGrabObjectComponent, ezComponentUpdateType::WhenSimulating, ezBlockStorageType::Compact>;
 
 /// \brief Used to 'grab' physical objects and attach them to an object. For player objects to pick up objects.

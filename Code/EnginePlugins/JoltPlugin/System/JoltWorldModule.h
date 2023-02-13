@@ -68,6 +68,8 @@ public:
 
   virtual void AddStaticCollisionBox(ezGameObject* pObject, ezVec3 boxSize) override;
 
+  virtual void AddFixedJointComponent(ezGameObject* pOwner, const ezPhysicsWorldModuleInterface::FixedJointConfig& cfg) override;
+
   ezDeque<ezComponentHandle> m_RequireUpdate;
 
   const ezMap<ezJoltActorComponent*, ezUInt32>& GetActiveActors() const { return m_ActiveActors; }

@@ -7,6 +7,7 @@
 #include <JoltPlugin/Character/JoltCharacterControllerComponent.h>
 #include <JoltPlugin/Components/JoltSettingsComponent.h>
 #include <JoltPlugin/Constraints/JoltConstraintComponent.h>
+#include <JoltPlugin/Constraints/JoltFixedConstraintComponent.h>
 #include <JoltPlugin/Shapes/JoltShapeBoxComponent.h>
 #include <JoltPlugin/System/JoltContacts.h>
 #include <JoltPlugin/System/JoltCore.h>
@@ -351,6 +352,13 @@ void ezJoltWorldModule::AddStaticCollisionBox(ezGameObject* pObject, ezVec3 boxS
   ezJoltShapeBoxComponent* pBox;
   ezJoltShapeBoxComponent::CreateComponent(pObject, pBox);
   pBox->SetHalfExtents(boxSize * 0.5f);
+}
+
+void ezJoltWorldModule::AddFixedJointComponent(ezGameObject* pOwner, const ezPhysicsWorldModuleInterface::FixedJointConfig& cfg)
+{
+  ezJoltFixedConstraintComponent* pConstraint = nullptr;
+  m_pWorld->GetOrCreateComponentManager<ezJoltFixedConstraintComponentManager>()->CreateComponent(pOwner, pConstraint);
+  pConstraint->SetActors(cfg.m_hActorA, cfg.m_LocalFrameA, cfg.m_hActorB, cfg.m_LocalFrameB);
 }
 
 void ezJoltWorldModule::QueueBodyToAdd(JPH::Body* pBody, bool bAwake)

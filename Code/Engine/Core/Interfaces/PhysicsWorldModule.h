@@ -13,9 +13,9 @@ using ezSurfaceResourceHandle = ezTypedResourceHandle<class ezSurfaceResource>;
 /// \brief Classifies the facing of an individual raycast hit
 enum class ezPhysicsHitType : int8_t
 {
-  Undefined = -1, ///< Returned if the respective physics binding does not provide this information
-  TriangleFrontFace = 0,  ///< The raycast hit the front face of a triangle
-  TriangleBackFace = 1,   ///< The raycast hit the back face of a triangle
+  Undefined = -1,        ///< Returned if the respective physics binding does not provide this information
+  TriangleFrontFace = 0, ///< The raycast hit the front face of a triangle
+  TriangleBackFace = 1,  ///< The raycast hit the back face of a triangle
 };
 
 /// \brief Used for raycast and seep tests
@@ -25,10 +25,10 @@ struct ezPhysicsCastResult
   ezVec3 m_vNormal;
   float m_fDistance;
 
-  ezGameObjectHandle m_hShapeObject;            ///< The game object to which the hit physics shape is attached.
-  ezGameObjectHandle m_hActorObject;            ///< The game object to which the parent actor of the hit physics shape is attached.
-  ezSurfaceResourceHandle m_hSurface;           ///< The type of surface that was hit (if available)
-  ezUInt32 m_uiObjectFilterID = ezInvalidIndex; ///< An ID either per object (rigid-body / ragdoll) or per shape (implementation specific) that can be used to ignore this object during raycasts and shape queries.
+  ezGameObjectHandle m_hShapeObject;                        ///< The game object to which the hit physics shape is attached.
+  ezGameObjectHandle m_hActorObject;                        ///< The game object to which the parent actor of the hit physics shape is attached.
+  ezSurfaceResourceHandle m_hSurface;                       ///< The type of surface that was hit (if available)
+  ezUInt32 m_uiObjectFilterID = ezInvalidIndex;             ///< An ID either per object (rigid-body / ragdoll) or per shape (implementation specific) that can be used to ignore this object during raycasts and shape queries.
   ezPhysicsHitType m_hitType = ezPhysicsHitType::Undefined; ///< Classification of the triangle face, see ezPhysicsHitType
 
   // Physics-engine specific information, may be available or not.
@@ -125,7 +125,30 @@ public:
 
   virtual ezVec3 GetGravity() const = 0;
 
-  virtual void AddStaticCollisionBox(ezGameObject* pObject, ezVec3 boxSize) {}
+  //////////////////////////////////////////////////////////////////////////
+  // ABSTRACTION HELPERS
+  //
+  // These functions are used to be able to use certain physics functionality, without having a direct dependency on the exact implementation (Jolt / PhysX).
+  // If no physics module is available, they simply do nothing.
+  // Add functions on demand.
+
+  /// \brief Adds a static actor with a box shape to pOwner.
+  virtual void AddStaticCollisionBox(ezGameObject* pOwner, ezVec3 boxSize) {}
+
+  struct JointConfig
+  {
+    ezGameObjectHandle m_hActorA;
+    ezGameObjectHandle m_hActorB;
+    ezTransform m_LocalFrameA = ezTransform::IdentityTransform();
+    ezTransform m_LocalFrameB = ezTransform::IdentityTransform();
+  };
+
+  struct FixedJointConfig : JointConfig
+  {
+  };
+
+  /// \brief Adds a fixed joint to pOwner.
+  virtual void AddFixedJointComponent(ezGameObject* pOwner, const ezPhysicsWorldModuleInterface::FixedJointConfig& cfg) {}
 };
 
 /// \brief Used to apply a physical impulse on the object
@@ -162,6 +185,22 @@ struct EZ_CORE_DLL ezMsgPhysicsJointBroke : public ezEventMessage
   ezGameObjectHandle m_hJointObject;
 };
 
+/// \brief Sent by components such as ezJoltGrabObjectComponent to indicate that the object has been grabbed or released.
+class EZ_CORE_DLL ezMsgObjectGrabbed : public ezMessage
+{
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgObjectGrabbed, ezMessage);
+
+  ezGameObjectHandle m_hGrabbedBy;
+  bool m_bGotGrabbed = true;
+};
+
+/// \brief Send this to components such as ezJoltGrabObjectComponent to demand that m_hGrabbedObjectToRelease should no longer be grabbed.
+class EZ_CORE_DLL ezMsgReleaseObjectGrab : public ezMessage
+{
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgReleaseObjectGrab, ezMessage);
+
+  ezGameObjectHandle m_hGrabbedObjectToRelease;
+};
 
 //////////////////////////////////////////////////////////////////////////
 
