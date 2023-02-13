@@ -5,6 +5,7 @@
 #include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/MemoryStream.h>
+#include <Foundation/IO/OSFile.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Logging/VisualStudioWriter.h>
 #include <Foundation/System/CrashHandler.h>
@@ -432,6 +433,31 @@ void ezTestFramework::UpdateReferenceImages()
   const ezStringBuilder sRefFiles(sDir, "/Images_Reference");
 
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS) && EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
+
+
+#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+  ezStringBuilder sOptiPng = ezFileSystem::GetSdkRootDirectory();
+  sOptiPng.AppendPath("Data/Tools/Precompiled/optipng/optipng.exe");
+
+  if (ezOSFile::ExistsFile(sOptiPng))
+  {
+    ezStringBuilder sPath;
+
+    ezFileSystemIterator it;
+    it.StartSearch(sNewFiles, ezFileSystemIteratorFlags::ReportFiles);
+    for (; it.IsValid(); it.Next())
+    {
+      it.GetStats().GetFullPath(sPath);
+
+      ezProcessOptions opt;
+      opt.m_sProcess = sOptiPng;
+      opt.m_Arguments.PushBack(sPath);
+      ezProcess::Execute(opt).IgnoreResult();
+    }
+  }
+
+#  endif
+
   ezOSFile::CopyFolder(sNewFiles, sRefFiles).IgnoreResult();
   ezOSFile::DeleteFolder(sNewFiles).IgnoreResult();
 #endif
