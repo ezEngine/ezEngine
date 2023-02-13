@@ -52,6 +52,29 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgPhysicsJointBroke, 1, ezRTTIDefaultAllocato
 //}
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
+EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgObjectGrabbed);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgObjectGrabbed, 1, ezRTTIDefaultAllocator<ezMsgObjectGrabbed>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("GrabbedBy", m_hGrabbedBy),
+    EZ_MEMBER_PROPERTY("GotGrabbed", m_bGotGrabbed),
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgReleaseObjectGrab);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgReleaseObjectGrab, 1, ezRTTIDefaultAllocator<ezMsgReleaseObjectGrab>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("GrabbedObjectToRelease", m_hGrabbedObjectToRelease),
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
 //////////////////////////////////////////////////////////////////////////
 
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgBuildStaticMesh);
