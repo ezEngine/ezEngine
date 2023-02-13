@@ -608,8 +608,7 @@ void ezJSONParser::ReadString()
         case 'u':
         {
           ezUInt16 cpt[2];
-          auto ReadUtf16CodePoint = [&](ezUInt16& uiCodePoint) -> bool
-          {
+          auto ReadUtf16CodePoint = [&](ezUInt16& uiCodePoint) -> bool {
             uiCodePoint = 0;
 
             // Unicode literal are utf16 in the format \uFFFF. The hex number FFFF can be upper or lower case but must be 4 characters long.

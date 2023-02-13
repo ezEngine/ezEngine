@@ -669,8 +669,7 @@ EZ_CREATE_SIMPLE_TEST(Utility, ConversionUtils)
     }
 
     ezStringBuilder sHex;
-    ezConversionUtils::ConvertBinaryToHex(binary.GetData(), binary.GetCount(), [&sHex](const char* s)
-      { sHex.Append(s); });
+    ezConversionUtils::ConvertBinaryToHex(binary.GetData(), binary.GetCount(), [&sHex](const char* s) { sHex.Append(s); });
 
     ezDynamicArray<ezUInt8> binary2;
     binary2.SetCountUninitialized(1024);

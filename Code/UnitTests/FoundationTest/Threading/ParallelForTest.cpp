@@ -28,8 +28,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, ParallelFor)
   parallelForParams.m_uiBinSize = ::s_uiTaskItemSliceSize;
   parallelForParams.m_uiMaxTasksPerThread = 1;
 
-  auto ResetSharedVariables = [&uiRangesEncounteredCheck, &uiNumbersSum, &uiNumbersCheckSum, &numbers]()
-  {
+  auto ResetSharedVariables = [&uiRangesEncounteredCheck, &uiNumbersSum, &uiNumbersCheckSum, &numbers]() {
     uiRangesEncounteredCheck = 0;
     uiNumbersSum = 0;
 
@@ -53,8 +52,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, ParallelFor)
     // check if the ranges described by them are as expected
     ezTaskSystem::ParallelForIndexed(
       0, ::s_uiTotalNumberOfTaskItems,
-      [&dataAccessMutex, &uiRangesEncounteredCheck, &uiNumbersSum, &numbers](ezUInt32 uiStartIndex, ezUInt32 uiEndIndex)
-      {
+      [&dataAccessMutex, &uiRangesEncounteredCheck, &uiNumbersSum, &numbers](ezUInt32 uiStartIndex, ezUInt32 uiEndIndex) {
         EZ_LOCK(dataAccessMutex);
 
         // size check
@@ -93,8 +91,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, ParallelFor)
     // check if the ranges described by them are as expected
     ezTaskSystem::ParallelFor<ezUInt32>(
       numbers.GetArrayPtr(),
-      [&dataAccessMutex, &uiRangesEncounteredCheck, &uiNumbersSum, &startAddresses](ezArrayPtr<ezUInt32> taskItemSlice)
-      {
+      [&dataAccessMutex, &uiRangesEncounteredCheck, &uiNumbersSum, &startAddresses](ezArrayPtr<ezUInt32> taskItemSlice) {
         EZ_LOCK(dataAccessMutex);
 
         // size check
@@ -131,8 +128,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, ParallelFor)
     // sum up the slice of numbers by summing up the individual numbers that get handed to us
     ezTaskSystem::ParallelForSingle(
       numbers.GetArrayPtr(),
-      [&dataAccessMutex, &uiNumbersSum](ezUInt32 uiNumber)
-      {
+      [&dataAccessMutex, &uiNumbersSum](ezUInt32 uiNumber) {
         EZ_LOCK(dataAccessMutex);
         uiNumbersSum += uiNumber;
       },
@@ -151,8 +147,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, ParallelFor)
     // sum up the slice of numbers that got assigned to us via an index range
     ezTaskSystem::ParallelForSingleIndex(
       numbers.GetArrayPtr(),
-      [&dataAccessMutex, &uiNumbersSum](ezUInt32 uiIndex, ezUInt32 uiNumber)
-      {
+      [&dataAccessMutex, &uiNumbersSum](ezUInt32 uiIndex, ezUInt32 uiNumber) {
         EZ_LOCK(dataAccessMutex);
         uiNumbersSum += uiNumber + (uiIndex + 1);
       },
@@ -171,8 +166,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, ParallelFor)
     // modify the original array of numbers
     ezTaskSystem::ParallelForSingle(
       numbers.GetArrayPtr(),
-      [&dataAccessMutex](ezUInt32& uiNumber)
-      {
+      [&dataAccessMutex](ezUInt32& uiNumber) {
         EZ_LOCK(dataAccessMutex);
         uiNumber = uiNumber * 3;
       },
@@ -181,8 +175,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, ParallelFor)
     // sum up the new values to test if writing worked
     ezTaskSystem::ParallelForSingle(
       numbers.GetArrayPtr(),
-      [&dataAccessMutex, &uiNumbersSum](const ezUInt32& uiNumber)
-      {
+      [&dataAccessMutex, &uiNumbersSum](const ezUInt32& uiNumber) {
         EZ_LOCK(dataAccessMutex);
         uiNumbersSum += uiNumber;
       },
@@ -201,8 +194,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, ParallelFor)
     // modify the original array of numbers
     ezTaskSystem::ParallelForSingleIndex(
       numbers.GetArrayPtr(),
-      [&dataAccessMutex](ezUInt32, ezUInt32& uiNumber)
-      {
+      [&dataAccessMutex](ezUInt32, ezUInt32& uiNumber) {
         EZ_LOCK(dataAccessMutex);
         uiNumber = uiNumber * 4;
       },
@@ -211,8 +203,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, ParallelFor)
     // sum up the new values to test if writing worked
     ezTaskSystem::ParallelForSingle(
       numbers.GetArrayPtr(),
-      [&dataAccessMutex, &uiNumbersSum](const ezUInt32& uiNumber)
-      {
+      [&dataAccessMutex, &uiNumbersSum](const ezUInt32& uiNumber) {
         EZ_LOCK(dataAccessMutex);
         uiNumbersSum += uiNumber;
       },

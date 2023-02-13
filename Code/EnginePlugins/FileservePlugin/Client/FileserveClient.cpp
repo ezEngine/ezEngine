@@ -763,8 +763,7 @@ ezResult ezFileserveClient::TryConnectWithFileserver(const char* szAddress, ezTi
     return EZ_FAILURE;
 
   bool bServerFound = false;
-  network->SetMessageHandler('FSRV', [&bServerFound](ezRemoteMessage& msg)
-    {
+  network->SetMessageHandler('FSRV', [&bServerFound](ezRemoteMessage& msg) {
     switch (msg.GetMessageID())
     {
       case ' YES':

@@ -73,8 +73,7 @@ template <typename ElemType, typename Callback>
 void ezTaskSystem::ParallelFor(ezArrayPtr<ElemType> taskItems, Callback taskCallback, const char* taskName, const ezParallelForParams& params)
 {
   auto wrappedCallback = [taskCallback = std::move(taskCallback)](
-                           ezUInt32 /*uiBaseIndex*/, ezArrayPtr<ElemType> taskSlice)
-  { taskCallback(taskSlice); };
+                           ezUInt32 /*uiBaseIndex*/, ezArrayPtr<ElemType> taskSlice) { taskCallback(taskSlice); };
 
   ParallelForInternal<ElemType>(
     taskItems, ezParallelForFunction<ElemType>(std::move(wrappedCallback), ezFrameAllocator::GetCurrentAllocator()), taskName, params);
@@ -83,8 +82,7 @@ void ezTaskSystem::ParallelFor(ezArrayPtr<ElemType> taskItems, Callback taskCall
 template <typename ElemType, typename Callback>
 void ezTaskSystem::ParallelForSingle(ezArrayPtr<ElemType> taskItems, Callback taskCallback, const char* taskName, const ezParallelForParams& params)
 {
-  auto wrappedCallback = [taskCallback = std::move(taskCallback)](ezUInt32 /*uiBaseIndex*/, ezArrayPtr<ElemType> taskSlice)
-  {
+  auto wrappedCallback = [taskCallback = std::move(taskCallback)](ezUInt32 /*uiBaseIndex*/, ezArrayPtr<ElemType> taskSlice) {
     // Handing in by non-const& allows to use callbacks with (non-)const& as well as value parameters.
     for (ElemType& taskItem : taskSlice)
     {
@@ -100,8 +98,7 @@ template <typename ElemType, typename Callback>
 void ezTaskSystem::ParallelForSingleIndex(
   ezArrayPtr<ElemType> taskItems, Callback taskCallback, const char* taskName, const ezParallelForParams& params)
 {
-  auto wrappedCallback = [taskCallback = std::move(taskCallback)](ezUInt32 uiBaseIndex, ezArrayPtr<ElemType> taskSlice)
-  {
+  auto wrappedCallback = [taskCallback = std::move(taskCallback)](ezUInt32 uiBaseIndex, ezArrayPtr<ElemType> taskSlice) {
     for (ezUInt32 uiIndex = 0; uiIndex < taskSlice.GetCount(); ++uiIndex)
     {
       // Handing in by dereferenced pointer allows to use callbacks with (non-)const& as well as value parameters.

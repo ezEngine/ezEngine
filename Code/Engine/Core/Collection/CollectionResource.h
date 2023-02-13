@@ -68,7 +68,7 @@ public:
   /// \brief Puts up to the given number of resources for which a resource type could be found into the preload queue of the ezResourceManager.
   ///
   /// This has to be called manually. It will return false if no more resources can be queued for preloading. This can be used
-  /// as a workflow where PreloadResources and IsLoadingFinished are called repeadedly in tandem, so only a smaller fraction 
+  /// as a workflow where PreloadResources and IsLoadingFinished are called repeadedly in tandem, so only a smaller fraction
   /// of resources gets queued and waited for, to allow simple resource load-balancing.
   bool PreloadResources(ezUInt32 numResourcesToPreload = ezMath::MaxValue<ezUInt32>());
 
