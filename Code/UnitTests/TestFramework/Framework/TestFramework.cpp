@@ -10,6 +10,7 @@
 #include <Foundation/Logging/VisualStudioWriter.h>
 #include <Foundation/System/CrashHandler.h>
 #include <Foundation/System/EnvironmentVariableUtils.h>
+#include <Foundation/System/Process.h>
 #include <Foundation/System/StackTracer.h>
 #include <Foundation/Threading/ThreadUtils.h>
 #include <Foundation/Types/ScopeExit.h>
