@@ -88,7 +88,7 @@ void ezBlackboard::RegisterEntry(const ezHashedString& name, const ezVariant& in
     entry.m_Flags |= flags;
   }
 
-  if (entry.m_Value != initialValue)
+  if (!bExisted && entry.m_Value != initialValue)
   {
     // broadcasts the change event, in case we overwrite an existing entry
     SetEntryValue(name, initialValue).IgnoreResult();

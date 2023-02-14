@@ -120,8 +120,8 @@ public:
 
   /// \brief Registers an entry with a name, value and flags.
   ///
-  /// If the same entry already exists, this will act like SetEntryValue, but additionally it will add the entry flags
-  /// that hadn't been set before.
+  /// If the entry already exists, it will add the entry flags that hadn't been set before, but NOT change the value.
+  /// Thus you can use it to make sure that a value exists with a given start value, but keep it unchanged, if it already existed.
   void RegisterEntry(const ezHashedString& name, const ezVariant& initialValue, ezBitflags<ezBlackboardEntryFlags> flags = ezBlackboardEntryFlags::None);
 
   /// \brief Removes the named entry. Does nothing, if no such entry exists.
