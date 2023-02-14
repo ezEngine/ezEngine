@@ -159,10 +159,10 @@ const ezBlackboard::Entry* ezBlackboard::GetEntry(const ezTempHashedString& name
   return &itEntry.Value();
 }
 
-ezVariant ezBlackboard::GetEntryValue(const ezTempHashedString& name) const
+ezVariant ezBlackboard::GetEntryValue(const ezTempHashedString& name, ezVariant fallback) const
 {
   auto value = m_Entries.GetValue(name);
-  return value != nullptr ? value->m_Value : ezVariant();
+  return value != nullptr ? value->m_Value : fallback;
 }
 
 ezBitflags<ezBlackboardEntryFlags> ezBlackboard::GetEntryFlags(const ezTempHashedString& name) const

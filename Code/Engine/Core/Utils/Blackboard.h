@@ -146,8 +146,8 @@ public:
   /// \brief Returns the flags of the named entry, or ezBlackboardEntryFlags::Invalid, if no such entry was registered.
   ezBitflags<ezBlackboardEntryFlags> GetEntryFlags(const ezTempHashedString& name) const;
 
-  /// \brief Returns the value of the named entry, or an invalid ezVariant, if no such entry was registered.
-  ezVariant GetEntryValue(const ezTempHashedString& name) const;
+  /// \brief Returns the value of the named entry, or the fallback ezVariant, if no such entry was registered.
+  ezVariant GetEntryValue(const ezTempHashedString& name, ezVariant fallback = {}) const;
 
   /// \brief Grants read access to the entire map of entries.
   const ezHashTable<ezHashedString, Entry>& GetAllEntries() const { return m_Entries; }
