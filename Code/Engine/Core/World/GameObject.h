@@ -477,6 +477,10 @@ private:
   friend class ezComponentManagerBase;
   friend class ezGameObjectTest;
 
+  // only needed until reflection can deal with ezStringView
+  void SetNameInternal(const char* szName);
+  const char* GetNameInternal() const;
+
   bool SendMessageInternal(ezMessage& msg, bool bWasPostedMsg);
   bool SendMessageInternal(ezMessage& msg, bool bWasPostedMsg) const;
   bool SendMessageRecursiveInternal(ezMessage& msg, bool bWasPostedMsg);

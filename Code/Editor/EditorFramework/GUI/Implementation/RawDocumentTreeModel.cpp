@@ -70,15 +70,12 @@ QVariant ezQtDummyAdapter::data(const ezDocumentObject* pObject, int row, int co
   return QVariant();
 }
 
-ezQtNamedAdapter::ezQtNamedAdapter(
-  const ezDocumentObjectManager* pTree, const ezRTTI* pType, const char* m_sChildProperty, const char* szNameProperty)
+ezQtNamedAdapter::ezQtNamedAdapter(const ezDocumentObjectManager* pTree, const ezRTTI* pType, const char* m_sChildProperty, const char* szNameProperty)
   : ezQtDocumentTreeModelAdapter(pTree, pType, m_sChildProperty)
   , m_sNameProperty(szNameProperty)
 {
   auto pProp = pType->FindPropertyByName(m_sNameProperty);
-  EZ_ASSERT_DEV(
-    pProp != nullptr && pProp->GetCategory() == ezPropertyCategory::Member && pProp->GetSpecificType()->GetVariantType() == ezVariantType::String,
-    "THe name property must be a string member property.");
+  EZ_ASSERT_DEV(pProp != nullptr && pProp->GetCategory() == ezPropertyCategory::Member && pProp->GetSpecificType()->GetVariantType() == ezVariantType::String, "The name property must be a string member property.");
 
   m_pTree->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtNamedAdapter::TreePropertyEventHandler, this));
 }
@@ -176,14 +173,14 @@ void ezQtDocumentTreeModel::AddAdapter(ezQtDocumentTreeModelAdapter* adapter)
   EZ_ASSERT_DEV(!m_Adapters.Contains(adapter->GetType()), "An adapter for the given type was already registered.");
 
   adapter->setParent(this);
-  connect(adapter, &ezQtDocumentTreeModelAdapter::dataChanged, this, [this](const ezDocumentObject* pObject, QVector<int> roles) {
+  connect(adapter, &ezQtDocumentTreeModelAdapter::dataChanged, this, [this](const ezDocumentObject* pObject, QVector<int> roles)
+    {
     if (!pObject)
       return;
     auto index = ComputeModelIndex(pObject);
     if (!index.isValid())
       return;
-    dataChanged(index, index, roles);
-  });
+    dataChanged(index, index, roles); });
   m_Adapters.Insert(adapter->GetType(), adapter);
   beginResetModel();
   endResetModel();
@@ -532,7 +529,7 @@ bool ezQtDocumentTreeModel::MoveObjects(const ezDragDropInfo& info)
 
     for (const ezDocumentObject* pDocObject : Dragged)
     {
-      //if (action != Qt::DropAction::MoveAction)
+      // if (action != Qt::DropAction::MoveAction)
       {
         bool bCanMove = true;
         const ezDocumentObject* pCurParent = pTarget;
