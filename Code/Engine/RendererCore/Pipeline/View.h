@@ -29,8 +29,8 @@ private:
 public:
   ezViewHandle GetHandle() const;
 
-  void SetName(const char* szName);
-  const char* GetName() const;
+  void SetName(ezStringView sName);
+  ezStringView GetName() const;
 
   void SetWorld(ezWorld* pWorld);
   ezWorld* GetWorld();

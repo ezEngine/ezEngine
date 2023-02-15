@@ -12,11 +12,11 @@ class EZ_CORE_DLL ezActor : public ezReflectedClass
   EZ_DISALLOW_COPY_AND_ASSIGN(ezActor);
 
 public:
-  ezActor(const char* szActorName, const void* pCreatedBy);
+  ezActor(ezStringView sActorName, const void* pCreatedBy);
   ~ezActor();
 
   /// \brief Returns the name of this actor
-  const char* GetName() const;
+  ezStringView GetName() const;
 
   /// \brief Returns the 'created by' pointer of the actor
   const void* GetCreatedBy() const;

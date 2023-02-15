@@ -329,10 +329,10 @@ void ezCameraComponent::ShowStats(ezView* pView)
 
   // draw stats
   {
-    const char* szName = GetOwner()->GetName();
+    const ezStringView sName = GetOwner()->GetName();
 
     ezStringBuilder sb;
-    sb.Format("Camera '{0}':\nEV100: {1}, Exposure: {2}", ezStringUtils::IsNullOrEmpty(szName) ? pView->GetName() : szName, GetEV100(), GetExposure());
+    sb.Format("Camera '{0}':\nEV100: {1}, Exposure: {2}", sName.IsEmpty() ? pView->GetName() : sName, GetEV100(), GetExposure());
     ezDebugRenderer::DrawInfoText(pView->GetHandle(), ezDebugRenderer::ScreenPlacement::TopLeft, "CamStats", sb, ezColor::White);
   }
 

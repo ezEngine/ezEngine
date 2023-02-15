@@ -302,9 +302,9 @@ void ezWorld::DeleteObjectDelayed(const ezGameObjectHandle& hObject, bool bAlsoD
   PostMessage(hObject, msg, ezTime::Zero());
 }
 
-ezComponentInitBatchHandle ezWorld::CreateComponentInitBatch(const char* szBatchName, bool bMustFinishWithinOneFrame /*= true*/)
+ezComponentInitBatchHandle ezWorld::CreateComponentInitBatch(ezStringView sBatchName, bool bMustFinishWithinOneFrame /*= true*/)
 {
-  auto pInitBatch = EZ_NEW(GetAllocator(), ezInternal::WorldData::InitBatch, GetAllocator(), szBatchName, bMustFinishWithinOneFrame);
+  auto pInitBatch = EZ_NEW(GetAllocator(), ezInternal::WorldData::InitBatch, GetAllocator(), sBatchName, bMustFinishWithinOneFrame);
   return ezComponentInitBatchHandle(m_Data.m_InitBatches.Insert(pInitBatch));
 }
 
@@ -755,17 +755,17 @@ void ezWorld::SetObjectGlobalKey(ezGameObject* pObject, const ezHashedString& sG
   }
 }
 
-const char* ezWorld::GetObjectGlobalKey(const ezGameObject* pObject) const
+ezStringView ezWorld::GetObjectGlobalKey(const ezGameObject* pObject) const
 {
   const ezUInt32 uiId = pObject->m_InternalId.m_InstanceIndex;
 
   const ezHashedString* pGlobalKey;
   if (m_Data.m_IdToGlobalKeyTable.TryGetValue(uiId, pGlobalKey))
   {
-    return pGlobalKey->GetData();
+    return pGlobalKey->GetView();
   }
 
-  return "";
+  return {};
 }
 
 void ezWorld::ProcessQueuedMessage(const ezInternal::WorldData::MessageQueue::Entry& entry)

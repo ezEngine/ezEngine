@@ -708,7 +708,7 @@ static int __CPP_GameObject_GetString(duk_context* pDuk)
 
   ezGameObject* pGameObject = ezTypeScriptBinding::ExpectGameObject(duk, 0 /*this*/);
 
-  const char* res = "";
+  ezStringView res;
 
   switch (duk.GetFunctionMagicValue())
   {

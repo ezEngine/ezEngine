@@ -9,9 +9,9 @@ ezHybridArray<ezSpatialData::CategoryData, 32>& ezSpatialData::GetCategoryData()
 }
 
 // static
-ezSpatialData::Category ezSpatialData::RegisterCategory(const char* szCategoryName, const ezBitflags<Flags>& flags)
+ezSpatialData::Category ezSpatialData::RegisterCategory(ezStringView sCategoryName, const ezBitflags<Flags>& flags)
 {
-  Category oldCategory = FindCategory(szCategoryName);
+  Category oldCategory = FindCategory(sCategoryName);
   if (oldCategory != ezInvalidSpatialDataCategory)
   {
     EZ_ASSERT_DEV(GetCategoryFlags(oldCategory) == flags, "Category registered with different flags");
@@ -27,16 +27,16 @@ ezSpatialData::Category ezSpatialData::RegisterCategory(const char* szCategoryNa
   Category newCategory = Category(GetCategoryData().GetCount());
 
   auto& data = GetCategoryData().ExpandAndGetRef();
-  data.m_sName.Assign(szCategoryName);
+  data.m_sName.Assign(sCategoryName);
   data.m_Flags = flags;
 
   return newCategory;
 }
 
 // static
-ezSpatialData::Category ezSpatialData::FindCategory(const char* szCategoryName)
+ezSpatialData::Category ezSpatialData::FindCategory(ezStringView sCategoryName)
 {
-  ezTempHashedString categoryName(szCategoryName);
+  ezTempHashedString categoryName(sCategoryName);
 
   for (ezUInt32 uiCategoryIndex = 0; uiCategoryIndex < GetCategoryData().GetCount(); ++uiCategoryIndex)
   {

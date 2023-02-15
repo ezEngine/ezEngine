@@ -97,7 +97,7 @@ public:
   ///
   /// \note For global blackboards this has no effect under which name they are found. A global blackboard continues to
   /// be found by the name under which it was originally registered.
-  void SetName(const char* szName);
+  void SetName(ezStringView sName);
   const char* GetName() const { return m_sName; }
   const ezHashedString& GetNameHashed() const { return m_sName; }
 

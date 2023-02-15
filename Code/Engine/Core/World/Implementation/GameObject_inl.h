@@ -86,9 +86,9 @@ EZ_ALWAYS_INLINE bool ezGameObject::IsActive() const
   return m_Flags.IsSet(ezObjectFlags::ActiveState);
 }
 
-EZ_ALWAYS_INLINE void ezGameObject::SetName(const char* szName)
+EZ_ALWAYS_INLINE void ezGameObject::SetName(ezStringView sName)
 {
-  m_sName.Assign(szName);
+  m_sName.Assign(sName);
 }
 
 EZ_ALWAYS_INLINE void ezGameObject::SetName(const ezHashedString& sName)
@@ -96,16 +96,16 @@ EZ_ALWAYS_INLINE void ezGameObject::SetName(const ezHashedString& sName)
   m_sName = sName;
 }
 
-EZ_ALWAYS_INLINE void ezGameObject::SetGlobalKey(const char* szGlobalKey)
+EZ_ALWAYS_INLINE void ezGameObject::SetGlobalKey(ezStringView sKey)
 {
   ezHashedString sGlobalKey;
-  sGlobalKey.Assign(szGlobalKey);
+  sGlobalKey.Assign(sKey);
   SetGlobalKey(sGlobalKey);
 }
 
-EZ_ALWAYS_INLINE const char* ezGameObject::GetName() const
+EZ_ALWAYS_INLINE ezStringView ezGameObject::GetName() const
 {
-  return m_sName.GetString().GetData();
+  return m_sName.GetView();
 }
 
 EZ_ALWAYS_INLINE bool ezGameObject::HasName(const ezTempHashedString& name) const

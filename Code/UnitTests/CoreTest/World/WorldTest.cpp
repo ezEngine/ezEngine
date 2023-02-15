@@ -215,7 +215,7 @@ EZ_CREATE_SIMPLE_TEST(World, World)
     EZ_TEST_BOOL(pParentObject->GetGlobalRotation().IsEqualRotation(desc.m_LocalRotation, eps * 10.0f));
     EZ_TEST_VEC3(pParentObject->GetGlobalScaling(), desc.m_LocalScaling, 0);
 
-    EZ_TEST_STRING(pParentObject->GetName(), desc.m_sName.GetString().GetData());
+    EZ_TEST_BOOL(pParentObject->GetName() == desc.m_sName.GetString());
 
     desc.m_LocalRotation.SetIdentity();
     desc.m_LocalScaling.Set(1.0f);
@@ -239,7 +239,7 @@ EZ_CREATE_SIMPLE_TEST(World, World)
       ezStringBuilder sb;
       sb.AppendFormat("Child_{0}", uiCounter);
 
-      EZ_TEST_STRING(it->GetName(), sb.GetData());
+      EZ_TEST_BOOL(it->GetName() == sb);
 
       EZ_TEST_VEC3(it->GetGlobalPosition(), ezVec3(100.0f, uiCounter * 15.0f, 0.0f), eps * 2.0f); // 15 because parent is scaled by 1.5
       EZ_TEST_BOOL(it->GetGlobalRotation().IsEqualRotation(q, eps * 10.0f));
@@ -267,7 +267,7 @@ EZ_CREATE_SIMPLE_TEST(World, World)
       ezStringBuilder sb;
       sb.AppendFormat("Child_{0}", indices[uiCounter]);
 
-      EZ_TEST_STRING(it->GetName(), sb.GetData());
+      EZ_TEST_BOOL(it->GetName() == sb);
 
       ++uiCounter;
     }
@@ -289,7 +289,7 @@ EZ_CREATE_SIMPLE_TEST(World, World)
       ezStringBuilder sb;
       sb.AppendFormat("Child_{0}", indices[uiCounter]);
 
-      EZ_TEST_STRING(it->GetName(), sb.GetData());
+      EZ_TEST_BOOL(it->GetName() == sb);
 
       ++uiCounter;
     }

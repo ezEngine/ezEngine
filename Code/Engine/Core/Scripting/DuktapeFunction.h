@@ -32,7 +32,7 @@ public:
   ezInt32 ReturnUInt(ezUInt32 value);
   ezInt32 ReturnFloat(float value);
   ezInt32 ReturnNumber(double value);
-  ezInt32 ReturnString(const char* value);
+  ezInt32 ReturnString(ezStringView value);
   ezInt32 ReturnCustom();
 
   ///@}

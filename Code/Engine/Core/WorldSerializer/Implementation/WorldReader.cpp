@@ -743,13 +743,13 @@ ezTime ezWorldReader::InstantiationContext::GetMaxStepTime() const
   return m_Options.m_MaxStepTime;
 }
 
-void ezWorldReader::InstantiationContext::BeginNextProgressStep(const char* szName)
+void ezWorldReader::InstantiationContext::BeginNextProgressStep(ezStringView sName)
 {
   if (m_pOverallProgressRange != nullptr)
   {
-    m_pOverallProgressRange->BeginNextStep(szName);
+    m_pOverallProgressRange->BeginNextStep(sName);
     m_pSubProgressRange = nullptr;
-    m_pSubProgressRange = EZ_DEFAULT_NEW(ezProgressRange, szName, false, m_pOverallProgressRange->GetProgressbar());
+    m_pSubProgressRange = EZ_DEFAULT_NEW(ezProgressRange, sName, false, m_pOverallProgressRange->GetProgressbar());
   }
 }
 

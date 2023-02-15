@@ -41,11 +41,11 @@ ezView::ezView()
 
 ezView::~ezView() = default;
 
-void ezView::SetName(const char* szName)
+void ezView::SetName(ezStringView sName)
 {
-  m_sName.Assign(szName);
+  m_sName.Assign(sName);
 
-  ezStringBuilder sb = szName;
+  ezStringBuilder sb = sName;
   sb.Append(".ExtractData");
   m_pExtractTask->ConfigureTask(sb, ezTaskNesting::Maybe);
 }

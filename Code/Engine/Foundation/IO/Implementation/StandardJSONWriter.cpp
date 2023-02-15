@@ -84,19 +84,19 @@ void ezStandardJSONWriter::SetOutputStream(ezStreamWriter* pOutput)
   m_pOutput = pOutput;
 }
 
-void ezStandardJSONWriter::OutputString(const char* sz)
+void ezStandardJSONWriter::OutputString(ezStringView s)
 {
   EZ_ASSERT_DEBUG(m_pOutput != nullptr, "No output stream has been set yet.");
 
-  if (m_pOutput->WriteBytes(sz, ezStringUtils::GetStringElementCount(sz)).Failed())
+  if (m_pOutput->WriteBytes(s.GetStartPointer(), s.GetElementCount()).Failed())
   {
     SetWriteErrorState();
   }
 }
 
-void ezStandardJSONWriter::OutputEscapedString(const char* sz)
+void ezStandardJSONWriter::OutputEscapedString(ezStringView s)
 {
-  ezStringBuilder sEscaped = sz;
+  ezStringBuilder sEscaped = s;
   sEscaped.ReplaceAll("\\", "\\\\");
   // sEscaped.ReplaceAll("/", "\\/"); // this is not necessary to escape
   sEscaped.ReplaceAll("\"", "\\\"");
@@ -107,7 +107,7 @@ void ezStandardJSONWriter::OutputEscapedString(const char* sz)
   sEscaped.ReplaceAll("\t", "\\t");
 
   OutputString("\"");
-  OutputString(sEscaped.GetData());
+  OutputString(sEscaped);
   OutputString("\"");
 }
 
@@ -197,7 +197,7 @@ void ezStandardJSONWriter::WriteDouble(double value)
   OutputString(s.GetData());
 }
 
-void ezStandardJSONWriter::WriteString(const char* value)
+void ezStandardJSONWriter::WriteString(ezStringView value)
 {
   CommaWriter cw(this);
 

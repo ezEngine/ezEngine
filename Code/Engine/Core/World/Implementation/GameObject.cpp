@@ -331,7 +331,7 @@ void ezGameObject::SetGlobalKey(const ezHashedString& sName)
   GetWorld()->SetObjectGlobalKey(this, sName);
 }
 
-const char* ezGameObject::GetGlobalKey() const
+ezStringView ezGameObject::GetGlobalKey() const
 {
   return GetWorld()->GetObjectGlobalKey(this);
 }
@@ -418,35 +418,35 @@ ezGameObject* ezGameObject::FindChildByName(const ezTempHashedString& name, bool
   return nullptr;
 }
 
-ezGameObject* ezGameObject::FindChildByPath(const char* path)
+ezGameObject* ezGameObject::FindChildByPath(ezStringView sPath)
 {
   /// \test Needs a unit test
 
-  if (ezStringUtils::IsNullOrEmpty(path))
+  if (sPath.IsEmpty())
     return this;
 
-  const char* szSep = ezStringUtils::FindSubString(path, "/");
+  const char* szSep = sPath.FindSubString("/");
   ezUInt64 uiNameHash = 0;
 
   if (szSep == nullptr)
-    uiNameHash = ezHashingUtils::StringHash(path);
+    uiNameHash = ezHashingUtils::StringHash(sPath);
   else
-    uiNameHash = ezHashingUtils::StringHash(ezStringView(path, szSep));
+    uiNameHash = ezHashingUtils::StringHash(ezStringView(sPath.GetStartPointer(), szSep));
 
   ezGameObject* pNextChild = FindChildByName(ezTempHashedString(uiNameHash), false);
 
   if (szSep == nullptr || pNextChild == nullptr)
     return pNextChild;
 
-  return pNextChild->FindChildByPath(szSep + 1);
+  return pNextChild->FindChildByPath(ezStringView(szSep + 1, sPath.GetEndPointer()));
 }
 
 
-ezGameObject* ezGameObject::SearchForChildByNameSequence(const char* szObjectSequence, const ezRTTI* pExpectedComponent /*= nullptr*/)
+ezGameObject* ezGameObject::SearchForChildByNameSequence(ezStringView sObjectSequence, const ezRTTI* pExpectedComponent /*= nullptr*/)
 {
   /// \test Needs a unit test
 
-  if (ezStringUtils::IsNullOrEmpty(szObjectSequence))
+  if (sObjectSequence.IsEmpty())
   {
     // in case we are searching for a specific component type, verify that it exists on this object
     if (pExpectedComponent != nullptr)
@@ -459,20 +459,18 @@ ezGameObject* ezGameObject::SearchForChildByNameSequence(const char* szObjectSeq
     return this;
   }
 
-  const char* szSep = ezStringUtils::FindSubString(szObjectSequence, "/");
-  const char* szNextSequence = nullptr;
+  const char* szSep = sObjectSequence.FindSubString("/");
+  ezStringView sNextSequence;
   ezUInt64 uiNameHash = 0;
 
   if (szSep == nullptr)
   {
-    const ezUInt32 len = ezStringUtils::GetStringElementCount(szObjectSequence);
-    uiNameHash = ezHashingUtils::StringHash(ezStringView(szObjectSequence, len));
-    szNextSequence = szObjectSequence + len;
+    uiNameHash = ezHashingUtils::StringHash(sObjectSequence);
   }
   else
   {
-    uiNameHash = ezHashingUtils::StringHash(ezStringView(szObjectSequence, static_cast<ezUInt32>(szSep - szObjectSequence)));
-    szNextSequence = szSep + 1;
+    uiNameHash = ezHashingUtils::StringHash(ezStringView(sObjectSequence.GetStartPointer(), szSep));
+    sNextSequence = ezStringView(szSep + 1, sObjectSequence.GetEndPointer());
   }
 
   const ezTempHashedString name(uiNameHash);
@@ -483,7 +481,7 @@ ezGameObject* ezGameObject::SearchForChildByNameSequence(const char* szObjectSeq
   {
     if (it->m_sName == name)
     {
-      ezGameObject* res = it->SearchForChildByNameSequence(szNextSequence, pExpectedComponent);
+      ezGameObject* res = it->SearchForChildByNameSequence(sNextSequence, pExpectedComponent);
       if (res != nullptr)
         return res;
     }
@@ -496,7 +494,7 @@ ezGameObject* ezGameObject::SearchForChildByNameSequence(const char* szObjectSeq
   {
     if (it->m_sName != name)
     {
-      ezGameObject* res = it->SearchForChildByNameSequence(szObjectSequence, pExpectedComponent);
+      ezGameObject* res = it->SearchForChildByNameSequence(sObjectSequence, pExpectedComponent);
       if (res != nullptr)
         return res;
     }
@@ -506,12 +504,11 @@ ezGameObject* ezGameObject::SearchForChildByNameSequence(const char* szObjectSeq
 }
 
 
-void ezGameObject::SearchForChildrenByNameSequence(
-  const char* szObjectSequence, const ezRTTI* pExpectedComponent, ezHybridArray<ezGameObject*, 8>& out_Objects)
+void ezGameObject::SearchForChildrenByNameSequence(ezStringView sObjectSequence, const ezRTTI* pExpectedComponent, ezHybridArray<ezGameObject*, 8>& out_Objects)
 {
   /// \test Needs a unit test
 
-  if (ezStringUtils::IsNullOrEmpty(szObjectSequence))
+  if (sObjectSequence.IsEmpty())
   {
     // in case we are searching for a specific component type, verify that it exists on this object
     if (pExpectedComponent != nullptr)
@@ -525,20 +522,18 @@ void ezGameObject::SearchForChildrenByNameSequence(
     return;
   }
 
-  const char* szSep = ezStringUtils::FindSubString(szObjectSequence, "/");
-  const char* szNextSequence = nullptr;
+  const char* szSep = sObjectSequence.FindSubString("/");
+  ezStringView sNextSequence;
   ezUInt64 uiNameHash = 0;
 
   if (szSep == nullptr)
   {
-    const ezUInt32 len = ezStringUtils::GetStringElementCount(szObjectSequence);
-    uiNameHash = ezHashingUtils::StringHash(ezStringView(szObjectSequence, len));
-    szNextSequence = szObjectSequence + len;
+    uiNameHash = ezHashingUtils::StringHash(sObjectSequence);
   }
   else
   {
-    uiNameHash = ezHashingUtils::StringHash(ezStringView(szObjectSequence, static_cast<ezUInt32>(szSep - szObjectSequence)));
-    szNextSequence = szSep + 1;
+    uiNameHash = ezHashingUtils::StringHash(ezStringView(sObjectSequence.GetStartPointer(), szSep));
+    sNextSequence = ezStringView(szSep + 1, sObjectSequence.GetEndPointer());
   }
 
   const ezTempHashedString name(uiNameHash);
@@ -549,7 +544,7 @@ void ezGameObject::SearchForChildrenByNameSequence(
   {
     if (it->m_sName == name)
     {
-      it->SearchForChildrenByNameSequence(szNextSequence, pExpectedComponent, out_Objects);
+      it->SearchForChildrenByNameSequence(sNextSequence, pExpectedComponent, out_Objects);
     }
   }
 
@@ -560,7 +555,7 @@ void ezGameObject::SearchForChildrenByNameSequence(
   {
     if (it->m_sName != name) // TODO: in this function it is actually debatable whether to skip these or not
     {
-      it->SearchForChildrenByNameSequence(szObjectSequence, pExpectedComponent, out_Objects);
+      it->SearchForChildrenByNameSequence(sObjectSequence, pExpectedComponent, out_Objects);
     }
   }
 }

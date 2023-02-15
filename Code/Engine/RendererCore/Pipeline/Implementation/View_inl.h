@@ -4,9 +4,9 @@ EZ_ALWAYS_INLINE ezViewHandle ezView::GetHandle() const
   return ezViewHandle(m_InternalId);
 }
 
-EZ_ALWAYS_INLINE const char* ezView::GetName() const
+EZ_ALWAYS_INLINE ezStringView ezView::GetName() const
 {
-  return m_sName.GetString();
+  return m_sName.GetView();
 }
 
 EZ_ALWAYS_INLINE ezWorld* ezView::GetWorld()

@@ -29,7 +29,7 @@ public:
   void Clear();
 
   /// \brief Returns the name of this world.
-  const char* GetName() const;
+  ezStringView GetName() const;
 
   /// \brief Returns the index of this world.
   ezUInt32 GetIndex() const;
@@ -181,7 +181,7 @@ public:
   /// It is ensured that the Initialize function is called for all components in a batch before the OnSimulationStarted is called.
   /// If bMustFinishWithinOneFrame is set to false the processing of an init batch can be distributed over multiple frames if
   /// m_MaxComponentInitializationTimePerFrame in the world desc is set to a reasonable value.
-  ezComponentInitBatchHandle CreateComponentInitBatch(const char* szBatchName, bool bMustFinishWithinOneFrame = true);
+  ezComponentInitBatchHandle CreateComponentInitBatch(ezStringView sBatchName, bool bMustFinishWithinOneFrame = true);
 
   /// \brief Deletes a component init batch. It must be completely processed before it can be deleted.
   void DeleteComponentInitBatch(const ezComponentInitBatchHandle& batch);
@@ -364,7 +364,7 @@ private:
   void UnlinkFromParent(ezGameObject* pObject);
 
   void SetObjectGlobalKey(ezGameObject* pObject, const ezHashedString& sGlobalKey);
-  const char* GetObjectGlobalKey(const ezGameObject* pObject) const;
+  ezStringView GetObjectGlobalKey(const ezGameObject* pObject) const;
 
   void PostMessage(const ezGameObjectHandle& receiverObject, const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay, bool bRecursive) const;
   void ProcessQueuedMessage(const ezInternal::WorldData::MessageQueue::Entry& entry);

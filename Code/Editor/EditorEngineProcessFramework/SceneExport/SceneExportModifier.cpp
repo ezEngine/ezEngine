@@ -64,10 +64,10 @@ void VisitObject(ezWorld& world, ezGameObject* pObject)
   if (!pObject->GetComponents().IsEmpty())
     return;
 
-  if (!ezStringUtils::IsNullOrEmpty(pObject->GetName()))
+  if (!pObject->GetName().IsEmpty())
     return;
 
-  if (!ezStringUtils::IsNullOrEmpty(pObject->GetGlobalKey()))
+  if (!pObject->GetGlobalKey().IsEmpty())
     return;
 
   world.DeleteObjectDelayed(pObject->GetHandle(), false);
@@ -80,11 +80,11 @@ void ezSceneExportModifier::CleanUpWorld(ezWorld& world)
   // Don't do this (for now), as we would also delete objects that are referenced by other components,
   // and currently we can't know which ones are important to keep.
 
-  //for (auto it = world.GetObjects(); it.IsValid(); it.Next())
+  // for (auto it = world.GetObjects(); it.IsValid(); it.Next())
   //{
-  //  // only visit objects without parents, those are the root objects
-  //  if (it->GetParent() != nullptr)
-  //    continue;
+  //   // only visit objects without parents, those are the root objects
+  //   if (it->GetParent() != nullptr)
+  //     continue;
 
   //  VisitObject(world, it);
   //}

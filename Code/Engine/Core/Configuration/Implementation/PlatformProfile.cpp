@@ -112,10 +112,10 @@ ezProfileConfigData* ezPlatformProfile::GetTypeConfig(const ezRTTI* pRtti)
   return const_cast<ezProfileConfigData*>(((const ezPlatformProfile*)this)->GetTypeConfig(pRtti));
 }
 
-ezResult ezPlatformProfile::SaveForRuntime(const char* szFile) const
+ezResult ezPlatformProfile::SaveForRuntime(ezStringView sFile) const
 {
   ezFileWriter file;
-  EZ_SUCCEED_OR_RETURN(file.Open(szFile));
+  EZ_SUCCEED_OR_RETURN(file.Open(sFile));
 
   ezChunkStreamWriter chunk(file);
 
@@ -131,10 +131,10 @@ ezResult ezPlatformProfile::SaveForRuntime(const char* szFile) const
   return EZ_SUCCESS;
 }
 
-ezResult ezPlatformProfile::LoadForRuntime(const char* szFile)
+ezResult ezPlatformProfile::LoadForRuntime(ezStringView sFile)
 {
   ezFileReader file;
-  EZ_SUCCEED_OR_RETURN(file.Open(szFile));
+  EZ_SUCCEED_OR_RETURN(file.Open(sFile));
 
   ezChunkStreamReader chunk(file);
 
