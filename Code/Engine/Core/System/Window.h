@@ -179,13 +179,13 @@ struct EZ_CORE_DLL ezWindowCreationDesc
   void SaveToDDL(ezOpenDdlWriter& writer);
 
   /// Serializes the configuration to DDL.
-  ezResult SaveToDDL(const char* szFile);
+  ezResult SaveToDDL(ezStringView sFile);
 
   /// Deserializes the configuration from DDL.
   void LoadFromDDL(const ezOpenDdlReaderElement* pParentElement);
 
   /// Deserializes the configuration from DDL.
-  ezResult LoadFromDDL(const char* szFile);
+  ezResult LoadFromDDL(ezStringView sFile);
 
 
   /// The window title to be displayed.

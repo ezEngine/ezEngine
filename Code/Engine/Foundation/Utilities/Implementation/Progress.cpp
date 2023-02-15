@@ -65,18 +65,18 @@ void ezProgress::SetActiveRange(ezProgressRange* pRange)
   m_pActiveRange = pRange;
 }
 
-const char* ezProgress::GetMainDisplayText() const
+ezStringView ezProgress::GetMainDisplayText() const
 {
   if (m_pActiveRange == nullptr)
-    return "";
+    return {};
 
   return m_pActiveRange->m_sDisplayText;
 }
 
-const char* ezProgress::GetStepDisplayText() const
+ezStringView ezProgress::GetStepDisplayText() const
 {
   if (m_pActiveRange == nullptr)
-    return "";
+    return {};
 
   return m_pActiveRange->m_sStepDisplayText;
 }
@@ -123,7 +123,7 @@ void ezProgress::SetGlobalProgressbar(ezProgress* pProgress)
 
 //////////////////////////////////////////////////////////////////////////
 
-ezProgressRange::ezProgressRange(const char* szDisplayText, ezUInt32 uiSteps, bool bAllowCancel, ezProgress* pProgressbar /*= nullptr*/)
+ezProgressRange::ezProgressRange(ezStringView sDisplayText, ezUInt32 uiSteps, bool bAllowCancel, ezProgress* pProgressbar /*= nullptr*/)
 {
   EZ_ASSERT_DEV(uiSteps > 0, "Every progress range must have at least one step to complete");
 
@@ -131,15 +131,15 @@ ezProgressRange::ezProgressRange(const char* szDisplayText, ezUInt32 uiSteps, bo
   m_fWeightedCompletion = -1.0;
   m_fSummedWeight = (double)uiSteps;
 
-  Init(szDisplayText, bAllowCancel, pProgressbar);
+  Init(sDisplayText, bAllowCancel, pProgressbar);
 }
 
-ezProgressRange::ezProgressRange(const char* szDisplayText, bool bAllowCancel, ezProgress* pProgressbar /*= nullptr*/)
+ezProgressRange::ezProgressRange(ezStringView sDisplayText, bool bAllowCancel, ezProgress* pProgressbar /*= nullptr*/)
 {
-  Init(szDisplayText, bAllowCancel, pProgressbar);
+  Init(sDisplayText, bAllowCancel, pProgressbar);
 }
 
-void ezProgressRange::Init(const char* szDisplayText, bool bAllowCancel, ezProgress* pProgressbar)
+void ezProgressRange::Init(ezStringView sDisplayText, bool bAllowCancel, ezProgress* pProgressbar)
 {
   if (pProgressbar == nullptr)
     m_pProgressbar = ezProgress::GetGlobalProgressbar();
@@ -149,7 +149,7 @@ void ezProgressRange::Init(const char* szDisplayText, bool bAllowCancel, ezProgr
   EZ_ASSERT_DEV(m_pProgressbar != nullptr, "No global progress-bar context available.");
 
   m_bAllowCancel = bAllowCancel;
-  m_sDisplayText = szDisplayText;
+  m_sDisplayText = sDisplayText;
 
   m_pParentRange = m_pProgressbar->m_pActiveRange;
 
@@ -205,11 +205,11 @@ void ezProgressRange::ComputeCurStepBaseAndRange(double& out_base, double& out_r
   EZ_ASSERT_DEBUG(out_base + out_range <= 1.0f, "Invalid range");
 }
 
-bool ezProgressRange::BeginNextStep(const char* szStepDisplayText, ezUInt32 uiNumSteps)
+bool ezProgressRange::BeginNextStep(ezStringView sStepDisplayText, ezUInt32 uiNumSteps)
 {
   EZ_ASSERT_DEV(m_fSummedWeight > 0.0, "This function is only supported if ProgressRange was initialized with steps");
 
-  m_sStepDisplayText = szStepDisplayText;
+  m_sStepDisplayText = sStepDisplayText;
 
   for (ezUInt32 i = 0; i < uiNumSteps; ++i)
   {

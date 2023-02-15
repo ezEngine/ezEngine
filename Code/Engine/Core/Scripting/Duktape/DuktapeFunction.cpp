@@ -95,11 +95,11 @@ ezInt32 ezDuktapeFunction::ReturnNumber(double value)
   return 1;
 }
 
-ezInt32 ezDuktapeFunction::ReturnString(const char* value)
+ezInt32 ezDuktapeFunction::ReturnString(ezStringView value)
 {
   EZ_ASSERT_DEV(!m_bDidReturnValue, "Only one ReturnXYZ function may be called when exiting a C function");
   m_bDidReturnValue = true;
-  duk_push_string(GetContext(), value);
+  duk_push_lstring(GetContext(), value.GetStartPointer(), value.GetElementCount());
   return 1;
 }
 

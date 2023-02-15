@@ -210,7 +210,7 @@ private:
     ezTime GetMaxStepTime() const;
 
   private:
-    void BeginNextProgressStep(const char* szName);
+    void BeginNextProgressStep(ezStringView sName);
     void SetSubProgressCompletion(double fCompletion);
 
     friend class ezWorldReader;

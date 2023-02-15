@@ -675,7 +675,7 @@ void ezProfilingSystem::StartNewFrame()
 }
 
 // static
-void ezProfilingSystem::AddCPUScope(const char* szName, const char* szFunctionName, ezTime beginTime, ezTime endTime, ezTime scopeTimeout)
+void ezProfilingSystem::AddCPUScope(ezStringView sName, const char* szFunctionName, ezTime beginTime, ezTime endTime, ezTime scopeTimeout)
 {
   const ezTime duration = endTime - beginTime;
 
@@ -709,7 +709,7 @@ void ezProfilingSystem::AddCPUScope(const char* szName, const char* szFunctionNa
   scope.m_szFunctionName = szFunctionName;
   scope.m_BeginTime = beginTime;
   scope.m_EndTime = endTime;
-  ezStringUtils::Copy(scope.m_szName, EZ_ARRAY_SIZE(scope.m_szName), szName);
+  ezStringUtils::Copy(scope.m_szName, EZ_ARRAY_SIZE(scope.m_szName), sName.GetStartPointer(), sName.GetEndPointer());
 
   if (ezThreadUtils::IsMainThread())
   {
@@ -734,7 +734,7 @@ void ezProfilingSystem::AddCPUScope(const char* szName, const char* szFunctionNa
 
   if (scopeTimeout.IsPositive() && duration > scopeTimeout && s_ScopeTimeoutCallback.IsValid())
   {
-    s_ScopeTimeoutCallback(szName, szFunctionName, duration);
+    s_ScopeTimeoutCallback(sName, szFunctionName, duration);
   }
 }
 
@@ -784,13 +784,13 @@ void ezProfilingSystem::Reset()
 }
 
 // static
-void ezProfilingSystem::SetThreadName(const char* szThreadName)
+void ezProfilingSystem::SetThreadName(ezStringView sThreadName)
 {
   EZ_LOCK(s_ThreadInfosMutex);
 
   ThreadInfo& info = s_ThreadInfos.ExpandAndGetRef();
   info.m_uiThreadId = (ezUInt64)ezThreadUtils::GetCurrentThreadID();
-  info.m_sName = szThreadName;
+  info.m_sName = sThreadName;
 }
 
 // static
@@ -818,7 +818,7 @@ void ezProfilingSystem::InitializeGPUData(ezUInt32 gpuCount)
   }
 }
 
-void ezProfilingSystem::AddGPUScope(const char* szName, ezTime beginTime, ezTime endTime, ezUInt32 gpuIndex)
+void ezProfilingSystem::AddGPUScope(ezStringView sName, ezTime beginTime, ezTime endTime, ezUInt32 gpuIndex)
 {
   // discard?
   if (endTime - beginTime < ezTime::Milliseconds(cvar_ProfilingDiscardThresholdMS))
@@ -832,15 +832,15 @@ void ezProfilingSystem::AddGPUScope(const char* szName, ezTime beginTime, ezTime
   GPUScope scope;
   scope.m_BeginTime = beginTime;
   scope.m_EndTime = endTime;
-  ezStringUtils::Copy(scope.m_szName, EZ_ARRAY_SIZE(scope.m_szName), szName);
+  ezStringUtils::Copy(scope.m_szName, EZ_ARRAY_SIZE(scope.m_szName), sName.GetStartPointer(), sName.GetEndPointer());
 
   s_GPUScopes[gpuIndex]->PushBack(scope);
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-ezProfilingScope::ezProfilingScope(const char* szName, const char* szFunctionName, ezTime timeout)
-  : m_szName(szName)
+ezProfilingScope::ezProfilingScope(ezStringView sName, const char* szFunctionName, ezTime timeout)
+  : m_sName(sName)
   , m_szFunction(szFunctionName)
   , m_BeginTime(ezTime::Now())
   , m_Timeout(timeout)
@@ -849,18 +849,18 @@ ezProfilingScope::ezProfilingScope(const char* szName, const char* szFunctionNam
 
 ezProfilingScope::~ezProfilingScope()
 {
-  ezProfilingSystem::AddCPUScope(m_szName, m_szFunction, m_BeginTime, ezTime::Now(), m_Timeout);
+  ezProfilingSystem::AddCPUScope(m_sName, m_szFunction, m_BeginTime, ezTime::Now(), m_Timeout);
 }
 
 //////////////////////////////////////////////////////////////////////////
 
 thread_local ezProfilingListScope* ezProfilingListScope::s_pCurrentList = nullptr;
 
-ezProfilingListScope::ezProfilingListScope(const char* szListName, const char* szFirstSectionName, const char* szFunctionName)
-  : m_szListName(szListName)
+ezProfilingListScope::ezProfilingListScope(ezStringView sListName, ezStringView sFirstSectionName, const char* szFunctionName)
+  : m_sListName(sListName)
   , m_szListFunction(szFunctionName)
   , m_ListBeginTime(ezTime::Now())
-  , m_szCurSectionName(szFirstSectionName)
+  , m_sCurSectionName(sFirstSectionName)
   , m_CurSectionBeginTime(m_ListBeginTime)
 {
   m_pPreviousList = s_pCurrentList;
@@ -870,21 +870,21 @@ ezProfilingListScope::ezProfilingListScope(const char* szListName, const char* s
 ezProfilingListScope::~ezProfilingListScope()
 {
   ezTime now = ezTime::Now();
-  ezProfilingSystem::AddCPUScope(m_szCurSectionName, nullptr, m_CurSectionBeginTime, now, ezTime::Zero());
-  ezProfilingSystem::AddCPUScope(m_szListName, m_szListFunction, m_ListBeginTime, now, ezTime::Zero());
+  ezProfilingSystem::AddCPUScope(m_sCurSectionName, nullptr, m_CurSectionBeginTime, now, ezTime::Zero());
+  ezProfilingSystem::AddCPUScope(m_sListName, m_szListFunction, m_ListBeginTime, now, ezTime::Zero());
 
   s_pCurrentList = m_pPreviousList;
 }
 
 // static
-void ezProfilingListScope::StartNextSection(const char* szNextSectionName)
+void ezProfilingListScope::StartNextSection(ezStringView sNextSectionName)
 {
   ezProfilingListScope* pCurScope = s_pCurrentList;
 
   ezTime now = ezTime::Now();
-  ezProfilingSystem::AddCPUScope(pCurScope->m_szCurSectionName, nullptr, pCurScope->m_CurSectionBeginTime, now, ezTime::Zero());
+  ezProfilingSystem::AddCPUScope(pCurScope->m_sCurSectionName, nullptr, pCurScope->m_CurSectionBeginTime, now, ezTime::Zero());
 
-  pCurScope->m_szCurSectionName = szNextSectionName;
+  pCurScope->m_sCurSectionName = sNextSectionName;
   pCurScope->m_CurSectionBeginTime = now;
 }
 
@@ -903,19 +903,19 @@ void ezProfilingSystem::SetDiscardThreshold(ezTime threshold) {}
 
 void ezProfilingSystem::StartNewFrame() {}
 
-void ezProfilingSystem::AddCPUScope(const char* szName, const char* szFunctionName, ezTime beginTime, ezTime endTime, ezTime scopeTimeout) {}
+void ezProfilingSystem::AddCPUScope(ezStringView sName, ezStringView sFunctionName, ezTime beginTime, ezTime endTime, ezTime scopeTimeout) {}
 
 void ezProfilingSystem::Initialize() {}
 
 void ezProfilingSystem::Reset() {}
 
-void ezProfilingSystem::SetThreadName(const char* szThreadName) {}
+void ezProfilingSystem::SetThreadName(ezStringView sThreadName) {}
 
 void ezProfilingSystem::RemoveThread() {}
 
 void ezProfilingSystem::InitializeGPUData(ezUInt32 gpuCount) {}
 
-void ezProfilingSystem::AddGPUScope(const char* szName, ezTime beginTime, ezTime endTime, ezUInt32 gpuIndex) {}
+void ezProfilingSystem::AddGPUScope(ezStringView sName, ezTime beginTime, ezTime endTime, ezUInt32 gpuIndex) {}
 
 void ezProfilingSystem::ProfilingData::Merge(ProfilingData& out_Merged, ezArrayPtr<const ProfilingData*> inputs) {}
 

@@ -28,7 +28,7 @@ void ezDGMLGraphCreator::FillGraphFromWorld(ezWorld* pWorld, ezDGMLGraph& Graph)
     ezVisitorExecution::Enum Visit(ezGameObject* pObject)
     {
       ezStringBuilder name;
-      name.Format("GameObject: \"{0}\"", ezStringUtils::IsNullOrEmpty(pObject->GetName()) ? "<Unnamed>" : pObject->GetName());
+      name.Format("GameObject: \"{0}\"", pObject->GetName().IsEmpty() ? "<Unnamed>" : pObject->GetName());
 
       // Create node for game object
       ezDGMLGraph::NodeDesc gameobjectND;

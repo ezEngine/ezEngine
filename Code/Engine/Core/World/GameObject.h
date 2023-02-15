@@ -134,15 +134,15 @@ public:
   bool IsActive() const;
 
   /// \brief Sets the name to identify this object. Does not have to be a unique name.
-  void SetName(const char* szName);
+  void SetName(ezStringView sName);
   void SetName(const ezHashedString& sName);
-  const char* GetName() const;
+  ezStringView GetName() const;
   bool HasName(const ezTempHashedString& name) const;
 
   /// \brief Sets the global key to identify this object. Global keys must be unique within a world.
-  void SetGlobalKey(const char* szGlobalKey);
+  void SetGlobalKey(ezStringView sGlobalKey);
   void SetGlobalKey(const ezHashedString& sGlobalKey);
-  const char* GetGlobalKey() const;
+  ezStringView GetGlobalKey() const;
 
   /// \brief Enables or disabled notification message 'ezMsgChildrenChanged' when children are added or removed. The message is sent to this object and all its parent objects.
   void EnableChildChangesNotifications();
@@ -199,7 +199,7 @@ public:
   /// When on any part of the path the next child cannot be found, nullptr is returned.
   /// This function expects an exact path to the destination. It does not search the full hierarchy for
   /// the next child, as SearchChildByNameSequence() does.
-  ezGameObject* FindChildByPath(const char* path);
+  ezGameObject* FindChildByPath(ezStringView sPath);
 
   /// \brief Searches for a child similar to FindChildByName() but allows to search for multiple names in a sequence.
   ///
@@ -208,10 +208,10 @@ public:
   /// named "a". If that is found, the search continues from there for a child called "b".
   /// If such a child is found and pExpectedComponent != nullptr, it is verified that the object
   /// contains a component of that type. If it doesn't the search continues (including back-tracking).
-  ezGameObject* SearchForChildByNameSequence(const char* szObjectSequence, const ezRTTI* pExpectedComponent = nullptr);
+  ezGameObject* SearchForChildByNameSequence(ezStringView sObjectSequence, const ezRTTI* pExpectedComponent = nullptr);
 
   /// \brief Same as SearchForChildByNameSequence but returns ALL matches, in case the given path could mean multiple objects
-  void SearchForChildrenByNameSequence(const char* szObjectSequence, const ezRTTI* pExpectedComponent, ezHybridArray<ezGameObject*, 8>& out_Objects);
+  void SearchForChildrenByNameSequence(ezStringView sObjectSequence, const ezRTTI* pExpectedComponent, ezHybridArray<ezGameObject*, 8>& out_Objects);
 
   ezWorld* GetWorld();
   const ezWorld* GetWorld() const;
@@ -476,6 +476,10 @@ public:
 private:
   friend class ezComponentManagerBase;
   friend class ezGameObjectTest;
+
+  // only needed until reflection can deal with ezStringView
+  void SetNameInternal(const char* szName);
+  const char* GetNameInternal() const;
 
   bool SendMessageInternal(ezMessage& msg, bool bWasPostedMsg);
   bool SendMessageInternal(ezMessage& msg, bool bWasPostedMsg) const;

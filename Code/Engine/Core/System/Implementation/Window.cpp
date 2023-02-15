@@ -119,10 +119,10 @@ void ezWindowCreationDesc::SaveToDDL(ezOpenDdlWriter& writer)
 }
 
 
-ezResult ezWindowCreationDesc::SaveToDDL(const char* szFile)
+ezResult ezWindowCreationDesc::SaveToDDL(ezStringView sFile)
 {
   ezFileWriter file;
-  EZ_SUCCEED_OR_RETURN(file.Open(szFile));
+  EZ_SUCCEED_OR_RETURN(file.Open(sFile));
 
   ezOpenDdlWriter writer;
   writer.SetOutputStream(&file);
@@ -188,10 +188,10 @@ void ezWindowCreationDesc::LoadFromDDL(const ezOpenDdlReaderElement* pParentElem
 }
 
 
-ezResult ezWindowCreationDesc::LoadFromDDL(const char* szFile)
+ezResult ezWindowCreationDesc::LoadFromDDL(ezStringView sFile)
 {
   ezFileReader file;
-  EZ_SUCCEED_OR_RETURN(file.Open(szFile));
+  EZ_SUCCEED_OR_RETURN(file.Open(sFile));
 
   ezOpenDdlReader reader;
   EZ_SUCCEED_OR_RETURN(reader.ParseDocument(file));

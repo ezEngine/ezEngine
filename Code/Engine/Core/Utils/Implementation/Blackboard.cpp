@@ -69,10 +69,10 @@ ezSharedPtr<ezBlackboard> ezBlackboard::FindGlobal(const ezTempHashedString& sBl
 ezBlackboard::ezBlackboard() = default;
 ezBlackboard::~ezBlackboard() = default;
 
-void ezBlackboard::SetName(const char* szName)
+void ezBlackboard::SetName(ezStringView sName)
 {
   EZ_LOCK(s_GlobalBlackboardsMutex);
-  m_sName.Assign(szName);
+  m_sName.Assign(sName);
 }
 
 void ezBlackboard::RegisterEntry(const ezHashedString& name, const ezVariant& initialValue, ezBitflags<ezBlackboardEntryFlags> flags /*= ezBlackboardEntryFlags::None*/)

@@ -47,7 +47,7 @@ public:
   ezPlatformProfile();
   ~ezPlatformProfile();
 
-  const char* GetConfigName() const { return m_sName; }
+  ezStringView GetConfigName() const { return m_sName; }
 
   void Clear();
   void AddMissingConfigs();
@@ -67,8 +67,8 @@ public:
   const ezProfileConfigData* GetTypeConfig(const ezRTTI* pRtti) const;
   ezProfileConfigData* GetTypeConfig(const ezRTTI* pRtti);
 
-  ezResult SaveForRuntime(const char* szFile) const;
-  ezResult LoadForRuntime(const char* szFile);
+  ezResult SaveForRuntime(ezStringView sFile) const;
+  ezResult LoadForRuntime(ezStringView sFile);
 
   ezString m_sName;
   ezEnum<ezProfileTargetPlatform> m_TargetPlatform;

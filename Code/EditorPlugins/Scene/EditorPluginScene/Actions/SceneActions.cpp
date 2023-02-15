@@ -544,7 +544,7 @@ QStringList ezSceneAction::GetPlayerCommandLine(ezStringBuilder& out_SingleLine)
   }
 
   arguments << "-profile";
-  arguments << ezAssetCurator::GetSingleton()->GetActiveAssetProfile()->GetConfigName();
+  arguments << ezString(ezAssetCurator::GetSingleton()->GetActiveAssetProfile()->GetConfigName()).GetData();
 
   for (QString s : arguments)
   {

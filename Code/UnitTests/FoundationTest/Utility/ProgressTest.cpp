@@ -11,23 +11,23 @@ EZ_CREATE_SIMPLE_TEST(Utility, Progress)
       ezProgressRange progressRange = ezProgressRange("TestProgress", 4, false, &progress);
 
       EZ_TEST_FLOAT(progress.GetCompletion(), 0.0f, ezMath::DefaultEpsilon<float>());
-      EZ_TEST_STRING(progress.GetMainDisplayText(), "TestProgress");
+      EZ_TEST_BOOL(progress.GetMainDisplayText() == "TestProgress");
 
       progressRange.BeginNextStep("Step1");
       EZ_TEST_FLOAT(progress.GetCompletion(), 0.0f, ezMath::DefaultEpsilon<float>());
-      EZ_TEST_STRING(progress.GetStepDisplayText(), "Step1");
+      EZ_TEST_BOOL(progress.GetStepDisplayText() == "Step1");
 
       progressRange.BeginNextStep("Step2");
       EZ_TEST_FLOAT(progress.GetCompletion(), 0.25f, ezMath::DefaultEpsilon<float>());
-      EZ_TEST_STRING(progress.GetStepDisplayText(), "Step2");
+      EZ_TEST_BOOL(progress.GetStepDisplayText() == "Step2");
 
       progressRange.BeginNextStep("Step3");
       EZ_TEST_FLOAT(progress.GetCompletion(), 0.5f, ezMath::DefaultEpsilon<float>());
-      EZ_TEST_STRING(progress.GetStepDisplayText(), "Step3");
+      EZ_TEST_BOOL(progress.GetStepDisplayText() == "Step3");
 
       progressRange.BeginNextStep("Step4");
       EZ_TEST_FLOAT(progress.GetCompletion(), 0.75f, ezMath::DefaultEpsilon<float>());
-      EZ_TEST_STRING(progress.GetStepDisplayText(), "Step4");
+      EZ_TEST_BOOL(progress.GetStepDisplayText() == "Step4");
     }
 
     EZ_TEST_FLOAT(progress.GetCompletion(), 1.0f, ezMath::DefaultEpsilon<float>());
@@ -145,8 +145,7 @@ EZ_CREATE_SIMPLE_TEST(Utility, Progress)
       {
         ++uiNumProgressUpdatedEvents;
         EZ_TEST_FLOAT(e.m_pProgressbar->GetCompletion(), uiNumProgressUpdatedEvents * 0.25f, ezMath::DefaultEpsilon<float>());
-      }
-    });
+      } });
 
     {
       ezProgressRange progressRange = ezProgressRange("TestProgress", 4, false, &progress);

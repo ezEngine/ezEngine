@@ -311,12 +311,12 @@ EZ_CREATE_SIMPLE_TEST(World, Components)
     // EZ_TEST_BOOL(world.TryGetComponent(hComponentC, pComponentC));
 
     EZ_TEST_BOOL(pObjectA->IsActive());
-    EZ_TEST_STRING(pObjectA->GetName(), "A");
+    EZ_TEST_BOOL(pObjectA->GetName() == "A");
     EZ_TEST_BOOL(pComponentA->IsActive());
     EZ_TEST_BOOL(pComponentA->GetOwner() == pObjectA);
 
     EZ_TEST_BOOL(pObjectC->IsActive());
-    EZ_TEST_STRING(pObjectC->GetName(), "C");
+    EZ_TEST_BOOL(pObjectC->GetName() == "C");
     EZ_TEST_BOOL(pComponentC->IsActive());
     EZ_TEST_BOOL(pComponentC->GetOwner() == pObjectC);
 

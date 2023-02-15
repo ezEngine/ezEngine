@@ -1,7 +1,7 @@
 
-EZ_ALWAYS_INLINE const char* ezWorld::GetName() const
+EZ_ALWAYS_INLINE ezStringView ezWorld::GetName() const
 {
-  return m_Data.m_sName.GetData();
+  return m_Data.m_sName;
 }
 
 EZ_ALWAYS_INLINE ezUInt32 ezWorld::GetIndex() const

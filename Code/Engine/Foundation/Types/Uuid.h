@@ -48,7 +48,7 @@ public:
   }
 
   /// \brief Creates a uuid from a string. The result is always the same for the same string.
-  static ezUuid StableUuidForString(const char* szString);
+  static ezUuid StableUuidForString(ezStringView sString);
 
   /// \brief Creates a uuid from an integer. The result is always the same for the same input.
   static ezUuid StableUuidForInt(ezInt64 iInt);
