@@ -172,8 +172,7 @@ void ezProfilingSystem::ProfilingData::Merge(ProfilingData& out_Merged, ezArrayP
 
   // merge m_ThreadInfos
   {
-    auto threadInfoAlreadyKnown = [&](ezUInt64 uiThreadId) -> bool
-    {
+    auto threadInfoAlreadyKnown = [&](ezUInt64 uiThreadId) -> bool {
       for (const auto& ti : out_Merged.m_ThreadInfos)
       {
         if (ti.m_uiThreadId == uiThreadId)
@@ -412,8 +411,7 @@ ezResult ezProfilingSystem::ProfilingData::Write(ezStreamWriter& outputStream) c
       // chrome prints the nested scope first and then scrambles everything.
       // So we sort by duration to make sure that parent scopes are written first in the json file.
       sortedScopes = eventBuffer.m_Data;
-      sortedScopes.Sort([](const CPUScope& a, const CPUScope& b)
-        { return (a.m_EndTime - a.m_BeginTime) > (b.m_EndTime - b.m_BeginTime); });
+      sortedScopes.Sort([](const CPUScope& a, const CPUScope& b) { return (a.m_EndTime - a.m_BeginTime) > (b.m_EndTime - b.m_BeginTime); });
 
       for (const CPUScope& e : sortedScopes)
       {
@@ -494,8 +492,7 @@ ezResult ezProfilingSystem::ProfilingData::Write(ezStreamWriter& outputStream) c
       for (ezUInt32 gpuIndex = 1; gpuIndex <= m_GPUScopes.GetCount(); ++gpuIndex)
       {
         sortedGpuScopes = m_GPUScopes[gpuIndex - 1];
-        sortedGpuScopes.Sort([](const GPUScope& a, const GPUScope& b)
-          { return (a.m_EndTime - a.m_BeginTime) > (b.m_EndTime - b.m_BeginTime); });
+        sortedGpuScopes.Sort([](const GPUScope& a, const GPUScope& b) { return (a.m_EndTime - a.m_BeginTime) > (b.m_EndTime - b.m_BeginTime); });
 
         for (ezUInt32 i = 0; i < sortedGpuScopes.GetCount(); ++i)
         {
