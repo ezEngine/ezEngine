@@ -258,7 +258,7 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Preprocessor)
           EZ_TEST_BOOL_MSG(ezFileSystem::ExistsFile(fileNameOut), "Output file is missing: '%s'", fileNameOut.GetData());
         }
 
-        EZ_TEST_FILES(fileNameOut.GetData(), fileNameExp.GetData(), "");
+        EZ_TEST_TEXT_FILES(fileNameOut.GetData(), fileNameExp.GetData(), "");
       }
     }
   }

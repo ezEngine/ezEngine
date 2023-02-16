@@ -179,4 +179,4 @@ struct ezPerClusterData
   StructuredBuffer<uint> clusterItemBuffer;
 #endif
 
-  // clang-format on
+// clang-format on

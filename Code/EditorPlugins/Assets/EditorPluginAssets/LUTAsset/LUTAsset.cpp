@@ -4,7 +4,6 @@
 
 
 
-
 #include <EditorPluginAssets/LUTAsset/AdobeCUBEReader.h>
 #include <EditorPluginAssets/LUTAsset/LUTAsset.h>
 
