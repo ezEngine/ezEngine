@@ -72,4 +72,3 @@ protected:
   void DestroyAllViews();
   virtual void InternalRedraw() override;
 };
-

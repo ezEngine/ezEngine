@@ -305,8 +305,7 @@ void ezAnimationControllerAssetDocument::SortNodesByPriority(ezDynamicArray<cons
     }
   }
 
-  allNodes.Sort([&](auto lhs, auto rhs) -> bool
-    { return prios[lhs] < prios[rhs]; });
+  allNodes.Sort([&](auto lhs, auto rhs) -> bool { return prios[lhs] < prios[rhs]; });
 }
 
 void ezAnimationControllerAssetDocument::SetOutputPinIndices(const ezDynamicArray<ezAnimGraphNode*>& newNodes, const ezDynamicArray<const ezDocumentObject*>& allNodes, const ezDocumentNodeManager* pNodeManager, ezMap<ezUInt8, PinCount>& pinCounts, ezAnimGraph& animController, ezAbstractMemberProperty* pIdxProperty, const ezMap<const ezPin*, ezUInt16>& inputPinIndices) const
@@ -394,8 +393,7 @@ void ezAnimationControllerAssetDocument::CreateOutputGraphNodes(const ezDynamicA
     auto pNewNode = animController.m_Nodes.PeekBack().Borrow();
 
     // copy all the non-hidden properties
-    ezToolsSerializationUtils::CopyProperties(pNode, GetObjectManager(), pNewNode, pNewNode->GetDynamicRTTI(), [](const ezAbstractProperty* p)
-      { return p->GetAttributeByType<ezHiddenAttribute>() == nullptr; });
+    ezToolsSerializationUtils::CopyProperties(pNode, GetObjectManager(), pNewNode, pNewNode->GetDynamicRTTI(), [](const ezAbstractProperty* p) { return p->GetAttributeByType<ezHiddenAttribute>() == nullptr; });
   }
 }
 

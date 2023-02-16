@@ -542,24 +542,23 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
     ezRandom randomGenerator;
     randomGenerator.Initialize(0x83482343);
 
-    const auto randomNonZeroVec3T = [&randomGenerator]() -> ezVec3T
-    {
+    const auto randomNonZeroVec3T = [&randomGenerator]() -> ezVec3T {
       const float extent = 1000.f;
-      const ezVec3T v (randomGenerator.FloatMinMax(-extent, extent), randomGenerator.FloatMinMax(-extent, extent), randomGenerator.FloatMinMax(-extent, extent));
+      const ezVec3T v(randomGenerator.FloatMinMax(-extent, extent), randomGenerator.FloatMinMax(-extent, extent), randomGenerator.FloatMinMax(-extent, extent));
       return v.GetLength() > 0.001f ? v : ezVec3T::UnitXAxis();
     };
 
     for (ezUInt32 loopIndex = 0; loopIndex < numTestLoops; ++loopIndex)
     {
-      const ezPlaneT plane ( randomNonZeroVec3T().GetNormalized(), randomNonZeroVec3T() );
+      const ezPlaneT plane(randomNonZeroVec3T().GetNormalized(), randomNonZeroVec3T());
 
       ezVec3T boxCorners[8];
       ezBoundingBoxT box;
       {
         const ezVec3T boxPoint0 = randomNonZeroVec3T();
         const ezVec3T boxPoint1 = randomNonZeroVec3T();
-        const ezVec3T boxMins (ezMath::Min(boxPoint0.x, boxPoint1.x), ezMath::Min(boxPoint0.y, boxPoint1.y), ezMath::Min(boxPoint0.z, boxPoint1.z));
-        const ezVec3T boxMaxs (ezMath::Max(boxPoint0.x, boxPoint1.x), ezMath::Max(boxPoint0.y, boxPoint1.y), ezMath::Max(boxPoint0.z, boxPoint1.z));
+        const ezVec3T boxMins(ezMath::Min(boxPoint0.x, boxPoint1.x), ezMath::Min(boxPoint0.y, boxPoint1.y), ezMath::Min(boxPoint0.z, boxPoint1.z));
+        const ezVec3T boxMaxs(ezMath::Max(boxPoint0.x, boxPoint1.x), ezMath::Max(boxPoint0.y, boxPoint1.y), ezMath::Max(boxPoint0.z, boxPoint1.z));
         box = ezBoundingBoxT(boxMins, boxMaxs);
         box.GetCorners(boxCorners);
       }
@@ -574,7 +573,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
       float referenceDistanceMin = FLT_MAX;
       float referenceDistanceMax = -FLT_MAX;
       {
-        for (ezUInt32 cornerIndex=0; cornerIndex<EZ_ARRAY_SIZE(boxCorners); ++cornerIndex)
+        for (ezUInt32 cornerIndex = 0; cornerIndex < EZ_ARRAY_SIZE(boxCorners); ++cornerIndex)
         {
           const float cornerDist = plane.GetDistanceTo(boxCorners[cornerIndex]);
           referenceDistanceMin = ezMath::Min(referenceDistanceMin, cornerDist);

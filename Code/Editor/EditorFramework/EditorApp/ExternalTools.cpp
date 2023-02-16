@@ -70,8 +70,7 @@ ezStatus ezQtEditorApp::ExecuteTool(const char* szTool, const QStringList& argum
   QString logoutput;
   proc.setProcessChannelMode(QProcess::MergedChannels);
   proc.setReadChannel(QProcess::StandardOutput);
-  QObject::connect(&proc, &QProcess::readyReadStandardOutput, [&proc, &logoutput]()
-    { logoutput.append(proc.readAllStandardOutput()); });
+  QObject::connect(&proc, &QProcess::readyReadStandardOutput, [&proc, &logoutput]() { logoutput.append(proc.readAllStandardOutput()); });
   ezString toolPath = ezQtEditorApp::GetSingleton()->FindToolApplication(szTool);
   proc.start(QString::fromUtf8(toolPath, toolPath.GetElementCount()), arguments);
 
