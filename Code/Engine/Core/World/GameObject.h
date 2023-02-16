@@ -480,6 +480,8 @@ private:
   // only needed until reflection can deal with ezStringView
   void SetNameInternal(const char* szName);
   const char* GetNameInternal() const;
+  void SetGlobalKeyInternal(const char* szKey);
+  const char* GetGlobalKeyInternal() const;
 
   bool SendMessageInternal(ezMessage& msg, bool bWasPostedMsg);
   bool SendMessageInternal(ezMessage& msg, bool bWasPostedMsg) const;

@@ -118,6 +118,11 @@ EZ_ALWAYS_INLINE const char* ezGameObject::GetNameInternal() const
   return m_sName;
 }
 
+EZ_ALWAYS_INLINE void ezGameObject::SetGlobalKeyInternal(const char* szName)
+{
+  SetGlobalKey(szName);
+}
+
 EZ_ALWAYS_INLINE bool ezGameObject::HasName(const ezTempHashedString& name) const
 {
   return m_sName == name;

@@ -24,7 +24,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGameObject, ezNoBase, 1, ezRTTINoAllocator)
   {
     EZ_ACCESSOR_PROPERTY("Name", GetNameInternal, SetNameInternal),
     EZ_ACCESSOR_PROPERTY("Active", GetActiveFlag, SetActiveFlag)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_ACCESSOR_PROPERTY("GlobalKey", GetGlobalKey, SetGlobalKey),
+    EZ_ACCESSOR_PROPERTY("GlobalKey", GetGlobalKeyInternal, SetGlobalKeyInternal),
     EZ_ENUM_ACCESSOR_PROPERTY("Mode", ezObjectMode, Reflection_GetMode, Reflection_SetMode),
     EZ_ACCESSOR_PROPERTY("LocalPosition", GetLocalPosition, SetLocalPosition)->AddAttributes(new ezSuffixAttribute(" m")),
     EZ_ACCESSOR_PROPERTY("LocalRotation", GetLocalRotation, SetLocalRotation),
@@ -334,6 +334,11 @@ void ezGameObject::SetGlobalKey(const ezHashedString& sName)
 ezStringView ezGameObject::GetGlobalKey() const
 {
   return GetWorld()->GetObjectGlobalKey(this);
+}
+
+const char* ezGameObject::GetGlobalKeyInternal() const
+{
+  return GetWorld()->GetObjectGlobalKey(this).GetStartPointer(); // we know that it's zero terminated
 }
 
 void ezGameObject::SetParent(const ezGameObjectHandle& parent, ezGameObject::TransformPreservation preserve)
