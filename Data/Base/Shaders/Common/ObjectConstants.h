@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Platforms.h"
 #include "ConstantBufferMacros.h"
+#include "Platforms.h"
 
 struct EZ_SHADER_STRUCT ezPerInstanceData
 {
@@ -16,19 +16,19 @@ struct EZ_SHADER_STRUCT ezPerInstanceData
 };
 
 #if EZ_ENABLED(PLATFORM_SHADER)
-  StructuredBuffer<ezPerInstanceData> perInstanceData;
+StructuredBuffer<ezPerInstanceData> perInstanceData;
 
-  #if defined(USE_SKINNING)
-  StructuredBuffer<Transform> skinningTransforms;
+#  if defined(USE_SKINNING)
+StructuredBuffer<Transform> skinningTransforms;
 #  endif
 
-  Buffer<uint> perInstanceVertexColors;
+Buffer<uint> perInstanceVertexColors;
 
 #else // C++
 
-  EZ_DEFINE_AS_POD_TYPE(ezPerInstanceData);
+EZ_DEFINE_AS_POD_TYPE(ezPerInstanceData);
 
-  EZ_CHECK_AT_COMPILETIME(sizeof(ezPerInstanceData) == 128);
+EZ_CHECK_AT_COMPILETIME(sizeof(ezPerInstanceData) == 128);
 #endif
 
 CONSTANT_BUFFER(ezObjectConstants, 2)
@@ -40,30 +40,30 @@ CONSTANT_BUFFER(ezObjectConstants, 2)
 
 #if EZ_ENABLED(PLATFORM_SHADER)
 
-  // Access to instance should usually go through this macro!
-  // It's a macro so it can work with arbitrary input structs (for VS/GS/PS...)
-  #if defined(CAMERA_MODE) && CAMERA_MODE == CAMERA_MODE_STEREO
-    #define GetInstanceData() perInstanceData[G.Input.InstanceID/2 + InstanceDataOffset]
-  #else
-    #define GetInstanceData() perInstanceData[G.Input.InstanceID + InstanceDataOffset]
-  #endif
-  
-  #define VERTEX_COLOR_ACCESS_OFFSET_BITS 28
-  #define VERTEX_COLOR_ACCESS_OFFSET_MASK ((1 << VERTEX_COLOR_ACCESS_OFFSET_BITS) - 1)
-  
-  uint GetNumInstanceVertexColorsHelper(uint accessData)
-  {
-    return accessData >> VERTEX_COLOR_ACCESS_OFFSET_BITS;
-  }    
+// Access to instance should usually go through this macro!
+// It's a macro so it can work with arbitrary input structs (for VS/GS/PS...)
+#  if defined(CAMERA_MODE) && CAMERA_MODE == CAMERA_MODE_STEREO
+#    define GetInstanceData() perInstanceData[G.Input.InstanceID / 2 + InstanceDataOffset]
+#  else
+#    define GetInstanceData() perInstanceData[G.Input.InstanceID + InstanceDataOffset]
+#  endif
 
-  uint GetInstanceVertexColorsHelper(uint accessData, uint vertexID, uint colorIndex)
-  {
-    uint numColorsPerVertex = GetNumInstanceVertexColorsHelper(accessData);
-    uint offset = (accessData & VERTEX_COLOR_ACCESS_OFFSET_MASK) + (vertexID * numColorsPerVertex + colorIndex);
-    return colorIndex < numColorsPerVertex ? perInstanceVertexColors[offset] : 0;
-  }
-  
-  #define GetNumInstanceVertexColors() GetNumInstanceVertexColorsHelper(GetInstanceData().VertexColorAccessData)
-  #define GetInstanceVertexColors(colorIndex) GetInstanceVertexColorsHelper(GetInstanceData().VertexColorAccessData, G.Input.VertexID, colorIndex)
+#  define VERTEX_COLOR_ACCESS_OFFSET_BITS 28
+#  define VERTEX_COLOR_ACCESS_OFFSET_MASK ((1 << VERTEX_COLOR_ACCESS_OFFSET_BITS) - 1)
+
+uint GetNumInstanceVertexColorsHelper(uint accessData)
+{
+  return accessData >> VERTEX_COLOR_ACCESS_OFFSET_BITS;
+}
+
+uint GetInstanceVertexColorsHelper(uint accessData, uint vertexID, uint colorIndex)
+{
+  uint numColorsPerVertex = GetNumInstanceVertexColorsHelper(accessData);
+  uint offset = (accessData & VERTEX_COLOR_ACCESS_OFFSET_MASK) + (vertexID * numColorsPerVertex + colorIndex);
+  return colorIndex < numColorsPerVertex ? perInstanceVertexColors[offset] : 0;
+}
+
+#  define GetNumInstanceVertexColors() GetNumInstanceVertexColorsHelper(GetInstanceData().VertexColorAccessData)
+#  define GetInstanceVertexColors(colorIndex) GetInstanceVertexColorsHelper(GetInstanceData().VertexColorAccessData, G.Input.VertexID, colorIndex)
 
 #endif
