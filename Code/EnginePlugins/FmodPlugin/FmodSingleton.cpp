@@ -1,5 +1,6 @@
 #include <FmodPlugin/FmodPluginPCH.h>
 
+#include <Core/ResourceManager/ResourceManager.h>
 #include <FmodPlugin/FmodIncludes.h>
 #include <FmodPlugin/FmodSingleton.h>
 #include <FmodPlugin/Resources/FmodSoundBankResource.h>
@@ -344,6 +345,21 @@ void ezFmod::SetListener(ezInt32 iIndex, const ezVec3& vPosition, const ezVec3& 
   {
     m_pStudioSystem->setListenerAttributes(iIndex, &attr);
   }
+}
+
+ezResult ezFmod::OneShotSound(ezStringView sResourceID, const ezTransform& globalPosition, float fPitch /*= 1.0f*/, float fVolume /*= 1.0f*/, bool bBlockIfNotLoaded /*= true*/)
+{
+  ezFmodSoundEventResourceHandle hSound = ezResourceManager::LoadResource<ezFmodSoundEventResource>(sResourceID);
+
+  if (!hSound.IsValid())
+    return EZ_FAILURE;
+
+  ezResourceLock<ezFmodSoundEventResource> pSound(hSound, bBlockIfNotLoaded ? ezResourceAcquireMode::BlockTillLoaded_NeverFail : ezResourceAcquireMode::AllowLoadingFallback_NeverFail);
+
+  if (pSound.GetAcquireResult() != ezResourceAcquireResult::Final)
+    return EZ_FAILURE;
+
+  return pSound->PlayOnce(globalPosition, fPitch, fVolume);
 }
 
 void ezFmod::DetectPlatform()

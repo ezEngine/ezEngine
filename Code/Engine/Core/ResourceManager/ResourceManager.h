@@ -45,7 +45,7 @@ public:
   /// the resource will be loaded. If it is not possible to load the resource it will change to a 'missing' state. If the code accessing the
   /// resource cannot handle that case, the application will 'terminate' (that means crash).
   template <typename ResourceType>
-  static ezTypedResourceHandle<ResourceType> LoadResource(const char* szResourceID);
+  static ezTypedResourceHandle<ResourceType> LoadResource(ezStringView sResourceID);
 
   /// \brief Same as LoadResource(), but additionally allows to set a priority on the resource and a custom fallback resource for this
   /// instance.
@@ -55,12 +55,12 @@ public:
   /// If a valid fallback resource is specified, the resource will store that as its instance specific fallback resource. This will be used
   /// when trying to acquire the resource later.
   template <typename ResourceType>
-  static ezTypedResourceHandle<ResourceType> LoadResource(const char* szResourceID, ezTypedResourceHandle<ResourceType> hLoadingFallback);
+  static ezTypedResourceHandle<ResourceType> LoadResource(ezStringView sResourceID, ezTypedResourceHandle<ResourceType> hLoadingFallback);
 
 
   /// \brief Same as LoadResource(), but instead of a template argument, the resource type to use is given as ezRTTI info. Returns a
   /// typeless handle due to the missing template argument.
-  static ezTypelessResourceHandle LoadResourceByType(const ezRTTI* pResourceType, const char* szResourceID);
+  static ezTypelessResourceHandle LoadResourceByType(const ezRTTI* pResourceType, ezStringView sResourceID);
 
   /// \brief Checks whether any resource loading is in progress
   static bool IsAnyLoadingInProgress();
@@ -69,7 +69,7 @@ public:
   ///
   /// Provide a prefix that is preferably not used anywhere else (i.e., closely related to your code).
   /// If the prefix is not also used to manually generate resource IDs, this function is guaranteed to return a unique resource ID.
-  static ezString GenerateUniqueResourceID(const char* szResourceIDPrefix);
+  static ezString GenerateUniqueResourceID(ezStringView sResourceIDPrefix);
 
   /// \brief Creates a resource from a descriptor.
   ///
@@ -78,8 +78,7 @@ public:
   /// \param szResourceDescription An optional description that might help during debugging. Often a human readable name or path is stored
   /// here, to make it easier to identify this resource.
   template <typename ResourceType, typename DescriptorType>
-  static ezTypedResourceHandle<ResourceType> CreateResource(
-    const char* szResourceID, DescriptorType&& descriptor, const char* szResourceDescription = nullptr);
+  static ezTypedResourceHandle<ResourceType> CreateResource(ezStringView sResourceID, DescriptorType&& descriptor, ezStringView sResourceDescription = nullptr);
 
   /// \brief Returns a handle to the resource with the given ID if it exists or creates it from a descriptor.
   ///
@@ -87,23 +86,22 @@ public:
   /// \param descriptor A type specific descriptor that holds all the information to create the resource.
   /// \param szResourceDescription An optional description that might help during debugging. Often a human readable name or path is stored here, to make it easier to identify this resource.
   template <typename ResourceType, typename DescriptorType>
-  static ezTypedResourceHandle<ResourceType> GetOrCreateResource(
-    const char* szResourceID, DescriptorType&& descriptor, const char* szResourceDescription = nullptr);
+  static ezTypedResourceHandle<ResourceType> GetOrCreateResource(ezStringView sResourceID, DescriptorType&& descriptor, ezStringView sResourceDescription = nullptr);
 
   /// \brief Returns a handle to the resource with the given ID. If the resource does not exist, the handle is invalid.
   ///
   /// Use this if a resource needs to be created procedurally (with CreateResource()), but might already have been created.
   /// If the returned handle is invalid, then just go through the resource creation step.
   template <typename ResourceType>
-  static ezTypedResourceHandle<ResourceType> GetExistingResource(const char* szResourceID);
+  static ezTypedResourceHandle<ResourceType> GetExistingResource(ezStringView sResourceID);
 
   /// \brief Same as GetExistingResourceByType() but allows to specify the resource type as an ezRTTI.
-  static ezTypelessResourceHandle GetExistingResourceByType(const ezRTTI* pResourceType, const char* szResourceID);
+  static ezTypelessResourceHandle GetExistingResourceByType(const ezRTTI* pResourceType, ezStringView sResourceID);
 
   template <typename ResourceType>
-  static ezTypedResourceHandle<ResourceType> GetExistingResourceOrCreateAsync(const char* szResourceID, ezUniquePtr<ezResourceTypeLoader>&& loader, ezTypedResourceHandle<ResourceType> hLoadingFallback = {})
+  static ezTypedResourceHandle<ResourceType> GetExistingResourceOrCreateAsync(ezStringView sResourceID, ezUniquePtr<ezResourceTypeLoader>&& loader, ezTypedResourceHandle<ResourceType> hLoadingFallback = {})
   {
-    ezTypelessResourceHandle hTypeless = GetExistingResourceOrCreateAsync(ezGetStaticRTTI<ResourceType>(), szResourceID, std::move(loader));
+    ezTypelessResourceHandle hTypeless = GetExistingResourceOrCreateAsync(ezGetStaticRTTI<ResourceType>(), sResourceID, std::move(loader));
 
     auto hTyped = ezTypedResourceHandle<ResourceType>((ResourceType*)hTypeless.m_pResource);
 
@@ -115,7 +113,7 @@ public:
     return hTyped;
   }
 
-  static ezTypelessResourceHandle GetExistingResourceOrCreateAsync(const ezRTTI* pResourceType, const char* szResourceID, ezUniquePtr<ezResourceTypeLoader>&& loader);
+  static ezTypelessResourceHandle GetExistingResourceOrCreateAsync(const ezRTTI* pResourceType, ezStringView sResourceID, ezUniquePtr<ezResourceTypeLoader>&& loader);
 
   /// \brief Triggers loading of the given resource. tShouldBeAvailableIn specifies how long the resource is not yet needed, thus allowing
   /// other resources to be loaded first. This is only a hint and there are no guarantees when the resource is available.
@@ -299,10 +297,10 @@ public:
   ///
   /// This can be used to register a resource under an easier to use name. For example one can register "MenuBackground" as the name for "{
   /// E50DCC85-D375-4999-9CFE-42F1377FAC85 }". If the lookup name already exists, it will be overwritten.
-  static void RegisterNamedResource(const char* szLookupName, const char* szRedirectionResource);
+  static void RegisterNamedResource(ezStringView sLookupName, ezStringView sRedirectionResource);
 
   /// \brief Removes a previously registered name from the redirection table.
-  static void UnregisterNamedResource(const char* szLookupName);
+  static void UnregisterNamedResource(ezStringView sLookupName);
 
 
   ///@}
@@ -311,11 +309,11 @@ public:
 
 public:
   /// \brief Registers which resource type to use to load an asset with the given type name
-  static void RegisterResourceForAssetType(const char* szAssetTypeName, const ezRTTI* pResourceType);
+  static void RegisterResourceForAssetType(ezStringView sAssetTypeName, const ezRTTI* pResourceType);
 
   /// \brief Returns the resource type that was registered to handle the given asset type for loading. nullptr if no resource type was
   /// registered for this asset type.
-  static const ezRTTI* FindResourceForAssetType(const char* szAssetTypeName);
+  static const ezRTTI* FindResourceForAssetType(ezStringView sAssetTypeName);
 
   ///@}
   /// \name Export mode
@@ -333,7 +331,7 @@ public:
   /// Internally it will create a resource but does not load the content. This way it can be ensured that the resource handle is always only
   /// the size of a pointer.
   template <typename ResourceType>
-  static ezTypedResourceHandle<ResourceType> GetResourceHandleForExport(const char* szResourceID);
+  static ezTypedResourceHandle<ResourceType> GetResourceHandleForExport(ezStringView sResourceID);
 
 
   ///@}
@@ -469,8 +467,8 @@ private:
   static void InternalPreloadResource(ezResource* pResource, bool bHighestPriority);
 
   template <typename ResourceType>
-  static ResourceType* GetResource(const char* szResourceID, bool bIsReloadable);
-  static ezResource* GetResource(const ezRTTI* pRtti, const char* szResourceID, bool bIsReloadable);
+  static ResourceType* GetResource(ezStringView sResourceID, bool bIsReloadable);
+  static ezResource* GetResource(const ezRTTI* pRtti, ezStringView sResourceID, bool bIsReloadable);
   static void RunWorkerTask(ezResource* pResource);
   static void UpdateLoadingDeadlines();
   static void ReverseBubbleSortStep(ezDeque<LoadingInfo>& data);
@@ -510,7 +508,7 @@ private:
   };
 
   /// \brief Checks whether there is a type override for pRtti given szResourceID and returns that
-  static const ezRTTI* FindResourceTypeOverride(const ezRTTI* pRtti, const char* szResourceID);
+  static const ezRTTI* FindResourceTypeOverride(const ezRTTI* pRtti, ezStringView sResourceID);
 };
 
 #include <Core/ResourceManager/Implementation/ResourceLock.h>

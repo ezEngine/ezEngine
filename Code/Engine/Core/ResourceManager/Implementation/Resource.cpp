@@ -105,15 +105,15 @@ void ezResource::PrintHandleStackTraces()
 #endif
 }
 
-void ezResource::SetResourceDescription(const char* szDescription)
+void ezResource::SetResourceDescription(ezStringView sDescription)
 {
-  m_sResourceDescription = szDescription;
+  m_sResourceDescription = sDescription;
 }
 
-void ezResource::SetUniqueID(const char* szUniqueID, bool bIsReloadable)
+void ezResource::SetUniqueID(ezStringView sUniqueID, bool bIsReloadable)
 {
-  m_sUniqueID = szUniqueID;
-  m_uiUniqueIDHash = ezHashingUtils::StringHash(szUniqueID);
+  m_sUniqueID = sUniqueID;
+  m_uiUniqueIDHash = ezHashingUtils::StringHash(sUniqueID);
   SetIsReloadable(bIsReloadable);
 
   ezResourceEvent e;

@@ -4,11 +4,11 @@
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Foundation/Profiling/Profiling.h>
 
-ezTypelessResourceHandle ezResourceManager::LoadResourceByType(const ezRTTI* pResourceType, const char* szResourceID)
+ezTypelessResourceHandle ezResourceManager::LoadResourceByType(const ezRTTI* pResourceType, ezStringView sResourceID)
 {
   // the mutex here is necessary to prevent a race between resource unloading and storing the pointer in the handle
   EZ_LOCK(s_ResourceMutex);
-  return ezTypelessResourceHandle(GetResource(pResourceType, szResourceID, true));
+  return ezTypelessResourceHandle(GetResource(pResourceType, sResourceID, true));
 }
 
 void ezResourceManager::InternalPreloadResource(ezResource* pResource, bool bHighestPriority)
