@@ -114,6 +114,8 @@ public:
   virtual void SetListener(ezInt32 iIndex, const ezVec3& vPosition, const ezVec3& vForward, const ezVec3& vUp, const ezVec3& vVelocity) override;
   ezVec3 GetListenerPosition() { return m_vListenerPosition; }
 
+  virtual ezResult OneShotSound(ezStringView sResourceID, const ezTransform& globalPosition, float fPitch = 1.0f, float fVolume = 1.0f, bool bBlockIfNotLoaded = true) override;
+
 private:
   friend class ezFmodSoundBankResource;
   void QueueSoundBankDataForDeletion(ezDataBuffer* pData);

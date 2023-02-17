@@ -51,7 +51,7 @@ public:
 
   /// \brief The resource description allows to store an additional string that might be more descriptive during debugging, than the unique
   /// ID.
-  void SetResourceDescription(const char* szDescription);
+  void SetResourceDescription(ezStringView sDescription);
 
   /// \brief The resource description allows to store an additional string that might be more descriptive during debugging, than the unique
   /// ID.
@@ -137,7 +137,7 @@ private:
   friend class ezResourceManagerWorkerUpdateContent;
 
   /// \brief Called by ezResourceManager shortly after resource creation.
-  void SetUniqueID(const char* szUniqueID, bool bIsReloadable);
+  void SetUniqueID(ezStringView sUniqueID, bool bIsReloadable);
 
   void CallUnloadData(Unload WhatToUnload);
 

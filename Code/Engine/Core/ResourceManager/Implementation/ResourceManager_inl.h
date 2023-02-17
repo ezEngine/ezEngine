@@ -3,27 +3,27 @@
 #include <Foundation/Logging/Log.h>
 
 template <typename ResourceType>
-ResourceType* ezResourceManager::GetResource(const char* szResourceID, bool bIsReloadable)
+ResourceType* ezResourceManager::GetResource(ezStringView sResourceID, bool bIsReloadable)
 {
-  return static_cast<ResourceType*>(GetResource(ezGetStaticRTTI<ResourceType>(), szResourceID, bIsReloadable));
+  return static_cast<ResourceType*>(GetResource(ezGetStaticRTTI<ResourceType>(), sResourceID, bIsReloadable));
 }
 
 template <typename ResourceType>
-ezTypedResourceHandle<ResourceType> ezResourceManager::LoadResource(const char* szResourceID)
+ezTypedResourceHandle<ResourceType> ezResourceManager::LoadResource(ezStringView sResourceID)
 {
   // the mutex here is necessary to prevent a race between resource unloading and storing the pointer in the handle
   EZ_LOCK(s_ResourceMutex);
-  return ezTypedResourceHandle<ResourceType>(GetResource<ResourceType>(szResourceID, true));
+  return ezTypedResourceHandle<ResourceType>(GetResource<ResourceType>(sResourceID, true));
 }
 
 template <typename ResourceType>
-ezTypedResourceHandle<ResourceType> ezResourceManager::LoadResource(const char* szResourceID, ezTypedResourceHandle<ResourceType> hLoadingFallback)
+ezTypedResourceHandle<ResourceType> ezResourceManager::LoadResource(ezStringView sResourceID, ezTypedResourceHandle<ResourceType> hLoadingFallback)
 {
   ezTypedResourceHandle<ResourceType> hResource;
   {
     // the mutex here is necessary to prevent a race between resource unloading and storing the pointer in the handle
     EZ_LOCK(s_ResourceMutex);
-    hResource = ezTypedResourceHandle<ResourceType>(GetResource<ResourceType>(szResourceID, true));
+    hResource = ezTypedResourceHandle<ResourceType>(GetResource<ResourceType>(sResourceID, true));
   }
 
   if (hLoadingFallback.IsValid())
@@ -35,15 +35,15 @@ ezTypedResourceHandle<ResourceType> ezResourceManager::LoadResource(const char* 
 }
 
 template <typename ResourceType>
-ezTypedResourceHandle<ResourceType> ezResourceManager::GetExistingResource(const char* szResourceID)
+ezTypedResourceHandle<ResourceType> ezResourceManager::GetExistingResource(ezStringView sResourceID)
 {
   ezResource* pResource = nullptr;
 
-  const ezTempHashedString sResourceHash(szResourceID);
+  const ezTempHashedString sResourceHash(sResourceID);
 
   EZ_LOCK(s_ResourceMutex);
 
-  const ezRTTI* pRtti = FindResourceTypeOverride(ezGetStaticRTTI<ResourceType>(), szResourceID);
+  const ezRTTI* pRtti = FindResourceTypeOverride(ezGetStaticRTTI<ResourceType>(), sResourceID);
 
   if (GetLoadedResources()[pRtti].m_Resources.TryGetValue(sResourceHash, pResource))
     return ezTypedResourceHandle<ResourceType>((ResourceType*)pResource);
@@ -52,19 +52,18 @@ ezTypedResourceHandle<ResourceType> ezResourceManager::GetExistingResource(const
 }
 
 template <typename ResourceType, typename DescriptorType>
-ezTypedResourceHandle<ResourceType> ezResourceManager::CreateResource(
-  const char* szResourceID, DescriptorType&& descriptor, const char* szResourceDescription)
+ezTypedResourceHandle<ResourceType> ezResourceManager::CreateResource(ezStringView sResourceID, DescriptorType&& descriptor, ezStringView sResourceDescription)
 {
   static_assert(std::is_rvalue_reference<DescriptorType&&>::value, "Please std::move the descriptor into this function");
 
-  EZ_LOG_BLOCK("ezResourceManager::CreateResource", szResourceID);
+  EZ_LOG_BLOCK("ezResourceManager::CreateResource", sResourceID);
 
   EZ_LOCK(s_ResourceMutex);
 
-  ezTypedResourceHandle<ResourceType> hResource(GetResource<ResourceType>(szResourceID, false));
+  ezTypedResourceHandle<ResourceType> hResource(GetResource<ResourceType>(sResourceID, false));
 
   ResourceType* pResource = BeginAcquireResource(hResource, ezResourceAcquireMode::PointerOnly);
-  pResource->SetResourceDescription(szResourceDescription);
+  pResource->SetResourceDescription(sResourceDescription);
   pResource->m_Flags.Add(ezResourceFlags::IsCreatedResource);
 
   EZ_ASSERT_DEV(pResource->GetLoadingState() == ezResourceState::Unloaded, "CreateResource was called on a resource that is already created");
@@ -86,13 +85,13 @@ ezTypedResourceHandle<ResourceType> ezResourceManager::CreateResource(
 
 template <typename ResourceType, typename DescriptorType>
 ezTypedResourceHandle<ResourceType>
-ezResourceManager::GetOrCreateResource(const char* szResourceID, DescriptorType&& descriptor, const char* szResourceDescription)
+ezResourceManager::GetOrCreateResource(ezStringView sResourceID, DescriptorType&& descriptor, ezStringView sResourceDescription)
 {
   EZ_LOCK(s_ResourceMutex);
-  ezTypedResourceHandle<ResourceType> hResource = GetExistingResource<ResourceType>(szResourceID);
+  ezTypedResourceHandle<ResourceType> hResource = GetExistingResource<ResourceType>(sResourceID);
   if (!hResource.IsValid())
   {
-    hResource = CreateResource<ResourceType, DescriptorType>(szResourceID, std::move(descriptor), szResourceDescription);
+    hResource = CreateResource<ResourceType, DescriptorType>(sResourceID, std::move(descriptor), sResourceDescription);
   }
 
   return hResource;
@@ -315,11 +314,11 @@ void ezResourceManager::SetResourceTypeLoader(ezResourceTypeLoader* creator)
 }
 
 template <typename ResourceType>
-ezTypedResourceHandle<ResourceType> ezResourceManager::GetResourceHandleForExport(const char* szResourceID)
+ezTypedResourceHandle<ResourceType> ezResourceManager::GetResourceHandleForExport(ezStringView sResourceID)
 {
   EZ_ASSERT_DEV(IsExportModeEnabled(), "Export mode needs to be enabled");
 
-  return LoadResource<ResourceType>(szResourceID);
+  return LoadResource<ResourceType>(sResourceID);
 }
 
 template <typename ResourceType>

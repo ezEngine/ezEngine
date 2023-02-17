@@ -20,6 +20,51 @@ ezFmodSoundEventResource::~ezFmodSoundEventResource()
   EZ_ASSERT_DEV(m_pEventDescription == nullptr, "SoundEvent has not been freed correctly");
 }
 
+ezResult ezFmodSoundEventResource::PlayOnce(const ezTransform& globalPosition, float fPitch /*= 1.0f*/, float fVolume /*= 1.0f*/) const
+{
+  bool bIsOneShot = false;
+  m_pEventDescription->isOneshot(&bIsOneShot);
+
+  if (!bIsOneShot)
+  {
+    ezLog::Warning("ezFmodSoundEventResource::PlayOnce: '{}' is not a one-shot event.", GetResourceDescription());
+    return EZ_FAILURE;
+  }
+
+  auto pInstance = CreateInstance();
+  if (pInstance == nullptr)
+  {
+    ezLog::Warning("ezFmodSoundEventResource::PlayOnce: Instance of '{}' could not be created.", GetResourceDescription());
+    return EZ_FAILURE;
+  }
+  const auto fwd = globalPosition.m_qRotation * ezVec3(1, 0, 0);
+  const auto up = globalPosition.m_qRotation * ezVec3(0, 0, 1);
+
+  FMOD_3D_ATTRIBUTES attr;
+  attr.position.x = globalPosition.m_vPosition.x;
+  attr.position.y = globalPosition.m_vPosition.y;
+  attr.position.z = globalPosition.m_vPosition.z;
+  attr.forward.x = fwd.x;
+  attr.forward.y = fwd.y;
+  attr.forward.z = fwd.z;
+  attr.up.x = up.x;
+  attr.up.y = up.y;
+  attr.up.z = up.z;
+  attr.velocity.x = 0;
+  attr.velocity.y = 0;
+  attr.velocity.z = 0;
+
+  EZ_FMOD_ASSERT(pInstance->setPitch(fPitch));
+  EZ_FMOD_ASSERT(pInstance->setVolume(fVolume));
+  EZ_FMOD_ASSERT(pInstance->set3DAttributes(&attr));
+  EZ_FMOD_ASSERT(pInstance->setPaused(false));
+  EZ_FMOD_ASSERT(pInstance->start());
+
+  pInstance->release();
+
+  return EZ_SUCCESS;
+}
+
 FMOD::Studio::EventInstance* ezFmodSoundEventResource::CreateInstance() const
 {
   if (m_pEventDescription)
