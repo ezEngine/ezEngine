@@ -492,7 +492,8 @@ void ezFmodEventComponent::OnDeactivated()
     m_pEventInstance->getDescription(&pDesc);
     pDesc->isOneshot(&bLetFinish);
 
-    if (!bLetFinish)
+    // if this is a looped sound, or the world is not simulating (usually because it is shutting down), stop the sound immediately
+    if (!bLetFinish || !GetWorld()->GetWorldSimulationEnabled())
     {
       EZ_FMOD_ASSERT(m_pEventInstance->stop(FMOD_STUDIO_STOP_ALLOWFADEOUT));
     }

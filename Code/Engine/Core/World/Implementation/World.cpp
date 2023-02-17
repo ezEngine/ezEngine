@@ -72,6 +72,8 @@ ezWorld::ezWorld(ezWorldDesc& desc)
 
 ezWorld::~ezWorld()
 {
+  SetWorldSimulationEnabled(false);
+
   EZ_LOCK(GetWriteMarker());
   m_Data.Clear();
 
