@@ -11,9 +11,9 @@ EZ_IMPLEMENT_SERIALIZATION_CONTEXT(ezTypeVersionWriteContext)
 ezTypeVersionWriteContext::ezTypeVersionWriteContext() = default;
 ezTypeVersionWriteContext::~ezTypeVersionWriteContext() = default;
 
-ezStreamWriter& ezTypeVersionWriteContext::Begin(ezStreamWriter& originalStream)
+ezStreamWriter& ezTypeVersionWriteContext::Begin(ezStreamWriter& ref_originalStream)
 {
-  m_pOriginalStream = &originalStream;
+  m_pOriginalStream = &ref_originalStream;
 
   EZ_ASSERT_DEV(m_TempStreamStorage.GetStorageSize64() == 0, "Begin() can only be called once on a type version context.");
   m_TempStreamWriter.SetStorage(&m_TempStreamStorage);
@@ -44,12 +44,12 @@ void ezTypeVersionWriteContext::AddType(const ezRTTI* pRtti)
   }
 }
 
-void ezTypeVersionWriteContext::WriteTypeVersions(ezStreamWriter& stream) const
+void ezTypeVersionWriteContext::WriteTypeVersions(ezStreamWriter& inout_stream) const
 {
-  stream.WriteVersion(s_uiTypeVersionContextVersion);
+  inout_stream.WriteVersion(s_uiTypeVersionContextVersion);
 
   const ezUInt32 uiNumTypes = m_KnownTypes.GetCount();
-  stream << uiNumTypes;
+  inout_stream << uiNumTypes;
 
   ezMap<ezString, const ezRTTI*> sortedTypes;
   for (auto pType : m_KnownTypes)
@@ -59,8 +59,8 @@ void ezTypeVersionWriteContext::WriteTypeVersions(ezStreamWriter& stream) const
 
   for (const auto& it : sortedTypes)
   {
-    stream << it.Key();
-    stream << it.Value()->GetTypeVersion();
+    inout_stream << it.Key();
+    inout_stream << it.Value()->GetTypeVersion();
   }
 }
 
@@ -68,20 +68,20 @@ void ezTypeVersionWriteContext::WriteTypeVersions(ezStreamWriter& stream) const
 
 EZ_IMPLEMENT_SERIALIZATION_CONTEXT(ezTypeVersionReadContext)
 
-ezTypeVersionReadContext::ezTypeVersionReadContext(ezStreamReader& stream)
+ezTypeVersionReadContext::ezTypeVersionReadContext(ezStreamReader& inout_stream)
 {
-  auto version = stream.ReadVersion(s_uiTypeVersionContextVersion);
+  auto version = inout_stream.ReadVersion(s_uiTypeVersionContextVersion);
 
   ezUInt32 uiNumTypes = 0;
-  stream >> uiNumTypes;
+  inout_stream >> uiNumTypes;
 
   ezStringBuilder sTypeName;
   ezUInt32 uiTypeVersion;
 
   for (ezUInt32 i = 0; i < uiNumTypes; ++i)
   {
-    stream >> sTypeName;
-    stream >> uiTypeVersion;
+    inout_stream >> sTypeName;
+    inout_stream >> uiTypeVersion;
 
     if (const ezRTTI* pType = ezRTTI::FindTypeByName(sTypeName))
     {

@@ -28,7 +28,7 @@ public:
   ezResult ExtractAllFiles(ezStringView sTargetFolder) const;
 
   /// \brief Sets up \a memReader for reading the raw (potentially compressed) data that is stored for the given entry in the archive.
-  void ConfigureRawMemoryStreamReader(ezUInt32 uiEntryIdx, ezRawMemoryStreamReader& memReader) const;
+  void ConfigureRawMemoryStreamReader(ezUInt32 uiEntryIdx, ezRawMemoryStreamReader& ref_memReader) const;
 
   /// \brief Creates a reader that will decompress the given file entry.
   ezUniquePtr<ezStreamReader> CreateEntryReader(ezUInt32 uiEntryIdx) const;

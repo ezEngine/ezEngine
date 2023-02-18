@@ -86,7 +86,7 @@ protected:
 
 public:
   /// \brief Expands the table so it can at least store the given capacity.
-  void Reserve(IndexType uiCapacity); // [tested]
+  void Reserve(IndexType capacity); // [tested]
 
   /// \brief Returns the number of active entries in the table.
   IndexType GetCount() const; // [tested]
@@ -104,7 +104,7 @@ public:
   IdType Insert(ValueType&& value);
 
   /// \brief Removes the entry with the given id. Returns if an entry was removed and optionally writes out the old value to out_oldValue.
-  bool Remove(const IdType id, ValueType* out_oldValue = nullptr); // [tested]
+  bool Remove(const IdType id, ValueType* out_pOldValue = nullptr); // [tested]
 
   /// \brief Returns if an entry with the given id was found and if found writes out the corresponding value to out_value.
   bool TryGetValue(const IdType id, ValueType& out_value) const; // [tested]

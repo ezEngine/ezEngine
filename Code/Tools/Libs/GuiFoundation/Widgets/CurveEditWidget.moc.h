@@ -18,7 +18,7 @@ class EZ_GUIFOUNDATION_DLL ezQtCurveEditWidget : public QWidget
   Q_OBJECT
 
 public:
-  ezQtCurveEditWidget(QWidget* parent);
+  ezQtCurveEditWidget(QWidget* pParent);
 
   double m_fLowerRange = -ezMath::HighValue<double>();
   double m_fUpperRange = ezMath::HighValue<double>();
@@ -37,12 +37,12 @@ public:
 
   void FrameCurve();
   void FrameSelection();
-  void Frame(double offsetX, double offsetY, double width, double height);
+  void Frame(double fOffsetX, double fOffsetY, double fWidth, double fHeight);
 
   QPoint MapFromScene(const QPointF& pos) const;
-  QPoint MapFromScene(const ezVec2d& pos) const { return MapFromScene(QPointF(pos.x, pos.y)); }
+  QPoint MapFromScene(const ezVec2d& vPos) const { return MapFromScene(QPointF(vPos.x, vPos.y)); }
   QPointF MapToScene(const QPoint& pos) const;
-  ezVec2 MapDirFromScene(const ezVec2& pos) const;
+  ezVec2 MapDirFromScene(const ezVec2& vPos) const;
 
   void ClearSelection();
   void SelectAll();
@@ -50,21 +50,21 @@ public:
   bool IsSelected(const ezSelectedCurveCP& cp) const;
   void SetSelection(const ezSelectedCurveCP& cp);
   void ToggleSelected(const ezSelectedCurveCP& cp);
-  void SetSelected(const ezSelectedCurveCP& cp, bool set);
+  void SetSelected(const ezSelectedCurveCP& cp, bool bSet);
 
   bool GetSelectedTangent(ezInt32& out_iCurve, ezInt32& out_iPoint, bool& out_bLeftTangent) const;
 
 Q_SIGNALS:
   void DoubleClickEvent(const QPointF& scenePos, const QPointF& epsilon);
   void DeleteControlPointsEvent();
-  void MoveControlPointsEvent(double moveX, double moveY);
-  void MoveTangentsEvent(double moveX, double moveY);
-  void BeginOperationEvent(QString name);
+  void MoveControlPointsEvent(double fMoveX, double fMoveY);
+  void MoveTangentsEvent(double fMoveX, double fMoveY);
+  void BeginOperationEvent(QString sName);
   void EndOperationEvent(bool bCommit);
-  void ScaleControlPointsEvent(const QPointF& centerPos, double scaleX, double scaleY);
+  void ScaleControlPointsEvent(const QPointF& centerPos, double fScaleX, double fScaleY);
   void ContextMenuEvent(QPoint pos, QPointF scenePos);
   void SelectionChangedEvent();
-  void MoveCurveEvent(ezInt32 iCurve, double moveY);
+  void MoveCurveEvent(ezInt32 iCurve, double fMoveY);
 
 protected:
   virtual void paintEvent(QPaintEvent* e) override;

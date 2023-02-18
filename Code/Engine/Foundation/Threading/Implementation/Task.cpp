@@ -14,13 +14,13 @@ void ezTask::Reset()
   m_bUsesMultiplicity = m_uiMultiplicity > 0;
 }
 
-void ezTask::ConfigureTask(const char* szTaskName, ezTaskNesting nestingMode, ezOnTaskFinishedCallback Callback /*= ezOnTaskFinishedCallback()*/)
+void ezTask::ConfigureTask(const char* szTaskName, ezTaskNesting nestingMode, ezOnTaskFinishedCallback callback /*= ezOnTaskFinishedCallback()*/)
 {
   EZ_ASSERT_DEV(IsTaskFinished(), "This function must be called before the task is started.");
 
   m_sTaskName = szTaskName;
   m_NestingMode = nestingMode;
-  m_OnTaskFinished = Callback;
+  m_OnTaskFinished = callback;
 }
 
 void ezTask::SetMultiplicity(ezUInt32 uiMultiplicity)

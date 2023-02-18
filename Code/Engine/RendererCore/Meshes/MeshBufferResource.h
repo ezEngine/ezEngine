@@ -38,7 +38,7 @@ public:
   void Clear();
 
   /// \brief Use this function to add vertex streams to the mesh buffer. The return value is the index of the just added stream.
-  ezUInt32 AddStream(ezGALVertexAttributeSemantic::Enum Semantic, ezGALResourceFormat::Enum Format);
+  ezUInt32 AddStream(ezGALVertexAttributeSemantic::Enum semantic, ezGALResourceFormat::Enum format);
 
   /// \brief Adds common vertex streams to the mesh buffer.
   ///

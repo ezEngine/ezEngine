@@ -168,7 +168,7 @@ void ezSmallArrayBase<T, Size>::SetCount(ezUInt16 uiCount, ezAllocatorBase* pAll
 }
 
 template <typename T, ezUInt16 Size>
-void ezSmallArrayBase<T, Size>::SetCount(ezUInt16 uiCount, const T& FillValue, ezAllocatorBase* pAllocator)
+void ezSmallArrayBase<T, Size>::SetCount(ezUInt16 uiCount, const T& fillValue, ezAllocatorBase* pAllocator)
 {
   const ezUInt32 uiOldCount = m_uiCount;
   const ezUInt32 uiNewCount = uiCount;
@@ -176,7 +176,7 @@ void ezSmallArrayBase<T, Size>::SetCount(ezUInt16 uiCount, const T& FillValue, e
   if (uiNewCount > uiOldCount)
   {
     Reserve(uiCount, pAllocator);
-    ezMemoryUtils::CopyConstruct(GetElementsPtr() + uiOldCount, FillValue, uiNewCount - uiOldCount);
+    ezMemoryUtils::CopyConstruct(GetElementsPtr() + uiOldCount, fillValue, uiNewCount - uiOldCount);
   }
   else if (uiNewCount < uiOldCount)
   {
@@ -659,9 +659,9 @@ EZ_ALWAYS_INLINE void ezSmallArray<T, Size, AllocatorWrapper>::SetCount(ezUInt16
 }
 
 template <typename T, ezUInt16 Size, typename AllocatorWrapper /*= ezDefaultAllocatorWrapper*/>
-EZ_ALWAYS_INLINE void ezSmallArray<T, Size, AllocatorWrapper>::SetCount(ezUInt16 uiCount, const T& FillValue)
+EZ_ALWAYS_INLINE void ezSmallArray<T, Size, AllocatorWrapper>::SetCount(ezUInt16 uiCount, const T& fillValue)
 {
-  SUPER::SetCount(uiCount, FillValue, AllocatorWrapper::GetAllocator());
+  SUPER::SetCount(uiCount, fillValue, AllocatorWrapper::GetAllocator());
 }
 
 template <typename T, ezUInt16 Size, typename AllocatorWrapper /*= ezDefaultAllocatorWrapper*/>
@@ -728,9 +728,9 @@ EZ_ALWAYS_INLINE void ezSmallArray<T, Size, AllocatorWrapper>::Compact()
 //////////////////////////////////////////////////////////////////////////
 
 template <typename T, ezUInt16 Size>
-typename ezSmallArrayBase<T, Size>::iterator begin(ezSmallArrayBase<T, Size>& container)
+typename ezSmallArrayBase<T, Size>::iterator begin(ezSmallArrayBase<T, Size>& ref_container)
 {
-  return container.GetData();
+  return ref_container.GetData();
 }
 
 template <typename T, ezUInt16 Size>
@@ -746,9 +746,9 @@ typename ezSmallArrayBase<T, Size>::const_iterator cbegin(const ezSmallArrayBase
 }
 
 template <typename T, ezUInt16 Size>
-typename ezSmallArrayBase<T, Size>::reverse_iterator rbegin(ezSmallArrayBase<T, Size>& container)
+typename ezSmallArrayBase<T, Size>::reverse_iterator rbegin(ezSmallArrayBase<T, Size>& ref_container)
 {
-  return typename ezSmallArrayBase<T, Size>::reverse_iterator(container.GetData() + container.GetCount() - 1);
+  return typename ezSmallArrayBase<T, Size>::reverse_iterator(ref_container.GetData() + ref_container.GetCount() - 1);
 }
 
 template <typename T, ezUInt16 Size>
@@ -764,9 +764,9 @@ typename ezSmallArrayBase<T, Size>::const_reverse_iterator crbegin(const ezSmall
 }
 
 template <typename T, ezUInt16 Size>
-typename ezSmallArrayBase<T, Size>::iterator end(ezSmallArrayBase<T, Size>& container)
+typename ezSmallArrayBase<T, Size>::iterator end(ezSmallArrayBase<T, Size>& ref_container)
 {
-  return container.GetData() + container.GetCount();
+  return ref_container.GetData() + ref_container.GetCount();
 }
 
 template <typename T, ezUInt16 Size>
@@ -782,9 +782,9 @@ typename ezSmallArrayBase<T, Size>::const_iterator cend(const ezSmallArrayBase<T
 }
 
 template <typename T, ezUInt16 Size>
-typename ezSmallArrayBase<T, Size>::reverse_iterator rend(ezSmallArrayBase<T, Size>& container)
+typename ezSmallArrayBase<T, Size>::reverse_iterator rend(ezSmallArrayBase<T, Size>& ref_container)
 {
-  return typename ezSmallArrayBase<T, Size>::reverse_iterator(container.GetData() - 1);
+  return typename ezSmallArrayBase<T, Size>::reverse_iterator(ref_container.GetData() - 1);
 }
 
 template <typename T, ezUInt16 Size>

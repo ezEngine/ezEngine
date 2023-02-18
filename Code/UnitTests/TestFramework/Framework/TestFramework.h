@@ -26,7 +26,7 @@ class ezCommandLineUtils;
 class EZ_TEST_DLL ezTestFramework
 {
 public:
-  ezTestFramework(const char* szTestName, const char* szAbsTestOutputDir, const char* szRelTestDataDir, int argc, const char** argv);
+  ezTestFramework(const char* szTestName, const char* szAbsTestOutputDir, const char* szRelTestDataDir, int iArgc, const char** pArgv);
   virtual ~ezTestFramework();
 
   typedef void (*OutputHandler)(ezTestOutput::Enum Type, const char* szMsg);
@@ -39,18 +39,18 @@ public:
   const char* GetRelTestDataPath() const;
   const char* GetAbsTestOrderFilePath() const;
   const char* GetAbsTestSettingsFilePath() const;
-  void RegisterOutputHandler(OutputHandler Handler);
+  void RegisterOutputHandler(OutputHandler handler);
   void GatherAllTests();
   void LoadTestOrder();
   void ApplyTestOrderFromCommandLine(const ezCommandLineUtils& cmd);
   void LoadTestSettings();
   void AutoSaveTestOrder();
-  void SaveTestOrder(const char* const filePath);
-  void SaveTestSettings(const char* const filePath);
+  void SaveTestOrder(const char* const szFilePath);
+  void SaveTestSettings(const char* const szFilePath);
   void SetAllTestsEnabledStatus(bool bEnable);
   void SetAllFailedTestsEnabledStatus();
   // Each function on a test must not take longer than the given time or the test process will be terminated.
-  void SetTestTimeout(ezUInt32 testTimeoutMS);
+  void SetTestTimeout(ezUInt32 uiTestTimeoutMS);
   ezUInt32 GetTestTimeout() const;
   void GetTestSettingsFromCommandLine(const ezCommandLineUtils& cmd);
 
@@ -98,18 +98,18 @@ public:
   void ScheduleDepthImageComparison(ezUInt32 uiImageNumber, ezUInt32 uiMaxError);
   bool IsImageComparisonScheduled() const { return m_bImageComparisonScheduled; }
   bool IsDepthImageComparisonScheduled() const { return m_bDepthImageComparisonScheduled; }
-  void GenerateComparisonImageName(ezUInt32 uiImageNumber, ezStringBuilder& sImgName);
-  void GetCurrentComparisonImageName(ezStringBuilder& sImgName);
+  void GenerateComparisonImageName(ezUInt32 uiImageNumber, ezStringBuilder& ref_sImgName);
+  void GetCurrentComparisonImageName(ezStringBuilder& ref_sImgName);
   void SetImageReferenceFolderName(const char* szFolderName);
   void SetImageReferenceOverrideFolderName(const char* szFolderName);
 
   /// \brief Writes an Html file that contains test information and an image diff view for failed image comparisons.
-  void WriteImageDiffHtml(const char* fileName, ezImage& referenceImgRgb, ezImage& referenceImgAlpha, ezImage& capturedImgRgb,
-    ezImage& capturedImgAlpha, ezImage& diffImgRgb, ezImage& diffImgAlpha, ezUInt32 uiError, ezUInt32 uiThreshold, ezUInt8 uiMinDiffRgb,
+  void WriteImageDiffHtml(const char* szFileName, ezImage& ref_referenceImgRgb, ezImage& ref_referenceImgAlpha, ezImage& ref_capturedImgRgb,
+    ezImage& ref_capturedImgAlpha, ezImage& ref_diffImgRgb, ezImage& ref_diffImgAlpha, ezUInt32 uiError, ezUInt32 uiThreshold, ezUInt8 uiMinDiffRgb,
     ezUInt8 uiMaxDiffRgb, ezUInt8 uiMinDiffAlpha, ezUInt8 uiMaxDiffAlpha);
 
   bool PerformImageComparison(ezStringBuilder sImgName, const ezImage& img, ezUInt32 uiMaxError, char* szErrorMsg);
-  bool CompareImages(ezUInt32 uiImageNumber, ezUInt32 uiMaxError, char* szErrorMsg, bool isDepthImage = false);
+  bool CompareImages(ezUInt32 uiImageNumber, ezUInt32 uiMaxError, char* szErrorMsg, bool bIsDepthImage = false);
 
   /// \brief A function to be called to add extra info to image diff output, that is not available from here.
   /// E.g. device specific info like driver version.
@@ -120,7 +120,7 @@ public:
                                                              /// indicating if the images matched or not.
   void SetImageComparisonCallback(const ImageComparisonCallback& callback);
 
-  static ezResult CaptureRegressionStat(ezStringView testName, ezStringView name, ezStringView unit, float value, ezInt32 testId = -1);
+  static ezResult CaptureRegressionStat(ezStringView sTestName, ezStringView sName, ezStringView sUnit, float value, ezInt32 iTestId = -1);
 
 protected:
   void Initialize();
@@ -150,10 +150,10 @@ public:
   /// \brief Returns whether to asset on test failure.
   static bool GetAssertOnTestFail();
 
-  static void Output(ezTestOutput::Enum Type, const char* szMsg, ...);
-  static void OutputArgs(ezTestOutput::Enum Type, const char* szMsg, va_list args);
+  static void Output(ezTestOutput::Enum type, const char* szMsg, ...);
+  static void OutputArgs(ezTestOutput::Enum type, const char* szMsg, va_list szArgs);
   static void Error(const char* szError, const char* szFile, ezInt32 iLine, const char* szFunction, ezStringView sMsg, ...);
-  static void Error(const char* szError, const char* szFile, ezInt32 iLine, const char* szFunction, ezStringView sMsg, va_list args);
+  static void Error(const char* szError, const char* szFile, ezInt32 iLine, const char* szFunction, ezStringView sMsg, va_list szArgs);
   static void TestResult(ezInt32 iSubTestIndex, bool bSuccess, double fDuration);
 
   // static members
@@ -373,7 +373,7 @@ EZ_TEST_DLL bool ezTestBool(
 //////////////////////////////////////////////////////////////////////////
 
 EZ_TEST_DLL bool ezTestResult(
-  ezResult bCondition, const char* szErrorText, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...);
+  ezResult condition, const char* szErrorText, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...);
 
 /// \brief Tests for a boolean condition, does not output an extra message.
 #define EZ_TEST_RESULT(condition) EZ_TEST_RESULT_MSG(condition, "")
@@ -385,7 +385,7 @@ EZ_TEST_DLL bool ezTestResult(
 //////////////////////////////////////////////////////////////////////////
 
 EZ_TEST_DLL bool ezTestResult(
-  ezResult bCondition, const char* szErrorText, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...);
+  ezResult condition, const char* szErrorText, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...);
 
 /// \brief Tests for a boolean condition, does not output an extra message.
 #define EZ_TEST_RESULT(condition) EZ_TEST_RESULT_MSG(condition, "")
@@ -541,7 +541,7 @@ EZ_TEST_DLL bool ezTestTextFiles(
 //////////////////////////////////////////////////////////////////////////
 
 EZ_TEST_DLL bool ezTestImage(
-  ezUInt32 uiImageNumber, ezUInt32 uiMaxError, bool isDepthImage, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...);
+  ezUInt32 uiImageNumber, ezUInt32 uiMaxError, bool bIsDepthImage, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...);
 
 /// \brief Same as EZ_TEST_IMAGE_MSG but uses an empty error message.
 #define EZ_TEST_IMAGE(ImageNumber, MaxError) EZ_TEST_IMAGE_MSG(ImageNumber, MaxError, "")

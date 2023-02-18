@@ -161,7 +161,7 @@ void ezView::ExtractData()
   ezRenderWorld::s_ExtractionEvent.Broadcast(extractionEvent);
 }
 
-void ezView::ComputeCullingFrustum(ezFrustum& out_Frustum) const
+void ezView::ComputeCullingFrustum(ezFrustum& out_frustum) const
 {
   const ezCamera* pCamera = GetCullingCamera();
   const float fViewportAspectRatio = m_Data.m_ViewPortRect.width / m_Data.m_ViewPortRect.height;
@@ -171,7 +171,7 @@ void ezView::ComputeCullingFrustum(ezFrustum& out_Frustum) const
   ezMat4 projectionMatrix;
   pCamera->GetProjectionMatrix(fViewportAspectRatio, projectionMatrix);
 
-  out_Frustum.SetFrustum(projectionMatrix * viewMatrix);
+  out_frustum.SetFrustum(projectionMatrix * viewMatrix);
 }
 
 void ezView::SetShaderPermutationVariable(const char* szName, const char* szValue)

@@ -80,12 +80,12 @@ void ezBeamComponent::Update()
   }
 }
 
-void ezBeamComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezBeamComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 
-  auto& s = stream.GetStream();
-  stream.WriteGameObjectHandle(m_hTargetObject);
+  auto& s = inout_stream.GetStream();
+  inout_stream.WriteGameObjectHandle(m_hTargetObject);
 
   s << m_fWidth;
   s << m_fUVUnitsPerWorldUnit;
@@ -93,12 +93,12 @@ void ezBeamComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_Color;
 }
 
-void ezBeamComponent::DeserializeComponent(ezWorldReader& stream)
+void ezBeamComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
+  SUPER::DeserializeComponent(inout_stream);
 
-  auto& s = stream.GetStream();
-  m_hTargetObject = stream.ReadGameObjectHandle();
+  auto& s = inout_stream.GetStream();
+  m_hTargetObject = inout_stream.ReadGameObjectHandle();
 
   s >> m_fWidth;
   s >> m_fUVUnitsPerWorldUnit;
@@ -106,7 +106,7 @@ void ezBeamComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_Color;
 }
 
-ezResult ezBeamComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg)
+ezResult ezBeamComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg)
 {
   ezGameObject* pTargetObject = nullptr;
   if (GetWorld()->TryGetObject(m_hTargetObject, pTargetObject))
@@ -121,7 +121,7 @@ ezResult ezBeamComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlw
     const float fHalfWidth = m_fWidth * 0.5f;
     box.m_vMin -= ezVec3(0, fHalfWidth, fHalfWidth);
     box.m_vMax += ezVec3(0, fHalfWidth, fHalfWidth);
-    bounds = box;
+    ref_bounds = box;
 
     return EZ_SUCCESS;
   }

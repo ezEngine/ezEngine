@@ -42,8 +42,8 @@ struct ezAmbientCube
 
   T Evaluate(const ezVec3& vNormal) const;
 
-  ezResult Serialize(ezStreamWriter& stream) const;
-  ezResult Deserialize(ezStreamReader& stream);
+  ezResult Serialize(ezStreamWriter& inout_stream) const;
+  ezResult Deserialize(ezStreamReader& inout_stream);
 
   T m_Values[ezAmbientCubeBasis::NumDirs];
 };

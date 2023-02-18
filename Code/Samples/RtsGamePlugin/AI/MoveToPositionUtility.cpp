@@ -14,7 +14,7 @@ void RtsMoveToPositionAiUtility::Deactivate(ezGameObject* pOwnerObject, ezCompon
   pOwnerObject->SendMessage(msg);
 }
 
-void RtsMoveToPositionAiUtility::Execute(ezGameObject* pOwnerObject, ezComponent* pOwnerComponent, ezTime tNow)
+void RtsMoveToPositionAiUtility::Execute(ezGameObject* pOwnerObject, ezComponent* pOwnerComponent, ezTime now)
 {
   RtsUnitComponent* pUnit = static_cast<RtsUnitComponent*>(pOwnerComponent);
 

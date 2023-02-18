@@ -43,24 +43,24 @@ EZ_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
 static ezTypeVersion s_ProcVertexColorMappingVersion = 1;
-ezResult ezProcVertexColorMapping::Serialize(ezStreamWriter& stream) const
+ezResult ezProcVertexColorMapping::Serialize(ezStreamWriter& inout_stream) const
 {
-  stream.WriteVersion(s_ProcVertexColorMappingVersion);
-  stream << m_R;
-  stream << m_G;
-  stream << m_B;
-  stream << m_A;
+  inout_stream.WriteVersion(s_ProcVertexColorMappingVersion);
+  inout_stream << m_R;
+  inout_stream << m_G;
+  inout_stream << m_B;
+  inout_stream << m_A;
 
   return EZ_SUCCESS;
 }
 
-ezResult ezProcVertexColorMapping::Deserialize(ezStreamReader& stream)
+ezResult ezProcVertexColorMapping::Deserialize(ezStreamReader& inout_stream)
 {
-  /*ezTypeVersion version =*/stream.ReadVersion(s_ProcVertexColorMappingVersion);
-  stream >> m_R;
-  stream >> m_G;
-  stream >> m_B;
-  stream >> m_A;
+  /*ezTypeVersion version =*/inout_stream.ReadVersion(s_ProcVertexColorMappingVersion);
+  inout_stream >> m_R;
+  inout_stream >> m_G;
+  inout_stream >> m_B;
+  inout_stream >> m_A;
 
   return EZ_SUCCESS;
 }

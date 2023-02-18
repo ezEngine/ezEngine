@@ -41,16 +41,16 @@ enum class TypePointVersion
   Version_Current = Version_Count - 1
 };
 
-void ezParticleTypePointFactory::Save(ezStreamWriter& stream) const
+void ezParticleTypePointFactory::Save(ezStreamWriter& inout_stream) const
 {
   const ezUInt8 uiVersion = (int)TypePointVersion::Version_Current;
-  stream << uiVersion;
+  inout_stream << uiVersion;
 }
 
-void ezParticleTypePointFactory::Load(ezStreamReader& stream)
+void ezParticleTypePointFactory::Load(ezStreamReader& inout_stream)
 {
   ezUInt8 uiVersion = 0;
-  stream >> uiVersion;
+  inout_stream >> uiVersion;
 
   EZ_ASSERT_DEV(uiVersion <= (int)TypePointVersion::Version_Current, "Invalid version {0}", uiVersion);
 }
@@ -61,7 +61,7 @@ void ezParticleTypePoint::CreateRequiredStreams()
   CreateStream("Color", ezProcessingStream::DataType::Half4, &m_pStreamColor, false);
 }
 
-void ezParticleTypePoint::ExtractTypeRenderData(ezMsgExtractRenderData& msg, const ezTransform& instanceTransform) const
+void ezParticleTypePoint::ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg, const ezTransform& instanceTransform) const
 {
   EZ_PROFILE_SCOPE("PFX: Point");
 
@@ -97,7 +97,7 @@ void ezParticleTypePoint::ExtractTypeRenderData(ezMsgExtractRenderData& msg, con
   pRenderData->m_BaseParticleData = m_BaseParticleData;
   pRenderData->m_BillboardParticleData = m_BillboardParticleData;
 
-  msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::LitTransparent, ezRenderData::Caching::Never);
+  ref_msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::LitTransparent, ezRenderData::Caching::Never);
 }
 
 

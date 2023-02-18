@@ -41,7 +41,7 @@ public:
   bool TryGetEffectInstance(const ezParticleEffectHandle& hEffect, const ezParticleEffectInstance*& out_pEffect) const;
 
   /// \brief Extracts render data for the given effect.
-  void ExtractEffectRenderData(const ezParticleEffectInstance* pEffect, ezMsgExtractRenderData& msg, const ezTransform& systemTransform) const;
+  void ExtractEffectRenderData(const ezParticleEffectInstance* pEffect, ezMsgExtractRenderData& ref_msg, const ezTransform& systemTransform) const;
 
   ezParticleSystemInstance* CreateSystemInstance(ezUInt32 uiMaxParticles, ezWorld* pWorld, ezParticleEffectInstance* pOwnerEffect, float fSpawnMultiplier);
   void DestroySystemInstance(ezParticleSystemInstance* pInstance);

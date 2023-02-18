@@ -133,7 +133,7 @@ void ezSkeletonAssetDocument::PropertyMetaStateEventHandler(ezPropertyMetaStateE
   }
 }
 
-ezStatus ezSkeletonAssetDocument::WriteResource(ezStreamWriter& stream) const
+ezStatus ezSkeletonAssetDocument::WriteResource(ezStreamWriter& inout_stream) const
 {
   auto pProp = GetProperties(); // ApplyNativePropertyChangesToObjectManager destroys pProp
 
@@ -141,17 +141,17 @@ ezStatus ezSkeletonAssetDocument::WriteResource(ezStreamWriter& stream) const
   desc.m_RootTransform = CalculateTransformationMatrix(pProp);
   pProp->FillResourceDescriptor(desc);
 
-  EZ_SUCCEED_OR_RETURN(desc.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(desc.Serialize(inout_stream));
 
   return ezStatus(EZ_SUCCESS);
 }
 
-void ezSkeletonAssetDocument::SetRenderBones(bool enable)
+void ezSkeletonAssetDocument::SetRenderBones(bool bEnable)
 {
-  if (m_bRenderBones == enable)
+  if (m_bRenderBones == bEnable)
     return;
 
-  m_bRenderBones = enable;
+  m_bRenderBones = bEnable;
 
   ezSkeletonAssetEvent e;
   e.m_pDocument = this;
@@ -159,12 +159,12 @@ void ezSkeletonAssetDocument::SetRenderBones(bool enable)
   m_Events.Broadcast(e);
 }
 
-void ezSkeletonAssetDocument::SetRenderColliders(bool enable)
+void ezSkeletonAssetDocument::SetRenderColliders(bool bEnable)
 {
-  if (m_bRenderColliders == enable)
+  if (m_bRenderColliders == bEnable)
     return;
 
-  m_bRenderColliders = enable;
+  m_bRenderColliders = bEnable;
 
   ezSkeletonAssetEvent e;
   e.m_pDocument = this;
@@ -172,12 +172,12 @@ void ezSkeletonAssetDocument::SetRenderColliders(bool enable)
   m_Events.Broadcast(e);
 }
 
-void ezSkeletonAssetDocument::SetRenderJoints(bool enable)
+void ezSkeletonAssetDocument::SetRenderJoints(bool bEnable)
 {
-  if (m_bRenderJoints == enable)
+  if (m_bRenderJoints == bEnable)
     return;
 
-  m_bRenderJoints = enable;
+  m_bRenderJoints = bEnable;
 
   ezSkeletonAssetEvent e;
   e.m_pDocument = this;
@@ -185,12 +185,12 @@ void ezSkeletonAssetDocument::SetRenderJoints(bool enable)
   m_Events.Broadcast(e);
 }
 
-void ezSkeletonAssetDocument::SetRenderSwingLimits(bool enable)
+void ezSkeletonAssetDocument::SetRenderSwingLimits(bool bEnable)
 {
-  if (m_bRenderSwingLimits == enable)
+  if (m_bRenderSwingLimits == bEnable)
     return;
 
-  m_bRenderSwingLimits = enable;
+  m_bRenderSwingLimits = bEnable;
 
   ezSkeletonAssetEvent e;
   e.m_pDocument = this;
@@ -198,12 +198,12 @@ void ezSkeletonAssetDocument::SetRenderSwingLimits(bool enable)
   m_Events.Broadcast(e);
 }
 
-void ezSkeletonAssetDocument::SetRenderTwistLimits(bool enable)
+void ezSkeletonAssetDocument::SetRenderTwistLimits(bool bEnable)
 {
-  if (m_bRenderTwistLimits == enable)
+  if (m_bRenderTwistLimits == bEnable)
     return;
 
-  m_bRenderTwistLimits = enable;
+  m_bRenderTwistLimits = bEnable;
 
   ezSkeletonAssetEvent e;
   e.m_pDocument = this;
@@ -234,7 +234,7 @@ void ezSkeletonAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo
     pExposedParams->m_Parameters.PushBack(param);
   }
 
-  auto Traverse = [&](ezEditableSkeletonJoint* pJoint, const char* szParent, auto Recurse) -> void {
+  auto Traverse = [&](ezEditableSkeletonJoint* pJoint, const char* szParent, auto recurse) -> void {
     ezExposedBone bone;
     bone.m_sName = pJoint->GetName();
     bone.m_sParent = szParent;
@@ -248,7 +248,7 @@ void ezSkeletonAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo
 
     for (auto pChild : pJoint->m_Children)
     {
-      Recurse(pChild, pJoint->GetName(), Recurse);
+      recurse(pChild, pJoint->GetName(), recurse);
     }
   };
 
@@ -347,7 +347,7 @@ void ezSkeletonAssetDocument::MergeWithNewSkeleton(ezEditableSkeleton& newSkelet
 
   // copy old properties to new skeleton
   {
-    auto TraverseJoints = [&prevJoints](const auto& self, ezEditableSkeletonJoint* pJoint, const ezTransform& tRoot, ezTransform origin) -> void {
+    auto TraverseJoints = [&prevJoints](const auto& self, ezEditableSkeletonJoint* pJoint, const ezTransform& root, ezTransform origin) -> void {
       auto it = prevJoints.Find(pJoint->GetName());
       if (it.IsValid())
       {
@@ -357,14 +357,14 @@ void ezSkeletonAssetDocument::MergeWithNewSkeleton(ezEditableSkeleton& newSkelet
       // use the parent rotation as the gizmo base rotation
       ezMat4 modelTransform, fullTransform;
       modelTransform = origin.GetAsMat4();
-      ezMsgAnimationPoseUpdated::ComputeFullBoneTransform(tRoot.GetAsMat4(), modelTransform, fullTransform, pJoint->m_qGizmoOffsetRotationRO);
+      ezMsgAnimationPoseUpdated::ComputeFullBoneTransform(root.GetAsMat4(), modelTransform, fullTransform, pJoint->m_qGizmoOffsetRotationRO);
 
       origin.SetGlobalTransform(origin, pJoint->m_LocalTransform);
-      pJoint->m_vGizmoOffsetPositionRO = tRoot.TransformPosition(origin.m_vPosition);
+      pJoint->m_vGizmoOffsetPositionRO = root.TransformPosition(origin.m_vPosition);
 
       for (ezEditableSkeletonJoint* pChild : pJoint->m_Children)
       {
-        self(self, pChild, tRoot, origin);
+        self(self, pChild, root, origin);
       }
     };
 
@@ -397,13 +397,13 @@ ezSkeletonAssetDocumentGenerator::ezSkeletonAssetDocumentGenerator()
 
 ezSkeletonAssetDocumentGenerator::~ezSkeletonAssetDocumentGenerator() = default;
 
-void ezSkeletonAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
+void ezSkeletonAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_modes) const
 {
   ezStringBuilder baseOutputFile = szParentDirRelativePath;
   baseOutputFile.ChangeFileExtension(GetDocumentExtension());
 
   {
-    ezAssetDocumentGenerator::Info& info = out_Modes.ExpandAndGetRef();
+    ezAssetDocumentGenerator::Info& info = out_modes.ExpandAndGetRef();
     info.m_Priority = ezAssetDocGeneratorPriority::Undecided;
     info.m_sName = "SkeletonImport";
     info.m_sOutputFileParentRelative = baseOutputFile;

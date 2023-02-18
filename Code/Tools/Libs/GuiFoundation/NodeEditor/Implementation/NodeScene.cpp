@@ -16,8 +16,8 @@ ezRttiMappedObjectFactory<ezQtPin> ezQtNodeScene::s_PinFactory;
 ezRttiMappedObjectFactory<ezQtConnection> ezQtNodeScene::s_ConnectionFactory;
 ezVec2 ezQtNodeScene::s_vLastMouseInteraction(0);
 
-ezQtNodeScene::ezQtNodeScene(QObject* parent)
-  : QGraphicsScene(parent)
+ezQtNodeScene::ezQtNodeScene(QObject* pParent)
+  : QGraphicsScene(pParent)
 {
   setItemIndexMethod(QGraphicsScene::NoIndex);
 

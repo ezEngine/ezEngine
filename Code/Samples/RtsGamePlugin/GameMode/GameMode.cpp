@@ -35,7 +35,7 @@ void RtsGameMode::DeactivateMode()
   OnDeactivateMode();
 }
 
-void RtsGameMode::ProcessInput(const RtsMouseInputState& MouseInput)
+void RtsGameMode::ProcessInput(const RtsMouseInputState& mouseInput)
 {
   if (s_bUseRmlUi)
   {
@@ -59,7 +59,7 @@ void RtsGameMode::ProcessInput(const RtsMouseInputState& MouseInput)
     }
   }
 
-  OnProcessInput(MouseInput);
+  OnProcessInput(mouseInput);
 }
 
 void RtsGameMode::BeforeWorldUpdate()
@@ -119,10 +119,10 @@ void RtsGameMode::DoDefaultCameraInput(const RtsMouseInputState& MouseInput)
   }
 }
 
-bool RtsMouseInputState::HasMouseMoved(ezVec2U32 start, ezVec2U32 now)
+bool RtsMouseInputState::HasMouseMoved(ezVec2U32 vStart, ezVec2U32 vNow)
 {
-  const ezVec2 v1((float)now.x, (float)now.y);
-  const ezVec2 v2((float)start.x, (float)start.y);
+  const ezVec2 v1((float)vNow.x, (float)vNow.y);
+  const ezVec2 v2((float)vStart.x, (float)vStart.y);
 
   return (v1 - v2).GetLength() > 3.0f;
 }

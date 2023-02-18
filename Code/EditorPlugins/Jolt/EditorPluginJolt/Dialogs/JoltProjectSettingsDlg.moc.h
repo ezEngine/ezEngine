@@ -11,7 +11,7 @@ public:
   Q_OBJECT
 
 public:
-  ezQtJoltProjectSettingsDlg(QWidget* parent);
+  ezQtJoltProjectSettingsDlg(QWidget* pParent);
 
   static void EnsureConfigFileExists();
 

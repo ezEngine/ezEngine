@@ -96,7 +96,7 @@ public:
   void SetColor(ezColor c) { m_Color = c; }
   ezColor GetColor() const { return m_Color; }
   const char* GetString() const { return m_sString.GetData(); }
-  void SetString(const char* sz) { m_sString = sz; }
+  void SetString(const char* szSz) { m_sString = szSz; }
 
   const ezDataBuffer& GetBuffer() const { return m_Buffer; }
   void SetBuffer(const ezDataBuffer& data) { m_Buffer = data; }

@@ -40,17 +40,17 @@ public:
 
   SlideAndRollInfo* FindSlideOrRollInfo(PxRigidDynamic* pActor, const ezVec3& vAvgPos);
 
-  virtual void onConstraintBreak(PxConstraintInfo* constraints, PxU32 count) override;
+  virtual void onConstraintBreak(PxConstraintInfo* pConstraints, PxU32 count) override;
 
-  virtual void onContact(const PxContactPairHeader& pairHeader, const PxContactPair* pairs, PxU32 nbPairs) override;
+  virtual void onContact(const PxContactPairHeader& pairHeader, const PxContactPair* pPairs, PxU32 pairs) override;
 
-  void OnContact_SlideReaction(const ezVec3& vAvgPos, const ezVec3& vAvgNormal, PxRigidDynamic* pRigid0, PxRigidDynamic* pRigid1, const PxContactPair& pair, ezBitflags<ezOnPhysXContact>& ContactFlags0, ezBitflags<ezOnPhysXContact>& ContactFlags1);
-  void OnContact_RollReaction(const ezVec3& vAvgPos, PxRigidDynamic* pRigid0, PxRigidDynamic* pRigid1, const PxContactPair& pair, ezBitflags<ezOnPhysXContact>& ContactFlags0, ezBitflags<ezOnPhysXContact>& ContactFlags1);
-  void OnContact_SlideAndRollReaction(const PxContactPairHeader& pairHeader, const PxContactPair& pair, ezBitflags<ezOnPhysXContact>& ContactFlags0, const ezVec3& vAvgPos, const ezVec3& vAvgNormal, ezBitflags<ezOnPhysXContact>& ContactFlags1, const ezUInt32 uiNumContactPoints, ezBitflags<ezOnPhysXContact>& CombinedContactFlags);
+  void OnContact_SlideReaction(const ezVec3& vAvgPos, const ezVec3& vAvgNormal, PxRigidDynamic* pRigid0, PxRigidDynamic* pRigid1, const PxContactPair& pair, ezBitflags<ezOnPhysXContact>& ref_contactFlags0, ezBitflags<ezOnPhysXContact>& ref_contactFlags1);
+  void OnContact_RollReaction(const ezVec3& vAvgPos, PxRigidDynamic* pRigid0, PxRigidDynamic* pRigid1, const PxContactPair& pair, ezBitflags<ezOnPhysXContact>& ref_contactFlags0, ezBitflags<ezOnPhysXContact>& ref_contactFlags1);
+  void OnContact_SlideAndRollReaction(const PxContactPairHeader& pairHeader, const PxContactPair& pair, ezBitflags<ezOnPhysXContact>& ref_contactFlags0, const ezVec3& vAvgPos, const ezVec3& vAvgNormal, ezBitflags<ezOnPhysXContact>& ref_contactFlags1, const ezUInt32 uiNumContactPoints, ezBitflags<ezOnPhysXContact>& ref_combinedContactFlags);
 
-  void OnContact_ImpactReaction(PxContactPairPoint* contactPointBuffer, const PxContactPair& pair, const ezVec3& vAvgPos, const ezVec3& vAvgNormal, float fMaxImpactSqr, const PxContactPairHeader& pairHeader);
+  void OnContact_ImpactReaction(PxContactPairPoint* pContactPointBuffer, const PxContactPair& pair, const ezVec3& vAvgPos, const ezVec3& vAvgNormal, float fMaxImpactSqr, const PxContactPairHeader& pairHeader);
 
-  void SendContactReport(const PxContactPairHeader& pairHeader, const PxContactPair* pairs, PxU32 nbPairs);
+  void SendContactReport(const PxContactPairHeader& pairHeader, const PxContactPair* pPairs, PxU32 pairs);
 
   struct TriggerEvent
   {
@@ -61,11 +61,11 @@ public:
 
   ezDeque<TriggerEvent> m_TriggerEvents;
 
-  virtual void onTrigger(PxTriggerPair* pairs, PxU32 count) override;
+  virtual void onTrigger(PxTriggerPair* pPairs, PxU32 count) override;
 
-  virtual void onWake(PxActor** actors, PxU32 count) override {}
+  virtual void onWake(PxActor** pActors, PxU32 count) override {}
 
-  virtual void onSleep(PxActor** actors, PxU32 count) override {}
+  virtual void onSleep(PxActor** pActors, PxU32 count) override {}
 
-  virtual void onAdvance(const PxRigidBody* const* bodyBuffer, const PxTransform* poseBuffer, const PxU32 count) override {}
+  virtual void onAdvance(const PxRigidBody* const* pBodyBuffer, const PxTransform* pPoseBuffer, const PxU32 count) override {}
 };

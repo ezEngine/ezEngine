@@ -34,9 +34,9 @@ ezQtNode::~ezQtNode()
   EnableDropShadow(false);
 }
 
-void ezQtNode::EnableDropShadow(bool enable)
+void ezQtNode::EnableDropShadow(bool bEnable)
 {
-  if (enable && m_pShadow == nullptr)
+  if (bEnable && m_pShadow == nullptr)
   {
     auto palette = QApplication::palette();
 
@@ -47,7 +47,7 @@ void ezQtNode::EnableDropShadow(bool enable)
     setGraphicsEffect(m_pShadow);
   }
 
-  if (!enable && m_pShadow != nullptr)
+  if (!bEnable && m_pShadow != nullptr)
   {
     delete m_pShadow;
     m_pShadow = nullptr;
@@ -154,20 +154,20 @@ void ezQtNode::UpdateState()
   }
 }
 
-void ezQtNode::SetActive(bool active)
+void ezQtNode::SetActive(bool bActive)
 {
-  if (m_bIsActive != active)
+  if (m_bIsActive != bActive)
   {
-    m_bIsActive = active;
+    m_bIsActive = bActive;
 
     for (auto pInputPin : m_Inputs)
     {
-      pInputPin->SetActive(active);
+      pInputPin->SetActive(bActive);
     }
 
     for (auto pOutputPin : m_Outputs)
     {
-      pOutputPin->SetActive(active);
+      pOutputPin->SetActive(bActive);
     }
   }
 

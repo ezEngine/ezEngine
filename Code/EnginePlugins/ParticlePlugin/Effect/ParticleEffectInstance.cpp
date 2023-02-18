@@ -83,9 +83,9 @@ void ezParticleEffectInstance::Interrupt()
   m_bEmitterEnabled = false;
 }
 
-void ezParticleEffectInstance::SetEmitterEnabled(bool enable)
+void ezParticleEffectInstance::SetEmitterEnabled(bool bEnable)
 {
-  m_bEmitterEnabled = enable;
+  m_bEmitterEnabled = bEnable;
 
   for (ezUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
   {
@@ -404,7 +404,7 @@ void ezParticleEffectInstance::Reconfigure(bool bFirstTime, ezArrayPtr<ezParticl
   }
 }
 
-bool ezParticleEffectInstance::Update(const ezTime& tDiff)
+bool ezParticleEffectInstance::Update(const ezTime& diff)
 {
   EZ_PROFILE_SCOPE("PFX: Effect Update");
 
@@ -453,7 +453,7 @@ bool ezParticleEffectInstance::Update(const ezTime& tDiff)
     }
   }
 
-  m_ElapsedTimeSinceUpdate += tDiff;
+  m_ElapsedTimeSinceUpdate += diff;
   PassTransformToSystems();
 
   // if the time step is too big, iterate multiple times
@@ -572,26 +572,26 @@ void ezParticleEffectInstance::SetTransformForNextFrame(const ezTransform& trans
   m_vVelocityForNextFrame = vParticleStartVelocity;
 }
 
-ezInt32 ezParticleEffectInstance::AddWindSampleLocation(const ezVec3& pos)
+ezInt32 ezParticleEffectInstance::AddWindSampleLocation(const ezVec3& vPos)
 {
   const ezUInt32 uiDataIdx = ezRenderWorld::GetDataIndexForRendering();
 
   if (m_vSampleWindLocations[uiDataIdx].GetCount() < m_vSampleWindLocations[uiDataIdx].GetCapacity())
   {
-    m_vSampleWindLocations[uiDataIdx].PushBack(pos);
+    m_vSampleWindLocations[uiDataIdx].PushBack(vPos);
     return m_vSampleWindLocations[uiDataIdx].GetCount() - 1;
   }
 
   return -1;
 }
 
-ezVec3 ezParticleEffectInstance::GetWindSampleResult(ezInt32 idx) const
+ezVec3 ezParticleEffectInstance::GetWindSampleResult(ezInt32 iIdx) const
 {
   const ezUInt32 uiDataIdx = ezRenderWorld::GetDataIndexForRendering();
 
-  if (idx >= 0 && m_vSampleWindResults[uiDataIdx].GetCount() > (ezUInt32)idx)
+  if (iIdx >= 0 && m_vSampleWindResults[uiDataIdx].GetCount() > (ezUInt32)iIdx)
   {
-    return m_vSampleWindResults[uiDataIdx][idx];
+    return m_vSampleWindResults[uiDataIdx][iIdx];
   }
 
   return ezVec3::ZeroVector();
@@ -635,21 +635,21 @@ bool ezParticleEffectInstance::ShouldBeUpdated() const
   return true;
 }
 
-void ezParticleEffectInstance::GetBoundingVolume(ezBoundingBoxSphere& volume) const
+void ezParticleEffectInstance::GetBoundingVolume(ezBoundingBoxSphere& ref_volume) const
 {
   if (!m_BoundingVolume.IsValid())
   {
-    volume = ezBoundingSphere(ezVec3::ZeroVector(), 0.25f);
+    ref_volume = ezBoundingSphere(ezVec3::ZeroVector(), 0.25f);
     return;
   }
 
-  volume = m_BoundingVolume;
+  ref_volume = m_BoundingVolume;
 
   if (!m_bSimulateInLocalSpace)
   {
     // transform the bounding volume to local space, unless it was already created there
     const ezMat4 invTrans = GetTransform().GetAsMat4().GetInverse();
-    volume.Transform(invTrans);
+    ref_volume.Transform(invTrans);
   }
 }
 
@@ -737,7 +737,7 @@ void ezParticleEffectUpdateTask::Execute()
   }
 }
 
-void ezParticleEffectInstance::SetParameter(const ezTempHashedString& name, float value)
+void ezParticleEffectInstance::SetParameter(const ezTempHashedString& sName, float value)
 {
   // shared effects do not support parameters
   if (m_bIsSharedEffect)
@@ -745,7 +745,7 @@ void ezParticleEffectInstance::SetParameter(const ezTempHashedString& name, floa
 
   for (ezUInt32 i = 0; i < m_FloatParameters.GetCount(); ++i)
   {
-    if (m_FloatParameters[i].m_uiNameHash == name.GetHash())
+    if (m_FloatParameters[i].m_uiNameHash == sName.GetHash())
     {
       m_FloatParameters[i].m_fValue = value;
       return;
@@ -753,11 +753,11 @@ void ezParticleEffectInstance::SetParameter(const ezTempHashedString& name, floa
   }
 
   auto& ref = m_FloatParameters.ExpandAndGetRef();
-  ref.m_uiNameHash = name.GetHash();
+  ref.m_uiNameHash = sName.GetHash();
   ref.m_fValue = value;
 }
 
-void ezParticleEffectInstance::SetParameter(const ezTempHashedString& name, const ezColor& value)
+void ezParticleEffectInstance::SetParameter(const ezTempHashedString& sName, const ezColor& value)
 {
   // shared effects do not support parameters
   if (m_bIsSharedEffect)
@@ -765,7 +765,7 @@ void ezParticleEffectInstance::SetParameter(const ezTempHashedString& name, cons
 
   for (ezUInt32 i = 0; i < m_ColorParameters.GetCount(); ++i)
   {
-    if (m_ColorParameters[i].m_uiNameHash == name.GetHash())
+    if (m_ColorParameters[i].m_uiNameHash == sName.GetHash())
     {
       m_ColorParameters[i].m_Value = value;
       return;
@@ -773,54 +773,54 @@ void ezParticleEffectInstance::SetParameter(const ezTempHashedString& name, cons
   }
 
   auto& ref = m_ColorParameters.ExpandAndGetRef();
-  ref.m_uiNameHash = name.GetHash();
+  ref.m_uiNameHash = sName.GetHash();
   ref.m_Value = value;
 }
 
-ezInt32 ezParticleEffectInstance::FindFloatParameter(const ezTempHashedString& name) const
+ezInt32 ezParticleEffectInstance::FindFloatParameter(const ezTempHashedString& sName) const
 {
   for (ezUInt32 i = 0; i < m_FloatParameters.GetCount(); ++i)
   {
-    if (m_FloatParameters[i].m_uiNameHash == name.GetHash())
+    if (m_FloatParameters[i].m_uiNameHash == sName.GetHash())
       return i;
   }
 
   return -1;
 }
 
-float ezParticleEffectInstance::GetFloatParameter(const ezTempHashedString& name, float defaultValue) const
+float ezParticleEffectInstance::GetFloatParameter(const ezTempHashedString& sName, float fDefaultValue) const
 {
-  if (name.IsEmpty())
-    return defaultValue;
+  if (sName.IsEmpty())
+    return fDefaultValue;
 
   for (ezUInt32 i = 0; i < m_FloatParameters.GetCount(); ++i)
   {
-    if (m_FloatParameters[i].m_uiNameHash == name.GetHash())
+    if (m_FloatParameters[i].m_uiNameHash == sName.GetHash())
       return m_FloatParameters[i].m_fValue;
   }
 
-  return defaultValue;
+  return fDefaultValue;
 }
 
-ezInt32 ezParticleEffectInstance::FindColorParameter(const ezTempHashedString& name) const
+ezInt32 ezParticleEffectInstance::FindColorParameter(const ezTempHashedString& sName) const
 {
   for (ezUInt32 i = 0; i < m_ColorParameters.GetCount(); ++i)
   {
-    if (m_ColorParameters[i].m_uiNameHash == name.GetHash())
+    if (m_ColorParameters[i].m_uiNameHash == sName.GetHash())
       return i;
   }
 
   return -1;
 }
 
-const ezColor& ezParticleEffectInstance::GetColorParameter(const ezTempHashedString& name, const ezColor& defaultValue) const
+const ezColor& ezParticleEffectInstance::GetColorParameter(const ezTempHashedString& sName, const ezColor& defaultValue) const
 {
-  if (name.IsEmpty())
+  if (sName.IsEmpty())
     return defaultValue;
 
   for (ezUInt32 i = 0; i < m_ColorParameters.GetCount(); ++i)
   {
-    if (m_ColorParameters[i].m_uiNameHash == name.GetHash())
+    if (m_ColorParameters[i].m_uiNameHash == sName.GetHash())
       return m_ColorParameters[i].m_Value;
   }
 

@@ -233,7 +233,7 @@ ezTextureCubeAssetDocumentGenerator::ezTextureCubeAssetDocumentGenerator()
 
 ezTextureCubeAssetDocumentGenerator::~ezTextureCubeAssetDocumentGenerator() {}
 
-void ezTextureCubeAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
+void ezTextureCubeAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_modes) const
 {
   ezStringBuilder baseOutputFile = szParentDirRelativePath;
 
@@ -248,7 +248,7 @@ void ezTextureCubeAssetDocumentGenerator::GetImportModes(const char* szParentDir
   if (isHDR)
   {
     {
-      ezAssetDocumentGenerator::Info& info = out_Modes.ExpandAndGetRef();
+      ezAssetDocumentGenerator::Info& info = out_modes.ExpandAndGetRef();
       info.m_Priority = isCubemap ? ezAssetDocGeneratorPriority::HighPriority : ezAssetDocGeneratorPriority::Undecided;
       info.m_sName = "CubemapImport.SkyboxHDR";
       info.m_sOutputFileParentRelative = baseOutputFile;
@@ -258,7 +258,7 @@ void ezTextureCubeAssetDocumentGenerator::GetImportModes(const char* szParentDir
   else
   {
     {
-      ezAssetDocumentGenerator::Info& info = out_Modes.ExpandAndGetRef();
+      ezAssetDocumentGenerator::Info& info = out_modes.ExpandAndGetRef();
       info.m_Priority = isCubemap ? ezAssetDocGeneratorPriority::HighPriority : ezAssetDocGeneratorPriority::Undecided;
       info.m_sName = "CubemapImport.Skybox";
       info.m_sOutputFileParentRelative = baseOutputFile;

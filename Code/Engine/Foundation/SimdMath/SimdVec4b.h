@@ -42,7 +42,7 @@ public:
   template <int N = 4>
   bool NoneSet() const; // [tested]
 
-  static ezSimdVec4b Select(const ezSimdVec4b& cmp, const ezSimdVec4b& ifTrue, const ezSimdVec4b& ifFalse); // [tested]
+  static ezSimdVec4b Select(const ezSimdVec4b& vCmp, const ezSimdVec4b& vTrue, const ezSimdVec4b& vFalse); // [tested]
 
 public:
   ezInternal::QuadBool m_v;

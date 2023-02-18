@@ -135,7 +135,7 @@ public:
   ///
   /// Additionally stores the current transformation. Useful to store this at the start of an operation
   /// to then do modifications on this base transformation every frame.
-  void ComputeTopLevelSelectedGameObjects(ezDeque<ezSelectedGameObject>& out_Selection);
+  void ComputeTopLevelSelectedGameObjects(ezDeque<ezSelectedGameObject>& out_selection);
 
   virtual void HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg) override;
 
@@ -198,10 +198,10 @@ public:
   /// \brief Sets the new global transformation of the given object.
   /// The transformationChanges bitmask (of type TransformationChanges) allows to tell the system that, e.g. only translation has changed and thus
   /// some work can be spared.
-  void SetGlobalTransform(const ezDocumentObject* pObject, const ezTransform& t, ezUInt8 transformationChanges) const;
+  void SetGlobalTransform(const ezDocumentObject* pObject, const ezTransform& t, ezUInt8 uiTransformationChanges) const;
 
   /// \brief Same as SetGlobalTransform, except that all children will keep their current global transform (thus their local transforms are adjusted)
-  void SetGlobalTransformParentOnly(const ezDocumentObject* pObject, const ezTransform& t, ezUInt8 transformationChanges) const;
+  void SetGlobalTransformParentOnly(const ezDocumentObject* pObject, const ezTransform& t, ezUInt8 uiTransformationChanges) const;
 
   /// \brief Returns a cached value for the global transform of the given object, if available. Otherwise it calls ComputeGlobalTransform().
   ezTransform GetGlobalTransform(const ezDocumentObject* pObject) const;
@@ -215,19 +215,19 @@ public:
   ezTransform ComputeGlobalTransform(const ezDocumentObject* pObject) const;
 
   /// \brief Traverses the pObject hierarchy up until it hits an ezGameObject, then computes the global transform of that.
-  virtual ezResult ComputeObjectTransformation(const ezDocumentObject* pObject, ezTransform& out_Result) const override;
+  virtual ezResult ComputeObjectTransformation(const ezDocumentObject* pObject, ezTransform& out_result) const override;
 
   ///@}
   /// \name Node Names
   ///@{
 
   /// \brief Generates a good name for pObject. Queries the "Name" property, child components and asset properties, if necessary.
-  void DetermineNodeName(const ezDocumentObject* pObject, const ezUuid& prefabGuid, ezStringBuilder& out_Result, QIcon* out_pIcon = nullptr) const;
+  void DetermineNodeName(const ezDocumentObject* pObject, const ezUuid& prefabGuid, ezStringBuilder& out_sResult, QIcon* out_pIcon = nullptr) const;
 
   /// \brief Similar to DetermineNodeName() but prefers to return the last cached value from scene meta data. This is more efficient, but may give an
   /// outdated result.
   void QueryCachedNodeName(
-    const ezDocumentObject* pObject, ezStringBuilder& out_Result, ezUuid* out_pPrefabGuid = nullptr, QIcon* out_pIcon = nullptr) const;
+    const ezDocumentObject* pObject, ezStringBuilder& out_sResult, ezUuid* out_pPrefabGuid = nullptr, QIcon* out_pIcon = nullptr) const;
 
   /// \brief Creates a full "path" to a scene object for display in UIs. No guarantee for uniqueness.
   void GenerateFullDisplayName(const ezDocumentObject* pRoot, ezStringBuilder& out_sFullPath) const;

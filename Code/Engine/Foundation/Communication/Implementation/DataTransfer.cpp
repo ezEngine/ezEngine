@@ -5,13 +5,13 @@
 bool ezDataTransfer::s_bInitialized = false;
 ezSet<ezDataTransfer*> ezDataTransfer::s_AllTransfers;
 
-ezDataTransferObject::ezDataTransferObject(ezDataTransfer& BelongsTo, const char* szObjectName, const char* szMimeType, const char* szFileExtension)
-  : m_BelongsTo(BelongsTo)
+ezDataTransferObject::ezDataTransferObject(ezDataTransfer& ref_belongsTo, const char* szObjectName, const char* szMimeType, const char* szFileExtension)
+  : m_BelongsTo(ref_belongsTo)
 {
   m_bHasBeenTransferred = false;
 
   m_Msg.SetMessageID('TRAN', 'DATA');
-  m_Msg.GetWriter() << BelongsTo.m_sDataName;
+  m_Msg.GetWriter() << ref_belongsTo.m_sDataName;
   m_Msg.GetWriter() << szObjectName;
   m_Msg.GetWriter() << szMimeType;
   m_Msg.GetWriter() << szFileExtension;

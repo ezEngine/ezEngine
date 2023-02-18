@@ -81,10 +81,10 @@ public:
   // bool IsCompatibleWith(const ezSkeleton& other) const;
 
   /// \brief Saves the skeleton in a given stream.
-  void Save(ezStreamWriter& stream) const;
+  void Save(ezStreamWriter& inout_stream) const;
 
   /// \brief Loads the skeleton from the given stream.
-  void Load(ezStreamReader& stream);
+  void Load(ezStreamReader& inout_stream);
 
   bool IsJointDescendantOf(ezUInt16 uiJoint, ezUInt16 uiExpectedParent) const;
 

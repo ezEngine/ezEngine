@@ -222,22 +222,22 @@ namespace
   }
 
   template <typename ValueType, typename StreamType>
-  EZ_ALWAYS_INLINE ValueType ReadInputData(const ezUInt8*& pData, ezUInt32 uiStride)
+  EZ_ALWAYS_INLINE ValueType ReadInputData(const ezUInt8*& ref_pData, ezUInt32 uiStride)
   {
-    ValueType value = *reinterpret_cast<const StreamType*>(pData);
-    pData += uiStride;
+    ValueType value = *reinterpret_cast<const StreamType*>(ref_pData);
+    ref_pData += uiStride;
     return value;
   }
 
   template <typename RegisterType, typename ValueType, typename StreamType>
-  void LoadInput(RegisterType* r, RegisterType* re, const ezProcessingStream& input, ezUInt32 uiNumRemainderInstances)
+  void LoadInput(RegisterType* r, RegisterType* pRe, const ezProcessingStream& input, ezUInt32 uiNumRemainderInstances)
   {
     const ezUInt8* pInputData = input.GetData<ezUInt8>();
     const ezUInt32 uiByteStride = input.GetElementStride();
 
     if (uiByteStride == sizeof(ValueType) && std::is_same<ValueType, StreamType>::value)
     {
-      while (r != re)
+      while (r != pRe)
       {
         r->template Load<4>(reinterpret_cast<const ValueType*>(pInputData));
 
@@ -248,7 +248,7 @@ namespace
     else
     {
       ValueType x[4] = {};
-      while (r != re)
+      while (r != pRe)
       {
         x[0] = ReadInputData<ValueType, StreamType>(pInputData, uiByteStride);
         x[1] = ReadInputData<ValueType, StreamType>(pInputData, uiByteStride);
@@ -273,21 +273,21 @@ namespace
   }
 
   template <typename ValueType, typename StreamType>
-  EZ_ALWAYS_INLINE void StoreOutputData(ezUInt8*& pData, ezUInt32 uiStride, ValueType value)
+  EZ_ALWAYS_INLINE void StoreOutputData(ezUInt8*& ref_pData, ezUInt32 uiStride, ValueType value)
   {
-    *reinterpret_cast<StreamType*>(pData) = static_cast<StreamType>(value);
-    pData += uiStride;
+    *reinterpret_cast<StreamType*>(ref_pData) = static_cast<StreamType>(value);
+    ref_pData += uiStride;
   }
 
   template <typename RegisterType, typename ValueType, typename StreamType>
-  void StoreOutput(RegisterType* r, RegisterType* re, ezProcessingStream& output, ezUInt32 uiNumRemainderInstances)
+  void StoreOutput(RegisterType* r, RegisterType* pRe, ezProcessingStream& ref_output, ezUInt32 uiNumRemainderInstances)
   {
-    ezUInt8* pOutputData = output.GetWritableData<ezUInt8>();
-    const ezUInt32 uiByteStride = output.GetElementStride();
+    ezUInt8* pOutputData = ref_output.GetWritableData<ezUInt8>();
+    const ezUInt32 uiByteStride = ref_output.GetElementStride();
 
     if (uiByteStride == sizeof(ValueType) && std::is_same<ValueType, StreamType>::value)
     {
-      while (r != re)
+      while (r != pRe)
       {
         r->template Store<4>(reinterpret_cast<ValueType*>(pOutputData));
 
@@ -298,7 +298,7 @@ namespace
     else
     {
       ValueType x[4] = {};
-      while (r != re)
+      while (r != pRe)
       {
         r->template Store<4>(x);
 

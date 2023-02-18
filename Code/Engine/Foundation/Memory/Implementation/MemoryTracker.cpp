@@ -186,7 +186,7 @@ void ezMemoryTracker::DeregisterAllocator(ezAllocatorId allocatorId)
 }
 
 // static
-void ezMemoryTracker::AddAllocation(ezAllocatorId allocatorId, ezBitflags<ezMemoryTrackingFlags> flags, const void* ptr, size_t uiSize, size_t uiAlign, ezTime allocationTime)
+void ezMemoryTracker::AddAllocation(ezAllocatorId allocatorId, ezBitflags<ezMemoryTrackingFlags> flags, const void* pPtr, size_t uiSize, size_t uiAlign, ezTime allocationTime)
 {
   EZ_ASSERT_DEV((flags & ezMemoryTrackingFlags::EnableAllocationTracking) != 0, "Allocation tracking is turned off, but ezMemoryTracker::AddAllocation() is called anyway.");
 
@@ -213,7 +213,7 @@ void ezMemoryTracker::AddAllocation(ezAllocatorId allocatorId, ezBitflags<ezMemo
     data.m_Stats.m_PerFrameAllocationTime += allocationTime;
 
     EZ_ASSERT_DEBUG(data.m_Flags == flags, "Given flags have to be identical to allocator flags");
-    auto pInfo = &data.m_Allocations[ptr];
+    auto pInfo = &data.m_Allocations[pPtr];
     pInfo->m_uiSize = uiSize;
     pInfo->m_uiAlignment = (ezUInt16)uiAlign;
     pInfo->SetStackTrace(stackTrace);
@@ -221,7 +221,7 @@ void ezMemoryTracker::AddAllocation(ezAllocatorId allocatorId, ezBitflags<ezMemo
 }
 
 // static
-void ezMemoryTracker::RemoveAllocation(ezAllocatorId allocatorId, const void* ptr)
+void ezMemoryTracker::RemoveAllocation(ezAllocatorId allocatorId, const void* pPtr)
 {
   ezArrayPtr<void*> stackTrace;
 
@@ -231,7 +231,7 @@ void ezMemoryTracker::RemoveAllocation(ezAllocatorId allocatorId, const void* pt
     AllocatorData& data = s_pTrackerData->m_AllocatorData[allocatorId];
 
     AllocationInfo info;
-    if (data.m_Allocations.Remove(ptr, &info))
+    if (data.m_Allocations.Remove(pPtr, &info))
     {
       data.m_Stats.m_uiNumDeallocations++;
       data.m_Stats.m_uiAllocationSize -= info.m_uiSize;
@@ -240,7 +240,7 @@ void ezMemoryTracker::RemoveAllocation(ezAllocatorId allocatorId, const void* pt
     }
     else
     {
-      EZ_REPORT_FAILURE("Invalid Allocation '{0}'. Memory corruption?", ezArgP(ptr));
+      EZ_REPORT_FAILURE("Invalid Allocation '{0}'. Memory corruption?", ezArgP(pPtr));
     }
   }
 
@@ -309,20 +309,20 @@ ezAllocatorId ezMemoryTracker::GetAllocatorParentId(ezAllocatorId allocatorId)
 }
 
 // static
-const ezMemoryTracker::AllocationInfo& ezMemoryTracker::GetAllocationInfo(ezAllocatorId allocatorId, const void* ptr)
+const ezMemoryTracker::AllocationInfo& ezMemoryTracker::GetAllocationInfo(ezAllocatorId allocatorId, const void* pPtr)
 {
   EZ_LOCK(*s_pTrackerData);
 
   const AllocatorData& data = s_pTrackerData->m_AllocatorData[allocatorId];
   const AllocationInfo* info = nullptr;
-  if (data.m_Allocations.TryGetValue(ptr, info))
+  if (data.m_Allocations.TryGetValue(pPtr, info))
   {
     return *info;
   }
 
   static AllocationInfo invalidInfo;
 
-  EZ_REPORT_FAILURE("Could not find info for allocation {0}", ezArgP(ptr));
+  EZ_REPORT_FAILURE("Could not find info for allocation {0}", ezArgP(pPtr));
   return invalidInfo;
 }
 

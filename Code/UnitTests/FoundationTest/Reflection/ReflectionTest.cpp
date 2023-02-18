@@ -137,10 +137,10 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Types)
     }
 
     // ground truth - traversing up the parent list
-    auto ManualIsDerivedFrom = [](const ezRTTI* t, const ezRTTI* baseType) -> bool {
+    auto ManualIsDerivedFrom = [](const ezRTTI* t, const ezRTTI* pBaseType) -> bool {
       while (t != nullptr)
       {
-        if (t == baseType)
+        if (t == pBaseType)
           return true;
 
         t = t->GetParentType();
@@ -460,7 +460,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Hierarchies)
 
 
 template <typename T, typename T2>
-void TestMemberProperty(const char* szPropName, void* pObject, const ezRTTI* pRtti, ezBitflags<ezPropertyFlags> expectedFlags, T2 expectedValue, T2 testValue, bool testDefaultValue = true)
+void TestMemberProperty(const char* szPropName, void* pObject, const ezRTTI* pRtti, ezBitflags<ezPropertyFlags> expectedFlags, T2 expectedValue, T2 testValue, bool bTestDefaultValue = true)
 {
   ezAbstractProperty* pProp = pRtti->FindPropertyByName(szPropName);
   EZ_TEST_BOOL(pProp != nullptr);
@@ -475,7 +475,7 @@ void TestMemberProperty(const char* szPropName, void* pObject, const ezRTTI* pRt
   T value = pMember->GetValue(pObject);
   EZ_TEST_BOOL(expectedValue == value);
 
-  if (testDefaultValue)
+  if (bTestDefaultValue)
   {
     // Default value
     ezVariant defaultValue = ezReflectionUtils::GetDefaultValue(pProp);
@@ -991,7 +991,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Arrays)
 
 
 template <typename T>
-void TestSetProperty(const char* szPropName, void* pObject, const ezRTTI* pRtti, T& value1, T& value2)
+void TestSetProperty(const char* szPropName, void* pObject, const ezRTTI* pRtti, T& ref_value1, T& ref_value2)
 {
   ezAbstractProperty* pProp = pRtti->FindPropertyByName(szPropName);
   if (!EZ_TEST_BOOL(pProp != nullptr))
@@ -1006,14 +1006,14 @@ void TestSetProperty(const char* szPropName, void* pObject, const ezRTTI* pRtti,
   {
     pSetProp->Clear(pObject);
     EZ_TEST_BOOL(pSetProp->IsEmpty(pObject));
-    pSetProp->Insert(pObject, &value1);
+    pSetProp->Insert(pObject, &ref_value1);
     EZ_TEST_BOOL(!pSetProp->IsEmpty(pObject));
-    EZ_TEST_BOOL(pSetProp->Contains(pObject, &value1));
-    EZ_TEST_BOOL(!pSetProp->Contains(pObject, &value2));
-    pSetProp->Insert(pObject, &value2);
+    EZ_TEST_BOOL(pSetProp->Contains(pObject, &ref_value1));
+    EZ_TEST_BOOL(!pSetProp->Contains(pObject, &ref_value2));
+    pSetProp->Insert(pObject, &ref_value2);
     EZ_TEST_BOOL(!pSetProp->IsEmpty(pObject));
-    EZ_TEST_BOOL(pSetProp->Contains(pObject, &value1));
-    EZ_TEST_BOOL(pSetProp->Contains(pObject, &value2));
+    EZ_TEST_BOOL(pSetProp->Contains(pObject, &ref_value1));
+    EZ_TEST_BOOL(pSetProp->Contains(pObject, &ref_value2));
 
     // Insert default init value
     if (!ezIsPointer<T>::value)
@@ -1021,8 +1021,8 @@ void TestSetProperty(const char* szPropName, void* pObject, const ezRTTI* pRtti,
       T temp = T{};
       pSetProp->Insert(pObject, &temp);
       EZ_TEST_BOOL(!pSetProp->IsEmpty(pObject));
-      EZ_TEST_BOOL(pSetProp->Contains(pObject, &value1));
-      EZ_TEST_BOOL(pSetProp->Contains(pObject, &value2));
+      EZ_TEST_BOOL(pSetProp->Contains(pObject, &ref_value1));
+      EZ_TEST_BOOL(pSetProp->Contains(pObject, &ref_value2));
       EZ_TEST_BOOL(pSetProp->Contains(pObject, &temp));
 
       // Remove it again
@@ -1035,8 +1035,8 @@ void TestSetProperty(const char* szPropName, void* pObject, const ezRTTI* pRtti,
   // Assumes this function gets called first by a writeable property, and then immediately by the same data as a read-only property.
   // So the checks are valid for the read-only version, too.
   EZ_TEST_BOOL(!pSetProp->IsEmpty(pObject));
-  EZ_TEST_BOOL(pSetProp->Contains(pObject, &value1));
-  EZ_TEST_BOOL(pSetProp->Contains(pObject, &value2));
+  EZ_TEST_BOOL(pSetProp->Contains(pObject, &ref_value1));
+  EZ_TEST_BOOL(pSetProp->Contains(pObject, &ref_value2));
 
 
   ezHybridArray<ezVariant, 16> keys;
@@ -1116,7 +1116,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Sets)
 }
 
 template <typename T>
-void TestMapProperty(const char* szPropName, void* pObject, const ezRTTI* pRtti, T& value1, T& value2)
+void TestMapProperty(const char* szPropName, void* pObject, const ezRTTI* pRtti, T& ref_value1, T& ref_value2)
 {
   ezAbstractProperty* pProp = pRtti->FindPropertyByName(szPropName);
   EZ_TEST_BOOL(pProp != nullptr);
@@ -1130,23 +1130,23 @@ void TestMapProperty(const char* szPropName, void* pObject, const ezRTTI* pRtti,
   {
     pMapProp->Clear(pObject);
     EZ_TEST_BOOL(pMapProp->IsEmpty(pObject));
-    pMapProp->Insert(pObject, "value1", &value1);
+    pMapProp->Insert(pObject, "value1", &ref_value1);
     EZ_TEST_BOOL(!pMapProp->IsEmpty(pObject));
     EZ_TEST_BOOL(pMapProp->Contains(pObject, "value1"));
     EZ_TEST_BOOL(!pMapProp->Contains(pObject, "value2"));
     T getValue;
     EZ_TEST_BOOL(!pMapProp->GetValue(pObject, "value2", &getValue));
     EZ_TEST_BOOL(pMapProp->GetValue(pObject, "value1", &getValue));
-    EZ_TEST_BOOL(getValue == value1);
+    EZ_TEST_BOOL(getValue == ref_value1);
 
-    pMapProp->Insert(pObject, "value2", &value2);
+    pMapProp->Insert(pObject, "value2", &ref_value2);
     EZ_TEST_BOOL(!pMapProp->IsEmpty(pObject));
     EZ_TEST_BOOL(pMapProp->Contains(pObject, "value1"));
     EZ_TEST_BOOL(pMapProp->Contains(pObject, "value2"));
     EZ_TEST_BOOL(pMapProp->GetValue(pObject, "value1", &getValue));
-    EZ_TEST_BOOL(getValue == value1);
+    EZ_TEST_BOOL(getValue == ref_value1);
     EZ_TEST_BOOL(pMapProp->GetValue(pObject, "value2", &getValue));
-    EZ_TEST_BOOL(getValue == value2);
+    EZ_TEST_BOOL(getValue == ref_value2);
   }
 
   // Assumes this function gets called first by a writeable property, and then immediately by the same data as a read-only property.
@@ -1156,9 +1156,9 @@ void TestMapProperty(const char* szPropName, void* pObject, const ezRTTI* pRtti,
   EZ_TEST_BOOL(pMapProp->Contains(pObject, "value1"));
   EZ_TEST_BOOL(pMapProp->Contains(pObject, "value2"));
   EZ_TEST_BOOL(pMapProp->GetValue(pObject, "value1", &getValue2));
-  EZ_TEST_BOOL(getValue2 == value1);
+  EZ_TEST_BOOL(getValue2 == ref_value1);
   EZ_TEST_BOOL(pMapProp->GetValue(pObject, "value2", &getValue2));
-  EZ_TEST_BOOL(getValue2 == value2);
+  EZ_TEST_BOOL(getValue2 == ref_value2);
 
   ezHybridArray<ezString, 16> keys;
   pMapProp->GetKeys(pObject, keys);

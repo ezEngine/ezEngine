@@ -36,13 +36,13 @@ public:
   /// Once it is finished loading, the ImageLoaded() signal is emitted and \a index, \a UserData1 and \a UserData2 are passed through.
   /// Additionally an ImageID may be returned through \a out_pImageID. This can be used to identify an image when it is invalidated through the
   /// ImageInvalidated() signal.
-  const QPixmap* QueryPixmap(const char* szAbsolutePath, QModelIndex index = QModelIndex(), QVariant UserData1 = QVariant(),
-    QVariant UserData2 = QVariant(), ezUInt32* out_pImageID = nullptr);
+  const QPixmap* QueryPixmap(const char* szAbsolutePath, QModelIndex index = QModelIndex(), QVariant userData1 = QVariant(),
+    QVariant userData2 = QVariant(), ezUInt32* out_pImageID = nullptr);
 
   /// \brief Same as QueryPixmap(), but first \a szType is used to call QueryTypeImage() and check whether a type specific image was registerd. If
   /// yes, that is used instead of szAbsolutePath.
   const QPixmap* QueryPixmapForType(const char* szType, const char* szAbsolutePath, QModelIndex index = QModelIndex(),
-    QVariant UserData1 = QVariant(), QVariant UserData2 = QVariant(), ezUInt32* out_pImageID = nullptr);
+    QVariant userData1 = QVariant(), QVariant userData2 = QVariant(), ezUInt32* out_pImageID = nullptr);
 
   /// \brief Invalidate the cached image with the given path. This is typically done when a thumbnail was just written to disk, to inform this system
   /// to reload the latest image from disk.
@@ -64,7 +64,7 @@ public:
   const QPixmap* QueryTypeImage(const char* szType) const;
 
 Q_SIGNALS:
-  void ImageLoaded(QString sPath, QModelIndex index, QVariant UserData1, QVariant UserData2);
+  void ImageLoaded(QString sPath, QModelIndex index, QVariant userData1, QVariant userData2);
   void ImageInvalidated(QString sPath, unsigned int uiImageID);
 
 private:

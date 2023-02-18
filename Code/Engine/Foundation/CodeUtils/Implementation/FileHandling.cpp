@@ -32,15 +32,15 @@ void ezTokenizedFileCache::SkipWhitespace(ezDeque<ezToken>& Tokens, ezUInt32& ui
     ++uiCurToken;
 }
 
-const ezTokenizer* ezTokenizedFileCache::Tokenize(const ezString& sFileName, ezArrayPtr<const ezUInt8> FileContent, const ezTimestamp& FileTimeStamp, ezLogInterface* pLog)
+const ezTokenizer* ezTokenizedFileCache::Tokenize(const ezString& sFileName, ezArrayPtr<const ezUInt8> fileContent, const ezTimestamp& fileTimeStamp, ezLogInterface* pLog)
 {
   EZ_LOCK(m_Mutex);
 
   auto& data = m_Cache[sFileName];
 
-  data.m_Timestamp = FileTimeStamp;
+  data.m_Timestamp = fileTimeStamp;
   ezTokenizer* pTokenizer = &data.m_Tokens;
-  pTokenizer->Tokenize(FileContent, pLog);
+  pTokenizer->Tokenize(fileContent, pLog);
 
   ezDeque<ezToken>& Tokens = pTokenizer->GetTokens();
 
@@ -104,21 +104,21 @@ void ezPreprocessor::SetLogInterface(ezLogInterface* pLog)
   m_pLog = pLog;
 }
 
-void ezPreprocessor::SetFileOpenFunction(FileOpenCB OpenAbsFileCB)
+void ezPreprocessor::SetFileOpenFunction(FileOpenCB openAbsFileCB)
 {
-  m_FileOpenCallback = OpenAbsFileCB;
+  m_FileOpenCallback = openAbsFileCB;
 }
 
-void ezPreprocessor::SetFileLocatorFunction(FileLocatorCB LocateAbsFileCB)
+void ezPreprocessor::SetFileLocatorFunction(FileLocatorCB locateAbsFileCB)
 {
-  m_FileLocatorCallback = LocateAbsFileCB;
+  m_FileLocatorCallback = locateAbsFileCB;
 }
 
-ezResult ezPreprocessor::DefaultFileLocator(const char* szCurAbsoluteFile, const char* szIncludeFile, ezPreprocessor::IncludeType IncType, ezStringBuilder& out_sAbsoluteFilePath)
+ezResult ezPreprocessor::DefaultFileLocator(const char* szCurAbsoluteFile, const char* szIncludeFile, ezPreprocessor::IncludeType incType, ezStringBuilder& out_sAbsoluteFilePath)
 {
   ezStringBuilder& s = out_sAbsoluteFilePath;
 
-  if (IncType == ezPreprocessor::RelativeInclude)
+  if (incType == ezPreprocessor::RelativeInclude)
   {
     s = szCurAbsoluteFile;
     s.PathParentDirectory();
@@ -134,7 +134,7 @@ ezResult ezPreprocessor::DefaultFileLocator(const char* szCurAbsoluteFile, const
   return EZ_SUCCESS;
 }
 
-ezResult ezPreprocessor::DefaultFileOpen(const char* szAbsoluteFile, ezDynamicArray<ezUInt8>& FileContent, ezTimestamp& out_FileModification)
+ezResult ezPreprocessor::DefaultFileOpen(const char* szAbsoluteFile, ezDynamicArray<ezUInt8>& ref_fileContent, ezTimestamp& out_fileModification)
 {
   ezFileReader r;
   if (r.Open(szAbsoluteFile).Failed())
@@ -143,14 +143,14 @@ ezResult ezPreprocessor::DefaultFileOpen(const char* szAbsoluteFile, ezDynamicAr
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
   ezFileStats stats;
   if (ezFileSystem::GetFileStats(szAbsoluteFile, stats).Succeeded())
-    out_FileModification = stats.m_LastModificationTime;
+    out_fileModification = stats.m_LastModificationTime;
 #endif
 
   ezUInt8 Temp[4096];
 
   while (ezUInt64 uiRead = r.ReadBytes(Temp, 4096))
   {
-    FileContent.PushBackRange(ezArrayPtr<ezUInt8>(Temp, (ezUInt32)uiRead));
+    ref_fileContent.PushBackRange(ezArrayPtr<ezUInt8>(Temp, (ezUInt32)uiRead));
   }
 
   return EZ_SUCCESS;

@@ -47,8 +47,8 @@ public:
   // ezComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
 protected:
   float ComputePriority(ezMsgExtractRenderData& msg, ezReflectionProbeRenderData* pRenderData, float fVolume, const ezVec3& vScale) const;

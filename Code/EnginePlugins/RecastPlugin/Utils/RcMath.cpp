@@ -17,9 +17,9 @@ ezRcPos::ezRcPos(const ezVec3& v)
   *this = v;
 }
 
-ezRcPos::ezRcPos(const float* pos)
+ezRcPos::ezRcPos(const float* pPos)
 {
-  *this = pos;
+  *this = pPos;
 }
 
 ezRcPos::operator const float *() const
@@ -37,11 +37,11 @@ ezRcPos::operator ezVec3() const
   return ezVec3(m_Pos[0], m_Pos[2], m_Pos[1]);
 }
 
-void ezRcPos::operator=(const float* pos)
+void ezRcPos::operator=(const float* pPos)
 {
-  m_Pos[0] = pos[0];
-  m_Pos[1] = pos[1];
-  m_Pos[2] = pos[2];
+  m_Pos[0] = pPos[0];
+  m_Pos[1] = pPos[1];
+  m_Pos[2] = pPos[2];
 }
 
 void ezRcPos::operator=(const ezVec3& v)

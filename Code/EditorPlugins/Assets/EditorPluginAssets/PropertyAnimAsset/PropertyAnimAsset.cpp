@@ -490,15 +490,15 @@ void ezPropertyAnimAssetDocument::ApplyAnimation(const ezPropertyReference& key,
   }
 }
 
-void ezPropertyAnimAssetDocument::SetPlayAnimation(bool play)
+void ezPropertyAnimAssetDocument::SetPlayAnimation(bool bPlay)
 {
-  if (m_bPlayAnimation == play)
+  if (m_bPlayAnimation == bPlay)
     return;
 
   if (m_uiScrubberTickPos >= GetAnimationDurationTicks())
     m_uiScrubberTickPos = 0;
 
-  m_bPlayAnimation = play;
+  m_bPlayAnimation = bPlay;
   if (!m_bPlayAnimation)
   {
     // During playback we do not round to frames, so we need to round it again on stop.
@@ -512,12 +512,12 @@ void ezPropertyAnimAssetDocument::SetPlayAnimation(bool play)
   m_PropertyAnimEvents.Broadcast(e);
 }
 
-void ezPropertyAnimAssetDocument::SetRepeatAnimation(bool repeat)
+void ezPropertyAnimAssetDocument::SetRepeatAnimation(bool bRepeat)
 {
-  if (m_bRepeatAnimation == repeat)
+  if (m_bRepeatAnimation == bRepeat)
     return;
 
-  m_bRepeatAnimation = repeat;
+  m_bRepeatAnimation = bRepeat;
 
   ezPropertyAnimAssetDocumentEvent e;
   e.m_pDocument = this;
@@ -730,13 +730,13 @@ ezUuid ezPropertyAnimAssetDocument::CreateTrack(
   return newTrack;
 }
 
-ezUuid ezPropertyAnimAssetDocument::FindCurveCp(const ezUuid& trackGuid, ezInt64 tickX)
+ezUuid ezPropertyAnimAssetDocument::FindCurveCp(const ezUuid& trackGuid, ezInt64 iTickX)
 {
   auto pTrack = GetTrack(trackGuid);
   ezInt32 iIndex = -1;
   for (ezUInt32 i = 0; i < pTrack->m_FloatCurve.m_ControlPoints.GetCount(); i++)
   {
-    if (pTrack->m_FloatCurve.m_ControlPoints[i].m_iTick == tickX)
+    if (pTrack->m_FloatCurve.m_ControlPoints[i].m_iTick == iTickX)
     {
       iIndex = (ezInt32)i;
       break;
@@ -754,7 +754,7 @@ ezUuid ezPropertyAnimAssetDocument::FindCurveCp(const ezUuid& trackGuid, ezInt64
   return cpGuid;
 }
 
-ezUuid ezPropertyAnimAssetDocument::InsertCurveCpAt(const ezUuid& track, ezInt64 tickX, double newPosY)
+ezUuid ezPropertyAnimAssetDocument::InsertCurveCpAt(const ezUuid& track, ezInt64 iTickX, double fNewPosY)
 {
   ezObjectCommandAccessor accessor(GetCommandHistory());
   ezObjectAccessorBase& acc = accessor;
@@ -768,8 +768,8 @@ ezUuid ezPropertyAnimAssetDocument::InsertCurveCpAt(const ezUuid& track, ezInt64
               .Succeeded(),
     "");
   auto curveCPObj = accessor.GetObject(newObjectGuid);
-  EZ_VERIFY(acc.SetValue(curveCPObj, "Tick", tickX).Succeeded(), "");
-  EZ_VERIFY(acc.SetValue(curveCPObj, "Value", newPosY).Succeeded(), "");
+  EZ_VERIFY(acc.SetValue(curveCPObj, "Tick", iTickX).Succeeded(), "");
+  EZ_VERIFY(acc.SetValue(curveCPObj, "Value", fNewPosY).Succeeded(), "");
   EZ_VERIFY(acc.SetValue(curveCPObj, "LeftTangent", ezVec2(-0.1f, 0.0f)).Succeeded(), "");
   EZ_VERIFY(acc.SetValue(curveCPObj, "RightTangent", ezVec2(+0.1f, 0.0f)).Succeeded(), "");
 
@@ -778,13 +778,13 @@ ezUuid ezPropertyAnimAssetDocument::InsertCurveCpAt(const ezUuid& track, ezInt64
   return newObjectGuid;
 }
 
-ezUuid ezPropertyAnimAssetDocument::FindGradientColorCp(const ezUuid& trackGuid, ezInt64 tickX)
+ezUuid ezPropertyAnimAssetDocument::FindGradientColorCp(const ezUuid& trackGuid, ezInt64 iTickX)
 {
   auto pTrack = GetTrack(trackGuid);
   ezInt32 iIndex = -1;
   for (ezUInt32 i = 0; i < pTrack->m_ColorGradient.m_ColorCPs.GetCount(); i++)
   {
-    if (pTrack->m_ColorGradient.m_ColorCPs[i].m_iTick == tickX)
+    if (pTrack->m_ColorGradient.m_ColorCPs[i].m_iTick == iTickX)
     {
       iIndex = (ezInt32)i;
       break;
@@ -802,7 +802,7 @@ ezUuid ezPropertyAnimAssetDocument::FindGradientColorCp(const ezUuid& trackGuid,
   return cpGuid;
 }
 
-ezUuid ezPropertyAnimAssetDocument::InsertGradientColorCpAt(const ezUuid& trackGuid, ezInt64 tickX, const ezColorGammaUB& color)
+ezUuid ezPropertyAnimAssetDocument::InsertGradientColorCpAt(const ezUuid& trackGuid, ezInt64 iTickX, const ezColorGammaUB& color)
 {
   ezObjectCommandAccessor accessor(GetCommandHistory());
   ezObjectAccessorBase& acc = accessor;
@@ -815,7 +815,7 @@ ezUuid ezPropertyAnimAssetDocument::InsertGradientColorCpAt(const ezUuid& trackG
   ezUuid newObjectGuid;
   EZ_VERIFY(acc.AddObject(gradientObject, "ColorCPs", -1, ezGetStaticRTTI<ezColorControlPoint>(), newObjectGuid).Succeeded(), "");
   const ezDocumentObject* cpObject = GetObjectManager()->GetObject(newObjectGuid);
-  EZ_VERIFY(acc.SetValue(cpObject, "Tick", tickX).Succeeded(), "");
+  EZ_VERIFY(acc.SetValue(cpObject, "Tick", iTickX).Succeeded(), "");
   EZ_VERIFY(acc.SetValue(cpObject, "Red", color.r).Succeeded(), "");
   EZ_VERIFY(acc.SetValue(cpObject, "Green", color.g).Succeeded(), "");
   EZ_VERIFY(acc.SetValue(cpObject, "Blue", color.b).Succeeded(), "");
@@ -823,13 +823,13 @@ ezUuid ezPropertyAnimAssetDocument::InsertGradientColorCpAt(const ezUuid& trackG
   return newObjectGuid;
 }
 
-ezUuid ezPropertyAnimAssetDocument::FindGradientAlphaCp(const ezUuid& trackGuid, ezInt64 tickX)
+ezUuid ezPropertyAnimAssetDocument::FindGradientAlphaCp(const ezUuid& trackGuid, ezInt64 iTickX)
 {
   auto pTrack = GetTrack(trackGuid);
   ezInt32 iIndex = -1;
   for (ezUInt32 i = 0; i < pTrack->m_ColorGradient.m_AlphaCPs.GetCount(); i++)
   {
-    if (pTrack->m_ColorGradient.m_AlphaCPs[i].m_iTick == tickX)
+    if (pTrack->m_ColorGradient.m_AlphaCPs[i].m_iTick == iTickX)
     {
       iIndex = (ezInt32)i;
       break;
@@ -847,7 +847,7 @@ ezUuid ezPropertyAnimAssetDocument::FindGradientAlphaCp(const ezUuid& trackGuid,
   return cpGuid;
 }
 
-ezUuid ezPropertyAnimAssetDocument::InsertGradientAlphaCpAt(const ezUuid& trackGuid, ezInt64 tickX, ezUInt8 alpha)
+ezUuid ezPropertyAnimAssetDocument::InsertGradientAlphaCpAt(const ezUuid& trackGuid, ezInt64 iTickX, ezUInt8 uiAlpha)
 {
   ezObjectCommandAccessor accessor(GetCommandHistory());
   ezObjectAccessorBase& acc = accessor;
@@ -860,19 +860,19 @@ ezUuid ezPropertyAnimAssetDocument::InsertGradientAlphaCpAt(const ezUuid& trackG
   ezUuid newObjectGuid;
   EZ_VERIFY(acc.AddObject(gradientObject, "AlphaCPs", -1, ezGetStaticRTTI<ezAlphaControlPoint>(), newObjectGuid).Succeeded(), "");
   const ezDocumentObject* cpObject = GetObjectManager()->GetObject(newObjectGuid);
-  EZ_VERIFY(acc.SetValue(cpObject, "Tick", tickX).Succeeded(), "");
-  EZ_VERIFY(acc.SetValue(cpObject, "Alpha", alpha).Succeeded(), "");
+  EZ_VERIFY(acc.SetValue(cpObject, "Tick", iTickX).Succeeded(), "");
+  EZ_VERIFY(acc.SetValue(cpObject, "Alpha", uiAlpha).Succeeded(), "");
   acc.FinishTransaction();
   return newObjectGuid;
 }
 
-ezUuid ezPropertyAnimAssetDocument::FindGradientIntensityCp(const ezUuid& trackGuid, ezInt64 tickX)
+ezUuid ezPropertyAnimAssetDocument::FindGradientIntensityCp(const ezUuid& trackGuid, ezInt64 iTickX)
 {
   auto pTrack = GetTrack(trackGuid);
   ezInt32 iIndex = -1;
   for (ezUInt32 i = 0; i < pTrack->m_ColorGradient.m_IntensityCPs.GetCount(); i++)
   {
-    if (pTrack->m_ColorGradient.m_IntensityCPs[i].m_iTick == tickX)
+    if (pTrack->m_ColorGradient.m_IntensityCPs[i].m_iTick == iTickX)
     {
       iIndex = (ezInt32)i;
       break;
@@ -890,7 +890,7 @@ ezUuid ezPropertyAnimAssetDocument::FindGradientIntensityCp(const ezUuid& trackG
   return cpGuid;
 }
 
-ezUuid ezPropertyAnimAssetDocument::InsertGradientIntensityCpAt(const ezUuid& trackGuid, ezInt64 tickX, float intensity)
+ezUuid ezPropertyAnimAssetDocument::InsertGradientIntensityCpAt(const ezUuid& trackGuid, ezInt64 iTickX, float fIntensity)
 {
   ezObjectCommandAccessor accessor(GetCommandHistory());
   ezObjectAccessorBase& acc = accessor;
@@ -903,13 +903,13 @@ ezUuid ezPropertyAnimAssetDocument::InsertGradientIntensityCpAt(const ezUuid& tr
   ezUuid newObjectGuid;
   EZ_VERIFY(acc.AddObject(gradientObject, "IntensityCPs", -1, ezGetStaticRTTI<ezIntensityControlPoint>(), newObjectGuid).Succeeded(), "");
   const ezDocumentObject* cpObject = GetObjectManager()->GetObject(newObjectGuid);
-  EZ_VERIFY(acc.SetValue(cpObject, "Tick", tickX).Succeeded(), "");
-  EZ_VERIFY(acc.SetValue(cpObject, "Intensity", intensity).Succeeded(), "");
+  EZ_VERIFY(acc.SetValue(cpObject, "Tick", iTickX).Succeeded(), "");
+  EZ_VERIFY(acc.SetValue(cpObject, "Intensity", fIntensity).Succeeded(), "");
   acc.FinishTransaction();
   return newObjectGuid;
 }
 
-ezUuid ezPropertyAnimAssetDocument::InsertEventTrackCpAt(ezInt64 tickX, const char* szValue)
+ezUuid ezPropertyAnimAssetDocument::InsertEventTrackCpAt(ezInt64 iTickX, const char* szValue)
 {
   ezObjectCommandAccessor accessor(GetCommandHistory());
   ezObjectAccessorBase& acc = accessor;
@@ -923,7 +923,7 @@ ezUuid ezPropertyAnimAssetDocument::InsertEventTrackCpAt(ezInt64 tickX, const ch
     acc.AddObject(accessor.GetObject(trackGuid), "ControlPoints", -1, ezGetStaticRTTI<ezEventTrackControlPointData>(), newObjectGuid).Succeeded(),
     "");
   const ezDocumentObject* pCPObj = accessor.GetObject(newObjectGuid);
-  EZ_VERIFY(acc.SetValue(pCPObj, "Tick", tickX).Succeeded(), "");
+  EZ_VERIFY(acc.SetValue(pCPObj, "Tick", iTickX).Succeeded(), "");
   EZ_VERIFY(acc.SetValue(pCPObj, "Event", szValue).Succeeded(), "");
 
   acc.FinishTransaction();

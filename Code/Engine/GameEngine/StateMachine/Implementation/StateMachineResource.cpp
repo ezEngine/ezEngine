@@ -17,11 +17,11 @@ ezStateMachineResource::ezStateMachineResource()
 
 ezStateMachineResource::~ezStateMachineResource() = default;
 
-ezUniquePtr<ezStateMachineInstance> ezStateMachineResource::CreateInstance(ezReflectedClass& owner)
+ezUniquePtr<ezStateMachineInstance> ezStateMachineResource::CreateInstance(ezReflectedClass& ref_owner)
 {
   if (m_pDescription != nullptr)
   {
-    return EZ_DEFAULT_NEW(ezStateMachineInstance, owner, m_pDescription);
+    return EZ_DEFAULT_NEW(ezStateMachineInstance, ref_owner, m_pDescription);
   }
 
   return nullptr;

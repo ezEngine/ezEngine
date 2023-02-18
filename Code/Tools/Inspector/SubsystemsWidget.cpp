@@ -8,8 +8,8 @@
 
 ezQtSubsystemsWidget* ezQtSubsystemsWidget::s_pWidget = nullptr;
 
-ezQtSubsystemsWidget::ezQtSubsystemsWidget(QWidget* parent)
-  : ads::CDockWidget("Subsystem Widget", parent)
+ezQtSubsystemsWidget::ezQtSubsystemsWidget(QWidget* pParent)
+  : ads::CDockWidget("Subsystem Widget", pParent)
 {
   s_pWidget = this;
 

@@ -91,7 +91,7 @@ ezInt32 ezProcess::GetExitCode() const
   return m_iExitCode;
 }
 
-void ezProcessOptions::BuildCommandLineString(ezStringBuilder& cmd) const
+void ezProcessOptions::BuildCommandLineString(ezStringBuilder& ref_sCmd) const
 {
   for (const auto& arg0 : m_Arguments)
   {
@@ -106,18 +106,18 @@ void ezProcessOptions::BuildCommandLineString(ezStringBuilder& cmd) const
     // also wrap empty arguments in quotes, otherwise they would get lost
     if (arg.IsEmpty() || arg.FindSubString(" ") != nullptr || arg.FindSubString("\t") != nullptr || arg.FindSubString("\n") != nullptr)
     {
-      cmd.Append(" \"");
-      cmd.Append(arg);
-      cmd.Append("\"");
+      ref_sCmd.Append(" \"");
+      ref_sCmd.Append(arg);
+      ref_sCmd.Append("\"");
     }
     else
     {
-      cmd.Append(" ");
-      cmd.Append(arg);
+      ref_sCmd.Append(" ");
+      ref_sCmd.Append(arg);
     }
   }
 
-  cmd.Trim(" ");
+  ref_sCmd.Trim(" ");
 }
 
 void ezProcess::BuildFullCommandLineString(const ezProcessOptions& opt, const char* szProcess, ezStringBuilder& cmd) const

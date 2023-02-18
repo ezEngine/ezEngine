@@ -176,7 +176,7 @@ ezTransformStatus ezAnimationClipAssetDocument::InternalCreateThumbnail(const Th
   return status;
 }
 
-ezUuid ezAnimationClipAssetDocument::InsertEventTrackCpAt(ezInt64 tickX, const char* szValue)
+ezUuid ezAnimationClipAssetDocument::InsertEventTrackCpAt(ezInt64 iTickX, const char* szValue)
 {
   ezObjectCommandAccessor accessor(GetCommandHistory());
   ezObjectAccessorBase& acc = accessor;
@@ -190,7 +190,7 @@ ezUuid ezAnimationClipAssetDocument::InsertEventTrackCpAt(ezInt64 tickX, const c
     acc.AddObject(accessor.GetObject(trackGuid), "ControlPoints", -1, ezGetStaticRTTI<ezEventTrackControlPointData>(), newObjectGuid).Succeeded(),
     "");
   const ezDocumentObject* pCPObj = accessor.GetObject(newObjectGuid);
-  EZ_VERIFY(acc.SetValue(pCPObj, "Tick", tickX).Succeeded(), "");
+  EZ_VERIFY(acc.SetValue(pCPObj, "Tick", iTickX).Succeeded(), "");
   EZ_VERIFY(acc.SetValue(pCPObj, "Event", szValue).Succeeded(), "");
 
   acc.FinishTransaction();
@@ -362,13 +362,13 @@ ezAnimationClipAssetDocumentGenerator::ezAnimationClipAssetDocumentGenerator()
 
 ezAnimationClipAssetDocumentGenerator::~ezAnimationClipAssetDocumentGenerator() = default;
 
-void ezAnimationClipAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
+void ezAnimationClipAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_modes) const
 {
   ezStringBuilder baseOutputFile = szParentDirRelativePath;
   baseOutputFile.ChangeFileExtension(GetDocumentExtension());
 
   {
-    ezAssetDocumentGenerator::Info& info = out_Modes.ExpandAndGetRef();
+    ezAssetDocumentGenerator::Info& info = out_modes.ExpandAndGetRef();
     info.m_Priority = ezAssetDocGeneratorPriority::Undecided;
     info.m_sName = "AnimationClipImport";
     info.m_sOutputFileParentRelative = baseOutputFile;

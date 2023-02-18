@@ -22,7 +22,7 @@ ezParticleRenderer::TempSystemCB::~TempSystemCB()
   ezRenderContext::DeleteConstantBufferStorage(m_hConstantBuffer);
 }
 
-void ezParticleRenderer::TempSystemCB::SetGenericData(bool bApplyObjectTransform, const ezTransform& ObjectTransform, ezTime effectLifeTime,
+void ezParticleRenderer::TempSystemCB::SetGenericData(bool bApplyObjectTransform, const ezTransform& objectTransform, ezTime effectLifeTime,
   ezUInt8 uiNumVariationsX, ezUInt8 uiNumVariationsY, ezUInt8 uiNumFlipbookAnimsX, ezUInt8 uiNumFlipbookAnimsY, float fDistortionStrength /*= 0*/)
 {
   ezParticleSystemConstants& cb = m_pConstants->GetDataForWriting();
@@ -34,7 +34,7 @@ void ezParticleRenderer::TempSystemCB::SetGenericData(bool bApplyObjectTransform
   cb.TotalEffectLifeTime = effectLifeTime.AsFloatInSeconds();
 
   if (bApplyObjectTransform)
-    cb.ObjectToWorldMatrix = ObjectTransform.GetAsMat4();
+    cb.ObjectToWorldMatrix = objectTransform.GetAsMat4();
   else
     cb.ObjectToWorldMatrix.SetIdentity();
 }
@@ -50,9 +50,9 @@ void ezParticleRenderer::TempSystemCB::SetTrailData(float fSnapshotFraction, ezI
 ezParticleRenderer::ezParticleRenderer() = default;
 ezParticleRenderer::~ezParticleRenderer() = default;
 
-void ezParticleRenderer::GetSupportedRenderDataCategories(ezHybridArray<ezRenderData::Category, 8>& categories) const
+void ezParticleRenderer::GetSupportedRenderDataCategories(ezHybridArray<ezRenderData::Category, 8>& ref_categories) const
 {
-  categories.PushBack(ezDefaultRenderDataCategories::LitTransparent);
+  ref_categories.PushBack(ezDefaultRenderDataCategories::LitTransparent);
 }
 
 void ezParticleRenderer::CreateParticleDataBuffer(ezGALBufferHandle& inout_hBuffer, ezUInt32 uiDataTypeSize, ezUInt32 uiNumParticlesPerBatch)

@@ -132,11 +132,11 @@ void ezFogComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
   msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::Light, ezRenderData::Caching::IfStatic);
 }
 
-void ezFogComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezFogComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 
-  ezStreamWriter& s = stream.GetStream();
+  ezStreamWriter& s = inout_stream.GetStream();
 
   s << m_Color;
   s << m_fDensity;
@@ -145,11 +145,11 @@ void ezFogComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_bModulateWithSkyColor;
 }
 
-void ezFogComponent::DeserializeComponent(ezWorldReader& stream)
+void ezFogComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  ezStreamReader& s = stream.GetStream();
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  ezStreamReader& s = inout_stream.GetStream();
 
   s >> m_Color;
   s >> m_fDensity;

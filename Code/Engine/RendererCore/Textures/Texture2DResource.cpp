@@ -68,37 +68,37 @@ ezResourceLoadDesc ezTexture2DResource::UnloadData(Unload WhatToUnload)
   return res;
 }
 
-void ezTexture2DResource::FillOutDescriptor(ezTexture2DResourceDescriptor& td, const ezImage* pImage, bool bSRGB, ezUInt32 uiNumMipLevels,
-  ezUInt32& out_MemoryUsed, ezHybridArray<ezGALSystemMemoryDescription, 32>& initData)
+void ezTexture2DResource::FillOutDescriptor(ezTexture2DResourceDescriptor& ref_td, const ezImage* pImage, bool bSRGB, ezUInt32 uiNumMipLevels,
+  ezUInt32& out_uiMemoryUsed, ezHybridArray<ezGALSystemMemoryDescription, 32>& ref_initData)
 {
   const ezUInt32 uiHighestMipLevel = pImage->GetNumMipLevels() - uiNumMipLevels;
 
   const ezGALResourceFormat::Enum format = ezTextureUtils::ImageFormatToGalFormat(pImage->GetImageFormat(), bSRGB);
 
-  td.m_DescGAL.m_Format = format;
-  td.m_DescGAL.m_uiWidth = pImage->GetWidth(uiHighestMipLevel);
-  td.m_DescGAL.m_uiHeight = pImage->GetHeight(uiHighestMipLevel);
-  td.m_DescGAL.m_uiDepth = pImage->GetDepth(uiHighestMipLevel);
-  td.m_DescGAL.m_uiMipLevelCount = uiNumMipLevels;
-  td.m_DescGAL.m_uiArraySize = pImage->GetNumArrayIndices();
+  ref_td.m_DescGAL.m_Format = format;
+  ref_td.m_DescGAL.m_uiWidth = pImage->GetWidth(uiHighestMipLevel);
+  ref_td.m_DescGAL.m_uiHeight = pImage->GetHeight(uiHighestMipLevel);
+  ref_td.m_DescGAL.m_uiDepth = pImage->GetDepth(uiHighestMipLevel);
+  ref_td.m_DescGAL.m_uiMipLevelCount = uiNumMipLevels;
+  ref_td.m_DescGAL.m_uiArraySize = pImage->GetNumArrayIndices();
 
   if (ezImageFormat::GetType(pImage->GetImageFormat()) == ezImageFormatType::BLOCK_COMPRESSED)
   {
-    td.m_DescGAL.m_uiWidth = ezMath::RoundUp(td.m_DescGAL.m_uiWidth, 4);
-    td.m_DescGAL.m_uiHeight = ezMath::RoundUp(td.m_DescGAL.m_uiHeight, 4);
+    ref_td.m_DescGAL.m_uiWidth = ezMath::RoundUp(ref_td.m_DescGAL.m_uiWidth, 4);
+    ref_td.m_DescGAL.m_uiHeight = ezMath::RoundUp(ref_td.m_DescGAL.m_uiHeight, 4);
   }
 
-  if (td.m_DescGAL.m_uiDepth > 1)
-    td.m_DescGAL.m_Type = ezGALTextureType::Texture3D;
+  if (ref_td.m_DescGAL.m_uiDepth > 1)
+    ref_td.m_DescGAL.m_Type = ezGALTextureType::Texture3D;
 
   if (pImage->GetNumFaces() == 6)
-    td.m_DescGAL.m_Type = ezGALTextureType::TextureCube;
+    ref_td.m_DescGAL.m_Type = ezGALTextureType::TextureCube;
 
   EZ_ASSERT_DEV(pImage->GetNumFaces() == 1 || pImage->GetNumFaces() == 6, "Invalid number of image faces");
 
-  out_MemoryUsed = 0;
+  out_uiMemoryUsed = 0;
 
-  initData.Clear();
+  ref_initData.Clear();
 
   for (ezUInt32 array_index = 0; array_index < pImage->GetNumArrayIndices(); ++array_index)
   {
@@ -106,7 +106,7 @@ void ezTexture2DResource::FillOutDescriptor(ezTexture2DResourceDescriptor& td, c
     {
       for (ezUInt32 mip = uiHighestMipLevel; mip < pImage->GetNumMipLevels(); ++mip)
       {
-        ezGALSystemMemoryDescription& id = initData.ExpandAndGetRef();
+        ezGALSystemMemoryDescription& id = ref_initData.ExpandAndGetRef();
 
         id.m_pData = const_cast<ezUInt8*>(pImage->GetPixelPointer<ezUInt8>(mip, face, array_index));
 
@@ -124,14 +124,14 @@ void ezTexture2DResource::FillOutDescriptor(ezTexture2DResourceDescriptor& td, c
         EZ_ASSERT_DEV(pImage->GetDepthPitch(mip) < ezMath::MaxValue<ezUInt32>(), "Depth pitch exceeds ezGAL limits.");
         id.m_uiSlicePitch = static_cast<ezUInt32>(pImage->GetDepthPitch(mip));
 
-        out_MemoryUsed += id.m_uiSlicePitch;
+        out_uiMemoryUsed += id.m_uiSlicePitch;
       }
     }
   }
 
-  const ezArrayPtr<ezGALSystemMemoryDescription> InitDataPtr(initData);
+  const ezArrayPtr<ezGALSystemMemoryDescription> InitDataPtr(ref_initData);
 
-  td.m_InitialContent = InitDataPtr;
+  ref_td.m_InitialContent = InitDataPtr;
 }
 
 
@@ -391,11 +391,11 @@ const ezDynamicArray<ezViewHandle>& ezRenderToTexture2DResource::GetAllRenderVie
   return m_RenderViews;
 }
 
-static ezUInt16 GetNextBestResolution(float res)
+static ezUInt16 GetNextBestResolution(float fRes)
 {
-  res = ezMath::Clamp(res, 8.0f, 4096.0f);
+  fRes = ezMath::Clamp(fRes, 8.0f, 4096.0f);
 
-  int mulEight = (int)ezMath::Floor((res + 7.9f) / 8.0f);
+  int mulEight = (int)ezMath::Floor((fRes + 7.9f) / 8.0f);
 
   return static_cast<ezUInt16>(mulEight * 8);
 }

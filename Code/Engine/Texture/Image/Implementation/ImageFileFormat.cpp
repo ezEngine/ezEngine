@@ -6,11 +6,11 @@
 
 EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezImageFileFormat);
 
-ezImageFileFormat* ezImageFileFormat::GetReaderFormat(const char* extension)
+ezImageFileFormat* ezImageFileFormat::GetReaderFormat(const char* szExtension)
 {
   for (ezImageFileFormat* pFormat = ezImageFileFormat::GetFirstInstance(); pFormat; pFormat = pFormat->GetNextInstance())
   {
-    if (pFormat->CanReadFileType(extension))
+    if (pFormat->CanReadFileType(szExtension))
     {
       return pFormat;
     }
@@ -19,11 +19,11 @@ ezImageFileFormat* ezImageFileFormat::GetReaderFormat(const char* extension)
   return nullptr;
 }
 
-ezImageFileFormat* ezImageFileFormat::GetWriterFormat(const char* extension)
+ezImageFileFormat* ezImageFileFormat::GetWriterFormat(const char* szExtension)
 {
   for (ezImageFileFormat* pFormat = ezImageFileFormat::GetFirstInstance(); pFormat; pFormat = pFormat->GetNextInstance())
   {
-    if (pFormat->CanWriteFileType(extension))
+    if (pFormat->CanWriteFileType(szExtension))
     {
       return pFormat;
     }
@@ -32,7 +32,7 @@ ezImageFileFormat* ezImageFileFormat::GetWriterFormat(const char* extension)
   return nullptr;
 }
 
-ezResult ezImageFileFormat::ReadImageHeader(const char* szFileName, ezImageHeader& header)
+ezResult ezImageFileFormat::ReadImageHeader(const char* szFileName, ezImageHeader& ref_header)
 {
   EZ_LOG_BLOCK("Read Image Header", szFileName);
 
@@ -49,7 +49,7 @@ ezResult ezImageFileFormat::ReadImageHeader(const char* szFileName, ezImageHeade
 
   if (ezImageFileFormat* pFormat = ezImageFileFormat::GetReaderFormat(it.GetStartPointer()))
   {
-    if (pFormat->ReadImageHeader(reader, header, it.GetStartPointer()) != EZ_SUCCESS)
+    if (pFormat->ReadImageHeader(reader, ref_header, it.GetStartPointer()) != EZ_SUCCESS)
     {
       ezLog::Warning("Failed to read image file '{0}'", ezArgSensitive(szFileName, "File"));
       return EZ_FAILURE;

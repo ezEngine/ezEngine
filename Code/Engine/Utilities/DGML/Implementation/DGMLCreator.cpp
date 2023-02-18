@@ -5,7 +5,7 @@
 #include <Foundation/Utilities/DGMLWriter.h>
 #include <Utilities/DGML/DGMLCreator.h>
 
-void ezDGMLGraphCreator::FillGraphFromWorld(ezWorld* pWorld, ezDGMLGraph& Graph)
+void ezDGMLGraphCreator::FillGraphFromWorld(ezWorld* pWorld, ezDGMLGraph& ref_graph)
 {
   if (!pWorld)
   {
@@ -16,13 +16,13 @@ void ezDGMLGraphCreator::FillGraphFromWorld(ezWorld* pWorld, ezDGMLGraph& Graph)
 
   struct GraphVisitor
   {
-    GraphVisitor(ezDGMLGraph& Graph)
-      : m_Graph(Graph)
+    GraphVisitor(ezDGMLGraph& ref_graph)
+      : m_Graph(ref_graph)
     {
       ezDGMLGraph::NodeDesc nd;
       nd.m_Color = ezColor::DarkRed;
       nd.m_Shape = ezDGMLGraph::NodeShape::Button;
-      m_WorldNodeId = Graph.AddNode("World", &nd);
+      m_WorldNodeId = ref_graph.AddNode("World", &nd);
     }
 
     ezVisitorExecution::Enum Visit(ezGameObject* pObject)
@@ -78,7 +78,7 @@ void ezDGMLGraphCreator::FillGraphFromWorld(ezWorld* pWorld, ezDGMLGraph& Graph)
     ezMap<const ezGameObject*, ezDGMLGraph::NodeId> m_VisitedObjects;
   };
 
-  GraphVisitor visitor(Graph);
+  GraphVisitor visitor(ref_graph);
   pWorld->Traverse(ezWorld::VisitorFunc(&GraphVisitor::Visit, &visitor), ezWorld::BreadthFirst);
 }
 

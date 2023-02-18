@@ -302,13 +302,13 @@ void ezEditorEngineProcessConnection::SendMessage(ezProcessMessage* pMessage)
   }
 }
 
-ezResult ezEditorEngineProcessConnection::WaitForMessage(const ezRTTI* pMessageType, ezTime tTimeout, ezProcessCommunicationChannel::WaitForMessageCallback* pCallback)
+ezResult ezEditorEngineProcessConnection::WaitForMessage(const ezRTTI* pMessageType, ezTime timeout, ezProcessCommunicationChannel::WaitForMessageCallback* pCallback)
 {
   EZ_PROFILE_SCOPE(pMessageType->GetTypeName());
-  return m_IPC.WaitForMessage(pMessageType, tTimeout, pCallback);
+  return m_IPC.WaitForMessage(pMessageType, timeout, pCallback);
 }
 
-ezResult ezEditorEngineProcessConnection::WaitForDocumentMessage(const ezUuid& assetGuid, const ezRTTI* pMessageType, ezTime tTimeout, ezProcessCommunicationChannel::WaitForMessageCallback* pCallback /*= nullptr*/)
+ezResult ezEditorEngineProcessConnection::WaitForDocumentMessage(const ezUuid& assetGuid, const ezRTTI* pMessageType, ezTime timeout, ezProcessCommunicationChannel::WaitForMessageCallback* pCallback /*= nullptr*/)
 {
   if (!m_bProcessShouldBeRunning)
   {
@@ -338,7 +338,7 @@ ezResult ezEditorEngineProcessConnection::WaitForDocumentMessage(const ezUuid& a
     return false;
   };
 
-  return m_IPC.WaitForMessage(pMessageType, tTimeout, &callback);
+  return m_IPC.WaitForMessage(pMessageType, timeout, &callback);
 }
 
 ezResult ezEditorEngineProcessConnection::RestartProcess()

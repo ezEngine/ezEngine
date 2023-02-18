@@ -13,7 +13,7 @@ public:
   Q_OBJECT
 
 public:
-  ezQtReflectionWidget(QWidget* parent = 0);
+  ezQtReflectionWidget(QWidget* pParent = 0);
 
   static ezQtReflectionWidget* s_pWidget;
 

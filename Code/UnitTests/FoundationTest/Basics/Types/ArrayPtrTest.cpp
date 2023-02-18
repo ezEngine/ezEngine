@@ -3,9 +3,9 @@
 #include <Foundation/Containers/DynamicArray.h>
 
 template <typename T>
-static void testArrayPtr(ezArrayPtr<T> arrayPtr, typename ezArrayPtr<T>::PointerType pExtectedPtr, ezUInt32 uiExpectedCount)
+static void testArrayPtr(ezArrayPtr<T> arrayPtr, typename ezArrayPtr<T>::PointerType extectedPtr, ezUInt32 uiExpectedCount)
 {
-  EZ_TEST_BOOL(arrayPtr.GetPtr() == pExtectedPtr);
+  EZ_TEST_BOOL(arrayPtr.GetPtr() == extectedPtr);
   EZ_TEST_INT(arrayPtr.GetCount(), uiExpectedCount);
 }
 

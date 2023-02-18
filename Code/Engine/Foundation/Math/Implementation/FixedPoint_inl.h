@@ -3,23 +3,23 @@
 #include <Foundation/Math/Math.h>
 
 template <ezUInt8 DecimalBits>
-const ezFixedPoint<DecimalBits>& ezFixedPoint<DecimalBits>::operator=(ezInt32 IntVal)
+const ezFixedPoint<DecimalBits>& ezFixedPoint<DecimalBits>::operator=(ezInt32 iVal)
 {
-  m_iValue = IntVal << DecimalBits;
+  m_iValue = iVal << DecimalBits;
   return *this;
 }
 
 template <ezUInt8 DecimalBits>
-const ezFixedPoint<DecimalBits>& ezFixedPoint<DecimalBits>::operator=(float FloatVal)
+const ezFixedPoint<DecimalBits>& ezFixedPoint<DecimalBits>::operator=(float fVal)
 {
-  m_iValue = (ezInt32)ezMath::Round(FloatVal * (1 << DecimalBits));
+  m_iValue = (ezInt32)ezMath::Round(fVal * (1 << DecimalBits));
   return *this;
 }
 
 template <ezUInt8 DecimalBits>
-const ezFixedPoint<DecimalBits>& ezFixedPoint<DecimalBits>::operator=(double FloatVal)
+const ezFixedPoint<DecimalBits>& ezFixedPoint<DecimalBits>::operator=(double fVal)
 {
-  m_iValue = (ezInt32)ezMath::Round(FloatVal * (1 << DecimalBits));
+  m_iValue = (ezInt32)ezMath::Round(fVal * (1 << DecimalBits));
   return *this;
 }
 

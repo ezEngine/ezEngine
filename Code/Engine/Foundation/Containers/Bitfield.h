@@ -136,17 +136,17 @@ public:
   /// \brief Modifies \a this to only contain the bits that were set in \a this and \a rhs.
   EZ_ALWAYS_INLINE void operator&=(const ezStaticBitfield<T>& rhs) { m_Storage &= rhs.m_Storage; }
 
-  ezResult Serialize(ezStreamWriter& writer) const
+  ezResult Serialize(ezStreamWriter& inout_writer) const
   {
-    writer.WriteVersion(s_Version);
-    writer << m_Storage;
+    inout_writer.WriteVersion(s_Version);
+    inout_writer << m_Storage;
     return EZ_SUCCESS;
   }
 
-  ezResult Deserialize(ezStreamReader& reader)
+  ezResult Deserialize(ezStreamReader& inout_reader)
   {
-    /*auto version =*/reader.ReadVersion(s_Version);
-    reader >> m_Storage;
+    /*auto version =*/inout_reader.ReadVersion(s_Version);
+    inout_reader >> m_Storage;
     return EZ_SUCCESS;
   }
 

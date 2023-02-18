@@ -6,8 +6,8 @@ template <typename T, typename O>
 class ezLockedObject
 {
 public:
-  EZ_ALWAYS_INLINE explicit ezLockedObject(T& lock, O* pObject)
-    : m_pLock(&lock)
+  EZ_ALWAYS_INLINE explicit ezLockedObject(T& ref_lock, O* pObject)
+    : m_pLock(&ref_lock)
     , m_pObject(pObject)
   {
     m_pLock->Lock();

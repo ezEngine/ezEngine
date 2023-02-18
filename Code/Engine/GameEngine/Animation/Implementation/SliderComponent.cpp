@@ -5,7 +5,7 @@
 #include <GameEngine/Animation/SliderComponent.h>
 
 float CalculateAcceleratedMovement(
-  float fDistanceInMeters, float fAcceleration, float fMaxVelocity, float fDeceleration, ezTime& fTimeSinceStartInSec);
+  float fDistanceInMeters, float fAcceleration, float fMaxVelocity, float fDeceleration, ezTime& ref_timeSinceStartInSec);
 
 // clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezSliderComponent, 3, ezComponentMode::Dynamic)
@@ -117,11 +117,11 @@ void ezSliderComponent::OnSimulationStarted()
   }
 }
 
-void ezSliderComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezSliderComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s << m_fDistanceToTravel;
   s << m_fAcceleration;
@@ -132,12 +132,12 @@ void ezSliderComponent::SerializeComponent(ezWorldWriter& stream) const
 }
 
 
-void ezSliderComponent::DeserializeComponent(ezWorldReader& stream)
+void ezSliderComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s >> m_fDistanceToTravel;
   s >> m_fAcceleration;
@@ -165,10 +165,10 @@ public:
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
     // Base class
-    context.PatchBaseClass("ezTransformComponent", 2, true);
+    ref_context.PatchBaseClass("ezTransformComponent", 2, true);
   }
 };
 

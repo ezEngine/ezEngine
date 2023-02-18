@@ -31,19 +31,19 @@ PlacementTile::~PlacementTile()
   EZ_ASSERT_DEV(m_State == State::Invalid, "Implementation error");
 }
 
-void PlacementTile::Initialize(const PlacementTileDesc& desc, ezSharedPtr<const PlacementOutput>& pOutput)
+void PlacementTile::Initialize(const PlacementTileDesc& desc, ezSharedPtr<const PlacementOutput>& ref_pOutput)
 {
   m_Desc = desc;
-  m_pOutput = pOutput;
+  m_pOutput = ref_pOutput;
 
   m_State = State::Initialized;
 }
 
-void PlacementTile::Deinitialize(ezWorld& world)
+void PlacementTile::Deinitialize(ezWorld& ref_world)
 {
   for (auto hObject : m_PlacedObjects)
   {
-    world.DeleteObjectDelayed(hObject);
+    ref_world.DeleteObjectDelayed(hObject);
   }
   m_PlacedObjects.Clear();
 
@@ -92,7 +92,7 @@ ezColor PlacementTile::GetDebugColor() const
   }
 }
 
-void PlacementTile::PreparePlacementData(const ezWorld* pWorld, const ezPhysicsWorldModuleInterface* pPhysicsModule, PlacementData& placementData)
+void PlacementTile::PreparePlacementData(const ezWorld* pWorld, const ezPhysicsWorldModuleInterface* pPhysicsModule, PlacementData& ref_placementData)
 {
   const ezUInt64 uiOutputNameHash = m_pOutput->m_sName.GetHash();
   ezUInt32 hashData[] = {
@@ -102,17 +102,17 @@ void PlacementTile::PreparePlacementData(const ezWorld* pWorld, const ezPhysicsW
     static_cast<ezUInt32>(uiOutputNameHash >> 32),
   };
 
-  placementData.m_pPhysicsModule = pPhysicsModule;
-  placementData.m_pWorld = pWorld;
-  placementData.m_pOutput = m_pOutput;
-  placementData.m_uiTileSeed = ezHashingUtils::xxHash32(hashData, sizeof(hashData));
-  placementData.m_TileBoundingBox = GetBoundingBox();
-  placementData.m_GlobalToLocalBoxTransforms = m_Desc.m_GlobalToLocalBoxTransforms;
+  ref_placementData.m_pPhysicsModule = pPhysicsModule;
+  ref_placementData.m_pWorld = pWorld;
+  ref_placementData.m_pOutput = m_pOutput;
+  ref_placementData.m_uiTileSeed = ezHashingUtils::xxHash32(hashData, sizeof(hashData));
+  ref_placementData.m_TileBoundingBox = GetBoundingBox();
+  ref_placementData.m_GlobalToLocalBoxTransforms = m_Desc.m_GlobalToLocalBoxTransforms;
 
   m_State = State::Scheduled;
 }
 
-ezUInt32 PlacementTile::PlaceObjects(ezWorld& world, ezArrayPtr<const PlacementTransform> objectTransforms)
+ezUInt32 PlacementTile::PlaceObjects(ezWorld& ref_world, ezArrayPtr<const PlacementTransform> objectTransforms)
 {
   EZ_PROFILE_SCOPE("PlacementTile::PlaceObjects");
 
@@ -141,7 +141,7 @@ ezUInt32 PlacementTile::PlaceObjects(ezWorld& world, ezArrayPtr<const PlacementT
     ezPrefabInstantiationOptions options;
     options.m_pCreatedRootObjectsOut = &rootObjects;
 
-    pPrefab->InstantiatePrefab(world, transform, options);
+    pPrefab->InstantiatePrefab(ref_world, transform, options);
 
     // only send the color message, if we actually have a custom color
     if (objectTransform.m_bHasValidColor)

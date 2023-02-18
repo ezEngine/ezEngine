@@ -1,90 +1,90 @@
 
 template <typename Container, typename Comparer>
-void ezSorting::QuickSort(Container& container, const Comparer& comparer)
+void ezSorting::QuickSort(Container& inout_container, const Comparer& comparer)
 {
-  if (container.IsEmpty())
+  if (inout_container.IsEmpty())
     return;
 
-  QuickSort(container, 0, container.GetCount() - 1, comparer);
+  QuickSort(inout_container, 0, inout_container.GetCount() - 1, comparer);
 }
 
 template <typename T, typename Comparer>
-void ezSorting::QuickSort(ezArrayPtr<T>& arrayPtr, const Comparer& comparer)
+void ezSorting::QuickSort(ezArrayPtr<T>& inout_arrayPtr, const Comparer& comparer)
 {
-  if (arrayPtr.IsEmpty())
+  if (inout_arrayPtr.IsEmpty())
     return;
 
-  QuickSort(arrayPtr, 0, arrayPtr.GetCount() - 1, comparer);
+  QuickSort(inout_arrayPtr, 0, inout_arrayPtr.GetCount() - 1, comparer);
 }
 
 template <typename Container, typename Comparer>
-void ezSorting::InsertionSort(Container& container, const Comparer& comparer)
+void ezSorting::InsertionSort(Container& inout_container, const Comparer& comparer)
 {
-  if (container.IsEmpty())
+  if (inout_container.IsEmpty())
     return;
 
-  InsertionSort(container, 0, container.GetCount() - 1, comparer);
+  InsertionSort(inout_container, 0, inout_container.GetCount() - 1, comparer);
 }
 
 template <typename T, typename Comparer>
-void ezSorting::InsertionSort(ezArrayPtr<T>& arrayPtr, const Comparer& comparer)
+void ezSorting::InsertionSort(ezArrayPtr<T>& inout_arrayPtr, const Comparer& comparer)
 {
-  if (arrayPtr.IsEmpty())
+  if (inout_arrayPtr.IsEmpty())
     return;
 
-  InsertionSort(arrayPtr, 0, arrayPtr.GetCount() - 1, comparer);
+  InsertionSort(inout_arrayPtr, 0, inout_arrayPtr.GetCount() - 1, comparer);
 }
 
 template <typename Container, typename Comparer>
-void ezSorting::QuickSort(Container& container, ezUInt32 uiStartIndex, ezUInt32 uiEndIndex, const Comparer& comparer)
+void ezSorting::QuickSort(Container& inout_container, ezUInt32 uiStartIndex, ezUInt32 uiEndIndex, const Comparer& in_comparer)
 {
   if (uiStartIndex < uiEndIndex)
   {
     if (uiEndIndex - uiStartIndex <= INSERTION_THRESHOLD)
     {
-      InsertionSort(container, uiStartIndex, uiEndIndex, comparer);
+      InsertionSort(inout_container, uiStartIndex, uiEndIndex, in_comparer);
     }
     else
     {
-      const ezUInt32 uiPivotIndex = Partition(container, uiStartIndex, uiEndIndex, comparer);
+      const ezUInt32 uiPivotIndex = Partition(inout_container, uiStartIndex, uiEndIndex, in_comparer);
 
       ezUInt32 uiFirstHalfEndIndex = uiPivotIndex > 0 ? uiPivotIndex - 1 : 0;
       ezUInt32 uiSecondHalfStartIndex = uiPivotIndex + 1;
 
-      while (uiFirstHalfEndIndex > uiStartIndex && !DoCompare(comparer, container[uiFirstHalfEndIndex], container[uiPivotIndex]))
+      while (uiFirstHalfEndIndex > uiStartIndex && !DoCompare(in_comparer, inout_container[uiFirstHalfEndIndex], inout_container[uiPivotIndex]))
       {
         uiFirstHalfEndIndex--;
       }
 
-      while (uiSecondHalfStartIndex <= uiEndIndex && !DoCompare(comparer, container[uiPivotIndex], container[uiSecondHalfStartIndex]))
+      while (uiSecondHalfStartIndex <= uiEndIndex && !DoCompare(in_comparer, inout_container[uiPivotIndex], inout_container[uiSecondHalfStartIndex]))
       {
         uiSecondHalfStartIndex++;
       }
 
       if (uiStartIndex < uiFirstHalfEndIndex)
-        QuickSort(container, uiStartIndex, uiFirstHalfEndIndex, comparer);
+        QuickSort(inout_container, uiStartIndex, uiFirstHalfEndIndex, in_comparer);
 
       if (uiSecondHalfStartIndex < uiEndIndex)
-        QuickSort(container, uiSecondHalfStartIndex, uiEndIndex, comparer);
+        QuickSort(inout_container, uiSecondHalfStartIndex, uiEndIndex, in_comparer);
     }
   }
 }
 
 template <typename Container, typename Comparer>
-ezUInt32 ezSorting::Partition(Container& container, ezUInt32 uiLeft, ezUInt32 uiRight, const Comparer& comparer)
+ezUInt32 ezSorting::Partition(Container& inout_container, ezUInt32 uiLeft, ezUInt32 uiRight, const Comparer& comparer)
 {
   ezUInt32 uiPivotIndex = (uiLeft + uiRight) / 2;
 
-  if (DoCompare(comparer, container[uiLeft], container[uiRight]))
+  if (DoCompare(comparer, inout_container[uiLeft], inout_container[uiRight]))
   {
     // left < right
 
-    if (DoCompare(comparer, container[uiRight], container[uiPivotIndex]))
+    if (DoCompare(comparer, inout_container[uiRight], inout_container[uiPivotIndex]))
     {
       // left < right < pivot
       uiPivotIndex = uiRight;
     }
-    else if (DoCompare(comparer, container[uiLeft], container[uiPivotIndex]))
+    else if (DoCompare(comparer, inout_container[uiLeft], inout_container[uiPivotIndex]))
     {
       // left < pivot < right
       uiPivotIndex = uiPivotIndex;
@@ -99,11 +99,11 @@ ezUInt32 ezSorting::Partition(Container& container, ezUInt32 uiLeft, ezUInt32 ui
   {
     // right < left
 
-    if (DoCompare(comparer, container[uiLeft], container[uiPivotIndex]))
+    if (DoCompare(comparer, inout_container[uiLeft], inout_container[uiPivotIndex]))
     {
       uiPivotIndex = uiLeft; // right < left < pivot
     }
-    else if (DoCompare(comparer, container[uiRight], container[uiPivotIndex]))
+    else if (DoCompare(comparer, inout_container[uiRight], inout_container[uiPivotIndex]))
     {
       // right < pivot < left
       uiPivotIndex = uiPivotIndex;
@@ -115,34 +115,34 @@ ezUInt32 ezSorting::Partition(Container& container, ezUInt32 uiLeft, ezUInt32 ui
     }
   }
 
-  ezMath::Swap(container[uiPivotIndex], container[uiRight]); // move pivot to right
+  ezMath::Swap(inout_container[uiPivotIndex], inout_container[uiRight]); // move pivot to right
 
   ezUInt32 uiIndex = uiLeft;
   for (ezUInt32 i = uiLeft; i < uiRight; ++i)
   {
-    if (DoCompare(comparer, container[i], container[uiRight]))
+    if (DoCompare(comparer, inout_container[i], inout_container[uiRight]))
     {
-      ezMath::Swap(container[i], container[uiIndex]);
+      ezMath::Swap(inout_container[i], inout_container[uiIndex]);
       ++uiIndex;
     }
   }
 
-  ezMath::Swap(container[uiIndex], container[uiRight]); // move pivot back in place
+  ezMath::Swap(inout_container[uiIndex], inout_container[uiRight]); // move pivot back in place
 
   return uiIndex;
 }
 
 
 template <typename T, typename Comparer>
-void ezSorting::QuickSort(ezArrayPtr<T>& arrayPtr, ezUInt32 uiStartIndex, ezUInt32 uiEndIndex, const Comparer& comparer)
+void ezSorting::QuickSort(ezArrayPtr<T>& inout_arrayPtr, ezUInt32 uiStartIndex, ezUInt32 uiEndIndex, const Comparer& comparer)
 {
-  T* ptr = arrayPtr.GetPtr();
+  T* ptr = inout_arrayPtr.GetPtr();
 
   if (uiStartIndex < uiEndIndex)
   {
     if (uiEndIndex - uiStartIndex <= INSERTION_THRESHOLD)
     {
-      InsertionSort(arrayPtr, uiStartIndex, uiEndIndex, comparer);
+      InsertionSort(inout_arrayPtr, uiStartIndex, uiEndIndex, comparer);
     }
     else
     {
@@ -162,29 +162,29 @@ void ezSorting::QuickSort(ezArrayPtr<T>& arrayPtr, ezUInt32 uiStartIndex, ezUInt
       }
 
       if (uiStartIndex < uiFirstHalfEndIndex)
-        QuickSort(arrayPtr, uiStartIndex, uiFirstHalfEndIndex, comparer);
+        QuickSort(inout_arrayPtr, uiStartIndex, uiFirstHalfEndIndex, comparer);
 
       if (uiSecondHalfStartIndex < uiEndIndex)
-        QuickSort(arrayPtr, uiSecondHalfStartIndex, uiEndIndex, comparer);
+        QuickSort(inout_arrayPtr, uiSecondHalfStartIndex, uiEndIndex, comparer);
     }
   }
 }
 
 template <typename T, typename Comparer>
-ezUInt32 ezSorting::Partition(T* ptr, ezUInt32 uiLeft, ezUInt32 uiRight, const Comparer& comparer)
+ezUInt32 ezSorting::Partition(T* pPtr, ezUInt32 uiLeft, ezUInt32 uiRight, const Comparer& comparer)
 {
   ezUInt32 uiPivotIndex = (uiLeft + uiRight) / 2;
 
-  if (DoCompare(comparer, ptr[uiLeft], ptr[uiRight]))
+  if (DoCompare(comparer, pPtr[uiLeft], pPtr[uiRight]))
   {
     // left < right
 
-    if (DoCompare(comparer, ptr[uiRight], ptr[uiPivotIndex]))
+    if (DoCompare(comparer, pPtr[uiRight], pPtr[uiPivotIndex]))
     {
       // left < right < pivot
       uiPivotIndex = uiRight;
     }
-    else if (DoCompare(comparer, ptr[uiLeft], ptr[uiPivotIndex]))
+    else if (DoCompare(comparer, pPtr[uiLeft], pPtr[uiPivotIndex]))
     {
       // left < pivot < right
       uiPivotIndex = uiPivotIndex;
@@ -199,11 +199,11 @@ ezUInt32 ezSorting::Partition(T* ptr, ezUInt32 uiLeft, ezUInt32 uiRight, const C
   {
     // right < left
 
-    if (DoCompare(comparer, ptr[uiLeft], ptr[uiPivotIndex]))
+    if (DoCompare(comparer, pPtr[uiLeft], pPtr[uiPivotIndex]))
     {
       uiPivotIndex = uiLeft; // right < left < pivot
     }
-    else if (DoCompare(comparer, ptr[uiRight], ptr[uiPivotIndex]))
+    else if (DoCompare(comparer, pPtr[uiRight], pPtr[uiPivotIndex]))
     {
       // right < pivot < left
       uiPivotIndex = uiPivotIndex;
@@ -215,42 +215,42 @@ ezUInt32 ezSorting::Partition(T* ptr, ezUInt32 uiLeft, ezUInt32 uiRight, const C
     }
   }
 
-  ezMath::Swap(ptr[uiPivotIndex], ptr[uiRight]); // move pivot to right
+  ezMath::Swap(pPtr[uiPivotIndex], pPtr[uiRight]); // move pivot to right
 
   ezUInt32 uiIndex = uiLeft;
   for (ezUInt32 i = uiLeft; i < uiRight; ++i)
   {
-    if (DoCompare(comparer, ptr[i], ptr[uiRight]))
+    if (DoCompare(comparer, pPtr[i], pPtr[uiRight]))
     {
-      ezMath::Swap(ptr[i], ptr[uiIndex]);
+      ezMath::Swap(pPtr[i], pPtr[uiIndex]);
       ++uiIndex;
     }
   }
 
-  ezMath::Swap(ptr[uiIndex], ptr[uiRight]); // move pivot back in place
+  ezMath::Swap(pPtr[uiIndex], pPtr[uiRight]); // move pivot back in place
 
   return uiIndex;
 }
 
 
 template <typename Container, typename Comparer>
-void ezSorting::InsertionSort(Container& container, ezUInt32 uiStartIndex, ezUInt32 uiEndIndex, const Comparer& comparer)
+void ezSorting::InsertionSort(Container& inout_container, ezUInt32 uiStartIndex, ezUInt32 uiEndIndex, const Comparer& comparer)
 {
   for (ezUInt32 i = uiStartIndex + 1; i <= uiEndIndex; ++i)
   {
     ezUInt32 uiHoleIndex = i;
-    while (uiHoleIndex > uiStartIndex && DoCompare(comparer, container[uiHoleIndex], container[uiHoleIndex - 1]))
+    while (uiHoleIndex > uiStartIndex && DoCompare(comparer, inout_container[uiHoleIndex], inout_container[uiHoleIndex - 1]))
     {
-      ezMath::Swap(container[uiHoleIndex], container[uiHoleIndex - 1]);
+      ezMath::Swap(inout_container[uiHoleIndex], inout_container[uiHoleIndex - 1]);
       --uiHoleIndex;
     }
   }
 }
 
 template <typename T, typename Comparer>
-void ezSorting::InsertionSort(ezArrayPtr<T>& arrayPtr, ezUInt32 uiStartIndex, ezUInt32 uiEndIndex, const Comparer& comparer)
+void ezSorting::InsertionSort(ezArrayPtr<T>& inout_arrayPtr, ezUInt32 uiStartIndex, ezUInt32 uiEndIndex, const Comparer& comparer)
 {
-  T* ptr = arrayPtr.GetPtr();
+  T* ptr = inout_arrayPtr.GetPtr();
 
   for (ezUInt32 i = uiStartIndex + 1; i <= uiEndIndex; ++i)
   {

@@ -23,8 +23,8 @@ class EZ_GAMEENGINE_DLL ezPropertyAnimComponent : public ezComponent
   // ezComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
 protected:
   virtual void OnSimulationStarted() override;
@@ -43,10 +43,10 @@ public:
   EZ_ALWAYS_INLINE const ezPropertyAnimResourceHandle& GetPropertyAnim() const { return m_hPropertyAnim; } // [ property ]
 
   /// \brief Sets the animation playback range and resets the playing position to the range start position. Also activates the component if it isn't.
-  void PlayAnimationRange(ezTime RangeLow, ezTime RangeHigh); // [ scriptable ]
+  void PlayAnimationRange(ezTime rangeLow, ezTime rangeHigh); // [ scriptable ]
 
   /// \brief Pauses or resumes animation playback. Does not reset any state.
-  void OnMsgSetPlaying(ezMsgSetPlaying& msg); // [ msg handler ]
+  void OnMsgSetPlaying(ezMsgSetPlaying& ref_msg); // [ msg handler ]
 
   ezEnum<ezPropertyAnimMode> m_AnimationMode; // [ property ]
   ezTime m_RandomOffset;                      // [ property ]

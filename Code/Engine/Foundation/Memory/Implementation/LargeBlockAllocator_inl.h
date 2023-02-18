@@ -92,11 +92,11 @@ EZ_FORCE_INLINE ezDataBlock<T, BlockSize> ezLargeBlockAllocator<BlockSize>::Allo
 
 template <ezUInt32 BlockSize>
 template <typename T>
-EZ_FORCE_INLINE void ezLargeBlockAllocator<BlockSize>::DeallocateBlock(ezDataBlock<T, BlockSize>& block)
+EZ_FORCE_INLINE void ezLargeBlockAllocator<BlockSize>::DeallocateBlock(ezDataBlock<T, BlockSize>& inout_block)
 {
-  Deallocate(block.m_pData);
-  block.m_pData = nullptr;
-  block.m_uiCount = 0;
+  Deallocate(inout_block.m_pData);
+  inout_block.m_pData = nullptr;
+  inout_block.m_uiCount = 0;
 }
 
 template <ezUInt32 BlockSize>

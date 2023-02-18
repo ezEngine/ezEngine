@@ -430,23 +430,23 @@ ezStatus ezQtDocumentWindow::SaveDocument()
   return ezStatus(EZ_SUCCESS);
 }
 
-void ezQtDocumentWindow::ShowTemporaryStatusBarMsg(const ezFormatString& sMsg, ezTime duration)
+void ezQtDocumentWindow::ShowTemporaryStatusBarMsg(const ezFormatString& msg, ezTime duration)
 {
   ezStringBuilder tmp;
-  statusBar()->showMessage(QString::fromUtf8(sMsg.GetText(tmp)), (int)duration.GetMilliseconds());
+  statusBar()->showMessage(QString::fromUtf8(msg.GetText(tmp)), (int)duration.GetMilliseconds());
 }
 
 
-void ezQtDocumentWindow::SetPermanentStatusBarMsg(const ezFormatString& sText)
+void ezQtDocumentWindow::SetPermanentStatusBarMsg(const ezFormatString& text)
 {
-  if (!sText.IsEmpty())
+  if (!text.IsEmpty())
   {
     // clear temporary message
     statusBar()->clearMessage();
   }
 
   ezStringBuilder tmp;
-  m_pPermanentDocumentStatusText->setText(QString::fromUtf8(sText.GetText(tmp)));
+  m_pPermanentDocumentStatusText->setText(QString::fromUtf8(text.GetText(tmp)));
 }
 
 void ezQtDocumentWindow::CreateImageCapture(const char* szOutputPath)
@@ -560,7 +560,7 @@ void ezQtDocumentWindow::EnsureVisible()
   m_pContainerWindow->EnsureVisible(this).IgnoreResult();
 }
 
-void ezQtDocumentWindow::RequestWindowTabContextMenu(const QPoint& GlobalPos)
+void ezQtDocumentWindow::RequestWindowTabContextMenu(const QPoint& globalPos)
 {
   ezQtMenuActionMapView menu(nullptr);
 
@@ -570,7 +570,7 @@ void ezQtDocumentWindow::RequestWindowTabContextMenu(const QPoint& GlobalPos)
   context.m_pWindow = this;
   menu.SetActionContext(context);
 
-  menu.exec(GlobalPos);
+  menu.exec(globalPos);
 }
 
 ezQtDocumentWindow* ezQtDocumentWindow::FindWindowByDocument(const ezDocument* pDocument)

@@ -248,9 +248,9 @@ class ezImageConversionStep_Compress16bpp : ezImageConversionStepLinear
 
 #if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE
 
-static bool IsAligned(const void* pointer)
+static bool IsAligned(const void* pPointer)
 {
-  return reinterpret_cast<size_t>(pointer) % 16 == 0;
+  return reinterpret_cast<size_t>(pPointer) % 16 == 0;
 }
 
 #endif
@@ -270,7 +270,7 @@ struct ezImageSwizzleConversion32_2103 : public ezImageConversionStepLinear
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 numElements, ezImageFormat::Enum sourceFormat,
+  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 uiNumElements, ezImageFormat::Enum sourceFormat,
     ezImageFormat::Enum targetFormat) const override
   {
     ezUInt32 sourceStride = 4;
@@ -288,7 +288,7 @@ struct ezImageSwizzleConversion32_2103 : public ezImageConversionStepLinear
       __m128i shuffleMask = _mm_set_epi8(15, 12, 13, 14, 11, 8, 9, 10, 7, 4, 5, 6, 3, 0, 1, 2);
 
       // Intel optimization manual, Color Pixel Format Conversion Using SSE3
-      while (numElements >= elementsPerBatch)
+      while (uiNumElements >= elementsPerBatch)
       {
         __m128i in0 = reinterpret_cast<const __m128i*>(sourcePointer)[0];
         __m128i in1 = reinterpret_cast<const __m128i*>(sourcePointer)[1];
@@ -298,7 +298,7 @@ struct ezImageSwizzleConversion32_2103 : public ezImageConversionStepLinear
 
         sourcePointer = ezMemoryUtils::AddByteOffset(sourcePointer, sourceStride * elementsPerBatch);
         targetPointer = ezMemoryUtils::AddByteOffset(targetPointer, targetStride * elementsPerBatch);
-        numElements -= elementsPerBatch;
+        uiNumElements -= elementsPerBatch;
       }
 #  else
       const ezUInt32 elementsPerBatch = 8;
@@ -325,7 +325,7 @@ struct ezImageSwizzleConversion32_2103 : public ezImageConversionStepLinear
     }
 #endif
 
-    while (numElements)
+    while (uiNumElements)
     {
       ezUInt8 a, b, c, d;
       a = reinterpret_cast<const ezUInt8*>(sourcePointer)[2];
@@ -339,7 +339,7 @@ struct ezImageSwizzleConversion32_2103 : public ezImageConversionStepLinear
 
       sourcePointer = ezMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
       targetPointer = ezMemoryUtils::AddByteOffset(targetPointer, targetStride);
-      numElements--;
+      uiNumElements--;
     }
 
     return EZ_SUCCESS;
@@ -357,7 +357,7 @@ struct ezImageConversion_BGRX_BGRA : public ezImageConversionStepLinear
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 numElements, ezImageFormat::Enum sourceFormat,
+  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 uiNumElements, ezImageFormat::Enum sourceFormat,
     ezImageFormat::Enum targetFormat) const override
   {
     ezUInt32 sourceStride = 4;
@@ -373,7 +373,7 @@ struct ezImageConversion_BGRX_BGRA : public ezImageConversionStepLinear
 
       __m128i mask = _mm_set1_epi32(0xFF000000);
 
-      while (numElements >= elementsPerBatch)
+      while (uiNumElements >= elementsPerBatch)
       {
         const __m128i* pSource = reinterpret_cast<const __m128i*>(sourcePointer);
         __m128i* pTarget = reinterpret_cast<__m128i*>(targetPointer);
@@ -382,12 +382,12 @@ struct ezImageConversion_BGRX_BGRA : public ezImageConversionStepLinear
 
         sourcePointer = ezMemoryUtils::AddByteOffset(sourcePointer, sourceStride * elementsPerBatch);
         targetPointer = ezMemoryUtils::AddByteOffset(targetPointer, targetStride * elementsPerBatch);
-        numElements -= elementsPerBatch;
+        uiNumElements -= elementsPerBatch;
       }
     }
 #endif
 
-    while (numElements)
+    while (uiNumElements)
     {
       ezUInt32 x = *(reinterpret_cast<const ezUInt32*>(sourcePointer));
 
@@ -401,7 +401,7 @@ struct ezImageConversion_BGRX_BGRA : public ezImageConversionStepLinear
 
       sourcePointer = ezMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
       targetPointer = ezMemoryUtils::AddByteOffset(targetPointer, targetStride);
-      numElements--;
+      uiNumElements--;
     }
 
     return EZ_SUCCESS;
@@ -422,11 +422,11 @@ public:
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 numElements, ezImageFormat::Enum sourceFormat,
+  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 uiNumElements, ezImageFormat::Enum sourceFormat,
     ezImageFormat::Enum targetFormat) const override
   {
     // Work with single channels instead of pixels
-    numElements *= ezImageFormat::GetBitsPerPixel(targetFormat) / 8;
+    uiNumElements *= ezImageFormat::GetBitsPerPixel(targetFormat) / 8;
 
     ezUInt32 sourceStride = 4;
     ezUInt32 targetStride = 1;
@@ -443,7 +443,7 @@ public:
       __m128 scale = _mm_set1_ps(255.0f);
       __m128 half = _mm_set1_ps(0.5f);
 
-      while (numElements >= elementsPerBatch)
+      while (uiNumElements >= elementsPerBatch)
       {
         __m128 float0 = _mm_loadu_ps(static_cast<const float*>(sourcePointer) + 0);
         __m128 float1 = _mm_loadu_ps(static_cast<const float*>(sourcePointer) + 4);
@@ -485,19 +485,19 @@ public:
 
         sourcePointer = ezMemoryUtils::AddByteOffset(sourcePointer, sourceStride * elementsPerBatch);
         targetPointer = ezMemoryUtils::AddByteOffset(targetPointer, targetStride * elementsPerBatch);
-        numElements -= elementsPerBatch;
+        uiNumElements -= elementsPerBatch;
       }
     }
 #endif
 
-    while (numElements)
+    while (uiNumElements)
     {
 
       *reinterpret_cast<ezUInt8*>(targetPointer) = ezMath::ColorFloatToByte(*reinterpret_cast<const float*>(sourcePointer));
 
       sourcePointer = ezMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
       targetPointer = ezMemoryUtils::AddByteOffset(targetPointer, targetStride);
-      numElements--;
+      uiNumElements--;
     }
 
     return EZ_SUCCESS;
@@ -515,7 +515,7 @@ public:
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 numElements, ezImageFormat::Enum sourceFormat,
+  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 uiNumElements, ezImageFormat::Enum sourceFormat,
     ezImageFormat::Enum targetFormat) const override
   {
     ezUInt32 sourceStride = 16;
@@ -524,13 +524,13 @@ public:
     const void* sourcePointer = source.GetPtr();
     void* targetPointer = target.GetPtr();
 
-    while (numElements)
+    while (uiNumElements)
     {
       *reinterpret_cast<ezColorGammaUB*>(targetPointer) = *reinterpret_cast<const ezColor*>(sourcePointer);
 
       sourcePointer = ezMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
       targetPointer = ezMemoryUtils::AddByteOffset(targetPointer, targetStride);
-      numElements--;
+      uiNumElements--;
     }
 
     return EZ_SUCCESS;
@@ -551,11 +551,11 @@ public:
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 numElements, ezImageFormat::Enum sourceFormat,
+  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 uiNumElements, ezImageFormat::Enum sourceFormat,
     ezImageFormat::Enum targetFormat) const override
   {
     // Work with single channels instead of pixels
-    numElements *= ezImageFormat::GetBitsPerPixel(targetFormat) / 16;
+    uiNumElements *= ezImageFormat::GetBitsPerPixel(targetFormat) / 16;
 
     ezUInt32 sourceStride = 4;
     ezUInt32 targetStride = 2;
@@ -563,14 +563,14 @@ public:
     const void* sourcePointer = source.GetPtr();
     void* targetPointer = target.GetPtr();
 
-    while (numElements)
+    while (uiNumElements)
     {
 
       *reinterpret_cast<ezUInt16*>(targetPointer) = ezMath::ColorFloatToShort(*reinterpret_cast<const float*>(sourcePointer));
 
       sourcePointer = ezMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
       targetPointer = ezMemoryUtils::AddByteOffset(targetPointer, targetStride);
-      numElements--;
+      uiNumElements--;
     }
 
     return EZ_SUCCESS;
@@ -590,11 +590,11 @@ public:
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 numElements, ezImageFormat::Enum sourceFormat,
+  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 uiNumElements, ezImageFormat::Enum sourceFormat,
     ezImageFormat::Enum targetFormat) const override
   {
     // Work with single channels instead of pixels
-    numElements *= ezImageFormat::GetBitsPerPixel(targetFormat) / 16;
+    uiNumElements *= ezImageFormat::GetBitsPerPixel(targetFormat) / 16;
 
     ezUInt32 sourceStride = 4;
     ezUInt32 targetStride = 2;
@@ -602,14 +602,14 @@ public:
     const void* sourcePointer = source.GetPtr();
     void* targetPointer = target.GetPtr();
 
-    while (numElements)
+    while (uiNumElements)
     {
 
       *reinterpret_cast<ezFloat16*>(targetPointer) = *reinterpret_cast<const float*>(sourcePointer);
 
       sourcePointer = ezMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
       targetPointer = ezMemoryUtils::AddByteOffset(targetPointer, targetStride);
-      numElements--;
+      uiNumElements--;
     }
 
     return EZ_SUCCESS;
@@ -630,11 +630,11 @@ public:
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 numElements, ezImageFormat::Enum sourceFormat,
+  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 uiNumElements, ezImageFormat::Enum sourceFormat,
     ezImageFormat::Enum targetFormat) const override
   {
     // Work with single channels instead of pixels
-    numElements *= ezImageFormat::GetBitsPerPixel(targetFormat) / 8;
+    uiNumElements *= ezImageFormat::GetBitsPerPixel(targetFormat) / 8;
 
     ezUInt32 sourceStride = 4;
     ezUInt32 targetStride = 1;
@@ -642,14 +642,14 @@ public:
     const void* sourcePointer = source.GetPtr();
     void* targetPointer = target.GetPtr();
 
-    while (numElements)
+    while (uiNumElements)
     {
 
       *reinterpret_cast<ezInt8*>(targetPointer) = ezMath::ColorFloatToSignedByte(*reinterpret_cast<const float*>(sourcePointer));
 
       sourcePointer = ezMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
       targetPointer = ezMemoryUtils::AddByteOffset(targetPointer, targetStride);
-      numElements--;
+      uiNumElements--;
     }
 
     return EZ_SUCCESS;
@@ -670,11 +670,11 @@ public:
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 numElements, ezImageFormat::Enum sourceFormat,
+  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 uiNumElements, ezImageFormat::Enum sourceFormat,
     ezImageFormat::Enum targetFormat) const override
   {
     // Work with single channels instead of pixels
-    numElements *= ezImageFormat::GetBitsPerPixel(targetFormat) / 32;
+    uiNumElements *= ezImageFormat::GetBitsPerPixel(targetFormat) / 32;
 
     ezUInt32 sourceStride = 1;
     ezUInt32 targetStride = 4;
@@ -682,13 +682,13 @@ public:
     const void* sourcePointer = source.GetPtr();
     void* targetPointer = target.GetPtr();
 
-    while (numElements)
+    while (uiNumElements)
     {
       *reinterpret_cast<float*>(targetPointer) = ezMath::ColorByteToFloat(*reinterpret_cast<const ezUInt8*>(sourcePointer));
 
       sourcePointer = ezMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
       targetPointer = ezMemoryUtils::AddByteOffset(targetPointer, targetStride);
-      numElements--;
+      uiNumElements--;
     }
 
     return EZ_SUCCESS;
@@ -706,7 +706,7 @@ public:
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 numElements, ezImageFormat::Enum sourceFormat,
+  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 uiNumElements, ezImageFormat::Enum sourceFormat,
     ezImageFormat::Enum targetFormat) const override
   {
     ezUInt32 sourceStride = 4;
@@ -715,13 +715,13 @@ public:
     const void* sourcePointer = source.GetPtr();
     void* targetPointer = target.GetPtr();
 
-    while (numElements)
+    while (uiNumElements)
     {
       *reinterpret_cast<ezColor*>(targetPointer) = *reinterpret_cast<const ezColorGammaUB*>(sourcePointer);
 
       sourcePointer = ezMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
       targetPointer = ezMemoryUtils::AddByteOffset(targetPointer, targetStride);
-      numElements--;
+      uiNumElements--;
     }
 
     return EZ_SUCCESS;
@@ -742,11 +742,11 @@ public:
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 numElements, ezImageFormat::Enum sourceFormat,
+  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 uiNumElements, ezImageFormat::Enum sourceFormat,
     ezImageFormat::Enum targetFormat) const override
   {
     // Work with single channels instead of pixels
-    numElements *= ezImageFormat::GetBitsPerPixel(targetFormat) / 32;
+    uiNumElements *= ezImageFormat::GetBitsPerPixel(targetFormat) / 32;
 
     ezUInt32 sourceStride = 2;
     ezUInt32 targetStride = 4;
@@ -754,13 +754,13 @@ public:
     const void* sourcePointer = source.GetPtr();
     void* targetPointer = target.GetPtr();
 
-    while (numElements)
+    while (uiNumElements)
     {
       *reinterpret_cast<float*>(targetPointer) = ezMath::ColorShortToFloat(*reinterpret_cast<const ezUInt16*>(sourcePointer));
 
       sourcePointer = ezMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
       targetPointer = ezMemoryUtils::AddByteOffset(targetPointer, targetStride);
-      numElements--;
+      uiNumElements--;
     }
 
     return EZ_SUCCESS;
@@ -780,11 +780,11 @@ public:
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 numElements, ezImageFormat::Enum sourceFormat,
+  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 uiNumElements, ezImageFormat::Enum sourceFormat,
     ezImageFormat::Enum targetFormat) const override
   {
     // Work with single channels instead of pixels
-    numElements *= ezImageFormat::GetBitsPerPixel(targetFormat) / 32;
+    uiNumElements *= ezImageFormat::GetBitsPerPixel(targetFormat) / 32;
 
     ezUInt32 sourceStride = 2;
     ezUInt32 targetStride = 4;
@@ -792,13 +792,13 @@ public:
     const void* sourcePointer = source.GetPtr();
     void* targetPointer = target.GetPtr();
 
-    while (numElements)
+    while (uiNumElements)
     {
       *reinterpret_cast<float*>(targetPointer) = *reinterpret_cast<const ezFloat16*>(sourcePointer);
 
       sourcePointer = ezMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
       targetPointer = ezMemoryUtils::AddByteOffset(targetPointer, targetStride);
-      numElements--;
+      uiNumElements--;
     }
 
     return EZ_SUCCESS;
@@ -818,11 +818,11 @@ public:
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 numElements, ezImageFormat::Enum sourceFormat,
+  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 uiNumElements, ezImageFormat::Enum sourceFormat,
     ezImageFormat::Enum targetFormat) const override
   {
     // Work with single channels instead of pixels
-    numElements *= ezImageFormat::GetBitsPerPixel(targetFormat) / 32;
+    uiNumElements *= ezImageFormat::GetBitsPerPixel(targetFormat) / 32;
 
     ezUInt32 sourceStride = 1;
     ezUInt32 targetStride = 4;
@@ -830,13 +830,13 @@ public:
     const void* sourcePointer = source.GetPtr();
     void* targetPointer = target.GetPtr();
 
-    while (numElements)
+    while (uiNumElements)
     {
       *reinterpret_cast<float*>(targetPointer) = ezMath::ColorSignedByteToFloat(*reinterpret_cast<const ezInt8*>(sourcePointer));
 
       sourcePointer = ezMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
       targetPointer = ezMemoryUtils::AddByteOffset(targetPointer, targetStride);
-      numElements--;
+      uiNumElements--;
     }
 
     return EZ_SUCCESS;
@@ -859,7 +859,7 @@ public:
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 numElements, ezImageFormat::Enum sourceFormat,
+  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 uiNumElements, ezImageFormat::Enum sourceFormat,
     ezImageFormat::Enum targetFormat) const override
   {
     ezUInt32 sourceStride = ezImageFormat::GetBitsPerPixel(sourceFormat) / 8;
@@ -876,7 +876,7 @@ public:
       // Fast path for RGB -> RGBA
       const ezUInt32 elementsPerBatch = 4;
 
-      while (numElements >= elementsPerBatch)
+      while (uiNumElements >= elementsPerBatch)
       {
         ezUInt32 source0 = reinterpret_cast<const ezUInt32*>(sourcePointer)[0];
         ezUInt32 source1 = reinterpret_cast<const ezUInt32*>(sourcePointer)[1];
@@ -894,13 +894,13 @@ public:
 
         sourcePointer = ezMemoryUtils::AddByteOffset(sourcePointer, sourceStride * elementsPerBatch);
         targetPointer = ezMemoryUtils::AddByteOffset(targetPointer, targetStride * elementsPerBatch);
-        numElements -= elementsPerBatch;
+        uiNumElements -= elementsPerBatch;
       }
     }
 #endif
 
 
-    while (numElements)
+    while (uiNumElements)
     {
       // Copy existing channels
       memcpy(targetPointer, sourcePointer, numChannels);
@@ -913,7 +913,7 @@ public:
 
       sourcePointer = ezMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
       targetPointer = ezMemoryUtils::AddByteOffset(targetPointer, targetStride);
-      numElements--;
+      uiNumElements--;
     }
 
     return EZ_SUCCESS;
@@ -933,7 +933,7 @@ public:
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 numElements, ezImageFormat::Enum sourceFormat,
+  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 uiNumElements, ezImageFormat::Enum sourceFormat,
     ezImageFormat::Enum targetFormat) const override
   {
     ezUInt32 sourceStride = ezImageFormat::GetBitsPerPixel(sourceFormat) / 8;
@@ -944,7 +944,7 @@ public:
 
     const ezUInt32 numChannels = sourceStride / sizeof(float);
 
-    while (numElements)
+    while (uiNumElements)
     {
       // Copy existing channels
       memcpy(targetPointer, sourcePointer, numChannels * sizeof(float));
@@ -957,7 +957,7 @@ public:
 
       sourcePointer = ezMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
       targetPointer = ezMemoryUtils::AddByteOffset(targetPointer, targetStride);
-      numElements--;
+      uiNumElements--;
     }
 
     return EZ_SUCCESS;
@@ -1031,7 +1031,7 @@ public:
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 numElements, ezImageFormat::Enum sourceFormat,
+  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 uiNumElements, ezImageFormat::Enum sourceFormat,
     ezImageFormat::Enum targetFormat) const override
   {
     ezUInt32 sourceStride = ezImageFormat::GetBitsPerPixel(sourceFormat) / 8;
@@ -1043,7 +1043,7 @@ public:
     if (ezImageFormat::GetBitsPerPixel(sourceFormat) == 32 && ezImageFormat::GetBitsPerPixel(targetFormat) == 24)
     {
       // Fast path for RGBA -> RGB
-      while (numElements)
+      while (uiNumElements)
       {
         const ezUInt8* src = static_cast<const ezUInt8*>(sourcePointer);
         ezUInt8* dst = static_cast<ezUInt8*>(targetPointer);
@@ -1054,17 +1054,17 @@ public:
 
         sourcePointer = ezMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
         targetPointer = ezMemoryUtils::AddByteOffset(targetPointer, targetStride);
-        numElements--;
+        uiNumElements--;
       }
     }
 
-    while (numElements)
+    while (uiNumElements)
     {
       memcpy(targetPointer, sourcePointer, targetStride);
 
       sourcePointer = ezMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
       targetPointer = ezMemoryUtils::AddByteOffset(targetPointer, targetStride);
-      numElements--;
+      uiNumElements--;
     }
 
     return EZ_SUCCESS;
@@ -1083,7 +1083,7 @@ public:
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 numElements, ezImageFormat::Enum sourceFormat,
+  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 uiNumElements, ezImageFormat::Enum sourceFormat,
     ezImageFormat::Enum targetFormat) const override
   {
     ezUInt32 sourceStride = ezImageFormat::GetBitsPerPixel(sourceFormat) / 8;
@@ -1092,7 +1092,7 @@ public:
     const void* sourcePointer = source.GetPtr();
     void* targetPointer = target.GetPtr();
 
-    while (numElements)
+    while (uiNumElements)
     {
       // Adapted from DirectXMath's XMStoreFloat3PK
       ezUInt32 IValue[3];
@@ -1200,7 +1200,7 @@ public:
 
       sourcePointer = ezMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
       targetPointer = ezMemoryUtils::AddByteOffset(targetPointer, targetStride);
-      numElements--;
+      uiNumElements--;
     }
 
     return EZ_SUCCESS;
@@ -1220,7 +1220,7 @@ public:
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 numElements, ezImageFormat::Enum sourceFormat,
+  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 uiNumElements, ezImageFormat::Enum sourceFormat,
     ezImageFormat::Enum targetFormat) const override
   {
     ezUInt32 sourceStride = ezImageFormat::GetBitsPerPixel(sourceFormat) / 8;
@@ -1229,7 +1229,7 @@ public:
     const void* sourcePointer = source.GetPtr();
     void* targetPointer = target.GetPtr();
 
-    while (numElements)
+    while (uiNumElements)
     {
       const R11G11B10* pSource = reinterpret_cast<const R11G11B10*>(sourcePointer);
       ezUInt32* targetUi = reinterpret_cast<ezUInt32*>(targetPointer);
@@ -1346,7 +1346,7 @@ public:
       }
       sourcePointer = ezMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
       targetPointer = ezMemoryUtils::AddByteOffset(targetPointer, targetStride);
-      numElements--;
+      uiNumElements--;
     }
 
     return EZ_SUCCESS;
@@ -1363,7 +1363,7 @@ public:
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 numElements, ezImageFormat::Enum sourceFormat,
+  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 uiNumElements, ezImageFormat::Enum sourceFormat,
     ezImageFormat::Enum targetFormat) const override
   {
     ezUInt32 sourceStride = ezImageFormat::GetBitsPerPixel(sourceFormat) / 8;
@@ -1372,7 +1372,7 @@ public:
     const void* sourcePointer = source.GetPtr();
     void* targetPointer = target.GetPtr();
 
-    while (numElements)
+    while (uiNumElements)
     {
       ezUInt16* result = reinterpret_cast<ezUInt16*>(targetPointer);
       const R11G11B10* r11g11b10 = reinterpret_cast<const R11G11B10*>(sourcePointer);
@@ -1386,7 +1386,7 @@ public:
 
       sourcePointer = ezMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
       targetPointer = ezMemoryUtils::AddByteOffset(targetPointer, targetStride);
-      numElements--;
+      uiNumElements--;
     }
 
     return EZ_SUCCESS;

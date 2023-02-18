@@ -11,7 +11,7 @@
 
 // Since ezOpenDdlReader is implemented by deriving from ezOpenDdlParser, this tests both classes
 
-static void WriteObjectToDDL(const ezOpenDdlReaderElement* pElement, ezOpenDdlWriter& writer)
+static void WriteObjectToDDL(const ezOpenDdlReaderElement* pElement, ezOpenDdlWriter& ref_writer)
 {
   if (pElement->HasName())
   {
@@ -20,7 +20,7 @@ static void WriteObjectToDDL(const ezOpenDdlReaderElement* pElement, ezOpenDdlWr
 
   if (pElement->IsCustomType())
   {
-    writer.BeginObject(pElement->GetCustomType(), pElement->GetName(), pElement->IsNameGlobal());
+    ref_writer.BeginObject(pElement->GetCustomType(), pElement->GetName(), pElement->IsNameGlobal());
 
     ezUInt32 uiChildren = 0;
     auto pChild = pElement->GetFirstChild();
@@ -36,11 +36,11 @@ static void WriteObjectToDDL(const ezOpenDdlReaderElement* pElement, ezOpenDdlWr
         EZ_TEST_BOOL(pChild == pChild2);
       }
 
-      WriteObjectToDDL(pChild, writer);
+      WriteObjectToDDL(pChild, ref_writer);
       pChild = pChild->GetSibling();
     }
 
-    writer.EndObject();
+    ref_writer.EndObject();
 
     EZ_TEST_INT(uiChildren, pElement->GetNumChildObjects());
   }
@@ -48,59 +48,59 @@ static void WriteObjectToDDL(const ezOpenDdlReaderElement* pElement, ezOpenDdlWr
   {
     const ezOpenDdlPrimitiveType type = pElement->GetPrimitivesType();
 
-    writer.BeginPrimitiveList(type, pElement->GetName(), pElement->IsNameGlobal());
+    ref_writer.BeginPrimitiveList(type, pElement->GetName(), pElement->IsNameGlobal());
 
     switch (type)
     {
       case ezOpenDdlPrimitiveType::Bool:
-        writer.WriteBool(pElement->GetPrimitivesBool(), pElement->GetNumPrimitives());
+        ref_writer.WriteBool(pElement->GetPrimitivesBool(), pElement->GetNumPrimitives());
         break;
 
       case ezOpenDdlPrimitiveType::Int8:
-        writer.WriteInt8(pElement->GetPrimitivesInt8(), pElement->GetNumPrimitives());
+        ref_writer.WriteInt8(pElement->GetPrimitivesInt8(), pElement->GetNumPrimitives());
         break;
 
       case ezOpenDdlPrimitiveType::Int16:
-        writer.WriteInt16(pElement->GetPrimitivesInt16(), pElement->GetNumPrimitives());
+        ref_writer.WriteInt16(pElement->GetPrimitivesInt16(), pElement->GetNumPrimitives());
         break;
 
       case ezOpenDdlPrimitiveType::Int32:
-        writer.WriteInt32(pElement->GetPrimitivesInt32(), pElement->GetNumPrimitives());
+        ref_writer.WriteInt32(pElement->GetPrimitivesInt32(), pElement->GetNumPrimitives());
         break;
 
       case ezOpenDdlPrimitiveType::Int64:
-        writer.WriteInt64(pElement->GetPrimitivesInt64(), pElement->GetNumPrimitives());
+        ref_writer.WriteInt64(pElement->GetPrimitivesInt64(), pElement->GetNumPrimitives());
         break;
 
       case ezOpenDdlPrimitiveType::UInt8:
-        writer.WriteUInt8(pElement->GetPrimitivesUInt8(), pElement->GetNumPrimitives());
+        ref_writer.WriteUInt8(pElement->GetPrimitivesUInt8(), pElement->GetNumPrimitives());
         break;
 
       case ezOpenDdlPrimitiveType::UInt16:
-        writer.WriteUInt16(pElement->GetPrimitivesUInt16(), pElement->GetNumPrimitives());
+        ref_writer.WriteUInt16(pElement->GetPrimitivesUInt16(), pElement->GetNumPrimitives());
         break;
 
       case ezOpenDdlPrimitiveType::UInt32:
-        writer.WriteUInt32(pElement->GetPrimitivesUInt32(), pElement->GetNumPrimitives());
+        ref_writer.WriteUInt32(pElement->GetPrimitivesUInt32(), pElement->GetNumPrimitives());
         break;
 
       case ezOpenDdlPrimitiveType::UInt64:
-        writer.WriteUInt64(pElement->GetPrimitivesUInt64(), pElement->GetNumPrimitives());
+        ref_writer.WriteUInt64(pElement->GetPrimitivesUInt64(), pElement->GetNumPrimitives());
         break;
 
       case ezOpenDdlPrimitiveType::Float:
-        writer.WriteFloat(pElement->GetPrimitivesFloat(), pElement->GetNumPrimitives());
+        ref_writer.WriteFloat(pElement->GetPrimitivesFloat(), pElement->GetNumPrimitives());
         break;
 
       case ezOpenDdlPrimitiveType::Double:
-        writer.WriteDouble(pElement->GetPrimitivesDouble(), pElement->GetNumPrimitives());
+        ref_writer.WriteDouble(pElement->GetPrimitivesDouble(), pElement->GetNumPrimitives());
         break;
 
       case ezOpenDdlPrimitiveType::String:
       {
         for (ezUInt32 i = 0; i < pElement->GetNumPrimitives(); ++i)
         {
-          writer.WriteString(pElement->GetPrimitivesString()[i]);
+          ref_writer.WriteString(pElement->GetPrimitivesString()[i]);
         }
       }
       break;
@@ -111,14 +111,14 @@ static void WriteObjectToDDL(const ezOpenDdlReaderElement* pElement, ezOpenDdlWr
         break;
     }
 
-    writer.EndPrimitiveList();
+    ref_writer.EndPrimitiveList();
   }
 }
 
-static void WriteToDDL(const ezOpenDdlReader& doc, ezStreamWriter& output)
+static void WriteToDDL(const ezOpenDdlReader& doc, ezStreamWriter& ref_output)
 {
   ezOpenDdlWriter writer;
-  writer.SetOutputStream(&output);
+  writer.SetOutputStream(&ref_output);
   writer.SetPrimitiveTypeStringMode(ezOpenDdlWriter::TypeStringMode::Compliant);
   writer.SetFloatPrecisionMode(ezOpenDdlWriter::FloatPrecisionMode::Readable);
 
@@ -136,7 +136,7 @@ static void WriteToDDL(const ezOpenDdlReader& doc, ezStreamWriter& output)
   }
 }
 
-static void WriteToString(const ezOpenDdlReader& doc, ezStringBuilder& string)
+static void WriteToString(const ezOpenDdlReader& doc, ezStringBuilder& ref_sString)
 {
   ezContiguousMemoryStreamStorage storage;
   ezMemoryStreamWriter writer(&storage);
@@ -145,17 +145,17 @@ static void WriteToString(const ezOpenDdlReader& doc, ezStringBuilder& string)
 
   ezUInt8 term = 0;
   writer.WriteBytes(&term, 1).IgnoreResult();
-  string = (const char*)storage.GetData();
+  ref_sString = (const char*)storage.GetData();
 }
 
-static void TestEqual(const char* original, const char* recreation)
+static void TestEqual(const char* szOriginal, const char* szRecreation)
 {
   ezUInt32 uiChar = 0;
 
   do
   {
-    const ezUInt8 cOrg = original[uiChar];
-    const ezUInt8 cAlt = recreation[uiChar];
+    const ezUInt8 cOrg = szOriginal[uiChar];
+    const ezUInt8 cAlt = szRecreation[uiChar];
 
     if (cOrg != cAlt)
     {
@@ -164,7 +164,7 @@ static void TestEqual(const char* original, const char* recreation)
     }
 
     ++uiChar;
-  } while (original[uiChar - 1] != '\0');
+  } while (szOriginal[uiChar - 1] != '\0');
 }
 
 // These functions test the reader by doing a round trip from string -> reader -> writer -> string and then comparing the string to the

@@ -37,12 +37,12 @@ public:
   /// \brief Extracts the desired geometry from all objects in a world
   ///
   /// The geometry object is not cleared, so this can be called repeatedly to append more data.
-  static void ExtractWorldGeometry(MeshObjectList& objects, const ezWorld& world, ExtractionMode mode, ezTagSet* pExcludeTags = nullptr);
+  static void ExtractWorldGeometry(MeshObjectList& ref_objects, const ezWorld& world, ExtractionMode mode, ezTagSet* pExcludeTags = nullptr);
 
   /// \brief Extracts the desired geometry from a specified subset of objects in a world
   ///
   /// The geometry object is not cleared, so this can be called repeatedly to append more data.
-  static void ExtractWorldGeometry(MeshObjectList& objects, const ezWorld& world, ExtractionMode mode, const ezDeque<ezGameObjectHandle>& selection);
+  static void ExtractWorldGeometry(MeshObjectList& ref_objects, const ezWorld& world, ExtractionMode mode, const ezDeque<ezGameObjectHandle>& selection);
 
   /// \brief Writes the given geometry in .obj format to file
   static void WriteWorldGeometryToOBJ(const char* szFile, const MeshObjectList& objects, const ezMat3& mTransform);

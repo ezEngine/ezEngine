@@ -137,7 +137,7 @@ public:
   void SetName(ezStringView sName);
   void SetName(const ezHashedString& sName);
   ezStringView GetName() const;
-  bool HasName(const ezTempHashedString& name) const;
+  bool HasName(const ezTempHashedString& sName) const;
 
   /// \brief Sets the global key to identify this object. Global keys must be unique within a world.
   void SetGlobalKey(ezStringView sGlobalKey);
@@ -160,7 +160,7 @@ public:
   };
 
   /// \brief Sets the parent of this object to the given.
-  void SetParent(const ezGameObjectHandle& parent, ezGameObject::TransformPreservation preserve = TransformPreservation::PreserveGlobal);
+  void SetParent(const ezGameObjectHandle& hParent, ezGameObject::TransformPreservation preserve = TransformPreservation::PreserveGlobal);
 
   /// \brief Gets the parent of this object or nullptr if this is a top-level object.
   ezGameObject* GetParent();
@@ -169,13 +169,13 @@ public:
   const ezGameObject* GetParent() const;
 
   /// \brief Adds the given object as a child object.
-  void AddChild(const ezGameObjectHandle& child, ezGameObject::TransformPreservation preserve = TransformPreservation::PreserveGlobal);
+  void AddChild(const ezGameObjectHandle& hChild, ezGameObject::TransformPreservation preserve = TransformPreservation::PreserveGlobal);
 
   /// \brief Adds the given objects as child objects.
   void AddChildren(const ezArrayPtr<const ezGameObjectHandle>& children, ezGameObject::TransformPreservation preserve = TransformPreservation::PreserveGlobal);
 
   /// \brief Detaches the given child object from this object and makes it a top-level object.
-  void DetachChild(const ezGameObjectHandle& child, ezGameObject::TransformPreservation preserve = TransformPreservation::PreserveGlobal);
+  void DetachChild(const ezGameObjectHandle& hChild, ezGameObject::TransformPreservation preserve = TransformPreservation::PreserveGlobal);
 
   /// \brief Detaches the given child objects from this object and makes them top-level objects.
   void DetachChildren(const ezArrayPtr<const ezGameObjectHandle>& children, ezGameObject::TransformPreservation preserve = TransformPreservation::PreserveGlobal);
@@ -190,7 +190,7 @@ public:
   ConstChildIterator GetChildren() const;
 
   /// \brief Searches for a child object with the given name. Optionally traverses the entire hierarchy.
-  ezGameObject* FindChildByName(const ezTempHashedString& name, bool bRecursive = true);
+  ezGameObject* FindChildByName(const ezTempHashedString& sName, bool bRecursive = true);
 
   /// \brief Searches for a child using a path. Every path segment represents a child with a given name.
   ///
@@ -211,7 +211,7 @@ public:
   ezGameObject* SearchForChildByNameSequence(ezStringView sObjectSequence, const ezRTTI* pExpectedComponent = nullptr);
 
   /// \brief Same as SearchForChildByNameSequence but returns ALL matches, in case the given path could mean multiple objects
-  void SearchForChildrenByNameSequence(ezStringView sObjectSequence, const ezRTTI* pExpectedComponent, ezHybridArray<ezGameObject*, 8>& out_Objects);
+  void SearchForChildrenByNameSequence(ezStringView sObjectSequence, const ezRTTI* pExpectedComponent, ezHybridArray<ezGameObject*, 8>& out_objects);
 
   ezWorld* GetWorld();
   const ezWorld* GetWorld() const;
@@ -228,54 +228,54 @@ public:
   /// \note The rotation of the object itself does not affect the final global position!
   /// The local position is always in the space of the parent object. If there is no parent, local position and global position are
   /// identical.
-  void SetLocalPosition(ezVec3 position);
+  void SetLocalPosition(ezVec3 vPosition);
   ezVec3 GetLocalPosition() const;
 
-  void SetLocalRotation(ezQuat rotation);
+  void SetLocalRotation(ezQuat qRotation);
   ezQuat GetLocalRotation() const;
 
-  void SetLocalScaling(ezVec3 scaling);
+  void SetLocalScaling(ezVec3 vScaling);
   ezVec3 GetLocalScaling() const;
 
-  void SetLocalUniformScaling(float scaling);
+  void SetLocalUniformScaling(float fScaling);
   float GetLocalUniformScaling() const;
 
   ezTransform GetLocalTransform() const;
 
-  void SetGlobalPosition(const ezVec3& position);
+  void SetGlobalPosition(const ezVec3& vPosition);
   ezVec3 GetGlobalPosition() const;
 
-  void SetGlobalRotation(const ezQuat rotation);
+  void SetGlobalRotation(const ezQuat qRotation);
   ezQuat GetGlobalRotation() const;
 
-  void SetGlobalScaling(const ezVec3 scaling);
+  void SetGlobalScaling(const ezVec3 vScaling);
   ezVec3 GetGlobalScaling() const;
 
   void SetGlobalTransform(const ezTransform& transform);
   ezTransform GetGlobalTransform() const;
 
   // Simd variants of above methods
-  void SetLocalPosition(const ezSimdVec4f& position, UpdateBehaviorIfStatic updateBehavior = UpdateBehaviorIfStatic::UpdateImmediately);
+  void SetLocalPosition(const ezSimdVec4f& vPosition, UpdateBehaviorIfStatic updateBehavior = UpdateBehaviorIfStatic::UpdateImmediately);
   const ezSimdVec4f& GetLocalPositionSimd() const;
 
-  void SetLocalRotation(const ezSimdQuat& rotation, UpdateBehaviorIfStatic updateBehavior = UpdateBehaviorIfStatic::UpdateImmediately);
+  void SetLocalRotation(const ezSimdQuat& qRotation, UpdateBehaviorIfStatic updateBehavior = UpdateBehaviorIfStatic::UpdateImmediately);
   const ezSimdQuat& GetLocalRotationSimd() const;
 
-  void SetLocalScaling(const ezSimdVec4f& scaling, UpdateBehaviorIfStatic updateBehavior = UpdateBehaviorIfStatic::UpdateImmediately);
+  void SetLocalScaling(const ezSimdVec4f& vScaling, UpdateBehaviorIfStatic updateBehavior = UpdateBehaviorIfStatic::UpdateImmediately);
   const ezSimdVec4f& GetLocalScalingSimd() const;
 
-  void SetLocalUniformScaling(const ezSimdFloat& scaling, UpdateBehaviorIfStatic updateBehavior = UpdateBehaviorIfStatic::UpdateImmediately);
+  void SetLocalUniformScaling(const ezSimdFloat& fScaling, UpdateBehaviorIfStatic updateBehavior = UpdateBehaviorIfStatic::UpdateImmediately);
   ezSimdFloat GetLocalUniformScalingSimd() const;
 
   ezSimdTransform GetLocalTransformSimd() const;
 
-  void SetGlobalPosition(const ezSimdVec4f& position);
+  void SetGlobalPosition(const ezSimdVec4f& vPosition);
   const ezSimdVec4f& GetGlobalPositionSimd() const;
 
-  void SetGlobalRotation(const ezSimdQuat& rotation);
+  void SetGlobalRotation(const ezSimdQuat& qRotation);
   const ezSimdQuat& GetGlobalRotationSimd() const;
 
-  void SetGlobalScaling(const ezSimdVec4f& scaling);
+  void SetGlobalScaling(const ezSimdVec4f& vScaling);
   const ezSimdVec4f& GetGlobalScalingSimd() const;
 
   void SetGlobalTransform(const ezSimdTransform& transform);
@@ -374,16 +374,16 @@ public:
 
 
   /// \brief Sends a message to all components of this object.
-  bool SendMessage(ezMessage& msg);
+  bool SendMessage(ezMessage& ref_msg);
 
   /// \brief Sends a message to all components of this object.
-  bool SendMessage(ezMessage& msg) const;
+  bool SendMessage(ezMessage& ref_msg) const;
 
   /// \brief Sends a message to all components of this object and then recursively to all children.
-  bool SendMessageRecursive(ezMessage& msg);
+  bool SendMessageRecursive(ezMessage& ref_msg);
 
   /// \brief Sends a message to all components of this object and then recursively to all children.
-  bool SendMessageRecursive(ezMessage& msg) const;
+  bool SendMessageRecursive(ezMessage& ref_msg) const;
 
 
   /// \brief Queues the message for the given phase. The message is processed after the given delay in the corresponding phase.
@@ -415,16 +415,16 @@ public:
   ///        A projectile component sending a 'take damage event' to the hit object, would pass through itself (the projectile)
   ///        such that the handling code can detect which object was responsible for the damage (and using the ezGameObject's team-ID,
   ///        it can detect which player fired the projectile).
-  void SendEventMessage(ezMessage& msg, const ezComponent* senderComponent);
+  void SendEventMessage(ezMessage& ref_msg, const ezComponent* pSenderComponent);
 
   /// \copydoc ezGameObject::SendEventMessage()
-  void SendEventMessage(ezMessage& msg, const ezComponent* senderComponent) const;
+  void SendEventMessage(ezMessage& ref_msg, const ezComponent* pSenderComponent) const;
 
   /// \copydoc ezGameObject::SendEventMessage()
   ///
   /// \param queueType In which update phase to deliver the message.
   /// \param delay An optional delay before delivering the message.
-  void PostEventMessage(ezMessage& msg, const ezComponent* pSenderComponent, ezTime delay, ezObjectMsgQueueType::Enum queueType = ezObjectMsgQueueType::NextFrame) const;
+  void PostEventMessage(ezMessage& ref_msg, const ezComponent* pSenderComponent, ezTime delay, ezObjectMsgQueueType::Enum queueType = ezObjectMsgQueueType::NextFrame) const;
 
 
   /// \brief Returns the tag set associated with this object.
@@ -446,7 +446,7 @@ public:
   const ezUInt16& GetTeamID() const { return m_uiTeamID; }
 
   /// \brief Changes the team ID for this object and all children recursively.
-  void SetTeamID(ezUInt16 id);
+  void SetTeamID(ezUInt16 uiId);
 
   /// \brief Returns a random value that is chosen once during object creation and remains stable even throughout serialization.
   ///
@@ -466,7 +466,7 @@ public:
   /// See \a GetStableRandomSeed() for details.
   ///
   /// It should not be necessary to manually change this value, unless you want to make the seed deterministic according to a custom rule.
-  void SetStableRandomSeed(ezUInt32 seed);
+  void SetStableRandomSeed(ezUInt32 uiSeed);
 
   /// \brief Returns the number of frames since this object was last visible in any view.
   ///
@@ -572,11 +572,11 @@ private:
 
     void UpdateGlobalBounds(ezSpatialSystem* pSpatialSystem);
     void UpdateGlobalBounds();
-    void UpdateGlobalBoundsAndSpatialData(ezSpatialSystem& spatialSystem);
+    void UpdateGlobalBoundsAndSpatialData(ezSpatialSystem& ref_spatialSystem);
 
     void UpdateVelocity(const ezSimdFloat& fInvDeltaSeconds);
 
-    void RecreateSpatialData(ezSpatialSystem& spatialSystem);
+    void RecreateSpatialData(ezSpatialSystem& ref_spatialSystem);
   };
 
   ezGameObjectId m_InternalId;

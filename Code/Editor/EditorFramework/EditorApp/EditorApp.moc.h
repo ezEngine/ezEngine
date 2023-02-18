@@ -99,7 +99,7 @@ public:
   ///
   /// The applications output is parsed and forwarded to the given log interface. A custom log level is applied first.
   /// If the tool cannot be found or it takes longer to execute than the allowed timeout, the function returns failure.
-  ezStatus ExecuteTool(const char* szTool, const QStringList& arguments, ezUInt32 uiSecondsTillTimeout, ezLogInterface* pLogOutput = nullptr, ezLogMsgType::Enum LogLevel = ezLogMsgType::WarningMsg, const char* szCWD = nullptr);
+  ezStatus ExecuteTool(const char* szTool, const QStringList& arguments, ezUInt32 uiSecondsTillTimeout, ezLogInterface* pLogOutput = nullptr, ezLogMsgType::Enum logLevel = ezLogMsgType::WarningMsg, const char* szCWD = nullptr);
 
   /// \brief Creates the string with which to run Fileserve for the currently open project.
   ezString BuildFileserveCommandLine() const;
@@ -143,7 +143,7 @@ public:
   /// \brief Reads the list of last open documents in the current project.
   ezRecentFilesList LoadOpenDocumentsList();
 
-  void InitQt(int argc, char** argv);
+  void InitQt(int iArgc, char** pArgv);
   void StartupEditor();
   void StartupEditor(ezBitflags<StartupFlags> startupFlags, const char* szUserDataFolder = nullptr);
   void ShutdownEditor();
@@ -195,13 +195,13 @@ public:
 
   void SetFileSystemConfig(const ezApplicationFileSystemConfig& cfg);
 
-  bool MakeDataDirectoryRelativePathAbsolute(ezStringBuilder& sPath) const;
-  bool MakeDataDirectoryRelativePathAbsolute(ezString& sPath) const;
-  bool MakePathDataDirectoryRelative(ezStringBuilder& sPath) const;
-  bool MakePathDataDirectoryRelative(ezString& sPath) const;
+  bool MakeDataDirectoryRelativePathAbsolute(ezStringBuilder& ref_sPath) const;
+  bool MakeDataDirectoryRelativePathAbsolute(ezString& ref_sPath) const;
+  bool MakePathDataDirectoryRelative(ezStringBuilder& ref_sPath) const;
+  bool MakePathDataDirectoryRelative(ezString& ref_sPath) const;
 
-  bool MakePathDataDirectoryParentRelative(ezStringBuilder& sPath) const;
-  bool MakeParentDataDirectoryRelativePathAbsolute(ezStringBuilder& sPath, bool bCheckExists) const;
+  bool MakePathDataDirectoryParentRelative(ezStringBuilder& ref_sPath) const;
+  bool MakeParentDataDirectoryRelativePathAbsolute(ezStringBuilder& ref_sPath, bool bCheckExists) const;
 
   ezStatus SaveTagRegistry();
 

@@ -15,7 +15,7 @@ template <typename ObjectProperties>
 class ezSimpleDocumentObjectManager : public ezDocumentObjectManager
 {
 public:
-  virtual void GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& Types) const override { Types.PushBack(ezGetStaticRTTI<ObjectProperties>()); }
+  virtual void GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& ref_types) const override { ref_types.PushBack(ezGetStaticRTTI<ObjectProperties>()); }
 };
 
 template <typename PropertyType, typename BaseClass = ezAssetDocument>

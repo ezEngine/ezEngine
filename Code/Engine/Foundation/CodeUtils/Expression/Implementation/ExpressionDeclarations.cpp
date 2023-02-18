@@ -38,20 +38,20 @@ const char* RegisterType::GetName(Enum registerType)
 
 //////////////////////////////////////////////////////////////////////////
 
-ezResult StreamDesc::Serialize(ezStreamWriter& stream) const
+ezResult StreamDesc::Serialize(ezStreamWriter& inout_stream) const
 {
-  stream << m_sName;
-  stream << static_cast<ezUInt8>(m_DataType);
+  inout_stream << m_sName;
+  inout_stream << static_cast<ezUInt8>(m_DataType);
 
   return EZ_SUCCESS;
 }
 
-ezResult StreamDesc::Deserialize(ezStreamReader& stream)
+ezResult StreamDesc::Deserialize(ezStreamReader& inout_stream)
 {
-  stream >> m_sName;
+  inout_stream >> m_sName;
 
   ezUInt8 dataType = 0;
-  stream >> dataType;
+  inout_stream >> dataType;
   m_DataType = static_cast<ezProcessingStream::DataType>(dataType);
 
   return EZ_SUCCESS;
@@ -73,22 +73,22 @@ bool FunctionDesc::operator<(const FunctionDesc& other) const
   return m_InputTypes.GetArrayPtr() < other.m_InputTypes.GetArrayPtr();
 }
 
-ezResult FunctionDesc::Serialize(ezStreamWriter& stream) const
+ezResult FunctionDesc::Serialize(ezStreamWriter& inout_stream) const
 {
-  stream << m_sName;
-  EZ_SUCCEED_OR_RETURN(stream.WriteArray(m_InputTypes));
-  stream << m_uiNumRequiredInputs;
-  stream << m_OutputType;
+  inout_stream << m_sName;
+  EZ_SUCCEED_OR_RETURN(inout_stream.WriteArray(m_InputTypes));
+  inout_stream << m_uiNumRequiredInputs;
+  inout_stream << m_OutputType;
 
   return EZ_SUCCESS;
 }
 
-ezResult FunctionDesc::Deserialize(ezStreamReader& stream)
+ezResult FunctionDesc::Deserialize(ezStreamReader& inout_stream)
 {
-  stream >> m_sName;
-  EZ_SUCCEED_OR_RETURN(stream.ReadArray(m_InputTypes));
-  stream >> m_uiNumRequiredInputs;
-  stream >> m_OutputType;
+  inout_stream >> m_sName;
+  EZ_SUCCEED_OR_RETURN(inout_stream.ReadArray(m_InputTypes));
+  inout_stream >> m_uiNumRequiredInputs;
+  inout_stream >> m_OutputType;
 
   return EZ_SUCCESS;
 }

@@ -461,9 +461,9 @@ ezResult ezQtContainerWindow::EnsureVisibleAnyContainer(ezDocument* pDocument)
   return EZ_FAILURE;
 }
 
-void ezQtContainerWindow::GetDocumentWindows(ezHybridArray<ezQtDocumentWindow*, 16>& windows)
+void ezQtContainerWindow::GetDocumentWindows(ezHybridArray<ezQtDocumentWindow*, 16>& ref_windows)
 {
-  windows = m_DocumentWindows;
+  ref_windows = m_DocumentWindows;
 }
 
 bool ezQtContainerWindow::eventFilter(QObject* obj, QEvent* e)

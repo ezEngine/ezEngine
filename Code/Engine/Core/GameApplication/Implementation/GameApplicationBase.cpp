@@ -33,11 +33,11 @@ ezGameApplicationBase::~ezGameApplicationBase()
   s_pGameApplicationBaseInstance = nullptr;
 }
 
-void AppendCurrentTimestamp(ezStringBuilder& out_String)
+void AppendCurrentTimestamp(ezStringBuilder& out_sString)
 {
   const ezDateTime dt = ezTimestamp::CurrentTimestamp();
 
-  out_String.AppendFormat("_{0}-{1}-{2}_{3}-{4}-{5}-{6}", dt.GetYear(), ezArgU(dt.GetMonth(), 2, true), ezArgU(dt.GetDay(), 2, true), ezArgU(dt.GetHour(), 2, true), ezArgU(dt.GetMinute(), 2, true), ezArgU(dt.GetSecond(), 2, true), ezArgU(dt.GetMicroseconds() / 1000, 3, true));
+  out_sString.AppendFormat("_{0}-{1}-{2}_{3}-{4}-{5}-{6}", dt.GetYear(), ezArgU(dt.GetMonth(), 2, true), ezArgU(dt.GetDay(), 2, true), ezArgU(dt.GetHour(), 2, true), ezArgU(dt.GetMinute(), 2, true), ezArgU(dt.GetSecond(), 2, true), ezArgU(dt.GetMicroseconds() / 1000, 3, true));
 }
 
 void ezGameApplicationBase::TakeProfilingCapture()
@@ -143,9 +143,9 @@ void ezGameApplicationBase::CaptureFrame()
   m_bCaptureFrame = true;
 }
 
-void ezGameApplicationBase::SetContinuousFrameCapture(bool enable)
+void ezGameApplicationBase::SetContinuousFrameCapture(bool bEnable)
 {
-  m_bContinuousFrameCapture = enable;
+  m_bContinuousFrameCapture = bEnable;
 }
 
 bool ezGameApplicationBase::GetContinousFrameCapture() const
@@ -154,11 +154,11 @@ bool ezGameApplicationBase::GetContinousFrameCapture() const
 }
 
 
-ezResult ezGameApplicationBase::GetAbsFrameCaptureOutputPath(ezStringBuilder& sOutputPath)
+ezResult ezGameApplicationBase::GetAbsFrameCaptureOutputPath(ezStringBuilder& ref_sOutputPath)
 {
   ezStringBuilder sPath = ":appdata/FrameCaptures/Capture_";
   AppendCurrentTimestamp(sPath);
-  return ezFileSystem::ResolvePath(sPath, &sOutputPath, nullptr);
+  return ezFileSystem::ResolvePath(sPath, &ref_sOutputPath, nullptr);
 }
 
 void ezGameApplicationBase::ExecuteFrameCapture(ezWindowHandle targetWindowHandle, const char* szContext /*= nullptr*/)

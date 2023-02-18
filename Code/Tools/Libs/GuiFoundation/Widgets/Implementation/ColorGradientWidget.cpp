@@ -68,45 +68,45 @@ void ezQtColorGradientWidget::SetScrubberPosition(double fPosition)
   update();
 }
 
-void ezQtColorGradientWidget::setColorGradientData(const ezColorGradient* gradient)
+void ezQtColorGradientWidget::setColorGradientData(const ezColorGradient* pGradient)
 {
-  m_pColorGradientData = gradient;
+  m_pColorGradientData = pGradient;
   FrameExtents();
 
   update();
 }
 
 
-void ezQtColorGradientWidget::setEditMode(bool edit)
+void ezQtColorGradientWidget::setEditMode(bool bEdit)
 {
-  m_bEditMode = edit;
+  m_bEditMode = bEdit;
 
   setMouseTracking(m_bEditMode);
   setCursor(m_bEditMode ? Qt::ArrowCursor : Qt::PointingHandCursor);
 }
 
-void ezQtColorGradientWidget::setShowColorCPs(bool show)
+void ezQtColorGradientWidget::setShowColorCPs(bool bShow)
 {
-  m_bShowColorCPs = show;
+  m_bShowColorCPs = bShow;
 }
 
 
-void ezQtColorGradientWidget::setShowAlphaCPs(bool show)
+void ezQtColorGradientWidget::setShowAlphaCPs(bool bShow)
 {
-  m_bShowAlphaCPs = show;
+  m_bShowAlphaCPs = bShow;
 }
 
 
-void ezQtColorGradientWidget::setShowIntensityCPs(bool show)
+void ezQtColorGradientWidget::setShowIntensityCPs(bool bShow)
 {
-  m_bShowIntensityCPs = show;
+  m_bShowIntensityCPs = bShow;
 }
 
 
-void ezQtColorGradientWidget::setShowCoords(bool top, bool bottom)
+void ezQtColorGradientWidget::setShowCoords(bool bTop, bool bBottom)
 {
-  m_bShowCoordsTop = top;
-  m_bShowCoordsBottom = bottom;
+  m_bShowCoordsTop = bTop;
+  m_bShowCoordsBottom = bBottom;
 }
 
 void ezQtColorGradientWidget::ClearSelectedCP()
@@ -114,7 +114,7 @@ void ezQtColorGradientWidget::ClearSelectedCP()
   SelectCP(-1, -1, -1);
 }
 
-void ezQtColorGradientWidget::SelectCP(ezInt32 colorCP, ezInt32 alphaCP, ezInt32 intensityCP)
+void ezQtColorGradientWidget::SelectCP(ezInt32 iColorCP, ezInt32 iAlphaCP, ezInt32 iIntensityCP)
 {
   m_bDraggingCP = false;
 
@@ -126,21 +126,21 @@ void ezQtColorGradientWidget::SelectCP(ezInt32 colorCP, ezInt32 alphaCP, ezInt32
 
   bool changed = false;
 
-  if (colorCP != m_iSelectedColorCP)
+  if (iColorCP != m_iSelectedColorCP)
   {
-    m_iSelectedColorCP = colorCP;
+    m_iSelectedColorCP = iColorCP;
     changed = true;
   }
 
-  if (alphaCP != m_iSelectedAlphaCP)
+  if (iAlphaCP != m_iSelectedAlphaCP)
   {
-    m_iSelectedAlphaCP = alphaCP;
+    m_iSelectedAlphaCP = iAlphaCP;
     changed = true;
   }
 
-  if (intensityCP != m_iSelectedIntensityCP)
+  if (iIntensityCP != m_iSelectedIntensityCP)
   {
-    m_iSelectedIntensityCP = intensityCP;
+    m_iSelectedIntensityCP = iIntensityCP;
     changed = true;
   }
 

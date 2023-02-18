@@ -5,22 +5,22 @@
 namespace
 {
   // https://docs.microsoft.com/en-us/windows/win32/medfound/recommended-8-bit-yuv-formats-for-video-rendering#converting-8-bit-yuv-to-rgb888
-  ezVec3I32 RGB2YUV(ezVec3I32 rgb)
+  ezVec3I32 RGB2YUV(ezVec3I32 vRgb)
   {
     ezVec3I32 yuv;
-    yuv.x = ((66 * rgb.x + 129 * rgb.y + 25 * rgb.z + 128) >> 8) + 16;
-    yuv.y = ((-38 * rgb.x - 74 * rgb.y + 112 * rgb.z + 128) >> 8) + 128;
-    yuv.z = ((112 * rgb.x - 94 * rgb.y - 18 * rgb.z + 128) >> 8) + 128;
+    yuv.x = ((66 * vRgb.x + 129 * vRgb.y + 25 * vRgb.z + 128) >> 8) + 16;
+    yuv.y = ((-38 * vRgb.x - 74 * vRgb.y + 112 * vRgb.z + 128) >> 8) + 128;
+    yuv.z = ((112 * vRgb.x - 94 * vRgb.y - 18 * vRgb.z + 128) >> 8) + 128;
     return yuv;
   }
 
-  ezVec3I32 YUV2RGB(ezVec3I32 yuv)
+  ezVec3I32 YUV2RGB(ezVec3I32 vYuv)
   {
     ezVec3I32 rgb;
 
-    ezInt32 C = yuv.x - 16;
-    ezInt32 D = yuv.y - 128;
-    ezInt32 E = yuv.z - 128;
+    ezInt32 C = vYuv.x - 16;
+    ezInt32 D = vYuv.y - 128;
+    ezInt32 E = vYuv.z - 128;
 
     rgb.x = ezMath::Clamp((298 * C + 409 * E + 128) >> 8, 0, 255);
     rgb.y = ezMath::Clamp((298 * C - 100 * D - 208 * E + 128) >> 8, 0, 255);
@@ -39,10 +39,10 @@ struct ezImageConversion_NV12_sRGB : public ezImageConversionStepDeplanarize
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezArrayPtr<ezImageView> source, ezImage target, ezUInt32 numPixelsX, ezUInt32 numPixelsY, ezImageFormat::Enum sourceFormat,
+  virtual ezResult ConvertPixels(ezArrayPtr<ezImageView> source, ezImage target, ezUInt32 uiNumPixelsX, ezUInt32 uiNumPixelsY, ezImageFormat::Enum sourceFormat,
     ezImageFormat::Enum targetFormat) const override
   {
-    for (ezUInt32 y = 0; y < numPixelsY; y += 2)
+    for (ezUInt32 y = 0; y < uiNumPixelsY; y += 2)
     {
       const ezUInt8* luma0 = source[0].GetPixelPointer<ezUInt8>(0, 0, 0, 0, y);
       const ezUInt8* luma1 = source[0].GetPixelPointer<ezUInt8>(0, 0, 0, 0, y + 1);
@@ -51,7 +51,7 @@ struct ezImageConversion_NV12_sRGB : public ezImageConversionStepDeplanarize
       ezUInt8* rgba0 = target.GetPixelPointer<ezUInt8>(0, 0, 0, 0, y);
       ezUInt8* rgba1 = target.GetPixelPointer<ezUInt8>(0, 0, 0, 0, y + 1);
 
-      for (ezUInt32 x = 0; x < numPixelsX; x += 2)
+      for (ezUInt32 x = 0; x < uiNumPixelsX; x += 2)
       {
         ezVec3I32 p00 = YUV2RGB(ezVec3I32(luma0[0], chroma[0], chroma[1]));
         ezVec3I32 p01 = YUV2RGB(ezVec3I32(luma0[1], chroma[0], chroma[1]));
@@ -99,10 +99,10 @@ struct ezImageConversion_sRGB_NV12 : public ezImageConversionStepPlanarize
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(const ezImageView& source, ezArrayPtr<ezImage> target, ezUInt32 numPixelsX, ezUInt32 numPixelsY, ezImageFormat::Enum sourceFormat,
+  virtual ezResult ConvertPixels(const ezImageView& source, ezArrayPtr<ezImage> target, ezUInt32 uiNumPixelsX, ezUInt32 uiNumPixelsY, ezImageFormat::Enum sourceFormat,
     ezImageFormat::Enum targetFormat) const override
   {
-    for (ezUInt32 y = 0; y < numPixelsY; y += 2)
+    for (ezUInt32 y = 0; y < uiNumPixelsY; y += 2)
     {
       const ezUInt8* rgba0 = source.GetPixelPointer<ezUInt8>(0, 0, 0, 0, y);
       const ezUInt8* rgba1 = source.GetPixelPointer<ezUInt8>(0, 0, 0, 0, y + 1);
@@ -111,7 +111,7 @@ struct ezImageConversion_sRGB_NV12 : public ezImageConversionStepPlanarize
       ezUInt8* luma1 = target[0].GetPixelPointer<ezUInt8>(0, 0, 0, 0, y + 1);
       ezUInt8* chroma = target[1].GetPixelPointer<ezUInt8>(0, 0, 0, 0, y / 2);
 
-      for (ezUInt32 x = 0; x < numPixelsX; x += 2)
+      for (ezUInt32 x = 0; x < uiNumPixelsX; x += 2)
       {
         ezVec3I32 p00 = RGB2YUV(ezVec3I32(rgba0[0], rgba0[1], rgba0[2]));
         ezVec3I32 p01 = RGB2YUV(ezVec3I32(rgba0[4], rgba0[5], rgba0[6]));

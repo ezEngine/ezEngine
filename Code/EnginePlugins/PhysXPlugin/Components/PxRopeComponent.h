@@ -41,8 +41,8 @@ class EZ_PHYSXPLUGIN_DLL ezPxRopeComponent : public ezPxComponent
   // ezComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
   virtual void OnSimulationStarted() override;
   virtual void OnActivated() override;
@@ -73,8 +73,8 @@ public:
   void SetAnchorReference(const char* szReference); // [ property ]
   void SetAnchor(ezGameObjectHandle hActor);
 
-  void AddForceAtPos(ezMsgPhysicsAddForce& msg);
-  void AddImpulseAtPos(ezMsgPhysicsAddImpulse& msg);
+  void AddForceAtPos(ezMsgPhysicsAddForce& ref_msg);
+  void AddImpulseAtPos(ezMsgPhysicsAddImpulse& ref_msg);
 
 private:
   void CreateRope();

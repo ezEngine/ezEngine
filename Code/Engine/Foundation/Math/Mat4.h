@@ -23,8 +23,8 @@ public:
   /// \brief The matrix as a 16-element Type array (column-major)
   Type m_fElementsCM[16];
 
-  EZ_ALWAYS_INLINE Type& Element(ezInt32 column, ezInt32 row) { return m_fElementsCM[column * 4 + row]; }
-  EZ_ALWAYS_INLINE Type Element(ezInt32 column, ezInt32 row) const { return m_fElementsCM[column * 4 + row]; }
+  EZ_ALWAYS_INLINE Type& Element(ezInt32 iColumn, ezInt32 iRow) { return m_fElementsCM[iColumn * 4 + iRow]; }
+  EZ_ALWAYS_INLINE Type Element(ezInt32 iColumn, ezInt32 iRow) const { return m_fElementsCM[iColumn * 4 + iRow]; }
 
   // *** Constructors ***
 public:
@@ -45,7 +45,7 @@ public:
     Type c1r4, Type c2r4, Type c3r4, Type c4r4); // [tested]
 
   /// \brief Creates a transformation matrix from a rotation and a translation.
-  ezMat4Template(const ezMat3Template<Type>& Rotation, const ezVec3Template<Type>& vTranslation); // [tested]
+  ezMat4Template(const ezMat3Template<Type>& mRotation, const ezVec3Template<Type>& vTranslation); // [tested]
 
 #if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
   void AssertNotNaN() const
@@ -73,7 +73,7 @@ public:
     Type c1r4, Type c2r4, Type c3r4, Type c4r4); // [tested]
 
   /// \brief Sets a transformation matrix from a rotation and a translation.
-  void SetTransformationMatrix(const ezMat3Template<Type>& Rotation, const ezVec3Template<Type>& vTranslation); // [tested]
+  void SetTransformationMatrix(const ezMat3Template<Type>& mRotation, const ezVec3Template<Type>& vTranslation); // [tested]
 
   // *** Special matrix constructors ***
 public:
@@ -141,19 +141,19 @@ public:
   ezVec4Template<Type> GetRow(ezUInt32 uiRow) const; // [tested]
 
   /// \brief Sets all 4 components of the i-th row.
-  void SetRow(ezUInt32 uiRow, const ezVec4Template<Type>& row); // [tested]
+  void SetRow(ezUInt32 uiRow, const ezVec4Template<Type>& vRow); // [tested]
 
   /// \brief Returns all 4 components of the i-th column.
   ezVec4Template<Type> GetColumn(ezUInt32 uiColumn) const; // [tested]
 
   /// \brief Sets all 4 components of the i-th column.
-  void SetColumn(ezUInt32 uiColumn, const ezVec4Template<Type>& column); // [tested]
+  void SetColumn(ezUInt32 uiColumn, const ezVec4Template<Type>& vColumn); // [tested]
 
   /// \brief Returns all 4 components on the diagonal of the matrix.
   ezVec4Template<Type> GetDiagonal() const; // [tested]
 
   /// \brief Sets all 4 components on the diagonal of the matrix.
-  void SetDiagonal(const ezVec4Template<Type>& diag); // [tested]
+  void SetDiagonal(const ezVec4Template<Type>& vDiag); // [tested]
 
   /// \brief Returns the first 3 components of the last column.
   const ezVec3Template<Type> GetTranslationVector() const; // [tested]
@@ -162,7 +162,7 @@ public:
   void SetTranslationVector(const ezVec3Template<Type>& v); // [tested]
 
   /// \brief Sets the 3x3 rotational part of the matrix.
-  void SetRotationalPart(const ezMat3Template<Type>& Rotation); // [tested]
+  void SetRotationalPart(const ezMat3Template<Type>& mRotation); // [tested]
 
   /// \brief Returns the 3x3 rotational and scaling part of the matrix.
   const ezMat3Template<Type> GetRotationalPart() const; // [tested]
@@ -180,7 +180,7 @@ public:
   const ezVec3Template<Type> TransformPosition(const ezVec3Template<Type>& v) const; // [tested]
 
   /// \brief Matrix-vector multiplication, assuming the 4th component of the vector is one (default behavior).
-  void TransformPosition(ezVec3Template<Type>* inout_v, ezUInt32 uiNumVectors, ezUInt32 uiStride = sizeof(ezVec3Template<Type>)) const; // [tested]
+  void TransformPosition(ezVec3Template<Type>* pV, ezUInt32 uiNumVectors, ezUInt32 uiStride = sizeof(ezVec3Template<Type>)) const; // [tested]
 
   /// \brief Matrix-vector multiplication, assuming the 4th component of the vector is zero. So, rotation/scaling only. Useful as an
   /// optimization.
@@ -188,13 +188,13 @@ public:
 
   /// \brief Matrix-vector multiplication, assuming the 4th component of the vector is zero. So, rotation/scaling only. Useful as an
   /// optimization.
-  void TransformDirection(ezVec3Template<Type>* inout_v, ezUInt32 uiNumVectors, ezUInt32 uiStride = sizeof(ezVec3Template<Type>)) const; // [tested]
+  void TransformDirection(ezVec3Template<Type>* pV, ezUInt32 uiNumVectors, ezUInt32 uiStride = sizeof(ezVec3Template<Type>)) const; // [tested]
 
   /// \brief Matrix-vector multiplication.
   const ezVec4Template<Type> Transform(const ezVec4Template<Type>& v) const; // [tested]
 
   /// \brief Matrix-vector multiplication.
-  void Transform(ezVec4Template<Type>* inout_v, ezUInt32 uiNumVectors, ezUInt32 uiStride = sizeof(ezVec4Template<Type>)) const; // [tested]
+  void Transform(ezVec4Template<Type>* pV, ezUInt32 uiNumVectors, ezUInt32 uiStride = sizeof(ezVec4Template<Type>)) const; // [tested]
 
   /// \brief Component-wise multiplication (commutative)
   void operator*=(Type f); // [tested]

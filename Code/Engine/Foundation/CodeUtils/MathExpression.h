@@ -25,7 +25,7 @@ public:
   /// \brief Reinitializes using the given expression.
   ///
   /// An empty string or nullptr are considered to be 'invalid' expressions.
-  void Reset(ezStringView szExpressionString);
+  void Reset(ezStringView sExpressionString);
 
   /// Whether the expression is valid and can be evaluated.
   bool IsValid() const { return m_bIsValid; }

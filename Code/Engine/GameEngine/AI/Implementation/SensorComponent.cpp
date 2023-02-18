@@ -45,10 +45,10 @@ EZ_END_ABSTRACT_COMPONENT_TYPE
 ezSensorComponent::ezSensorComponent() = default;
 ezSensorComponent::~ezSensorComponent() = default;
 
-void ezSensorComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezSensorComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
-  auto& s = stream.GetStream();
+  SUPER::SerializeComponent(inout_stream);
+  auto& s = inout_stream.GetStream();
 
   s << m_sSpatialCategory;
   s << m_bTestVisibility;
@@ -58,11 +58,11 @@ void ezSensorComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_Color;
 }
 
-void ezSensorComponent::DeserializeComponent(ezWorldReader& stream)
+void ezSensorComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
+  SUPER::DeserializeComponent(inout_stream);
   // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s >> m_sSpatialCategory;
   s >> m_bTestVisibility;
@@ -205,24 +205,24 @@ EZ_END_COMPONENT_TYPE
 ezSensorSphereComponent::ezSensorSphereComponent() = default;
 ezSensorSphereComponent::~ezSensorSphereComponent() = default;
 
-void ezSensorSphereComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezSensorSphereComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
-  auto& s = stream.GetStream();
+  SUPER::SerializeComponent(inout_stream);
+  auto& s = inout_stream.GetStream();
 
   s << m_fRadius;
 }
 
-void ezSensorSphereComponent::DeserializeComponent(ezWorldReader& stream)
+void ezSensorSphereComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
+  SUPER::DeserializeComponent(inout_stream);
   // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s >> m_fRadius;
 }
 
-void ezSensorSphereComponent::GetObjectsInSensorVolume(ezDynamicArray<ezGameObject*>& out_Objects) const
+void ezSensorSphereComponent::GetObjectsInSensorVolume(ezDynamicArray<ezGameObject*>& out_objects) const
 {
   const ezGameObject* pOwner = GetOwner();
 
@@ -241,7 +241,7 @@ void ezSensorSphereComponent::GetObjectsInSensorVolume(ezDynamicArray<ezGameObje
 
     if (bInRadius)
     {
-      out_Objects.PushBack(pObject);
+      out_objects.PushBack(pObject);
     }
 
     return ezVisitorExecution::Continue; });
@@ -277,26 +277,26 @@ EZ_END_COMPONENT_TYPE
 ezSensorCylinderComponent::ezSensorCylinderComponent() = default;
 ezSensorCylinderComponent::~ezSensorCylinderComponent() = default;
 
-void ezSensorCylinderComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezSensorCylinderComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
-  auto& s = stream.GetStream();
+  SUPER::SerializeComponent(inout_stream);
+  auto& s = inout_stream.GetStream();
 
   s << m_fRadius;
   s << m_fHeight;
 }
 
-void ezSensorCylinderComponent::DeserializeComponent(ezWorldReader& stream)
+void ezSensorCylinderComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
+  SUPER::DeserializeComponent(inout_stream);
   // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s >> m_fRadius;
   s >> m_fHeight;
 }
 
-void ezSensorCylinderComponent::GetObjectsInSensorVolume(ezDynamicArray<ezGameObject*>& out_Objects) const
+void ezSensorCylinderComponent::GetObjectsInSensorVolume(ezDynamicArray<ezGameObject*>& out_objects) const
 {
   const ezGameObject* pOwner = GetOwner();
 
@@ -320,7 +320,7 @@ void ezSensorCylinderComponent::GetObjectsInSensorVolume(ezDynamicArray<ezGameOb
 
     if (bInRadius && bInHeight)
     {
-      out_Objects.PushBack(pObject);
+      out_objects.PushBack(pObject);
     }
 
     return ezVisitorExecution::Continue; });
@@ -360,28 +360,28 @@ EZ_END_COMPONENT_TYPE
 ezSensorConeComponent::ezSensorConeComponent() = default;
 ezSensorConeComponent::~ezSensorConeComponent() = default;
 
-void ezSensorConeComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezSensorConeComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
-  auto& s = stream.GetStream();
+  SUPER::SerializeComponent(inout_stream);
+  auto& s = inout_stream.GetStream();
 
   s << m_fNearDistance;
   s << m_fFarDistance;
   s << m_Angle;
 }
 
-void ezSensorConeComponent::DeserializeComponent(ezWorldReader& stream)
+void ezSensorConeComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
+  SUPER::DeserializeComponent(inout_stream);
   // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s >> m_fNearDistance;
   s >> m_fFarDistance;
   s >> m_Angle;
 }
 
-void ezSensorConeComponent::GetObjectsInSensorVolume(ezDynamicArray<ezGameObject*>& out_Objects) const
+void ezSensorConeComponent::GetObjectsInSensorVolume(ezDynamicArray<ezGameObject*>& out_objects) const
 {
   const ezGameObject* pOwner = GetOwner();
 
@@ -406,7 +406,7 @@ void ezSensorConeComponent::GetObjectsInSensorVolume(ezDynamicArray<ezGameObject
 
     if (bInDistance && bInAngle)
     {
-      out_Objects.PushBack(pObject);
+      out_objects.PushBack(pObject);
     }
 
     return ezVisitorExecution::Continue; });

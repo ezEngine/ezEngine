@@ -30,15 +30,15 @@ namespace ezMemoryPolicies
       return OffsetPtr(ptr);
     }
 
-    EZ_FORCE_INLINE void* Reallocate(void* currentPtr, size_t uiCurrentSize, size_t uiNewSize, size_t uiAlign)
+    EZ_FORCE_INLINE void* Reallocate(void* pCurrentPtr, size_t uiCurrentSize, size_t uiNewSize, size_t uiAlign)
     {
-      void* ptr = realloc(RestorePtr(currentPtr), PadSize(uiNewSize));
+      void* ptr = realloc(RestorePtr(pCurrentPtr), PadSize(uiNewSize));
       EZ_CHECK_ALIGNMENT(ptr, uiAlign);
 
       return OffsetPtr(ptr);
     }
 
-    EZ_ALWAYS_INLINE void Deallocate(void* ptr) { free(RestorePtr(ptr)); }
+    EZ_ALWAYS_INLINE void Deallocate(void* pPtr) { free(RestorePtr(pPtr)); }
 
     EZ_ALWAYS_INLINE ezAllocatorBase* GetParent() const { return nullptr; }
 

@@ -38,15 +38,15 @@ VertexColorTask::VertexColorTask()
 
 VertexColorTask::~VertexColorTask() = default;
 
-void VertexColorTask::Prepare(const ezWorld& world, const ezMeshBufferResourceDescriptor& mbDesc, const ezTransform& transform, ezArrayPtr<ezSharedPtr<const VertexColorOutput>> outputs, ezArrayPtr<ezProcVertexColorMapping> outputMappings, ezArrayPtr<ezUInt32> outputVertexColors)
+void VertexColorTask::Prepare(const ezWorld& world, const ezMeshBufferResourceDescriptor& desc, const ezTransform& transform, ezArrayPtr<ezSharedPtr<const VertexColorOutput>> outputs, ezArrayPtr<ezProcVertexColorMapping> outputMappings, ezArrayPtr<ezUInt32> outputVertexColors)
 {
   EZ_PROFILE_SCOPE("VertexColorPrepare");
 
   m_InputVertices.Clear();
-  m_InputVertices.Reserve(mbDesc.GetVertexCount());
+  m_InputVertices.Reserve(desc.GetVertexCount());
 
-  const ezVertexDeclarationInfo& vdi = mbDesc.GetVertexDeclaration();
-  const ezUInt8* pRawVertexData = mbDesc.GetVertexBufferData().GetPtr();
+  const ezVertexDeclarationInfo& vdi = desc.GetVertexDeclaration();
+  const ezUInt8* pRawVertexData = desc.GetVertexBufferData().GetPtr();
 
   const float* pPositions = nullptr;
   const ezUInt8* pNormals = nullptr;
@@ -100,10 +100,10 @@ void VertexColorTask::Prepare(const ezWorld& world, const ezMeshBufferResourceDe
   normalTransform.Invert(0.0f).IgnoreResult();
   normalTransform.Transpose();
 
-  const ezUInt32 uiElementStride = mbDesc.GetVertexDataSize();
+  const ezUInt32 uiElementStride = desc.GetVertexDataSize();
 
   // write out all vertices
-  for (ezUInt32 i = 0; i < mbDesc.GetVertexCount(); ++i)
+  for (ezUInt32 i = 0; i < desc.GetVertexCount(); ++i)
   {
     ezMeshBufferUtils::DecodeNormal(ezMakeArrayPtr(pNormals, sizeof(ezVec3)), normalFormat, vNormal).IgnoreResult();
 

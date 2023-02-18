@@ -17,8 +17,8 @@
 
 bool ezQtExportProjectDlg::s_bTransformAll = true;
 
-ezQtExportProjectDlg::ezQtExportProjectDlg(QWidget* parent)
-  : QDialog(parent)
+ezQtExportProjectDlg::ezQtExportProjectDlg(QWidget* pParent)
+  : QDialog(pParent)
 {
   setupUi(this);
 

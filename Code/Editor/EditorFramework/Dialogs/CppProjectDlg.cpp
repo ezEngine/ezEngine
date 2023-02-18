@@ -7,8 +7,8 @@
 #include <Foundation/IO/OSFile.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 
-ezQtCppProjectDlg::ezQtCppProjectDlg(QWidget* parent)
-  : QDialog(parent)
+ezQtCppProjectDlg::ezQtCppProjectDlg(QWidget* pParent)
+  : QDialog(pParent)
 {
   setupUi(this);
 

@@ -274,7 +274,7 @@ ezStatus ezCollisionMeshAssetDocument::CreateMeshFromGeom(ezGeometry& geom, ezPh
   return ezStatus(EZ_SUCCESS);
 }
 
-ezStatus ezCollisionMeshAssetDocument::WriteToStream(ezChunkStreamWriter& stream, const ezPhysXCookingMesh& mesh, const ezCollisionMeshAssetProperties* pProp)
+ezStatus ezCollisionMeshAssetDocument::WriteToStream(ezChunkStreamWriter& inout_stream, const ezPhysXCookingMesh& mesh, const ezCollisionMeshAssetProperties* pProp)
 {
   ezHybridArray<ezString, 32> surfaces;
 
@@ -297,7 +297,7 @@ ezStatus ezCollisionMeshAssetDocument::WriteToStream(ezChunkStreamWriter& stream
     }
   }
 
-  return ezPhysXCooking::WriteResourceToStream(stream, mesh, surfaces, meshType, pProp->m_uiMaxConvexPieces);
+  return ezPhysXCooking::WriteResourceToStream(inout_stream, mesh, surfaces, meshType, pProp->m_uiMaxConvexPieces);
 }
 
 ezTransformStatus ezCollisionMeshAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo)
@@ -333,13 +333,13 @@ ezCollisionMeshAssetDocumentGenerator::ezCollisionMeshAssetDocumentGenerator()
 
 ezCollisionMeshAssetDocumentGenerator::~ezCollisionMeshAssetDocumentGenerator() = default;
 
-void ezCollisionMeshAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
+void ezCollisionMeshAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_modes) const
 {
   ezStringBuilder baseOutputFile = szParentDirRelativePath;
   baseOutputFile.ChangeFileExtension("ezCollisionMeshAsset");
 
   {
-    ezAssetDocumentGenerator::Info& info = out_Modes.ExpandAndGetRef();
+    ezAssetDocumentGenerator::Info& info = out_modes.ExpandAndGetRef();
     info.m_Priority = ezAssetDocGeneratorPriority::DefaultPriority;
     info.m_sName = "Collision Mesh";
     info.m_sOutputFileParentRelative = baseOutputFile;
@@ -381,13 +381,13 @@ ezConvexCollisionMeshAssetDocumentGenerator::ezConvexCollisionMeshAssetDocumentG
 
 ezConvexCollisionMeshAssetDocumentGenerator::~ezConvexCollisionMeshAssetDocumentGenerator() = default;
 
-void ezConvexCollisionMeshAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
+void ezConvexCollisionMeshAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_modes) const
 {
   ezStringBuilder baseOutputFile = szParentDirRelativePath;
   baseOutputFile.ChangeFileExtension("ezConvexCollisionMeshAsset");
 
   {
-    ezAssetDocumentGenerator::Info& info = out_Modes.ExpandAndGetRef();
+    ezAssetDocumentGenerator::Info& info = out_modes.ExpandAndGetRef();
     info.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
     info.m_sName = "Collision Mesh (Convex)";
     info.m_sOutputFileParentRelative = baseOutputFile;

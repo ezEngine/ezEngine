@@ -14,7 +14,7 @@ struct RtsMouseInputState
   bool m_bLeftMouseMoved = false;
   bool m_bRightMouseMoved = false;
 
-  static bool HasMouseMoved(ezVec2U32 start, ezVec2U32 now);
+  static bool HasMouseMoved(ezVec2U32 vStart, ezVec2U32 vNow);
 };
 
 class RtsGameMode
@@ -25,7 +25,7 @@ public:
 
   void ActivateMode(ezWorld* pMainWorld, ezViewHandle hView, ezCamera* pMainCamera);
   void DeactivateMode();
-  void ProcessInput(const RtsMouseInputState& MouseInput);
+  void ProcessInput(const RtsMouseInputState& mouseInput);
   void BeforeWorldUpdate();
 
   //////////////////////////////////////////////////////////////////////////
@@ -57,7 +57,7 @@ protected:
   //////////////////////////////////////////////////////////////////////////
   // User Interface
 public:
-  static ezColor GetTeamColor(ezUInt16 iTeam);
+  static ezColor GetTeamColor(ezUInt16 uiTeam);
 
 
 protected:

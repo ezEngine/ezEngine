@@ -11,9 +11,9 @@ bool ezQtExtractGeometryDlg::s_bOnlySelection = false;
 int ezQtExtractGeometryDlg::s_iExtractionMode = (int)ezWorldGeoExtractionUtil::ExtractionMode::RenderMesh;
 int ezQtExtractGeometryDlg::s_iCoordinateSystem = 1;
 
-ezQtExtractGeometryDlg::ezQtExtractGeometryDlg(QWidget* parent)
+ezQtExtractGeometryDlg::ezQtExtractGeometryDlg(QWidget* pParent)
 
-  : QDialog(parent)
+  : QDialog(pParent)
 {
   setupUi(this);
 

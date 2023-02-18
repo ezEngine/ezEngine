@@ -34,21 +34,21 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezPxShapeSphereComponent::ezPxShapeSphereComponent() = default;
 ezPxShapeSphereComponent::~ezPxShapeSphereComponent() = default;
 
-void ezPxShapeSphereComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezPxShapeSphereComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
   s << m_fRadius;
 }
 
-void ezPxShapeSphereComponent::DeserializeComponent(ezWorldReader& stream)
+void ezPxShapeSphereComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
   s >> m_fRadius;
 }
 

@@ -22,7 +22,7 @@ class ezGALDeviceDX11;
 class EZ_RENDERERDX11_DLL ezGALCommandEncoderImplDX11 : public ezGALCommandEncoderCommonPlatformInterface, public ezGALCommandEncoderRenderPlatformInterface, public ezGALCommandEncoderComputePlatformInterface
 {
 public:
-  ezGALCommandEncoderImplDX11(ezGALDeviceDX11& deviceDX11);
+  ezGALCommandEncoderImplDX11(ezGALDeviceDX11& ref_deviceDX11);
   ~ezGALCommandEncoderImplDX11();
 
   // ezGALCommandEncoderCommonPlatformInterface
@@ -31,15 +31,15 @@ public:
   virtual void SetShaderPlatform(const ezGALShader* pShader) override;
 
   virtual void SetConstantBufferPlatform(ezUInt32 uiSlot, const ezGALBuffer* pBuffer) override;
-  virtual void SetSamplerStatePlatform(ezGALShaderStage::Enum Stage, ezUInt32 uiSlot, const ezGALSamplerState* pSamplerState) override;
-  virtual void SetResourceViewPlatform(ezGALShaderStage::Enum Stage, ezUInt32 uiSlot, const ezGALResourceView* pResourceView) override;
+  virtual void SetSamplerStatePlatform(ezGALShaderStage::Enum stage, ezUInt32 uiSlot, const ezGALSamplerState* pSamplerState) override;
+  virtual void SetResourceViewPlatform(ezGALShaderStage::Enum stage, ezUInt32 uiSlot, const ezGALResourceView* pResourceView) override;
   virtual void SetUnorderedAccessViewPlatform(ezUInt32 uiSlot, const ezGALUnorderedAccessView* pUnorderedAccessView) override;
 
   // Query functions
 
   virtual void BeginQueryPlatform(const ezGALQuery* pQuery) override;
   virtual void EndQueryPlatform(const ezGALQuery* pQuery) override;
-  virtual ezResult GetQueryResultPlatform(const ezGALQuery* pQuery, ezUInt64& uiQueryResult) override;
+  virtual ezResult GetQueryResultPlatform(const ezGALQuery* pQuery, ezUInt64& ref_uiQueryResult) override;
 
   // Timestamp functions
 
@@ -47,26 +47,26 @@ public:
 
   // Resource update functions
 
-  virtual void ClearUnorderedAccessViewPlatform(const ezGALUnorderedAccessView* pUnorderedAccessView, ezVec4 clearValues) override;
-  virtual void ClearUnorderedAccessViewPlatform(const ezGALUnorderedAccessView* pUnorderedAccessView, ezVec4U32 clearValues) override;
+  virtual void ClearUnorderedAccessViewPlatform(const ezGALUnorderedAccessView* pUnorderedAccessView, ezVec4 vClearValues) override;
+  virtual void ClearUnorderedAccessViewPlatform(const ezGALUnorderedAccessView* pUnorderedAccessView, ezVec4U32 vClearValues) override;
 
   virtual void CopyBufferPlatform(const ezGALBuffer* pDestination, const ezGALBuffer* pSource) override;
   virtual void CopyBufferRegionPlatform(const ezGALBuffer* pDestination, ezUInt32 uiDestOffset, const ezGALBuffer* pSource, ezUInt32 uiSourceOffset, ezUInt32 uiByteCount) override;
 
-  virtual void UpdateBufferPlatform(const ezGALBuffer* pDestination, ezUInt32 uiDestOffset, ezArrayPtr<const ezUInt8> pSourceData, ezGALUpdateMode::Enum updateMode) override;
+  virtual void UpdateBufferPlatform(const ezGALBuffer* pDestination, ezUInt32 uiDestOffset, ezArrayPtr<const ezUInt8> sourceData, ezGALUpdateMode::Enum updateMode) override;
 
   virtual void CopyTexturePlatform(const ezGALTexture* pDestination, const ezGALTexture* pSource) override;
-  virtual void CopyTextureRegionPlatform(const ezGALTexture* pDestination, const ezGALTextureSubresource& DestinationSubResource, const ezVec3U32& DestinationPoint, const ezGALTexture* pSource, const ezGALTextureSubresource& SourceSubResource, const ezBoundingBoxu32& Box) override;
+  virtual void CopyTextureRegionPlatform(const ezGALTexture* pDestination, const ezGALTextureSubresource& destinationSubResource, const ezVec3U32& vDestinationPoint, const ezGALTexture* pSource, const ezGALTextureSubresource& sourceSubResource, const ezBoundingBoxu32& box) override;
 
-  virtual void UpdateTexturePlatform(const ezGALTexture* pDestination, const ezGALTextureSubresource& DestinationSubResource,
-    const ezBoundingBoxu32& DestinationBox, const ezGALSystemMemoryDescription& pSourceData) override;
+  virtual void UpdateTexturePlatform(const ezGALTexture* pDestination, const ezGALTextureSubresource& destinationSubResource,
+    const ezBoundingBoxu32& destinationBox, const ezGALSystemMemoryDescription& sourceData) override;
 
-  virtual void ResolveTexturePlatform(const ezGALTexture* pDestination, const ezGALTextureSubresource& DestinationSubResource,
-    const ezGALTexture* pSource, const ezGALTextureSubresource& SourceSubResource) override;
+  virtual void ResolveTexturePlatform(const ezGALTexture* pDestination, const ezGALTextureSubresource& destinationSubResource,
+    const ezGALTexture* pSource, const ezGALTextureSubresource& sourceSubResource) override;
 
   virtual void ReadbackTexturePlatform(const ezGALTexture* pTexture) override;
 
-  virtual void CopyTextureReadbackResultPlatform(const ezGALTexture* pTexture, ezArrayPtr<ezGALTextureSubresource> SourceSubResource, ezArrayPtr<ezGALSystemMemoryDescription> TargetData) override;
+  virtual void CopyTextureReadbackResultPlatform(const ezGALTexture* pTexture, ezArrayPtr<ezGALTextureSubresource> sourceSubResource, ezArrayPtr<ezGALSystemMemoryDescription> targetData) override;
 
   virtual void GenerateMipMapsPlatform(const ezGALResourceView* pResourceView) override;
 
@@ -87,7 +87,7 @@ public:
 
   // Draw functions
 
-  virtual void ClearPlatform(const ezColor& ClearColor, ezUInt32 uiRenderTargetClearMask, bool bClearDepth, bool bClearStencil, float fDepthClear, ezUInt8 uiStencilClear) override;
+  virtual void ClearPlatform(const ezColor& clearColor, ezUInt32 uiRenderTargetClearMask, bool bClearDepth, bool bClearStencil, float fDepthClear, ezUInt8 uiStencilClear) override;
 
   virtual void DrawPlatform(ezUInt32 uiVertexCount, ezUInt32 uiStartVertex) override;
   virtual void DrawIndexedPlatform(ezUInt32 uiIndexCount, ezUInt32 uiStartIndex) override;
@@ -105,9 +105,9 @@ public:
   virtual void SetIndexBufferPlatform(const ezGALBuffer* pIndexBuffer) override;
   virtual void SetVertexBufferPlatform(ezUInt32 uiSlot, const ezGALBuffer* pVertexBuffer) override;
   virtual void SetVertexDeclarationPlatform(const ezGALVertexDeclaration* pVertexDeclaration) override;
-  virtual void SetPrimitiveTopologyPlatform(ezGALPrimitiveTopology::Enum Topology) override;
+  virtual void SetPrimitiveTopologyPlatform(ezGALPrimitiveTopology::Enum topology) override;
 
-  virtual void SetBlendStatePlatform(const ezGALBlendState* pBlendState, const ezColor& BlendFactor, ezUInt32 uiSampleMask) override;
+  virtual void SetBlendStatePlatform(const ezGALBlendState* pBlendState, const ezColor& blendFactor, ezUInt32 uiSampleMask) override;
   virtual void SetDepthStencilStatePlatform(const ezGALDepthStencilState* pDepthStencilState, ezUInt8 uiStencilRefValue) override;
   virtual void SetRasterizerStatePlatform(const ezGALRasterizerState* pRasterizerState) override;
 

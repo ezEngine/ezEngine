@@ -20,7 +20,7 @@ public:
   ezDrawBoxGizmo();
   ~ezDrawBoxGizmo();
 
-  void GetResult(ezVec3& out_Origin, float& out_fSizeNegX, float& out_fSizePosX, float& out_fSizeNegY, float& out_fSizePosY, float& out_fSizeNegZ,
+  void GetResult(ezVec3& out_vOrigin, float& out_fSizeNegX, float& out_fSizePosX, float& out_fSizeNegY, float& out_fSizePosY, float& out_fSizeNegZ,
     float& out_fSizePosZ) const;
 
   ManipulateMode GetCurrentMode() const { return m_ManipulateMode; }

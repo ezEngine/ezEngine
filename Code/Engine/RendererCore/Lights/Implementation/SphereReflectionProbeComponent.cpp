@@ -138,22 +138,22 @@ void ezSphereReflectionProbeComponent::OnTransformChanged(ezMsgTransformChanged&
   m_bStatesDirty = true;
 }
 
-void ezSphereReflectionProbeComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezSphereReflectionProbeComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 
-  ezStreamWriter& s = stream.GetStream();
+  ezStreamWriter& s = inout_stream.GetStream();
 
   s << m_fRadius;
   s << m_fFalloff;
   s << m_bSphereProjection;
 }
 
-void ezSphereReflectionProbeComponent::DeserializeComponent(ezWorldReader& stream)
+void ezSphereReflectionProbeComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  ezStreamReader& s = stream.GetStream();
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  ezStreamReader& s = inout_stream.GetStream();
 
   s >> m_fRadius;
   s >> m_fFalloff;
@@ -182,7 +182,7 @@ public:
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
     pNode->AddProperty("SphereProjection", false);
   }

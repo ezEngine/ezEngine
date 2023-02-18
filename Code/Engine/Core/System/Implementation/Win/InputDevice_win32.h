@@ -12,7 +12,7 @@ public:
   ~ezStandardInputDevice();
 
   /// \brief This function needs to be called by all Windows functions, to pass the input information through to this input device.
-  void WindowMessage(ezMinWindows::HWND hWnd, ezMinWindows::UINT Msg, ezMinWindows::WPARAM wParam, ezMinWindows::LPARAM lParam);
+  void WindowMessage(ezMinWindows::HWND pWnd, ezMinWindows::UINT msg, ezMinWindows::WPARAM wparam, ezMinWindows::LPARAM lparam);
 
   /// \brief Calling this function will 'translate' most key names from English to the OS language, by querying that information
   /// from the OS.

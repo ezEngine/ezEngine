@@ -28,5 +28,5 @@ class EZ_ENGINEPLUGINSCENE_DLL ezSceneExportModifier_RemoveShapeIconComponents :
   EZ_ADD_DYNAMIC_REFLECTION(ezSceneExportModifier_RemoveShapeIconComponents, ezSceneExportModifier);
 
 public:
-  virtual void ModifyWorld(ezWorld& world, const ezUuid& documentGuid, bool bForExport) override;
+  virtual void ModifyWorld(ezWorld& ref_world, const ezUuid& documentGuid, bool bForExport) override;
 };

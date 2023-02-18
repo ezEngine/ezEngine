@@ -365,7 +365,7 @@ void ezParticleSystemInstance::Destruct()
   m_StreamInfo.Clear();
 }
 
-ezParticleSystemState::Enum ezParticleSystemInstance::Update(const ezTime& tDiff)
+ezParticleSystemState::Enum ezParticleSystemInstance::Update(const ezTime& diff)
 {
   EZ_PROFILE_SCOPE("PFX: System Update");
 
@@ -381,7 +381,7 @@ ezParticleSystemState::Enum ezParticleSystemInstance::Update(const ezTime& tDiff
       if (pEmitter->IsFinished() == ezParticleEmitterState::Active)
       {
         bAllEmittersInactive = false;
-        const ezUInt32 uiSpawn = pEmitter->ComputeSpawnCount(tDiff);
+        const ezUInt32 uiSpawn = pEmitter->ComputeSpawnCount(diff);
 
         if (uiSpawn > 0)
         {
@@ -410,7 +410,7 @@ ezParticleSystemState::Enum ezParticleSystemInstance::Update(const ezTime& tDiff
       {
         bHasReactingEmitters = true;
 
-        const ezUInt32 uiSpawn = pEmitter->ComputeSpawnCount(tDiff);
+        const ezUInt32 uiSpawn = pEmitter->ComputeSpawnCount(diff);
 
         if (uiSpawn > 0)
         {
@@ -426,7 +426,7 @@ ezParticleSystemState::Enum ezParticleSystemInstance::Update(const ezTime& tDiff
     EZ_PROFILE_SCOPE("PFX: System Step Behaviors");
     for (auto pBehavior : m_Behaviors)
     {
-      pBehavior->StepParticleSystem(tDiff, uiSpawnedParticles);
+      pBehavior->StepParticleSystem(diff, uiSpawnedParticles);
     }
   }
 
@@ -434,7 +434,7 @@ ezParticleSystemState::Enum ezParticleSystemInstance::Update(const ezTime& tDiff
     EZ_PROFILE_SCOPE("PFX: System Step Finalizers");
     for (auto pFinalizer : m_Finalizers)
     {
-      pFinalizer->StepParticleSystem(tDiff, uiSpawnedParticles);
+      pFinalizer->StepParticleSystem(diff, uiSpawnedParticles);
     }
   }
 
@@ -442,7 +442,7 @@ ezParticleSystemState::Enum ezParticleSystemInstance::Update(const ezTime& tDiff
     EZ_PROFILE_SCOPE("PFX: System Step Types");
     for (auto pType : m_Types)
     {
-      pType->StepParticleSystem(tDiff, uiSpawnedParticles);
+      pType->StepParticleSystem(diff, uiSpawnedParticles);
     }
   }
 
@@ -461,27 +461,27 @@ ezParticleSystemState::Enum ezParticleSystemInstance::Update(const ezTime& tDiff
   return bHasReactingEmitters ? ezParticleSystemState::OnlyReacting : ezParticleSystemState::Inactive;
 }
 
-ezProcessingStream* ezParticleSystemInstance::QueryStream(const char* szName, ezProcessingStream::DataType Type) const
+ezProcessingStream* ezParticleSystemInstance::QueryStream(const char* szName, ezProcessingStream::DataType type) const
 {
   ezStringBuilder fullName;
-  ezParticleStreamFactory::GetFullStreamName(szName, Type, fullName);
+  ezParticleStreamFactory::GetFullStreamName(szName, type, fullName);
 
   return m_StreamGroup.GetStreamByName(fullName);
 }
 
-void ezParticleSystemInstance::CreateStream(const char* szName, ezProcessingStream::DataType Type, ezProcessingStream** ppStream, ezParticleStreamBinding& binding, bool bWillInitializeElements)
+void ezParticleSystemInstance::CreateStream(const char* szName, ezProcessingStream::DataType type, ezProcessingStream** pStream, ezParticleStreamBinding& inout_binding, bool bWillInitializeElements)
 {
-  EZ_ASSERT_DEV(ppStream != nullptr, "The pointer to the stream pointer must not be null");
+  EZ_ASSERT_DEV(pStream != nullptr, "The pointer to the stream pointer must not be null");
 
   ezStringBuilder fullName;
-  ezParticleStreamFactory::GetFullStreamName(szName, Type, fullName);
+  ezParticleStreamFactory::GetFullStreamName(szName, type, fullName);
 
   StreamInfo* pInfo = nullptr;
 
-  ezProcessingStream* pStream = m_StreamGroup.GetStreamByName(fullName);
-  if (pStream == nullptr)
+  ezProcessingStream* pSubStream = m_StreamGroup.GetStreamByName(fullName);
+  if (pSubStream == nullptr)
   {
-    pStream = m_StreamGroup.AddStream(fullName, Type);
+    pSubStream = m_StreamGroup.AddStream(fullName, type);
 
     pInfo = &m_StreamInfo.ExpandAndGetRef();
     pInfo->m_sName = fullName;
@@ -504,12 +504,12 @@ void ezParticleSystemInstance::CreateStream(const char* szName, ezProcessingStre
   if (bWillInitializeElements)
     pInfo->m_bGetsInitialized = true;
 
-  EZ_ASSERT_DEV(pStream != nullptr, "Stream creation failed ('{0}' -> '{1}')", szName, fullName);
-  *ppStream = pStream;
+  EZ_ASSERT_DEV(pSubStream != nullptr, "Stream creation failed ('{0}' -> '{1}')", szName, fullName);
+  *pStream = pSubStream;
 
   {
-    auto& bind = binding.m_Bindings.ExpandAndGetRef();
-    bind.m_ppStream = ppStream;
+    auto& bind = inout_binding.m_Bindings.ExpandAndGetRef();
+    bind.m_ppStream = pStream;
     bind.m_sName = fullName;
   }
 }
@@ -592,11 +592,11 @@ ezParticleWorldModule* ezParticleSystemInstance::GetOwnerWorldModule() const
   return m_pOwnerEffect->GetOwnerWorldModule();
 }
 
-void ezParticleSystemInstance::ExtractSystemRenderData(ezMsgExtractRenderData& msg, const ezTransform& instanceTransform) const
+void ezParticleSystemInstance::ExtractSystemRenderData(ezMsgExtractRenderData& ref_msg, const ezTransform& instanceTransform) const
 {
   for (auto pType : m_Types)
   {
-    pType->ExtractTypeRenderData(msg, instanceTransform);
+    pType->ExtractTypeRenderData(ref_msg, instanceTransform);
   }
 }
 

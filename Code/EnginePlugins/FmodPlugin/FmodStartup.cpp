@@ -71,22 +71,22 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Fmod, FmodPlugin)
 EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
-void ezFmodConfiguration::Save(ezOpenDdlWriter& ddl) const
+void ezFmodConfiguration::Save(ezOpenDdlWriter& ref_ddl) const
 {
-  ezOpenDdlUtils::StoreString(ddl, m_sMasterSoundBank, "MasterBank");
-  ezOpenDdlUtils::StoreUInt16(ddl, m_uiVirtualChannels, "VirtualChannels");
-  ezOpenDdlUtils::StoreUInt32(ddl, m_uiSamplerRate, "SamplerRate");
+  ezOpenDdlUtils::StoreString(ref_ddl, m_sMasterSoundBank, "MasterBank");
+  ezOpenDdlUtils::StoreUInt16(ref_ddl, m_uiVirtualChannels, "VirtualChannels");
+  ezOpenDdlUtils::StoreUInt32(ref_ddl, m_uiSamplerRate, "SamplerRate");
 
   switch (m_SpeakerMode)
   {
     case ezFmodSpeakerMode::ModeStereo:
-      ezOpenDdlUtils::StoreString(ddl, "Stereo", "Mode");
+      ezOpenDdlUtils::StoreString(ref_ddl, "Stereo", "Mode");
       break;
     case ezFmodSpeakerMode::Mode5Point1:
-      ezOpenDdlUtils::StoreString(ddl, "5.1", "Mode");
+      ezOpenDdlUtils::StoreString(ref_ddl, "5.1", "Mode");
       break;
     case ezFmodSpeakerMode::Mode7Point1:
-      ezOpenDdlUtils::StoreString(ddl, "7.1", "Mode");
+      ezOpenDdlUtils::StoreString(ref_ddl, "7.1", "Mode");
       break;
   }
 }

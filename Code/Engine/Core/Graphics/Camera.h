@@ -45,10 +45,10 @@ public:
   /// \brief Allows to specify a different coordinate system in which the camera input and output coordinates are given.
   ///
   /// The default in z is forward = PositiveX, right = PositiveY, Up = PositiveZ.
-  void SetCoordinateSystem(ezBasisAxis::Enum forwardAxis, ezBasisAxis::Enum rightAxis, ezBasisAxis::Enum upAxis);
+  void SetCoordinateSystem(ezBasisAxis::Enum forwardAxis, ezBasisAxis::Enum rightAxis, ezBasisAxis::Enum axis);
 
   /// \brief Allows to specify a full ezCoordinateSystemProvider to determine forward/right/up vectors for camera movement
-  void SetCoordinateSystem(const ezSharedPtr<ezCoordinateSystemProvider>& provider);
+  void SetCoordinateSystem(const ezSharedPtr<ezCoordinateSystemProvider>& pProvider);
 
   /// \brief Returns the position of the camera that should be used for rendering etc.
   ezVec3 GetPosition(ezCameraEye eye = ezCameraEye::Left) const;
@@ -112,7 +112,7 @@ public:
   ///
   /// \param fFovOrDim
   ///   Fov X/Y in degree or width/height (depending on Mode).
-  void SetCameraMode(ezCameraMode::Enum Mode, float fFovOrDim, float fNearPlane, float fFarPlane);
+  void SetCameraMode(ezCameraMode::Enum mode, float fFovOrDim, float fNearPlane, float fFarPlane);
 
   /// Sets the camera mode to stereo and specifies projection matrices directly.
   ///
@@ -157,13 +157,13 @@ public:
   ///
   /// Rotate around \a rightAxis for looking up/down. \forwardAxis is roll. For turning left/right use RotateGlobally().
   /// Not supported for stereo cameras.
-  void RotateLocally(ezAngle forwardAxis, ezAngle rightAxis, ezAngle upAxis);
+  void RotateLocally(ezAngle forwardAxis, ezAngle rightAxis, ezAngle axis);
 
   /// \brief Rotates the camera around the forward, right and up axis of the coordinate system in global space.
   ///
   /// Rotate around Z for turning the camera left/right.
   /// Not supported for stereo cameras.
-  void RotateGlobally(ezAngle forwardAxis, ezAngle rightAxis, ezAngle upAxis);
+  void RotateGlobally(ezAngle forwardAxis, ezAngle rightAxis, ezAngle axis);
 
   /// \brief Returns the view matrix for the given eye.
   ///
@@ -174,7 +174,7 @@ public:
   ///
   /// If the camera is stereo and the given aspect ratio is close to the aspect ratio passed in SetStereoProjection,
   /// the matrix set in SetStereoProjection will be used.
-  void GetProjectionMatrix(float fAspectRatioWidthDivHeight, ezMat4& out_projectionMatrix, ezCameraEye eye = ezCameraEye::Left,
+  void GetProjectionMatrix(float fAspectRatioWidthDivHeight, ezMat4& out_mProjectionMatrix, ezCameraEye eye = ezCameraEye::Left,
     ezClipSpaceDepthRange::Enum depthRange = ezClipSpaceDepthRange::Default) const;
 
   float GetExposure() const;

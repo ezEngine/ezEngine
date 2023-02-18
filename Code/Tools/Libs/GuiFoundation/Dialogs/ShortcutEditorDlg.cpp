@@ -7,8 +7,8 @@
 #include <QTableWidget>
 #include <QTreeWidget>
 
-ezQtShortcutEditorDlg::ezQtShortcutEditorDlg(QWidget* parent)
-  : QDialog(parent)
+ezQtShortcutEditorDlg::ezQtShortcutEditorDlg(QWidget* pParent)
+  : QDialog(pParent)
 {
   setupUi(this);
 

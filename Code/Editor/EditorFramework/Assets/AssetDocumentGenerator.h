@@ -48,16 +48,16 @@ public:
 
   static void ImportAssets();
   static void ImportAssets(const ezHybridArray<ezString, 16>& filesToImport);
-  static void ExecuteImport(ezDynamicArray<ezAssetDocumentGenerator::ImportData>& allImports);
+  static void ExecuteImport(ezDynamicArray<ezAssetDocumentGenerator::ImportData>& ref_allImports);
 
-  virtual void GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const = 0;
+  virtual void GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_modes) const = 0;
   virtual ezStatus Generate(const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& mode, ezDocument*& out_pGeneratedDocument) = 0;
   virtual const char* GetDocumentExtension() const = 0;
   virtual const char* GetGeneratorGroup() const = 0;
 
   bool SupportsFileType(const char* szFile) const;
-  void BuildFileDialogFilterString(ezStringBuilder& out_Filter) const;
-  void AppendFileFilterStrings(ezStringBuilder& out_Filter, bool& semicolon) const;
+  void BuildFileDialogFilterString(ezStringBuilder& out_sFilter) const;
+  void AppendFileFilterStrings(ezStringBuilder& out_sFilter, bool& ref_bSemicolon) const;
 
 protected:
   void AddSupportedFileType(const char* szExtension);

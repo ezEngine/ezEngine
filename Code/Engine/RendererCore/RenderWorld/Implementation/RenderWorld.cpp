@@ -329,16 +329,16 @@ void ezRenderWorld::DeleteCachedRenderData(const ezGameObjectHandle& hOwnerObjec
   }
 }
 
-void ezRenderWorld::ResetRenderDataCache(ezView& view)
+void ezRenderWorld::ResetRenderDataCache(ezView& ref_view)
 {
-  view.m_pRenderDataCache->m_PerObjectCaches.Clear();
-  view.m_pRenderDataCache->m_NewEntriesCount = 0;
+  ref_view.m_pRenderDataCache->m_PerObjectCaches.Clear();
+  ref_view.m_pRenderDataCache->m_NewEntriesCount = 0;
 
-  if (view.GetWorld() != nullptr)
+  if (ref_view.GetWorld() != nullptr)
   {
-    if (view.GetWorld()->GetObjectDeletionEvent().HasEventHandler(&ezRenderWorld::DeleteCachedRenderDataForObject) == false)
+    if (ref_view.GetWorld()->GetObjectDeletionEvent().HasEventHandler(&ezRenderWorld::DeleteCachedRenderDataForObject) == false)
     {
-      view.GetWorld()->GetObjectDeletionEvent().AddEventHandler(&ezRenderWorld::DeleteCachedRenderDataForObject);
+      ref_view.GetWorld()->GetObjectDeletionEvent().AddEventHandler(&ezRenderWorld::DeleteCachedRenderDataForObject);
     }
   }
 }

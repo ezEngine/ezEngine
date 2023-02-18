@@ -44,7 +44,7 @@ namespace ezStateMachineInternal
     void Destruct(const ezByteBlobPtr& blobPtr) const;
 
     ezBlob AllocateAndConstruct() const;
-    void DestructAndDeallocate(ezBlob& blob) const;
+    void DestructAndDeallocate(ezBlob& ref_blob) const;
 
     ezUInt32 GetTotalDataSize() const { return m_uiTotalDataSize; }
 
@@ -85,9 +85,9 @@ namespace ezStateMachineInternal
       }
     };
 
-    EZ_ALWAYS_INLINE void* GetSubInstanceData(InstanceData* pData, ezUInt32 index) const
+    EZ_ALWAYS_INLINE void* GetSubInstanceData(InstanceData* pData, ezUInt32 uiIndex) const
     {
-      return pData != nullptr ? m_InstanceDataAllocator.GetInstanceData(pData->GetBlobPtr(), m_InstanceDataOffsets[index]) : nullptr;
+      return pData != nullptr ? m_InstanceDataAllocator.GetInstanceData(pData->GetBlobPtr(), m_InstanceDataOffsets[uiIndex]) : nullptr;
     }
 
     EZ_FORCE_INLINE void Initialize(InstanceData* pData) const

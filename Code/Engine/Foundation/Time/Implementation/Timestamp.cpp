@@ -92,12 +92,12 @@ ezDateTime::ezDateTime(ezTimestamp timestamp)
   SetTimestamp(timestamp);
 }
 
-ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezDateTime& arg)
+ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezDateTime& arg)
 {
-  ezStringUtils::snprintf(tmp, uiLength, "%04u-%02u-%02u_%02u-%02u-%02u-%03u", arg.GetYear(), arg.GetMonth(), arg.GetDay(), arg.GetHour(),
+  ezStringUtils::snprintf(szTmp, uiLength, "%04u-%02u-%02u_%02u-%02u-%02u-%03u", arg.GetYear(), arg.GetMonth(), arg.GetDay(), arg.GetHour(),
     arg.GetMinute(), arg.GetSecond(), arg.GetMicroseconds() / 1000);
 
-  return tmp;
+  return szTmp;
 }
 
 namespace
@@ -167,7 +167,7 @@ namespace
   }
 } // namespace
 
-ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezArgDateTime& arg)
+ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezArgDateTime& arg)
 {
   const ezDateTime& dateTime = arg.m_Value;
 
@@ -178,12 +178,12 @@ ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezArgDateTime& arg)
     if ((arg.m_uiFormattingFlags & ezArgDateTime::TextualDate) == ezArgDateTime::TextualDate)
     {
       offset += ezStringUtils::snprintf(
-        tmp + offset, uiLength - offset, "%04u %s %02u", dateTime.GetYear(), ::GetMonthShortName(dateTime), dateTime.GetDay());
+        szTmp + offset, uiLength - offset, "%04u %s %02u", dateTime.GetYear(), ::GetMonthShortName(dateTime), dateTime.GetDay());
     }
     else
     {
       offset +=
-        ezStringUtils::snprintf(tmp + offset, uiLength - offset, "%04u-%02u-%02u", dateTime.GetYear(), dateTime.GetMonth(), dateTime.GetDay());
+        ezStringUtils::snprintf(szTmp + offset, uiLength - offset, "%04u-%02u-%02u", dateTime.GetYear(), dateTime.GetMonth(), dateTime.GetDay());
     }
   }
 
@@ -192,12 +192,12 @@ ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezArgDateTime& arg)
     // add a space
     if (offset != 0)
     {
-      tmp[offset] = ' ';
+      szTmp[offset] = ' ';
       ++offset;
-      tmp[offset] = '\0';
+      szTmp[offset] = '\0';
     }
 
-    offset += ezStringUtils::snprintf(tmp + offset, uiLength - offset, "(%s)", ::GetDayOfWeekShortName(dateTime));
+    offset += ezStringUtils::snprintf(szTmp + offset, uiLength - offset, "(%s)", ::GetDayOfWeekShortName(dateTime));
   }
 
   if ((arg.m_uiFormattingFlags & ezArgDateTime::ShowTime) == ezArgDateTime::ShowTime)
@@ -205,32 +205,32 @@ ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezArgDateTime& arg)
     // add a space
     if (offset != 0)
     {
-      tmp[offset] = ' ';
-      tmp[offset + 1] = '-';
-      tmp[offset + 2] = ' ';
-      tmp[offset + 3] = '\0';
+      szTmp[offset] = ' ';
+      szTmp[offset + 1] = '-';
+      szTmp[offset + 2] = ' ';
+      szTmp[offset + 3] = '\0';
       offset += 3;
     }
 
-    offset += ezStringUtils::snprintf(tmp + offset, uiLength - offset, "%02u:%02u", dateTime.GetHour(), dateTime.GetMinute());
+    offset += ezStringUtils::snprintf(szTmp + offset, uiLength - offset, "%02u:%02u", dateTime.GetHour(), dateTime.GetMinute());
 
     if ((arg.m_uiFormattingFlags & ezArgDateTime::ShowSeconds) == ezArgDateTime::ShowSeconds)
     {
-      offset += ezStringUtils::snprintf(tmp + offset, uiLength - offset, ":%02u", dateTime.GetSecond());
+      offset += ezStringUtils::snprintf(szTmp + offset, uiLength - offset, ":%02u", dateTime.GetSecond());
     }
 
     if ((arg.m_uiFormattingFlags & ezArgDateTime::ShowMilliseconds) == ezArgDateTime::ShowMilliseconds)
     {
-      offset += ezStringUtils::snprintf(tmp + offset, uiLength - offset, ".%03u", dateTime.GetMicroseconds() / 1000);
+      offset += ezStringUtils::snprintf(szTmp + offset, uiLength - offset, ".%03u", dateTime.GetMicroseconds() / 1000);
     }
 
     if ((arg.m_uiFormattingFlags & ezArgDateTime::ShowTimeZone) == ezArgDateTime::ShowTimeZone)
     {
-      offset += ezStringUtils::snprintf(tmp + offset, uiLength - offset, " (UTC)");
+      offset += ezStringUtils::snprintf(szTmp + offset, uiLength - offset, " (UTC)");
     }
   }
 
-  return tmp;
+  return szTmp;
 }
 
 // Include inline file

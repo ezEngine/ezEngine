@@ -31,15 +31,15 @@ namespace
     static ezUInt32 destructionCount;
     ezUInt64 i1, i2, i3, i4, i5, i6, i7, i8;
 
-    SomeBigObject(ezUInt64 init)
-      : i1(init)
-      , i2(init)
-      , i3(init)
-      , i4(init)
-      , i5(init)
-      , i6(init)
-      , i7(init)
-      , i8(init)
+    SomeBigObject(ezUInt64 uiInit)
+      : i1(uiInit)
+      , i2(uiInit)
+      , i3(uiInit)
+      , i4(uiInit)
+      , i5(uiInit)
+      , i6(uiInit)
+      , i7(uiInit)
+      , i8(uiInit)
     {
       constructionCount++;
     }

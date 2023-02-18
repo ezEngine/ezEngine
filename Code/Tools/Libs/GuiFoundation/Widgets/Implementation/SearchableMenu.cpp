@@ -24,8 +24,8 @@ protected:
 };
 
 
-ezQtSearchableMenu::ezQtSearchableMenu(QObject* parent)
-  : QWidgetAction(parent)
+ezQtSearchableMenu::ezQtSearchableMenu(QObject* pParent)
+  : QWidgetAction(pParent)
 {
   m_pGroup = new QNullWidget();
   m_pGroup->setLayout(new QVBoxLayout(m_pGroup));

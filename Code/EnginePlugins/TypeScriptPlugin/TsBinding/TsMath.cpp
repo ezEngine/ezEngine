@@ -42,34 +42,34 @@ void ezTypeScriptBinding::SetVec2Property(duk_context* pDuk, const char* szPrope
   EZ_DUK_RETURN_VOID_AND_VERIFY_STACK(duk, 0);
 }
 
-ezVec2 ezTypeScriptBinding::GetVec2(duk_context* pDuk, ezInt32 iObjIdx, const ezVec2& fallback /*= ezVec2::ZeroVector()*/)
+ezVec2 ezTypeScriptBinding::GetVec2(duk_context* pDuk, ezInt32 iObjIdx, const ezVec2& vFallback /*= ezVec2::ZeroVector()*/)
 {
   if (duk_is_null_or_undefined(pDuk, iObjIdx))
-    return fallback;
+    return vFallback;
 
   ezVec2 res;
 
   EZ_VERIFY(duk_get_prop_string(pDuk, iObjIdx, "x"), "");
-  res.x = static_cast<float>(duk_get_number_default(pDuk, -1, fallback.x));
+  res.x = static_cast<float>(duk_get_number_default(pDuk, -1, vFallback.x));
   duk_pop(pDuk);
   EZ_VERIFY(duk_get_prop_string(pDuk, iObjIdx, "y"), "");
-  res.y = static_cast<float>(duk_get_number_default(pDuk, -1, fallback.y));
+  res.y = static_cast<float>(duk_get_number_default(pDuk, -1, vFallback.y));
   duk_pop(pDuk);
 
   return res;
 }
 
 ezVec2 ezTypeScriptBinding::GetVec2Property(
-  duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezVec2& fallback /*= ezVec2::ZeroVector()*/)
+  duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezVec2& vFallback /*= ezVec2::ZeroVector()*/)
 {
   ezDuktapeHelper duk(pDuk);
 
   if (duk.PushLocalObject(szPropertyName, iObjIdx).Failed()) // [ prop ]
   {
-    EZ_DUK_RETURN_AND_VERIFY_STACK(duk, fallback, 0);
+    EZ_DUK_RETURN_AND_VERIFY_STACK(duk, vFallback, 0);
   }
 
-  const ezVec2 res = GetVec2(pDuk, -1, fallback);
+  const ezVec2 res = GetVec2(pDuk, -1, vFallback);
   duk.PopStack(); // [ ]
   EZ_DUK_RETURN_AND_VERIFY_STACK(duk, res, 0);
 }
@@ -113,37 +113,37 @@ void ezTypeScriptBinding::SetVec3Property(duk_context* pDuk, const char* szPrope
   EZ_DUK_RETURN_VOID_AND_VERIFY_STACK(duk, 0);
 }
 
-ezVec3 ezTypeScriptBinding::GetVec3(duk_context* pDuk, ezInt32 iObjIdx, const ezVec3& fallback /*= ezVec3::ZeroVector()*/)
+ezVec3 ezTypeScriptBinding::GetVec3(duk_context* pDuk, ezInt32 iObjIdx, const ezVec3& vFallback /*= ezVec3::ZeroVector()*/)
 {
   if (duk_is_null_or_undefined(pDuk, iObjIdx))
-    return fallback;
+    return vFallback;
 
   ezVec3 res;
 
   EZ_VERIFY(duk_get_prop_string(pDuk, iObjIdx, "x"), "");
-  res.x = static_cast<float>(duk_get_number_default(pDuk, -1, fallback.x));
+  res.x = static_cast<float>(duk_get_number_default(pDuk, -1, vFallback.x));
   duk_pop(pDuk);
   EZ_VERIFY(duk_get_prop_string(pDuk, iObjIdx, "y"), "");
-  res.y = static_cast<float>(duk_get_number_default(pDuk, -1, fallback.y));
+  res.y = static_cast<float>(duk_get_number_default(pDuk, -1, vFallback.y));
   duk_pop(pDuk);
   EZ_VERIFY(duk_get_prop_string(pDuk, iObjIdx, "z"), "");
-  res.z = static_cast<float>(duk_get_number_default(pDuk, -1, fallback.z));
+  res.z = static_cast<float>(duk_get_number_default(pDuk, -1, vFallback.z));
   duk_pop(pDuk);
 
   return res;
 }
 
 ezVec3 ezTypeScriptBinding::GetVec3Property(
-  duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezVec3& fallback /*= ezVec3::ZeroVector()*/)
+  duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezVec3& vFallback /*= ezVec3::ZeroVector()*/)
 {
   ezDuktapeHelper duk(pDuk);
 
   if (duk.PushLocalObject(szPropertyName, iObjIdx).Failed()) // [ prop ]
   {
-    EZ_DUK_RETURN_AND_VERIFY_STACK(duk, fallback, 0);
+    EZ_DUK_RETURN_AND_VERIFY_STACK(duk, vFallback, 0);
   }
 
-  const ezVec3 res = GetVec3(pDuk, -1, fallback);
+  const ezVec3 res = GetVec3(pDuk, -1, vFallback);
   duk.PopStack(); // [ ]
 
   EZ_DUK_RETURN_AND_VERIFY_STACK(duk, res, 0);
@@ -204,10 +204,10 @@ void ezTypeScriptBinding::SetMat3Property(duk_context* pDuk, const char* szPrope
   EZ_DUK_RETURN_VOID_AND_VERIFY_STACK(duk, 0);
 }
 
-ezMat3 ezTypeScriptBinding::GetMat3(duk_context* pDuk, ezInt32 iObjIdx, const ezMat3& fallback /*= ezMat3::ZeroVector()*/)
+ezMat3 ezTypeScriptBinding::GetMat3(duk_context* pDuk, ezInt32 iObjIdx, const ezMat3& mFallback /*= ezMat3::ZeroVector()*/)
 {
   if (duk_is_null_or_undefined(pDuk, iObjIdx))
-    return fallback;
+    return mFallback;
 
   ezMat3 res;
 
@@ -231,16 +231,16 @@ ezMat3 ezTypeScriptBinding::GetMat3(duk_context* pDuk, ezInt32 iObjIdx, const ez
 }
 
 ezMat3 ezTypeScriptBinding::GetMat3Property(
-  duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezMat3& fallback /*= ezMat3::ZeroVector()*/)
+  duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezMat3& mFallback /*= ezMat3::ZeroVector()*/)
 {
   ezDuktapeHelper duk(pDuk);
 
   if (duk.PushLocalObject(szPropertyName, iObjIdx).Failed()) // [ prop ]
   {
-    EZ_DUK_RETURN_AND_VERIFY_STACK(duk, fallback, 0);
+    EZ_DUK_RETURN_AND_VERIFY_STACK(duk, mFallback, 0);
   }
 
-  const ezMat3 res = GetMat3(pDuk, -1, fallback);
+  const ezMat3 res = GetMat3(pDuk, -1, mFallback);
   duk.PopStack(); // [ ]
 
   EZ_DUK_RETURN_AND_VERIFY_STACK(duk, res, 0);
@@ -308,10 +308,10 @@ void ezTypeScriptBinding::SetMat4Property(duk_context* pDuk, const char* szPrope
   EZ_DUK_RETURN_VOID_AND_VERIFY_STACK(duk, 0);
 }
 
-ezMat4 ezTypeScriptBinding::GetMat4(duk_context* pDuk, ezInt32 iObjIdx, const ezMat4& fallback /*= ezMat4::ZeroVector()*/)
+ezMat4 ezTypeScriptBinding::GetMat4(duk_context* pDuk, ezInt32 iObjIdx, const ezMat4& mFallback /*= ezMat4::ZeroVector()*/)
 {
   if (duk_is_null_or_undefined(pDuk, iObjIdx))
-    return fallback;
+    return mFallback;
 
   ezMat4 res;
 
@@ -342,16 +342,16 @@ ezMat4 ezTypeScriptBinding::GetMat4(duk_context* pDuk, ezInt32 iObjIdx, const ez
 }
 
 ezMat4 ezTypeScriptBinding::GetMat4Property(
-  duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezMat4& fallback /*= ezMat4::ZeroVector()*/)
+  duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezMat4& mFallback /*= ezMat4::ZeroVector()*/)
 {
   ezDuktapeHelper duk(pDuk);
 
   if (duk.PushLocalObject(szPropertyName, iObjIdx).Failed()) // [ prop ]
   {
-    EZ_DUK_RETURN_AND_VERIFY_STACK(duk, fallback, 0);
+    EZ_DUK_RETURN_AND_VERIFY_STACK(duk, mFallback, 0);
   }
 
-  const ezMat4 res = GetMat4(pDuk, -1, fallback);
+  const ezMat4 res = GetMat4(pDuk, -1, mFallback);
   duk.PopStack(); // [ ]
 
   EZ_DUK_RETURN_AND_VERIFY_STACK(duk, res, 0);
@@ -398,40 +398,40 @@ void ezTypeScriptBinding::SetQuatProperty(duk_context* pDuk, const char* szPrope
   EZ_DUK_RETURN_VOID_AND_VERIFY_STACK(duk, 0);
 }
 
-ezQuat ezTypeScriptBinding::GetQuat(duk_context* pDuk, ezInt32 iObjIdx, ezQuat fallback /*= ezQuat::IdentityQuaternion()*/)
+ezQuat ezTypeScriptBinding::GetQuat(duk_context* pDuk, ezInt32 iObjIdx, ezQuat qFallback /*= ezQuat::IdentityQuaternion()*/)
 {
   if (duk_is_null_or_undefined(pDuk, iObjIdx))
-    return fallback;
+    return qFallback;
 
   ezQuat res;
 
   EZ_VERIFY(duk_get_prop_string(pDuk, iObjIdx, "x"), "");
-  res.v.x = static_cast<float>(duk_get_number_default(pDuk, -1, fallback.v.x));
+  res.v.x = static_cast<float>(duk_get_number_default(pDuk, -1, qFallback.v.x));
   duk_pop(pDuk);
   EZ_VERIFY(duk_get_prop_string(pDuk, iObjIdx, "y"), "");
-  res.v.y = static_cast<float>(duk_get_number_default(pDuk, -1, fallback.v.y));
+  res.v.y = static_cast<float>(duk_get_number_default(pDuk, -1, qFallback.v.y));
   duk_pop(pDuk);
   EZ_VERIFY(duk_get_prop_string(pDuk, iObjIdx, "z"), "");
-  res.v.z = static_cast<float>(duk_get_number_default(pDuk, -1, fallback.v.z));
+  res.v.z = static_cast<float>(duk_get_number_default(pDuk, -1, qFallback.v.z));
   duk_pop(pDuk);
   EZ_VERIFY(duk_get_prop_string(pDuk, iObjIdx, "w"), "");
-  res.w = static_cast<float>(duk_get_number_default(pDuk, -1, fallback.w));
+  res.w = static_cast<float>(duk_get_number_default(pDuk, -1, qFallback.w));
   duk_pop(pDuk);
 
   return res;
 }
 
 ezQuat ezTypeScriptBinding::GetQuatProperty(
-  duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, ezQuat fallback /*= ezQuat::IdentityQuaternion()*/)
+  duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, ezQuat qFallback /*= ezQuat::IdentityQuaternion()*/)
 {
   ezDuktapeHelper duk(pDuk);
 
   if (duk.PushLocalObject(szPropertyName, iObjIdx).Failed()) // [ prop ]
   {
-    EZ_DUK_RETURN_AND_VERIFY_STACK(duk, fallback, 0);
+    EZ_DUK_RETURN_AND_VERIFY_STACK(duk, qFallback, 0);
   }
 
-  const ezQuat res = GetQuat(pDuk, -1, fallback);
+  const ezQuat res = GetQuat(pDuk, -1, qFallback);
   duk.PopStack(); // [ ]
   EZ_DUK_RETURN_AND_VERIFY_STACK(duk, res, 0);
 }

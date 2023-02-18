@@ -17,17 +17,17 @@ public:
   explicit ezQtSearchWidget(QWidget* pParent);
 
   /// \brief Passed through to the QLineEdit
-  void setText(const QString& text);
+  void setText(const QString& sText);
 
   /// \brief Passed through from the QLineEdit
   QString text() const;
 
   /// \brief Passed through to the QLineEdit
-  void setPlaceholderText(const QString& text);
+  void setPlaceholderText(const QString& sText);
 
 Q_SIGNALS:
   /// \brief Passed through from the QLineEdit
-  void textChanged(const QString& text);
+  void textChanged(const QString& sText);
 
   /// \brief The user pressed the enter key
   void enterPressed();

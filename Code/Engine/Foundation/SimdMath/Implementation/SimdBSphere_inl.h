@@ -106,14 +106,14 @@ inline void ezSimdBSphere::Transform(const ezSimdTransform& t)
   m_CenterAndRadius = newCenterAndRadius;
 }
 
-inline void ezSimdBSphere::Transform(const ezSimdMat4f& mat)
+inline void ezSimdBSphere::Transform(const ezSimdMat4f& mMat)
 {
   ezSimdFloat radius = m_CenterAndRadius.w();
-  m_CenterAndRadius = mat.TransformPosition(m_CenterAndRadius);
+  m_CenterAndRadius = mMat.TransformPosition(m_CenterAndRadius);
 
-  ezSimdFloat maxRadius = mat.m_col0.Dot<3>(mat.m_col0);
-  maxRadius = maxRadius.Max(mat.m_col1.Dot<3>(mat.m_col1));
-  maxRadius = maxRadius.Max(mat.m_col2.Dot<3>(mat.m_col2));
+  ezSimdFloat maxRadius = mMat.m_col0.Dot<3>(mMat.m_col0);
+  maxRadius = maxRadius.Max(mMat.m_col1.Dot<3>(mMat.m_col1));
+  maxRadius = maxRadius.Max(mMat.m_col2.Dot<3>(mMat.m_col2));
   radius *= maxRadius.GetSqrt();
 
   m_CenterAndRadius.SetW(radius);

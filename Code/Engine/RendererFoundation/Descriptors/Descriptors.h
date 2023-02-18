@@ -86,7 +86,7 @@ struct ezGALShaderCreationDescription : public ezHashableStruct<ezGALShaderCreat
   ezGALShaderCreationDescription();
   ~ezGALShaderCreationDescription();
 
-  bool HasByteCodeForStage(ezGALShaderStage::Enum Stage) const;
+  bool HasByteCodeForStage(ezGALShaderStage::Enum stage) const;
 
   ezScopedRefPointer<ezGALShaderByteCode> m_ByteCodes[ezGALShaderStage::ENUM_COUNT];
 };
@@ -216,7 +216,7 @@ struct ezGALVertexAttribute
 {
   ezGALVertexAttribute() = default;
 
-  ezGALVertexAttribute(ezGALVertexAttributeSemantic::Enum eSemantic, ezGALResourceFormat::Enum eFormat, ezUInt16 uiOffset, ezUInt8 uiVertexBufferSlot,
+  ezGALVertexAttribute(ezGALVertexAttributeSemantic::Enum semantic, ezGALResourceFormat::Enum format, ezUInt16 uiOffset, ezUInt8 uiVertexBufferSlot,
     bool bInstanceData);
 
   ezGALVertexAttributeSemantic::Enum m_eSemantic = ezGALVertexAttributeSemantic::Position;

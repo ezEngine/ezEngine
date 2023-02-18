@@ -49,20 +49,20 @@ const char* ezMsgSetMeshMaterial::GetMaterialFile() const
   return m_hMaterial.GetResourceID();
 }
 
-void ezMsgSetMeshMaterial::Serialize(ezStreamWriter& stream) const
+void ezMsgSetMeshMaterial::Serialize(ezStreamWriter& inout_stream) const
 {
   // has to be stringyfied for transfer
-  stream << GetMaterialFile();
-  stream << m_uiMaterialSlot;
+  inout_stream << GetMaterialFile();
+  inout_stream << m_uiMaterialSlot;
 }
 
-void ezMsgSetMeshMaterial::Deserialize(ezStreamReader& stream, ezUInt8 uiTypeVersion)
+void ezMsgSetMeshMaterial::Deserialize(ezStreamReader& inout_stream, ezUInt8 uiTypeVersion)
 {
   ezStringBuilder file;
-  stream >> file;
+  inout_stream >> file;
   SetMaterialFile(file);
 
-  stream >> m_uiMaterialSlot;
+  inout_stream >> m_uiMaterialSlot;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -100,10 +100,10 @@ EZ_END_ABSTRACT_COMPONENT_TYPE;
 ezMeshComponentBase::ezMeshComponentBase() = default;
 ezMeshComponentBase::~ezMeshComponentBase() = default;
 
-void ezMeshComponentBase::SerializeComponent(ezWorldWriter& stream) const
+void ezMeshComponentBase::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
-  ezStreamWriter& s = stream.GetStream();
+  SUPER::SerializeComponent(inout_stream);
+  ezStreamWriter& s = inout_stream.GetStream();
 
   // ignore components that have created meshes (?)
 
@@ -122,12 +122,12 @@ void ezMeshComponentBase::SerializeComponent(ezWorldWriter& stream) const
   s << m_Color;
 }
 
-void ezMeshComponentBase::DeserializeComponent(ezWorldReader& stream)
+void ezMeshComponentBase::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
-  ezStreamReader& s = stream.GetStream();
+  ezStreamReader& s = inout_stream.GetStream();
 
   s >> m_hMesh;
 
@@ -148,12 +148,12 @@ void ezMeshComponentBase::DeserializeComponent(ezWorldReader& stream)
   s >> m_Color;
 }
 
-ezResult ezMeshComponentBase::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg)
+ezResult ezMeshComponentBase::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg)
 {
   if (m_hMesh.IsValid())
   {
     ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::AllowLoadingFallback);
-    bounds = pMesh->GetBounds();
+    ref_bounds = pMesh->GetBounds();
     return EZ_SUCCESS;
   }
 
@@ -292,14 +292,14 @@ const ezColor& ezMeshComponentBase::GetColor() const
   return m_Color;
 }
 
-void ezMeshComponentBase::OnMsgSetMeshMaterial(ezMsgSetMeshMaterial& msg)
+void ezMeshComponentBase::OnMsgSetMeshMaterial(ezMsgSetMeshMaterial& ref_msg)
 {
-  SetMaterial(msg.m_uiMaterialSlot, msg.m_hMaterial);
+  SetMaterial(ref_msg.m_uiMaterialSlot, ref_msg.m_hMaterial);
 }
 
-void ezMeshComponentBase::OnMsgSetColor(ezMsgSetColor& msg)
+void ezMeshComponentBase::OnMsgSetColor(ezMsgSetColor& ref_msg)
 {
-  msg.ModifyColor(m_Color);
+  ref_msg.ModifyColor(m_Color);
 
   InvalidateCachedRenderData();
 }

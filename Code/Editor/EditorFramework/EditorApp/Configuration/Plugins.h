@@ -36,13 +36,13 @@ struct EZ_EDITORFRAMEWORK_DLL ezPluginBundle
   ezHybridArray<ezString, 1> m_EnabledInTemplates;  ///< In which project templates this plugin should be active by default.
 
   /// \brief Reads the bundle description, but not the state.
-  ezResult ReadBundleFromDDL(ezOpenDdlReader& ddl);
+  ezResult ReadBundleFromDDL(ezOpenDdlReader& ref_ddl);
 
   /// \brief Writes only the bundle's state to a DDL file.
-  void WriteStateToDDL(ezOpenDdlWriter& ddl, const char* szOwnName) const;
+  void WriteStateToDDL(ezOpenDdlWriter& ref_ddl, const char* szOwnName) const;
 
   /// \brief Reads only the bundle's state from a DDL file.
-  void ReadStateFromDDL(ezOpenDdlReader& ddl, const char* szOwnName);
+  void ReadStateFromDDL(ezOpenDdlReader& ref_ddl, const char* szOwnName);
 
   /// \brief Checks whether two bundles have the same state.
   bool IsStateEqual(const ezPluginBundle& rhs) const
@@ -57,10 +57,10 @@ struct EZ_EDITORFRAMEWORK_DLL ezPluginBundleSet
   ezMap<ezString, ezPluginBundle> m_Plugins;
 
   /// \brief Writes the state of all bundles to a DDL file.
-  void WriteStateToDDL(ezOpenDdlWriter& ddl) const;
+  void WriteStateToDDL(ezOpenDdlWriter& ref_ddl) const;
 
   /// \brief Reads the state of all bundles from a DDL file.
-  void ReadStateFromDDL(ezOpenDdlReader& ddl);
+  void ReadStateFromDDL(ezOpenDdlReader& ref_ddl);
 
   /// \brief Checks whether two bundle sets have the same state.
   bool IsStateEqual(const ezPluginBundleSet& rhs) const;

@@ -144,14 +144,14 @@ ezExpressionFunction ezProcGenExpressionFunctions::s_GetInstanceSeedFunc = {
 
 //////////////////////////////////////////////////////////////////////////
 
-void ezProcGenInternal::ExtractVolumeCollections(const ezWorld& world, const ezBoundingBox& box, const Output& output, ezDeque<ezVolumeCollection>& volumeCollections, ezExpression::GlobalData& globalData)
+void ezProcGenInternal::ExtractVolumeCollections(const ezWorld& world, const ezBoundingBox& box, const Output& output, ezDeque<ezVolumeCollection>& ref_volumeCollections, ezExpression::GlobalData& ref_globalData)
 {
   auto& volumeTagSetIndices = output.m_VolumeTagSetIndices;
   if (volumeTagSetIndices.IsEmpty())
     return;
 
   ezVariantArray volumes;
-  if (ezVariant* volumesVar = globalData.GetValue(s_sVolumes))
+  if (ezVariant* volumesVar = ref_globalData.GetValue(s_sVolumes))
   {
     volumes = volumesVar->Get<ezVariantArray>();
   }
@@ -166,17 +166,17 @@ void ezProcGenInternal::ExtractVolumeCollections(const ezWorld& world, const ezB
     auto pGraphSharedData = static_cast<const ezProcGenInternal::GraphSharedData*>(output.m_pGraphSharedData.Borrow());
     auto& includeTags = pGraphSharedData->GetTagSet(tagSetIndex);
 
-    auto& volumeCollection = volumeCollections.ExpandAndGetRef();
+    auto& volumeCollection = ref_volumeCollections.ExpandAndGetRef();
     ezVolumeCollection::ExtractVolumesInBox(world, box, s_ProcVolumeCategory, includeTags, volumeCollection, ezGetStaticRTTI<ezProcVolumeComponent>());
 
     volumes.EnsureCount(tagSetIndex + 1);
     volumes[tagSetIndex] = ezVariant(&volumeCollection);
   }
 
-  globalData.Insert(s_sVolumes, volumes);
+  ref_globalData.Insert(s_sVolumes, volumes);
 }
 
-void ezProcGenInternal::SetInstanceSeed(ezUInt32 uiSeed, ezExpression::GlobalData& globalData)
+void ezProcGenInternal::SetInstanceSeed(ezUInt32 uiSeed, ezExpression::GlobalData& ref_globalData)
 {
-  globalData.Insert(s_sInstanceSeed, (int)uiSeed);
+  ref_globalData.Insert(s_sInstanceSeed, (int)uiSeed);
 }

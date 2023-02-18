@@ -44,32 +44,32 @@ void ezStandardMenus::UnregisterActions()
   ezActionManager::UnregisterAction(s_hReportProblem);
 }
 
-void ezStandardMenus::MapActions(const char* szMapping, const ezBitflags<ezStandardMenuTypes>& Menus)
+void ezStandardMenus::MapActions(const char* szMapping, const ezBitflags<ezStandardMenuTypes>& menus)
 {
   ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
   EZ_ASSERT_DEV(pMap != nullptr, "'{0}' does not exist", szMapping);
 
   ezActionMapDescriptor md;
 
-  if (Menus.IsAnySet(ezStandardMenuTypes::File))
+  if (menus.IsAnySet(ezStandardMenuTypes::File))
     pMap->MapAction(s_hMenuFile, "", 1.0f);
 
-  if (Menus.IsAnySet(ezStandardMenuTypes::Edit))
+  if (menus.IsAnySet(ezStandardMenuTypes::Edit))
     pMap->MapAction(s_hMenuEdit, "", 2.0f);
 
-  if (Menus.IsAnySet(ezStandardMenuTypes::Project))
+  if (menus.IsAnySet(ezStandardMenuTypes::Project))
     pMap->MapAction(s_hMenuProject, "", 3.0f);
 
-  if (Menus.IsAnySet(ezStandardMenuTypes::Scene))
+  if (menus.IsAnySet(ezStandardMenuTypes::Scene))
     pMap->MapAction(s_hMenuScene, "", 4.0f);
 
-  if (Menus.IsAnySet(ezStandardMenuTypes::View))
+  if (menus.IsAnySet(ezStandardMenuTypes::View))
     pMap->MapAction(s_hMenuView, "", 5.0f);
 
-  if (Menus.IsAnySet(ezStandardMenuTypes::Panels))
+  if (menus.IsAnySet(ezStandardMenuTypes::Panels))
     pMap->MapAction(s_hMenuPanels, "", 6.0f);
 
-  if (Menus.IsAnySet(ezStandardMenuTypes::Help))
+  if (menus.IsAnySet(ezStandardMenuTypes::Help))
   {
     pMap->MapAction(s_hMenuHelp, "", 7.0f);
     pMap->MapAction(s_hReportProblem, "Menu.Help", 3.0f);
@@ -99,9 +99,9 @@ struct ezComparePanels
 };
 
 
-void ezApplicationPanelsMenuAction::GetEntries(ezHybridArray<ezDynamicMenuAction::Item, 16>& out_Entries)
+void ezApplicationPanelsMenuAction::GetEntries(ezHybridArray<ezDynamicMenuAction::Item, 16>& out_entries)
 {
-  out_Entries.Clear();
+  out_entries.Clear();
 
   for (auto* pPanel : ezQtApplicationPanel::GetAllApplicationPanels())
   {
@@ -111,12 +111,12 @@ void ezApplicationPanelsMenuAction::GetEntries(ezHybridArray<ezDynamicMenuAction
     item.m_Icon = pPanel->icon();
     item.m_CheckState = pPanel->isClosed() ? ezDynamicMenuAction::Item::CheckMark::Unchecked : ezDynamicMenuAction::Item::CheckMark::Checked;
 
-    out_Entries.PushBack(item);
+    out_entries.PushBack(item);
   }
 
   // make sure the panels appear in alphabetical order in the menu
   ezComparePanels cp;
-  out_Entries.Sort<ezComparePanels>(cp);
+  out_entries.Sort<ezComparePanels>(cp);
 }
 
 void ezApplicationPanelsMenuAction::Execute(const ezVariant& value)

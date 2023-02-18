@@ -268,19 +268,19 @@ void ezToolsReflectionUtils::GatherObjectTypes(const ezDocumentObject* pObject, 
   GatherObjectTypesInternal(pObject, inout_types);
 }
 
-bool ezToolsReflectionUtils::DependencySortTypeDescriptorArray(ezDynamicArray<ezReflectedTypeDescriptor*>& descriptors)
+bool ezToolsReflectionUtils::DependencySortTypeDescriptorArray(ezDynamicArray<ezReflectedTypeDescriptor*>& ref_descriptors)
 {
   ezMap<ezReflectedTypeDescriptor*, ezSet<ezString>> dependencies;
 
   ezSet<ezString> typesInArray;
   // Gather all types in array
-  for (ezReflectedTypeDescriptor* desc : descriptors)
+  for (ezReflectedTypeDescriptor* desc : ref_descriptors)
   {
     typesInArray.Insert(desc->m_sTypeName);
   }
 
   // Find all direct dependencies to types in the array for each type.
-  for (ezReflectedTypeDescriptor* desc : descriptors)
+  for (ezReflectedTypeDescriptor* desc : ref_descriptors)
   {
     auto it = dependencies.Insert(desc, ezSet<ezString>());
 
@@ -299,19 +299,19 @@ bool ezToolsReflectionUtils::DependencySortTypeDescriptorArray(ezDynamicArray<ez
 
   ezSet<ezString> accu;
   ezDynamicArray<ezReflectedTypeDescriptor*> sorted;
-  sorted.Reserve(descriptors.GetCount());
+  sorted.Reserve(ref_descriptors.GetCount());
   // Build new sorted types array.
-  while (!descriptors.IsEmpty())
+  while (!ref_descriptors.IsEmpty())
   {
     bool bDeadEnd = true;
-    for (ezReflectedTypeDescriptor* desc : descriptors)
+    for (ezReflectedTypeDescriptor* desc : ref_descriptors)
     {
       // Are the types dependencies met?
       if (accu.ContainsSet(dependencies[desc]))
       {
         sorted.PushBack(desc);
         bDeadEnd = false;
-        descriptors.RemoveAndCopy(desc);
+        ref_descriptors.RemoveAndCopy(desc);
         accu.Insert(desc->m_sTypeName);
         break;
       }
@@ -323,6 +323,6 @@ bool ezToolsReflectionUtils::DependencySortTypeDescriptorArray(ezDynamicArray<ez
     }
   }
 
-  descriptors = sorted;
+  ref_descriptors = sorted;
   return true;
 }

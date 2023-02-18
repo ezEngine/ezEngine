@@ -33,10 +33,10 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezFakeRopeComponent::ezFakeRopeComponent() = default;
 ezFakeRopeComponent::~ezFakeRopeComponent() = default;
 
-void ezFakeRopeComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezFakeRopeComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
-  auto& s = stream.GetStream();
+  SUPER::SerializeComponent(inout_stream);
+  auto& s = inout_stream.GetStream();
 
   s << m_uiPieces;
   s << m_fSlack;
@@ -44,16 +44,16 @@ void ezFakeRopeComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_RopeSim.m_bFirstNodeIsFixed;
   s << m_RopeSim.m_bLastNodeIsFixed;
 
-  stream.WriteGameObjectHandle(m_hAnchor);
+  inout_stream.WriteGameObjectHandle(m_hAnchor);
 
   s << m_fWindInfluence;
 }
 
-void ezFakeRopeComponent::DeserializeComponent(ezWorldReader& stream)
+void ezFakeRopeComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  auto& s = stream.GetStream();
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  auto& s = inout_stream.GetStream();
 
   s >> m_uiPieces;
   s >> m_fSlack;
@@ -61,7 +61,7 @@ void ezFakeRopeComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_RopeSim.m_bFirstNodeIsFixed;
   s >> m_RopeSim.m_bLastNodeIsFixed;
 
-  m_hAnchor = stream.ReadGameObjectHandle();
+  m_hAnchor = inout_stream.ReadGameObjectHandle();
 
   if (uiVersion >= 2)
   {
@@ -345,17 +345,17 @@ void ezFakeRopeComponent::SetAnchor(ezGameObjectHandle hActor)
   m_uiSleepCounter = 0;
 }
 
-void ezFakeRopeComponent::SetSlack(float val)
+void ezFakeRopeComponent::SetSlack(float fVal)
 {
-  m_fSlack = val;
+  m_fSlack = fVal;
   m_RopeSim.m_fSegmentLength = -1.0f;
   m_bIsDynamic = true;
   m_uiSleepCounter = 0;
 }
 
-void ezFakeRopeComponent::SetAttachToOrigin(bool val)
+void ezFakeRopeComponent::SetAttachToOrigin(bool bVal)
 {
-  m_RopeSim.m_bFirstNodeIsFixed = val;
+  m_RopeSim.m_bFirstNodeIsFixed = bVal;
   m_bIsDynamic = true;
   m_uiSleepCounter = 0;
 }
@@ -365,9 +365,9 @@ bool ezFakeRopeComponent::GetAttachToOrigin() const
   return m_RopeSim.m_bFirstNodeIsFixed;
 }
 
-void ezFakeRopeComponent::SetAttachToAnchor(bool val)
+void ezFakeRopeComponent::SetAttachToAnchor(bool bVal)
 {
-  m_RopeSim.m_bLastNodeIsFixed = val;
+  m_RopeSim.m_bLastNodeIsFixed = bVal;
   m_bIsDynamic = true;
   m_uiSleepCounter = 0;
 }

@@ -864,11 +864,11 @@ namespace
   static const char* szThumbnailInfoTag = "ezThumb";
 }
 
-ezResult ezAssetDocument::ThumbnailInfo::Deserialize(ezStreamReader& Reader)
+ezResult ezAssetDocument::ThumbnailInfo::Deserialize(ezStreamReader& inout_reader)
 {
   char tag[8] = {0};
 
-  if (Reader.ReadBytes(tag, 7) != 7)
+  if (inout_reader.ReadBytes(tag, 7) != 7)
     return EZ_FAILURE;
 
   if (!ezStringUtils::IsEqual(tag, szThumbnailInfoTag))
@@ -876,20 +876,20 @@ ezResult ezAssetDocument::ThumbnailInfo::Deserialize(ezStreamReader& Reader)
     return EZ_FAILURE;
   }
 
-  Reader >> m_uiHash;
-  Reader >> m_uiVersion;
-  Reader >> m_uiReserved;
+  inout_reader >> m_uiHash;
+  inout_reader >> m_uiVersion;
+  inout_reader >> m_uiReserved;
 
   return EZ_SUCCESS;
 }
 
-ezResult ezAssetDocument::ThumbnailInfo::Serialize(ezStreamWriter& Writer) const
+ezResult ezAssetDocument::ThumbnailInfo::Serialize(ezStreamWriter& inout_writer) const
 {
-  EZ_SUCCEED_OR_RETURN(Writer.WriteBytes(szThumbnailInfoTag, 7));
+  EZ_SUCCEED_OR_RETURN(inout_writer.WriteBytes(szThumbnailInfoTag, 7));
 
-  Writer << m_uiHash;
-  Writer << m_uiVersion;
-  Writer << m_uiReserved;
+  inout_writer << m_uiHash;
+  inout_writer << m_uiVersion;
+  inout_writer << m_uiReserved;
 
   return EZ_SUCCESS;
 }

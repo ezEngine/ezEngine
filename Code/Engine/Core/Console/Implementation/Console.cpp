@@ -25,20 +25,20 @@ ezQuakeConsole::~ezQuakeConsole()
   EnableLogOutput(false);
 }
 
-void ezQuakeConsole::AddConsoleString(ezStringView text, ezConsoleString::Type type)
+void ezQuakeConsole::AddConsoleString(ezStringView sText, ezConsoleString::Type type)
 {
   EZ_LOCK(m_Mutex);
 
   m_ConsoleStrings.PushFront();
 
   ezConsoleString& cs = m_ConsoleStrings.PeekFront();
-  cs.m_sText = text;
+  cs.m_sText = sText;
   cs.m_Type = type;
 
   if (m_ConsoleStrings.GetCount() > m_uiMaxConsoleStrings)
     m_ConsoleStrings.PopBack(m_ConsoleStrings.GetCount() - m_uiMaxConsoleStrings);
 
-  ezConsole::AddConsoleString(text, type);
+  ezConsole::AddConsoleString(sText, type);
 }
 
 const ezDeque<ezConsoleString>& ezQuakeConsole::GetConsoleStrings() const
@@ -148,54 +148,54 @@ void ezQuakeConsole::EnableLogOutput(bool bEnable)
   }
 }
 
-void ezQuakeConsole::SaveState(ezStreamWriter& Stream) const
+void ezQuakeConsole::SaveState(ezStreamWriter& inout_stream) const
 {
   EZ_LOCK(m_Mutex);
 
   const ezUInt8 uiVersion = 1;
-  Stream << uiVersion;
+  inout_stream << uiVersion;
 
-  Stream << m_InputHistory.GetCount();
+  inout_stream << m_InputHistory.GetCount();
   for (ezUInt32 i = 0; i < m_InputHistory.GetCount(); ++i)
   {
-    Stream << m_InputHistory[i];
+    inout_stream << m_InputHistory[i];
   }
 
-  Stream << m_BoundKeys.GetCount();
+  inout_stream << m_BoundKeys.GetCount();
   for (auto it = m_BoundKeys.GetIterator(); it.IsValid(); ++it)
   {
-    Stream << it.Key();
-    Stream << it.Value();
+    inout_stream << it.Key();
+    inout_stream << it.Value();
   }
 }
 
-void ezQuakeConsole::LoadState(ezStreamReader& Stream)
+void ezQuakeConsole::LoadState(ezStreamReader& inout_stream)
 {
   EZ_LOCK(m_Mutex);
 
   ezUInt8 uiVersion = 0;
-  Stream >> uiVersion;
+  inout_stream >> uiVersion;
 
   if (uiVersion == 1)
   {
     ezUInt32 count = 0;
-    Stream >> count;
+    inout_stream >> count;
     m_InputHistory.SetCount(count);
 
     for (ezUInt32 i = 0; i < m_InputHistory.GetCount(); ++i)
     {
-      Stream >> m_InputHistory[i];
+      inout_stream >> m_InputHistory[i];
     }
 
-    Stream >> count;
+    inout_stream >> count;
 
     ezString sKey;
     ezString sValue;
 
     for (ezUInt32 i = 0; i < count; ++i)
     {
-      Stream >> sKey;
-      Stream >> sValue;
+      inout_stream >> sKey;
+      inout_stream >> sValue;
 
       m_BoundKeys[sKey] = sValue;
     }
@@ -283,14 +283,14 @@ ezConsole* ezConsole::GetMainConsole()
 
 ezConsole* ezConsole::s_pMainConsole = nullptr;
 
-bool ezConsole::AutoComplete(ezStringBuilder& text)
+bool ezConsole::AutoComplete(ezStringBuilder& ref_sText)
 {
   EZ_LOCK(m_Mutex);
 
   if (m_pCommandInterpreter)
   {
     ezCommandInterpreterState s;
-    s.m_sInput = text;
+    s.m_sInput = ref_sText;
 
     m_pCommandInterpreter->AutoComplete(s);
 
@@ -299,9 +299,9 @@ bool ezConsole::AutoComplete(ezStringBuilder& text)
       AddConsoleString(l.m_sText, l.m_Type);
     }
 
-    if (text != s.m_sInput)
+    if (ref_sText != s.m_sInput)
     {
-      text = s.m_sInput;
+      ref_sText = s.m_sInput;
       return true;
     }
   }
@@ -309,9 +309,9 @@ bool ezConsole::AutoComplete(ezStringBuilder& text)
   return false;
 }
 
-void ezConsole::ExecuteCommand(ezStringView input)
+void ezConsole::ExecuteCommand(ezStringView sInput)
 {
-  if (input.IsEmpty())
+  if (sInput.IsEmpty())
     return;
 
   EZ_LOCK(m_Mutex);
@@ -319,7 +319,7 @@ void ezConsole::ExecuteCommand(ezStringView input)
   if (m_pCommandInterpreter)
   {
     ezCommandInterpreterState s;
-    s.m_sInput = input;
+    s.m_sInput = sInput;
     m_pCommandInterpreter->Interpret(s);
 
     for (auto& l : s.m_sOutput)
@@ -329,14 +329,14 @@ void ezConsole::ExecuteCommand(ezStringView input)
   }
   else
   {
-    AddConsoleString(input);
+    AddConsoleString(sInput);
   }
 }
 
-void ezConsole::AddConsoleString(ezStringView text, ezConsoleString::Type type /*= ezConsoleString::Type::Default*/)
+void ezConsole::AddConsoleString(ezStringView sText, ezConsoleString::Type type /*= ezConsoleString::Type::Default*/)
 {
   ezConsoleString cs;
-  cs.m_sText = text;
+  cs.m_sText = sText;
   cs.m_Type = type;
 
   // Broadcast that we have added a string to the console
@@ -347,25 +347,25 @@ void ezConsole::AddConsoleString(ezStringView text, ezConsoleString::Type type /
   m_Events.Broadcast(e);
 }
 
-void ezConsole::AddToInputHistory(ezStringView text)
+void ezConsole::AddToInputHistory(ezStringView sText)
 {
   EZ_LOCK(m_Mutex);
 
   m_iCurrentInputHistoryElement = -1;
 
-  if (text.IsEmpty())
+  if (sText.IsEmpty())
     return;
 
   for (ezInt32 i = 0; i < (ezInt32)m_InputHistory.GetCount(); i++)
   {
-    if (m_InputHistory[i] == text) // already in the History
+    if (m_InputHistory[i] == sText) // already in the History
     {
       // just move it to the front
 
       for (ezInt32 j = i - 1; j >= 0; j--)
         m_InputHistory[j + 1] = m_InputHistory[j];
 
-      m_InputHistory[0] = text;
+      m_InputHistory[0] = sText;
       return;
     }
   }
@@ -375,10 +375,10 @@ void ezConsole::AddToInputHistory(ezStringView text)
   for (ezUInt32 i = m_InputHistory.GetCount() - 1; i > 0; i--)
     m_InputHistory[i] = m_InputHistory[i - 1];
 
-  m_InputHistory[0] = text;
+  m_InputHistory[0] = sText;
 }
 
-void ezConsole::RetrieveInputHistory(ezInt32 iHistoryUp, ezStringBuilder& result)
+void ezConsole::RetrieveInputHistory(ezInt32 iHistoryUp, ezStringBuilder& ref_sResult)
 {
   EZ_LOCK(m_Mutex);
 
@@ -389,7 +389,7 @@ void ezConsole::RetrieveInputHistory(ezInt32 iHistoryUp, ezStringBuilder& result
 
   if (!m_InputHistory[m_iCurrentInputHistoryElement].IsEmpty())
   {
-    result = m_InputHistory[m_iCurrentInputHistoryElement];
+    ref_sResult = m_InputHistory[m_iCurrentInputHistoryElement];
   }
 }
 

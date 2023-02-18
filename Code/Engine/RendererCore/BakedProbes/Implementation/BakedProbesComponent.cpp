@@ -267,9 +267,9 @@ void ezBakedProbesComponent::SetUseTestPosition(bool bUse)
   }
 }
 
-void ezBakedProbesComponent::SetTestPosition(const ezVec3& pos)
+void ezBakedProbesComponent::SetTestPosition(const ezVec3& vPos)
 {
-  m_vTestPosition = pos;
+  m_vTestPosition = vPos;
 
   if (IsActiveAndInitialized())
   {
@@ -277,19 +277,19 @@ void ezBakedProbesComponent::SetTestPosition(const ezVec3& pos)
   }
 }
 
-void ezBakedProbesComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
+void ezBakedProbesComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& ref_msg)
 {
-  msg.SetAlwaysVisible(GetOwner()->IsDynamic() ? ezDefaultSpatialDataCategories::RenderDynamic : ezDefaultSpatialDataCategories::RenderStatic);
+  ref_msg.SetAlwaysVisible(GetOwner()->IsDynamic() ? ezDefaultSpatialDataCategories::RenderDynamic : ezDefaultSpatialDataCategories::RenderStatic);
 }
 
-void ezBakedProbesComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
+void ezBakedProbesComponent::OnExtractRenderData(ezMsgExtractRenderData& ref_msg) const
 {
   if (!m_bShowDebugProbes)
     return;
 
   // Don't trigger probe rendering in shadow or reflection views.
-  if (msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Shadow ||
-      msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Reflection)
+  if (ref_msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Shadow ||
+      ref_msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Reflection)
     return;
 
   auto pModule = GetWorld()->GetModule<ezBakedProbesWorldModule>();
@@ -299,9 +299,9 @@ void ezBakedProbesComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) co
   const ezGameObject* pOwner = GetOwner();
   auto pManager = static_cast<const ezBakedProbesComponentManager*>(GetOwningManager());
 
-  auto addProbeRenderData = [&](const ezVec3& position, ezCompressedSkyVisibility skyVisibility, ezRenderData::Caching::Enum caching) {
+  auto addProbeRenderData = [&](const ezVec3& vPosition, ezCompressedSkyVisibility skyVisibility, ezRenderData::Caching::Enum caching) {
     ezTransform transform = ezTransform::IdentityTransform();
-    transform.m_vPosition = position;
+    transform.m_vPosition = vPosition;
 
     ezColor encodedSkyVisibility = ezColor::Black;
     encodedSkyVisibility.r = *reinterpret_cast<const float*>(&skyVisibility);
@@ -319,7 +319,7 @@ void ezBakedProbesComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) co
       pRenderData->FillBatchIdAndSortingKey();
     }
 
-    msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::SimpleOpaque, caching);
+    ref_msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::SimpleOpaque, caching);
   };
 
   if (m_bUseTestPosition)
@@ -337,10 +337,10 @@ void ezBakedProbesComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) co
       for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(indexData.m_probeIndices); ++i)
       {
         ezVec3 pos = pProbeTree->GetProbePositions()[indexData.m_probeIndices[i]];
-        ezDebugRenderer::DrawCross(msg.m_pView->GetHandle(), pos, 0.5f, ezColor::Yellow);
+        ezDebugRenderer::DrawCross(ref_msg.m_pView->GetHandle(), pos, 0.5f, ezColor::Yellow);
 
         pos.z += 0.5f;
-        ezDebugRenderer::Draw3DText(msg.m_pView->GetHandle(), ezFmt("Weight: {}", indexData.m_probeWeights[i]), pos, ezColor::Yellow);
+        ezDebugRenderer::Draw3DText(ref_msg.m_pView->GetHandle(), ezFmt("Weight: {}", indexData.m_probeWeights[i]), pos, ezColor::Yellow);
       }
     }
 
@@ -364,11 +364,11 @@ void ezBakedProbesComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) co
   }
 }
 
-void ezBakedProbesComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezBakedProbesComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 
-  ezStreamWriter& s = stream.GetStream();
+  ezStreamWriter& s = inout_stream.GetStream();
 
   if (m_Settings.Serialize(s).Failed())
     return;
@@ -380,11 +380,11 @@ void ezBakedProbesComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_vTestPosition;
 }
 
-void ezBakedProbesComponent::DeserializeComponent(ezWorldReader& stream)
+void ezBakedProbesComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
+  SUPER::DeserializeComponent(inout_stream);
   // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  ezStreamReader& s = stream.GetStream();
+  ezStreamReader& s = inout_stream.GetStream();
 
   if (m_Settings.Deserialize(s).Failed())
     return;

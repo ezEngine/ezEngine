@@ -32,17 +32,17 @@ ezGPUResourcePool::~ezGPUResourcePool()
   RunGC(0);
 }
 
-ezGALTextureHandle ezGPUResourcePool::GetRenderTarget(const ezGALTextureCreationDescription& TextureDesc)
+ezGALTextureHandle ezGPUResourcePool::GetRenderTarget(const ezGALTextureCreationDescription& textureDesc)
 {
   EZ_LOCK(m_Lock);
 
-  if (!TextureDesc.m_bCreateRenderTarget)
+  if (!textureDesc.m_bCreateRenderTarget)
   {
     ezLog::Error("Texture description for render target usage has not set bCreateRenderTarget!");
     return ezGALTextureHandle();
   }
 
-  const ezUInt32 uiTextureDescHash = TextureDesc.CalculateHash();
+  const ezUInt32 uiTextureDescHash = textureDesc.CalculateHash();
 
   // Check if there is a fitting texture available
   auto it = m_AvailableTextures.Find(uiTextureDescHash);
@@ -66,12 +66,12 @@ ezGALTextureHandle ezGPUResourcePool::GetRenderTarget(const ezGALTextureCreation
   // first since we need to allocate memory now
   CheckAndPotentiallyRunGC();
 
-  ezGALTextureHandle hNewTexture = m_pDevice->CreateTexture(TextureDesc);
+  ezGALTextureHandle hNewTexture = m_pDevice->CreateTexture(textureDesc);
 
   if (hNewTexture.IsInvalidated())
   {
-    ezLog::Error("GPU resource pool couldn't create new texture for given desc (size: {0} x {1}, format: {2})", TextureDesc.m_uiWidth,
-      TextureDesc.m_uiHeight, TextureDesc.m_Format);
+    ezLog::Error("GPU resource pool couldn't create new texture for given desc (size: {0} x {1}, format: {2})", textureDesc.m_uiWidth,
+      textureDesc.m_uiHeight, textureDesc.m_Format);
     return ezGALTextureHandle();
   }
 
@@ -79,7 +79,7 @@ ezGALTextureHandle ezGPUResourcePool::GetRenderTarget(const ezGALTextureCreation
   m_TexturesInUse.Insert(hNewTexture);
 
   m_uiNumAllocationsSinceLastGC++;
-  m_uiCurrentlyAllocatedMemory += m_pDevice->GetMemoryConsumptionForTexture(TextureDesc);
+  m_uiCurrentlyAllocatedMemory += m_pDevice->GetMemoryConsumptionForTexture(textureDesc);
 
   UpdateMemoryStats();
 
@@ -87,12 +87,12 @@ ezGALTextureHandle ezGPUResourcePool::GetRenderTarget(const ezGALTextureCreation
 }
 
 ezGALTextureHandle ezGPUResourcePool::GetRenderTarget(
-  ezUInt32 uiWidth, ezUInt32 uiHeight, ezGALResourceFormat::Enum eFormat, ezGALMSAASampleCount::Enum sampleCount, ezUInt32 uiSliceColunt)
+  ezUInt32 uiWidth, ezUInt32 uiHeight, ezGALResourceFormat::Enum format, ezGALMSAASampleCount::Enum sampleCount, ezUInt32 uiSliceColunt)
 {
   ezGALTextureCreationDescription TextureDesc;
   TextureDesc.m_bCreateRenderTarget = true;
   TextureDesc.m_bAllowShaderResourceView = true;
-  TextureDesc.m_Format = eFormat;
+  TextureDesc.m_Format = format;
   TextureDesc.m_Type = ezGALTextureType::Texture2D;
   TextureDesc.m_uiWidth = uiWidth;
   TextureDesc.m_uiHeight = uiHeight;
@@ -133,11 +133,11 @@ void ezGPUResourcePool::ReturnRenderTarget(ezGALTextureHandle hRenderTarget)
   }
 }
 
-ezGALBufferHandle ezGPUResourcePool::GetBuffer(const ezGALBufferCreationDescription& BufferDesc)
+ezGALBufferHandle ezGPUResourcePool::GetBuffer(const ezGALBufferCreationDescription& bufferDesc)
 {
   EZ_LOCK(m_Lock);
 
-  const ezUInt32 uiBufferDescHash = BufferDesc.CalculateHash();
+  const ezUInt32 uiBufferDescHash = bufferDesc.CalculateHash();
 
   // Check if there is a fitting buffer available
   auto it = m_AvailableBuffers.Find(uiBufferDescHash);
@@ -161,11 +161,11 @@ ezGALBufferHandle ezGPUResourcePool::GetBuffer(const ezGALBufferCreationDescript
   // first since we need to allocate memory now
   CheckAndPotentiallyRunGC();
 
-  ezGALBufferHandle hNewBuffer = m_pDevice->CreateBuffer(BufferDesc);
+  ezGALBufferHandle hNewBuffer = m_pDevice->CreateBuffer(bufferDesc);
 
   if (hNewBuffer.IsInvalidated())
   {
-    ezLog::Error("GPU resource pool couldn't create new buffer for given desc (size: {0})", BufferDesc.m_uiTotalSize);
+    ezLog::Error("GPU resource pool couldn't create new buffer for given desc (size: {0})", bufferDesc.m_uiTotalSize);
     return ezGALBufferHandle();
   }
 
@@ -173,7 +173,7 @@ ezGALBufferHandle ezGPUResourcePool::GetBuffer(const ezGALBufferCreationDescript
   m_BuffersInUse.Insert(hNewBuffer);
 
   m_uiNumAllocationsSinceLastGC++;
-  m_uiCurrentlyAllocatedMemory += m_pDevice->GetMemoryConsumptionForBuffer(BufferDesc);
+  m_uiCurrentlyAllocatedMemory += m_pDevice->GetMemoryConsumptionForBuffer(bufferDesc);
 
   UpdateMemoryStats();
 

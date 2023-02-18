@@ -10,20 +10,20 @@ EZ_IMPLEMENT_SINGLETON(ezQtCVarPanel);
 class ezCommandInterpreterFwd : public ezCommandInterpreter
 {
 public:
-  virtual void Interpret(ezCommandInterpreterState& inout_State) override
+  virtual void Interpret(ezCommandInterpreterState& inout_state) override
   {
     ezConsoleCmdMsgToEngine msg;
     msg.m_iType = 0;
-    msg.m_sCommand = inout_State.m_sInput;
+    msg.m_sCommand = inout_state.m_sInput;
 
     ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
   }
 
-  virtual void AutoComplete(ezCommandInterpreterState& inout_State) override
+  virtual void AutoComplete(ezCommandInterpreterState& inout_state) override
   {
     ezConsoleCmdMsgToEngine msg;
     msg.m_iType = 1;
-    msg.m_sCommand = inout_State.m_sInput;
+    msg.m_sCommand = inout_state.m_sInput;
 
     ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
   }

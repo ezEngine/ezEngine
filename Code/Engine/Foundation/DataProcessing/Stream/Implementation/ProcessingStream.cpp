@@ -16,32 +16,32 @@ static_assert(sizeof(ezProcessingStream) == 32);
 
 ezProcessingStream::ezProcessingStream() = default;
 
-ezProcessingStream::ezProcessingStream(const ezHashedString& sName, DataType Type, ezUInt16 uiStride, ezUInt16 uiAlignment)
+ezProcessingStream::ezProcessingStream(const ezHashedString& sName, DataType type, ezUInt16 uiStride, ezUInt16 uiAlignment)
   : m_uiAlignment(uiAlignment)
-  , m_uiTypeSize(GetDataTypeSize(Type))
+  , m_uiTypeSize(GetDataTypeSize(type))
   , m_uiStride(uiStride)
-  , m_Type(Type)
+  , m_Type(type)
   , m_sName(sName)
 {
 }
 
-ezProcessingStream::ezProcessingStream(const ezHashedString& sName, ezArrayPtr<ezUInt8> data, DataType Type, ezUInt16 uiStride)
+ezProcessingStream::ezProcessingStream(const ezHashedString& sName, ezArrayPtr<ezUInt8> data, DataType type, ezUInt16 uiStride)
   : m_pData(data.GetPtr())
   , m_uiDataSize(data.GetCount())
-  , m_uiTypeSize(GetDataTypeSize(Type))
+  , m_uiTypeSize(GetDataTypeSize(type))
   , m_uiStride(uiStride)
-  , m_Type(Type)
+  , m_Type(type)
   , m_bExternalMemory(true)
   , m_sName(sName)
 {
 }
 
-ezProcessingStream::ezProcessingStream(const ezHashedString& sName, ezArrayPtr<ezUInt8> data, DataType Type)
+ezProcessingStream::ezProcessingStream(const ezHashedString& sName, ezArrayPtr<ezUInt8> data, DataType type)
   : m_pData(data.GetPtr())
   , m_uiDataSize(data.GetCount())
-  , m_uiTypeSize(GetDataTypeSize(Type))
+  , m_uiTypeSize(GetDataTypeSize(type))
   , m_uiStride(m_uiTypeSize)
-  , m_Type(Type)
+  , m_Type(type)
   , m_bExternalMemory(true)
   , m_sName(sName)
 {
@@ -126,9 +126,9 @@ static ezUInt16 s_TypeSize[] = {
 static_assert(EZ_ARRAY_SIZE(s_TypeSize) == (size_t)ezProcessingStream::DataType::Count);
 
 // static
-ezUInt16 ezProcessingStream::GetDataTypeSize(DataType Type)
+ezUInt16 ezProcessingStream::GetDataTypeSize(DataType type)
 {
-  return s_TypeSize[(ezUInt32)Type];
+  return s_TypeSize[(ezUInt32)type];
 }
 
 static ezStringView s_TypeName[] = {
@@ -160,9 +160,9 @@ static ezStringView s_TypeName[] = {
 static_assert(EZ_ARRAY_SIZE(s_TypeName) == (size_t)ezProcessingStream::DataType::Count);
 
 // static
-ezStringView ezProcessingStream::GetDataTypeName(DataType Type)
+ezStringView ezProcessingStream::GetDataTypeName(DataType type)
 {
-  return s_TypeName[(ezUInt32)Type];
+  return s_TypeName[(ezUInt32)type];
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_DataProcessing_Stream_Implementation_ProcessingStream);

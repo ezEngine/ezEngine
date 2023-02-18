@@ -30,7 +30,7 @@ public:
                 ///< type. This array takes ownership of all objects and deallocates them on shutdown.
 
   const char* GetAssetsDocumentTypeName() const;
-  void SetAssetsDocumentTypeName(const char* sz);
+  void SetAssetsDocumentTypeName(const char* szSz);
 
   /// \brief Returns an object from m_MetaInfo of the given base type, or nullptr if none exists
   const ezReflectedClass* GetMetaInfo(const ezRTTI* pType) const;

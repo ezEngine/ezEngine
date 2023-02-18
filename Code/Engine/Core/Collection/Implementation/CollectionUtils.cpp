@@ -4,7 +4,7 @@
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/IO/OSFile.h>
 
-void ezCollectionUtils::AddFiles(ezCollectionResourceDescriptor& collection, ezStringView sAssetTypeNameView, ezStringView sAbsPathToFolder, ezStringView sFileExtension, ezStringView sStripPrefix, ezStringView sPrependPrefix)
+void ezCollectionUtils::AddFiles(ezCollectionResourceDescriptor& ref_collection, ezStringView sAssetTypeNameView, ezStringView sAbsPathToFolder, ezStringView sFileExtension, ezStringView sStripPrefix, ezStringView sPrependPrefix)
 {
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS)
 
@@ -32,7 +32,7 @@ void ezCollectionUtils::AddFiles(ezCollectionResourceDescriptor& collection, ezS
       sFullPath.Prepend(sPrependPrefix);
       sFullPath.MakeCleanPath();
 
-      auto& entry = collection.m_Resources.ExpandAndGetRef();
+      auto& entry = ref_collection.m_Resources.ExpandAndGetRef();
       entry.m_sAssetTypeName = sAssetTypeName;
       entry.m_sResourceID = sFullPath;
       entry.m_uiFileSize = stats.m_uiFileSize;
@@ -45,7 +45,7 @@ void ezCollectionUtils::AddFiles(ezCollectionResourceDescriptor& collection, ezS
 }
 
 
-EZ_CORE_DLL void ezCollectionUtils::MergeCollections(ezCollectionResourceDescriptor& result, ezArrayPtr<const ezCollectionResourceDescriptor*> inputCollections)
+EZ_CORE_DLL void ezCollectionUtils::MergeCollections(ezCollectionResourceDescriptor& ref_result, ezArrayPtr<const ezCollectionResourceDescriptor*> inputCollections)
 {
   ezMap<ezString, const ezCollectionEntry*> firstEntryOfID;
 
@@ -56,27 +56,27 @@ EZ_CORE_DLL void ezCollectionUtils::MergeCollections(ezCollectionResourceDescrip
       if (!firstEntryOfID.Contains(inputEntry.m_sResourceID))
       {
         firstEntryOfID.Insert(inputEntry.m_sResourceID, &inputEntry);
-        result.m_Resources.PushBack(inputEntry);
+        ref_result.m_Resources.PushBack(inputEntry);
       }
     }
   }
 }
 
 
-EZ_CORE_DLL void ezCollectionUtils::DeDuplicateEntries(ezCollectionResourceDescriptor& result, const ezCollectionResourceDescriptor& input)
+EZ_CORE_DLL void ezCollectionUtils::DeDuplicateEntries(ezCollectionResourceDescriptor& ref_result, const ezCollectionResourceDescriptor& input)
 {
   const ezCollectionResourceDescriptor* firstInput = &input;
-  MergeCollections(result, ezArrayPtr<const ezCollectionResourceDescriptor*>(&firstInput, 1));
+  MergeCollections(ref_result, ezArrayPtr<const ezCollectionResourceDescriptor*>(&firstInput, 1));
 }
 
-void ezCollectionUtils::AddResourceHandle(ezCollectionResourceDescriptor& collection, ezTypelessResourceHandle handle, ezStringView sAssetTypeName, ezStringView sAbsFolderpath)
+void ezCollectionUtils::AddResourceHandle(ezCollectionResourceDescriptor& ref_collection, ezTypelessResourceHandle hHandle, ezStringView sAssetTypeName, ezStringView sAbsFolderpath)
 {
-  if (!handle.IsValid())
+  if (!hHandle.IsValid())
     return;
 
-  const char* resID = handle.GetResourceID();
+  const char* resID = hHandle.GetResourceID();
 
-  auto& entry = collection.m_Resources.ExpandAndGetRef();
+  auto& entry = ref_collection.m_Resources.ExpandAndGetRef();
 
   entry.m_sAssetTypeName.Assign(sAssetTypeName);
   entry.m_sResourceID = resID;

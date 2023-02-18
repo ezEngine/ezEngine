@@ -35,7 +35,7 @@ public:
 
 Q_SIGNALS:
   void CollapseStateChanged(bool bCollapsed);
-  void DragStarted(QMimeData& mimeData);
+  void DragStarted(QMimeData& ref_mimeData);
 
 protected:
   enum Constants

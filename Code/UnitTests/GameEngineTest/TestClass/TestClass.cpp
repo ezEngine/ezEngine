@@ -12,9 +12,9 @@
 ezGameEngineTest::ezGameEngineTest() = default;
 ezGameEngineTest::~ezGameEngineTest() = default;
 
-ezResult ezGameEngineTest::GetImage(ezImage& img)
+ezResult ezGameEngineTest::GetImage(ezImage& ref_img)
 {
-  img.ResetAndCopy(m_pApplication->GetLastScreenshot());
+  ref_img.ResetAndCopy(m_pApplication->GetLastScreenshot());
 
   return EZ_SUCCESS;
 }

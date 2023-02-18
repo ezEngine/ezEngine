@@ -69,11 +69,11 @@ pfnSetThreadDescription GetSetThreadDescriptionProcAddr()
 
 #endif
 
-void SetThreadNameViaException(HANDLE hThread, LPCSTR szThreadName)
+void SetThreadNameViaException(HANDLE hThread, LPCSTR pThreadName)
 {
   THREADNAME_INFO info;
   info.dwType = 0x1000;
-  info.szName = szThreadName;
+  info.szName = pThreadName;
   info.dwThreadID = GetThreadId(hThread);
   info.dwFlags = 0;
 
@@ -87,22 +87,22 @@ void SetThreadNameViaException(HANDLE hThread, LPCSTR szThreadName)
   }
 }
 
-void SetThreadName(HANDLE hThread, LPCSTR szThreadName)
+void SetThreadName(HANDLE hThread, LPCSTR pThreadName)
 {
 #if EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
   static pfnSetThreadDescription s_pSetThreadDescriptionFnPtr = GetSetThreadDescriptionProcAddr();
 
   if (s_pSetThreadDescriptionFnPtr)
   {
-    ezStringWChar threadName(szThreadName);
+    ezStringWChar threadName(pThreadName);
     s_pSetThreadDescriptionFnPtr(hThread, threadName.GetData());
   }
   else
   {
-    SetThreadNameViaException(hThread, szThreadName);
+    SetThreadNameViaException(hThread, pThreadName);
   }
 #else
-  SetThreadNameViaException(hThread, szThreadName);
+  SetThreadNameViaException(hThread, pThreadName);
 #endif
 }
 
@@ -114,19 +114,19 @@ void SetThreadName(HANDLE hThread, LPCSTR szThreadName)
 // Windows specific implementation of the thread class
 
 ezOSThread::ezOSThread(
-  ezOSThreadEntryPoint pThreadEntryPoint, void* pUserData /*= nullptr*/, const char* szName /*= "ezThread"*/, ezUInt32 uiStackSize /*= 128 * 1024*/)
+  ezOSThreadEntryPoint threadEntryPoint, void* pUserData /*= nullptr*/, const char* szName /*= "ezThread"*/, ezUInt32 uiStackSize /*= 128 * 1024*/)
 {
   s_iThreadCount.Increment();
 
-  EZ_ASSERT_ALWAYS(pThreadEntryPoint != nullptr, "Thread entry point is invalid.");
+  EZ_ASSERT_ALWAYS(threadEntryPoint != nullptr, "Thread entry point is invalid.");
 
-  m_hHandle = CreateThread(nullptr, uiStackSize, pThreadEntryPoint, pUserData, CREATE_SUSPENDED, nullptr);
+  m_hHandle = CreateThread(nullptr, uiStackSize, threadEntryPoint, pUserData, CREATE_SUSPENDED, nullptr);
   EZ_ASSERT_RELEASE(m_hHandle != INVALID_HANDLE_VALUE, "Thread creation failed!");
   EZ_ASSERT_RELEASE(m_hHandle != nullptr, "Thread creation failed!"); // makes the static code analysis happy
 
   m_ThreadID = GetThreadId(m_hHandle);
 
-  m_EntryPoint = pThreadEntryPoint;
+  m_EntryPoint = threadEntryPoint;
   m_pUserData = pUserData;
   m_szName = szName;
   m_uiStackSize = uiStackSize;

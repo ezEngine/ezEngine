@@ -19,11 +19,11 @@ ezAnimGraphResource::ezAnimGraphResource()
 
 ezAnimGraphResource::~ezAnimGraphResource() = default;
 
-void ezAnimGraphResource::DeserializeAnimGraphState(ezAnimGraph& out)
+void ezAnimGraphResource::DeserializeAnimGraphState(ezAnimGraph& ref_out)
 {
   ezMemoryStreamContainerWrapperStorage<ezDataBuffer> wrapper(&m_Storage);
   ezMemoryStreamReader reader(&wrapper);
-  out.Deserialize(reader).IgnoreResult();
+  ref_out.Deserialize(reader).IgnoreResult();
 }
 
 ezResourceLoadDesc ezAnimGraphResource::UnloadData(Unload WhatToUnload)

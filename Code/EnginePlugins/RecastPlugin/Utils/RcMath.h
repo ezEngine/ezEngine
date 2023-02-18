@@ -11,11 +11,11 @@ struct EZ_RECASTPLUGIN_DLL ezRcPos
   float m_Pos[3];
 
   ezRcPos();
-  ezRcPos(const float* pos);
+  ezRcPos(const float* pPos);
   ezRcPos(const ezVec3& v);
 
   void operator=(const ezVec3& v);
-  void operator=(const float* pos);
+  void operator=(const float* pPos);
 
   operator const float *() const;
   operator float*();

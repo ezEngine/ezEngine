@@ -14,7 +14,7 @@ using namespace physx;
 class ezPxErrorCallback : public PxErrorCallback
 {
 public:
-  virtual void reportError(PxErrorCode::Enum code, const char* message, const char* file, int line) override;
+  virtual void reportError(PxErrorCode::Enum code, const char* szMessage, const char* szFile, int iLine) override;
 };
 
 class ezPxAllocatorCallback : public PxAllocatorCallback
@@ -22,8 +22,8 @@ class ezPxAllocatorCallback : public PxAllocatorCallback
 public:
   ezPxAllocatorCallback();
 
-  virtual void* allocate(size_t size, const char* typeName, const char* filename, int line) override;
-  virtual void deallocate(void* ptr) override;
+  virtual void* allocate(size_t uiSize, const char* szTypeName, const char* szFilename, int iLine) override;
+  virtual void deallocate(void* pPtr) override;
 
   void VerifyAllocations();
 
@@ -40,7 +40,7 @@ public:
   /// \brief Whether shapes that are only used for scene queries (not for simulation) should be checked.
   bool m_bIncludeQueryShapes = true;
 
-  virtual PxQueryHitType::Enum preFilter(const PxFilterData& filterData, const PxShape* shape, const PxRigidActor* actor, PxHitFlags& queryFlags) override;
+  virtual PxQueryHitType::Enum preFilter(const PxFilterData& filterData, const PxShape* pShape, const PxRigidActor* pActor, PxHitFlags& ref_queryFlags) override;
   virtual PxQueryHitType::Enum postFilter(const PxFilterData& filterData, const PxQueryHit& hit) override;
 };
 

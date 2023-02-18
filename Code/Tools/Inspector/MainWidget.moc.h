@@ -17,12 +17,12 @@ class ezQtMainWidget : public ads::CDockWidget, public Ui_MainWidget
 public:
   static ezQtMainWidget* s_pWidget;
 
-  ezQtMainWidget(QWidget* parent = nullptr);
+  ezQtMainWidget(QWidget* pParent = nullptr);
   ~ezQtMainWidget();
 
   void ResetStats();
   void UpdateStats();
-  virtual void closeEvent(QCloseEvent* event) override;
+  virtual void closeEvent(QCloseEvent* pEvent) override;
 
   static void ProcessTelemetry(void* pUnuseed);
 

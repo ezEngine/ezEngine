@@ -170,43 +170,43 @@ namespace
     return pType;
   }
 
-  void AddAttributes(ezShaderParser::ParameterDefinition& def, const ezRTTI* pType, ezHybridArray<ezPropertyAttribute*, 2>& attributes)
+  void AddAttributes(ezShaderParser::ParameterDefinition& ref_def, const ezRTTI* pType, ezHybridArray<ezPropertyAttribute*, 2>& ref_attributes)
   {
-    if (def.m_sType.StartsWith_NoCase("texture"))
+    if (ref_def.m_sType.StartsWith_NoCase("texture"))
     {
-      if (def.m_sType.IsEqual("Texture2D"))
+      if (ref_def.m_sType.IsEqual("Texture2D"))
       {
-        attributes.PushBack(EZ_DEFAULT_NEW(ezCategoryAttribute, "Texture 2D"));
-        attributes.PushBack(EZ_DEFAULT_NEW(ezAssetBrowserAttribute, "CompatibleAsset_Texture_2D"));
+        ref_attributes.PushBack(EZ_DEFAULT_NEW(ezCategoryAttribute, "Texture 2D"));
+        ref_attributes.PushBack(EZ_DEFAULT_NEW(ezAssetBrowserAttribute, "CompatibleAsset_Texture_2D"));
       }
-      else if (def.m_sType.IsEqual("Texture3D"))
+      else if (ref_def.m_sType.IsEqual("Texture3D"))
       {
-        attributes.PushBack(EZ_DEFAULT_NEW(ezCategoryAttribute, "Texture 3D"));
-        attributes.PushBack(EZ_DEFAULT_NEW(ezAssetBrowserAttribute, "CompatibleAsset_Texture_3D"));
+        ref_attributes.PushBack(EZ_DEFAULT_NEW(ezCategoryAttribute, "Texture 3D"));
+        ref_attributes.PushBack(EZ_DEFAULT_NEW(ezAssetBrowserAttribute, "CompatibleAsset_Texture_3D"));
       }
-      else if (def.m_sType.IsEqual("TextureCube"))
+      else if (ref_def.m_sType.IsEqual("TextureCube"))
       {
-        attributes.PushBack(EZ_DEFAULT_NEW(ezCategoryAttribute, "Texture Cube"));
-        attributes.PushBack(EZ_DEFAULT_NEW(ezAssetBrowserAttribute, "CompatibleAsset_Texture_Cube"));
+        ref_attributes.PushBack(EZ_DEFAULT_NEW(ezCategoryAttribute, "Texture Cube"));
+        ref_attributes.PushBack(EZ_DEFAULT_NEW(ezAssetBrowserAttribute, "CompatibleAsset_Texture_Cube"));
       }
     }
-    else if (def.m_sType.StartsWith_NoCase("permutation"))
+    else if (ref_def.m_sType.StartsWith_NoCase("permutation"))
     {
-      attributes.PushBack(EZ_DEFAULT_NEW(ezCategoryAttribute, "Permutation"));
+      ref_attributes.PushBack(EZ_DEFAULT_NEW(ezCategoryAttribute, "Permutation"));
     }
     else
     {
-      attributes.PushBack(EZ_DEFAULT_NEW(ezCategoryAttribute, "Constant"));
+      ref_attributes.PushBack(EZ_DEFAULT_NEW(ezCategoryAttribute, "Constant"));
     }
 
-    for (auto& attributeDef : def.m_Attributes)
+    for (auto& attributeDef : ref_def.m_Attributes)
     {
       if (attributeDef.m_sType.IsEqual("Default") && attributeDef.m_Values.GetCount() >= 1)
       {
         if (pType == ezGetStaticRTTI<ezColor>())
         {
           // always expose the alpha channel for color properties
-          attributes.PushBack(EZ_DEFAULT_NEW(ezExposeColorAlphaAttribute));
+          ref_attributes.PushBack(EZ_DEFAULT_NEW(ezExposeColorAlphaAttribute));
 
           // patch default type, VSE writes float4 instead of color
           if (attributeDef.m_Values[0].GetType() == ezVariantType::Vector4)
@@ -216,21 +216,21 @@ namespace
           }
         }
 
-        attributes.PushBack(EZ_DEFAULT_NEW(ezDefaultValueAttribute, attributeDef.m_Values[0]));
+        ref_attributes.PushBack(EZ_DEFAULT_NEW(ezDefaultValueAttribute, attributeDef.m_Values[0]));
       }
       else if (attributeDef.m_sType.IsEqual("Clamp") && attributeDef.m_Values.GetCount() >= 2)
       {
-        attributes.PushBack(EZ_DEFAULT_NEW(ezClampValueAttribute, attributeDef.m_Values[0], attributeDef.m_Values[1]));
+        ref_attributes.PushBack(EZ_DEFAULT_NEW(ezClampValueAttribute, attributeDef.m_Values[0], attributeDef.m_Values[1]));
       }
       else if (attributeDef.m_sType.IsEqual("Group"))
       {
         if (attributeDef.m_Values.GetCount() >= 1 && attributeDef.m_Values[0].CanConvertTo<ezString>())
         {
-          attributes.PushBack(EZ_DEFAULT_NEW(ezGroupAttribute, attributeDef.m_Values[0].ConvertTo<ezString>()));
+          ref_attributes.PushBack(EZ_DEFAULT_NEW(ezGroupAttribute, attributeDef.m_Values[0].ConvertTo<ezString>()));
         }
         else
         {
-          attributes.PushBack(EZ_DEFAULT_NEW(ezGroupAttribute));
+          ref_attributes.PushBack(EZ_DEFAULT_NEW(ezGroupAttribute));
         }
       }
     }
@@ -398,7 +398,7 @@ public:
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode*) const override
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode*) const override
   {
     ezString sDescTypeName = ezGetStaticRTTI<ezReflectedTypeDescriptor>()->GetTypeName();
 
@@ -453,21 +453,21 @@ public:
   {
   }
 
-  static void FixEnumString(ezStringBuilder& sValue, const char* szName)
+  static void FixEnumString(ezStringBuilder& ref_sValue, const char* szName)
   {
-    if (sValue.StartsWith(szName))
-      sValue.Shrink(ezStringUtils::GetCharacterCount(szName), 0);
+    if (ref_sValue.StartsWith(szName))
+      ref_sValue.Shrink(ezStringUtils::GetCharacterCount(szName), 0);
 
-    if (sValue.StartsWith("::"))
-      sValue.Shrink(2, 0);
+    if (ref_sValue.StartsWith("::"))
+      ref_sValue.Shrink(2, 0);
 
-    if (sValue.StartsWith(szName))
-      sValue.Shrink(ezStringUtils::GetCharacterCount(szName), 0);
+    if (ref_sValue.StartsWith(szName))
+      ref_sValue.Shrink(ezStringUtils::GetCharacterCount(szName), 0);
 
-    if (sValue.StartsWith("_"))
-      sValue.Shrink(1, 0);
+    if (ref_sValue.StartsWith("_"))
+      ref_sValue.Shrink(1, 0);
 
-    sValue.PrependFormat("{0}::{0}_", szName);
+    ref_sValue.PrependFormat("{0}::{0}_", szName);
   }
 
   void FixEnum(ezAbstractObjectNode* pNode, const char* szEnum) const
@@ -480,7 +480,7 @@ public:
     }
   }
 
-  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
     FixEnum(pNode, "SHADING_MODE");
     FixEnum(pNode, "BLEND_MODE");

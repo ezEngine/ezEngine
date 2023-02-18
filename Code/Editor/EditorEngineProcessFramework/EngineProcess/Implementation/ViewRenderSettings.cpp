@@ -31,7 +31,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEngineViewLightSettings, 1, ezRTTIDefaultAlloc
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezEngineViewConfig::ApplyPerspectiveSetting(float fov, float nearPlane, float farPlane)
+void ezEngineViewConfig::ApplyPerspectiveSetting(float fFov, float fNearPlane, float fFarPlane)
 {
   const float fOrthoRange = 1000.0f;
 
@@ -39,27 +39,27 @@ void ezEngineViewConfig::ApplyPerspectiveSetting(float fov, float nearPlane, flo
   {
     case ezSceneViewPerspective::Perspective:
     {
-      m_Camera.SetCameraMode(ezCameraMode::PerspectiveFixedFovY, fov == 0.0f ? 70.0f : fov, nearPlane, farPlane);
+      m_Camera.SetCameraMode(ezCameraMode::PerspectiveFixedFovY, fFov == 0.0f ? 70.0f : fFov, fNearPlane, fFarPlane);
     }
     break;
 
     case ezSceneViewPerspective::Orthogonal_Front:
     {
-      m_Camera.SetCameraMode(ezCameraMode::OrthoFixedHeight, fov == 0.0f ? 20.0f : fov, -fOrthoRange, fOrthoRange);
+      m_Camera.SetCameraMode(ezCameraMode::OrthoFixedHeight, fFov == 0.0f ? 20.0f : fFov, -fOrthoRange, fOrthoRange);
       m_Camera.LookAt(m_Camera.GetCenterPosition(), m_Camera.GetCenterPosition() + ezVec3(-1, 0, 0), ezVec3(0, 0, 1));
     }
     break;
 
     case ezSceneViewPerspective::Orthogonal_Right:
     {
-      m_Camera.SetCameraMode(ezCameraMode::OrthoFixedHeight, fov == 0.0f ? 20.0f : fov, -fOrthoRange, fOrthoRange);
+      m_Camera.SetCameraMode(ezCameraMode::OrthoFixedHeight, fFov == 0.0f ? 20.0f : fFov, -fOrthoRange, fOrthoRange);
       m_Camera.LookAt(m_Camera.GetCenterPosition(), m_Camera.GetCenterPosition() + ezVec3(0, -1, 0), ezVec3(0, 0, 1));
     }
     break;
 
     case ezSceneViewPerspective::Orthogonal_Top:
     {
-      m_Camera.SetCameraMode(ezCameraMode::OrthoFixedHeight, fov == 0.0f ? 20.0f : fov, -fOrthoRange, fOrthoRange);
+      m_Camera.SetCameraMode(ezCameraMode::OrthoFixedHeight, fFov == 0.0f ? 20.0f : fFov, -fOrthoRange, fOrthoRange);
       m_Camera.LookAt(m_Camera.GetCenterPosition(), m_Camera.GetCenterPosition() + ezVec3(0, 0, -1), ezVec3(1, 0, 0));
     }
     break;
@@ -90,9 +90,9 @@ bool ezEngineViewLightSettings::GetSkyBox() const
   return m_bSkyBox;
 }
 
-void ezEngineViewLightSettings::SetSkyBox(bool val)
+void ezEngineViewLightSettings::SetSkyBox(bool bVal)
 {
-  m_bSkyBox = val;
+  m_bSkyBox = bVal;
   SetModifiedInternal(ezEngineViewLightSettingsEvent::Type::SkyBoxChanged);
 }
 
@@ -101,9 +101,9 @@ bool ezEngineViewLightSettings::GetSkyLight() const
   return m_bSkyLight;
 }
 
-void ezEngineViewLightSettings::SetSkyLight(bool val)
+void ezEngineViewLightSettings::SetSkyLight(bool bVal)
 {
-  m_bSkyLight = val;
+  m_bSkyLight = bVal;
   SetModifiedInternal(ezEngineViewLightSettingsEvent::Type::SkyLightChanged);
 }
 
@@ -112,9 +112,9 @@ const char* ezEngineViewLightSettings::GetSkyLightCubeMap() const
   return m_sSkyLightCubeMap;
 }
 
-void ezEngineViewLightSettings::SetSkyLightCubeMap(const char* val)
+void ezEngineViewLightSettings::SetSkyLightCubeMap(const char* szVal)
 {
-  m_sSkyLightCubeMap = val;
+  m_sSkyLightCubeMap = szVal;
   SetModifiedInternal(ezEngineViewLightSettingsEvent::Type::SkyLightCubeMapChanged);
 }
 
@@ -123,9 +123,9 @@ float ezEngineViewLightSettings::GetSkyLightIntensity() const
   return m_fSkyLightIntensity;
 }
 
-void ezEngineViewLightSettings::SetSkyLightIntensity(float val)
+void ezEngineViewLightSettings::SetSkyLightIntensity(float fVal)
 {
-  m_fSkyLightIntensity = val;
+  m_fSkyLightIntensity = fVal;
   SetModifiedInternal(ezEngineViewLightSettingsEvent::Type::SkyLightIntensityChanged);
 }
 
@@ -134,9 +134,9 @@ bool ezEngineViewLightSettings::GetDirectionalLight() const
   return m_bDirectionalLight;
 }
 
-void ezEngineViewLightSettings::SetDirectionalLight(bool val)
+void ezEngineViewLightSettings::SetDirectionalLight(bool bVal)
 {
-  m_bDirectionalLight = val;
+  m_bDirectionalLight = bVal;
   SetModifiedInternal(ezEngineViewLightSettingsEvent::Type::DirectionalLightChanged);
 }
 
@@ -156,9 +156,9 @@ bool ezEngineViewLightSettings::GetDirectionalLightShadows() const
   return m_bDirectionalLightShadows;
 }
 
-void ezEngineViewLightSettings::SetDirectionalLightShadows(bool val)
+void ezEngineViewLightSettings::SetDirectionalLightShadows(bool bVal)
 {
-  m_bDirectionalLightShadows = val;
+  m_bDirectionalLightShadows = bVal;
   SetModifiedInternal(ezEngineViewLightSettingsEvent::Type::DirectionalLightShadowsChanged);
 }
 
@@ -167,9 +167,9 @@ float ezEngineViewLightSettings::GetDirectionalLightIntensity() const
   return m_fDirectionalLightIntensity;
 }
 
-void ezEngineViewLightSettings::SetDirectionalLightIntensity(float val)
+void ezEngineViewLightSettings::SetDirectionalLightIntensity(float fVal)
 {
-  m_fDirectionalLightIntensity = val;
+  m_fDirectionalLightIntensity = fVal;
   SetModifiedInternal(ezEngineViewLightSettingsEvent::Type::DirectionalLightIntensityChanged);
 }
 
@@ -178,9 +178,9 @@ bool ezEngineViewLightSettings::GetFog() const
   return m_bFog;
 }
 
-void ezEngineViewLightSettings::SetFog(bool val)
+void ezEngineViewLightSettings::SetFog(bool bVal)
 {
-  m_bFog = val;
+  m_bFog = bVal;
   SetModifiedInternal(ezEngineViewLightSettingsEvent::Type::FogChanged);
 }
 
@@ -194,51 +194,51 @@ bool ezEngineViewLightSettings::SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextC
 namespace
 {
   template <typename T>
-  T* SyncComponent(ezWorld* pWorld, ezGameObject* pParent, ezComponentHandle& handle, bool bShouldExist)
+  T* SyncComponent(ezWorld* pWorld, ezGameObject* pParent, ezComponentHandle& inout_hHandle, bool bShouldExist)
   {
     if (bShouldExist)
     {
       T* pComp = nullptr;
-      if (handle.IsInvalidated() || !pWorld->TryGetComponent(handle, pComp))
+      if (inout_hHandle.IsInvalidated() || !pWorld->TryGetComponent(inout_hHandle, pComp))
       {
-        handle = T::CreateComponent(pParent, pComp);
+        inout_hHandle = T::CreateComponent(pParent, pComp);
       }
       return pComp;
     }
     else
     {
-      if (!handle.IsInvalidated())
+      if (!inout_hHandle.IsInvalidated())
       {
         T* pComp = nullptr;
-        if (pWorld->TryGetComponent(handle, pComp))
+        if (pWorld->TryGetComponent(inout_hHandle, pComp))
         {
           pComp->DeleteComponent();
-          handle.Invalidate();
+          inout_hHandle.Invalidate();
         }
       }
       return nullptr;
     }
   }
 
-  ezGameObject* SyncGameObject(ezWorld* pWorld, ezGameObjectHandle& handle, bool bShouldExist)
+  ezGameObject* SyncGameObject(ezWorld* pWorld, ezGameObjectHandle& inout_hHandle, bool bShouldExist)
   {
     if (bShouldExist)
     {
       ezGameObject* pObj = nullptr;
-      if (handle.IsInvalidated() || !pWorld->TryGetObject(handle, pObj))
+      if (inout_hHandle.IsInvalidated() || !pWorld->TryGetObject(inout_hHandle, pObj))
       {
         ezGameObjectDesc obj;
         obj.m_sName.Assign("ViewLightSettings");
-        handle = pWorld->CreateObject(obj, pObj);
+        inout_hHandle = pWorld->CreateObject(obj, pObj);
         pObj->MakeDynamic();
       }
       return pObj;
     }
     else
     {
-      if (!handle.IsInvalidated())
+      if (!inout_hHandle.IsInvalidated())
       {
-        pWorld->DeleteObjectDelayed(handle);
+        pWorld->DeleteObjectDelayed(inout_hHandle);
       }
       return nullptr;
     }

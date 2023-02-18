@@ -160,9 +160,9 @@ void ezRemoteInterface::Send(ezRemoteTransmitMode tm, ezUInt32 uiSystemID, ezUIn
   Send(tm, uiSystemID, uiMsgID, ezArrayPtr<const ezUInt8>(reinterpret_cast<const ezUInt8*>(pData), uiDataBytes));
 }
 
-void ezRemoteInterface::Send(ezRemoteTransmitMode tm, ezRemoteMessage& msg)
+void ezRemoteInterface::Send(ezRemoteTransmitMode tm, ezRemoteMessage& ref_msg)
 {
-  Send(tm, msg.GetSystemID(), msg.GetMessageID(), msg.m_Storage);
+  Send(tm, ref_msg.GetSystemID(), ref_msg.GetMessageID(), ref_msg.m_Storage);
 }
 
 void ezRemoteInterface::Send(ezRemoteTransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, const ezContiguousMemoryStreamStorage& data)

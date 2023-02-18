@@ -9,7 +9,7 @@ public:
   ~ezPropertyAnimObjectManager();
 
   bool GetAllowStructureChangeOnTemporaries() const { return m_bAllowStructureChangeOnTemporaries; }
-  void SetAllowStructureChangeOnTemporaries(bool val) { m_bAllowStructureChangeOnTemporaries = val; }
+  void SetAllowStructureChangeOnTemporaries(bool bVal) { m_bAllowStructureChangeOnTemporaries = bVal; }
   bool IsTemporary(const ezDocumentObject* pObject) const;
   bool IsTemporary(const ezDocumentObject* pParent, const char* szParentProperty) const;
 

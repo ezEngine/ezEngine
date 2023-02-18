@@ -226,9 +226,9 @@ void ezFmod::UpdateSound()
   ClearSoundBankDataDeletionQueue();
 }
 
-void ezFmod::SetMasterChannelVolume(float volume)
+void ezFmod::SetMasterChannelVolume(float fVolume)
 {
-  cvar_FmodMasterVolume = ezMath::Clamp<float>(volume, 0.0f, 1.0f);
+  cvar_FmodMasterVolume = ezMath::Clamp<float>(fVolume, 0.0f, 1.0f);
 }
 
 float ezFmod::GetMasterChannelVolume() const
@@ -236,9 +236,9 @@ float ezFmod::GetMasterChannelVolume() const
   return cvar_FmodMasterVolume;
 }
 
-void ezFmod::SetMasterChannelMute(bool mute)
+void ezFmod::SetMasterChannelMute(bool bMute)
 {
-  cvar_FmodMute = mute;
+  cvar_FmodMute = bMute;
 }
 
 bool ezFmod::GetMasterChannelMute() const
@@ -246,12 +246,12 @@ bool ezFmod::GetMasterChannelMute() const
   return cvar_FmodMute;
 }
 
-void ezFmod::SetMasterChannelPaused(bool paused)
+void ezFmod::SetMasterChannelPaused(bool bPaused)
 {
   FMOD::ChannelGroup* channel;
   m_pLowLevelSystem->getMasterChannelGroup(&channel);
 
-  channel->setPaused(paused);
+  channel->setPaused(bPaused);
 }
 
 bool ezFmod::GetMasterChannelPaused() const
@@ -265,9 +265,9 @@ bool ezFmod::GetMasterChannelPaused() const
   return paused;
 }
 
-void ezFmod::SetSoundGroupVolume(const char* szVcaGroupGuid, float volume)
+void ezFmod::SetSoundGroupVolume(const char* szVcaGroupGuid, float fVolume)
 {
-  m_pData->m_VcaVolumes[szVcaGroupGuid] = ezMath::Clamp(volume, 0.0f, 1.0f);
+  m_pData->m_VcaVolumes[szVcaGroupGuid] = ezMath::Clamp(fVolume, 0.0f, 1.0f);
 
   UpdateSoundGroupVolumes();
 }
@@ -304,9 +304,9 @@ void ezFmod::SetNumBlendedReverbVolumes(ezUInt8 uiNumBlendedVolumes)
   m_uiNumBlendedVolumes = ezMath::Clamp<ezUInt8>(m_uiNumBlendedVolumes, 0, 4);
 }
 
-void ezFmod::SetListenerOverrideMode(bool enabled)
+void ezFmod::SetListenerOverrideMode(bool bEnabled)
 {
-  m_bListenerOverrideMode = enabled;
+  m_bListenerOverrideMode = bEnabled;
 }
 
 void ezFmod::SetListener(ezInt32 iIndex, const ezVec3& vPosition, const ezVec3& vForward, const ezVec3& vUp, const ezVec3& vVelocity)

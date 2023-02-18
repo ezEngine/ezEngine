@@ -46,24 +46,24 @@ namespace
     ezImageFormat::Enum m_asLinear{ezImageFormat::UNKNOWN};
     ezImageFormat::Enum m_asSrgb{ezImageFormat::UNKNOWN};
 
-    ezUInt32 getNumBlocksX(ezUInt32 width, ezUInt32 planeIndex) const
+    ezUInt32 getNumBlocksX(ezUInt32 uiWidth, ezUInt32 uiPlaneIndex) const
     {
-      return (width - 1) / m_planeData[planeIndex].m_uiBlockWidth + 1;
+      return (uiWidth - 1) / m_planeData[uiPlaneIndex].m_uiBlockWidth + 1;
     }
 
-    ezUInt32 getNumBlocksY(ezUInt32 height, ezUInt32 planeIndex) const
+    ezUInt32 getNumBlocksY(ezUInt32 uiHeight, ezUInt32 uiPlaneIndex) const
     {
-      return (height - 1) / m_planeData[planeIndex].m_uiBlockHeight + 1;
+      return (uiHeight - 1) / m_planeData[uiPlaneIndex].m_uiBlockHeight + 1;
     }
 
-    ezUInt32 getNumBlocksZ(ezUInt32 depth, ezUInt32 planeIndex) const
+    ezUInt32 getNumBlocksZ(ezUInt32 uiDepth, ezUInt32 uiPlaneIndex) const
     {
-      return (depth - 1) / m_planeData[planeIndex].m_uiBlockDepth + 1;
+      return (uiDepth - 1) / m_planeData[uiPlaneIndex].m_uiBlockDepth + 1;
     }
 
-    ezUInt32 getRowPitch(ezUInt32 width, ezUInt32 planeIndex) const
+    ezUInt32 getRowPitch(ezUInt32 uiWidth, ezUInt32 uiPlaneIndex) const
     {
-      return getNumBlocksX(width, planeIndex) * m_planeData[planeIndex].m_uiBitsPerBlock / 8;
+      return getNumBlocksX(uiWidth, uiPlaneIndex) * m_planeData[uiPlaneIndex].m_uiBitsPerBlock / 8;
     }
   };
 
@@ -93,7 +93,7 @@ namespace
   InitFormatLinear(ezImageFormat::format, #format, ezImageFormatDataType::dataType, uiBitsPerPixel, uiBitsR, uiBitsG, uiBitsB, uiBitsA, uiNumChannels)
 
   void InitFormatCompressed(ezImageFormat::Enum format, const char* szName, ezImageFormatDataType::Enum dataType, ezUInt8 uiBitsPerBlock,
-    ezUInt8 uiBlockWidth, ezUInt8 uiBlockHeight, ezUInt8 uiBlockDepth, bool requireFirstLevelBlockAligned, ezUInt8 uiNumChannels)
+    ezUInt8 uiBlockWidth, ezUInt8 uiBlockHeight, ezUInt8 uiBlockDepth, bool bRequireFirstLevelBlockAligned, ezUInt8 uiNumChannels)
   {
     s_formatMetaData[format].m_szName = szName;
 
@@ -106,7 +106,7 @@ namespace
 
     s_formatMetaData[format].m_uiNumChannels = uiNumChannels;
 
-    s_formatMetaData[format].m_requireFirstLevelBlockAligned = requireFirstLevelBlockAligned;
+    s_formatMetaData[format].m_requireFirstLevelBlockAligned = bRequireFirstLevelBlockAligned;
 
     s_formatMetaData[format].m_asLinear = format;
     s_formatMetaData[format].m_asSrgb = format;
@@ -117,7 +117,7 @@ namespace
   InitFormatCompressed(ezImageFormat::format, #format, ezImageFormatDataType::dataType, uiBitsPerBlock, uiBlockWidth, uiBlockHeight, uiBlockDepth, \
     requireFirstLevelBlockAligned, uiNumChannels)
 
-  void InitFormatDepth(ezImageFormat::Enum format, const char* szName, ezImageFormatDataType::Enum dataType, ezUInt8 uiBitsPerPixel, bool isStencil,
+  void InitFormatDepth(ezImageFormat::Enum format, const char* szName, ezImageFormatDataType::Enum dataType, ezUInt8 uiBitsPerPixel, bool bIsStencil,
     ezUInt8 uiBitsD, ezUInt8 uiBitsS)
   {
     s_formatMetaData[format].m_szName = szName;
@@ -127,9 +127,9 @@ namespace
     s_formatMetaData[format].m_formatType = ezImageFormatType::LINEAR;
 
     s_formatMetaData[format].m_isDepth = true;
-    s_formatMetaData[format].m_isStencil = isStencil;
+    s_formatMetaData[format].m_isStencil = bIsStencil;
 
-    s_formatMetaData[format].m_uiNumChannels = isStencil ? 2 : 1;
+    s_formatMetaData[format].m_uiNumChannels = bIsStencil ? 2 : 1;
 
     s_formatMetaData[format].m_uiBitsPerChannel[ezImageFormatChannel::D] = uiBitsD;
     s_formatMetaData[format].m_uiBitsPerChannel[ezImageFormatChannel::S] = uiBitsS;
@@ -447,25 +447,25 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Image, ImageFormats)
 EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
-ezUInt32 ezImageFormat::GetBitsPerPixel(Enum format, ezUInt32 planeIndex)
+ezUInt32 ezImageFormat::GetBitsPerPixel(Enum format, ezUInt32 uiPlaneIndex)
 {
   const ezImageFormatMetaData& metaData = GetImageFormatMetaData(format);
-  auto pixelsPerBlock = metaData.m_planeData[planeIndex].m_uiBlockWidth * metaData.m_planeData[planeIndex].m_uiBlockHeight * metaData.m_planeData[planeIndex].m_uiBlockDepth;
-  return (metaData.m_planeData[planeIndex].m_uiBitsPerBlock + pixelsPerBlock - 1) / pixelsPerBlock; // Return rounded-up value
+  auto pixelsPerBlock = metaData.m_planeData[uiPlaneIndex].m_uiBlockWidth * metaData.m_planeData[uiPlaneIndex].m_uiBlockHeight * metaData.m_planeData[uiPlaneIndex].m_uiBlockDepth;
+  return (metaData.m_planeData[uiPlaneIndex].m_uiBitsPerBlock + pixelsPerBlock - 1) / pixelsPerBlock; // Return rounded-up value
 }
 
 
-float ezImageFormat::GetExactBitsPerPixel(Enum format, ezUInt32 planeIndex)
+float ezImageFormat::GetExactBitsPerPixel(Enum format, ezUInt32 uiPlaneIndex)
 {
   const ezImageFormatMetaData& metaData = GetImageFormatMetaData(format);
-  auto pixelsPerBlock = metaData.m_planeData[planeIndex].m_uiBlockWidth * metaData.m_planeData[planeIndex].m_uiBlockHeight * metaData.m_planeData[planeIndex].m_uiBlockDepth;
-  return static_cast<float>(metaData.m_planeData[planeIndex].m_uiBitsPerBlock) / pixelsPerBlock;
+  auto pixelsPerBlock = metaData.m_planeData[uiPlaneIndex].m_uiBlockWidth * metaData.m_planeData[uiPlaneIndex].m_uiBlockHeight * metaData.m_planeData[uiPlaneIndex].m_uiBlockDepth;
+  return static_cast<float>(metaData.m_planeData[uiPlaneIndex].m_uiBitsPerBlock) / pixelsPerBlock;
 }
 
 
-ezUInt32 ezImageFormat::GetBitsPerBlock(Enum format, ezUInt32 planeIndex)
+ezUInt32 ezImageFormat::GetBitsPerBlock(Enum format, ezUInt32 uiPlaneIndex)
 {
-  return GetImageFormatMetaData(format).m_planeData[planeIndex].m_uiBitsPerBlock;
+  return GetImageFormatMetaData(format).m_planeData[uiPlaneIndex].m_uiBitsPerBlock;
 }
 
 
@@ -697,19 +697,19 @@ ezUInt32 ezImageFormat::GetAlphaMask(Enum format)
   return GetImageFormatMetaData(format).m_uiChannelMasks[ezImageFormatChannel::A];
 }
 
-ezUInt32 ezImageFormat::GetBlockWidth(Enum format, ezUInt32 planeIndex)
+ezUInt32 ezImageFormat::GetBlockWidth(Enum format, ezUInt32 uiPlaneIndex)
 {
-  return GetImageFormatMetaData(format).m_planeData[planeIndex].m_uiBlockWidth;
+  return GetImageFormatMetaData(format).m_planeData[uiPlaneIndex].m_uiBlockWidth;
 }
 
-ezUInt32 ezImageFormat::GetBlockHeight(Enum format, ezUInt32 planeIndex)
+ezUInt32 ezImageFormat::GetBlockHeight(Enum format, ezUInt32 uiPlaneIndex)
 {
-  return GetImageFormatMetaData(format).m_planeData[planeIndex].m_uiBlockHeight;
+  return GetImageFormatMetaData(format).m_planeData[uiPlaneIndex].m_uiBlockHeight;
 }
 
-ezUInt32 ezImageFormat::GetBlockDepth(Enum format, ezUInt32 planeIndex)
+ezUInt32 ezImageFormat::GetBlockDepth(Enum format, ezUInt32 uiPlaneIndex)
 {
-  return GetImageFormatMetaData(format).m_planeData[planeIndex].m_uiBlockDepth;
+  return GetImageFormatMetaData(format).m_planeData[uiPlaneIndex].m_uiBlockDepth;
 }
 
 ezImageFormatDataType::Enum ezImageFormat::GetDataType(Enum format)
@@ -747,29 +747,29 @@ ezImageFormat::Enum ezImageFormat::AsLinear(Enum format)
   return GetImageFormatMetaData(format).m_asLinear;
 }
 
-ezUInt32 ezImageFormat::GetNumBlocksX(Enum format, ezUInt32 width, ezUInt32 planeIndex)
+ezUInt32 ezImageFormat::GetNumBlocksX(Enum format, ezUInt32 uiWidth, ezUInt32 uiPlaneIndex)
 {
-  return (width - 1) / GetBlockWidth(format, planeIndex) + 1;
+  return (uiWidth - 1) / GetBlockWidth(format, uiPlaneIndex) + 1;
 }
 
-ezUInt32 ezImageFormat::GetNumBlocksY(Enum format, ezUInt32 height, ezUInt32 planeIndex)
+ezUInt32 ezImageFormat::GetNumBlocksY(Enum format, ezUInt32 uiHeight, ezUInt32 uiPlaneIndex)
 {
-  return (height - 1) / GetBlockHeight(format, planeIndex) + 1;
+  return (uiHeight - 1) / GetBlockHeight(format, uiPlaneIndex) + 1;
 }
 
-ezUInt32 ezImageFormat::GetNumBlocksZ(Enum format, ezUInt32 depth, ezUInt32 planeIndex)
+ezUInt32 ezImageFormat::GetNumBlocksZ(Enum format, ezUInt32 uiDepth, ezUInt32 uiPlaneIndex)
 {
-  return (depth - 1) / GetBlockDepth(format, planeIndex) + 1;
+  return (uiDepth - 1) / GetBlockDepth(format, uiPlaneIndex) + 1;
 }
 
-ezUInt64 ezImageFormat::GetRowPitch(Enum format, ezUInt32 width, ezUInt32 planeIndex)
+ezUInt64 ezImageFormat::GetRowPitch(Enum format, ezUInt32 uiWidth, ezUInt32 uiPlaneIndex)
 {
-  return static_cast<ezUInt64>(GetNumBlocksX(format, width, planeIndex)) * GetBitsPerBlock(format, planeIndex) / 8;
+  return static_cast<ezUInt64>(GetNumBlocksX(format, uiWidth, uiPlaneIndex)) * GetBitsPerBlock(format, uiPlaneIndex) / 8;
 }
 
-ezUInt64 ezImageFormat::GetDepthPitch(Enum format, ezUInt32 width, ezUInt32 height, ezUInt32 planeIndex)
+ezUInt64 ezImageFormat::GetDepthPitch(Enum format, ezUInt32 uiWidth, ezUInt32 uiHeight, ezUInt32 uiPlaneIndex)
 {
-  return static_cast<ezUInt64>(GetNumBlocksY(format, height, planeIndex)) * static_cast<ezUInt64>(GetRowPitch(format, width, planeIndex));
+  return static_cast<ezUInt64>(GetNumBlocksY(format, uiHeight, uiPlaneIndex)) * static_cast<ezUInt64>(GetRowPitch(format, uiWidth, uiPlaneIndex));
 }
 
 ezImageFormatType::Enum ezImageFormat::GetType(Enum format)

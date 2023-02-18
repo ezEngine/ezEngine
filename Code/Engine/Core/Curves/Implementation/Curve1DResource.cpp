@@ -78,37 +78,37 @@ void ezCurve1DResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
   }
 }
 
-void ezCurve1DResourceDescriptor::Save(ezStreamWriter& stream) const
+void ezCurve1DResourceDescriptor::Save(ezStreamWriter& inout_stream) const
 {
   const ezUInt8 uiVersion = 1;
 
-  stream << uiVersion;
+  inout_stream << uiVersion;
 
   const ezUInt8 uiCurves = static_cast<ezUInt8>(m_Curves.GetCount());
-  stream << uiCurves;
+  inout_stream << uiCurves;
 
   for (ezUInt32 i = 0; i < uiCurves; ++i)
   {
-    m_Curves[i].Save(stream);
+    m_Curves[i].Save(inout_stream);
   }
 }
 
-void ezCurve1DResourceDescriptor::Load(ezStreamReader& stream)
+void ezCurve1DResourceDescriptor::Load(ezStreamReader& inout_stream)
 {
   ezUInt8 uiVersion = 0;
 
-  stream >> uiVersion;
+  inout_stream >> uiVersion;
 
   EZ_ASSERT_DEV(uiVersion == 1, "Invalid file version {0}", uiVersion);
 
   ezUInt8 uiCurves = 0;
-  stream >> uiCurves;
+  inout_stream >> uiCurves;
 
   m_Curves.SetCount(uiCurves);
 
   for (ezUInt32 i = 0; i < uiCurves; ++i)
   {
-    m_Curves[i].Load(stream);
+    m_Curves[i].Load(inout_stream);
 
     /// \todo We can do this on load, or somehow ensure this is always already correctly saved
     m_Curves[i].SortControlPoints();

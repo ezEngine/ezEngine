@@ -156,7 +156,7 @@ EZ_ALWAYS_INLINE ezAtomicBool::operator bool() const
   return static_cast<ezInt32>(m_iAtomicInt) != 0;
 }
 
-EZ_ALWAYS_INLINE bool ezAtomicBool::TestAndSet(bool expected, bool newValue)
+EZ_ALWAYS_INLINE bool ezAtomicBool::TestAndSet(bool bExpected, bool bNewValue)
 {
-  return m_iAtomicInt.TestAndSet(expected ? 1 : 0, newValue ? 1 : 0) != 0;
+  return m_iAtomicInt.TestAndSet(bExpected ? 1 : 0, bNewValue ? 1 : 0) != 0;
 }

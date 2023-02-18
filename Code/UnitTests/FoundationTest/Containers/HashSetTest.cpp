@@ -13,10 +13,10 @@ namespace
     ezUInt32 hash;
     int key;
 
-    inline Collision(ezUInt32 hash, int key)
+    inline Collision(ezUInt32 uiHash, int iKey)
     {
-      this->hash = hash;
-      this->key = key;
+      this->hash = uiHash;
+      this->key = iKey;
     }
 
     inline bool operator==(const Collision& other) const { return key == other.key; }
@@ -27,8 +27,8 @@ namespace
   class OnlyMovable
   {
   public:
-    OnlyMovable(ezUInt32 hash)
-      : hash(hash)
+    OnlyMovable(ezUInt32 uiHash)
+      : hash(uiHash)
       , m_NumTimesMoved(0)
     {
     }

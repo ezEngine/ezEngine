@@ -13,8 +13,8 @@ ezMap<ezString, ezString> ezQtAssetBrowserDlg::s_TextFilter;
 ezMap<ezString, ezString> ezQtAssetBrowserDlg::s_PathFilter;
 ezMap<ezString, ezString> ezQtAssetBrowserDlg::s_TypeFilter;
 
-ezQtAssetBrowserDlg::ezQtAssetBrowserDlg(QWidget* parent, const ezUuid& preselectedAsset, const char* szVisibleFilters)
-  : QDialog(parent)
+ezQtAssetBrowserDlg::ezQtAssetBrowserDlg(QWidget* pParent, const ezUuid& preselectedAsset, const char* szVisibleFilters)
+  : QDialog(pParent)
 {
   setupUi(this);
 

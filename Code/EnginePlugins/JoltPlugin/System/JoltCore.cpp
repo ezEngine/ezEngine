@@ -102,9 +102,9 @@ static void JoltTraceFunc(const char* szText, ...)
 
 #ifdef JPH_ENABLE_ASSERTS
 
-static bool JoltAssertFailed(const char* inExpression, const char* inMessage, const char* inFile, uint32_t inLine)
+static bool JoltAssertFailed(const char* szInExpression, const char* szInMessage, const char* szInFile, uint32_t inLine)
 {
-  return ezFailedCheck(inFile, inLine, "Jolt", inExpression, inMessage);
+  return ezFailedCheck(szInFile, inLine, "Jolt", szInExpression, szInMessage);
 };
 
 #endif // JPH_ENABLE_ASSERTS

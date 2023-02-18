@@ -45,12 +45,12 @@ namespace ezModelImporter2
     ezMap<ezUInt32, ezHybridArray<MeshInstance, 4>> m_MeshInstances;
   };
 
-  extern ezColor ConvertAssimpType(const aiColor3D& value, bool invert = false);
-  extern ezColor ConvertAssimpType(const aiColor4D& value, bool invert = false);
-  extern ezMat4 ConvertAssimpType(const aiMatrix4x4& value, bool dummy = false);
-  extern ezVec3 ConvertAssimpType(const aiVector3D& value, bool dummy = false);
-  extern ezQuat ConvertAssimpType(const aiQuaternion& value, bool dummy = false);
-  extern float ConvertAssimpType(float value, bool dummy = false);
-  extern int ConvertAssimpType(int value, bool dummy = false);
+  extern ezColor ConvertAssimpType(const aiColor3D& value, bool bInvert = false);
+  extern ezColor ConvertAssimpType(const aiColor4D& value, bool bInvert = false);
+  extern ezMat4 ConvertAssimpType(const aiMatrix4x4& value, bool bDummy = false);
+  extern ezVec3 ConvertAssimpType(const aiVector3D& value, bool bDummy = false);
+  extern ezQuat ConvertAssimpType(const aiQuaternion& value, bool bDummy = false);
+  extern float ConvertAssimpType(float value, bool bDummy = false);
+  extern int ConvertAssimpType(int value, bool bDummy = false);
 
 } // namespace ezModelImporter2

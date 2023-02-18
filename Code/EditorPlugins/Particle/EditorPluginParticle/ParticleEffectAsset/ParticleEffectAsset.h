@@ -30,26 +30,26 @@ public:
 
   static void PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
 
-  void WriteResource(ezStreamWriter& stream) const;
+  void WriteResource(ezStreamWriter& inout_stream) const;
 
   void TriggerRestartEffect();
 
   ezEvent<const ezParticleEffectAssetEvent&> m_Events;
 
-  void SetAutoRestart(bool enable);
+  void SetAutoRestart(bool bEnable);
   bool GetAutoRestart() const { return m_bAutoRestart; }
 
   void SetSimulationPaused(bool bPaused);
   bool GetSimulationPaused() const { return m_bSimulationPaused; }
 
-  void SetSimulationSpeed(float speed);
+  void SetSimulationSpeed(float fSpeed);
   float GetSimulationSpeed() const { return m_fSimulationSpeed; }
 
   bool GetRenderVisualizers() const { return m_bRenderVisualizers; }
   void SetRenderVisualizers(bool b);
 
   // Overridden to enable support for visualizers/manipulators
-  virtual ezResult ComputeObjectTransformation(const ezDocumentObject* pObject, ezTransform& out_Result) const override;
+  virtual ezResult ComputeObjectTransformation(const ezDocumentObject* pObject, ezTransform& out_result) const override;
 
 protected:
   virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;

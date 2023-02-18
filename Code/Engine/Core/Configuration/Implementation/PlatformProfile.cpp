@@ -24,8 +24,8 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 ezProfileConfigData::ezProfileConfigData() = default;
 ezProfileConfigData::~ezProfileConfigData() = default;
 
-void ezProfileConfigData::SaveRuntimeData(ezChunkStreamWriter& stream) const {}
-void ezProfileConfigData::LoadRuntimeData(ezChunkStreamReader& stream) {}
+void ezProfileConfigData::SaveRuntimeData(ezChunkStreamWriter& inout_stream) const {}
+void ezProfileConfigData::LoadRuntimeData(ezChunkStreamReader& inout_stream) {}
 
 //////////////////////////////////////////////////////////////////////////
 

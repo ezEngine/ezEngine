@@ -272,7 +272,7 @@ public:
   static ezArrayPtr<Node*> GetChildren(Node* pNode);
   static ezArrayPtr<const Node*> GetChildren(const Node* pNode);
 
-  void PrintGraph(ezDGMLGraph& graph) const;
+  void PrintGraph(ezDGMLGraph& inout_graph) const;
 
   ezHybridArray<Output*, 8> m_OutputNodes;
 

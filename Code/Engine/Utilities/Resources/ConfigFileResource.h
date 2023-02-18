@@ -54,28 +54,28 @@ public:
   ~ezConfigFileResource();
 
   /// \brief Returns the 'int' variable with the given name. Logs an error, if the variable doesn't exist in the config file.
-  ezInt32 GetInt(ezTempHashedString szName) const;
+  ezInt32 GetInt(ezTempHashedString sName) const;
 
   /// \brief Returns the 'float' variable with the given name. Logs an error, if the variable doesn't exist in the config file.
-  float GetFloat(ezTempHashedString szName) const;
+  float GetFloat(ezTempHashedString sName) const;
 
   /// \brief Returns the 'bool' variable with the given name. Logs an error, if the variable doesn't exist in the config file.
-  bool GetBool(ezTempHashedString szName) const;
+  bool GetBool(ezTempHashedString sName) const;
 
   /// \brief Returns the 'string' variable with the given name. Logs an error, if the variable doesn't exist in the config file.
-  const char* GetString(ezTempHashedString szName) const;
+  const char* GetString(ezTempHashedString sName) const;
 
   /// \brief Returns the 'int' variable with the given name. Returns the 'fallback' value, if the variable doesn't exist in the config file.
-  ezInt32 GetInt(ezTempHashedString szName, ezInt32 fallback) const;
+  ezInt32 GetInt(ezTempHashedString sName, ezInt32 iFallback) const;
 
   /// \brief Returns the 'float' variable with the given name. Returns the 'fallback' value, if the variable doesn't exist in the config file.
-  float GetFloat(ezTempHashedString szName, float fallback) const;
+  float GetFloat(ezTempHashedString sName, float fFallback) const;
 
   /// \brief Returns the 'bool' variable with the given name. Returns the 'fallback' value, if the variable doesn't exist in the config file.
-  bool GetBool(ezTempHashedString szName, bool fallback) const;
+  bool GetBool(ezTempHashedString sName, bool bFallback) const;
 
   /// \brief Returns the 'string' variable with the given name. Returns the 'fallback' value, if the variable doesn't exist in the config file.
-  const char* GetString(ezTempHashedString szName, const char* fallback) const;
+  const char* GetString(ezTempHashedString sName, const char* szFallback) const;
 
 protected:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
@@ -108,10 +108,10 @@ public:
     ezMemoryStreamReader m_Reader;
     ezDependencyFile m_RequiredFiles;
 
-    ezResult PrePropFileLocator(const char* szCurAbsoluteFile, const char* szIncludeFile, ezPreprocessor::IncludeType IncType, ezStringBuilder& out_sAbsoluteFilePath);
+    ezResult PrePropFileLocator(const char* szCurAbsoluteFile, const char* szIncludeFile, ezPreprocessor::IncludeType incType, ezStringBuilder& out_sAbsoluteFilePath);
   };
 
   virtual ezResourceLoadData OpenDataStream(const ezResource* pResource) override;
-  virtual void CloseDataStream(const ezResource* pResource, const ezResourceLoadData& LoaderData) override;
+  virtual void CloseDataStream(const ezResource* pResource, const ezResourceLoadData& loaderData) override;
   virtual bool IsResourceOutdated(const ezResource* pResource) const override;
 };

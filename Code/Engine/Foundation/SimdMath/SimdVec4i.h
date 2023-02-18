@@ -12,13 +12,13 @@ public:
 
   ezSimdVec4i(); // [tested]
 
-  explicit ezSimdVec4i(ezInt32 xyzw); // [tested]
+  explicit ezSimdVec4i(ezInt32 iXyzw); // [tested]
 
   ezSimdVec4i(ezInt32 x, ezInt32 y, ezInt32 z, ezInt32 w = 1); // [tested]
 
   ezSimdVec4i(ezInternal::QuadInt v); // [tested]
 
-  void Set(ezInt32 xyzw); // [tested]
+  void Set(ezInt32 iXyzw); // [tested]
 
   void Set(ezInt32 x, ezInt32 y, ezInt32 z, ezInt32 w); // [tested]
 
@@ -91,7 +91,7 @@ public:
 
   static ezSimdVec4i ZeroVector(); // [tested]
 
-  static ezSimdVec4i Select(const ezSimdVec4b& cmp, const ezSimdVec4i& ifTrue, const ezSimdVec4i& ifFalse); // [tested]
+  static ezSimdVec4i Select(const ezSimdVec4b& vCmp, const ezSimdVec4i& vTrue, const ezSimdVec4i& vFalse); // [tested]
 
 public:
   ezInternal::QuadInt m_v;

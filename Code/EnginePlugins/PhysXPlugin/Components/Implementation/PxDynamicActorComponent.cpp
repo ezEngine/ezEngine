@@ -153,11 +153,11 @@ EZ_END_COMPONENT_TYPE
 ezPxDynamicActorComponent::ezPxDynamicActorComponent() = default;
 ezPxDynamicActorComponent::~ezPxDynamicActorComponent() = default;
 
-void ezPxDynamicActorComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezPxDynamicActorComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s << m_bKinematic;
   s << m_fDensity;
@@ -170,12 +170,12 @@ void ezPxDynamicActorComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_LockingFlags;
 }
 
-void ezPxDynamicActorComponent::DeserializeComponent(ezWorldReader& stream)
+void ezPxDynamicActorComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s >> m_bKinematic;
   s >> m_fDensity;
@@ -466,25 +466,25 @@ void ezPxDynamicActorComponent::SetLockingFlags(ezBitflags<ezPxActorLockingFlags
   }
 }
 
-void ezPxDynamicActorComponent::AddForceAtPos(ezMsgPhysicsAddForce& msg)
+void ezPxDynamicActorComponent::AddForceAtPos(ezMsgPhysicsAddForce& ref_msg)
 {
   if (m_pActor != nullptr && !m_bKinematic)
   {
     EZ_PX_WRITE_LOCK(*m_pActor->getScene());
 
     PxRigidBodyExt::addForceAtPos(
-      *m_pActor, ezPxConversionUtils::ToVec3(msg.m_vForce), ezPxConversionUtils::ToVec3(msg.m_vGlobalPosition), PxForceMode::eFORCE);
+      *m_pActor, ezPxConversionUtils::ToVec3(ref_msg.m_vForce), ezPxConversionUtils::ToVec3(ref_msg.m_vGlobalPosition), PxForceMode::eFORCE);
   }
 }
 
-void ezPxDynamicActorComponent::AddImpulseAtPos(ezMsgPhysicsAddImpulse& msg)
+void ezPxDynamicActorComponent::AddImpulseAtPos(ezMsgPhysicsAddImpulse& ref_msg)
 {
   if (m_pActor != nullptr && !m_bKinematic)
   {
     EZ_PX_WRITE_LOCK(*m_pActor->getScene());
 
     PxRigidBodyExt::addForceAtPos(
-      *m_pActor, ezPxConversionUtils::ToVec3(msg.m_vImpulse), ezPxConversionUtils::ToVec3(msg.m_vGlobalPosition), PxForceMode::eIMPULSE);
+      *m_pActor, ezPxConversionUtils::ToVec3(ref_msg.m_vImpulse), ezPxConversionUtils::ToVec3(ref_msg.m_vGlobalPosition), PxForceMode::eIMPULSE);
   }
 }
 

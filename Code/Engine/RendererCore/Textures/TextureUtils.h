@@ -12,7 +12,7 @@ struct EZ_RENDERERCORE_DLL ezTextureUtils
   static ezImageFormat::Enum GalFormatToImageFormat(ezGALResourceFormat::Enum format);
 
 
-  static void ConfigureSampler(ezTextureFilterSetting::Enum filter, ezGALSamplerStateCreationDescription& out_Sampler);
+  static void ConfigureSampler(ezTextureFilterSetting::Enum filter, ezGALSamplerStateCreationDescription& out_sampler);
 
   /// \brief If enabled, textures are always loaded to full quality immediately. Mostly necessary for image comparison unit tests.
   static bool s_bForceFullQualityAlways;

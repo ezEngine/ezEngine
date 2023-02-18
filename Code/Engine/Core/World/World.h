@@ -22,7 +22,7 @@ class EZ_CORE_DLL ezWorld final
 {
 public:
   /// \brief Creates a new world with the given name.
-  ezWorld(ezWorldDesc& desc);
+  ezWorld(ezWorldDesc& ref_desc);
   ~ezWorld();
 
   /// \brief Deletes all game objects in a world
@@ -49,26 +49,26 @@ public:
   /// Use DeleteObjectDelayed() instead for safe removal at the end of the frame.
   ///
   /// If bAlsoDeleteEmptyParents is set, any ancestor object that has no other children and no components, will also get deleted.
-  void DeleteObjectNow(const ezGameObjectHandle& object, bool bAlsoDeleteEmptyParents = true);
+  void DeleteObjectNow(const ezGameObjectHandle& hObject, bool bAlsoDeleteEmptyParents = true);
 
   /// \brief Deletes the given object at the beginning of the next world update. The object and its components and children stay completely
   /// valid until then.
   ///
   /// If bAlsoDeleteEmptyParents is set, any ancestor object that has no other children and no components, will also get deleted.
-  void DeleteObjectDelayed(const ezGameObjectHandle& object, bool bAlsoDeleteEmptyParents = true);
+  void DeleteObjectDelayed(const ezGameObjectHandle& hObject, bool bAlsoDeleteEmptyParents = true);
 
   /// \brief Returns the event that is triggered before an object is deleted. This can be used for external systems to cleanup data
   /// which is associated with the deleted object.
   const ezEvent<const ezGameObject*>& GetObjectDeletionEvent() const;
 
   /// \brief Returns whether the given handle corresponds to a valid object.
-  bool IsValidObject(const ezGameObjectHandle& object) const;
+  bool IsValidObject(const ezGameObjectHandle& hObject) const;
 
   /// \brief Returns whether an object with the given handle exists and if so writes out the corresponding pointer to out_pObject.
-  [[nodiscard]] bool TryGetObject(const ezGameObjectHandle& object, ezGameObject*& out_pObject);
+  [[nodiscard]] bool TryGetObject(const ezGameObjectHandle& hObject, ezGameObject*& out_pObject);
 
   /// \brief Returns whether an object with the given handle exists and if so writes out the corresponding pointer to out_pObject.
-  [[nodiscard]] bool TryGetObject(const ezGameObjectHandle& object, const ezGameObject*& out_pObject) const;
+  [[nodiscard]] bool TryGetObject(const ezGameObjectHandle& hObject, const ezGameObject*& out_pObject) const;
 
   /// \brief Returns whether an object with the given global key exists and if so writes out the corresponding pointer to out_pObject.
   [[nodiscard]] bool TryGetObjectWithGlobalKey(const ezTempHashedString& sGlobalKey, ezGameObject*& out_pObject);
@@ -167,15 +167,15 @@ public:
   const ezComponentManagerBase* GetManagerForComponentType(const ezRTTI* pComponentRtti) const;
 
   /// \brief Checks whether the given handle references a valid component.
-  bool IsValidComponent(const ezComponentHandle& component) const;
+  bool IsValidComponent(const ezComponentHandle& hComponent) const;
 
   /// \brief Returns whether a component with the given handle exists and if so writes out the corresponding pointer to out_pComponent.
   template <typename ComponentType>
-  [[nodiscard]] bool TryGetComponent(const ezComponentHandle& component, ComponentType*& out_pComponent);
+  [[nodiscard]] bool TryGetComponent(const ezComponentHandle& hComponent, ComponentType*& out_pComponent);
 
   /// \brief Returns whether a component with the given handle exists and if so writes out the corresponding pointer to out_pComponent.
   template <typename ComponentType>
-  [[nodiscard]] bool TryGetComponent(const ezComponentHandle& component, const ComponentType*& out_pComponent) const;
+  [[nodiscard]] bool TryGetComponent(const ezComponentHandle& hComponent, const ComponentType*& out_pComponent) const;
 
   /// \brief Creates a new component init batch.
   /// It is ensured that the Initialize function is called for all components in a batch before the OnSimulationStarted is called.
@@ -184,50 +184,50 @@ public:
   ezComponentInitBatchHandle CreateComponentInitBatch(ezStringView sBatchName, bool bMustFinishWithinOneFrame = true);
 
   /// \brief Deletes a component init batch. It must be completely processed before it can be deleted.
-  void DeleteComponentInitBatch(const ezComponentInitBatchHandle& batch);
+  void DeleteComponentInitBatch(const ezComponentInitBatchHandle& hBatch);
 
   /// \brief All components that are created between an BeginAddingComponentsToInitBatch/EndAddingComponentsToInitBatch scope are added to the
   /// given init batch.
-  void BeginAddingComponentsToInitBatch(const ezComponentInitBatchHandle& batch);
+  void BeginAddingComponentsToInitBatch(const ezComponentInitBatchHandle& hBatch);
 
   /// \brief End adding components to the given batch. Components created after this call are added to the default init batch.
-  void EndAddingComponentsToInitBatch(const ezComponentInitBatchHandle& batch);
+  void EndAddingComponentsToInitBatch(const ezComponentInitBatchHandle& hBatch);
 
   /// \brief After all components have been added to the init batch call submit to start processing the batch.
-  void SubmitComponentInitBatch(const ezComponentInitBatchHandle& batch);
+  void SubmitComponentInitBatch(const ezComponentInitBatchHandle& hBatch);
 
   /// \brief Returns whether the init batch has been completely processed and all corresponding components are initialized
   /// and their OnSimulationStarted function was called.
-  bool IsComponentInitBatchCompleted(const ezComponentInitBatchHandle& batch, double* pCompletionFactor = nullptr);
+  bool IsComponentInitBatchCompleted(const ezComponentInitBatchHandle& hBatch, double* pCompletionFactor = nullptr);
 
   /// \brief Cancel the init batch if it is still active. This might leave outstanding components in an inconsistent state,
   /// so this function has be used with care.
-  void CancelComponentInitBatch(const ezComponentInitBatchHandle& batch);
+  void CancelComponentInitBatch(const ezComponentInitBatchHandle& hBatch);
 
   ///@}
   /// \name Message Functions
   ///@{
 
   /// \brief Sends a message to all components of the receiverObject.
-  void SendMessage(const ezGameObjectHandle& receiverObject, ezMessage& msg);
+  void SendMessage(const ezGameObjectHandle& hReceiverObject, ezMessage& ref_msg);
 
   /// \brief Sends a message to all components of the receiverObject and all its children.
-  void SendMessageRecursive(const ezGameObjectHandle& receiverObject, ezMessage& msg);
+  void SendMessageRecursive(const ezGameObjectHandle& hReceiverObject, ezMessage& ref_msg);
 
   /// \brief Queues the message for the given phase. The message is send to the receiverObject after the given delay in the corresponding phase.
-  void PostMessage(const ezGameObjectHandle& receiverObject, const ezMessage& msg, ezTime delay,
+  void PostMessage(const ezGameObjectHandle& hReceiverObject, const ezMessage& msg, ezTime delay,
     ezObjectMsgQueueType::Enum queueType = ezObjectMsgQueueType::NextFrame) const;
 
   /// \brief Queues the message for the given phase. The message is send to the receiverObject and all its children after the given delay in
   /// the corresponding phase.
-  void PostMessageRecursive(const ezGameObjectHandle& receiverObject, const ezMessage& msg, ezTime delay,
+  void PostMessageRecursive(const ezGameObjectHandle& hReceiverObject, const ezMessage& msg, ezTime delay,
     ezObjectMsgQueueType::Enum queueType = ezObjectMsgQueueType::NextFrame) const;
 
   /// \brief Sends a message to the component.
-  void SendMessage(const ezComponentHandle& receiverComponent, ezMessage& msg);
+  void SendMessage(const ezComponentHandle& hReceiverComponent, ezMessage& ref_msg);
 
   /// \brief Queues the message for the given phase. The message is send to the receiverComponent after the given delay in the corresponding phase.
-  void PostMessage(const ezComponentHandle& receiverComponent, const ezMessage& msg, ezTime delay,
+  void PostMessage(const ezComponentHandle& hReceiverComponent, const ezMessage& msg, ezTime delay,
     ezObjectMsgQueueType::Enum queueType = ezObjectMsgQueueType::NextFrame) const;
 
   /// \brief Finds the closest (parent) object, starting at pSearchObject, which has an ezComponent that handles the given message and returns all
@@ -266,7 +266,7 @@ public:
   /// \brief Returns the coordinate system for the given position.
   /// By default this always returns a coordinate system with forward = +X, right = +Y and up = +Z.
   /// This can be customized by setting a different coordinate system provider.
-  void GetCoordinateSystem(const ezVec3& vGlobalPosition, ezCoordinateSystem& out_CoordinateSystem) const;
+  void GetCoordinateSystem(const ezVec3& vGlobalPosition, ezCoordinateSystem& out_coordinateSystem) const;
 
   /// \brief Sets the coordinate system provider that should be used in this world.
   void SetCoordinateSystemProvider(const ezSharedPtr<ezCoordinateSystemProvider>& pProvider);
@@ -342,10 +342,10 @@ public:
   static ezWorld* GetWorld(ezUInt32 uiIndex);
 
   /// \brief Returns the world for the given game object handle.
-  static ezWorld* GetWorld(const ezGameObjectHandle& object);
+  static ezWorld* GetWorld(const ezGameObjectHandle& hObject);
 
   /// \brief Returns the world for the given component handle.
-  static ezWorld* GetWorld(const ezComponentHandle& component);
+  static ezWorld* GetWorld(const ezComponentHandle& hComponent);
 
 private:
   friend class ezGameObject;

@@ -52,8 +52,8 @@ public:
   /// \brief helper struct to wrap a string pointer
   struct StringWrapper
   {
-    EZ_ALWAYS_INLINE StringWrapper(const char* str)
-      : m_str(str)
+    EZ_ALWAYS_INLINE StringWrapper(const char* szStr)
+      : m_str(szStr)
     {
     }
     const char* m_str;
@@ -244,7 +244,7 @@ public:
   /// \brief Returns the sub value with szKey. This could be a value in a dictionary or a member property inside a reflected type.
   ///
   /// This function will return an invalid variant if no corresponding sub value is found.
-  const ezVariant operator[](StringWrapper szKey) const; // [tested]
+  const ezVariant operator[](StringWrapper key) const; // [tested]
 
   /// \brief Returns whether the stored type can generally be converted to the desired type.
   ///
@@ -284,7 +284,7 @@ public:
   /// store a pointer to a variant inside the functor object and then call DispatchTo to execute the function that will handle the given
   /// type of the variant.
   template <typename Functor, class... Args>
-  static auto DispatchTo(Functor& functor, Type::Enum type, Args&&... args); // [tested]
+  static auto DispatchTo(Functor& ref_functor, Type::Enum type, Args&&... args); // [tested]
 
   /// \brief Computes the hash value of the stored data. Returns uiSeed (unchanged) for an invalid Variant.
   ezUInt64 ComputeHash(ezUInt64 uiSeed = 0) const;
@@ -299,8 +299,8 @@ private:
     void* m_Ptr;
     const ezRTTI* m_pType;
     ezAtomicInteger32 m_uiRef = 1;
-    EZ_ALWAYS_INLINE SharedData(void* ptr, const ezRTTI* pType)
-      : m_Ptr(ptr)
+    EZ_ALWAYS_INLINE SharedData(void* pPtr, const ezRTTI* pType)
+      : m_Ptr(pPtr)
       , m_pType(pType)
     {
     }

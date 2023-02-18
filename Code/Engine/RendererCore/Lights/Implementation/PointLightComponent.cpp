@@ -40,11 +40,11 @@ ezPointLightComponent::ezPointLightComponent()
 
 ezPointLightComponent::~ezPointLightComponent() = default;
 
-ezResult ezPointLightComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg)
+ezResult ezPointLightComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg)
 {
   m_fEffectiveRange = CalculateEffectiveRange(m_fRange, m_fIntensity);
 
-  bounds = ezBoundingSphere(ezVec3::ZeroVector(), m_fEffectiveRange);
+  ref_bounds = ezBoundingSphere(ezVec3::ZeroVector(), m_fEffectiveRange);
   return EZ_SUCCESS;
 }
 
@@ -125,21 +125,21 @@ void ezPointLightComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) 
   msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::Light, caching);
 }
 
-void ezPointLightComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezPointLightComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 
-  ezStreamWriter& s = stream.GetStream();
+  ezStreamWriter& s = inout_stream.GetStream();
 
   s << m_fRange;
   s << m_hProjectedTexture;
 }
 
-void ezPointLightComponent::DeserializeComponent(ezWorldReader& stream)
+void ezPointLightComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
+  SUPER::DeserializeComponent(inout_stream);
   // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  ezStreamReader& s = stream.GetStream();
+  ezStreamReader& s = inout_stream.GetStream();
 
   s >> m_fRange;
   s >> m_hProjectedTexture;
@@ -175,9 +175,9 @@ public:
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
-    context.PatchBaseClass("ezLightComponent", 2, true);
+    ref_context.PatchBaseClass("ezLightComponent", 2, true);
   }
 };
 

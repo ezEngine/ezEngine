@@ -24,7 +24,7 @@ public:
 
   virtual ~ezCoordinateSystemProvider() {}
 
-  virtual void GetCoordinateSystem(const ezVec3& vGlobalPosition, ezCoordinateSystem& out_CoordinateSystem) const = 0;
+  virtual void GetCoordinateSystem(const ezVec3& vGlobalPosition, ezCoordinateSystem& out_coordinateSystem) const = 0;
 
 protected:
   friend class ezWorld;
@@ -50,14 +50,14 @@ public:
   /// \brief Returns the equivalent point in the target coordinate system.
   ezVec3 ConvertSourcePosition(const ezVec3& vPos) const; // [tested]
   /// \brief Returns the equivalent rotation in the target coordinate system.
-  ezQuat ConvertSourceRotation(const ezQuat& vOrientation) const; // [tested]
+  ezQuat ConvertSourceRotation(const ezQuat& qOrientation) const; // [tested]
   /// \brief Returns the equivalent length in the target coordinate system.
   float ConvertSourceLength(float fLength) const; // [tested]
 
   /// \brief Returns the equivalent point in the source coordinate system.
   ezVec3 ConvertTargetPosition(const ezVec3& vPos) const; // [tested]
   /// \brief Returns the equivalent rotation in the source coordinate system.
-  ezQuat ConvertTargetRotation(const ezQuat& vOrientation) const; // [tested]
+  ezQuat ConvertTargetRotation(const ezQuat& qOrientation) const; // [tested]
   /// \brief Returns the equivalent length in the source coordinate system.
   float ConvertTargetLength(float fLength) const; // [tested]
 

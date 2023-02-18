@@ -103,8 +103,8 @@ class ezJoltBodyFilter final : public JPH::BodyFilter
 public:
   ezUInt32 m_uiObjectFilterIDToIgnore = ezInvalidIndex - 1;
 
-  ezJoltBodyFilter(ezUInt32 bodyFilterIdToIgnore = ezInvalidIndex - 1)
-    : m_uiObjectFilterIDToIgnore(bodyFilterIdToIgnore)
+  ezJoltBodyFilter(ezUInt32 uiBodyFilterIdToIgnore = ezInvalidIndex - 1)
+    : m_uiObjectFilterIDToIgnore(uiBodyFilterIdToIgnore)
   {
   }
 
@@ -113,8 +113,8 @@ public:
     m_uiObjectFilterIDToIgnore = ezInvalidIndex - 1;
   }
 
-  virtual bool ShouldCollideLocked(const JPH::Body& inBody) const override
+  virtual bool ShouldCollideLocked(const JPH::Body& body) const override
   {
-    return inBody.GetCollisionGroup().GetGroupID() != m_uiObjectFilterIDToIgnore;
+    return body.GetCollisionGroup().GetGroupID() != m_uiObjectFilterIDToIgnore;
   }
 };

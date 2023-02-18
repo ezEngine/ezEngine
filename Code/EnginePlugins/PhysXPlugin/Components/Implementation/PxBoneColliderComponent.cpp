@@ -46,20 +46,20 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezPxBoneColliderComponent::ezPxBoneColliderComponent() = default;
 ezPxBoneColliderComponent::~ezPxBoneColliderComponent() = default;
 
-void ezPxBoneColliderComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezPxBoneColliderComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
-  auto& s = stream.GetStream();
+  SUPER::SerializeComponent(inout_stream);
+  auto& s = inout_stream.GetStream();
 
   s << m_bQueryShapeOnly;
   s << m_UpdateThreshold;
 }
 
-void ezPxBoneColliderComponent::DeserializeComponent(ezWorldReader& stream)
+void ezPxBoneColliderComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  auto& s = stream.GetStream();
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  auto& s = inout_stream.GetStream();
 
   s >> m_bQueryShapeOnly;
   s >> m_UpdateThreshold;
@@ -79,7 +79,7 @@ void ezPxBoneColliderComponent::OnDeactivated()
   SUPER::OnDeactivated();
 }
 
-void ezPxBoneColliderComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& msg)
+void ezPxBoneColliderComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& ref_msg)
 {
   if (m_UpdateThreshold.IsPositive())
   {
@@ -95,7 +95,7 @@ void ezPxBoneColliderComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated
   {
     ezMat4 boneTrans;
     ezQuat boneRot;
-    msg.ComputeFullBoneTransform(shape.m_uiAttachedToBone, boneTrans, boneRot);
+    ref_msg.ComputeFullBoneTransform(shape.m_uiAttachedToBone, boneTrans, boneRot);
 
     ezTransform pose;
     pose.SetIdentity();

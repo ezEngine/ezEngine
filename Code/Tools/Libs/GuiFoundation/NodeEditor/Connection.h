@@ -9,7 +9,7 @@ class ezPin;
 class EZ_GUIFOUNDATION_DLL ezQtConnection : public QGraphicsPathItem
 {
 public:
-  explicit ezQtConnection(QGraphicsItem* parent = 0);
+  explicit ezQtConnection(QGraphicsItem* pParent = 0);
   ~ezQtConnection();
   virtual int type() const override { return ezQtNodeScene::Connection; }
 
@@ -30,7 +30,7 @@ public:
 
   bool m_bAdjacentNodeSelected = false;
 
-  virtual void ExtendContextMenu(QMenu& menu) {}
+  virtual void ExtendContextMenu(QMenu& ref_menu) {}
 
 protected:
   virtual void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override;

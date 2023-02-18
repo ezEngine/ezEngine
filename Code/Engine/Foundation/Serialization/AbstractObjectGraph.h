@@ -126,7 +126,7 @@ public:
   void Clear();
 
   using FilterFunction = ezDelegate<bool(const ezAbstractObjectNode*, const ezAbstractObjectNode::Property*)>;
-  ezAbstractObjectNode* Clone(ezAbstractObjectGraph& cloneTarget, const ezAbstractObjectNode* pRootNode = nullptr, FilterFunction filter = FilterFunction()) const;
+  ezAbstractObjectNode* Clone(ezAbstractObjectGraph& ref_cloneTarget, const ezAbstractObjectNode* pRootNode = nullptr, FilterFunction filter = FilterFunction()) const;
 
   const char* RegisterString(const char* szString);
 
@@ -153,7 +153,7 @@ public:
   ///  on both sides which will cause all moves inside the arrays to be lost as there is no way of recovering this information without an
   ///  equality criteria. This function is mostly used to remap a graph from a native object to a graph from ezDocumentObjects to allow
   ///  applying native side changes to the original ezDocumentObject hierarchy using diffs.
-  void ReMapNodeGuidsToMatchGraph(ezAbstractObjectNode* root, const ezAbstractObjectGraph& rhsGraph, const ezAbstractObjectNode* rhsRoot);
+  void ReMapNodeGuidsToMatchGraph(ezAbstractObjectNode* pRoot, const ezAbstractObjectGraph& rhsGraph, const ezAbstractObjectNode* pRhsRoot);
 
   /// \brief Finds everything accessible by the given root node.
   void FindTransitiveHull(const ezUuid& rootGuid, ezSet<ezUuid>& out_reachableNodes) const;
@@ -167,13 +167,13 @@ public:
   /// \brief Allows to copy a node from another graph into this graph.
   ezAbstractObjectNode* CopyNodeIntoGraph(const ezAbstractObjectNode* pNode);
 
-  ezAbstractObjectNode* CopyNodeIntoGraph(const ezAbstractObjectNode* pNode, FilterFunction& filter);
+  ezAbstractObjectNode* CopyNodeIntoGraph(const ezAbstractObjectNode* pNode, FilterFunction& ref_filter);
 
-  void CreateDiffWithBaseGraph(const ezAbstractObjectGraph& base, ezDeque<ezAbstractGraphDiffOperation>& out_DiffResult) const;
+  void CreateDiffWithBaseGraph(const ezAbstractObjectGraph& base, ezDeque<ezAbstractGraphDiffOperation>& out_diffResult) const;
 
-  void ApplyDiff(ezDeque<ezAbstractGraphDiffOperation>& Diff);
+  void ApplyDiff(ezDeque<ezAbstractGraphDiffOperation>& ref_diff);
 
-  void MergeDiffs(const ezDeque<ezAbstractGraphDiffOperation>& lhs, const ezDeque<ezAbstractGraphDiffOperation>& rhs, ezDeque<ezAbstractGraphDiffOperation>& out) const;
+  void MergeDiffs(const ezDeque<ezAbstractGraphDiffOperation>& lhs, const ezDeque<ezAbstractGraphDiffOperation>& rhs, ezDeque<ezAbstractGraphDiffOperation>& ref_out) const;
 
 private:
   EZ_DISALLOW_COPY_AND_ASSIGN(ezAbstractObjectGraph);

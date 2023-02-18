@@ -115,7 +115,7 @@ public:
   EZ_NO_INLINE ezInt32 EZ_FASTCALL FastCall() { return 1; }
   EZ_NO_INLINE ezInt32 NonVirtual() { return 1; }
   EZ_NO_INLINE virtual ezInt32 Virtual() override { return 1; }
-  EZ_NO_INLINE void OnGetValueMessage(GetValueMessage& msg) { msg.m_iValue = 1; }
+  EZ_NO_INLINE void OnGetValueMessage(GetValueMessage& ref_msg) { ref_msg.m_iValue = 1; }
 };
 
 // clang-format off
@@ -138,7 +138,7 @@ public:
   EZ_NO_INLINE ezInt32 EZ_FASTCALL FastCall() { return 2; }
   EZ_NO_INLINE ezInt32 NonVirtual() { return 2; }
   EZ_NO_INLINE virtual ezInt32 Virtual() override { return 2; }
-  EZ_NO_INLINE void OnGetValueMessage(GetValueMessage& msg) { msg.m_iValue = 2; }
+  EZ_NO_INLINE void OnGetValueMessage(GetValueMessage& ref_msg) { ref_msg.m_iValue = 2; }
 };
 
 // clang-format off

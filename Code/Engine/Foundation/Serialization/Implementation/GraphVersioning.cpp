@@ -63,13 +63,13 @@ void ezGraphPatchContext::RenameClass(const char* szTypeName)
 }
 
 
-void ezGraphPatchContext::RenameClass(const char* szTypeName, ezUInt32 version)
+void ezGraphPatchContext::RenameClass(const char* szTypeName, ezUInt32 uiVersion)
 {
   m_pNode->SetType(m_pGraph->RegisterString(szTypeName));
   m_BaseClasses[m_uiBaseClassIndex].m_sType.Assign(szTypeName);
   // After a Patch is applied, the version is always increased. So if we want to change the version we need to reduce it by one so that in the next patch loop the requested version is not skipped.
-  EZ_ASSERT_DEV(version > 0, "Cannot change the version of a class to 0, target version must be at least 1.");
-  m_BaseClasses[m_uiBaseClassIndex].m_uiTypeVersion = version - 1;
+  EZ_ASSERT_DEV(uiVersion > 0, "Cannot change the version of a class to 0, target version must be at least 1.");
+  m_BaseClasses[m_uiBaseClassIndex].m_uiTypeVersion = uiVersion - 1;
 }
 
 void ezGraphPatchContext::ChangeBaseClass(ezArrayPtr<ezVersionKey> baseClasses)

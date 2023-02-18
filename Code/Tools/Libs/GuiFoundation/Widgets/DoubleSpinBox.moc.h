@@ -10,7 +10,7 @@ class EZ_GUIFOUNDATION_DLL ezQtDoubleSpinBox : public QDoubleSpinBox
 public:
   explicit ezQtDoubleSpinBox(QWidget* pParent, bool bIntMode = false);
 
-  void SetIntMode(bool enable);
+  void SetIntMode(bool bEnable);
 
   void setDisplaySuffix(const char* szSuffix);
   void setDefaultValue(double value);
@@ -20,11 +20,11 @@ public:
   void setMinimum(const ezVariant& val);
   void setMaximum(const ezVariant& val);
 
-  virtual QString textFromValue(double val) const override;
-  virtual double valueFromText(const QString& text) const override;
+  virtual QString textFromValue(double fVal) const override;
+  virtual double valueFromText(const QString& sText) const override;
 
   void setValueInvalid();
-  void setValue(double val);
+  void setValue(double fVal);
   void setValue(const ezVariant& val);
   double value() const;
 

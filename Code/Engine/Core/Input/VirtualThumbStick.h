@@ -83,17 +83,17 @@ public:
   ///
   /// If \a Input is 'Custom' the remaining parameters define the filter axes and up to three input slots that trigger the thumb-stick.
   /// Otherwise the remaining parameters are ignored.
-  void SetTriggerInputSlot(Input::Enum Input, const ezInputActionConfig* pCustomConfig = nullptr);
+  void SetTriggerInputSlot(Input::Enum input, const ezInputActionConfig* pCustomConfig = nullptr);
 
   /// \brief Specifies which output the thumb-stick generates.
   ///
   /// If \a Output is 'Custom' the remaining parameters define which input slots the thumb-stick triggers for which direction.
   /// Otherwise the remaining parameters are ignored.
-  void SetThumbstickOutput(Output::Enum Output, const char* szOutputLeft = nullptr, const char* szOutputRight = nullptr,
+  void SetThumbstickOutput(Output::Enum output, const char* szOutputLeft = nullptr, const char* szOutputRight = nullptr,
     const char* szOutputUp = nullptr, const char* szOutputDown = nullptr);
 
   /// \brief Specifies what happens when the input slots that trigger the thumb-stick are active while entering or leaving the input area.
-  void SetAreaFocusMode(ezInputActionConfig::OnEnterArea OnEnter, ezInputActionConfig::OnLeaveArea OnLeave);
+  void SetAreaFocusMode(ezInputActionConfig::OnEnterArea onEnter, ezInputActionConfig::OnLeaveArea onLeave);
 
   /// \brief Allows to enable or disable the entire thumb-stick temporarily.
   void SetEnabled(bool bEnabled) { m_bEnabled = bEnabled; }

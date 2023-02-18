@@ -25,20 +25,20 @@ EZ_END_COMPONENT_TYPE
 ezRcMarkPoiVisibleComponent::ezRcMarkPoiVisibleComponent() = default;
 ezRcMarkPoiVisibleComponent::~ezRcMarkPoiVisibleComponent() = default;
 
-void ezRcMarkPoiVisibleComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezRcMarkPoiVisibleComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
-  ezStreamWriter& s = stream.GetStream();
+  SUPER::SerializeComponent(inout_stream);
+  ezStreamWriter& s = inout_stream.GetStream();
 
   s << m_fRadius;
   s << m_uiCollisionLayer;
 }
 
-void ezRcMarkPoiVisibleComponent::DeserializeComponent(ezWorldReader& stream)
+void ezRcMarkPoiVisibleComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
+  SUPER::DeserializeComponent(inout_stream);
   // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  ezStreamReader& s = stream.GetStream();
+  ezStreamReader& s = inout_stream.GetStream();
 
   s >> m_fRadius;
   s >> m_uiCollisionLayer;

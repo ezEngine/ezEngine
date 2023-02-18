@@ -84,18 +84,18 @@ ezResult ezRecastNavMeshBuilder::ExtractWorldGeometry(const ezWorld& world, ezWo
 }
 
 ezResult ezRecastNavMeshBuilder::Build(const ezRecastConfig& config, const ezWorldGeoExtractionUtil::MeshObjectList& geo,
-  ezRecastNavMeshResourceDescriptor& out_NavMeshDesc, ezProgress& progress)
+  ezRecastNavMeshResourceDescriptor& out_navMeshDesc, ezProgress& ref_progress)
 {
   EZ_LOG_BLOCK("ezRecastNavMeshBuilder::Build");
 
-  ezProgressRange pg("Generating NavMesh", 4, true, &progress);
+  ezProgressRange pg("Generating NavMesh", 4, true, &ref_progress);
   pg.SetStepWeighting(0, 0.1f);
   pg.SetStepWeighting(1, 0.1f);
   pg.SetStepWeighting(2, 0.6f);
   pg.SetStepWeighting(3, 0.2f);
 
   Clear();
-  out_NavMeshDesc.Clear();
+  out_navMeshDesc.Clear();
 
   ezUniquePtr<ezRcBuildContext> recastContext = EZ_DEFAULT_NEW(ezRcBuildContext);
   m_pRecastContext = recastContext.Borrow();
@@ -119,15 +119,15 @@ ezResult ezRecastNavMeshBuilder::Build(const ezRecastConfig& config, const ezWor
   if (!pg.BeginNextStep("Build Poly Mesh"))
     return EZ_FAILURE;
 
-  out_NavMeshDesc.m_pNavMeshPolygons = EZ_DEFAULT_NEW(rcPolyMesh);
+  out_navMeshDesc.m_pNavMeshPolygons = EZ_DEFAULT_NEW(rcPolyMesh);
 
-  if (BuildRecastPolyMesh(config, *out_NavMeshDesc.m_pNavMeshPolygons, progress).Failed())
+  if (BuildRecastPolyMesh(config, *out_navMeshDesc.m_pNavMeshPolygons, ref_progress).Failed())
     return EZ_FAILURE;
 
   if (!pg.BeginNextStep("Build NavMesh"))
     return EZ_FAILURE;
 
-  if (BuildDetourNavMeshData(config, *out_NavMeshDesc.m_pNavMeshPolygons, out_NavMeshDesc.m_DetourNavmeshData).Failed())
+  if (BuildDetourNavMeshData(config, *out_navMeshDesc.m_pNavMeshPolygons, out_navMeshDesc.m_DetourNavmeshData).Failed())
     return EZ_FAILURE;
 
   return EZ_SUCCESS;
@@ -488,42 +488,42 @@ ezResult ezRecastNavMeshBuilder::BuildDetourNavMeshData(const ezRecastConfig& co
   return EZ_SUCCESS;
 }
 
-ezResult ezRecastConfig::Serialize(ezStreamWriter& stream) const
+ezResult ezRecastConfig::Serialize(ezStreamWriter& inout_stream) const
 {
-  stream.WriteVersion(1);
+  inout_stream.WriteVersion(1);
 
-  stream << m_fAgentHeight;
-  stream << m_fAgentRadius;
-  stream << m_fAgentClimbHeight;
-  stream << m_WalkableSlope;
-  stream << m_fCellSize;
-  stream << m_fCellHeight;
-  stream << m_fMaxEdgeLength;
-  stream << m_fMaxSimplificationError;
-  stream << m_fMinRegionSize;
-  stream << m_fRegionMergeSize;
-  stream << m_fDetailMeshSampleDistanceFactor;
-  stream << m_fDetailMeshSampleErrorFactor;
+  inout_stream << m_fAgentHeight;
+  inout_stream << m_fAgentRadius;
+  inout_stream << m_fAgentClimbHeight;
+  inout_stream << m_WalkableSlope;
+  inout_stream << m_fCellSize;
+  inout_stream << m_fCellHeight;
+  inout_stream << m_fMaxEdgeLength;
+  inout_stream << m_fMaxSimplificationError;
+  inout_stream << m_fMinRegionSize;
+  inout_stream << m_fRegionMergeSize;
+  inout_stream << m_fDetailMeshSampleDistanceFactor;
+  inout_stream << m_fDetailMeshSampleErrorFactor;
 
   return EZ_SUCCESS;
 }
 
-ezResult ezRecastConfig::Deserialize(ezStreamReader& stream)
+ezResult ezRecastConfig::Deserialize(ezStreamReader& inout_stream)
 {
-  stream.ReadVersion(1);
+  inout_stream.ReadVersion(1);
 
-  stream >> m_fAgentHeight;
-  stream >> m_fAgentRadius;
-  stream >> m_fAgentClimbHeight;
-  stream >> m_WalkableSlope;
-  stream >> m_fCellSize;
-  stream >> m_fCellHeight;
-  stream >> m_fMaxEdgeLength;
-  stream >> m_fMaxSimplificationError;
-  stream >> m_fMinRegionSize;
-  stream >> m_fRegionMergeSize;
-  stream >> m_fDetailMeshSampleDistanceFactor;
-  stream >> m_fDetailMeshSampleErrorFactor;
+  inout_stream >> m_fAgentHeight;
+  inout_stream >> m_fAgentRadius;
+  inout_stream >> m_fAgentClimbHeight;
+  inout_stream >> m_WalkableSlope;
+  inout_stream >> m_fCellSize;
+  inout_stream >> m_fCellHeight;
+  inout_stream >> m_fMaxEdgeLength;
+  inout_stream >> m_fMaxSimplificationError;
+  inout_stream >> m_fMinRegionSize;
+  inout_stream >> m_fRegionMergeSize;
+  inout_stream >> m_fDetailMeshSampleDistanceFactor;
+  inout_stream >> m_fDetailMeshSampleErrorFactor;
 
   return EZ_SUCCESS;
 }

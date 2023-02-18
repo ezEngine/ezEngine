@@ -32,29 +32,29 @@ EZ_END_COMPONENT_TYPE;
 ezRenderTargetActivatorComponent::ezRenderTargetActivatorComponent() = default;
 ezRenderTargetActivatorComponent::~ezRenderTargetActivatorComponent() = default;
 
-void ezRenderTargetActivatorComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezRenderTargetActivatorComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
-  ezStreamWriter& s = stream.GetStream();
+  SUPER::SerializeComponent(inout_stream);
+  ezStreamWriter& s = inout_stream.GetStream();
 
   s << m_hRenderTarget;
 }
 
-void ezRenderTargetActivatorComponent::DeserializeComponent(ezWorldReader& stream)
+void ezRenderTargetActivatorComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
+  SUPER::DeserializeComponent(inout_stream);
   // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
 
-  ezStreamReader& s = stream.GetStream();
+  ezStreamReader& s = inout_stream.GetStream();
 
   s >> m_hRenderTarget;
 }
 
-ezResult ezRenderTargetActivatorComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg)
+ezResult ezRenderTargetActivatorComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg)
 {
   if (m_hRenderTarget.IsValid())
   {
-    bounds = ezBoundingSphere(ezVec3::ZeroVector(), 0.1f);
+    ref_bounds = ezBoundingSphere(ezVec3::ZeroVector(), 0.1f);
     return EZ_SUCCESS;
   }
 

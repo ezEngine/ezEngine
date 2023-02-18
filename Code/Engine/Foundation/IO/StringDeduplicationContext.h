@@ -20,7 +20,7 @@ class EZ_FOUNDATION_DLL ezStringDeduplicationWriteContext : public ezSerializati
 
 public:
   /// \brief Setup the write context to perform string deduplication.
-  ezStringDeduplicationWriteContext(ezStreamWriter& OriginalStream);
+  ezStringDeduplicationWriteContext(ezStreamWriter& ref_originalStream);
   ~ezStringDeduplicationWriteContext();
 
   /// \brief Call this method to begin string deduplicaton. You need to use the returned stream writer for subsequent serialization operations until
@@ -31,7 +31,7 @@ public:
   ezResult End();
 
   /// \brief Internal method to serialize a string.
-  void SerializeString(const ezStringView& String, ezStreamWriter& Writer);
+  void SerializeString(const ezStringView& sString, ezStreamWriter& ref_writer);
 
   /// \brief Returns the number of unique strings which were serialized with this instance.
   ezUInt32 GetUniqueStringCount() const;
@@ -55,11 +55,11 @@ class EZ_FOUNDATION_DLL ezStringDeduplicationReadContext : public ezSerializatio
 
 public:
   /// \brief Setup the string table used internally.
-  ezStringDeduplicationReadContext(ezStreamReader& Stream);
+  ezStringDeduplicationReadContext(ezStreamReader& inout_stream);
   ~ezStringDeduplicationReadContext();
 
   /// \brief Internal method to deserialize a string.
-  ezStringView DeserializeString(ezStreamReader& Reader);
+  ezStringView DeserializeString(ezStreamReader& ref_reader);
 
 protected:
   ezDynamicArray<ezHybridString<64>> m_DeduplicatedStrings;

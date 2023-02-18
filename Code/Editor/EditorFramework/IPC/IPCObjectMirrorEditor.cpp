@@ -21,11 +21,11 @@ ezEditorEngineConnection* ezIPCObjectMirrorEditor::GetIPC()
   return m_pIPC;
 }
 
-void ezIPCObjectMirrorEditor::ApplyOp(ezObjectChange& change)
+void ezIPCObjectMirrorEditor::ApplyOp(ezObjectChange& ref_change)
 {
   if (m_pManager)
   {
-    SendOp(change);
+    SendOp(ref_change);
   }
   else
   {

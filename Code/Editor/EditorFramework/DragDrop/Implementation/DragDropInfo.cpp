@@ -24,10 +24,10 @@ ezDragDropConfig::ezDragDropConfig()
   m_bPickSelectedObjects = false;
 }
 
-void operator>>(QDataStream& stream, ezDynamicArray<ezDocumentObject*>& rhs)
+void operator>>(QDataStream& inout_stream, ezDynamicArray<ezDocumentObject*>& rhs)
 {
   int iIndices = 0;
-  stream >> iIndices;
+  inout_stream >> iIndices;
   rhs.Clear();
   rhs.Reserve(static_cast<ezUInt32>(iIndices));
 
@@ -36,7 +36,7 @@ void operator>>(QDataStream& stream, ezDynamicArray<ezDocumentObject*>& rhs)
     void* p = nullptr;
 
     uint len = sizeof(void*);
-    stream.readRawData((char*)&p, len);
+    inout_stream.readRawData((char*)&p, len);
 
     ezDocumentObject* pDocObject = (ezDocumentObject*)p;
 

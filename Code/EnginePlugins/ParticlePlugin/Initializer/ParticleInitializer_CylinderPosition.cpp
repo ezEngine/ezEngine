@@ -87,55 +87,55 @@ float ezParticleInitializerFactory_CylinderPosition::GetSpawnCountMultiplier(con
   }
 }
 
-void ezParticleInitializerFactory_CylinderPosition::Save(ezStreamWriter& stream) const
+void ezParticleInitializerFactory_CylinderPosition::Save(ezStreamWriter& inout_stream) const
 {
   const ezUInt8 uiVersion = 3;
-  stream << uiVersion;
+  inout_stream << uiVersion;
 
-  stream << m_fRadius;
-  stream << m_fHeight;
-  stream << m_bSpawnOnSurface;
-  stream << m_bSetVelocity;
-  stream << m_Speed.m_Value;
-  stream << m_Speed.m_fVariance;
+  inout_stream << m_fRadius;
+  inout_stream << m_fHeight;
+  inout_stream << m_bSpawnOnSurface;
+  inout_stream << m_bSetVelocity;
+  inout_stream << m_Speed.m_Value;
+  inout_stream << m_Speed.m_fVariance;
 
   // version 2
-  stream << m_vPositionOffset;
+  inout_stream << m_vPositionOffset;
 
   // version 3
-  stream << m_sScaleRadiusParameter;
-  stream << m_sScaleHeightParameter;
+  inout_stream << m_sScaleRadiusParameter;
+  inout_stream << m_sScaleHeightParameter;
 }
 
-void ezParticleInitializerFactory_CylinderPosition::Load(ezStreamReader& stream)
+void ezParticleInitializerFactory_CylinderPosition::Load(ezStreamReader& inout_stream)
 {
   ezUInt8 uiVersion = 0;
-  stream >> uiVersion;
+  inout_stream >> uiVersion;
 
-  stream >> m_fRadius;
-  stream >> m_fHeight;
-  stream >> m_bSpawnOnSurface;
-  stream >> m_bSetVelocity;
-  stream >> m_Speed.m_Value;
-  stream >> m_Speed.m_fVariance;
+  inout_stream >> m_fRadius;
+  inout_stream >> m_fHeight;
+  inout_stream >> m_bSpawnOnSurface;
+  inout_stream >> m_bSetVelocity;
+  inout_stream >> m_Speed.m_Value;
+  inout_stream >> m_Speed.m_fVariance;
 
   if (uiVersion >= 2)
   {
-    stream >> m_vPositionOffset;
+    inout_stream >> m_vPositionOffset;
   }
 
   if (uiVersion >= 3)
   {
-    stream >> m_sScaleRadiusParameter;
-    stream >> m_sScaleHeightParameter;
+    inout_stream >> m_sScaleRadiusParameter;
+    inout_stream >> m_sScaleHeightParameter;
   }
 }
 
-void ezParticleInitializerFactory_CylinderPosition::QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_FinalizerDeps) const
+void ezParticleInitializerFactory_CylinderPosition::QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_finalizerDeps) const
 {
   if (m_bSetVelocity)
   {
-    inout_FinalizerDeps.Insert(ezGetStaticRTTI<ezParticleFinalizerFactory_ApplyVelocity>());
+    inout_finalizerDeps.Insert(ezGetStaticRTTI<ezParticleFinalizerFactory_ApplyVelocity>());
   }
 }
 
@@ -222,7 +222,7 @@ public:
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
     pNode->InlineProperty("Speed").IgnoreResult();
   }

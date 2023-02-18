@@ -17,7 +17,7 @@ public:
     bool m_bTreatUnknownVariablesAsInputs = false;
   };
 
-  ezResult Parse(ezStringView code, ezArrayPtr<ezExpression::StreamDesc> inputs, ezArrayPtr<ezExpression::StreamDesc> outputs, const Options& options, ezExpressionAST& out_ast);
+  ezResult Parse(ezStringView sCode, ezArrayPtr<ezExpression::StreamDesc> inputs, ezArrayPtr<ezExpression::StreamDesc> outputs, const Options& options, ezExpressionAST& out_ast);
 
 private:
   static constexpr int s_iLowestPrecedence = 20;

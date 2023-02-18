@@ -49,7 +49,7 @@ void ezTypeScriptTranspiler::FinishLoadTranspiler()
   ezTaskSystem::WaitForGroup(m_LoadTaskGroup);
 }
 
-ezResult ezTypeScriptTranspiler::TranspileString(const char* szString, ezStringBuilder& out_Result)
+ezResult ezTypeScriptTranspiler::TranspileString(const char* szString, ezStringBuilder& out_sResult)
 {
   EZ_LOG_BLOCK("TranspileString");
 
@@ -82,13 +82,13 @@ ezResult ezTypeScriptTranspiler::TranspileString(const char* szString, ezStringB
     EZ_DUK_RETURN_AND_VERIFY_STACK(duk, EZ_FAILURE, 0);
   }
 
-  out_Result = m_Transpiler.GetStringValue(-1); // [ global ts result ]
+  out_sResult = m_Transpiler.GetStringValue(-1); // [ global ts result ]
   m_Transpiler.PopStack(3);                     // [ ]
 
   EZ_DUK_RETURN_AND_VERIFY_STACK(duk, EZ_SUCCESS, 0);
 }
 
-ezResult ezTypeScriptTranspiler::TranspileFile(const char* szFile, ezUInt64 uiSkipIfFileHash, ezStringBuilder& out_Result, ezUInt64& out_uiFileHash)
+ezResult ezTypeScriptTranspiler::TranspileFile(const char* szFile, ezUInt64 uiSkipIfFileHash, ezStringBuilder& out_sResult, ezUInt64& out_uiFileHash)
 {
   EZ_LOG_BLOCK("TranspileFile", szFile);
 
@@ -114,10 +114,10 @@ ezResult ezTypeScriptTranspiler::TranspileFile(const char* szFile, ezUInt64 uiSk
   if (uiSkipIfFileHash == out_uiFileHash)
     return EZ_SUCCESS;
 
-  return TranspileString(source, out_Result);
+  return TranspileString(source, out_sResult);
 }
 
-ezResult ezTypeScriptTranspiler::TranspileFileAndStoreJS(const char* szFile, ezStringBuilder& out_Result)
+ezResult ezTypeScriptTranspiler::TranspileFileAndStoreJS(const char* szFile, ezStringBuilder& out_sResult)
 {
   EZ_LOG_BLOCK("TranspileFileAndStoreJS", szFile);
 
@@ -135,11 +135,11 @@ ezResult ezTypeScriptTranspiler::TranspileFileAndStoreJS(const char* szFile, ezS
     ezFileReader fileIn;
     if (fileIn.Open(sOutFile).Succeeded())
     {
-      out_Result.ReadAll(fileIn);
+      out_sResult.ReadAll(fileIn);
 
-      if (out_Result.StartsWith_NoCase("/*SOURCE-HASH:"))
+      if (out_sResult.StartsWith_NoCase("/*SOURCE-HASH:"))
       {
-        ezStringView sHashView = out_Result.GetView();
+        ezStringView sHashView = out_sResult.GetView();
         sHashView.Shrink(14, 0);
 
         // try to extract the hash
@@ -151,7 +151,7 @@ ezResult ezTypeScriptTranspiler::TranspileFileAndStoreJS(const char* szFile, ezS
     }
   }
 
-  EZ_SUCCEED_OR_RETURN(TranspileFile(szFile, uiExpectedFileHash, out_Result, uiActualFileHash));
+  EZ_SUCCEED_OR_RETURN(TranspileFile(szFile, uiExpectedFileHash, out_sResult, uiActualFileHash));
 
   if (uiExpectedFileHash != uiActualFileHash)
   {
@@ -164,9 +164,9 @@ ezResult ezTypeScriptTranspiler::TranspileFileAndStoreJS(const char* szFile, ezS
 
     ezStringBuilder sHashHeader;
     sHashHeader.Format("/*SOURCE-HASH:{}*/\n", ezArgU(uiActualFileHash, 16, true, 16, true));
-    out_Result.Prepend(sHashHeader);
+    out_sResult.Prepend(sHashHeader);
 
-    EZ_SUCCEED_OR_RETURN(fileOut.WriteBytes(out_Result.GetData(), out_Result.GetElementCount()));
+    EZ_SUCCEED_OR_RETURN(fileOut.WriteBytes(out_sResult.GetData(), out_sResult.GetElementCount()));
     ezLog::Success("Transpiled '{}'", szFile);
   }
 

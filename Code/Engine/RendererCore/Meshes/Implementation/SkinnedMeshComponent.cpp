@@ -63,9 +63,9 @@ void ezSkinningState::TransformsChanged()
   }
 }
 
-void ezSkinningState::FillSkinnedMeshRenderData(ezSkinnedMeshRenderData& renderData) const
+void ezSkinningState::FillSkinnedMeshRenderData(ezSkinnedMeshRenderData& ref_renderData) const
 {
-  renderData.m_hSkinningTransforms = m_hGpuBuffer;
+  ref_renderData.m_hSkinningTransforms = m_hGpuBuffer;
 
   const ezUInt32 uiExIdx = ezRenderWorld::GetDataIndexForExtraction();
 
@@ -74,8 +74,8 @@ void ezSkinningState::FillSkinnedMeshRenderData(ezSkinnedMeshRenderData& renderD
     auto pSkinningMatrices = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezShaderTransform, m_Transforms.GetCount());
     pSkinningMatrices.CopyFrom(m_Transforms);
 
-    renderData.m_pNewSkinningTransformData = pSkinningMatrices.ToByteArray();
-    renderData.m_bTransformsUpdated = m_bTransformsUpdated[uiExIdx];
+    ref_renderData.m_pNewSkinningTransformData = pSkinningMatrices.ToByteArray();
+    ref_renderData.m_bTransformsUpdated = m_bTransformsUpdated[uiExIdx];
   }
 }
 

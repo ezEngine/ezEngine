@@ -40,19 +40,19 @@ namespace
     return false;
   }
 
-  static void GenerateDefines(const char* szPlatform, const ezArrayPtr<ezPermutationVar>& permutationVars, ezHybridArray<ezString, 32>& out_Defines)
+  static void GenerateDefines(const char* szPlatform, const ezArrayPtr<ezPermutationVar>& permutationVars, ezHybridArray<ezString, 32>& out_defines)
   {
     ezStringBuilder sTemp;
 
-    if (out_Defines.IsEmpty())
+    if (out_defines.IsEmpty())
     {
-      out_Defines.PushBack("TRUE 1");
-      out_Defines.PushBack("FALSE 0");
+      out_defines.PushBack("TRUE 1");
+      out_defines.PushBack("FALSE 0");
 
       sTemp = szPlatform;
       sTemp.ToUpper();
 
-      out_Defines.PushBack(sTemp.GetData());
+      out_defines.PushBack(sTemp.GetData());
     }
 
     for (const ezPermutationVar& var : permutationVars)
@@ -63,7 +63,7 @@ namespace
       if (isBoolVar)
       {
         sTemp.Set(var.m_sName, " ", var.m_sValue);
-        out_Defines.PushBack(sTemp);
+        out_defines.PushBack(sTemp);
       }
       else
       {
@@ -73,7 +73,7 @@ namespace
         for (const auto& ev : enumValues)
         {
           sTemp.Format("{1} {2}", szName, ev.m_sValueName, ev.m_iValueValue);
-          out_Defines.PushBack(sTemp);
+          out_defines.PushBack(sTemp);
         }
 
         if (ezStringUtils::StartsWith(szValue, szName))
@@ -84,7 +84,7 @@ namespace
         {
           sTemp.Set(szName, " ", szName, "_", szValue);
         }
-        out_Defines.PushBack(sTemp);
+        out_defines.PushBack(sTemp);
       }
     }
   }

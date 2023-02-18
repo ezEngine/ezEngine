@@ -45,13 +45,13 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMixClips1DAnimNode, 1, ezRTTIDefaultAllocator<
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezAnimClip1D::SetAnimationFile(const char* sz)
+void ezAnimClip1D::SetAnimationFile(const char* szSz)
 {
   ezAnimationClipResourceHandle hResource;
 
-  if (!ezStringUtils::IsNullOrEmpty(sz))
+  if (!ezStringUtils::IsNullOrEmpty(szSz))
   {
-    hResource = ezResourceManager::LoadResource<ezAnimationClipResource>(sz);
+    hResource = ezResourceManager::LoadResource<ezAnimationClipResource>(szSz);
   }
 
   m_hAnimation = hResource;

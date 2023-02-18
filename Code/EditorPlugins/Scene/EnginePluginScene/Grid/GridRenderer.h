@@ -32,7 +32,7 @@ class ezEditorGridExtractor : public ezExtractor
 public:
   ezEditorGridExtractor(const char* szName = "EditorGridExtractor");
 
-  virtual void Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& extractedRenderData) override;
+  virtual void Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData) override;
 
   void SetSceneContext(ezSceneContext* pSceneContext) { m_pSceneContext = pSceneContext; }
   ezSceneContext* GetSceneContext() const { return m_pSceneContext; }
@@ -56,8 +56,8 @@ public:
   ezGridRenderer();
 
   // ezRenderer implementation
-  virtual void GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types) const override;
-  virtual void GetSupportedRenderDataCategories(ezHybridArray<ezRenderData::Category, 8>& categories) const override;
+  virtual void GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& ref_types) const override;
+  virtual void GetSupportedRenderDataCategories(ezHybridArray<ezRenderData::Category, 8>& ref_categories) const override;
   virtual void RenderBatch(const ezRenderViewContext& renderContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const override;
 
 protected:

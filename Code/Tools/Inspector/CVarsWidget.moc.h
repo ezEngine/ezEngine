@@ -14,7 +14,7 @@ public:
   Q_OBJECT
 
 public:
-  ezQtCVarsWidget(QWidget* parent = 0);
+  ezQtCVarsWidget(QWidget* pParent = 0);
 
   static ezQtCVarsWidget* s_pWidget;
 

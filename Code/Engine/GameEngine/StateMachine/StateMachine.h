@@ -25,12 +25,12 @@ public:
   ezStringView GetName() const { return m_sName; }
   const ezHashedString& GetNameHashed() const { return m_sName; }
 
-  virtual void OnEnter(ezStateMachineInstance& instance, void* pInstanceData, const ezStateMachineState* pFromState) const = 0;
-  virtual void OnExit(ezStateMachineInstance& instance, void* pInstanceData, const ezStateMachineState* pToState) const;
-  virtual void Update(ezStateMachineInstance& instance, void* pInstanceData, ezTime deltaTime) const;
+  virtual void OnEnter(ezStateMachineInstance& ref_instance, void* pInstanceData, const ezStateMachineState* pFromState) const = 0;
+  virtual void OnExit(ezStateMachineInstance& ref_instance, void* pInstanceData, const ezStateMachineState* pToState) const;
+  virtual void Update(ezStateMachineInstance& ref_instance, void* pInstanceData, ezTime deltaTime) const;
 
-  virtual ezResult Serialize(ezStreamWriter& stream) const;
-  virtual ezResult Deserialize(ezStreamReader& stream);
+  virtual ezResult Serialize(ezStreamWriter& inout_stream) const;
+  virtual ezResult Deserialize(ezStreamReader& inout_stream);
 
   /// \brief Returns whether this state needs additional instance data and if so fills the out_desc.
   ///
@@ -51,10 +51,10 @@ class EZ_GAMEENGINE_DLL ezStateMachineTransition : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezStateMachineTransition, ezReflectedClass);
 
-  virtual bool IsConditionMet(ezStateMachineInstance& instance, void* pInstanceData) const = 0;
+  virtual bool IsConditionMet(ezStateMachineInstance& ref_instance, void* pInstanceData) const = 0;
 
-  virtual ezResult Serialize(ezStreamWriter& stream) const;
-  virtual ezResult Deserialize(ezStreamReader& stream);
+  virtual ezResult Serialize(ezStreamWriter& inout_stream) const;
+  virtual ezResult Deserialize(ezStreamReader& inout_stream);
 
   /// \brief Returns whether this transition needs additional instance data and if so fills the out_desc.
   ///
@@ -79,8 +79,8 @@ public:
   /// \brief Adds the given transition between the two given states. A uiFromStateIndex of ezInvalidIndex generates a transition that can be done from any other possible state.
   void AddTransition(ezUInt32 uiFromStateIndex, ezUInt32 uiToStateIndex, ezUniquePtr<ezStateMachineTransition>&& pTransistion);
 
-  ezResult Serialize(ezStreamWriter& stream) const;
-  ezResult Deserialize(ezStreamReader& stream);
+  ezResult Serialize(ezStreamWriter& inout_stream) const;
+  ezResult Deserialize(ezStreamReader& inout_stream);
 
 private:
   friend class ezStateMachineInstance;
@@ -115,7 +115,7 @@ class EZ_GAMEENGINE_DLL ezStateMachineInstance
   EZ_DISALLOW_COPY_AND_ASSIGN(ezStateMachineInstance);
 
 public:
-  ezStateMachineInstance(ezReflectedClass& owner, const ezSharedPtr<const ezStateMachineDescription>& pDescription = nullptr);
+  ezStateMachineInstance(ezReflectedClass& ref_owner, const ezSharedPtr<const ezStateMachineDescription>& pDescription = nullptr);
   ~ezStateMachineInstance();
 
   ezResult SetState(ezStateMachineState* pState);
@@ -128,7 +128,7 @@ public:
 
   ezReflectedClass& GetOwner() { return m_Owner; }
 
-  void SetBlackboard(const ezSharedPtr<ezBlackboard>& blackboard);
+  void SetBlackboard(const ezSharedPtr<ezBlackboard>& pBlackboard);
   const ezSharedPtr<ezBlackboard>& GetBlackboard() const { return m_pBlackboard; }
 
   /// \brief Returns how long the state machine is in its current state

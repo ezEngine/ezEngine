@@ -22,8 +22,8 @@ ezVec3 ezQtDeltaTransformDlg::s_vRotateDeviation(180.0f);
 
 float ezQtDeltaTransformDlg::s_fNaturalDeviationZ = 10.0f;
 
-ezQtDeltaTransformDlg::ezQtDeltaTransformDlg(QWidget* parent, ezSceneDocument* pSceneDoc)
-  : QDialog(parent)
+ezQtDeltaTransformDlg::ezQtDeltaTransformDlg(QWidget* pParent, ezSceneDocument* pSceneDoc)
+  : QDialog(pParent)
 {
   m_pSceneDocument = pSceneDoc;
 

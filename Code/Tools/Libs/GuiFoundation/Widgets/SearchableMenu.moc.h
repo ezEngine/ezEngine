@@ -23,7 +23,7 @@ class EZ_GUIFOUNDATION_DLL ezQtSearchableMenu : public QWidgetAction
   Q_OBJECT
 public:
   /// \brief The parent should usually be a QMenu into which this QWidgetAction is inserted as an action.
-  ezQtSearchableMenu(QObject* parent);
+  ezQtSearchableMenu(QObject* pParent);
 
   /// \brief Use slashes to separate sub-items.
   void AddItem(const char* szName, const QVariant& variant, QIcon icon = QIcon());
@@ -39,7 +39,7 @@ Q_SIGNALS:
   void MenuItemTriggered(const QString& sName, const QVariant& variant);
 
   /// \brief Triggered whenever the search text is modified.
-  void SearchTextChanged(const QString& text);
+  void SearchTextChanged(const QString& sText);
 
 private Q_SLOTS:
   void OnItemActivated(const QModelIndex& index);

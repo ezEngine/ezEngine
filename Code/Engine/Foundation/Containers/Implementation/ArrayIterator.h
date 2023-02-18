@@ -19,10 +19,10 @@ public:
     m_pArray = nullptr;
     m_uiIndex = 0;
   }
-  const_iterator_base(const ARRAY& deque, size_t index)
+  const_iterator_base(const ARRAY& deque, size_t uiIndex)
   {
     m_pArray = const_cast<ARRAY*>(&deque);
-    m_uiIndex = index;
+    m_uiIndex = uiIndex;
   }
 
   EZ_ALWAYS_INLINE const_iterator_base& operator++()
@@ -72,12 +72,12 @@ public:
   EZ_ALWAYS_INLINE bool operator<=(const const_iterator_base& rhs) const { return m_uiIndex <= rhs.m_uiIndex; }
   EZ_ALWAYS_INLINE bool operator>=(const const_iterator_base& rhs) const { return m_uiIndex >= rhs.m_uiIndex; }
 
-  EZ_ALWAYS_INLINE const T& operator[](size_t index) const
+  EZ_ALWAYS_INLINE const T& operator[](size_t uiIndex) const
   {
     if (reverse)
-      return (*m_pArray)[m_pArray->GetCount() - static_cast<ezUInt32>(m_uiIndex + index) - 1];
+      return (*m_pArray)[m_pArray->GetCount() - static_cast<ezUInt32>(m_uiIndex + uiIndex) - 1];
     else
-      return (*m_pArray)[static_cast<ezUInt32>(m_uiIndex + index)];
+      return (*m_pArray)[static_cast<ezUInt32>(m_uiIndex + uiIndex)];
   }
 
 protected:
@@ -94,8 +94,8 @@ public:
   using reference = T&;
 
   iterator_base() {}
-  iterator_base(ARRAY& deque, size_t index)
-    : const_iterator_base<ARRAY, T, reverse>(deque, index)
+  iterator_base(ARRAY& ref_deque, size_t uiIndex)
+    : const_iterator_base<ARRAY, T, reverse>(ref_deque, uiIndex)
   {
   }
 
@@ -137,12 +137,12 @@ public:
 
   EZ_ALWAYS_INLINE T* operator->() const { return &(**this); }
 
-  EZ_ALWAYS_INLINE T& operator[](size_t index) const
+  EZ_ALWAYS_INLINE T& operator[](size_t uiIndex) const
   {
     if (reverse)
-      return (*this->m_pArray)[this->m_pArray->GetCount() - static_cast<ezUInt32>(this->m_uiIndex + index) - 1];
+      return (*this->m_pArray)[this->m_pArray->GetCount() - static_cast<ezUInt32>(this->m_uiIndex + uiIndex) - 1];
     else
-      return (*this->m_pArray)[static_cast<ezUInt32>(this->m_uiIndex + index)];
+      return (*this->m_pArray)[static_cast<ezUInt32>(this->m_uiIndex + uiIndex)];
   }
 };
 
@@ -158,8 +158,8 @@ public:
   using reference = T&;
 
   const_reverse_pointer_iterator() { m_pPtr = nullptr; }
-  const_reverse_pointer_iterator(T const* ptr)
-    : m_pPtr(const_cast<T*>(ptr))
+  const_reverse_pointer_iterator(T const* pPtr)
+    : m_pPtr(const_cast<T*>(pPtr))
   {
   }
 
@@ -204,7 +204,7 @@ public:
   EZ_ALWAYS_INLINE bool operator<=(const const_reverse_pointer_iterator& rhs) const { return m_pPtr >= rhs.m_pPtr; }
   EZ_ALWAYS_INLINE bool operator>=(const const_reverse_pointer_iterator& rhs) const { return m_pPtr <= rhs.m_pPtr; }
 
-  EZ_ALWAYS_INLINE const T& operator[](ptrdiff_t index) const { return *(m_pPtr - index); }
+  EZ_ALWAYS_INLINE const T& operator[](ptrdiff_t iIndex) const { return *(m_pPtr - iIndex); }
 
 protected:
   T* m_pPtr;
@@ -219,8 +219,8 @@ public:
   using reference = T&;
 
   reverse_pointer_iterator() {}
-  reverse_pointer_iterator(T* ptr)
-    : const_reverse_pointer_iterator<T>(ptr)
+  reverse_pointer_iterator(T* pPtr)
+    : const_reverse_pointer_iterator<T>(pPtr)
   {
   }
 
@@ -254,5 +254,5 @@ public:
 
   EZ_ALWAYS_INLINE T& operator*() const { return *(this->m_pPtr); }
   EZ_ALWAYS_INLINE T* operator->() const { return this->m_pPtr; }
-  EZ_ALWAYS_INLINE T& operator[](ptrdiff_t index) const { return *(this->m_pPtr - index); }
+  EZ_ALWAYS_INLINE T& operator[](ptrdiff_t iIndex) const { return *(this->m_pPtr - iIndex); }
 };

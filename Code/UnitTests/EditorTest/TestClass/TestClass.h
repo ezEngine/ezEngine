@@ -44,7 +44,7 @@ public:
   ~ezEditorTest();
 
   virtual ezEditorTestApplication* CreateApplication();
-  virtual ezResult GetImage(ezImage& img) override;
+  virtual ezResult GetImage(ezImage& ref_img) override;
 
 protected:
   virtual ezResult InitializeTest() override;

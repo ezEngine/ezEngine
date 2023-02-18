@@ -53,10 +53,10 @@ public:
 #endif
   };
 
-  virtual void FindObjectsInSphere(const ezBoundingSphere& sphere, const QueryParams& queryParams, ezDynamicArray<ezGameObject*>& out_Objects) const;
+  virtual void FindObjectsInSphere(const ezBoundingSphere& sphere, const QueryParams& queryParams, ezDynamicArray<ezGameObject*>& out_objects) const;
   virtual void FindObjectsInSphere(const ezBoundingSphere& sphere, const QueryParams& queryParams, QueryCallback callback) const = 0;
 
-  virtual void FindObjectsInBox(const ezBoundingBox& box, const QueryParams& queryParams, ezDynamicArray<ezGameObject*>& out_Objects) const;
+  virtual void FindObjectsInBox(const ezBoundingBox& box, const QueryParams& queryParams, ezDynamicArray<ezGameObject*>& out_objects) const;
   virtual void FindObjectsInBox(const ezBoundingBox& box, const QueryParams& queryParams, QueryCallback callback) const = 0;
 
   ///@}
@@ -65,14 +65,14 @@ public:
 
   using IsOccludedFunc = ezDelegate<bool(const ezSimdBBox&)>;
 
-  virtual void FindVisibleObjects(const ezFrustum& frustum, const QueryParams& queryParams, ezDynamicArray<const ezGameObject*>& out_Objects, IsOccludedFunc IsOccluded) const = 0;
+  virtual void FindVisibleObjects(const ezFrustum& frustum, const QueryParams& queryParams, ezDynamicArray<const ezGameObject*>& out_objects, IsOccludedFunc isOccluded) const = 0;
 
   virtual ezUInt64 GetNumFramesSinceVisible(const ezSpatialDataHandle& hData) const = 0;
 
   ///@}
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  virtual void GetInternalStats(ezStringBuilder& sb) const;
+  virtual void GetInternalStats(ezStringBuilder& ref_sSb) const;
 #endif
 
 protected:

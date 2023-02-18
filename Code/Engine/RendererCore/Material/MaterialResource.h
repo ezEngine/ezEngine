@@ -96,7 +96,7 @@ public:
   };
 
   /// \brief Returns the default material file name for the given type (materials in Data/Base/Materials/BaseMaterials).
-  static const char* GetDefaultMaterialFileName(DefaultMaterialType MaterialType);
+  static const char* GetDefaultMaterialFileName(DefaultMaterialType materialType);
 
 private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;

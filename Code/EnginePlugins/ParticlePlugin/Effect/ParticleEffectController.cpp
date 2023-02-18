@@ -83,24 +83,24 @@ void ezParticleEffectController::SetTransform(const ezTransform& t, const ezVec3
   }
 }
 
-void ezParticleEffectController::Tick(const ezTime& tDiff) const
+void ezParticleEffectController::Tick(const ezTime& diff) const
 {
   ezParticleEffectInstance* pEffect = GetInstance();
 
   if (pEffect)
   {
     pEffect->PreSimulate();
-    pEffect->Update(tDiff);
+    pEffect->Update(diff);
   }
 }
 
-void ezParticleEffectController::ExtractRenderData(ezMsgExtractRenderData& msg, const ezTransform& systemTransform) const
+void ezParticleEffectController::ExtractRenderData(ezMsgExtractRenderData& ref_msg, const ezTransform& systemTransform) const
 {
   if (const ezParticleEffectInstance* pEffect = GetInstance())
   {
     pEffect->SetIsVisible();
 
-    m_pModule->ExtractEffectRenderData(pEffect, msg, systemTransform);
+    m_pModule->ExtractEffectRenderData(pEffect, ref_msg, systemTransform);
   }
 }
 
@@ -115,11 +115,11 @@ void ezParticleEffectController::StopImmediate()
   }
 }
 
-void ezParticleEffectController::GetBoundingVolume(ezBoundingBoxSphere& volume) const
+void ezParticleEffectController::GetBoundingVolume(ezBoundingBoxSphere& ref_volume) const
 {
   if (ezParticleEffectInstance* pEffect = GetInstance())
   {
-    pEffect->GetBoundingVolume(volume);
+    pEffect->GetBoundingVolume(ref_volume);
   }
 }
 
@@ -149,23 +149,23 @@ ezUInt64 ezParticleEffectController::GetNumActiveParticles() const
   return 0;
 }
 
-void ezParticleEffectController::SetParameter(const ezTempHashedString& name, float value)
+void ezParticleEffectController::SetParameter(const ezTempHashedString& sName, float value)
 {
   ezParticleEffectInstance* pEffect = GetInstance();
 
   if (pEffect)
   {
-    pEffect->SetParameter(name, value);
+    pEffect->SetParameter(sName, value);
   }
 }
 
-void ezParticleEffectController::SetParameter(const ezTempHashedString& name, const ezColor& value)
+void ezParticleEffectController::SetParameter(const ezTempHashedString& sName, const ezColor& value)
 {
   ezParticleEffectInstance* pEffect = GetInstance();
 
   if (pEffect)
   {
-    pEffect->SetParameter(name, value);
+    pEffect->SetParameter(sName, value);
   }
 }
 

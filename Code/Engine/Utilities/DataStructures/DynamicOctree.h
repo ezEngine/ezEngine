@@ -69,24 +69,24 @@ public:
   /// with O(1) complexity later. iObjectType and iObjectInstance are the two user values that will be stored for the object. With
   /// RemoveObjectsOfType() one can also remove all objects with the same iObjectType value, if needed.
   ezResult InsertObject(const ezVec3& vCenter, const ezVec3& vHalfExtents, ezInt32 iObjectType, ezInt32 iObjectInstance,
-    ezDynamicTreeObject* out_Object = nullptr, bool bOnlyIfInside = false); // [tested]
+    ezDynamicTreeObject* out_pObject = nullptr, bool bOnlyIfInside = false); // [tested]
 
   /// \brief Calls the Callback for every object that is inside the View-frustum. pPassThrough is passed to the Callback for custom
   /// purposes.
-  void FindVisibleObjects(const ezFrustum& Viewfrustum, EZ_VISIBLE_OBJ_CALLBACK Callback, void* pPassThrough) const;
+  void FindVisibleObjects(const ezFrustum& viewfrustum, EZ_VISIBLE_OBJ_CALLBACK callback, void* pPassThrough) const;
 
   /// \brief Returns all objects that are located in a node that overlaps with the given point.
   ///
   /// \note This function will most likely also return objects that do not overlap with the point itself, because they are located
   /// in a node that overlaps with the point. You might need to do more thorough overlap checks to filter those out.
-  void FindObjectsInRange(const ezVec3& vPoint, EZ_VISIBLE_OBJ_CALLBACK Callback, void* pPassThrough = nullptr) const; // [tested]
+  void FindObjectsInRange(const ezVec3& vPoint, EZ_VISIBLE_OBJ_CALLBACK callback, void* pPassThrough = nullptr) const; // [tested]
 
   /// \brief Returns all objects that are located in a node that overlaps with the rectangle with center vPoint and half edge length
   /// fRadius.
   ///
   /// \note This function will most likely also return objects that do not overlap with the rectangle itself, because they are located
   /// in a node that overlaps with the rectangle. You might need to do more thorough overlap checks to filter those out.
-  void FindObjectsInRange(const ezVec3& vPoint, float fRadius, EZ_VISIBLE_OBJ_CALLBACK Callback,
+  void FindObjectsInRange(const ezVec3& vPoint, float fRadius, EZ_VISIBLE_OBJ_CALLBACK callback,
     void* pPassThrough = nullptr) const; // [tested]
 
   /// \brief Removes the given Object. Attention: This is an O(n) operation.

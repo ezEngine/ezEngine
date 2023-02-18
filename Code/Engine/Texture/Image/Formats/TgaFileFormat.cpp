@@ -66,7 +66,7 @@ static inline ezColorLinearUB GetPixelColor(const ezImageView& image, ezUInt32 x
 }
 
 
-ezResult ezTgaFileFormat::WriteImage(ezStreamWriter& stream, const ezImageView& image, const char* szFileExtension) const
+ezResult ezTgaFileFormat::WriteImage(ezStreamWriter& inout_stream, const ezImageView& image, const char* szFileExtension) const
 {
   // Technically almost arbitrary formats are supported, but we only use the common ones.
   ezImageFormat::Enum compatibleFormats[] = {
@@ -96,7 +96,7 @@ ezResult ezTgaFileFormat::WriteImage(ezStreamWriter& stream, const ezImageView& 
       return EZ_FAILURE;
     }
 
-    return WriteImage(stream, convertedImage, szFileExtension);
+    return WriteImage(inout_stream, convertedImage, szFileExtension);
   }
 
   const bool bCompress = true;
@@ -123,7 +123,7 @@ ezResult ezTgaFileFormat::WriteImage(ezStreamWriter& stream, const ezImageView& 
     uiHeader[14] = static_cast<ezUInt8>(image.GetHeight(0) % 256);
     uiHeader[16] = static_cast<ezUInt8>(ezImageFormat::GetBitsPerPixel(image.GetImageFormat()));
 
-    stream.WriteBytes(uiHeader, 18).IgnoreResult();
+    inout_stream.WriteBytes(uiHeader, 18).IgnoreResult();
   }
 
   const bool bAlpha = image.GetImageFormat() != ezImageFormat::B8G8R8_UNORM;
@@ -141,12 +141,12 @@ ezResult ezTgaFileFormat::WriteImage(ezStreamWriter& stream, const ezImageView& 
       {
         const ezColorLinearUB c = GetPixelColor(image, x, y, uiHeight);
 
-        stream << c.b;
-        stream << c.g;
-        stream << c.r;
+        inout_stream << c.b;
+        inout_stream << c.g;
+        inout_stream << c.r;
 
         if (bAlpha)
-          stream << c.a;
+          inout_stream << c.a;
       }
     }
   }
@@ -194,13 +194,13 @@ ezResult ezTgaFileFormat::WriteImage(ezStreamWriter& stream, const ezImageView& 
           {
             ezUInt8 uiRepeat = static_cast<ezUInt8>(iEqual + 127);
 
-            stream << uiRepeat;
-            stream << pc.b;
-            stream << pc.g;
-            stream << pc.r;
+            inout_stream << uiRepeat;
+            inout_stream << pc.b;
+            inout_stream << pc.g;
+            inout_stream << pc.r;
 
             if (bAlpha)
-              stream << pc.a;
+              inout_stream << pc.a;
 
             pc = c;
             iRLE = 1;
@@ -218,16 +218,16 @@ ezResult ezTgaFileFormat::WriteImage(ezStreamWriter& stream, const ezImageView& 
           else
           {
             ezUInt8 uiRepeat = (unsigned char)(unequal.GetCount()) - 1;
-            stream << uiRepeat;
+            inout_stream << uiRepeat;
 
             for (ezUInt32 i = 0; i < unequal.GetCount(); ++i)
             {
-              stream << unequal[i].b;
-              stream << unequal[i].g;
-              stream << unequal[i].r;
+              inout_stream << unequal[i].b;
+              inout_stream << unequal[i].g;
+              inout_stream << unequal[i].r;
 
               if (bAlpha)
-                stream << unequal[i].a;
+                inout_stream << unequal[i].a;
             }
 
             pc = c;
@@ -244,39 +244,39 @@ ezResult ezTgaFileFormat::WriteImage(ezStreamWriter& stream, const ezImageView& 
     {
       ezUInt8 uiRepeat = 0;
 
-      stream << uiRepeat;
-      stream << pc.b;
-      stream << pc.g;
-      stream << pc.r;
+      inout_stream << uiRepeat;
+      inout_stream << pc.b;
+      inout_stream << pc.g;
+      inout_stream << pc.r;
 
       if (bAlpha)
-        stream << pc.a;
+        inout_stream << pc.a;
     }
     else if (iRLE == 2) // equal values
     {
       ezUInt8 uiRepeat = static_cast<ezUInt8>(iEqual + 127);
 
-      stream << uiRepeat;
-      stream << pc.b;
-      stream << pc.g;
-      stream << pc.r;
+      inout_stream << uiRepeat;
+      inout_stream << pc.b;
+      inout_stream << pc.g;
+      inout_stream << pc.r;
 
       if (bAlpha)
-        stream << pc.a;
+        inout_stream << pc.a;
     }
     else if (iRLE == 3)
     {
       ezUInt8 uiRepeat = (ezUInt8)(unequal.GetCount()) - 1;
-      stream << uiRepeat;
+      inout_stream << uiRepeat;
 
       for (ezUInt32 i = 0; i < unequal.GetCount(); ++i)
       {
-        stream << unequal[i].b;
-        stream << unequal[i].g;
-        stream << unequal[i].r;
+        inout_stream << unequal[i].b;
+        inout_stream << unequal[i].g;
+        inout_stream << unequal[i].r;
 
         if (bAlpha)
-          stream << unequal[i].a;
+          inout_stream << unequal[i].a;
       }
     }
   }
@@ -284,68 +284,68 @@ ezResult ezTgaFileFormat::WriteImage(ezStreamWriter& stream, const ezImageView& 
   return EZ_SUCCESS;
 }
 
-static ezResult ReadImageHeaderImpl(ezStreamReader& stream, ezImageHeader& header, const char* szFileExtension, TgaHeader& tgaHeader)
+static ezResult ReadImageHeaderImpl(ezStreamReader& inout_stream, ezImageHeader& ref_header, const char* szFileExtension, TgaHeader& ref_tgaHeader)
 {
-  stream >> tgaHeader.m_iImageIDLength;
-  stream >> tgaHeader.m_Ignored1;
-  stream >> tgaHeader.m_ImageType;
-  stream.ReadBytes(&tgaHeader.m_Ignored2, 9);
-  stream >> tgaHeader.m_iImageWidth;
-  stream >> tgaHeader.m_iImageHeight;
-  stream >> tgaHeader.m_iBitsPerPixel;
-  stream >> reinterpret_cast<ezUInt8&>(tgaHeader.m_ImageDescriptor);
+  inout_stream >> ref_tgaHeader.m_iImageIDLength;
+  inout_stream >> ref_tgaHeader.m_Ignored1;
+  inout_stream >> ref_tgaHeader.m_ImageType;
+  inout_stream.ReadBytes(&ref_tgaHeader.m_Ignored2, 9);
+  inout_stream >> ref_tgaHeader.m_iImageWidth;
+  inout_stream >> ref_tgaHeader.m_iImageHeight;
+  inout_stream >> ref_tgaHeader.m_iBitsPerPixel;
+  inout_stream >> reinterpret_cast<ezUInt8&>(ref_tgaHeader.m_ImageDescriptor);
 
   // ignore optional data
-  stream.SkipBytes(tgaHeader.m_iImageIDLength);
+  inout_stream.SkipBytes(ref_tgaHeader.m_iImageIDLength);
 
-  const ezUInt32 uiBytesPerPixel = tgaHeader.m_iBitsPerPixel / 8;
+  const ezUInt32 uiBytesPerPixel = ref_tgaHeader.m_iBitsPerPixel / 8;
 
   // check whether width, height an BitsPerPixel are valid
-  if ((tgaHeader.m_iImageWidth <= 0) || (tgaHeader.m_iImageHeight <= 0) || ((uiBytesPerPixel != 1) && (uiBytesPerPixel != 3) && (uiBytesPerPixel != 4)) || (tgaHeader.m_ImageType != 2 && tgaHeader.m_ImageType != 3 && tgaHeader.m_ImageType != 10 && tgaHeader.m_ImageType != 11))
+  if ((ref_tgaHeader.m_iImageWidth <= 0) || (ref_tgaHeader.m_iImageHeight <= 0) || ((uiBytesPerPixel != 1) && (uiBytesPerPixel != 3) && (uiBytesPerPixel != 4)) || (ref_tgaHeader.m_ImageType != 2 && ref_tgaHeader.m_ImageType != 3 && ref_tgaHeader.m_ImageType != 10 && ref_tgaHeader.m_ImageType != 11))
   {
-    ezLog::Error("TGA has an invalid header: Width = {0}, Height = {1}, BPP = {2}, ImageType = {3}", tgaHeader.m_iImageWidth, tgaHeader.m_iImageHeight, tgaHeader.m_iBitsPerPixel, tgaHeader.m_ImageType);
+    ezLog::Error("TGA has an invalid header: Width = {0}, Height = {1}, BPP = {2}, ImageType = {3}", ref_tgaHeader.m_iImageWidth, ref_tgaHeader.m_iImageHeight, ref_tgaHeader.m_iBitsPerPixel, ref_tgaHeader.m_ImageType);
     return EZ_FAILURE;
   }
 
   // Set image data
 
   if (uiBytesPerPixel == 1)
-    header.SetImageFormat(ezImageFormat::R8_UNORM);
+    ref_header.SetImageFormat(ezImageFormat::R8_UNORM);
   else if (uiBytesPerPixel == 3)
-    header.SetImageFormat(ezImageFormat::B8G8R8_UNORM);
+    ref_header.SetImageFormat(ezImageFormat::B8G8R8_UNORM);
   else
-    header.SetImageFormat(ezImageFormat::B8G8R8A8_UNORM);
+    ref_header.SetImageFormat(ezImageFormat::B8G8R8A8_UNORM);
 
-  header.SetNumMipLevels(1);
-  header.SetNumArrayIndices(1);
-  header.SetNumFaces(1);
+  ref_header.SetNumMipLevels(1);
+  ref_header.SetNumArrayIndices(1);
+  ref_header.SetNumFaces(1);
 
-  header.SetWidth(tgaHeader.m_iImageWidth);
-  header.SetHeight(tgaHeader.m_iImageHeight);
-  header.SetDepth(1);
+  ref_header.SetWidth(ref_tgaHeader.m_iImageWidth);
+  ref_header.SetHeight(ref_tgaHeader.m_iImageHeight);
+  ref_header.SetDepth(1);
 
   return EZ_SUCCESS;
 }
 
-ezResult ezTgaFileFormat::ReadImageHeader(ezStreamReader& stream, ezImageHeader& header, const char* szFileExtension) const
+ezResult ezTgaFileFormat::ReadImageHeader(ezStreamReader& inout_stream, ezImageHeader& ref_header, const char* szFileExtension) const
 {
   EZ_PROFILE_SCOPE("ezTgaFileFormat::ReadImageHeader");
 
   TgaHeader tgaHeader;
-  return ReadImageHeaderImpl(stream, header, szFileExtension, tgaHeader);
+  return ReadImageHeaderImpl(inout_stream, ref_header, szFileExtension, tgaHeader);
 }
 
-ezResult ezTgaFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, const char* szFileExtension) const
+ezResult ezTgaFileFormat::ReadImage(ezStreamReader& inout_stream, ezImage& ref_image, const char* szFileExtension) const
 {
   EZ_PROFILE_SCOPE("ezTgaFileFormat::ReadImage");
 
   ezImageHeader imageHeader;
   TgaHeader tgaHeader;
-  EZ_SUCCEED_OR_RETURN(ReadImageHeaderImpl(stream, imageHeader, szFileExtension, tgaHeader));
+  EZ_SUCCEED_OR_RETURN(ReadImageHeaderImpl(inout_stream, imageHeader, szFileExtension, tgaHeader));
 
   const ezUInt32 uiBytesPerPixel = tgaHeader.m_iBitsPerPixel / 8;
 
-  image.ResetAndAlloc(imageHeader);
+  ref_image.ResetAndAlloc(imageHeader);
 
   if (tgaHeader.m_ImageType == 3)
   {
@@ -361,7 +361,7 @@ ezResult ezTgaFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, cons
         const auto row = tgaHeader.m_ImageDescriptor.m_bFlipV ? y : tgaHeader.m_iImageHeight - y - 1;
         for (ezInt32 x = tgaHeader.m_iImageWidth - 1; x >= 0; --x)
         {
-          stream.ReadBytes(image.GetPixelPointer<void>(0, 0, 0, x, row, 0), uiBytesPerPixel);
+          inout_stream.ReadBytes(ref_image.GetPixelPointer<void>(0, 0, 0, x, row, 0), uiBytesPerPixel);
         }
       }
     }
@@ -371,7 +371,7 @@ ezResult ezTgaFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, cons
       for (ezInt32 y = 0; y < tgaHeader.m_iImageHeight; ++y)
       {
         const auto row = tgaHeader.m_ImageDescriptor.m_bFlipV ? y : tgaHeader.m_iImageHeight - y - 1;
-        stream.ReadBytes(image.GetPixelPointer<void>(0, 0, 0, 0, row, 0), uiBytesPerRow);
+        inout_stream.ReadBytes(ref_image.GetPixelPointer<void>(0, 0, 0, 0, row, 0), uiBytesPerRow);
       }
     }
   }
@@ -389,7 +389,7 @@ ezResult ezTgaFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, cons
         const auto row = tgaHeader.m_ImageDescriptor.m_bFlipV ? y : tgaHeader.m_iImageHeight - y - 1;
         for (ezInt32 x = tgaHeader.m_iImageWidth - 1; x >= 0; --x)
         {
-          stream.ReadBytes(image.GetPixelPointer<void>(0, 0, 0, x, row, 0), uiBytesPerPixel);
+          inout_stream.ReadBytes(ref_image.GetPixelPointer<void>(0, 0, 0, x, row, 0), uiBytesPerPixel);
         }
       }
     }
@@ -399,7 +399,7 @@ ezResult ezTgaFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, cons
       for (ezInt32 y = 0; y < tgaHeader.m_iImageHeight; ++y)
       {
         const auto row = tgaHeader.m_ImageDescriptor.m_bFlipV ? y : tgaHeader.m_iImageHeight - y - 1;
-        stream.ReadBytes(image.GetPixelPointer<void>(0, 0, 0, 0, row, 0), uiBytesPerRow);
+        inout_stream.ReadBytes(ref_image.GetPixelPointer<void>(0, 0, 0, 0, row, 0), uiBytesPerRow);
       }
     }
   }
@@ -414,7 +414,7 @@ ezResult ezTgaFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, cons
     {
       ezUInt8 uiChunkHeader = 0;
 
-      stream >> uiChunkHeader;
+      inout_stream >> uiChunkHeader;
 
       const ezInt32 numToRead = (uiChunkHeader & 127) + 1;
 
@@ -438,7 +438,7 @@ ezResult ezTgaFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, cons
 
           const auto row = tgaHeader.m_ImageDescriptor.m_bFlipV ? y : tgaHeader.m_iImageHeight - y - 1;
           const auto col = tgaHeader.m_ImageDescriptor.m_bFlipH ? tgaHeader.m_iImageWidth - x - 1 : x;
-          stream.ReadBytes(image.GetPixelPointer<void>(0, 0, 0, col, row, 0), uiBytesPerPixel);
+          inout_stream.ReadBytes(ref_image.GetPixelPointer<void>(0, 0, 0, col, row, 0), uiBytesPerPixel);
 
           ++iCurrentPixel;
         }
@@ -448,7 +448,7 @@ ezResult ezTgaFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, cons
         ezUInt8 uiBuffer[4] = {255, 255, 255, 255};
 
         // read the current color
-        stream.ReadBytes(uiBuffer, uiBytesPerPixel);
+        inout_stream.ReadBytes(uiBuffer, uiBytesPerPixel);
 
         // if it is a 24-Bit TGA (3 channels), the fourth channel stays at 255 all the time, since the 4th value in ucBuffer is never overwritten
 
@@ -460,7 +460,7 @@ ezResult ezTgaFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, cons
 
           const auto row = tgaHeader.m_ImageDescriptor.m_bFlipV ? y : tgaHeader.m_iImageHeight - y - 1;
           const auto col = tgaHeader.m_ImageDescriptor.m_bFlipH ? tgaHeader.m_iImageWidth - x - 1 : x;
-          ezUInt8* pPixel = image.GetPixelPointer<ezUInt8>(0, 0, 0, col, row, 0);
+          ezUInt8* pPixel = ref_image.GetPixelPointer<ezUInt8>(0, 0, 0, col, row, 0);
 
           // BGR
           pPixel[0] = uiBuffer[0];

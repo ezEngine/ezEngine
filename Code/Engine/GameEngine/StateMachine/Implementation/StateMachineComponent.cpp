@@ -49,13 +49,13 @@ ezStateMachineState_SendMsg::ezStateMachineState_SendMsg(ezStringView sName)
 
 ezStateMachineState_SendMsg::~ezStateMachineState_SendMsg() = default;
 
-void ezStateMachineState_SendMsg::OnEnter(ezStateMachineInstance& instance, void* pInstanceData, const ezStateMachineState* pFromState) const
+void ezStateMachineState_SendMsg::OnEnter(ezStateMachineInstance& ref_instance, void* pInstanceData, const ezStateMachineState* pFromState) const
 {
   ezHashedString sFromState = (pFromState != nullptr) ? pFromState->GetNameHashed() : ezHashedString();
 
   if (m_bSendMessageOnEnter)
   {
-    if (auto pOwner = ezDynamicCast<ezStateMachineComponent*>(&instance.GetOwner()))
+    if (auto pOwner = ezDynamicCast<ezStateMachineComponent*>(&ref_instance.GetOwner()))
     {
       ezMsgStateMachineStateChanged msg;
       msg.m_sOldStateName = sFromState;
@@ -71,13 +71,13 @@ void ezStateMachineState_SendMsg::OnEnter(ezStateMachineInstance& instance, void
   }
 }
 
-void ezStateMachineState_SendMsg::OnExit(ezStateMachineInstance& instance, void* pInstanceData, const ezStateMachineState* pToState) const
+void ezStateMachineState_SendMsg::OnExit(ezStateMachineInstance& ref_instance, void* pInstanceData, const ezStateMachineState* pToState) const
 {
   ezHashedString sToState = (pToState != nullptr) ? pToState->GetNameHashed() : ezHashedString();
 
   if (m_bSendMessageOnExit)
   {
-    if (auto pOwner = ezDynamicCast<ezStateMachineComponent*>(&instance.GetOwner()))
+    if (auto pOwner = ezDynamicCast<ezStateMachineComponent*>(&ref_instance.GetOwner()))
     {
       ezMsgStateMachineStateChanged msg;
       msg.m_sOldStateName = GetNameHashed();
@@ -93,27 +93,27 @@ void ezStateMachineState_SendMsg::OnExit(ezStateMachineInstance& instance, void*
   }
 }
 
-ezResult ezStateMachineState_SendMsg::Serialize(ezStreamWriter& stream) const
+ezResult ezStateMachineState_SendMsg::Serialize(ezStreamWriter& inout_stream) const
 {
-  EZ_SUCCEED_OR_RETURN(SUPER::Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
 
-  stream << m_MessageDelay;
-  stream << m_bSendMessageOnEnter;
-  stream << m_bSendMessageOnExit;
-  stream << m_bLogOnEnter;
-  stream << m_bLogOnExit;
+  inout_stream << m_MessageDelay;
+  inout_stream << m_bSendMessageOnEnter;
+  inout_stream << m_bSendMessageOnExit;
+  inout_stream << m_bLogOnEnter;
+  inout_stream << m_bLogOnExit;
   return EZ_SUCCESS;
 }
 
-ezResult ezStateMachineState_SendMsg::Deserialize(ezStreamReader& stream)
+ezResult ezStateMachineState_SendMsg::Deserialize(ezStreamReader& inout_stream)
 {
-  EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
 
-  stream >> m_MessageDelay;
-  stream >> m_bSendMessageOnEnter;
-  stream >> m_bSendMessageOnExit;
-  stream >> m_bLogOnEnter;
-  stream >> m_bLogOnExit;
+  inout_stream >> m_MessageDelay;
+  inout_stream >> m_bSendMessageOnEnter;
+  inout_stream >> m_bSendMessageOnExit;
+  inout_stream >> m_bLogOnEnter;
+  inout_stream >> m_bLogOnExit;
   return EZ_SUCCESS;
 }
 
@@ -140,9 +140,9 @@ ezStateMachineState_SwitchObject::ezStateMachineState_SwitchObject(ezStringView 
 
 ezStateMachineState_SwitchObject::~ezStateMachineState_SwitchObject() = default;
 
-void ezStateMachineState_SwitchObject::OnEnter(ezStateMachineInstance& instance, void* pInstanceData, const ezStateMachineState* pFromState) const
+void ezStateMachineState_SwitchObject::OnEnter(ezStateMachineInstance& ref_instance, void* pInstanceData, const ezStateMachineState* pFromState) const
 {
-  if (auto pOwner = ezDynamicCast<ezStateMachineComponent*>(&instance.GetOwner()))
+  if (auto pOwner = ezDynamicCast<ezStateMachineComponent*>(&ref_instance.GetOwner()))
   {
     if (ezGameObject* pOwnerGO = pOwner->GetOwner()->FindChildByPath(m_sGroupPath))
     {
@@ -161,23 +161,23 @@ void ezStateMachineState_SwitchObject::OnEnter(ezStateMachineInstance& instance,
   }
 }
 
-ezResult ezStateMachineState_SwitchObject::Serialize(ezStreamWriter& stream) const
+ezResult ezStateMachineState_SwitchObject::Serialize(ezStreamWriter& inout_stream) const
 {
-  EZ_SUCCEED_OR_RETURN(SUPER::Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
 
-  stream << m_sGroupPath;
-  stream << m_sObjectToEnable;
-  stream << m_bDeactivateOthers;
+  inout_stream << m_sGroupPath;
+  inout_stream << m_sObjectToEnable;
+  inout_stream << m_bDeactivateOthers;
   return EZ_SUCCESS;
 }
 
-ezResult ezStateMachineState_SwitchObject::Deserialize(ezStreamReader& stream)
+ezResult ezStateMachineState_SwitchObject::Deserialize(ezStreamReader& inout_stream)
 {
-  EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
 
-  stream >> m_sGroupPath;
-  stream >> m_sObjectToEnable;
-  stream >> m_bDeactivateOthers;
+  inout_stream >> m_sGroupPath;
+  inout_stream >> m_sObjectToEnable;
+  inout_stream >> m_bDeactivateOthers;
   return EZ_SUCCESS;
 }
 
@@ -286,22 +286,22 @@ ezStateMachineComponent::ezStateMachineComponent(ezStateMachineComponent&& other
 ezStateMachineComponent::~ezStateMachineComponent() = default;
 ezStateMachineComponent& ezStateMachineComponent::operator=(ezStateMachineComponent&& other) = default;
 
-void ezStateMachineComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezStateMachineComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 
-  ezStreamWriter& s = stream.GetStream();
+  ezStreamWriter& s = inout_stream.GetStream();
 
   s << m_hResource;
   s << m_sInitialState;
   s << m_sBlackboardName;
 }
 
-void ezStateMachineComponent::DeserializeComponent(ezWorldReader& stream)
+void ezStateMachineComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  ezStreamReader& s = stream.GetStream();
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  ezStreamReader& s = inout_stream.GetStream();
 
   s >> m_hResource;
   s >> m_sInitialState;

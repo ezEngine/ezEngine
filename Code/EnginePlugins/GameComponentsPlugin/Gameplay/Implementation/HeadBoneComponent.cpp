@@ -49,36 +49,36 @@ void ezHeadBoneComponent::Update()
   m_CurVerticalRotation = m_NewVerticalRotation;
 }
 
-void ezHeadBoneComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezHeadBoneComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   // Version 1
   s << m_MaxVerticalRotation;
   s << m_CurVerticalRotation;
 }
 
-void ezHeadBoneComponent::DeserializeComponent(ezWorldReader& stream)
+void ezHeadBoneComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
+  SUPER::DeserializeComponent(inout_stream);
   // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   // Version 1
   s >> m_MaxVerticalRotation;
   s >> m_CurVerticalRotation;
 }
 
-void ezHeadBoneComponent::SetVerticalRotation(float radians)
+void ezHeadBoneComponent::SetVerticalRotation(float fRadians)
 {
-  m_NewVerticalRotation = ezAngle::Radian(radians);
+  m_NewVerticalRotation = ezAngle::Radian(fRadians);
 }
 
-void ezHeadBoneComponent::ChangeVerticalRotation(float radians)
+void ezHeadBoneComponent::ChangeVerticalRotation(float fRadians)
 {
-  m_NewVerticalRotation += ezAngle::Radian(radians);
+  m_NewVerticalRotation += ezAngle::Radian(fRadians);
 }
 

@@ -30,8 +30,8 @@ class EZ_JOLTPLUGIN_DLL ezJoltDynamicActorComponent : public ezJoltActorComponen
   // ezComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
   virtual void OnSimulationStarted() override;
   virtual void OnDeactivated() override;
@@ -45,13 +45,13 @@ public:
 
   ezUInt32 GetJoltBodyID() const { return m_uiJoltBodyID; }
 
-  void AddImpulseAtPos(ezMsgPhysicsAddImpulse& msg); // [ message ]
-  void AddForceAtPos(ezMsgPhysicsAddForce& msg);     // [ message ]
+  void AddImpulseAtPos(ezMsgPhysicsAddImpulse& ref_msg); // [ message ]
+  void AddForceAtPos(ezMsgPhysicsAddForce& ref_msg);     // [ message ]
 
   bool GetKinematic() const { return m_bKinematic; } // [ property ]
   void SetKinematic(bool b);                         // [ property ]
 
-  void SetGravityFactor(float factor);                        // [ property ]
+  void SetGravityFactor(float fFactor);                       // [ property ]
   float GetGravityFactor() const { return m_fGravityFactor; } // [ property ]
 
   void SetSurfaceFile(const char* szFile); // [ property ]

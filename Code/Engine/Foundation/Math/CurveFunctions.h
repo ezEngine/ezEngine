@@ -74,7 +74,7 @@ namespace ezMath
   /// \brief Helper function that returns the function value at the given x coordinate.
   ///
   /// If \a inverse is true, the value (1-Y) is returned.
-  double GetCurveValue(ezCurveFunction function, double x, bool inverse);
+  double GetCurveValue(ezCurveFunction function, double x, bool bInverse);
 
   double GetCurveValue_Linear(double t);
   double GetCurveValue_ConstantZero(double t);

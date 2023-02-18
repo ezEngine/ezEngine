@@ -12,52 +12,52 @@ ezClipSpaceYMode::Enum ezClipSpaceYMode::RenderToTextureDefault = ezClipSpaceYMo
 
 ezHandedness::Enum ezHandedness::Default = ezHandedness::LeftHanded;
 
-bool ezMath::IsPowerOf(ezInt32 value, ezInt32 base)
+bool ezMath::IsPowerOf(ezInt32 value, ezInt32 iBase)
 {
   if (value == 1)
     return true;
 
-  while (value > base)
+  while (value > iBase)
   {
-    if (value % base == 0)
-      value /= base;
+    if (value % iBase == 0)
+      value /= iBase;
     else
       return false;
   }
 
-  return (value == base);
+  return (value == iBase);
 }
 
-ezUInt32 ezMath::PowerOfTwo_Floor(ezUInt32 npot)
+ezUInt32 ezMath::PowerOfTwo_Floor(ezUInt32 uiNpot)
 {
-  if (IsPowerOf2(npot))
-    return (npot);
+  if (IsPowerOf2(uiNpot))
+    return (uiNpot);
 
-  for (ezUInt32 i = 1; i <= (sizeof(npot) * 8); ++i)
+  for (ezUInt32 i = 1; i <= (sizeof(uiNpot) * 8); ++i)
   {
-    npot >>= 1;
+    uiNpot >>= 1;
 
-    if (npot == 1)
-      return (npot << i);
+    if (uiNpot == 1)
+      return (uiNpot << i);
   }
 
   return (1);
 }
 
-ezUInt32 ezMath::PowerOfTwo_Ceil(ezUInt32 npot)
+ezUInt32 ezMath::PowerOfTwo_Ceil(ezUInt32 uiNpot)
 {
-  if (IsPowerOf2(npot))
-    return (npot);
+  if (IsPowerOf2(uiNpot))
+    return (uiNpot);
 
-  for (ezUInt32 i = 1; i <= (sizeof(npot) * 8); ++i)
+  for (ezUInt32 i = 1; i <= (sizeof(uiNpot) * 8); ++i)
   {
-    npot >>= 1;
+    uiNpot >>= 1;
 
-    if (npot == 1)
+    if (uiNpot == 1)
     {
       // note: left shift by 32 bits is undefined behavior and typically just returns the left operand unchanged
       // so for npot values larger than 1^31 we do run into this code path, but instead of returning 0, as one may expect, it will usually return 1
-      return npot << (i + 1u);
+      return uiNpot << (i + 1u);
     }
   }
 
@@ -91,7 +91,7 @@ ezUInt32 ezMath::GreatestCommonDivisor(ezUInt32 a, ezUInt32 b)
   return a << shift;
 }
 
-ezResult ezMath::TryMultiply32(ezUInt32& out_Result, ezUInt32 a, ezUInt32 b, ezUInt32 c, ezUInt32 d)
+ezResult ezMath::TryMultiply32(ezUInt32& out_uiResult, ezUInt32 a, ezUInt32 b, ezUInt32 c, ezUInt32 d)
 {
   ezUInt64 result = static_cast<ezUInt64>(a) * static_cast<ezUInt64>(b);
 
@@ -114,7 +114,7 @@ ezResult ezMath::TryMultiply32(ezUInt32& out_Result, ezUInt32 a, ezUInt32 b, ezU
     return EZ_FAILURE;
   }
 
-  out_Result = static_cast<ezUInt32>(result & 0xFFFFFFFFllu);
+  out_uiResult = static_cast<ezUInt32>(result & 0xFFFFFFFFllu);
   return EZ_SUCCESS;
 }
 
@@ -131,11 +131,11 @@ ezUInt32 ezMath::SafeMultiply32(ezUInt32 a, ezUInt32 b, ezUInt32 c, ezUInt32 d)
   return 0;
 }
 
-ezResult ezMath::TryMultiply64(ezUInt64& out_Result, ezUInt64 a, ezUInt64 b, ezUInt64 c, ezUInt64 d)
+ezResult ezMath::TryMultiply64(ezUInt64& out_uiResult, ezUInt64 a, ezUInt64 b, ezUInt64 c, ezUInt64 d)
 {
   if (a == 0 || b == 0 || c == 0 || d == 0)
   {
-    out_Result = 0;
+    out_uiResult = 0;
     return EZ_SUCCESS;
   }
 
@@ -183,7 +183,7 @@ ezResult ezMath::TryMultiply64(ezUInt64& out_Result, ezUInt64 a, ezUInt64 b, ezU
 
 #endif
 
-  out_Result = abcd;
+  out_uiResult = abcd;
   return EZ_SUCCESS;
 }
 
@@ -265,12 +265,12 @@ ezVec3 ezBasisAxis::GetBasisVector(Enum basisAxis)
   }
 }
 
-ezMat3 ezBasisAxis::CalculateTransformationMatrix(Enum forwardDir, Enum rightDir, Enum upDir, float fUniformScale /*= 1.0f*/, float fScaleX /*= 1.0f*/, float fScaleY /*= 1.0f*/, float fScaleZ /*= 1.0f*/)
+ezMat3 ezBasisAxis::CalculateTransformationMatrix(Enum forwardDir, Enum rightDir, Enum dir, float fUniformScale /*= 1.0f*/, float fScaleX /*= 1.0f*/, float fScaleY /*= 1.0f*/, float fScaleZ /*= 1.0f*/)
 {
   ezMat3 mResult;
   mResult.SetRow(0, ezBasisAxis::GetBasisVector(forwardDir) * fUniformScale * fScaleX);
   mResult.SetRow(1, ezBasisAxis::GetBasisVector(rightDir) * fUniformScale * fScaleY);
-  mResult.SetRow(2, ezBasisAxis::GetBasisVector(upDir) * fUniformScale * fScaleZ);
+  mResult.SetRow(2, ezBasisAxis::GetBasisVector(dir) * fUniformScale * fScaleZ);
 
   return mResult;
 }
@@ -355,14 +355,14 @@ ezQuat ezBasisAxis::GetBasisRotation(Enum identity, Enum axis)
   return rotAxis * rotId;
 }
 
-ezBasisAxis::Enum ezBasisAxis::GetOrthogonalAxis(Enum axis1, Enum axis2, bool flip)
+ezBasisAxis::Enum ezBasisAxis::GetOrthogonalAxis(Enum axis1, Enum axis2, bool bFlip)
 {
   const ezVec3 a1 = ezBasisAxis::GetBasisVector(axis1);
   const ezVec3 a2 = ezBasisAxis::GetBasisVector(axis2);
 
   ezVec3 c = a1.CrossRH(a2);
 
-  if (flip)
+  if (bFlip)
     c = -c;
 
   if (c.IsEqual(ezVec3::UnitXAxis(), 0.01f))

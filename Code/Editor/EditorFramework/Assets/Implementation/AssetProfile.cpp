@@ -45,20 +45,20 @@ ezUInt32 ezAssetCurator::GetNumAssetProfiles() const
   return m_AssetProfiles.GetCount();
 }
 
-const ezPlatformProfile* ezAssetCurator::GetAssetProfile(ezUInt32 index) const
+const ezPlatformProfile* ezAssetCurator::GetAssetProfile(ezUInt32 uiIndex) const
 {
-  if (index >= m_AssetProfiles.GetCount())
+  if (uiIndex >= m_AssetProfiles.GetCount())
     return m_AssetProfiles[0]; // fall back to default platform
 
-  return m_AssetProfiles[index];
+  return m_AssetProfiles[uiIndex];
 }
 
-ezPlatformProfile* ezAssetCurator::GetAssetProfile(ezUInt32 index)
+ezPlatformProfile* ezAssetCurator::GetAssetProfile(ezUInt32 uiIndex)
 {
-  if (index >= m_AssetProfiles.GetCount())
+  if (uiIndex >= m_AssetProfiles.GetCount())
     return m_AssetProfiles[0]; // fall back to default platform
 
-  return m_AssetProfiles[index];
+  return m_AssetProfiles[uiIndex];
 }
 
 ezPlatformProfile* ezAssetCurator::CreateAssetProfile()
@@ -96,17 +96,17 @@ ezResult ezAssetCurator::DeleteAssetProfile(ezPlatformProfile* pProfile)
   return EZ_FAILURE;
 }
 
-void ezAssetCurator::SetActiveAssetProfileByIndex(ezUInt32 index, bool bForceReevaluation /*= false*/)
+void ezAssetCurator::SetActiveAssetProfileByIndex(ezUInt32 uiIndex, bool bForceReevaluation /*= false*/)
 {
-  if (index >= m_AssetProfiles.GetCount())
-    index = 0; // fall back to default platform
+  if (uiIndex >= m_AssetProfiles.GetCount())
+    uiIndex = 0; // fall back to default platform
 
-  if (!bForceReevaluation && m_uiActiveAssetProfile == index)
+  if (!bForceReevaluation && m_uiActiveAssetProfile == uiIndex)
     return;
 
-  EZ_LOG_BLOCK("Switch Active Asset Platform", m_AssetProfiles[index]->GetConfigName());
+  EZ_LOG_BLOCK("Switch Active Asset Platform", m_AssetProfiles[uiIndex]->GetConfigName());
 
-  m_uiActiveAssetProfile = index;
+  m_uiActiveAssetProfile = uiIndex;
 
   CheckFileSystem();
 

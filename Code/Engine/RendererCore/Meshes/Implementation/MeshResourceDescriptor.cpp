@@ -111,22 +111,22 @@ ezResult ezMeshResourceDescriptor::Save(const char* szFile)
   return EZ_SUCCESS;
 }
 
-void ezMeshResourceDescriptor::Save(ezStreamWriter& stream)
+void ezMeshResourceDescriptor::Save(ezStreamWriter& inout_stream)
 {
   ezUInt8 uiVersion = 7;
-  stream << uiVersion;
+  inout_stream << uiVersion;
 
   ezUInt8 uiCompressionMode = 0;
 
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
   uiCompressionMode = 1;
-  ezCompressedStreamWriterZstd compressor(&stream, ezCompressedStreamWriterZstd::Compression::Average);
+  ezCompressedStreamWriterZstd compressor(&inout_stream, ezCompressedStreamWriterZstd::Compression::Average);
   ezChunkStreamWriter chunk(compressor);
 #else
   ezChunkStreamWriter chunk(stream);
 #endif
 
-  stream << uiCompressionMode;
+  inout_stream << uiCompressionMode;
 
   chunk.BeginStream(1);
 
@@ -285,10 +285,10 @@ ezResult ezMeshResourceDescriptor::Load(const char* szFile)
   return Load(file);
 }
 
-ezResult ezMeshResourceDescriptor::Load(ezStreamReader& stream)
+ezResult ezMeshResourceDescriptor::Load(ezStreamReader& inout_stream)
 {
   ezUInt8 uiVersion = 0;
-  stream >> uiVersion;
+  inout_stream >> uiVersion;
 
   // version 4 and below is broken
   if (uiVersion <= 4)
@@ -297,10 +297,10 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReader& stream)
   ezUInt8 uiCompressionMode = 0;
   if (uiVersion >= 6)
   {
-    stream >> uiCompressionMode;
+    inout_stream >> uiCompressionMode;
   }
 
-  ezStreamReader* pCompressor = &stream;
+  ezStreamReader* pCompressor = &inout_stream;
 
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
   ezCompressedStreamReaderZstd decompressorZstd;
@@ -313,7 +313,7 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReader& stream)
 
     case 1:
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
-      decompressorZstd.SetInputStream(&stream);
+      decompressorZstd.SetInputStream(&inout_stream);
       pCompressor = &decompressorZstd;
       break;
 #else
@@ -532,18 +532,18 @@ void ezMeshResourceDescriptor::ComputeBounds()
   }
 }
 
-ezResult ezMeshResourceDescriptor::BoneData::Serialize(ezStreamWriter& stream) const
+ezResult ezMeshResourceDescriptor::BoneData::Serialize(ezStreamWriter& inout_stream) const
 {
-  stream << m_GlobalInverseBindPoseMatrix;
-  stream << m_uiBoneIndex;
+  inout_stream << m_GlobalInverseBindPoseMatrix;
+  inout_stream << m_uiBoneIndex;
 
   return EZ_SUCCESS;
 }
 
-ezResult ezMeshResourceDescriptor::BoneData::Deserialize(ezStreamReader& stream)
+ezResult ezMeshResourceDescriptor::BoneData::Deserialize(ezStreamReader& inout_stream)
 {
-  stream >> m_GlobalInverseBindPoseMatrix;
-  stream >> m_uiBoneIndex;
+  inout_stream >> m_GlobalInverseBindPoseMatrix;
+  inout_stream >> m_uiBoneIndex;
 
   return EZ_SUCCESS;
 }

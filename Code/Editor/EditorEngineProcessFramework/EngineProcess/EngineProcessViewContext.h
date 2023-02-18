@@ -29,7 +29,7 @@ public:
 
   ~ezEditorProcessViewWindow();
 
-  ezResult UpdateWindow(ezWindowHandle parentWindow, ezUInt16 uiWidth, ezUInt16 uiHeight);
+  ezResult UpdateWindow(ezWindowHandle hParentWindow, ezUInt16 uiWidth, ezUInt16 uiHeight);
 
   // Inherited via ezWindowBase
   virtual ezSizeU32 GetClientAreaSize() const override { return ezSizeU32(m_uiWidth, m_uiHeight); }
@@ -55,16 +55,16 @@ public:
   ezEngineProcessViewContext(ezEngineProcessDocumentContext* pContext);
   virtual ~ezEngineProcessViewContext();
 
-  void SetViewID(ezUInt32 id);
+  void SetViewID(ezUInt32 uiId);
 
   ezEngineProcessDocumentContext* GetDocumentContext() const { return m_pDocumentContext; }
 
   virtual void HandleViewMessage(const ezEditorEngineViewMsg* pMsg);
-  virtual void SetupRenderTarget(ezGALSwapChainHandle hSwapChain, const ezGALRenderTargets* renderTargets, ezUInt16 uiWidth, ezUInt16 uiHeight);
+  virtual void SetupRenderTarget(ezGALSwapChainHandle hSwapChain, const ezGALRenderTargets* pRenderTargets, ezUInt16 uiWidth, ezUInt16 uiHeight);
   virtual void Redraw(bool bRenderEditorGizmos);
 
   /// \brief Focuses camera on the given object
-  static bool FocusCameraOnObject(ezCamera& camera, const ezBoundingBoxSphere& objectBounds, float fFov, const ezVec3& vViewDir);
+  static bool FocusCameraOnObject(ezCamera& inout_camera, const ezBoundingBoxSphere& objectBounds, float fFov, const ezVec3& vViewDir);
 
   ezViewHandle GetViewHandle() const { return m_hView; }
 

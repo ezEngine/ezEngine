@@ -28,34 +28,34 @@ private:
   virtual aeUInt32 ReadFromStream(void* pData, aeUInt32 uiSize) override { return (aeUInt32)m_pStream->ReadBytes(pData, uiSize); }
 };
 
-static void GetMaterialLabel(ezStringBuilder& out, ezKrautBranchType branchType, ezKrautMaterialType materialType)
+static void GetMaterialLabel(ezStringBuilder& ref_sOut, ezKrautBranchType branchType, ezKrautMaterialType materialType)
 {
-  out.Clear();
+  ref_sOut.Clear();
 
   switch (branchType)
   {
     case ezKrautBranchType::Trunk1:
     case ezKrautBranchType::Trunk2:
     case ezKrautBranchType::Trunk3:
-      out.Format("Trunk {}", (int)branchType - (int)ezKrautBranchType::Trunk1 + 1);
+      ref_sOut.Format("Trunk {}", (int)branchType - (int)ezKrautBranchType::Trunk1 + 1);
       break;
 
     case ezKrautBranchType::MainBranches1:
     case ezKrautBranchType::MainBranches2:
     case ezKrautBranchType::MainBranches3:
-      out.Format("Branch {}", (int)branchType - (int)ezKrautBranchType::MainBranches1 + 1);
+      ref_sOut.Format("Branch {}", (int)branchType - (int)ezKrautBranchType::MainBranches1 + 1);
       break;
 
     case ezKrautBranchType::SubBranches1:
     case ezKrautBranchType::SubBranches2:
     case ezKrautBranchType::SubBranches3:
-      out.Format("Twig {}", (int)branchType - (int)ezKrautBranchType::SubBranches1 + 1);
+      ref_sOut.Format("Twig {}", (int)branchType - (int)ezKrautBranchType::SubBranches1 + 1);
       break;
 
     case ezKrautBranchType::Twigs1:
     case ezKrautBranchType::Twigs2:
     case ezKrautBranchType::Twigs3:
-      out.Format("Twigy {}", (int)branchType - (int)ezKrautBranchType::Twigs1 + 1);
+      ref_sOut.Format("Twigy {}", (int)branchType - (int)ezKrautBranchType::Twigs1 + 1);
       break;
 
       EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
@@ -64,13 +64,13 @@ static void GetMaterialLabel(ezStringBuilder& out, ezKrautBranchType branchType,
   switch (materialType)
   {
     case ezKrautMaterialType::Branch:
-      out.Append(" - Stem");
+      ref_sOut.Append(" - Stem");
       break;
     case ezKrautMaterialType::Frond:
-      out.Append(" - Frond");
+      ref_sOut.Append(" - Frond");
       break;
     case ezKrautMaterialType::Leaf:
-      out.Append(" - Leaf");
+      ref_sOut.Append(" - Leaf");
       break;
 
       EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
@@ -225,13 +225,13 @@ ezKrautTreeAssetDocumentGenerator::ezKrautTreeAssetDocumentGenerator()
 
 ezKrautTreeAssetDocumentGenerator::~ezKrautTreeAssetDocumentGenerator() = default;
 
-void ezKrautTreeAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
+void ezKrautTreeAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_modes) const
 {
   ezStringBuilder baseOutputFile = szParentDirRelativePath;
   baseOutputFile.ChangeFileExtension("ezKrautTreeAsset");
 
   {
-    ezAssetDocumentGenerator::Info& info = out_Modes.ExpandAndGetRef();
+    ezAssetDocumentGenerator::Info& info = out_modes.ExpandAndGetRef();
     info.m_Priority = ezAssetDocGeneratorPriority::DefaultPriority;
     info.m_sName = "KrautTreeImport.Tree";
     info.m_sOutputFileParentRelative = baseOutputFile;

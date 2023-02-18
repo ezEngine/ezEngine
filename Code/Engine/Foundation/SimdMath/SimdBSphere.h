@@ -47,7 +47,7 @@ public:
   void Transform(const ezSimdTransform& t); // [tested]
 
   /// \brief Transforms the sphere in its local space.
-  void Transform(const ezSimdMat4f& mat); // [tested]
+  void Transform(const ezSimdMat4f& mMat); // [tested]
 
 public:
   /// \brief Computes the distance of the point to the sphere's surface. Returns negative values for points inside the sphere.

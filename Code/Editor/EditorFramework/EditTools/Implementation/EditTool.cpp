@@ -18,12 +18,12 @@ void ezGameObjectEditTool::ConfigureTool(
   OnConfigured();
 }
 
-void ezGameObjectEditTool::SetActive(bool active)
+void ezGameObjectEditTool::SetActive(bool bActive)
 {
-  if (m_bIsActive == active)
+  if (m_bIsActive == bActive)
     return;
 
-  m_bIsActive = active;
+  m_bIsActive = bActive;
   OnActiveChanged(m_bIsActive);
 
   if (!m_bIsActive)

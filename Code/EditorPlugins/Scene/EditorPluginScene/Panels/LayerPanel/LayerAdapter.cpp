@@ -23,9 +23,9 @@ ezQtLayerAdapter::~ezQtLayerAdapter()
   m_DocumentEventUnsubscriber.Unsubscribe();
 }
 
-QVariant ezQtLayerAdapter::data(const ezDocumentObject* pObject, int row, int column, int role) const
+QVariant ezQtLayerAdapter::data(const ezDocumentObject* pObject, int iRow, int iColumn, int iRole) const
 {
-  switch (role)
+  switch (iRole)
   {
     case UserRoles::LayerGuid:
     {
@@ -43,7 +43,7 @@ QVariant ezQtLayerAdapter::data(const ezDocumentObject* pObject, int row, int co
       const ezAssetCurator::ezLockedSubAsset subAsset = ezAssetCurator::GetSingleton()->GetSubAsset(layerGuid);
       if (subAsset.isValid())
       {
-        if (role == Qt::ToolTipRole)
+        if (iRole == Qt::ToolTipRole)
         {
           return subAsset->m_pAssetInfo->m_sAbsolutePath.GetData();
         }
@@ -95,7 +95,7 @@ QVariant ezQtLayerAdapter::data(const ezDocumentObject* pObject, int row, int co
   return QVariant();
 }
 
-bool ezQtLayerAdapter::setData(const ezDocumentObject* pObject, int row, int column, const QVariant& value, int role) const
+bool ezQtLayerAdapter::setData(const ezDocumentObject* pObject, int iRow, int iColumn, const QVariant& value, int iRole) const
 {
   return false;
 }
@@ -152,32 +152,32 @@ ezQtLayerDelegate::ezQtLayerDelegate(QObject* pParent, ezScene2Document* pDocume
 {
 }
 
-bool ezQtLayerDelegate::mousePressEvent(QMouseEvent* event, const QStyleOptionViewItem& option, const QModelIndex& index)
+bool ezQtLayerDelegate::mousePressEvent(QMouseEvent* pEvent, const QStyleOptionViewItem& option, const QModelIndex& index)
 {
   const QRect visibleRect = GetVisibleIconRect(option);
   const QRect loadedRect = GetLoadedIconRect(option);
-  if (event->button() == Qt::MouseButton::LeftButton && (visibleRect.contains(event->localPos().toPoint()) || loadedRect.contains(event->localPos().toPoint())))
+  if (pEvent->button() == Qt::MouseButton::LeftButton && (visibleRect.contains(pEvent->localPos().toPoint()) || loadedRect.contains(pEvent->localPos().toPoint())))
   {
     m_bPressed = true;
-    event->accept();
+    pEvent->accept();
     return true;
   }
-  return ezQtItemDelegate::mousePressEvent(event, option, index);
+  return ezQtItemDelegate::mousePressEvent(pEvent, option, index);
 }
 
-bool ezQtLayerDelegate::mouseReleaseEvent(QMouseEvent* event, const QStyleOptionViewItem& option, const QModelIndex& index)
+bool ezQtLayerDelegate::mouseReleaseEvent(QMouseEvent* pEvent, const QStyleOptionViewItem& option, const QModelIndex& index)
 {
   if (m_bPressed)
   {
     const QRect visibleRect = GetVisibleIconRect(option);
     const QRect loadedRect = GetLoadedIconRect(option);
-    if (visibleRect.contains(event->localPos().toPoint()))
+    if (visibleRect.contains(pEvent->localPos().toPoint()))
     {
       const ezUuid layerGuid = index.data(ezQtLayerAdapter::UserRoles::LayerGuid).value<ezUuid>();
       const bool bVisible = !m_pDocument->IsLayerVisible(layerGuid);
       m_pDocument->SetLayerVisible(layerGuid, bVisible).LogFailure();
     }
-    else if (loadedRect.contains(event->localPos().toPoint()))
+    else if (loadedRect.contains(pEvent->localPos().toPoint()))
     {
       const ezUuid layerGuid = index.data(ezQtLayerAdapter::UserRoles::LayerGuid).value<ezUuid>();
       if (layerGuid != m_pDocument->GetGuid())
@@ -186,24 +186,24 @@ bool ezQtLayerDelegate::mouseReleaseEvent(QMouseEvent* event, const QStyleOption
       }
     }
     m_bPressed = false;
-    event->accept();
+    pEvent->accept();
     return true;
   }
-  return ezQtItemDelegate::mouseReleaseEvent(event, option, index);
+  return ezQtItemDelegate::mouseReleaseEvent(pEvent, option, index);
 }
 
-bool ezQtLayerDelegate::mouseMoveEvent(QMouseEvent* event, const QStyleOptionViewItem& option, const QModelIndex& index)
+bool ezQtLayerDelegate::mouseMoveEvent(QMouseEvent* pEvent, const QStyleOptionViewItem& option, const QModelIndex& index)
 {
   if (m_bPressed)
   {
     return true;
   }
-  return ezQtItemDelegate::mouseMoveEvent(event, option, index);
+  return ezQtItemDelegate::mouseMoveEvent(pEvent, option, index);
 }
 
-void ezQtLayerDelegate::paint(QPainter* painter, const QStyleOptionViewItem& opt, const QModelIndex& index) const
+void ezQtLayerDelegate::paint(QPainter* pPainter, const QStyleOptionViewItem& opt, const QModelIndex& index) const
 {
-  ezQtItemDelegate::paint(painter, opt, index);
+  ezQtItemDelegate::paint(pPainter, opt, index);
 
   {
     const ezUuid layerGuid = index.data(ezQtLayerAdapter::UserRoles::LayerGuid).value<ezUuid>();
@@ -213,7 +213,7 @@ void ezQtLayerDelegate::paint(QPainter* painter, const QStyleOptionViewItem& opt
         const QRect thumbnailRect = GetVisibleIconRect(opt);
         const bool bVisible = m_pDocument->IsLayerVisible(layerGuid);
         const QIcon::Mode mode = bVisible ? QIcon::Mode::Normal : QIcon::Mode::Disabled;
-        ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorPluginScene/Icons/LayerVisible16.png").paint(painter, thumbnailRect, Qt::AlignmentFlag::AlignCenter, mode);
+        ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorPluginScene/Icons/LayerVisible16.png").paint(pPainter, thumbnailRect, Qt::AlignmentFlag::AlignCenter, mode);
       }
 
       if (layerGuid != m_pDocument->GetGuid())
@@ -221,7 +221,7 @@ void ezQtLayerDelegate::paint(QPainter* painter, const QStyleOptionViewItem& opt
         const QRect thumbnailRect = GetLoadedIconRect(opt);
         const bool bLoaded = m_pDocument->IsLayerLoaded(layerGuid);
         const QIcon::Mode mode = bLoaded ? QIcon::Mode::Normal : QIcon::Mode::Disabled;
-        ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorPluginScene/Icons/LayerLoaded16.png").paint(painter, thumbnailRect, Qt::AlignmentFlag::AlignCenter, mode);
+        ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorPluginScene/Icons/LayerLoaded16.png").paint(pPainter, thumbnailRect, Qt::AlignmentFlag::AlignCenter, mode);
       }
     }
   }
@@ -232,27 +232,27 @@ QSize ezQtLayerDelegate::sizeHint(const QStyleOptionViewItem& opt, const QModelI
   return ezQtItemDelegate::sizeHint(opt, index);
 }
 
-bool ezQtLayerDelegate::helpEvent(QHelpEvent* event, QAbstractItemView* view, const QStyleOptionViewItem& option, const QModelIndex& index)
+bool ezQtLayerDelegate::helpEvent(QHelpEvent* pEvent, QAbstractItemView* pView, const QStyleOptionViewItem& option, const QModelIndex& index)
 {
   const ezUuid layerGuid = index.data(ezQtLayerAdapter::UserRoles::LayerGuid).value<ezUuid>();
   if (layerGuid.IsValid())
   {
     const QRect visibleRect = GetVisibleIconRect(option);
     const QRect loadedRect = GetLoadedIconRect(option);
-    if (visibleRect.contains(event->pos()))
+    if (visibleRect.contains(pEvent->pos()))
     {
       const bool bVisible = m_pDocument->IsLayerVisible(layerGuid);
-      QToolTip::showText(event->globalPos(), bVisible ? "Hide Layer" : "Show Layer", view);
+      QToolTip::showText(pEvent->globalPos(), bVisible ? "Hide Layer" : "Show Layer", pView);
       return true;
     }
-    else if (loadedRect.contains(event->pos()))
+    else if (loadedRect.contains(pEvent->pos()))
     {
       const bool bLoaded = m_pDocument->IsLayerLoaded(layerGuid);
-      QToolTip::showText(event->globalPos(), bLoaded ? "Unload Layer" : "Load Layer", view);
+      QToolTip::showText(pEvent->globalPos(), bLoaded ? "Unload Layer" : "Load Layer", pView);
       return true;
     }
   }
-  return ezQtItemDelegate::helpEvent(event, view, option, index);
+  return ezQtItemDelegate::helpEvent(pEvent, pView, option, index);
 }
 
 QRect ezQtLayerDelegate::GetVisibleIconRect(const QStyleOptionViewItem& opt)

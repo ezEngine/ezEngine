@@ -6,8 +6,8 @@
 
 void UpdateCollisionLayerDynamicEnumValues();
 
-ezQtPhysxProjectSettingsDlg::ezQtPhysxProjectSettingsDlg(QWidget* parent)
-  : QDialog(parent)
+ezQtPhysxProjectSettingsDlg::ezQtPhysxProjectSettingsDlg(QWidget* pParent)
+  : QDialog(pParent)
 {
   setupUi(this);
 

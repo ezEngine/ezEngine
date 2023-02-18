@@ -16,8 +16,8 @@ class EZ_PHYSXPLUGIN_DLL ezPxShapeComponent : public ezPxComponent
   // ezComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
 protected:
   virtual void Initialize() override;
@@ -31,13 +31,13 @@ public:
   ezPxShapeComponent();
   ~ezPxShapeComponent();
 
-  virtual void ExtractGeometry(ezMsgExtractGeometry& msg) const;
+  virtual void ExtractGeometry(ezMsgExtractGeometry& ref_msg) const;
 
   void SetSurfaceFile(const char* szFile); // [ property ]
   const char* GetSurfaceFile() const;      // [ property ]
 
   /// \brief Sets the shape ID for the object to use. This can only be set right after creation, before the component is activated.
-  void SetInitialShapeId(ezUInt32 id);
+  void SetInitialShapeId(ezUInt32 uiId);
   ezUInt32 GetShapeId() const { return m_uiShapeId; } // [ scriptable ]
 
   ezUInt8 m_uiCollisionLayer = 0;           // [ property ]

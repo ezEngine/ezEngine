@@ -23,5 +23,5 @@ public:
   ~ezSimplifiedDataExtractor();
 
   virtual void PostSortAndBatch(
-    const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& extractedRenderData) override;
+    const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData) override;
 };

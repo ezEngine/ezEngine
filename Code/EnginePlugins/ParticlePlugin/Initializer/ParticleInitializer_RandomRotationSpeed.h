@@ -14,8 +14,8 @@ public:
   virtual const ezRTTI* GetInitializerType() const override;
   virtual void CopyInitializerProperties(ezParticleInitializer* pInitializer, bool bFirstTime) const override;
 
-  virtual void Save(ezStreamWriter& stream) const override;
-  virtual void Load(ezStreamReader& stream) override;
+  virtual void Save(ezStreamWriter& inout_stream) const override;
+  virtual void Load(ezStreamReader& inout_stream) override;
 
   bool m_bRandomStartAngle = false;
   ezVarianceTypeAngle m_RotationSpeed;

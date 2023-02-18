@@ -21,8 +21,8 @@ class EZ_RENDERERCORE_DLL ezRopeRenderComponent : public ezRenderComponent
   // ezComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
 protected:
   virtual void OnActivated() override;
@@ -62,8 +62,8 @@ public:
   void SetUScale(float fUScale);                // [ property ]
   float GetUScale() const { return m_fUScale; } // [ property ]
 
-  void OnMsgSetColor(ezMsgSetColor& msg);               // [ msg handler ]
-  void OnMsgSetMeshMaterial(ezMsgSetMeshMaterial& msg); // [ msg handler ]
+  void OnMsgSetColor(ezMsgSetColor& ref_msg);               // [ msg handler ]
+  void OnMsgSetMeshMaterial(ezMsgSetMeshMaterial& ref_msg); // [ msg handler ]
 
 private:
   void OnRopePoseUpdated(ezMsgRopePoseUpdated& msg); // [ msg handler ]

@@ -3,8 +3,8 @@
 #include <Foundation/Serialization/ApplyNativePropertyChangesContext.h>
 
 
-ezApplyNativePropertyChangesContext::ezApplyNativePropertyChangesContext(ezRttiConverterContext& source, const ezAbstractObjectGraph& originalGraph)
-  : m_NativeContext(source)
+ezApplyNativePropertyChangesContext::ezApplyNativePropertyChangesContext(ezRttiConverterContext& ref_source, const ezAbstractObjectGraph& originalGraph)
+  : m_NativeContext(ref_source)
   , m_OriginalGraph(originalGraph)
 {
 }

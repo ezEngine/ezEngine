@@ -6,15 +6,15 @@
 
 namespace ezInternal
 {
-  EZ_FORCE_INLINE void FillPerInstanceData(ezPerInstanceData& perInstanceData, const ezMeshRenderData* pRenderData)
+  EZ_FORCE_INLINE void FillPerInstanceData(ezPerInstanceData& ref_perInstanceData, const ezMeshRenderData* pRenderData)
   {
     ezMat4 objectToWorld = pRenderData->m_GlobalTransform.GetAsMat4();
 
-    perInstanceData.ObjectToWorld = objectToWorld;
+    ref_perInstanceData.ObjectToWorld = objectToWorld;
 
     if (pRenderData->m_uiUniformScale)
     {
-      perInstanceData.ObjectToWorldNormal = objectToWorld;
+      ref_perInstanceData.ObjectToWorldNormal = objectToWorld;
     }
     else
     {
@@ -25,12 +25,12 @@ namespace ezInternal
 
       ezShaderTransform shaderT;
       shaderT = mInverse.GetTranspose();
-      perInstanceData.ObjectToWorldNormal = shaderT;
+      ref_perInstanceData.ObjectToWorldNormal = shaderT;
     }
 
-    perInstanceData.BoundingSphereRadius = pRenderData->m_GlobalBounds.m_fSphereRadius;
-    perInstanceData.GameObjectID = pRenderData->m_uiUniqueID;
-    perInstanceData.VertexColorAccessData = 0;
-    perInstanceData.Color = pRenderData->m_Color;
+    ref_perInstanceData.BoundingSphereRadius = pRenderData->m_GlobalBounds.m_fSphereRadius;
+    ref_perInstanceData.GameObjectID = pRenderData->m_uiUniqueID;
+    ref_perInstanceData.VertexColorAccessData = 0;
+    ref_perInstanceData.Color = pRenderData->m_Color;
   }
 } // namespace ezInternal

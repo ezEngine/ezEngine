@@ -76,14 +76,14 @@ ezRmlUiRenderer::~ezRmlUiRenderer()
   m_hQuadIndexBuffer.Invalidate();
 }
 
-void ezRmlUiRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types) const
+void ezRmlUiRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& ref_types) const
 {
-  types.PushBack(ezGetStaticRTTI<ezRmlUiRenderData>());
+  ref_types.PushBack(ezGetStaticRTTI<ezRmlUiRenderData>());
 }
 
-void ezRmlUiRenderer::GetSupportedRenderDataCategories(ezHybridArray<ezRenderData::Category, 8>& categories) const
+void ezRmlUiRenderer::GetSupportedRenderDataCategories(ezHybridArray<ezRenderData::Category, 8>& ref_categories) const
 {
-  categories.PushBack(ezDefaultRenderDataCategories::GUI);
+  ref_categories.PushBack(ezDefaultRenderDataCategories::GUI);
 }
 
 void ezRmlUiRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const

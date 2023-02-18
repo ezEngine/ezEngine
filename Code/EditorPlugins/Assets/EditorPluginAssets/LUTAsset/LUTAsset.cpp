@@ -113,7 +113,7 @@ ezLUTAssetDocumentGenerator::ezLUTAssetDocumentGenerator()
 
 ezLUTAssetDocumentGenerator::~ezLUTAssetDocumentGenerator() = default;
 
-void ezLUTAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
+void ezLUTAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_modes) const
 {
   ezStringBuilder baseOutputFile = szParentDirRelativePath;
 
@@ -121,7 +121,7 @@ void ezLUTAssetDocumentGenerator::GetImportModes(const char* szParentDirRelative
 
   baseOutputFile.ChangeFileExtension(GetDocumentExtension());
 
-  ezAssetDocumentGenerator::Info& info = out_Modes.ExpandAndGetRef();
+  ezAssetDocumentGenerator::Info& info = out_modes.ExpandAndGetRef();
   info.m_Priority = ezAssetDocGeneratorPriority::DefaultPriority;
   info.m_sOutputFileParentRelative = baseOutputFile;
 

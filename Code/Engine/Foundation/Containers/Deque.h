@@ -286,9 +286,9 @@ public:
 };
 
 template <typename T, bool Construct>
-typename ezDequeBase<T, Construct>::iterator begin(ezDequeBase<T, Construct>& container)
+typename ezDequeBase<T, Construct>::iterator begin(ezDequeBase<T, Construct>& ref_container)
 {
-  return typename ezDequeBase<T, Construct>::iterator(container, (size_t)0);
+  return typename ezDequeBase<T, Construct>::iterator(ref_container, (size_t)0);
 }
 
 template <typename T, bool Construct>
@@ -304,9 +304,9 @@ typename ezDequeBase<T, Construct>::const_iterator cbegin(const ezDequeBase<T, C
 }
 
 template <typename T, bool Construct>
-typename ezDequeBase<T, Construct>::reverse_iterator rbegin(ezDequeBase<T, Construct>& container)
+typename ezDequeBase<T, Construct>::reverse_iterator rbegin(ezDequeBase<T, Construct>& ref_container)
 {
-  return typename ezDequeBase<T, Construct>::reverse_iterator(container, (size_t)0);
+  return typename ezDequeBase<T, Construct>::reverse_iterator(ref_container, (size_t)0);
 }
 
 template <typename T, bool Construct>
@@ -322,9 +322,9 @@ typename ezDequeBase<T, Construct>::const_reverse_iterator crbegin(const ezDeque
 }
 
 template <typename T, bool Construct>
-typename ezDequeBase<T, Construct>::iterator end(ezDequeBase<T, Construct>& container)
+typename ezDequeBase<T, Construct>::iterator end(ezDequeBase<T, Construct>& ref_container)
 {
-  return typename ezDequeBase<T, Construct>::iterator(container, (size_t)container.GetCount());
+  return typename ezDequeBase<T, Construct>::iterator(ref_container, (size_t)ref_container.GetCount());
 }
 
 template <typename T, bool Construct>
@@ -340,9 +340,9 @@ typename ezDequeBase<T, Construct>::const_iterator cend(const ezDequeBase<T, Con
 }
 
 template <typename T, bool Construct>
-typename ezDequeBase<T, Construct>::reverse_iterator rend(ezDequeBase<T, Construct>& container)
+typename ezDequeBase<T, Construct>::reverse_iterator rend(ezDequeBase<T, Construct>& ref_container)
 {
-  return typename ezDequeBase<T, Construct>::reverse_iterator(container, (size_t)container.GetCount());
+  return typename ezDequeBase<T, Construct>::reverse_iterator(ref_container, (size_t)ref_container.GetCount());
 }
 
 template <typename T, bool Construct>

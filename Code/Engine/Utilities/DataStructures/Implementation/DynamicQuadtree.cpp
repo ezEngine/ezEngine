@@ -59,12 +59,12 @@ void ezDynamicQuadtree::CreateTree(const ezVec3& vCenter, const ezVec3& vHalfExt
 ///
 /// The min and max Y value of the tree's bounding box is updated, if the object lies above/below previously inserted objects.
 ezResult ezDynamicQuadtree::InsertObject(const ezVec3& vCenter, const ezVec3& vHalfExtents, ezInt32 iObjectType, ezInt32 iObjectInstance,
-  ezDynamicTreeObject* out_Object, bool bOnlyIfInside)
+  ezDynamicTreeObject* out_pObject, bool bOnlyIfInside)
 {
   EZ_ASSERT_DEV(m_uiMaxTreeDepth > 0, "ezDynamicQuadtree::InsertObject: You have to first create the tree.");
 
-  if (out_Object)
-    *out_Object = ezDynamicTreeObject();
+  if (out_pObject)
+    *out_pObject = ezDynamicTreeObject();
 
   if (bOnlyIfInside)
   {
@@ -92,7 +92,7 @@ ezResult ezDynamicQuadtree::InsertObject(const ezVec3& vCenter, const ezVec3& vH
 
   // insert the object into the best child
   if (!InsertObject(vCenter, vHalfExtents, oData, m_BBox.m_vMin.x, m_BBox.m_vMax.x, m_BBox.m_vMin.z, m_BBox.m_vMax.z, 0, m_uiAddIDTopLevel,
-        ezMath::Pow(4, m_uiMaxTreeDepth - 1), out_Object))
+        ezMath::Pow(4, m_uiMaxTreeDepth - 1), out_pObject))
   {
     if (!bOnlyIfInside)
     {
@@ -102,8 +102,8 @@ ezResult ezDynamicQuadtree::InsertObject(const ezVec3& vCenter, const ezVec3& vH
 
       auto key = m_NodeMap.Insert(mmk, oData);
 
-      if (out_Object)
-        *out_Object = key;
+      if (out_pObject)
+        *out_pObject = key;
 
       return EZ_SUCCESS;
     }
@@ -204,14 +204,14 @@ bool ezDynamicQuadtree::InsertObject(const ezVec3& vCenter, const ezVec3& vHalfE
   return true;
 }
 
-void ezDynamicQuadtree::FindVisibleObjects(const ezFrustum& Viewfrustum, EZ_VISIBLE_OBJ_CALLBACK Callback, void* pPassThrough) const
+void ezDynamicQuadtree::FindVisibleObjects(const ezFrustum& viewfrustum, EZ_VISIBLE_OBJ_CALLBACK callback, void* pPassThrough) const
 {
   EZ_ASSERT_DEV(m_uiMaxTreeDepth > 0, "ezDynamicQuadtree::FindVisibleObjects: You have to first create the tree.");
 
   if (m_NodeMap.IsEmpty())
     return;
 
-  FindVisibleObjects(Viewfrustum, Callback, pPassThrough, m_BBox.m_vMin.x, m_BBox.m_vMax.x, m_BBox.m_vMin.z, m_BBox.m_vMax.z, 0, m_uiAddIDTopLevel,
+  FindVisibleObjects(viewfrustum, callback, pPassThrough, m_BBox.m_vMin.x, m_BBox.m_vMax.x, m_BBox.m_vMin.z, m_BBox.m_vMax.z, 0, m_uiAddIDTopLevel,
     ezMath::Pow(4, m_uiMaxTreeDepth - 1), 0xFFFFFFFF);
 }
 
@@ -301,7 +301,7 @@ void ezDynamicQuadtree::FindVisibleObjects(const ezFrustum& Viewfrustum, EZ_VISI
 }
 
 
-void ezDynamicQuadtree::FindObjectsInRange(const ezVec3& vPoint, EZ_VISIBLE_OBJ_CALLBACK Callback, void* pPassThrough) const
+void ezDynamicQuadtree::FindObjectsInRange(const ezVec3& vPoint, EZ_VISIBLE_OBJ_CALLBACK callback, void* pPassThrough) const
 {
   EZ_ASSERT_DEV(m_uiMaxTreeDepth > 0, "ezDynamicQuadtree::FindObjectsInRange: You have to first create the tree.");
 
@@ -311,7 +311,7 @@ void ezDynamicQuadtree::FindObjectsInRange(const ezVec3& vPoint, EZ_VISIBLE_OBJ_
   if (!m_BBox.Contains(vPoint))
     return;
 
-  FindObjectsInRange(vPoint, Callback, pPassThrough, m_BBox.m_vMin.x, m_BBox.m_vMax.x, m_BBox.m_vMin.z, m_BBox.m_vMax.z, 0, m_uiAddIDTopLevel,
+  FindObjectsInRange(vPoint, callback, pPassThrough, m_BBox.m_vMin.x, m_BBox.m_vMax.x, m_BBox.m_vMin.z, m_BBox.m_vMax.z, 0, m_uiAddIDTopLevel,
     ezMath::Pow(4, m_uiMaxTreeDepth - 1), 0xFFFFFFFF);
 }
 
@@ -385,7 +385,7 @@ bool ezDynamicQuadtree::FindObjectsInRange(const ezVec3& vPoint, EZ_VISIBLE_OBJ_
 
 
 
-void ezDynamicQuadtree::FindObjectsInRange(const ezVec3& vPoint, float fRadius, EZ_VISIBLE_OBJ_CALLBACK Callback, void* pPassThrough) const
+void ezDynamicQuadtree::FindObjectsInRange(const ezVec3& vPoint, float fRadius, EZ_VISIBLE_OBJ_CALLBACK callback, void* pPassThrough) const
 {
   EZ_ASSERT_DEV(m_uiMaxTreeDepth > 0, "ezDynamicQuadtree::FindObjectsInRange: You have to first create the tree.");
 
@@ -395,7 +395,7 @@ void ezDynamicQuadtree::FindObjectsInRange(const ezVec3& vPoint, float fRadius, 
   if (!m_BBox.Overlaps(ezBoundingBox(vPoint - ezVec3(fRadius), vPoint + ezVec3(fRadius))))
     return;
 
-  FindObjectsInRange(vPoint, fRadius, Callback, pPassThrough, m_BBox.m_vMin.x, m_BBox.m_vMax.x, m_BBox.m_vMin.z, m_BBox.m_vMax.z, 0,
+  FindObjectsInRange(vPoint, fRadius, callback, pPassThrough, m_BBox.m_vMin.x, m_BBox.m_vMax.x, m_BBox.m_vMin.z, m_BBox.m_vMax.z, 0,
     m_uiAddIDTopLevel, ezMath::Pow(4, m_uiMaxTreeDepth - 1), 0xFFFFFFFF);
 }
 

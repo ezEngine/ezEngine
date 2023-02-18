@@ -123,7 +123,7 @@ ezResult ezReflectionProbeUpdater::StartDynamicUpdate(const ezReflectionProbeRef
   return EZ_FAILURE;
 }
 
-ezResult ezReflectionProbeUpdater::StartFilterUpdate(const ezReflectionProbeRef& probe, const ezReflectionProbeDesc& desc, ezTextureCubeResourceHandle sourceTexture, const TargetSlot& target)
+ezResult ezReflectionProbeUpdater::StartFilterUpdate(const ezReflectionProbeRef& probe, const ezReflectionProbeDesc& desc, ezTextureCubeResourceHandle hSourceTexture, const TargetSlot& target)
 {
   EZ_ASSERT_DEBUG(target.m_hIrradianceOutputTexture.IsInvalidated() == (target.m_iIrradianceOutputIndex == -1), "Invalid irradiance output settings.");
   EZ_ASSERT_DEBUG(!target.m_hSpecularOutputTexture.IsInvalidated() && target.m_iSpecularOutputIndex != -1, "Specular output invalid.");
@@ -139,7 +139,7 @@ ezResult ezReflectionProbeUpdater::StartFilterUpdate(const ezReflectionProbeRef&
       slot->m_probe = probe;
       slot->m_desc = desc;
       slot->m_globalTransform.SetIdentity();
-      slot->m_sourceTexture = sourceTexture;
+      slot->m_sourceTexture = hSourceTexture;
       slot->m_TargetSlot = target;
       slot->m_bInUse = true;
       return EZ_SUCCESS;

@@ -191,22 +191,22 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezKrautTreeResource, ezKrautTreeResourceDescrip
 
 //////////////////////////////////////////////////////////////////////////
 
-void ezKrautTreeResourceDescriptor::Save(ezStreamWriter& stream0) const
+void ezKrautTreeResourceDescriptor::Save(ezStreamWriter& inout_stream0) const
 {
   ezUInt8 uiVersion = 15;
 
-  stream0 << uiVersion;
+  inout_stream0 << uiVersion;
 
   ezUInt8 uiCompressionMode = 0;
 
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
   uiCompressionMode = 1;
-  ezCompressedStreamWriterZstd stream(&stream0, ezCompressedStreamWriterZstd::Compression::Average);
+  ezCompressedStreamWriterZstd stream(&inout_stream0, ezCompressedStreamWriterZstd::Compression::Average);
 #else
   ezStreamWriter& stream = stream0;
 #endif
 
-  stream0 << uiCompressionMode;
+  inout_stream0 << uiCompressionMode;
 
   const ezUInt8 uiNumLods = static_cast<ezUInt8>(m_Lods.GetCount());
   stream << uiNumLods;
@@ -274,19 +274,19 @@ void ezKrautTreeResourceDescriptor::Save(ezStreamWriter& stream0) const
 #endif
 }
 
-ezResult ezKrautTreeResourceDescriptor::Load(ezStreamReader& stream0)
+ezResult ezKrautTreeResourceDescriptor::Load(ezStreamReader& inout_stream0)
 {
   ezUInt8 uiVersion = 0;
 
-  stream0 >> uiVersion;
+  inout_stream0 >> uiVersion;
 
   if (uiVersion < 15)
     return EZ_FAILURE;
 
   ezUInt8 uiCompressionMode = 0;
-  stream0 >> uiCompressionMode;
+  inout_stream0 >> uiCompressionMode;
 
-  ezStreamReader* pCompressor = &stream0;
+  ezStreamReader* pCompressor = &inout_stream0;
 
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
   ezCompressedStreamReaderZstd decompressorZstd;
@@ -299,7 +299,7 @@ ezResult ezKrautTreeResourceDescriptor::Load(ezStreamReader& stream0)
 
     case 1:
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
-      decompressorZstd.SetInputStream(&stream0);
+      decompressorZstd.SetInputStream(&inout_stream0);
       pCompressor = &decompressorZstd;
       break;
 #else

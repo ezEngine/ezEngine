@@ -30,16 +30,16 @@ ezTime ezUpdateRate::GetInterval(Enum updateRate)
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_ALWAYS_INLINE float GetRandomZeroToOne(int pos, ezUInt32& seed)
+EZ_ALWAYS_INLINE float GetRandomZeroToOne(int iPos, ezUInt32& ref_uiSeed)
 {
-  return ezSimdRandom::FloatZeroToOne(ezSimdVec4i(pos), ezSimdVec4u(seed++)).x();
+  return ezSimdRandom::FloatZeroToOne(ezSimdVec4i(iPos), ezSimdVec4u(ref_uiSeed++)).x();
 }
 
 constexpr ezTime s_JitterRange = ezTime::Microseconds(10);
 
-EZ_ALWAYS_INLINE ezTime GetRandomTimeJitter(int pos, ezUInt32& seed)
+EZ_ALWAYS_INLINE ezTime GetRandomTimeJitter(int iPos, ezUInt32& ref_uiSeed)
 {
-  const float x = ezSimdRandom::FloatZeroToOne(ezSimdVec4i(pos), ezSimdVec4u(seed++)).x();
+  const float x = ezSimdRandom::FloatZeroToOne(ezSimdVec4i(iPos), ezSimdVec4u(ref_uiSeed++)).x();
   return s_JitterRange * (x * 2.0f - 1.0f);
 }
 

@@ -9,9 +9,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInputDevice, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezKeyState::Enum ezKeyState::GetNewKeyState(ezKeyState::Enum PrevState, bool bKeyDown)
+ezKeyState::Enum ezKeyState::GetNewKeyState(ezKeyState::Enum prevState, bool bKeyDown)
 {
-  switch (PrevState)
+  switch (prevState)
   {
     case ezKeyState::Down:
     case ezKeyState::Pressed:
@@ -101,9 +101,9 @@ ezUInt32 ezInputDevice::RetrieveLastCharacterFromAllDevices()
   return '\0';
 }
 
-float ezInputDevice::GetInputSlotState(const char* slot) const
+float ezInputDevice::GetInputSlotState(const char* szSlot) const
 {
-  return m_InputSlotValues.GetValueOrDefault(slot, 0.f);
+  return m_InputSlotValues.GetValueOrDefault(szSlot, 0.f);
 }
 
 bool ezInputDevice::HasDeviceBeenUsedLastFrame() const

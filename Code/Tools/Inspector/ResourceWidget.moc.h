@@ -14,7 +14,7 @@ public:
   Q_OBJECT
 
 public:
-  ezQtResourceWidget(QWidget* parent = 0);
+  ezQtResourceWidget(QWidget* pParent = 0);
 
   static ezQtResourceWidget* s_pWidget;
 

@@ -6,8 +6,8 @@
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptTypeRegistry.h>
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
 
-ezQtVisualScriptAssetScene::ezQtVisualScriptAssetScene(QObject* parent)
-  : ezQtNodeScene(parent)
+ezQtVisualScriptAssetScene::ezQtVisualScriptAssetScene(QObject* pParent)
+  : ezQtNodeScene(pParent)
 {
 }
 
@@ -212,7 +212,7 @@ void ezQtVisualScriptPin::SetPin(const ezPin& pin)
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-ezQtVisualScriptConnection::ezQtVisualScriptConnection(QGraphicsItem* parent /*= 0*/) {}
+ezQtVisualScriptConnection::ezQtVisualScriptConnection(QGraphicsItem* pParent /*= 0*/) {}
 
 
 QPen ezQtVisualScriptConnection::DeterminePen() const

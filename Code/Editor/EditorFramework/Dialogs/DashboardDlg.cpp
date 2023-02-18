@@ -6,8 +6,8 @@
 #include <Foundation/IO/OSFile.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 
-ezQtDashboardDlg::ezQtDashboardDlg(QWidget* parent, DashboardTab activeTab)
-  : QDialog(parent)
+ezQtDashboardDlg::ezQtDashboardDlg(QWidget* pParent, DashboardTab activeTab)
+  : QDialog(pParent)
 {
   setupUi(this);
 

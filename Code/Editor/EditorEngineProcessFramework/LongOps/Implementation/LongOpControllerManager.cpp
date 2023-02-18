@@ -145,13 +145,13 @@ void ezLongOpControllerManager::UnregisterLongOp(const ezUuid& documentGuid, con
   }
 }
 
-ezLongOpControllerManager::ProxyOpInfo* ezLongOpControllerManager::GetOperation(const ezUuid& guid)
+ezLongOpControllerManager::ProxyOpInfo* ezLongOpControllerManager::GetOperation(const ezUuid& opGuid)
 {
   EZ_LOCK(m_Mutex);
 
   for (auto& opInfoPtr : m_ProxyOps)
   {
-    if (opInfoPtr->m_OperationGuid == guid)
+    if (opInfoPtr->m_OperationGuid == opGuid)
       return opInfoPtr.Borrow();
   }
 

@@ -28,7 +28,7 @@ ezImguiExtractor::ezImguiExtractor(const char* szName)
 {
 }
 
-void ezImguiExtractor::Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& extractedRenderData)
+void ezImguiExtractor::Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData)
 {
   ezImgui* pImGui = ezImgui::GetSingleton();
   if (pImGui == nullptr)
@@ -110,7 +110,7 @@ void ezImguiExtractor::Extract(const ezView& view, const ezDynamicArray<const ez
         }
       }
 
-      extractedRenderData.AddRenderData(pRenderData, ezDefaultRenderDataCategories::GUI);
+      ref_extractedRenderData.AddRenderData(pRenderData, ezDefaultRenderDataCategories::GUI);
     }
   }
 }
@@ -139,14 +139,14 @@ ezImguiRenderer::~ezImguiRenderer()
   }
 }
 
-void ezImguiRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types) const
+void ezImguiRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& ref_types) const
 {
-  types.PushBack(ezGetStaticRTTI<ezImguiRenderData>());
+  ref_types.PushBack(ezGetStaticRTTI<ezImguiRenderData>());
 }
 
-void ezImguiRenderer::GetSupportedRenderDataCategories(ezHybridArray<ezRenderData::Category, 8>& categories) const
+void ezImguiRenderer::GetSupportedRenderDataCategories(ezHybridArray<ezRenderData::Category, 8>& ref_categories) const
 {
-  categories.PushBack(ezDefaultRenderDataCategories::GUI);
+  ref_categories.PushBack(ezDefaultRenderDataCategories::GUI);
 }
 
 void ezImguiRenderer::RenderBatch(const ezRenderViewContext& renderContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const

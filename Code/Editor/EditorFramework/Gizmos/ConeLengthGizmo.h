@@ -12,7 +12,7 @@ class EZ_EDITORFRAMEWORK_DLL ezConeLengthGizmo : public ezGizmo
 public:
   ezConeLengthGizmo();
 
-  void SetRadius(float radius);
+  void SetRadius(float fRadius);
   float GetRadius() const { return m_fRadius; }
 
 protected:

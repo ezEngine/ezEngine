@@ -11,8 +11,8 @@ bool ezQtExportAndRunDlg::s_bUpdateThumbnail = false;
 
 static int s_iLastPlayerApp = 0;
 
-ezQtExportAndRunDlg::ezQtExportAndRunDlg(QWidget* parent)
-  : QDialog(parent)
+ezQtExportAndRunDlg::ezQtExportAndRunDlg(QWidget* pParent)
+  : QDialog(pParent)
 {
   setupUi(this);
 

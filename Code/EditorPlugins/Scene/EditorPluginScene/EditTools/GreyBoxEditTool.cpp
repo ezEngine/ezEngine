@@ -42,49 +42,49 @@ bool ezGreyBoxEditTool::GetSupportsMoveParentOnly() const
 }
 
 
-void ezGreyBoxEditTool::GetGridSettings(ezGridSettingsMsgToEngine& msg)
+void ezGreyBoxEditTool::GetGridSettings(ezGridSettingsMsgToEngine& ref_msg)
 {
   auto pSceneDoc = GetDocument();
   ezScenePreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezScenePreferencesUser>(GetDocument());
 
-  msg.m_fGridDensity = ezSnapProvider::GetTranslationSnapValue(); // negative density = local space
-  msg.m_vGridTangent1.SetZero();
-  msg.m_vGridTangent2.SetZero();
+  ref_msg.m_fGridDensity = ezSnapProvider::GetTranslationSnapValue(); // negative density = local space
+  ref_msg.m_vGridTangent1.SetZero();
+  ref_msg.m_vGridTangent2.SetZero();
 
   if (pPreferences->GetShowGrid())
   {
     if (m_DrawBoxGizmo.GetCurrentMode() == ezDrawBoxGizmo::ManipulateMode::DrawBase)
     {
-      msg.m_vGridCenter = m_DrawBoxGizmo.GetStartPosition();
+      ref_msg.m_vGridCenter = m_DrawBoxGizmo.GetStartPosition();
 
-      msg.m_vGridTangent1 = ezVec3(1, 0, 0);
-      msg.m_vGridTangent2 = ezVec3(0, 1, 0);
+      ref_msg.m_vGridTangent1 = ezVec3(1, 0, 0);
+      ref_msg.m_vGridTangent2 = ezVec3(0, 1, 0);
     }
     else if (m_DrawBoxGizmo.GetCurrentMode() == ezDrawBoxGizmo::ManipulateMode::DrawHeight)
     {
       const ezVec3 vCamDir = GetWindow()->GetFocusedViewWidget()->m_pViewConfig->m_Camera.GetDirForwards();
 
-      msg.m_vGridCenter = m_DrawBoxGizmo.GetStartPosition();
+      ref_msg.m_vGridCenter = m_DrawBoxGizmo.GetStartPosition();
 
       if (ezMath::Abs(ezVec3(1, 0, 0).Dot(vCamDir)) < ezMath::Abs(ezVec3(0, 1, 0).Dot(vCamDir)))
       {
-        msg.m_vGridTangent1 = ezVec3(1, 0, 0);
-        msg.m_vGridTangent2 = ezVec3(0, 0, 1);
+        ref_msg.m_vGridTangent1 = ezVec3(1, 0, 0);
+        ref_msg.m_vGridTangent2 = ezVec3(0, 0, 1);
       }
       else
       {
-        msg.m_vGridTangent1 = ezVec3(0, 1, 0);
-        msg.m_vGridTangent2 = ezVec3(0, 0, 1);
+        ref_msg.m_vGridTangent1 = ezVec3(0, 1, 0);
+        ref_msg.m_vGridTangent2 = ezVec3(0, 0, 1);
       }
     }
     else if (m_DrawBoxGizmo.GetCurrentMode() == ezDrawBoxGizmo::ManipulateMode::None)
     {
       if (m_DrawBoxGizmo.GetDisplayGrid())
       {
-        msg.m_vGridCenter = m_DrawBoxGizmo.GetStartPosition();
+        ref_msg.m_vGridCenter = m_DrawBoxGizmo.GetStartPosition();
 
-        msg.m_vGridTangent1 = ezVec3(1, 0, 0);
-        msg.m_vGridTangent2 = ezVec3(0, 1, 0);
+        ref_msg.m_vGridTangent1 = ezVec3(1, 0, 0);
+        ref_msg.m_vGridTangent2 = ezVec3(0, 1, 0);
       }
     }
   }

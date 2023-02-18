@@ -71,13 +71,13 @@ public:
   ezUInt32 UpperBound(const CompatibleKeyType& key) const; // [tested]
 
   /// \brief Returns the key that is stored at the given index.
-  const KEY& GetKey(ezUInt32 index) const; // [tested]
+  const KEY& GetKey(ezUInt32 uiIndex) const; // [tested]
 
   /// \brief Returns the value that is stored at the given index.
-  const VALUE& GetValue(ezUInt32 index) const; // [tested]
+  const VALUE& GetValue(ezUInt32 uiIndex) const; // [tested]
 
   /// \brief Returns the value that is stored at the given index.
-  VALUE& GetValue(ezUInt32 index); // [tested]
+  VALUE& GetValue(ezUInt32 uiIndex); // [tested]
 
   /// \brief Returns a reference to the map data array.
   ezDynamicArray<Pair>& GetData();
@@ -87,21 +87,21 @@ public:
 
   /// \brief Returns the value stored at the given key. If none exists, one is created. \a bExisted indicates whether an element needed to be created.
   template <typename CompatibleKeyType>
-  VALUE& FindOrAdd(const CompatibleKeyType& key, bool* bExisted = nullptr); // [tested]
+  VALUE& FindOrAdd(const CompatibleKeyType& key, bool* out_pExisted = nullptr); // [tested]
 
   /// \brief Same as FindOrAdd.
   template <typename CompatibleKeyType>
   VALUE& operator[](const CompatibleKeyType& key); // [tested]
 
   /// \brief Returns the key/value pair at the given index.
-  const Pair& GetPair(ezUInt32 index) const; // [tested]
+  const Pair& GetPair(ezUInt32 uiIndex) const; // [tested]
 
   /// \brief Removes the element at the given index.
   ///
   /// If the map is sorted and bKeepSorted is true, the element will be removed such that the map stays sorted.
   /// This is only useful, if only a single (or very few) elements are removed before the next lookup. If multiple values
   /// are removed, or new values are going to be inserted, as well, \a bKeepSorted should be left to false.
-  void RemoveAtAndCopy(ezUInt32 index, bool bKeepSorted = false);
+  void RemoveAtAndCopy(ezUInt32 uiIndex, bool bKeepSorted = false);
 
   /// \brief Removes one element with the given key. Returns true, if one was found and removed. If the same key exists multiple times, you need to
   /// call this function multiple times to remove them all.
@@ -121,7 +121,7 @@ public:
   bool Contains(const CompatibleKeyType& key, const VALUE& value) const; // [tested]
 
   /// \brief Reserves enough memory to store \a size elements.
-  void Reserve(ezUInt32 size); // [tested]
+  void Reserve(ezUInt32 uiSize); // [tested]
 
   /// \brief Compacts the internal memory to not waste any space.
   void Compact(); // [tested]
@@ -164,9 +164,9 @@ public:
 
 
 template <typename KEY, typename VALUE>
-typename ezArrayMapBase<KEY, VALUE>::iterator begin(ezArrayMapBase<KEY, VALUE>& container)
+typename ezArrayMapBase<KEY, VALUE>::iterator begin(ezArrayMapBase<KEY, VALUE>& ref_container)
 {
-  return begin(container.GetData());
+  return begin(ref_container.GetData());
 }
 
 template <typename KEY, typename VALUE>
@@ -181,9 +181,9 @@ typename ezArrayMapBase<KEY, VALUE>::const_iterator cbegin(const ezArrayMapBase<
 }
 
 template <typename KEY, typename VALUE>
-typename ezArrayMapBase<KEY, VALUE>::reverse_iterator rbegin(ezArrayMapBase<KEY, VALUE>& container)
+typename ezArrayMapBase<KEY, VALUE>::reverse_iterator rbegin(ezArrayMapBase<KEY, VALUE>& ref_container)
 {
-  return rbegin(container.GetData());
+  return rbegin(ref_container.GetData());
 }
 
 template <typename KEY, typename VALUE>
@@ -199,9 +199,9 @@ typename ezArrayMapBase<KEY, VALUE>::const_reverse_iterator crbegin(const ezArra
 }
 
 template <typename KEY, typename VALUE>
-typename ezArrayMapBase<KEY, VALUE>::iterator end(ezArrayMapBase<KEY, VALUE>& container)
+typename ezArrayMapBase<KEY, VALUE>::iterator end(ezArrayMapBase<KEY, VALUE>& ref_container)
 {
-  return end(container.GetData());
+  return end(ref_container.GetData());
 }
 
 template <typename KEY, typename VALUE>
@@ -217,9 +217,9 @@ typename ezArrayMapBase<KEY, VALUE>::const_iterator cend(const ezArrayMapBase<KE
 }
 
 template <typename KEY, typename VALUE>
-typename ezArrayMapBase<KEY, VALUE>::reverse_iterator rend(ezArrayMapBase<KEY, VALUE>& container)
+typename ezArrayMapBase<KEY, VALUE>::reverse_iterator rend(ezArrayMapBase<KEY, VALUE>& ref_container)
 {
-  return rend(container.GetData());
+  return rend(ref_container.GetData());
 }
 
 template <typename KEY, typename VALUE>

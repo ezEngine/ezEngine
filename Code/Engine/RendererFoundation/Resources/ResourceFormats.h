@@ -135,19 +135,19 @@ class ezGALFormatLookupEntry
 public:
   inline ezGALFormatLookupEntry();
 
-  inline ezGALFormatLookupEntry(NativeFormatType Storage);
+  inline ezGALFormatLookupEntry(NativeFormatType storage);
 
-  inline ezGALFormatLookupEntry<NativeFormatType, InvalidFormat>& RT(NativeFormatType RenderTargetType);
+  inline ezGALFormatLookupEntry<NativeFormatType, InvalidFormat>& RT(NativeFormatType renderTargetType);
 
-  inline ezGALFormatLookupEntry<NativeFormatType, InvalidFormat>& D(NativeFormatType DepthOnlyType);
+  inline ezGALFormatLookupEntry<NativeFormatType, InvalidFormat>& D(NativeFormatType depthOnlyType);
 
-  inline ezGALFormatLookupEntry<NativeFormatType, InvalidFormat>& S(NativeFormatType StencilOnlyType);
+  inline ezGALFormatLookupEntry<NativeFormatType, InvalidFormat>& S(NativeFormatType stencilOnlyType);
 
-  inline ezGALFormatLookupEntry<NativeFormatType, InvalidFormat>& DS(NativeFormatType DepthStencilType);
+  inline ezGALFormatLookupEntry<NativeFormatType, InvalidFormat>& DS(NativeFormatType depthStencilType);
 
-  inline ezGALFormatLookupEntry<NativeFormatType, InvalidFormat>& VA(NativeFormatType VertexAttributeType);
+  inline ezGALFormatLookupEntry<NativeFormatType, InvalidFormat>& VA(NativeFormatType vertexAttributeType);
 
-  inline ezGALFormatLookupEntry<NativeFormatType, InvalidFormat>& RV(NativeFormatType ResourceViewType);
+  inline ezGALFormatLookupEntry<NativeFormatType, InvalidFormat>& RV(NativeFormatType resourceViewType);
 
   NativeFormatType m_eStorage;
   NativeFormatType m_eRenderTarget;
@@ -165,9 +165,9 @@ class ezGALFormatLookupTable
 public:
   ezGALFormatLookupTable();
 
-  EZ_ALWAYS_INLINE const FormatClass& GetFormatInfo(ezGALResourceFormat::Enum eFormat) const;
+  EZ_ALWAYS_INLINE const FormatClass& GetFormatInfo(ezGALResourceFormat::Enum format) const;
 
-  EZ_ALWAYS_INLINE void SetFormatInfo(ezGALResourceFormat::Enum eFormat, const FormatClass& NewFormatInfo);
+  EZ_ALWAYS_INLINE void SetFormatInfo(ezGALResourceFormat::Enum format, const FormatClass& newFormatInfo);
 
 private:
   FormatClass m_Formats[ezGALResourceFormat::ENUM_COUNT];

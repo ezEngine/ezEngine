@@ -14,7 +14,7 @@ public:
   Q_OBJECT
 
 public:
-  ezQtEditDynamicEnumsDlg(ezDynamicStringEnum* pEnum, QWidget* parent);
+  ezQtEditDynamicEnumsDlg(ezDynamicStringEnum* pEnum, QWidget* pParent);
 
   ezInt32 GetSelectedItem() const { return m_iSelectedItem; }
 

@@ -154,7 +154,7 @@ ezUInt64 ezMemoryStreamWriter::GetByteCount64() const
 ezMemoryStreamStorageInterface::ezMemoryStreamStorageInterface() = default;
 ezMemoryStreamStorageInterface::~ezMemoryStreamStorageInterface() = default;
 
-void ezMemoryStreamStorageInterface::ReadAll(ezStreamReader& Stream, ezUInt64 uiMaxBytes /*= 0xFFFFFFFFFFFFFFFFllu*/)
+void ezMemoryStreamStorageInterface::ReadAll(ezStreamReader& inout_stream, ezUInt64 uiMaxBytes /*= 0xFFFFFFFFFFFFFFFFllu*/)
 {
   Clear();
   ezMemoryStreamWriter w(this);
@@ -165,7 +165,7 @@ void ezMemoryStreamStorageInterface::ReadAll(ezStreamReader& Stream, ezUInt64 ui
   {
     const ezUInt64 uiToRead = ezMath::Min<ezUInt64>(uiMaxBytes, EZ_ARRAY_SIZE(uiTemp));
 
-    const ezUInt64 uiRead = Stream.ReadBytes(uiTemp, uiToRead);
+    const ezUInt64 uiRead = inout_stream.ReadBytes(uiTemp, uiToRead);
     uiMaxBytes -= uiRead;
 
     w.WriteBytes(uiTemp, uiRead).IgnoreResult();
@@ -301,7 +301,7 @@ ezDefaultMemoryStreamStorage::~ezDefaultMemoryStreamStorage()
   Clear();
 }
 
-void ezDefaultMemoryStreamStorage::Reserve(ezUInt64 bytes)
+void ezDefaultMemoryStreamStorage::Reserve(ezUInt64 uiBytes)
 {
   if (m_Chunks.IsEmpty())
   {
@@ -311,9 +311,9 @@ void ezDefaultMemoryStreamStorage::Reserve(ezUInt64 bytes)
     m_uiCapacity = m_Chunks[0].m_Bytes.GetCount();
   }
 
-  while (m_uiCapacity < bytes)
+  while (m_uiCapacity < uiBytes)
   {
-    AddChunk(static_cast<ezUInt32>(ezMath::Min<ezUInt64>(bytes - m_uiCapacity, ezMath::MaxValue<ezUInt32>())));
+    AddChunk(static_cast<ezUInt32>(ezMath::Min<ezUInt64>(uiBytes - m_uiCapacity, ezMath::MaxValue<ezUInt32>())));
   }
 }
 
@@ -354,7 +354,7 @@ ezUInt64 ezDefaultMemoryStreamStorage::GetHeapMemoryUsage() const
   return m_Chunks.GetHeapMemoryUsage() + m_uiCapacity - m_Chunks[0].m_Bytes.GetCount();
 }
 
-ezResult ezDefaultMemoryStreamStorage::CopyToStream(ezStreamWriter& stream) const
+ezResult ezDefaultMemoryStreamStorage::CopyToStream(ezStreamWriter& inout_stream) const
 {
   ezUInt64 uiBytesLeft = m_uiInternalSize;
   ezUInt64 uiReadPosition = 0;
@@ -365,7 +365,7 @@ ezResult ezDefaultMemoryStreamStorage::CopyToStream(ezStreamWriter& stream) cons
 
     EZ_ASSERT_DEV(!data.IsEmpty(), "MemoryStreamStorage returned an empty contiguous memory block.");
 
-    EZ_SUCCEED_OR_RETURN(stream.WriteBytes(data.GetPtr(), data.GetCount()));
+    EZ_SUCCEED_OR_RETURN(inout_stream.WriteBytes(data.GetPtr(), data.GetCount()));
 
     uiReadPosition += data.GetCount();
     uiBytesLeft -= data.GetCount();

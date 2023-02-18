@@ -185,9 +185,9 @@ ezWorkerThreadType::Enum ezTaskSystem::GetCurrentThreadWorkerType()
   return tl_TaskWorkerInfo.m_WorkerType;
 }
 
-double ezTaskSystem::GetThreadUtilization(ezWorkerThreadType::Enum Type, ezUInt32 uiThreadIndex, ezUInt32* pNumTasksExecuted /*= nullptr*/)
+double ezTaskSystem::GetThreadUtilization(ezWorkerThreadType::Enum type, ezUInt32 uiThreadIndex, ezUInt32* pNumTasksExecuted /*= nullptr*/)
 {
-  return s_pThreadState->m_Workers[Type][uiThreadIndex]->GetThreadUtilization(pNumTasksExecuted);
+  return s_pThreadState->m_Workers[type][uiThreadIndex]->GetThreadUtilization(pNumTasksExecuted);
 }
 
 void ezTaskSystem::DetermineTasksToExecuteOnThread(ezTaskPriority::Enum& out_FirstPriority, ezTaskPriority::Enum& out_LastPriority)

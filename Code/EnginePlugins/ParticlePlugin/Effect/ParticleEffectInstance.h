@@ -38,7 +38,7 @@ public:
 
   const ezParticleEffectHandle& GetHandle() const { return m_hEffectHandle; }
 
-  void SetEmitterEnabled(bool enable);
+  void SetEmitterEnabled(bool bEnable);
   bool GetEmitterEnabled() const { return m_bEmitterEnabled; }
 
   bool HasActiveParticles() const;
@@ -92,12 +92,12 @@ public:
   /// In the next frame, the result can be retrieved via GetWindSampleResult() with the returned index.
   ///
   /// Only a very limited amount of locations can be sampled (4) across all behaviors.
-  ezInt32 AddWindSampleLocation(const ezVec3& pos);
+  ezInt32 AddWindSampleLocation(const ezVec3& vPos);
 
   /// \brief Returns the wind result sampled at the previously specified location (see AddWindSampleLocation()).
   ///
   /// Returns a zero vector, if no wind value is available (invalid index).
-  ezVec3 GetWindSampleResult(ezInt32 idx) const;
+  ezVec3 GetWindSampleResult(ezInt32 iIdx) const;
 
 private:
   void PassTransformToSystems();
@@ -117,7 +117,7 @@ private:
 
 public:
   /// \brief Returns false when the effect is finished.
-  bool Update(const ezTime& tDiff);
+  bool Update(const ezTime& diff);
 
   /// \brief Returns the total (game) time that the effect is alive and has been updated.
   ///
@@ -174,7 +174,7 @@ public:
 
   /// \brief Returns the bounding volume of the effect.
   /// The volume is in the local space of the effect.
-  void GetBoundingVolume(ezBoundingBoxSphere& volume) const;
+  void GetBoundingVolume(ezBoundingBoxSphere& ref_volume) const;
 
 private:
   void CombineSystemBoundingVolumes();
@@ -189,16 +189,16 @@ private:
   /// \name Effect Parameters
   /// @{
 public:
-  void SetParameter(const ezTempHashedString& name, float value);
-  void SetParameter(const ezTempHashedString& name, const ezColor& value);
+  void SetParameter(const ezTempHashedString& sName, float value);
+  void SetParameter(const ezTempHashedString& sName, const ezColor& value);
 
-  ezInt32 FindFloatParameter(const ezTempHashedString& name) const;
-  float GetFloatParameter(const ezTempHashedString& name, float defaultValue) const;
-  float GetFloatParameter(ezUInt32 idx) const { return m_FloatParameters[idx].m_fValue; }
+  ezInt32 FindFloatParameter(const ezTempHashedString& sName) const;
+  float GetFloatParameter(const ezTempHashedString& sName, float fDefaultValue) const;
+  float GetFloatParameter(ezUInt32 uiIdx) const { return m_FloatParameters[uiIdx].m_fValue; }
 
-  ezInt32 FindColorParameter(const ezTempHashedString& name) const;
-  const ezColor& GetColorParameter(const ezTempHashedString& name, const ezColor& defaultValue) const;
-  const ezColor& GetColorParameter(ezUInt32 idx) const { return m_ColorParameters[idx].m_Value; }
+  ezInt32 FindColorParameter(const ezTempHashedString& sName) const;
+  const ezColor& GetColorParameter(const ezTempHashedString& sName, const ezColor& defaultValue) const;
+  const ezColor& GetColorParameter(ezUInt32 uiIdx) const { return m_ColorParameters[uiIdx].m_Value; }
 
 
 private:

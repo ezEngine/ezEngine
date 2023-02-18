@@ -86,7 +86,7 @@ struct ezMakeDelegateHelper;
 ///   auto delegate = ezMakeDelegate(&foo);
 /// \endcode
 template <typename Function>
-ezDelegate<Function> ezMakeDelegate(Function* function);
+ezDelegate<Function> ezMakeDelegate(Function* pFunction);
 
 /// \brief A helper function to create delegates from methods.
 ///

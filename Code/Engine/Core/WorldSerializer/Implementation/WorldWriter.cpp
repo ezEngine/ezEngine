@@ -20,25 +20,25 @@ void ezWorldWriter::Clear()
   }
 }
 
-void ezWorldWriter::WriteWorld(ezStreamWriter& stream, ezWorld& world, const ezTagSet* pExclude)
+void ezWorldWriter::WriteWorld(ezStreamWriter& inout_stream, ezWorld& ref_world, const ezTagSet* pExclude)
 {
   Clear();
 
-  m_pStream = &stream;
+  m_pStream = &inout_stream;
   m_pExclude = pExclude;
 
-  EZ_LOCK(world.GetReadMarker());
+  EZ_LOCK(ref_world.GetReadMarker());
 
-  world.Traverse(ezMakeDelegate(&ezWorldWriter::ObjectTraverser, this), ezWorld::TraversalMethod::DepthFirst);
+  ref_world.Traverse(ezMakeDelegate(&ezWorldWriter::ObjectTraverser, this), ezWorld::TraversalMethod::DepthFirst);
 
   WriteToStream().IgnoreResult();
 }
 
-void ezWorldWriter::WriteObjects(ezStreamWriter& stream, const ezDeque<const ezGameObject*>& rootObjects)
+void ezWorldWriter::WriteObjects(ezStreamWriter& inout_stream, const ezDeque<const ezGameObject*>& rootObjects)
 {
   Clear();
 
-  m_pStream = &stream;
+  m_pStream = &inout_stream;
 
   for (const ezGameObject* pObject : rootObjects)
   {
@@ -49,11 +49,11 @@ void ezWorldWriter::WriteObjects(ezStreamWriter& stream, const ezDeque<const ezG
   WriteToStream().IgnoreResult();
 }
 
-void ezWorldWriter::WriteObjects(ezStreamWriter& stream, ezArrayPtr<const ezGameObject*> rootObjects)
+void ezWorldWriter::WriteObjects(ezStreamWriter& inout_stream, ezArrayPtr<const ezGameObject*> rootObjects)
 {
   Clear();
 
-  m_pStream = &stream;
+  m_pStream = &inout_stream;
 
   for (const ezGameObject* pObject : rootObjects)
   {

@@ -25,8 +25,8 @@ struct EZ_TEXTURE_DLL ezTextureAtlasCreationDesc
   ezHybridArray<Layer, 4> m_Layers;
   ezDynamicArray<Item> m_Items;
 
-  ezResult Serialize(ezStreamWriter& stream) const;
-  ezResult Deserialize(ezStreamReader& stream);
+  ezResult Serialize(ezStreamWriter& inout_stream) const;
+  ezResult Deserialize(ezStreamReader& inout_stream);
 
   ezResult Save(const char* szFile) const;
   ezResult Load(const char* szFile);
@@ -45,6 +45,6 @@ struct EZ_TEXTURE_DLL ezTextureAtlasRuntimeDesc
 
   void Clear();
 
-  ezResult Serialize(ezStreamWriter& stream) const;
-  ezResult Deserialize(ezStreamReader& stream);
+  ezResult Serialize(ezStreamWriter& inout_stream) const;
+  ezResult Deserialize(ezStreamReader& inout_stream);
 };

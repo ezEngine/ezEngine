@@ -2,20 +2,20 @@
 #include <Foundation/IO/Stream.h>
 
 template <typename T>
-EZ_ALWAYS_INLINE ezResult ezDeduplicationReadContext::ReadObjectInplace(ezStreamReader& stream, T& obj)
+EZ_ALWAYS_INLINE ezResult ezDeduplicationReadContext::ReadObjectInplace(ezStreamReader& inout_stream, T& inout_obj)
 {
-  return ReadObject(stream, obj, nullptr);
+  return ReadObject(inout_stream, inout_obj, nullptr);
 }
 
 template <typename T>
-ezResult ezDeduplicationReadContext::ReadObject(ezStreamReader& stream, T& obj, ezAllocatorBase* pAllocator)
+ezResult ezDeduplicationReadContext::ReadObject(ezStreamReader& inout_stream, T& obj, ezAllocatorBase* pAllocator)
 {
   bool bIsRealObject;
-  stream >> bIsRealObject;
+  inout_stream >> bIsRealObject;
 
   EZ_ASSERT_DEV(bIsRealObject, "Reading an object inplace only works for the first occurrence");
 
-  EZ_SUCCEED_OR_RETURN(ezStreamReaderUtil::Deserialize<T>(stream, obj));
+  EZ_SUCCEED_OR_RETURN(ezStreamReaderUtil::Deserialize<T>(inout_stream, obj));
 
   m_Objects.PushBack(&obj);
 
@@ -23,30 +23,30 @@ ezResult ezDeduplicationReadContext::ReadObject(ezStreamReader& stream, T& obj, 
 }
 
 template <typename T>
-ezResult ezDeduplicationReadContext::ReadObject(ezStreamReader& stream, T*& pObject, ezAllocatorBase* pAllocator)
+ezResult ezDeduplicationReadContext::ReadObject(ezStreamReader& inout_stream, T*& ref_pObject, ezAllocatorBase* pAllocator)
 {
   bool bIsRealObject;
-  stream >> bIsRealObject;
+  inout_stream >> bIsRealObject;
 
   if (bIsRealObject)
   {
-    pObject = EZ_NEW(pAllocator, T);
-    EZ_SUCCEED_OR_RETURN(ezStreamReaderUtil::Deserialize<T>(stream, *pObject));
+    ref_pObject = EZ_NEW(pAllocator, T);
+    EZ_SUCCEED_OR_RETURN(ezStreamReaderUtil::Deserialize<T>(inout_stream, *ref_pObject));
 
-    m_Objects.PushBack(pObject);
+    m_Objects.PushBack(ref_pObject);
   }
   else
   {
     ezUInt32 uiIndex;
-    stream >> uiIndex;
+    inout_stream >> uiIndex;
 
     if (uiIndex < m_Objects.GetCount())
     {
-      pObject = static_cast<T*>(m_Objects[uiIndex]);
+      ref_pObject = static_cast<T*>(m_Objects[uiIndex]);
     }
     else if (uiIndex == ezInvalidIndex)
     {
-      pObject = nullptr;
+      ref_pObject = nullptr;
     }
     else
     {
@@ -58,46 +58,46 @@ ezResult ezDeduplicationReadContext::ReadObject(ezStreamReader& stream, T*& pObj
 }
 
 template <typename T>
-ezResult ezDeduplicationReadContext::ReadObject(ezStreamReader& stream, ezSharedPtr<T>& pObject, ezAllocatorBase* pAllocator)
+ezResult ezDeduplicationReadContext::ReadObject(ezStreamReader& inout_stream, ezSharedPtr<T>& ref_pObject, ezAllocatorBase* pAllocator)
 {
   T* ptr = nullptr;
-  if (ReadObject(stream, ptr, pAllocator).Succeeded())
+  if (ReadObject(inout_stream, ptr, pAllocator).Succeeded())
   {
-    pObject = ezSharedPtr<T>(ptr, pAllocator);
+    ref_pObject = ezSharedPtr<T>(ptr, pAllocator);
     return EZ_SUCCESS;
   }
   return EZ_FAILURE;
 }
 
 template <typename T>
-ezResult ezDeduplicationReadContext::ReadObject(ezStreamReader& stream, ezUniquePtr<T>& pObject, ezAllocatorBase* pAllocator)
+ezResult ezDeduplicationReadContext::ReadObject(ezStreamReader& inout_stream, ezUniquePtr<T>& ref_pObject, ezAllocatorBase* pAllocator)
 {
   T* ptr = nullptr;
-  if (ReadObject(stream, ptr, pAllocator).Succeeded())
+  if (ReadObject(inout_stream, ptr, pAllocator).Succeeded())
   {
-    pObject = std::move(ezUniquePtr<T>(ptr, pAllocator));
+    ref_pObject = std::move(ezUniquePtr<T>(ptr, pAllocator));
     return EZ_SUCCESS;
   }
   return EZ_FAILURE;
 }
 
 template <typename ArrayType, typename ValueType>
-ezResult ezDeduplicationReadContext::ReadArray(ezStreamReader& stream, ezArrayBase<ValueType, ArrayType>& Array, ezAllocatorBase* pAllocator)
+ezResult ezDeduplicationReadContext::ReadArray(ezStreamReader& inout_stream, ezArrayBase<ValueType, ArrayType>& ref_array, ezAllocatorBase* pAllocator)
 {
   ezUInt64 uiCount = 0;
-  EZ_SUCCEED_OR_RETURN(stream.ReadQWordValue(&uiCount));
+  EZ_SUCCEED_OR_RETURN(inout_stream.ReadQWordValue(&uiCount));
 
   EZ_ASSERT_DEV(uiCount < std::numeric_limits<ezUInt32>::max(), "Containers currently use 32 bit for counts internally. Value from file is too large.");
 
-  Array.Clear();
+  ref_array.Clear();
 
   if (uiCount > 0)
   {
-    static_cast<ArrayType&>(Array).Reserve(static_cast<ezUInt32>(uiCount));
+    static_cast<ArrayType&>(ref_array).Reserve(static_cast<ezUInt32>(uiCount));
 
     for (ezUInt32 i = 0; i < static_cast<ezUInt32>(uiCount); ++i)
     {
-      EZ_SUCCEED_OR_RETURN(ReadObject(stream, Array.ExpandAndGetRef(), pAllocator));
+      EZ_SUCCEED_OR_RETURN(ReadObject(inout_stream, ref_array.ExpandAndGetRef(), pAllocator));
     }
   }
 
@@ -105,21 +105,21 @@ ezResult ezDeduplicationReadContext::ReadArray(ezStreamReader& stream, ezArrayBa
 }
 
 template <typename KeyType, typename Comparer>
-ezResult ezDeduplicationReadContext::ReadSet(ezStreamReader& stream, ezSetBase<KeyType, Comparer>& Set, ezAllocatorBase* pAllocator)
+ezResult ezDeduplicationReadContext::ReadSet(ezStreamReader& inout_stream, ezSetBase<KeyType, Comparer>& ref_set, ezAllocatorBase* pAllocator)
 {
   ezUInt64 uiCount = 0;
-  EZ_SUCCEED_OR_RETURN(stream.ReadQWordValue(&uiCount));
+  EZ_SUCCEED_OR_RETURN(inout_stream.ReadQWordValue(&uiCount));
 
   EZ_ASSERT_DEV(uiCount < std::numeric_limits<ezUInt32>::max(), "Containers currently use 32 bit for counts internally. Value from file is too large.");
 
-  Set.Clear();
+  ref_set.Clear();
 
   for (ezUInt32 i = 0; i < static_cast<ezUInt32>(uiCount); ++i)
   {
     KeyType key;
-    EZ_SUCCEED_OR_RETURN(ReadObject(stream, key, pAllocator));
+    EZ_SUCCEED_OR_RETURN(ReadObject(inout_stream, key, pAllocator));
 
-    Set.Insert(std::move(key));
+    ref_set.Insert(std::move(key));
   }
 
   return EZ_SUCCESS;
@@ -132,13 +132,13 @@ namespace ezInternal
   struct DeserializeHelper
   {
     template <typename T>
-    static auto Deserialize(ezStreamReader& stream, T& obj, int) -> decltype(ezStreamReaderUtil::Deserialize(stream, obj))
+    static auto Deserialize(ezStreamReader& inout_stream, T& ref_obj, int) -> decltype(ezStreamReaderUtil::Deserialize(inout_stream, ref_obj))
     {
-      return ezStreamReaderUtil::Deserialize(stream, obj);
+      return ezStreamReaderUtil::Deserialize(inout_stream, ref_obj);
     }
 
     template <typename T>
-    static ezResult Deserialize(ezStreamReader& stream, T& obj, float)
+    static ezResult Deserialize(ezStreamReader& inout_stream, T& ref_obj, float)
     {
       EZ_REPORT_FAILURE("No deserialize method available");
       return EZ_FAILURE;
@@ -147,14 +147,14 @@ namespace ezInternal
 } // namespace ezInternal
 
 template <typename KeyType, typename ValueType, typename Comparer>
-ezResult ezDeduplicationReadContext::ReadMap(ezStreamReader& stream, ezMapBase<KeyType, ValueType, Comparer>& Map, ReadMapMode mode, ezAllocatorBase* pKeyAllocator, ezAllocatorBase* pValueAllocator)
+ezResult ezDeduplicationReadContext::ReadMap(ezStreamReader& inout_stream, ezMapBase<KeyType, ValueType, Comparer>& ref_map, ReadMapMode mode, ezAllocatorBase* pKeyAllocator, ezAllocatorBase* pValueAllocator)
 {
   ezUInt64 uiCount = 0;
-  EZ_SUCCEED_OR_RETURN(stream.ReadQWordValue(&uiCount));
+  EZ_SUCCEED_OR_RETURN(inout_stream.ReadQWordValue(&uiCount));
 
   EZ_ASSERT_DEV(uiCount < std::numeric_limits<ezUInt32>::max(), "Containers currently use 32 bit for counts internally. Value from file is too large.");
 
-  Map.Clear();
+  ref_map.Clear();
 
   if (mode == ReadMapMode::DedupKey)
   {
@@ -162,10 +162,10 @@ ezResult ezDeduplicationReadContext::ReadMap(ezStreamReader& stream, ezMapBase<K
     {
       KeyType key;
       ValueType value;
-      EZ_SUCCEED_OR_RETURN(ReadObject(stream, key, pKeyAllocator));
-      EZ_SUCCEED_OR_RETURN(ezInternal::DeserializeHelper::Deserialize<ValueType>(stream, value, 0));
+      EZ_SUCCEED_OR_RETURN(ReadObject(inout_stream, key, pKeyAllocator));
+      EZ_SUCCEED_OR_RETURN(ezInternal::DeserializeHelper::Deserialize<ValueType>(inout_stream, value, 0));
 
-      Map.Insert(std::move(key), std::move(value));
+      ref_map.Insert(std::move(key), std::move(value));
     }
   }
   else if (mode == ReadMapMode::DedupValue)
@@ -174,10 +174,10 @@ ezResult ezDeduplicationReadContext::ReadMap(ezStreamReader& stream, ezMapBase<K
     {
       KeyType key;
       ValueType value;
-      EZ_SUCCEED_OR_RETURN(ezInternal::DeserializeHelper::Deserialize<KeyType>(stream, key, 0));
-      EZ_SUCCEED_OR_RETURN(ReadObject(stream, value, pValueAllocator));
+      EZ_SUCCEED_OR_RETURN(ezInternal::DeserializeHelper::Deserialize<KeyType>(inout_stream, key, 0));
+      EZ_SUCCEED_OR_RETURN(ReadObject(inout_stream, value, pValueAllocator));
 
-      Map.Insert(std::move(key), std::move(value));
+      ref_map.Insert(std::move(key), std::move(value));
     }
   }
   else
@@ -186,10 +186,10 @@ ezResult ezDeduplicationReadContext::ReadMap(ezStreamReader& stream, ezMapBase<K
     {
       KeyType key;
       ValueType value;
-      EZ_SUCCEED_OR_RETURN(ReadObject(stream, key, pKeyAllocator));
-      EZ_SUCCEED_OR_RETURN(ReadObject(stream, value, pValueAllocator));
+      EZ_SUCCEED_OR_RETURN(ReadObject(inout_stream, key, pKeyAllocator));
+      EZ_SUCCEED_OR_RETURN(ReadObject(inout_stream, value, pValueAllocator));
 
-      Map.Insert(std::move(key), std::move(value));
+      ref_map.Insert(std::move(key), std::move(value));
     }
   }
 

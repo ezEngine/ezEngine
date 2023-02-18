@@ -11,10 +11,10 @@ ezOSFile::Event ezOSFile::s_FileEvents;
 ezFileStats::ezFileStats() = default;
 ezFileStats::~ezFileStats() = default;
 
-void ezFileStats::GetFullPath(ezStringBuilder& path) const
+void ezFileStats::GetFullPath(ezStringBuilder& ref_sPath) const
 {
-  path.Set(m_sParentPath, "/", m_sName);
-  path.MakeCleanPath();
+  ref_sPath.Set(m_sParentPath, "/", m_sName);
+  ref_sPath.MakeCleanPath();
 }
 
 ezOSFile::ezOSFile()
@@ -28,11 +28,11 @@ ezOSFile::~ezOSFile()
   Close();
 }
 
-ezResult ezOSFile::Open(ezStringView sFile, ezFileOpenMode::Enum OpenMode, ezFileShareMode::Enum FileShareMode)
+ezResult ezOSFile::Open(ezStringView sFile, ezFileOpenMode::Enum openMode, ezFileShareMode::Enum fileShareMode)
 {
   m_iFileID = s_iFileCounter.Increment();
 
-  EZ_ASSERT_DEV(OpenMode >= ezFileOpenMode::Read && OpenMode <= ezFileOpenMode::Append, "Invalid Mode");
+  EZ_ASSERT_DEV(openMode >= ezFileOpenMode::Read && openMode <= ezFileOpenMode::Append, "Invalid Mode");
   EZ_ASSERT_DEV(!IsOpen(), "The file has already been opened.");
 
   const ezTime t0 = ezTime::Now();
@@ -49,15 +49,15 @@ ezResult ezOSFile::Open(ezStringView sFile, ezFileOpenMode::Enum OpenMode, ezFil
   {
     ezStringBuilder sFolder = m_sFileName.GetFileDirectory();
 
-    if (OpenMode == ezFileOpenMode::Write || OpenMode == ezFileOpenMode::Append)
+    if (openMode == ezFileOpenMode::Write || openMode == ezFileOpenMode::Append)
     {
       EZ_SUCCEED_OR_RETURN(CreateDirectoryStructure(sFolder.GetData()));
     }
   }
 
-  if (InternalOpen(m_sFileName.GetData(), OpenMode, FileShareMode) == EZ_SUCCESS)
+  if (InternalOpen(m_sFileName.GetData(), openMode, fileShareMode) == EZ_SUCCESS)
   {
-    m_FileMode = OpenMode;
+    m_FileMode = openMode;
     Res = EZ_SUCCESS;
     goto done;
   }
@@ -73,7 +73,7 @@ done:
   EventData e;
   e.m_bSuccess = Res == EZ_SUCCESS;
   e.m_Duration = tdiff;
-  e.m_FileMode = OpenMode;
+  e.m_FileMode = openMode;
   e.m_iFileID = m_iFileID;
   e.m_sFile = m_sFileName;
   e.m_EventType = EventType::FileOpen;
@@ -163,19 +163,19 @@ ezUInt64 ezOSFile::Read(void* pBuffer, ezUInt64 uiBytes)
   return Res;
 }
 
-ezUInt64 ezOSFile::ReadAll(ezDynamicArray<ezUInt8>& out_FileContent)
+ezUInt64 ezOSFile::ReadAll(ezDynamicArray<ezUInt8>& out_fileContent)
 {
   EZ_ASSERT_DEV(m_FileMode == ezFileOpenMode::Read, "The file is not opened for reading.");
 
-  out_FileContent.Clear();
-  out_FileContent.SetCountUninitialized((ezUInt32)GetFileSize());
+  out_fileContent.Clear();
+  out_fileContent.SetCountUninitialized((ezUInt32)GetFileSize());
 
-  if (!out_FileContent.IsEmpty())
+  if (!out_fileContent.IsEmpty())
   {
-    Read(out_FileContent.GetData(), out_FileContent.GetCount());
+    Read(out_fileContent.GetData(), out_fileContent.GetCount());
   }
 
-  return out_FileContent.GetCount();
+  return out_fileContent.GetCount();
 }
 
 ezUInt64 ezOSFile::GetFilePosition() const
@@ -185,12 +185,12 @@ ezUInt64 ezOSFile::GetFilePosition() const
   return InternalGetFilePosition();
 }
 
-void ezOSFile::SetFilePosition(ezInt64 iDistance, ezFileSeekMode::Enum Pos) const
+void ezOSFile::SetFilePosition(ezInt64 iDistance, ezFileSeekMode::Enum pos) const
 {
   EZ_ASSERT_DEV(IsOpen(), "The file must be open to tell the file pointer position.");
   EZ_ASSERT_DEV(m_FileMode != ezFileOpenMode::Append, "SetFilePosition is not possible on files that were opened for appending.");
 
-  return InternalSetFilePosition(iDistance, Pos);
+  return InternalSetFilePosition(iDistance, pos);
 }
 
 ezUInt64 ezOSFile::GetFileSize() const
@@ -421,7 +421,7 @@ done:
 
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
 
-ezResult ezOSFile::GetFileStats(ezStringView sFileOrFolder, ezFileStats& out_Stats)
+ezResult ezOSFile::GetFileStats(ezStringView sFileOrFolder, ezFileStats& out_stats)
 {
   const ezTime t0 = ezTime::Now();
 
@@ -431,7 +431,7 @@ ezResult ezOSFile::GetFileStats(ezStringView sFileOrFolder, ezFileStats& out_Sta
 
   EZ_ASSERT_DEV(s.IsAbsolutePath(), "The path '{0}' is not absolute.", s);
 
-  const ezResult Res = InternalGetFileStats(s.GetData(), out_Stats);
+  const ezResult Res = InternalGetFileStats(s.GetData(), out_stats);
 
   const ezTime t1 = ezTime::Now();
   const ezTime tdiff = t1 - t0;
@@ -513,9 +513,9 @@ ezResult ezOSFile::GetFileCasing(ezStringView sFileOrFolder, ezStringBuilder& ou
 
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS) && EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
 
-void ezOSFile::GatherAllItemsInFolder(ezDynamicArray<ezFileStats>& out_ItemList, ezStringView sFolder, ezBitflags<ezFileSystemIteratorFlags> flags /*= ezFileSystemIteratorFlags::All*/)
+void ezOSFile::GatherAllItemsInFolder(ezDynamicArray<ezFileStats>& out_itemList, ezStringView sFolder, ezBitflags<ezFileSystemIteratorFlags> flags /*= ezFileSystemIteratorFlags::All*/)
 {
-  out_ItemList.Clear();
+  out_itemList.Clear();
 
   ezFileSystemIterator iterator;
   iterator.StartSearch(sFolder, flags);
@@ -523,17 +523,17 @@ void ezOSFile::GatherAllItemsInFolder(ezDynamicArray<ezFileStats>& out_ItemList,
   if (!iterator.IsValid())
     return;
 
-  out_ItemList.Reserve(128);
+  out_itemList.Reserve(128);
 
   while (iterator.IsValid())
   {
-    out_ItemList.PushBack(iterator.GetStats());
+    out_itemList.PushBack(iterator.GetStats());
 
     iterator.Next();
   }
 }
 
-ezResult ezOSFile::CopyFolder(ezStringView sSourceFolder, ezStringView sDestinationFolder, ezDynamicArray<ezString>* out_FilesCopied /*= nullptr*/)
+ezResult ezOSFile::CopyFolder(ezStringView sSourceFolder, ezStringView sDestinationFolder, ezDynamicArray<ezString>* out_pFilesCopied /*= nullptr*/)
 {
   ezDynamicArray<ezFileStats> items;
   GatherAllItemsInFolder(items, sSourceFolder);
@@ -565,9 +565,9 @@ ezResult ezOSFile::CopyFolder(ezStringView sSourceFolder, ezStringView sDestinat
       if (ezOSFile::CopyFile(srcPath, dstPath).Failed())
         return EZ_FAILURE;
 
-      if (out_FilesCopied)
+      if (out_pFilesCopied)
       {
-        out_FilesCopied->PushBack(dstPath);
+        out_pFilesCopied->PushBack(dstPath);
       }
     }
 

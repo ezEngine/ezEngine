@@ -16,7 +16,7 @@ bool ezRenderPipelineNodeManager::InternalIsNode(const ezDocumentObject* pObject
   return pType->IsDerivedFrom<ezRenderPipelinePass>() || pType->IsDerivedFrom<ezExtractor>();
 }
 
-void ezRenderPipelineNodeManager::InternalCreatePins(const ezDocumentObject* pObject, NodeInternal& node)
+void ezRenderPipelineNodeManager::InternalCreatePins(const ezDocumentObject* pObject, NodeInternal& ref_node)
 {
   auto pType = pObject->GetTypeAccessor().GetType();
   if (!pType->IsDerivedFrom<ezRenderPipelinePass>())
@@ -50,41 +50,41 @@ void ezRenderPipelineNodeManager::InternalCreatePins(const ezDocumentObject* pOb
     if (pProp->GetSpecificType()->IsDerivedFrom<ezRenderPipelineNodeInputPin>())
     {
       auto pPin = EZ_DEFAULT_NEW(ezPin, ezPin::Type::Input, pProp->GetPropertyName(), pinColor, pObject);
-      node.m_Inputs.PushBack(pPin);
+      ref_node.m_Inputs.PushBack(pPin);
     }
     else if (pProp->GetSpecificType()->IsDerivedFrom<ezRenderPipelineNodeOutputPin>())
     {
       auto pPin = EZ_DEFAULT_NEW(ezPin, ezPin::Type::Output, pProp->GetPropertyName(), pinColor, pObject);
-      node.m_Outputs.PushBack(pPin);
+      ref_node.m_Outputs.PushBack(pPin);
     }
     else if (pProp->GetSpecificType()->IsDerivedFrom<ezRenderPipelineNodePassThrougPin>())
     {
       auto pPinIn = EZ_DEFAULT_NEW(ezPin, ezPin::Type::Input, pProp->GetPropertyName(), pinColor, pObject);
-      node.m_Inputs.PushBack(pPinIn);
+      ref_node.m_Inputs.PushBack(pPinIn);
       auto pPinOut = EZ_DEFAULT_NEW(ezPin, ezPin::Type::Output, pProp->GetPropertyName(), pinColor, pObject);
-      node.m_Outputs.PushBack(pPinOut);
+      ref_node.m_Outputs.PushBack(pPinOut);
     }
   }
 }
 
-void ezRenderPipelineNodeManager::GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& Types) const
+void ezRenderPipelineNodeManager::GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& ref_types) const
 {
   ezSet<const ezRTTI*> typeSet;
   ezReflectionUtils::GatherTypesDerivedFromClass(ezGetStaticRTTI<ezRenderPipelinePass>(), typeSet, false);
   ezReflectionUtils::GatherTypesDerivedFromClass(ezGetStaticRTTI<ezExtractor>(), typeSet, false);
-  Types.Clear();
+  ref_types.Clear();
   for (auto pType : typeSet)
   {
     if (pType->GetTypeFlags().IsAnySet(ezTypeFlags::Abstract))
       continue;
 
-    Types.PushBack(pType);
+    ref_types.PushBack(pType);
   }
 }
 
-ezStatus ezRenderPipelineNodeManager::InternalCanConnect(const ezPin& source, const ezPin& target, CanConnectResult& out_Result) const
+ezStatus ezRenderPipelineNodeManager::InternalCanConnect(const ezPin& source, const ezPin& target, CanConnectResult& out_result) const
 {
-  out_Result = CanConnectResult::ConnectNto1;
+  out_result = CanConnectResult::ConnectNto1;
   return ezStatus(EZ_SUCCESS);
 }
 

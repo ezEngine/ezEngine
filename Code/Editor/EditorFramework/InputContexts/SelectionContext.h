@@ -13,7 +13,7 @@ class EZ_EDITORFRAMEWORK_DLL ezSelectionContext : public ezEditorInputContext
 public:
   ezSelectionContext(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView, const ezCamera* pCamera);
 
-  void SetWindowConfig(const ezVec2I32& viewport) { m_vViewport = viewport; }
+  void SetWindowConfig(const ezVec2I32& vViewport) { m_vViewport = vViewport; }
 
   void SetPickObjectOverride(ezDelegate<void(const ezDocumentObject*)> pickOverride);
   void ResetPickObjectOverride();

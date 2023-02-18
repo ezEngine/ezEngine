@@ -131,11 +131,11 @@ ezJoltDynamicActorComponent::ezJoltDynamicActorComponent()
 
 ezJoltDynamicActorComponent::~ezJoltDynamicActorComponent() = default;
 
-void ezJoltDynamicActorComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezJoltDynamicActorComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s << m_bKinematic;
   s << m_bCCD;
@@ -151,12 +151,12 @@ void ezJoltDynamicActorComponent::SerializeComponent(ezWorldWriter& stream) cons
   s << m_bStartAsleep;
 }
 
-void ezJoltDynamicActorComponent::DeserializeComponent(ezWorldReader& stream)
+void ezJoltDynamicActorComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s >> m_bKinematic;
   s >> m_bCCD;
@@ -223,12 +223,12 @@ void ezJoltDynamicActorComponent::SetKinematic(bool b)
   }
 }
 
-void ezJoltDynamicActorComponent::SetGravityFactor(float factor)
+void ezJoltDynamicActorComponent::SetGravityFactor(float fFactor)
 {
-  if (m_fGravityFactor == factor)
+  if (m_fGravityFactor == fFactor)
     return;
 
-  m_fGravityFactor = factor;
+  m_fGravityFactor = fFactor;
 
   JPH::BodyID bodyId(m_uiJoltBodyID);
 
@@ -365,22 +365,22 @@ void ezJoltDynamicActorComponent::AddAngularImpulse(const ezVec3& vImpulse)
   pBodies->AddAngularImpulse(JPH::BodyID(m_uiJoltBodyID), ezJoltConversionUtils::ToVec3(vImpulse));
 }
 
-void ezJoltDynamicActorComponent::AddForceAtPos(ezMsgPhysicsAddForce& msg)
+void ezJoltDynamicActorComponent::AddForceAtPos(ezMsgPhysicsAddForce& ref_msg)
 {
   if (m_bKinematic || m_uiJoltBodyID == ezInvalidIndex)
     return;
 
   auto pBodies = &GetWorld()->GetModule<ezJoltWorldModule>()->GetJoltSystem()->GetBodyInterface();
-  pBodies->AddForce(JPH::BodyID(m_uiJoltBodyID), ezJoltConversionUtils::ToVec3(msg.m_vForce), ezJoltConversionUtils::ToVec3(msg.m_vGlobalPosition));
+  pBodies->AddForce(JPH::BodyID(m_uiJoltBodyID), ezJoltConversionUtils::ToVec3(ref_msg.m_vForce), ezJoltConversionUtils::ToVec3(ref_msg.m_vGlobalPosition));
 }
 
-void ezJoltDynamicActorComponent::AddImpulseAtPos(ezMsgPhysicsAddImpulse& msg)
+void ezJoltDynamicActorComponent::AddImpulseAtPos(ezMsgPhysicsAddImpulse& ref_msg)
 {
   if (m_bKinematic || m_uiJoltBodyID == ezInvalidIndex)
     return;
 
   auto pBodies = &GetWorld()->GetModule<ezJoltWorldModule>()->GetJoltSystem()->GetBodyInterface();
-  pBodies->AddImpulse(JPH::BodyID(m_uiJoltBodyID), ezJoltConversionUtils::ToVec3(msg.m_vImpulse), ezJoltConversionUtils::ToVec3(msg.m_vGlobalPosition));
+  pBodies->AddImpulse(JPH::BodyID(m_uiJoltBodyID), ezJoltConversionUtils::ToVec3(ref_msg.m_vImpulse), ezJoltConversionUtils::ToVec3(ref_msg.m_vGlobalPosition));
 }
 
 const ezJoltMaterial* ezJoltDynamicActorComponent::GetJoltMaterial() const

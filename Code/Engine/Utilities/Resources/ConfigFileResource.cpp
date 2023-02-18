@@ -47,79 +47,79 @@ ezConfigFileResource::ezConfigFileResource()
 
 ezConfigFileResource::~ezConfigFileResource() = default;
 
-ezInt32 ezConfigFileResource::GetInt(ezTempHashedString szName, ezInt32 fallback) const
+ezInt32 ezConfigFileResource::GetInt(ezTempHashedString sName, ezInt32 iFallback) const
 {
-  auto it = m_IntData.Find(szName);
+  auto it = m_IntData.Find(sName);
   if (it.IsValid())
     return it.Value();
 
-  return fallback;
+  return iFallback;
 }
 
-ezInt32 ezConfigFileResource::GetInt(ezTempHashedString szName) const
+ezInt32 ezConfigFileResource::GetInt(ezTempHashedString sName) const
 {
-  auto it = m_IntData.Find(szName);
+  auto it = m_IntData.Find(sName);
   if (it.IsValid())
     return it.Value();
 
-  ezLog::Error("{}: 'int' config variable (name hash = {}) doesn't exist.", this->GetResourceDescription(), szName.GetHash());
+  ezLog::Error("{}: 'int' config variable (name hash = {}) doesn't exist.", this->GetResourceDescription(), sName.GetHash());
   return 0;
 }
 
-float ezConfigFileResource::GetFloat(ezTempHashedString szName, float fallback) const
+float ezConfigFileResource::GetFloat(ezTempHashedString sName, float fFallback) const
 {
-  auto it = m_FloatData.Find(szName);
+  auto it = m_FloatData.Find(sName);
   if (it.IsValid())
     return it.Value();
 
-  return fallback;
+  return fFallback;
 }
 
-float ezConfigFileResource::GetFloat(ezTempHashedString szName) const
+float ezConfigFileResource::GetFloat(ezTempHashedString sName) const
 {
-  auto it = m_FloatData.Find(szName);
+  auto it = m_FloatData.Find(sName);
   if (it.IsValid())
     return it.Value();
 
-  ezLog::Error("{}: 'float' config variable (name hash = {}) doesn't exist.", this->GetResourceDescription(), szName.GetHash());
+  ezLog::Error("{}: 'float' config variable (name hash = {}) doesn't exist.", this->GetResourceDescription(), sName.GetHash());
   return 0;
 }
 
-bool ezConfigFileResource::GetBool(ezTempHashedString szName, bool fallback) const
+bool ezConfigFileResource::GetBool(ezTempHashedString sName, bool bFallback) const
 {
-  auto it = m_BoolData.Find(szName);
+  auto it = m_BoolData.Find(sName);
   if (it.IsValid())
     return it.Value();
 
-  return fallback;
+  return bFallback;
 }
 
-bool ezConfigFileResource::GetBool(ezTempHashedString szName) const
+bool ezConfigFileResource::GetBool(ezTempHashedString sName) const
 {
-  auto it = m_BoolData.Find(szName);
+  auto it = m_BoolData.Find(sName);
   if (it.IsValid())
     return it.Value();
 
-  ezLog::Error("{}: 'float' config variable (name hash = {}) doesn't exist.", this->GetResourceDescription(), szName.GetHash());
+  ezLog::Error("{}: 'float' config variable (name hash = {}) doesn't exist.", this->GetResourceDescription(), sName.GetHash());
   return false;
 }
 
-const char* ezConfigFileResource::GetString(ezTempHashedString szName, const char* fallback) const
+const char* ezConfigFileResource::GetString(ezTempHashedString sName, const char* szFallback) const
 {
-  auto it = m_StringData.Find(szName);
+  auto it = m_StringData.Find(sName);
   if (it.IsValid())
     return it.Value();
 
-  return fallback;
+  return szFallback;
 }
 
-const char* ezConfigFileResource::GetString(ezTempHashedString szName) const
+const char* ezConfigFileResource::GetString(ezTempHashedString sName) const
 {
-  auto it = m_StringData.Find(szName);
+  auto it = m_StringData.Find(sName);
   if (it.IsValid())
     return it.Value();
 
-  ezLog::Error("{}: 'string' config variable '(name hash = {}) doesn't exist.", this->GetResourceDescription(), szName.GetHash());
+  ezLog::Error("{}: 'string' config variable '(name hash = {}) doesn't exist.", this->GetResourceDescription(), sName.GetHash());
   return "";
 }
 
@@ -167,9 +167,9 @@ void ezConfigFileResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 
 //////////////////////////////////////////////////////////////////////////
 
-ezResult ezConfigFileResourceLoader::LoadedData::PrePropFileLocator(const char* szCurAbsoluteFile, const char* szIncludeFile, ezPreprocessor::IncludeType IncType, ezStringBuilder& out_sAbsoluteFilePath)
+ezResult ezConfigFileResourceLoader::LoadedData::PrePropFileLocator(const char* szCurAbsoluteFile, const char* szIncludeFile, ezPreprocessor::IncludeType incType, ezStringBuilder& out_sAbsoluteFilePath)
 {
-  ezResult res = ezPreprocessor::DefaultFileLocator(szCurAbsoluteFile, szIncludeFile, IncType, out_sAbsoluteFilePath);
+  ezResult res = ezPreprocessor::DefaultFileLocator(szCurAbsoluteFile, szIncludeFile, incType, out_sAbsoluteFilePath);
 
   m_RequiredFiles.AddFileDependency(out_sAbsoluteFilePath);
 
@@ -355,9 +355,9 @@ ezResourceLoadData ezConfigFileResourceLoader::OpenDataStream(const ezResource* 
   return res;
 }
 
-void ezConfigFileResourceLoader::CloseDataStream(const ezResource* pResource, const ezResourceLoadData& LoaderData)
+void ezConfigFileResourceLoader::CloseDataStream(const ezResource* pResource, const ezResourceLoadData& loaderData)
 {
-  LoadedData* pData = static_cast<LoadedData*>(LoaderData.m_pCustomLoaderData);
+  LoadedData* pData = static_cast<LoadedData*>(loaderData.m_pCustomLoaderData);
 
   EZ_DEFAULT_DELETE(pData);
 }

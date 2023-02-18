@@ -43,13 +43,13 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezSkeletonComponent::ezSkeletonComponent() = default;
 ezSkeletonComponent::~ezSkeletonComponent() = default;
 
-ezResult ezSkeletonComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg)
+ezResult ezSkeletonComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg)
 {
   if (m_MaxBounds.IsValid())
   {
     ezBoundingBox bbox = m_MaxBounds;
-    bounds = bbox;
-    bounds.Transform(m_RootTransform.GetAsMat4());
+    ref_bounds = bbox;
+    ref_bounds.Transform(m_RootTransform.GetAsMat4());
     return EZ_SUCCESS;
   }
 
@@ -108,11 +108,11 @@ void ezSkeletonComponent::Update()
   }
 }
 
-void ezSkeletonComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezSkeletonComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s << m_hSkeleton;
   s << m_bVisualizeBones;
@@ -123,15 +123,15 @@ void ezSkeletonComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_bVisualizeTwistLimits;
 }
 
-void ezSkeletonComponent::DeserializeComponent(ezWorldReader& stream)
+void ezSkeletonComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
   if (uiVersion <= 4)
     return;
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s >> m_hSkeleton;
   s >> m_bVisualizeBones;
@@ -258,23 +258,22 @@ void ezSkeletonComponent::BuildSkeletonVisualization(ezMsgAnimationPoseUpdated& 
 
   const ezVec3 vBoneDir = ezBasisAxis::GetBasisVector(msg.m_pSkeleton->m_BoneDirection);
 
-  auto renderBone = [&](int currentBone, int parentBone)
-  {
-    if (parentBone == ozz::animation::Skeleton::kNoParent)
+  auto renderBone = [&](int iCurrentBone, int iParentBone) {
+    if (iParentBone == ozz::animation::Skeleton::kNoParent)
       return;
 
-    const ezVec3 v0 = *msg.m_pRootTransform * msg.m_ModelTransforms[parentBone].GetTranslationVector();
-    const ezVec3 v1 = *msg.m_pRootTransform * msg.m_ModelTransforms[currentBone].GetTranslationVector();
+    const ezVec3 v0 = *msg.m_pRootTransform * msg.m_ModelTransforms[iParentBone].GetTranslationVector();
+    const ezVec3 v1 = *msg.m_pRootTransform * msg.m_ModelTransforms[iCurrentBone].GetTranslationVector();
 
     ezVec3 dirToBone = (v1 - v0);
 
-    auto& bone = bones[currentBone];
+    auto& bone = bones[iCurrentBone];
     bone.pos = v1;
     bone.distToParent = dirToBone.GetLength();
-    bone.dir = *msg.m_pRootTransform * msg.m_ModelTransforms[currentBone].TransformDirection(vBoneDir);
+    bone.dir = *msg.m_pRootTransform * msg.m_ModelTransforms[iCurrentBone].TransformDirection(vBoneDir);
     bone.dir.NormalizeIfNotZero(ezVec3::ZeroVector()).IgnoreResult();
 
-    auto& pb = bones[parentBone];
+    auto& pb = bones[iParentBone];
 
     if (!pb.dir.IsZero() && dirToBone.NormalizeIfNotZero(ezVec3::ZeroVector()).Succeeded())
     {

@@ -190,10 +190,10 @@ public:
   ezUInt32 GetNumAssetProfiles() const;
 
   /// \brief Always returns a valid config. E.g. even if ezInvalidIndex is passed in, it will fall back to the default config (at index 0).
-  const ezPlatformProfile* GetAssetProfile(ezUInt32 index) const;
+  const ezPlatformProfile* GetAssetProfile(ezUInt32 uiIndex) const;
 
   /// \brief Always returns a valid config. E.g. even if ezInvalidIndex is passed in, it will fall back to the default config (at index 0).
-  ezPlatformProfile* GetAssetProfile(ezUInt32 index);
+  ezPlatformProfile* GetAssetProfile(ezUInt32 uiIndex);
 
   /// \brief Adds a new profile. The name should be set afterwards to a unique name.
   ezPlatformProfile* CreateAssetProfile();
@@ -207,7 +207,7 @@ public:
   /// \brief Switches the currently active asset target platform.
   ///
   /// Broadcasts ezAssetCuratorEvent::Type::ActivePlatformChanged on change.
-  void SetActiveAssetProfileByIndex(ezUInt32 index, bool bForceReevaluation = false);
+  void SetActiveAssetProfileByIndex(ezUInt32 uiIndex, bool bForceReevaluation = false);
 
   /// \brief Saves the current asset configurations. Returns failure if the output file could not be written to.
   ezResult SaveAssetProfiles();
@@ -270,9 +270,9 @@ public:
   /// \brief Computes the combined hash for the asset and its references. Returns 0 if anything went wrong.
   ezUInt64 GetAssetReferenceHash(ezUuid assetGuid);
 
-  void GenerateTransitiveHull(const ezStringView assetOrPath, ezSet<ezString>* pDependencies, ezSet<ezString>* pReferences);
+  void GenerateTransitiveHull(const ezStringView sAssetOrPath, ezSet<ezString>* pDependencies, ezSet<ezString>* pReferences);
 
-  ezAssetInfo::TransformState IsAssetUpToDate(const ezUuid& assetGuid, const ezPlatformProfile* pAssetProfile, const ezAssetDocumentTypeDescriptor* pTypeDescriptor, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash, bool bForce = false);
+  ezAssetInfo::TransformState IsAssetUpToDate(const ezUuid& assetGuid, const ezPlatformProfile* pAssetProfile, const ezAssetDocumentTypeDescriptor* pTypeDescriptor, ezUInt64& out_uiAssetHash, ezUInt64& out_uiThumbHash, bool bForce = false);
   /// \brief Returns the number of assets in the system and how many are in what transform state
   void GetAssetTransformStats(ezUInt32& out_uiNumAssets, ezHybridArray<ezUInt32, ezAssetInfo::TransformState::COUNT>& out_count);
 
@@ -286,7 +286,7 @@ public:
   ///
   /// \param sFile
   ///   File name (may include a path) to search for. Will be modified both on success and failure to give a 'reasonable' result.
-  ezResult FindBestMatchForFile(ezStringBuilder& sFile, ezArrayPtr<ezString> AllowedFileExtensions) const;
+  ezResult FindBestMatchForFile(ezStringBuilder& ref_sFile, ezArrayPtr<ezString> allowedFileExtensions) const;
 
   /// \brief Finds all uses, either as references or dependencies to a given asset.
   ///
@@ -298,7 +298,7 @@ public:
   ///   List of assets that use 'assetGuid'.
   /// \param transitive
   ///   If set, will also find indirect uses of the asset.
-  void FindAllUses(ezUuid assetGuid, ezSet<ezUuid>& uses, bool transitive) const;
+  void FindAllUses(ezUuid assetGuid, ezSet<ezUuid>& ref_uses, bool bTransitive) const;
 
   ///@}
   /// \name Manual and Automatic Change Notification

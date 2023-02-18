@@ -20,44 +20,44 @@ EZ_END_STATIC_REFLECTED_BITFLAGS;
 
 //////////////////////////////////////////////////////////////////////////
 
-void ezPxErrorCallback::reportError(PxErrorCode::Enum code, const char* message, const char* file, int line)
+void ezPxErrorCallback::reportError(PxErrorCode::Enum code, const char* szMessage, const char* szFile, int iLine)
 {
   switch (code)
   {
     case PxErrorCode::eABORT:
-      ezLog::Error("PhysX: {0}", message);
+      ezLog::Error("PhysX: {0}", szMessage);
       break;
     case PxErrorCode::eDEBUG_INFO:
-      ezLog::Dev("PhysX: {0}", message);
+      ezLog::Dev("PhysX: {0}", szMessage);
       break;
     case PxErrorCode::eDEBUG_WARNING:
-      ezLog::Warning("PhysX: {0}", message);
+      ezLog::Warning("PhysX: {0}", szMessage);
       break;
     case PxErrorCode::eINTERNAL_ERROR:
-      ezLog::Error("PhysX Internal: {0}", message);
+      ezLog::Error("PhysX Internal: {0}", szMessage);
       break;
     case PxErrorCode::eINVALID_OPERATION:
-      ezLog::Error("PhysX Invalid Operation: {0}", message);
+      ezLog::Error("PhysX Invalid Operation: {0}", szMessage);
       break;
     case PxErrorCode::eINVALID_PARAMETER:
-      if (ezStringUtils::IsEqual(message, "PxScene::raycast(): pose is not valid.") ||
-          ezStringUtils::IsEqual(message, "Gu::overlap(): pose1 is not valid.") ||
-          ezStringUtils::IsEqual(message, "PxScene::sweep(): pose1 is not valid."))
+      if (ezStringUtils::IsEqual(szMessage, "PxScene::raycast(): pose is not valid.") ||
+          ezStringUtils::IsEqual(szMessage, "Gu::overlap(): pose1 is not valid.") ||
+          ezStringUtils::IsEqual(szMessage, "PxScene::sweep(): pose1 is not valid."))
       {
         //ezLog::Warning("Invalid pose");
         return;
       }
-      ezLog::Error("PhysX Invalid Parameter: {0}", message);
+      ezLog::Error("PhysX Invalid Parameter: {0}", szMessage);
       break;
     case PxErrorCode::eOUT_OF_MEMORY:
-      ezLog::Error("PhysX Out-of-Memory: {0}", message);
+      ezLog::Error("PhysX Out-of-Memory: {0}", szMessage);
       break;
     case PxErrorCode::ePERF_WARNING:
-      ezLog::Warning("PhysX Performance: {0}", message);
+      ezLog::Warning("PhysX Performance: {0}", szMessage);
       break;
 
     default:
-      ezLog::Error("PhysX: Unknown error type '{0}': {1}", code, message);
+      ezLog::Error("PhysX: Unknown error type '{0}': {1}", code, szMessage);
       break;
   }
 }
@@ -72,9 +72,9 @@ ezPxAllocatorCallback::ezPxAllocatorCallback()
 {
 }
 
-void* ezPxAllocatorCallback::allocate(size_t size, const char* typeName, const char* filename, int line)
+void* ezPxAllocatorCallback::allocate(size_t uiSize, const char* szTypeName, const char* szFilename, int iLine)
 {
-  void* pPtr = m_Allocator.Allocate(size, 16);
+  void* pPtr = m_Allocator.Allocate(uiSize, 16);
 
 #if EZ_ENABLED(EZ_PX_DETAILED_MEMORY_STATS)
   ezStringBuilder s;
@@ -85,16 +85,16 @@ void* ezPxAllocatorCallback::allocate(size_t size, const char* typeName, const c
   return pPtr;
 }
 
-void ezPxAllocatorCallback::deallocate(void* ptr)
+void ezPxAllocatorCallback::deallocate(void* pPtr)
 {
-  if (ptr == nullptr)
+  if (pPtr == nullptr)
     return;
 
 #if EZ_ENABLED(EZ_PX_DETAILED_MEMORY_STATS)
   m_Allocations.Remove(ptr);
 #endif
 
-  m_Allocator.Deallocate(ptr);
+  m_Allocator.Deallocate(pPtr);
 }
 
 void ezPxAllocatorCallback::VerifyAllocations()
@@ -112,23 +112,23 @@ void ezPxAllocatorCallback::VerifyAllocations()
 
 //////////////////////////////////////////////////////////////////////////
 
-PxQueryHitType::Enum ezPxQueryFilter::preFilter(const PxFilterData& filterData, const PxShape* shape, const PxRigidActor* actor, PxHitFlags& queryFlags)
+PxQueryHitType::Enum ezPxQueryFilter::preFilter(const PxFilterData& filterData, const PxShape* pShape, const PxRigidActor* pActor, PxHitFlags& ref_queryFlags)
 {
-  if (shape->getFlags().isSet(PxShapeFlag::eTRIGGER_SHAPE))
+  if (pShape->getFlags().isSet(PxShapeFlag::eTRIGGER_SHAPE))
   {
     // ignore all trigger shapes
     return PxQueryHitType::eNONE;
   }
 
-  if (m_bIncludeQueryShapes == false && actor->getActorFlags().isSet(PxActorFlag::eDISABLE_SIMULATION))
+  if (m_bIncludeQueryShapes == false && pActor->getActorFlags().isSet(PxActorFlag::eDISABLE_SIMULATION))
   {
     // ignore all shapes that don't participate in the simulation
     return PxQueryHitType::eNONE;
   }
 
-  const PxFilterData& shapeFilterData = shape->getQueryFilterData();
+  const PxFilterData& shapeFilterData = pShape->getQueryFilterData();
 
-  queryFlags = (PxHitFlags)0;
+  ref_queryFlags = (PxHitFlags)0;
 
   // shape should be ignored
   if (shapeFilterData.word2 == filterData.word2)
@@ -140,7 +140,7 @@ PxQueryHitType::Enum ezPxQueryFilter::preFilter(const PxFilterData& filterData, 
   // the filter mask of A contains the ID of B and vice versa.
   if ((filterData.word0 & shapeFilterData.word1) || (shapeFilterData.word0 & filterData.word1))
   {
-    queryFlags |= PxHitFlag::eDEFAULT;
+    ref_queryFlags |= PxHitFlag::eDEFAULT;
     return PxQueryHitType::eBLOCK;
   }
 

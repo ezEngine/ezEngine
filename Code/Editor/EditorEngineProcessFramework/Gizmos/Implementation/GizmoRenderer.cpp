@@ -19,15 +19,15 @@ float ezGizmoRenderer::s_fGizmoScale = 1.0f;
 ezGizmoRenderer::ezGizmoRenderer() = default;
 ezGizmoRenderer::~ezGizmoRenderer() = default;
 
-void ezGizmoRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types) const
+void ezGizmoRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& inout_types) const
 {
-  types.PushBack(ezGetStaticRTTI<ezGizmoRenderData>());
+  inout_types.PushBack(ezGetStaticRTTI<ezGizmoRenderData>());
 }
 
-void ezGizmoRenderer::GetSupportedRenderDataCategories(ezHybridArray<ezRenderData::Category, 8>& categories) const
+void ezGizmoRenderer::GetSupportedRenderDataCategories(ezHybridArray<ezRenderData::Category, 8>& inout_categories) const
 {
-  categories.PushBack(ezDefaultRenderDataCategories::SimpleOpaque);
-  categories.PushBack(ezDefaultRenderDataCategories::SimpleForeground);
+  inout_categories.PushBack(ezDefaultRenderDataCategories::SimpleOpaque);
+  inout_categories.PushBack(ezDefaultRenderDataCategories::SimpleForeground);
 }
 
 void ezGizmoRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const

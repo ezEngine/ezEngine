@@ -58,15 +58,15 @@ class EZ_RENDERERCORE_DLL ezSpriteComponent : public ezRenderComponent
   // ezComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
 
   //////////////////////////////////////////////////////////////////////////
   // ezRenderComponent
 
 public:
-  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg) override;
+  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg) override;
 
 
   //////////////////////////////////////////////////////////////////////////
@@ -91,7 +91,7 @@ public:
   void SetMaxScreenSize(float fSize); // [ property ]
   float GetMaxScreenSize() const;     // [ property ]
 
-  void OnMsgSetColor(ezMsgSetColor& msg); // [ property ]
+  void OnMsgSetColor(ezMsgSetColor& ref_msg); // [ property ]
 
 private:
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;

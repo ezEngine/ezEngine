@@ -51,7 +51,7 @@ void ezCommonAssetActions::UnregisterActions()
     ezActionManager::UnregisterAction(s_hSimulationSpeed[i]);
 }
 
-void ezCommonAssetActions::MapActions(const char* szMapping, const char* szPath, ezUInt32 stateMask)
+void ezCommonAssetActions::MapActions(const char* szMapping, const char* szPath, ezUInt32 uiStateMask)
 {
   ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
   EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", szMapping);
@@ -60,22 +60,22 @@ void ezCommonAssetActions::MapActions(const char* szMapping, const char* szPath,
 
   const char* szSubPath = "CommonAssetCategory";
 
-  if (stateMask & ezCommonAssetUiState::Pause)
+  if (uiStateMask & ezCommonAssetUiState::Pause)
   {
     pMap->MapAction(s_hPause, szSubPath, 0.5f);
   }
 
-  if (stateMask & ezCommonAssetUiState::Restart)
+  if (uiStateMask & ezCommonAssetUiState::Restart)
   {
     pMap->MapAction(s_hRestart, szSubPath, 1.0f);
   }
 
-  if (stateMask & ezCommonAssetUiState::Loop)
+  if (uiStateMask & ezCommonAssetUiState::Loop)
   {
     pMap->MapAction(s_hLoop, szSubPath, 2.0f);
   }
 
-  if (stateMask & ezCommonAssetUiState::SimulationSpeed)
+  if (uiStateMask & ezCommonAssetUiState::SimulationSpeed)
   {
     pMap->MapAction(s_hSimulationSpeedMenu, szSubPath, 3.0f);
 
@@ -87,12 +87,12 @@ void ezCommonAssetActions::MapActions(const char* szMapping, const char* szPath,
     }
   }
 
-  if (stateMask & ezCommonAssetUiState::Grid)
+  if (uiStateMask & ezCommonAssetUiState::Grid)
   {
     pMap->MapAction(s_hGrid, szSubPath, 4.0f);
   }
 
-  if (stateMask & ezCommonAssetUiState::Visualizers)
+  if (uiStateMask & ezCommonAssetUiState::Visualizers)
   {
     pMap->MapAction(s_hVisualizers, szSubPath, 5.0f);
   }

@@ -8,9 +8,9 @@
 #include <Foundation/Time/Timestamp.h>
 #include <Foundation/Utilities/DGMLWriter.h>
 
-const char* ezWorkerThreadType::GetThreadTypeName(ezWorkerThreadType::Enum ThreadType)
+const char* ezWorkerThreadType::GetThreadTypeName(ezWorkerThreadType::Enum threadType)
 {
-  switch (ThreadType)
+  switch (threadType)
   {
     case ezWorkerThreadType::ShortTasks:
       return "Short Task";
@@ -27,7 +27,7 @@ const char* ezWorkerThreadType::GetThreadTypeName(ezWorkerThreadType::Enum Threa
   }
 }
 
-void ezTaskSystem::WriteStateSnapshotToDGML(ezDGMLGraph& graph)
+void ezTaskSystem::WriteStateSnapshotToDGML(ezDGMLGraph& ref_graph)
 {
   EZ_LOCK(s_TaskSystemMutex);
 
@@ -43,13 +43,13 @@ void ezTaskSystem::WriteStateSnapshotToDGML(ezDGMLGraph& graph)
   taskNodeND.m_Color = ezColor::OrangeRed;
   taskNodeND.m_Shape = ezDGMLGraph::NodeShape::RoundedRectangle;
 
-  const ezDGMLGraph::PropertyId startedByUserId = graph.AddPropertyType("StartByUser");
-  const ezDGMLGraph::PropertyId activeDepsId = graph.AddPropertyType("ActiveDependencies");
-  const ezDGMLGraph::PropertyId scheduledId = graph.AddPropertyType("Scheduled");
-  const ezDGMLGraph::PropertyId finishedId = graph.AddPropertyType("Finished");
-  const ezDGMLGraph::PropertyId multiplicityId = graph.AddPropertyType("Multiplicity");
-  const ezDGMLGraph::PropertyId remainingRunsId = graph.AddPropertyType("RemainingRuns");
-  const ezDGMLGraph::PropertyId priorityId = graph.AddPropertyType("GroupPriority");
+  const ezDGMLGraph::PropertyId startedByUserId = ref_graph.AddPropertyType("StartByUser");
+  const ezDGMLGraph::PropertyId activeDepsId = ref_graph.AddPropertyType("ActiveDependencies");
+  const ezDGMLGraph::PropertyId scheduledId = ref_graph.AddPropertyType("Scheduled");
+  const ezDGMLGraph::PropertyId finishedId = ref_graph.AddPropertyType("Finished");
+  const ezDGMLGraph::PropertyId multiplicityId = ref_graph.AddPropertyType("Multiplicity");
+  const ezDGMLGraph::PropertyId remainingRunsId = ref_graph.AddPropertyType("RemainingRuns");
+  const ezDGMLGraph::PropertyId priorityId = ref_graph.AddPropertyType("GroupPriority");
 
   const char* szTaskPriorityNames[ezTaskPriority::ENUM_COUNT] = {};
   szTaskPriorityNames[ezTaskPriority::EarlyThisFrame] = "EarlyThisFrame";
@@ -82,28 +82,28 @@ void ezTaskSystem::WriteStateSnapshotToDGML(ezDGMLGraph& graph)
 
     title.Format("Group {}", g);
 
-    const ezDGMLGraph::NodeId taskGroupId = graph.AddGroup(title, ezDGMLGraph::GroupType::Expanded, &taskGroupND);
+    const ezDGMLGraph::NodeId taskGroupId = ref_graph.AddGroup(title, ezDGMLGraph::GroupType::Expanded, &taskGroupND);
     groupNodeIds[&tg] = taskGroupId;
 
-    graph.AddNodeProperty(taskGroupId, startedByUserId, tg.m_bStartedByUser ? "true" : "false");
-    graph.AddNodeProperty(taskGroupId, priorityId, szTaskPriorityNames[tg.m_Priority]);
-    graph.AddNodeProperty(taskGroupId, activeDepsId, ezFmt("{}", tg.m_iNumActiveDependencies));
+    ref_graph.AddNodeProperty(taskGroupId, startedByUserId, tg.m_bStartedByUser ? "true" : "false");
+    ref_graph.AddNodeProperty(taskGroupId, priorityId, szTaskPriorityNames[tg.m_Priority]);
+    ref_graph.AddNodeProperty(taskGroupId, activeDepsId, ezFmt("{}", tg.m_iNumActiveDependencies));
 
     for (ezUInt32 t = 0; t < tg.m_Tasks.GetCount(); ++t)
     {
       const ezTask& task = *tg.m_Tasks[t];
-      const ezDGMLGraph::NodeId taskNodeId = graph.AddNode(task.m_sTaskName, &taskNodeND);
+      const ezDGMLGraph::NodeId taskNodeId = ref_graph.AddNode(task.m_sTaskName, &taskNodeND);
 
-      graph.AddNodeToGroup(taskNodeId, taskGroupId);
+      ref_graph.AddNodeToGroup(taskNodeId, taskGroupId);
 
-      graph.AddNodeProperty(taskNodeId, scheduledId, task.m_bTaskIsScheduled ? "true" : "false");
-      graph.AddNodeProperty(taskNodeId, finishedId, task.IsTaskFinished() ? "true" : "false");
+      ref_graph.AddNodeProperty(taskNodeId, scheduledId, task.m_bTaskIsScheduled ? "true" : "false");
+      ref_graph.AddNodeProperty(taskNodeId, finishedId, task.IsTaskFinished() ? "true" : "false");
 
       tmp.Format("{}", task.GetMultiplicity());
-      graph.AddNodeProperty(taskNodeId, multiplicityId, tmp);
+      ref_graph.AddNodeProperty(taskNodeId, multiplicityId, tmp);
 
       tmp.Format("{}", task.m_iRemainingRuns);
-      graph.AddNodeProperty(taskNodeId, remainingRunsId, tmp);
+      ref_graph.AddNodeProperty(taskNodeId, remainingRunsId, tmp);
     }
   }
 
@@ -130,7 +130,7 @@ void ezTaskSystem::WriteStateSnapshotToDGML(ezDGMLGraph& graph)
 
       EZ_ASSERT_DEBUG(otherNodeId != ownNodeId, "");
 
-      graph.AddConnection(otherNodeId, ownNodeId);
+      ref_graph.AddConnection(otherNodeId, ownNodeId);
     }
   }
 }

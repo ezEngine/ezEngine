@@ -178,11 +178,11 @@ ezTime ezParticleSystemDescriptor::GetAvgLifetime() const
   return time;
 }
 
-void ezParticleSystemDescriptor::Save(ezStreamWriter& stream) const
+void ezParticleSystemDescriptor::Save(ezStreamWriter& inout_stream) const
 {
   const ezUInt8 uiVersion = (int)ParticleSystemVersion::Version_Current;
 
-  stream << uiVersion;
+  inout_stream << uiVersion;
 
   const ezUInt32 uiNumEmitters = m_EmitterFactories.GetCount();
   const ezUInt32 uiNumInitializers = m_InitializerFactories.GetCount();
@@ -190,48 +190,48 @@ void ezParticleSystemDescriptor::Save(ezStreamWriter& stream) const
   const ezUInt32 uiNumTypes = m_TypeFactories.GetCount();
 
   ezUInt32 uiMaxParticles = 0;
-  stream << m_bVisible;
-  stream << uiMaxParticles;
-  stream << m_LifeTime.m_Value;
-  stream << m_LifeTime.m_fVariance;
-  stream << m_sOnDeathEvent;
-  stream << m_sLifeScaleParameter;
-  stream << uiNumEmitters;
-  stream << uiNumInitializers;
-  stream << uiNumBehaviors;
-  stream << uiNumTypes;
+  inout_stream << m_bVisible;
+  inout_stream << uiMaxParticles;
+  inout_stream << m_LifeTime.m_Value;
+  inout_stream << m_LifeTime.m_fVariance;
+  inout_stream << m_sOnDeathEvent;
+  inout_stream << m_sLifeScaleParameter;
+  inout_stream << uiNumEmitters;
+  inout_stream << uiNumInitializers;
+  inout_stream << uiNumBehaviors;
+  inout_stream << uiNumTypes;
 
   for (auto pEmitter : m_EmitterFactories)
   {
-    stream << pEmitter->GetDynamicRTTI()->GetTypeName();
+    inout_stream << pEmitter->GetDynamicRTTI()->GetTypeName();
 
-    pEmitter->Save(stream);
+    pEmitter->Save(inout_stream);
   }
 
   for (auto pInitializer : m_InitializerFactories)
   {
-    stream << pInitializer->GetDynamicRTTI()->GetTypeName();
+    inout_stream << pInitializer->GetDynamicRTTI()->GetTypeName();
 
-    pInitializer->Save(stream);
+    pInitializer->Save(inout_stream);
   }
 
   for (auto pBehavior : m_BehaviorFactories)
   {
-    stream << pBehavior->GetDynamicRTTI()->GetTypeName();
+    inout_stream << pBehavior->GetDynamicRTTI()->GetTypeName();
 
-    pBehavior->Save(stream);
+    pBehavior->Save(inout_stream);
   }
 
   for (auto pType : m_TypeFactories)
   {
-    stream << pType->GetDynamicRTTI()->GetTypeName();
+    inout_stream << pType->GetDynamicRTTI()->GetTypeName();
 
-    pType->Save(stream);
+    pType->Save(inout_stream);
   }
 }
 
 
-void ezParticleSystemDescriptor::Load(ezStreamReader& stream)
+void ezParticleSystemDescriptor::Load(ezStreamReader& inout_stream)
 {
   ClearEmitters();
   ClearInitializers();
@@ -240,7 +240,7 @@ void ezParticleSystemDescriptor::Load(ezStreamReader& stream)
   ClearTypes();
 
   ezUInt8 uiVersion = 0;
-  stream >> uiVersion;
+  inout_stream >> uiVersion;
   EZ_ASSERT_DEV(uiVersion <= (int)ParticleSystemVersion::Version_Current, "Unknown particle template version {0}", uiVersion);
 
   ezUInt32 uiNumEmitters = 0;
@@ -250,40 +250,40 @@ void ezParticleSystemDescriptor::Load(ezStreamReader& stream)
 
   if (uiVersion >= 3)
   {
-    stream >> m_bVisible;
+    inout_stream >> m_bVisible;
   }
 
   if (uiVersion >= 2)
   {
     // now unused
     ezUInt32 uiMaxParticles = 0;
-    stream >> uiMaxParticles;
+    inout_stream >> uiMaxParticles;
   }
 
   if (uiVersion >= 5)
   {
-    stream >> m_LifeTime.m_Value;
-    stream >> m_LifeTime.m_fVariance;
-    stream >> m_sOnDeathEvent;
+    inout_stream >> m_LifeTime.m_Value;
+    inout_stream >> m_LifeTime.m_fVariance;
+    inout_stream >> m_sOnDeathEvent;
   }
 
   if (uiVersion >= 7)
   {
-    stream >> m_sLifeScaleParameter;
+    inout_stream >> m_sLifeScaleParameter;
   }
 
-  stream >> uiNumEmitters;
+  inout_stream >> uiNumEmitters;
 
   if (uiVersion >= 2)
   {
-    stream >> uiNumInitializers;
+    inout_stream >> uiNumInitializers;
   }
 
-  stream >> uiNumBehaviors;
+  inout_stream >> uiNumBehaviors;
 
   if (uiVersion >= 4)
   {
-    stream >> uiNumTypes;
+    inout_stream >> uiNumTypes;
   }
 
   m_EmitterFactories.SetCountUninitialized(uiNumEmitters);
@@ -295,55 +295,55 @@ void ezParticleSystemDescriptor::Load(ezStreamReader& stream)
 
   for (auto& pEmitter : m_EmitterFactories)
   {
-    stream >> sType;
+    inout_stream >> sType;
 
     const ezRTTI* pRtti = ezRTTI::FindTypeByName(sType);
     EZ_ASSERT_DEBUG(pRtti != nullptr, "Unknown emitter factory type '{0}'", sType);
 
     pEmitter = pRtti->GetAllocator()->Allocate<ezParticleEmitterFactory>();
 
-    pEmitter->Load(stream);
+    pEmitter->Load(inout_stream);
   }
 
   if (uiVersion >= 2)
   {
     for (auto& pInitializer : m_InitializerFactories)
     {
-      stream >> sType;
+      inout_stream >> sType;
 
       const ezRTTI* pRtti = ezRTTI::FindTypeByName(sType);
       EZ_ASSERT_DEBUG(pRtti != nullptr, "Unknown initializer factory type '{0}'", sType);
 
       pInitializer = pRtti->GetAllocator()->Allocate<ezParticleInitializerFactory>();
 
-      pInitializer->Load(stream);
+      pInitializer->Load(inout_stream);
     }
   }
 
   for (auto& pBehavior : m_BehaviorFactories)
   {
-    stream >> sType;
+    inout_stream >> sType;
 
     const ezRTTI* pRtti = ezRTTI::FindTypeByName(sType);
     EZ_ASSERT_DEBUG(pRtti != nullptr, "Unknown behavior factory type '{0}'", sType);
 
     pBehavior = pRtti->GetAllocator()->Allocate<ezParticleBehaviorFactory>();
 
-    pBehavior->Load(stream);
+    pBehavior->Load(inout_stream);
   }
 
   if (uiVersion >= 4)
   {
     for (auto& pType : m_TypeFactories)
     {
-      stream >> sType;
+      inout_stream >> sType;
 
       const ezRTTI* pRtti = ezRTTI::FindTypeByName(sType);
       EZ_ASSERT_DEBUG(pRtti != nullptr, "Unknown type factory type '{0}'", sType);
 
       pType = pRtti->GetAllocator()->Allocate<ezParticleTypeFactory>();
 
-      pType->Load(stream);
+      pType->Load(inout_stream);
     }
   }
 
@@ -360,7 +360,7 @@ public:
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
     pNode->InlineProperty("LifeTime").IgnoreResult();
   }

@@ -55,21 +55,21 @@ ezDynamicArray<ezUInt8, ezAlignedAllocatorWrapper>& ezMeshBufferResourceDescript
   return m_IndexBufferData;
 }
 
-ezUInt32 ezMeshBufferResourceDescriptor::AddStream(ezGALVertexAttributeSemantic::Enum Semantic, ezGALResourceFormat::Enum Format)
+ezUInt32 ezMeshBufferResourceDescriptor::AddStream(ezGALVertexAttributeSemantic::Enum semantic, ezGALResourceFormat::Enum format)
 {
   EZ_ASSERT_DEV(m_VertexStreamData.IsEmpty(), "This function can only be called before 'AllocateStreams' is called");
 
   for (ezUInt32 i = 0; i < m_VertexDeclaration.m_VertexStreams.GetCount(); ++i)
   {
-    EZ_ASSERT_DEV(m_VertexDeclaration.m_VertexStreams[i].m_Semantic != Semantic, "The given semantic {0} is already used by a previous stream", Semantic);
+    EZ_ASSERT_DEV(m_VertexDeclaration.m_VertexStreams[i].m_Semantic != semantic, "The given semantic {0} is already used by a previous stream", semantic);
   }
 
   ezVertexStreamInfo si;
 
-  si.m_Semantic = Semantic;
-  si.m_Format = Format;
+  si.m_Semantic = semantic;
+  si.m_Format = format;
   si.m_uiOffset = 0;
-  si.m_uiElementSize = static_cast<ezUInt16>(ezGALResourceFormat::GetBitsPerElement(Format) / 8);
+  si.m_uiElementSize = static_cast<ezUInt16>(ezGALResourceFormat::GetBitsPerElement(format) / 8);
   m_uiVertexSize += si.m_uiElementSize;
 
   EZ_ASSERT_DEV(si.m_uiElementSize > 0, "Invalid Element Size. Format not supported?");

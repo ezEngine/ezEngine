@@ -23,7 +23,7 @@ public:
     Connection
   };
 
-  explicit ezQtNodeScene(QObject* parent = nullptr);
+  explicit ezQtNodeScene(QObject* pParent = nullptr);
   ~ezQtNodeScene();
 
   void SetDocumentNodeManager(const ezDocumentNodeManager* pManager);

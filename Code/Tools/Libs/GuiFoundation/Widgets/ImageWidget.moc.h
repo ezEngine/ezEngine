@@ -23,7 +23,7 @@ class EZ_GUIFOUNDATION_DLL ezQtImageWidget : public QWidget, public Ui_ImageWidg
   Q_OBJECT
 
 public:
-  ezQtImageWidget(QWidget* parent, bool bShowButtons = true);
+  ezQtImageWidget(QWidget* pParent, bool bShowButtons = true);
   ~ezQtImageWidget();
 
   void SetImage(QPixmap pixmap);

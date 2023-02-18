@@ -35,22 +35,22 @@ void ezParticleBehaviorFactory_FadeOut::CopyBehaviorProperties(ezParticleBehavio
   pBehavior->m_fExponent = m_fExponent;
 }
 
-void ezParticleBehaviorFactory_FadeOut::Save(ezStreamWriter& stream) const
+void ezParticleBehaviorFactory_FadeOut::Save(ezStreamWriter& inout_stream) const
 {
   const ezUInt8 uiVersion = 1;
-  stream << uiVersion;
+  inout_stream << uiVersion;
 
-  stream << m_fStartAlpha;
-  stream << m_fExponent;
+  inout_stream << m_fStartAlpha;
+  inout_stream << m_fExponent;
 }
 
-void ezParticleBehaviorFactory_FadeOut::Load(ezStreamReader& stream)
+void ezParticleBehaviorFactory_FadeOut::Load(ezStreamReader& inout_stream)
 {
   ezUInt8 uiVersion = 0;
-  stream >> uiVersion;
+  inout_stream >> uiVersion;
 
-  stream >> m_fStartAlpha;
-  stream >> m_fExponent;
+  inout_stream >> m_fStartAlpha;
+  inout_stream >> m_fExponent;
 }
 
 void ezParticleBehavior_FadeOut::CreateRequiredStreams()

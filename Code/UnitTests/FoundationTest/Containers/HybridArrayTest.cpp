@@ -47,9 +47,9 @@ namespace HybridArrayTestDetail
   class NonMovableClass
   {
   public:
-    NonMovableClass(int val)
+    NonMovableClass(int iVal)
     {
-      m_val = val;
+      m_val = iVal;
       m_pVal = &m_val;
     }
 
@@ -83,8 +83,8 @@ namespace HybridArrayTestDetail
 
     ExternalCounter() = default;
 
-    ExternalCounter(int& counter)
-      : m_counter{&counter}
+    ExternalCounter(int& ref_iCounter)
+      : m_counter{&ref_iCounter}
     {
     }
 
@@ -98,7 +98,7 @@ namespace HybridArrayTestDetail
   };
 } // namespace HybridArrayTestDetail
 
-static void TakesDynamicArray(ezDynamicArray<int>& ar, int num, int start);
+static void TakesDynamicArray(ezDynamicArray<int>& ref_ar, int iNum, int iStart);
 
 #if EZ_ENABLED(EZ_PLATFORM_64BIT)
 static_assert(sizeof(ezHybridArray<ezInt32, 1>) == 32);
@@ -1150,10 +1150,10 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
   }
 }
 
-void TakesDynamicArray(ezDynamicArray<int>& ar, int num, int start)
+void TakesDynamicArray(ezDynamicArray<int>& ref_ar, int iNum, int iStart)
 {
-  for (int i = 0; i < num; ++i)
+  for (int i = 0; i < iNum; ++i)
   {
-    ar.PushBack(start + i);
+    ref_ar.PushBack(iStart + i);
   }
 }

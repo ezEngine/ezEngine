@@ -41,7 +41,7 @@ public:
   // ezAnimGraphNode
 
   const char* GetCustomNodeTitle() const { return m_sCustomNodeTitle.GetString(); }
-  void SetCustomNodeTitle(const char* sz) { m_sCustomNodeTitle.Assign(sz); }
+  void SetCustomNodeTitle(const char* szSz) { m_sCustomNodeTitle.Assign(szSz); }
 
 protected:
   friend class ezAnimGraph;
@@ -88,7 +88,7 @@ struct EZ_RENDERERCORE_DLL ezAnimState
   ezTime m_DurationOfQueued;
 
   bool WillStateBeOff(bool bTriggerActive) const;
-  void UpdateState(ezTime tDiff);
+  void UpdateState(ezTime diff);
   State GetCurrentState() const { return m_State; }
   float GetWeight() const { return m_fCurWeight; }
   float GetNormalizedPlaybackPosition() const { return m_fNormalizedPlaybackPosition; }
@@ -97,8 +97,8 @@ struct EZ_RENDERERCORE_DLL ezAnimState
   bool HasLoopedEnd() const { return m_bHasLoopedEnd; }
   float GetFinalSpeed() const { return m_fPlaybackSpeed * m_fPlaybackSpeedFactor; }
 
-  ezResult Serialize(ezStreamWriter& stream) const;
-  ezResult Deserialize(ezStreamReader& stream);
+  ezResult Serialize(ezStreamWriter& inout_stream) const;
+  ezResult Deserialize(ezStreamReader& inout_stream);
 
 private:
   void RampWeightUpOrDown(float& inout_fWeight, float fTargetWeight, ezTime tDiff) const;

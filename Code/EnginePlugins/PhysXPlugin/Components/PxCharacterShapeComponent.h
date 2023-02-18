@@ -26,7 +26,7 @@ struct ezPxCharacterShapeCollisionFlags
     StorageType Below : 1;
   };
 
-  static ezBitflags<ezPxCharacterShapeCollisionFlags> FromPxFlags(ezUInt32 pxFlags);
+  static ezBitflags<ezPxCharacterShapeCollisionFlags> FromPxFlags(ezUInt32 uiFlags);
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_PHYSXPLUGIN_DLL, ezPxCharacterShapeCollisionFlags);
@@ -39,8 +39,8 @@ class EZ_PHYSXPLUGIN_DLL ezPxCharacterShapeComponent : public ezPxComponent
   // ezComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
 protected:
   virtual void OnActivated() override;

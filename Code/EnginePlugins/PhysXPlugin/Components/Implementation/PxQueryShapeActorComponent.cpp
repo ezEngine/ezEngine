@@ -50,15 +50,15 @@ EZ_END_COMPONENT_TYPE
 ezPxQueryShapeActorComponent::ezPxQueryShapeActorComponent() = default;
 ezPxQueryShapeActorComponent::~ezPxQueryShapeActorComponent() = default;
 
-void ezPxQueryShapeActorComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezPxQueryShapeActorComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
   //auto& s = stream.GetStream();
 }
 
-void ezPxQueryShapeActorComponent::DeserializeComponent(ezWorldReader& stream)
+void ezPxQueryShapeActorComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
+  SUPER::DeserializeComponent(inout_stream);
   //const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   //auto& s = stream.GetStream();
 }

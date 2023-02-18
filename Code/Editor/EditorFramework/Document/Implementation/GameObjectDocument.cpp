@@ -236,7 +236,7 @@ void ezGameObjectDocument::SetGizmoMoveParentOnly(bool bMoveParent)
   ShowDocumentStatus(ezFmt("Move Parent Only: {}", m_bGizmoMoveParentOnly ? "ON" : "OFF"));
 }
 
-void ezGameObjectDocument::DetermineNodeName(const ezDocumentObject* pObject, const ezUuid& prefabGuid, ezStringBuilder& out_Result, QIcon* out_pIcon /*= nullptr*/) const
+void ezGameObjectDocument::DetermineNodeName(const ezDocumentObject* pObject, const ezUuid& prefabGuid, ezStringBuilder& out_sResult, QIcon* out_pIcon /*= nullptr*/) const
 {
   // tries to find a good name for a node by looking at the attached components and their properties
 
@@ -251,10 +251,10 @@ void ezGameObjectDocument::DetermineNodeName(const ezDocumentObject* pObject, co
       ezStringBuilder sPath = pInfo->m_pAssetInfo->m_sDataDirParentRelativePath;
       sPath = sPath.GetFileName();
 
-      out_Result.Set("Prefab: ", sPath);
+      out_sResult.Set("Prefab: ", sPath);
     }
     else
-      out_Result = "Prefab: Invalid Asset";
+      out_sResult = "Prefab: Invalid Asset";
   }
 
   const bool bHasChildren = pObject->GetTypeAccessor().GetCount("Children") > 0;
@@ -275,20 +275,20 @@ void ezGameObjectDocument::DetermineNodeName(const ezDocumentObject* pObject, co
       *out_pIcon = ezQtUiServices::GetCachedIconResource(sIconName.GetData());
     }
 
-    if (out_Result.IsEmpty())
+    if (out_sResult.IsEmpty())
     {
       // try to translate the component name, that will typically make it a nice clean name already
-      out_Result = ezTranslate(pChild->GetTypeAccessor().GetType()->GetTypeName());
+      out_sResult = ezTranslate(pChild->GetTypeAccessor().GetType()->GetTypeName());
 
       // if no translation is available, clean up the component name in a simple way
-      if (out_Result.EndsWith_NoCase("Component"))
-        out_Result.Shrink(0, 9);
-      if (out_Result.StartsWith("ez"))
-        out_Result.Shrink(2, 0);
+      if (out_sResult.EndsWith_NoCase("Component"))
+        out_sResult.Shrink(0, 9);
+      if (out_sResult.StartsWith("ez"))
+        out_sResult.Shrink(2, 0);
 
       if (auto pInDev = pChild->GetTypeAccessor().GetType()->GetAttributeByType<ezInDevelopmentAttribute>())
       {
-        out_Result.AppendFormat(" [ {} ]", pInDev->GetString());
+        out_sResult.AppendFormat(" [ {} ]", pInDev->GetString());
       }
     }
 
@@ -335,25 +335,25 @@ void ezGameObjectDocument::DetermineNodeName(const ezDocumentObject* pObject, co
         sValue = sValue.GetFileName();
 
         if (!sValue.IsEmpty())
-          out_Result.Append(": ", sValue);
+          out_sResult.Append(": ", sValue);
 
         return;
       }
     }
   }
 
-  if (!out_Result.IsEmpty())
+  if (!out_sResult.IsEmpty())
     return;
 
   if (bHasChildren)
-    out_Result = "Group";
+    out_sResult = "Group";
   else
-    out_Result = "Object";
+    out_sResult = "Object";
 }
 
 
 void ezGameObjectDocument::QueryCachedNodeName(
-  const ezDocumentObject* pObject, ezStringBuilder& out_Result, ezUuid* out_pPrefabGuid, QIcon* out_pIcon /*= nullptr*/) const
+  const ezDocumentObject* pObject, ezStringBuilder& out_sResult, ezUuid* out_pPrefabGuid, QIcon* out_pIcon /*= nullptr*/) const
 {
   auto pMetaScene = m_GameObjectMetaData->BeginReadMetaData(pObject->GetGuid());
   auto pMetaDoc = m_DocumentObjectMetaData->BeginReadMetaData(pObject->GetGuid());
@@ -362,27 +362,27 @@ void ezGameObjectDocument::QueryCachedNodeName(
   if (out_pPrefabGuid != nullptr)
     *out_pPrefabGuid = prefabGuid;
 
-  out_Result = pMetaScene->m_CachedNodeName;
+  out_sResult = pMetaScene->m_CachedNodeName;
   if (out_pIcon)
     *out_pIcon = pMetaScene->m_Icon;
   m_GameObjectMetaData->EndReadMetaData();
   m_DocumentObjectMetaData->EndReadMetaData();
 
-  if (out_Result.IsEmpty())
+  if (out_sResult.IsEmpty())
   {
     // the cached node name is only determined once
     // after that only a node rename (EditRole) will currently trigger a cache cleaning and thus a reevaluation
     // this is to prevent excessive re-computation of the name, which is quite involved
 
     QIcon icon;
-    DetermineNodeName(pObject, prefabGuid, out_Result, &icon);
+    DetermineNodeName(pObject, prefabGuid, out_sResult, &icon);
     ezString sNodeName = pObject->GetTypeAccessor().GetValue("Name").ConvertTo<ezString>();
     if (!sNodeName.IsEmpty())
     {
-      out_Result = sNodeName;
+      out_sResult = sNodeName;
     }
     auto pMetaWrite = m_GameObjectMetaData->BeginModifyMetaData(pObject->GetGuid());
-    pMetaWrite->m_CachedNodeName = out_Result;
+    pMetaWrite->m_CachedNodeName = out_sResult;
     pMetaWrite->m_Icon = icon;
     m_GameObjectMetaData->EndModifyMetaData(0); // no need to broadcast this change
 
@@ -418,7 +418,7 @@ ezTransform ezGameObjectDocument::GetGlobalTransform(const ezDocumentObject* pOb
   return ezSimdConversion::ToTransform(m_GlobalTransforms[pObject]);
 }
 
-void ezGameObjectDocument::SetGlobalTransform(const ezDocumentObject* pObject, const ezTransform& t, ezUInt8 transformationChanges) const
+void ezGameObjectDocument::SetGlobalTransform(const ezDocumentObject* pObject, const ezTransform& t, ezUInt8 uiTransformationChanges) const
 {
   ezObjectAccessorBase* pAccessor = GetObjectAccessor();
   auto pHistory = GetCommandHistory();
@@ -466,25 +466,25 @@ void ezGameObjectDocument::SetGlobalTransform(const ezDocumentObject* pObject, c
   // position it does NOT mean that there is no change, in fact there is a change, just back to the original value
 
   // if (pObject->GetTypeAccessor().GetValue("LocalPosition").ConvertTo<ezVec3>() != vLocalPos)
-  if ((transformationChanges & TransformationChanges::Translation) != 0)
+  if ((uiTransformationChanges & TransformationChanges::Translation) != 0)
   {
     pAccessor->SetValue(pObject, "LocalPosition", vLocalPos).LogFailure();
   }
 
   // if (pObject->GetTypeAccessor().GetValue("LocalRotation").ConvertTo<ezQuat>() != qLocalRot)
-  if ((transformationChanges & TransformationChanges::Rotation) != 0)
+  if ((uiTransformationChanges & TransformationChanges::Rotation) != 0)
   {
     pAccessor->SetValue(pObject, "LocalRotation", qLocalRot).LogFailure();
   }
 
   // if (pObject->GetTypeAccessor().GetValue("LocalScaling").ConvertTo<ezVec3>() != vLocalScale)
-  if ((transformationChanges & TransformationChanges::Scale) != 0)
+  if ((uiTransformationChanges & TransformationChanges::Scale) != 0)
   {
     pAccessor->SetValue(pObject, "LocalScaling", vLocalScale).LogFailure();
   }
 
   // if (pObject->GetTypeAccessor().GetValue("LocalUniformScaling").ConvertTo<float>() != fUniformScale)
-  if ((transformationChanges & TransformationChanges::UniformScale) != 0)
+  if ((uiTransformationChanges & TransformationChanges::UniformScale) != 0)
   {
     pAccessor->SetValue(pObject, "LocalUniformScaling", fUniformScale).LogFailure();
   }
@@ -493,7 +493,7 @@ void ezGameObjectDocument::SetGlobalTransform(const ezDocumentObject* pObject, c
   InvalidateGlobalTransformValue(pObject);
 }
 
-void ezGameObjectDocument::SetGlobalTransformParentOnly(const ezDocumentObject* pObject, const ezTransform& t, ezUInt8 transformationChanges) const
+void ezGameObjectDocument::SetGlobalTransformParentOnly(const ezDocumentObject* pObject, const ezTransform& t, ezUInt8 uiTransformationChanges) const
 {
   ezHybridArray<ezTransform, 16> childTransforms;
   const auto& children = pObject->GetChildren();
@@ -506,7 +506,7 @@ void ezGameObjectDocument::SetGlobalTransformParentOnly(const ezDocumentObject* 
     childTransforms[i] = GetGlobalTransform(pChild);
   }
 
-  SetGlobalTransform(pObject, t, transformationChanges);
+  SetGlobalTransform(pObject, t, uiTransformationChanges);
 
   for (ezUInt32 i = 0; i < children.GetCount(); ++i)
   {
@@ -528,7 +528,7 @@ void ezGameObjectDocument::InvalidateGlobalTransformValue(const ezDocumentObject
   }
 }
 
-ezResult ezGameObjectDocument::ComputeObjectTransformation(const ezDocumentObject* pObject, ezTransform& out_Result) const
+ezResult ezGameObjectDocument::ComputeObjectTransformation(const ezDocumentObject* pObject, ezTransform& out_result) const
 {
   const ezDocumentObject* pObj = pObject;
 
@@ -539,12 +539,12 @@ ezResult ezGameObjectDocument::ComputeObjectTransformation(const ezDocumentObjec
 
   if (pObj)
   {
-    out_Result = ComputeGlobalTransform(pObj);
+    out_result = ComputeGlobalTransform(pObj);
     return EZ_SUCCESS;
   }
   else
   {
-    out_Result.SetIdentity();
+    out_result.SetIdentity();
     return EZ_FAILURE;
   }
 }
@@ -1032,12 +1032,12 @@ ezTransform ezGameObjectDocument::ComputeGlobalTransform(const ezDocumentObject*
   return ezSimdConversion::ToTransform(tGlobal);
 }
 
-void ezGameObjectDocument::ComputeTopLevelSelectedGameObjects(ezDeque<ezSelectedGameObject>& out_Selection)
+void ezGameObjectDocument::ComputeTopLevelSelectedGameObjects(ezDeque<ezSelectedGameObject>& out_selection)
 {
   // Get the list of all objects that are manipulated
   // and store their original transformation
 
-  out_Selection.Clear();
+  out_selection.Clear();
 
   auto hType = ezGetStaticRTTI<ezGameObject>();
 
@@ -1053,7 +1053,7 @@ void ezGameObjectDocument::ComputeTopLevelSelectedGameObjects(ezDeque<ezSelected
     if (pSelMan->IsParentSelected(Selection[sel]))
       continue;
 
-    ezSelectedGameObject& sgo = out_Selection.ExpandAndGetRef();
+    ezSelectedGameObject& sgo = out_selection.ExpandAndGetRef();
     sgo.m_pObject = Selection[sel];
     sgo.m_GlobalTransform = GetGlobalTransform(sgo.m_pObject);
     sgo.m_vLocalScaling = Selection[sel]->GetTypeAccessor().GetValue("LocalScaling").ConvertTo<ezVec3>();

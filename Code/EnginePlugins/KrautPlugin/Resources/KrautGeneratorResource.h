@@ -41,8 +41,8 @@ struct EZ_KRAUTPLUGIN_DLL ezKrautGeneratorResourceDescriptor
   ezUInt16 m_uiDefaultDisplaySeed = 0;
   ezHybridArray<ezUInt16, 16> m_GoodRandomSeeds;
 
-  ezResult Serialize(ezStreamWriter& stream) const;
-  ezResult Deserialize(ezStreamReader& stream);
+  ezResult Serialize(ezStreamWriter& inout_stream) const;
+  ezResult Deserialize(ezStreamReader& inout_stream);
 };
 
 class EZ_KRAUTPLUGIN_DLL ezKrautGeneratorResource : public ezResource
@@ -56,7 +56,7 @@ public:
   ezKrautTreeResourceHandle GenerateTree(ezUInt32 uiRandomSeed) const;
   ezKrautTreeResourceHandle GenerateTreeWithGoodSeed(ezUInt16 uiGoodSeedIndex) const;
 
-  void GenerateTreeDescriptor(ezKrautTreeResourceDescriptor& dstDesc, ezUInt32 uiRandomSeed) const;
+  void GenerateTreeDescriptor(ezKrautTreeResourceDescriptor& ref_dstDesc, ezUInt32 uiRandomSeed) const;
 
 private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;

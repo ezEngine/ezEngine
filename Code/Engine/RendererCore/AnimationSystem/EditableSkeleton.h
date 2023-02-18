@@ -53,7 +53,7 @@ public:
   ~ezEditableSkeletonJoint();
 
   const char* GetName() const;
-  void SetName(const char* sz);
+  void SetName(const char* szSz);
 
   void ClearJoints();
 
@@ -90,10 +90,10 @@ public:
   ~ezEditableSkeleton();
 
   void ClearJoints();
-  void FillResourceDescriptor(ezSkeletonResourceDescriptor& desc) const;
-  void GenerateRawOzzSkeleton(ozz::animation::offline::RawSkeleton& out_Skeleton) const;
-  void GenerateOzzSkeleton(ozz::animation::Skeleton& out_Skeleton) const;
-  void CreateJointsRecursive(ezSkeletonBuilder& sb, ezSkeletonResourceDescriptor& desc, const ezEditableSkeletonJoint* pParentJoint, const ezEditableSkeletonJoint* pThisJoint, ezUInt16 uiThisJointIdx, const ezQuat& qParentAccuRot, const ezMat4& rootTransform) const;
+  void FillResourceDescriptor(ezSkeletonResourceDescriptor& ref_desc) const;
+  void GenerateRawOzzSkeleton(ozz::animation::offline::RawSkeleton& out_skeleton) const;
+  void GenerateOzzSkeleton(ozz::animation::Skeleton& out_skeleton) const;
+  void CreateJointsRecursive(ezSkeletonBuilder& ref_sb, ezSkeletonResourceDescriptor& ref_desc, const ezEditableSkeletonJoint* pParentJoint, const ezEditableSkeletonJoint* pThisJoint, ezUInt16 uiThisJointIdx, const ezQuat& qParentAccuRot, const ezMat4& mRootTransform) const;
 
   ezString m_sSourceFile;
   ezString m_sSurfaceFile;
@@ -119,8 +119,8 @@ struct EZ_RENDERERCORE_DLL ezExposedBone
 
 EZ_DECLARE_CUSTOM_VARIANT_TYPE(ezExposedBone);
 
-EZ_RENDERERCORE_DLL void operator<<(ezStreamWriter& stream, const ezExposedBone& bone);
-EZ_RENDERERCORE_DLL void operator>>(ezStreamReader& stream, ezExposedBone& bone);
+EZ_RENDERERCORE_DLL void operator<<(ezStreamWriter& inout_stream, const ezExposedBone& bone);
+EZ_RENDERERCORE_DLL void operator>>(ezStreamReader& inout_stream, ezExposedBone& ref_bone);
 EZ_RENDERERCORE_DLL bool operator==(const ezExposedBone& lhs, const ezExposedBone& rhs);
 
 template <>

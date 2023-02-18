@@ -42,9 +42,9 @@ void ezGlobalLog::RemoveLogWriter(ezLoggingEvent::Handler handler)
   s_LoggingEvent.RemoveEventHandler(handler);
 }
 
-void ezGlobalLog::RemoveLogWriter(ezEventSubscriptionID& subscriptionID)
+void ezGlobalLog::RemoveLogWriter(ezEventSubscriptionID& ref_subscriptionID)
 {
-  s_LoggingEvent.RemoveEventHandler(subscriptionID);
+  s_LoggingEvent.RemoveEventHandler(ref_subscriptionID);
 }
 
 void ezGlobalLog::SetGlobalLogOverride(ezLogInterface* pInterface)
@@ -293,7 +293,7 @@ void ezLog::OsMessageBox(const ezFormatString& text)
 #endif
 }
 
-void ezLog::GenerateFormattedTimestamp(TimestampMode mode, ezStringBuilder& sTimestampOut)
+void ezLog::GenerateFormattedTimestamp(TimestampMode mode, ezStringBuilder& ref_sTimestampOut)
 {
   // if mode is 'None', early out to not even retrieve a timestamp
   if (mode == TimestampMode::None)
@@ -306,13 +306,13 @@ void ezLog::GenerateFormattedTimestamp(TimestampMode mode, ezStringBuilder& sTim
   switch (mode)
   {
     case TimestampMode::Numeric:
-      sTimestampOut.Format("[{}] ", ezArgDateTime(dateTime, ezArgDateTime::ShowDate | ezArgDateTime::ShowMilliseconds | ezArgDateTime::ShowTimeZone));
+      ref_sTimestampOut.Format("[{}] ", ezArgDateTime(dateTime, ezArgDateTime::ShowDate | ezArgDateTime::ShowMilliseconds | ezArgDateTime::ShowTimeZone));
       break;
     case TimestampMode::TimeOnly:
-      sTimestampOut.Format("[{}] ", ezArgDateTime(dateTime, ezArgDateTime::ShowMilliseconds));
+      ref_sTimestampOut.Format("[{}] ", ezArgDateTime(dateTime, ezArgDateTime::ShowMilliseconds));
       break;
     case TimestampMode::Textual:
-      sTimestampOut.Format(
+      ref_sTimestampOut.Format(
         "[{}] ", ezArgDateTime(dateTime, ezArgDateTime::TextualDate | ezArgDateTime::ShowMilliseconds | ezArgDateTime::ShowTimeZone));
       break;
     default:
@@ -340,11 +340,11 @@ ezLogInterface* ezLog::GetThreadLocalLogSystem()
   return s_DefaultLogSystem;
 }
 
-void ezLog::SetDefaultLogLevel(ezLogMsgType::Enum LogLevel)
+void ezLog::SetDefaultLogLevel(ezLogMsgType::Enum logLevel)
 {
-  EZ_ASSERT_DEV(LogLevel >= ezLogMsgType::None && LogLevel <= ezLogMsgType::All, "Invalid default log level {}", (int)LogLevel);
+  EZ_ASSERT_DEV(logLevel >= ezLogMsgType::None && logLevel <= ezLogMsgType::All, "Invalid default log level {}", (int)logLevel);
 
-  s_DefaultLogLevel = LogLevel;
+  s_DefaultLogLevel = logLevel;
 }
 
 ezLogMsgType::Enum ezLog::GetDefaultLogLevel()

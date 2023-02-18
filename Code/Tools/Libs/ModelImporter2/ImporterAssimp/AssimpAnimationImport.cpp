@@ -10,34 +10,34 @@
 
 namespace ezModelImporter2
 {
-  EZ_FORCE_INLINE void ai2ozz(const aiVector3D& in, ozz::math::Float3& out)
+  EZ_FORCE_INLINE void ai2ozz(const aiVector3D& in, ozz::math::Float3& ref_out)
   {
-    out.x = (float)in.x;
-    out.y = (float)in.y;
-    out.z = (float)in.z;
+    ref_out.x = (float)in.x;
+    ref_out.y = (float)in.y;
+    ref_out.z = (float)in.z;
   }
 
-  EZ_FORCE_INLINE void ai2ozz(const aiQuaternion& in, ozz::math::Quaternion& out)
+  EZ_FORCE_INLINE void ai2ozz(const aiQuaternion& in, ozz::math::Quaternion& ref_out)
   {
-    out.x = (float)in.x;
-    out.y = (float)in.y;
-    out.z = (float)in.z;
-    out.w = (float)in.w;
+    ref_out.x = (float)in.x;
+    ref_out.y = (float)in.y;
+    ref_out.z = (float)in.z;
+    ref_out.w = (float)in.w;
   }
 
-  EZ_FORCE_INLINE void ozz2ez(const ozz::math::Float3& in, ezVec3& out)
+  EZ_FORCE_INLINE void ozz2ez(const ozz::math::Float3& in, ezVec3& ref_vOut)
   {
-    out.x = (float)in.x;
-    out.y = (float)in.y;
-    out.z = (float)in.z;
+    ref_vOut.x = (float)in.x;
+    ref_vOut.y = (float)in.y;
+    ref_vOut.z = (float)in.z;
   }
 
-  EZ_FORCE_INLINE void ozz2ez(const ozz::math::Quaternion& in, ezQuat& out)
+  EZ_FORCE_INLINE void ozz2ez(const ozz::math::Quaternion& in, ezQuat& ref_qOut)
   {
-    out.v.x = (float)in.x;
-    out.v.y = (float)in.y;
-    out.v.z = (float)in.z;
-    out.w = (float)in.w;
+    ref_qOut.v.x = (float)in.x;
+    ref_qOut.v.y = (float)in.y;
+    ref_qOut.v.z = (float)in.z;
+    ref_qOut.w = (float)in.w;
   }
 
   ezResult ImporterAssimp::ImportAnimations()

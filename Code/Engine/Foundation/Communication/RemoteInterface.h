@@ -170,7 +170,7 @@ public:
   /// \brief Sends an ezRemoteMessage
   /// If it is a server, the message is broadcast to all clients.
   /// If it is a client, the message is only sent to the server.
-  void Send(ezRemoteTransmitMode tm, ezRemoteMessage& msg);
+  void Send(ezRemoteTransmitMode tm, ezRemoteMessage& ref_msg);
 
   ///@}
 

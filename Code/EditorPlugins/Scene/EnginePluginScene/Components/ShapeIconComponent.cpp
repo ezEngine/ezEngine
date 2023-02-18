@@ -24,11 +24,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneExportModifier_RemoveShapeIconComponents,
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezSceneExportModifier_RemoveShapeIconComponents::ModifyWorld(ezWorld& world, const ezUuid& documentGuid, bool bForExport)
+void ezSceneExportModifier_RemoveShapeIconComponents::ModifyWorld(ezWorld& ref_world, const ezUuid& documentGuid, bool bForExport)
 {
-  EZ_LOCK(world.GetWriteMarker());
+  EZ_LOCK(ref_world.GetWriteMarker());
 
-  if (ezShapeIconComponentManager* pSiMan = world.GetComponentManager<ezShapeIconComponentManager>())
+  if (ezShapeIconComponentManager* pSiMan = ref_world.GetComponentManager<ezShapeIconComponentManager>())
   {
     for (auto it = pSiMan->GetComponents(); it.IsValid(); it.Next())
     {

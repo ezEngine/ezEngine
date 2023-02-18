@@ -119,7 +119,7 @@ public:
 
   /// \brief Moves \a uiCount objects in \a pDestination by \a uiSourceCount objects and copies \a source to the free space.
   template <typename T>
-  static void Prepend(T* pDestination, const T* source, size_t uiSourceCount, size_t uiCount);
+  static void Prepend(T* pDestination, const T* pSource, size_t uiSourceCount, size_t uiCount);
 
   /// \brief Tests if objects of type T from \a pSource and \a pDestination are equal.
   template <typename T>
@@ -153,15 +153,15 @@ public:
   /// This is useful when working with raw memory, to safely modify a pointer without having to take care of the
   /// details of pointer arithmetic.
   template <typename T>
-  static T* AddByteOffset(T* ptr, ptrdiff_t iOffset); // [tested]
+  static T* AddByteOffset(T* pPtr, ptrdiff_t iOffset); // [tested]
 
   /// \brief Aligns the pointer \a ptr by moving its address backwards to the previous multiple of \a uiAlignment.
   template <typename T>
-  static T* AlignBackwards(T* ptr, size_t uiAlignment); // [tested]
+  static T* AlignBackwards(T* pPtr, size_t uiAlignment); // [tested]
 
   /// \brief Aligns the pointer \a ptr by moving its address forwards to the next multiple of \a uiAlignment.
   template <typename T>
-  static T* AlignForwards(T* ptr, size_t uiAlignment); // [tested]
+  static T* AlignForwards(T* pPtr, size_t uiAlignment); // [tested]
 
   /// \brief Aligns the given size \a uiSize by rounding up to the next multiple of the size.
   template <typename T>
@@ -169,7 +169,7 @@ public:
 
   /// \brief Checks whether \a ptr is aligned to a memory address that is a multiple of \a uiAlignment.
   template <typename T>
-  static bool IsAligned(const T* ptr, size_t uiAlignment); // [tested]
+  static bool IsAligned(const T* pPtr, size_t uiAlignment); // [tested]
 
   /// \brief Checks whether the given size is aligned.
   template <typename T>

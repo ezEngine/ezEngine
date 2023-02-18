@@ -28,22 +28,22 @@ bool ezAssetDocumentGenerator::SupportsFileType(const char* szFile) const
   return m_SupportedFileTypes.Contains(tmp);
 }
 
-void ezAssetDocumentGenerator::BuildFileDialogFilterString(ezStringBuilder& out_Filter) const
+void ezAssetDocumentGenerator::BuildFileDialogFilterString(ezStringBuilder& out_sFilter) const
 {
   bool semicolon = false;
-  out_Filter.Format("{0} (", GetDocumentExtension());
-  AppendFileFilterStrings(out_Filter, semicolon);
-  out_Filter.Append(")");
+  out_sFilter.Format("{0} (", GetDocumentExtension());
+  AppendFileFilterStrings(out_sFilter, semicolon);
+  out_sFilter.Append(")");
 }
 
-void ezAssetDocumentGenerator::AppendFileFilterStrings(ezStringBuilder& out_Filter, bool& semicolon) const
+void ezAssetDocumentGenerator::AppendFileFilterStrings(ezStringBuilder& out_sFilter, bool& ref_bSemicolon) const
 {
   for (const ezString ext : m_SupportedFileTypes)
   {
     ezStringBuilder extWithStarDot;
     extWithStarDot.AppendFormat("*.{0}", ext);
 
-    if (const char* pos = out_Filter.FindSubString(extWithStarDot.GetData()))
+    if (const char* pos = out_sFilter.FindSubString(extWithStarDot.GetData()))
     {
       const char afterExt = *(pos + extWithStarDot.GetElementCount());
 
@@ -51,14 +51,14 @@ void ezAssetDocumentGenerator::AppendFileFilterStrings(ezStringBuilder& out_Filt
         continue;
     }
 
-    if (semicolon)
+    if (ref_bSemicolon)
     {
-      out_Filter.AppendFormat("; {0}", extWithStarDot.GetView());
+      out_sFilter.AppendFormat("; {0}", extWithStarDot.GetView());
     }
     else
     {
-      out_Filter.Append(extWithStarDot.GetView());
-      semicolon = true;
+      out_sFilter.Append(extWithStarDot.GetView());
+      ref_bSemicolon = true;
     }
   }
 }
@@ -90,9 +90,9 @@ void ezAssetDocumentGenerator::DestroyGenerators(ezHybridArray<ezAssetDocumentGe
 }
 
 
-void ezAssetDocumentGenerator::ExecuteImport(ezDynamicArray<ImportData>& allImports)
+void ezAssetDocumentGenerator::ExecuteImport(ezDynamicArray<ImportData>& ref_allImports)
 {
-  for (auto& data : allImports)
+  for (auto& data : ref_allImports)
   {
     if (data.m_iSelectedOption < 0)
       continue;

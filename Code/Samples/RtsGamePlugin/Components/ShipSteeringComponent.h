@@ -25,8 +25,8 @@ public:
   //////////////////////////////////////////////////////////////////////////
   // ezComponent interface
 
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
   //////////////////////////////////////////////////////////////////////////
   // Properties
@@ -39,8 +39,8 @@ public:
   //////////////////////////////////////////////////////////////////////////
   // Message Handlers
 public:
-  void OnMsgNavigateTo(RtsMsgNavigateTo& msg);
-  void OnMsgStopNavigation(RtsMsgStopNavigation& msg);
+  void OnMsgNavigateTo(RtsMsgNavigateTo& ref_msg);
+  void OnMsgStopNavigation(RtsMsgStopNavigation& ref_msg);
 
   //////////////////////////////////////////////////////////////////////////
   //

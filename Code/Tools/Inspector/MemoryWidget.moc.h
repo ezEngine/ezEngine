@@ -21,7 +21,7 @@ public:
 public:
   static const ezUInt8 s_uiMaxColors = 9;
 
-  ezQtMemoryWidget(QWidget* parent = 0);
+  ezQtMemoryWidget(QWidget* pParent = 0);
 
   static ezQtMemoryWidget* s_pWidget;
 

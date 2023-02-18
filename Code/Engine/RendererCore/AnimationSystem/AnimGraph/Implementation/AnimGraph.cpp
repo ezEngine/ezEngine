@@ -12,14 +12,14 @@ ezHashTable<ezString, ezSharedPtr<ezAnimGraphSharedBoneWeights>> ezAnimGraph::s_
 ezAnimGraph::ezAnimGraph() = default;
 ezAnimGraph::~ezAnimGraph() = default;
 
-void ezAnimGraph::Configure(const ezSkeletonResourceHandle& hSkeleton, ezAnimPoseGenerator& poseGenerator, const ezSharedPtr<ezBlackboard>& pBlackboard /*= nullptr*/)
+void ezAnimGraph::Configure(const ezSkeletonResourceHandle& hSkeleton, ezAnimPoseGenerator& ref_poseGenerator, const ezSharedPtr<ezBlackboard>& pBlackboard /*= nullptr*/)
 {
   m_hSkeleton = hSkeleton;
-  m_pPoseGenerator = &poseGenerator;
+  m_pPoseGenerator = &ref_poseGenerator;
   m_pBlackboard = pBlackboard;
 }
 
-void ezAnimGraph::Update(ezTime tDiff, ezGameObject* pTarget)
+void ezAnimGraph::Update(ezTime diff, ezGameObject* pTarget)
 {
   if (!m_hSkeleton.IsValid())
     return;
@@ -74,7 +74,7 @@ void ezAnimGraph::Update(ezTime tDiff, ezGameObject* pTarget)
 
   for (const auto& pNode : m_Nodes)
   {
-    pNode->Step(*this, tDiff, pSkeleton.GetPointer(), pTarget);
+    pNode->Step(*this, diff, pSkeleton.GetPointer(), pTarget);
   }
 
   if (auto newPose = GetPoseGenerator().GeneratePose(pTarget); !newPose.IsEmpty())
@@ -88,73 +88,73 @@ void ezAnimGraph::Update(ezTime tDiff, ezGameObject* pTarget)
   }
 }
 
-void ezAnimGraph::GetRootMotion(ezVec3& translation, ezAngle& rotationX, ezAngle& rotationY, ezAngle& rotationZ) const
+void ezAnimGraph::GetRootMotion(ezVec3& ref_vTranslation, ezAngle& ref_rotationX, ezAngle& ref_rotationY, ezAngle& ref_rotationZ) const
 {
-  translation = m_vRootMotion;
-  rotationX = m_RootRotationX;
-  rotationY = m_RootRotationY;
-  rotationZ = m_RootRotationZ;
+  ref_vTranslation = m_vRootMotion;
+  ref_rotationX = m_RootRotationX;
+  ref_rotationY = m_RootRotationY;
+  ref_rotationZ = m_RootRotationZ;
 }
 
-ezResult ezAnimGraph::Serialize(ezStreamWriter& stream) const
+ezResult ezAnimGraph::Serialize(ezStreamWriter& inout_stream) const
 {
-  stream.WriteVersion(5);
+  inout_stream.WriteVersion(5);
 
   const ezUInt32 uiNumNodes = m_Nodes.GetCount();
-  stream << uiNumNodes;
+  inout_stream << uiNumNodes;
 
   for (const auto& node : m_Nodes)
   {
-    stream << node->GetDynamicRTTI()->GetTypeName();
+    inout_stream << node->GetDynamicRTTI()->GetTypeName();
 
-    EZ_SUCCEED_OR_RETURN(node->SerializeNode(stream));
+    EZ_SUCCEED_OR_RETURN(node->SerializeNode(inout_stream));
   }
 
-  stream << m_hSkeleton;
+  inout_stream << m_hSkeleton;
 
   {
-    EZ_SUCCEED_OR_RETURN(stream.WriteArray(m_TriggerInputPinStates));
+    EZ_SUCCEED_OR_RETURN(inout_stream.WriteArray(m_TriggerInputPinStates));
 
-    stream << m_OutputPinToInputPinMapping[ezAnimGraphPin::Trigger].GetCount();
+    inout_stream << m_OutputPinToInputPinMapping[ezAnimGraphPin::Trigger].GetCount();
     for (const auto& ar : m_OutputPinToInputPinMapping[ezAnimGraphPin::Trigger])
     {
-      EZ_SUCCEED_OR_RETURN(stream.WriteArray(ar));
+      EZ_SUCCEED_OR_RETURN(inout_stream.WriteArray(ar));
     }
   }
   {
-    EZ_SUCCEED_OR_RETURN(stream.WriteArray(m_NumberInputPinStates));
+    EZ_SUCCEED_OR_RETURN(inout_stream.WriteArray(m_NumberInputPinStates));
 
-    stream << m_OutputPinToInputPinMapping[ezAnimGraphPin::Number].GetCount();
+    inout_stream << m_OutputPinToInputPinMapping[ezAnimGraphPin::Number].GetCount();
     for (const auto& ar : m_OutputPinToInputPinMapping[ezAnimGraphPin::Number])
     {
-      EZ_SUCCEED_OR_RETURN(stream.WriteArray(ar));
+      EZ_SUCCEED_OR_RETURN(inout_stream.WriteArray(ar));
     }
   }
   {
-    stream << m_BoneWeightInputPinStates.GetCount();
+    inout_stream << m_BoneWeightInputPinStates.GetCount();
 
-    stream << m_OutputPinToInputPinMapping[ezAnimGraphPin::BoneWeights].GetCount();
+    inout_stream << m_OutputPinToInputPinMapping[ezAnimGraphPin::BoneWeights].GetCount();
     for (const auto& ar : m_OutputPinToInputPinMapping[ezAnimGraphPin::BoneWeights])
     {
-      EZ_SUCCEED_OR_RETURN(stream.WriteArray(ar));
+      EZ_SUCCEED_OR_RETURN(inout_stream.WriteArray(ar));
     }
   }
   {
-    stream << m_LocalPoseInputPinStates.GetCount();
+    inout_stream << m_LocalPoseInputPinStates.GetCount();
 
-    stream << m_OutputPinToInputPinMapping[ezAnimGraphPin::LocalPose].GetCount();
+    inout_stream << m_OutputPinToInputPinMapping[ezAnimGraphPin::LocalPose].GetCount();
     for (const auto& ar : m_OutputPinToInputPinMapping[ezAnimGraphPin::LocalPose])
     {
-      EZ_SUCCEED_OR_RETURN(stream.WriteArray(ar));
+      EZ_SUCCEED_OR_RETURN(inout_stream.WriteArray(ar));
     }
   }
   {
-    stream << m_ModelPoseInputPinStates.GetCount();
+    inout_stream << m_ModelPoseInputPinStates.GetCount();
 
-    stream << m_OutputPinToInputPinMapping[ezAnimGraphPin::ModelPose].GetCount();
+    inout_stream << m_OutputPinToInputPinMapping[ezAnimGraphPin::ModelPose].GetCount();
     for (const auto& ar : m_OutputPinToInputPinMapping[ezAnimGraphPin::ModelPose])
     {
-      EZ_SUCCEED_OR_RETURN(stream.WriteArray(ar));
+      EZ_SUCCEED_OR_RETURN(inout_stream.WriteArray(ar));
     }
   }
   // EXTEND THIS if a new type is introduced
@@ -162,90 +162,90 @@ ezResult ezAnimGraph::Serialize(ezStreamWriter& stream) const
   return EZ_SUCCESS;
 }
 
-ezResult ezAnimGraph::Deserialize(ezStreamReader& stream)
+ezResult ezAnimGraph::Deserialize(ezStreamReader& inout_stream)
 {
-  const auto uiVersion = stream.ReadVersion(5);
+  const auto uiVersion = inout_stream.ReadVersion(5);
 
   ezUInt32 uiNumNodes = 0;
-  stream >> uiNumNodes;
+  inout_stream >> uiNumNodes;
   m_Nodes.SetCount(uiNumNodes);
 
   ezStringBuilder sTypeName;
 
   for (auto& node : m_Nodes)
   {
-    stream >> sTypeName;
+    inout_stream >> sTypeName;
     node = std::move(ezRTTI::FindTypeByName(sTypeName)->GetAllocator()->Allocate<ezAnimGraphNode>());
 
-    EZ_SUCCEED_OR_RETURN(node->DeserializeNode(stream));
+    EZ_SUCCEED_OR_RETURN(node->DeserializeNode(inout_stream));
   }
 
-  stream >> m_hSkeleton;
+  inout_stream >> m_hSkeleton;
 
   if (uiVersion >= 2)
   {
-    EZ_SUCCEED_OR_RETURN(stream.ReadArray(m_TriggerInputPinStates));
+    EZ_SUCCEED_OR_RETURN(inout_stream.ReadArray(m_TriggerInputPinStates));
 
     ezUInt32 sar = 0;
-    stream >> sar;
+    inout_stream >> sar;
     m_OutputPinToInputPinMapping[ezAnimGraphPin::Trigger].SetCount(sar);
     for (auto& ar : m_OutputPinToInputPinMapping[ezAnimGraphPin::Trigger])
     {
-      EZ_SUCCEED_OR_RETURN(stream.ReadArray(ar));
+      EZ_SUCCEED_OR_RETURN(inout_stream.ReadArray(ar));
     }
   }
   if (uiVersion >= 3)
   {
-    EZ_SUCCEED_OR_RETURN(stream.ReadArray(m_NumberInputPinStates));
+    EZ_SUCCEED_OR_RETURN(inout_stream.ReadArray(m_NumberInputPinStates));
 
     ezUInt32 sar = 0;
-    stream >> sar;
+    inout_stream >> sar;
     m_OutputPinToInputPinMapping[ezAnimGraphPin::Number].SetCount(sar);
     for (auto& ar : m_OutputPinToInputPinMapping[ezAnimGraphPin::Number])
     {
-      EZ_SUCCEED_OR_RETURN(stream.ReadArray(ar));
+      EZ_SUCCEED_OR_RETURN(inout_stream.ReadArray(ar));
     }
   }
   if (uiVersion >= 4)
   {
     ezUInt32 sar = 0;
 
-    stream >> sar;
+    inout_stream >> sar;
     m_BoneWeightInputPinStates.SetCount(sar);
 
-    stream >> sar;
+    inout_stream >> sar;
     m_OutputPinToInputPinMapping[ezAnimGraphPin::BoneWeights].SetCount(sar);
     for (auto& ar : m_OutputPinToInputPinMapping[ezAnimGraphPin::BoneWeights])
     {
-      EZ_SUCCEED_OR_RETURN(stream.ReadArray(ar));
+      EZ_SUCCEED_OR_RETURN(inout_stream.ReadArray(ar));
     }
   }
   if (uiVersion >= 5)
   {
     ezUInt32 sar = 0;
 
-    stream >> sar;
+    inout_stream >> sar;
     m_LocalPoseInputPinStates.SetCount(sar);
 
-    stream >> sar;
+    inout_stream >> sar;
     m_OutputPinToInputPinMapping[ezAnimGraphPin::LocalPose].SetCount(sar);
     for (auto& ar : m_OutputPinToInputPinMapping[ezAnimGraphPin::LocalPose])
     {
-      EZ_SUCCEED_OR_RETURN(stream.ReadArray(ar));
+      EZ_SUCCEED_OR_RETURN(inout_stream.ReadArray(ar));
     }
   }
   if (uiVersion >= 5)
   {
     ezUInt32 sar = 0;
 
-    stream >> sar;
+    inout_stream >> sar;
     m_ModelPoseInputPinStates.SetCount(sar);
 
-    stream >> sar;
+    inout_stream >> sar;
     m_OutputPinToInputPinMapping[ezAnimGraphPin::ModelPose].SetCount(sar);
     for (auto& ar : m_OutputPinToInputPinMapping[ezAnimGraphPin::ModelPose])
     {
-      EZ_SUCCEED_OR_RETURN(stream.ReadArray(ar));
+      EZ_SUCCEED_OR_RETURN(inout_stream.ReadArray(ar));
     }
   }
   // EXTEND THIS if a new type is introduced
@@ -279,9 +279,9 @@ void ezAnimGraph::SetOutputModelTransform(ezAnimGraphPinDataModelTransforms* pMo
   m_pCurrentModelTransforms = pModelTransform;
 }
 
-void ezAnimGraph::SetRootMotion(const ezVec3& translation, ezAngle rotationX, ezAngle rotationY, ezAngle rotationZ)
+void ezAnimGraph::SetRootMotion(const ezVec3& vTranslation, ezAngle rotationX, ezAngle rotationY, ezAngle rotationZ)
 {
-  m_vRootMotion = translation;
+  m_vRootMotion = vTranslation;
   m_RootRotationX = rotationX;
   m_RootRotationY = rotationY;
   m_RootRotationZ = rotationZ;

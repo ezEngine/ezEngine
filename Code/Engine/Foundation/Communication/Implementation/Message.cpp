@@ -11,23 +11,23 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezMessageId ezMessage::s_NextMsgId = 0;
 
 
-void ezMessage::PackageForTransfer(const ezMessage& msg, ezStreamWriter& stream)
+void ezMessage::PackageForTransfer(const ezMessage& msg, ezStreamWriter& inout_stream)
 {
   const ezRTTI* pRtti = msg.GetDynamicRTTI();
 
-  stream << pRtti->GetTypeNameHash();
-  stream << (ezUInt8)pRtti->GetTypeVersion();
+  inout_stream << pRtti->GetTypeNameHash();
+  inout_stream << (ezUInt8)pRtti->GetTypeVersion();
 
-  msg.Serialize(stream);
+  msg.Serialize(inout_stream);
 }
 
-ezUniquePtr<ezMessage> ezMessage::ReplicatePackedMessage(ezStreamReader& stream)
+ezUniquePtr<ezMessage> ezMessage::ReplicatePackedMessage(ezStreamReader& inout_stream)
 {
   ezUInt64 uiTypeHash = 0;
-  stream >> uiTypeHash;
+  inout_stream >> uiTypeHash;
 
   ezUInt8 uiTypeVersion = 0;
-  stream >> uiTypeVersion;
+  inout_stream >> uiTypeVersion;
 
   static ezHashTable<ezUInt64, const ezRTTI*, ezHashHelper<ezUInt64>, ezStaticAllocatorWrapper> MessageTypes;
 
@@ -49,7 +49,7 @@ ezUniquePtr<ezMessage> ezMessage::ReplicatePackedMessage(ezStreamReader& stream)
 
   auto pMsg = pRtti->GetAllocator()->Allocate<ezMessage>();
 
-  pMsg->Deserialize(stream, uiTypeVersion);
+  pMsg->Deserialize(inout_stream, uiTypeVersion);
 
   return pMsg;
 }

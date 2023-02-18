@@ -2,12 +2,12 @@
 
 #include <TexConv/TexConv.h>
 
-ezResult ezTexConv::ParseUIntOption(const char* szOption, ezInt32 iMinValue, ezInt32 iMaxValue, ezUInt32& uiResult) const
+ezResult ezTexConv::ParseUIntOption(const char* szOption, ezInt32 iMinValue, ezInt32 iMaxValue, ezUInt32& ref_uiResult) const
 {
   const auto pCmd = ezCommandLineUtils::GetGlobalInstance();
-  const ezUInt32 uiDefault = uiResult;
+  const ezUInt32 uiDefault = ref_uiResult;
 
-  const ezInt32 val = pCmd->GetIntOption(szOption, uiResult);
+  const ezInt32 val = pCmd->GetIntOption(szOption, ref_uiResult);
 
   if (!ezMath::IsInRange(val, iMinValue, iMaxValue))
   {
@@ -15,27 +15,27 @@ ezResult ezTexConv::ParseUIntOption(const char* szOption, ezInt32 iMinValue, ezI
     return EZ_FAILURE;
   }
 
-  uiResult = static_cast<ezUInt32>(val);
+  ref_uiResult = static_cast<ezUInt32>(val);
 
-  if (uiResult == uiDefault)
+  if (ref_uiResult == uiDefault)
   {
-    ezLog::Info("Using default '{}': '{}'.", szOption, uiResult);
+    ezLog::Info("Using default '{}': '{}'.", szOption, ref_uiResult);
     return EZ_SUCCESS;
   }
 
-  ezLog::Info("Selected '{}': '{}'.", szOption, uiResult);
+  ezLog::Info("Selected '{}': '{}'.", szOption, ref_uiResult);
 
   return EZ_SUCCESS;
 }
 
-ezResult ezTexConv::ParseStringOption(const char* szOption, const ezDynamicArray<KeyEnumValuePair>& allowed, ezInt32& iResult) const
+ezResult ezTexConv::ParseStringOption(const char* szOption, const ezDynamicArray<KeyEnumValuePair>& allowed, ezInt32& ref_iResult) const
 {
   const auto pCmd = ezCommandLineUtils::GetGlobalInstance();
   const ezStringBuilder sValue = pCmd->GetStringOption(szOption, 0);
 
   if (sValue.IsEmpty())
   {
-    iResult = allowed[0].m_iEnumValue;
+    ref_iResult = allowed[0].m_iEnumValue;
 
     ezLog::Info("Using default '{}': '{}'", szOption, allowed[0].m_szKey);
     return EZ_SUCCESS;
@@ -45,7 +45,7 @@ ezResult ezTexConv::ParseStringOption(const char* szOption, const ezDynamicArray
   {
     if (sValue.IsEqual_NoCase(allowed[i].m_szKey))
     {
-      iResult = allowed[i].m_iEnumValue;
+      ref_iResult = allowed[i].m_iEnumValue;
 
       ezLog::Info("Selected '{}': '{}'", szOption, allowed[i].m_szKey);
       return EZ_SUCCESS;
@@ -84,14 +84,14 @@ void ezTexConv::PrintOptionValuesHelp(const char* szOption, const ezDynamicArray
   ezLog::Info(out);
 }
 
-bool ezTexConv::ParseFile(const char* szOption, ezString& result) const
+bool ezTexConv::ParseFile(const char* szOption, ezString& ref_sResult) const
 {
   const auto pCmd = ezCommandLineUtils::GetGlobalInstance();
-  result = pCmd->GetAbsolutePathOption(szOption);
+  ref_sResult = pCmd->GetAbsolutePathOption(szOption);
 
-  if (!result.IsEmpty())
+  if (!ref_sResult.IsEmpty())
   {
-    ezLog::Info("'{}' file: '{}'", szOption, result);
+    ezLog::Info("'{}' file: '{}'", szOption, ref_sResult);
     return true;
   }
   else

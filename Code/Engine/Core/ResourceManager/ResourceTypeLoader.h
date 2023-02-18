@@ -42,7 +42,7 @@ public:
 
   /// \brief This function is called when the resource has been updated with the data from the resource loader and the loader can deallocate
   /// any temporary memory.
-  virtual void CloseDataStream(const ezResource* pResource, const ezResourceLoadData& LoaderData) = 0;
+  virtual void CloseDataStream(const ezResource* pResource, const ezResourceLoadData& loaderData) = 0;
 
   /// \brief If this function returns true, a resource is unloaded and loaded again to update its content.
   ///
@@ -60,7 +60,7 @@ class EZ_CORE_DLL ezResourceLoaderFromFile : public ezResourceTypeLoader
 {
 public:
   virtual ezResourceLoadData OpenDataStream(const ezResource* pResource) override;
-  virtual void CloseDataStream(const ezResource* pResource, const ezResourceLoadData& LoaderData) override;
+  virtual void CloseDataStream(const ezResource* pResource, const ezResourceLoadData& loaderData) override;
   virtual bool IsResourceOutdated(const ezResource* pResource) const override;
 };
 
@@ -79,7 +79,7 @@ class EZ_CORE_DLL ezResourceLoaderFromMemory : public ezResourceTypeLoader
 {
 public:
   virtual ezResourceLoadData OpenDataStream(const ezResource* pResource) override;
-  virtual void CloseDataStream(const ezResource* pResource, const ezResourceLoadData& LoaderData) override;
+  virtual void CloseDataStream(const ezResource* pResource, const ezResourceLoadData& loaderData) override;
   virtual bool IsResourceOutdated(const ezResource* pResource) const override;
 
   ezString m_sResourceDescription;

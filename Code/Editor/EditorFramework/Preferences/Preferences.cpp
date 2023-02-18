@@ -192,16 +192,16 @@ void ezPreferences::ClearApplicationPreferences()
   ClearPreferences(nullptr, Domain::Application);
 }
 
-void ezPreferences::GatherAllPreferences(ezHybridArray<ezPreferences*, 16>& out_AllPreferences)
+void ezPreferences::GatherAllPreferences(ezHybridArray<ezPreferences*, 16>& out_allPreferences)
 {
-  out_AllPreferences.Clear();
-  out_AllPreferences.Reserve(s_Preferences.GetCount() * 2);
+  out_allPreferences.Clear();
+  out_allPreferences.Reserve(s_Preferences.GetCount() * 2);
 
   for (auto itDoc = s_Preferences.GetIterator(); itDoc.IsValid(); ++itDoc)
   {
     for (auto itType = itDoc.Value().GetIterator(); itType.IsValid(); ++itType)
     {
-      out_AllPreferences.PushBack(itType.Value());
+      out_allPreferences.PushBack(itType.Value());
     }
   }
 }

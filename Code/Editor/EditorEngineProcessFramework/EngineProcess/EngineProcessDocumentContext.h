@@ -46,7 +46,7 @@ public:
   ezEngineProcessDocumentContext(ezBitflags<ezEngineProcessDocumentContextFlags> flags);
   virtual ~ezEngineProcessDocumentContext();
 
-  virtual void Initialize(const ezUuid& DocumentGuid, const ezVariant& metaData, ezEngineProcessCommunicationChannel* pIPC);
+  virtual void Initialize(const ezUuid& documentGuid, const ezVariant& metaData, ezEngineProcessCommunicationChannel* pIPC);
   void Deinitialize();
 
   void SendProcessMessage(ezProcessMessage* pMsg = nullptr);

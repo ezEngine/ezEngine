@@ -59,33 +59,33 @@ enum class TypeEffectVersion
   Version_Current = Version_Count - 1
 };
 
-void ezParticleTypeEffectFactory::Save(ezStreamWriter& stream) const
+void ezParticleTypeEffectFactory::Save(ezStreamWriter& inout_stream) const
 {
   const ezUInt8 uiVersion = (int)TypeEffectVersion::Version_Current;
-  stream << uiVersion;
+  inout_stream << uiVersion;
 
   ezUInt64 m_uiRandomSeed = 0;
 
-  stream << m_sEffect;
-  stream << m_uiRandomSeed;
-  stream << m_sSharedInstanceName;
+  inout_stream << m_sEffect;
+  inout_stream << m_uiRandomSeed;
+  inout_stream << m_sSharedInstanceName;
 }
 
-void ezParticleTypeEffectFactory::Load(ezStreamReader& stream)
+void ezParticleTypeEffectFactory::Load(ezStreamReader& inout_stream)
 {
   ezUInt8 uiVersion = 0;
-  stream >> uiVersion;
+  inout_stream >> uiVersion;
 
   EZ_ASSERT_DEV(uiVersion <= (int)TypeEffectVersion::Version_Current, "Invalid version {0}", uiVersion);
 
-  stream >> m_sEffect;
+  inout_stream >> m_sEffect;
 
   if (uiVersion >= 2)
   {
     ezUInt64 m_uiRandomSeed = 0;
 
-    stream >> m_uiRandomSeed;
-    stream >> m_sSharedInstanceName;
+    inout_stream >> m_uiRandomSeed;
+    inout_stream >> m_sSharedInstanceName;
   }
 }
 
@@ -108,7 +108,7 @@ void ezParticleTypeEffect::CreateRequiredStreams()
   CreateStream("EffectID", ezProcessingStream::DataType::Int, &m_pStreamEffectID, false);
 }
 
-void ezParticleTypeEffect::ExtractTypeRenderData(ezMsgExtractRenderData& msg, const ezTransform& instanceTransform) const
+void ezParticleTypeEffect::ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg, const ezTransform& instanceTransform) const
 {
   EZ_PROFILE_SCOPE("PFX: Effect");
 
@@ -128,7 +128,7 @@ void ezParticleTypeEffect::ExtractTypeRenderData(ezMsgExtractRenderData& msg, co
     const ezParticleEffectInstance* pEffect = nullptr;
     if (pWorldModule->TryGetEffectInstance(hInstance, pEffect))
     {
-      pWorldModule->ExtractEffectRenderData(pEffect, msg, pEffect->GetTransform());
+      pWorldModule->ExtractEffectRenderData(pEffect, ref_msg, pEffect->GetTransform());
     }
   }
 }

@@ -8,18 +8,18 @@
 
 EZ_CREATE_SIMPLE_TEST_GROUP(CodeUtils);
 
-ezResult FileLocator(const char* szCurAbsoluteFile, const char* szIncludeFile, ezPreprocessor::IncludeType IncType, ezStringBuilder& out_sAbsoluteFilePath)
+ezResult FileLocator(const char* szCurAbsoluteFile, const char* szIncludeFile, ezPreprocessor::IncludeType incType, ezStringBuilder& out_sAbsoluteFilePath)
 {
   ezStringBuilder& s = out_sAbsoluteFilePath;
 
-  if (IncType == ezPreprocessor::RelativeInclude)
+  if (incType == ezPreprocessor::RelativeInclude)
   {
     s = szCurAbsoluteFile;
     s.PathParentDirectory();
     s.AppendPath(szIncludeFile);
     s.MakeCleanPath();
   }
-  else if (IncType == ezPreprocessor::GlobalInclude)
+  else if (incType == ezPreprocessor::GlobalInclude)
   {
     s = "Preprocessor";
     s.AppendPath(szIncludeFile);

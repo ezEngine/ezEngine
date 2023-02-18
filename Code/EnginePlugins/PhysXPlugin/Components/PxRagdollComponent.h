@@ -54,8 +54,8 @@ struct EZ_PHYSXPLUGIN_DLL ezPxRagdollConstraint : public ezReflectedClass
   ezString m_sBone;
   ezVec3 m_vRelativePosition;
 
-  ezResult Serialize(ezStreamWriter& stream) const;
-  ezResult Deserialize(ezStreamReader& stream);
+  ezResult Serialize(ezStreamWriter& inout_stream) const;
+  ezResult Deserialize(ezStreamReader& inout_stream);
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -68,8 +68,8 @@ class EZ_PHYSXPLUGIN_DLL ezPxRagdollComponent : public ezPxComponent
   // ezComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
 protected:
   virtual void OnSimulationStarted() override;
@@ -84,17 +84,17 @@ public:
 
   ezUInt32 GetShapeId() const { return m_uiPxShapeID; } // [ scriptable ]
 
-  void OnAnimationPoseProposal(ezMsgAnimationPoseProposal& msg); // [ msg handler ]
-  void OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& msg);   // [ msg handler ]
-  void OnRetrieveBoneState(ezMsgRetrieveBoneState& msg) const;   // [ msg handler ]
+  void OnAnimationPoseProposal(ezMsgAnimationPoseProposal& ref_msg); // [ msg handler ]
+  void OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& ref_msg);   // [ msg handler ]
+  void OnRetrieveBoneState(ezMsgRetrieveBoneState& ref_msg) const;   // [ msg handler ]
 
   bool GetDisableGravity() const { return m_bDisableGravity; } // [ property ]
   void SetDisableGravity(bool b);                              // [ property ]
 
   bool m_bSelfCollision = false; // [ property ]
 
-  void AddImpulseAtPos(ezMsgPhysicsAddImpulse& msg); // [ message ]
-  void AddForceAtPos(ezMsgPhysicsAddForce& msg);     // [ message ]
+  void AddImpulseAtPos(ezMsgPhysicsAddImpulse& ref_msg); // [ message ]
+  void AddForceAtPos(ezMsgPhysicsAddForce& ref_msg);     // [ message ]
 
 protected:
   struct Limb

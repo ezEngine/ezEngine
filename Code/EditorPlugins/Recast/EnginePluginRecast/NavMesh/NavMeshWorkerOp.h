@@ -10,8 +10,8 @@ class ezLongOpWorker_BuildNavMesh : public ezLongOpWorker
   EZ_ADD_DYNAMIC_REFLECTION(ezLongOpWorker_BuildNavMesh, ezLongOpWorker);
 
 public:
-  virtual ezResult InitializeExecution(ezStreamReader& config, const ezUuid& DocumentGuid) override;
-  virtual ezResult Execute(ezProgress& progress, ezStreamWriter& proxydata) override;
+  virtual ezResult InitializeExecution(ezStreamReader& ref_config, const ezUuid& documentGuid) override;
+  virtual ezResult Execute(ezProgress& ref_progress, ezStreamWriter& ref_proxydata) override;
 
   ezString m_sOutputPath;
   ezRecastConfig m_NavMeshConfig;

@@ -15,13 +15,13 @@ class EZ_PHYSXPLUGIN_DLL ezPxStaticActorComponent : public ezPxActorComponent
   // ezComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
   virtual void OnDeactivated() override;
   virtual void OnSimulationStarted() override;
 
-  void PullSurfacesFromGraphicsMesh(ezHybridArray<physx::PxMaterial*, 32>& pxMaterials);
+  void PullSurfacesFromGraphicsMesh(ezHybridArray<physx::PxMaterial*, 32>& ref_materials);
 
   //////////////////////////////////////////////////////////////////////////
   // ezPxStaticActorComponent

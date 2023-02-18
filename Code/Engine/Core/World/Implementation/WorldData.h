@@ -154,7 +154,7 @@ namespace ezInternal
 
     struct InitBatch
     {
-      InitBatch(ezAllocatorBase* pAllocator, ezStringView szName, bool bMustFinishWithinOneFrame);
+      InitBatch(ezAllocatorBase* pAllocator, ezStringView sName, bool bMustFinishWithinOneFrame);
 
       ezHashedString m_sName;
       bool m_bMustFinishWithinOneFrame = true;

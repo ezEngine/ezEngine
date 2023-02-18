@@ -9,20 +9,20 @@
 #include <Foundation/IO/OpenDdlWriter.h>
 #include <Foundation/Profiling/Profiling.h>
 
-void ezPluginBundle::WriteStateToDDL(ezOpenDdlWriter& ddl, const char* szOwnName) const
+void ezPluginBundle::WriteStateToDDL(ezOpenDdlWriter& ref_ddl, const char* szOwnName) const
 {
-  ddl.BeginObject("PluginState");
-  ezOpenDdlUtils::StoreString(ddl, szOwnName, "ID");
-  ezOpenDdlUtils::StoreBool(ddl, m_bSelected, "Selected");
-  ezOpenDdlUtils::StoreBool(ddl, m_bLoadCopy, "LoadCopy");
-  ddl.EndObject();
+  ref_ddl.BeginObject("PluginState");
+  ezOpenDdlUtils::StoreString(ref_ddl, szOwnName, "ID");
+  ezOpenDdlUtils::StoreBool(ref_ddl, m_bSelected, "Selected");
+  ezOpenDdlUtils::StoreBool(ref_ddl, m_bLoadCopy, "LoadCopy");
+  ref_ddl.EndObject();
 }
 
-void ezPluginBundle::ReadStateFromDDL(ezOpenDdlReader& ddl, const char* szOwnName)
+void ezPluginBundle::ReadStateFromDDL(ezOpenDdlReader& ref_ddl, const char* szOwnName)
 {
   m_bSelected = false;
 
-  auto pState = ddl.GetRootElement()->FindChildOfType("PluginState");
+  auto pState = ref_ddl.GetRootElement()->FindChildOfType("PluginState");
   while (pState)
   {
     auto pName = pState->FindChildOfType(ezOpenDdlPrimitiveType::String, "ID");
@@ -41,22 +41,22 @@ void ezPluginBundle::ReadStateFromDDL(ezOpenDdlReader& ddl, const char* szOwnNam
   }
 }
 
-void ezPluginBundleSet::WriteStateToDDL(ezOpenDdlWriter& ddl) const
+void ezPluginBundleSet::WriteStateToDDL(ezOpenDdlWriter& ref_ddl) const
 {
   for (const auto& it : m_Plugins)
   {
     if (it.Value().m_bSelected)
     {
-      it.Value().WriteStateToDDL(ddl, it.Key());
+      it.Value().WriteStateToDDL(ref_ddl, it.Key());
     }
   }
 }
 
-void ezPluginBundleSet::ReadStateFromDDL(ezOpenDdlReader& ddl)
+void ezPluginBundleSet::ReadStateFromDDL(ezOpenDdlReader& ref_ddl)
 {
   for (auto& it : m_Plugins)
   {
-    it.Value().ReadStateFromDDL(ddl, it.Key());
+    it.Value().ReadStateFromDDL(ref_ddl, it.Key());
   }
 }
 
@@ -79,11 +79,11 @@ bool ezPluginBundleSet::IsStateEqual(const ezPluginBundleSet& rhs) const
   return true;
 }
 
-ezResult ezPluginBundle::ReadBundleFromDDL(ezOpenDdlReader& ddl)
+ezResult ezPluginBundle::ReadBundleFromDDL(ezOpenDdlReader& ref_ddl)
 {
   EZ_LOG_BLOCK("Reading plugin info file");
 
-  auto pInfo = ddl.GetRootElement()->FindChildOfType("PluginInfo");
+  auto pInfo = ref_ddl.GetRootElement()->FindChildOfType("PluginInfo");
 
   if (pInfo == nullptr)
   {

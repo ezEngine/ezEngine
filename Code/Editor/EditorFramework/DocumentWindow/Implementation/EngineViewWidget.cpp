@@ -133,10 +133,10 @@ void ezQtEngineViewWidget::SyncToEngine()
 }
 
 
-void ezQtEngineViewWidget::GetCameraMatrices(ezMat4& out_ViewMatrix, ezMat4& out_ProjectionMatrix) const
+void ezQtEngineViewWidget::GetCameraMatrices(ezMat4& out_mViewMatrix, ezMat4& out_mProjectionMatrix) const
 {
-  out_ViewMatrix = m_pViewConfig->m_Camera.GetViewMatrix();
-  m_pViewConfig->m_Camera.GetProjectionMatrix((float)width() / (float)height(), out_ProjectionMatrix);
+  out_mViewMatrix = m_pViewConfig->m_Camera.GetViewMatrix();
+  m_pViewConfig->m_Camera.GetProjectionMatrix((float)width() / (float)height(), out_mProjectionMatrix);
 }
 
 void ezQtEngineViewWidget::UpdateCameraInterpolation()
@@ -253,7 +253,7 @@ const ezObjectPickingResult& ezQtEngineViewWidget::PickObject(ezUInt16 uiScreenP
 }
 
 
-ezResult ezQtEngineViewWidget::PickPlane(ezUInt16 uiScreenPosX, ezUInt16 uiScreenPosY, const ezPlane& plane, ezVec3& out_Position) const
+ezResult ezQtEngineViewWidget::PickPlane(ezUInt16 uiScreenPosX, ezUInt16 uiScreenPosY, const ezPlane& plane, ezVec3& out_vPosition) const
 {
   const auto& cam = m_pViewConfig->m_Camera;
 
@@ -269,7 +269,7 @@ ezResult ezQtEngineViewWidget::PickPlane(ezUInt16 uiScreenPosX, ezUInt16 uiScree
   if (ezGraphicsUtils::ConvertScreenPosToWorldPos(mInvViewProj, 0, 0, width(), height(), vScreenPos, vResPos, &vResRay).Failed())
     return EZ_FAILURE;
 
-  if (plane.GetRayIntersection(vResPos, vResRay, nullptr, &out_Position))
+  if (plane.GetRayIntersection(vResPos, vResRay, nullptr, &out_vPosition))
     return EZ_SUCCESS;
 
   return EZ_FAILURE;

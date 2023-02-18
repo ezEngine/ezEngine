@@ -8,8 +8,8 @@ void UpdateCollisionLayerDynamicEnumValues();
 
 constexpr const char* g_szJoltConfigFile = ":project/RuntimeConfigs/CollisionLayers.cfg";
 
-ezQtJoltProjectSettingsDlg::ezQtJoltProjectSettingsDlg(QWidget* parent)
-  : QDialog(parent)
+ezQtJoltProjectSettingsDlg::ezQtJoltProjectSettingsDlg(QWidget* pParent)
+  : QDialog(pParent)
 {
   setupUi(this);
 

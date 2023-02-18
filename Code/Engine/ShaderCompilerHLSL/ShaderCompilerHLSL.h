@@ -10,15 +10,15 @@ class EZ_SHADERCOMPILERHLSL_DLL ezShaderCompilerHLSL : public ezShaderProgramCom
   EZ_ADD_DYNAMIC_REFLECTION(ezShaderCompilerHLSL, ezShaderProgramCompiler);
 
 public:
-  virtual void GetSupportedPlatforms(ezHybridArray<ezString, 4>& Platforms) override
+  virtual void GetSupportedPlatforms(ezHybridArray<ezString, 4>& ref_platforms) override
   {
-    Platforms.PushBack("DX11_SM40_93");
-    Platforms.PushBack("DX11_SM40");
-    Platforms.PushBack("DX11_SM41");
-    Platforms.PushBack("DX11_SM50");
+    ref_platforms.PushBack("DX11_SM40_93");
+    ref_platforms.PushBack("DX11_SM40");
+    ref_platforms.PushBack("DX11_SM41");
+    ref_platforms.PushBack("DX11_SM50");
   }
 
-  virtual ezResult Compile(ezShaderProgramData& inout_Data, ezLogInterface* pLog) override;
+  virtual ezResult Compile(ezShaderProgramData& inout_data, ezLogInterface* pLog) override;
 
 private:
   void ReflectShaderStage(ezShaderProgramData& inout_Data, ezGALShaderStage::Enum Stage);

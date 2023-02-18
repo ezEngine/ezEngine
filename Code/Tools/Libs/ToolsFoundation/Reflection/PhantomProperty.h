@@ -47,7 +47,7 @@ public:
   virtual ezUInt32 GetArgumentCount() const override;
   virtual const ezRTTI* GetArgumentType(ezUInt32 uiParamIndex) const override;
   virtual ezBitflags<ezPropertyFlags> GetArgumentFlags(ezUInt32 uiParamIndex) const override;
-  virtual void Execute(void* pInstance, ezArrayPtr<ezVariant> values, ezVariant& returnValue) const override;
+  virtual void Execute(void* pInstance, ezArrayPtr<ezVariant> values, ezVariant& ref_returnValue) const override;
 
 private:
   ezString m_sPropertyNameStorage;

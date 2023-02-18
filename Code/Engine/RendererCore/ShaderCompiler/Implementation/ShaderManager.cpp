@@ -225,9 +225,9 @@ bool ezShaderManager::IsPermutationValueAllowed(const ezHashedString& sName, con
   return true;
 }
 
-void ezShaderManager::GetPermutationValues(const ezHashedString& sName, ezDynamicArray<ezHashedString>& out_Values)
+void ezShaderManager::GetPermutationValues(const ezHashedString& sName, ezDynamicArray<ezHashedString>& out_values)
 {
-  out_Values.Clear();
+  out_values.Clear();
 
   const PermutationVarConfig* pConfig = FindConfig(sName);
   if (pConfig == nullptr)
@@ -235,14 +235,14 @@ void ezShaderManager::GetPermutationValues(const ezHashedString& sName, ezDynami
 
   if (pConfig->m_DefaultValue.IsA<bool>())
   {
-    out_Values.PushBack(s_sTrue);
-    out_Values.PushBack(s_sFalse);
+    out_values.PushBack(s_sTrue);
+    out_values.PushBack(s_sFalse);
   }
   else
   {
     for (const auto& val : pConfig->m_EnumValues)
     {
-      out_Values.PushBack(val.m_sValueName);
+      out_values.PushBack(val.m_sValueName);
     }
   }
 }
@@ -258,7 +258,7 @@ ezArrayPtr<const ezShaderParser::EnumValue> ezShaderManager::GetPermutationEnumV
   return {};
 }
 
-void ezShaderManager::PreloadPermutations(ezShaderResourceHandle hShader, const ezHashTable<ezHashedString, ezHashedString>& permVars, ezTime tShouldBeAvailableIn)
+void ezShaderManager::PreloadPermutations(ezShaderResourceHandle hShader, const ezHashTable<ezHashedString, ezHashedString>& permVars, ezTime shouldBeAvailableIn)
 {
   EZ_ASSERT_NOT_IMPLEMENTED;
 #if 0

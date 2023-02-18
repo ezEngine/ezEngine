@@ -124,15 +124,15 @@ EZ_ALWAYS_INLINE void ezStringView::Trim(const char* szTrimCharsStart, const cha
   }
 }
 
-constexpr EZ_ALWAYS_INLINE ezStringView operator"" _ezsv(const char* pString, size_t len)
+constexpr EZ_ALWAYS_INLINE ezStringView operator"" _ezsv(const char* pString, size_t uiLen)
 {
-  return ezStringView(pString, static_cast<ezUInt32>(len));
+  return ezStringView(pString, static_cast<ezUInt32>(uiLen));
 }
 
 template <typename Container>
-void ezStringView::Split(bool bReturnEmptyStrings, Container& Output, const char* szSeparator1, const char* szSeparator2 /*= nullptr*/, const char* szSeparator3 /*= nullptr*/, const char* szSeparator4 /*= nullptr*/, const char* szSeparator5 /*= nullptr*/, const char* szSeparator6 /*= nullptr*/) const
+void ezStringView::Split(bool bReturnEmptyStrings, Container& ref_output, const char* szSeparator1, const char* szSeparator2 /*= nullptr*/, const char* szSeparator3 /*= nullptr*/, const char* szSeparator4 /*= nullptr*/, const char* szSeparator5 /*= nullptr*/, const char* szSeparator6 /*= nullptr*/) const
 {
-  Output.Clear();
+  ref_output.Clear();
 
   if (IsEmpty())
     return;
@@ -165,13 +165,13 @@ void ezStringView::Split(bool bReturnEmptyStrings, Container& Output, const char
       const ezUInt32 uiLen = ezStringUtils::GetStringElementCount(szReadPos, GetEndPointer());
 
       if (bReturnEmptyStrings || (uiLen > 0))
-        Output.PushBack(ezStringView(szReadPos, szReadPos + uiLen));
+        ref_output.PushBack(ezStringView(szReadPos, szReadPos + uiLen));
 
       return;
     }
 
     if (bReturnEmptyStrings || (szFoundPos > szReadPos))
-      Output.PushBack(ezStringView(szReadPos, szFoundPos));
+      ref_output.PushBack(ezStringView(szReadPos, szFoundPos));
 
     szReadPos = szFoundPos + seps[iFoundSeparator].GetElementCount();
   }

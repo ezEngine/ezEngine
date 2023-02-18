@@ -111,11 +111,11 @@ void ezParticleEffectAssetDocument::PropertyMetaStateEventHandler(ezPropertyMeta
   }
 }
 
-void ezParticleEffectAssetDocument::WriteResource(ezStreamWriter& stream) const
+void ezParticleEffectAssetDocument::WriteResource(ezStreamWriter& inout_stream) const
 {
   const ezParticleEffectDescriptor* pProp = GetProperties();
 
-  pProp->Save(stream);
+  pProp->Save(inout_stream);
 }
 
 
@@ -129,12 +129,12 @@ void ezParticleEffectAssetDocument::TriggerRestartEffect()
 }
 
 
-void ezParticleEffectAssetDocument::SetAutoRestart(bool enable)
+void ezParticleEffectAssetDocument::SetAutoRestart(bool bEnable)
 {
-  if (m_bAutoRestart == enable)
+  if (m_bAutoRestart == bEnable)
     return;
 
-  m_bAutoRestart = enable;
+  m_bAutoRestart = bEnable;
 
   ezParticleEffectAssetEvent e;
   e.m_pDocument = this;
@@ -158,12 +158,12 @@ void ezParticleEffectAssetDocument::SetSimulationPaused(bool bPaused)
   m_Events.Broadcast(e);
 }
 
-void ezParticleEffectAssetDocument::SetSimulationSpeed(float speed)
+void ezParticleEffectAssetDocument::SetSimulationSpeed(float fSpeed)
 {
-  if (m_fSimulationSpeed == speed)
+  if (m_fSimulationSpeed == fSpeed)
     return;
 
-  m_fSimulationSpeed = speed;
+  m_fSimulationSpeed = fSpeed;
 
   ezParticleEffectAssetEvent e;
   e.m_pDocument = this;
@@ -189,10 +189,10 @@ void ezParticleEffectAssetDocument::SetRenderVisualizers(bool b)
   m_Events.Broadcast(e);
 }
 
-ezResult ezParticleEffectAssetDocument::ComputeObjectTransformation(const ezDocumentObject* pObject, ezTransform& out_Result) const
+ezResult ezParticleEffectAssetDocument::ComputeObjectTransformation(const ezDocumentObject* pObject, ezTransform& out_result) const
 {
   // currently the preview particle effect is always at the origin
-  out_Result.SetIdentity();
+  out_result.SetIdentity();
   return EZ_SUCCESS;
 }
 

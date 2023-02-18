@@ -80,7 +80,7 @@ public:
   const char* GetUndoDisplayString() const;
   const char* GetRedoDisplayString() const;
 
-  void StartTransaction(const ezFormatString& sDisplayString);
+  void StartTransaction(const ezFormatString& displayString);
   void CancelTransaction() { EndTransaction(true); }
   void FinishTransaction() { EndTransaction(false); }
 
@@ -99,7 +99,7 @@ public:
   void SuspendTemporaryTransaction();
   void ResumeTemporaryTransaction();
 
-  ezStatus AddCommand(ezCommand& command);
+  ezStatus AddCommand(ezCommand& ref_command);
 
   void ClearUndoHistory();
   void ClearRedoHistory();
@@ -108,8 +108,8 @@ public:
 
   ezUInt32 GetUndoStackSize() const;
   ezUInt32 GetRedoStackSize() const;
-  const ezCommandTransaction* GetUndoStackEntry(ezUInt32 iIndex) const;
-  const ezCommandTransaction* GetRedoStackEntry(ezUInt32 iIndex) const;
+  const ezCommandTransaction* GetUndoStackEntry(ezUInt32 uiIndex) const;
+  const ezCommandTransaction* GetRedoStackEntry(ezUInt32 uiIndex) const;
 
   ezSharedPtr<ezCommandHistory::Storage> SwapStorage(ezSharedPtr<ezCommandHistory::Storage> pNewStorage);
   ezSharedPtr<ezCommandHistory::Storage> GetStorage() { return m_pHistoryStorage; }

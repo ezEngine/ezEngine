@@ -64,16 +64,16 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezFileStatus, ezNoBase, 3, ezRTTIDefaultAllocator
 EZ_END_STATIC_REFLECTED_TYPE;
 // clang-format on
 
-inline ezStreamWriter& operator<<(ezStreamWriter& Stream, const ezFileStatus& uiValue)
+inline ezStreamWriter& operator<<(ezStreamWriter& inout_stream, const ezFileStatus& value)
 {
-  Stream.WriteBytes(&uiValue, sizeof(ezFileStatus)).IgnoreResult();
-  return Stream;
+  inout_stream.WriteBytes(&value, sizeof(ezFileStatus)).IgnoreResult();
+  return inout_stream;
 }
 
-inline ezStreamReader& operator>>(ezStreamReader& Stream, ezFileStatus& uiValue)
+inline ezStreamReader& operator>>(ezStreamReader& inout_stream, ezFileStatus& ref_value)
 {
-  Stream.ReadBytes(&uiValue, sizeof(ezFileStatus));
-  return Stream;
+  inout_stream.ReadBytes(&ref_value, sizeof(ezFileStatus));
+  return inout_stream;
 }
 
 void ezAssetInfo::Update(ezUniquePtr<ezAssetInfo>& rhs)
@@ -638,16 +638,16 @@ const ezAssetCurator::ezLockedSubAsset ezAssetCurator::FindSubAsset(const char* 
   // TODO: This is the old slow code path that will find the longest substring match.
   // Should be removed or folded into FindBestMatchForFile once it's surely not needed anymore.
 
-  auto FindAsset = [this](ezStringView path) -> ezAssetInfo* {
+  auto FindAsset = [this](ezStringView sPathView) -> ezAssetInfo* {
     // try to find the 'exact' relative path
     // otherwise find the shortest possible path
     ezUInt32 uiMinLength = 0xFFFFFFFF;
     ezAssetInfo* pBestInfo = nullptr;
 
-    if (path.IsEmpty())
+    if (sPathView.IsEmpty())
       return nullptr;
 
-    const ezStringBuilder sPath = path;
+    const ezStringBuilder sPath = sPathView;
     const ezStringBuilder sPathWithSlash("/", sPath);
 
     for (auto it = m_KnownAssets.GetIterator(); it.IsValid(); ++it)
@@ -655,7 +655,7 @@ const ezAssetCurator::ezLockedSubAsset ezAssetCurator::FindSubAsset(const char* 
       if (it.Value()->m_sDataDirParentRelativePath.EndsWith_NoCase(sPath))
       {
         // endswith -> could also be equal
-        if (path.IsEqual_NoCase(it.Value()->m_sDataDirParentRelativePath.GetData()))
+        if (sPathView.IsEqual_NoCase(it.Value()->m_sDataDirParentRelativePath.GetData()))
         {
           // if equal, just take it
           return it.Value();
@@ -753,11 +753,11 @@ ezUInt64 ezAssetCurator::GetAssetReferenceHash(ezUuid assetGuid)
   return thumbHash;
 }
 
-void ezAssetCurator::GenerateTransitiveHull(const ezStringView assetOrPath, ezSet<ezString>* pDependencies, ezSet<ezString>* pReferences)
+void ezAssetCurator::GenerateTransitiveHull(const ezStringView sAssetOrPath, ezSet<ezString>* pDependencies, ezSet<ezString>* pReferences)
 {
-  if (ezConversionUtils::IsStringUuid(assetOrPath))
+  if (ezConversionUtils::IsStringUuid(sAssetOrPath))
   {
-    auto it = m_KnownSubAssets.Find(ezConversionUtils::ConvertStringToUuid(assetOrPath));
+    auto it = m_KnownSubAssets.Find(ezConversionUtils::ConvertStringToUuid(sAssetOrPath));
     ezAssetInfo* pAssetInfo = it.Value().m_pAssetInfo;
     const bool bInsertDep = pDependencies && !pDependencies->Contains(pAssetInfo->m_sAbsolutePath);
     const bool bInsertRef = pReferences && !pReferences->Contains(pAssetInfo->m_sAbsolutePath);
@@ -789,20 +789,20 @@ void ezAssetCurator::GenerateTransitiveHull(const ezStringView assetOrPath, ezSe
   }
   else
   {
-    if (pDependencies && !pDependencies->Contains(assetOrPath))
+    if (pDependencies && !pDependencies->Contains(sAssetOrPath))
     {
-      pDependencies->Insert(assetOrPath);
+      pDependencies->Insert(sAssetOrPath);
     }
-    if (pReferences && !pReferences->Contains(assetOrPath))
+    if (pReferences && !pReferences->Contains(sAssetOrPath))
     {
-      pReferences->Insert(assetOrPath);
+      pReferences->Insert(sAssetOrPath);
     }
   }
 }
 
-ezAssetInfo::TransformState ezAssetCurator::IsAssetUpToDate(const ezUuid& assetGuid, const ezPlatformProfile*, const ezAssetDocumentTypeDescriptor* pTypeDescriptor, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash, bool bForce)
+ezAssetInfo::TransformState ezAssetCurator::IsAssetUpToDate(const ezUuid& assetGuid, const ezPlatformProfile*, const ezAssetDocumentTypeDescriptor* pTypeDescriptor, ezUInt64& out_uiAssetHash, ezUInt64& out_uiThumbHash, bool bForce)
 {
-  return ezAssetCurator::UpdateAssetTransformState(assetGuid, out_AssetHash, out_ThumbHash, bForce);
+  return ezAssetCurator::UpdateAssetTransformState(assetGuid, out_uiAssetHash, out_uiThumbHash, bForce);
 }
 
 ezAssetInfo::TransformState ezAssetCurator::UpdateAssetTransformState(ezUuid assetGuid, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash, bool bForce)
@@ -969,29 +969,29 @@ ezString ezAssetCurator::FindDataDirectoryForAsset(const char* szAbsoluteAssetPa
   return ezFileSystem::GetSdkRootDirectory();
 }
 
-ezResult ezAssetCurator::FindBestMatchForFile(ezStringBuilder& sFile, ezArrayPtr<ezString> AllowedFileExtensions) const
+ezResult ezAssetCurator::FindBestMatchForFile(ezStringBuilder& ref_sFile, ezArrayPtr<ezString> allowedFileExtensions) const
 {
   // TODO: Merge with exhaustive search in FindSubAsset
-  sFile.MakeCleanPath();
+  ref_sFile.MakeCleanPath();
 
-  ezStringBuilder testName = sFile;
+  ezStringBuilder testName = ref_sFile;
 
-  for (const auto& ext : AllowedFileExtensions)
+  for (const auto& ext : allowedFileExtensions)
   {
     testName.ChangeFileExtension(ext);
 
     if (ezFileSystem::ExistsFile(testName))
     {
-      sFile = testName;
+      ref_sFile = testName;
       goto found;
     }
   }
 
-  testName = sFile.GetFileNameAndExtension();
+  testName = ref_sFile.GetFileNameAndExtension();
 
   if (testName.IsEmpty())
   {
-    sFile = "";
+    ref_sFile = "";
     return EZ_FAILURE;
   }
 
@@ -999,14 +999,14 @@ ezResult ezAssetCurator::FindBestMatchForFile(ezStringBuilder& sFile, ezArrayPtr
   {
     // not much we can do here, if the filename is already invalid, we will probably not find it in out known files list
 
-    ezPathUtils::MakeValidFilename(testName, '_', sFile);
+    ezPathUtils::MakeValidFilename(testName, '_', ref_sFile);
     return EZ_FAILURE;
   }
 
   {
     EZ_LOCK(m_CuratorMutex);
 
-    auto SearchFile = [this](ezStringBuilder& name) -> bool {
+    auto SearchFile = [this](ezStringBuilder& ref_sName) -> bool {
       for (auto it = m_ReferencedFiles.GetIterator(); it.IsValid(); ++it)
       {
         if (it.Value().m_Status != ezFileStatus::Status::Valid)
@@ -1014,9 +1014,9 @@ ezResult ezAssetCurator::FindBestMatchForFile(ezStringBuilder& sFile, ezArrayPtr
 
         const ezString& key = it.Key();
 
-        if (key.EndsWith_NoCase(name))
+        if (key.EndsWith_NoCase(ref_sName))
         {
-          name = it.Key();
+          ref_sName = it.Key();
           return true;
         }
       }
@@ -1028,7 +1028,7 @@ ezResult ezAssetCurator::FindBestMatchForFile(ezStringBuilder& sFile, ezArrayPtr
     {
       testName.Prepend("/"); // make sure to not find partial names
 
-      for (const auto& ext : AllowedFileExtensions)
+      for (const auto& ext : allowedFileExtensions)
       {
         testName.ChangeFileExtension(ext);
 
@@ -1043,14 +1043,14 @@ ezResult ezAssetCurator::FindBestMatchForFile(ezStringBuilder& sFile, ezArrayPtr
 found:
   if (ezQtEditorApp::GetSingleton()->MakePathDataDirectoryRelative(testName))
   {
-    sFile = testName;
+    ref_sFile = testName;
     return EZ_SUCCESS;
   }
 
   return EZ_FAILURE;
 }
 
-void ezAssetCurator::FindAllUses(ezUuid assetGuid, ezSet<ezUuid>& uses, bool transitive) const
+void ezAssetCurator::FindAllUses(ezUuid assetGuid, ezSet<ezUuid>& ref_uses, bool bTransitive) const
 {
   EZ_LOCK(m_CuratorMutex);
 
@@ -1063,10 +1063,10 @@ void ezAssetCurator::FindAllUses(ezUuid assetGuid, ezSet<ezUuid>& uses, bool tra
     {
       for (const ezUuid& guid : it.Value())
       {
-        if (!uses.Contains(guid))
+        if (!ref_uses.Contains(guid))
           todoList.Insert(guid);
 
-        uses.Insert(guid);
+        ref_uses.Insert(guid);
       }
     }
   };
@@ -1084,7 +1084,7 @@ void ezAssetCurator::FindAllUses(ezUuid assetGuid, ezSet<ezUuid>& uses, bool tra
       GatherReferences(m_InverseReferences, sCurrentAsset);
       GatherReferences(m_InverseDependency, sCurrentAsset);
     }
-  } while (transitive && !todoList.IsEmpty());
+  } while (bTransitive && !todoList.IsEmpty());
 }
 
 ////////////////////////////////////////////////////////////////////////

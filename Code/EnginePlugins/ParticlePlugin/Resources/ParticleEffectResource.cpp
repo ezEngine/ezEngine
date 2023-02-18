@@ -73,14 +73,14 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezParticleEffectResource, ezParticleEffectResou
   return res;
 }
 
-void ezParticleEffectResourceDescriptor::Save(ezStreamWriter& stream) const
+void ezParticleEffectResourceDescriptor::Save(ezStreamWriter& inout_stream) const
 {
-  m_Effect.Save(stream);
+  m_Effect.Save(inout_stream);
 }
 
-void ezParticleEffectResourceDescriptor::Load(ezStreamReader& stream)
+void ezParticleEffectResourceDescriptor::Load(ezStreamReader& inout_stream)
 {
-  m_Effect.Load(stream);
+  m_Effect.Load(inout_stream);
 }
 
 

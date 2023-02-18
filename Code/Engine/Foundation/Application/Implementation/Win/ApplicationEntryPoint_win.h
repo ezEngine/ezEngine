@@ -15,7 +15,7 @@ namespace ezApplicationDetails
   EZ_FOUNDATION_DLL ezMutex& GetShutdownMutex();
 
   template <typename AppClass, typename... Args>
-  int ConsoleEntry(int argc, const char** argv, Args&&... arguments)
+  int ConsoleEntry(int iArgc, const char** pArgv, Args&&... arguments)
   {
 #if EZ_ENABLED(EZ_COMPILER_MSVC)             // Internal compiler error in MSVC. Can not align buffer otherwise the compiler will crash.
     static char appBuffer[sizeof(AppClass)]; // Not on the stack to cope with smaller stacks.
@@ -29,14 +29,14 @@ namespace ezApplicationDetails
     EZ_LOCK(GetShutdownMutex());
 
     static AppClass* pApp = new (appBuffer) AppClass(std::forward<Args>(arguments)...);
-    pApp->SetCommandLineArguments((ezUInt32)argc, argv);
+    pApp->SetCommandLineArguments((ezUInt32)iArgc, pArgv);
 
     // This handler overrides the default handler
     // (which would call ExitProcess, which leads to disorderly engine shutdowns)
-    const auto consoleHandler = [](ezMinWindows::DWORD dwCtrlType) -> ezMinWindows::BOOL {
+    const auto consoleHandler = [](ezMinWindows::DWORD ctrlType) -> ezMinWindows::BOOL {
       // We have to wait until the application has shut down orderly
       // since Windows will kill everything after this handler returns
-      pApp->SetReturnCode(dwCtrlType);
+      pApp->SetReturnCode(ctrlType);
       pApp->RequestQuit();
       EZ_LOCK(GetShutdownMutex());
       return 1; // returns TRUE, which deactivates the default console control handler

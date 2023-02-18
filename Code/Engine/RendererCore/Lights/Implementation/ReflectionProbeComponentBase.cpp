@@ -138,11 +138,11 @@ bool ezReflectionProbeComponentBase::GetShowMipMaps() const
   return m_Desc.m_bShowMipMaps;
 }
 
-void ezReflectionProbeComponentBase::SerializeComponent(ezWorldWriter& stream) const
+void ezReflectionProbeComponentBase::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 
-  ezStreamWriter& s = stream.GetStream();
+  ezStreamWriter& s = inout_stream.GetStream();
 
   m_Desc.m_IncludeTags.Save(s);
   m_Desc.m_ExcludeTags.Save(s);
@@ -154,11 +154,11 @@ void ezReflectionProbeComponentBase::SerializeComponent(ezWorldWriter& stream) c
   s << m_Desc.m_vCaptureOffset;
 }
 
-void ezReflectionProbeComponentBase::DeserializeComponent(ezWorldReader& stream)
+void ezReflectionProbeComponentBase::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
+  SUPER::DeserializeComponent(inout_stream);
   //const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  ezStreamReader& s = stream.GetStream();
+  ezStreamReader& s = inout_stream.GetStream();
 
   m_Desc.m_IncludeTags.Load(s, ezTagRegistry::GetGlobalRegistry());
   m_Desc.m_ExcludeTags.Load(s, ezTagRegistry::GetGlobalRegistry());

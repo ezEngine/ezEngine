@@ -15,7 +15,7 @@ public:
   void SetAngle(ezAngle angle);
   ezAngle GetAngle() const { return m_Angle; }
 
-  void SetRadius(float radius) { m_fRadius = radius; }
+  void SetRadius(float fRadius) { m_fRadius = fRadius; }
 
 protected:
   virtual void DoFocusLost(bool bCancel) override;

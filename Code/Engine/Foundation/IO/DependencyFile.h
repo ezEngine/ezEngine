@@ -27,11 +27,11 @@ public:
 
   /// \brief Writes the current state to a stream. Note that you probably should call StoreCurrentTimeStamp() before this, to serialize the latest
   /// file stamp
-  ezResult WriteDependencyFile(ezStreamWriter& stream) const;
+  ezResult WriteDependencyFile(ezStreamWriter& inout_stream) const;
 
   /// \brief Reads the state from a stream. Call HasAnyFileChanged() afterwards to determine whether anything has changed since when the data was
   /// serialized.
-  ezResult ReadDependencyFile(ezStreamReader& stream);
+  ezResult ReadDependencyFile(ezStreamReader& inout_stream);
 
   /// \brief Writes the current state to a file. Note that you probably should call StoreCurrentTimeStamp() before this, to serialize the latest file
   /// stamp

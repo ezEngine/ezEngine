@@ -16,124 +16,124 @@ struct ezShaderStateVersion
   };
 };
 
-void ezShaderStateResourceDescriptor::Save(ezStreamWriter& stream) const
+void ezShaderStateResourceDescriptor::Save(ezStreamWriter& inout_stream) const
 {
-  stream << (ezUInt32)ezShaderStateVersion::Current;
+  inout_stream << (ezUInt32)ezShaderStateVersion::Current;
 
   // Blend State
   {
-    stream << m_BlendDesc.m_bAlphaToCoverage;
-    stream << m_BlendDesc.m_bIndependentBlend;
+    inout_stream << m_BlendDesc.m_bAlphaToCoverage;
+    inout_stream << m_BlendDesc.m_bIndependentBlend;
 
     const ezUInt8 iBlends = m_BlendDesc.m_bIndependentBlend ? EZ_GAL_MAX_RENDERTARGET_COUNT : 1;
-    stream << iBlends; // in case EZ_GAL_MAX_RENDERTARGET_COUNT ever changes
+    inout_stream << iBlends; // in case EZ_GAL_MAX_RENDERTARGET_COUNT ever changes
 
     for (ezUInt32 b = 0; b < iBlends; ++b)
     {
-      stream << m_BlendDesc.m_RenderTargetBlendDescriptions[b].m_bBlendingEnabled;
-      stream << (ezUInt8)m_BlendDesc.m_RenderTargetBlendDescriptions[b].m_BlendOp;
-      stream << (ezUInt8)m_BlendDesc.m_RenderTargetBlendDescriptions[b].m_BlendOpAlpha;
-      stream << (ezUInt8)m_BlendDesc.m_RenderTargetBlendDescriptions[b].m_DestBlend;
-      stream << (ezUInt8)m_BlendDesc.m_RenderTargetBlendDescriptions[b].m_DestBlendAlpha;
-      stream << (ezUInt8)m_BlendDesc.m_RenderTargetBlendDescriptions[b].m_SourceBlend;
-      stream << (ezUInt8)m_BlendDesc.m_RenderTargetBlendDescriptions[b].m_SourceBlendAlpha;
-      stream << m_BlendDesc.m_RenderTargetBlendDescriptions[b].m_uiWriteMask;
+      inout_stream << m_BlendDesc.m_RenderTargetBlendDescriptions[b].m_bBlendingEnabled;
+      inout_stream << (ezUInt8)m_BlendDesc.m_RenderTargetBlendDescriptions[b].m_BlendOp;
+      inout_stream << (ezUInt8)m_BlendDesc.m_RenderTargetBlendDescriptions[b].m_BlendOpAlpha;
+      inout_stream << (ezUInt8)m_BlendDesc.m_RenderTargetBlendDescriptions[b].m_DestBlend;
+      inout_stream << (ezUInt8)m_BlendDesc.m_RenderTargetBlendDescriptions[b].m_DestBlendAlpha;
+      inout_stream << (ezUInt8)m_BlendDesc.m_RenderTargetBlendDescriptions[b].m_SourceBlend;
+      inout_stream << (ezUInt8)m_BlendDesc.m_RenderTargetBlendDescriptions[b].m_SourceBlendAlpha;
+      inout_stream << m_BlendDesc.m_RenderTargetBlendDescriptions[b].m_uiWriteMask;
     }
   }
 
   // Depth Stencil State
   {
-    stream << (ezUInt8)m_DepthStencilDesc.m_DepthTestFunc;
-    stream << m_DepthStencilDesc.m_bDepthTest;
-    stream << m_DepthStencilDesc.m_bDepthWrite;
-    stream << m_DepthStencilDesc.m_bSeparateFrontAndBack;
-    stream << m_DepthStencilDesc.m_bStencilTest;
-    stream << m_DepthStencilDesc.m_uiStencilReadMask;
-    stream << m_DepthStencilDesc.m_uiStencilWriteMask;
-    stream << (ezUInt8)m_DepthStencilDesc.m_FrontFaceStencilOp.m_DepthFailOp;
-    stream << (ezUInt8)m_DepthStencilDesc.m_FrontFaceStencilOp.m_FailOp;
-    stream << (ezUInt8)m_DepthStencilDesc.m_FrontFaceStencilOp.m_PassOp;
-    stream << (ezUInt8)m_DepthStencilDesc.m_FrontFaceStencilOp.m_StencilFunc;
-    stream << (ezUInt8)m_DepthStencilDesc.m_BackFaceStencilOp.m_DepthFailOp;
-    stream << (ezUInt8)m_DepthStencilDesc.m_BackFaceStencilOp.m_FailOp;
-    stream << (ezUInt8)m_DepthStencilDesc.m_BackFaceStencilOp.m_PassOp;
-    stream << (ezUInt8)m_DepthStencilDesc.m_BackFaceStencilOp.m_StencilFunc;
+    inout_stream << (ezUInt8)m_DepthStencilDesc.m_DepthTestFunc;
+    inout_stream << m_DepthStencilDesc.m_bDepthTest;
+    inout_stream << m_DepthStencilDesc.m_bDepthWrite;
+    inout_stream << m_DepthStencilDesc.m_bSeparateFrontAndBack;
+    inout_stream << m_DepthStencilDesc.m_bStencilTest;
+    inout_stream << m_DepthStencilDesc.m_uiStencilReadMask;
+    inout_stream << m_DepthStencilDesc.m_uiStencilWriteMask;
+    inout_stream << (ezUInt8)m_DepthStencilDesc.m_FrontFaceStencilOp.m_DepthFailOp;
+    inout_stream << (ezUInt8)m_DepthStencilDesc.m_FrontFaceStencilOp.m_FailOp;
+    inout_stream << (ezUInt8)m_DepthStencilDesc.m_FrontFaceStencilOp.m_PassOp;
+    inout_stream << (ezUInt8)m_DepthStencilDesc.m_FrontFaceStencilOp.m_StencilFunc;
+    inout_stream << (ezUInt8)m_DepthStencilDesc.m_BackFaceStencilOp.m_DepthFailOp;
+    inout_stream << (ezUInt8)m_DepthStencilDesc.m_BackFaceStencilOp.m_FailOp;
+    inout_stream << (ezUInt8)m_DepthStencilDesc.m_BackFaceStencilOp.m_PassOp;
+    inout_stream << (ezUInt8)m_DepthStencilDesc.m_BackFaceStencilOp.m_StencilFunc;
   }
 
   // Rasterizer State
   {
-    stream << m_RasterizerDesc.m_bFrontCounterClockwise;
-    stream << m_RasterizerDesc.m_bScissorTest;
-    stream << m_RasterizerDesc.m_bWireFrame;
-    stream << (ezUInt8)m_RasterizerDesc.m_CullMode;
-    stream << m_RasterizerDesc.m_fDepthBiasClamp;
-    stream << m_RasterizerDesc.m_fSlopeScaledDepthBias;
-    stream << m_RasterizerDesc.m_iDepthBias;
-    stream << m_RasterizerDesc.m_bConservativeRasterization;
+    inout_stream << m_RasterizerDesc.m_bFrontCounterClockwise;
+    inout_stream << m_RasterizerDesc.m_bScissorTest;
+    inout_stream << m_RasterizerDesc.m_bWireFrame;
+    inout_stream << (ezUInt8)m_RasterizerDesc.m_CullMode;
+    inout_stream << m_RasterizerDesc.m_fDepthBiasClamp;
+    inout_stream << m_RasterizerDesc.m_fSlopeScaledDepthBias;
+    inout_stream << m_RasterizerDesc.m_iDepthBias;
+    inout_stream << m_RasterizerDesc.m_bConservativeRasterization;
   }
 }
 
-void ezShaderStateResourceDescriptor::Load(ezStreamReader& stream)
+void ezShaderStateResourceDescriptor::Load(ezStreamReader& inout_stream)
 {
   ezUInt32 uiVersion = 0;
-  stream >> uiVersion;
+  inout_stream >> uiVersion;
 
   EZ_ASSERT_DEV(uiVersion >= ezShaderStateVersion::Version1 && uiVersion <= ezShaderStateVersion::Current, "Invalid version {0}", uiVersion);
 
   // Blend State
   {
-    stream >> m_BlendDesc.m_bAlphaToCoverage;
-    stream >> m_BlendDesc.m_bIndependentBlend;
+    inout_stream >> m_BlendDesc.m_bAlphaToCoverage;
+    inout_stream >> m_BlendDesc.m_bIndependentBlend;
 
     ezUInt8 iBlends = 0;
-    stream >> iBlends; // in case EZ_GAL_MAX_RENDERTARGET_COUNT ever changes
+    inout_stream >> iBlends; // in case EZ_GAL_MAX_RENDERTARGET_COUNT ever changes
 
     for (ezUInt32 b = 0; b < iBlends; ++b)
     {
       ezUInt8 uiTemp;
-      stream >> m_BlendDesc.m_RenderTargetBlendDescriptions[b].m_bBlendingEnabled;
-      stream >> uiTemp;
+      inout_stream >> m_BlendDesc.m_RenderTargetBlendDescriptions[b].m_bBlendingEnabled;
+      inout_stream >> uiTemp;
       m_BlendDesc.m_RenderTargetBlendDescriptions[b].m_BlendOp = (ezGALBlendOp::Enum)uiTemp;
-      stream >> uiTemp;
+      inout_stream >> uiTemp;
       m_BlendDesc.m_RenderTargetBlendDescriptions[b].m_BlendOpAlpha = (ezGALBlendOp::Enum)uiTemp;
-      stream >> uiTemp;
+      inout_stream >> uiTemp;
       m_BlendDesc.m_RenderTargetBlendDescriptions[b].m_DestBlend = (ezGALBlend::Enum)uiTemp;
-      stream >> uiTemp;
+      inout_stream >> uiTemp;
       m_BlendDesc.m_RenderTargetBlendDescriptions[b].m_DestBlendAlpha = (ezGALBlend::Enum)uiTemp;
-      stream >> uiTemp;
+      inout_stream >> uiTemp;
       m_BlendDesc.m_RenderTargetBlendDescriptions[b].m_SourceBlend = (ezGALBlend::Enum)uiTemp;
-      stream >> uiTemp;
+      inout_stream >> uiTemp;
       m_BlendDesc.m_RenderTargetBlendDescriptions[b].m_SourceBlendAlpha = (ezGALBlend::Enum)uiTemp;
-      stream >> m_BlendDesc.m_RenderTargetBlendDescriptions[b].m_uiWriteMask;
+      inout_stream >> m_BlendDesc.m_RenderTargetBlendDescriptions[b].m_uiWriteMask;
     }
   }
 
   // Depth Stencil State
   {
     ezUInt8 uiTemp = 0;
-    stream >> uiTemp;
+    inout_stream >> uiTemp;
     m_DepthStencilDesc.m_DepthTestFunc = (ezGALCompareFunc::Enum)uiTemp;
-    stream >> m_DepthStencilDesc.m_bDepthTest;
-    stream >> m_DepthStencilDesc.m_bDepthWrite;
-    stream >> m_DepthStencilDesc.m_bSeparateFrontAndBack;
-    stream >> m_DepthStencilDesc.m_bStencilTest;
-    stream >> m_DepthStencilDesc.m_uiStencilReadMask;
-    stream >> m_DepthStencilDesc.m_uiStencilWriteMask;
-    stream >> uiTemp;
+    inout_stream >> m_DepthStencilDesc.m_bDepthTest;
+    inout_stream >> m_DepthStencilDesc.m_bDepthWrite;
+    inout_stream >> m_DepthStencilDesc.m_bSeparateFrontAndBack;
+    inout_stream >> m_DepthStencilDesc.m_bStencilTest;
+    inout_stream >> m_DepthStencilDesc.m_uiStencilReadMask;
+    inout_stream >> m_DepthStencilDesc.m_uiStencilWriteMask;
+    inout_stream >> uiTemp;
     m_DepthStencilDesc.m_FrontFaceStencilOp.m_DepthFailOp = (ezGALStencilOp::Enum)uiTemp;
-    stream >> uiTemp;
+    inout_stream >> uiTemp;
     m_DepthStencilDesc.m_FrontFaceStencilOp.m_FailOp = (ezGALStencilOp::Enum)uiTemp;
-    stream >> uiTemp;
+    inout_stream >> uiTemp;
     m_DepthStencilDesc.m_FrontFaceStencilOp.m_PassOp = (ezGALStencilOp::Enum)uiTemp;
-    stream >> uiTemp;
+    inout_stream >> uiTemp;
     m_DepthStencilDesc.m_FrontFaceStencilOp.m_StencilFunc = (ezGALCompareFunc::Enum)uiTemp;
-    stream >> uiTemp;
+    inout_stream >> uiTemp;
     m_DepthStencilDesc.m_BackFaceStencilOp.m_DepthFailOp = (ezGALStencilOp::Enum)uiTemp;
-    stream >> uiTemp;
+    inout_stream >> uiTemp;
     m_DepthStencilDesc.m_BackFaceStencilOp.m_FailOp = (ezGALStencilOp::Enum)uiTemp;
-    stream >> uiTemp;
+    inout_stream >> uiTemp;
     m_DepthStencilDesc.m_BackFaceStencilOp.m_PassOp = (ezGALStencilOp::Enum)uiTemp;
-    stream >> uiTemp;
+    inout_stream >> uiTemp;
     m_DepthStencilDesc.m_BackFaceStencilOp.m_StencilFunc = (ezGALCompareFunc::Enum)uiTemp;
   }
 
@@ -144,29 +144,29 @@ void ezShaderStateResourceDescriptor::Load(ezStreamReader& stream)
     if (uiVersion < ezShaderStateVersion::Version2)
     {
       bool dummy;
-      stream >> dummy;
+      inout_stream >> dummy;
     }
 
-    stream >> m_RasterizerDesc.m_bFrontCounterClockwise;
+    inout_stream >> m_RasterizerDesc.m_bFrontCounterClockwise;
 
     if (uiVersion < ezShaderStateVersion::Version2)
     {
       bool dummy;
-      stream >> dummy;
-      stream >> dummy;
+      inout_stream >> dummy;
+      inout_stream >> dummy;
     }
 
-    stream >> m_RasterizerDesc.m_bScissorTest;
-    stream >> m_RasterizerDesc.m_bWireFrame;
-    stream >> uiTemp;
+    inout_stream >> m_RasterizerDesc.m_bScissorTest;
+    inout_stream >> m_RasterizerDesc.m_bWireFrame;
+    inout_stream >> uiTemp;
     m_RasterizerDesc.m_CullMode = (ezGALCullMode::Enum)uiTemp;
-    stream >> m_RasterizerDesc.m_fDepthBiasClamp;
-    stream >> m_RasterizerDesc.m_fSlopeScaledDepthBias;
-    stream >> m_RasterizerDesc.m_iDepthBias;
+    inout_stream >> m_RasterizerDesc.m_fDepthBiasClamp;
+    inout_stream >> m_RasterizerDesc.m_fSlopeScaledDepthBias;
+    inout_stream >> m_RasterizerDesc.m_iDepthBias;
 
     if (uiVersion >= ezShaderStateVersion::Version3)
     {
-      stream >> m_RasterizerDesc.m_bConservativeRasterization;
+      inout_stream >> m_RasterizerDesc.m_bConservativeRasterization;
     }
   }
 }
@@ -176,17 +176,17 @@ ezUInt32 ezShaderStateResourceDescriptor::CalculateHash() const
   return m_BlendDesc.CalculateHash() + m_RasterizerDesc.CalculateHash() + m_DepthStencilDesc.CalculateHash();
 }
 
-static const char* InsertNumber(const char* szString, ezUInt32 uiNumber, ezStringBuilder& sTemp)
+static const char* InsertNumber(const char* szString, ezUInt32 uiNumber, ezStringBuilder& ref_sTemp)
 {
-  sTemp.Format(szString, uiNumber);
-  return sTemp.GetData();
+  ref_sTemp.Format(szString, uiNumber);
+  return ref_sTemp.GetData();
 }
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
 static ezSet<ezString> s_AllAllowedVariables;
 #endif
 
-static bool GetBoolStateVariable(const ezMap<ezString, ezString>& variables, const char* szVariable, bool defValue)
+static bool GetBoolStateVariable(const ezMap<ezString, ezString>& variables, const char* szVariable, bool bDefValue)
 {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   s_AllAllowedVariables.Insert(szVariable);
@@ -195,7 +195,7 @@ static bool GetBoolStateVariable(const ezMap<ezString, ezString>& variables, con
   auto it = variables.Find(szVariable);
 
   if (!it.IsValid())
-    return defValue;
+    return bDefValue;
 
   if (it.Value() == "true")
     return true;
@@ -203,11 +203,11 @@ static bool GetBoolStateVariable(const ezMap<ezString, ezString>& variables, con
     return false;
 
   ezLog::Error("Shader state variable '{0}' is set to invalid value '{1}'. Should be 'true' or 'false'", szVariable, it.Value());
-  return defValue;
+  return bDefValue;
 }
 
 static ezInt32 GetEnumStateVariable(
-  const ezMap<ezString, ezString>& variables, const ezMap<ezString, ezInt32>& values, const char* szVariable, ezInt32 defValue)
+  const ezMap<ezString, ezString>& variables, const ezMap<ezString, ezInt32>& values, const char* szVariable, ezInt32 iDefValue)
 {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   s_AllAllowedVariables.Insert(szVariable);
@@ -216,7 +216,7 @@ static ezInt32 GetEnumStateVariable(
   auto it = variables.Find(szVariable);
 
   if (!it.IsValid())
-    return defValue;
+    return iDefValue;
 
   auto itVal = values.Find(it.Value());
   if (!itVal.IsValid())
@@ -228,13 +228,13 @@ static ezInt32 GetEnumStateVariable(
     }
 
     ezLog::Error("Shader state variable '{0}' is set to invalid value '{1}'. Valid values are:{2}", szVariable, it.Value(), valid);
-    return defValue;
+    return iDefValue;
   }
 
   return itVal.Value();
 }
 
-static float GetFloatStateVariable(const ezMap<ezString, ezString>& variables, const char* szVariable, float defValue)
+static float GetFloatStateVariable(const ezMap<ezString, ezString>& variables, const char* szVariable, float fDefValue)
 {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   s_AllAllowedVariables.Insert(szVariable);
@@ -243,19 +243,19 @@ static float GetFloatStateVariable(const ezMap<ezString, ezString>& variables, c
   auto it = variables.Find(szVariable);
 
   if (!it.IsValid())
-    return defValue;
+    return fDefValue;
 
   double result = 0;
   if (ezConversionUtils::StringToFloat(it.Value(), result).Failed())
   {
     ezLog::Error("Shader state variable '{0}' is not a valid float value: '{1}'.", szVariable, it.Value());
-    return defValue;
+    return fDefValue;
   }
 
   return (float)result;
 }
 
-static ezInt32 GetIntStateVariable(const ezMap<ezString, ezString>& variables, const char* szVariable, ezInt32 defValue)
+static ezInt32 GetIntStateVariable(const ezMap<ezString, ezString>& variables, const char* szVariable, ezInt32 iDefValue)
 {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   s_AllAllowedVariables.Insert(szVariable);
@@ -264,13 +264,13 @@ static ezInt32 GetIntStateVariable(const ezMap<ezString, ezString>& variables, c
   auto it = variables.Find(szVariable);
 
   if (!it.IsValid())
-    return defValue;
+    return iDefValue;
 
   ezInt32 result = 0;
   if (ezConversionUtils::StringToInt(it.Value(), result).Failed())
   {
     ezLog::Error("Shader state variable '{0}' is not a valid int value: '{1}'.", szVariable, it.Value());
-    return defValue;
+    return iDefValue;
   }
 
   return result;

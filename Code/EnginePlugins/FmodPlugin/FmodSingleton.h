@@ -31,7 +31,7 @@ struct EZ_FMODPLUGIN_DLL ezFmodConfiguration
   ezUInt16 m_uiVirtualChannels = 32;                                ///< See FMOD::Studio::System::initialize
   ezUInt32 m_uiSamplerRate = 0;                                     ///< See FMOD::System::setSoftwareFormat
 
-  void Save(ezOpenDdlWriter& ddl) const;
+  void Save(ezOpenDdlWriter& ref_ddl) const;
   void Load(const ezOpenDdlReaderElement& ddl);
 
   bool operator==(const ezFmodConfiguration& rhs) const;
@@ -72,23 +72,23 @@ public:
   virtual void UpdateSound() override;
 
   /// \brief Adjusts the master volume. This affects all sounds, with no exception. Value must be between 0.0f and 1.0f.
-  virtual void SetMasterChannelVolume(float volume) override;
+  virtual void SetMasterChannelVolume(float fVolume) override;
   virtual float GetMasterChannelVolume() const override;
 
   /// \brief Allows to mute all sounds. Useful for when the application goes to a background state.
-  virtual void SetMasterChannelMute(bool mute) override;
+  virtual void SetMasterChannelMute(bool bMute) override;
   virtual bool GetMasterChannelMute() const override;
 
   /// \brief Allows to pause all sounds. Useful for when the application goes to a background state and you want to pause all sounds,
   /// instead of mute them.
-  virtual void SetMasterChannelPaused(bool paused) override;
+  virtual void SetMasterChannelPaused(bool bPaused) override;
   virtual bool GetMasterChannelPaused() const override;
 
   /// \brief Specifies the volume for a VCA ('Voltage Control Amplifier').
   ///
   /// This is used to control the volume of high level sound groups, such as 'Effects', 'Music', 'Ambiance or 'Speech'.
   /// Note that the fmod strings banks are never loaded, so the given string must be a GUID (fmod Studio -> Copy GUID).
-  virtual void SetSoundGroupVolume(const char* szVcaGroupGuid, float volume) override;
+  virtual void SetSoundGroupVolume(const char* szVcaGroupGuid, float fVolume) override;
   virtual float GetSoundGroupVolume(const char* szVcaGroupGuid) const override;
   void UpdateSoundGroupVolumes();
 
@@ -110,7 +110,7 @@ public:
   ezUInt8 GetNumBlendedReverbVolumes() const { return m_uiNumBlendedVolumes; }
 
 
-  virtual void SetListenerOverrideMode(bool enabled) override;
+  virtual void SetListenerOverrideMode(bool bEnabled) override;
   virtual void SetListener(ezInt32 iIndex, const ezVec3& vPosition, const ezVec3& vForward, const ezVec3& vUp, const ezVec3& vVelocity) override;
   ezVec3 GetListenerPosition() { return m_vListenerPosition; }
 

@@ -28,10 +28,10 @@ public:
 
   ezParticleType* CreateType(ezParticleSystemInstance* pOwner) const;
 
-  virtual void QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_FinalizerDeps) const {}
+  virtual void QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_finalizerDeps) const {}
 
-  virtual void Save(ezStreamWriter& stream) const = 0;
-  virtual void Load(ezStreamReader& stream) = 0;
+  virtual void Save(ezStreamWriter& inout_stream) const = 0;
+  virtual void Load(ezStreamReader& inout_stream) = 0;
 };
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleType : public ezParticleModule
@@ -43,7 +43,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleType : public ezParticleModule
 public:
   virtual float GetMaxParticleRadius(float fParticleSize) const { return fParticleSize * 0.5f; }
 
-  virtual void ExtractTypeRenderData(ezMsgExtractRenderData& msg, const ezTransform& instanceTransform) const = 0;
+  virtual void ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg, const ezTransform& instanceTransform) const = 0;
 
 protected:
   ezParticleType();

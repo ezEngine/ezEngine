@@ -70,7 +70,7 @@ void ezProcessingStreamGroup::ClearProcessors()
   m_Processors.Clear();
 }
 
-ezProcessingStream* ezProcessingStreamGroup::AddStream(ezStringView sName, ezProcessingStream::DataType Type)
+ezProcessingStream* ezProcessingStreamGroup::AddStream(ezStringView sName, ezProcessingStream::DataType type)
 {
   // Treat adding a stream two times as an error (return null)
   if (GetStreamByName(sName))
@@ -78,7 +78,7 @@ ezProcessingStream* ezProcessingStreamGroup::AddStream(ezStringView sName, ezPro
 
   ezHashedString Name;
   Name.Assign(sName);
-  ezProcessingStream* pStream = EZ_DEFAULT_NEW(ezProcessingStream, Name, Type, ezProcessingStream::GetDataTypeSize(Type), 16);
+  ezProcessingStream* pStream = EZ_DEFAULT_NEW(ezProcessingStream, Name, type, ezProcessingStream::GetDataTypeSize(type), 16);
 
   m_DataStreams.PushBack(pStream);
 

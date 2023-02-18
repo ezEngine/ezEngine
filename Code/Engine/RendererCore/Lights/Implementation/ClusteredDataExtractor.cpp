@@ -173,7 +173,7 @@ ezClusteredDataExtractor::ezClusteredDataExtractor(const char* szName)
 ezClusteredDataExtractor::~ezClusteredDataExtractor() {}
 
 void ezClusteredDataExtractor::PostSortAndBatch(
-  const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& extractedRenderData)
+  const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData)
 {
   EZ_PROFILE_SCOPE("PostSortAndBatch");
 
@@ -198,7 +198,7 @@ void ezClusteredDataExtractor::PostSortAndBatch(
     m_TempLightData.Clear();
     ezMemoryUtils::ZeroFill(m_TempLightsClusters.GetData(), NUM_CLUSTERS);
 
-    auto batchList = extractedRenderData.GetRenderDataBatchesWithCategory(ezDefaultRenderDataCategories::Light);
+    auto batchList = ref_extractedRenderData.GetRenderDataBatchesWithCategory(ezDefaultRenderDataCategories::Light);
     const ezUInt32 uiBatchCount = batchList.GetBatchCount();
     for (ezUInt32 i = 0; i < uiBatchCount; ++i)
     {
@@ -293,7 +293,7 @@ void ezClusteredDataExtractor::PostSortAndBatch(
     m_TempDecalData.Clear();
     ezMemoryUtils::ZeroFill(m_TempDecalsClusters.GetData(), NUM_CLUSTERS);
 
-    auto batchList = extractedRenderData.GetRenderDataBatchesWithCategory(ezDefaultRenderDataCategories::Decal);
+    auto batchList = ref_extractedRenderData.GetRenderDataBatchesWithCategory(ezDefaultRenderDataCategories::Decal);
     const ezUInt32 uiBatchCount = batchList.GetBatchCount();
     for (ezUInt32 i = 0; i < uiBatchCount; ++i)
     {
@@ -332,7 +332,7 @@ void ezClusteredDataExtractor::PostSortAndBatch(
     m_TempReflectionProbeData.Clear();
     ezMemoryUtils::ZeroFill(m_TempReflectionProbeClusters.GetData(), NUM_CLUSTERS);
 
-    auto batchList = extractedRenderData.GetRenderDataBatchesWithCategory(ezDefaultRenderDataCategories::ReflectionProbe);
+    auto batchList = ref_extractedRenderData.GetRenderDataBatchesWithCategory(ezDefaultRenderDataCategories::ReflectionProbe);
     const ezUInt32 uiBatchCount = batchList.GetBatchCount();
     for (ezUInt32 i = 0; i < uiBatchCount; ++i)
     {
@@ -401,7 +401,7 @@ void ezClusteredDataExtractor::PostSortAndBatch(
 
   FillItemListAndClusterData(pData);
 
-  extractedRenderData.AddFrameData(pData);
+  ref_extractedRenderData.AddFrameData(pData);
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   VisualizeClusteredData(view, pData, m_ClusterBoundingSpheres);

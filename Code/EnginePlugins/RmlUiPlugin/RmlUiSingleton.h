@@ -28,12 +28,12 @@ public:
   ezRmlUi();
   ~ezRmlUi();
 
-  ezRmlUiContext* CreateContext(const char* szName, const ezVec2U32& initialSize);
+  ezRmlUiContext* CreateContext(const char* szName, const ezVec2U32& vInitialSize);
   void DeleteContext(ezRmlUiContext* pContext);
 
   bool AnyContextWantsInput();
 
-  void ExtractContext(ezRmlUiContext& context, ezMsgExtractRenderData& msg);
+  void ExtractContext(ezRmlUiContext& ref_context, ezMsgExtractRenderData& ref_msg);
 
 private:
   struct Data;

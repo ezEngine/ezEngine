@@ -23,10 +23,10 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneDocument, 7, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-ezSceneDocument::ezSceneDocument(const char* szDocumentPath, DocumentType DocumentType)
+ezSceneDocument::ezSceneDocument(const char* szDocumentPath, DocumentType documentType)
   : ezGameObjectDocument(szDocumentPath, EZ_DEFAULT_NEW(ezSceneObjectManager))
 {
-  m_DocumentType = DocumentType;
+  m_DocumentType = documentType;
   m_GameMode = GameMode::Off;
   SetAddAmbientLight(IsPrefab());
 
@@ -532,10 +532,10 @@ void ezSceneDocument::SetGameMode(GameMode::Enum mode)
   ScheduleSendObjectSelection();
 }
 
-ezStatus ezSceneDocument::CreatePrefabDocumentFromSelection(const char* szFile, const ezRTTI* pRootType, ezDelegate<void(ezAbstractObjectNode*)> AdjustGraphNodeCB /* = ezDelegate<void(ezAbstractObjectNode * )>() */, ezDelegate<void(ezDocumentObject*)> AdjustNewNodesCB /*= ezDelegate<void(ezDocumentObject*)>()*/)
+ezStatus ezSceneDocument::CreatePrefabDocumentFromSelection(const char* szFile, const ezRTTI* pRootType, ezDelegate<void(ezAbstractObjectNode*)> adjustGraphNodeCB /* = ezDelegate<void(ezAbstractObjectNode * )>() */, ezDelegate<void(ezDocumentObject*)> adjustNewNodesCB /*= ezDelegate<void(ezDocumentObject*)>()*/)
 {
-  EZ_ASSERT_DEV(!AdjustGraphNodeCB.IsValid(), "Not allowed");
-  EZ_ASSERT_DEV(!AdjustNewNodesCB.IsValid(), "Not allowed");
+  EZ_ASSERT_DEV(!adjustGraphNodeCB.IsValid(), "Not allowed");
+  EZ_ASSERT_DEV(!adjustNewNodesCB.IsValid(), "Not allowed");
 
   auto Selection = GetSelectionManager()->GetTopLevelSelection(pRootType);
 
@@ -702,18 +702,18 @@ void ezSceneDocument::ShowOrHideAllObjects(ShowOrHide action)
 
     m_DocumentObjectMetaData->EndModifyMetaData(uiFlags); });
 }
-void ezSceneDocument::GetSupportedMimeTypesForPasting(ezHybridArray<ezString, 4>& out_MimeTypes) const
+void ezSceneDocument::GetSupportedMimeTypesForPasting(ezHybridArray<ezString, 4>& out_mimeTypes) const
 {
-  out_MimeTypes.PushBack("application/ezEditor.ezAbstractGraph");
+  out_mimeTypes.PushBack("application/ezEditor.ezAbstractGraph");
 }
 
-bool ezSceneDocument::CopySelectedObjects(ezAbstractObjectGraph& graph, ezStringBuilder& out_MimeType) const
+bool ezSceneDocument::CopySelectedObjects(ezAbstractObjectGraph& ref_graph, ezStringBuilder& out_sMimeType) const
 {
-  out_MimeType = "application/ezEditor.ezAbstractGraph";
-  return CopySelectedObjects(graph, nullptr);
+  out_sMimeType = "application/ezEditor.ezAbstractGraph";
+  return CopySelectedObjects(ref_graph, nullptr);
 }
 
-bool ezSceneDocument::CopySelectedObjects(ezAbstractObjectGraph& graph, ezMap<ezUuid, ezUuid>* out_pParents) const
+bool ezSceneDocument::CopySelectedObjects(ezAbstractObjectGraph& ref_graph, ezMap<ezUuid, ezUuid>* out_pParents) const
 {
   if (GetSelectionManager()->GetSelection().GetCount() == 0)
     return false;
@@ -721,7 +721,7 @@ bool ezSceneDocument::CopySelectedObjects(ezAbstractObjectGraph& graph, ezMap<ez
   // Serialize selection to graph
   auto Selection = GetSelectionManager()->GetTopLevelSelection();
 
-  ezDocumentObjectConverterWriter writer(&graph, GetObjectManager());
+  ezDocumentObjectConverterWriter writer(&ref_graph, GetObjectManager());
 
   // TODO: objects are required to be named root but this is not enforced or obvious by the interface.
   for (ezUInt32 i = 0; i < Selection.GetCount(); i++)
@@ -742,7 +742,7 @@ bool ezSceneDocument::CopySelectedObjects(ezAbstractObjectGraph& graph, ezMap<ez
     }
   }
 
-  AttachMetaDataBeforeSaving(graph);
+  AttachMetaDataBeforeSaving(ref_graph);
 
   return true;
 }
@@ -986,10 +986,10 @@ ezInt32 ezSceneDocument::FindExposedParameter(const ezDocumentObject* pObject, c
   return -1;
 }
 
-ezStatus ezSceneDocument::RemoveExposedParameter(ezInt32 index)
+ezStatus ezSceneDocument::RemoveExposedParameter(ezInt32 iIndex)
 {
   ezVariant value;
-  auto res = GetObjectAccessor()->GetValue(GetSettingsObject(), "ExposedProperties", value, index);
+  auto res = GetObjectAccessor()->GetValue(GetSettingsObject(), "ExposedProperties", value, iIndex);
   if (res.Failed())
     return res;
 

@@ -51,11 +51,11 @@ public:
 
   /// Searches for the word szSearchFor. If IsDelimiterCB returns true for both characters in front and back of the word, the position is
   /// returned. Otherwise nullptr.
-  const char* FindWholeWord(const char* szSearchFor, ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB, const char* szStartSearchAt = nullptr) const; // [tested]
+  const char* FindWholeWord(const char* szSearchFor, ezStringUtils::EZ_CHARACTER_FILTER isDelimiterCB, const char* szStartSearchAt = nullptr) const; // [tested]
 
   /// Searches for the word szSearchFor. If IsDelimiterCB returns true for both characters in front and back of the word, the position is
   /// returned. Otherwise nullptr. Ignores case.
-  const char* FindWholeWord_NoCase(const char* szSearchFor, ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB, const char* szStartSearchAt = nullptr) const; // [tested]
+  const char* FindWholeWord_NoCase(const char* szSearchFor, ezStringUtils::EZ_CHARACTER_FILTER isDelimiterCB, const char* szStartSearchAt = nullptr) const; // [tested]
 
   /// Compares this string with the other one. Returns 0 for equality, -1 if this string is 'smaller', 1 otherwise.
   ezInt32 Compare(ezStringView sOther) const; // [tested]
@@ -113,7 +113,7 @@ public:
   /// szSeparator1 to szSeparator6 are strings which act as separators and indicate where to split the string.
   /// This string itself will not be modified.
   template <typename Container>
-  void Split(bool bReturnEmptyStrings, Container& Output, const char* szSeparator1, const char* szSeparator2 = nullptr, const char* szSeparator3 = nullptr, const char* szSeparator4 = nullptr, const char* szSeparator5 = nullptr, const char* szSeparator6 = nullptr) const; // [tested]
+  void Split(bool bReturnEmptyStrings, Container& ref_output, const char* szSeparator1, const char* szSeparator2 = nullptr, const char* szSeparator3 = nullptr, const char* szSeparator4 = nullptr, const char* szSeparator5 = nullptr, const char* szSeparator6 = nullptr) const; // [tested]
 
   /// \brief Checks whether the given path has any file extension
   bool HasAnyExtension() const; // [tested]

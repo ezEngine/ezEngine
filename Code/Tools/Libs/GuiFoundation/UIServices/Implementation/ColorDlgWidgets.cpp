@@ -5,39 +5,39 @@
 #include <QPainter>
 #include <qevent.h>
 
-ezQtColorAreaWidget::ezQtColorAreaWidget(QWidget* parent)
-  : QWidget(parent)
+ezQtColorAreaWidget::ezQtColorAreaWidget(QWidget* pParent)
+  : QWidget(pParent)
 {
   setAutoFillBackground(false);
 
   m_fHue = -1.0f;
 }
 
-void ezQtColorAreaWidget::SetHue(float hue)
+void ezQtColorAreaWidget::SetHue(float fHue)
 {
-  if (m_fHue == hue)
+  if (m_fHue == fHue)
     return;
 
-  m_fHue = hue;
+  m_fHue = fHue;
   UpdateImage();
   update();
 }
 
-void ezQtColorAreaWidget::SetSaturation(float sat)
+void ezQtColorAreaWidget::SetSaturation(float fSat)
 {
-  if (m_fSaturation == sat)
+  if (m_fSaturation == fSat)
     return;
 
-  m_fSaturation = sat;
+  m_fSaturation = fSat;
   update();
 }
 
-void ezQtColorAreaWidget::SetValue(float val)
+void ezQtColorAreaWidget::SetValue(float fVal)
 {
-  if (m_fValue == val)
+  if (m_fValue == fVal)
     return;
 
-  m_fValue = val;
+  m_fValue = fVal;
   update();
 }
 
@@ -108,18 +108,18 @@ void ezQtColorAreaWidget::mousePressEvent(QMouseEvent* event)
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-ezQtColorRangeWidget::ezQtColorRangeWidget(QWidget* parent)
-  : QWidget(parent)
+ezQtColorRangeWidget::ezQtColorRangeWidget(QWidget* pParent)
+  : QWidget(pParent)
 {
   setAutoFillBackground(false);
 }
 
-void ezQtColorRangeWidget::SetHue(float hue)
+void ezQtColorRangeWidget::SetHue(float fHue)
 {
-  if (m_fHue == hue)
+  if (m_fHue == fHue)
     return;
 
-  m_fHue = hue;
+  m_fHue = fHue;
   update();
 }
 
@@ -210,7 +210,7 @@ void ezQtColorRangeWidget::mousePressEvent(QMouseEvent* event)
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-ezQtColorCompareWidget::ezQtColorCompareWidget(QWidget* parent)
+ezQtColorCompareWidget::ezQtColorCompareWidget(QWidget* pParent)
 {
   setAutoFillBackground(false);
 }

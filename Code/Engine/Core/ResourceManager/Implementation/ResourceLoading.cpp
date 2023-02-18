@@ -393,12 +393,12 @@ ezUInt32 ezResourceManager::ReloadAllResources(bool bForce)
   return count;
 }
 
-void ezResourceManager::UpdateResourceWithCustomLoader(const ezTypelessResourceHandle& hResource, ezUniquePtr<ezResourceTypeLoader>&& loader)
+void ezResourceManager::UpdateResourceWithCustomLoader(const ezTypelessResourceHandle& hResource, ezUniquePtr<ezResourceTypeLoader>&& pLoader)
 {
   EZ_LOCK(s_ResourceMutex);
 
   hResource.m_pResource->m_Flags.Add(ezResourceFlags::HasCustomDataLoader);
-  s_pState->m_CustomLoaders[hResource.m_pResource] = std::move(loader);
+  s_pState->m_CustomLoaders[hResource.m_pResource] = std::move(pLoader);
   // if there was already a custom loader set, but it got no action yet, it is deleted here and replaced with the newer loader
 
   ReloadResource(hResource.m_pResource, true);

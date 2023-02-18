@@ -34,12 +34,12 @@ public:
   void SetTransformation(const ezTransform& transform);
   const ezTransform& GetTransformation() const { return m_Transformation; }
 
-  void ConfigureInteraction(ezGizmoHandle* pHandle, const ezCamera* pCamera, const ezVec3& vInteractionPivot, const ezVec2I32& viewport)
+  void ConfigureInteraction(ezGizmoHandle* pHandle, const ezCamera* pCamera, const ezVec3& vInteractionPivot, const ezVec2I32& vViewport)
   {
     m_pInteractionGizmoHandle = pHandle;
     m_pCamera = pCamera;
     m_vInteractionPivot = vInteractionPivot;
-    m_vViewport = viewport;
+    m_vViewport = vViewport;
   }
 
   ezEvent<const ezGizmoEvent&> m_GizmoEvents;

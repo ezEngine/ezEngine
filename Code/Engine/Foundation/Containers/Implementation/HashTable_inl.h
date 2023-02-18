@@ -328,7 +328,7 @@ void ezHashTableBase<K, V, H>::Clear()
 
 template <typename K, typename V, typename H>
 template <typename CompatibleKeyType, typename CompatibleValueType>
-bool ezHashTableBase<K, V, H>::Insert(CompatibleKeyType&& key, CompatibleValueType&& value, V* out_oldValue /*= nullptr*/)
+bool ezHashTableBase<K, V, H>::Insert(CompatibleKeyType&& key, CompatibleValueType&& value, V* out_pOldValue /*= nullptr*/)
 {
   Reserve(m_uiCount + 1);
 
@@ -345,8 +345,8 @@ bool ezHashTableBase<K, V, H>::Insert(CompatibleKeyType&& key, CompatibleValueTy
     }
     else if (H::Equal(m_pEntries[uiIndex].key, key))
     {
-      if (out_oldValue != nullptr)
-        *out_oldValue = std::move(m_pEntries[uiIndex].value);
+      if (out_pOldValue != nullptr)
+        *out_pOldValue = std::move(m_pEntries[uiIndex].value);
 
       m_pEntries[uiIndex].value = std::forward<CompatibleValueType>(value); // Either move or copy assignment.
       return true;
@@ -373,13 +373,13 @@ bool ezHashTableBase<K, V, H>::Insert(CompatibleKeyType&& key, CompatibleValueTy
 
 template <typename K, typename V, typename H>
 template <typename CompatibleKeyType>
-bool ezHashTableBase<K, V, H>::Remove(const CompatibleKeyType& key, V* out_oldValue /*= nullptr*/)
+bool ezHashTableBase<K, V, H>::Remove(const CompatibleKeyType& key, V* out_pOldValue /*= nullptr*/)
 {
   ezUInt32 uiIndex = FindEntry(key);
   if (uiIndex != ezInvalidIndex)
   {
-    if (out_oldValue != nullptr)
-      *out_oldValue = std::move(m_pEntries[uiIndex].value);
+    if (out_pOldValue != nullptr)
+      *out_pOldValue = std::move(m_pEntries[uiIndex].value);
 
     RemoveInternal(uiIndex);
     return true;
@@ -536,14 +536,14 @@ inline V& ezHashTableBase<K, V, H>::operator[](const K& key)
 }
 
 template <typename K, typename V, typename H>
-V& ezHashTableBase<K, V, H>::FindOrAdd(const K& key, bool* bExisted)
+V& ezHashTableBase<K, V, H>::FindOrAdd(const K& key, bool* out_pExisted)
 {
   const ezUInt32 uiHash = H::Hash(key);
   ezUInt32 uiIndex = FindEntry(uiHash, key);
 
-  if (bExisted)
+  if (out_pExisted)
   {
-    *bExisted = uiIndex != ezInvalidIndex;
+    *out_pExisted = uiIndex != ezInvalidIndex;
   }
 
   if (uiIndex == ezInvalidIndex)

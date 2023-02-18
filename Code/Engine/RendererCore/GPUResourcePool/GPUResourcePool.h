@@ -18,10 +18,10 @@ public:
 
   /// \brief Returns a render target handle for the given texture description
   /// Note that you should return the handle to the pool and never destroy it directly with the device.
-  ezGALTextureHandle GetRenderTarget(const ezGALTextureCreationDescription& TextureDesc);
+  ezGALTextureHandle GetRenderTarget(const ezGALTextureCreationDescription& textureDesc);
 
   /// \brief Convenience functions which creates a texture description fit for a 2d render target without a mip chains.
-  ezGALTextureHandle GetRenderTarget(ezUInt32 uiWidth, ezUInt32 uiHeight, ezGALResourceFormat::Enum eFormat,
+  ezGALTextureHandle GetRenderTarget(ezUInt32 uiWidth, ezUInt32 uiHeight, ezGALResourceFormat::Enum format,
     ezGALMSAASampleCount::Enum sampleCount = ezGALMSAASampleCount::None, ezUInt32 uiSliceColunt = 1);
 
   /// \brief Returns a render target to the pool so other consumers can use it.
@@ -30,7 +30,7 @@ public:
 
 
   /// \brief Returns a buffer handle for the given buffer description
-  ezGALBufferHandle GetBuffer(const ezGALBufferCreationDescription& BufferDesc);
+  ezGALBufferHandle GetBuffer(const ezGALBufferCreationDescription& bufferDesc);
 
   /// \brief Returns a buffer to the pool so other consumers can use it.
   void ReturnBuffer(ezGALBufferHandle hBuffer);

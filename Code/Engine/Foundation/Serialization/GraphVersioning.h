@@ -78,7 +78,7 @@ public:
   void RenameClass(const char* szTypeName); // [tested]
 
   /// \brief Renames current class type.
-  void RenameClass(const char* szTypeName, ezUInt32 version);
+  void RenameClass(const char* szTypeName, ezUInt32 uiVersion);
 
   /// \brief Changes the base class hierarchy to the given one.
   void ChangeBaseClass(ezArrayPtr<ezVersionKey> baseClasses); // [tested]

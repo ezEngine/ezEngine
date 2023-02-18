@@ -8,8 +8,8 @@ class EZ_GAMEENGINE_DLL ezRenderPipelineProfileConfig : public ezProfileConfigDa
   EZ_ADD_DYNAMIC_REFLECTION(ezRenderPipelineProfileConfig, ezProfileConfigData);
 
 public:
-  virtual void SaveRuntimeData(ezChunkStreamWriter& stream) const override;
-  virtual void LoadRuntimeData(ezChunkStreamReader& stream) override;
+  virtual void SaveRuntimeData(ezChunkStreamWriter& inout_stream) const override;
+  virtual void LoadRuntimeData(ezChunkStreamReader& inout_stream) override;
 
   ezString m_sMainRenderPipeline;
   // ezString m_sEditorRenderPipeline;

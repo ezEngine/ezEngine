@@ -51,8 +51,8 @@ public:
   ezClothSheetRenderer();
   ~ezClothSheetRenderer();
 
-  virtual void GetSupportedRenderDataCategories(ezHybridArray<ezRenderData::Category, 8>& categories) const override;
-  virtual void GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types) const override;
+  virtual void GetSupportedRenderDataCategories(ezHybridArray<ezRenderData::Category, 8>& ref_categories) const override;
+  virtual void GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& ref_types) const override;
   virtual void RenderBatch(const ezRenderViewContext& renderContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const override;
 
 
@@ -103,8 +103,8 @@ class EZ_GAMECOMPONENTS_DLL ezClothSheetComponent : public ezRenderComponent
   // ezComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
   virtual void OnActivated() override;
   virtual void OnSimulationStarted() override;
@@ -114,7 +114,7 @@ public:
   // ezRenderComponent
 
 public:
-  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg) override;
+  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg) override;
 
 private:
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
@@ -126,13 +126,13 @@ public:
   ezClothSheetComponent();
   ~ezClothSheetComponent();
 
-  void SetSize(ezVec2 val);                  // [ property ]
+  void SetSize(ezVec2 vVal);                 // [ property ]
   ezVec2 GetSize() const { return m_vSize; } // [ property ]
 
-  void SetSlack(ezVec2 val);                   // [ property ]
+  void SetSlack(ezVec2 vVal);                  // [ property ]
   ezVec2 GetSlack() const { return m_vSlack; } // [ property ]
 
-  void SetSegments(ezVec2U32 val);                      // [ property ]
+  void SetSegments(ezVec2U32 vVal);                     // [ property ]
   ezVec2U32 GetSegments() const { return m_vSegments; } // [ property ]
 
   float m_fWindInfluence = 0.3f;    // [ property ]

@@ -190,7 +190,7 @@ public:
   /// \brief Searches for the given key and returns an iterator to it. If it did not exist yet, it is default-created. \a bExisted is set to
   /// true, if the key was found, false if it needed to be created.
   template <typename CompatibleKeyType>
-  Iterator FindOrAdd(CompatibleKeyType&& key, bool* bExisted = nullptr); // [tested]
+  Iterator FindOrAdd(CompatibleKeyType&& key, bool* out_pExisted = nullptr); // [tested]
 
   /// \brief Allows read/write access to the value stored under the given key. If there is no such key, a new element is
   /// default-constructed.
@@ -340,9 +340,9 @@ public:
 };
 
 template <typename KeyType, typename ValueType, typename Comparer>
-typename ezMapBase<KeyType, ValueType, Comparer>::Iterator begin(ezMapBase<KeyType, ValueType, Comparer>& container)
+typename ezMapBase<KeyType, ValueType, Comparer>::Iterator begin(ezMapBase<KeyType, ValueType, Comparer>& ref_container)
 {
-  return container.GetIterator();
+  return ref_container.GetIterator();
 }
 
 template <typename KeyType, typename ValueType, typename Comparer>
@@ -358,7 +358,7 @@ typename ezMapBase<KeyType, ValueType, Comparer>::ConstIterator cbegin(const ezM
 }
 
 template <typename KeyType, typename ValueType, typename Comparer>
-typename ezMapBase<KeyType, ValueType, Comparer>::Iterator end(ezMapBase<KeyType, ValueType, Comparer>& container)
+typename ezMapBase<KeyType, ValueType, Comparer>::Iterator end(ezMapBase<KeyType, ValueType, Comparer>& ref_container)
 {
   return typename ezMapBase<KeyType, ValueType, Comparer>::Iterator();
 }

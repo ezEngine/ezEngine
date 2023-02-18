@@ -16,22 +16,22 @@ ezCommandLineUtils* ezCommandLineUtils::GetGlobalInstance()
   return &g_pCmdLineInstance;
 }
 
-void ezCommandLineUtils::SplitCommandLineString(const char* commandString, bool addExecutableDir, ezDynamicArray<ezString>& outArgs, ezDynamicArray<const char*>& outArgsV)
+void ezCommandLineUtils::SplitCommandLineString(const char* szCommandString, bool bAddExecutableDir, ezDynamicArray<ezString>& out_args, ezDynamicArray<const char*>& out_argsV)
 {
   // Add application dir as first argument as customary on other platforms.
-  if (addExecutableDir)
+  if (bAddExecutableDir)
   {
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
     wchar_t moduleFilename[256];
     GetModuleFileNameW(nullptr, moduleFilename, 256);
-    outArgs.PushBack(ezStringUtf8(moduleFilename).GetData());
+    out_args.PushBack(ezStringUtf8(moduleFilename).GetData());
 #else
     EZ_ASSERT_NOT_IMPLEMENTED;
 #endif
   }
 
   // Simple args splitting. Not as powerful as Win32's CommandLineToArgvW.
-  const char* currentChar = commandString;
+  const char* currentChar = szCommandString;
   const char* lastEnd = currentChar;
   bool inQuotes = false;
   while (*currentChar != '\0')
@@ -42,18 +42,18 @@ void ezCommandLineUtils::SplitCommandLineString(const char* commandString, bool 
     {
       ezStringBuilder path = ezStringView(lastEnd, currentChar);
       path.Trim(" \"");
-      outArgs.PushBack(path);
+      out_args.PushBack(path);
       lastEnd = currentChar + 1;
     }
     ezUnicodeUtils::MoveToNextUtf8(currentChar);
   }
 
-  outArgsV.Reserve(outArgsV.GetCount());
-  for (ezString& str : outArgs)
-    outArgsV.PushBack(str.GetData());
+  out_argsV.Reserve(out_argsV.GetCount());
+  for (ezString& str : out_args)
+    out_argsV.PushBack(str.GetData());
 }
 
-void ezCommandLineUtils::SetCommandLine(ezUInt32 argc, const char** argv, ArgMode mode /*= UseArgcArgv*/)
+void ezCommandLineUtils::SetCommandLine(ezUInt32 uiArgc, const char** pArgv, ArgMode mode /*= UseArgcArgv*/)
 {
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
   if (mode == ArgMode::PreferOsArgs)
@@ -64,10 +64,10 @@ void ezCommandLineUtils::SetCommandLine(ezUInt32 argc, const char** argv, ArgMod
 #endif
 
   m_Commands.Clear();
-  m_Commands.Reserve(argc);
+  m_Commands.Reserve(uiArgc);
 
-  for (ezUInt32 i = 0; i < argc; ++i)
-    m_Commands.PushBack(argv[i]);
+  for (ezUInt32 i = 0; i < uiArgc; ++i)
+    m_Commands.PushBack(pArgv[i]);
 }
 
 void ezCommandLineUtils::SetCommandLine(ezArrayPtr<ezString> commands)

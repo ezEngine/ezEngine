@@ -101,7 +101,7 @@ void ezTypeScriptBinding::InjectEnumImportExport(ezStringBuilder& content, const
   {
     sorted.PushBack(pRtti);
   }
-  sorted.Sort([](const ezRTTI* r1, const ezRTTI* r2) -> bool { return ezStringUtils::Compare(r1->GetTypeName(), r2->GetTypeName()) < 0; });
+  sorted.Sort([](const ezRTTI* p1, const ezRTTI* p2) -> bool { return ezStringUtils::Compare(p1->GetTypeName(), p2->GetTypeName()) < 0; });
 
   for (const ezRTTI* pRtti : sorted)
   {
@@ -124,7 +124,7 @@ void ezTypeScriptBinding::InjectFlagsImportExport(ezStringBuilder& content, cons
   {
     sorted.PushBack(pRtti);
   }
-  sorted.Sort([](const ezRTTI* r1, const ezRTTI* r2) -> bool { return ezStringUtils::Compare(r1->GetTypeName(), r2->GetTypeName()) < 0; });
+  sorted.Sort([](const ezRTTI* p1, const ezRTTI* p2) -> bool { return ezStringUtils::Compare(p1->GetTypeName(), p2->GetTypeName()) < 0; });
 
   for (const ezRTTI* pRtti : sorted)
   {

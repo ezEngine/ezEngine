@@ -6,14 +6,14 @@
 
 #ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
 
-static void AllowScriptCVarAccess(ezLuaWrapper& Script);
+static void AllowScriptCVarAccess(ezLuaWrapper& ref_script);
 
-static const ezString GetNextWord(ezStringView& sString)
+static const ezString GetNextWord(ezStringView& ref_sString)
 {
-  const char* szStartWord = ezStringUtils::SkipCharacters(sString.GetStartPointer(), ezStringUtils::IsWhiteSpace, false);
+  const char* szStartWord = ezStringUtils::SkipCharacters(ref_sString.GetStartPointer(), ezStringUtils::IsWhiteSpace, false);
   const char* szEndWord = ezStringUtils::FindWordEnd(szStartWord, ezStringUtils::IsIdentifierDelimiter_C_Code, true);
 
-  sString = ezStringView(szEndWord);
+  ref_sString = ezStringView(szEndWord);
 
   return ezStringView(szStartWord, szEndWord);
 }
@@ -23,9 +23,9 @@ static ezString GetRestWords(ezStringView sString)
   return ezStringUtils::SkipCharacters(sString.GetStartPointer(), ezStringUtils::IsWhiteSpace, false);
 }
 
-static int LUAFUNC_ConsoleFunc(lua_State* state)
+static int LUAFUNC_ConsoleFunc(lua_State* pState)
 {
-  ezLuaWrapper s(state);
+  ezLuaWrapper s(pState);
 
   ezConsoleFunctionBase* pFunc = (ezConsoleFunctionBase*)s.GetFunctionLightUserData();
 
@@ -76,7 +76,7 @@ static int LUAFUNC_ConsoleFunc(lua_State* state)
   return s.ReturnToScript();
 }
 
-static void SanitizeCVarNames(ezStringBuilder& sCommand)
+static void SanitizeCVarNames(ezStringBuilder& ref_sCommand)
 {
   ezStringBuilder sanitizedCVarName;
 
@@ -85,11 +85,11 @@ static void SanitizeCVarNames(ezStringBuilder& sCommand)
     sanitizedCVarName = pCVar->GetName();
     sanitizedCVarName.ReplaceAll(".", "_");
 
-    sCommand.ReplaceAll(pCVar->GetName(), sanitizedCVarName);
+    ref_sCommand.ReplaceAll(pCVar->GetName(), sanitizedCVarName);
   }
 }
 
-static void UnSanitizeCVarName(ezStringBuilder& cvarName)
+static void UnSanitizeCVarName(ezStringBuilder& ref_sCvarName)
 {
   ezStringBuilder sanitizedCVarName;
 
@@ -98,23 +98,23 @@ static void UnSanitizeCVarName(ezStringBuilder& cvarName)
     sanitizedCVarName = pCVar->GetName();
     sanitizedCVarName.ReplaceAll(".", "_");
 
-    if (cvarName == sanitizedCVarName)
+    if (ref_sCvarName == sanitizedCVarName)
     {
-      cvarName = pCVar->GetName();
+      ref_sCvarName = pCVar->GetName();
       return;
     }
   }
 }
 
-void ezCommandInterpreterLua::Interpret(ezCommandInterpreterState& inout_State)
+void ezCommandInterpreterLua::Interpret(ezCommandInterpreterState& inout_state)
 {
-  inout_State.m_sOutput.Clear();
+  inout_state.m_sOutput.Clear();
 
-  ezStringBuilder sRealCommand = inout_State.m_sInput;
+  ezStringBuilder sRealCommand = inout_state.m_sInput;
 
   if (sRealCommand.IsEmpty())
   {
-    inout_State.AddOutputLine("");
+    inout_state.AddOutputLine("");
     return;
   }
 
@@ -161,7 +161,7 @@ void ezCommandInterpreterLua::Interpret(ezCommandInterpreterState& inout_State)
 
   sTemp = "> ";
   sTemp.Append(sRealCommand);
-  inout_State.AddOutputLine(sTemp, ezConsoleString::Type::Executed);
+  inout_state.AddOutputLine(sTemp, ezConsoleString::Type::Executed);
 
   ezCVar* pCVAR = ezCVar::FindCVarByName(sRealVarName.GetData());
   if (pCVAR != nullptr)
@@ -181,32 +181,32 @@ void ezCommandInterpreterLua::Interpret(ezCommandInterpreterState& inout_State)
 
       if (Script.ExecuteString(sSanitizedCommand, "console", &muteLog).Failed())
       {
-        inout_State.AddOutputLine("  Error Executing Command.", ezConsoleString::Type::Error);
+        inout_state.AddOutputLine("  Error Executing Command.", ezConsoleString::Type::Error);
         return;
       }
       else
       {
         if (pCVAR->GetFlags().IsAnySet(ezCVarFlags::RequiresRestart))
         {
-          inout_State.AddOutputLine("  This change takes only effect after a restart.", ezConsoleString::Type::Note);
+          inout_state.AddOutputLine("  This change takes only effect after a restart.", ezConsoleString::Type::Note);
         }
 
         sTemp.Format("  {0} = {1}", sRealVarName, ezQuakeConsole::GetFullInfoAsString(pCVAR));
-        inout_State.AddOutputLine(sTemp, ezConsoleString::Type::Success);
+        inout_state.AddOutputLine(sTemp, ezConsoleString::Type::Success);
       }
     }
     else
     {
       sTemp.Format("{0} = {1}", sRealVarName, ezQuakeConsole::GetFullInfoAsString(pCVAR));
-      inout_State.AddOutputLine(sTemp);
+      inout_state.AddOutputLine(sTemp);
 
       if (!ezStringUtils::IsNullOrEmpty(pCVAR->GetDescription()))
       {
         sTemp.Format("  Description: {0}", pCVAR->GetDescription());
-        inout_State.AddOutputLine(sTemp, ezConsoleString::Type::Success);
+        inout_state.AddOutputLine(sTemp, ezConsoleString::Type::Success);
       }
       else
-        inout_State.AddOutputLine("  No Description available.", ezConsoleString::Type::Success);
+        inout_state.AddOutputLine("  No Description available.", ezConsoleString::Type::Success);
     }
 
     return;
@@ -217,15 +217,15 @@ void ezCommandInterpreterLua::Interpret(ezCommandInterpreterState& inout_State)
 
     if (Script.ExecuteString(sSanitizedCommand, "console", &muteLog).Failed())
     {
-      inout_State.AddOutputLine("  Error Executing Command.", ezConsoleString::Type::Error);
+      inout_state.AddOutputLine("  Error Executing Command.", ezConsoleString::Type::Error);
       return;
     }
   }
 }
 
-static int LUAFUNC_ReadCVAR(lua_State* state)
+static int LUAFUNC_ReadCVAR(lua_State* pState)
 {
-  ezLuaWrapper s(state);
+  ezLuaWrapper s(pState);
 
   ezStringBuilder cvarName = s.GetStringParameter(0);
   UnSanitizeCVarName(cvarName);
@@ -272,9 +272,9 @@ static int LUAFUNC_ReadCVAR(lua_State* state)
 }
 
 
-static int LUAFUNC_WriteCVAR(lua_State* state)
+static int LUAFUNC_WriteCVAR(lua_State* pState)
 {
-  ezLuaWrapper s(state);
+  ezLuaWrapper s(pState);
 
   ezStringBuilder cvarName = s.GetStringParameter(0);
   UnSanitizeCVarName(cvarName);
@@ -322,10 +322,10 @@ static int LUAFUNC_WriteCVAR(lua_State* state)
   return s.ReturnToScript();
 }
 
-static void AllowScriptCVarAccess(ezLuaWrapper& Script)
+static void AllowScriptCVarAccess(ezLuaWrapper& ref_script)
 {
-  Script.RegisterCFunction("ReadCVar", LUAFUNC_ReadCVAR);
-  Script.RegisterCFunction("WriteCVar", LUAFUNC_WriteCVAR);
+  ref_script.RegisterCFunction("ReadCVar", LUAFUNC_ReadCVAR);
+  ref_script.RegisterCFunction("WriteCVar", LUAFUNC_WriteCVAR);
 
   ezStringBuilder sInit = "\
 function readcvar (t, key)\n\
@@ -344,7 +344,7 @@ __index = readcvar,\n\
 __metatable = \"Access Denied\",\n\
 })";
 
-  Script.ExecuteString(sInit.GetData()).IgnoreResult();
+  ref_script.ExecuteString(sInit.GetData()).IgnoreResult();
 }
 
 #endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT

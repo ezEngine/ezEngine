@@ -8,41 +8,41 @@ namespace ezRmlUiInternal
 {
   double SystemInterface::GetElapsedTime() { return ezClock::GetGlobalClock()->GetAccumulatedTime().GetSeconds(); }
 
-  void SystemInterface::JoinPath(Rml::String& translated_path, const Rml::String& document_path, const Rml::String& path)
+  void SystemInterface::JoinPath(Rml::String& ref_sTranslated_path, const Rml::String& sDocument_path, const Rml::String& sPath)
   {
-    if (ezFileSystem::ExistsFile(path.c_str()))
+    if (ezFileSystem::ExistsFile(sPath.c_str()))
     {
       // path is already a valid path for ez file system so don't join with document path
-      translated_path = path;
+      ref_sTranslated_path = sPath;
       return;
     }
 
-    Rml::SystemInterface::JoinPath(translated_path, document_path, path);
+    Rml::SystemInterface::JoinPath(ref_sTranslated_path, sDocument_path, sPath);
   }
 
-  bool SystemInterface::LogMessage(Rml::Log::Type type, const Rml::String& message)
+  bool SystemInterface::LogMessage(Rml::Log::Type type, const Rml::String& sMessage)
   {
     switch (type)
     {
       case Rml::Log::LT_ERROR:
-        ezLog::Error("{}", message.c_str());
+        ezLog::Error("{}", sMessage.c_str());
         break;
 
       case Rml::Log::LT_ASSERT:
-        EZ_REPORT_FAILURE(message.c_str());
+        EZ_REPORT_FAILURE(sMessage.c_str());
         break;
 
       case Rml::Log::LT_WARNING:
-        ezLog::Warning("{}", message.c_str());
+        ezLog::Warning("{}", sMessage.c_str());
         break;
 
       case Rml::Log::LT_ALWAYS:
       case Rml::Log::LT_INFO:
-        ezLog::Info("{}", message.c_str());
+        ezLog::Info("{}", sMessage.c_str());
         break;
 
       case Rml::Log::LT_DEBUG:
-        ezLog::Debug("{}", message.c_str());
+        ezLog::Debug("{}", sMessage.c_str());
         break;
       default:
         break;

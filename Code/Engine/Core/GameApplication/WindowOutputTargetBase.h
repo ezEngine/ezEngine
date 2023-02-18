@@ -17,5 +17,5 @@ class EZ_CORE_DLL ezWindowOutputTargetBase
 public:
   virtual ~ezWindowOutputTargetBase() {}
   virtual void Present(bool bEnableVSync) = 0;
-  virtual ezResult CaptureImage(ezImage& out_Image) = 0;
+  virtual ezResult CaptureImage(ezImage& out_image) = 0;
 };

@@ -61,7 +61,7 @@ public:
   bool IsEmpty() const;
 
   /// \brief Appends a control point. SortControlPoints() must be called to before evaluating the curve.
-  ControlPoint& AddControlPoint(double pos);
+  ControlPoint& AddControlPoint(double fPos);
 
   /// \brief Updates the min/max X value that can be retrieved through GetExtents().
   ///
@@ -73,22 +73,22 @@ public:
   ///
   /// The returned values are only up to date if either SortControlPoints() or RecomputeExtents() was called before.
   /// Otherwise they will contain stale values.
-  void QueryExtents(double& minx, double& maxx) const;
+  void QueryExtents(double& ref_fMinx, double& ref_fMaxx) const;
 
   /// \brief Returns the min and max Y value across the curve.
   /// For this information to be available, the linear approximation of the curve must have been computed, otherwise stale values will be
   /// returned.
-  void QueryExtremeValues(double& minVal, double& maxVal) const;
+  void QueryExtremeValues(double& ref_fMinVal, double& ref_fMaxVal) const;
 
   /// \brief Returns the number of control points.
   ezUInt32 GetNumControlPoints() const;
 
   /// \brief Const access to a control point.
-  const ControlPoint& GetControlPoint(ezUInt32 idx) const { return m_ControlPoints[idx]; }
+  const ControlPoint& GetControlPoint(ezUInt32 uiIdx) const { return m_ControlPoints[uiIdx]; }
 
   /// \brief Non-const access to a control point. If you modify the position, SortControlPoints() has to be called before evaluating the
   /// curve.
-  ControlPoint& ModifyControlPoint(ezUInt32 idx) { return m_ControlPoints[idx]; }
+  ControlPoint& ModifyControlPoint(ezUInt32 uiIdx) { return m_ControlPoints[uiIdx]; }
 
   /// \brief Sorts the control point arrays by their position. The CPs have to be sorted before calling Evaluate(), otherwise the result
   /// will be wrong.
@@ -99,7 +99,7 @@ public:
   /// This uses the linear approximation of the curve, so CreateLinearApproximation() must have been called first.
   ///
   /// \sa CreateLinearApproximation
-  double Evaluate(double position) const;
+  double Evaluate(double fPosition) const;
 
   /// \brief Takes the normalized x coordinate [0;1] and converts it into a valid position on the curve
   ///
@@ -107,7 +107,7 @@ public:
   ///
   /// \sa RecomputeExtents
   /// \sa QueryExtents
-  double ConvertNormalizedPos(double pos) const;
+  double ConvertNormalizedPos(double fPos) const;
 
   /// \brief Takes a value (typically returned by Evaluate()) and normalizes it into [0;1] range
   ///
@@ -118,10 +118,10 @@ public:
   ezUInt64 GetHeapMemoryUsage() const;
 
   /// \brief Stores the current state in a stream.
-  void Save(ezStreamWriter& stream) const;
+  void Save(ezStreamWriter& inout_stream) const;
 
   /// \brief Restores the state from a stream.
-  void Load(ezStreamReader& stream);
+  void Load(ezStreamReader& inout_stream);
 
   /// \brief Pre-computes sample points for linear interpolation that approximate the curve within the allowed error threshold.
   ///

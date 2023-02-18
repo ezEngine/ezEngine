@@ -123,8 +123,8 @@ void ezQtTypeScriptAssetDocumentWindow::TsDocumentEventHandler(const ezTypeScrip
 
 //////////////////////////////////////////////////////////////////////////
 
-JSHighlighter::JSHighlighter(QTextDocument* parent)
-  : QSyntaxHighlighter(parent)
+JSHighlighter::JSHighlighter(QTextDocument* pParent)
+  : QSyntaxHighlighter(pParent)
 {
   // default color scheme
   m_Colors[JSEdit::Comment] = QColor("#6A8A35");

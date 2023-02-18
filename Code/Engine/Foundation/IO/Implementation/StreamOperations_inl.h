@@ -11,125 +11,125 @@
 
 /// bool versions
 
-inline ezStreamWriter& operator<<(ezStreamWriter& stream, bool bValue)
+inline ezStreamWriter& operator<<(ezStreamWriter& inout_stream, bool bValue)
 {
   ezUInt8 uiValue = bValue ? 1 : 0;
-  stream.WriteBytes(&uiValue, sizeof(ezUInt8)).AssertSuccess();
-  return stream;
+  inout_stream.WriteBytes(&uiValue, sizeof(ezUInt8)).AssertSuccess();
+  return inout_stream;
 }
 
-inline ezStreamReader& operator>>(ezStreamReader& stream, bool& bValue)
+inline ezStreamReader& operator>>(ezStreamReader& inout_stream, bool& out_bValue)
 {
   ezUInt8 uiValue = 0;
-  EZ_VERIFY(stream.ReadBytes(&uiValue, sizeof(ezUInt8)) == sizeof(ezUInt8), "End of stream reached.");
-  bValue = (uiValue != 0);
-  return stream;
+  EZ_VERIFY(inout_stream.ReadBytes(&uiValue, sizeof(ezUInt8)) == sizeof(ezUInt8), "End of stream reached.");
+  out_bValue = (uiValue != 0);
+  return inout_stream;
 }
 
 /// unsigned int versions
 
-inline ezStreamWriter& operator<<(ezStreamWriter& stream, ezUInt8 uiValue)
+inline ezStreamWriter& operator<<(ezStreamWriter& inout_stream, ezUInt8 uiValue)
 {
-  stream.WriteBytes(&uiValue, sizeof(ezUInt8)).AssertSuccess();
-  return stream;
+  inout_stream.WriteBytes(&uiValue, sizeof(ezUInt8)).AssertSuccess();
+  return inout_stream;
 }
 
-inline ezStreamReader& operator>>(ezStreamReader& stream, ezUInt8& uiValue)
+inline ezStreamReader& operator>>(ezStreamReader& inout_stream, ezUInt8& out_uiValue)
 {
-  EZ_VERIFY(stream.ReadBytes(&uiValue, sizeof(ezUInt8)) == sizeof(ezUInt8), "End of stream reached.");
-  return stream;
+  EZ_VERIFY(inout_stream.ReadBytes(&out_uiValue, sizeof(ezUInt8)) == sizeof(ezUInt8), "End of stream reached.");
+  return inout_stream;
 }
 
-inline ezResult SerializeArray(ezStreamWriter& stream, const ezUInt8* pArray, ezUInt64 uiCount)
+inline ezResult SerializeArray(ezStreamWriter& inout_stream, const ezUInt8* pArray, ezUInt64 uiCount)
 {
-  return stream.WriteBytes(pArray, sizeof(ezUInt8) * uiCount);
+  return inout_stream.WriteBytes(pArray, sizeof(ezUInt8) * uiCount);
 }
 
-inline ezResult DeserializeArray(ezStreamReader& stream, ezUInt8* pArray, ezUInt64 uiCount)
+inline ezResult DeserializeArray(ezStreamReader& inout_stream, ezUInt8* pArray, ezUInt64 uiCount)
 {
   const ezUInt64 uiNumBytes = sizeof(ezUInt8) * uiCount;
-  if (stream.ReadBytes(pArray, uiNumBytes) == uiNumBytes)
+  if (inout_stream.ReadBytes(pArray, uiNumBytes) == uiNumBytes)
     return EZ_SUCCESS;
 
   return EZ_FAILURE;
 }
 
 
-inline ezStreamWriter& operator<<(ezStreamWriter& stream, ezUInt16 uiValue)
+inline ezStreamWriter& operator<<(ezStreamWriter& inout_stream, ezUInt16 uiValue)
 {
-  stream.WriteWordValue(&uiValue).AssertSuccess();
-  return stream;
+  inout_stream.WriteWordValue(&uiValue).AssertSuccess();
+  return inout_stream;
 }
 
-inline ezStreamReader& operator>>(ezStreamReader& stream, ezUInt16& uiValue)
+inline ezStreamReader& operator>>(ezStreamReader& inout_stream, ezUInt16& ref_uiValue)
 {
-  stream.ReadWordValue(&uiValue).AssertSuccess();
-  return stream;
+  inout_stream.ReadWordValue(&ref_uiValue).AssertSuccess();
+  return inout_stream;
 }
 
-inline ezResult SerializeArray(ezStreamWriter& stream, const ezUInt16* pArray, ezUInt64 uiCount)
+inline ezResult SerializeArray(ezStreamWriter& inout_stream, const ezUInt16* pArray, ezUInt64 uiCount)
 {
-  return stream.WriteBytes(pArray, sizeof(ezUInt16) * uiCount);
+  return inout_stream.WriteBytes(pArray, sizeof(ezUInt16) * uiCount);
 }
 
-inline ezResult DeserializeArray(ezStreamReader& stream, ezUInt16* pArray, ezUInt64 uiCount)
+inline ezResult DeserializeArray(ezStreamReader& inout_stream, ezUInt16* pArray, ezUInt64 uiCount)
 {
   const ezUInt64 uiNumBytes = sizeof(ezUInt16) * uiCount;
-  if (stream.ReadBytes(pArray, uiNumBytes) == uiNumBytes)
+  if (inout_stream.ReadBytes(pArray, uiNumBytes) == uiNumBytes)
     return EZ_SUCCESS;
 
   return EZ_FAILURE;
 }
 
 
-inline ezStreamWriter& operator<<(ezStreamWriter& stream, ezUInt32 uiValue)
+inline ezStreamWriter& operator<<(ezStreamWriter& inout_stream, ezUInt32 uiValue)
 {
-  stream.WriteDWordValue(&uiValue).AssertSuccess();
-  return stream;
+  inout_stream.WriteDWordValue(&uiValue).AssertSuccess();
+  return inout_stream;
 }
 
-inline ezStreamReader& operator>>(ezStreamReader& stream, ezUInt32& uiValue)
+inline ezStreamReader& operator>>(ezStreamReader& inout_stream, ezUInt32& ref_uiValue)
 {
-  stream.ReadDWordValue(&uiValue).AssertSuccess();
-  return stream;
+  inout_stream.ReadDWordValue(&ref_uiValue).AssertSuccess();
+  return inout_stream;
 }
 
-inline ezResult SerializeArray(ezStreamWriter& stream, const ezUInt32* pArray, ezUInt64 uiCount)
+inline ezResult SerializeArray(ezStreamWriter& inout_stream, const ezUInt32* pArray, ezUInt64 uiCount)
 {
-  return stream.WriteBytes(pArray, sizeof(ezUInt32) * uiCount);
+  return inout_stream.WriteBytes(pArray, sizeof(ezUInt32) * uiCount);
 }
 
-inline ezResult DeserializeArray(ezStreamReader& stream, ezUInt32* pArray, ezUInt64 uiCount)
+inline ezResult DeserializeArray(ezStreamReader& inout_stream, ezUInt32* pArray, ezUInt64 uiCount)
 {
   const ezUInt64 uiNumBytes = sizeof(ezUInt32) * uiCount;
-  if (stream.ReadBytes(pArray, uiNumBytes) == uiNumBytes)
+  if (inout_stream.ReadBytes(pArray, uiNumBytes) == uiNumBytes)
     return EZ_SUCCESS;
 
   return EZ_FAILURE;
 }
 
 
-inline ezStreamWriter& operator<<(ezStreamWriter& stream, ezUInt64 uiValue)
+inline ezStreamWriter& operator<<(ezStreamWriter& inout_stream, ezUInt64 uiValue)
 {
-  stream.WriteQWordValue(&uiValue).AssertSuccess();
-  return stream;
+  inout_stream.WriteQWordValue(&uiValue).AssertSuccess();
+  return inout_stream;
 }
 
-inline ezStreamReader& operator>>(ezStreamReader& stream, ezUInt64& uiValue)
+inline ezStreamReader& operator>>(ezStreamReader& inout_stream, ezUInt64& ref_uiValue)
 {
-  stream.ReadQWordValue(&uiValue).AssertSuccess();
-  return stream;
+  inout_stream.ReadQWordValue(&ref_uiValue).AssertSuccess();
+  return inout_stream;
 }
 
-inline ezResult SerializeArray(ezStreamWriter& stream, const ezUInt64* pArray, ezUInt64 uiCount)
+inline ezResult SerializeArray(ezStreamWriter& inout_stream, const ezUInt64* pArray, ezUInt64 uiCount)
 {
-  return stream.WriteBytes(pArray, sizeof(ezUInt64) * uiCount);
+  return inout_stream.WriteBytes(pArray, sizeof(ezUInt64) * uiCount);
 }
 
-inline ezResult DeserializeArray(ezStreamReader& stream, ezUInt64* pArray, ezUInt64 uiCount)
+inline ezResult DeserializeArray(ezStreamReader& inout_stream, ezUInt64* pArray, ezUInt64 uiCount)
 {
   const ezUInt64 uiNumBytes = sizeof(ezUInt64) * uiCount;
-  if (stream.ReadBytes(pArray, uiNumBytes) == uiNumBytes)
+  if (inout_stream.ReadBytes(pArray, uiNumBytes) == uiNumBytes)
     return EZ_SUCCESS;
 
   return EZ_FAILURE;
@@ -137,108 +137,108 @@ inline ezResult DeserializeArray(ezStreamReader& stream, ezUInt64* pArray, ezUIn
 
 /// signed int versions
 
-inline ezStreamWriter& operator<<(ezStreamWriter& stream, ezInt8 iValue)
+inline ezStreamWriter& operator<<(ezStreamWriter& inout_stream, ezInt8 iValue)
 {
-  stream.WriteBytes(reinterpret_cast<const ezUInt8*>(&iValue), sizeof(ezInt8)).AssertSuccess();
-  return stream;
+  inout_stream.WriteBytes(reinterpret_cast<const ezUInt8*>(&iValue), sizeof(ezInt8)).AssertSuccess();
+  return inout_stream;
 }
 
-inline ezStreamReader& operator>>(ezStreamReader& stream, ezInt8& iValue)
+inline ezStreamReader& operator>>(ezStreamReader& inout_stream, ezInt8& ref_iValue)
 {
-  EZ_VERIFY(stream.ReadBytes(reinterpret_cast<ezUInt8*>(&iValue), sizeof(ezInt8)) == sizeof(ezInt8), "End of stream reached.");
-  return stream;
+  EZ_VERIFY(inout_stream.ReadBytes(reinterpret_cast<ezUInt8*>(&ref_iValue), sizeof(ezInt8)) == sizeof(ezInt8), "End of stream reached.");
+  return inout_stream;
 }
 
-inline ezResult SerializeArray(ezStreamWriter& stream, const ezInt8* pArray, ezUInt64 uiCount)
+inline ezResult SerializeArray(ezStreamWriter& inout_stream, const ezInt8* pArray, ezUInt64 uiCount)
 {
-  return stream.WriteBytes(pArray, sizeof(ezInt8) * uiCount);
+  return inout_stream.WriteBytes(pArray, sizeof(ezInt8) * uiCount);
 }
 
-inline ezResult DeserializeArray(ezStreamReader& stream, ezInt8* pArray, ezUInt64 uiCount)
+inline ezResult DeserializeArray(ezStreamReader& inout_stream, ezInt8* pArray, ezUInt64 uiCount)
 {
   const ezUInt64 uiNumBytes = sizeof(ezInt8) * uiCount;
-  if (stream.ReadBytes(pArray, uiNumBytes) == uiNumBytes)
+  if (inout_stream.ReadBytes(pArray, uiNumBytes) == uiNumBytes)
     return EZ_SUCCESS;
 
   return EZ_FAILURE;
 }
 
 
-inline ezStreamWriter& operator<<(ezStreamWriter& stream, ezInt16 iValue)
+inline ezStreamWriter& operator<<(ezStreamWriter& inout_stream, ezInt16 iValue)
 {
-  stream.WriteWordValue(&iValue).AssertSuccess();
-  return stream;
+  inout_stream.WriteWordValue(&iValue).AssertSuccess();
+  return inout_stream;
 }
 
-inline ezStreamReader& operator>>(ezStreamReader& stream, ezInt16& iValue)
+inline ezStreamReader& operator>>(ezStreamReader& inout_stream, ezInt16& ref_iValue)
 {
-  stream.ReadWordValue(&iValue).AssertSuccess();
-  return stream;
+  inout_stream.ReadWordValue(&ref_iValue).AssertSuccess();
+  return inout_stream;
 }
 
-inline ezResult SerializeArray(ezStreamWriter& stream, const ezInt16* pArray, ezUInt64 uiCount)
+inline ezResult SerializeArray(ezStreamWriter& inout_stream, const ezInt16* pArray, ezUInt64 uiCount)
 {
-  return stream.WriteBytes(pArray, sizeof(ezInt16) * uiCount);
+  return inout_stream.WriteBytes(pArray, sizeof(ezInt16) * uiCount);
 }
 
-inline ezResult DeserializeArray(ezStreamReader& stream, ezInt16* pArray, ezUInt64 uiCount)
+inline ezResult DeserializeArray(ezStreamReader& inout_stream, ezInt16* pArray, ezUInt64 uiCount)
 {
   const ezUInt64 uiNumBytes = sizeof(ezInt16) * uiCount;
-  if (stream.ReadBytes(pArray, uiNumBytes) == uiNumBytes)
+  if (inout_stream.ReadBytes(pArray, uiNumBytes) == uiNumBytes)
     return EZ_SUCCESS;
 
   return EZ_FAILURE;
 }
 
 
-inline ezStreamWriter& operator<<(ezStreamWriter& stream, ezInt32 iValue)
+inline ezStreamWriter& operator<<(ezStreamWriter& inout_stream, ezInt32 iValue)
 {
-  stream.WriteDWordValue(&iValue).AssertSuccess();
-  return stream;
+  inout_stream.WriteDWordValue(&iValue).AssertSuccess();
+  return inout_stream;
 }
 
-inline ezStreamReader& operator>>(ezStreamReader& stream, ezInt32& iValue)
+inline ezStreamReader& operator>>(ezStreamReader& inout_stream, ezInt32& ref_iValue)
 {
-  stream.ReadDWordValue(&iValue).AssertSuccess();
-  return stream;
+  inout_stream.ReadDWordValue(&ref_iValue).AssertSuccess();
+  return inout_stream;
 }
 
-inline ezResult SerializeArray(ezStreamWriter& stream, const ezInt32* pArray, ezUInt64 uiCount)
+inline ezResult SerializeArray(ezStreamWriter& inout_stream, const ezInt32* pArray, ezUInt64 uiCount)
 {
-  return stream.WriteBytes(pArray, sizeof(ezInt32) * uiCount);
+  return inout_stream.WriteBytes(pArray, sizeof(ezInt32) * uiCount);
 }
 
-inline ezResult DeserializeArray(ezStreamReader& stream, ezInt32* pArray, ezUInt64 uiCount)
+inline ezResult DeserializeArray(ezStreamReader& inout_stream, ezInt32* pArray, ezUInt64 uiCount)
 {
   const ezUInt64 uiNumBytes = sizeof(ezInt32) * uiCount;
-  if (stream.ReadBytes(pArray, uiNumBytes) == uiNumBytes)
+  if (inout_stream.ReadBytes(pArray, uiNumBytes) == uiNumBytes)
     return EZ_SUCCESS;
 
   return EZ_FAILURE;
 }
 
 
-inline ezStreamWriter& operator<<(ezStreamWriter& stream, ezInt64 iValue)
+inline ezStreamWriter& operator<<(ezStreamWriter& inout_stream, ezInt64 iValue)
 {
-  stream.WriteQWordValue(&iValue).AssertSuccess();
-  return stream;
+  inout_stream.WriteQWordValue(&iValue).AssertSuccess();
+  return inout_stream;
 }
 
-inline ezStreamReader& operator>>(ezStreamReader& stream, ezInt64& iValue)
+inline ezStreamReader& operator>>(ezStreamReader& inout_stream, ezInt64& ref_iValue)
 {
-  stream.ReadQWordValue(&iValue).AssertSuccess();
-  return stream;
+  inout_stream.ReadQWordValue(&ref_iValue).AssertSuccess();
+  return inout_stream;
 }
 
-inline ezResult SerializeArray(ezStreamWriter& stream, const ezInt64* pArray, ezUInt64 uiCount)
+inline ezResult SerializeArray(ezStreamWriter& inout_stream, const ezInt64* pArray, ezUInt64 uiCount)
 {
-  return stream.WriteBytes(pArray, sizeof(ezInt64) * uiCount);
+  return inout_stream.WriteBytes(pArray, sizeof(ezInt64) * uiCount);
 }
 
-inline ezResult DeserializeArray(ezStreamReader& stream, ezInt64* pArray, ezUInt64 uiCount)
+inline ezResult DeserializeArray(ezStreamReader& inout_stream, ezInt64* pArray, ezUInt64 uiCount)
 {
   const ezUInt64 uiNumBytes = sizeof(ezInt64) * uiCount;
-  if (stream.ReadBytes(pArray, uiNumBytes) == uiNumBytes)
+  if (inout_stream.ReadBytes(pArray, uiNumBytes) == uiNumBytes)
     return EZ_SUCCESS;
 
   return EZ_FAILURE;
@@ -247,54 +247,54 @@ inline ezResult DeserializeArray(ezStreamReader& stream, ezInt64* pArray, ezUInt
 
 /// float and double versions
 
-inline ezStreamWriter& operator<<(ezStreamWriter& stream, float fValue)
+inline ezStreamWriter& operator<<(ezStreamWriter& inout_stream, float fValue)
 {
-  stream.WriteDWordValue(&fValue).AssertSuccess();
-  return stream;
+  inout_stream.WriteDWordValue(&fValue).AssertSuccess();
+  return inout_stream;
 }
 
-inline ezStreamReader& operator>>(ezStreamReader& stream, float& fValue)
+inline ezStreamReader& operator>>(ezStreamReader& inout_stream, float& ref_fValue)
 {
-  stream.ReadDWordValue(&fValue).AssertSuccess();
-  return stream;
+  inout_stream.ReadDWordValue(&ref_fValue).AssertSuccess();
+  return inout_stream;
 }
 
-inline ezResult SerializeArray(ezStreamWriter& stream, const float* pArray, ezUInt64 uiCount)
+inline ezResult SerializeArray(ezStreamWriter& inout_stream, const float* pArray, ezUInt64 uiCount)
 {
-  return stream.WriteBytes(pArray, sizeof(float) * uiCount);
+  return inout_stream.WriteBytes(pArray, sizeof(float) * uiCount);
 }
 
-inline ezResult DeserializeArray(ezStreamReader& stream, float* pArray, ezUInt64 uiCount)
+inline ezResult DeserializeArray(ezStreamReader& inout_stream, float* pArray, ezUInt64 uiCount)
 {
   const ezUInt64 uiNumBytes = sizeof(float) * uiCount;
-  if (stream.ReadBytes(pArray, uiNumBytes) == uiNumBytes)
+  if (inout_stream.ReadBytes(pArray, uiNumBytes) == uiNumBytes)
     return EZ_SUCCESS;
 
   return EZ_FAILURE;
 }
 
 
-inline ezStreamWriter& operator<<(ezStreamWriter& stream, double fValue)
+inline ezStreamWriter& operator<<(ezStreamWriter& inout_stream, double fValue)
 {
-  stream.WriteQWordValue(&fValue).AssertSuccess();
-  return stream;
+  inout_stream.WriteQWordValue(&fValue).AssertSuccess();
+  return inout_stream;
 }
 
-inline ezStreamReader& operator>>(ezStreamReader& stream, double& fValue)
+inline ezStreamReader& operator>>(ezStreamReader& inout_stream, double& ref_fValue)
 {
-  stream.ReadQWordValue(&fValue).AssertSuccess();
-  return stream;
+  inout_stream.ReadQWordValue(&ref_fValue).AssertSuccess();
+  return inout_stream;
 }
 
-inline ezResult SerializeArray(ezStreamWriter& stream, const double* pArray, ezUInt64 uiCount)
+inline ezResult SerializeArray(ezStreamWriter& inout_stream, const double* pArray, ezUInt64 uiCount)
 {
-  return stream.WriteBytes(pArray, sizeof(double) * uiCount);
+  return inout_stream.WriteBytes(pArray, sizeof(double) * uiCount);
 }
 
-inline ezResult DeserializeArray(ezStreamReader& stream, double* pArray, ezUInt64 uiCount)
+inline ezResult DeserializeArray(ezStreamReader& inout_stream, double* pArray, ezUInt64 uiCount)
 {
   const ezUInt64 uiNumBytes = sizeof(double) * uiCount;
-  if (stream.ReadBytes(pArray, uiNumBytes) == uiNumBytes)
+  if (inout_stream.ReadBytes(pArray, uiNumBytes) == uiNumBytes)
     return EZ_SUCCESS;
 
   return EZ_FAILURE;
@@ -304,69 +304,69 @@ inline ezResult DeserializeArray(ezStreamReader& stream, double* pArray, ezUInt6
 // C-style strings
 // No read equivalent for C-style strings (but can be read as ezString & ezStringBuilder instances)
 
-EZ_FOUNDATION_DLL ezStreamWriter& operator<<(ezStreamWriter& stream, const char* szValue);
-EZ_FOUNDATION_DLL ezStreamWriter& operator<<(ezStreamWriter& stream, ezStringView sValue);
+EZ_FOUNDATION_DLL ezStreamWriter& operator<<(ezStreamWriter& inout_stream, const char* szValue);
+EZ_FOUNDATION_DLL ezStreamWriter& operator<<(ezStreamWriter& inout_stream, ezStringView sValue);
 
 // ezHybridString
 
 template <ezUInt16 Size, typename AllocatorWrapper>
-inline ezStreamWriter& operator<<(ezStreamWriter& stream, const ezHybridString<Size, AllocatorWrapper>& sValue)
+inline ezStreamWriter& operator<<(ezStreamWriter& inout_stream, const ezHybridString<Size, AllocatorWrapper>& sValue)
 {
-  stream.WriteString(sValue.GetView()).AssertSuccess();
-  return stream;
+  inout_stream.WriteString(sValue.GetView()).AssertSuccess();
+  return inout_stream;
 }
 
 template <ezUInt16 Size, typename AllocatorWrapper>
-inline ezStreamReader& operator>>(ezStreamReader& stream, ezHybridString<Size, AllocatorWrapper>& sValue)
+inline ezStreamReader& operator>>(ezStreamReader& inout_stream, ezHybridString<Size, AllocatorWrapper>& out_sValue)
 {
   ezStringBuilder builder;
-  stream.ReadString(builder).AssertSuccess();
-  sValue = std::move(builder);
+  inout_stream.ReadString(builder).AssertSuccess();
+  out_sValue = std::move(builder);
 
-  return stream;
+  return inout_stream;
 }
 
 // ezStringBuilder
 
-EZ_FOUNDATION_DLL ezStreamWriter& operator<<(ezStreamWriter& stream, const ezStringBuilder& sValue);
-EZ_FOUNDATION_DLL ezStreamReader& operator>>(ezStreamReader& stream, ezStringBuilder& sValue);
+EZ_FOUNDATION_DLL ezStreamWriter& operator<<(ezStreamWriter& inout_stream, const ezStringBuilder& sValue);
+EZ_FOUNDATION_DLL ezStreamReader& operator>>(ezStreamReader& inout_stream, ezStringBuilder& out_sValue);
 
 // ezEnum
 
 template <typename T>
-inline ezStreamWriter& operator<<(ezStreamWriter& stream, const ezEnum<T>& value)
+inline ezStreamWriter& operator<<(ezStreamWriter& inout_stream, const ezEnum<T>& value)
 {
-  stream << value.GetValue();
+  inout_stream << value.GetValue();
 
-  return stream;
+  return inout_stream;
 }
 
 template <typename T>
-inline ezStreamReader& operator>>(ezStreamReader& stream, ezEnum<T>& value)
+inline ezStreamReader& operator>>(ezStreamReader& inout_stream, ezEnum<T>& value)
 {
   typename T::StorageType storedValue = T::Default;
-  stream >> storedValue;
+  inout_stream >> storedValue;
   value.SetValue(storedValue);
 
-  return stream;
+  return inout_stream;
 }
 
 // ezBitflags
 
 template <typename T>
-inline ezStreamWriter& operator<<(ezStreamWriter& stream, const ezBitflags<T>& value)
+inline ezStreamWriter& operator<<(ezStreamWriter& inout_stream, const ezBitflags<T>& value)
 {
-  stream << value.GetValue();
+  inout_stream << value.GetValue();
 
-  return stream;
+  return inout_stream;
 }
 
 template <typename T>
-inline ezStreamReader& operator>>(ezStreamReader& stream, ezBitflags<T>& value)
+inline ezStreamReader& operator>>(ezStreamReader& inout_stream, ezBitflags<T>& value)
 {
   typename T::StorageType storedValue = T::Default;
-  stream >> storedValue;
+  inout_stream >> storedValue;
   value.SetValue(storedValue);
 
-  return stream;
+  return inout_stream;
 }

@@ -53,8 +53,8 @@ struct EZ_JOLTPLUGIN_DLL ezJoltRagdollConstraint : public ezReflectedClass
   ezString m_sBone;
   ezVec3 m_vRelativePosition;
 
-  ezResult Serialize(ezStreamWriter& stream) const;
-  ezResult Deserialize(ezStreamReader& stream);
+  ezResult Serialize(ezStreamWriter& inout_stream) const;
+  ezResult Deserialize(ezStreamReader& inout_stream);
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -67,8 +67,8 @@ class EZ_JOLTPLUGIN_DLL ezJoltRagdollComponent : public ezComponent
   // ezComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
 protected:
   virtual void OnSimulationStarted() override;
@@ -83,18 +83,18 @@ public:
 
   ezUInt32 GetObjectFilterID() const { return m_uiObjectFilterID; } // [ scriptable ]
 
-  void OnAnimationPoseProposal(ezMsgAnimationPoseProposal& msg); // [ msg handler ]
-  void OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& msg);   // [ msg handler ]
-  void OnRetrieveBoneState(ezMsgRetrieveBoneState& msg) const;   // [ msg handler ]
+  void OnAnimationPoseProposal(ezMsgAnimationPoseProposal& ref_msg); // [ msg handler ]
+  void OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& ref_msg);   // [ msg handler ]
+  void OnRetrieveBoneState(ezMsgRetrieveBoneState& ref_msg) const;   // [ msg handler ]
 
   float GetGravityFactor() const { return m_fGravityFactor; } // [ property ]
-  void SetGravityFactor(float factor);                        // [ property ]
+  void SetGravityFactor(float fFactor);                       // [ property ]
 
   ezUInt8 m_uiCollisionLayer = 0; // [ property ]
   bool m_bSelfCollision = false; // [ property ]
 
-  void AddImpulseAtPos(ezMsgPhysicsAddImpulse& msg); // [ message ]
-  void AddForceAtPos(ezMsgPhysicsAddForce& msg);     // [ message ]
+  void AddImpulseAtPos(ezMsgPhysicsAddImpulse& ref_msg); // [ message ]
+  void AddForceAtPos(ezMsgPhysicsAddForce& ref_msg);     // [ message ]
 
 protected:
   struct Limb

@@ -32,12 +32,12 @@ EZ_ALWAYS_INLINE T ezStaticCast(const ezReflectedClass* pObject)
 /// This function will assert when the object is not an instance of the given type.
 /// E.g. DerivedType& d = ezStaticCast<DerivedType&>(obj);
 template <typename T>
-EZ_ALWAYS_INLINE T ezStaticCast(ezReflectedClass& object)
+EZ_ALWAYS_INLINE T ezStaticCast(ezReflectedClass& in_object)
 {
   typedef typename ezTypeTraits<T>::NonReferenceType NonReferenceT;
-  EZ_ASSERT_DEV(object.IsInstanceOf<NonReferenceT>(), "Invalid static cast: Object of type '{0}' is not an instance of '{1}'",
-    object.GetDynamicRTTI()->GetTypeName(), ezGetStaticRTTI<NonReferenceT>()->GetTypeName());
-  return static_cast<T>(object);
+  EZ_ASSERT_DEV(in_object.IsInstanceOf<NonReferenceT>(), "Invalid static cast: Object of type '{0}' is not an instance of '{1}'",
+    in_object.GetDynamicRTTI()->GetTypeName(), ezGetStaticRTTI<NonReferenceT>()->GetTypeName());
+  return static_cast<T>(in_object);
 }
 
 /// \brief Casts the given object to the given type with no runtime cost (like C++ static_cast).

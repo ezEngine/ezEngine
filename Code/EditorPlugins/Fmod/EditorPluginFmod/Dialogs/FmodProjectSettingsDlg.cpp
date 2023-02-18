@@ -4,8 +4,8 @@
 #include <QFileDialog>
 #include <QInputDialog>
 
-ezQtFmodProjectSettingsDlg::ezQtFmodProjectSettingsDlg(QWidget* parent)
-  : QDialog(parent)
+ezQtFmodProjectSettingsDlg::ezQtFmodProjectSettingsDlg(QWidget* pParent)
+  : QDialog(pParent)
 {
   setupUi(this);
 

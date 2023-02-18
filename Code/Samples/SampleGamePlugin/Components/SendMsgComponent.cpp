@@ -36,18 +36,18 @@ EZ_END_COMPONENT_TYPE
 SendMsgComponent::SendMsgComponent() = default;
 SendMsgComponent::~SendMsgComponent() = default;
 
-void SendMsgComponent::SerializeComponent(ezWorldWriter& stream) const
+void SendMsgComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
-  auto& s = stream.GetStream();
+  SUPER::SerializeComponent(inout_stream);
+  auto& s = inout_stream.GetStream();
 
   s.WriteArray(m_TextArray).IgnoreResult();
 }
 
-void SendMsgComponent::DeserializeComponent(ezWorldReader& stream)
+void SendMsgComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  auto& s = stream.GetStream();
+  SUPER::DeserializeComponent(inout_stream);
+  auto& s = inout_stream.GetStream();
 
   s.ReadArray(m_TextArray).IgnoreResult();
 }

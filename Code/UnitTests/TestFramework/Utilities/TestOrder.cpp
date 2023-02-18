@@ -15,16 +15,16 @@ inline bool SortSubTest_Operator(const ezSubTestEntry& lhs, const ezSubTestEntry
 }
 
 /// Sorts all tests and subtests alphabetically
-void SortTestsAlphabetically(std::deque<ezTestEntry>& inout_Tests)
+void SortTestsAlphabetically(std::deque<ezTestEntry>& inout_tests)
 {
-  std::sort(inout_Tests.begin(), inout_Tests.end(), SortTest_Operator);
+  std::sort(inout_tests.begin(), inout_tests.end(), SortTest_Operator);
 
-  for (ezUInt32 i = 0; i < inout_Tests.size(); ++i)
-    std::sort(inout_Tests[i].m_SubTests.begin(), inout_Tests[i].m_SubTests.end(), SortSubTest_Operator);
+  for (ezUInt32 i = 0; i < inout_tests.size(); ++i)
+    std::sort(inout_tests[i].m_SubTests.begin(), inout_tests[i].m_SubTests.end(), SortSubTest_Operator);
 }
 
 /// Writes the given test order to a simple config file
-void SaveTestOrder(const char* szFile, const std::deque<ezTestEntry>& AllTests)
+void SaveTestOrder(const char* szFile, const std::deque<ezTestEntry>& allTests)
 {
   FILE* pFile = fopen(szFile, "wb");
   if (!pFile)
@@ -33,14 +33,14 @@ void SaveTestOrder(const char* szFile, const std::deque<ezTestEntry>& AllTests)
   char szTemp[256] = "";
 
   // Test order
-  for (ezUInt32 t = 0; t < AllTests.size(); ++t)
+  for (ezUInt32 t = 0; t < allTests.size(); ++t)
   {
-    sprintf(szTemp, "%s = %s\n", AllTests[t].m_szTestName, AllTests[t].m_bEnableTest ? "on" : "off");
+    sprintf(szTemp, "%s = %s\n", allTests[t].m_szTestName, allTests[t].m_bEnableTest ? "on" : "off");
     fwrite(szTemp, sizeof(char), strlen(szTemp), pFile);
 
-    for (ezUInt32 st = 0; st < AllTests[t].m_SubTests.size(); ++st)
+    for (ezUInt32 st = 0; st < allTests[t].m_SubTests.size(); ++st)
     {
-      sprintf(szTemp, "  %s = %s\n", AllTests[t].m_SubTests[st].m_szSubTestName, AllTests[t].m_SubTests[st].m_bEnableTest ? "on" : "off");
+      sprintf(szTemp, "  %s = %s\n", allTests[t].m_SubTests[st].m_szSubTestName, allTests[t].m_SubTests[st].m_bEnableTest ? "on" : "off");
       fwrite(szTemp, sizeof(char), strlen(szTemp), pFile);
     }
   }
@@ -108,19 +108,19 @@ inline void StripWhitespaces(char* szString)
   szString[uiWritePos] = '\0';
 }
 
-void LoadTestOrder(const char* szFile, std::deque<ezTestEntry>& AllTests)
+void LoadTestOrder(const char* szFile, std::deque<ezTestEntry>& ref_allTests)
 {
   FILE* pFile = fopen(szFile, "rb");
   if (!pFile)
   {
-    SortTestsAlphabetically(AllTests);
+    SortTestsAlphabetically(ref_allTests);
     return;
   }
 
   // If we do load a test order file only tests enabled in the file should be enabled.
   // Otherwise newly added tests would be enabled by default and carefully crafted
   // test order files would start running other tests they were not meant to run.
-  for (ezTestEntry& test : AllTests)
+  for (ezTestEntry& test : ref_allTests)
   {
     test.m_bEnableTest = false;
     for (ezSubTestEntry& subTest : test.m_SubTests)
@@ -158,15 +158,15 @@ void LoadTestOrder(const char* szFile, std::deque<ezTestEntry>& AllTests)
           iLastMainTest = -1;
         }
         // Are we in a test block?
-        for (ezUInt32 t = 0; t < AllTests.size(); ++t)
+        for (ezUInt32 t = 0; t < ref_allTests.size(); ++t)
         {
-          strcpy(szOtherName, AllTests[t].m_szTestName);
+          strcpy(szOtherName, ref_allTests[t].m_szTestName);
           StripWhitespaces(szOtherName);
 
           if (strcmp(szOtherName, szTestName) == 0)
           {
             iLastMainTest = t;
-            AllTests[t].m_bEnableTest = !bIsOff;
+            ref_allTests[t].m_bEnableTest = !bIsOff;
             break;
           }
         }
@@ -176,14 +176,14 @@ void LoadTestOrder(const char* szFile, std::deque<ezTestEntry>& AllTests)
         // We are in a test block
         if (iLastMainTest >= 0)
         {
-          for (ezUInt32 t = 0; t < AllTests[iLastMainTest].m_SubTests.size(); ++t)
+          for (ezUInt32 t = 0; t < ref_allTests[iLastMainTest].m_SubTests.size(); ++t)
           {
-            strcpy(szOtherName, AllTests[iLastMainTest].m_SubTests[t].m_szSubTestName);
+            strcpy(szOtherName, ref_allTests[iLastMainTest].m_SubTests[t].m_szSubTestName);
             StripWhitespaces(szOtherName);
 
             if (strcmp(szOtherName, szTestName) == 0)
             {
-              AllTests[iLastMainTest].m_SubTests[t].m_bEnableTest = !bIsOff;
+              ref_allTests[iLastMainTest].m_SubTests[t].m_bEnableTest = !bIsOff;
               break;
             }
           }
@@ -193,10 +193,10 @@ void LoadTestOrder(const char* szFile, std::deque<ezTestEntry>& AllTests)
   }
 
   fclose(pFile);
-  SortTestsAlphabetically(AllTests);
+  SortTestsAlphabetically(ref_allTests);
 }
 
-void SaveTestSettings(const char* szFile, TestSettings& testSettings)
+void SaveTestSettings(const char* szFile, TestSettings& ref_testSettings)
 {
   FILE* pFile = fopen(szFile, "wb");
   if (!pFile)
@@ -208,22 +208,22 @@ void SaveTestSettings(const char* szFile, TestSettings& testSettings)
   sprintf(szTemp, "Settings\n");
   fwrite(szTemp, sizeof(char), strlen(szTemp), pFile);
   {
-    sprintf(szTemp, "  AssertOnTestFail = %s\n", testSettings.m_AssertOnTestFail != AssertOnTestFail::DoNotAssert ? "on" : "off");
+    sprintf(szTemp, "  AssertOnTestFail = %s\n", ref_testSettings.m_AssertOnTestFail != AssertOnTestFail::DoNotAssert ? "on" : "off");
     fwrite(szTemp, sizeof(char), strlen(szTemp), pFile);
-    sprintf(szTemp, "  OpenHtmlOutputOnError = %s\n", testSettings.m_bOpenHtmlOutputOnError ? "on" : "off");
+    sprintf(szTemp, "  OpenHtmlOutputOnError = %s\n", ref_testSettings.m_bOpenHtmlOutputOnError ? "on" : "off");
     fwrite(szTemp, sizeof(char), strlen(szTemp), pFile);
-    sprintf(szTemp, "  KeepConsoleOpen = %s\n", testSettings.m_bKeepConsoleOpen ? "on" : "off");
+    sprintf(szTemp, "  KeepConsoleOpen = %s\n", ref_testSettings.m_bKeepConsoleOpen ? "on" : "off");
     fwrite(szTemp, sizeof(char), strlen(szTemp), pFile);
-    sprintf(szTemp, "  ShowMessageBox = %s\n", testSettings.m_bShowMessageBox ? "on" : "off");
+    sprintf(szTemp, "  ShowMessageBox = %s\n", ref_testSettings.m_bShowMessageBox ? "on" : "off");
     fwrite(szTemp, sizeof(char), strlen(szTemp), pFile);
-    sprintf(szTemp, "  DisableSuccessfulTests = %s\n", testSettings.m_bAutoDisableSuccessfulTests ? "on" : "off");
+    sprintf(szTemp, "  DisableSuccessfulTests = %s\n", ref_testSettings.m_bAutoDisableSuccessfulTests ? "on" : "off");
     fwrite(szTemp, sizeof(char), strlen(szTemp), pFile);
   }
 
   fclose(pFile);
 }
 
-void LoadTestSettings(const char* szFile, TestSettings& testSettings)
+void LoadTestSettings(const char* szFile, TestSettings& ref_testSettings)
 {
   FILE* pFile = fopen(szFile, "rb");
   if (!pFile)
@@ -261,23 +261,23 @@ void LoadTestSettings(const char* szFile, TestSettings& testSettings)
         {
           if (strcmp("AssertOnTestFail", szTestName) == 0)
           {
-            testSettings.m_AssertOnTestFail = bIsOff ? AssertOnTestFail::DoNotAssert : AssertOnTestFail::AssertIfDebuggerAttached;
+            ref_testSettings.m_AssertOnTestFail = bIsOff ? AssertOnTestFail::DoNotAssert : AssertOnTestFail::AssertIfDebuggerAttached;
           }
           else if (strcmp("OpenHtmlOutputOnError", szTestName) == 0)
           {
-            testSettings.m_bOpenHtmlOutputOnError = !bIsOff;
+            ref_testSettings.m_bOpenHtmlOutputOnError = !bIsOff;
           }
           else if (strcmp("KeepConsoleOpen", szTestName) == 0)
           {
-            testSettings.m_bKeepConsoleOpen = !bIsOff;
+            ref_testSettings.m_bKeepConsoleOpen = !bIsOff;
           }
           else if (strcmp("ShowMessageBox", szTestName) == 0)
           {
-            testSettings.m_bShowMessageBox = !bIsOff;
+            ref_testSettings.m_bShowMessageBox = !bIsOff;
           }
           else if (strcmp("DisableSuccessfulTests", szTestName) == 0)
           {
-            testSettings.m_bAutoDisableSuccessfulTests = !bIsOff;
+            ref_testSettings.m_bAutoDisableSuccessfulTests = !bIsOff;
           }
         }
       }

@@ -13,7 +13,7 @@ class ezQtJointAdapter : public ezQtNamedAdapter
 public:
   ezQtJointAdapter(const ezSkeletonAssetDocument* pDocument);
   ~ezQtJointAdapter();
-  virtual QVariant data(const ezDocumentObject* pObject, int row, int column, int role) const override;
+  virtual QVariant data(const ezDocumentObject* pObject, int iRow, int iColumn, int iRole) const override;
 
 private:
   const ezSkeletonAssetDocument* m_pDocument;

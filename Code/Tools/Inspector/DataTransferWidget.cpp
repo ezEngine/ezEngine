@@ -14,8 +14,8 @@
 
 ezQtDataWidget* ezQtDataWidget::s_pWidget = nullptr;
 
-ezQtDataWidget::ezQtDataWidget(QWidget* parent)
-  : ads::CDockWidget("Data Transfer Widget", parent)
+ezQtDataWidget::ezQtDataWidget(QWidget* pParent)
+  : ads::CDockWidget("Data Transfer Widget", pParent)
 {
   /// \todo Improve Data Transfer UI
 

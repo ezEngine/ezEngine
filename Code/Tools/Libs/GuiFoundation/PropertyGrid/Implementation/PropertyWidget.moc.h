@@ -35,7 +35,7 @@ class EZ_GUIFOUNDATION_DLL ezQtPropertyEditorCheckboxWidget : public ezQtStandar
 public:
   ezQtPropertyEditorCheckboxWidget();
 
-  virtual void mousePressEvent(QMouseEvent* ev) override;
+  virtual void mousePressEvent(QMouseEvent* pEv) override;
 
 private Q_SLOTS:
   void on_StateChanged_triggered(int state);
@@ -197,7 +197,7 @@ class EZ_GUIFOUNDATION_DLL ezQtColorButtonWidget : public QFrame
   Q_OBJECT
 
 public:
-  explicit ezQtColorButtonWidget(QWidget* parent);
+  explicit ezQtColorButtonWidget(QWidget* pParent);
   void SetColor(const ezVariant& color);
 
 Q_SIGNALS:
@@ -293,7 +293,7 @@ class EZ_GUIFOUNDATION_DLL ezQtCurve1DButtonWidget : public QLabel
   Q_OBJECT
 
 public:
-  explicit ezQtCurve1DButtonWidget(QWidget* parent);
+  explicit ezQtCurve1DButtonWidget(QWidget* pParent);
 
   void UpdatePreview(ezObjectAccessorBase* pObjectAccessor, const ezDocumentObject* pCurveObject, QColor color, double fLowerExtents, bool bLowerFixed, double fUpperExtents, bool bUpperFixed, double fDefaultValue, double fLowerRange, double fUpperRange);
 

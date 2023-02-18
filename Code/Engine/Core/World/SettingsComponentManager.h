@@ -25,8 +25,8 @@ public:
   static ezWorldModuleTypeId TypeId();
 
   // ezComponentManagerBase implementation
-  virtual void CollectAllComponents(ezDynamicArray<ezComponentHandle>& out_AllComponents, bool bOnlyActive) override;
-  virtual void CollectAllComponents(ezDynamicArray<ezComponent*>& out_AllComponents, bool bOnlyActive) override;
+  virtual void CollectAllComponents(ezDynamicArray<ezComponentHandle>& out_allComponents, bool bOnlyActive) override;
+  virtual void CollectAllComponents(ezDynamicArray<ezComponent*>& out_allComponents, bool bOnlyActive) override;
 
 private:
   friend class ezComponentManagerFactory;

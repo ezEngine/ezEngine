@@ -28,16 +28,16 @@ public:
   bool operator!=(const ezTagSetTemplate& other) const;
 
   /// \brief Adds the given tag to the set.
-  void Set(const ezTag& Tag); // [tested]
+  void Set(const ezTag& tag); // [tested]
 
   /// \brief Removes the given tag.
-  void Remove(const ezTag& Tag); // [tested]
+  void Remove(const ezTag& tag); // [tested]
 
   /// \brief Returns true, if the given tag is in the set.
-  bool IsSet(const ezTag& Tag) const; // [tested]
+  bool IsSet(const ezTag& tag) const; // [tested]
 
   /// \brief Returns true if this tag set contains any tag set in the given other tag set.
-  bool IsAnySet(const ezTagSetTemplate& OtherSet) const; // [tested]
+  bool IsAnySet(const ezTagSetTemplate& otherSet) const; // [tested]
 
   /// \brief Returns how many tags are in this set.
   ezUInt32 GetNumTagsSet() const;
@@ -88,10 +88,10 @@ public:
   Iterator GetIterator() const { return Iterator(this); }
 
   /// \brief Writes the tag set state to a stream. Tags itself are serialized as strings.
-  void Save(ezStreamWriter& stream) const;
+  void Save(ezStreamWriter& inout_stream) const;
 
   /// \brief Reads the tag set state from a stream and registers the tags with the given registry.
-  void Load(ezStreamReader& stream, ezTagRegistry& registry);
+  void Load(ezStreamReader& inout_stream, ezTagRegistry& inout_registry);
 
 private:
   friend class Iterator;

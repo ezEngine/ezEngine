@@ -9,11 +9,11 @@ ezIPCObjectMirrorEngine::ezIPCObjectMirrorEngine()
 
 ezIPCObjectMirrorEngine::~ezIPCObjectMirrorEngine() {}
 
-void ezIPCObjectMirrorEngine::ApplyOp(ezObjectChange& change)
+void ezIPCObjectMirrorEngine::ApplyOp(ezObjectChange& inout_change)
 {
   if (m_pContext)
   {
-    ezDocumentObjectMirror::ApplyOp(change);
+    ezDocumentObjectMirror::ApplyOp(inout_change);
   }
   else
   {

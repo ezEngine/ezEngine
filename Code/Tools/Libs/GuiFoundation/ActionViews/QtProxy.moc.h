@@ -41,10 +41,10 @@ public:
   /// \param pDocument The document for which matching actions should be searched for. If null, only global actions are searched.
   /// \param event The key event that should be converted into a shortcut.
   /// \return Whether the key event was consumed and an action executed.
-  static bool TriggerDocumentAction(ezDocument* pDocument, QKeyEvent* event);
+  static bool TriggerDocumentAction(ezDocument* pDocument, QKeyEvent* pEvent);
 
   static ezRttiMappedObjectFactory<ezQtProxy>& GetFactory();
-  static QSharedPointer<ezQtProxy> GetProxy(ezActionContext& context, ezActionDescriptorHandle hAction);
+  static QSharedPointer<ezQtProxy> GetProxy(ezActionContext& ref_context, ezActionDescriptorHandle hAction);
 
 protected:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(GuiFoundation, QtProxies);
@@ -157,7 +157,7 @@ class EZ_GUIFOUNDATION_DLL ezQtLabeledSlider : public QWidget
   Q_OBJECT
 
 public:
-  ezQtLabeledSlider(QWidget* parent);
+  ezQtLabeledSlider(QWidget* pParent);
 
   QLabel* m_pLabel;
   QSlider* m_pSlider;
@@ -169,7 +169,7 @@ class EZ_GUIFOUNDATION_DLL ezQtSliderWidgetAction : public QWidgetAction
   Q_OBJECT
 
 public:
-  ezQtSliderWidgetAction(QWidget* parent);
+  ezQtSliderWidgetAction(QWidget* pParent);
   void setMinimum(int value);
   void setMaximum(int value);
   void setValue(int value);

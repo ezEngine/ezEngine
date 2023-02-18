@@ -28,15 +28,15 @@ class EZ_RENDERERCORE_DLL ezSpotLightComponent : public ezLightComponent
   // ezComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
 
   //////////////////////////////////////////////////////////////////////////
   // ezRenderComponent
 
 public:
-  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg) override;
+  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg) override;
 
 
   //////////////////////////////////////////////////////////////////////////
@@ -51,10 +51,10 @@ public:
 
   float GetEffectiveRange() const;
 
-  void SetInnerSpotAngle(ezAngle fSpotAngle); // [ property ]
+  void SetInnerSpotAngle(ezAngle spotAngle);  // [ property ]
   ezAngle GetInnerSpotAngle() const;          // [ property ]
 
-  void SetOuterSpotAngle(ezAngle fSpotAngle); // [ property ]
+  void SetOuterSpotAngle(ezAngle spotAngle);  // [ property ]
   ezAngle GetOuterSpotAngle() const;          // [ property ]
 
   void SetProjectedTextureFile(const char* szFile); // [ property ]

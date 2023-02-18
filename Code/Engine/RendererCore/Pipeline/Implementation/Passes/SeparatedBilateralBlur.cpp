@@ -159,9 +159,9 @@ ezUInt32 ezSeparatedBilateralBlurPass::GetRadius() const
   return m_uiRadius;
 }
 
-void ezSeparatedBilateralBlurPass::SetGaussianSigma(const float sigma)
+void ezSeparatedBilateralBlurPass::SetGaussianSigma(const float fSigma)
 {
-  m_fGaussianSigma = sigma;
+  m_fGaussianSigma = fSigma;
 
   ezBilateralBlurConstants* cb = ezRenderContext::GetConstantBufferData<ezBilateralBlurConstants>(m_hBilateralBlurCB);
   cb->GaussianFalloff = 1.0f / (2.0f * m_fGaussianSigma * m_fGaussianSigma);
@@ -202,7 +202,7 @@ public:
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
     pNode->RenameProperty("Blur Radius", "BlurRadius");
     pNode->RenameProperty("Gaussian Standard Deviation", "GaussianSigma");

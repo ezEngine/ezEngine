@@ -53,8 +53,8 @@ class EZ_RENDERERCORE_DLL ezDecalComponent final : public ezRenderComponent
   // ezComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
 protected:
   virtual void OnSimulationStarted() override;
@@ -87,10 +87,10 @@ public:
   void SetEmissiveColor(ezColor color); // [ property ]
   ezColor GetEmissiveColor() const;     // [ property ]
 
-  void SetInnerFadeAngle(ezAngle fFadeAngle); // [ property ]
+  void SetInnerFadeAngle(ezAngle fadeAngle);  // [ property ]
   ezAngle GetInnerFadeAngle() const;          // [ property ]
 
-  void SetOuterFadeAngle(ezAngle fFadeAngle); // [ property ]
+  void SetOuterFadeAngle(ezAngle fadeAngle);  // [ property ]
   ezAngle GetOuterFadeAngle() const;          // [ property ]
 
   void SetSortOrder(float fOrder); // [ property ]
@@ -109,7 +109,7 @@ public:
   ezTime m_FadeOutDuration;                               // [ property ]
   ezEnum<ezOnComponentFinishedAction> m_OnFinishedAction; // [ property ]
 
-  void SetProjectionAxis(ezEnum<ezBasisAxis> ProjectionAxis); // [ property ]
+  void SetProjectionAxis(ezEnum<ezBasisAxis> projectionAxis); // [ property ]
   ezEnum<ezBasisAxis> GetProjectionAxis() const;              // [ property ]
 
   void SetApplyOnlyTo(ezGameObjectHandle hObject);

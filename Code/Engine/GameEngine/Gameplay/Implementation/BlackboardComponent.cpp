@@ -22,20 +22,20 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezBlackboardEntry, ezNoBase, 1, ezRTTIDefaultAllo
 EZ_END_STATIC_REFLECTED_TYPE;
 // clang-format on
 
-ezResult ezBlackboardEntry::Serialize(ezStreamWriter& stream) const
+ezResult ezBlackboardEntry::Serialize(ezStreamWriter& inout_stream) const
 {
-  stream << m_sName;
-  stream << m_InitialValue;
-  stream << m_Flags;
+  inout_stream << m_sName;
+  inout_stream << m_InitialValue;
+  inout_stream << m_Flags;
 
   return EZ_SUCCESS;
 }
 
-ezResult ezBlackboardEntry::Deserialize(ezStreamReader& stream)
+ezResult ezBlackboardEntry::Deserialize(ezStreamReader& inout_stream)
 {
-  stream >> m_sName;
-  stream >> m_InitialValue;
-  stream >> m_Flags;
+  inout_stream >> m_sName;
+  inout_stream >> m_InitialValue;
+  inout_stream >> m_Flags;
 
   return EZ_SUCCESS;
 }
@@ -159,21 +159,21 @@ void ezBlackboardComponent::OnDeactivated()
   }
 }
 
-void ezBlackboardComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezBlackboardComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
-  ezStreamWriter& s = stream.GetStream();
+  SUPER::SerializeComponent(inout_stream);
+  ezStreamWriter& s = inout_stream.GetStream();
 
   s << m_pBoard->GetName();
   s.WriteArray(m_InitialEntries).IgnoreResult();
 }
 
-void ezBlackboardComponent::DeserializeComponent(ezWorldReader& stream)
+void ezBlackboardComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
-  ezStreamReader& s = stream.GetStream();
+  ezStreamReader& s = inout_stream.GetStream();
 
   ezStringBuilder sb;
   s >> sb;

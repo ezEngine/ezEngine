@@ -42,7 +42,7 @@ public:
   /// m_TypeChangedEvent event will be called with the old and new ezRTTI.
   ///
   /// \sa ezReflectionUtils::GetReflectedTypeDescriptorFromRtti
-  static const ezRTTI* RegisterType(ezReflectedTypeDescriptor& desc);
+  static const ezRTTI* RegisterType(ezReflectedTypeDescriptor& ref_desc);
 
   /// \brief Removes a type from the list of accessible types.
   ///

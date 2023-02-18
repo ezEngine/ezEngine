@@ -15,7 +15,7 @@ class EZ_TOOLSFOUNDATION_DLL ezToolsSerializationUtils
 public:
   using FilterFunction = ezDelegate<bool(const ezAbstractProperty*)>;
 
-  static void SerializeTypes(const ezSet<const ezRTTI*>& types, ezAbstractObjectGraph& typesGraph);
+  static void SerializeTypes(const ezSet<const ezRTTI*>& types, ezAbstractObjectGraph& ref_typesGraph);
 
-  static void CopyProperties(const ezDocumentObject* pSource, const ezDocumentObjectManager* pSourceManager, void* pTarget, const ezRTTI* pTargetType, FilterFunction PropertFilter = nullptr);
+  static void CopyProperties(const ezDocumentObject* pSource, const ezDocumentObjectManager* pSourceManager, void* pTarget, const ezRTTI* pTargetType, FilterFunction propertFilter = nullptr);
 };

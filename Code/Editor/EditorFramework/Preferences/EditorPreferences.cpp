@@ -52,17 +52,17 @@ ezEditorPreferencesUser::ezEditorPreferencesUser()
 
 ezEditorPreferencesUser::~ezEditorPreferencesUser() = default;
 
-void ezEditorPreferencesUser::ApplyDefaultValues(ezEngineViewLightSettings& settings)
+void ezEditorPreferencesUser::ApplyDefaultValues(ezEngineViewLightSettings& ref_settings)
 {
-  settings.SetSkyBox(m_bSkyBox);
-  settings.SetSkyLight(m_bSkyLight);
-  settings.SetSkyLightCubeMap(m_sSkyLightCubeMap);
-  settings.SetSkyLightIntensity(m_fSkyLightIntensity);
-  settings.SetDirectionalLight(m_bDirectionalLight);
-  settings.SetDirectionalLightAngle(m_DirectionalLightAngle);
-  settings.SetDirectionalLightShadows(m_bDirectionalLightShadows);
-  settings.SetDirectionalLightIntensity(m_fDirectionalLightIntensity);
-  settings.SetFog(m_bFog);
+  ref_settings.SetSkyBox(m_bSkyBox);
+  ref_settings.SetSkyLight(m_bSkyLight);
+  ref_settings.SetSkyLightCubeMap(m_sSkyLightCubeMap);
+  ref_settings.SetSkyLightIntensity(m_fSkyLightIntensity);
+  ref_settings.SetDirectionalLight(m_bDirectionalLight);
+  ref_settings.SetDirectionalLightAngle(m_DirectionalLightAngle);
+  ref_settings.SetDirectionalLightShadows(m_bDirectionalLightShadows);
+  ref_settings.SetDirectionalLightIntensity(m_fDirectionalLightIntensity);
+  ref_settings.SetFog(m_bFog);
 }
 
 void ezEditorPreferencesUser::SetAsDefaultValues(const ezEngineViewLightSettings& settings)

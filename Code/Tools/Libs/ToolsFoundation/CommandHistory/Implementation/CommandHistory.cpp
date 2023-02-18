@@ -253,7 +253,7 @@ const char* ezCommandHistory::GetRedoDisplayString() const
   return m_pHistoryStorage->m_RedoHistory.PeekBack()->m_sDisplayString;
 }
 
-void ezCommandHistory::StartTransaction(const ezFormatString& sDisplayString)
+void ezCommandHistory::StartTransaction(const ezFormatString& displayString)
 {
   EZ_ASSERT_DEV(!m_bIsInUndoRedo, "Cannot start new transaction while redoing/undoing.");
 
@@ -275,7 +275,7 @@ void ezCommandHistory::StartTransaction(const ezFormatString& sDisplayString)
 
   pTransaction = ezGetStaticRTTI<ezCommandTransaction>()->GetAllocator()->Allocate<ezCommandTransaction>();
   pTransaction->m_pDocument = m_pHistoryStorage->m_pDocument;
-  pTransaction->m_sDisplayString = sDisplayString.GetText(tmp);
+  pTransaction->m_sDisplayString = displayString.GetText(tmp);
 
   if (!m_pHistoryStorage->m_TransactionStack.IsEmpty())
   {
@@ -363,12 +363,12 @@ void ezCommandHistory::EndTransaction(bool bCancel)
   }
 }
 
-ezStatus ezCommandHistory::AddCommand(ezCommand& command)
+ezStatus ezCommandHistory::AddCommand(ezCommand& ref_command)
 {
   EZ_ASSERT_DEV(!m_pHistoryStorage->m_TransactionStack.IsEmpty(), "Cannot add command while no transaction is started");
   EZ_ASSERT_DEV(!m_pHistoryStorage->m_ActiveCommandStack.IsEmpty(), "Transaction stack is not synced anymore with m_ActiveCommandStack");
 
-  auto res = m_pHistoryStorage->m_ActiveCommandStack.PeekBack()->AddSubCommand(command);
+  auto res = m_pHistoryStorage->m_ActiveCommandStack.PeekBack()->AddSubCommand(ref_command);
 
   // Error handling should be on the caller side.
   // if (res.Failed() && !res.m_sMessage.IsEmpty())
@@ -435,14 +435,14 @@ ezUInt32 ezCommandHistory::GetRedoStackSize() const
   return m_pHistoryStorage->m_RedoHistory.GetCount();
 }
 
-const ezCommandTransaction* ezCommandHistory::GetUndoStackEntry(ezUInt32 iIndex) const
+const ezCommandTransaction* ezCommandHistory::GetUndoStackEntry(ezUInt32 uiIndex) const
 {
-  return m_pHistoryStorage->m_UndoHistory[GetUndoStackSize() - 1 - iIndex];
+  return m_pHistoryStorage->m_UndoHistory[GetUndoStackSize() - 1 - uiIndex];
 }
 
-const ezCommandTransaction* ezCommandHistory::GetRedoStackEntry(ezUInt32 iIndex) const
+const ezCommandTransaction* ezCommandHistory::GetRedoStackEntry(ezUInt32 uiIndex) const
 {
-  return m_pHistoryStorage->m_RedoHistory[GetRedoStackSize() - 1 - iIndex];
+  return m_pHistoryStorage->m_RedoHistory[GetRedoStackSize() - 1 - uiIndex];
 }
 
 ezSharedPtr<ezCommandHistory::Storage> ezCommandHistory::SwapStorage(ezSharedPtr<ezCommandHistory::Storage> pNewStorage)

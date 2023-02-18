@@ -40,7 +40,7 @@ class EZ_GUIFOUNDATION_DLL ezActionManager
 {
 public:
   static ezActionDescriptorHandle RegisterAction(const ezActionDescriptor& desc);
-  static bool UnregisterAction(ezActionDescriptorHandle& hAction);
+  static bool UnregisterAction(ezActionDescriptorHandle& ref_hAction);
   static const ezActionDescriptor* GetActionDescriptor(ezActionDescriptorHandle hAction);
   static ezActionDescriptorHandle GetActionHandle(const char* szCategory, const char* szActionName);
 

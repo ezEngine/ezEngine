@@ -20,7 +20,7 @@ ezDuktapeContext::~ezDuktapeContext()
   DestroyContext();
 }
 
-void ezDuktapeContext::EnableModuleSupport(duk_c_function pModuleSearchFunction)
+void ezDuktapeContext::EnableModuleSupport(duk_c_function moduleSearchFunction)
 {
   if (!m_bInitializedModuleSupport)
   {
@@ -32,10 +32,10 @@ void ezDuktapeContext::EnableModuleSupport(duk_c_function pModuleSearchFunction)
     duk_module_duktape_init(m_pContext);
   }
 
-  if (pModuleSearchFunction)
+  if (moduleSearchFunction)
   {
     duk_get_global_string(m_pContext, "Duktape");
-    duk_push_c_function(m_pContext, pModuleSearchFunction, 4);
+    duk_push_c_function(m_pContext, moduleSearchFunction, 4);
     duk_put_prop_string(m_pContext, -2, "modSearch");
     duk_pop(m_pContext);
   }

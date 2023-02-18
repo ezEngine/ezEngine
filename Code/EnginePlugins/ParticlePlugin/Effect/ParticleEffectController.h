@@ -24,15 +24,15 @@ public:
 
   void SetTransform(const ezTransform& t, const ezVec3& vParticleStartVelocity) const;
 
-  void Tick(const ezTime& tDiff) const;
+  void Tick(const ezTime& diff) const;
 
-  void ExtractRenderData(ezMsgExtractRenderData& msg, const ezTransform& systemTransform) const;
+  void ExtractRenderData(ezMsgExtractRenderData& ref_msg, const ezTransform& systemTransform) const;
 
   void StopImmediate();
 
   /// \brief Returns the bounding volume of the effect.
   /// The volume is in the local space of the effect.
-  void GetBoundingVolume(ezBoundingBoxSphere& volume) const;
+  void GetBoundingVolume(ezBoundingBoxSphere& ref_volume) const;
 
   void UpdateWindSamples();
 
@@ -45,10 +45,10 @@ public:
   ///@{
 public:
   /// \brief Passes an effect parameter on to the effect instance
-  void SetParameter(const ezTempHashedString& name, float value);
+  void SetParameter(const ezTempHashedString& sName, float value);
 
   /// \brief Passes an effect parameter on to the effect instance
-  void SetParameter(const ezTempHashedString& name, const ezColor& value);
+  void SetParameter(const ezTempHashedString& sName, const ezColor& value);
 
   ///@}
 

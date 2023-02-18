@@ -33,9 +33,9 @@ ezUInt32 ezPermutationGenerator::GetPermutationCount() const
   return uiPermutations;
 }
 
-void ezPermutationGenerator::GetPermutation(ezUInt32 uiPerm, ezHybridArray<ezPermutationVar, 16>& out_PermVars) const
+void ezPermutationGenerator::GetPermutation(ezUInt32 uiPerm, ezHybridArray<ezPermutationVar, 16>& out_permVars) const
 {
-  out_PermVars.Clear();
+  out_permVars.Clear();
 
   for (auto itVariable = m_Permutations.GetIterator(); itVariable.IsValid(); ++itVariable)
   {
@@ -51,7 +51,7 @@ void ezPermutationGenerator::GetPermutation(ezUInt32 uiPerm, ezHybridArray<ezPer
       ++itValue;
     }
 
-    ezPermutationVar& pv = out_PermVars.ExpandAndGetRef();
+    ezPermutationVar& pv = out_permVars.ExpandAndGetRef();
     pv.m_sName = itVariable.Key();
     pv.m_sValue = itValue.Key();
   }

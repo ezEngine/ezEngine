@@ -69,8 +69,8 @@ class EZ_FMODPLUGIN_DLL ezFmodEventComponent : public ezFmodComponent
   // ezComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
 protected:
   virtual void OnSimulationStarted() override;
@@ -143,10 +143,10 @@ public:
   ezFmodParameterId FindParameter(const char* szName) const;
 
   /// \brief Sets an fmod event parameter value. See FindParameter() for the index.
-  void SetParameter(ezFmodParameterId ParamId, float fValue);
+  void SetParameter(ezFmodParameterId paramId, float fValue);
 
   /// \brief Gets an fmod event parameter value. See FindParameter() for the index. Returns 0, if the index is invalid.
-  float GetParameter(ezFmodParameterId ParamId) const;
+  float GetParameter(ezFmodParameterId paramId) const;
 
   /// \brief Sets an event parameter via name lookup, so this is less efficient than SetParameter()
   void SetEventParameter(const char* szParamName, float fValue); // [ scriptable ]
@@ -154,7 +154,7 @@ public:
   /// \brief Allows one to set event parameters through the generic ezMsgSetFloatParameter message.
   ///
   /// Requires event parameter lookup via a name, so this is less efficient than SetParameter().
-  void OnMsgSetFloatParameter(ezMsgSetFloatParameter& msg); // [ msg handler ]
+  void OnMsgSetFloatParameter(ezMsgSetFloatParameter& ref_msg); // [ msg handler ]
 
 protected:
   void OnMsgDeleteGameObject(ezMsgDeleteGameObject& msg); // [ msg handler ]

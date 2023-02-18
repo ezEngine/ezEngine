@@ -17,8 +17,8 @@ class EZ_PHYSXPLUGIN_DLL ezPxBoneColliderComponent : public ezPxComponent
   // ezComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
 protected:
   virtual void OnSimulationStarted() override;
@@ -36,7 +36,7 @@ public:
   bool m_bQueryShapeOnly = true; // [ property ]
   ezTime m_UpdateThreshold;      // [ property ]
 
-  void OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& msg); // [ msg handler ]
+  void OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& ref_msg); // [ msg handler ]
 
   /// \brief Destroys the current shape objects and creates new ones.
   ///

@@ -23,7 +23,7 @@ public:
   ///
   /// You should typically not disable bAllowFileEvents, unless you need to prevent recursive file events,
   /// which is only the case, if you are doing file accesses from within a File Event Handler.
-  ezResult Open(ezStringView sFile, ezUInt32 uiCacheSize = 1024 * 1024, ezFileShareMode::Enum FileShareMode = ezFileShareMode::Default,
+  ezResult Open(ezStringView sFile, ezUInt32 uiCacheSize = 1024 * 1024, ezFileShareMode::Enum fileShareMode = ezFileShareMode::Default,
     bool bAllowFileEvents = true);
 
   /// \brief Closes the file, if it is open.

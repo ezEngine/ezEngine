@@ -132,10 +132,10 @@ void ezAreaDamageComponent::OnSimulationStarted()
   }
 }
 
-void ezAreaDamageComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezAreaDamageComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
-  auto& s = stream.GetStream();
+  SUPER::SerializeComponent(inout_stream);
+  auto& s = inout_stream.GetStream();
 
   s << m_bTriggerOnCreation;
   s << m_fRadius;
@@ -144,11 +144,11 @@ void ezAreaDamageComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_fImpulse;
 }
 
-void ezAreaDamageComponent::DeserializeComponent(ezWorldReader& stream)
+void ezAreaDamageComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
+  SUPER::DeserializeComponent(inout_stream);
   // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s >> m_bTriggerOnCreation;
   s >> m_fRadius;

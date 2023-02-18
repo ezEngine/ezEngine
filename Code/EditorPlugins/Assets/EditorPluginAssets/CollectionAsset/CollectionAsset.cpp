@@ -35,9 +35,9 @@ ezCollectionAssetDocument::ezCollectionAssetDocument(const char* szDocumentPath)
 {
 }
 
-static void InsertEntry(ezStringView sID, ezStringView sLookupName, ezMap<ezString, ezCollectionEntry>& inout_Found)
+static void InsertEntry(ezStringView sID, ezStringView sLookupName, ezMap<ezString, ezCollectionEntry>& inout_found)
 {
-  auto it = inout_Found.Find(sID);
+  auto it = inout_found.Find(sID);
 
   if (it.IsValid())
   {
@@ -60,7 +60,7 @@ static void InsertEntry(ezStringView sID, ezStringView sLookupName, ezMap<ezStri
 
   // insert item itself
   {
-    ezCollectionEntry& entry = inout_Found[sID];
+    ezCollectionEntry& entry = inout_found[sID];
     entry.m_sOptionalNiceLookupName = sLookupName;
     entry.m_sResourceID = sID;
     entry.m_sAssetTypeName = pInfo->m_Data.m_sSubAssetsDocumentTypeName;
@@ -72,12 +72,12 @@ static void InsertEntry(ezStringView sID, ezStringView sLookupName, ezMap<ezStri
 
     for (const ezString& doc : pDocInfo->m_AssetTransformDependencies)
     {
-      InsertEntry(doc, {}, inout_Found);
+      InsertEntry(doc, {}, inout_found);
     }
 
     for (const ezString& doc : pDocInfo->m_RuntimeDependencies)
     {
-      InsertEntry(doc, {}, inout_Found);
+      InsertEntry(doc, {}, inout_found);
     }
   }
 }

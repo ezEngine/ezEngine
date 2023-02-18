@@ -40,20 +40,20 @@ void ezTriggerDelayModifierComponent::Initialize()
   SUPER::Initialize();
 }
 
-void ezTriggerDelayModifierComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezTriggerDelayModifierComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
-  auto& s = stream.GetStream();
+  SUPER::SerializeComponent(inout_stream);
+  auto& s = inout_stream.GetStream();
 
   s << m_ActivationDelay;
   s << m_DeactivationDelay;
 }
 
-void ezTriggerDelayModifierComponent::DeserializeComponent(ezWorldReader& stream)
+void ezTriggerDelayModifierComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
+  SUPER::DeserializeComponent(inout_stream);
   // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s >> m_ActivationDelay;
   s >> m_DeactivationDelay;

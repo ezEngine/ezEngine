@@ -38,10 +38,10 @@ public:
 
   void SetMaterial(ezUInt32 uiMaterialIndex, const char* szPathToMaterial);
 
-  void Save(ezStreamWriter& stream);
+  void Save(ezStreamWriter& inout_stream);
   ezResult Save(const char* szFile);
 
-  ezResult Load(ezStreamReader& stream);
+  ezResult Load(ezStreamReader& inout_stream);
   ezResult Load(const char* szFile);
 
   const ezMeshBufferResourceHandle& GetExistingMeshBuffer() const;
@@ -62,8 +62,8 @@ public:
     ezMat4 m_GlobalInverseBindPoseMatrix;
     ezUInt16 m_uiBoneIndex = ezInvalidJointIndex;
 
-    ezResult Serialize(ezStreamWriter& stream) const;
-    ezResult Deserialize(ezStreamReader& stream);
+    ezResult Serialize(ezStreamWriter& inout_stream) const;
+    ezResult Deserialize(ezStreamReader& inout_stream);
   };
 
   ezSkeletonResourceHandle m_hDefaultSkeleton;

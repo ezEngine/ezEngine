@@ -73,13 +73,13 @@ void ezActor::DestroyPlugin(ezActorPlugin* pPlugin)
   }
 }
 
-void ezActor::GetAllPlugins(ezHybridArray<ezActorPlugin*, 8>& out_AllPlugins)
+void ezActor::GetAllPlugins(ezHybridArray<ezActorPlugin*, 8>& out_allPlugins)
 {
-  out_AllPlugins.Clear();
+  out_allPlugins.Clear();
 
   for (auto& pPlugin : m_pImpl->m_AllPlugins)
   {
-    out_AllPlugins.PushBack(pPlugin.Borrow());
+    out_allPlugins.PushBack(pPlugin.Borrow());
   }
 }
 

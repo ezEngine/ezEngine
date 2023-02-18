@@ -27,13 +27,13 @@ protected:
 
 public:
   /// \brief Checks whether the given handle references a valid component.
-  bool IsValidComponent(const ezComponentHandle& component) const;
+  bool IsValidComponent(const ezComponentHandle& hComponent) const;
 
   /// \brief Returns if a component with the given handle exists and if so writes out the corresponding pointer to out_pComponent.
-  bool TryGetComponent(const ezComponentHandle& component, ezComponent*& out_pComponent);
+  bool TryGetComponent(const ezComponentHandle& hComponent, ezComponent*& out_pComponent);
 
   /// \brief Returns if a component with the given handle exists and if so writes out the corresponding pointer to out_pComponent.
-  bool TryGetComponent(const ezComponentHandle& component, const ezComponent*& out_pComponent) const;
+  bool TryGetComponent(const ezComponentHandle& hComponent, const ezComponent*& out_pComponent) const;
 
   /// \brief Returns the number of components managed by this manager.
   ezUInt32 GetComponentCount() const;
@@ -46,18 +46,18 @@ public:
   ezComponentHandle CreateComponent(ezGameObject* pOwnerObject, ComponentType*& out_pComponent);
 
   /// \brief Deletes the given component. Note that the component will be invalidated first and the actual deletion is postponed.
-  void DeleteComponent(const ezComponentHandle& component);
+  void DeleteComponent(const ezComponentHandle& hComponent);
 
   /// \brief Deletes the given component. Note that the component will be invalidated first and the actual deletion is postponed.
   void DeleteComponent(ezComponent* pComponent);
 
   /// \brief Adds all components that this manager handles to the given array (array is not cleared).
   /// Prefer to use more efficient methods on derived classes, only use this if you need to go through a ezComponentManagerBase pointer.
-  virtual void CollectAllComponents(ezDynamicArray<ezComponentHandle>& out_AllComponents, bool bOnlyActive) = 0;
+  virtual void CollectAllComponents(ezDynamicArray<ezComponentHandle>& out_allComponents, bool bOnlyActive) = 0;
 
   /// \brief Adds all components that this manager handles to the given array (array is not cleared).
   /// Prefer to use more efficient methods on derived classes, only use this if you need to go through a ezComponentManagerBase pointer.
-  virtual void CollectAllComponents(ezDynamicArray<ezComponent*>& out_AllComponents, bool bOnlyActive) = 0;
+  virtual void CollectAllComponents(ezDynamicArray<ezComponent*>& out_allComponents, bool bOnlyActive) = 0;
 
 protected:
   /// \cond
@@ -95,10 +95,10 @@ public:
   virtual ~ezComponentManager();
 
   /// \brief Returns if a component with the given handle exists and if so writes out the corresponding pointer to out_pComponent.
-  bool TryGetComponent(const ezComponentHandle& component, ComponentType*& out_pComponent);
+  bool TryGetComponent(const ezComponentHandle& hComponent, ComponentType*& out_pComponent);
 
   /// \brief Returns if a component with the given handle exists and if so writes out the corresponding pointer to out_pComponent.
-  bool TryGetComponent(const ezComponentHandle& component, const ComponentType*& out_pComponent) const;
+  bool TryGetComponent(const ezComponentHandle& hComponent, const ComponentType*& out_pComponent) const;
 
   /// \brief Returns an iterator over all components.
   typename ezBlockStorage<ComponentType, ezInternal::DEFAULT_BLOCK_SIZE, StorageType>::Iterator GetComponents(ezUInt32 uiStartIndex = 0);
@@ -109,8 +109,8 @@ public:
   /// \brief Returns the type id corresponding to the component type managed by this manager.
   static ezWorldModuleTypeId TypeId();
 
-  virtual void CollectAllComponents(ezDynamicArray<ezComponentHandle>& out_AllComponents, bool bOnlyActive) override;
-  virtual void CollectAllComponents(ezDynamicArray<ezComponent*>& out_AllComponents, bool bOnlyActive) override;
+  virtual void CollectAllComponents(ezDynamicArray<ezComponentHandle>& out_allComponents, bool bOnlyActive) override;
+  virtual void CollectAllComponents(ezDynamicArray<ezComponent*>& out_allComponents, bool bOnlyActive) override;
 
 protected:
   friend ComponentType;

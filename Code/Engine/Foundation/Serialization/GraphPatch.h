@@ -36,7 +36,7 @@ public:
 
   /// \brief Patch function. If type == PatchType::NodePatch, the implementation needs to patch pNode in pGraph to m_uiTypeVersion.
   ///  If type == PatchType::GraphPatch, pNode will be nullptr and the implementation has to figure out waht to patch in pGraph on its own.
-  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const = 0;
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const = 0;
   /// \brief Returns the type to patch.
   const char* GetType() const;
   /// \brief Returns the type version to patch to.

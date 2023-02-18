@@ -20,7 +20,7 @@ public:
   ezAnimGraphResource();
   ~ezAnimGraphResource();
 
-  void DeserializeAnimGraphState(ezAnimGraph& out);
+  void DeserializeAnimGraphState(ezAnimGraph& ref_out);
 
 private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;

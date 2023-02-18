@@ -75,12 +75,12 @@ void ezBlackboard::SetName(ezStringView sName)
   m_sName.Assign(sName);
 }
 
-void ezBlackboard::RegisterEntry(const ezHashedString& name, const ezVariant& initialValue, ezBitflags<ezBlackboardEntryFlags> flags /*= ezBlackboardEntryFlags::None*/)
+void ezBlackboard::RegisterEntry(const ezHashedString& sName, const ezVariant& initialValue, ezBitflags<ezBlackboardEntryFlags> flags /*= ezBlackboardEntryFlags::None*/)
 {
   EZ_ASSERT_ALWAYS(!flags.IsSet(ezBlackboardEntryFlags::Invalid), "The invalid flag is reserved for internal use.");
 
   bool bExisted = false;
-  Entry& entry = m_Entries.FindOrAdd(name, &bExisted);
+  Entry& entry = m_Entries.FindOrAdd(sName, &bExisted);
 
   if (!bExisted || entry.m_Flags != flags)
   {
@@ -91,13 +91,13 @@ void ezBlackboard::RegisterEntry(const ezHashedString& name, const ezVariant& in
   if (!bExisted && entry.m_Value != initialValue)
   {
     // broadcasts the change event, in case we overwrite an existing entry
-    SetEntryValue(name, initialValue).IgnoreResult();
+    SetEntryValue(sName, initialValue).IgnoreResult();
   }
 }
 
-void ezBlackboard::UnregisterEntry(const ezHashedString& name)
+void ezBlackboard::UnregisterEntry(const ezHashedString& sName)
 {
-  if (m_Entries.Remove(name))
+  if (m_Entries.Remove(sName))
   {
     ++m_uiBlackboardChangeCounter;
   }
@@ -113,9 +113,9 @@ void ezBlackboard::UnregisterAllEntries()
   m_Entries.Clear();
 }
 
-ezResult ezBlackboard::SetEntryValue(const ezTempHashedString& name, const ezVariant& value, bool force /*= false*/)
+ezResult ezBlackboard::SetEntryValue(const ezTempHashedString& sName, const ezVariant& value, bool bForce /*= false*/)
 {
-  auto itEntry = m_Entries.Find(name);
+  auto itEntry = m_Entries.Find(sName);
 
   if (!itEntry.IsValid())
   {
@@ -124,7 +124,7 @@ ezResult ezBlackboard::SetEntryValue(const ezTempHashedString& name, const ezVar
 
   Entry& entry = itEntry.Value();
 
-  if (!force && entry.m_Value == value)
+  if (!bForce && entry.m_Value == value)
     return EZ_SUCCESS;
 
   ++m_uiBlackboardEntryChangeCounter;
@@ -149,9 +149,9 @@ ezResult ezBlackboard::SetEntryValue(const ezTempHashedString& name, const ezVar
   return EZ_SUCCESS;
 }
 
-const ezBlackboard::Entry* ezBlackboard::GetEntry(const ezTempHashedString& name) const
+const ezBlackboard::Entry* ezBlackboard::GetEntry(const ezTempHashedString& sName) const
 {
-  auto itEntry = m_Entries.Find(name);
+  auto itEntry = m_Entries.Find(sName);
 
   if (!itEntry.IsValid())
     return nullptr;
@@ -159,15 +159,15 @@ const ezBlackboard::Entry* ezBlackboard::GetEntry(const ezTempHashedString& name
   return &itEntry.Value();
 }
 
-ezVariant ezBlackboard::GetEntryValue(const ezTempHashedString& name, ezVariant fallback) const
+ezVariant ezBlackboard::GetEntryValue(const ezTempHashedString& sName, ezVariant fallback) const
 {
-  auto value = m_Entries.GetValue(name);
+  auto value = m_Entries.GetValue(sName);
   return value != nullptr ? value->m_Value : fallback;
 }
 
-ezBitflags<ezBlackboardEntryFlags> ezBlackboard::GetEntryFlags(const ezTempHashedString& name) const
+ezBitflags<ezBlackboardEntryFlags> ezBlackboard::GetEntryFlags(const ezTempHashedString& sName) const
 {
-  auto itEntry = m_Entries.Find(name);
+  auto itEntry = m_Entries.Find(sName);
 
   if (!itEntry.IsValid())
   {
@@ -177,9 +177,9 @@ ezBitflags<ezBlackboardEntryFlags> ezBlackboard::GetEntryFlags(const ezTempHashe
   return itEntry.Value().m_Flags;
 }
 
-ezResult ezBlackboard::Serialize(ezStreamWriter& stream) const
+ezResult ezBlackboard::Serialize(ezStreamWriter& inout_stream) const
 {
-  stream.WriteVersion(1);
+  inout_stream.WriteVersion(1);
 
   ezUInt32 uiEntries = 0;
 
@@ -191,7 +191,7 @@ ezResult ezBlackboard::Serialize(ezStreamWriter& stream) const
     }
   }
 
-  stream << uiEntries;
+  inout_stream << uiEntries;
 
   for (auto it : m_Entries)
   {
@@ -199,32 +199,32 @@ ezResult ezBlackboard::Serialize(ezStreamWriter& stream) const
 
     if (e.m_Flags.IsSet(ezBlackboardEntryFlags::Save))
     {
-      stream << it.Key();
-      stream << e.m_Flags;
-      stream << e.m_Value;
+      inout_stream << it.Key();
+      inout_stream << e.m_Flags;
+      inout_stream << e.m_Value;
     }
   }
 
   return EZ_SUCCESS;
 }
 
-ezResult ezBlackboard::Deserialize(ezStreamReader& stream)
+ezResult ezBlackboard::Deserialize(ezStreamReader& inout_stream)
 {
-  stream.ReadVersion(1);
+  inout_stream.ReadVersion(1);
 
   ezUInt32 uiEntries = 0;
-  stream >> uiEntries;
+  inout_stream >> uiEntries;
 
   for (ezUInt32 e = 0; e < uiEntries; ++e)
   {
     ezHashedString name;
-    stream >> name;
+    inout_stream >> name;
 
     ezBitflags<ezBlackboardEntryFlags> flags;
-    stream >> flags;
+    inout_stream >> flags;
 
     ezVariant value;
-    stream >> value;
+    inout_stream >> value;
 
     RegisterEntry(name, value, flags);
   }
@@ -262,23 +262,23 @@ bool ezBlackboardCondition::IsConditionMet(const ezBlackboard& blackboard) const
 
 constexpr ezTypeVersion s_BlackboardConditionVersion = 1;
 
-ezResult ezBlackboardCondition::Serialize(ezStreamWriter& stream) const
+ezResult ezBlackboardCondition::Serialize(ezStreamWriter& inout_stream) const
 {
-  stream.WriteVersion(s_BlackboardConditionVersion);
+  inout_stream.WriteVersion(s_BlackboardConditionVersion);
 
-  stream << m_sEntryName;
-  stream << m_Operator;
-  stream << m_fComparisonValue;
+  inout_stream << m_sEntryName;
+  inout_stream << m_Operator;
+  inout_stream << m_fComparisonValue;
   return EZ_SUCCESS;
 }
 
-ezResult ezBlackboardCondition::Deserialize(ezStreamReader& stream)
+ezResult ezBlackboardCondition::Deserialize(ezStreamReader& inout_stream)
 {
-  const ezTypeVersion uiVersion = stream.ReadVersion(s_BlackboardConditionVersion);
+  const ezTypeVersion uiVersion = inout_stream.ReadVersion(s_BlackboardConditionVersion);
 
-  stream >> m_sEntryName;
-  stream >> m_Operator;
-  stream >> m_fComparisonValue;
+  inout_stream >> m_sEntryName;
+  inout_stream >> m_Operator;
+  inout_stream >> m_fComparisonValue;
   return EZ_SUCCESS;
 }
 

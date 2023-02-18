@@ -13,8 +13,8 @@ namespace ezProcGenInternal
 
     const ezTagSet& GetTagSet(ezUInt32 uiIndex) const;
 
-    void Save(ezStreamWriter& stream) const;
-    ezResult Load(ezStreamReader& stream);
+    void Save(ezStreamWriter& inout_stream) const;
+    ezResult Load(ezStreamReader& inout_stream);
 
   private:
     ezDynamicArray<ezTagSet> m_TagSets;

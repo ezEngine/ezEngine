@@ -12,7 +12,7 @@ class ezQtExtractGeometryDlg : public QDialog, public Ui_ExtractGeometryDlg
   Q_OBJECT
 
 public:
-  ezQtExtractGeometryDlg(QWidget* parent);
+  ezQtExtractGeometryDlg(QWidget* pParent);
 
   static QString s_sDestinationFile;
   static bool s_bOnlySelection;

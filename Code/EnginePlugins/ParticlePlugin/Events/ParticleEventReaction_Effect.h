@@ -15,8 +15,8 @@ public:
   virtual const ezRTTI* GetEventReactionType() const override;
   virtual void CopyReactionProperties(ezParticleEventReaction* pObject, bool bFirstTime) const override;
 
-  virtual void Save(ezStreamWriter& stream) const override;
-  virtual void Load(ezStreamReader& stream) override;
+  virtual void Save(ezStreamWriter& inout_stream) const override;
+  virtual void Load(ezStreamReader& inout_stream) override;
 
   ezString m_sEffect;
   ezEnum<ezSurfaceInteractionAlignment> m_Alignment;

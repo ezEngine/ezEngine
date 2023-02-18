@@ -72,7 +72,7 @@ void ezEditorAssetDocumentTest::AsyncSave()
     ezObjectAccessorBase* pAcc = pDoc->GetObjectAccessor();
     ezInt32 iOrder = 0;
     ezTaskGroupID id = pDoc->SaveDocumentAsync(
-      [&iOrder](ezDocument* doc, ezStatus res) {
+      [&iOrder](ezDocument* pDoc, ezStatus res) {
         EZ_TEST_INT(iOrder, 0);
         iOrder = 1;
       },
@@ -84,7 +84,7 @@ void ezEditorAssetDocumentTest::AsyncSave()
 
     // Saving while another save is in progress should block. This ensures the correct state on disk.
     ezString sFile = pAcc->Get<ezString>(pMeshAsset, "MeshFile");
-    ezTaskGroupID id2 = pDoc->SaveDocumentAsync([&iOrder](ezDocument* doc, ezStatus res) {
+    ezTaskGroupID id2 = pDoc->SaveDocumentAsync([&iOrder](ezDocument* pDoc, ezStatus res) {
       EZ_TEST_INT(iOrder, 1);
       iOrder = 2;
     });

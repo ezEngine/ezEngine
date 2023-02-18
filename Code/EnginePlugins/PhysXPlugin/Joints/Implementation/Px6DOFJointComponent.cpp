@@ -49,11 +49,11 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezPx6DOFJointComponent::ezPx6DOFJointComponent() = default;
 ezPx6DOFJointComponent::~ezPx6DOFJointComponent() = default;
 
-void ezPx6DOFJointComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezPx6DOFJointComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s << m_FreeLinearAxis;
   s << m_FreeAngularAxis;
@@ -78,12 +78,12 @@ void ezPx6DOFJointComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_fTwistDamping;
 }
 
-void ezPx6DOFJointComponent::DeserializeComponent(ezWorldReader& stream)
+void ezPx6DOFJointComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s >> m_FreeLinearAxis;
   s >> m_FreeAngularAxis;

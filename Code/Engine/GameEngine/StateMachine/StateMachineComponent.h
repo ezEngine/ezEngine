@@ -33,11 +33,11 @@ public:
   ezStateMachineState_SendMsg(ezStringView sName = ezStringView());
   ~ezStateMachineState_SendMsg();
 
-  virtual void OnEnter(ezStateMachineInstance& instance, void* pInstanceData, const ezStateMachineState* pFromState) const override;
-  virtual void OnExit(ezStateMachineInstance& instance, void* pInstanceData, const ezStateMachineState* pToState) const override;
+  virtual void OnEnter(ezStateMachineInstance& ref_instance, void* pInstanceData, const ezStateMachineState* pFromState) const override;
+  virtual void OnExit(ezStateMachineInstance& ref_instance, void* pInstanceData, const ezStateMachineState* pToState) const override;
 
-  virtual ezResult Serialize(ezStreamWriter& stream) const override;
-  virtual ezResult Deserialize(ezStreamReader& stream) override;
+  virtual ezResult Serialize(ezStreamWriter& inout_stream) const override;
+  virtual ezResult Deserialize(ezStreamReader& inout_stream) override;
 
   ezTime m_MessageDelay;
 
@@ -73,10 +73,10 @@ public:
   ezStateMachineState_SwitchObject(ezStringView sName = ezStringView());
   ~ezStateMachineState_SwitchObject();
 
-  virtual void OnEnter(ezStateMachineInstance& instance, void* pInstanceData, const ezStateMachineState* pFromState) const override;
+  virtual void OnEnter(ezStateMachineInstance& ref_instance, void* pInstanceData, const ezStateMachineState* pFromState) const override;
 
-  virtual ezResult Serialize(ezStreamWriter& stream) const override;
-  virtual ezResult Deserialize(ezStreamReader& stream) override;
+  virtual ezResult Serialize(ezStreamWriter& inout_stream) const override;
+  virtual ezResult Deserialize(ezStreamReader& inout_stream) override;
 
   ezString m_sGroupPath;
   ezString m_sObjectToEnable;
@@ -112,8 +112,8 @@ class EZ_GAMEENGINE_DLL ezStateMachineComponent : public ezComponent
   // ezComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
 protected:
   virtual void OnActivated() override;

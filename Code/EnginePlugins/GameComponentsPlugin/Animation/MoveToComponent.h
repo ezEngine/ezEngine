@@ -49,8 +49,8 @@ class EZ_GAMECOMPONENTS_DLL ezMoveToComponent : public ezComponent
   // ezComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
 
   //////////////////////////////////////////////////////////////////////////
@@ -64,7 +64,7 @@ public:
   void SetRunning(bool bRunning); // [ property ]
   bool IsRunning() const;         // [ property ]
 
-  void SetTargetPosition(const ezVec3& pos); // [ scriptable ]
+  void SetTargetPosition(const ezVec3& vPos); // [ scriptable ]
 
 protected:
   void Update();

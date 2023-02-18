@@ -50,10 +50,10 @@ void ezDynamicOctree::CreateTree(const ezVec3& vCenter, const ezVec3& vHalfExten
 ///
 /// If bOnlyIfInside is true, the object is discarded, if it is not inside the actual bounding box of the tree.
 ezResult ezDynamicOctree::InsertObject(const ezVec3& vCenter, const ezVec3& vHalfExtents, ezInt32 iObjectType, ezInt32 iObjectInstance,
-  ezDynamicTreeObject* out_Object, bool bOnlyIfInside)
+  ezDynamicTreeObject* out_pObject, bool bOnlyIfInside)
 {
-  if (out_Object)
-    *out_Object = ezDynamicTreeObject();
+  if (out_pObject)
+    *out_pObject = ezDynamicTreeObject();
 
   if (bOnlyIfInside)
   {
@@ -82,7 +82,7 @@ ezResult ezDynamicOctree::InsertObject(const ezVec3& vCenter, const ezVec3& vHal
 
   // insert the object into the best child
   if (!InsertObject(vCenter, vHalfExtents, oData, m_BBox.m_vMin.x, m_BBox.m_vMax.x, m_BBox.m_vMin.y, m_BBox.m_vMax.y, m_BBox.m_vMin.z,
-        m_BBox.m_vMax.z, 0, m_uiAddIDTopLevel, ezMath::Pow(8, m_uiMaxTreeDepth - 1), out_Object))
+        m_BBox.m_vMax.z, 0, m_uiAddIDTopLevel, ezMath::Pow(8, m_uiMaxTreeDepth - 1), out_pObject))
   {
     if (!bOnlyIfInside)
     {
@@ -92,8 +92,8 @@ ezResult ezDynamicOctree::InsertObject(const ezVec3& vCenter, const ezVec3& vHal
 
       auto key = m_NodeMap.Insert(mmk, oData);
 
-      if (out_Object)
-        *out_Object = key;
+      if (out_pObject)
+        *out_pObject = key;
 
       return EZ_SUCCESS;
     }
@@ -168,7 +168,7 @@ bool ezDynamicOctree::InsertObject(const ezVec3& vCenter, const ezVec3& vHalfExt
   return true;
 }
 
-void ezDynamicOctree::FindObjectsInRange(const ezVec3& vPoint, EZ_VISIBLE_OBJ_CALLBACK Callback, void* pPassThrough) const
+void ezDynamicOctree::FindObjectsInRange(const ezVec3& vPoint, EZ_VISIBLE_OBJ_CALLBACK callback, void* pPassThrough) const
 {
   if (m_NodeMap.IsEmpty())
     return;
@@ -176,18 +176,18 @@ void ezDynamicOctree::FindObjectsInRange(const ezVec3& vPoint, EZ_VISIBLE_OBJ_CA
   if (!m_BBox.Contains(vPoint))
     return;
 
-  FindObjectsInRange(vPoint, Callback, pPassThrough, m_BBox.m_vMin.x, m_BBox.m_vMax.x, m_BBox.m_vMin.y, m_BBox.m_vMax.y, m_BBox.m_vMin.z,
+  FindObjectsInRange(vPoint, callback, pPassThrough, m_BBox.m_vMin.x, m_BBox.m_vMax.x, m_BBox.m_vMin.y, m_BBox.m_vMax.y, m_BBox.m_vMin.z,
     m_BBox.m_vMax.z, 0, m_uiAddIDTopLevel, ezMath::Pow(8, m_uiMaxTreeDepth - 1), 0xFFFFFFFF);
 }
 
-void ezDynamicOctree::FindVisibleObjects(const ezFrustum& Viewfrustum, EZ_VISIBLE_OBJ_CALLBACK Callback, void* pPassThrough) const
+void ezDynamicOctree::FindVisibleObjects(const ezFrustum& viewfrustum, EZ_VISIBLE_OBJ_CALLBACK callback, void* pPassThrough) const
 {
   EZ_ASSERT_DEV(m_uiMaxTreeDepth > 0, "ezDynamicOctree::FindVisibleObjects: You have to first create the tree.");
 
   if (m_NodeMap.IsEmpty())
     return;
 
-  FindVisibleObjects(Viewfrustum, Callback, pPassThrough, m_BBox.m_vMin.x, m_BBox.m_vMax.x, m_BBox.m_vMin.y, m_BBox.m_vMax.y, m_BBox.m_vMin.z,
+  FindVisibleObjects(viewfrustum, callback, pPassThrough, m_BBox.m_vMin.x, m_BBox.m_vMax.x, m_BBox.m_vMin.y, m_BBox.m_vMax.y, m_BBox.m_vMin.z,
     m_BBox.m_vMax.z, 0, m_uiAddIDTopLevel, ezMath::Pow(4, m_uiMaxTreeDepth - 1), 0xFFFFFFFF);
 }
 
@@ -392,14 +392,14 @@ bool ezDynamicOctree::FindObjectsInRange(const ezVec3& vPoint, EZ_VISIBLE_OBJ_CA
   return true;
 }
 
-void ezDynamicOctree::FindObjectsInRange(const ezVec3& vPoint, float fRadius, EZ_VISIBLE_OBJ_CALLBACK Callback, void* pPassThrough) const
+void ezDynamicOctree::FindObjectsInRange(const ezVec3& vPoint, float fRadius, EZ_VISIBLE_OBJ_CALLBACK callback, void* pPassThrough) const
 {
   EZ_ASSERT_DEV(m_uiMaxTreeDepth > 0, "ezDynamicOctree::FindObjectsInRange: You have to first create the tree.");
 
   if (m_NodeMap.IsEmpty())
     return;
 
-  FindObjectsInRange(vPoint, fRadius, Callback, pPassThrough, m_BBox.m_vMin.x, m_BBox.m_vMax.x, m_BBox.m_vMin.y, m_BBox.m_vMax.y, m_BBox.m_vMin.z,
+  FindObjectsInRange(vPoint, fRadius, callback, pPassThrough, m_BBox.m_vMin.x, m_BBox.m_vMax.x, m_BBox.m_vMin.y, m_BBox.m_vMax.y, m_BBox.m_vMin.z,
     m_BBox.m_vMax.z, 0, m_uiAddIDTopLevel, ezMath::Pow(8, m_uiMaxTreeDepth - 1), 0xFFFFFFFF);
 }
 

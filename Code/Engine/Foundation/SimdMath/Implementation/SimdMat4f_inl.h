@@ -7,21 +7,21 @@ EZ_ALWAYS_INLINE ezSimdMat4f::ezSimdMat4f(const float* const pData, ezMatrixLayo
   SetFromArray(pData, layout);
 }
 
-EZ_ALWAYS_INLINE ezSimdMat4f::ezSimdMat4f(const ezSimdVec4f& col0, const ezSimdVec4f& col1, const ezSimdVec4f& col2, const ezSimdVec4f& col3)
+EZ_ALWAYS_INLINE ezSimdMat4f::ezSimdMat4f(const ezSimdVec4f& vCol0, const ezSimdVec4f& vCol1, const ezSimdVec4f& vCol2, const ezSimdVec4f& vCol3)
 {
-  m_col0 = col0;
-  m_col1 = col1;
-  m_col2 = col2;
-  m_col3 = col3;
+  m_col0 = vCol0;
+  m_col1 = vCol1;
+  m_col2 = vCol2;
+  m_col3 = vCol3;
 }
 
-EZ_ALWAYS_INLINE ezSimdMat4f::ezSimdMat4f(float c1r1, float c2r1, float c3r1, float c4r1, float c1r2, float c2r2, float c3r2, float c4r2, float c1r3,
-  float c2r3, float c3r3, float c4r3, float c1r4, float c2r4, float c3r4, float c4r4)
+EZ_ALWAYS_INLINE ezSimdMat4f::ezSimdMat4f(float f1r1, float f2r1, float f3r1, float f4r1, float f1r2, float f2r2, float f3r2, float f4r2, float f1r3,
+  float f2r3, float f3r3, float f4r3, float f1r4, float f2r4, float f3r4, float f4r4)
 {
-  m_col0.Set(c1r1, c1r2, c1r3, c1r4);
-  m_col1.Set(c2r1, c2r2, c2r3, c2r4);
-  m_col2.Set(c3r1, c3r2, c3r3, c3r4);
-  m_col3.Set(c4r1, c4r2, c4r3, c4r4);
+  m_col0.Set(f1r1, f1r2, f1r3, f1r4);
+  m_col1.Set(f2r1, f2r2, f2r3, f2r4);
+  m_col2.Set(f3r1, f3r2, f3r3, f3r4);
+  m_col3.Set(f4r1, f4r2, f4r3, f4r4);
 }
 
 inline void ezSimdMat4f::SetFromArray(const float* const pData, ezMatrixLayout::Enum layout)
@@ -106,25 +106,25 @@ inline bool ezSimdMat4f::IsNaN() const
   return m_col0.IsNaN<4>() || m_col1.IsNaN<4>() || m_col2.IsNaN<4>() || m_col3.IsNaN<4>();
 }
 
-EZ_ALWAYS_INLINE void ezSimdMat4f::SetRows(const ezSimdVec4f& row0, const ezSimdVec4f& row1, const ezSimdVec4f& row2, const ezSimdVec4f& row3)
+EZ_ALWAYS_INLINE void ezSimdMat4f::SetRows(const ezSimdVec4f& vRow0, const ezSimdVec4f& vRow1, const ezSimdVec4f& vRow2, const ezSimdVec4f& vRow3)
 {
-  m_col0 = row0;
-  m_col1 = row1;
-  m_col2 = row2;
-  m_col3 = row3;
+  m_col0 = vRow0;
+  m_col1 = vRow1;
+  m_col2 = vRow2;
+  m_col3 = vRow3;
 
   Transpose();
 }
 
-EZ_ALWAYS_INLINE void ezSimdMat4f::GetRows(ezSimdVec4f& row0, ezSimdVec4f& row1, ezSimdVec4f& row2, ezSimdVec4f& row3) const
+EZ_ALWAYS_INLINE void ezSimdMat4f::GetRows(ezSimdVec4f& ref_vRow0, ezSimdVec4f& ref_vRow1, ezSimdVec4f& ref_vRow2, ezSimdVec4f& ref_vRow3) const
 {
   ezSimdMat4f tmp = *this;
   tmp.Transpose();
 
-  row0 = tmp.m_col0;
-  row1 = tmp.m_col1;
-  row2 = tmp.m_col2;
-  row3 = tmp.m_col3;
+  ref_vRow0 = tmp.m_col0;
+  ref_vRow1 = tmp.m_col1;
+  ref_vRow2 = tmp.m_col2;
+  ref_vRow3 = tmp.m_col3;
 }
 
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdMat4f::TransformPosition(const ezSimdVec4f& v) const

@@ -29,10 +29,10 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezJoltSettingsComponent::ezJoltSettingsComponent() = default;
 ezJoltSettingsComponent::~ezJoltSettingsComponent() = default;
 
-void ezJoltSettingsComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezJoltSettingsComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
-  auto& s = stream.GetStream();
+  SUPER::SerializeComponent(inout_stream);
+  auto& s = inout_stream.GetStream();
 
   s << m_Settings.m_vObjectGravity;
   s << m_Settings.m_vCharacterGravity;
@@ -43,12 +43,12 @@ void ezJoltSettingsComponent::SerializeComponent(ezWorldWriter& stream) const
 }
 
 
-void ezJoltSettingsComponent::DeserializeComponent(ezWorldReader& stream)
+void ezJoltSettingsComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s >> m_Settings.m_vObjectGravity;
   s >> m_Settings.m_vCharacterGravity;

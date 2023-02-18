@@ -47,9 +47,9 @@ namespace SmallArrayTestDetail
   class NonMovableClass
   {
   public:
-    NonMovableClass(int val)
+    NonMovableClass(int iVal)
     {
-      m_val = val;
+      m_val = iVal;
       m_pVal = &m_val;
     }
 
@@ -87,8 +87,8 @@ namespace SmallArrayTestDetail
 
     ExternalCounter() = default;
 
-    ExternalCounter(int& counter)
-      : m_counter{&counter}
+    ExternalCounter(int& ref_iCounter)
+      : m_counter{&ref_iCounter}
     {
     }
 
@@ -102,7 +102,7 @@ namespace SmallArrayTestDetail
   };
 } // namespace SmallArrayTestDetail
 
-static void TakesDynamicArray(ezDynamicArray<int>& ar, int num, int start);
+static void TakesDynamicArray(ezDynamicArray<int>& ref_ar, int iNum, int iStart);
 
 #if EZ_ENABLED(EZ_PLATFORM_64BIT)
 static_assert(sizeof(ezSmallArray<ezInt32, 1>) == 16);

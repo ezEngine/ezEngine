@@ -131,7 +131,7 @@ public:
   ezArrayPtr<const ezConnection* const> GetConnections(const ezPin& pin) const;
   bool HasConnections(const ezPin& pin) const;
   bool IsConnected(const ezPin& source, const ezPin& target) const;
-  ezStatus CanConnect(const ezRTTI* pObjectType, const ezPin& source, const ezPin& target, CanConnectResult& result) const;
+  ezStatus CanConnect(const ezRTTI* pObjectType, const ezPin& source, const ezPin& target, CanConnectResult& ref_result) const;
   ezStatus CanDisconnect(const ezConnection* pConnection) const;
   ezStatus CanDisconnect(const ezDocumentObject* pObject) const;
   ezStatus CanMoveNode(const ezDocumentObject* pObject, const ezVec2& vPos) const;
@@ -140,12 +140,12 @@ public:
   void Disconnect(const ezDocumentObject* pObject);
   void MoveNode(const ezDocumentObject* pObject, const ezVec2& vPos);
 
-  void AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph) const;
+  void AttachMetaDataBeforeSaving(ezAbstractObjectGraph& ref_graph) const;
   void RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph, bool bUndoable);
 
   void GetMetaDataHash(const ezDocumentObject* pObject, ezUInt64& inout_uiHash) const;
   bool CopySelectedObjects(ezAbstractObjectGraph& out_objectGraph) const;
-  bool PasteObjects(const ezArrayPtr<ezDocument::PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, const ezVec2& pickedPosition, bool bAllowPickedPosition);
+  bool PasteObjects(const ezArrayPtr<ezDocument::PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, const ezVec2& vPickedPosition, bool bAllowPickedPosition);
 
 protected:
   /// \brief Tests whether pTarget can be reached from pSource by following the pin connections

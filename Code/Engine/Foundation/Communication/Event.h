@@ -123,7 +123,7 @@ public:
   /// \brief An overload that adds an event handler and initializes the given \a Unsubscriber object.
   ///
   /// When the Unsubscriber is destroyed, it will automatically remove the event handler.
-  void AddEventHandler(Handler handler, Unsubscriber& unsubscriber) const; // [tested]
+  void AddEventHandler(Handler handler, Unsubscriber& inout_unsubscriber) const; // [tested]
 
   /// \brief Removes a previously registered handler. It is an error to remove a handler that was not registered.
   void RemoveEventHandler(const Handler& handler) const; // [tested]
@@ -132,7 +132,7 @@ public:
   ///
   /// The ID will be reset to zero.
   /// If this is called with a zero ID, nothing happens.
-  void RemoveEventHandler(ezEventSubscriptionID& id) const;
+  void RemoveEventHandler(ezEventSubscriptionID& inout_id) const;
 
   /// \brief Checks whether an event handler has already been registered.
   bool HasEventHandler(const Handler& handler) const;

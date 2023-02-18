@@ -5,7 +5,7 @@
 #include <Foundation/Math/Plane.h>
 
 bool ezIntersectionUtils::RayPolygonIntersection(const ezVec3& vRayStartPos, const ezVec3& vRayDir, const ezVec3* pPolygonVertices,
-  ezUInt32 uiNumVertices, float* out_fIntersectionTime, ezVec3* out_vIntersectionPoint, ezUInt32 uiVertexStride)
+  ezUInt32 uiNumVertices, float* out_pIntersectionTime, ezVec3* out_pIntersectionPoint, ezUInt32 uiVertexStride)
 {
   EZ_ASSERT_DEBUG(uiNumVertices >= 3, "A polygon must have at least three vertices.");
   EZ_ASSERT_DEBUG(uiVertexStride >= sizeof(ezVec3), "The vertex stride is invalid.");
@@ -17,11 +17,11 @@ bool ezIntersectionUtils::RayPolygonIntersection(const ezVec3& vRayStartPos, con
 
   ezVec3 vIntersection;
 
-  if (!p.GetRayIntersection(vRayStartPos, vRayDir, out_fIntersectionTime, &vIntersection))
+  if (!p.GetRayIntersection(vRayStartPos, vRayDir, out_pIntersectionTime, &vIntersection))
     return false;
 
-  if (out_vIntersectionPoint)
-    *out_vIntersectionPoint = vIntersection;
+  if (out_pIntersectionPoint)
+    *out_pIntersectionPoint = vIntersection;
 
   // start with the last point as the 'wrap around' position
   ezVec3 vPrevPoint = *ezMemoryUtils::AddByteOffset(pPolygonVertices, ezMath::SafeMultiply32(uiVertexStride, (uiNumVertices - 1)));
@@ -45,7 +45,7 @@ bool ezIntersectionUtils::RayPolygonIntersection(const ezVec3& vRayStartPos, con
 }
 
 ezVec3 ezIntersectionUtils::ClosestPoint_PointLineSegment(
-  const ezVec3& vStartPoint, const ezVec3& vLineSegmentPos0, const ezVec3& vLineSegmentPos1, float* out_fFractionAlongSegment)
+  const ezVec3& vStartPoint, const ezVec3& vLineSegmentPos0, const ezVec3& vLineSegmentPos1, float* out_pFractionAlongSegment)
 {
   const ezVec3 vLineDir = vLineSegmentPos1 - vLineSegmentPos0;
   const ezVec3 vToStartPoint = vStartPoint - vLineSegmentPos0;
@@ -73,14 +73,14 @@ ezVec3 ezIntersectionUtils::ClosestPoint_PointLineSegment(
     }
   }
 
-  if (out_fFractionAlongSegment)
-    *out_fFractionAlongSegment = fPosAlongSegment;
+  if (out_pFractionAlongSegment)
+    *out_pFractionAlongSegment = fPosAlongSegment;
 
   return vLineSegmentPos0 + fPosAlongSegment * vLineDir;
 }
 
 bool ezIntersectionUtils::Ray2DLine2D(const ezVec2& vRayStartPos, const ezVec2& vRayDir, const ezVec2& vLineSegmentPos0,
-  const ezVec2& vLineSegmentPos1, float* out_fIntersectionTime, ezVec2* out_vIntersectionPoint)
+  const ezVec2& vLineSegmentPos1, float* out_pIntersectionTime, ezVec2* out_pIntersectionPoint)
 {
   const ezVec2 vLineDir = vLineSegmentPos1 - vLineSegmentPos0;
 
@@ -117,11 +117,11 @@ bool ezIntersectionUtils::Ray2DLine2D(const ezVec2& vRayStartPos, const ezVec2& 
   if (fProjected > vLineDir.GetLengthSquared())
     return false;
 
-  if (out_fIntersectionTime)
-    *out_fIntersectionTime = fIntersectionTime;
+  if (out_pIntersectionTime)
+    *out_pIntersectionTime = fIntersectionTime;
 
-  if (out_vIntersectionPoint)
-    *out_vIntersectionPoint = vIntersection;
+  if (out_pIntersectionPoint)
+    *out_pIntersectionPoint = vIntersection;
 
   return true;
 }

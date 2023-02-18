@@ -12,7 +12,7 @@ public:
   Q_OBJECT
 
 public:
-  ezQtCppProjectDlg(QWidget* parent);
+  ezQtCppProjectDlg(QWidget* pParent);
 
 private Q_SLOTS:
   void on_Result_rejected();

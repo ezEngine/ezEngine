@@ -177,25 +177,25 @@ public:
     return ezPathUtils::GetFileName(m_sSearchDir.GetData()).GetData(tmp);
   }
 
-  void SanitizeSourceCode(ezStringBuilder& sInOut)
+  void SanitizeSourceCode(ezStringBuilder& ref_sInOut)
   {
-    sInOut.ReplaceAll("\r\n", "\n");
+    ref_sInOut.ReplaceAll("\r\n", "\n");
 
-    if (!sInOut.EndsWith("\n"))
-      sInOut.Append("\n");
+    if (!ref_sInOut.EndsWith("\n"))
+      ref_sInOut.Append("\n");
 
-    while (sInOut.EndsWith("\n\n\n\n"))
-      sInOut.Shrink(0, 1);
+    while (ref_sInOut.EndsWith("\n\n\n\n"))
+      ref_sInOut.Shrink(0, 1);
   }
 
-  ezResult ReadEntireFile(const char* szFile, ezStringBuilder& sOut)
+  ezResult ReadEntireFile(const char* szFile, ezStringBuilder& ref_sOut)
   {
-    sOut.Clear();
+    ref_sOut.Clear();
 
     // if we have that file cached already, just return the cached (and possibly modified) content
     if (!m_ModifiedFiles[szFile].m_sFileContent.IsEmpty())
     {
-      sOut = m_ModifiedFiles[szFile].m_sFileContent.GetData();
+      ref_sOut = m_ModifiedFiles[szFile].m_sFileContent.GetData();
       return EZ_SUCCESS;
     }
 
@@ -228,11 +228,11 @@ public:
       return EZ_FAILURE;
     }
 
-    sOut = (const char*)&FileContent[0];
+    ref_sOut = (const char*)&FileContent[0];
 
-    m_ModifiedFiles[szFile].m_sFileContent = sOut;
+    m_ModifiedFiles[szFile].m_sFileContent = ref_sOut;
 
-    SanitizeSourceCode(sOut);
+    SanitizeSourceCode(ref_sOut);
 
     return EZ_SUCCESS;
   }
@@ -287,14 +287,14 @@ public:
     }
   }
 
-  void FindIncludes(ezStringBuilder& sFileContent)
+  void FindIncludes(ezStringBuilder& ref_sFileContent)
   {
-    const char* szStartPos = sFileContent.GetData();
+    const char* szStartPos = ref_sFileContent.GetData();
     const ezString sLibraryName = GetLibraryMarkerName();
 
     while (true)
     {
-      const char* szI = sFileContent.FindSubString("#i", szStartPos);
+      const char* szI = ref_sFileContent.FindSubString("#i", szStartPos);
 
       if (szI == nullptr)
         return;
@@ -303,7 +303,7 @@ public:
 
       if (ezStringUtils::IsEqualN(szI, "#if", 3))
       {
-        szStartPos = sFileContent.FindSubString("#endif", szStartPos);
+        szStartPos = ref_sFileContent.FindSubString("#endif", szStartPos);
 
         if (szStartPos == nullptr)
           return;
@@ -325,7 +325,7 @@ public:
         if (sInclude.ReplaceAll("\\", "/") > 0)
         {
           ezLog::Info("Replacing backslashes in #include path with front slashes: '{0}'", sInclude);
-          sFileContent.ReplaceSubString(szI, szLineEnd, sInclude.GetData());
+          ref_sFileContent.ReplaceSubString(szI, szLineEnd, sInclude.GetData());
         }
 
         while (sInclude.StartsWith(" ") || sInclude.StartsWith("\t") || sInclude.StartsWith("<"))
@@ -378,21 +378,21 @@ public:
     }
   }
 
-  bool RemoveLineWithPrefix(ezStringBuilder& sFile, const char* szLineStart)
+  bool RemoveLineWithPrefix(ezStringBuilder& ref_sFile, const char* szLineStart)
   {
-    const char* szSkipAhead = sFile.FindSubString("// <StaticLinkUtil::StartHere>");
+    const char* szSkipAhead = ref_sFile.FindSubString("// <StaticLinkUtil::StartHere>");
 
-    const char* szStart = sFile.FindSubString(szLineStart, szSkipAhead);
+    const char* szStart = ref_sFile.FindSubString(szLineStart, szSkipAhead);
 
     if (szStart == nullptr)
       return false;
 
-    const char* szEnd = sFile.FindSubString("\n", szStart);
+    const char* szEnd = ref_sFile.FindSubString("\n", szStart);
 
     if (szEnd == nullptr)
-      szEnd = sFile.GetData() + sFile.GetElementCount();
+      szEnd = ref_sFile.GetData() + ref_sFile.GetElementCount();
 
-    sFile.ReplaceSubString(szStart, szEnd, "");
+    ref_sFile.ReplaceSubString(szStart, szEnd, "");
 
     return true;
   }

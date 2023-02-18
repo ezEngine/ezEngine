@@ -26,13 +26,13 @@ public:
   static ezTagRegistry& GetGlobalRegistry();
 
   /// \brief Ensures the tag with the given name exists and returns a pointer to it.
-  const ezTag& RegisterTag(ezStringView szTagString); // [tested]
+  const ezTag& RegisterTag(ezStringView sTagString); // [tested]
 
   /// \brief Ensures the tag with the given name exists and returns a pointer to it.
-  const ezTag& RegisterTag(const ezHashedString& TagString); // [tested]
+  const ezTag& RegisterTag(const ezHashedString& sTagString); // [tested]
 
   /// \brief Searches for a tag with the given name and returns a pointer to it
-  const ezTag* GetTagByName(const ezTempHashedString& TagString) const; // [tested]
+  const ezTag* GetTagByName(const ezTempHashedString& sTagString) const; // [tested]
 
   /// \brief Searches for a tag with the given murmur hash. This function is only for backwards compatibility.
   const ezTag* GetTagByMurmurHash(ezUInt32 uiMurmurHash) const;
@@ -45,7 +45,7 @@ public:
 
   /// \brief Loads the saved state and integrates it into this registry. Does not discard previously registered tag information. This function is only
   /// for backwards compatibility.
-  ezResult Load(ezStreamReader& stream);
+  ezResult Load(ezStreamReader& inout_stream);
 
 protected:
   mutable ezMutex m_TagRegistryMutex;

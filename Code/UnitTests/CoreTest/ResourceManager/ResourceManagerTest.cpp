@@ -115,9 +115,9 @@ namespace
       return ld;
     }
 
-    virtual void CloseDataStream(const ezResource* pResource, const ezResourceLoadData& LoaderData) override
+    virtual void CloseDataStream(const ezResource* pResource, const ezResourceLoadData& loaderData) override
     {
-      LoadedData* pData = static_cast<LoadedData*>(LoaderData.m_pCustomLoaderData);
+      LoadedData* pData = static_cast<LoadedData*>(loaderData.m_pCustomLoaderData);
       EZ_DEFAULT_DELETE(pData);
     }
   };

@@ -9,11 +9,11 @@ EZ_ALWAYS_INLINE ezSimdVec4u::ezSimdVec4u()
 #endif
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4u::ezSimdVec4u(ezUInt32 xyzw)
+EZ_ALWAYS_INLINE ezSimdVec4u::ezSimdVec4u(ezUInt32 uiXyzw)
 {
   EZ_CHECK_SIMD_ALIGNMENT(this);
 
-  m_v = _mm_set1_epi32(xyzw);
+  m_v = _mm_set1_epi32(uiXyzw);
 }
 
 EZ_ALWAYS_INLINE ezSimdVec4u::ezSimdVec4u(ezUInt32 x, ezUInt32 y, ezUInt32 z, ezUInt32 w)
@@ -28,9 +28,9 @@ EZ_ALWAYS_INLINE ezSimdVec4u::ezSimdVec4u(ezInternal::QuadInt v)
   m_v = v;
 }
 
-EZ_ALWAYS_INLINE void ezSimdVec4u::Set(ezUInt32 xyzw)
+EZ_ALWAYS_INLINE void ezSimdVec4u::Set(ezUInt32 uiXyzw)
 {
-  m_v = _mm_set1_epi32(xyzw);
+  m_v = _mm_set1_epi32(uiXyzw);
 }
 
 EZ_ALWAYS_INLINE void ezSimdVec4u::Set(ezUInt32 x, ezUInt32 y, ezUInt32 z, ezUInt32 w)

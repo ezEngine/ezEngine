@@ -26,7 +26,7 @@ public:
   ezManipulatorManager();
   ~ezManipulatorManager();
 
-  const ezManipulatorAttribute* GetActiveManipulator(const ezDocument* pDoc, const ezHybridArray<ezPropertySelection, 8>*& out_Selection) const;
+  const ezManipulatorAttribute* GetActiveManipulator(const ezDocument* pDoc, const ezHybridArray<ezPropertySelection, 8>*& out_pSelection) const;
 
   void SetActiveManipulator(
     const ezDocument* pDoc, const ezManipulatorAttribute* pManipulator, const ezHybridArray<ezPropertySelection, 8>& selection);

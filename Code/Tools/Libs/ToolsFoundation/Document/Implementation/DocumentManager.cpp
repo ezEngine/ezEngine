@@ -134,11 +134,11 @@ void ezDocumentManager::UpdatedAfterLoadingPlugins()
   }
 }
 
-void ezDocumentManager::GetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void ezDocumentManager::GetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_documentTypes) const
 {
-  InternalGetSupportedDocumentTypes(inout_DocumentTypes);
+  InternalGetSupportedDocumentTypes(inout_documentTypes);
 
-  for (auto& dt : inout_DocumentTypes)
+  for (auto& dt : inout_documentTypes)
   {
     EZ_ASSERT_DEBUG(dt->m_pDocumentType != nullptr, "No document type is set");
     EZ_ASSERT_DEBUG(!dt->m_sFileExtension.IsEmpty(), "File extension must be valid");

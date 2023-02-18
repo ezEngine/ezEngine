@@ -12,27 +12,27 @@
 class ezCommandInterpreterInspector : public ezCommandInterpreter
 {
 public:
-  virtual void Interpret(ezCommandInterpreterState& inout_State) override
+  virtual void Interpret(ezCommandInterpreterState& inout_state) override
   {
     ezTelemetryMessage Msg;
     Msg.SetMessageID('CMD', 'EXEC');
-    Msg.GetWriter() << inout_State.m_sInput;
+    Msg.GetWriter() << inout_state.m_sInput;
     ezTelemetry::SendToServer(Msg);
   }
 
-  virtual void AutoComplete(ezCommandInterpreterState& inout_State) override
+  virtual void AutoComplete(ezCommandInterpreterState& inout_state) override
   {
     ezTelemetryMessage Msg;
     Msg.SetMessageID('CMD', 'COMP');
-    Msg.GetWriter() << inout_State.m_sInput;
+    Msg.GetWriter() << inout_state.m_sInput;
     ezTelemetry::SendToServer(Msg);
   }
 };
 
 ezQtCVarsWidget* ezQtCVarsWidget::s_pWidget = nullptr;
 
-ezQtCVarsWidget::ezQtCVarsWidget(QWidget* parent)
-  : ads::CDockWidget("CVars", parent)
+ezQtCVarsWidget::ezQtCVarsWidget(QWidget* pParent)
+  : ads::CDockWidget("CVars", pParent)
 {
   s_pWidget = this;
 

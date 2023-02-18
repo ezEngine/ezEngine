@@ -1000,7 +1000,7 @@ static void CopyCharacter(ezUInt32* pImage, ezInt32 c, const char* szChar)
 
 #endif
 
-void ezGraphicsUtils::CreateSimpleASCIIFontTexture(ezImage& Img, bool bSetEmptyToUnknown)
+void ezGraphicsUtils::CreateSimpleASCIIFontTexture(ezImage& ref_img, bool bSetEmptyToUnknown)
 {
 #if EZ_DISABLED(EZ_EMBED_FONT_FILE)
   Img.SetWidth(256);
@@ -1180,15 +1180,15 @@ void ezGraphicsUtils::CreateSimpleASCIIFontTexture(ezImage& Img, bool bSetEmptyT
   reader.m_pData = g_FontFileTGA;
 
   ezTgaFileFormat tga;
-  tga.ReadImage(reader, Img, "tga").IgnoreResult();
+  tga.ReadImage(reader, ref_img, "tga").IgnoreResult();
 
-  ezImageConversion::Convert(Img, Img, ezImageFormat::R8G8B8A8_UNORM).IgnoreResult();
+  ezImageConversion::Convert(ref_img, ref_img, ezImageFormat::R8G8B8A8_UNORM).IgnoreResult();
 
-  for (ezUInt32 y = 0; y < Img.GetHeight(); ++y)
+  for (ezUInt32 y = 0; y < ref_img.GetHeight(); ++y)
   {
-    for (ezUInt32 x = 0; x < Img.GetWidth(); ++x)
+    for (ezUInt32 x = 0; x < ref_img.GetWidth(); ++x)
     {
-      ezUInt8* pPixel = Img.GetPixelPointer<ezUInt8>(0, 0, 0, x, y, 0);
+      ezUInt8* pPixel = ref_img.GetPixelPointer<ezUInt8>(0, 0, 0, x, y, 0);
       pPixel[1] = pPixel[2] = pPixel[3] = pPixel[0]; // copy R into GBA
     }
   }

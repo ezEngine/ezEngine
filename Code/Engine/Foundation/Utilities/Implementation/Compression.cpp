@@ -11,32 +11,32 @@
 namespace ezCompressionUtils
 {
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
-  static ezResult CompressZStd(ezArrayPtr<const ezUInt8> pUncompressedData, ezDynamicArray<ezUInt8>& out_Data)
+  static ezResult CompressZStd(ezArrayPtr<const ezUInt8> uncompressedData, ezDynamicArray<ezUInt8>& out_data)
   {
-    size_t uiSizeBound = ZSTD_compressBound(pUncompressedData.GetCount());
+    size_t uiSizeBound = ZSTD_compressBound(uncompressedData.GetCount());
     if (uiSizeBound > ezMath::MaxValue<ezUInt32>())
     {
       ezLog::Error("Can't compress since the output container can't hold enough elements ({0})", static_cast<ezUInt64>(uiSizeBound));
       return EZ_FAILURE;
     }
 
-    out_Data.SetCountUninitialized(static_cast<ezUInt32>(uiSizeBound));
+    out_data.SetCountUninitialized(static_cast<ezUInt32>(uiSizeBound));
 
-    size_t const cSize = ZSTD_compress(out_Data.GetData(), uiSizeBound, pUncompressedData.GetPtr(), pUncompressedData.GetCount(), 1);
+    size_t const cSize = ZSTD_compress(out_data.GetData(), uiSizeBound, uncompressedData.GetPtr(), uncompressedData.GetCount(), 1);
     if (ZSTD_isError(cSize))
     {
       ezLog::Error("Compression failed with error: '{0}'.", ZSTD_getErrorName(cSize));
       return EZ_FAILURE;
     }
 
-    out_Data.SetCount(static_cast<ezUInt32>(cSize));
+    out_data.SetCount(static_cast<ezUInt32>(cSize));
 
     return EZ_SUCCESS;
   }
 
-  static ezResult DecompressZStd(ezArrayPtr<const ezUInt8> pCompressedData, ezDynamicArray<ezUInt8>& out_Data)
+  static ezResult DecompressZStd(ezArrayPtr<const ezUInt8> compressedData, ezDynamicArray<ezUInt8>& out_data)
   {
-    ezUInt64 uiSize = ZSTD_findDecompressedSize(pCompressedData.GetPtr(), pCompressedData.GetCount());
+    ezUInt64 uiSize = ZSTD_findDecompressedSize(compressedData.GetPtr(), compressedData.GetCount());
 
     if (uiSize == ZSTD_CONTENTSIZE_ERROR)
     {
@@ -55,9 +55,9 @@ namespace ezCompressionUtils
       return EZ_FAILURE;
     }
 
-    out_Data.SetCountUninitialized(static_cast<ezUInt32>(uiSize));
+    out_data.SetCountUninitialized(static_cast<ezUInt32>(uiSize));
 
-    size_t const uiActualSize = ZSTD_decompress(out_Data.GetData(), ezMath::SafeConvertToSizeT(uiSize), pCompressedData.GetPtr(), pCompressedData.GetCount());
+    size_t const uiActualSize = ZSTD_decompress(out_data.GetData(), ezMath::SafeConvertToSizeT(uiSize), compressedData.GetPtr(), compressedData.GetCount());
 
     if (uiActualSize != uiSize)
     {
@@ -69,50 +69,50 @@ namespace ezCompressionUtils
   }
 #endif
 
-  ezResult Compress(ezArrayPtr<const ezUInt8> pUncompressedData, ezCompressionMethod eMethod, ezDynamicArray<ezUInt8>& out_Data)
+  ezResult Compress(ezArrayPtr<const ezUInt8> uncompressedData, ezCompressionMethod method, ezDynamicArray<ezUInt8>& out_data)
   {
-    out_Data.Clear();
+    out_data.Clear();
 
-    if (pUncompressedData.IsEmpty())
+    if (uncompressedData.IsEmpty())
     {
       return EZ_SUCCESS;
     }
 
-    switch (eMethod)
+    switch (method)
     {
       case ezCompressionMethod::ZStd:
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
-        return CompressZStd(pUncompressedData, out_Data);
+        return CompressZStd(uncompressedData, out_data);
 #else
         ezLog::Error("ZStd compression disabled in build settings!");
         return EZ_FAILURE;
 #endif
       default:
-        ezLog::Error("Unsupported compression method {0}!", static_cast<ezUInt32>(eMethod));
+        ezLog::Error("Unsupported compression method {0}!", static_cast<ezUInt32>(method));
         return EZ_FAILURE;
     }
   }
 
-  ezResult Decompress(ezArrayPtr<const ezUInt8> pCompressedData, ezCompressionMethod eMethod, ezDynamicArray<ezUInt8>& out_Data)
+  ezResult Decompress(ezArrayPtr<const ezUInt8> compressedData, ezCompressionMethod method, ezDynamicArray<ezUInt8>& out_data)
   {
-    out_Data.Clear();
+    out_data.Clear();
 
-    if (pCompressedData.IsEmpty())
+    if (compressedData.IsEmpty())
     {
       return EZ_SUCCESS;
     }
 
-    switch (eMethod)
+    switch (method)
     {
       case ezCompressionMethod::ZStd:
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
-        return DecompressZStd(pCompressedData, out_Data);
+        return DecompressZStd(compressedData, out_data);
 #else
         ezLog::Error("ZStd compression disabled in build settings!");
         return EZ_FAILURE;
 #endif
       default:
-        ezLog::Error("Unsupported compression method {0}!", static_cast<ezUInt32>(eMethod));
+        ezLog::Error("Unsupported compression method {0}!", static_cast<ezUInt32>(method));
         return EZ_FAILURE;
     }
   }

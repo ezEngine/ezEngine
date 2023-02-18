@@ -12,21 +12,21 @@ void ezDefaultTimeStepSmoothing::Reset(const ezClock* pClock)
   m_LastTimeSteps.Clear();
 }
 
-ezTime ezDefaultTimeStepSmoothing::GetSmoothedTimeStep(ezTime RawTimeStep, const ezClock* pClock)
+ezTime ezDefaultTimeStepSmoothing::GetSmoothedTimeStep(ezTime rawTimeStep, const ezClock* pClock)
 {
-  RawTimeStep = ezMath::Clamp(RawTimeStep * pClock->GetSpeed(), pClock->GetMinimumTimeStep(), pClock->GetMaximumTimeStep());
+  rawTimeStep = ezMath::Clamp(rawTimeStep * pClock->GetSpeed(), pClock->GetMinimumTimeStep(), pClock->GetMaximumTimeStep());
 
   if (m_LastTimeSteps.GetCount() < 10)
   {
-    m_LastTimeSteps.PushBack(RawTimeStep);
-    m_LastTimeStepTaken = RawTimeStep;
+    m_LastTimeSteps.PushBack(rawTimeStep);
+    m_LastTimeStepTaken = rawTimeStep;
     return m_LastTimeStepTaken;
   }
 
   if (!m_LastTimeSteps.CanAppend(1))
     m_LastTimeSteps.PopFront(1);
 
-  m_LastTimeSteps.PushBack(RawTimeStep);
+  m_LastTimeSteps.PushBack(rawTimeStep);
 
   ezStaticArray<ezTime, 11> Sorted;
   Sorted.SetCountUninitialized(m_LastTimeSteps.GetCount());

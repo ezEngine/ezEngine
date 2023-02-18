@@ -29,9 +29,9 @@ private:
   static bool s_bEnetInitialized;
 };
 
-ezInternal::NewInstance<ezRemoteInterfaceEnet> ezRemoteInterfaceEnet::Make(ezAllocatorBase* allocator /*= ezFoundation::GetDefaultAllocator()*/)
+ezInternal::NewInstance<ezRemoteInterfaceEnet> ezRemoteInterfaceEnet::Make(ezAllocatorBase* pAllocator /*= ezFoundation::GetDefaultAllocator()*/)
 {
-  return EZ_NEW(allocator, ezRemoteInterfaceEnetImpl);
+  return EZ_NEW(pAllocator, ezRemoteInterfaceEnetImpl);
 }
 
 ezRemoteInterfaceEnet::ezRemoteInterfaceEnet() = default;

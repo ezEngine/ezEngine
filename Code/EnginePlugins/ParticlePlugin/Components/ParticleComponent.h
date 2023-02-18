@@ -40,15 +40,15 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleComponent final : public ezRenderComponent
   // ezComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
 
   //////////////////////////////////////////////////////////////////////////
   // ezRenderComponent
 
 public:
-  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg) override;
+  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg) override;
 
 
   //////////////////////////////////////////////////////////////////////////
@@ -73,7 +73,7 @@ public:
   /// \brief Returns true, if an effect is currently in a state where it might emit new particles
   bool IsEffectActive() const; // [ scriptable ]
 
-  void OnMsgSetPlaying(ezMsgSetPlaying& msg); // [ msg handler ]
+  void OnMsgSetPlaying(ezMsgSetPlaying& ref_msg); // [ msg handler ]
 
   void SetParticleEffect(const ezParticleEffectResourceHandle& hEffect);
   EZ_ALWAYS_INLINE const ezParticleEffectResourceHandle& GetParticleEffect() const { return m_hEffectResource; }

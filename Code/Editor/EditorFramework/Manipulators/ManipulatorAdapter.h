@@ -20,7 +20,7 @@ public:
 
   void SetManipulator(const ezManipulatorAttribute* pAttribute, const ezDocumentObject* pObject);
 
-  virtual void QueryGridSettings(ezGridSettingsMsgToEngine& outGridSettings) {}
+  virtual void QueryGridSettings(ezGridSettingsMsgToEngine& out_gridSettings) {}
 
 private:
   void DocumentObjectPropertyEventHandler(const ezDocumentObjectPropertyEvent& e);

@@ -22,17 +22,17 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimGraphOutputPin, 1, ezRTTIDefaultAllocator<
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezResult ezAnimGraphPin::Serialize(ezStreamWriter& stream) const
+ezResult ezAnimGraphPin::Serialize(ezStreamWriter& inout_stream) const
 {
-  stream << m_iPinIndex;
-  stream << m_uiNumConnections;
+  inout_stream << m_iPinIndex;
+  inout_stream << m_uiNumConnections;
   return EZ_SUCCESS;
 }
 
-ezResult ezAnimGraphPin::Deserialize(ezStreamReader& stream)
+ezResult ezAnimGraphPin::Deserialize(ezStreamReader& inout_stream)
 {
-  stream >> m_iPinIndex;
-  stream >> m_uiNumConnections;
+  inout_stream >> m_iPinIndex;
+  inout_stream >> m_uiNumConnections;
   return EZ_SUCCESS;
 }
 
@@ -46,37 +46,37 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimGraphTriggerOutputPin, 1, ezRTTIDefaultAll
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezAnimGraphTriggerOutputPin::SetTriggered(ezAnimGraph& graph, bool triggered)
+void ezAnimGraphTriggerOutputPin::SetTriggered(ezAnimGraph& ref_graph, bool bTriggered)
 {
   if (m_iPinIndex < 0)
     return;
 
-  if (!triggered)
+  if (!bTriggered)
     return;
 
-  const auto& map = graph.m_OutputPinToInputPinMapping[ezAnimGraphPin::Trigger][m_iPinIndex];
+  const auto& map = ref_graph.m_OutputPinToInputPinMapping[ezAnimGraphPin::Trigger][m_iPinIndex];
 
 
-  const ezInt8 offset = triggered ? +1 : -1;
+  const ezInt8 offset = bTriggered ? +1 : -1;
 
   // trigger or reset all input pins that are connected to this output pin
   for (ezUInt16 idx : map)
   {
-    graph.m_TriggerInputPinStates[idx] += offset;
+    ref_graph.m_TriggerInputPinStates[idx] += offset;
   }
 }
 
-bool ezAnimGraphTriggerInputPin::IsTriggered(ezAnimGraph& graph) const
+bool ezAnimGraphTriggerInputPin::IsTriggered(ezAnimGraph& ref_graph) const
 {
   if (m_iPinIndex < 0)
     return false;
 
-  return graph.m_TriggerInputPinStates[m_iPinIndex] > 0;
+  return ref_graph.m_TriggerInputPinStates[m_iPinIndex] > 0;
 }
 
-bool ezAnimGraphTriggerInputPin::AreAllTriggered(ezAnimGraph& graph) const
+bool ezAnimGraphTriggerInputPin::AreAllTriggered(ezAnimGraph& ref_graph) const
 {
-  return graph.m_TriggerInputPinStates[m_iPinIndex] == m_uiNumConnections;
+  return ref_graph.m_TriggerInputPinStates[m_iPinIndex] == m_uiNumConnections;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -89,25 +89,25 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimGraphNumberOutputPin, 1, ezRTTIDefaultAllo
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-double ezAnimGraphNumberInputPin::GetNumber(ezAnimGraph& graph, double fFallback /*= 0.0*/) const
+double ezAnimGraphNumberInputPin::GetNumber(ezAnimGraph& ref_graph, double fFallback /*= 0.0*/) const
 {
   if (m_iPinIndex < 0)
     return fFallback;
 
-  return graph.m_NumberInputPinStates[m_iPinIndex];
+  return ref_graph.m_NumberInputPinStates[m_iPinIndex];
 }
 
-void ezAnimGraphNumberOutputPin::SetNumber(ezAnimGraph& graph, double value)
+void ezAnimGraphNumberOutputPin::SetNumber(ezAnimGraph& ref_graph, double value)
 {
   if (m_iPinIndex < 0)
     return;
 
-  const auto& map = graph.m_OutputPinToInputPinMapping[ezAnimGraphPin::Number][m_iPinIndex];
+  const auto& map = ref_graph.m_OutputPinToInputPinMapping[ezAnimGraphPin::Number][m_iPinIndex];
 
   // set all input pins that are connected to this output pin
   for (ezUInt16 idx : map)
   {
-    graph.m_NumberInputPinStates[idx] = value;
+    ref_graph.m_NumberInputPinStates[idx] = value;
   }
 }
 
@@ -121,25 +121,25 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimGraphBoneWeightsOutputPin, 1, ezRTTIDefaul
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezAnimGraphPinDataBoneWeights* ezAnimGraphBoneWeightsInputPin::GetWeights(ezAnimGraph& graph) const
+ezAnimGraphPinDataBoneWeights* ezAnimGraphBoneWeightsInputPin::GetWeights(ezAnimGraph& ref_graph) const
 {
-  if (m_iPinIndex < 0 || graph.m_BoneWeightInputPinStates[m_iPinIndex] == 0xFFFF)
+  if (m_iPinIndex < 0 || ref_graph.m_BoneWeightInputPinStates[m_iPinIndex] == 0xFFFF)
     return nullptr;
 
-  return &graph.m_PinDataBoneWeights[graph.m_BoneWeightInputPinStates[m_iPinIndex]];
+  return &ref_graph.m_PinDataBoneWeights[ref_graph.m_BoneWeightInputPinStates[m_iPinIndex]];
 }
 
-void ezAnimGraphBoneWeightsOutputPin::SetWeights(ezAnimGraph& graph, ezAnimGraphPinDataBoneWeights* pWeights)
+void ezAnimGraphBoneWeightsOutputPin::SetWeights(ezAnimGraph& ref_graph, ezAnimGraphPinDataBoneWeights* pWeights)
 {
   if (m_iPinIndex < 0)
     return;
 
-  const auto& map = graph.m_OutputPinToInputPinMapping[ezAnimGraphPin::BoneWeights][m_iPinIndex];
+  const auto& map = ref_graph.m_OutputPinToInputPinMapping[ezAnimGraphPin::BoneWeights][m_iPinIndex];
 
   // set all input pins that are connected to this output pin
   for (ezUInt16 idx : map)
   {
-    graph.m_BoneWeightInputPinStates[idx] = pWeights->m_uiOwnIndex;
+    ref_graph.m_BoneWeightInputPinStates[idx] = pWeights->m_uiOwnIndex;
   }
 }
 
@@ -156,42 +156,42 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimGraphLocalPoseOutputPin, 1, ezRTTIDefaultA
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezAnimGraphPinDataLocalTransforms* ezAnimGraphLocalPoseInputPin::GetPose(ezAnimGraph& graph) const
+ezAnimGraphPinDataLocalTransforms* ezAnimGraphLocalPoseInputPin::GetPose(ezAnimGraph& ref_graph) const
 {
   if (m_iPinIndex < 0)
     return nullptr;
 
-  if (graph.m_LocalPoseInputPinStates[m_iPinIndex].IsEmpty())
+  if (ref_graph.m_LocalPoseInputPinStates[m_iPinIndex].IsEmpty())
     return nullptr;
 
-  return &graph.m_PinDataLocalTransforms[graph.m_LocalPoseInputPinStates[m_iPinIndex][0]];
+  return &ref_graph.m_PinDataLocalTransforms[ref_graph.m_LocalPoseInputPinStates[m_iPinIndex][0]];
 }
 
-void ezAnimGraphLocalPoseMultiInputPin::GetPoses(ezAnimGraph& graph, ezDynamicArray<ezAnimGraphPinDataLocalTransforms*>& out_Poses) const
+void ezAnimGraphLocalPoseMultiInputPin::GetPoses(ezAnimGraph& ref_graph, ezDynamicArray<ezAnimGraphPinDataLocalTransforms*>& out_poses) const
 {
-  out_Poses.Clear();
+  out_poses.Clear();
 
   if (m_iPinIndex < 0)
     return;
 
-  out_Poses.SetCountUninitialized(graph.m_LocalPoseInputPinStates[m_iPinIndex].GetCount());
-  for (ezUInt32 i = 0; i < graph.m_LocalPoseInputPinStates[m_iPinIndex].GetCount(); ++i)
+  out_poses.SetCountUninitialized(ref_graph.m_LocalPoseInputPinStates[m_iPinIndex].GetCount());
+  for (ezUInt32 i = 0; i < ref_graph.m_LocalPoseInputPinStates[m_iPinIndex].GetCount(); ++i)
   {
-    out_Poses[i] = &graph.m_PinDataLocalTransforms[graph.m_LocalPoseInputPinStates[m_iPinIndex][i]];
+    out_poses[i] = &ref_graph.m_PinDataLocalTransforms[ref_graph.m_LocalPoseInputPinStates[m_iPinIndex][i]];
   }
 }
 
-void ezAnimGraphLocalPoseOutputPin::SetPose(ezAnimGraph& graph, ezAnimGraphPinDataLocalTransforms* pPose)
+void ezAnimGraphLocalPoseOutputPin::SetPose(ezAnimGraph& ref_graph, ezAnimGraphPinDataLocalTransforms* pPose)
 {
   if (m_iPinIndex < 0)
     return;
 
-  const auto& map = graph.m_OutputPinToInputPinMapping[ezAnimGraphPin::LocalPose][m_iPinIndex];
+  const auto& map = ref_graph.m_OutputPinToInputPinMapping[ezAnimGraphPin::LocalPose][m_iPinIndex];
 
   // set all input pins that are connected to this output pin
   for (ezUInt16 idx : map)
   {
-    graph.m_LocalPoseInputPinStates[idx].PushBack(pPose->m_uiOwnIndex);
+    ref_graph.m_LocalPoseInputPinStates[idx].PushBack(pPose->m_uiOwnIndex);
   }
 }
 
@@ -205,25 +205,25 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimGraphModelPoseOutputPin, 1, ezRTTIDefaultA
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezAnimGraphPinDataModelTransforms* ezAnimGraphModelPoseInputPin::GetPose(ezAnimGraph& graph) const
+ezAnimGraphPinDataModelTransforms* ezAnimGraphModelPoseInputPin::GetPose(ezAnimGraph& ref_graph) const
 {
-  if (m_iPinIndex < 0 || graph.m_ModelPoseInputPinStates[m_iPinIndex] == 0xFFFF)
+  if (m_iPinIndex < 0 || ref_graph.m_ModelPoseInputPinStates[m_iPinIndex] == 0xFFFF)
     return nullptr;
 
-  return &graph.m_PinDataModelTransforms[graph.m_ModelPoseInputPinStates[m_iPinIndex]];
+  return &ref_graph.m_PinDataModelTransforms[ref_graph.m_ModelPoseInputPinStates[m_iPinIndex]];
 }
 
-void ezAnimGraphModelPoseOutputPin::SetPose(ezAnimGraph& graph, ezAnimGraphPinDataModelTransforms* pPose)
+void ezAnimGraphModelPoseOutputPin::SetPose(ezAnimGraph& ref_graph, ezAnimGraphPinDataModelTransforms* pPose)
 {
   if (m_iPinIndex < 0)
     return;
 
-  const auto& map = graph.m_OutputPinToInputPinMapping[ezAnimGraphPin::ModelPose][m_iPinIndex];
+  const auto& map = ref_graph.m_OutputPinToInputPinMapping[ezAnimGraphPin::ModelPose][m_iPinIndex];
 
   // set all input pins that are connected to this output pin
   for (ezUInt16 idx : map)
   {
-    graph.m_ModelPoseInputPinStates[idx] = pPose->m_uiOwnIndex;
+    ref_graph.m_ModelPoseInputPinStates[idx] = pPose->m_uiOwnIndex;
   }
 }
 

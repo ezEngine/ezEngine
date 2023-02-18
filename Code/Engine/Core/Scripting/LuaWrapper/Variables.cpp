@@ -39,7 +39,7 @@ bool ezLuaWrapper::IsFunctionAvailable(const char* szFunction) const
 
 
 
-ezInt32 ezLuaWrapper::GetIntVariable(const char* szName, ezInt32 Default) const
+ezInt32 ezLuaWrapper::GetIntVariable(const char* szName, ezInt32 iDefault) const
 {
   if (m_States.m_iOpenTables == 0)
     lua_getglobal(m_pState, szName);
@@ -49,7 +49,7 @@ ezInt32 ezLuaWrapper::GetIntVariable(const char* szName, ezInt32 Default) const
     lua_gettable(m_pState, -2);
   }
 
-  int ret = Default;
+  int ret = iDefault;
 
   if (lua_isnumber(m_pState, -1) != 0)
     ret = (int)lua_tonumber(m_pState, -1);
@@ -59,7 +59,7 @@ ezInt32 ezLuaWrapper::GetIntVariable(const char* szName, ezInt32 Default) const
   return ret;
 }
 
-bool ezLuaWrapper::GetBoolVariable(const char* szName, bool Default) const
+bool ezLuaWrapper::GetBoolVariable(const char* szName, bool bDefault) const
 {
   if (m_States.m_iOpenTables == 0)
     lua_getglobal(m_pState, szName);
@@ -69,7 +69,7 @@ bool ezLuaWrapper::GetBoolVariable(const char* szName, bool Default) const
     lua_gettable(m_pState, -2);
   }
 
-  bool ret = Default;
+  bool ret = bDefault;
 
   if (lua_isboolean(m_pState, -1) != 0)
     ret = (lua_toboolean(m_pState, -1) != 0);
@@ -79,7 +79,7 @@ bool ezLuaWrapper::GetBoolVariable(const char* szName, bool Default) const
   return ret;
 }
 
-float ezLuaWrapper::GetFloatVariable(const char* szName, float Default) const
+float ezLuaWrapper::GetFloatVariable(const char* szName, float fDefault) const
 {
   if (m_States.m_iOpenTables == 0)
     lua_getglobal(m_pState, szName);
@@ -89,7 +89,7 @@ float ezLuaWrapper::GetFloatVariable(const char* szName, float Default) const
     lua_gettable(m_pState, -2);
   }
 
-  float ret = Default;
+  float ret = fDefault;
 
   if (lua_isnumber(m_pState, -1) != 0)
     ret = (float)lua_tonumber(m_pState, -1);
@@ -99,7 +99,7 @@ float ezLuaWrapper::GetFloatVariable(const char* szName, float Default) const
   return ret;
 }
 
-const char* ezLuaWrapper::GetStringVariable(const char* szName, const char* Default) const
+const char* ezLuaWrapper::GetStringVariable(const char* szName, const char* szDefault) const
 {
   if (m_States.m_iOpenTables == 0)
     lua_getglobal(m_pState, szName);
@@ -109,7 +109,7 @@ const char* ezLuaWrapper::GetStringVariable(const char* szName, const char* Defa
     lua_gettable(m_pState, -2);
   }
 
-  const char* ret = Default;
+  const char* ret = szDefault;
 
   // non strict conversion
   // if (lua_isstring(m_pState, -1) != 0)

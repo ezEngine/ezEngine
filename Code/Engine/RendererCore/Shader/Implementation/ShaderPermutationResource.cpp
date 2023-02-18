@@ -353,9 +353,9 @@ ezResourceLoadData ezShaderPermutationResourceLoader::OpenDataStream(const ezRes
   return res;
 }
 
-void ezShaderPermutationResourceLoader::CloseDataStream(const ezResource* pResource, const ezResourceLoadData& LoaderData)
+void ezShaderPermutationResourceLoader::CloseDataStream(const ezResource* pResource, const ezResourceLoadData& loaderData)
 {
-  ShaderPermutationResourceLoadData* pData = static_cast<ShaderPermutationResourceLoadData*>(LoaderData.m_pCustomLoaderData);
+  ShaderPermutationResourceLoadData* pData = static_cast<ShaderPermutationResourceLoadData*>(loaderData.m_pCustomLoaderData);
 
   EZ_DEFAULT_DELETE(pData);
 }

@@ -720,14 +720,14 @@ ezResource* ezResourceManager::GetResource(const ezRTTI* pRtti, ezStringView sRe
   return pNewResource;
 }
 
-void ezResourceManager::RegisterResourceOverrideType(const ezRTTI* pDerivedTypeToUse, ezDelegate<bool(const ezStringBuilder&)> OverrideDecider)
+void ezResourceManager::RegisterResourceOverrideType(const ezRTTI* pDerivedTypeToUse, ezDelegate<bool(const ezStringBuilder&)> overrideDecider)
 {
   const ezRTTI* pParentType = pDerivedTypeToUse->GetParentType();
   while (pParentType != nullptr && pParentType != ezGetStaticRTTI<ezResource>())
   {
     auto& info = s_pState->m_DerivedTypeInfos[pParentType].ExpandAndGetRef();
     info.m_pDerivedType = pDerivedTypeToUse;
-    info.m_Decider = OverrideDecider;
+    info.m_Decider = overrideDecider;
 
     pParentType = pParentType->GetParentType();
   }
@@ -805,7 +805,7 @@ ezTypelessResourceHandle ezResourceManager::GetExistingResourceByType(const ezRT
   return ezTypelessResourceHandle();
 }
 
-ezTypelessResourceHandle ezResourceManager::GetExistingResourceOrCreateAsync(const ezRTTI* pResourceType, ezStringView sResourceID, ezUniquePtr<ezResourceTypeLoader>&& loader)
+ezTypelessResourceHandle ezResourceManager::GetExistingResourceOrCreateAsync(const ezRTTI* pResourceType, ezStringView sResourceID, ezUniquePtr<ezResourceTypeLoader>&& pLoader)
 {
   EZ_LOCK(s_ResourceMutex);
 
@@ -818,7 +818,7 @@ ezTypelessResourceHandle ezResourceManager::GetExistingResourceOrCreateAsync(con
   ezResource* pResource = hResource.m_pResource;
 
   pResource->m_Flags.Add(ezResourceFlags::HasCustomDataLoader | ezResourceFlags::IsCreatedResource);
-  s_pState->m_CustomLoaders[pResource] = std::move(loader);
+  s_pState->m_CustomLoaders[pResource] = std::move(pLoader);
 
   return hResource;
 }
@@ -903,11 +903,11 @@ ezResourceTypeLoader* ezResourceManager::GetDefaultResourceLoader()
   return s_pState->m_pDefaultResourceLoader;
 }
 
-void ezResourceManager::EnableExportMode(bool enable)
+void ezResourceManager::EnableExportMode(bool bEnable)
 {
   EZ_ASSERT_DEV(s_pState != nullptr, "ezStartup::StartupCoreSystems() must be called before using the ezResourceManager.");
 
-  s_pState->m_bExportMode = enable;
+  s_pState->m_bExportMode = bEnable;
 }
 
 bool ezResourceManager::IsExportModeEnabled()

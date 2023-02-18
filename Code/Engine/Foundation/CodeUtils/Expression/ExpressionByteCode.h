@@ -175,7 +175,7 @@ public:
       Count
     };
 
-    static const char* GetName(Enum opCode);
+    static const char* GetName(Enum code);
   };
 
   using StorageType = ezUInt32;
@@ -198,16 +198,16 @@ public:
   ezArrayPtr<const ezExpression::StreamDesc> GetOutputs() const;
   ezArrayPtr<const ezExpression::FunctionDesc> GetFunctions() const;
 
-  static OpCode::Enum GetOpCode(const StorageType*& pByteCode);
-  static ezUInt32 GetRegisterIndex(const StorageType*& pByteCode);
-  static ezExpression::Register GetConstant(const StorageType*& pByteCode);
-  static ezUInt32 GetFunctionIndex(const StorageType*& pByteCode);
-  static ezUInt32 GetFunctionArgCount(const StorageType*& pByteCode);
+  static OpCode::Enum GetOpCode(const StorageType*& ref_pByteCode);
+  static ezUInt32 GetRegisterIndex(const StorageType*& ref_pByteCode);
+  static ezExpression::Register GetConstant(const StorageType*& ref_pByteCode);
+  static ezUInt32 GetFunctionIndex(const StorageType*& ref_pByteCode);
+  static ezUInt32 GetFunctionArgCount(const StorageType*& ref_pByteCode);
 
   void Disassemble(ezStringBuilder& out_sDisassembly) const;
 
-  void Save(ezStreamWriter& stream) const;
-  ezResult Load(ezStreamReader& stream);
+  void Save(ezStreamWriter& inout_stream) const;
+  ezResult Load(ezStreamReader& inout_stream);
 
 private:
   friend class ezExpressionCompiler;

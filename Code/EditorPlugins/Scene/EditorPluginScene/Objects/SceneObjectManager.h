@@ -37,7 +37,7 @@ class ezSceneObjectManager : public ezDocumentObjectManager
 {
 public:
   ezSceneObjectManager();
-  virtual void GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& Types) const override;
+  virtual void GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& ref_types) const override;
 
 private:
   virtual ezStatus InternalCanAdd(

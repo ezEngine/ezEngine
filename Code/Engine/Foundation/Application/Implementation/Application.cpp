@@ -51,12 +51,12 @@ ezResult ezApplication::BeforeCoreSystemsStartup()
 }
 
 
-void ezApplication::SetCommandLineArguments(ezUInt32 uiArgumentCount, const char** ppArguments)
+void ezApplication::SetCommandLineArguments(ezUInt32 uiArgumentCount, const char** pArguments)
 {
   m_uiArgumentCount = uiArgumentCount;
-  m_pArguments = ppArguments;
+  m_pArguments = pArguments;
 
-  ezCommandLineUtils::GetGlobalInstance()->SetCommandLine(uiArgumentCount, ppArguments, ezCommandLineUtils::PreferOsArgs);
+  ezCommandLineUtils::GetGlobalInstance()->SetCommandLine(uiArgumentCount, pArguments, ezCommandLineUtils::PreferOsArgs);
 }
 
 

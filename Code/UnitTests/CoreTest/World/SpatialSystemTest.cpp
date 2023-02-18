@@ -22,7 +22,7 @@ namespace
   public:
     virtual void Initialize() override { GetOwner()->UpdateLocalBounds(); }
 
-    void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
+    void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& ref_msg)
     {
       auto& rng = GetWorld()->GetRandomNumberGenerator();
 
@@ -39,7 +39,7 @@ namespace
         category = GetOwner()->IsDynamic() ? ezDefaultSpatialDataCategories::RenderDynamic : ezDefaultSpatialDataCategories::RenderStatic;
       }
 
-      msg.AddBounds(bounds, category);
+      ref_msg.AddBounds(bounds, category);
     }
 
     ezSpatialData::Category m_SpecialCategory = ezInvalidSpatialDataCategory;

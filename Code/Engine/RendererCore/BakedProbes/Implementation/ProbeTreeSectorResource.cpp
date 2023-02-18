@@ -23,32 +23,32 @@ ezUInt64 ezProbeTreeSectorResourceDescriptor::GetHeapMemoryUsage() const
 }
 
 static ezTypeVersion s_ProbeTreeResourceDescriptorVersion = 1;
-ezResult ezProbeTreeSectorResourceDescriptor::Serialize(ezStreamWriter& stream) const
+ezResult ezProbeTreeSectorResourceDescriptor::Serialize(ezStreamWriter& inout_stream) const
 {
-  stream.WriteVersion(s_ProbeTreeResourceDescriptorVersion);
+  inout_stream.WriteVersion(s_ProbeTreeResourceDescriptorVersion);
 
-  stream << m_vGridOrigin;
-  stream << m_vProbeSpacing;
-  stream << m_vProbeCount;
+  inout_stream << m_vGridOrigin;
+  inout_stream << m_vProbeSpacing;
+  inout_stream << m_vProbeCount;
 
-  EZ_SUCCEED_OR_RETURN(stream.WriteArray(m_ProbePositions));
-  EZ_SUCCEED_OR_RETURN(stream.WriteArray(m_SkyVisibility));
+  EZ_SUCCEED_OR_RETURN(inout_stream.WriteArray(m_ProbePositions));
+  EZ_SUCCEED_OR_RETURN(inout_stream.WriteArray(m_SkyVisibility));
 
   return EZ_SUCCESS;
 }
 
-ezResult ezProbeTreeSectorResourceDescriptor::Deserialize(ezStreamReader& stream)
+ezResult ezProbeTreeSectorResourceDescriptor::Deserialize(ezStreamReader& inout_stream)
 {
   Clear();
 
-  const ezTypeVersion version = stream.ReadVersion(s_ProbeTreeResourceDescriptorVersion);
+  const ezTypeVersion version = inout_stream.ReadVersion(s_ProbeTreeResourceDescriptorVersion);
 
-  stream >> m_vGridOrigin;
-  stream >> m_vProbeSpacing;
-  stream >> m_vProbeCount;
+  inout_stream >> m_vGridOrigin;
+  inout_stream >> m_vProbeSpacing;
+  inout_stream >> m_vProbeCount;
 
-  EZ_SUCCEED_OR_RETURN(stream.ReadArray(m_ProbePositions));
-  EZ_SUCCEED_OR_RETURN(stream.ReadArray(m_SkyVisibility));
+  EZ_SUCCEED_OR_RETURN(inout_stream.ReadArray(m_ProbePositions));
+  EZ_SUCCEED_OR_RETURN(inout_stream.ReadArray(m_SkyVisibility));
 
   return EZ_SUCCESS;
 }

@@ -45,7 +45,7 @@ EZ_FOUNDATION_DLL void ezSetAssertHandler(ezAssertHandler handler);
 /// \brief Called by the assert macros whenever a check failed. Returns true if the user wants to trigger a break point
 EZ_FOUNDATION_DLL bool ezFailedCheck(
   const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const class ezFormatString& msg);
-EZ_FOUNDATION_DLL bool ezFailedCheck(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* msg);
+EZ_FOUNDATION_DLL bool ezFailedCheck(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szMsg);
 
 /// \brief Dummy version of ezFmt that only takes a single argument
 inline const char* ezFmt(const char* szFormat)

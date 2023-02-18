@@ -103,10 +103,10 @@ ezVisualScriptComponent::~ezVisualScriptComponent() = default;
 
 ezVisualScriptComponent& ezVisualScriptComponent::operator=(ezVisualScriptComponent&& other) = default;
 
-void ezVisualScriptComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezVisualScriptComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
-  auto& s = stream.GetStream();
+  SUPER::SerializeComponent(inout_stream);
+  auto& s = inout_stream.GetStream();
 
   s << m_hResource;
   /// \todo Store the current script state
@@ -120,11 +120,11 @@ void ezVisualScriptComponent::SerializeComponent(ezWorldWriter& stream) const
   }
 }
 
-void ezVisualScriptComponent::DeserializeComponent(ezWorldReader& stream)
+void ezVisualScriptComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  auto& s = stream.GetStream();
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  auto& s = inout_stream.GetStream();
 
   s >> m_hResource;
 
@@ -320,8 +320,8 @@ void ezVisualScriptComponent::Initialize()
 const ezRangeView<const char*, ezUInt32> ezVisualScriptComponent::GetParameters() const
 {
   return ezRangeView<const char*, ezUInt32>([]() -> ezUInt32 { return 0; },
-    [this]() -> ezUInt32 { return m_Params.GetCount(); }, [](ezUInt32& it) { ++it; },
-    [this](const ezUInt32& it) -> const char* { return m_Params[it].m_sName.GetData(); });
+    [this]() -> ezUInt32 { return m_Params.GetCount(); }, [](ezUInt32& ref_uiIt) { ++ref_uiIt; },
+    [this](const ezUInt32& uiIt) -> const char* { return m_Params[uiIt].m_sName.GetData(); });
 }
 
 void ezVisualScriptComponent::SetParameter(const char* szKey, const ezVariant& value)

@@ -20,9 +20,9 @@ struct EZ_CORE_DLL ezExposedPrefabParameterDesc
   ezHashedString m_sProperty;          // which property to override
   ezPropertyPath m_CachedPropertyPath; // cached ezPropertyPath to apply a value to the specified property
 
-  void Save(ezStreamWriter& stream) const;
-  void Load(ezStreamReader& stream);
-  void LoadOld(ezStreamReader& stream);
+  void Save(ezStreamWriter& inout_stream) const;
+  void Load(ezStreamReader& inout_stream);
+  void LoadOld(ezStreamReader& inout_stream);
 };
 
 class EZ_CORE_DLL ezPrefabResource : public ezResource
@@ -35,7 +35,7 @@ public:
   ezPrefabResource();
 
   /// \brief Creates an instance of this prefab in the given world.
-  void InstantiatePrefab(ezWorld& world, const ezTransform& rootTransform, ezPrefabInstantiationOptions options, const ezArrayMap<ezHashedString, ezVariant>* pExposedParamValues = nullptr);
+  void InstantiatePrefab(ezWorld& ref_world, const ezTransform& rootTransform, ezPrefabInstantiationOptions options, const ezArrayMap<ezHashedString, ezVariant>* pExposedParamValues = nullptr);
 
   void ApplyExposedParameterValues(const ezArrayMap<ezHashedString, ezVariant>* pExposedParamValues, const ezDynamicArray<ezGameObject*>& createdChildObjects, const ezDynamicArray<ezGameObject*>& createdRootObjects) const;
 

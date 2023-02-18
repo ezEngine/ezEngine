@@ -140,11 +140,11 @@ void ezWindowOutputTargetXR::RenderCompanionView(bool bThrottleCompanionView)
   }
 }
 
-ezResult ezWindowOutputTargetXR::CaptureImage(ezImage& out_Image)
+ezResult ezWindowOutputTargetXR::CaptureImage(ezImage& out_image)
 {
   if (m_pCompanionWindowOutputTarget)
   {
-    return m_pCompanionWindowOutputTarget->CaptureImage(out_Image);
+    return m_pCompanionWindowOutputTarget->CaptureImage(out_image);
   }
   return EZ_FAILURE;
 }
@@ -156,11 +156,11 @@ const ezWindowOutputTargetBase* ezWindowOutputTargetXR::GetCompanionWindowOutput
 
 //////////////////////////////////////////////////////////////////////////
 
-ezActorPluginWindowXR::ezActorPluginWindowXR(ezXRInterface* pVrInterface, ezUniquePtr<ezWindowBase> companionWindow, ezUniquePtr<ezWindowOutputTargetGAL> companionWindowOutput)
+ezActorPluginWindowXR::ezActorPluginWindowXR(ezXRInterface* pVrInterface, ezUniquePtr<ezWindowBase> pCompanionWindow, ezUniquePtr<ezWindowOutputTargetGAL> pCompanionWindowOutput)
   : m_pVrInterface(pVrInterface)
 {
-  m_pWindow = EZ_DEFAULT_NEW(ezWindowXR, pVrInterface, std::move(companionWindow));
-  m_pWindowOutputTarget = EZ_DEFAULT_NEW(ezWindowOutputTargetXR, pVrInterface, std::move(companionWindowOutput));
+  m_pWindow = EZ_DEFAULT_NEW(ezWindowXR, pVrInterface, std::move(pCompanionWindow));
+  m_pWindowOutputTarget = EZ_DEFAULT_NEW(ezWindowOutputTargetXR, pVrInterface, std::move(pCompanionWindowOutput));
 }
 
 ezActorPluginWindowXR::~ezActorPluginWindowXR()

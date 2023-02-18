@@ -28,12 +28,12 @@ ezString ezFileSystem::s_sSdkRootDir;
 ezMap<ezString, ezString> ezFileSystem::s_SpecialDirectories;
 
 
-void ezFileSystem::RegisterDataDirectoryFactory(ezDataDirFactory Factory, float fPriority /*= 0*/)
+void ezFileSystem::RegisterDataDirectoryFactory(ezDataDirFactory factory, float fPriority /*= 0*/)
 {
   EZ_LOCK(s_pData->m_FsMutex);
 
   auto& data = s_pData->m_DataDirFactories.ExpandAndGetRef();
-  data.m_Factory = Factory;
+  data.m_Factory = factory;
   data.m_fPriority = fPriority;
 }
 
@@ -74,10 +74,10 @@ void ezFileSystem::CleanUpRootName(ezStringBuilder& sRoot)
   sRoot.ToUpper();
 }
 
-ezResult ezFileSystem::AddDataDirectory(ezStringView sDataDirectory, ezStringView sGroup, ezStringView sRootName, DataDirUsage Usage)
+ezResult ezFileSystem::AddDataDirectory(ezStringView sDataDirectory, ezStringView sGroup, ezStringView sRootName, DataDirUsage usage)
 {
   EZ_ASSERT_DEV(s_pData != nullptr, "FileSystem is not initialized.");
-  EZ_ASSERT_DEV(Usage != AllowWrites || !sRootName.IsEmpty(), "A data directory must have a non-empty, unique name to be mounted for write access");
+  EZ_ASSERT_DEV(usage != AllowWrites || !sRootName.IsEmpty(), "A data directory must have a non-empty, unique name to be mounted for write access");
 
   ezStringBuilder sPath = sDataDirectory;
   sPath.MakeCleanPath();
@@ -104,12 +104,12 @@ ezResult ezFileSystem::AddDataDirectory(ezStringView sDataDirectory, ezStringVie
     // use the factory that was added last as the one with the highest priority -> allows to override already added factories
     for (ezInt32 i = s_pData->m_DataDirFactories.GetCount() - 1; i >= 0; --i)
     {
-      ezDataDirectoryType* pDataDir = s_pData->m_DataDirFactories[i].m_Factory(sPath, sGroup, sRootName, Usage);
+      ezDataDirectoryType* pDataDir = s_pData->m_DataDirFactories[i].m_Factory(sPath, sGroup, sRootName, usage);
 
       if (pDataDir != nullptr)
       {
         DataDirectory dd;
-        dd.m_Usage = Usage;
+        dd.m_Usage = usage;
         dd.m_pDataDirectory = pDataDir;
         dd.m_sRootName = sCleanRootName;
         dd.m_sGroup = sGroup;
@@ -401,7 +401,7 @@ bool ezFileSystem::ExistsFile(ezStringView sFile)
 }
 
 
-ezResult ezFileSystem::GetFileStats(ezStringView sFileOrFolder, ezFileStats& out_Stats)
+ezResult ezFileSystem::GetFileStats(ezStringView sFileOrFolder, ezFileStats& out_stats)
 {
   EZ_ASSERT_DEV(s_pData != nullptr, "FileSystem is not initialized.");
 
@@ -419,7 +419,7 @@ ezResult ezFileSystem::GetFileStats(ezStringView sFileOrFolder, ezFileStats& out
 
     ezStringView sRelPath = GetDataDirRelativePath(sFileOrFolder, i);
 
-    if (s_pData->m_DataDirectories[i].m_pDataDirectory->GetFileStats(sRelPath, bOneSpecificDataDir, out_Stats).Succeeded())
+    if (s_pData->m_DataDirectories[i].m_pDataDirectory->GetFileStats(sRelPath, bOneSpecificDataDir, out_stats).Succeeded())
       return EZ_SUCCESS;
   }
 
@@ -597,7 +597,7 @@ ezDataDirectoryWriter* ezFileSystem::GetFileWriter(ezStringView sFile, ezFileSha
   return nullptr;
 }
 
-ezResult ezFileSystem::ResolvePath(ezStringView sPath, ezStringBuilder* out_sAbsolutePath, ezStringBuilder* out_sDataDirRelativePath, ezDataDirectoryType** out_ppDataDir /*= nullptr*/)
+ezResult ezFileSystem::ResolvePath(ezStringView sPath, ezStringBuilder* out_pAbsolutePath, ezStringBuilder* out_pDataDirRelativePath, ezDataDirectoryType** out_pDataDir /*= nullptr*/)
 {
   EZ_ASSERT_DEV(s_pData != nullptr, "FileSystem is not initialized.");
 
@@ -616,8 +616,8 @@ ezResult ezFileSystem::ResolvePath(ezStringView sPath, ezStringBuilder* out_sAbs
     if (pDataDir == nullptr)
       return EZ_FAILURE;
 
-    if (out_ppDataDir != nullptr)
-      *out_ppDataDir = pDataDir->m_pDataDirectory;
+    if (out_pDataDir != nullptr)
+      *out_pDataDir = pDataDir->m_pDataDirectory;
 
     relPath = sPath.GetShrunk(sRootName.GetCharacterCount() + 2);
 
@@ -635,17 +635,17 @@ ezResult ezFileSystem::ResolvePath(ezStringView sPath, ezStringBuilder* out_sAbs
 
       if (ezPathUtils::IsSubPath(dir.m_pDataDirectory->GetRedirectedDataDirectoryPath(), absPath))
       {
-        if (out_sAbsolutePath)
-          *out_sAbsolutePath = absPath;
+        if (out_pAbsolutePath)
+          *out_pAbsolutePath = absPath;
 
-        if (out_sDataDirRelativePath)
+        if (out_pDataDirRelativePath)
         {
-          *out_sDataDirRelativePath = absPath;
-          out_sDataDirRelativePath->MakeRelativeTo(dir.m_pDataDirectory->GetRedirectedDataDirectoryPath()).IgnoreResult();
+          *out_pDataDirRelativePath = absPath;
+          out_pDataDirRelativePath->MakeRelativeTo(dir.m_pDataDirectory->GetRedirectedDataDirectoryPath()).IgnoreResult();
         }
 
-        if (out_ppDataDir)
-          *out_ppDataDir = dir.m_pDataDirectory;
+        if (out_pDataDir)
+          *out_pDataDir = dir.m_pDataDirectory;
 
         return EZ_SUCCESS;
       }
@@ -661,8 +661,8 @@ ezResult ezFileSystem::ResolvePath(ezStringView sPath, ezStringBuilder* out_sAbs
     if (!pReader)
       return EZ_FAILURE;
 
-    if (out_ppDataDir != nullptr)
-      *out_ppDataDir = pReader->GetDataDirectory();
+    if (out_pDataDir != nullptr)
+      *out_pDataDir = pReader->GetDataDirectory();
 
     relPath = pReader->GetFilePath();
 
@@ -672,16 +672,16 @@ ezResult ezFileSystem::ResolvePath(ezStringView sPath, ezStringBuilder* out_sAbs
     pReader->Close();
   }
 
-  if (out_sAbsolutePath)
-    *out_sAbsolutePath = absPath;
+  if (out_pAbsolutePath)
+    *out_pAbsolutePath = absPath;
 
-  if (out_sDataDirRelativePath)
-    *out_sDataDirRelativePath = relPath;
+  if (out_pDataDirRelativePath)
+    *out_pDataDirRelativePath = relPath;
 
   return EZ_SUCCESS;
 }
 
-ezResult ezFileSystem::FindFolderWithSubPath(ezStringBuilder& result, ezStringView sStartDirectory, ezStringView sSubPath, ezStringView sRedirectionFileName /*= nullptr*/)
+ezResult ezFileSystem::FindFolderWithSubPath(ezStringBuilder& out_sResult, ezStringView sStartDirectory, ezStringView sSubPath, ezStringView sRedirectionFileName /*= nullptr*/)
 {
   ezStringBuilder sStartDirAbs = sStartDirectory;
   sStartDirAbs.MakeCleanPath();
@@ -695,19 +695,19 @@ ezResult ezFileSystem::FindFolderWithSubPath(ezStringBuilder& result, ezStringVi
     ezStringBuilder abs;
     if (ResolvePath(sStartDirAbs, &abs, nullptr).Failed())
     {
-      result.Clear();
+      out_sResult.Clear();
       return EZ_FAILURE;
     }
 
     sStartDirAbs = abs;
   }
 
-  result = sStartDirectory;
-  result.MakeCleanPath();
+  out_sResult = sStartDirectory;
+  out_sResult.MakeCleanPath();
 
   ezStringBuilder FullPath, sRedirection;
 
-  while (!result.IsEmpty())
+  while (!out_sResult.IsEmpty())
   {
     sRedirection.Clear();
 
@@ -735,8 +735,8 @@ ezResult ezFileSystem::FindFolderWithSubPath(ezStringBuilder& result, ezStringVi
 
       if (ezOSFile::ExistsDirectory(FullPath) || ezOSFile::ExistsFile(FullPath))
       {
-        result.AppendPath(sRedirection);
-        result.MakeCleanPath();
+        out_sResult.AppendPath(sRedirection);
+        out_sResult.MakeCleanPath();
         return EZ_SUCCESS;
       }
     }
@@ -751,7 +751,7 @@ ezResult ezFileSystem::FindFolderWithSubPath(ezStringBuilder& result, ezStringVi
       return EZ_SUCCESS;
     }
 
-    result.PathParentDirectory();
+    out_sResult.PathParentDirectory();
     sStartDirAbs.PathParentDirectory();
   }
 
@@ -855,11 +855,11 @@ void ezFileSystem::SetSpecialDirectory(ezStringView sName, ezStringView sReplace
   }
 }
 
-ezResult ezFileSystem::ResolveSpecialDirectory(ezStringView sDirectory, ezStringBuilder& out_Path)
+ezResult ezFileSystem::ResolveSpecialDirectory(ezStringView sDirectory, ezStringBuilder& out_sPath)
 {
   if (sDirectory.IsEmpty() || !sDirectory.StartsWith(">"))
   {
-    out_Path = sDirectory;
+    out_sPath = sDirectory;
     return EZ_SUCCESS;
   }
 
@@ -879,45 +879,45 @@ ezResult ezFileSystem::ResolveSpecialDirectory(ezStringView sDirectory, ezString
   const auto it = s_SpecialDirectories.Find(sName);
   if (it.IsValid())
   {
-    out_Path = it.Value();
-    out_Path.AppendPath(szEnd); // szEnd might be on \0 or a slash
-    out_Path.MakeCleanPath();
+    out_sPath = it.Value();
+    out_sPath.AppendPath(szEnd); // szEnd might be on \0 or a slash
+    out_sPath.MakeCleanPath();
     return EZ_SUCCESS;
   }
 
   if (sName == "sdk")
   {
     sDirectory.Shrink(3, 0);
-    out_Path = GetSdkRootDirectory();
-    out_Path.AppendPath(sDirectory);
-    out_Path.MakeCleanPath();
+    out_sPath = GetSdkRootDirectory();
+    out_sPath.AppendPath(sDirectory);
+    out_sPath.MakeCleanPath();
     return EZ_SUCCESS;
   }
 
   if (sName == "user")
   {
     sDirectory.Shrink(4, 0);
-    out_Path = ezOSFile::GetUserDataFolder();
-    out_Path.AppendPath(sDirectory);
-    out_Path.MakeCleanPath();
+    out_sPath = ezOSFile::GetUserDataFolder();
+    out_sPath.AppendPath(sDirectory);
+    out_sPath.MakeCleanPath();
     return EZ_SUCCESS;
   }
 
   if (sName == "temp")
   {
     sDirectory.Shrink(4, 0);
-    out_Path = ezOSFile::GetTempDataFolder();
-    out_Path.AppendPath(sDirectory);
-    out_Path.MakeCleanPath();
+    out_sPath = ezOSFile::GetTempDataFolder();
+    out_sPath.AppendPath(sDirectory);
+    out_sPath.MakeCleanPath();
     return EZ_SUCCESS;
   }
 
   if (sName == "appdir")
   {
     sDirectory.Shrink(6, 0);
-    out_Path = ezOSFile::GetApplicationDirectory();
-    out_Path.AppendPath(sDirectory);
-    out_Path.MakeCleanPath();
+    out_sPath = ezOSFile::GetApplicationDirectory();
+    out_sPath.AppendPath(sDirectory);
+    out_sPath.MakeCleanPath();
     return EZ_SUCCESS;
   }
 
@@ -933,7 +933,7 @@ ezMutex& ezFileSystem::GetMutex()
 
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS)
 
-void ezFileSystem::StartSearch(ezFileSystemIterator& iterator, ezStringView sSearchTerm, ezBitflags<ezFileSystemIteratorFlags> flags /*= ezFileSystemIteratorFlags::Default*/)
+void ezFileSystem::StartSearch(ezFileSystemIterator& ref_iterator, ezStringView sSearchTerm, ezBitflags<ezFileSystemIteratorFlags> flags /*= ezFileSystemIteratorFlags::Default*/)
 {
   EZ_LOCK(s_pData->m_FsMutex);
 
@@ -954,7 +954,7 @@ void ezFileSystem::StartSearch(ezFileSystemIterator& iterator, ezStringView sSea
     folders.PushBack(sDdPath);
   }
 
-  iterator.StartMultiFolderSearch(folders, sSearchTerm, flags);
+  ref_iterator.StartMultiFolderSearch(folders, sSearchTerm, flags);
 }
 
 #endif

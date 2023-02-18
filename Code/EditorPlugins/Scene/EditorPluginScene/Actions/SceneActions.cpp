@@ -515,7 +515,7 @@ void ezSceneAction::LaunchPlayer(const char* szPlayerApp)
   proc.startDetached(QString::fromUtf8(szPlayerApp), arguments);
 }
 
-QStringList ezSceneAction::GetPlayerCommandLine(ezStringBuilder& out_SingleLine) const
+QStringList ezSceneAction::GetPlayerCommandLine(ezStringBuilder& out_sSingleLine) const
 {
   QStringList arguments;
   arguments << "-project";
@@ -549,9 +549,9 @@ QStringList ezSceneAction::GetPlayerCommandLine(ezStringBuilder& out_SingleLine)
   for (QString s : arguments)
   {
     if (s.contains(" "))
-      out_SingleLine.AppendFormat(" \"{}\"", s.toUtf8().data());
+      out_sSingleLine.AppendFormat(" \"{}\"", s.toUtf8().data());
     else
-      out_SingleLine.AppendFormat(" {}", s.toUtf8().data());
+      out_sSingleLine.AppendFormat(" {}", s.toUtf8().data());
   }
 
   return arguments;

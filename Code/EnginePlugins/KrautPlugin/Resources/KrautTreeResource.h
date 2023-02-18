@@ -20,8 +20,8 @@ struct EZ_KRAUTPLUGIN_DLL ezKrautTreeResourceDetails
 
 struct EZ_KRAUTPLUGIN_DLL ezKrautTreeResourceDescriptor
 {
-  void Save(ezStreamWriter& stream) const;
-  ezResult Load(ezStreamReader& stream);
+  void Save(ezStreamWriter& inout_stream) const;
+  ezResult Load(ezStreamReader& inout_stream);
 
   struct VertexData
   {

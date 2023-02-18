@@ -30,10 +30,10 @@ ezEngineProcessViewContext::~ezEngineProcessViewContext()
   ezActorManager::GetSingleton()->DestroyAllActors(this);
 }
 
-void ezEngineProcessViewContext::SetViewID(ezUInt32 id)
+void ezEngineProcessViewContext::SetViewID(ezUInt32 uiId)
 {
   EZ_ASSERT_DEBUG(m_uiViewID == 0xFFFFFFFF, "View ID may only be set once");
-  m_uiViewID = id;
+  m_uiViewID = uiId;
 }
 
 void ezEngineProcessViewContext::HandleViewMessage(const ezEditorEngineViewMsg* pMsg)
@@ -165,10 +165,10 @@ void ezEngineProcessViewContext::OnSwapChainChanged(ezGALSwapChainHandle hSwapCh
   }
 }
 
-void ezEngineProcessViewContext::SetupRenderTarget(ezGALSwapChainHandle hSwapChain, const ezGALRenderTargets* renderTargets, ezUInt16 uiWidth, ezUInt16 uiHeight)
+void ezEngineProcessViewContext::SetupRenderTarget(ezGALSwapChainHandle hSwapChain, const ezGALRenderTargets* pRenderTargets, ezUInt16 uiWidth, ezUInt16 uiHeight)
 {
   EZ_LOG_BLOCK("ezEngineProcessViewContext::SetupRenderTarget");
-  EZ_ASSERT_DEV(hSwapChain.IsInvalidated() || renderTargets == nullptr, "hSwapChain and renderTargetSetup are mutually exclusive.");
+  EZ_ASSERT_DEV(hSwapChain.IsInvalidated() || pRenderTargets == nullptr, "hSwapChain and renderTargetSetup are mutually exclusive.");
 
   // setup view
   {
@@ -183,7 +183,7 @@ void ezEngineProcessViewContext::SetupRenderTarget(ezGALSwapChainHandle hSwapCha
       if (!hSwapChain.IsInvalidated())
         pView->SetSwapChain(hSwapChain);
       else
-        pView->SetRenderTargets(*renderTargets);
+        pView->SetRenderTargets(*pRenderTargets);
       pView->SetViewport(ezRectFloat(0.0f, 0.0f, (float)uiWidth, (float)uiHeight));
     }
   }
@@ -219,14 +219,14 @@ void ezEngineProcessViewContext::Redraw(bool bRenderEditorGizmos)
   }
 }
 
-bool ezEngineProcessViewContext::FocusCameraOnObject(ezCamera& camera, const ezBoundingBoxSphere& objectBounds, float fFov, const ezVec3& vViewDir)
+bool ezEngineProcessViewContext::FocusCameraOnObject(ezCamera& inout_camera, const ezBoundingBoxSphere& objectBounds, float fFov, const ezVec3& vViewDir)
 {
   if (!objectBounds.IsValid())
     return false;
 
   ezVec3 vDir = vViewDir;
   bool bChanged = false;
-  ezVec3 vCameraPos = camera.GetCenterPosition();
+  ezVec3 vCameraPos = inout_camera.GetCenterPosition();
   ezVec3 vCenterPos = objectBounds.GetSphere().m_vCenter;
 
   const float fDist = ezMath::Max(0.1f, objectBounds.GetSphere().m_fRadius) / ezMath::Sin(ezAngle::Degree(fFov / 2));
@@ -243,8 +243,8 @@ bool ezEngineProcessViewContext::FocusCameraOnObject(ezCamera& camera, const ezB
     if (!vNewCameraPos.IsValid())
       return false;
 
-    camera.SetCameraMode(ezCameraMode::PerspectiveFixedFovX, fFov, 0.1f, 1000.0f);
-    camera.LookAt(vNewCameraPos, vCenterPos, ezVec3(0.0f, 0.0f, 1.0f));
+    inout_camera.SetCameraMode(ezCameraMode::PerspectiveFixedFovX, fFov, 0.1f, 1000.0f);
+    inout_camera.LookAt(vNewCameraPos, vCenterPos, ezVec3(0.0f, 0.0f, 1.0f));
   }
 
   return bChanged;

@@ -47,8 +47,8 @@ class EZ_GAMECOMPONENTS_DLL ezRaycastComponent : public ezComponent
 public:
   virtual void OnSimulationStarted() override;
 
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
 protected:
   void Deinitialize() override;
@@ -63,7 +63,7 @@ public:
   ezRaycastComponent();
   ~ezRaycastComponent();
 
-  void SetTriggerMessage(const char* sz); // [ property ]
+  void SetTriggerMessage(const char* szSz); // [ property ]
   const char* GetTriggerMessage() const;  // [ property ]
 
   void SetRaycastEndObject(const char* szReference); // [ property ]

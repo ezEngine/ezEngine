@@ -65,37 +65,37 @@ enum class TypeLightVersion
   Version_Current = Version_Count - 1
 };
 
-void ezParticleTypeLightFactory::Save(ezStreamWriter& stream) const
+void ezParticleTypeLightFactory::Save(ezStreamWriter& inout_stream) const
 {
   const ezUInt8 uiVersion = (int)TypeLightVersion::Version_Current;
-  stream << uiVersion;
+  inout_stream << uiVersion;
 
-  stream << m_fSizeFactor;
-  stream << m_fIntensity;
-  stream << m_uiPercentage;
+  inout_stream << m_fSizeFactor;
+  inout_stream << m_fIntensity;
+  inout_stream << m_uiPercentage;
 
   // Version 2
-  stream << m_sTintColorParameter;
-  stream << m_sIntensityParameter;
-  stream << m_sSizeScaleParameter;
+  inout_stream << m_sTintColorParameter;
+  inout_stream << m_sIntensityParameter;
+  inout_stream << m_sSizeScaleParameter;
 }
 
-void ezParticleTypeLightFactory::Load(ezStreamReader& stream)
+void ezParticleTypeLightFactory::Load(ezStreamReader& inout_stream)
 {
   ezUInt8 uiVersion = 0;
-  stream >> uiVersion;
+  inout_stream >> uiVersion;
 
   EZ_ASSERT_DEV(uiVersion <= (int)TypeLightVersion::Version_Current, "Invalid version {0}", uiVersion);
 
-  stream >> m_fSizeFactor;
-  stream >> m_fIntensity;
-  stream >> m_uiPercentage;
+  inout_stream >> m_fSizeFactor;
+  inout_stream >> m_fIntensity;
+  inout_stream >> m_uiPercentage;
 
   if (uiVersion >= 2)
   {
-    stream >> m_sTintColorParameter;
-    stream >> m_sIntensityParameter;
-    stream >> m_sSizeScaleParameter;
+    inout_stream >> m_sTintColorParameter;
+    inout_stream >> m_sIntensityParameter;
+    inout_stream >> m_sSizeScaleParameter;
   }
 }
 
@@ -114,7 +114,7 @@ void ezParticleTypeLight::CreateRequiredStreams()
 }
 
 
-void ezParticleTypeLight::ExtractTypeRenderData(ezMsgExtractRenderData& msg, const ezTransform& instanceTransform) const
+void ezParticleTypeLight::ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg, const ezTransform& instanceTransform) const
 {
   EZ_PROFILE_SCOPE("PFX: Light");
 
@@ -180,10 +180,10 @@ void ezParticleTypeLight::ExtractTypeRenderData(ezMsgExtractRenderData& msg, con
     pRenderData->m_fRange = pSize[i] * sizeFactor;
     pRenderData->m_uiShadowDataOffset = ezInvalidIndex;
 
-    float fScreenSpaceSize = ezLightComponent::CalculateScreenSpaceSize(ezBoundingSphere(pRenderData->m_GlobalTransform.m_vPosition, pRenderData->m_fRange * 0.5f), *msg.m_pView->GetCullingCamera());
+    float fScreenSpaceSize = ezLightComponent::CalculateScreenSpaceSize(ezBoundingSphere(pRenderData->m_GlobalTransform.m_vPosition, pRenderData->m_fRange * 0.5f), *ref_msg.m_pView->GetCullingCamera());
     pRenderData->FillBatchIdAndSortingKey(fScreenSpaceSize);
 
-    msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::Light, ezRenderData::Caching::Never);
+    ref_msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::Light, ezRenderData::Caching::Never);
   }
 }
 

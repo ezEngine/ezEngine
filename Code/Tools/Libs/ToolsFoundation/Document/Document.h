@@ -107,8 +107,8 @@ public:
   typedef ezDelegate<void(ezDocument* doc, ezStatus res)> AfterSaveCallback;
   ezTaskGroupID SaveDocumentAsync(AfterSaveCallback callback, bool bForce = false);
 
-  static ezStatus ReadDocument(const char* sDocumentPath, ezUniquePtr<ezAbstractObjectGraph>& header, ezUniquePtr<ezAbstractObjectGraph>& objects,
-    ezUniquePtr<ezAbstractObjectGraph>& types);
+  static ezStatus ReadDocument(const char* szDocumentPath, ezUniquePtr<ezAbstractObjectGraph>& ref_pHeader, ezUniquePtr<ezAbstractObjectGraph>& ref_pObjects,
+    ezUniquePtr<ezAbstractObjectGraph>& ref_pTypes);
   static ezStatus ReadAndRegisterTypes(const ezAbstractObjectGraph& types);
 
   ezStatus LoadDocument() { return InternalLoadDocument(); }
@@ -148,9 +148,9 @@ public:
   };
 
   /// \brief Whether this document supports pasting the given mime format into it
-  virtual void GetSupportedMimeTypesForPasting(ezHybridArray<ezString, 4>& out_MimeTypes) const {}
+  virtual void GetSupportedMimeTypesForPasting(ezHybridArray<ezString, 4>& out_mimeTypes) const {}
   /// \brief Creates the abstract graph of data to be copied and returns the mime type for the clipboard to identify the data
-  virtual bool CopySelectedObjects(ezAbstractObjectGraph& out_objectGraph, ezStringBuilder& out_MimeType) const { return false; };
+  virtual bool CopySelectedObjects(ezAbstractObjectGraph& out_objectGraph, ezStringBuilder& out_sMimeType) const { return false; };
   virtual bool Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, const char* szMimeType)
   {
     return false;
@@ -196,7 +196,7 @@ public:
   void ShowDocumentStatus(const ezFormatString& msg) const;
 
   /// \brief Tries to compute the position and rotation for an object in the document. Returns EZ_SUCCESS if it was possible.
-  virtual ezResult ComputeObjectTransformation(const ezDocumentObject* pObject, ezTransform& out_Result) const;
+  virtual ezResult ComputeObjectTransformation(const ezDocumentObject* pObject, ezTransform& out_result) const;
 
   /// \brief Needed by ezManipulatorManager to know where to look for the manipulator attributes.
   ///
@@ -215,19 +215,19 @@ public:
   virtual void UpdatePrefabs();
 
   /// \brief Resets the given objects to their template prefab state, if they have local modifications.
-  void RevertPrefabs(const ezDeque<const ezDocumentObject*>& Selection);
+  void RevertPrefabs(const ezDeque<const ezDocumentObject*>& selection);
 
   /// \brief Removes the link between a prefab instance and its template, turning the instance into a regular object.
-  virtual void UnlinkPrefabs(const ezDeque<const ezDocumentObject*>& Selection);
+  virtual void UnlinkPrefabs(const ezDeque<const ezDocumentObject*>& selection);
 
   virtual ezStatus CreatePrefabDocumentFromSelection(const char* szFile, const ezRTTI* pRootType,
-    ezDelegate<void(ezAbstractObjectNode*)> AdjustGraphNodeCB = ezDelegate<void(ezAbstractObjectNode*)>(),
-    ezDelegate<void(ezDocumentObject*)> AdjustNewNodesCB = ezDelegate<void(ezDocumentObject*)>());
+    ezDelegate<void(ezAbstractObjectNode*)> adjustGraphNodeCB = ezDelegate<void(ezAbstractObjectNode*)>(),
+    ezDelegate<void(ezDocumentObject*)> adjustNewNodesCB = ezDelegate<void(ezDocumentObject*)>());
   virtual ezStatus CreatePrefabDocument(const char* szFile, ezArrayPtr<const ezDocumentObject*> rootObjects, const ezUuid& invPrefabSeed,
-    ezUuid& out_NewDocumentGuid, ezDelegate<void(ezAbstractObjectNode*)> AdjustGraphNodeCB = {}, bool bKeepOpen = false);
+    ezUuid& out_newDocumentGuid, ezDelegate<void(ezAbstractObjectNode*)> adjustGraphNodeCB = {}, bool bKeepOpen = false);
   // Returns new guid of replaced object.
   virtual ezUuid ReplaceByPrefab(
-    const ezDocumentObject* pRootObject, const char* szPrefabFile, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed, bool bEnginePrefab);
+    const ezDocumentObject* pRootObject, const char* szPrefabFile, const ezUuid& prefabAsset, const ezUuid& prefabSeed, bool bEnginePrefab);
   // Returns new guid of reverted object.
   virtual ezUuid RevertPrefab(const ezDocumentObject* pObject);
 

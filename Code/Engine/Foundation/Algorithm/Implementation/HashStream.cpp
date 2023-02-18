@@ -5,10 +5,10 @@
 #define XXH_INLINE_ALL
 #include <Foundation/ThirdParty/xxHash/xxhash.h>
 
-ezHashStreamWriter32::ezHashStreamWriter32(ezUInt32 seed)
+ezHashStreamWriter32::ezHashStreamWriter32(ezUInt32 uiSeed)
 {
   m_pState = XXH32_createState();
-  EZ_VERIFY(XXH_OK == XXH32_reset((XXH32_state_t*)m_pState, seed), "");
+  EZ_VERIFY(XXH_OK == XXH32_reset((XXH32_state_t*)m_pState, uiSeed), "");
 }
 
 ezHashStreamWriter32::~ezHashStreamWriter32()
@@ -33,10 +33,10 @@ ezUInt32 ezHashStreamWriter32::GetHashValue() const
 }
 
 
-ezHashStreamWriter64::ezHashStreamWriter64(ezUInt64 seed)
+ezHashStreamWriter64::ezHashStreamWriter64(ezUInt64 uiSeed)
 {
   m_pState = XXH64_createState();
-  EZ_VERIFY(XXH_OK == XXH64_reset((XXH64_state_t*)m_pState, seed), "");
+  EZ_VERIFY(XXH_OK == XXH64_reset((XXH64_state_t*)m_pState, uiSeed), "");
 }
 
 ezHashStreamWriter64::~ezHashStreamWriter64()

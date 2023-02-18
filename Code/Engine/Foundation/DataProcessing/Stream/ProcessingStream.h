@@ -40,9 +40,9 @@ public:
   };
 
   ezProcessingStream();
-  ezProcessingStream(const ezHashedString& sName, DataType Type, ezUInt16 uiStride, ezUInt16 uiAlignment);
-  ezProcessingStream(const ezHashedString& sName, ezArrayPtr<ezUInt8> data, DataType Type, ezUInt16 uiStride);
-  ezProcessingStream(const ezHashedString& sName, ezArrayPtr<ezUInt8> data, DataType Type);
+  ezProcessingStream(const ezHashedString& sName, DataType type, ezUInt16 uiStride, ezUInt16 uiAlignment);
+  ezProcessingStream(const ezHashedString& sName, ezArrayPtr<ezUInt8> data, DataType type, ezUInt16 uiStride);
+  ezProcessingStream(const ezHashedString& sName, ezArrayPtr<ezUInt8> data, DataType type);
   ~ezProcessingStream();
 
   /// \brief Returns a const pointer to the data casted to the type T, note that no type check is done!
@@ -82,8 +82,8 @@ public:
   /// \brief Returns the stride between two elements of the stream in bytes.
   ezUInt16 GetElementStride() const { return m_uiStride; }
 
-  static ezUInt16 GetDataTypeSize(DataType Type);
-  static ezStringView GetDataTypeName(DataType Type);
+  static ezUInt16 GetDataTypeSize(DataType type);
+  static ezStringView GetDataTypeName(DataType type);
 
 protected:
   friend class ezProcessingStreamGroup;

@@ -50,11 +50,11 @@ ezSpotLightComponent::ezSpotLightComponent()
 
 ezSpotLightComponent::~ezSpotLightComponent() = default;
 
-ezResult ezSpotLightComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg)
+ezResult ezSpotLightComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg)
 {
   m_fEffectiveRange = CalculateEffectiveRange(m_fRange, m_fIntensity);
 
-  bounds = CalculateBoundingSphere(ezTransform::IdentityTransform(), m_fEffectiveRange);
+  ref_bounds = CalculateBoundingSphere(ezTransform::IdentityTransform(), m_fEffectiveRange);
   return EZ_SUCCESS;
 }
 
@@ -172,11 +172,11 @@ void ezSpotLightComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) c
   msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::Light, caching);
 }
 
-void ezSpotLightComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezSpotLightComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 
-  ezStreamWriter& s = stream.GetStream();
+  ezStreamWriter& s = inout_stream.GetStream();
 
   s << m_fRange;
   s << m_InnerSpotAngle;
@@ -184,11 +184,11 @@ void ezSpotLightComponent::SerializeComponent(ezWorldWriter& stream) const
   s << GetProjectedTextureFile();
 }
 
-void ezSpotLightComponent::DeserializeComponent(ezWorldReader& stream)
+void ezSpotLightComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
+  SUPER::DeserializeComponent(inout_stream);
   // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  ezStreamReader& s = stream.GetStream();
+  ezStreamReader& s = inout_stream.GetStream();
 
   s >> m_fRange;
   s >> m_InnerSpotAngle;
@@ -250,9 +250,9 @@ public:
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
-    context.PatchBaseClass("ezLightComponent", 2, true);
+    ref_context.PatchBaseClass("ezLightComponent", 2, true);
 
     pNode->RenameProperty("Inner Spot Angle", "InnerSpotAngle");
     pNode->RenameProperty("Outer Spot Angle", "OuterSpotAngle");

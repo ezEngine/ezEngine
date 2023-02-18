@@ -47,7 +47,7 @@ public:
 
   /// \brief Creates the plane-equation from a set of unreliable points lying on the same plane. Some points might be equal or too close to each other
   /// for the typical algorithm.
-  ezPlaneTemplate(const ezVec3Template<Type>* const pVertices, ezUInt32 iMaxVertices); // [tested]
+  ezPlaneTemplate(const ezVec3Template<Type>* const pVertices, ezUInt32 uiMaxVertices); // [tested]
 
 #if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
   void AssertNotNaN() const
@@ -71,7 +71,7 @@ public:
 
   /// \brief Creates the plane-equation from a set of unreliable points lying on the same plane. Some points might be equal or too close to each other
   /// for the typical algorithm. Returns false, if no reliable set of points could be found. Does try to create a plane anyway.
-  ezResult SetFromPoints(const ezVec3Template<Type>* const pVertices, ezUInt32 iMaxVertices); // [tested]
+  ezResult SetFromPoints(const ezVec3Template<Type>* const pVertices, ezUInt32 uiMaxVertices); // [tested]
 
   /// \brief Creates a plane from two direction vectors that span the plane, and one point on it.
   ezResult SetFromDirections(
@@ -92,10 +92,10 @@ public:
   Type GetMinimumDistanceTo(const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride = sizeof(ezVec3Template<Type>)) const; // [tested]
 
   /// \brief Returns the minimum distance between given box and a plane
-  Type GetMinimumDistanceTo(const ezBoundingBoxTemplate<Type>& Box) const; // [tested]
+  Type GetMinimumDistanceTo(const ezBoundingBoxTemplate<Type>& box) const; // [tested]
 
   /// \brief Returns the maximum distance between given box and a plane
-  Type GetMaximumDistanceTo(const ezBoundingBoxTemplate<Type>& Box) const; // [tested]
+  Type GetMaximumDistanceTo(const ezBoundingBoxTemplate<Type>& box) const; // [tested]
 
   /// \brief Returns the minimum and maximum distance that any of the given points had to the plane.
   ///
@@ -111,16 +111,16 @@ public:
   ezPositionOnPlane::Enum GetPointPosition(const ezVec3Template<Type>& vPoint, Type fPlaneHalfWidth) const; // [tested]
 
   /// \brief Returns on which side of the plane the set of points lies. Might be on both sides.
-  ezPositionOnPlane::Enum GetObjectPosition(const ezVec3Template<Type>* const vPoints, ezUInt32 iVertices) const; // [tested]
+  ezPositionOnPlane::Enum GetObjectPosition(const ezVec3Template<Type>* const pPoints, ezUInt32 uiVertices) const; // [tested]
 
   /// \brief Returns on which side of the plane the set of points lies. Might be on both sides.
-  ezPositionOnPlane::Enum GetObjectPosition(const ezVec3Template<Type>* const vPoints, ezUInt32 iVertices, Type fPlaneHalfWidth) const; // [tested]
+  ezPositionOnPlane::Enum GetObjectPosition(const ezVec3Template<Type>* const pPoints, ezUInt32 uiVertices, Type fPlaneHalfWidth) const; // [tested]
 
   /// \brief Returns on which side of the plane the sphere is located.
-  ezPositionOnPlane::Enum GetObjectPosition(const ezBoundingSphereTemplate<Type>& Sphere) const; // [tested]
+  ezPositionOnPlane::Enum GetObjectPosition(const ezBoundingSphereTemplate<Type>& sphere) const; // [tested]
 
   /// \brief Returns on which side of the plane the box is located.
-  ezPositionOnPlane::Enum GetObjectPosition(const ezBoundingBoxTemplate<Type>& Box) const; // [tested]
+  ezPositionOnPlane::Enum GetObjectPosition(const ezBoundingBoxTemplate<Type>& box) const; // [tested]
 
   /// \brief Projects a point onto a plane (along the planes normal).
   [[nodiscard]] const ezVec3Template<Type> ProjectOntoPlane(const ezVec3Template<Type>& vPoint) const; // [tested]
@@ -172,26 +172,26 @@ public:
   ///
   /// Intersections with \a out_fIntersection less than zero will be discarded and not reported as intersections.
   /// If such intersections are desired, use GetRayIntersectionBiDirectional instead.
-  [[nodiscard]] bool GetRayIntersection(const ezVec3Template<Type>& vRayStartPos, const ezVec3Template<Type>& vRayDir, Type* out_fIntersection = nullptr,
-    ezVec3Template<Type>* out_vIntersection = nullptr) const; // [tested]
+  [[nodiscard]] bool GetRayIntersection(const ezVec3Template<Type>& vRayStartPos, const ezVec3Template<Type>& vRayDir, Type* out_pIntersectionDinstance = nullptr,
+    ezVec3Template<Type>* out_pIntersection = nullptr) const; // [tested]
 
   /// \brief Returns true, if the ray intersects the plane. Intersection time and point are stored in the out-parameters. Allows for intersections at
   /// negative times (shooting into the opposite direction).
   [[nodiscard]] bool GetRayIntersectionBiDirectional(const ezVec3Template<Type>& vRayStartPos, const ezVec3Template<Type>& vRayDir,
-    Type* out_fIntersection = nullptr, ezVec3Template<Type>* out_vIntersection = nullptr) const; // [tested]
+    Type* out_pIntersectionDistance = nullptr, ezVec3Template<Type>* out_pIntersection = nullptr) const; // [tested]
 
   /// \brief Returns true, if there is any intersection with the plane between the line's start and end position. Returns the fraction along the line
   /// and the actual intersection point.
   [[nodiscard]] bool GetLineSegmentIntersection(const ezVec3Template<Type>& vLineStartPos, const ezVec3Template<Type>& vLineEndPos,
-    Type* out_fHitFraction = nullptr, ezVec3Template<Type>* out_vIntersection = nullptr) const; // [tested]
+    Type* out_pHitFraction = nullptr, ezVec3Template<Type>* out_pIntersection = nullptr) const; // [tested]
 
   /// \brief Computes the one point where all three planes intersect. Returns EZ_FAILURE if no such point exists.
-  static ezResult GetPlanesIntersectionPoint(const ezPlaneTemplate<Type>& p0, const ezPlaneTemplate<Type>& p1, const ezPlaneTemplate<Type>& p2, ezVec3Template<Type>& out_Result); // [tested]
+  static ezResult GetPlanesIntersectionPoint(const ezPlaneTemplate<Type>& p0, const ezPlaneTemplate<Type>& p1, const ezPlaneTemplate<Type>& p2, ezVec3Template<Type>& out_vResult); // [tested]
 
   // *** Helper Functions ***
 public:
   /// \brief Returns three points from an unreliable set of points, that reliably form a plane. Returns false, if there are none.
-  static ezResult FindSupportPoints(const ezVec3Template<Type>* const pVertices, ezInt32 iMaxVertices, ezInt32& out_v1, ezInt32& out_v2, ezInt32& out_v3); // [tested]
+  static ezResult FindSupportPoints(const ezVec3Template<Type>* const pVertices, ezInt32 iMaxVertices, ezInt32& out_i1, ezInt32& out_i2, ezInt32& out_i3); // [tested]
 };
 
 /// \brief Checks whether this plane and the other are identical.

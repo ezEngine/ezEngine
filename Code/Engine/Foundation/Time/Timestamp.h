@@ -92,7 +92,7 @@ private:
 };
 
 /// \brief Returns a timestamp that is "timeSpan" further into the future from "timestamp".
-const ezTimestamp operator+(ezTime& timeSpan, const ezTimestamp& timestamp);
+const ezTimestamp operator+(ezTime& ref_timeSpan, const ezTimestamp& timestamp);
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezTimestamp);
 
@@ -194,7 +194,7 @@ private:
   ezUInt8 m_uiSecond;
 };
 
-EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezDateTime& arg);
+EZ_FOUNDATION_DLL ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezDateTime& arg);
 
 struct ezArgDateTime
 {
@@ -227,6 +227,6 @@ struct ezArgDateTime
   ezUInt32 m_uiFormattingFlags;
 };
 
-EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezArgDateTime& arg);
+EZ_FOUNDATION_DLL ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezArgDateTime& arg);
 
 #include <Foundation/Time/Implementation/Timestamp_inl.h>

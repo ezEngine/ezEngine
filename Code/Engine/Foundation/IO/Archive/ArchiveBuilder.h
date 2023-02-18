@@ -46,7 +46,7 @@ public:
   ezResult WriteArchive(ezStringView sFile) const;
 
   /// \brief Writes the previously gathered files to the file stream
-  ezResult WriteArchive(ezStreamWriter& stream) const;
+  ezResult WriteArchive(ezStreamWriter& inout_stream) const;
 
 protected:
   /// Override this to get a callback when the next file is being written to the output. Return 'true' to continue, 'false' to cancel the entire archive generation.

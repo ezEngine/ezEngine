@@ -10,10 +10,10 @@ namespace ezRmlUiInternal
 
   FileInterface::~FileInterface() { EZ_ASSERT_DEV(m_OpenFiles.IsEmpty(), "FileInterface has still open files"); }
 
-  Rml::FileHandle FileInterface::Open(const Rml::String& path)
+  Rml::FileHandle FileInterface::Open(const Rml::String& sPath)
   {
     ezFileReader fileReader;
-    if (fileReader.Open(path.c_str()).Failed())
+    if (fileReader.Open(sPath.c_str()).Failed())
     {
       return 0;
     }
@@ -27,31 +27,31 @@ namespace ezRmlUiInternal
 
   void FileInterface::Close(Rml::FileHandle file) { EZ_VERIFY(m_OpenFiles.Remove(FileId::FromRml(file)), "Invalid file handle {}", file); }
 
-  size_t FileInterface::Read(void* buffer, size_t size, Rml::FileHandle file)
+  size_t FileInterface::Read(void* pBuffer, size_t uiSize, Rml::FileHandle file)
   {
     auto& pOpenFile = m_OpenFiles[FileId::FromRml(file)];
 
-    return static_cast<size_t>(pOpenFile->m_Reader.ReadBytes(buffer, size));
+    return static_cast<size_t>(pOpenFile->m_Reader.ReadBytes(pBuffer, uiSize));
   }
 
-  bool FileInterface::Seek(Rml::FileHandle file, long offset, int origin)
+  bool FileInterface::Seek(Rml::FileHandle file, long iOffset, int iOrigin)
   {
     auto& pOpenFile = m_OpenFiles[FileId::FromRml(file)];
 
     int iNewReadPosition = 0;
     int iEndPosition = static_cast<int>(pOpenFile->m_Reader.GetByteCount32());
 
-    if (origin == SEEK_SET)
+    if (iOrigin == SEEK_SET)
     {
-      iNewReadPosition = offset;
+      iNewReadPosition = iOffset;
     }
-    else if (origin == SEEK_CUR)
+    else if (iOrigin == SEEK_CUR)
     {
-      iNewReadPosition = static_cast<int>(pOpenFile->m_Reader.GetReadPosition() + offset);
+      iNewReadPosition = static_cast<int>(pOpenFile->m_Reader.GetReadPosition() + iOffset);
     }
-    else if (origin == SEEK_END)
+    else if (iOrigin == SEEK_END)
     {
-      iNewReadPosition = iEndPosition + offset;
+      iNewReadPosition = iEndPosition + iOffset;
     }
 
     if (iNewReadPosition >= 0 && iNewReadPosition <= iEndPosition)

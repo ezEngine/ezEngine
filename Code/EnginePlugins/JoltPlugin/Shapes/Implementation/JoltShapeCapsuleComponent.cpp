@@ -36,22 +36,22 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezJoltShapeCapsuleComponent::ezJoltShapeCapsuleComponent() = default;
 ezJoltShapeCapsuleComponent::~ezJoltShapeCapsuleComponent() = default;
 
-void ezJoltShapeCapsuleComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezJoltShapeCapsuleComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
   s << m_fRadius;
   s << m_fHeight;
 }
 
-void ezJoltShapeCapsuleComponent::DeserializeComponent(ezWorldReader& stream)
+void ezJoltShapeCapsuleComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
   s >> m_fRadius;
   s >> m_fHeight;
 }

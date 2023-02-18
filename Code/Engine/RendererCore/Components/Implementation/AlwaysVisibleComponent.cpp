@@ -19,9 +19,9 @@ EZ_END_COMPONENT_TYPE;
 ezAlwaysVisibleComponent::ezAlwaysVisibleComponent() = default;
 ezAlwaysVisibleComponent::~ezAlwaysVisibleComponent() = default;
 
-ezResult ezAlwaysVisibleComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg)
+ezResult ezAlwaysVisibleComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg)
 {
-  bAlwaysVisible = true;
+  ref_bAlwaysVisible = true;
   return EZ_SUCCESS;
 }
 

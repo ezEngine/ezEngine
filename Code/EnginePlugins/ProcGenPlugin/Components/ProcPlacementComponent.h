@@ -102,8 +102,8 @@ struct ezProcGenBoxExtents
   ezQuat m_Rotation = ezQuat::IdentityQuaternion();
   ezVec3 m_vExtents = ezVec3(10);
 
-  ezResult Serialize(ezStreamWriter& stream) const;
-  ezResult Deserialize(ezStreamReader& stream);
+  ezResult Serialize(ezStreamWriter& inout_stream) const;
+  ezResult Deserialize(ezStreamReader& inout_stream);
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_PROCGENPLUGIN_DLL, ezProcGenBoxExtents);
@@ -127,11 +127,11 @@ public:
   void SetResource(const ezProcGenGraphResourceHandle& hResource);
   const ezProcGenGraphResourceHandle& GetResource() const { return m_hResource; }
 
-  void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg);
-  void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
+  void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& ref_msg);
+  void OnMsgExtractRenderData(ezMsgExtractRenderData& ref_msg) const;
 
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
 private:
   ezUInt32 BoxExtents_GetCount() const;

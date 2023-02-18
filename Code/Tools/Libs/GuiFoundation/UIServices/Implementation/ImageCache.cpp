@@ -83,7 +83,7 @@ void ezQtImageCache::InvalidateCache(const char* szAbsolutePath)
 }
 
 const QPixmap* ezQtImageCache::QueryPixmap(
-  const char* szAbsolutePath, QModelIndex index, QVariant UserData1, QVariant UserData2, ezUInt32* out_pImageID)
+  const char* szAbsolutePath, QModelIndex index, QVariant userData1, QVariant userData2, ezUInt32* out_pImageID)
 {
   if (out_pImageID)
     *out_pImageID = 0;
@@ -121,8 +121,8 @@ const QPixmap* ezQtImageCache::QueryPixmap(
   Request r;
   r.m_sPath = sHashed;
   r.m_Index = index;
-  r.m_UserData1 = UserData1;
-  r.m_UserData2 = UserData2;
+  r.m_UserData1 = userData1;
+  r.m_UserData2 = userData2;
 
   // we could / should implement prioritization here
   m_Requests.Insert(r);
@@ -134,14 +134,14 @@ const QPixmap* ezQtImageCache::QueryPixmap(
 
 
 const QPixmap* ezQtImageCache::QueryPixmapForType(const char* szType, const char* szAbsolutePath, QModelIndex index /*= QModelIndex()*/,
-  QVariant UserData1 /*= QVariant()*/, QVariant UserData2 /*= QVariant()*/, ezUInt32* out_pImageID /*= nullptr*/)
+  QVariant userData1 /*= QVariant()*/, QVariant userData2 /*= QVariant()*/, ezUInt32* out_pImageID /*= nullptr*/)
 {
   const QPixmap* pTypeImage = QueryTypeImage(szType);
 
   if (pTypeImage != nullptr)
     return pTypeImage;
 
-  return QueryPixmap(szAbsolutePath, index, UserData1, UserData2, out_pImageID);
+  return QueryPixmap(szAbsolutePath, index, userData1, userData2, out_pImageID);
 }
 
 void ezQtImageCache::RunLoadingTask()

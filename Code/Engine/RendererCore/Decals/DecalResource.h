@@ -40,6 +40,6 @@ public:
   };
 
   virtual ezResourceLoadData OpenDataStream(const ezResource* pResource) override;
-  virtual void CloseDataStream(const ezResource* pResource, const ezResourceLoadData& LoaderData) override;
+  virtual void CloseDataStream(const ezResource* pResource, const ezResourceLoadData& loaderData) override;
   virtual bool IsResourceOutdated(const ezResource* pResource) const override;
 };

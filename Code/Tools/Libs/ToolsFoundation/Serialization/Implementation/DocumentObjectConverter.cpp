@@ -203,11 +203,11 @@ void ezDocumentObjectConverterReader::ApplyPropertiesToObject(const ezAbstractOb
 }
 
 void ezDocumentObjectConverterReader::ApplyDiffToObject(
-  ezObjectAccessorBase* pObjectAccessor, const ezDocumentObject* pObject, ezDeque<ezAbstractGraphDiffOperation>& diff)
+  ezObjectAccessorBase* pObjectAccessor, const ezDocumentObject* pObject, ezDeque<ezAbstractGraphDiffOperation>& ref_diff)
 {
   ezHybridArray<ezAbstractGraphDiffOperation*, 4> change;
 
-  for (auto& op : diff)
+  for (auto& op : ref_diff)
   {
     if (op.m_Operation == ezAbstractGraphDiffOperation::Op::PropertyChanged && pObject->GetGuid() == op.m_Node)
       change.PushBack(&op);
@@ -219,13 +219,13 @@ void ezDocumentObjectConverterReader::ApplyDiffToObject(
     if (!pProp)
       continue;
 
-    ApplyDiff(pObjectAccessor, pObject, pProp, *op, diff);
+    ApplyDiff(pObjectAccessor, pObject, pProp, *op, ref_diff);
   }
 
   // Recurse into owned sub objects (old or new)
   for (const ezDocumentObject* pSubObject : pObject->GetChildren())
   {
-    ApplyDiffToObject(pObjectAccessor, pSubObject, diff);
+    ApplyDiffToObject(pObjectAccessor, pSubObject, ref_diff);
   }
 }
 

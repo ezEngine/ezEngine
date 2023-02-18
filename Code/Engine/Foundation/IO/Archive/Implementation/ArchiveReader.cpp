@@ -99,9 +99,9 @@ ezResult ezArchiveReader::ExtractAllFiles(ezStringView sTargetFolder) const
   return EZ_SUCCESS;
 }
 
-void ezArchiveReader::ConfigureRawMemoryStreamReader(ezUInt32 uiEntryIdx, ezRawMemoryStreamReader& memReader) const
+void ezArchiveReader::ConfigureRawMemoryStreamReader(ezUInt32 uiEntryIdx, ezRawMemoryStreamReader& ref_memReader) const
 {
-  ezArchiveUtils::ConfigureRawMemoryStreamReader(m_ArchiveTOC.m_Entries[uiEntryIdx], m_pDataStart, memReader);
+  ezArchiveUtils::ConfigureRawMemoryStreamReader(m_ArchiveTOC.m_Entries[uiEntryIdx], m_pDataStart, ref_memReader);
 }
 
 ezUniquePtr<ezStreamReader> ezArchiveReader::CreateEntryReader(ezUInt32 uiEntryIdx) const

@@ -106,9 +106,9 @@ ezEngineProcessDocumentContext::~ezEngineProcessDocumentContext()
   m_Context.m_Events.RemoveEventHandler(ezMakeDelegate(&ezEngineProcessDocumentContext::WorldRttiConverterContextEventHandler, this));
 }
 
-void ezEngineProcessDocumentContext::Initialize(const ezUuid& DocumentGuid, const ezVariant& metaData, ezEngineProcessCommunicationChannel* pIPC)
+void ezEngineProcessDocumentContext::Initialize(const ezUuid& documentGuid, const ezVariant& metaData, ezEngineProcessCommunicationChannel* pIPC)
 {
-  m_DocumentGuid = DocumentGuid;
+  m_DocumentGuid = documentGuid;
   m_MetaData = metaData;
   m_pIPC = pIPC;
 

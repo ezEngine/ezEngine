@@ -77,7 +77,7 @@ public:
   void Transform(const ezSimdTransform& transform); // [tested]
 
   /// \brief Transforms the corners of the box and recomputes the aabb of those transformed points.
-  void Transform(const ezSimdMat4f& mat); // [tested]
+  void Transform(const ezSimdMat4f& mMat); // [tested]
 
 
   /// \brief The given point is clamped to the volume of the box, i.e. it will be either inside the box or on its surface and it will have the closest

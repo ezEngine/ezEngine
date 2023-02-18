@@ -236,15 +236,15 @@ class EZ_CORE_DLL ezResourceHandleStreamOperations
 {
 public:
   template <typename ResourceType>
-  static void WriteHandle(ezStreamWriter& Stream, const ezTypedResourceHandle<ResourceType>& hResource)
+  static void WriteHandle(ezStreamWriter& inout_stream, const ezTypedResourceHandle<ResourceType>& hResource)
   {
-    WriteHandle(Stream, hResource.m_hTypeless.m_pResource);
+    WriteHandle(inout_stream, hResource.m_hTypeless.m_pResource);
   }
 
   template <typename ResourceType>
-  static void ReadHandle(ezStreamReader& Stream, ezTypedResourceHandle<ResourceType>& ResourceHandle)
+  static void ReadHandle(ezStreamReader& inout_stream, ezTypedResourceHandle<ResourceType>& ref_hResourceHandle)
   {
-    ReadHandle(Stream, ResourceHandle.m_hTypeless);
+    ReadHandle(inout_stream, ref_hResourceHandle.m_hTypeless);
   }
 
 private:
@@ -254,14 +254,14 @@ private:
 
 /// \brief Operator to serialize resource handles
 template <typename ResourceType>
-void operator<<(ezStreamWriter& Stream, const ezTypedResourceHandle<ResourceType>& Value)
+void operator<<(ezStreamWriter& inout_stream, const ezTypedResourceHandle<ResourceType>& hValue)
 {
-  ezResourceHandleStreamOperations::WriteHandle(Stream, Value);
+  ezResourceHandleStreamOperations::WriteHandle(inout_stream, hValue);
 }
 
 /// \brief Operator to deserialize resource handles
 template <typename ResourceType>
-void operator>>(ezStreamReader& Stream, ezTypedResourceHandle<ResourceType>& Value)
+void operator>>(ezStreamReader& inout_stream, ezTypedResourceHandle<ResourceType>& ref_hValue)
 {
-  ezResourceHandleStreamOperations::ReadHandle(Stream, Value);
+  ezResourceHandleStreamOperations::ReadHandle(inout_stream, ref_hValue);
 }

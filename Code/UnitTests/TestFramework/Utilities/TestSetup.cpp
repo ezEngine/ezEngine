@@ -22,10 +22,10 @@
 int ezTestSetup::s_iArgc = 0;
 const char** ezTestSetup::s_pArgv = nullptr;
 
-ezTestFramework* ezTestSetup::InitTestFramework(const char* szTestName, const char* szNiceTestName, int argc, const char** argv)
+ezTestFramework* ezTestSetup::InitTestFramework(const char* szTestName, const char* szNiceTestName, int iArgc, const char** pArgv)
 {
-  s_iArgc = argc;
-  s_pArgv = argv;
+  s_iArgc = iArgc;
+  s_pArgv = pArgv;
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
   if (FAILED(RoInitialize(RO_INIT_MULTITHREADED)))
@@ -45,12 +45,12 @@ ezTestFramework* ezTestSetup::InitTestFramework(const char* szTestName, const ch
   sTestDataSubFolder.append(szTestName);
 
 #ifdef EZ_USE_QT
-  ezTestFramework* pTestFramework = new ezQtTestFramework(szNiceTestName, sTestFolder.c_str(), sTestDataSubFolder.c_str(), argc, argv);
+  ezTestFramework* pTestFramework = new ezQtTestFramework(szNiceTestName, sTestFolder.c_str(), sTestDataSubFolder.c_str(), iArgc, pArgv);
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
   // Command line args in UWP are handled differently and can't be retrieved from the main function.
   ezTestFramework* pTestFramework = new ezUwpTestFramework(szNiceTestName, sTestFolder.c_str(), sTestDataSubFolder.c_str(), 0, nullptr);
 #else
-  ezTestFramework* pTestFramework = new ezTestFramework(szNiceTestName, sTestFolder.c_str(), sTestDataSubFolder.c_str(), argc, argv);
+  ezTestFramework* pTestFramework = new ezTestFramework(szNiceTestName, sTestFolder.c_str(), sTestDataSubFolder.c_str(), iArgc, pArgv);
 #endif
 
   // Register some output handlers to forward all the messages to the console and to an HTML file

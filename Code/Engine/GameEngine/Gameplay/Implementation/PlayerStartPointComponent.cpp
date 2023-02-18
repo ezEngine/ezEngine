@@ -30,28 +30,28 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezPlayerStartPointComponent::ezPlayerStartPointComponent() = default;
 ezPlayerStartPointComponent::~ezPlayerStartPointComponent() = default;
 
-void ezPlayerStartPointComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezPlayerStartPointComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
-  auto& s = stream.GetStream();
+  SUPER::SerializeComponent(inout_stream);
+  auto& s = inout_stream.GetStream();
 
   s << m_hPlayerPrefab;
 
-  ezPrefabReferenceComponent::SerializePrefabParameters(*GetWorld(), stream, m_Parameters);
+  ezPrefabReferenceComponent::SerializePrefabParameters(*GetWorld(), inout_stream, m_Parameters);
 }
 
-void ezPlayerStartPointComponent::DeserializeComponent(ezWorldReader& stream)
+void ezPlayerStartPointComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s >> m_hPlayerPrefab;
 
   if (uiVersion >= 2)
   {
-    ezPrefabReferenceComponent::DeserializePrefabParameters(m_Parameters, stream);
+    ezPrefabReferenceComponent::DeserializePrefabParameters(m_Parameters, inout_stream);
   }
 }
 
@@ -87,7 +87,7 @@ const ezPrefabResourceHandle& ezPlayerStartPointComponent::GetPlayerPrefab() con
 
 const ezRangeView<const char*, ezUInt32> ezPlayerStartPointComponent::GetParameters() const
 {
-  return ezRangeView<const char*, ezUInt32>([]() -> ezUInt32 { return 0; }, [this]() -> ezUInt32 { return m_Parameters.GetCount(); }, [](ezUInt32& it) { ++it; }, [this](const ezUInt32& it) -> const char* { return m_Parameters.GetKey(it).GetString().GetData(); });
+  return ezRangeView<const char*, ezUInt32>([]() -> ezUInt32 { return 0; }, [this]() -> ezUInt32 { return m_Parameters.GetCount(); }, [](ezUInt32& ref_uiIt) { ++ref_uiIt; }, [this](const ezUInt32& uiIt) -> const char* { return m_Parameters.GetKey(uiIt).GetString().GetData(); });
 }
 
 void ezPlayerStartPointComponent::SetParameter(const char* szKey, const ezVariant& value)

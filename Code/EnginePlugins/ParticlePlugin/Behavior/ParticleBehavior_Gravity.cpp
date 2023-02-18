@@ -45,25 +45,25 @@ void ezParticleBehaviorFactory_Gravity::CopyBehaviorProperties(ezParticleBehavio
   pBehavior->m_pPhysicsModule = (ezPhysicsWorldModuleInterface*)pBehavior->GetOwnerSystem()->GetOwnerWorldModule()->GetCachedWorldModule(ezGetStaticRTTI<ezPhysicsWorldModuleInterface>());
 }
 
-void ezParticleBehaviorFactory_Gravity::Save(ezStreamWriter& stream) const
+void ezParticleBehaviorFactory_Gravity::Save(ezStreamWriter& inout_stream) const
 {
   const ezUInt8 uiVersion = 1;
-  stream << uiVersion;
+  inout_stream << uiVersion;
 
-  stream << m_fGravityFactor;
+  inout_stream << m_fGravityFactor;
 }
 
-void ezParticleBehaviorFactory_Gravity::Load(ezStreamReader& stream)
+void ezParticleBehaviorFactory_Gravity::Load(ezStreamReader& inout_stream)
 {
   ezUInt8 uiVersion = 0;
-  stream >> uiVersion;
+  inout_stream >> uiVersion;
 
-  stream >> m_fGravityFactor;
+  inout_stream >> m_fGravityFactor;
 }
 
-void ezParticleBehaviorFactory_Gravity::QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_FinalizerDeps) const
+void ezParticleBehaviorFactory_Gravity::QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_finalizerDeps) const
 {
-  inout_FinalizerDeps.Insert(ezGetStaticRTTI<ezParticleFinalizerFactory_ApplyVelocity>());
+  inout_finalizerDeps.Insert(ezGetStaticRTTI<ezParticleFinalizerFactory_ApplyVelocity>());
 }
 
 //////////////////////////////////////////////////////////////////////////

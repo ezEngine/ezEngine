@@ -101,6 +101,6 @@ private:
 class EZ_TOOLSFOUNDATION_DLL ezNodeCommands
 {
 public:
-  static ezStatus AddAndConnectCommand(ezCommandHistory* history, const ezRTTI* pConnectionType, const ezPin& sourcePin, const ezPin& targetPin);
-  static ezStatus DisconnectAndRemoveCommand(ezCommandHistory* history, const ezUuid& connectionObject);
+  static ezStatus AddAndConnectCommand(ezCommandHistory* pHistory, const ezRTTI* pConnectionType, const ezPin& sourcePin, const ezPin& targetPin);
+  static ezStatus DisconnectAndRemoveCommand(ezCommandHistory* pHistory, const ezUuid& connectionObject);
 };

@@ -149,15 +149,15 @@ namespace
 ezExpressionCompiler::ezExpressionCompiler() = default;
 ezExpressionCompiler::~ezExpressionCompiler() = default;
 
-ezResult ezExpressionCompiler::Compile(ezExpressionAST& ast, ezExpressionByteCode& out_byteCode, ezStringView sDebugAstOutputPath /*= ezStringView()*/)
+ezResult ezExpressionCompiler::Compile(ezExpressionAST& ref_ast, ezExpressionByteCode& out_byteCode, ezStringView sDebugAstOutputPath /*= ezStringView()*/)
 {
   out_byteCode.Clear();
 
-  EZ_SUCCEED_OR_RETURN(TransformAndOptimizeAST(ast, sDebugAstOutputPath));
-  EZ_SUCCEED_OR_RETURN(BuildNodeInstructions(ast));
-  EZ_SUCCEED_OR_RETURN(UpdateRegisterLifetime(ast));
+  EZ_SUCCEED_OR_RETURN(TransformAndOptimizeAST(ref_ast, sDebugAstOutputPath));
+  EZ_SUCCEED_OR_RETURN(BuildNodeInstructions(ref_ast));
+  EZ_SUCCEED_OR_RETURN(UpdateRegisterLifetime(ref_ast));
   EZ_SUCCEED_OR_RETURN(AssignRegisters());
-  EZ_SUCCEED_OR_RETURN(GenerateByteCode(ast, out_byteCode));
+  EZ_SUCCEED_OR_RETURN(GenerateByteCode(ref_ast, out_byteCode));
 
   return EZ_SUCCESS;
 }

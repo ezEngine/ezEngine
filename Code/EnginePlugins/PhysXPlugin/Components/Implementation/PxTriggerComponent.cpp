@@ -61,23 +61,23 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezPxTriggerComponent::ezPxTriggerComponent() = default;
 ezPxTriggerComponent::~ezPxTriggerComponent() = default;
 
-void ezPxTriggerComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezPxTriggerComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   bool m_bKinematic = false;
   s << m_bKinematic;
   s << m_sTriggerMessage;
 }
 
-void ezPxTriggerComponent::DeserializeComponent(ezWorldReader& stream)
+void ezPxTriggerComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   bool m_bKinematic = false;
   s >> m_bKinematic;

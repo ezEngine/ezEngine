@@ -81,7 +81,7 @@ public:
   ezResult OpenTable(const char* szTable); // [tested]
 
   /// Opens the Table n, that was passed to a C-Function on its Parameter-Stack.
-  ezResult OpenTableFromParameter(ezUInt32 iFunctionParameter); // [tested]
+  ezResult OpenTableFromParameter(ezUInt32 uiFunctionParameter); // [tested]
 
   /// Closes the table that was opened last.
   void CloseTable(); // [tested]
@@ -141,7 +141,7 @@ public:
   void SetVariable(const char* szName, const char* szValue) const; // [tested]
 
   /// Sets the Variable with the given name (in scope) with the given value.
-  void SetVariable(const char* szName, const char* szValue, ezUInt32 len) const; // [tested]
+  void SetVariable(const char* szName, const char* szValue, ezUInt32 uiLen) const; // [tested]
 
   /// @}
 
@@ -149,7 +149,7 @@ public:
   /// @{
 
   /// Registers a C-Function to the Script under a certain Name.
-  void RegisterCFunction(const char* szFunctionName, lua_CFunction pFunction, void* pLightUserData = nullptr) const; // [tested]
+  void RegisterCFunction(const char* szFunctionName, lua_CFunction function, void* pLightUserData = nullptr) const; // [tested]
 
   /// Prepares a function to be called. After that the parameters can be pushed. Returns false if no function with the given name exists in
   /// the scope.
@@ -161,7 +161,7 @@ public:
   /// trigger. After you are finished inspecting the return values, you need to call DiscardReturnValues() to clean them up.
   ///
   /// Returns EZ_FAILURE if anything went wrong during function execution. Reports errors via \a pLogInterface.
-  ezResult CallPreparedFunction(ezUInt32 iExpectedReturnValues = 0, ezLogInterface* pLogInterface = nullptr); // [tested]
+  ezResult CallPreparedFunction(ezUInt32 uiExpectedReturnValues = 0, ezLogInterface* pLogInterface = nullptr); // [tested]
 
   /// Call this after you called a prepared Lua-function, that returned some values. If zero values were returned, this function is
   /// optional.
@@ -203,7 +203,7 @@ public:
 
   /// Pushes a parameter on the stack to be passed to the next function called.
   /// Do this after PrepareFunctionCall() and before CallPreparedFunction().
-  void PushParameter(const char* szParam, ezUInt32 length); // [tested]
+  void PushParameter(const char* szParam, ezUInt32 uiLength); // [tested]
 
   /// Pushes a nil parameter on the stack to be passed to the next function called.
   /// Do this after PrepareFunctionCall() and before CallPreparedFunction().
@@ -221,34 +221,34 @@ public:
   ezUInt32 GetNumberOfFunctionParameters() const; // [tested]
 
   /// Checks the nth Parameter passed to a C-Function for its type.
-  bool IsParameterInt(ezUInt32 iParameter) const; // [tested]
+  bool IsParameterInt(ezUInt32 uiParameter) const; // [tested]
 
   /// Checks the nth Parameter passed to a C-Function for its type.
-  bool IsParameterBool(ezUInt32 iParameter) const; // [tested]
+  bool IsParameterBool(ezUInt32 uiParameter) const; // [tested]
 
   /// Checks the nth Parameter passed to a C-Function for its type.
-  bool IsParameterFloat(ezUInt32 iParameter) const; // [tested]
+  bool IsParameterFloat(ezUInt32 uiParameter) const; // [tested]
 
   /// Checks the nth Parameter passed to a C-Function for its type.
-  bool IsParameterTable(ezUInt32 iParameter) const; // [tested]
+  bool IsParameterTable(ezUInt32 uiParameter) const; // [tested]
 
   /// Checks the nth Parameter passed to a C-Function for its type.
-  bool IsParameterString(ezUInt32 iParameter) const; // [tested]
+  bool IsParameterString(ezUInt32 uiParameter) const; // [tested]
 
   /// Checks the nth Parameter passed to a C-Function for its type.
-  bool IsParameterNil(ezUInt32 iParameter) const; // [tested]
+  bool IsParameterNil(ezUInt32 uiParameter) const; // [tested]
 
   /// Returns the Value of the nth Parameter.
-  int GetIntParameter(ezUInt32 iParameter) const; // [tested]
+  int GetIntParameter(ezUInt32 uiParameter) const; // [tested]
 
   /// Returns the Value of the nth Parameter.
-  bool GetBoolParameter(ezUInt32 iParameter) const; // [tested]
+  bool GetBoolParameter(ezUInt32 uiParameter) const; // [tested]
 
   /// Returns the Value of the nth Parameter.
-  float GetFloatParameter(ezUInt32 iParameter) const; // [tested]
+  float GetFloatParameter(ezUInt32 uiParameter) const; // [tested]
 
   /// Returns the Value of the nth Parameter.
-  const char* GetStringParameter(ezUInt32 iParameter) const; // [tested]
+  const char* GetStringParameter(ezUInt32 uiParameter) const; // [tested]
 
   /// @}
 
@@ -268,39 +268,39 @@ public:
   void PushReturnValue(const char* szParam); // [tested]
 
   /// Pushes a value as a return value for a called C-Function
-  void PushReturnValue(const char* szParam, ezUInt32 length); // [tested]
+  void PushReturnValue(const char* szParam, ezUInt32 uiLength); // [tested]
 
   /// Pushes a value as a return value for a called C-Function
   void PushReturnValueNil(); // [tested]
 
 
   /// Checks the nth return-value passed to a C-Function for its type.
-  bool IsReturnValueInt(ezUInt32 iReturnValue) const; // [tested]
+  bool IsReturnValueInt(ezUInt32 uiReturnValue) const; // [tested]
 
   /// Checks the nth return-value passed to a C-Function for its type.
-  bool IsReturnValueBool(ezUInt32 iReturnValue) const; // [tested]
+  bool IsReturnValueBool(ezUInt32 uiReturnValue) const; // [tested]
 
   /// Checks the nth return-value passed to a C-Function for its type.
-  bool IsReturnValueFloat(ezUInt32 iReturnValue) const; // [tested]
+  bool IsReturnValueFloat(ezUInt32 uiReturnValue) const; // [tested]
 
   /// Checks the nth return-value passed to a C-Function for its type.
-  bool IsReturnValueString(ezUInt32 iReturnValue) const; // [tested]
+  bool IsReturnValueString(ezUInt32 uiReturnValue) const; // [tested]
 
   /// Checks the nth return-value passed to a C-Function for its type.
-  bool IsReturnValueNil(ezUInt32 iReturnValue) const; // [tested]
+  bool IsReturnValueNil(ezUInt32 uiReturnValue) const; // [tested]
 
 
   /// Returns the value of the nth return-value.
-  int GetIntReturnValue(ezUInt32 iReturnValue) const; // [tested]
+  int GetIntReturnValue(ezUInt32 uiReturnValue) const; // [tested]
 
   /// Returns the value of the nth return-value.
-  bool GetBoolReturnValue(ezUInt32 iReturnValue) const; // [tested]
+  bool GetBoolReturnValue(ezUInt32 uiReturnValue) const; // [tested]
 
   /// Returns the value of the nth return-value.
-  float GetFloatReturnValue(ezUInt32 iReturnValue) const; // [tested]
+  float GetFloatReturnValue(ezUInt32 uiReturnValue) const; // [tested]
 
   /// Returns the value of the nth return-value.
-  const char* GetStringReturnValue(ezUInt32 iReturnValue) const; // [tested]
+  const char* GetStringReturnValue(ezUInt32 uiReturnValue) const; // [tested]
 
   /// @}
 

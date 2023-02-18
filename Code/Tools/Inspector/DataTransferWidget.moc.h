@@ -14,7 +14,7 @@ public:
   Q_OBJECT
 
 public:
-  ezQtDataWidget(QWidget* parent = 0);
+  ezQtDataWidget(QWidget* pParent = 0);
 
   static ezQtDataWidget* s_pWidget;
 

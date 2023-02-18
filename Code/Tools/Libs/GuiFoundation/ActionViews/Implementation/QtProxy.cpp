@@ -88,10 +88,10 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, QtProxies)
 EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
-bool ezQtProxy::TriggerDocumentAction(ezDocument* pDocument, QKeyEvent* event)
+bool ezQtProxy::TriggerDocumentAction(ezDocument* pDocument, QKeyEvent* pEvent)
 {
-  auto CheckActions = [](QKeyEvent* event, ezMap<ezActionDescriptorHandle, QWeakPointer<ezQtProxy>>& actions) -> bool {
-    for (auto weakActionProxy : actions)
+  auto CheckActions = [](QKeyEvent* pEvent, ezMap<ezActionDescriptorHandle, QWeakPointer<ezQtProxy>>& ref_actions) -> bool {
+    for (auto weakActionProxy : ref_actions)
     {
       if (auto pProxy = weakActionProxy.Value().toStrongRef())
       {
@@ -108,10 +108,10 @@ bool ezQtProxy::TriggerDocumentAction(ezDocument* pDocument, QKeyEvent* event)
         if (pQAction)
         {
           QKeySequence ks = pQAction->shortcut();
-          if (pQAction->isEnabled() && QKeySequence(event->key() | event->modifiers()) == ks)
+          if (pQAction->isEnabled() && QKeySequence(pEvent->key() | pEvent->modifiers()) == ks)
           {
             pQAction->trigger();
-            event->accept();
+            pEvent->accept();
             return true;
           }
         }
@@ -123,27 +123,27 @@ bool ezQtProxy::TriggerDocumentAction(ezDocument* pDocument, QKeyEvent* event)
   if (pDocument)
   {
     ezMap<ezActionDescriptorHandle, QWeakPointer<ezQtProxy>>& actions = s_DocumentActions[pDocument];
-    if (CheckActions(event, actions))
+    if (CheckActions(pEvent, actions))
       return true;
   }
-  return CheckActions(event, s_GlobalActions);
+  return CheckActions(pEvent, s_GlobalActions);
 }
 
 ezRttiMappedObjectFactory<ezQtProxy>& ezQtProxy::GetFactory()
 {
   return s_Factory;
 }
-QSharedPointer<ezQtProxy> ezQtProxy::GetProxy(ezActionContext& context, ezActionDescriptorHandle hDesc)
+QSharedPointer<ezQtProxy> ezQtProxy::GetProxy(ezActionContext& ref_context, ezActionDescriptorHandle hDesc)
 {
   QSharedPointer<ezQtProxy> pProxy;
   const ezActionDescriptor* pDesc = hDesc.GetDescriptor();
   if (pDesc->m_Type != ezActionType::Action && pDesc->m_Type != ezActionType::ActionAndMenu)
   {
-    auto pAction = pDesc->CreateAction(context);
+    auto pAction = pDesc->CreateAction(ref_context);
     pProxy = QSharedPointer<ezQtProxy>(ezQtProxy::GetFactory().CreateObject(pAction->GetDynamicRTTI()));
     EZ_ASSERT_DEBUG(pProxy != nullptr, "No proxy assigned to action '{0}'", pDesc->m_sActionName);
     pProxy->SetAction(pAction);
-    EZ_ASSERT_DEV(pProxy->GetAction()->GetContext().m_pDocument == context.m_pDocument, "invalid document pointer");
+    EZ_ASSERT_DEV(pProxy->GetAction()->GetContext().m_pDocument == ref_context.m_pDocument, "invalid document pointer");
     return pProxy;
   }
 
@@ -155,7 +155,7 @@ QSharedPointer<ezQtProxy> ezQtProxy::GetProxy(ezActionContext& context, ezAction
       QWeakPointer<ezQtProxy> pTemp = s_GlobalActions[hDesc];
       if (pTemp.isNull())
       {
-        auto pAction = pDesc->CreateAction(context);
+        auto pAction = pDesc->CreateAction(ref_context);
         pProxy = QSharedPointer<ezQtProxy>(ezQtProxy::GetFactory().CreateObject(pAction->GetDynamicRTTI()));
         EZ_ASSERT_DEBUG(pProxy != nullptr, "No proxy assigned to action '{0}'", pDesc->m_sActionName);
         pProxy->SetAction(pAction);
@@ -171,12 +171,12 @@ QSharedPointer<ezQtProxy> ezQtProxy::GetProxy(ezActionContext& context, ezAction
 
     case ezActionScope::Document:
     {
-      const ezDocument* pDocument = context.m_pDocument; // may be null
+      const ezDocument* pDocument = ref_context.m_pDocument; // may be null
 
       QWeakPointer<ezQtProxy> pTemp = s_DocumentActions[pDocument][hDesc];
       if (pTemp.isNull())
       {
-        auto pAction = pDesc->CreateAction(context);
+        auto pAction = pDesc->CreateAction(ref_context);
         pProxy = QSharedPointer<ezQtProxy>(ezQtProxy::GetFactory().CreateObject(pAction->GetDynamicRTTI()));
         EZ_ASSERT_DEBUG(pProxy != nullptr, "No proxy assigned to action '{0}'", pDesc->m_sActionName);
         pProxy->SetAction(pAction);
@@ -193,15 +193,15 @@ QSharedPointer<ezQtProxy> ezQtProxy::GetProxy(ezActionContext& context, ezAction
     case ezActionScope::Window:
     {
       bool bExisted = true;
-      auto it = s_WindowActions.FindOrAdd(context.m_pWindow, &bExisted);
+      auto it = s_WindowActions.FindOrAdd(ref_context.m_pWindow, &bExisted);
       if (!bExisted)
       {
-        s_pSignalProxy->connect(context.m_pWindow, &QObject::destroyed, s_pSignalProxy, [=]() { s_WindowActions.Remove(context.m_pWindow); });
+        s_pSignalProxy->connect(ref_context.m_pWindow, &QObject::destroyed, s_pSignalProxy, [ref_context]() { s_WindowActions.Remove(ref_context.m_pWindow); });
       }
       QWeakPointer<ezQtProxy> pTemp = it.Value()[hDesc];
       if (pTemp.isNull())
       {
-        auto pAction = pDesc->CreateAction(context);
+        auto pAction = pDesc->CreateAction(ref_context);
         pProxy = QSharedPointer<ezQtProxy>(ezQtProxy::GetFactory().CreateObject(pAction->GetDynamicRTTI()));
         EZ_ASSERT_DEBUG(pProxy != nullptr, "No proxy assigned to action '{0}'", pDesc->m_sActionName);
         pProxy->SetAction(pAction);
@@ -223,7 +223,7 @@ QSharedPointer<ezQtProxy> ezQtProxy::GetProxy(ezActionContext& context, ezAction
     ezAction* pAction = pProxy->GetAction();
     const ezActionContext& ctxt = pAction->GetContext();
     ezDocument* pDoc = ctxt.m_pDocument;
-    EZ_ASSERT_DEV(pDoc == context.m_pDocument, "invalid document pointer");
+    EZ_ASSERT_DEV(pDoc == ref_context.m_pDocument, "invalid document pointer");
   }
   return pProxy;
 }
@@ -341,22 +341,22 @@ void ezQtButtonProxy::Update()
 }
 
 
-void SetupQAction(ezAction* pAction, QPointer<QAction>& pQtAction, QObject* pTarget)
+void SetupQAction(ezAction* pAction, QPointer<QAction>& ref_pQtAction, QObject* pTarget)
 {
   ezActionDescriptorHandle hDesc = pAction->GetDescriptorHandle();
   const ezActionDescriptor* pDesc = hDesc.GetDescriptor();
 
-  if (pQtAction == nullptr)
+  if (ref_pQtAction == nullptr)
   {
-    pQtAction = new QAction(nullptr);
-    EZ_VERIFY(QObject::connect(pQtAction, SIGNAL(triggered(bool)), pTarget, SLOT(OnTriggered())) != nullptr, "connection failed");
+    ref_pQtAction = new QAction(nullptr);
+    EZ_VERIFY(QObject::connect(ref_pQtAction, SIGNAL(triggered(bool)), pTarget, SLOT(OnTriggered())) != nullptr, "connection failed");
 
     switch (pDesc->m_Scope)
     {
       case ezActionScope::Global:
       {
         // Parent is null so the global actions don't get deleted.
-        pQtAction->setShortcutContext(Qt::ShortcutContext::ApplicationShortcut);
+        ref_pQtAction->setShortcutContext(Qt::ShortcutContext::ApplicationShortcut);
       }
       break;
       case ezActionScope::Document:
@@ -364,14 +364,14 @@ void SetupQAction(ezAction* pAction, QPointer<QAction>& pQtAction, QObject* pTar
         // Parent is set to the window belonging to the document.
         ezQtDocumentWindow* pWindow = ezQtDocumentWindow::FindWindowByDocument(pAction->GetContext().m_pDocument);
         EZ_ASSERT_DEBUG(pWindow != nullptr, "You can't map a ezActionScope::Document action without that document existing!");
-        pQtAction->setParent(pWindow);
-        pQtAction->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
+        ref_pQtAction->setParent(pWindow);
+        ref_pQtAction->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
       }
       break;
       case ezActionScope::Window:
       {
-        pQtAction->setParent(pAction->GetContext().m_pWindow);
-        pQtAction->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
+        ref_pQtAction->setParent(pAction->GetContext().m_pWindow);
+        ref_pQtAction->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
       }
       break;
     }
@@ -573,13 +573,13 @@ void ezQtDynamicActionAndMenuProxy::StatusUpdateEventHandler(ezAction* pAction)
 //////////////////// ezQtSliderProxy /////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-ezQtSliderWidgetAction::ezQtSliderWidgetAction(QWidget* parent)
-  : QWidgetAction(parent)
+ezQtSliderWidgetAction::ezQtSliderWidgetAction(QWidget* pParent)
+  : QWidgetAction(pParent)
 {
 }
 
-ezQtLabeledSlider::ezQtLabeledSlider(QWidget* parent)
-  : QWidget(parent)
+ezQtLabeledSlider::ezQtLabeledSlider(QWidget* pParent)
+  : QWidget(pParent)
 {
   m_pLabel = new QLabel(this);
   m_pSlider = new QSlider(this);

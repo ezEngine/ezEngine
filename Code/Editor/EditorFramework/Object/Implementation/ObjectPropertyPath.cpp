@@ -6,7 +6,7 @@
 #include <ToolsFoundation/Object/DocumentObjectVisitor.h>
 
 ezStatus ezObjectPropertyPath::CreatePath(const ezObjectPropertyPathContext& context, const ezPropertyReference& prop,
-  ezStringBuilder& sObjectSearchSequence, ezStringBuilder& sComponentType, ezStringBuilder& sPropertyPath)
+  ezStringBuilder& ref_sObjectSearchSequence, ezStringBuilder& ref_sComponentType, ezStringBuilder& ref_sPropertyPath)
 {
   EZ_ASSERT_DEV(context.m_pAccessor && context.m_pContextObject && !context.m_sRootProperty.IsEmpty(), "All context fields must be valid.");
   const ezRTTI* pObjType = ezGetStaticRTTI<ezGameObject>();
@@ -24,17 +24,17 @@ ezStatus ezObjectPropertyPath::CreatePath(const ezObjectPropertyPathContext& con
       return ezStatus("No parent node or component found.");
     ezObjectPropertyPathContext context2 = context;
     context2.m_pContextObject = pObject;
-    ezStatus res = CreatePropertyPath(context2, prop, sPropertyPath);
+    ezStatus res = CreatePropertyPath(context2, prop, ref_sPropertyPath);
     if (res.Failed())
       return res;
   }
 
   {
     // Component part
-    sComponentType.Clear();
+    ref_sComponentType.Clear();
     if (pObject->GetType()->IsDerivedFrom(ezGetStaticRTTI<ezComponent>()))
     {
-      sComponentType = pObject->GetType()->GetTypeName();
+      ref_sComponentType = pObject->GetType()->GetTypeName();
       pObject = pObject->GetParent();
     }
   }
@@ -44,9 +44,9 @@ ezStatus ezObjectPropertyPath::CreatePath(const ezObjectPropertyPathContext& con
   {
     if (pObject == nullptr)
     {
-      sObjectSearchSequence.Clear();
-      sComponentType.Clear();
-      sPropertyPath.Clear();
+      ref_sObjectSearchSequence.Clear();
+      ref_sComponentType.Clear();
+      ref_sPropertyPath.Clear();
       return ezStatus("Property is not under the given context object, no path exists.");
     }
 
@@ -55,16 +55,16 @@ ezStatus ezObjectPropertyPath::CreatePath(const ezObjectPropertyPathContext& con
       ezString sName = context.m_pAccessor->Get<ezString>(pObject, pName);
       if (!sName.IsEmpty())
       {
-        if (!sObjectSearchSequence.IsEmpty())
-          sObjectSearchSequence.Prepend("/");
-        sObjectSearchSequence.Prepend(sName);
+        if (!ref_sObjectSearchSequence.IsEmpty())
+          ref_sObjectSearchSequence.Prepend("/");
+        ref_sObjectSearchSequence.Prepend(sName);
       }
     }
     else
     {
-      sObjectSearchSequence.Clear();
-      sComponentType.Clear();
-      sPropertyPath.Clear();
+      ref_sObjectSearchSequence.Clear();
+      ref_sComponentType.Clear();
+      ref_sPropertyPath.Clear();
       return ezStatus(ezFmt("Only ezGameObject objects should be found in the hierarchy, found '{0}' instead.", pObject->GetType()->GetTypeName()));
     }
 
@@ -97,11 +97,11 @@ ezStatus ezObjectPropertyPath::CreatePropertyPath(
   return ezStatus(EZ_SUCCESS);
 }
 
-ezStatus ezObjectPropertyPath::ResolvePath(const ezObjectPropertyPathContext& context, ezHybridArray<ezPropertyReference, 1>& keys,
+ezStatus ezObjectPropertyPath::ResolvePath(const ezObjectPropertyPathContext& context, ezHybridArray<ezPropertyReference, 1>& ref_keys,
   const char* szObjectSearchSequence, const char* szComponentType, const char* szPropertyPath)
 {
   EZ_ASSERT_DEV(context.m_pAccessor && context.m_pContextObject && !context.m_sRootProperty.IsEmpty(), "All context fields must be valid.");
-  keys.Clear();
+  ref_keys.Clear();
   const ezDocumentObject* pContext = context.m_pContextObject;
   ezDocumentObjectVisitor visitor(context.m_pAccessor->GetObjectManager(), "Children", context.m_sRootProperty);
   ezHybridArray<const ezDocumentObject*, 8> input;
@@ -169,7 +169,7 @@ ezStatus ezObjectPropertyPath::ResolvePath(const ezObjectPropertyPathContext& co
     ezStatus res = ResolvePropertyPath(context2, szPropertyPath, key);
     if (res.Succeeded())
     {
-      keys.PushBack(key);
+      ref_keys.PushBack(key);
     }
   }
   return ezStatus(EZ_SUCCESS);

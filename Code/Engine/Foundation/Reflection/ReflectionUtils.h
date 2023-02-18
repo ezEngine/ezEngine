@@ -26,8 +26,8 @@ public:
   ///
   /// vector's type needs to be in between ezVariant::Type::Vector2 and ezVariant::Type::Vector4U.
   static ezUInt32 GetComponentCount(ezVariantType::Enum type);
-  static void SetComponent(ezVariant& vector, ezUInt32 iComponent, double fValue); // [tested]
-  static double GetComponent(const ezVariant& vector, ezUInt32 iComponent);
+  static void SetComponent(ezVariant& ref_vector, ezUInt32 uiComponent, double fValue); // [tested]
+  static double GetComponent(const ezVariant& vector, ezUInt32 uiComponent);
 
   static ezVariant GetMemberPropertyValue(const ezAbstractMemberProperty* pProp, const void* pObject);        // [tested] via ToolsFoundation
   static void SetMemberPropertyValue(ezAbstractMemberProperty* pProp, void* pObject, const ezVariant& value); // [tested] via ToolsFoundation
@@ -107,7 +107,7 @@ public:
   };
 
   /// \brief If the given type is an enum, \a entries will be filled with all available keys (strings) and values (integers).
-  static void GetEnumKeysAndValues(const ezRTTI* pEnumerationRtti, ezDynamicArray<EnumKeyValuePair>& entries, ezEnum<EnumConversionMode> conversionMode = EnumConversionMode::Default);
+  static void GetEnumKeysAndValues(const ezRTTI* pEnumerationRtti, ezDynamicArray<EnumKeyValuePair>& ref_entries, ezEnum<EnumConversionMode> conversionMode = EnumConversionMode::Default);
 
   /// \brief Converts an enum or bitfield in its string representation to its value.
   ///
@@ -116,11 +116,11 @@ public:
 
   /// \brief Helper template to shorten the call for ezEnums
   template <typename T>
-  static bool StringToEnumeration(const char* szValue, ezEnum<T>& out_iValue)
+  static bool StringToEnumeration(const char* szValue, ezEnum<T>& out_value)
   {
     ezInt64 value;
     const auto retval = StringToEnumeration(ezGetStaticRTTI<T>(), szValue, value);
-    out_iValue = static_cast<typename T::Enum>(value);
+    out_value = static_cast<typename T::Enum>(value);
     return retval;
   }
 

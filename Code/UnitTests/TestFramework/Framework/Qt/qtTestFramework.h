@@ -11,7 +11,7 @@ class EZ_TEST_DLL ezQtTestFramework : public QObject, public ezTestFramework
 {
   Q_OBJECT
 public:
-  ezQtTestFramework(const char* szTestName, const char* szAbsTestDir, const char* szRelTestDataDir, int argc, const char** argv);
+  ezQtTestFramework(const char* szTestName, const char* szAbsTestDir, const char* szRelTestDataDir, int iArgc, const char** pArgv);
   virtual ~ezQtTestFramework();
 
 private:
@@ -19,7 +19,7 @@ private:
   void operator=(ezQtTestFramework&);
 
 Q_SIGNALS:
-  void TestResultReceived(qint32 iTestIndex, qint32 iSubTestIndex);
+  void TestResultReceived(qint32 testIndex, qint32 subTestIndex);
 
 protected:
   virtual void OutputImpl(ezTestOutput::Enum Type, const char* szMsg) override;

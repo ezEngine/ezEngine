@@ -92,41 +92,41 @@ const ezBoundingBoxTemplate<Type> ezBoundingSphereTemplate<Type>::GetBoundingBox
 
 
 template <typename Type>
-ezPositionOnPlane::Enum ezPlaneTemplate<Type>::GetObjectPosition(const ezBoundingSphereTemplate<Type>& Sphere) const
+ezPositionOnPlane::Enum ezPlaneTemplate<Type>::GetObjectPosition(const ezBoundingSphereTemplate<Type>& sphere) const
 {
-  const Type fDist = GetDistanceTo(Sphere.m_vCenter);
+  const Type fDist = GetDistanceTo(sphere.m_vCenter);
 
-  if (fDist >= Sphere.m_fRadius)
+  if (fDist >= sphere.m_fRadius)
     return ezPositionOnPlane::Front;
 
-  if (-fDist >= Sphere.m_fRadius)
+  if (-fDist >= sphere.m_fRadius)
     return ezPositionOnPlane::Back;
 
   return ezPositionOnPlane::Spanning;
 }
 
 template <typename Type>
-ezPositionOnPlane::Enum ezPlaneTemplate<Type>::GetObjectPosition(const ezBoundingBoxTemplate<Type>& Box) const
+ezPositionOnPlane::Enum ezPlaneTemplate<Type>::GetObjectPosition(const ezBoundingBoxTemplate<Type>& box) const
 {
-  ezVec3Template<Type> vPos = Box.m_vMin;
-  ezVec3Template<Type> vNeg = Box.m_vMax;
+  ezVec3Template<Type> vPos = box.m_vMin;
+  ezVec3Template<Type> vNeg = box.m_vMax;
 
   if (m_vNormal.x >= (Type)0)
   {
-    vPos.x = Box.m_vMax.x;
-    vNeg.x = Box.m_vMin.x;
+    vPos.x = box.m_vMax.x;
+    vNeg.x = box.m_vMin.x;
   }
 
   if (m_vNormal.y >= (Type)0)
   {
-    vPos.y = Box.m_vMax.y;
-    vNeg.y = Box.m_vMin.y;
+    vPos.y = box.m_vMax.y;
+    vNeg.y = box.m_vMin.y;
   }
 
   if (m_vNormal.z >= (Type)0)
   {
-    vPos.z = Box.m_vMax.z;
-    vNeg.z = Box.m_vMin.z;
+    vPos.z = box.m_vMax.z;
+    vNeg.z = box.m_vMin.z;
   }
 
   if (GetDistanceTo(vPos) <= (Type)0)
@@ -139,46 +139,46 @@ ezPositionOnPlane::Enum ezPlaneTemplate<Type>::GetObjectPosition(const ezBoundin
 }
 
 template <typename Type>
-Type ezPlaneTemplate<Type>::GetMinimumDistanceTo(const ezBoundingBoxTemplate<Type>& Box) const
+Type ezPlaneTemplate<Type>::GetMinimumDistanceTo(const ezBoundingBoxTemplate<Type>& box) const
 {
-  ezVec3Template<Type> vNeg = Box.m_vMax;
+  ezVec3Template<Type> vNeg = box.m_vMax;
 
   if (m_vNormal.x >= (Type)0)
   {
-    vNeg.x = Box.m_vMin.x;
+    vNeg.x = box.m_vMin.x;
   }
 
   if (m_vNormal.y >= (Type)0)
   {
-    vNeg.y = Box.m_vMin.y;
+    vNeg.y = box.m_vMin.y;
   }
 
   if (m_vNormal.z >= (Type)0)
   {
-    vNeg.z = Box.m_vMin.z;
+    vNeg.z = box.m_vMin.z;
   }
 
   return GetDistanceTo(vNeg);
 }
 
 template <typename Type>
-Type ezPlaneTemplate<Type>::GetMaximumDistanceTo(const ezBoundingBoxTemplate<Type>& Box) const
+Type ezPlaneTemplate<Type>::GetMaximumDistanceTo(const ezBoundingBoxTemplate<Type>& box) const
 {
-  ezVec3Template<Type> vPos = Box.m_vMin;
+  ezVec3Template<Type> vPos = box.m_vMin;
 
   if (m_vNormal.x >= (Type)0)
   {
-    vPos.x = Box.m_vMax.x;
+    vPos.x = box.m_vMax.x;
   }
 
   if (m_vNormal.y >= (Type)0)
   {
-    vPos.y = Box.m_vMax.y;
+    vPos.y = box.m_vMax.y;
   }
 
   if (m_vNormal.z >= (Type)0)
   {
-    vPos.z = Box.m_vMax.z;
+    vPos.z = box.m_vMax.z;
   }
 
   return GetDistanceTo(vPos);

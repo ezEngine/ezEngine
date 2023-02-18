@@ -117,27 +117,27 @@ ezResult ezCollisionFilterConfig::Load(const char* szFile)
   return EZ_SUCCESS;
 }
 
-void ezCollisionFilterConfig::Save(ezStreamWriter& stream) const
+void ezCollisionFilterConfig::Save(ezStreamWriter& inout_stream) const
 {
   const ezUInt8 uiVersion = 1;
 
-  stream << uiVersion;
+  inout_stream << uiVersion;
 
-  stream.WriteBytes(m_GroupMasks, sizeof(ezUInt32) * 32).IgnoreResult();
-  stream.WriteBytes(m_GroupNames, sizeof(char) * 32 * 32).IgnoreResult();
+  inout_stream.WriteBytes(m_GroupMasks, sizeof(ezUInt32) * 32).IgnoreResult();
+  inout_stream.WriteBytes(m_GroupNames, sizeof(char) * 32 * 32).IgnoreResult();
 }
 
 
-void ezCollisionFilterConfig::Load(ezStreamReader& stream)
+void ezCollisionFilterConfig::Load(ezStreamReader& inout_stream)
 {
   ezUInt8 uiVersion = 0;
 
-  stream >> uiVersion;
+  inout_stream >> uiVersion;
 
   EZ_ASSERT_DEV(uiVersion == 1, "Invalid version {0} for ezCollisionFilterConfig file", uiVersion);
 
-  stream.ReadBytes(m_GroupMasks, sizeof(ezUInt32) * 32);
-  stream.ReadBytes(m_GroupNames, sizeof(char) * 32 * 32);
+  inout_stream.ReadBytes(m_GroupMasks, sizeof(ezUInt32) * 32);
+  inout_stream.ReadBytes(m_GroupNames, sizeof(char) * 32 * 32);
 }
 
 

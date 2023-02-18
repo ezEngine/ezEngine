@@ -18,15 +18,15 @@ ezCVarBool cvar_PhysicsReactionsVisDiscardedImpacts("PhysX.Reactions.VisDiscarde
 ezCVarBool cvar_PhysicsReactionsVisSlides("PhysX.Reactions.VisSlides", false, ezCVarFlags::Default, "Visualize active slide reactions.");
 ezCVarBool cvar_PhysicsReactionsVisRolls("PhysX.Reactions.VisRolls", false, ezCVarFlags::Default, "Visualize active roll reactions.");
 
-void ezPxSimulationEventCallback::onConstraintBreak(PxConstraintInfo* constraints, PxU32 count)
+void ezPxSimulationEventCallback::onConstraintBreak(PxConstraintInfo* pConstraints, PxU32 count)
 {
   for (ezUInt32 i = 0; i < count; ++i)
   {
-    m_BrokenConstraints.PushBack(constraints[i].constraint);
+    m_BrokenConstraints.PushBack(pConstraints[i].constraint);
   }
 }
 
-void ezPxSimulationEventCallback::onContact(const PxContactPairHeader& pairHeader, const PxContactPair* pairs, PxU32 nbPairs)
+void ezPxSimulationEventCallback::onContact(const PxContactPairHeader& pairHeader, const PxContactPair* pPairs, PxU32 pairs)
 {
   if (pairHeader.flags & (PxContactPairHeaderFlag::eREMOVED_ACTOR_0 | PxContactPairHeaderFlag::eREMOVED_ACTOR_1))
   {
@@ -37,9 +37,9 @@ void ezPxSimulationEventCallback::onContact(const PxContactPairHeader& pairHeade
 
   bool bSendContactReport = false;
 
-  for (ezUInt32 uiPairIndex = 0; uiPairIndex < nbPairs; ++uiPairIndex)
+  for (ezUInt32 uiPairIndex = 0; uiPairIndex < pairs; ++uiPairIndex)
   {
-    const PxContactPair& pair = pairs[uiPairIndex];
+    const PxContactPair& pair = pPairs[uiPairIndex];
 
     if (pair.flags & (PxContactPairFlag::eREMOVED_SHAPE_0 | PxContactPairFlag::eREMOVED_SHAPE_1))
       continue;
@@ -88,11 +88,11 @@ void ezPxSimulationEventCallback::onContact(const PxContactPairHeader& pairHeade
 
   if (bSendContactReport)
   {
-    SendContactReport(pairHeader, pairs, nbPairs);
+    SendContactReport(pairHeader, pPairs, pairs);
   }
 }
 
-void ezPxSimulationEventCallback::SendContactReport(const PxContactPairHeader& pairHeader, const PxContactPair* pairs, PxU32 nbPairs)
+void ezPxSimulationEventCallback::SendContactReport(const PxContactPairHeader& pairHeader, const PxContactPair* pPairs, PxU32 pairs)
 {
   ezMsgCollision msg;
   msg.m_vPosition.SetZero();
@@ -101,9 +101,9 @@ void ezPxSimulationEventCallback::SendContactReport(const PxContactPairHeader& p
 
   float fNumContactPoints = 0.0f;
 
-  for (ezUInt32 uiPairIndex = 0; uiPairIndex < nbPairs; ++uiPairIndex)
+  for (ezUInt32 uiPairIndex = 0; uiPairIndex < pairs; ++uiPairIndex)
   {
-    const PxContactPair& pair = pairs[uiPairIndex];
+    const PxContactPair& pair = pPairs[uiPairIndex];
 
     PxContactPairPoint contactPointBuffer[16];
     ezUInt32 uiNumContactPoints = pair.extractContacts(contactPointBuffer, 16);
@@ -161,11 +161,11 @@ void ezPxSimulationEventCallback::SendContactReport(const PxContactPairHeader& p
   }
 }
 
-void ezPxSimulationEventCallback::onTrigger(PxTriggerPair* pairs, PxU32 count)
+void ezPxSimulationEventCallback::onTrigger(PxTriggerPair* pPairs, PxU32 count)
 {
   for (ezUInt32 i = 0; i < count; ++i)
   {
-    auto& pair = pairs[i];
+    auto& pair = pPairs[i];
 
     if (pair.flags & (PxTriggerPairFlag::eREMOVED_SHAPE_TRIGGER | PxTriggerPairFlag::eREMOVED_SHAPE_OTHER))
     {
@@ -362,9 +362,9 @@ void ezPhysXWorldModule::UpdatePhysicsRollReactions()
   }
 }
 
-void ezPxSimulationEventCallback::OnContact_ImpactReaction(PxContactPairPoint* contactPointBuffer, const PxContactPair& pair, const ezVec3& vAvgPos, const ezVec3& vAvgNormal, float fMaxImpactSqr, const PxContactPairHeader& pairHeader)
+void ezPxSimulationEventCallback::OnContact_ImpactReaction(PxContactPairPoint* pContactPointBuffer, const PxContactPair& pair, const ezVec3& vAvgPos, const ezVec3& vAvgNormal, float fMaxImpactSqr, const PxContactPairHeader& pairHeader)
 {
-  const PxContactPairPoint& point = contactPointBuffer[0];
+  const PxContactPairPoint& point = pContactPointBuffer[0];
 
   const float fDistanceSqr = (vAvgPos - m_vMainCameraPosition).GetLengthSquared();
 
@@ -527,13 +527,13 @@ ezPxSimulationEventCallback::SlideAndRollInfo* ezPxSimulationEventCallback::Find
   return nullptr;
 }
 
-void ezPxSimulationEventCallback::OnContact_RollReaction(const ezVec3& vAvgPos, PxRigidDynamic* pRigid0, PxRigidDynamic* pRigid1, const PxContactPair& pair, ezBitflags<ezOnPhysXContact>& ContactFlags0, ezBitflags<ezOnPhysXContact>& ContactFlags1)
+void ezPxSimulationEventCallback::OnContact_RollReaction(const ezVec3& vAvgPos, PxRigidDynamic* pRigid0, PxRigidDynamic* pRigid1, const PxContactPair& pair, ezBitflags<ezOnPhysXContact>& ref_contactFlags0, ezBitflags<ezOnPhysXContact>& ref_contactFlags1)
 {
   // only consider something 'rolling' when it turns faster than this (per second)
   constexpr ezAngle rollThreshold = ezAngle::Degree(45);
 
   PxRigidDynamic* pRigid[2] = {pRigid0, pRigid1};
-  ezBitflags<ezOnPhysXContact> contactFlags[2] = {ContactFlags0, ContactFlags1};
+  ezBitflags<ezOnPhysXContact> contactFlags[2] = {ref_contactFlags0, ref_contactFlags1};
 
   for (ezUInt32 i = 0; i < 2; ++i)
   {
@@ -565,7 +565,7 @@ void ezPxSimulationEventCallback::OnContact_RollReaction(const ezVec3& vAvgPos, 
   }
 }
 
-void ezPxSimulationEventCallback::OnContact_SlideReaction(const ezVec3& vAvgPos, const ezVec3& vAvgNormal0, PxRigidDynamic* pRigid0, PxRigidDynamic* pRigid1, const PxContactPair& pair, ezBitflags<ezOnPhysXContact>& contactFlags0, ezBitflags<ezOnPhysXContact>& contactFlags1)
+void ezPxSimulationEventCallback::OnContact_SlideReaction(const ezVec3& vAvgPos, const ezVec3& vAvgNormal0, PxRigidDynamic* pRigid0, PxRigidDynamic* pRigid1, const PxContactPair& pair, ezBitflags<ezOnPhysXContact>& ref_contactFlags0, ezBitflags<ezOnPhysXContact>& ref_contactFlags1)
 {
   ezVec3 vVelocity[2] = {ezVec3::ZeroVector(), ezVec3::ZeroVector()};
 
@@ -604,7 +604,7 @@ void ezPxSimulationEventCallback::OnContact_SlideReaction(const ezVec3& vAvgPos,
       if (vRelativeVelocity.GetLengthSquared() > ezMath::Square(slideSpeedThreshold))
       {
         PxRigidDynamic* pRigid[2] = {pRigid0, pRigid1};
-        ezBitflags<ezOnPhysXContact> contactFlags[2] = {contactFlags0, contactFlags1};
+        ezBitflags<ezOnPhysXContact> contactFlags[2] = {ref_contactFlags0, ref_contactFlags1};
 
         for (ezUInt32 i = 0; i < 2; ++i)
         {
@@ -635,7 +635,7 @@ void ezPxSimulationEventCallback::OnContact_SlideReaction(const ezVec3& vAvgPos,
   }
 }
 
-void ezPxSimulationEventCallback::OnContact_SlideAndRollReaction(const PxContactPairHeader& pairHeader, const PxContactPair& pair, ezBitflags<ezOnPhysXContact>& ContactFlags0, const ezVec3& vAvgPos, const ezVec3& vAvgNormal, ezBitflags<ezOnPhysXContact>& ContactFlags1, const ezUInt32 uiNumContactPoints, ezBitflags<ezOnPhysXContact>& CombinedContactFlags)
+void ezPxSimulationEventCallback::OnContact_SlideAndRollReaction(const PxContactPairHeader& pairHeader, const PxContactPair& pair, ezBitflags<ezOnPhysXContact>& ref_contactFlags0, const ezVec3& vAvgPos, const ezVec3& vAvgNormal, ezBitflags<ezOnPhysXContact>& ref_contactFlags1, const ezUInt32 uiNumContactPoints, ezBitflags<ezOnPhysXContact>& ref_combinedContactFlags)
 {
   PxRigidDynamic* pRigid0 = nullptr;
   PxRigidDynamic* pRigid1 = nullptr;
@@ -650,13 +650,13 @@ void ezPxSimulationEventCallback::OnContact_SlideAndRollReaction(const PxContact
     pRigid1 = static_cast<PxRigidDynamic*>(pairHeader.actors[1]);
   }
 
-  if (uiNumContactPoints >= 2 && CombinedContactFlags.IsAnySet(ezOnPhysXContact::SlideReactions))
+  if (uiNumContactPoints >= 2 && ref_combinedContactFlags.IsAnySet(ezOnPhysXContact::SlideReactions))
   {
-    OnContact_SlideReaction(vAvgPos, vAvgNormal, pRigid0, pRigid1, pair, ContactFlags0, ContactFlags1);
+    OnContact_SlideReaction(vAvgPos, vAvgNormal, pRigid0, pRigid1, pair, ref_contactFlags0, ref_contactFlags1);
   }
 
-  if (CombinedContactFlags.IsAnySet(ezOnPhysXContact::AllRollReactions))
+  if (ref_combinedContactFlags.IsAnySet(ezOnPhysXContact::AllRollReactions))
   {
-    OnContact_RollReaction(vAvgPos, pRigid0, pRigid1, pair, ContactFlags0, ContactFlags1);
+    OnContact_RollReaction(vAvgPos, pRigid0, pRigid1, pair, ref_contactFlags0, ref_contactFlags1);
   }
 }

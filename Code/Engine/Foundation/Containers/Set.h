@@ -250,9 +250,9 @@ public:
 
 
 template <typename KeyType, typename Comparer>
-typename ezSetBase<KeyType, Comparer>::Iterator begin(ezSetBase<KeyType, Comparer>& container)
+typename ezSetBase<KeyType, Comparer>::Iterator begin(ezSetBase<KeyType, Comparer>& ref_container)
 {
-  return container.GetIterator();
+  return ref_container.GetIterator();
 }
 
 template <typename KeyType, typename Comparer>
@@ -268,7 +268,7 @@ typename ezSetBase<KeyType, Comparer>::Iterator cbegin(const ezSetBase<KeyType, 
 }
 
 template <typename KeyType, typename Comparer>
-typename ezSetBase<KeyType, Comparer>::Iterator end(ezSetBase<KeyType, Comparer>& container)
+typename ezSetBase<KeyType, Comparer>::Iterator end(ezSetBase<KeyType, Comparer>& ref_container)
 {
   return typename ezSetBase<KeyType, Comparer>::Iterator();
 }

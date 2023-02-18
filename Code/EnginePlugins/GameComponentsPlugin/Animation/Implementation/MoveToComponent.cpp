@@ -33,11 +33,11 @@ EZ_END_COMPONENT_TYPE;
 ezMoveToComponent::ezMoveToComponent() = default;
 ezMoveToComponent::~ezMoveToComponent() = default;
 
-void ezMoveToComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezMoveToComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s << m_Flags.GetValue();
   s << m_fCurTranslationSpeed;
@@ -48,11 +48,11 @@ void ezMoveToComponent::SerializeComponent(ezWorldWriter& stream) const
 }
 
 
-void ezMoveToComponent::DeserializeComponent(ezWorldReader& stream)
+void ezMoveToComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
-  SUPER::DeserializeComponent(stream);
+  SUPER::DeserializeComponent(inout_stream);
   // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
 
   s >> m_Flags;
@@ -73,9 +73,9 @@ bool ezMoveToComponent::IsRunning() const
   return m_Flags.IsSet(ezMoveToComponentFlags::Running);
 }
 
-void ezMoveToComponent::SetTargetPosition(const ezVec3& pos)
+void ezMoveToComponent::SetTargetPosition(const ezVec3& vPos)
 {
-  m_vTargetPosition = pos;
+  m_vTargetPosition = vPos;
 }
 
 static float CalculateNewSpeed(float fRemainingDistance, float fCurSpeed, float fMaxSpeed, float fAcceleration, float fDeceleration, float fTimeStep)

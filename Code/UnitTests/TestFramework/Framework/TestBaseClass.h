@@ -23,20 +23,20 @@ public:
   const char* GetSubTestName(ezInt32 iIdentifier) const;
 
   /// Override this function to add additional information to the test configuration
-  virtual void UpdateConfiguration(ezTestConfiguration& config) const /*override*/;
+  virtual void UpdateConfiguration(ezTestConfiguration& ref_config) const /*override*/;
 
   /// \brief Implement this to add support for image comparisons. See EZ_TEST_IMAGE_MSG.
-  virtual ezResult GetImage(ezImage& img) { return EZ_FAILURE; }
+  virtual ezResult GetImage(ezImage& ref_img) { return EZ_FAILURE; }
 
-    /// \brief Implement this to add support for depth buffer image comparisons. See EZ_TEST_DEPTH_IMAGE_MSG.
-  virtual ezResult GetDepthImage(ezImage& img) { return EZ_FAILURE; }
+  /// \brief Implement this to add support for depth buffer image comparisons. See EZ_TEST_DEPTH_IMAGE_MSG.
+  virtual ezResult GetDepthImage(ezImage& ref_img) { return EZ_FAILURE; }
 
   /// \brief Used to map the 'number' for an image comparison, to a string used for finding the comparison image.
   ///
   /// By default image comparison screenshots are called 'TestName_SubTestName_XYZ'
   /// This can be fully overridden to use any other file name.
   /// The location of the comparison images (ie the folder) cannot be specified at the moment.
-  virtual void MapImageNumberToString(const char* szTestName, const char* szSubTestName, ezUInt32 uiImageNumber, ezStringBuilder& out_String) const;
+  virtual void MapImageNumberToString(const char* szTestName, const char* szSubTestName, ezUInt32 uiImageNumber, ezStringBuilder& out_sString) const;
 
 protected:
   /// Called at startup to determine if the test can be run. Should return a detailed error message on failure.

@@ -17,8 +17,8 @@ class EZ_GAMECOMPONENTS_DLL ezCameraShakeVolumeComponent : public ezComponent
   // ezComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
 protected:
   virtual void OnActivated() override;
@@ -37,9 +37,9 @@ public:
   ezTime m_BurstDuration; // [ property ]
   float m_fStrength;      // [ property ]
 
-  float ComputeForceAtGlobalPosition(const ezSimdVec4f& globalPos) const;
+  float ComputeForceAtGlobalPosition(const ezSimdVec4f& vGlobalPos) const;
 
-  virtual float ComputeForceAtLocalPosition(const ezSimdVec4f& localPos) const = 0;
+  virtual float ComputeForceAtLocalPosition(const ezSimdVec4f& vLocalPos) const = 0;
 
   ezEnum<ezOnComponentFinishedAction> m_OnFinishedAction; // [ property ]
 
@@ -62,8 +62,8 @@ class EZ_GAMECOMPONENTS_DLL ezCameraShakeVolumeSphereComponent : public ezCamera
   // ezComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
   //////////////////////////////////////////////////////////////////////////
   // ezCameraShakeVolumeSphereComponent
@@ -72,10 +72,10 @@ public:
   ezCameraShakeVolumeSphereComponent();
   ~ezCameraShakeVolumeSphereComponent();
 
-  virtual float ComputeForceAtLocalPosition(const ezSimdVec4f& localPos) const override;
+  virtual float ComputeForceAtLocalPosition(const ezSimdVec4f& vLocalPos) const override;
 
   float GetRadius() const { return m_fRadius; } // [ property ]
-  void SetRadius(float val);                    // [ property ]
+  void SetRadius(float fVal);                   // [ property ]
 
 private:
   void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg);

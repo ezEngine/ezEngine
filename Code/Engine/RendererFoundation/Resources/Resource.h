@@ -51,8 +51,8 @@ template <typename CreationDescription>
 class ezGALResource : public ezGALResourceBase
 {
 public:
-  EZ_ALWAYS_INLINE ezGALResource(const CreationDescription& Description)
-    : m_Description(Description)
+  EZ_ALWAYS_INLINE ezGALResource(const CreationDescription& description)
+    : m_Description(description)
   {
   }
 

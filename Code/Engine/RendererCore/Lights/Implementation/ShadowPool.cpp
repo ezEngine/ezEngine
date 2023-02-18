@@ -194,16 +194,16 @@ static float AddSafeBorder(ezAngle fov, float fPenumbraSize)
 
 ezTagSet s_ExcludeTagsWhiteList;
 
-static void CopyExcludeTagsOnWhiteList(const ezTagSet& referenceTags, ezTagSet& out_TargetTags)
+static void CopyExcludeTagsOnWhiteList(const ezTagSet& referenceTags, ezTagSet& out_targetTags)
 {
-  out_TargetTags.Clear();
-  out_TargetTags.SetByName("EditorHidden");
+  out_targetTags.Clear();
+  out_targetTags.SetByName("EditorHidden");
 
   for (auto& tag : referenceTags)
   {
     if (s_ExcludeTagsWhiteList.IsSet(tag))
     {
-      out_TargetTags.Set(tag);
+      out_targetTags.Set(tag);
     }
   }
 }
