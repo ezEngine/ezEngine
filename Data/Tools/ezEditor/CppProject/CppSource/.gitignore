@@ -1,1 +1,6 @@
-Build/*
+﻿Build/*
+AssetCache/
+
+# FMOD specific
+.cache/
+.user/

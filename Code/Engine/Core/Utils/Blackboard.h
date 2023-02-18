@@ -137,7 +137,7 @@ public:
   /// If the 'OnChangeEvent' flag is set for this entry, OnEntryEvent() will be broadcast.
   /// However, if the new value is no different to the old, no event will be broadcast, unless 'force' is set to true.
   ///
-  /// Logs an error, if the named entry hasn't been registered before.
+  /// Returns EZ_FAILURE, if the named entry hasn't been registered before.
   ezResult SetEntryValue(const ezTempHashedString& name, const ezVariant& value, bool force = false);
 
   /// \brief Returns a pointer to the named entry, or nullptr if no such entry was registered.
