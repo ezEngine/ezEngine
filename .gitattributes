@@ -14,6 +14,7 @@
 *.sh text eol=lf
 *.cmake text eol=lf
 *.ui text eol=lf
+*.ddl text eol=lf
 CMakeLists.txt text eol=lf
 
 # Windows specific files should use CR/LF

@@ -9,8 +9,8 @@
 */ezEditorPlugin*
 */ezEnginePlugin*
 */ezSharedPlugin*
-*/Qt5
-*/Qt6
+*/Qt5*
+*/Qt6*
 
 [INCLUDE]
 
