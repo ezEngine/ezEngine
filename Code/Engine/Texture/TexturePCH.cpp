@@ -17,6 +17,7 @@ EZ_STATICLINK_LIBRARY(Texture)
   EZ_STATICLINK_REFERENCE(Texture_Image_Formats_StbImageFileFormats);
   EZ_STATICLINK_REFERENCE(Texture_Image_Formats_SvgFileFormat);
   EZ_STATICLINK_REFERENCE(Texture_Image_Formats_TgaFileFormat);
+  EZ_STATICLINK_REFERENCE(Texture_Image_Formats_VdbFileFormat);
   EZ_STATICLINK_REFERENCE(Texture_Image_Formats_WicFileFormat);
   EZ_STATICLINK_REFERENCE(Texture_Image_Implementation_ImageEnums);
   EZ_STATICLINK_REFERENCE(Texture_Image_Implementation_ImageFormat);

@@ -12,6 +12,7 @@
 using ezMaterialResourceHandle = ezTypedResourceHandle<class ezMaterialResource>;
 using ezTexture2DResourceHandle = ezTypedResourceHandle<class ezTexture2DResource>;
 using ezTextureCubeResourceHandle = ezTypedResourceHandle<class ezTextureCubeResource>;
+using ezTexture3DResourceHandle = ezTypedResourceHandle<class ezTexture3DResource>;
 
 /// Descriptor for creating material resources.
 ///
@@ -46,6 +47,14 @@ struct ezMaterialResourceDescriptor
     EZ_FORCE_INLINE bool operator==(const TextureCubeBinding& other) const { return m_Name == other.m_Name && m_Value == other.m_Value; }
   };
 
+  struct Texture3DBinding
+  {
+    ezHashedString m_Name;
+    ezTexture3DResourceHandle m_Value;
+
+    EZ_FORCE_INLINE bool operator==(const Texture3DBinding& other) const { return m_Name == other.m_Name && m_Value == other.m_Value; }
+  };
+
   void Clear();
 
   bool operator==(const ezMaterialResourceDescriptor& other) const;
@@ -58,6 +67,7 @@ struct ezMaterialResourceDescriptor
   ezDynamicArray<Parameter> m_Parameters;                   ///< Shader constant parameters.
   ezDynamicArray<Texture2DBinding> m_Texture2DBindings;     ///< 2D texture bindings.
   ezDynamicArray<TextureCubeBinding> m_TextureCubeBindings; ///< Cube texture bindings.
+  ezDynamicArray<Texture3DBinding> m_Texture3DBindings;     ///< 3D (volume) texture bindings.
   ezRenderData::Category m_RenderDataCategory;              ///< Render data category (opaque, transparent, etc.).
 };
 
@@ -105,6 +115,10 @@ public:
   void SetTextureCubeBinding(const ezHashedString& sName, const ezTextureCubeResourceHandle& value);
   void SetTextureCubeBinding(const char* szName, const ezTextureCubeResourceHandle& value);
   ezTextureCubeResourceHandle GetTextureCubeBinding(const ezTempHashedString& sName);
+  
+  void SetTexture3DBinding(const ezHashedString& sName, const ezTexture3DResourceHandle& value);
+  void SetTexture3DBinding(const char* szName, const ezTexture3DResourceHandle& value);
+  ezTexture3DResourceHandle GetTexture3DBinding(const ezTempHashedString& sName);
 
   ezRenderData::Category GetRenderDataCategory();
   static ezRenderData::Category GetRenderDataCategory(const ezMaterialResourceHandle& hMaterial, bool* out_pWasFallback = nullptr, ezRenderData::Category fallbackCategory = ezDefaultRenderDataCategories::LitOpaque);
@@ -141,7 +155,8 @@ public:
       TextureCube = EZ_BIT(2),
       PermutationVar = EZ_BIT(3),
       ShaderAndId = EZ_BIT(4),
-      ResourceReset = Parameter | Texture2D | TextureCube | PermutationVar,
+      Texture3D = EZ_BIT(5),
+      ResourceReset = Parameter | Texture2D | TextureCube | Texture3D | PermutationVar,
       ResourceCreation = ResourceReset | ShaderAndId,
       Default = 0
     };
@@ -153,6 +168,7 @@ public:
       StorageType TextureCube : 1;
       StorageType PermutationVar : 1;
       StorageType ShaderAndId : 1;
+      StorageType Texture3D : 1;
     };
   };
 

@@ -1185,6 +1185,11 @@ void ezRenderContext::ApplyMaterialState()
       SetShaderPermutationVariableInternal(perm.m_sName, perm.m_sValue);
     }
 
+    for(auto it = pCachedValues->m_Texture3DBindings.GetIterator(); it.IsValid(); ++it)
+    {
+      BindTexture3D(it.Key(), it.Value());
+    }
+
     m_hMaterial = m_hNewMaterial;
     // We don't know the permutation to use yet and thus also not the correct bind group layout. Therefore, we store the raw address of the material to be able to look up the correct bind group in ApplyBindGroup. We can't acquire the resource lock again as that might result in a different address (fallback vs real) and we would mismatch the material data and bind group from two different materials.
     m_pMaterial = pMaterial.GetPointer();

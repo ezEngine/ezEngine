@@ -13,6 +13,7 @@
 #include <RendererCore/Shader/ShaderPermutationResource.h>
 #include <RendererCore/ShaderCompiler/ShaderManager.h>
 #include <RendererCore/Textures/Texture2DResource.h>
+#include <RendererCore/Textures/Texture3DResource.h>
 #include <RendererCore/Textures/TextureCubeResource.h>
 #include <RendererCore/Textures/TextureLoader.h>
 #include <Texture/Image/Formats/DdsFileFormat.h>
@@ -108,6 +109,7 @@ void ezMaterialResourceDescriptor::Clear()
   m_Parameters.Clear();
   m_Texture2DBindings.Clear();
   m_TextureCubeBindings.Clear();
+  m_Texture3DBindings.Clear();
   m_RenderDataCategory = ezInvalidRenderDataCategory;
 }
 
@@ -119,6 +121,7 @@ bool ezMaterialResourceDescriptor::operator==(const ezMaterialResourceDescriptor
          m_Parameters == other.m_Parameters &&
          m_Texture2DBindings == other.m_Texture2DBindings &&
          m_TextureCubeBindings == other.m_TextureCubeBindings &&
+         m_Texture3DBindings == other.m_Texture3DBindings &&
          m_RenderDataCategory == other.m_RenderDataCategory;
 }
 
@@ -247,6 +250,28 @@ ezRenderData::Category ezMaterialResource::GetRenderDataCategory(const ezMateria
   }
 
   return fallbackCategory;
+}
+
+void ezMaterialResource::SetTexture3DBinding(const ezHashedString& sName, const ezTexture3DResourceHandle& value)
+{
+  if (SetProperty(m_mDesc.m_Texture3DBindings, sName, value, sName))
+  {
+    SetModified(DirtyFlags::Texture3D);
+  }
+}
+
+void ezMaterialResource::SetTexture3DBinding(const char* szName, const ezTexture3DResourceHandle& value)
+{
+  ezTempHashedString sName(szName);
+  if (SetProperty(m_mDesc.m_Texture3DBindings, szName, value, sName))
+  {
+    SetModified(DirtyFlags::Texture3D);
+  }
+}
+
+ezTexture3DResourceHandle ezMaterialResource::GetTexture3DBinding(const ezTempHashedString& sName)
+{
+  return GetProperty<ezTexture3DResourceHandle>(m_mDesc.m_Texture3DBindings, sName);
 }
 
 void ezMaterialResource::PreserveCurrentDesc()
@@ -450,6 +475,28 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* pOuterStrea
       }
     }
 
+    // 3D Textures
+    if(uiVersion >= 8)
+    {
+      ezUInt16 uiTextures = 0;
+      s >> uiTextures;
+
+      m_mDesc.m_Texture3DBindings.Reserve(uiTextures);
+
+      for (ezUInt16 i = 0; i < uiTextures; ++i)
+      {
+        s >> sTemp;
+        s >> sTemp2;
+
+        if (!sTemp.IsEmpty() && !sTemp2.IsEmpty())
+        {
+          ezMaterialResourceDescriptor::Texture3DBinding& tc = m_mDesc.m_Texture3DBindings.ExpandAndGetRef();
+          tc.m_Name.Assign(sTemp.GetData());
+          tc.m_Value = ezResourceManager::LoadResource<ezTexture3DResource>(sTemp2);
+        }
+      }
+    }
+
     // Shader constants
     {
       ezUInt16 uiConstants = 0;
@@ -638,7 +685,8 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* pOuterStrea
 void ezMaterialResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
   out_NewMemoryUsage.m_uiMemoryCPU =
-    sizeof(ezMaterialResource) + (ezUInt32)(m_mDesc.m_PermutationVars.GetHeapMemoryUsage() + m_mDesc.m_Parameters.GetHeapMemoryUsage() + m_mDesc.m_Texture2DBindings.GetHeapMemoryUsage() + m_mDesc.m_TextureCubeBindings.GetHeapMemoryUsage() + m_mOriginalDesc.m_PermutationVars.GetHeapMemoryUsage() + m_mOriginalDesc.m_Parameters.GetHeapMemoryUsage() + m_mOriginalDesc.m_Texture2DBindings.GetHeapMemoryUsage() + m_mOriginalDesc.m_TextureCubeBindings.GetHeapMemoryUsage());
+    sizeof(ezMaterialResource) + (ezUInt32)(m_mDesc.m_PermutationVars.GetHeapMemoryUsage() + m_mDesc.m_Parameters.GetHeapMemoryUsage() + m_mDesc.m_Texture2DBindings.GetHeapMemoryUsage() + m_mDesc.m_TextureCubeBindings.GetHeapMemoryUsage() + m_mDesc.m_Texture3DBindings.GetHeapMemoryUsage() +
+                                            m_mOriginalDesc.m_PermutationVars.GetHeapMemoryUsage() + m_mOriginalDesc.m_Parameters.GetHeapMemoryUsage() + m_mOriginalDesc.m_Texture2DBindings.GetHeapMemoryUsage() + m_mOriginalDesc.m_TextureCubeBindings.GetHeapMemoryUsage() + m_mOriginalDesc.m_Texture3DBindings.GetHeapMemoryUsage());
 
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 }
@@ -727,6 +775,7 @@ void ezMaterialResource::FlattenOriginalDescHierarchy()
     ezHashTable<ezHashedString, ezVariant> m_Parameters;
     ezHashTable<ezHashedString, ezTexture2DResourceHandle> m_Texture2DBindings;
     ezHashTable<ezHashedString, ezTextureCubeResourceHandle> m_TextureCubeBindings;
+    ezHashTable<ezHashedString, ezTexture3DResourceHandle> m_Texture3DBindings;
     ezRenderData::Category m_RenderDataCategory;
   } flattenedMaterial;
 
@@ -762,6 +811,11 @@ void ezMaterialResource::FlattenOriginalDescHierarchy()
       flattenedMaterial.m_TextureCubeBindings.Insert(textureBinding.m_Name, textureBinding.m_Value);
     }
 
+    for (const auto& textureBinding : desc.m_Texture3DBindings)
+    {
+      flattenedMaterial.m_Texture3DBindings.Insert(textureBinding.m_Name, textureBinding.m_Value);
+    }
+
     if (desc.m_RenderDataCategory != ezInvalidRenderDataCategory)
     {
       flattenedMaterial.m_RenderDataCategory = desc.m_RenderDataCategory;
@@ -776,6 +830,7 @@ void ezMaterialResource::FlattenOriginalDescHierarchy()
   CopyMaterialDesc(flattenedMaterial.m_Parameters, m_mDesc.m_Parameters);
   CopyMaterialDesc(flattenedMaterial.m_Texture2DBindings, m_mDesc.m_Texture2DBindings);
   CopyMaterialDesc(flattenedMaterial.m_TextureCubeBindings, m_mDesc.m_TextureCubeBindings);
+  CopyMaterialDesc(flattenedMaterial.m_Texture3DBindings, m_mDesc.m_Texture3DBindings);
 }
 
 void ezMaterialResource::ComputeRenderDataCategory()
