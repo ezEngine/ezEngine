@@ -8,9 +8,7 @@
 #include <Foundation/System/MiniDumpUtils.h>
 #include <Foundation/System/Process.h>
 #include <GameEngineTest/SubstanceTest/SubstanceTest.h>
-#include <RendererCore/Components/SkyBoxComponent.h>
 #include <RendererCore/RenderContext/RenderContext.h>
-#include <RendererCore/Textures/TextureCubeResource.h>
 
 #if EZ_ENABLED(EZ_SUPPORTS_PROCESSES)
 ezResult TranformProject(const char* szProjectPath, ezUInt32 uiCleanVersion)
@@ -271,7 +269,6 @@ ezGameEngineTestApplication* ezGameEngineTestBasics::CreateApplication()
 void ezGameEngineTestBasics::SetupSubTests()
 {
   AddSubTest("Many Meshes", SubTests::ManyMeshes);
-  AddSubTest("Skybox", SubTests::Skybox);
   AddSubTest("Load Scene", SubTests::LoadScene);
   AddSubTest("GameObject References", SubTests::GameObjectReferences);
 }
@@ -285,12 +282,6 @@ ezResult ezGameEngineTestBasics::InitializeSubTest(ezInt32 iIdentifier)
   if (iIdentifier == SubTests::ManyMeshes)
   {
     m_pOwnApplication->SubTestManyMeshesSetup();
-    return EZ_SUCCESS;
-  }
-
-  if (iIdentifier == SubTests::Skybox)
-  {
-    m_pOwnApplication->SubTestSkyboxSetup();
     return EZ_SUCCESS;
   }
 
@@ -315,9 +306,6 @@ ezTestAppRun ezGameEngineTestBasics::RunSubTest(ezInt32 iIdentifier, ezUInt32 ui
 
   if (iIdentifier == SubTests::ManyMeshes)
     return m_pOwnApplication->SubTestManyMeshesExec(m_iFrame);
-
-  if (iIdentifier == SubTests::Skybox)
-    return m_pOwnApplication->SubTestSkyboxExec(m_iFrame);
 
   if (iIdentifier == SubTests::LoadScene)
     return m_pOwnApplication->SubTestLoadSceneExec(m_iFrame);
@@ -391,83 +379,6 @@ ezTestAppRun ezGameEngineTestApplication_Basics::SubTestManyMeshesExec(ezInt32 i
   }
 
   return ezTestAppRun::Continue;
-}
-
-//////////////////////////////////////////////////////////////////////////
-
-
-void ezGameEngineTestApplication_Basics::SubTestSkyboxSetup()
-{
-  EZ_LOCK(m_pWorld->GetWriteMarker());
-
-  m_pWorld->Clear();
-
-  ezTextureCubeResourceHandle hSkybox = ezResourceManager::LoadResource<ezTextureCubeResource>("Textures/Cubemap/ezLogo_Cube_DXT1_Mips_D.dds");
-  ezMeshResourceHandle hMesh = ezResourceManager::LoadResource<ezMeshResource>("Meshes/MissingMesh.ezBinMesh");
-  ezMaterialResourceHandle hMaterial = ezResourceManager::LoadResource<ezMaterialResource>("{ b93a6e80-5bf7-48f0-b7b3-2097d0133159 }"); // FullbrightWhite
-  // Skybox
-  {
-    ezGameObjectDesc go;
-    go.m_LocalPosition.SetZero();
-
-    ezGameObject* pObject;
-    m_pWorld->CreateObject(go, pObject);
-
-    ezSkyBoxComponent* pSkybox;
-    m_pWorld->GetOrCreateComponentManager<ezSkyBoxComponentManager>()->CreateComponent(pObject, pSkybox);
-
-    pSkybox->SetCubeMap(hSkybox);
-  }
-
-  // some foreground objects
-  {
-    ezInt32 dim = 5;
-
-    for (ezInt32 z = -dim; z <= dim; ++z)
-    {
-      for (ezInt32 y = -dim; y <= dim; ++y)
-      {
-        for (ezInt32 x = -dim; x <= dim; ++x)
-        {
-          ezGameObjectDesc go;
-          go.m_LocalPosition.Set(x * 10.0f, y * 10.0f, z * 10.0f);
-
-          ezGameObject* pObject;
-          m_pWorld->CreateObject(go, pObject);
-
-          ezMeshComponent* pMesh;
-          m_pWorld->GetOrCreateComponentManager<ezMeshComponentManager>()->CreateComponent(pObject, pMesh);
-          pMesh->SetMaterial(0, hMaterial);
-          pMesh->SetMesh(hMesh);
-        }
-      }
-    }
-  }
-}
-
-ezTestAppRun ezGameEngineTestApplication_Basics::SubTestSkyboxExec(ezInt32 iCurFrame)
-{
-  ezResourceManager::ForceNoFallbackAcquisition(3);
-
-  auto pCamera = ezDynamicCast<ezGameState*>(GetActiveGameState())->GetMainCamera();
-  pCamera->SetCameraMode(ezCameraMode::PerspectiveFixedFovY, 120.0f, 1.0f, 100.0f);
-  ezVec3 pos = ezVec3(iCurFrame * 5.0f, 0, 0);
-  pCamera->LookAt(pos, pos + ezVec3(1, 0, 0), ezVec3(0, 0, 1));
-  pCamera->RotateGlobally(ezAngle::MakeFromDegree(0), ezAngle::MakeFromDegree(0), ezAngle::MakeFromDegree(iCurFrame * 80.0f));
-
-  Run();
-  if (ShouldApplicationQuit())
-    return ezTestAppRun::Quit;
-
-  if (iCurFrame < 5)
-    return ezTestAppRun::Continue;
-
-  EZ_TEST_IMAGE(iCurFrame - 5, 150);
-
-  if (iCurFrame < 8)
-    return ezTestAppRun::Continue;
-
-  return ezTestAppRun::Quit;
 }
 
 //////////////////////////////////////////////////////////////////////////

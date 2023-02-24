@@ -120,7 +120,7 @@ void ezQtTypeWidget::BuildUI(const ezRTTI* pType, const ezMap<ezString, const ez
     {
       pGroupBox->SetTitle(group->m_sGroup.GetData());
 
-      m_pGrid->SetCollapseState(pGroupBox);
+      m_pGrid->SetCollapseState(pGroupBox, group->m_bCollapsedByDefault);
       connect(pGroupBox, &ezQtGroupBoxBase::CollapseStateChanged, m_pGrid, &ezQtPropertyGridWidget::OnCollapseStateChanged);
 
       if (!group->m_sIconName.IsEmpty())

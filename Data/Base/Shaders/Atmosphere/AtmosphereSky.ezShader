@@ -1,0 +1,119 @@
+/// Renders the sky from the precomputed sky-view LUT, plus the sun disc attenuated by the transmittance LUT.
+/// Drawn as a fullscreen triangle at the far plane by ezAtmosphericScatteringRenderer.
+
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+CAMERA_MODE
+SHADING_QUALITY = SHADING_QUALITY_NORMAL
+
+[RENDERSTATE]
+
+DepthTest = true
+DepthWrite = false
+DepthTestFunc = CompareFunc_GreaterEqual
+CullMode = CullMode_None
+
+[SHADER]
+
+struct VS_OUT
+{
+  float4 Position : SV_Position;
+  float3 ViewDirection : TEXCOORD0;
+#if CAMERA_MODE == CAMERA_MODE_STEREO
+  uint RenderTargetArrayIndex : SV_RenderTargetArrayIndex;
+#endif
+};
+
+typedef VS_OUT PS_IN;
+
+[VERTEXSHADER]
+
+#include <Shaders/Common/GlobalConstants.h>
+
+VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
+{
+#if CAMERA_MODE == CAMERA_MODE_STEREO
+  s_ActiveCameraEyeIndex = InstanceID % 2;
+#endif
+
+  float2 screenPos;
+  screenPos.x = (float)(VertexID / 2) * 4.0 - 1.0;
+  screenPos.y = (float)(VertexID % 2) * 4.0 - 1.0;
+
+  float4 dir = mul(GetScreenToCameraMatrix(), float4(screenPos, GetFarPlaneDeviceDepth(), 1.0));
+  dir.w = 0.0;
+
+  VS_OUT Output;
+  Output.Position = float4(screenPos, GetFarPlaneDeviceDepth(), 1.0);
+  Output.ViewDirection = mul(GetCameraToWorldMatrix(), dir).xyz;
+
+#if CAMERA_MODE == CAMERA_MODE_STEREO
+  Output.RenderTargetArrayIndex = InstanceID;
+#endif
+
+  return Output;
+}
+
+[PIXELSHADER]
+
+#include <Shaders/Common/GlobalConstants.h>
+#include <Shaders/Common/Lighting.h>
+#include <Shaders/Atmosphere/AtmosphereCommon.h>
+
+Texture2D TransmittanceLut BIND_GROUP(BG_DRAW_CALL);
+Texture3D SkyViewLut BIND_GROUP(BG_DRAW_CALL);
+
+float4 main(PS_IN Input) : SV_Target
+{
+#if CAMERA_MODE == CAMERA_MODE_STEREO
+  s_ActiveCameraEyeIndex = Input.RenderTargetArrayIndex;
+#endif
+
+  float3 viewDir = normalize(Input.ViewDirection);
+
+  // Camera height above the surface in km. Heights above the top LUT slice use the top slice.
+  float height = clamp((GetCameraPosition().z - GroundHeight) * 0.001, ATMOSPHERE_MIN_HEIGHT, MaxSkyViewHeight);
+  float r = PlanetRadius + height;
+  float3 cameraPos = float3(0.0, 0.0, r);
+
+  // azimuth relative to the sun, only the cosine is needed because the sky is symmetric around the sun's vertical plane
+  float lightViewCos = 1.0;
+  float2 viewH = viewDir.xy;
+  float2 sunH = SunDirection.xy;
+  if (dot(viewH, viewH) > 1e-8 && dot(sunH, sunH) > 1e-8)
+  {
+    lightViewCos = dot(normalize(viewH), normalize(sunH));
+  }
+
+  bool bIntersectsGround = AtmosphereGroundDistance(cameraPos, viewDir) >= 0.0;
+
+  float3 uvw;
+  uvw.xy = AtmosphereDirectionToSkyViewUv(bIntersectsGround, viewDir.z, lightViewCos, r);
+  uvw.z = (AtmosphereSkyViewHeightToW(height) * (ATMOSPHERE_SKYVIEW_LUT_DEPTH - 1.0) + 0.5) / ATMOSPHERE_SKYVIEW_LUT_DEPTH;
+
+  float3 color = SkyViewLut.SampleLevel(LinearClampSampler, uvw, 0.0).rgb * SunIntensity;
+
+  // the sun disc is only visible when the ground isn't in the way
+  if (!bIntersectsGround && SunDiscIntensity > 0.0)
+  {
+    float cosAngle = SunDiscCosAngle;
+    float edge = max(1.0 - cosAngle, 1e-6) * 0.1;
+    float disc = smoothstep(cosAngle - edge, cosAngle + edge, dot(viewDir, SunDirection));
+
+    if (disc > 0.0)
+    {
+      color += disc * SunDiscIntensity * float3(1.0, 1.0, 0.8) * AtmosphereSampleTransmittance(TransmittanceLut, r, viewDir.z);
+    }
+  }
+
+  if (UseFog)
+  {
+    float3 worldPos = GetCameraPosition() + viewDir * VirtualDistance;
+    color = CalculateAndApplyFog(color, worldPos);
+  }
+
+  return float4(color, 1.0);
+}

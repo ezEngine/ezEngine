@@ -44,6 +44,7 @@
     <file>ezPropertyAnimComponent.svg</file>
     <file>ezPrefabReferenceComponent.svg</file>
     <file>ezSkyBoxComponent.svg</file>
+    <file>ezAtmosphericScatteringComponent.svg</file>
     <file>ezAmbientLightComponent.svg</file>
     <file>ezSpriteComponent.svg</file>
     <file>ezVisualScriptComponent.svg</file>

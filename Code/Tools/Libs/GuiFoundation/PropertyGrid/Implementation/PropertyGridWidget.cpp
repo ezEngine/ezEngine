@@ -499,10 +499,10 @@ ezQtPropertyWidget* ezQtPropertyGridWidget::CreatePropertyWidget(const ezAbstrac
   return new ezQtUnsupportedPropertyWidget();
 }
 
-void ezQtPropertyGridWidget::SetCollapseState(ezQtGroupBoxBase* pBox)
+void ezQtPropertyGridWidget::SetCollapseState(ezQtGroupBoxBase* pBox, bool bCollapsedByDefault)
 {
   ezUInt32 uiHash = GetGroupBoxHash(pBox);
-  bool bCollapsed = false;
+  bool bCollapsed = bCollapsedByDefault;
   auto it = m_CollapseState.Find(uiHash);
   if (it.IsValid())
     bCollapsed = it.Value();

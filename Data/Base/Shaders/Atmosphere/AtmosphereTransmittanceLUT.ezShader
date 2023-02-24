@@ -1,0 +1,40 @@
+/// Computes the transmittance from a point in the atmosphere to the top of the atmosphere, by height and zenith angle.
+
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+[COMPUTESHADER]
+
+#include <Shaders/Atmosphere/AtmosphereCommon.h>
+
+RWTexture2D<float4> TransmittanceOutput BIND_GROUP(BG_DRAW_CALL);
+
+#define TRANSMITTANCE_STEPS 40
+
+[numthreads(ATMOSPHERE_LUT_THREADS, ATMOSPHERE_LUT_THREADS, 1)]
+void main(uint3 DTid : SV_DispatchThreadID)
+{
+  if (DTid.x >= ATMOSPHERE_TRANSMITTANCE_LUT_WIDTH || DTid.y >= ATMOSPHERE_TRANSMITTANCE_LUT_HEIGHT)
+    return;
+
+  float2 uv = (DTid.xy + 0.5) / float2(ATMOSPHERE_TRANSMITTANCE_LUT_WIDTH, ATMOSPHERE_TRANSMITTANCE_LUT_HEIGHT);
+
+  float r, mu;
+  AtmosphereTransmittanceUvToRMu(uv, r, mu);
+
+  float3 start = float3(0.0, 0.0, r);
+  float3 dir = float3(sqrt(1.0 - mu * mu), 0.0, mu);
+  float tMax = AtmosphereTopDistance(start, dir);
+  float dt = tMax / TRANSMITTANCE_STEPS;
+
+  float3 opticalDepth = 0.0;
+  for (int i = 0; i < TRANSMITTANCE_STEPS; ++i)
+  {
+    float3 pos = start + dir * ((i + 0.5) * dt);
+    opticalDepth += AtmosphereSampleMedium(length(pos) - PlanetRadius).extinction * dt;
+  }
+
+  TransmittanceOutput[DTid.xy] = float4(exp(-opticalDepth), 1.0);
+}
