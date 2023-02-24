@@ -187,6 +187,9 @@ public:
 
 
 
+  /// \brief Returns the modulo of *this and rhs
+  const ezVec3Template<Type> Mod(Type rhs) const;
+
   /// \brief Returns the Cross-product of the two vectors (NOT commutative, order DOES matter)
   [[nodiscard]] const ezVec3Template<Type> CrossRH(const ezVec3Template<Type>& rhs) const; // [tested]
 

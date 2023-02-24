@@ -1,0 +1,214 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+BLEND_MODE
+RENDER_PASS
+TWO_SIDED = TRUE
+SHADING_MODE = SHADING_MODE_FULLBRIGHT
+CAMERA_MODE
+SHADING_QUALITY
+VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX
+
+[MATERIALPARAMETER]
+
+Permutation BLEND_MODE;
+
+float3 SunDir @Default(float3(1.0f, 0.0f, 0.0f));
+
+Texture3D NoiseMap;
+
+[RENDERSTATE]
+
+#include <Shaders/Materials/MaterialState.h>
+
+DepthWrite = false
+
+[SHADER]
+
+#include <Shaders/Common/GlobalConstants.h>
+
+CONSTANT_BUFFER(ezMaterialConstants, 1)
+{
+  FLOAT3(SunDir);
+};
+
+[VERTEXSHADER]
+
+#define CUSTOM_INTERPOLATOR float3 ViewDirection : TEXCOORD0; float3 CameraPos : TEXCOORD1;
+
+#include <Shaders/Materials/MaterialVertexShader.h>
+
+VS_OUT main(VS_IN Input)
+{
+  VS_OUT Output = FillVertexData(Input);
+  
+  float2 ScreenPos = sign(Input.Position.xy);
+  float4 dir = mul(GetScreenToCameraMatrix(), float4(ScreenPos.xy,1.0,1.0));
+  dir.w = 0.0;
+    
+  ezPerInstanceData data = GetInstanceData();
+  float4x4 objectToWorld = TransformToMatrix(data.ObjectToWorld);
+
+  Output.Position = float4(ScreenPos.xy, 1.0, 1.0);
+  Output.ViewDirection = mul(GetCameraToWorldMatrix(), dir).xyz;
+  
+  Output.CameraPos = mul(GetCameraToWorldMatrix(), float4(0.0f, 0.0f, 0.0f, 1.0f)).xyz;
+
+  return Output;
+}
+
+[GEOMETRYSHADER]
+
+#define CUSTOM_INTERPOLATOR float3 ViewDirection : TEXCOORD0; float3 CameraPos : TEXCOORD1;
+
+void CopyCustomInterpolators(GS_OUT output, VS_OUT input)
+{
+  output.ViewDirection = input.ViewDirection;
+  output.CameraPos = input.CameraPos;
+}
+
+#include <Shaders/Materials/MaterialStereoGeometryShader.h>
+
+[PIXELSHADER]
+
+Texture3D NoiseMap;
+SamplerState NoiseMap_AutoSampler;
+
+Texture3D DetailNoiseMap;
+SamplerState DetailNoiseMap_AutoSampler;
+
+#define CUSTOM_INTERPOLATOR float3 ViewDirection : TEXCOORD0; float3 CameraPos : TEXCOORD1;
+
+#include <Shaders/Materials/MaterialPixelShader.h>
+#include <Shaders/Materials/CloudHelpers.h>
+
+float LightRay(float3 start, float3 dir)
+{
+  float stepL = 0.2f;
+  float initialOffset = stepL * noise1D(dot(start, float3(12.256, 2.646, 6.356)));
+  float density = 0.0;
+  
+  start += initialOffset * dir;
+  for(int i=0; i < 20; i++)
+  {
+    start += dir * stepL;
+    float weatherData = GetWeatherData(start.xy);
+    density += SampleCloudDensity(start, weatherData);    
+  }
+  return density;
+}
+
+float2 hash( float2 p ) // replace this by something better
+{
+	p = float2( dot(p,float2(127.1,311.7)), dot(p,float2(269.5,183.3)) );
+	return -1.0 + 2.0*frac(sin(p)*43758.5453123);
+}
+
+float noise( in float2 p )
+{
+    const float K1 = 0.366025404; // (sqrt(3)-1)/2;
+    const float K2 = 0.211324865; // (3-sqrt(3))/6;
+
+	float2  i = floor( p + (p.x+p.y)*K1 );
+    float2  a = p - i + (i.x+i.y)*K2;
+    float m = step(a.y,a.x); 
+    float2  o = float2(m,1.0-m);
+    float2  b = a - o + K2;
+	float2  c = a - 1.0 + 2.0*K2;
+    float3  h = max( 0.5-float3(dot(a,a), dot(b,b), dot(c,c) ), 0.0 );
+	float3  n = h*h*h*h*float3( dot(a,hash(i+0.0)), dot(b,hash(i+o)), dot(c,hash(i+1.0)));
+    return dot( n, (70.0).xxx );
+}
+
+
+float4 TraceClouds()
+{
+  float3 offset_over_sealevel = float3(0.0, 0.0, 300.0);
+
+  float3 camera_position = float3(0.0, 0.0, PLANET_RADIUS) + offset_over_sealevel;
+  
+  float3 viewDir = normalize(G.Input.ViewDirection);
+  
+#ifndef SINGLE_CLOUD
+  if(viewDir.z < 0.1f)
+  {
+    return float4(0.0f, 0.0f, 0.0f, 0.0f);
+  }
+#endif
+  
+  float2 cloudStartDistance = ray_sphere_intersect(camera_position, viewDir, PLANET_RADIUS + CLOUD_START);
+  
+#ifdef SINGLE_CLOUD
+  float3 curSamplePoint = G.Input.CameraPos + viewDir * 2.0f;
+  float stepSize = 0.15f;
+#else
+  float3 curSamplePoint = offset_over_sealevel + viewDir * cloudStartDistance.y;
+  float stepSize = 2.0f;
+#endif
+    
+  float totalTransmittance = 1.0;
+  
+  float3 color = float3(0.0f, 0.0f, 0.0f);
+  
+  curSamplePoint += viewDir * stepSize * noise(viewDir.xy * 512.0);
+  
+  for(int i=0; i < 128; i++)
+  {
+    float weatherData = GetWeatherData(curSamplePoint.xy);
+    float curDensity = SampleCloudDensity(curSamplePoint, weatherData) * 3.0;
+    curSamplePoint += viewDir * stepSize;
+	
+	if(curDensity > 0.0f && totalTransmittance > 0.0f)
+	{	
+		float transmittance = exp(-curDensity * stepSize);
+		
+		float densityOnLightRay = LightRay(curSamplePoint, SunDir);
+		
+		float powder_sugar_effect = 1.0 - exp(-densityOnLightRay * 2.0);
+		float beers_law = exp(-densityOnLightRay * 6.0);
+		float light_energy = 2.0 * beers_law * powder_sugar_effect * HenyeyGreenstein(SunDir, viewDir, 0.2) + 0.05;
+		
+		color += float3(3.0, 3.0, 3.0) * (totalTransmittance * (light_energy - light_energy * transmittance) / curDensity);
+		
+		totalTransmittance *= transmittance;
+		
+		if(totalTransmittance <= 0.001)
+		{
+			totalTransmittance = 0.0;
+		}
+	}
+  }
+  
+  color += float3(0.08, 0.1, 0.15) * 2.0; // ambient
+  
+  return float4(color, saturate(1.0 - totalTransmittance));
+}
+
+
+float3 GetNormal()
+{
+  return float3(0.0f, 0.0f, 1.0f);
+}
+
+float3 GetDiffuseColor()
+{
+	float4 clouds = TraceClouds();
+    return clouds.rgb;
+}
+
+float3 GetSpecularColor()
+{
+  return 0.0f;
+}
+
+float GetRoughness()
+{
+  return 1.0f;
+}
+
+float GetOpacity()
+{
+  return TraceClouds().a;
+}

@@ -1,0 +1,131 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+BLEND_MODE
+RENDER_PASS
+TWO_SIDED = TRUE
+SHADING_MODE = SHADING_MODE_FULLBRIGHT
+CAMERA_MODE
+SHADING_QUALITY
+VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX
+
+[MATERIALPARAMETER]
+
+Permutation BLEND_MODE;
+
+float3 SunDir @Default(float3(1.0f, 0.0f, 0.0f));
+
+[RENDERSTATE]
+
+#include <Shaders/Materials/MaterialState.h>
+
+DepthWrite = false
+
+[SHADER]
+
+#include <Shaders/Common/GlobalConstants.h>
+
+CONSTANT_BUFFER(ezMaterialConstants, 1)
+{
+  FLOAT3(SunDir);
+};
+
+[VERTEXSHADER]
+
+#define CUSTOM_INTERPOLATOR float3 ViewDirection : TEXCOORD0;
+
+#include <Shaders/Materials/MaterialVertexShader.h>
+
+VS_OUT main(VS_IN Input)
+{
+  VS_OUT Output = FillVertexData(Input);
+  
+  float2 ScreenPos = sign(Input.Position.xy);
+  float4 dir = mul(GetScreenToCameraMatrix(), float4(ScreenPos.xy,1.0,1.0));
+  dir.w = 0.0;
+    
+  ezPerInstanceData data = GetInstanceData();
+  float4x4 objectToWorld = TransformToMatrix(data.ObjectToWorld);
+
+  Output.Position = float4(ScreenPos.xy, 1.0, 1.0);
+  Output.ViewDirection = mul(GetCameraToWorldMatrix(), dir).xyz;
+
+  return Output;
+}
+
+[GEOMETRYSHADER]
+
+#define CUSTOM_INTERPOLATOR float3 ViewDirection : TEXCOORD0;
+
+void CopyCustomInterpolators(GS_OUT output, VS_OUT input)
+{
+  output.ViewDirection = input.ViewDirection;
+}
+
+#include <Shaders/Materials/MaterialStereoGeometryShader.h>
+
+[PIXELSHADER]
+
+#include <Shaders/Materials/AtmosphericScattering.h>
+
+#define CUSTOM_INTERPOLATOR float3 ViewDirection : TEXCOORD0;
+
+#include <Shaders/Materials/MaterialPixelShader.h>
+#include <Shaders/Materials/AtmosphericScattering.h>
+
+
+float3 GetNormal()
+{
+  return float3(0.0f, 0.0f, 1.0f);
+}
+
+float3 GetDiffuseColor()
+{
+  float3 camera_position = float3(0.0, 0.0, PLANET_RADIUS + 300.0);
+  
+  float3 viewDir = normalize(G.Input.ViewDirection);
+  
+  float4 scene = render_scene(camera_position, viewDir, SunDir);
+  
+  float3 color = calculate_scattering(
+	camera_position,				// the position of the camera
+	float3(viewDir.x, viewDir.y, viewDir.z), 			            // the camera vector (ray direction of this pixel)
+	scene.w, 						// max dist, essentially the scene depth
+	scene.xyz,						// scene color, the color of the current pixel being rendered
+	SunDir,						    // light direction
+	(40.0).xxx,						// light intensity, 40 looks nice
+	PLANET_POS,						// position of the planet
+	PLANET_RADIUS,                  // radius of the planet in meters
+	ATMOS_RADIUS,                   // radius of the atmosphere in meters
+	RAY_BETA,						// Rayleigh scattering coefficient
+	MIE_BETA,                       // Mie scattering coefficient
+	ABSORPTION_BETA,                // Absorbtion coefficient
+	AMBIENT_BETA,					// ambient scattering, turned off for now. This causes the air to glow a bit when no light reaches it
+	ATMOS_G,                        // Mie preferred scattering direction
+	HEIGHT_RAY,                     // Rayleigh scale height
+	HEIGHT_MIE,                     // Mie scale height
+	HEIGHT_ABSORPTION,				// the height at which the most absorption happens
+	ABSORPTION_FALLOFF,				// how fast the absorption falls off from the absorption height 
+	PRIMARY_STEPS, 					// steps in the ray direction 
+	LIGHT_STEPS 					// steps in the light direction
+  );
+
+  return color;
+}
+
+float3 GetSpecularColor()
+{
+  return 0.0f;
+}
+
+float GetRoughness()
+{
+  return 1.0f;
+}
+
+float GetOpacity()
+{
+  return 1.0f;
+}
