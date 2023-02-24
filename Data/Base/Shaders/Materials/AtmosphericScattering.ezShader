@@ -1,0 +1,139 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+BLEND_MODE
+RENDER_PASS
+TWO_SIDED = TRUE
+SHADING_MODE = SHADING_MODE_FULLBRIGHT
+CAMERA_MODE
+SHADING_QUALITY
+VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX
+
+[MATERIALPARAMETER]
+
+Permutation BLEND_MODE;
+
+float MaskThreshold @Default(0.25);
+float ExposureBias;
+bool InverseTonemap;
+bool UseFog @Default(true);
+float VirtualDistance @Default(1000.0f);
+
+TextureCube CubeMap;
+Color BaseColor @Default(Color(1.0, 1.0, 1.0));
+
+[RENDERSTATE]
+
+#include <Shaders/Materials/MaterialState.h>
+
+DepthWrite = false
+
+[SHADER]
+
+#include <Shaders/Common/GlobalConstants.h>
+
+CONSTANT_BUFFER(ezMaterialConstants, 1)
+{
+  COLOR4F(BaseColor);
+  FLOAT1(MaskThreshold);
+  FLOAT1(ExposureBias);
+  BOOL1(InverseTonemap);
+  BOOL1(UseFog);
+  FLOAT1(VirtualDistance);
+};
+
+[VERTEXSHADER]
+
+#define CUSTOM_INTERPOLATOR float3 ViewDirection : TEXCOORD0;
+
+#include <Shaders/Materials/MaterialVertexShader.h>
+
+VS_OUT main(VS_IN Input)
+{
+  VS_OUT Output = FillVertexData(Input);
+  
+  float2 ScreenPos = sign(Input.Position.xy);
+  float4 dir = mul(GetScreenToCameraMatrix(), float4(ScreenPos.xy,1.0,1.0));
+  dir.w = 0.0;
+    
+  ezPerInstanceData data = GetInstanceData();
+  float4x4 objectToWorld = TransformToMatrix(data.ObjectToWorld);
+
+  Output.Position = float4(ScreenPos.xy, 1.0, 1.0);
+  Output.ViewDirection = mul(transpose(objectToWorld), mul(GetCameraToWorldMatrix(), dir)).xyz;
+
+  return Output;
+}
+
+[GEOMETRYSHADER]
+
+#define CUSTOM_INTERPOLATOR float3 ViewDirection : TEXCOORD0;
+
+void CopyCustomInterpolators(GS_OUT output, VS_OUT input)
+{
+  output.ViewDirection = input.ViewDirection;
+}
+
+#include <Shaders/Materials/MaterialStereoGeometryShader.h>
+
+[PIXELSHADER]
+
+#define CUSTOM_INTERPOLATOR float3 ViewDirection : TEXCOORD0;
+
+#include <Shaders/Materials/MaterialPixelShader.h>
+
+TextureCube CubeMap;
+SamplerState CubeMap_AutoSampler;
+
+
+float3 GetNormal()
+{
+  return float3(0.0f, 0.0f, 1.0f);
+}
+
+float3 GetDiffuseColor()
+{
+  float3 color = CubeMap.Sample(CubeMap_AutoSampler, CubeMapDirection(G.Input.ViewDirection)).rgb;
+
+  color *= BaseColor.rgb;
+  float weight = exp2(ExposureBias);
+
+  if (InverseTonemap)
+  {
+    float luminance = GetLuminance(color);
+    weight *= rcp(max(1.0f - luminance, 0.001f));
+  }
+
+  color *= weight;
+
+  if (UseFog)
+  {
+    float3 worldPos = normalize(G.Input.ViewDirection) * VirtualDistance;
+    color = ApplyFog(color, worldPos);
+  }
+
+  return color;
+}
+
+float3 GetSpecularColor()
+{
+  return 0.0f;
+}
+
+float GetRoughness()
+{
+  return 1.0f;
+}
+
+float GetOpacity()
+{
+  float opacity = CubeMap.Sample(CubeMap_AutoSampler, CubeMapDirection(G.Input.ViewDirection)).a * BaseColor.a;
+
+  #if BLEND_MODE == BLEND_MODE_MASKED
+    return opacity - MaskThreshold;
+  #else
+    return opacity;
+  #endif
+}

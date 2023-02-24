@@ -163,6 +163,9 @@ public:
   /// \brief Returns the Dot-product of the two vectors (commutative, order does not matter)
   Type Dot(const ezVec3Template<Type>& rhs) const; // [tested]
 
+  /// \brief Returns the modulo of *this and rhs
+  const ezVec3Template<Type> Mod(Type rhs) const;
+
   /// \brief Returns the Cross-product of the two vectors (NOT commutative, order DOES matter)
   const ezVec3Template<Type> CrossRH(const ezVec3Template<Type>& rhs) const; // [tested]
 

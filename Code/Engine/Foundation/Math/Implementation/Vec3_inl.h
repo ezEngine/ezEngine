@@ -288,6 +288,14 @@ EZ_FORCE_INLINE Type ezVec3Template<Type>::Dot(const ezVec3Template<Type>& rhs) 
 }
 
 template <typename Type>
+EZ_FORCE_INLINE const ezVec3Template<Type> ezVec3Template<Type>::Mod(Type rhs) const
+{
+  EZ_NAN_ASSERT(this);
+
+  return ezVec3Template<Type>(ezMath::Mod(x, rhs), ezMath::Mod(y, rhs), ezMath::Mod(z, rhs));
+}
+
+template <typename Type>
 const ezVec3Template<Type> ezVec3Template<Type>::CrossRH(const ezVec3Template<Type>& rhs) const
 {
   EZ_NAN_ASSERT(this);
