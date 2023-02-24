@@ -12,9 +12,6 @@ public:
   void SubTestManyMeshesSetup();
   ezTestAppRun SubTestManyMeshesExec(ezInt32 iCurFrame);
 
-  void SubTestSkyboxSetup();
-  ezTestAppRun SubTestSkyboxExec(ezInt32 iCurFrame);
-
   void SubTestLoadSceneSetup();
   ezTestAppRun SubTestLoadSceneExec(ezInt32 iCurFrame);
 
@@ -34,7 +31,6 @@ private:
   enum SubTests
   {
     ManyMeshes,
-    Skybox,
     LoadScene,
     GameObjectReferences,
   };

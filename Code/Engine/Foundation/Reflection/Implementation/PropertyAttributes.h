@@ -240,14 +240,21 @@ public:
   ezGroupAttribute(const char* szGroup, float fOrder = -1.0f);
   ezGroupAttribute(const char* szGroup, const char* szIconName, float fOrder = -1.0f);
 
+  /// If bCollapsedByDefault is true, the property grid shows the group collapsed, unless the user expanded it before.
+  ///
+  /// Meant for groups of rarely used or advanced properties.
+  ezGroupAttribute(const char* szGroup, const char* szIconName, float fOrder, bool bCollapsedByDefault);
+
   const char* GetGroup() const { return m_sGroup; }
   const char* GetIconName() const { return m_sIconName; }
   float GetOrder() const { return m_fOrder; }
+  bool GetCollapsedByDefault() const { return m_bCollapsedByDefault; }
 
 private:
   ezUntrackedString m_sGroup;
   ezUntrackedString m_sIconName;
   float m_fOrder = -1.0f;
+  bool m_bCollapsedByDefault = false;
 };
 
 /// Derive from this class if you want to define an attribute that replaces the property type widget.

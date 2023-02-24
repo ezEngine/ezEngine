@@ -1,0 +1,93 @@
+/// Computes the contribution of all higher scattering orders as an isotropic term, by height and sun zenith angle.
+///
+/// See section 5.5 of Hillaire 2020: the second order luminance (L2) is gathered from uniformly distributed directions
+/// and the transfer factor (fms) estimates how much of it gets scattered again. The infinite series of scattering orders
+/// then sums up to L2 / (1 - fms). Sun light reflected by the ground is part of L2, but not of fms.
+
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+[COMPUTESHADER]
+
+#include <Shaders/Atmosphere/AtmosphereCommon.h>
+
+Texture2D TransmittanceLut BIND_GROUP(BG_DRAW_CALL);
+RWTexture2D<float4> MultiScatteringOutput BIND_GROUP(BG_DRAW_CALL);
+
+#define MULTISCATTERING_DIRECTIONS_SQRT 8
+#define MULTISCATTERING_STEPS 20
+
+[numthreads(ATMOSPHERE_LUT_THREADS, ATMOSPHERE_LUT_THREADS, 1)]
+void main(uint3 DTid : SV_DispatchThreadID)
+{
+  if (DTid.x >= ATMOSPHERE_MULTISCATTERING_LUT_SIZE || DTid.y >= ATMOSPHERE_MULTISCATTERING_LUT_SIZE)
+    return;
+
+  float2 uv = (DTid.xy + 0.5) / ATMOSPHERE_MULTISCATTERING_LUT_SIZE;
+  uv.x = AtmosphereSubUvToUnit(uv.x, ATMOSPHERE_MULTISCATTERING_LUT_SIZE);
+  uv.y = AtmosphereSubUvToUnit(uv.y, ATMOSPHERE_MULTISCATTERING_LUT_SIZE);
+
+  float sunZenithCos = uv.x * 2.0 - 1.0;
+  float3 sunDir = float3(sqrt(saturate(1.0 - sunZenithCos * sunZenithCos)), 0.0, sunZenithCos);
+  float height = max(uv.y * (AtmosphereRadius - PlanetRadius), ATMOSPHERE_MIN_HEIGHT);
+  float3 start = float3(0.0, 0.0, PlanetRadius + height);
+
+  const float isotropicPhase = 1.0 / (4.0 * PI);
+
+  float3 sumL = 0.0;
+  float3 sumFms = 0.0;
+
+  for (int iy = 0; iy < MULTISCATTERING_DIRECTIONS_SQRT; ++iy)
+  {
+    for (int ix = 0; ix < MULTISCATTERING_DIRECTIONS_SQRT; ++ix)
+    {
+      // uniformly distributed directions on the sphere
+      float cosTheta = 1.0 - 2.0 * (iy + 0.5) / MULTISCATTERING_DIRECTIONS_SQRT;
+      float sinTheta = sqrt(saturate(1.0 - cosTheta * cosTheta));
+      float phi = 2.0 * PI * (ix + 0.5) / MULTISCATTERING_DIRECTIONS_SQRT;
+      float3 dir = float3(sinTheta * cos(phi), sinTheta * sin(phi), cosTheta);
+
+      float tGround = AtmosphereGroundDistance(start, dir);
+      float tMax = tGround >= 0.0 ? tGround : AtmosphereTopDistance(start, dir);
+      float dt = tMax / MULTISCATTERING_STEPS;
+
+      float3 throughput = 1.0;
+      float3 L = 0.0;
+      float3 fms = 0.0;
+
+      for (int i = 0; i < MULTISCATTERING_STEPS; ++i)
+      {
+        float3 pos = start + dir * ((i + 0.5) * dt);
+        AtmosphereMedium medium = AtmosphereSampleMedium(length(pos) - PlanetRadius);
+        float3 sampleTransmittance = exp(-medium.extinction * dt);
+
+        float3 S = AtmosphereSunTransmittance(TransmittanceLut, pos, sunDir) * medium.scattering * isotropicPhase;
+
+        // analytical integration over the segment (Hillaire 2015, energy conserving)
+        L += throughput * (S - S * sampleTransmittance) / medium.extinction;
+        fms += throughput * (medium.scattering - medium.scattering * sampleTransmittance) / medium.extinction;
+
+        throughput *= sampleTransmittance;
+      }
+
+      if (tGround >= 0.0)
+      {
+        L += throughput * AtmosphereGroundLuminance(TransmittanceLut, start + dir * tGround, sunDir);
+      }
+
+      sumL += L;
+      sumFms += fms;
+    }
+  }
+
+  // integration over the sphere (4 pi / N) times the isotropic phase function (1 / 4 pi)
+  const float invNumDirections = 1.0 / (MULTISCATTERING_DIRECTIONS_SQRT * MULTISCATTERING_DIRECTIONS_SQRT);
+  float3 L2 = sumL * invNumDirections;
+  float3 fmsAvg = sumFms * invNumDirections;
+
+  float3 psi = L2 / max(1.0 - fmsAvg, 1e-3);
+
+  MultiScatteringOutput[DTid.xy] = float4(psi, 1.0);
+}

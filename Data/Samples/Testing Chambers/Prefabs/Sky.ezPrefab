@@ -13,6 +13,16 @@ o
 }
 o
 {
+	Uuid %id{u4{12865931635198091057,1889789475384409628}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		i3 %Value{1}
+	}
+}
+o
+{
 	Uuid %id{u4{5476597580463811589,2844873523143377165}}
 	s %t{"ezDefaultValueAttribute"}
 	u3 %v{1}
@@ -75,7 +85,26 @@ o
 			Uuid{u4{1539312393514689488,17539949993289584731}}
 			Uuid{u4{7182890095702215436,5158136437573185792}}
 			Uuid{u4{11842408157818111826,7898336829474207828}}
+			Uuid{u4{12619194012779566464,10019856758023863362}}
+			Uuid{u4{12758333332685197205,14797493151216675409}}
 		}
+	}
+}
+o
+{
+	Uuid %id{u4{12619194012779566464,10019856758023863362}}
+	s %t{"ezExposedParameter"}
+	u3 %v{3}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{12865931635198091057,1889789475384409628}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		b %DefaultValue{0}
+		s %Name{"Atmosphere"}
+		s %Type{"bool"}
 	}
 }
 o
@@ -89,7 +118,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{13699384296078697487,10650164635913670525}}
-		u4 %Hash{8134015292285717186}
+		u4 %Hash{2440430773415683141}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{13850971636205318926,9059842567955752105}}
@@ -112,6 +141,23 @@ o
 			s{"{ ec2d7b9a-6f2a-421e-bc57-5b589c66a0a5 }"}
 		}
 		s %Tags{""}
+	}
+}
+o
+{
+	Uuid %id{u4{12758333332685197205,14797493151216675409}}
+	s %t{"ezExposedParameter"}
+	u3 %v{3}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{18221930619446427651,17599305640306640117}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		b %DefaultValue{1}
+		s %Name{"Skybox"}
+		s %Type{"bool"}
 	}
 }
 o
@@ -143,9 +189,31 @@ o
 		s %Type{"float"}
 	}
 }
+o
+{
+	Uuid %id{u4{18221930619446427651,17599305640306640117}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		i3 %Value{1}
+	}
+}
 }
 Objects
 {
+o
+{
+	Uuid %id{u4{15568929337475859115,4659168337959725150}}
+	s %t{"ezExposedSceneProperty"}
+	u3 %v{1}
+	p
+	{
+		s %Name{"Skybox"}
+		Uuid %Object{u4{10139961385943338061,10755716074421359365}}
+		s %PropertyPath{"Active"}
+	}
+}
 o
 {
 	Uuid %id{u4{10081778166464099989,4677534726861315126}}
@@ -187,6 +255,18 @@ o
 }
 o
 {
+	Uuid %id{u4{10566705523202033063,4939481425779917652}}
+	s %t{"ezExposedSceneProperty"}
+	u3 %v{1}
+	p
+	{
+		s %Name{"Atmosphere"}
+		Uuid %Object{u4{3781887380585472161,5691138853388083360}}
+		s %PropertyPath{"Active"}
+	}
+}
+o
+{
 	Uuid %id{u4{13674849904739941258,5476620442687622839}}
 	s %t{"ezExposedSceneProperty"}
 	u3 %v{1}
@@ -195,6 +275,36 @@ o
 		s %Name{"ShaftsIntensity"}
 		Uuid %Object{u4{14737824997050113921,4701838202341345428}}
 		s %PropertyPath{"Intensity"}
+	}
+}
+o
+{
+	Uuid %id{u4{3781887380585472161,5691138853388083360}}
+	s %t{"ezAtmosphericScatteringComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{0}
+		f %AirDensity{0x0000803F}
+		f %AtmosphereHeight{0x0000C842}
+		Color %GroundAlbedo{f{0x9A99993E,0x9A99993E,0x9A99993E,0x0000803F}}
+		f %GroundHeight{0}
+		f %Haze{0x0000803F}
+		f %MieAbsorption{0xF853E33E}
+		f %MieAnisotropy{0xCDCC4C3F}
+		f %MieScaleHeight{0x9A99993F}
+		f %MieScattering{0x77BE7F40}
+		Vec3 %OzoneAbsorption{f{0x6666263F,0x9CC4F03F,0x7B14AE3D}}
+		f %PlanetRadius{0x00C0C645}
+		s %Preset{"ezAtmospherePreset::Earth"}
+		f %RayleighScaleHeight{0x00000041}
+		Vec3 %RayleighScattering{f{0xFCA9B940,0x91ED5841,0x66660442}}
+		b %SetLightColor{1}
+		f %SunDiscIntensity{0x00004040}
+		Angle %SunDiscSize{f{0x35FA8E3C}}
+		f %SunIntensity{0x0000A041}
+		b %UseFog{1}
+		f %VirtualDistance{0x00007A44}
 	}
 }
 o
@@ -246,6 +356,7 @@ o
 			Uuid{u4{4163122571750637622,10089923543834106546}}
 			Uuid{u4{5431328548964223286,10723884669357942014}}
 			Uuid{u4{14737824997050113921,4701838202341345428}}
+			Uuid{u4{3781887380585472161,5691138853388083360}}
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0,0,0}}
@@ -254,7 +365,10 @@ o
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{"Sun"}
-		VarArray %Tags{}
+		VarArray %Tags
+		{
+			s{"SkyLight"}
+		}
 	}
 }
 o
@@ -293,6 +407,8 @@ o
 			Uuid{u4{10081778166464099989,4677534726861315126}}
 			Uuid{u4{13674849904739941258,5476620442687622839}}
 			Uuid{u4{6643202851369769400,4877309400953527640}}
+			Uuid{u4{10566705523202033063,4939481425779917652}}
+			Uuid{u4{15568929337475859115,4659168337959725150}}
 		}
 	}
 }
@@ -447,6 +563,23 @@ o
 }
 Types
 {
+o
+{
+	Uuid %id{u4{3572367184809378048,548401515971532970}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezAtmospherePreset"}
+		u3 %TypeVersion{1}
+	}
+}
 o
 {
 	Uuid %id{u4{18145823255500990886,658922949661762930}}
@@ -886,6 +1019,23 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezEnumBase"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{10812584135982038106,15202679513754217632}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezRenderComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezAtmosphericScatteringComponent"}
 		u3 %TypeVersion{1}
 	}
 }

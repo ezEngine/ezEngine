@@ -1,0 +1,87 @@
+/// Computes the in-scattered luminance for all view directions relative to the sun, for a set of camera heights.
+///
+/// The result is for a sun illuminance of 1, the sun intensity is applied when the sky is rendered.
+/// Has to be recomputed whenever the sun direction or the atmosphere parameters change.
+
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+[COMPUTESHADER]
+
+#include <Shaders/Atmosphere/AtmosphereCommon.h>
+
+Texture2D TransmittanceLut BIND_GROUP(BG_DRAW_CALL);
+Texture2D MultiScatteringLut BIND_GROUP(BG_DRAW_CALL);
+RWTexture3D<float4> SkyViewOutput BIND_GROUP(BG_DRAW_CALL);
+
+#define SKYVIEW_STEPS 40
+
+[numthreads(ATMOSPHERE_LUT_THREADS, ATMOSPHERE_LUT_THREADS, 1)]
+void main(uint3 DTid : SV_DispatchThreadID)
+{
+  if (DTid.x >= ATMOSPHERE_SKYVIEW_LUT_WIDTH || DTid.y >= ATMOSPHERE_SKYVIEW_LUT_HEIGHT || DTid.z >= ATMOSPHERE_SKYVIEW_LUT_DEPTH)
+    return;
+
+  float height = AtmosphereSkyViewSliceToHeight(DTid.z / (ATMOSPHERE_SKYVIEW_LUT_DEPTH - 1.0));
+  float r = PlanetRadius + height;
+
+  float2 uv = (DTid.xy + 0.5) / float2(ATMOSPHERE_SKYVIEW_LUT_WIDTH, ATMOSPHERE_SKYVIEW_LUT_HEIGHT);
+
+  float viewZenithCos, lightViewCos;
+  AtmosphereSkyViewUvToDirection(uv, r, viewZenithCos, lightViewCos);
+
+  // local frame: +Z up, the sun lies in the XZ plane
+  float sunZenithCos = clamp(SunDirection.z, -1.0, 1.0);
+  float3 sunDir = float3(sqrt(saturate(1.0 - sunZenithCos * sunZenithCos)), 0.0, sunZenithCos);
+
+  float viewZenithSin = sqrt(saturate(1.0 - viewZenithCos * viewZenithCos));
+  float3 viewDir = float3(viewZenithSin * lightViewCos, viewZenithSin * sqrt(saturate(1.0 - lightViewCos * lightViewCos)), viewZenithCos);
+
+  float3 start = float3(0.0, 0.0, r);
+
+  float tGround = AtmosphereGroundDistance(start, viewDir);
+  float tMax = tGround >= 0.0 ? tGround : AtmosphereTopDistance(start, viewDir);
+
+  float mu = dot(viewDir, sunDir);
+  float phaseRayleigh = AtmosphereRayleighPhase(mu);
+  float phaseMie = AtmosphereMiePhase(mu);
+
+  float3 throughput = 1.0;
+  float3 L = 0.0;
+
+  // quadratic sample distribution, denser close to the camera where the density varies the most
+  for (int i = 0; i < SKYVIEW_STEPS; ++i)
+  {
+    float t0 = (float)i / SKYVIEW_STEPS;
+    float t1 = (float)(i + 1) / SKYVIEW_STEPS;
+    t0 = t0 * t0 * tMax;
+    t1 = t1 * t1 * tMax;
+    float dt = t1 - t0;
+    float t = t0 + dt * 0.3;
+
+    float3 pos = start + viewDir * t;
+    float sampleR = length(pos);
+    float3 up = pos / sampleR;
+
+    AtmosphereMedium medium = AtmosphereSampleMedium(sampleR - PlanetRadius);
+    float3 sampleTransmittance = exp(-medium.extinction * dt);
+
+    float3 sunTransmittance = AtmosphereSunTransmittance(TransmittanceLut, pos, sunDir);
+    float3 multiScattering = AtmosphereSampleMultiScattering(MultiScatteringLut, sampleR, dot(up, sunDir));
+
+    float3 S = sunTransmittance * (medium.scatteringRayleigh * phaseRayleigh + medium.scatteringMie * phaseMie) + multiScattering * medium.scattering;
+
+    L += throughput * (S - S * sampleTransmittance) / medium.extinction;
+    throughput *= sampleTransmittance;
+  }
+
+  // the ground itself, as seen through the atmosphere
+  if (tGround >= 0.0)
+  {
+    L += throughput * AtmosphereGroundLuminance(TransmittanceLut, start + viewDir * tGround, sunDir);
+  }
+
+  SkyViewOutput[DTid] = float4(L, 1.0);
+}

@@ -36,6 +36,7 @@ private:
         m_sGroup = pAttr->GetGroup();
         m_sIconName = pAttr->GetIconName();
         m_fOrder = pAttr->GetOrder();
+        m_bCollapsedByDefault = pAttr->GetCollapsedByDefault();
         if (m_fOrder == -1.0f)
         {
           ref_fOrder += 1.0f;
@@ -55,6 +56,7 @@ private:
       {
         m_sGroup = pAttr->GetGroup();
         m_sIconName = pAttr->GetIconName();
+        m_bCollapsedByDefault = m_bCollapsedByDefault || pAttr->GetCollapsedByDefault();
         if (pAttr->GetOrder() != -1.0f)
         {
           m_fOrder = pAttr->GetOrder();
@@ -68,6 +70,7 @@ private:
     ezString m_sGroup;
     ezString m_sIconName;
     float m_fOrder = -1.0f;
+    bool m_bCollapsedByDefault = false;
     ezHybridArray<const ezAbstractProperty*, 8> m_Properties;
   };
 
@@ -100,8 +103,16 @@ private:
     ezString m_sOriginalLabelText;
   };
 
+  /// A named group box is hidden while all of its properties are invisible.
+  struct GroupBoxData
+  {
+    QWidget* m_pGroupBox = nullptr;
+    ezHybridArray<ezString, 8> m_Properties;
+  };
+
   QGridLayout* m_pLayout;
   ezMap<ezString, PropertyWidgetData> m_PropertyWidgets;
+  ezHybridArray<GroupBoxData, 6> m_GroupBoxes;
   ezHybridArray<ezString, 1> m_QueuedChanges;
   QPalette m_Pal;
 };

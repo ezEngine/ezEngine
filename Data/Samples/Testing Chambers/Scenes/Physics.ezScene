@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{16033299415433335720,5748835052109362040}}
-		u4 %Hash{5974880969471749949}
+		u4 %Hash{639008844650183147}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -10092,12 +10092,13 @@ o
 {
 	Uuid %id{u4{15954704768915471762,5269060703312972169}}
 	s %t{"ezLineToComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x2B15393D,0xF6582D3D,0xCEFC183D,0x0000803F}}
 		s %Target{"{ 7f02b678-86f2-9259-6ad0-fbcf90c1fe29 }"}
+		f %Thickness{0x0000803F}
 	}
 }
 o
@@ -10681,12 +10682,13 @@ o
 {
 	Uuid %id{u4{5612655176029099420,5333067376175281345}}
 	s %t{"ezLineToComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x2B15393D,0xF6582D3D,0xCEFC183D,0x0000803F}}
 		s %Target{"{ 9f5affdb-4820-d549-222d-2c0020351782 }"}
+		f %Thickness{0x0000803F}
 	}
 }
 o
@@ -12137,8 +12139,10 @@ o
 		b %Active{1}
 		VarDict %Parameters
 		{
+			b %Atmosphere{1}
 			f %ShaftsIntensity{0x9A99993E}
 			f %SkyLightDiffuseIntensity{0xCDCCCC3E}
+			b %Skybox{0}
 		}
 		s %Prefab{"{ 330fcf7d-fc4f-93cc-0fe4-55516ffd1dbe }"}
 		b %ShowShapeIcons{0}
@@ -38721,6 +38725,24 @@ o
 }
 o
 {
+	Uuid %id{u4{16777807221722236564,3403297235873892448}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{12479135339235689714,16279954497346205701}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"ezPropertyFlags::StandardType"}
+		s %Name{"Thickness"}
+		s %Type{"float"}
+	}
+}
+o
+{
 	Uuid %id{u4{1168477127324465164,3417260966341483024}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -39769,9 +39791,10 @@ o
 		{
 			Uuid{u4{2208369192415382143,6906888135645689853}}
 			Uuid{u4{8963828211989796836,429565058857181774}}
+			Uuid{u4{16777807221722236564,3403297235873892448}}
 		}
 		s %TypeName{"ezLineToComponent"}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -39934,6 +39957,16 @@ o
 		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"Tesselation"}
 		s %Type{"ezVec2U32"}
+	}
+}
+o
+{
+	Uuid %id{u4{12479135339235689714,16279954497346205701}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		f %Value{0x0000803F}
 	}
 }
 o

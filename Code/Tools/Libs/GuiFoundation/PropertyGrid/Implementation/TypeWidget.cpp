@@ -120,7 +120,7 @@ void ezQtTypeWidget::BuildUI(const ezRTTI* pType, const ezMap<ezString, const ez
     {
       pGroupBox->SetTitle(group->m_sGroup.GetData());
 
-      m_pGrid->SetCollapseState(pGroupBox);
+      m_pGrid->SetCollapseState(pGroupBox, group->m_bCollapsedByDefault);
       connect(pGroupBox, &ezQtGroupBoxBase::CollapseStateChanged, m_pGrid, &ezQtPropertyGridWidget::OnCollapseStateChanged);
 
       if (!group->m_sIconName.IsEmpty())
@@ -138,9 +138,21 @@ void ezQtTypeWidget::BuildUI(const ezRTTI* pType, const ezMap<ezString, const ez
     pLayout->setSpacing(0);
     pGroupBox->GetContent()->setLayout(pLayout);
 
+    GroupBoxData* pGroupBoxData = nullptr;
+    if (!group->m_sGroup.IsEmpty())
+    {
+      pGroupBoxData = &m_GroupBoxes.ExpandAndGetRef();
+      pGroupBoxData->m_pGroupBox = pGroupBox;
+    }
+
     for (ezUInt32 i = 0; i < group->m_Properties.GetCount(); ++i)
     {
       const ezAbstractProperty* pProp = group->m_Properties[i];
+
+      if (pGroupBoxData)
+      {
+        pGroupBoxData->m_Properties.PushBack(pProp->GetPropertyName());
+      }
 
       ezQtPropertyWidget* pNewWidget = ezQtPropertyGridWidget::CreatePropertyWidget(pProp);
       EZ_ASSERT_DEV(pNewWidget != nullptr, "No property editor defined for '{0}'", pProp->GetPropertyName());
@@ -460,6 +472,22 @@ void ezQtTypeWidget::UpdatePropertyMetaState()
     it.Value().m_pWidget->setVisible(state != ezPropertyUiState::Invisible);
     it.Value().m_pWidget->SetReadOnly(bReadOnly || state == ezPropertyUiState::Disabled);
     it.Value().m_pWidget->SetIsDefault(bIsDefaultValue);
+  }
+
+  for (const GroupBoxData& groupBox : m_GroupBoxes)
+  {
+    bool bAnyVisible = false;
+    for (const ezString& sProperty : groupBox.m_Properties)
+    {
+      auto itData = PropertyStates.Find(sProperty);
+      if (!itData.IsValid() || itData.Value().m_Visibility != ezPropertyUiState::Invisible)
+      {
+        bAnyVisible = true;
+        break;
+      }
+    }
+
+    groupBox.m_pGroupBox->setVisible(bAnyVisible);
   }
 }
 

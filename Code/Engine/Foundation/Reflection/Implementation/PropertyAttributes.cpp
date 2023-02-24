@@ -186,12 +186,14 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGroupAttribute, 1, ezRTTIDefaultAllocator<ezGr
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Group", m_sGroup),
+    EZ_MEMBER_PROPERTY("CollapsedByDefault", m_bCollapsedByDefault),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_FUNCTIONS
   {
     EZ_CONSTRUCTOR_PROPERTY(const char*, float),
     EZ_CONSTRUCTOR_PROPERTY(const char*, const char*, float),
+    EZ_CONSTRUCTOR_PROPERTY(const char*, const char*, float, bool),
   }
   EZ_END_FUNCTIONS;
 }
@@ -210,6 +212,14 @@ ezGroupAttribute::ezGroupAttribute(const char* szGroup, const char* szIconName, 
   : m_sGroup(szGroup)
   , m_sIconName(szIconName)
   , m_fOrder(fOrder)
+{
+}
+
+ezGroupAttribute::ezGroupAttribute(const char* szGroup, const char* szIconName, float fOrder, bool bCollapsedByDefault)
+  : m_sGroup(szGroup)
+  , m_sIconName(szIconName)
+  , m_fOrder(fOrder)
+  , m_bCollapsedByDefault(bCollapsedByDefault)
 {
 }
 

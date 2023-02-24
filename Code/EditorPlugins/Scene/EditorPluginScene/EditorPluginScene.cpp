@@ -125,6 +125,7 @@ void ezProjectileSurfaceInteraction_PropertyMetaStateEventHandler(ezPropertyMeta
 void ezOccluderComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
 void ezSplineNodeComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
 void ezLensFlareComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
+void ezAtmosphericScatteringComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
 
 QImage SliderImageGenerator_LightTemperature(ezUInt32 uiWidth, ezUInt32 uiHeight, double fMinValue, double fMaxValue)
 {
@@ -256,6 +257,7 @@ void OnLoadPlugin()
   ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezOccluderComponent_PropertyMetaStateEventHandler);
   ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezSplineNodeComponent_PropertyMetaStateEventHandler);
   ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezLensFlareComponent_PropertyMetaStateEventHandler);
+  ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezAtmosphericScatteringComponent_PropertyMetaStateEventHandler);
 }
 
 void OnUnloadPlugin()
@@ -274,6 +276,7 @@ void OnUnloadPlugin()
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezOccluderComponent_PropertyMetaStateEventHandler);
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezSplineNodeComponent_PropertyMetaStateEventHandler);
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezLensFlareComponent_PropertyMetaStateEventHandler);
+  ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezAtmosphericScatteringComponent_PropertyMetaStateEventHandler);
 
 
   ezSelectionActions::UnregisterActions();
@@ -506,4 +509,28 @@ void ezLensFlareComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent
 
   auto& props = *e.m_pPropertyStates;
   props["LightColor"].m_Visibility = bLinkToLightShape ? ezPropertyUiState::Invisible : ezPropertyUiState::Default;
+}
+
+void ezAtmosphericScatteringComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
+{
+  static const ezRTTI* pRtti = ezRTTI::FindTypeByName("ezAtmosphericScatteringComponent");
+  EZ_ASSERT_DEBUG(pRtti != nullptr, "Did the typename change?");
+
+  if (e.m_pObject->GetTypeAccessor().GetType() != pRtti)
+    return;
+
+  // the planet and scattering properties are only used with the 'Custom' preset
+  const ezInt64 iPreset = e.m_pObject->GetTypeAccessor().GetValue("Preset").ConvertTo<ezInt64>();
+  const ezPropertyUiState::Visibility vis = (iPreset == 0) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible; // ezAtmospherePreset::Custom
+
+  auto& props = *e.m_pPropertyStates;
+  props["PlanetRadius"].m_Visibility = vis;
+  props["AtmosphereHeight"].m_Visibility = vis;
+  props["RayleighScattering"].m_Visibility = vis;
+  props["RayleighScaleHeight"].m_Visibility = vis;
+  props["MieScattering"].m_Visibility = vis;
+  props["MieAbsorption"].m_Visibility = vis;
+  props["MieScaleHeight"].m_Visibility = vis;
+  props["MieAnisotropy"].m_Visibility = vis;
+  props["OzoneAbsorption"].m_Visibility = vis;
 }

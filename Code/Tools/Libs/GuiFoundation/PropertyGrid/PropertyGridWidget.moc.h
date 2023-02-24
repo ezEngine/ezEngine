@@ -46,7 +46,8 @@ public:
   static ezQtPropertyWidget* CreateMemberPropertyWidget(const ezAbstractProperty* pProp);
   static ezQtPropertyWidget* CreatePropertyWidget(const ezAbstractProperty* pProp);
 
-  void SetCollapseState(ezQtGroupBoxBase* pBox);
+  /// Restores the collapse state the user last chose for this group box. bCollapsedByDefault is used if there is none.
+  void SetCollapseState(ezQtGroupBoxBase* pBox, bool bCollapsedByDefault = false);
 
 Q_SIGNALS:
   void ExtendContextMenu(QMenu& ref_menu, ezQtPropertyWidget* pPropWidget);
